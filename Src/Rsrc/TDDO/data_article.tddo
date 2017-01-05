@@ -1,0 +1,21 @@
+## Universe-HTT
+## data_array_article.tddo
+## Cтруктура статьи
+## Args: ${1} - идентификатор статьи
+
+#pragma(htmlencode)
+#start(Article:${1})
+{
+	"ID":${ID},
+	"SheetID":${SheetID.ID},
+	"LinkObjType":${LinkObjType.ID},
+	"PersonID":${PersonID.ID},
+	"WhID":${WhID.ID},
+	"AgrID":${AgrID.ID},
+	"Number":${Number},
+	"Name":"${Name}",
+	"Group":${Group},
+	"Closed":${Closed},
+	"Stop":${Stop}
+}
+#end()

@@ -1,0 +1,3531 @@
+// BITMBROW.CPP
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// @codepage windows-1251
+//
+// Модуль, отвечающий за броузер строк товарных документов.
+//
+// Один из наиболее запутанных модулей. Основная сложность в том, что здесь одним махом реализован
+// как собственно броузер для просмотра и редактирования документов, так и броузер, работающий в качестве
+// селектора строк для добавления строк в документ по связанному документу (возвраты, продажа по заказу).
+//
+#include <pp.h>
+#pragma hdrstop
+
+class BillItemBrowser : public BrowserWindow {
+public:
+	friend int SLAPI ViewBillDetails(PPBillPacket *, long, PPObjBill *);
+	struct TotalData {
+		void   Init();
+
+		SString Text;
+		long   Count;
+		double Qtty;
+		double PhQtty;
+		double LinkQtty;
+		double ShippedQtty;
+		double OrderRest;
+		double Rest;
+		double Cost;
+		double Price;
+		double Discount;
+		double Amount;
+		double VatSum;
+		double CurAmount;
+		double OldPrice;
+		double ExtCost;
+		double PckgCount;
+		double OrderQtty; // @v9.1.1 Заказанное количество, соответсвтующее данному документу отгрузки
+	};
+	BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket *, PPBillPacket * pMainPack = 0,
+		int pckgPos = -1, int asSelector = 0, int editMode = 0);
+	~BillItemBrowser();
+	const  PPBillPacket * GetPacket() const
+	{
+		return P_Pack;
+	}
+	int    GetTotal(TotalData * pTotal) const
+	{
+		ASSIGN_PTR(pTotal, Total);
+		return 1;
+	}
+	const  LongArray & SLAPI GetPriceDevList() const;
+	const  StrAssocArray & SLAPI GetProblemsList() const;
+
+	struct ColumnPosBlock {
+		SLAPI  ColumnPosBlock();
+		int    SLAPI IsEmpty() const;
+
+		long   QttyPos;
+		long   CostPos;
+		long   PricePos;
+		long   SerialPos;
+		long   QuotInfoPos;
+		long   CodePos;
+		long   LinkQttyPos;
+		long   OrdQttyPos;
+	};
+	int    GetColPos(ColumnPosBlock & rBlk);
+	int    HasLinkPack() const
+	{
+		return BIN(P_LinkPack);
+	}
+	//
+	// Descr: Возвращает количество из связанного документа, соответствующее строке rTi документа P_Pack
+	//
+	double FASTCALL GetLinkQtty(const PPTransferItem & rTi) const;
+	double FASTCALL GetOrderedQtty(const PPTransferItem & rTi) const;
+private:
+	DECL_HANDLE_EVENT;
+	void   addItem(int fromOrder = 0, TIDlgInitData * = 0, int sign = 0);
+	//
+	// Descr: реализует расширенное добавление строки в товарный документ.
+	// ARG(mode IN):
+	//   0 - вызывается диалог выбора группы и товара
+	//   1 - вызывается диалог, предлагающий пользователю ввести строку, которая содержится в
+	//       наименовании товара, а после этого появляется диалог со списком товаров, содержащих
+	//       введенную пользователем строку.
+	//
+	void   addItemExt(int mode = 0);
+	void   addItemBySerial();
+	void   addNewPackage();
+	int    addModifItem(int * pSign, TIDlgInitData * pInitData);
+	void   editItem();
+	void   delItem();
+	void   update(int);
+	int    _moveItem(int srcRowIdx);
+	int    _moveItem2(int srcRowIdx);
+	int    selectOrder();
+	int    addItemByOrder(PPBillPacket * order, int line);
+	int    ConvertBasketToBill();
+	int    ConvertBillToBasket();
+	int    getMinMaxQtty(uint itemPos, double * pMinQtty, double * pMaxQtty);
+	int    subtractRetsFromLinkPack();
+	// Ненулевой параметр только при вызове из конструктора
+	SArray * MakeList(PPBillPacket * = 0, int pckgPos = -1);
+	int    ConvertSupplRetLink(PPID locID);
+	int    checkForward(PPTransferItem *, LDATE, int reverse);
+	int    editPackageData(LPackage *);
+	void   viewPckgItems(int activateNewRow);
+	int    getCurItemPos();
+	void   selectPckg(PPID goodsID);
+	int    isAllGoodsInPckg(PPID goodsID);
+	static int GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	int    SLAPI CalcShippedQtty(BillGoodsBrwItem * pItem, BillGoodsBrwItemArray * pList, double * pVal);
+	long   FASTCALL CalcPriceDevItem(long pos);
+	int    SLAPI GetPriceRestrictions(int itemPos, const PPTransferItem & rTi, RealRange * pRange);
+	int    SLAPI UpdatePriceDevList(long pos, int op);
+	int    SLAPI CheckRows(); // Проверяет список строк документа. Если есть проблемы, то они добавляются в список ProblemsList, который отображается при наведении на соотвествующую строку (колонка 1)
+
+	PPObjBill * P_BObj;
+	Transfer  * P_T;
+	PPObjGoods GObj;
+
+	enum {
+		stOrderSelector    = 0x0002, // Броузер используется как селектор из заказа
+		stAltView          = 0x0004, // Альтернативный просмотр строк товарного документа
+		stExpndOnReturn    = 0x0008, // Флаг устанавливается при расходном возврате
+		stUseLinkSelection = 0x0010, // При выборе товара всегда обращаться к строкам связанного документа
+		stShowLinkQtty     = 0x0020, // Показывать количество из связанного документа
+		stCtrlX            = 0x0040,
+		stAccsCost         = 0x0080, // @*BillItemBrowser::BillItemBrowser
+		stActivateNewRow   = 0x0100, // If !0 && !EditMode then execute() calls addItem()
+		stIsModified       = 0x0400
+	};
+	long   State;
+	int    AsSelector;
+	int    EditMode;
+	PPID   OrderBillID;
+	PPBillPacket * P_Pack;
+	PPBillPacket * P_LinkPack;
+	LPackage * P_Pckg;
+	PPID   NewGoodsGrpID;
+	TotalData Total;
+	//
+	// Переменные, используемые для вывода ячеек броузера
+	// BillItemBrowser::GetDataForBrowser
+	//
+	int    CurLine;
+	Goods2Tbl::Rec ClGoodsRec;
+	LongArray PriceDevList;
+	RAssocArray OrdQttyList; // Список величин заказанного количества, сопоставленных с соответствующими лотами заказов
+		// используется для ускорения выборки
+	StrAssocArray ProblemsList; // Список проблем каждой из строк документа
+	SpecSeriesCore * P_SpcCore;
+	PPID   AlcoGoodsClsID;
+};
+
+#define BROWSER_ID(nam) BROWSER_##nam##2
+
+enum { // Параметр функции BillItemBrowser::update
+	pos_top = -1,
+	pos_cur = -2,
+	pos_bottom = -3
+};
+
+void BillItemBrowser::TotalData::Init()
+{
+	memzero(PTR8(this)+sizeof(Text), sizeof(*this)-sizeof(Text));
+}
+
+struct BillGoodsBrwItem {
+	enum {
+		fHasCode       = 0x0001,
+		fRestInited    = 0x0002,
+		fOrdRestInited = 0x0004,
+		fSerialBad     = 0x0008,
+		fSerialOk      = 0x0010,
+		fQuotProblem   = 0x0020, // @v8.2.0 Строки имеет проблемную котировку, выявленную при расценке или назначении цен по котировкам
+		fCodeWarn      = 0x0040  // @v8.8.10 Строка имеет товар с проблемой в штрихкоде
+	};
+	long   Pos;
+	uint   CodePos;
+	double Rest;        // Остаток заказанного товара (определяется в контексте связанного товарного документа) //
+	double OrderRest;   // Не отгруженное по заказу количество товара                                           //
+	double LinkQtty;    // Количество товара в связанном документе
+	double VatRate;     // Ставка НДС
+	double VatSum;      // Сумма НДС
+	double UnitPerPack; //
+	uint16 Flags;       //
+	int16  RByBill;     //
+};
+
+class BillGoodsBrwItemArray : public SArray {
+public:
+	BillGoodsBrwItemArray() : SArray(sizeof(BillGoodsBrwItem))
+	{
+		CodeList.add("$", 0); // zero pos is invalid
+		HasUpp = 0;
+	}
+	int    SetRest(long itemPos, double val)
+	{
+		int    ok = 1;
+		if(GetItemByPos(itemPos)) {
+			P_Item->Rest = val;
+			P_Item->Flags |= BillGoodsBrwItem::fRestInited;
+		}
+		else
+			ok = 0;
+		return ok;
+	}
+	int    GetRest(long itemPos, double * pVal)
+	{
+		int    ok = 1;
+		if(GetItemByPos(itemPos))
+			if(P_Item->Flags & BillGoodsBrwItem::fRestInited) {
+				ASSIGN_PTR(pVal, P_Item->Rest);
+			}
+			else
+				ok = -1;
+		else
+			ok = 0;
+		return ok;
+	}
+	int    SetOrderRest(long itemPos, double val)
+	{
+		int    ok = 1;
+		if(GetItemByPos(itemPos)) {
+			P_Item->OrderRest = val;
+			P_Item->Flags |= BillGoodsBrwItem::fOrdRestInited;
+		}
+		else
+			ok = 0;
+		return ok;
+	}
+	int    GetOrderRest(long itemPos, double * pVal)
+	{
+		int    ok = 1;
+		if(GetItemByPos(itemPos))
+			if(P_Item->Flags & BillGoodsBrwItem::fOrdRestInited) {
+				ASSIGN_PTR(pVal, P_Item->OrderRest);
+			}
+			else
+				ok = -1;
+		else
+			ok = 0;
+		return ok;
+	}
+	int    AddCode(long itemPos, const char * pCode)
+	{
+		int    ok = 1;
+		if(GetItemByPos(itemPos)) {
+			if(pCode && *pCode) {
+				uint  code_pos = 0;
+				CodeList.add(pCode, &code_pos);
+				P_Item->CodePos = code_pos;
+			}
+			else
+				P_Item->CodePos = 0;
+			P_Item->Flags |= BillGoodsBrwItem::fHasCode;
+		}
+		else
+			ok = 0;
+		return ok;
+	}
+	int    GetCode(long itemPos, SString & rBuf)
+	{
+		int    ok = 0;
+		if(GetItemByPos(itemPos))
+			if(P_Item->Flags & BillGoodsBrwItem::fHasCode) {
+				if(P_Item->CodePos)
+					CodeList.get(P_Item->CodePos, rBuf);
+				else
+					rBuf = 0;
+				ok = 1;
+			}
+			else
+				ok = -1;
+		return ok;
+	}
+	int    GetVat(long itemPos, double * pVatRate, double * pVatSum)
+	{
+		int    ok = 1;
+		if(GetItemByPos(itemPos)) {
+			ASSIGN_PTR(pVatRate, P_Item->VatRate);
+			ASSIGN_PTR(pVatSum, P_Item->VatSum);
+		}
+		else
+			ok = 0;
+		return ok;
+	}
+
+	int    HasUpp; // По крайней мере одна строка имеет не нулевую емкость упаковки
+private:
+	int    FASTCALL GetItemByPos(long itemPos)
+	{
+		uint   pos = 0;
+		P_Item = lsearch(&itemPos, &pos, CMPF_LONG) ? (BillGoodsBrwItem *)at(pos) : 0;
+		return BIN(P_Item);
+	}
+	StringSet CodeList;
+	BillGoodsBrwItem * P_Item; // Временный указатель
+	LAssocArray CodeStatusList;
+};
+
+int SLAPI PPObjBill::ViewPckgDetail(PPID pckgID)
+{
+	int    ok = 1;
+	uint   res_id = (LConfig.Flags & CFGFLG_SHOWPHQTTY) ? BROWSER_ID(GOODSITEMPH_W) : BROWSER_ID(GOODSITEM_W);
+	if(trfr->Rcpt.Search(pckgID) > 0) {
+		PPBillPacket pack;
+		pack.destroy();
+		pack.Rec.Dt    = MAXDATE;
+		pack.Rec.LocID = trfr->Rcpt.data.LocID;
+		if(AddPckgToBillPacket(pckgID, &pack)) {
+			BillItemBrowser * brw = new BillItemBrowser(res_id, this, &pack, 0, 0, 0, 2);
+			if(brw == 0)
+				ok = (PPError(PPERR_NOMEM, 0), 0);
+			else
+				ExecViewAndDestroy(brw);
+		}
+	}
+	return ok;
+}
+//
+//
+//
+int SLAPI ViewBillDetails(PPBillPacket * pack, long options, PPObjBill * pBObj)
+{
+	uint   res_id;
+	if(pack->Rec.Flags & BILLF_CASH)
+		res_id = BROWSER_ID(CHECKITEM_W);
+	else if(pack->OprType == PPOPT_GOODSORDER)
+		res_id = BROWSER_ID(ORDERITEM_W);
+	else if(pack->OprType == PPOPT_GOODSREVAL)
+		res_id = BROWSER_ID(GOODSITEM_REVAL_W);
+	else if((LConfig.Flags & CFGFLG_SHOWPHQTTY) && pack->Rec.CurID)
+		res_id = BROWSER_ID(GOODSITEMPH_CUR_W);
+	else if(LConfig.Flags & CFGFLG_SHOWPHQTTY)
+		res_id = BROWSER_ID(GOODSITEMPH_W);
+	else if(pack->Rec.CurID)
+		res_id = BROWSER_ID(GOODSITEM_CUR_W);
+	else
+		res_id = BROWSER_ID(GOODSITEM_W);
+	int    r = -1;
+	if(!oneof2(pack->OprType, PPOPT_ACCTURN, PPOPT_PAYMENT)) {
+		BillItemBrowser * p_brw = new BillItemBrowser(res_id, pBObj, pack, 0, -1, 0, (int)options);
+		if(p_brw == 0)
+			r = (PPError(PPERR_NOMEM, 0), 0);
+		else {
+			if(pack->Rec.Flags & BILLF_CASH) {
+				PPObjCashNode cn_obj;
+				PPCashNode cn_rec;
+				if(cn_obj.Fetch(LConfig.Cash, &cn_rec) > 0 && !(cn_rec.Flags & CASHF_NAFCL)) {
+					//ActivateNewRow = 1;
+					p_brw->State |= BillItemBrowser::stActivateNewRow;
+				}
+			}
+			ExecView(p_brw);
+			//r = p_brw->IsModified ? 1 : -1;
+			r = (p_brw->State & BillItemBrowser::stIsModified) ? 1 : -1;
+			delete p_brw;
+		}
+	}
+	return r;
+}
+
+static int test_lot(ReceiptTbl::Rec * pLotRec, void * extraPtr)
+{
+	const PPID loc_id = (PPID)extraPtr;
+	return (pLotRec->LocID == loc_id && !pLotRec->Closed);
+}
+//
+// Эта функция конвертирует товарные строки пакета P_LinkPack таким образом,
+// чтобы товар, оприходованный от поставщика на одну локацию, можно было
+// вернуть с локации loc, на которой он (товар) оказался в результате
+// межскладских перемещений.
+//
+int BillItemBrowser::ConvertSupplRetLink(PPID locID)
+{
+	int    ok = 1;
+	uint   i, j;
+	PPID * p_lot_id;
+	PPTrfrArray temp;
+	PPIDArray childs;
+	PPTransferItem * p_ti, t;
+	for(i = 0; P_LinkPack->EnumTItems(&i, &p_ti);) {
+		if(p_ti->LocID == locID)
+			THROW_SL(temp.insert(p_ti));
+		THROW(P_T->Rcpt.GatherChilds(p_ti->LotID, &childs, test_lot, (void *)locID));
+		for(j = 0; childs.enumItems(&j, (void**)&p_lot_id);) {
+			t       = *p_ti;
+			t.LocID = locID;
+			t.LotID = *p_lot_id;
+			THROW_SL(temp.insert(&t));
+		}
+		childs.clear();
+		P_LinkPack->RemoveRow(--i);
+	}
+	P_LinkPack->RemoveRows(0);
+	for(i = 0; temp.enumItems(&i, (void**)&p_ti);)
+		THROW(P_LinkPack->InsertRow(p_ti, 0));
+	CATCHZOK
+	return ok;
+}
+
+int BillItemBrowser::subtractRetsFromLinkPack()
+{
+	int    ok = 1;
+	BillTbl::Rec   bill_rec;
+	PPTransferItem ti;
+	if(P_LinkPack && P_LinkPack->Rec.ID && !(State & stExpndOnReturn)) {
+		for(DateIter di; P_BObj->P_Tbl->EnumLinks(P_LinkPack->Rec.ID, &di, BLNK_RETURN, &bill_rec) > 0;) {
+			if(bill_rec.ID != P_Pack->Rec.ID) {
+				for(int rbybill = 0; P_BObj->trfr->EnumItems(bill_rec.ID, &rbybill, &ti) > 0;) {
+					double sub_qtty = ti.Quantity_;
+					for(uint pos = 0; sub_qtty > 0.0 && P_LinkPack->SearchLot(ti.LotID, &pos) > 0; pos++) {
+						PPTransferItem & r_ti = P_LinkPack->TI(pos);
+						double decr = MIN(-r_ti.Quantity_, sub_qtty);
+						r_ti.Quantity_ += decr;
+						sub_qtty -= decr;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+SLAPI BillItemBrowser::ColumnPosBlock::ColumnPosBlock()
+{
+	QttyPos = -2;
+	CostPos = -2;
+	PricePos = -2;
+	SerialPos = -2;
+	QuotInfoPos = -2;
+	CodePos = -2;
+	LinkQttyPos = -2;
+	OrdQttyPos = -2;
+}
+
+int SLAPI BillItemBrowser::ColumnPosBlock::IsEmpty() const
+{
+	return BIN(QttyPos < 0 && CostPos < 0 && PricePos < 0 && SerialPos < 0 &&
+		QuotInfoPos < 0 && CodePos < 0 && LinkQttyPos < 0 && OrdQttyPos < 0);
+}
+
+int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
+{
+	int    ok = -1;
+	if(oneof5(RezID, BROWSER_ID(GOODSITEM_W), BROWSER_ID(GOODSITEMPH_W), BROWSER_ID(GOODSITEMPH_CUR_W),
+		BROWSER_ID(GOODSITEM_CUR_W), BROWSER_ID(ORDERITEM_W))) {
+		AryBrowserDef * p_def = (AryBrowserDef *)view->getDef();
+		if(p_def) {
+			for(uint i = 0; i < p_def->getCount(); i++) {
+				const BroColumn & r_col = p_def->at(i);
+				switch(r_col.Offs) {
+					case  2: rBlk.QttyPos = (long)i;  break;
+					case  3: rBlk.CostPos = (long)i;  break;
+					case  4: rBlk.PricePos = (long)i; break;
+					//case 23: link_qtty_col = (long)i; break;
+					case 27: rBlk.CodePos = (long)i; break;
+					case 28: rBlk.SerialPos = (long)i; break;
+					case 30: rBlk.QuotInfoPos = (long)i; break;
+					case 31: rBlk.OrdQttyPos = (long)i; break;
+				}
+			}
+			ok = rBlk.IsEmpty() ? -1 : 1;
+		}
+	}
+	return ok;
+}
+
+static int PriceDevColorFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+{
+	int    ok = -1;
+	BillItemBrowser * p_brw = (BillItemBrowser *)extraPtr;
+	if(p_brw && pData && pStyle) {
+		BillItemBrowser::ColumnPosBlock posblk;
+		const BillGoodsBrwItem * p_item = pData ? (const BillGoodsBrwItem *)pData : 0;
+		long   pos = p_item ? p_item->Pos : -1;
+		const  LongArray & r_price_dev_list = p_brw->GetPriceDevList();
+		if(p_brw->GetColPos(posblk) > 0) {
+			if(col == posblk.QttyPos && pos >= 0) {
+				const PPBillPacket * p_pack = p_brw->GetPacket();
+				if(p_pack && pos < (int)p_pack->GetTCount()) {
+					const PPTransferItem & r_ti = p_pack->ConstTI(pos);
+					if(r_ti.Flags & PPTFR_LOTSYNC) {
+						pStyle->Color2 = GetColorRef(SClrIndigo);
+						pStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
+						ok = 1;
+					}
+					else if(r_ti.Quantity_ < 0.0 && oneof2(p_pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON)) {
+						pStyle->Color2 = GetColorRef(SClrRed);
+						pStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
+						ok = 1;
+					}
+				}
+			}
+			else if(col == posblk.OrdQttyPos && pos >= 0) {
+				const PPBillPacket * p_pack = p_brw->GetPacket();
+				if(p_pack && pos < (int)p_pack->GetTCount()) {
+					const PPTransferItem & r_ti = p_pack->ConstTI(pos);
+					double ord_qtty = p_brw->GetOrderedQtty(r_ti);
+					if((ord_qtty - fabs(r_ti.Qtty())) > 1E-6) {
+						pStyle->Color = GetColorRef(SClrOrange);
+						ok = 1;
+					}
+				}
+			}
+			/* @construction
+			else if(col == link_qtty_pos && pos >= 0) {
+				if(p_brw->HasLinkPack()) {
+					const PPBillPacket * p_pack = p_brw->GetPacket();
+					if(p_pack && pos < (int)p_pack->GetTCount()) {
+						const PPTransferItem & r_ti = p_pack->ConstTI(pos);
+						double link_qtty = p_brw->GetLinkQtty(r_ti);
+						if(!feqeps(link_qtty, fabs(r_ti.Qtty()), 1E-3)) {
+							pStyle->Color = GetColorRef(SClrOrchid);
+							ok = 1;
+						}
+					}
+				}
+			}
+			*/
+			else if(col == posblk.QuotInfoPos && pos >= 0) {
+				const PPBillPacket * p_pack = p_brw->GetPacket();
+				uint   qsip = 0;
+				if(p_pack->P_QuotSetupInfoList && p_pack->P_QuotSetupInfoList->lsearch(&pos, &qsip, CMPF_LONG)) {
+					const PPBillPacket::QuotSetupInfoItem & r_qsi = p_pack->P_QuotSetupInfoList->at(qsip);
+					if(r_qsi.Flags & r_qsi.fInvalidQuot) {
+						pStyle->Color = GetColorRef(SClrRed);
+					}
+					else if(r_qsi.Flags & r_qsi.fMissingQuot) {
+						pStyle->Color = GetColorRef(SClrOrange);
+					}
+					else {
+						pStyle->Color = GetColorRef(SClrGreen);
+					}
+				}
+				else {
+					pStyle->Color = GetColorRef(SClrYellow);
+				}
+				ok = 1;
+			}
+			if(pos >= 0 && pos < (long)r_price_dev_list.getCount()) {
+				long   price_flags = r_price_dev_list.at(pos);
+				if(price_flags && oneof3(col, posblk.QttyPos, posblk.CostPos, posblk.PricePos)) {
+					if(col == posblk.QttyPos && price_flags & LOTSF_FIRST) {
+						pStyle->Color = GetColorRef(SClrBlue);
+						pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+						ok = 1;
+					}
+					else if(col == posblk.CostPos) {
+						if(price_flags & LOTSF_COSTUP) {
+							pStyle->Color = GetColorRef(SClrGreen);
+							pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+							ok = 1;
+						}
+						else if(price_flags & LOTSF_COSTDOWN) {
+							pStyle->Color = GetColorRef(SClrRed);
+							pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+							ok = 1;
+						}
+						//
+						if(price_flags & LOTSF_LINKCOSTUP) {
+							pStyle->Color2 = GetColorRef(SClrGreen);
+							pStyle->Flags = BrowserWindow::CellStyle::fLeftBottomCorner;
+							ok = 1;
+						}
+						else if(price_flags & LOTSF_LINKCOSTDN) {
+							pStyle->Color2 = GetColorRef(SClrRed);
+							pStyle->Flags = BrowserWindow::CellStyle::fLeftBottomCorner;
+							ok = 1;
+						}
+					}
+					else if(col == posblk.PricePos) {
+						if(price_flags & LOTSF_PRICEUP) {
+							pStyle->Color = GetColorRef(SClrGreen);
+							pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+							ok = 1;
+						}
+						else if(price_flags & LOTSF_PRICEDOWN) {
+							pStyle->Color = GetColorRef(SClrRed);
+							pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+							ok = 1;
+						}
+						if(price_flags & LOTSF_RESTRBOUNDS) {
+							pStyle->Color = GetColorRef(SClrGrey);
+							pStyle->Flags = BrowserWindow::CellStyle::fLeftBottomCorner;
+							ok = 1;
+						}
+					}
+				}
+			}
+			if(posblk.SerialPos >= 0 && col == posblk.SerialPos) {
+				if(p_item && p_item->Flags & BillGoodsBrwItem::fSerialBad) {
+					pStyle->Color = GetColorRef(SClrOrange);
+					pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+					ok = 1;
+				}
+			}
+			if(posblk.CodePos >= 0 && col == posblk.CodePos) {
+				if(p_item && p_item->Flags & BillGoodsBrwItem::fCodeWarn) {
+					pStyle->Color = GetColorRef(SClrOrange);
+					pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+					ok = 1;
+				}
+			}
+		}
+		if(col == 0) {
+			const StrAssocArray & r_problems_list = p_brw->GetProblemsList();
+			if(r_problems_list.Search(pos, 0) > 0) {
+				pStyle->Color2 = GetColorRef(SClrRed);
+				pStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
+				ok = 1;
+			}
+			// @v7.5.5 {
+			const PPBillPacket * p_pack = p_brw->GetPacket();
+			if(p_pack && pos >= 0 && pos < (int)p_pack->GetTCount() && p_pack->TI(pos).TFlags & PPTransferItem::tfForceRemove) {
+				pStyle->Color = GetColorRef(SClrGrey);
+				pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+				ok = 1;
+			}
+			// } @v7.5.5
+		}
+	}
+	return ok;
+}
+
+const LongArray & SLAPI BillItemBrowser::GetPriceDevList() const
+{
+	return PriceDevList;
+}
+
+const StrAssocArray & SLAPI BillItemBrowser::GetProblemsList() const
+{
+	return ProblemsList;
+}
+
+int SLAPI BillItemBrowser::GetPriceRestrictions(int itemPos, const PPTransferItem & rTi, RealRange * pRange)
+{
+	return P_BObj->GetPriceRestrictions(*P_Pack, rTi, itemPos, pRange);
+}
+
+long FASTCALL BillItemBrowser::CalcPriceDevItem(long pos)
+{
+	long   price_flags = 0;
+	RealRange restr_bounds;
+	if(P_Pack && pos >= 0 && pos < (long)P_Pack->GetTCount()) {
+		const PPTransferItem & r_ti = P_Pack->ConstTI(pos);
+		if(!GObj.CheckFlag(r_ti.GoodsID, GF_UNLIM)) {
+			int   r = 0;
+			ReceiptTbl::Rec prev_rec, rec;
+			if(r_ti.LotID == 0) {
+				THROW(r = P_T->Rcpt.GetLastLot(r_ti.GoodsID, r_ti.LocID, r_ti.Date, &prev_rec));
+			}
+			else if(P_T->Rcpt.Search(r_ti.LotID, &rec) > 0) {
+				THROW(r = P_T->Rcpt.GetPreviousLot(rec.GoodsID, rec.LocID, rec.Dt, rec.OprNo, &prev_rec));
+			}
+			if(r > 0) {
+				if(r_ti.Cost > prev_rec.Cost)
+					price_flags |= LOTSF_COSTUP;
+				else if(r_ti.Cost < prev_rec.Cost)
+					price_flags |= LOTSF_COSTDOWN;
+				if(r_ti.Price > prev_rec.Price)
+					price_flags |= LOTSF_PRICEUP;
+				else if(r_ti.Price < prev_rec.Price)
+					price_flags |= LOTSF_PRICEDOWN;
+			}
+			else
+				price_flags |= LOTSF_FIRST;
+		}
+		if(GetPriceRestrictions(pos, r_ti, &restr_bounds) > 0) {
+			if(!restr_bounds.CheckVal(r_ti.NetPrice())) {
+				price_flags |= LOTSF_RESTRBOUNDS;
+			}
+		}
+		if(P_LinkPack) {
+			uint _p = 0;
+			if(P_LinkPack->SearchGoods(labs(r_ti.GoodsID), &_p)) {
+				double link_cost = P_LinkPack->ConstTI(_p).Cost;
+				if(r_ti.Cost > link_cost)
+					price_flags |= LOTSF_LINKCOSTUP;
+				else if(r_ti.Cost < link_cost)
+					price_flags |= LOTSF_LINKCOSTDN;
+			}
+		}
+	}
+	CATCH
+		price_flags = 0x80000000;
+	ENDCATCH
+	return price_flags;
+}
+
+int SLAPI BillItemBrowser::UpdatePriceDevList(long pos, int op)
+{
+	int    ok = 1;
+	if(P_Pack && P_Pack->OprType == PPOPT_GOODSRECEIPT) {
+		long   ti_count = P_Pack->GetTCount();
+		if(pos < 0) {
+			PriceDevList.clear();
+			for(long i = 0; i < ti_count; i++) {
+				THROW_SL(PriceDevList.add(CalcPriceDevItem(i)));
+			}
+		}
+		else {
+			if(op == 0) {
+				if(pos < (long)PriceDevList.getCount())
+					PriceDevList.at(pos) = CalcPriceDevItem(pos);
+			}
+			else if(op > 0) {
+				if(pos <= (long)PriceDevList.getCount()) {
+					long   price_flags = CalcPriceDevItem(pos);
+					PriceDevList.atInsert((uint)pos, &price_flags);
+				}
+			}
+			else if(op < 0) {
+				if(pos < (long)PriceDevList.getCount())
+					PriceDevList.atFree((uint)pos);
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI BillItemBrowser::CheckRows()
+{
+	int    ok = 1;
+	SString buf;
+	QuotIdent qi(QIDATE(P_Pack->Rec.Dt), P_Pack->Rec.LocID, DS.GetConstTLA().SupplDealQuotKindID, 0, P_Pack->Rec.Object);
+	PPTransferItem * p_ti = 0;
+	ProblemsList.Clear();
+	for(uint idx = 0; P_Pack->EnumTItems(&idx, &p_ti) > 0;) {
+		ReceiptTbl::Rec lot_rec;
+		if(p_ti->LotID && P_T->Rcpt.Search(p_ti->LotID, &lot_rec) <= 0) {
+			PPGetMessage(mfError, PPErrCode, 0, DS.CheckExtFlag(ECF_SYSSERVICE), buf);
+			ProblemsList.Add(idx - 1, 0, buf);
+		}
+		{
+			PPSupplDeal supl_deal;
+			if(GObj.GetSupplDeal(p_ti->GoodsID, qi, &supl_deal) > 0) {
+				if(supl_deal.CheckCost(p_ti->Cost) <= 0) {
+					PPGetMessage(mfError, PPERR_SUPPLDEALVIOLATION, 0, DS.CheckExtFlag(ECF_SYSSERVICE), buf);
+					ProblemsList.Add(idx - 1, 0, buf);
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p,
+	PPBillPacket * pMainPack /* Продажа по ордеру */, int pckgPos, int asSelector, int editMode) :
+	AsSelector(asSelector), EditMode(editMode), /*ExpndOnReturn(0), */
+	BrowserWindow(rezID, (/*OrderSelector = ((P_LinkPack = pMainPack) != 0),*/ (SArray *)0))
+{
+	P_BObj      = pBObj;
+	P_T         = P_BObj->trfr;
+	P_SpcCore   = 0;
+	P_Pack      = p;
+	P_Pckg      = 0;
+	State       = 0;
+	OrderBillID = 0;
+	NewGoodsGrpID = 0;
+	CurLine = -1000;
+	P_LinkPack = pMainPack;
+	SETFLAG(State, stOrderSelector, P_LinkPack);
+	SETFLAG(State, stAccsCost, P_BObj->CheckRights(BILLRT_ACCSCOST));
+	SETFLAG(State, stAltView, rezID == BROWSER_ID(GOODSITEM_ALTVIEW));
+	{
+		PrcssrAlcReport::Config parc;
+		AlcoGoodsClsID = 0;
+		if(PrcssrAlcReport::ReadConfig(&parc) > 0)
+			AlcoGoodsClsID = parc.E.AlcGoodsClsID;
+	}
+	SString temp_buf;
+	uint   show_barcode_or_serial = 0;
+	if((!(State & stAltView) || ((P_BObj->Cfg.Flags & BCF_SHOWBARCODESINGBLINES) && (CConfig.Flags & CCFLG_USEARGOODSCODE)))) {
+		uint   _brw_pos = 2;
+		if(P_BObj->Cfg.Flags & BCF_SHOWBARCODESINGBLINES) {
+			if((State & stAltView) && (CConfig.Flags & CCFLG_USEARGOODSCODE))
+				PPGetWord(PPWORD_ARGOODSCODE, 0, temp_buf);
+			else {
+				// @v9.0.2 PPGetWord(PPWORD_BARCODE, 0, temp_buf);
+				PPLoadString("barcode", temp_buf); // @v9.0.2
+			}
+			insertColumn(_brw_pos++, temp_buf, /*16*/27, MKSTYPE(S_ZSTRING, 20), 0, BCO_USERPROC);
+			show_barcode_or_serial |= 0x01;
+		}
+		if(P_BObj->Cfg.Flags & BCF_SHOWSERIALSINGBLINES) {
+			PPGetWord(PPWORD_SERIAL, 0, temp_buf);
+			insertColumn(_brw_pos++, temp_buf, /*16*/28, MKSTYPE(S_ZSTRING, 20), 0, BCO_USERPROC);
+			show_barcode_or_serial |= 0x02;
+		}
+	}
+	uint   i, pos;
+	temp_buf = 0;
+	if(pckgPos >= 0) {
+		P_Pckg = P_Pack->P_PckgList->GetByIdx(pckgPos);
+		if(P_Pckg) {
+			if(P_Pckg->PckgTypeID) {
+				PPObjPckgType pt_obj;
+				PPGdsPckgType pt_rec;
+				if(pt_obj.Get(P_Pckg->PckgTypeID, &pt_rec) > 0)
+					NewGoodsGrpID = pt_rec.GoodsGrpID;
+			}
+			PPLoadText(PPTXT_PCKGLINESTITLE, temp_buf);
+			setTitle(temp_buf);
+			setSubTitle(P_Pckg->Code);
+		}
+	}
+	else
+		setSubTitle(PPObjBill::MakeCodeString(&P_Pack->Rec, 0, temp_buf));
+	if(oneof2(P_Pack->OprType, PPOPT_GOODSRETURN, PPOPT_CORRECTION) && P_Pack->Rec.LinkBillID) {
+		PPTransferItem * p_link_ti;
+		THROW_MEM(P_LinkPack = new PPBillPacket);
+		THROW(P_BObj->ExtractPacket(P_Pack->Rec.LinkBillID, P_LinkPack));
+		State |= stUseLinkSelection;
+		if(P_Pack->OprType == PPOPT_CORRECTION) {
+			for(i = 0; P_LinkPack->EnumTItems(&i, &p_link_ti);) {
+				if(P_LinkPack->OprType == PPOPT_GOODSEXPEND) {
+					uint    _pos = 0;
+					if(P_Pack->SearchTI(p_link_ti->RByBill, &_pos))
+						p_link_ti->Flags |= 0x80000000L;
+				}
+				else {
+					if(p_link_ti->LotID) {
+						int    used = P_Pack->SearchLot(p_link_ti->LotID, 0);
+						if(used)
+							p_link_ti->Flags |= 0x80000000L;
+					}
+					else if(p_link_ti->GoodsID && P_Pack->SearchGoods(p_link_ti->GoodsID, 0))
+						p_link_ti->Flags |= 0x80000000L;
+				}
+			}
+		}
+		else if(P_Pack->OprType == PPOPT_GOODSRETURN) {
+			if(P_Pack->Rec.Flags & BILLF_GEXPEND) {
+				State |= stExpndOnReturn;
+				THROW(ConvertSupplRetLink(P_Pack->Rec.LocID));
+				for(i = 0; P_LinkPack->EnumTItems(&i, &p_link_ti);) {
+					if(p_link_ti->LotID) {
+						ReceiptTbl::Rec rr;
+						int    used = P_Pack->SearchLot(p_link_ti->LotID, 0);
+						THROW(P_T->Rcpt.Search(p_link_ti->LotID, &rr) > 0);
+						if(rr.Closed && !used)
+							P_LinkPack->RemoveRow(--i);
+						else {
+							double rest = 0.0;
+							THROW(P_Pack->BoundsByLot(p_link_ti->LotID, 0, -1, &rest, 0));
+							if(rest != 0.0) {
+								//
+								// В случае возврата поставщику цены устанавливаем с учетом переоценки
+								//
+								if(P_LinkPack->OprType == PPOPT_GOODSRECEIPT) {
+									THROW(P_T->GetLotPrices(&rr, P_Pack->Rec.Dt));
+									p_link_ti->Cost  = R5(rr.Cost);
+									p_link_ti->Price = R5(rr.Price);
+								}
+								p_link_ti->Quantity_ = rest;
+							}
+							else if(used)
+								p_link_ti->Flags |= 0x80000000L;
+							else
+								P_LinkPack->RemoveRow(--i);
+						}
+					}
+					else if(p_link_ti->GoodsID && P_Pack->SearchGoods(p_link_ti->GoodsID, 0))
+						p_link_ti->Flags |= 0x80000000L;
+				}
+			}
+			else {
+				subtractRetsFromLinkPack();
+				for(i = 0; P_LinkPack->EnumTItems(&i, &p_link_ti);)
+					if(p_link_ti->LotID) {
+						if(p_link_ti->Quantity_ >= 0.0 || P_Pack->SearchLot(p_link_ti->LotID, &(pos = 0)))
+							p_link_ti->Flags |= 0x80000000L;
+					}
+					else if(p_link_ti->GoodsID && P_Pack->SearchGoods(p_link_ti->GoodsID, &(pos = 0)))
+						p_link_ti->Flags |= 0x80000000L;
+			}
+		}
+	}
+	else if(!(State & stOrderSelector)) {
+		P_LinkPack = 0;
+		//
+		// Загружаем пакет связанного документа для того, чтобы показать
+		// количество товара в связанном документе отдельной колонкой
+		//
+		if(P_Pack->Rec.LinkBillID) {
+			BillTbl::Rec link_rec;
+			if(P_BObj->Search(P_Pack->Rec.LinkBillID, &link_rec) > 0) {
+				PPID   op_type_id = GetOpType(link_rec.OpID);
+				if(P_Pack->OprType == PPOPT_GOODSACK || oneof2(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT)) {
+					THROW_MEM(P_LinkPack = new PPBillPacket);
+					THROW(P_BObj->ExtractPacket(P_Pack->Rec.LinkBillID, P_LinkPack));
+					State |= stShowLinkQtty;
+					{
+						int    at_pos = 1;
+						if(show_barcode_or_serial & 0x01)
+							at_pos++;
+						if(show_barcode_or_serial & 0x02)
+							at_pos++;
+						PPGetWord(PPWORD_LINKQTTY, 0, temp_buf);
+						insertColumn(at_pos+1, temp_buf, 23,
+							MKSTYPE(S_FLOAT, 8), MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_NOZERO), BCO_USERPROC);
+					}
+				}
+			}
+		}
+	}
+	State &= ~stIsModified;
+	update(pos_top);
+	GetDefScaleData();
+	if(P_Pack /* @v7.6.8 && P_Pack->OprType == PPOPT_GOODSRECEIPT */) {
+		THROW(UpdatePriceDevList(-1, 0));
+		SetCellStyleFunc(PriceDevColorFunc, this);
+	}
+	CATCH
+		if(P_LinkPack && !(State & stOrderSelector))
+			ZDELETE(P_LinkPack);
+		PPError();
+	ENDCATCH
+}
+
+inline BillItemBrowser::~BillItemBrowser()
+{
+	if(!(State & stOrderSelector))
+		delete P_LinkPack;
+	delete P_SpcCore;
+}
+
+int BillItemBrowser::getCurItemPos()
+{
+	int16  c = (int16)view->getDef()->_curItem();
+	int16  rp = 0;
+	if(c >= 0) {
+		PPTransferItem * p_ti;
+		for(uint i = 0; P_Pack->EnumTItems(&i, &p_ti);) {
+			if(P_Pckg) {
+				if(P_Pckg->SearchByIdx(i-1, 0) <= 0)
+					continue;
+			}
+			else {
+				if((AsSelector && p_ti->Flags & 0x80000000L) || (p_ti->Flags & PPTFR_PCKGGEN))
+					continue;
+			}
+			if(rp == c)
+				return (int16)(i-1);
+			rp++;
+		}
+	}
+	return -1;
+}
+
+SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
+{
+	PPID   id = 0;
+	BillGoodsBrwItemArray * p_packed_list = 0;
+	PPBillPacket * p_pack = NZOR(pPack, P_Pack);
+	LPackage     * p_pckg = 0;
+	PPTransferItem * p_ti;
+	SString temp_buf, lines;
+	uint   i, lines_count = 0;
+	BillGoodsBrwItem item;
+	Total.Init();
+	OrdQttyList.clear();
+	THROW_MEM(p_packed_list = new BillGoodsBrwItemArray);
+	p_pckg = pPack ? ((pckgPos >= 0 && p_pack->P_PckgList) ? p_pack->P_PckgList->GetByIdx(pckgPos) : 0) : P_Pckg;
+	for(i = 0; p_pack->EnumTItems(&i, &p_ti);) {
+		if(p_pckg) {
+			if(p_pckg->SearchByIdx(i-1, 0) <= 0)
+				continue;
+		}
+		else {
+			if((AsSelector == 1 && p_ti->Flags & 0x80000000L) || (p_ti->Flags & PPTFR_PCKGGEN))
+				continue;
+		}
+		MEMSZERO(item);
+		const double sqtty = p_ti->SQtty(p_pack->Rec.OpID);
+		const double qtty  = p_ti->Qtty();
+		const double __q = (p_pack->OprType == PPOPT_GOODSMODIF) ? sqtty : qtty;
+		if(p_ti->Flags & PPTFR_INDEPPHQTTY)
+			Total.PhQtty += p_ti->WtQtty;
+		else {
+			double phuperu;
+			if(GObj.GetPhUPerU(p_ti->GoodsID, 0, &phuperu) > 0)
+				Total.PhQtty += __q * phuperu;
+		}
+		Total.Qtty  += __q;
+		Total.Price += R2(p_ti->Price * __q); // (см. комментарии ниже)
+		if(State & stAccsCost) {
+			Total.Cost += R2(p_ti->Cost * __q); // CalcAmount использует такое же округление, следовательно,
+				// если здесь нет округления, то возникнет разница между номинальной суммой и этим значением)
+			Total.ExtCost += R2(p_ti->ExtCost * __q);
+		}
+		if(p_ti->Flags & PPTFR_REVAL) {
+			const double op = p_ti->IsRecomplete() ? (p_ti->CurID ? p_ti->CurPrice : p_ti->Price) : p_ti->Discount;
+			Total.OldPrice += (op * qtty);
+		}
+		else {
+			Total.Discount += (p_ti->Discount * qtty);
+			if(p_ti->CurID)
+				Total.CurAmount += p_ti->CurPrice * sqtty;
+			// @v9.1.1 {
+			if(p_ti->Flags & PPTFR_ONORDER) {
+				uint sh_lot_pos = 0;
+				if(p_pack->SearchShLot(p_ti->OrdLotID, &sh_lot_pos)) {
+                    double ord_qtty = 0.0;
+                    ReceiptTbl::Rec lot_rec;
+                    if(P_T->Rcpt.Search(p_ti->OrdLotID, &lot_rec) > 0) {
+						ord_qtty = fabs(lot_rec.Quantity);
+                    }
+                    OrdQttyList.Add(p_ti->OrdLotID, ord_qtty, 0, 0);
+					Total.OrderQtty += ord_qtty;
+				}
+			}
+			// } @v9.1.1
+		}
+		Total.Amount += p_ti->CurID ? p_ti->CalcCurAmount() : p_ti->CalcAmount(!(State & stAccsCost));
+		if(P_LinkPack)
+			for(uint pos = 0; P_LinkPack->SearchGoods(labs(p_ti->GoodsID), &pos); pos++)
+				Total.LinkQtty += fabs(P_LinkPack->ConstTI(pos).Qtty());
+		{
+			GTaxVect vect;
+			vect.CalcTI(p_ti, P_Pack->Rec.OpID, TIAMT_AMOUNT);
+			item.VatSum  = vect.GetValue(GTAXVF_VAT);
+			item.VatRate = vect.GetTaxRate(GTAX_VAT, 0);
+			Total.VatSum += item.VatSum;
+		}
+		{
+			double upp = p_ti->UnitPerPack;
+			if(upp <= 0.0) {
+				GoodsStockExt gse;
+				if(GObj.GetStockExt(p_ti->GoodsID, &gse, 1) > 0)
+					upp = gse.Package;
+			}
+			if(upp <= 0.0 && P_Pack->IsDraft()) {
+				ReceiptTbl::Rec lot_rec;
+				if(P_T->Rcpt.GetLastLot(p_ti->GoodsID, P_Pack->Rec.LocID, P_Pack->Rec.Dt, &lot_rec) > 0)
+					upp = lot_rec.UnitPerPack;
+			}
+			if(upp > 0.0) {
+				item.UnitPerPack = upp;
+				p_packed_list->HasUpp = 1;
+				Total.PckgCount += (long)(fabs(qtty) / upp);
+			}
+		}
+		item.Pos = i-1;
+		item.RByBill = p_ti->RByBill; // @v8.0.3
+		{
+			if(CConfig.Flags & CCFLG_CHECKSPOILAGE && P_BObj->Cfg.Flags & BCF_SHOWSERIALSINGBLINES) {
+				p_pack->SnL.GetNumber(item.Pos, &temp_buf);
+				if(SETIFZ(P_SpcCore, new SpecSeriesCore)) {
+					temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+					SpecSeries2Tbl::Rec spc_rec;
+					if(P_SpcCore->SearchBySerial(SPCSERIK_SPOILAGE, temp_buf, &spc_rec) > 0) {
+						item.Flags &= ~BillGoodsBrwItem::fSerialOk;
+						item.Flags |= BillGoodsBrwItem::fSerialBad;
+					}
+					else {
+						item.Flags |= BillGoodsBrwItem::fSerialOk;
+						item.Flags &= ~BillGoodsBrwItem::fSerialBad;
+					}
+				}
+			}
+		}
+		if(AlcoGoodsClsID) {
+			Goods2Tbl::Rec goods_rec;
+			if(GObj.Fetch(p_ti->GoodsID, &goods_rec) > 0 && goods_rec.GdsClsID == AlcoGoodsClsID) {
+				int    has_egais_code = 0;
+				BarcodeArray bc_list;
+				GObj.P_Tbl->ReadBarcodes(labs(p_ti->GoodsID), bc_list);
+				for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
+					const BarcodeTbl::Rec & r_bc_rec = bc_list.at(bcidx);
+					if(strlen(r_bc_rec.Code) == 19)
+						has_egais_code = 1;
+				}
+				SETFLAG(item.Flags, BillGoodsBrwItem::fCodeWarn, !has_egais_code);
+			}
+		}
+		THROW_SL(p_packed_list->insert(&item));
+		lines_count++;
+	}
+	if(p_packed_list && (State & stOrderSelector || P_Pack->OprType == PPOPT_GOODSORDER)) {
+		BillGoodsBrwItem * p_item;
+		Total.ShippedQtty = 0.0;
+		Total.OrderRest = 0.0;
+		double q;
+		for(i = 0; p_packed_list->enumItems(&i, (void **)&p_item);)
+			if(CalcShippedQtty(p_item, p_packed_list, &q)) {
+				Total.ShippedQtty += q;
+				p_packed_list->GetOrderRest(p_item->Pos, &(q = 0.0));
+				Total.OrderRest += q;
+			}
+	}
+	PPGetWord(PPWORD_TOTAL, 0, Total.Text).Space().CatChar('(').Cat(PPGetWord(PPWORD_LINES, 0, lines)).
+		Space().Cat((long)lines_count).CatChar(')');
+	MEMSZERO(item);
+	item.Pos = -1;
+	THROW_SL(p_packed_list->insert(&item)); // Total row
+	CATCH
+		ZDELETE(p_packed_list);
+		PPError();
+	ENDCATCH
+	return p_packed_list;
+}
+
+int SLAPI BillItemBrowser::CalcShippedQtty(BillGoodsBrwItem * pItem, BillGoodsBrwItemArray * pList, double * pVal)
+{
+	int    ok = 1;
+	double real_val = 0.0;
+	if(pList && pItem) {
+		AryBrowserDef * p_def = (AryBrowserDef *)getDef();
+		const PPTransferItem & r_ti = P_Pack->ConstTI(pItem->Pos);
+		if(pList->GetOrderRest(pItem->Pos, &real_val) < 0) {
+			if(State & stOrderSelector) {
+				if(GObj.CheckFlag(r_ti.GoodsID, GF_UNLIM))
+					real_val = fabs(r_ti.Quantity_);
+				else if(P_LinkPack)
+					P_LinkPack->RestByOrderLot(r_ti.LotID, 0, -1, &real_val);
+				else
+					real_val = 0.0;
+				pList->SetOrderRest(pItem->Pos, real_val);
+			}
+			else if(P_Pack->OprType == PPOPT_GOODSORDER)
+				if(r_ti.LotID) {
+					double rest = 0.0;
+					P_BObj->trfr->GetRest(r_ti.LotID, MAXDATE, &rest);
+					real_val = fabs(r_ti.Quantity_) - rest;
+				}
+				else
+					real_val = 0.0; //r_ti.SQtty(P_Pack->Rec.OpID);
+			else
+				ok = 0;
+		}
+	}
+	else
+		ok = 0;
+	ASSIGN_PTR(pVal, real_val);
+	return ok;
+}
+
+//
+// Порядок следования полей броузера товарных строк документа:
+//  0 - Номер строки (в порядке, в котором строки расположены в документе 1..) *
+//  1 - Наименование товара                            *
+//  2 - Количество                                     *
+//  3 - Цена поступления //                            *
+//  4 - Цена реализации  //                            *
+//  5 - Скидка                                         *
+//  6 - Сумма по строке                                *
+//  7 - Физическое количество                          *
+//  8 - Старая цена поступления (для переоценки)       *
+//  9 - Старая цена реализации (для переоценки)        *
+// 10 - Валютная цена                                  *
+// 11 - Валютная сумма                                 *
+// 12 - Налоговая группа                               *
+// 13 - Ставка НДС                                     *
+// 14 - Сумма НДС                                      *
+// 15 - Срок годности                                  *
+// 16 - Штрихкод (серийный номер или артикул)          *
+// 17 - Признак "Цена поступления без НДС"             *
+// 18 - Признак "Цена реализации без налогов"          *
+// 19 - Отгружено по заказу                            *
+// 20 - Остаток                                        *
+// 21 - Масса брутто (на все количество)
+// 22 - Объем (на все количество)
+// 23 - Связанное количество                           *
+// 24 - Остаток по заказу
+// 25 - Распределенная себестоимость (ExtCost)
+// 26 - Складская ячейка
+// 27 - Штрихкод       (поле 16 показывает ЛИБО штрихкод, ЛИБО серию в зависимости от настройки)
+// 28 - Серийный номер (поле 16 показывает ЛИБО штрихкод, ЛИБО серию в зависимости от настройки)
+// 29 - Количество в упаковках
+// 30 - Информация об установленной котировке @v8.2.0
+// 31 - Заказанное количество (для документов отгрузки) @v9.1.1
+//
+
+int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	int    ok = 0;
+	if(pBlk->P_SrcData && pBlk->P_DestData && P_Pack) {
+		SString temp_buf;
+		BillGoodsBrwItem * p_item = (BillGoodsBrwItem *)pBlk->P_SrcData;
+		const  int is_total = (p_item->Pos == -1);
+		if(is_total || (p_item->Pos >= 0 && p_item->Pos < (PPID)P_Pack->GetTCount())) {
+			ok = 1;
+			AryBrowserDef * p_def = (AryBrowserDef *)getDef();
+			BillGoodsBrwItemArray * p_list = p_def ? (BillGoodsBrwItemArray *)p_def->getArray() : 0;
+			const PPTransferItem * p_ti = 0;
+			if(is_total) {
+				CurLine = -1;
+				MEMSZERO(ClGoodsRec);
+			}
+			else {
+				p_ti = (const PPTransferItem *)&P_Pack->ConstTI(p_item->Pos);
+				if(p_item->Pos != CurLine) {
+					if(GObj.Fetch(p_ti->GoodsID, &ClGoodsRec) <= 0) {
+						MEMSZERO(ClGoodsRec);
+						ideqvalstr(p_ti->GoodsID, ClGoodsRec.Name, sizeof(ClGoodsRec.Name));
+					}
+					CurLine = p_item->Pos;
+				}
+			}
+			double real_val = 0.0;
+			switch(pBlk->ColumnN) {
+				case 0: // Номер строки
+					if(is_total)
+						ok = 0;
+					// @v8.0.3 {
+					else if(/*PPMaster*/ 1 /* @v8.9.8 && (CConfig.Flags & CCFLG_DEBUG)*/) // @v9.0.0 PPMaster-->1
+						pBlk->Set((int32)p_item->RByBill);
+					// } @v8.0.3
+					else
+						pBlk->Set((int32)(p_item->Pos+1));
+					break;
+				case 1: // Наименование товара
+					if(is_total)
+						pBlk->Set(Total.Text);
+					else
+						pBlk->Set(ClGoodsRec.Name);
+					break;
+				case 2: // Количество по строке
+					if(is_total)
+						pBlk->Set(Total.Qtty);
+					else if(p_ti->IsCorrectionExp())
+						pBlk->Set(p_ti->Quantity_);
+					else
+						pBlk->Set(p_ti->SQtty(P_Pack->Rec.OpID));
+					break;
+				case 3: // Учетная цена поступления по строке (на одну единицу)
+					if(State & stAccsCost)
+						pBlk->Set(is_total ? Total.Cost : p_ti->Cost);
+					else
+						ok = 0;
+					break;
+				case 4: // Учетная цена реализации по строке (на одну единицу)
+					pBlk->Set(is_total ? Total.Price : p_ti->Price);
+					break;
+				case 5: // Скидка по строке (на одну единицу)
+					pBlk->Set(is_total ? Total.Discount : p_ti->Discount);
+					break;
+				case 6: // Сумма по строке
+					if(is_total)
+						real_val = Total.Amount;
+					else
+						real_val = p_ti->CurID ? p_ti->CalcCurAmount() : p_ti->CalcAmount(!(State & stAccsCost));
+					pBlk->Set(real_val);
+					break;
+				case 7: // Физическое количество
+					if(is_total)
+						real_val = Total.PhQtty;
+					else if(p_ti->Flags & PPTFR_INDEPPHQTTY)
+						real_val = p_ti->WtQtty;
+					else if(GObj.GetPhUPerU(&ClGoodsRec, 0, &real_val) > 0)
+						real_val *= p_ti->SQtty(P_Pack->Rec.OpID);
+					pBlk->Set(real_val);
+					break;
+				case 8:  // Старая цена поступления (для переоценки) //
+					if(p_ti->Flags & PPTFR_REVAL)
+						pBlk->Set(p_ti->Quantity_);
+					else
+						ok = 0;
+					break;
+				case 9:  // Старая цена реализации (для переоценки)  //
+					if(is_total)
+						pBlk->Set(Total.OldPrice);
+					else if(p_ti->Flags & PPTFR_REVAL) {
+						if(p_ti->IsRecomplete())
+							real_val = p_ti->CurID ? p_ti->CurPrice : p_ti->Price;
+						else
+							real_val = p_ti->Discount;
+						pBlk->Set(real_val);
+					}
+					else
+						ok = 0;
+					break;
+				case 10: // Валютная цена
+					if(is_total)
+						ok = 0;
+					else {
+						if(!(p_ti->Flags & PPTFR_REVAL) && p_ti->CurID)
+							real_val = p_ti->CurPrice;
+						pBlk->Set(real_val);
+					}
+					break;
+				case 11: // Валютная сумма
+					if(is_total)
+						real_val = Total.CurAmount;
+					else if(!(p_ti->Flags & PPTFR_REVAL) && p_ti->CurID)
+						real_val = p_ti->CurPrice * p_ti->SQtty(P_Pack->Rec.OpID);
+					pBlk->Set(real_val);
+					break;
+				case 12: // Налоговая группа
+					if(is_total)
+						ok = 0;
+					else {
+						GetObjectName(PPOBJ_GOODSTAX, ClGoodsRec.TaxGrpID, pBlk->TempBuf);
+						pBlk->TempBuf.CopyTo((char *)pBlk->P_DestData, stsize(pBlk->TypeID));
+					}
+					break;
+				case 13: // Ставка НДС
+					if(!is_total && p_list) {
+						int    r = p_list->GetVat(p_item->Pos, &real_val, 0);
+						if(r > 0)
+							pBlk->Set(real_val);
+						else
+							ok = 0;
+					}
+					else
+						ok = 0;
+					break;
+				case 14: // Сумма НДС
+					if(is_total)
+						pBlk->Set(Total.VatSum);
+					else if(p_list) {
+						int    r = p_list->GetVat(p_item->Pos, 0, &real_val);
+						if(r > 0)
+							pBlk->Set(real_val);
+						else
+							ok = 0;
+					}
+					else
+						ok = 0;
+					break;
+				case 15: // Срок годности
+					if(!is_total)
+						pBlk->Set(p_ti->Expiry);
+					else
+						ok = 0;
+					break;
+				case 16: // Штрихкод или серийный номер или артикул
+					if(!is_total && p_list) {
+						if(P_BObj->Cfg.Flags & BCF_SHOWBARCODESINGBLINES) {
+							if(p_list->GetCode(p_item->Pos, pBlk->TempBuf) < 0) {
+								if(State & stAltView && (CConfig.Flags & CCFLG_USEARGOODSCODE)) {
+									if(P_Pack && P_Pack->Rec.Object)
+										GObj.P_Tbl->GetArCode(P_Pack->Rec.Object, p_ti->GoodsID, temp_buf, 0);
+								}
+								else
+									GObj.FetchSingleBarcode(p_ti->GoodsID, temp_buf);
+								p_list->AddCode(p_item->Pos, temp_buf);
+								pBlk->Set(temp_buf);
+							}
+						}
+						else {
+							P_Pack->SnL.GetNumber(p_item->Pos, &temp_buf);
+							pBlk->Set(temp_buf);
+						}
+					}
+					else
+						ok = 0;
+					break;
+				case 17:
+					if(!is_total && p_ti->Flags & PPTFR_COSTWOVAT)
+						pBlk->Set("Y");
+					else
+						ok = 0;
+					break;
+				case 18:
+					if(!is_total && p_ti->Flags & PPTFR_PRICEWOTAXES)
+						pBlk->Set("Y");
+					else
+						ok = 0;
+					break;
+				case 19: // Отгружено по заказу
+					if(is_total)
+						pBlk->Set(Total.ShippedQtty);
+					else {
+						ok = CalcShippedQtty(p_item, p_list, &real_val);
+						pBlk->Set(real_val);
+					}
+					break;
+				case 20: // Остаток
+					if(is_total)
+						ok = 0;
+					else {
+						if(p_list->GetRest(p_item->Pos, &real_val) < 0) {
+							if(State & stOrderSelector) {
+								if(!(ClGoodsRec.Flags & GF_UNLIM) && P_LinkPack)
+									P_LinkPack->GoodsRest(labs(p_ti->GoodsID), 0, -1, &real_val);
+								else
+									real_val = 0.0;
+								p_list->SetRest(p_item->Pos, real_val);
+							}
+							else
+								real_val = 0.0;
+						}
+						pBlk->Set(real_val);
+					}
+					break;
+				case 23: // Связанное количество
+					if(!is_total) {
+						real_val = GetLinkQtty(*p_ti);
+						pBlk->Set(real_val);
+					}
+					else
+						pBlk->Set(Total.LinkQtty);
+					break;
+				case 24: // Остаток по заказу
+					if(is_total)
+						pBlk->Set(Total.OrderRest);
+					else {
+						ok = CalcShippedQtty(p_item, p_list, 0);
+						p_list->GetOrderRest(p_item->Pos, &real_val);
+						pBlk->Set(real_val);
+					}
+					break;
+				case 25: // Распределенная себестоимость
+					if(is_total)
+						pBlk->Set(Total.ExtCost);
+					else
+						pBlk->Set(p_ti->ExtCost);
+					break;
+				case 26: // Складская ячейка
+					if(is_total)
+						pBlk->SetZero();
+					else {
+						GetLocationName(p_ti->LocID, temp_buf);
+						pBlk->Set(temp_buf);
+					}
+					break;
+				case 27: // Штрихкод
+					if(is_total)
+						pBlk->SetZero();
+					else {
+						GObj.FetchSingleBarcode(p_ti->GoodsID, temp_buf);
+						pBlk->Set(temp_buf);
+					}
+					break;
+				case 28: // Серийный номер
+					if(is_total)
+						pBlk->SetZero();
+					else {
+						P_Pack->SnL.GetNumber(p_item->Pos, &temp_buf);
+						pBlk->Set(temp_buf);
+					}
+					break;
+				case 29:
+					if(is_total) {
+						(temp_buf = 0).Cat(Total.PckgCount, MKSFMTD(0, 0, NMBF_NOZERO));
+						pBlk->Set(temp_buf);
+					}
+					else if(p_item->UnitPerPack > 0.0) {
+						char   temp_[256];
+						QttyToStr(p_ti->SQtty(P_Pack->Rec.OpID), p_item->UnitPerPack, QTTYF_COMPLPACK|QTTYF_FRACTION, temp_);
+						pBlk->Set(temp_);
+					}
+					else
+						pBlk->SetZero();
+					break;
+				case 30: // Информация об установленной котировке
+					if(is_total)
+						pBlk->SetZero();
+					else {
+						uint   qsip = 0;
+						if(P_Pack->P_QuotSetupInfoList && P_Pack->P_QuotSetupInfoList->lsearch(&p_item->Pos, &qsip, CMPF_LONG)) {
+							const PPBillPacket::QuotSetupInfoItem & r_qsi = P_Pack->P_QuotSetupInfoList->at(qsip);
+							if(r_qsi.Flags & r_qsi.fInvalidQuot)
+								pBlk->Set("!");
+							else if(r_qsi.Flags & r_qsi.fMissingQuot)
+								pBlk->Set("x");
+							else
+								pBlk->Set("*");
+						}
+						else
+							pBlk->SetZero();
+					}
+					break;
+				case 31: // Заказанное количество (для документов отгрузки)
+					if(is_total) {
+						pBlk->Set(Total.OrderQtty);
+					}
+					else {
+						double ord_qtty = (p_ti->Flags & PPTFR_ONORDER) ? OrdQttyList.Get(p_ti->OrdLotID, 0) : 0.0;
+						pBlk->Set(ord_qtty);
+					}
+					break;
+				default:
+					ok = 0;
+			}
+		}
+	}
+	return ok;
+}
+
+double FASTCALL BillItemBrowser::GetLinkQtty(const PPTransferItem & rTi) const
+{
+	double result = 0.0;
+	if(P_LinkPack) {
+		const PPID goods_id = labs(rTi.GoodsID);
+		for(uint pos = 0; P_LinkPack->SearchGoods(goods_id, &pos); pos++) {
+			result += fabs(P_LinkPack->ConstTI(pos).Qtty());
+		}
+	}
+	return result;
+}
+
+double FASTCALL BillItemBrowser::GetOrderedQtty(const PPTransferItem & rTi) const
+{
+	return (rTi.Flags & PPTFR_ONORDER) ? OrdQttyList.Get(rTi.OrdLotID, 0) : 0.0;
+}
+
+//static
+int BillItemBrowser::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	BillItemBrowser * p_brw = (BillItemBrowser *)pBlk->ExtraPtr;
+	return p_brw ? p_brw->_GetDataForBrowser(pBlk) : 0;
+}
+
+void BillItemBrowser::update(int pos)
+{
+	AryBrowserDef * p_def = (AryBrowserDef *)view->getDef();
+	if(p_def) {
+		int16  c = (int16)p_def->_curItem();
+		p_def->setArray(0, 0, 1);
+		BillGoodsBrwItemArray * a = 0;
+		PROFILE(a = (BillGoodsBrwItemArray *)MakeList());
+		if(a) {
+			lock();
+			p_def->SetUserProc(BillItemBrowser::GetDataForBrowser, this);
+			// {
+            p_def->setArray(a, 0, 1);
+			view->setRange(a->getCount());
+			{
+				int    setup_quot_info_col = -1;
+				int    ext_cost_col = -1;
+				int    cost_col = -1;
+				int    qtty_col = -1;
+				int    upp_col = -1;
+				int    ordqtty_col = -1;
+				for(uint i = 0; i < p_def->getCount(); i++) {
+					const BroColumn & r_col = p_def->at(i);
+					switch(r_col.Offs) {
+						case 25: ext_cost_col = (int)i; break;
+						case  3: cost_col = (int)i; break;
+						case  2: qtty_col = (int)i; break;
+						case 29: upp_col = (int)i; break;
+						case 30: setup_quot_info_col = (int)i; break;
+						case 31: ordqtty_col = (int)i; break;
+					}
+				}
+				if(Total.ExtCost != 0.0) {
+					if(ext_cost_col < 0 && cost_col >= 0) {
+						view->insertColumn(cost_col+1, "ExtCost", 25, T_DOUBLE, MKSFMTD(0, 2, NMBF_NOZERO), BCO_USERPROC);
+					}
+				}
+				else {
+					/* @v9.2.5 Опасная операция - может повлечь вылет сеанса - надо доработать removeColumn
+					if(ext_cost_col >= 0) {
+						view->removeColumn(ext_cost_col);
+					}
+					*/
+				}
+				if(a->HasUpp && qtty_col >= 0 && upp_col < 0) {
+					view->insertColumn(qtty_col+1, "Package", 29, MKSTYPE(S_ZSTRING, 32), ALIGN_RIGHT, BCO_USERPROC|BCO_CAPRIGHT);
+				}
+				// @v9.1.1 {
+				if(Total.OrderQtty != 0.0) {
+					if(ordqtty_col < 0) {
+						int   prev_col = (upp_col >= 0) ? upp_col : ((qtty_col >= 0) ? qtty_col : -1);
+						if(prev_col)
+							view->insertColumn(prev_col+1, "@ordered", 31, T_DOUBLE, MKSFMTD(0, 3, NMBF_NOZERO|NMBF_NOTRAILZ), BCO_USERPROC|BCO_CAPRIGHT);
+					}
+				}
+				else {
+					/* @v9.2.5 Опасная операция - может повлечь вылет сеанса - надо доработать removeColumn
+					if(ordqtty_col >= 0) {
+						view->removeColumn(ordqtty_col);
+					}
+					*/
+				}
+				// } @v9.1.1
+				// @v8.2.0 {
+				if(P_Pack->P_QuotSetupInfoList) {
+					if(setup_quot_info_col < 0) {
+						view->insertColumn(-1, "SetupQuotInfo", 30, MKSTYPE(S_ZSTRING, 16), ALIGN_CENTER, BCO_USERPROC|BCO_CAPLEFT);
+					}
+				}
+				else {
+					/* @v9.2.5 Опасная операция - может повлечь вылет сеанса - надо доработать removeColumn
+					if(setup_quot_info_col >= 0) {
+						view->removeColumn(setup_quot_info_col);
+					}
+					*/
+				}
+				// } @v8.2.0
+			}
+			if(pos == pos_cur && c >= 0)
+				view->go(c);
+			else if(pos == pos_bottom)
+				view->go(a->getCount() - 2);
+			else if(pos >= 0 && pos < (int)a->getCount())
+				view->go(pos);
+			// }
+			unlock();
+		}
+	}
+}
+
+int BillItemBrowser::_moveItem(int srcRowIdx)
+{
+	int    ok = 1;
+	uint   i = 0;
+	int    s = 0;
+	ReceiptTbl::Rec rr;
+	PPTransferItem newitem;
+	PPTransferItem * p_ti = &P_LinkPack->TI(srcRowIdx);
+	if(p_ti->LotID)
+		s = P_Pack->SearchLot(p_ti->LotID, &i) ? 0 : 1;
+	else if(p_ti->GoodsID)
+		s = P_Pack->SearchGoods(p_ti->GoodsID, &i) ? 0 : 1;
+	else
+		s = 0;
+	if(s && !(p_ti->Flags & 0x80000000L)) {
+		double qtty = 0.0, price = 0.0;
+		if(!(State & stExpndOnReturn))
+			for(uint j = 0, r = 1; r; j++) {
+				if(p_ti->LotID)
+					r = P_LinkPack->SearchLot(p_ti->LotID, &j);
+				else if(p_ti->GoodsID)
+					r = P_LinkPack->SearchGoods(p_ti->GoodsID, &j);
+				else
+					r = 0;
+				if(r) {
+					PPTransferItem & r_temp_ti = P_LinkPack->TI(j);
+					double temp_q = fabs(r_temp_ti.Quantity_);
+					if(temp_q != 0.0) {
+						price = (r_temp_ti.NetPrice() * temp_q + price * qtty) / (temp_q + qtty);
+						qtty += temp_q;
+						r_temp_ti.Flags |= 0x80000000L;
+					}
+				}
+			}
+		newitem = *p_ti;
+		THROW(newitem.Init(&P_Pack->Rec));
+		if(p_ti->LotID && P_T->Rcpt.Search(p_ti->LotID, &rr) > 0 && P_T->GetLotPrices(&rr, P_Pack->Rec.Dt)) {
+			newitem.Cost = R5(rr.Cost);
+			newitem.Discount = R5(rr.Price) - ((price != 0.0) ? price : newitem.NetPrice());
+			newitem.Price = R5(rr.Price);
+		}
+		newitem.Quantity_ = (qtty != 0.0) ? qtty : fabs(newitem.Quantity_);
+		newitem.Flags   &= ~PPTFR_RECEIPT;
+		THROW(P_Pack->InsertRow(&newitem, 0));
+		if(State & stExpndOnReturn)
+			p_ti->Quantity_ = 0.0;
+		p_ti->Flags |= 0x80000000L;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int BillItemBrowser::_moveItem2(int srcRowIdx)
+{
+	int    ok = 1;
+	// Признак корректировки расходного документа
+	const  int is_exp_correction = BIN(P_Pack->OprType == PPOPT_CORRECTION && P_LinkPack->OprType == PPOPT_GOODSEXPEND);
+	uint   i = 0;
+	int    s = 0;
+	ReceiptTbl::Rec rr;
+	PPTransferItem new_ti;
+	PPTransferItem & r_ti = P_LinkPack->TI(srcRowIdx);
+	if(is_exp_correction) {
+		uint   ex_ti_pos = 0;
+		if(!P_Pack->SearchTI(r_ti.RByBill, &ex_ti_pos))
+			s = 1;
+	}
+	else {
+		if(r_ti.LotID)
+			s = P_Pack->SearchLot(r_ti.LotID, &i) ? 0 : 1;
+		else if(r_ti.GoodsID)
+			s = P_Pack->SearchGoods(r_ti.GoodsID, &i) ? 0 : 1;
+		else
+			s = 0;
+	}
+	if(s && !(r_ti.Flags & 0x80000000L)) {
+		double qtty = 0.0, price = 0.0;
+		if(!(State & stExpndOnReturn) && !is_exp_correction) {
+			for(uint j = 0, r = 1; r; j++) {
+				if(r_ti.LotID)
+					r = P_LinkPack->SearchLot(r_ti.LotID, &j);
+				else if(r_ti.GoodsID)
+					r = P_LinkPack->SearchGoods(r_ti.GoodsID, &j);
+				else
+					r = 0;
+				if(r) {
+					PPTransferItem & r_temp_ti = P_LinkPack->TI(j);
+					double temp_q = fabs(r_temp_ti.Quantity_);
+					if(temp_q != 0.0) {
+						price = (r_temp_ti.NetPrice() * temp_q + price * qtty) / (temp_q + qtty);
+						qtty += temp_q;
+						r_temp_ti.Flags |= 0x80000000L;
+					}
+				}
+			}
+		}
+		new_ti = r_ti;
+		THROW(new_ti.Init(&P_Pack->Rec, 0 /*!zeroRByBill*/));
+		// @v9.4.3 {
+		if(new_ti.IsCorrectionExp()) {
+			PPIDArray chain_list;
+			if(P_BObj->GetCorrectionBackChain(P_Pack->Rec, chain_list) > 0) {
+				double org_qtty = 0.0;
+				double org_price = 0.0;
+				if(P_BObj->trfr->GetOriginalValuesForCorrection(new_ti, chain_list, &org_qtty, &org_price) > 0) {
+					new_ti.RevalCost = org_price;
+					new_ti.QuotPrice = fabs(org_qtty);
+				}
+				else {
+					// @todo Здесь надо как-то отреагировать (в лог что-то написать или что-то в этом роде)
+				}
+			}
+			new_ti.TFlags |= PPTransferItem::tfForceNew;
+		}
+		// } @v9.4.3 
+		if(r_ti.LotID && P_T->Rcpt.Search(r_ti.LotID, &rr) > 0 && P_T->GetLotPrices(&rr, P_Pack->Rec.Dt)) {
+			new_ti.Cost = R5(rr.Cost);
+			new_ti.Discount = R5(rr.Price) - ((price != 0.0) ? price : new_ti.NetPrice());
+			new_ti.Price = R5(rr.Price);
+		}
+		new_ti.Quantity_ = (qtty != 0.0) ? qtty : fabs(new_ti.Quantity_);
+		new_ti.Flags   &= ~PPTFR_RECEIPT;
+		THROW(P_Pack->InsertRow(&new_ti, 0));
+		if(State & stExpndOnReturn)
+			r_ti.Quantity_ = 0.0;
+		r_ti.Flags |= 0x80000000L;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int BillItemBrowser::addItemByOrder(PPBillPacket * pOrderPack, int line)
+{
+	int    ok = -1;
+	uint   j;
+	int    is_row_inserted = 0;
+	if(pOrderPack->ChkTIdx(line)) {
+		SString temp_buf;
+		int      zero_rest = 1;
+		PPID     loc_id = P_Pack->Rec.LocID;
+		DateIter diter;
+		double   rest, qtty;
+		double   reserve = 0.0; // Количество, занятое резервирующими заказами
+		PPTransferItem ti, * tmp_sti = 0;
+		PPTransferItem * p_ord_item = & pOrderPack->TI(line);
+		PPID     goods_id = labs(p_ord_item->GoodsID);
+		Goods2Tbl::Rec  goods_rec;
+		LotArray lot_list;
+		THROW(GObj.Fetch(goods_id, &goods_rec) > 0);
+		THROW(P_Pack->RestByOrderLot(p_ord_item->LotID, 0, -1, &qtty));
+		if(P_Pack->CheckGoodsForRestrictions(-1, goods_id, TISIGN_MINUS, qtty, PPBillPacket::cgrfAll, 0)) {
+			uint   i;
+			//
+			// @v7.0.0 {
+			// Если данная отгрузка осуществляется по резервирующему заказу, то
+			// не проверяем налииче других резервирующих заказов на этот товар:
+			// действует правило "кто первый встал - того и сапоги".
+			//
+			int    i_am_reserve_order = 0;
+			{
+				ReceiptTbl::Rec ord_lot_rec;
+				if(P_T->Rcpt.Search(p_ord_item->LotID, &ord_lot_rec) > 0 && ord_lot_rec.Flags & LOTF_ORDRESERVE)
+					i_am_reserve_order = 1;
+			}
+			if(!i_am_reserve_order) {
+			// } @v7.0.0
+				//
+				// Уменьшаем отгружаемое количество на величину зарезервированного
+				// товара (резервирующий заказ не принадлежит данному контрагенту и
+				// не является собственно заказом, по которому осуществляется данная отгрузка.
+				//
+				P_T->Rcpt.GetListOfOpenedLots(-1, -goods_id, loc_id, MAXDATE, &lot_list);
+				for(i = 0; i < lot_list.getCount(); i++) {
+					const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
+					if(r_lot_rec.Flags & LOTF_ORDRESERVE && r_lot_rec.SupplID != P_Pack->Rec.Object &&
+						r_lot_rec.BillID != pOrderPack->Rec.ID) {
+						P_T->GetRest(r_lot_rec.ID, MAXDATE, &rest);
+						reserve += rest;
+					}
+				}
+			}
+			lot_list.clear();
+			P_T->Rcpt.GetListOfOpenedLots(-1, goods_id, loc_id, P_Pack->Rec.Dt, &lot_list);
+			for(i = 0; i < lot_list.getCount() && qtty > 0.0; i++) {
+				const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
+				THROW(P_Pack->BoundsByLot(r_lot_rec.ID, 0, -1, &rest, 0));
+				if(reserve > 0.0) {
+					//
+					// Снижаем доступный остаток на величину резерва.
+					//
+					const double decr = MIN(rest, reserve);
+					rest -= decr;
+					reserve -= decr;
+				}
+				rest = MIN(rest, qtty);
+				if(rest > 0.0) {
+					const int ord_price_low_prior = BIN(P_BObj->GetConfig().Flags & BCF_ORDPRICELOWPRIORITY);
+					const int is_isales_order = BIN(pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER &&
+						pOrderPack->BTagL.GetItemStr(PPTAG_BILL_EDICHANNEL, temp_buf) > 0 && temp_buf.CmpNC("ISALES-PEPSI") == 0);
+					const double ord_qtty = fabs(p_ord_item->Quantity_);
+					const double ord_price = fabs(p_ord_item->Price) * ord_qtty;
+					const double ord_dis   = p_ord_item->Discount * ord_qtty;
+					const double ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R4(ord_dis / ord_price) : 0.0;
+					THROW(ti.Init(&P_Pack->Rec));
+					THROW(ti.SetupGoods(goods_id));
+					THROW(ti.SetupLot(r_lot_rec.ID, &r_lot_rec, 0));
+					if(p_ord_item->NetPrice() <= 0.0 || (ord_price_low_prior && CheckOpFlags(pOrderPack->Rec.OpID, OPKF_ORDERBYLOC)) ||
+						(ord_price_low_prior && LConfig.Flags & CFGFLG_AUTOQUOT)) {
+						double quot = 0.0;
+						if(P_BObj->SelectQuotKind(P_Pack, &ti, 0, 0, &quot) > 0) {
+							if(is_isales_order && ord_pct_dis > 0.0) {
+								quot = R5(quot * (1 - ord_pct_dis));
+							}
+							ti.Discount = ti.Price - quot;
+							ti.SetupQuot(quot, 1);
+						}
+					}
+					else if(is_isales_order && ord_pct_dis > 0.0) {
+						const double quot = R5(ti.Price * (1 - ord_pct_dis));
+						ti.Discount = ti.Price - quot;
+						ti.SetupQuot(quot, 1);
+					}
+					else if(p_ord_item->NetPrice() > 0.0)
+						ti.Discount = ti.Price - p_ord_item->NetPrice();
+					ti.OrdLotID = p_ord_item->LotID; // @ordlotid
+					ti.Flags   |= PPTFR_ONORDER;
+					ti.Quantity_ = rest;
+					//
+					// После двух следующих строк индекс j правильно указывает
+					// позицию строки теневого документа, которой соответствует наша новая строка
+					//
+					if(!P_Pack->SearchShLot(ti.OrdLotID, &(j = 0))) // @ordlotid
+						THROW(P_Pack->AddShadowItem(p_ord_item, &j));
+					THROW(P_Pack->InsertRow(&ti, 0));
+					ok = 1;
+					tmp_sti = &P_Pack->P_ShLots->at(j);
+					THROW(P_Pack->CalcShadowQuantity(tmp_sti->LotID, &tmp_sti->Quantity_));
+					qtty -= rest;
+					zero_rest = 0;
+					is_row_inserted = 1;
+				}
+			}
+			if(zero_rest) {
+				if(goods_rec.Flags & GF_UNLIM) {
+					THROW(ti.Init(&P_Pack->Rec));
+					THROW(ti.SetupGoods(goods_id));
+					ti.LotID    = 0;
+					ti.Price    = p_ord_item->Price;
+					ti.Discount = 0.0;
+					ti.OrdLotID = p_ord_item->LotID; // @ordlotid
+					ti.Flags   |= PPTFR_ONORDER;
+					ti.Quantity_ = p_ord_item->LotID ? qtty : fabs(p_ord_item->Quantity_);
+					if(!P_Pack->SearchShLot(ti.OrdLotID, &(j = 0))) // @ordlotid
+						THROW(P_Pack->AddShadowItem(p_ord_item, &j));
+					THROW(P_Pack->InsertRow(&ti, 0));
+					if(p_ord_item->LotID) {
+						tmp_sti = &P_Pack->P_ShLots->at(j);
+						THROW(P_Pack->CalcShadowQuantity(tmp_sti->LotID, &tmp_sti->Quantity_));
+					}
+					is_row_inserted = 1;
+					ok = 1;
+				}
+				else if(goods_rec.Flags & GF_AUTOCOMPL) {
+					THROW(ti.Init(&P_Pack->Rec));
+					THROW(ti.SetupGoods(goods_id));
+					ti.LotID    = 0;
+					ti.Price    = p_ord_item->Price;
+					ti.Discount = 0.0;
+					ti.OrdLotID = p_ord_item->LotID; // @ordlotid
+					ti.Flags   |= (PPTFR_ONORDER | PPTFR_AUTOCOMPL);
+					ti.Quantity_ = qtty;
+					if(!P_Pack->SearchShLot(ti.OrdLotID, &(j = 0))) // @ordlotid
+						THROW(P_Pack->AddShadowItem(p_ord_item, &j));
+					THROW(P_Pack->InsertRow(&ti, 0, PCUG_USERCHOICE));
+					tmp_sti = &P_Pack->P_ShLots->at(j);
+					THROW(P_Pack->CalcShadowQuantity(tmp_sti->LotID, &tmp_sti->Quantity_));
+					is_row_inserted = 1;
+					ok = 1;
+				}
+			}
+		}
+	}
+	if(is_row_inserted && P_Pack->Rec.SCardID == 0 && pOrderPack->Rec.SCardID > 0)
+		P_Pack->Rec.SCardID = pOrderPack->Rec.SCardID;
+	CATCHZOK
+	return ok;
+}
+
+int BillItemBrowser::addModifItem(int * pSign, TIDlgInitData * pInitData)
+{
+	int    ok = -1;
+	int    sign = pSign ? *pSign : TISIGN_UNDEF;
+	TDialog * dlg = 0;
+	if(sign == TISIGN_UNDEF) {
+		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SELMODIF)), 0));
+		dlg->setCtrlUInt16(CTL_SELMODIF_WHAT, 0);
+		dlg->DisableClusterItem(CTL_SELMODIF_WHAT, 2, BIN(P_Pack->Rec.Flags & BILLF_RECOMPLETE));
+		if(ExecView(dlg) == cmOK) {
+			ushort v = dlg->getCtrlUInt16(CTL_SELMODIF_WHAT);
+			if(v == 0)
+				sign = TISIGN_MINUS;
+			else if(v == 1)
+				sign = TISIGN_PLUS;
+			else if(v == 2)
+				sign = TISIGN_RECOMPLETE;
+		}
+	}
+	if(oneof3(sign, TISIGN_MINUS, TISIGN_PLUS, TISIGN_RECOMPLETE))
+		ok = 1;
+	if(P_Pack->Rec.Flags & BILLF_RECOMPLETE && sign == TISIGN_PLUS) {
+		PPID  recompl_lot_id = 0, lot_id = 0;
+		PPTransferItem * p_ti;
+		CompleteArray compl_list;
+		for(uint i = 0; !recompl_lot_id && P_Pack->EnumTItems(&i, &p_ti);)
+			if(p_ti->IsRecomplete())
+				recompl_lot_id = p_ti->LotID;
+		if(recompl_lot_id && P_BObj->GetComplete(recompl_lot_id, PPObjBill::gcfGatherSources, &compl_list) > 0) {
+			CompleteItem item;
+			if(pInitData->LotID) {
+				THROW_PP(compl_list.SearchLotID(pInitData->LotID, 0, &item), PPERR_NONCOMPLCOMPONENT);
+				pInitData->Quantity = item.Qtty;
+				ok = 2;
+			}
+			else if(pInitData->GoodsID) {
+				THROW_PP(compl_list.SearchGoodsID(pInitData->GoodsID, 0, &item), PPERR_NONCOMPLCOMPONENT);
+				pInitData->LotID = item.LotID;
+				pInitData->Quantity = item.Qtty;
+				ok = 2;
+			}
+			else if(P_BObj->ViewLotComplete(recompl_lot_id, &lot_id) > 0) {
+				pInitData->LotID = lot_id;
+				THROW_PP(compl_list.SearchLotID(pInitData->LotID, 0, &item), PPERR_NONCOMPLCOMPONENT);
+				pInitData->GoodsID = item.GoodsID;
+				pInitData->Quantity = item.Qtty;
+				ok = 2;
+			}
+			else
+				ok = -1;
+		}
+	}
+	CATCHZOK
+	delete dlg;
+	ASSIGN_PTR(pSign, sign);
+	return ok;
+}
+
+void BillItemBrowser::addItem(int fromOrder, TIDlgInitData * pInitData, int sign)
+{
+	int    r, lc, i;
+	BillItemBrowser * brw = 0;
+	if(GetOpType(P_Pack->Rec.OpID) == PPOPT_GOODSEXPEND && CheckOpFlags(P_Pack->Rec.OpID, OPKF_PCKGMOUNTING) && !P_Pckg)
+		selectPckg(0);
+	else if(fromOrder) {
+		if(CheckOpFlags(P_Pack->Rec.OpID, OPKF_ONORDER)) {
+			THROW(r = selectOrder());
+			if(r > 0 && OrderBillID) {
+				uint   res_id = BROWSER_ID(ORDGOODSITEM_W);
+				THROW_MEM(P_LinkPack = new PPBillPacket);
+				THROW(P_BObj->ExtractPacket(OrderBillID, P_LinkPack));
+				THROW_MEM(brw = new BillItemBrowser(res_id, P_BObj, P_LinkPack, P_Pack, -1, 1, 0));
+				brw->changeBounds(TRect(0, 0, 80, 10));
+				brw->State |= BillItemBrowser::stOrderSelector;
+				while(ExecView(brw) == cmOK) {
+					r  = brw->AsSelector;
+					brw->AsSelector = 1;
+					lc = P_LinkPack->GetTCount();
+					int    gr = 0;
+					if(r >= 0 && r < lc) {
+						THROW(r = addItemByOrder(P_LinkPack, r));
+						if(r > 0)
+							gr = 1;
+					}
+					else if(r == -1) {
+						for(i = 0; i < lc; i++) {
+							THROW(r = addItemByOrder(P_LinkPack, i));
+							if(r > 0)
+								gr = 1;
+						}
+					}
+					if(gr) {
+						brw->update(pos_cur);
+						brw->State |= BillItemBrowser::stIsModified;
+						update(pos_bottom);
+					}
+				}
+				ZDELETE(P_LinkPack);
+			}
+		}
+	}
+	//
+	// Возврат товара
+	//
+	else if(State & stUseLinkSelection && P_LinkPack) {
+		uint   res_id = (LConfig.Flags & CFGFLG_SHOWPHQTTY) ? BROWSER_ID(GOODSITEMPH_W) : BROWSER_ID(GOODSITEM_W);
+		THROW_MEM(brw = new BillItemBrowser(res_id, P_BObj, P_LinkPack, 0, -1, 1, 0));
+		brw->changeBounds(TRect(0, 0, 80, 10));
+		while(ExecView(brw) == cmOK) {
+			r = brw->AsSelector;
+			brw->AsSelector = 1;
+			lc = P_LinkPack->GetTCount();
+			if(r >= 0 && r < lc) {
+				THROW(_moveItem2(r));
+				brw->update(pos_cur);
+				State |= stIsModified;
+				update(pos_bottom);
+			}
+			else if(r == -1) {
+				for(r = 0; r < lc; r++)
+					THROW(_moveItem2(r));
+				State |= stIsModified;
+				update(pos_bottom);
+				break;
+			}
+		}
+	}
+	else if(!AsSelector) {
+		int    skip = 0;
+		TIDlgInitData temp_tidi;
+		if(NewGoodsGrpID && !pInitData) {
+			temp_tidi.GoodsGrpID = NewGoodsGrpID;
+			pInitData = &temp_tidi;
+		}
+		if(P_Pack->OprType == PPOPT_GOODSMODIF && sign == 0) {
+			RVALUEPTR(temp_tidi, pInitData);
+			sign = temp_tidi.GetTiSign();
+			THROW(r = addModifItem(&sign, &temp_tidi));
+			if(r < 0)
+				skip = 1;
+			else if(r == 2) {
+				if(pInitData)
+					*pInitData = temp_tidi;
+				else
+					pInitData = &temp_tidi;
+			}
+		}
+		if(!skip && EditTransferItem(P_Pack, -1, pInitData, 0, sign) == cmOK) {
+			const  uint pos = P_Pack->GetTCount() - 1;
+			PPTransferItem * p_ti = &P_Pack->TI(pos);
+			if(P_Pckg) {
+				p_ti->Flags |= PPTFR_PCKGGEN;
+		        if(P_Pckg->Flags & PCKGF_MOUNTED && p_ti->Flags & PPTFR_MINUS)
+		            p_ti->Flags |= PPTFR_UNITEINTR;
+				P_Pckg->AddItem(0, pos);
+			}
+			if(P_Pack->OprType == PPOPT_GOODSMODIF) {
+				if(!p_ti->IsRecomplete()) {
+					PPGoodsStruc::Ident gs_ident(p_ti->GoodsID, -1L, GSF_PARTITIAL, P_Pack->Rec.Dt);
+					if(sign > 0)
+						gs_ident.AndFlags = GSF_COMPL;
+					else if(sign < 0)
+						gs_ident.AndFlags = GSF_DECOMPL;
+					TSCollection <PPGoodsStruc> gs_list;
+					if(GObj.LoadGoodsStruc(&gs_ident, gs_list) > 0) {
+						if(gs_list.getCount() == 1) {
+							const uint gs_pos = 0;
+							THROW(P_Pack->InsertComplete(gs_list.at(gs_pos), pos, 0, 0));
+						}
+						else if(gs_list.getCount() > 1) {
+							int    do_select = 1;
+							SString source_serial;
+							P_Pack->LTagL.GetTagStr(pos, PPTAG_LOT_SOURCESERIAL, source_serial);
+							if(source_serial.NotEmptyS()) {
+								PPIDArray src_lot_list;
+								LongArray potential_gs_pos_list;
+								P_BObj->SearchLotsBySerialExactly(source_serial, &src_lot_list);
+								for(uint llidx = 0; llidx < src_lot_list.getCount(); llidx++) {
+									const PPID src_lot_id = src_lot_list.get(llidx);
+									ReceiptTbl::Rec src_lot_rec;
+									if(P_BObj->trfr->Rcpt.Search(src_lot_id, &src_lot_rec) > 0 && src_lot_rec.Rest > 0.0) {
+										for(uint sidx = 0; sidx < gs_list.getCount(); sidx++) {
+											const PPGoodsStruc * p_gs = gs_list.at(sidx);
+											if(p_gs->HasGoods(src_lot_rec.GoodsID)) {
+												potential_gs_pos_list.add(sidx+1);
+											}
+										}
+									}
+								}
+								potential_gs_pos_list.sortAndUndup();
+								if(potential_gs_pos_list.getCount() == 1) {
+									const uint gs_pos = (uint)(potential_gs_pos_list.get(0)-1);
+									THROW(P_Pack->InsertComplete(gs_list.at(gs_pos), pos, 0, 0));
+									do_select = 0;
+								}
+							}
+							if(do_select) {
+								PPObjGoodsStruc gs_obj;
+								uint   gs_pos = 0;
+								if(gs_obj.SelectorDialog(gs_list, &gs_pos) > 0) {
+									if(gs_pos < gs_list.getCount()) {
+										THROW(P_Pack->InsertComplete(gs_list.at(gs_pos), pos, 0, 0));
+									}
+								}
+							}
+						}
+					}
+				}
+				P_Pack->CalcModifCost();
+			}
+			if(P_Pack->ProcessFlags & PPBillPacket::pfHasExtCost)
+				P_Pack->InitAmounts(0);
+			else if(P_Pack->UsesDistribCost()) {
+				Goods2Tbl::Rec goods_rec;
+				if(GObj.Fetch(p_ti->GoodsID, &goods_rec) > 0 && goods_rec.Flags & GF_ODD) {
+					P_Pack->InitAmounts(0);
+				}
+			}
+			State |= stIsModified;
+			update(pos_bottom);
+			UpdatePriceDevList((long)pos, +1);
+		}
+	}
+	CATCH
+		if(fromOrder)
+			ZDELETE(P_LinkPack);
+		PPError();
+	ENDCATCH
+	delete brw;
+}
+
+int BillItemBrowser::ConvertBillToBasket()
+{
+	int    ok = -1, r = 0;
+	SelBasketParam param;
+	param.SelPrice = IsSellingOp(P_Pack->Rec.OpID) ? 2 : 1;
+	THROW(r = GetBasketByDialog(&param, "BillItemBrowser"));
+	if(r > 0) {
+		PPTransferItem * p_item = 0;
+		PPWait(1);
+		for(uint i = 0; P_Pack->EnumTItems(&i, &p_item);) {
+			ILTI   ilti(p_item);
+			ilti.GoodsID = labs(ilti.GoodsID);
+			if(param.SelPrice == 1)
+				ilti.Price = p_item->Cost;
+			else if(param.SelPrice == 2)
+				ilti.Price = p_item->Price;
+			else if(param.SelPrice == 3)
+				ilti.Price = p_item->NetPrice();
+			ilti.Quantity = fabs(ilti.Quantity);
+			THROW(param.Pack.AddItem(&ilti, 0, param.SelReplace));
+		}
+		PPWait(0);
+		THROW(GoodsBasketDialog(param, 1));
+		ok = 1;
+	}
+	CATCHZOKPPERR
+	PPWait(0);
+	return ok;
+}
+
+int BillItemBrowser::ConvertBasketToBill()
+{
+	int    ok = -1, r = 0;
+	PPObjGoodsBasket gb_obj;
+	PPBasketCombine basket;
+	THROW(r = gb_obj.SelectBasket(basket));
+	if(r > 0) {
+		THROW(r = P_BObj->ConvertBasket(&basket.Pack, P_Pack));
+		if(r > 0) {
+			State |= stIsModified;
+			update(pos_bottom);
+			ok = 1;
+		}
+	}
+	CATCHZOKPPERR
+	return ok;
+}
+
+void BillItemBrowser::viewPckgItems(int activateNewRow)
+{
+	int16 c = getCurItemPos();
+	int16 sav_brw_pos = (int16)view->getDef()->_curItem();
+	if(c >= 0) {
+		const PPTransferItem & r_ti = P_Pack->ConstTI(c);
+		if(r_ti.Flags & PPTFR_PCKG && P_Pack->P_PckgList && P_Pack->P_PckgList->GetByIdx(c)) {
+			uint   res_id = (LConfig.Flags & CFGFLG_SHOWPHQTTY) ? BROWSER_ID(GOODSITEMPH_W) : BROWSER_ID(GOODSITEM_W);
+			int    edit_mode = (r_ti.Flags & PPTFR_RECEIPT) ? EditMode : 2;
+			BillItemBrowser * brw = new BillItemBrowser(res_id, P_BObj, P_Pack, 0, c, 0, edit_mode);
+			if(activateNewRow)
+				brw->State |= BillItemBrowser::stActivateNewRow;
+			ExecViewAndDestroy(brw);
+			brw = 0;
+			if(r_ti.Flags & PPTFR_RECEIPT) {
+				P_Pack->CalcPckgTotals();
+				update(sav_brw_pos);
+			}
+		}
+	}
+}
+
+int BillItemBrowser::getMinMaxQtty(uint itemPos, double * pMinQtty, double * pMaxQtty)
+{
+	double min_qtty = 0.0, max_qtty = 0.0;
+	const PPTransferItem & r_ti = P_Pack->ConstTI(itemPos);
+	if(P_Pack->OprType == PPOPT_GOODSEXPEND) {
+		if(P_Pack->Rec.ID) {
+			DateIter di;
+			BillTbl::Rec bill_rec;
+			while(P_BObj->P_Tbl->EnumLinks(P_Pack->Rec.ID, &di, BLNK_RETURN, &bill_rec) > 0)
+				P_T->SubtractBillQtty(bill_rec.ID, r_ti.LotID, &min_qtty);
+		}
+	}
+	else if(P_Pack->OprType == PPOPT_GOODSRETURN && P_LinkPack)
+		for(uint i = 0; P_LinkPack->SearchLot(r_ti.LotID, &i); i++)
+			if(!(State & stExpndOnReturn))
+				max_qtty += P_LinkPack->ConstTI(i).Quantity_;
+	ASSIGN_PTR(pMinQtty, fabs(min_qtty));
+	ASSIGN_PTR(pMaxQtty, fabs(max_qtty));
+	return 1;
+}
+
+void BillItemBrowser::editItem()
+{
+	int16  c = getCurItemPos();
+	uint   i;
+	double rest;
+	int    valid_data = 0;
+	PPTransferItem * p_ti;
+	if(c >= 0) {
+		p_ti = &P_Pack->TI((uint)c);
+		if(p_ti->Flags & PPTFR_PCKG) {
+			if(p_ti->Flags & PPTFR_RECEIPT || IsIntrExpndOp(P_Pack->Rec.OpID)) {
+				LPackage * p_pckg = P_Pack->P_PckgList ? P_Pack->P_PckgList->GetByIdx(c) : 0;
+				if(p_pckg) {
+					if(editPackageData(p_pckg) > 0)
+						update(pos_cur);
+				}
+			}
+			else
+				viewPckgItems(0);
+		}
+		else if(!AsSelector) {
+			TIDlgInitData tidi;
+			getMinMaxQtty((uint)c, &tidi.MinQtty, &tidi.MaxQtty);
+			while(!valid_data && EditTransferItem(P_Pack, (int) c, &tidi, 0) == cmOK) {
+				valid_data = 1;
+				//
+				// Проверка на то, чтобы возврат не превышал взятое количество
+				//
+				if(P_Pack->OprType == PPOPT_GOODSRETURN && P_LinkPack) {
+					double expend = 0.0;
+					for(i = 0, p_ti = &P_Pack->TI((uint)c); P_LinkPack->SearchLot(p_ti->LotID, &i); i++)
+						if(State & stExpndOnReturn)
+							if(!P_Pack->BoundsByLot(p_ti->LotID, 0, -1, &rest, 0))
+								valid_data = PPErrorZ();
+							else if(rest < 0)
+								valid_data = (PPError(PPERR_RETQTTY, 0), 0);
+							else {
+								p_ti = &P_LinkPack->TI(i);
+								p_ti->Quantity_ = rest;
+								SETFLAG(p_ti->Flags, 0x80000000L, rest == 0.0);
+							}
+						else
+							expend += P_LinkPack->ConstTI(i).Quantity_;
+					if(!(State & stExpndOnReturn) && fabs(expend) < fabs(p_ti->Quantity_))
+						valid_data = (PPError(PPERR_RETQTTY, 0), 0);
+				}
+				if(valid_data) {
+					State |= stIsModified;
+					if(P_Pack->OprType == PPOPT_GOODSMODIF)
+						P_Pack->CalcModifCost();
+					if(P_Pack->ProcessFlags & PPBillPacket::pfHasExtCost)
+						P_Pack->InitAmounts(0);
+					update(pos_cur);
+					UpdatePriceDevList(c, 0);
+				}
+			}
+		}
+		//
+		// Если окно работает как селектор и является модальным,
+		// то переменной AsSelector присваиваем номер выбранного
+		// элемента и закрываем окно.
+		//
+		else if(IsInState(sfModal)) {
+			AsSelector = c;
+			endModal(cmOK);
+			return;
+		}
+	}
+}
+
+int BillItemBrowser::checkForward(PPTransferItem * pTI, LDATE dt, int reverse)
+{
+	int    ok = 0;
+	if(P_T->SearchByBill(pTI->BillID, reverse, pTI->RByBill, 0) > 0) {
+		double neck    = -fabs(pTI->Quantity_);
+		double ph_neck = -fabs(R6(pTI->WtQtty));
+		if(P_T->UpdateForward(P_T->data.LotID, dt, P_T->data.OprNo, 1, &neck, &ph_neck) > 0)
+			ok = 1;
+	}
+	else
+		ok = 1;
+	return ok;
+}
+
+void BillItemBrowser::delItem()
+{
+	PPID   id, goods_id;
+	uint   i;
+	double tmp;
+	if(!AsSelector) {
+		int16  c = getCurItemPos();
+		int16  cur_view_pos = (int16)view->getDef()->_curItem();
+		if(c >= 0 && (!(LConfig.Flags & CFGFLG_CONFGBROWRMV) || CONFIRM(PPCFM_DELETE))) {
+			//
+			// Проверяем, можно ли будет провести документ с заявленным удалением
+			//
+			PPTransferItem * p_ti = &P_Pack->TI((uint)c);
+			double qtty = fabs(p_ti->Quantity_);
+			if(P_Pack->OprType != PPOPT_GOODSRETURN && P_Pack->Rec.ID && p_ti->LotID) {
+				BillTbl::Rec bill_rec;
+				for(DateIter diter; P_BObj->P_Tbl->EnumLinks(P_Pack->Rec.ID, &diter, BLNK_RETURN, &bill_rec) > 0;) {
+					PPBillPacket ret_pack;
+					THROW(P_BObj->ExtractPacket(bill_rec.ID, &ret_pack) > 0);
+					THROW_PP(ret_pack.SearchLot(p_ti->LotID, &(i = 0)) <= 0, PPERR_DELLOTWRET);
+				}
+			}
+			if(p_ti->BillID && p_ti->RByBill) {
+				if(P_Pack->Rec.Flags & BILLF_GRECEIPT && !(p_ti->Flags & PPTFR_UNLIM)) {
+					THROW(checkForward(p_ti, P_Pack->Rec.Dt, 0));
+				}
+				//
+				// Если документ передачи по межскладу, то проверяем лот,
+				// созданный зеркальной проводкой.
+				//
+				else if(IsIntrExpndOp(P_Pack->Rec.OpID)) {
+					THROW(checkForward(p_ti, P_Pack->Rec.Dt, 1));
+				}
+			}
+			//
+			// Если есть связанный документ то отмечаем в нем удаление
+			//
+			if(P_LinkPack) {
+				goods_id = p_ti->GoodsID;
+				for(i = 0, id = p_ti->LotID; P_LinkPack->EnumTItems(&i, &p_ti);)
+					if((id && p_ti->LotID == id) || (!id && p_ti->GoodsID == goods_id)) {
+						p_ti->Flags &= ~0x80000000L;
+						if(State & stExpndOnReturn) {
+							THROW(P_Pack->BoundsByLot(id, 0, -1, &tmp, 0));
+							p_ti->Quantity_ += qtty;
+							break;
+						}
+					}
+			}
+			//
+			// Если удаляемая строка имеет теневую строку, на которую не ссылается //
+			// больше ни одна строка, то теневую строку удаляем
+			//
+			p_ti = &P_Pack->TI((uint)c);
+			id = (p_ti->Flags & PPTFR_ONORDER && P_Pack->P_ShLots) ? p_ti->OrdLotID : 0; // @ordlotid
+			if(p_ti->Flags & PPTFR_AUTOCOMPL)
+				P_Pack->RemoveAutoComplRow((uint)c);
+			P_Pack->RemoveRow((int)c);
+			if(id && P_Pack->SearchShLot(id, &(i = 0))) {
+				P_Pack->CalcShadowQuantity(id, &tmp);
+				if(tmp == 0.0)
+					P_Pack->P_ShLots->atFree(i);
+				else
+					P_Pack->P_ShLots->at(i).Quantity_ = tmp;
+			}
+			State |= stIsModified;
+			if(P_Pack->OprType == PPOPT_GOODSMODIF)
+				P_Pack->CalcModifCost();
+			if(P_Pack->ProcessFlags & PPBillPacket::pfHasExtCost)
+				P_Pack->InitAmounts(0);
+			update(cur_view_pos);
+			THROW(UpdatePriceDevList(c, -1));
+			ProblemsList.Remove(c);
+		}
+	}
+	CATCH
+		PPError();
+	ENDCATCH
+}
+
+void BillItemBrowser::selectPckg(PPID goodsID)
+{
+	int    r;
+	if(GetOpType(P_Pack->Rec.OpID) == PPOPT_GOODSEXPEND && CheckOpFlags(P_Pack->Rec.OpID, OPKF_PCKGMOUNTING)) {
+		LPackage pckg;
+		P_BObj->InitPckg(&pckg);
+		pckg.Flags |= PCKGF_MOUNTED;
+		if((r = editPackageData(&pckg)) > 0)
+			if(P_Pack->AddPckg(&pckg)) {
+				update(pos_bottom);
+				if(oneof2(r, 2, 3))
+					viewPckgItems(BIN(r == 3));
+			}
+			else
+				PPError();
+	}
+	else {
+		PckgFilt flt;
+		MEMSZERO(flt);
+		flt.GoodsID = goodsID;
+		flt.LocID   = P_Pack->Rec.LocID;
+		for(PPID pckg_id = 0; P_BObj->SelectPckg(&flt, &pckg_id) > 0;) {
+			if(P_BObj->AddPckgToBillPacket(pckg_id, P_Pack)) {
+				update(pos_bottom);
+				if(flt.GoodsID)
+					break;
+			}
+			else
+				PPError();
+		}
+	}
+}
+
+IMPL_HANDLE_EVENT(BillItemBrowser)
+{
+	int    c;
+	if(TVKEYDOWN && TVCHR == kbCtrlX)
+		State |= stCtrlX;
+	else if(TVCOMMAND || TVKEYDOWN) {
+		if(TVCHR != kbCtrlR && TVCHR != kbCtrlZ && TVCHR != kbCtrlD)
+			State &= ~stCtrlX;
+	}
+	if(TVKEYDOWN && (TVKEY == kbF3 || isalnum(c = TVCHR) || c == '*') && !AsSelector && EditMode < 2) {
+		PPID   pckg_id = 0;
+		char   code[64];
+		Goods2Tbl::Rec grec;
+		ReceiptTbl::Rec lot_rec;
+		double qtty = 0.0;
+		int    init_chr = (TVKEY == kbF3) ? 0 : c;
+		if(GObj.SelectGoodsByBarcode(init_chr, P_Pack->Rec.Object, &grec, &qtty, code) > 0) {
+			uint   pos = 0;
+			if(!(P_BObj->Cfg.Flags & BCF_DONTWARNDUPGOODS) &&
+				P_Pack->SearchGoods(grec.ID, &pos) && !CONFIRM(PPCFM_SAMEGOODSINPACK))
+				view->go(pos);
+			else {
+				PPID   op_type = GetOpType(P_Pack->Rec.OpID);
+				int    skip_dlg = BIN((P_BObj->GetConfig().Flags & BCF_ADDAUTOQTTYBYBRCODE) &&
+					oneof2(op_type, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT));
+				TIDlgInitData tidi;
+				SETFLAG(tidi.Flags, TIDIF_AUTOQTTY, skip_dlg);
+				tidi.GoodsID  = grec.ID;
+				tidi.Quantity = (tidi.Flags & TIDIF_AUTOQTTY) ? 1.0 : ((LConfig.Flags & CFGFLG_USEPACKAGE) ? 0.0 : qtty);
+				addItem(0, &tidi);
+			}
+		}
+		else if(P_BObj->SelectPckgByCode(code, P_Pack->Rec.LocID, &pckg_id) > 0) {
+			if(P_BObj->AddPckgToBillPacket(pckg_id, P_Pack))
+				update(pos_bottom);
+			else
+				PPError();
+		}
+		else if(P_BObj->SelectLotBySerial(code, 0, P_Pack->Rec.LocID, &lot_rec) > 0) {
+			TIDlgInitData tidi;
+			tidi.GoodsID  = labs(lot_rec.GoodsID);
+			tidi.LotID    = lot_rec.ID;
+			tidi.Quantity = (LConfig.Flags & CFGFLG_USEPACKAGE) ? 0.0 : qtty;
+			addItem(0, &tidi);
+		}
+	}
+	else {
+		if(event.isCmd(cmExecute)) {
+			if((State & stActivateNewRow) && !EditMode)
+				addItem();
+			// Далее управление передается базовому классу
+		}
+		BrowserWindow::handleEvent(event);
+		if(TVCOMMAND && EditMode < 2) {
+			switch(TVCMD) {
+				case cmaEdit:
+					if(!EventBarrier()) {
+						editItem();
+						EventBarrier(1);
+					}
+					break;
+				case cmaInsert:
+					if(!EventBarrier()) {
+						TIDlgInitData tidi;
+						GetDefScaleData(&tidi);
+						addItem(0, &tidi);
+						EventBarrier(1);
+					}
+					break;
+				case cmaDelete:
+					EVENT_BARRIER(delItem());
+					break;
+				default:
+					return;
+			}
+		}
+		else if(TVBROADCAST) {
+			if(TVCMD == cmMouseHover) {
+				long   v = 0;
+				SString buf;
+				TPoint point = *(TPoint *)event.message.infoPtr;
+				ItemByPoint(point, 0, &v);
+				if(ProblemsList.Get(v, buf) > 0)
+					PPTooltipMessage(buf, 0, H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
+						SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|
+						SMessageWindow::fChildWindow);
+			}
+		}
+		else if(TVKEYDOWN) {
+			switch(TVKEY) {
+				case KB_CTRLENTER:
+					if(AsSelector && IsInState(sfModal)) {
+						AsSelector = -1;
+						endModal(cmOK);
+						return; // После endModal не следует обращаться к this
+					}
+					break;
+				case kbF2:
+					if(EditMode < 2) {
+						EVENT_BARRIER(addItemExt());
+					}
+					break;
+				case kbShiftF2:
+					if(!EventBarrier()) {
+						c = getCurItemPos();
+						if(c >= 0 && c < (int)P_Pack->GetTCount()) {
+							PPID   goods_id = labs(P_Pack->ConstTI((uint)c).GoodsID);
+							if(goods_id && GObj.Edit(&goods_id, 0) == cmOK)
+								update(pos_cur);
+						}
+						EventBarrier(1);
+					}
+					break;
+				case kbShiftF3:
+					if(!EventBarrier()) {
+						c = getCurItemPos();
+						if(c >= 0 && c < (int)P_Pack->GetTCount()) {
+							const PPTransferItem & r_ti = P_Pack->ConstTI((uint)c);
+							if(oneof4(P_Pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_ACTCHARGEON, PPOPK_EDI_ACTCHARGEONSHOP, PPOPK_EDI_SHOPCHARGEON)) {
+								uint   i;
+								SString ref_b, egais_code;
+								StringSet ss_egais_codes;
+                                BarcodeArray bc_list;
+                                PPIDArray temp_list;
+                                PPObjBill::SelectLotParam slp(labs(r_ti.GoodsID), r_ti.LocID, 0, PPObjBill::SelectLotParam::fShowEgaisTags);
+                                slp.GoodsList.add(labs(r_ti.GoodsID));
+                                if(P_Pack->LTagL.GetTagStr(c, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code) > 0) {
+									temp_list.clear();
+									PPRef->Ot.SearchObjectsByStr(PPOBJ_LOT, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code, &temp_list);
+                                    slp.AddendumLotList.add(&temp_list);
+									ss_egais_codes.add(egais_code);
+                                }
+                                if(P_Pack->LTagL.GetTagStr(c, PPTAG_LOT_FSRARINFB, ref_b) > 0) {
+									temp_list.clear();
+									PPRef->Ot.SearchObjectsByStr(PPOBJ_LOT, PPTAG_LOT_FSRARINFB, ref_b, &temp_list);
+                                    slp.AddendumLotList.add(&temp_list);
+                                }
+                                slp.AddendumLotList.sortAndUndup();
+								GObj.ReadBarcodes(r_ti.GoodsID, bc_list);
+								for(i = 0; i < bc_list.getCount(); i++) {
+									const BarcodeTbl::Rec & r_bc = bc_list.at(i);
+									if(strlen(r_bc.Code) == 19) {
+										ss_egais_codes.add(r_bc.Code);
+									}
+								}
+								ss_egais_codes.sortAndUndup();
+								for(uint ssp = 0; ss_egais_codes.get(&ssp, egais_code);) {
+									BarcodeTbl::Rec bc_rec;
+									if(GObj.SearchByBarcode(egais_code, &bc_rec, 0, 0) > 0)
+										slp.GoodsList.add(bc_rec.GoodsID);
+								}
+								slp.GoodsList.sortAndUndup();
+								P_BObj->SelectLot2(slp);
+							}
+							else {
+								// @v9.3.6 PPID   lot_id = r_ti.LotID;
+								// @v9.3.6 SelectLot(r_ti.LocID, labs(r_ti.GoodsID), 0, &lot_id, 0);
+								PPObjBill::SelectLotParam slp(labs(r_ti.GoodsID), r_ti.LocID, 0, 0); // @v9.3.6
+								slp.RetLotID = r_ti.LotID; // @v9.3.6
+								P_BObj->SelectLot2(slp);
+							}
+						}
+						EventBarrier(1);
+					}
+					break;
+				case kbF4:
+					if(EditMode < 2) {
+						EVENT_BARRIER(addItemExt(1));
+					}
+					break;
+				case kbCtrlF4:
+					if(EditMode < 2) {
+                        EVENT_BARRIER(addItemBySerial());
+					}
+					break;
+				case kbF5: // Подбор товара по цене
+					if(EditMode < 2) {
+                        EVENT_BARRIER(addItemExt(2));
+					}
+					break;
+				case kbShiftF5:
+					if(EditMode < 2) {
+						EVENT_BARRIER(addNewPackage());
+					}
+					break;
+				case kbCtrlF5:
+					EVENT_BARRIER(viewPckgItems(0));
+					break;
+				case kbF6:
+					if(!AsSelector && EditMode < 2) {
+						EVENT_BARRIER(addItem(1));
+					}
+					break;
+				case kbF8:
+					EVENT_BARRIER(ConvertBasketToBill());
+					break;
+				case kbF9:
+					if(!AsSelector && EditMode < 2) {
+						if(!EventBarrier()) {
+							int    r = P_Pack->InsertPartitialStruc();
+							if(r >= 0) {
+								if(r == 0)
+									PPError();
+								State |= stIsModified;
+								update(pos_bottom);
+							}
+							EventBarrier(1);
+						}
+					}
+					break;
+				case kbCtrlF8:
+					EVENT_BARRIER(ConvertBillToBasket());
+					break;
+				case kbShiftF4:
+					if(CheckRows() > 0)
+						update(0);
+					break;
+				default:
+					if(TVCHR == kbCtrlT) {
+						if(!EventBarrier()) {
+							BillTotalData btd;
+							P_Pack->InitAmounts(0);
+							P_Pack->CalcTotal(&btd, 0);
+							btd.Amounts.copy(P_Pack->Amounts);
+							if(!P_BObj->CheckRights(BILLRT_ACCSCOST))
+								btd.Amounts.Put(PPAMT_BUYING, 0L /* @curID */, 0, 0, 1);
+							AmtListDialog * dlg = new AmtListDialog(DLG_GOODSBILLTOTAL, CTL_GBILLTOTAL_AMTLIST, 1, &btd.Amounts, 0, 0, 0);
+							if(CheckDialogPtr(&dlg, 1)) {
+								dlg->setCtrlLong(CTL_GBILLTOTAL_LINES,  btd.LinesCount);
+								dlg->setCtrlLong(CTL_GBILLTOTAL_GCOUNT, btd.GoodsCount);
+								dlg->setCtrlReal(CTL_GBILLTOTAL_BRUTTO, btd.Brutto);
+								dlg->setCtrlReal(CTL_GBILLTOTAL_VOLUME, btd.Volume);
+								dlg->setCtrlReal(CTL_GBILLTOTAL_QTTY,   btd.UnitsCount);
+								dlg->setCtrlReal(CTL_GBILLTOTAL_PHQTTY, btd.PhUnitsCount);
+								ExecViewAndDestroy(dlg);
+							}
+							EventBarrier(1);
+						}
+					}
+					else if(TVCHR == kbCtrlL) {
+						if(!EventBarrier()) {
+							int16  c = getCurItemPos();
+							if(c >= 0)
+								BarcodeLabelPrinter::PrintLabelByBill(P_Pack, (uint)c);
+							EventBarrier(1);
+						}
+					}
+					else if(TVCHR == kbCtrlB) {
+						if(EditMode < 2 && P_Pack) {
+							if(!EventBarrier()) {
+								if(oneof2(P_Pack->OprType, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT) && !GetOpSubType(P_Pack->Rec.OpID)) {
+									int    is_mod = BIN(State & stIsModified);
+									if(P_BObj->AutoCalcPrices(P_Pack, 1, &is_mod) > 0)
+										update(0);
+									if(is_mod)
+										State |= stIsModified;
+								}
+								else {
+									if(P_BObj->SetupQuot(P_Pack, 0) > 0)
+										update(0);
+								}
+								EventBarrier(1);
+							}
+						}
+					}
+					else if(TVCHR == kbCtrlA) {
+						if(!(State & stAltView) && P_Pack && IsSellingOp(P_Pack->Rec.OpID) >= 0 && P_Pack->OprType != PPOPT_GOODSORDER) {
+							if(!EventBarrier()) {
+								int16  __c = 0;
+								BillItemBrowser * p_brw = new BillItemBrowser(BROWSER_ID(GOODSITEM_ALTVIEW), P_BObj, P_Pack, 0, -1, 0, EditMode);
+								if(p_brw) {
+									if(getDef()) {
+										__c = (int16)getDef()->_curItem();
+										p_brw->go(__c);
+									}
+									ExecViewAndDestroy(p_brw);
+								}
+								update(__c);
+								EventBarrier(1);
+							}
+						}
+					}
+					else if(TVCHR == kbCtrlS) {
+						SString temp_buf, templt;
+						if(P_Pack && oneof2(P_Pack->OprType, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT) && CONFIRM(PPCFM_GENSERIALFORBILL)) {
+							if(!EventBarrier()) {
+								PPTransferItem * p_ti = 0;
+								int    upd = 0;
+								for(uint i = 0; P_Pack->EnumTItems(&i, &p_ti);) {
+									if(P_Pack->SnL.GetNumber(i-1, &temp_buf) <= 0 || !temp_buf.NotEmptyS()) {
+										templt = (GObj.IsAsset(p_ti->GoodsID) > 0) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt;
+										if(P_BObj->GetSnByTemplate(P_Pack->Rec.Code, labs(p_ti->GoodsID), &P_Pack->SnL, templt, temp_buf) > 0) {
+											if(temp_buf.NotEmptyS()) {
+												P_Pack->SnL.AddNumber(i-1, temp_buf);
+												upd = 1;
+											}
+										}
+									}
+								}
+								if(upd)
+									update(pos_cur);
+								EventBarrier(1);
+							}
+						}
+					}
+					else if(TVCHR == kbCtrlU) {
+						if(!EventBarrier()) {
+							c = getCurItemPos();
+							if(c >= 0 && c < (int)P_Pack->GetTCount()) {
+								const PPTransferItem & r_ti = P_Pack->ConstTI((uint)c);
+								Goods2Tbl::Rec goods_rec;
+								const PPID goods_id = labs(r_ti.GoodsID);
+								if(GObj.Fetch(goods_id, &goods_rec) > 0) {
+									PPObjGoods::ExtUniteBlock eub;
+									PrcssrAlcReport::Config alcr_cfg;
+									if(PrcssrAlcReport::ReadConfig(&alcr_cfg) > 0 && alcr_cfg.E.AlcGoodsClsID) {
+										if(goods_rec.GdsClsID == alcr_cfg.E.AlcGoodsClsID) {
+											eub.Flags |= eub.fUseSpcFormEgais;
+										}
+									}
+									eub.Flags |= (eub.fReverseOnStart|eub.fOnce);
+									if(GObj.ReplaceGoods(labs(r_ti.GoodsID), &eub) > 0) {
+										for(uint i = 0; i < P_Pack->GetTCount(); i++) {
+											PPTransferItem & r_item = P_Pack->TI(i);
+											const int gsign = (r_item.GoodsID < 0) ? -1 : 1;
+											if(labs(r_item.GoodsID) == eub.DestID) {
+                                                r_item.SetupGoods(eub.ResultID * gsign);
+											}
+										}
+										update(pos_cur);
+									}
+								}
+							}
+							EventBarrier(1);
+						}
+					}
+					else if(TVCHR == kbCtrlD && State & stCtrlX) {
+						if(!EventBarrier()) {
+							State &= ~stCtrlX;
+							if(DS.CheckExtFlag(ECF_AVERAGE) && PPMaster) {
+								int16  c = getCurItemPos();
+								if(c >= 0) {
+									PPTransferItem * p_ti = &P_Pack->TI((uint)c);
+									INVERSEFLAG(p_ti->TFlags, PPTransferItem::tfForceRemove);
+									update(c);
+								}
+							}
+							EventBarrier(1);
+						}
+					}
+					else if(TVCHR == kbCtrlR && State & stCtrlX) {
+						if(!EventBarrier()) {
+							State &= ~stCtrlX;
+							if(CConfig.Flags & CCFLG_DEBUG && PPMaster) {
+								int16  c = getCurItemPos();
+								if(c >= 0) {
+									PPTransferItem * p_ti = &P_Pack->TI((uint)c);
+									SString temp_buf;
+									temp_buf.CatHex(p_ti->Flags);
+									PPInputStringDialogParam isd_param;
+									isd_param.Flags |= PPInputStringDialogParam::fDisableSelection;
+									if(InputStringDialog(&isd_param, temp_buf) > 0) {
+										sscanf(temp_buf.Strip(), "%lx", &p_ti->Flags);
+										update(-1);
+									}
+								}
+							}
+							EventBarrier(1);
+						}
+					}
+					else if(TVCHR == kbCtrlZ && State & stCtrlX) {
+						if(!EventBarrier()) {
+							State &= ~stCtrlX;
+							if(P_Pack->Rec.ID && P_Pack->GetTCount() == 0) {
+								SysJournal * p_sj = DS.GetTLA().P_SysJ;
+								if(p_sj) {
+									HistBillCore hb_core;
+									SysJournalTbl::Key1 k1;
+									MEMSZERO(k1);
+									k1.ObjType = PPOBJ_BILL;
+									k1.ObjID = P_Pack->Rec.ID;
+									k1.Dt = MAXDATE;
+									k1.Tm = MAXTIME;
+									if(p_sj->search(1, &k1, spLt) && k1.ObjType == PPOBJ_BILL && k1.ObjID == P_Pack->Rec.ID) {
+										do {
+											if(p_sj->data.Action == PPACN_UPDBILL) {
+												PPHistBillPacket hb_pack;
+												if(hb_core.GetPacket(p_sj->data.Extra, &hb_pack) > 0 && hb_pack.GetCount()) {
+													HistTrfrTbl::Rec * p_h_item;
+													for(uint i = 0; hb_pack.EnumItems(&i, &p_h_item); ) {
+														PPTransferItem ti(&P_Pack->Rec, TISIGN_UNDEF);
+														ti.SetupGoods(p_h_item->GoodsID);
+														ti.Quantity_ = p_h_item->Quantity;
+														ti.Cost     = p_h_item->Cost;
+														ti.Price    = p_h_item->Price;
+														ti.Discount = p_h_item->Discount;
+														ti.QCert    = p_h_item->QCertID;
+														ti.Expiry   = p_h_item->Expiry;
+														ti.Flags    = p_h_item->Flags;
+														ILTI ilti(&ti);
+														if(!P_BObj->ConvertILTI(&ilti, P_Pack, 0, CILTIF_ABSQTTY, 0, 0))
+															PPError();
+													}
+													update(0);
+													break;
+												}
+											}
+										} while(p_sj->search(1, &k1, spPrev) && k1.ObjType == PPOBJ_BILL && k1.ObjID == P_Pack->Rec.ID);
+									}
+								}
+							}
+							EventBarrier(1);
+						}
+					}
+					else
+						return;
+					break;
+			}
+		}
+		else
+			return;
+	}
+	clearEvent(event);
+}
+
+int BillItemBrowser::selectOrder()
+{
+	OrderBillID = 0;
+	int    r = -1;
+	if(!P_Pack->SampleBillID) {
+		BillFilt flt;
+		PPOprKind op_rec;
+		flt.Period.upp = P_Pack->Rec.Dt;
+		PPID   op_id = 0;
+		for(PPID id = 0; (r = EnumOperations(PPOPT_GOODSORDER, &id, &op_rec)) > 0;)
+			if(op_rec.AccSheetID == P_Pack->AccSheet)
+				if(op_id == 0)
+					op_id = id;
+				else {
+					op_id = 0;
+					break;
+				}
+		flt.OpID = op_id;
+		flt.ObjectID = P_Pack->Rec.Object;
+		//flt.LocID  = P_Pack->Rec.Location;
+		flt.Ft_ClosedOrder = -1;
+		flt.Flags   |= (BillFilt::fAsSelector | BillFilt::fOrderOnly);
+		if((r = ViewGoodsBills(&flt, 0)) > 0)
+			return ((OrderBillID = flt.Sel), 1);
+		else
+			return r ? -1 : 0;
+	}
+	else
+		return ((OrderBillID = P_Pack->SampleBillID), 1);
+}
+
+int BillItemBrowser::isAllGoodsInPckg(PPID goodsID)
+{
+	int    all_lots_in_pckg = 0;
+	//
+	// Проверка на то, чтобы хотя бы один лот товара был не в пакете
+	// Если весь товар в пакетах, то предлагаем выбрать пакет
+	//
+	if(goodsID && (CConfig.Flags & CCFLG_USEGOODSPCKG) && !oneof2(P_Pack->OprType, PPOPT_GOODSORDER, PPOPT_GOODSRECEIPT)) {
+		LotArray lot_list;
+		P_T->Rcpt.GetListOfOpenedLots(1, goodsID, P_Pack->Rec.LocID, P_Pack->Rec.Dt, &lot_list);
+		for(uint i = 0; i < lot_list.getCount(); i++)
+			if(P_BObj->IsLotInPckg(lot_list.at(i).ID) > 0)
+				all_lots_in_pckg = 1;
+			else {
+				all_lots_in_pckg = 0;
+				break;
+			}
+	}
+	return all_lots_in_pckg;
+}
+
+void BillItemBrowser::addItemBySerial()
+{
+	const PPID op_id = P_Pack->Rec.OpID;
+	const PPID op_type_id = GetOpType(op_id);
+	const int opened_only = BIN(IsExpendOp(op_id) > 0 || op_type_id == PPOPT_GOODSREVAL || (op_type_id == PPOPT_GOODSORDER && CheckOpFlags(op_id, OPKF_ORDEXSTONLY)));
+	SString serial;
+	PPInputStringDialogParam isd_param;
+	PPLoadText(PPTXT_SELGOODSBYSERIAL, isd_param.Title);
+	if(opened_only && P_BObj->GetConfig().Flags & BCF_PICKLOTS) {
+		if(InputStringDialog(&isd_param, serial) > 0 && serial.NotEmptyS()) {
+			PickLotParam plp(0);
+			plp.LocID = P_Pack->Rec.LocID;
+			plp.Mode = plp.mBySerial;
+			plp.Text = serial;
+			PPLoadText(PPTXT_PICKLOT_BYSERIAL, plp.SubTitle);
+			plp.SubTitle.Space().CatQStr(serial);
+			TIDlgInitData tidi;
+			if(PickLot(plp, &tidi) > 0) {
+				addItem(0, &tidi);
+			}
+		}
+	}
+	else {
+		isd_param.P_Wse = new ObjTagSelExtra(PPOBJ_LOT, PPTAG_LOT_SN);
+		{
+			long  _flags = 0;
+			if(opened_only)
+				_flags |= ObjTagSelExtra::fOpenedSerialsOnly;
+			((ObjTagSelExtra *)isd_param.P_Wse)->SetupLotSerialParam(P_Pack->Rec.LocID, _flags);
+		}
+		if(InputStringDialog(&isd_param, serial) > 0 && serial.NotEmptyS()) {
+			ReceiptTbl::Rec lot_rec;
+			if(P_BObj->SelectLotBySerial(serial, 0, P_Pack->Rec.LocID, &lot_rec) > 0) {
+				TIDlgInitData tidi;
+				tidi.GoodsID  = labs(lot_rec.GoodsID);
+				tidi.LotID    = lot_rec.ID;
+				tidi.Quantity = (LConfig.Flags & CFGFLG_USEPACKAGE) ? 0.0 : 1.0;
+				addItem(0, &tidi);
+			}
+		}
+	}
+}
+
+void BillItemBrowser::addItemExt(int mode)
+{
+	const  PPID op_id = P_Pack->Rec.OpID;
+	const  PPID op_type_id = P_Pack->OprType;
+	int    do_exit = 0;
+	double sel_price = 0.0;
+	SString sub;
+	ExtGoodsSelDialog * dlg = 0;
+	if(State & stUseLinkSelection)
+		addItem();
+	else if(op_type_id == PPOPT_GOODSEXPEND && CheckOpFlags(op_id, OPKF_PCKGMOUNTING) && !P_Pckg)
+		selectPckg(0);
+	else {
+		StrAssocArray goods_list;
+		const int opened_only = BIN(IsExpendOp(op_id) > 0 || op_type_id == PPOPT_GOODSREVAL || (op_type_id == PPOPT_GOODSORDER && CheckOpFlags(op_id, OPKF_ORDEXSTONLY)));
+		if(mode == 1) {
+			PPInputStringDialogParam isd_param;
+			PPLoadText(PPTXT_SELGOODSBYNAME, isd_param.Title);
+			if(InputStringDialog(&isd_param, sub) > 0 && sub.NotEmptyS()) {
+				THROW(GObj.P_Tbl->GetListBySubstring(sub, &goods_list, -1));
+			}
+			else {
+				mode = 0;
+				do_exit = 1;
+			}
+		}
+		else if(mode == 2) {
+			SString title, label;
+			PPLoadText(PPTXT_SELGOODSBYPRICE, title);
+			PPLoadText(PPTXT_INPUTPRICE, label);
+			if(InputNumberDialog(title, label, sel_price) > 0 && sel_price > 0.0) {
+			}
+			else {
+				mode = 0;
+				do_exit = 1;
+			}
+		}
+		else if(NewGoodsGrpID == 0) {
+			const  int op_subt = GetOpSubType(op_id);
+			if(oneof2(op_subt, OPSUBT_ASSETEXPL, OPSUBT_ASSETRCV))
+				NewGoodsGrpID = GObj.GetConfig().AssetGrpID;
+		}
+		if(!do_exit) {
+			TIDlgInitData tidi;
+			if(opened_only && P_BObj->GetConfig().Flags & BCF_PICKLOTS && oneof2(mode, 1, 2)) {
+				PickLotParam plp(0);
+				plp.LocID = P_Pack->Rec.LocID;
+                if(mode == 2) {
+                	plp.Mode = plp.mByPrice;
+                	plp.Price = sel_price;
+					PPLoadText(PPTXT_PICKLOT_BYPRICE, plp.SubTitle);
+					plp.SubTitle.Space().Cat(sel_price, SFMT_MONEY);
+                }
+                else if(mode == 1) {
+                	plp.Mode = plp.mByGoodsList;
+					plp.GoodsList = goods_list;
+					PPLoadText(PPTXT_PICKLOT_BYSUBNAME, plp.SubTitle);
+					plp.SubTitle.Space().CatQStr(sub);
+                }
+				if(PickLot(plp, &tidi) > 0) {
+					addItem(0, &tidi);
+				}
+			}
+			else {
+				long   egsd_flags = 0;
+				if(op_type_id == PPOPT_GOODSMODIF) {
+					UserInterfaceSettings uis;
+					if(uis.Restore() <= 0 || !(uis.Flags & UserInterfaceSettings::fOldModifSignSelection))
+						egsd_flags |= ExtGoodsSelDialog::fSelectModifMode;
+				}
+				THROW(CheckDialogPtr(&(dlg = new ExtGoodsSelDialog(op_id, NewGoodsGrpID, egsd_flags)), 0));
+				dlg->RestoreUserSettings();
+				if(mode == 1) {
+					const  int  code_prefix = BIN(DS.CheckExtFlag(ECF_CODEPREFIXEDLIST));
+					if(code_prefix) {
+						StrAssocArray temp_array;
+						SString text_buf;
+						for(uint i = 0; i < goods_list.getCount(); i++) {
+							StrAssocArray::Item item = goods_list.at_WithoutParent(i);
+							if(GObj.FetchSingleBarcode(item.Id, text_buf = 0) > 0)
+								text_buf.CatCharN(' ', 3).Cat(item.Txt);
+							else
+								text_buf = item.Txt;
+							temp_array.AddFast(item.Id, text_buf);
+						}
+						goods_list.Clear();
+						dlg->setSelectionByGoodsList(&temp_array);
+					}
+					else
+						dlg->setSelectionByGoodsList(&goods_list);
+				}
+				else if(mode == 2) {
+					dlg->setSelectionByPrice(sel_price);
+				}
+				else {
+					if(NewGoodsGrpID == 0)
+						GetDefScaleData(&tidi);
+					tidi.ArID = P_Pack->Rec.Object;
+					dlg->setDTS(&tidi);
+					dlg->setLocation(P_Pack->Rec.LocID);
+				}
+				while(ExecView(dlg) == cmOK) {
+					dlg->SaveUserSettings();
+					if(dlg->getDTS(&tidi) > 0) {
+						uint   pos = 0;
+						if(!(P_BObj->Cfg.Flags & BCF_DONTWARNDUPGOODS) && P_Pack->SearchGoods(tidi.GoodsID, &pos) && !CONFIRM(PPCFM_SAMEGOODSINPACK))
+							view->go(pos);
+						else if(isAllGoodsInPckg(tidi.GoodsID))
+							selectPckg(tidi.GoodsID);
+						else
+							addItem(0, &tidi);
+					}
+				}
+				dlg->SaveUserSettings();
+			}
+		}
+	}
+	CATCH
+		PPError();
+	ENDCATCH
+	delete dlg;
+}
+
+int BillItemBrowser::editPackageData(LPackage * pPckg)
+{
+	class PckgDialog : public TDialog {
+	public:
+		PckgDialog(PPBillPacket * pPack, PPObjBill * pBObj) : TDialog(DLG_PCKG)
+		{
+			P_Pack = pPack;
+			P_BObj = pBObj;
+		}
+		int    setDTS(const LPackage * pData)
+		{
+			Data = *pData;
+
+			SetupPPObjCombo(this, CTLSEL_PCKG_TYPE, PPOBJ_PCKGTYPE, Data.PckgTypeID, 0, 0);
+			setCtrlData(CTL_PCKG_CODE, Data.Code);
+			setCtrlData(CTL_PCKG_ID, &Data.ID);
+			setCtrlData(CTL_PCKG_COST, &Data.Cost);
+			setCtrlData(CTL_PCKG_PRICE, &Data.Price);
+			disableCtrls(1, CTL_PCKG_ID, CTL_PCKG_COST, CTL_PCKG_PRICE, 0);
+			return 1;
+		}
+
+		int    getDTS(LPackage * pData)
+		{
+			int    ok = 1;
+			PPObjPckgType pt_obj;
+			PPGdsPckgType pt_rec;
+			getCtrlData(CTLSEL_PCKG_TYPE, &Data.PckgTypeID);
+			getCtrlData(CTL_PCKG_CODE, Data.Code);
+			//getCtrlData(CTL_PCKG_ID, &Data.ID);
+			//getCtrlData(CTL_PCKG_COST, &Data.Cost);
+			//getCtrlData(CTL_PCKG_PRICE, &Data.Price);
+			if(!P_BObj->CheckPckgCodeUnique(&Data, P_Pack))
+				ok = (PPError(PPERR_DUPPCKGCODE, Data.Code), 0);
+			else {
+				if(Data.PckgTypeID && pt_obj.Get(Data.PckgTypeID, &pt_rec) > 0)
+					if(pt_rec.Flags & GF_PCKG_AROWS)
+						if(pt_rec.Flags & GF_PCKG_ANEWROW)
+							ok = 3;
+						else
+							ok = 2;
+				*pData = Data;
+			}
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmPckgMakeCode) || (event.isKeyDown(kbF2) && isCurrCtlID(CTL_PCKG_CODE))) {
+				makeCode();
+				clearEvent(event);
+			}
+		}
+		void   makeCode()
+		{
+			char   code[32];
+			memzero(code, sizeof(code));
+			PPID   pt_id = getCtrlLong(CTLSEL_PCKG_TYPE);
+			P_BObj->GenPckgCode(pt_id, code, sizeof(code));
+			if(*strip(code))
+				setCtrlData(CTL_PCKG_CODE, code);
+		}
+		LPackage Data;
+		PPBillPacket * P_Pack;
+		PPObjBill * P_BObj;
+	};
+	DIALOG_PROC_BODY_P2(PckgDialog, P_Pack, P_BObj, pPckg);
+}
+
+void BillItemBrowser::addNewPackage()
+{
+	if(CConfig.Flags & CCFLG_USEGOODSPCKG && !P_Pckg)
+		if(IsExpendOp(P_Pack->Rec.OpID) > 0)
+			selectPckg(0);
+		else if(P_Pack->OprType == PPOPT_GOODSRECEIPT) {
+			int    r;
+			LPackage pckg;
+			P_BObj->InitPckg(&pckg);
+			if((r = editPackageData(&pckg)) > 0)
+				if(P_Pack->AddPckg(&pckg)) {
+					update(pos_bottom);
+					if(oneof2(r, 2, 3))
+						viewPckgItems(BIN(r == 3));
+				}
+				else
+					PPError();
+		}
+}
+
+int SLAPI PPObjBill::SelectPckgByCode(char * pCode, PPID locID, PPID * pPckgID)
+{
+	if(CConfig.Flags & CCFLG_USEGOODSPCKG) {
+		PPIDArray pckg_id_list;
+		if(P_PckgT->SearchByCode(-1, pCode, &pckg_id_list) > 0) {
+			for(int i = pckg_id_list.getCount()-1; i >= 0; i--) {
+				if(trfr->Rcpt.Search(pckg_id_list.at(i)) > 0) {
+					if(trfr->Rcpt.data.Rest <= 0 || trfr->Rcpt.data.LocID != locID)
+						pckg_id_list.atFree(i);
+				}
+				else
+					pckg_id_list.atFree(i);
+			}
+			if(pckg_id_list.getCount()) {
+				pckg_id_list.sort();
+				ASSIGN_PTR(pPckgID, pckg_id_list.at(pckg_id_list.getCount()-1));
+				return 1;
+			}
+		}
+	}
+	return -1;
+}
+
+int SLAPI PPObjBill::AddPckgToBillPacket(PPID pckgID, PPBillPacket * pPack)
+{
+	int    ok = 1;
+	if(CConfig.Flags & CCFLG_USEGOODSPCKG) {
+		uint   j;
+		int    idx;
+		PPID   lot_id;
+		double rest;
+		LPackage pckg;
+		ReceiptTbl::Rec lot_rec;
+		if(pPack->P_PckgList)
+			THROW_PP(pPack->P_PckgList->GetByID(pckgID) <= 0, PPERR_PCKGINBILL);
+		THROW(P_PckgT->GetPckg(pckgID, &pckg) > 0);
+		if(trfr->Rcpt.Search(pckgID, &lot_rec) > 0) {
+			THROW_PP(pPack->Rec.LocID == 0 || lot_rec.LocID == pPack->Rec.LocID, PPERR_MISSPCKGLOC);
+			{
+				PPTransferItem ti(&pPack->Rec, 0);
+				THROW(ti.SetupGoods(lot_rec.GoodsID));
+	   	    	ti.SetupLot(pckgID, &lot_rec, 0);
+				THROW(pPack->BoundsByLot(pckgID, 0, -1, &rest, 0));
+				ti.Quantity_ = fabs(rest);
+				ti.Flags |= PPTFR_PCKG;
+				THROW(pPack->InsertRow(&ti, 0));
+				pckg.PckgIdx = pPack->GetTCount()-1;
+			}
+		}
+		for(j = 0; pckg.EnumItems(&j, &idx, &lot_id);)
+			if(trfr->Rcpt.Search(lot_id, &lot_rec) > 0) {
+				PPTransferItem ti(&pPack->Rec, 0);
+				THROW(ti.SetupGoods(lot_rec.GoodsID));
+				ti.SetupLot(lot_id, &lot_rec, 0);
+				THROW(pPack->BoundsByLot(lot_id, 0, -1, &rest, 0));
+				ti.Quantity_ = fabs(rest);
+				ti.Flags |= PPTFR_PCKGGEN;
+				THROW(pPack->InsertRow(&ti, 0));
+				pckg.UpdateItem(j - 1, pPack->GetTCount()-1, lot_id);
+			}
+		THROW(pPack->AddPckg(&pckg));
+		pPack->CalcPckgTotals();
+	}
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
+class CompleteBrowser : public BrowserWindow {
+public:
+	CompleteBrowser(PPObjBill * pBObj, const CompleteArray * s, int asSelector) :
+		AsSelector(asSelector), BrowserWindow(BROWSER_COMPLETE, (SArray *)0), Data(*s)
+	{
+		P_BObj = pBObj;
+		CmplAryPos  =  0;
+		SelectedPos = -1;
+		AryBrowserDef * p_def = (AryBrowserDef *)view->getDef();
+		if(p_def) {
+			p_def->setArray(0, 0, 1);
+			SArray * p_list = MakeList();
+			if(p_list) {
+				p_def->setArray(p_list, 0, 1);
+				view->setRange(p_list->getCount());
+			}
+		}
+		SetCellStyleFunc(CompleteBrowser::CellStyleFunc, this);
+	}
+	int    GetSelectedItem(CompleteItem *);
+	int    InitIteration()
+	{
+		CmplAryPos = 0;
+		return 1;
+	}
+	int    NextIteration(CompleteItem * pItem);
+	PPID   GetParentLot() const
+	{
+		return Data.LotID;
+	}
+	PPID   GetBillID() const
+	{
+		return Data.BillID;
+	}
+private:
+	struct _Entry {
+		PPID   GoodsID;
+		PPID   LotID;
+		LDATE  Dt;
+		char   GoodsName[128];
+		char   Serial[24];
+		double Qtty;
+		double Cost;
+		double Price;
+		LDATE  Expiry;
+		char   ArName[48];
+		char   Memo[128];
+		long   Flags;
+	};
+	DECL_HANDLE_EVENT;
+	SArray * MakeList();
+	void   update(int pos);
+	int    Print();
+	static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr);
+
+	PPObjBill * P_BObj;
+	CompleteArray Data;
+	uint   CmplAryPos;
+	int    AsSelector;
+	int    SelectedPos;
+};
+
+//static
+int CompleteBrowser::CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+{
+	int    ok = -1;
+	CompleteBrowser * p_brw = (CompleteBrowser *)extraPtr;
+	if(p_brw && pData && pStyle) {
+		const _Entry * p_entry = (const _Entry *)pData;
+		const long goods_col = 1;
+		if(col == goods_col) {
+			if(p_entry->Flags & CompleteItem::fSource) {
+				pStyle->Color = GetColorRef(SClrCoral);
+				pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+				ok = 1;
+			}
+			else if(p_entry->Flags & CompleteItem::fBranch) {
+				pStyle->Color = GetColorRef(SClrLightgreen);
+				pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
+void CompleteBrowser::update(int pos)
+{
+	AryBrowserDef * p_def = (AryBrowserDef *)view->getDef();
+	if(p_def) {
+		int16  c = (int16)p_def->_curItem();
+		p_def->setArray(0, 0, 1);
+		CompleteArray compl_list;
+		Data.freeAll();
+		int    r = P_BObj->GetComplete(Data.LotID, PPObjBill::gcfGatherSources, &Data);
+		SArray * a = MakeList();
+		if(a) {
+			lock();
+            p_def->setArray(a, 0, 1);
+			view->setRange(a->getCount());
+			if(pos == pos_cur && c >= 0)
+				view->go(c);
+			else if(pos == pos_bottom)
+				view->go(a->getCount() - 2);
+			else if(pos >= 0 && pos < (int)a->getCount())
+				view->go(pos);
+			unlock();
+		}
+	}
+}
+
+IMPL_HANDLE_EVENT(CompleteBrowser)
+{
+	BrowserWindow::handleEvent(event);
+	if(event.isCmd(cmaEdit)) {
+		if(AsSelector) {
+			if(IsInState(sfModal)) {
+				SelectedPos = (int)view->getDef()->_curItem();
+				endModal(cmOK);
+				return; // После endModal не следует обращаться к this
+			}
+		}
+		else {
+			long   pos = view->getDef()->_curItem();
+			PPID   bill_id = Data.at(pos).BillID;
+			BillTbl::Rec bill_rec;
+			if(P_BObj->Search(bill_id, &bill_rec) > 0) {
+				int    r = P_BObj->Edit(&bill_id, 0);
+				if(r == 0)
+					PPError();
+				else if(r == cmOK)
+					update(-1);
+			}
+		}
+	}
+	else if(event.isCmd(cmaInsert)) {
+		ReceiptTbl::Rec lot_rec;
+		if(Data.LotID && P_BObj->trfr->Rcpt.Search(Data.LotID, &lot_rec) > 0) {
+			PPIDArray op_list;
+			GetOpList(PPOPT_GOODSMODIF, &op_list);
+			if(op_list.getCount()) {
+				PPObjBill::AddBlock ab;
+				ab.LocID = lot_rec.LocID;
+				ab.OpID = op_list.getSingle();
+				if(ab.OpID || BillPrelude(&op_list, OPKLF_OPLIST, 0, &ab.OpID, &ab.LocID) > 0) {
+					PPID   new_bill_id = 0;
+					ab.FirstItemSign = TISIGN_RECOMPLETE;
+					ab.FirstItemLotID = lot_rec.ID;
+					int r = P_BObj->AddGoodsBill(&new_bill_id, &ab);
+					if(r == cmOK) {
+						update(-1);
+					}
+					else if(r == 0)
+						PPError();
+					//if(P_Pack->BoundsByLot(Item.LotID, &Item, ItemNo, &Rest, 0));
+				}
+			}
+		}
+	}
+	else if(event.isKeyDown(kbF7))
+		Print();
+	else
+		return;
+	clearEvent(event);
+}
+
+int CompleteBrowser::GetSelectedItem(CompleteItem * pItem)
+{
+	int    ok = 1;
+	if(AsSelector && SelectedPos >= 0 && (uint)SelectedPos < Data.getCount()) {
+		ASSIGN_PTR(pItem, Data.at(SelectedPos));
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int CompleteBrowser::NextIteration(CompleteItem * pItem)
+{
+	CompleteItem * p_item = 0;
+	int    ok = Data.enumItems(&CmplAryPos, (void **)&p_item);
+	if(ok)
+		ASSIGN_PTR(pItem, *p_item);
+	return ok;
+}
+
+SArray * CompleteBrowser::MakeList()
+{
+	SString temp_buf;
+	PPObjGoods goods_obj;
+	PPObjArticle ar_obj;
+	CompleteItem * p_item;
+	SArray * p_list = new SArray(sizeof(_Entry));
+	THROW_MEM(p_list);
+	for(uint i = 0; Data.enumItems(&i, (void **)&p_item);) {
+		BillTbl::Rec bill_rec;
+		_Entry  entry;
+		MEMSZERO(entry);
+		entry.GoodsID = p_item->GoodsID;
+		entry.LotID   = p_item->LotID;
+		entry.Dt      = p_item->Dt;
+		entry.Expiry  = p_item->Expiry;
+		STRNSCPY(entry.GoodsName, GetGoodsName(p_item->GoodsID, temp_buf));
+		GetArticleName(p_item->ArID, temp_buf);
+		STRNSCPY(entry.ArName, temp_buf);
+		STRNSCPY(entry.Serial, p_item->Serial);
+		entry.Qtty = p_item->Qtty;
+		entry.Cost = p_item->Cost;
+		entry.Price = p_item->Price;
+		entry.Flags = p_item->Flags; // @v9.0.4
+		if(P_BObj->Search(p_item->BillID, &bill_rec) > 0)
+			STRNSCPY(entry.Memo, bill_rec.Memo);
+		THROW_SL(p_list->insert(&entry));
+	}
+	CATCH
+		ZDELETE(p_list);
+	ENDCATCH
+	return p_list;
+}
+
+int CompleteBrowser::Print()
+{
+	PView  pf(this);
+	return PPAlddPrint(REPORT_COMPLETE, &pf);
+}
+
+int SLAPI PPObjBill::ViewLotComplete(PPID lotID, PPID * pSelectedLotID)
+{
+	int    ok = -1;
+	MemLeakTracer mlt;
+	{
+		CompleteArray compl_list;
+		int    r = GetComplete(lotID, PPObjBill::gcfGatherSources|PPObjBill::gcfGatherBranches, &compl_list);
+		if(r > 0) {
+			CompleteBrowser * p_brw = new CompleteBrowser(this, &compl_list, BIN(pSelectedLotID));
+			if(p_brw == 0)
+				ok = (PPError(PPERR_NOMEM, 0), 0);
+			else {
+				ReceiptTbl::Rec lot_rec;
+				SString title_buf;
+				if(trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
+					GetGoodsName(lot_rec.GoodsID, title_buf);
+					GetObjectName(PPOBJ_LOCATION, lot_rec.LocID, title_buf.CatDiv(':', 1, 1), 1);
+					title_buf.CatDiv(':', 1, 1).Cat(lot_rec.Dt);
+				}
+				p_brw->setSubTitle(title_buf);
+				int   cmd = ExecView(p_brw);
+				CompleteItem compl_item;
+				if(cmd == cmOK && pSelectedLotID && p_brw->GetSelectedItem(&compl_item) > 0) {
+					*pSelectedLotID = compl_item.LotID;
+					ok = 1;
+				}
+				delete p_brw;
+			}
+		}
+	}
+	return ok;
+}
+//
+// Implementation of PPALDD_Complete
+//
+PPALDD_CONSTRUCTOR(Complete)
+{
+	if(Valid) {
+		AssignHeadData(&H, sizeof(H));
+		AssignIterData(1, &I, sizeof(I));
+	}
+}
+
+PPALDD_DESTRUCTOR(Complete)
+{
+	Destroy();
+}
+
+int PPALDD_Complete::InitData(PPFilt & rFilt, long rsrv)
+{
+	CompleteBrowser * p_cb = 0;
+	if(rsrv)
+		Extra[1].Ptr = p_cb = (CompleteBrowser *)rFilt.Ptr;
+	else
+		Extra[0].Ptr = p_cb = new CompleteBrowser(BillObj, (const CompleteArray *)rFilt.Ptr, 0);
+	H.ParentLotID = p_cb->GetParentLot();
+	H.BillID = p_cb->GetBillID();
+	return DlRtm::InitData(rFilt, rsrv);
+}
+
+int PPALDD_Complete::InitIteration(PPIterID iterId, int /*sortId*/, long /*rsrv*/)
+{
+	CompleteBrowser * p_cb = (CompleteBrowser *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	IterProlog(iterId, 1);
+	return BIN(p_cb->InitIteration());
+}
+
+int PPALDD_Complete::NextIteration(PPIterID iterId, long rsrv)
+{
+	int    ok = -1;
+	IterProlog(iterId, 0);
+	CompleteBrowser * p_cb = (CompleteBrowser *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	CompleteItem      item;
+	if(p_cb->NextIteration(&item) > 0) {
+		I.GoodsID = item.GoodsID;
+		I.LotID   = item.LotID;
+		STRNSCPY(I.Serial, item.Serial);
+		I.Qtty    = item.Qtty;
+		I.Cost    = item.Cost;
+		I.Price   = item.Price;
+		ok = DlRtm::NextIteration(iterId, rsrv);
+	}
+	return ok;
+}
+
+int PPALDD_Complete::Destroy()
+{
+	if(Extra[0].Ptr) {
+		delete (CompleteBrowser *)Extra[0].Ptr;
+		Extra[0].Ptr = 0;
+	}
+	Extra[1].Ptr = 0;
+	return 1;
+}

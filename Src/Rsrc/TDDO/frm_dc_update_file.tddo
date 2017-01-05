@@ -1,0 +1,121 @@
+## Universe-HTT / 2012
+## frm_dc_update_file.tddo
+## Форма изменение файла на сервере
+##
+
+<div id="frm_dc_update_file_view">
+	<form id="frm_dc_update_file_view_form" enctype="multipart/form-data" action="/dispatcher/dc/update_file" method=POST>
+		<fieldset style="margin-top:6px">
+			<input type="hidden" id="frm_dc_update_file_view_form_id" name="id" value="">
+			<input type="hidden" id="frm_dc_update_file_view_form_pid" name="pid" value="">
+			<b>Файл</b>
+			<input type="file" name="data" size=70><br>
+			<b>Ключ</b>
+			<input type="text" id="frm_dc_update_file_view_form_key" name="key" class="uhtt-input sprawling"><br>
+			<b>Заголовок</b>
+			<input type="text" id="frm_dc_update_file_view_form_title" name="title" class="uhtt-input sprawling"><br>
+			<hr>
+			<div align="right"><input id="frm_dc_update_file_view_form_btn_ok" type="submit" value="OK"></div>
+		</fieldset>
+	</form>
+	<div id="frm_dc_update_file_view_load_bar" style="display:none"></div>
+</div>
+
+<script type="text/javascript">
+	var DCUpdateFileForm = {
+		## /* Instance */
+		Dialog : UHTT.Dialog.List.getObjByProperty("ID", $("#frm_dc_update_file_view").parent("div.uhtt-dialog").attr("id")),
+		## /* --- */
+		Form : $("#frm_dc_update_file_view_form"),
+		IDTextBox : $("#frm_dc_update_file_view_form_id"),
+		PIDTextBox : $("#frm_dc_update_file_view_form_pid"),
+		TitleTextBox : $("#frm_dc_update_file_view_form_title"),
+		KeyTextBox : $("#frm_dc_update_file_view_form_key"),
+		LoadBar : $("#frm_dc_update_file_view_load_bar"),
+		ButtonOK : $("#frm_dc_update_file_view_form_btn_ok"),
+		## /* Обработчик закрытия окна редактора */
+		closeHandler : function(p_this) {
+			p_this.Dialog = null;
+			p_this.Form = null;
+			p_this.IDTextBox = null;
+			p_this.PIDTextBox = null;
+			p_this.TitleTextBox = null;
+			p_this.KeyTextBox = null;
+			p_this.LoadBar = null;
+			p_this.ButtonOK = null;
+		},
+		## /* --- */
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Установка обработчика закрытия окна редактора */
+			_this.Dialog.setCloseHandler(_this.closeHandler, _this);
+			## /* Получение аргументов */
+			{
+				var args = UHTT.DC.Editor.getArgs();
+				if(!isEmpty(args)) {
+					{
+						var id = args.getValue("ID");
+						if(!isInteger(id))
+							throw new Error("Form init error: Invalid file id");
+						_this.IDTextBox.val(id);
+					}
+					{
+						var parent_id = args.getValue("ParentID");
+						if(!isInteger(parent_id))
+							throw new Error("Form init error: Invalid parent id");
+						_this.PIDTextBox.val(parent_id);
+					}
+					{
+						var title = args.getValue("Title");
+						_this.TitleTextBox.val(title);
+					}
+					{
+						var key = args.getValue("Key");
+						_this.KeyTextBox.val(key);
+					}
+				}
+				else
+					throw new Error("Form init error: Unable to retreive arguments");
+			}
+			## /* --- */
+			var _success = false;
+			_this.Form.ajaxForm({
+				beforeSend: function() {
+					_this.ButtonOK.attr("disabled", true);
+					_this.LoadBar.show();
+				},
+				uploadProgress: function(event, position, total, percentComplete) {
+					var percentVal = percentComplete + '%';
+					_this.LoadBar.html(percentVal);
+				},
+				error: function(request, status, error) {
+					_success = false;
+					var msg = decodeURIComponent(request.getResponseHeader("X-UHTT-Error"));
+					if(!isEmpty(msg))
+						UHTT.Messenger.show(msg, "/rsrc/images/error_48.png");
+				},
+				success: function(xhr) {
+					_success = true;
+				},
+				complete: function(xhr) {
+					if(_success) {
+						DownloadCenterForm.updateView();
+						_this.Dialog.close();
+					}
+					else {
+						_this.ButtonOK.attr("disabled", false);
+						_this.LoadBar.hide();
+					}
+				}
+			});
+			## /* --- */
+			_this.Dialog.setOption("width", 500);
+			_this.Dialog.setOption("title", "Изменение файла");
+		}
+	};
+	## /* Инициализация формы */
+	$(document).ready(function(){
+		DCUpdateFileForm.init();
+	});
+</script>

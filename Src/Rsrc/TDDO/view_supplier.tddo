@@ -1,0 +1,111 @@
+#pragma(htmlencode)
+
+<div id="UHTT_VIEW_SUPPLIER">
+	<div id="UHTT_VIEW_SUPPLIER_TABLE_MSG" class="tablesorter-overlay-msg">Обработка...</div>
+	<!-- Создание и заполнение таблицы -->
+	<table id="UHTT_VIEW_SUPPLIER_TABLE" class="tablesorter">
+		<thead>
+			<tr> 
+				<th>ID</th> 
+				<th>Наименование</th>  
+			</tr>
+		</thead>	
+		<tbody>
+		#start(StrAssocArray)
+			#iter()
+			<tr class="uhtt-view-supplier-table-item">
+				<td>${Id}</td>
+				<td>${Txt}</td>
+			</tr>
+			#end()
+		#end()
+		</tbody>
+	</table>
+	<div id="UHTT_VIEW_SUPPLIER_TABLE_PAGER" class="tablesorter-pager">
+		<input type="button" class="tablesorter-pager-btn-first"/>
+		<input type="button" class="tablesorter-pager-btn-prev"/>
+		<label class="tablesorter-pager-label-page-display"></label>
+		<input type="button" class="tablesorter-pager-btn-next"/>
+		<input type="button" class="tablesorter-pager-btn-last"/>
+		<b>Отображать по: </b>
+		<select class="tablesorter-pager-select-page-size">
+			<option selected="selected" value="20">20</option>
+			<option value="30">30</option>
+			<option value="40">40</option>
+			<option value="50">50</option>
+			<option value="100">100</option>
+			<option value="500">500</option>
+		</select>
+	</div>
+</div>
+	
+<script type="text/javascript">
+	$(document).ready(function() {
+		var suppl_cmenu = [ 
+			{ "<b>Список поставляемых товаров</b>": function() {
+					var suppl_id = $(this).find("td:eq(0)").text();
+					var suppl_name = $(this).find("td:eq(1)").text();
+					showGoodsBySuppl(suppl_id, suppl_name);
+				}
+			},
+			$.contextMenu.separator,
+			#if{@(Global, 0).GetCurrentGlobalUser().Id > 0}
+			{ "Редактирование": function() {
+					var kind_id = UHTT.requestData(null, "SELECT PERSONKIND BY NAME(Поставщики) FORMAT.TDDO(_ID)");
+					var id = $(this).find("td:eq(0)").text();
+					//new SDialog("UHTT_PERSON_EDITOR_DLG", "GETTDDO FRM_PERSON_EDITOR " + kind_id + " " + manuf_id);
+					UHTT.Person.Editor.edit(kind_id, id);
+				}
+			},
+			#endif
+			{"Информация о поставщике": function() { 
+					var suppl_id = $(this).find("td:eq(0)").text();
+					showSupplInfo(suppl_id);
+				}
+			},
+			{"Котировки": function() { 
+					var suppl_id = $(this).find("td:eq(0)").text();
+					var suppl_name = $(this).find("td:eq(1)").text();
+					showQuotsBySuppl(suppl_id, suppl_name);
+				}
+			}
+		];
+		
+		$("#UHTT_VIEW_SUPPLIER_TABLE").tablesorter(({widthFixed: true}));
+   		$("#UHTT_VIEW_SUPPLIER_TABLE").tablesorterPager({container: $("#UHTT_VIEW_SUPPLIER_TABLE_PAGER")}); 
+   		$("#UHTT_VIEW_SUPPLIER_TABLE").bind("sortStart", function() {
+       		$("#UHTT_VIEW_SUPPLIER_TABLE_MSG").show();
+   		}).bind("sortEnd", function() {
+       		$("#UHTT_VIEW_SUPPLIER_TABLE_MSG").hide();
+   		});
+		
+		function showGoodsBySuppl(suppl_id, suppl_name) {
+       		var query = "SELECT GOODSARCODE BY SELLER.ID(" + suppl_id + ") FORMAT.TDDO(VIEW_SUPPL_GOODS, " + suppl_id + ")";
+			var _dlg = new SDialog("UHTTViewGoodsBySupplDlg", query);
+			_dlg.setOption("title", "Товары поставляемые " + suppl_name);
+		};
+		
+		function showQuotsBySuppl(suppl_id, suppl_name) {
+			var query = "SELECT QUOT BY ACTUAL KIND.CODE(UHTTQUOT) SELLER.ID(" + suppl_id + ") FORMAT.TDDO(VIEW_QUOTE, " + suppl_id + ")";
+			var _dlg = new SDialog("UHTTViewQuotesBySupplDlg", query);
+			_dlg.setOption("title", "Котировки " + suppl_name);
+		};
+		
+		function showSupplInfo(suppl_id) {
+			var query = "SELECT PERSON BY ID(" + suppl_id + ") FORMAT.TDDO(FRM_PERSON_DETAILS)";
+			var _dlg = new SDialog("UHTTSupplInfoDlg", query);
+			_dlg.setOption("width", 350);
+			_dlg.setOption("title", "Информация о поставщике");
+		};
+		
+		$("#UHTT_VIEW_SUPPLIER_TABLE").delegate(".uhtt-view-supplier-table-item", "dblclick", function() {
+			var suppl_id = $(this).find("td:first").text();
+       		var suppl_name = $(this).find("td:eq(1)").text();
+       		showGoodsBySuppl(suppl_id, suppl_name);
+		}).delegate(".tbl_manufactors_item", "click", function(e) {
+			// todo: show quick info
+		});
+		
+		$(".uhtt-view-supplier-table-item").contextMenu(suppl_cmenu, { theme:"xp" });
+	});
+</script>

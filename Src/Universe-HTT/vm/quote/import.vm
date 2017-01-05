@@ -1,0 +1,183 @@
+﻿## Universe-HTT / 2013
+## import.tddo
+## Форма импорта котировок
+##
+
+#set($person = $UHTT.getPerson($sellerID))
+
+<div id="frm_quote_import__layout">
+	<form id="frm_quote_import__form" enctype="multipart/form-data" action="/dispatcher/import/quote" method=POST>
+		<fieldset style="margin-top:6px">
+			## // hidden
+			<input type="hidden" name="seller_id" id="frm_quote_import_seller_id__input" value="$sellerID">
+			<input type="hidden" name="loc_id" id="frm_quote_import_loc_id__input">
+			## // visible
+			<b>Файл</b>
+			<input type="file" class="uui-w100pct" id="frm_quote_import_file__txtfld" name="data"><br>
+			<b>Склад</b>
+			<div class="frm-quote-import-address uui-w100pct">
+				<div class="uui-w100pct">
+					<div class="uui-w100pct uui-table-cell uui-valign-mid">
+						<input type="text" class="uhtt-drop-down-menu-text-field uui-w100pct" id="frm_quote_import_address__txtfld" readonly="readonly"/>
+					</div>
+					<div class="uui-table-cell uui-valign-mid">
+						<input type="button" class="uhtt-drop-down-menu-button" id="frm_quote_import_select_address__button"/>
+					</div>
+					<div class="uhtt-drop-down-div" id="frm_quote_import_select_address__ddblk">
+						#set($addr_list_size = $person.AddrList.size())
+						#if($addr_list_size < 2)
+							#set($addr_list_size = 2)
+						#end
+						<select class="uui-w100pct uui-padding-0" id="frm_quote_import_select_address__list" style="border:1px solid gray" size=${addr_list_size}>
+						#foreach($addr in $person.AddrList)
+							#if($addr.LocKind == 3)
+								<option addrID="${addr.LocID}">${UHTT.getObjName("CITY", $addr.CityID)}, ${addr.Address}</option>
+							#end
+						#end
+						</select>
+					</div>
+				</div>
+			</div>
+			<b>Валюта</b>
+			<div class="frm-quote-import-currency uui-w100pct">
+				<div class="uui-w100pct">
+					<div class="uui-w100pct uui-table-cell uui-valign-mid">
+						<input type="text" name="cur_code" class="uhtt-drop-down-menu-text-field uui-w100pct" id="frm_quote_import_currency__txtfld" readonly="readonly"/>
+					</div>
+					<div class="uui-table-cell uui-valign-mid">
+						<input type="button" class="uhtt-drop-down-menu-button" id="frm_quote_import_select_currency__button"/>
+					</div>
+					<div class="uhtt-drop-down-div" id="frm_quote_import_select_currency__ddblk">
+						<select class="uui-w100pct uui-padding-0" id="frm_quote_import_select_currency__list" style="border:1px solid gray" size=3>
+							<option>RUB</option>
+							<option>USD</option>
+							<option>EUR</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<hr>
+			<div align="right"><input id="frm_quote_import_ok__button" type="submit" value="OK"></div>
+		</fieldset>
+	</form>
+</div>
+
+<script type="text/javascript">
+	var QuoteImportForm = {
+		## /* Instance */
+		Dialog : UHTT.Dialog.List.getObjByProperty("ID", $("#frm_quote_import__layout").parent("div.uhtt-dialog").attr("id")),
+		## /* --- */
+		txtFld_LocID       : $("#frm_quote_import_loc_id__input"),
+		//
+		Form               : $("#frm_quote_import__form"),
+		txtFld_File        : $("#frm_quote_import_file__txtfld"),
+		txtFld_Address     : $("#frm_quote_import_address__txtfld"),
+		btn_SelectAddress  : $("#frm_quote_import_select_address__button"),
+		ddBlk_Address      : $("#frm_quote_import_select_address__ddblk"),
+		blk_AddressList    : $("#frm_quote_import_select_address__list"),
+		txtFld_Currency    : $("#frm_quote_import_currency__txtfld"),
+		btn_SelectCurrency : $("#frm_quote_import_select_currency__button"),
+		ddBlk_Currency     : $("#frm_quote_import_select_currency__ddblk"),
+		blk_CurrencyList   : $("#frm_quote_import_select_currency__list"),
+		btn_OK             : $("#frm_quote_import_ok__button"),
+		## /* Обработчик закрытия окна редактора */
+		closeHandler : function(p_this) {
+			p_this.Dialog = null;
+			p_this.Form = null;
+			p_this.btn_OK = null;
+		},
+		## /* --- */
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Установка обработчика закрытия окна редактора */
+			_this.Dialog.setCloseHandler(_this.closeHandler, _this);
+			## /* Инициализация DropDown объектов */
+			UHTT.DDO.initObject(_this.ddBlk_Address);
+			UHTT.DDO.initObject(_this.ddBlk_Currency);
+			## /* Events */
+			## /* Warehouse */
+			_this.btn_SelectAddress.Evt("click", function(e) {
+				_this.ddBlk_Address
+					.width(_this.txtFld_Address.width() + 4)
+					.show();
+			});
+			_this.blk_AddressList.Evt("keypress dblclick", function(e) {
+				if(e.type === "keypress") {
+					if(e.keyCode != 13)
+						return true;
+				}
+				var idx = this.selectedIndex;
+				if(idx > -1) {
+					var item = $(this.options[idx]);
+					var addr_id = item.attr("addrID");
+					var addr_txt = item.html();
+					
+					_this.txtFld_LocID.val(addr_id);
+					_this.txtFld_Address.val(addr_txt);
+					
+					_this.ddBlk_Address.hide();
+				}
+			});
+			## /* Currency */
+			_this.btn_SelectCurrency.Evt("click", function(e) {
+				_this.ddBlk_Currency
+					.width(_this.txtFld_Currency.width() + 4)
+					.show();
+			});
+			_this.blk_CurrencyList.Evt("keypress dblclick", function(e) {
+				if(e.type === "keypress") {
+					if(e.keyCode != 13)
+						return true;
+				}
+				var idx = this.selectedIndex;
+				if(idx > -1) {
+					var item = $(this.options[idx]);
+					var cur_code = item.html();
+					_this.txtFld_Currency.val(cur_code);
+					_this.ddBlk_Currency.hide();
+				}
+			});
+			{
+				var def_item = $(_this.blk_CurrencyList[0].options[0]);
+				_this.txtFld_Currency.val(def_item.html());
+			}
+			## /* --- */
+			var _success = false;
+			_this.Form.ajaxForm({
+				beforeSend: function() {
+					_this.btn_OK.attr("disabled", true);
+				},
+				uploadProgress: function(event, position, total, percentComplete) {
+				},
+				error: function(request, status, error) {
+					_success = false;
+					var msg = decodeURIComponent(request.getResponseHeader("X-UHTT-Error"));
+					if(!isEmpty(msg))
+						UHTT.Messenger.show(msg, "/rsrc/images/error_48.png");
+				},
+				success: function(xhr) {
+					_success = true;
+				},
+				complete: function(xhr) {
+					if(_success) {
+						_this.Dialog.close();
+					}
+					else {
+						_this.btn_OK.attr("disabled", false);
+					}
+				}
+			});
+			## /* --- */
+			_this.Dialog.setOption("width", 500);
+			_this.Dialog.setOption("title", '${person.Name} : Импорт котировок');
+			## /* Mozilla fix */
+			if($.browser.mozilla)
+				_this.txtFld_File.attr("size", 75);
+		}
+	};
+	## /* Инициализация формы */
+	$(document).ready(function(){
+		QuoteImportForm.init();
+	});
+</script>

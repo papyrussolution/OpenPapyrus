@@ -1,0 +1,30 @@
+## Universe-HTT
+## bot_view_goods.tddo 
+## Список товаров предоставляемый поисковому боту
+
+#pragma(htmlencode)
+
+#start(StrAssocArray)
+	<table class="uhtt-fields-table">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Наименование</th>
+				<th>Производитель</th>
+				<th>Штрихкод</th>
+			</tr>
+		</thead>
+		<tbody>
+			#iter()
+			<tr>
+				<td>${Id}</td>
+				<td>${Txt}</td>
+				#start(Goods:${Id})
+					<td>${ManufId.Name}</td>
+					<td>${SingleBarCode}</td>
+				#end()
+			</tr>
+			#end()
+		</tbody>
+	</table>
+#end()

@@ -1,0 +1,38 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VersionSelector", "VersionSelector.vcproj", "{5A3D1652-14C5-4A48-993B-3013FE362BF3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D507E468-21FC-4209-A5A8-DE1F055866DC} = {D507E468-21FC-4209-A5A8-DE1F055866DC}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "slib", "..\..\BuildVC70\slib.vcproj", "{D507E468-21FC-4209-A5A8-DE1F055866DC}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "..\Test\Test.vcproj", "{4285136B-9764-4DD5-A32E-2EB690F1AF3E}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{5A3D1652-14C5-4A48-993B-3013FE362BF3}.Debug.ActiveCfg = Debug|Win32
+		{5A3D1652-14C5-4A48-993B-3013FE362BF3}.Debug.Build.0 = Debug|Win32
+		{5A3D1652-14C5-4A48-993B-3013FE362BF3}.Release.ActiveCfg = Release|Win32
+		{5A3D1652-14C5-4A48-993B-3013FE362BF3}.Release.Build.0 = Release|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.Debug.ActiveCfg = Release|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.Debug.Build.0 = Release|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.Release.ActiveCfg = Release|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.Release.Build.0 = Release|Win32
+		{4285136B-9764-4DD5-A32E-2EB690F1AF3E}.Debug.ActiveCfg = Debug|Win32
+		{4285136B-9764-4DD5-A32E-2EB690F1AF3E}.Debug.Build.0 = Debug|Win32
+		{4285136B-9764-4DD5-A32E-2EB690F1AF3E}.Release.ActiveCfg = Release|Win32
+		{4285136B-9764-4DD5-A32E-2EB690F1AF3E}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

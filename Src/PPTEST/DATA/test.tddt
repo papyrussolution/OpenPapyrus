@@ -1,0 +1,18 @@
+
+[text001:ru]
+Тестовый текст "text001" на русском для проверки прагмы #text в tddo.
+
+[text001:en]
+This is test english text "text001" for testing pragma #text in tddo technology.
+
+[text001]
+Тестовый текст "text001" (default language) для проверки прагмы #text в tddo.
+
+[testtext:ru]
+Тестовый текст "testtext" на русском для проверки прагмы #text в tddo.
+
+[testtext:en]
+This is test english text "testtext" for testing pragma #text in tddo technology.
+
+[testtext]
+Тестовый текст "testtext" (default language) для проверки прагмы #text в tddo.

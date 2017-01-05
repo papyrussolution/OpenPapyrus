@@ -1,0 +1,33 @@
+
+//#include "afxres.h"
+#include "windows.h"
+
+// icon resource
+vDOS_ico ICON "vDos.ico"
+
+// version resource
+VS_VERSION_INFO VERSIONINFO
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "JHM Schaars"
+            VALUE "FileDescription", "vDos - DOS for Windows"
+            VALUE "InternalName", "vDos"
+            VALUE "LegalCopyright", "© 2012-2015 JHM Schaars"
+            VALUE "OriginalFilename", "vDos.exe"
+            VALUE "ProductName", "vDos - DOS for Windows"
+            VALUE "ProductVersion", "2015, 10, 01"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

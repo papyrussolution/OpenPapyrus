@@ -1,0 +1,32 @@
+## Universe-HTT
+## data_array_uhttstore.tddo
+## Массив структур интернет магазинов
+
+#pragma(htmlencode)
+#start(StrAssocArray)
+	[
+	#iter()
+		{
+		#start(UhttStore:${ID})
+			"ID": ${ID},
+			"Symb": "${Symb}",
+			"Name": "${Name}",
+			"OwnerID": ${OwnerID.ID},
+			"LocID": ${LocID.ID},
+			"Flags": ${Flags},
+			"TagList": [
+			#iter(TagList) {
+				"TagTypeID": ${TagTypeID.ID},
+				"Symb": ${TagSymb},
+				"IntVal": ${IntVal},
+				"RealVal": ${RealVal},
+				"DateVal": "${DateVal}",
+				"StrVal": "${StrVal}"
+			},
+			#end()
+			],
+		#end()
+		},
+	#end()
+	]
+#end()

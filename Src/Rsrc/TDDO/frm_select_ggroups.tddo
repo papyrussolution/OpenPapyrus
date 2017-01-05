@@ -1,0 +1,125 @@
+## Universe-HTT
+## frm_select_ggroups.tddo 
+## Форма выбора товарных групп для фильтра товаров
+##
+
+<div id="uhtt_frm_select_ggroups_view">
+	<style type="text/css">
+		div.uhtt-div-frame-w45pt-h300px {
+			float:      left;
+			border:     1px solid grey;
+			width:      45%;
+			height:     300px;
+			overflow-x: auto;
+		}
+		#uhtt_frm_select_ggroups_ctrl_div {
+			padding:        10px;
+			text-align:     center;
+			vertical-align: middle;
+			float:          left;
+			height:         300px;
+		}
+		ul.not-markable {
+			user-select:         none;
+			-moz-user-select:    none;
+			-webkit-user-select: none;
+		}
+		input.uhtt-button-28x28 {
+			width:  28px;
+			height: 28px;
+		}
+		div.tree_item {
+			cursor:       default;
+			padding-left: 5px;
+		}
+		div.tree_clicked {
+			background: #336699;
+			color:      white;
+		}
+	</style>
+	<div class="uhtt-div-frame-w45pt-h300px">
+		<ul class="xtree not-markable" id="uhtt_lst_ggroups_tree"></ul>
+	</div>
+	<div id="uhtt_frm_select_ggroups_ctrl_div">
+		<input type="button" class="uhtt-button-28x28" id="uhtt_frm_select_ggroups_btn_add" value=">"/><br><br>
+		<input type="button" class="uhtt-button-28x28" id="uhtt_frm_select_ggroups_btn_remove" value="<"/><br><br>
+	</div>
+	<div class="uhtt-div-frame-w45pt-h300px">
+		<ul class="xtree not-markable" id="uhtt_lst_ggroups_selected_tree"></ul>
+	</div>
+	<div style="position:absolute; bottom:10px; right:10px">
+		<input type="button" id="uhtt_frm_select_ggroups_btn_close" value="Закрыть"/>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var SelectGoodsGroupsForm = {
+		dlg_id : $("#uhtt_frm_select_ggroups_view").parent("div.uhtt-dialog").attr("id"),
+		group : null,
+		selected_group : null,
+		refreshList : function() {
+			var _this = this;
+			var settings = {
+				addRoot: false,
+				collapsed: true,
+				handler : function() {
+					_this.removeGroup();
+					return false;
+				}
+			};
+			$("#uhtt_lst_ggroups_selected_tree").xtree(GoodsFiltForm.F.Groups, settings);
+		},
+		addGroup : function() {
+			if(this.group != null) {
+				GoodsFiltForm.F.addGroup(this.group.ID, 0, this.group.Name);
+				this.refreshList();
+				this.group = null;
+			}
+		},
+		removeGroup : function() {
+			if(this.selected_group != null) {
+				GoodsFiltForm.F.removeGroup(this.selected_group.ID);
+				this.refreshList();
+				this.selected_group = null;
+			}
+		},
+		addAllGroups : function() {
+			GoodsFiltForm.F.resetGroups();
+			GoodsFiltForm.F.setGroups(groups_array);
+			this.refreshList();
+		},
+		removeAllGroups : function() {
+			GoodsFiltForm.F.resetGroups();
+			this.refreshList();
+		},
+		closeDlg : function() {
+			if(!isEmpty(this.dlg_id))
+				$("#" + this.dlg_id).dialog("close");
+		},
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Получаем с сервера днрево товарных групп */
+			$("#uhtt_lst_ggroups_tree").html(UHTT.Content.get("GOODSGROUP_TREE", {}));
+			var settings = {
+				collapsed: true,
+				handler : function() {
+					_this.addGroup();
+					return false;
+				}
+			};
+			$("#uhtt_lst_ggroups_tree")._xtree(settings);
+			this.refreshList();
+			
+			$("#uhtt_lst_ggroups_tree").delegate("div", "mousedown", function() { _this.group = { "ID":$(this).attr("itemID"), "Name":$(this).find("span").html() }; });
+			$("#uhtt_frm_select_ggroups_btn_add").Evt("click", function() { _this.addGroup(); });
+			$("#uhtt_lst_ggroups_selected_tree").delegate("div", "mousedown", function() { _this.selected_group = { "ID":$(this).attr("itemID"), "Name":$(this).find("span").html() }; });
+			$("#uhtt_frm_select_ggroups_btn_remove").Evt("click", function() { _this.removeGroup(); });
+			$("#uhtt_frm_select_ggroups_btn_add_all").Evt("click", function() { _this.addAllGroups(); });
+			$("#uhtt_frm_select_ggroups_btn_remove_all").Evt("click", function() { _this.removeAllGroups(); });
+			$("#uhtt_frm_select_ggroups_btn_close").Evt("click", function() { _this.closeDlg(); });
+		}
+	};
+	## /* Инициализация формы */
+	SelectGoodsGroupsForm.init();
+</script>

@@ -1,0 +1,34 @@
+<div id="uhtt_frm_shopping_cart_info_data_div"></div>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		var json_doc = jQuery.parseJSON(UHTT.Util.Cookie.get("SHOPPING_CART_DATA"));
+		if(json_doc != null) {
+			var suppl_list = json_doc.SuppliersList;
+			var n_suppliers = suppl_list.length;
+			var suppl;
+			var order;
+			var n_items = 0;
+			var qtty = 0;
+			var amount = 0.0;
+			var html = "";
+			for(var i = 0; i < n_suppliers; i++) {
+				suppl = suppl_list[i];
+				for(var j = 0; j < suppl.OrdersList.length; j++) {
+					order = suppl.OrdersList[j];
+					n_items++;
+					qtty += order.GoodsQuantity;
+					amount += Number(order.GoodsAmount);
+				}
+			}
+			html = "Количество наименований: <b>";
+			html += n_items;
+			html += "</b><br>Количество товаров: <b>";
+			html += qtty;
+			html += "</b><br>На сумму: <b>";
+			html += amount.toFixed(2);
+			html += "</b>";
+			$("#uhtt_frm_shopping_cart_info_data_div").html(html);
+		}
+	});
+</script>

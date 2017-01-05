@@ -1,0 +1,146 @@
+## Universe-HTT
+## frm_specseries_filt.tddo
+## Фильтр бракованных серий лекарственных препаратов
+##
+
+<div class="uhtt-frm-filt-label sprawling">
+	<table class="sprawling"><tbody><tr>
+		<td><span>Бракованные серии</span><td>
+		<td style="float:right">
+			#if{@(Global, 0).GetCurrentGlobalUser().Id > 0}
+			<input type="button" class="uhtt-frm-filt-label-item-btn" id="uhtt_frm_spoil_series_filt_create_new_spoil_series_btn" value="Создать"/>
+			#endif
+		</td>
+	</tr></tbody></table>
+</div>
+
+<fieldset style="margin-top:6px">
+	<legend>Фильтр</legend>
+	<b>Период</b>
+	<input type="text" class="uhtt-input sprawling" id="uhtt_frm_spoil_series_filt_period"/>
+	<b>Серийный номер</b>
+	<input type="text" class="uhtt-input sprawling" id="uhtt_frm_spoil_series_filt_number"/>
+	<fieldset style="margin-top:6px">
+		<b>Товарная группа</b>
+		<div id="uhtt_frm_spoil_series_filt_ggroups_div">
+			<table class="sprawling"><tbody class="sprawling"><tr class="sprawling">
+			<td class="sprawling"><input type="text" class="uhtt-drop-down-menu-text-field sprawling" id="uhtt_frm_spoil_series_filt_ggroup" readonly="readonly"/></td>
+			<td><input type="button" class="uhtt-drop-down-menu-button" id="uhtt_frm_spoil_series_filt_ggroups_show"/></td>
+			</tr></tbody></table>
+			<div class="uhtt-drop-down-div" id="uhtt_frm_spoil_series_filt_ggroups_data_div">
+				<input type="text" class="uhtt-search-field sprawling" id="uhtt_lst_ggroups_search_field" placeholder="Поиск..."/>
+				<div class="sprawling" id="uhtt_frm_spoil_series_filt_ggroups_lst"></div>
+			</div>
+		</div>
+		<b>Товар</b>
+		<div id="uhtt_frm_spoil_series_filt_goods_div">
+			<table class="sprawling"><tbody class="sprawling"><tr class="sprawling">
+			<td class="sprawling"><input type="text" class="uhtt-drop-down-menu-text-field sprawling" id="uhtt_frm_spoil_series_filt_goods" readonly="readonly"/></td>
+			<td><input type="button" class="uhtt-drop-down-menu-button" id="uhtt_frm_spoil_series_filt_goods_show"/></td>
+			</tr></tbody></table>
+			<div class="uhtt-drop-down-div" id="uhtt_frm_spoil_series_filt_goods_data_div">
+				<input type="text" class="uhtt-search-field sprawling" id="uhtt_lst_goods_search_field" placeholder="Поиск..."/>
+				<div class="sprawling" id="uhtt_frm_spoil_series_filt_goods_lst"></div>
+			</div>
+		</div>
+	</fieldset>
+	<hr>
+	<div align="right"><input type="button" id="uhtt_frm_brands_filt_btn_ok" value="OK"/></div>
+</fieldset>
+
+<script type="text/javascript">
+	var SpoilSeriesFiltForm = {
+		F : new UHTT.SpecialSeries.Filter(),
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Инициализация drop-down объектов */
+			UHTT.DDO.initObject($("#uhtt_frm_spoil_series_filt_ggroups_data_div"));
+			UHTT.DDO.initObject($("#uhtt_frm_spoil_series_filt_goods_data_div"));
+			## /* Период */
+			$("#uhtt_frm_spoil_series_filt_period").Evt("focusout", function() {
+				_this.F.Period = $(this).val();
+			});
+			## /* Серийный номер */
+			$("#uhtt_frm_spoil_series_filt_number").Evt("focusout", function() {
+				_this.F.Serial = $(this).val();
+			});
+			## /* Список товарных групп */
+			$("#uhtt_frm_spoil_series_filt_ggroups_show").Evt("click", function(event) {
+				$("#uhtt_frm_spoil_series_filt_ggroups_data_div").show();
+				## // Настройка размеров
+				$("#uhtt_frm_spoil_series_filt_ggroups_data_div").width($("#uhtt_frm_spoil_series_filt_ggroup").width() + 5);
+				$("#uhtt_frm_spoil_series_filt_ggroups_lst").width($("#uhtt_frm_spoil_series_filt_ggroup").width() + 5);
+			});	
+			$("#uhtt_lst_ggroups_search_field").keypress(function(evt) {
+				if(evt.keyCode == 13) {
+					var subname = $(this).val();
+					if(subname.length > 0)
+						$("#uhtt_frm_spoil_series_filt_ggroups_lst").html(
+							UHTT.requestData(null, "SELECT GOODSGROUP BY SUBNAME(" + $(this).val() + ") FORMAT.TDDO(_dd_list, uhtt_frm_ssf_ggroups_list, uhtt-frm-spoil-series-filt-ggroups-list-item)"));
+					else
+						$("#uhtt_frm_spoil_series_filt_ggroups_lst").html("");
+				}
+			});
+			$("#uhtt_frm_spoil_series_filt_ggroups_data_div").delegate(".uhtt-frm-spoil-series-filt-ggroups-list-item", "dblclick", function(evt) {
+				_this.F.GoodsGroupID = $(this).attr("itemID");
+				$("#uhtt_frm_spoil_series_filt_ggroup").val($(this).html());
+				$("#uhtt_frm_spoil_series_filt_ggroups_data_div").hide();
+			});
+			$("#uhtt_frm_spoil_series_filt_ggroup").keypress(function(evt) {
+				if(evt.keyCode == 46) {
+					_this.F.GoodsGroupID = 0;
+					_this.F.GoodsID = 0;
+					$(this).val("");
+					$("#uhtt_frm_spoil_series_filt_goods").val("");
+				}
+			});
+			## /* Список товаров */
+			$("#uhtt_frm_spoil_series_filt_goods_show").Evt("click", function(event) {
+				$("#uhtt_frm_spoil_series_filt_goods_data_div").show();
+				## // Настройка размеров
+				$("#uhtt_frm_spoil_series_filt_goods_data_div").width($("#uhtt_frm_spoil_series_filt_goods").width() + 5);
+				$("#uhtt_frm_spoil_series_filt_goods_lst").width($("#uhtt_frm_spoil_series_filt_goods").width() + 5);
+			});	
+			$("#uhtt_lst_goods_search_field").keypress(function(evt) {
+				if(evt.keyCode == 13) {
+					var subname = $(this).val();
+					if(subname.length > 0)
+						if(_this.F.GoodsGroupID > 0) {
+							$("#uhtt_frm_spoil_series_filt_goods_lst").html(
+								UHTT.requestData(null, "SELECT GOODS BY PARENT.ID(" + _this.F.GoodsGroupID + ") SUBNAME(" + $(this).val() + ") FORMAT.TDDO(_dd_list, uhtt_frm_ssf_goods_list, uhtt-frm-spoil-series-filt-goods-list-item)"));
+						}
+						else
+							UHTT.Messenger.show("Укажите товарную группу", "/rsrc/images/attention_48.png");
+					else
+						$("#uhtt_frm_spoil_series_filt_goods_lst").html("");
+				}
+			});
+			$("#uhtt_frm_spoil_series_filt_goods_data_div").delegate(".uhtt-frm-spoil-series-filt-goods-list-item", "dblclick", function(evt) {
+				_this.F.GoodsID = $(this).attr("itemID");
+				$("#uhtt_frm_spoil_series_filt_goods").val($(this).html());
+				$("#uhtt_frm_spoil_series_filt_goods_data_div").hide();
+			});
+			$("#uhtt_frm_spoil_series_filt_goods").keypress(function(evt) {
+				if(evt.keyCode == 46) {
+					_this.F.GoodsID = 0;
+					$(this).val("");
+				}
+			});
+			## /* Кнопка OK */
+			$("#uhtt_frm_brands_filt_btn_ok").Evt("click", function() {
+				_this.process();
+			});
+		},
+		process : function(F) {
+			if(isEmpty(F))
+				F = this.F;
+			var data = UHTT.SpecialSeries.fetch(F);
+			if(data != null)
+				//UHTT.Event.fire("UHTTBrowser", data);
+				UHTT.Browser.show(data, "Выборка бракованых серий");
+		}
+	};
+	## /* Инициализация формы фильтра */
+	SpoilSeriesFiltForm.init();
+</script>

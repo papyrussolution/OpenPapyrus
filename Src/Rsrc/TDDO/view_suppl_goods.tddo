@@ -1,0 +1,87 @@
+
+#pragma(htmlencode)
+
+#start(StrAssocArray)
+	<div id="tbl_suppl_goods_overlay_msg" class="tablesorter-overlay-msg">Обработка...</div>
+	<!-- Создание и заполнение таблицы -->
+	<table id="tbl_suppl_goods" class="tablesorter">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Наименование</th>
+				<th>Артикул</th>
+			</tr>
+		</thead>
+		<tbody>
+			#iter()
+			<tr class="tbl_suppl_goods_item">
+				<td>${Id}</td>
+				<!--<td>${Txt}</td>-->
+				<td>${@(Goods, Id).Name}</td>
+				<td>${@(Goods, Id).GetArCode(@(Global, 0).PersonToArticle($1, @(Global, 0).GetAccSheet("SUPPLIERS")).Id)}</td>
+			</tr>
+			#end()
+		</tbody>
+	</table>
+	
+	<!-- Панель навигации по списку страниц таблицы -->
+	<div id="tbl_suppl_goods_pager" class="tablesorter-pager">
+		<input type="button" class="tablesorter-pager-btn-first"/>
+		<input type="button" class="tablesorter-pager-btn-prev"/>
+		<label class="tablesorter-pager-label-page-display"></label>
+		<input type="button" class="tablesorter-pager-btn-next"/>
+		<input type="button" class="tablesorter-pager-btn-last"/>
+		<b>Отображать по: </b>
+		<select class="tablesorter-pager-select-page-size">
+			<option selected="selected" value="20">20</option>
+			<option value="30">30</option>
+			<option value="40">40</option>
+			<option value="50">50</option>
+			<option value="100">100</option>
+			<option value="500">500</option>
+		</select>
+	</div>
+	
+	<script type="text/javascript">	
+		$(document).ready(function() {
+			
+			var suppl_goods_cmenu = [
+				{ "<b>Информация о товаре</b>": function() {
+						var goods_id = $(this).find("td:eq(0)").text(); 
+						showGoodsDetails(goods_id, "Информация о товаре");
+					}
+				},
+				$.contextMenu.separator,
+				{"Котировки": function() {
+						var goods_id = $(this).find("td:eq(0)").text();
+						var suppl_id = ${@(Global, 0).PersonToArticle($1, @(Global, 0).GetAccSheet("SUPPLIERS")).Id}
+						showQuotsByGoodsAndSuppl(goods_id, suppl_id);
+					}
+				}
+			];
+			
+			function showQuotsByGoodsAndSuppl(goods_id, suppl_id) {
+				var query = "SELECT QUOT BY ACTUAL KIND.CODE(UHTTQUOT) GOODS.ID(" + goods_id + ") ARTICLE.ID(" + suppl_id + ") format.tddo(VIEW_QUOTE, $1)";
+				var _dlg = new SDialog("UHTTViewQuotesByGoodsAndSupplDlg", query);
+				_dlg.setOption("title", "Котировки");
+			};
+			
+			$("#tbl_suppl_goods").tablesorter(({widthFixed: true}));
+    		$("#tbl_suppl_goods").tablesorterPager({container: $("#tbl_suppl_goods_pager")}); 
+    		$("#tbl_suppl_goods").bind("sortStart", function() {
+        		$("#tbl_suppl_goods_overlay_msg").show();
+    		}).bind("sortEnd", function() {
+        		$("#tbl_suppl_goods_overlay_msg").hide();
+    		});
+			
+			$("#tbl_suppl_goods").delegate(".tbl_suppl_goods_item", "dblclick", function() {
+				var goods_id = $(this).find("td:eq(0)").text();
+        		showGoodsDetails(goods_id);
+			}).delegate(".tbl_suppl_goods_item", "click", function(e) {
+				// todo: show quick info
+			});
+			
+			$(".tbl_suppl_goods_item").contextMenu(suppl_goods_cmenu, { theme:"xp" });
+		});
+	</script>
+#end()

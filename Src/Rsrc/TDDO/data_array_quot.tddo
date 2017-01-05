@@ -1,0 +1,26 @@
+## Universe-HTT
+## data_array_quote.tddo
+## Массив структур котировок
+
+#pragma(htmlencode)
+#start(QuotArray)
+	[
+	#iter()
+		{
+			"KindID":${KindID.ID},
+			"GoodsID":${GoodsID.ID},
+			"SellerID":${LocID.OwnerID.ID},
+			"LocationID":${LocID.ID},
+			"BuyerID":${ArID.PersonID.PersonID.ID},
+			"CurrencyID":${CurID.ID},
+			"MinQtty":0,
+			"Dt":"${Dt}",
+			"Tm":"${Tm}",
+			"ActualPeriodUpp":"",
+			"ActualPeriodLow":"",
+			"Value":${Val},
+			"Flags":${Flags}
+		},
+	#end()
+	]
+#end()

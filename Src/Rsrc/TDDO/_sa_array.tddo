@@ -1,0 +1,15 @@
+## Universe-HTT
+## _sa_array.tddo
+## Массив StrAssocArray
+## Args: ${1} - имя переменной массива;
+##
+
+#pragma(htmlencode)
+#start(StrAssocArray)
+<script type="text/javascript">
+	var ${1} = [
+		#iter() { ID: ${Id}, ParentID: ${ParentId}, Name: "${Txt}" },#end()
+		{id: 0, ParentId: 0, Name: "" }
+	];
+</script>
+#end()

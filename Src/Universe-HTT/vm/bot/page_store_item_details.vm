@@ -1,0 +1,47 @@
+﻿## Universe-HTT / 2013
+## page_store_item_details.vm
+## Описание товара интернет-магазина (страница для поискового бота)
+##
+
+#set($city = ${UHTT.getObjName("CITY", $loc.CityID)})
+#set($brand = $UHTT.getObjName("BRAND", $goods.BrandID))
+#set($group = $UHTT.getObjName("GOODSGROUP", $goods.GroupID))
+#set($price = ${UHTT.format("0.00", $quot.Val)})
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>
+			${goods.Name}
+			#foreach($barcode in $goods.BarcodeList)
+				${barcode.Code}
+			#end
+			- ${store.Name}, ${city}
+		</title>
+		<meta name="keywords" content="${store.Name}, ${city}, ${goods.Name}, ${keywords}">
+		<meta name="description" content="${goods.Name}, ${store.Name}, ${city}">
+	</head>
+	<body>
+		<h1>${goods.Name} - ${price} руб.</h1>
+		<div itemscope itemtype="http://data-vocabulary.org/Product">
+			<img itemprop="image" src="/dispatcher/get_obj_image?obj_type=GOODS&obj_id=${goods.ID}"/><br>
+			<span>ID: </span><span>${goods.ID}</span><br>
+			<span>Наименование: </span><span itemprop="name">${goods.Name}</span><br>
+			<span>Описание: </span><span itemprop="description">${goods.Name} #foreach($barcode in $goods.BarcodeList) ${barcode.Code} #end</span><br>
+			<span>Штрихкод: </span>
+			#foreach($barcode in $goods.BarcodeList)
+				<span itemprop="identifier" content="sku:${barcode.Code}">${barcode.Code}</span><br>
+			#end
+			#if($goods.BrandID > 0)
+				<span>Бренд: </span><span itemprop="brand">${brand}</span><br>
+			#end
+			<span>Группа: </span><span itemprop="category" content='${group}'>${group}</span><br>
+			<br>
+			<span itemprop="offerDetails" itemscope itemtype="http://data-vocabulary.org/Offer">
+				<meta itemprop="currency" content="RUB" />
+				<span>Продавец: </span><span itemprop="seller">${store.Name}</span><br>
+				<span>Цена: </span><span itemprop="price">${price}</span>
+			</span>
+		</div>
+	</body>
+</html>

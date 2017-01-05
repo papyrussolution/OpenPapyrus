@@ -1,0 +1,3835 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://service.uhtt.ru/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="WSInterfaceImplService" targetNamespace="http://service.uhtt.ru/">
+  <wsdl:types>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://service.uhtt.ru/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://service.uhtt.ru/">
+  <xs:element name="DCAddFileVersion" type="tns:DCAddFileVersion"/>
+  <xs:element name="DCAddFileVersionResponse" type="tns:DCAddFileVersionResponse"/>
+  <xs:element name="DCCreateFile" type="tns:DCCreateFile"/>
+  <xs:element name="DCCreateFileResponse" type="tns:DCCreateFileResponse"/>
+  <xs:element name="DCGetFileVersionList" type="tns:DCGetFileVersionList"/>
+  <xs:element name="DCGetFileVersionListResponse" type="tns:DCGetFileVersionListResponse"/>
+  <xs:element name="auth" type="tns:auth"/>
+  <xs:element name="authResponse" type="tns:authResponse"/>
+  <xs:element name="checkAuthToken" type="tns:checkAuthToken"/>
+  <xs:element name="checkAuthTokenResponse" type="tns:checkAuthTokenResponse"/>
+  <xs:element name="checkBarcode" type="tns:checkBarcode"/>
+  <xs:element name="checkBarcodeResponse" type="tns:checkBarcodeResponse"/>
+  <xs:element name="checkINN" type="tns:checkINN"/>
+  <xs:element name="checkINNResponse" type="tns:checkINNResponse"/>
+  <xs:element name="checkStyloDeviceRegistration" type="tns:checkStyloDeviceRegistration"/>
+  <xs:element name="checkStyloDeviceRegistrationResponse" type="tns:checkStyloDeviceRegistrationResponse"/>
+  <xs:element name="createBill" type="tns:createBill"/>
+  <xs:element name="createBillResponse" type="tns:createBillResponse"/>
+  <xs:element name="createGoods" type="tns:createGoods"/>
+  <xs:element name="createGoodsResponse" type="tns:createGoodsResponse"/>
+  <xs:element name="createPerson" type="tns:createPerson"/>
+  <xs:element name="createPersonResponse" type="tns:createPersonResponse"/>
+  <xs:element name="createProcessor" type="tns:createProcessor"/>
+  <xs:element name="createProcessorResponse" type="tns:createProcessorResponse"/>
+  <xs:element name="createSCardCheck" type="tns:createSCardCheck"/>
+  <xs:element name="createSCardCheckResponse" type="tns:createSCardCheckResponse"/>
+  <xs:element name="createSpecSeries" type="tns:createSpecSeries"/>
+  <xs:element name="createSpecSeriesResponse" type="tns:createSpecSeriesResponse"/>
+  <xs:element name="createStandaloneLocation" type="tns:createStandaloneLocation"/>
+  <xs:element name="createStandaloneLocationResponse" type="tns:createStandaloneLocationResponse"/>
+  <xs:element name="createStyloDevice" type="tns:createStyloDevice"/>
+  <xs:element name="createStyloDeviceResponse" type="tns:createStyloDeviceResponse"/>
+  <xs:element name="createTSession" type="tns:createTSession"/>
+  <xs:element name="createTSessionResponse" type="tns:createTSessionResponse"/>
+  <xs:element name="createWorkbookItem" type="tns:createWorkbookItem"/>
+  <xs:element name="createWorkbookItemResponse" type="tns:createWorkbookItemResponse"/>
+  <xs:element name="depositSCardAmount" type="tns:depositSCardAmount"/>
+  <xs:element name="depositSCardAmountResponse" type="tns:depositSCardAmountResponse"/>
+  <xs:element name="finishDataTransfer" type="tns:finishDataTransfer"/>
+  <xs:element name="finishDataTransferResponse" type="tns:finishDataTransferResponse"/>
+  <xs:element name="getArticleByID" type="tns:getArticleByID"/>
+  <xs:element name="getArticleByIDResponse" type="tns:getArticleByIDResponse"/>
+  <xs:element name="getAuthInfo" type="tns:getAuthInfo"/>
+  <xs:element name="getAuthInfoResponse" type="tns:getAuthInfoResponse"/>
+  <xs:element name="getBill" type="tns:getBill"/>
+  <xs:element name="getBillResponse" type="tns:getBillResponse"/>
+  <xs:element name="getBrandByID" type="tns:getBrandByID"/>
+  <xs:element name="getBrandByIDResponse" type="tns:getBrandByIDResponse"/>
+  <xs:element name="getBrandByName" type="tns:getBrandByName"/>
+  <xs:element name="getBrandByNameResponse" type="tns:getBrandByNameResponse"/>
+  <xs:element name="getGoodsArCode" type="tns:getGoodsArCode"/>
+  <xs:element name="getGoodsArCodeResponse" type="tns:getGoodsArCodeResponse"/>
+  <xs:element name="getGoodsByCode" type="tns:getGoodsByCode"/>
+  <xs:element name="getGoodsByCodeResponse" type="tns:getGoodsByCodeResponse"/>
+  <xs:element name="getGoodsByID" type="tns:getGoodsByID"/>
+  <xs:element name="getGoodsByIDResponse" type="tns:getGoodsByIDResponse"/>
+  <xs:element name="getGoodsByName" type="tns:getGoodsByName"/>
+  <xs:element name="getGoodsByNameResponse" type="tns:getGoodsByNameResponse"/>
+  <xs:element name="getGoodsObjRefList" type="tns:getGoodsObjRefList"/>
+  <xs:element name="getGoodsObjRefListResponse" type="tns:getGoodsObjRefListResponse"/>
+  <xs:element name="getGoodsQuote" type="tns:getGoodsQuote"/>
+  <xs:element name="getGoodsQuoteResponse" type="tns:getGoodsQuoteResponse"/>
+  <xs:element name="getGoodsRestList" type="tns:getGoodsRestList"/>
+  <xs:element name="getGoodsRestListResponse" type="tns:getGoodsRestListResponse"/>
+  <xs:element name="getImageByCode" type="tns:getImageByCode"/>
+  <xs:element name="getImageByCodeResponse" type="tns:getImageByCodeResponse"/>
+  <xs:element name="getImageByID" type="tns:getImageByID"/>
+  <xs:element name="getImageByIDResponse" type="tns:getImageByIDResponse"/>
+  <xs:element name="getLocationByCode" type="tns:getLocationByCode"/>
+  <xs:element name="getLocationByCodeResponse" type="tns:getLocationByCodeResponse"/>
+  <xs:element name="getLocationByID" type="tns:getLocationByID"/>
+  <xs:element name="getLocationByIDResponse" type="tns:getLocationByIDResponse"/>
+  <xs:element name="getLocationByPhone" type="tns:getLocationByPhone"/>
+  <xs:element name="getLocationByPhoneResponse" type="tns:getLocationByPhoneResponse"/>
+  <xs:element name="getOwnWorkbookItems" type="tns:getOwnWorkbookItems"/>
+  <xs:element name="getOwnWorkbookItemsResponse" type="tns:getOwnWorkbookItemsResponse"/>
+  <xs:element name="getPersonByID" type="tns:getPersonByID"/>
+  <xs:element name="getPersonByIDResponse" type="tns:getPersonByIDResponse"/>
+  <xs:element name="getPersonByName" type="tns:getPersonByName"/>
+  <xs:element name="getPersonByNameResponse" type="tns:getPersonByNameResponse"/>
+  <xs:element name="getProcessorByCode" type="tns:getProcessorByCode"/>
+  <xs:element name="getProcessorByCodeResponse" type="tns:getProcessorByCodeResponse"/>
+  <xs:element name="getProcessorByID" type="tns:getProcessorByID"/>
+  <xs:element name="getProcessorByIDResponse" type="tns:getProcessorByIDResponse"/>
+  <xs:element name="getSCardByID" type="tns:getSCardByID"/>
+  <xs:element name="getSCardByIDResponse" type="tns:getSCardByIDResponse"/>
+  <xs:element name="getSCardByNumber" type="tns:getSCardByNumber"/>
+  <xs:element name="getSCardByNumberResponse" type="tns:getSCardByNumberResponse"/>
+  <xs:element name="getSCardRest" type="tns:getSCardRest"/>
+  <xs:element name="getSCardRestResponse" type="tns:getSCardRestResponse"/>
+  <xs:element name="getSpecSeriesByGoodsID" type="tns:getSpecSeriesByGoodsID"/>
+  <xs:element name="getSpecSeriesByGoodsIDResponse" type="tns:getSpecSeriesByGoodsIDResponse"/>
+  <xs:element name="getSpecSeriesByPeriod" type="tns:getSpecSeriesByPeriod"/>
+  <xs:element name="getSpecSeriesByPeriodResponse" type="tns:getSpecSeriesByPeriodResponse"/>
+  <xs:element name="getSpecSeriesBySerial" type="tns:getSpecSeriesBySerial"/>
+  <xs:element name="getSpecSeriesBySerialResponse" type="tns:getSpecSeriesBySerialResponse"/>
+  <xs:element name="getStyloDeviceByCode" type="tns:getStyloDeviceByCode"/>
+  <xs:element name="getStyloDeviceByCodeResponse" type="tns:getStyloDeviceByCodeResponse"/>
+  <xs:element name="getStyloDeviceByID" type="tns:getStyloDeviceByID"/>
+  <xs:element name="getStyloDeviceByIDResponse" type="tns:getStyloDeviceByIDResponse"/>
+  <xs:element name="getTSessionByID" type="tns:getTSessionByID"/>
+  <xs:element name="getTSessionByIDResponse" type="tns:getTSessionByIDResponse"/>
+  <xs:element name="getTSessionByPrc" type="tns:getTSessionByPrc"/>
+  <xs:element name="getTSessionByPrcResponse" type="tns:getTSessionByPrcResponse"/>
+  <xs:element name="getTSessionByUUID" type="tns:getTSessionByUUID"/>
+  <xs:element name="getTSessionByUUIDResponse" type="tns:getTSessionByUUIDResponse"/>
+  <xs:element name="getWorkbookItemByCode" type="tns:getWorkbookItemByCode"/>
+  <xs:element name="getWorkbookItemByCodeResponse" type="tns:getWorkbookItemByCodeResponse"/>
+  <xs:element name="getWorkbookItemByID" type="tns:getWorkbookItemByID"/>
+  <xs:element name="getWorkbookItemByIDResponse" type="tns:getWorkbookItemByIDResponse"/>
+  <xs:element name="getWorkbookItemContent" type="tns:getWorkbookItemContent"/>
+  <xs:element name="getWorkbookItemContentResponse" type="tns:getWorkbookItemContentResponse"/>
+  <xs:element name="putDataChunk" type="tns:putDataChunk"/>
+  <xs:element name="putDataChunkResponse" type="tns:putDataChunkResponse"/>
+  <xs:element name="registerStyloDevice" type="tns:registerStyloDevice"/>
+  <xs:element name="registerStyloDeviceResponse" type="tns:registerStyloDeviceResponse"/>
+  <xs:element name="sendSMS" type="tns:sendSMS"/>
+  <xs:element name="sendSMSResponse" type="tns:sendSMSResponse"/>
+  <xs:element name="setGoodsQuote" type="tns:setGoodsQuote"/>
+  <xs:element name="setGoodsQuoteList" type="tns:setGoodsQuoteList"/>
+  <xs:element name="setGoodsQuoteListResponse" type="tns:setGoodsQuoteListResponse"/>
+  <xs:element name="setGoodsQuoteResponse" type="tns:setGoodsQuoteResponse"/>
+  <xs:element name="setImageByID" type="tns:setImageByID"/>
+  <xs:element name="setImageByIDResponse" type="tns:setImageByIDResponse"/>
+  <xs:element name="setWorkbookItemContent" type="tns:setWorkbookItemContent"/>
+  <xs:element name="setWorkbookItemContentResponse" type="tns:setWorkbookItemContentResponse"/>
+  <xs:element name="startDataTransfer" type="tns:startDataTransfer"/>
+  <xs:element name="startDataTransferResponse" type="tns:startDataTransferResponse"/>
+  <xs:element name="withdrawSCardAmount" type="tns:withdrawSCardAmount"/>
+  <xs:element name="withdrawSCardAmountResponse" type="tns:withdrawSCardAmountResponse"/>
+  <xs:complexType name="createPerson">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="person" type="tns:person"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="person">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:int"/>
+      <xs:element minOccurs="0" name="Name" type="xs:string"/>
+      <xs:element name="StatusID" type="xs:int"/>
+      <xs:element name="CategoryID" type="xs:int"/>
+      <xs:element minOccurs="0" name="INN" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="PhoneList" nillable="true" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="EMailList" nillable="true" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="UrlList" nillable="true" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="KindList" nillable="true" type="tns:personKind"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="RegisterList" nillable="true" type="tns:personRegister"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="AddrList" nillable="true" type="tns:personAddress"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="personKind">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:int"/>
+      <xs:element minOccurs="0" name="Name" type="xs:string"/>
+      <xs:element minOccurs="0" name="Code" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="personRegister">
+    <xs:sequence>
+      <xs:element name="RegID" type="xs:int"/>
+      <xs:element name="RegTypeID" type="xs:int"/>
+      <xs:element minOccurs="0" name="RegTypeName" type="xs:string"/>
+      <xs:element name="PersonID" type="xs:int"/>
+      <xs:element name="RegOrgID" type="xs:int"/>
+      <xs:element minOccurs="0" name="RegDt" type="xs:string"/>
+      <xs:element minOccurs="0" name="RegExpiry" type="xs:string"/>
+      <xs:element minOccurs="0" name="RegSerial" type="xs:string"/>
+      <xs:element minOccurs="0" name="RegNumber" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="personAddress">
+    <xs:sequence>
+      <xs:element name="LocID" type="xs:int"/>
+      <xs:element name="CityID" type="xs:int"/>
+      <xs:element name="LocKind" type="xs:int"/>
+      <xs:element minOccurs="0" name="LocCode" type="xs:string"/>
+      <xs:element minOccurs="0" name="LocName" type="xs:string"/>
+      <xs:element minOccurs="0" name="ZIP" type="xs:string"/>
+      <xs:element minOccurs="0" name="Address" type="xs:string"/>
+      <xs:element minOccurs="0" name="City" type="xs:string"/>
+      <xs:element minOccurs="0" name="Country" type="xs:string"/>
+      <xs:element name="OwnerID" type="xs:int"/>
+      <xs:element name="Latitude" type="xs:double"/>
+      <xs:element name="Longitude" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createPersonResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="status">
+    <xs:sequence>
+      <xs:element name="Code" type="xs:int"/>
+      <xs:element minOccurs="0" name="Message" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="checkBarcode">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="code" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="checkBarcodeResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getGoodsObjRefList">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="refList" type="tns:objRefItem"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="objRefItem">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:int"/>
+      <xs:element minOccurs="0" name="Code" type="xs:string"/>
+      <xs:element name="UhttObjID" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getGoodsObjRefListResponse">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="refList" type="tns:objRefItem"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="depositSCardAmount">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="number" type="xs:string"/>
+      <xs:element name="amount" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="depositSCardAmountResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getStyloDeviceByCode">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="code" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getStyloDeviceByCodeResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="styloDeviceItem" type="tns:styloDevice"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="styloDevice">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:int"/>
+      <xs:element minOccurs="0" name="Name" type="xs:string"/>
+      <xs:element minOccurs="0" name="Symb" type="xs:string"/>
+      <xs:element name="ParentID" type="xs:int"/>
+      <xs:element name="Flags" type="xs:int"/>
+      <xs:element name="DeviceVer" type="xs:int"/>
+      <xs:element minOccurs="0" name="RegisterTime" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getGoodsArCode">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="barcode" type="xs:string"/>
+      <xs:element minOccurs="0" name="inn" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getGoodsArCodeResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="code" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createProcessor">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="instance" type="tns:processor"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="processor">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:int"/>
+      <xs:element minOccurs="0" name="Name" type="xs:string"/>
+      <xs:element minOccurs="0" name="Symb" type="xs:string"/>
+      <xs:element name="ParentID" type="xs:int"/>
+      <xs:element name="Kind" type="xs:int"/>
+      <xs:element name="Flags" type="xs:int"/>
+      <xs:element name="LocID" type="xs:int"/>
+      <xs:element name="LinkObjType" type="xs:int"/>
+      <xs:element name="LinkObjID" type="xs:int"/>
+      <xs:element name="OwnerGuaID" type="xs:int"/>
+      <xs:element name="CipPersonKindID" type="xs:int"/>
+      <xs:element name="CipMax" type="xs:int"/>
+      <xs:element name="CipCancelTimeout" type="xs:int"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="Places" nillable="true" type="tns:prcPlace"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="prcPlace">
+    <xs:sequence>
+      <xs:element name="GoodsID" type="xs:int"/>
+      <xs:element minOccurs="0" name="Range" type="xs:string"/>
+      <xs:element minOccurs="0" name="Descr" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createProcessorResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="settled_code" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="setImageByID">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="objectType" type="xs:string"/>
+      <xs:element name="objectID" type="xs:int"/>
+      <xs:element minOccurs="0" name="image" type="tns:dataChunk"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="dataChunk">
+    <xs:sequence>
+      <xs:element name="Number" type="xs:int"/>
+      <xs:element minOccurs="0" name="Name" type="xs:string"/>
+      <xs:element minOccurs="0" name="Encoding" type="xs:string"/>
+      <xs:element minOccurs="0" name="ContentType" type="xs:string"/>
+      <xs:element name="RawChunkSize" type="xs:long"/>
+      <xs:element minOccurs="0" name="DataBase64" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="setImageByIDResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getGoodsByID">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element name="id" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getGoodsByIDResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="goods" type="tns:goods"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="goods">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:int"/>
+      <xs:element minOccurs="0" name="Name" type="xs:string"/>
+      <xs:element minOccurs="0" name="SingleBarcode" type="xs:string"/>
+      <xs:element name="GroupID" type="xs:int"/>
+      <xs:element name="BrandID" type="xs:int"/>
+      <xs:element name="ManufactorID" type="xs:int"/>
+      <xs:element name="TypeID" type="xs:int"/>
+      <xs:element name="ClassID" type="xs:int"/>
+      <xs:element name="TaxGroupID" type="xs:int"/>
+      <xs:element name="UnitID" type="xs:int"/>
+      <xs:element name="PhUnitID" type="xs:int"/>
+      <xs:element name="PhUnitPerUnit" type="xs:double"/>
+      <xs:element name="Brutto" type="xs:double"/>
+      <xs:element name="Length" type="xs:int"/>
+      <xs:element name="Width" type="xs:int"/>
+      <xs:element name="Height" type="xs:int"/>
+      <xs:element name="Package" type="xs:double"/>
+      <xs:element name="ExpiryPeriod" type="xs:int"/>
+      <xs:element minOccurs="0" name="Storage" type="xs:string"/>
+      <xs:element minOccurs="0" name="Standard" type="xs:string"/>
+      <xs:element minOccurs="0" name="Ingredients" type="xs:string"/>
+      <xs:element minOccurs="0" name="Energy" type="xs:string"/>
+      <xs:element minOccurs="0" name="Usages" type="xs:string"/>
+      <xs:element minOccurs="0" name="OKOF" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="Barcodes" nillable="true" type="tns:barcode"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="Tags" nillable="true" type="tns:tagValue"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="barcode">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Code" type="xs:string"/>
+      <xs:element name="Package" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="tagValue">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Symb" type="xs:string"/>
+      <xs:element minOccurs="0" name="Value" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createStandaloneLocation">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="location" type="tns:location"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="location">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:int"/>
+      <xs:element name="ParentID" type="xs:int"/>
+      <xs:element name="CityID" type="xs:int"/>
+      <xs:element name="CountryID" type="xs:int"/>
+      <xs:element name="Type" type="xs:int"/>
+      <xs:element name="Flags" type="xs:int"/>
+      <xs:element name="OwnerID" type="xs:int"/>
+      <xs:element minOccurs="0" name="Code" type="xs:string"/>
+      <xs:element minOccurs="0" name="ZIP" type="xs:string"/>
+      <xs:element minOccurs="0" name="Name" type="xs:string"/>
+      <xs:element minOccurs="0" name="Address" type="xs:string"/>
+      <xs:element minOccurs="0" name="City" type="xs:string"/>
+      <xs:element minOccurs="0" name="Country" type="xs:string"/>
+      <xs:element minOccurs="0" name="Phone" type="xs:string"/>
+      <xs:element minOccurs="0" name="Contact" type="xs:string"/>
+      <xs:element minOccurs="0" name="EMail" type="xs:string"/>
+      <xs:element name="Latitude" type="xs:double"/>
+      <xs:element name="Longitude" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createStandaloneLocationResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getOwnWorkbookItems">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="parentCode" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getOwnWorkbookItemsResponse">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="workbookItemArray" type="tns:workbook"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="workbook">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:int"/>
+      <xs:element name="ParentID" type="xs:int"/>
+      <xs:element name="CssID" type="xs:int"/>
+      <xs:element name="LinkID" type="xs:int"/>
+      <xs:element minOccurs="0" name="Name" type="xs:string"/>
+      <xs:element minOccurs="0" name="Symb" type="xs:string"/>
+      <xs:element name="Type" type="xs:int"/>
+      <xs:element name="Rank" type="xs:int"/>
+      <xs:element name="Flags" type="xs:int"/>
+      <xs:element name="KeywordCount" type="xs:int"/>
+      <xs:element name="KeywordDilute" type="xs:int"/>
+      <xs:element minOccurs="0" name="Dt" type="xs:string"/>
+      <xs:element minOccurs="0" name="Tm" type="xs:string"/>
+      <xs:element minOccurs="0" name="ModifDt" type="xs:string"/>
+      <xs:element minOccurs="0" name="ModifTm" type="xs:string"/>
+      <xs:element minOccurs="0" name="Version" type="xs:string"/>
+      <xs:element minOccurs="0" name="Descr" type="xs:string"/>
+      <xs:element minOccurs="0" name="ContentModifDt" type="xs:string"/>
+      <xs:element minOccurs="0" name="ContentModifTm" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="Tags" nillable="true" type="tns:tagValue"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createGoods">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="goods" type="tns:goods"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createGoodsResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getBrandByName">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="name" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getBrandByNameResponse">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="brandArray" type="tns:brand"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="brand">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:int"/>
+      <xs:element minOccurs="0" name="Name" type="xs:string"/>
+      <xs:element name="OwnerID" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="registerStyloDevice">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="styloDeviceCode" type="xs:string"/>
+      <xs:element minOccurs="0" name="magic" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="registerStyloDeviceResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createStyloDevice">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="instance" type="tns:styloDevice"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createStyloDeviceResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DCAddFileVersion">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element name="transferID" type="xs:int"/>
+      <xs:element minOccurs="0" name="key" type="xs:string"/>
+      <xs:element minOccurs="0" name="label" type="xs:string"/>
+      <xs:element minOccurs="0" name="memo" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DCAddFileVersionResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getSCardByNumber">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="number" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getSCardByNumberResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="scard" type="tns:sCard"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="sCard">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:int"/>
+      <xs:element name="SeriesID" type="xs:int"/>
+      <xs:element name="OwnerID" type="xs:int"/>
+      <xs:element minOccurs="0" name="Code" type="xs:string"/>
+      <xs:element minOccurs="0" name="Hash" type="xs:string"/>
+      <xs:element minOccurs="0" name="IssueDate" type="tns:dateTime"/>
+      <xs:element minOccurs="0" name="Expiry" type="tns:dateTime"/>
+      <xs:element name="PDis" type="xs:double"/>
+      <xs:element name="Overdraft" type="xs:double"/>
+      <xs:element name="Debit" type="xs:double"/>
+      <xs:element name="Credit" type="xs:double"/>
+      <xs:element name="Rest" type="xs:double"/>
+      <xs:element name="Flags" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="dateTime">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Date" type="xs:string"/>
+      <xs:element minOccurs="0" name="Time" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="putDataChunk">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element name="transferID" type="xs:int"/>
+      <xs:element minOccurs="0" name="chunk" type="tns:dataChunk"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="putDataChunkResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getWorkbookItemByID">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element name="id" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getWorkbookItemByIDResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="workbookItem" type="tns:workbook"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createTSession">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="instance" type="tns:tSession"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="tSession">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:int"/>
+      <xs:element name="Num" type="xs:int"/>
+      <xs:element name="PrcID" type="xs:int"/>
+      <xs:element name="TechID" type="xs:int"/>
+      <xs:element name="ParentID" type="xs:int"/>
+      <xs:element name="Status" type="xs:int"/>
+      <xs:element name="Flags" type="xs:int"/>
+      <xs:element name="CipCancelTimeout" type="xs:int"/>
+      <xs:element minOccurs="0" name="StTime" type="xs:string"/>
+      <xs:element minOccurs="0" name="FinTime" type="xs:string"/>
+      <xs:element minOccurs="0" name="Memo" type="xs:string"/>
+      <xs:element minOccurs="0" name="Detail" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="Lines" nillable="true" type="tns:tSessionLine"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="Cips" nillable="true" type="tns:checkInPerson"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="Tags" nillable="true" type="tns:tagValue"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="tSessionLine">
+    <xs:sequence>
+      <xs:element name="TSessID" type="xs:int"/>
+      <xs:element name="OprNo" type="xs:int"/>
+      <xs:element name="GoodsID" type="xs:int"/>
+      <xs:element name="LotID" type="xs:int"/>
+      <xs:element name="UserID" type="xs:int"/>
+      <xs:element name="Sign" type="xs:int"/>
+      <xs:element minOccurs="0" name="Tm" type="xs:string"/>
+      <xs:element name="Flags" type="xs:int"/>
+      <xs:element name="Qtty" type="xs:double"/>
+      <xs:element name="WtQtty" type="xs:double"/>
+      <xs:element name="Price" type="xs:double"/>
+      <xs:element name="Discount" type="xs:double"/>
+      <xs:element minOccurs="0" name="Expiry" type="xs:string"/>
+      <xs:element minOccurs="0" name="Serial" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="checkInPerson">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:int"/>
+      <xs:element name="Kind" type="xs:int"/>
+      <xs:element name="PrmrID" type="xs:int"/>
+      <xs:element name="PersonID" type="xs:int"/>
+      <xs:element name="Num" type="xs:int"/>
+      <xs:element name="RegCount" type="xs:int"/>
+      <xs:element name="CiCount" type="xs:int"/>
+      <xs:element name="Flags" type="xs:int"/>
+      <xs:element minOccurs="0" name="RegTm" type="xs:string"/>
+      <xs:element minOccurs="0" name="CiTm" type="xs:string"/>
+      <xs:element name="Amount" type="xs:double"/>
+      <xs:element name="CCheckID" type="xs:int"/>
+      <xs:element name="SCardID" type="xs:int"/>
+      <xs:element minOccurs="0" name="Memo" type="xs:string"/>
+      <xs:element minOccurs="0" name="PlaceCode" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createTSessionResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="settled_code" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getPersonByID">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element name="id" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getPersonByIDResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="person" type="tns:person"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DCCreateFile">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element name="transferID" type="xs:int"/>
+      <xs:element minOccurs="0" name="title" type="xs:string"/>
+      <xs:element minOccurs="0" name="key" type="xs:string"/>
+      <xs:element minOccurs="0" name="path" type="xs:string"/>
+      <xs:element name="groupID" type="xs:int"/>
+      <xs:element minOccurs="0" name="memo" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DCCreateFileResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getWorkbookItemContent">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element name="id" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getWorkbookItemContentResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="content" type="tns:dataChunk"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getSpecSeriesBySerial">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="serial" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getSpecSeriesBySerialResponse">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="specSeriesArray" type="tns:specSeries"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="specSeries">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:int"/>
+      <xs:element name="GoodsID" type="xs:int"/>
+      <xs:element name="ManufID" type="xs:int"/>
+      <xs:element name="ManufCountryID" type="xs:int"/>
+      <xs:element name="LabID" type="xs:int"/>
+      <xs:element minOccurs="0" name="Serial" type="xs:string"/>
+      <xs:element minOccurs="0" name="Barcode" type="xs:string"/>
+      <xs:element minOccurs="0" name="GoodsName" type="xs:string"/>
+      <xs:element minOccurs="0" name="ManufName" type="xs:string"/>
+      <xs:element minOccurs="0" name="InfoDate" type="xs:string"/>
+      <xs:element name="InfoKind" type="xs:int"/>
+      <xs:element minOccurs="0" name="InfoIdent" type="xs:string"/>
+      <xs:element minOccurs="0" name="AllowDate" type="xs:string"/>
+      <xs:element minOccurs="0" name="AllowNumber" type="xs:string"/>
+      <xs:element minOccurs="0" name="LetterType" type="xs:string"/>
+      <xs:element name="Flags" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="checkINN">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="inn" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="checkINNResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getTSessionByUUID">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="uuid" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getTSessionByUUIDResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="tsessItem" type="tns:tSession"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getSCardRest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="number" type="xs:string"/>
+      <xs:element minOccurs="0" name="date" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getSCardRestResponse">
+    <xs:sequence>
+      <xs:element name="rest" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createBill">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="bill" type="tns:bill"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="bill">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:int"/>
+      <xs:element minOccurs="0" name="Dt" type="xs:string"/>
+      <xs:element minOccurs="0" name="OpSymb" type="xs:string"/>
+      <xs:element minOccurs="0" name="Code" type="xs:string"/>
+      <xs:element name="LocationID" type="xs:int"/>
+      <xs:element name="ArticleID" type="xs:int"/>
+      <xs:element name="DlvrLocID" type="xs:int"/>
+      <xs:element name="CurrencyID" type="xs:int"/>
+      <xs:element name="AgentID" type="xs:int"/>
+      <xs:element name="StatusID" type="xs:int"/>
+      <xs:element name="Amount" type="xs:double"/>
+      <xs:element name="Discount" type="xs:double"/>
+      <xs:element minOccurs="0" name="GUID" type="xs:string"/>
+      <xs:element name="Flags" type="xs:int"/>
+      <xs:element minOccurs="0" name="Memo" type="xs:string"/>
+      <xs:element minOccurs="0" name="Contractor" type="tns:person"/>
+      <xs:element minOccurs="0" name="DlvrAddr" type="tns:location"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="Items" nillable="true" type="tns:billLine"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="billLine">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:int"/>
+      <xs:element name="GoodsID" type="xs:int"/>
+      <xs:element minOccurs="0" name="Serial" type="xs:string"/>
+      <xs:element name="Quantity" type="xs:double"/>
+      <xs:element name="Cost" type="xs:double"/>
+      <xs:element name="Price" type="xs:double"/>
+      <xs:element name="Discount" type="xs:double"/>
+      <xs:element name="Amount" type="xs:double"/>
+      <xs:element name="Flags" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createBillResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getArticleByID">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element name="id" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getArticleByIDResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="article" type="tns:article"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="article">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:int"/>
+      <xs:element name="SheetID" type="xs:int"/>
+      <xs:element name="LinkObjType" type="xs:int"/>
+      <xs:element name="PersonID" type="xs:int"/>
+      <xs:element name="WhID" type="xs:int"/>
+      <xs:element name="AgrID" type="xs:int"/>
+      <xs:element name="Number" type="xs:int"/>
+      <xs:element minOccurs="0" name="Name" type="xs:string"/>
+      <xs:element name="Group" type="xs:int"/>
+      <xs:element name="Closed" type="xs:int"/>
+      <xs:element name="Stop" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getSCardByID">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element name="id" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getSCardByIDResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="scard" type="tns:sCard"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getPersonByName">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="name" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getPersonByNameResponse">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="personArray" type="tns:person"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="setGoodsQuoteList">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="quote" type="tns:quote"/>
+      <xs:element name="options" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="quote">
+    <xs:sequence>
+      <xs:element name="GoodsID" type="xs:int"/>
+      <xs:element name="SellerID" type="xs:int"/>
+      <xs:element name="LocationID" type="xs:int"/>
+      <xs:element name="BuyerID" type="xs:int"/>
+      <xs:element name="CurrencyID" type="xs:int"/>
+      <xs:element name="MinQtty" type="xs:double"/>
+      <xs:element minOccurs="0" name="ChangesDate" type="tns:dateTime"/>
+      <xs:element minOccurs="0" name="ActialPeriod" type="tns:datePeriod"/>
+      <xs:element name="Value" type="xs:double"/>
+      <xs:element name="Flags" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="datePeriod">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="UpperDate" type="xs:string"/>
+      <xs:element minOccurs="0" name="LowerDate" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="setGoodsQuoteListResponse">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="status" type="tns:statusExt"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="statusExt">
+    <xs:sequence>
+      <xs:element name="Index" type="xs:int"/>
+      <xs:element name="Id" type="xs:int"/>
+      <xs:element name="Code" type="xs:int"/>
+      <xs:element minOccurs="0" name="Message" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getTSessionByID">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element name="id" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getTSessionByIDResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="tsessItem" type="tns:tSession"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="startDataTransfer">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="info" type="tns:dataTransferInfo"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="dataTransferInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Name" type="xs:string"/>
+      <xs:element name="Size" type="xs:long"/>
+      <xs:element name="ChunksNumber" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="startDataTransferResponse">
+    <xs:sequence>
+      <xs:element name="transferID" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getSpecSeriesByPeriod">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="period" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getSpecSeriesByPeriodResponse">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="specSeriesArray" type="tns:specSeries"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="setWorkbookItemContent">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element name="id" type="xs:int"/>
+      <xs:element minOccurs="0" name="content" type="tns:dataChunk"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="setWorkbookItemContentResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getGoodsRestList">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element name="goodsID" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getGoodsRestListResponse">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="goodsRestList" type="tns:goodsRestValue"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="goodsRestValue">
+    <xs:sequence>
+      <xs:element name="GoodsID" type="xs:int"/>
+      <xs:element name="LocationID" type="xs:int"/>
+      <xs:element minOccurs="0" name="LocationCode" type="xs:string"/>
+      <xs:element minOccurs="0" name="LocationAddress" type="xs:string"/>
+      <xs:element minOccurs="0" name="OrgName" type="xs:string"/>
+      <xs:element name="Rest" type="xs:double"/>
+      <xs:element minOccurs="0" name="RestBillDt" type="tns:dateTime"/>
+      <xs:element name="QuoteVal" type="xs:double"/>
+      <xs:element minOccurs="0" name="QuoteDt" type="tns:dateTime"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="checkAuthToken">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="checkAuthTokenResponse">
+    <xs:sequence>
+      <xs:element name="result" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createSCardCheck">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="locSymb" type="xs:string"/>
+      <xs:element minOccurs="0" name="scardNumber" type="xs:string"/>
+      <xs:element minOccurs="0" name="check" type="tns:check"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="check">
+    <xs:sequence>
+      <xs:element name="PosNodeID" type="xs:int"/>
+      <xs:element name="LocID" type="xs:int"/>
+      <xs:element minOccurs="0" name="Dtm" type="tns:dateTime"/>
+      <xs:element name="SCardID" type="xs:int"/>
+      <xs:element name="Amount" type="xs:double"/>
+      <xs:element name="Discount" type="xs:double"/>
+      <xs:element name="Flags" type="xs:int"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="Items" nillable="true" type="tns:checkItem"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="checkItem">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:int"/>
+      <xs:element name="GoodsID" type="xs:int"/>
+      <xs:element name="Qtty" type="xs:int"/>
+      <xs:element name="Price" type="xs:double"/>
+      <xs:element name="Discount" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createSCardCheckResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="sendSMS">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="message" type="tns:smsMessage"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="smsMessage">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="To" type="xs:string"/>
+      <xs:element minOccurs="0" name="From" type="xs:string"/>
+      <xs:element minOccurs="0" name="Text" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="sendSMSResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getLocationByCode">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="code" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getLocationByCodeResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="location" type="tns:location"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getSpecSeriesByGoodsID">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element name="goodsID" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getSpecSeriesByGoodsIDResponse">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="specSeriesArray" type="tns:specSeries"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getTSessionByPrc">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element name="prcID" type="xs:int"/>
+      <xs:element minOccurs="0" name="since" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getTSessionByPrcResponse">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="tsessItem" type="tns:tSession"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getAuthInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getAuthInfoResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="info" type="tns:authInfo"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="authInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Name" type="xs:string"/>
+      <xs:element minOccurs="0" name="Account" type="xs:string"/>
+      <xs:element name="AccountRest" type="xs:double"/>
+      <xs:element name="AccountMaxOverdraft" type="xs:double"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="Tags" nillable="true" type="tns:tagValue"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="Tariffs" nillable="true" type="tns:tariffItem"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="tariffItem">
+    <xs:sequence>
+      <xs:element name="PersonID" type="xs:int"/>
+      <xs:element minOccurs="0" name="SubjectCode" type="xs:string"/>
+      <xs:element minOccurs="0" name="SubjectName" type="xs:string"/>
+      <xs:element name="Value" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getGoodsByName">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="name" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getGoodsByNameResponse">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="goodsArray" type="tns:goods"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getProcessorByID">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element name="id" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getProcessorByIDResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="processorItem" type="tns:processor"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="withdrawSCardAmount">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="number" type="xs:string"/>
+      <xs:element name="amount" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="withdrawSCardAmountResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getWorkbookItemByCode">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="code" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getWorkbookItemByCodeResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="workbookItem" type="tns:workbook"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getStyloDeviceByID">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element name="id" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getStyloDeviceByIDResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="styloDeviceItem" type="tns:styloDevice"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getGoodsByCode">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="code" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getGoodsByCodeResponse">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="goodsArray" type="tns:goods"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getLocationByPhone">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="phone" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getLocationByPhoneResponse">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="locationArray" type="tns:location"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createWorkbookItem">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="workbookItem" type="tns:workbook"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createWorkbookItemResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getImageByCode">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="objectType" type="xs:string"/>
+      <xs:element minOccurs="0" name="code" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getImageByCodeResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="image" type="tns:dataChunk"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getGoodsQuote">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="filter" type="tns:quoteFilter"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="quoteFilter">
+    <xs:sequence>
+      <xs:element name="GoodsID" type="xs:int"/>
+      <xs:element name="GroupID" type="xs:int"/>
+      <xs:element name="BrandID" type="xs:int"/>
+      <xs:element name="SellerID" type="xs:int"/>
+      <xs:element name="LocationID" type="xs:int"/>
+      <xs:element name="BuyerID" type="xs:int"/>
+      <xs:element minOccurs="0" name="MinQttyRange" type="tns:intRange"/>
+      <xs:element minOccurs="0" name="ChangesDatePeriod" type="tns:datePeriod"/>
+      <xs:element minOccurs="0" name="ActualPeriodDate" type="tns:dateTime"/>
+      <xs:element name="AndFlags" type="xs:int"/>
+      <xs:element name="NotFlags" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="intRange">
+    <xs:sequence>
+      <xs:element name="LowerValue" type="xs:int"/>
+      <xs:element name="UpperValue" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getGoodsQuoteResponse">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="quoteArray" type="tns:quote"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="setGoodsQuote">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="quote" type="tns:quote"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="setGoodsQuoteResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getBrandByID">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element name="id" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getBrandByIDResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="brand" type="tns:brand"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createSpecSeries">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="series" type="tns:specSeries"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createSpecSeriesResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="checkStyloDeviceRegistration">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="styloDeviceCode" type="xs:string"/>
+      <xs:element minOccurs="0" name="styloDeviceIdent" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="checkStyloDeviceRegistrationResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getImageByID">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="objectType" type="xs:string"/>
+      <xs:element name="id" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getImageByIDResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="image" type="tns:dataChunk"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DCGetFileVersionList">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="key" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DCGetFileVersionListResponse">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="verArray" type="tns:dcFileVersionInfo"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="dcFileVersionInfo">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:int"/>
+      <xs:element minOccurs="0" name="Key" type="xs:string"/>
+      <xs:element minOccurs="0" name="Title" type="xs:string"/>
+      <xs:element minOccurs="0" name="Name" type="xs:string"/>
+      <xs:element minOccurs="0" name="Label" type="xs:string"/>
+      <xs:element name="Revision" type="xs:int"/>
+      <xs:element minOccurs="0" name="Ts" type="tns:timestamp"/>
+      <xs:element name="Size" type="xs:long"/>
+      <xs:element name="Flags" type="xs:int"/>
+      <xs:element minOccurs="0" name="Memo" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="timestamp">
+    <xs:sequence>
+      <xs:element name="nanos" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getBill">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="filter" type="tns:billFilter"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="billFilter">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:int"/>
+      <xs:element name="LocationID" type="xs:int"/>
+      <xs:element name="ArticleID" type="xs:int"/>
+      <xs:element name="CurrencyID" type="xs:int"/>
+      <xs:element name="AgentID" type="xs:int"/>
+      <xs:element name="Count" type="xs:int"/>
+      <xs:element name="Last" type="xs:int"/>
+      <xs:element minOccurs="0" name="OpSymb" type="xs:string"/>
+      <xs:element minOccurs="0" name="Dt" type="xs:string"/>
+      <xs:element minOccurs="0" name="Period" type="tns:datePeriod"/>
+      <xs:element minOccurs="0" name="Since" type="tns:dateTime"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getBillResponse">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="billArray" type="tns:bill"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getLocationByID">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element name="id" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getLocationByIDResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="location" type="tns:location"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="auth">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="email" type="xs:string"/>
+      <xs:element minOccurs="0" name="password" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="authResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="finishDataTransfer">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element name="transferID" type="xs:int"/>
+      <xs:element name="checkSum" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="finishDataTransferResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getProcessorByCode">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="code" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="getProcessorByCodeResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="processorItem" type="tns:processor"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArgumentException" type="tns:ArgumentException"/>
+  <xs:complexType name="ArgumentException">
+    <xs:sequence/>
+  </xs:complexType>
+  <xs:element name="OperationException" type="tns:OperationException"/>
+  <xs:complexType name="OperationException">
+    <xs:sequence/>
+  </xs:complexType>
+  <xs:element name="AuthException" type="tns:AuthException"/>
+  <xs:complexType name="AuthException">
+    <xs:sequence/>
+  </xs:complexType>
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="createStandaloneLocationResponse">
+    <wsdl:part element="tns:createStandaloneLocationResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getBill">
+    <wsdl:part element="tns:getBill" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getProcessorByIDResponse">
+    <wsdl:part element="tns:getProcessorByIDResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="auth">
+    <wsdl:part element="tns:auth" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="sendSMSResponse">
+    <wsdl:part element="tns:sendSMSResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="DCAddFileVersion">
+    <wsdl:part element="tns:DCAddFileVersion" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getProcessorByID">
+    <wsdl:part element="tns:getProcessorByID" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getSCardByIDResponse">
+    <wsdl:part element="tns:getSCardByIDResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getGoodsRestList">
+    <wsdl:part element="tns:getGoodsRestList" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getWorkbookItemContent">
+    <wsdl:part element="tns:getWorkbookItemContent" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getGoodsByID">
+    <wsdl:part element="tns:getGoodsByID" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getStyloDeviceByIDResponse">
+    <wsdl:part element="tns:getStyloDeviceByIDResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getOwnWorkbookItemsResponse">
+    <wsdl:part element="tns:getOwnWorkbookItemsResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getTSessionByUUID">
+    <wsdl:part element="tns:getTSessionByUUID" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="setWorkbookItemContent">
+    <wsdl:part element="tns:setWorkbookItemContent" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createTSessionResponse">
+    <wsdl:part element="tns:createTSessionResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="DCGetFileVersionList">
+    <wsdl:part element="tns:DCGetFileVersionList" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getSCardRestResponse">
+    <wsdl:part element="tns:getSCardRestResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createPersonResponse">
+    <wsdl:part element="tns:createPersonResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getLocationByCode">
+    <wsdl:part element="tns:getLocationByCode" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getSpecSeriesByPeriodResponse">
+    <wsdl:part element="tns:getSpecSeriesByPeriodResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="checkBarcodeResponse">
+    <wsdl:part element="tns:checkBarcodeResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getStyloDeviceByID">
+    <wsdl:part element="tns:getStyloDeviceByID" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getWorkbookItemByIDResponse">
+    <wsdl:part element="tns:getWorkbookItemByIDResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getAuthInfoResponse">
+    <wsdl:part element="tns:getAuthInfoResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createWorkbookItemResponse">
+    <wsdl:part element="tns:createWorkbookItemResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="putDataChunk">
+    <wsdl:part element="tns:putDataChunk" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="DCCreateFileResponse">
+    <wsdl:part element="tns:DCCreateFileResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getTSessionByIDResponse">
+    <wsdl:part element="tns:getTSessionByIDResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getSCardByID">
+    <wsdl:part element="tns:getSCardByID" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createStandaloneLocation">
+    <wsdl:part element="tns:createStandaloneLocation" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="finishDataTransfer">
+    <wsdl:part element="tns:finishDataTransfer" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getStyloDeviceByCodeResponse">
+    <wsdl:part element="tns:getStyloDeviceByCodeResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="checkAuthTokenResponse">
+    <wsdl:part element="tns:checkAuthTokenResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="startDataTransferResponse">
+    <wsdl:part element="tns:startDataTransferResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="checkStyloDeviceRegistrationResponse">
+    <wsdl:part element="tns:checkStyloDeviceRegistrationResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createGoodsResponse">
+    <wsdl:part element="tns:createGoodsResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getSpecSeriesByGoodsID">
+    <wsdl:part element="tns:getSpecSeriesByGoodsID" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getGoodsByNameResponse">
+    <wsdl:part element="tns:getGoodsByNameResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getImageByCode">
+    <wsdl:part element="tns:getImageByCode" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="setImageByIDResponse">
+    <wsdl:part element="tns:setImageByIDResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="setGoodsQuoteList">
+    <wsdl:part element="tns:setGoodsQuoteList" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createSpecSeries">
+    <wsdl:part element="tns:createSpecSeries" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createWorkbookItem">
+    <wsdl:part element="tns:createWorkbookItem" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getSCardRest">
+    <wsdl:part element="tns:getSCardRest" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createSpecSeriesResponse">
+    <wsdl:part element="tns:createSpecSeriesResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getLocationByCodeResponse">
+    <wsdl:part element="tns:getLocationByCodeResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getSpecSeriesByPeriod">
+    <wsdl:part element="tns:getSpecSeriesByPeriod" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getAuthInfo">
+    <wsdl:part element="tns:getAuthInfo" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createTSession">
+    <wsdl:part element="tns:createTSession" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="setGoodsQuoteListResponse">
+    <wsdl:part element="tns:setGoodsQuoteListResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getWorkbookItemByCode">
+    <wsdl:part element="tns:getWorkbookItemByCode" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="depositSCardAmountResponse">
+    <wsdl:part element="tns:depositSCardAmountResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getGoodsRestListResponse">
+    <wsdl:part element="tns:getGoodsRestListResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getSpecSeriesByGoodsIDResponse">
+    <wsdl:part element="tns:getSpecSeriesByGoodsIDResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="checkBarcode">
+    <wsdl:part element="tns:checkBarcode" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="DCGetFileVersionListResponse">
+    <wsdl:part element="tns:DCGetFileVersionListResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getGoodsByCodeResponse">
+    <wsdl:part element="tns:getGoodsByCodeResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getWorkbookItemByCodeResponse">
+    <wsdl:part element="tns:getWorkbookItemByCodeResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getBrandByName">
+    <wsdl:part element="tns:getBrandByName" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="depositSCardAmount">
+    <wsdl:part element="tns:depositSCardAmount" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="putDataChunkResponse">
+    <wsdl:part element="tns:putDataChunkResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getStyloDeviceByCode">
+    <wsdl:part element="tns:getStyloDeviceByCode" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getProcessorByCode">
+    <wsdl:part element="tns:getProcessorByCode" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getSpecSeriesBySerial">
+    <wsdl:part element="tns:getSpecSeriesBySerial" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createSCardCheckResponse">
+    <wsdl:part element="tns:createSCardCheckResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="checkStyloDeviceRegistration">
+    <wsdl:part element="tns:checkStyloDeviceRegistration" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="DCCreateFile">
+    <wsdl:part element="tns:DCCreateFile" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getArticleByID">
+    <wsdl:part element="tns:getArticleByID" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getBrandByNameResponse">
+    <wsdl:part element="tns:getBrandByNameResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ArgumentException">
+    <wsdl:part element="tns:ArgumentException" name="ArgumentException">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getGoodsQuote">
+    <wsdl:part element="tns:getGoodsQuote" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getGoodsObjRefListResponse">
+    <wsdl:part element="tns:getGoodsObjRefListResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="checkINNResponse">
+    <wsdl:part element="tns:checkINNResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getGoodsByIDResponse">
+    <wsdl:part element="tns:getGoodsByIDResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getPersonByID">
+    <wsdl:part element="tns:getPersonByID" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getGoodsByName">
+    <wsdl:part element="tns:getGoodsByName" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getProcessorByCodeResponse">
+    <wsdl:part element="tns:getProcessorByCodeResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getSpecSeriesBySerialResponse">
+    <wsdl:part element="tns:getSpecSeriesBySerialResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getGoodsObjRefList">
+    <wsdl:part element="tns:getGoodsObjRefList" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="withdrawSCardAmount">
+    <wsdl:part element="tns:withdrawSCardAmount" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="setWorkbookItemContentResponse">
+    <wsdl:part element="tns:setWorkbookItemContentResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getArticleByIDResponse">
+    <wsdl:part element="tns:getArticleByIDResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getGoodsArCode">
+    <wsdl:part element="tns:getGoodsArCode" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getLocationByPhone">
+    <wsdl:part element="tns:getLocationByPhone" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createPerson">
+    <wsdl:part element="tns:createPerson" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getGoodsQuoteResponse">
+    <wsdl:part element="tns:getGoodsQuoteResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getTSessionByPrcResponse">
+    <wsdl:part element="tns:getTSessionByPrcResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getOwnWorkbookItems">
+    <wsdl:part element="tns:getOwnWorkbookItems" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getGoodsByCode">
+    <wsdl:part element="tns:getGoodsByCode" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="withdrawSCardAmountResponse">
+    <wsdl:part element="tns:withdrawSCardAmountResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getLocationByPhoneResponse">
+    <wsdl:part element="tns:getLocationByPhoneResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="checkAuthToken">
+    <wsdl:part element="tns:checkAuthToken" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createProcessorResponse">
+    <wsdl:part element="tns:createProcessorResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createGoods">
+    <wsdl:part element="tns:createGoods" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="checkINN">
+    <wsdl:part element="tns:checkINN" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getTSessionByUUIDResponse">
+    <wsdl:part element="tns:getTSessionByUUIDResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createBill">
+    <wsdl:part element="tns:createBill" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="OperationException">
+    <wsdl:part element="tns:OperationException" name="OperationException">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getLocationByID">
+    <wsdl:part element="tns:getLocationByID" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createProcessor">
+    <wsdl:part element="tns:createProcessor" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="DCAddFileVersionResponse">
+    <wsdl:part element="tns:DCAddFileVersionResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createBillResponse">
+    <wsdl:part element="tns:createBillResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getSCardByNumber">
+    <wsdl:part element="tns:getSCardByNumber" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createStyloDeviceResponse">
+    <wsdl:part element="tns:createStyloDeviceResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createStyloDevice">
+    <wsdl:part element="tns:createStyloDevice" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getLocationByIDResponse">
+    <wsdl:part element="tns:getLocationByIDResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="AuthException">
+    <wsdl:part element="tns:AuthException" name="AuthException">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="setImageByID">
+    <wsdl:part element="tns:setImageByID" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="authResponse">
+    <wsdl:part element="tns:authResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="setGoodsQuote">
+    <wsdl:part element="tns:setGoodsQuote" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getPersonByName">
+    <wsdl:part element="tns:getPersonByName" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getBrandByID">
+    <wsdl:part element="tns:getBrandByID" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getPersonByNameResponse">
+    <wsdl:part element="tns:getPersonByNameResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getImageByID">
+    <wsdl:part element="tns:getImageByID" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="finishDataTransferResponse">
+    <wsdl:part element="tns:finishDataTransferResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getImageByCodeResponse">
+    <wsdl:part element="tns:getImageByCodeResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getBillResponse">
+    <wsdl:part element="tns:getBillResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getTSessionByPrc">
+    <wsdl:part element="tns:getTSessionByPrc" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getWorkbookItemByID">
+    <wsdl:part element="tns:getWorkbookItemByID" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="registerStyloDeviceResponse">
+    <wsdl:part element="tns:registerStyloDeviceResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getTSessionByID">
+    <wsdl:part element="tns:getTSessionByID" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getSCardByNumberResponse">
+    <wsdl:part element="tns:getSCardByNumberResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getGoodsArCodeResponse">
+    <wsdl:part element="tns:getGoodsArCodeResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="setGoodsQuoteResponse">
+    <wsdl:part element="tns:setGoodsQuoteResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getPersonByIDResponse">
+    <wsdl:part element="tns:getPersonByIDResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createSCardCheck">
+    <wsdl:part element="tns:createSCardCheck" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getWorkbookItemContentResponse">
+    <wsdl:part element="tns:getWorkbookItemContentResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="startDataTransfer">
+    <wsdl:part element="tns:startDataTransfer" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getImageByIDResponse">
+    <wsdl:part element="tns:getImageByIDResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getBrandByIDResponse">
+    <wsdl:part element="tns:getBrandByIDResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="registerStyloDevice">
+    <wsdl:part element="tns:registerStyloDevice" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="sendSMS">
+    <wsdl:part element="tns:sendSMS" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="WSInterface">
+    <wsdl:operation name="createPerson">
+      <wsdl:input message="tns:createPerson" name="createPerson">
+    </wsdl:input>
+      <wsdl:output message="tns:createPersonResponse" name="createPersonResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="checkBarcode">
+      <wsdl:input message="tns:checkBarcode" name="checkBarcode">
+    </wsdl:input>
+      <wsdl:output message="tns:checkBarcodeResponse" name="checkBarcodeResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getGoodsObjRefList">
+      <wsdl:input message="tns:getGoodsObjRefList" name="getGoodsObjRefList">
+    </wsdl:input>
+      <wsdl:output message="tns:getGoodsObjRefListResponse" name="getGoodsObjRefListResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="depositSCardAmount">
+      <wsdl:input message="tns:depositSCardAmount" name="depositSCardAmount">
+    </wsdl:input>
+      <wsdl:output message="tns:depositSCardAmountResponse" name="depositSCardAmountResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getStyloDeviceByCode">
+      <wsdl:input message="tns:getStyloDeviceByCode" name="getStyloDeviceByCode">
+    </wsdl:input>
+      <wsdl:output message="tns:getStyloDeviceByCodeResponse" name="getStyloDeviceByCodeResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getGoodsArCode">
+      <wsdl:input message="tns:getGoodsArCode" name="getGoodsArCode">
+    </wsdl:input>
+      <wsdl:output message="tns:getGoodsArCodeResponse" name="getGoodsArCodeResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="createProcessor">
+      <wsdl:input message="tns:createProcessor" name="createProcessor">
+    </wsdl:input>
+      <wsdl:output message="tns:createProcessorResponse" name="createProcessorResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="setImageByID">
+      <wsdl:input message="tns:setImageByID" name="setImageByID">
+    </wsdl:input>
+      <wsdl:output message="tns:setImageByIDResponse" name="setImageByIDResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getGoodsByID">
+      <wsdl:input message="tns:getGoodsByID" name="getGoodsByID">
+    </wsdl:input>
+      <wsdl:output message="tns:getGoodsByIDResponse" name="getGoodsByIDResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="createStandaloneLocation">
+      <wsdl:input message="tns:createStandaloneLocation" name="createStandaloneLocation">
+    </wsdl:input>
+      <wsdl:output message="tns:createStandaloneLocationResponse" name="createStandaloneLocationResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getOwnWorkbookItems">
+      <wsdl:input message="tns:getOwnWorkbookItems" name="getOwnWorkbookItems">
+    </wsdl:input>
+      <wsdl:output message="tns:getOwnWorkbookItemsResponse" name="getOwnWorkbookItemsResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="createGoods">
+      <wsdl:input message="tns:createGoods" name="createGoods">
+    </wsdl:input>
+      <wsdl:output message="tns:createGoodsResponse" name="createGoodsResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getBrandByName">
+      <wsdl:input message="tns:getBrandByName" name="getBrandByName">
+    </wsdl:input>
+      <wsdl:output message="tns:getBrandByNameResponse" name="getBrandByNameResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="registerStyloDevice">
+      <wsdl:input message="tns:registerStyloDevice" name="registerStyloDevice">
+    </wsdl:input>
+      <wsdl:output message="tns:registerStyloDeviceResponse" name="registerStyloDeviceResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="createStyloDevice">
+      <wsdl:input message="tns:createStyloDevice" name="createStyloDevice">
+    </wsdl:input>
+      <wsdl:output message="tns:createStyloDeviceResponse" name="createStyloDeviceResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="DCAddFileVersion">
+      <wsdl:input message="tns:DCAddFileVersion" name="DCAddFileVersion">
+    </wsdl:input>
+      <wsdl:output message="tns:DCAddFileVersionResponse" name="DCAddFileVersionResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getSCardByNumber">
+      <wsdl:input message="tns:getSCardByNumber" name="getSCardByNumber">
+    </wsdl:input>
+      <wsdl:output message="tns:getSCardByNumberResponse" name="getSCardByNumberResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="putDataChunk">
+      <wsdl:input message="tns:putDataChunk" name="putDataChunk">
+    </wsdl:input>
+      <wsdl:output message="tns:putDataChunkResponse" name="putDataChunkResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getWorkbookItemByID">
+      <wsdl:input message="tns:getWorkbookItemByID" name="getWorkbookItemByID">
+    </wsdl:input>
+      <wsdl:output message="tns:getWorkbookItemByIDResponse" name="getWorkbookItemByIDResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="createTSession">
+      <wsdl:input message="tns:createTSession" name="createTSession">
+    </wsdl:input>
+      <wsdl:output message="tns:createTSessionResponse" name="createTSessionResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getPersonByID">
+      <wsdl:input message="tns:getPersonByID" name="getPersonByID">
+    </wsdl:input>
+      <wsdl:output message="tns:getPersonByIDResponse" name="getPersonByIDResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="DCCreateFile">
+      <wsdl:input message="tns:DCCreateFile" name="DCCreateFile">
+    </wsdl:input>
+      <wsdl:output message="tns:DCCreateFileResponse" name="DCCreateFileResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getWorkbookItemContent">
+      <wsdl:input message="tns:getWorkbookItemContent" name="getWorkbookItemContent">
+    </wsdl:input>
+      <wsdl:output message="tns:getWorkbookItemContentResponse" name="getWorkbookItemContentResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getSpecSeriesBySerial">
+      <wsdl:input message="tns:getSpecSeriesBySerial" name="getSpecSeriesBySerial">
+    </wsdl:input>
+      <wsdl:output message="tns:getSpecSeriesBySerialResponse" name="getSpecSeriesBySerialResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="checkINN">
+      <wsdl:input message="tns:checkINN" name="checkINN">
+    </wsdl:input>
+      <wsdl:output message="tns:checkINNResponse" name="checkINNResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getTSessionByUUID">
+      <wsdl:input message="tns:getTSessionByUUID" name="getTSessionByUUID">
+    </wsdl:input>
+      <wsdl:output message="tns:getTSessionByUUIDResponse" name="getTSessionByUUIDResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getSCardRest">
+      <wsdl:input message="tns:getSCardRest" name="getSCardRest">
+    </wsdl:input>
+      <wsdl:output message="tns:getSCardRestResponse" name="getSCardRestResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="createBill">
+      <wsdl:input message="tns:createBill" name="createBill">
+    </wsdl:input>
+      <wsdl:output message="tns:createBillResponse" name="createBillResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getArticleByID">
+      <wsdl:input message="tns:getArticleByID" name="getArticleByID">
+    </wsdl:input>
+      <wsdl:output message="tns:getArticleByIDResponse" name="getArticleByIDResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getSCardByID">
+      <wsdl:input message="tns:getSCardByID" name="getSCardByID">
+    </wsdl:input>
+      <wsdl:output message="tns:getSCardByIDResponse" name="getSCardByIDResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getPersonByName">
+      <wsdl:input message="tns:getPersonByName" name="getPersonByName">
+    </wsdl:input>
+      <wsdl:output message="tns:getPersonByNameResponse" name="getPersonByNameResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="setGoodsQuoteList">
+      <wsdl:input message="tns:setGoodsQuoteList" name="setGoodsQuoteList">
+    </wsdl:input>
+      <wsdl:output message="tns:setGoodsQuoteListResponse" name="setGoodsQuoteListResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getTSessionByID">
+      <wsdl:input message="tns:getTSessionByID" name="getTSessionByID">
+    </wsdl:input>
+      <wsdl:output message="tns:getTSessionByIDResponse" name="getTSessionByIDResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="startDataTransfer">
+      <wsdl:input message="tns:startDataTransfer" name="startDataTransfer">
+    </wsdl:input>
+      <wsdl:output message="tns:startDataTransferResponse" name="startDataTransferResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getSpecSeriesByPeriod">
+      <wsdl:input message="tns:getSpecSeriesByPeriod" name="getSpecSeriesByPeriod">
+    </wsdl:input>
+      <wsdl:output message="tns:getSpecSeriesByPeriodResponse" name="getSpecSeriesByPeriodResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="setWorkbookItemContent">
+      <wsdl:input message="tns:setWorkbookItemContent" name="setWorkbookItemContent">
+    </wsdl:input>
+      <wsdl:output message="tns:setWorkbookItemContentResponse" name="setWorkbookItemContentResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getGoodsRestList">
+      <wsdl:input message="tns:getGoodsRestList" name="getGoodsRestList">
+    </wsdl:input>
+      <wsdl:output message="tns:getGoodsRestListResponse" name="getGoodsRestListResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="checkAuthToken">
+      <wsdl:input message="tns:checkAuthToken" name="checkAuthToken">
+    </wsdl:input>
+      <wsdl:output message="tns:checkAuthTokenResponse" name="checkAuthTokenResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="createSCardCheck">
+      <wsdl:input message="tns:createSCardCheck" name="createSCardCheck">
+    </wsdl:input>
+      <wsdl:output message="tns:createSCardCheckResponse" name="createSCardCheckResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="sendSMS">
+      <wsdl:input message="tns:sendSMS" name="sendSMS">
+    </wsdl:input>
+      <wsdl:output message="tns:sendSMSResponse" name="sendSMSResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getLocationByCode">
+      <wsdl:input message="tns:getLocationByCode" name="getLocationByCode">
+    </wsdl:input>
+      <wsdl:output message="tns:getLocationByCodeResponse" name="getLocationByCodeResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getSpecSeriesByGoodsID">
+      <wsdl:input message="tns:getSpecSeriesByGoodsID" name="getSpecSeriesByGoodsID">
+    </wsdl:input>
+      <wsdl:output message="tns:getSpecSeriesByGoodsIDResponse" name="getSpecSeriesByGoodsIDResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getTSessionByPrc">
+      <wsdl:input message="tns:getTSessionByPrc" name="getTSessionByPrc">
+    </wsdl:input>
+      <wsdl:output message="tns:getTSessionByPrcResponse" name="getTSessionByPrcResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getAuthInfo">
+      <wsdl:input message="tns:getAuthInfo" name="getAuthInfo">
+    </wsdl:input>
+      <wsdl:output message="tns:getAuthInfoResponse" name="getAuthInfoResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getGoodsByName">
+      <wsdl:input message="tns:getGoodsByName" name="getGoodsByName">
+    </wsdl:input>
+      <wsdl:output message="tns:getGoodsByNameResponse" name="getGoodsByNameResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getProcessorByID">
+      <wsdl:input message="tns:getProcessorByID" name="getProcessorByID">
+    </wsdl:input>
+      <wsdl:output message="tns:getProcessorByIDResponse" name="getProcessorByIDResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="withdrawSCardAmount">
+      <wsdl:input message="tns:withdrawSCardAmount" name="withdrawSCardAmount">
+    </wsdl:input>
+      <wsdl:output message="tns:withdrawSCardAmountResponse" name="withdrawSCardAmountResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getWorkbookItemByCode">
+      <wsdl:input message="tns:getWorkbookItemByCode" name="getWorkbookItemByCode">
+    </wsdl:input>
+      <wsdl:output message="tns:getWorkbookItemByCodeResponse" name="getWorkbookItemByCodeResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getStyloDeviceByID">
+      <wsdl:input message="tns:getStyloDeviceByID" name="getStyloDeviceByID">
+    </wsdl:input>
+      <wsdl:output message="tns:getStyloDeviceByIDResponse" name="getStyloDeviceByIDResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getGoodsByCode">
+      <wsdl:input message="tns:getGoodsByCode" name="getGoodsByCode">
+    </wsdl:input>
+      <wsdl:output message="tns:getGoodsByCodeResponse" name="getGoodsByCodeResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getLocationByPhone">
+      <wsdl:input message="tns:getLocationByPhone" name="getLocationByPhone">
+    </wsdl:input>
+      <wsdl:output message="tns:getLocationByPhoneResponse" name="getLocationByPhoneResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="createWorkbookItem">
+      <wsdl:input message="tns:createWorkbookItem" name="createWorkbookItem">
+    </wsdl:input>
+      <wsdl:output message="tns:createWorkbookItemResponse" name="createWorkbookItemResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getImageByCode">
+      <wsdl:input message="tns:getImageByCode" name="getImageByCode">
+    </wsdl:input>
+      <wsdl:output message="tns:getImageByCodeResponse" name="getImageByCodeResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getGoodsQuote">
+      <wsdl:input message="tns:getGoodsQuote" name="getGoodsQuote">
+    </wsdl:input>
+      <wsdl:output message="tns:getGoodsQuoteResponse" name="getGoodsQuoteResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="setGoodsQuote">
+      <wsdl:input message="tns:setGoodsQuote" name="setGoodsQuote">
+    </wsdl:input>
+      <wsdl:output message="tns:setGoodsQuoteResponse" name="setGoodsQuoteResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getBrandByID">
+      <wsdl:input message="tns:getBrandByID" name="getBrandByID">
+    </wsdl:input>
+      <wsdl:output message="tns:getBrandByIDResponse" name="getBrandByIDResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="createSpecSeries">
+      <wsdl:input message="tns:createSpecSeries" name="createSpecSeries">
+    </wsdl:input>
+      <wsdl:output message="tns:createSpecSeriesResponse" name="createSpecSeriesResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="checkStyloDeviceRegistration">
+      <wsdl:input message="tns:checkStyloDeviceRegistration" name="checkStyloDeviceRegistration">
+    </wsdl:input>
+      <wsdl:output message="tns:checkStyloDeviceRegistrationResponse" name="checkStyloDeviceRegistrationResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getImageByID">
+      <wsdl:input message="tns:getImageByID" name="getImageByID">
+    </wsdl:input>
+      <wsdl:output message="tns:getImageByIDResponse" name="getImageByIDResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="DCGetFileVersionList">
+      <wsdl:input message="tns:DCGetFileVersionList" name="DCGetFileVersionList">
+    </wsdl:input>
+      <wsdl:output message="tns:DCGetFileVersionListResponse" name="DCGetFileVersionListResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getBill">
+      <wsdl:input message="tns:getBill" name="getBill">
+    </wsdl:input>
+      <wsdl:output message="tns:getBillResponse" name="getBillResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getLocationByID">
+      <wsdl:input message="tns:getLocationByID" name="getLocationByID">
+    </wsdl:input>
+      <wsdl:output message="tns:getLocationByIDResponse" name="getLocationByIDResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="auth">
+      <wsdl:input message="tns:auth" name="auth">
+    </wsdl:input>
+      <wsdl:output message="tns:authResponse" name="authResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="finishDataTransfer">
+      <wsdl:input message="tns:finishDataTransfer" name="finishDataTransfer">
+    </wsdl:input>
+      <wsdl:output message="tns:finishDataTransferResponse" name="finishDataTransferResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getProcessorByCode">
+      <wsdl:input message="tns:getProcessorByCode" name="getProcessorByCode">
+    </wsdl:input>
+      <wsdl:output message="tns:getProcessorByCodeResponse" name="getProcessorByCodeResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="WSInterfaceImplServiceSoapBinding" type="tns:WSInterface">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="createPerson">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createPerson">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createPersonResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="checkBarcode">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="checkBarcode">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="checkBarcodeResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getGoodsObjRefList">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getGoodsObjRefList">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getGoodsObjRefListResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="depositSCardAmount">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="depositSCardAmount">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="depositSCardAmountResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getStyloDeviceByCode">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getStyloDeviceByCode">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getStyloDeviceByCodeResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getGoodsArCode">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getGoodsArCode">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getGoodsArCodeResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="createProcessor">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createProcessor">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createProcessorResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="setImageByID">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="setImageByID">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="setImageByIDResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getGoodsByID">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getGoodsByID">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getGoodsByIDResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="createStandaloneLocation">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createStandaloneLocation">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createStandaloneLocationResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getOwnWorkbookItems">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getOwnWorkbookItems">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getOwnWorkbookItemsResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="createGoods">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createGoods">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createGoodsResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getBrandByName">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getBrandByName">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getBrandByNameResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="createStyloDevice">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createStyloDevice">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createStyloDeviceResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="registerStyloDevice">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="registerStyloDevice">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="registerStyloDeviceResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="DCAddFileVersion">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="DCAddFileVersion">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="DCAddFileVersionResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getSCardByNumber">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getSCardByNumber">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getSCardByNumberResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="putDataChunk">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="putDataChunk">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="putDataChunkResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getWorkbookItemByID">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getWorkbookItemByID">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getWorkbookItemByIDResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="createTSession">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createTSession">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createTSessionResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getPersonByID">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getPersonByID">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getPersonByIDResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="DCCreateFile">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="DCCreateFile">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="DCCreateFileResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getWorkbookItemContent">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getWorkbookItemContent">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getWorkbookItemContentResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="checkINN">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="checkINN">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="checkINNResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getSpecSeriesBySerial">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getSpecSeriesBySerial">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getSpecSeriesBySerialResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="createBill">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createBill">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createBillResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getSCardRest">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getSCardRest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getSCardRestResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getTSessionByUUID">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getTSessionByUUID">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getTSessionByUUIDResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getArticleByID">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getArticleByID">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getArticleByIDResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getSCardByID">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getSCardByID">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getSCardByIDResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getPersonByName">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getPersonByName">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getPersonByNameResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getTSessionByID">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getTSessionByID">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getTSessionByIDResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="setGoodsQuoteList">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="setGoodsQuoteList">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="setGoodsQuoteListResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getSpecSeriesByPeriod">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getSpecSeriesByPeriod">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getSpecSeriesByPeriodResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="startDataTransfer">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="startDataTransfer">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="startDataTransferResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="setWorkbookItemContent">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="setWorkbookItemContent">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="setWorkbookItemContentResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getGoodsRestList">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getGoodsRestList">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getGoodsRestListResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="checkAuthToken">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="checkAuthToken">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="checkAuthTokenResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="createSCardCheck">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createSCardCheck">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createSCardCheckResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="sendSMS">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="sendSMS">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="sendSMSResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getLocationByCode">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getLocationByCode">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getLocationByCodeResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getSpecSeriesByGoodsID">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getSpecSeriesByGoodsID">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getSpecSeriesByGoodsIDResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getTSessionByPrc">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getTSessionByPrc">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getTSessionByPrcResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getAuthInfo">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getAuthInfo">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getAuthInfoResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getGoodsByName">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getGoodsByName">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getGoodsByNameResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getProcessorByID">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getProcessorByID">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getProcessorByIDResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getWorkbookItemByCode">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getWorkbookItemByCode">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getWorkbookItemByCodeResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="withdrawSCardAmount">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="withdrawSCardAmount">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="withdrawSCardAmountResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getStyloDeviceByID">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getStyloDeviceByID">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getStyloDeviceByIDResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getGoodsByCode">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getGoodsByCode">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getGoodsByCodeResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getLocationByPhone">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getLocationByPhone">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getLocationByPhoneResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="createWorkbookItem">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createWorkbookItem">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createWorkbookItemResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getImageByCode">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getImageByCode">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getImageByCodeResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getGoodsQuote">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getGoodsQuote">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getGoodsQuoteResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getBrandByID">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getBrandByID">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getBrandByIDResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="setGoodsQuote">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="setGoodsQuote">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="setGoodsQuoteResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="createSpecSeries">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createSpecSeries">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createSpecSeriesResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="checkStyloDeviceRegistration">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="checkStyloDeviceRegistration">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="checkStyloDeviceRegistrationResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="DCGetFileVersionList">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="DCGetFileVersionList">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="DCGetFileVersionListResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getImageByID">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getImageByID">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getImageByIDResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getBill">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getBill">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getBillResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getLocationByID">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getLocationByID">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getLocationByIDResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="auth">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="auth">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="authResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="finishDataTransfer">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="finishDataTransfer">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="finishDataTransferResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getProcessorByCode">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getProcessorByCode">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getProcessorByCodeResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="WSInterfaceImplService">
+    <wsdl:port binding="tns:WSInterfaceImplServiceSoapBinding" name="WSInterfaceImplPort">
+      <soap:address location="http://uhtt.ru/dispatcher/ws/iface"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

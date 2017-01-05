@@ -1,0 +1,12 @@
+﻿<html>
+<head>
+<title>Universe-HTT - ${set.getStoreName()}</title>
+<meta http-equiv="Content-Type" content="text/HTML; charset=cp1251"/>
+<meta name="robots" content="follow, noindex, noarchive"/>
+</head>
+<body>
+#foreach($item in $set.getItems())
+	<a href='${set.getStoreUrl()}?open=${item.getLink()}'>${item.getItemID()}</a><br>
+#end
+</body>
+</html>

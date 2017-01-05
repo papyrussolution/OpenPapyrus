@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE characterMapping SYSTEM "http://www.unicode.org/unicode/reports/tr22/CharacterMapping.dtd">
+<characterMapping id="ibm-896_P100-1995" version="1">
+ <history>
+  <modified version="1" date="2002-12-27">This file was generated with XMLSimpleGenerator.java.</modified>
+ </history>
+ <validity>
+  <state type="FIRST" next="VALID" s="00" e="7F" max="FFFF"/>
+ </validity>
+ <assignments sub="1A">
+  <!-- One to one mappings -->
+  <a u="0000" b="00"/>
+  <a u="0001" b="01"/>
+  <a u="0002" b="02"/>
+  <a u="0003" b="03"/>
+  <a u="0004" b="04"/>
+  <a u="0005" b="05"/>
+  <a u="0006" b="06"/>
+  <a u="0007" b="07"/>
+  <a u="0008" b="08"/>
+  <a u="0009" b="09"/>
+  <a u="000A" b="0A"/>
+  <a u="000B" b="0B"/>
+  <a u="000C" b="0C"/>
+  <a u="000D" b="0D"/>
+  <a u="000E" b="0E"/>
+  <a u="000F" b="0F"/>
+  <a u="0010" b="10"/>
+  <a u="0011" b="11"/>
+  <a u="0012" b="12"/>
+  <a u="0013" b="13"/>
+  <a u="0014" b="14"/>
+  <a u="0015" b="15"/>
+  <a u="0016" b="16"/>
+  <a u="0017" b="17"/>
+  <a u="0018" b="18"/>
+  <a u="0019" b="19"/>
+  <a u="001A" b="1A"/>
+  <a u="001B" b="1B"/>
+  <a u="001C" b="1C"/>
+  <a u="001D" b="1D"/>
+  <a u="001E" b="1E"/>
+  <a u="001F" b="1F"/>
+  <a u="0020" b="20"/>
+  <a u="005C" b="63"/>
+  <a u="007E" b="64"/>
+  <a u="007F" b="7F"/>
+  <a u="00A2" b="60"/>
+  <a u="00A3" b="61"/>
+  <a u="00AC" b="62"/>
+  <a u="FF61" b="21"/>
+  <a u="FF62" b="22"/>
+  <a u="FF63" b="23"/>
+  <a u="FF64" b="24"/>
+  <a u="FF65" b="25"/>
+  <a u="FF66" b="26"/>
+  <a u="FF67" b="27"/>
+  <a u="FF68" b="28"/>
+  <a u="FF69" b="29"/>
+  <a u="FF6A" b="2A"/>
+  <a u="FF6B" b="2B"/>
+  <a u="FF6C" b="2C"/>
+  <a u="FF6D" b="2D"/>
+  <a u="FF6E" b="2E"/>
+  <a u="FF6F" b="2F"/>
+  <a u="FF70" b="30"/>
+  <a u="FF71" b="31"/>
+  <a u="FF72" b="32"/>
+  <a u="FF73" b="33"/>
+  <a u="FF74" b="34"/>
+  <a u="FF75" b="35"/>
+  <a u="FF76" b="36"/>
+  <a u="FF77" b="37"/>
+  <a u="FF78" b="38"/>
+  <a u="FF79" b="39"/>
+  <a u="FF7A" b="3A"/>
+  <a u="FF7B" b="3B"/>
+  <a u="FF7C" b="3C"/>
+  <a u="FF7D" b="3D"/>
+  <a u="FF7E" b="3E"/>
+  <a u="FF7F" b="3F"/>
+  <a u="FF80" b="40"/>
+  <a u="FF81" b="41"/>
+  <a u="FF82" b="42"/>
+  <a u="FF83" b="43"/>
+  <a u="FF84" b="44"/>
+  <a u="FF85" b="45"/>
+  <a u="FF86" b="46"/>
+  <a u="FF87" b="47"/>
+  <a u="FF88" b="48"/>
+  <a u="FF89" b="49"/>
+  <a u="FF8A" b="4A"/>
+  <a u="FF8B" b="4B"/>
+  <a u="FF8C" b="4C"/>
+  <a u="FF8D" b="4D"/>
+  <a u="FF8E" b="4E"/>
+  <a u="FF8F" b="4F"/>
+  <a u="FF90" b="50"/>
+  <a u="FF91" b="51"/>
+  <a u="FF92" b="52"/>
+  <a u="FF93" b="53"/>
+  <a u="FF94" b="54"/>
+  <a u="FF95" b="55"/>
+  <a u="FF96" b="56"/>
+  <a u="FF97" b="57"/>
+  <a u="FF98" b="58"/>
+  <a u="FF99" b="59"/>
+  <a u="FF9A" b="5A"/>
+  <a u="FF9B" b="5B"/>
+  <a u="FF9C" b="5C"/>
+  <a u="FF9D" b="5D"/>
+  <a u="FF9E" b="5E"/>
+  <a u="FF9F" b="5F"/>
+  <!-- Fallback mappings from Unicode to bytes -->
+  <fub u="FF3C" b="63"/>
+  <fub u="FF5E" b="64"/>
+  <!-- Fallback mappings from bytes to Unicode -->
+  <!-- NONE -->
+ </assignments>
+</characterMapping>

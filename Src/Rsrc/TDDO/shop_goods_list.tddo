@@ -1,0 +1,161 @@
+## Universe-HTT / 2012
+## store_v1_gc_list_view.tddo 
+## Каталог товаров магазина (список)
+## Args: ${1} - Flags
+##
+
+#pragma(htmlencode)
+
+<style>
+	.store-v1-gc-list-wrapper {
+	}
+	.store-v1-gc-list {
+		width: 100%;
+		-moz-user-select: none;
+		-khtml-user-select: none;
+		user-select: none;
+		cursor: default;
+		margin-bottom: -4px;
+	}
+	.store-v1-gc-list-head {
+		border: 1px solid #AAAAAA;
+	}
+	.store-v1-gc-list-head tr {
+		border-radius: 5px 0 0 0px;
+	}
+	.store-v1-gc-list-head th {
+		height: 40px;
+		text-align: center;
+		background: #EEEEEE;
+		color: #555555;
+		font-weight: normal;
+		font: 10pt Arial;
+	}
+	.store-v1-gc-list-body {
+	}
+	.store-v1-gc-list-body tr {
+		background: #FFFFFF;
+		font: 11px Verdana, Arial, Helvetica;
+		border: 1px solid #AAAAAA;
+	}
+	.store-v1-gc-list-body tr:hover {
+		color: #336699;
+	}
+	.store-v1-gc-list-body td {
+		padding: 0 10px;
+		height: 68px;
+		vertical-align: middle;
+		text-align: center;
+	}
+	
+	tr.store-v1-gc-list-item td {
+		padding: 0 10px;
+	}
+	
+	td.store-v1-gc-list-item-img-cell {
+		padding: 2px;
+		width: 68px;
+	}
+	td.store-v1-gc-list-item-img-cell img {
+		max-width: 64px;
+		max-height: 64px;
+	}
+	
+	td.store-v1-gc-list-item-name-cell {
+		width: 350px;
+		text-align: left !important;
+	}
+	
+	td.store-v1-gc-list-item-add2cart-cell {
+		padding-right: 5px !important;
+	}
+	td.store-v1-gc-list-item-add2cart-cell a {
+		cursor: pointer
+	}
+</style>
+
+<div class="store-v1-gc-list-wrapper uui-w100pct">
+	<table class="store-v1-gc-list">
+		<thead class="store-v1-gc-list-head">
+			<tr>
+				<th></th>
+				<th>Наименование товара</th>
+				#if{@(Global, 0).CheckFlag($1, 1) > 0}
+				<th>Ёмкость<br>упаковки</th>
+				#endif
+				<th>Время</th>
+				#if{@(Global, 0).CheckFlag($1, 2) > 0}
+				<th>Остаток</th>
+				#endif
+				<th>Цена</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody class="store-v1-gc-list-body">
+		#start(QuotArray)
+			#iter()
+			<tr
+				class="store-v1-gc-list-item"
+				goodsID="${GoodsID.ID}"
+				#if{@(Global, 0).CheckFlag($1, 1) > 0}
+				package=${GoodsPkgIntNZ}
+				#else
+				package=1
+				#endif
+			>
+				<td class="store-v1-gc-list-item-img-cell">
+					<img src="/dispatcher/get_obj_image?obj_type=GOODS&obj_id=${GoodsID.ID}&default=/rsrc/images/box_48.png"/>
+				</td>
+				<td class="store-v1-gc-list-item-name-cell">${GoodsID.Name}</td>
+				#if{@(Global, 0).CheckFlag($1, 1) > 0}
+				<td>${GoodsPkgIntNZ}</td>
+				#endif
+				<td>${Dt}<br>${Tm}</td>
+				#if{@(Global, 0).CheckFlag($1, 2) > 0}
+				<td>
+					##${GetRest(GoodsID.ID, LocID.ID, 136)}
+				</td>
+				#endif
+				<td>${Value}</td>
+				<td class="store-v1-gc-list-item-add2cart-cell">
+					<a><img src="/rsrc/images/add2cart_32.png"/></a>
+				</td>
+			</tr>
+			#end()
+		#end()
+		</tbody>
+	</table>
+</div>
+
+<script type="text/javascript">
+	var StoreCatalogListView = {
+		## /* Элементы */
+		Items         : $("tr.store-v1-gc-list-item"),
+		btn_AddToCart : $("td.store-v1-gc-list-item-add2cart-cell a"),
+		## /* Функция инициализации */
+		init : function() {
+			## /* Указатель на объект */
+			var _view = this;
+			## /* Двойной клик по строке */
+			_view.Items.Evt("dblclick", function() {
+				var _blk = $(this);
+				var id = _blk.attr("goodsID");
+				showGoodsDetails(id);
+				return false;
+			});
+			## /* Клик по кнопке "Добавить в корзину" */
+			_view.btn_AddToCart.Evt("click", function() {
+				var _blk = $(this).closest("tr");
+				var id = _blk.attr("goodsID");
+				var qtty = Number(_blk.attr("package"));
+				UHTT.Store.Cart.add(id, qtty);
+				return false;
+			}).Evt("dblclick", function(event) {
+				return false;
+			});
+		}
+	};
+	$(document).ready(function() {
+		StoreCatalogListView.init();
+	});
+</script>

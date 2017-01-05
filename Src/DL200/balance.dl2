@@ -1,0 +1,428 @@
+// BALANCE.DL2
+// Technology DL200
+// Данные для составления баланса (форма-1)
+//
+
+//
+// I.Внеоборотные активы
+//
+Copyright "Патенты, лицензии, товарные знаки"=
+	[04D]-[05C];
+OrganizationCosts "Организационные расходы"=
+	0;
+Goodwill "Деловая репутация"=
+	0;
+// Total
+IntangibleAssets "Нематериальные активы"=
+	Copyright+OrganizationCosts+Goodwill;
+
+Capital "Основные средства"=
+	0;
+Land "Земельные участки и объекты природопользования"=
+	0;
+PlantEquip "Здания, машины и оборудование"=
+	[01D]-[02C];
+// Total
+FixedAssets "Основные средства"=
+	Capital+Land+PlantEquip;
+
+NfBuilding "Незавершенное строительство"=
+	[07D]+[08D]+[16.3];
+
+LeasAssets "Имущество для передаци в лизинг"=
+	[03.2D]-[02.2C];
+RentAssets "Имущество, предоставляемое по договору проката"=
+	0;
+// Total
+IncomeAssetInvest "Доходные вложения в материальные ценности"=
+	LeasAssets+RentAssets;
+//
+// Долгосрочные финансовые вложения (58, 59)
+//
+BranchInvest "Инвестиции в дочернии общества"=
+	0; //[58.1D];
+AffilInvest "Инвестиции в зависимые общества"=
+	0; //[58.1D];
+Org3Invest "Инвестиции в другие организации"=
+	0; //[58.1];
+LongTermCredits "Займы, предоставленные организациям на срок более 12 мес"=
+	0;
+EtcLongTermFinInvest "Прочие долгосрочные финансовые вложения"=
+	0;
+LongTermFinInvest "Долгосрочные финансовые вложения (58, 59)"=
+	BranchInvest+AffilInvest+Org3Invest+LongTermCredits+EtcLongTermFinInvest;
+
+DefferedTaxAssets "Отложенные налоговые активы"=
+	[09D];
+EtcTlAssets "Прочие внеоборотные активы"=
+	0;
+TotalDivI "Итого по разделу I"=
+	IntangibleAssets+FixedAssets+NfBuilding+IncomeAssetInvest+
+	LongTermFinInvest+DefferedTaxAssets+EtcTlAssets;
+//
+// II. ОБОРОТНЫЕ АКТИВЫ
+//
+
+// Запасы
+RawAndStaff "Сырье, материалы и другие аналогичные ценности"=
+	[10D]+[15.1D]+[16.1]-[14C];
+Animals "Животные на выращивании и откорме"=
+	[11D];
+NfManuf "Затраты в незавершенном производстве"=
+	[20D]+[21D]+[23D]+[29D]+[44D]+[46D];
+Inventory "Готовая продукция и товары для перепродажи"=
+	[43D]+[41D]+[15.2D]+[16.2]-[42C];
+Lading "Товары отгруженные"=
+	[45D];
+FutureExpenses "Расходы будущих периодов"=
+	[97D];
+EtcStock "Прочие запасы и затраты"=
+	0;
+Stock "Запасы"=
+	RawAndStaff+Animals+NfManuf+Inventory+Lading+FutureExpenses+EtcStock;
+
+VATCost "НДС по приобретенным ценностям"=
+	[19D];
+
+//
+// @
+StrBuyers "Расчеты с покупателями и заказчиками (62, 63, 76)"=
+	[62.4DS];
+StrBillRcvbl "Векселя к получению (62)"=
+	0;
+StrAffil "Задолженность дочерних и зависимых обществ"=
+	0;
+StrAdvance "Авансы выданные (60)"=
+	0;//[60.2DS];
+StrFounders "Задолженность участников (учредителей) по взносам в уставной капитал (75)"=
+	0;//[75DS];
+// @
+StrEtcDebtors "Прочие дебиторы"=
+	[60.2DS]+[68.1DS]+[69DS]+[63DS]+[71DS]+[73DS]+[76.1DS]+[76.2DS]+[76.4DS];
+ShortTermRcvbl "Краткосрочная дебиторская задолженность"=
+	StrBuyers+StrBillRcvbl+StrAffil+StrAdvance+StrEtcDebtors;
+
+LtrBuyers "Долгосрочные расчеты с покупателями и заказчиками (62, 63, 76)"=
+	0; //[62DS]-[63CS]+[76DS];
+LtrBillRcvbl "Долгосрочные векселя к получению (62)"=
+	0;
+LtrAffil "Долгосрочная задолженность дочерних и зависимых обществ"=
+	0;
+LtrAdvance "Долгосрочные авансы выданные (60)"=
+	0;
+LtrEtcDebtors "Прочие дебиторы (долгосрочные)"=
+	0;
+LongTermRcvbl "Долгосрочная дебиторская задолженность"=
+	LtrBuyers+LtrBillRcvbl+LtrAffil+LtrAdvance+LtrEtcDebtors;
+
+ShortTermCredits "Займы, предоставленные организациям на срок менее 12 месяцев"=
+	0;
+EtcShortTermFinInvest "Прочие краткосрочные финансовые вложения"=
+	0;
+ShortTermFinInvest "Краткосрочные финансовые вложения (58, 59, 81)"=
+	ShortTermCredits+EtcShortTermFinInvest;//+OwnShares
+
+Cash "Касса (50)"=
+	[50];
+BnkAccounts "Расчетные счета (51)"=
+	[51.1D];
+CurrencyAccounts "Валютные счета (52)"=
+	[52];
+EtcCash "Прочие денежные средства (55, 57)"=
+	[55]+[57];
+SuperLiquidAssets "Денежные средства"=
+	Cash+BnkAccounts+CurrencyAccounts+EtcCash;
+EtcTurnoverAssets "Прочие оборотные активы"=
+	0;
+
+TotalDivII "Итого по разделу II"=
+	Stock+VATCost+LongTermRcvbl+ShortTermRcvbl+ShortTermFinInvest+ShortTermFinInvest+SuperLiquidAssets+EtcTurnoverAssets;
+
+TotalActive "БАЛАНС (сумма строк 190+290)"=
+	TotalDivI+TotalDivII;
+//
+// ПАССИВ
+//
+
+//
+// III. Капитал и резервы
+//
+Equity "Уставный капитал"=
+	[80C];
+// ?
+OwnShares "Собственные акции, выкупленные у акционеров"=
+	0;
+VaCapital "Добавочный капитал"=
+	[83C];
+ObligReserve "резервные фонды, образованные в соответствии с законодательством"=
+	[82];
+StatutoryReserve "резервы, образованные в соответствии с учредительными документами"=
+	0;
+ReserveCapital "Резервный капитал"=
+	ObligReserve+StatutoryReserve;
+
+SocialFund "Фонд социальной сферы"=
+	0;
+TargetFunds "Целевые финансирование и поступления"=
+	0;//[86];
+PastRetainedEarnings "Нераспределенная прибыль прошлых лет"=
+	0;//[84CS];
+PastRetainedLoss "Нераспределенный убыток прошлых лет"=
+	0;//[84DS];
+RetainedEarnings "Нераспределенная прибыль (непокрытый убыток)"=
+	+[90.11C]+[90.13C]+[91CS]+[84CS]+[99C]
+	-[90.3D]-[90.21D]-[90.71D]-[91DS]-[99D]-[84DS];
+	//[99C];
+RetainedLoss "Нераспределенный убыток отчетного года"=
+	0;//[99D];
+
+TotalDivIII "Итого по разделу III"=
+	Equity+VaCapital+ReserveCapital+SocialFund+TargetFunds+PastRetainedEarnings-PastRetainedLoss+RetainedEarnings-RetainedLoss;
+//
+// IV. Долгосрочные обязательства
+//
+LongTermBankDebts "Кредиты банков, подлежащие погашению более чем через 12 месяцев после отчетной даты"=
+	[67];
+LongTermDebts "Займы, подлежащие погашению более чем через 12 месяцев после отчетной даты"=
+	0;
+DefferedTaxPassive "Отложенные налоговые обязательства"=
+	[77C];
+LongTermDebtsAndCredits "Займы и кредиты (67)"=
+	LongTermBankDebts+LongTermDebts+DefferedTaxPassive;
+
+EtcLongTermLiabilities "Прочие долгосрочные обязательства"=
+	0;
+
+TotalDivIV "Итого по разделу IV"=
+	LongTermDebtsAndCredits+EtcLongTermLiabilities;
+//
+// V. Краткосрочные обязательства
+//
+CurBankDebts "Кредиты банков, подлежащие погашению в течение 12 месяцев после отчетной даты"=
+	[51.2C]+[66C];
+CurDebts "Займы, подлежащие погашению в течение 12 месяцев после отчетной даты"=
+	0;
+CurDebtsAndCredits "Займы и кредиты (66)"=
+	CurBankDebts+CurDebts;
+
+Suppliers "Поставщики и подрядчики"=
+	[60CS];
+BillsPayable "Векселя к уплате"=
+	0; //[60CS];
+AffilDebt "Задолженность перед дочерними и зависимыми обществами"=
+	0;
+AccruedSalaries "Задолженность перед персоналом организации (70)"=
+	[70CS];
+StateFundDebt "Задолженность перед государственными внебюджетными фондами (69)"=
+	[69CS];
+BudgetDebt "Задолженность перед бюджетом (68)"=
+	[68CS];
+AdvancePayable "Авансы полученные (62)"=
+	[62.1CS];
+EtcCreditors "Прочие кредиторы"=
+	[71CS]+[73CS]+[76CS];
+AccountsPayable "Кредиторская задолженность"=
+	Suppliers+BillsPayable+AffilDebt+AccruedSalaries+StateFundDebt+BudgetDebt+AdvancePayable+EtcCreditors;
+
+FoundersDebt "Задолженность участникам (учредителям) по выплате доходов (75)"=
+	0;
+FutureGains "Доходы будущих периодов (98)"=
+	0;
+FutureExpensesReserve "Резервы предстоящих расходов (96)"=
+	0;
+EtcCurLiabilities "Прочие краткосрочные обязательства"=
+	0;
+
+TotalDivV "Итого по разделу V"=
+	CurDebtsAndCredits+AccountsPayable+FoundersDebt+FutureGains+FutureExpensesReserve+EtcCurLiabilities;
+
+TotalPassive "БАЛАНС (сумма строк 490+590+690)"=
+	TotalDivIII+TotalDivIV+TotalDivV;
+
+//
+// Забалансовые счета
+//
+
+OB_LeasedCapital "Арендованные основные средства"=
+	0;
+OB_RentedCapital "Основные средства, взятые в лизинг"=
+	0;
+OB_ResponsableStoring "Товарно-материальные ценности, принятые на ответственное хранение"=
+	0;
+OB_Comission "Товары, принятые на комиссию"=
+	0;
+OB_BadDebts "Списанная в убыток задолженность неплатежеспособных дебиторов"=
+	0;
+OB_TrustReceived "Обеспечение обязательств и платежей полученные"=
+	0;
+OB_TrustIssued "Обеспечение обязательств и платежей выданные"=
+	0;
+OB_HousingDeprec "Износ жилищного фонда"=
+	0;
+OB_WellEquippingDeprec "Износ объектов внешнего благоустройства и других аналогичных объектов"=
+	0;
+OB_Etc "Прочие забалансовые счета"=
+	0;
+
+//
+//
+//
+DATA Balance "Баланс предприятия"
+	<
+	"Наименование" STRING(128),
+	"Код строки" INT,
+	"На начало отчетного периода" [I],
+	"На конец отчетного периода"  [R]
+	>
+{
+	GROUP Active "АКТИВ" {
+		GROUP TurnoverlessAssets "I. Внеоборотные активы" {
+			"Нематериальные активы",       
+				110, IntangibleAssets, IntangibleAssets;
+			"Основные средства",           
+				120, FixedAssets, FixedAssets;
+			"Незавершенное строительство", 
+				130, NfBuilding, NfBuilding;
+			"Доходные вложения в материальные ценности", 
+				135, IncomeAssetInvest, IncomeAssetInvest;
+			"Долгосрочные финансовые вложения",          
+				140, LongTermFinInvest, LongTermFinInvest;
+			"Отложенные налоговые активы", 
+				145, DefferedTaxAssets, DefferedTaxAssets;
+			"Прочие внеоборотные активы",  
+				150, EtcTlAssets, EtcTlAssets;
+			"Итого по разделу I",          
+				190, TotalDivI, TotalDivI;
+		}
+		GROUP TurnoverAssets "II. Оборотные активы" {
+			"Запасы", 
+				210, Stock, Stock;
+			"в том числе:";
+			"сырье, материалы и другие аналогичные ценности", 
+				211, RawAndStaff, RawAndStaff;
+			"животные на выращивании и откорме",              
+				212, Animals, Animals;
+			"затраты в незавершенном производстве",           
+				213, NfManuf, NfManuf;
+			"готовая продукция и товары для перепродажи",     
+				214, Inventory, Inventory;
+			"товары отгруженные",                             
+				215, Lading, Lading;
+			"расходы будущих периодов",                       
+				216, FutureExpenses, FutureExpenses;
+			"прочие запасы и затраты",                        
+				217, EtcStock, EtcStock;
+			"Налог на добавленную стоимость по приобретенным ценностям", 
+				220, VATCost, VATCost;
+			"Дебиторская задолженность (платежи по которой ожидаются более чем через 12 месяцев после отчетной даты)", 
+				230, LongTermRcvbl, LongTermRcvbl;
+			"в том числе:";
+			"покупатели и заказчики", 
+				231, LtrBuyers, LtrBuyers;
+			"Дебиторская задолженность (платежи по которой ожидаются в течении 12 месяцев после отчетной даты)", 
+				240, ShortTermRcvbl, ShortTermRcvbl;
+			"в том числе:";
+			"покупатели и заказчики", 
+				241, StrBuyers, StrBuyers;
+			"прочие дебиторы",        
+				246, StrEtcDebtors, StrEtcDebtors;
+			"Краткосрочные финансовые вложения", 
+				250, ShortTermFinInvest, ShortTermFinInvest;
+			"Денежные средства",                 
+				260, SuperLiquidAssets, SuperLiquidAssets;
+			"Прочие оборотные активы",           
+				270, EtcTurnoverAssets, EtcTurnoverAssets;
+			"Итого по разделу II",               
+				290, TotalDivII, TotalDivII;
+			"БАЛАНС (сумма строк 190+290)",      
+				300, TotalActive, TotalActive;
+		}
+	}
+	GROUP Passive "ПАССИВ" {
+		GROUP CapitalAndReserve "III. Капитал и резервы" {
+			"Уставный капитал",   
+				410, Equity, Equity;
+			"Собственные акции, выкупленные у акционеров", 
+				  0, OwnShares, OwnShares;
+			"Добавочный капитал", 
+				420, VaCapital, VaCapital;
+			"Резервный капитал",  
+				430, ReserveCapital, ReserveCapital;
+			"в том числе:";
+			"резервные фонды, образованные в соответствии с законодательством",  
+				431, ObligReserve, ObligReserve;
+			"резервы, образованные в соответствии с учредительными документами", 
+				432, StatutoryReserve, StatutoryReserve;
+			"Нераспределенная прибыль (непокрытый убыток)",                      
+				470, RetainedEarnings, RetainedEarnings;
+			"Итого по разделу III", 490, TotalDivIII, TotalDivIII;
+		}
+		GROUP LongTermLiabilities "IV. Долгосрочные обязательства" {
+			"Займы и кредиты", 
+				510, LongTermDebtsAndCredits, LongTermDebtsAndCredits;
+			"Отложенные налоговые обязательства", 
+				515, DefferedTaxPassive, DefferedTaxPassive;
+			"Прочие долгосрочные обязательства", 
+				520, EtcLongTermLiabilities, EtcLongTermLiabilities;
+			"Итого по разделу IV", 
+				590, TotalDivIV, TotalDivIV;
+		}
+		GROUP CurLiabilities "V. Краткосрочные обязательства" {
+			"Займы и кредиты", 
+				610, CurDebtsAndCredits, CurDebtsAndCredits;
+			"Кредиторская задолженность", 
+				620, AccountsPayable, AccountsPayable;
+			"в том числе:";
+			"поставщики и подрядчики", 
+				  0, Suppliers, Suppliers;
+			"задолженность перед персоналом организации", 
+				  0, AccruedSalaries, AccruedSalaries;
+			"задолженность перед государственными внебюджетными фондами", 
+				  0, StateFundDebt, StateFundDebt;
+			"задолженность по налогам и сборам", 
+				  0, BudgetDebt, BudgetDebt;
+			"авансы полученные", 
+				  0, AdvancePayable, AdvancePayable;
+			"прочие кредиторы", 
+				  0, EtcCreditors, EtcCreditors;
+			"Задолженность перед участниками (учредителями) по выплате доходов", 
+				630, FoundersDebt, FoundersDebt;
+			"Доходы будущих периодов", 
+				640, FutureGains, FutureGains;
+			"Резервы предстоящих расходов", 
+				650, FutureExpensesReserve, FutureExpensesReserve;
+			"Прочие краткосрочные обязательства", 
+				660, EtcCurLiabilities, EtcCurLiabilities;
+			"Итого по разделу V", 
+				690, TotalDivV, TotalDivV;
+			"БАЛАНС (сумма строк 490+590+690)", 
+				700, TotalPassive, TotalPassive;
+		}
+	}
+	GROUP Outbal "Справка о наличии ценностей, учитываемых на забалансовых счетах" {
+		GROUP OutbalInnerGroup "Наименование показателя" {
+			"Арендованные основные средства", 
+				910, OB_RentedCapital, OB_RentedCapital;
+			"в том числе по лизингу", 
+				911, OB_LeasedCapital, OB_LeasedCapital;
+			"Товарно-материальные ценности, принятые на ответственное хранение", 
+				920, OB_ResponsableStoring, OB_ResponsableStoring;
+			"Товары, принятые на комиссию", 
+				930, OB_Comission, OB_Comission;
+			"Списанная в убыток задолженность неплатежеспособных дебиторов", 
+				940, OB_BadDebts, OB_BadDebts;
+			"Обеспечение обязательств и платежей полученные", 
+				950, OB_TrustReceived, OB_TrustReceived;
+			"Обеспечение обязательств и платежей выданные", 
+				960, OB_TrustIssued, OB_TrustIssued;
+			"Износ жилищного фонда", 
+				970, OB_HousingDeprec, OB_HousingDeprec;
+			"Износ объектов внешнего благоустройства и других аналогичных объектов", 
+				980, OB_WellEquippingDeprec, OB_WellEquippingDeprec;
+			"Бланки строгой отчетности", 0, [006], [006];
+			"", 
+				990, OB_Etc, OB_Etc;
+		}
+	}
+}
+

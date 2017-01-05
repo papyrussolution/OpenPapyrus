@@ -1,0 +1,202 @@
+
+<style>
+	input.dc-item-rights-remove-btn {
+		height: 18px;
+		margin: 0;
+		padding: 0;
+		border-radius: 3px;
+	}
+	#frm_dc_item_rights_records_body td {
+		text-align: center;
+		vertical-align: middle;
+	}
+</style>
+
+<div id="frm_dc_item_rights">
+	<table class="tablesorter" id="frm_dc_item_rights_records">
+		<thead>
+			<tr>
+				<th>Пользователь</th>
+				<th>Скачивание</th>
+				<th>Редактирование</th>
+				<th>Удаление</th>
+			</tr>
+		</thead>
+		<tbody id="frm_dc_item_rights_records_body"></tbody>
+	</table>
+	<hr>
+	<div>
+		<input type="button" id="frm_dc_item_rights_add_btn" style="float:left" value="Добавить"/>
+		<input type="button" id="frm_dc_item_rights_ok_btn" style="float:right" value="Применить"/>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var DCItemRightsForm = {
+		## /* Instance */
+		Dialog : UHTT.Dialog.List.getObjByProperty("ID", $("#frm_dc_item_rights").parent("div.uhtt-dialog").attr("id")),
+		## /* --- */
+		RightsTable : $("#frm_dc_item_rights_records"),
+		RightsTableBody : $("#frm_dc_item_rights_records_body"),
+		ButtonAdd : $("#frm_dc_item_rights_add_btn"),
+		ButtonOK : $("#frm_dc_item_rights_ok_btn"),
+		## /* */
+		FileID : 0,
+		FileName : null,
+		## /* Дескриптор */
+		ItemRightsDescription : null,
+		## /* Обработчик закрытия окна редактора */
+		closeHandler : function(p_this) {
+			p_this.Dialog = null;
+			p_this.RightsTable = null;
+			p_this.RightsTableBody = null;
+			p_this.ButtonAdd = null;
+			p_this.ButtonOK = null;
+			p_this.ItemRightsDescription = null;
+		},
+		## /* */
+		setUserRights : function(userID, flagsBlk) {
+			var _this = this;
+			var rights = _this.ItemRightsDescription.Rights;
+			if(!isEmpty(rights)) {
+				var n = rights.length;
+				for(var i = 0; i < n; i++) {
+					if(rights[i].UserID == userID) {
+						if(isBoolean(flagsBlk.AllowDownload))
+							rights[i].AllowDownload = flagsBlk.AllowDownload;
+						if(isBoolean(flagsBlk.AllowEdit)) 
+							rights[i].AllowEdit = flagsBlk.AllowEdit;
+						if(isBoolean(flagsBlk.AllowDelete))
+							rights[i].AllowDelete = flagsBlk.AllowDelete;
+						break;
+					}
+				}
+			}
+		},
+		addRecord : function(userID) {
+			var _this = this;
+			var skip = false;
+			if(_this.ItemRightsDescription != null) {
+				if(isEmpty(_this.ItemRightsDescription.Rights))
+					_this.ItemRightsDescription.Rights = [];
+				else {
+					var n = _this.ItemRightsDescription.Rights.length;
+					for(var i = 0; i < n; i++) {
+						var rec = _this.ItemRightsDescription.Rights[i];
+						if(rec.UserID == userID) {
+							skip = true;
+							break;
+						}
+					}
+				}
+				if(!skip) {
+					var rec = {
+						UserID: userID,
+						AllowDownload: false,
+						AllowEdit: false,
+						AllowDelete: false
+					};
+					_this.ItemRightsDescription.Rights.push(rec);
+					_this.refresh();
+				}
+			}
+		},
+		deleteRecord : function(userID) {
+			var _this = this;
+			if(_this.ItemRightsDescription != null) {
+				if(!isEmpty(_this.ItemRightsDescription.Rights)) {
+					var n = _this.ItemRightsDescription.Rights.length;
+					for(var i = 0; i < n; i++) {
+						var rec = _this.ItemRightsDescription.Rights[i];
+						if(rec.UserID == userID) {
+							_this.ItemRightsDescription.Rights.splice(i, 1);
+							break;
+						}
+					}
+				}
+				_this.refresh();
+			}
+		},
+		refresh : function() {
+			var _this = this;
+			_this.RightsTableBody.html("");
+			if(!isEmpty(_this.ItemRightsDescription)) {
+				var rights = _this.ItemRightsDescription.Rights;
+				if(!isEmpty(rights)) {
+					var buf = "";
+					var n = rights.length;
+					for(var i = 0; i < n; i++) {
+						var rec = rights[i];
+						var user = UHTT.UserUtil.getUser(rec.UserID);
+						buf += '<tr UserID="' + rec.UserID + '">' +
+							'<td style="text-align:left">' + (!isEmpty(user) ? user.Name : "Unknown ID: " + rec.UserID) + '</td>' +
+							'<td><input class="dc-item-rights-download-flag" type="checkbox"' + (rec.AllowDownload ? ' checked=true' : '') + '>' + '</td>' +
+							'<td><input class="dc-item-rights-edit-flag" type="checkbox"' + (rec.AllowEdit ? ' checked=true' : '') + '>' + '</td>' +
+							'<td><input class="dc-item-rights-delete-flag" type="checkbox"' + (rec.AllowDelete ? ' checked=true' : '') + '>' + '</td>' +
+							'<td><input class="dc-item-rights-remove-btn" type="button" value="Удалить">' + '</td></tr>';
+					}
+					_this.RightsTableBody.html(buf);
+				}
+			}
+		},
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Установка обработчика закрытия окна редактора */
+			_this.Dialog.setCloseHandler(_this.closeHandler, _this);
+			## /* Получение аргументов */
+			{
+				var args = UHTT.DC.Editor.getArgs();
+				if(!isEmpty(args)) {
+					_this.FileID = args.getValue("ID");
+					if(!isInteger(_this.FileID))
+						throw new Error("Form init error: Invalid file id");
+					_this.FileName = args.getValue("Name");
+				}
+				else
+					throw new Error("Form init error: Unable to retreive arguments");
+			}
+			## /* */
+			_this.Dialog.setOption("width", 500);
+			_this.Dialog.setOption("title", "Права доступа к '" + _this.FileName + "'");
+			## /* */
+			_this.ItemRightsDescription = UHTT.DC.getItemRights(_this.FileID);
+			if(isEmpty(_this.ItemRightsDescription))
+				throw new Error("Form init error: Rights descriptor wasn`t loaded")
+			## /* Refresh view */
+			_this.refresh();
+			## /* Delegate events */
+			{
+				_this.RightsTableBody
+					.delegate(".dc-item-rights-download-flag", "change", function() {
+						var userID = $(this).parent().parent().attr("userID");
+						_this.setUserRights(userID, { AllowDownload: this.checked });
+					}).delegate(".dc-item-rights-edit-flag", "change", function() {
+						var userID = $(this).parent().parent().attr("userID");
+						_this.setUserRights(userID, { AllowEdit: this.checked });
+					}).delegate(".dc-item-rights-delete-flag", "change", function() {
+						var userID = $(this).parent().parent().attr("userID");
+						_this.setUserRights(userID, { AllowDelete: this.checked });
+					}).delegate(".dc-item-rights-remove-btn", "click", function() {
+						var userID = $(this).parent().parent().attr("userID");
+						_this.deleteRecord(userID);
+					});
+			}
+			## /* Кнопка "Добавить" */
+			_this.ButtonAdd.Evt("click", function() {
+				UHTT.UserUtil.UserChoiseForm.open(function(userID) {
+					DCItemRightsForm.addRecord(userID);
+				});
+			});
+			## /* Кнопка "Применить" */
+			_this.ButtonOK.Evt("click", function() {
+				UHTT.DC.setItemRights(_this.ItemRightsDescription);
+				_this.Dialog.close();
+			});
+		}
+	};
+	## /* Инициализация формы */
+	$(document).ready(function(){
+		DCItemRightsForm.init();
+	});
+</script>

@@ -1,0 +1,119 @@
+## Universe-HTT
+## view_goods.tddo 
+## Список товаров
+## Args: ${1} - произвольная строка, используемая в формировании идентификаторов элементов.
+##              Например: BRANDS или MANUFACTORS;
+##
+
+#pragma(htmlencode)
+
+<div id="UHTT_VIEW_${1}_GOODS">
+	<div id="UHTT_VIEW_${1}_GOODS_TABLE_MSG" class="tablesorter-overlay-msg">Обработка...</div>
+	<table id="UHTT_VIEW_${1}_GOODS_TABLE" class="tablesorter">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Наименование</th>
+				<th>Производитель</th>
+				<th>Штрихкод</th>
+			</tr>
+		</thead>
+		<tbody>
+		#start(StrAssocArray)
+			#iter()
+			<tr class="uhtt-view-${1}-goods-table-item">
+				<td>${Id}</td>
+				<td>${Txt}</td>
+				#start(Goods:${Id})
+					<td>${ManufId.Name}</td>
+					<td>${SingleBarCode}</td>
+				#end()
+			</tr>
+			#end()
+		#end()
+		</tbody>
+	</table>
+	<div id="UHTT_VIEW_${1}_GOODS_TABLE_PAGER" class="tablesorter-pager">
+		<input type="button" class="tablesorter-pager-btn-first"/>
+		<input type="button" class="tablesorter-pager-btn-prev"/>
+		<label class="tablesorter-pager-label-page-display"></label>
+		<input type="button" class="tablesorter-pager-btn-next"/>
+		<input type="button" class="tablesorter-pager-btn-last"/>
+		<b>Отображать по: </b>
+		<select class="tablesorter-pager-select-page-size">
+			<option selected="selected" value="20">20</option>
+			<option value="30">30</option>
+			<option value="40">40</option>
+			<option value="50">50</option>
+			<option value="100">100</option>
+			<option value="500">500</option>
+		</select>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var ${1}GoodsView = {
+		## /* Таблица */
+		Tbl : null,
+		## /* Контекстное меню */
+		CtxMenu : null,
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Инициализация таблицы */
+			_this.Tbl = $("#UHTT_VIEW_${1}_GOODS_TABLE").tablesorter({ widthFixed:true });
+			_this.Tbl.tablesorterPager({ container:$("#UHTT_VIEW_${1}_GOODS_TABLE_PAGER") });
+			_this.Tbl.Evt("sortStart", function() {
+				$("#UHTT_VIEW_${1}_GOODS_TABLE_MSG").show();
+			}).Evt("sortEnd", function() {
+				$("#UHTT_VIEW_${1}_GOODS_TABLE_MSG").hide();
+			});
+			## /* Инициализация контекстного меню */
+			_this.CtxMenu = $(".uhtt-view-${1}-goods-table-item").contextMenu(
+				[
+					{ "<b>Информация о товаре</b>": function() {
+							var goods_id = $(this).find("td:eq(0)").text();
+							showGoodsDetails(goods_id);
+						}
+					},
+					$.contextMenu.separator,
+					#if{@(Global, 0).GetCurrentGlobalUser().Id > 0}
+					{ "Редактирование": function() {
+							var id = $(this).find("td:eq(0)").text();
+							UHTT.Goods.Editor.edit(id);
+						}
+					},
+					#endif
+					/*
+					{ "Список поставщиков": function() { 
+							var goods_id = $(this).find("td:eq(0)").text();
+							alert("Test");
+						}
+					},
+					*/
+					{ "Котировки": function() { 
+							var goods_id = $(this).find("td:eq(0)").text();
+							var goods_name = $(this).find("td:eq(1)").text();
+							_this.showQuotes(goods_id, goods_name);
+						}
+					}
+				],
+				{ theme:"xp" }
+			);
+			## /* Событие двойной клик по строке */
+			_this.Tbl.delegate(".uhtt-view-${1}-goods-table-item", "dblclick", function() {
+				var goods_id = $(this).find("td:eq(0)").text();
+				showGoodsDetails(goods_id);
+				return false;
+			}).delegate(".uhtt-view-${1}-goods-table-item", "click", function(e) {
+				// todo: show quick info
+			});
+		},
+		showQuotes : function(goods_id, goods_name) {
+			var query = "SELECT QUOT BY ACTUAL KIND.CODE(UHTTQUOT) GOODS.ID(" + goods_id + ") FORMAT.TDDO(VIEW_QUOTE)";
+			new SDialog("UHTTViewQuotsByGoodsDlg", query, { title:"Котировки по товару " + goods_name });
+		}
+	};
+	## /* Инициализация view */
+	${1}GoodsView.init();
+</script>

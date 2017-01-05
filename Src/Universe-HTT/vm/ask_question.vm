@@ -1,0 +1,76 @@
+﻿## Universe-HTT / 2013
+## frm_ask_question.vm
+## Форма вопроса
+
+<style>
+	#frm_ask_question_text__textarea {
+		margin: 10px 0;
+		height: 180px;
+	}
+</style>
+
+#set($email = "")
+#if($clientInfo)
+	#set($user = $clientInfo.getUser())
+	#if($user)
+		#set($email = $user.getEmailAddress())
+	#end
+#end
+
+<div id="frm_ask_question__layout">
+	<input type="text" class="uhtt-input uui-w100pct" id="frm_ask_question_email__input" value="$email" placeholder="Email для ответа"/>
+	<br>
+	<textarea class="uui-w100pct" id="frm_ask_question_text__textarea" placeholder="Ваше сообщение"></textarea>
+	<div class="uui-w100pct">
+		<div class="uui-float-right">
+			<input type="button" id="frm_ask_question_ok__btn" value="OK"/>
+		</div>
+		<div class="uhtt-error-msg uui-float-right" id="frm_ask_question_msg__blk" style="margin:0 10px 0 0"></div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var AskQuestionForm = {
+		## /* Dialog */
+		Dialog : null,
+		//
+		## /* Элементы формы */
+		Layout           : $("#frm_ask_question__layout"),
+		//
+		txtFld_Email     : $("#frm_ask_question_email__input"),
+		txtArea_Question : $("#frm_ask_question_text__textarea"),
+		blk_Msg          : $("#frm_ask_question_msg__blk"),
+		btn_OK           : $("#frm_ask_question_ok__btn"),
+		//
+		init : function() {
+			var _this = this;
+			
+			_this.Dialog = UHTT.Dialog.List.getObjByProperty("ID", _this.Layout.parent("div.uhtt-dialog").attr("id"));
+			
+			_this.btn_OK.Evt("click", function() {
+				
+				var email = _this.txtFld_Email.val();
+				var question = _this.txtArea_Question.val();
+				
+				if(isEmpty(email)) {
+					_this.blk_Msg.showErrorMessage("Введите Ваш адрес электронной почты");
+					return;
+				}
+				if(isEmpty(question)) {
+					_this.blk_Msg.showErrorMessage("Введите Ваш вопрос");
+					return;
+				}
+				
+				var r = UHTT.askQuestion(email, question);
+				if(r == 1) {
+					UHTT.Messenger.show("<b>Спасибо за Ваш вопрос!</b><br>Ответ будет выслан на указанный Вами email", "/rsrc/images/ok_48.png");
+					_this.Dialog.close();
+				}
+			});
+		}
+	};
+	## /* Инициализация формы */
+	$(document).ready(function(){
+		AskQuestionForm.init();
+	});
+</script>

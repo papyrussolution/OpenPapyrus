@@ -1,0 +1,19 @@
+## Universe-HTT
+## data_array_currency.tddo
+## Массив структур валют
+
+#pragma(htmlencode)
+#start(StrAssocArray)
+	[
+	#iter()
+		{
+		#start(Currency:${ID})
+			"ID":"${ID}",
+			"Name":"${Name}",
+			"Symb":"${Symb}",
+			"DigitCode":"${DigitCode}"
+		#end()
+		},
+	#end()
+	]
+#end()

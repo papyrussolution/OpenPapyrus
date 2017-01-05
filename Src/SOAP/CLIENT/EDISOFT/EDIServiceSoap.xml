@@ -1,0 +1,1779 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions targetNamespace="urn:wsedi" xmlns:dime="http://schemas.xmlsoap.org/ws/2002/04/dime/wsdl/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:tns="urn:wsedi" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+
+   <wsdl:types>
+
+      <s:schema elementFormDefault="qualified" targetNamespace="urn:wsedi">
+
+         <s:element name="Send">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Name" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Password" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="PartnerIln" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentType" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentVersion" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentStandard" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentTest" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ControlNumber" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentContent" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="1" name="Timeout" type="s:int"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="SendResponse">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="SendResult" type="tns:RetRes"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:complexType name="RetRes">
+
+            <s:sequence>
+
+               <s:element maxOccurs="1" minOccurs="0" name="Res" type="s:string"/>
+
+               <s:element maxOccurs="1" minOccurs="0" name="Cnt" type="s:string"/>
+
+            </s:sequence>
+
+         </s:complexType>
+
+		   <s:element name="SendBinary">
+
+			    <s:complexType>
+
+				     <s:sequence>
+
+					      <s:element maxOccurs="1" minOccurs="0" name="Name" type="s:string"/>
+
+					      <s:element maxOccurs="1" minOccurs="0" name="Password" type="s:string"/>
+
+					      <s:element maxOccurs="1" minOccurs="0" name="PartnerIln" type="s:string"/>
+
+					      <s:element maxOccurs="1" minOccurs="0" name="DocumentType" type="s:string"/>
+
+					      <s:element maxOccurs="1" minOccurs="0" name="FileName" type="s:string"/>
+
+					      <s:element maxOccurs="1" minOccurs="0" name="Data" type="s:base64Binary"/>
+
+				     </s:sequence>
+
+			    </s:complexType>
+
+		   </s:element>
+
+		   <s:element name="SendBinaryResponse">
+
+			    <s:complexType>
+
+				     <s:sequence>
+
+					      <s:element maxOccurs="1" minOccurs="0" name="SendBinaryResult" type="tns:RetRes"/>
+
+				     </s:sequence>
+
+			    </s:complexType>
+
+		   </s:element>
+
+		   <s:complexType name="EdiFileData">
+
+			    <s:sequence>
+
+				     <s:element maxOccurs="1" minOccurs="0" name="Res" type="s:string"/>
+
+				     <s:element maxOccurs="1" minOccurs="0" name="FileName" type="s:string"/>
+
+				     <s:element maxOccurs="1" minOccurs="0" name="FileData" type="s:base64Binary"/>
+
+			    </s:sequence>
+
+		   </s:complexType>
+
+         <s:element name="ListPB">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Name" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Password" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="PartnerIln" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentType" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentVersion" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentStandard" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentTest" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DateFrom" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DateTo" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ItemFrom" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ItemTo" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="1" name="Timeout" type="s:int"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="ListPBResponse">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ListPBResult" type="tns:RetRes"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="ListPBEx">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Name" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Password" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="PartnerIln" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentType" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentVersion" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentStandard" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentTest" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DateFrom" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DateTo" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ItemFrom" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ItemTo" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="OrderBy" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="1" name="Timeout" type="s:int"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="ListPBExResponse">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ListPBExResult" type="tns:RetRes"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="ListPBExAll">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Name" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Password" type="s:string"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="ListPBExAllResponse">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ListPBExAllResult" type="tns:RetRes"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="ListMB">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Name" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Password" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="PartnerIln" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentType" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentVersion" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentStandard" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentTest" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentStatus" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="1" name="Timeout" type="s:int"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="ListMBResponse">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ListMBResult" type="tns:RetRes"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="ListMBAll">
+
+            <s:complexType>
+
+               <s:sequence>
+
+          	      <s:element maxOccurs="1" minOccurs="0" name="Name" type="s:string"/>
+
+          	      <s:element maxOccurs="1" minOccurs="0" name="Password" type="s:string"/>
+
+          	      <s:element maxOccurs="1" minOccurs="0" name="ReceiveBinary" type="s:boolean"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="ListMBAllResponse">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ListMBAllResult" type="tns:RetRes"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="ListMBAllEx">
+
+            <s:complexType>
+
+               <s:sequence>
+
+          	      <s:element maxOccurs="1" minOccurs="0" name="Name" type="s:string"/>
+
+          	      <s:element maxOccurs="1" minOccurs="0" name="Password" type="s:string"/>
+
+          	      <s:element maxOccurs="1" minOccurs="0" name="ReceiveBinary" type="s:boolean"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="ListMBAllExResponse">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ListMBAllExResult" type="tns:RetRes"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="ListMBEx">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Name" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Password" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="PartnerIln" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentType" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentVersion" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentStandard" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentTest" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DateFrom" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DateTo" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ItemFrom" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ItemTo" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentStatus" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="1" name="Timeout" type="s:int"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+	   <s:element name="ListMBExResponse">
+
+		    <s:complexType>
+
+			     <s:sequence>
+
+				      <s:element maxOccurs="1" minOccurs="0" name="ListMBExResult" type="tns:RetRes"/>
+
+			     </s:sequence>
+
+		    </s:complexType>
+
+	   </s:element>
+
+          <s:element name="ListMBLast">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Name" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Password" type="s:string"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="ListMBLastResponse">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ListMBLastResult" type="tns:RetRes"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="Receive">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Name" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Password" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="PartnerIln" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentType" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="TrackingId" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentStandard" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ChangeDocumentStatus" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="1" name="Timeout" type="s:int"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="ReceiveResponse">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ReceiveResult" type="tns:RetRes"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+		   <s:element name="ReceiveBinary">
+
+			    <s:complexType>
+
+				     <s:sequence>
+
+					      <s:element maxOccurs="1" minOccurs="0" name="Name" type="s:string"/>
+
+					      <s:element maxOccurs="1" minOccurs="0" name="Password" type="s:string"/>
+
+					      <s:element maxOccurs="1" minOccurs="0" name="PartnerIln" type="s:string"/>
+
+					      <s:element maxOccurs="1" minOccurs="0" name="DocumentType" type="s:string"/>
+
+					      <s:element maxOccurs="1" minOccurs="0" name="TrackingId" type="s:string"/>
+
+				     </s:sequence>
+
+			    </s:complexType>
+
+		   </s:element>
+
+		   <s:element name="ReceiveBinaryResponse">
+
+			    <s:complexType>
+
+				     <s:sequence>
+
+					      <s:element maxOccurs="1" minOccurs="0" name="ReceiveBinaryResult" type="tns:EdiFileData"/>
+
+				     </s:sequence>
+
+			    </s:complexType>
+
+		   </s:element>
+
+         <s:element name="Relationships">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Name" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Password" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="1" name="Timeout" type="s:int"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="RelationshipsResponse">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="RelationshipsResult" type="tns:RetRes"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="NeedUpdate">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Name" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Password" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="1" name="Timeout" type="s:int"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="NeedUpdateResponse">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="NeedUpdateResult" type="tns:RetRes"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="SetNotPaid">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Name" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Password" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Iln" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Minutes" type="s:string"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="SetNotPaidResponse">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="SetNotPaidResult" type="tns:RetRes"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="RemoveNotPaid">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Name" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Password" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Iln" type="s:string"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="RemoveNotPaidResponse">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="RemoveNotPaidResult" type="tns:RetRes"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+      
+         <s:element name="SendPDA">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Name" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Password" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="PartnerIln" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentType" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentVersion" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentStandard" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentTest" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ControlNumber" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentContent" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Timeout" type="s:int"/>
+
+                  <s:element default="I" maxOccurs="1" minOccurs="0" name="CreationType" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="HardwareID" type="s:string"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="SendPDAResponse">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="SendPDAResult" type="tns:RetRes"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+      
+      
+         <s:element name="ReceivePDA">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Name" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Password" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="PartnerIln" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentType" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="TrackingId" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="DocumentStandard" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ChangeDocumentStatus" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="1" name="Timeout" type="s:int"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="HardwareID" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="1" name="LastUpdateDateTime" type="s:dateTime"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="ReceivePDAResponse">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ReceivePDAResult" type="tns:RetRes"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+      
+         <s:element name="ExecSQL">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="1" name="Login" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="1" name="Password" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="1" name="Uid" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="1" name="Params" type="s:string"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="ExecSQLResponse">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ExecSQLResult" type="tns:RetRes"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+
+         <s:element name="ExecSQLtoDoc">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="1" name="Login" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="1" name="Password" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="1" name="Uid" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="1" name="Params" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="1" name="SenderILN" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="1" name="ReceiverILN" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="1" name="DocType" type="s:string"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="ExecSQLtoDocResponse">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ExecSQLtoDocResult" type="tns:RetRes"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+     
+         <s:element name="ChangeDocumentStatus">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Name" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Password" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="TrackingId" type="s:string"/>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="Status" type="s:string"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="ChangeDocumentStatusResponse">
+
+            <s:complexType>
+
+               <s:sequence>
+
+                  <s:element maxOccurs="1" minOccurs="0" name="ChangeDocumentStatusResult" type="tns:RetRes"/>
+
+               </s:sequence>
+
+            </s:complexType>
+
+         </s:element>
+
+         <s:element name="RetRes" nillable="true" type="tns:RetRes"/>
+
+         <s:element name="GenerateDocument">
+
+      	    <s:complexType>
+
+      		     <s:sequence>
+
+      			      <s:element maxOccurs="1" minOccurs="0" name="Name" type="s:string"/>
+
+      			      <s:element maxOccurs="1" minOccurs="0" name="Password" type="s:string"/>
+
+      			      <s:element maxOccurs="1" minOccurs="1" name="TrackingId" type="s:string"/>
+
+                      <s:element maxOccurs="1" minOccurs="1" name="DocumentType" type="s:string"/>
+
+                 </s:sequence>
+
+      	    </s:complexType>
+
+         </s:element>
+
+         <s:element name="GenerateDocumentResponse">
+
+      	    <s:complexType>
+
+      		     <s:sequence>
+
+      			      <s:element name="GenerateDocumentResult" type="tns:RetRes"/>
+
+      		     </s:sequence>
+
+      	    </s:complexType>
+
+         </s:element>
+
+      </s:schema>
+
+   </wsdl:types>
+
+   <wsdl:message name="SendSoapIn">
+
+      <wsdl:part element="tns:Send" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="SendSoapOut">
+
+      <wsdl:part element="tns:SendResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="SendBinarySoapIn">
+
+	  <wsdl:part element="tns:SendBinary" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="SendBinarySoapOut">
+
+	  <wsdl:part element="tns:SendBinaryResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="ListPBSoapIn">
+
+      <wsdl:part element="tns:ListPB" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="ListPBSoapOut">
+
+      <wsdl:part element="tns:ListPBResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="ListPBExSoapIn">
+
+      <wsdl:part element="tns:ListPBEx" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="ListPBExSoapOut">
+
+      <wsdl:part element="tns:ListPBExResponse" name="parameters"/>
+
+   </wsdl:message>
+
+
+   <wsdl:message name="ListPBExAllSoapIn">
+
+      <wsdl:part element="tns:ListPBExAll" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="ListPBExAllSoapOut">
+
+      <wsdl:part element="tns:ListPBExAllResponse" name="parameters"/>
+
+   </wsdl:message>
+
+
+   <wsdl:message name="ListMBSoapIn">
+
+      <wsdl:part element="tns:ListMB" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="ListMBSoapOut">
+
+      <wsdl:part element="tns:ListMBResponse" name="parameters"/>
+
+   </wsdl:message>
+
+
+   <wsdl:message name="ListMBAllSoapIn">
+
+      <wsdl:part element="tns:ListMBAll" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="ListMBAllSoapOut">
+
+      <wsdl:part element="tns:ListMBAllResponse" name="parameters"/>
+
+   </wsdl:message>
+
+  
+   <wsdl:message name="ListMBAllExSoapIn">
+
+      <wsdl:part element="tns:ListMBAllEx" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="ListMBAllExSoapOut">
+
+      <wsdl:part element="tns:ListMBAllExResponse" name="parameters"/>
+
+   </wsdl:message>
+
+  
+     <wsdl:message name="ListMBExSoapIn">
+
+      <wsdl:part element="tns:ListMBEx" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="ListMBExSoapOut">
+
+      <wsdl:part element="tns:ListMBExResponse" name="parameters"/>
+
+   </wsdl:message>
+
+
+   <wsdl:message name="ListMBLastSoapIn">
+
+      <wsdl:part element="tns:ListMBLast" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="ListMBLastSoapOut">
+
+      <wsdl:part element="tns:ListMBLastResponse" name="parameters"/>
+
+   </wsdl:message>
+
+  
+   <wsdl:message name="ReceiveSoapIn">
+
+      <wsdl:part element="tns:Receive" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="ReceiveSoapOut">
+
+      <wsdl:part element="tns:ReceiveResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="ReceiveBinarySoapIn">
+
+	  <wsdl:part element="tns:ReceiveBinary" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="ReceiveBinarySoapOut">
+
+	  <wsdl:part element="tns:ReceiveBinaryResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="RelationshipsSoapIn">
+
+      <wsdl:part element="tns:Relationships" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="RelationshipsSoapOut">
+
+      <wsdl:part element="tns:RelationshipsResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="NeedUpdateSoapIn">
+
+      <wsdl:part element="tns:NeedUpdate" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="NeedUpdateSoapOut">
+
+      <wsdl:part element="tns:NeedUpdateResponse" name="parameters"/>
+
+   </wsdl:message>
+
+
+   <wsdl:message name="SetNotPaidSoapIn">
+
+      <wsdl:part element="tns:SetNotPaid" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="SetNotPaidSoapOut">
+
+      <wsdl:part element="tns:SetNotPaidResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="RemoveNotPaidSoapIn">
+
+      <wsdl:part element="tns:RemoveNotPaid" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="RemoveNotPaidSoapOut">
+
+      <wsdl:part element="tns:RemoveNotPaidResponse" name="parameters"/>
+
+   </wsdl:message>
+
+  
+   <wsdl:message name="SendPDASoapIn">
+
+      <wsdl:part element="tns:SendPDA" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="SendPDASoapOut">
+
+      <wsdl:part element="tns:SendPDAResponse" name="parameters"/>
+
+   </wsdl:message>
+
+  
+   <wsdl:message name="ReceivePDASoapIn">
+
+      <wsdl:part element="tns:ReceivePDA" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="ReceivePDASoapOut">
+
+      <wsdl:part element="tns:ReceivePDAResponse" name="parameters"/>
+
+   </wsdl:message>
+  
+
+   <wsdl:message name="ExecSQLSoapIn">
+
+      <wsdl:part element="tns:ExecSQL" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="ExecSQLSoapOut">
+
+      <wsdl:part element="tns:ExecSQLResponse" name="parameters"/>
+
+   </wsdl:message>
+
+
+ <wsdl:message name="ExecSQLtoDocSoapIn">
+
+      <wsdl:part element="tns:ExecSQLtoDoc" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="ExecSQLtoDocSoapOut">
+
+      <wsdl:part element="tns:ExecSQLtoDocResponse" name="parameters"/>
+
+   </wsdl:message>
+
+
+
+   <wsdl:message name="ChangeDocumentStatusSoapIn">
+
+      <wsdl:part element="tns:ChangeDocumentStatus" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="ChangeDocumentStatusSoapOut">
+
+      <wsdl:part element="tns:ChangeDocumentStatusResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="GenerateDocumentRequest">
+
+  	  <wsdl:part element="tns:GenerateDocument" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="GenerateDocumentResponse">
+
+  	  <wsdl:part element="tns:GenerateDocumentResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:portType name="EDIServiceSoap">
+
+      <wsdl:operation name="Send">
+
+         <wsdl:input message="tns:SendSoapIn"/>
+
+         <wsdl:output message="tns:SendSoapOut"/>
+
+      </wsdl:operation>
+
+	  <wsdl:operation name="SendBinary">
+
+		   <wsdl:input message="tns:SendBinarySoapIn"/>
+
+		   <wsdl:output message="tns:SendBinarySoapOut"/>
+
+	  </wsdl:operation>
+
+      <wsdl:operation name="ListPB">
+
+         <wsdl:input message="tns:ListPBSoapIn"/>
+
+         <wsdl:output message="tns:ListPBSoapOut"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="ListPBEx">
+
+         <wsdl:input message="tns:ListPBExSoapIn"/>
+
+         <wsdl:output message="tns:ListPBExSoapOut"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="ListPBExAll">
+
+         <wsdl:input message="tns:ListPBExAllSoapIn"/>
+
+         <wsdl:output message="tns:ListPBExAllSoapOut"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="ListMB">
+
+         <wsdl:input message="tns:ListMBSoapIn"/>
+
+         <wsdl:output message="tns:ListMBSoapOut"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="ListMBAll">
+
+         <wsdl:input message="tns:ListMBAllSoapIn"/>
+
+         <wsdl:output message="tns:ListMBAllSoapOut"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="ListMBAllEx">
+
+         <wsdl:input message="tns:ListMBAllExSoapIn"/>
+
+         <wsdl:output message="tns:ListMBAllExSoapOut"/>
+
+      </wsdl:operation>
+
+
+	  <wsdl:operation name="ListMBEx">
+
+		   <wsdl:input message="tns:ListMBExSoapIn"/>
+
+		   <wsdl:output message="tns:ListMBExSoapOut"/>
+
+	  </wsdl:operation>
+
+    
+      <wsdl:operation name="ListMBLast">
+
+         <wsdl:input message="tns:ListMBLastSoapIn"/>
+
+         <wsdl:output message="tns:ListMBLastSoapOut"/>
+
+      </wsdl:operation>
+
+    
+      <wsdl:operation name="Receive">
+
+         <wsdl:input message="tns:ReceiveSoapIn"/>
+
+         <wsdl:output message="tns:ReceiveSoapOut"/>
+
+      </wsdl:operation>
+
+	  <wsdl:operation name="ReceiveBinary">
+
+		   <wsdl:input message="tns:ReceiveBinarySoapIn"/>
+
+		   <wsdl:output message="tns:ReceiveBinarySoapOut"/>
+
+	  </wsdl:operation>
+
+      <wsdl:operation name="Relationships">
+
+         <wsdl:input message="tns:RelationshipsSoapIn"/>
+
+         <wsdl:output message="tns:RelationshipsSoapOut"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="NeedUpdate">
+
+         <wsdl:input message="tns:NeedUpdateSoapIn"/>
+
+         <wsdl:output message="tns:NeedUpdateSoapOut"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="SetNotPaid">
+
+         <wsdl:input message="tns:SetNotPaidSoapIn"/>
+
+         <wsdl:output message="tns:SetNotPaidSoapOut"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="RemoveNotPaid">
+
+         <wsdl:input message="tns:RemoveNotPaidSoapIn"/>
+
+         <wsdl:output message="tns:RemoveNotPaidSoapOut"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="SendPDA">
+
+         <wsdl:input message="tns:SendPDASoapIn"/>
+
+         <wsdl:output message="tns:SendPDASoapOut"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="ReceivePDA">
+
+         <wsdl:input message="tns:ReceivePDASoapIn"/>
+
+         <wsdl:output message="tns:ReceivePDASoapOut"/>
+
+      </wsdl:operation>
+    
+      <wsdl:operation name="ExecSQL">
+
+         <wsdl:input message="tns:ExecSQLSoapIn"/>
+
+         <wsdl:output message="tns:ExecSQLSoapOut"/>
+
+      </wsdl:operation>
+    
+      <wsdl:operation name="ExecSQLtoDoc">
+
+         <wsdl:input message="tns:ExecSQLtoDocSoapIn"/>
+
+         <wsdl:output message="tns:ExecSQLtoDocSoapOut"/>
+
+      </wsdl:operation>
+    
+      <wsdl:operation name="ChangeDocumentStatus">
+
+         <wsdl:input message="tns:ChangeDocumentStatusSoapIn"/>
+
+         <wsdl:output message="tns:ChangeDocumentStatusSoapOut"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="GenerateDocument">
+
+    	   <wsdl:input message="tns:GenerateDocumentRequest"/>
+
+    	   <wsdl:output message="tns:GenerateDocumentResponse"/>
+
+      </wsdl:operation>
+
+   </wsdl:portType>
+
+ 
+   <wsdl:binding name="EDIServiceSoap" type="tns:EDIServiceSoap">
+
+      <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <wsdl:operation name="Send">
+
+         <soap:operation soapAction="urn:wsedi/Send" style="document"/>
+
+         <wsdl:input>
+
+      	    <dime:message layout="http://schemas.xmlsoap.org/ws/2002/04/dime/open-layout" wsdl:required="true"/>
+
+            <soap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output>
+
+            <soap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+	  <wsdl:operation name="SendBinary">
+
+		   <soap:operation soapAction="urn:wsedi/SendBinary" style="document"/>
+
+		   <wsdl:input>
+
+			    <soap:body use="literal"/>
+
+		   </wsdl:input>
+
+		   <wsdl:output>
+
+			    <soap:body use="literal"/>
+
+		   </wsdl:output>
+
+	  </wsdl:operation>
+
+      <wsdl:operation name="ListPB">
+
+         <soap:operation soapAction="urn:wsedi/ListPB" style="document"/>
+
+         <wsdl:input>
+
+            <soap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output>
+
+            <soap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="ListPBEx">
+
+         <soap:operation soapAction="urn:wsedi/ListPBEx" style="document"/>
+
+         <wsdl:input>
+
+            <soap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output>
+
+            <soap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="ListPBExAll">
+
+         <soap:operation soapAction="urn:wsedi/ListPBExAll" style="document"/>
+
+         <wsdl:input>
+
+            <soap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output>
+
+            <soap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="ListMB">
+
+         <soap:operation soapAction="urn:wsedi/ListMB" style="document"/>
+
+         <wsdl:input>
+
+            <soap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output>
+
+            <soap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="ListMBAll">
+
+         <soap:operation soapAction="urn:wsedi/ListMBAll" style="document"/>
+
+         <wsdl:input>
+
+            <soap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output>
+
+            <soap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="ListMBAllEx">
+
+         <soap:operation soapAction="urn:wsedi/ListMBAllEx" style="document"/>
+
+         <wsdl:input>
+
+            <soap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output>
+
+            <soap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+          <wsdl:operation name="ListMBEx">
+
+         <soap:operation soapAction="urn:wsedi/ListMBEx" style="document"/>
+
+         <wsdl:input>
+
+            <soap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output>
+
+            <soap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+          <wsdl:operation name="ListMBLast">
+
+         <soap:operation soapAction="urn:wsedi/ListMBLast" style="document"/>
+
+         <wsdl:input>
+
+            <soap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output>
+
+            <soap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="Receive">
+
+         <soap:operation soapAction="urn:wsedi/Receive" style="document"/>
+
+         <wsdl:input>
+
+            <soap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output>
+
+      	    <dime:message layout="http://schemas.xmlsoap.org/ws/2002/04/dime/open-layout" wsdl:required="true"/>
+
+            <soap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+	  <wsdl:operation name="ReceiveBinary">
+
+		   <soap:operation soapAction="urn:wsedi/ReceiveBinary" style="document"/>
+
+		   <wsdl:input>
+
+			    <soap:body use="literal"/>
+
+		   </wsdl:input>
+
+		   <wsdl:output>
+
+			    <soap:body use="literal"/>
+
+		   </wsdl:output>
+
+	  </wsdl:operation>
+
+      <wsdl:operation name="Relationships">
+
+         <soap:operation soapAction="urn:wsedi/Relationships" style="document"/>
+
+         <wsdl:input>
+
+            <soap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output>
+
+            <soap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="NeedUpdate">
+
+         <soap:operation soapAction="urn:wsedi/NeedUpdate" style="document"/>
+
+         <wsdl:input>
+
+            <soap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output>
+
+            <soap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="SetNotPaid">
+
+         <soap:operation soapAction="urn:wsedi/SetNotPaid" style="document"/>
+
+         <wsdl:input>
+
+            <soap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output>
+
+            <soap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="RemoveNotPaid">
+
+         <soap:operation soapAction="urn:wsedi/RemoveNotPaid" style="document"/>
+
+         <wsdl:input>
+
+            <soap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output>
+
+            <soap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="SendPDA">
+
+         <soap:operation soapAction="urn:wsedi/SendPDA" style="document"/>
+
+         <wsdl:input>
+
+            <soap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output>
+
+            <soap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="ReceivePDA">
+
+         <soap:operation soapAction="urn:wsedi/ReceivePDA" style="document"/>
+
+         <wsdl:input>
+
+            <soap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output>
+
+            <soap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+    
+      <wsdl:operation name="ExecSQL">
+
+         <soap:operation soapAction="urn:wsedi/ExecSQL" style="document"/>
+
+         <wsdl:input>
+
+            <soap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output>
+
+            <soap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+    
+      <wsdl:operation name="ExecSQLtoDoc">
+
+         <soap:operation soapAction="urn:wsedi/ExecSQLtoDoc" style="document"/>
+
+         <wsdl:input>
+
+            <soap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output>
+
+            <soap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+    
+      <wsdl:operation name="ChangeDocumentStatus">
+
+         <soap:operation soapAction="urn:wsedi/ChangeDocumentStatus" style="document"/>
+
+         <wsdl:input>
+
+            <soap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output>
+
+            <soap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="GenerateDocument">
+
+         <soap:operation soapAction="urn:wsedi/GenerateDocument" style="document"/>
+
+         <wsdl:input>
+
+            <soap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output>
+
+            <soap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+   </wsdl:binding>
+
+   <wsdl:service name="EDIService">
+
+      <documentation xmlns="http://schemas.xmlsoap.org/wsdl/">
+WebService  </documentation>
+
+      <wsdl:port binding="tns:EDIServiceSoap" name="EDIServiceSoap">
+
+         <soap:address location="https://soap.ediweb.ru/wsedi/services/EDIServiceSoap"/>
+
+      </wsdl:port>
+
+   </wsdl:service>
+
+</wsdl:definitions>

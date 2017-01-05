@@ -1,0 +1,42 @@
+﻿## Universe-HTT / 2013
+## frm_order_details.vm
+## Детализация товарного заказа
+##
+
+<style>
+	#frm_order_details_hdr__blk {
+		font-size: 16px;
+		color: #555555;
+	}
+</style>
+
+<div id="frm_order_details__layout">
+	<div class="uui-helper-clearfix" id="frm_order_details_hdr__blk">Товарный заказ от ${order.Dt}</div>
+	<br>
+	<div>Покупатель: $buyer</div>
+	<div>Адрес:      $address</div>
+	<div>Телефон:    $phone</div>
+	<br>
+	<div>Строка заказа</div>
+	<table class="tablesorter">
+		<thead>
+			<tr>
+				<th>Наименование</th>
+				<th>Количество</th>
+				<th>Цена</th>
+				<th>Сумма</th>
+			</tr>
+		</thead>
+		<tbody>
+			#foreach($line in $order.Items)
+				<tr>
+					<td>$UHTT.getObjName("GOODS", $line.GoodsID)</td>
+					<td class="uui-text-align-right">$UHTT.format("0", $line.Qtty)</td>
+					<td class="uui-text-align-right">$UHTT.format("0.00", $line.Price)</td>
+					<td class="uui-text-align-right">$UHTT.format("0.00", $line.Amount)</td>
+				</tr>
+			#end
+		</tbody>
+	</table>
+	<div class="sprawling" style="text-align:right"><b>Сумма заказа: $UHTT.format("0.00", $sum)</b></div>
+</div>

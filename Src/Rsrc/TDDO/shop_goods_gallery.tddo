@@ -1,0 +1,351 @@
+## Universe-HTT / 2012
+## store_v1_gc_gallery_view.tddo 
+## Каталог товаров магазина (галерея)
+## Args: ${1} - Flags
+##
+
+#pragma(htmlencode)
+
+<style type="text/css">
+	##
+	## Gallery wrapper
+	##
+	.store-v1-gc-gallery-wrapper {
+		display: inline-block;
+		border: 1px solid #AAAAAA;
+	}
+	##
+	## Gallery item
+	##
+	.store-v1-gc-gallery-item {
+		position: relative;
+		display: inline-block;
+		height: 265px;
+		width: 175px;
+		margin: 8px 6px;
+		text-align: center;
+		
+		## -moz-box-shadow: 3px 3px 5px #888888;       /* Firefox */
+		## -webkit-box-shadow: 3px 3px 5px #888888;    /* Safari, Chrome */
+		## box-shadow: 3px 3px 5px #888888;            /* CSS3 */
+		
+		-moz-border-radius: 4px;     /* Firefox */
+		-webkit-border-radius: 4px;  /* Safari, Chrome */
+		-khtml-border-radius: 4px;   /* KHTML */
+		border-radius: 4px;          /* CSS3 */
+	}
+	##
+	## Gallery item top block
+	##
+	.store-v1-gc-gallery-item-top-blk {
+		position: relative;
+		height: 220px;
+		padding: 10px 5px;
+		background: white;
+		border: 1px solid;
+		border-color: #C8C9CA #9E9E9E #9E9E9E #C8C9CA;
+		-moz-border-radius: 4px 4px 0 0;     /* Firefox */
+		-webkit-border-radius: 4px 4px 0 0;  /* Safari, Chrome */
+		-khtml-border-radius: 4px 4px 0 0;   /* KHTML */
+		border-radius: 4px 4px 0 0;          /* CSS3 */
+	}
+	.store-v1-gc-gallery-item-cart-count-blk {
+		display: none;
+		position: absolute;
+		top: 3px;
+		left: 3px;
+	}
+	.store-v1-gc-gallery-item-cart-count-label {
+		position: absolute;
+		top: 1px;
+		right: 1px;
+		border: 1px solid #555555;
+		background: #FFFAFA;
+		color: black;
+		font: bold 8pt Arial;
+		padding: 0 2px;
+	}
+	.store-v1-gc-gallery-item-link-blk {
+		cursor: pointer;
+	}
+	.store-v1-gc-gallery-item-img-blk {
+		display: table-cell;
+		height: 100px;
+		margin: 0 auto;
+		width: 165px;
+		max-width: 165px;
+		text-align: center;
+		vertical-align: middle;
+	}
+	/* IE fix */
+	.ie .store-v1-gc-gallery-item-img-blk {
+		display: block;
+	}
+	.store-v1-gc-gallery-item-img-blk img {
+		max-height: 100%;
+		max-width: 100%;
+	}
+	.store-v1-gc-gallery-item-name-label {
+		word-wrap: break-word;
+		white-space: normal;
+		height: 50px;
+		font: 10pt Verdana;
+		overflow: hidden;
+	}
+	.store-v1-gc-gallery-item-price-blk {
+		position: relative;
+		height: 35px;
+		width: 100%;
+		margin: 6px 0;
+	}
+	.store-v1-gc-gallery-item-price-label {
+		display: inline-block;
+		float: left;
+		color: #555555;
+		font: 12pt Arial;
+	}
+	.store-v1-gc-gallery-item-cur-label {
+		display: inline-block;
+		float: left;
+		color: #555555;
+		font: bold 10pt Arial;
+		padding-left: 4px;
+	}
+	.store-v1-gc-gallery-item-count-blk {
+		position: relative;
+		height: 25px;
+		margin: 6px 20px;
+	}
+	
+	## ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	## Decr button
+	##
+	div.store-v1-gc-gallery-item-decr-count-blk {
+		display:inline-block;
+		height: 100%;
+		width: 30px;
+		float: left;
+	}
+	input.store-v1-gc-gallery-item-decr-count-btn {
+		height: 100%;
+		width: 100%;
+		border-radius: 4px 0 0 4px;
+		padding: 0;
+		background: url("/rsrc/images/minus.png") no-repeat center center;
+	}
+	input.store-v1-gc-gallery-item-decr-count-btn:hover, input.store-v1-gc-gallery-item-decr-count-btn:focus {
+		background: url("/rsrc/images/minus.png") no-repeat center center;
+	}
+	
+	
+	## ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	## Count text field
+	##
+	div.store-v1-gc-gallery-item-count-text-blk {
+		display:inline-block;
+		width: 60px;
+		height: 100%;
+		float: left;
+	}
+	input.store-v1-gc-gallery-item-count-text-input {
+		height: 23px;
+		line-height: 23px;
+		padding: 0 26px 0 0;
+		text-align: center;
+		vertical-align: middle;
+		width: 32px;
+	}
+	
+	## ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	## Unit text field
+	##
+	div.store-v1-gc-gallery-item-unit-label {
+		position: absolute;
+		top: 4px;
+		left: 65px;
+	}
+	
+	## ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	## Incr button
+	##
+	div.store-v1-gc-gallery-item-incr-count-blk {
+		display:inline-block;
+		left: 90px;
+		width: 30px;
+		height: 100%;
+		float: left;
+	}
+	input.store-v1-gc-gallery-item-incr-count-btn {
+		height: 100%;
+		width: 100%;
+		border-radius: 0 4px 4px 0;
+		padding: 0;
+		background: url("/rsrc/images/plus.png") no-repeat center center transparent;
+	}
+	input.store-v1-gc-gallery-item-incr-count-btn:hover, input.store-v1-gc-gallery-item-incr-count-btn:focus {
+		background: url("/rsrc/images/plus.png") no-repeat center center transparent;
+	}
+	
+	##
+	## Bottom block
+	##
+	div.store-v1-gc-gallery-item-bottom-blk {
+		width: 100%;
+		height: 25px;
+		position: relative;		
+		border-radius: 0 0 4px 4px ;
+	}
+	
+	##
+	## Add to cart button
+	##
+	input.store-v1-gc-gallery-item-add2cart-btn {
+		height: 100%;
+		width: 100%;
+		border-radius: 0 0 4px 4px;
+		padding-top: 2px;
+	}
+</style>
+
+<div class="store-v1-gc-gallery-wrapper uui-w100pct">
+	#start(QuotArray)
+		#iter()
+		<div
+			class="store-v1-gc-gallery-item"
+			goodsID="${GoodsID.ID}"
+			#if{@(Global, 0).CheckFlag($1, 1) > 0}
+			package="${GoodsPkgIntNZ}"
+			#else
+			package="1"
+			#endif
+		>
+			<div class="store-v1-gc-gallery-item-top-blk">
+				<div class="store-v1-gc-gallery-item-cart-count-blk" title="Количество товара в корзине">
+					<img src="/rsrc/images/shopping_cart_32.png"/>
+					<div class="store-v1-gc-gallery-item-cart-count-label" id="shop_gallery_item_${GoodsID.ID}_cart_count_label"></div>
+				</div>
+				<div class="store-v1-gc-gallery-item-link-blk">
+					<div class="store-v1-gc-gallery-item-img-blk">
+						<img src="/dispatcher/get_obj_image?obj_type=GOODS&obj_id=${GoodsID.ID}&default=/rsrc/images/no_photo_64.png"/>
+					</div>
+					<div class="store-v1-gc-gallery-item-name-label">${GoodsID.Name}</div>
+				</div>
+				<div class="store-v1-gc-gallery-item-price-blk">
+					<div style="position:relative;float:right;padding:8px">
+						<div class="store-v1-gc-gallery-item-price-label">${Value}</div>
+						<div class="store-v1-gc-gallery-item-cur-label"></div>
+					</div>
+				</div>
+				<div class="store-v1-gc-gallery-item-count-blk">
+					<div class="store-v1-gc-gallery-item-decr-count-blk">
+						<input class="store-v1-gc-gallery-item-decr-count-btn" type="button"/>
+					</div>
+					<div class="store-v1-gc-gallery-item-count-text-blk">
+						<input
+							class="store-v1-gc-gallery-item-count-text-input"
+							type="text"
+							#if{@(Global, 0).CheckFlag($1, 1) > 0}
+							value="${GoodsPkgIntNZ}"
+							#else
+							value="1"
+							#endif
+						/>
+					</div>
+					<div class="store-v1-gc-gallery-item-unit-label"><!--${GoodsID.UnitID.Abbr}-->шт.</div>
+					<div class="store-v1-gc-gallery-item-incr-count-blk">
+						<input class="store-v1-gc-gallery-item-incr-count-btn" type="button"/>
+					</div>
+				</div>
+			</div>
+			<div class="store-v1-gc-gallery-item-bottom-blk">
+				<input type="button" value="В корзину" class="store-v1-gc-gallery-item-add2cart-btn"/>
+			</div>
+		</div>
+		#end()
+	#end()
+</div>
+
+<script type="text/javascript">
+	var StoreCatalogGalleryView = {
+		## /* Элементы */
+		blk_CartCounter  : $(".store-v1-gc-gallery-item-cart-count-label"),
+		blk_ItemInfoLink : $(".store-v1-gc-gallery-item-link-blk"),
+		btn_DecrCount    : $(".store-v1-gc-gallery-item-decr-count-btn"),
+		btn_IncrCount    : $(".store-v1-gc-gallery-item-incr-count-btn"),
+		txtFld_Count     : $(".store-v1-gc-gallery-item-count-text-input"),
+		btn_Add2Cart     : $(".store-v1-gc-gallery-item-add2cart-btn"),
+		//
+		drawCounters : function() {
+			this.blk_CartCounter.each(function() {
+				$(this).html("");
+				$(this).parent().hide();
+			});
+			var n = UHTT.Store.Cart.Items.getCount();
+			for(var i = 0; i < n; i++) {
+				var line = UHTT.Store.Cart.Items.at(i);
+				if(!isEmpty(line)) {
+					var lbl = $("#shop_gallery_item_" + line.GoodsID + "_cart_count_label");
+					lbl.html(line.Quantity);
+					lbl.parent().show();
+				}
+			}
+		},
+		init : function() {
+			var _view = this;
+			## /* Events */
+			## /* Goods details */
+			_view.blk_ItemInfoLink.Evt("click", function(event) {
+				var goods_id = $(this).closest("div.store-v1-gc-gallery-item").attr("goodsID");
+				if(goods_id > 0)
+					showGoodsDetails(goods_id);
+			});
+			_view.btn_DecrCount.Evt("click", function(e) {
+				var _blk = $(this).closest("div.store-v1-gc-gallery-item");
+				var pkg = Number(_blk.attr("package"));
+				var count_fld = _blk.find("input.store-v1-gc-gallery-item-count-text-input");
+				var count = Number(count_fld.val());
+				if(count > pkg)
+					count_fld.val(count - pkg);
+			});
+			_view.btn_IncrCount.Evt("click", function(e) {
+				var _blk = $(this).closest("div.store-v1-gc-gallery-item");
+				var pkg = Number(_blk.attr("package"));
+				var count_fld = _blk.find("input.store-v1-gc-gallery-item-count-text-input");
+				var count = Number(count_fld.val());
+				if(count < 99999)
+					count_fld.val(count + pkg);
+			});
+			_view.txtFld_Count.Evt("keypress", function(e) {
+				var keycode = (e.keyCode ? e.keyCode : e.which);
+				var is_del       = (keycode == 8);
+				var is_backspace = (keycode == 46);
+				var is_arrow     = (keycode >= 37 && keycode <= 40);
+				var is_digit     = (keycode >= 48 && keycode <= 57);
+				var chk_length   = (is_digit ? ($(this).val().length < 5) : true);
+				return (is_del || is_backspace || is_arrow || (is_digit && chk_length));
+			}).Evt("change", function(e) {
+				if(isEmpty($(this).val()))
+					$(this).val("1");
+			});
+			
+			## /* Add to cart */
+			_view.btn_Add2Cart.Evt("click", function(event) {
+				var _blk = $(this).closest("div.store-v1-gc-gallery-item");
+				var id = _blk.attr("goodsID");
+				var qtty = Number(_blk.find("input.store-v1-gc-gallery-item-count-text-input").val());
+				UHTT.Store.Cart.add(id, qtty);
+			});
+			
+			## /* Add cart changes handler */
+			UHTT.Store.Cart.addEventHandler(
+				function() { StoreCatalogGalleryView.drawCounters(); }
+			);
+			
+			## /* --- */
+			_view.drawCounters();
+		}
+	};
+	$(document).ready(function() {
+		StoreCatalogGalleryView.init();
+	});
+</script>

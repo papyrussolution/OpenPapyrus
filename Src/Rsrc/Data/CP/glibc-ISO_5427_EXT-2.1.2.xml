@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE characterMapping SYSTEM "http://www.unicode.org/unicode/reports/tr22/CharacterMapping.dtd">
+<characterMapping id="glibc-ISO_5427_EXT-2.1.2" version="1">
+ <history>
+  <modified version="1" date="2001-04-18">This file was generated with XMLSimpleGenerator.java.</modified>
+ </history>
+ <validity>
+  <state type="FIRST" next="VALID" s="00" e="7F" max="FFFF"/>
+ </validity>
+ <assignments sub="1A">
+  <!-- One to one mappings -->
+  <a u="0000" b="00"/>
+  <a u="0001" b="01"/>
+  <a u="0002" b="02"/>
+  <a u="0003" b="03"/>
+  <a u="0004" b="04"/>
+  <a u="0005" b="05"/>
+  <a u="0006" b="06"/>
+  <a u="0007" b="07"/>
+  <a u="0008" b="08"/>
+  <a u="0009" b="09"/>
+  <a u="000A" b="0A"/>
+  <a u="000B" b="0B"/>
+  <a u="000C" b="0C"/>
+  <a u="000D" b="0D"/>
+  <a u="000E" b="0E"/>
+  <a u="000F" b="0F"/>
+  <a u="0010" b="10"/>
+  <a u="0011" b="11"/>
+  <a u="0012" b="12"/>
+  <a u="0013" b="13"/>
+  <a u="0014" b="14"/>
+  <a u="0015" b="15"/>
+  <a u="0016" b="16"/>
+  <a u="0017" b="17"/>
+  <a u="0018" b="18"/>
+  <a u="0019" b="19"/>
+  <a u="001A" b="1A"/>
+  <a u="001B" b="1B"/>
+  <a u="001C" b="1C"/>
+  <a u="001D" b="1D"/>
+  <a u="001E" b="1E"/>
+  <a u="001F" b="1F"/>
+  <a u="0020" b="20"/>
+  <a u="005B" b="5B"/>
+  <a u="005D" b="5D"/>
+  <a u="005F" b="5F"/>
+  <a u="007F" b="7F"/>
+  <a u="0401" b="64"/>
+  <a u="0402" b="61"/>
+  <a u="0403" b="62"/>
+  <a u="0404" b="63"/>
+  <a u="0405" b="65"/>
+  <a u="0406" b="66"/>
+  <a u="0407" b="67"/>
+  <a u="0408" b="68"/>
+  <a u="0409" b="69"/>
+  <a u="040A" b="6A"/>
+  <a u="040B" b="6B"/>
+  <a u="040C" b="6C"/>
+  <a u="040E" b="6D"/>
+  <a u="040F" b="6E"/>
+  <a u="042A" b="6F"/>
+  <a u="0451" b="44"/>
+  <a u="0452" b="41"/>
+  <a u="0453" b="42"/>
+  <a u="0454" b="43"/>
+  <a u="0455" b="45"/>
+  <a u="0456" b="46"/>
+  <a u="0457" b="47"/>
+  <a u="0458" b="48"/>
+  <a u="0459" b="49"/>
+  <a u="045A" b="4A"/>
+  <a u="045B" b="4B"/>
+  <a u="045C" b="4C"/>
+  <a u="045E" b="4D"/>
+  <a u="045F" b="4E"/>
+  <a u="0462" b="70"/>
+  <a u="0463" b="50"/>
+  <a u="046A" b="73"/>
+  <a u="046B" b="53"/>
+  <a u="0472" b="71"/>
+  <a u="0473" b="51"/>
+  <a u="0474" b="72"/>
+  <a u="0475" b="52"/>
+  <a u="0490" b="60"/>
+  <a u="0491" b="40"/>
+  <!-- Fallback mappings from Unicode to bytes -->
+  <!-- NONE -->
+  <!-- Fallback mappings from bytes to Unicode -->
+  <!-- NONE -->
+ </assignments>
+</characterMapping>

@@ -1,0 +1,50 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libsphinx", "libsphinx.vcproj", "{B889718F-C961-487D-8056-EF30CFA7268D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D507E468-21FC-4209-A5A8-DE1F055866DC} = {D507E468-21FC-4209-A5A8-DE1F055866DC}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "slib", "slib.vcproj", "{D507E468-21FC-4209-A5A8-DE1F055866DC}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		MtDllDebug = MtDllDebug
+		MtDllRelease = MtDllRelease
+		Release = Release
+		ServerDebug = ServerDebug
+		ServerRelease = ServerRelease
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{B889718F-C961-487D-8056-EF30CFA7268D}.Debug.ActiveCfg = Debug|Win32
+		{B889718F-C961-487D-8056-EF30CFA7268D}.Debug.Build.0 = Debug|Win32
+		{B889718F-C961-487D-8056-EF30CFA7268D}.MtDllDebug.ActiveCfg = Debug|Win32
+		{B889718F-C961-487D-8056-EF30CFA7268D}.MtDllDebug.Build.0 = Debug|Win32
+		{B889718F-C961-487D-8056-EF30CFA7268D}.MtDllRelease.ActiveCfg = Release|Win32
+		{B889718F-C961-487D-8056-EF30CFA7268D}.MtDllRelease.Build.0 = Release|Win32
+		{B889718F-C961-487D-8056-EF30CFA7268D}.Release.ActiveCfg = Release|Win32
+		{B889718F-C961-487D-8056-EF30CFA7268D}.Release.Build.0 = Release|Win32
+		{B889718F-C961-487D-8056-EF30CFA7268D}.ServerDebug.ActiveCfg = Debug|Win32
+		{B889718F-C961-487D-8056-EF30CFA7268D}.ServerDebug.Build.0 = Debug|Win32
+		{B889718F-C961-487D-8056-EF30CFA7268D}.ServerRelease.ActiveCfg = Release|Win32
+		{B889718F-C961-487D-8056-EF30CFA7268D}.ServerRelease.Build.0 = Release|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.Debug.ActiveCfg = Debug|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.Debug.Build.0 = Debug|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.MtDllDebug.ActiveCfg = MtDllDebug|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.MtDllDebug.Build.0 = MtDllDebug|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.MtDllRelease.ActiveCfg = MtDllRelease|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.MtDllRelease.Build.0 = MtDllRelease|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.Release.ActiveCfg = Release|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.Release.Build.0 = Release|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.ServerDebug.ActiveCfg = ServerDebug|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.ServerDebug.Build.0 = ServerDebug|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.ServerRelease.ActiveCfg = ServerRelease|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.ServerRelease.Build.0 = ServerRelease|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

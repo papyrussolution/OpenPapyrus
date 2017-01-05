@@ -1,0 +1,47 @@
+## Universe-HTT
+## data_array_bill.tddo
+## Массив структур документов
+
+#pragma(htmlencode)
+#start(StrAssocArray)
+[
+	#iter()
+	{
+		#start(UhttBill:${ID})
+			"ID":${ID},
+			"Dt":"${Dt}",
+			"OpSymb":"${OprKindID.Symb}",
+			"Code":"${Code}",
+			"LocationID":${LocID.ID},
+			"ArticleID":${ArticleID.ID},
+			"DlvrLocID":${DlvrLocID.ID},
+			"CurrencyID":${CurID.ID},
+			"AgentID":${AgentID.ID},
+			"StatusID":${StatusID.ID},
+			"GUID":"${GUID}",
+			"Flags":${Flags},
+			"Memo":"${Memo}",
+			"Items":
+			[
+				#iter(Items)
+				{
+					"GoodsID":${GoodsID.ID},
+					"Serial":"",
+					"Quantity":${Qtty},
+					"Cost":${Cost},
+					"Price":${Price},
+					"Discount":${Discount},
+					"Amount":${Amount},
+					"Flags":${Flags}
+				},
+				#end()
+			]
+		#end()
+	},
+	#end()
+]
+#end()
+
+
+
+

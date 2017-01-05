@@ -1,0 +1,19 @@
+## Universe-HTT
+## frm_brand_detail.tddo 
+## Форма: Информация о бренде
+## Args: ${1} - идентификатор бренда
+
+#pragma(htmlencode)
+<table class="uhtt-fields-table"><tbody><tr><td>
+#start(Brand:${1})
+	<td><b>Идентификатор</b></td>
+	<td>${ID}</td>
+	</tr><tr>
+	<td><b>Наименование</b></td>
+	<td style="max-width:250px">${Name}</td>
+	</tr><tr>
+	<td><b>Владелец</b></td>
+	<td style="max-width:250px">${OwnerId.Name}</td>
+	</tr>
+#end()
+</table>

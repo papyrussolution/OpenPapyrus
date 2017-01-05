@@ -1,0 +1,606 @@
+Result;Test;Descr;SuccCount;FailCount;Timing;SysTiming;IncMemBlk;IncMemSize
+FAIL;PPSlipFormatOutput;;0;1;15;52;8;525838;(fmt.Parse(in_file_name, "Form1"))==0
+OK;Reference_EnumItems;;10;0;531;13578;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;609;13159;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;484;7025;0;0
+OK;PPSlipFormatOutput;;1;0;62;262;20;810952
+OK;Reference_EnumItems;;10;0;1031;16462;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;671;10223;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;546;10276;0;0
+FAIL;PPSlipFormatOutput;;0;1;0;-262;8;525550;(fmt.Parse(in_file_name, "Form1"))==0
+OK;Reference_EnumItems;;10;0;1234;13789;1;32
+BENCHMARK;Reference_EnumItems-EnumItems;;;;875;13159;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;671;6920;0;0
+FAIL;PPSlipFormatOutput;;0;1;0;-314;8;525550;(fmt.Parse(in_file_name, "Form1"))==0
+OK;Reference_EnumItems;;10;0;1171;13736;1;32
+BENCHMARK;Reference_EnumItems-EnumItems;;;;890;13159;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;812;6867;0;0
+OK;PPSlipFormatOutput;;1;0;78;120953;20;810952
+OK;Reference_EnumItems;;10;0;531;13527;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;937;13159;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;890;6815;0;0
+OK;PPSlipFormatOutput;;1;0;125;0;20;810952
+OK;Reference_EnumItems;;10;0;656;13474;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;828;13526;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;453;6396;0;0
+OK;PPSlipFormatOutput;;1;0;62;0;10;622589
+OK;Reference_EnumItems;;10;0;359;3303;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;265;6973;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;250;3303;0;0
+OK;PPSlipFormatOutput;;1;0;109;30303;20;810952
+OK;Reference_EnumItems;;10;0;1140;13369;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;1140;-415970;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;781;6763;0;0
+OK;PPSlipFormatOutput;;1;0;46;0;10;622589
+OK;Reference_EnumItems;;10;0;312;6763;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;250;6920;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;171;3040;0;0
+OK;PPSlipFormatOutput;;1;0;93;157;20;1614848
+OK;Reference_EnumItems;;10;0;1578;13369;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;1093;13526;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;718;6396;0;0
+OK;PPSlipFormatOutput;;1;0;125;-104;20;1614848
+OK;Reference_EnumItems;;10;0;1250;13631;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;968;13054;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;906;6868;0;0
+OK;PPSlipFormatOutput;;1;0;125;3355;20;1614876
+OK;Reference_EnumItems;;10;0;1875;13520;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;1671;13214;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;828;6954;0;0
+OK;PPSlipFormatOutput;;1;0;125;3266;20;1614879
+OK;Reference_EnumItems;;10;0;1265;13598;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;1031;13219;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;640;6702;0;0
+OK;PPSlipFormatOutput;;1;0;218;-223;20;1614879
+OK;Reference_EnumItems;;10;0;703;13467;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;984;13380;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;296;10185;0;0
+OK;PPSlipFormatOutput;;1;0;171;70;20;1614879
+OK;Reference_EnumItems;;10;0;953;13304;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;1093;30337;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;265;6829;0;0
+OK;PPSlipFormatOutput;;1;0;156;127505;20;1614879
+OK;Reference_EnumItems;;10;0;1046;16871;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;781;13628;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;625;9990;0;0
+OK;PPSlipFormatOutput;;1;0;125;5;20;1614879
+OK;Reference_EnumItems;;10;0;859;13741;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;718;16660;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;781;10005;0;0
+OK;PPSlipFormatOutput;;1;0;312;3441;20;1614879
+OK;Reference_EnumItems;;10;0;1343;13348;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;1000;13430;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;750;6676;0;0
+OK;PPSlipFormatOutput;;1;0;171;-182;15;1697787
+OK;Reference_EnumItems;;10;0;1718;13527;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;968;13310;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;593;10375;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;3937;167491;0;19;(TestGenerateInventory())==0
+OK;PPSlipFormatOutput;;1;0;156;216;15;1697787
+OK;Reference_EnumItems;;10;0;1265;23493;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;1343;13114;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;1203;6696;0;0
+OK;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;1;0;10078;-160725;7;7585
+OK;PPSlipFormatOutput;;1;0;140;23;15;1697787
+OK;Reference_EnumItems;;10;0;1046;16895;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;828;13185;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;453;10409;0;0
+OK;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;1;0;42562;-151016;8;139682
+OK;PPSlipFormatOutput;;1;0;218;360;15;1697790
+OK;Reference_EnumItems;;10;0;1265;16522;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;1203;26948;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;921;16569;0;0
+OK;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;1;0;31796;211505;6;101920
+OK;PPSlipFormatOutput;;1;0;156;299;15;1697790
+OK;Reference_EnumItems;;10;0;1203;26636;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;1187;20257;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;687;13373;0;0
+OK;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;1;0;25812;295193;8;165873
+OK;PPSlipFormatOutput;;1;0;203;-41;15;1697790
+OK;Reference_EnumItems;;10;0;1250;17027;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;1156;13112;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;828;10126;0;0
+OK;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;1;0;23125;204785;8;136184
+OK;PPSlipFormatOutput;;1;0;203;40;15;1697790
+OK;Reference_EnumItems;;10;0;1015;16755;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;1015;13514;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;687;6633;0;0
+OK;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;1;0;31750;167854;8;161378
+OK;PPSlipFormatOutput;;1;0;140;-4;15;1697790
+OK;Reference_EnumItems;;10;0;1140;16657;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;1062;13212;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;500;10296;0;0
+OK;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;1;0;24390;174553;8;185222
+OK;PPSlipFormatOutput;;1;0;203;3047;12;529798
+OK;Reference_EnumItems;;10;0;1312;6874;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;984;6815;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;593;3361;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;5343;63680;3;144;(TestGenerateInventory())==0
+OK;PPSlipFormatOutput;;1;0;187;3329;12;529798
+OK;Reference_EnumItems;;10;0;1687;6914;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;1187;6730;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;1093;3349;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;3328;164200;3;144;(TestGenerateInventory())==0
+OK;PPSlipFormatOutput;;1;0;171;3432;12;529798
+OK;Reference_EnumItems;;10;0;1921;10049;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;1046;6645;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;921;3426;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;5765;9881;2;96;(TestGenerateInventory())==0
+OK;PPSlipFormatOutput;;1;0;0;-115;0;48
+OK;Reference_EnumItems;;10;0;406;0;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;265;3565;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;312;-1;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;281;-15;3;144;(TestGenerateInventory())==0
+OK;PrcssrTestDb;Общее тестирование базы данных;1;0;126781;80412;70;7844
+OK;PPSlipFormatOutput;;1;0;234;3220;12;529806
+OK;Reference_EnumItems;;10;0;1140;6819;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;1062;6720;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;515;6527;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;5296;30294;2;96;(TestGenerateInventory())==0
+OK;PrcssrTestDb;Общее тестирование базы данных;1;0;128890;107610;37;4392
+OK;PPSlipFormatOutput;;1;0;218;-236;12;529806
+OK;Reference_EnumItems;;10;0;1109;6697;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;765;7028;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;687;6524;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;5484;-261498;2;96;(TestGenerateInventory())==0
+OK;PrcssrTestDb;Общее тестирование базы данных;1;0;126140;6579;61;7146
+OK;PPSlipFormatOutput;;1;0;187;117;12;529806
+OK;Reference_EnumItems;;10;0;1281;10066;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;765;6379;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;500;3486;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;5468;13644;3;144;(TestGenerateInventory())==0
+OK;PrcssrTestDb;Общее тестирование базы данных;1;0;130062;-67203;23;2449
+OK;PPSlipFormatOutput;;1;0;125;311;12;529806
+OK;Reference_EnumItems;;10;0;1734;9869;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;1390;6910;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;843;3145;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;5609;16816;3;144;(TestGenerateInventory())==0
+OK;PrcssrTestDb;Общее тестирование базы данных;1;0;132468;-157613;14;1491
+OK;PPSlipFormatOutput;;1;0;218;88;12;529806
+OK;Reference_EnumItems;;10;0;1781;6710;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;1218;9859;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;734;3443;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;7921;10069;3;144;(TestGenerateInventory())==0
+OK;PrcssrTestDb;Общее тестирование базы данных;1;0;128578;-221262;5;544
+OK;PPSlipFormatOutput;;1;0;203;29;12;529806
+OK;Reference_EnumItems;;10;0;828;6380;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;1437;6815;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;1046;6687;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;5187;6825;2;96;(TestGenerateInventory())==0
+OK;PrcssrTestDb;Общее тестирование базы данных;1;0;128484;-268291;2;124
+OK;PPSlipFormatOutput;;1;0;0;-88;0;36
+OK;Reference_EnumItems;;10;0;62;-212;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;62;117;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;62;78;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;62;6618;2;96;(TestGenerateInventory())==0
+OK;PrcssrTestDb;Общее тестирование базы данных;1;0;127687;-160824;8;687
+FAIL;TestDbSerialization;Тестирование сериализации записей таблиц данных;0;1;0;50436;0;0;(lot_tbl.fields.IsEqualRecords(&lot_rec, &lot_tbl.data))==0
+OK;PPSlipFormatOutput;;1;0;93;-327;7;558657
+OK;Reference_EnumItems;;10;0;1046;3381;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;671;182;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;687;3132;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;7859;6934;2;96;(TestGenerateInventory())==0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;14265;-335557;0;0
+OK;PPSlipFormatOutput;;1;0;140;-117;7;558657
+OK;Reference_EnumItems;;10;0;1140;3486;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;718;77;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;562;91;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;7765;10093;3;144;(TestGenerateInventory())==0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;13765;40147;0;0
+OK;PPSlipFormatOutput;;1;0;187;-13;7;558657
+OK;Reference_EnumItems;;10;0;1078;3158;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;718;-26;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;578;104;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;7750;10210;3;144;(TestGenerateInventory())==0
+FAIL;TestDbSerialization;Тестирование сериализации записей таблиц данных;0;1;2359;23593;0;0;(lot_tbl.fields.IsEqualRecords(&todo_rec, &todo_tbl.data))==0
+OK;PPSlipFormatOutput;;1;0;0;-353;0;12
+OK;Reference_EnumItems;;10;0;187;3486;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;171;-26;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;156;248;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;93;92;2;96;(TestGenerateInventory())==0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;4031;16816;0;0
+OK;PPSlipFormatOutput;;1;0;15;-249;0;12
+OK;Reference_EnumItems;;10;0;203;3380;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;109;-25;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;171;-92;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;78;196;3;144;(TestGenerateInventory())==0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;13796;30185;0;0
+OK;PPSlipFormatOutput;;1;0;140;-26;7;558657
+OK;Reference_EnumItems;;10;0;1015;144;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;703;3329;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;437;-92;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;7671;6736;2;96;(TestGenerateInventory())==0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;14687;33580;0;0
+OK;PPSlipFormatOutput;;1;0;125;0;7;558657
+OK;Reference_EnumItems;;10;0;1187;3604;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;859;-117;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;578;222;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;8046;9764;3;144;(TestGenerateInventory())==0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;15046;-302343;0;0
+OK;PPSlipFormatOutput;;1;0;140;235;7;558657
+OK;Reference_EnumItems;;10;0;953;-209;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;671;3474;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;531;169;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;7968;9777;3;144;(TestGenerateInventory())==0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;14500;-19923;0;0
+OK;PPSlipFormatOutput;;1;0;140;-182;7;558657
+OK;Reference_EnumItems;;10;0;1000;3341;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;437;26;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;375;3447;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;7703;6619;3;144;(TestGenerateInventory())==0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;21078;110623;0;0
+OK;PPSlipFormatOutput;;1;0;234;186;12;529770
+OK;Reference_EnumItems;;10;0;1296;10063;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;968;6705;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;828;3254;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;6156;-379091;3;144;(TestGenerateInventory())==0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;23968;110515;0;0
+OK;PPSlipFormatOutput;;1;0;312;188;12;529770
+OK;Reference_EnumItems;;10;0;1828;10087;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;718;6586;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;218;3245;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;5484;53688;3;144;(TestGenerateInventory())==0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;20156;100551;0;0
+OK;PPSlipFormatOutput;;1;0;140;87139;12;529770
+OK;Reference_EnumItems;;10;0;1062;6792;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;953;6938;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;609;3045;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;5015;10194;3;144;(TestGenerateInventory())==0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;23593;100763;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;22296;100771;0;0
+OK;PPSlipFormatOutput;;1;0;109;53446;12;529770
+OK;Reference_EnumItems;;10;0;1031;6928;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;687;6597;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;156;3566;0;0
+FAIL;GenerateInventory;Генерация файлов инвентаризации со случайным списком товаров;0;1;5921;13320;3;144;(TestGenerateInventory())==0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;953;3348;0;0
+OK;Reference_EnumItems;;10;0;171;-109;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;140;137;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;78;-211;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;750;3565;0;0
+OK;Reference_EnumItems;;10;0;93;-209;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;125;208;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;93;-201;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;718;3173;0;0
+OK;Reference_EnumItems;;10;0;156;-114;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;78;218;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;78;103;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;296;3140;0;64
+OK;Reference_EnumItems;;10;0;93;203;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;46;3458;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;62;-103;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;31;-204;3443;1053084
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;1;48
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;250;6710;0;64
+OK;Reference_EnumItems;;10;0;109;-90;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;78;98;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;46;-112;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;125;229;3443;1052884
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;-13;1;48
+FAIL;ObjWorld;Тестирование функций класса PPObjWorld;0;1;0;-312146;0;0;(city_id1=1540)!=(city_id2=1541)
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;640;3480;0;64
+OK;Reference_EnumItems;;10;0;109;3034;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;93;0;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;78;308;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;140;-202;3443;1052884
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;1;48
+FAIL;ObjWorld;Тестирование функций класса PPObjWorld;0;1;0;-248316;0;0;(city_id1=1540)!=(city_id2=1541)
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;593;3453;0;64
+OK;Reference_EnumItems;;10;0;93;-307;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;140;-13;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;93;333;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;62;3133;3443;1052884
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;1;48
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;3250;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;203;6809;0;64
+OK;Reference_EnumItems;;10;0;46;-104;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;46;117;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;15;-118;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;843;3125;0;64
+OK;Reference_EnumItems;;10;0;171;3571;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;140;111;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;93;-98;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;46;85;3371;1043645
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;13;1;48
+OK;PPAbstractDevice;Тестирование модуля, работающего с устройствами;1;0;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;3040;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;593;3342;0;64
+OK;Reference_EnumItems;;10;0;93;-229;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;93;3368;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;93;314;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;31;234573;3371;1043645
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;1;48
+OK;PPAbstractDevice;Тестирование модуля, работающего с устройствами;1;0;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;209;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;750;3335;0;64
+OK;Reference_EnumItems;;10;0;156;3152;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;93;0;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;46;-91;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;375;3040;0;64
+OK;Reference_EnumItems;;10;0;109;327;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;109;-216;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;31;209;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;31;43515;3371;1043645
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;1;48
+OK;PPAbstractDevice;Тестирование модуля, работающего с устройствами;1;0;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;3361;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;296;0;0;64
+OK;Reference_EnumItems;;10;0;93;-105;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;46;3257;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;78;117;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;234;3479;0;64
+OK;Reference_EnumItems;;10;0;46;3139;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;31;111;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;62;-98;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;31;90682;3371;1043645
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;1;48
+OK;PPAbstractDevice;Тестирование модуля, работающего с устройствами;1;0;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;9981;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;453;3368;0;64
+OK;Reference_EnumItems;;10;0;78;-105;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;31;308;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;62;-222;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;343;3040;0;64
+OK;Reference_EnumItems;;10;0;140;-98;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;46;314;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;46;-307;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;875;3361;0;64
+OK;Reference_EnumItems;;10;0;93;216;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;125;-327;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;125;327;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;46;-314;3371;1043645
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;1;48
+OK;PPAbstractDevice;Тестирование модуля, работающего с устройствами;1;0;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;6;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;250;-426141;0;64
+OK;Reference_EnumItems;;10;0;125;-216;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;31;111;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;15;-13;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;312;3263;0;64
+OK;Reference_EnumItems;;10;0;62;0;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;15;-222;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;46;229;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;218;3145;0;64
+OK;Reference_EnumItems;;10;0;78;111;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;15;98;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;62;0;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;15;26529;3371;1043645
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;1;48
+OK;PPAbstractDevice;Тестирование модуля, работающего с устройствами;1;0;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;6;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;140;3368;0;64
+OK;Reference_EnumItems;;10;0;93;189;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;0;117;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;0;-98;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;218;3545;0;64
+OK;Reference_EnumItems;;10;0;31;-294;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;31;189;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;31;-91;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;31;77063;3371;1043645
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;1;48
+OK;PPAbstractDevice;Тестирование модуля, работающего с устройствами;1;0;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;327;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;359;3453;0;64
+OK;Reference_EnumItems;;10;0;93;-104;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;62;-111;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;62;117;0;0
+FAIL;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;0;1;31;53785;3371;1043645
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;1;48
+OK;PPAbstractDevice;Тестирование модуля, работающего с устройствами;1;0;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;15;-19;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;234;3250;0;64
+OK;Reference_EnumItems;;10;0;78;216;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;15;-327;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;46;327;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;828;3368;0;64
+OK;Reference_EnumItems;;10;0;109;190;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;78;124;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;15;3243;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;15;-84108;3371;1043645
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;1;48
+OK;PPAbstractDevice;Тестирование модуля, работающего с устройствами;1;0;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;-314;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;5218;50541;0;32
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;421;3446;0;64
+OK;Reference_EnumItems;;10;0;109;-13;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;109;-104;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;78;104;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;15;10184;3450;1059484
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;-13;1;48
+FAIL;PPAbstractDevice;Тестирование модуля, работающего с устройствами;0;1;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;-222;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;375;3263;0;64
+OK;Reference_EnumItems;;10;0;140;314;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;93;-104;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;46;105;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;15;10053;3450;1059484
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;1;48
+FAIL;PPAbstractDevice;Тестирование модуля, работающего с устройствами;0;1;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;0;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;500;3354;0;64
+OK;Reference_EnumItems;;10;0;109;-104;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;109;210;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;78;-196;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;31;37210;3450;1059484
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;1;48
+FAIL;PPAbstractDevice;Тестирование модуля, работающего с устройствами;0;1;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;-13;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;640;3158;0;64
+OK;Reference_EnumItems;;10;0;46;-117;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;93;314;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;31;-104;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;15;80531;3450;1059484
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;1;48
+FAIL;PPAbstractDevice;Тестирование модуля, работающего с устройствами;0;1;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;91;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;953;6698;0;64
+OK;Reference_EnumItems;;10;0;281;-210;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;109;118;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;125;-13;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;31;-301990;3450;1059484
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;1;48
+FAIL;PPAbstractDevice;Тестирование модуля, работающего с устройствами;0;1;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;104;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;671;3656;0;64
+OK;Reference_EnumItems;;10;0;93;-104;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;62;-209;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;31;209;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;421;6383;0;64
+OK;Reference_EnumItems;;10;0;93;118;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;93;0;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;78;-104;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;31;6907;3450;1059484
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;1;48
+FAIL;PPAbstractDevice;Тестирование модуля, работающего с устройствами;0;1;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;105;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;828;3473;0;64
+OK;Reference_EnumItems;;10;0;171;3145;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;31;0;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;93;327;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;31;-222;3450;1059484
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;91;1;48
+FAIL;PPAbstractDevice;Тестирование модуля, работающего с устройствами;0;1;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;0;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;406;3040;0;64
+OK;Reference_EnumItems;;10;0;93;209;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;78;105;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;31;-92;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;46;9843;3450;1059484
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;91;1;48
+FAIL;PPAbstractDevice;Тестирование модуля, работающего с устройствами;0;1;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;13;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;734;3355;0;64
+OK;Reference_EnumItems;;10;0;125;13;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;62;0;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;93;-104;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;31;92;3450;1059484
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;1;48
+FAIL;PPAbstractDevice;Тестирование модуля, работающего с устройствами;0;1;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;91;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;406;3460;0;64
+OK;Reference_EnumItems;;10;0;93;-196;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;46;91;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;46;-104;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;31;104;3450;1059484
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;1;48
+FAIL;PPAbstractDevice;Тестирование модуля, работающего с устройствами;0;1;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;91;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;859;3565;0;64
+OK;Reference_EnumItems;;10;0;187;105;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;62;0;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;78;-104;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;31;91;3450;1059484
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;1;48
+FAIL;PPAbstractDevice;Тестирование модуля, работающего с устройствами;0;1;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;-327;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;484;3038;0;64
+OK;Reference_EnumItems;;10;0;109;95;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;93;212;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;78;-208;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;62;213;3482;1065684
+FAIL;PPBillGuid;Тестирование GUID документа: генерация, извлечение и поиск;0;1;0;0;13;1912;(BillObj->PutGuid(g_item.BillID, &g_item.Uuid, 0))==0
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;2;1;48
+FAIL;PPAbstractDevice;Тестирование модуля, работающего с устройствами;0;1;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;-310;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;546;-11;0;64
+OK;Reference_EnumItems;;10;0;140;-95;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;31;-112;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;31;213;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;46;106;3482;1065684
+OK;PPBillGuid;Тестирование GUID документа: генерация, извлечение и поиск;1;0;0;3040;15;2050
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;1;48
+FAIL;PPAbstractDevice;Тестирование модуля, работающего с устройствами;0;1;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;5;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;515;3569;0;64
+OK;Reference_EnumItems;;10;0;187;105;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;62;-6;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;46;-107;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;46;7;3482;1065684
+OK;PPBillGuid;Тестирование GUID документа: генерация, извлечение и поиск;1;0;0;-8;15;2050
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;1;48
+FAIL;PPAbstractDevice;Тестирование модуля, работающего с устройствами;0;1;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;3045;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;875;3348;0;64
+OK;Reference_EnumItems;;10;0;156;8;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;31;3145;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;93;201;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;31;-307;3560;1201180
+OK;PPBillGuid;Тестирование GUID документа: генерация, извлечение и поиск;1;0;0;203;16;2140
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;6;0;0
+FAIL;PPAbstractDevice;Тестирование модуля, работающего с устройствами;0;1;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;98;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;687;3468;0;64
+OK;Reference_EnumItems;;10;0;140;3145;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;62;-6;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;46;-98;0;0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;46;-1;3560;1201180
+OK;PPBillGuid;Тестирование GUID документа: генерация, извлечение и поиск;1;0;0;104;16;2140
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;0;0
+FAIL;PPAbstractDevice;Тестирование модуля, работающего с устройствами;0;1;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;104;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;734;3669;0;64
+OK;Reference_EnumItems;;10;0;218;-104;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;93;3152;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;31;308;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;1000;3257;0;64
+OK;Reference_EnumItems;;10;0;93;97;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;46;6;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;62;-110;0;0
+FAIL;PPImpExpSessXml;Тест экспорта выборки кассовых сессий. Экспортируем из текущей базы, импортируем в указанную, потом из нее же снова экспортируем;0;1;0;0;80;18809;(SFile::Rename(ini_file_name, old_ini_file_name))==0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;31;110;3566;1203068
+OK;PPBillGuid;Тестирование GUID документа: генерация, извлечение и поиск;1;0;15;-202;16;2140
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;104;0;0
+FAIL;PPAbstractDevice;Тестирование модуля, работающего с устройствами;0;1;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;-203;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;734;3153;0;64
+OK;Reference_EnumItems;;10;0;109;209;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;46;3047;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;93;314;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;500;-209;0;64
+OK;Reference_EnumItems;;10;0;125;308;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;109;3146;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;62;103;0;0
+FAIL;PPImpExpSessXml;Тест экспорта выборки кассовых сессий. Экспортируем из текущей базы, импортируем в указанную, потом из нее же снова экспортируем;0;1;15;111;80;18809;(SFile::Rename(ini_file_name, old_ini_file_name))==0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;31;0;3566;1203068
+OK;PPBillGuid;Тестирование GUID документа: генерация, извлечение и поиск;1;0;0;-209;16;2140
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;0;0
+FAIL;PPAbstractDevice;Тестирование модуля, работающего с устройствами;0;1;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;209;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;406;3243;0;64
+OK;Reference_EnumItems;;10;0;93;315;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;46;-203;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;46;104;0;0
+FAIL;PPImpExpSessXml;Тест экспорта выборки кассовых сессий. Экспортируем из текущей базы, импортируем в указанную, потом из нее же снова экспортируем;0;1;0;104;80;18809;(SFile::Rename(ini_file_name, old_ini_file_name))==0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;46;-6;3566;1203068
+OK;PPBillGuid;Тестирование GUID документа: генерация, извлечение и поиск;1;0;0;-308;16;2140
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;0;0;0
+FAIL;PPAbstractDevice;Тестирование модуля, работающего с устройствами;0;1;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;0;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;578;6606;0;64
+OK;Reference_EnumItems;;10;0;125;-98;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;78;105;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;46;3348;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;1093;3034;0;64
+OK;Reference_EnumItems;;10;0;62;3565;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;93;104;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;109;-104;0;0
+FAIL;PPImpExpSessXml;Тест экспорта выборки кассовых сессий. Экспортируем из текущей базы, импортируем в указанную, потом из нее же снова экспортируем;0;1;31;104;80;18809;(SFile::Rename(ini_file_name, old_ini_file_name))==0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;31;6;3566;1204092
+OK;PPBillGuid;Тестирование GUID документа: генерация, извлечение и поиск;1;0;46;-209;16;2140
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;-6;0;0
+FAIL;PPAbstractDevice;Тестирование модуля, работающего с устройствами;0;1;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;105;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;1062;6750;2;613
+OK;Reference_EnumItems;;10;0;62;3322;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;46;235;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;31;0;0;0
+OK;TestDbSerialization;Тестирование сериализации записей таблиц данных;1;0;843;3532;2;613
+OK;Reference_EnumItems;;10;0;171;-202;1;68
+BENCHMARK;Reference_EnumItems-EnumItems;;;;93;-6;0;0
+BENCHMARK;Reference_EnumItems-NextEnum;;;;46;25;0;0
+FAIL;PPImpExpSessXml;Тест экспорта выборки кассовых сессий. Экспортируем из текущей базы, импортируем в указанную, потом из нее же снова экспортируем;0;1;15;123;79;15705;(SFile::Rename(ini_file_name, old_ini_file_name))==0
+OK;Tddo;Тестирование подсистемы управления шаблонизированным выводом TDDO;1;0;46;65;3703;1270448
+OK;PPBillGuid;Тестирование GUID документа: генерация, извлечение и поиск;1;0;0;3146;17;15752
+OK;PPBillFormula;Тестирование формул для документов;1;0;0;118;0;0
+FAIL;PPAbstractDevice;Тестирование модуля, работающего с устройствами;0;1;0;0;0;0
+OK;ObjWorld;Тестирование функций класса PPObjWorld;1;0;0;84;0;0

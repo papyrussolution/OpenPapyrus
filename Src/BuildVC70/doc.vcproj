@@ -1,0 +1,914 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="doc"
+	ProjectGUID="{E1036E36-1585-4998-AADC-2DBC4866BB72}"
+	RootNamespace="doc"
+	Keyword="Win32Proj">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			ConfigurationType="10"
+			CharacterSet="2">
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				ExcludedFromBuild="TRUE"/>
+			<Tool
+				Name="VCPreBuildEventTool"
+				ExcludedFromBuild="TRUE"/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			ConfigurationType="10"
+			CharacterSet="2">
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				ExcludedFromBuild="TRUE"/>
+			<Tool
+				Name="VCPreBuildEventTool"
+				ExcludedFromBuild="TRUE"/>
+		</Configuration>
+		<Configuration
+			Name="MtDllDebug|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="10"
+			CharacterSet="2">
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				ExcludedFromBuild="TRUE"/>
+			<Tool
+				Name="VCPreBuildEventTool"
+				ExcludedFromBuild="TRUE"/>
+		</Configuration>
+		<Configuration
+			Name="MtDllRelease|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="10"
+			CharacterSet="2">
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				ExcludedFromBuild="TRUE"/>
+			<Tool
+				Name="VCPreBuildEventTool"
+				ExcludedFromBuild="TRUE"/>
+		</Configuration>
+		<Configuration
+			Name="ServerDebug|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="10"
+			CharacterSet="2">
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				ExcludedFromBuild="TRUE"/>
+			<Tool
+				Name="VCPreBuildEventTool"
+				ExcludedFromBuild="TRUE"/>
+		</Configuration>
+		<Configuration
+			Name="ServerRelease|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="10"
+			CharacterSet="2">
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				ExcludedFromBuild="TRUE"/>
+			<Tool
+				Name="VCPreBuildEventTool"
+				ExcludedFromBuild="TRUE"/>
+		</Configuration>
+		<Configuration
+			Name="Universe-HTT|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1">
+			<Tool
+				Name="VCCLCompilerTool"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Source Files"
+			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			<File
+				RelativePath="..\..\ManWork\Pict\CpPayment.gv">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\ManWork\Pict\CSessWrOff.gv">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\ManWork\Pict\DebtDimRel.gv">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\ManWork\LaTex\develop.tex">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="latex $(InputPath)"
+						CommandLine="D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=$(InputDir) -output-directory=$(InputDir) $(InputPath)
+"
+						Outputs="$(InputDir)$(InputName).pdf"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="latex $(InputPath)"
+						CommandLine="D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=$(InputDir) -output-directory=$(InputDir) $(InputPath)
+"
+						Outputs="$(InputDir)$(InputName).pdf"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="latex $(InputPath)"
+						CommandLine="D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=$(InputDir) -output-directory=$(InputDir) $(InputPath)
+"
+						Outputs="$(InputDir)$(InputName).pdf"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="latex $(InputPath)"
+						CommandLine="D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=$(InputDir) -output-directory=$(InputDir) $(InputPath)
+"
+						Outputs="$(InputDir)$(InputName).pdf"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="latex $(InputPath)"
+						CommandLine="D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=$(InputDir) -output-directory=$(InputDir) $(InputPath)
+"
+						Outputs="$(InputDir)$(InputName).pdf"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="latex $(InputPath)"
+						CommandLine="D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=$(InputDir) -output-directory=$(InputDir) $(InputPath)
+"
+						Outputs="$(InputDir)$(InputName).pdf"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\ManWork\LaTex\features.tex">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="latex $(InputPath)"
+						CommandLine="D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=$(InputDir) -output-directory=$(InputDir) $(InputPath)
+"
+						Outputs="$(InputDir)$(InputName).pdf"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="latex $(InputPath)"
+						CommandLine="D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=$(InputDir) -output-directory=$(InputDir) $(InputPath)
+"
+						Outputs="$(InputDir)$(InputName).pdf"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="latex $(InputPath)"
+						CommandLine="D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=$(InputDir) -output-directory=$(InputDir) $(InputPath)
+"
+						Outputs="$(InputDir)$(InputName).pdf"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="latex $(InputPath)"
+						CommandLine="D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=$(InputDir) -output-directory=$(InputDir) $(InputPath)
+"
+						Outputs="$(InputDir)$(InputName).pdf"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="latex $(InputPath)"
+						CommandLine="D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=$(InputDir) -output-directory=$(InputDir) $(InputPath)
+"
+						Outputs="$(InputDir)$(InputName).pdf"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="latex $(InputPath)"
+						CommandLine="D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=$(InputDir) -output-directory=$(InputDir) $(InputPath)
+"
+						Outputs="$(InputDir)$(InputName).pdf"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\ManWork\Pict\format-datetime.gv">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\ManWork\Pict\GeoObjects.gv">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\ManWork\Pict\ImpInvIdentifyGoods.gv">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\ManWork\LaTex\papyrus.cls">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\ManWork\LaTex\ppmanual.tex">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="latex $(InputPath)"
+						CommandLine="D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=$(InputDir) -output-directory=$(InputDir) $(InputPath)
+"
+						AdditionalDependencies="$(InputDir)..\PICT\*.gv"
+						Outputs="$(InputDir)$(InputName).pdf"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="latex $(InputPath)"
+						CommandLine="D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=$(InputDir) -output-directory=$(InputDir) $(InputPath)
+"
+						AdditionalDependencies="$(InputDir)..\PICT\*.gv"
+						Outputs="$(InputDir)$(InputName).pdf"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="latex $(InputPath)"
+						CommandLine="D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=$(InputDir) -output-directory=$(InputDir) $(InputPath)
+"
+						AdditionalDependencies="$(InputDir)..\PICT\*.gv"
+						Outputs="$(InputDir)$(InputName).pdf"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="latex $(InputPath)"
+						CommandLine="D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=$(InputDir) -output-directory=$(InputDir) $(InputPath)
+"
+						AdditionalDependencies="$(InputDir)..\PICT\*.gv"
+						Outputs="$(InputDir)$(InputName).pdf"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="latex $(InputPath)"
+						CommandLine="D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=$(InputDir) -output-directory=$(InputDir) $(InputPath)
+"
+						AdditionalDependencies="$(InputDir)..\PICT\*.gv"
+						Outputs="$(InputDir)$(InputName).pdf"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="latex $(InputPath)"
+						CommandLine="D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=$(InputDir) -output-directory=$(InputDir) $(InputPath)
+"
+						AdditionalDependencies="$(InputDir)..\PICT\*.gv"
+						Outputs="$(InputDir)$(InputName).pdf"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\ManWork\Pict\StCalUsageHier.gv">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\ManWork\Pict\WarehouseObjects.gv">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Graphviz dot $(InputPath)--&gt;$(InputDir)PNG\$(InputName).png"
+						CommandLine="..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o$(InputDir)PNG\$(InputName).png -Kdot $(InputPath)
+"
+						Outputs="$(InputDir)PNG\$(InputName).png"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="Result"
+			Filter="">
+			<File
+				RelativePath="..\..\ManWork\LaTex\develop.pdf">
+			</File>
+			<File
+				RelativePath="..\..\ManWork\LaTex\features.pdf">
+			</File>
+			<File
+				RelativePath="..\..\ManWork\LaTex\ppmanual.pdf">
+			</File>
+			<File
+				RelativePath="..\Doc\Version.txt">
+			</File>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>

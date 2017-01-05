@@ -1,0 +1,15 @@
+## Universe-HTT
+## data_brand.tddo
+## Структура бренда
+## Args: ${1} - идентификатор бренда
+
+#pragma(htmlencode)
+#start(Brand:${1})
+{
+	"ID":${Id},
+	"Name":"${Name}",
+	"Code":"${Code}",
+	"OwnerID":${OwnerID.Id},
+	"GoodsGrpID":${GoodsGrpID.Id}
+}
+#end()

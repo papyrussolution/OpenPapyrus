@@ -1,0 +1,1591 @@
+%/(тушь||mascara)&&(син%.||синий||синяя||(темно&&синий)||blue)%/%!keyword синяя тушь для ресниц
+%/фазлодекс||фулвестрант||faslodex%/%!keyword фазлодекс
+
+«%>%_
+»%>%_
+%t%>%_
+%^***%>%E
+%^**%>%E
+%^*%>%E
+*%$%>%E
+
+распродажа!!!%>%E %-- комментарий
+
+%(%d%),%(%d%)%>%1.%2
+%_.%(%d%)%>%_0.%1
+
+%(%d%)%z*%z%(%d%)*%z%(%d%)%>%1x%2x%3 %-- еще один коммент
+%(%d%)%zх%z%(%d%)х%z%(%d%)%>%1x%2x%3
+%(%d%)%zx%z%(%d%)x%z%(%d%)%>%1x%2x%3
+
+%(%d%)%z*%z%(%d%)%>%1x%2
+%(%d%)%zх%z%(%d%)%>%1x%2
+%(%d%)%zx%z%(%d%)%>%1x%2
+
+(%s%>(
+%s)%>)
+"%(%w%)"%>%1
+%(%w%)%s&%s%(%w%)%>%1&%2
+№%z%(%d%)%>№%1
+
+%(%w%)%s-%(%w%)%>%1-%2
+%(%w%)-%s%(%w%)%>%1-%2
+
+a3%<а3
+a4%<а4
+a5%<а5
+a6%<а6
+a7%<а7
+
+a3%<a3%zф%.
+a4%<a4%zф%.
+a5%<a5%zф%.
+a6%<a6%zф%.
+a7%<a7%zф%.
+
+a4 гр%.%>a4 гребень%_
+a5 гр%.%>a5 гребень%_
+a6 гр%.%>a6 гребень%_
+a7 гр%.%>a7 гребень%_
+
+%(%d%)%zсм3%>%1мл
+%(%d%)%zцв%.%>%1цв
+%(%d%)%zден%.%>%1den
+%(%d%)%zden%.%>%1den
+%(%d%)%zмл%.%>%1мл
+%(%d%)%zml%.%>%1ml
+%(%d%)%zcl%.%>%10ml
+%(%d%)%zmg%.%>%1mg
+%(%d%)%zsec%.%>%1sec
+%(%d%)%zltr%.%>%1l
+%(%d%)%zlt%.%>%1l
+%(%d%)%zoz%.%>%1oz
+%(%d%)%zfl%.%zoz%.%>%1floz
+%(%d%)%zмм%.%>%1мм
+%(%d%)%zмкм%.%>%1мкм
+%(%d%)%zмк%.%>%1мкм
+%(%d%)%zсм%.%>%1см
+(%z%(%d%)%zмл%.)%.%>%_%1мл%_
+(%z%(%d.%d%)%zмл%.)%.%>%_%1мл%_
+%(%d%)%zл%.%>%1л
+%(%d%)%zг%.%>%1г
+%(%d%)%zгр%.%>%1г
+%(%d%)%zграмм%>%1г
+%(%d%)%zgr%.%>%1g
+%(%d%)%zgm%.%>%1g
+%(%d%)%zg%.%>%1g
+%(%d%)%zкг%.%>%1кг
+%(%d%)%zkg%.%>%1kg
+%(%d%)%zвт%.%>%1W
+%(%d%)%zквт%.%>%1kW
+%(%d%)%zgb%.%>%1gb
+spf%z%(%n%)%>SPF%1
+%(%d%)%zшт%.%>%1шт
+(%(%d%)%zшт%.)%>%1шт
+(%(%D01%))%$%>%1шт
+(%(%D02%))%$%>%1шт
+(упак%_%<(уп-%|(уп%.%|(упак.
+(%(%d%)шт/уп)%>(упак %1шт)
+%(%d%)%zпр%.%>%1предм
+%(%d%)%zпредм.%>%1предм
+%(%d%)%zпред.%>%1предм
+%(%d%)%zпредмета%>%1предм
+%(%d%)%zпредметов%>%1предм
+%(%d%)%zпер%.%>%1перс
+%(%d%)%zперс.%>%1перс
+%(%d%)%zперсон%>%1перс
+%(%d%)%zперсоны%>%1перс
+%(%d%)%zлистов%>%1лист
+%(%d%)%zлист%.%>%1лист
+%(%d%)%zотд.%>%1отд
+%(%d%)%zотделения%>%1отд
+%(%d%)%zотделение%>%1отд
+%(%d%)%zотделений%>%1отд
+%(%d%)-х%sсл%.%>%1-сл
+%(%d%)-сл.%>%1-сл
+%(%d%)%zсл%.%>%1-сл
+%(%d%)%sслоя%>%1-сл
+%(%d%)-разр%.%>%1разр
+%(%d%)%sразр%.%>%1разр
+%(%d%)%-разряд%.%>%1разр %-- и еще один комментарий
+%(%d%)%sразряд%.%>%1разр %-- продолжаем тесты комментариев
+"%(%d%)%zв%z1"%>%1в1
+%(%d%)%zв%z1%>%1в1
+%(%d%)%zin%z1%>%1in1
+д//%(%w%)%>для%_%1
+д/%(%w%)%>для%_%1
+д\%>для%_
+др.%s%(%w%)%>др.%1
+dr%.%s%(%w%)%>dr.%1
+xo%<x.o.
+%^н.г.%>нг%_
+прямоуг%<прямоуг.%|прямоугольный%|прямоугол%.%|прямоугольн%.%|прямоугольная%|прямоугольное%|прямоугольные
+label%<лейбел%|лабел%|лейбл%|лэйбл
+outlet%<outlt
+outdoor%<outdr
+roller%<rollr
+fresh%<frsh
+fresh fruit%<freshfruit
+fresh mint%<freshmint%|f/mint
+switch%<swtch
+syrup%<syrp
+foam bath%<foam bth
+mp3%<мр3
+тянь-шань%<тянь шань%|тяньшань
+фен-шуй%<фен шуй%|феншуй
+принцесса%<принцеса%|прнцесса
+essential oil%<ess oil
+fuse plug%<fuse plg
+happy%<hppy
+hatber%<хатбер
+boring wood%<boringwood
+hammer%<hammr
+ladder%<laddr
+good bye%<goodbye%|g/bye
+good bye cellulite%<good bye cell%|good bye clte
+lucky%<lcky
+francisco%<fransisco
+pearl drops%<pearldrops
+washer%<washr
+gasket%<gaskt
+blade cutoff%<blade cutof
+ear plugs%<ear plgs
+swimming goggles%<swim goggles
+sabona copper%<%^sbna cop
+sabona magnetic%<sbna mag%.%|sabona mag%.
+edger%<edgr
+candle%<cndle
+ornament%<ornmnt
+starter%<strtr
+starter kit%<starter kt
+travel%<trvl
+personal%<persnl
+preferred%<prfrrd
+protector%<protectr
+protection%<protction%|protctn
+sunflower%<sunflwr
+bit drill%<bit dril%|bitdrill
+stickers%<stckrs
+intelligel%<intllgl
+super dry%<superdry%|super-dry
+valve ball%<valv ball%|ball valve%|ball valv
+valve boiler%<valv boilr
+witchcraft%<wtchcrft
+seasoning%<ssnng
+killer%<killr%|kilr%|kllr
+trojan%<trjn
+nebulizer%<nebuliz%|nebuliser
+smz/tmp%<smz tmp%|smz-tmp
+vitamin a%<vit%.%za
+vitamin b%<vit%.%zb
+vitamin c%<vit%.%zc
+vitamin d%<vit%.%zd
+vitamin e%<vit%.%ze
+vitamin k%<vit%.%zk
+alprazolam%<alprazol
+amitriptyline%<amitriptylin
+benazepril%<benazep
+benztropine%<benztrop
+beta carotene%<beta carot
+betamethasone%<betameth%|betamet
+brimonidine%<brimonid
+buspirone%<buspir
+cephalexin%<cephalex
+cetirizine%<cetiriz
+chlordiazepoxide%<chlordiaz
+chlorothiazide%<chlorothiaz
+chlorpromazine%<chlorpromaz%|chlorprom
+chlorthalidone%<chlorthalid
+cilostazol%<cilostaz
+cyclobenzaprine%<cyclobenz%|cyclobenzapr
+dexamethasone%<dexamethason%|dexameth
+docusate calcium%<docusate calc%|docusate cal%|docus cal
+docusate sodium%<doc sod%|docus sod%|docusate sod
+doxycycline%<doxycycl%|doxycyc
+fluconazole%<fluconaz
+flumazenil%<flumaz
+fluocinolone%<fluocinolon%|fluocinol
+fluocinonide%<fluocinon
+fluor-a-day%<fluor a day
+fluoxetine%<fluoxet
+fluphenazine%<fluphenaz
+flurazepam%<flurazep
+flurbiprofen%<flurbipr
+fluticasone%<fluticas
+fluvoxamine%<fluvoxamin
+furosemide%<furosem
+gemfibrozil%<gemfibr
+gentamicin%<gentamic
+diclofenac%<diclofen
+dicyclomine%<dicyclom
+diphenhydramine%<diphenhydram%|diphenhyd
+dipyridamole%<dipyrid
+ciprofloxacin%<ciproflox
+gabapentin%<gabapent
+glimepiride%<glimepir
+glycopyrrolate%<glycopy
+hydralazine%<hydralaz
+hydrochlorothiazide%<hydrochlorothiaz%|hydrochlorothzd%|hydrochlortz%|%^hctz
+hydrocodone%<hydrocod%|hydrocodon%|hydroco
+hydrocortisone%<hydrocort
+hydroxyzine%<hydroxyz
+hyoscyamine%<hyoscyam
+ibuprofen%<ibuprof
+ipratropium%<ipratro
+ketorolac%<%^ketor
+lamotrigine%<lamotrig
+lansoprazole%<lansopr%|lansop
+lisinopril%<lisinopr
+lorazepam%<lorazep
+meperidine%<meperid
+methocarbamol%<methocarbam%|methocarb
+metformin%<metform
+metoprolol%<metoprol
+metronidazole%<metronidazol%|metronidaz%|metronid
+nabumetone%<nabumet
+nicardipine%<nicardip
+enalapril%<enalapr
+sertraline%<sertralin
+thioridazine%<thiorid
+theophylline%<theophyll%|theophy
+polysporin%<polysporn%|plysprin
+silver sulfadiazine%<silver sulfadiaz%|silver sulfad%|silver sulfa
+simvastatin%<simvastat
+thiothixene%<thiothix
+robitussin%<robitusin%|robituss%|robitus
+captopril%<captopr
+carbamazepine%<carbamaz
+carisoprodol%<carisoprod
+felodipine%<felodip
+indomethacin%<indomet%|indometacin
+lovastatin%<lovastat
+ranitidine%<ranitid
+nefazodone%<nefazod
+sodium bicarbonate%<sod bicarbonate%|sod bicar%.%|sod bicarb%.%|sod bic%.%|sodium bicarb%.
+sodium chloride%<sod chloride%|sod chlor%.%|sodium chl%.%|sodium chlor%.%|sodium cl%|%^sod chl
+spironolactone%<spironolact%|spironol
+sumatriptan%<sumatrip
+calcium chloride%<calcium cl%|calcium chlor%.%|calc chl
+calcium gluconate%<calcium gluc%.%|calc glu
+calcium carbonate%<calcium carb%.%|calc carb%.
+ethyl chloride%<ethyl chl
+nifedipine%<nifedip
+nitroglycerin%<nitroglycer%|nitroglyc
+omeprazole%<omepraz
+oxcarbazepine%<oxcarbazep
+oxycodone%<oxycod
+pancrelipase%<pancrelip
+paroxetine%<paroxetin
+penicillin%<penicil%|penicil-%|Penicl%|Penicl-%|penicill
+potassium%<potssm
+potassium chloride%<pot chl%|pot chlor%|pot chloride%|potassium chlor%|potassium chlorid%|potassium cl%|potass cl
+pravastatin%<pravast
+prednisone%<prednison
+prednisolone%<prednisol
+propranolol%<propran
+salicylic acid%<salicyl ac
+trazodone%<trazod
+warfarin sodium%<warfarin sod
+coenzyme q10%<coenzyme q-10%|co-enzyme q10%|co-enzy q-10%|coq10%|co q10%|co enzyme q10%|co q-10%|коэнзим q10
+
+nantucket%<nantckt
+card offbeat%<card ofbt
+cane offset%<%^cane o/s
+hand wash%<handwash
+hand cream%<handcreme%|hand crm
+hand soap%<handsoap
+sanding sponge%<sandspng%|sandspong%|sandsponge
+sandpaper%<sandpapr%|sandppr
+sandblaster%<sandblstr
+стерилизован%<стерилизованный%|стерилизованн%.%|стерилизов%.%|стерилиз%.%|стерилизованная%|стерилизованные%|стерилизованное
+антибакт%<антибактериальным%|антибактериальные%|антибактериальное%|антибактериальная%|антибактериальный%|антибак%.%|антибакт.%|антибактер%.%|антибактериал%.
+совиньон%<савиньон
+каберне совиньон%<каберне-совиньон%|каберне-совин%.%|каберне совин%.
+для бритья%<для бр%.
+пена для бритья%<пена для б%.
+для умывания%<для умыв%.
+для волос%<для вол%.%|д%.%zволос
+для укладки%<для укл%.
+для укладки волос%<для укл/волос%|для укладки в%.
+root beer%<rootbeer
+peanut butter%<peanut bttr%|pnut bttr
+nut butter%<nut bttr
+prestige%<prstg%|prstge
+creamy%<crmy
+mandarin%<mandrn
+strawberry%<strwbry%|strwb%|strawb%|strwbrry
+raspberry%<raspberri%|raspb%|raspbry%|rspbry
+cranberry%<crnbry
+mango%<mngo
+pomegranate%<pmgrnte
+sparkling%<sprklng
+lemonade%<lmnade
+chapstick%<chap stk
+excellence%<exclnce%|excelnc
+blood pressure%<blood pr%|blood press%|blood prssr%|blood/p%|blood pres
+blood pressure monitor%<blood pressure mon%|blood p.m.
+omron blood pressure monitor%<omron b/p mon%|omron b/p mntr%|omron b/p/mon
+electrolyte%<elctrlyt
+pop-up%<popup%|pop up%|ppup
+sprinkler%<sprinklr
+sprinkler pop-up%<sprinkl pop-up%|sprink pop-up
+remover%<removr
+make up%<makeup%|make-up%|mkup
+pour homme%<pour h%.
+pour femme%<pour f%.
+close up%<closeup%|close-up
+plug in%<plug-in%|plugin
+roll on%<roll-on%|rollon
+antiperspirant%<anti-persp%.%|anti perspirant%|anti-perspirant
+deo%<deod%|deodorant
+edt%<e.d.t.
+edp%<e.d.p.
+edp femme%<(w)%zedp%|edp%z(w)%|w edp%|edp w
+edt femme%<(w)%zedt%|edt%z(w)%|w edt%|edt w
+deo femme%<(w)%zdeo%|deo%z(w)%|w deo%|deo w
+edp homme%<(m)%zedp%|edp%z(m)%|m edp%|edp m
+edt homme%<(m)%zedt%|edt%z(m)%|m edt%|edt m
+deo homme%<(m)%zdeo%|deo%z(m)%|m deo%|deo m
+deo roll on%<deo r/on%|deo roller%|deo rollon%|deo roll-on%|deo r-on%|deo r/o
+deo spray%<deo spr%|deospray
+deo stick%<deo stk%|deostick%|deo stck
+shave foam%<shv foam%|shv/fm%|shv/foam
+shave gel%<shv gel
+shave cream%<shave cr%|shv/crm%|shv crm
+after shave%<aftershave%|aftr shave%|a/shave%|aft shave%|after shve%|aftr shv%|aft shv%|a/shve%|a/shv
+caboodles%<cbdles%|%^cbls%|caboodl
+grbeav-%>green beaver%_
+grbeav%>green beaver
+vaseline intensive care%<vaseline int%.%zcare%|vaseline ic%|vaseline i.c%.%|vaseline i/c
+vaseline intensive care lotion%<vaseline intensive care lot%.
+vaseline lotion%<vaseline lot%.
+skinny girl%<skinnygirl
+rosken skin%<rosken skn
+slim fast%<slimfast%|slim-fast%|slmfst
+slim fast optima%<slim fast opt%.
+slim down%<slm dwn%|slimdown
+vichy%<%^vchy
+ассортим%<в ассорт-те%|в асс-те%|в ассорт%.%|в ассортименте
+престиж%<престиж.
+средство%<ср-во%|сред-во%|ср/во%|средсво
+средства%<ср-ва
+средство для чистки%<ср%.%zд%./чист%.
+препарат%<преп-т
+устройство%<устр-во%|уст-во
+чистящее средство%<чист%.%zсредство%|средство чист%.%|средство чистящее%|чистящее сред%.
+моющее средство%<моющ%.%zсредство%|моющее сред%.%|средство моющее%|средство моющ%.
+для белья%<для билья%|для бенлья
+кондиционер для белья%<конд%.%zдля белья%|кондиц%.%zдля белья
+парфюмерная вода%<парфюмированная вода%|парф%.%zвода
+солнцезащит%<солнцезащитный%|солнцезащитная%|солнцезащитное%|солнцезащитн%.%|солнцезащит.%|солнцезащ%.
+комплект%<комп-т%|%^к-т
+однораз%<одноразов%.%|однораз.
+набор%<%^н-р%|%^наб%.
+пасхальный набор%<пасх/наб%.
+набор однораз%<набор однораз.%|набор однор%.%|набор одноразовой%|набор одноразовых
+набор стаканов%<набор стак%.
+набор подставок%<набор подст%.п
+набор чайный%<набор чайн%.
+маникюрный набор%<набор маникюрный%|набор маникюрн%.
+детское творчество%<%^дет%.%zтвор%.
+набор для творчества%<%^детское творчество набор%|набор для творч%.%|набор для тв-ва%|набор для дет%.%zтвор%.%|набор для дет%.%zтворчества%|набор для детского творчества%|набор для дет%.%zтворч%.%|набор для дет%.%zтв%.
+набор для творчества аппликация%<набор для творчества аппликация.%|набор для творчества аппликаций%|набор для творчества для аппликации%|набор для творчества для апплик%.%|набор для творчества для аппликаций
+масса для лепки%<%^детское творчество масса для лепки%|дет%.%zтвор%.%zмасса для лепки
+воллейбольный%<волейбольный
+мяч воллейбольный%<мяч вол%.%|мяч волл%.%|мяч воллейбольн%.%|мяч волейбольн%.%|мяч волейб%.
+мяч баскетбольный%<мяч баск%.
+мяч футбольный%<мяч футб%.
+mr%.%s%(%w%)%>mr.%1
+муж%<муж.%|мужские
+жен%<жен.%|женс%.%|женские
+детск%<детск.%|детс%.
+для девоч%<для девочек%|для дев%.%|для девоч.
+для мальч%<для мальчиков%|для мальч.
+двухсторон%<двухсторон.%|двухстор%.%|двухст%.%|двусторонн%.%|двухсторонн%.%|двусторон%.%|двухсторонней%|двухсторонний%|двухсторонняя
+красн%<красн.
+бел%<бел.
+голуб%<голуб.
+зелен%<зел.
+коричн%<корич.%|коричн.
+оранж%<оранж.
+дерев%<дерев.
+пласт%<пласт.
+металл%<метал%.%|металл.
+алюмин%<алюминиевая%|алюминиевый%|алюм%.%|алюмин.%|алюминевая%|алюминевый
+ежедн%<ежедневные%|ежедневный%|ежедневное%|ежедн.%|ежеднев%.%|ежедневн%.
+удлинитель%<удл-ль%|удлинит%.
+светильник%<свет-к
+бальзам%<бальз.
+mild%<майлд%|милд
+постельное белье%<комплект пост%.%zбелья%|комплект постельного белья%|комплект п/б%|%^кпб
+футболка жен%<футболка женская
+футболка муж%<футболка мужская
+фотоальбом магнитный%<фотоальбом магн%.%|ф/а магн%.
+фоторамка%<фото рамка%|%^ф/рм
+hose futuro%<%^hose fut
+hose jobst%<%^hose jbst
+колготки%<колготы%|колгтки%|колготки жен%|колготки
+колготки opium%<колготки опиум
+колготки omsa%<колготки омса
+колготки sisi%<колготки сиси
+носки детск%<носки дет%.%|носки детские
+filodoro%<филодоро
+салфетки%<сафетки
+салфетки влажные%<салфетки влажн%.%|салфетки вл%.%|салфетки влаж%.%|влажные салфетки%.%|влажн%.%zсалфетки%|влаж%.%zсалфетки%|вл%.%zсалфетки%|салф%.%zвлажн%.%|влаж%.%zсалф%.%|вл%.%zсалф%.
+ватные палочки%<ват%.%zпалочки%|ватн%.%zпалочки%|вата на палочках%|вата на палоч%.%|палочки ватные
+ватные диски%<ват%.%zдиски%|ватн%.%zдиски%|диски ватные%|диски ватн%.
+зарядное устройство%<зар%.%zустройство%|заряд%.%zустройство%|зар%.%zустр%.%|заряд%.%zустр%.
+duracell%<durocell%|дурасел%|дураселл%|дуросел%|дуроселл
+battery duracell%<battery dur%|duracell battery%|Duracell batt%.
+battery energizer%<battery ener%|battery energ
+battery alkaline%<battery alkline%|battery alkline%|battery alkln%|battery alka%|battery alk
+panasonic%<панасоник
+батарейка алкалиновая%<алкалиновая батарейка%|батарейка алкал%.%|батарейка алкалин%.
+батарейка%<батарейки%|элемент питания%|элем%.%zпит%.%|элементы питания%|элем-т питания%|эл%.%zпит%.
+батарейка energizer%<бат%.%zenergizer
+батарейка duracell%<бат%.%zduracell
+батарейка camelion%<бат%.%zcamelion
+батарейка panasonic%<бат%.%zpanasonic
+туалетная вода%<т/вода%|туал%.%zвода%|туал/вода%|тулетная вода%|%^т/в
+туалетная вода муж%<т/в муж%|м туалетная вода%|м т/в%|туалетная вода для мужчин
+туалетная вода жен%<т/в жен%|туалетная вода для женщин%|ж туалетная вода%|ж туал/в%|ж т/в
+одеколон%<одек%.
+лосьон%<л-он
+трусы муж%<трусы мужские%|трусы муж.%|трусы мужс%.
+трусы муж боксеры%<трусы-боксеры муж
+трусы муж шорты%<трусы-шорты муж
+трусы жен%<трусы женские%|трусы жен.%|трусы женск%.
+трусы жен стринги%<трусы-стринги женские%|трусы-стринги жен%.
+трусы жен шорты%<трусы-шорты женские%|трусы-шорты жен
+пластырь%<пластыри
+для ногтей%<для ногт%.
+для снятия%<для снят%.
+под макияж%<п/макияж
+ополаскиватель%<опол-ль%|опол%.%|ополаск%.%|ополаскиваель%|ополаскиват%.
+ополаскиватель для%<ополас%.%zдля%|ополаск%.%zдля%|ополаскив%.%zдля
+ополаскиватель для рта%<ополаскиватель для полости рта%|ополаскиватель для пол%.%zрта%|ополаскиватель для п%.%zрта
+кондиционер-ополаскиватель%<кондиц%.-ополаск%.%|кондиц%.-ополаскиват%.%|кондиц%.-опол%.
+бальзам-ополаскиватель%<бальзам-ополаск%.%|бальзам-ополаскив%.%|бальзам-опол%.%|бальз-опол%.%|бальзам/оп%.%|бальзам ополаскив%.%|бальзам опол%.
+помада губная%<помада для губ%|губная помада%|губ%.%zпомада%|помада губн%.%|губн/пом%.%|губ%.%zпом%.%|губная помадаа%|г\помада%|губ%.%zп%.%|г/помада
+помада губная гигиенич%<помада гигиенич%.%|помада гигиен%.%|помада гиг%.
+лак для ногтей%<лак для н%.
+лак для ногтей essie%<лак для ногтей эсси
+база для макияжа%<база под макияж
+база для макияжа век%<база под тени для век
+база для макияжа губ%<база под губную помаду
+крем тональный%<тональный крем%|крем тон%.%|крем тональн%.%|тон%z.%zкрем%|крем тонал%.
+тушь для ресн%.%>тушь для ресниц
+пудра компакт%<компактн%.%zпудра%|пудра комп%.%|пудра компактная%|компактная пудра%|комп%.%zпудра
+основа для макияжа%<основа под макияж
+тональная основа%<основа тональная
+тени для век%<тени для глаз
+тени для век компакт%<тени компактные для век%компактные тени для век%|компактные тени
+карандаш контурный%<карандаш контурн%.%|контурный карандаш
+карандаш%<каран-ш
+карандаш для век%<карандаш для глаз%|каранд для глаз%|кар%.%zдля глаз
+карандаш для губ%<каранд для губ
+подводка для%<подв-ка для
+подводка для век%<подводка для глаз
+чистая линия%<чист%.%zлиния%|чист%.%zлин%.
+красная линия%<красн%.%zлиния%|кр%.%zлиния
+черный жемчуг%<чер жемчуг
+бархатные ручки%<барх%.%zручки%|бархат%.%zручки
+крем-мыло%<крем/мыло
+крем-мыло жидкое%<жидкое крем-мыло
+мыло жидкое%<жид%.%zмыло%|жидкое мыло%|мыло жид%.%|мыло жидк%.%|ж/мыло%|ж\мыло
+мыло%<т/мыло%|мыло туалетное%|мыло туалет%.%|мыло туал%.
+мыло хозяйственное%<мыло хоз-ное%|мыло хоз%.%|мыло хозяйст%.%|хоз%.%zмыло%|х/мыло
+крем дневной%<крем дневн%.%|крем днев%.%|крем дн%.
+крем детский%<крем детск%.%|крем детс%.%|крем дет%.
+крем для лица%<крем для л%.
+крем ночной%<крем ночн%.
+крем черный жемчуг%<крем чж
+крем чистая линия%<крем чл
+мыло чистая линия%<мыло чл
+антиперсперант%<дезодорант-антиперсперант%|антиперсперан%.%|анти-персперант
+антиперспирант спрей%<антиперспирант-спрей%|антиперспирант аэрозоль
+антиперспирант шар%<антиперспирант-шарик
+дезодорант%<дезадорант%|%^дез%.%|деззодорант-%|дез-нт%|дезодарант-%|дезодоран-%|дезодорант-%|дезоодрант%|дезодороант%|дезодарант
+дезодорант шар%<део-ролл%|дезодорант шарик%|дезодорант шариковый%|дезодорант рол%|дезодорант ролик%|дез%.%zроликовый%|део ролл%.
+дезодорант спрей%<део-спрей%|дез%.%zаэрозоль%|дезодорант аэрозоль%|део спрей
+дезодорант стик%<део-стик%|део стик
+дезодорант крем%<део-крем
+whitworths%<%^w/wths
+wilkinson sword%<%^w/sword
+mach-3%<mach3%|mach 3
+gillette%<gillet%|gillete%|жиллетт%|жилетт
+gillette mach-3%<gillette m3
+gillette series%<gill series
+gillette fusion%<gillette fsn%|gillette fusn
+gillette satin care%<gillette satincare%|gillette satin/c%|gillette s/care
+gillette triple protection%<gillette trip prot%|gillette tp%|gill trip prot
+gillette blue ii%<gillette blue 2%|gillette blue 11%|gillette blue2
+gillette blue 3%<gillette blue3%|gillette blue iii
+gillette custom plus%<gillette cust plus%|gillette cstm plus%|gillette custom pl%|gillette custom pls%|gillette custom+
+после бритья%<п/бритья%|п/бр%|п/бритья
+бритвен станок%<брит/станок%|станок для бритья%|станки для бритья
+бритвен кассеты%<брит/кассеты
+бритвен станок однораз gillette%<gillette станки однораз%|gillette ст%.%zоднораз%|gillette ст%.%zоднор%.
+бритвен станок gillette%<gillette ст%.
+бритвен кассеты gillette%<gillette кассеты
+подгузники%<подгузник детский%|детские подгузники%|подгузники детские
+libero%<либеро
+art-visage%<art visage%|арт-визаж%|арт визаж
+масло эфирное%<эфирное масло
+baby food%<baby fd
+angry birds%<энгри бердс
+cadbury dairy milk%<%^c.d.m%.%|cad dairy milk%|cad dairy mlk%|cad dry mlk
+фрутоняня%<фруто няня%|фрукто няня%|фруто-няня
+детское питание%<детск%.%zпитание%|детск%.%zпит%.%|детс%.%zпитание%|дет%.%zпитание%|для детского питания
+напиток энергетический%<энергетический напиток%|энергетич%.%zнапиток%|энерг%.%zнапиток%|энерг%.%zнапит%.%|напиток энерг%.%|напиток энергетич%.%|нап б/а энергет%.%|напиток б/а энергет%.
+Напиток слабоалк%<слабоалк%.%zнапиток%|слаб%.алк%.%zнапит%.%|слабоалког%.%zнапиток%|слабоалкогольный напиток%|напиток слабоалкогол%.%|напиток слабоалкогольный%|напиток сл-алк%.%|нап%.%zс/а%|нап%.%zсл/алк
+шоколадный батончик%<шоколадный бат%.%|шок%.%zбатончики%|шок%.%zбатон%.%|шок%.%zбатончик%|%^ш/б
+шоколадное яйцо%<шок/яйцо%|шок%.%zяйцо%|яйцо шок%.%|яйцо шоколадное
+cow&gate baby balance%<cow&gate bb%|cow&gate b/bal
+датир%<датир.%|датированный
+недатир%<недатир.
+зубная паста%<паста зубная%|з/%zпаста%|%^з/п%|%^з\п%|з\%zпаста%|зуб%.%zпаста%|зубн%.%zпаста
+зубная паста лесной бальзам%<зубная паста лбальзам
+зубная щетка%<з\щетка%|з\щ%|з/щ%|%^зщ%|з/щетка%|зубн%.%zщетка%|зуб%.%zщетка%|зубная щетк
+шампунь%<шампунь для в%|шампунь для волос%|шам-нь
+шампунь-кондиционер%<шам-нь-конд%.%|шамп%.%z-конд%.%|шампунь%z-%zконд%.%|шампунь кондиционер
+шампунь детск%<шампунь детский%|шампунь для детей
+бальзам для волос оттеночный%<оттеночн%.%zбальзам%|оттеночный бальзам%|бальзам оттеночный%|бальзам оттеноч%.%|бальзам для волос оттен%.
+пена для ванн%<пена для ванной%|пена для ванны%|пена для ваны
+краска для волос%<краска для в%.
+краска %(%*%) для волос%>краска для волос %1
+краска для волос fara%<фара краска для волос
+краска для волос palette%<краска palette
+краска для волос syoss%<краска syoss
+стиральный порошок%<стир%.%zпорошок%|стир%.%zпор%.%|порошок стиральный%|порошок стир%.%|ст%.%zпорошок%|ст%.%zпор%.%|пор%.%zстир%.
+сыр плавленый%<сыр плавленный%|сыр плавлен%.%|сыр плавл%.%|сыр плав%.%|сыр пл%.
+сырок глазированный%<сырок глаз%.%|сырок глазир%.%|сырок гл%.
+творожная масса%<масса творожная%|масса твор%.
+масло сливочное%<масло слив%.%|масло сливочн%.
+масло растительное%<масло растит%.%|масло раст%.
+масло подсолнечное%<масло подс%.
+завтрак сухой%<сух%z%.%zзавтрак%|сух%.%zзавтр%.%|завтрак сухой
+пирожное%<пирожные
+мармелад жевательный%<мармеладная жвачка%|марм/жев%|мармелад жеват%.%|мармелад жев%.%|жевательный мармелад
+жевательная резинка%<жевательная резинка%|жев/рез%|рез%.%zжев%.%|жеват%.%zpезинка%|жев%.%zрез%.%|%^ж/р
+chewing gum%<chew gum
+шампанское%<шам-ое
+водка особая%<водка особ%.
+вода минеральная%<мин%.%zвода%|мин/вода%|минеральная вода%|вода мин%.
+прокладки%<прокдадки
+прокладки гигиенич%<гигиен%.%zпрокладки%|гиг%.%zпрокладки%|гигиенические прокладки%|прокладки гигиен%.%|прокладки гиг-е%|гигиен%.%zпрокл%.%|%^гиг%.%zпр%.
+прокладки женские%<женские прокладки%|жен%.%zпрокладки
+прокладки женские ежедн%<ежедн прокладки
+бумага туалетная%<т/бумага%|бумага туал%.%|бумага туалет%.%|туалетная бумага%|туал%.%zбумага
+ерш туалетный%<ерш туал%.%|ерш унитазный%|ершик для унитаза%|ерш для унитаза%|ерш для туалета
+мешки для мусора%<мешки для мус%.%|пакеты для мусора%|пакеты для мус%.%|пакеты д.мусора%|мешки д.мусора%|пакет для мусора%|пакет для мус%.
+перчатки резиновые%<перчатки рез%.%|перчатки резин%.
+перчатки хозяйственные%<перчатки хоз%.%|перчатки для бытовых и хозяйственных нужд%|перчатки для быт%.%zи хоз%.%zнужд%|перчатки для бытовых и хоз%.%zнужд
+мешок для обуви%<мешок для смен%.%zобуви%|сумка для обуви
+доска гладильная%<доска гладильн%.%|доска глад%.%|гладильная доска
+горшок для цветов%<горшок для цв%.%|горшок цв%.
+освежитель воздуха%<осв%.%zвоздуха%|осв%.%zвозд%.%|освеж%.%zвоздуха%|освежит%.%zвоздуха%|осв%.%zвоздуxа%|освежитель возд%.%|освежитель для воздуха
+подарок новогодний%<подарок новог%.%|подарок новогод%.%|новогодний подарок%|новогодн%.%zподарок%|новогод%.%zподарок%|%^нов%.%zподарок
+украшение новогоднее%<украш%.%zнг%|украшение новог%.%|украш%.%zновог%.%|украш%.%zновог%.%z%|нг украшение%|новогоднее украшение%|новогоднее укр%.%|новогод украшение
+украшение декор%<декор%.%zукрашение%|декор%.%zукраш%.%|украшение дек%.%|украшение декор.
+елочная игрушка%<ел%.%zигрушка%|украшение елоч%.
+игрушка lego%<игрушка лего
+игрушка lego duplo%<игрушка лего дупло
+игрушка lego creator%<игрушка лего криэйтор
+машина радупр%<упр%.%zрадио%.%zмаш%.
+трансформер робот%<робот%z-%zтрансформер%|роботы%z-%zтрансформеры%|робот трансформер
+вертолет радупр%<упр%.%zрадио%.%zвертолет
+конструктор%<%^констр%.
+паззл%<пазл%|паззлы%|пазлы
+искусственное растение%<искус%.%zрастение%|растение искусств%.
+решетка вентиляционная%<решетка вентиляцион%.%|решетка вент%.
+консервы%<консерва
+лампа энергосбер%<лампа энергосберегающая%|лампа энергосберег%.%|лампа энергосбер.%|лампа энергосб%.%|лампа энерг%.
+adapter%<adptr
+powder%<pwdr%|powd%.
+single%<sngl
+tigi bed head%<tigi bedhead
+shampoo%<s/poo%|spoo
+conditioner%<condtnr%|cndtner
+hair spray%<hairspray
+ultra%<ultr
+ultra thin%<u/thin%|ult thn
+eye shadow%<e/shd%|e/shdw%|eyeshadow%|eyeshadows%|eye shdow
+eye liner%<e/lnr%|e/liner
+lip stick%<lipstick%|l/stk%|l/stick%|lipstck%|lipstk%|lipsticks
+lip liner%<l/lnr
+nail enamel%<nail enml
+l'eau%<l_eau%|l eau
+lotion%<lotn
+spray%<spry
+body%<bdy
+body spray%<bodyspray%|b/spray%|bdy spray%|body spr%.
+body wash%<bdy%zwsh%|bdy/wsh%|bodywash%|bdy wash%|body/wsh
+body lotion%<bdy lt%|body lot%|body ltn%|bdy ltn%|bdy lot%|bodylotion%|b/ltn%|bodylot%.
+body mist%<body mst
+furnace air filter%<filter furn%|furn filt%|filter air furnc
+inc%<inc.
+brush%<brsh
+shower%<shwr
+shower gel%<showergel%|douchegel%|douche gel%|shwr gl%|shwr gel%|shower gl
+lynx shower gel%<lynx s/gel
+contour pencil%<contr pncl
+toothpaste%<t/paste%|t-past%|t%.pasta
+toothbrush%<t/brush%|t-brush%|t%.brush%|tbrush%|tooth brush%|toothbrsh%|toothbsh
+dental floss%<dental fls
+aloedent toothpaste%<aloedent tp
+sensodyne toothpaste%<sensodyne tp%|sensodyne t/p
+sensodyne toothbrush%<sensodyne tb
+parodontax toothpaste%<parodontax t/p%|parodontax tp
+belo essentials%<belo essen
+sebamed%<seba med
+playtex%<plytx
+iconcepts%<i concepts
+sbt sea buckthorne%<sea-sbt
+3m nexcare%<%^nexcare
+3m nexcare waterproof%<3m nexcare w/p%|3m nexcare w/proofs%|3m nexcare w/proof%|3m nexcare waterproofs
+band-aid%<jj band%z%-%zaid%|J&j band%z%-%zaid%|jj b/a%|jj bandaid%|bandaid
+j&j reach%<jj reach
+j&j ph5.5%<jj ph5.5
+j&j first aid%<jj first aid
+johnson's baby%<johnsons baby%|johnson baby%|johnson b/%|джонсонс беби%|джонсонс бэби%|джонсон беби%|джонсон бэби%|J&j baby%|jj baby
+nature's gate%<natures gate
+nature's path%<natures path%|%^nat/pth
+nature's own%<%^nat/own 
+nature's way%<%^nat/way
+natural glamour%<%^nat/glam
+soft&dry%<sft&dri
+fresh idea%<фреш идея
+neutrogena%<neutrgn%|neutrgna%|нитроджина
+neutrogena norwegian%<neutrogena nrwgn
+neutrogena norwegian formula%<neutrogena nf%|neutrogena norvformula
+nice'n easy%<nice n easy%|nice&easy
+clairol nice'n easy%<%^nice'n easy%|clairol n/easy
+herbina%<хербина
+alberto vo5%<%^vo5%|%^v05%|alb v05
+vo5 shampoo%<vo5 spoo%|vo5 shp%|vo5 sham%|vo5 shamp
+vo5 conditioner%<vo5 cond%|vo5 condi%|vo5 cnd
+vo5 hairspray%<vo5 h/spr%|vo5 h/s
+tresemme conditioner%<tresemme cond%.
+tresemme shampoo%<tresemme shamp%.%|tresemme sham%.%|tresemme spoo
+tresemme hair spray%<tresemme h/spray%|tresemme h/s
+henna plus hair wonder%<henna plus haarwonder%|henna plus haarw%.
+kellogg's%<kelloggs
+kellogg's nutri grain%<kellogg's nutri-grain%|%^nutri-grain%|kll ntri-grn%|%^ntri-grn
+safeguard%<сэйфгард
+доска разделочная%<доска разд%.%|доска раздел%.%|доска разделоч%.
+выключатель автомат%<выключатель автомат.%|выключатель автоматический%|%^авт%.%zвыкл%.
+mennen speed stick%<menn speed stk%|menn spd stk%|menn s/s%|menn s stk%|menn s/stk%|menen speed stick%|mennen spdstk%|menn spd s/
+lady speed stick%<ladi speed stick%|lady spd stk%|lady s/s%|ldy spd stk
+дезодорант mennen speed stick%<дезодорант mss%|дезодорант мсс
+дезодорант lady speed stick%<дезодорант lss
+для снятия лака%<для сн%.%zлака%|для снят%.%zлака
+гель%s%(%w%)%sдля душа%>гель для душа %1
+гель для волос%<гель для укладки волос%|гель для укл%.%zволос
+губка кухонная%<губки кухонные%|губки кух%.%|губка кух%.%|губка кухон%.
+губка для посуды%<губка для пос%.%|губка для мытья посуды
+щетка массажная%<массажная щетка
+heating pad%<heat pad
+domestos%<доместос
+тамп%.%zтампакс%>тампоны tampax
+tampax tamp%.%>tampax tampons
+always%<олвэйз%|олвейс%|alwys
+alldays%<олдэйз
+kleenex%<клинекс%|klnx
+tide%<тайд
+tide автомат%<tide-автомат
+christmas%<xmas%|chrstms
+gift bag%<gift bags%|gft bg%|gft bgs%|gft/bg
+gift set%<gft set
+cane folding%<cane fold
+подарочный набор%<%^п/н%|%^п\н%|%^пн%|набор подарочный%|набор подар%.%|набор подароч%.%|набор подарочн%.%|п/наб%|подар%.%zнабор%|под%.%zнабор
+пакет подарочный%<пакет подар%.
+гирлянда электр%<гирлянда электрич%.%|гирлянда эл%.%|гирлянда электр.%|э/гирлянда%|эл%.%zгирл%.
+heath&heather%<heath and heather
+tea green%<tea grn%|grn tea
+чай ahmad%<чай ахмад
+чай alokozay%<чай алкозай%|чай алокозай
+чай hyleys%<чай хэйлис%|чай хейлис
+чай hilltop%<чай хиллтоп
+чай tess%<чай тесс
+чай riston%<чай ристон
+чай newby%<чай ньюби
+чай randy%<чай ренди
+чай impra%<чай импра
+чай mabroc%<чай маброк
+чай jaf tea%<чай jaftea%|чай джафти%|чай джаф
+чай monzil%<чай монзил
+чай basilur%<чай базилур
+чай hyson%<чай хайсон
+чай tarlton%<чай тарлтон
+чай grace!%<чай грейс!%|чай грэйс!%|чай грейс%|чай грэйс
+чай grace!%_%<чай grace%_
+чай chelton%<чай челтон
+чай edwin%<чай edvin%|чай эдвин
+чай nadi%<чай нади
+чай nadin%<чай надин
+чай sherwood%<чай шервуд
+Чай dolche vita%<чай дольче вита
+чай принцесса ява%<чай ява%|чай пр%.%zява
+чай принцесса гита%<чай гита%|чай пр%.%zгита
+чай принцесса нури%<чай нури%|чай пр%.%zнури
+coca-cola%<coca cola%|кока-кола%|кока кола
+pepsi%<пепси кола%|пепси-кола%|пепси
+mountain dew%<mt dew%|маунтин дью%|mtn dew
+gatorade%<gatorde
+tullamore dew%<тюлламор дью
+famous grouse%<феймоус граус%|феймос граус%|феймос грауз%|фэймос грауз%|фэймос граус
+hankey bannister%<ханки баннистер
+chivas regal%<чивас регал%|чивас ригал
+ocean spray%<ocen spray
+lucozade%<%^lczde
+red devil%<ред девил
+фруктовый сад%<фр/сад
+skittles%<скиттлс%|скитлс
+sorini%<сорини
+fruit-tella%<фруттелла%|фруттела%|фрутелла%|фрутела
+пицца%<пица
+w.j.deutsch%<wj deutsch
+yellow tail%<yellowtail
+lay's%<%^lays
+чипсы lay's%<чипсы лейс%|чипсы лэйс%|чипсы лейз
+чипсы lorenz%<чипсы лоренс
+волшебное дерево%<волш/дерево
+knorr%<кнорр
+greenfield%<гринфилд
+indola%<индола
+lancome art liner%<lancome artlnr
+lancome le rouge%<lancome ле rouge%|lancome ле руж
+lancome ombre absolue%<lancome омбр абсолю
+la roche posay%<la roche-posay
+l'oreal%<лореаль%|l_oreal%|loreal
+l'oreal excellence%<l'oreal экселанс
+l'oreal rouge%<l'oreal rge
+l'oreal shine delice%<l'oreal s/d
+l'oreal shock proof%<l'oreal s/prf%|l'oreal shck prf
+l'oreal soft effects%<l'oreal sft effct%|l'oreal sft eff%|l'oreal sft efct
+l'oreal wear infinite%<l'oreal wr inf%|l'oreal w/infnt%|l'oreal w/infinite%|l'oreal w/inf%|l'oreal w/i
+sublime bronze%<sublime br%.%|sublime brnz
+l'oreal sublime bronze%<%^sublime bronze
+color appeal%<колор апил
+color riche%<колор риш%|colour riche
+rouge caresse%<руж каресс
+l'oreal color riche%<l'oreal col rch%|l'oreal col riche
+l'oreal preference%<l'oreal pref%|l'oreal prefrnc%|l'oreal prfrnce%|l'oreal prefern%|l'oreal преферанс
+glam shine%<глам шайн
+resist&shine%<резист&шайн%|резист энд шайн%|resist and shine
+jet set%<джет сэт
+l'oreal jet set%<l'oreal jt st
+alliance perfect%<альянс перфект
+l'oreal sublime mousse%<%^sublime mousse
+ambre solaire%<ambr soler
+dermo expertise%<dermo exspertiz%|dermo-exp%|d-expertise
+revlon colorstay%<revlon c/s
+revlon moisturestay%<revlon mst/stay
+revlon nail enamel%<revlon n/e
+revlon wet/dry%<revlon w/d
+revlon top speed%<revlon t/speed%|revlon t/spd
+revlon age defying%<revlon age defy%|revlon a/def
+alka-seltzer%<alka seltzer%|alka seltz%|alka-seltz
+elseve%<эльсев%|эльсэв%|elsev
+elvive shampoo%<elvive spoo
+elvive conditioner%<elvive cond%.
+st.ives%<st ives
+schauma%<шаума
+sunsilk%<сансилк
+sunsilk shampoo%<sunsilk shp%|sunsilk shamp%.%|sunsilk sham%.%|sunsilk shpo
+sunsilk conditioner%<sunsilk cond%.
+timotei%<тимотей
+adidas%<адидас
+adidas after shave%<adidas a%.%zs%.
+henkel%<хенкель
+schwarzkopf extra care%<schwarzkopf ex/care%|schwarzkopf ex care
+schwarzkopf live color%<schwarzkopf live col%|schwarzkopf live colour
+wella shockwaves%<wella s/waves%|%^shockwaves
+lumene%<люмене
+thierry mugler%<thierry m%.%|t%.%zmugler
+christina aguilera%<c%.%zaguilera
+issey miyake%<issey m.
+ralph lauren%<ralph l.
+xavier laurent%<ксавье лоран
+salvador dali%<%^s.%zdali
+nina ricci%<n%.%zricci
+narciso rodriguez%<n%.%zrodriguez%|narciso rodrigues%|n%.%zrodrigues
+maybelline%<мэйбеллин%|%^мбл%|%^mbl
+maybelline expert%<maybelline xprt
+maybelline express finish%<maybelline x/finish%|maybelline x/f%|maybelline x/fnsh
+maybelline water shine%<maybelline w/sh
+maybelline great lash%<maybelline grtlsh
+maybelline great wear%<maybelline g/wr
+maybelline illegal lengths%<maybelline ilgl
+maybelline ultimate wear%<maybelline ult wear%|maybelline ult wr%|maybelline ult/wr%|maybelline u/w%|maybelline ult w
+colorama%<колорама
+water shine%<вотер шайн%|вотершайн
+color sensational%<колор сенсейшнл
+hydra extreme%<хайдра экстрим
+volum express%<вольюм экспресс%|вол%.%zэкспресс%|volum'%zexprs
+anytime%<энитайм
+cutex nail polish%<ctx nail polish%|ctx n/plsh
+imperial leather%<imp leather%|imp leath%|imperial leath
+english leather%<eng lthr%|eng/lth%|english leathr
+inter-v'%>inter-vion%_
+sam's choice%<sams choice
+nivea%<нивея
+nivea visage%<nivea visg%|nivea vis
+nivea lotion%<nivea lot%.
+nivea lip care%<nivea lipcare
+nivea cream%<nivea cr%|nivea creme
+colgate%<колгейт%|сolgate
+colgate toothpaste%<colgate tp%|colgate t/paste%|colgate t-past%|colgate t/paste%|%^colg t/p%|colgate t/p%|colg toothpaste
+colgate toothbrush%<%^colg t/b%|colg tbrsh%|%^clg t/b%|%^clg t/b%|colg toothbrush%|colgate t/brsh%|colgate t/b%|colgate tb%|colg t/br%|colg t br
+зубная паста colgate%<colgate з/п%|colgate зубная паста%|зубная паста golget%|зубная паста golgate%|зубная паста coldate%|зп colgate
+colgate plax%<colg plax
+crest toothpaste%<crest tp%|crest t/paste%|crest t/p
+crest whitening%<crest whtg
+butler toothbrush%<butler tbr%|butler t/br%|butler t/b
+old spice%<old spc%|олд спайс%|old spise%|old spaice%|%^old sp%|o/spice
+rexona%<рексона
+sergio tacchini%<s%.%ztacchini%|сержио тачини%|%^tacchini
+sergio tacchini active water%<sergio tacchini active w%.
+sex in the city%<sex in city
+french manicure%<fr manicure%|frnch manicure%|frnch mncre
+hair remover%<hair rmvr
+donna karan%<d%.karan
+donna karan dkny%<%^dkny
+christian dior%<%^dior
+jean paul gaultier%<jean p%.%zgault%.%|jean-paul gaultier%|jp gaultier
+hugo-%>hugo%_
+hugo boss%<h%.%zboss
+jeanne arthes%<jeanne ar%.
+nino cerruti%<%^cerruti
+loris azzaro%<%^azzaro
+beverly hills%<beverly h%.
+very irresistible%<very irresist%.
+givenchy very irresistible%<givenchy very irr%.
+estee lauder%<estee l%.%|e%.%zlauder%|%^e/laud
+tommy hilfiger%<t%.%zhilfiger
+carlton candle%<carlton cndl
+shamtu%<шамту
+fructis%<фруктис
+fructis style%<fructis стайл
+color naturals%<колор нэчралс
+lasting colour%<lasting clr%|lstng clr%|lastng colr
+max factor lip finity%<max factor lipfinity%|max factor lpfnty%|max factor l/f
+palmolive%<палмолив%|%^palmol
+stetson%<stetsn
+seltzer water%<sltz wtr
+schmitt sohne%<schmidt sohne%|schmitt&sohne
+schieffelin&somerset%<schieffelin/somerset%|schiefflin&somerset%|schiefllin&somerset
+mccormick%<mc cormick%|mccormicks
+m&m's%<m&ms
+garnier%<гарнье%|гарньер%|garnier garnier%|garnier'%|%^garner
+гарнье-%>garnier%_
+garnier чистая кожа%<garnier-чк
+garnier skin naturals%<garnier skin natural%|garnier skin nat
+aquafresh%<aqua-fresh%|аквафреш%|aquafrsh
+arm&hammer%<arm/ham%|arm&hamer%|arm&h%|arm&hamr
+arm&hammer dental care%<arm&hammer dent care%|arm&hammer d/cre%|arm&hammer dntl care%|arm&hammer dent/c
+aquafresh toothpaste%<aquafresh tp%|aquafresh t/p
+aquafresh toothbrush%<aquafresh tb%|aquafresh t/b%|aquafr t/b
+arm&hammer toothpaste%<arm&hammer tp%|arm&hammer t/p%|arm&h t/p
+reach toothbrush%<reach tb%|reach t/brsh%|reach t/b
+bielita%<белита
+vitex%<витэкс%|витекс
+sally hansen%<%^sally h%.%|%^s/hansen%|sally hansn
+sally hansen hard as nails%<sally hansen h%.a%.n%.
+sally hansen max growth%<sally hansen max grwth%|sally hansen m/grwth
+sally hansen new lengths%<sally hansen new length%|sally hansen n/l%|sally hansen nl
+fa shower gel%<fa s/gel
+henri bernard%<hnri brnd%|%^h bernard
+mott's%<motts
+mott's clamato%<%^clamato
+scotch-brite%<scotch brite
+herbal%<хербал
+essences%<эссенсес
+herbal essences%<hrbl ess%|hrbl essc%|hrbl essences%|hrbl essnc%|herbal ess%|herbal esse%|herbal essence%|herbal essnc%|herbal essnce%|herb ess%|%^h/ess%|clairol h/ess
+herbal select%<hrb sel
+gai mattiolo%<%^gai m%.
+chanel%<%^chnl
+chanel allure%<chnl allure%|chnl allre%|chnl allr
+laura biagiotti%<%^laura b%.%|l%.%zbiagiotti
+lolita lempicka%<l%.%zlempicka%|lolita lompica
+marc anthony%<marc anth%|marc ant%|marc anthny
+jennifer lopez%<j%.%zlopez%|^%j.%zlo
+elizabeth arden%<eliz%.%zarden%|e%.%zarden%|%^arden
+5th avenue%<5th ave%|5-th avenue%|fifth avenue
+elizabeth arden 5th avenue%<%^5th avenue
+franck olivier%<fr%.%zolivier
+avent%<авент
+studio style%<%^s.style'%|студио стиль
+ted lapidus%<%^lapidus
+guy laroche%<g%.%zlaroche
+la cross%<la crs
+yves saint laurent%<%^ysl
+dolce&gabbana%<dolce gabbana%|%^d&g
+giorgio armani%<%^armani
+porsche design%<porche design
+colora henna powder%<clra h/powder
+yardley%<yrdly
+yardley english%<yardley eng
+oral-b%<oral%sb%|oral_b%|oralb%|орал-би%|орал би
+oral-b toothbrush%<oral-b tb%|oral-b t/b%|oral-b t/brsh%|oral-b t/br%|oral-b t/brush
+naturella%<натурелла
+hose t.e.d.%<hose ted
+huggies%<хаггис
+pull-ups%<pull ups%|pullups
+huggies pull-ups%<huggies p-ups%|huggies p/up
+huggies baby wipes%<huggies b/wipes%|huggies b/wipe%|huggies b/wpes%|huggies bby wpes%|huggies bby wipe
+green mama формула тайги%<green mama ф%.%zтайги
+green mama морской сад%<green mama м%.%zсад
+marina de bourbon%<m%.%zde bourbon%|марина де бурбон
+head&shoulders%<хэд энд шолдерс%|heard&shoulders%|head-shoulders%|хэд&шолдерс%|head&shld%|head&should%|head&sholders%|head&shldr%|head+shoulders%|head/shldr%|head&shoulder%|head en sh
+head&shoulders shampoo%<h&s shmp%|h&s shamppo%|h&s shamp%.%|head&shoulders shp%|head&shoulders shmp%.%|head&shoulders shamp%.%|head&shoulders spoo%|head&shoulders sham
+head&shoulders conditioner%<head&shoulders cond
+head&shoulders шампунь%<h&s шампунь
+pantene шампунь%<пантин шампунь%|пантин,%zшампунь
+pantene бальзам%<пантин бальзам
+pantene кондиционер%<пантин кондиционер%|пантин кондиц%.
+pantene conditioner%<%^pant cond%.%|pantene cond%.%|pantene condi%|pantene cnd
+pantene shampoo%<%^pant sham%|pantene shamp%.%|pantene sham%.%|pantene sh%.%|pantene shmp%|pantene shp%|pantene spoo
+pantene hair spray%<pantene h/spray%|pantene h/s
+pantene pro-v%<pant pro-v%|pantene pro v
+salon selectives%<salon select%|salon selective%|%^salon sel
+salon selectives hair spray%<salon selectives h/spr%|salon selectives h/spray
+salon selectives shampoo%<salon selectives shp%|salon selectives shamp%.%|salon selectives shmp
+salon selectives conditioner%<salon selectives cond%.%|salon selectives cnd
+john frieda%<j/frieda
+john frieda sheer blonde%<%^sheer blonde%|%^sheer/b%|john frieda sb%.
+john frieda frizz ease%<john frieda fe%.
+john frieda full repair%<john frieda fr%.
+john frieda brilliant brunette%<john frieda bb%.%|john frieda b/b
+john frieda luxurious volume%<john frieda lv%.
+palmolive shampoo%<palmolive shamp%.%|palmolive sham%.
+dove shampoo%<dove shamp%.%|dove shmp%.%|dove sh%.%|dove sham%.%|dove shp%|dove spoo
+dove conditioner%<dove cond%.%|dove condition%.
+dove antiperspirant%<dove a/p
+dove body wash%<dove b/wash
+blend-a-med%<бленд-а-мед%|blend_a_med
+зубная паста blend-a-med%<зубная паста бам%|зубная паста вlenda-a-med
+scholl%<%^schol
+hamilton sunscreen%<hamilton s/sc
+zinger%<зингер
+montpellier%<mont pellier
+pampers%<памперс%|pmprs
+pampers baby dry%<pampers b/dry%|pampers b/d%|pampers b dry
+pampers active baby%<pampers актив бэби
+sleep&play%<слип энд плэй%|слип&плэй
+bratz%<братц
+herlitz%<херлитц
+del monte%<delmonte%|дельмонте
+stella artois%<stella art%.%|%^stella a%.
+tropical wholefoods%<tropical wf
+wrigley's%<wrigleys%|wrigley%|wrigly
+hawaiian tropic%<%^haw trop%|%^haw/t
+spike seasoning%<spike ssnng
+alpen gold%<альпен гольд%|альпен голд
+old virginia%<олд вирджиния
+ensure-%>ensure%_
+ensure plus-%>ensure plus%_
+ensure plus%<ensure+
+haagen-dazs%<haagen dazs
+jerome russell%<jer/rus
+gaviscon%<%^gvscn
+gaviscon liquid%<gaviscon liq
+green&black's%<green and black%|green&black
+good sense%<goodsense
+lipton%<липтон%|%^lptn
+hortex%<хортекс
+whiskas%<вискас
+friskies%<фрискас%|фрискис
+pronature%<пронатюр
+air wick%<airwick%|airwic%|airwik%|аирвик
+brown-forman%<brown&forman%|brown forman
+ambi pur%<ambi-pur%|ambipur
+ambi pur 3volution%<ambi pur 3vol%.
+accu-chek%<accuchek%|accu chek
+bio-groom%<био-грум
+luis felipe edwards%<lf edwards
+jacobs monarch%<якобс монарх
+кофе tchibo%<кофе чибо
+кофе le cafe%<кофе ле кафе
+кофейный напиток%<коф%.%zнапиток%|напиток кофейный
+ice tea%<iced tea
+холодный чай%<чай холодный%|хол/чай
+nescafe%<нескафе
+maccoffee%<маккофе
+lavazza%<лавацца
+bonduelle%<бондюэль%|бондюель
+quaker%<%^quak%|%^quck
+maestro de oliva%<маэстро де олива
+jim beam%<джим бим
+hennessy%<хеннесси%|хеннеси
+seagram's%<seagrams%|seagram
+remy martin%<реми мартин%|реми мартан
+courvoisier%<курвуазье
+de kuyper%<де кайпер%|ду кайпер%|dekuyper
+william lawson's%<вильям лоусонс
+jackson triggs%<jackson-triggs
+пельмени%<%^пельм%.
+valio%<валио
+dunhill%<данхилл%|данхил
+lambert&butler%<lambert&but
+сигареты l&d%<сигареты лд
+сигареты more%<сигареты море
+сигареты next%<сигареты некст
+сигареты sobranie%<сигареты собрание
+lindt lindor%<%^lindor%|lndt lndr%|%^lint lnd
+ferrero%<ферреро
+красный октябрь%<кр/окт
+красная звезда%<кр/звезда
+конфеты жеват%<жев%.%zконфеты%|жеват%.%zконфеты%|жевательная конфета%|жеват%.%zконфета%|жев%.%zконфета%|конф%.%zжев%.%|конф%.%zжеват%.%|жевател%.%zконф%.%|конф/жев%.
+конфеты lindt%<конфеты линдт%|конфеты линт%|конфеты линд%|конф%.%zлиндт%|конф%.%zлинд%|конф%.%zлинт%|конф%.%zlindt
+конфеты бабаевские%<конф%.%zбабаевские%|конфеты бабаев%.
+конфеты рошен%<конф%.%zрошен
+конфеты сладко%<конф%.%zсладко
+конфеты коркунов%<конф%.%zкоркунов
+драже m&m's%<драже м&м%|драже м&мs
+шоколад lindt%<шоколад линдт%|шок%.%zлиндт
+био-кефир%<биокефир%|био кефир%|био%s-%sкефир
+био-йогурт%<биойогурт%|био йогурт%|био%s-%sйогурт
+коктейль молочный%<коктейль мол%.%|коктейль молоч%.%|коктейль молочн%.%|%^молочный коктейль
+напиток кисломолочный%<напиток кисломолоч%.%|напиток кисломол%.%|напиток кисл-мол%.%|напиток к/м%|нап%.%zкисломол%.%|нап%.%zкиломол%.%|к/мол нап%.
+йогурт ehrmann%<йогурт эрман%|йогурт эрманн
+йогурт ehrmann эрмигурт%<йогурт эрмигурт%|йогурт эрмигут%|йогурт ehrmann эрмигут
+йогурт danone%<йогурт данон
+йогурт danone активия%<йогурт активия
+Йогурт danone даниссимо%<йогурт даниссимо
+молоко сгущенное%<молоко сгущеное%|молоко сгущ%.%|сгущ%.%zмолоко%|сгущенное молоко%|сгущеное молоко%|сгущеню молоко%|сг/молоко%|%^сг/мол%.%|мол%.%zсгущ%.
+попкорн%<поп-корн%|поп корн
+russell stover%<russ stvr%|russell stov
+walker's crisps%<%^crisps wlk
+пиво heineken%<пиво хайнекер%|пиво хейнекен
+вино игристое%<вино игрист%.%|вино игр%.
+fanta%<фанта
+nestle%<нестле%|nsle
+nesquik%<несквик
+calve%<кальве%|сalve
+rosemount diamond%<rosemont diamond%|rosemont diamon
+zipfer%<зипфер%|ципфер
+gallina blanca%<galina blanca%|галина бланка
+brooke bond%<brook bond%|брук бонд
+ritter sport%<риттер спорт%|риттер-спорт%|риттерспорт%|ритер спорт
+kendall jackson%<kendall-jackson
+de loach%<deloach
+bubchen%<бюбхен
+opi nail polish%<opi n/plsh%|opi n/p
+juice%<juce
+livingston cellars%<livingston cell%|%^liv cellars
+сто рецептов красоты%<100рк%|сто рецепт%.%zкрасоты
+рецепты бабушки агафьи%<%^рба
+новый жемчуг%<нов/жемчуг%|жемчуг-новый
+mr.muscle%<мистер мускул%|м-р мускул
+mr&mrs%<mr%.%z&%zmrs%.
+tampax%<тампакс
+kotex%<котекс
+silwerhof%<сильверхоф
+замок навесной%<замок навес%.%|замок вис%.%|замок висячий
+замок врезной%<замок вр%.%|замок врезн%.
+замок накладной%<замок накл%.
+пена монтажная%<пена монт%.
+ваза для цветов%<ваза для цв%.
+банка для сыпучих продуктов%<банка для сып%.%zпрод%.%|банка для сыпучих прод%.%|баночка для сыпучих продуктов%|банка для сып%.%zпродуктов
+банка для хранения%<банка для хран%.
+тарелка мелкая%<тарелка мелк%.
+тарелка десертная%<тарелка десерт%.%|тарелка дес%.
+тарелка глубокая%<тарелка глуб%.%|тарелка гл%.
+кастрюля сферич%<кастрюля сферич.%|кастрюля сф%.%|кастрюля сфер%.%|кастрюля сферическая
+кастрюля эмалиров%<кастрюля эмалир%.%|Кастрюля эм%.
+подставка под%<подставка п/
+чайная пара%<пара чайная%|пара чайн%.
+чайник электрич%<чайник электрический%|чайник эл-кий%|чайник эл%.%|чайник электр%.%|чайник эл%.%|электрочайник%|эл%.%zчайник
+электроплитка%<эл%.%zплитка
+коврик для ванной%<коврик для ван%.%|коврик напольный для ванной
+коврик резиновый%<коврик рез%.%|коврик резин%.
+клей обойный%<клей об%.
+клей монтажный%<клей монт%.%|клей монтаж%.
+тетрадь предмет%<тетрадь предм%.%|тетрадь предмет.%|тетрадь предметная
+книга записная%<книжка записная%|записная книжка
+книга алфавитная%<книжка алфавитная
+книга телефонная%<книжка телефонная%|книжка телеф%.
+контейнер для мусора%<конт%.%zдля мусора%|конт%.%zдля мус%.
+бумага крепированная%<бумага креп%.
+бумага масштабно-координатная%<бумага масштаб%.%z-%zкоордин%.%|бумага миллиметр%.
+бумага бархатная%<бумага бархат%.
+картон цветной%<картон цвет%.%|картон цв%.
+карнавальный набор%<карн%.%zнабор%|карнав%.%zнабор%|карнав%.%zнаб%.%|набор карнавальный
+%(тетрадь%) %(%d%)л%.%>%1 %2лист
+%(тетрадь предмет%) %(%d%)л%.%>%1 %2лист
+%(альбом%) %(%d%)л%.%>%1 %2лист
+%(альбом для рисования%) %(%d%)л%.%>%1 %2лист
+%(альбом для черчения%) %(%d%)л%.%>%1 %2лист
+альбом %(%dлист%) для %(%w%)%.%>альбом для %2 %1
+альбом для рисования%<альбом для рис%.%|альбом для рисов%.%|альбом для рисован%.
+альбом для черчения%<альбом для черч%.
+%(блокнот%) %(%d%)л%.%>%1 %2лист
+%(книга записная%) %(%d%)л%.%>%1 %2лист
+%(книга телефонная%) %(%d%)л%.%>%1 %2лист
+дневник школьн%<дневник школьный%|дневник школ%.%|дневник шк%.
+дневник для старш школ%<дневник для ст%.%zкл%.%|дневник для стар%.%zкл%.
+дневник для младш школ%<дневник для мл%.%zкл%.
+блок самоклеящ%<%^блок самокл%.%|%^блок клей.
+блок для записей%<%^блок бумажный
+зажим для бумаг%<зажимы для бумаг
+ручка шар%<ручка шар.%|ручка шарик%.%|ручка шариковая
+ручка шар автомат%<ручка шар авт%.
+ручка гелев%<ручка гел%.%|ручка гелевая%|ручка гелев.
+ручка автомат%<ручка автомат.%|ручка автом%.%|ручка автоматическая%|ручка авт%.
+карандаш графит%<карандаш чгр%|карандаш чернографитн%.%|карандаш чернографитный%|карандаш ч/граф%.%|карандаш ч/г%.%|карандаш ч/гр%.%|каранд%.%zч/гр%.
+карандаши восковые%<карандаши воск%.
+карандаши цветн%<карандаши цветн.%|карандаши цветные%|карандаши цв%.
+текстмаркер%<маркер текст%.
+маркер перманент%<маркер перм%.
+корректир ручка%<корректир.%zручка%|коррект%.%zручка%|корректирующая ручка
+корректир лента%<корректир.%zлента%|коррект%.%zлента%|корректирующая лента
+корректир жидкость%<корректир.%zжидкость%|коррект%.%zжидкость%|корректирующая жидкость%|жидкость корректир%.%|жидкость коррект%.
+папка-скоросшиватель%<папка скоросш%.%|папка-скоросш%.%|папка скоросшиватель
+папка для тетрадей%<папка для тетр%.
+папка для рисования%<папка для рис%.
+папка для черчения%<папка для черч%.
+лоток для бумаг%<лоток для бум%.
+лоток для бумаг вертик%<лоток вертик%.%zдля бумаг%|%^лоток вертик%.%|лоток для бумаг вертикальный%|лоток для бумаг вертикал%.%|лоток для бумаг вертик.
+лоток для бумаг гориз%<лоток гориз%.%zдля бумаг%|%^лоток гориз%.
+набор настольный%<%^набор наст%.%|набор настол%.
+набор канцелярский%<набор канц%.%zпринад%.
+бейдж%<бэдж
+рюкзак школьный%<рюкзак школ%.
+tennis elbow%<tennis elb%.%|tennis el%.
+краска акриловая%<краски акрил%.%|краска акрил%.
+краска акварельн%<краски акварельн.%|краски аквар%.%|краска акварельн%.%|краска аквар%.%|краски акварельные%|краска акварельная
+игра настольная%<игра наст%.%|игра настол%.%|игра настольн%.%|игра нас%.%|наст%.%zигра%|настольная игра
+игровой набор%<игр%.%zнабор%|игр%.%zн-р%|игр%.%zнаб%.%|набор игровой%|набор игр%.%|набор игров%.
+dr.beckmann%<др.бекманн%|dr.beckm
+dr.bronner's%<dr.bronners%|dr.bronner
+olmeca%<ольмека%|олмека
+old el paso%<%^o/e/paso
+текила сауза%>текила sauza
+торт вафельный%<ваф/торт%|торт ваф%.%|вафельный торт
+яйцо отборное%<яйцо отбор%.
+крабовые палочки%<краб/палочки%|крабовы палочки
+приправа%<%^припр%.
+7up%<7-up%|7 up%|севен ап
+andrex t/roll%>andrex toilet roll
+
+%(%d%)%zэлем%.%>%1элем
+%(%d%)%zэл%.%>%1элем
+%(%d%)%zэлементов%>%1элем
+%(%d%)%zэлемента%>%1элем
+
+%(%*%) %(тени для век%)%>%2 %1
+%(%*%) %(блеск для губ%)%>%2 %1
+%(%*%) %(помада губная гигиенич%)%>%2 %1
+%(%*%) %(помада губная%)%>%2 %1
+%(%*%) %(гель-блеск для губ%)%>%2 %1
+%(%*%) %(помада-блеск для губ%)%>%2 %1
+%(%*%) %(бальзам для губ%)%>%2 %1
+%(%*%) %(крем тональный%)%>%2 %1
+%(%*%) %(карандаш для век%)%>%2 %1
+%(%*%) %(карандаш для губ%)%>%2 %1
+%(%*%) %(карандаш для бровей%)%>%2 %1
+%(%*%) %(контур для глаз%)%>%2 %1
+%(%*%) %(лак для ногтей%)%>%2 %1
+%(%*%) %(румяна%)%>%2 %1
+%(%*%) %(тушь для ресниц%)%>%2 %1
+%(%*%) %(тональная основа%)%>%2 %1
+%(%*%) %(подводка для век%)%>%2 %1
+%(%*%) %(крем-краска для волос%)%>%2 %1
+%(%*%) %(гель-краска для волос%)%>%2 %1
+%(%*%) %(краска для волос%)%>%2 %1
+%(%*%) %(мыло жидкое%)%>%2 %1
+%(%*%) %(лак для волос%)%>%2 %1
+%(%*%) %(мусс для волос%)%>%2 %1
+%(%*%) %(пенка для волос%)%>%2 %1
+%(%*%) %(зубная паста%)%>%2 %1
+%(%*%) %(салфетки влажные%)%>%2 %1
+%(%*%) %(ватные палочки%)%>%2 %1
+%(%*%) %(ватные диски%)%>%2 %1
+%(%*%) %(сорочка ночная%)%>%2 %1
+%(%*%) %(сорочка для девоч%)%>%2 %1
+%(%*%) %(пижама%)%>%2 %1
+%(%*%) %(трусы жен стринги%)%>%2 %1
+%(%*%) %(трусы жен макси%)%>%2 %1
+%(%*%) %(трусы жен классика%)%>%2 %1
+%(%*%) %(трусы жен бразилиано%)%>%2 %1
+%(%*%) %(трусы жен танга%)%>%2 %1
+%(%*%) %(трусы жен коррекция%)%>%2 %1
+%(%*%) %(трусы жен шортики%)%>%2 %1
+%(%*%) %(трусы для девоч шорты%)%>%2 %1
+%(%*%) %(трусы для девоч%)%>%2 %1
+%(%*%) %(трусы для мальч шорты%)%>%2 %1
+%(%*%) %(трусы для мальч боксеры%)%>%2 %1
+%(%*%) %(трусы для мальч%)%>%2 %1
+%(%*%) %(трусы муж боксеры%)%>%2 %1
+%(%*%) %(трусы муж классика%)%>%2 %1
+%(%*%) %(трусы муж шорты%)%>%2 %1
+%(%*%) %(бюстгальтер%)%>%2 %1
+%(%*%) %(носки жен%)%>%2 %1
+%(%*%) %(колготки для девоч%)%>%2 %1
+%(%*%) %(майка муж%)%>%2 %1
+%(%*%) %(майка жен%)%>%2 %1
+%(%*%) %(майка для девоч%)%>%2 %1
+%(%*%) %(майка для мальч%)%>%2 %1
+%(%*%) %(футболка жен%)%>%2 %1
+%(%*%) %(освежитель воздуха%)%>%2 %1
+%(%*%) %(щетка массажная%)%>%2 %1
+%(%*%) %(маникюрный набор%)%>%2 %1
+%(%*%) %(игрушка мягкая%)%>%2 %1
+
+%_%s%>%_
+
+владимир ильич ленин%K
+горячий камень%A
+холодное сердце%a
+%^%w%K
+
+%{
+a3
+a4
+a5
+a6
+a7
+conditioner
+duru
+fa
+tampax
+ola
+osis
+pure
+game
+tropical
+passion
+team
+adidas
+victory
+league
+lemon
+lime
+mandarin
+orange
+grapefruit
+eucalyptus
+chamomile
+apple
+melon
+peach
+apricot
+cherry
+raspberry
+blueberry
+wrench
+royal
+nelson
+ultra
+super
+plus
+max
+maxi
+liquid
+calypso
+hair
+skin
+new
+gentle
+provocateur
+agent
+filter
+aqua
+oleum
+air
+mist
+balsam
+euro
+hot
+oil
+always
+duo
+fresh
+normal
+long
+night
+day
+platinum
+deo
+blue
+red
+black
+white
+green
+yellow
+golden
+gold
+silver
+noir
+ocean
+mystery
+secret
+spirit
+seduction
+ambi
+pur
+ambre
+solaire
+milk
+beverage
+group
+oyster
+bay
+bath
+wood
+food
+foods
+pacific
+menthol
+gloves
+walker
+rock
+box
+light
+spring
+heat
+spiced
+wheat
+stone
+mill
+noodle
+bowl
+system
+adult
+cabernet
+sauvignon
+chardonnay
+pinot 
+grigio
+merlot
+electric
+fashion
+casual
+antonio
+banderas
+oscar
+santa
+rita
+paloma
+beurer
+sanitas
+dezzie
+shamtu
+schauma
+elseve
+sunsilk
+pantene
+palmolive
+herbal
+essences
+garnier
+fructis
+dove
+bubchen
+axe
+klein
+christian
+dior
+carolina
+herrera
+cerruti
+scarlett
+marta
+lumme
+bekker
+lipton
+riston
+ahmad
+hyleys
+washington
+comfort
+classic
+home
+element
+aresa
+yax
+monte
+carlo
+maybelline
+lumene
+colgate
+organic
+valley
+palm
+bay
+baby
+wilkinson
+sword
+hydro
+extra
+distilled
+drinking
+water
+earth
+peanut
+butter
+rocket
+wine
+joint
+formula
+euphoria
+forbidden
+obsession
+one
+shock
+allure
+california
+creek
+dolce
+vita
+fahrenheit
+poison
+higher
+energy
+life
+fruit
+honey
+juice
+spread
+bright
+crystal
+glamour
+sunshine
+parfum
+mirror
+kent
+marlboro
+muratti
+parliament
+pall
+mall
+winston
+west
+fusion
+vogue
+mentol
+label
+fine
+touch
+president
+amour
+alpen
+art
+visage
+hello
+kitty
+natural
+naturals
+nature
+vitality
+performance
+force
+marina
+bourbon
+dark
+zone
+invisible
+dry
+nivea
+gillette
+lady
+mennen
+speed
+stick
+king
+queen
+soft
+boss
+jackson
+garden
+factor
+shine
+color
+sensational
+coconut
+rum
+sun
+lotion
+special
+blend
+shower
+gel
+old
+spice
+ashley
+dahlia
+bonduelle
+nestle
+knorr
+maggi
+zinger
+farm
+foam
+diamond
+body
+guard
+hawk
+cellar
+tail
+powder
+body
+english
+rose
+lavender
+lily
+flower
+twist
+dermo
+expertise
+riche
+appeal
+penguin
+sublime
+mousse
+solar
+expertise
+lip
+jacobs
+monarch
+perfect
+impression
+palette
+salon
+jack
+london
+lopez
+lauren
+polo
+explorer
+easy
+wave
+east
+rice
+mix
+glow
+тарелка
+россия
+финляндия
+фея
+изабелла
+маша
+мария
+анна
+престиж
+помада
+пудра
+жокей
+жемчуг
+%}%K
+
+%{
+l'oreal
+garnier
+%}%=brandbeauty
+
+%(%@brandbeauty.%)%z%(шампунь%)%>%2 %1
+
+
+автошина %(%d%)/%(%d%)x%(%f%)%!tire profile=%1 ratio=%2 wide=%3

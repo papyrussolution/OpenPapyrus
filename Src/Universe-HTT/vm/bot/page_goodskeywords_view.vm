@@ -1,0 +1,40 @@
+﻿## Universe-HTT / 2013
+## bot/page_goodskeywords_view.vm 
+## Список товаров по ключевому слову (страница для поискового бота)
+##
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>${item.Keyword} - Universe-HTT</title>
+		<meta name="keywords" content="${item.Keyword}">
+		<meta name="description" content="Товары по ключевому слову '${item.Keyword}'">
+	</head>
+	<body>
+		<h1>${item.Keyword}</h1>
+		<table>
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Наименование</th>
+					<th>Производитель</th>
+					<th>Штрихкод</th>
+				</tr>
+			</thead>
+			<tbody>
+				#foreach($goods in $item.getGoodsList())
+				<tr>
+					<td>${goods.ID}</td>
+					<td>${goods.Name}</td>
+					<td>$UHTT.getObjName("PERSON", $goods.ManufID)</td>
+					<td>
+						#foreach($barcode in $goods.BarcodeList)
+							${barcode.Code}<br>
+						#end
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</body>
+</html>

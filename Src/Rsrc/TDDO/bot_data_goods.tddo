@@ -1,0 +1,34 @@
+## Universe-HTT
+## data_bot_goods.tddo
+## Структура товара для предоставления поисковому боту
+
+#start(StrAssocArray)
+#pragma(htmlencode)
+	#iter()
+		{
+		#start(Goods:${ID})
+			"ID":"${ID}",
+			"Name":"${Name}",
+			"BarcodeList":"${@(Goods, ID).GetBarcodeList(" ")}",
+			"Group":"${GroupID.Name}",
+			"Brand":"${BrandID.Name}",
+			"Manufactor":"${ManufID.Name}",
+			"Unit":"${UnitID.Name}",
+			"PhUnit":"${PhUnitID.Name}",
+			"PhPerUnit":"${PhPerUnit}",
+			"Brutto":"${Brutto}",
+			"Length":"${Length}",
+			"Width":"${Width}",
+			"Height":"${Height}",
+			"Package":"${Package}",
+			"ExpiryPeriod":"${ExpiryPeriod}",
+			"Storage":"${Storage}",
+			"Standard":"${Standard}",
+			"Ingred":"${Ingred}",
+			"Energy":"${Energy}",
+			"Usage":"${Usage}",
+			"OKOF":"${OKOF}"
+		#end()
+		}
+	#end()
+#end()

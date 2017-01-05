@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="libzint" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/libzint/Debug Win32/zint" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/libzint/Debug Win32" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-DWIN32" />
+					<Add option="-D_DEBUG" />
+					<Add option="-D_LIB" />
+					<Add option="-W" />
+					<Add option="-g" />
+					<Add option="-O0" />
+					<Add directory="../include" />
+					<Add directory="../include/zlib" />
+					<Add directory="../osf/zint/backend" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../include" />
+					<Add directory="../include/zlib" />
+					<Add directory="../osf/zint/backend" />
+				</ResourceCompiler>
+			</Target>
+			<Target title="Release Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/libzint/Release Win32/zint" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/libzint/Release Win32" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-DWIN32" />
+					<Add option="-DNDEBUG" />
+					<Add option="-D_LIB" />
+					<Add option="-W" />
+					<Add directory="../include" />
+					<Add directory="../include/zlib" />
+					<Add directory="../osf/zint/backend" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../include" />
+					<Add directory="../include/zlib" />
+					<Add directory="../osf/zint/backend" />
+				</ResourceCompiler>
+			</Target>
+		</Build>
+		<Unit filename="../OSF/ZINT/backend/2of5.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/auspost.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/aztec.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/aztec.h" />
+		<Unit filename="../OSF/ZINT/backend/code.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/code1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/code1.h" />
+		<Unit filename="../OSF/ZINT/backend/code128.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/code16k.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/code49.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/code49.h" />
+		<Unit filename="../OSF/ZINT/backend/common.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/common.h" />
+		<Unit filename="../OSF/ZINT/backend/composite.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/composite.h" />
+		<Unit filename="../OSF/ZINT/backend/dllversion.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/dmatrix.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/dmatrix.h" />
+		<Unit filename="../OSF/ZINT/backend/font.h" />
+		<Unit filename="../OSF/ZINT/backend/gb2312.h" />
+		<Unit filename="../OSF/ZINT/backend/gridmtx.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/gridmtx.h" />
+		<Unit filename="../OSF/ZINT/backend/gs1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/gs1.h" />
+		<Unit filename="../OSF/ZINT/backend/imail.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/large.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/large.h" />
+		<Unit filename="../OSF/ZINT/backend/library.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/maxicode.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/maxicode.h" />
+		<Unit filename="../OSF/ZINT/backend/maxipng.h" />
+		<Unit filename="../OSF/ZINT/backend/medical.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/ms_stdint.h" />
+		<Unit filename="../OSF/ZINT/backend/pdf417.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/pdf417.h" />
+		<Unit filename="../OSF/ZINT/backend/plessey.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/png.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/postal.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/ps.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/qr.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/qr.h" />
+		<Unit filename="../OSF/ZINT/backend/reedsol.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/reedsol.h" />
+		<Unit filename="../OSF/ZINT/backend/render.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/rss.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/rss.h" />
+		<Unit filename="../OSF/ZINT/backend/sjis.h" />
+		<Unit filename="../OSF/ZINT/backend/svg.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/telepen.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/upcean.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/ZINT/backend/zint.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

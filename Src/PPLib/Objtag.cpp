@@ -1,0 +1,3408 @@
+// OBJTAG.CPP
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// @codepage windows-1251
+//
+// Теги объектов
+//
+#include <pp.h>
+#pragma hdrstop
+#include <charry.h>
+//
+// TagFilt
+//
+const char * P_EmptyTagValRestrict = "#EMPTY";
+const char * P_ExistTagValRestrict = "#EXIST";
+
+//static
+int SLAPI TagFilt::ParseString(const char * pItemString, SString & rRestrictionBuf, SString & rColorBuf)
+{
+	int    ok = 0;
+	const  char * p = 0;
+	if(pItemString && ((p = strstr(pItemString, "/#")) != 0)) {
+		(rColorBuf = (p+1)).Strip(); // '/' пропускаем
+		(rRestrictionBuf = pItemString).Trim(p - pItemString).Strip();
+		ok = 2;
+	}
+	else {
+		rColorBuf = 0;
+		(rRestrictionBuf = pItemString).Strip();
+		ok = 1;
+	}
+	return ok;
+}
+
+int SLAPI TagFilt::MergeString(const char * pRestrictionString, const char * pColorString, SString & rItemBuf)
+{
+	SString temp_buf;
+	rItemBuf = 0;
+	temp_buf = pRestrictionString;
+	if(temp_buf.NotEmptyS())
+		rItemBuf.Cat(temp_buf);
+	temp_buf = pColorString;
+	if(temp_buf.NotEmptyS() && temp_buf.C(0) == '#')
+		rItemBuf.CatChar('/').Cat(temp_buf);
+	return 1;
+}
+
+//static
+int FASTCALL TagFilt::SetRestriction(const char * pRestrictionString, SString & rItemBuf)
+{
+	SString rbuf, cbuf;
+	ParseString(rItemBuf, rbuf, cbuf);
+	MergeString(pRestrictionString, cbuf, rItemBuf);
+	return 1;
+}
+
+//static
+int FASTCALL TagFilt::SetColor(const SColor * pClr, SString & rItemBuf)
+{
+	SString rbuf, cbuf;
+	ParseString(rItemBuf, rbuf, cbuf);
+	if(pClr)
+		pClr->ToStr(cbuf, SColorBase::fmtHEX);
+	else
+		cbuf = 0;
+	MergeString(rbuf, cbuf, rItemBuf);
+	return 1;
+}
+
+//static
+int FASTCALL TagFilt::GetRestriction(const char * pItemString, SString & rRestrictionBuf)
+{
+	SString cbuf;
+	return ParseString(pItemString, rRestrictionBuf, cbuf);
+}
+
+//static
+int FASTCALL TagFilt::GetColor(const char * pItemString, SColor & rClr)
+{
+	int    ok = 0;
+	SString rbuf, cbuf;
+	ParseString(pItemString, rbuf, cbuf);
+	if(cbuf.NotEmptyS()) {
+		rClr.FromStr(cbuf);
+		ok = 1;
+	}
+	return ok;
+}
+
+IMPLEMENT_PPFILT_FACTORY(Tag); SLAPI TagFilt::TagFilt() : PPBaseFilt(PPFILT_TAG, 0, 1)
+{
+	SetFlatChunk(offsetof(TagFilt, ReserveStart),
+		offsetof(TagFilt, TagsRestrict) - offsetof(TagFilt, ReserveStart));
+	SetBranchStrAssocArray(offsetof(TagFilt, TagsRestrict));
+	Init(1, 0);
+}
+
+TagFilt & FASTCALL TagFilt::operator = (const TagFilt & rS)
+{
+	Copy(&rS, 1);
+	return *this;
+}
+
+int SLAPI TagFilt::IsEmpty() const
+{
+	return BIN(TagsRestrict.getCount() == 0);
+}
+
+int SLAPI TagFilt::SelectIndicator(PPID objID, SColor & rClr) const
+{
+	int    select_ok = 0;
+	SString restrict;
+	PPObjTag tag_obj;
+	for(uint i = 0; !select_ok && i < TagsRestrict.getCount(); i++) {
+		StrAssocArray::Item tr_item = TagsRestrict.at_WithoutParent(i);
+		ObjTagItem item;
+		if(tag_obj.FetchTag(objID, tr_item.Id, &item) > 0) {
+			TagFilt::GetRestriction(tr_item.Txt, restrict);
+			if(restrict.CmpNC(P_EmptyTagValRestrict) == 0)
+				select_ok = item.IsZeroVal();
+			else if(restrict.CmpNC(P_ExistTagValRestrict) == 0)
+				select_ok = 1;
+			else if(oneof3(item.TagDataType, OTTYP_BOOL, OTTYP_ENUM, OTTYP_OBJLINK))
+				select_ok = BIN(restrict.ToLong() == item.Val.IntVal);
+			else if(item.TagDataType == OTTYP_NUMBER) {
+				RealRange rr;
+				strtorrng((const char*)restrict, &rr.low, &rr.upp);
+				select_ok = rr.CheckVal(item.Val.RealVal);
+			}
+			else if(oneof2(item.TagDataType, OTTYP_STRING, OTTYP_GUID)) {
+				size_t len = item.Val.PStr ? strlen(item.Val.PStr) : 0;
+				if(restrict.Len() && len) {
+					if(restrict.C(0) == '*')
+						select_ok = BIN(stristr866(item.Val.PStr, restrict.ShiftLeft()));
+					else if(restrict.C(restrict.Len() - 1) == '*')
+						select_ok = BIN(strnicmp866(restrict, item.Val.PStr, restrict.Len() - 1) == 0);
+					else
+						select_ok = BIN(stricmp866(restrict, item.Val.PStr) == 0);
+				}
+				else
+					select_ok = BIN(!restrict.Len() && !len);
+			}
+			else if(item.TagDataType == OTTYP_DATE) {
+				DateRange period;
+				getperiod(restrict, &period);
+				period.Actualize(item.Val.DtVal);
+				select_ok = BIN(period.CheckDate(item.Val.DtVal) > 0);
+			}
+			if(select_ok)
+				TagFilt::GetColor(tr_item.Txt, rClr);
+		}
+	}
+	return select_ok;
+}
+
+int SLAPI TagFilt::CheckTagItemForRestrict(const ObjTagItem * pItem, const SString & rRestrict) const
+{
+	int    check_ok = 1;
+	if(pItem) {
+		if(Flags & TagFilt::fNotTagsInList)
+			check_ok = 0;
+		else {
+			if(rRestrict.CmpNC(P_EmptyTagValRestrict) == 0)
+				check_ok = pItem->IsZeroVal();
+			else if(rRestrict.CmpNC(P_ExistTagValRestrict) == 0)
+				check_ok = 1;
+			else if(oneof2(pItem->TagDataType, OTTYP_BOOL, OTTYP_OBJLINK))
+				check_ok = BIN(rRestrict.ToLong() == pItem->Val.IntVal);
+			else if(pItem->TagDataType == OTTYP_ENUM) {
+				const PPID restrict_val = rRestrict.ToLong();
+				if(restrict_val == pItem->Val.IntVal)
+					check_ok = 1;
+				else {
+					check_ok = 0;
+					PPID item_id = pItem->Val.IntVal;
+					if(item_id && IS_DYN_OBJTYPE(pItem->TagEnumID)) {
+						PPObjTag tag_obj;
+						PPObjectTag tag_rec;
+						if(tag_obj.Fetch(pItem->TagID, &tag_rec) > 0 && tag_rec.Flags & OTF_HIERENUM) {
+							assert(tag_rec.TagEnumID == pItem->TagEnumID);
+							ReferenceTbl::Rec rec;
+							PPIDArray recur_list;
+							if(PPRef->GetItem(tag_rec.TagEnumID, item_id, &rec) > 0 && rec.Val2) {
+								recur_list.add(item_id);
+								for(item_id = rec.Val2; !check_ok && item_id && PPRef->GetItem(tag_rec.TagEnumID, item_id, &rec) > 0; item_id = rec.Val2) {
+									if(recur_list.addUnique(item_id) > 0) {
+										if(restrict_val == item_id) {
+											check_ok = 1;
+										}
+									}
+									else
+										break; // Зацикленная цепь ребенок->родитель
+								}
+							}
+						}
+					}
+				}
+			}
+			else if(pItem->TagDataType == OTTYP_NUMBER) {
+				RealRange rr;
+				strtorrng((const char*)rRestrict, &rr.low, &rr.upp);
+				check_ok = rr.CheckVal(pItem->Val.RealVal);
+			}
+			else if(oneof2(pItem->TagDataType, OTTYP_STRING, OTTYP_GUID)) {
+				size_t len = pItem->Val.PStr ? strlen(pItem->Val.PStr) : 0;
+				if(rRestrict.Len() && len) {
+					if(rRestrict.C(0) == '*') {
+						SString temp_buf = rRestrict;
+						check_ok = BIN(stristr866(pItem->Val.PStr, temp_buf.ShiftLeft()));
+					}
+					else if(rRestrict.C(rRestrict.Len() - 1) == '*')
+						check_ok = BIN(strnicmp866(rRestrict, pItem->Val.PStr, rRestrict.Len() - 1) == 0);
+					else
+						check_ok = BIN(stricmp866(rRestrict, pItem->Val.PStr) == 0);
+				}
+				else
+					check_ok = BIN(!rRestrict.Len() && !len);
+			}
+			else if(pItem->TagDataType == OTTYP_DATE) {
+				DateRange period;
+				getperiod(rRestrict, &period);
+				period.Actualize(pItem->Val.DtVal);
+				check_ok = BIN(period.CheckDate(pItem->Val.DtVal) > 0);
+			}
+		}
+	}
+	else if(!(Flags & TagFilt::fNotTagsInList) && rRestrict.CmpNC(P_EmptyTagValRestrict) != 0)
+		check_ok = 0;
+	return check_ok;
+}
+
+int FASTCALL TagFilt::Check(const ObjTagList * pList) const
+{
+	int    check_ok = 1;
+	SString restrict;
+	for(uint i = 0; check_ok && i < TagsRestrict.getCount(); i++) {
+		StrAssocArray::Item tr_item = TagsRestrict.at_WithoutParent(i);
+		TagFilt::GetRestriction(tr_item.Txt, restrict);
+		const ObjTagItem * p_item = pList ? pList->GetItem(tr_item.Id) : 0;
+		if(!CheckTagItemForRestrict(p_item, restrict))
+			check_ok = 0;
+	}
+	return check_ok;
+}
+//
+// PPObjTagPacket
+//
+SLAPI PPObjTagPacket::PPObjTagPacket()
+{
+	Init();
+}
+
+int SLAPI PPObjTagPacket::Init()
+{
+	MEMSZERO(Rec);
+	// @v8.2.5 EnumList.Clear();
+	return 1;
+}
+
+PPObjTagPacket & FASTCALL PPObjTagPacket::operator = (PPObjTagPacket & src)
+{
+	memcpy(&Rec, &src.Rec, sizeof(Rec));
+	// @v8.2.5 EnumList.Copy(src.EnumList);
+	Rule = src.Rule;
+	return *this;
+}
+//
+// PPTagEnumList
+//
+SLAPI PPTagEnumList::PPTagEnumList(PPID enumID) : StrAssocArray()
+{
+	EnumID = enumID;
+	Flags = 0;
+}
+
+PPTagEnumList & FASTCALL PPTagEnumList::operator = (const PPTagEnumList & s)
+{
+	Copy(s);
+	return *this;
+}
+
+int FASTCALL PPTagEnumList::Copy(const PPTagEnumList & src)
+{
+	EnumID = src.EnumID;
+	Flags = src.Flags;
+	return StrAssocArray::Copy(src);
+}
+
+void SLAPI PPTagEnumList::SetEnumID(PPID enumID)
+{
+	EnumID = enumID;
+}
+
+PPID SLAPI PPTagEnumList::GetEnumID() const
+{
+	return EnumID;
+}
+
+void SLAPI PPTagEnumList::SetFlags(long flags)
+{
+	SETFLAG(Flags, PPCommObjEntry::fHierarchical, flags & PPCommObjEntry::fHierarchical);
+}
+
+long SLAPI PPTagEnumList::GetFlags() const
+{
+	return Flags;
+}
+
+int SLAPI PPTagEnumList::PutItem(PPID * pID, const char * pName, PPID parentID)
+{
+	int    ok = 1;
+	if(!*pID) {
+		if(pName && *pName) {
+			long   _max = 1000;
+			if(GetMaxID(&_max) < 0 || _max < 1000)
+				_max = 1000;
+			*pID = _max+1;
+			return StrAssocArray::Add(*pID, pName, 1) ? 1 : PPSetErrorSLib();
+		}
+		else
+			ok = -1;
+	}
+	else if(pName && *pName)
+		ok = StrAssocArray::Add(*pID, pName, 1) ? 1 : PPSetErrorSLib();
+	else
+		StrAssocArray::Remove(*pID);
+	return ok;
+}
+
+int SLAPI PPTagEnumList::Read(PPID enumID)
+{
+	int    ok = 1;
+	Clear();
+	if(enumID)
+		SetEnumID(enumID);
+	else
+		enumID = EnumID;
+	ReferenceTbl::Rec rec, hdr_rec;
+	if(PPRef->GetItem(PPOBJ_DYNAMICOBJS, enumID, &hdr_rec) > 0) {
+		SETFLAGBYSAMPLE(Flags, PPCommObjEntry::fHierarchical, hdr_rec.Val1);
+		for(SEnum en = PPRef->Enum(enumID, 0); en.Next(&rec) > 0;) {
+			THROW(PutItem(&rec.ObjID, rec.ObjName, rec.Val2));
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPTagEnumList::Write(int use_ta)
+{
+	int    ok = 1;
+	uint   i;
+	PPID   item_id;
+	SString name;
+	PPIDArray processed_items;
+	ReferenceTbl::Rec rec, hdr_rec;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(EnumID == 0 || PPRef->GetItem(PPOBJ_DYNAMICOBJS, EnumID, &hdr_rec) < 0) {
+			THROW(PPRef->AllocDynamicObj(&EnumID, 0, Flags, 0));
+		}
+		else {
+			// @v8.2.5 {
+			if((hdr_rec.Val1 & PPCommObjEntry::fHierarchical) != (Flags & PPCommObjEntry::fHierarchical)) {
+				SETFLAGBYSAMPLE(hdr_rec.Val1, PPCommObjEntry::fHierarchical, Flags);
+				THROW(PPRef->UpdateItem(PPOBJ_DYNAMICOBJS, EnumID, &hdr_rec, 1, 0));
+			}
+			// } @v8.2.5
+		}
+		for(item_id = 0; PPRef->EnumItems(EnumID, &item_id, &rec) > 0;) {
+			uint  _pos = 0;
+			if(Search(item_id, &_pos)) {
+				StrAssocArray::Item _item = at(_pos);
+				(name = _item.Txt).Strip();
+				if(name.Cmp(strip(rec.ObjName), 0) != 0 || _item.ParentId != rec.Val2) {
+					name.CopyTo(rec.ObjName, sizeof(rec.ObjName));
+					rec.Val2 = _item.ParentId;
+					THROW(PPRef->UpdateItem(EnumID, item_id, &rec, 1, 0));
+				}
+				THROW(processed_items.add(item_id));
+			}
+			else {
+				THROW(PPRef->deleteRec());
+			}
+		}
+		processed_items.sort();
+		for(i = 0; i < getCount(); i++) {
+			StrAssocArray::Item item = at(i);
+			if(!processed_items.bsearch(item.Id)) {
+				MEMSZERO(rec);
+				STRNSCPY(rec.ObjName, item.Txt);
+				rec.Val2 = item.ParentId;
+				THROW(PPRef->AddItem(EnumID, &item.Id, &rec, 0));
+			}
+		}
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	return ok;
+}
+//
+//
+// virtual
+void * SLAPI PPObjTag::CreateObjListWin(uint flags, void * extraPtr)
+{
+	class PPObjTagListWindow : public PPObjListWindow {
+	public:
+		PPObjTagListWindow(PPObject * pObj, uint flags, void * extraPtr) : PPObjListWindow(pObj, flags, extraPtr)
+		{
+			//
+			// Так как окно не модальное, объект на который указывает extraPtr может оказаться разрушенным
+			// во время работы экземпляра окна. Потому создаем собственную копию объекта и передаем
+			// базовому классу ссылку на него в ExtraPtr.
+			//
+			if(pObj) {
+				((PPObjTag*)pObj)->InitFilt(extraPtr, Filt);
+				ExtraPtr = &Filt;
+			}
+			else
+				ExtraPtr = 0;
+			//
+			DefaultCmd = cmaEdit;
+			SetToolbar(TOOLBAR_LIST_TAG);
+			setTitle("Теги объектов");
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			int    update = 0;
+			PPID   id = 0;
+			PPObjListWindow::handleEvent(event);
+			if(P_Obj) {
+				getResult(&id);
+				if(TVCOMMAND) {
+					switch(TVCMD) {
+						case cmaMore:
+							if(id) {
+								PPObjTagPacket pack;
+								if(((PPObjTag*)P_Obj)->GetPacket(id, &pack) > 0 && pack.Rec.TagDataType == OTTYP_ENUM) {
+									if(pack.Rec.TagEnumID) {
+										ShowObjects(pack.Rec.TagEnumID, 0);
+									}
+								}
+							}
+							break;
+						case cmTransmitCharry:
+							{
+								PPIDArray id_list;
+								ReferenceTbl::Rec rec;
+								for(PPID item_id = 0; ((PPObjReference *)P_Obj)->EnumItems(&item_id, &rec) > 0;)
+									id_list.add(rec.ObjID);
+								if(!SendCharryObject(PPDS_CRROBJTAG, id_list))
+									PPError();
+								clearEvent(event);
+							}
+							break;
+					}
+				}
+				PostProcessHandleEvent(update, id);
+			}
+		}
+		ObjTagFilt Filt;
+	};
+	return /*0; */ new PPObjTagListWindow(this, flags, extraPtr);
+}
+//
+//
+//
+#if 0 // @v8.5.3 {
+
+class ObjectTagView : public ObjViewDialog {
+public:
+	ObjectTagView(PPObjTag * _ppobj) : ObjViewDialog(DLG_TAGVIEW, _ppobj, (_ppobj) ? _ppobj->extra : 0)
+	{
+		setupButtons();
+	}
+protected:
+	DECL_HANDLE_EVENT;
+	virtual void removeItem();
+	int    removeByParent(PPID parentID, StdTreeListBoxDef * pDef);
+	void   setupButtons();
+	void   extraProc(long);
+	TPoint mouse;
+};
+
+void ObjectTagView::setupButtons()
+{
+	int    down, up, items = 0;
+	PPObjectTag rec;
+	PPID   id = getCurrID();
+	if(!id) {
+		down = 0;
+		up   = ((PPObjTag*)P_Obj)->extra ? 1 : 0;
+	}
+	else if(P_Obj->Search(id, &rec)) {
+		down = 1;
+		up   = rec.TagGroupID ? 1 : 0;
+		items = (rec.TagDataType == OTTYP_ENUM && rec.TagEnumID) ? 1 : 0;
+	}
+	else
+		down = up = 0;
+	enableCommand(cmaLevelDown, down);
+	enableCommand(cmaLevelUp,   up);
+	enableCommand(cmaMore,      items);
+}
+
+void ObjectTagView::extraProc(long)
+{
+	PPID   id = getCurrID();
+	PPObjTagPacket pack;
+	if(((PPObjTag*)P_Obj)->GetPacket(id, &pack) > 0 && pack.Rec.TagDataType == OTTYP_ENUM) {
+		if(pack.Rec.TagEnumID) {
+			ShowObjects(pack.Rec.TagEnumID, 0);
+		}
+	}
+}
+
+IMPL_HANDLE_EVENT(ObjectTagView)
+{
+	ObjViewDialog::handleEvent(event);
+	if(event.isCmd(cmTransmitCharry)) {
+		PPIDArray id_list;
+		ReferenceTbl::Rec rec;
+		for(PPID id = 0; ((PPObjReference *)P_Obj)->EnumItems(&id, &rec) > 0;)
+			id_list.add(rec.ObjID);
+		if(!SendCharryObject(PPDS_CRROBJTAG, id_list))
+			PPError();
+		clearEvent(event);
+	}
+	else if(event.isCmd(cmLBItemFocused))
+		setupButtons();
+	else
+		return;
+	clearEvent(event);
+}
+
+int ObjectTagView::removeByParent(PPID parentID, StdTreeListBoxDef * pDef)
+{
+	int    ok = -1;
+	if(pDef) {
+		LongArray child_list;
+		pDef->GetListByParent(parentID, child_list);
+		for(uint i = 0; i < child_list.getCount(); i++) {
+			const long item_id = child_list.get(i);
+			THROW(removeByParent(item_id, pDef)); // @recursion
+			THROW(P_Obj->RemoveObjV(item_id, 0, 0, (void *)Extra));
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+void ObjectTagView::removeItem()
+{
+	int    r = 0;
+	PPID   id = getCurrID();
+	{
+		PPTransaction tra(1);
+		THROW(tra);
+		if((Rt & PPR_DEL) && id && PPMessage(mfConf|mfYesNo, PPCFM_DELETE, 0) == cmYes) {
+			r = 1;
+			if(P_List && P_List->def && P_List->isTreeList()) {
+				StdTreeListBoxDef * p_def = (StdTreeListBoxDef*)P_List->def;
+				if(p_def->HasChild(id)) {
+					THROW(removeByParent(id, p_def));
+				}
+			}
+			THROW(P_Obj->RemoveObjV(id, 0, 0, (void *)Extra));
+		}
+		THROW(tra.Commit());
+	}
+	if(r > 0)
+		updateList(-1);
+	CATCH
+		PPError();
+	ENDCATCH
+}
+#endif // } 0 @v8.5.3
+//
+//
+//
+// DLG_TAGENUMVIEW, CTL_TAGENUMVIEW_LIST, 48
+
+TagEnumListDialog::TagEnumListDialog(uint dlgID, uint listCtlID, size_t /*listBufLen*/) :
+	PPListDialog(dlgID, listCtlID)
+{
+}
+
+int TagEnumListDialog::setDTS(const PPTagEnumList * pList)
+{
+	/* @v9.2.11 if(pList)
+		Data.Copy(*pList);*/
+	RVALUEPTR(Data, pList); // @v9.2.11
+	updateList(-1);
+	return 1;
+}
+
+int TagEnumListDialog::getDTS(PPTagEnumList * pList)
+{
+	ASSIGN_PTR(pList, Data);
+	return 1;
+}
+
+int TagEnumListDialog::setupList()
+{
+	for(uint i = 0; i < Data.getCount(); i++) {
+		StrAssocArray::Item item = Data.at(i);
+		if(!addStringToList(item.Id, item.Txt))
+			return 0;
+	}
+	return 1;
+}
+
+int TagEnumListDialog::addItem(long * pPos, long * pID)
+{
+	int    ok = -1;
+	PPCommObjEntry param(Data.GetEnumID());
+	if(PPObjReference::EditCommObjItem(&param) > 0) {
+		if(!Data.PutItem(&param.ID, param.Name, param.ParentID))
+			ok = PPSetErrorSLib();
+		else {
+			ASSIGN_PTR(pPos, Data.getCount());
+			ASSIGN_PTR(pID, param.ID);
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int TagEnumListDialog::editItem(long, long id)
+{
+	int    ok = -1;
+	SString name;
+	if(id && Data.Get(id, name) > 0) {
+		PPCommObjEntry param(Data.GetEnumID(), id, name, 0);
+		if(PPObjReference::EditCommObjItem(&param) > 0) {
+			ok = Data.PutItem(&param.ID, param.Name, param.ParentID);
+		}
+	}
+	return ok;
+}
+
+int TagEnumListDialog::delItem(long, long id)
+{
+	return id ? Data.PutItem(&id, 0, 0) : 0;
+}
+//
+//
+//
+static int SLAPI SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTagF)
+{
+	class SelectObjTagTypeDialog : public TDialog {
+	public:
+		SelectObjTagTypeDialog(const ObjTagFilt * pObjTagF) : TDialog(DLG_OBJTAGTYP)
+		{
+			RVALUEPTR(Filt, pObjTagF);
+			P_ObjTypeList = 0;
+			TagObjTypeList.addzlist(PPOBJ_PERSON, PPOBJ_GOODS, PPOBJ_BILL, PPOBJ_LOT, PPOBJ_WORKBOOK,
+				PPOBJ_LOCATION, PPOBJ_GLOBALUSERACC, PPOBJ_UHTTSTORE, 0);
+		}
+		int    setDTS(const PPObjectTag * pData)
+		{
+			Data = *pData;
+			if(Data.ObjTypeID)
+				TagObjTypeList.addUnique(Data.ObjTypeID);
+			SetupObjListCombo(this, CTLSEL_OBJTAG_TAGOBJTYP, Data.ObjTypeID, &TagObjTypeList);
+			if(Data.ObjTypeID && !(Filt.Flags & ObjTagFilt::fAnyObjects))
+				disableCtrl(CTLSEL_OBJTAG_TAGOBJTYP, 1);
+			AddClusterAssoc(CTL_OBJTAG_TYPE, 0, OTTYP_GROUP);
+			AddClusterAssoc(CTL_OBJTAG_TYPE, 1, OTTYP_BOOL);
+			AddClusterAssoc(CTL_OBJTAG_TYPE, 2, OTTYP_STRING);
+			AddClusterAssoc(CTL_OBJTAG_TYPE, 3, OTTYP_NUMBER);
+			AddClusterAssoc(CTL_OBJTAG_TYPE, 4, OTTYP_ENUM);
+			AddClusterAssoc(CTL_OBJTAG_TYPE, 5, OTTYP_DATE);
+			AddClusterAssoc(CTL_OBJTAG_TYPE, 6, OTTYP_TIMESTAMP);
+			AddClusterAssoc(CTL_OBJTAG_TYPE, 7, OTTYP_OBJLINK);
+			AddClusterAssoc(CTL_OBJTAG_TYPE, 8, OTTYP_GUID);
+			AddClusterAssoc(CTL_OBJTAG_TYPE, 9, OTTYP_IMAGE);
+			SetClusterData(CTL_OBJTAG_TYPE, Data.TagDataType);
+			SetupTagObjType();
+			return 1;
+		}
+		int    getDTS(PPObjectTag * pData)
+		{
+			int    ok = 1;
+			if(!Data.ObjTypeID || (Filt.Flags & ObjTagFilt::fAnyObjects)) {
+				getCtrlData(CTLSEL_OBJTAG_TAGOBJTYP, &Data.ObjTypeID);
+			}
+			GetClusterData(CTL_OBJTAG_TYPE, &Data.TagDataType);
+			if(Data.TagDataType == OTTYP_OBJLINK) {
+				getCtrlData(CTLSEL_OBJTAG_OBJTYP, &Data.TagEnumID);
+				getCtrlData(CTLSEL_OBJTAG_OBJGRP, &Data.LinkObjGrp);
+			}
+			if(Data.ObjTypeID == 0) {
+                ok = PPErrorByDialog(this, CTLSEL_OBJTAG_TAGOBJTYP, PPERR_OBJTYPENEEDED);
+			}
+			else {
+				ASSIGN_PTR(pData, Data);
+			}
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isClusterClk(CTL_OBJTAG_TYPE)) {
+				GetClusterData(CTL_OBJTAG_TYPE, &Data.TagDataType);
+				SetupObjType();
+			}
+			else if(event.isCbSelected(CTLSEL_OBJTAG_TAGOBJTYP)) {
+				PPID   obj_type = getCtrlLong(CTLSEL_OBJTAG_TAGOBJTYP);
+				if(TagObjTypeList.lsearch(obj_type)) {
+					if(Data.ObjTypeID != obj_type) {
+						Data.ObjTypeID = obj_type;
+						SetupTagObjType();
+					}
+				}
+				else
+					setCtrlLong(CTLSEL_OBJTAG_TAGOBJTYP, Data.ObjTypeID);
+			}
+			else if(event.isCbSelected(CTLSEL_OBJTAG_OBJTYP))
+				SetupObjGroup();
+			else
+				return;
+			clearEvent(event);
+		}
+		void   SetupTagObjType()
+		{
+			/* v9.3.10
+			if(Data.ObjTypeID == PPOBJ_LOT) {
+				LinkObjTypeList.addzlist(PPOBJ_QCERT, PPOBJ_PERSON, 0);
+				P_ObjTypeList = &LinkObjTypeList;
+			}
+			else
+				P_ObjTypeList = 0;
+			*/
+			// @v9.3.10 {
+			LinkObjTypeList.addzlist(PPOBJ_QCERT, PPOBJ_PERSON, 0);
+			P_ObjTypeList = &LinkObjTypeList;
+			// } @v9.3.10
+			DisableClusterItem(CTL_OBJTAG_TYPE, 7, BIN(!P_ObjTypeList));
+			SetupObjType();
+		}
+		void   SetupObjType()
+		{
+			if(Data.TagDataType == OTTYP_OBJLINK && P_ObjTypeList && P_ObjTypeList->getCount()) {
+				disableCtrl(CTLSEL_OBJTAG_OBJTYP, 0);
+				SetupObjListCombo(this, CTLSEL_OBJTAG_OBJTYP, Data.TagEnumID, P_ObjTypeList);
+			}
+			else
+				disableCtrl(CTLSEL_OBJTAG_OBJTYP, 1);
+			SetupObjGroup();
+		}
+		void   SetupObjGroup()
+		{
+			PPID   obj_type = getCtrlLong(CTLSEL_OBJTAG_OBJTYP);
+			int    dsbl = 1;
+			if(obj_type == PPOBJ_PERSON) {
+				dsbl = 0;
+				SetupPPObjCombo(this, CTLSEL_OBJTAG_OBJGRP, PPOBJ_PRSNKIND, Data.LinkObjGrp, OLW_CANINSERT, 0);
+			}
+			else
+				setCtrlLong(CTLSEL_OBJTAG_OBJGRP, 0);
+			disableCtrl(CTLSEL_OBJTAG_OBJGRP, dsbl);
+		}
+
+		PPObjectTag Data;
+		ObjTagFilt Filt;
+		PPIDArray TagObjTypeList;
+		PPIDArray LinkObjTypeList;
+		const PPIDArray * P_ObjTypeList;
+	};
+	DIALOG_PROC_BODY_P1(SelectObjTagTypeDialog, pObjTagF, pData);
+}
+//
+//
+//
+int SLAPI SetupObjTagCombo(TDialog * dlg, uint ctl, PPID id, uint flags, ObjTagFilt * pFilt)
+{
+	return SetupPPObjCombo(dlg, ctl, PPOBJ_TAG, id, flags, pFilt);
+}
+//
+//
+//
+//static
+long FASTCALL ObjTagFilt::MakeObjTypeRootIdent(PPID objType)
+{
+	return objType ? (objType * TAG_OBJTYPEROOT_MULT) : TAG_OBJTYPEROOT_MULT;
+}
+
+//static
+int FASTCALL ObjTagFilt::ObjTypeRootIdentToObjType(long rootIdent, PPID * pObjType)
+{
+	int    yes = 0;
+	PPID   obj_type = 0;
+	if(rootIdent >= TAG_OBJTYPEROOT_MULT) {
+		if(rootIdent == TAG_OBJTYPEROOT_MULT)
+			obj_type = 0;
+		else
+			obj_type = rootIdent / TAG_OBJTYPEROOT_MULT;
+		yes = 1;
+	}
+	ASSIGN_PTR(pObjType, obj_type);
+	return yes;
+}
+
+SLAPI ObjTagFilt::ObjTagFilt(PPID objTypeID, long flags, PPID parentID)
+{
+	Flags = CHKXORFLAGS(flags, fOnlyGroups, fOnlyTags) | (flags & ~(fOnlyGroups|fOnlyTags));
+	if(objTypeID)
+		ObjTypeID = objTypeID;
+	else if(Flags & fAnyObjects)
+		ObjTypeID = 0;
+	else
+		ObjTypeID = PPOBJ_PERSON;
+	ParentID = parentID;
+}
+
+// static
+PPID SLAPI PPObjTag::Helper_GetTag(PPID objType, PPID objID, const char * pTagSymb)
+{
+	long   sur_id = 0;
+	if(PPRef) {
+		PPObjTag tag_obj;
+		PPID   tag_id = 0;
+		if(tag_obj.SearchBySymb(pTagSymb, &tag_id, 0) > 0) {
+			ObjTagTbl::Rec tag_rec;
+			if(PPRef->Ot.GetTagRec(objType, objID, tag_id, &tag_rec) > 0)
+				DS.GetTLA().SurIdList.Add(&sur_id, &tag_rec, sizeof(tag_rec));
+		}
+	}
+	return sur_id;
+}
+
+// static
+PPID SLAPI PPObjTag::Helper_GetTagByID(PPID objType, PPID objID, PPID tagID)
+{
+	long   sur_id = 0;
+	if(tagID) {
+		if(PPRef) {
+			PPObjTag tag_obj;
+			ObjTagTbl::Rec tag_rec;
+			if(PPRef->Ot.GetTagRec(objType, objID, tagID, &tag_rec) > 0)
+				DS.GetTLA().SurIdList.Add(&sur_id, &tag_rec, sizeof(tag_rec));
+		}
+	}
+	return sur_id;
+}
+
+SLAPI PPObjTag::PPObjTag(void * extraPtr) : PPObjReference(PPOBJ_TAG, extraPtr)
+{
+	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
+}
+
+SLAPI PPObjTag::~PPObjTag()
+{
+}
+
+int SLAPI PPObjTag::MakeReserved(long extra)
+{
+	/*
+\begin{description}
+	\item[Права агента на доступ к кассовым операциям]
+
+		Ид=4
+		\\Символ = \ppyrsrv{POSRIGHTS}
+		\\Тип объекта=\ppyrsrv{PERSON}
+		\\Тип тега = \ppyrsrv{STRING}
+	\item[Дата рождения]
+
+		Ид=5
+		\\Символ = \ppyrsrv{DOB}
+		\\Тип объекта=\ppyrsrv{PERSON}
+		\\Тип тега = \ppyrsrv{DATE}
+\end{description}
+	*/
+	// {ID, Name, Symb, ObjType, DataType}
+	int    ok = 1;
+	uint   num_recs, i;
+	SString temp_buf, obj_type_symb, data_type_symb;
+	SString line_buf;
+	PPIniFile ini_file;
+	int    do_make_doc = 0;
+	SFile  doc_file;
+	if(ini_file.GetInt(PPINISECT_SELFBUILD, PPINIPARAM_RESERVEDOBJECTS, &do_make_doc) && do_make_doc > 0) {
+		PPGetFilePath(PPPATH_OUT, "reservedobjects-tag", temp_buf);
+		doc_file.Open(temp_buf, SFile::mWrite);
+		if(!doc_file.IsValid())
+			do_make_doc = 0;
+	}
+	TVRez * p_rez = P_SlRez;
+	THROW_PP(p_rez, PPERR_RESFAULT);
+	THROW_PP(p_rez->findResource(ROD_TAG, PP_RCDATA), PPERR_RESFAULT);
+	THROW_PP(num_recs = p_rez->getUINT(), PPERR_RESFAULT);
+	if(do_make_doc) {
+		(line_buf = 0).CatChar('\\').Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
+		doc_file.WriteLine(line_buf);
+	}
+	for(i = 0; i < num_recs; i++) {
+		PPObjectTag temp_rec;
+		PPObjTagPacket pack;
+		PPID   id = p_rez->getUINT();
+		p_rez->getString(temp_buf = 0, 2); // Name
+		PPExpandString(temp_buf, CTRANSF_UTF8_TO_INNER); // @v9.2.1
+		temp_buf.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
+		p_rez->getString(temp_buf = 0, 2); // Symb
+		temp_buf.CopyTo(pack.Rec.Symb, sizeof(pack.Rec.Symb));
+		pack.Rec.ID = id;
+		p_rez->getString(obj_type_symb = 0, 2);  // ObjType
+		p_rez->getString(data_type_symb = 0, 2); // DataType
+		if(do_make_doc) {
+			line_buf = 0;
+			(temp_buf = pack.Rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
+			line_buf.Tab().CatChar('\\').Cat("item").CatChar('[').Cat(temp_buf).CatChar(']').CR();
+			line_buf.CR();
+			PPLoadString("id", temp_buf);
+			line_buf.Tab(2).CatEq(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), id).CR();
+			PPLoadString("symbol", temp_buf);
+			line_buf.Tab(2).CatCharN('\\', 2).Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv('=', 1).
+				CatChar('\\').Cat("ppyrsrv").CatChar('{').Cat(pack.Rec.Symb).CatChar('}').CR();
+			PPLoadString("objtype", temp_buf);
+			line_buf.Tab(2).CatCharN('\\', 2).Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv('=', 1).
+				CatChar('\\').Cat("ppyrsrv").CatChar('{').Cat(obj_type_symb).CatChar('}').CR();
+			PPLoadString("tagtype", temp_buf);
+			line_buf.Tab(2).CatCharN('\\', 2).Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv('=', 1).
+				CatChar('\\').Cat("ppyrsrv").CatChar('{').Cat(data_type_symb).CatChar('}').CR();
+			doc_file.WriteLine(line_buf);
+		}
+		if(id && Search(id, &temp_rec) <= 0 && SearchBySymb(pack.Rec.Symb, 0, &temp_rec) <= 0) {
+			long   extra = 0;
+			pack.Rec.ObjTypeID = GetObjectTypeBySymb(obj_type_symb, &extra);
+			if(pack.Rec.ObjTypeID) {
+				if(data_type_symb.CmpNC("STRING") == 0)
+					pack.Rec.TagDataType = OTTYP_STRING;
+				else if(data_type_symb.CmpNC("INT") == 0)
+					pack.Rec.TagDataType = OTTYP_INT;
+				else if(data_type_symb.CmpNC("NUMBER") == 0 || data_type_symb.CmpNC("REAL") == 0)
+					pack.Rec.TagDataType = OTTYP_NUMBER;
+				else if(data_type_symb.CmpNC("DATE") == 0)
+					pack.Rec.TagDataType = OTTYP_DATE;
+				else if(data_type_symb.CmpNC("TIMESTAMP") == 0) // @v7.5.0
+					pack.Rec.TagDataType = OTTYP_TIMESTAMP;
+				else if(data_type_symb.CmpNC("GUID") == 0 || data_type_symb.CmpNC("UUID") == 0)
+					pack.Rec.TagDataType = OTTYP_GUID;
+				else if(data_type_symb.CmpNC("ENUM") == 0) // @v9.4.7
+					pack.Rec.TagDataType = OTTYP_ENUM;
+				if(pack.Rec.TagDataType) {
+					//
+					// Здесь нельзя использовать PutPacket поскольку добавляется запись
+					// с предопределенным идентификатором.
+					//
+					PPTransaction tra(1);
+					THROW(tra);
+					THROW(Helper_CreateEnumObject(pack)); // @v9.4.7
+					THROW(EditItem(Obj, 0, &pack.Rec, 0));
+					THROW(tra.Commit());
+				}
+			}
+		}
+	}
+	if(do_make_doc) {
+		(line_buf = 0).CatChar('\\').Cat("end").CatChar('{').Cat("description").CatChar('}').CR();
+		doc_file.WriteLine(line_buf);
+	}
+	CATCHZOK
+	return ok;
+}
+
+ObjTagFilt & SLAPI PPObjTag::InitFilt(void * extraPtr, ObjTagFilt & rFilt) const
+{
+	if(extraPtr) {
+		rFilt = *(ObjTagFilt *)extraPtr;
+	}
+	else {
+		rFilt.ObjTypeID = PPOBJ_PERSON;
+		rFilt.ParentID = 0;
+		rFilt.Flags = 0;
+	}
+	return rFilt;
+}
+
+int FASTCALL PPObjTag::IsUnmirrored(PPID tagID)
+{
+	if(oneof2(tagID, PPTAG_LOT_FSRARINFA, PPTAG_LOT_FSRARINFB))
+		return 1;
+	else
+		return 0;
+}
+
+int SLAPI PPObjTag::GetPacket(PPID id, PPObjTagPacket * pPack)
+{
+	int    ok = -1;
+	pPack->Init();
+	if(id && Search(id, &pPack->Rec) > 0) {
+		/* @v8.2.5
+		if(pPack->Rec.TagDataType == OTTYP_ENUM) {
+			ok = pPack->EnumList.Read(pPack->Rec.TagEnumID);
+			if(ok)
+				SETFLAG(pPack->Rec.Flags, OTF_HIERENUM, BIN(pPack->EnumList.GetFlags() & PPCommObjEntry::fHierarchical));
+		}
+		else */
+			ok = 1;
+	}
+	return ok;
+}
+
+int SLAPI PPObjTag::Helper_CreateEnumObject(PPObjTagPacket & rPack)
+{
+	int    ok = 1;
+	if(rPack.Rec.TagDataType == OTTYP_ENUM) {
+		/*
+		pPack->EnumList.SetFlags((pPack->Rec.Flags & OTF_HIERENUM) ? PPCommObjEntry::fHierarchical : 0);
+		THROW(pPack->EnumList.Write(0));
+		pPack->Rec.TagEnumID = pPack->EnumList.GetEnumID();
+		*/
+		ReferenceTbl::Rec hdr_rec;
+		const long hdr_flags = (rPack.Rec.Flags & OTF_HIERENUM) ? PPCommObjEntry::fHierarchical : 0;
+		if(!rPack.Rec.TagEnumID || ref->GetItem(PPOBJ_DYNAMICOBJS, rPack.Rec.TagEnumID, &hdr_rec) < 0) {
+			THROW(ref->AllocDynamicObj(&rPack.Rec.TagEnumID, 0, hdr_flags, 0));
+		}
+		else if((hdr_rec.Val1 & PPCommObjEntry::fHierarchical) != (hdr_flags & PPCommObjEntry::fHierarchical)) {
+			SETFLAGBYSAMPLE(hdr_rec.Val1, PPCommObjEntry::fHierarchical, hdr_flags);
+			THROW(ref->UpdateItem(PPOBJ_DYNAMICOBJS, rPack.Rec.TagEnumID, &hdr_rec, 1, 0));
+		}
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPObjTag::PutPacket(PPID * pID, PPObjTagPacket * pPack, int use_ta)
+{
+	int    ok = 1;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(*pID && pPack == 0) {
+			PPObjTagPacket rmvp;
+			if(GetPacket(*pID, &rmvp) > 0) {
+				if(rmvp.Rec.TagDataType == OTTYP_ENUM && rmvp.Rec.TagEnumID) {
+					/* @v8.2.5
+					rmvp.EnumList.Clear();
+					THROW(rmvp.EnumList.Write(0));
+					*/
+					THROW(ref->FreeDynamicObj(rmvp.Rec.TagEnumID, 0));
+				}
+				THROW(ref->RemoveItem(PPOBJ_TAG, *pID, 0));
+			}
+		}
+		else {
+			THROW(Helper_CreateEnumObject(*pPack));
+			THROW(EditItem(PPOBJ_TAG, *pID, &pPack->Rec, 0));
+			*pID = pPack->Rec.ID = ref->data.ObjID;
+		}
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPObjTag::Edit(PPID * pID, void * extraPtr)
+{
+	class ObjTagDialog : public TDialog {
+	public:
+		ObjTagDialog(uint rezID) : TDialog(rezID)
+		{
+		}
+		int    setDTS(PPObjTagPacket * pData)
+		{
+			SString typ_name_buf;
+			Data = *pData;
+			enableCommand(cmaMore, Data.Rec.TagDataType == OTTYP_ENUM);
+			disableCtrl(CTL_OBJTAG_ID, !PPMaster || Data.Rec.ID);
+			ObjTagFilt ot_filt(Data.Rec.ObjTypeID, ObjTagFilt::fOnlyGroups);
+			SetupPPObjCombo(this, CTLSEL_OBJTAG_GRP, PPOBJ_TAG, Data.Rec.TagGroupID, OLW_CANSELUPLEVEL, &ot_filt);
+			setCtrlData(CTL_OBJTAG_NAME, Data.Rec.Name);
+			setCtrlData(CTL_OBJTAG_ID,   &Data.Rec.ID);
+			setCtrlData(CTL_OBJTAG_SYMB, Data.Rec.Symb);
+			const PPID typ = Data.Rec.TagDataType;
+			AddClusterAssoc(CTL_OBJTAG_FLAGS, 0, OTF_WARNZERO);
+			AddClusterAssoc(CTL_OBJTAG_FLAGS, 1, OTF_INHERITABLE); // @v7.4.5
+			AddClusterAssoc(CTL_OBJTAG_FLAGS, 2, OTF_NOTICEINCASHPANE);
+			AddClusterAssoc(CTL_OBJTAG_FLAGS, 3, OTF_HIERENUM); // @v8.2.5
+			SetClusterData(CTL_OBJTAG_FLAGS, Data.Rec.Flags);
+			DisableClusterItem(CTL_OBJTAG_FLAGS, 3, (typ != OTTYP_ENUM)); // @v8.2.5
+			ObjTagItem::GetTypeString(typ, Data.Rec.TagEnumID, typ_name_buf); // @v7.5.0
+			if(typ == OTTYP_OBJLINK) {
+				// @v7.3.12 {
+				{
+					int    dsbl = 1;
+					if(Data.Rec.TagEnumID == PPOBJ_PERSON) {
+						dsbl = 0;
+						SetupPPObjCombo(this, CTLSEL_OBJTAG_OBJGRP, PPOBJ_PRSNKIND, Data.Rec.LinkObjGrp, OLW_CANINSERT, 0);
+					}
+					else
+						setCtrlLong(CTLSEL_OBJTAG_OBJGRP, 0);
+					disableCtrl(CTLSEL_OBJTAG_OBJGRP, dsbl);
+				}
+				// } @v7.3.12
+			}
+			setCtrlString(CTL_OBJTAG_TYPE, typ_name_buf);
+			disableCtrl(CTL_OBJTAG_TYPE, 1);
+			enableCommand(cmaMore, Data.Rec.TagDataType == OTTYP_ENUM);
+			return 1;
+		}
+		int    getDTS(PPObjTagPacket * pData)
+		{
+			int    ok = 1;
+			uint   selctl = 0;
+			getCtrlData(selctl = CTL_OBJTAG_NAME, Data.Rec.Name);
+			THROW_PP(*strip(Data.Rec.Name) != 0, PPERR_NAMENEEDED);
+			getCtrlData(CTL_OBJTAG_ID, &Data.Rec.ID);
+			getCtrlData(selctl = CTLSEL_OBJTAG_GRP, &Data.Rec.TagGroupID);
+			getCtrlData(CTL_OBJTAG_SYMB, Data.Rec.Symb);
+			GetClusterData(CTL_OBJTAG_FLAGS, &Data.Rec.Flags);
+			// @v8.2.5 {
+			if(Data.Rec.TagDataType != OTTYP_ENUM) {
+				Data.Rec.Flags &= ~OTF_HIERENUM;
+			}
+			// } @v8.2.5
+			// @v7.3.12 {
+			if(Data.Rec.TagDataType == OTTYP_OBJLINK) {
+				if(Data.Rec.TagEnumID == PPOBJ_PERSON) {
+					getCtrlData(CTLSEL_OBJTAG_OBJGRP, &Data.Rec.LinkObjGrp);
+				}
+			}
+			// } @v7.3.12
+			THROW(CheckRecursion(Data.Rec.ID, Data.Rec.TagGroupID));
+			ASSIGN_PTR(pData, Data);
+			CATCH
+				ok = PPErrorByDialog(this, selctl, -1);
+			ENDCATCH
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmaMore) && Data.Rec.TagDataType == OTTYP_ENUM) {
+				// @v8.2.5 PPObjTag::EditEnumListDialog(&Data.EnumList);
+				// @v8.2.5 {
+				if(Data.Rec.TagEnumID) {
+					ShowObjects(Data.Rec.TagEnumID, 0);
+				}
+				// } @v8.2.5
+				clearEvent(event);
+			}
+		}
+		int CheckRecursion(PPID id, PPID grpID)
+		{
+			int    ok = 1;
+			PPID   grp_id = grpID;
+			PPObjTag obj_tag;
+			do {
+				if(grp_id != 0) {
+					PPObjectTag rec;
+					THROW_PP(id != grp_id, PPERR_RECURSIONFOUND);
+					THROW(obj_tag.Fetch(grp_id, &rec));
+					grp_id = rec.TagGroupID;
+				}
+			} while(grp_id != 0);
+			CATCHZOK
+			return ok;
+		}
+		PPObjTagPacket Data;
+	};
+	int    ok = 1, r = cmCancel, valid_data = 0, is_new = 0;
+	ObjTagDialog * dlg = 0;
+	if(*pID && ObjTagFilt::ObjTypeRootIdentToObjType(*pID, 0)) {
+		// Специальный идентификатор, поступивший из списка - тип объекта - его редактировать не надо.
+		ok = -1;
+	}
+	else {
+		int    tagtype = 0;
+		ObjTagFilt ot_filt;
+		InitFilt(NZOR(extraPtr, ExtraPtr), ot_filt);
+		PPObjTagPacket pack;
+		THROW(EditPrereq(pID, 0, &is_new));
+		if(!is_new) {
+			THROW(GetPacket(*pID, &pack) > 0);
+		}
+		else {
+			PPObjectTag parent_rec;
+			if(ot_filt.ParentID && Fetch(ot_filt.ParentID, &parent_rec) > 0)
+				pack.Rec.TagGroupID = ot_filt.ParentID;
+			else
+				pack.Rec.TagGroupID = 0;
+			pack.Rec.ObjTypeID  = NZOR(ot_filt.ObjTypeID, PPOBJ_PERSON);
+			r = (SelectObjTagType(&pack.Rec, &ot_filt) > 0) ? 1 : -1;
+		}
+		if(r > 0) {
+			THROW(CheckDialogPtr(&(dlg = new ObjTagDialog(pack.Rec.TagDataType ? DLG_OBJTAG : DLG_OBJTAGGRP))));
+			THROW(EditPrereq(pID, dlg, 0));
+			dlg->setDTS(&pack);
+			while(!valid_data && (r = ExecView(dlg)) == cmOK) {
+				THROW(is_new || CheckRights(PPR_MOD));
+				if(dlg->getDTS(&pack)) {
+					valid_data = 1;
+					if(*pID)
+						*pID = pack.Rec.ID;
+					THROW(PutPacket(pID, &pack, 1));
+				}
+			}
+		}
+	}
+	CATCHZOKPPERR
+	delete dlg;
+	return ok ? r : 0;
+}
+
+// static
+int SLAPI PPObjTag::EditEnumListDialog(PPTagEnumList * pList)
+{
+	int    ok = -1;
+	TagEnumListDialog * dlg = new TagEnumListDialog((pList->GetFlags() & PPCommObjEntry::fHierarchical) ? DLG_TAGENUMTREEVIEW : DLG_TAGENUMVIEW, CTL_TAGENUMVIEW_LIST, 48);
+	if(CheckDialogPtr(&dlg, 1)) {
+		dlg->setDTS(pList);
+		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
+			if(dlg->getDTS(pList))
+				valid_data = ok = 1;
+	}
+	else
+		ok = 0;
+	delete dlg;
+	return ok;
+}
+
+SArray * SLAPI PPObjTag::CreateList(long current, long parent)
+{
+	int    grpOnly = BIN(parent < 0);
+	ReferenceTbl::Key1 k;
+	struct {
+		PPID   id;
+		char   text[sizeof(((PPObjectTag*)0)->Name) + 3];
+	} item;
+	PPObjectTag tag;
+	long   lplus = 0x202b20L, lminus = 0x202d20L;
+	BExtQuery q(ref, 1);
+	SArray * ary = new SArray(sizeof(item));
+	THROW_MEM(ary);
+	parent = (Search(current, &tag) > 0) ? tag.TagGroupID : labs(parent);
+	if(parent == 1)
+		parent = 0;
+	MEMSZERO(k);
+	k.ObjType = PPOBJ_TAG;
+	q.selectAll().where(ref->ObjType == PPOBJ_TAG && ref->Val2 == parent);
+	if(parent) {
+		item.id = 0;
+		STRNSCPY(item.text, (char*)&lminus);
+		THROW_SL(ary->insert(&item));
+	}
+	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+		PPObjectTag * rec = (PPObjectTag*)&ref->data;
+		if(!grpOnly || rec->TagDataType == 0) {
+			item.id = rec->ID;
+			if(!rec->TagDataType)
+				strcpy(stpcpy(item.text, (char*)&lplus), rec->Name);
+			else
+				STRNSCPY(item.text, rec->Name);
+			THROW_SL(ary->insert(&item));
+		}
+	}
+	THROW_DB(BTROKORNFOUND);
+	CATCH
+		ZDELETE(ary);
+	ENDCATCH
+	return ary;
+}
+
+int SLAPI PPObjTag::CheckForFilt(const ObjTagFilt * pFilt, const PPObjectTag & rRec) const
+{
+	int    ok = 1;
+	if(pFilt) {
+		if(pFilt->Flags & ObjTagFilt::fOnlyTags && rRec.TagDataType == OTTYP_GROUP)
+			ok = 0;
+		else if(pFilt->Flags & ObjTagFilt::fOnlyGroups && rRec.TagDataType != OTTYP_GROUP)
+			ok = 0;
+		else if(pFilt->ParentID && (rRec.TagGroupID != pFilt->ParentID && rRec.ID != pFilt->ParentID))
+			ok = 0;
+		else if(!(pFilt->Flags & ObjTagFilt::fAnyObjects)) { // @v8.2.8
+			if(pFilt->ObjTypeID && rRec.ObjTypeID != pFilt->ObjTypeID)
+				ok = 0;
+			else if(pFilt->ObjTypeID == 0 && rRec.ObjTypeID != PPOBJ_PERSON)
+				ok = 0;
+		}
+	}
+	return ok;
+}
+
+int SLAPI PPObjTag::GetObjListByFilt(PPID objType, const TagFilt * pFilt, UintHashTable & rList, UintHashTable & rExcludeList)
+{
+	int    ok = -1;
+	int    intersect_list_inited = 0;
+	UintHashTable intersect_list, exclude_list;
+	rList.Clear();
+	rExcludeList.Clear();
+	if(pFilt && !pFilt->IsEmpty()) {
+		SString restrict;
+		uint   i;
+		if(pFilt->Flags & TagFilt::fNotTagsInList) {
+			for(i = 0; i < pFilt->TagsRestrict.getCount(); i++) {
+				StrAssocArray::Item item = pFilt->TagsRestrict.at(i);
+				UintHashTable local_list;
+				if(PPRef->Ot.GetObjectList(objType, item.Id, local_list) > 0) {
+					exclude_list.Add(local_list);
+				}
+			}
+			ok = 100;
+		}
+		else {
+			for(i = 0; i < pFilt->TagsRestrict.getCount(); i++) {
+				StrAssocArray::Item item = pFilt->TagsRestrict.at(i);
+				TagFilt::GetRestriction(item.Txt, restrict);
+				UintHashTable local_list;
+				if(restrict.CmpNC(P_EmptyTagValRestrict) == 0) {
+					if(PPRef->Ot.GetObjectList(objType, item.Id, local_list) > 0) {
+						for(ulong v = 0; local_list.Enum(&v);) {
+							ObjTagItem tag_item;
+							if(FetchTag((PPID)v, item.Id, &tag_item) > 0 && !tag_item.IsZeroVal())
+								exclude_list.Add(local_list);
+						}
+					}
+				}
+				else {
+					if(PPRef->Ot.GetObjectList(objType, item.Id, local_list) > 0) {
+						if(restrict.CmpNC(P_ExistTagValRestrict) == 0) {
+							if(intersect_list_inited)
+								intersect_list.Intersect(local_list);
+							else {
+								intersect_list = local_list;
+								intersect_list_inited = 1;
+							}
+						}
+						else {
+							for(ulong v = 0; local_list.Enum(&v);) {
+								ObjTagItem tag_item;
+								if(FetchTag((PPID)v, item.Id, &tag_item) > 0 && pFilt->CheckTagItemForRestrict(&tag_item, restrict) > 0)
+									intersect_list.Add(v);
+								else
+									intersect_list.Remove(v);
+								intersect_list_inited = 1;
+							}
+						}
+					}
+					else
+						intersect_list.Clear();
+				}
+				ok = 1;
+			}
+		}
+	}
+	rList = intersect_list;
+	rExcludeList = exclude_list;
+	return ok;
+}
+
+StrAssocArray * SLAPI PPObjTag::MakeStrAssocList(void * extraPtr)
+{
+	ObjTagFilt ot_filt;
+	InitFilt(extraPtr, ot_filt);
+	PPIDArray obj_type_list;
+	SString temp_buf;
+	PPObjectTag rec;
+	StrAssocArray * p_list = new StrAssocArray;
+	THROW_MEM(p_list);
+	for(SEnum en = ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+		if(CheckForFilt(&ot_filt, rec)) {
+			PPID   parent_id = rec.TagGroupID;
+			if(ot_filt.Flags & ObjTagFilt::fObjTypeRoots && parent_id == 0) {
+				parent_id = ObjTagFilt::MakeObjTypeRootIdent(rec.ObjTypeID);
+				if(obj_type_list.addUnique(rec.ObjTypeID) > 0) {
+					GetObjectTitle(rec.ObjTypeID, temp_buf = 0);
+                    p_list->Add(parent_id, 0, temp_buf);
+				}
+			}
+			THROW_SL(p_list->Add(rec.ID, parent_id, rec.Name));
+		}
+	}
+	p_list->SortByText();
+	CATCH
+		ZDELETE(p_list);
+	ENDCATCH
+	return p_list;
+}
+
+int SLAPI PPObjTag::GetListByFlag(long mask, PPIDArray & rList)
+{
+	int    ok  = -1;
+	SEnum en = ref->Enum(Obj, 0);
+	PPObjectTag rec;
+	while(en.Next(&rec)) {
+		if((rec.Flags & mask) == mask) {
+			rList.addUnique(rec.ID);
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int SLAPI PPObjTag::NormalizeTextCritirion(PPID tagID, const char * pCrit, SString & rNormCrit)
+{
+	int    ok = 1;
+	PPObjectTag2 tag_rec;
+	rNormCrit = pCrit;
+	if(rNormCrit.NotEmptyS()) {
+		if(Fetch(tagID, &tag_rec) > 0) {
+			switch(tag_rec.TagDataType) {
+				case OTTYP_BOOL:
+					if(rNormCrit.OneOf(';', "no;false;0;нет;ложь", 1))
+						(rNormCrit = 0).Cat("0");
+					else
+						(rNormCrit = 0).Cat("1");
+					break;
+				case OTTYP_ENUM:
+					{
+						PPID   _id = 0;
+						if(PPRef->SearchName(tag_rec.TagEnumID, &_id, rNormCrit, 0) > 0) {
+							(rNormCrit = 0).Cat(_id);
+						}
+						else {
+							(rNormCrit = 0).Cat(-1234567890); // @v8.3.12 С высокой вероятностью невозможное значение
+							ok = -1;
+						}
+					}
+					break;
+				case OTTYP_OBJLINK:
+					ok = -1;
+					break;
+			}
+		}
+	}
+	return ok;
+}
+
+int SLAPI PPObjTag::GetWarnList(const ObjTagList * pTagList, StrAssocArray * pResultList, StrAssocArray * pInfoList)
+{
+	int    ok = -1;
+	PPIDArray warn_tag_list;
+	if(GetListByFlag(OTF_WARNZERO, warn_tag_list) > 0) {
+		SString fmt_buf, msg_buf;
+		PPObjectTag tag_rec;
+		for(uint i = 0; i < warn_tag_list.getCount(); i++) {
+			int    invalid = 0;
+			const  PPID tag_id = warn_tag_list.get(i);
+			MEMSZERO(tag_rec);
+			Fetch(tag_id, &tag_rec);
+			if(pTagList == 0) {
+				PPLoadText(PPTXT_TAGABSENT, fmt_buf);
+				msg_buf.Printf(fmt_buf, tag_rec.Name);
+				invalid = 1;
+			}
+			else {
+				const ObjTagItem * p_item = pTagList->GetItem(tag_id);
+				if(!p_item) {
+					PPLoadText(PPTXT_TAGABSENT, fmt_buf);
+					msg_buf.Printf(fmt_buf, tag_rec.Name);
+					invalid = 1;
+				}
+				else if(p_item->IsWarnVal()) {
+					PPLoadText(PPTXT_TAGWARNVAL, fmt_buf);
+					msg_buf.Printf(fmt_buf, tag_rec.Name);
+					invalid = 1;
+				}
+				else if(pInfoList) {
+					GetCurrTagVal(p_item, msg_buf);
+					pInfoList->Add(tag_id, msg_buf);
+				}
+			}
+			if(invalid) {
+				if(pResultList)
+					pResultList->Add(tag_id, msg_buf);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
+int SLAPI PPObjTag::GetCurrTagVal(const ObjTagItem * pItem, SString & rBuf)
+{
+	rBuf = 0;
+	return pItem ? pItem->GetStr(rBuf) : -1;
+}
+
+/* @v8.5.3
+int SLAPI PPObjTag::Browse(long extraData)
+{
+	InitFilt(extra = extraData, OtFilt);
+	ObjectTagView * dlg = 0;
+	if(CheckRights(PPR_READ) && CheckDialogPtr(&(dlg = new ObjectTagView(this)))) {
+		ExecViewAndDestroy(dlg);
+		return 1;
+	}
+	return PPErrorZ();
+}
+*/
+
+int SLAPI PPObjTag::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+{
+	int    ok = 1;
+	p->Data = new PPObjectTag;
+	THROW_MEM(p->Data);
+	if(stream == 0) {
+		p->Priority = 120;
+		THROW(Search(id, p->Data) > 0);
+	}
+	else {
+		THROW(Serialize_(-1, (ReferenceTbl::Rec *)p->Data, stream, pCtx));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPObjTag::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+{
+	int    ok = 1;
+	if(p && p->Data) {
+		PPObjectTag * p_rec = (PPObjectTag *)p->Data;
+		THROW(ProcessObjRefInArray(PPOBJ_TAG, &p_rec->TagGroupID, ary, replace));
+		if(IS_DYN_OBJTYPE(p_rec->TagEnumID)) {
+			THROW(ProcessObjRefInArray(PPOBJ_DYNAMICOBJS, &p_rec->TagEnumID, ary, replace));
+		}
+		// @v7.3.12 {
+		else if(p_rec->TagEnumID == PPOBJ_PERSON) {
+			THROW(ProcessObjRefInArray(PPOBJ_PRSNKIND, &p_rec->LinkObjGrp, ary, replace));
+		}
+		// } @v7.3.12
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;
+}
+
+//static
+int SLAPI PPObjTag::RecoverLostUnifiedLinks()
+{
+	int    ok = -1;
+	PPLogger logger;
+	StrAssocArray * p_tags_list = 0;
+	SysJournal * p_sj = DS.GetTLA().P_SysJ;
+	if(p_sj) {
+		SString msg_buf, fmt_buf, temp_buf;
+		PPObjTag tag_obj;
+		ObjTagFilt ot_filt(0, ObjTagFilt::fOnlyTags|ObjTagFilt::fAnyObjects);
+		p_tags_list = tag_obj.MakeStrAssocList(&ot_filt);
+		if(p_tags_list) {
+			PPObjPerson psn_obj;
+			uint count = p_tags_list->getCount();
+			PPWait(1);
+			PPTransaction tra(1);
+			THROW(tra);
+			for(uint i = 0; i < count; i++) {
+				PPObjectTag2 tag;
+				const PPID tag_id = p_tags_list->at(i).Id;
+				if(tag_obj.Fetch(tag_id, &tag) > 0 && oneof2(tag.TagDataType, OTTYP_OBJLINK, OTTYP_ENUM) && tag.TagEnumID) {
+					ObjTagTbl::Key1 k1;
+					k1.TagID = tag_id;
+					k1.ObjID = 0;
+					if(PPRef->Ot.search(1, &k1, spGe)) {
+						do {
+							ObjTagTbl::Rec rec;
+							PPRef->Ot.copyBufTo(&rec);
+							if(rec.IntVal) {
+								if(tag.TagDataType == OTTYP_ENUM) {
+									ReferenceTbl::Rec ref_rec;
+									int r = PPRef->GetItem(tag.TagEnumID, rec.IntVal, &ref_rec);
+									THROW(r);
+									if(r < 0) {
+										// PPTXT_TAGHANGEDLINK         "Обнаружена висячая ссылка в теге '@tag' на объект {'@objtitle', @int}"
+										PPFormatT(PPTXT_TAGHANGEDLINK, &msg_buf, tag_id, tag.TagEnumID, rec.IntVal);
+										PPID   subst_id = 0;
+										if(p_sj->GetLastObjUnifyEvent(tag.TagEnumID, rec.IntVal, &subst_id, 0) > 0) {
+											THROW_DB(PPRef->Ot.rereadForUpdate(1, &k1));
+											PPRef->Ot.data.IntVal = subst_id;
+											THROW_DB(PPRef->Ot.updateRec());
+											PPLoadString("corrected", temp_buf);
+											msg_buf.CatDiv(':', 2).Cat(temp_buf);
+										}
+										else {
+											PPLoadString("notcorrected", temp_buf);
+											msg_buf.CatDiv(':', 2).Cat(temp_buf);
+										}
+										logger.Log(msg_buf);
+									}
+								}
+								else if(tag.TagDataType == OTTYP_OBJLINK) {
+									if(tag.TagEnumID == PPOBJ_PERSON) {
+										PersonTbl::Rec psn_rec;
+										int r = psn_obj.Search(rec.IntVal, &psn_rec);
+										THROW(r);
+										if(r < 0) {
+											// PPTXT_TAGHANGEDLINK         "Обнаружена висячая ссылка в теге '@tag' на объект {'@objtitle', @int}"
+											PPFormatT(PPTXT_TAGHANGEDLINK, &msg_buf, tag_id, tag.TagEnumID, rec.IntVal);
+											PPID   subst_id = 0;
+											if(p_sj->GetLastObjUnifyEvent(tag.TagEnumID, rec.IntVal, &subst_id, 0) > 0) {
+												THROW_DB(PPRef->Ot.rereadForUpdate(1, &k1));
+												PPRef->Ot.data.IntVal = subst_id;
+												THROW_DB(PPRef->Ot.updateRec());
+												PPLoadString("corrected", temp_buf);
+												msg_buf.CatDiv(':', 2).Cat(temp_buf);
+											}
+											else {
+												PPLoadString("notcorrected", temp_buf);
+												msg_buf.CatDiv(':', 2).Cat(temp_buf);
+											}
+											logger.Log(msg_buf);
+										}
+									}
+								}
+							}
+						} while(PPRef->Ot.search(1, &k1, spNext) && PPRef->Ot.data.TagID == tag_id);
+					}
+				}
+			}
+			THROW(tra.Commit());
+			PPWait(0);
+		}
+	}
+	CATCH
+		logger.LogLastError();
+		ok = PPErrorZ();
+	ENDCATCH
+	ZDELETE(p_tags_list);
+	return ok;
+}
+
+int SLAPI PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+{
+	int    ok = DBRPL_OK;
+	if(msg == DBMSG_OBJDELETE) {
+		if(_obj == PPOBJ_DYNAMICOBJS) {
+			ObjTagFilt ot_filt(0, ObjTagFilt::fOnlyTags|ObjTagFilt::fAnyObjects);
+			StrAssocArray * p_tags_list = MakeStrAssocList(&ot_filt);
+			if(p_tags_list) {
+				uint count = p_tags_list->getCount();
+				for(uint i = 0; ok == DBRPL_OK && i < count; i++) {
+					PPObjectTag tag;
+					if(Fetch(p_tags_list->at(i).Id, &tag) > 0 && oneof2(_id, tag.ObjTypeID, tag.TagEnumID))
+						ok = RetRefsExistsErr(Obj, _id);
+				}
+			}
+			ZDELETE(p_tags_list);
+		}
+		// @v8.2.8 {
+		else if(_obj == PPOBJ_PERSON) {
+			ObjTagFilt ot_filt(0, ObjTagFilt::fOnlyTags|ObjTagFilt::fAnyObjects);
+			StrAssocArray * p_tags_list = MakeStrAssocList(&ot_filt);
+			if(p_tags_list) {
+				uint count = p_tags_list->getCount();
+				for(uint i = 0; ok == DBRPL_OK && i < count; i++) {
+					const PPID tag_id = p_tags_list->at(i).Id;
+					PPObjectTag tag;
+					if(Fetch(tag_id, &tag) > 0) {
+						if(tag.TagEnumID == _obj) {
+							ObjTagTbl::Key2 k2;
+							k2.TagID = tag_id;
+							k2.IntVal = _id;
+							if(PPRef->Ot.search(2, &k2, spEq)) {
+								ok = RetRefsExistsErr(Obj, tag_id);
+							}
+						}
+					}
+				}
+			}
+			ZDELETE(p_tags_list);
+		}
+		// } @v8.2.8
+	}
+	else if(msg == DBMSG_OBJREPLACE) {
+		if(_obj == PPOBJ_DYNAMICOBJS) {
+			ObjTagFilt ot_filt(0, ObjTagFilt::fOnlyTags|ObjTagFilt::fAnyObjects);
+			StrAssocArray * p_tags_list = MakeStrAssocList(&ot_filt);
+			if(p_tags_list) {
+				uint count = p_tags_list->getCount();
+				for(uint i = 0; ok == DBRPL_OK && i < count; i++) {
+					int update = 0;
+					PPObjectTag tag;
+					if(Fetch(p_tags_list->at(i).Id, &tag) > 0) {
+						if(_id == tag.ObjTypeID) {
+							tag.ObjTypeID = (long)extraPtr;
+							update = 1;
+						}
+						else if(_id == tag.TagEnumID) {
+							tag.TagEnumID = (long)extraPtr;
+							update = 1;
+						}
+					}
+					if(update) {
+						PPObjTagPacket pack;
+						if(GetPacket(tag.ID, &pack) > 0) {
+							pack.Rec.TagEnumID = tag.TagEnumID;
+							pack.Rec.ObjTypeID = tag.ObjTypeID;
+							if(!PutPacket(&tag.ID, &pack, 0))
+								ok = DBRPL_ERROR;
+						}
+					}
+				}
+			}
+			ZDELETE(p_tags_list);
+			if(ok && !BroadcastObjMessage(DBMSG_OBJREPLACE, Obj, _id, extraPtr))
+				ok = DBRPL_ERROR;
+		}
+		// @v8.2.8 {
+		else if(_obj == PPOBJ_PERSON) {
+			ObjTagFilt ot_filt(0, ObjTagFilt::fOnlyTags|ObjTagFilt::fAnyObjects);
+			StrAssocArray * p_tags_list = MakeStrAssocList(&ot_filt);
+			if(p_tags_list) {
+				uint count = p_tags_list->getCount();
+				for(uint i = 0; ok == DBRPL_OK && i < count; i++) {
+					const PPID tag_id = p_tags_list->at(i).Id;
+					PPObjectTag tag;
+					if(Fetch(tag_id, &tag) > 0) {
+						if(tag.TagEnumID == _obj) {
+							ObjTagTbl::Key2 k2;
+							k2.TagID = tag_id;
+							k2.IntVal = _id;
+							if(PPRef->Ot.search(2, &k2, spEq)) {
+								do {
+									if(!PPRef->Ot.rereadForUpdate(2, &k2)) {
+										ok = PPSetErrorDB();
+									}
+									else {
+										PPRef->Ot.data.IntVal = (long)extraPtr;
+										if(!PPRef->Ot.updateRec()) {
+											ok = PPSetErrorDB();
+										}
+									}
+								} while(ok == DBRPL_OK && PPRef->Ot.search(2, &k2, spNext) && PPRef->Ot.data.TagID == tag_id && PPRef->Ot.data.IntVal == _id);
+							}
+						}
+					}
+				}
+			}
+			ZDELETE(p_tags_list);
+		}
+		// } @v8.2.8
+	}
+	return ok;
+}
+//
+//
+//
+class TagFiltDialog : public PPListDialog {
+public:
+	TagFiltDialog(PPID objType) : PPListDialog(DLG_TAGFLT, CTL_TAGFLT_LIST)
+	{
+		ObjType = objType;
+		// @v8.6.11 {
+		{
+			SString temp_buf;
+			GetObjectTitle(ObjType, temp_buf);
+			setCtrlString(CTL_TAGFLT_INFO, temp_buf);
+		}
+		// } @v8.6.11
+	}
+	int    setDTS(const TagFilt * pData);
+	int    getDTS(TagFilt * pData);
+private:
+	DECL_HANDLE_EVENT
+	{
+		PPListDialog::handleEvent(event);
+		if(event.isCmd(cmDeleteAll)) {
+			Data.TagsRestrict.Clear();
+			updateList(-1);
+			clearEvent(event);
+		}
+	}
+	virtual int addItem(long * pPos, long *)
+	{
+		int    ok = -1;
+		long   pos = -1;
+		if((ok = EditItem(&pos)) > 0)
+			ASSIGN_PTR(pPos, pos);
+		return ok;
+	}
+	virtual int delItem(long pos, long)
+	{
+		return Data.TagsRestrict.atFree((uint)pos) ? 1 : -1;
+	}
+	virtual int editItem(long pos, long)
+	{
+		return (pos >= 0 && (uint)pos < Data.TagsRestrict.getCount()) ? EditItem(&pos) : -1;
+	}
+	virtual int moveItem(long pos, long id, int up)
+	{
+		if(up && pos > 0) {
+			Data.TagsRestrict.Swap(pos, pos-1);
+			return 1;
+		}
+		else if(!up && pos < (long)(Data.TagsRestrict.getCount()-1)) {
+			Data.TagsRestrict.Swap(pos, pos+1);
+			return 1;
+		}
+		return -1;
+	}
+	virtual int setupList();
+	int    EditItem(long * pPos);
+
+	PPID     ObjType;
+	TagFilt  Data;
+	PPObjTag ObjTag;
+};
+
+struct SelTagDialogData {
+	SLAPI  SelTagDialogData(StrAssocArray::Item * pItem = 0)
+	{
+		if(pItem) {
+			Id = pItem->Id;
+			Txt = pItem->Txt;
+		}
+		else
+			Id = 0;
+	}
+	long   Id;
+	SString Txt;
+};
+
+#define GRP_COLOR 1
+
+class SelTagDialog : public TDialog {
+public:
+	SelTagDialog(int checkRestrict, PPID objType) : TDialog(DLG_SELTAG)
+	{
+		EnumID = 0;
+		CheckRestrict = checkRestrict;
+		ObjType = objType;
+		// @v8.6.11 {
+		{
+			SString temp_buf;
+			GetObjectTitle(ObjType, temp_buf);
+			setCtrlString(CTL_SELTAG_INFO, temp_buf);
+		}
+		// } @v8.6.11
+		addGroup(GRP_COLOR, new ColorCtrlGroup(CTL_SELTAG_COLOR, CTLSEL_SELTAG_COLOR, cmSelColor, CTL_SELTAG_SELCOLOR));
+	}
+	int    setDTS(const SelTagDialogData * pData)
+	{
+		SString restrict_buf;
+		SColor color;
+		ObjTagFilt tag_flt(ObjType);
+		PPObjectTag tag;
+		RVALUEPTR(Data, pData);
+		TagFilt::GetRestriction(Data.Txt, restrict_buf);
+		TagFilt::GetColor(Data.Txt, color);
+		SetupPPObjCombo(this, CTLSEL_SELTAG_TAG, PPOBJ_TAG, Data.Id, 0, &tag_flt);
+		GetTagRec(Data.Id, &tag);
+		int    option = 0;
+		if(Data.Txt.CmpNC(P_EmptyTagValRestrict) == 0)
+			option = 1;
+		else if(Data.Txt.CmpNC(P_ExistTagValRestrict) == 0)
+			option = 2;
+		else
+			option = 0;
+		AddClusterAssoc(CTL_SELTAG_OPTION, 0, 0);
+		AddClusterAssoc(CTL_SELTAG_OPTION, -1, 0);
+		AddClusterAssoc(CTL_SELTAG_OPTION, 1, 1);
+		AddClusterAssoc(CTL_SELTAG_OPTION, 2, 2);
+		SetClusterData(CTL_SELTAG_OPTION, option);
+		EnumID = (option == 0 && oneof2(tag.TagDataType, OTTYP_ENUM, OTTYP_OBJLINK)) ? Data.Txt.ToLong() : 0;
+		SetupRestrict(tag.TagDataType, restrict_buf, tag.TagEnumID);
+		SetupTag(Data.Id);
+		{
+			ColorCtrlGroup::Rec color_rec;
+			color_rec.SetupStdColorList();
+			color_rec.C = NZOR((COLORREF)color, GetColorRef(SClrCoral));
+			setGroupData(GRP_COLOR, &color_rec);
+		}
+		return 1;
+	}
+	int    getDTS(SelTagDialogData * pData)
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		SString restrict_buf;
+		SColor color;
+		PPObjectTag tag;
+		const  int  option = GetClusterData(CTL_SELTAG_OPTION);
+		getCtrlData(sel = CTLSEL_SELTAG_TAG, &Data.Id);
+		THROW(GetTagRec(Data.Id, &tag));
+		THROW_PP(tag.TagDataType != 0, PPERR_MUSTBETAG);
+		if(option == 1)
+			restrict_buf = P_EmptyTagValRestrict;
+		else if(option == 2)
+			restrict_buf = P_ExistTagValRestrict;
+		else {
+			if(oneof2(tag.TagDataType, OTTYP_ENUM, OTTYP_OBJLINK)) {
+				if(CheckRestrict)
+					THROW_PP(EnumID, PPERR_USERINPUT);
+				(restrict_buf = 0).Cat(EnumID);
+			}
+			else {
+				getCtrlString(CTL_SELTAG_RESTRICT, restrict_buf);
+				if(CheckRestrict) {
+					if(tag.TagDataType == OTTYP_BOOL) {
+						THROW_PP(oneof2(restrict_buf.C(0), '0', '1'), PPERR_USERINPUT);
+					}
+					else if(tag.TagDataType == OTTYP_STRING) {
+						THROW_PP(restrict_buf.Len(), PPERR_USERINPUT);
+					}
+					else if(tag.TagDataType == OTTYP_DATE) {
+						DateRange period;
+						THROW(GetPeriodInput(this, CTL_SELTAG_RESTRICT, &period));
+						getCtrlString(CTL_SELTAG_RESTRICT, restrict_buf);
+					}
+				}
+			}
+		}
+		{
+			ColorCtrlGroup::Rec color_rec;
+			getGroupData(GRP_COLOR, &color_rec);
+			color = SColor((COLORREF)color_rec.C);
+		}
+		TagFilt::SetRestriction(restrict_buf, Data.Txt);
+		TagFilt::SetColor(&color, Data.Txt);
+		ASSIGN_PTR(pData, Data);
+		CATCH
+			ok = PPErrorByDialog(this, sel, -1);
+		ENDCATCH
+		return ok;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCbSelected(CTLSEL_SELTAG_TAG)) {
+			SString restrict_buf;
+			getCtrlData(CTLSEL_SELTAG_TAG, &Data.Id);
+			setCtrlString(CTL_SELTAG_RESTRICT, restrict_buf);
+			EnumID = 0;
+			SetupTag(Data.Id);
+		}
+		else if(event.isCmd(cmSelEnum)) {
+			PPObjectTag tag;
+			SString restrict_buf;
+			getCtrlData(CTLSEL_SELTAG_TAG, &Data.Id);
+			getCtrlString(CTL_SELTAG_RESTRICT, restrict_buf);
+			GetTagRec(Data.Id, &tag);
+			if(ListBoxSelDialog(tag.TagEnumID, &EnumID, (void *)((tag.TagDataType == OTTYP_OBJLINK) ? tag.LinkObjGrp : 0)) > 0) {
+				(restrict_buf = 0).Cat(EnumID);
+				SetupRestrict(tag.TagDataType, restrict_buf, tag.TagEnumID);
+			}
+		}
+		else if(event.isClusterClk(CTL_SELTAG_OPTION)) {
+			const  int  option = GetClusterData(CTL_SELTAG_OPTION);
+			PPObjectTag tag;
+			SString restrict_buf;
+			GetTagRec(Data.Id, &tag);
+			getCtrlData(CTLSEL_SELTAG_TAG, &Data.Id);
+			getCtrlString(CTL_SELTAG_RESTRICT, restrict_buf);
+			if(option == 1)
+				restrict_buf = P_EmptyTagValRestrict;
+			else if(option == 2)
+				restrict_buf = P_ExistTagValRestrict;
+			else if(restrict_buf.CmpNC(P_EmptyTagValRestrict) == 0 || restrict_buf.CmpNC(P_ExistTagValRestrict) == 0)
+				restrict_buf = 0;
+			SetupRestrict(tag.TagDataType, restrict_buf, tag.TagEnumID);
+		}
+		else
+			return;
+		clearEvent(event);
+	}
+	int    GetTagRec(PPID tagID, PPObjectTag * pRec)
+	{
+		int    ok = -1;
+		if(tagID) {
+			THROW(ObjTag.Fetch(tagID, pRec));
+			ok = 1;
+		}
+		CATCHZOK
+		return ok;
+	}
+	int    SetupTag(PPID tagID)
+	{
+		if(tagID) {
+			PPObjectTag tag;
+			TStaticText * p_text = (TStaticText *)getCtrlView(CTL_SELTAG_TAGTYPE);
+			GetTagRec(tagID, &tag);
+			if(p_text) {
+				SString type_str, msg;
+				ObjTagItem::GetTypeString(tag.TagDataType, 0, type_str); // @v7.5.0
+				/* @v7.5.0
+				if(tag.TagDataType != OTTYP_GROUP)
+					PPGetSubStr(PPTXT_OTTYP, (tag.TagDataType-1), type_str);
+				else
+					PPGetWord(PPWORD_GROUP, 0, msg);
+				*/
+				if(tag.TagDataType == OTTYP_BOOL)
+					(msg = 0).CatChar('[').Cat(type_str).CatDiv('-', 1).CatChar('0').Comma().CatChar('1').CatChar(']');
+				else if(oneof2(tag.TagDataType, OTTYP_NUMBER, OTTYP_DATE))
+					(msg = 0).CatChar('[').Cat(type_str).Space().CatCharN('.', 2).Space().Cat(type_str).CatChar(']');
+				else if(oneof3(tag.TagDataType, OTTYP_STRING, OTTYP_ENUM, OTTYP_OBJLINK))
+					(msg = 0).CatChar('[').Cat(type_str).CatChar(']');
+				p_text->setText(msg);
+			}
+			enableCommand(cmSelEnum, oneof2(tag.TagDataType, OTTYP_ENUM, OTTYP_OBJLINK) && CheckRestrict);
+			disableCtrl(CTL_SELTAG_RESTRICT, oneof2(tag.TagDataType, OTTYP_ENUM, OTTYP_OBJLINK) || GetClusterData(CTL_SELTAG_OPTION) != 0);
+		}
+		else
+			enableCommand(cmSelEnum, 0);
+		return 1;
+	}
+	int    SetupRestrict(int tagType, const char * pTxt, long extra)
+	{
+		SString restrict = pTxt;
+		int    option = 0;
+		if(restrict.CmpNC(P_EmptyTagValRestrict) == 0)
+			option = 1;
+		else if(restrict.CmpNC(P_ExistTagValRestrict) == 0)
+			option = 2;
+		else
+			option = 0;
+		SetClusterData(CTL_SELTAG_OPTION, option);
+		disableCtrl(CTL_SELTAG_RESTRICT, oneof2(tagType, OTTYP_ENUM, OTTYP_OBJLINK) || option != 0);
+		if(option == 0 && oneof2(tagType, OTTYP_ENUM, OTTYP_OBJLINK)) {
+			GetObjectName(extra, EnumID, restrict);
+		}
+		setCtrlString(CTL_SELTAG_RESTRICT, restrict);
+		return 1;
+	}
+	int    CheckRestrict;
+	PPID   EnumID;
+	PPID   ObjType;
+	SelTagDialogData Data;
+	PPObjTag ObjTag;
+};
+
+int TagFiltDialog::EditItem(long * pPos)
+{
+	int    ok = -1, is_new = (*pPos >= 0) ? 0 : 1;
+	uint   pos = is_new ? -1 : (uint)(*pPos);
+	SelTagDialogData item(is_new ? 0 : &Data.TagsRestrict.at(pos));
+	SelTagDialog * p_dlg = 0;
+	GetClusterData(CTL_TAGFLT_FLAGS, &Data.Flags);
+	THROW(CheckDialogPtr(&(p_dlg = new SelTagDialog((Data.Flags & TagFilt::fNotTagsInList) ? 0 : 1, ObjType)), 0));
+	p_dlg->setDTS(&item);
+	while(ok <= 0 && ExecView(p_dlg) == cmOK) {
+		if(p_dlg->getDTS(&item) > 0) {
+			if(!is_new || Data.TagsRestrict.Search(item.Id, &pos) > 0)
+				THROW_SL(Data.TagsRestrict.atFree(pos));
+			THROW_SL(Data.TagsRestrict.Add(item.Id, item.Txt));
+			Data.TagsRestrict.Search(item.Id, &pos);
+			Data.TagsRestrict.SortByID();
+			ok = 1;
+		}
+	}
+	CATCHZOKPPERR
+	ASSIGN_PTR(pPos, pos);
+	delete p_dlg;
+	return ok;
+}
+
+int TagFiltDialog::setupList()
+{
+	int    ok = 1;
+	SString restrict;
+	StringSet ss(SLBColumnDelim);
+	for(uint i = 0; i < Data.TagsRestrict.getCount(); i++) {
+		StrAssocArray::Item item = Data.TagsRestrict.at(i);
+		TagFilt::GetRestriction(item.Txt, restrict);
+		PPObjectTag tag;
+		THROW(ObjTag.Fetch(item.Id, &tag));
+		ss.clear();
+		ss.add(tag.Name);
+		if(oneof2(tag.TagDataType, OTTYP_ENUM, OTTYP_OBJLINK))
+			GetObjectName(tag.TagEnumID, atol(item.Txt), restrict = 0);
+		ss.add(restrict);
+		THROW(addStringToList(i - 1, ss.getBuf()));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int TagFiltDialog::setDTS(const TagFilt * pData)
+{
+	RVALUEPTR(Data, pData);
+	updateList(-1);
+	AddClusterAssoc(CTL_TAGFLT_FLAGS, 0, TagFilt::fNotTagsInList);
+	SetClusterData(CTL_TAGFLT_FLAGS, Data.Flags);
+	return 1;
+}
+
+int TagFiltDialog::getDTS(TagFilt * pData)
+{
+	GetClusterData(CTL_TAGFLT_FLAGS, &Data.Flags);
+	ASSIGN_PTR(pData, Data);
+	return 1;
+}
+
+int SLAPI EditTagFilt(PPID objType, TagFilt * pData)
+{
+	int    ok = 1, valid_data = 0;
+	TagFiltDialog * p_dlg = 0;
+	THROW_MEM(p_dlg = new TagFiltDialog(objType));
+	THROW(CheckDialogPtr(&p_dlg, 0));
+	p_dlg->setDTS(pData);
+	while(!valid_data && ExecView(p_dlg) == cmOK) {
+		p_dlg->getDTS(pData);
+		ok = valid_data = 1;
+	}
+	CATCHZOK
+	delete p_dlg;
+	return ok;
+}
+
+// static
+int SLAPI PPObjTag::CheckForTagFilt(PPID objType, PPID objID, const TagFilt * pFilt)
+{
+	int    ok = 1;
+	if(pFilt && !pFilt->IsEmpty()) {
+		ObjTagList tags_list;
+		THROW(PPRef->Ot.GetList(objType, objID, &tags_list));
+		ok = pFilt->Check(&tags_list);
+	}
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
+int SLAPI SelectObjTag(PPID * pTagID, const PPIDArray * pAllowedTags, ObjTagFilt * pFilt)
+{
+	return PPSelectObject(PPOBJ_TAG, pTagID, PPTXT_SELECTOBJTAG, pFilt);
+}
+
+union TagDlgVal {
+	ushort b;
+	double n;
+	char   s[sizeof(((const ObjTagTbl::Rec *)0)->StrVal)];
+	long   l;
+	LDATETIME dtm;
+	//LDATE  dt;
+};
+
+#define GRP_IMG 1
+
+int SLAPI TagDlgParam::GetDlgID(long tagDataType, uint * pDlgID) const
+{
+	uint   rez_id = 0;
+	switch(tagDataType) {
+		case OTTYP_BOOL:      rez_id = BoolDlgID; break;
+		case OTTYP_STRING:    rez_id = StrDlgID;  break;
+		case OTTYP_NUMBER:    rez_id = NmbDlgID;  break;
+		case OTTYP_ENUM:
+		case OTTYP_OBJLINK:   rez_id = LnkDlgID;  break;
+		case OTTYP_DATE:      rez_id = DateDlgID; break;
+		case OTTYP_TIMESTAMP: rez_id = TimestampDlgID; break;
+		case OTTYP_GUID:      rez_id = GuidDlgID; break;
+		case OTTYP_IMAGE:     rez_id = ImgDlgID;  break;
+	}
+	ASSIGN_PTR(pDlgID, rez_id);
+	return BIN(rez_id);
+}
+
+int SLAPI TagDlgParam::SetDlgData(TDialog * dlg, const ObjTagItem * pItem)
+{
+	int    ok = 1;
+	long   typ;
+	TagDlgVal val;
+	PPObjTag  tagobj;
+	PPObjectTag tag;
+	SString temp_buf;
+	if(ObjType && ObjNameCtl) {
+		if(ObjID)
+			GetObjectName(ObjType, ObjID, temp_buf);
+		else
+			GetObjectTitle(ObjType, temp_buf);
+		dlg->setCtrlString(ObjNameCtl, temp_buf);
+	}
+	THROW(tagobj.Fetch(pItem->TagID, &tag) > 0);
+	temp_buf = tag.Name;
+	if(TagNameCtl)
+		dlg->setCtrlString(TagNameCtl, temp_buf);
+	typ = pItem->TagDataType;
+	if(typ == OTTYP_BOOL) {
+		dlg->setCtrlData(ValBoolCtl, &(val.b = pItem->Val.IntVal ? 1 : 0));
+		dlg->selectCtrl(ValBoolCtl); // @v9.0.0
+	}
+	else if(typ == OTTYP_STRING) {
+		val.s[0] = 0;
+		dlg->setCtrlData(ValStrCtl, STRNSCPY(val.s, pItem->Val.PStr));
+		dlg->selectCtrl(ValStrCtl); // @v9.0.0
+	}
+	else if(typ == OTTYP_NUMBER) {
+		dlg->setCtrlData(ValNmbCtl, &(val.n = pItem->Val.RealVal));
+		dlg->selectCtrl(ValNmbCtl); // @v9.0.0
+	}
+	else if(oneof2(typ, OTTYP_OBJLINK, OTTYP_ENUM)) {
+		SetupPPObjCombo(dlg, ValLnkCtl, tag.TagEnumID, pItem->Val.IntVal, OLW_CANINSERT, (void *)tag.LinkObjGrp);
+	}
+	else if(typ == OTTYP_DATE) {
+		dlg->SetupCalDate(CTLCAL_TAGV_DATE, ValDateCtl);
+		dlg->setCtrlData(ValDateCtl, &(val.dtm.d = pItem->Val.DtVal));
+		dlg->selectCtrl(ValDateCtl); // @v9.0.0
+	}
+	else if(typ == OTTYP_TIMESTAMP) {
+		val.dtm = pItem->Val.DtmVal;
+		dlg->SetupCalDate(CTLCAL_TAGV_DATE, ValDateCtl);
+		dlg->setCtrlData(ValDateCtl, &val.dtm.d);
+		SetupTimePicker(dlg, CTL_TAGV_TIME, CTLTM_TAGV_TIME);
+		dlg->setCtrlData(ValTimeCtl, &val.dtm.t);
+		dlg->selectCtrl(ValDateCtl); // @v9.0.0
+	}
+	else if(typ == OTTYP_GUID) {
+		val.s[0] = 0;
+		dlg->setCtrlData(ValGuidCtl, STRNSCPY(val.s, pItem->Val.PStr));
+		dlg->selectCtrl(ValGuidCtl); // @v9.0.0
+	}
+	else if(typ == OTTYP_IMAGE) {
+		val.s[0] = 0;
+		SString path(pItem->Val.PStr);
+		ImageBrowseCtrlGroup::Rec grp_rec(&path);
+		if(dlg->getGroup(GRP_IMG) == 0)
+			dlg->addGroup(GRP_IMG, new ImageBrowseCtrlGroup(PPTXT_FILPAT_PICT, ValImgCtl, cmAddImage, cmDelImage));
+		dlg->setGroupData(GRP_IMG, &grp_rec);
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI TagDlgParam::GetDlgData(TDialog * dlg, ObjTagItem * pItem)
+{
+	int    ok = 1;
+	long   typ = pItem->TagDataType;
+	TagDlgVal val;
+	if(typ == OTTYP_BOOL) {
+		dlg->getCtrlData(ValBoolCtl, &val.b);
+		pItem->Val.IntVal = val.b ? 1 : 0;
+	}
+	else if(typ == OTTYP_STRING) {
+		SString temp_buf, mark_buf;
+		dlg->getCtrlString(ValStrCtl, temp_buf);
+		temp_buf.Strip();
+		// @v8.8.4 {
+		if(pItem->TagID == PPTAG_LOT_FSRARLOTGOODSCODE) {
+			if(PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf)) {
+				PrcssrAlcReport::EgaisMarkBlock emb;
+				if(PrcssrAlcReport::ParseEgaisMark(mark_buf, emb))
+					temp_buf = emb.EgaisCode;
+			}
+			{
+				PPTokenRecognizer tr;
+				PPNaturalTokenArray nta;
+				tr.Run(temp_buf.ucptr(), nta, 0);
+				THROW_PP_S(nta.Has(PPNTOK_EGAISWARECODE) > 0.0f, PPERR_INVEGAISWARECODE, temp_buf);
+			}
+		}
+		// } @v8.8.4
+		STRNSCPY(val.s, temp_buf);
+		ZDELETE(pItem->Val.PStr);
+		if(val.s[0])
+			pItem->Val.PStr = newStr(val.s);
+	}
+	else if(typ == OTTYP_NUMBER) {
+		dlg->getCtrlData(ValNmbCtl, &val.n);
+		pItem->Val.RealVal = val.n;
+	}
+	else if(oneof2(typ, OTTYP_OBJLINK, OTTYP_ENUM)) {
+		dlg->getCtrlData(ValLnkCtl, &val.l);
+		pItem->Val.IntVal = val.l;
+	}
+	else if(typ == OTTYP_DATE) {
+		dlg->getCtrlData(ValDateCtl, &val.dtm.d);
+		THROW_SL(checkdate(val.dtm.d, 0));
+		pItem->Val.DtVal = val.dtm.d;
+	}
+	else if(typ == OTTYP_TIMESTAMP) {
+		dlg->getCtrlData(ValDateCtl, &val.dtm.d);
+		dlg->getCtrlData(ValTimeCtl, &val.dtm.t);
+		pItem->Val.DtmVal = val.dtm;
+	}
+	else if(typ == OTTYP_GUID) {
+		dlg->getCtrlData(ValGuidCtl, val.s);
+		strip(val.s);
+		ZDELETE(pItem->Val.PStr);
+		if(val.s[0])
+			pItem->Val.PStr = newStr(val.s);
+	}
+	else if(typ == OTTYP_IMAGE) {
+		ImageBrowseCtrlGroup::Rec grp_rec;
+		dlg->getGroupData(GRP_IMG, &grp_rec);
+		grp_rec.Path.CopyTo(val.s, sizeof(val.s));
+		strip(val.s);
+		ZDELETE(pItem->Val.PStr);
+		if(val.s[0])
+			pItem->Val.PStr = newStr(val.s);
+	}
+	CATCHZOK
+	return ok;
+}
+
+static int SLAPI EditPosRights(ObjTagItem * pItem)
+{
+	int    ok = -1;
+	TDialog * dlg = 0;
+	SString rt_buf;
+	pItem->GetStr(rt_buf);
+	if(CheckDialogPtr(&(dlg = new TDialog(DLG_RTPOSAGENT)), 1)) {
+		long   rt = 0;
+		long   ort = 0;
+		long   v = 0;
+		PPObjCSession::StringToRights(rt_buf, &rt, &ort);
+		dlg->AddClusterAssoc(CTL_RTPOSAGENT_FLAGS,  0, 0x0001); SETFLAG(v, 0x0001, ort & CSESSOPRT_RETCHECK);
+		dlg->AddClusterAssoc(CTL_RTPOSAGENT_FLAGS,  1, 0x0002); SETFLAG(v, 0x0002, ort & CSESSOPRT_ESCCLINE);
+		dlg->AddClusterAssoc(CTL_RTPOSAGENT_FLAGS,  2, 0x0004); SETFLAG(v, 0x0004, ort & CSESSOPRT_BANKING);
+		dlg->AddClusterAssoc(CTL_RTPOSAGENT_FLAGS,  3, 0x0008); SETFLAG(v, 0x0008, rt & CSESSRT_CLOSE);
+		dlg->AddClusterAssoc(CTL_RTPOSAGENT_FLAGS,  4, 0x0010); SETFLAG(v, 0x0010, rt & CSESSRT_ESCCHECK);
+		dlg->AddClusterAssoc(CTL_RTPOSAGENT_FLAGS,  5, 0x0020); SETFLAG(v, 0x0020, ort & CSESSOPRT_COPYCHECK);
+		dlg->AddClusterAssoc(CTL_RTPOSAGENT_FLAGS,  6, 0x0040); SETFLAG(v, 0x0040, ort & CSESSOPRT_COPYZREPT);
+		dlg->AddClusterAssoc(CTL_RTPOSAGENT_FLAGS,  7, 0x0080); SETFLAG(v, 0x0080, ort & CSESSOPRT_ROWDISCOUNT);
+		dlg->AddClusterAssoc(CTL_RTPOSAGENT_FLAGS,  8, 0x0100); SETFLAG(v, 0x0100, ort & CSESSOPRT_XREP);
+		dlg->AddClusterAssoc(CTL_RTPOSAGENT_FLAGS,  9, 0x0200); SETFLAG(v, 0x0200, ort & CSESSOPRT_SPLITCHK);      // @v7.0.5
+		dlg->AddClusterAssoc(CTL_RTPOSAGENT_FLAGS, 10, 0x0400); SETFLAG(v, 0x0400, ort & CSESSOPRT_MERGECHK);      // @v8.5.5
+		dlg->AddClusterAssoc(CTL_RTPOSAGENT_FLAGS, 11, 0x0800); SETFLAG(v, 0x0800, ort & CSESSOPRT_CHGPRINTEDCHK); // @v7.0.5
+		dlg->AddClusterAssoc(CTL_RTPOSAGENT_FLAGS, 12, 0x1000); SETFLAG(v, 0x1000, rt & CSESSRT_ADDCHECK);        // @v7.6.8
+		dlg->AddClusterAssoc(CTL_RTPOSAGENT_FLAGS, 13, 0x2000); SETFLAG(v, 0x2000, ort & CSESSOPRT_CHGCCAGENT);   // @v8.2.1
+		dlg->AddClusterAssoc(CTL_RTPOSAGENT_FLAGS, 14, 0x4000); SETFLAG(v, 0x4000, ort & CSESSOPRT_ESCCLINEBORD);  // @v8.7ю3
+		dlg->SetClusterData(CTL_RTPOSAGENT_FLAGS, v);
+		if(ExecView(dlg) == cmOK) {
+			v = dlg->GetClusterData(CTL_RTPOSAGENT_FLAGS);
+			SETFLAG(rt,  CSESSRT_CLOSE,           v & 0x0008);
+			SETFLAG(rt,  CSESSRT_ESCCHECK,        v & 0x0010);
+			SETFLAG(ort, CSESSOPRT_RETCHECK,      v & 0x0001);
+			SETFLAG(ort, CSESSOPRT_ESCCLINE,      v & 0x0002);
+			SETFLAG(ort, CSESSOPRT_BANKING,       v & 0x0004);
+			SETFLAG(ort, CSESSOPRT_COPYCHECK,     v & 0x0020);
+			SETFLAG(ort, CSESSOPRT_COPYZREPT,     v & 0x0040);
+			SETFLAG(ort, CSESSOPRT_ROWDISCOUNT,   v & 0x0080);
+			SETFLAG(ort, CSESSOPRT_XREP,          v & 0x0100);
+			SETFLAG(ort, CSESSOPRT_SPLITCHK,      v & 0x0200); // @v7.0.5
+			SETFLAG(ort, CSESSOPRT_MERGECHK,      v & 0x0400); // @v8.5.5
+			SETFLAG(ort, CSESSOPRT_CHGPRINTEDCHK, v & 0x0800); // @v7.0.5
+			SETFLAG(rt,  CSESSRT_ADDCHECK,        v & 0x1000); // @v7.6.8
+			SETFLAG(ort, CSESSOPRT_CHGCCAGENT,    v & 0x2000); // @v8.2.1
+			SETFLAG(ort, CSESSOPRT_ESCCLINEBORD,  v & 0x4000); // @v8.7.3
+			PPObjCSession::RightsToString(rt, ort, rt_buf);
+			pItem->SetStr(pItem->TagID, rt_buf);
+			ok = 1;
+		}
+	}
+	delete dlg;
+	return ok;
+}
+
+int SLAPI EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const PPIDArray * pAllowedTags)
+{
+	class TagValDialog : public TDialog {
+	public:
+		TagValDialog(uint resID, const ObjTagItem * pItem, PPID objID) : TDialog(resID)
+		{
+			ObjID = objID;
+			RVALUEPTR(Item, pItem);
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmGenerate)) {
+				SString temp_buf;
+				S_GUID guid;
+				guid.Generate();
+				guid.ToStr(S_GUID::fmtIDL, temp_buf);
+				setCtrlString(CTL_TAGV_STR, temp_buf);
+			}
+			// @v8.9.12 {
+			else if(event.isCmd(cmLinkObj)) {
+				if(ObjID) {
+					PPObjTag tag_obj;
+					PPObjectTag tag;
+					if(tag_obj.Fetch(Item.TagID, &tag) > 0 && tag.ObjTypeID) {
+						if(EditPPObj(tag.ObjTypeID, ObjID) > 0) {
+							SString obj_name;
+							if(GetObjectName(tag.ObjTypeID, ObjID, obj_name) > 0)
+								setCtrlString(CTL_TAGV_OBJNAME, obj_name);
+						}
+					}
+				}
+			}
+			// } @v8.9.12
+			else if(event.isKeyDown(kbF2)) {
+				const uint ctl_id = GetCurrId();
+				if(oneof2(ctl_id, CTL_TAGV_LINK, CTLSEL_TAGV_LINK)) {
+					ComboBox * p_combo = (ComboBox *)getCtrlView(CTLSEL_TAGV_LINK);
+					if(p_combo && Item.TagDataType == OTTYP_OBJLINK) {
+						PPObjTag tag_obj;
+						PPObjectTag tag;
+						if(tag_obj.Fetch(Item.TagID, &tag) > 0) {
+							if(tag.TagEnumID == PPOBJ_PERSON && tag.LinkObjGrp) {
+								PPObjPersonKind pk_obj;
+								PPPersonKind pk_rec;
+								if(pk_obj.Fetch(tag.LinkObjGrp, &pk_rec) > 0 && pk_rec.CodeRegTypeID) {
+									SString code, title;
+									PPIDArray psn_list;
+									PPObjPerson psn_obj;
+									PPRegisterType reg_type_rec;
+									SearchObject(PPOBJ_REGISTERTYPE, pk_rec.CodeRegTypeID, &reg_type_rec);
+									PPLoadText(PPTXT_SEARCHPERSON, title);
+									PPInputStringDialogParam isd_param(title, reg_type_rec.Name);
+									if(InputStringDialog(&isd_param, code) > 0) {
+										psn_obj.GetListByRegNumber(pk_rec.CodeRegTypeID, pk_rec.ID, code, psn_list);
+										if(psn_list.getCount())
+											setCtrlLong(CTLSEL_TAGV_LINK, psn_list.get(0));
+									}
+								}
+							}
+						}
+					}
+				}
+				else if(ctl_id == CTL_TAGV_STR) {
+					if(oneof7(Item.TagID, PPTAG_GUA_GOODSRIGHTS, PPTAG_GUA_PERSONRIGHTS,
+						PPTAG_GUA_SCARDRIGHTS, PPTAG_GUA_FILESRIGHTS, PPTAG_GUA_SALOCRIGHTS, PPTAG_GUA_TSESSRIGHTS, PPTAG_GUA_PRCRIGHTS)) {
+						SString line_buf;
+						getCtrlString(CTL_TAGV_STR, line_buf);
+						if(PPGlobalAccRights::EditDialog(Item.TagID, line_buf) > 0) {
+							setCtrlString(CTL_TAGV_STR, line_buf);
+						}
+					}
+				}
+			}
+			else
+				return;
+			clearEvent(event);
+		}
+		PPID   ObjID;
+		ObjTagItem Item;
+	};
+	int    ok = -1, r, valid_data = 0;
+	TagValDialog * dlg = 0;
+	uint   dlg_id = 0;
+	TagDlgParam param;
+	MEMSZERO(param);
+	param.ObjType = objType;
+	param.ObjID   = objID;
+	param.BoolDlgID  = DLG_TAGVLOG;
+	param.StrDlgID   = DLG_TAGVSTR;
+	param.NmbDlgID   = DLG_TAGVNMB;
+	param.LnkDlgID   = DLG_TAGVLNK;
+	param.DateDlgID  = DLG_TAGVDATE;
+	param.TimestampDlgID = DLG_TAGVTIMESTAMP; // @v7.5.0
+	param.GuidDlgID  = DLG_TAGVGUID;
+	param.ImgDlgID   = DLG_TAGVIMG;
+	param.ObjNameCtl = CTL_TAGV_OBJNAME;
+	param.TagNameCtl = CTL_TAGV_TAG;
+	param.ValBoolCtl = CTL_TAGV_BOOL;
+	param.ValStrCtl  = CTL_TAGV_STR;
+	param.ValNmbCtl  = CTL_TAGV_NUMBER;
+	param.ValLnkCtl  = CTLSEL_TAGV_LINK;
+	param.ValDateCtl = CTL_TAGV_DATE;
+	param.ValTimeCtl = CTL_TAGV_TIME;
+	param.ValGuidCtl = CTL_TAGV_STR;
+	param.ValImgCtl  = CTL_TAGV_IMAGE;
+	if(pItem->TagID == 0) {
+		PPID   tag_id = 0;
+		pItem->Destroy();
+		ObjTagFilt ot_filt(objType);
+		if((r = SelectObjTag(&tag_id, pAllowedTags, &ot_filt)) > 0) {
+			THROW(pItem->Init(tag_id));
+		}
+		else
+			return r;
+	}
+	if(oneof2(objType, 0, PPOBJ_PERSON) && pItem->TagID == PPTAG_PERSON_POSRIGHTS) {
+		ok = EditPosRights(pItem);
+	}
+	else if(oneof2(objType, 0, PPOBJ_LOT) && pItem->TagID == PPTAG_LOT_EGIASINFAREG) {
+		PPEgaisProcessor::InformAReg infareg;
+		SString temp_buf;
+		pItem->GetStr(temp_buf);
+		if(temp_buf.NotEmptyS())
+			infareg.FromStr(temp_buf);
+		if(PPEgaisProcessor::EditInformAReg(infareg) > 0) {
+			if(infareg.ToStr(temp_buf)) {
+				pItem->SetStr(pItem->TagID, temp_buf);
+				ok = 1;
+			}
+			else
+				PPError();
+		}
+	}
+	else if(oneof2(objType, 0, PPOBJ_LOT) && pItem->TagID == PPTAG_LOT_DIMENTIONS) {
+		ok = ReceiptCore::LotDimensions::EditTag(0, pItem);
+	}
+	else {
+		param.GetDlgID(pItem->TagDataType, &dlg_id);
+		THROW(CheckDialogPtr(&(dlg = new TagValDialog(dlg_id, pItem, objID)), 0));
+		THROW(param.SetDlgData(dlg, pItem));
+		while(!valid_data && (r = ExecView(dlg)) == cmOK)
+			if(param.GetDlgData(dlg, pItem))
+				ok = valid_data = 1;
+			else
+				PPError();
+	}
+	CATCHZOKPPERR
+	delete dlg;
+	return ok;
+}
+
+class TagValListDialog : public PPListDialog {
+public:
+	struct DataBlock {
+		ObjTagList List;
+		const PPIDArray * P_AllowedTags;
+		int    UpdateMode;
+	};
+	TagValListDialog(uint dlgId) : PPListDialog(dlgId/*DLG_TAGVALVIEW*/, CTL_TAGVALVIEW_LIST)
+	{
+		if(P_Box && P_Box->def)
+			P_Box->def->SetOption(lbtFocNotify, 1);
+		P_AllowedTags = 0;
+		UpdateMode = 0;
+	}
+	int    setDTS(DataBlock * pData)
+	{
+		Data = pData->List;
+		// @v7.7.0 {
+		if(Data.ObjType) {
+			SString obj_buf;
+			if(Data.ObjID) {
+				GetObjectName(Data.ObjType, Data.ObjID, obj_buf);
+			}
+			if(!obj_buf.NotEmptyS()) {
+				GetObjectTitle(Data.ObjType, obj_buf);
+			}
+			setStaticText(CTL_TAGVALVIEW_OBJ, obj_buf);
+		}
+		// } @v7.7.0
+		P_AllowedTags = pData->P_AllowedTags;
+		UpdateMode = pData->UpdateMode;
+		if(getCtrlView(CTL_TAGVALVIEW_UPD)) {
+			long   _mode = 0;
+			if(UpdateMode & ObjTagList::mumRemove)
+				_mode = 3;
+			else if(UpdateMode & ObjTagList::mumUpdate)
+				_mode = 2;
+			else
+				_mode = 1;
+			AddClusterAssoc(CTL_TAGVALVIEW_UPD, 0, 1);
+			AddClusterAssoc(CTL_TAGVALVIEW_UPD, -1, 1);
+			AddClusterAssoc(CTL_TAGVALVIEW_UPD, 1, 2);
+			AddClusterAssoc(CTL_TAGVALVIEW_UPD, 2, 3);
+			SetClusterData(CTL_TAGVALVIEW_UPD, _mode);
+		}
+		updateList(-1);
+		return 1;
+	}
+	int    getDTS(DataBlock * pData)
+	{
+		int    ok = 1;
+		if(pData) {
+			if(P_AllowedTags) {
+				const ObjTagItem * p_item = 0;
+				for(uint i = 0; (p_item = Data.EnumItems(&i)) != 0;)
+					THROW_PP(P_AllowedTags->lsearch(p_item->TagID) <= 0, PPERR_INVTAGID);
+			}
+			if(getCtrlView(CTL_TAGVALVIEW_UPD)) {
+				long   _mode = GetClusterData(CTL_TAGVALVIEW_UPD);
+				if(_mode == 1)
+					UpdateMode = ObjTagList::mumAdd;
+				else if(_mode == 2)
+					UpdateMode = (ObjTagList::mumAdd|ObjTagList::mumUpdate);
+				else if(_mode == 3)
+					UpdateMode = ObjTagList::mumRemove;
+				else
+					UpdateMode = ObjTagList::mumAdd;
+			}
+			pData->List = Data;
+			pData->UpdateMode = UpdateMode;
+		}
+		CATCHZOK
+		return ok;
+	}
+private:
+	virtual int  setupList();
+	virtual int  addItem(long * pos, long * id);
+	virtual int  editItem(long pos, long id);
+	virtual int  delItem(long pos, long id);
+
+	const PPIDArray * P_AllowedTags;
+	PPObjTag    TagObj;
+	ObjTagList  Data;
+	int    UpdateMode;
+};
+
+int TagValListDialog::setupList()
+{
+	PPObjTag    objtag;
+	PPObjectTag tag;
+	SString buf;
+	StringSet ss(SLBColumnDelim);
+	const  ObjTagItem * p_item;
+	for(uint i = 0; (p_item = Data.EnumItems(&i)) != 0;) {
+		ss.clear();
+		buf = 0;
+		if(objtag.Fetch(p_item->TagID, &tag) > 0)
+			buf = tag.Name;
+		else
+			buf.Cat(p_item->TagID);
+		ss.add(buf);
+		TagObj.GetCurrTagVal(p_item, (buf = 0));
+		ss.add(buf);
+		if(!addStringToList(p_item->TagID, ss.getBuf()))
+			return 0;
+	}
+	return 1;
+}
+
+int TagValListDialog::addItem(long * pPos, long * pID)
+{
+	int    ok = -1;
+	ObjTagItem item;
+	if(EditObjTagItem(Data.ObjType, Data.ObjID, &item, P_AllowedTags) > 0) {
+		Data.PutItem(item.TagID, &item);
+		ASSIGN_PTR(pPos, Data.GetCount());
+		ASSIGN_PTR(pID, item.TagID);
+		ok = 1;
+	}
+	return ok;
+}
+
+int TagValListDialog::editItem(long pos, long id)
+{
+	int    ok = -1;
+	const  ObjTagItem * p_item = Data.GetItemByPos((uint)pos);
+   	if(p_item && p_item->TagID == id)
+		if(EditObjTagItem(Data.ObjType, Data.ObjID, (ObjTagItem *)p_item, P_AllowedTags) > 0)
+			ok = 1;
+	return ok;
+}
+
+int TagValListDialog::delItem(long, long id)
+{
+	return id ? Data.PutItem(id, 0) : 0;
+}
+
+int SLAPI EditObjTagValList(ObjTagList * pList, const PPIDArray * pAllowedTags)
+{
+	int    ok = -1;
+	TagValListDialog::DataBlock blk;
+	blk.List = *pList;
+	blk.P_AllowedTags = pAllowedTags;
+	blk.UpdateMode = 0;
+	TagValListDialog * dlg = new TagValListDialog(DLG_TAGVALVIEW);
+	if(CheckDialogPtr(&dlg, 1)) {
+		dlg->setDTS(&blk);
+		while(ok < 0 && ExecView(dlg) == cmOK) {
+			if(dlg->getDTS(&blk) > 0) {
+				*pList = blk.List;
+				ok = 1;
+			}
+			else
+				PPError();
+		}
+		delete dlg;
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int SLAPI EditObjTagValUpdateList(ObjTagList * pList, const PPIDArray * pAllowedTags, int * pUpdateMode)
+{
+	int    ok = -1;
+	TagValListDialog::DataBlock blk;
+	blk.List = *pList;
+	blk.P_AllowedTags = pAllowedTags;
+	blk.UpdateMode = pUpdateMode ? *pUpdateMode : 0;
+	TagValListDialog * dlg = new TagValListDialog(DLG_TAGVALUPD);
+	if(CheckDialogPtr(&dlg, 1)) {
+		dlg->setDTS(&blk);
+		while(ok < 0 && ExecView(dlg) == cmOK) {
+			if(dlg->getDTS(&blk) > 0) {
+				*pList = blk.List;
+				ASSIGN_PTR(pUpdateMode, blk.UpdateMode);
+				ok = 1;
+			}
+			else
+				PPError();
+		}
+		delete dlg;
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int SLAPI EditObjTagValList(PPID objType, PPID objID, const PPIDArray * pAllowedTags)
+{
+	int    ok = 1;
+	ObjTagList list;
+	THROW(PPRef->Ot.GetList(objType, objID, &list));
+	list.ObjType = objType;
+	list.ObjID = objID; // @v7.7.0
+	if(EditObjTagValList(&list, pAllowedTags) > 0)
+		THROW(PPRef->Ot.PutList(objType, objID, &list, 1));
+	CATCHZOKPPERR
+	return ok;
+}
+//
+//
+//
+class ObjTagCache {
+public:
+	ObjTagCache();
+	~ObjTagCache();
+	int    Fetch(PPID objID, PPID tagID, ObjTagItem * pItem);
+	int    Dirty(PPID objType, PPID objID, PPID tagID);
+private:
+	struct TagTypeEntry {
+		PPID   TagID;
+		PPID   ObjType;
+		PPID   TagEnumID;
+		int    TagDataType;
+		UintHashTable UndefList; // Список идентификаторов объектов, для которых нет тега TagID
+	};
+	struct Entry {
+		enum {
+			fBusy  = 0x0001,
+			fDirty = 0x0002
+		};
+		PPID   ObjID;
+		uint16 TagIdx;
+		uint16 F;
+		ACount Counter; // Счетчик обращений к этому элементу
+		union {
+			int32  I;
+			double R;
+			uint   StrP;
+		};
+	};
+	struct Stat {
+		ACount Hits;
+		ACount Misses;
+		ACount Count;
+		ACount Collisions;    // Количество коллизий при нахождении слота (для ObjCacheHash)
+		long   UnusedEntries; // Количество неиспользуемых слотов (для ObjCacheHash)
+		long   MaxCounter;    // Максимальный счетчик
+		long   MinCounter;    // Минимальный счетчик
+	};
+	static int OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr);
+	uint   Hash(PPID objID, PPID tagID, uint n) const;
+	Entry * FASTCALL SearchByPos(uint pos, int incr);
+	int    Helper_Get(PPID objID, PPID tagID, ObjTagItem * pDataRec);
+	int    Helper_GetByPos(uint pos, ObjTagItem * pDataRec);
+	int    EntryToData(const ObjTagCache::Entry * pEntry, ObjTagItem * pDataRec) const;
+	int    AddItem(const ObjTagCache::Entry * pEntry, uint * pPos);
+
+	uint   MaxItems;
+	uint   MaxTries;
+
+	class TagTypeArray : public TSArray <TagTypeEntry> {
+	public:
+		TagTypeArray() : TSArray <TagTypeEntry> (aryDataOwner | aryEachItem)
+		{
+		}
+		virtual void FASTCALL freeItem(void * pItem)
+		{
+			((TagTypeEntry *)pItem)->UndefList.Destroy();
+		}
+	};
+	TagTypeArray TagTypeList;
+	//
+	Entry * P_Items;
+	long   AdvCookie;
+	StringSet Ss;
+	Stat   StatData;
+	ReadWriteLock RwL;
+};
+
+//static
+int ObjTagCache::OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
+{
+	int    ok = -1;
+	if(kind == PPAdviseBlock::evDirtyCacheBySysJ) {
+		if(oneof3(pEv->Action, PPACN_OBJTAGUPD, PPACN_OBJTAGRMV, PPACN_OBJTAGADD)) {
+			ObjTagCache * p_cache = (ObjTagCache *)procExtPtr;
+			if(p_cache) {
+				p_cache->Dirty(pEv->ObjType, pEv->ObjID, pEv->ExtInt_);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
+ObjTagCache::ObjTagCache()
+{
+	Ss.add("$", 0); // zero index - is empty string
+	size_t init_size = 1024*1024;
+	uint   init_items_count = init_size / sizeof(Entry);
+	AdvCookie = 0;
+	P_Items = 0;
+	MaxItems = 0;
+	MEMSZERO(StatData);
+	size_t i = init_items_count;
+	if(i) {
+		do {
+			if(IsPrime(i)) {
+				MaxItems = i;
+				break;
+			}
+		} while(--i);
+	}
+	assert(MaxItems);
+	MaxTries = 8;
+	P_Items = (Entry *)calloc(MaxItems, sizeof(Entry));
+	if(P_Items) {
+		long   cookie = 0;
+		PPAdviseBlock adv_blk;
+		adv_blk.Kind = PPAdviseBlock::evDirtyCacheBySysJ;
+		adv_blk.Action = PPACN_OBJTAGUPD;
+		adv_blk.DbPathID = DBS.GetDbPathID();
+		adv_blk.ObjType = 0;
+		adv_blk.Proc = ObjTagCache::OnSysJ;
+		adv_blk.ProcExtPtr = this;
+		DS.Advise(&cookie, &adv_blk);
+		//
+		MEMSZERO(adv_blk);
+		adv_blk.Kind = PPAdviseBlock::evDirtyCacheBySysJ;
+		adv_blk.Action = PPACN_OBJTAGADD;
+		adv_blk.DbPathID = DBS.GetDbPathID();
+		adv_blk.ObjType = 0;
+		adv_blk.Proc = ObjTagCache::OnSysJ;
+		adv_blk.ProcExtPtr = this;
+		DS.Advise(&cookie, &adv_blk);
+		//
+		MEMSZERO(adv_blk);
+		adv_blk.Kind = PPAdviseBlock::evDirtyCacheBySysJ;
+		adv_blk.Action = PPACN_OBJTAGRMV;
+		adv_blk.DbPathID = DBS.GetDbPathID();
+		adv_blk.ObjType = 0;
+		adv_blk.Proc = ObjTagCache::OnSysJ;
+		adv_blk.ProcExtPtr = this;
+		DS.Advise(&cookie, &adv_blk);
+	}
+	else {
+		MaxItems = 0;
+	}
+}
+
+ObjTagCache::~ObjTagCache()
+{
+	delete P_Items;
+}
+
+uint ObjTagCache::Hash(PPID objID, PPID tagID, uint n) const
+{
+	uint32 key[3];
+	key[0] = (uint32)objID;
+	key[1] = (uint32)tagID;
+	key[2] = n;
+	uint32 h = BobJencHash(key, sizeof(key));
+	return (uint)(h % MaxItems);
+}
+
+ObjTagCache::Entry * FASTCALL ObjTagCache::SearchByPos(uint pos, int incr)
+{
+	ObjTagCache::Entry * p_entry = 0;
+	if(pos < MaxItems) {
+		p_entry = (ObjTagCache::Entry *)(PTR8(P_Items) + pos * sizeof(Entry));
+		if(incr)
+			p_entry->Counter.Incr();
+	}
+	return p_entry;
+}
+
+int ObjTagCache::EntryToData(const ObjTagCache::Entry * pEntry, ObjTagItem * pTag) const
+{
+	assert(pEntry->TagIdx > 0 && pEntry->TagIdx <= TagTypeList.getCount());
+	const TagTypeEntry & r_te = TagTypeList.at(pEntry->TagIdx-1);
+	if(pTag->Init(r_te.TagID)) {
+		if(r_te.TagDataType == pTag->TagDataType) {
+			switch(r_te.TagDataType) {
+				case OTTYP_BOOL: pTag->Val.IntVal = pEntry->I; break;
+				case OTTYP_NUMBER: pTag->Val.RealVal = pEntry->R; break;
+				case OTTYP_ENUM: pTag->Val.IntVal = pEntry->I; break;
+				case OTTYP_INT:  pTag->Val.IntVal = pEntry->I; break;
+				case OTTYP_OBJLINK: pTag->Val.IntVal = pEntry->I; break;
+				case OTTYP_DATE: pTag->Val.DtVal.v = pEntry->I; break;
+				case OTTYP_TIMESTAMP:
+					{
+						OleDate od;
+						od.v = pEntry->R;
+						pTag->Val.DtmVal = od;
+					}
+					break;
+				case OTTYP_GUID:
+				case OTTYP_IMAGE:
+				case OTTYP_STRING:
+					if(pEntry->StrP) {
+						SString temp_buf;
+						uint   sp = pEntry->StrP;
+						Ss.get(&sp, temp_buf);
+						if(temp_buf.NotEmptyS())
+							pTag->Val.PStr = newStr(temp_buf);
+					}
+					break;
+			}
+		}
+	}
+	return 1;
+}
+
+int ObjTagCache::Helper_GetByPos(uint pos, ObjTagItem * pDataRec)
+{
+	int    ok = 1;
+	Entry * p_entry = SearchByPos(pos, 1);
+	if(p_entry) {
+		if(p_entry->F & ObjCacheEntry::fDirty)
+			ok = -1;
+		else
+			EntryToData(p_entry, pDataRec);
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int ObjTagCache::Helper_Get(PPID objID, PPID tagID, ObjTagItem * pDataRec)
+{
+	int    ok = -1;
+	if(objID && tagID) {
+		int    found = 0;
+		for(uint t = 0; !found && t < MaxTries; t++) {
+			const  uint f = Hash(objID, tagID, t);
+			Entry * p_entry = SearchByPos(f, 0);
+			if(p_entry && p_entry->ObjID == objID) {
+				PPID   tag_id_ = TagTypeList.at(p_entry->TagIdx-1).TagID;
+				if(tag_id_ == tagID) {
+					found = 1;
+					if(!(p_entry->F & Entry::fDirty)) {
+						ok = Helper_GetByPos(f, pDataRec);
+						if(ok > 0)
+							StatData.Hits.Incr();
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+int ObjTagCache::AddItem(const ObjTagCache::Entry * pEntry, uint * pPos)
+{
+	int    ok = 0;
+	int    pos_undefined = 1; // @debug
+	uint   idx = *pPos;
+	long   min_count = MAXLONG; // @v8.9.8 MAXINT-->MAXLONG
+	assert(pEntry->TagIdx > 0 && pEntry->TagIdx <= TagTypeList.getCount());
+	const TagTypeEntry & r_te = TagTypeList.at(pEntry->TagIdx-1);
+	for(uint t = 0; min_count && !ok && t < MaxTries; t++) {
+		const  uint f = Hash(pEntry->ObjID, r_te.TagID, t);
+		Entry * p_entry = SearchByPos(f, 0);
+		if(p_entry) {
+			if(p_entry->ObjID == pEntry->ObjID && p_entry->TagIdx == pEntry->TagIdx) {
+				idx = f;
+				pos_undefined = 0;
+				/*
+				if(Ss.getDataLen())
+					UnusedNameSpace += Ss.getLen(p_entry->NameIdx)+1; // (+1) - разделитель строк
+				*/
+				//
+				// Чтобы не затереть счетчик обращений копируем только прикладную часть буфера
+				// и индекс строки наименования //
+				//
+				*p_entry = *pEntry;
+				p_entry->F &= ~ObjCacheEntry::fDirty;
+				//PackNames();
+				ok = 2;
+			}
+			else if(p_entry->F & Entry::fDirty) {
+				//
+				// Если встретили "грязный" элемент, то можем с чистой совестью его затереть
+				//
+				idx = f;
+				pos_undefined = 0;
+				break;
+			}
+			else if(p_entry->Counter < min_count) {
+				idx = f;
+				min_count = p_entry->Counter;
+				pos_undefined = 0;
+			}
+		}
+	}
+	assert(pos_undefined == 0); // @debug
+	if(ok <= 0 && idx < MaxItems) {
+		Entry * p_entry = SearchByPos(idx, 0);
+		if(p_entry) {
+			/*
+			if(Ss.getDataLen())
+				UnusedNameSpace += Ss.getLen(p_entry->NameIdx)+1; // (+1) - разделитель строк
+			*/
+			*p_entry = *pEntry;
+			p_entry->F &= ~ObjCacheEntry::fDirty;
+			//PackNames();
+			ok = 1;
+		}
+	}
+	ASSIGN_PTR(pPos, idx);
+	return ok;
+}
+
+int ObjTagCache::Fetch(PPID objID, PPID tagID, ObjTagItem * pItem)
+{
+	int    ok = -1;
+	uint   p = 0;
+	if(objID && tagID) {
+		uint16 tp = 0;
+		uint   pos = 0;
+		RwL.ReadLock();
+		StatData.Count.Incr();
+		if(TagTypeList.lsearch(&tagID, &pos, CMPF_LONG)) {
+			assert(pos < MAXSHORT);
+			tp = (uint16)(pos+1);
+		}
+		if(tp && TagTypeList.at(tp-1).UndefList.Has((uint32)objID)) {
+			ok = -1; // Объект находится в списке тех, для кого тег не определен.
+		}
+		else {
+			ok = Helper_Get(objID, tagID, pItem);
+			if(ok < 0) {
+				RwL.Unlock();
+				RwL.WriteLock();
+				//
+				// Пока мы ждали своей очереди на запись
+				// другой поток мог занести нужный нам элемент в кэш.
+				// По-этому снова проверяем наличие этого элемента.
+				//
+				ok = Helper_Get(objID, tagID, pItem);
+				if(ok < 0) {
+					Entry  entry;
+					MEMSZERO(entry);
+					if(!tp) {
+						PPObjTag tag_obj;
+						PPObjectTag tag_rec;
+						if(tag_obj.Fetch(tagID, &tag_rec) > 0) {
+							TagTypeEntry tt_entry;
+							tt_entry.TagID = tag_rec.ID;
+							tt_entry.ObjType = tag_rec.ObjTypeID;
+							tt_entry.TagDataType = tag_rec.TagDataType;
+							TagTypeList.insert(&tt_entry);
+							pos = TagTypeList.getCount();
+							assert(pos < MAXSHORT);
+							tp = (uint16)pos;
+						}
+					}
+					if(tp) {
+						ObjTagItem tag_item;
+						const TagTypeEntry & r_te = TagTypeList.at(tp-1);
+						if(PPRef->Ot.GetTag(r_te.ObjType, objID, tagID, &tag_item) > 0) {
+							entry.ObjID = objID;
+							entry.TagIdx = tp;
+							entry.F |= Entry::fBusy;
+							switch(tag_item.TagDataType) {
+								case OTTYP_BOOL:
+								case OTTYP_ENUM:
+								case OTTYP_INT:
+								case OTTYP_OBJLINK: entry.I = tag_item.Val.IntVal; break;
+								case OTTYP_NUMBER:  entry.R = tag_item.Val.RealVal; break;
+								case OTTYP_DATE:    entry.I = tag_item.Val.DtVal.v; break;
+								case OTTYP_TIMESTAMP:
+									{
+										OleDate od;
+										od = tag_item.Val.DtmVal;
+										entry.R = od.v;
+									}
+									break;
+								case OTTYP_GUID:
+								case OTTYP_IMAGE:
+								case OTTYP_STRING:
+									if(tag_item.Val.PStr)
+										Ss.add(tag_item.Val.PStr, &entry.StrP);
+									else
+										entry.StrP = 0;
+									break;
+							}
+							ok = 1;
+						}
+						else {
+							TagTypeList.at(tp-1).UndefList.Add((uint32)objID);
+							ok = -1;
+						}
+					}
+					if(ok > 0) {
+						entry.F &= ~Entry::fDirty;
+						if(AddItem(&entry, &p)) {
+							StatData.Misses.Incr();
+							ok = Helper_GetByPos(p, pItem);
+						}
+						else
+							ok = 0;
+					}
+				}
+			}
+		}
+		RwL.Unlock();
+	}
+	return ok;
+}
+
+int ObjTagCache::Dirty(PPID objType, PPID objID, PPID tagID)
+{
+	int    ok = 1;
+	RwL.WriteLock();
+	{
+		for(uint i = 0; i < TagTypeList.getCount(); i++) {
+			TagTypeEntry & r_te = TagTypeList.at(i);
+			if((!tagID || r_te.TagID == tagID) && r_te.ObjType == objType) {
+				if(r_te.UndefList.Has(objID)) {
+					r_te.UndefList.Remove(objID);
+				}
+				for(uint t = 0; t < MaxTries; t++) {
+					const  uint f = Hash(objID, r_te.TagID, t);
+					Entry * p_entry = SearchByPos(f, 0);
+					if(p_entry && p_entry->ObjID == objID && p_entry->TagIdx == (i+1)) {
+						p_entry->F |= Entry::fDirty;
+						break;
+					}
+				}
+			}
+		}
+	}
+	RwL.Unlock();
+	return ok;
+}
+//
+// TagCache
+//
+class TagCache : public ObjCache {
+public:
+	SLAPI TagCache() : ObjCache(PPOBJ_TAG, sizeof(TagCacheEntry)), SymbList(PPOBJ_TAG)
+	{
+		P_Ic = 0;
+	}
+	SLAPI ~TagCache()
+	{
+		delete P_Ic;
+	}
+	int    SLAPI FetchTag(PPID objID, PPID tagID, ObjTagItem * pItem);
+	int    SLAPI DirtyTag(PPID objType, PPID objID, PPID tagID);
+	int    SLAPI FetchBySymb(const char * pSymb, PPID * pID)
+	{
+		return SymbList.FetchBySymb(pSymb, pID);
+	}
+private:
+	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int SLAPI Dirty(PPID id); // @sync_w
+
+	struct TagCacheEntry : public ObjCacheEntry {
+		int16  Flags;
+		int16  Reserve;    // @alignment
+		PPID   LinkObjGrp;
+		PPID   TagEnumID;
+		long   TagDataType;
+		PPID   ObjTypeID;
+		PPID   TagGroupID;
+	};
+	ObjTagCache * P_Ic;
+	RefSymbArray SymbList;
+};
+
+int SLAPI TagCache::Dirty(PPID id)
+{
+	int    ok = 1;
+	ObjCache::Dirty(id);
+	SymbList.Dirty(id);
+	return ok;
+}
+
+int SLAPI TagCache::FetchTag(PPID objID, PPID tagID, ObjTagItem * pItem)
+{
+	SETIFZ(P_Ic, new ObjTagCache);
+	return P_Ic ? P_Ic->Fetch(objID, tagID, pItem) : 0;
+}
+
+int SLAPI TagCache::DirtyTag(PPID objType, PPID objID, PPID tagID)
+{
+	if(P_Ic)
+		P_Ic->Dirty(objType, objID, tagID);
+	return 1;
+}
+
+int SLAPI TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+{
+	int    ok = 1;
+	TagCacheEntry * p_rec = (TagCacheEntry*)pEntry;
+	PPObjectTag tag;
+	if(oneof2(id, PPTAG_LOT_CLB, PPTAG_LOT_SN)) {
+		p_rec->Flags       = OTF_NOZERO;
+		p_rec->LinkObjGrp  = 0;
+		p_rec->TagEnumID   = 0;
+		p_rec->TagDataType = OTTYP_STRING;
+		p_rec->ObjTypeID   = PPOBJ_LOT;
+		p_rec->TagGroupID  = 0;
+		const char * p_tag_name = 0;
+		if(id == PPTAG_LOT_CLB)
+			p_tag_name = "LOT_CLB";
+		else if(id == PPTAG_LOT_SN)
+			p_tag_name = "LOT_SERIAL";
+		else
+			p_tag_name = "UNKNOWN";
+
+		StringSet ss("/&");
+		ss.add(p_tag_name);
+		ss.add(p_tag_name);
+		ok = PutName(ss.getBuf(), p_rec);
+	}
+	else if(id == PPTAG_FLOAT_SERIAL) {
+		p_rec->Flags       = OTF_NOZERO;
+		p_rec->LinkObjGrp  = 0;
+		p_rec->TagEnumID   = 0;
+		p_rec->TagDataType = OTTYP_STRING;
+		p_rec->ObjTypeID   = PPOBJ_SERIAL;
+		p_rec->TagGroupID  = 0;
+		const char * p_tag_name = "FREE_SERIAL";
+		StringSet ss("/&");
+		ss.add(p_tag_name);
+		ss.add(p_tag_name);
+		ok = PutName(ss.getBuf(), p_rec);
+	}
+	else if(oneof4(id, PPTAG_BILL_CREATEDTM, PPTAG_BILL_CREATEDTMEND, PPTAG_BILL_GPSCOORD, PPTAG_BILL_GPSCOORDEND)) {
+		p_rec->Flags       = OTF_NOZERO;
+		p_rec->LinkObjGrp  = 0;
+		p_rec->TagEnumID   = 0;
+		p_rec->TagDataType = OTTYP_STRING;
+		p_rec->ObjTypeID   = PPOBJ_LOT;
+		p_rec->TagGroupID  = 0;
+		const char * p_tag_name = 0;
+		if(id == PPTAG_BILL_CREATEDTM)
+			p_tag_name = "BILL_CREATEDTM";
+		else if(id == PPTAG_BILL_CREATEDTMEND)
+			p_tag_name = "BILL_CREATEDTMEND";
+		else if(id == PPTAG_BILL_GPSCOORD)
+			p_tag_name = "BILL_GPSCOORD";
+		else if(id == PPTAG_BILL_GPSCOORDEND)
+			p_tag_name = "BILL_GPSCOORDEND";
+		else
+			p_tag_name = "UNKNOWN";
+
+		StringSet ss("/&");
+		ss.add(p_tag_name);
+		ss.add(p_tag_name);
+		ok = PutName(ss.getBuf(), p_rec);
+	}
+	else if((ok = PPRef->GetItem(PPOBJ_TAG, id, &tag)) > 0) {
+	   	p_rec->Flags       = (int16)tag.Flags;
+	   	p_rec->LinkObjGrp  = tag.LinkObjGrp;
+		p_rec->TagEnumID   = tag.TagEnumID;
+		p_rec->TagDataType = tag.TagDataType;
+		p_rec->ObjTypeID   = tag.ObjTypeID;
+		p_rec->TagGroupID  = tag.TagGroupID;
+
+		StringSet ss("/&");
+		ss.add(tag.Name);
+		ss.add(tag.Symb);
+		ok = PutName(ss.getBuf(), p_rec);
+	}
+	return ok;
+}
+
+int SLAPI TagCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+{
+	PPObjectTag   * p_tag = (PPObjectTag*)pDataRec;
+	const TagCacheEntry * p_cr  = (const TagCacheEntry *)pEntry;
+	memzero(p_tag, sizeof(PPObjectTag));
+	p_tag->Tag         = PPOBJ_TAG;
+	p_tag->ID          = p_cr->ID;
+   	p_tag->Flags       = p_cr->Flags;
+   	p_tag->LinkObjGrp  = p_cr->LinkObjGrp;
+	p_tag->TagEnumID   = p_cr->TagEnumID;
+	p_tag->TagDataType = p_cr->TagDataType;
+	p_tag->ObjTypeID   = p_cr->ObjTypeID;
+	p_tag->TagGroupID  = p_cr->TagGroupID;
+	//
+	char   temp_buf[2048];
+	GetName(pEntry, temp_buf, sizeof(temp_buf));
+	StringSet ss("/&");
+	ss.setBuf(temp_buf, strlen(temp_buf)+1);
+	uint   p = 0;
+	ss.get(&p, p_tag->Name, sizeof(p_tag->Name));
+	ss.get(&p, p_tag->Symb, sizeof(p_tag->Symb));
+	return 1;
+}
+
+int SLAPI PPObjTag::Fetch(PPID id, PPObjectTag * pRec)
+{
+	TagCache * p_cache = GetDbLocalCachePtr <TagCache> (Obj);
+	return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec);
+}
+
+int SLAPI PPObjTag::FetchBySymb(const char * pSymb, PPID * pID)
+{
+	TagCache * p_cache = GetDbLocalCachePtr <TagCache> (Obj);
+	return p_cache ? p_cache->FetchBySymb(pSymb, pID) : SearchBySymb(pSymb, pID, 0);
+}
+
+int PPObjTag::FetchTag(PPID objID, PPID tagID, ObjTagItem * pItem)
+{
+	int    ok = -1;
+	TagCache * p_cache = GetDbLocalCachePtr <TagCache> (PPOBJ_TAG);
+	if(p_cache)
+		ok = p_cache->FetchTag(objID, tagID, pItem);
+	else if(PPRef) {
+		PPObjectTag tag_rec;
+		if(Fetch(tagID, &tag_rec) > 0)
+			ok = PPRef->Ot.GetTag(tag_rec.ObjTypeID, objID, tagID, pItem);
+	}
+	return ok;
+}
+
+int PPObjTag::DirtyTag(PPID objType, PPID objID, PPID tagID)
+{
+	int    ok = 1;
+	TagCache * p_cache = GetDbLocalCachePtr <TagCache> (PPOBJ_TAG);
+	if(p_cache)
+		ok = p_cache->DirtyTag(objType, objID, tagID);
+	return ok;
+}
+//
+// Implementation of PPALDD_TagType
+//
+PPALDD_CONSTRUCTOR(TagType)
+{
+	if(Valid)
+		AssignHeadData(&H, sizeof(H));
+}
+
+PPALDD_DESTRUCTOR(TagType)
+{
+	Destroy();
+}
+
+int PPALDD_TagType::InitData(PPFilt & rFilt, long rsrv)
+{
+	if(rFilt.ID != H.ID) {
+		MEMSZERO(H);
+		H.ID = rFilt.ID;
+		PPObjTag tag_obj;
+		PPObjectTag2 tag_rec;
+		if(tag_obj.Fetch(H.ID, &tag_rec) > 0) {
+			H.TagDataType = tag_rec.TagDataType;
+			H.Flags       = tag_rec.Flags;
+			H.TagEnumID   = tag_rec.TagEnumID;
+			H.LinkObjGrp  = tag_rec.LinkObjGrp;
+			H.ObjTypeID   = tag_rec.ObjTypeID;
+			H.TagGroupID  = tag_rec.TagGroupID;
+			STRNSCPY(H.Name, tag_rec.Name);
+			STRNSCPY(H.Symb, tag_rec.Symb);
+		}
+	}
+	return DlRtm::InitData(rFilt, rsrv);
+}
+//
+// Implementation of PPALDD_ObjectTag
+//
+PPALDD_CONSTRUCTOR(ObjectTag)
+{
+	InitFixData(rscDefHdr, &H, sizeof(H));
+}
+
+PPALDD_DESTRUCTOR(ObjectTag)
+{
+	Destroy();
+}
+
+int PPALDD_ObjectTag::InitData(PPFilt & rFilt, long rsrv)
+{
+	int    ok = -1;
+	if(rFilt.ID == H.SurID)
+		ok = DlRtm::InitData(rFilt, rsrv);
+	else {
+		size_t data_len = 0;
+		MEMSZERO(H);
+		const ObjTagTbl::Rec * p_tag_rec = (const ObjTagTbl::Rec *)DS.GetTLA().SurIdList.Get(rFilt.ID, &data_len);
+		if(p_tag_rec && data_len == sizeof(*p_tag_rec)) {
+			H.SurID = rFilt.ID;
+			H.ObjTypeID  = p_tag_rec->ObjType;
+			H.ObjID      = p_tag_rec->ObjID;
+			H.TagID      = p_tag_rec->TagID;
+			H.TagByObj   = p_tag_rec->TagByObj;
+			H.IntVal     = p_tag_rec->IntVal;
+			H.DateVal.v  = p_tag_rec->IntVal;
+			H.RealVal    = p_tag_rec->RealVal;
+			STRNSCPY(H.StrVal, p_tag_rec->StrVal);
+			ok = DlRtm::InitData(rFilt, rsrv);
+		}
+	}
+	return ok;
+}
+
+int PPALDD_ObjectTag::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+{
+	#define _RET_STR     (**(SString **)rS.GetPtr(pApl->Get(0)))
+	if(pF->Name == "?GetStr") {
+		_RET_STR = 0;
+		size_t data_len = 0;
+		const ObjTagTbl::Rec * p_tag_rec = (const ObjTagTbl::Rec *)DS.GetTLA().SurIdList.Get(H.SurID, &data_len);
+		if(p_tag_rec && data_len == sizeof(*p_tag_rec)) {
+			ObjTagItem item;
+			if(item.Get_(*p_tag_rec) > 0)
+				item.GetStr(_RET_STR);
+		}
+	}
+	return 1;
+}

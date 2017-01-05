@@ -1,0 +1,80 @@
+inteldispatchpatch.zip                                     2014-07-30
+
+(c) 2014 Gnu Lesser General Public LIcense www.gnu.org/licenses/lgpl.html
+
+
+Description
+-----------
+
+inteldispatchpatch.zip contains patches for improving the compatibility
+of Intel compilers and Intel function libraries with non-Intel CPUs.
+
+Please see my C++ manual at  
+  www.agner.org/optimize/#manual_cpp
+and my blog at
+  www.agner.org/optimize/blog/read.php?i=49
+for comments and explanation.
+
+This version is compatible with Intel C++ compiler version 14.0, as 
+well as the function libraries included with this compiler. Some 
+parts are compatible with earlier versions of the compiler as well.
+The code is likely to be compatible with future versions as well.
+See www.agner.org/optimize/#asmlib for the latest update.
+
+
+
+Instructions
+============
+
+In Windows, you must use the static linking versions of the Intel function
+libraries (*.lib) rather than the dynamic link libraries (*.dll). Use the
+/MT option in the compiler. In Linux and Mac systems, you can use either 
+static linking (*.a) or dynamic linking (*.so). Make sure you choose the 
+32-bit version or the 64-bit version of the libraries according to the 
+mode you are compiling for.
+
+
+For code compiled with Intel compiler and general libraries:
+------------------------------------------------------------
+
+Copy the contents of the file intel_cpu_feature_patch.c into your C or C++ 
+code and call the function therein, intel_cpu_patch(), in the beginning of 
+the program. Make sure the main and startup code is compiled with options 
+that allow any CPU. Critical parts of the code may be compiled separately 
+for the desired instruction set.
+
+
+Using the Short Vector Math Library (SVML) with any compiler:
+-------------------------------------------------------------
+
+Use intel_cpu_feature_patch.c as described above. In some cases, no patch
+is needed, but it doesn't harm to use the patch anyway.
+
+
+Using Intel Math Kernel Library (MKL) with any compiler:
+--------------------------------------------------------
+
+There are two possible methods:
+
+1. Use intel_mkl_feature_patch.c in the same way as described for 
+   intel_cpu_feature_patch.c above and call the function intel_mkl_patch().
+   This method does not work with Intel Vector Math Library (VML).
+
+2. Link one of the object files supplied in dispatchpatch.zip into your
+   project. This method works for both MKL and VML.
+
+   Choose the object file according to the following table:
+
+   Operating system and mode for the executable:
+   Windows, 32 bit:    dispatchpatch32.obj
+   Windows, 64 bit:    dispatchpatch64.obj
+   Linux,   32 bit:    dispatchpatch32.o
+   Linux,   64 bit:    dispatchpatch64.o
+   Mac,     32 bit:    dispatchpatch32.mac.o
+   Mac,     64 bit:    dispatchpatch64.mac.o
+
+
+Using Intel Performance Privitives Library (IPP) with any compiler:
+-------------------------------------------------------------------
+
+No patch is needed for IPP.

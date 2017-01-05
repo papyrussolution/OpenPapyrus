@@ -1,0 +1,81 @@
+## Universe-HTT
+## data_array_person.tddo
+## Массив структур персоналий
+
+#pragma(htmlencode)
+#start(StrAssocArray)
+[
+	#iter()
+	{
+		#start(UhttPerson:${Id})
+			"ID":${Id},
+			"Name":"${Name}",
+			"StatusID":${StatusID.Id},
+			"CategoryID":${CategoryID.Id},
+			"KindList":
+			[
+				#iter(KindList)
+				{
+					"KindID":${KindID.ID},
+					"Name":"${Name}",
+					"Code":"${Code}"
+				},
+				#end()
+			],
+			"PhoneList":
+			[
+				#iter(PhoneList)
+					"${Code}",
+				#end()
+			],
+			"EMailList":
+			[
+				#iter(EMailList)
+					"${Code}",
+				#end()
+			],
+			"UrlList":
+			[
+				#iter(UrlList)
+					"${Code}",
+				#end()
+			],
+			"RegisterList":
+			[
+				#iter(RegisterList)
+				{
+					"RegID":${RegID.ID},
+					"RegTypeID":${RegTypeID.ID},
+					"RegTypeName":"${RegTypeID.Name}",
+					"PersonID":${PersonID.ID},
+					"RegOrgID":${RegOrgID.ID},
+					"RegDt":"${RegDt}",
+					"RegExpiry":"${RegExpiry}",
+					"RegSerial":"${RegSerial}",
+					"RegNumber":"${RegNumber}"
+				},
+				#end()
+			],
+			"AddrList":
+			[
+				#iter(AddrList)
+				{
+					"LocID":${LocID.ID},
+					"CityID":${CityID.ID},
+					"LocKind":${LocKind},
+					"LocCode":"${LocCode}",
+					"LocName":"${LocName}",
+					"ZIP":"${ZIP}",
+					"Address":"${Address}",
+					"City":"${City}",         ## // very bad
+					"Country":"${Country}",   ## // very bad
+					"Longitude":${Longitude},
+					"Latitude":${Latitude}
+				},
+				#end()
+			]
+		#end()
+	},
+	#end()
+]
+#end()

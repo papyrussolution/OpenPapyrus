@@ -1,0 +1,354 @@
+## Universe-HTT / 2013
+## frm_store_v1_checkout_private.tddo
+## Форма просмотра заказа интернет магазина для частных лиц
+##
+
+<style>
+	#frm_order_view {
+		position:relative;
+		height: 100%;
+	}
+	#frm_order_title_blk {
+		height: 100px;
+		border: 1px solid #BABEC2;
+		padding: 5px 15px;
+	}
+	#frm_order_title {
+		font: 12pt/10pt sans-serif;
+		font-weight: bold;
+		color: gray;
+	}
+	#frm_order_lines_blk {
+		margin-top: 10px;
+		padding-top: 10px;
+		border: 1px solid #BABEC2;
+		overflow: auto;
+	}
+	#frm_order_lines_table {
+		border-collapse: separate;
+	}
+	#frm_order_lines_table_body td {
+	}
+	#frm_order_lines_table th {
+		text-align:center
+	}
+	#frm_order_lines_table img {
+		max-width: 64px;
+		max-height: 64px;
+	}
+	
+	#frm_order_bottom_blk {
+		bottom: 5px;
+		position: absolute;
+	}
+	
+	#frm_order_bottom_blk_sum_blk {
+		position: relative;
+		height: 30px;
+		padding: 5px;
+		font: 12pt/10pt sans-serif;
+		font-weight: bold;
+		color: gray;
+	}
+	#frm_order_bottom_blk_sum {
+		padding:10px;
+		position:absolute;
+		right:0;
+	}
+	
+	.red-text {
+		color: red;
+	}
+	.green-text {
+		color: green;
+	}
+	
+</style>
+
+<div class="sprawling" id="frm_order_view">
+	<div class="sprawling" id="frm_order_title_blk">
+		<b>Фамилия, имя</b><br>
+		<input type="text" class="uhtt-input" id="frm_checkout_contact" size=100/><br>
+		<table class="sprawling" style="border-collapse:separate;"><tbody>
+			<tr>
+				<td style="padding-right:10px;width:20%">
+					<b>Город</b>
+					<div class="sprawling" id="frm_checkout_city_blk">
+						<div class="sprawling">
+							<input type="text" class="uhtt-input sprawling" id="frm_checkout_city_blk_name_fld"/>
+						</div>
+						<div class="uhtt-drop-down-div" id="frm_checkout_city_blk_dd_blk">
+							<select class="sprawling" id="frm_checkout_city_blk_dd_blk_list" style="padding:0;border:1px solid gray" size=10></select>
+						</div>
+					</div>
+				</td>
+				<td style="padding-right:10px;width:30%">
+					<b>Адрес</b>
+					<input type="text" class="uhtt-input sprawling" id="frm_checkout_address"/>
+				</td>
+				<td style="padding-right:10px;width:10%">
+					<b>Телефон</b><br>
+					<input type="text" class="uhtt-input sprawling" id="frm_checkout_phone"/><br>
+				</td>
+				<td style="width:20%">
+					<b>E-mail</b><br>
+					<input type="text" class="uhtt-input sprawling" id="frm_checkout_email"/><br>
+				</td>
+			</tr>
+		</tbody></table>
+	</div>
+	<div class="sprawling" id="frm_order_lines_blk">
+		<table class="sprawling" id="frm_order_lines_table">
+			<thead>
+				<tr>
+					<th></th>
+					<th>Наименование</th>
+					<th>Количество</th>
+					<th>Цена</th>
+					<th>Сумма</th>
+				</tr>
+			</thead>
+			<tbody id="frm_order_lines_table_body"></tbody>
+		</table>
+	</div>
+	<div id="frm_order_bottom_blk_sum_blk">
+		<div id="frm_order_bottom_blk_sum"></div>
+	</div>
+	<div class="sprawling" id="frm_order_bottom_blk">
+		<div style="margin:5px;float:right">
+			<input type="button" id="frm_checkout_cancel_btn" value="Отказаться"/>
+		</div>
+		<div style="margin:5px;float:right">
+			<input type="button" id="frm_checkout_ok_btn" value="Отправить заказ"/>
+		</div>
+		<div class="uhtt-error-msg" id="frm_checkout_msg_blk" style="margin:5px;float:right"></div>
+	</div>
+</div>
+
+<script type="text/javascript">
+		
+	var CheckoutForm = {
+		## /* Instance */
+		Dialog : UHTT.Dialog.List.getObjByProperty("ID", $("#frm_order_view").parent("div.uhtt-dialog").attr("id")),
+		
+		## /* Элементы формы */
+		txtFld_Contact  : $("#frm_checkout_contact"),
+		txtFld_Phone    : $("#frm_checkout_phone"),
+		txtFld_Email    : $("#frm_checkout_email"),
+		//
+		blk_City        : $("#frm_checkout_city_blk"),
+		txtFld_CityName : $("#frm_checkout_city_blk_name_fld"),
+		ddBlk_City      : $("#frm_checkout_city_blk_dd_blk"),
+		blk_CityList    : $("#frm_checkout_city_blk_dd_blk_list"),
+		//
+		txtFld_Address  : $("#frm_checkout_address"),
+		txtFld_Phone    : $("#frm_checkout_phone"),
+		//
+		tblBody_Items   : $("#frm_order_lines_table_body"),
+		//
+		blk_Message     : $("#frm_checkout_msg_blk"),
+		btn_Checkout    : $("#frm_checkout_ok_btn"),
+		btn_Cancel      : $("#frm_checkout_cancel_btn"),
+		//
+		CitySelectBlk : {
+			TimerID   : 0,
+			IsChanged : false
+		},
+		//
+		Ctx : new UHTT.Store.OrderCtx(),
+		//
+		drawCart : function() {
+			if(!UHTT.Store.Cart.Items.isEmpty()) {
+				var n = UHTT.Store.Cart.Items.getCount();
+				var html = "";
+				var total_amount = 0.0;
+				var total_qtty = 0;
+				for(var i = 0; i < n; i++) {
+					var line = UHTT.Store.Cart.Items.at(i);
+					if(!isEmpty(line)) {
+						html += '<tr>';
+						html += '<td style="text-align:center"><img src="/dispatcher/get_obj_image?obj_type=GOODS&obj_id=' + line.GoodsID + '&default=/rsrc/images/no_photo_64.png"></td>';
+						html += '<td>' + line.GoodsName + '</td>';
+						html += '<td style="text-align:center">' + line.Quantity + '</td>';
+						html += '<td style="text-align:center">' + new Number(line.Price).toFixed(2) + '</td>';
+						html += '<td style="text-align:center">' + new Number(line.Amount).toFixed(2) + '</td>';
+						html += '</tr>';
+						total_qtty += Number(line.Quantity);
+						total_amount += Number(line.Amount);
+					}
+				}
+				this.tblBody_Items.html(html);
+				$("#frm_order_bottom_blk_sum").html("Сумма заказа: " + total_amount.toFixed(2));
+			}
+			else {
+				
+			}
+		},
+		init : function() {
+			/* Ссылка на объекта */
+			var _frm = this;
+			
+			_frm.Dialog.setOption("title", "Оформление заказа");
+			_frm.Dialog.setOption("width", $(window).width() - 100);
+			_frm.Dialog.setOption("height", $(window).height() - 50);
+			
+			{
+				var view_height = $("#frm_order_view").parent().height();
+				$("#frm_order_lines_blk").height(view_height - 200);
+			}
+			
+			## /* Инициализация DropDown объектов */
+			UHTT.DDO.initObject(_frm.ddBlk_City);
+			
+			## /* События */
+			_frm.txtFld_CityName.Evt("keyup", function(e) {
+				var keycode = (e.keyCode ? e.keyCode : e.which);
+				var is_char      = ((keycode >= 65) && (keycode <= 90));
+				var is_del       = (keycode == 8);
+				var is_backspace = (keycode == 46);
+				//
+				$(this).removeClass("green-text red-text");
+				//
+				if(_frm.CitySelectBlk.TimerID > 0)
+					clearTimeout(_frm.CitySelectBlk.TimerID);
+				//
+				var val = $(this).val();
+				if(val.length > 2) {
+					if(is_del || is_backspace || is_char) {
+						_frm.CitySelectBlk.IsChanged = true;
+						_frm.CitySelectBlk.TimerID = setTimeout(function() {
+							var ary = UHTT.ObjectUtil.getStrAssocAry("CITY", { SUBNAME: val });
+							if(!isEmpty(ary)) {
+								var temp_buf = "";
+								var n_items = ary.length;
+								if(n_items == 1) {
+									_frm.ddBlk_City.hide();
+									_frm.CitySelectBlk.IsChanged = false;
+									_frm.Ctx.BuyerInfo.CityID = ary[0].ID;
+									_frm.txtFld_CityName.val(ary[0].Txt).addClass("green-text");
+								}
+								else {
+									for(var i = 0; i < n_items; i++) {
+										if(ary[i] != null)
+											temp_buf += '<option cityID="' + ary[i].ID + '">' + ary[i].Txt + '</option>';
+									}
+									_frm.ddBlk_City
+										.css("left", _frm.ddBlk_City.parent().position().left)
+										.width(_frm.txtFld_CityName.width() + 4)
+										.show();
+									_frm.blk_CityList.html(temp_buf);
+									if(n_items < 10)
+										_frm.blk_CityList.attr("size", n_items);
+								}
+							}
+							else {
+								_frm.ddBlk_City.hide();
+								_frm.txtFld_CityName.addClass("red-text");
+							}
+						}, 500);
+					}
+				}
+				else {
+					_frm.ddBlk_City.hide();
+				}
+			}).Evt("focusout", function() {
+				var val = $(this).val();
+				if(_frm.CitySelectBlk.TimerID > 0)
+					clearTimeout(_frm.CitySelectBlk.TimerID);
+				if(_frm.CitySelectBlk.IsChanged && !isEmpty(val)) {
+					var id = parseInt(UHTT.requestData(null, "SELECT CITY BY NAME(" + val + ") FORMAT.TDDO(_ID)", true));
+					$(this).addClass((id > 0) ? "green-text" : "red-text");
+					_frm.Ctx.BuyerInfo.CityID = id;
+					_frm.CitySelectBlk.IsChanged = false;
+				}
+			});
+			_frm.blk_CityList.Evt("keypress dblclick", function(e) {
+				if(e.type === "keypress") {
+					if(e.keyCode != 13)
+						return true;
+				}
+				var idx = this.selectedIndex;
+				if(idx > -1) {
+					var item = $(this.options[idx]);
+					_frm.Ctx.BuyerInfo.CityID = item.attr("itemID");
+					_frm.txtFld_CityName.val(item.html().unescapeHtml());
+					_frm.txtFld_CityName.css("color", "green");
+					_frm.ddBlk_City.hide();
+				}
+			});
+			_frm.txtFld_Contact.Evt("focusout", function() {
+				_frm.Ctx.BuyerInfo.Name = $(this).val();
+			});
+			_frm.txtFld_Phone.Evt("focusout", function() {
+				_frm.Ctx.BuyerInfo.Phone = $(this).val();
+			});
+			_frm.txtFld_Email.Evt("focusout", function() {
+				_frm.Ctx.BuyerInfo.Email = $(this).val();
+			});
+			_frm.txtFld_Address.Evt("focusout", function() {
+				_frm.Ctx.BuyerInfo.Address = $(this).val();
+			});
+			_frm.btn_Checkout.Evt("click", function() {
+				if(isEmpty(_frm.Ctx.BuyerInfo.Name)) {
+					_frm.blk_Message.showErrorMessage("Укажите имя");
+					return;
+				}
+				if(_frm.Ctx.BuyerInfo.CityID == 0) {
+					_frm.blk_Message.showErrorMessage("Укажите город");
+					return;
+				}
+				if(isEmpty(_frm.Ctx.BuyerInfo.Address)) {
+					_frm.blk_Message.showErrorMessage("Укажите адрес");
+					return;
+				}
+				if(isEmpty(_frm.Ctx.BuyerInfo.Phone)) {
+					_frm.blk_Message.showErrorMessage("Укажите номер телефона");
+					return;
+				}
+				if(isEmpty(_frm.Ctx.BuyerInfo.Email)) {
+					_frm.blk_Message.showErrorMessage("Укажите email");
+					return;
+				}
+				//
+				UHTT.Store.checkout(
+					_frm.Ctx,
+					/* success */
+					function(data, status, hdr) {
+						UHTT.Store.Cart.removeAll();
+						UHTT.Messenger.show("<b>Заказ принят</b>", "/rsrc/images/ok_48.png");
+						_frm.Dialog.close();
+					},
+					/* error */
+					function(request, status, error) {
+						var msg = decodeURIComponent(request.getResponseHeader("X-UHTT-Error"));
+						if(!isEmpty(msg))
+							UHTT.Messenger.show(msg, "/rsrc/images/error_48.png");
+					},
+					/* done */
+					function() {}
+				);
+			});
+			_frm.btn_Cancel.Evt("click", function() {
+				_frm.Dialog.close();
+			});
+			
+			_frm.drawCart();
+			//
+			var user = UHTT.UserUtil.getCurrentUser();
+			if(!isNull(user)) {
+				if(!isNull(user.Person)) {
+					_frm.txtFld_Contact.val(user.Person.Name);
+					_frm.Ctx.BuyerInfo.Name = user.Person.Name;
+					if(!isEmpty(user.Person.PhoneList)) {
+						_frm.txtFld_Phone.val(user.Person.PhoneList[0]);
+						_frm.Ctx.BuyerInfo.Phone = user.Person.PhoneList[0];
+					}
+				}
+			}
+		}
+	};
+	
+	$(document).ready(function() {
+		CheckoutForm.init();
+    });
+</script>

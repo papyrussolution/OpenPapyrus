@@ -1,0 +1,327 @@
+﻿## Universe-HTT / 2012, 2013
+## navigation.vm 
+## Навигация
+##
+
+#set($hasDCAccessRights = $UHTT.checkRights($clientInfo, 15, 1, "@def"))
+
+<style>
+	#navigation_title__blk {
+		padding:0 5px;
+		clear:both;
+		position:relative;
+		height:25px;
+		border-radius:4px;
+		-moz-border-radius:4px;
+		-webkit-border-radius:4px;
+		background: url("/rsrc/images/navigation/bg.png") repeat-x scroll 0 0 #414445;
+		box-shadow:0 1px 2px rgba(0, 0, 0, 0.5);
+	}
+	#navigation_title__label {
+		display:inline-block;
+		padding:4px 15px;
+		color:#FFFFFF;
+		font-size:12px;
+		font-weight:bold;
+	}
+	#navigation_title_back__link {
+		display:none;
+		float:right;
+		padding:4px 15px;
+		cursor:pointer;
+		color:#FFFFFF;
+		font-size:12px;
+		font-weight:bold;
+		text-decoration:none;
+	}
+	#navigation_title_back__link:hover {
+		color: #BABEC2;
+	}
+	#navigation_page_root__blk {
+		color:#333333;
+		font-size:12px;
+		font-weight:bold;
+	}
+	.uhtt-navigation-list {
+		border:medium none;
+		list-style:none outside none;
+		margin:0;
+		padding:0;
+	}
+	.uhtt-navigation-list li {
+		border-bottom:1px solid #90BADE;
+		list-style:none outside none;
+		margin:0;
+	}
+	.uhtt-navigation-list li a {
+		display:block;
+		cursor:pointer;
+		padding:5px 5px 5px 0.5em;
+		color:#5B677D;
+		text-decoration:none;
+	}
+	.uhtt-navigation-list li a:hover {
+		background-color:#E8E8E8;
+		color: #555555;
+	}
+	
+	.uhtt-tip {
+		font-size: 11px;
+		font-weight: lighter;
+	}
+</style>
+
+<div id="navigation__layout">
+	<div class="sprawling" id="navigation_title__blk">
+		<span id="navigation_title__label"></span>
+		<a id="navigation_title_back__link">
+			<img src="/rsrc/images/back.png" style="vertical-align:middle"/>
+			<span id="navigation_title_back__label">Назад</span>
+		</a>
+	</div>
+	<div class="sprawling" id="navigation_page__blk">
+		<div class="sprawling" id="navigation_page_root__blk">
+			<ul class="uhtt-navigation-list">
+				<li>
+					<a class="sprawling" id="uhtt_frm_navigation_show_goods_btn">
+						<span><img style="vertical-align:middle" src="/rsrc/images/product_24.png"> Товары</span>
+						<div class="uhtt-tip" style="display:none">
+							<hr>
+							#TDDT("nav_goods_item_text")
+						</div>
+					</a>
+				</li>
+				<li>
+					<a class="sprawling" id="uhtt_frm_navigation_goods_rating_btn">
+						<span><img style="vertical-align:middle" src="/rsrc/images/rating_24.png"> Рейтинг товаров</span>
+						<div class="uhtt-tip" style="display:none">
+							<hr>
+							#TDDT("nav_goods_rating_item_text")
+						</div>
+					</a>
+				</li>
+				<li>
+					<a class="sprawling" id="uhtt_frm_navigation_show_brands_btn">
+						<span><img style="vertical-align:middle" src="/rsrc/images/brand_24.png"> Бренды</span>
+						<div class="uhtt-tip" style="display:none">
+							<hr>
+							#TDDT("nav_brand_item_text")
+						</div>
+					</a>
+				</li>
+				<li>
+					<a class="sprawling" id="uhtt_frm_navigation_show_manufactors_btn">
+						<span><img style="vertical-align:middle" src="/rsrc/images/factory_24.png"> Производители</span>
+						<div class="uhtt-tip" style="display:none">
+							<hr>
+							#TDDT("nav_manuf_item_text")
+						</div>
+					</a>
+				</li>
+				<!--
+				<li>
+					<a class="sprawling" id="uhtt_frm_navigation_show_suppliers_btn">
+						<span><img style="vertical-align:middle" src="/rsrc/images/workers_24.png"> Поставщики</span>
+						<div class="uhtt-tip" style="display:none">
+							<hr>
+							#TDDT("nav_suppl_item_text")
+						</div>
+					</a>
+				</li>
+				-->
+				<li>
+					<a class="sprawling" id="uhtt_frm_navigation_show_banks_btn">
+						<span><img style="vertical-align:middle" src="/rsrc/images/bank_24.png"> Банки</span>
+						<div class="uhtt-tip" style="display:none">
+							<hr>
+							#TDDT("nav_bank_item_text")
+						</div>
+					</a>
+				</li>
+				<li>
+					<a class="sprawling" id="uhtt_frm_navigation_show_exch_rates_btn">
+						<span><img style="vertical-align:middle" src="/rsrc/images/graph_24.png"> Валютные курсы</span>
+						<div class="uhtt-tip" style="display:none">
+							<hr>
+							#TDDT("nav_currate_item_text")
+						</div>
+					</a>
+				</li>
+				<li>
+					<a class="sprawling" id="uhtt_frm_navigation_show_bonus_card_btn">
+						<span><img style="vertical-align:middle" src="/rsrc/images/bonus_card_24.png"> Бонусные карты</span>
+						<div class="uhtt-tip" style="display:none">
+							<hr>
+							#TDDT("nav_scard_item_text")
+						</div>
+					</a>
+				</li>
+				#if($isSignedIn)
+					<li>
+						<a class="sprawling" id="uhtt_frm_navigation_my_contractors_btn">
+							<span><img style="vertical-align:middle" src="/rsrc/images/manager_24.png"> Мои контрагенты</span>
+							<div class="uhtt-tip" style="display:none">
+								<hr>
+								#TDDT("nav_my_contragents_item_text")
+							</div>
+						</a>
+					</li>
+				#end
+				<li>
+					<a class="sprawling" id="uhtt_frm_navigation_show_stores_btn">
+						<span><img style="vertical-align:middle" src="/rsrc/images/store_24.png"> Интернет магазины</span>
+						<div class="uhtt-tip" style="display:none">
+							<hr>
+							#TDDT("nav_store_item_text")
+						</div>
+					</a>
+				</li>
+				#if($hasDCAccessRights == true)
+					<li>
+						<a class="sprawling" id="uhtt_frm_navigation_show_file_upload_btn">
+							<span><img style="vertical-align:middle" src="/rsrc/images/upload.png"> Загрузка файлов</span>
+							<div class="uhtt-tip" style="display:none">
+								<hr>
+								Загрузка файлов
+							</div>
+						</a>
+					</li>
+				#end
+				<li>
+					<a class="sprawling" id="uhtt_frm_navigation_ask_question_btn">
+						<span><img style="vertical-align:middle" src="/rsrc/images/question_24.png"> Задать вопрос</span>
+						<div class="uhtt-tip" style="display:none">
+							<hr>
+							#TDDT("nav_question_item_text")
+						</div>
+					</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var NavigationForm = {
+		## /* Заголовок */
+		Title : null,
+		## /* Строка заголовка */
+		TitleLabel : null,
+		## /* Ссылка "Назад" */
+		BackLink : null,
+		## /* Подпись для ссылки "Назад" */
+		BackLinkLabel : null,
+		## /* */
+		PageContainer : null,
+		## /* */
+		CurrentPage : null,
+		## /* */
+		History : new SList(),
+		## /* Установить заголовок */
+		setTitle : function(title) {
+			if(this.TitleLabel != null) {
+				this.TitleLabel.html(title);
+			}
+		},
+		goBack : function() {
+			var _this = this;
+			if(!_this.History.isEmpty()) {
+				var idx = _this.History.getCount() - 1;
+				var page = _this.History.at(idx);
+				_this.History.remove(idx);
+				_this.showPage(page, true);
+			}
+		},
+		goTo : function(template, title) {
+			var _this = this;
+			if(_this.CurrentPage != null)
+				_this.History.add(_this.CurrentPage);
+			var id = "navigation_page_" + _this.History.getCount() + "__blk";
+			_this.PageContainer.append('<div class="sprawling" id="' + id + '" style="display:none"></div>');
+			var div = $("#" + id);
+			div.html(UHTT.Content.get(template, {}));
+			var page = { div:div, title:title };
+			_this.showPage(page);
+		},
+		showPage : function(page, rm) {
+			var _this = this;
+			_this.CurrentPage.div.fadeOut(100, function() {
+				if(rm == true)
+					_this.CurrentPage.div.remove();
+				_this.CurrentPage = page;
+				_this.setTitle(_this.CurrentPage.title);
+				_this.History.isEmpty() ? _this.BackLink.hide() : _this.BackLink.show();
+				_this.CurrentPage.div.fadeIn(100);
+				if(!_this.History.isEmpty()) {
+					var idx = _this.History.getCount() - 1;
+					var prev_page = _this.History.at(idx);
+					if(prev_page != null)
+						$("#navigation_title_back__label").html(prev_page.title);
+				}
+			});
+		},
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Ссылка на заголовок */
+			_this.Title = $("#navigation_title__blk");
+			## /* */
+			_this.TitleLabel = $("#navigation_title__label");
+			## /* */
+			_this.BackLink = $("#navigation_title_back__link");
+			## /* */
+			_this.BackLinkLabel = $("#navigation_title_back__label");
+			## /* Ссылка на контейнер страниц */
+			_this.PageContainer = $("#navigation_page__blk");
+			## /* Ссылка на текущую станицу */
+			_this.CurrentPage = { div:$("#navigation_page_root__blk"), title:"Главное меню" };
+			NavigationForm.setTitle("Главное меню");
+			## /* Обработчики событий */
+			$("#navigation_title_back__link").Evt("click", function() {
+				NavigationForm.goBack();
+			});
+			$("#uhtt_frm_navigation_show_goods_btn").Evt("click", function() {
+				NavigationForm.goTo("GOODS_FILTER", "Товары");
+			}).initTip();
+			$("#uhtt_frm_navigation_show_brands_btn").Evt("click", function() {
+				NavigationForm.goTo("BRANDS_FILTER", "Бренды");
+			}).initTip();
+			$("#uhtt_frm_navigation_show_manufactors_btn").Evt("click", function() {
+				NavigationForm.goTo("MANUFACTORS_FILTER", "Поставщики");
+			}).initTip();
+			$("#uhtt_frm_navigation_show_banks_btn").Evt("click", function() {
+				NavigationForm.goTo("BANKS_FILTER", "Банки");
+			}).initTip();
+			$("#uhtt_frm_navigation_show_exch_rates_btn").Evt("click", function() {
+				var view = UHTT.Content.get("CURRENCY_RATES", {});
+				UHTT.Browser.show(view, "Курсы валют");
+			}).initTip();
+			$("#uhtt_frm_navigation_show_bonus_card_btn").Evt("click", function() {
+				NavigationForm.goTo("SCARD_FILTER", "Бонусные карты");
+				var _text = UHTT.Content.getTddt("uhtt_bonus");
+				if(!isEmpty(_text))
+					UHTT.Browser.show(_text, "Бонусные карты");
+			}).initTip();
+			$("#uhtt_frm_navigation_my_contractors_btn").Evt("click", function() {
+				UHTT.Browser.show(UHTT.Content.get("MY_CONTRACTORS", {}), "Мои контрагенты");
+			}).initTip();
+			$("#uhtt_frm_navigation_show_stores_btn").Evt("click", function() {
+				UHTT.Browser.show(UHTT.Content.get("STORE_MANAGER", {}), "Интернет магазины");
+			}).initTip();
+			#if($hasDCAccessRights == true)
+				$("#uhtt_frm_navigation_show_file_upload_btn").Evt("click", function() {
+					UHTT.Browser.show(UHTT.Content.get("DC_MANAGER", {}), "Download Center Manager");
+				});
+			#end
+			$("#uhtt_frm_navigation_ask_question_btn").Evt("click", function() {
+				var view = UHTT.Content.get("ASK_QUESTION", {});
+				new SDialog("FRM_ASK_QUESTION", view, { title:"Задать вопрос", width:500, position:"center" }, UHTT.Dialog.TYPE.INLINE);
+			}).initTip();
+			$("#uhtt_frm_navigation_goods_rating_btn").Evt("click", function() {
+				UHTT.Browser.show(UHTT.Content.get("GOODS_RATING", {}), "Рейтинг товаров");
+			});
+		}
+	};
+	## /* Инициализация формы */
+	NavigationForm.init();
+</script>

@@ -1,0 +1,38 @@
+## Universe-HTT
+## frm_supplier_filt.tddo
+## Фильтр поставщиков
+##
+
+<fieldset style="margin-top:6px">
+	<legend>Фильтр</legend>
+	<b>Наименование</b>
+	<input type="text" class="uhtt-input sprawling" id="uhtt_frm_suppliers_filt_name"/>
+	<hr>
+	<div>
+		<input type="button" id="uhtt_frm_suppliers_filt_btn_ok" style="float:right" value="OK"/>
+	</div>
+</fieldset>
+
+<script type="text/javascript">
+	var SuppliersFiltForm = {
+		F : new UHTT.Person.Filter("SUPPL", "VIEW_SUPPLIER"),
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Наименование */
+			$("#uhtt_frm_suppliers_filt_name").Evt("focusout", function() {
+				_this.F.setName($(this).val());
+			});
+			## /* Кнопка OK */
+			$("#uhtt_frm_suppliers_filt_btn_ok").Evt("click", function() {
+				if(isEmpty(F))
+					F = this.F;
+				var data = UHTT.Person.fetch(F);
+				if(data != null)
+					UHTT.Browser.show(data, "Выборка поставщиков");
+			});
+		}
+	}
+	## /* Инициализация формы фильтра */
+	SuppliersFiltForm.init();
+</script>

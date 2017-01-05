@@ -1,0 +1,5 @@
+crpe32m.lib         Run-time library of Seagate Crystal Reports 7.0
+libfl.lib           Run-time library of FLEX
+TransferEth.lib     Library for scale MettlerToledo Tiger
+w3dbav80.lib        Library for Pervasive SQL 8.0
+PALMCDK\403\*.lib   Libraries for Palm Conduit SDK (version 4.0.3)

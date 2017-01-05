@@ -1,0 +1,63 @@
+## Universe-HTT
+## frm_choise_user.tddo
+## Форма выбора пользователя
+##
+
+<div id="frm_choise_user">
+	<select class="sprawling" id="frm_choise_user_select" size="20"></select>
+</div>
+
+<script type="text/javascript">
+	var ChoiseUserForm = {
+		## /* Instance */
+		Dialog : UHTT.Dialog.List.getObjByProperty("ID", $("#frm_choise_user").parent("div.uhtt-dialog").attr("id")),
+		## /* --- */
+		UserSelect : $("#frm_choise_user_select"),
+		## /* --- */
+		Users : null,
+		## /* Обработчик закрытия окна редактора */
+		closeHandler : function(p_this) {
+			UHTT.UserUtil.UserChoiseForm.clear();
+			p_this.Dialog = null;
+			p_this.UserSelect = null;
+			p_this.Users = null;
+		},
+		## /* --- */
+		draw : function() {
+			var _this = this;
+			var list = UHTT.UserUtil.getUsers();
+			if(!isEmpty(list)) {
+				var buf = "";
+				var n = list.getCount();
+				for(var i = 0; i < n; i++) {
+					var user = list.at(i);
+					buf += '<option userID=' + user.ID + '>' + user.Name + '</option>';
+				}
+				_this.UserSelect.html(buf);
+			}
+		},
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Установка обработчика закрытия окна редактора */
+			_this.Dialog.setCloseHandler(_this.closeHandler, _this);
+			## /* */
+			_this.Dialog.setOption("title", "Выбор пользователя");
+			_this.Dialog.setOption("width", 350);
+			## /* Delegate events */
+			{
+				_this.UserSelect.delegate("option", "dblclick", function() {
+					var userID = $(this).attr("userID");
+					UHTT.UserUtil.UserChoiseForm.Callback(userID);
+					_this.Dialog.close();
+				});
+			}
+			## /* Draw user list */
+			_this.draw();
+		}
+	};
+	## /* Инициализация формы */
+	$(document).ready(function(){
+		ChoiseUserForm.init();
+	});
+</script>

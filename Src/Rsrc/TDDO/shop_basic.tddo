@@ -1,0 +1,847 @@
+## Universe-HTT / 2012
+## store_v1_core.tddo
+## Базовый функционал по фильтрации и отображению товаров интернет магазина
+
+<style>
+	div.store-v1-wrapper {
+		margin: 5px auto;
+	}
+	## /*
+	##  * Filter
+	##  */
+	div.store-v1-filter-blk {
+		padding: 5px;
+		border: 1px solid #AAAAAA;
+		border-radius: 4px;
+		background: url("/standard-theme/images/portlet/header_bg.png") repeat-x scroll 0 0 #D4D4D4;
+	}
+	div.store-v1-filter-group-blk {
+		position: relative;
+		float: left;
+		padding-left: 15px;
+		width: 240px
+	}
+	div.shop-v1-filt-brand-blk {
+		position: relative;
+		float: left;
+		padding-left: 15px;
+		width: 240px
+	}
+	
+	#shop_v1_view_mode_gallery_sw_btn {
+		display: none;
+		width: 26px;
+		height: 26px;
+		background: url("/rsrc/images/gallery_24.png") no-repeat center center;
+	}
+	#shop_v1_view_mode_list_sw_btn {
+		display: none;
+		width: 26px;
+		height: 26px;
+		background: url("/rsrc/images/list_24.png") no-repeat center center;
+	}
+	## /*
+	##  * Content block
+	##  */
+	div.shop-v1-content-blk {
+		display: block;
+		margin-top: 10px;
+	}
+	## /*
+	##  * Catalog
+	##  */
+	div.shop-v1-catalog-column {
+		display: inline-block;
+		vertical-align: top;
+		float: left;
+	}
+	div.shop-v1-catalog-blk {
+		position: relative;
+		
+		-moz-box-shadow: 2px 2px 4px #888888;     /* Firefox */
+		-webkit-box-shadow: 2px 2px 4px #888888;  /* Safari, Chrome */
+		-khtml-box-shadow: 2px 2px 4px #888888;   /* KHTML */
+		box-shadow: 2px 2px 4px #888888;          /* CSS3 */
+		
+		-moz-border-radius: 4px;     /* Firefox */
+		-webkit-border-radius: 4px;  /* Safari, Chrome */
+		-khtml-border-radius: 4px;   /* KHTML */
+		border-radius: 4px;          /* CSS3 */
+	}
+	div.shop-v1-catalog-header-blk {
+		position: relative;
+		padding: 5px;
+		
+		background: url("/standard-theme/images/portlet/header_bg.png") repeat-x scroll 0 0 #D4D4D4;
+		border: 1px solid #AAAAAA;
+		
+		-moz-border-radius: 4px 4px 0 0;     /* Firefox */
+		-webkit-border-radius: 4px 4px 0 0;  /* Safari, Chrome */
+		-khtml-border-radius: 4px 4px 0 0;   /* KHTML */
+		border-radius: 4px 4px 0 0;          /* CSS3 */
+	}
+	div.shop-v1-catalog-header-title-blk {
+		position: relative;
+		display: block;
+		float: left;
+		height: 26px;
+		text-align: left;
+		color: #555555;
+		font: bold 10pt Arial;
+		text-shadow: 0 2px 2px white;
+	}
+	div.shop-v1-catalog-header-title-blk img {
+		width: 26px;
+		height: 26px;
+		vertical-align: middle;
+	}
+	div.shop-v1-catalog-bottom-blk {
+		padding: 5px;
+		border: 1px solid #AAAAAA;
+		border-radius: 0 0 4px 4px;
+		background: url("/standard-theme/images/portlet/header_bg.png") repeat-x scroll 0 0 #D4D4D4;
+	}
+	div.shop-v1-catalog-view {
+		display: inline-block;
+		text-align: left;
+	}
+	## /*
+	##  * Pager
+	##  */
+	div.shop-v1-catalog-pager-blk {
+		display:block;
+	}
+	div.shop-v1-catalog-pager-to-first-btn {
+		display:inline-block;
+		float: right;
+		width: 30px;
+		height: 26px;
+		-moz-border-radius: 4px 0 0 4px;     /* Firefox */
+		-webkit-border-radius: 4px 0 0 4px;  /* Safari, Chrome */
+		-khtml-border-radius: 4px 0 0 4px;   /* KHTML */
+		border-radius: 4px 0 0 4px;          /* CSS3 */
+	}
+	div.shop-v1-catalog-pager-to-first-btn input {
+		width: 100%;
+		height: 100%;
+		background: url("/rsrc/images/first_24.png") no-repeat center center transparent;
+		-moz-border-radius: 4px 0 0 4px;     /* Firefox */
+		-webkit-border-radius: 4px 0 0 4px;  /* Safari, Chrome */
+		-khtml-border-radius: 4px 0 0 4px;   /* KHTML */
+		border-radius: 4px 0 0 4px;          /* CSS3 */
+	}
+	div.shop-v1-catalog-pager-to-first-btn input:hover, div.shop-v1-catalog-pager-to-first-btn input:focus {
+		background: url("/rsrc/images/first_24.png") no-repeat center center transparent;
+	}
+	div.shop-v1-catalog-pager-to-prev-btn {
+		display:inline-block;
+		float: right;
+		width: 30px;
+		height: 26px;
+	}
+	div.shop-v1-catalog-pager-to-prev-btn input {
+		width: 100%;
+		height: 100%;
+		background: url("/rsrc/images/left_24.png") no-repeat center center transparent;
+		-moz-border-radius: 0px;     /* Firefox */
+		-webkit-border-radius: 0px;  /* Safari, Chrome */
+		-khtml-border-radius: 0px;   /* KHTML */
+		border-radius: 0px;          /* CSS3 */
+	}
+	div.shop-v1-catalog-pager-to-prev-btn input:hover, div.shop-v1-catalog-pager-to-prev-btn input:focus {
+		background: url("/rsrc/images/left_24.png") no-repeat center center transparent;
+	}
+	div.shop-v1-catalog-pager-counter-input {
+		display:inline-block;
+		float: right;
+		width: 50px;
+		height: 26px;
+	}
+	div.shop-v1-catalog-pager-counter-input input {
+		width: 48px;
+		padding: 5px 0;
+		text-align: center
+	}
+	div.shop-v1-catalog-pager-to-next-btn {
+		display:inline-block;
+		float: right;
+		width: 30px;
+		height: 26px;
+	}
+	div.shop-v1-catalog-pager-to-next-btn input {
+		width: 100%;
+		height: 100%;
+		background: url("/rsrc/images/right_24.png") no-repeat center center transparent;
+		-moz-border-radius: 0px;     /* Firefox */
+		-webkit-border-radius: 0px;  /* Safari, Chrome */
+		-khtml-border-radius: 0px;   /* KHTML */
+		border-radius: 0px;          /* CSS3 */
+	}
+	div.shop-v1-catalog-pager-to-next-btn input:hover, div.shop-v1-catalog-pager-to-next-btn input:focus {
+		background: url("/rsrc/images/right_24.png") no-repeat center center transparent;
+	}
+	div.shop-v1-catalog-pager-to-last-btn {
+		display:inline-block;
+		float: right;
+		width: 30px;
+		height: 26px;
+		-moz-border-radius: 0 4px 4px 0;     /* Firefox */
+		-webkit-border-radius: 0 4px 4px 0;  /* Safari, Chrome */
+		-khtml-border-radius: 0 4px 4px 0;   /* KHTML */
+		border-radius: 0 4px 4px 0;          /* CSS3 */
+	}
+	div.shop-v1-catalog-pager-to-last-btn input {
+		width: 100%;
+		height: 100%;
+		background: url("/rsrc/images/last_24.png") no-repeat center center transparent;
+		-moz-border-radius: 0 4px 4px 0;     /* Firefox */
+		-webkit-border-radius: 0 4px 4px 0;  /* Safari, Chrome */
+		-khtml-border-radius: 0 4px 4px 0;   /* KHTML */
+		border-radius: 0 4px 4px 0;          /* CSS3 */
+	}
+	div.shop-v1-catalog-pager-to-last-btn input:hover, div.shop-v1-catalog-pager-to-last-btn input:focus {
+		background: url("/rsrc/images/last_24.png") no-repeat center center transparent;
+	}
+	## /*
+	##  * Cart
+	##  */
+	div.shop-v1-cart-column {
+		float: right;
+		display: inline-block;
+		vertical-align: top;
+		/*
+		padding-left: 5px;
+		*/
+	}
+	div.shop-v1-cart-blk {
+		position: relative;
+		
+		-moz-box-shadow: 2px 2px 4px #888888;     /* Firefox */
+		-webkit-box-shadow: 2px 2px 4px #888888;  /* Safari, Chrome */
+		-khtml-box-shadow: 2px 2px 4px #888888;   /* KHTML */
+		box-shadow: 2px 2px 4px #888888;          /* CSS3 */
+		
+		-moz-border-radius: 4px;     /* Firefox */
+		-webkit-border-radius: 4px;  /* Safari, Chrome */
+		-khtml-border-radius: 4px;   /* KHTML */
+		border-radius: 4px;          /* CSS3 */
+	}
+	div.shop-v1-cart-header-blk {
+		position: relative;
+		padding: 5px;
+		
+		background: url("/standard-theme/images/portlet/header_bg.png") repeat-x scroll 0 0 #D4D4D4;
+		border: 1px solid #AAAAAA;
+		
+		-moz-border-radius: 4px 4px 0 0;     /* Firefox */
+		-webkit-border-radius: 4px 4px 0 0;  /* Safari, Chrome */
+		-khtml-border-radius: 4px 4px 0 0;   /* KHTML */
+		border-radius: 4px 4px 0 0;          /* CSS3 */
+	}
+	div.shop-v1-cart-header-title-blk {
+		position: relative;
+		display: block;
+		float: left;
+		height: 26px;
+		text-align: left;
+		color: #555555;
+		font: bold 10pt Arial;
+		text-shadow: 0 2px 2px white;
+	}
+	div.shop-v1-cart-header-title-blk img {
+		width: 32px;
+		height: 26px;
+		vertical-align: middle;
+	}
+	div.shop-v1-cart-header-title-img {
+		position: absolute;
+		top: -3px;
+		width: 32px;
+		height: 32px;
+		background: url("/rsrc/images/shopping_cart_32.png") no-repeat center center transparent;
+	}
+	div.shop-v1-cart-header-title-text {
+		padding: 5px 0 0 36px;
+		height: 26px;
+	}
+	div.shop-v1-cart-header-clear-btn-blk {
+		display: block;
+		float: right;
+		width: 26px;
+		height: 26px;
+	}
+	div.shop-v1-cart-header-clear-btn-blk input {
+		width: 100%;
+		height: 100%;
+		background: url("/rsrc/images/delete_gray_12.png") no-repeat center center transparent;
+		-moz-border-radius: 4px;     /* Firefox */
+		-webkit-border-radius: 4px;  /* Safari, Chrome */
+		-khtml-border-radius: 4px;   /* KHTML */
+		border-radius: 4px;          /* CSS3 */
+	}
+	div.shop-v1-cart-header-clear-btn-blk input:hover, div.shop-v1-cart-header-clear-btn-blk input:focus {
+		background: url("/rsrc/images/delete_red_16.png") no-repeat center center transparent;
+	}
+	
+	div.shop-v1-cart-items-blk {
+		height: 360px;
+		border: 1px solid #AAAAAA;
+		background: white;
+		overflow: auto;
+	}
+	div.uhtt-shop-v1-cart-item-blk {
+		position: relative;
+		padding: 5px 28px 5px 10px;
+	}
+	div.uhtt-shop-v1-cart-item-name-blk {
+		color: black;
+		word-wrap: break-word;
+		white-space: normal;
+		cursor: default;
+		border-bottom: 1px solid #AAAAAA;
+	}
+	div.uhtt-shop-v1-cart-item-price-blk {
+		text-align:right;
+		color:gray;
+	}
+	div.uhtt-shop-v1-cart-item-remove-btn {
+		position: absolute;
+		display: none;
+		cursor: pointer;
+		top: 12px;
+		right: 12px;
+	}
+	div.uhtt-shop-v1-cart-item-blk:hover div.uhtt-shop-v1-cart-item-name-blk {
+		color: #0066CC;
+	}
+	div.uhtt-shop-v1-cart-item-blk:hover div.uhtt-shop-v1-cart-item-remove-btn {
+		display: block;
+	}
+	
+	div.shop-v1-cart-total-blk {
+		border: 1px solid #AAAAAA;
+		border-top: none;
+		background: #EEEEEE;
+		
+		color: #555555;
+		font-weight: bold;
+		text-align: right;
+		
+		padding: 5px;
+	}
+	
+	div.shop-v1-cart-total-blk div {
+		font: bold 10pt Arial;
+	}
+	
+	div.shop-v1-cart-bottom-blk {
+		position: relative;
+		padding: 2px;
+		
+		background: url("/standard-theme/images/portlet/header_bg.png") repeat-x scroll 0 0 #D4D4D4;
+		border: 1px solid #AAAAAA;
+		
+		-moz-border-radius: 0 0 4px 4px;     /* Firefox */
+		-webkit-border-radius: 0 0 4px 4px;  /* Safari, Chrome */
+		-khtml-border-radius: 0 0 4px 4px;   /* KHTML */
+		border-radius: 0 0 4px 4px;          /* CSS3 */
+		
+		text-align: center;
+		color: #34404F;
+		text-shadow: 1px 1px #FFFFFF;
+		font: bold 10pt Arial;
+	}
+	div.shop-v1-cart-bottom-blk:hover {
+		cursor: pointer;
+		color: #336699;
+		border-color: #555555;
+	}
+	div.shop-v1-cart-checkout-btn {
+		display: block;
+		height: 100%;
+		width: 100%;
+	}
+	div.shop-v1-cart-checkout-btn img {
+		width:24px;
+		height:24px;
+		vertical-align:middle
+	}
+	div.shop-v1-cart-checkout-btn span {
+		vertical-align:middle
+	}
+	div.shop-v1-cart-empty-label {
+		position: absolute;
+		top: 50%;
+		width: 100%;
+		text-align: center;
+	}
+</style>
+
+<div class="store-v1-wrapper w1020px">
+	<div>
+		<img style="max-width:100%" src="/dispatcher/get_obj_image?obj_type=PERSON&obj_id=8049&default=/rsrc/images/box_48.png"/>
+	</div>
+	<div class="store-v1-filter-blk uui-helper-clearfix uui-helper-box-sizing w1020px">
+		<div class="uui-float-left">
+			<input type="text" class="uhtt-input" size=60 id="shop_v1_filt_goods_name_input" placeholder="Наименование товара..."/>
+		</div>
+		<div class="store-v1-filter-group-blk uui-float-left">
+			<div class="uui-w100pct">
+				<div class="uui-w100pct uui-table-cell uui-valign-mid">
+					<input type="text" class="uhtt-drop-down-menu-text-field uui-w100pct" id="shop_v1_filt_group_name_input" placeholder="Товарная группа..." readonly="readonly"/>
+				</div>
+				<div class="uui-table-cell uui-valign-mid">
+					<input type="button" class="uhtt-drop-down-menu-button" id="shop_v1_filt_select_group_btn"/>
+				</div>
+				<div class="uhtt-drop-down-div" id="shop_v1_filt_select_group_dd_blk">
+					<select class="uui-w100pct uui-padding-0" id="shop_v1_filt_select_group_dd_blk_list" style="border:1px solid gray" size=15></select>
+				</div>
+			</div>
+		</div>
+		<div class="shop-v1-filt-brand-blk">
+			<div class="uui-w100pct">
+				<div class="uui-w100pct uui-table-cell uui-valign-mid">
+					<input type="text" class="uhtt-drop-down-menu-text-field uui-w100pct" id="shop_v1_filt_brand_name_input" placeholder="Бренд..." readonly="readonly"/>
+				</div>
+				<div class="uui-table-cell uui-valign-mid">
+					<input type="button" class="uhtt-drop-down-menu-button" id="shop_v1_filt_select_brand_btn"/>
+				</div>
+				<div class="uhtt-drop-down-div" id="shop_v1_filt_select_brand_dd_blk">
+					<select class="uui-w100pct uui-padding-0" id="shop_v1_filt_select_brand_dd_blk_list" style="border:1px solid gray" size=15></select>
+				</div>
+			</div>
+		</div>
+		<div class="uui-float-right">
+			<input type="button" id="shop_v1_view_mode_gallery_sw_btn" title="Галерея"/>
+			<input type="button" id="shop_v1_view_mode_list_sw_btn" title="Список"/>
+		</div>
+	</div>
+	<div class="shop-v1-content-blk w1020px">
+		<div class="shop-v1-catalog-column w760px">
+			<div class="shop-v1-catalog-blk">
+				<div class="shop-v1-catalog-header-blk uui-helper-clearfix">
+					<div class="shop-v1-catalog-header-title-blk">
+						<img src="/rsrc/images/catalog_26.png">
+						<span>Каталог товаров</span>
+					</div>
+					<div class="shop-v1-catalog-pager-blk">
+						<div class="shop-v1-catalog-pager-to-last-btn"><input type="button" /></div>
+						<div class="shop-v1-catalog-pager-to-next-btn"><input type="button" /></div>
+						<div class="shop-v1-catalog-pager-counter-input"><input type="text" readonly="readonly"/></div>
+						<div class="shop-v1-catalog-pager-to-prev-btn"><input type="button" /></div>
+						<div class="shop-v1-catalog-pager-to-first-btn"><input type="button" /></div>
+					</div>
+				</div>
+				<div class="shop-v1-catalog-view uui-w100pct"></div>
+				<div class="shop-v1-catalog-bottom-blk uui-helper-clearfix">
+					<div class="shop-v1-catalog-pager-blk">
+						<div class="shop-v1-catalog-pager-to-last-btn"><input type="button" /></div>
+						<div class="shop-v1-catalog-pager-to-next-btn"><input type="button" /></div>
+						<div class="shop-v1-catalog-pager-counter-input"><input type="text" readonly="readonly"/></div>
+						<div class="shop-v1-catalog-pager-to-prev-btn"><input type="button" /></div>
+						<div class="shop-v1-catalog-pager-to-first-btn"><input type="button" /></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="shop-v1-cart-column w250px">
+			<div class="shop-v1-cart-blk">
+				<div class="shop-v1-cart-header-blk uui-helper-clearfix">
+					<div class="shop-v1-cart-header-title-blk">
+						<img src="/rsrc/images/shopping_cart_26.png">
+						<span style="">Моя корзина</span>
+					</div>
+					<div class="shop-v1-cart-header-clear-btn-blk"><input type="button" /></div>
+				</div>
+				<div class="shop-v1-cart-items-blk"></div>
+				<div class="shop-v1-cart-total-blk uui-helper-clearfix">
+					<div>Сумма: <span class="shop-v1-cart-total-amount">0.0</span></div>
+				</div>
+				<div class="shop-v1-cart-empty-label"><b>Пусто</b></div>
+				<div class="shop-v1-cart-bottom-blk uui-helper-clearfix">
+					<div class="shop-v1-cart-checkout-btn">
+						<img style="width:24px;height:24px;vertical-align:middle" src="/rsrc/images/accept_24.png">
+						<span style="">Оформить заказ</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	## /* Режимы отображения каталога товаров */
+	var _GC_VIEWMODE = {
+		LIST:    { "ID": 0, "Template": "STORE_CATALOG_LIST" },
+		GALLERY: { "ID": 1, "Template": "STORE_CATALOG_GALLERY" }
+	};
+	## /* Форма */
+	var BasicShopFrm = {
+		## /* Элементы формы */
+		btn_ViewModeSwitcher  : $("#shop_v1_view_switcher_btn"),
+		btn_ViewModeGallery   : $("#shop_v1_view_mode_gallery_sw_btn"),
+		btn_ViewModeTable     : $("#shop_v1_view_mode_list_sw_btn"),
+		/* --- */
+		txtFld_GoodsName      : $("#shop_v1_filt_goods_name_input"),
+		/* --- */
+		txtFld_GoodsGroupName : $("#shop_v1_filt_group_name_input"),
+		btn_SelectGoodsGroup  : $("#shop_v1_filt_select_group_btn"),
+		ddBlk_GoodsGroup      : $("#shop_v1_filt_select_group_dd_blk"),
+		blk_GoodsGroupList    : $("#shop_v1_filt_select_group_dd_blk_list"),
+		/* --- */
+		txtFld_BrandName      : $("#shop_v1_filt_brand_name_input"),
+		btn_SelectBrand       : $("#shop_v1_filt_select_brand_btn"),
+		ddBlk_Brand           : $("#shop_v1_filt_select_brand_dd_blk"),
+		blk_BrandList         : $("#shop_v1_filt_select_brand_dd_blk_list"),
+		/* --- */
+		blk_Catalog           : $("div.shop-v1-catalog-view"),
+		blk_Cart              : $("div.shop-v1-cart-blk"),
+		
+		btn_CartRemoveAll     : $("div.shop-v1-cart-header-clear-btn-blk input"),
+		blk_CartItems         : $("div.shop-v1-cart-items-blk"),
+		blk_CartTotalAmt      : $("span.shop-v1-cart-total-amount"),
+		
+		btn_Checkout          : $("div.shop-v1-cart-checkout-btn"),
+		img_Checkout          : $("div.shop-v1-cart-checkout-btn img"),
+		blk_CartEmptyMsg      : $("div.shop-v1-cart-empty-label"),
+		
+		/* --- */
+		blk_PageCtrl          : $("div.shop-v1-catalog-pager-blk"),
+		btn_ToFirstPage       : $("div.shop-v1-catalog-pager-to-first-btn input"),
+		btn_ToPrevPage        : $("div.shop-v1-catalog-pager-to-prev-btn input"),
+		btn_ToNextPage        : $("div.shop-v1-catalog-pager-to-next-btn input"),
+		btn_ToLastPage        : $("div.shop-v1-catalog-pager-to-last-btn input"),
+		txtFld_PageNumber     : $("div.shop-v1-catalog-pager-counter-input input"),
+		
+		## /* Фильтр */
+		F : new UHTT.Store.Filter(),
+		
+		## /* Режим отображения */
+		ViewMode : null,
+		
+		PageNumber : 1,
+		PageSize : 50,
+		
+		## /* --- */
+		setViewMode : function(vm_id) {
+			switch(vm_id) {
+				case _GC_VIEWMODE.GALLERY.ID:
+					this.ViewMode = _GC_VIEWMODE.GALLERY;
+					this.btn_ViewModeGallery.hide();
+					this.btn_ViewModeTable.show();
+					break;
+				case _GC_VIEWMODE.LIST.ID:
+					this.ViewMode = _GC_VIEWMODE.LIST;
+					this.btn_ViewModeTable.hide();
+					this.btn_ViewModeGallery.show();
+					break;
+				default:
+					vm_id = _GC_VIEWMODE.LIST.ID;
+					this.ViewMode = _GC_VIEWMODE.LIST;
+					this.btn_ViewModeTable.hide();
+					this.btn_ViewModeGallery.show();
+					break;
+			}
+			UHTT.Util.Cookie.set("SHOP_" + UHTT.Store.Preferences.SID + "_CATALOG_VIEW_MODE", vm_id);
+		},
+		
+		init : function() {
+			## /* Указатель на объект */
+			var _this = this;
+			## /* Определяем режим просмотра каталога товаров */
+			{
+				var tmp_str = UHTT.Util.Cookie.get("SHOP_" + UHTT.Store.Preferences.SID + "_CATALOG_VIEW_MODE");
+				var vm_id = _GC_VIEWMODE.LIST.ID;
+				if(!isEmpty(tmp_str) && !isNaN(tmp_str))
+					vm_id = parseInt(tmp_str);
+				_this.setViewMode(vm_id);
+			}
+			_this.btn_ViewModeGallery.Evt("click", function() {
+				_this.setViewMode(_GC_VIEWMODE.GALLERY.ID);
+				_this.drawCatalog();
+			});
+			_this.btn_ViewModeTable.Evt("click", function() {
+				_this.setViewMode(_GC_VIEWMODE.LIST.ID);
+				_this.drawCatalog();
+			});
+			## /* Инициализация каталога */
+			UHTT.Store.Catalog.init(_this.blk_Catalog, _this.ViewMode.Template);
+			
+			## /* Инициализация DropDown объектов */
+			UHTT.DDO.initObject(_this.ddBlk_GoodsGroup);
+			UHTT.DDO.initObject(_this.ddBlk_Brand);
+			
+			## /* Инициализация корзины */
+			UHTT.Store.Cart.init();
+			
+			## /* Наименование товара */
+			_this.txtFld_GoodsName.Evt("focusout", function() {
+				_this.F.GoodsName = $(this).val();
+			}).Evt("keypress", function(e) {
+				if(e.keyCode == 13) {
+					_this.F.GoodsName = $(this).val();
+					_this.drawCatalog();
+				}
+			});
+			
+			## /* Список товарных групп */
+			_this.txtFld_GoodsGroupName.Evt("keydown", function(e) {
+				if(e.keyCode == 46) {
+					_this.F.GoodsGroupID = 0;
+					$(this).val("");
+					_this.drawCatalog();
+				}
+			});
+			_this.btn_SelectGoodsGroup.Evt("click", function() {
+				_this.ddBlk_GoodsGroup
+					.width(_this.txtFld_GoodsGroupName.width() + 4)
+					.show();
+			});
+			_this.blk_GoodsGroupList.Evt("keypress dblclick", function(e) {
+				if(e.type === "keypress") {
+					if(e.keyCode != 13)
+						return true;
+				}
+				var idx = this.selectedIndex;
+				if(idx > -1) {
+					var item = $(this.options[idx]);
+					_this.F.GoodsGroupID = item.attr("ggrpID");
+					_this.txtFld_GoodsGroupName.val(item.html().unescapeHtml());
+					_this.ddBlk_GoodsGroup.hide();
+					//
+					_this.F.PageNumber = 1;
+				}
+				_this.drawCatalog();
+			});
+			
+			## /* Список брендов */
+			_this.txtFld_BrandName.Evt("keydown", function(e) {
+				if(e.keyCode == 46) {
+					_this.F.BrandID = 0;
+					$(this).val("");
+					_this.drawCatalog();
+				}
+			});
+			_this.btn_SelectBrand.Evt("click", function(e) {
+				_this.ddBlk_Brand
+					.width(_this.txtFld_BrandName.width() + 4)
+					.show();
+			});
+			_this.blk_BrandList.Evt("keypress dblclick", function(e) {
+				if(e.type === "keypress") {
+					if(e.keyCode != 13)
+						return true;
+				}
+				var idx = this.selectedIndex;
+				if(idx > -1) {
+					var item = $(this.options[idx]);
+					_this.F.BrandID = item.attr("brandID");
+					_this.txtFld_BrandName.val(item.html().unescapeHtml());
+					_this.ddBlk_Brand.hide();
+					//
+					_this.F.PageNumber = 1;
+				}
+				_this.drawCatalog();
+			});
+			
+			## /* Получаем данные для фильтра */
+			var filt_data = UHTT.Store.getFilterData();
+			if(!isEmpty(filt_data)) {
+				{
+					var temp_buf = "";
+					var n_ggrps = filt_data.GoodsGroups.length;
+					for(var i = 0; i < n_ggrps; i++)
+						temp_buf += '<option ggrpID="' + filt_data.GoodsGroups[i].ID + '">' + filt_data.GoodsGroups[i].Name + '</option>';
+					_this.blk_GoodsGroupList.html(temp_buf);
+					if(n_ggrps < 15)
+						_this.blk_GoodsGroupList.attr("size", n_ggrps);
+				}
+				{
+					var temp_buf = "";
+					var n_brands = filt_data.Brands.length;
+					for(var i = 0; i < n_brands; i++)
+						temp_buf += '<option brandID="' + filt_data.Brands[i].ID + '">' + filt_data.Brands[i].Name + '</option>';
+					_this.blk_BrandList.html(temp_buf);
+					if(n_brands < 15)
+						_this.blk_BrandList.attr("size", n_brands);
+				}
+			}
+			
+			## /* Отображаем каталог товаров при открытии магазина */
+			_this.drawCatalog();
+			
+			## /* Отображаем корзину */
+			_this.drawCart();
+			
+			## /* Обработчики событий */
+			_this.btn_CartRemoveAll.Evt("click", function() {
+				if(confirm("Вы действительно хотите удалить все товары из корзины?"))
+					UHTT.Store.Cart.removeAll();
+			});
+			_this.blk_CartItems.delegate("div.uhtt-shop-v1-cart-item-remove-btn", "click", function() {
+				var goods_id = $(this).parent().attr("goodsID");
+				UHTT.Store.Cart.remove(goods_id);
+			});
+			_this.btn_Checkout.Evt("click", function() {
+				var org = false;
+				var user = UHTT.UserUtil.getCurrentUser();
+				if(!isNull(user)) {
+					if(!isEmpty(user.RelList)) {
+						org = true;
+					}
+				}
+				if(!UHTT.Store.Cart.Items.isEmpty())
+					var dlg = new SDialog("UHTT_ORDER_CHECKOUT_DLG", "GETTDDO " + (org ? "FRM_STORE_CHECKOUT_ORG" : "FRM_STORE_CHECKOUT_PRIVATE") , { modal: true });
+			});
+			_this.btn_ToFirstPage.Evt("click", function() {
+				if(_this.F.PageNumber != 1) {
+					_this.F.PageNumber = 1;
+					_this.drawCatalog();
+				}
+			});
+			_this.btn_ToPrevPage.Evt("click", function() {
+				if(_this.F.PageNumber > 1) {
+					_this.F.PageNumber--;
+					_this.drawCatalog();
+				}
+			});
+			_this.btn_ToNextPage.Evt("click", function() {
+				if(UHTT.Store.Catalog.ItemsCount > (_this.F.PageNumber * _this.F.PageSize)) {
+					_this.F.PageNumber++;
+					_this.drawCatalog();
+				}
+			});
+			_this.btn_ToLastPage.Evt("click", function() {
+				var page_n = (parseInt(UHTT.Store.Catalog.ItemsCount / _this.F.PageSize)) + ((UHTT.Store.Catalog.ItemsCount % _this.F.PageSize) > 0 ? 1 : 0);
+				if(_this.F.PageNumber < page_n) {
+					_this.F.PageNumber = page_n;
+					_this.drawCatalog();
+				}
+			});
+			
+			## /* Обработчик при прокрутке страницы */
+			{
+				var fixed = false;
+				var padding_top = 8;
+				var cart_top = _this.blk_Cart.offset().top - padding_top;
+				$(window).Evt("scroll", function() {
+					var src_top = $(window).scrollTop();
+					if(src_top > cart_top) {
+						if(!fixed) {
+							## // Too slow: _this.blk_Cart.stop().animate({ marginTop: src_top - cart_top + padding_top }, 0);
+							var width = _this.blk_Cart.width();
+							_this.blk_Cart.css("position", "fixed");
+							_this.blk_Cart.css("width", width + "px");
+							_this.blk_Cart.css("top", padding_top);
+							fixed = true;
+						}
+					}
+					else {
+						if(fixed) {
+							## // Too slow: _this.blk_Cart.stop().animate({ marginTop: 0 }, 0);
+							_this.blk_Cart.css("position", "relative");
+							_this.blk_Cart.css("width", "100%");
+							_this.blk_Cart.css("top", 0);
+							fixed = false;
+						}
+					}
+				});
+			}
+			## /* Назначаем обработчик события изменения корзины */
+			UHTT.Store.Cart.addEventHandler(
+				function(type, ctx) {
+					BasicShopFrm.drawCart(type, ctx);
+				}
+			);
+		},
+		enableAcceptBtn : function() {
+			this.img_Checkout.attr("src", "/rsrc/images/accept_24.png");
+		},
+		disableAcceptBtn : function() {
+			this.img_Checkout.attr("src", "/rsrc/images/accept_gray_24.png");
+		},
+		drawPageCtrl : function() {
+			var _this = this;
+			var page_n = (parseInt(UHTT.Store.Catalog.ItemsCount / _this.F.PageSize)) + ((UHTT.Store.Catalog.ItemsCount % _this.F.PageSize) > 0 ? 1 : 0);
+			_this.txtFld_PageNumber.val(_this.F.PageNumber + "/" + page_n);
+		},
+		drawCatalog : function() {
+			UHTT.Store.Catalog.draw(this.F, this.ViewMode.Template);
+			this.drawPageCtrl();
+			window.scrollTo(0, 0);
+		},
+		drawCart : function(type, ctx) {
+			var total_amount = 0.0;
+			if(!UHTT.Store.Cart.Items.isEmpty()) {
+				var n = UHTT.Store.Cart.Items.getCount();
+				var html = "";
+				for(var i = 0; i < n; i++) {
+					var order = UHTT.Store.Cart.Items.at(i);
+					if(!isEmpty(order)) {
+						html += '<div class="uhtt-shop-v1-cart-item-blk" id="store_v1_cart_item_' + order.GoodsID + '" goodsID="' + order.GoodsID + '">';
+						html += '<div class="uhtt-shop-v1-cart-item-name-blk">';
+						html += decodeURIComponent(order.GoodsName);
+						html += '</div>';
+						html += '<div class="uhtt-shop-v1-cart-item-price-blk">';
+						html += order.Quantity + " шт. x " + order.Price + " = " + Number(order.Amount).toFixed(2);
+						html += '</div>';
+						html += '<div class="uhtt-shop-v1-cart-item-remove-btn" title="Удалить из корзины"><img src="/rsrc/images/delete.png"/></div>';
+						html += '</div>';
+						total_amount += Number(order.Amount);
+					}
+				}
+				this.blk_CartEmptyMsg.hide();
+				this.blk_CartItems.html(html);
+				this.enableAcceptBtn();
+				
+				if(type == UHTT.Store.Cart.EVENTS.EVT_ADD_ITEM) {
+					if(ctx != null) {
+						if(!isEmpty(ctx.itemID)) {
+							this.blk_CartItems.scrollTo($("#store_v1_cart_item_" + ctx.itemID), 500, { margin: true });
+							//
+							var _item = $("#store_v1_cart_item_" + ctx.itemID + " .uhtt-shop-v1-cart-item-name-blk");
+							var css_color = _item.css("color");
+							_item.animate({ color: "green" }, 300, function() {
+								_item.animate({ color: css_color }, 300);
+							});
+						}
+					}
+				}
+			}
+			else {
+				this.blk_CartItems.html("");
+				this.blk_CartEmptyMsg.show();
+				this.disableAcceptBtn();
+			}
+			this.blk_CartTotalAmt.html(total_amount.toFixed(2));
+		}
+	};
+	## /* Инициализация */
+	$(document).ready(function(){
+		BasicShopFrm.init();
+	});
+	
+	
+	/*
+	 * IE Placeholder
+	 */
+	$(document).ready(function() {
+		/* Placeholder for IE */
+		if($.browser.msie) { // Условие для вызова только в IE
+			$("input[type='text']").each(function() {
+				var tp = $(this).attr("placeholder");
+				$(this).attr('value', tp).css('color', 'gray');
+			}).focusin(function() {
+				var val = $(this).attr('placeholder');
+				if($(this).val() == val) {
+					$(this).attr('value','').css('color','#303030');
+				}
+			}).focusout(function() {
+				var val = $(this).attr('placeholder');
+				if($(this).val() == "") {
+					$(this).attr('value', val).css('color', 'gray');
+				}
+			});
+		}
+	});
+</script>

@@ -1,0 +1,13 @@
+Client ID 		papyrus
+Client secret		JwihuTuWLr6ZLJzyqkqpkr8OLbC2UoRcu+NOBrUxMyQ=
+
+
+Microsoft Azure Marketplace sign in:
+petrogliff@outlook.com
+papyrus8
+
+Application:
+client id: projectpapyrus
+name: Project Papyrus
+client secret: 2xqvX8pKLr1kXnEmKqGrK8BUTyitWo2oA6c3KxxIgGA=
+redirect uri: http://www.petroglif.ru

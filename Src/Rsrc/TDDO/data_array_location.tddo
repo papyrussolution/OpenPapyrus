@@ -1,0 +1,31 @@
+## Universe-HTT
+## data_array_location.tddo
+## Массив структур локаций
+
+#pragma(htmlencode)
+#start(StrAssocArray)
+	[
+	#iter()
+		{
+		#start(UhttLocation:${ID})
+			"ID": ${ID},
+			"ParentID": ${ParentID.ID},
+			"Type": ${Type},
+			"Flags": ${Flags},
+			"OwnerID": ${OwnerID.ID},
+			"Code": "${Code}",
+			"Name": "${Name}",
+			"ZIP": "${ZIP}",
+			"CityID": ${CityID.ID},
+			"Latitude": ${Latitude},
+			"Longitude": ${Longitude},
+			"Address": "${Address}",
+			"City": "${CityID.Name}",                 ## // Очень плохо.
+			"Country": "${CityID.CountryID.Name}",    ## // Очень плохо.
+			"Phone": "${Phone}",
+			"Contact": "${Contact}"
+		#end()
+		},
+	#end()
+	]
+#end()

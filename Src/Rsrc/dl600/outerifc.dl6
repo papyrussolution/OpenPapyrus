@@ -1,0 +1,13 @@
+// OUTERIFC.DL6
+// Описание внешних для Papyrus интерфейсов
+//
+struct sUUID {
+	uint32 d[4];
+}
+
+interface ISupportErrorInfo noidl uuid(DF0B3D60-548F-101B-8E65-08002B2BD119) 
+{
+    void InterfaceSupportsErrorInfo(sUUID * riid);
+}
+
+

@@ -1,0 +1,29 @@
+﻿## Universe-HTT / 2013
+## balance.vm
+## Просмотр балана пользователя
+
+<style>
+	.frm-balance-table {
+		font: 12pt/12pt sans-serif;
+		color: #555555;
+		border-spacing: 8px 5px;
+	}
+	.frm-balance-table td {
+		padding: 5px;
+	}
+</style>
+
+<div class="frm-balance-layout uui-w100pct" id="frm_balance__layout">
+	<div>
+		<table class="frm-balance-table" class="uhtt-fields-table">
+			<tbody>
+				<tr>
+					<td><b>Ваш баланс:</b></td><td>${rest} р.</td>
+				</tr>
+				<tr>
+					<td><b>Максимальный кредит:</b></td><td>${overdraft} р.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>

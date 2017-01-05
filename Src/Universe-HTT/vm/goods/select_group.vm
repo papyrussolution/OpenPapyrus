@@ -1,0 +1,175 @@
+﻿## Universe-HTT / 2012, 2013
+## view_group_select.vm
+## Форма выбора товарных групп для фильтра товаров
+##
+
+#macro(drawTree $tree)
+	#foreach($node in $tree)
+		<li class="xtree-item">
+			#if($node.Item.ID > 0)
+				#if($node.Children.size() > 0)
+					<div class="xtree-hitarea xtree-hitarea-closed"></div>
+				#end
+				<div class="frm_dc_view_dir_tree_item xtree-item-container" itemID="${node.Item.ID}">
+					<img class="xtree-item-img" src="/rsrc/images/folder.png">
+					<div class="xtree-item-text-blk">
+						<span class="xtree-item-text">${node.Item.Name}</span>
+					</div>
+				</div>
+			#end
+			#if($node.Children.size() > 0)
+				<ul>
+					#drawTree($node.Children)
+				</ul>
+			#end
+		</li>
+	#end
+#end
+
+<style type="text/css">
+	div.uhtt-div-frame-w45pt-h400px {
+		float:      left;
+		border:     1px solid grey;
+		width:      45%;
+		height:     400px;
+		overflow-x: auto;
+	}
+	#view_select_goods_group_ctrl__blk {
+		padding:        10px 0;
+		text-align:     center;
+		vertical-align: middle;
+		float:          left;
+		width:          9%;
+		height:         400px;
+	}
+	ul.not-markable {
+		user-select:         none;
+		-moz-user-select:    none;
+		-webkit-user-select: none;
+	}
+	input.uhtt-button-28x28 {
+		width:  28px;
+		height: 28px;
+	}
+	div.tree_item {
+		cursor:       default;
+		padding-left: 5px;
+	}
+	div.tree_clicked {
+		background: #336699;
+		color:      white;
+	}
+</style>
+
+<div id="view_select_ggrp__layout">
+	<div class="uhtt-div-frame-w45pt-h400px">
+		<ul class="xtree not-markable" id="view_select_ggrp__tree">
+			#drawTree($tree)
+		</ul>
+	</div>
+	<div id="view_select_goods_group_ctrl__blk">
+		<input type="button" class="uhtt-button-28x28" id="view_select_ggrp_add__btn" value=">"/><br><br>
+		<input type="button" class="uhtt-button-28x28" id="view_select_ggrp_remove__btn" value="<"/><br><br>
+	</div>
+	<div class="uhtt-div-frame-w45pt-h400px">
+		<ul class="xtree not-markable" id="view_select_ggrp_selected__tree"></ul>
+	</div>
+	<div style="position:absolute; bottom:10px; right:10px">
+		<input type="button" id="view_select_ggrp_done__btn" value="Готово"/>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var SelectGoodsGroupsForm = {
+		## /* Instance */
+		Dialog : UHTT.Dialog.List.getObjByProperty("ID", $("#view_select_ggrp__layout").parent("div.uhtt-dialog").attr("id")),
+		## /* Элементы формы */
+		tree_Groups         : $("#view_select_ggrp__tree"),
+		btn_AddGroup        : $("#view_select_ggrp_add__btn"),
+		btn_RemoveGroup     : $("#view_select_ggrp_remove__btn"),
+		tree_SelectedGroups : $("#view_select_ggrp_selected__tree"),
+		btn_Done            : $("#view_select_ggrp_done__btn"),
+		## /* --- */
+		ActiveGroup : null,
+		ActiveSelectedGroup : null,
+		## /* Обработчик закрытия окна редактора */
+		closeHandler : function(p_this) {
+			p_this.Dialog = null;
+			p_this.tree_Groups = null;
+			p_this.btn_AddGroup = null;
+			p_this.btn_RemoveGroup = null;
+			p_this.tree_SelectedGroups = null;
+			p_this.btn_Done = null;
+		},
+		refreshList : function() {
+			var _this = this;
+			var settings = {
+				addRoot: false,
+				collapsed: true,
+				handler : function() {
+					_this.removeGroup();
+					return false;
+				}
+			};
+			_this.tree_SelectedGroups.xtree(GoodsFiltForm.F.Groups, settings);
+		},
+		addGroup : function() {
+			if(this.ActiveGroup != null) {
+				GoodsFiltForm.F.addGroup(this.ActiveGroup.ID, 0, this.ActiveGroup.Name);
+				this.refreshList();
+				this.ActiveGroup = null;
+			}
+		},
+		removeGroup : function() {
+			if(this.ActiveSelectedGroup != null) {
+				GoodsFiltForm.F.removeGroup(this.ActiveSelectedGroup.ID);
+				this.refreshList();
+				this.ActiveSelectedGroup = null;
+			}
+		},
+		removeAllGroups : function() {
+			GoodsFiltForm.F.resetGroups();
+			this.refreshList();
+		},
+		closeDlg : function() {
+			if(!isEmpty(this.Dialog))
+				this.Dialog.close();
+		},
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Установка обработчика закрытия окна */
+			_this.Dialog.setCloseHandler(_this.closeHandler, _this);
+			## /* Дерево товарных групп */
+			var settings = {
+				collapsed: true,
+				handler : function() {
+					_this.addGroup();
+					return false;
+				}
+			};
+			_this.tree_Groups._xtree(settings);
+			this.refreshList();
+			## /* Обработка событий */
+			_this.tree_Groups.delegate("div", "mousedown", function() {
+				_this.ActiveGroup = { "ID":$(this).attr("itemID"), "Name":$(this).find("span").html() };
+			});
+			_this.tree_SelectedGroups.delegate("div", "mousedown", function() {
+				_this.ActiveSelectedGroup = { "ID":$(this).attr("itemID"), "Name":$(this).find("span").html() };
+			});
+			_this.btn_AddGroup.Evt("click", function() {
+				_this.addGroup();
+			});
+			_this.btn_RemoveGroup.Evt("click", function() {
+				_this.removeGroup();
+			});
+			_this.btn_Done.Evt("click", function() {
+				_this.closeDlg();
+			});
+		}
+	};
+	## /* Инициализация формы */
+	$(document).ready(function(){
+		SelectGoodsGroupsForm.init();
+	});
+</script>

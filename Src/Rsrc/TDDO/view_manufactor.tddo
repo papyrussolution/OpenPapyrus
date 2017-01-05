@@ -1,0 +1,108 @@
+## Universe-HTT
+## view_manufactor.tddo 
+## Список производителей
+##
+
+#pragma(htmlencode)
+
+<div id="UHTT_VIEW_MANUFACTOR">
+	<div id="UHTT_VIEW_MANUFACTOR_TABLE_MSG" class="tablesorter-overlay-msg">Обработка...</div>
+	<table id="UHTT_VIEW_MANUFACTOR_TABLE" class="tablesorter">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Наименование</th>
+			</tr>
+		</thead>
+		<tbody>
+		#start(StrAssocArray)
+			#iter()
+			<tr class="uhtt-view-manufactor-table-item">
+				<td>${Id}</td>
+				<td>${Txt}</td>
+			</tr>
+			#end()
+		#end()
+		</tbody>
+	</table>
+
+	<!-- Панель навигации по списку страниц таблицы -->
+	<div id="UHTT_VIEW_MANUFACTOR_TABLE_PAGER" class="tablesorter-pager">
+		<input type="button" class="tablesorter-pager-btn-first"/>
+		<input type="button" class="tablesorter-pager-btn-prev"/>
+		<label class="tablesorter-pager-label-page-display"></label>
+		<input type="button" class="tablesorter-pager-btn-next"/>
+		<input type="button" class="tablesorter-pager-btn-last"/>
+		<b>Отображать по: </b>
+		<select class="tablesorter-pager-select-page-size">
+			<option selected="selected" value="20">20</option>
+			<option value="30">30</option>
+			<option value="40">40</option>
+			<option value="50">50</option>
+			<option value="100">100</option>
+			<option value="500">500</option>
+		</select>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var ManufactorView = {
+		## /* Таблица */
+		Tbl : null,
+		## /* Контекстное меню */
+		CtxMenu : null,
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Инициализация таблицы */
+			_this.Tbl = $("#UHTT_VIEW_MANUFACTOR_TABLE").tablesorter({ widthFixed:true });
+			_this.Tbl.tablesorterPager({ container:$("#UHTT_VIEW_MANUFACTOR_TABLE_PAGER") });
+			_this.Tbl.Evt("sortStart", function() {
+				$("#UHTT_VIEW_MANUFACTOR_TABLE_MSG").show();
+			}).Evt("sortEnd", function() {
+				$("#UHTT_VIEW_MANUFACTOR_TABLE_MSG").hide();
+			});
+			## /* Инициализация контекстного меню */
+			_this.CtxMenu = $(".uhtt-view-manufactor-table-item").contextMenu(
+				[
+					{ "<b>Список производимых товаров</b>": function() {
+							var manuf_id = $(this).find("td:eq(0)").text();
+							var manuf_name = $(this).find("td:eq(1)").text();
+							_this.showGoodsByManufactor(manuf_id, manuf_name);
+						}
+					},
+					$.contextMenu.separator,
+					#if{@(Global, 0).GetCurrentGlobalUser().Id > 0}
+					{ "Редактирование": function() {
+							var kind_id = UHTT.requestData(null, "SELECT PERSONKIND BY NAME(Производители) FORMAT.TDDO(_id)");
+							var manuf_id = $(this).find("td:eq(0)").text();
+							new SDialog("UHTT_PERSON_EDITOR_DLG", "GETTDDO FRM_PERSON_EDITOR " + kind_id + " " + manuf_id);
+						}
+					},
+					#endif
+					{ "Информация о производителе": function() { 
+							var manuf_id = $(this).find("td:eq(0)").text();
+							showPersonDetails(manuf_id, "Информация о производителе");
+						}
+					}
+				],
+				{ theme:"xp" }
+			);
+			## /* Событие двойной клик по строке */
+			_this.Tbl.delegate(".uhtt-view-manufactor-table-item", "dblclick", function() {
+				var manuf_id = $(this).find("td:eq(0)").text();
+				var manuf_name = $(this).find("td:eq(1)").text();
+				_this.showGoodsByManufactor(manuf_id, manuf_name);
+				return false;
+			}).delegate(".uhtt-view-manufactor-table-item", "click", function(e) {
+				// todo: show quick info
+			});
+		},
+		showGoodsByManufactor : function(manuf_id, manuf_name) {
+			var query = "SELECT GOODS BY MANUF.ID(" + manuf_id + ") FORMAT.TDDO(VIEW_GOODS, MANUF)";
+			new SDialog("UHTT_VIEW_GOODS_BY_MANUFACTOR_DLG", query, { title:"Список товаров производимых " + manuf_name });
+		}
+	};
+	## /* Инициализация view */
+	ManufactorView.init();
+</script>

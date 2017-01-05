@@ -1,0 +1,303 @@
+﻿## 
+##
+##
+
+#macro(CONTENT $id)$siteUtil.draw($id, $request)#end
+#macro(SET_TITLE $title)$siteUtil.setPageTitle($title, $request)#end
+
+#macro(IMAGE $code $width $height)
+	<img src="/dispatcher/workbook/content?code=${code}" #if(${width})width="${width}"#end #if(${height})height="${height}"#end></img>
+#end
+
+#macro(FLASH $code $width $height)
+	<object
+		type="application/x-shockwave-flash"
+		#if(${width})width="${width}"#end #if(${height})height="${height}"#end
+		data="/dispatcher/workbook/content?id=${code}"
+	>
+		<param name="movie" value="/dispatcher/workbook/content?id=${code}">
+		<embed
+			src="/dispatcher/workbook/content?id=${code}"
+			#if(${width})width="${width}"#end #if(${height})height="${height}"#end
+		>
+		</embed>
+	</object>
+#end
+
+
+
+#set($rubric_id = 0)
+
+#set($page_code = $request.getParameter("page"))
+
+#if($page_code)
+	#set($page = $siteUtil.getPage($page_code))
+	#if($page)
+		#set($trace = $siteUtil.tracePage($page))
+		##
+		## /* trace_lvl: 1 - site; 2 - rubric; 3... - pages
+		##
+		#set($trace_lvl = $trace.size())
+		#if($trace_lvl > 1)
+			#set($rubric = $siteUtil.getTraceItem($trace, 2))
+			#set($rubric_id = $rubric.ID)
+		#end
+		#set($is_page = ($trace_lvl > 2))
+		#set($show_hierarchy = ($siteUtil.hasChildren($page) || $is_page))
+	#end
+#else
+	#set($page = $siteUtil.getPage($site.LinkID))
+	#set($show_hierarchy = false)
+#end
+
+#if($page)
+	##
+	## // Set page title
+	#SET_TITLE($page.Name)
+#else
+	##
+	## /* TODO: Invalid request */
+	##
+	#set($page = $siteUtil.getPage("INVALID_REQ_PAGE"))
+#end
+
+#set($hierarchy = $siteUtil.getHierarchy($site.ID))
+
+<style>
+	/*
+	ul.pages-list li:nth-child(odd) {
+		background-color:#EEE8CD;
+	}
+	*/
+	
+	.page-children-list-toggler {
+		background: url("/rsrc/images/arrow_down_16.png") no-repeat scroll 50% 50% rgba(0, 0, 0, 0);
+		cursor: pointer;
+		display: block;
+		height: 15px;
+		width: 15px;
+		float: right;
+		paging: 5px;
+		position: absolute;
+		right: 0;
+		top: 6px;
+	}
+	.toggler-expand {
+		background: url("/rsrc/images/arrow_up_16.png") no-repeat scroll 50% 50% rgba(0, 0, 0, 0);
+	}
+</style>
+
+#macro(drawHierarchy $items, $lvl)
+	#set($lvl = $lvl + 1)
+	#foreach($item in $items)
+		#set($clicked = $siteUtil.pageInTrace($trace, $item.Rec.ID))
+		#set($has_children = ($item.Children.size() > 0))
+		<li
+			#if($has_children)
+				class="pages-list-item has_children"
+			#else
+				class="pages-list-item"
+			#end
+			itemID="${item.Rec.ID}"
+			code="${item.Rec.Symb}"
+			level="$lvl"
+		>
+			<a
+				href="?page=${item.Rec.Symb}"
+				#if($clicked)
+					class="clicked"
+				#end
+			>
+				${item.Rec.Name}
+			</a>
+			#if($has_children)
+				<span
+					#if($clicked)
+						class="page-children-list-toggler toggler-expand"
+					#else
+						class="page-children-list-toggler"
+					#end
+				>
+				</span>
+				<ul
+					class="page-children-list"
+					#if(!$clicked)
+						style="display:none"
+					#end
+				>
+					#set($cur_lvl = $lvl)
+					#drawHierarchy($item.Children, $lvl)
+					#set($lvl = $cur_lvl)
+				</ul>
+			#end
+		</li>
+	#end
+#end
+
+#macro(drawRubricPages $items)
+	#foreach($item in $items)
+		#if($rubric_id == $item.Rec.ID)
+			#drawHierarchy($item.Children, 0)
+		#end
+	#end
+#end
+
+## //////////////////////////////////////
+## Include CSS                         //
+## //////////////////////////////////////
+#CONTENT($site.CssID)
+
+<style>
+	div.page-header {
+		height: 64px;
+	}
+	div.header-button {
+		background: url("/standard-theme/images/portlet/header_bg.png") repeat-x scroll 0 0 #D4D4D4;
+		/*
+		border: 1px solid #AAAAAA;
+		*/
+		border: 1px;
+		float: right;
+		font: 10pt Arial;
+		padding: 2px 10px;
+		position: relative;
+		text-align: center;
+		text-shadow: 1px 1px #FFFFFF;
+		cursor: pointer;
+		
+		border-top: 1px solid #555555;
+		border-bottom: 1px solid #555555;
+	}
+	div.header-button:hover {
+		/*
+		border-color: #555555;
+		border: 1px solid #555555;
+		*/
+	}
+	div.header-button-left {
+		border-radius: 4px 0 0 4px;
+		border-left: 1px solid #555555;
+
+	}
+	div.header-button-right {
+		border-radius: 0 4px 4px 0;
+		border-right: 1px solid #555555;
+	}
+	div.header-button a {
+		color: #34404F;
+		text-decoration: none;
+	}
+	div.header-button a:hover {
+		color: #3366FF;
+	}
+</style>
+
+<div id="frm_workbook__layout">
+	<div class="page-header">
+		<a href="/">#IMAGE("PIC_PETROGLIF_LOGO", 190, 62)</a>
+		<div class="uui-helper-clearfix header-button header-button-right">
+			<a href="?page=PARTNERSHIP">
+				<div>
+					<img src="/rsrc/images/handshake_24.png" style="width:24px;height:24px;vertical-align:middle">
+					<span style="">Partnership</span>
+				</div>
+			</a>
+		</div>
+		<div class="uui-helper-clearfix header-button">
+			<a href="?page=CONTACTS">
+				<div>
+					<img src="/rsrc/images/email_24.png" style="width:24px;height:24px;vertical-align:middle">
+					<span style="">Contacts</span>
+				</div>
+			</a>
+		</div>
+		<div class="uui-helper-clearfix header-button header-button-left" id="header_request_price_btn">
+			<a>
+				<div>
+					<img src="/rsrc/images/idea_24.png" style="width:24px;height:24px;vertical-align:middle">
+					<span style="">Price request</span>
+				</div>
+			</a>
+		</div>
+	</div>
+	<div class="uhtt-rubric-list-blk sprawling">
+		<ul>
+			#foreach($item in $hierarchy)
+				<li 
+					#if($rubric_id == $item.Rec.ID)
+						class="active-rubric"
+					#end
+				>
+					<a class="sprawling" href="?page=${item.Rec.Symb}">
+						<span>${item.Rec.Name}</span>
+					</a>
+				</li>
+			#end
+		</ul>
+	</div>
+	<div class="uhtt-rubric-view-blk">
+		<table class="sprawling" style="border-collapse:separate; border-spacing:8px 5px;">
+			<tbody>
+				<tr>
+					#if(!$show_hierarchy)
+						<td style="width:80%; vertical-align:top">
+							<div id="frm_workbook_page_content__blk" class="sprawling">
+								#if($page)
+									#CONTENT($page.ID)
+								#end
+							</div>
+						</td>
+						<td style="width:20%; vertical-align:top">
+							<div id="rubric_view_adware__blk">
+								#CONTENT("ADWARE")
+							</div>
+						</td>
+					#else
+						<td style="width:20%; vertical-align:top">
+							<div class="sprawling" id="pages_list_blk">
+								<ul class="pages-list">
+									#drawRubricPages($hierarchy)
+								</ul>
+							</div>
+						</td>
+						<td style="width:60%; vertical-align:top">
+							<div id="frm_workbook_page_content__blk" class="sprawling">
+								#if($page)
+									#CONTENT($page.ID)
+								#end
+							</div>
+						</td>
+						<td style="width:20%; vertical-align:top">
+							<div id="rubric_view_adware__blk">
+								#CONTENT("ADWARE")
+							</div>
+						</td>
+					#end
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$(".page-children-list-toggler").Evt("click", function() {
+			var list = $(this).parent().find("ul.page-children-list").first();
+			if($(this).hasClass('toggler-expand')) {
+				$(this).removeClass('toggler-expand');
+				list.slideUp(100);
+			}
+			else {
+				$(this).addClass('toggler-expand');
+				list.slideDown(100);
+			}
+		});
+	
+		$("#header_request_price_btn").Evt("click", function(e) {
+			
+			#CONTENT('MENU_PRICE_REQUEST')
+			
+		});
+	});
+
+</script>

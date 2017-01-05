@@ -1,0 +1,696 @@
+<?xml version ='1.0' encoding ='UTF-8' ?>
+<wsdl:definitions
+    targetNamespace='http://localhost/Universe-HTT/soap/'
+    xmlns='http://schemas.xmlsoap.org/wsdl/'
+    xmlns:soap='http://schemas.xmlsoap.org/wsdl/soap/'
+    xmlns:SOAP-ENC='http://schemas.xmlsoap.org/soap/encoding/'
+    xmlns:wsdl='http://schemas.xmlsoap.org/wsdl/'
+    xmlns:xsd='http://www.w3.org/2001/XMLSchema'
+    xmlns:tns='http://localhost/Universe-HTT/soap/'>
+
+<!-- ******************************************************************************** ОПРЕДЕЛЕНИЕ ТИПОВ ДАННЫХ -->
+<wsdl:types>
+    <xsd:schema targetNamespace='http://localhost/Universe-HTT/soap/'>
+
+        <!-- Вспомогательная структура, используемая как аргумент функции SelectObject -->
+        <xsd:complexType name='UhttObjSelectCriteria'>
+            <xsd:sequence>
+                <xsd:element name='ObjName' type='xsd:string'/>
+                <xsd:element name='ByCriteria' type='xsd:string'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!-- Массив универсальных структур для идентификации объекта -->
+        <xsd:complexType name='ArrayOfUhttCommObjItem' base="SOAP-ENC:Array">
+            <xsd:sequence>
+                <xsd:element name='CommObjItem' type='tns:UhttCommObjItem' minOccurs='0' maxOccurs='unbounded'/>
+            </xsd:sequence>
+        </xsd:complexType>        
+        
+        <!-- Универсальная структура для идентификации объекта -->
+        <xsd:complexType name='UhttCommObjItem' minOccurs='0' maxOccurs='unbounded'>
+            <xsd:sequence>
+                <xsd:element name='ID' type='xsd:int'/>
+                <xsd:element name='ParentID' type='xsd:int'/>
+                <xsd:element name='Name' type='xsd:string'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!-- Географический объект -->
+        <xsd:complexType name='UhttWorld'>
+            <xsd:sequence>
+                <xsd:element name='ID' type='xsd:int'/>
+                <xsd:element name='ParentID' type='xsd:int'/>
+                <xsd:element name='Name' type='xsd:string'/>
+                <xsd:element name='Kind' type='xsd:int'/>
+                <xsd:element name='ParentName' type='xsd:string'/>
+                <xsd:element name='CountryID' type='xsd:int'/>
+                <xsd:element name='Latitude' type='xsd:double'/>
+                <xsd:element name='Longitude' type='xsd:double'/>
+                <xsd:element name='Code' type='xsd:string'/>
+                <xsd:element name='CountryIsoAlpha2' type='xsd:string'/>
+                <xsd:element name='CountryIsoDigit' type='xsd:int'/>
+                <xsd:element name='CurrencyID' type='xsd:int'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!-- Валюта -->
+        <xsd:complexType name='UhttCurrency'>
+            <xsd:sequence>
+                <xsd:element name='ID' type='xsd:int'/>
+                <xsd:element name='Name' type='xsd:string'/>
+                <xsd:element name='Code' type='xsd:string'/>
+                <xsd:element name='DigitCode' type='xsd:int'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!-- Вид персоналий. Персоналия может принадлежать множеству видов. -->
+        <xsd:complexType name='UhttPersonKind'>
+            <xsd:sequence>
+                <xsd:element name='ID' type='xsd:int'/>
+                <xsd:element name='Name' type='xsd:string'/>
+                <xsd:element name='Code' type='xsd:string'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!-- Категория персоналий. Персоналия может относится только к одной категории. -->
+        <xsd:complexType name='UhttPersonCategory'>
+            <xsd:sequence>
+                <xsd:element name='ID' type='xsd:int'/>
+                <xsd:element name='Name' type='xsd:string'/>
+                <xsd:element name='Code' type='xsd:string'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!-- Адрес -->
+        <xsd:complexType name='UhttLocation'>
+            <xsd:sequence>
+                <xsd:element name='LocID' type='xsd:int'/>
+                <xsd:element name='LocKind' type='xsd:int'/>
+                <xsd:element name='LocCode' type='xsd:string'/>
+                <xsd:element name='LocName' type='xsd:string'/>
+                <xsd:element name='CountryID' type='xsd:int'/>
+                <xsd:element name='Country' type='xsd:string'/>
+                <xsd:element name='CityID' type='xsd:int'/>
+                <xsd:element name='City' type='xsd:string'/>
+                <xsd:element name='ZIP' type='xsd:string'/>
+                <xsd:element name='Address' type='xsd:string'/>
+                <xsd:element name='Latitude' type='xsd:double'/>
+                <xsd:element name='Longitude' type='xsd:double'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!-- Тип персонального регистра. Персоналия может иметь множество регистров разных типов. -->
+        <xsd:complexType name='UhttPersonRegisterType'>
+            <xsd:sequence>
+                <xsd:element name='ID' type='xsd:int'/>
+                <xsd:element name='Name' type='xsd:string'/>
+                <xsd:element name='Code' type='xsd:string'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!-- Персональный регистр. -->
+        <xsd:complexType name='UhttPersonRegister'>
+            <xsd:sequence>
+                <xsd:element name='RegID' type='xsd:int'/>
+                <xsd:element name='RegTypeID' type='xsd:int'/>
+                <xsd:element name='RegPersonID' type='xsd:int'/>
+                <xsd:element name='RegOrgID' type='xsd:int'/>
+                <xsd:element name='RegDt' type='xsd:date'/>
+                <xsd:element name='RegExpiry' type='xsd:date'/>
+                <xsd:element name='RegSerial' type='xsd:string'/>
+                <xsd:element name='RegNumber' type='xsd:string'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!-- Персоналия -->
+        <xsd:complexType name='UhttPerson'>
+            <xsd:sequence>
+                <xsd:element name='ID' type='xsd:int'/>
+                <xsd:element name='Name' type='xsd:string'/>
+                <xsd:element name='Code' type='xsd:string'/>
+                <xsd:element name='KindNameList' type='xsd:string' minOccurs='0' maxOccurs='unbounded'/>
+                <xsd:element name='CategoryName' type='xsd:string'/>
+                <xsd:element name='StatusName' type='xsd:string'/>
+                <xsd:element name='Addr' type='tns:UhttLocation'/>
+                <xsd:element name='RAddr' type='tns:UhttLocation'/>
+                <xsd:element name='PhoneList' type='xsd:string' minOccurs='0' maxOccurs='unbounded'/>
+                <xsd:element name='EMailList' type='xsd:string' minOccurs='0' maxOccurs='unbounded'/>
+                <xsd:element name='URL' type='xsd:string'/>
+                <xsd:element name='RegisterList' type='tns:UhttPersonRegister' minOccurs='0' maxOccurs='unbounded'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!-- Дополнительные адреса персоналии (адреса доставки, точки продаж и т.д.) -->
+        <xsd:complexType name='UhttPersonLocation'>
+            <xsd:sequence>
+                <xsd:element name='PersonID' type='xsd:int'/>
+                <xsd:element name='Location' type='tns:UhttLocation'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!-- Товарная группа -->
+        <xsd:complexType name='UhttGoodsGroup'>
+            <xsd:sequence>
+                <xsd:element name='ID' type='xsd:int'/>
+                <xsd:element name='ParentID' type='xsd:int'/>
+                <xsd:element name='Name' type='xsd:string'/>
+                <xsd:element name='Code' type='xsd:string'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!-- Товарный брэнд -->
+        <xsd:complexType name='UhttBrand'>
+            <xsd:sequence>
+                <xsd:element name='ID' type='xsd:int'/>
+                <xsd:element name='Name' type='xsd:string'/>
+                <xsd:element name='Code' type='xsd:string'/>
+                <xsd:element name='OwnerID' type='xsd:int'/>
+                <xsd:element name='GoodsGroupID' type='xsd:int'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!-- Штрихкод товара. Товар может иметь множество штрихкодов. -->
+        <xsd:complexType name='UhttBarcode'>
+            <xsd:sequence>
+                <xsd:element name='Code' type='xsd:string'/>
+                <xsd:element name='Package' type='xsd:double'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!-- Персонифицированный код товара. -->
+        <xsd:complexType name='UhttArCode'>
+            <xsd:sequence>
+                <xsd:element name='OwnerID' type='xsd:int'/>
+                <xsd:element name='Code' type='xsd:string'/>
+                <xsd:element name='Package' type='xsd:double'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!-- Товарная налоговая группа -->
+        <xsd:complexType name='UhttGoodsTaxGroup'>
+            <xsd:sequence>
+                <xsd:element name='ID' type='xsd:int'/>
+                <xsd:element name='Name' type='xsd:string'/>
+                <xsd:element name='Code' type='xsd:string'/>
+                <xsd:element name='VatRate' type='xsd:double'/>
+                <xsd:element name='ExciseRate' type='xsd:double'/>
+                <xsd:element name='SalesTaxRate' type='xsd:double'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!-- Товар -->
+        <xsd:complexType name='UhttGoods'>
+            <xsd:sequence>
+                <xsd:element name='ID' type='xsd:int'/>
+                <xsd:element name='ParentID' type='xsd:int'/>
+                <xsd:element name='Name' type='xsd:string'/>
+                <xsd:element name='UnitID' type='xsd:int'/>
+                <xsd:element name='PhUnitID' type='xsd:int'/>
+                <xsd:element name='PhUPerU' type='xsd:double'/>
+                <xsd:element name='BrandID' type='xsd:int'/>
+                <xsd:element name='ManufID' type='xsd:int'/>
+                <xsd:element name='TaxGrpID' type='xsd:int'/>
+                <xsd:element name='Package' type='xsd:double'/>
+                <xsd:element name='BarcodeList' type='tns:UhttBarcode' minOccurs='0' maxOccurs='unbounded'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!-- Календарь -->
+        <xsd:complexType name='UhttCalendar'>
+            <xsd:sequence>
+                <xsd:element name='ID' type='xsd:int'/>
+                <xsd:element name='ParentID' type='xsd:int'/>
+                <xsd:element name='Name' type='xsd:string'/>
+                <xsd:element name='Code' type='xsd:string'/>
+                <xsd:element name='PersonID' type='xsd:int'/>
+                <xsd:element name='CountryID' type='xsd:int'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!-- Элемент календаря -->
+        <xsd:complexType name='UhttCalendarEntry'>
+            <xsd:sequence>
+                <xsd:element name='CalID' type='xsd:int'/>
+                <xsd:element name='fSkip' type='xsd:boolean'/>
+                <xsd:element name='Dt' type='xsd:date'/>
+                <xsd:element name='TmStart' type='xsd:time'/>
+                <xsd:element name='TmEnd' type='xsd:time'/>
+                <xsd:element name='Memo' type='xsd:string'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!-- Массив бракованных (реабилитированных) товарных серий. -->
+        <xsd:complexType name='ArrayOfUhttSpoiledSerial' base="SOAP-ENC:Array">
+            <xsd:sequence>
+                <xsd:element name='SpoiledSerial' type='tns:UhttSpoiledSerial' minOccurs='0' maxOccurs='unbounded'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!-- Бракованная (реабилитированная) товарная серия. -->
+        <xsd:complexType name='UhttSpoiledSerial'>
+            <xsd:sequence>
+                <xsd:element name='Serial' type='xsd:string'/>
+                <xsd:element name='BarCode' type='xsd:string'/>
+                <xsd:element name='GoodsID' type='xsd:int'/>
+                <xsd:element name='GoodsName' type='xsd:string'/>
+                <xsd:element name='ManufID' type='xsd:int'/>
+                <xsd:element name='ManufName' type='xsd:string'/>
+                <xsd:element name='ManufCountryID' type='xsd:int'/>
+                <xsd:element name='ManufCountryName' type='xsd:string'/>
+                <xsd:element name='LabID' type='xsd:int'/>
+                <xsd:element name='LabName' type='xsd:string'/>
+                <xsd:element name='InfoDate' type='xsd:date'/>
+                <xsd:element name='InfoIdent' type='xsd:string'/>
+                <xsd:element name='AllowDate' type='xsd:date'/>
+                <xsd:element name='AllowNumber' type='xsd:string'/>
+                <xsd:element name='SpecName' type='xsd:string'/>
+                <xsd:element name='LetterType' type='xsd:string'/>
+                <xsd:element name='Flags' type='xsd:int'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!--  -->
+        <xsd:complexType name='UhttQuot'>
+            <xsd:sequence>
+                <xsd:element name='GoodsID' type='xsd:int'/>
+                <xsd:element name='SellerID' type='xsd:int'/>
+                <xsd:element name='BuyerID' type='xsd:int'/>
+                <xsd:element name='CurID' type='xsd:int'/>
+                <xsd:element name='Dt' type='xsd:date'/>
+                <xsd:element name='Tm' type='xsd:time'/>
+                <xsd:element name='Val' type='xsd:double'/>
+                <xsd:element name='Memo' type='xsd:string'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+        <!-- Статус -->
+        <xsd:complexType name='UhttOutStatus'>
+            <xsd:sequence>
+                <xsd:element name='Status' type='xsd:string'/>
+                <xsd:element name='Memo' type='xsd:string'/>
+            </xsd:sequence>
+        </xsd:complexType>
+
+    </xsd:schema>
+</wsdl:types>
+
+<!-- ******************************************************************************** ОПРЕДЕЛЕНИЕ ВХОДЯЩИХ/ИСХОДЯЩИХ СООБЩЕНИЙ(ПАРАМЕТРОВ) -->
+
+<!-- 1 Входящий параметр - ID -->
+<wsdl:message name='getID'>
+    <wsdl:part name='ID' type='xsd:int'/>
+</wsdl:message>
+
+<!-- 1 Параметр - UhttArCode -->
+<wsdl:message name='mes_ioUhttArCode'>
+    <wsdl:part name='ArCode' type='tns:UhttArCode'/>
+</wsdl:message>
+
+<!-- 1 Параметр - UhttQuot -->
+<wsdl:message name='mes_ioUhttQuot'>
+    <wsdl:part name='Quot' type='tns:UhttQuot'/>
+</wsdl:message>
+
+<!-- 1 Входящий параметр - UhttObjSelectCriteria -->
+<wsdl:message name='getObjSelectCriteria'>
+    <wsdl:part name='ObjSelectCriteria' type='tns:UhttObjSelectCriteria'/>
+</wsdl:message>
+
+<!-- 1 Исходящий параметр - UhttCommObjItem -->
+<wsdl:message name='outCommObjItem'>
+    <wsdl:part name='CommObjItem' type='tns:ArrayOfUhttCommObjItem'/>
+</wsdl:message>
+
+<!-- 1 Параметр - UhttWorld -->
+<wsdl:message name='mes_ioWorld'>
+    <wsdl:part name='World' type='tns:UhttWorld'/>
+</wsdl:message>
+
+<!-- 1 Параметр - UhttCurrency -->
+<wsdl:message name='mes_ioCurrency'>
+    <wsdl:part name='Currency' type='tns:UhttCurrency'/>
+</wsdl:message>
+
+<!-- 1 Параметр - UhttPersonKind -->
+<wsdl:message name='mes_ioPersonKind'>
+    <wsdl:part name='PersonKind' type='tns:UhttPersonKind'/>
+</wsdl:message>
+
+<!-- 1 Параметр - UhttPersonCategory -->
+<wsdl:message name='mes_ioPersonCategory'>
+    <wsdl:part name='PersonCategory' type='tns:UhttPersonCategory'/>
+</wsdl:message>
+
+<!-- 1 Параметр - UhttPersonRegisterType -->
+<wsdl:message name='mes_ioPersonRegisterType'>
+    <wsdl:part name='PersonRegisterType' type='tns:UhttPersonRegisterType'/>
+</wsdl:message>
+
+<!-- 1 Параметр - UhttPerson -->
+<wsdl:message name='mes_ioPerson'>
+    <wsdl:part name='Person' type='tns:UhttPerson'/>
+</wsdl:message>
+
+<!-- 1 Параметр - UhttGoodsGroup -->
+<wsdl:message name='mes_ioGoodsGroup'>
+    <wsdl:part name='GoodsGroup' type='tns:UhttGoodsGroup'/>
+</wsdl:message>
+
+<!-- 1 Параметр - UhttBrand -->
+<wsdl:message name='mes_ioBrand'>
+    <wsdl:part name='Brand' type='tns:UhttBrand'/>
+</wsdl:message>
+
+<!-- 1 Параметр - UhttGoods -->
+<wsdl:message name='mes_ioGoods'>
+    <wsdl:part name='Goods' type='tns:UhttGoods'/>
+</wsdl:message>
+
+<!-- 1 Параметр - UhttCalendar -->
+<wsdl:message name='mes_ioCalendar'>
+    <wsdl:part name='Calendar' type='tns:UhttCalendar'/>
+</wsdl:message>
+
+<!-- 1 Исходящий параметр - UhttOutStatus-->
+<wsdl:message name='out_SpoiledSeries'>
+    <wsdl:part name='SpoiledSeries' type='tns:ArrayOfUhttSpoiledSerial'/>
+</wsdl:message>
+
+<!-- 1 Исходящий параметр - UhttOutStatus-->
+<wsdl:message name='outStatus'>
+    <wsdl:part name='Status' type='tns:UhttOutStatus'/>
+</wsdl:message>
+
+<!-- 2 Входящих параметра - Login, Password -->
+<wsdl:message name='getLoginPasswd'>
+    <wsdl:part name='Login' type='xsd:string'/>
+    <wsdl:part name='Password' type='xsd:string'/>
+</wsdl:message>
+
+<!-- ******************************************************************************** ОПРЕДЕЛЕНИЕ ОПЕРАЦИЙ -->
+<wsdl:portType name='UhttMainPortType'>
+
+    <!-- Поиск объектов по критерию -->
+    <wsdl:operation name='SelectObject'>
+        <wsdl:input message='tns:getObjSelectCriteria'/>
+        <wsdl:output message='tns:outCommObjItem'/>
+    </wsdl:operation>
+
+    <!-- Получение информации о выбранном географическом объекте по его ID -->
+    <wsdl:operation name='Get_World'>
+        <wsdl:input message='tns:getID'/>
+        <wsdl:output message='tns:mes_ioWorld'/>
+    </wsdl:operation>
+
+    <!-- Получение информации о выбранной валюте по её ID -->
+    <wsdl:operation name='Get_Currency'>
+        <wsdl:input message='tns:getID'/>
+        <wsdl:output message='tns:mes_ioCurrency'/>
+    </wsdl:operation>
+
+    <!-- Получение информации о выбранном виде персоналии по его ID -->
+    <wsdl:operation name='Get_PersonKind'>
+        <wsdl:input message='tns:getID'/>
+        <wsdl:output message='tns:mes_ioPersonKind'/>
+    </wsdl:operation>
+
+    <!-- Получение информации о выбранной категории персоналии по её ID -->
+    <wsdl:operation name='Get_PersonCategory'>
+        <wsdl:input message='tns:getID'/>
+        <wsdl:output message='tns:mes_ioPersonCategory'/>
+    </wsdl:operation>
+
+    <!-- Получение информации о выбранном типе персонального регистра по его ID -->
+    <wsdl:operation name='Get_RegisterType'>
+        <wsdl:input message='tns:getID'/>
+        <wsdl:output message='tns:mes_ioPersonRegisterType'/>
+    </wsdl:operation>
+
+    <!-- Получение информации о выбранной персоналии по её ID -->
+    <wsdl:operation name='Get_Person'>
+        <wsdl:input message='tns:getID'/>
+        <wsdl:output message='tns:mes_ioPerson'/>
+    </wsdl:operation>
+
+    <!-- Получение информации о выбранной товарной группе по её ID -->
+    <wsdl:operation name='Get_GoodsGroup'>
+        <wsdl:input message='tns:getID'/>
+        <wsdl:output message='tns:mes_ioGoodsGroup'/>
+    </wsdl:operation>
+
+    <!-- Получение информации о выбранном бренде по его ID -->
+    <wsdl:operation name='Get_Brand'>
+        <wsdl:input message='tns:getID'/>
+        <wsdl:output message='tns:mes_ioBrand'/>
+    </wsdl:operation>
+
+    <!-- Получение информации о выбранном товаре по его ID -->
+    <wsdl:operation name='Get_Goods'>
+        <wsdl:input message='tns:getID'/>
+        <wsdl:output message='tns:mes_ioGoods'/>
+    </wsdl:operation>
+
+    <!-- Получение информации о выбранном календаре по его ID -->
+    <wsdl:operation name='Get_Calendar'>
+        <wsdl:input message='tns:getID'/>
+        <wsdl:output message='tns:mes_ioCalendar'/>
+    </wsdl:operation>
+
+    <!-- Установка артикула -->
+    <wsdl:operation name='SetGoodsCode'>
+        <wsdl:input message='tns:mes_ioUhttArCode'/>
+        <wsdl:output message='tns:outStatus'/>
+    </wsdl:operation>
+    
+    <!-- Получение артикула -->
+    <wsdl:operation name='GetGoodsCode'>
+        <wsdl:input message='tns:mes_ioUhttArCode'/>
+        <wsdl:output message='tns:mes_ioUhttArCode'/>
+    </wsdl:operation>
+
+    <!-- Установка цены -->
+    <wsdl:operation name='SetGoodsPrice'>
+        <wsdl:input message='tns:mes_ioUhttQuot'/>
+        <wsdl:output message='tns:outStatus'/>
+    </wsdl:operation>
+    
+    <!-- Получение цены -->
+    <wsdl:operation name='GetGoodsPrice'>
+        <wsdl:input message='tns:mes_ioUhttQuot'/>
+        <wsdl:output message='tns:mes_ioUhttQuot'/>
+    </wsdl:operation>
+
+    <!-- Получение списка бракованных (реабилитированны) товарных серий. -->
+    <wsdl:operation name='GetSpoiledSeries'>
+		<wsdl:input message='tns:getID'/> <!-- dummy=0 -->
+        <wsdl:output message='tns:out_SpoiledSeries'/>
+    </wsdl:operation>
+
+    <!-- Авторизация в системе -->
+    <wsdl:operation name='Login'>
+        <wsdl:input message='tns:getLoginPasswd'/>
+        <wsdl:output message='tns:outStatus'/>
+    </wsdl:operation>
+
+    <!-- Завершение сеанса -->
+    <wsdl:operation name='Logout'>
+		<wsdl:input message='tns:getID'/> <!-- dummy=0 -->
+        <wsdl:output message='tns:outStatus'/>
+    </wsdl:operation>
+
+</wsdl:portType>
+
+<!-- ******************************************************************************** ОПРЕДЕЛЕНИЕ ПАРАМЕТРОВ ПЕРЕДАЧИ ДАННЫХ -->
+<wsdl:binding name='UhttMainBinding' type='tns:UhttMainPortType'>
+    <soap:binding style='rpc' transport='http://schemas.xmlsoap.org/soap/http'/>
+
+    <wsdl:operation name='SelectObject'>
+        <soap:operation soapAction=''/>
+        <wsdl:input>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:input>
+        <wsdl:output>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name='Get_World'>
+        <soap:operation soapAction=''/>
+        <wsdl:input>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:input>
+        <wsdl:output>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name='Get_Currency'>
+        <soap:operation soapAction=''/>
+        <wsdl:input>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:input>
+        <wsdl:output>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name='Get_PersonKind'>
+        <soap:operation soapAction=''/>
+        <wsdl:input>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:input>
+        <wsdl:output>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name='Get_PersonCategory'>
+        <soap:operation soapAction=''/>
+        <wsdl:input>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:input>
+        <wsdl:output>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name='Get_RegisterType'>
+        <soap:operation soapAction=''/>
+        <wsdl:input>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:input>
+        <wsdl:output>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name='Get_Person'>
+        <soap:operation soapAction=''/>
+        <wsdl:input>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:input>
+        <wsdl:output>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name='Get_GoodsGroup'>
+        <soap:operation soapAction=''/>
+        <wsdl:input>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:input>
+        <wsdl:output>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name='Get_Brand'>
+        <soap:operation soapAction=''/>
+        <wsdl:input>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:input>
+        <wsdl:output>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name='Get_Goods'>
+        <soap:operation soapAction=''/>
+        <wsdl:input>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:input>
+        <wsdl:output>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name='Get_Calendar'>
+        <soap:operation soapAction=''/>
+        <wsdl:input>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:input>
+        <wsdl:output>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name='SetGoodsCode'>
+        <soap:operation soapAction=''/>
+        <wsdl:input>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:input>
+        <wsdl:output>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name='GetGoodsCode'>
+        <soap:operation soapAction=''/>
+        <wsdl:input>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:input>
+        <wsdl:output>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name='SetGoodsPrice'>
+        <soap:operation soapAction=''/>
+        <wsdl:input>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:input>
+        <wsdl:output>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name='GetGoodsPrice'>
+        <soap:operation soapAction=''/>
+        <wsdl:input>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:input>
+        <wsdl:output>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name='GetSpoiledSeries'>
+        <soap:operation soapAction=''/>
+        <wsdl:input>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:input>
+        <wsdl:output>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name='Login'>
+        <soap:operation soapAction=''/>
+        <wsdl:input>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:input>
+        <wsdl:output>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name='Logout'>
+        <soap:operation soapAction=''/>
+        <wsdl:input>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:input>        
+        <wsdl:output>
+            <soap:body use='encoded' namespace='http://localhost/Universe-HTT/soap/' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+        </wsdl:output>
+    </wsdl:operation>
+    
+</wsdl:binding>
+
+<!-- ******************************************************************************** ОПРЕДЕЛЕНИЕ СЕРВИСА -->
+<wsdl:service name='UhttService'>
+    <wsdl:port name='UhttMainPortType' binding='tns:UhttMainBinding'>
+        <soap:address location='http://localhost/Universe-HTT/soap/universe_htt.php'/>
+    </wsdl:port>
+</wsdl:service>
+</wsdl:definitions>

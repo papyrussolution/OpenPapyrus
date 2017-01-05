@@ -1,0 +1,41 @@
+﻿## Universe-HTT / 2013
+## view_bot_brand_details.vm 
+## Список товаров по бренду (страница для поискового бота)
+##
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>${brand.Name} - Universe-HTT</title>
+		<meta name="keywords" content="Справочник товаров, Поиск товара по штрихкоду, ${brand.Name}">
+		<meta name="description" content="Список товаров относящихся к бренду ${brand.Name}">
+	</head>
+	<body>
+		<h1>Список товаров относящихся к бренду ${brand.Name}</h1>
+		<img src="/dispatcher/get_obj_image?obj_type=BRAND&obj_id=${brand.ID}"/><br>
+		<table>
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Наименование</th>
+					<th>Производитель</th>
+					<th>Штрихкод</th>
+				</tr>
+			</thead>
+			<tbody>
+				#foreach($goods in $goodsAry)
+				<tr>
+					<td>${goods.ID}</td>
+					<td>${goods.Name}</td>
+					<td>$UHTT.getObjName("PERSON", $goods.ManufID)</td>
+					<td>
+						#foreach($barcode in $goods.BarcodeList)
+							${barcode.Code}<br>
+						#end
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</body>
+</html>

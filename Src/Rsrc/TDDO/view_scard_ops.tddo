@@ -1,0 +1,205 @@
+## Universe-HTT
+## view_scard_op.tddo 
+## Детализация операций по картам
+## Args: ${1} - Вид таблицы
+
+#pragma(htmlencode)
+
+<style>
+	td.ralign {
+		text-align:right;
+	}
+</style>
+
+<div id="UHTT_VIEW_SCARDOP">
+	#start(UhttSCardOpArray)
+	<table id="UHTT_VIEW_SCARDOP_TABLE" class="tablesorter">
+		<thead>
+			#if{$1 = 0}
+				<tr>
+					<th rowspan="2">Номер карты</th>
+					<th rowspan="2">Дата</th>
+					<th rowspan="2">Время</th>
+					<th rowspan="2">Адрес</th>
+					<th colspan="2">Продажи</th>
+					<th colspan="2">Начисления</th>
+					<th colspan="2">Списания</th>
+					<th rowspan="2">Остаток</th>
+				</tr>
+				<tr>
+					<th>кол-во</th>
+					<th>сумма</th>
+					<th>кол-во</th>
+					<th>сумма</th>
+					<th>кол-во</th>
+					<th>сумма</th>
+				</tr>
+			#endif
+			#if{$1 = 1}
+				<tr>
+					<th colspan="2">Продажи</th>
+					<th colspan="2">Начисления</th>
+					<th colspan="2">Списания</th>
+				</tr>
+				<tr>
+					<th>кол-во</th>
+					<th>сумма</th>
+					<th>кол-во</th>
+					<th>сумма</th>
+					<th>кол-во</th>
+					<th>сумма</th>
+				</tr>
+			#endif
+			#if{$1 = 2}
+				<tr>
+					<th rowspan="2">Дата</th>
+					<th colspan="2">Продажи</th>
+					<th colspan="2">Начисления</th>
+					<th colspan="2">Списания</th>
+					<th rowspan="2">Остаток</th>
+				</tr>
+				<tr>
+					<th>кол-во</th>
+					<th>сумма</th>
+					<th>кол-во</th>
+					<th>сумма</th>
+					<th>кол-во</th>
+					<th>сумма</th>
+				</tr>
+			#endif
+			#if{$1 = 3}
+				<tr>
+					<th rowspan="2">Номер карты</th>
+					<th colspan="2">Продажи</th>
+					<th colspan="2">Начисления</th>
+					<th colspan="2">Списания</th>
+					<th rowspan="2">Остаток</th>
+				</tr>
+				<tr>
+					<th>кол-во</th>
+					<th>сумма</th>
+					<th>кол-во</th>
+					<th>сумма</th>
+					<th>кол-во</th>
+					<th>сумма</th>
+				</tr>
+			#endif
+			#if{$1 = 4}
+				<tr>
+					<th rowspan="2">Адрес</th>
+					<th colspan="2">Продажи</th>
+				</tr>
+				<tr>
+					<th>кол-во</th>
+					<th>сумма</th>
+				</tr>
+			#endif
+		</thead>
+		<tbody>
+			#if{$1 = 0}
+				#iter()
+				<tr class="uhtt-view-scardop-table-item">
+					<td>${SCardID.Code}</td>
+					<td>${Dt}</td>
+					<td>${Tm}</td>
+					<td>${DlvrLocID.Addr}</td>
+					<td class="ralign">${SellCount}</td>
+					<td class="ralign">${SellAmt}</td>
+					<td class="ralign">${ChargeCount}</td>
+					<td class="ralign">${ChargeAmt}</td>
+					<td class="ralign">${WithdrawCount}</td>
+					<td class="ralign">${WithdrawAmt}</td>
+					<td class="ralign">${SCardRest}</td>
+				</tr>
+				#end()
+				<tr>
+					<td><b>Итог</b></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td class="ralign"><b>${TotalSellCnt}</b></td>
+					<td class="ralign"><b>${TotalSellAmt}</b></td>
+					<td class="ralign"><b>${TotalChargeCnt}</b></td>
+					<td class="ralign"><b>${TotalChargeAmt}</b></td>
+					<td class="ralign"><b>${TotalWithdrawCnt}</b></td>
+					<td class="ralign"><b>${TotalWithdrawAmt}</b></td>
+					<td></td>
+				<tr>
+			#endif
+			#if{$1 = 1}
+				<tr>
+					<td class="ralign"><b>${TotalSellCnt}</b></td>
+					<td class="ralign"><b>${TotalSellAmt}</b></td>
+					<td class="ralign"><b>${TotalChargeCnt}</b></td>
+					<td class="ralign"><b>${TotalChargeAmt}</b></td>
+					<td class="ralign"><b>${TotalWithdrawCnt}</b></td>
+					<td class="ralign"><b>${TotalWithdrawAmt}</b></td>
+				<tr>
+			#endif
+			#if{$1 = 2}
+				#iter()
+				<tr class="uhtt-view-scardop-table-item">
+					<td>${Dt}</td>
+					<td class="ralign">${SellCount}</td>
+					<td class="ralign">${SellAmt}</td>
+					<td class="ralign">${ChargeCount}</td>
+					<td class="ralign">${ChargeAmt}</td>
+					<td class="ralign">${WithdrawCount}</td>
+					<td class="ralign">${WithdrawAmt}</td>
+					<td class="ralign">${SCardRest}</td>
+				</tr>
+				#end()
+				<tr>
+					<td><b>Итог</b></td>
+					<td class="ralign"><b>${TotalSellCnt}</b></td>
+					<td class="ralign"><b>${TotalSellAmt}</b></td>
+					<td class="ralign"><b>${TotalChargeCnt}</b></td>
+					<td class="ralign"><b>${TotalChargeAmt}</b></td>
+					<td class="ralign"><b>${TotalWithdrawCnt}</b></td>
+					<td class="ralign"><b>${TotalWithdrawAmt}</b></td>
+				<tr>
+			#endif
+			#if{$1 = 3}
+				#iter()
+				<tr class="uhtt-view-scardop-table-item">
+					<td>${SCardID.Code}</td>
+					<td class="ralign">${SellCount}</td>
+					<td class="ralign">${SellAmt}</td>
+					<td class="ralign">${ChargeCount}</td>
+					<td class="ralign">${ChargeAmt}</td>
+					<td class="ralign">${WithdrawCount}</td>
+					<td class="ralign">${WithdrawAmt}</td>
+					<td class="ralign">${SCardRest}</td>
+				</tr>
+				#end()
+				<tr>
+					<td><b>Итог</b></td>
+					<td class="ralign"><b>${TotalSellCnt}</b></td>
+					<td class="ralign"><b>${TotalSellAmt}</b></td>
+					<td class="ralign"><b>${TotalChargeCnt}</b></td>
+					<td class="ralign"><b>${TotalChargeAmt}</b></td>
+					<td class="ralign"><b>${TotalWithdrawCnt}</b></td>
+					<td class="ralign"><b>${TotalWithdrawAmt}</b></td>
+					<td class="ralign"><b>${TotalSCardRest}</b></td>
+				<tr>
+			#endif
+			#if{$1 = 4}
+				#iter()
+				<tr class="uhtt-view-scardop-table-item">
+					<td>${DlvrLocID.Addr}</td>
+					<td class="ralign">${SellCount}</td>
+					<td class="ralign">${SellAmt}</td>
+				</tr>
+				#end()
+				<tr>
+					<td><b>Итог</b></td>
+					<td class="ralign"><b>${TotalSellCnt}</b></td>
+					<td class="ralign"><b>${TotalSellAmt}</b></td>
+				<tr>
+			#endif
+		</tbody>
+	</table>
+	#end()
+</div>
+
+

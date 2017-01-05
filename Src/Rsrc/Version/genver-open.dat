@@ -1,0 +1,23 @@
+;
+; Private data file
+; For internal use only
+; Redistribution prohibited
+;
+[version]
+Signature    = keD12Hg8v8PW32vU
+Product      = Open Papyrus
+Team         = Andrey Fokin, Anton Sobolev
+Secret       = B5IwV3V03KT16vzt
+StartDevYear = 1996
+LastDevYear  = 2017
+Demo         = 0
+OpenSource   = 1
+MajorVer     =9
+MinorVer     =4
+Revision     =7
+AssemblyVer=20844
+MinMajorVer  =9
+MinMinorVer  =4
+MinRevision  =0
+
+DefPassword  = 4892cGxI6DDTYX8a

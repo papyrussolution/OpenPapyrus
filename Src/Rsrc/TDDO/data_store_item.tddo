@@ -1,0 +1,29 @@
+## Universe-HTT
+## data_store_item.tddo
+## Массив структур котировок
+##     ! Используется только для вывода
+## Args: ${1} - Flags
+##
+
+#pragma(htmlencode)
+#start(QuotArray)
+	[
+		#iter()
+		{
+			"ID":${GoodsID.ID},
+			"Name":"${GoodsID.Name}",
+			"CurID":${CurID.ID},
+			"CurName":"${CurID.Name}",
+			"Dt":"${Dt}",
+			"Tm":"${Tm}",
+			"Value":${Value},
+			#if{@(Global, 0).CheckFlag($1, 1) > 0}
+			"Package":${GoodsPkgIntNZ},
+			#else
+			"Package":1,
+			#endif
+			"Flags":${Flags}
+		},
+		#end()
+	]
+#end()

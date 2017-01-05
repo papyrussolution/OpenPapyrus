@@ -1,0 +1,18 @@
+﻿## Universe-HTT / 2012, 2013
+## scard_details.vm
+## Отображение детализации по бонусной карте
+
+<style>
+	.scard-details-title {
+		font: 12pt/10pt sans-serif;
+		font-weight: bold;
+		color: gray;
+	}
+</style>
+
+<div class="scard-details-layout uui-w100pct" id="scard_details__layout">
+	<br>
+	<div class="scard-details-title">Бонусная карта ${Number}</div>
+	<br>
+	<b>Остаток на карте: ${Rest}</b>
+</div>

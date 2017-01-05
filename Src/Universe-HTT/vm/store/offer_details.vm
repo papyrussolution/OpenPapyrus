@@ -1,0 +1,119 @@
+﻿## Universe-HTT / 2013
+## offer_details.tddo
+## Форма детализации товара интернет-магазина
+##
+
+<style type="text/css">
+	#frm_offer_details__title {
+		font: 12pt/10pt sans-serif;
+		font-weight: bold;
+		color: gray;
+	}
+	#frm_offer_details__table {
+		font-size: 1.1em;
+	}
+	#frm_offer_details_price__text {
+		font: 12pt/10pt sans-serif;
+		font-weight: bold;
+		color: gray;
+		float: right;
+		line-height: 28px;
+	}
+	#frm_offer_details_img__blk {
+		display: table-cell;
+		padding: 4px;
+		text-align: center;
+		vertical-align: middle;
+		width: 300px;
+		height: 300px;
+		max-width: 300px;
+		max-height: 300px;
+		border:1px solid #bfbfbf
+	}
+</style>
+
+<div id="frm_offer_details__layout">
+	<br>
+	<span id="frm_offer_details__title">${store.Name}</span>
+	<br><br>
+	<table class="uui-w100pct uhtt-fields-table"><tbody><tr><td>
+		<table class="uhtt-fields-table" id="frm_offer_details__table"><tbody style="vertical-align:top">
+		<tr><td><b>Идентификатор</b></td>
+		<td id="frm_offer_details_id">${goods.ID}</td>
+		</tr><tr>
+		<td><b>Наименование</b></td>
+		<td style="max-width:250px">${goods.Name}</td>
+		</tr><tr>
+		<td><b>Группа</b></td>
+		<td style="max-width:250px">${UHTT.getObjName("GOODSGROUP", $goods.GroupID)}</td>
+		</tr><tr>
+		<td><b>Бренд</b></td>
+		<td style="max-width:250px">${UHTT.getObjName("BRAND", $goods.BrandID)}</td>
+		</tr><tr>
+		<td><b>Производитель</b></td>
+		<td style="max-width:250px">${UHTT.getObjName("PERSON", $goods.ManufID)}</td>
+		</tr><tr>
+		<td><b>Штрихкод</b></td>
+		<td id="frm_offer_details_barcode">
+			#foreach($barcode in $goods.BarcodeList)
+				${barcode.Code}<br>
+			#end
+		</td>
+		</tr>
+		#if($goods.Package > 0)
+			<tr>
+			<td><b>Емкость упаковки поставки (торг. ед.)</b></td>
+			<td>${goods.Package}</td>
+			</tr>
+		#end
+		</tbody></table>
+		#if("$goods.Storage" != "")
+			<fieldset style="max-width:350px;">
+				<legend>Описание</legend>
+				${goods.Storage}
+			</fieldset>
+			<br>
+		#end
+	</td><td style="vertical-align:center">
+		<div id="frm_offer_details_img__blk">
+			<img style="max-height:100%; max-width:100%;"
+				src="/dispatcher/get_obj_image?obj_type=GOODS&obj_id=${goods.ID}&default=/rsrc/images/no_photo_64.png">
+		</div>
+	</td></tr></tbody></table>
+	<br>
+	<span id="frm_offer_details_price__text">Цена: ${UHTT.format("0.00", $quot.Val)}</span>
+	#if($foreign == 1)
+		<a href="${UHTT.makeOfferURL($quot)}"><input type="button" id="frm_offer_details_go_to_store__btn" value="Перейти в магазин"/></a>
+	#else
+		<input type="button" id="frm_offer_details_add_to_cart__btn" value="В корзину">
+	#end
+	<br><br>
+</div>
+
+<script type="text/javascript">
+	var OfferDetailsForm = {
+		## /* Instance */
+		Dialog : UHTT.Dialog.List.getObjByProperty("ID", $("#frm_offer_details__layout").parent("div.uhtt-dialog").attr("id")),
+		## /* Элементы формы */
+		btn_GoToStore : $("#frm_offer_details_go_to_store__btn"),
+		btn_AddToCart : $("#frm_offer_details_add_to_cart__btn"),
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Установка обработчика закрытия окна редактора */
+			if(_this.Dialog != null)
+				_this.Dialog.setCloseHandler(_this.closeHandler, _this);
+			## /* */
+			_this.btn_GoToStore.Evt("click", function() {
+				
+			});
+			_this.btn_AddToCart.Evt("click", function() {
+				var qtty = 1;
+				UHTT.Store.Cart.add(${goods.ID}, qtty);
+			});
+		}
+	};
+	$(document).ready(function() {
+		OfferDetailsForm.init();
+	});
+</script>

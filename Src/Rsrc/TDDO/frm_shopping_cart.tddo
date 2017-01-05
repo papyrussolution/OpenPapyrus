@@ -1,0 +1,98 @@
+<div id="uhtt_frm_shopping_cart_data_div"></div>
+<div style="position:relative; top:50%; text-align:center" id="cart_msg_container"><b>Корзина пуста</b></div>
+
+<div align="right" style="display:none" id="btn_shopping_cart_reset_div">
+	<input type="button" id="btn_shopping_cart_reset" value="Удалить всё"/>
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#btn_shopping_cart_reset").Evt("click", function() {
+			UHTT.Util.Cookie.remove("SHOPPING_CART_DATA");
+			showEmptyCart();
+		});
+		
+		UHTT.Event.setGlobal("UHTTShoppingCartFormUpdateHandler", buildCartTables);
+		
+		function createHeader(id, name) {
+			var html = '<b>';
+			html += id;
+			html += " ";
+			html += name;
+			html += '</b><br>';
+			html += '<table class="tablesorter" id="uhtt_frm_shopping_cart_table_';
+			html += id;
+			html += '"><thead><tr><th>ID</th><th>Наименование</th><th>Количество</th><th>Cтоимость</th><th>Сумма</th></tr></thead>';
+			html += '<tbody id="uhtt_frm_shopping_cart_table_body_';
+			html += id;
+			html += '"></tbody></table>';
+			return html;
+		}
+		
+		$("#uhtt_frm_shopping_cart_data_div").delegate(".uhtt-frm-shopping-cart-lnk-delete-item", "click", function() {
+			var tmp_array = $(this).closest("tbody").attr("id").split("_");
+			var suppl_id = tmp_array[tmp_array.length - 1];
+			var goods_id = $(this).closest("tr").find("td:eq(0)").text();
+			var goods_name = $(this).closest("tr").find("td:eq(1)").text();
+			UHTT.StorepingCart.remove(suppl_id, goods_id);
+			UHTT.Event.fire("UHTTShoppingCartFormUpdateHandler", null);
+			UHTT.Messenger.show("Товар '" + goods_name + "' удален из корзины");
+		});
+		
+		function showEmptyCart() {
+			$("#uhtt_frm_shopping_cart_data_div").html("");
+			$("#btn_shopping_cart_reset_div").hide();
+			$("#cart_msg_container").show();
+		};
+		
+		function buildCartTables() {
+			var json_doc = jQuery.parseJSON(UHTT.Util.Cookie.get("SHOPPING_CART_DATA"));
+			if(json_doc != null) {
+				var suppl_list = json_doc.SuppliersList;
+				var n_suppls = suppl_list.length;
+				var suppl;
+				var suppl_amount = 0.0;
+				var n_orders;
+				var order;
+				var amount = 0.0;
+				var items;
+				if(n_suppls > 0) {
+					$("#uhtt_frm_shopping_cart_data_div").html("");
+					for(var i = 0; i < n_suppls; i++) {
+						suppl = suppl_list[i];
+						$("#uhtt_frm_shopping_cart_data_div").append(createHeader(suppl.SupplId, suppl.SupplName));
+						n_orders = suppl.OrdersList.length;
+						items = "";
+						for(var j = 0; j < n_orders; j++) {
+							order = suppl.OrdersList[j];
+							items += '<tr><td>';
+							items += order.GoodsId;
+							items += '</td><td>';
+							items += decodeURIComponent(order.GoodsName);
+							items += '</td><td>';
+							items += order.GoodsQuantity;
+							items += '</td><td>';
+							items += Number(order.GoodsPrice).toFixed(2);
+							items += '</td><td>';
+							items += Number(order.GoodsAmount).toFixed(2);
+							items += '</td><td><a class="uhtt-frm-shopping-cart-lnk-delete-item" style="cursor:pointer"><img src="/rsrc/images/cart_delete.png"/></a></tr>'
+							suppl_amount += Number(order.GoodsAmount);
+						}
+						$("#uhtt_frm_shopping_cart_table_body_" + suppl.SupplId).html(items + "<br>");
+						$("#uhtt_frm_shopping_cart_data_div").append('<div align="right"><b>Итого по ' + suppl.SupplName + ': ' + suppl_amount.toFixed(2) + '</b></div><hr>');
+						amount += suppl_amount;
+						suppl_amount = 0.0;
+					}
+					$("#cart_msg_container").hide();
+					$("#uhtt_frm_shopping_cart_data_div").append('<div align="right"><b>Всего: ' + amount.toFixed(2) + '</b></div><br>');
+					$("#btn_shopping_cart_reset_div").show();
+				}
+				else
+					showEmptyCart();
+			}
+			else
+				showEmptyCart();
+		};
+		buildCartTables();
+    });
+</script>

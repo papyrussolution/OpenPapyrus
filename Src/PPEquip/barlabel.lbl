@@ -1,0 +1,18 @@
+
+label Label1 {
+.
+text    0 20  10 A1 1 1 "@gname"
+barcode 0 20  30 70 1 1
+text    0 20 100 A1 1 1 "Цена: @price"
+text    0 20 120 A1 1 1 "Дата маркировки: @date"
+text    0 20 140 A1 1 1 "Маркировщик: @user"
+}
+
+loads FONTS {
+	"\x01#\x01D"
+	"\x02qA"
+	"\x02XA"
+	file "HELVDL12.SFP" "\x27*c130D"
+	file "NTCOUR12.SFP" "x27*c170D"
+	file "ARIALC24.SFP" "x27*c114D"
+}

@@ -1,0 +1,8 @@
+LIBRARY         CPT720.dll
+DESCRIPTION     'Transmit data module with Cipher 720 Portable Terminal (c)2003 Starodub A.'
+
+EXPORTS
+                DllGetClassObject   @2	PRIVATE
+                DllCanUnloadNow     @3	PRIVATE
+                DllRegisterServer   @4	PRIVATE
+                DllUnregisterServer @5	PRIVATE

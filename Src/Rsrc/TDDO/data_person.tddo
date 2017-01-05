@@ -1,0 +1,44 @@
+## Universe-HTT
+## data_person.tddo
+## Структура персоналии
+## Args: ${1} - идентификатор персоналии
+
+#pragma(htmlencode)
+#start(UhttPerson:${1})
+{
+	"ID":${Id},
+	"Name":"${Name}",
+	"StatusID":${StatusID.Id},
+	"CategoryID":${CategoryID.Id},
+	"KindList":[
+		#iter(KindList) {
+			"KindID":${KindID.ID}
+		},
+		#end()
+		null
+	],
+	"RegisterList":[
+		#iter(RegisterList)	{
+			"RegTypeID":${RegTypeID.ID},
+			"RegNumber":"${RegNumber}"
+		},
+		#end()
+		null
+	],
+	"AddrList":[
+		#iter(AddrList)	{
+			"LocID":${LocID.ID},
+			"LocKind":${LocKind},
+			"LocCode":"${LocCode}",
+			"LocName":"${LocName}",
+			"ZIP":"${ZIP}",
+			"Address":"${Address}",
+			"CityID":${CityID.ID},
+			"Longitude":${Longitude},
+			"Latitude":${Latitude}
+		},
+		#end()
+		null
+	]
+}
+#end()

@@ -1,0 +1,178 @@
+## Universe-HTT / 2013
+## frm_store_manager.tddo
+## Форма управления интернет магазином
+##
+
+<style>
+	#frm_store_manager__layout {
+		padding: 5px;
+	}
+	
+	#frm_store_manager_select_store__select {
+		width: 300px;
+		margin: 10px 0;
+	}
+	
+	.uui-select {
+		padding: 4px;
+		border-radius: 4px;
+	}
+</style>
+
+<div id="frm_store_manager__layout">
+	<select class="uui-select" id="frm_store_manager_select_store__select"></select>
+	<div class="uui-w100pct" id="frm_store_manager_details__panel">
+		<ul>
+			<!-- <li><a href="#frm_store_manager_positions__tab">Позиции (<span id="frm_store_manager_positions_qtty__label"></span>)</a></li> -->
+			<li><a href="#frm_store_manager_orders__tab">Заказы (<span id="frm_store_manager_orders_qtty__label"></span>)</a></li>
+		</ul>
+		<div id="frm_store_manager_positions__tab">
+			<div class="uui-w100pct" id="frm_store_manager_positions__blk"></div>
+		</div>
+		<div id="frm_store_manager_orders__tab">
+			<div class="uui-w100pct" id="frm_store_manager_orders__blk">
+				<table class="tablesorter" id="frm_store_manager_orders__table">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Дата</th>
+							<th>Покупатель</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var StoreManagerForm = {
+		//
+		## /* Элементы формы */
+		Layout            : $("#frm_store_manager__layout"),
+		select_Stores     : $("#frm_store_manager_select_store__select"),
+		tabs_Details      : $("#frm_store_manager_details__panel"),
+		lbl_PosQtty       : $("#frm_store_manager_positions_qtty__label"),
+		lbl_OrdersQtty    : $("#frm_store_manager_orders_qtty__label"),
+		blk_Pos           : $("#frm_store_manager_positions__blk"),
+		blk_Orders        : $("#frm_store_manager_orders__blk"),
+		tbl_Orders        : $("#frm_store_manager_orders__table"),
+		tblBody_Orders    : $("#frm_store_manager_orders__table tbody"),
+		//
+		StoreList : null,
+		StoreID : 0,
+		//
+		redraw : function() {
+			var _this = this;
+			var elem = _this.select_Stores.get(0);
+			var idx = elem.selectedIndex;
+			if(idx > -1) {
+				var item = $(elem.options[idx]);
+				var id = item.attr("storeID");
+				//
+				_this.StoreID = id;
+				//
+				var n = _this.StoreList.length;
+				for(var i = 0; i < n; i++) {
+					var store = _this.StoreList[i];
+					if(!isNull(store)) {
+						if(store.ID == id) {
+							_this.lbl_PosQtty.html(store.PosQtty);
+							_this.lbl_OrdersQtty.html(store.OrdersQtty);
+							{
+								var orders = UHTT.Store.getOrders(id);
+								if(!isEmpty(orders)) {
+									var n = orders.length;
+									var buf = "";
+									for(var i = 0; i < n; i++) {
+										var order = orders[i];
+										buf += '<tr orderID="' + order.ID + '">';
+										buf += '<td>' + order.ID + '</td>';
+										buf += '<td>' + order.Dt + '</td>';
+										buf += '<td>' + order.Buyer + '</td>';
+										buf += '</tr>';
+									}
+									_this.tblBody_Orders.html(buf);
+								}
+							}
+							break;
+						}
+					}
+				}
+				
+			}
+		},
+		init : function() {
+			var _this = this;
+			## /* Init tabs */
+			_this.tabs_Details.tabs();
+			## /* --- */
+			_this.StoreList = UHTT.Store.getStoreList();
+			## /* Fill store list */
+			if(!isEmpty(_this.StoreList)) {
+				var buf = "";
+				var n = _this.StoreList.length;
+				for(var i = 0; i < n; i++) {
+					var store = _this.StoreList[i];
+					if(!isNull(store)) {
+						buf += '<option storeID=' + store.ID + '>';
+						buf += store.Name;
+						buf += '</option>';
+					}
+				}
+				_this.select_Stores.html(buf);
+			}
+			
+			_this.select_Stores.Evt("change", function() {
+				_this.redraw();
+			});
+			
+			_this.tblBody_Orders.delegate("tr", "dblclick", function() {
+				var order_id = $(this).attr("orderID");
+				
+				var view = "";
+				//var url = "/dispatcher/order/details?order_id=" + order_id + "&store_id=" + _this.StoreID;
+				var url = '/dispatcher/content?name=STORE_MANAGER';
+				jQuery.ajax({
+					url: url,
+					async: false,
+					success: function(data, status, hdr) {
+						view = data;
+					},
+					error: function(request, status, error) {
+						UHTT.Messenger.show("Ошибка: " + error);
+					}
+				}).done(function() {
+				});
+				
+				new SDialog("FRM_ORDER_DETAILS", view, {}, UHTT.Dialog.TYPE.INLINE);
+				
+			});
+			
+			_this.redraw();
+			
+			/*
+			_this.blk_Stores.delegate(".frm-store-manager-stores-item", "mousedown", function() {
+				_this.blk_Stores.children().each(function() {
+					$(this).removeClass("clicked");
+				});
+				$(this).addClass("clicked");
+			});
+			
+			_this.btn_ShowOrders.Evt("click", function() {
+				var item = _this.blk_Stores.find(".frm-store-manager-stores-item.clicked");
+				var storeID = item.attr("storeID");
+				if(!isNull(storeID)) {
+					
+				}
+			});
+			*/
+			
+			
+		}
+	};
+	$(document).ready(function() {
+		StoreManagerForm.init();
+    });
+</script>

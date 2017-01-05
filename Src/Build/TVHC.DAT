@@ -1,0 +1,61 @@
+//
+// Template file for PPHC utility
+//
+#include <ppdefs.h>
+#include <stdio.h>
+#define _DLG        0
+#define _BROWSER    1
+#define _MENU       2
+
+struct ctx {
+	int ID;
+	int ctxID;
+	int type;
+} index[] = {
+@
+};
+
+void main(void)
+{
+	int  i, l = (sizeof(index)/sizeof(ctx)), val = 0;
+	long lf = 0, t = 0;
+	long offs;
+	FILE * hlpin  = fopen("pp.hlp", "rb"); 
+	FILE * hlpout = fopen("pphelp_.hlp", "wb");
+	if(!hlpin || !hlpout) {
+		if(hlpin)
+			fclose(hlpin);
+		printf("\n Ошибка при открытии файлов...\n");
+		return;
+	}
+	fseek(hlpin, 0L, SEEK_END);
+	lf = ftell(hlpin);
+	fseek(hlpin,  0L, SEEK_SET);
+	fseek(hlpout, 0L, SEEK_SET);
+	fread (&t,sizeof(long),1,hlpin );
+	fwrite(&t,sizeof(long),1,hlpout);
+	fread (&t,sizeof(long),1,hlpin );
+	fwrite(&t,sizeof(long),1,hlpout);
+	fread (&t,sizeof(long),1,hlpin );
+	fwrite(&lf,sizeof(long),1,hlpout);
+	for(offs = 0; offs < (lf-3*sizeof(long)); offs++) {
+		val = fgetc(hlpin);
+		fputc(val, hlpout);
+	}
+	fclose(hlpin);
+	fwrite(&l, sizeof(int), 1, hlpout);
+	for(i = 0; i < l; i++) {
+		if(index[i].type==_DLG)
+			val=index[i].ID+_DLG_OFFSET;
+		else if(index[i].type==_BROWSER)
+			val=index[i].ID+_BROWSER_OFFSET;
+		else if(index[i].type==_MENU)
+			val=index[i].ID+_MENU_OFFSET;
+		else 
+			val=index[i].ID+_ELSE_OFFSET;
+		fwrite(&val,sizeof(int),1,hlpout);
+		fwrite(&index[i].ctxID,sizeof(int),1,hlpout);
+	}
+	fclose(hlpout);
+	printf("OK.\n");
+}

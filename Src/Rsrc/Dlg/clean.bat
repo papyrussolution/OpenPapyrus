@@ -1,0 +1,2 @@
+del *.bkp
+del *.scp

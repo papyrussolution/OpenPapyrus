@@ -1,0 +1,151 @@
+// Generated .IDL file (by the OLE/COM Object Viewer)
+// 
+// typelib filename: TIGER.dll
+
+[
+  uuid(25F1089E-C2F1-470F-89F6-FF7AF4D13617),
+  version(1.0),
+  helpstring("Tiger Library")
+]
+library Tiger
+{
+    // TLib :     // TLib : OLE Automation : {00020430-0000-0000-C000-000000000046}
+    importlib("stdole2.tlb");
+
+    // Forward declare all types defined in this typelib
+    interface IScaleTiger;
+
+    [
+      odl,
+      uuid(4A260C20-CC4D-46FC-BD8E-98B13F28504A),
+      version(1.0),
+      helpstring("Dispatch interface for ScaleTiger Object"),
+      dual,
+      oleautomation
+    ]
+    interface IScaleTiger : IDispatch {
+        [id(0x00000001)]
+        HRESULT OpenScaleCOM(
+                        [in] long Port, 
+                        [in] long BaudRate, 
+                        [in] long Parity, 
+                        [in] long DataSize, 
+                        [in] long StopBits, 
+                        [in] long FlowCtrl, 
+                        [out, retval] long* ErrorCode);
+        [id(0x00000002)]
+        HRESULT OpenScaleEth(
+                        [in] BSTR Address, 
+                        [in] long PortNo, 
+                        [out, retval] long* ErrorCode);
+        [id(0x00000003)]
+        HRESULT ReadPLU(
+                        [in] long PLUNo, 
+                        [out] long* ItemCode, 
+                        [out] BSTR* Text, 
+                        [out] long* Price, 
+                        [out] long* ShelfLife1, 
+                        [out] long* ShelfLife2, 
+                        [out] long* Tare, 
+                        [out] long* GroupNo, 
+                        [out] long* MsgNo, 
+                        [out, retval] long* ErrorCode);
+        [id(0x00000004)]
+        HRESULT WritePLU(
+                        [in] long PLUNo, 
+                        [in] long ItemCode, 
+                        [in] BSTR Text, 
+                        [in] long Price, 
+                        [in] long ShelfLife1, 
+                        [in] long ShelfLife2, 
+                        [in] long Tare, 
+                        [in] long GroupNo, 
+                        [in] long MsgNo, 
+                        [in] long HasDiscount, 
+                        [out, retval] long* ErrorCode);
+        [id(0x00000005)]
+        HRESULT WriteMessage(
+                        [in] long MsgNo, 
+                        [in] BSTR Text, 
+                        [out, retval] long* ErrorCode);
+        [id(0x00000006)]
+        HRESULT WriteKey(
+                        [in] long PLUNo, 
+                        [in] long Key, 
+                        [out, retval] long* ErrorCode);
+        [id(0x00000007)]
+        HRESULT WriteScrollingMessage(
+                        [in] BSTR Text, 
+                        [out, retval] long* ErrorCode);
+        [id(0x00000008)]
+        HRESULT TestScale([out, retval] long* ErrorCode);
+        [id(0x00000009)]
+        HRESULT SetDate(
+                        [in] long Day, 
+                        [in] long Month, 
+                        [in] long Year, 
+                        [in] long Hour, 
+                        [in] long Minute, 
+                        [in] long Second, 
+                        [out, retval] long* ErrorCode);
+        [id(0x0000000a)]
+        HRESULT SetDateText(
+                        [in] long DateNo, 
+                        [in] BSTR Text, 
+                        [out, retval] long* ErrorCode);
+        [id(0x0000000b)]
+        HRESULT SetHeader(
+                        [in] long IsHeader, 
+                        [in] long IsCenter, 
+                        [in] long FontNo, 
+                        [in] BSTR Text, 
+                        [out, retval] long* ErrorCode);
+        [id(0x0000000c)]
+        HRESULT SetAdvert(
+                        [in] long AdvertNo, 
+                        [in] BSTR Text, 
+                        [out, retval] long* ErrorCode);
+        [id(0x0000000d)]
+        HRESULT SetStore(
+                        [in] BSTR Text, 
+                        [out, retval] long* ErrorCode);
+        [id(0x0000000e)]
+        HRESULT SetDiscount(
+                        [in] long DisNo, 
+                        [in] BSTR DispText, 
+                        [in] BSTR PrintText, 
+                        [in] long Value, 
+                        [out, retval] long* ErrorCode);
+        [id(0x0000000f), propget]
+        HRESULT ErrorCode([out, retval] long* Value);
+    };
+
+    [
+      uuid(6DF5B888-F5FC-4C5C-AD52-1CF1AA404F3C),
+      version(1.0),
+      helpstring("ScaleTiger Object")
+    ]
+    coclass ScaleTiger {
+        [default] interface IScaleTiger;
+    };
+
+    typedef [uuid(0C9D0E66-B574-45F1-A909-DDC8171BB768), version(1.0)]
+    enum {
+        ER_OK = 0,
+        ER_SETPORT = 1,
+        ER_BADPAR = 2,
+        ER_WRITE = 3,
+        ER_READ = 4,
+        ER_ANSWER = 5,
+        ER_CANTDO = 6,
+        ER_CONNECT = 7
+    } ErrorCodes;
+
+    [
+      uuid(C510679D-D04E-475A-ACA9-452B1302D875),
+      version(1.0)
+    ]
+    coclass ScaleTiger362 {
+        [default] interface IScaleTiger;
+    };
+};

@@ -1,0 +1,56 @@
+## Universe-HTT / 2012, 2013
+## view_dc_folder_content.vm
+## Отображение содержимого каталога центра загрузок
+##
+
+<table class="tablesorter" style="margin:0 5px !important;">
+	<thead>
+		<tr>
+			<th>Имя</th>
+			<th>Ключ</th>
+			<th>Тип</th>
+			<th>Размер</th>
+			<th>Время</th>
+		</tr>
+	</thead>
+	<tbody>
+	#foreach($item in $items)
+		<tr
+			#if($item.Type == 1)
+				class="dc-folder"
+			#else
+				class="dc-file"
+			#end
+			IID="$item.ID"
+			PID="$item.PID"
+			IType="$item.Type"
+			ITitle="$item.Title"
+			IName="$item.Name"
+			IKey="$item.Key"
+			IMemo="$item.Memo"
+		>
+			<td>$item.Name</td>
+			<td>
+				#if($item.Key)
+					$item.Key
+				#end
+			</td>
+			<td>
+				#if($item.Type == 1)
+					папка
+				#elseif($item.Type == 2)
+					файл
+				#elseif($item.Type == 3)
+					файл (версионный)
+				#end
+			</td>
+			<td align="right">
+				#if($item.Type != 1)
+					${UHTT.sizeToString($item.Size)}
+				#end
+			</td>
+			<td align="right">$item.Ts</td>
+		</tr>
+	#end
+	</tbody>
+</table>

@@ -1,0 +1,27 @@
+
+<table id="UHTT_VIEW_SA_TABLE" class="tablesorter">
+	<thead>
+		<tr>
+			<th>ID</th>
+			<th>ParentID</th>
+			<th>Txt</th>
+		</tr>
+	</thead>
+	<tbody>
+	#start(StrAssocArray)
+		#iter()
+		<tr class="uhtt-view-sa-table-item">
+			<td>${Id}</td>
+			<td>${ParentId}</td>
+			<td>${Txt}</td>
+		</tr>
+		#end()
+	#end()
+	</tbody>
+</table>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#UHTT_VIEW_SA_TABLE").tablesorter({ widthFixed:true });
+	});
+</script>

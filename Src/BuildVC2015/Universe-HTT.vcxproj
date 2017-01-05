@@ -1,0 +1,225 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Universe-HTT|Win32">
+      <Configuration>Universe-HTT</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Universe-HTT|x64">
+      <Configuration>Universe-HTT</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{53F461BA-506B-4A59-9F88-AF412F22EB79}</ProjectGuid>
+    <RootNamespace>Universe-HTT</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <PlatformToolset>v140_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.24720.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>\Universe-HTT\liferay-portal\6.1.1-ce-ga2\tomcat-7.0.27\webapps\rsrc\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>\Universe-HTT\liferay-portal\6.1.1-ce-ga2\tomcat-7.0.27\webapps\rsrc\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
+    <OutDir>\Universe-HTT\liferay-portal\6.1.1-ce-ga2\tomcat-7.0.27\webapps\rsrc\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)Universe-HTT.exe</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)Universe-HTT.exe</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\Universe-HTT\css\uhtt.css">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">copy /Y %(FullPath) $(OutDir)css
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">copy /Y %(FullPath) $(OutDir)css
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(OutDir)css\%(Filename)%(Extension);%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(OutDir)css\%(Filename)%(Extension);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Universe-HTT\js\main.js">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">copy /Y %(FullPath) $(OutDir)js
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">copy /Y %(FullPath) $(OutDir)js
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(OutDir)js\%(Filename)%(Extension);%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(OutDir)js\%(Filename)%(Extension);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Universe-HTT\js\misc.js">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">copy /Y %(FullPath) $(OutDir)js
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">copy /Y %(FullPath) $(OutDir)js
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(OutDir)js\%(Filename)%(Extension);%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(OutDir)js\%(Filename)%(Extension);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Universe-HTT\js\uhtt.js">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">copy /Y %(FullPath) $(OutDir)js
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">copy /Y %(FullPath) $(OutDir)js
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(OutDir)js\%(Filename)%(Extension);%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(OutDir)js\%(Filename)%(Extension);%(Outputs)</Outputs>
+    </CustomBuild>
+    <None Include="..\Universe-HTT\vm\account\balance.vm" />
+    <None Include="..\Universe-HTT\vm\account\my_contractors.vm" />
+    <None Include="..\Universe-HTT\vm\bot\page_brand_view.vm" />
+    <None Include="..\Universe-HTT\vm\bot\page_goodskeywords_view.vm" />
+    <None Include="..\Universe-HTT\vm\bot\page_goods_details.vm" />
+    <None Include="..\Universe-HTT\vm\bot\page_store_item_details.vm" />
+    <None Include="..\Universe-HTT\vm\currency\rates.vm" />
+    <None Include="..\Universe-HTT\vm\currency\rate_graph.vm" />
+    <None Include="..\Universe-HTT\vm\dc\avail_downloads.vm" />
+    <None Include="..\Universe-HTT\vm\dc\folder_content.vm" />
+    <None Include="..\Universe-HTT\vm\dc\folder_tree.vm" />
+    <None Include="..\Universe-HTT\vm\dc\manager.vm" />
+    <None Include="..\Universe-HTT\vm\goods\barcode_editor.vm" />
+    <None Include="..\Universe-HTT\vm\goods\brand_filter.vm" />
+    <None Include="..\Universe-HTT\vm\goods\goodskeywords_list.vm" />
+    <None Include="..\Universe-HTT\vm\goods\goods_details.vm" />
+    <None Include="..\Universe-HTT\vm\goods\goods_editor.vm" />
+    <None Include="..\Universe-HTT\vm\goods\goods_filter.vm" />
+    <None Include="..\Universe-HTT\vm\goods\goods_rating.vm" />
+    <None Include="..\Universe-HTT\vm\goods\select_group.vm" />
+    <None Include="..\Universe-HTT\vm\index\brands_index.vm" />
+    <None Include="..\Universe-HTT\vm\index\goodskeywords_index.vm" />
+    <None Include="..\Universe-HTT\vm\index\goods_changed.vm" />
+    <None Include="..\Universe-HTT\vm\index\goods_random.vm" />
+    <None Include="..\Universe-HTT\vm\index\goods_set.vm" />
+    <None Include="..\Universe-HTT\vm\index\goods_sets.vm" />
+    <None Include="..\Universe-HTT\vm\index\site_index.vm" />
+    <None Include="..\Universe-HTT\vm\index\site_index_emb.vm" />
+    <None Include="..\Universe-HTT\vm\index\stores_index.vm" />
+    <None Include="..\Universe-HTT\vm\index\store_item_index.vm" />
+    <None Include="..\Universe-HTT\vm\person\address_editor.vm" />
+    <None Include="..\Universe-HTT\vm\person\bank_filter.vm" />
+    <None Include="..\Universe-HTT\vm\person\editor.vm" />
+    <None Include="..\Universe-HTT\vm\person\manuf_filter.vm" />
+    <None Include="..\Universe-HTT\vm\person\suppl_filter.vm" />
+    <None Include="..\Universe-HTT\vm\quote\import.vm" />
+    <None Include="..\Universe-HTT\vm\scard\scard_details.vm" />
+    <None Include="..\Universe-HTT\vm\scard\scard_filter.vm" />
+    <None Include="..\Universe-HTT\vm\site\layout.vm" />
+    <None Include="..\Universe-HTT\vm\site\petroglif.ru\dlg_price_request.vm" />
+    <None Include="..\Universe-HTT\vm\site\rubric.vm" />
+    <None Include="..\Universe-HTT\vm\store\catalog_gallery.vm" />
+    <None Include="..\Universe-HTT\vm\store\catalog_list.vm" />
+    <None Include="..\Universe-HTT\vm\store\layout.vm" />
+    <None Include="..\Universe-HTT\vm\store\layout2.vm" />
+    <None Include="..\Universe-HTT\vm\store\manager.vm" />
+    <None Include="..\Universe-HTT\vm\store\offer_details.vm" />
+    <None Include="..\Universe-HTT\vm\store\order_details.vm" />
+    <None Include="..\Universe-HTT\vm\store\_text.vm" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

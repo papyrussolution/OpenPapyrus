@@ -1,0 +1,335 @@
+## Universe-HTT / 2012
+## frm_dc.tddo
+## Форма Download center
+##
+
+<style type="text/css">
+	div#frm_dc_view {
+		margin-top: 5px;
+		min-height: 350px;
+		color: #222222;
+	}
+	table#frm_dc_view_tbl {
+		height: 100%;
+	}
+	div#frm_dc_view_folder_tree_blk {
+		border: 1px gray solid;
+		height: 100%
+	}
+	table#frm_dc_view_tbl_folder_content {
+		border: 1px gray solid;
+		margin-top: 0;
+		margin-right: 5px;
+		margin-left: 5px;
+	}
+	#frm_dc_view_dir_tree {
+		margin-right: 5px;
+	}
+	div.uhtt-div-frame-w15pt {
+		display:inline-block;
+		border:     1px solid grey;
+		width:      15%;
+		overflow-x: auto;
+	}
+	div.uhtt-div-frame-w84pt {
+		display:inline-block;
+		width:      auto;
+		margin-left: 10px;
+		overflow-x: auto;
+	}
+</style>
+
+<div id="frm_dc_view">
+	<font face="Arial">
+		<table class="sprawling" id="frm_dc_view_tbl">
+			<tbody class="sprawling">
+				<tr class="sprawling">
+					<td style="vertical-align:top; width:25%; margin-right:5px; height:100%">
+						<div id="frm_dc_view_folder_tree_blk">
+							<ul class="xtree" id="frm_dc_view_dir_tree"></ul>
+						</div>
+					</td>
+					<td style="vertical-align:top; height:100%">
+						<table class="tablesorter" id="frm_dc_view_tbl_folder_content">
+							<thead>
+								<tr>
+									<th>Имя</th>
+									<th>Ключ</th>
+									<th>Тип</th>
+									<th>Размер</th>
+									<th>Время</th>
+								</tr>
+							</thead>
+							<tbody id="frm_dc_view_tbl_folder_content_body">
+							</tbody>
+						</table>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</font>
+</div>
+
+<script type="text/javascript">
+	var DownloadCenterForm = {
+		## /* Instance */
+		Dialog : UHTT.Dialog.List.getObjByProperty("ID", $("#frm_dc_view").parent("div.uhtt-dialog").attr("id")),
+		## /* --- */
+		FolderTree : $("#frm_dc_view_dir_tree"),
+		## /* --- */
+		ContentTable : $("#frm_dc_view_tbl_folder_content"),
+		ContentTableBody : $("#frm_dc_view_tbl_folder_content_body"),
+		## /* --- */
+		CurrentFolderID : 0,
+		## /* --- */
+		updateView : function() {
+			var _this = this;
+			{
+				var hierarchy = UHTT.DC.getFolderHierarchy();
+				var settings = {
+					addRoot: true,
+					rootName: "uhtt://",
+					collapsed: false,
+					handler : function() {
+						_this.CurrentFolderID = $(this).attr("itemID");
+						if(!isEmpty(_this.CurrentFolderID))
+							_this.drawFolderContent(_this.CurrentFolderID);
+						return false;
+					}
+				};
+				_this.FolderTree.xtree(new SList(hierarchy), settings);
+			}
+			{
+				_this.drawFolderContent(_this.CurrentFolderID);
+			}
+		},
+		drawFolderContent : function(id) {
+			var _this = this;
+			_this.ContentTableBody.html("");
+			var children = UHTT.DC.getFolderChildren(id);
+			if(!isEmpty(children)) {
+				content = UHTT.Util.JSON.parse(children);
+				if(!isEmpty(content)) {
+					var list = new SList(content);
+					var n_items = list.getCount();
+					var buf = "";
+					var item_cls;
+					for(var i = 0; i < n_items; i++) {
+						var item = list.at(i);
+						if(item.Type == 1)
+							item_cls = "frm-dc-view-tbl-folder-content-folder";
+						else
+							item_cls = "frm-dc-view-tbl-folder-content-file";
+						buf += '<tr class="' + item_cls + '" IID="' + item.ID + '" PID="' + item.PID + '" IType="' + item.Type + '" ITitle="' + item.Title + '" IName="' + item.Name + '" IKey="' + item.Key + '" IMemo="' + item.Memo + '">' +
+							'<td>' + item.Name + '</td>' +
+							'<td>' + (!isEmpty(item.Key) ? item.Key : "") + '</td>' +
+							'<td>' + ((item.Type == 1) ? "папка" : (item.Type == 2) ? "файл" : (item.Type == 3) ? "файл (версионный)" : "") + '</td>' +
+							'<td align="right">' + ((item.Type == 1) ? "" : item.Size) + '</td>' +
+							'<td align="right">' + item.Ts + '</td></tr>';
+					}
+					_this.ContentTableBody.html(buf);
+				}
+			}
+		},
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Отрисовка иерархии папок и файлов */
+			_this.updateView();
+			## /* Инициализация контекстного меню дерева папок */
+			contextMenuEx(_this.FolderTree, "div.xtree-item-container",
+				[
+					{ "Создать папку": function() {
+							var pid = $(this).attr("itemID");
+							var name = prompt("Введите имя");
+							if(!isEmpty(name)) {
+								UHTT.DC.Editor.createFolder(
+									name,
+									pid,
+									// success handler
+									function(data, status, hdr) {},
+									// error handler
+									function(request, status, error) {
+										var msg = decodeURIComponent(request.getResponseHeader("X-UHTT-Error"));
+										if(!isEmpty(msg))
+											UHTT.Messenger.show(msg, "/rsrc/images/error_48.png");
+									},
+									// done handler
+									function() {
+										_this.updateView();
+									}
+								);
+							}
+						}
+					},
+					{ "Загрузить файл": function() {
+							var parentID = $(this).attr("itemID");
+							UHTT.DC.Editor.openCreateFileDialog(parentID);
+						}
+					}
+				],
+				{ theme:"xp" }
+			);
+			## /* Таблица отображения содержимого папок */
+			//_this.ContentTable.tablesorter({ widthFixed:true });
+			## /* События */
+			_this.ContentTableBody.delegate("tr", "dblclick", function() { 
+				var type = $(this).attr("IType");
+				if(type == 1) {
+					_this.CurrentFolderID = $(this).attr("IID");
+					if(!isEmpty(_this.CurrentFolderID))
+						_this.drawFolderContent(_this.CurrentFolderID);
+				}
+				else if(type == 2) {
+					var key = $(this).attr("IKey");
+					UHTT.DC.download("/dispatcher/dc/download?key=" + key);
+				}
+				else if(type == 3) {
+					var id = $(this).attr("IID");
+					UHTT.DC.Editor.openFileVersionViewForm(id);
+				}
+			}).delegate("tr", "mousedown", function(event) {
+				var pid = $(this).closest("table.tablesorter").attr("id");
+				if(!isEmpty(pid)) {
+					$("#" + pid + " tr.clicked").removeClass("clicked");
+	            	$(this).addClass("clicked");
+				}
+			});
+			## /* Инициализация контекстного меню */
+			contextMenuEx(_this.ContentTableBody, "tr.frm-dc-view-tbl-folder-content-folder",
+				[
+					{ "Переименовать": function() {
+							var id = $(this).attr("IID");
+							var pid = $(this).attr("PID");
+							var type = $(this).attr("IType");
+							var name = $(this).attr("IName");
+							var new_name = prompt("Введите имя", name);
+							if(!isEmpty(new_name)) {
+								UHTT.DC.Editor.renameItem(
+									id,
+									new_name,
+									// success
+									function() {
+									},
+									// error
+									function(request, status, error) {
+										var msg = decodeURIComponent(request.getResponseHeader("X-UHTT-Error"));
+										if(!isEmpty(msg))
+											UHTT.Messenger.show(msg, "/rsrc/images/error_48.png");
+									},
+									// done
+									function() {
+										_this.updateView();
+									}									
+								);
+							}
+						}
+					},
+					{ "Удалить": function() {
+							var id = $(this).attr("IID");
+							var type = $(this).attr("IType");
+							if(type == 1) {
+								if(confirm("Вы действительно хотите удалить каталог?")) {
+									UHTT.DC.Editor.deleteFolder(
+										id,
+										// success handler
+										null,
+										// error handler
+										function(request, status, error) {
+											var msg = decodeURIComponent(request.getResponseHeader("X-UHTT-Error"));
+											if(!isEmpty(msg))
+												UHTT.Messenger.show(msg, "/rsrc/images/error_48.png");
+										},
+										// done handler
+										function() {
+											_this.updateView();
+										}
+									);
+								}
+							}
+						}
+					}
+				],
+				{ theme:"xp" }
+			);
+			## /* --- */
+			contextMenuEx(_this.ContentTableBody, "tr.frm-dc-view-tbl-folder-content-file",
+				[
+					{ "<b>Скачать</b>": function() {
+							var key = $(this).attr("IKey");
+							UHTT.DC.download("/dispatcher/dc/download?key=" + key);
+						}
+					},
+					{ "Ссылка": function() {
+							var site_name = "";
+							var type = $(this).attr("IType");
+							{
+								var url = document.URL;
+								url = url.replace("http://", "");
+								url = url.replace("https://", "");
+								var parts = url.split("/");
+								site_name = parts[0];
+							}
+							var key = $(this).attr("IKey");
+							alert("Ссылка для скачивания файла: " + "http://" + site_name + "/dispatcher/dc/download?key=" + key);
+						}
+					},
+					$.contextMenu.separator,
+					{ "Изменить": function() {
+							var id = $(this).attr("IID");
+							var parentID = $(this).attr("PID");
+							var type = $(this).attr("IType");
+							var title = $(this).attr("ITitle");
+							var key = $(this).attr("IKey");
+							var memo = $(this).attr("IMemo");
+							UHTT.DC.Editor.openUpdateFileDialog(id, parentID, type, title, key, memo);
+						}
+					},
+					{ "Добавить версию": function() {
+							var id = $(this).attr("IID");
+							UHTT.DC.Editor.openAddVersionDialog(id);
+						}
+					},
+					{ "Удалить": function() {
+							var id = $(this).attr("IID");
+							var type = $(this).attr("IType");
+							var ok = confirm("Вы действительно хотите удалить файл?");
+							if(ok && (type == 3))
+								ok = confirm("ВНИМАНИЕ! Удаляемый файл является версионным! Продолжить?");
+							if(ok) {
+								UHTT.DC.Editor.deleteFile(
+									id,
+									// success_handler
+									null,
+									// error handler
+									function(request, status, error) {
+										var msg = decodeURIComponent(request.getResponseHeader("X-UHTT-Error"));
+										if(!isEmpty(msg))
+											UHTT.Messenger.show(msg, "/rsrc/images/error_48.png");
+									},
+									// done handler
+									function() {
+										_this.updateView();
+									}
+								);
+							}
+						}
+					},
+					$.contextMenu.separator,
+					{ "Права доступа": function() {
+							var id = $(this).attr("IID");
+							var name = $(this).attr("IName");
+							UHTT.DC.Editor.openRightsEditorDialog(id, name);
+						}
+					}
+				],
+				{ theme:"xp" }
+			);
+			
+		}
+	};
+	## /* Инициализация формы */
+	$(document).ready(function(){
+		DownloadCenterForm.init();
+	});
+</script>

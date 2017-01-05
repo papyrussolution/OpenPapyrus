@@ -1,0 +1,693 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="libcurl" />
+		<Option pch_mode="2" />
+		<Option compiler="msvc10" />
+		<Build>
+			<Target title="Debug Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/libcurl/Debug Win32/libcurld" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/libcurl/Debug Win32" />
+				<Option type="2" />
+				<Option compiler="msvc10" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="/D_DEBUG" />
+					<Add option="/DBUILDING_LIBCURL" />
+					<Add option="/DDEBUGBUILD" />
+					<Add option="/DCURL_STATICLIB" />
+					<Add option="/DUSE_OPENSSL" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/Ob1" />
+					<Add option="/Od" />
+					<Add option="/MTd" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+					<Add directory="../osf/openssl/include" />
+					<Add directory="../include" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+					<Add directory="../osf/openssl/include" />
+					<Add directory="../include" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/machine:I386" />
+				</Linker>
+			</Target>
+			<Target title="ServerDebug Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/libcurl/ServerDebug Win32/libcurld" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/libcurl/ServerDebug Win32" />
+				<Option type="2" />
+				<Option compiler="msvc10" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="/D_DEBUG" />
+					<Add option="/DBUILDING_LIBCURL" />
+					<Add option="/DDEBUGBUILD" />
+					<Add option="/DCURL_STATICLIB" />
+					<Add option="/DUSE_OPENSSL" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/Ob1" />
+					<Add option="/Od" />
+					<Add option="/MTd" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+					<Add directory="../osf/openssl/include" />
+					<Add directory="../include" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+					<Add directory="../osf/openssl/include" />
+					<Add directory="../include" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/machine:I386" />
+				</Linker>
+			</Target>
+			<Target title="Release Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/libcurl/Release Win32/libcurl" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/libcurl/Release Win32" />
+				<Option type="2" />
+				<Option compiler="msvc10" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="/DNDEBUG" />
+					<Add option="/DBUILDING_LIBCURL" />
+					<Add option="/DCURL_STATICLIB" />
+					<Add option="/DUSE_OPENSSL" />
+					<Add option="/W3" />
+					<Add option="/Ob1" />
+					<Add option="/MT" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+					<Add directory="../osf/openssl/include" />
+					<Add directory="../include" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+					<Add directory="../osf/openssl/include" />
+					<Add directory="../include" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/machine:I386" />
+				</Linker>
+			</Target>
+			<Target title="ServerRelease Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/libcurl/ServerRelease Win32/libcurl" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/libcurl/ServerRelease Win32" />
+				<Option type="2" />
+				<Option compiler="msvc10" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="/DNDEBUG" />
+					<Add option="/DBUILDING_LIBCURL" />
+					<Add option="/DCURL_STATICLIB" />
+					<Add option="/DUSE_OPENSSL" />
+					<Add option="/W3" />
+					<Add option="/Ob1" />
+					<Add option="/MT" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+					<Add directory="../osf/openssl/include" />
+					<Add directory="../include" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+					<Add directory="../osf/openssl/include" />
+					<Add directory="../include" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/machine:I386" />
+				</Linker>
+			</Target>
+			<Target title="MtDllDebug Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/libcurl/MtDllDebug Win32/libcurld" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/libcurl/MtDllDebug Win32" />
+				<Option type="2" />
+				<Option compiler="msvc10" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="/D_DEBUG" />
+					<Add option="/DBUILDING_LIBCURL" />
+					<Add option="/DDEBUGBUILD" />
+					<Add option="/DCURL_STATICLIB" />
+					<Add option="/DUSE_OPENSSL" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/Ob1" />
+					<Add option="/Od" />
+					<Add option="/MTd" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+					<Add directory="../osf/openssl/include" />
+					<Add directory="../include" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+					<Add directory="../osf/openssl/include" />
+					<Add directory="../include" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/machine:I386" />
+				</Linker>
+			</Target>
+			<Target title="MtDllRelease Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/libcurl/MtDllRelease Win32/libcurl" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/libcurl/MtDllRelease Win32" />
+				<Option type="2" />
+				<Option compiler="msvc10" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="/DNDEBUG" />
+					<Add option="/DBUILDING_LIBCURL" />
+					<Add option="/DCURL_STATICLIB" />
+					<Add option="/DUSE_OPENSSL" />
+					<Add option="/W3" />
+					<Add option="/Ob1" />
+					<Add option="/MT" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+					<Add directory="../osf/openssl/include" />
+					<Add directory="../include" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+					<Add directory="../osf/openssl/include" />
+					<Add directory="../include" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/machine:I386" />
+				</Linker>
+			</Target>
+		</Build>
+		<Unit filename="../OSF/CURL/include/curl/curl.h" />
+		<Unit filename="../OSF/CURL/include/curl/curlbuild.h" />
+		<Unit filename="../OSF/CURL/include/curl/curlrules.h" />
+		<Unit filename="../OSF/CURL/include/curl/curlver.h" />
+		<Unit filename="../OSF/CURL/include/curl/easy.h" />
+		<Unit filename="../OSF/CURL/include/curl/mprintf.h" />
+		<Unit filename="../OSF/CURL/include/curl/multi.h" />
+		<Unit filename="../OSF/CURL/include/curl/stdcheaders.h" />
+		<Unit filename="../OSF/CURL/include/curl/typecheck-gcc.h" />
+		<Unit filename="../OSF/CURL/lib/amigaos.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/amigaos.h" />
+		<Unit filename="../OSF/CURL/lib/arpa_telnet.h" />
+		<Unit filename="../OSF/CURL/lib/asyn-ares.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/asyn-thread.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/asyn.h" />
+		<Unit filename="../OSF/CURL/lib/base64.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/config-win32.h" />
+		<Unit filename="../OSF/CURL/lib/conncache.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/conncache.h" />
+		<Unit filename="../OSF/CURL/lib/connect.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/connect.h" />
+		<Unit filename="../OSF/CURL/lib/content_encoding.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/content_encoding.h" />
+		<Unit filename="../OSF/CURL/lib/cookie.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/cookie.h" />
+		<Unit filename="../OSF/CURL/lib/curl_addrinfo.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/curl_addrinfo.h" />
+		<Unit filename="../OSF/CURL/lib/curl_base64.h" />
+		<Unit filename="../OSF/CURL/lib/curl_des.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/curl_des.h" />
+		<Unit filename="../OSF/CURL/lib/curl_endian.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/curl_endian.h" />
+		<Unit filename="../OSF/CURL/lib/curl_fnmatch.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/curl_fnmatch.h" />
+		<Unit filename="../OSF/CURL/lib/curl_gethostname.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/curl_gethostname.h" />
+		<Unit filename="../OSF/CURL/lib/curl_gssapi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/curl_gssapi.h" />
+		<Unit filename="../OSF/CURL/lib/curl_hmac.h" />
+		<Unit filename="../OSF/CURL/lib/curl_ldap.h" />
+		<Unit filename="../OSF/CURL/lib/curl_md4.h" />
+		<Unit filename="../OSF/CURL/lib/curl_md5.h" />
+		<Unit filename="../OSF/CURL/lib/curl_memory.h" />
+		<Unit filename="../OSF/CURL/lib/curl_memrchr.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/curl_memrchr.h" />
+		<Unit filename="../OSF/CURL/lib/curl_multibyte.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/curl_multibyte.h" />
+		<Unit filename="../OSF/CURL/lib/curl_ntlm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/curl_ntlm.h" />
+		<Unit filename="../OSF/CURL/lib/curl_ntlm_core.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/curl_ntlm_core.h" />
+		<Unit filename="../OSF/CURL/lib/curl_ntlm_msgs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/curl_ntlm_msgs.h" />
+		<Unit filename="../OSF/CURL/lib/curl_ntlm_wb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/curl_ntlm_wb.h" />
+		<Unit filename="../OSF/CURL/lib/curl_printf.h" />
+		<Unit filename="../OSF/CURL/lib/curl_rtmp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/curl_rtmp.h" />
+		<Unit filename="../OSF/CURL/lib/curl_sasl.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/curl_sasl.h" />
+		<Unit filename="../OSF/CURL/lib/curl_sasl_gssapi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/curl_sasl_sspi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/curl_sec.h" />
+		<Unit filename="../OSF/CURL/lib/curl_setup.h" />
+		<Unit filename="../OSF/CURL/lib/curl_setup_once.h" />
+		<Unit filename="../OSF/CURL/lib/curl_sspi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/curl_sspi.h" />
+		<Unit filename="../OSF/CURL/lib/curl_threads.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/curl_threads.h" />
+		<Unit filename="../OSF/CURL/lib/curlx.h" />
+		<Unit filename="../OSF/CURL/lib/dict.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/dict.h" />
+		<Unit filename="../OSF/CURL/lib/dotdot.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/dotdot.h" />
+		<Unit filename="../OSF/CURL/lib/easy.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/easyif.h" />
+		<Unit filename="../OSF/CURL/lib/escape.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/escape.h" />
+		<Unit filename="../OSF/CURL/lib/file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/file.h" />
+		<Unit filename="../OSF/CURL/lib/fileinfo.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/fileinfo.h" />
+		<Unit filename="../OSF/CURL/lib/formdata.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/formdata.h" />
+		<Unit filename="../OSF/CURL/lib/ftp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/ftp.h" />
+		<Unit filename="../OSF/CURL/lib/ftplistparser.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/ftplistparser.h" />
+		<Unit filename="../OSF/CURL/lib/getenv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/getinfo.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/getinfo.h" />
+		<Unit filename="../OSF/CURL/lib/gopher.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/gopher.h" />
+		<Unit filename="../OSF/CURL/lib/hash.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/hash.h" />
+		<Unit filename="../OSF/CURL/lib/hmac.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/hostasyn.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/hostcheck.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/hostcheck.h" />
+		<Unit filename="../OSF/CURL/lib/hostip.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/hostip.h" />
+		<Unit filename="../OSF/CURL/lib/hostip4.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/hostip6.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/hostsyn.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/http.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/http.h" />
+		<Unit filename="../OSF/CURL/lib/http2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/http2.h" />
+		<Unit filename="../OSF/CURL/lib/http_chunks.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/http_chunks.h" />
+		<Unit filename="../OSF/CURL/lib/http_digest.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/http_digest.h" />
+		<Unit filename="../OSF/CURL/lib/http_negotiate.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/http_negotiate.h" />
+		<Unit filename="../OSF/CURL/lib/http_negotiate_sspi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/http_proxy.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/http_proxy.h" />
+		<Unit filename="../OSF/CURL/lib/idn_win32.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/if2ip.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/if2ip.h" />
+		<Unit filename="../OSF/CURL/lib/imap.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/imap.h" />
+		<Unit filename="../OSF/CURL/lib/inet_ntop.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/inet_ntop.h" />
+		<Unit filename="../OSF/CURL/lib/inet_pton.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/inet_pton.h" />
+		<Unit filename="../OSF/CURL/lib/krb5.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/ldap.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/libcurl-pch.cpp" />
+		<Unit filename="../OSF/CURL/lib/libcurl.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/llist.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/llist.h" />
+		<Unit filename="../OSF/CURL/lib/md4.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/md5.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/memdebug.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/memdebug.h" />
+		<Unit filename="../OSF/CURL/lib/mprintf.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/multi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/multihandle.h" />
+		<Unit filename="../OSF/CURL/lib/multiif.h" />
+		<Unit filename="../OSF/CURL/lib/netrc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/netrc.h" />
+		<Unit filename="../OSF/CURL/lib/non-ascii.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/non-ascii.h" />
+		<Unit filename="../OSF/CURL/lib/nonblock.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/nonblock.h" />
+		<Unit filename="../OSF/CURL/lib/openldap.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/parsedate.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/parsedate.h" />
+		<Unit filename="../OSF/CURL/lib/pingpong.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/pingpong.h" />
+		<Unit filename="../OSF/CURL/lib/pipeline.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/pipeline.h" />
+		<Unit filename="../OSF/CURL/lib/pop3.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/pop3.h" />
+		<Unit filename="../OSF/CURL/lib/progress.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/progress.h" />
+		<Unit filename="../OSF/CURL/lib/rawstr.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/rawstr.h" />
+		<Unit filename="../OSF/CURL/lib/rtsp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/rtsp.h" />
+		<Unit filename="../OSF/CURL/lib/security.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/select.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/select.h" />
+		<Unit filename="../OSF/CURL/lib/sendf.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/sendf.h" />
+		<Unit filename="../OSF/CURL/lib/setup-vms.h" />
+		<Unit filename="../OSF/CURL/lib/share.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/share.h" />
+		<Unit filename="../OSF/CURL/lib/sigpipe.h" />
+		<Unit filename="../OSF/CURL/lib/slist.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/slist.h" />
+		<Unit filename="../OSF/CURL/lib/smb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/smb.h" />
+		<Unit filename="../OSF/CURL/lib/smtp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/smtp.h" />
+		<Unit filename="../OSF/CURL/lib/sockaddr.h" />
+		<Unit filename="../OSF/CURL/lib/socks.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/socks.h" />
+		<Unit filename="../OSF/CURL/lib/socks_gssapi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/socks_sspi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/speedcheck.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/speedcheck.h" />
+		<Unit filename="../OSF/CURL/lib/splay.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/splay.h" />
+		<Unit filename="../OSF/CURL/lib/ssh.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/ssh.h" />
+		<Unit filename="../OSF/CURL/lib/strdup.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/strdup.h" />
+		<Unit filename="../OSF/CURL/lib/strequal.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/strequal.h" />
+		<Unit filename="../OSF/CURL/lib/strerror.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/strerror.h" />
+		<Unit filename="../OSF/CURL/lib/strtok.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/strtok.h" />
+		<Unit filename="../OSF/CURL/lib/strtoofft.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/strtoofft.h" />
+		<Unit filename="../OSF/CURL/lib/telnet.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/telnet.h" />
+		<Unit filename="../OSF/CURL/lib/tftp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/tftp.h" />
+		<Unit filename="../OSF/CURL/lib/timeval.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/timeval.h" />
+		<Unit filename="../OSF/CURL/lib/transfer.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/transfer.h" />
+		<Unit filename="../OSF/CURL/lib/url.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/url.h" />
+		<Unit filename="../OSF/CURL/lib/urldata.h" />
+		<Unit filename="../OSF/CURL/lib/version.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/vtls/axtls.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/vtls/axtls.h" />
+		<Unit filename="../OSF/CURL/lib/vtls/cyassl.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/vtls/cyassl.h" />
+		<Unit filename="../OSF/CURL/lib/vtls/darwinssl.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/vtls/darwinssl.h" />
+		<Unit filename="../OSF/CURL/lib/vtls/gskit.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/vtls/gskit.h" />
+		<Unit filename="../OSF/CURL/lib/vtls/gtls.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/vtls/gtls.h" />
+		<Unit filename="../OSF/CURL/lib/vtls/nss.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/vtls/nssg.h" />
+		<Unit filename="../OSF/CURL/lib/vtls/openssl.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/vtls/openssl.h" />
+		<Unit filename="../OSF/CURL/lib/vtls/polarssl.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/vtls/polarssl.h" />
+		<Unit filename="../OSF/CURL/lib/vtls/polarssl_threadlock.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/vtls/polarssl_threadlock.h" />
+		<Unit filename="../OSF/CURL/lib/vtls/schannel.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/vtls/schannel.h" />
+		<Unit filename="../OSF/CURL/lib/vtls/vtls.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/vtls/vtls.h" />
+		<Unit filename="../OSF/CURL/lib/warnless.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/warnless.h" />
+		<Unit filename="../OSF/CURL/lib/wildcard.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/wildcard.h" />
+		<Unit filename="../OSF/CURL/lib/x509asn1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/x509asn1.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

@@ -1,0 +1,59 @@
+﻿## Universe-HTT / 2012, 2013
+## view_avail_downloads.vm
+## Доступные загрузки
+##
+
+<style>
+	#view_avail_downloads__title {
+		font: 12pt/10pt sans-serif;
+		font-weight: bold;
+		color: gray;
+	}
+	#view_avail_downloads__list {
+		list-style-type: none;
+		padding: 5px 15px;
+	}
+	.frm-avail-downloads-item {
+		display: inline-block;
+		margin: 10px;
+		padding: 4px 10px;
+		border-bottom: 1px solid gray;
+	}
+	.frm-avail-downloads-item-title {
+		font: 10pt/8pt sans-serif;
+		margin-bottom: 10px;
+	}
+</style>
+
+<div id="view_avail_downloads__layout">
+	<br>
+	<span id="view_avail_downloads__title">
+		#if($items.size() > 0)
+			Доступные загрузки
+		#else
+			Нет доступных загрузок
+		#end
+	</span>
+	<br>
+	<div id="view_avail_downloads__list">
+		#foreach($item in $items)
+			<div class="frm-avail-downloads-item sprawling">
+				<div>
+					<div class="frm-avail-downloads-item-title">
+						<span>
+							#if($item.Title)
+								${item.Title}
+							#end
+						</span>
+					</div>
+					<div>
+						<div style="float:left"><a href="/dispatcher/dc/download?key=${item.Key}">${item.Name}</a></div>
+						<div style="float:right"> [ Дата: ${item.Ts} ]</div>
+						<div style="float:right; margin-left:10px; margin-right:10px;">&nbsp;</div>
+						<div style="float:right"> [ Размер: ${UHTT.sizeToString($item.Size)} ]</div>
+					</div>
+				</div>
+			</div>
+		#end
+	</div>
+</div>

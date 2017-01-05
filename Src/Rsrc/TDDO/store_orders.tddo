@@ -1,0 +1,40 @@
+## Universe-HTT / 2013
+## frm_store_orders_view.tddo
+## Просмотр заказов интернет-магазина
+
+#pragma(htmlencode)
+
+<div id="frm_store_orders__layout">
+	<table id="frm_store_orders__table" class="tablesorter">
+		<thead>
+			<tr> 
+				<th>ID</th>
+				<th>Дата</th>
+				<th>Склад</th>
+				<th>Покупатель</th>  
+			</tr>
+		</thead>	
+		<tbody>
+		#start(StrAssocArray)
+			#iter()
+				#start(UhttBill:${ID})
+				<tr class="uhtt-view-supplier-table-item">
+					<td>${ID}</td>
+					<td>${Dt}</td>
+					<td>${LocID.ID}</td>
+					#if{DlvrLocID.OwnerID.ID > 0}
+						<td>${DlvrLocID.OwnerID.Name}</td>
+					#else
+						<td>${DlvrLocID.Contact}</td>
+					#endif
+				</tr>
+				#end()
+			#end()
+		#end()
+		</tbody>
+	</table>
+</div>
+
+<script type="text/javascript">
+	
+</script>

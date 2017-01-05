@@ -1,0 +1,1041 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="curl" />
+		<Option pch_mode="2" />
+		<Option compiler="msvc10" />
+		<Build>
+			<Target title="LIB Release - LIB OpenSSL Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Release - LIB OpenSSL Win32/curl" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Release - LIB OpenSSL Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/DNDEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/DCURL_STATICLIB" />
+					<Add option="/W3" />
+					<Add option="/Ob1" />
+					<Add option="/MD" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add library="crypt32" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurl" />
+					<Add library="libeay32" />
+					<Add library="ssleay32" />
+					<Add directory="../../../../build/Win32/VC7.1/LIB Release - LIB OpenSSL Win32" />
+					<Add directory="../../../../../openssl/build/Win32/VC7.1/LIB Release" />
+				</Linker>
+			</Target>
+			<Target title="DLL Release - DLL Windows SSPI Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/DLL Release - DLL Windows SSPI Win32/curl" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/DLL Release - DLL Windows SSPI Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/DNDEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/W3" />
+					<Add option="/Ob1" />
+					<Add option="/MD" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurl" />
+					<Add directory="../../../../build/Win32/VC7.1/DLL Release - DLL Windows SSPI Win32" />
+				</Linker>
+			</Target>
+			<Target title="LIB Release - DLL Windows SSPI Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Release - DLL Windows SSPI Win32/curl" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Release - DLL Windows SSPI Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/DNDEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/DCURL_STATICLIB" />
+					<Add option="/W3" />
+					<Add option="/Ob1" />
+					<Add option="/MD" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurl" />
+					<Add directory="../../../../build/Win32/VC7.1/LIB Release - DLL Windows SSPI Win32" />
+				</Linker>
+			</Target>
+			<Target title="LIB Debug - DLL OpenSSL - DLL LibSSH2 Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Debug - DLL OpenSSL - DLL LibSSH2 Win32/curld" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Debug - DLL OpenSSL - DLL LibSSH2 Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/D_DEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/DDEBUGBUILD" />
+					<Add option="/DCURL_STATICLIB" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/Od" />
+					<Add option="/MDd" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add option="/pdb:$(TargetDir)$(TargetName).pdb" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurld" />
+					<Add library="libeay32" />
+					<Add library="ssleay32" />
+					<Add library="libssh2d" />
+					<Add directory="../../../../build/Win32/VC7.1/LIB Debug - DLL OpenSSL - DLL LibSSH2 Win32" />
+					<Add directory="../../../../../openssl/build/Win32/VC7.1/DLL Debug" />
+					<Add directory="../../../../../libssh2/build/Win32/VC7.1/DLL Debug" />
+				</Linker>
+			</Target>
+			<Target title="LIB Debug - LIB OpenSSL Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Debug - LIB OpenSSL Win32/curld" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Debug - LIB OpenSSL Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/D_DEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/DDEBUGBUILD" />
+					<Add option="/DCURL_STATICLIB" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/Od" />
+					<Add option="/MDd" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add option="/pdb:$(TargetDir)$(TargetName).pdb" />
+					<Add library="crypt32" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurld" />
+					<Add library="libeay32" />
+					<Add library="ssleay32" />
+					<Add directory="../../../../build/Win32/VC7.1/LIB Debug - LIB OpenSSL Win32" />
+					<Add directory="../../../../../openssl/build/Win32/VC7.1/LIB Debug" />
+				</Linker>
+			</Target>
+			<Target title="DLL Debug - DLL OpenSSL Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/DLL Debug - DLL OpenSSL Win32/curld" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/DLL Debug - DLL OpenSSL Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/D_DEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/DDEBUGBUILD" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/Od" />
+					<Add option="/MDd" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add option="/pdb:$(TargetDir)$(TargetName).pdb" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurld" />
+					<Add directory="../../../../build/Win32/VC7.1/DLL Debug - DLL OpenSSL Win32" />
+				</Linker>
+			</Target>
+			<Target title="LIB Debug - LIB OpenSSL - LIB LibSSH2 Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Debug - LIB OpenSSL - LIB LibSSH2 Win32/curld" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Debug - LIB OpenSSL - LIB LibSSH2 Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/D_DEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/DDEBUGBUILD" />
+					<Add option="/DCURL_STATICLIB" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/Od" />
+					<Add option="/MDd" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add option="/pdb:$(TargetDir)$(TargetName).pdb" />
+					<Add library="crypt32" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurld" />
+					<Add library="libeay32" />
+					<Add library="ssleay32" />
+					<Add library="libssh2d" />
+					<Add directory="../../../../build/Win32/VC7.1/LIB Debug - LIB OpenSSL - LIB LibSSH2 Win32" />
+					<Add directory="../../../../../openssl/build/Win32/VC7.1/LIB Debug" />
+					<Add directory="../../../../../libssh2/build/Win32/VC7.1/LIB Debug" />
+				</Linker>
+			</Target>
+			<Target title="LIB Release - DLL OpenSSL Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Release - DLL OpenSSL Win32/curl" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Release - DLL OpenSSL Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/DNDEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/DCURL_STATICLIB" />
+					<Add option="/W3" />
+					<Add option="/Ob1" />
+					<Add option="/MD" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurl" />
+					<Add library="libeay32" />
+					<Add library="ssleay32" />
+					<Add directory="../../../../build/Win32/VC7.1/LIB Release - DLL OpenSSL Win32" />
+					<Add directory="../../../../../openssl/build/Win32/VC7.1/DLL Release" />
+				</Linker>
+			</Target>
+			<Target title="LIB Release - DLL OpenSSL - DLL LibSSH2 Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Release - DLL OpenSSL - DLL LibSSH2 Win32/curl" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Release - DLL OpenSSL - DLL LibSSH2 Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/DNDEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/DCURL_STATICLIB" />
+					<Add option="/W3" />
+					<Add option="/Ob1" />
+					<Add option="/MD" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurl" />
+					<Add library="libeay32" />
+					<Add library="ssleay32" />
+					<Add library="libssh2" />
+					<Add directory="../../../../build/Win32/VC7.1/LIB Release - DLL OpenSSL - DLL LibSSH2 Win32" />
+					<Add directory="../../../../../openssl/build/Win32/VC7.1/DLL Release" />
+					<Add directory="../../../../../libssh2/build/Win32/VC7.1/DLL Release" />
+				</Linker>
+			</Target>
+			<Target title="LIB Release Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Release Win32/curl" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Release Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/DNDEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/DCURL_STATICLIB" />
+					<Add option="/W3" />
+					<Add option="/Ob1" />
+					<Add option="/MD" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurl" />
+					<Add directory="../../../../build/Win32/VC7.1/LIB Release Win32" />
+				</Linker>
+			</Target>
+			<Target title="LIB Release - LIB OpenSSL - LIB LibSSH2 Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Release - LIB OpenSSL - LIB LibSSH2 Win32/curl" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Release - LIB OpenSSL - LIB LibSSH2 Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/DNDEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/DCURL_STATICLIB" />
+					<Add option="/W3" />
+					<Add option="/Ob1" />
+					<Add option="/MD" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add library="crypt32" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurl" />
+					<Add library="libeay32" />
+					<Add library="ssleay32" />
+					<Add library="libssh2" />
+					<Add directory="../../../../build/Win32/VC7.1/LIB Release - LIB OpenSSL - LIB LibSSH2 Win32" />
+					<Add directory="../../../../../openssl/build/Win32/VC7.1/LIB Release" />
+					<Add directory="../../../../../libssh2/build/Win32/VC7.1/LIB Release" />
+				</Linker>
+			</Target>
+			<Target title="LIB Debug - DLL OpenSSL Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Debug - DLL OpenSSL Win32/curld" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Debug - DLL OpenSSL Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/D_DEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/DDEBUGBUILD" />
+					<Add option="/DCURL_STATICLIB" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/Od" />
+					<Add option="/MDd" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add option="/pdb:$(TargetDir)$(TargetName).pdb" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurld" />
+					<Add library="libeay32" />
+					<Add library="ssleay32" />
+					<Add directory="../../../../build/Win32/VC7.1/LIB Debug - DLL OpenSSL Win32" />
+					<Add directory="../../../../../openssl/build/Win32/VC7.1/DLL Debug" />
+				</Linker>
+			</Target>
+			<Target title="LIB Debug Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Debug Win32/curld" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Debug Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/D_DEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/DDEBUGBUILD" />
+					<Add option="/DCURL_STATICLIB" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/Od" />
+					<Add option="/MDd" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add option="/pdb:$(TargetDir)$(TargetName).pdb" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurld" />
+					<Add directory="../../../../build/Win32/VC7.1/LIB Debug Win32" />
+				</Linker>
+			</Target>
+			<Target title="DLL Debug Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/DLL Debug Win32/curld" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/DLL Debug Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/D_DEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/DDEBUGBUILD" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/Od" />
+					<Add option="/MDd" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add option="/pdb:$(TargetDir)$(TargetName).pdb" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurld" />
+					<Add directory="../../../../build/Win32/VC7.1/DLL Debug Win32" />
+				</Linker>
+			</Target>
+			<Target title="DLL Release - DLL OpenSSL - DLL LibSSH2 Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/DLL Release - DLL OpenSSL - DLL LibSSH2 Win32/curl" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/DLL Release - DLL OpenSSL - DLL LibSSH2 Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/DNDEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/W3" />
+					<Add option="/Ob1" />
+					<Add option="/MD" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurl" />
+					<Add directory="../../../../build/Win32/VC7.1/DLL Release - DLL OpenSSL - DLL LibSSH2 Win32" />
+				</Linker>
+			</Target>
+			<Target title="DLL Release - DLL OpenSSL Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/DLL Release - DLL OpenSSL Win32/curl" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/DLL Release - DLL OpenSSL Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/DNDEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/W3" />
+					<Add option="/Ob1" />
+					<Add option="/MD" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurl" />
+					<Add directory="../../../../build/Win32/VC7.1/DLL Release - DLL OpenSSL Win32" />
+				</Linker>
+			</Target>
+			<Target title="DLL Debug - DLL OpenSSL - DLL LibSSH2 Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/DLL Debug - DLL OpenSSL - DLL LibSSH2 Win32/curld" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/DLL Debug - DLL OpenSSL - DLL LibSSH2 Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/D_DEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/DDEBUGBUILD" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/Od" />
+					<Add option="/MDd" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add option="/pdb:$(TargetDir)$(TargetName).pdb" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurld" />
+					<Add directory="../../../../build/Win32/VC7.1/DLL Debug - DLL OpenSSL - DLL LibSSH2 Win32" />
+				</Linker>
+			</Target>
+			<Target title="LIB Debug - DLL Windows SSPI Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Debug - DLL Windows SSPI Win32/curld" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Debug - DLL Windows SSPI Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/D_DEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/DDEBUGBUILD" />
+					<Add option="/DCURL_STATICLIB" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/Od" />
+					<Add option="/MDd" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add option="/pdb:$(TargetDir)$(TargetName).pdb" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurld" />
+					<Add directory="../../../../build/Win32/VC7.1/LIB Debug - DLL Windows SSPI Win32" />
+				</Linker>
+			</Target>
+			<Target title="DLL Release Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/DLL Release Win32/curl" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/DLL Release Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/DNDEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/W3" />
+					<Add option="/Ob1" />
+					<Add option="/MD" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurl" />
+					<Add directory="../../../../build/Win32/VC7.1/DLL Release Win32" />
+				</Linker>
+			</Target>
+			<Target title="DLL Debug - DLL Windows SSPI Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/DLL Debug - DLL Windows SSPI Win32/curld" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/DLL Debug - DLL Windows SSPI Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/D_DEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/DDEBUGBUILD" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/Od" />
+					<Add option="/MDd" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add option="/pdb:$(TargetDir)$(TargetName).pdb" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurld" />
+					<Add directory="../../../../build/Win32/VC7.1/DLL Debug - DLL Windows SSPI Win32" />
+				</Linker>
+			</Target>
+			<Target title="DLL Debug - DLL Windows SSPI - DLL WinIDN Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/DLL Debug - DLL Windows SSPI - DLL WinIDN Win32/curld" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/DLL Debug - DLL Windows SSPI - DLL WinIDN Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/D_DEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/DDEBUGBUILD" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/Od" />
+					<Add option="/MDd" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add option="/pdb:$(TargetDir)$(TargetName).pdb" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurld" />
+					<Add directory="../../../../build/Win32/VC7.1/DLL Debug - DLL Windows SSPI - DLL WinIDN Win32" />
+				</Linker>
+			</Target>
+			<Target title="DLL Release - DLL Windows SSPI - DLL WinIDN Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/DLL Release - DLL Windows SSPI - DLL WinIDN Win32/curl" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/DLL Release - DLL Windows SSPI - DLL WinIDN Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/DNDEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/W3" />
+					<Add option="/Ob1" />
+					<Add option="/MD" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurl" />
+					<Add directory="../../../../build/Win32/VC7.1/DLL Release - DLL Windows SSPI - DLL WinIDN Win32" />
+				</Linker>
+			</Target>
+			<Target title="LIB Debug - DLL Windows SSPI - DLL WinIDN Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Debug - DLL Windows SSPI - DLL WinIDN Win32/curld" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Debug - DLL Windows SSPI - DLL WinIDN Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/D_DEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/DDEBUGBUILD" />
+					<Add option="/DCURL_STATICLIB" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/Od" />
+					<Add option="/MDd" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add option="/pdb:$(TargetDir)$(TargetName).pdb" />
+					<Add library="normaliz" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurld" />
+					<Add directory="../../../../build/Win32/VC7.1/LIB Debug - DLL Windows SSPI - DLL WinIDN Win32" />
+				</Linker>
+			</Target>
+			<Target title="LIB Release - DLL Windows SSPI - DLL WinIDN Win32">
+				<Option output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Release - DLL Windows SSPI - DLL WinIDN Win32/curl" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/curl/LIB Release - DLL Windows SSPI - DLL WinIDN Win32" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/DNDEBUG" />
+					<Add option="/D_CONSOLE" />
+					<Add option="/DCURL_STATICLIB" />
+					<Add option="/W3" />
+					<Add option="/Ob1" />
+					<Add option="/MD" />
+					<Add option="/EHsc" />
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/CURL/include" />
+					<Add directory="../OSF/CURL/src" />
+					<Add directory="../OSF/CURL/lib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/MACHINE:I386" />
+					<Add option="/FIXED:NO" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add library="normaliz" />
+					<Add library="wldap32" />
+					<Add library="ws2_32" />
+					<Add library="libcurl" />
+					<Add directory="../../../../build/Win32/VC7.1/LIB Release - DLL Windows SSPI - DLL WinIDN Win32" />
+				</Linker>
+			</Target>
+		</Build>
+		<Unit filename="../OSF/CURL/lib/config-win32.h" />
+		<Unit filename="../OSF/CURL/lib/curl_setup.h" />
+		<Unit filename="../OSF/CURL/lib/nonblock.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/nonblock.h" />
+		<Unit filename="../OSF/CURL/lib/rawstr.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/rawstr.h" />
+		<Unit filename="../OSF/CURL/lib/strtoofft.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/strtoofft.h" />
+		<Unit filename="../OSF/CURL/lib/warnless.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/lib/warnless.h" />
+		<Unit filename="../OSF/CURL/src/curl.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_binmode.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_binmode.h" />
+		<Unit filename="../OSF/CURL/src/tool_bname.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_bname.h" />
+		<Unit filename="../OSF/CURL/src/tool_cb_dbg.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_cb_dbg.h" />
+		<Unit filename="../OSF/CURL/src/tool_cb_hdr.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_cb_hdr.h" />
+		<Unit filename="../OSF/CURL/src/tool_cb_prg.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_cb_prg.h" />
+		<Unit filename="../OSF/CURL/src/tool_cb_rea.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_cb_rea.h" />
+		<Unit filename="../OSF/CURL/src/tool_cb_see.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_cb_see.h" />
+		<Unit filename="../OSF/CURL/src/tool_cb_wrt.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_cb_wrt.h" />
+		<Unit filename="../OSF/CURL/src/tool_cfgable.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_cfgable.h" />
+		<Unit filename="../OSF/CURL/src/tool_convert.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_convert.h" />
+		<Unit filename="../OSF/CURL/src/tool_dirhie.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_dirhie.h" />
+		<Unit filename="../OSF/CURL/src/tool_doswin.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_doswin.h" />
+		<Unit filename="../OSF/CURL/src/tool_easysrc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_easysrc.h" />
+		<Unit filename="../OSF/CURL/src/tool_formparse.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_formparse.h" />
+		<Unit filename="../OSF/CURL/src/tool_getparam.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_getparam.h" />
+		<Unit filename="../OSF/CURL/src/tool_getpass.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_getpass.h" />
+		<Unit filename="../OSF/CURL/src/tool_help.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_help.h" />
+		<Unit filename="../OSF/CURL/src/tool_helpers.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_helpers.h" />
+		<Unit filename="../OSF/CURL/src/tool_homedir.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_homedir.h" />
+		<Unit filename="../OSF/CURL/src/tool_hugehelp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_hugehelp.h" />
+		<Unit filename="../OSF/CURL/src/tool_libinfo.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_libinfo.h" />
+		<Unit filename="../OSF/CURL/src/tool_main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_main.h" />
+		<Unit filename="../OSF/CURL/src/tool_metalink.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_metalink.h" />
+		<Unit filename="../OSF/CURL/src/tool_mfiles.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_mfiles.h" />
+		<Unit filename="../OSF/CURL/src/tool_msgs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_msgs.h" />
+		<Unit filename="../OSF/CURL/src/tool_operate.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_operate.h" />
+		<Unit filename="../OSF/CURL/src/tool_operhlp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_operhlp.h" />
+		<Unit filename="../OSF/CURL/src/tool_panykey.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_panykey.h" />
+		<Unit filename="../OSF/CURL/src/tool_paramhlp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_paramhlp.h" />
+		<Unit filename="../OSF/CURL/src/tool_parsecfg.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_parsecfg.h" />
+		<Unit filename="../OSF/CURL/src/tool_sdecls.h" />
+		<Unit filename="../OSF/CURL/src/tool_setopt.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_setopt.h" />
+		<Unit filename="../OSF/CURL/src/tool_setup.h" />
+		<Unit filename="../OSF/CURL/src/tool_sleep.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_sleep.h" />
+		<Unit filename="../OSF/CURL/src/tool_strdup.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_strdup.h" />
+		<Unit filename="../OSF/CURL/src/tool_urlglob.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_urlglob.h" />
+		<Unit filename="../OSF/CURL/src/tool_util.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_util.h" />
+		<Unit filename="../OSF/CURL/src/tool_version.h" />
+		<Unit filename="../OSF/CURL/src/tool_vms.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_vms.h" />
+		<Unit filename="../OSF/CURL/src/tool_writeenv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_writeenv.h" />
+		<Unit filename="../OSF/CURL/src/tool_writeout.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_writeout.h" />
+		<Unit filename="../OSF/CURL/src/tool_xattr.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../OSF/CURL/src/tool_xattr.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

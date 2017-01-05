@@ -1,0 +1,150 @@
+~203~^~g~^~PROCNT~^~Protein~^~2~^~600~
+~204~^~g~^~FAT~^~Total lipid (fat)~^~2~^~800~
+~205~^~g~^~CHOCDF~^~Carbohydrate, by difference~^~2~^~1100~
+~207~^~g~^~ASH~^~Ash~^~2~^~1000~
+~208~^~kcal~^~ENERC_KCAL~^~Energy~^~0~^~300~
+~209~^~g~^~STARCH~^~Starch~^~2~^~2200~
+~210~^~g~^~SUCS~^~Sucrose~^~2~^~1600~
+~211~^~g~^~GLUS~^~Glucose (dextrose)~^~2~^~1700~
+~212~^~g~^~FRUS~^~Fructose~^~2~^~1800~
+~213~^~g~^~LACS~^~Lactose~^~2~^~1900~
+~214~^~g~^~MALS~^~Maltose~^~2~^~2000~
+~221~^~g~^~ALC~^~Alcohol, ethyl~^~1~^~18200~
+~255~^~g~^~WATER~^~Water~^~2~^~100~
+~257~^~g~^~~^~Adjusted Protein~^~2~^~700~
+~262~^~mg~^~CAFFN~^~Caffeine~^~0~^~18300~
+~263~^~mg~^~THEBRN~^~Theobromine~^~0~^~18400~
+~268~^~kJ~^~ENERC_KJ~^~Energy~^~0~^~400~
+~269~^~g~^~SUGAR~^~Sugars, total~^~2~^~1500~
+~287~^~g~^~GALS~^~Galactose~^~2~^~2100~
+~291~^~g~^~FIBTG~^~Fiber, total dietary~^~1~^~1200~
+~301~^~mg~^~CA~^~Calcium, Ca~^~0~^~5300~
+~303~^~mg~^~FE~^~Iron, Fe~^~2~^~5400~
+~304~^~mg~^~MG~^~Magnesium, Mg~^~0~^~5500~
+~305~^~mg~^~P~^~Phosphorus, P~^~0~^~5600~
+~306~^~mg~^~K~^~Potassium, K~^~0~^~5700~
+~307~^~mg~^~NA~^~Sodium, Na~^~0~^~5800~
+~309~^~mg~^~ZN~^~Zinc, Zn~^~2~^~5900~
+~312~^~mg~^~CU~^~Copper, Cu~^~3~^~6000~
+~313~^~µg~^~FLD~^~Fluoride, F~^~1~^~6240~
+~315~^~mg~^~MN~^~Manganese, Mn~^~3~^~6100~
+~317~^~µg~^~SE~^~Selenium, Se~^~1~^~6200~
+~318~^~IU~^~VITA_IU~^~Vitamin A, IU~^~0~^~7500~
+~319~^~µg~^~RETOL~^~Retinol~^~0~^~7430~
+~320~^~µg~^~VITA_RAE~^~Vitamin A, RAE~^~0~^~7420~
+~321~^~µg~^~CARTB~^~Carotene, beta~^~0~^~7440~
+~322~^~µg~^~CARTA~^~Carotene, alpha~^~0~^~7450~
+~323~^~mg~^~TOCPHA~^~Vitamin E (alpha-tocopherol)~^~2~^~7900~
+~324~^~IU~^~VITD~^~Vitamin D~^~0~^~8750~
+~325~^~µg~^~ERGCAL~^~Vitamin D2 (ergocalciferol)~^~1~^~8710~
+~326~^~µg~^~CHOCAL~^~Vitamin D3 (cholecalciferol)~^~1~^~8720~
+~328~^~µg~^~VITD~^~Vitamin D (D2 + D3)~^~1~^~8700~
+~334~^~µg~^~CRYPX~^~Cryptoxanthin, beta~^~0~^~7460~
+~337~^~µg~^~LYCPN~^~Lycopene~^~0~^~7530~
+~338~^~µg~^~LUT+ZEA~^~Lutein + zeaxanthin~^~0~^~7560~
+~341~^~mg~^~TOCPHB~^~Tocopherol, beta~^~2~^~8000~
+~342~^~mg~^~TOCPHG~^~Tocopherol, gamma~^~2~^~8100~
+~343~^~mg~^~TOCPHD~^~Tocopherol, delta~^~2~^~8200~
+~344~^~mg~^~TOCTRA~^~Tocotrienol, alpha~^~2~^~8300~
+~345~^~mg~^~TOCTRB~^~Tocotrienol, beta~^~2~^~8400~
+~346~^~mg~^~TOCTRG~^~Tocotrienol, gamma~^~2~^~8500~
+~347~^~mg~^~TOCTRD~^~Tocotrienol, delta~^~2~^~8600~
+~401~^~mg~^~VITC~^~Vitamin C, total ascorbic acid~^~1~^~6300~
+~404~^~mg~^~THIA~^~Thiamin~^~3~^~6400~
+~405~^~mg~^~RIBF~^~Riboflavin~^~3~^~6500~
+~406~^~mg~^~NIA~^~Niacin~^~3~^~6600~
+~410~^~mg~^~PANTAC~^~Pantothenic acid~^~3~^~6700~
+~415~^~mg~^~VITB6A~^~Vitamin B-6~^~3~^~6800~
+~417~^~µg~^~FOL~^~Folate, total~^~0~^~6900~
+~418~^~µg~^~VITB12~^~Vitamin B-12~^~2~^~7300~
+~421~^~mg~^~CHOLN~^~Choline, total~^~1~^~7220~
+~428~^~µg~^~MK4~^~Menaquinone-4~^~1~^~8950~
+~429~^~µg~^~VITK1D~^~Dihydrophylloquinone~^~1~^~8900~
+~430~^~µg~^~VITK1~^~Vitamin K (phylloquinone)~^~1~^~8800~
+~431~^~µg~^~FOLAC~^~Folic acid~^~0~^~7000~
+~432~^~µg~^~FOLFD~^~Folate, food~^~0~^~7100~
+~435~^~µg~^~FOLDFE~^~Folate, DFE~^~0~^~7200~
+~454~^~mg~^~BETN~^~Betaine~^~1~^~7270~
+~501~^~g~^~TRP_G~^~Tryptophan~^~3~^~16300~
+~502~^~g~^~THR_G~^~Threonine~^~3~^~16400~
+~503~^~g~^~ILE_G~^~Isoleucine~^~3~^~16500~
+~504~^~g~^~LEU_G~^~Leucine~^~3~^~16600~
+~505~^~g~^~LYS_G~^~Lysine~^~3~^~16700~
+~506~^~g~^~MET_G~^~Methionine~^~3~^~16800~
+~507~^~g~^~CYS_G~^~Cystine~^~3~^~16900~
+~508~^~g~^~PHE_G~^~Phenylalanine~^~3~^~17000~
+~509~^~g~^~TYR_G~^~Tyrosine~^~3~^~17100~
+~510~^~g~^~VAL_G~^~Valine~^~3~^~17200~
+~511~^~g~^~ARG_G~^~Arginine~^~3~^~17300~
+~512~^~g~^~HISTN_G~^~Histidine~^~3~^~17400~
+~513~^~g~^~ALA_G~^~Alanine~^~3~^~17500~
+~514~^~g~^~ASP_G~^~Aspartic acid~^~3~^~17600~
+~515~^~g~^~GLU_G~^~Glutamic acid~^~3~^~17700~
+~516~^~g~^~GLY_G~^~Glycine~^~3~^~17800~
+~517~^~g~^~PRO_G~^~Proline~^~3~^~17900~
+~518~^~g~^~SER_G~^~Serine~^~3~^~18000~
+~521~^~g~^~HYP~^~Hydroxyproline~^~3~^~18100~
+~573~^~mg~^~~^~Vitamin E, added~^~2~^~7920~
+~578~^~µg~^~~^~Vitamin B-12, added~^~2~^~7340~
+~601~^~mg~^~CHOLE~^~Cholesterol~^~0~^~15700~
+~605~^~g~^~FATRN~^~Fatty acids, total trans~^~3~^~15400~
+~606~^~g~^~FASAT~^~Fatty acids, total saturated~^~3~^~9700~
+~607~^~g~^~F4D0~^~4:0~^~3~^~9800~
+~608~^~g~^~F6D0~^~6:0~^~3~^~9900~
+~609~^~g~^~F8D0~^~8:0~^~3~^~10000~
+~610~^~g~^~F10D0~^~10:0~^~3~^~10100~
+~611~^~g~^~F12D0~^~12:0~^~3~^~10300~
+~612~^~g~^~F14D0~^~14:0~^~3~^~10500~
+~613~^~g~^~F16D0~^~16:0~^~3~^~10700~
+~614~^~g~^~F18D0~^~18:0~^~3~^~10900~
+~615~^~g~^~F20D0~^~20:0~^~3~^~11100~
+~617~^~g~^~F18D1~^~18:1 undifferentiated~^~3~^~12100~
+~618~^~g~^~F18D2~^~18:2 undifferentiated~^~3~^~13100~
+~619~^~g~^~F18D3~^~18:3 undifferentiated~^~3~^~13900~
+~620~^~g~^~F20D4~^~20:4 undifferentiated~^~3~^~14700~
+~621~^~g~^~F22D6~^~22:6 n-3 (DHA)~^~3~^~15300~
+~624~^~g~^~F22D0~^~22:0~^~3~^~11200~
+~625~^~g~^~F14D1~^~14:1~^~3~^~11500~
+~626~^~g~^~F16D1~^~16:1 undifferentiated~^~3~^~11700~
+~627~^~g~^~F18D4~^~18:4~^~3~^~14250~
+~628~^~g~^~F20D1~^~20:1~^~3~^~12400~
+~629~^~g~^~F20D5~^~20:5 n-3 (EPA)~^~3~^~15000~
+~630~^~g~^~F22D1~^~22:1 undifferentiated~^~3~^~12500~
+~631~^~g~^~F22D5~^~22:5 n-3 (DPA)~^~3~^~15200~
+~636~^~mg~^~PHYSTR~^~Phytosterols~^~0~^~15800~
+~638~^~mg~^~STID7~^~Stigmasterol~^~0~^~15900~
+~639~^~mg~^~CAMD5~^~Campesterol~^~0~^~16000~
+~641~^~mg~^~SITSTR~^~Beta-sitosterol~^~0~^~16200~
+~645~^~g~^~FAMS~^~Fatty acids, total monounsaturated~^~3~^~11400~
+~646~^~g~^~FAPU~^~Fatty acids, total polyunsaturated~^~3~^~12900~
+~652~^~g~^~F15D0~^~15:0~^~3~^~10600~
+~653~^~g~^~F17D0~^~17:0~^~3~^~10800~
+~654~^~g~^~F24D0~^~24:0~^~3~^~11300~
+~662~^~g~^~F16D1T~^~16:1 t~^~3~^~11900~
+~663~^~g~^~F18D1T~^~18:1 t~^~3~^~12300~
+~664~^~g~^~F22D1T~^~22:1 t~^~3~^~12700~
+~665~^~g~^~~^~18:2 t not further defined~^~3~^~13800~
+~666~^~g~^~~^~18:2 i~^~3~^~13700~
+~669~^~g~^~F18D2TT~^~18:2 t,t~^~3~^~13600~
+~670~^~g~^~F18D2CLA~^~18:2 CLAs~^~3~^~13300~
+~671~^~g~^~F24D1C~^~24:1 c~^~3~^~12800~
+~672~^~g~^~F20D2CN6~^~20:2 n-6 c,c~^~3~^~14300~
+~673~^~g~^~F16D1C~^~16:1 c~^~3~^~11800~
+~674~^~g~^~F18D1C~^~18:1 c~^~3~^~12200~
+~675~^~g~^~F18D2CN6~^~18:2 n-6 c,c~^~3~^~13200~
+~676~^~g~^~F22D1C~^~22:1 c~^~3~^~12600~
+~685~^~g~^~F18D3CN6~^~18:3 n-6 c,c,c~^~3~^~14100~
+~687~^~g~^~F17D1~^~17:1~^~3~^~12000~
+~689~^~g~^~F20D3~^~20:3 undifferentiated~^~3~^~14400~
+~693~^~g~^~FATRNM~^~Fatty acids, total trans-monoenoic~^~3~^~15500~
+~695~^~g~^~FATRNP~^~Fatty acids, total trans-polyenoic~^~3~^~15600~
+~696~^~g~^~F13D0~^~13:0~^~3~^~10400~
+~697~^~g~^~F15D1~^~15:1~^~3~^~11600~
+~851~^~g~^~F18D3CN3~^~18:3 n-3 c,c,c (ALA)~^~3~^~14000~
+~852~^~g~^~F20D3N3~^~20:3 n-3~^~3~^~14500~
+~853~^~g~^~F20D3N6~^~20:3 n-6~^~3~^~14600~
+~855~^~g~^~F20D4N6~^~20:4 n-6~^~3~^~14900~
+~856~^~g~^~~^~18:3i~^~3~^~14200~
+~857~^~g~^~F21D5~^~21:5~^~3~^~15100~
+~858~^~g~^~F22D4~^~22:4~^~3~^~15160~
+~859~^~g~^~F18D1TN7~^~18:1-11 t (18:1t n-7)~^~3~^~12310~

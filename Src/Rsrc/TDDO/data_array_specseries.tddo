@@ -1,0 +1,31 @@
+## Universe-HTT
+## data_array_specseries.tddo
+## Массив структур специальных серий
+
+#pragma(htmlencode)
+#start(StrAssocArray)
+	[
+	#iter()
+		{
+		#start(UhttSpecSeries:${ID})
+			"ID":"${ID}",
+			"GoodsID":"${GoodsID.ID}",
+			"ManufID":"${ManufID.ID}",
+			"ManufCountryID":"${ManufCountryID.ID}",
+			"LabID":"${LabID.ID}",
+			"Serial":"${Serial}",
+			"GoodsName":"${GoodsName}",
+			"Barcode":"${Barcode}",
+			"ManufName":"${ManufName}",
+			"InfoDate":"${InfoDate}",
+			"InfoKind":"${InfoKind}",
+			"InfoIdent":"${InfoIdent}",
+			"AllowDate":"${AllowDate}",
+			"AllowNumber":"${AllowNumber}",
+			"LetterType":"${LetterType}",
+			"Flags":"${Flags}"
+		#end()
+		},
+	#end()
+	]
+#end()

@@ -1,0 +1,161 @@
+## Universe-HTT / 2011, 2012
+## frm_manufactor_filt.tddo
+## Фильтр производителей
+##
+
+<div id="frm_manufactor_filt_view">
+	<fieldset style="margin-top:6px">
+		<legend>Фильтр</legend>
+		<b>Наименование</b>
+		<input type="text" class="uhtt-input sprawling" id="frm_manufactor_filt_name"/>
+		<b>Статус</b>
+		<div id="frm_manufactor_filt_status_blk">
+			<table class="sprawling"><tbody class="sprawling"><tr class="sprawling">
+			<td class="sprawling"><input type="text" class="uhtt-drop-down-menu-text-field sprawling" id="frm_manufactor_filt_status" readonly="readonly"/></td>
+			<td><input type="button" class="uhtt-drop-down-menu-button" id="frm_manufactor_filt_select_status_btn"/></td>
+			</tr></tbody></table>
+			<div class="uhtt-drop-down-div" id="frm_manufactor_filt_statuses_dd_blk"></div>
+		</div>
+		<b>Категория</b>
+		<div id="frm_manufactor_filt_category_blk">
+			<table class="sprawling"><tbody class="sprawling"><tr class="sprawling">
+			<td class="sprawling"><input type="text" class="uhtt-drop-down-menu-text-field sprawling" id="frm_manufactor_filt_category" readonly="readonly"/></td>
+			<td><input type="button" class="uhtt-drop-down-menu-button" id="frm_manufactor_filt_select_category_btn"/></td>
+			</tr></tbody></table>
+			<div class="uhtt-drop-down-div" id="frm_manufactor_filt_categories_dd_blk"></div>
+		</div>
+		<hr>
+		<div>
+			#if{@(Global, 0).CheckCurrentGlobalUserRights(11, 2, "@def") > 0}
+			<input type="button" id="frm_manufactor_filt_create_manufactor_btn" style="float:left" value="Создать производителя"/>
+			#endif
+			<input type="button" id="frm_manufactor_filt_ok_btn" style="float:right" value="OK"/>
+		</div>
+	</fieldset>
+</div>
+	
+<script type="text/javascript">
+	var ManufactorFiltForm = {
+		## /* Фильтр */
+		F : new UHTT.Person.Filter("MANUF", "VIEW_MANUFACTOR"),
+		## /* Элементы формы */
+		txtFld_ManufactorName : $("#frm_manufactor_filt_name"),
+		blk_Status            : $("#frm_manufactor_filt_status_blk"),
+		txtFld_StatusName     : $("#frm_manufactor_filt_status"),
+		btn_SelectStatus      : $("#frm_manufactor_filt_select_status_btn"),
+		ddBlk_Statuses        : $("#frm_manufactor_filt_statuses_dd_blk"),
+		blk_Category          : $("#frm_manufactor_filt_category_blk"), 
+		txtFld_CategoryName   : $("#frm_manufactor_filt_category"),
+		btn_SelectCategory    : $("#frm_manufactor_filt_select_category_btn"),
+		ddBlk_Categories      : $("#frm_manufactor_filt_categories_dd_blk"),
+		btn_OK                : $("#frm_manufactor_filt_ok_btn"),
+		## /* --- */
+		init : function() {
+			## /* Указатель на объект */
+			var _this = this;
+			## /* Инициализация drop-down объектов */
+			UHTT.DDO.initObject(_this.ddBlk_Statuses);
+			UHTT.DDO.initObject(_this.ddBlk_Categories);
+			## /* Наименование */
+			_this.txtFld_ManufactorName.Evt("focusout", function() {
+				_this.F.setName($(this).val());
+			});
+			## /* Список статусов */
+			_this.txtFld_StatusName.Evt("keydown", function(e) {
+				if(e.keyCode == 46) {
+					_this.F.setStatusID(0);
+					$(this).val("");
+				}
+			});
+			_this.btn_SelectStatus.Evt("click", function() {
+				if(_this.ddBlk_Statuses.html().length == 0)
+					_this.ddBlk_Statuses.html(
+						UHTT.requestData(null, "SELECT PERSONSTATUS BY FORMAT.TDDO(_DD_LIST, __frm_manuf_filt_statuses_list, frm-manuf-filt-statuses-list-item)"));
+				_this.ddBlk_Statuses.show();
+				_this.ddBlk_Statuses.width(_this.txtFld_StatusName.width() + 5);
+			});
+			_this.ddBlk_Statuses.delegate("#__frm_manuf_filt_statuses_list", "keypress dblclick", function(e) {
+				if(e.type === "keypress") {
+					if(e.keyCode != 13)
+						return true;
+				}
+				var idx = this.selectedIndex;
+				if(idx > -1) {
+					var item = $(this.options[idx]);
+					_this.F.setStatusID(item.attr("itemID"));
+					_this.txtFld_StatusName.val(item.html().unescapeHtml());
+					_this.ddBlk_Statuses.hide();
+				}
+			});
+			## /* Список категорий */
+			_this.txtFld_CategoryName.Evt("keydown", function(e) {
+				if(e.keyCode == 46) {
+					_this.F.setCategoryID(0);
+					$(this).val("");
+				}
+			});
+			_this.btn_SelectCategory.Evt("click", function(event) {
+				if(_this.ddBlk_Categories.html().length == 0)
+					_this.ddBlk_Categories.html(
+						UHTT.requestData(null, "SELECT PERSONCATEGORY BY FORMAT.TDDO(_DD_LIST, __frm_manuf_filt_categories_list, frm-manuf-filt-categ-list-item)"));
+				_this.ddBlk_Categories.show();
+				_this.ddBlk_Categories.width(_this.txtFld_CategoryName.width() + 5);
+			});
+			_this.ddBlk_Categories.delegate("#__frm_manuf_filt_categories_list", "keypress dblclick", function(e) {
+				if(e.type === "keypress") {
+					if(e.keyCode != 13)
+						return true;
+				}
+				var idx = this.selectedIndex;
+				if(idx > -1) {
+					var item = $(this.options[idx]);
+					_this.F.setCategoryID(item.attr("itemID"));
+					_this.txtFld_CategoryName.val(item.html().unescapeHtml());
+					_this.ddBlk_Categories.hide();
+				}
+			});
+			## /* Кнопка "Создать" */
+			#if{@(Global, 0).CheckCurrentGlobalUserRights(11, 2, "@def") > 0}
+			$("#frm_manufactor_filt_create_manufactor_btn").Evt("click", function() {
+				var kind_id = UHTT.requestData(null, "SELECT PERSONKIND BY NAME(Производители) FORMAT.TDDO(_id)");
+				if(kind_id > 0)
+					var _dlg = new SDialog("UHTT_PERSON_EDITOR_DLG", "GETTDDO FRM_PERSON_EDITOR " + kind_id);
+				else
+					alert('Не найден вид персоналии: "Производители"');
+			});
+			#endif
+			## /* Кнопка OK */
+			_this.btn_OK.Evt("click", function() {
+				_this.process();
+			});
+		},
+		process : function(F) {
+			if(isEmpty(F))
+				F = this.F;
+			var r = UHTT.Person.Util.checkFilter(F);
+			switch(r) {
+				case 0:
+					var data = UHTT.Person.fetch(F);
+					if(data != null)
+						UHTT.Browser.show(data, "Выборка производителей");
+					break;
+				case 1001:
+					UHTT.Messenger.show("<b>Укажите критерии поиска</b>", "/rsrc/images/attention_48.png");
+					break;
+				case 1002:
+					break;
+				case 1003:
+					UHTT.Messenger.show("<b>При поиске по наименованию длина подстроки должна быть не менее 4 символов</b>", "/rsrc/images/attention_48.png");
+					break;
+				case 1004:
+					break;
+				default:
+					break;
+			}
+		}
+	};
+	## /* Инициализация формы фильтра */
+	$(document).ready(function(){
+		ManufactorFiltForm.init();
+	});
+</script>

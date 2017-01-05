@@ -1,0 +1,22 @@
+## Universe-HTT / 2014
+## layout2.vm
+## Базовый функционал по фильтрации и отображению товаров интернет магазина
+
+
+#set($arg_grp = $request.getParameter("grp"))
+#set($storeCore = $siteUtil.getStoreCore())
+#set($hdr = $storeCore.getSelectors($request))
+
+<h1>$store.Name</h1>
+
+<div class="store-v2-wrapper w1020px">
+	#if($hdr)
+		1
+		#if($hdr.Selectors)
+			2
+			#foreach($selector in $hdr.Selectors)
+				<b>${selector.Title}</b>
+			#end
+		#end
+	#end
+</div>

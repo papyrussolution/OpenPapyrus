@@ -1,0 +1,73 @@
+﻿## Universe-HTT / 2013
+## bot/page_goods_details.vm
+## Карточка товара (страница для поискового бота)
+##
+
+#set($brand = $UHTT.getObjName("BRAND", $goods.BrandID))
+#set($group = $UHTT.getObjName("GOODSGROUP", $goods.GroupID))
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>
+			$goods.Name
+			#foreach($barcode in $barcodeList)
+				$barcode
+			#end
+			- Universe-HTT
+		</title>
+		<meta name="keywords" content="Справочник товаров, Поиск товара по штрихкоду, ${goods.Name}, ${brand}, ${group}">
+		<meta name="description" content="${goods.Name}, #foreach($barcode in $barcodeList) ${barcode}, #end ${brand}, ${group}">
+	</head>
+	<body>
+		<h1>${goods.Name} : #foreach($barcode in $barcodeList) <span>${barcode}</span> #end</h1>
+		<div itemscope itemtype="http://data-vocabulary.org/Product">
+			<img itemprop="image" src="/dispatcher/get_obj_image?obj_type=GOODS&obj_id=${goods.ID}"/><br>
+			<span>${goods.ID}</span><br>
+			<span itemprop="name">${goods.Name}</span><br>
+			<span>Описание: </span><span itemprop="description">${goods.Name} #foreach($barcode in $barcodeList) ${barcode} #end</span><br>
+			<span>Штрихкод: </span>
+			#foreach($barcode in $barcodeList)
+				<span itemprop="identifier" content="sku:${barcode}">${barcode}</span><br>
+			#end
+			#if($goods.BrandID > 0)
+				## @construction #set($SL = $siteUtil.getObject("SL"))
+				## @construction #set($b64enc = $siteUtil.getCls("ru.uhtt.lib.base64.Base64Encoder").newInstance())
+				## @construction #set($openpar=$b64enc.encode($SL.StrCat('{"Type":"BRAND","ID":"', ${goods.BrandID}, '"}')))
+				## @construction <span>Бренд: </span><span itemprop="brand"><a href='/?open=${openpar}'>${brand}</a></span><br>
+				#set($SL = $siteUtil.getObject("SL"))
+				#set($b64enc = $siteUtil.getCls("ru.uhtt.lib.base64.Base64Encoder").newInstance())
+				#set($openpar=$b64enc.encode($SL.StrCat('{"Type":"BRAND","ID":"', ${goods.BrandID}, '"}')))
+				<span>Бренд: </span><span itemprop="brand"><a href='/?open=${openpar}'>${brand}</a></span><br>
+				## <span>Бренд: </span><span itemprop="brand">${brand}</span><br>
+			#end
+			<span itemprop="category" content='${group}'>${group}</span><br>
+			#if($goods.ManufID > 0)
+				<span>Производитель: </span><span>${UHTT.getObjName("PERSON", $goods.ManufID)}</span><br>
+			#end
+			#if($goods.Package > 0)
+				<span>Емкость упаковки: </span><span>${goods.Package}</span><br>
+			#end
+			#if($goods.Brutto > 0)
+				<span>Брутто: </span><span>${goods.Brutto}</span><br>
+			#end
+			#if($goods.Length > 0)
+				<span>Длина: </span><span>${goods.Length}</span><br>
+			#end
+			#if($goods.Width > 0)
+				<span>Ширина: </span><span>${goods.Width}</span><br>
+			#end
+			#if($goods.Height > 0)
+				<span>Высота: </span><span>${goods.Height}</span><br>
+			#end
+			#if($goods.ExpiryPeriod > 0)
+				<span>Срок годности: </span><span>${goods.ExpiryPeriod}</span><br>
+			#end
+			<br>
+			<span itemprop="name">${goods.Name}</span><br>
+			#foreach($barcode in $barcodeList)
+				<span itemprop="identifier" content="sku:${barcode}">${barcode}</span><br>
+			#end
+		</div>
+	</body>
+</html>

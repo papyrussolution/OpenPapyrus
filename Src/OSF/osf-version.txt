@@ -1,0 +1,21 @@
+libsvg       0.1.4 
+libsvg-cairo 0.1.6 (included in dir LIBSVG)
+zlib         1.2.8
+cairo        1.14.2 // 1.10.2
+	// @v9.1.7 Частично коды cairo приведены к версии 1.14.6 (за исключением drm)
+pixman       0.32.6 // Ручное исправление 0.32.4 // Версия 0.32.4 против 0.32.2 отличается только исправленной ошибкой в функции detect_cpu_features() файла pixman-x86c
+libjpeg      9
+libpng       1.6.23 // 1.6.6 // @v9.2.0 1.6.17-->1.6.23
+giflib       5.0.1
+freetype     2.6.2 // @v8.6.5 2.4.2-->2.5.5 // @v8.9.5 2.5.5-->2.6.2
+libxml       2.9.2 // @v8.6.4 2.7.7-->2.9.2
+BerkeleyDB   5.2.8
+flex         2.5.35
+csoap        1.1.0
+gsoap        2.8.8
+asmlib       okt 2013
+scintilla    3.6.0 // 3.5.5 // 3.3.8
+gperftools   2.4
+curl         7.45
+	@v9.1.12 внесены файлы src\slist_wc.h и src\slist_wc.c из версии 7.49.1
+libzip       1.1.3

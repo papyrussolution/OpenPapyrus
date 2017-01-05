@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Pirit" />
+		<Option pch_mode="2" />
+		<Option compiler="msvctk" />
+		<Build>
+			<Target title="Debug Win32">
+				<Option output="../../ppy/bin/ppdrv-pirit" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/Pirit/Debug Win32" />
+				<Option type="3" />
+				<Option compiler="msvctk" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="/DWIN32" />
+					<Add option="/D_DEBUG" />
+					<Add option="/D_WINDOWS" />
+					<Add option="/D_USRDLL" />
+					<Add option="/DPIRIT_EXPORTS" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/Ob1" />
+					<Add option="/Od" />
+					<Add option="/MTd" />
+					<Add directory="../OSF/LIBXML/INCLUDE" />
+					<Add directory="../Include" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/LIBXML/INCLUDE" />
+					<Add directory="../Include" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add option="/INCREMENTAL:NO" />
+					<Add option="/pdb:D:\Papyrus\Src\BuildVC70\..\..\__TEMP__\VC70\Pirit\Debug Win32\Pirit.pdb" />
+					<Add library="Ws2_32" />
+					<Add library="wininet" />
+					<Add library="mpr" />
+					<Add library="gdiplus" />
+					<Add library="shlwapi" />
+					<Add library="../osf/openssl/lib/libeay32" />
+					<Add library="../osf/openssl/lib/ssleay32" />
+					<Add directory="../lib" />
+				</Linker>
+			</Target>
+			<Target title="Release Win32">
+				<Option output="../../ppy/bin/ppdrv-pirit" prefix_auto="1" extension_auto="1" />
+				<Option object_output="D:/Papyrus/Src/BuildVC70/../../__TEMP__/VC70/Pirit/Release Win32" />
+				<Option type="3" />
+				<Option compiler="msvctk" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="/DWIN32" />
+					<Add option="/DNDEBUG" />
+					<Add option="/D_WINDOWS" />
+					<Add option="/D_USRDLL" />
+					<Add option="/DPIRIT_EXPORTS" />
+					<Add option="/W3" />
+					<Add option="/Ob1" />
+					<Add option="/Od" />
+					<Add option="/MT" />
+					<Add directory="../OSF/LIBXML/INCLUDE" />
+					<Add directory="../Include" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../OSF/LIBXML/INCLUDE" />
+					<Add directory="../Include" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/INCREMENTAL:NO" />
+					<Add option="/pdb:D:\Papyrus\Src\BuildVC70\..\..\__TEMP__\VC70\Pirit\Release Win32\Pirit.pdb" />
+					<Add library="Ws2_32" />
+					<Add library="wininet" />
+					<Add library="mpr" />
+					<Add library="gdiplus" />
+					<Add library="shlwapi" />
+					<Add library="../osf/openssl/lib/libeay32" />
+					<Add library="../osf/openssl/lib/ssleay32" />
+					<Add directory="../lib" />
+				</Linker>
+			</Target>
+		</Build>
+		<Unit filename="../PPEquip/EquipDll/Pirit/Pirit.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

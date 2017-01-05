@@ -1,0 +1,772 @@
+// CHARRY.DS
+// Copyright (c) A.Sobolev 2002, 2003, 2007, 2009, 2012
+//
+// Технология Charry
+// Перенос данных между независимыми базами данных
+//
+
+//
+// Раздел базы данных
+// Синхронизируется по идентификатору и имени.
+//
+declare CrrDbDiv {
+	ID             // Ид
+	Name           // Наименование раздела
+	Addr           // Адрес узла e-mail или что-то в этом роде
+	fDispatch      // Раздел-диспетчер
+	fSCardOnly     // Обмен с разделом идет только на уровне пластиковых карт
+	fRcvCSessAndWrOffBills // Раздел принимает кассовые сессии вместе с документами списания //
+		// Если этот флаг установлен, то функция PPObjectTransmit::NeedTransmitObj пропускает документы
+		// списания кассовых сессий несмотря на флаг DBDXF_SENDCSESSION в конфигурации обмена данными.
+	fConsolid      // Раздел, принимающий консолидирующую информацию из других разделов (документы без товарных строк)
+	fPassive       // Пассивный раздел
+	IntrRcptOpSymb // Символ операции межскладского прихода
+	LocSymbList[]  // Список символов складов, за которые отвечает раздел
+}
+//
+// Адрес
+//
+declare CrrAddress {
+	Code           // @v6.3.11
+	Country
+	City
+	Address
+}
+//
+// Банковский счет
+//
+declare CrrBnkAcct {
+	Acc
+	BnkName
+	BnkFullName
+	BnkCode
+	BnkCorrAcc
+}
+//
+// Электронный адрес
+//
+declare ELinkAddr {
+	KindID
+	KindName
+	Addr
+}
+//
+// Персоналия //
+//
+declare CrrPerson {
+	ID
+	Name
+	FullName
+	Addr  : CrrAddress
+	RAddr : CrrAddress
+	ELink[]  : ELinkAddr
+	BnkAcc[] : CrrBnkAcct
+	INN
+	SysCode
+}
+//
+// Штрихкод товара
+//
+declare Barcode {
+	Code
+	Qtty
+}
+//
+// Товар
+//
+declare CrrGoods {
+	ID
+	Code[] : Barcode
+	Name
+	UnitName   // Торговая единица измерения //
+	PhUnitName // Физическая единица измерения //
+	PhUPerU    // Соотношение физических единиц к торговым
+	GroupName
+	ManufName
+	ManufCountry
+}
+//
+// Сертификат качества
+//
+declare CrrQCert {
+	Code
+	BlankCode
+	InitDate
+	Expiry
+	OrgName
+	Etc
+}
+//
+// Товарная строка документа
+//
+declare CrrBillItem {
+	Goods : CrrGoods
+	Expiry
+	CLB
+	QCert : CrrQCert
+	UnitsPerPack
+	Qtty
+	Price
+}
+//
+// Документ
+//
+declare CrrBill {
+	ID
+	Date
+	Code
+	Seller   : CrrPerson
+	Buyer    : CrrPerson
+	DlvrAddr : CrrAddress // @v6.3.11
+	PaymentDate
+	Amount
+	Memo
+	Items[] : CrrBillItem
+}
+//
+// Тип суммы
+//
+declare CrrAmountType {
+	ID                // Идентификатор
+	Name              // Наименование
+	Symb              // Символ для представления в формулах
+	//
+	// Флаги
+	//
+	fErrOnDefault     // Если сумма в документе отсутствует, то генерировать сообщение об ошибке
+	fManual           // Сумма может быть введена в ручную.
+		// Если флаг установлен, то допускается ручной ввод суммы.
+		// Если нет, то сумма расчитывается автоматически по содержанию
+		// документа. Исключение - номинальная сумма (PPAMT_MAIN).
+		// Она может быть как автоматической так и устанавливаемой в
+		// ручную в зависимости от вида операции.
+	fTax              // Сумма налога. Если этот флаг установлен,
+		// то значение суммы отражает сумму налога Tax со ставкой (TaxRate*100) %,
+		// которым облагается данная операция.
+	//
+	// Назначение следующих трех флагов в том, чтобы можно было быстро определить итоговые
+	// обобщенные суммы GenCost, GenPrice, GenDiscount по товарному документу.
+	//
+	fReplaceCost      // Замещает сумму в ценах поступления (Cost)
+	fReplacePrice     // Замещает сумму в ценах реализациия (Price)
+	fReplaceDiscount  // Замещает скидку (Discount)
+		// @#{fReplaceCost^fReplacePrice^fReplaceDiscount}
+	fInAmount         // Входящая сумма, комплементарная сумме RefAmtTypeID
+	fOutAmount        // Исходящая сумма, комплементарная сумме RefAmtTypeID
+		// @#{fTax^fInAmount^fOutAmount}
+	fStaffAmount      // Штатная сумма (используется для расчета зарплаты)
+	Tax               // Налог (VAT, EXCISE, STAX)
+	TaxRate           // Ставка налога в процентах (fTax)
+	RefAmtTypeSymb    // Сумма, комплементарная данной (Flags & (fInAmount | fOutAmount))
+}
+//
+//
+//
+declare CrrSalCharge {
+	ID                      // Идентификатор
+	Name                    // Наименование
+	Symb                    // Символ
+	//AmtTypeSymb             // ->Ref(PPOBJ_AMOUNTTYPE) Тип учетной суммы для этого начисления //
+	//WrOffOpSymb             // ->Ref(PPOBJ_OPRKIND)    Вид операции списания //
+	//fWrOffSingle            // Начисления по всем контрагентам за один период списывать одним документом (суммы складываются)
+	Formula                 // Формула расчета
+}
+//
+// Элемент штатного календаря //
+//
+declare CrrStaffCalEntry {
+	// Должен быть представлен только один из слежующих трех параметров
+	// Если представлено более одного параметра, то применяется первый
+	Date                    // Полная дата: день/месяц/год
+	CalDate                 // Календарный день: день/месяц
+	DayOfWeek               // День недели - полное наименование по английски
+	StartTime               // Время начала дня    hh[:mm[:ss]] //
+	EndTime                 // Время окончания дня hh[:mm[:ss]] //
+	Duration                // Продолжительность hh[:mm[:ss]] (если заданы StartTime и EndTime, то это поле при приеме игнорируется).
+}
+//
+// Штатный календарь
+//
+declare CrrStaffCal {
+	ID                      // Идентификатор
+	Name                    // Наименование. Для порожденных календарей (LinkCalID != 0) - пусто
+	Symb                    // Символ. Для порожденных календарей (LinkCalID != 0) - пусто
+	Entries[] : CrrStaffCalEntry // Список элементов календаря //
+}
+//
+// Группа начисления зарплаты
+//
+declare CrrSalChargeGroup {
+	ID                      // Идентификатор
+	Name                    // Наименование
+	Symb                    // Символ
+	ItemSymbList[]          // Список символов членов
+}
+
+//
+// @todo
+// ?? PPOBJ_CONFIG
+// ?? PPOBJ_USR
+// ?? PPOBJ_USRGRP
+// PPOBJ_TAG
+// ?? PPOBJ_GOODSCLASS
+// PPOBJ_DRAFTWROFF
+// PPOBJ_PERSONRELTYPE
+//
+
+//
+// Система внутренних штрихкодов
+//
+declare CrrBarcodeStruc {
+	ID                    // Идентификатор
+	Name                  // Наименование структуры
+	Templ                 // Шаблон
+}
+
+//
+// Типы товаров
+//
+declare CrrGoodsType {
+	ID                 // Идентификатор
+	Name               // Наименование типа товаров
+	WrOffGrpID         // Группа списания основных фондов
+	AmtCVat            // НДС в ценах поступления //
+	AmtCost            // ->Ref(PPOBJ_AMOUNTTYPE) Сумма поступлени
+	AmtPrice           // ->Ref(PPOBJ_AMOUNTTYPE) Сумма реализации
+	AmtDscnt           // ->Ref(PPOBJ_AMOUNTTYPE) Сумма скидки
+	fUnlimited         // Неограниченный ресурс
+	fRplcCost          // Заменить станд сумму поступления //
+	fRplcPrice         // Заменить станд сумму реализации
+	fRplcDscnt         // Заменить станд сумму скидки
+	fPriceInclDis      // Сумма реализации включает скидку
+	fExclAmount        // Не включать в номинальную сумму документа
+	fAutoCompl         // Автокомплектация //
+	fAllowZeroPrice    // Допускается нулевая цена реализации
+	fAssets            // Основные фонды
+}
+//
+// Формулы
+//
+declare CrrFormula {
+	ID               // Идентификатор
+	Name             // Наименование формулы
+	Expr             // Формула
+}
+//
+// Весы
+//
+declare CrrScale {
+	ID             // Идентификатор
+	Name           // Наименование
+	Get_NumTries   // Количество попыток чтени
+	Get_Delay      // Задержка при чтении
+	Put_NumTries   // Количество попыток записи
+	Put_Delay      // Задержка при записи
+	QuotKindID     // Вид котировки
+	Port           // Порт
+	ScaleTypeID    // Тип весов
+	ProtocolVer    // Версия протокола
+	LogNum         // Логический номер весов
+	Location       // Склад
+	AltGoodsGrp    // Алтернативная группа
+	fStripWP       // Игнорировать весовой префикс
+	fExsGoods      // Загружать товары, которые есть на складе
+	fSysPInited    // Системные параметры инициализированы (иначе default)
+	fTCPIP         // Грузим данные используя TCP/IP соединение, адрес хранится в поле Port
+	fChkInvPar     // Проверять при загрузке данные на ошибки (штрихкод, срок хранения)
+}
+//
+// Типы регистрационных документов
+//
+declare CrrRegisterType {
+	ID                    // Идентификатор
+	Name                  // Наименование типа регистра
+	Symb                  // Символ для ссылок из формул и т.д.
+	PersonKindID          // Вид персоналии, к которой и только к которой может относиться этот регистр. Если 0, то к любому виду.
+	RegOrgKind            // Вид регистрирующей организации
+	CounterID             // Счетчик
+	fUnique               // Персоналия не может содержать более одного документа такого типа
+	fPrivate              // Разрешен для физ. лиц
+	fLegal                // Разрешен для юр. лиц (REGTF_PRIVATE ^ REGTF_LEGAL)
+	fWarnExpiry           // Предупреждать об истечении срока действия //
+	fInsert               // Вводить документ при вводе персоналии
+	fWarnAbsence          // Предупреждать об отсутствии регистра у персоналии //
+	fDupNumber            // Номер регистра может быть дублируемым
+}
+//
+// Виды котировок
+//
+declare CrrQuotKind {
+	ID                // Идентификатор
+	Name              // Наименование вида котировки
+	Discount          // Скидка
+	Symb              // Символ
+	Period            // Период действия розничной котировки
+	BeginTm           // Время начала действия розничной котировки
+	EndTm             // Время окончания действия розничной котировки
+	Rank              // Уровень приоритета котировки при показе в диалоге
+		              // редактирования или в тех случаях, когда все котировки не могут быть использованы
+		              // в виду ограничения на количество видов (например, при загрузке в StyloPalm).
+		              // Чем выше значение, тем выше вероятность использования этого вида котировки
+		              // по сравнению с другими.
+	OpID              // Вид операции, для которой определена котировка
+	AccSheetID        // Таблица статей, с которыми ассоциируются значения котировок.
+		              // Если AccSheetID == 0, то полагается, что таблица статей GetSellAccSheet() (покупатели)
+	DaysOfWeek        // VADIM Дни недели действия розничной котировки (0x01 - Пн, ... , 0x40 - Вс)
+	UsingWSCard       // VADIM Совместное использование с дисконтными картами (uwscXXX)
+	fAbsDis           // Скидка в абсолютном (денежном) выражении, иначе в %%
+	fNotForBill       // Котировка не используется при формировании цены в документе
+	fPctDisonCost     // Скидка задана в процентах от цены поступления //
+		              // (исключает QUOTKF_ABSDIS). Задается, например, как '10P' : 10% от цены поступления     //
+	fDscntOnGroups    // Привязать к данной котировке группы, по которым котировки рассчитываются отдельно
+	fExtPriceByBase   // Если вид котировки используется как дополнительная цена по документу
+		              // то за базу при расчете принимать учетную цену реализации, если флаг не установлен, то за базу
+		              // принимается чистая цена реализации (Price-Discount)
+	fRetailed         // Розничная котировка
+}
+//
+// Виды персоналий
+//
+declare CrrPersonKind {
+	ID                  // Идентификатор
+	Name                // Наименование вида персоналии
+	CodeRegTypeID       // Тип регистрационного документа, используемого для поиска
+	FolderRegTypeID     // Тип регистра, идентифицирующего наименование каталога с документами по персоналии
+}
+//
+// Валюты
+//
+declare CrrCurrency {
+	ID                // Идентификатор
+	Name              // Наименование валюты
+	Symb              // Символ валюты
+	Code              // Numeric currency code
+}
+//
+// Типы валютных курсов
+//
+declare CrrCurRateType {
+	ID                   // Идентификатор
+	Name                 // Наименование типа валютного курса
+}
+//
+// Группы списания основных средств
+//
+declare CrrAssetWrOffGrp {
+	ID                     // Идентификатор
+	Name                   // Наименование группы списания основных средств
+	Code                   // Код нормы амортизационных отчислений
+	WrOffType              // Тип списани
+	WrOffTerm              // Months
+	Limit                  // Предельная остаточная стоимость (% от начальной стоимости)
+}
+//
+//
+//
+declare CrrMailAccount {
+	ID                       // Идентификатор
+	Name                     // Наименование почтового аккаунта
+	SmtpAuthType             // Тип аутентификации для соединения с SMTP сервером
+	Timeout                  // Таймаут сервера (сек)
+	PersonID                 //  Персоналия //
+	SendServer               // Сервер исходящей почты (SMTP)
+	SendPort                 // Порт исходящей почты (SMTP)
+	RsrvSendServer           // Резервный сервер исходящей почты (SMTP)
+	RsrvSendPort             // Резервный порт исходящей почты (SMTP)
+	RcvServer                // Сервер входящей почты (POP3)
+	RcvPort                  // Порт входящей почты (POP3)
+	RcvName                  // Имя для доступа к серверу входящей почты (POP3)
+	RcvPassword              // Пароль для доступа к серверу входящей почты (POP3)
+	FromAddress              // Обратный почтовый адрес
+}
+//
+// Связи между персоналиями
+//
+declare CrrPersonRelType {
+	ID                     // Идентификатор
+	Name                   // Наименование связи между персоналиями
+	Symb                   // Символ
+	StatusRestriction      // Ограничение по статусу отношений (PPPersonRelType::ssXXX)
+	Cardinality            // Ограничение по множественности отношений (PPPersonRelType::cXXX)
+	fInhAddr               // Наследует адрес
+	fInhRAddr              // Наследует фактический адрес
+	InhRegTypeList[]       // Список унаследованных типов регистров
+}
+//
+// Теги
+//
+declare CrrObjTag {
+	ID           // ИД
+	Name         // Наименование
+	Symb         // Символ для использования в формулах
+	LinkObjGrp   // Дополнительный параметр для ссылочного объекта
+	TagEnumID    // Тип ссылочного объекта
+	TagDataType  // OTTYP_XXX
+	ObjTypeID    // Тип объекта, для которого определен тег
+	TagGroupID   // Группа, к которой относится тег
+	fDup         // Объекту может соответствовать несколько таких тегов с различающимися значениями
+	fNoZero      // Тег с нулевым значением удаляется //
+	fNmbRule   	 // Для тега с числовым значением определено правило
+}
+//
+// Операция списания драфт документов
+//
+declare CrrDraftWrOffEntry {
+	OpID                    // Операция //
+	LocID                   // Склад
+}
+
+declare CrrDraftWrOff {
+	ID                           // Ид
+	Name                         // Наименование
+	PoolOpID                     // Операция формирования пула документов списания //
+	DfctCompensOpID              // Операция компенсации дефицита
+	DfctCompensArID              // Контрагент в документах компенсации дефицита
+	fDfctArIsLoc                 //
+	fUseMrpTab		             // При списании использовать MRP-таблицы
+	Items[] : CrrDraftWrOffEntry //
+}
+
+declare CrrLocation {
+	ID                       // Ид
+	Name                     // Наименование позиции
+	Type                     // Тип позиции (LOCTYP_XXX)
+	Parent     : CrrLocation // ->Location.ID Родительская позиция //
+	Owner      : CrrPerson   // ->Person.ID   Владелец позиции
+	CityID                   // ->World.ID    Город
+	RspnsPerson : CrrPerson  // ->PersonID Ответственное лицо
+	Code                     // Код локации
+	ZIP                      // Индекс
+	Address                  // Адрес
+	MassCapacity             // Максимальная вместимость по массе (г)
+	X                        // Длина  (мм)
+	Y                        // Ширина (мм)
+	Z                        // Высота (мм)
+	Latitude                 // @v7.2.0 Географическая широта
+	Longitude                // @v7.2.0 Географическая долгота
+	NumRows                  // @v7.2.0 Для складской зоны или колонны - количество рядов;
+		// для складской ячейки - ее положение вдоль колонны (1 - самый ближний к проходу, 0 - не определено).
+	NumLayers                // @v7.2.0 Для складской зоны или колонны - количество вертикальных уровней;
+		// для складской ячейки - номер яруса (1 - самый нижний, 0 - не определено).
+	Depth                    // @v7.2.0 Для складской колонны - глубина (количество ячеек).
+		// для складской ячейки - номер ячейки в глубину (1 - самый ближний к проходу, 0 - не определено).
+	FullAddr
+	//
+	// Флаги
+	//
+	fVatFree                  // Операции по складу освобождены от НДС
+	fManualAddr               // Полный адрес задается в ручную //
+	fVolumeVal                // Объем места хранения задается одним значением
+	fComparable               // Сравниваемый склад (обычно применяется в отношении магазинов для анализа данных)
+}
+//
+// Таблица статей
+//
+declare CrrAccSheet {
+	ID                             // Ид
+	Name                           // Наименование
+	Symb                           // Символ
+	CodeRegType : CrrRegisterType  // ИД типа регистрационного документа, идентифицирующего персоналию, соответствующую статье.
+	Assoc                          // @#{0L, PPOBJ_PERSON, PPOBJ_LOCATION, PPOBJ_ACCOUNT} Ассоциированный объект
+	PersonKind  : CrrPersonKind    // Подгруппа ассоциированных объектов
+	//
+	// Флаги
+	//
+	fAutoCreatArt                  // Автоматически создавать статьи при создании объекта
+	fUseCliAgt                     // Использует соглашения с клиентами
+	fUseAliasSubst                 // Использует подстановку алиасов счетов
+	fUseSupplAgt                   // Использует соглашения с поставщиками
+}
+//
+// План счетов
+//
+declare CrrAccount {
+	ID
+	Ac
+	Sb
+	Code
+	Curr     : CrrCurrency
+	Name
+	AccSheet : CrrAccSheet
+	OpenDate
+	Type
+	Kind
+	Limit
+	Overdraft
+	FRRL_Date
+	CurList[] : CrrCurrency
+	//
+	// Флаги
+	//
+	fFreeRest        // Даже имея субсчета и (или) статьи, счет допускает прямые проводки
+	fHasBranch       // Счет имеет субсчет(а)
+	fCurrency        // Валютный счет
+	fFRRL            // Флаг блокировки пересчета форвардных остатков
+	fExclInnerTrnovr // Исключать взаимные обороты (для группирующего счета)
+	fSysNumber       // Номер счета генерируется системой (только для регистров и группирующих счетов)
+}
+
+//
+// Аналитическая статья //
+//
+declare CrrArticle {
+	ID                          // Ид
+	Article                     // Субсчет или аналитическая статья //
+	AccSheet     : CrrAccSheet  // Таблица ->Ref(PPOBJ_ACCSHEET)
+	AssocPerson  : CrrPerson    // Ассоциированная персоналия //
+	AssocLoc     : CrrLocation  // Ассоциированный склад
+	AssocAccount : CrrAccount   // Ассоциированный счет
+	Name                        // Наименование
+	Closed                      // Закрыта
+	//
+	// Флаги
+	//
+	fGroup                      // Группирующая статья аналитического учета
+	fStopBill                   // По статье, имеющей такой флаг запрещено создавать новые документы
+	fBudgInc                    // Доходная статья бюджета
+}
+//
+// Шаблон проводок
+//
+declare CrrAcctEntry {
+	Ar  : CrrArticle
+	Acc : CrrAccount
+}
+
+declare CrrAccTurnTempl {
+	ID                     // Номер шаблона для операции (1..PP_MAXATURNTEMPLATES)
+	Dbt : CrrAcctEntry     // Дебет
+	Crd : CrrAcctEntry     // Кредит
+	Expr                   // Формула для суммы проводки (текст)
+	Subst[]                // Переменные объектов для подстановки в проводку
+	Period                 // Период действия шаблона
+	//
+	// Флаги
+	//
+	fDAccFix               // Счет по дебету зафиксирован
+	fDArtFix               // Статья по дебету зафиксирована
+	fCAccFix               // Счет по кредиту зафиксирован
+	fCArFix                // Статья по кредиту зафиксирована
+	fPrimOnCredit          // Первичный объект по кредиту
+	fExpression            // Шаблон содержит выражение для суммы
+	fPSkipOnZObj
+	fFSkipOnZObj
+	fPSubstRule
+	fFSubstRule
+	fSkipNeg               // Не проводить отрицательную сумму
+	fInvertNeg             // Инвертировать счета при отрицательной сумме
+	fBaseProjection        // Шаблон должет быть спроецирован на базовую валюту по всем валютам
+	fIntRounding           // Округлять сумму проводки до целых
+	fPassive               // Пассивный шаблон (не генерировать проводку)
+	fSubstDAcc             // Подставлять дебетовый счет из Secondary Obj
+	fSubstCAcc             // Подставлять кредитовый счет из Secondary Obj
+	fByAdvLines            // Проводки по каждой из строк расширения бух документа
+	fSkipEmptyAlias        // Не проводить, если нет подстановки для алиаса счета
+}
+//
+// Вид операции
+//
+declare CrrOprKindEntry {
+	ID                         // Ид
+	Name                       // Наименование
+	Symb                       // Символ
+	Rank                       // Ранг
+	LinkOpSymb                 // Символ присоединенной операции
+	AccSheet  : CrrAccSheet    // Таблица объектов
+	AccSheet2 : CrrAccSheet    // Дополнительная таблица объектов
+	DefLocID                   // Склад по умолчанию
+	PrnOrder                   //
+	SubType                    // OPSUBT_XXX
+	OpTypeID                   // Тип операции
+	//
+	// Флаги печати
+	//
+	opkfprtIncInvc             // Входящая счет-фактура на предоплату
+	opkfprtNegInvc             // Счет-фактура с отрицательными суммами
+	opkfprtCheck               // Печатать чек по документу
+	opkfprtCheckTi             // Печатать чек по документу с товарными строками
+	opkfprtSrvAct              // Печатать акт выполненных работ
+	opkfprtBuying              // Печатать в ценах поступления //
+	opkfprtSelling             // Печатать в ценах реализации  //
+	opkfprtExtObj2Obj          // В структуре GoodsBillBase вместо object подставлять extobject
+	opkfprtTareSaldo           // Печатать сальдо по таре (только если определено PPGoodsConfig::TareGrpID)
+	opkfprtQCert               // Печатать сертификаты
+	opkfprtNBillN              // В первичном документе не печатать номер
+	opkfprtVatax               // В накладной печатать колонки НДС
+	opkfprtInvoice             // Печатать счет-фактуру
+	opkfprtQcG                 // Печатать сертификаты с товаром
+	opkfprtShrtOrg             // Печатать сокращ. наименование гл. организации
+	opkfprtCashOrd             // Печатать кассовый ордер
+	opkfprtSelPrice            // Печать цен в накладной на выбор
+	opkfprtNDiscnt             // Не печатать скидку в накладной
+	opkfprtPayPlan             // @v5.1.8  Печатать план платежей по документу
+	opkfprtLading              // Печатать товарно-транспортную накладную
+	opkfprtMergeTi             // Объединять товарные строки
+	opkfprtPLabel              // Печатать ценник
+	opkfprtBCodeList           // Печатать в накладной список штрихкодов
+	opkfprtQCertList           // Печатать список сертификатов
+	//
+	// Флаги
+	//
+	opkfNeedPayment            // Операция требует платежного документа
+	opkfGReceipt               // Приход товара
+	opkfGExpend                // Расход товара
+	opkfBuying                 // Номинал операции в ценах поступления //
+	opkfSelling                // Номинал операции в ценах реализации  //
+	opkfNoUpdLotRest           // Товарная операция, не изменяющая остаток по лоту
+	opkfAdvAcc                 // Бухгалтерская операция, позволяющая документу содержать строки расширения //
+	opkfProfitable             // Операция доходная //
+	opkfOnOrder                // Операция продажи, допускающая продажу по заказу
+	opkfFreight                // Операция поддерживает ввод данных фрахта
+	opkfPckgMounting           // Расходная операция только для формирования пакетов
+	opkfOrdExstOnly            // В заказах видны только те товары, которые есть на остатке
+	opkfOrdReserve             // Резервирующий заказ
+	opkfCalcSTaxes             // Считать налоги с продаж (НДС и акциз)
+	opkfChargeNegPaym          // Начисление ренты интерпретировать как отрицательную оплату основного документа
+	opkfAutoWL                 // Автоматическая метка в документе
+	opkfAttachFiles            // Присоединять файлы к документам
+	opkfUsePayer               // Использовать поле PPBill::Payer плательщика
+	opkfOrderByLoc             // Заказ привязан к складу (заказ от подразделения)
+	opkfNeedValuation          // Операция требует расценки @only(PPOPT_GOODSRECEIPT)
+	opkfOutBalAccturn          // Забалансовая бух проводка
+	opkfExtAccturn             // Расширенная бух проводка
+	opkfExtAmtList             // Операция поддерживает список доп сумм
+	opkfDenyRevalCost          // Не допускается переоценка цен поступления @only(PPOPT_GOODSREVAL)
+	opkfRent                   // С документом может быть ассоциирован договор ренты
+	opkfNeedAck                // Документ требует подтверждения      //
+	opkfNoCalcTiOrd            // Не расчитывать заказ товара в строках документа
+	opkfReckon                 // Операция используется как платежная //
+	opkfBanking                // Банковский платежный документ
+	opkfPassive                // Пассивная операция (не видна в списках выбора)
+	opkfCurTransit             // Транзитная валютная операция        //
+	opkfRestrictByMtx          // Оганичивать выбор товара по операции товарной матрицей
+}
+
+declare CrrInvOpExEntry {
+	ID                    // Ид
+	WrDnOpSymb            // Символ операции списания недостач
+	WrDnObj : CrrArticle  // Контрагент списания недостач
+	WrUpOpSymb            // Символ операции списания излишков
+	WrUpObj : CrrArticle  // Контрагент списания излишков
+	AmountCalcMethod      // Метод расчета цен
+	AutoFillMethod        // Метод автозаполнения //
+	//
+	// Флаги
+	//
+	fCostNominal           // Номинал в ценах поступления (иначе в ценах реализации)
+	fZeroDefault           // Остаток по умолчанию нулевой
+	fWroffWoDscnt          // Списание без скидки
+	fUsePacks              // Использовать параметры упаковки при вводе
+	fSelGoodsByName        // Выбирать товары по полному наименованию, а не по сокращению
+	fUseAnoterLocLots      // При списании излишков использовать информацию о лотах с других складов
+	fInvByClient           // Инвентаризация по клиенту (не списывается)
+	fAccelAddItems         // Ускоренное добавление позиций по штрихкоду
+	fAsset                 // Инвентаризация по основным средствам (в обычную инвентаризацию
+}
+
+declare CrrReckonOpExEntry {
+	Beg
+	End
+	PersonRelType : CrrPersonRelType  // Тип персонального отношения, используемый для коллективного зачета
+	OpSymbList[]                      // Список символов операций
+	//
+	// Флаги
+	//
+	fBegIsBillDt                      // Началом периода является дата платежного док-та
+	fEndIsBillDt                      // Концом периода является дата платежного док-та
+	fAutoPaym                         // Автоматически зачитывать платежные док-ты
+	fCfmPaym                          // Подтверждать зачет платежного док-та
+	fAutoDebt                         // Автоматически зачитывать долговые док-ты
+	fCfmDebt                          // Подтверждать зачет долгового документа
+	fThisLocOnly                      // Зачитывать документы только по тому же складу
+	fByExtObj                         // Reckon by BillTbl::Object2 (forward reckoning only) if Object2 == 0, then use Object
+	fReqAltObj                        // If !automat then request user for alternate object for reckoning
+	fThisAltObjOnly                   // Зачитывать документы только по той же дополнительной статье документа
+					                  // Если доп статья нулевая, то зачитывать только на нулевые доп статьи
+}
+
+declare CrrDraftOpExEntry {
+	WrOffOp                      // Символ операции списания         //
+	WrOffObj       : CrrArticle  // Контрагент для операции списания //
+	WrOffComplOp                 // Символ операции комплектации, для формирования остатков, списываемых операцией WrOffOpID
+	//
+	// Флаги
+	//
+	fCrEmptyBill                  // Вместо списания создавать пустой документ
+	fUsePartStruc                 // Списывать частичные структуры в документах списания //
+	fWroffCurDate                 // Документ списания формировать текущей системной датой
+	fDontInhExpiry                // При списании драфт-документа в приходный документ
+}
+//
+// Дополнительные опции операции пула документов
+//
+declare CrrBillPoolOpExEntry {
+	OpList[]               // Список символов операций
+	//
+	// Флаги
+	//
+	fOneOp                 // Объединять только по одной операции
+	fOneDate               // Объединять только по одной дате
+	fOneObject             // Объединять только по одному контрагенту
+	fUniteAccturns         // Объединять бухгалтерские проводки
+	fUnitePayments         // Объединять оплаты
+}
+
+declare CrrOprKind {
+	Rec                : CrrOprKindEntry
+	Amounts            : CrrAmountType
+	AccturnTemplates[] : CrrAccTurnTempl
+	InvOpEx            : CrrInvOpExEntry
+	ReckonOpEx         : CrrReckonOpExEntry
+	DraftOpEx          : CrrDraftOpExEntry
+	BillPoolOpEx       : CrrBillPoolOpExEntry
+	GenOpSymbList[]
+	ExtString
+}
+
+declare CrrBillStatus {
+	ID                     // Ид
+	Name                   // Наименование
+	Symb                   // Символ
+	CounterID              // Счетчик, по которому назначается номер документа при присвоении данного статуса
+	RestrictOpID           // Вид операции (возможно, обобщенный) документам которого может быть присвоен данный статус.
+	Rank                   // Ранг
+	//
+	// Флаги
+	//
+	fBilStDenyMod          // Документы нельзя модифицировать
+	fBilStDenyDel          // Документы нельзя удалять
+	fBilStDenyTransm       // Документы нельзя передавать в другой раздел
+	fBilStDenyChangeLink   // Связанные документы нельзя изменять
+	fBilStDenyRankDown     // Нельзя изменять статус документа до статуса, имеющего меньший ранг, чем текущий
+	fBilStLockAccturn      // Для документов этого статуса не проводить бух проводки
+	fBilStLockPayment      // Не учитывать документ как оплату
+	//
+	// Обязательные поля документа
+	//
+	fBilCheckAgent
+	fBilCheckPayer
+	fBilCheckDlvrAddr
+	fBilCheckPortOfLoading
+	fBilCheckPortOfDischarge
+	fBilCheckIssueDt
+	fBilCheckArrivalDt
+	fBilCheckShip
+	fBilCheckFreightCost
+	fBilCheckFreight
+}
+
+declare CrrRFIDDevice {
+	ID              // Ид
+	Name            // Наименование
+	Symb            // Символ
+	Port            // Порт (ком или адрес ip)
+	DeviceNumber    // Номер устройства
+	ProtocolVer     // Версия протокола
+	Cbr             // Скорость ком порта (по умолч. 57600)
+	StopBits        // 0..2, по умолч. 1
+	Parity          // четность 1 - да, 0 - нет, по умолч. 0
+	DataBits        // 1..8, по умолч. 8
+	Get_Delay       // Задержка при чтении из ком порта
+	Put_Delay       // Задержка при записи в ком порт
+}

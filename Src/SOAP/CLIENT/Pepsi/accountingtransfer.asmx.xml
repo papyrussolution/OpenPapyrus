@@ -1,0 +1,2790 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://tempuri.org/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+      <s:element name="AccountsTransfer">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="dtFrom" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="dtTo" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="includeAlreadyProcessedItems" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AccountsTransferResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="AccountsTransferResult" type="tns:ArrayOfACCOUNT"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfACCOUNT">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ACCOUNT" nillable="true" type="tns:ACCOUNT"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ACCOUNT">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ISALES_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="NAME" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="TITLE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SNAME" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="TAX_SCH" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SFA_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ACC_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="MAIN" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="MAIN_SFA" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="FAM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ADDRS" type="tns:ArrayOfADDR"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PHONES" type="tns:ArrayOfPHONE"/>
+          <s:element minOccurs="0" maxOccurs="1" name="EMAIL" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PASSPORT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ACC" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DIR" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="BANKS" type="tns:ArrayOfBANK"/>
+          <s:element minOccurs="0" maxOccurs="1" name="INN" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="KPP" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="OKONH" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="OKVED" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="OKPO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="OGRN" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="AGRS" type="tns:ArrayOfAGR"/>
+          <s:element minOccurs="0" maxOccurs="1" name="INIT_DT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CLOS_DT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="STATUS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="LIMIT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DUE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PL_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="MIN_ORD" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="COMMS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ROUTES" type="tns:ArrayOfVISIT_ROUTE"/>
+          <s:element minOccurs="0" maxOccurs="1" name="AUTH_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="EDIT_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="EDIT_DT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="VALID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfADDR">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ADDR" nillable="true" type="tns:ADDR"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ADDR">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ADDR_TYPE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="REG" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="AREA" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CITY" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ZIP" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="STR" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="HS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="BUILD" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="COMMS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="GPSX" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="GPSY" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfPHONE">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="PHONE" nillable="true" type="tns:PHONE"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="PHONE">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="PH_NO" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfBANK">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="BANK" nillable="true" type="tns:BANK"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="BANK">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="NAME" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ADDR" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ACC" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CORR" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="BIC" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ISDEF" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfAGR">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="AGR" nillable="true" type="tns:AGR"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="AGR">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="DESC" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DT_FR" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DT_TO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ISDEF" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfVISIT_ROUTE">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="VISIT_ROUTE" nillable="true" type="tns:VISIT_ROUTE"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="VISIT_ROUTE">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ROUTE_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ROUTE_TP" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="LIMIT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DELAY" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="OVERLIMIT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="OVERDUE" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CollectionsTransfer">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="dtFrom" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="dtTo" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="includeAlreadyProcessedItems" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CollectionsTransferResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CollectionsTransferResult" type="tns:ArrayOfPAYMENT"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfPAYMENT">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="PAYMENT" nillable="true" type="tns:PAYMENT"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="PAYMENT">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ISALES_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PAY_NO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PAY_DT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PAY_TYPE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DOC_TYPE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="EXT_NO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="EXT_DT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PAYER" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="P_BANK_ACC" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="P_BIC" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SELLER" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="S_BANK_ACC" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="S_BIC" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="GROSS_SUM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="VAT_SUM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="GROSS_LEFT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DOCS_AMOUNT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DOCS" type="tns:ArrayOfITEM"/>
+          <s:element minOccurs="0" maxOccurs="1" name="COMMS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="STATUS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SR_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="AUTH_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CREATE_DT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="EDIT_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="EDIT_DT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfITEM">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ITEM" nillable="true" type="tns:ITEM"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ITEM">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="DOC_TYPE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DOC_NO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DOC_DATE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="NET_SUM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="VAT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="VAT_SUM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="GROSS_SUM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="COMMENTS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DUE_LEFT" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CustomerDiscountsTransfer">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CustomerDiscountsTransferResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CustomerDiscountsTransferResult" type="tns:ArrayOfDISC"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfDISC">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DISC" nillable="true" type="tns:DISC"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DISC">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ISALES_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SFA_CUST" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ACC_CUST" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SFA_PROD" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ACC_PROD" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PERCENT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="NET" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="VALID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DocumentsTransfer">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="dtFrom" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="dtTo" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="includeAlreadyProcessedItems" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="docTypes" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="docStatuses" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DocumentsTransferResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DocumentsTransferResult" type="tns:ArrayOfDOC"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfDOC">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DOC" nillable="true" type="tns:DOC"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DOC">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ISALES_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DOC_TP" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="STATUS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DOC_NO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DOC_DT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="INC_DT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="REFS" type="tns:ArrayOfREF"/>
+          <s:element minOccurs="0" maxOccurs="1" name="EXT_TP" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="EXT_NO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="EXT_DT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SHIP_FROM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SHIP_TO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SELLER" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PAYER" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SUM_SETS" type="tns:ArrayOfHSET"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ITEMS_AMOUNT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DUE_DATE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="COMMS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DOC_ITEMS" type="tns:ArrayOfDOC_ITEM"/>
+          <s:element minOccurs="0" maxOccurs="1" name="WHS_SRC" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="WHS_DST" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ATTRS" type="tns:ArrayOfATTR"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SR_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="AUTH_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CREATE_DT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="EDIT_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="EDIT_DT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfREF">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="REF" nillable="true" type="tns:REF"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="REF">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="REF_TP" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="REF_NO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="REF_DT" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfHSET">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="HSET" nillable="true" type="tns:HSET"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="HSET">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="SET_TYPE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="NET" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DISC_SUM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="VAT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="GROSS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DISC_GR_SUM" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfDOC_ITEM">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DOC_ITEM" nillable="true" type="tns:DOC_ITEM"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DOC_ITEM">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="LINE_NO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SFA_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ACC_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="QUANTITY" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="UOM_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DESC" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SETS" type="tns:ArrayOfDSET"/>
+          <s:element minOccurs="0" maxOccurs="1" name="COUNTRY" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CUSTOMS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="RET_RSN" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfDSET">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DSET" nillable="true" type="tns:DSET"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DSET">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="SET_TYPE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="NET_PR" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="GROSS_PR" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="NET_SUM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DISCOUNT_AMOUNT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DISC_NET_SUM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="VAT_SUM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="GROSS_SUM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DISC_GR_AMOUNT" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfATTR">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ATTR" nillable="true" type="tns:ATTR"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ATTR">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ATTR_NAME" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ATTR_VALUE" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="OrdersTransfer">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="dtFrom" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="dtTo" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="includeAlreadyProcessedItems" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="OrdersTransferResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="OrdersTransferResult" type="tns:ArrayOfDOC"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="VdocsTransfer">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="dtFrom" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="dtTo" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="includeAlreadyProcessedItems" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="VdocsTransferResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="VdocsTransferResult" type="tns:ArrayOfDOC"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="PriceListsTransfer">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="PriceListsTransferResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="PriceListsTransferResult" type="tns:ArrayOfPRICELIST"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfPRICELIST">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="PRICELIST" nillable="true" type="tns:PRICELIST"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="PRICELIST">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ISALES_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PL_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PRICES" type="tns:ArrayOfPRICE"/>
+          <s:element minOccurs="0" maxOccurs="1" name="VALID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfPRICE">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="PRICE" nillable="true" type="tns:PRICE"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="PRICE">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="SFA_PRD_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ACC_PRD_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="NET" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="ProductsTransfer">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="dtFrom" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="dtTo" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ProductsTransferResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ProductsTransferResult" type="tns:ArrayOfPRODUCT"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfPRODUCT">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="PRODUCT" nillable="true" type="tns:PRODUCT"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="PRODUCT">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ISALES_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PROD_TYPE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SFA_PRD_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ACC_PRD_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="FL_NM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="BF_NM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="VAT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="MIN_UOM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CERTS" type="tns:ArrayOfCERT"/>
+          <s:element minOccurs="0" maxOccurs="1" name="UOMS" type="tns:ArrayOfUOM"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CONVS" type="tns:ArrayOfCONV"/>
+          <s:element minOccurs="0" maxOccurs="1" name="COUNTRY_PRODUCER" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CUSTOMS_DECLARATION" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="VALID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfCERT">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="CERT" nillable="true" type="tns:CERT"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="CERT">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DT_FR" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DT_TO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="GIVEN" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfUOM">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="UOM" nillable="true" type="tns:UOM"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UOM">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="UOM_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="WI" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="HE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="LE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="WE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="WEB" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="BAR" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfCONV">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="CONV" nillable="true" type="tns:CONV"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="CONV">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="FROM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="TO_" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="FACTOR" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="RoutesTransfer">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="dtFrom" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="dtTo" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="OnlyActive" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RoutesTransferResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RoutesTransferResult" type="tns:ArrayOfROUTE"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfROUTE">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ROUTE" nillable="true" type="tns:ROUTE"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ROUTE">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ISALES_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ROUTE_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ROUTE_TP" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SR_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="VISITS" type="tns:ArrayOfVISIT"/>
+          <s:element minOccurs="0" maxOccurs="1" name="VALID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfVISIT">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="VISIT" nillable="true" type="tns:VISIT"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="VISIT">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="VISIT_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="WEEK_NO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DAY_NO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ORDER" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SFA_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ACC_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="VALID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="INIT_DT" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="StockTransactionsTransfer">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="dtFrom" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="dtTo" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="includeAlreadyProcessedItems" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="StockTransactionsTransferResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="StockTransactionsTransferResult" type="tns:ArrayOfTRANS"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfTRANS">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="TRANS" nillable="true" type="tns:TRANS"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="TRANS">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ISALES_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="TRANS_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="TRANS_DATE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="TRANS_TYPE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="WHS_SRC" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="WHS_DST" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="COMMS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="STATUS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DETAILS" type="tns:ArrayOfDETAIL"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SUM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="AUTH_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CREATE_DT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="EDIT_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="EDIT_DT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfDETAIL">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DETAIL" nillable="true" type="tns:DETAIL"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DETAIL">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="SFA_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ACC_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="QUANTITY" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="UOM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="STCKS_TP" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="STCKS_TPD" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PRICE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SUM" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UnclosedDocumentsTransfer">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="dtFrom" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="dtTo" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UnclosedDocumentsTransferResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UnclosedDocumentsTransferResult" type="tns:ArrayOfDEBT"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfDEBT">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DEBT" nillable="true" type="tns:DEBT"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DEBT">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ISALES_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DOC_TP" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DOC_NO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DOC_DT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CUST_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="GROSS_SUM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DEBT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CustomerBalanceSnapshot">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="code1C" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CustomerBalanceSnapshotResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CustomerBalanceSnapshotResult" type="tns:ArrayOfCUS_BL"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfCUS_BL">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="CUS_BL" nillable="true" type="tns:CUS_BL"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="CUS_BL">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="DT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CUS_1C" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CUS_IS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CUR" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="BAL_AMT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="StockBalanceSnapshot">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="whseCode1C" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="sku1C" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="StockBalanceSnapshotResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="StockBalanceSnapshotResult" type="tns:ArrayOfST_BL"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfST_BL">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ST_BL" nillable="true" type="tns:ST_BL"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ST_BL">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="DT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="WH_1C" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="WH_IS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ST_TP" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SKU_1C" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SKU_IS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="UOM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="QNTY" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="EfopTransfer">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="dealer" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="EfopTransferResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="EfopTransferResult" type="tns:EFOPDATA"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="EFOPDATA">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="DEALERS" type="tns:ArrayOfDEALER"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfDEALER">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DEALER" nillable="true" type="tns:DEALER"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DEALER">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ISALES_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="TITLE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SAP" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="WHS" type="tns:ArrayOfWH"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SRS" type="tns:ArrayOfSR"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CUS" type="tns:ArrayOfCU"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfWH">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="WH" nillable="true" type="tns:WH"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="WH">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ONES_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="WHN" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="COMM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ACT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ISDEF" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfSR">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="SR" nillable="true" type="tns:SR"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="SR">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ISALES_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ONES_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="FIO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ACT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="WH" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfCU">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="CU" nillable="true" type="tns:CU"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="CU">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="IS_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ERP" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DocumentHeaderTransfer">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="dtFrom" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="dtTo" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="SR_ID" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="SHIP_TO" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="DOC_TP" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="STATUS" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DocumentHeaderTransferResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DocumentHeaderTransferResult" type="tns:ArrayOfDOC_HEADER"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfDOC_HEADER">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DOC_HEADER" nillable="true" type="tns:DOC_HEADER"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DOC_HEADER">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ISALES_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DOC_TP" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="STATUS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DOC_NO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DOC_DT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SHIP_FROM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SHIP_TO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SELLER" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PAYER" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="NET" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DISC_SUM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DISC_GR_SUM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="VAT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="GROSS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DEBT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ITEMS_AMOUNT_NO_PROMO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PROMO_ITEMS_AMOUNT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SR_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="AUTH_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CREATE_DT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="EDIT_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="EDIT_DT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CustomerPricesTransfer">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="customerPrices" type="tns:ArrayOfPL"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfPL">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="PL" nillable="true" type="tns:PL"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="PL">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="PL_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ISDEF" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PRICES" type="tns:ArrayOfPRC"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CUSTS" type="tns:ArrayOfCUST"/>
+          <s:element minOccurs="0" maxOccurs="1" name="VALID" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfPRC">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="PRC" nillable="true" type="tns:PRC"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="PRC">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="PRD_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="NET" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfCUST">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="CUST" nillable="true" type="tns:CUST"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="CUST">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="CUST_ID" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CustomerPricesTransferResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CustomerPricesTransferResult" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CustomerPricesTransferB64">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="b64content" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CustomerPricesTransferB64Response">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CustomerPricesTransferB64Result" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DebtSettlementUpdatesTransfer">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="debtSettlements" type="tns:ArrayOfDEBT"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DebtSettlementUpdatesTransferResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DebtSettlementUpdatesTransferResult" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InvoiceWaybillTransferB64">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="b64content" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InvoiceWaybillTransferB64Response">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="InvoiceWaybillTransferB64Result" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InvoiceWaybillTransfer">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="documents" type="tns:ArrayOfDOC"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InvoiceWaybillTransferResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="InvoiceWaybillTransferResult" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="PaymentsTransfer">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="paymentList" type="tns:ArrayOfPAYMENT"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="PaymentsTransferResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="PaymentsTransferResult" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="StockCountingTransfer">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="stockCountingList" type="tns:ArrayOfWAR"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfWAR">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="WAR" nillable="true" type="tns:WAR"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="WAR">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="WAR_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PRODS" type="tns:ArrayOfPROD"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfPROD">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="PROD" nillable="true" type="tns:PROD"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="PROD">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="PROD_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="STOCK_TP" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="UOM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="AMOUNT" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="StockCountingTransferResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="StockCountingTransferResult" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateTransferStatus">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="documents" type="tns:ArrayOfPTransferStatus"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfPTransferStatus">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="pTransferStatus" type="tns:pTransferStatus"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="pTransferStatus">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="DOC_TYPE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DOC_ID" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateTransferStatusResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateTransferStatusResult" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateCreditControlStatus">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="documents" type="tns:ArrayOfPCreditControlStatus"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfPCreditControlStatus">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="pCreditControlStatus" type="tns:pCreditControlStatus"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="pCreditControlStatus">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ISALES_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="STATUS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="COMMENT" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateCreditControlStatusResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateCreditControlStatusResult" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CustomerTransfer">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="distributorId" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="cusAccounts" type="tns:ArrayOfCUS_ACCOUNT"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfCUS_ACCOUNT">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="CUS_ACCOUNT" nillable="true" type="tns:CUS_ACCOUNT"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="CUS_ACCOUNT">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="NAME" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="TITLE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SNAME" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ACC_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="MAIN_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="TYPE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="BARCODE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SAP_CODE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ADDRS" type="tns:ArrayOfCUS_ADDR"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PHONES_UM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PHONES" type="tns:ArrayOfCUS_PHONE"/>
+          <s:element minOccurs="0" maxOccurs="1" name="EMAIL" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PASSPORT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ACC" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DIR" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="BANKS_UM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="BANKS" type="tns:ArrayOfCUS_BANK"/>
+          <s:element minOccurs="0" maxOccurs="1" name="INN" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="KPP" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="OKONH" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="OKVED" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="OKPO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="OGRN" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="AGRS_UM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="AGRS" type="tns:ArrayOfCUS_AGR"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DEACTIVATE_REASON_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="LIMIT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DUE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="MIN_ORD" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="MAX_ORD_DISCOUNT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DISC_TYPE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ACCOUNT_CODE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="OVERDUE_ACT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CREDIT_CONTROL_ACT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="COMMS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CHANGE_ACC_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="NO_VISIT_DAYS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ROUTES_UM" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ROUTES" type="tns:ArrayOfCUS_ROUTE"/>
+          <s:element minOccurs="0" maxOccurs="1" name="STATUS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="LINK_TO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CHANNEL_CODE1" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CHANNEL_CODE2" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CHANNEL_CODE3" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CHANNEL_CODE4" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="LIST_1_VALUE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="LIST_2_VALUE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="LIST_3_VALUE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="LIST_4_VALUE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="LIST_5_VALUE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="LIST_6_VALUE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="LIST_7_VALUE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="LIST_8_VALUE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="LIST_9_VALUE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ABCD_CA" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ABCD_VA" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ABCD_CB" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ABCD_VB" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ABCD_CC" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ABCD_VC" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ABCD_CD" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ABCD_VD" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SHOW_SIGNBOARD" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SHOW_BALANCE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DONT_USE_PROMO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DONT_CHECK_TAX" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DISTRIBUTE_FREE_GOOD" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SHOW_NET_PRICE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PRICE_WO_VAT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="NOVAT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="NEED_CERT" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="USE_DEFAULT_PRICES" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="USE_PAYMENT_BUFFER" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="INVOICE_WO_ORDER" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfCUS_ADDR">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="CUS_ADDR" nillable="true" type="tns:CUS_ADDR"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="CUS_ADDR">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ADDR_TYPE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="REG" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="AREA" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CITY" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ZIP" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="STR" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="HS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="BUILD" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="COMMS" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="GPSX" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="GPSY" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfCUS_PHONE">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="CUS_PHONE" nillable="true" type="tns:CUS_PHONE"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="CUS_PHONE">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="PH_TYPE" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PH_NO" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfCUS_BANK">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="CUS_BANK" nillable="true" type="tns:CUS_BANK"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="CUS_BANK">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="NAME" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ADDR" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ACC" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="CORR" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="BIC" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ISDEF" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfCUS_AGR">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="CUS_AGR" nillable="true" type="tns:CUS_AGR"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="CUS_AGR">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="NUMBER" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DT_FR" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DT_TO" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="ISDEF" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfCUS_ROUTE">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="CUS_ROUTE" nillable="true" type="tns:CUS_ROUTE"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="CUS_ROUTE">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ROUTE_ID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DT_START" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="MUST_ORDER" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="FREQUENCY" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="D1" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="D2" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="D3" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="D4" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="D5" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="D6" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="D7" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="PAY_TYPE" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CustomerTransferResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CustomerTransferResult" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ArrayOfACCOUNT" nillable="true" type="tns:ArrayOfACCOUNT"/>
+      <s:element name="ArrayOfPAYMENT" nillable="true" type="tns:ArrayOfPAYMENT"/>
+      <s:element name="ArrayOfDISC" nillable="true" type="tns:ArrayOfDISC"/>
+      <s:element name="ArrayOfDOC" nillable="true" type="tns:ArrayOfDOC"/>
+      <s:element name="ArrayOfPRICELIST" nillable="true" type="tns:ArrayOfPRICELIST"/>
+      <s:element name="ArrayOfPRODUCT" nillable="true" type="tns:ArrayOfPRODUCT"/>
+      <s:element name="ArrayOfROUTE" nillable="true" type="tns:ArrayOfROUTE"/>
+      <s:element name="ArrayOfTRANS" nillable="true" type="tns:ArrayOfTRANS"/>
+      <s:element name="ArrayOfDEBT" nillable="true" type="tns:ArrayOfDEBT"/>
+      <s:element name="ArrayOfCUS_BL" nillable="true" type="tns:ArrayOfCUS_BL"/>
+      <s:element name="ArrayOfST_BL" nillable="true" type="tns:ArrayOfST_BL"/>
+      <s:element name="EFOPDATA" nillable="true" type="tns:EFOPDATA"/>
+      <s:element name="ArrayOfDOC_HEADER" nillable="true" type="tns:ArrayOfDOC_HEADER"/>
+      <s:element name="string" nillable="true" type="s:string"/>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="AccountsTransferSoapIn">
+    <wsdl:part name="parameters" element="tns:AccountsTransfer"/>
+  </wsdl:message>
+  <wsdl:message name="AccountsTransferSoapOut">
+    <wsdl:part name="parameters" element="tns:AccountsTransferResponse"/>
+  </wsdl:message>
+  <wsdl:message name="CollectionsTransferSoapIn">
+    <wsdl:part name="parameters" element="tns:CollectionsTransfer"/>
+  </wsdl:message>
+  <wsdl:message name="CollectionsTransferSoapOut">
+    <wsdl:part name="parameters" element="tns:CollectionsTransferResponse"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerDiscountsTransferSoapIn">
+    <wsdl:part name="parameters" element="tns:CustomerDiscountsTransfer"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerDiscountsTransferSoapOut">
+    <wsdl:part name="parameters" element="tns:CustomerDiscountsTransferResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DocumentsTransferSoapIn">
+    <wsdl:part name="parameters" element="tns:DocumentsTransfer"/>
+  </wsdl:message>
+  <wsdl:message name="DocumentsTransferSoapOut">
+    <wsdl:part name="parameters" element="tns:DocumentsTransferResponse"/>
+  </wsdl:message>
+  <wsdl:message name="OrdersTransferSoapIn">
+    <wsdl:part name="parameters" element="tns:OrdersTransfer"/>
+  </wsdl:message>
+  <wsdl:message name="OrdersTransferSoapOut">
+    <wsdl:part name="parameters" element="tns:OrdersTransferResponse"/>
+  </wsdl:message>
+  <wsdl:message name="VdocsTransferSoapIn">
+    <wsdl:part name="parameters" element="tns:VdocsTransfer"/>
+  </wsdl:message>
+  <wsdl:message name="VdocsTransferSoapOut">
+    <wsdl:part name="parameters" element="tns:VdocsTransferResponse"/>
+  </wsdl:message>
+  <wsdl:message name="PriceListsTransferSoapIn">
+    <wsdl:part name="parameters" element="tns:PriceListsTransfer"/>
+  </wsdl:message>
+  <wsdl:message name="PriceListsTransferSoapOut">
+    <wsdl:part name="parameters" element="tns:PriceListsTransferResponse"/>
+  </wsdl:message>
+  <wsdl:message name="ProductsTransferSoapIn">
+    <wsdl:part name="parameters" element="tns:ProductsTransfer"/>
+  </wsdl:message>
+  <wsdl:message name="ProductsTransferSoapOut">
+    <wsdl:part name="parameters" element="tns:ProductsTransferResponse"/>
+  </wsdl:message>
+  <wsdl:message name="RoutesTransferSoapIn">
+    <wsdl:part name="parameters" element="tns:RoutesTransfer"/>
+  </wsdl:message>
+  <wsdl:message name="RoutesTransferSoapOut">
+    <wsdl:part name="parameters" element="tns:RoutesTransferResponse"/>
+  </wsdl:message>
+  <wsdl:message name="StockTransactionsTransferSoapIn">
+    <wsdl:part name="parameters" element="tns:StockTransactionsTransfer"/>
+  </wsdl:message>
+  <wsdl:message name="StockTransactionsTransferSoapOut">
+    <wsdl:part name="parameters" element="tns:StockTransactionsTransferResponse"/>
+  </wsdl:message>
+  <wsdl:message name="UnclosedDocumentsTransferSoapIn">
+    <wsdl:part name="parameters" element="tns:UnclosedDocumentsTransfer"/>
+  </wsdl:message>
+  <wsdl:message name="UnclosedDocumentsTransferSoapOut">
+    <wsdl:part name="parameters" element="tns:UnclosedDocumentsTransferResponse"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerBalanceSnapshotSoapIn">
+    <wsdl:part name="parameters" element="tns:CustomerBalanceSnapshot"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerBalanceSnapshotSoapOut">
+    <wsdl:part name="parameters" element="tns:CustomerBalanceSnapshotResponse"/>
+  </wsdl:message>
+  <wsdl:message name="StockBalanceSnapshotSoapIn">
+    <wsdl:part name="parameters" element="tns:StockBalanceSnapshot"/>
+  </wsdl:message>
+  <wsdl:message name="StockBalanceSnapshotSoapOut">
+    <wsdl:part name="parameters" element="tns:StockBalanceSnapshotResponse"/>
+  </wsdl:message>
+  <wsdl:message name="EfopTransferSoapIn">
+    <wsdl:part name="parameters" element="tns:EfopTransfer"/>
+  </wsdl:message>
+  <wsdl:message name="EfopTransferSoapOut">
+    <wsdl:part name="parameters" element="tns:EfopTransferResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DocumentHeaderTransferSoapIn">
+    <wsdl:part name="parameters" element="tns:DocumentHeaderTransfer"/>
+  </wsdl:message>
+  <wsdl:message name="DocumentHeaderTransferSoapOut">
+    <wsdl:part name="parameters" element="tns:DocumentHeaderTransferResponse"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerPricesTransferSoapIn">
+    <wsdl:part name="parameters" element="tns:CustomerPricesTransfer"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerPricesTransferSoapOut">
+    <wsdl:part name="parameters" element="tns:CustomerPricesTransferResponse"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerPricesTransferB64SoapIn">
+    <wsdl:part name="parameters" element="tns:CustomerPricesTransferB64"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerPricesTransferB64SoapOut">
+    <wsdl:part name="parameters" element="tns:CustomerPricesTransferB64Response"/>
+  </wsdl:message>
+  <wsdl:message name="DebtSettlementUpdatesTransferSoapIn">
+    <wsdl:part name="parameters" element="tns:DebtSettlementUpdatesTransfer"/>
+  </wsdl:message>
+  <wsdl:message name="DebtSettlementUpdatesTransferSoapOut">
+    <wsdl:part name="parameters" element="tns:DebtSettlementUpdatesTransferResponse"/>
+  </wsdl:message>
+  <wsdl:message name="InvoiceWaybillTransferB64SoapIn">
+    <wsdl:part name="parameters" element="tns:InvoiceWaybillTransferB64"/>
+  </wsdl:message>
+  <wsdl:message name="InvoiceWaybillTransferB64SoapOut">
+    <wsdl:part name="parameters" element="tns:InvoiceWaybillTransferB64Response"/>
+  </wsdl:message>
+  <wsdl:message name="InvoiceWaybillTransferSoapIn">
+    <wsdl:part name="parameters" element="tns:InvoiceWaybillTransfer"/>
+  </wsdl:message>
+  <wsdl:message name="InvoiceWaybillTransferSoapOut">
+    <wsdl:part name="parameters" element="tns:InvoiceWaybillTransferResponse"/>
+  </wsdl:message>
+  <wsdl:message name="PaymentsTransferSoapIn">
+    <wsdl:part name="parameters" element="tns:PaymentsTransfer"/>
+  </wsdl:message>
+  <wsdl:message name="PaymentsTransferSoapOut">
+    <wsdl:part name="parameters" element="tns:PaymentsTransferResponse"/>
+  </wsdl:message>
+  <wsdl:message name="StockCountingTransferSoapIn">
+    <wsdl:part name="parameters" element="tns:StockCountingTransfer"/>
+  </wsdl:message>
+  <wsdl:message name="StockCountingTransferSoapOut">
+    <wsdl:part name="parameters" element="tns:StockCountingTransferResponse"/>
+  </wsdl:message>
+  <wsdl:message name="UpdateTransferStatusSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateTransferStatus"/>
+  </wsdl:message>
+  <wsdl:message name="UpdateTransferStatusSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateTransferStatusResponse"/>
+  </wsdl:message>
+  <wsdl:message name="UpdateCreditControlStatusSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateCreditControlStatus"/>
+  </wsdl:message>
+  <wsdl:message name="UpdateCreditControlStatusSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateCreditControlStatusResponse"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerTransferSoapIn">
+    <wsdl:part name="parameters" element="tns:CustomerTransfer"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerTransferSoapOut">
+    <wsdl:part name="parameters" element="tns:CustomerTransferResponse"/>
+  </wsdl:message>
+  <wsdl:message name="AccountsTransferHttpGetIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dtFrom" type="s:string"/>
+    <wsdl:part name="dtTo" type="s:string"/>
+    <wsdl:part name="includeAlreadyProcessedItems" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="AccountsTransferHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfACCOUNT"/>
+  </wsdl:message>
+  <wsdl:message name="CollectionsTransferHttpGetIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dtFrom" type="s:string"/>
+    <wsdl:part name="dtTo" type="s:string"/>
+    <wsdl:part name="includeAlreadyProcessedItems" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="CollectionsTransferHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfPAYMENT"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerDiscountsTransferHttpGetIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerDiscountsTransferHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfDISC"/>
+  </wsdl:message>
+  <wsdl:message name="DocumentsTransferHttpGetIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dtFrom" type="s:string"/>
+    <wsdl:part name="dtTo" type="s:string"/>
+    <wsdl:part name="includeAlreadyProcessedItems" type="s:string"/>
+    <wsdl:part name="docTypes" type="s:string"/>
+    <wsdl:part name="docStatuses" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="DocumentsTransferHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfDOC"/>
+  </wsdl:message>
+  <wsdl:message name="OrdersTransferHttpGetIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dtFrom" type="s:string"/>
+    <wsdl:part name="dtTo" type="s:string"/>
+    <wsdl:part name="includeAlreadyProcessedItems" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="OrdersTransferHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfDOC"/>
+  </wsdl:message>
+  <wsdl:message name="VdocsTransferHttpGetIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dtFrom" type="s:string"/>
+    <wsdl:part name="dtTo" type="s:string"/>
+    <wsdl:part name="includeAlreadyProcessedItems" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="VdocsTransferHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfDOC"/>
+  </wsdl:message>
+  <wsdl:message name="PriceListsTransferHttpGetIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="PriceListsTransferHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfPRICELIST"/>
+  </wsdl:message>
+  <wsdl:message name="ProductsTransferHttpGetIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dtFrom" type="s:string"/>
+    <wsdl:part name="dtTo" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="ProductsTransferHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfPRODUCT"/>
+  </wsdl:message>
+  <wsdl:message name="RoutesTransferHttpGetIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dtFrom" type="s:string"/>
+    <wsdl:part name="dtTo" type="s:string"/>
+    <wsdl:part name="OnlyActive" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="RoutesTransferHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfROUTE"/>
+  </wsdl:message>
+  <wsdl:message name="StockTransactionsTransferHttpGetIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dtFrom" type="s:string"/>
+    <wsdl:part name="dtTo" type="s:string"/>
+    <wsdl:part name="includeAlreadyProcessedItems" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="StockTransactionsTransferHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfTRANS"/>
+  </wsdl:message>
+  <wsdl:message name="UnclosedDocumentsTransferHttpGetIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dtFrom" type="s:string"/>
+    <wsdl:part name="dtTo" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="UnclosedDocumentsTransferHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfDEBT"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerBalanceSnapshotHttpGetIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="code1C" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerBalanceSnapshotHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfCUS_BL"/>
+  </wsdl:message>
+  <wsdl:message name="StockBalanceSnapshotHttpGetIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="whseCode1C" type="s:string"/>
+    <wsdl:part name="sku1C" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="StockBalanceSnapshotHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfST_BL"/>
+  </wsdl:message>
+  <wsdl:message name="EfopTransferHttpGetIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dealer" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="EfopTransferHttpGetOut">
+    <wsdl:part name="Body" element="tns:EFOPDATA"/>
+  </wsdl:message>
+  <wsdl:message name="DocumentHeaderTransferHttpGetIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dtFrom" type="s:string"/>
+    <wsdl:part name="dtTo" type="s:string"/>
+    <wsdl:part name="SR_ID" type="s:string"/>
+    <wsdl:part name="SHIP_TO" type="s:string"/>
+    <wsdl:part name="DOC_TP" type="s:string"/>
+    <wsdl:part name="STATUS" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="DocumentHeaderTransferHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfDOC_HEADER"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerPricesTransferB64HttpGetIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="b64content" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerPricesTransferB64HttpGetOut">
+    <wsdl:part name="Body" element="tns:string"/>
+  </wsdl:message>
+  <wsdl:message name="InvoiceWaybillTransferB64HttpGetIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="b64content" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="InvoiceWaybillTransferB64HttpGetOut">
+    <wsdl:part name="Body" element="tns:string"/>
+  </wsdl:message>
+  <wsdl:message name="AccountsTransferHttpPostIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dtFrom" type="s:string"/>
+    <wsdl:part name="dtTo" type="s:string"/>
+    <wsdl:part name="includeAlreadyProcessedItems" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="AccountsTransferHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfACCOUNT"/>
+  </wsdl:message>
+  <wsdl:message name="CollectionsTransferHttpPostIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dtFrom" type="s:string"/>
+    <wsdl:part name="dtTo" type="s:string"/>
+    <wsdl:part name="includeAlreadyProcessedItems" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="CollectionsTransferHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfPAYMENT"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerDiscountsTransferHttpPostIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerDiscountsTransferHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfDISC"/>
+  </wsdl:message>
+  <wsdl:message name="DocumentsTransferHttpPostIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dtFrom" type="s:string"/>
+    <wsdl:part name="dtTo" type="s:string"/>
+    <wsdl:part name="includeAlreadyProcessedItems" type="s:string"/>
+    <wsdl:part name="docTypes" type="s:string"/>
+    <wsdl:part name="docStatuses" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="DocumentsTransferHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfDOC"/>
+  </wsdl:message>
+  <wsdl:message name="OrdersTransferHttpPostIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dtFrom" type="s:string"/>
+    <wsdl:part name="dtTo" type="s:string"/>
+    <wsdl:part name="includeAlreadyProcessedItems" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="OrdersTransferHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfDOC"/>
+  </wsdl:message>
+  <wsdl:message name="VdocsTransferHttpPostIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dtFrom" type="s:string"/>
+    <wsdl:part name="dtTo" type="s:string"/>
+    <wsdl:part name="includeAlreadyProcessedItems" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="VdocsTransferHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfDOC"/>
+  </wsdl:message>
+  <wsdl:message name="PriceListsTransferHttpPostIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="PriceListsTransferHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfPRICELIST"/>
+  </wsdl:message>
+  <wsdl:message name="ProductsTransferHttpPostIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dtFrom" type="s:string"/>
+    <wsdl:part name="dtTo" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="ProductsTransferHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfPRODUCT"/>
+  </wsdl:message>
+  <wsdl:message name="RoutesTransferHttpPostIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dtFrom" type="s:string"/>
+    <wsdl:part name="dtTo" type="s:string"/>
+    <wsdl:part name="OnlyActive" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="RoutesTransferHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfROUTE"/>
+  </wsdl:message>
+  <wsdl:message name="StockTransactionsTransferHttpPostIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dtFrom" type="s:string"/>
+    <wsdl:part name="dtTo" type="s:string"/>
+    <wsdl:part name="includeAlreadyProcessedItems" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="StockTransactionsTransferHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfTRANS"/>
+  </wsdl:message>
+  <wsdl:message name="UnclosedDocumentsTransferHttpPostIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dtFrom" type="s:string"/>
+    <wsdl:part name="dtTo" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="UnclosedDocumentsTransferHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfDEBT"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerBalanceSnapshotHttpPostIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="code1C" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerBalanceSnapshotHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfCUS_BL"/>
+  </wsdl:message>
+  <wsdl:message name="StockBalanceSnapshotHttpPostIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="whseCode1C" type="s:string"/>
+    <wsdl:part name="sku1C" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="StockBalanceSnapshotHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfST_BL"/>
+  </wsdl:message>
+  <wsdl:message name="EfopTransferHttpPostIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dealer" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="EfopTransferHttpPostOut">
+    <wsdl:part name="Body" element="tns:EFOPDATA"/>
+  </wsdl:message>
+  <wsdl:message name="DocumentHeaderTransferHttpPostIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="dtFrom" type="s:string"/>
+    <wsdl:part name="dtTo" type="s:string"/>
+    <wsdl:part name="SR_ID" type="s:string"/>
+    <wsdl:part name="SHIP_TO" type="s:string"/>
+    <wsdl:part name="DOC_TP" type="s:string"/>
+    <wsdl:part name="STATUS" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="DocumentHeaderTransferHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfDOC_HEADER"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerPricesTransferB64HttpPostIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="b64content" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="CustomerPricesTransferB64HttpPostOut">
+    <wsdl:part name="Body" element="tns:string"/>
+  </wsdl:message>
+  <wsdl:message name="InvoiceWaybillTransferB64HttpPostIn">
+    <wsdl:part name="username" type="s:string"/>
+    <wsdl:part name="password" type="s:string"/>
+    <wsdl:part name="b64content" type="s:string"/>
+  </wsdl:message>
+  <wsdl:message name="InvoiceWaybillTransferB64HttpPostOut">
+    <wsdl:part name="Body" element="tns:string"/>
+  </wsdl:message>
+  <wsdl:portType name="AccountingTransferSoap">
+    <wsdl:operation name="AccountsTransfer">
+      <wsdl:input message="tns:AccountsTransferSoapIn"/>
+      <wsdl:output message="tns:AccountsTransferSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="CollectionsTransfer">
+      <wsdl:input message="tns:CollectionsTransferSoapIn"/>
+      <wsdl:output message="tns:CollectionsTransferSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerDiscountsTransfer">
+      <wsdl:input message="tns:CustomerDiscountsTransferSoapIn"/>
+      <wsdl:output message="tns:CustomerDiscountsTransferSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentsTransfer">
+      <wsdl:input message="tns:DocumentsTransferSoapIn"/>
+      <wsdl:output message="tns:DocumentsTransferSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="OrdersTransfer">
+      <wsdl:input message="tns:OrdersTransferSoapIn"/>
+      <wsdl:output message="tns:OrdersTransferSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="VdocsTransfer">
+      <wsdl:input message="tns:VdocsTransferSoapIn"/>
+      <wsdl:output message="tns:VdocsTransferSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="PriceListsTransfer">
+      <wsdl:input message="tns:PriceListsTransferSoapIn"/>
+      <wsdl:output message="tns:PriceListsTransferSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="ProductsTransfer">
+      <wsdl:input message="tns:ProductsTransferSoapIn"/>
+      <wsdl:output message="tns:ProductsTransferSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="RoutesTransfer">
+      <wsdl:input message="tns:RoutesTransferSoapIn"/>
+      <wsdl:output message="tns:RoutesTransferSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="StockTransactionsTransfer">
+      <wsdl:input message="tns:StockTransactionsTransferSoapIn"/>
+      <wsdl:output message="tns:StockTransactionsTransferSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="UnclosedDocumentsTransfer">
+      <wsdl:input message="tns:UnclosedDocumentsTransferSoapIn"/>
+      <wsdl:output message="tns:UnclosedDocumentsTransferSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerBalanceSnapshot">
+      <wsdl:input message="tns:CustomerBalanceSnapshotSoapIn"/>
+      <wsdl:output message="tns:CustomerBalanceSnapshotSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="StockBalanceSnapshot">
+      <wsdl:input message="tns:StockBalanceSnapshotSoapIn"/>
+      <wsdl:output message="tns:StockBalanceSnapshotSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="EfopTransfer">
+      <wsdl:input message="tns:EfopTransferSoapIn"/>
+      <wsdl:output message="tns:EfopTransferSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentHeaderTransfer">
+      <wsdl:input message="tns:DocumentHeaderTransferSoapIn"/>
+      <wsdl:output message="tns:DocumentHeaderTransferSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerPricesTransfer">
+      <wsdl:input message="tns:CustomerPricesTransferSoapIn"/>
+      <wsdl:output message="tns:CustomerPricesTransferSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerPricesTransferB64">
+      <wsdl:input message="tns:CustomerPricesTransferB64SoapIn"/>
+      <wsdl:output message="tns:CustomerPricesTransferB64SoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DebtSettlementUpdatesTransfer">
+      <wsdl:input message="tns:DebtSettlementUpdatesTransferSoapIn"/>
+      <wsdl:output message="tns:DebtSettlementUpdatesTransferSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="InvoiceWaybillTransferB64">
+      <wsdl:input message="tns:InvoiceWaybillTransferB64SoapIn"/>
+      <wsdl:output message="tns:InvoiceWaybillTransferB64SoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="InvoiceWaybillTransfer">
+      <wsdl:input message="tns:InvoiceWaybillTransferSoapIn"/>
+      <wsdl:output message="tns:InvoiceWaybillTransferSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="PaymentsTransfer">
+      <wsdl:input message="tns:PaymentsTransferSoapIn"/>
+      <wsdl:output message="tns:PaymentsTransferSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="StockCountingTransfer">
+      <wsdl:input message="tns:StockCountingTransferSoapIn"/>
+      <wsdl:output message="tns:StockCountingTransferSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTransferStatus">
+      <wsdl:input message="tns:UpdateTransferStatusSoapIn"/>
+      <wsdl:output message="tns:UpdateTransferStatusSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateCreditControlStatus">
+      <wsdl:input message="tns:UpdateCreditControlStatusSoapIn"/>
+      <wsdl:output message="tns:UpdateCreditControlStatusSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerTransfer">
+      <wsdl:input message="tns:CustomerTransferSoapIn"/>
+      <wsdl:output message="tns:CustomerTransferSoapOut"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="AccountingTransferHttpGet">
+    <wsdl:operation name="AccountsTransfer">
+      <wsdl:input message="tns:AccountsTransferHttpGetIn"/>
+      <wsdl:output message="tns:AccountsTransferHttpGetOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="CollectionsTransfer">
+      <wsdl:input message="tns:CollectionsTransferHttpGetIn"/>
+      <wsdl:output message="tns:CollectionsTransferHttpGetOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerDiscountsTransfer">
+      <wsdl:input message="tns:CustomerDiscountsTransferHttpGetIn"/>
+      <wsdl:output message="tns:CustomerDiscountsTransferHttpGetOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentsTransfer">
+      <wsdl:input message="tns:DocumentsTransferHttpGetIn"/>
+      <wsdl:output message="tns:DocumentsTransferHttpGetOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="OrdersTransfer">
+      <wsdl:input message="tns:OrdersTransferHttpGetIn"/>
+      <wsdl:output message="tns:OrdersTransferHttpGetOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="VdocsTransfer">
+      <wsdl:input message="tns:VdocsTransferHttpGetIn"/>
+      <wsdl:output message="tns:VdocsTransferHttpGetOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="PriceListsTransfer">
+      <wsdl:input message="tns:PriceListsTransferHttpGetIn"/>
+      <wsdl:output message="tns:PriceListsTransferHttpGetOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="ProductsTransfer">
+      <wsdl:input message="tns:ProductsTransferHttpGetIn"/>
+      <wsdl:output message="tns:ProductsTransferHttpGetOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="RoutesTransfer">
+      <wsdl:input message="tns:RoutesTransferHttpGetIn"/>
+      <wsdl:output message="tns:RoutesTransferHttpGetOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="StockTransactionsTransfer">
+      <wsdl:input message="tns:StockTransactionsTransferHttpGetIn"/>
+      <wsdl:output message="tns:StockTransactionsTransferHttpGetOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="UnclosedDocumentsTransfer">
+      <wsdl:input message="tns:UnclosedDocumentsTransferHttpGetIn"/>
+      <wsdl:output message="tns:UnclosedDocumentsTransferHttpGetOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerBalanceSnapshot">
+      <wsdl:input message="tns:CustomerBalanceSnapshotHttpGetIn"/>
+      <wsdl:output message="tns:CustomerBalanceSnapshotHttpGetOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="StockBalanceSnapshot">
+      <wsdl:input message="tns:StockBalanceSnapshotHttpGetIn"/>
+      <wsdl:output message="tns:StockBalanceSnapshotHttpGetOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="EfopTransfer">
+      <wsdl:input message="tns:EfopTransferHttpGetIn"/>
+      <wsdl:output message="tns:EfopTransferHttpGetOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentHeaderTransfer">
+      <wsdl:input message="tns:DocumentHeaderTransferHttpGetIn"/>
+      <wsdl:output message="tns:DocumentHeaderTransferHttpGetOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerPricesTransferB64">
+      <wsdl:input message="tns:CustomerPricesTransferB64HttpGetIn"/>
+      <wsdl:output message="tns:CustomerPricesTransferB64HttpGetOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="InvoiceWaybillTransferB64">
+      <wsdl:input message="tns:InvoiceWaybillTransferB64HttpGetIn"/>
+      <wsdl:output message="tns:InvoiceWaybillTransferB64HttpGetOut"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="AccountingTransferHttpPost">
+    <wsdl:operation name="AccountsTransfer">
+      <wsdl:input message="tns:AccountsTransferHttpPostIn"/>
+      <wsdl:output message="tns:AccountsTransferHttpPostOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="CollectionsTransfer">
+      <wsdl:input message="tns:CollectionsTransferHttpPostIn"/>
+      <wsdl:output message="tns:CollectionsTransferHttpPostOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerDiscountsTransfer">
+      <wsdl:input message="tns:CustomerDiscountsTransferHttpPostIn"/>
+      <wsdl:output message="tns:CustomerDiscountsTransferHttpPostOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentsTransfer">
+      <wsdl:input message="tns:DocumentsTransferHttpPostIn"/>
+      <wsdl:output message="tns:DocumentsTransferHttpPostOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="OrdersTransfer">
+      <wsdl:input message="tns:OrdersTransferHttpPostIn"/>
+      <wsdl:output message="tns:OrdersTransferHttpPostOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="VdocsTransfer">
+      <wsdl:input message="tns:VdocsTransferHttpPostIn"/>
+      <wsdl:output message="tns:VdocsTransferHttpPostOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="PriceListsTransfer">
+      <wsdl:input message="tns:PriceListsTransferHttpPostIn"/>
+      <wsdl:output message="tns:PriceListsTransferHttpPostOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="ProductsTransfer">
+      <wsdl:input message="tns:ProductsTransferHttpPostIn"/>
+      <wsdl:output message="tns:ProductsTransferHttpPostOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="RoutesTransfer">
+      <wsdl:input message="tns:RoutesTransferHttpPostIn"/>
+      <wsdl:output message="tns:RoutesTransferHttpPostOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="StockTransactionsTransfer">
+      <wsdl:input message="tns:StockTransactionsTransferHttpPostIn"/>
+      <wsdl:output message="tns:StockTransactionsTransferHttpPostOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="UnclosedDocumentsTransfer">
+      <wsdl:input message="tns:UnclosedDocumentsTransferHttpPostIn"/>
+      <wsdl:output message="tns:UnclosedDocumentsTransferHttpPostOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerBalanceSnapshot">
+      <wsdl:input message="tns:CustomerBalanceSnapshotHttpPostIn"/>
+      <wsdl:output message="tns:CustomerBalanceSnapshotHttpPostOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="StockBalanceSnapshot">
+      <wsdl:input message="tns:StockBalanceSnapshotHttpPostIn"/>
+      <wsdl:output message="tns:StockBalanceSnapshotHttpPostOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="EfopTransfer">
+      <wsdl:input message="tns:EfopTransferHttpPostIn"/>
+      <wsdl:output message="tns:EfopTransferHttpPostOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentHeaderTransfer">
+      <wsdl:input message="tns:DocumentHeaderTransferHttpPostIn"/>
+      <wsdl:output message="tns:DocumentHeaderTransferHttpPostOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerPricesTransferB64">
+      <wsdl:input message="tns:CustomerPricesTransferB64HttpPostIn"/>
+      <wsdl:output message="tns:CustomerPricesTransferB64HttpPostOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="InvoiceWaybillTransferB64">
+      <wsdl:input message="tns:InvoiceWaybillTransferB64HttpPostIn"/>
+      <wsdl:output message="tns:InvoiceWaybillTransferB64HttpPostOut"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="AccountingTransferSoap" type="tns:AccountingTransferSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="AccountsTransfer">
+      <soap:operation soapAction="http://tempuri.org/AccountsTransfer" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CollectionsTransfer">
+      <soap:operation soapAction="http://tempuri.org/CollectionsTransfer" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerDiscountsTransfer">
+      <soap:operation soapAction="http://tempuri.org/CustomerDiscountsTransfer" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentsTransfer">
+      <soap:operation soapAction="http://tempuri.org/DocumentsTransfer" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="OrdersTransfer">
+      <soap:operation soapAction="http://tempuri.org/OrdersTransfer" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="VdocsTransfer">
+      <soap:operation soapAction="http://tempuri.org/VdocsTransfer" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PriceListsTransfer">
+      <soap:operation soapAction="http://tempuri.org/PriceListsTransfer" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProductsTransfer">
+      <soap:operation soapAction="http://tempuri.org/ProductsTransfer" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RoutesTransfer">
+      <soap:operation soapAction="http://tempuri.org/RoutesTransfer" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StockTransactionsTransfer">
+      <soap:operation soapAction="http://tempuri.org/StockTransactionsTransfer" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UnclosedDocumentsTransfer">
+      <soap:operation soapAction="http://tempuri.org/UnclosedDocumentsTransfer" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerBalanceSnapshot">
+      <soap:operation soapAction="http://tempuri.org/CustomerBalanceSnapshot" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StockBalanceSnapshot">
+      <soap:operation soapAction="http://tempuri.org/StockBalanceSnapshot" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="EfopTransfer">
+      <soap:operation soapAction="http://tempuri.org/EfopTransfer" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentHeaderTransfer">
+      <soap:operation soapAction="http://tempuri.org/DocumentHeaderTransfer" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerPricesTransfer">
+      <soap:operation soapAction="http://tempuri.org/CustomerPricesTransfer" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerPricesTransferB64">
+      <soap:operation soapAction="http://tempuri.org/CustomerPricesTransferB64" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DebtSettlementUpdatesTransfer">
+      <soap:operation soapAction="http://tempuri.org/DebtSettlementUpdatesTransfer" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InvoiceWaybillTransferB64">
+      <soap:operation soapAction="http://tempuri.org/InvoiceWaybillTransferB64" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InvoiceWaybillTransfer">
+      <soap:operation soapAction="http://tempuri.org/InvoiceWaybillTransfer" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PaymentsTransfer">
+      <soap:operation soapAction="http://tempuri.org/PaymentsTransfer" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StockCountingTransfer">
+      <soap:operation soapAction="http://tempuri.org/StockCountingTransfer" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTransferStatus">
+      <soap:operation soapAction="http://tempuri.org/UpdateTransferStatus" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateCreditControlStatus">
+      <soap:operation soapAction="http://tempuri.org/UpdateCreditControlStatus" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerTransfer">
+      <soap:operation soapAction="http://tempuri.org/CustomerTransfer" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="AccountingTransferSoap12" type="tns:AccountingTransferSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="AccountsTransfer">
+      <soap12:operation soapAction="http://tempuri.org/AccountsTransfer" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CollectionsTransfer">
+      <soap12:operation soapAction="http://tempuri.org/CollectionsTransfer" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerDiscountsTransfer">
+      <soap12:operation soapAction="http://tempuri.org/CustomerDiscountsTransfer" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentsTransfer">
+      <soap12:operation soapAction="http://tempuri.org/DocumentsTransfer" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="OrdersTransfer">
+      <soap12:operation soapAction="http://tempuri.org/OrdersTransfer" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="VdocsTransfer">
+      <soap12:operation soapAction="http://tempuri.org/VdocsTransfer" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PriceListsTransfer">
+      <soap12:operation soapAction="http://tempuri.org/PriceListsTransfer" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProductsTransfer">
+      <soap12:operation soapAction="http://tempuri.org/ProductsTransfer" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RoutesTransfer">
+      <soap12:operation soapAction="http://tempuri.org/RoutesTransfer" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StockTransactionsTransfer">
+      <soap12:operation soapAction="http://tempuri.org/StockTransactionsTransfer" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UnclosedDocumentsTransfer">
+      <soap12:operation soapAction="http://tempuri.org/UnclosedDocumentsTransfer" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerBalanceSnapshot">
+      <soap12:operation soapAction="http://tempuri.org/CustomerBalanceSnapshot" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StockBalanceSnapshot">
+      <soap12:operation soapAction="http://tempuri.org/StockBalanceSnapshot" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="EfopTransfer">
+      <soap12:operation soapAction="http://tempuri.org/EfopTransfer" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentHeaderTransfer">
+      <soap12:operation soapAction="http://tempuri.org/DocumentHeaderTransfer" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerPricesTransfer">
+      <soap12:operation soapAction="http://tempuri.org/CustomerPricesTransfer" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerPricesTransferB64">
+      <soap12:operation soapAction="http://tempuri.org/CustomerPricesTransferB64" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DebtSettlementUpdatesTransfer">
+      <soap12:operation soapAction="http://tempuri.org/DebtSettlementUpdatesTransfer" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InvoiceWaybillTransferB64">
+      <soap12:operation soapAction="http://tempuri.org/InvoiceWaybillTransferB64" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InvoiceWaybillTransfer">
+      <soap12:operation soapAction="http://tempuri.org/InvoiceWaybillTransfer" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PaymentsTransfer">
+      <soap12:operation soapAction="http://tempuri.org/PaymentsTransfer" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StockCountingTransfer">
+      <soap12:operation soapAction="http://tempuri.org/StockCountingTransfer" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTransferStatus">
+      <soap12:operation soapAction="http://tempuri.org/UpdateTransferStatus" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateCreditControlStatus">
+      <soap12:operation soapAction="http://tempuri.org/UpdateCreditControlStatus" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerTransfer">
+      <soap12:operation soapAction="http://tempuri.org/CustomerTransfer" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="AccountingTransferHttpGet" type="tns:AccountingTransferHttpGet">
+    <http:binding verb="GET"/>
+    <wsdl:operation name="AccountsTransfer">
+      <http:operation location="/AccountsTransfer"/>
+      <wsdl:input>
+        <http:urlEncoded/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CollectionsTransfer">
+      <http:operation location="/CollectionsTransfer"/>
+      <wsdl:input>
+        <http:urlEncoded/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerDiscountsTransfer">
+      <http:operation location="/CustomerDiscountsTransfer"/>
+      <wsdl:input>
+        <http:urlEncoded/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentsTransfer">
+      <http:operation location="/DocumentsTransfer"/>
+      <wsdl:input>
+        <http:urlEncoded/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="OrdersTransfer">
+      <http:operation location="/OrdersTransfer"/>
+      <wsdl:input>
+        <http:urlEncoded/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="VdocsTransfer">
+      <http:operation location="/VdocsTransfer"/>
+      <wsdl:input>
+        <http:urlEncoded/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PriceListsTransfer">
+      <http:operation location="/PriceListsTransfer"/>
+      <wsdl:input>
+        <http:urlEncoded/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProductsTransfer">
+      <http:operation location="/ProductsTransfer"/>
+      <wsdl:input>
+        <http:urlEncoded/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RoutesTransfer">
+      <http:operation location="/RoutesTransfer"/>
+      <wsdl:input>
+        <http:urlEncoded/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StockTransactionsTransfer">
+      <http:operation location="/StockTransactionsTransfer"/>
+      <wsdl:input>
+        <http:urlEncoded/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UnclosedDocumentsTransfer">
+      <http:operation location="/UnclosedDocumentsTransfer"/>
+      <wsdl:input>
+        <http:urlEncoded/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerBalanceSnapshot">
+      <http:operation location="/CustomerBalanceSnapshot"/>
+      <wsdl:input>
+        <http:urlEncoded/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StockBalanceSnapshot">
+      <http:operation location="/StockBalanceSnapshot"/>
+      <wsdl:input>
+        <http:urlEncoded/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="EfopTransfer">
+      <http:operation location="/EfopTransfer"/>
+      <wsdl:input>
+        <http:urlEncoded/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentHeaderTransfer">
+      <http:operation location="/DocumentHeaderTransfer"/>
+      <wsdl:input>
+        <http:urlEncoded/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerPricesTransferB64">
+      <http:operation location="/CustomerPricesTransferB64"/>
+      <wsdl:input>
+        <http:urlEncoded/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InvoiceWaybillTransferB64">
+      <http:operation location="/InvoiceWaybillTransferB64"/>
+      <wsdl:input>
+        <http:urlEncoded/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="AccountingTransferHttpPost" type="tns:AccountingTransferHttpPost">
+    <http:binding verb="POST"/>
+    <wsdl:operation name="AccountsTransfer">
+      <http:operation location="/AccountsTransfer"/>
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CollectionsTransfer">
+      <http:operation location="/CollectionsTransfer"/>
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerDiscountsTransfer">
+      <http:operation location="/CustomerDiscountsTransfer"/>
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentsTransfer">
+      <http:operation location="/DocumentsTransfer"/>
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="OrdersTransfer">
+      <http:operation location="/OrdersTransfer"/>
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="VdocsTransfer">
+      <http:operation location="/VdocsTransfer"/>
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PriceListsTransfer">
+      <http:operation location="/PriceListsTransfer"/>
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProductsTransfer">
+      <http:operation location="/ProductsTransfer"/>
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RoutesTransfer">
+      <http:operation location="/RoutesTransfer"/>
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StockTransactionsTransfer">
+      <http:operation location="/StockTransactionsTransfer"/>
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UnclosedDocumentsTransfer">
+      <http:operation location="/UnclosedDocumentsTransfer"/>
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerBalanceSnapshot">
+      <http:operation location="/CustomerBalanceSnapshot"/>
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StockBalanceSnapshot">
+      <http:operation location="/StockBalanceSnapshot"/>
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="EfopTransfer">
+      <http:operation location="/EfopTransfer"/>
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentHeaderTransfer">
+      <http:operation location="/DocumentHeaderTransfer"/>
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CustomerPricesTransferB64">
+      <http:operation location="/CustomerPricesTransferB64"/>
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InvoiceWaybillTransferB64">
+      <http:operation location="/InvoiceWaybillTransferB64"/>
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="AccountingTransfer">
+    <wsdl:port name="AccountingTransferSoap" binding="tns:AccountingTransferSoap">
+      <soap:address location="https://www.isales.pepsico.com/isales/ws/accountingtransfer.asmx"/>
+    </wsdl:port>
+    <wsdl:port name="AccountingTransferSoap12" binding="tns:AccountingTransferSoap12">
+      <soap12:address location="https://www.isales.pepsico.com/isales/ws/accountingtransfer.asmx"/>
+    </wsdl:port>
+    <wsdl:port name="AccountingTransferHttpGet" binding="tns:AccountingTransferHttpGet">
+      <http:address location="https://www.isales.pepsico.com/isales/ws/accountingtransfer.asmx"/>
+    </wsdl:port>
+    <wsdl:port name="AccountingTransferHttpPost" binding="tns:AccountingTransferHttpPost">
+      <http:address location="https://www.isales.pepsico.com/isales/ws/accountingtransfer.asmx"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

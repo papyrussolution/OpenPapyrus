@@ -1,0 +1,8 @@
+слово;;слово
+word;;word
+два слова;;два,слова
+two words;;two,words
+горемыка мужичок - согнут как крючек; -;горемыка,мужичок,согнут,как,крючек
+горемыка мужичок - согнут как крючек;;горемыка,мужичок,-,согнут,как,крючек
+this-is-tokenizing.test-with..dot-.and.-hyphen....delimiters; -.;this,is,tokenizing,test,with,dot,and,hyphen,delimiters
+it's all;;it's,all

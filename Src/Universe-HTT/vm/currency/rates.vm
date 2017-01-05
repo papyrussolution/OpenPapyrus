@@ -1,0 +1,63 @@
+﻿## Universe-HTT / 2013
+## view_cur_rates.vm
+## Валютные курсы
+##
+
+<div id="view_cur_rates__layout">
+	<table id="view_cur_rates__table" class="tablesorter">
+		<thead>
+			<tr>
+				<th>Дата</th>
+				<th>Валюта</th>
+				<th>Символ</th>
+				<th>Код</th>
+				<th>Курс</th>
+			</tr>
+		</thead>
+		<tbody>
+		#foreach($rate in $rates)
+			#set($cur = $CurrencyObj.search($rate.CurID, null, 0))
+			#if($cur)
+				<tr class="view-cur-rates-table-item">
+					<td style="text-align:center">${rate.Dt}</td>
+					<td style="text-align:center">${cur.Name}</td>
+					<td style="text-align:center">${cur.Symb}</td>
+					<td style="text-align:center">${cur.DigitCode}</td>
+					<td style="text-align:center">$UHTT.format("0.0000", $rate.Rate)</td>
+				</tr>
+			#end
+		#end
+		</tbody>
+	</table>
+</div>
+
+<script type="text/javascript">
+	var CurRatesView = {
+		## /* Таблица */
+		Tbl : null,
+		## /* Контекстное меню */
+		CtxMenu : null,
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Инициализация таблицы */
+			_this.Tbl = $("#view_cur_rates__table").tablesorter({ widthFixed:true });
+						
+			## /* Событие двойной клик по строке */
+			_this.Tbl.delegate(".view-cur-rates-table-item", "dblclick", function() {
+				var name = $(this).find("td:eq(1)").text();
+				var symb = $(this).find("td:eq(2)").text();
+				_this.showCurRateHistory(name, symb);
+				return false;
+			}).delegate(".view-cur-rates-table-item", "click", function(e) {
+				// todo: show quick info
+			});
+		},
+		showCurRateHistory : function(name, symb) {
+			var view = UHTT.Content.get("CURRENCY_RATE_GRAPH", { CurCode: symb });
+			new SDialog("FRM_CUR_RATE_GRAPH", view, {title:name, width:710, height:390, position:"center" }, UHTT.Dialog.TYPE.INLINE);
+		}
+	};
+	## /* Инициализация view */
+	CurRatesView.init();
+</script>

@@ -1,0 +1,223 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{5BFDEBA0-B8CB-4EAE-B722-745E8880EA01}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.24720.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\osf\vDOS\include;..\Include\freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <StringPooling>true</StringPooling>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Imm32.lib;..\lib\winddk\hid.lib;..\lib\winddk\hidparse.lib;..\lib\winddk\Setupapi.lib;..\OSF\OPENSSL\lib\libeay32.lib;..\OSF\OPENSSL\lib\ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)vDOS.exe</OutputFile>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)vDOS.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\osf\vDOS\include;..\Include\freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat />
+      <StringPooling>true</StringPooling>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Imm32.lib;..\lib\winddk\hid.lib;..\lib\winddk\hidparse.lib;..\lib\winddk\Setupapi.lib;..\OSF\OPENSSL\lib\libeay32.lib;..\OSF\OPENSSL\lib\ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)vDOS.exe</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Osf\vDOS\cpu\callback.cpp" />
+    <ClCompile Include="..\Osf\vDOS\cpu\core_normal.cpp" />
+    <ClCompile Include="..\Osf\vDOS\cpu\cpu.cpp" />
+    <ClCompile Include="..\Osf\vDOS\cpu\flags.cpp" />
+    <ClCompile Include="..\Osf\vDOS\cpu\paging.cpp" />
+    <ClCompile Include="..\Osf\vDOS\dos\devicePRT.cpp" />
+    <ClCompile Include="..\Osf\vDOS\dos\dos.cpp" />
+    <ClCompile Include="..\Osf\vDOS\dos\dos_classes.cpp" />
+    <ClCompile Include="..\Osf\vDOS\dos\dos_devices.cpp" />
+    <ClCompile Include="..\Osf\vDOS\dos\dos_execute.cpp" />
+    <ClCompile Include="..\Osf\vDOS\dos\dos_files.cpp" />
+    <ClCompile Include="..\Osf\vDOS\dos\dos_ioctl.cpp" />
+    <ClCompile Include="..\Osf\vDOS\dos\dos_memory.cpp" />
+    <ClCompile Include="..\Osf\vDOS\dos\dos_misc.cpp" />
+    <ClCompile Include="..\Osf\vDOS\dos\dos_tables.cpp" />
+    <ClCompile Include="..\Osf\vDOS\dos\drives.cpp" />
+    <ClCompile Include="..\Osf\vDOS\dos\fcb_files.cpp" />
+    <ClCompile Include="..\Osf\vDOS\gui\events.cpp" />
+    <ClCompile Include="..\Osf\vDOS\gui\freetype.cpp" />
+    <ClCompile Include="..\Osf\vDOS\gui\gui.cpp" />
+    <ClCompile Include="..\Osf\vDOS\gui\video.cpp" />
+    <ClCompile Include="..\Osf\vDOS\hardware\iohandler.cpp" />
+    <ClCompile Include="..\Osf\vDOS\hardware\keyboard.cpp" />
+    <ClCompile Include="..\Osf\vDOS\hardware\memory.cpp" />
+    <ClCompile Include="..\Osf\vDOS\hardware\parport.cpp" />
+    <ClCompile Include="..\Osf\vDOS\hardware\pic.cpp" />
+    <ClCompile Include="..\Osf\vDOS\hardware\serialport.cpp" />
+    <ClCompile Include="..\Osf\vDOS\hardware\timer.cpp" />
+    <ClCompile Include="..\Osf\vDOS\hardware\vga.cpp" />
+    <ClCompile Include="..\Osf\vDOS\hardware\vga_attr.cpp" />
+    <ClCompile Include="..\Osf\vDOS\hardware\vga_crtc.cpp" />
+    <ClCompile Include="..\Osf\vDOS\hardware\vga_dac.cpp" />
+    <ClCompile Include="..\Osf\vDOS\hardware\vga_gfx.cpp" />
+    <ClCompile Include="..\Osf\vDOS\hardware\vga_memory.cpp" />
+    <ClCompile Include="..\Osf\vDOS\hardware\vga_misc.cpp" />
+    <ClCompile Include="..\Osf\vDOS\hardware\vga_seq.cpp" />
+    <ClCompile Include="..\Osf\vDOS\ints\bios.cpp" />
+    <ClCompile Include="..\Osf\vDOS\ints\bios_keyboard.cpp" />
+    <ClCompile Include="..\Osf\vDOS\ints\ems.cpp" />
+    <ClCompile Include="..\Osf\vDOS\ints\int10.cpp" />
+    <ClCompile Include="..\Osf\vDOS\ints\int10_char.cpp" />
+    <ClCompile Include="..\Osf\vDOS\ints\int10_memory.cpp" />
+    <ClCompile Include="..\Osf\vDOS\ints\int10_modes.cpp" />
+    <ClCompile Include="..\Osf\vDOS\ints\int10_pal.cpp" />
+    <ClCompile Include="..\Osf\vDOS\ints\int10_put_pixel.cpp" />
+    <ClCompile Include="..\Osf\vDOS\ints\int10_vptable.cpp" />
+    <ClCompile Include="..\Osf\vDOS\ints\mouse.cpp" />
+    <ClCompile Include="..\Osf\vDOS\ints\xms.cpp" />
+    <ClCompile Include="..\Osf\vDOS\misc\support.cpp" />
+    <ClCompile Include="..\Osf\vDOS\shell\shell.cpp" />
+    <ClCompile Include="..\Osf\vDOS\vDos.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Osf\vDOS\include\4DOS_img.h" />
+    <ClInclude Include="..\Osf\vDOS\include\bios.h" />
+    <ClInclude Include="..\Osf\vDOS\include\callback.h" />
+    <ClInclude Include="..\Osf\vDOS\include\config.h" />
+    <ClInclude Include="..\Osf\vDOS\include\cpu.h" />
+    <ClInclude Include="..\Osf\vDOS\include\devicePRT.h" />
+    <ClInclude Include="..\Osf\vDOS\include\dos_inc.h" />
+    <ClInclude Include="..\Osf\vDOS\include\dos_system.h" />
+    <ClInclude Include="..\Osf\vDOS\include\events.h" />
+    <ClInclude Include="..\Osf\vDOS\include\freetype\config\ftconfig.h" />
+    <ClInclude Include="..\Osf\vDOS\include\freetype\config\ftoption.h" />
+    <ClInclude Include="..\Osf\vDOS\include\freetype\config\ftstdlib.h" />
+    <ClInclude Include="..\Osf\vDOS\include\freetype\freetype.h" />
+    <ClInclude Include="..\Osf\vDOS\include\freetype\fterrdef.h" />
+    <ClInclude Include="..\Osf\vDOS\include\freetype\fterrors.h" />
+    <ClInclude Include="..\Osf\vDOS\include\freetype\ftglyph.h" />
+    <ClInclude Include="..\Osf\vDOS\include\freetype\ftimage.h" />
+    <ClInclude Include="..\Osf\vDOS\include\freetype\ftmoderr.h" />
+    <ClInclude Include="..\Osf\vDOS\include\freetype\ftoutln.h" />
+    <ClInclude Include="..\Osf\vDOS\include\freetype\ftstroke.h" />
+    <ClInclude Include="..\Osf\vDOS\include\freetype\ftsystem.h" />
+    <ClInclude Include="..\Osf\vDOS\include\freetype\fttypes.h" />
+    <ClInclude Include="..\Osf\vDOS\include\freetype\ttnameid.h" />
+    <ClInclude Include="..\Osf\vDOS\include\ft2build.h" />
+    <ClInclude Include="..\Osf\vDOS\include\ftheader.h" />
+    <ClInclude Include="..\Osf\vDOS\include\ftmodule.h" />
+    <ClInclude Include="..\Osf\vDOS\include\inout.h" />
+    <ClInclude Include="..\Osf\vDOS\include\logging.h" />
+    <ClInclude Include="..\Osf\vDOS\include\mem.h" />
+    <ClInclude Include="..\Osf\vDOS\include\mouse.h" />
+    <ClInclude Include="..\Osf\vDOS\include\paging.h" />
+    <ClInclude Include="..\Osf\vDOS\include\parport.h" />
+    <ClInclude Include="..\Osf\vDOS\include\regs.h" />
+    <ClInclude Include="..\Osf\vDOS\include\serialport.h" />
+    <ClInclude Include="..\Osf\vDOS\include\support.h" />
+    <ClInclude Include="..\Osf\vDOS\include\ttf.h" />
+    <ClInclude Include="..\Osf\vDOS\include\vdos.h" />
+    <ClInclude Include="..\Osf\vDOS\include\vDosTTF.h" />
+    <ClInclude Include="..\Osf\vDOS\include\vga.h" />
+    <ClInclude Include="..\Osf\vDOS\include\video.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="freetype.vcxproj">
+      <Project>{d7c20ac1-2566-446f-b49a-598fe7a67094}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="slib.vcxproj">
+      <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

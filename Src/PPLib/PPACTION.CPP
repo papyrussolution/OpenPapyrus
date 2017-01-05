@@ -1,0 +1,789 @@
+// PPACTION.CPP
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016
+// @Kernel
+//
+#include <pp.h>
+#pragma hdrstop
+
+SLAPI SysJournal::SysJournal() : SysJournalTbl()
+{
+	P_RsrvT = 0;
+	if(CConfig.Flags & CCFLG_RSRVSJ)
+		P_RsrvT = new SjRsrvTbl;
+	PPLoadText(PPTXT_ERR_SYSJLOGGING, FmtBuf);
+}
+
+SLAPI SysJournal::~SysJournal()
+{
+	ZDELETE(P_RsrvT);
+}
+
+int SLAPI SysJournal::LogEvent(PPID action, PPID obj, PPID id, long extData, int use_ta)
+{
+	int    ok = -1, ta = 0;
+	const LDATETIME dtm = getcurdatetime_();
+	THROW(PPStartTransaction(&ta, use_ta));
+	data.Dt      = dtm.d;
+	data.Tm      = dtm.t;
+	data.UserID  = LConfig.User;
+	data.Action  = action;
+	data.ObjType = obj;
+	data.ObjID   = id;
+	data.Extra   = extData;
+	if(insertRec())
+		ok = 1;
+	if(ok <= 0) {
+		PPSetError(PPERR_DBENGINE);
+		{
+			int    rsrv_ok = -1;
+			if(P_RsrvT) {
+				//
+				// —ледующий участок кода полностью повтор€ет внесение записи в SysJournal (см. выше),
+				// с поправкой на то, что запись вноситс€ в резервную таблицу.
+				// ƒата и врем€ инициализируютс€ тем же значением, с которым осуществл€лась
+				// сама€ перва€ попытка добавлени€ записи в регул€рную таблицу.
+				//
+				P_RsrvT->data.Dt      = dtm.d;
+				P_RsrvT->data.Tm      = dtm.t;
+				P_RsrvT->data.UserID  = LConfig.User;
+				P_RsrvT->data.Action  = action;
+				P_RsrvT->data.ObjType = obj;
+				P_RsrvT->data.ObjID   = id;
+				P_RsrvT->data.Extra   = extData;
+				if(P_RsrvT->insertRec())
+					rsrv_ok = 1;
+			}
+			{
+				//SString msg_buf, added_buf, temp_buf;
+				PPGetMessage(mfError, PPErrCode, 0, 1, MsgBuf = 0);
+				(AddedBuf = 0).Cat(data.Action).Semicol().Cat(obj).Semicol().Cat(id).Semicol().Cat(extData).
+					Semicol().Cat(MsgBuf);
+				TempBuf = 0;
+				if(rsrv_ok < 0)
+					TempBuf.CatParStr("NR");
+				else if(rsrv_ok > 0)
+					TempBuf.CatParStr("R1");
+				else
+					TempBuf.CatParStr("R0");
+				(MsgBuf = 0).Printf(TempBuf.Space().Cat(FmtBuf), (const char *)AddedBuf);
+				PPLogMessage(PPFILNAM_ERR_LOG, MsgBuf, LOGMSGF_TIME|LOGMSGF_USER);
+			}
+		}
+		ok = 0;
+	}
+	THROW(PPCommitWork(&ta));
+	CATCH
+		PPRollbackWork(&ta);
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
+int SLAPI SysJournal::GetEvent(PPID action, int mode, LDATETIME * pMoment, int maxDays, SysJournalTbl::Rec * b)
+{
+	SysJournalTbl::Key0 k;
+	DBQ  * dbq = 0;
+	BExtQuery q(this, 0, 1);
+	int    sp;
+	MEMSZERO(k);
+	if(pMoment) {
+		k.Dt = pMoment->d;
+		k.Tm = pMoment->t;
+	}
+	if(mode == -1 || mode == 0) {
+		SETIFZ(k.Dt, MAXDATE);
+		SETIFZ(k.Tm, MAXTIME);
+		sp = spLt;
+		dbq = & (*dbq && this->Dt <= k.Dt);
+		if(maxDays > 0) {
+			LDATE limit = plusdate((k.Dt == MAXDATE) ? getcurdate_() : k.Dt, -maxDays);
+			dbq = & (*dbq && this->Dt >= limit);
+		}
+	}
+	else {
+		sp = spGt;
+		dbq = & (*dbq && this->Dt >= k.Dt);
+		if(maxDays > 0 && k.Dt != ZERODATE) {
+			LDATE limit = plusdate(k.Dt, maxDays);
+			dbq = & (*dbq && this->Dt <= limit);
+		}
+	}
+	dbq = ppcheckfiltid(dbq, this->Action, action);
+	q.selectAll().where(*dbq);
+	for(q.initIteration(((mode > 0) ? 0 : 1), &k, sp); q.nextIteration() > 0;) {
+		if(pMoment)
+			pMoment->Set(data.Dt, data.Tm);
+		copyBufTo(b);
+		return 1;
+	}
+	return PPDbSearchError();
+}
+
+int SLAPI SysJournal::GetLastUserEvent(PPID action, PPID userID, PPID sessID, const DateRange * pSrchPeriod, LDATETIME * pMoment, SysJournalTbl::Rec * pRec)
+{
+	SysJournalTbl::Key0 k;
+	DBQ  * dbq = 0;
+	BExtQuery q(this, 0, 1);
+	MEMSZERO(k);
+	if(pSrchPeriod) {
+		k.Dt = pSrchPeriod->upp;
+		dbq = & (*dbq && this->Dt >= pSrchPeriod->low);
+	}
+	k.Tm =  MAXTIME;
+	SETIFZ(k.Dt, MAXDATE);
+	dbq = & (*dbq && this->Dt <= k.Dt);
+	dbq = ppcheckfiltid(dbq, this->Action, action);
+	dbq = ppcheckfiltid(dbq, this->UserID, userID);
+	dbq = ppcheckfiltid(dbq, this->Extra, sessID);
+	q.selectAll().where(*dbq);
+	for(q.initIteration(1, &k, spLt); q.nextIteration() > 0;) {
+		if(pMoment)
+			pMoment->Set(data.Dt, data.Tm);
+		copyBufTo(pRec);
+		return 1;
+	}
+	return PPDbSearchError();
+}
+
+int SLAPI SysJournal::GetLastEvent(PPID action, LDATETIME * pMoment, int maxDays, SysJournalTbl::Rec * b)
+{
+	return GetEvent(action, -1, pMoment, maxDays, b);
+}
+
+int SLAPI SysJournal::GetLastObjUnifyEvent(PPID objType, PPID objID, PPID * pDestID, SysJournalTbl::Rec * pRec)
+{
+	int    ok = -1;
+	SysJournalTbl::Key1 k;
+	k.ObjType = objType;
+	k.ObjID   = objID;
+	k.Dt      = MAXDATE;
+	k.Tm      = MAXTIME;
+	if(search(1, &k, spLt) && k.ObjType == objType && k.ObjID == objID) {
+		do {
+			if(data.Action == PPACN_OBJUNIFY && data.Extra > 0) {
+				copyBufTo(pRec);
+				ASSIGN_PTR(pDestID, data.Extra);
+				ok = 1;
+			}
+		} while(ok < 0 && search(1, &k, spPrev) && k.ObjType == objType && k.ObjID == objID);
+	}
+	return ok;
+}
+
+int SLAPI SysJournal::GetObjEventList(PPID objType, PPID objID, const PPIDArray * pActList, SArray * pResultList)
+{
+	int    ok = -1;
+	SysJournalTbl::Key1 k1;
+	MEMSZERO(k1);
+	k1.ObjType = objType;
+	k1.ObjID = objID;
+	BExtQuery q(this, 1);
+	DBQ * dbq = &(this->ObjType == objType && this->ObjID == objID);
+	dbq = ppcheckfiltidlist(dbq, this->Action, pActList);
+	q.selectAll().where(*dbq);
+	for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+		if(pResultList) {
+			THROW_SL(pResultList->insert(&data));
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI SysJournal::GetObjCreationEvent(PPID objType, PPID objID, SysJournalTbl::Rec * pRec)
+{
+	int    ok = -1;
+	PPIDArray action_list;
+	SArray result_list(sizeof(SysJournalTbl::Rec));
+	if(objType == PPOBJ_BILL)
+		action_list.add(PPACN_TURNBILL);
+	else
+		action_list.add(PPACN_OBJADD);
+	if(GetObjEventList(objType, objID, &action_list, &result_list) > 0) {
+		if(result_list.getCount()) {
+			ASSIGN_PTR(pRec, *(SysJournalTbl::Rec *)result_list.at(result_list.getCount()-1));
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int SLAPI SysJournal::GetLastObjModifEvent(PPID objType, PPID objID, LDATETIME * pMoment, int * pCreation, SysJournalTbl::Rec * pRec)
+{
+	int    ok = -1, cr = 0;
+	SysJournalTbl::Key1 k;
+	k.ObjType = objType;
+	k.ObjID = objID;
+	k.Dt    = MAXDATE;
+	k.Tm    = MAXTIME;
+	while(ok < 0 && search(1, &k, spLt) && k.ObjType == objType && k.ObjID == objID) {
+		if(objType == PPOBJ_BILL) {
+			if(data.Action == PPACN_TURNBILL) {
+				cr = 1;
+				ok = 1;
+			}
+			else if(data.Action == PPACN_UPDBILL) {
+				cr = 0;
+				ok = 1;
+			}
+		}
+		else {
+			if(data.Action == PPACN_OBJADD) {
+				cr = 1;
+				ok = 1;
+			}
+			else if(data.Action == PPACN_OBJUPD) {
+				cr = 0;
+				ok = 1;
+			}
+			else if(oneof2(data.Action, PPACN_GOODSQUOTUPD, PPACN_QUOTUPD2) && objType == PPOBJ_GOODS) { // @v7.3.3 PPACN_QUOTUPD2
+				cr = 0;
+				ok = 1;
+			}
+		}
+	}
+	if(ok > 0) {
+		CALLPTRMEMB(pMoment, Set(data.Dt, data.Tm));
+		ASSIGN_PTR(pCreation, cr);
+		copyBufTo(pRec);
+	}
+	else {
+		CALLPTRMEMB(pMoment, SetZero());
+	}
+	return ok;
+}
+
+int SLAPI SysJournal::GetLastObjEvent(PPID objType, PPID objID, const PPIDArray * pActAry, LDATETIME * pMoment, SysJournalTbl::Rec * pRec)
+{
+	int    ok = -1;
+	SysJournalTbl::Key1 k;
+	k.ObjType = objType;
+	k.ObjID = objID;
+	k.Dt    = MAXDATE;
+	k.Tm    = MAXTIME;
+	const PPID single_acn = pActAry ? pActAry->getSingle() : 0;
+	if(single_acn) {
+		BExtQuery q(this, 1);
+		q.selectAll().where(this->ObjType == objType && this->ObjID == objID && this->Action == single_acn);
+		q.initIteration(1, &k, spLt);
+		if(q.nextIteration() > 0) {
+			assert(data.ObjType == objType && data.ObjID == objID && data.Action == single_acn); // @paranoic
+			if(data.ObjType == objType && data.ObjID == objID && data.Action == single_acn) // @paranoic
+				ok = 1;
+		}
+	}
+	else {
+		if(search(1, &k, spLt) && k.ObjType == objType && k.ObjID == objID) {
+			do {
+				if(!pActAry || pActAry->getCount() == 0 || pActAry->lsearch(data.Action))
+					ok = 1;
+			} while(ok < 0 && search(1, &k, spPrev) && k.ObjType == objType && k.ObjID == objID);
+		}
+	}
+	if(ok > 0) {
+		if(pMoment)
+			pMoment->Set(data.Dt, data.Tm);
+		copyBufTo(pRec);
+	}
+	else if(pMoment)
+		pMoment->SetZero();
+	return ok;
+}
+
+int SLAPI SysJournal::GetObjListByEventSince(PPID objType, const PPIDArray * pActList, const LDATETIME & rSince, PPIDArray & rObjList)
+{
+	int    ok = -1;
+	SysJournalTbl::Key0 k;
+	DBQ * dbq = 0;
+	k.Dt = rSince.d;
+	k.Tm = rSince.t;
+	BExtQuery q(this, 0, 128);
+	dbq = &(*dbq && this->Dt >= rSince.d);
+	dbq = ppcheckfiltid(dbq, this->ObjType, objType);
+	q.select(this->Dt, this->Tm, this->ObjID, this->Action, 0L);
+	q.where(*dbq);
+	for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+		if(cmp(rSince, data.Dt, data.Tm) < 0 && (!pActList || pActList->lsearch(data.Action))) {
+			THROW(rObjList.add(data.ObjID)); // @v8.1.0 addUnique-->add
+			ok = 1;
+		}
+	}
+	rObjList.sortAndUndup(); // @v8.1.0
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI SysJournal::GetObjListByEventPeriod(PPID objType, PPID userID,
+	const PPIDArray * pActList, const DateRange * pPeriod, PPIDArray & rObjList)
+{
+	rObjList.clear();
+	int    ok = -1;
+	const  uint acn_list_c = pActList ? pActList->getCount() : 0;
+	const  PPID single_acn = (acn_list_c == 1) ? pActList->get(0) : 0;
+	SysJournalTbl::Key0 k;
+	k.Dt = pPeriod ? pPeriod->low : ZERODATE;
+	k.Tm = ZEROTIME;
+	DBQ * dbq = 0;
+	BExtQuery q(this, 0);
+	dbq = &(this->ObjType == objType && daterange(this->Dt, pPeriod));
+	dbq = ppcheckfiltid(dbq, this->UserID, userID);
+	q.select(this->Dt, this->Tm, this->ObjID, this->Action, this->UserID, 0L).where(*dbq);
+	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+		if(single_acn) {
+			if(data.Action == single_acn) {
+				THROW_SL(rObjList.add(data.ObjID));
+				ok = 1;
+			}
+		}
+		else if(!acn_list_c || pActList->lsearch(data.Action)) {
+			THROW_SL(rObjList.add(data.ObjID));
+			ok = 1;
+		}
+	}
+	rObjList.sortAndUndup();
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI SysJournal::CheckObjForFilt(PPID objType, PPID objID, const SysJournalFilt * pFilt)
+{
+	int    ok = -1;
+	if(pFilt && !pFilt->IsEmpty()) {
+		if(CheckFiltID(pFilt->ObjType, objType) && CheckFiltID(pFilt->ObjID, objID)) {
+			SysJournalTbl::Key1 k1;
+			DBQ * dbq = 0;
+			BExtQuery q(this, 1, 1); // Ќам достаточно одной записи
+			dbq = &(*dbq && this->ObjType == objType && this->ObjID == objID && daterange(this->Dt, &pFilt->Period));
+			dbq = ppcheckfiltid(dbq, this->UserID, pFilt->UserID);
+			dbq = &(*dbq && ppidlist(this->Action, &pFilt->ActionIDList));
+			q.selectAll().where(*dbq);
+			MEMSZERO(k1);
+			k1.ObjType = objType;
+			k1.ObjID = objID;
+			k1.Dt = pFilt->Period.low;
+			for(q.initIteration(0, &k1, spGe); ok < 0 && q.nextIteration() > 0;) {
+				ok = 1;
+			}
+		}
+	}
+	else
+		ok = 1;
+	return ok;
+}
+
+int SLAPI SysJournal::IsEventExists(PPID objType, PPID objID, PPID userID, const PPIDArray * pActList)
+{
+	int    ok = -1;
+	SysJournalTbl::Key1 k;
+	k.ObjType = objType;
+	k.ObjID = objID;
+	k.Dt    = MAXDATE;
+	k.Tm    = MAXTIME;
+	if(search(1, &k, spLt) && k.ObjType == objType && k.ObjID == objID) {
+		do {
+			if((!userID || userID == data.UserID) && (!pActList || pActList->getCount() == 0 || pActList->lsearch(data.Action) > 0))
+				ok = 1;
+		} while(ok < 0 && search(1, &k, spPrev) && k.ObjType == objType && k.ObjID == objID);
+	}
+	return ok;
+}
+
+int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
+{
+	int    ok = 1, ta = 0;
+	SString fmt_buf, msg_buf, added_buf, temp_buf;
+	IterCounter counter;
+	SysJournalTbl::Key0 k;
+	PPStartTransaction(&ta, 1);
+	if(recover && P_RsrvT) {
+		SjRsrvTbl::Key0 rk0;
+		MEMSZERO(rk0);
+		counter.Init(P_RsrvT);
+		if(P_RsrvT->searchForUpdate(0, &rk0, spFirst)) {
+			do {
+				int    r = 0;
+				SjRsrvTbl::Rec rsrv_rec;
+				P_RsrvT->copyBufTo(&rsrv_rec);
+				LDATETIME dtm;
+				dtm.Set(rsrv_rec.Dt, rsrv_rec.Tm);
+				data.Dt      = dtm.d;
+				data.Tm      = dtm.t;
+				data.UserID  = rsrv_rec.UserID;
+				data.Action  = rsrv_rec.Action;
+				data.ObjType = rsrv_rec.ObjType;
+				data.ObjID   = rsrv_rec.ObjID;
+				data.Extra   = rsrv_rec.Extra;
+#if 0 // @v7.7.8 {
+				for(int i = 0; !r && i < 20; i++) {
+					if(insertRec()) {
+						THROW_DB(P_RsrvT->deleteRec()); // @sfu
+						r = 1;
+					}
+					else {
+						int    dberr = BtrError;
+						if(oneof3(dberr, BE_DUP, BE_RECLOCK, BE_DEADLOCK)) {
+							plusdatetime(dtm, 1, 4);
+							data.Dt = dtm.d;
+							data.Tm = dtm.t;
+						}
+						else
+							break;
+					}
+				}
+				if(!r) {
+					PPSetError(PPERR_DBENGINE);
+					PPLoadText(PPTXT_ERR_SYSJRECOVERING, fmt_buf);
+					PPGetMessage(mfError, PPErrCode, 0, 1, msg_buf);
+					(added_buf = 0).Cat(rsrv_rec.Action).Semicol().Cat(rsrv_rec.ObjType).Semicol().Cat(rsrv_rec.ObjID).
+						Semicol().Cat(rsrv_rec.Extra).Semicol().Cat(msg_buf);
+					(msg_buf = 0).Printf(fmt_buf, (const char *)added_buf);
+					if(pLogger)
+						pLogger->Log(msg_buf);
+					else
+						PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+				}
+#else // }{
+				if(insertRec()) {
+					THROW_DB(P_RsrvT->deleteRec()); // @sfu
+				}
+				else {
+					PPSetError(PPERR_DBENGINE);
+					PPLoadText(PPTXT_ERR_SYSJRECOVERING, fmt_buf);
+					PPGetMessage(mfError, PPErrCode, 0, 1, msg_buf);
+					(added_buf = 0).Cat(rsrv_rec.Action).Semicol().Cat(rsrv_rec.ObjType).Semicol().Cat(rsrv_rec.ObjID).
+						Semicol().Cat(rsrv_rec.Extra).Semicol().Cat(msg_buf);
+					(msg_buf = 0).Printf(fmt_buf, (const char *)added_buf);
+					if(pLogger)
+						pLogger->Log(msg_buf);
+					else
+						PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+				}
+#endif // } @v7.7.8
+				PPWaitPercent(counter.Increment());
+			} while(P_RsrvT->searchForUpdate(0, &rk0, spNext));
+		}
+		else if(BTROKORNFOUND && pLogger)
+			pLogger->LogString(PPTXT_RSRVSYSJNOTHING, 0);
+		THROW_DB(BTROKORNFOUND);
+	}
+	if(toDt) {
+		PPLoadText(PPTXT_DBMAINTAIN, fmt_buf);
+		SPathStruc ps;
+		ps.Split(fileName);
+		ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
+		msg_buf.Printf(fmt_buf, (const char *)temp_buf);
+		{
+			MEMSZERO(k);
+			BExtQuery q(this, 0);
+			q.select(this->Dt, this->Tm, 0).where(this->Dt <= toDt);
+			counter.Init(q.countIterations(0, &k, spFirst));
+		}
+		k.Dt = toDt;
+		k.Tm = MAXTIME;
+		for(; searchForUpdate(0, &k, spLt) && k.Dt <= toDt; PPWaitPercent(counter.Increment(), msg_buf)) {
+			THROW_DB(deleteRec()); // @sfu
+		}
+	}
+	PPCommitWork(&ta);
+	CATCH
+		PPRollbackWork(&ta);
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
+int SLAPI SysJournal::Subst(SubstGrpSysJournal sgsj, PPID opID, PPID prmrID, PPID scndID, PPID * pID)
+{
+	PPID   id = 0;
+	if(sgsj == sgsjOp)
+		id = opID;
+	else if(sgsj == sgsjUser)
+		id = prmrID;
+	else if(sgsj == sgsjObjType)
+		id = scndID;
+	ASSIGN_PTR(pID, id);
+	return 1;
+}
+
+int SLAPI SysJournal::GetSubstName(SubstGrpSysJournal sgsj, PPID id, char * pBuf, size_t bufLen)
+{
+	SString temp_buf;
+	if(sgsj == sgsjOp)
+		GetObjectName(PPOBJ_ACTION, id, temp_buf);
+	else if(sgsj == sgsjUser) {
+		PPSecur rec;
+		PPObjSecur obj(PPOBJ_USR, 0);
+		obj.Fetch(id, &rec);
+		temp_buf = rec.Name;
+	}
+	else if(sgsj == sgsjObjType)
+		GetObjectTitle(id, temp_buf);
+	temp_buf.CopyTo(pBuf, bufLen);
+	return 1;
+}
+//
+//
+//
+SLAPI GtaJournalCore::GtaJournalCore() : GtaJournalTbl()
+{
+}
+
+static SString & GetGoodsCodeForOp(int op, PPID objType, SString & rBuf)
+{
+	(rBuf = "GTA").CatLongZ(op, 3);
+	if(objType && oneof4(op, GTAOP_OBJGET, GTAOP_OBJADD, GTAOP_OBJMOD, GTAOP_OBJRMV))
+		rBuf.CatLongZ(objType, 4);
+	return rBuf;
+}
+
+int SLAPI PPObjBill::InitGtaBlock()
+{
+	SETIFZ(P_ScObj, new PPObjSCard);
+	return 1;
+}
+
+PPID FASTCALL PPObjBill::GetGtaGoodsID(const PPGta & rGta)
+{
+	PPID   goods_id = 0;
+	SString code;
+	BarcodeTbl::Rec bc_rec;
+	long   assoc_key = MakeLong((int16)rGta.ObjId.Obj, (int16)rGta.Op);
+	if(!GtaB.OpGoodsAssoc.Search(assoc_key, &goods_id, 0)) {
+		if(GObj.P_Tbl->SearchBarcode(GetGoodsCodeForOp(rGta.Op, rGta.ObjId.Obj, code), &bc_rec) > 0)
+			goods_id = bc_rec.GoodsID;
+		if(goods_id) // ѕока нет актуализации списка нулевые goods_id туда запихавать не будем
+			GtaB.OpGoodsAssoc.Add(assoc_key, goods_id, 0);
+	}
+	if(!goods_id && rGta.ObjId.Obj) {
+		assoc_key = MakeLong((int16)0, (int16)rGta.Op);
+		if(!GtaB.OpGoodsAssoc.Search(assoc_key, &goods_id, 0)) {
+			if(GObj.P_Tbl->SearchBarcode(GetGoodsCodeForOp(rGta.Op, 0, code), &bc_rec) > 0)
+				goods_id = bc_rec.GoodsID;
+			if(goods_id) // ѕока нет актуализации списка нулевые goods_id туда запихавать не будем
+				GtaB.OpGoodsAssoc.Add(assoc_key, goods_id, 0);
+		}
+	}
+	return goods_id;
+}
+
+int SLAPI PPObjBill::GetGtaGuaAssoc(const PPGta & rGta, PPObjBill::GtaBlock::GuaAssocItem & rAssoc)
+{
+	int    ok = 1;
+	MEMSZERO(rAssoc);
+	rAssoc.GuaID = rGta.GlobalUserID;
+	if(rAssoc.GuaID) {
+		uint   pos = 0;
+		if(GtaB.GuaAssoc.lsearch(&rAssoc.GuaID, &pos, CMPF_LONG)) {
+			GtaBlock::GuaAssocItem & r_item = GtaB.GuaAssoc.at(pos);
+			assert(r_item.GuaID == rAssoc.GuaID);
+			rAssoc = r_item;
+		}
+		else {
+			SETIFZ(P_ScObj, new PPObjSCard);
+			if(P_ScObj && P_ScObj->P_Tbl) {
+				PPObjGlobalUserAcc gua_obj;
+				PPGlobalUserAcc gua_rec;
+				PPGlobalUserAccConfig gua_cfg;
+				if(gua_obj.FetchConfig(&gua_cfg) > 0 && gua_cfg.SCardSerID && gua_obj.Fetch(rAssoc.GuaID, &gua_rec) > 0 && gua_rec.PersonID) {
+					rAssoc.PersonID = gua_rec.PersonID;
+					PPIDArray sc_list;
+					P_ScObj->P_Tbl->GetListByPerson(gua_rec.PersonID, gua_cfg.SCardSerID, &sc_list);
+					if(sc_list.getCount()) {
+						PPID   sc_id = sc_list.get(0);
+						PPID   acs_id = 0;
+						rAssoc.SCardID = sc_id;
+						if(gua_cfg.PersonKindID) {
+							PPObjAccSheet acs_obj;
+							PPAccSheet acs_rec;
+							for(SEnum en = acs_obj.ref->Enum(PPOBJ_ACCSHEET, 0); !acs_id && en.Next(&acs_rec) > 0;) {
+								if(acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == gua_cfg.PersonKindID)
+									acs_id = acs_rec.ID;
+							}
+						}
+						if(acs_id) {
+							ArObj.P_Tbl->PersonToArticle(gua_rec.PersonID, acs_id, &rAssoc.ArID);
+						}
+					}
+				}
+			}
+			GtaB.GuaAssoc.insert(&rAssoc);
+		}
+	}
+	return ok;
+}
+
+int SLAPI PPObjBill::InitGta(PPGta & rGta)
+{
+	int    ok = -1;
+	GtaBlock::GuaAssocItem gua_assoc;
+	GetGtaGuaAssoc(rGta, gua_assoc);
+	rGta.SCardID = gua_assoc.SCardID;
+	if(gua_assoc.SCardID) {
+		const PPID goods_id = GetGtaGoodsID(rGta);
+		Goods2Tbl::Rec goods_rec;
+		if(goods_id && GObj.Fetch(goods_id, &goods_rec) > 0) {
+			QuotIdent qi(0, PPQUOTK_BASE, 0, gua_assoc.ArID);
+			double quot = 0.0;
+			GObj.GetQuotExt(goods_id, qi, 0.0, 0.0, &quot, 1);
+			rGta.Quot = quot;
+			if(quot != 0.0 && P_ScObj && P_ScObj->P_Tbl) {
+				SCardTbl::Rec sc_rec;
+				THROW(P_ScObj->P_Tbl->GetRest(gua_assoc.SCardID, ZERODATE, &rGta.SCardRest));
+				if(P_ScObj->Search(gua_assoc.SCardID, &sc_rec) > 0)
+					rGta.SCardMaxCredit = sc_rec.MaxCredit;
+			}
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPObjBill::CheckInGta(const PPGta & rGta, int use_ta)
+{
+	int    ok = -1;
+	GtaBlock::GuaAssocItem gua_assoc;
+	GetGtaGuaAssoc(rGta, gua_assoc);
+	if(gua_assoc.SCardID) {
+		const PPID goods_id = GetGtaGoodsID(rGta);
+		Goods2Tbl::Rec goods_rec;
+		if(goods_id && GObj.Fetch(goods_id, &goods_rec) > 0) {
+			QuotIdent qi(0, PPQUOTK_BASE, 0, gua_assoc.ArID);
+			double quot = 0.0;
+			if(GObj.GetQuotExt(goods_id, qi, 0.0, 0.0, &quot, 1) > 0 && quot != 0.0) {
+				SCardCore::OpBlock op_blk;
+				op_blk.SCardID = gua_assoc.SCardID;
+				op_blk.Dtm = rGta.Dtm;
+				op_blk.Amount = (rGta.Count > 0) ? -(quot * rGta.Count) : -quot;
+				THROW(P_ScObj->P_Tbl->PutOpBlk(op_blk, use_ta));
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI GtaJournalCore::CheckInOp(PPGta & rGta, int use_ta)
+{
+	int    ok = 1;
+	{
+		GtaJournalTbl::Rec rec;
+		GtaJournalTbl::Key1 k1;
+		if(BillObj)
+			BillObj->InitGtaBlock();
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		MEMSZERO(rec);
+		rec.Op = rGta.Op;
+		rec.GlobalAccID = rGta.GlobalUserID;
+		rec.Dt = rGta.Dtm.d;
+		rec.Tm = rGta.Dtm.t;
+		rec.ObjType = rGta.ObjId.Obj;
+		rec.ObjID = rGta.ObjId.Id;
+		rec.Count = rGta.Count;
+		rec.Duration = rGta.Duration;
+		{
+			//
+			// —уррогатна€ уникальность индекса по времени
+			//
+			LDATETIME dtm;
+			dtm.Set(rec.Dt, rec.Tm);
+			k1.GlobalAccID = rec.GlobalAccID;
+			k1.Dt = dtm.d;
+			k1.Tm = dtm.t;
+			if(search(1, &k1, spEq)) {
+				uint   inc_count = 0;
+				do {
+					dtm.addhs(1);
+					k1.Dt = dtm.d;
+					k1.Tm = dtm.t;
+					inc_count++;
+				} while(search(1, &k1, spEq));
+				//
+				// ¬ случае, если врем€ операции €вл€етс€ текущим (как чаще всего и бывает)
+				// необходимо задержать выполнение функции на величину искусственного смещени€ времени
+				// дл€ того, чтобы следующа€ операци€ не оказалась бы впереди предыдущей.
+				//
+				delay(inc_count * 10);
+				//
+				rGta.Dtm = dtm;
+				rec.Dt = dtm.d;
+				rec.Tm = dtm.t;
+			}
+		}
+		THROW_DB(insertRecBuf(&rec));
+		if(BillObj) {
+			THROW(BillObj->CheckInGta(rGta, 0));
+		}
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
+SLAPI DGQCore::DGQCore() : DGQTbl()
+{
+}
+
+int SLAPI DGQCore::SearchQuery(const S_GUID & rUuid, DGQTbl::Rec * pRec)
+{
+    DGQTbl::Key0 k0;
+    MEMSZERO(k0);
+    memcpy(k0.QUUID, &rUuid, sizeof(k0.QUUID));
+	return SearchByKey(this, 0, &k0, pRec);
+}
+
+int SLAPI DGQCore::PutQuery(const S_GUID & rUuid, int queryType, int use_ta)
+{
+    int    ok = 1;
+	DGQTbl::Rec rec;
+    assert(sizeof(rec.QUUID) >= sizeof(S_GUID));
+    THROW_PP(!rUuid.IsZero(), PPERR_INVPARAM);
+    {
+    	PPTransaction tra(use_ta);
+    	THROW(tra);
+    	{
+    		const LDATETIME ct = getcurdatetime_();
+            MEMSZERO(rec);
+            rec.QDt = ct.d;
+            rec.QTm = ct.t;
+            memcpy(rec.QUUID, &rUuid, sizeof(rec.QUUID));
+            rec.QueryType = queryType;
+            THROW_DB(insertRecBuf(&rec));
+    	}
+    	THROW(tra.Commit());
+    }
+    CATCHZOK
+    return ok;
+}
+
+int SLAPI DGQCore::CommitQuery(const S_GUID & rUuid, int use_ta)
+{
+    int    ok = 1;
+    DGQTbl::Rec rec;
+    assert(sizeof(rec.QUUID) >= sizeof(S_GUID));
+    {
+    	PPTransaction tra(use_ta);
+    	THROW(tra);
+    	{
+			if(SearchQuery(rUuid, &rec) > 0) {
+				if(!rec.Ready) {
+					const LDATETIME ct = getcurdatetime_();
+                    rec.Ready = 1;
+                    rec.ADt = ct.d;
+                    rec.ATm = ct.t;
+                    THROW_DB(updateRecBuf(&rec));
+                    ok = 1;
+				}
+			}
+		}
+    	THROW(tra.Commit());
+    }
+    CATCHZOK
+    return ok;
+}
+

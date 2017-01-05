@@ -1,0 +1,1057 @@
+// PPDATA.RC
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// @codepage windows-1251
+// Данные для проекта Papyrus
+//
+#include <ppdefs.h>
+
+DBFS_RETAILGOODSHDR PP_RCDATA {
+	2,
+	"MAINORG\0", "C", 48, 0,
+	"LOCNAME\0", "C", 48, 0
+};
+//
+// Структура DBF файла для экспорта Прайс Листа
+//
+DBFS_Exp_Price_List PP_RCDATA {
+	13,
+	"GOODSGRP\0",  "C",  48, 0,
+	"GOODSNAME\0", "C",  48, 0,
+	"PRICE\0",     "N",   8, 2,
+	"GRPID\0",     "N",   8, 0,
+	"GOODSID\0",   "N",   6, 0,
+	"UNITID\0",    "N",   6, 0,
+	"UNITS\0",     "N",   8, 0,
+	"UNITNAME\0",  "C",  10, 0,
+	"QUOTID\0",    "N",   6, 0,
+	"MANUFID\0",   "N",   6, 0,
+	"EXPIRY\0",    "D",   8, 0,
+	"BARCODE\0",   "C",  16, 0,
+	"PMEMO\0",     "C", 128, 0
+};
+/* @v9.4.5 (obsolete)
+//
+// Структура DBF файла для экспорта в ЛенТорг fds.dbf
+//
+DBFS_LENTORG_fds PP_RCDATA {
+	10,
+	"SHIFR_D\0",  "C",  2, 0, // ВИД.ОП.
+	"DOCUMENT\0", "C",  5, 0, // NДОКУМЕНТА
+	"DATE_D\0",   "D",  8, 0,
+	"SUMMA1\0",   "N", 12, 2,
+	"SUMMA2\0",   "N", 12, 2,
+	"SUMMA3\0",   "N",  8, 2,
+	"DATE_O\0",   "D",  8, 2, // ДАТА ОПЛАТЫ
+	"WHO\0",      "C",  4, 0, // КОНТРАГЕНТ
+	"FIO\0",      "C", 40, 0, // ПРИМЕЧ.
+	"DATE_C\0",   "D",  8, 0
+};
+
+DBFS_LENTORG_fdo PP_RCDATA {
+	8,
+	"SHIFR_D\0",  "C",  2, 0, // ВИД.ОП.
+	"DOCUMENT\0", "C",  5, 0, // N ДОКУМЕНТА
+	"DATE_D\0",   "D",  8, 0,
+	"SUMMA2\0",   "N", 12, 2,
+	"DATE_O\0",   "D",  8, 2, // ДАТА ОПЛАТЫ
+	"WHO\0",      "C",  4, 0, // КОНТРАГЕНТ
+	"FIO\0",      "C", 40, 0, // ПРИМЕЧ.
+	"DATE_C\0",   "D",  8, 0
+};
+
+DBFS_LENTORG_dv PP_RCDATA {
+	9,
+	"COD_P\0",   "C",  4, 0, //
+	"N_DOC\0",   "C",  5, 0, // Связь с fds.DOCUMENT ?
+	"DATE_D\0",  "D",  8, 0,
+	"OBOZN\0",   "C", 10, 0, // Связь с na.OBOZN ?
+	"PRICE_I\0", "N",  8, 2,
+	"KOL\0",     "N", 11, 3,
+	"PRICE_O\0", "N",  8, 2,
+	"OPER\0",    "C",  2, 0, // НР НС
+	"GROUP\0",   "C",  3, 0
+};
+
+DBFS_LENTORG_na PP_RCDATA {
+	19,
+	"OBOZN\0",      "C", 10, 0, //
+	"PRICE_I\0",    "N",  8, 2, //
+	"KOL\0",        "N", 11, 3,
+	"GROUP\0",      "C",  3, 0,
+	"NAIM\0",       "C", 33, 0,
+	"PRICE_O\0",    "N",  8, 2,
+	"OPT1\0",       "N",  8, 2,
+	"OPT2\0",       "N",  8, 2,
+	"UCH_N_CERT\0",	"C",  8, 0,
+	"REG_N_CERT\0",	"C", 12, 0,
+	"D_END_CERT\0",	"D",  8, 0,
+	"ORG_CERT\0",	"C", 20, 0,
+	"PRZV_CERT\0",	"C", 20, 0,
+	"N_KU_CERT\0",	"C",  8, 0,
+	"DV_KU_CERT\0",	"D",  8, 0,
+	"KV_KU_CERT\0",	"C", 20, 0,
+	"DR_KU_CERT\0",	"D",  8, 0,
+	"STRANA\0",	    "C", 10, 0,
+	"N_DEKLAR\0",	"C", 20, 0
+};
+
+DBFS_LENTORG_spr PP_RCDATA {
+	3,
+	"TIP\0",  "C",  2, 0,
+	"COD\0",  "C",  3, 0,
+	"NAIM\0", "C", 30, 0
+};
+
+DBFS_LENTORG_spp PP_RCDATA {
+	16,
+	"COD\0",       "C",  4, 0,
+	"NAIM\0",      "C", 30, 0,
+	"ADDR1\0",     "C", 40, 0,
+	"ADDR2\0",     "C", 40, 0,
+	"FIO\0",       "C", 30, 0,
+	"ADDR3\0",     "C", 25, 0,
+	"ADDR4\0",     "C", 40, 0,
+	"BANK\0",      "C", 40, 0,
+	"SCHET\0",     "C", 20, 0,
+	"MFO\0",       "C",  6, 0,
+	"COMMENT\0",   "C", 70, 0,
+	"INN\0",       "C", 12, 0,
+	"OKPO\0",      "C",  9, 0,
+	"OKONH\0",     "C",  9, 0,
+	"BIC\0",       "C",  9, 0,
+	"COR_SCHET\0", "C", 20, 0
+};
+@v9.4.5 (obsolete) */
+//
+// Структура DBF файла для экспорта товарных остатков в ККМ Електроника-92-Аквариус
+//
+DBFS_MNEXPORT PP_RCDATA {
+	8,
+	"NAME\0",       "C", 64, 0,
+	"PRICE\0",      "N", 10, 0,
+	"TOTAL\0",      "N", 10, 3,
+	"CODE\0",       "N", 13, 0,
+	"DIVNUM\0",     "N",  3, 0,
+	"INTEGER\0",    "C",  1, 0,
+
+	"GOODSID\0",    "N", 10, 0,
+	"UNTPERPACK\0", "N", 10, 3
+};
+//
+// Структура DBF файла для экспорта товарных остатков в ККМ ЭКР-4110
+//
+DBFS_ECREXPORT PP_RCDATA {
+	11,
+	"EAN\0",        "N", 13, 0,
+	"NAME\0",       "C", 40, 0,
+	"PRICE_R\0",    "N", 11, 2,
+	"GROUP\0",      "N",  2, 0,
+	"PRICE_S\0",    "N", 11, 2,
+	"IZM\0",        "C",  3, 0,
+	"CAS\0",        "N",  2, 0,
+	"FIRM\0",       "N",  4, 0,
+	"OWNER\0",      "N",  2, 0,
+
+	"GOODSID\0",    "N", 10, 0,
+	"UNTPERPACK\0", "N", 10, 3
+};
+//
+// Структура DBF-файла для экспорта в СуперМаг-УКМ
+//
+DBFS_SMUKM_BAR_EXPORT PP_RCDATA {
+	4,
+	"BARCODE\0",     "C", 15, 0,
+	"CARDARTICU\0",  "C", 30, 0,
+	"CARDSIZE\0",    "C", 10, 0,
+	"QUANTITY\0",    "N", 16, 6
+};
+//
+// Структура DBF-файла для экспорта в СуперМаг-УКМ
+//
+DBFS_SMUKM_GOODS_EXPORT PP_RCDATA {
+	24,
+	"ARTICUL\0",        "C", 30, 0,
+	"NAME\0",           "C", 80, 0,
+	"MESURIMENT\0",     "C", 10, 0,
+	"MESPRESISI\0",     "N", 16, 6,
+	"ADD1\0",           "C", 20, 0,
+	"ADD2\0",           "C", 20, 0,
+	"ADD3\0",           "C", 20, 0,
+	"ADDNUM1\0",        "N", 16, 6,
+	"ADDNUM2\0",        "N", 16, 6,
+	"ADDNUM3\0",        "N", 16, 6,
+	"SCALE\0",          "C", 10, 0,
+	"GROOP1\0",         "N",  6, 0,
+	"GROOP2\0",         "N",  6, 0,
+	"GROOP3\0",         "N",  6, 0,
+	"GROOP4\0",         "N",  6, 0,
+	"GROOP5\0",         "N",  6, 0,
+	"PRICERUB\0",       "N", 16, 2,
+	"PRICECUR\0",       "N", 16, 2,
+	"CLIENTINDE\0",     "N",  6, 0,
+	"COMMENTARY\0",     "C", 80, 0,
+	"DELETED\0",        "N",  6, 0,
+	"MODDATE\0",        "D",  8, 0,
+	"MODTIME\0",        "N",  6, 0,
+	"MODPERSONI\0",     "N",  6, 0
+};
+//
+// Структура DBF-файла для экспорта в драйвер PETROVICH
+//
+DBFS_PETROVICHEXPORT PP_RCDATA {
+	7,
+	"PRIHOD\0",         "C", 25, 0,
+	"CODE\0",           "C", 13, 0,
+	"NAME\0",           "C", 32, 0,
+	"PRICE\0",          "N", 20, 2,
+	"DIVNUM\0",         "C",  1, 0,
+	"SH_CODE\0",        "C", 13, 0,
+	"RES\0",            "N", 11, 3
+};
+//
+// Структура DBF-файла для печати этикеток товаров и ценников
+//
+DBFS_RETAILGOODS PP_RCDATA {
+	9,
+	"ID\0",         "N", 10, 0,
+	"NAME\0",       "C", 40, 0,
+	"BARCODE\0",    "C", 16, 0,
+	"PRICE\0",      "N", 11, 2,
+	"GROUPID\0",    "N",  4, 0,
+	"UNIT\0",       "C", 16, 0,
+	"MANUF\0",      "C", 40, 0,
+	"COUNTRY\0",    "C", 30, 0,
+	"EXPIRY\0",     "D",  8, 0
+};
+//
+// Структура DBF-файла для вывода анализа товарных операций
+// с данными о торговых лицензиях контрагентов
+//
+DBFS_TRFRANLZLIC PP_RCDATA {
+	15,
+	"DATE\0",      "D",  8, 0,
+	"OPRNO\0",     "N", 10, 0,
+	"BILLID\0",    "N", 10, 0,
+	"BILLCODE\0",  "C", 12, 0,
+	"GOODSID\0",   "N", 10, 0,
+	"ARTICLEID\0", "N", 10, 0,
+	"GOODSNAME\0", "C", 40, 0,
+	"CNTRANAME\0", "C", 48, 0,
+/*
+	"CNTRAADDR\0", "C", 64, 0,
+	"CNTRACITY\0", "C", 48, 0,
+	"LICNO\0",     "C", 20, 0,
+	"LICDATE\0",   "D",  8, 0,
+	"LICORGNAM\0", "C", 48, 0,
+*/
+	"QTTY\0",      "N", 18, 6,
+	"PHQTTY\0",    "N", 18, 6,
+	"SUM_COST\0",  "N", 14, 2,
+	"SUM_PRICE\0", "N", 14, 2,
+	"SUM_DSCNT\0", "N", 14, 2,
+	"AMOUNT\0",    "N", 14, 2,
+	"OPID\0",      "N", 10, 0  // @v4.5.9 ИД вида операции
+};
+//
+// Структуры данных для загрузки в Palm
+//
+DBFS_PALM_GOODS PP_RCDATA {
+	32,
+	"ID\0",         "N", 10, 0, // ИД товара
+	"NAME\0",       "C", 64, 0, // Наименование товара
+	"BARCODE\0",    "C", 16, 0, // Штрихкод
+	"PACK\0",       "N", 10  3, // Емкость упаковки
+	"PRICE\0",      "N", 12, 2, // Основная цена реализации
+	"REST\0",       "N", 12, 3, // Остаток на складе (на момент подготовки данных)
+	"GROUPID\0",    "N", 10, 0, // ИД группы, которой товар принадлежит
+	"EXPIRY\0",     "D",  8, 0, // Дата истечения срока годности
+	"BRANDID\0",    "N", 10, 0, // Бренд
+	"BRDOWNID\0",   "N", 10, 0, // Владелец бренда
+	"MINORD\0",     "N", 10, 2, // Минимальный заказ
+	"MULTORD\0",    "N",  1, 0, // Проверять кратность заказа
+	"QUOT1\0",      "N", 12, 2, // 16 дополнительных котировок, используются //
+	"QUOT2\0",      "N", 12, 2, // для указания спец цен по покупателям
+	"QUOT3\0",      "N", 12, 2, // . Положение котировки соотносится с полем
+	"QUOT4\0",      "N", 12, 2, // . N таблицы DBFS_PALM_QUOTKIND
+	"QUOT5\0",      "N", 12, 2, // .
+	"QUOT6\0",      "N", 12, 2, // .
+	"QUOT7\0",      "N", 12, 2, // .
+	"QUOT8\0",      "N", 12, 2, // .
+	"QUOT9\0",      "N", 12, 2, // .
+	"QUOT10\0",     "N", 12, 2, // .
+	"QUOT11\0",     "N", 12, 2, // .
+	"QUOT12\0",     "N", 12, 2, // .
+	"QUOT13\0",     "N", 12, 2, // .
+	"QUOT14\0",     "N", 12, 2, // .
+	"QUOT15\0",     "N", 12, 2, // .
+	"QUOT16\0",     "N", 12, 2, // .
+	"QUOT17\0",     "N", 12, 2, // .
+	"QUOT18\0",     "N", 12, 2, // .
+	"QUOT19\0",     "N", 12, 2, // .
+	"QUOT20\0",     "N", 12, 2  // .
+};
+
+DBFS_PALM_QUOTKIND PP_RCDATA {
+	3,
+	"ID\0",         "N", 10, 0, // ИД вида котировки
+	"N\0",          "N", 10, 0, // Порядковый номер значения котировки в таблице DBFS_PALM_GOODS
+	"NAME\0",       "C", 48, 0  // Наименование вида котировки
+};
+//
+// Группы товаров
+//
+DBFS_PALM_GOODSGRP PP_RCDATA {
+    3,
+	"ID\0",         "N", 10, 0, // ИД товарной группы
+	"ParentID\0",   "N", 10, 0, // ИД родительской группы
+	"NAME\0",       "C", 64, 0  // Наименование
+};
+//
+// Клиенты
+//
+DBFS_PALM_CLIENTS PP_RCDATA {
+    7,
+	"ID\0",         "N", 10, 0, // ИД клиента
+	"NAME\0",       "C", 48, 0, // Наименование
+	"CODE\0",       "C", 16, 0, // Код клиента (для быстрого выбора)
+	"INN\0",        "C", 16, 0, // ИНН клиента (для дополнительной идентификации)
+	"QUOTKIND\0",   "N", 10, 0, // Вид котировки, по которому выбирается цена клиента
+	"DEBT\0",       "N", 12, 2, // Общий текущий долг клиента (на момент подготовки данных)
+	"FLAGS\0",      "N", 10, 0  // Флаги
+};
+//
+// Список адресов клиентов
+//
+DBFS_PALM_CLIADDR PP_RCDATA {
+    3,
+	"ID\0",         "N",  10, 0, // ИД адреса
+	"CLIID\0",      "N",  10, 0, // ИД клиента
+	"ADDR\0",       "C", 128, 0  // Адрес
+};
+//
+// Долговые документы по клиенту
+//
+DBFS_PALM_CLIDEBT PP_RCDATA {
+    7,
+	"CLIID\0"       "N",  10, 0, // ИД клиента
+	"BILLID\0",     "N",  10, 0, // ИД документа
+	"BILLCODE\0",   "C",  10, 0, // Номер документа
+	"BILLDATE\0"    "D",   8, 0, // Дата документа
+	"BILLAMT\0",    "N",  10, 2, // Сумма документа
+	"BILLDEBT\0",   "N",  10, 2, // Долг по документу
+	"AGENTID\0",    "N",  10, 0  // Агент по документу
+};
+//
+// Продажи товаров по клиентам (с детализацией по адресам доставки)
+//
+DBFS_PALM_CLISELL PP_RCDATA {
+    5,
+	"CLIID\0"       "N",  10, 0, // ИД клиента
+	"ADDRID\0",     "N",  10, 0, // ИД адреса доставки
+	"GOODSID\0",    "N",  10, 0, // ИД товара
+	"DATE\0"        "D",   8, 0, // Дата продажи (начальная дата недели)
+	"QTTY\0",       "N",  10, 3  // Проданное количество
+};
+//
+// Таблицы, формируемые StyloPalm для передачи в учетную систему
+//
+// Заголовки документов заказов от покупателей
+//
+DBFS_PALM_BILL PP_RCDATA {
+    9,
+	"ID\0",         "N",  10, 0, // ИД документа (StyloPalm автоматически
+	                             // присваивает документу это значение)
+	"CLIENTID\0",   "N",  10, 0, // ИД клиента, на которого выбит документ
+	"DATE\0",       "D",   8, 0, // Дата документа
+	"DISCOUNT\0",   "N",   5, 1, // Скидка по документу (в процентах)
+	"NUMBER\0",     "C",  16, 0, // Номер документа (для пользователей, в отличие от
+	                             // ID, который нужен для внутреннего использования программами.
+	"SUM\0",        "N",  12, 2, // Итоговая сумма документа (со всеми скидками)
+	"COMMENT\0",    "C", 160, 0, // Комментарии
+	"DLVRADRID\0",  "N",  10, 0, // Адрес доставки клиента (DBFS_PALM_CLIADDR.ID)
+	"QKID\0",       "N",  10, 0  // Вид котировки, использованный для формирования документа
+};
+//
+// Товарные строки документов заказов от покупателей
+//
+DBFS_PALM_BITEM PP_RCDATA {
+    5,
+	"ID\0",         "N", 10, 0,  // ИД строки
+	"BILLID\0",     "N", 10, 0,  // ИД документа
+	"GOODSID\0",    "N", 10, 0,  // ИД заказанного товара
+	"QUANTITY\0",   "N", 12, 3,  // Количество заказанного товара
+	"PRICE\0",      "N", 12, 2   // Цена единицы товара (со всеми скидками)
+};
+//
+// Задачи
+//
+DBFS_PALM_TODO PP_RCDATA {
+	7,
+	"ID\0",         "N",  10, 0, // ИД задачи
+	"PRIOR\0",      "N",   2, 0, // Приоритет задачи
+	"COMPLETED\0",  "N",   1, 0, // Признак завершенности задачи (!0 - завершена)
+	"DUEDATE\0",    "D",   8, 0, // Дата предполагаемого исполнения  //
+	"COMPLDATE\0",  "D",   8, 0, // Фактическая дата завершения      //
+	"DESCRIPT\0",   "C", 250, 0, // Описание задачи
+	"MEMO\0",       "C", 250, 0  // Примечание к задаче
+};
+//
+// Структуры данных для экспорта в кассовый сервер "Кристалл"
+//
+DBFS_CRCS_GOODS_EXPORT PP_RCDATA {
+	16,
+	"ARTICUL\0", "C", 20, 0,
+	"NAME\0",    "C", 30, 0,
+	"UNIT\0",    "C",  3, 0,
+	"ENABLE\0",  "N",  1, 0,
+	"GROUP1\0",  "N", 10, 0,
+	"GROUP2\0",  "N", 10, 0,
+	"GROUP3\0",  "N", 10, 0,
+	"GROUP4\0",  "N", 10, 0,
+	"GROUP5\0",  "N", 10, 0,
+	"PRICE\0",   "N", 10, 2,
+	"PRECIS\0",  "N",  6, 3,
+	"SECTION\0", "N",  3, 0,
+	"RSTRID\0",  "N", 10, 0,
+	"RSPCNT\0",  "N",  6, 2,
+	"VAT\0",     "N",  6, 2, // @v4.4.1 Ставка НДС на товар
+	"REST\0",    "N",  8, 3  // @v4.9.0 Остатки товаров
+};
+
+DBFS_CRCS_GDSQTTYDSC_EXPORT PP_RCDATA {
+	7,
+	"ARTICUL\0",   "C", 20, 0,
+	"DSCNCODE\0",  "N", 10, 0,
+	"DSCNTYPE\0",  "N",  2, 0, // Тип скидки (0 - на кол-во)
+	"QUANTITY\0",  "N", 10, 2,
+	"DSCNPCNT\0",  "N",  6, 2, // Процент скидки на количество для товара
+	"DSCNBEGIN\0", "C", 16, 0,
+	"DSCNEND\0",   "C", 16, 0
+};
+
+DBFS_CRCS_GROUP_EXPORT PP_RCDATA {
+	7,
+	"GRPNAME\0", "C", 30, 0,
+	"GROUP1\0",  "N", 10, 0,
+	"GROUP2\0",  "N", 10, 0,
+	"GROUP3\0",  "N", 10, 0,
+	"GROUP4\0",  "N", 10, 0,
+	"GROUP5\0",  "N", 10, 0,
+	"SECTION\0", "N",  3, 0
+};
+
+DBFS_CRCS_GRPQTTYDSC_EXPORT PP_RCDATA {
+	11,
+	"GROUP1\0",    "N", 10, 0,
+	"GROUP2\0",    "N", 10, 0,
+	"GROUP3\0",    "N", 10, 0,
+	"GROUP4\0",    "N", 10, 0,
+	"GROUP5\0",    "N", 10, 0,
+	"DSCNCODE\0",  "N", 10, 0,
+	"QTTYACTN\0",  "N",  2, 0, // Обработка кол-ва (2 - на превышение)
+	"QUANTITY\0",  "N", 10, 2,
+	"DSCNPCNT\0",  "N",  6, 2, // Процент скидки на количество для группы
+	"DSCNBEGIN\0", "C", 16, 0,
+	"DSCNEND\0",   "C", 16, 0
+};
+
+DBFS_CRCS_DSCNT_EXPORT PP_RCDATA {
+	6,
+	"ARTICUL\0",   "C", 20, 0, // ID товара
+	"SCRDID\0",    "N", 10, 0, // ID серии карт
+	"DSCNSUM\0",   "N", 15, 6, // Сумма скидки для сочетания {GoodsID;SCardSerID}
+	"DSCNBEGIN\0", "C", 16, 0,
+	"DSCNEND\0",   "C", 16, 0,
+	"WEEKDAYS\0",  "C", 10, 0  // Дни недели
+};
+
+DBFS_CRCS_DSCNT_EXP49 PP_RCDATA {
+	7,
+	"ARTICUL\0",   "C", 20, 0, // ID товара
+	"SCRDID\0",    "N", 10, 0, // ID серии карт
+	"DSCNSUM\0",   "N", 15, 6, // Сумма скидки для сочетания {GoodsID;SCardSerID}
+	"DSCNCODE\0",  "N", 10, 0, // Код скидки
+	"DSCNBEGIN\0", "C", 16, 0,
+	"DSCNEND\0",   "C", 16, 0,
+	"WEEKDAYS\0",  "C", 10, 0  // Дни недели
+};
+
+DBFS_CRCS_BAR_EXPORT PP_RCDATA {
+	4,
+	"ARTICUL\0",    "C", 20, 0,
+	"BARCODE\0",    "C", 13, 0,
+	"UNTPERPACK\0", "N", 10, 3
+	"SECTION\0",    "N",  3, 0 // @v6.7.10
+};
+
+DBFS_CRCS_CARDS_EXPORT PP_RCDATA {
+	10,
+	"MODE\0",      "C",  1, 0,
+	"CODE\0",      "C", 22, 0,
+	"PERSON\0",    "C", 30, 0,
+	"NAME\0",      "C", 40, 0,
+	"TYPE\0",      "N",  1, 0,
+	"SCRDID\0",    "N", 10, 0,
+	"DSCNT\0",     "N",  6, 2,
+	"MAXCREDIT\0", "N", 10, 3,
+	"ISSUE\0",     "D",  8, 0,
+	"EXPIRY\0",    "D",  8, 0
+};
+
+DBFS_CRCS_CSHRS_EXPORT PP_RCDATA {
+	5,
+	"MODE\0",     "C",  1, 0,
+	"TABNUM\0",   "C", 10, 0,
+	"NAME\0",     "C", 25, 0,
+	"PASSWORD\0", "C", 25, 0,
+	"RIGHTS\0",   "C", 25, 0
+};
+
+
+DBFS_CRCS_SALESGGRP_EXPORT PP_RCDATA {
+	2,
+	"GRPNAME\0",  "C",  30, 0,
+	"GSCODE\0",   "C",  10, 0  // @v6.7.5 4-->10
+};
+
+DBFS_CRCS_SALESGGRPI_EXPORT PP_RCDATA {
+	2,
+	"ARTICUL\0", "C", 20, 0,
+	"GSCODE\0",  "C", 10, 0   // @v6.7.5 4-->10
+};
+
+DBFS_CRCS_GOODSDIS_EXPORT PP_RCDATA {
+	8,
+	"GOODSITEM\0", "C", 20, 0,
+	"WEEKDAYS\0",  "C", 10, 0,
+	"DSCNCODE\0",  "N", 10, 0, // Код скидки
+	"DSCNPCT\0",   "N",  6, 2, // Процент скидки //
+	"DSCNSUM\0",   "N", 15, 6, // Сумма скидки   //
+	"TIMEBEG\0"    "C", 16, 0,
+	"TIMEEND\0"    "C", 16, 0,
+	"RULEN\0",     "N",  4, 0  // =4
+};
+
+DBFS_CRCS_GOODSGRPDIS_EXPORT PP_RCDATA {
+	11,
+	"WEEKDAYS\0",  "C", 10, 0,
+	"GROUP1\0",    "N", 10, 0,
+	"GROUP2\0",    "N", 10, 0,
+	"GROUP3\0",    "N", 10, 0,
+	"GROUP4\0",    "N", 10, 0,
+	"GROUP5\0",    "N", 10, 0,
+	"DSCNCODE\0",  "N", 10, 0, // Код скидки
+	"DSCNSUM\0",   "N", 15, 6, // Сумма скидки   //
+	"DSCNPCT\0",   "N",  6, 2, // Процент скидки //
+	"TIMEBEG\0"    "C", 16, 0,
+	"TIMEEND\0"    "C", 16, 0
+};
+
+DBFS_CRCS_SCALE_EXPORT PP_RCDATA {
+	11,
+	"DEVICENO\0",   "N",  4, 0,
+	"ARTICUL\0",    "C", 20, 0, // ID товара
+	"BARCODE\0",    "C", 13, 0,
+	"PREFIX\0",     "C",  4, 0,
+	"NAME1\0",      "C", 64, 0, // @v6.7.9 48-->64
+	"NAME2\0",      "C", 64, 0, // @v6.7.9 48-->64
+	"GOODSNO\0",    "N",  4, 0,
+	"PRICE\0",      "N", 10, 2,
+	"EXPIRY\0",     "N",  4, 0,
+	"SECTION\0",    "N",  4, 0,
+	"GOODSTYPE\0",  "N",  4, 0  // @v7.1.0
+};
+
+DBFS_CRCS_SIGNAL_ALL_EXPORT PP_RCDATA {
+	2,
+	"DATUM\0",      "D",  8, 0,
+	"CASH\0",       "C", 50, 0
+};
+//
+//
+//
+DBFS_CLN_BNK_EXPORT PP_RCDATA {
+	31,
+	"BILLID\0",   "N",  10, 0,  // ИД платежного документа            //
+	"DATE\0",     "D",   8, 0,  // Дата платежного документа          //
+	"CODE\0",     "C",  10, 0,  // Номер платежного документа         //
+	"SEQUENCE\0", "N",   4, 0,  // Очередность платежа                //
+	"PURPOSE\0",  "C", 160, 0,  // Назначение платежа                 //
+	"AMOUNT\0",   "N",  12, 2,  // Сумма платежа                      //
+	"PAYERID\0",  "N",  10, 0,  // ИД персоналии плательщика          //
+	"PNAME\0",    "C", 128, 0,  // Наименование плательщика           //
+	"PINN\0",     "C",  16, 0,  // ИНН плательщика                    //
+	"PBNKACC\0",  "C",  24, 0,  // Банковский счет плательщика        //
+	"PBNKNAME\0", "C", 128, 0,  // Наименование банка плательщика     //
+	"PBNKCODE\0", "C",  16, 0,  // БИК банка плательщика              //
+	"PBNKCORR\0", "C",  24, 0,  // @v4.2.7 Корр счет банка плательщика //
+	"RCVRID\0",   "N",  10, 0,  // ИД персоналии получателя           //
+	"RNAME\0",    "C", 128, 0,  // Наименование получателя            //
+	"RINN\0",     "C",  16, 0,  // ИНН получателя                     //
+	"RBNKACC\0",  "C",  24, 0,  // Банковский счет получателя         //
+	"RBNKNAME\0", "C", 128, 0,  // Наименование банка получателя      //
+	"RBNKCODE\0", "C",  16, 0,  // БИК банка получателя               //
+	"RBNKCORR\0", "C",  24, 0,  // @v4.2.7 Корр счет банка получателя //
+	"PKPP\0",     "C",  12, 0,  // КПП плательщика бюджетного платежа //
+	"RKPP\0",     "C",  12, 0,  // КПП получателя бюджетного платежа  //
+	"PSTATUS\0",  "C",   4, 0,  // Статус плательщика бюджетного платежа //
+	"TAXCLASS\0", "C",  12, 0,  // Код бюджетной классификации        //
+	"OKATO\0",    "C",  16, 0,  // Код по ОКАТО бюджетной организации //
+	"REASON\0",   "C",   8, 0,  // Код причина бюджетного платежа     //
+	"TAXPERIOD\0", "C",  12, 0, // Налоговый период                   //
+	"DOCNUMBER\0", "C",  12, 0, // Номер документа, согласно которому идет уплата //
+	"DOCDATE\0",   "D",   8, 0, // Дата документа, согласно которому идет уплата  //
+	"PAYMTYPE\0",  "C",   8, 0, // Тип бюджетного платежа             //
+	"VATSUM\0",    "N",  10, 2  // Сумма НДС                          //
+};
+/* @v9.4.5 (obsolete)
+//
+// Структуры данных для экспорта в ПИК "Госмонополия РСМ" (НТЦ Атлас)
+//
+DBFS_ATLAS_GDSBILL_HDRS PP_RCDATA {
+	13,
+	"ID\0",         "I",   4, 0,
+	"NUMBER\0",     "C",  50, 0,
+	"DATE\0",       "T",   8, 0,
+	"OUTDATE\0",    "T",   8, 0,
+	"INVOICENUM\0", "C",  50, 0,
+	"INVOICEDT\0",  "T",   8, 0,
+	"CONSIGNOR\0",  "C", 111, 0,
+	"CONSIGNEE\0",  "C", 111, 0,
+	"DESCRIPT\0",   "C", 255, 0,
+	"DOCTYPE\0",    "I",   4, 0,
+	"SUBDIV\0",     "C", 255, 0,
+	"BASIS\0",      "C", 255, 0,
+	"PRICENDS\0",   "I",   4, 0
+};
+
+DBFS_ATLAS_GDSBILL_ROWS PP_RCDATA {
+	17,
+	"ID\0",         "I",   4, 0,
+	"NUMBER\0",     "I",   4, 0,
+	"NAME\0",       "C", 101, 0,
+	"INDATE\0",     "T",   8, 0,
+	"BACKDATE\0",   "T",   8, 0,
+	"SPECMARKS\0",  "C", 255, 0,
+	"ALCVOL\0",     "N",   6, 2,
+	"CAP_DEC\0",    "N",   8, 3,
+	"MANUF_NAME\0", "C", 111, 0,
+	"AMOUNT\0",     "I",   4, 0,
+	"PRICE\0",      "N",  10, 2,
+	"PURCHPRICE\0", "N",  10, 2,
+	"RATENDS\0",    "I",   4, 0,
+	"DESCRIPT\0",   "C", 255, 0,
+	"RAZRMARKER\0", "I",   4, 0,
+	"RAZRLOCAL\0",  "I",   4, 0,
+	"RAZRREGION\0", "I",   4, 0
+};
+@v9.4.5 (obsolete) */
+//
+// Структуры данных для экспорта в ЕГАИС
+//
+DBFS_EGAIS_GDSBILL_HDRS PP_RCDATA {
+	14,
+	"ID\0",         "C", 100, 0,
+	"NUMBER\0",     "C",  50, 0,
+	"DATE\0",       "T",   8, 0,
+	"OUTDATE\0",    "T",   8, 0,
+	"CONSIGNOR\0",  "C", 255, 0,
+	"CONSIGNEE\0",  "C", 255, 0,
+	"SUPPLIER\0",   "C", 255, 0,
+	"PAYER\0",      "C", 255, 0,
+	"BASIS\0",      "C", 200, 0,
+	"DOCTYPE\0",    "I",   4, 0,
+	"SUBDIV\0",     "C", 200, 0,
+	"INDATE\0",     "T",   8, 0,
+	"PRICENDS\0",   "I",   4, 0,
+	"ISINCLNDS\0",  "L",   1, 0
+};
+
+DBFS_EGAIS_GDSBILL_ROWS PP_RCDATA {
+	7,
+	"ID\0",         "C",  38, 0,
+	"NUMBER\0",     "C", 100, 0,
+	"AMOUNT\0",     "I",   4, 0,
+	"PARTYID\0",    "C", 100, 0,
+	"NAME\0",       "C", 255, 0,
+	"PRICE\0",      "N",  10, 2,
+	"RATENDS\0",    "N",  10, 2
+};
+//
+// Дескрипторы встроенных функций калькулятора
+//
+CACLFUNC_DESCR PP_RCDATA {
+    2,
+	PPCFUNC_PAPER_ROLLOUTERLAYER, "ROL\0",
+		"Наружный слой рулона (Диаметр рулона, Ширина рулона, Количество листов)\0",
+		BTS_REAL, 3, BTS_REAL, BTS_REAL, BTS_REAL,
+	PPCFUNC_PAPER_ROLLUSAGEPART,  "RUP\0",
+		"Использованная часть рулона (Диаметр исходного рулона, Диаметр остатка, Диаметр бобины, Исходная масса рулона)\0",
+		BTS_REAL, 4, BTS_REAL, BTS_REAL, BTS_REAL, BTS_REAL
+};
+//
+// Таблица сокращений единиц измерения, встречающихся в наименованиях товаров
+//
+TAB_UNITS PP_RCDATA {
+	15,
+	"кг,kg\0",                  UNIT_KILOGRAM, "1.0\0",
+	"г,гр,грамм,grms,g,gr,gm,grm\0",   UNIT_KILOGRAM, "1000.0\0",
+	"л,лит,литр,l,ltr,litr,ltrs,lt\0", UNIT_LITER, "1.0\0",
+	"мл,ml\0",                 UNIT_LITER, "1000.0\0",
+	"cl\0",           UNIT_LITER, "100.0\0",
+	"floz\0",         UNIT_FLOZ,  "1.0\0",
+	"oz\0",           UNIT_OZ,    "1.0\0",
+	"м,m\0",          UNIT_METER, "1.0\0",
+	"мм,mm\0",        UNIT_METER, "1000.0\0",
+	"см,cm\0",        UNIT_METER, "100.0\0",
+	"W,вт,watt\0",    UNIT_WATT,  "1.0\0",
+	"kW,квт\0",       UNIT_WATT, "0.001\0",
+	"V,в,вольт\0",    UNIT_VOLT, "1.0\0",
+	"шт,штук,pc,ct\0", UNIT_ITEM, "1.0\0", // s
+	"цв,цвета,цветов,цвет\0", UNIT_COLOR, "1.0\0" //
+};
+//
+// Зарезервированные записи объекта PPOBJ_CONFIG
+// { ID, Name }
+//
+ROD_CONFIG PP_RCDATA {
+	1,
+	1,  "Главная конфигурация\0"
+};
+//
+// Зарезервированные записи объекта PPOBJ_USRGRP
+// { ID, Name }
+//
+ROD_USRGRP PP_RCDATA {
+	1,
+	1,  "Everyone\0"
+};
+//
+// Зарезервированные записи объекта PPOBJ_USR
+// { ID, Name }
+//
+ROD_USR PP_RCDATA {
+	2,
+	1,  "Master\0",
+	0,  "$SYSSERVICE$\0"
+};
+//
+// Зарезервированные записи объекта PPOBJ_UNIT
+// { ID, Name, Abbr, Flags }
+//
+ROD_UNIT PP_RCDATA {
+	4,
+	1,  "@{munit_kilogram}\0", "K\0",  "SPT\0",
+	2,  "@{munit_meter}\0",    "M\0",  "SPT\0",
+	3,  "@{munit_second}\0",   "S\0",  "SP\0",
+	// Наименование LITER намеренно введено латиницей дабы не возникало дублирование с существующими
+	// в базе данных единицами (обычно единица Литр уже есть в работающих БД)
+	4,  "LITER\0",     "L\0",  "PT\0",
+	//21, "Штука\0",     "I\0",  "TI\0"
+};
+//
+// Зарезервированные записи объекта PPOBJ_CITYSTATUS
+// { ID, Name }
+//
+ROD_CITYSTATUS PP_RCDATA {
+	1,
+	1, "@{city}\0"
+};
+//
+// Зарезервированные записи объекта PPOBJ_PRSNKIND
+// { ID, Name }
+//
+ROD_PRSNKIND PP_RCDATA {
+	14,
+	1,  "@{mainorg}\0",
+//	2,  "Филиал главной организации\0",
+	3,  "Персонал\0",
+	4,  "@{client_pl}\0",
+	5,  "@{supplier_pl}\0",
+	6,  "Банки\0",
+	7,  "Производители\0",
+	8,  "Агенты\0",
+	9,  "Органы внутренних дел\0",
+	10, "Регистрирующие службы\0",
+	11, "Работодатели\0",
+	12, "Неизвестные\0",
+	13, "Владельцы транспортных средств\0",
+	14, "Транспортные брокеры\0",
+	15, "Капитаны (водители)\0"
+};
+//
+// Зарезервированные записи объекта PPOBJ_PRSNSTATUS
+// { ID, Name }
+//
+ROD_PRSNSTATUS PP_RCDATA {
+	5,
+	1,  "Физическое лицо\0",
+	2,  "Частный предприниматель\0",
+//	3,  "Частное предприятие\0",
+//	4,  "ООО\0",
+//	5,  "АО\0",
+//	6,  "АООТ\0",
+//	7,  "АОЗТ\0",
+//	8,  "СП\0",
+//	9,  "Филиал\0",
+	10, "Государственная организация\0",
+	11, "Юридическое лицо\0",
+	12, "Страна\0"
+};
+//
+// Зарезервированные записи объекта PPOBJ_PERSONRELTYPE
+// { ID, Name, Symb }
+//
+ROD_PERSONRELTYPE PP_RCDATA {
+	2,
+	1, "Филиал\0", "AFFIL\0",
+	2, "Подчиненная персоналия\0", "UHTTSUBORD\0"
+};
+//
+// Зарезервированные записи объекта PPOBJ_OPRTYPE
+// { ID, Name }
+//
+ROD_OPRTYPE PP_RCDATA {
+	19,
+	1,  "@{roptype_accturn}\0",
+	2,  "@{roptype_goodsreceipt}\0",
+	3,  "@{roptype_goodsexpend}\0",
+	4,  "@{roptype_payment}\0",
+	5,  "@{roptype_goodsreturn}\0",
+	6,  "@{roptype_goodsreval}\0",
+	7,  "@{roptype_goodsorder}\0",
+	8,  "@{roptype_goodsmodif}\0",
+	9,  "@{roptype_inventory}\0",
+	10, "@{roptype_charge}\0",
+	11, "@{roptype_generic}\0",
+	12, "@{roptype_goodsack}\0",
+	13, "@{roptype_pool}\0",
+	14, "@{roptype_cashsess}\0",
+	15, "@{roptype_draftreceipt}\0",
+	16, "@{roptype_draftexpend}\0",
+	17, "@{roptype_warehouse}\0",
+	20, "@{roptype_correction}\0",
+	21, "@{roptype_drafttransit}\0"
+};
+//
+// Зарезервированные записи объекта PPOBJ_BNKACCTYPE
+// { ID, Name }
+//
+ROD_BNKACCTYPE PP_RCDATA {
+	7,
+	1, "Ностро\0",
+	2, "Лоро\0",
+	3, "Расчетный\0",
+	4, "Валютный расчетный\0",
+	5, "Кредитный\0",
+	6, "Депозитный\0",
+	7, "Сберегательный\0"
+};
+//
+// Зарезервированные записи объекта PPOBJ_AMOUNTTYPE
+// { ID, Name, Symb }
+//
+ROD_AMOUNTTYPE PP_RCDATA {
+	26,
+	 1, "@{nominalamount}\0",        "Amount\0",   1,
+	 2, "@{termcost}\0",             "Cost\0",     0,
+	 3, "@{termprice}\0",            "Price\0",    0,
+	 4, "@{discount}\0",             "Discount\0", 0,
+	 5, "@{payment}\0",              "Payment\0",  0,
+	 6, "Скидка в процентах\0",      "Pctdis\0",   0,
+	 7, "@{vat}\0",                  "Vatax\0",    0,
+	 8, "@{excise}\0",               "Excise\0",   0,
+	 9, "НДС в ценах поступления\0", "CVAT\0",     0,
+	10, "НДС в ценах реализации\0",  "PVAT\0",     0,
+	11, "Скидка суммой\0",           "ManDis\0",   0,
+	12, "Рента за период\0",         "RentPrd\0",  0,
+	13, "@{salestax}\0",             "SalesTax\0", 0,
+	14, "Валютный курс\0",           "CRate\0",    0,
+	15, "Акциз в ценах поступления\0", "CExcise\0", 0,
+	16, "Транзитный валютный курс\0", "TCRate\0",   0,
+	17, "Фиксированная оплата\0",     "FixPaym\0",  0,
+	18, "Сумма чековых строк кассовой сессии\0", "CS_AggrSum\0", 0,
+	19, "Непроведенная сумма кассовой сессии\0", "CS_AggrRest\0", 0,
+	20, "Налог с продаж в ценах поступления\0",  "CSTax\0", 0,
+	21, "Ввод в эксплуатацию\0",   "AssetExpl\0", 0,
+	22, "Сумма системного пула документов\0", "PoolAmount\0", 0,
+	23, "Фрахт\0", "Freight\0", 0,
+	24, "Сумма кассовой сессии (наличные)\0", "CS_CASH\0",   0,
+	25, "Сумма кассовой сессии (банк)\0",     "CS_BANK\0",   0,
+	26, "Сумма кассовой сессии (карта)\0",    "CS_CSCARD\0", 0
+};
+//
+// Зарезервированные записи объекта PPOBJ_ACTION
+// { ID, Name }
+//
+ROD_ACTION PP_RCDATA {
+	42,
+	1,  "Вход\0",
+	2,  "Выход\0",
+	3,  "Добавлен документ\0",
+	4,  "Изменен документ\0",
+	5,  "Удален документ\0",
+	6,  "Отпечатан документ\0",
+	7,  "Обращение к кассовым чекам\0",
+	8,  "Кассовая сессия закрыта\0",
+	9,  "Загрузка асинхронной кассовой сессии\0",
+	10, "Обновление асинхронной кассовой сессии\0",
+	11, "Объект добавлен\0",
+	12, "Объект изменен\0",
+	13, "Объект удален\0",
+	14, "Объект объединен\0",
+	15, "Переданы изменения в другой раздел\0",
+	16, "Изменена товарная котировка\0",
+	17, "Изменен процент скидки по карте\0",
+	18, "Снят признак <Без скидки> с товара\0",
+	19, "Изменена налоговая группа у товара\0",
+	20, "Изменена привязка пластиковой карты\0",
+	21, "Процедура обслуживания задач\0",
+	22, "Изменен статус документа\0",
+	23, "Создана конфигурация\0",
+	24, "Изменена конфигурация\0",
+	25, "Объект просмотрен\0",
+	26, "Переданы данные в другой раздел\0",
+	27, "Очистка чека\0",
+	28, "Удаление позиции из чека\0",
+	29, "Удаление всех товаров из альт.группы\0",
+	30, "Автозаполнение альт.группы\0",
+	31, "Изменение номера PLU в альт.группе\0",
+	32, "Изменен элемент товарой матрицы\0",
+	33, "Параметры чека изменены вручную\0"
+	36, "Документ исправлен функцией восстановления\0"
+	37, "Списание инвентаризации\0"
+	38, "Откат списания инвентаризации\0"
+	39, "Загрузка инвентаризации из терминала\0"
+	40, "Объединение инвентаризаций\0"
+	41, "Изменен вручную счетчик операций\0"
+	42, "Изменено ограничение на количество элементов матрицы\0"
+	43, "На аналитическую статью установлен флаг STOP\0"
+	44, "С аналитической статьи снят флаг STOP\0"
+};
+//
+// Зарезервированные записи объекта PPOBJ_LOCATION
+// { ID, Name }
+//
+ROD_LOCATION PP_RCDATA {
+	1,
+	1, "@{warehouse}\0"
+};
+//
+// Зарезервированные записи объекта PPOBJ_REGISTERTYPE
+// { ID, Name, Flags }
+// Flags:
+// 'U' REGTF_UNIQUE      Персоналия не может содержать более одного документа такого типа
+// 'P' REGTF_PRIVATE     Разрешен для физ. лиц
+// 'L' REGTF_LEGAL       Разрешен для юр. лиц (REGTF_PRIVATE ^ REGTF_LEGAL)
+// 'D' REGTF_DUPNUMBER   Номер регистра может быть дублируемым
+// 'N' REGTF_ONLYNUMBER  Для регистра значим только номер
+// 'A' REGTF_LOCATION    Регистр может быть использован для привязки к локациям
+//
+ROD_REGISTERTYPE PP_RCDATA {
+	15,
+	 1, "Паспорт\0",                                "UP\0",
+	 2, "Свидетельство частного предпринимателя\0", "UP\0",
+	 3, "ИНН\0",                                    "U\0",
+	 4, "ОКОНХ\0",                                  "U\0",
+	 5, "ОКПО\0",                                   "U\0",
+	 6, "Банковский код (БИК)\0",                   "UL\0",
+	 7, "Корреспондентский счет банка\0",           "UL\0",
+	 9, "Заказчик Universe-HTT\0",                  "U\0"
+	10, "Код КПП\0",                                "U\0"
+	11, "Код ОКАТО\0",                              "UL\0"
+	12, "Код сертификатора\0",                      "UL\0"
+	13, "Код GLN\0",                                "UL\0"
+	14, "Символьный код страны\0",                  "L\0"
+	15, "Цифровой код страны\0",                    "L\0"
+	16, "@{bankaccount}\0",                         "LPN\0"
+
+};
+//
+// Зарезервированные записи объекта PPOBJ_ELINKKIND
+// {ID, Name, Type {(U)nknown | (P)hone) | (F)ax | Pa(G)er | (E)Mail | (W)ebAddr}, Pref {1|0}}
+//
+ROD_ELINKKIND PP_RCDATA {
+	7,
+	1, "Рабочий телефон\0",        "P\0", 0,
+	2, "Домашний телефон\0",       "P\0", 0,
+	3, "Альтернативный телефон\0", "P\0", 0,
+	4, "Факс\0",                   "F\0", 0,
+	5, "Электронная почта\0",      "E\0", 0,
+	6, "Мобильный телефон\0",      "P\0", 0,
+	7, "Web-страница\0",           "W\0", 0
+};
+//
+// Зарезервированные записи объекта PPOBJ_QUOTKIND
+//
+ROD_QUOTKIND PP_RCDATA {
+	2,
+	1, "Базовая котировка\0", "BASE\0",
+	2, "Подарочная скидка\0", "GIFT\0"
+}
+//
+// Зарезервированные записи объекта PPOBJ_TAG
+// {ID, Name, Symb, ObjType, DataType}
+//
+ROD_TAG PP_RCDATA {
+	50,
+	 4, "@{rtag_posrights}\0",                "POSRIGHTS\0",         "PERSON\0",     "STRING\0"
+	 5, "@{rtag_dob}\0",                      "DOB\0",               "PERSON\0",     "DATE\0"
+	10, "@{rtag_goodsrights}\0",              "GOODSRIGHTS\0",       "GLOBALUSER\0", "STRING\0"
+	11, "@{rtag_personrights}\0",             "PERSONRIGHTS\0",      "GLOBALUSER\0", "STRING\0"
+	12, "@{rtag_scardrights}\0",              "SCARDRIGHTS\0",       "GLOBALUSER\0", "STRING\0"
+	13, "@{rtag_scardprefix}\0",              "SCARDPREFIX\0",       "GLOBALUSER\0", "STRING\0"
+	14, "@{rtag_manuftime}\0",                "MANUFTIME\0",         "LOT\0",        "TIMESTAMP\0"
+	15, "@{rtag_filesrights}\0",              "FILESRIGHTS\0",       "GLOBALUSER\0", "STRING\0"
+	16, "@{rtag_billuuid}\0",                 "BILLUUID\0",          "BILL\0",       "UUID\0"
+	17, "@{rtag_goodskeywords}\0",            "GOODSKEYWORDS\0",     "GOODS\0",      "STRING\0"
+	18, "@{rtag_billkeywords}\0",             "BILLKEYWORDS\0",      "BILL\0",       "STRING\0"
+	19, "@{rtag_pggtagsymb}\0",               "PGGTAGSYMB\0",        "GLOBALUSER\0", "STRING\0"
+	20, "@{rtag_workbookkeywords}\0",         "WORKBOOKKEYWORDS\0",  "WORKBOOK\0",   "STRING\0"
+	21, "@{rtag_workbookkwsyn}\0",            "WORKBOOKKWSYN\0",     "WORKBOOK\0",   "STRING\0"
+	22, "@{rtag_workbookkwloc}\0",            "WORKBOOKKWLOC\0",     "WORKBOOK\0",   "STRING\0"
+	23, "@{rtag_ccheckjsuuid}\0",             "CCHECKJSUUID\0",      "CCHECK\0",     "UUID\0"
+	24, "@{rtag_salocrights}\0",              "SALOCRIGHTS\0",       "GLOBALUSER\0", "STRING\0"
+	25, "@{rtag_workbookrights}\0",           "WORKBOOKRIGHTS\0",    "GLOBALUSER\0", "STRING\0"
+	26, "@{rtag_workbooklongcode}\0",         "WORKBOOKLONGCODE\0",  "WORKBOOK\0",   "STRING\0"
+	27, "@{rtag_billautocreation}\0",         "BILLAUTOCREATION\0",  "BILL\0",       "STRING\0"
+	28, "@{rtag_billoutercode}\0",            "BILLOUTERCODE\0",     "BILL\0",       "STRING\0"
+	29, "@{rtag_billouterdate}\0",            "BILLOUTERDATE\0",     "BILL\0",       "DATE\0"
+	30, "@{rtag_enalogdest}\0",               "ENALOGDEST\0",        "PERSON\0",     "STRING\0"
+	31, "@{rtag_fiasguidadr}\0",              "FIASGUIDADR\0",       "LOCATION\0",   "UUID\0"
+	32, "@{rtag_fiasguidhse}\0",              "FIASGUIDHSE\0",       "LOCATION\0",   "UUID\0"
+	33, "@{rtag_stylorights}\0",              "STYLORIGHTS\0",       "GLOBALUSER\0", "STRING\0"
+	34, "@{rtag_prcrights}\0",                "PRCRIGHTS\0",         "GLOBALUSER\0", "STRING\0"
+	35, "@{rtag_tsessrights}\0",              "TSESSRIGHTS\0",       "GLOBALUSER\0", "STRING\0"
+	36, "@{rtag_tsessuuid}\0",                "TSESSUUID\0",         "TSESSION\0",   "UUID\0"
+	37, "@{rtag_tsessdescr}\0",               "TSESSDESCR\0",        "TSESSION\0",   "STRING\0"
+	38, "@{rtag_fsraridloc}\0",               "FSRARIDLOC\0",        "LOCATION\0",   "STRING\0"
+	39, "@{rtag_fsraridorg}\0",               "FSRARIDORG\0",        "PERSON\0",     "STRING\0"
+	41, "@{rtag_fsrarinfalotcode}\0",         "FSRARINFALOTCODE\0",  "LOT\0",        "STRING\0"
+	42, "@{rtag_fsrarinfblotcode}\0",         "FSRARINFBLOTCODE\0",  "LOT\0",        "STRING\0"
+	43, "@{rtag_fsrarlotgoodscode}\0",        "FSRARLOTGOODSCODE\0", "LOT\0",        "STRING\0"
+	44, "@{rtag_ediackbill}\0",               "EDIACKBILL\0",        "BILL\0",       "STRING\0"
+	45, "@{rtag_ediidentbill}\0",             "EDIIDENTBILL\0",      "BILL\0",       "STRING\0"
+	46, "@{rtag_egaissrvurl_loc}\0",          "EGAISSRVURL\0",       "LOCATION\0",   "STRING\0"
+	47, "@{rtag_fsrarinfareg}\0",             "EGIASINFAREG\0",      "LOT\0",        "STRING\0"
+	48, "@{rtag_egaissrvurlmp}\0",            "EGAISSRVURLMP\0",     "PERSON\0",     "STRING\0"
+	49, "@{rtag_edirecadvconfirm}\0",         "EDIRECADVCONFIRM\0",  "BILL\0",       "UUID\0"
+	50, "@{rtag_dimentions}\0",               "DIMENTIONS\0",        "LOT\0",        "STRING\0"
+	51, "@{rtag_edirejectackbill}\0",         "EDIREJECTACKBILL\0",  "BILL\0",       "STRING\0"
+	53, "@{rtag_edichannel}\0",               "EDICHANNEL\0",        "BILL\0",       "STRING\0"
+	54, "@{rtag_edirepealack}\0",             "EDIREPEALACK\0",      "BILL\0",       "STRING\0"
+	55, "@{rtag_ediproblemtrfr}\0",           "EDIPROBLEMTRFR\0",    "BILL\0",       "STRING\0"
+	// 40, "ФСРАР код товара\0",             "FSRARGOODSCODE\0",    "GOODS\0",      "STRING\0"
+	56, "@{rtag_sourceserial}\0",             "SOURCESERIAL\0",      "LOT\0",        "STRING\0"
+	57, "@{rtag_personuuid}\0",               "PERSONUUID\0",        "PERSON\0",     "UUID\0"
+	58, "@{rtag_locuuid}\0",                  "LOCUUID\0",           "LOCATION\0",   "UUID\0"
+	59, "@{rtag_billformalreason}\0",         "FORMALREASON\0",      "BILL\0",       "ENUM\0"
+}
+//
+// Зарезервированные записи объекта PPOBJ_OPCOUNTER
+// {ID, Name, Symb, CodeTemplate }
+//
+ROD_OPCOUNTER PP_RCDATA {
+	1,
+	1, "Счетик символов рабочей книги\0", "CNTR-WORKBOOK\0", "%05\0"
+}

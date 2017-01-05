@@ -1,0 +1,13 @@
+## Universe-HTT
+## _dd_list.tddo
+## Шаблон выпадающего списка
+## Args: ${1} - идентификатор элемента select;
+##       ${2} - класс элемента option;
+##
+
+#pragma(htmlencode)
+#start(StrAssocArray)
+<select class="sprawling" id="${1}" size="15" >
+	#iter()<option class="${2}" itemID="${ID}">${Txt}</option>#end()
+</select>
+#end()

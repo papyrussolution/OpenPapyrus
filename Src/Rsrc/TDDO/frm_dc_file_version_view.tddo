@@ -1,0 +1,129 @@
+##
+##
+##
+
+<div id="frm_dc_file_version_list_view">
+	<table id="frm_dc_file_version_list_view_tbl" class="tablesorter">
+		<thead>
+			<tr>
+				<th>Имя</th>
+				<th>Версия</th>
+				<th>Метка</th>
+				<th>Размер</th>
+				<th>Время</th>
+			</tr>
+		</thead>
+	<tbody id="frm_dc_file_version_list_view_tbl_body">
+	</table>
+</div>
+
+<script type="text/javascript">
+	var DCViewFileVersionForm = {
+		Dialog : UHTT.Dialog.List.getObjByProperty("ID", $("#frm_dc_file_version_list_view").parent("div.uhtt-dialog").attr("id")),
+		Table : $("#frm_dc_file_version_list_view_tbl"),
+		TableBody : $("#frm_dc_file_version_list_view_tbl_body"),
+		FileID : 0,
+		drawTable : function() {
+			var _this = this;
+			_this.TableBody.html("");
+			var list = UHTT.DC.getVersionList(_this.FileID);
+			if(!isEmpty(list)) {
+				var n_items = list.getCount();
+				var buf = "";
+				for(var i = 0; i < n_items; i++) {
+					var item = list.at(i);
+					buf += '<tr class="frm-dc-file-version-tbl-item" IID="' + item.ID + '" IKey="' + item.Key + '" IRev="' + item.Revision + '">' +
+						'<td>' + item.Name + '</td>' +
+						'<td align="right">' + item.Revision +
+						'<td align="right">' + (!isEmpty(item.Label) ? item.Label : "") + '</td>' +
+						'<td align="right">' + item.Size + '</td>' +
+						'<td align="right">' + item.Ts + '</td></tr>';
+				}
+				_this.TableBody.html(buf);
+			}
+		},
+		updateView : function() {
+			var _this = this;
+			_this.drawTable();
+		},
+		init : function() {
+			var _this = this;
+			## /* Получение аргументов */
+			{
+				var args = UHTT.DC.Editor.getArgs();
+				if(!isEmpty(args)) {
+					_this.FileID = args.getValue("ID");
+					if(_this.FileID > 0)
+						_this.updateView();
+					else
+						throw new Error("Form init error: invalid file id");
+				}
+			}
+			## /* Установка параметров окна */
+			_this.Dialog.setOption("resizable", true);
+			_this.Dialog.setOption("title", "Список версий");
+			_this.Dialog.setOption("width", 650);
+			_this.Dialog.setOption("height", 450);
+			_this.Dialog.setOption("position", "center");
+			## /* События */
+			_this.TableBody.delegate("tr", "dblclick", function() { 
+				var key = $(this).attr("IKey");
+				var rev = $(this).attr("IRev");
+				UHTT.DC.download("/dispatcher/dc/download?key=" + key + "&rev=" + rev);
+			}).delegate("tr", "mousedown", function(event) {
+				var pid = $(this).closest("table.tablesorter").attr("id");
+				if(!isEmpty(pid)) {
+					$("#" + pid + " tr.clicked").removeClass("clicked");
+	            	$(this).addClass("clicked");
+				}
+			});
+			## /* Инициализация контекстного меню */
+			contextMenuEx(_this.TableBody, "tr",
+				[
+					{ "Ссылка": function() {
+							var site_name = "";
+							{
+								var url = document.URL;
+								url = url.replace("http://", "");
+								url = url.replace("https://", "");
+								var parts = url.split("/");
+								site_name = parts[0];
+							}
+							var key = $(this).attr("IKey");
+							var rev = $(this).attr("IRev");
+							alert("Ссылка для скачивания файла: " + "http://" + site_name + "/dispatcher/dc/download?key=" + key + "&rev=" + rev);
+						}
+					},
+					{ "Удалить": function() {
+							var rev = $(this).attr("IRev");
+							if(confirm("Вы действительно хотите удалить версию?")) {
+								UHTT.DC.Editor.deleteVersion(
+									_this.FileID,
+									rev,
+									// success_handler
+									null,
+									// error handler
+									function(request, status, error) {
+										var msg = decodeURIComponent(request.getResponseHeader("X-UHTT-Error"));
+										if(!isEmpty(msg))
+											UHTT.Messenger.show(msg, "/rsrc/images/error_48.png");
+									},
+									// done handler
+									function() {
+										_this.updateView();
+									}
+								);
+							}
+						}
+					}
+				],
+				{ theme:"xp" }
+			);
+			_this.Table.tablesorter({ widthFixed:true });
+		}
+	};
+	## /* Инициализация формы */
+	$(document).ready(function(){
+		DCViewFileVersionForm.init();
+	});
+</script>

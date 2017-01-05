@@ -1,0 +1,552 @@
+~02009~^~01~^~D~^~~^~Mix of chili pepper, other spices and salt~
+~02030~^~01~^~N~^~204~^~Total proximates do not equal 100% because piperine was subtracted from lipid value.~
+~02032~^~01~^~N~^~204~^~Total proximates do not equal 100% because piperine was subtracted from lipid value.~
+~02033~^~01~^~D~^~~^~Other phytosterols = 38.4 mg/100g; these include delta 5-avenasterol (17.7), campestanol (2.6), and other minor phytosterols (18.1 mg).~
+~02034~^~01~^~N~^~204~^~Total proximates do not equal 100% because piperine was subtracted from lipid value.~
+~02048~^~01~^~D~^~~^~Contains 5% acetic acid.  Total proximates do not equal 100%.~
+~02048~^~02~^~N~^~208~^~Acetic acid is included in energy calculation.~
+~02053~^~01~^~D~^~~^~Contains 5% acetic acid.  Total proximates do not equal 100%.~
+~02053~^~02~^~N~^~208~^~Acetic acid is included in energy calculation.~
+~02063~^~01~^~D~^~~^~Leaf~
+~02064~^~01~^~D~^~~^~Leaf~
+~02065~^~01~^~D~^~~^~Leaf~
+~02066~^~01~^~D~^~~^~Leaf~
+~02068~^~01~^~D~^~~^~Contains 5% acetic acid.  Total proximates do not equal 100%.~
+~02068~^~02~^~N~^~208~^~Acetic acid is included in energy calculation.~
+~02069~^~01~^~D~^~~^~Contains 6% acetic acid.  Total proximates do not equal 100%.~
+~02069~^~02~^~N~^~208~^~Acetic acid is included in energy calculation.~
+~03044~^~01~^~N~^~318~^~Vitamin A values range widely due to differences in cultivar and proportion of carrots.~
+~03044~^~02~^~N~^~320~^~Vitamin A values range widely due to differences in cultivar and proportion of carrots.~
+~03050~^~01~^~N~^~318~^~Vitamin A values range widely due to differences in cultivar and proportion of carrots.~
+~03050~^~02~^~N~^~320~^~Vitamin A values range widely due to differences in cultivar and proportion of carrots.~
+~03053~^~01~^~N~^~318~^~Vitamin A values range widely due to differences in cultivar and proportion of carrots.~
+~03053~^~02~^~N~^~320~^~Vitamin A values range widely due to differences in cultivar and proportion of carrots.~
+~03054~^~01~^~N~^~318~^~Vitamin A values range widely due to differences in cultivar and proportion of carrots.~
+~03054~^~02~^~N~^~320~^~Vitamin A values range widely due to differences in cultivar and proportion of carrots.~
+~03069~^~01~^~N~^~318~^~Vitamin A values range widely due to differences in cultivar and proportion of carrots.~
+~03069~^~02~^~N~^~320~^~Vitamin A values range widely due to differences in cultivar and proportion of carrots.~
+~03073~^~01~^~N~^~318~^~Vitamin A values range widely due to differences in cultivar and proportion of carrots.~
+~03073~^~02~^~N~^~320~^~Vitamin A values range widely due to differences in cultivar and proportion of carrots.~
+~03082~^~01~^~N~^~318~^~Vitamin A values range widely due to differences in cultivar and proportion of carrots.~
+~03082~^~02~^~N~^~320~^~Vitamin A values range widely due to differences in cultivar and proportion of carrots.~
+~03083~^~01~^~N~^~318~^~Vitamin A values range widely due to differences in cultivar and proportion of carrots.~
+~03083~^~02~^~N~^~320~^~Vitamin A values range widely due to differences in cultivar and proportion of carrots.~
+~03084~^~01~^~N~^~318~^~Vitamin A values range widely due to differences in cultivar and proportion of carrots.~
+~03084~^~02~^~N~^~320~^~Vitamin A values range widely due to differences in cultivar and proportion of carrots.~
+~03085~^~01~^~N~^~318~^~Vitamin A values range widely due to differences in cultivar and proportion of carrots.~
+~03085~^~02~^~N~^~320~^~Vitamin A values range widely due to differences in cultivar and proportion of carrots.~
+~03685~^~01~^~D~^~~^~Prepared with 1/4 cup dry cereal and 1/2 cup whole milk.~
+~03808~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03812~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03815~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03818~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03825~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03827~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03830~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03832~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03838~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03839~^~01~^~N~^~573~^~Added vitamin E is RRR alpha tocopherol~
+~03839~^~02~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03840~^~01~^~N~^~573~^~Added vitamin E is RRR alpha tocopherol~
+~03840~^~02~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03841~^~01~^~N~^~573~^~Added vitamin E is RRR alpha tocopherol~
+~03842~^~01~^~N~^~573~^~Added vitamin E is RRR alpha tocopherol.~
+~03843~^~01~^~N~^~573~^~Added vitamin E is RRR alpha-tocopherol.~
+~03844~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03845~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03849~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03850~^~01~^~N~^~573~^~Added vitamin E is RRR alpha tocopherol~
+~03851~^~01~^~N~^~573~^~Added vitamin E is RRR alpha tocopherol~
+~03852~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03853~^~01~^~N~^~573~^~Added vitamin E is RRR alpha tocopherol~
+~03854~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03855~^~01~^~N~^~573~^~Added vitamin E is RRR alpha tocopherol~
+~03856~^~01~^~N~^~573~^~Added vitamin E is RRR alpha tocopherol~
+~03857~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03858~^~01~^~N~^~573~^~Added vitamin E is RRR alpha tocopherol~
+~03859~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03861~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03864~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03867~^~01~^~D~^~~^~Contain arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621) fatty acids found in human breast milk.~
+~03935~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03936~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621) fatty acids found in human breast milk.~
+~03937~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk~
+~03938~^~01~^~D~^~~^~Contain arachidonic acid(ARA nutrient number is 620) and Docosahexaenoic acid (DHA nutrient number is 621) fatty acids found inhuman breast milk~
+~03939~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA nutrient number 621) fatty acids found in human breast milk.~
+~03940~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid ( DHA nutrient number 621) fatty acids found in human breast milk~
+~03941~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621) fatty acids found in human breast milk~
+~03942~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03943~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03944~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03945~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03945~^~02~^~N~^~573~^~Added vitamin E is RRR alpha tocopherol.~
+~03946~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03947~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03948~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03949~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03950~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03951~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03952~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03953~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03954~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03955~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03956~^~01~^~D~^~~^~Contains arachidonic acid (ARA,  number 620) and docosahexaenoic acid (DHA, nutrient number 621) fatty acids found in human breast milk~
+~03957~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~03961~^~01~^~D~^~~^~Contain arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid nutrient number 621) fatty acids found to human breast milk~
+~03967~^~01~^~D~^~~^~Contains arachidonic acid (ARA, nutrient number 620) and docosahexaenoic acid (DHA, nutrient number 621), fatty acids found in human breast milk.~
+~04011~^~01~^~N~^~205~^~Contains other proximate components.~
+~04011~^~02~^~N~^~430~^~Added nutrient~
+~04013~^~02~^~N~^~323~^~Added nutrient~
+~04014~^~01~^~N~^~205~^~Contains other proximate components.~
+~04014~^~02~^~N~^~430~^~Added nutrient~
+~04044~^~01~^~D~^~~^~Other phytosterols and phytostanols identified include: beta-sitostanol (4.483) and delta-5 avenasterol (8.733)~
+~04582~^~01~^~D~^~~^~Other phytosterols and phytostanols identified include: beta-sitostanol (0.925 mg), campestanol (0.811 mg) and delta-5 avenasterol (11.721 mg)~
+~04628~^~01~^~D~^~~^~Other phytosterols and phytostanols identified include: beta-sitostanol (10.27 mg), campestanol (2.93 mg) and delta-5 avenasterol (11.62 mg)~
+~04673~^~01~^~N~^~204~^~contains 2.841 g omega-3 fatty acids~
+~04675~^~01~^~N~^~204~^~contains 0.779 g omega-3 fatty acids~
+~04676~^~01~^~N~^~204~^~contains 0.164 g omega-3 fatty acids~
+~04677~^~01~^~N~^~204~^~contains 3.982 g omega-3 fatty acids of which 1.071 g are long chain fatty acids~
+~04687~^~01~^~D~^~~^~Plant Stanol esters = 6070 mg/100g~
+~05315~^~01~^~D~^~~^~Pieces, skin side down, seared 13 minutes; roasted at 350 degrees F, 17 minutes to 165 degrees  F~
+~05315~^~02~^~N~^~204~^~Data from the Duckling Council and a USDA contract~
+~05315~^~02~^~N~^~601~^~Data from the Duckling Council and a USDA contract~
+~05316~^~01~^~D~^~~^~Skinless pieces, charbroiled 12 minutes to  165 degrees F~
+~05316~^~02~^~N~^~204~^~Data from the Duckling Council and a USDA contract~
+~05316~^~03~^~N~^~601~^~Data from the Duckling Council and a USDA contract~
+~05317~^~01~^~D~^~~^~Pieces with skin, seared 13 minutes, roasted at 350 degrees F, 60 minutes to 185 degrees F~
+~05317~^~02~^~N~^~204~^~Data from the Duckling Council and a USDA contract~
+~05317~^~03~^~N~^~601~^~Data from the Duckling Council and a USDA contract~
+~05318~^~01~^~D~^~~^~Skinless pieces, covered and braised at 350 degrees F, 55 minutes to 185 degrees F~
+~05318~^~02~^~N~^~204~^~Data from the Duckling Council and a USDA contract~
+~05318~^~03~^~N~^~601~^~Data from the Duckling Council and a USDA contract~
+~06264~^~01~^~D~^~~^~Recipe No. G-08, NFSMI, Healthy School Meals Resource System, and Team Nutrition~
+~06285~^~01~^~D~^~~^~Recipe No. G-05 from NFSMI, Healthy School Meals Resource System, and Team Nutrition~
+~06307~^~01~^~N~^~205~^~Contains other proximate components.~
+~08037~^~01~^~D~^~~^~Made with oats, raisins, sunflower seeds, almonds, wheat germ, honey, coconut and canola oil.~
+~08387~^~01~^~N~^~573~^~Added vitamin E is RRR alpha tocopherol~
+~08471~^~01~^~N~^~573~^~Added vitamin E is RRR alpha tocopherol~
+~08538~^~01~^~N~^~573~^~Added vitamin E is natural RRR alpha tocopherol.~
+~08610~^~01~^~N~^~573~^~Added vitamin E is RRR alpha tocopherol.~
+~08656~^~01~^~N~^~573~^~Added vitamin E is natural RRR alpha tocopherol.~
+~08680~^~01~^~N~^~328~^~Majority of brands are not fortified with vitamin D, but some store brands are fortified at 20% DV (80 IU or 2 mcg/100 g).~
+~08680~^~02~^~N~^~324~^~Majority of brands are not fortified with vitamin D, but some store brands are fortified at 20% DV (80 IU or 2 mcg/100 g).~
+~09003~^~01~^~D~^~~^~Based on analytical data for red delicious, golden delicious, gala, granny smith, and fuji varieties.~
+~09003~^~02~^~M~^~~^~3 and 5 pound bags of apples typically contain small and extra small sizes.~
+~09016~^~01~^~D~^~~^~Includes juice box~
+~09037~^~01~^~D~^~~^~Based on 86% California and 14% Florida varieties.~
+~09062~^~01~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate plus total folate determined microbiologically~
+~09087~^~01~^~D~^~~^~Common variety~
+~09094~^~01~^~D~^~~^~Mission variety~
+~09129~^~01~^~D~^~~^~Includes analysis of Higgins, Jumbo, and Roanoke varieties.~
+~09130~^~01~^~D~^~~^~Includes purple and white grape juice~
+~09135~^~01~^~D~^~~^~Includes purple and white grape juice~
+~09139~^~01~^~D~^~~^~Pink fleshed~
+~09144~^~01~^~D~^~~^~Values based on analysis of cultivars grown in Florida.~
+~09144~^~02~^~N~^~417~^~Folate value based on the analysis of 5-methyltetrahydrofolate~
+~09152~^~01~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate plus total folate determined microbiologically~
+~09176~^~01~^~D~^~~^~Values based on analyses of Tommy Atkins, Keitt, Kent, and/or Haden cultivars.~
+~09176~^~02~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate plus total folate determined microbiologically.~
+~09178~^~01~^~N~^~307~^~Some brands contain sodium metabisulfite.~
+~09205~^~01~^~N~^~208~^~The Atwater factors for fruit were used to calculate energy; however, the digestibility of peel is unknown.~
+~09207~^~01~^~D~^~~^~Includes juice box~
+~09210~^~01~^~N~^~305~^~Phosphorus content varies among brands depending upon the calcium compound used (calcium phosphate, calcium citrate, etc.).~
+~09211~^~01~^~N~^~305~^~Phosphorus content varies among brands depending upon the calcium compound used (calcium phosphate, calcium citrate, etc.).~
+~09216~^~01~^~N~^~208~^~The Atwater factors for fruit were used to calculate energy; however, the digestibility of peel is unknown.~
+~09226~^~01~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate plus total folate determined microbiologically~
+~09226~^~02~^~N~^~337~^~Based on red-fleshed papaya; yellow-orange-fleshed papayas have 0 mcg lycopene/100 g.~
+~09226~^~03~^~M~^~~^~Large variability in weight of whole fruit, especially between different cultivars.~
+~09266~^~01~^~D~^~~^~Values based on data weighted 80% extra sweet variety, 20% traditional varieties.~
+~09286~^~01~^~D~^~~^~Based on samples of California Wonderful variety.~
+~09287~^~01~^~N~^~318~^~Green variety~
+~09295~^~01~^~D~^~~^~Vitamin A and carotenoid values are based on white variety.~
+~09314~^~01~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate plus total folate determined microbiologically.~
+~09314~^~02~^~M~^~~^~Large variability in weight of whole fruit (340 - 2720 g reported by U Florida).~
+~09316~^~01~^~N~^~432~^~Value based on the analysis of 5-methyltetrahydrofolate~
+~09334~^~01~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~09429~^~01~^~D~^~~^~Values based on Champaka and Smoothe Cayenne varieties.~
+~09430~^~01~^~D~^~~^~Values based on data for MD2 variety.~
+~09443~^~01~^~N~^~401~^~Various brands and package sizes may have different vitamin C levels due to different fortification practices.~
+~09446~^~01~^~D~^~~^~Fatty acid values reflect plantains fried in corn oil.~
+~09449~^~01~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid.~
+~09450~^~01~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid.~
+~09512~^~01~^~D~^~~^~Includes purple and white grape juice~
+~11054~^~01~^~N~^~432~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid~
+~11054~^~01~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid~
+~11054~^~01~^~N~^~435~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid~
+~11056~^~01~^~N~^~432~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, 5-Formyltetrahydrofolic acid~
+~11056~^~01~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, 5-Formyltetrahydrofolic acid~
+~11056~^~01~^~N~^~435~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, 5-Formyltetrahydrofolic acid~
+~11170~^~01~^~N~^~417~^~Value based on the analysis of 5-methyl tetrahydrofolate (5-MTHF), 10-formyl folic acid (10HCOFA), and 5-formyltetrahydrofolic acid (5-HCOH4)~
+~11172~^~01~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, 5-Formyltetrahydrofolic acid~
+~11172~^~01~^~N~^~432~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, 5-Formyltetrahydrofolic acid~
+~11172~^~01~^~N~^~435~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, 5-Formyltetrahydrofolic acid~
+~11177~^~01~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid.~
+~11177~^~01~^~N~^~435~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid.~
+~11177~^~01~^~N~^~432~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid.~
+~11238~^~01~^~D~^~~^~Ergosterol = 85 mg/100 g.~
+~11238~^~02~^~N~^~435~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid~
+~11238~^~02~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid~
+~11238~^~02~^~N~^~432~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid~
+~11239~^~01~^~D~^~~^~Ergosterol = 61 mg/100 g.~
+~11239~^~02~^~N~^~435~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, 5-Formyltetrahydrofolic acid~
+~11239~^~02~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, 5-Formyltetrahydrofolic acid~
+~11239~^~02~^~N~^~432~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, 5-Formyltetrahydrofolic acid~
+~11240~^~01~^~N~^~636~^~Ergosterol = 26 mg/100 g; Brassicasterol = 29 mg/100 g.~
+~11240~^~02~^~N~^~417~^~Value based on the analysis of 5-methyl tetrahydrofolate (5-MTHF), 10-formyl folic acid (10HCOFA), and 5-formyltetrahydrofolic acid (5-HCOH4)~
+~11240~^~02~^~N~^~432~^~Value based on the analysis of 5-methyl tetrahydrofolate (5-MTHF), 10-formyl folic acid (10HCOFA), and 5-formyltetrahydrofolic acid (5-HCOH4)~
+~11240~^~02~^~N~^~435~^~Value based on the analysis of 5-methyl tetrahydrofolate (5-MTHF), 10-formyl folic acid (10HCOFA), and 5-formyltetrahydrofolic acid (5-HCOH4)~
+~11260~^~01~^~D~^~~^~Ergosterol = 56 mg/100 g.~
+~11260~^~02~^~N~^~432~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-formyl folic acid, and 5-formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11260~^~02~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-formyl folic acid, and 5-formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11260~^~02~^~N~^~435~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-formyl folic acid, and 5-formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11263~^~01~^~D~^~~^~Water used in stir-frying.  No fat added.~
+~11265~^~01~^~D~^~~^~Ergosterol = 56 mg/100 g.~
+~11265~^~02~^~N~^~432~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11265~^~02~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11265~^~02~^~N~^~435~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11266~^~01~^~D~^~~^~Ergosterol = 62 mg/100 g.~
+~11266~^~02~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11266~^~02~^~N~^~432~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11266~^~02~^~N~^~435~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11267~^~01~^~D~^~~^~Water used in stir-frying.  No fat added.~
+~11306~^~01~^~N~^~417~^~Folate value based on the analysis of 5-methyltetrahydrofolate~
+~11306~^~01~^~N~^~432~^~Folate value based on the analysis of 5-methyltetrahydrofolate~
+~11306~^~01~^~N~^~435~^~Folate value based on the analysis of 5-methyltetrahydrofolate~
+~11308~^~01~^~N~^~432~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid.~
+~11308~^~01~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid.~
+~11308~^~01~^~N~^~435~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid.~
+~11311~^~01~^~N~^~435~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid.~
+~11311~^~01~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid.~
+~11311~^~01~^~N~^~432~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid.~
+~11333~^~01~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate~
+~11359~^~01~^~D~^~~^~Primarily retail consumer product~
+~11360~^~01~^~D~^~~^~Primarily retail consumer product~
+~11371~^~01~^~D~^~~^~Recipe:  Potatoes, 80%; whole milk, 14%; margarine, 5%; and salt, 1%.~
+~11372~^~01~^~D~^~~^~Recipe:  Potatoes, 59%; whole milk, 36%; butter, 2%; flour, 2%; and salt, 1%.~
+~11373~^~01~^~D~^~~^~Recipe:  Potatoes, 55%; whole milk, 30%; cheddar cheese, 9%; butter, 3%; flour , 2%; and salt, 1%.~
+~11394~^~01~^~D~^~~^~Primarily retail consumer product~
+~11395~^~01~^~D~^~~^~Primarily retail consumer product~
+~11402~^~01~^~D~^~~^~Primarily retail consumer product~
+~11411~^~01~^~D~^~~^~Primarily retail consumer product~
+~11412~^~01~^~D~^~~^~Primarily retail consumer product~
+~11414~^~01~^~D~^~~^~Recipe:  Potatoes, 62%; egg, 12%; mayonnaise, 8%; celery, 7%; sweet pickle relish, 6%; onion, 2%; green pepper, 1%; pimiento, 1%; salt, 1%; and dry mustard.~
+~11579~^~01~^~D~^~~^~Mixture includes carrots, green peas, snap beans, and lima beans.~
+~11581~^~01~^~D~^~~^~Mixture includes carrots, green peas, snap beans, and lima beans.~
+~11583~^~01~^~D~^~~^~Mixture includes corn, lima beans, snap beans, green peas, and carrots.~
+~11584~^~01~^~D~^~~^~Mixture includes corn, lima beans, snap beans, green peas, and carrots.~
+~11656~^~01~^~D~^~~^~Recipe:  Yellow corn, 55%; whole milk, 23%; egg, 14%; sugar, 4%; butter, 3%; salt, 1%; and pepper.~
+~11657~^~01~^~D~^~~^~Recipe:  Potatoes, 84%; whole milk, 15%; and salt, 1%.~
+~11671~^~01~^~D~^~~^~Recipe:  Potatoes, 63%; whole milk, 19%; onions, 8%; green pepper, 7%; bread crumbs, 2%; salt, butter, and black pepper, 1%.~
+~11672~^~01~^~D~^~~^~Recipe:  Potatoes, 72%; eggs, 12%; onions, 7%; margarine, 7%; flour, 2%; and salt, 1%.~
+~11729~^~01~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, 5-Formyltetrahydrofolic acid~
+~11729~^~01~^~N~^~432~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, 5-Formyltetrahydrofolic acid~
+~11729~^~01~^~N~^~435~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, 5-Formyltetrahydrofolic acid~
+~11798~^~01~^~D~^~~^~Ergosterol = 137 mg/100 g.~
+~11821~^~01~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate~
+~11841~^~01~^~D~^~~^~Primarily food service product~
+~11842~^~01~^~D~^~~^~Primarily food service product~
+~11843~^~01~^~D~^~~^~Recipe:  Potatoes, 55%; whole milk, 30%; cheddar cheese, 9%; margarine, 3%; flour , 2%; and salt, 1%.~
+~11894~^~01~^~D~^~~^~Mixture includes corn, lima beans, snap beans, green peas, and carrots.~
+~11905~^~01~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, 5-Formyltetrahydrofolic acid~
+~11905~^~01~^~N~^~435~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, 5-Formyltetrahydrofolic acid~
+~11905~^~01~^~N~^~432~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, 5-Formyltetrahydrofolic acid~
+~11934~^~01~^~D~^~~^~Recipe:  Potatoes, 80%; whole milk, 14%; butter, 5%; and salt, 1%.~
+~11938~^~01~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-formyl folic acid, and 5-formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11938~^~02~^~N~^~432~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-formyl folic acid, and 5-formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11938~^~03~^~N~^~435~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-formyl folic acid, and 5-formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11939~^~01~^~D~^~~^~Ergosterol = 62 mg/100 g.~
+~11950~^~01~^~D~^~~^~Ergosterol = 36 mg/100 g.~
+~11950~^~02~^~N~^~435~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11950~^~02~^~N~^~432~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11950~^~02~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11987~^~01~^~D~^~~^~Ergosterol = 64 mg/100 g.~
+~11987~^~02~^~N~^~435~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-formyl folic acid, and 5-formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11987~^~02~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-formyl folic acid, and 5-formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11987~^~02~^~N~^~432~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-formyl folic acid, and 5-formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11993~^~01~^~D~^~~^~Ergosterol = 72 mg/100 g.~
+~11993~^~02~^~N~^~435~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11993~^~02~^~N~^~432~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11993~^~02~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11998~^~01~^~D~^~~^~Ergosterol = 56 mg/100 g.~
+~11998~^~02~^~N~^~432~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-formyl folic acid, and 5-formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11998~^~02~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-formyl folic acid, and 5-formyltetrahydrofolic acid plus total folate determined microbiologically~
+~11998~^~02~^~N~^~435~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-formyl folic acid, and 5-formyltetrahydrofolic acid plus total folate determined microbiologically~
+~12016~^~01~^~D~^~~^~Other phytosterols total 248.8 mg/100g; these include delta 5-avenasterol (3.5), sitostanol (3.5), campestanol (.8), and other minor phytosterols (241 mg).~
+~12038~^~01~^~N~^~204~^~Fat and fatty acids based on 25% roasted in cottonseed oil and 75% roasted in sunflower oil~
+~12038~^~02~^~N~^~323~^~Tocopherols and tocotrienols based on seeds roasted in NuSun sunflower oil~
+~12040~^~01~^~D~^~~^~Made with NuSun sunflower seeds; some brands have different formulation.~
+~12040~^~02~^~D~^~~^~Other phytosterols = 21.6 mg/100g; these include delta 5-avenasterol, sitostanol, and campestanol.~
+~12061~^~01~^~D~^~~^~Unroasted~
+~12061~^~02~^~D~^~~^~Other phytosterols = 58 mg/100g; these include 21 mg delta 5-avenasterol, 4 mg sitostanol, 2 mg campestanol, and 32 mg other minor phytosterols.~
+~12062~^~01~^~D~^~~^~Unroasted~
+~12063~^~01~^~D~^~~^~Other phytosterols = 34.67 mg/100g~
+~12065~^~01~^~D~^~~^~Roasted in high oleic safflower oil~
+~12078~^~01~^~D~^~~^~Other phytosterols total 51.5 mg/100g; these include delta 5-avenasterol + beta-sitostanol (19.7) and other minor phytosterols.~
+~12086~^~01~^~D~^~~^~Other phytosterols total 35.0 mg/100g; these include delta 5-avenasterol (13.5), campestanol (2.7), and other minor phytosterols (18.9 mg).~
+~12087~^~01~^~D~^~~^~Raw cashews have been heat-treated to safely remove kernel from shell, but not further roasted.~
+~12087~^~02~^~D~^~~^~Other phytosterols = 29 mg/100g; these include 2 mg campestanol, 14 mg delta-5-avenasterol, and 13 mg other minor sterols.~
+~12104~^~01~^~D~^~~^~From mature coconut.~
+~12120~^~01~^~D~^~~^~Unroasted~
+~12120~^~02~^~D~^~~^~Other phytosterols = 12.0 mg/100g; these include delta 5-avenasterol (2.6), campestanol (3.0), sitostanol (3.9) and other minor phytosterols (2.5 mg).~
+~12121~^~01~^~D~^~~^~Unroasted~
+~12131~^~01~^~D~^~~^~Unroasted~
+~12132~^~01~^~D~^~~^~Other phytosterols total 30.3 mg/100g; these include delta 5-avenasterol (13.4), campestanol (3.0), and other minor phytosterols (13.9 mg).~
+~12137~^~01~^~D~^~~^~Includes peanuts, almonds, cashews, brazil nuts, hazelnuts, and pecans.~
+~12142~^~01~^~D~^~~^~Unroasted~
+~12142~^~02~^~D~^~~^~Other phytosterols = 32.8 mg/100g; these include delta 5-avenasterol (14.3), campestanol (2.8), brassicasterol (0.5), and other minor phytosterols (15.1 mg).~
+~12144~^~01~^~D~^~~^~Roasted in cottonseed, peanut, soybean, or sunflower oil.~
+~12147~^~01~^~D~^~~^~Includes  pignolia (Pinus pinea) and Korean (Pinus koraiensis).~
+~12147~^~02~^~D~^~~^~Other phytosterols total 84.1 mg/100g; these include delta 5-avenasterol (40.1), sitostanol (5.9), campestanol (3.9), and other minor phytosterols (34.2 mg).~
+~12151~^~01~^~D~^~~^~Unroasted~
+~12152~^~01~^~D~^~~^~Additional phytosterols total 89 mg/100 g; these include delta 5-avenasterol (26.2), sitostanol (2.3), campestanol (4.9), and other minor phytosterols (55.6 mg).~
+~12154~^~01~^~D~^~~^~Additional phytosterols total 57 mg/100 g; these include delta 5-avenasterol + sitostanol (28.7) and other minor sterols (28.3).~
+~12155~^~01~^~D~^~~^~Unroasted~
+~12155~^~02~^~D~^~~^~Other phytosterols total 18.2 mg/100g; these include delta 5-avenasterol (7.3), campestanol (2.3), and other minor phytosterols (8.6 mg).~
+~12201~^~01~^~D~^~~^~Other phytosterols = 84.9 mg/100g; these include delta 5-avenasterol (40.4), campestanol (5.6), and other minor phytosterols (38.9 mg).~
+~12220~^~01~^~D~^~~^~Up to 12 percent flax seed can safely be used as an ingredient in food.~
+~12220~^~02~^~D~^~~^~Other phytosterols = 49.0 mg/100g; these include delta 5-avenasterol (21.2), campestanol (2.8), brassicasterol (1.1) and other minor phytosterols (23.9 mg).~
+~12516~^~01~^~D~^~~^~Other phytosterols total 248.8 mg/100g; these include delta 5-avenasterol (3.5), sitostanol (3.5), campestanol (.8), and other minor phytosterols (241 mg).~
+~12516~^~02~^~N~^~307~^~Sodium level varies by brand, depending on the amount of salt added.~
+~12536~^~01~^~N~^~307~^~Sodium includes salt on shells. Sodium from kernels only is 372 mg/100 g.~
+~12538~^~01~^~N~^~204~^~Fat and fatty acids based on 25% roasted in cottonseed oil and 75% roasted in sunflower oil~
+~12538~^~02~^~N~^~323~^~Tocopherols and tocotrienols based on seeds roasted in NuSun sunflower oil~
+~12540~^~01~^~D~^~~^~Made with NuSun sunflower seeds; some brands have different formulation.~
+~12540~^~02~^~D~^~~^~Other phytosterols = 21.6 mg/100g; these include delta 5-avenasterol, sitostanol, and campestanol.~
+~12563~^~01~^~D~^~~^~Other phytosterols = 34.67 mg/100g~
+~12565~^~01~^~D~^~~^~Roasted in high oleic safflower oil~
+~12586~^~01~^~D~^~~^~Other phytosterols total 35.0 mg/100g; these include delta 5-avenasterol (13.5), campestanol (2.7), and other minor phytosterols (18.9 mg).~
+~12632~^~01~^~D~^~~^~Other phytosterols total 30.3 mg/100g; these include delta 5-avenasterol (13.4), campestanol (3.0), and other minor phytosterols (13.9 mg).~
+~12637~^~01~^~D~^~~^~Includes peanuts, almonds, cashews, brazil nuts, hazelnuts, and pecans.~
+~12644~^~01~^~D~^~~^~Roasted in cottonseed, peanut, soybean, or sunflower oil.~
+~12652~^~01~^~D~^~~^~Additional phytosterols total 89 mg/100 g; these include delta 5-avenasterol (26.2), sitostanol (2.3), campestanol (4.9), and other minor phytosterols (55.6 mg).~
+~12663~^~01~^~N~^~307~^~Sodium value reflects edible shells infused with salt.  Brands vary in sodium level.~
+~12737~^~01~^~D~^~~^~Includes peanuts, almonds, cashews, brazil nuts, hazelnuts (filberts), pecans, and pistachios~
+~12738~^~01~^~D~^~~^~Includes cashews, almonds, brazil nuts, pecans, and pistachio nuts.~
+~13361~^~01~^~D~^~~^~Estimation of the nutrient profile for this composite were based upon the market shares of 0” fat trim cuts.~
+~13362~^~01~^~D~^~~^~Estimation of the nutrient profile for this composite were based upon the market shares of 0” fat trim cuts.~
+~13363~^~01~^~D~^~~^~Estimation of the nutrient profile for this composite were based upon the market shares of 0” fat trim cuts.~
+~13364~^~01~^~D~^~~^~Estimation of the nutrient profile for this composite were based upon the market shares of 0” fat trim cuts.~
+~13365~^~01~^~D~^~~^~Estimation of the nutrient profile for this composite were based upon the market shares of 0” fat trim cuts.~
+~13366~^~01~^~D~^~~^~Estimation of the nutrient profile for this composite were based upon the market shares of 0” fat trim cuts.~
+~13795~^~01~^~D~^~~^~Estimation of the nutrient profile for this composite were based upon the market shares of 1/8” fat trim cuts.~
+~13796~^~01~^~D~^~~^~Estimation of the nutrient profile for this composite were based upon the market shares of 1/8” fat trim cuts.~
+~13797~^~01~^~D~^~~^~Estimation of the nutrient profile for this composite were based upon the market shares of 1/8” fat trim cuts.~
+~13798~^~01~^~D~^~~^~Estimation of the nutrient profile for this composite were based upon the market shares of 1/8” fat trim cuts.~
+~13799~^~01~^~D~^~~^~Estimation of the nutrient profile for this composite were based upon the market shares of 1/8” fat trim cuts.~
+~13800~^~01~^~D~^~~^~Estimation of the nutrient profile for this composite were based upon the market shares of 1/8” fat trim cuts.~
+~14003~^~01~^~D~^~~^~Proximates include ales, lagers, porters, premium beers and stouts.   Other nutrients based on lager samples.~
+~14075~^~01~^~D~^~~^~Mineral content varies between brands~
+~14096~^~01~^~D~^~~^~Minerals, B vitamins and vitamin C determinations were made on samples of Merlot.~
+~14106~^~01~^~D~^~~^~Minerals, B vitamins and vitamin C determinations were made on samples of Chardonnay.~
+~14106~^~02~^~D~^~~^~Late harvest wines have not been included.~
+~14124~^~01~^~D~^~~^~Late harvest wines have not been included.~
+~14126~^~01~^~D~^~~^~Late harvest wines have not been included.~
+~14132~^~01~^~D~^~~^~Late harvest wines have not been included.~
+~14134~^~01~^~D~^~~^~Late harvest wines have not been included.~
+~14140~^~01~^~D~^~~^~Late harvest wines have not been included.~
+~14140~^~02~^~D~^~~^~Includes Muscat, Muscat Blanc and Muscat Canelli.~
+~14145~^~01~^~D~^~~^~Includes retail and fast food, without ice products.~
+~14145~^~02~^~N~^~269~^~Retail products have higher values than fast food products.~
+~14145~^~03~^~N~^~210~^~Fast food products contain sucrose while retail products do not.~
+~14145~^~04~^~N~^~211~^~Retail products have higher values than fast food products.~
+~14145~^~05~^~N~^~212~^~Retail products have higher values than fast food products.~
+~14147~^~01~^~D~^~~^~Includes retail and fast food, without ice products.~
+~14147~^~02~^~N~^~269~^~Retail products have higher values than fast food products.~
+~14147~^~03~^~N~^~210~^~Fast food products contain sucrose while retail products do not.~
+~14147~^~04~^~N~^~211~^~Retail products have higher values than fast food products.~
+~14147~^~05~^~N~^~212~^~Retail products have higher values than fast food products.~
+~14209~^~01~^~D~^~~^~Includes fast food and home brewed coffee.~
+~14231~^~01~^~N~^~205~^~Contains other proximate components.~
+~14384~^~01~^~M~^~~^~One fl oz = 29.57 g.~
+~14385~^~01~^~M~^~~^~One fl oz = 29.57 g.~
+~14400~^~01~^~D~^~~^~Includes retail and fast food. Weights of drinks vary because bottles and cans are filled to the brim but cups in fast food restaurants are not. For cups, weights are weight of the drink without ice.~
+~14400~^~02~^~N~^~269~^~Retail products have higher values than fast food products.~
+~14411~^~01~^~D~^~~^~Includes municipal water and well water.~
+~14416~^~01~^~D~^~~^~Includes retail and fast food, without ice products.~
+~14460~^~01~^~D~^~~^~old name: Sports drink, QUAKER OATS, GATORADE, fruit-flavored, ready-to-drink   NFNAP data and Fluoride for SR18~
+~15019~^~01~^~N~^~307~^~Samples were obtained from 12 retail stores using a probability-based sampling plan.  Some fish had been treated during processing to retain moisture on thawing.  Untreated fish = 109 mg sodium/100g.~
+~15028~^~01~^~N~^~307~^~Samples were obtained from 12 retail stores using a probability-based sampling plan.  Some fish had been treated during processing to retain moisture on thawing.  Untreated fish = 81 mg sodium/100g.~
+~15029~^~01~^~N~^~307~^~Samples were obtained from 12 retail stores using a probability-based sampling plan.  Some fish had been treated during processing to retain moisture on thawing.  Untreated fish = 105 mg sodium/100g.~
+~15033~^~01~^~N~^~307~^~Samples were obtained from 12 retail stores using a probability-based sampling plan.  Some fish had been treated during processing to retain moisture on thawing.  Untreated fish = 68 mg sodium/100g.~
+~15034~^~01~^~N~^~307~^~Samples were obtained from 12 retail stores using a probability-based sampling plan.  Some fish had been treated during processing to retain moisture on thawing.  Untreated fish = 87 mg sodium/100g.~
+~15057~^~01~^~N~^~307~^~Samples were obtained from 12 retail stores using a probability-based sampling plan.  Some fish had been treated during processing to retain moisture on thawing.  Untreated fish = 75 mg sodium/100g.~
+~15058~^~01~^~N~^~307~^~Samples were obtained from 12 retail stores using a probability-based sampling plan.  Some fish had been treated during processing to retain moisture on thawing.  Untreated fish = 96 mg sodium/100g.~
+~15066~^~01~^~N~^~307~^~Samples were obtained from 12 retail stores using a probability-based sampling plan.  Some fish had been treated during processing to retain moisture on thawing.  Untreated fish = 159 mg sodium/100g.~
+~15067~^~01~^~N~^~307~^~Samples were obtained from 12 retail stores using a probability-based sampling plan.  Some fish had been treated during processing to retain moisture on thawing.  Untreated fish = 166 mg sodium/100g.~
+~15149~^~01~^~N~^~307~^~Samples were obtained from 12 retail stores using a probability-based sampling plan.  Some fish had been treated during processing to retain moisture on thawing.  Untreated fish = 119 mg sodium/100g.~
+~15151~^~01~^~N~^~307~^~Samples were obtained from 12 retail stores using a probability-based sampling plan.  Some fish had been treated during processing to retain moisture on thawing.  Untreated fish = 111 mg sodium/100g.~
+~15157~^~01~^~N~^~307~^~Samples were obtained from 12 retail stores using a probability-based sampling plan.  Some fish had been treated during processing to retain moisture on thawing.  Untreated fish = 56 mg sodium/100g.~
+~15159~^~01~^~N~^~307~^~Samples were obtained from 12 retail stores using a probability-based sampling plan.  Some fish had been treated during processing to retain moisture on thawing.  Untreated fish = 112 mg sodium/100g.~
+~15172~^~01~^~N~^~307~^~Samples were obtained from 12 retail stores using a probability-based sampling plan.  Some fish had been treated during processing to retain moisture on thawing.  Untreated fish = 161 mg sodium/100g.~
+~15192~^~01~^~N~^~307~^~Samples were obtained from 12 retail stores using a probability-based sampling plan.  Some fish had been treated during processing to retain moisture on thawing.  Untreated fish = 134 mg sodium/100g.~
+~16034~^~01~^~N~^~432~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid.~
+~16034~^~01~^~N~^~435~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid.~
+~16034~^~01~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid.~
+~16044~^~01~^~N~^~432~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~16044~^~01~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~16044~^~01~^~N~^~435~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~16058~^~01~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate~
+~16058~^~01~^~N~^~432~^~Value based on the analysis of 5-methyltetrahydrofolate~
+~16058~^~01~^~N~^~435~^~Value based on the analysis of 5-methyltetrahydrofolate~
+~16097~^~01~^~D~^~~^~Other phytosterols total 94.2 mg/100g; these include beta-sitosterol (77.2) delta 5-avenasterol (15.0), and campestanol (2.0)~
+~16126~^~01~^~D~^~~^~Descriptive terms (soft, firm, extra firm) vary in usage between manufacturers as there are no standards for the various types of tofu.~
+~16126~^~02~^~N~^~304~^~Manufacturers use either magnesium chloride (nigari), calcium sulfate, or both in varying quantities to precipitate the protein.  Calcium and magnesium contents will vary accordingly.~
+~16126~^~02~^~N~^~301~^~Manufacturers use either magnesium chloride (nigari), calcium sulfate, or both in varying quantities to precipitate the protein.  Calcium and magnesium contents will vary accordingly.~
+~16127~^~01~^~D~^~~^~Descriptive terms (soft, firm, extra firm) vary in usage between manufacturers as there are no standards for the various types of tofu.~
+~16127~^~02~^~N~^~304~^~Manufacturers use either magnesium chloride (nigari), calcium sulfate, or both in varying quantities to precipitate the protein.  Calcium and magnesium contents will vary accordingly.~
+~16127~^~02~^~N~^~301~^~Manufacturers use either magnesium chloride (nigari), calcium sulfate, or both in varying quantities to precipitate the protein.  Calcium and magnesium contents will vary accordingly.~
+~16137~^~01~^~D~^~~^~Recipe:  Chickpeas, 79%; lemon juice, 10%; sesame seeds, 5%; olive oil, 5%; and garlic, 1%~
+~16145~^~01~^~N~^~432~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid.~
+~16145~^~01~^~N~^~435~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid.~
+~16145~^~01~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid.~
+~16146~^~01~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~16146~^~01~^~N~^~432~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~16146~^~01~^~N~^~435~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~16147~^~01~^~D~^~~^~Profile represents several different brands and types; check label for the brand and type purchased.~
+~16147~^~02~^~N~^~404~^~Vitamin added to some products; check label for product purchased~
+~16147~^~03~^~N~^~406~^~Vitamin added to some products; check label for product purchased~
+~16159~^~01~^~D~^~~^~Descriptive terms (soft, firm, extra firm) vary in usage between manufacturers as there are no standards for the various types of tofu.~
+~16159~^~02~^~N~^~301~^~Manufacturers use either magnesium chloride (nigari), calcium sulfate, or both in varying quantities to precipitate the protein.  Calcium and magnesium contents will vary accordingly.~
+~16159~^~03~^~N~^~304~^~Manufacturers use either magnesium chloride (nigari), calcium sulfate, or both in varying quantities to precipitate the protein.  Calcium and magnesium contents will vary accordingly.~
+~16160~^~01~^~D~^~~^~Descriptive terms (soft, firm, extra firm) vary in usage between manufacturers as there are no standards for the various types of tofu.~
+~16160~^~02~^~N~^~301~^~Manufacturers use either magnesium chloride (nigari), calcium sulfate, or both in varying quantities to precipitate the protein.  Calcium and magnesium contents will vary accordingly.~
+~16160~^~03~^~N~^~304~^~Manufacturers use either magnesium chloride (nigari), calcium sulfate, or both in varying quantities to precipitate the protein.  Calcium and magnesium contents will vary accordingly.~
+~16173~^~01~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate~
+~16223~^~01~^~D~^~~^~Product may also have omega-3 fatty acids, vitamin C, vitamin B6, folate, and vitamin E added.  Check label.~
+~16223~^~02~^~D~^~~^~Product may also be called "extra" or "plus"~
+~16335~^~01~^~N~^~435~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid~
+~16335~^~01~^~N~^~432~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid~
+~16335~^~01~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid~
+~16345~^~01~^~N~^~435~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid~
+~16345~^~01~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid~
+~16345~^~01~^~N~^~432~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid~
+~16347~^~01~^~N~^~435~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~16347~^~01~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~16347~^~01~^~N~^~432~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~16358~^~01~^~N~^~435~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid.~
+~16358~^~01~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid.~
+~16358~^~01~^~N~^~432~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid.~
+~16359~^~01~^~N~^~432~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, 5-Formyltetrahydrofolic acid~
+~16359~^~01~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, 5-Formyltetrahydrofolic acid~
+~16359~^~01~^~N~^~435~^~Value based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, 5-Formyltetrahydrofolic acid~
+~16360~^~01~^~N~^~432~^~Value based on the analysis of 5-methyltetrahydrofolate~
+~16360~^~01~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate~
+~16360~^~01~^~N~^~435~^~Value based on the analysis of 5-methyltetrahydrofolate~
+~16397~^~01~^~D~^~~^~Other phytosterols total 94.2 mg/100g; these include beta-sitosterol (77.2), delta 5-avenasterol (15.0), and campestanol (2.0).~
+~17156~^~01~^~N~^~405~^~Data represent composite of clod, ribeye, top round and top sirloin for 24 bison.~
+~17156~^~02~^~N~^~406~^~Data represent composite of clod, ribeye, top round and top sirloin for 24 bison.~
+~17267~^~01~^~N~^~208~^~Energy, as determined by bomb calorimetry, is 143.00 kcal.~
+~17268~^~01~^~N~^~208~^~Energy, as determined by bomb calorimetry, is 145.00 kcal.~
+~17269~^~01~^~N~^~208~^~Energy, as determined by bomb calorimetry, is 136.00 kcal.~
+~18014~^~01~^~N~^~318~^~value based on product containing buttermilk~
+~18014~^~02~^~N~^~601~^~value based on product containing buttermilk~
+~18014~^~03~^~N~^~320~^~value based on product containing buttermilk~
+~18014~^~04~^~N~^~319~^~value based on product containing buttermilk~
+~18015~^~01~^~N~^~318~^~value based on product containing buttermilk~
+~18015~^~02~^~N~^~319~^~value based on product containing buttermilk~
+~18015~^~03~^~N~^~320~^~value based on product containing buttermilk~
+~18015~^~04~^~N~^~601~^~value based on product containing buttermilk~
+~18360~^~01~^~D~^~~^~Item includes both regular corn and whole grain corn tortilla shells.~
+~18505~^~01~^~M~^~~^~Serving equals 2 waffles~
+~18506~^~01~^~M~^~~^~Serving equals 2 waffles~
+~18507~^~01~^~M~^~~^~Serving equals 2 waffles~
+~18567~^~01~^~M~^~~^~1/6 box (makes 1/2 cup prepared)~
+~19008~^~01~^~D~^~~^~Product made with oil that is not partially hydrogenated.~
+~19375~^~01~^~D~^~~^~Powdered sugar, milk and vanilla.~
+~19409~^~01~^~D~^~~^~Recipe No. C-32, from NFSMI, Healthy School Meals Resource System, and Team Nutrition~
+~19868~^~01~^~N~^~205~^~Adjusted.  Subtracted non-digestible, non-caloric sucralose.~
+~19868~^~02~^~N~^~269~^~Sucralose not included.~
+~19919~^~01~^~N~^~323~^~Some candies contain added Vitamin E. If vitamin E is added at 25% DV per serving then Vitamin E= 8.4mg/100gm.,~
+~20022~^~01~^~D~^~~^~Includes Latino brands~
+~20058~^~01~^~D~^~~^~Analytical results indicate rice is unenriched.~
+~20062~^~01~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate and tetrahydrofolate.~
+~20063~^~01~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate and tetrahydrofolate.~
+~20064~^~01~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate and tetrahydrofolate.~
+~20065~^~01~^~N~^~417~^~Value based on the analysis of 5-methyltetrahydrofolate and tetrahydrofolate.~
+~20067~^~01~^~N~^~291~^~Total dietary fiber value is for white sorghum.  Total dietary fiber values for other types of sorghum range from 8.8 to 11.1 g/100g.~
+~20133~^~01~^~D~^~~^~Imported product~
+~20134~^~01~^~D~^~~^~Imported product~
+~20322~^~01~^~D~^~~^~Includes Latino brands~
+~20422~^~01~^~D~^~~^~Includes Latino brands~
+~20522~^~01~^~D~^~~^~Includes Latino brands~
+~20647~^~01~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~20648~^~01~^~N~^~417~^~Mean value contains data based on the analysis of 5-methyltetrahydrofolate, 10-Formyl folic acid, and 5-Formyltetrahydrofolic acid plus total folate determined microbiologically~
+~20649~^~01~^~N~^~291~^~Dietary fiber quantified using enzymatic-gravimetric/liquid chromatography, AOAC method 2009.01, which includes resistant oligosaccharides in estimation.~
+~21093~^~01~^~D~^~~^~Condiments include ketchup, mustard, pickles and onions~
+~22522~^~01~^~N~^~328~^~Mean of fortified and unfortified products. Values range from 0.1 mcg (unfortified) to 0.4 mcg (fortified).~
+~22522~^~02~^~N~^~324~^~Mean of fortified and unfortified products. Values range from 5 IU (unfortified) to 16 IU (fortified).~
+~22914~^~01~^~N~^~301~^~Mean of fortified and unfortified products.  Values range from 12.8 mg (unfortified) to 119 mg (fortified at 30% DV per serving)~
+~22914~^~02~^~N~^~328~^~Mean of fortified and unfortified products.  Values range from 0.0 mcg (unfortified) to 1 mcg (fortified)~
+~22914~^~03~^~N~^~324~^~Mean of fortified and unfortified products.  Values range from 0 IU (unfortified) to 40 IU (fortified at 25% DV per serving)~
+~22957~^~01~^~D~^~~^~includes dinners w/cranberry sauce~
+~23485~^~01~^~D~^~~^~This composite was determined based on market shares of 0" fat trim cuts~
+~23490~^~01~^~D~^~~^~Estimation of the nutrient profile for this composite were based upon the market shares of 1/8” fat trim cuts.~
+~23491~^~01~^~D~^~~^~Estimation of the nutrient profile for this composite were based upon the market shares of 1/8” fat trim cuts.~
+~23494~^~01~^~D~^~~^~Estimation of the nutrient profile for this composite were based upon the market shares of 0” fat trim cuts.~
+~23495~^~01~^~D~^~~^~Estimation of the nutrient profile for this composite were based upon the market shares of 0” fat trim cuts.~
+~23496~^~01~^~D~^~~^~Estimation of the nutrient profile for this composite were based upon the market shares of 0” fat trim cuts~
+~23497~^~01~^~D~^~~^~Estimation of the nutrient profile for this composite were based upon the market shares of 0” fat trim cuts~
+~23498~^~01~^~D~^~~^~Estimation of the nutrient profile for this composite were based upon the market shares of 1/8” fat trim cuts.~
+~23499~^~01~^~D~^~~^~Estimation of the nutrient profile for this composite were based upon the market shares of 1/8” fat trim cuts.~
+~25040~^~01~^~D~^~~^~Made with potatoes, tomatoes, spinach and beets.~
+~25064~^~01~^~N~^~307~^~Sodium has taken from the recent analytical one.(lightly salted)~
+~35015~^~01~^~D~^~~^~The mineral and vitamin content of berries harvested in the wild and in specific regions of the country may differ from commercially produced berries.~
+~35130~^~01~^~M~^~~^~Serving weight is based on limited samples and may vary widely.~
+~35133~^~01~^~M~^~~^~Weight of serving based on limited sampling and may vary widely.~
+~35142~^~01~^~M~^~~^~Weight of serving based on limited samples and may vary widely.~
+~35143~^~01~^~M~^~~^~Weight of serving based on limited samples and may vary widely.~
+~35144~^~01~^~M~^~~^~Weight of serving based on limited sampling and may vary widely.~
+~35145~^~01~^~M~^~~^~Weight of serving based on limited samples and may vary widely.~
+~35146~^~01~^~M~^~~^~Weight of serving based on limited sampling and may vary widely.~
+~35147~^~01~^~M~^~~^~Weight of serving based on limited samples and may vary widely.~
+~35155~^~01~^~D~^~~^~The mineral and vitamin content of berries harvested in the wild and in specific regions of the country may differ from commercially produced berries.~
+~35182~^~01~^~D~^~~^~Boiled stew made with water, beef or deer, prepared acorns, dumpling strips, salt, and pepper.~
+~35190~^~01~^~D~^~~^~If no salt added during smoking process, sodium = 51 mg/100 g edible portion.~
+~35194~^~01~^~N~^~309~^~Dried on galvanized wire.~
+~35195~^~01~^~N~^~417~^~Includes only 5-methyltetrahydrofolate.~
+~35196~^~01~^~N~^~417~^~Includes only 5-methyltetrahydrofolate.~
+~35200~^~01~^~N~^~417~^~Includes only 5-methyltetrahydrofolate.~
+~35202~^~01~^~N~^~417~^~Includes only 5-methyltetrahydrofolate.~
+~35203~^~01~^~N~^~417~^~Includes only 5-methyltetrahydrofolate.~
+~35204~^~01~^~N~^~417~^~Includes only 5-methyltetrahydrofolate.~
+~35205~^~01~^~N~^~417~^~Includes only 5-methyl tetrahydrofolate (THF).~
+~35206~^~01~^~N~^~417~^~Includes only 5-methyltetrahydrofolate.~
+~35230~^~01~^~D~^~~^~Based on limited sampling. Nutrient values, particularly fat and protein, vary widely with variations in proportion of meat to fat.~
+~35231~^~01~^~D~^~~^~Nutrient values vary, depending on proportion of fat to meat.~
+~35231~^~02~^~N~^~207~^~If salted fat, ash could be higher and fat lower on a 100-gram basis.~
+~35232~^~01~^~N~^~432~^~Food folate is the sum of 5-Methyl Tetrahydrofolate, 10-Formyl Folic Acid, 5-Formyl Tetrahydrofolic Acid and Tetrahydrofolic Acid~
+~35232~^~01~^~N~^~417~^~Food folate is the sum of 5-Methyl Tetrahydrofolate, 10-Formyl Folic Acid, 5-Formyl Tetrahydrofolic Acid and Tetrahydrofolic Acid~
+~35234~^~01~^~M~^~~^~Weight of serving (piece) based on limited samples and may vary widely.~
+~35234~^~02~^~N~^~306~^~Elevated levels from Juniper or saltbush ash~
+~35234~^~02~^~N~^~305~^~Elevated levels from Juniper or saltbush ash~
+~35234~^~02~^~N~^~304~^~Elevated levels from Juniper or saltbush ash~
+~35234~^~02~^~N~^~301~^~Elevated levels from Juniper or saltbush ash~
+~35234~^~02~^~N~^~307~^~Elevated levels from Juniper or saltbush ash~
+~35234~^~02~^~N~^~303~^~Elevated levels from Juniper or saltbush ash~
+~35235~^~01~^~N~^~417~^~Food folate is the sum of 5-Methyl Tetrahydrofolate, 10-Formyl Folic Acid, 5-Formyl Tetrahydrofolic Acid and Tetrahydrofolic Acid~
+~35235~^~01~^~N~^~432~^~Food folate is the sum of 5-Methyl Tetrahydrofolate, 10-Formyl Folic Acid, 5-Formyl Tetrahydrofolic Acid and Tetrahydrofolic Acid~
+~36603~^~01~^~D~^~~^~Rice was not included in analyses.~
+~36603~^~02~^~D~^~~^~Ingredients and amount of sauce vary by restaurant.  Most dishes analyzed had broccoli and carrots.  Some also included onion, mushroom, bell pepper, baby corn, bamboo shoots and/or snow peas.~
+~36617~^~01~^~D~^~~^~Rice was not included in analyses.~
+~36617~^~02~^~D~^~~^~Ingredients and amount of breading and sauce vary by restaurant.  Most dishes analyzed only had breaded chicken and sauce.  A few had broccoli, celery and/or hot red pepper.~
+~36618~^~01~^~D~^~~^~Rice was not included in analyses.~
+~36618~^~02~^~D~^~~^~Ingredients and amount of breading and sauce vary by restaurant.  Most dishes analyzed only had breaded chicken and sauce.  A few had broccoli and/or red pepper.~
+~36619~^~01~^~D~^~~^~Rice was not included in analyses.~
+~36619~^~02~^~D~^~~^~Ingredients and amount of breading and sauce vary by restaurant.  Most dishes analyzed had carrots.  Some had broccoli, red or green pepper, mushrooms, onion, and/or celery.~
+~36620~^~01~^~D~^~~^~Rice was not included in analyses.~
+~36620~^~02~^~D~^~~^~Ingredients and amount of sauce vary by restaurant. Most dishes analyzed included carrots and broccoli.~
+~36621~^~01~^~D~^~~^~Rice was not included in analyses.~
+~36621~^~02~^~D~^~~^~Ingredients and amount of breading and sauce vary by restaurant.~
+~36622~^~01~^~D~^~~^~Rice was not included in analyses.~
+~36622~^~02~^~D~^~~^~Ingredients and amount of breading and sauce vary by restaurant.~
+~36623~^~01~^~D~^~~^~Rice was not included in analyses.~
+~36623~^~02~^~D~^~~^~Ingredients and amount of sauce vary by restaurant.  May include onions, cabbage, carrots and/or broccoli.~
+~36624~^~01~^~D~^~~^~Rice was not included in the analyses.~
+~36624~^~02~^~D~^~~^~Ingredients and amount of sauce vary by restaurant. May include celery, onion, carrots, broccoli, snow peas, mushroom, baby corn, bamboo shoots and/or other vegetables.~
+~36625~^~01~^~D~^~~^~Type and proportion of ingredients vary by restaurant.~
+~36626~^~01~^~D~^~~^~Rice was not included in analyses.~
+~36626~^~02~^~D~^~~^~Ingredients and amount of sauce vary by restaurant. Most dishes analyzed had broccoli and carrots. Some also included snow peas, scallion, water chestnuts, and/or baby corn.~
+~36629~^~01~^~D~^~~^~Rice and broccoli were not included in analyses.~
+~42289~^~01~^~D~^~~^~Other phytosterols and phytostanols identified include: beta-sitostanol (4.599 ) and delta-5 avenasterol (15.76)~
+~43483~^~01~^~D~^~~^~Made from proso millet~
+~90240~^~01~^~N~^~307~^~Samples were obtained from 12 retail stores using a probability-based sampling plan.  Some fish had been treated during processing to retain moisture on thawing.  Untreated fish = 265 mg sodium/100g.~

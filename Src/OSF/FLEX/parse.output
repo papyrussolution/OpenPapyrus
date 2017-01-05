@@ -1,0 +1,1647 @@
+
+Grammar
+rule 1    goal -> initlex sect1 sect1end sect2 initforrule
+rule 2    initlex ->		/* empty */
+rule 3    sect1 -> sect1 startconddecl namelist1
+rule 4    sect1 -> sect1 options
+rule 5    sect1 ->		/* empty */
+rule 6    sect1 -> error
+rule 7    sect1end -> SECTEND
+rule 8    startconddecl -> SCDECL
+rule 9    startconddecl -> XSCDECL
+rule 10   namelist1 -> namelist1 NAME
+rule 11   namelist1 -> NAME
+rule 12   namelist1 -> error
+rule 13   options -> OPTION_OP optionlist
+rule 14   optionlist -> optionlist option
+rule 15   optionlist ->		/* empty */
+rule 16   option -> OPT_OUTFILE '=' NAME
+rule 17   option -> OPT_EXTRA_TYPE '=' NAME
+rule 18   option -> OPT_PREFIX '=' NAME
+rule 19   option -> OPT_YYCLASS '=' NAME
+rule 20   option -> OPT_HEADER '=' NAME
+rule 21   option -> OPT_TABLES '=' NAME
+rule 22   sect2 -> sect2 scon initforrule flexrule '\n'
+rule 23   sect2 -> sect2 scon '{' sect2 '}'
+rule 24   sect2 ->		/* empty */
+rule 25   initforrule ->		/* empty */
+rule 26   flexrule -> '^' rule
+rule 27   flexrule -> rule
+rule 28   flexrule -> EOF_OP
+rule 29   flexrule -> error
+rule 30   scon_stk_ptr ->		/* empty */
+rule 31   scon -> '<' scon_stk_ptr namelist2 '>'
+rule 32   scon -> '<' '*' '>'
+rule 33   scon ->		/* empty */
+rule 34   namelist2 -> namelist2 ',' sconname
+rule 35   namelist2 -> sconname
+rule 36   namelist2 -> error
+rule 37   sconname -> NAME
+rule 38   rule -> re2 re
+rule 39   rule -> re2 re '$'
+rule 40   rule -> re '$'
+rule 41   rule -> re
+rule 42   re -> re '|' series
+rule 43   re -> series
+rule 44   re2 -> re '/'
+rule 45   series -> series singleton
+rule 46   series -> singleton
+rule 47   series -> series BEGIN_REPEAT_POSIX NUMBER ',' NUMBER END_REPEAT_POSIX
+rule 48   series -> series BEGIN_REPEAT_POSIX NUMBER ',' END_REPEAT_POSIX
+rule 49   series -> series BEGIN_REPEAT_POSIX NUMBER END_REPEAT_POSIX
+rule 50   singleton -> singleton '*'
+rule 51   singleton -> singleton '+'
+rule 52   singleton -> singleton '?'
+rule 53   singleton -> singleton BEGIN_REPEAT_FLEX NUMBER ',' NUMBER END_REPEAT_FLEX
+rule 54   singleton -> singleton BEGIN_REPEAT_FLEX NUMBER ',' END_REPEAT_FLEX
+rule 55   singleton -> singleton BEGIN_REPEAT_FLEX NUMBER END_REPEAT_FLEX
+rule 56   singleton -> '.'
+rule 57   singleton -> fullccl
+rule 58   singleton -> PREVCCL
+rule 59   singleton -> '"' string '"'
+rule 60   singleton -> '(' re ')'
+rule 61   singleton -> CHAR
+rule 62   fullccl -> fullccl CCL_OP_DIFF braceccl
+rule 63   fullccl -> fullccl CCL_OP_UNION braceccl
+rule 64   fullccl -> braceccl
+rule 65   braceccl -> '[' ccl ']'
+rule 66   braceccl -> '[' '^' ccl ']'
+rule 67   ccl -> ccl CHAR '-' CHAR
+rule 68   ccl -> ccl CHAR
+rule 69   ccl -> ccl ccl_expr
+rule 70   ccl ->		/* empty */
+rule 71   ccl_expr -> CCE_ALNUM
+rule 72   ccl_expr -> CCE_ALPHA
+rule 73   ccl_expr -> CCE_BLANK
+rule 74   ccl_expr -> CCE_CNTRL
+rule 75   ccl_expr -> CCE_DIGIT
+rule 76   ccl_expr -> CCE_GRAPH
+rule 77   ccl_expr -> CCE_LOWER
+rule 78   ccl_expr -> CCE_PRINT
+rule 79   ccl_expr -> CCE_PUNCT
+rule 80   ccl_expr -> CCE_SPACE
+rule 81   ccl_expr -> CCE_XDIGIT
+rule 82   ccl_expr -> CCE_UPPER
+rule 83   ccl_expr -> CCE_NEG_ALNUM
+rule 84   ccl_expr -> CCE_NEG_ALPHA
+rule 85   ccl_expr -> CCE_NEG_BLANK
+rule 86   ccl_expr -> CCE_NEG_CNTRL
+rule 87   ccl_expr -> CCE_NEG_DIGIT
+rule 88   ccl_expr -> CCE_NEG_GRAPH
+rule 89   ccl_expr -> CCE_NEG_PRINT
+rule 90   ccl_expr -> CCE_NEG_PUNCT
+rule 91   ccl_expr -> CCE_NEG_SPACE
+rule 92   ccl_expr -> CCE_NEG_XDIGIT
+rule 93   ccl_expr -> CCE_NEG_LOWER
+rule 94   ccl_expr -> CCE_NEG_UPPER
+rule 95   string -> string CHAR
+rule 96   string ->		/* empty */
+
+Terminals, with rules where they appear
+
+$ (-1)
+'\n' (10) 22
+'"' (34) 59
+'$' (36) 39 40
+'(' (40) 60
+')' (41) 60
+'*' (42) 32 50
+'+' (43) 51
+',' (44) 34 47 48 53 54
+'-' (45) 67
+'.' (46) 56
+'/' (47) 44
+'<' (60) 31 32
+'=' (61) 16 17 18 19 20 21
+'>' (62) 31 32
+'?' (63) 52
+'[' (91) 65 66
+']' (93) 65 66
+'^' (94) 26 66
+'{' (123) 23
+'|' (124) 42
+'}' (125) 23
+error (256) 6 12 29 36
+CHAR (258) 61 67 68 95
+NUMBER (259) 47 48 49 53 54 55
+SECTEND (260) 7
+SCDECL (261) 8
+XSCDECL (262) 9
+NAME (263) 10 11 16 17 18 19 20 21 37
+PREVCCL (264) 58
+EOF_OP (265) 28
+OPTION_OP (266) 13
+OPT_OUTFILE (267) 16
+OPT_PREFIX (268) 18
+OPT_YYCLASS (269) 19
+OPT_HEADER (270) 20
+OPT_EXTRA_TYPE (271) 17
+OPT_TABLES (272) 21
+CCE_ALNUM (273) 71
+CCE_ALPHA (274) 72
+CCE_BLANK (275) 73
+CCE_CNTRL (276) 74
+CCE_DIGIT (277) 75
+CCE_GRAPH (278) 76
+CCE_LOWER (279) 77
+CCE_PRINT (280) 78
+CCE_PUNCT (281) 79
+CCE_SPACE (282) 80
+CCE_UPPER (283) 82
+CCE_XDIGIT (284) 81
+CCE_NEG_ALNUM (285) 83
+CCE_NEG_ALPHA (286) 84
+CCE_NEG_BLANK (287) 85
+CCE_NEG_CNTRL (288) 86
+CCE_NEG_DIGIT (289) 87
+CCE_NEG_GRAPH (290) 88
+CCE_NEG_LOWER (291) 93
+CCE_NEG_PRINT (292) 89
+CCE_NEG_PUNCT (293) 90
+CCE_NEG_SPACE (294) 91
+CCE_NEG_UPPER (295) 94
+CCE_NEG_XDIGIT (296) 92
+CCL_OP_DIFF (297) 62
+CCL_OP_UNION (298) 63
+BEGIN_REPEAT_POSIX (299) 47 48 49
+END_REPEAT_POSIX (300) 47 48 49
+BEGIN_REPEAT_FLEX (301) 53 54 55
+END_REPEAT_FLEX (302) 53 54 55
+
+Nonterminals, with rules where they appear
+
+goal (69)
+    on left: 1
+initlex (70)
+    on left: 2, on right: 1
+sect1 (71)
+    on left: 3 4 5 6, on right: 1 3 4
+sect1end (72)
+    on left: 7, on right: 1
+startconddecl (73)
+    on left: 8 9, on right: 3
+namelist1 (74)
+    on left: 10 11 12, on right: 3 10
+options (75)
+    on left: 13, on right: 4
+optionlist (76)
+    on left: 14 15, on right: 13 14
+option (77)
+    on left: 16 17 18 19 20 21, on right: 14
+sect2 (78)
+    on left: 22 23 24, on right: 1 22 23
+initforrule (79)
+    on left: 25, on right: 1 22
+flexrule (80)
+    on left: 26 27 28 29, on right: 22
+scon_stk_ptr (81)
+    on left: 30, on right: 31
+scon (82)
+    on left: 31 32 33, on right: 22 23
+namelist2 (83)
+    on left: 34 35 36, on right: 31 34
+sconname (84)
+    on left: 37, on right: 34 35
+rule (85)
+    on left: 38 39 40 41, on right: 26 27
+re (86)
+    on left: 42 43, on right: 38 39 40 41 42 44 60
+re2 (87)
+    on left: 44, on right: 38 39
+series (88)
+    on left: 45 46 47 48 49, on right: 42 43 45 47 48 49
+singleton (89)
+    on left: 50 51 52 53 54 55 56 57 58 59 60 61, on right: 45 46 50
+    51 52 53 54 55
+fullccl (90)
+    on left: 62 63 64, on right: 57 62 63
+braceccl (91)
+    on left: 65 66, on right: 62 63 64
+ccl (92)
+    on left: 67 68 69 70, on right: 65 66 67 68 69
+ccl_expr (93)
+    on left: 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88
+    89 90 91 92 93 94, on right: 69
+string (94)
+    on left: 95 96, on right: 59 95
+
+
+state 0
+
+    $default	reduce using rule 2 (initlex)
+
+    goal	go to state 138
+    initlex	go to state 1
+
+
+
+state 1
+
+    goal  ->  initlex . sect1 sect1end sect2 initforrule   (rule 1)
+
+    error	shift, and go to state 2
+
+    SECTEND	reduce using rule 5 (sect1)
+    SCDECL	reduce using rule 5 (sect1)
+    XSCDECL	reduce using rule 5 (sect1)
+    OPTION_OP	reduce using rule 5 (sect1)
+
+    sect1	go to state 3
+
+
+
+state 2
+
+    sect1  ->  error .   (rule 6)
+
+    $default	reduce using rule 6 (sect1)
+
+
+
+state 3
+
+    goal  ->  initlex sect1 . sect1end sect2 initforrule   (rule 1)
+    sect1  ->  sect1 . startconddecl namelist1   (rule 3)
+    sect1  ->  sect1 . options   (rule 4)
+
+    SECTEND	shift, and go to state 4
+    SCDECL	shift, and go to state 5
+    XSCDECL	shift, and go to state 6
+    OPTION_OP	shift, and go to state 7
+
+    sect1end	go to state 8
+    startconddecl	go to state 9
+    options	go to state 10
+
+
+
+state 4
+
+    sect1end  ->  SECTEND .   (rule 7)
+
+    $default	reduce using rule 7 (sect1end)
+
+
+
+state 5
+
+    startconddecl  ->  SCDECL .   (rule 8)
+
+    $default	reduce using rule 8 (startconddecl)
+
+
+
+state 6
+
+    startconddecl  ->  XSCDECL .   (rule 9)
+
+    $default	reduce using rule 9 (startconddecl)
+
+
+
+state 7
+
+    options  ->  OPTION_OP . optionlist   (rule 13)
+
+    $default	reduce using rule 15 (optionlist)
+
+    optionlist	go to state 11
+
+
+
+state 8
+
+    goal  ->  initlex sect1 sect1end . sect2 initforrule   (rule 1)
+
+    $default	reduce using rule 24 (sect2)
+
+    sect2	go to state 12
+
+
+
+state 9
+
+    sect1  ->  sect1 startconddecl . namelist1   (rule 3)
+
+    error	shift, and go to state 13
+    NAME	shift, and go to state 14
+
+    namelist1	go to state 15
+
+
+
+state 10
+
+    sect1  ->  sect1 options .   (rule 4)
+
+    $default	reduce using rule 4 (sect1)
+
+
+
+state 11
+
+    options  ->  OPTION_OP optionlist .   (rule 13)
+    optionlist  ->  optionlist . option   (rule 14)
+
+    OPT_OUTFILE	shift, and go to state 16
+    OPT_PREFIX	shift, and go to state 17
+    OPT_YYCLASS	shift, and go to state 18
+    OPT_HEADER	shift, and go to state 19
+    OPT_EXTRA_TYPE	shift, and go to state 20
+    OPT_TABLES	shift, and go to state 21
+
+    $default	reduce using rule 13 (options)
+
+    option	go to state 22
+
+
+
+state 12
+
+    goal  ->  initlex sect1 sect1end sect2 . initforrule   (rule 1)
+    sect2  ->  sect2 . scon initforrule flexrule '\n'   (rule 22)
+    sect2  ->  sect2 . scon '{' sect2 '}'   (rule 23)
+
+    '<' 	shift, and go to state 23
+
+    $   	reduce using rule 25 (initforrule)
+    $default	reduce using rule 33 (scon)
+
+    initforrule	go to state 24
+    scon	go to state 25
+
+
+
+state 13
+
+    namelist1  ->  error .   (rule 12)
+
+    $default	reduce using rule 12 (namelist1)
+
+
+
+state 14
+
+    namelist1  ->  NAME .   (rule 11)
+
+    $default	reduce using rule 11 (namelist1)
+
+
+
+state 15
+
+    sect1  ->  sect1 startconddecl namelist1 .   (rule 3)
+    namelist1  ->  namelist1 . NAME   (rule 10)
+
+    NAME	shift, and go to state 26
+
+    $default	reduce using rule 3 (sect1)
+
+
+
+state 16
+
+    option  ->  OPT_OUTFILE . '=' NAME   (rule 16)
+
+    '=' 	shift, and go to state 27
+
+
+
+state 17
+
+    option  ->  OPT_PREFIX . '=' NAME   (rule 18)
+
+    '=' 	shift, and go to state 28
+
+
+
+state 18
+
+    option  ->  OPT_YYCLASS . '=' NAME   (rule 19)
+
+    '=' 	shift, and go to state 29
+
+
+
+state 19
+
+    option  ->  OPT_HEADER . '=' NAME   (rule 20)
+
+    '=' 	shift, and go to state 30
+
+
+
+state 20
+
+    option  ->  OPT_EXTRA_TYPE . '=' NAME   (rule 17)
+
+    '=' 	shift, and go to state 31
+
+
+
+state 21
+
+    option  ->  OPT_TABLES . '=' NAME   (rule 21)
+
+    '=' 	shift, and go to state 32
+
+
+
+state 22
+
+    optionlist  ->  optionlist option .   (rule 14)
+
+    $default	reduce using rule 14 (optionlist)
+
+
+
+state 23
+
+    scon  ->  '<' . scon_stk_ptr namelist2 '>'   (rule 31)
+    scon  ->  '<' . '*' '>'   (rule 32)
+
+    '*' 	shift, and go to state 33
+
+    $default	reduce using rule 30 (scon_stk_ptr)
+
+    scon_stk_ptr	go to state 34
+
+
+
+state 24
+
+    goal  ->  initlex sect1 sect1end sect2 initforrule .   (rule 1)
+
+    $default	reduce using rule 1 (goal)
+
+
+
+state 25
+
+    sect2  ->  sect2 scon . initforrule flexrule '\n'   (rule 22)
+    sect2  ->  sect2 scon . '{' sect2 '}'   (rule 23)
+
+    '{' 	shift, and go to state 35
+
+    $default	reduce using rule 25 (initforrule)
+
+    initforrule	go to state 36
+
+
+
+state 26
+
+    namelist1  ->  namelist1 NAME .   (rule 10)
+
+    $default	reduce using rule 10 (namelist1)
+
+
+
+state 27
+
+    option  ->  OPT_OUTFILE '=' . NAME   (rule 16)
+
+    NAME	shift, and go to state 37
+
+
+
+state 28
+
+    option  ->  OPT_PREFIX '=' . NAME   (rule 18)
+
+    NAME	shift, and go to state 38
+
+
+
+state 29
+
+    option  ->  OPT_YYCLASS '=' . NAME   (rule 19)
+
+    NAME	shift, and go to state 39
+
+
+
+state 30
+
+    option  ->  OPT_HEADER '=' . NAME   (rule 20)
+
+    NAME	shift, and go to state 40
+
+
+
+state 31
+
+    option  ->  OPT_EXTRA_TYPE '=' . NAME   (rule 17)
+
+    NAME	shift, and go to state 41
+
+
+
+state 32
+
+    option  ->  OPT_TABLES '=' . NAME   (rule 21)
+
+    NAME	shift, and go to state 42
+
+
+
+state 33
+
+    scon  ->  '<' '*' . '>'   (rule 32)
+
+    '>' 	shift, and go to state 43
+
+
+
+state 34
+
+    scon  ->  '<' scon_stk_ptr . namelist2 '>'   (rule 31)
+
+    error	shift, and go to state 44
+    NAME	shift, and go to state 45
+
+    namelist2	go to state 46
+    sconname	go to state 47
+
+
+
+state 35
+
+    sect2  ->  sect2 scon '{' . sect2 '}'   (rule 23)
+
+    $default	reduce using rule 24 (sect2)
+
+    sect2	go to state 48
+
+
+
+state 36
+
+    sect2  ->  sect2 scon initforrule . flexrule '\n'   (rule 22)
+
+    error	shift, and go to state 49
+    CHAR	shift, and go to state 50
+    PREVCCL	shift, and go to state 51
+    EOF_OP	shift, and go to state 52
+    '^' 	shift, and go to state 53
+    '.' 	shift, and go to state 54
+    '"' 	shift, and go to state 55
+    '(' 	shift, and go to state 56
+    '[' 	shift, and go to state 57
+
+    flexrule	go to state 58
+    rule	go to state 59
+    re  	go to state 60
+    re2 	go to state 61
+    series	go to state 62
+    singleton	go to state 63
+    fullccl	go to state 64
+    braceccl	go to state 65
+
+
+
+state 37
+
+    option  ->  OPT_OUTFILE '=' NAME .   (rule 16)
+
+    $default	reduce using rule 16 (option)
+
+
+
+state 38
+
+    option  ->  OPT_PREFIX '=' NAME .   (rule 18)
+
+    $default	reduce using rule 18 (option)
+
+
+
+state 39
+
+    option  ->  OPT_YYCLASS '=' NAME .   (rule 19)
+
+    $default	reduce using rule 19 (option)
+
+
+
+state 40
+
+    option  ->  OPT_HEADER '=' NAME .   (rule 20)
+
+    $default	reduce using rule 20 (option)
+
+
+
+state 41
+
+    option  ->  OPT_EXTRA_TYPE '=' NAME .   (rule 17)
+
+    $default	reduce using rule 17 (option)
+
+
+
+state 42
+
+    option  ->  OPT_TABLES '=' NAME .   (rule 21)
+
+    $default	reduce using rule 21 (option)
+
+
+
+state 43
+
+    scon  ->  '<' '*' '>' .   (rule 32)
+
+    $default	reduce using rule 32 (scon)
+
+
+
+state 44
+
+    namelist2  ->  error .   (rule 36)
+
+    $default	reduce using rule 36 (namelist2)
+
+
+
+state 45
+
+    sconname  ->  NAME .   (rule 37)
+
+    $default	reduce using rule 37 (sconname)
+
+
+
+state 46
+
+    scon  ->  '<' scon_stk_ptr namelist2 . '>'   (rule 31)
+    namelist2  ->  namelist2 . ',' sconname   (rule 34)
+
+    '>' 	shift, and go to state 66
+    ',' 	shift, and go to state 67
+
+
+
+state 47
+
+    namelist2  ->  sconname .   (rule 35)
+
+    $default	reduce using rule 35 (namelist2)
+
+
+
+state 48
+
+    sect2  ->  sect2 . scon initforrule flexrule '\n'   (rule 22)
+    sect2  ->  sect2 . scon '{' sect2 '}'   (rule 23)
+    sect2  ->  sect2 scon '{' sect2 . '}'   (rule 23)
+
+    '}' 	shift, and go to state 68
+    '<' 	shift, and go to state 23
+
+    $default	reduce using rule 33 (scon)
+
+    scon	go to state 25
+
+
+
+state 49
+
+    flexrule  ->  error .   (rule 29)
+
+    $default	reduce using rule 29 (flexrule)
+
+
+
+state 50
+
+    singleton  ->  CHAR .   (rule 61)
+
+    $default	reduce using rule 61 (singleton)
+
+
+
+state 51
+
+    singleton  ->  PREVCCL .   (rule 58)
+
+    $default	reduce using rule 58 (singleton)
+
+
+
+state 52
+
+    flexrule  ->  EOF_OP .   (rule 28)
+
+    $default	reduce using rule 28 (flexrule)
+
+
+
+state 53
+
+    flexrule  ->  '^' . rule   (rule 26)
+
+    CHAR	shift, and go to state 50
+    PREVCCL	shift, and go to state 51
+    '.' 	shift, and go to state 54
+    '"' 	shift, and go to state 55
+    '(' 	shift, and go to state 56
+    '[' 	shift, and go to state 57
+
+    rule	go to state 69
+    re  	go to state 60
+    re2 	go to state 61
+    series	go to state 62
+    singleton	go to state 63
+    fullccl	go to state 64
+    braceccl	go to state 65
+
+
+
+state 54
+
+    singleton  ->  '.' .   (rule 56)
+
+    $default	reduce using rule 56 (singleton)
+
+
+
+state 55
+
+    singleton  ->  '"' . string '"'   (rule 59)
+
+    $default	reduce using rule 96 (string)
+
+    string	go to state 70
+
+
+
+state 56
+
+    singleton  ->  '(' . re ')'   (rule 60)
+
+    CHAR	shift, and go to state 50
+    PREVCCL	shift, and go to state 51
+    '.' 	shift, and go to state 54
+    '"' 	shift, and go to state 55
+    '(' 	shift, and go to state 56
+    '[' 	shift, and go to state 57
+
+    re  	go to state 71
+    series	go to state 62
+    singleton	go to state 63
+    fullccl	go to state 64
+    braceccl	go to state 65
+
+
+
+state 57
+
+    braceccl  ->  '[' . ccl ']'   (rule 65)
+    braceccl  ->  '[' . '^' ccl ']'   (rule 66)
+
+    '^' 	shift, and go to state 72
+
+    $default	reduce using rule 70 (ccl)
+
+    ccl 	go to state 73
+
+
+
+state 58
+
+    sect2  ->  sect2 scon initforrule flexrule . '\n'   (rule 22)
+
+    '\n'	shift, and go to state 74
+
+
+
+state 59
+
+    flexrule  ->  rule .   (rule 27)
+
+    $default	reduce using rule 27 (flexrule)
+
+
+
+state 60
+
+    rule  ->  re . '$'   (rule 40)
+    rule  ->  re .   (rule 41)
+    re  ->  re . '|' series   (rule 42)
+    re2  ->  re . '/'   (rule 44)
+
+    '$' 	shift, and go to state 75
+    '|' 	shift, and go to state 76
+    '/' 	shift, and go to state 77
+
+    $default	reduce using rule 41 (rule)
+
+
+
+state 61
+
+    rule  ->  re2 . re   (rule 38)
+    rule  ->  re2 . re '$'   (rule 39)
+
+    CHAR	shift, and go to state 50
+    PREVCCL	shift, and go to state 51
+    '.' 	shift, and go to state 54
+    '"' 	shift, and go to state 55
+    '(' 	shift, and go to state 56
+    '[' 	shift, and go to state 57
+
+    re  	go to state 78
+    series	go to state 62
+    singleton	go to state 63
+    fullccl	go to state 64
+    braceccl	go to state 65
+
+
+
+state 62
+
+    re  ->  series .   (rule 43)
+    series  ->  series . singleton   (rule 45)
+    series  ->  series . BEGIN_REPEAT_POSIX NUMBER ',' NUMBER END_REPEAT_POSIX   (rule 47)
+    series  ->  series . BEGIN_REPEAT_POSIX NUMBER ',' END_REPEAT_POSIX   (rule 48)
+    series  ->  series . BEGIN_REPEAT_POSIX NUMBER END_REPEAT_POSIX   (rule 49)
+
+    CHAR	shift, and go to state 50
+    PREVCCL	shift, and go to state 51
+    BEGIN_REPEAT_POSIX	shift, and go to state 79
+    '.' 	shift, and go to state 54
+    '"' 	shift, and go to state 55
+    '(' 	shift, and go to state 56
+    '[' 	shift, and go to state 57
+
+    $default	reduce using rule 43 (re)
+
+    singleton	go to state 80
+    fullccl	go to state 64
+    braceccl	go to state 65
+
+
+
+state 63
+
+    series  ->  singleton .   (rule 46)
+    singleton  ->  singleton . '*'   (rule 50)
+    singleton  ->  singleton . '+'   (rule 51)
+    singleton  ->  singleton . '?'   (rule 52)
+    singleton  ->  singleton . BEGIN_REPEAT_FLEX NUMBER ',' NUMBER END_REPEAT_FLEX   (rule 53)
+    singleton  ->  singleton . BEGIN_REPEAT_FLEX NUMBER ',' END_REPEAT_FLEX   (rule 54)
+    singleton  ->  singleton . BEGIN_REPEAT_FLEX NUMBER END_REPEAT_FLEX   (rule 55)
+
+    BEGIN_REPEAT_FLEX	shift, and go to state 81
+    '*' 	shift, and go to state 82
+    '+' 	shift, and go to state 83
+    '?' 	shift, and go to state 84
+
+    $default	reduce using rule 46 (series)
+
+
+
+state 64
+
+    singleton  ->  fullccl .   (rule 57)
+    fullccl  ->  fullccl . CCL_OP_DIFF braceccl   (rule 62)
+    fullccl  ->  fullccl . CCL_OP_UNION braceccl   (rule 63)
+
+    CCL_OP_DIFF	shift, and go to state 85
+    CCL_OP_UNION	shift, and go to state 86
+
+    $default	reduce using rule 57 (singleton)
+
+
+
+state 65
+
+    fullccl  ->  braceccl .   (rule 64)
+
+    $default	reduce using rule 64 (fullccl)
+
+
+
+state 66
+
+    scon  ->  '<' scon_stk_ptr namelist2 '>' .   (rule 31)
+
+    $default	reduce using rule 31 (scon)
+
+
+
+state 67
+
+    namelist2  ->  namelist2 ',' . sconname   (rule 34)
+
+    NAME	shift, and go to state 45
+
+    sconname	go to state 87
+
+
+
+state 68
+
+    sect2  ->  sect2 scon '{' sect2 '}' .   (rule 23)
+
+    $default	reduce using rule 23 (sect2)
+
+
+
+state 69
+
+    flexrule  ->  '^' rule .   (rule 26)
+
+    $default	reduce using rule 26 (flexrule)
+
+
+
+state 70
+
+    singleton  ->  '"' string . '"'   (rule 59)
+    string  ->  string . CHAR   (rule 95)
+
+    CHAR	shift, and go to state 88
+    '"' 	shift, and go to state 89
+
+
+
+state 71
+
+    re  ->  re . '|' series   (rule 42)
+    singleton  ->  '(' re . ')'   (rule 60)
+
+    '|' 	shift, and go to state 76
+    ')' 	shift, and go to state 90
+
+
+
+state 72
+
+    braceccl  ->  '[' '^' . ccl ']'   (rule 66)
+
+    $default	reduce using rule 70 (ccl)
+
+    ccl 	go to state 91
+
+
+
+state 73
+
+    braceccl  ->  '[' ccl . ']'   (rule 65)
+    ccl  ->  ccl . CHAR '-' CHAR   (rule 67)
+    ccl  ->  ccl . CHAR   (rule 68)
+    ccl  ->  ccl . ccl_expr   (rule 69)
+
+    CHAR	shift, and go to state 92
+    CCE_ALNUM	shift, and go to state 93
+    CCE_ALPHA	shift, and go to state 94
+    CCE_BLANK	shift, and go to state 95
+    CCE_CNTRL	shift, and go to state 96
+    CCE_DIGIT	shift, and go to state 97
+    CCE_GRAPH	shift, and go to state 98
+    CCE_LOWER	shift, and go to state 99
+    CCE_PRINT	shift, and go to state 100
+    CCE_PUNCT	shift, and go to state 101
+    CCE_SPACE	shift, and go to state 102
+    CCE_UPPER	shift, and go to state 103
+    CCE_XDIGIT	shift, and go to state 104
+    CCE_NEG_ALNUM	shift, and go to state 105
+    CCE_NEG_ALPHA	shift, and go to state 106
+    CCE_NEG_BLANK	shift, and go to state 107
+    CCE_NEG_CNTRL	shift, and go to state 108
+    CCE_NEG_DIGIT	shift, and go to state 109
+    CCE_NEG_GRAPH	shift, and go to state 110
+    CCE_NEG_LOWER	shift, and go to state 111
+    CCE_NEG_PRINT	shift, and go to state 112
+    CCE_NEG_PUNCT	shift, and go to state 113
+    CCE_NEG_SPACE	shift, and go to state 114
+    CCE_NEG_UPPER	shift, and go to state 115
+    CCE_NEG_XDIGIT	shift, and go to state 116
+    ']' 	shift, and go to state 117
+
+    ccl_expr	go to state 118
+
+
+
+state 74
+
+    sect2  ->  sect2 scon initforrule flexrule '\n' .   (rule 22)
+
+    $default	reduce using rule 22 (sect2)
+
+
+
+state 75
+
+    rule  ->  re '$' .   (rule 40)
+
+    $default	reduce using rule 40 (rule)
+
+
+
+state 76
+
+    re  ->  re '|' . series   (rule 42)
+
+    CHAR	shift, and go to state 50
+    PREVCCL	shift, and go to state 51
+    '.' 	shift, and go to state 54
+    '"' 	shift, and go to state 55
+    '(' 	shift, and go to state 56
+    '[' 	shift, and go to state 57
+
+    series	go to state 119
+    singleton	go to state 63
+    fullccl	go to state 64
+    braceccl	go to state 65
+
+
+
+state 77
+
+    re2  ->  re '/' .   (rule 44)
+
+    $default	reduce using rule 44 (re2)
+
+
+
+state 78
+
+    rule  ->  re2 re .   (rule 38)
+    rule  ->  re2 re . '$'   (rule 39)
+    re  ->  re . '|' series   (rule 42)
+
+    '$' 	shift, and go to state 120
+    '|' 	shift, and go to state 76
+
+    $default	reduce using rule 38 (rule)
+
+
+
+state 79
+
+    series  ->  series BEGIN_REPEAT_POSIX . NUMBER ',' NUMBER END_REPEAT_POSIX   (rule 47)
+    series  ->  series BEGIN_REPEAT_POSIX . NUMBER ',' END_REPEAT_POSIX   (rule 48)
+    series  ->  series BEGIN_REPEAT_POSIX . NUMBER END_REPEAT_POSIX   (rule 49)
+
+    NUMBER	shift, and go to state 121
+
+
+
+state 80
+
+    series  ->  series singleton .   (rule 45)
+    singleton  ->  singleton . '*'   (rule 50)
+    singleton  ->  singleton . '+'   (rule 51)
+    singleton  ->  singleton . '?'   (rule 52)
+    singleton  ->  singleton . BEGIN_REPEAT_FLEX NUMBER ',' NUMBER END_REPEAT_FLEX   (rule 53)
+    singleton  ->  singleton . BEGIN_REPEAT_FLEX NUMBER ',' END_REPEAT_FLEX   (rule 54)
+    singleton  ->  singleton . BEGIN_REPEAT_FLEX NUMBER END_REPEAT_FLEX   (rule 55)
+
+    BEGIN_REPEAT_FLEX	shift, and go to state 81
+    '*' 	shift, and go to state 82
+    '+' 	shift, and go to state 83
+    '?' 	shift, and go to state 84
+
+    $default	reduce using rule 45 (series)
+
+
+
+state 81
+
+    singleton  ->  singleton BEGIN_REPEAT_FLEX . NUMBER ',' NUMBER END_REPEAT_FLEX   (rule 53)
+    singleton  ->  singleton BEGIN_REPEAT_FLEX . NUMBER ',' END_REPEAT_FLEX   (rule 54)
+    singleton  ->  singleton BEGIN_REPEAT_FLEX . NUMBER END_REPEAT_FLEX   (rule 55)
+
+    NUMBER	shift, and go to state 122
+
+
+
+state 82
+
+    singleton  ->  singleton '*' .   (rule 50)
+
+    $default	reduce using rule 50 (singleton)
+
+
+
+state 83
+
+    singleton  ->  singleton '+' .   (rule 51)
+
+    $default	reduce using rule 51 (singleton)
+
+
+
+state 84
+
+    singleton  ->  singleton '?' .   (rule 52)
+
+    $default	reduce using rule 52 (singleton)
+
+
+
+state 85
+
+    fullccl  ->  fullccl CCL_OP_DIFF . braceccl   (rule 62)
+
+    '[' 	shift, and go to state 57
+
+    braceccl	go to state 123
+
+
+
+state 86
+
+    fullccl  ->  fullccl CCL_OP_UNION . braceccl   (rule 63)
+
+    '[' 	shift, and go to state 57
+
+    braceccl	go to state 124
+
+
+
+state 87
+
+    namelist2  ->  namelist2 ',' sconname .   (rule 34)
+
+    $default	reduce using rule 34 (namelist2)
+
+
+
+state 88
+
+    string  ->  string CHAR .   (rule 95)
+
+    $default	reduce using rule 95 (string)
+
+
+
+state 89
+
+    singleton  ->  '"' string '"' .   (rule 59)
+
+    $default	reduce using rule 59 (singleton)
+
+
+
+state 90
+
+    singleton  ->  '(' re ')' .   (rule 60)
+
+    $default	reduce using rule 60 (singleton)
+
+
+
+state 91
+
+    braceccl  ->  '[' '^' ccl . ']'   (rule 66)
+    ccl  ->  ccl . CHAR '-' CHAR   (rule 67)
+    ccl  ->  ccl . CHAR   (rule 68)
+    ccl  ->  ccl . ccl_expr   (rule 69)
+
+    CHAR	shift, and go to state 92
+    CCE_ALNUM	shift, and go to state 93
+    CCE_ALPHA	shift, and go to state 94
+    CCE_BLANK	shift, and go to state 95
+    CCE_CNTRL	shift, and go to state 96
+    CCE_DIGIT	shift, and go to state 97
+    CCE_GRAPH	shift, and go to state 98
+    CCE_LOWER	shift, and go to state 99
+    CCE_PRINT	shift, and go to state 100
+    CCE_PUNCT	shift, and go to state 101
+    CCE_SPACE	shift, and go to state 102
+    CCE_UPPER	shift, and go to state 103
+    CCE_XDIGIT	shift, and go to state 104
+    CCE_NEG_ALNUM	shift, and go to state 105
+    CCE_NEG_ALPHA	shift, and go to state 106
+    CCE_NEG_BLANK	shift, and go to state 107
+    CCE_NEG_CNTRL	shift, and go to state 108
+    CCE_NEG_DIGIT	shift, and go to state 109
+    CCE_NEG_GRAPH	shift, and go to state 110
+    CCE_NEG_LOWER	shift, and go to state 111
+    CCE_NEG_PRINT	shift, and go to state 112
+    CCE_NEG_PUNCT	shift, and go to state 113
+    CCE_NEG_SPACE	shift, and go to state 114
+    CCE_NEG_UPPER	shift, and go to state 115
+    CCE_NEG_XDIGIT	shift, and go to state 116
+    ']' 	shift, and go to state 125
+
+    ccl_expr	go to state 118
+
+
+
+state 92
+
+    ccl  ->  ccl CHAR . '-' CHAR   (rule 67)
+    ccl  ->  ccl CHAR .   (rule 68)
+
+    '-' 	shift, and go to state 126
+
+    $default	reduce using rule 68 (ccl)
+
+
+
+state 93
+
+    ccl_expr  ->  CCE_ALNUM .   (rule 71)
+
+    $default	reduce using rule 71 (ccl_expr)
+
+
+
+state 94
+
+    ccl_expr  ->  CCE_ALPHA .   (rule 72)
+
+    $default	reduce using rule 72 (ccl_expr)
+
+
+
+state 95
+
+    ccl_expr  ->  CCE_BLANK .   (rule 73)
+
+    $default	reduce using rule 73 (ccl_expr)
+
+
+
+state 96
+
+    ccl_expr  ->  CCE_CNTRL .   (rule 74)
+
+    $default	reduce using rule 74 (ccl_expr)
+
+
+
+state 97
+
+    ccl_expr  ->  CCE_DIGIT .   (rule 75)
+
+    $default	reduce using rule 75 (ccl_expr)
+
+
+
+state 98
+
+    ccl_expr  ->  CCE_GRAPH .   (rule 76)
+
+    $default	reduce using rule 76 (ccl_expr)
+
+
+
+state 99
+
+    ccl_expr  ->  CCE_LOWER .   (rule 77)
+
+    $default	reduce using rule 77 (ccl_expr)
+
+
+
+state 100
+
+    ccl_expr  ->  CCE_PRINT .   (rule 78)
+
+    $default	reduce using rule 78 (ccl_expr)
+
+
+
+state 101
+
+    ccl_expr  ->  CCE_PUNCT .   (rule 79)
+
+    $default	reduce using rule 79 (ccl_expr)
+
+
+
+state 102
+
+    ccl_expr  ->  CCE_SPACE .   (rule 80)
+
+    $default	reduce using rule 80 (ccl_expr)
+
+
+
+state 103
+
+    ccl_expr  ->  CCE_UPPER .   (rule 82)
+
+    $default	reduce using rule 82 (ccl_expr)
+
+
+
+state 104
+
+    ccl_expr  ->  CCE_XDIGIT .   (rule 81)
+
+    $default	reduce using rule 81 (ccl_expr)
+
+
+
+state 105
+
+    ccl_expr  ->  CCE_NEG_ALNUM .   (rule 83)
+
+    $default	reduce using rule 83 (ccl_expr)
+
+
+
+state 106
+
+    ccl_expr  ->  CCE_NEG_ALPHA .   (rule 84)
+
+    $default	reduce using rule 84 (ccl_expr)
+
+
+
+state 107
+
+    ccl_expr  ->  CCE_NEG_BLANK .   (rule 85)
+
+    $default	reduce using rule 85 (ccl_expr)
+
+
+
+state 108
+
+    ccl_expr  ->  CCE_NEG_CNTRL .   (rule 86)
+
+    $default	reduce using rule 86 (ccl_expr)
+
+
+
+state 109
+
+    ccl_expr  ->  CCE_NEG_DIGIT .   (rule 87)
+
+    $default	reduce using rule 87 (ccl_expr)
+
+
+
+state 110
+
+    ccl_expr  ->  CCE_NEG_GRAPH .   (rule 88)
+
+    $default	reduce using rule 88 (ccl_expr)
+
+
+
+state 111
+
+    ccl_expr  ->  CCE_NEG_LOWER .   (rule 93)
+
+    $default	reduce using rule 93 (ccl_expr)
+
+
+
+state 112
+
+    ccl_expr  ->  CCE_NEG_PRINT .   (rule 89)
+
+    $default	reduce using rule 89 (ccl_expr)
+
+
+
+state 113
+
+    ccl_expr  ->  CCE_NEG_PUNCT .   (rule 90)
+
+    $default	reduce using rule 90 (ccl_expr)
+
+
+
+state 114
+
+    ccl_expr  ->  CCE_NEG_SPACE .   (rule 91)
+
+    $default	reduce using rule 91 (ccl_expr)
+
+
+
+state 115
+
+    ccl_expr  ->  CCE_NEG_UPPER .   (rule 94)
+
+    $default	reduce using rule 94 (ccl_expr)
+
+
+
+state 116
+
+    ccl_expr  ->  CCE_NEG_XDIGIT .   (rule 92)
+
+    $default	reduce using rule 92 (ccl_expr)
+
+
+
+state 117
+
+    braceccl  ->  '[' ccl ']' .   (rule 65)
+
+    $default	reduce using rule 65 (braceccl)
+
+
+
+state 118
+
+    ccl  ->  ccl ccl_expr .   (rule 69)
+
+    $default	reduce using rule 69 (ccl)
+
+
+
+state 119
+
+    re  ->  re '|' series .   (rule 42)
+    series  ->  series . singleton   (rule 45)
+    series  ->  series . BEGIN_REPEAT_POSIX NUMBER ',' NUMBER END_REPEAT_POSIX   (rule 47)
+    series  ->  series . BEGIN_REPEAT_POSIX NUMBER ',' END_REPEAT_POSIX   (rule 48)
+    series  ->  series . BEGIN_REPEAT_POSIX NUMBER END_REPEAT_POSIX   (rule 49)
+
+    CHAR	shift, and go to state 50
+    PREVCCL	shift, and go to state 51
+    BEGIN_REPEAT_POSIX	shift, and go to state 79
+    '.' 	shift, and go to state 54
+    '"' 	shift, and go to state 55
+    '(' 	shift, and go to state 56
+    '[' 	shift, and go to state 57
+
+    $default	reduce using rule 42 (re)
+
+    singleton	go to state 80
+    fullccl	go to state 64
+    braceccl	go to state 65
+
+
+
+state 120
+
+    rule  ->  re2 re '$' .   (rule 39)
+
+    $default	reduce using rule 39 (rule)
+
+
+
+state 121
+
+    series  ->  series BEGIN_REPEAT_POSIX NUMBER . ',' NUMBER END_REPEAT_POSIX   (rule 47)
+    series  ->  series BEGIN_REPEAT_POSIX NUMBER . ',' END_REPEAT_POSIX   (rule 48)
+    series  ->  series BEGIN_REPEAT_POSIX NUMBER . END_REPEAT_POSIX   (rule 49)
+
+    END_REPEAT_POSIX	shift, and go to state 127
+    ',' 	shift, and go to state 128
+
+
+
+state 122
+
+    singleton  ->  singleton BEGIN_REPEAT_FLEX NUMBER . ',' NUMBER END_REPEAT_FLEX   (rule 53)
+    singleton  ->  singleton BEGIN_REPEAT_FLEX NUMBER . ',' END_REPEAT_FLEX   (rule 54)
+    singleton  ->  singleton BEGIN_REPEAT_FLEX NUMBER . END_REPEAT_FLEX   (rule 55)
+
+    END_REPEAT_FLEX	shift, and go to state 129
+    ',' 	shift, and go to state 130
+
+
+
+state 123
+
+    fullccl  ->  fullccl CCL_OP_DIFF braceccl .   (rule 62)
+
+    $default	reduce using rule 62 (fullccl)
+
+
+
+state 124
+
+    fullccl  ->  fullccl CCL_OP_UNION braceccl .   (rule 63)
+
+    $default	reduce using rule 63 (fullccl)
+
+
+
+state 125
+
+    braceccl  ->  '[' '^' ccl ']' .   (rule 66)
+
+    $default	reduce using rule 66 (braceccl)
+
+
+
+state 126
+
+    ccl  ->  ccl CHAR '-' . CHAR   (rule 67)
+
+    CHAR	shift, and go to state 131
+
+
+
+state 127
+
+    series  ->  series BEGIN_REPEAT_POSIX NUMBER END_REPEAT_POSIX .   (rule 49)
+
+    $default	reduce using rule 49 (series)
+
+
+
+state 128
+
+    series  ->  series BEGIN_REPEAT_POSIX NUMBER ',' . NUMBER END_REPEAT_POSIX   (rule 47)
+    series  ->  series BEGIN_REPEAT_POSIX NUMBER ',' . END_REPEAT_POSIX   (rule 48)
+
+    NUMBER	shift, and go to state 132
+    END_REPEAT_POSIX	shift, and go to state 133
+
+
+
+state 129
+
+    singleton  ->  singleton BEGIN_REPEAT_FLEX NUMBER END_REPEAT_FLEX .   (rule 55)
+
+    $default	reduce using rule 55 (singleton)
+
+
+
+state 130
+
+    singleton  ->  singleton BEGIN_REPEAT_FLEX NUMBER ',' . NUMBER END_REPEAT_FLEX   (rule 53)
+    singleton  ->  singleton BEGIN_REPEAT_FLEX NUMBER ',' . END_REPEAT_FLEX   (rule 54)
+
+    NUMBER	shift, and go to state 134
+    END_REPEAT_FLEX	shift, and go to state 135
+
+
+
+state 131
+
+    ccl  ->  ccl CHAR '-' CHAR .   (rule 67)
+
+    $default	reduce using rule 67 (ccl)
+
+
+
+state 132
+
+    series  ->  series BEGIN_REPEAT_POSIX NUMBER ',' NUMBER . END_REPEAT_POSIX   (rule 47)
+
+    END_REPEAT_POSIX	shift, and go to state 136
+
+
+
+state 133
+
+    series  ->  series BEGIN_REPEAT_POSIX NUMBER ',' END_REPEAT_POSIX .   (rule 48)
+
+    $default	reduce using rule 48 (series)
+
+
+
+state 134
+
+    singleton  ->  singleton BEGIN_REPEAT_FLEX NUMBER ',' NUMBER . END_REPEAT_FLEX   (rule 53)
+
+    END_REPEAT_FLEX	shift, and go to state 137
+
+
+
+state 135
+
+    singleton  ->  singleton BEGIN_REPEAT_FLEX NUMBER ',' END_REPEAT_FLEX .   (rule 54)
+
+    $default	reduce using rule 54 (singleton)
+
+
+
+state 136
+
+    series  ->  series BEGIN_REPEAT_POSIX NUMBER ',' NUMBER END_REPEAT_POSIX .   (rule 47)
+
+    $default	reduce using rule 47 (series)
+
+
+
+state 137
+
+    singleton  ->  singleton BEGIN_REPEAT_FLEX NUMBER ',' NUMBER END_REPEAT_FLEX .   (rule 53)
+
+    $default	reduce using rule 53 (singleton)
+
+
+
+state 138
+
+    $   	go to state 139
+
+
+
+state 139
+
+    $   	go to state 140
+
+
+
+state 140
+
+    $default	accept

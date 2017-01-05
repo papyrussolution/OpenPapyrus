@@ -1,0 +1,17 @@
+## Universe-HTT
+## data_store_filt.tddo
+## 
+
+#pragma(htmlencode)
+#start(QuotArray)
+	[
+	#iter()
+		{
+			"GoodsGroupID": ${GoodsID.GroupID.ID},
+			"GoodsGroupName": "${GoodsID.GroupID.Name}",
+			"BrandID": ${GoodsID.BrandID.ID},
+			"BrandName": "${GoodsID.BrandID.Name}"
+		},
+	#end()
+	]
+#end()

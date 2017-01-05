@@ -1,0 +1,11 @@
+## Universe-HTT
+## _sa_ary.tddo
+## Массив StrAssocArray
+##
+
+#pragma(htmlencode)
+#start(StrAssocArray)
+	[
+	#iter() { ID:${Id}, ParentID:${ParentId}, Txt:"${Txt}" },#end()
+	]
+#end()

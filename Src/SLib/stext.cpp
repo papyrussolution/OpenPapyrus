@@ -1,0 +1,3049 @@
+// STEXT.CPP
+// Copyright (c) A.Sobolev 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+//
+// Преобразование символов и строк, и другие текстовые функции
+//
+#include <slib.h>
+#include <tv.h>
+#pragma hdrstop
+#include <wchar.h>
+
+struct LinguaIdent {
+	int16  Id;
+	uint8  WinLangId;
+	const char * P_Code;
+};
+
+const LinguaIdent P_LinguaIdentList[] = {
+	{ slangMeta,   0, "meta" }, // meta-language (not standard)
+	{ slangAA,     0, "aa"   }, // Afar
+	{ slangAB,     0, "ab"   }, // Abkhazian
+	{ slangACE,    0, "ace"  }, // Achinese
+	{ slangACH,    0, "ach"  }, // Acoli
+	{ slangADA,    0, "ada"  }, // Adangme
+	{ slangADY,    0, "ady"  }, // Adyghe
+	{ slangAE,     0, "ae"   }, // Avestan
+	{ slangAF,     0, "af"   }, // Afrikaans
+	{ slangAFA,    0, "afa"  }, // Afro-Asiatic Language
+	{ slangAFH,    0, "afh"  }, // Afrihili
+	{ slangAGQ,    0, "agq"  }, // Aghem
+	{ slangAIN,    0, "ain"  }, // Ainu
+	{ slangAK,     0, "ak"   }, // Akan
+	{ slangAKK,    0, "akk"  }, // Akkadian
+	{ slangALE,    0, "ale"  }, // Aleut
+	{ slangALG,    0, "alg"  }, // Algonquian Language
+	{ slangALT,    0, "alt"  }, // Southern Altai
+	{ slangAM,     0, "am"   }, // Amharic
+	{ slangAN,     0, "an"   }, // Aragonese
+	{ slangANG,    0, "ang"  }, // Old English
+	{ slangANP,    0, "anp"  }, // Angika
+	{ slangAPA,    0, "apa"  }, // Apache Language
+	{ slangAR,     LANG_ARABIC, "ar"   }, // Arabic
+	{ slangARC,    0, "arc"  }, // Aramaic
+	{ slangARN,    0, "arn"  }, // Araucanian
+	{ slangARP,    0, "arp"  }, // Arapaho
+	{ slangART,    0, "art"  }, // Artificial Language
+	{ slangARW,    0, "arw"  }, // Arawak
+	{ slangAS,     0, "as"   }, // Assamese
+	{ slangASA,    0, "asa"  }, // Asu
+	{ slangAST,    0, "ast"  }, // Asturian
+	{ slangATH,    0, "ath"  }, // Athapascan Language
+	{ slangAUS,    0, "aus"  }, // Australian Language
+	{ slangAV,     0, "av"   }, // Avaric
+	{ slangAWA,    0, "awa"  }, // Awadhi
+	{ slangAY,     0, "ay"   }, // Aymara
+	{ slangAZ,     0, "az"   }, // Azerbaijani
+	{ slangBA,     0, "ba"   }, // Bashkir
+	{ slangBAD,    0, "bad"  }, // Banda
+	{ slangBAI,    0, "bai"  }, // Bamileke Language
+	{ slangBAL,    0, "bal"  }, // Baluchi
+	{ slangBAN,    0, "ban"  }, // Balinese
+	{ slangBAS,    0, "bas"  }, // Basaa
+	{ slangBAT,    0, "bat"  }, // Baltic Language
+	{ slangBE,     0, "be"   }, // Belarusian
+	{ slangBEJ,    0, "bej"  }, // Beja
+	{ slangBEM,    0, "bem"  }, // Bemba
+	{ slangBER,    0, "ber"  }, // Berber
+	{ slangBEZ,    0, "bez"  }, // Bena
+	{ slangBG,     0, "bg"   }, // Bulgarian
+	{ slangBH,     0, "bh"   }, // Bihari
+	{ slangBHO,    0, "bho"  }, // Bhojpuri
+	{ slangBI,     0, "bi"   }, // Bislama
+	{ slangBIK,    0, "bik"  }, // Bikol
+	{ slangBIN,    0, "bin"  }, // Bini
+	{ slangBLA,    0, "bla"  }, // Siksika
+	{ slangBM,     0, "bm"   }, // Bambara
+	{ slangBN,     0, "bn"   }, // Bengali
+	{ slangBNT,    0, "bnt"  }, // Bantu
+	{ slangBO,     0, "bo"   }, // Tibetan
+	{ slangBR,     0, "br"   }, // Breton
+	{ slangBRA,    0, "bra"  }, // Braj
+	{ slangBRX,    0, "brx"  }, // Bodo
+	{ slangBS,     0, "bs"   }, // Bosnian
+	{ slangBTK,    0, "btk"  }, // Batak
+	{ slangBUA,    0, "bua"  }, // Buriat
+	{ slangBUG,    0, "bug"  }, // Buginese
+	{ slangBYN,    0, "byn"  }, // Blin
+	{ slangCA,     0, "ca"   }, // Catalan
+	{ slangCAD,    0, "cad"  }, // Caddo
+	{ slangCAI,    0, "cai"  }, // Central American Indian Language
+	{ slangCAR,    0, "car"  }, // Carib
+	{ slangCAU,    0, "cau"  }, // Caucasian Language
+	{ slangCAY,    0, "cay"  }, // Cayuga
+	{ slangCCH,    0, "cch"  }, // Atsam
+	{ slangCE,     0, "ce"   }, // Chechen
+	{ slangCEB,    0, "ceb"  }, // Cebuano
+	{ slangCEL,    0, "cel"  }, // Celtic Language
+	{ slangCGG,    0, "cgg"  }, // Chiga
+	{ slangCH,     0, "ch"   }, // Chamorro
+	{ slangCHB,    0, "chb"  }, // Chibcha
+	{ slangCHG,    0, "chg"  }, // Chagatai
+	{ slangCHK,    0, "chk"  }, // Chuukese
+	{ slangCHM,    0, "chm"  }, // Mari
+	{ slangCHN,    0, "chn"  }, // Chinook Jargon
+	{ slangCHO,    0, "cho"  }, // Choctaw
+	{ slangCHP,    0, "chp"  }, // Chipewyan
+	{ slangCHR,    0, "chr"  }, // Cherokee
+	{ slangCHY,    0, "chy"  }, // Cheyenne
+	{ slangCMC,    0, "cmc"  }, // Chamic Language
+	{ slangCO,     0, "co"   }, // Corsican
+	{ slangCOP,    0, "cop"  }, // Coptic
+	{ slangCPE,    0, "cpe"  }, // English-based Creole or Pidgin
+	{ slangCPF,    0, "cpf"  }, // French-based Creole or Pidgin
+	{ slangCPP,    0, "cpp"  }, // Portuguese-based Creole or Pidgin
+	{ slangCR,     0, "cr"   }, // Cree
+	{ slangCRH,    0, "crh"  }, // Crimean Turkish
+	{ slangCRP,    0, "crp"  }, // Creole or Pidgin
+	{ slangCS,     0, "cs"   }, // Czech
+	{ slangCSB,    0, "csb"  }, // Kashubian
+	{ slangCU,     0, "cu"   }, // Church Slavic
+	{ slangCUS,    0, "cus"  }, // Cushitic Language
+	{ slangCV,     0, "cv"   }, // Chuvash
+	{ slangCY,     0, "cy"   }, // Welsh
+	{ slangDA,     0, "da"   }, // Danish
+	{ slangDAK,    0, "dak"  }, // Dakota
+	{ slangDAR,    0, "dar"  }, // Dargwa
+	{ slangDAV,    0, "dav"  }, // Taita
+	{ slangDAY,    0, "day"  }, // Dayak
+	{ slangDE,     LANG_GERMAN, "de"   }, // German
+	{ slangDE_AT,  0, "de-at" }, // Austrian German
+	{ slangDE_CH,  0, "de-ch" }, // Swiss High German
+	{ slangDEL,    0, "del" }, // Delaware
+	{ slangDEN,    0, "den" }, // Slave
+	{ slangDGR,    0, "dgr" }, // Dogrib
+	{ slangDIN,    0, "din" }, // Dinka
+	{ slangDJE,    0, "dje" }, // Zarma
+	{ slangDOI,    0, "doi" }, // Dogri
+	{ slangDRA,    0, "dra" }, // Dravidian Language
+	{ slangDSB,    0, "dsb" }, // Lower Sorbian
+	{ slangDUA,    0, "dua" }, // Duala
+	{ slangDUM,    0, "dum" }, // Middle Dutch
+	{ slangDV,     0, "dv"  }, // Divehi
+	{ slangDYO,    0, "dyo" }, // Jola-Fonyi
+	{ slangDYU,    0, "dyu" }, // Dyula
+	{ slangDZ,     0, "dz"  }, // Dzongkha
+	{ slangEBU,    0, "ebu" }, // Embu
+	{ slangEE,     0, "ee"  }, // Ewe
+	{ slangEFI,    0, "efi" }, // Efik
+	{ slangEGY,    0, "egy" }, // Ancient Egyptian
+	{ slangEKA,    0, "eka" }, // Ekajuk
+	{ slangEL,     LANG_GREEK, "el"  }, // Greek
+	{ slangELX,    0, "elx" }, // Elamite
+	{ slangEN,     LANG_ENGLISH, "en"  }, // English
+	{ slangEN_AU,  0, "en-au" }, // Australian English
+	{ slangEN_CA,  0, "en-ca" }, // Canadian English
+	{ slangEN_GB,  0, "en-gb" }, // British English
+	{ slangEN_US,  0, "en-us" }, // U.S. English
+	{ slangENM,    0, "enm" }, // Middle English
+	{ slangEO,     0, "eo"  }, // Esperanto
+	{ slangES,     LANG_SPANISH, "es"  }, // Spanish
+	{ slangES_419, 0, "es-419" }, // Latin American Spanish
+	{ slangES_ES,  0, "es-es"  }, // Iberian Spanish
+	{ slangET,     0, "et"  }, // Estonian
+	{ slangEU,     0, "eu"  }, // Basque
+	{ slangEWO,    0, "ewo" }, // Ewondo
+	{ slangFA,     0, "fa"  }, // Persian
+	{ slangFAN,    0, "fan" }, // Fang
+	{ slangFAT,    0, "fat" }, // Fanti
+	{ slangFF,     0, "ff"  }, // Fulah
+	{ slangFI,     LANG_FINNISH, "fi"  }, // Finnish
+	{ slangFIL,    0, "fil" }, // Filipino
+	{ slangFIU,    0, "fiu" }, // Finno-Ugrian Language
+	{ slangFJ,     0, "fj"  }, // Fijian
+	{ slangFO,     0, "fo"  }, // Faroese
+	{ slangFON,    0, "fon" }, // Fon
+	{ slangFR,     LANG_FRENCH, "fr"  }, // French
+	{ slangFR_CA,  0, "fr-ca" }, // Canadian French
+	{ slangFR_CH,  0, "fr-ch" }, // Swiss French
+	{ slangFRM,    0, "frm" }, // Middle French
+	{ slangFRO,    0, "fro" }, // Old French
+	{ slangFRR,    0, "frr" }, // Northern Frisian
+	{ slangFRS,    0, "frs" }, // Eastern Frisian
+	{ slangFUR,    0, "fur" }, // Friulian
+	{ slangFY,     0, "fy"  }, // Western Frisian
+	{ slangGA,     0, "ga"  }, // Irish
+	{ slangGAA,    0, "gaa" }, // Ga
+	{ slangGAY,    0, "gay" }, // Gayo
+	{ slangGBA,    0, "gba" }, // Gbaya
+	{ slangGD,     0, "gd"  }, // Scottish Gaelic
+	{ slangGEM,    0, "gem" }, // Germanic Language
+	{ slangGEZ,    0, "gez" }, // Geez
+	{ slangGIL,    0, "gil" }, // Gilbertese
+	{ slangGL,     0, "gl"  }, // Galician
+	{ slangGMH,    0, "gmh" }, // Middle High German
+	{ slangGN,     0, "gn"  }, // Guarani
+	{ slangGOH,    0, "goh" }, // Old High German
+	{ slangGON,    0, "gon" }, // Gondi
+	{ slangGOR,    0, "gor" }, // Gorontalo
+	{ slangGOT,    0, "got" }, // Gothic
+	{ slangGRB,    0, "grb" }, // Grebo
+	{ slangGRC,    0, "grc" }, // Ancient Greek
+	{ slangGSW,    0, "gsw" }, // Swiss German
+	{ slangGU,     0, "gu"  }, // Gujarati
+	{ slangGUZ,    0, "guz" }, // Gusii
+	{ slangGV,     0, "gv"  }, // Manx
+	{ slangGWI,    0, "gwi" }, // Gwich?in
+	{ slangHA,     0, "ha"  }, // Hausa
+	{ slangHAI,    0, "hai" }, // Haida
+	{ slangHAW,    0, "haw" }, // Hawaiian
+	{ slangHE,     0, "he"  }, // Hebrew
+	{ slangHI,     0, "hi"  }, // Hindi
+	{ slangHIL,    0, "hil" }, // Hiligaynon
+	{ slangHIM,    0, "him" }, // Himachali
+	{ slangHIT,    0, "hit" }, // Hittite
+	{ slangHMN,    0, "hmn" }, // Hmong
+	{ slangHO,     0, "ho"  }, // Hiri Motu
+	{ slangHR,     0, "hr"  }, // Croatian
+	{ slangHSB,    0, "hsb" }, // Upper Sorbian
+	{ slangHT,     0, "ht"  }, // Haitian
+	{ slangHU,     LANG_HUNGARIAN, "hu"  }, // Hungarian
+	{ slangHUP,    0, "hup" }, // Hupa
+	{ slangHY,     0, "hy"  }, // Armenian
+	{ slangHZ,     0, "hz"  }, // Herero
+	{ slangIA,     0, "ia"  }, // Interlingua
+	{ slangIBA,    0, "iba" }, // Iban
+	{ slangID,     0, "id"  }, // Indonesian
+	{ slangIE,     0, "ie"  }, // Interlingue
+	{ slangIG,     0, "ig"  }, // Igbo
+	{ slangII,     0, "ii"  }, // Sichuan Yi
+	{ slangIJO,    0, "ijo" }, // Ijo
+	{ slangIK,     0, "ik"  }, // Inupiaq
+	{ slangILO,    0, "ilo" }, // Iloko
+	{ slangINC,    0, "inc" }, // Indic Language
+	{ slangINE,    0, "ine" }, // Indo-European Language
+	{ slangINH,    0, "inh" }, // Ingush
+	{ slangIO,     0, "io"  }, // Ido
+	{ slangIRA,    0, "ira" }, // Iranian Language
+	{ slangIRO,    0, "iro" }, // Iroquoian Language
+	{ slangIS,     0, "is"  }, // Icelandic
+	{ slangIT,     LANG_ITALIAN, "it"  }, // Italian
+	{ slangIU,     0, "iu"  }, // Inuktitut
+	{ slangJA,     LANG_JAPANESE, "ja"  }, // Japanese
+	{ slangJBO,    0, "jbo" }, // Lojban
+	{ slangJMC,    0, "jmc" }, // Machame
+	{ slangJPR,    0, "jpr" }, // Judeo-Persian
+	{ slangJRB,    0, "jrb" }, // Judeo-Arabic
+	{ slangJV,     0, "jv"  }, // Javanese
+	{ slangKA,     0, "ka"  }, // Georgian
+	{ slangKAA,    0, "kaa" }, // Kara-Kalpak
+	{ slangKAB,    0, "kab" }, // Kabyle
+	{ slangKAC,    0, "kac" }, // Kachin
+	{ slangKAJ,    0, "kaj" }, // Jju
+	{ slangKAM,    0, "kam" }, // Kamba
+	{ slangKAR,    0, "kar" }, // Karen
+	{ slangKAW,    0, "kaw" }, // Kawi
+	{ slangKBD,    0, "kbd" }, // Kabardian
+	{ slangKCG,    0, "kcg" }, // Tyap
+	{ slangKDE,    0, "kde" }, // Makonde
+	{ slangKEA,    0, "kea" }, // Kabuverdianu
+	{ slangKFO,    0, "kfo" }, // Koro
+	{ slangKG,     0, "kg"  }, // Kongo
+	{ slangKHA,    0, "kha" }, // Khasi
+	{ slangKHI,    0, "khi" }, // Khoisan Language
+	{ slangKHO,    0, "kho" }, // Khotanese
+	{ slangKHQ,    0, "khq" }, // Koyra Chiini
+	{ slangKI,     0, "ki" }, // Kikuyu
+	{ slangKJ,     0, "kj" }, // Kuanyama
+	{ slangKK,     0, "kk" }, // Kazakh
+	{ slangKL,     0, "kl" }, // Kalaallisut
+	{ slangKLN,    0, "kln" }, // Kalenjin
+	{ slangKM,     0, "km" }, // Khmer
+	{ slangKMB,    0, "kmb" }, // Kimbundu
+	{ slangKN,     0, "kn" }, // Kannada
+	{ slangKO,     0, "ko" }, // Korean
+	{ slangKOK,    0, "kok" }, // Konkani
+	{ slangKOS,    0, "kos" }, // Kosraean
+	{ slangKPE,    0, "kpe" }, // Kpelle
+	{ slangKR,     0, "kr" }, // Kanuri
+	{ slangKRC,    0, "krc" }, // Karachay-Balkar
+	{ slangKRL,    0, "krl" }, // Karelian
+	{ slangKRO,    0, "kro" }, // Kru
+	{ slangKRU,    0, "kru" }, // Kurukh
+	{ slangKS,     0, "ks" }, // Kashmiri
+	{ slangKSB,    0, "ksb" }, // Shambala
+	{ slangKSF,    0, "ksf" }, // Bafia
+	{ slangKSH,    0, "ksh" }, // Colognian
+	{ slangKU,     0, "ku" }, // Kurdish
+	{ slangKUM,    0, "kum" }, // Kumyk
+	{ slangKUT,    0, "kut" }, // Kutenai
+	{ slangKV,     0, "kv" }, // Komi
+	{ slangKW,     0, "kw" }, // Cornish
+	{ slangKY,     0, "ky" }, // Kirghiz
+	{ slangLA,     0, "la" }, // Latin
+	{ slangLAD,    0, "lad" }, // Ladino
+	{ slangLAG,    0, "lag" }, // Langi
+	{ slangLAH,    0, "lah" }, // Lahnda
+	{ slangLAM,    0, "lam" }, // Lamba
+	{ slangLB,     0, "lb" }, // Luxembourgish
+	{ slangLEZ,    0, "lez" }, // Lezghian
+	{ slangLG,     0, "lg" }, // Ganda
+	{ slangLI,     0, "li" }, // Limburgish
+	{ slangLN,     0, "ln" }, // Lingala
+	{ slangLO,     0, "lo" }, // Lao
+	{ slangLOL,    0, "lol" }, // Mongo
+	{ slangLOZ,    0, "loz" }, // Lozi
+	{ slangLT,     0, "lt" }, // Lithuanian
+	{ slangLU,     0, "lu" }, // Luba-Katanga
+	{ slangLUA,    0, "lua" }, // Luba-Lulua
+	{ slangLUI,    0, "lui" }, // Luiseno
+	{ slangLUN,    0, "lun" }, // Lunda
+	{ slangLUO,    0, "luo" }, // Luo
+	{ slangLUS,    0, "lus" }, // Lushai
+	{ slangLUY,    0, "luy" }, // Luyia
+	{ slangLV,     0, "lv" }, // Latvian
+	{ slangMAD,    0, "mad" }, // Madurese
+	{ slangMAG,    0, "mag" }, // Magahi
+	{ slangMAI,    0, "mai" }, // Maithili
+	{ slangMAK,    0, "mak" }, // Makasar
+	{ slangMAN,    0, "man" }, // Mandingo
+	{ slangMAP,    0, "map" }, // Austronesian Language
+	{ slangMAS,    0, "mas" }, // Masai
+	{ slangMDF,    0, "mdf" }, // Moksha
+	{ slangMDR,    0, "mdr" }, // Mandar
+	{ slangMEN,    0, "men" }, // Mende
+	{ slangMER,    0, "mer" }, // Meru
+	{ slangMFE,    0, "mfe" }, // Morisyen
+	{ slangMG,     0, "mg" }, // Malagasy
+	{ slangMGA,    0, "mga" }, // Middle Irish
+	{ slangMGH,    0, "mgh" }, // Makhuwa-Meetto
+	{ slangMH,     0, "mh" }, // Marshallese
+	{ slangMI,     0, "mi" }, // Maori
+	{ slangMIC,    0, "mic" }, // Micmac
+	{ slangMIN,    0, "min" }, // Minangkabau
+	{ slangMIS,    0, "mis" }, // Miscellaneous Language
+	{ slangMK,     0, "mk" }, // Macedonian
+	{ slangMKH,    0, "mkh" }, // Mon-Khmer Language
+	{ slangML,     0, "ml" }, // Malayalam
+	{ slangMN,     0, "mn" }, // Mongolian
+	{ slangMNC,    0, "mnc" }, // Manchu
+	{ slangMNI,    0, "mni" }, // Manipuri
+	{ slangMNO,    0, "mno" }, // Manobo Language
+	{ slangMO,     0, "mo" }, // Moldavian
+	{ slangMOH,    0, "moh" }, // Mohawk
+	{ slangMOS,    0, "mos" }, // Mossi
+	{ slangMR,     0, "mr" }, // Marathi
+	{ slangMS,     0, "ms" }, // Malay
+	{ slangMT,     0, "mt" }, // Maltese
+	{ slangMUA,    0, "mua" }, // Mundang
+	{ slangMUL,    0, "mul" }, // Multiple Languages
+	{ slangMUN,    0, "mun" }, // Munda Language
+	{ slangMUS,    0, "mus" }, // Creek
+	{ slangMWL,    0, "mwl" }, // Mirandese
+	{ slangMWR,    0, "mwr" }, // Marwari
+	{ slangMY,     0, "my" }, // Burmese
+	{ slangMYN,    0, "myn" }, // Mayan Language
+	{ slangMYV,    0, "myv" }, // Erzya
+	{ slangNA,     0, "na" }, // Nauru
+	{ slangNAH,    0, "nah" }, // Nahuatl
+	{ slangNAI,    0, "nai" }, // North American Indian Language
+	{ slangNAP,    0, "nap" }, // Neapolitan
+	{ slangNAQ,    0, "naq" }, // Nama
+	{ slangNB,     0, "nb" }, // Norwegian Bokmal
+	{ slangND,     0, "nd" }, // North Ndebele
+	{ slangNDS,    0, "nds" }, // Low German
+	{ slangNE,     0, "ne" }, // Nepali
+	{ slangNEW,    0, "new" }, // Newari
+	{ slangNG,     0, "ng" }, // Ndonga
+	{ slangNIA,    0, "nia" }, // Nias
+	{ slangNIC,    0, "nic" }, // Niger-Kordofanian Language
+	{ slangNIU,    0, "niu" }, // Niuean
+	{ slangNL,     0, "nl" }, // Dutch
+	{ slangNL_BE,  0, "nl-be" }, // Flemish
+	{ slangNMG,    0, "nmg" }, // Kwasio
+	{ slangNN,     0, "nn" }, // Norwegian Nynorsk
+	{ slangNO,     0, "no" }, // Norwegian
+	{ slangNOG,    0, "nog" }, // Nogai
+	{ slangNON,    0, "non" }, // Old Norse
+	{ slangNQO,    0, "nqo" }, // N’Ko
+	{ slangNR,     0, "nr" }, // South Ndebele
+	{ slangNSO,    0, "nso" }, // Northern Sotho
+	{ slangNUB,    0, "nub" }, // Nubian Language
+	{ slangNUS,    0, "nus" }, // Nuer
+	{ slangNV,     0, "nv" }, // Navajo
+	{ slangNWC,    0, "nwc" }, // Classical Newari
+	{ slangNY,     0, "ny" }, // Nyanja
+	{ slangNYM,    0, "nym" }, // Nyamwezi
+	{ slangNYN,    0, "nyn" }, // Nyankole
+	{ slangNYO,    0, "nyo" }, // Nyoro
+	{ slangNZI,    0, "nzi" }, // Nzima
+	{ slangOC,     0, "oc" }, // Occitan
+	{ slangOJ,     0, "oj" }, // Ojibwa
+	{ slangOM,     0, "om" }, // Oromo
+	{ slangOR,     0, "or" }, // Oriya
+	{ slangOS,     0, "os" }, // Ossetic
+	{ slangOSA,    0, "osa" }, // Osage
+	{ slangOTA,    0, "ota" }, // Ottoman Turkish
+	{ slangOTO,    0, "oto" }, // Otomian Language
+	{ slangPA,     0, "pa" }, // Punjabi
+	{ slangPAA,    0, "paa" }, // Papuan Language
+	{ slangPAG,    0, "pag" }, // Pangasinan
+	{ slangPAL,    0, "pal" }, // Pahlavi
+	{ slangPAM,    0, "pam" }, // Pampanga
+	{ slangPAP,    0, "pap" }, // Papiamento
+	{ slangPAU,    0, "pau" }, // Palauan
+	{ slangPEO,    0, "peo" }, // Old Persian
+	{ slangPHI,    0, "phi" }, // Philippine Language
+	{ slangPHN,    0, "phn" }, // Phoenician
+	{ slangPI,     0, "pi" }, // Pali
+	{ slangPL,     0, "pl" }, // Polish
+	{ slangPON,    0, "pon" }, // Pohnpeian
+	{ slangPRA,    0, "pra" }, // Prakrit Language
+	{ slangPRO,    0, "pro" }, // Old Provencal
+	{ slangPS,     0, "ps" }, // Pashto
+	{ slangPT,     0, "pt" }, // Portuguese
+	{ slangPT_BR,  0, "pt-br" }, // Brazilian Portuguese
+	{ slangPT_PT,  0, "pt-pt" }, // Iberian Portuguese
+	{ slangQU,     0, "qu" }, // Quechua
+	{ slangRAJ,    0, "raj" }, // Rajasthani
+	{ slangRAP,    0, "rap" }, // Rapanui
+	{ slangRAR,    0, "rar" }, // Rarotongan
+	{ slangRM,     0, "rm" }, // Romansh
+	{ slangRN,     0, "rn" }, // Rundi
+	{ slangRO,     0, "ro" }, // Romanian
+	{ slangROA,    0, "roa" }, // Romance Language
+	{ slangROF,    0, "rof" }, // Rombo
+	{ slangROM,    0, "rom" }, // Romany
+	{ slangROOT,   0, "root" }, // Root
+	{ slangRU,     LANG_RUSSIAN, "ru" }, // Russian
+	{ slangRUP,    0, "rup" }, // Aromanian
+	{ slangRW,     0, "rw" }, // Kinyarwanda
+	{ slangRWK,    0, "rwk" }, // Rwa
+	{ slangSA,     0, "sa" }, // Sanskrit
+	{ slangSAD,    0, "sad" }, // Sandawe
+	{ slangSAH,    0, "sah" }, // Sakha
+	{ slangSAI,    0, "sai" }, // South American Indian Language
+	{ slangSAL,    0, "sal" }, // Salishan Language
+	{ slangSAM,    0, "sam" }, // Samaritan Aramaic
+	{ slangSAQ,    0, "saq" }, // Samburu
+	{ slangSAS,    0, "sas" }, // Sasak
+	{ slangSAT,    0, "sat" }, // Santali
+	{ slangSBP,    0, "sbp" }, // Sangu
+	{ slangSC,     0, "sc" }, // Sardinian
+	{ slangSCN,    0, "scn" }, // Sicilian
+	{ slangSCO,    0, "sco" }, // Scots
+	{ slangSD,     0, "sd" }, // Sindhi
+	{ slangSE,     0, "se" }, // Northern Sami
+	{ slangSEE,    0, "see" }, // Seneca
+	{ slangSEH,    0, "seh" }, // Sena
+	{ slangSEL,    0, "sel" }, // Selkup
+	{ slangSEM,    0, "sem" }, // Semitic Language
+	{ slangSES,    0, "ses" }, // Koyraboro Senni
+	{ slangSG,     0, "sg" }, // Sango
+	{ slangSGA,    0, "sga" }, // Old Irish
+	{ slangSGN,    0, "sgn" }, // Sign Language
+	{ slangSH,     0, "sh" }, // Serbo-Croatian
+	{ slangSHI,    0, "shi" }, // Tachelhit
+	{ slangSHN,    0, "shn" }, // Shan
+	{ slangSI,     0, "si" }, // Sinhala
+	{ slangSID,    0, "sid" }, // Sidamo
+	{ slangSIO,    0, "sio" }, // Siouan Language
+	{ slangSIT,    0, "sit" }, // Sino-Tibetan Language
+	{ slangSK,     0, "sk" }, // Slovak
+	{ slangSL,     0, "sl" }, // Slovenian
+	{ slangSLA,    0, "sla" }, // Slavic Language
+	{ slangSM,     0, "sm" }, // Samoan
+	{ slangSMA,    0, "sma" }, // Southern Sami
+	{ slangSMI,    0, "smi" }, // Sami Language
+	{ slangSMJ,    0, "smj" }, // Lule Sami
+	{ slangSMN,    0, "smn" }, // Inari Sami
+	{ slangSMS,    0, "sms" }, // Skolt Sami
+	{ slangSN,     0, "sn" }, // Shona
+	{ slangSNK,    0, "snk" }, // Soninke
+	{ slangSO,     0, "so" }, // Somali
+	{ slangSOG,    0, "sog" }, // Sogdien
+	{ slangSON,    0, "son" }, // Songhai
+	{ slangSQ,     0, "sq" }, // Albanian
+	{ slangSR,     0, "sr" }, // Serbian
+	{ slangSRN,    0, "srn" }, // Sranan Tongo
+	{ slangSRR,    0, "srr" }, // Serer
+	{ slangSS,     0, "ss" }, // Swati
+	{ slangSSA,    0, "ssa" }, // Nilo-Saharan Language
+	{ slangSSY,    0, "ssy" }, // Saho
+	{ slangST,     0, "st" }, // Southern Sotho
+	{ slangSU,     0, "su" }, // Sundanese
+	{ slangSUK,    0, "suk" }, // Sukuma
+	{ slangSUS,    0, "sus" }, // Susu
+	{ slangSUX,    0, "sux" }, // Sumerian
+	{ slangSV,     0, "sv" }, // Swedish
+	{ slangSW,     0, "sw" }, // Swahili
+	{ slangSWB,    0, "swb" }, // Comorian
+	{ slangSWC,    0, "swc" }, // Congo Swahili
+	{ slangSYC,    0, "syc" }, // Classical Syriac
+	{ slangSYR,    0, "syr" }, // Syriac
+	{ slangTA,     0, "ta" }, // Tamil
+	{ slangTAI,    0, "tai" }, // Tai Language
+	{ slangTE,     0, "te" }, // Telugu
+	{ slangTEM,    0, "tem" }, // Timne
+	{ slangTEO,    0, "teo" }, // Teso
+	{ slangTER,    0, "ter" }, // Tereno
+	{ slangTET,    0, "tet" }, // Tetum
+	{ slangTG,     0, "tg" }, // Tajik
+	{ slangTH,     0, "th" }, // Thai
+	{ slangTI,     0, "ti" }, // Tigrinya
+	{ slangTIG,    0, "tig" }, // Tigre
+	{ slangTIV,    0, "tiv" }, // Tiv
+	{ slangTK,     0, "tk" }, // Turkmen
+	{ slangTKL,    0, "tkl" }, // Tokelau
+	{ slangTL,     0, "tl" }, // Tagalog
+	{ slangTLH,    0, "tlh" }, // Klingon
+	{ slangTLI,    0, "tli" }, // Tlingit
+	{ slangTMH,    0, "tmh" }, // Tamashek
+	{ slangTN,     0, "tn" }, // Tswana
+	{ slangTO,     0, "to" }, // Tongan
+	{ slangTOG,    0, "tog" }, // Nyasa Tonga
+	{ slangTPI,    0, "tpi" }, // Tok Pisin
+	{ slangTR,     0, "tr" }, // Turkish
+	{ slangTRV,    0, "trv" }, // Taroko
+	{ slangTS,     0, "ts" }, // Tsonga
+	{ slangTSI,    0, "tsi" }, // Tsimshian
+	{ slangTT,     0, "tt" }, // Tatar
+	{ slangTUM,    0, "tum" }, // Tumbuka
+	{ slangTUP,    0, "tup" }, // Tupi Language
+	{ slangTUT,    0, "tut" }, // Altaic Language
+	{ slangTVL,    0, "tvl" }, // Tuvalu
+	{ slangTW,     0, "tw" }, // Twi
+	{ slangTWQ,    0, "twq" }, // Tasawaq
+	{ slangTY,     0, "ty" }, // Tahitian
+	{ slangTYV,    0, "tyv" }, // Tuvinian
+	{ slangTZM,    0, "tzm" }, // Central Morocco Tamazight
+	{ slangUDM,    0, "udm" }, // Udmurt
+	{ slangUG,     0, "ug" }, // Uighur
+	{ slangUGA,    0, "uga" }, // Ugaritic
+	{ slangUK,     LANG_UKRAINIAN, "uk" }, // Ukrainian
+	{ slangUMB,    0, "umb" }, // Umbundu
+	{ slangUND,    0, "und" }, // Unknown Language
+	{ slangUR,     0, "ur" }, // Urdu
+	{ slangUZ,     0, "uz" }, // Uzbek
+	{ slangVAI,    0, "vai" }, // Vai
+	{ slangVE,     0, "ve" }, // Venda
+	{ slangVI,     0, "vi" }, // Vietnamese
+	{ slangVO,     0, "vo" }, // Volapuk
+	{ slangVOT,    0, "vot" }, // Votic
+	{ slangVUN,    0, "vun" }, // Vunjo
+	{ slangWA,     0, "wa" }, // Walloon
+	{ slangWAE,    0, "wae" }, // Walser
+	{ slangWAK,    0, "wak" }, // Wakashan Language
+	{ slangWAL,    0, "wal" }, // Walamo
+	{ slangWAR,    0, "war" }, // Waray
+	{ slangWAS,    0, "was" }, // Washo
+	{ slangWEN,    0, "wen" }, // Sorbian Language
+	{ slangWO,     0, "wo" }, // Wolof
+	{ slangXAL,    0, "xal" }, // Kalmyk
+	{ slangXH,     0, "xh" }, // Xhosa
+	{ slangXOG,    0, "xog" }, // Soga
+	{ slangYAO,    0, "yao" }, // Yao
+	{ slangYAP,    0, "yap" }, // Yapese
+	{ slangYAV,    0, "yav" }, // Yangben
+	{ slangYI,     0, "yi" }, // Yiddish
+	{ slangYO,     0, "yo" }, // Yoruba
+	{ slangYPK,    0, "ypk" }, // Yupik Language
+	{ slangYUE,    0, "yue" }, // Cantonese
+	{ slangZA,     0, "za" }, // Zhuang
+	{ slangZAP,    0, "zap" }, // Zapotec
+	{ slangZBL,    0, "zbl" }, // Blissymbols
+	{ slangZEN,    0, "zen" }, // Zenaga
+	{ slangZH,     0, "zh" }, // Chinese
+	{ slangZH_HANS,0, "zh-hans" }, // Simplified Chinese
+	{ slangZH_HANT,0, "zh-hant" }, // Traditional Chinese
+	{ slangZND,    0, "znd" }, // Zande
+	{ slangZU,     0, "zu" }, // Zulu
+	{ slangZUN,    0, "zun" }, // Zuni
+	{ slangZXX,    0, "zxx" }, // No linguistic content
+	{ slangZZA,    0, "zza" }, // Zaza
+};
+
+int FASTCALL RecognizeLinguaSymb(const char * pSymb, int word)
+{
+	int    ret_ident = 0;
+	if(!isempty(pSymb)) {
+		uint   i;
+		const  size_t max_symb_len = 7;
+		size_t max_found_len = 0;
+		SString temp_buf;
+		for(i = 0; *pSymb && i < max_symb_len; i++)
+			temp_buf.CatChar(*pSymb++);
+		temp_buf.ToLower();
+		temp_buf.ReplaceChar('_', '-');
+		temp_buf.ReplaceChar(' ', '-');
+		for(i = 0; i < SIZEOFARRAY(P_LinguaIdentList); i++) {
+			const char * p_code = P_LinguaIdentList[i].P_Code;
+			if(word) {
+				if(temp_buf == p_code) {
+					ret_ident = P_LinguaIdentList[i].Id;
+					break;
+				}
+			}
+			else {
+				size_t code_len = strlen(p_code);
+				if(temp_buf.CmpPrefix(p_code, 0) == 0 && code_len > max_found_len) {
+					const char nextc = temp_buf.C(code_len);
+					//
+					// @v9.1.8 Дополнительное ограничение: следующий символ не должен быть латинской буквой.
+					//
+					if(!((nextc >= 'a' && nextc <= 'z') || (nextc >= 'A' && nextc <= 'Z'))) {
+						max_found_len = code_len;
+						ret_ident = P_LinguaIdentList[i].Id;
+					}
+				}
+			}
+		}
+	}
+	return ret_ident;
+}
+
+int FASTCALL GetLinguaCode(int ident, SString & rCode)
+{
+	int    ok = 0;
+	rCode = 0;
+	for(uint i = 0; !ok && i < SIZEOFARRAY(P_LinguaIdentList); i++) {
+		if(ident == (int)P_LinguaIdentList[i].Id) {
+			rCode = P_LinguaIdentList[i].P_Code;
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+uint32 FASTCALL GetLinguaWinIdent(int ident)
+{
+	uint32 result = 0;
+	for(uint i = 0; i < SIZEOFARRAY(P_LinguaIdentList); i++) {
+		if(ident == (int)P_LinguaIdentList[i].Id) {
+			result = P_LinguaIdentList[i].WinLangId;
+			break;
+		}
+	}
+	return result;
+}
+
+int FASTCALL GetLinguaList(LongArray & rList)
+{
+	rList.clear();
+	for(uint i = 0; i < SIZEOFARRAY(P_LinguaIdentList); i++) {
+		rList.add(P_LinguaIdentList[i].Id);
+	}
+	return 1;
+}
+//
+//
+//
+struct SNScriptIdent {
+	int16  Id;
+	const char * P_Code;
+};
+
+const SNScriptIdent P_SNScriptIdentList[] = {
+	//{ snscriptUnkn,        "unkn" },
+	//{ snscriptMeta,        "meta" },
+	{ snscriptLatin,        "latin" },
+	{ snscriptGreek,        "greek" },
+	{ snscriptCyrillic,     "cyrillic" },
+	{ snscriptArmenian,     "armenian" },
+	{ snscriptHebrew,       "hebrew" },
+    { snscriptArabicMathematical, "arabic mathematical" },
+	{ snscriptArabic,       "arabic" },
+	{ snscriptSyriac,       "syriac" },
+	{ snscriptThaana,       "thaana" },
+	{ snscriptNko,          "nko" },
+	{ snscriptSamaritan,    "samaritan" },
+	{ snscriptMandaic,      "mandaic" },
+	{ snscriptDevanagari,   "devanagari" },
+	{ snscriptBengali,      "bengali" },
+	{ snscriptGurmukhi,     "gurmukhi" },
+	{ snscriptGujarati,     "gujarati" },
+	{ snscriptOriya,        "oriya" },
+	{ snscriptTamil,        "tamil" },
+	{ snscriptTelugu,       "telugu" },
+	{ snscriptKannada,      "kannada" },
+	{ snscriptMalayalam,    "malayalam" },
+	{ snscriptSinhala,      "sinhala" },
+	{ snscriptThai,         "thai" },
+	{ snscriptLao,          "lao" },
+	{ snscriptTibetan,      "tibetan" },
+	{ snscriptMyanmar,      "myanmar" },
+	{ snscriptGeorgian,     "georgian" },
+    { snscriptHangul,       "hangul" },
+    { snscriptEthiopic,     "ethiopic" },
+    { snscriptCherokee,     "cherokee" },
+    { snscriptMongolian,    "mongolian" },
+    { snscriptKhmer,        "khmer" },
+    { snscriptLimbu,        "limbu" },
+    { snscriptBuginese,     "buginese" },
+    { snscriptBalinese,     "balinese" },
+    { snscriptSundanese,    "sundanese" },
+    { snscriptBatak,        "batak" },
+    { snscriptLepcha,       "lepcha" },
+    { snscriptHiragana,     "hiragana" },
+    { snscriptKatakana,     "katakana" },
+    { snscriptBopomofo,     "bopomofo" },
+    { snscriptKharoshthi,   "kharoshthi" },
+    { snscriptManichaean,   "manichaean" },
+    { snscriptAvestan,      "avestan" },
+    { snscriptBrahmi,       "brahmi" },
+    { snscriptKaithi,       "kaithi" },
+    { snscriptChakma,       "chakma" },
+    { snscriptMahajani,     "mahajani" },
+    { snscriptSharada,      "sharada" },
+    { snscriptKhojki,       "khojki" },
+    { snscriptGlagolitic,   "glagolitic" },
+    { snscriptCanadianSyllabics, "canadian syllabics" },
+    { snscriptTaiLe,        "tai le" },
+    { snscriptNewTaiLue,    "new tai lue" },
+    { snscriptTaiTham,      "tai tham" },
+    { snscriptTaiViet,      "tai viet" },
+    { snscriptGothic,       "gothic" },
+    { snscriptUgaritic,     "ugaritic" },
+    { snscriptMathematical, "mathematical" },
+    { snscriptYi,           "yi" },
+    { snscriptCJK,          "cjk" },
+    { snscriptSquaredCJK,   "squared cjk" },
+    { snscriptBoxDrawings,  "box drawings" },
+};
+
+int FASTCALL RecognizeSNScriptSymb(const char * pSymb, size_t * pLength)
+{
+	int    ret_ident = 0;
+	size_t max_found_len = 0;
+	if(!isempty(pSymb)) {
+		uint   i;
+		const  size_t max_symb_len = 64;
+		SString temp_buf;
+		for(i = 0; *pSymb && i < max_symb_len; i++)
+			temp_buf.CatChar(*pSymb++);
+		temp_buf.ToLower();
+		for(i = 0; i < SIZEOFARRAY(P_SNScriptIdentList); i++) {
+			const char * p_code = P_SNScriptIdentList[i].P_Code;
+			const size_t code_len = strlen(p_code);
+			if(temp_buf.CmpPrefix(p_code, 0) == 0 && code_len > max_found_len) {
+				const char nextc = temp_buf.C(code_len);
+				if(!((nextc >= 'a' && nextc <= 'z') || (nextc >= 'A' && nextc <= 'Z'))) {
+					max_found_len = code_len;
+					ret_ident = P_SNScriptIdentList[i].Id;
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pLength, max_found_len);
+	return ret_ident;
+}
+
+int FASTCALL GetSNScriptCode(int ident, SString & rCode)
+{
+	int    ok = 0;
+	rCode = 0;
+	for(uint i = 0; !ok && i < SIZEOFARRAY(P_SNScriptIdentList); i++) {
+		if(ident == (int)P_SNScriptIdentList[i].Id) {
+			rCode = P_SNScriptIdentList[i].P_Code;
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+/*
+enum {
+	ssisUnkn    = 0,
+	ssisWindows = 1,
+	ssisMAC     = 2,
+	ssisIBM     = 3,
+	ssisAIX     = 4,
+	ssisJava    = 5,
+	ssisSolaris = 6,
+	ssisHPUX    = 7,
+	ssisGLibC   = 8
+};
+*/
+struct SSisIdent {
+	int16  Id;
+	const char * P_Code;
+};
+
+const SSisIdent P_SisIdentList[] = {
+	{ ssisWindows, "windows" },
+	{ ssisWindows, "win" },
+	{ ssisMAC, "mac" },
+	{ ssisMAC, "imac" },
+	{ ssisIBM, "ibm" },
+	{ ssisAIX, "aix" },
+	{ ssisJava, "java" },
+	{ ssisSolaris, "solaris" },
+	{ ssisHPUX, "hpux" },
+	{ ssisGLibC, "glibc" }
+};
+
+int FASTCALL RecognizeSisSymb(const char * pSymb)
+{
+	int    ret_ident = 0;
+	if(!isempty(pSymb)) {
+		for(uint i = 0; !ret_ident && i < SIZEOFARRAY(P_SisIdentList); i++) {
+			if(sstreqi_ascii(pSymb, P_SisIdentList[i].P_Code))
+                ret_ident = P_SisIdentList[i].Id;
+		}
+	}
+	return ret_ident;
+}
+
+int FASTCALL GetSisCode(int ident, SString & rCode)
+{
+	int    ok = 0;
+	rCode = 0;
+	for(uint i = 0; !ok && i < SIZEOFARRAY(P_SisIdentList); i++) {
+		if(ident == P_SisIdentList[i].Id) {
+			rCode = P_SisIdentList[i].P_Code;
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+#if 0 // {
+
+static const struct stringpool_t stringpool_contents =
+{
+	"850",
+	"862",
+	"866",
+	"ANSI_X3.4-1968",
+	"ANSI_X3.4-1986",
+	"ARABIC",
+	"ARMSCII-8",
+	"ASCII",
+	"ASMO-708",
+	"BIG-5",
+	"BIG-FIVE",
+	"BIG5",
+	"BIG5-HKSCS",
+	"BIG5HKSCS",
+	"BIGFIVE",
+	"C99",
+	"CHAR",
+	"CHINESE",
+	"CN",
+	"CN-BIG5",
+	"CN-GB",
+	"CN-GB-ISOIR165",
+	"CP1133",
+	"CP1250",
+	"CP1251",
+	"CP1252",
+	"CP1253",
+	"CP1254",
+	"CP1255",
+	"CP1256",
+	"CP1257",
+	"CP1258",
+	"CP1361",
+	"CP367",
+	"CP819",
+	"CP850",
+	"CP862",
+	"CP866",
+	"CP874",
+	"CP932",
+	"CP936",
+	"CP949",
+	"CP950",
+	"CSASCII",
+	"CSBIG5",
+	"CSEUCKR",
+	"CSEUCPKDFMTJAPANESE"
+	"CSEUCTW",
+	"CSGB2312",
+	"CSHALFWIDTHKATAKANA",
+	"CSHPROMAN8",
+	"CSIBM866",
+	"CSISO14JISC6220RO",
+	"CSISO159JISX02121990",
+	"CSISO2022CN",
+	"CSISO2022JP",
+	"CSISO2022JP2",
+	"CSISO2022KR",
+	"CSISO57GB1988",
+	"CSISO58GB231280",
+	"CSISO87JISX0208",
+	"CSISOLATIN1",
+	"CSISOLATIN2",
+	"CSISOLATIN3",
+	"CSISOLATIN4",
+	"CSISOLATIN5",
+	"CSISOLATIN6",
+	"CSISOLATINARABIC",
+	"CSISOLATINCYRILLIC",
+	"CSISOLATINGREEK",
+	"CSISOLATINHEBREW",
+	"CSKOI8R",
+	"CSKSC56011987",
+	"CSMACINTOSH",
+	"CSPC850MULTILINGUAL",
+	"CSPC862LATINHEBREW",
+	"CSSHIFTJIS",
+	"CSUCS4",
+	"CSUNICODE",
+	"CSUNICODE11",
+	"CSUNICODE11UTF7",
+	"CSVISCII",
+	"CYRILLIC",
+	"ECMA-114",
+	"ECMA-118",
+	"ELOT_928",
+	"EUC-CN",
+	"EUC-JP",
+	"EUC-KR",
+	"EUC-TW",
+	"EUCCN",
+	"EUCJP",
+	"EUCKR",
+	"EUCTW",
+	"EXTENDED_UNIX_CODE_PACKED_FORMAT_FOR_JAPANESE",
+	"GB18030",
+	"GB2312",
+	"GBK",
+	"GB_1988-80",
+	"GB_2312-80",
+	"GEORGIAN-ACADEMY",
+	"GEORGIAN-PS",
+	"GREEK",
+	"GREEK8",
+	"HEBREW",
+	"HP-ROMAN8",
+	"HZ",
+	"HZ-GB-2312",
+	"IBM-CP1133",
+	"IBM367",
+	"IBM819",
+	"IBM850",
+	"IBM862",
+	"IBM866",
+	"ISO-10646-UCS-2",
+	"ISO-10646-UCS-4",
+	"ISO-2022-CN",
+	"ISO-2022-CN-EXT",
+	"ISO-2022-JP",
+	"ISO-2022-JP-1",
+	"ISO-2022-JP-2",
+	"ISO-2022-KR",
+	"ISO-8859-1",
+	"ISO-8859-10",
+	"ISO-8859-13",
+	"ISO-8859-14",
+	"ISO-8859-15",
+	"ISO-8859-16",
+	"ISO-8859-2",
+	"ISO-8859-3",
+	"ISO-8859-4",
+	"ISO-8859-5",
+	"ISO-8859-6",
+	"ISO-8859-7",
+	"ISO-8859-8",
+	"ISO-8859-9",
+	"ISO-CELTIC",
+	"ISO-IR-100",
+	"ISO-IR-101",
+	"ISO-IR-109",
+	"ISO-IR-110",
+	"ISO-IR-126",
+	"ISO-IR-127",
+	"ISO-IR-138",
+	"ISO-IR-14",
+	"ISO-IR-144",
+	"ISO-IR-148",
+	"ISO-IR-149",
+	"ISO-IR-157",
+	"ISO-IR-159",
+	"ISO-IR-165",
+	"ISO-IR-166",
+	"ISO-IR-179",
+	"ISO-IR-199",
+	"ISO-IR-203",
+	"ISO-IR-226",
+	"ISO-IR-57",
+	"ISO-IR-58",
+	"ISO-IR-6",
+	"ISO-IR-87",
+	"ISO646-CN",
+	"ISO646-JP",
+	"ISO646-US",
+	"ISO8859-1",
+	"ISO8859-10",
+	"ISO8859-13",
+	"ISO8859-14",
+	"ISO8859-15",
+	"ISO8859-16",
+	"ISO8859-2",
+	"ISO8859-3",
+	"ISO8859-4",
+	"ISO8859-5",
+	"ISO8859-6",
+	"ISO8859-7",
+	"ISO8859-8",
+	"ISO8859-9",
+	"ISO_646.IRV:1991",
+	"ISO_8859-1",
+	"ISO_8859-10",
+	"ISO_8859-10:1992",
+	"ISO_8859-13",
+	"ISO_8859-14",
+	"ISO_8859-14:1998",
+	"ISO_8859-15",
+	"ISO_8859-15:1998",
+	"ISO_8859-16",
+	"ISO_8859-16:2001",
+	"ISO_8859-1:1987",
+	"ISO_8859-2",
+	"ISO_8859-2:1987",
+	"ISO_8859-3",
+	"ISO_8859-3:1988",
+	"ISO_8859-4",
+	"ISO_8859-4:1988",
+	"ISO_8859-5",
+	"ISO_8859-5:1988",
+	"ISO_8859-6",
+	"ISO_8859-6:1987",
+	"ISO_8859-7",
+	"ISO_8859-7:1987",
+	"ISO_8859-8",
+	"ISO_8859-8:1988",
+	"ISO_8859-9",
+	"ISO_8859-9:1989",
+	"JAVA",
+	"JIS0208",
+	"JISX0201-1976",
+	"JIS_C6220-1969-RO",
+	"JIS_C6226-1983",
+	"JIS_X0201",
+	"JIS_X0208",
+	"JIS_X0208-1983",
+	"JIS_X0208-1990",
+	"JIS_X0212",
+	"JIS_X0212-1990",
+	"JIS_X0212.1990-0",
+	"JOHAB",
+	"JP",
+	"KOI8-R",
+	"KOI8-RU",
+	"KOI8-T",
+	"KOREAN",
+	"KSC_5601",
+	"KS_C_5601-1987",
+	"KS_C_5601-1989",
+	"L1",
+	"L10",
+	"L2",
+	"L3",
+	"L4",
+	"L5",
+	"L6",
+	"L7",
+	"L8",
+	"LATIN-9",
+	"LATIN1",
+	"LATIN10",
+	"LATIN2",
+	"LATIN3",
+	"LATIN4",
+	"LATIN5",
+	"LATIN6",
+	"LATIN7",
+	"LATIN8",
+	"MAC",
+	"MACARABIC",
+	"MACCENTRALEUROPE",
+	"MACCROATIAN",
+	"MACCYRILLIC",
+	"MACGREEK",
+	"MACHEBREW",
+	"MACICELAND",
+	"MACINTOSH",
+	"MACROMAN",
+	"MACROMANIA",
+	"MACTHAI",
+	"MACTURKISH",
+	"MACUKRAINE",
+	"MS-ANSI",
+	"MS-ARAB",
+	"MS-CYRL",
+	"MS-EE",
+	"MS-GREEK",
+	"MS-HEBR",
+	"MS-TURK",
+	"MS936",
+	"MS_KANJI",
+	"MULELAO-1",
+	"NEXTSTEP",
+	"R8",
+	"ROMAN8",
+	"SHIFT-JIS",
+	"SHIFT_JIS",
+	"SJIS",
+	"TCVN",
+	"TCVN-5712",
+	"TCVN5712-1",
+	"TCVN5712-1:1993",
+	"TIS-620",
+	"TIS620",
+	"TIS620-0",
+	"TIS620.2529-1",
+	"TIS620.2533-0",
+	"TIS620.2533-1",
+	"UCS-2",
+	"UCS-2-INTERNAL",
+	"UCS-2-SWAPPED",
+	"UCS-2BE",
+	"UCS-2LE",
+	"UCS-4",
+	"UCS-4-INTERNAL",
+	"UCS-4-SWAPPED",
+	"UCS-4BE",
+	"UCS-4LE",
+	"UHC",
+	"UNICODE-1-1",
+	"UNICODE-1-1-UTF-7",
+	"UNICODEBIG",
+	"UNICODELITTLE",
+	"US",
+	"US-ASCII",
+	"UTF-16",
+	"UTF-16BE",
+	"UTF-16LE",
+	"UTF-32",
+	"UTF-32BE",
+	"UTF-32LE",
+	"UTF-7",
+	"UTF-8",
+	"VISCII",
+	"VISCII1.1-1",
+	"WCHAR_T",
+	"WINBALTRIM",
+	"WINDOWS-1250",
+	"WINDOWS-1251",
+	"WINDOWS-1252",
+	"WINDOWS-1253",
+	"WINDOWS-1254",
+	"WINDOWS-1255",
+	"WINDOWS-1256",
+	"WINDOWS-1257",
+	"WINDOWS-1258",
+	"WINDOWS-874",
+	"WINDOWS-936",
+	"X0201",
+	"X0208",
+	"X0212",
+};
+
+#endif // } 0
+
+struct _CodepageName {
+	SCodepage Cp;
+	const char * P_Name;
+};
+
+static _CodepageName CodepageNames[] = {
+	{ cpANSI, "ANSI" },
+	{ cpOEM,  "OEM" },
+
+	{ cpUTF7, "CP_UTF7" },
+	{ cpUTF8, "UTF8" },
+
+	{ cp866,  "866 Russian MSDOS" },
+	{ cp1251, "1251 Russian Windows" },
+
+	{ cp437,  "437 US MSDOS" },
+	{ cp737,  "737 Greek MSDOS" },
+	{ cp850,  "850 International MSDOS" },
+	{ cp852,  "852 EasernEuropean MSDOS" },
+	{ cp857,  "857 Turkish MSDOS" },
+	{ cp861,  "861 Icelandic MSDOS" },
+	{ cp865,  "865 Nordic MSDOS" },
+	{ cp932,  "932 Japanese Windows" },
+	{ cp936,  "936 Chinese Windows" },
+	{ cp950,  "950 Chinese Windows" },
+	{ cp1250, "1250 Eastern European Windows" },
+	{ cp1252, "1252 Windows ANSI" },
+	{ cp1253, "1253 Greek Windows" },
+	{ cp1254, "1254 Turkish Windows" },
+	{ cp1255, "1255 Hebrew Windows" },
+	{ cp1256, "1256 Arabic Windows" },
+};
+
+//static
+uint SCodepageIdent::GetRegisteredCodepageCount()
+{
+	return SIZEOFARRAY(CodepageNames);
+}
+
+//static
+int SCodepageIdent::GetRegisteredCodepage(uint idx, SCodepage & rCp, SString & rName)
+{
+	int    ok = 1;
+	if(idx < SIZEOFARRAY(CodepageNames)) {
+		rCp = CodepageNames[idx].Cp;
+		rName = CodepageNames[idx].P_Name;
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+SCodepageIdent::SCodepageIdent()
+{
+	Cp = cpANSI;
+}
+
+SCodepageIdent::SCodepageIdent(int cp)
+{
+	Cp = cp;
+}
+
+SCodepageIdent::operator int() const
+{
+	return (int)Cp;
+}
+
+SCodepageIdent::operator SCodepage() const
+{
+	return (SCodepage)Cp;
+}
+
+int FASTCALL SCodepageIdent::operator == (SCodepage cp) const
+{
+	return BIN(Cp == cp);
+}
+
+int FASTCALL SCodepageIdent::operator != (SCodepage cp) const
+{
+	return BIN(Cp != cp);
+}
+
+SCodepageIdent & FASTCALL SCodepageIdent::operator = (SCodepage cp)
+{
+	Cp = (SCodepage)cp;
+	return *this;
+}
+
+struct SCpEntry {
+	int    Cp;
+	const char * P_CLibLocale;
+	const char * P_Canonical;
+	const char * P_Xml;
+};
+
+static const SCpEntry __SCpL[] = {
+	{ cpUndef, "", "" },
+	{ cpANSI, "ACP", "ANSI", "" },
+	{ cpOEM,  "OCP", "OEM", "" },
+
+	{ cp437,  "437", "437", "CP437" },
+	{ cp737,  "737", "737", "CP737" },
+	{ cp850,  "850", "850", "CP850" },
+	{ cp852,  "852", "852", "CP852" },
+	{ cp857,  "857", "857", "CP857" },
+	{ cp861,  "861", "861", "CP861" },
+	{ cp865,  "865", "865", "CP865" },
+	{ cp866,  "866", "866", "CP866" },
+	{ cp932,  "932", "932", "CP932" },
+	{ cp936,  "936", "936", "CP936" },
+	{ cp950,  "950", "950", "CP950" },
+	{ cp1250, "1250", "1250", "windows-1250" },
+	{ cp1251, "1251", "1251", "windows-1251" },
+	{ cp1252, "1252", "1252", "windows-1252" },
+	{ cp1253, "1253", "1253", "windows-1253" },
+	{ cp1254, "1254", "1254", "windows-1254" },
+	{ cp1255, "1255", "1255", "windows-1255" },
+	{ cp1256, "1256", "1256", "windows-1256" },
+
+	{ cpUTF7, "UTF7", "UTF7", "UTF-7" },
+	{ cpUTF8, "UTF8", "UTF8", "UTF-8" },
+};
+
+int SCodepageIdent::FromStr(const char * pStr)
+{
+	int    ok = 0;
+	SString inp_buf = pStr;
+	inp_buf.Strip();
+	for(uint i = 0; !ok && i < SIZEOFARRAY(__SCpL); i++) {
+		const SCpEntry & r_entry = __SCpL[i];
+		if(!isempty(r_entry.P_Xml) && inp_buf.CmpNC(r_entry.P_Xml) == 0) {
+			Cp = r_entry.Cp;
+			ok = 1;
+		}
+		else if(!isempty(r_entry.P_Canonical) && inp_buf.CmpNC(r_entry.P_Canonical) == 0) {
+			Cp = r_entry.Cp;
+			ok = 2;
+		}
+		else if(!isempty(r_entry.P_CLibLocale) && inp_buf.CmpNC(r_entry.P_CLibLocale) == 0) {
+			Cp = r_entry.Cp;
+			ok = 3;
+		}
+	}
+	return ok;
+}
+
+int SCodepageIdent::ToStr(int fmt, SString & rBuf) const
+{
+	rBuf = 0;
+	if(oneof2(fmt, fmtCLibLocale, fmtXML)) {
+		for(uint i = 0; i < SIZEOFARRAY(__SCpL); i++) {
+			const SCpEntry & r_entry = __SCpL[i];
+			if(Cp == r_entry.Cp) {
+				if(fmt == fmtCLibLocale) {
+					if(r_entry.P_CLibLocale[0]) {
+						rBuf.CatChar('.').Cat(r_entry.P_CLibLocale);
+					}
+				}
+				else if(fmt == fmtXML) {
+					if(!isempty(r_entry.P_Xml)) {
+						rBuf.Cat(r_entry.P_Xml);
+					}
+				}
+				else {
+					if(r_entry.P_Canonical[0]) {
+						if(Cp >= 437 && Cp <= 1256)
+							rBuf.Cat("cp").Cat(r_entry.P_Canonical);
+						else
+							rBuf = r_entry.P_Canonical;
+					}
+				}
+				break;
+			}
+		}
+	}
+	return rBuf.NotEmpty() ? 1 : 0;
+}
+//
+//
+//
+int FASTCALL ishex(char c)
+{
+	return BIN((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'));
+}
+
+int FASTCALL isdec(char c)
+{
+	return BIN(c >= '0' && c <= '9');
+}
+
+uint FASTCALL hex(char c)
+{
+	return (c >= '0' && c <= '9') ? (c-'0') : ((c >= 'A' && c <= 'F') ? (c-'A'+10) : ((c >= 'a' && c <= 'f') ? (c-'a'+10) : 0));
+}
+
+uint8 FASTCALL hextobyte(const char * pBuf)
+{
+	uint8  c0 = pBuf[1];
+	uint8  c1 = pBuf[0];
+	uint8  r = 0;
+	if(c0 >= '0' && c0 <= '9')
+		r |= c0 - '0';
+	else if(c0 >= 'A' && c0 <= 'F')
+		r |= c0 - 'A' + 10;
+	else if(c0 >= 'a' && c0 <= 'f')
+		r |= c0 - 'a' + 10;
+	else
+		return 0;
+
+	if(c1 >= '0' && c1 <= '9')
+		r |= (c1 - '0') << 4;
+	else if(c1 >= 'A' && c1 <= 'F')
+		r |= (c1 - 'A' + 10) << 4;
+	else if(c1 >= 'a' && c1 <= 'f')
+		r |= (c1 - 'a' + 10) << 4;
+	else
+		return 0;
+	return r;
+}
+
+int FASTCALL IsLetterASCII(int ch)
+{
+	return ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z'));
+}
+
+int FASTCALL IsLetter866(int alpha)
+{
+#define U ((uint8)alpha)
+	return (U < 0x80U || (U > 0xafU && (U < 0xe0U || U > 0xf1U))) ? 0 : 1;
+#undef U
+}
+
+int FASTCALL IsLetter1251(int alpha)
+{
+#define U ((uint8)alpha)
+	return BIN((U >= 0xc0U && U <= 0xdfU) || (U >= 0xe0U && U <= 0xffU) || oneof2(U, 0xa8U, 0xb8U));
+#undef U
+}
+
+int FASTCALL ToLower1251(int alpha)
+{
+	unsigned ch = (alpha & 0x00ff);
+	if(ch == 0xa8U)
+		ch = 0xb8U;
+	else if(ch >= 0xc0U && ch <= 0xdfU)
+		ch += 32;
+	else if(isalpha(ch) && isupper(ch))
+		ch = _tolower(ch);
+	return ch;
+}
+
+int FASTCALL ToUpper1251(int alpha)
+{
+	unsigned ch = (alpha & 0x00ff);
+	if(ch == 0xb8U)
+		ch = 0xa8U;
+	else if(ch >= 0xe0U && ch <= 0xffU)
+		ch -= 32;
+	else if(isalpha(ch) && islower(ch))
+		ch = _toupper(ch);
+	return ch;
+}
+//
+// Descr: переводит символы русского алфавита (cp866) в нижний регистр
+//   если символ не является русской буквой, то вызывается стандартная функция tolower()
+//
+int FASTCALL ToLower866(int alpha)
+{
+	unsigned ch = (alpha & 0x00ff);
+	if(IsLetter866(ch)) {
+		if(ch >= 0x80 && ch < 0x90)
+			ch += 0x20;
+		else if(ch >= 0x90 && ch < 0xa0)
+			ch += 0x50;
+		else if(ch == 0xf0)
+			ch += 0x01;
+	}
+	else if(isalpha(ch) && isupper(ch))
+		ch = _tolower(ch);
+	return ch;
+}
+//
+// Descr: переводит символы русского алфавита (cp866) в верхний регистр
+//   если символ не является русской буквой, то вызывается функция TurboC toupper()
+//
+int FASTCALL ToUpper866(int alpha)
+{
+	unsigned ch = (alpha & 0x00ff);
+	if(IsLetter866(ch)) {
+		if(ch >= (uint)0xa0 && ch < (uint)0xb0)
+			ch -= 0x20;
+		else if(ch >= (uint)0xe0 && ch < (uint)0xf0)
+			ch -= 0x50;
+		else if(ch == (uint)0xf0) // 0xf1
+			ch -= 0x01;
+	}
+	else if(isalpha(ch) && islower(ch))
+		ch = _toupper(ch);
+	return ch;
+}
+
+//char * FASTCALL rus_stristr(const char * s1, const char * s2)
+char * FASTCALL stristr866(const char * s1, const char * s2)
+{
+	for(size_t p = 0, i = strlen(s1), len = strlen(s2); (i-p) >= len; p++)
+		if(strnicmp866(s1+p, s2, len) == 0)
+			return (char *)(s1+p);
+	return 0;
+}
+
+//int FASTCALL rus_stricmp(const char * s1, const char * s2)
+int FASTCALL stricmp866(const char * s1, const char * s2)
+{
+	int    c1, c2;
+	do {
+		c1 = ToUpper866(*s1++);
+		c2 = ToUpper866(*s2++);
+		if(c1 > c2)
+			return 1;
+		else if(c1 < c2)
+			return -1;
+	} while(c1 && c2);
+	return 0;
+}
+
+//int FASTCALL rus_strnicmp(const char * s1, const char * s2, size_t maxlen)
+int FASTCALL strnicmp866(const char * s1, const char * s2, size_t maxlen)
+{
+	uchar  c1, c2;
+	size_t i = 0;
+	if(maxlen)
+		do {
+			c1 = (uchar)ToUpper866(*s1++);
+			c2 = (uchar)ToUpper866(*s2++);
+			if(c1 > c2)
+				return 1;
+			else if(c1 < c2)
+				return -1;
+		} while(c1 && c2 && ++i < maxlen);
+	return 0;
+}
+
+char * FASTCALL strlwr1251(char * str)
+{
+	if(str) {
+		char * s = str;
+		while(*s)
+			*s++ = ToLower1251(*s);
+	}
+	return str;
+}
+
+char * FASTCALL strupr1251(char * str)
+{
+	if(str) {
+		char * s = str;
+		while(*s)
+			*s++ = ToUpper1251(*s);
+	}
+	return str;
+}
+
+//char * FASTCALL rus_strlwr(char * str)
+char * FASTCALL strlwr866(char * str)
+{
+	if(str) {
+		char * s = str;
+		while(*s)
+			*s++ = ToLower866(*s);
+	}
+	return str;
+}
+
+//char * FASTCALL rus_strupr(char * str)
+char * FASTCALL strupr866(char * str)
+{
+	if(str) {
+		char * s = str;
+		while(*s)
+			*s++ = ToUpper866(*s);
+	}
+	return str;
+}
+
+// @v5.0.4 AHTOXA changed {
+char * FASTCALL _s_866_to_1251(char * src)
+{
+#ifndef _WIN32_WCE
+__asm	push ds
+__asm	push es
+__asm	cld
+__asm	les  di, src
+__asm	mov  si, di
+__asm	mov  ax, es
+__asm	mov  ds, ax
+__loop:
+__asm	lodsb
+__asm	or   al, al
+__asm	jz   __end
+	__866_to_1251();
+__asm	stosb
+__asm	jmp __loop
+__end:
+__asm	stosb
+__asm	pop  es
+__asm	pop  ds
+#endif
+	return src;
+}
+// @v5.0.4 AHTOXA changed
+
+char * FASTCALL _s_1251_to_866(char * src)
+{
+#ifndef _WIN32_WCE
+__asm	push ds
+__asm	push es
+__asm	cld
+__asm	les  di, src
+__asm	mov  si, di
+__asm	mov  ax, es
+__asm	mov  ds, ax
+__loop:
+__asm	lodsb
+__asm	or   al, al
+__asm	jz   __end
+	__1251_to_866();
+__asm	stosb
+__asm	jmp __loop
+__end:
+__asm	stosb
+__asm	pop  es
+__asm	pop  ds
+#endif
+return src;
+}
+
+int SLAPI rus_tbl_cvt(int chr, int srcTbl, int destTbl)
+{
+#ifndef _WIN32_WCE // @v5.0.4 AHTOXA
+	if(srcTbl == cp866 && destTbl == cp1251) {
+	#ifdef __WIN32__
+__asm		mov eax, chr
+	#else
+__asm		mov ax, chr
+	#endif
+		return __866_to_1251();
+	}
+	if(srcTbl == cp1251 && destTbl == cp866) {
+	#ifdef __WIN32__
+__asm		mov eax, chr
+	#else
+__asm		mov ax, chr
+	#endif
+		return __1251_to_866();
+	}
+#endif
+	return chr;
+}
+
+char * SLAPI rus_tbl_strcvt(char * str, int srcTbl, int destTbl)
+{
+	if(srcTbl == cp866 && destTbl == cp1251)
+		return _s_866_to_1251(str);
+	if(srcTbl == cp1251 && destTbl == cp866)
+		return _s_1251_to_866(str);
+	return str;
+}
+
+#pragma option -k- -N-
+/*
+	al - source character
+*/
+uchar SLAPI __866_to_1251()
+{
+#ifndef _WIN32_WCE // @v5.0.4 AHTOXA
+__asm	cmp al, 80h
+__asm	jb  __end
+__asm	cmp al, 0afh
+__asm	jg  __bias10
+__asm	add al, 40h
+__asm	jmp __end
+__bias10:
+__asm	cmp al, 0e0h
+__asm	jb  __end
+__asm	cmp al, 0efh
+__asm	jg  __end
+__asm	add al, 10h
+__end:
+#	ifdef __WIN32__
+__asm push ax
+__asm xor eax,eax
+__asm pop ax
+#	else
+return _AL;
+#	endif
+#else
+return 0;
+#endif
+}
+/*
+	al - source character
+*/
+uchar SLAPI __1251_to_866()
+{
+#ifndef _WIN32_WCE // @v5.0.4
+__asm	cmp al, 0c0h
+__asm	jb  __end
+__asm	cmp al, 0efh
+__asm	jg  __bias10
+__asm	add al, -40h
+__asm	jmp __end
+__bias10:
+__asm	cmp al, 0f0h
+__asm	jb  __end
+__asm	cmp al, 0ffh
+__asm	jg  __end
+__asm	add al, -10h
+__end:
+#	ifdef __WIN32__
+__asm push ax
+__asm xor eax,eax
+__asm pop ax
+#	else
+return _AL;
+#	endif
+#else
+return 0;
+#endif
+}
+
+char FASTCALL wchar_to_1251(int16 src)
+{
+	uchar c, buf[2];
+	*PTR16(buf) = *PTR16(&src);
+	if(buf[1] == 0x00)
+		c = buf[0];
+	else if(buf[1] == 0x04) {
+		if(buf[0] >= 0x10 && buf[0] <= 0x4F)
+			c = buf[0] + 0xB0;
+		else if(buf[0] == 0x01)
+			c = 0xA8;
+		else if(buf[0] == 0x51)
+			c = 0xB8;
+		else
+			c = ' ';
+	}
+	else
+		c = ' ';
+	return c;
+}
+//
+// KOI
+//
+int FASTCALL __866_to_koi7(int c)
+{
+	static const char koi7tab[] =
+		"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F"
+		"\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1B\x1C\x1D\x1E\x1F"
+
+		"\x20\x21\x22\x23\x24\x25\x26\x27\x28\x29\x2A\x2B\x2C\x2D\x2E\x2F"
+		"\x30\x31\x32\x33\x34\x35\x36\x37\x38\x39\x3A\x3B\x3C\x3D\x3E\x3F"
+		"\x40\x41\x42\x43\x44\x45\x46\x47\x48\x49\x4A\x4B\x4C\x4D\x4E\x4F"
+		"\x50\x51\x52\x53\x54\x55\x56\x57\x58\x59\x5A\x5B\x5C\x5D\x5E\x5F"
+		"\x27\x41\x42\x43\x44\x45\x46\x47\x48\x49\x4A\x4B\x4C\x4D\x4E\x4F"
+		"\x50\x51\x52\x53\x54\x55\x56\x57\x58\x59\x5A\x3C\x49\x3E\x5E\x7F"
+		"\x61\x62\x77\x67\x64\x65\x76\x7A\x69\x6A\x6B\x6C\x6D\x6E\x6F\x70"
+		"\x72\x73\x74\x75\x66\x68\x63\x7E\x7B\x7D\x27\x79\x78\x7C\x60\x71"
+		"\x61\x62\x77\x67\x64\x65\x76\x7A\x69\x6A\x6B\x6C\x6D\x6E\x6F\x70"
+		"\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F"
+		"\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F"
+		"\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F"
+		"\x72\x73\x74\x75\x66\x68\x63\x7E\x7B\x7D\x27\x79\x78\x7C\x60\x71"
+		"\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x7F";
+	return koi7tab[(uchar)c];
+}
+
+char * FASTCALL _s_866_to_koi7(char * s)
+{
+	char * p = s;
+	while(*p)
+		*p++ = (uchar)__866_to_koi7(*p);
+	return s;
+}
+
+int FASTCALL _koi8_to_866(int c)
+{
+	static const char koi8tab[] =
+		"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F"
+		"\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1B\x1C\x1D\x1E\x1F"
+		"\x20\x21\x22\x23\x24\x25\x26\x27\x28\x29\x2A\x2B\x2C\x2D\x2E\x2F"
+		"\x30\x31\x32\x33\x34\x35\x36\x37\x38\x39\x3A\x3B\x3C\x3D\x3E\x3F"
+		"\x40\x41\x42\x43\x44\x45\x46\x47\x48\x49\x4A\x4B\x4C\x4D\x4E\x4F"
+		"\x50\x51\x52\x53\x54\x55\x56\x57\x58\x59\x5A\x5B\x5C\x5D\x5E\x5F"
+		"\x60\x61\x62\x63\x64\x65\x66\x67\x68\x69\x6A\x6B\x6C\x6D\x6E\x6F"
+		"\x70\x71\x72\x73\x74\x75\x76\x77\x78\x79\x7A\x7B\x7C\x7D\x7E\x7F"
+		"\xC4\xB3\xDA\xBF\xC0\xD9\xC3\xB4\xC2\xC1\xC5\xDF\xDC\xDB\xDD\xDE"
+		"\xB0\xB1\xB2\xF4\xFE\xF9\xFB\xF7\xF3\xF2\xFF\xF5\xF8\xFD\xFA\xF6"
+		"\xCD\xBA\xD5\xF1\xD6\xC9\xB8\xB7\xBB\xD4\xD3\xC8\xBE\xBD\xBC\xC6"
+		"\xC7\xCC\xB5\xF0\xB6\xB9\xD1\xD2\xCB\xCF\xD0\xCA\xD8\xD7\xCE\xFC"
+		"\xEE\xA0\xA1\xE6\xA4\xA5\xE4\xA3\xE5\xA8\xA9\xAA\xAB\xAC\xAD\xAE"
+		"\xAF\xEF\xE0\xE1\xE2\xE3\xA6\xA2\xEC\xEB\xA7\xE8\xED\xE9\xE7\xEA"
+		"\x9E\x80\x81\x96\x84\x85\x94\x83\x95\x88\x89\x8A\x8B\x8C\x8D\x8E"
+		"\x8F\x9F\x90\x91\x92\x93\x86\x82\x9C\x9B\x87\x98\x9D\x99\x97\x9A";
+	int    i = 0;
+	if(c < 128)
+		i = c;
+	else
+		for(i = 0; i < 256; i++)
+			if((int)koi8tab[i] == c)
+				break;
+	return koi8tab[(uchar)i];
+}
+//
+// OEM <-> CHAR
+//
+#if !defined(__WIN32__) || defined(_WIN32_WCE)
+
+int OemToChar(const char * in, char* out)
+{
+	strcpy(out, in);
+	_s_866_to_1251(out);
+	return 1;
+}
+
+int CharToOem(const char * in, char * out)
+{
+	strcpy(out, in);
+	_s_1251_to_866(out);
+	return 1;
+}
+
+#endif
+
+char * FASTCALL SOemToChar(char * pStr)
+{
+	if(pStr)
+		OemToChar(pStr, pStr);
+	return pStr;
+}
+
+char * FASTCALL SCharToOem(char * pStr)
+{
+	if(pStr)
+		CharToOem(pStr, pStr);
+	return pStr;
+}
+//
+//
+//
+int QuotedStringToStr(char **pStr, char * pBuf, int maxBytes, char dStr)
+{
+	int    ok = 0;
+	*pBuf = 0;
+	*pStr = strip(*pStr);
+	char * p = pBuf;
+	while(**pStr && **pStr != dStr && p - pBuf < maxBytes - 1) {
+		if(**pStr == '\\')
+			*pStr++;
+		*p++ = *(*pStr)++;
+	}
+	*p = 0;
+	if(**pStr == dStr) {
+		(*pStr)++;
+		ok = 1;
+	}
+	return ok;
+}
+//
+// Descr: копирует сроку from в буфер to и возвращает указатель на
+//   завершающий нулевой символ строки to.
+//
+char * stpcpy(char *to, const char *from)
+{
+	unsigned len = strlen(from);
+	memcpy(to, from, len+1);
+	return (to+len);
+}
+//
+//
+//
+int FASTCALL isempty(const char * pStr)
+{
+	return BIN(pStr == 0 || pStr[0] == 0);
+}
+
+int FASTCALL isempty(const uchar * pStr)
+{
+	return BIN(pStr == 0 || pStr[0] == 0);
+}
+
+int FASTCALL isempty(const wchar_t * pStr)
+{
+	return BIN(pStr == 0 || pStr[0] == 0);
+}
+
+size_t FASTCALL sstrlen(const char * pStr)
+{
+	return (pStr && pStr[0]) ? strlen(pStr) : 0;
+}
+
+size_t FASTCALL sstrlen(const uchar * pStr)
+{
+	return (pStr && pStr[0]) ? strlen((const char *)pStr) : 0;
+}
+
+size_t FASTCALL sstrlen(const wchar_t * pStr)
+{
+	return (pStr && pStr[0]) ? wcslen(pStr) : 0;
+}
+
+char * FASTCALL sstrdup(const char * pStr)
+{
+	if(pStr) {
+		size_t len = strlen(pStr) + 1;
+		char * p = (char *)malloc(len);
+		return p ? (char *)memcpy(p, pStr, len) : 0;
+	}
+	else
+		return 0;
+}
+
+int FASTCALL sstreq(const char * pS1, const char * pS2)
+{
+	if(pS1 != pS2) {
+        const size_t len = sstrlen(pS1);
+        if(len != sstrlen(pS2))
+			return 0;
+		else if(len)
+			return (memcmp(pS1, pS2, len) == 0);
+		else
+			return 1;
+	}
+	else
+		return 1;
+}
+
+int FASTCALL sstreqi_ascii(const char * pS1, const char * pS2)
+{
+	if(pS1 != pS2) {
+        const size_t len = sstrlen(pS1);
+        if(len != sstrlen(pS2))
+			return 0;
+		else {
+            for(size_t i = 0; i < len; i++) {
+				char c1 = pS1[i];
+				char c2 = pS2[i];
+				if(c1 != c2) {
+					if(c1 >= 'A' && c1 <= 'Z')
+						c1 -= ('A' - 'a');
+					if(c2 >= 'A' && c2 <= 'Z')
+						c2 -= ('A' - 'a');
+					if(c1 != c2)
+						return 0;
+				}
+            }
+		}
+	}
+	return 1;
+}
+
+char * FASTCALL newStr(const char * s)
+{
+	if(s) {
+		size_t len = strlen(s) + 1;
+		char * p = new char[len];
+		return p ? (char *)memcpy(p, s, len) : 0;
+	}
+	else
+		return 0;
+}
+
+char * SLAPI wstrcpy(char * pDest, char * pSrc, size_t maxlen)
+{
+	char * c = (char *)memchr(pSrc, ' ', maxlen);
+	ASSIGN_PTR(c, 0);
+	strncpy(pDest, pSrc, maxlen)[maxlen] = 0;
+	return pDest;
+}
+
+char * FASTCALL strnzcpy(char * dest, const uchar * src, size_t maxlen)
+{
+	return strnzcpy(dest, (const char *)src, maxlen);
+}
+
+char * FASTCALL strnzcpy(char * dest, const char * src, size_t maxlen)
+{
+	if(dest)
+		if(src)
+			if(maxlen) {
+				const char * p = (const char *)memchr(src, 0, maxlen);
+				if(p)
+					memcpy(dest, src, (size_t)(p - src)+1);
+				else {
+					memcpy(dest, src, maxlen-1);
+					dest[maxlen-1] = 0;
+				}
+			}
+			else
+				strcpy(dest, src);
+		else
+			dest[0] = 0;
+	return dest;
+}
+
+char * FASTCALL strnzcpy(char * pDest, const SString & rSrc, size_t maxlen)
+{
+	rSrc.CopyTo(pDest, maxlen);
+	return pDest;
+}
+
+wchar_t * FASTCALL strnzcpy(wchar_t * dest, const wchar_t * src, size_t maxlen)
+{
+	if(dest)
+		if(src)
+			if(maxlen) {
+				const wchar_t * p = (const wchar_t *)wmemchr(src, 0, maxlen);
+				if(p) {
+					memcpy(dest, src, (size_t)(((p - src)+1) << 1));
+				}
+				else {
+					memcpy(dest, src, ((maxlen-1) << 1));
+					dest[maxlen-1] = 0;
+				}
+			}
+			else
+				wcscpy(dest, src);
+		else
+			dest[0] = 0;
+	return dest;
+}
+
+char * FASTCALL trimleft(char * pStr)
+{
+	char * p = pStr;
+	if(*p == ' ') {
+		do
+			p++;
+		while(*p == ' ');
+		memmove(pStr, p, strlen(p)+1);
+	}
+	return pStr;
+}
+
+char * FASTCALL trimright(char * pStr)
+{
+	size_t len = strlen(pStr);
+	if(len) {
+		size_t t = len-1;
+		while(t && pStr[t] == ' ')
+			--t;
+		if(t+1 < len)
+			pStr[t+1] = 0;
+	}
+	return pStr;
+}
+
+char * FASTCALL strip(char * pStr)
+{
+	if(pStr && *pStr) {
+		char * p = pStr, * q = pStr, * back = pStr+strlen(pStr)-1;
+		while(*back == ' ' && back >= p)
+			back--;
+		while(*p == ' ' && p <= back)
+			p++;
+		if(p != q) {
+			while(p <= back)
+				*q++ = *p++;
+			p = q;
+			*p = 0;
+		}
+		else
+			back[1] = 0;
+	}
+	return pStr;
+}
+
+char * SLAPI chomp(char * s)
+{
+	if(s) {
+		size_t n = strlen(s);
+		if(s[n-1] == '\n') {
+			if(s[n-2] == '\r')
+				s[n-2] = 0;
+			else
+				s[n-1] = 0;
+		}
+	}
+	return s;
+}
+
+const char * SLAPI skipws(const char * pStr, size_t * pPos)
+{
+	if(pStr) {
+		size_t pos = pPos ? *pPos : 0;
+		const char * p = pStr+pos;
+		while(*p != ' ' && *p != '\t')
+			p++;
+		if(pPos)
+			*pPos = (p - pStr);
+		return p;
+	}
+	else
+		return 0;
+}
+
+const char * FASTCALL onecstr(char c)
+{
+#ifdef _WIN32_WCE
+	static char buf[2];
+	buf[0] = c;
+	buf[1] = 0;
+	return buf;
+#else
+	char * p_buf = SLS.GetTLA().OneCStrBuf;
+	p_buf[0] = c;
+	p_buf[1] = 0;
+	return p_buf;
+#endif
+}
+
+char * SLAPI quotstr(char * pS, int leftQuotChr, int rightQuotChr)
+{
+	if(pS) {
+		size_t n = strlen(pS);
+		memmove(pS+1, pS, n+1);
+		pS[0] = leftQuotChr;
+		pS[n+1] = rightQuotChr;
+		pS[n+2] = 0;
+	}
+	return pS;
+}
+
+char * SLAPI catdiv(char * pStr, int div, int addSpaces)
+{
+	if(addSpaces)
+		*pStr++ = ' ';
+	*pStr++ = div;
+	if(addSpaces)
+		*pStr++ = ' ';
+	return pStr;
+}
+//
+// Предполагается, что под строку выделено
+// достаточно места, чтобы вместить набивку
+//
+char * SLAPI padleft(char * pStr, char pad, size_t n)
+{
+	memmove(pStr+n, pStr, strlen(pStr)+1);
+	memset(pStr, pad, n);
+	return pStr;
+}
+
+char * SLAPI padright(char * pStr, char pad, size_t n)
+{
+	size_t len = strlen(pStr);
+	memset(pStr + len, pad, n);
+	pStr[len+n] = 0;
+	return pStr;
+}
+
+char * SLAPI alignstr(char * pStr, size_t wd, int adj)
+{
+	size_t len = strlen(strip(pStr));
+	if(wd > len) {
+		size_t n = (wd - len);
+		switch(adj) {
+			case ADJ_LEFT:
+				return padright(pStr, ' ', n);
+			case ADJ_RIGHT:
+				return padleft(pStr, ' ', n);
+			case ADJ_CENTER:
+				len = n/2;
+				return padright(padleft(pStr, ' ', len), ' ', n-len);
+		}
+	}
+	return pStr;
+}
+
+int SLAPI getTextHight(Pchar str, int width)
+{
+	char   ch = *str;
+	int    y, i, pi;
+	for(y = 0, i = 0; ch; ++y) {
+		for(pi = i; ch && ch != '\n';)
+			if(width == 0 || i - pi < width)
+				ch = str[++i];
+			else
+				break;
+		if(ch == '\n')
+			ch = str[++i];
+	}
+	return y;
+}
+
+static int SLAPI iswordchar(int ch, const char * /*pWordChars*/)
+{
+	return (ch && (isalnum(ch) || ch == '_' || IsLetter866(ch)));
+}
+
+int SLAPI searchstr(const char * pStr, const SSrchParam & rParam, size_t * pBeg, size_t * pLen)
+{
+	size_t pos = pBeg ? *pBeg : 0;
+	const  char * s = pStr + pos;
+	const  char * p;
+	const  char * pat = rParam.P_Pattern;
+	const  char * wch = rParam.P_WordChars;
+	int    f   = rParam.Flags;
+	if(!isempty(pStr) && !isempty(pat)) {
+		while(1)
+			if((p = (f & SSPF_NOCASE) ? stristr866(s, pat) : strstr(s, pat)) != 0) {
+				size_t len = strlen(pat);
+				pos += (uint)(p - s);
+				if(f & SSPF_WORDS)
+					if(iswordchar(p[len], wch)) {
+						s = &pStr[++pos];
+						p = 0;
+					}
+					else if(pos && iswordchar(pStr[pos-1], wch)) {
+		   	        	s = &pStr[++pos];
+			   	        p = 0;
+				   	}
+				if(p) {
+					ASSIGN_PTR(pBeg, pos);
+					ASSIGN_PTR(pLen, len);
+					return 1;
+				}
+			}
+			else
+				return 0;
+	}
+	return 0;
+}
+
+int SLAPI hostrtocstr(const char * pInBuf, char * pOutBuf, size_t outBufSize)
+{
+	int    digit = -1, base = 0;
+	uint   prcsd_symbs = 0;
+	size_t pos = 0, len = 0, in_buf_len = strlen(pInBuf);
+	SSrchParam ss_p;
+	ss_p.P_Pattern = "\\";
+	ss_p.P_WordChars = 0;
+	ss_p.Flags = 0;
+	strnzcpy(pOutBuf, pInBuf, outBufSize);
+	while(searchstr(pOutBuf, ss_p, &pos, &len) > 0) {
+		if(pos + 1 < in_buf_len)
+			if(pOutBuf[pos + 1] == 'x' || pOutBuf[pos + 1] == 'X')
+				base = 16;
+			else if(pOutBuf[pos + 1] == '0')
+				base = 8;
+		if(base) {
+			int    i = 0;
+			int    pow_d = 0;
+			prcsd_symbs = 2;
+			for(i = 2; i >= 0; i--) {
+				if(pos + i + 2 < in_buf_len) {
+					int    symb = pOutBuf[pos + i + 2];
+					int    dig  = -1;
+					if(isdigit(symb)) {
+						dig = (symb - '0');
+						dig = (base == 8 && dig > 7) ? -1 : dig;
+					}
+					else if(base == 16) {
+						if(symb == 97 || symb == 65)
+							dig = 10;
+						else if(symb == 98 || symb == 66)
+							dig = 11;
+						else if(symb == 99 || symb == 67)
+							dig = 12;
+						else if(symb == 100 || symb == 68)
+							dig = 13;
+						else if(symb == 101 || symb == 69)
+							dig = 14;
+						else if(symb == 102 || symb == 70)
+							dig = 15;
+						else
+							dig = -1;
+					}
+					if(dig >= 0) {
+						prcsd_symbs++;
+						digit = (digit < 0) ? 0 : digit;
+						digit += (int)pow((double)base, pow_d) * dig;
+						pow_d++;
+					}
+					else {
+						digit = -1;
+						prcsd_symbs = 2;
+						pow_d = 0;
+					}
+				}
+			}
+			if(digit >= 0 && digit <= 255) {
+				len = prcsd_symbs;
+				replacestr(pOutBuf, onecstr((char)digit), &pos, &len, outBufSize);
+			}
+		}
+		pos += len;
+	}
+	return 1;
+}
+
+#pragma warn -par
+
+int SLAPI replacestr(char * str, const char * rstr, size_t * pPos, size_t * pLen, uint maxlen)
+{
+	if(str && pPos && pLen) {
+		size_t p = *pPos;
+		size_t len = *pLen;
+		size_t rl = rstr ? strlen(rstr) : 0;
+		char * s  = str + p;
+		memmove(s + rl, s + len, strlen(s+len) + 1);
+		if(rl)
+			memmove(s, rstr, rl);
+		*pLen = rl;
+		return 1;
+	}
+	return 0;
+}
+
+#pragma warn .par
+
+// AHTOXA {
+uint GetTextHeight(char * pBuf, size_t strLen)
+{
+	uint   text_height = 1;
+	if(pBuf) {
+		size_t buf_len = strlen(pBuf);
+		if(buf_len > strLen) {
+			char * p_buf = pBuf;
+			uint pos = 0, prev_pos = 0, real_pos = 0, len = 0;
+			SSrchParam p;
+			p.P_Pattern = (char*)onecstr(' ');
+			p.P_WordChars = 0;
+			p.Flags = 0;
+			while(p_buf && searchstr(p_buf, p, &pos, &len) > 0) {
+				if(pos > strLen) {
+					size_t cut_pos = (prev_pos) ? prev_pos : pos;
+					text_height++;
+					prev_pos = pos = 0;
+					real_pos += cut_pos;
+					replacestr(pBuf, "\n", &real_pos, &len, 0);
+					real_pos++;
+					if(strlen(p_buf) > cut_pos + 1)
+						p_buf += cut_pos + 1;
+					else
+						p_buf = 0;
+				}
+				else {
+					prev_pos = pos;
+					pos++;
+				}
+			}
+			if(p_buf && strlen(p_buf) > strLen && prev_pos) {
+				text_height++;
+				real_pos += prev_pos;
+				replacestr(pBuf, "\n", &real_pos, &len, 0);
+			}
+		}
+	}
+	return text_height;
+}
+// } AHTOXA
+
+void FASTCALL RemoveCtrlNFromStr(char * pBuf, size_t bufLen)
+{
+	if(pBuf && bufLen) {
+		size_t s = strlen(pBuf);
+		if(s >= bufLen) {
+			s = (bufLen-1);
+			pBuf[bufLen-1] = 0;
+		}
+		if(memchr(pBuf, '\n', s) || memchr(pBuf, '\r', s)) {
+			char   c;
+			for(size_t i = 0; (c = pBuf[i]) != 0; i++) {
+				if((c == '\r' && pBuf[i+1] == '\n') || (c == '\n' && pBuf[i+1] == '\r')) {
+					size_t len = strlen(pBuf+i+1)+1;
+					memcpy(pBuf+i, pBuf+i+1, len);
+					pBuf[i] = ' ';
+				}
+				else if(c == '\n' || c == '\t')
+					pBuf[i] = ' ';
+			}
+		}
+	}
+}
+
+int SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
+{
+	if(hdc && maxStrSize > 0 && maxStrsCount > 0 && aBuf.Len()) {
+		const  char * p_dots = "...";
+		char   ret_buf[1024];
+		int    src_pos = 0, dest_pos = 0, dots_pos = -1;
+		size_t dots_size = 0;
+		SIZE   size;
+		memzero(ret_buf, sizeof(ret_buf));
+#ifdef _WIN32_WCE // {
+		GetTextExtentPoint32(hdc, (const ushort*)onecstr('.'), 1, &size);
+#else
+		GetTextExtentPoint32(hdc, onecstr('.'), 1, &size);
+#endif // } _WIN32_WCE
+		dots_size = size.cx * 3;
+		for(size_t strs_count = 0; strs_count < maxStrsCount; strs_count++) {
+			int    is_last_str = (strs_count >= maxStrsCount - 1) ? 1 : 0;
+			int    src_spc_pos = 0, dest_spc_pos = 0;
+			size_t word_size = 0;
+			for(; word_size < maxStrSize && aBuf.C(src_pos);) {
+				if(aBuf.C(src_pos) == ' ') {
+					src_spc_pos = src_pos;
+					dest_spc_pos = dest_pos;
+				}
+				if(is_last_str)
+					dots_pos = word_size + dots_size <= maxStrSize ? dest_pos : dots_pos;
+#ifdef _WIN32_WCE // {
+				GetTextExtentPoint32(hdc, (const ushort*)onecstr(aBuf.C(src_pos)), 1, &size);
+#else
+				GetTextExtentPoint32(hdc, onecstr(aBuf.C(src_pos)), 1, &size);
+#endif // } _WIN32_WCE
+				word_size += size.cx;
+				if(word_size <= maxStrSize) {
+					ret_buf[dest_pos] = aBuf.C(src_pos);
+					src_pos++;
+					dest_pos++;
+				}
+			}
+			char   c = aBuf.C(src_pos);
+			if(c) {
+				if(is_last_str) {
+					if(dots_pos >= 0) {
+						ret_buf[dots_pos] = '\0';
+						strcat(ret_buf, p_dots);
+						dest_pos = dots_pos + strlen(p_dots) - 1;
+					}
+				}
+				else
+					if(c != ' ' && src_spc_pos) {
+						src_pos  = src_spc_pos + 1;
+						dest_pos = dest_spc_pos;
+					}
+			}
+			if(!is_last_str)
+				ret_buf[dest_pos++] = '\n';
+			else
+				ret_buf[++dest_pos] = '\0';
+		}
+		aBuf.CopyFrom(ret_buf);
+	}
+	return 1;
+}
+//
+//
+//
+//
+// Index into the table below with the first byte of a UTF-8 sequence to
+// get the number of trailing bytes that are supposed to follow it.
+// Note that *legal* UTF-8 values can't have 4 or 5-bytes. The table is
+// left as-is for anyone who may want to do such conversion, which was
+// allowed in earlier algorithms.
+//
+const char SUtfConst::TrailingBytesForUTF8[256] = {
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2, 3,3,3,3,3,3,3,3,4,4,4,4,5,5,5,5
+};
+//
+// Magic values subtracted from a buffer value during uint8 conversion.
+// This table contains as many values as there might be trailing bytes
+// in a UTF-8 sequence.
+//
+const uint32 SUtfConst::OffsetsFromUTF8[6] = {
+	0x00000000UL, 0x00003080UL, 0x000E2080UL, 0x03C82080UL, 0xFA082080UL, 0x82082080UL
+};
+//
+// Once the bits are split out into bytes of UTF-8, this is a mask OR-ed
+// into the first byte, depending on how many bytes follow.  There are
+// as many entries in this table as there are UTF-8 sequence types.
+// (I.e., one byte sequence, two byte... etc.). Remember that sequencs
+// for *legal* UTF-8 will be 4 or fewer bytes total.
+//
+const uint8 SUtfConst::FirstByteMark[7] = {
+	0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC
+};
+
+const uint32 SUtfConst::HalfBase = 0x0010000UL;
+const uint32 SUtfConst::HalfMask = 0x3FFUL;
+const int    SUtfConst::HalfShift = 10; // used for shifting by 10 bits
+//
+// Функции нечеткого поиска подстроки.
+// Позаимствовано у Kevin Atkinson
+//
+// Descr:
+//   Функция ApproxStrSrch осуществляет приблизительный поиск заданного ключевого слова(далее pattern) в заданной строке,
+//   наверняка содержащей заданное ключевое слово (далее buffer). В случае нахождения pattern`а где-либо в buffer`е функция //
+//   записывает в структуру ApproxStrSrchParam позицию (далее pos) наиболее схожего слова и количество набранных этим словом
+//   "очков" (далее score) по сравнению с pattern`ом, в результате возвращая '1'. В случае неудачного поиска(во всем buffer`е
+//   нет такого pattern`а) функция возвращает '-1'. В случае ошибки функция возвращает '0'.
+//
+// Params:
+//   const char* pPattern -
+//   Ключевая строка поиска.
+//   const char* pBuf -
+//   Строка, где должно искаться значение.
+//   double* mVal -
+//   Если в конце поиска максимальное значение score на позиции pos
+//   меньше этого значения, то функция считает такой поиск неудачным
+//   (см. таблицу возвращаемых значений).
+//   struct ApproxStrSrchParam* param -
+//   структура ApproxStrSrchParam.
+//
+// Return values map:
+//   -1 : Поиск закончился неудачей.
+//   0  : Возникла ошибка
+//   Если был возвращен 0, то структура ApproxStrSrchParam должна
+//   	 содержать описание ошибки.
+//   1  : Поиск был успешным
+//   	Если была возвращена 1, то структура ApproxStrSrchParam
+//   	должна содержать наиболее подходящюю позицию и количество
+//   	набранных баллов.
+//   Структура ApproxStrSrchParam.
+//
+//   Структура ApproxStrSrchParam содержит 2 переменные:
+//
+//   size_t maxpos - позиция максимального соответствия и
+//   double maxscore - значение score в позиции maxpos
+//
+struct dist_weights {
+	dist_weights(double d1, double d2, double sw, double su) : Del1(d1), Del2(d2), Swaps(sw), Subs(su)
+	{
+	}
+	void set(double d1, double d2, double sw, double su)
+	{
+		Del1 = d1;
+		Del2 = d2;
+		Swaps = sw;
+		Subs = su;
+	}
+	double Del1;
+	double Del2;
+	double Swaps;
+	double Subs;
+};
+
+struct dist_components {
+	dist_components(int d1, int d2, int sw, int su) : Del1(d1), Del2(d2), Swaps(sw), Subs(su)
+	{
+	}
+	void set(int d1, int d2, int sw, int su)
+	{
+		Del1 = d1;
+		Del2 = d2;
+		Swaps = sw;
+		Subs = su;
+	}
+	int    Del1;
+	int    Del2;
+	int    Swaps;
+	int    Subs;
+};
+
+class HighestScore {
+public:
+	HighestScore(double weight)
+	{
+		Weight = weight;
+		Score = 0.0;
+	}
+	void Clear()
+	{
+		Score = 0.0;
+	}
+	int GetFirst() const
+	{
+		return S1;
+	}
+	int GetSecond() const
+	{
+		return S2;
+	}
+	double WeighedScore(const char *s1, const char *s2)
+	{
+		if(Weight == 1.0) {
+			long si = 0;
+			while(*s1 && *s2)
+				if(*s1++ == *s2++)
+					++si;
+			return (double)si;
+		}
+		else {
+			double score = 0.0;
+			double p = 1.0;
+			while(*s1 && *s2) {
+				if(*s1++ == *s2++)
+					score += p;
+				p *= Weight;
+			}
+			return score;
+		}
+	}
+	void Process(const char * pS1, const char * pS2)
+	{
+		uint i;
+		Score = WeighedScore(pS1, pS2);
+		S1 = 0;
+		S2 = 0;
+		for(i = 1; pS1[i]; ++i) {
+			double sc = WeighedScore(pS1+i, pS2);
+			if(sc > Score) {
+				Score = sc;
+				S1 = i;
+				S2 = 0;
+			}
+		}
+		for(i = 1; pS2[i]; ++i) {
+			double sc = WeighedScore(pS1, pS2+i);
+			if(sc > Score) {
+				Score = sc;
+				S1 = 0;
+				S2 = i;
+			}
+		}
+	}
+private:
+	double Weight; // Коэффициент веса каждого последующего символа
+	double Score;
+	int    S1;
+	int    S2;
+};
+
+inline double ApproxStrComparator::Distance()
+{
+	return MIN(Del1 + Del2 + Swaps + Subs, MaxSize);
+}
+
+inline double ApproxStrComparator::Score()
+{
+	return (MaxSize - Distance()) / MaxSize;
+}
+
+inline double FASTCALL ApproxStrComparator::Distance(const dist_weights & w)
+{
+	return MIN(w.Del1 * Del1 + w.Del2 * Del2 + w.Swaps * Swaps + w.Subs * Subs, MaxSize);
+}
+
+inline double FASTCALL ApproxStrComparator::Score(const dist_weights & w)
+{
+	return (MaxSize - Distance(w)) / MaxSize;
+}
+
+inline void FASTCALL ApproxStrComparator::Distance(dist_components & c)
+{
+	c.set(Del1, Del2, Swaps, Subs);
+}
+
+ApproxStrComparator::ApproxStrComparator(const char * pPattern, const ApproxStrSrchParam * param)
+{
+	Del1 = 0;
+	Del2 = 0;
+	Swaps = 0;
+	Subs = 0;
+	MaxSize = 0;
+	P = *param;
+	Pattern = pPattern;
+	if(P.no_case)
+		Pattern.ToLower();
+}
+
+double FASTCALL ApproxStrComparator::Next(const char * b2)
+{
+	double result = 1.0;
+	if(P.no_case) {
+		(Temp = b2).ToLower();
+		b2 = (const char *)Temp;
+	}
+	if(Pattern.Cmp(Temp, 0) != 0) {
+		HighestScore higest(P.weight);
+		Del1 = Del2 = Swaps = Subs = 0;
+		MaxSize = 0;
+		Track1.Clear();
+		Track2.Clear();
+		for(const char * s1 = Pattern, * s2 = b2; ; s1++, s2++) {
+			uint n = 0;
+			while(*s1 == *s2 && *s1) {
+				++n;
+				++s1;
+				++s2;
+			}
+			if(n) {
+				Track1.insertN(1, n);
+				Track2.insertN(1, n);
+			}
+			if(!*s1) {
+				n = 0;
+				while(*s2) {
+					++n;
+					++s2;
+				}
+				Track2.insertN(0, n);
+				break;
+			}
+			else if(!*s2) {
+				n = 0;
+				while(*s1) {
+					++n;
+					++s1;
+				}
+				Track1.insertN(0, n);
+				break;
+			}
+			else {
+				higest.Process(s1, s2);
+				n = higest.GetFirst();
+				Track1.insertN(0, n);
+				s1 += n;
+				n = higest.GetSecond();
+				Track2.insertN(0, n);
+				s2 += n;
+				if(*s1 == *s2) {
+					Track1.insert(1);
+					Track2.insert(1);
+				}
+				else {
+					Track1.insert(0);
+					Track2.insert(0);
+				}
+			}
+		}
+		size_t i1 = 0;
+		size_t i2 = 0;
+		size_t size1 = Track1.getCount();
+		size_t size2 = Track2.getCount();
+		for(;;) {
+			if(i1 == size1) {
+				if(P.method == 0)
+					Del2 += size2 - i2;
+				break;
+			}
+			if(i2 == size2) {
+				Del1 += size1 - i1;
+				break;
+			}
+			const int tr1 = Track1[i1];
+			const int tr2 = Track2[i2];
+			if(tr1 == tr2) {
+				if(tr1 == 0)
+					++Subs;
+				++i1;
+				++i2;
+			}
+			else if((i1 + 1 != size1) && (i2 + 1 != size2) &&
+				tr1 != Track1[i1 + 1] && tr2 != Track2[i2 + 1] && Pattern.C(i1) == b2[i2 + 1] && Pattern.C(i1 + 1) == b2[i2]) {
+				++Swaps;
+				i1 += 2;
+				i2 += 2;
+			}
+			else if(tr1 == 0) {
+				++Del1;
+				++i1;
+			}
+			else if(tr2 == 0) {
+				++Del2;
+				++i2;
+			}
+		}
+		MaxSize = (P.method == 0) ? ((size1 > size2) ? size1 : size2) : size1;
+		result = Score();
+	}
+	return result;
+}
+
+int SLAPI ApproxStrCmp(const char * pStr1, const char * pStr2, int noCase, double * pScore)
+{
+	ApproxStrSrchParam param;
+	MEMSZERO(param);
+	param.method = 1;
+	param.weight = 1;
+	ApproxStrComparator srch(pStr1, &param);
+	double s = srch.Next(pStr2);
+	ASSIGN_PTR(pScore, s);
+	return (s == 1.0) ? 1 : -1;
+}
+
+int SLAPI ApproxStrSrch(const char * pPattern, const char * pBuffer, ApproxStrSrchParam * param)
+{
+	int    ok = 1;
+	size_t buflen = pBuffer ? strlen(pBuffer) : 0;
+	size_t patlen = pPattern ? strlen(pPattern) : 0;
+	if(patlen == 0 && buflen == 0)
+		ok = 1;
+	else if(patlen == 0 || buflen == 0)
+		ok = 0;
+	else {
+		size_t maxpos = (size_t)-1;
+		double maxscore = 0.0;
+		ApproxStrComparator search(pPattern, param);
+		for(size_t j = 0; j < buflen; j++) {
+			double s = search.Next(pBuffer+j);
+			if(s > maxscore) {
+				maxpos = j;
+				maxscore = s;
+			}
+		}
+		if(maxscore < param->umin)
+			ok = -1;
+		else {
+			param->maxscore = maxscore;
+			param->maxpos = maxpos;
+		}
+	}
+	return ok;
+}
+
+int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern)
+{
+	int    ok = 1;
+	int    done = 0;
+	// const  char * p_or_div = "€‹€"; // ИЛИ (cp866)
+	const  char * p_or_dir = "||";
+	const  char * p_and_dir = "&&";
+	if(pBuffer && pPattern) {
+		SString temp_buf;
+		uint   p = 0;
+		// div: 1 - OR, 2 - AND
+		for(int div = 0; !div && pPattern[p]; p++) {
+			const  char c = pPattern[p];
+			uint   inc = 0;
+			if(c == '|' && pPattern[p+1] == '|') {
+				if(p && pPattern[p-1] == '\\') {
+					temp_buf.TrimRight().CatCharN('|', 2);
+				}
+				else {
+					inc = 2;
+					div = 1;
+				}
+			}
+			else if(c == '&' && pPattern[p+1] == '&') {
+				if(p && pPattern[p-1] == '\\') {
+					temp_buf.TrimRight().CatCharN('&', 2);
+				}
+				else {
+					inc = 2;
+					div = 2;
+				}
+			}
+			if(div) {
+				int r1 = ExtStrSrch(pBuffer, temp_buf); // @recursion
+				int r2 = ExtStrSrch(pBuffer, pPattern+p+inc); // @recursion
+				if(div == 1 && (r1 || r2))
+					ok = 1;
+				else if(div == 2 && (r1 && r2))
+					ok = 1;
+				else
+					ok = 0;
+				done = 1;
+			}
+			else
+				temp_buf.CatChar(c);
+		}
+		if(!done) {
+			const char * p_srch_str = temp_buf;
+			if(*p_srch_str == '!' && *++p_srch_str != '!') {
+				ApproxStrSrchParam sp;
+				sp.weight = 1;
+				sp.method = 1;
+				sp.no_case = 1;
+				if(*p_srch_str == '(') {
+					int i, j;
+					for(i = j = 0, p_srch_str++; i < 2 && *p_srch_str != ')'; i++, p_srch_str++)
+						if(isdigit(*p_srch_str))
+							j = j * 10 + *p_srch_str - '0';
+						else {
+							ok = 0;
+							break;
+						}
+					if(ok && *p_srch_str == ')') {
+						p_srch_str++;
+						sp.umin = fdiv100i(j);
+					}
+					else
+						ok = 0;
+				}
+				else
+					sp.umin = 0.75;
+				if(ok && ApproxStrSrch(p_srch_str, pBuffer, &sp) != 1)
+					ok = 0;
+			}
+			else if(!stristr866(pBuffer, p_srch_str))
+				ok = 0;
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+/*
+int main(void)
+{
+	ApproxStrSrchParam sp;
+	sp.umin=0.4;
+	int ok = 1;
+	char* pat="bisines";
+	char* buf="business";
+	int srch=ApproxStrSrch(pat,buf,&sp);
+
+	if(srch == 1) {
+		printf("Score > %f\n", sp.maxscore);
+		printf("Position > %d\n", sp.maxpos);
+	}
+	else
+		printf("not found!");
+	return ok;
+}
+*/
+
+static const uint8 Utf_k_Boms[][3] = {
+	{0x00, 0x00, 0x00},  // Unknown
+	{0xEF, 0xBB, 0xBF},  // UTF8
+	{0xFE, 0xFF, 0x00},  // Big endian
+	{0xFF, 0xFE, 0x00},  // Little endian
+};
+
+SUnicodeMode FASTCALL SDetermineUtfEncoding(const void * pBuf, size_t bufLen)
+{
+	// detect UTF-16 big-endian with BOM
+	if(bufLen > 1 && PTR8(pBuf)[0] == Utf_k_Boms[suni16BE][0] && PTR8(pBuf)[1] == Utf_k_Boms[suni16BE][1])
+		return suni16BE;
+	else if(bufLen > 1 && PTR8(pBuf)[0] == Utf_k_Boms[suni16LE][0] && PTR8(pBuf)[1] == Utf_k_Boms[suni16LE][1]) // detect UTF-16 little-endian with BOM
+		return suni16LE;
+	else if(bufLen > 2 && PTR8(pBuf)[0] == Utf_k_Boms[suniUTF8][0] && PTR8(pBuf)[1] == Utf_k_Boms[suniUTF8][1] && PTR8(pBuf)[2] == Utf_k_Boms[suniUTF8][2]) // detect UTF-8 with BOM
+		return suniUTF8;
+	else
+		return suni8Bit;
+}
+
+SEOLFormat FASTCALL SDetermineEOLFormat(const void * pBuf, size_t bufLen)
+{
+	for(size_t i = 0 ; i < bufLen; i++) {
+		if(PTR8(pBuf)[i] == '\xD') {
+			if((i+1) < bufLen && PTR8(pBuf)[i+1] == '\xA')
+				return eolWindows;
+			else
+				return eolMac;
+		}
+		else if(PTR8(pBuf)[i] == '\xA')
+			return eolUnix;
+	}
+	return eolUndef;
+}
+//
+//
+//
+STextEncodingStat::STextEncodingStat()
+{
+	Init();
+}
+
+STextEncodingStat & STextEncodingStat::Init()
+{
+	Flags = fEmpty;
+	Cp = cpUndef;
+	Eolf = eolUndef;
+	MEMSZERO(ChrFreq);
+	memzero(Utf8Prefix, sizeof(Utf8Prefix));
+	Utf8PrefixLen = 0;
+	return *this;
+}
+
+int STextEncodingStat::Add(const void * pData, size_t size)
+{
+	int    ok = 1;
+	if(size && pData) {
+		if(Flags & fEmpty) {
+			Flags &= ~fEmpty;
+			Flags |= (fAsciiOnly|fLegalUtf8Only);
+		}
+		size_t skip_eolf_pos = 0;
+		size_t next_utf8_pos = 0;
+		const uint8 * p = (const uint8 *)pData;
+		for(size_t i = 0; i < size; i++) {
+			const uint8 c = p[i];
+			ChrFreq[c]++;
+			if(c > 0 && c <= 127) {
+				if(c == '\xD') {
+					skip_eolf_pos = i+1;
+					if((i+1) < size && p[i+1] == '\xA') {
+						if(Eolf == eolUndef)
+							Eolf = eolWindows;
+						else if(Eolf != eolWindows)
+							Flags |= fMiscEolf;
+					}
+					else {
+						if(Eolf == eolUndef)
+							Eolf = eolMac;
+						else if(Eolf != eolMac)
+							Flags |= fMiscEolf;
+					}
+				}
+				else if(c == '\xA' && i != skip_eolf_pos) {
+					if(Eolf == eolUndef)
+						Eolf = eolUnix;
+					else if(Eolf != eolUnix)
+						Flags |= fMiscEolf;
+				}
+			}
+			else {
+				Flags &= ~fAsciiOnly;
+			}
+			if(i >= next_utf8_pos) {
+				if(Utf8PrefixLen) {
+					assert(i == 0);
+					assert(Utf8PrefixLen <= 8);
+					uint8  _sb[16];
+					memcpy(_sb, Utf8Prefix, Utf8PrefixLen);
+					memcpy(_sb+Utf8PrefixLen, p, MIN(sizeof(_sb) - Utf8PrefixLen, size));
+					uint16 extra = SUtfConst::TrailingBytesForUTF8[_sb[0]];
+					if(!SUnicode::IsLegalUtf8(_sb, extra+1))
+						Flags &= ~fLegalUtf8Only;
+					else
+						next_utf8_pos = extra+1-Utf8PrefixLen;
+					Utf8PrefixLen = 0;
+					memzero(Utf8Prefix, sizeof(Utf8Prefix));
+				}
+				else {
+					uint16 extra = SUtfConst::TrailingBytesForUTF8[c];
+					if((i+extra+1) <= size) {
+						if(!SUnicode::IsLegalUtf8(p+i, extra+1))
+							Flags &= ~fLegalUtf8Only;
+						else
+							next_utf8_pos = i+extra+1;
+					}
+					else {
+						Utf8PrefixLen = (i+extra+1)-size;
+						memcpy(Utf8Prefix, p+i, Utf8PrefixLen);
+						next_utf8_pos = size;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+int STextEncodingStat::Finish()
+{
+	return 1;
+}
+//
+//
+//
+#if 0 // {
+int main(int argc, char **argv )
+{
+	const char* input = "<title>Foo</title><p>Foo!";
+	TidyBuffer output;
+	TidyBuffer errbuf;
+	int rc = -1;
+	Bool ok;
+	TidyDoc tdoc = tidyCreate();                     // Initialize "document"
+	tidyBufInit(&output);
+	tidyBufInit(&errbuf);
+	printf("Tidying:\t\%s\\n", input);
+
+	ok = tidyOptSetBool(tdoc, TidyXhtmlOut, yes);  // Convert to XHTML
+	if(ok)
+		rc = tidySetErrorBuffer(tdoc, &errbuf);      // Capture diagnostics
+	if(rc >= 0)
+		rc = tidyParseString(tdoc, input);           // Parse the input
+	if(rc >= 0)
+		rc = tidyCleanAndRepair(tdoc);               // Tidy it up!
+	if(rc >= 0)
+		rc = tidyRunDiagnostics(tdoc);               // Kvetch
+	if(rc > 1)                                    // If error, force output.
+		rc = (tidyOptSetBool(tdoc, TidyForceOutput, yes) ? rc : -1);
+	if(rc >= 0)
+		rc = tidySaveBuffer(tdoc, &output);          // Pretty Print
+	if(rc >= 0) {
+		if(rc > 0)
+			printf("\\nDiagnostics:\\n\\n\%s", errbuf.bp);
+		printf("\\nAnd here is the result:\\n\\n\%s", output.bp);
+	}
+	else
+		printf("A severe error (\%d) occurred.\\n", rc);
+	tidyBufFree(&output);
+	tidyBufFree(&errbuf);
+	tidyRelease(tdoc);
+	return rc;
+}
+#endif // } 0
+
+//
+//
+//

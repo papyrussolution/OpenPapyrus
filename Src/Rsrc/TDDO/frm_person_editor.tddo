@@ -1,0 +1,372 @@
+## Universe-HTT
+## frm_person_editor.tddo 
+## Форма создания/редактирование персоналии
+
+<div id="frm_person_editor__layout">
+	<div id="frm_person_editor_tabs__blk" style="position:static">
+		<ul>
+			<li><a href="#frm_person_editor_tab_main__blk">Основное</a></li>
+			<li><a href="#frm_person_editor_tab_elinks__blk">Контакты</a></li>
+			<li><a href="#frm_person_editor_tab_dlvraddr__blk">Адреса доставки</a></li>
+		</ul>
+		<div id="frm_person_editor_tab_main__blk">
+			<b>Юридический статус</b>
+			<div id="frm_person_editor_tab_main_status__blk">
+				<div class="uui-w100pct uui-table-cell uui-valign-mid">
+					<input type="text" class="uhtt-drop-down-menu-text-field uui-w100pct" id="frm_person_editor_tab_main_status__txtfld" readonly="readonly"/>
+				</div>
+				<div class="uui-table-cell uui-valign-mid">
+					<input type="button" class="uhtt-drop-down-menu-button" id="frm_person_editor_tab_main_select_status__button"/>
+				</div>
+				<div class="uhtt-drop-down-div" id="frm_person_editor_tab_main_status__ddblk">
+					<select class="uui-w100pct uui-padding-0" id="frm_person_editor_tab_main_status__list" style="border:1px solid gray" size=10></select>
+				</div>
+			</div>
+			<b>Наименование</b>
+			<input type="text" class="uhtt-input sprawling" id="frm_person_editor_tab_main_name__txtfld"/>
+			<b>Категория</b>
+			<div id="frm_person_editor_tab_main_category__blk">
+				<div class="uui-w100pct uui-table-cell uui-valign-mid">
+					<input type="text" class="uhtt-drop-down-menu-text-field uui-w100pct" id="frm_person_editor_tab_main_category__txtfld" readonly="readonly"/>
+				</div>
+				<div class="uui-table-cell uui-valign-mid">
+					<input type="button" class="uhtt-drop-down-menu-button" id="frm_person_editor_tab_main_select_category__button"/>
+				</div>
+				<div class="uhtt-drop-down-div" id="frm_person_editor_tab_main_category__ddblk">
+					<select class="uui-w100pct uui-padding-0" id="frm_person_editor_tab_main_category__list" style="border:1px solid gray" size=10></select>
+				</div>
+			</div>
+			<b>Юридический адрес</b>
+			<table class="sprawling"><tbody class="sprawling"><tr class="sprawling">
+			<td class="sprawling"><input type="text" class="uhtt-input sprawling" id="frm_person_editor_tab_main_address__txtfld" readonly="readonly"/></td>
+			<td style="padding-left:2px"><input type="button" class="uhtt-edit-button" style="width:25px; height:25px" id="frm_person_editor_tab_main_address_edit__button"/></td>
+			<td style="padding-left:2px"><input type="button" class="uhtt-remove-button" style="width:25px; height:25px" id="frm_person_editor_tab_main_address_remove__button"/></td>
+			</tr></tbody></table>
+			<b>ИНН</b><br>
+			<input type="text" class="uhtt-input" id="frm_person_editor_tab_main_inn__txtfld" size=30/>
+		</div>
+		<div id="frm_person_editor_tab_elinks__blk">
+		</div>
+		<div id="frm_person_editor_tab_dlvraddr__blk">
+			<div style="border:1px solid gray; max-height:220px; overflow:auto">
+				<table id="frm_person_editor_tab_main_dlvraddr__tbl" class="tablesorter" style="margin:0px">
+					<thead>
+						<tr>
+							<th width="25%">Город</th>
+							<th>Адрес</th>
+							<th width="15%">Код</th>
+						</tr>
+					</thead>
+					<tbody id="frm_person_editor_tab_main_dlvraddr__tblbody"></tbody>
+				</table>
+			</div>
+			<div align="right" style="padding-top:4px">
+				<input type="button" class="uhtt-add-button" id="frm_person_editor_tab_main_dlvraddr_add__button"/>
+				<input type="button" class="uhtt-edit-button" id="frm_person_editor_tab_main_dlvraddr_edit__button"/>
+				<input type="button" class="uhtt-remove-button" id="frm_person_editor_tab_main_dlvraddr_remove__button"/>
+			</div>
+		</div>
+	</div>
+	<div style="position:absolute; bottom:10px; right:10px">
+		<table class="sprawling"><tbody class="sprawling"><tr class="sprawling">
+		<td class="sprawling"><div class="uhtt-error-msg sprawling" id="frm_person_editor_msg__blk"></div></td>
+		<td style="padding-left:8px"><input type="button" id="frm_person_editor_ok__btn" value="OK"/></td>
+		</tr></tbody></table>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var PersonEditorForm = {
+		## /* Instance */
+		Dialog : UHTT.Dialog.List.getObjByProperty("ID", $("#frm_person_editor__layout").parent("div.uhtt-dialog").attr("id")),
+		
+		## /* Элементы формы */
+		Layout              : $("#frm_person_editor__layout"), 
+		//
+		txtFld_Status       : $("#frm_person_editor_tab_main_status__txtfld"),
+		btn_SelectStatus    : $("#frm_person_editor_tab_main_select_status__button"),
+		ddBlk_Status        : $("#frm_person_editor_tab_main_status__ddblk"),
+		blk_StatusList      : $("#frm_person_editor_tab_main_status__list"),
+		//
+		txtFld_Name         : $("#frm_person_editor_tab_main_name__txtfld"),
+		//
+		txtFld_Category     : $("#frm_person_editor_tab_main_category__txtfld"),
+		btn_SelectCategory  : $("#frm_person_editor_tab_main_select_category__button"),
+		ddBlk_Category      : $("#frm_person_editor_tab_main_category__ddblk"),
+		blk_CategoryList    : $("#frm_person_editor_tab_main_category__list"),
+		//
+		txtFld_INN          : $("#frm_person_editor_tab_main_inn__txtfld"),
+		//
+		txtFld_LegalAddr    : $("#frm_person_editor_tab_main_address__txtfld"),
+		btn_EditLegalAddr   : $("#frm_person_editor_tab_main_address_edit__button"),
+		btn_RemoveLegalAddr : $("#frm_person_editor_tab_main_address_remove__button"),
+		//
+		btn_AddDlvrAddr     : $("#frm_person_editor_tab_main_dlvraddr_add__button"),
+		btn_EditDlvrAddr    : $("#frm_person_editor_tab_main_dlvraddr_edit__button"),
+		btn_RemoveDlvrAddr  : $("#frm_person_editor_tab_main_dlvraddr_remove__button"),
+		//
+		tbl_DlvrAddr        : $("#frm_person_editor_tab_main_dlvraddr__tbl"),
+		tblBody_DlvrAddr    : $("#frm_person_editor_tab_main_dlvraddr__tblbody"),
+		//
+		blk_Msg             : $("#frm_person_editor_msg__blk"),
+		btn_OK              : $("#frm_person_editor_ok__btn"),
+		//
+		## /* Вкладки */
+		Tabs : null,
+		## /* Структура персоналии */
+		Person : UHTT.Person.Editor.Object,
+		## /* --- */
+		IsCreation : !UHTT.Person.Editor.IsEditing,
+		## /* Индекс юр. адреса в массиве адресов */
+		LegalAddressIdx : -1,
+		## /* Элементы формы */
+		## /////////////////
+		
+		## /* Обработчик закрытия окна */
+		closeHandler : function(p_this) {
+			p_this.Dialog = null;
+			p_this.Tabs = null;
+			p_this.Person = null;
+		},
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Инициализация вкладок */
+			_this.Tabs = $("#frm_person_editor_tabs__blk").tabs();
+			## /* Установка обработчика закрытия окна редактора */
+			_this.Dialog.setCloseHandler(_this.closeHandler, _this);
+			## /* Установка параметров окна */
+			_this.Dialog.setOption("resizable", false);
+			_this.Dialog.setOption("width", 600);
+			_this.Dialog.setOption("height", 380);
+			_this.Dialog.setOption("position", "center");
+			## /* Установка заголовка окна */
+			_this.Dialog.setOption("title", (_this.IsCreation ? "Создание персоналии" : "Редактирование персоналии"));
+			## /* Инициализация drop-down объектов */
+			UHTT.DDO.initObject(_this.ddBlk_Status);
+			UHTT.DDO.initObject(_this.ddBlk_Category);
+			## /* Инициализация таблицы */
+			_this.tbl_DlvrAddr.tablesorter();
+			## /* Список юридических статусов */
+			if(_this.Person.StatusID > 0) {
+				var sa = UHTT.ObjectUtil.getStrAssocItem("PERSONSTATUS", { ID: _this.Person.StatusID });
+				if(!isNull(sa))
+					_this.txtFld_Status.val(sa.Txt);
+			}
+			_this.btn_SelectStatus.Evt("click", function() {
+				if(isEmpty(_this.blk_StatusList.html())) {
+					var sa_ary = UHTT.ObjectUtil.getStrAssocAry("PERSONSTATUS", {});
+					if(!isEmpty(sa_ary)) {
+						var n = sa_ary.length;
+						var buf = "";
+						for(var i = 0; i < n; i++) {
+							buf += '<option itemID="' + sa_ary[i].ID + '">' + sa_ary[i].Txt + '</option>';
+						}
+						if(n < 10)
+							_this.blk_StatusList.attr("size", ((n > 1) ? n : 2));
+						_this.blk_StatusList.html(buf);
+					}
+				}
+				_this.ddBlk_Status
+					.width(_this.txtFld_Status.width() + 4)
+					.show();
+			});
+			_this.blk_StatusList.Evt("keypress dblclick", function(e) {
+				if(e.type === "keypress") {
+					if(e.keyCode != 13)
+						return true;
+				}
+				var idx = this.selectedIndex;
+				if(idx > -1) {
+					var item = $(this.options[idx]);
+					_this.Person.StatusID = item.attr("itemID");
+					_this.txtFld_Status.val(item.html());
+					_this.ddBlk_Status.hide();
+				}
+			});
+			
+			## /* Наименование */
+			if(!isEmpty(_this.Person.Name))
+				_this.txtFld_Name.val(_this.Person.Name);
+			_this.txtFld_Name.Evt("focusout", function() {
+				_this.Person.Name = $(this).val();
+			});
+			
+			## /* Список категорий */
+			if(_this.Person.CategoryID > 0) {
+				var sa = UHTT.ObjectUtil.getStrAssocItem("PERSONCATEGORY", { ID: _this.Person.CategoryID });
+				if(!isNull(sa))
+					_this.txtFld_Category.val(sa.Txt);
+			}
+			_this.btn_SelectCategory.Evt("click", function() {
+				if(isEmpty(_this.blk_CategoryList.html())) {
+					var sa_ary = UHTT.ObjectUtil.getStrAssocAry("PERSONCATEGORY", {});
+					if(!isEmpty(sa_ary)) {
+						var n = sa_ary.length;
+						var buf = "";
+						for(var i = 0; i < n; i++) {
+							buf += '<option itemID="' + sa_ary[i].ID + '">' + sa_ary[i].Txt + '</option>';
+						}
+						if(n < 10)
+							_this.blk_CategoryList.attr("size", ((n > 1) ? n : 2));
+						_this.blk_CategoryList.html(buf);
+					}
+				}
+				_this.ddBlk_Category
+					.width(_this.txtFld_Category.width() + 4)
+					.show();
+			});
+			_this.blk_CategoryList.Evt("keypress dblclick", function(e) {
+				if(e.type === "keypress") {
+					if(e.keyCode != 13)
+						return true;
+				}
+				var idx = this.selectedIndex;
+				if(idx > -1) {
+					var item = $(this.options[idx]);
+					_this.Person.CategoryID = item.attr("itemID");
+					_this.txtFld_Category.val(item.html());
+					_this.ddBlk_Category.hide();
+				}
+			});
+			
+			## /* ИНН */
+			if(!isEmpty(_this.Person.RegisterList) && !isEmpty(_this.Person.RegisterList[0]))
+				if(!isEmpty(_this.Person.RegisterList[0].RegNumber))
+					_this.txtFld_INN.val(_this.Person.RegisterList[0].RegNumber);
+			_this.txtFld_INN.Evt("focusout", function() {
+				if(isEmpty(_this.Person.RegisterList)) {
+					_this.Person.RegisterList = [{ RegTypeID: 3, RegNumber: $(this).val() }];
+				}
+				else {
+					var reg_ok = false;
+					for(var i = 0, len = _this.Person.RegisterList.length; i < len; i++) {
+						var reg = _this.Person.RegisterList[i];
+						if(!isEmpty(reg)) {
+							if(reg.RegTypeID == 3) {
+								reg.RegNumber = $(this).val();
+								reg_ok = true;
+								break;
+							}
+						}
+					}
+					if(!reg_ok) {
+						_this.Person.RegisterList.push({ RegTypeID: 3, RegNumber: $(this).val() });
+					}
+				}
+			});
+			## /* Адреса */
+			if(!isEmpty(_this.Person.AddrList)) {
+				_this.RedrawDlvrAddrList();
+			}
+			## /* Кнопка "Редактировать юр. адрес" */
+			_this.btn_EditLegalAddr.Evt("click", function() {
+				var address = null;
+				if(_this.LegalAddressIdx > -1) {
+					address = _this.Person.AddrList[_this.LegalAddressIdx];
+				}
+				UHTT.Address.Editor.edit(1 /* вид - юр. адрес */, address, _this.AddressHandler, "Юридический адрес");
+			});
+			## /* Кнопка "Удалить юр. адрес" */
+			_this.btn_RemoveLegalAddr.Evt("click", function () {
+				_this.Person.AddrList.splice(_this.LegalAddressIdx, 1);
+				_this.LegalAddressIdx = -1;
+				_this.RedrawDlvrAddrList();
+			});
+			## /* Кнопка "Добавить адрес доставки" */
+			_this.btn_AddDlvrAddr.Evt("click", function () {
+				UHTT.Address.Editor.edit(3 /* вид - адрес доставки */, null, _this.AddressHandler, "Адрес доставки");
+			});
+			## /* Кнопка "Редактировать адрес доставки" */
+			_this.btn_EditDlvrAddr.Evt("click", function() {
+				var active_tr = _this.tblBody_DlvrAddr.children("tr.clicked")[0];
+				if(active_tr != undefined) {
+					var addr_idx = $(active_tr).find("td:eq(0)").text();
+					if(!isEmpty(addr_idx)) {
+						if(!isNaN(addr_idx)) {
+							UHTT.Address.Editor.edit(3 /* вид - адрес доставки */, _this.Person.AddrList[addr_idx], _this.AddressHandler, "Адрес доставки");
+						}
+					}
+				}
+			});
+			## /* Кнопка "Удалить адрес доставки" */
+			_this.btn_RemoveDlvrAddr.Evt("click", function() {
+				var active_tr = _this.tblBody_DlvrAddr.children("tr.clicked")[0];
+				if(active_tr != undefined) {
+					var addr_idx = $(active_tr).find("td:eq(0)").text();
+					if(!isNaN(addr_idx)) {
+						_this.Person.AddrList.splice(addr_idx, 1);
+						_this.RedrawDlvrAddrList();
+					}
+				}
+			});
+			## /* Кнопка "OK" */
+			_this.btn_OK.Evt("click", function() {
+				if(_this.Person.Name.length == 0) {
+					_this.blk_Msg.showErrorMessage("Укажите наименование");
+					return false;
+				}
+				if(!isEmpty(_this.Person.RegisterList) && !isEmpty(_this.Person.RegisterList[0])) {
+					var inn_str = _this.Person.RegisterList[0].RegNumber;
+					if(inn_str.length == 0) {
+						_this.blk_Msg.showErrorMessage("Укажите ИНН");
+						return false;
+					}
+				}
+				else {
+					_this.blk_Msg.showErrorMessage("Укажите ИНН");
+					return false;
+				}
+				//if(!checkINN(inn_str)) {
+				//	_this.blk_Msg.showErrorMessage("Указан некорректный ИНН");
+				//	return false;
+				//}
+				//
+				var id = 0;
+				UHTT.BlockUI.block();
+				id = UHTT.Person.create(_this.Person);
+				UHTT.BlockUI.unblock();
+				if(id > 0) {
+					UHTT.Messenger.show("Персоналия '" + _this.Person.Name + "' успешно " + (_this.IsCreation ? "создана" : "изменена"), "/rsrc/images/person_64.png");
+					_this.Dialog.close();
+				}
+			});
+		},
+		AddressHandler : function(address) {
+			if(UHTT.Address.Editor.isCreation) {
+				PersonEditorForm.Person.AddrList.push(address);
+			}
+			PersonEditorForm.RedrawDlvrAddrList();
+		},
+		RedrawDlvrAddrList : function(idx) {
+			var _this = this;
+			_this.txtFld_LegalAddr.val("");
+			_this.tblBody_DlvrAddr.html("");
+			var cityID = 0;
+			var cityName;
+			var tblData;
+			for(var i = 0; i < this.Person.AddrList.length; i++) {
+				if(!isEmpty(this.Person.AddrList[i])) {
+					cityID = Number(this.Person.AddrList[i].CityID);
+					cityName = "";
+					if(cityID > 0) {
+						var sa = UHTT.ObjectUtil.getStrAssocItem("CITY", { ID: cityID });
+						if(sa != null)
+							cityName = sa.Txt;
+					}
+					if(this.Person.AddrList[i].LocKind == 1) {
+						_this.txtFld_LegalAddr.val(this.Person.AddrList[i].ZIP + " " + cityName + " " + this.Person.AddrList[i].Address);
+						this.LegalAddressIdx = i;
+					}
+					else
+						tblData += "<tr><td style='display:none'>" + i + "</td><td>" + 
+									cityName + "</td><td>" + this.Person.AddrList[i].Address + "</td><td>" + this.Person.AddrList[i].ZIP + "</td></tr>";
+				}
+			}
+			if(!isEmpty(tblData))
+				_this.tblBody_DlvrAddr.append(tblData);
+		}
+	};
+	## /* Инициализация формы */
+	PersonEditorForm.init();
+</script>

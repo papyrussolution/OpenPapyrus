@@ -1,0 +1,112 @@
+## Universe-HTT / 2013
+## frm_barcode_editor.tddo 
+## Редактор штрихкодов товара
+
+<style>
+	#frm_barcode_editor_bottom__blk {
+		position: absolute;
+		bottom: 10px;
+		right: 10px;
+	}
+</style>
+
+<div id="frm_barcode_editor__layout">
+	<b>Товар</b><br>
+	<input type="text" class="uhtt-input uui-w100pct" id="frm_barcode_editor_goods_name__txtfld" readonly="readonly"/>
+	<br>
+	<div>
+		<div class="uui-float-left">
+			<b>Штрихкод</b><br>
+			<input type="text" class="uhtt-input" id="frm_barcode_editor_barcode__txtfld"/>
+			<span id="frm_barcode_editor_barcode_length__txtfld"></span>
+		</div>
+		<div class="uui-float-right">
+			<b>Количество</b><br>
+			<input type="text" class="uhtt-input uui-text-align-right" id="frm_barcode_editor_package__txtfld"/>
+		</div>
+	</div>
+	<div id="frm_barcode_editor_bottom__blk">
+		<div class="uui-float-right" style="padding-left:8px">
+			<input type="button" id="frm_barcode_editor_cancel__btn" value="Отмена"/>
+		</div>
+		<div class="uui-float-right" style="padding-left:8px">
+			<input type="button" id="frm_barcode_editor_ok__btn" value="OK"/>
+		</div>
+		<div class="uhtt-error-msg uui-float-right" id="frm_barcode_editor_msg__blk"></div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var BarcodeEditorForm = {
+		## /* Instance */
+		Dialog : UHTT.Dialog.List.getObjByProperty("ID", $("#frm_barcode_editor__layout").parent("div.uhtt-dialog").attr("id")),
+		//
+		txtFld_Goods   : $("#frm_barcode_editor_goods_name__txtfld"),
+		txtFld_Barcode : $("#frm_barcode_editor_barcode__txtfld"),
+		txtFld_Package : $("#frm_barcode_editor_package__txtfld"),
+		lbl_BarcodeLen : $("#frm_barcode_editor_barcode_length__txtfld"),
+		blk_Message    : $("#frm_barcode_editor_msg__blk"),
+		btn_Cancel     : $("#frm_barcode_editor_cancel__btn"),
+		btn_OK         : $("#frm_barcode_editor_ok__btn"),
+		//
+		BarcodeIdx : -1,
+		//
+		init : function() {
+			var _this = this;
+			## /* Установка параметров окна */
+			_this.Dialog.setOption("resizable", false);
+			_this.Dialog.setOption("width", 380);
+			_this.Dialog.setOption("height", 170);
+			_this.Dialog.setOption("position", "center");
+			_this.Dialog.setOption("title", (UHTT.Goods.Barcode.Editor.IsEdition ? "Редактирование штрихкода" : "Создание штрихкода"));
+			## /* */
+			_this.BarcodeIdx = UHTT.Goods.Barcode.Editor.getArg("Idx");
+			## /* */
+			if(isNull(UHTT.Goods.Editor.Object))
+				throw new Error("Error: Goods editor not init");
+			## /* */
+			_this.txtFld_Goods.val(UHTT.Goods.Editor.Object.Name);
+			if(UHTT.Goods.Barcode.Editor.IsEdition) {
+				_this.txtFld_Barcode.val(UHTT.Goods.Barcode.Editor.Object.Code);
+				_this.txtFld_Package.val(UHTT.Goods.Barcode.Editor.Object.Package);
+				_this.lbl_BarcodeLen.html(_this.txtFld_Barcode.val().length);
+			}
+			## /* */
+			_this.txtFld_Barcode.Evt("focusout", function() {
+				UHTT.Goods.Barcode.Editor.Object.Code = $(this).val();
+			}).Evt("keyup", function() {
+				_this.lbl_BarcodeLen.html($(this).val().length);
+			});
+			_this.txtFld_Package.Evt("focusout", function() {
+				var val = $(this).val();
+				if(!isEmpty(val) && !isNaN(val))
+					UHTT.Goods.Barcode.Editor.Object.Package = parseInt(val);
+				else {
+					$(this).val(1);
+					UHTT.Goods.Barcode.Editor.Object.Package = 1;
+				}
+			});
+			_this.btn_OK.Evt("click", function() {
+				if(isEmpty(UHTT.Goods.Barcode.Editor.Object.Code)) {
+					## // TODO: Add check
+					_this.blk_Message.showErrorMessage("Некорректный штрихкод");
+					return;
+				}
+				if(UHTT.Goods.Barcode.Editor.Object.Package < 1) {
+					_this.blk_Message.showErrorMessage("Некорректное количество");
+					return;
+				}
+				//
+				UHTT.Goods.Editor.setBarcode(_this.BarcodeIdx, UHTT.Goods.Barcode.Editor.Object);
+				_this.Dialog.close();
+			});
+			_this.btn_Cancel.Evt("click", function() {
+				_this.Dialog.close();
+			});
+		}
+	}
+	## /* Инициализация формы */
+	$(document).ready(function() {
+		BarcodeEditorForm.init();
+	});
+</script>

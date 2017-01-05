@@ -1,0 +1,29 @@
+
+
+<div id="placeholder" style="width:600px;height:300px;"></div>
+
+<script type="text/javascript">
+	#start(UhttCurRateArray)
+		var data = [
+		#iter()
+			[${Ts}, ${Rate}],
+		#end()
+		];
+	#end()
+	function drawPlot() {
+        $.plot($("#placeholder"), [{ data:data, yaxis:2, color:"green"  }], {
+			xaxes: [{
+				mode: "time",
+				timeformat: "%d/%m/%y"
+			}],
+			yaxes: [
+				{ min: 0 },
+				{
+					position: "right",
+					tickFormatter: function(v, axis) { return v.toFixed(axis.tickDecimals) + " руб"; }
+				}
+			]
+		});
+	}
+	drawPlot();
+</script>

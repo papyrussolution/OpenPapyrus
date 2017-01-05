@@ -1,0 +1,47 @@
+## Universe-HTT
+## data_array_goods.tddo
+## Массив структур товаров
+
+#pragma(jsonscreening)
+#start(StrAssocArray)
+	[
+	#iter()
+		{
+		#start(UhttGoods:${ID})
+			"ID": ${ID},
+			"GroupID": ${GroupID.ID},
+			"UnitID": ${UnitID.ID},
+			"PhUnitID": ${PhUnitID.ID},
+			"TypeID": ${TypeID.ID},
+			"ClsID": ${ClsID.ID},
+			"ManufID": ${ManufID.ID},
+			"TaxGrpID": ${TaxGrpID.ID},
+			"BrandID": ${BrandID.ID},
+			"Flags": ${Flags},
+			"PhPerUnit": ${PhPerUnit},
+			"Brutto": ${Brutto},
+			"Length": ${Length},
+			"Width": ${Width},
+			"Height": ${Height},
+			"Package": ${Package},
+			"ExpiryPeriod": ${ExpiryPeriod},
+			"Name": "${Name}",
+			"Storage": "${Storage}",
+			"Standard": "${Standard}",
+			"Ingred": "${Ingred}",
+			"Energy": "${Energy}",
+			"Usage": "${Usage}",
+			"OKOF": "${OKOF}",
+			"BarcodeList": [
+				#iter(BarcodeList)
+				{
+					"Code": "${Code}",
+					"Package": ${Package}
+				},
+				#end()
+			]
+		#end()
+		},
+	#end()
+	]
+#end()

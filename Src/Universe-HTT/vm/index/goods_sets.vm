@@ -1,0 +1,12 @@
+﻿<html>
+<head>
+<title>Universe-HTT Товары</title>
+<meta http-equiv="Content-Type" content="text/HTML; charset=cp1251"/>
+<meta name="robots" content="follow, noindex, noarchive"/>
+</head>
+<body>
+#foreach($set in $sets)
+	<a href="/dispatcher/index/goods?set=${foreach.count}">GoodsSet_${foreach.count}</a><br>
+#end
+</body>
+</html>

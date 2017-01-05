@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+	xmlns:svg="http://www.w3.org/2000/svg"
+	xmlns="http://www.w3.org/2000/svg"
+	version="1.0"
+	width="23mm"
+	height="17mm"
+	id="svg2">
+	<g fill="none" stroke="black" stroke-width="1mm" stroke-linecap="square">
+		<circle cx="41" cy="30" r="25.3" />
+		<line x1='67' y1='30' x2='80' y2='30' />
+		<line x1='2' y1='30' x2='15.5' y2='30' />
+		<path
+			d="M 31.4 36.6 L 39.4 16.4 L 42.2 16.4 L 50.1 36.6 L 47.0 36.6 L 44.8 31.0 L 36.3 31.0 L 34.0 36.6 L 31.4 36.6 z M 37.1 28.9 L 44.0 28.9 L 40.5 20.2 L 37.1 28.9 z"
+			fill="black" stroke="none" />
+	</g>
+</svg>
+

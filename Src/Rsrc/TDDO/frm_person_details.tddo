@@ -1,0 +1,45 @@
+## Universe-HTT
+## frm_person_details.tddo 
+## Форма: Информация о персоналии
+## Args: ${1} - идентификатор товара
+##
+
+#pragma(htmlencode)
+
+<div id="FRM_PERSON_DETAILS_VIEW">
+	<style type="text/css">
+		#uhtt_frm_person_details_map_blk {border:1px solid #bfbfbf}
+		#uhtt_frm_person_info_tbl td {border:0px; padding:0px 10px};
+	</style>
+	<table class="uhtt-fields-table"><tbody><tr><td style="vertical-align:top">
+		<table id="uhtt_frm_person_info_tbl">
+			<tbody>
+				#start(Person:${1})
+					<tr><td><b>Идентификатор:</b></td><td id="uhtt_frm_person_info_td_person_id">${ID}</td></tr>
+					<tr><td><b>Наименование:</b></td><td>${Name}</td></tr>
+					#start(PersonReq:${ID})
+						<tr><td><b>ИНН:</b></td><td>${INN}</td></tr>
+					#end()
+					#start(Location:${LocID})
+						<tr><td><b>Код:</b></td><td>${Code}</td></tr>
+						<tr><td><b>Почтовый код:</b></td><td>${ZIP}</td></tr>
+						<tr><td><b>Город:</b></td><td>${CityID.Name}</td></tr>
+						<tr><td><b>Адрес:</b></td><td>${Addr}</td></tr>
+						<input type="hidden" id="uhtt_frm_person_info_fld_lat" value="${Latitude}"/>
+						<input type="hidden" id="uhtt_frm_person_info_fld_lon" value="${Longitude}"/>
+					#end()
+				#end()
+			</tbody>
+		</table>
+	</td><td style="vertical-align:center">
+		<div id="uhtt_frm_person_details_map_blk" style="padding:4px; padding-bottom:16px; width:300px; height:300px"></div>
+	</td></tr></tbody></table>
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		var lon = $("#uhtt_frm_person_info_fld_lon").val();
+		var lat = $("#uhtt_frm_person_info_fld_lat").val();
+		$("#uhtt_frm_person_details_map_blk").html(UHTT.requestData(null, "GETTDDO FRM_MAP " + lon + " " + lat));
+	});
+</script>

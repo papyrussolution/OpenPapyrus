@@ -1,0 +1,76 @@
+﻿## Universe-HTT / 2013
+## view_cur_rate_graph.vm
+## График курса валюты
+##
+
+<style>
+	.tickLabel { white-space: nowrap; }
+</style>
+
+<div id="placeholder" style="width:650px;height:330px;"></div>
+
+<script type="text/javascript">
+	var data = [
+	#foreach($rate in $rates)
+		[$Util.getTS($rate.Dt), ${rate.Rate}],
+	#end
+	];
+	function showTooltip(x, y, contents) {
+			$("<div id='tooltip' style='z-index:100000'>" + contents + "</div>").css({
+				position: "absolute",
+				display: "none",
+				top: y + 5,
+				left: x + 5,
+				border: "1px solid black",
+				padding: "3px",
+				"background-color": "#EEEEEE",
+				opacity: 0.80,
+				"font-weight": "bold"
+			}).appendTo("body").fadeIn(200);
+			
+			var blk_height = $("#tooltip").outerHeight(true);
+			$("#tooltip").css({ top: y - (blk_height + 5)});
+		};
+	
+	function drawPlot() {
+		$.plot($("#placeholder"), [{ data:data, yaxis:2, color:"#336699" }], {
+			xaxes: [{
+				mode: "time",
+				timeformat: "%m/%y"
+			}],
+			yaxes: [
+				{ min: 0 },
+				{
+					position: "right",
+					tickFormatter: function(v, axis) { return v.toFixed(axis.tickDecimals) + " RUB"; }
+				}
+			],
+			grid: {
+				hoverable: true,
+				clickable: true
+			}
+		});
+		var previousPoint = null;
+		$("#placeholder").bind("plothover", function (event, pos, item) {
+
+				if (item) {
+					if (previousPoint != item.dataIndex) {
+
+						previousPoint = item.dataIndex;
+
+						$("#tooltip").remove();
+						var x = item.datapoint[0],
+						y = item.datapoint[1].toFixed(4);
+
+						showTooltip(item.pageX, item.pageY, new Date(x*1).format("dd/mm/yyyy") + "<br>" + "<div style='text-align:right'>" + y + " RUB</div>");
+					}
+				} else {
+					$("#tooltip").remove();
+					previousPoint = null;            
+				}
+			
+		});
+		
+	}
+	drawPlot();
+</script>

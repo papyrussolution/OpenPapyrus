@@ -1,0 +1,303 @@
+## Universe-HTT
+## frm_soap_test.tddo
+## Тест веб сервисов
+##
+
+<script type="text/javascript">
+	
+	var HistoryState = function(callback, args) {
+		this.Magic = 0xDEADBEAF;
+		this.Callback = callback;
+		this.Args = args;
+		//
+		this.serialize = function() {
+			return UHTT.Util.JSON.toString(this);
+		};
+		this.deserialize = function(json) {
+			var _obj = UHTT.Util.JSON.parse(json);
+			if(_obj != null) {
+				if(_obj.Magic == this.Magic) { 
+					this.Callback = _obj.Callback;
+					this.Args = _obj.Args;
+				}
+			}
+		};
+		this.invoke = function() {
+			var r = null;
+			if(isFunction(this.Callback)) {
+				r = this.Callback(this.Args);
+			}
+			return r;
+		};
+	};
+	
+	function Draw(arg) {
+		$(arg.el).html(arg.msg);
+	};
+	
+	function Draw2(str) {
+		$("#oFrame2").html(str);
+	};
+	
+	$(window).Evt('popstate', function(e) {
+		var state = e.originalEvent.state;
+		if(state != null) {
+			var ctx = new HistoryState();
+			ctx.deserialize(state);
+			ctx.invoke();
+		}
+		return false;
+	});
+	
+	$(document).ready(function() {
+		$(".button-history").Evt("click", function() {
+			var argument = {el: "#oFrame", msg: $(this).attr("arg")};
+			history.pushState(new HistoryState(Draw, argument).serialize(), '', '');
+			Draw(argument);
+		});
+		$(".button-history2").Evt("click", function() {
+			var arg = $(this).attr("arg");
+			
+			var AR = {arg1: arg, arg2: "test"};
+			
+			var ctx = new HistoryState("Draw2", AR);
+			history.pushState(ctx.serialize(), '', '');
+			Draw2(arg);
+		});
+	});
+	
+	
+	
+	function getXMLHttpRequest() {
+		var xmlhttp;
+		if(window.XMLHttpRequest)
+			xmlhttp = new XMLHttpRequest();
+		else if(window.ActiveXObject)
+			xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+		else {
+			alert("Ошибка: Ваш браузер не поддерживает XMLHttpRequest");
+			return null;
+		}
+		return xmlhttp;
+	}
+	
+	function getXMLDocument(text) {
+		var xmlDoc;
+		if (window.DOMParser) {
+			var parser = new DOMParser();
+			xmlDoc = parser.parseFromString(text, "text/xml");
+		}
+		else { /* Internet Explorer */
+			xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+			xmlDoc.loadXML(text);
+		}
+		return xmlDoc;
+	}
+	
+	function xml2str(xmlDom) {
+		var strs = null;
+		var doc = xmlDom.documentElement;
+		if(doc.xml == undefined)
+			strs = (new XMLSerializer()).serializeToString(xmlDom);
+		else
+			strs = doc.xml;
+		return strs;
+	}
+	
+	function connectToService(_url, _action, _data, _replyHandler) {
+		$.ajax({
+	    	type: "POST",
+	    	url: _url,
+			beforeSend: function(xhr) {
+				xhr.setRequestHeader("SOAPAction", _action);
+				xhr.setRequestHeader("Content-Type", "text/xml");
+			},
+			data: _data,
+			success: function(data) {
+				_replyHandler(200, xml2str(data));
+			},
+			error: function(request, status, error) {
+				_replyHandler(request.status, request.responseText);
+			}
+		}).done(function() {});
+	}
+	
+	function authHandler(status, data) {
+		if(status == 200)
+			alert(data);
+		else
+			alert("Ошибка: " + status + "\n" + data);
+	}
+	
+	function getGoodsByCodeHandler(status, data) {
+		if(status == 200)
+			alert(data);
+		else
+			alert("Ошибка: " + status);
+	}
+	
+	function getGoodsImageByCodeHandler(status, data) {
+		if(status == 200) {
+			//UHTT.Event.fire("UHTTBrowser", data);
+			UHTT.Browser.show(data, "DATA");
+		}
+		else
+			alert("Ошибка: " + status);
+	}
+	
+	function doContentTest() {
+		
+		var F = new UHTT.Workbook.Filter();
+		F.ParentID = 1002;
+		F.Type = 1;
+		var data = UHTT.Workbook.fetch(F);
+		console.log(data);
+		
+		/*
+		var uri = new SUrl();
+		uri.parse("https://www.uhtt.ru:8080/dispatcher/goods?id=123&code=00350#hash1");
+		uri.parse("/?id=123&name&code=00350");
+		console.log(uri);
+		
+		console.log(uri.toString());
+		*/
+	}
+	
+	function doAuth() {
+		var email = prompt('Введите email', 'admin@uhtt.ru');
+		var password = prompt('Введите password', 'admin');
+		var url = "http://mercury/dispatcher/ws/iface"
+		var action = "";
+		var data = "<SOAP-ENV:Envelope xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" +
+						"<SOAP-ENV:Body>" +
+							"<auth>" +
+								"<email xsi:type='xsd:string'>" + email + "</email>" +
+								"<password xsi:type='xsd:string'>" + password + "</password>" +
+							"</auth>" +
+						"</SOAP-ENV:Body>" +
+					"</SOAP-ENV:Envelope>";
+		connectToService(url, action, data, authHandler);
+	}
+	
+	function doGetGoodsByID() {
+		var token = prompt('Введите token', '');
+		var id = prompt('Введите id', '123');
+		var url = "http://mercury/dispatcher/axis/Plugin_UHTT_SOAPService"
+		var action = "urn:http.uhtt.ru#getGoodsByID";
+		var data = "<SOAP-ENV:Envelope xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" +
+						"<SOAP-ENV:Body>" +
+							"<getGoodsByID>" +
+								"<token xsi:type='xsd:string'>" + token + "</token>" +
+								"<id xsi:type='xsd:string'>" + id + "</id>" +
+							"</getGoodsByID>" +
+						"</SOAP-ENV:Body>" +
+					"</SOAP-ENV:Envelope>";
+		connectToService(url, action, data, getGoodsByCodeHandler);
+	}
+	
+	function doGetGoodsByCode() {
+		var token = prompt('Введите token', '');
+		var code = prompt('Введите code', '4600682000075');
+		var url = "http://mercury/dispatcher/axis/Plugin_UHTT_SOAPService"
+		var action = "urn:http.uhtt.ru#getGoodsByCode";
+		var data = "<SOAP-ENV:Envelope xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" +
+						"<SOAP-ENV:Body>" +
+							"<getGoodsByCode>" +
+								"<token xsi:type='xsd:string'>" + token + "</token>" +
+								"<code xsi:type='xsd:string'>" + code + "</code>" +
+							"</getGoodsByCode>" +
+						"</SOAP-ENV:Body>" +
+					"</SOAP-ENV:Envelope>";
+		connectToService(url, action, data, getGoodsByCodeHandler);
+	}
+	function doGetGoodsImageByCode() {
+		var token = prompt('Введите token', '');
+		var code = prompt('Введите code', '5');
+		var url = "http://mercury/dispatcher/axis/Plugin_UHTT_SOAPService"
+		var action = "urn:http.uhtt.ru#getImageByCode";
+		var data = "<SOAP-ENV:Envelope xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" +
+						"<SOAP-ENV:Body>" +
+							"<getImageByCode>" +
+								"<token xsi:type='xsd:string'>" + token + "</token>" +
+								"<objectType xsi:type='xsd:string'>GOODS</objectType>" +
+								"<code xsi:type='xsd:string'>" + code + "</code>" +
+							"</getImageByCode>" +
+						"</SOAP-ENV:Body>" +
+					"</SOAP-ENV:Envelope>";
+		connectToService(url, action, data, getGoodsImageByCodeHandler);
+	}
+	
+	function doSendQuery() {
+		var query = $("#input_text").val();
+		if(!isEmpty(query)) {
+			var reply = UHTT.requestData(null, query);
+			$("#oFrame").html(reply);
+		}
+	}
+	
+	function doTestVelocity() {
+		var content = UHTT.Content.get("GOODS_RATING", {});
+		$("#oFrame").html(content);
+	}
+	
+	function doTestTDDT() {
+		var content = UHTT.Content.getTddt("uhtt_bonus");
+		$("#oFrame").html(content);
+	}
+	
+	function geoFindMe() {
+		  var output = document.getElementById("out");
+
+		  if (!navigator.geolocation){
+			output.innerHTML = "<p>Geolocation is not supported by your browser</p>";
+			return;
+		  }
+
+		  function success(position) {
+			var latitude  = position.coords.latitude;
+			var longitude = position.coords.longitude;
+
+			output.innerHTML = '<p>Latitude is ' + latitude + '° <br>Longitude is ' + longitude + '°</p>';
+
+			var img = new Image();
+			img.src = "http://maps.googleapis.com/maps/api/staticmap?center=" + latitude + "," + longitude + "&zoom=13&size=300x300&sensor=false";
+
+			output.appendChild(img);
+		  };
+
+		  function error() {
+			output.innerHTML = "Unable to retrieve your location";
+		  };
+
+		  output.innerHTML = "<p>Locating…</p>";
+
+		  navigator.geolocation.getCurrentPosition(success, error);
+		}
+	
+	
+</script>
+
+<input class="button-history" type="button" value="Button 1" arg="123"/>
+<input class="button-history" type="button" value="Button 2" arg="456"/>
+<input class="button-history" type="button" value="Button 3" arg="789"/><br><br>
+
+<input type="button" value="Авторизация" onclick="doAuth()"/>
+<input type="button" value="Товар по ID" onclick="doGetGoodsByID()"/>
+<input type="button" value="Товар по штрихкоду" onclick="doGetGoodsByCode()"/>
+<input type="button" value="Картинка по штрихкоду" onclick="doGetGoodsImageByCode()"/><br><br>
+<input type="text" id="input_text" size="80" />
+<input type="button" value="Отправить" id="btn_send_query" onclick="doSendQuery()"/>
+
+<input type="button" id="btn_velocity_test" value="Тест Apache Velocity" onclick="doTestVelocity()"/>
+<input type="button" id="btn_velocity_test" value="Тест GetTDDT" onclick="doTestTDDT()"/>
+
+<p><button onclick="geoFindMe()">Show my location</button></p>
+
+<br>
+
+<input type="button" value="content test" onclick="doContentTest()"/>
+
+<div id="out"></div>
+
+<div name = "orame" id="oFrame"></div><br>
+<div name = "orame2" id="oFrame2"></div>

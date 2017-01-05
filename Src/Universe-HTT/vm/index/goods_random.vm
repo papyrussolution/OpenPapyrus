@@ -1,0 +1,12 @@
+﻿<html>
+<head>
+<title>Universe-HTT Случайная выборка товаров</title>
+<meta http-equiv="Content-Type" content="text/HTML; charset=cp1251"/>
+<meta name="robots" content="follow, noindex, noarchive"/>
+</head>
+<body>
+#foreach($item in $set.getItems())
+	<a href='/?open=${item.getLink()}'>${item.getGoodsID()}</a><br>
+#end
+</body>
+</html>

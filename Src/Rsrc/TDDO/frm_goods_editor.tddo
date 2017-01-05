@@ -1,0 +1,424 @@
+## Universe-HTT / 2012
+## frm_goods_editor.tddo 
+## Редактор товаров
+
+<div id="frm_goods_editor_view">
+	<div id="frm_goods_editor_view_tabs">
+		<ul>
+			<li><a href="#frm_goods_editor_view_tab_main">Основное</a></li>
+			<li><a href="#frm_goods_editor_view_tab_extra">Дополнительное</a></li>
+		</ul>
+		<div id="frm_goods_editor_view_tab_main">
+			<b>Наименование</b>
+			<input type="text" class="uhtt-input sprawling" id="frm_goods_editor_view_tab_main_goods_name" style="width:100%" />
+			<b>Бренд</b>
+			<div id="frm_goods_editor_view_tab_main_brand_blk">
+				<table class="sprawling"><tbody class="sprawling"><tr class="sprawling">
+				<td class="sprawling"><input type="text" class="uhtt-drop-down-menu-text-field sprawling" id="frm_goods_editor_view_tab_main_brand_blk_name" readonly="readonly"/></td>
+				<td><input type="button" class="uhtt-drop-down-menu-button" id="frm_goods_editor_view_tab_main_brand_blk_btn"/></td>
+				</tr></tbody></table>
+				<div class="uhtt-drop-down-div" id="frm_goods_editor_view_tab_main_brand_blk_dd_area">
+					<input type="text" class="uhtt-input uhtt-search-field sprawling" id="frm_goods_editor_view_tab_main_brand_blk_dd_area_search" placeholder="Поиск..."/>
+					<div class="sprawling" id="frm_goods_editor_view_tab_main_brand_blk_dd_area_list"></div>
+				</div>
+			</div>
+			<b>Производитель</b>
+			<div id="frm_goods_editor_view_tab_main_manuf_blk">
+				<table class="sprawling"><tbody class="sprawling"><tr class="sprawling">
+				<td class="sprawling"><input type="text" class="uhtt-drop-down-menu-text-field sprawling" id="frm_goods_editor_view_tab_main_manuf_blk_name" readonly="readonly"/></td>
+				<td><input type="button" class="uhtt-drop-down-menu-button" id="frm_goods_editor_view_tab_main_manuf_blk_btn"/></td>
+				</tr></tbody></table>
+				<div class="uhtt-drop-down-div" id="frm_goods_editor_view_tab_main_manuf_blk_dd_area">
+					<input type="text" class="uhtt-input uhtt-search-field sprawling" id="frm_goods_editor_view_tab_main_manuf_blk_dd_area_search" placeholder="Поиск..."/>
+					<div class="sprawling" id="frm_goods_editor_view_tab_main_manuf_blk_dd_area_list"></div>
+				</div>
+			</div>
+			<br>
+			<fieldset>
+				<legend>Список штрихкодов</legend>
+				<div id="frm_goods_editor_tab_main_bc__blk">
+					<div style="max-height:150px;overflow:auto">
+						<table id="frm_goods_editor_tab_main_bc__tbl" class="tablesorter" style="margin:0px">
+							<thead>
+								<tr>
+									<th width="65%">Штрихкод</th>
+									<th>Количество</th>
+								</tr>
+							</thead>
+							<tbody id="frm_goods_editor_tab_main_bc__tblbody"></tbody>
+						</table>
+					</div>
+					<div align="right" style="padding-top:4px">
+						<input type="button" class="uhtt-add-button" id="frm_goods_editor_tab_main_bc_add__button"/>
+						<input type="button" class="uhtt-edit-button" id="frm_goods_editor_tab_main_bc_edit__button"/>
+						<input type="button" class="uhtt-remove-button" id="frm_goods_editor_tab_main_bc_remove__button"/>
+					</div>
+				</div>
+			</fieldset>
+		</div>
+		<div id="frm_goods_editor_view_tab_extra">
+			<b>Торговая единица</b>
+			<div id="frm_goods_editor_view_tab_extra_unit_blk">
+				<table class="sprawling"><tbody class="sprawling"><tr class="sprawling">
+				<td class="sprawling"><input type="text" class="uhtt-drop-down-menu-text-field sprawling" id="frm_goods_editor_view_tab_extra_unit_blk_name" readonly="readonly"/></td>
+				<td><input type="button" class="uhtt-drop-down-menu-button" id="frm_goods_editor_view_tab_extra_unit_blk_btn"/></td>
+				</tr></tbody></table>
+				<div class="uhtt-drop-down-div" id="frm_goods_editor_view_tab_extra_unit_blk_dd_area"></div>
+			</div>
+			<b>Физическая единица</b>
+			<div id="frm_goods_editor_view_tab_extra_phunit_blk">
+				<table class="sprawling"><tbody class="sprawling"><tr class="sprawling">
+				<td class="sprawling"><input type="text" class="uhtt-drop-down-menu-text-field sprawling" id="frm_goods_editor_view_tab_extra_phunit_blk_name" readonly="readonly"/></td>
+				<td><input type="button" class="uhtt-drop-down-menu-button" id="frm_goods_editor_view_tab_extra_phunit_blk_btn"/></td>
+				</tr></tbody></table>
+				<div class="uhtt-drop-down-div" id="frm_goods_editor_view_tab_extra_phunit_blk_dd_area"></div>
+			</div>
+			<div style="padding-top:10px">
+				<span>Соотношение (физич. ед. / торг. ед.)</span>
+				<input type="text" class="uhtt-input" id="frm_goods_editor_view_tab_extra_phuperu" value="0" style="margin-left:10px; width:50px" />
+			</div>
+			<br>
+			<fieldset>
+				<table class="uhtt-fields-table"><tbody><tr>
+				<td><span>Емкость упаковки поставки (торг. ед.)</span></td>
+				<td><input type="text" class="uhtt-input" id="frm_goods_editor_view_tab_extra_package" style="margin-left:10px; width:80px"/></td>
+				</tr><tr>
+				<td><span>Масса(Брутто) одной упаковки, кг</span></td>
+				<td><input type="text" class="uhtt-input" id="frm_goods_editor_view_tab_extra_brutto" style="margin-left:10px; width:80px"/></td>
+				</tr></tbody></table>
+				<fieldset>
+					<legend>Габариты упаковки поставки</legend>
+					<table class="uhtt-fields-table"><tbody><tr>
+					<td>Ширина, мм</td>
+					<td>Длина, мм</td>
+					<td>Высота, мм</td>
+					</tr><tr>
+					<td><input type="text" class="uhtt-input" id="frm_goods_editor_view_tab_extra_width" value="0" style="width:80px" /></td>
+					<td><input type="text" class="uhtt-input" id="frm_goods_editor_view_tab_extra_length" value="0" style="width:80px" /></td>
+					<td><input type="text" class="uhtt-input" id="frm_goods_editor_view_tab_extra_height" value="0" style="width:80px" /></td>
+					</tr></tbody></table>
+				</fieldset>
+			</fieldset>
+			<div style="padding-top:10px">
+				<span>Срок годности, дней</span>
+				<input type="text" class="uhtt-input" id="frm_goods_editor_view_tab_extra_expiry" style="margin-left:10px; width:50px" />
+			</div>
+		</div>
+	</div>
+	<div style="position:absolute; bottom:10px; right:10px">
+		<table class="sprawling"><tbody class="sprawling"><tr class="sprawling">
+		<td class="sprawling"><div class="uhtt-error-msg sprawling" id="frm_goods_editor_view_msg_blk"></div></td>
+		<td style="padding-left:8px"><input type="button" id="frm_goods_editor_view_ok_btn" value="OK"/></td>
+		</tr></tbody></table>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var GoodsEditorForm = {
+		## /* Instance */
+		Dialog : UHTT.Dialog.List.getObjByProperty("ID", $("#frm_goods_editor_view").parent("div.uhtt-dialog").attr("id")),
+		## /* Элементы формы */
+		txtFld_GoodsName   : $("#frm_goods_editor_view_tab_main_goods_name"),
+		## /////////////////
+		txtFld_BrandName   : $("#frm_goods_editor_view_tab_main_brand_blk_name"),
+		btn_ShowBrands     : $("#frm_goods_editor_view_tab_main_brand_blk_btn"),
+		ddArea_Brands      : $("#frm_goods_editor_view_tab_main_brand_blk_dd_area"),
+		txtFld_SearchBrand : $("#frm_goods_editor_view_tab_main_brand_blk_dd_area_search"),
+		blk_BrandsList     : $("#frm_goods_editor_view_tab_main_brand_blk_dd_area_list"),
+		## /////////////////
+		txtFld_ManufName   : $("#frm_goods_editor_view_tab_main_manuf_blk_name"),
+		btn_ShowManufs     : $("#frm_goods_editor_view_tab_main_manuf_blk_btn"),
+		ddArea_Manufs      : $("#frm_goods_editor_view_tab_main_manuf_blk_dd_area"),
+		txtFld_SearchManuf : $("#frm_goods_editor_view_tab_main_manuf_blk_dd_area_search"),
+		blk_ManufsList     : $("#frm_goods_editor_view_tab_main_manuf_blk_dd_area_list"),
+		## /////////////////
+		tbl_BarcodeList    : $("#frm_goods_editor_tab_main_bc__tbl"),
+		tblBody_BarcodeList: $("#frm_goods_editor_tab_main_bc__tblbody"),
+		btn_AddBarcode     : $("#frm_goods_editor_tab_main_bc_add__button"),
+		btn_EditBarcode    : $("#frm_goods_editor_tab_main_bc_edit__button"),
+		btn_RemoveBarcode  : $("#frm_goods_editor_tab_main_bc_remove__button"),
+		## /////////////////
+		textFld_Barcode    : $("#frm_goods_editor_view_tab_main_barcode"),
+		## /////////////////
+		txtFld_UnitName    : $("#frm_goods_editor_view_tab_extra_unit_blk_name"),
+		btn_ShowUnits      : $("#frm_goods_editor_view_tab_extra_unit_blk_btn"),
+		ddArea_Units       : $("#frm_goods_editor_view_tab_extra_unit_blk_dd_area"),
+		## /////////////////
+		txtFld_PhUnitName  : $("#frm_goods_editor_view_tab_extra_phunit_blk_name"),
+		btn_ShowPhUnits    : $("#frm_goods_editor_view_tab_extra_phunit_blk_btn"),
+		ddArea_PhUnits     : $("#frm_goods_editor_view_tab_extra_phunit_blk_dd_area"),
+		## /////////////////
+		textFld_PhUPerU    : $("#frm_goods_editor_view_tab_extra_phuperu"),
+		## /////////////////
+		textFld_Package    : $("#frm_goods_editor_view_tab_extra_package"),
+		## /////////////////
+		textFld_Brutto     : $("#frm_goods_editor_view_tab_extra_brutto"),
+		## /////////////////
+		textFld_Width      : $("#frm_goods_editor_view_tab_extra_width"),
+		## /////////////////
+		textFld_Length     : $("#frm_goods_editor_view_tab_extra_length"),
+		## /////////////////
+		textFld_Height     : $("#frm_goods_editor_view_tab_extra_height"),
+		## /////////////////
+		textFld_Expiry     : $("#frm_goods_editor_view_tab_extra_expiry"),
+		## /////////////////
+		blk_Message        : $("#frm_goods_editor_view_msg_blk"),
+		btn_OK             : $("#frm_goods_editor_view_ok_btn"),
+		## /* Вкладки */
+		Tabs : null,
+		## /* */
+		Goods : UHTT.Goods.Editor.Object, 
+		## /* Обработчик закрытия окна */
+		closeHandler : function(p_this) {
+			p_this.Dialog = null;
+			p_this.Tabs = null;
+			p_this.Goods = null;
+		},
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Инициализация вкладок */
+			_this.Tabs = $("#frm_goods_editor_view_tabs").tabs();
+			## /* Установка обработчика закрытия окна редактора */
+			_this.Dialog.setCloseHandler(_this.closeHandler, _this);
+			## /* Установка параметров окна */
+			_this.Dialog.setOption("resizable", false);
+			_this.Dialog.setOption("width", 450);
+			_this.Dialog.setOption("height", 490);
+			_this.Dialog.setOption("position", "center");
+			_this.Dialog.setOption("title", (UHTT.Goods.Editor.IsEdition ? "Редактирование товара" : "Создание товара"));
+			## /* Инициализация таблицы */
+			_this.tbl_BarcodeList.tablesorter();
+			## /* Инициализация drop-down объектов */
+			UHTT.DDO.initObject(_this.ddArea_Brands);
+			UHTT.DDO.initObject(_this.ddArea_Manufs);
+			UHTT.DDO.initObject(_this.ddArea_Units);
+			UHTT.DDO.initObject(_this.ddArea_PhUnits);
+			## /* Наименование */
+			if(!isEmpty(_this.Goods.Name))
+				_this.txtFld_GoodsName.val(_this.Goods.Name);
+			_this.txtFld_GoodsName.Evt("focusout", function() {
+				_this.Goods.Name = $(this).val();
+			});
+			## /* Штрихкоды */
+			_this.RedrawBarcodeList();
+			_this.btn_AddBarcode.Evt("click", function() {
+				UHTT.Goods.Barcode.Editor.edit(-1);
+			});
+			_this.btn_EditBarcode.Evt("click", function() {
+				var active_tr = _this.tblBody_BarcodeList.children("tr.clicked")[0];
+				if(!isNull(active_tr)) {
+					var idx = $(active_tr).find("td:eq(0)").text();
+					if(!isNaN(idx)) {
+						UHTT.Goods.Barcode.Editor.edit(idx);
+					}
+				}
+			});
+			_this.btn_RemoveBarcode.Evt("click", function() {
+				var active_tr = _this.tblBody_BarcodeList.children("tr.clicked")[0];
+				if(!isNull(active_tr)) {
+					var idx = $(active_tr).find("td:eq(0)").text();
+					if(!isNaN(idx))
+						UHTT.Goods.Editor.removeBarcode(idx);
+				}
+			});
+			## /* Список брендов */
+			if(_this.Goods.BrandID > 0) {
+				var brand = UHTT.Brand.getBrandByID(_this.Goods.BrandID);
+				if(!isEmpty(brand))
+					_this.txtFld_BrandName.val(brand.Name);
+			}
+			_this.btn_ShowBrands.Evt("click", function(event) {
+				_this.ddArea_Brands.show();
+				_this.ddArea_Brands.width(_this.txtFld_BrandName.width() + 5);
+				_this.blk_BrandsList.width(_this.txtFld_BrandName.width() + 5);
+			});
+			_this.txtFld_SearchBrand.keypress(function(evt) {
+				if(evt.keyCode == 13) {
+					var subname = $(this).val();
+					if(subname.length > 0)
+						_this.blk_BrandsList.html(UHTT.requestData(null,
+							"SELECT BRAND BY SUBNAME(" + $(this).val() + ")FORMAT.TDDO(_DD_LIST, uhtt_frm_goods_editor_brands_list, uhtt-frm-goods-editor-brands-list-item)"));
+					else
+						_this.blk_BrandsList.html("");
+				}
+			});
+			_this.ddArea_Brands.delegate(".uhtt-frm-goods-editor-brands-list-item", "dblclick", function(evt) {
+				_this.Goods.BrandID = $(this).attr("itemID");
+				_this.txtFld_BrandName.val($(this).html().unescapeHtml());
+				_this.ddArea_Brands.hide();
+			});
+			_this.txtFld_BrandName.keypress(function(evt) {
+				if(evt.keyCode == 46) {
+					_this.Goods.BrandID = 0;
+					$(this).val("");
+				}
+			});
+			## /* Список производителей */
+			if(_this.Goods.ManufID > 0) {
+				var manuf = UHTT.Person.getPersonByID(_this.Goods.ManufID);
+				if(!isEmpty(manuf))
+					_this.txtFld_ManufName.val(manuf.Name);
+			}
+			_this.btn_ShowManufs.Evt("click", function(event) {
+				_this.ddArea_Manufs.show();
+				_this.ddArea_Manufs.width(_this.txtFld_ManufName.width() + 5);
+				_this.blk_ManufsList.width(_this.txtFld_ManufName.width() + 5);
+			});
+			_this.txtFld_SearchManuf.keypress(function(evt) {
+				if(evt.keyCode == 13) {
+					var subname = $(this).val();
+					if(subname.length > 0)
+						_this.blk_ManufsList.html(UHTT.requestData(null,
+							"SELECT PERSON BY KIND.CODE(MANUF) SUBNAME(" + subname + ") FORMAT.TDDO(_DD_LIST, uhtt_frm_goods_editor_manuf_list, uhtt-frm-goods-editor-manuf-list-item)"));
+					else
+						_this.blk_ManufsList.html("");
+				}
+			});
+			_this.ddArea_Manufs.delegate(".uhtt-frm-goods-editor-manuf-list-item", "dblclick", function(evt) {
+				_this.Goods.ManufID = $(this).attr("itemID");
+				_this.txtFld_ManufName.val($(this).html().unescapeHtml());
+				_this.ddArea_Manufs.hide();
+			});
+			_this.txtFld_ManufName.keypress(function(evt) {
+				if(evt.keyCode == 46) {
+					_this.Goods.ManufID = 0;
+					$(this).val("");
+				}
+			});
+			## /* Список торговых единиц */
+			if(_this.Goods.UnitID > 0) {
+				_this.txtFld_UnitName.val(UHTT.requestData(null, "SELECT UNIT BY ANDFLAGS(4) ID(" + _this.Goods.UnitID + ") FORMAT.TDDO(_TXT)"));
+			}
+			_this.btn_ShowUnits.Evt("click", function(event) {
+				if(isEmpty(_this.ddArea_Units.html()))
+					_this.ddArea_Units.html(UHTT.requestData(null,
+						"SELECT UNIT BY ANDFLAGS(4) FORMAT.TDDO(_DD_LIST, uhtt_frm_good_editor_units_list, uhtt-frm-goods-editor-units-list-item)"));
+				_this.ddArea_Units.show();
+				_this.ddArea_Units.width(_this.txtFld_UnitName.width() + 5);
+			});
+			_this.ddArea_Units.delegate(".uhtt-frm-goods-editor-units-list-item", "dblclick", function(evt) {
+				_this.Goods.UnitID = $(this).attr("itemID");
+				_this.txtFld_UnitName.val($(this).html().unescapeHtml());
+				_this.ddArea_Units.hide();
+			});
+			_this.txtFld_UnitName.keypress(function(evt) {
+				if(evt.keyCode == 46) {
+					_this.Goods.UnitID = 0;
+					$(this).val("");
+				}
+			});
+			## /* Список физических единиц */
+			if(_this.Goods.UnitID > 0) {
+				_this.txtFld_PhUnitName.val(UHTT.requestData(null, "SELECT UNIT BY ANDFLAGS(2) ID(" + _this.Goods.PhUnitID + ") FORMAT.TDDO(_TXT)"));
+			}
+			_this.btn_ShowPhUnits.Evt("click", function(event) {
+				if(_this.ddArea_PhUnits.html().length == 0)
+					_this.ddArea_PhUnits.html(UHTT.requestData(null, 
+						"SELECT UNIT BY ANDFLAGS(2) FORMAT.TDDO(_DD_LIST, uhtt_frm_goods_editor_phunits_list, uhtt-frm-goods-editor-phunits-list-item)"));
+				_this.ddArea_PhUnits.show();
+				_this.ddArea_PhUnits.width(_this.txtFld_PhUnitName.width() + 5);
+			});
+			_this.ddArea_PhUnits.delegate(".uhtt-frm-goods-editor-phunits-list-item", "dblclick", function(evt) {
+				_this.Goods.PhUnitID = $(this).attr("itemID");
+				_this.txtFld_PhUnitName.val($(this).html().unescapeHtml());
+				_this.ddArea_PhUnits.hide();
+			});
+			_this.txtFld_PhUnitName.keypress(function(evt) {
+				if(evt.keyCode == 46) {
+					_this.Goods.PhUnitID = 0;
+					$(this).val("");
+				}
+			});
+			## /* Соотношение торг.ед / физ.ед */
+			if(_this.Goods.PhPerUnit > 0.0)
+				_this.textFld_PhUPerU.val(_this.Goods.PhPerUnit);
+			_this.textFld_PhUPerU.Evt("focusout", function() {
+				_this.Goods.PhPerUnit = $(this).val();
+			});
+			## /* Емкость упаковки */
+			if(_this.Goods.Package > 0.0)
+				_this.textFld_Package.val(_this.Goods.Package);
+			_this.textFld_Package.Evt("focusout", function() {
+				_this.Goods.Package = $(this).val();
+			});
+			## /* Масса */
+			if(_this.Goods.Brutto > 0)
+				_this.textFld_Brutto.val(_this.Goods.Brutto);
+			this.textFld_Brutto.Evt("focusout", function() {
+				_this.Goods.Brutto = $(this).val();
+			});
+			## /* Ширина */
+			if(_this.Goods.Width > 0)
+				_this.textFld_Width.val(_this.Goods.Width);
+			_this.textFld_Width.Evt("focusout", function() {
+				_this.Goods.Width = $(this).val();
+			});
+			## /* Длина */
+			if(_this.Goods.Length > 0)
+				_this.textFld_Length.val(_this.Goods.Length);
+			_this.textFld_Length.Evt("focusout", function() {
+				_this.Goods.Length = $(this).val();
+			});
+			## /* Высота */
+			if(_this.Goods.Height > 0)
+				_this.textFld_Height.val(_this.Goods.Height);
+			_this.textFld_Height.Evt("focusout", function() {
+				_this.Goods.Height = $(this).val();
+			});
+			## /* Срок годности */
+			if(_this.Goods.ExpiryPeriod > 0)
+				_this.textFld_Expiry.val(_this.Goods.ExpiryPeriod);
+			_this.textFld_Expiry.Evt("focusout", function() {
+				_this.Goods.ExpiryPeriod = $(this).val();
+			});
+			## /* Кнопка "OK" */
+			_this.btn_OK.Evt("click", function() {
+				if(_this.Goods.Name.length == 0) {
+					_this.blk_Message.showErrorMessage("Укажите наименование");
+					return;
+				}
+				if(_this.Goods.UnitID == 0) {
+					_this.Tabs.tabs("select", 1);
+					_this.blk_Message.showErrorMessage("Укажите торговую единицу");
+					return;
+				}
+				else if(_this.Goods.PhUnitID != 0) {
+					if(_this.Goods.PhPerUnit == 0.0) {
+						_this.Tabs.tabs("select", 1);
+						_this.blk_Message.showErrorMessage("Укажите соотношение (физич. ед. / торг. ед.)");
+						return;
+					}
+				}
+				var id = UHTT.Goods.create(_this.Goods);
+				if(id > 0) {
+					UHTT.Messenger.show("Товар '" + _this.Goods.Name + "' успешно " + (UHTT.Goods.Editor.IsEdition ? "изменен" : "создан"), "/rsrc/images/product_64.png");
+					_this.Dialog.close();
+				}
+			});
+			##
+			UHTT.Goods.Editor.addEventHandler(function() {
+				GoodsEditorForm.RedrawBarcodeList();
+			});
+		},
+		RedrawBarcodeList : function() {
+			var _this = this;
+			if(!isEmpty(_this.Goods.BarcodeList)) {
+				var buf = "";
+				var n = _this.Goods.BarcodeList.length;
+				for(var i = 0; i < n; i++) {
+					buf += '<tr>';
+					buf += '<td style="display:none">' + i + '</td>';
+					buf += '<td>' + _this.Goods.BarcodeList[i].Code + '</td>';
+					buf += '<td class="uui-text-align-right">' + _this.Goods.BarcodeList[i].Package + '</td>';
+					buf += '</tr>';
+				}
+				_this.tblBody_BarcodeList.html(buf);
+			}
+		}
+	};
+	## /* Инициализация формы */
+	$(document).ready(function(){
+		GoodsEditorForm.init();
+	});
+</script>

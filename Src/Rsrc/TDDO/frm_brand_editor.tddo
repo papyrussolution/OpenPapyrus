@@ -1,0 +1,128 @@
+## Universe-HTT
+## frm_brand_editor.tddo 
+## Форма создания/редактирования нового бренда
+## Args: ${1} - ID редактируемого бренда
+
+<div id="frm_brand_editor_view">
+	<b>Наименование</b>
+	<input type="text" class="uhtt-input sprawling" id="frm_brand_editor_name" style="width:100%" />
+	<b>Владелец</b>
+	<div id="frm_brand_editor_owner_blk" style="overflow:visible">
+		<table class="sprawling"><tbody class="sprawling"><tr class="sprawling">
+		<td class="sprawling"><input type="text" class="uhtt-drop-down-menu-text-field sprawling" id="frm_brand_editor_owner" readonly="readonly"/></td>
+		<td><input type="button" class="uhtt-drop-down-menu-button" id="frm_brand_editor_show_owners_btn"/></td>
+		</tr></tbody></table>
+		<div class="uhtt-drop-down-div" id="frm_brand_editor_owners_dd_blk">
+			<input type="text" class="uhtt-search-field sprawling" id="frm_brand_editor_owners_list_search" placeholder="Поиск..."/>
+			<div class="sprawling" id="frm_brand_editor_owners_list_blk"></div>
+		</div>
+	</div>
+	<div style="position:absolute; bottom:10px; right:10px">
+		<table class="sprawling"><tbody class="sprawling"><tr class="sprawling">
+		<td class="sprawling"><div class="uhtt-error-msg sprawling" id="frm_brand_editor_msg_blk"></div></td>
+		<td style="padding-left:8px"><input type="button" id="frm_brand_editor_ok_btn" value="OK"/></td>
+		</tr></tbody></table>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var BrandEditorForm = {
+		## /* Instance */
+		Dialog : UHTT.Dialog.List.getObjByProperty("ID", $("#frm_brand_editor_view").parent("div.uhtt-dialog").attr("id")),
+		## /* Структура бренда */
+		Brand : null,
+		## /* --- */
+		IsCreation : true,
+		## /* Элементы формы */
+		txtFld_Name        : $("#frm_brand_editor_name"),
+		txtFld_Owner       : $("#frm_brand_editor_owner"),
+		btn_ShowOwners     : $("#frm_brand_editor_show_owners_btn"),
+		ddBlk_Owners       : $("#frm_brand_editor_owners_dd_blk"),
+		txtFld_SearchOwner : $("#frm_brand_editor_owners_list_search"),
+		blk_OwnersList     : $("#frm_brand_editor_owners_list_blk"),
+		blk_Message        : $("#frm_brand_editor_msg_blk"),
+		btn_OK             : $("#frm_brand_editor_ok_btn"),
+		## /* Обработчик закрытия окна */
+		closeHandler : function(p_this) {
+			p_this.Dialog = null;
+			p_this.Brand = null;
+		},
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Установка обработчика закрытия окна редактора */
+			_this.Dialog.setCloseHandler(_this.closeHandler, _this);
+			## /* Определяем идентификатор редактируемого бренда (если указан) и по нему получаем структуру бренда */
+			{
+				var tmp_str = "${1}";
+				if(!isEmpty(tmp_str) && !isNaN(tmp_str)) {
+					var brandID = parseInt(tmp_str);
+					var data = UHTT.requestData(null, "GETTDDO DATA_BRAND " + brandID);
+					if(!isEmpty(data)) {
+						_this.Brand = new UHTT.Brand.Rec(data);
+						_this.IsCreation = false;
+					}
+				}
+				if(_this.IsCreation) {
+					_this.Brand = new UHTT.Brand.Rec();
+				}
+			}
+			## /* Инициализация drop-down объектов */
+			UHTT.DDO.initObject(_this.ddBlk_Owners);
+			## /* Наименование */
+			if(!isEmpty(_this.Brand.Name))
+				_this.txtFld_Name.val(_this.Brand.Name);
+			_this.txtFld_Name.Evt("focusout", function() {
+				_this.Brand.Name = $(this).val();
+			});
+			## /* Список владельцев */
+			if(_this.Brand.OwnerID > 0) {
+				_this.txtFld_Owner.val(UHTT.requestData(null, "SELECT PERSON BY ID(" + _this.Brand.OwnerID + ") KIND.CODE(MANUF) FORMAT.TDDO(_TXT)"));
+			}
+			_this.btn_ShowOwners.Evt("click", function(event) {
+				_this.ddBlk_Owners.show();
+				## // Настройка размеров
+				_this.ddBlk_Owners.width(_this.txtFld_Owner.width() + 5);
+				_this.blk_OwnersList.width(_this.txtFld_Owner.width() + 5);
+			});
+			_this.txtFld_SearchOwner.keypress(function(evt) {
+				if(evt.keyCode == 13) {
+					var subname = $(this).val();
+					if(subname.length > 0)
+						_this.blk_OwnersList.html(
+							UHTT.requestData(null, "SELECT PERSON BY KIND.CODE(MANUF) SUBNAME(" + $(this).val() + ")FORMAT.TDDO(_DD_LIST, uhtt_frm_cb_owners_list, uhtt-frm-create-brand-owners-list-item)"));
+					else
+						_this.blk_OwnersList.html("");
+				}
+			});
+			_this.ddBlk_Owners.delegate(".uhtt-frm-create-brand-owners-list-item", "dblclick", function(evt) {
+				_this.Brand.OwnerID = $(this).attr("itemID");
+				_this.txtFld_Owner.val($(this).html());
+				_this.ddBlk_Owners.hide();
+			});
+			_this.txtFld_Owner.keypress(function(evt) {
+				if(evt.keyCode == 46) {
+					_this.Brand.OwnerID = 0;
+					$(this).val("");
+				}
+			});
+			## /* Кнопка "OK" */
+			_this.btn_OK.Evt("click", function() {
+				if(_this.Brand.Name.length == 0) {
+					_this.blk_Message.showErrorMessage("Укажите наименование");
+					return;
+				}
+				
+				var id = UHTT.Brand.create(_this.Brand);
+				if(id > 0) {
+					UHTT.Messenger.show("Бренд '" + _this.Brand.Name + "' успешно создан", "/rsrc/images/brand_32.png");
+					_this.Dialog.close();
+				}
+				else {
+					
+				}
+			});
+		}
+	};
+	BrandEditorForm.init();
+</script>

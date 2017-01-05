@@ -1,0 +1,1 @@
+${@(Goods, $1).GetArCode(@(Global, 0).PersonToArticle($2, @(Global, 0).GetSupplAccSheet()).Id)}

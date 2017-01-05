@@ -1,0 +1,91 @@
+## Universe-HTT / 2012
+## frm_avail_downloads.tddo
+## Доступные загрузки
+##
+
+<style>
+	#frm_avail_downloads_view_title {
+		font: 12pt/10pt sans-serif;
+		font-weight: bold;
+		color: gray;
+	}
+	#frm_avail_downloads_view_list {
+		list-style-type: none;
+		padding: 5px 15px;
+	}
+	.frm-avail-downloads-item {
+		display: inline-block;
+		margin: 10px;
+		padding: 4px 10px;
+		border-bottom: 1px solid gray;
+	}
+	.frm-avail-downloads-item-title {
+		font: 10pt/8pt sans-serif;
+		margin-bottom: 10px;
+	}
+</style>
+
+<div id="frm_avail_downloads_view">
+	<br><span id="frm_avail_downloads_view_title"></span><br>
+	<div id="frm_avail_downloads_view_list"></div>
+</div>
+
+<script type="text/javascript">
+	
+	function sizeToString(size) {
+		var resutl = "";
+		var unit = "b";
+		if(size > 1024) {
+			size /= 1024;
+			unit = "Kb";
+			if(size > 1024) {
+				size /= 1024;
+				unit = "Mb";
+				if(size > 1024) {
+					size /= 1024;
+					unit = "Gb";
+				}
+			}
+		}
+		return size.toFixed(2) + " " + unit;
+	}
+	
+	function createDownloadURL(key) {
+		return "/dispatcher/dc/download?key=" + key;
+	}
+	
+	var AvailableDownloadsForm = {
+		## /* --- */
+		List : $("#frm_avail_downloads_view_list"),
+		## /* --- */
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* --- */
+			var list = UHTT.DC.getAvailableDownloads();
+			if(!isEmpty(list)) {
+				var n_items = list.getCount();
+				var buf = "";
+				for(var i = 0; i < n_items; i++) {
+					var item = list.at(i);
+					buf += '<div class="frm-avail-downloads-item sprawling"><div>'
+					if(!isEmpty(item.Title))
+						buf += '<div class="frm-avail-downloads-item-title"><span>' + item.Title + '</span></div>';
+					buf += '<div><div style="float:left"><a href="' + createDownloadURL(item.Key) + '">' + item.Name + '</a></div>' +
+						'<div style="float:right"> [ Дата: ' + item.Ts + ']</div>' + 
+						'<div style="float:right; margin-left:10px; margin-right:10px;">&nbsp;</div>' +
+						'<div style="float:right"> [ Размер: ' + sizeToString(item.Size) + ' ]</div>';
+					buf += '</div></div></div>';
+				}
+				$("#frm_avail_downloads_view_title").html("Доступные загрузки");
+				_this.List.html(buf);
+			}
+			else
+				$("#frm_avail_downloads_view_title").html("Нет доступных загрузок");
+		}
+	};
+	## /* Инициализация формы */
+	$(document).ready(function(){
+		AvailableDownloadsForm.init();
+	});
+</script>

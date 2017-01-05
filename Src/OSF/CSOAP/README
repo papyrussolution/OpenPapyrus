@@ -1,0 +1,17 @@
+########################################################
+#          CSOAP (SOAP API for C)
+########################################################
+
+CSOAP provides a C API for programming SOAP applications
+using C. CSOAP is still under development and is not
+recommended to use in commertial products.
+
+
+For installation support read "INSTALL".
+For changes read "ChangeLog".
+For new features and other news read "NEWS".
+For credits read "AUTHORS".
+For copyright information read "COPYING".
+
+
+email: ayaz@jprogrammer.net

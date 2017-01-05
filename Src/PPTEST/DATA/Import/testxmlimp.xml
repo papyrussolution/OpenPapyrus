@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<PpyImpExp>
+	<Record>
+		<ID>376887</ID>
+		<Code>ПР20615</Code>
+		<Date>01.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>1141</Amount>
+		<INN>4703033776</INN>
+		<CntragName>Янино СА колхоз</CntragName>
+		<RegistryCode>4703033776</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo>This is a test from Sobolev</Memo>
+		<CntragID>170</CntragID>
+	</Record>
+	<Record>
+		<ID>377385</ID>
+		<Code>ПР20730</Code>
+		<Date>01.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>7134</Amount>
+		<INN>7806056410</INN>
+		<CntragName>Алкон СПб ООО</CntragName>
+		<RegistryCode>7806056410</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName></AgentName>
+		<AgentINN></AgentINN>
+		<Memo></Memo>
+		<CntragID>171</CntragID>
+	</Record>
+	<Record>
+		<ID>312729</ID>
+		<Code>800203</Code>
+		<Date>02.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>8138</Amount>
+		<INN>7806150011</INN>
+		<CntragName>Пискаревский молзавод О</CntragName>
+		<RegistryCode>7806150011</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo></Memo>
+		<CntragID>172</CntragID>
+	</Record>
+	<Record>
+		<ID>312731</ID>
+		<Code>245645</Code>
+		<Date>02.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>4323</Amount>
+		<INN>4703076603</INN>
+		<CntragName>Невские берега Торгово</CntragName>
+		<RegistryCode>4703076603</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo></Memo>
+		<CntragID>173</CntragID>
+	</Record>
+	<Record>
+		<ID>312733</ID>
+		<Code>44</Code>
+		<Date>02.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>8035</Amount>
+		<INN>7813113797</INN>
+		<CntragName>Торговля от Петмола Сев</CntragName>
+		<RegistryCode>7813113797</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo></Memo>
+		<CntragID>174</CntragID>
+	</Record>
+	<Record>
+		<ID>312735</ID>
+		<Code>298139</Code>
+		<Date>02.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>4411</Amount>
+		<INN>7830000360</INN>
+		<CntragName>Каравай ОАО</CntragName>
+		<RegistryCode>7830000360</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo></Memo>
+		<CntragID>175</CntragID>
+	</Record>
+	<Record>
+		<ID>312736</ID>
+		<Code>298140</Code>
+		<Date>02.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>739</Amount>
+		<INN>7830000360</INN>
+		<CntragName>Каравай ОАО</CntragName>
+		<RegistryCode>7830000360</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo></Memo>
+		<CntragID>175</CntragID>
+	</Record>
+	<Record>
+		<ID>312737</ID>
+		<Code>7739</Code>
+		<Date>02.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>9775</Amount>
+		<INN>7805357503</INN>
+		<CntragName>Нево-Аверс ООО</CntragName>
+		<RegistryCode>7805357503</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo></Memo>
+		<CntragID>176</CntragID>
+	</Record>
+	<Record>
+		<ID>312739</ID>
+		<Code>3</Code>
+		<Date>02.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>2639</Amount>
+		<INN>7806113683</INN>
+		<CntragName>Восторг ООО</CntragName>
+		<RegistryCode>7806113683</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo></Memo>
+		<CntragID>177</CntragID>
+	</Record>
+	<Record>
+		<ID>312740</ID>
+		<Code>1042</Code>
+		<Date>02.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>7050</Amount>
+		<INN>7830001483</INN>
+		<CntragName>Хлебный дом ОАО</CntragName>
+		<RegistryCode>7830001483</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo></Memo>
+		<CntragID>178</CntragID>
+	</Record>
+	<Record>
+		<ID>312743</ID>
+		<Code>223</Code>
+		<Date>02.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>2040</Amount>
+		<INN>7805023733/</INN>
+		<CntragName>Заря ОАО</CntragName>
+		<RegistryCode>7805023733/</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo></Memo>
+		<CntragID>179</CntragID>
+	</Record>
+	<Record>
+		<ID>312744</ID>
+		<Code>974</Code>
+		<Date>02.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>4908</Amount>
+		<INN>7802227545</INN>
+		<CntragName>Интеркрос СП ООО</CntragName>
+		<RegistryCode>7802227545</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo></Memo>
+		<CntragID>180</CntragID>
+	</Record>
+	<Record>
+		<ID>312746</ID>
+		<Code>755928</Code>
+		<Date>02.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>1260</Amount>
+		<INN>7813054492</INN>
+		<CntragName>ХЛЕБ ОАО</CntragName>
+		<RegistryCode>7813054492</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo></Memo>
+		<CntragID>181</CntragID>
+	</Record>
+	<Record>
+		<ID>312782</ID>
+		<Code>9</Code>
+		<Date>02.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>1470</Amount>
+		<INN>7806011804</INN>
+		<CntragName>Столовая 18 ООО</CntragName>
+		<RegistryCode>7806011804</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo></Memo>
+		<CntragID>182</CntragID>
+	</Record>
+	<Record>
+		<ID>312933</ID>
+		<Code>7</Code>
+		<Date>02.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>12204</Amount>
+		<INN>7802315505</INN>
+		<CntragName>Агротек + ООО</CntragName>
+		<RegistryCode>7802315505</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo></Memo>
+		<CntragID>183</CntragID>
+	</Record>
+	<Record>
+		<ID>312934</ID>
+		<Code>2</Code>
+		<Date>02.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>2650</Amount>
+		<INN>7802156598</INN>
+		<CntragName>Балтлэнд ООО</CntragName>
+		<RegistryCode></RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo></Memo>
+		<CntragID>184</CntragID>
+	</Record>
+	<Record>
+		<ID>312936</ID>
+		<Code>10</Code>
+		<Date>02.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>3823</Amount>
+		<INN>7806113683</INN>
+		<CntragName>Восторг ООО</CntragName>
+		<RegistryCode>7806113683</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo></Memo>
+		<CntragID>177</CntragID>
+	</Record>
+	<Record>
+		<ID>312939</ID>
+		<Code>6</Code>
+		<Date>02.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>2100</Amount>
+		<INN>7809013327</INN>
+		<CntragName>Орешек ПК</CntragName>
+		<RegistryCode>7809013327</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo></Memo>
+		<CntragID>185</CntragID>
+	</Record>
+	<Record>
+		<ID>312940</ID>
+		<Code>144277</Code>
+		<Date>02.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>1879</Amount>
+		<INN>7803061109</INN>
+		<CntragName>Карат Плюс ЗАО</CntragName>
+		<RegistryCode>7803061109</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo></Memo>
+		<CntragID>186</CntragID>
+	</Record>
+	<Record>
+		<ID>312941</ID>
+		<Code>756031</Code>
+		<Date>02.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>573</Amount>
+		<INN>7813054492</INN>
+		<CntragName>ХЛЕБ ОАО</CntragName>
+		<RegistryCode>7813054492</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo></Memo>
+		<CntragID>181</CntragID>
+	</Record>
+	<Record>
+		<ID>313084</ID>
+		<Code>1</Code>
+		<Date>03.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>11445</Amount>
+		<INN>7802351119</INN>
+		<CntragName>Минеральные воды СПб ОО</CntragName>
+		<RegistryCode>7802351119</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo></Memo>
+		<CntragID>187</CntragID>
+	</Record>
+	<Record>
+		<ID>313092</ID>
+		<Code>12</Code>
+		<Date>03.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>4919</Amount>
+		<INN>7825462087</INN>
+		<CntragName>Полюстрово-Пола ООО</CntragName>
+		<RegistryCode>7825462087</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo></Memo>
+		<CntragID>188</CntragID>
+	</Record>
+	<Record>
+		<ID>313527</ID>
+		<Code>670</Code>
+		<Date>04.01.2007</Date>
+		<OpID>2</OpID>
+		<Amount>14556</Amount>
+		<INN>4703080102</INN>
+		<CntragName>Пит Продукт-К ООО</CntragName>
+		<RegistryCode>4703080102</RegistryCode>
+		<Obj2Name></Obj2Name>
+		<DueDate></DueDate>
+		<AgentName>ЛЭНД ЗАО</AgentName>
+		<AgentINN>7825114499</AgentINN>
+		<Memo></Memo>
+		<CntragID>189</CntragID>
+	</Record>
+</PpyImpExp>

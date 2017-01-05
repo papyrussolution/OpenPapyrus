@@ -1,0 +1,24 @@
+;
+; Private data file
+; For internal use only
+; Redistribution prohibited
+;
+[version]
+Signature    = 30yaRBD3DOWEh1RfV2pttzQJPYzDJ
+Product      = Papyrus
+Team         = Andrey Fokin, Anton Sobolev
+Secret       = jumEE-Ebo07(sc)ale
+StartDevYear = 1996
+LastDevYear  = 2017
+MajorVer     = 9
+MinorVer     = 4
+Revision     = 7
+Demo         = 0
+AssemblyVer=20844
+MinMajorVer  = 9
+MinMinorVer  = 4
+MinRevision  = 0
+
+MsftTranslAcc = papyrus:JwihuTuWLr6ZLJzyqkqpkr8OLbC2UoRcu+NOBrUxMyQ=
+UhttAcc       =
+DefPassword   = NO DOUBT

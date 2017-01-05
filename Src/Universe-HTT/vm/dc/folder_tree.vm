@@ -1,0 +1,43 @@
+﻿## Universe-HTT / 2012, 2013
+## view_dc_folder_tree.vm
+## Дерево каталогов центра загрузок
+##
+
+#macro(drawFolderTree $node)
+	#if($node.Item.ID == 0)
+		<ul class="xtree">
+	#else
+		<ul>
+	#end
+		<li class="$CLASS_item">
+			#if($node.Children.size() > 0)
+				<div class="$CLASS_hitarea $CLASS_hitareaOpened"></div>
+			#end
+			<div class="$CLASS_itemContainer" itemID="${node.Item.ID}">
+				<img class="$CLASS_itemImage" src="/rsrc/images/folder.png">
+				<div class="$CLASS_itemTextBlk">
+					<span class="$CLASS_itemText">${node.Item.Name}</span>
+				</div>
+			</div>
+			#foreach($child in $node.Children)
+				#drawFolderTree($child)
+			#end
+		</li>
+	</ul>
+#end
+
+<div id="view_dc_folder_tree__layout">
+	#drawFolderTree($root)
+</div>
+
+<script type="text/javascript">
+	var settings = {
+		collapsed: false,
+		handler : function() {
+			DownloadCenterForm.CurrentFolderID = Number($(this).attr("itemID"));
+				DownloadCenterForm.drawFolderContent(DownloadCenterForm.CurrentFolderID);
+			return false;
+		}
+	};
+	$("#view_dc_folder_tree__layout")._xtree(settings);
+</script>

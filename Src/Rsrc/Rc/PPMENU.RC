@@ -1,0 +1,738 @@
+// MENU.RC
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015
+// Part of project Papyrus
+// Описание ресурсов меню для проекта Papyrus
+//
+#include <ppmenu.h>
+/*
+	MENU_SYSTEM
+*/
+4 MENU {
+	POPUP "@cmdpu_conversion" {
+		//MENUITEM "Конвертация 2.2.9...",                           cmConvert229
+		//MENUITEM "Конвертация 2.5.3...",                           cmConvert253
+		//MENUITEM "Конвертация 2.7.0...",                           cmConvert270
+		//MENUITEM "Конвертация 3.0.0...",                           cmConvert300
+		MENUITEM "@cmd_convert301",									cmConvert301
+		MENUITEM "@cmd_convert329",									cmConvert329
+		MENUITEM "@cmd_convert3512",								cmConvert3512
+		MENUITEM "@cmd_convert372",									cmConvert372
+		//MENUITEM "Конвертация 3.8.0...",                           cmConvert380
+		MENUITEM "@cmd_convert400",			                        cmConvert400
+		MENUITEM "@cmd_convert31102",								cmConvert31102
+		MENUITEM "@cmd_convert31110",								cmConvert31110
+		MENUITEM "@cmd_convert4707",				                cmConvert4707
+		MENUITEM "@cmd_convert4805",				                cmConvert4805
+		MENUITEM "@cmd_convertquot720",								cmConvertQuot720
+		MENUITEM "@cmd_convertbilluuid7601",						cmConvertBillUUID7601
+		MENUITEM "@cmd_convertworkbook813",							cmConvertWorkbook813
+	}
+	POPUP "&Правка" {
+		MENUITEM "@cmd_correctaccturnrest",							cmCorrectAccTurnRest
+		// @v3.3.3 MENUITEM "Корректировка лотов...",                         cmCorrectLot
+		MENUITEM "@cmd_correctlotsclosetags"						cmCorrectLotsCloseTags
+		MENUITEM "@cmd_recalcbillturns",							cmRecalcBillTurns
+		MENUITEM "@cmd_checkbillamounts",							cmCheckBillAmounts
+		MENUITEM "@cmd_correcttrfrrvrs",							cmCorrectTrfrRvrs
+		MENUITEM "@cmd_correctbillpaym",							cmCorrectBillPaym
+		MENUITEM "@cmd_correctbalance",								cmCorrectBalance
+		MENUITEM "@cmd_correctcurrest"								cmCorrectCurRest
+		MENUITEM "@cmd_removeemptyacctrels"							cmRemoveEmptyAcctRels
+		MENUITEM "@cmd_correctlotsuppl"								cmCorrectLotSuppl
+		MENUITEM "@cmd_correctzeroqcertrefs"						cmCorrectZeroQCertRefs
+		MENUITEM "@cmd_recover_v242"								cmRecover_v242
+		MENUITEM "@cmd_correctabsencelots"							cmCorrectAbsenceLots
+		MENUITEM "@cmd_correctabsencegoods"							cmCorrectAbsenceGoods
+		MENUITEM "@cmd_recoverabsencebills"							cmRecoverAbsenceBills
+		MENUITEM "@cmd_recoverabsenceaccounts"						cmRecoverAbsenceAccounts
+		MENUITEM "@cmd_recoverabsenceprjtaskperson"					cmRecoverAbsencePrjTaskPerson
+		MENUITEM "@cmd_correctlottaxgrp"							cmCorrectLotTaxGrp
+		MENUITEM "@cmd_correctpckgclosetags"						cmCorrectPckgCloseTags
+		MENUITEM "@cmd_correctaccturn"								cmCorrectAccturn
+		MENUITEM "@cmd_removebadreckons"							cmRemoveBadReckons
+		MENUITEM "@cmd_removezerolinkcclines"						cmRemoveZeroLinkCCLines
+		MENUITEM "@cmd_correcttransfer"								cmCorrectTransfer
+		MENUITEM "@cmd_recalclotcurrest"							cmRecalcLotCurRest
+		MENUITEM "@cmd_correcttrfrintrunite"						cmCorrectTrfrIntrUnite
+		MENUITEM "@cmd_correctccheckline01"							cmCorrectCCheckLine01
+		MENUITEM "@cmd_recoverlostunifiedlinks"						cmRecoverLostUnifiedLinks
+	}
+	POPUP "@cmdpu_other" {
+		MENUITEM "@cmd_selfsync"									cmSelfSync
+		MENUITEM "@cmd_createreservedobjs"							cmCreateReservedObjs
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_databasecutting"								cmDatabaseCutting
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_chaindatabase"                               cmChainDatabase
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_savebalance"									cmSaveBalance
+		MENUITEM "@cmd_restorebalance"								cmRestoreBalance
+		MENUITEM "@cmd_setuppreferredbarcodetags"					cmSetupPreferredBarcodeTags
+		MENUITEM "@cmd_indexphones"									cmIndexPhones
+		MENUITEM "@cmd_cvtqcert"									cmCvtQCert
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_lotpacking"                                  cmLotPacking
+	}
+	POPUP "&Выход" {
+		MENUITEM "@cmd_quit",                                       cmQuit
+	}
+}
+/*
+	MENU_MASTER
+*/
+1 MENU {
+	POPUP "@cmdpu_refs" {
+		//MENUITEM "О программе..."                      cmAbout
+		MENUITEM "@cmd_about"							cmAbout
+		MENUITEM "@cmd_viewstatus"						cmViewStatus
+		MENUITEM "@cmd_mainorg2",						cmMainOrg2
+		MENUITEM SEPARATOR
+		POPUP "@cmdpu_geo" {
+			MENUITEM "@cmd_editworld",                  cmEditWorld
+			MENUITEM "@cmd_citystatus",					cmCityStatus
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_replaceworld",				cmReplaceWorld
+			MENUITEM "@cmd_replacelikeworld",			cmReplaceLikeWorld
+		}
+		POPUP "@cmdpu_persons" {
+			MENUITEM "@cmd_person",						cmPerson
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_personkind",					cmPersonKind
+			MENUITEM "@cmd_personcategory",				cmPersonCategory
+			MENUITEM "@cmd_personstatus",				cmPersonStatus
+			MENUITEM "@cmd_bnkacctype",					cmBnkAccType
+			MENUITEM "@cmd_registertype",				cmRegisterType
+			MENUITEM "@cmd_elinkkind",					cmELinkKind
+			MENUITEM "@cmd_personreltype",				cmPersonRelType
+			MENUITEM "@cmd_personrel",					cmPersonRel
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_scardseries",				cmSCardSeries
+			MENUITEM "@cmd_scard",						cmSCard
+			MENUITEM "@cmd_scardop",					cmSCardOp
+			MENUITEM "@cmd_setscardsbyrule",			cmSetSCardsByRule
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_personopkind"				cmPersonOpKind
+			MENUITEM "@cmd_personevent"					cmPersonEvent
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_replaceperson",				cmReplacePerson
+			MENUITEM "@cmd_replacepersoncat",			cmReplacePersonCat
+			MENUITEM "@cmd_searchdlvraddr",				cmSearchDlvrAddr
+		}
+		POPUP "@cmdpu_staffnsalary" {
+			MENUITEM "@cmd_division"					cmDivision
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_salcharge",					cmSalCharge
+			MENUITEM "@cmd_staffcalendar",              cmStaffCalendar
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_datetimerep",				cmDateTimeRep
+			MENUITEM "@cmd_dutysched",					cmDutySched
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_sumbydivision",				cmSumByDivision
+			MENUITEM "@cmd_divisionbysum",				cmDivisionBySum
+		}
+		POPUP "@cmdpu_goods" {
+			MENUITEM "@cmd_goodsgroup",					cmGoodsGroup
+			MENUITEM "@cmd_goods",						cmGoods
+			MENUITEM "@cmd_brand",						cmBrand
+			MENUITEM "@cmd_viewgoodsstruc",				cmViewGoodsStruc
+			MENUITEM "@cmd_viewquots",					cmViewQuots
+			MENUITEM "@cmd_namedgoodsstruc",			cmNamedGoodsStruc
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_unit",						cmUnit
+			MENUITEM "@cmd_barcodestruc",				cmBarCodeStruc
+			MENUITEM "@cmd_goodstype",					cmGoodsType
+			MENUITEM "@cmd_goodsclass",					cmGoodsClass
+			MENUITEM "@cmd_goodstax",					cmGoodsTax
+			MENUITEM "@cmd_assetwroffgrp",				cmAssetWrOffGrp
+			MENUITEM "@cmd_quotkind",					cmQuotKind
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_location",                   cmLocation
+			MENUITEM "@cmd_viewqcert",					cmViewQCert
+			MENUITEM "@cmd_pckgtype",					cmPckgType
+			MENUITEM "@cmd_pallet",						cmPallet
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_goods2locassoc",				cmGoods2LocAssoc
+			MENUITEM "@cmd_goods2supplassoc",			cmGoods2SupplAssoc
+			MENUITEM "@cmd_goods2cashnodeassoc",		cmGoods2CashNodeAssoc
+			MENUITEM "@cmd_goodsvalrestr",				cmGoodsValRestr
+			MENUITEM "@cmd_suprware"					cmSuprWare
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_goodsbasket",				cmGoodsBasket
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_specseries",					cmSpecSeries
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_replacegoods",				cmReplaceGoods
+			MENUITEM "@cmd_replacegoodstaxgrp",			cmReplaceGoodsTaxGrp
+			MENUITEM "@cmd_replaceunit",				cmReplaceUnit
+			MENUITEM "@cmd_replacedynamicobj",			cmReplaceDynamicObj
+			MENUITEM "@cmd_replacebrand",				cmReplaceBrand
+		}
+		POPUP "@cmdpu_accounting" {
+			MENUITEM "@cmd_accsheet",					cmAccSheet
+			MENUITEM "@cmd_accarticle",					cmAccArticle
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_accplan",					cmAccPlan
+			MENUITEM "@cmd_accoutbal",					cmAccOutbal
+			MENUITEM "@cmd_accregister",				cmAccRegister
+			MENUITEM "@cmd_accaggr",					cmAccAggr
+			MENUITEM "@cmd_accalias",					cmAccAlias
+			MENUITEM "@cmd_accbudget",					cmAccBudget
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_currency",                   cmCurrency
+			MENUITEM "@cmd_curratetype",				cmCurRateType
+			MENUITEM "@cmd_viewcurrates",				cmViewCurRates
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_advbillkind",				cmAdvBillKind
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_debtdim",					cmDebtDim
+		}
+		POPUP "@cmdpu_operations" {
+			MENUITEM "@cmd_oprkind",					cmOprKind
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_oprtype",					cmOprType
+			MENUITEM "@cmd_opcounter",					cmOpCounter
+			MENUITEM "@cmd_formula",					cmFormula
+			MENUITEM "@cmd_billstatus",					cmBillStatus
+			MENUITEM "@cmd_amounttype",					cmAmountType
+			MENUITEM "@cmd_draftwroff",					cmDraftWrOff
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_viewbizsctempl",				cmViewBizScTempl
+			MENUITEM "@cmd_bizscore",					cmBizScore
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_resetopcounters",			cmResetOpCounters
+		}
+		POPUP "@cmdpu_manuf" {
+			MENUITEM "@cmd_processor",					cmProcessor
+			MENUITEM "@cmd_tech",						cmTech
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_tsesswrofforder",			cmTSessWrOffOrder
+		}
+		POPUP "@cmdpu_equipment" {
+			MENUITEM "@cmd_cashnode",                   cmCashNode
+			MENUITEM "@cmd_scale",                      cmScale
+			MENUITEM "@cmd_barcodeprinter",				cmBarcodePrinter
+			MENUITEM "@cmd_bht",						cmBht
+			MENUITEM "@cmd_stylopalm",					cmStyloPalm
+			MENUITEM "@cmd_touchscreen",                cmTouchScreen
+			MENUITEM "@cmd_locprinter",					cmLocPrinter
+			MENUITEM "@cmd_editgoodsinfo",				cmEditGoodsInfo
+			// @v7.8.0 MENUITEM "RFID Устройства...",            cmRFIDDevice
+			MENUITEM "@cmd_phoneservice",				cmPhoneService
+			MENUITEM "@cmd_genericdevice",				cmGenericDevice // @v7.8.0
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_cafetable",					cmCafeTable // @v8.4.1
+		}
+		POPUP "@cmdpu_admin" {
+			MENUITEM "@cmd_dbdiv",						cmDBDiv
+			MENUITEM "@cmd_dynamicobjs",				cmDynamicObjs
+			MENUITEM "@cmd_mailaccount",				cmMailAccount
+			MENUITEM "@cmd_smsaccount",					cmSmsAccount
+			MENUITEM "@cmd_ediprovider",				cmEdiProvider
+			MENUITEM "@cmd_namedobjassoc",				cmNamedObjAssoc
+			MENUITEM "@cmd_eventtoken",					cmEventToken
+			MENUITEM "@cmd_globaluseracc",				cmGlobalUserAcc
+			MENUITEM "@cmd_uhttstore",					cmUhttStore
+			MENUITEM "@cmd_workbook",                   cmWorkbook
+			MENUITEM "@cmd_objtagallobj",					cmObjTagAllObj // @v8.5.3
+			MENUITEM SEPARATOR
+			POPUP "@cmdpu_import" {
+				MENUITEM "@cmd_importgoodsgrp",				cmImportGoodsGrp
+				MENUITEM "@cmd_importgoods",				cmImportGoods
+				MENUITEM "@cmd_importgoodsold",				cmImportGoodsOld
+				MENUITEM "@cmd_importsr25",					cmImportSR25
+				MENUITEM "@cmd_importsuprware",				cmImportSuprWare
+				MENUITEM "@cmd_importcountry",				cmImportCountry
+				MENUITEM "@cmd_importquot2",				cmImportQuot2
+				MENUITEM "@cmd_importquot",					cmImportQuot
+				MENUITEM "@cmd_importperson2",				cmImportPerson2
+				MENUITEM "@cmd_importperson",				cmImportPerson
+				MENUITEM "@cmd_importsuppl",				cmImportSuppl
+				MENUITEM "@cmd_importscard2",				cmImportSCard2
+				MENUITEM "@cmd_importscard",				cmImportSCard
+				MENUITEM "@cmd_importbanks",				cmImportBanks
+				MENUITEM "@cmd_importkladr",				cmImportKLADR
+				MENUITEM "@cmd_importtodofromvcal",			cmImportTodoFromVCal
+				MENUITEM "@cmd_importphonelist"				cmImportPhoneList
+				MENUITEM "@cmd_importworkbook"				cmImportWorkbook
+				MENUITEM SEPARATOR
+				MENUITEM "@cmd_clibnkimport",				cmCliBnkImport
+				MENUITEM "@cmd_importspecseries",			cmImportSpecSeries
+				MENUITEM "@cmd_importbills",				cmImportBills
+				MENUITEM "@cmd_importinventory",			cmImportInventory
+				MENUITEM "@cmd_importemailaccts",			cmImportEmailAccts
+				MENUITEM SEPARATOR
+				MENUITEM "@cmd_importtsessuhtt",			cmImportTSessUHTT
+			}
+			MENUITEM "@cmd_makecrptfiles",					cmMakeCRptFiles
+			MENUITEM "@cmd_verifyallcrpt",					cmVerifyAllCRpt
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_registration",                   cmRegistration
+			MENUITEM "@cmd_updatelicense",					cmUpdateLicense
+		}
+		MENUITEM SEPARATOR
+		POPUP "@cmdpu_industryrefs" {
+			POPUP "@cmdpu_sawmilling" {
+				MENUITEM "@cmd_woodbreed",					cmWoodBreed
+			}
+			MENUITEM "@cmd_transport",						cmTransport
+		}
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_opentextfile",						cmOpenTextFile
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_dbexit",								cmDBExit
+		MENUITEM "@cmd_quit",								cmQuit
+	}
+	POPUP "@cmdpu_operations" {
+		MENUITEM "@cmd_accturnlist",						cmAccTurnList
+		MENUITEM "@cmd_accturnbilllist",					cmAccturnBillList
+		MENUITEM "@cmd_curreval",							cmCurReval
+		MENUITEM "@cmd_budgeting",							cmBudgeting
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_selectlocation",						cmSelectLocation
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_goodsbilllist",						cmGoodsBillList
+		MENUITEM "@cmd_goodsorder",							cmGoodsOrder
+		MENUITEM "@cmd_inventory",							cmInventory
+		MENUITEM "@cmd_poolbilllist",						cmPoolBillList
+		MENUITEM "@cmd_draftbilllist",						cmDraftBillList
+		MENUITEM SEPARATOR
+		// v6.7.8 MENUITEM "Складские документы...",            cmWmsBillList
+		MENUITEM "@cmd_loctransf",							cmLocTransf
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_vatbook",							cmVATBook
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_unifygoodsprice",					cmUnifyGoodsPrice
+		MENUITEM "@cmd_updatequots",						cmUpdateQuots
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_autocharge"							cmAutoCharge
+		MENUITEM "@cmd_writeoffdrafts"						cmWriteOffDrafts
+		MENUITEM "@cmd_revalassets"							cmRevalAssets
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_project"								cmProject
+		MENUITEM "@cmd_prjtask"								cmPrjTask
+		MENUITEM "@cmd_maintainprjtask"						cmMaintainPrjTask
+	}
+	POPUP "@cmdpu_equipment" {
+		MENUITEM "@cmd_cashnodepanel",						cmCashNodePanel
+		MENUITEM "@cmd_viewcsess",							cmViewCSess
+		MENUITEM "@cmd_viewcsessdeficit",					cmViewCSessDeficit
+		MENUITEM "@cmd_viewccheck",							cmViewCCheck
+		MENUITEM "@cmd_ctblordtimegraph",					cmCTblOrdTimeGraph
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_viewgoodsinfo",						cmViewGoodsInfo
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_scalepreparedata"					cmScalePrepareData
+		MENUITEM "@cmd_scaletransmitdata"					cmScaleTransmitData
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_bhttransmit"							cmBhtTransmit
+		MENUITEM "@cmd_bhtreceive"							cmBhtReceive
+		MENUITEM "@cmd_bhttransmitprogram"					cmBhtTransmitProgram
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_stylopalmimpexp"						cmStyloPalmImpExp
+		MENUITEM "@cmd_viewgeotracking"                     cmViewGeoTracking
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_viewdlstat",							cmViewDLStat
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_loadfonts",							cmLoadFonts
+	}
+	POPUP "@cmdpu_manuf" {
+		MENUITEM "@cmd_mrptab"								cmMrpTab
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_manufplan"							cmManufPlan
+		MENUITEM "@cmd_tsession"							cmTSession
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_prcbusy"								cmPrcBusy
+		MENUITEM "@cmd_prcpane"								cmPrcPane
+	}
+	POPUP "@cmdpu_staff" {
+		MENUITEM "@cmd_stafflist"							cmStaffList
+		MENUITEM "@cmd_staff",								cmStaff
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_viewstaffcal"						cmViewStaffCal
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_chargesalary",						cmChargeSalary
+		MENUITEM "@cmd_viewsalary",							cmViewSalary
+	}
+	POPUP "@cmdpu_reporting" {
+		MENUITEM "@cmd_accanalyze",							cmAccAnalyze
+		MENUITEM "@cmd_cashbook",							cmCashBook
+		MENUITEM "@cmd_balance",							cmBalance
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_viewasset",							cmViewAsset
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_pricelist",							cmPriceList
+		MENUITEM "@cmd_viewlots",							cmViewLots
+		MENUITEM "@cmd_viewordlots",						cmViewOrdLots
+		MENUITEM "@cmd_trfranalyze",						cmTrfrAnalyze
+		MENUITEM "@cmd_shipmanalyze"						cmShipmAnalyze
+		MENUITEM "@cmd_priceanlz",							cmPriceAnlz
+		MENUITEM "@cmd_goodsrest",							cmGoodsRest
+		POPUP "@cmdpu_settlementsdebtncred" {
+			MENUITEM "Долги по покупателям...",             cmSellTrnovr
+			MENUITEM "@cmd_debtsuppltrnovr",				cmDebtSupplTrnovr
+			MENUITEM "@cmd_suppltrnovr",					cmSupplTrnovr
+			MENUITEM "@cmd_paymplan",						cmPaymPlan
+			MENUITEM "@cmd_debtorstat",						cmDebtorStat
+		}
+		MENUITEM "@cmd_freight",							cmFreight
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_goodsturnover",						cmGoodsTurnover
+		MENUITEM "@cmd_goodsgrprlztax",                     cmGoodsGrpRlz
+		MENUITEM "@cmd_goodsmov",							cmGoodsMov
+		MENUITEM "@cmd_goodsoprgrouping",					cmGoodsOprGrouping
+		MENUITEM "@cmd_goodsoper",							cmGoodsOper
+		POPUP "@cmdpu_salesanalyze" {
+			MENUITEM "@cmd_getprognosis",					cmGetPrognosis
+			MENUITEM "@cmd_predictsales",					cmPredictSales
+			MENUITEM "@cmd_sstat",							cmSStat
+			MENUITEM "@cmd_sstatsupplorder",				cmSStatSupplOrder
+			MENUITEM "@cmd_createdraftbysupplorder",		cmCreateDraftBySupplOrder
+		}
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_processdl200",						cmProcessDL200
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_createobjlikeness",					cmCreateObjLikeness
+		MENUITEM "@cmd_objlikeness",						cmObjLikeness
+		MENUITEM "@cmd_bizscoreval",						cmBizScoreVal
+		MENUITEM "@cmd_bizscvalbytempl",					cmBizScValByTempl
+	}
+	POPUP "@cmdpu_admin" {
+		MENUITEM "@cmd_commconfig",							cmCommConfig
+		MENUITEM "@cmd_editconfig",							cmEditConfig
+		POPUP "@cmdpu_agreements" {
+			MENUITEM "@cmd_defaultcliagt",					cmDefaultCliAgt
+			MENUITEM "@cmd_defaultsupplagt",				cmDefaultSupplAgt
+		}
+		MENUITEM SEPARATOR
+		POPUP "@cmdpu_configetc" {
+			MENUITEM "@cmd_goodscfg",						cmGoodsCfg
+			MENUITEM "@cmd_billcfg",						cmBillCfg
+			MENUITEM "@cmd_projectcfg",						cmProjectCfg
+			MENUITEM "@cmd_tsessioncfg",					cmTSessionCfg
+			MENUITEM "@cmd_scardcfg",						cmSCardCfg
+			MENUITEM "@cmd_personcfg",						cmPersonCfg
+			MENUITEM "@cmd_transportcfg",					cmTransportCfg
+			MENUITEM "@cmd_locationcfg",					cmLocationCfg
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_predictcfg",						cmPredictCfg
+			MENUITEM "@cmd_editholidays",					cmEditHolidays
+			MENUITEM "@cmd_debtorstatcfg",					cmDebtorStatCfg
+			MENUITEM "@cmd_stockoptcfg",					cmStockOptCfg
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_albatroscfg",					cmAlbatrosCfg
+			MENUITEM "@cmd_inetconncfg",					cmInetConnCfg
+			MENUITEM "@cmd_mailacct",						cmMailAcct
+			MENUITEM "@cmd_ftpacct",						cmFTPAcct
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_vatbooksellcfg",					cmVATBookSellCfg
+		   	MENUITEM "@cmd_vatbookbuycfg",					cmVATBookBuyCfg
+			MENUITEM "@cmd_simpleledgercfg",				cmSimpleLedgerCfg
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_pricelistcfg",					cmPriceListCfg
+			MENUITEM "@cmd_dbxchgcfg",						cmDBXchgCfg
+			MENUITEM "@cmd_equipcfg",						cmEquipCfg
+			MENUITEM "@cmd_keyboardwkeycfg",				cmKeyboardWKeyCfg
+			MENUITEM "@cmd_stylopalmcfg",					cmStyloPalmCfg
+			MENUITEM "@cmd_globalacccfg",					cmGlobalAccCfg
+			MENUITEM "@cmd_workbookcfg",					cmWorkbookCfg
+			MENUITEM "@cmd_alcreportcfg",					cmAlcReportCfg
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_draftcreaterules",				cmDraftCreateRules
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_printercfg",						cmPrinterCfg
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_report",           				cmReport
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_dbmaintaincfg",					cmDBMaintainCfg
+		}
+		POPUP "@cmdpu_cfgimpexp" {
+			MENUITEM "@cmd_impexplistconfig",               cmImpExpListConfig // cmEditImpExpCfgs
+			MENUITEM "@cmd_clibnkfmtcfg",                   cmCliBnkFmtCfg
+			MENUITEM "@cmd_clibnkascfg",					cmCliBnkAsCfg
+			MENUITEM "@cmd_cfgimpspecseries",               cmCfgImpSpecSeries
+			//MENUITEM "Конфигурация импорта инвентаризации...",                    cmExpImpParamsInventory
+			//MENUITEM "Конфигурация форматов экспорта/импорта прайс-листов...",    cmPriceListExpImpParams
+			//MENUITEM SEPARATOR
+			//MENUITEM "Конфигурация форматов экспорта/импорта документов...",       cmBillExpImpParams
+			//MENUITEM "Конфигурация форматов экспорта/импорта строк документов...", cmBRowExpImpParams
+			//MENUITEM SEPARATOR
+			MENUITEM "@cmd_cashsessexpimpparams",			cmCashSessExpImpParams
+			//MENUITEM "Конфигурация форматов экспорта/импорта товаров...",         cmGoodsExpImpParams
+			//MENUITEM SEPARATOR
+		}
+		POPUP "@cmdpu_ui" {
+			MENUITEM "@cmd_userinterfacecfg",               cmUserInterfaceCfg
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_editdesktops",					cmEditDesktops
+			MENUITEM "@cmd_seldesktop",						cmSelDesktop
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_editmenus",						cmEditMenus
+			MENUITEM "@cmd_editmenusfromfile",				cmEditMenusFromFile
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_editpaintcloths",                cmEditPaintCloths
+		}
+		MENUITEM "@cmd_groups_n_users",						cmGroups_n_Users
+		MENUITEM "@cmd_fastgrp_n_users",					cmFastGrp_n_Users
+		MENUITEM "@cmd_updatepassword",						cmUpdatePassword
+		MENUITEM "@cmd_activeuserslist",					cmActiveUsersList
+		MENUITEM "@cmd_viewsysj",							cmViewSysJ
+		MENUITEM "@cmd_viewlogsmon",						cmViewLogsMon
+		MENUITEM "@cmd_viewcheckopj",						cmViewCheckOpJ
+		MENUITEM "@cmd_userprofile",						cmUserProfile
+		POPUP "@cmdpu_datainterchange" {
+			MENUITEM "@cmd_transmitmodifications",          cmTransmitModifications
+			MENUITEM "@cmd_sendbills",						cmSendBills
+			MENUITEM "@cmd_sendbillsbyfilt",				cmSendBillsByFilt
+			MENUITEM "@cmd_receivepackets",                 cmReceivePackets
+			MENUITEM SEPARATOR
+			// @obsolete MENUITEM "@cmd_importorders",					cmImportOrders
+			MENUITEM "@cmd_receivecharry",					cmReceiveCharry
+			MENUITEM "@cmd_mailcharryfiles",				cmMailCharryFiles
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_viewobjsync",					cmViewObjSync
+			MENUITEM "@cmd_analyzeobjsynccmp",				cmAnalyzeObjSyncCmp
+			MENUITEM "@cmd_viewobjsyncqueue",				cmViewObjSyncQueue
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_importcurrlist",					cmImportCurrList
+			MENUITEM "@cmd_importposrefs",                  cmImportPosRefs
+			MENUITEM SEPARATOR
+			// @v9.2.1 MENUITEM "@cmd_supplgoodsimport",				cmSupplGoodsImport
+			MENUITEM "@cmd_supplinterchange",				cmSupplInterchange
+		}
+		MENUITEM SEPARATOR
+		POPUP "@cmdpu_repair" {
+			MENUITEM "@cmd_correctaccrelarrefs",			cmCorrectAccrelArRefs
+			MENUITEM "@cmd_correctaccturnrest",				cmCorrectAccTurnRest
+			MENUITEM "@cmd_recalcbillturns",				cmRecalcBillTurns
+			MENUITEM "@cmd_checkbillamounts",				cmCheckBillAmounts
+			MENUITEM "@cmd_correctbillpaym",				cmCorrectBillPaym
+			MENUITEM "@cmd_paymwolinkbill",					cmPaymWOLinkBill
+			MENUITEM "@cmd_correctbalance",					cmCorrectBalance
+			MENUITEM "@cmd_correctgoodsgroupsnia",			cmCorrectGoodsGroupsNIA
+			MENUITEM "@cmd_correctgoodsgroups",				cmCorrectGoodsGroups
+			MENUITEM "@cmd_checkgstrucrecursion"			cmCheckGStrucRecursion
+			MENUITEM "@cmd_correctcurrest"					cmCorrectCurRest
+		}
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_jobpool"								cmJobPool
+		MENUITEM "@cmd_fillpredictsalestbl",				cmFillPredictSalesTbl
+		MENUITEM "@cmd_testpredictsalestbl",				cmTestPredictSalesTbl
+		MENUITEM "@cmd_deletetmpfiles",						cmDeleteTmpFiles
+		MENUITEM "@cmd_createnewfiles",						cmCreateNewFiles
+		MENUITEM "@cmd_dbmaintain",							cmDBMaintain
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_viewlogs",							cmViewLogs
+		MENUITEM "@cmd_viewbboard",							cmViewBBoard
+		MENUITEM SEPARATOR
+		POPUP "@cmdpu_other" {
+			MENUITEM "@cmd_calcgoodssaldo",					cmCalcGoodsSaldo
+			MENUITEM "@cmd_debtrate",						cmDebtRate
+			MENUITEM "@cmd_bizscorecalc"					cmBizScoreCalc
+			MENUITEM "@cmd_filtpool",						cmFiltPool // @paul pentaho
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_updateppini",					cmUpdatePpIni
+			MENUITEM "@cmd_registercomserver",				cmRegisterComServer
+			MENUITEM "@cmd_createglobaluseracc",			cmCreateGlobalUserAcc
+			MENUITEM "@cmd_gtajournal",						cmGtaJournal
+			MENUITEM "@cmd_createreservedobjs",             cmCreateReservedObjs // @v9.0.5
+			MENUITEM "@cmd_buildlocaldl600",                cmBuildLocalDL600 // @v9.1.7
+			POPUP "@cmdpu_testing" {
+				MENUITEM "@cmd_generategoodsbills",			cmGenerateGoodsBills
+				MENUITEM "@cmd_generateclibnkimport",		cmGenerateCliBnkImport
+				MENUITEM "@cmd_goodsresttest",				cmGoodsRestTest
+				MENUITEM "@cmd_textbrowsertest",			cmTextBrowserTest
+			}
+		}
+	}
+}
+/*
+	Меню для кадровой системы
+*/
+10 MENU {
+	POPUP "@cmdpu_refs" {
+		MENUITEM "@cmd_about"								cmAbout
+		MENUITEM "@cmd_viewstatus"							cmViewStatus
+		MENUITEM SEPARATOR
+		POPUP "@cmdpu_geo" {
+			MENUITEM "&@cmd_country",						cmCountry
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_citystatus",						cmCityStatus
+		}
+		POPUP "@cmdpu_persons" {
+			MENUITEM "@cmd_anotherperson",					cmPerson
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_personkind",						cmPersonKind
+			MENUITEM "@cmd_personstatus",					cmPersonStatus
+			MENUITEM "@cmd_bnkacctype",						cmBnkAccType
+			MENUITEM "@cmd_registertype",					cmRegisterType
+			MENUITEM "@cmd_elinkkind",						cmELinkKind
+			MENUITEM "@cmd_objtag",							cmObjTag
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_personopkind"					cmPersonOpKind
+			MENUITEM "@cmd_personevent"						cmPersonEvent
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_division"						cmDivision
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_replaceperson",					cmReplacePerson
+		}
+		POPUP "@cmdpu_accounting" {
+			MENUITEM "@cmd_accsheet",						cmAccSheet
+			MENUITEM "@cmd_accplan",						cmAccPlan
+		}
+		POPUP "@cmdpu_operations" {
+			MENUITEM "@cmd_oprkind",						cmOprKind
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_oprtype",						cmOprType
+			MENUITEM "@cmd_opcounter",						cmOpCounter
+			MENUITEM "@cmd_formula",						cmFormula
+			MENUITEM "@cmd_amounttype",						cmAmountType
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_resetopcounters",				cmResetOpCounters
+		}
+		POPUP "@cmdpu_admin" {
+			MENUITEM "@cmd_action",							cmAction
+			MENUITEM "@cmd_dbdiv",							cmDBDiv
+		}
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_quit",								cmQuit
+	}
+	POPUP "@cmdpu_staff" {
+		MENUITEM "@cmd_person",								cmPerson
+		MENUITEM "@cmd_staff",								cmStaff
+		MENUITEM "@cmd_personevent",						cmPersonEvent
+	}
+	POPUP "@cmdpu_admin" {
+		MENUITEM "@cmd_commconfig",							cmCommConfig
+		MENUITEM "@cmd_editconfig",							cmEditConfig
+		MENUITEM "@cmd_defaultcliagt",						cmDefaultCliAgt
+		POPUP "@cmdpu_configetc" {
+			MENUITEM "@cmd_goodscfg"						cmGoodsCfg
+			MENUITEM "@cmd_vatbooksellcfg"					cmVATBookSellCfg
+		   	MENUITEM "@cmd_vatbookbuycfg"					cmVATBookBuyCfg
+			MENUITEM "@cmd_printercfg"						cmPrinterCfg
+			MENUITEM "@cmd_dbxchgcfg"						cmDBXchgCfg
+		}
+		MENUITEM "@cmd_groups_n_users",						cmGroups_n_Users
+		MENUITEM "@cmd_updatepassword",						cmUpdatePassword
+		MENUITEM "@cmd_viewsysj",							cmViewSysJ
+		MENUITEM SEPARATOR
+		POPUP "@cmdpu_repair" {
+			MENUITEM "@cmd_correctaccturnrest",				cmCorrectAccTurnRest
+			MENUITEM "@cmd_recalcbillturns",				cmRecalcBillTurns
+			MENUITEM "@cmd_checkbillamounts",				cmCheckBillAmounts
+			MENUITEM "@cmd_correctbillpaym",				cmCorrectBillPaym
+			MENUITEM "@cmd_correctbalance",					cmCorrectBalance
+			MENUITEM "@cmd_correctcurrest"					cmCorrectCurRest
+		}
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_sendbills",							cmSendBills
+		MENUITEM "@cmd_sendbillsbyfilt",					cmSendBillsByFilt
+		MENUITEM "@cmd_receivepackets",                     cmReceivePackets
+	}
+};
+/*
+	Меню PlanFlex
+*/
+20 MENU {
+	POPUP "@cmdpu_refs" {
+		MENUITEM "@cmd_about"							cmAbout
+		MENUITEM "@cmd_woodbreed",						cmWoodBreed
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_quit",							cmQuit
+	}
+}
+/*
+	Меню товароведа
+*/
+101 MENU {
+	POPUP "@cmdpu_refs" {
+		MENUITEM "@cmd_country",						cmCountry
+		MENUITEM "@cmd_anotherperson",                  cmAnotherPerson
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_accsheet",						cmAccSheet
+		MENUITEM "@cmd_accplan",						cmAccPlan
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_goodsgroup",						cmGoodsGroup
+		MENUITEM "@cmd_location",                       cmLocation
+		MENUITEM SEPARATOR
+		POPUP "@cmdpu_etc" {
+			MENUITEM "@cmd_unit",						cmUnit
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_citystatus",					cmCityStatus
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_personkind",					cmPersonKind
+			MENUITEM "@cmd_personstatus",				cmPersonStatus
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_amounttype",					cmAmountType
+			MENUITEM "@cmd_oprtype",					cmOprType
+			MENUITEM "@cmd_oprkind",					cmOprKind
+		}
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_quit",							cmQuit
+	}
+	POPUP "@cmdpu_operations" {
+		MENUITEM "@cmd_accturnlist",					cmAccTurnList
+		MENUITEM "@cmd_accanalyze",						cmAccAnalyze
+		MENUITEM "@cmd_cashbook",						cmCashBook
+		MENUITEM "@cmd_balance",						cmBalance
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_selectlocation",					cmSelectLocation
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_goodsbilllist",					cmGoodsBillList
+		MENUITEM "@cmd_cashbilllist",                   cmCashBillList
+		MENUITEM "@cmd_viewlots",						cmViewLots
+		MENUITEM "@cmd_trfranalyze",					cmTrfrAnalyze
+		MENUITEM "@cmd_goodsrest",						cmGoodsRest
+		MENUITEM "@cmd_suppltrnovr",					cmSupplTrnovr
+		MENUITEM "@cmd_selltrnovr",						cmSellTrnovr
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_goodsturnover",                  cmGoodsTurnover
+		MENUITEM "@cmd_goodsgrprlz",					cmGoodsGrpRlz
+		MENUITEM "@cmd_goodsmov",						cmGoodsMov
+		MENUITEM "@cmd_goodsoprgrouping",				cmGoodsOprGrouping
+		MENUITEM "@cmd_goodsoper",						cmGoodsOper
+	}
+}
+/*
+	Меню кассы
+*/
+102 MENU {
+	POPUP "@cmdpu_refs" {
+		MENUITEM "@cmd_accsheet",						cmAccSheet
+		MENUITEM "@cmd_accplan",						cmAccPlan
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_goodsgroup",						cmGoodsGroup
+		MENUITEM "@cmd_cashnode",						cmCashNode
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_quit",							cmQuit
+	}
+	POPUP "@cmdpu_operations" {
+		MENUITEM "@cmd_cashbilllist",					cmCashBillList
+		MENUITEM "@cmd_closecashday",					cmCloseCashDay
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_goodsbilllist",					cmGoodsBillList
+		MENUITEM "@cmd_viewlots",						cmViewLots
+		MENUITEM "@cmd_trfranalyze",					cmTrfrAnalyze
+		MENUITEM "@cmd_goodsrest",						cmGoodsRest
+	}
+}
+/*
+	Меню при входе в систему без авторизации
+*/
+103 MENU {
+	POPUP "@cmdpu_file" {
+		MENUITEM "@cmd_about",							cmAbout
+		MENUITEM "@cmd_dbmaintain",						cmDBMaintenance
+		MENUITEM "@cmd_login",							cmLogin
+		MENUITEM "@cmd_quit",							cmQuit
+	}
+	POPUP "@cmdpu_cfgimpexp" {
+		MENUITEM "@cmd_clibnkfmtcfg",					cmCliBnkFmtCfg
+		MENUITEM "@cmd_cfgimpspecseries",               cmCfgImpSpecSeries
+		MENUITEM "@cmd_expimpparamsinventory",          cmExpImpParamsInventory
+		MENUITEM "@cmd_pricelistexpimpparams",			cmPriceListExpImpParams
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_billexpimpparams",				cmBillExpImpParams
+		MENUITEM "@cmd_browexpimpparams",				cmBRowExpImpParams
+	}
+}

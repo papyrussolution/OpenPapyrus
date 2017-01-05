@@ -1,0 +1,28 @@
+## Universe-HTT
+## data_array_scard.tddo
+## Массив структур платиковых карт
+
+#pragma(htmlencode)
+#start(StrAssocArray)
+	[
+	#iter()
+		{
+		#start(SCard:${ID})
+			"ID":${ID},
+			"SeriesID":${SeriesID.ID},
+			"OwnerID":${OwnerReqID.PersonID.ID},
+			"Code":"${Code}",
+			"Hash":"${Hash}",
+			"IssueDate":"${IssueDate}",
+			"Expiry":"${Expiry}",
+			"PDis":${PDis},
+			"Overdraft":${Overdraft},
+			"Debit":${Debit},
+			"Credit":${Credit},
+			"Rest":${Rest},
+			"Flags":${Flags}
+		#end()
+		},
+	#end()
+	]
+#end()

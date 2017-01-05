@@ -1,0 +1,23 @@
+## Universe-HTT
+## data_location.tddo
+## Структура локации
+## Args: ${1} - идентификатор локации
+
+#pragma(htmlencode)
+#start(Location:${1})
+{
+	"ID":${ID},
+	## "ParentID":${ParentID.ID},
+	"Type":${Type},
+	"OwnerID":${@(Location, ID).OwnerID.ID},
+	"Code":"${Code}",
+	"Name":"${Name}",
+	"ZIP":"${ZIP}",
+	## "CityID":${CityID.ID},
+	"Latitude":${Latitude},
+	"Longitude":${Longitude},
+	"Addr":"${Addr}",
+	"Phone":"${Phone}",
+	"Contact":"${Contact}"
+}
+#end()

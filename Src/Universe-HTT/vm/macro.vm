@@ -1,0 +1,23 @@
+## // Generic marco
+
+#macro(TDDT $label)$UHTT.getTddt($label)#end
+#macro(PARAMETER $param)$UHTT.getRequestParameter($request, $param)#end
+
+#macro(IMAGE $code $width $height)
+	<img src="/dispatcher/workbook/content?symb=${code}" #if(${width})width="${width}"#end #if(${height})height="${height}"#end></img>
+#end
+
+#macro(FLASH $code $width $height)
+	<object
+		type="application/x-shockwave-flash"
+		#if(${width})width="${width}"#end #if(${height})height="${height}"#end
+		data="/dispatcher/workbook/content?symb=${code}"
+	>
+		<param name="movie" value="/dispatcher/workbook/content?symb=${code}">
+		<embed
+			src="/dispatcher/workbook/content?symb=${code}"
+			#if(${width})width="${width}"#end #if(${height})height="${height}"#end
+		>
+		</embed>
+	</object>
+#end

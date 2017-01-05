@@ -1,0 +1,61 @@
+
+<div id="UHTT_VIEW_SPECSERIES">
+	<div id="UHTT_VIEW_SPECSERIES_TABLE_MSG" class="tablesorter-overlay-msg">Обработка...</div>
+	<!-- Создание и заполнение таблицы -->
+	<table id="UHTT_VIEW_SPECSERIES_TABLE" class="tablesorter">
+		<thead>
+			<tr>
+				<th>Дата</th>
+				<th>Номер документа</th>
+				<th>Штрихкод</th>
+				<th>Серийный номер</th>
+				<th>Товар</th>
+				<th>Производитель</th>
+			</tr>
+		</thead>
+		<tbody>
+		#start(StrAssocArray)
+			#iter()
+			<tr class="uhtt-view-specseries-table-item">
+				#start(UHTTSpecSeries:${Id})
+					<td>${InfoDate}</td>
+					<td>${InfoIdent}</td>
+					<td>${Barcode}</td>
+					<td>${Serial}</td>
+					<td>${GoodsName}</td>
+					<td>${ManufName}</td>
+				#end()
+			</tr>
+			#end()
+		#end()
+		</tbody>
+	</table>
+	<div id="UHTT_VIEW_SPECSERIES_TABLE_PAGER" class="tablesorter-pager">
+		<input type="button" class="tablesorter-pager-btn-first"/>
+		<input type="button" class="tablesorter-pager-btn-prev"/>
+		<label class="tablesorter-pager-label-page-display"></label>
+		<input type="button" class="tablesorter-pager-btn-next"/>
+		<input type="button" class="tablesorter-pager-btn-last"/>
+		<b>Отображать по: </b>
+		<select class="tablesorter-pager-select-page-size">
+			<option selected="selected" value="20">20</option>
+			<option value="30">30</option>
+			<option value="40">40</option>
+			<option value="50">50</option>
+			<option value="100">100</option>
+			<option value="500">500</option>
+		</select>
+	</div>
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#UHTT_VIEW_SPECSERIES_TABLE").tablesorter({ widthFixed:true });
+   		$("#UHTT_VIEW_SPECSERIES_TABLE").tablesorterPager({container: $("#UHTT_VIEW_SPECSERIES_TABLE_PAGER")});
+   		$("#UHTT_VIEW_SPECSERIES_TABLE").bind("sortStart", function() {
+       		$("#UHTT_VIEW_SPECSERIES_TABLE_MSG").show();
+   		}).bind("sortEnd", function() {
+       		$("#UHTT_VIEW_SPECSERIES_TABLE_MSG").hide();
+       	});
+	});
+</script>

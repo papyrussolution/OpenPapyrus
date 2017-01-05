@@ -1,0 +1,1228 @@
+
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:p2="http://efesrussia.ru/salesorders" xmlns:p1="http://efesrussia.ru/dde" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" name="WS_EFES_DDE" targetNamespace="http://efesrussia.ru/dde">
+   <wsp:UsingPolicy wsdl:required="true" />
+   <wsdl:documentation />
+   <wsp:Policy wsu:Id="OP_SetDeliveryNoteSync" />
+   <wsp:Policy wsu:Id="OP_SetDeliveryNoteEnhSync" />
+   <wsp:Policy wsu:Id="OP_SetSalesOrderStatusSync" />
+   <wsp:Policy wsu:Id="OP_GetProductListSync" />
+   <wsp:Policy wsu:Id="OP_GetBusinessPartnerSync" />
+   <wsp:Policy wsu:Id="OP_CancelDeliveryNoteSync" />
+   <wsp:Policy wsu:Id="OP_SetMTDProductReportSync" />
+   <wsp:Policy wsu:Id="OP_SetDebtsDetailedSync" />
+   <wsp:Policy wsu:Id="OP_GetSalesOrderSync" />
+   <wsp:Policy wsu:Id="OP_CancelDeliveryNoteEnhSync" />
+   <wsp:Policy wsu:Id="OP_SetDailyStockReportSync" />
+   <wsp:Policy wsu:Id="OP_SetDebtsSync" />
+   <wsp:Policy wsu:Id="OP_SetMTDOutletsReportSync" />
+   <wsdl:types>
+      <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://efesrussia.ru/dde" targetNamespace="http://efesrussia.ru/dde">
+         <xsd:element name="GetDDEBusinessPartnerResponse" type="GetDDEBusinessPartnerResponseType" />
+         <xsd:element name="SetDailyStockReportRequest" type="SetDailyStockReportRequestType" />
+         <xsd:element name="GetProductListSyncRequest" type="GetProductListSyncRequestType" />
+         <xsd:element name="GetProductListSyncResponse" type="GetProductListSyncResponseType" />
+         <xsd:element name="GetDDEBusinessPartnerRequest" type="GetDDEBusinessPartnerRequestType" />
+         <xsd:element name="SetDailyStockReportResponse" type="SetDailyStockReportResponseType" />
+         <xsd:element name="SetMTDOutletsReportRequest" type="SetMTDOutletsReportRequestType" />
+         <xsd:element name="SetMTDOutletsReportResponse" type="SetMTDOutletsReportResponseType" />
+         <xsd:element name="SetMTDProductReportResponse" type="SetMTDProductReportResponseType" />
+         <xsd:element name="SetMTDProductReportRequest" type="SetMTDProductReportRequestType" />
+         <xsd:simpleType name="STR18">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="18" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="AMNT_L">
+            <xsd:restriction base="xsd:decimal">
+               <xsd:fractionDigits value="3" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR10">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="10" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR1">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="1" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR3">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="3" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR32">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="32" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR20">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="20" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR255">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="255" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR4">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="4" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:complexType name="SetMTDOutletsReportRequestType">
+            <xsd:sequence>
+               <xsd:element name="SalesOrg" type="STR4" />
+               <xsd:element name="Wareh" type="STR4" />
+               <xsd:element name="SessionID" type="STR32" minOccurs="0" />
+               <xsd:element name="DATA" type="OutletReportRequestType" maxOccurs="unbounded" />
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="SetDailyStockReportRequestType">
+            <xsd:sequence>
+               <xsd:element name="SalesOrg" type="STR4" />
+               <xsd:element name="Wareh" type="STR4" />
+               <xsd:element name="SessionID" type="STR32" minOccurs="0" />
+               <xsd:element name="DATA" type="ProductReportRequestType" maxOccurs="unbounded" />
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="OutletReportRequestType">
+            <xsd:sequence>
+               <xsd:element name="Row" maxOccurs="unbounded">
+                  <xsd:complexType>
+                     <xsd:sequence>
+                        <xsd:element name="ReportDate" type="xsd:date" />
+                        <xsd:element name="EFRShipTo" type="STR10" />
+                        <xsd:element name="Qty" type="AMNT_L" />
+                        <xsd:element name="Unit" type="STR3" />
+                     </xsd:sequence>
+                  </xsd:complexType>
+               </xsd:element>
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="GetDDEBusinessPartnerResponseType">
+            <xsd:sequence>
+               <xsd:element name="BP" maxOccurs="unbounded">
+                  <xsd:annotation>
+                     <xsd:appinfo source="http://sap.com/xi/TextID">
+                     cda18280747011e39d83005056877b05
+                     </xsd:appinfo>
+                  </xsd:annotation>
+                  <xsd:complexType>
+                     <xsd:sequence>
+                        <xsd:element name="BPID">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              cda18281747011e3cded005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="10" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="Legal" minOccurs="0">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              cda18282747011e388a7005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="2" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="LegalDesc" type="STR255" minOccurs="0" />
+                        <xsd:element name="INN" type="STR20" minOccurs="0" />
+                        <xsd:element name="KPP" type="STR20" minOccurs="0" />
+                        <xsd:element name="Name1">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              cda18285747011e3945f005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="40" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="Name2" minOccurs="0">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              cda18286747011e39769005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="40" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="Name3" minOccurs="0">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              cda18287747011e3c06c005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="40" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="Name4" minOccurs="0">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              cda18288747011e3b501005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="40" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="SearchStr" minOccurs="0">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              07060b90747111e3ae3b005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="20" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="SearchStr2" minOccurs="0">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              07060b91747111e3b48f005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="20" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="Street">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              07060b92747111e38bef005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="60" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="Street2" minOccurs="0">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              07060b93747111e38d79005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="60" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="HouseNum">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              318d7f10747111e392a0005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="10" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="HouseExt" minOccurs="0">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              318d7f11747111e3c153005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="10" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="District" minOccurs="0">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              318d7f12747111e3b7cc005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="40" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="PostalCode" minOccurs="0">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              e60599a0747111e3a9d2005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="10" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="City">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              e60599a1747111e3a65d005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="40" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="Country">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              e60599a2747111e3c9aa005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="3" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="Region">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              e60599a3747111e3b45b005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="3" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="Phone" minOccurs="0">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              e60599a4747111e3b473005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="30" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="Cell" minOccurs="0">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              e60599a5747111e3970e005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="30" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="Fax" minOccurs="0">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              e60599a6747111e3b655005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="30" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="Email" minOccurs="0">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              e60599a7747111e38cd5005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="241" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="SalesOrg">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              290a0371747311e39d91005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="4" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="Wareh" type="STR4" />
+                        <xsd:element name="PaymentTerms" minOccurs="0">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              290a0374747311e39a59005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="4" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                        <xsd:element name="PaymTermsDesc" type="STR255" minOccurs="0" />
+                        <xsd:element name="PriceList" minOccurs="0">
+                           <xsd:annotation>
+                              <xsd:appinfo source="http://sap.com/xi/TextID">
+                              290a0375747311e3cb8b005056877b05
+                              </xsd:appinfo>
+                           </xsd:annotation>
+                           <xsd:simpleType>
+                              <xsd:restriction base="xsd:string">
+                                 <xsd:maxLength value="2" />
+                              </xsd:restriction>
+                           </xsd:simpleType>
+                        </xsd:element>
+                     </xsd:sequence>
+                  </xsd:complexType>
+               </xsd:element>
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="GetDDEBusinessPartnerRequestType">
+            <xsd:sequence>
+               <xsd:element name="SalesOrg">
+                  <xsd:annotation>
+                     <xsd:appinfo source="http://sap.com/xi/TextID">
+                     1d89dbe0747011e39db5005056877b05
+                     </xsd:appinfo>
+                  </xsd:annotation>
+                  <xsd:simpleType>
+                     <xsd:restriction base="xsd:string">
+                        <xsd:maxLength value="4" />
+                     </xsd:restriction>
+                  </xsd:simpleType>
+               </xsd:element>
+               <xsd:element name="Wareh" type="STR4" />
+               <xsd:element name="SessionID" type="STR32" />
+               <xsd:element name="LastLoadDate" type="xsd:date" />
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="ProductReportRequestType">
+            <xsd:sequence>
+               <xsd:element name="Row" maxOccurs="unbounded">
+                  <xsd:complexType>
+                     <xsd:sequence>
+                        <xsd:element name="ReportDate" type="xsd:date" />
+                        <xsd:element name="EFRProd" type="STR18" />
+                        <xsd:element name="Qty" type="AMNT_L" />
+                        <xsd:element name="Unit" type="STR3" />
+                     </xsd:sequence>
+                  </xsd:complexType>
+               </xsd:element>
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="GetProductListSyncRequestType">
+            <xsd:sequence>
+               <xsd:element name="SalesOrg" type="STR4" />
+               <xsd:element name="Wareh" type="STR4" minOccurs="0" />
+               <xsd:element name="SessionID" type="STR32" minOccurs="0" />
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="SetMTDOutletsReportResponseType">
+            <xsd:sequence>
+               <xsd:element name="ReportStatus">
+                  <xsd:complexType>
+                     <xsd:sequence>
+                        <xsd:element name="LogMsg" maxOccurs="unbounded">
+                           <xsd:complexType>
+                              <xsd:sequence>
+                                 <xsd:element name="MsgType" type="STR1" />
+                                 <xsd:element name="MsgText" type="STR255" />
+                              </xsd:sequence>
+                           </xsd:complexType>
+                        </xsd:element>
+                     </xsd:sequence>
+                  </xsd:complexType>
+               </xsd:element>
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="SetDailyStockReportResponseType">
+            <xsd:sequence>
+               <xsd:element name="ReportStatus">
+                  <xsd:complexType>
+                     <xsd:sequence>
+                        <xsd:element name="LogMsg" maxOccurs="unbounded">
+                           <xsd:complexType>
+                              <xsd:sequence>
+                                 <xsd:element name="MsgType" type="STR1" />
+                                 <xsd:element name="MsgText" type="STR255" />
+                              </xsd:sequence>
+                           </xsd:complexType>
+                        </xsd:element>
+                     </xsd:sequence>
+                  </xsd:complexType>
+               </xsd:element>
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="SetMTDProductReportResponseType">
+            <xsd:sequence>
+               <xsd:element name="ReportStatus">
+                  <xsd:complexType>
+                     <xsd:sequence>
+                        <xsd:element name="LogMsg" maxOccurs="unbounded">
+                           <xsd:complexType>
+                              <xsd:sequence>
+                                 <xsd:element name="MsgType" type="STR1" />
+                                 <xsd:element name="MsgText" type="STR255" />
+                              </xsd:sequence>
+                           </xsd:complexType>
+                        </xsd:element>
+                     </xsd:sequence>
+                  </xsd:complexType>
+               </xsd:element>
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="GetProductListSyncResponseType">
+            <xsd:sequence>
+               <xsd:element name="ProductList">
+                  <xsd:complexType>
+                     <xsd:sequence>
+                        <xsd:element name="SalesOrg" type="STR4" />
+                        <xsd:element name="OrgUnit" type="STR10" />
+                        <xsd:element name="Row" maxOccurs="unbounded">
+                           <xsd:complexType>
+                              <xsd:sequence>
+                                 <xsd:element name="EFRProd" type="STR18" />
+                                 <xsd:element name="ProdDesc" type="STR255" />
+                                 <xsd:element name="BaseUnit" type="STR3" />
+                                 <xsd:element name="GTINPCG">
+                                    <xsd:simpleType>
+                                       <xsd:restriction base="xsd:string">
+                                          <xsd:maxLength value="14" />
+                                       </xsd:restriction>
+                                    </xsd:simpleType>
+                                 </xsd:element>
+                                 <xsd:element name="GTINUnit">
+                                    <xsd:simpleType>
+                                       <xsd:restriction base="xsd:string">
+                                          <xsd:maxLength value="14" />
+                                       </xsd:restriction>
+                                    </xsd:simpleType>
+                                 </xsd:element>
+                                 <xsd:element name="UnitPerPCG" type="xsd:decimal" />
+                                 <xsd:element name="LitrePerPCG" type="xsd:decimal" />
+                                 <xsd:element name="MPKPerPCG" type="xsd:decimal" />
+                              </xsd:sequence>
+                           </xsd:complexType>
+                        </xsd:element>
+                     </xsd:sequence>
+                  </xsd:complexType>
+               </xsd:element>
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="SetMTDProductReportRequestType">
+            <xsd:sequence>
+               <xsd:element name="SalesOrg" type="STR4" />
+               <xsd:element name="Wareh" type="STR4" />
+               <xsd:element name="SessionID" type="STR32" minOccurs="0" />
+               <xsd:element name="DATA" type="ProductReportRequestType" maxOccurs="unbounded" />
+            </xsd:sequence>
+         </xsd:complexType>
+      </xsd:schema>
+      <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://efesrussia.ru/salesorders" targetNamespace="http://efesrussia.ru/salesorders">
+         <xsd:element name="SetDebtsResponse" type="LogMsgType" />
+         <xsd:element name="CancelDeliveryNoteEnhResponse" type="STR8" />
+         <xsd:element name="GetSalesOrderRequest" type="GetSalesOrderRequestType" />
+         <xsd:element name="SetDeliveryNoteResponse" type="SetDeliveryNoteResponseType" />
+         <xsd:element name="SetSalesOrderStatusResponse" type="LogMsgType" />
+         <xsd:element name="SetDebtsDetailedResponse" type="SetDebtsDetailedResponseType" />
+         <xsd:element name="SetDeliveryNoteRequest" type="SetDeliveryNoteRequestType" />
+         <xsd:element name="SetDeliveryNoteEnhRequest" type="SetDeliveryNoteRequestType" />
+         <xsd:element name="CancelDeliveryNoteResponse" type="CancelDeliveryNoteResponseType" />
+         <xsd:element name="SetSalesOrderStatusRequest" type="SetSalesOrderStatusRequestType" />
+         <xsd:element name="SetDebtsRequest" type="SetDebtsRequestType" />
+         <xsd:element name="CancelDeliveryNoteRequest" type="CancelDeliveryNoteRequestType" />
+         <xsd:element name="SetDebtsDetailedRequest" type="SetDebtsDetailedRequestType" />
+         <xsd:element name="GetSalesOrderResponse" type="GetSalesOrderResponseType" />
+         <xsd:element name="CancelDeliveryNoteEnhRequest" type="CancelDeliveryNoteRequestType" />
+         <xsd:element name="SetDeliveryNoteEnhResponse" type="STR8" />
+         <xsd:simpleType name="STR10">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="10" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR9">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="9" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR5">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="5" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR1">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="1" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR20">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="20" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR6">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="6" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR18">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="18" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR2">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="2" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR240">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="240" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR3">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="3" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR32">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="32" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR255">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="255" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="CURR">
+            <xsd:restriction base="xsd:decimal">
+               <xsd:fractionDigits value="2" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="DEC_5_0">
+            <xsd:restriction base="xsd:decimal">
+               <xsd:totalDigits value="5" />
+               <xsd:fractionDigits value="0" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR7">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="7" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR40">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="40" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="AMOUNT">
+            <xsd:restriction base="xsd:decimal">
+               <xsd:fractionDigits value="2" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR4">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="4" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR35">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="35" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="PRTDocNumType">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="40" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:simpleType name="STR8">
+            <xsd:restriction base="xsd:string">
+               <xsd:maxLength value="8" />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:complexType name="CancelDeliveryNoteResponseType">
+            <xsd:sequence>
+               <xsd:element name="DeliveryNoteStatus" type="DeliveryNoteStatusType" maxOccurs="unbounded" />
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="GetSalesOrderRequestType">
+            <xsd:complexContent>
+               <xsd:extension base="DistributorRequestType">
+                  <xsd:sequence>
+                     <xsd:element name="DateFrom" type="xsd:date" minOccurs="0" />
+                     <xsd:element name="DateTo" type="xsd:date" minOccurs="0" />
+                     <xsd:element name="RepeatFlag" type="STR1" minOccurs="0" />
+                     <xsd:element name="EFRDocNum" type="STR10" minOccurs="0" maxOccurs="unbounded" />
+                  </xsd:sequence>
+               </xsd:extension>
+            </xsd:complexContent>
+         </xsd:complexType>
+         <xsd:complexType name="LogMsgType">
+            <xsd:sequence>
+               <xsd:element name="MsgType" type="STR1" />
+               <xsd:element name="MsgText" type="STR255" />
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="SetDebtsRequestType">
+            <xsd:complexContent>
+               <xsd:extension base="DistributorRequestType">
+                  <xsd:sequence>
+                     <xsd:element name="OutletDebts" maxOccurs="unbounded">
+                        <xsd:complexType>
+                           <xsd:sequence>
+                              <xsd:element name="EFRSoldTo" type="STR10" />
+                              <xsd:element name="DebtAmnt" type="CURR" />
+                              <xsd:element name="DebtLimit" type="CURR" />
+                              <xsd:element name="DebtLmtDays" type="STR3" />
+                              <xsd:element name="DebtDelayDays" type="STR3" />
+                              <xsd:element name="Comment" type="STR255" minOccurs="0" />
+                           </xsd:sequence>
+                        </xsd:complexType>
+                     </xsd:element>
+                  </xsd:sequence>
+               </xsd:extension>
+            </xsd:complexContent>
+         </xsd:complexType>
+         <xsd:complexType name="CancelDeliveryNoteRequestType">
+            <xsd:complexContent>
+               <xsd:extension base="DistributorRequestType">
+                  <xsd:sequence>
+                     <xsd:element name="DeliveryList">
+                        <xsd:complexType>
+                           <xsd:sequence>
+                              <xsd:element name="PRTDocNum" type="PRTDocNumType" maxOccurs="unbounded" />
+                           </xsd:sequence>
+                        </xsd:complexType>
+                     </xsd:element>
+                  </xsd:sequence>
+               </xsd:extension>
+            </xsd:complexContent>
+         </xsd:complexType>
+         <xsd:complexType name="DistributorRequestType">
+            <xsd:sequence>
+               <xsd:element name="SalesOrg" type="STR4" />
+               <xsd:element name="Wareh" type="STR4" />
+               <xsd:element name="SessionID" type="STR32" minOccurs="0" />
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="DDESalesOrderType">
+            <xsd:sequence>
+               <xsd:element name="EFRDocNum" type="STR10" />
+               <xsd:element name="PaymTerm" type="STR4" />
+               <xsd:element name="ShipCond" type="STR2" />
+               <xsd:element name="ShipCondDesc" type="STR20" />
+               <xsd:element name="DocType" type="STR4" />
+               <xsd:element name="SalesOrg" type="STR4" />
+               <xsd:element name="DistrChan" type="STR2" />
+               <xsd:element name="Division" type="STR2" />
+               <xsd:element name="Wareh" type="STR4" />
+               <xsd:element name="TerrID" type="STR7" />
+               <xsd:element name="RDelvDate" type="xsd:date" />
+               <xsd:element name="DocDate" type="xsd:dateTime" />
+               <xsd:element name="EFRSoldTo" type="STR10" />
+               <xsd:element name="SoldToName1" type="STR40" minOccurs="0" />
+               <xsd:element name="SoldToName2" type="STR40" minOccurs="0" />
+               <xsd:element name="SoldToAddr" type="STR35" minOccurs="0" />
+               <xsd:element name="SoldToAddr2" type="STR35" minOccurs="0" />
+               <xsd:element name="SoldToCity" type="STR35" minOccurs="0" />
+               <xsd:element name="SoldToReg" type="STR35" minOccurs="0" />
+               <xsd:element name="SoldToPost" type="STR9" minOccurs="0" />
+               <xsd:element name="EFRShipTo" type="STR10" />
+               <xsd:element name="ShipToName1" type="STR40" />
+               <xsd:element name="ShipToName2" type="STR40" />
+               <xsd:element name="ShipToAddr" type="STR35" />
+               <xsd:element name="ShipToAddr2" type="STR35" />
+               <xsd:element name="ShipToCity" type="STR35" />
+               <xsd:element name="ShipToReg" type="STR35" />
+               <xsd:element name="ShipToPost" type="STR9" />
+               <xsd:element name="Comment" type="STR240" />
+               <xsd:element name="DocAmnt" type="CURR" />
+               <xsd:element name="Currency" type="STR3" />
+               <xsd:element name="PRTStatus" type="STR5" />
+               <xsd:element name="Item" type="SalesOrderItemExtType" maxOccurs="unbounded" />
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="SalesOrderItemType">
+            <xsd:sequence>
+               <xsd:element name="PosNum" type="STR6" />
+               <xsd:element name="PosType" type="STR4" />
+               <xsd:element name="EFRProd" type="STR18" />
+               <xsd:element name="Qty" type="CURR" />
+               <xsd:element name="Unit" type="STR3" />
+               <xsd:element name="Amnt" type="CURR" />
+               <xsd:element name="Currency" type="STR3" />
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="SetDebtsDetailedResponseType">
+            <xsd:sequence>
+               <xsd:element name="LogMsg" type="LogMsgType" maxOccurs="unbounded" />
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="SetDebtsDetailedRequestType">
+            <xsd:complexContent>
+               <xsd:extension base="DistributorRequestType">
+                  <xsd:sequence>
+                     <xsd:element name="Data" maxOccurs="unbounded">
+                        <xsd:complexType>
+                           <xsd:sequence>
+                              <xsd:element name="EFRSoldTo" type="STR10" />
+                              <xsd:element name="Row" maxOccurs="unbounded">
+                                 <xsd:complexType>
+                                    <xsd:sequence>
+                                       <xsd:element name="PRTDocNum" type="STR40" />
+                                       <xsd:element name="DelvDate" type="xsd:date" />
+                                       <xsd:element name="PaymDate" type="xsd:date" />
+                                       <xsd:element name="DocAmnt" type="AMOUNT" />
+                                       <xsd:element name="DebtAmnt" type="AMOUNT" />
+                                    </xsd:sequence>
+                                 </xsd:complexType>
+                              </xsd:element>
+                           </xsd:sequence>
+                        </xsd:complexType>
+                     </xsd:element>
+                  </xsd:sequence>
+               </xsd:extension>
+            </xsd:complexContent>
+         </xsd:complexType>
+         <xsd:complexType name="SetDeliveryNoteResponseType">
+            <xsd:sequence>
+               <xsd:element name="DeliveryNoteStatus" type="DeliveryNoteStatusType" maxOccurs="unbounded" />
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="SetDeliveryNoteRequestType">
+            <xsd:complexContent>
+               <xsd:extension base="DistributorRequestType">
+                  <xsd:sequence>
+                     <xsd:element name="DeliveryNote" type="DeliveryNoteType" maxOccurs="unbounded" />
+                  </xsd:sequence>
+               </xsd:extension>
+            </xsd:complexContent>
+         </xsd:complexType>
+         <xsd:complexType name="DeliveryNoteStatusType">
+            <xsd:sequence>
+               <xsd:element name="PRTDocNum" type="STR40" />
+               <xsd:element name="EFRDelvNum" type="STR10" />
+               <xsd:element name="EFRStatus" type="STR5" />
+               <xsd:element name="LogMsg" type="LogMsgType" maxOccurs="unbounded" />
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="DeliveryNoteType">
+            <xsd:sequence>
+               <xsd:element name="EFRDocNum" type="STR10" />
+               <xsd:element name="PRTDocNum" type="STR40" />
+               <xsd:element name="DelvType" type="STR4" />
+               <xsd:element name="ReturnSign" type="STR1" />
+               <xsd:element name="DelvDate" type="xsd:date" />
+               <xsd:element name="DocType" type="STR4" />
+               <xsd:element name="RDelvDate" type="xsd:date" />
+               <xsd:element name="EFRSoldTo" type="STR10" />
+               <xsd:element name="EFRShipTo" type="STR10" />
+               <xsd:element name="Comment" type="STR40" minOccurs="0" />
+               <xsd:element name="MDG5Digest" type="xsd:base64Binary" minOccurs="0" />
+               <xsd:element name="Item" type="SalesOrderItemType" maxOccurs="unbounded" />
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="SetSalesOrderStatusRequestType">
+            <xsd:complexContent>
+               <xsd:extension base="DistributorRequestType">
+                  <xsd:sequence>
+                     <xsd:element name="SalesOrderStatus" type="SalesOrderStatusType" maxOccurs="unbounded" />
+                  </xsd:sequence>
+               </xsd:extension>
+            </xsd:complexContent>
+         </xsd:complexType>
+         <xsd:complexType name="GetSalesOrderResponseType">
+            <xsd:sequence>
+               <xsd:element name="SalesOrder" type="DDESalesOrderType" maxOccurs="unbounded" />
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="SalesOrderStatusType">
+            <xsd:sequence>
+               <xsd:element name="PRTDocNum" type="STR40" />
+               <xsd:element name="ERPDocNum" type="STR10" />
+               <xsd:element name="OrderStatus" type="STR5" />
+               <xsd:element name="LogMsg" type="LogMsgType" maxOccurs="unbounded" />
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="SalesOrderItemExtType">
+            <xsd:sequence>
+               <xsd:element name="PosNum" type="STR6" />
+               <xsd:element name="PosType" type="STR4" />
+               <xsd:element name="EFRProd" type="STR18" />
+               <xsd:element name="Qty" type="AMOUNT" />
+               <xsd:element name="Unit" type="STR3" />
+               <xsd:element name="BaseUnit" type="STR3" />
+               <xsd:element name="QtyN" type="DEC_5_0" />
+               <xsd:element name="QtyD" type="DEC_5_0" />
+               <xsd:element name="Amnt" type="AMOUNT" />
+               <xsd:element name="Currency" type="STR3" />
+            </xsd:sequence>
+         </xsd:complexType>
+      </xsd:schema>
+   </wsdl:types>
+   <wsdl:message name="p2.SetDeliveryNoteRequest">
+      <wsdl:documentation />
+      <wsdl:part name="SetDeliveryNoteRequest" element="p2:SetDeliveryNoteRequest" />
+   </wsdl:message>
+   <wsdl:message name="p2.SetDeliveryNoteResponse">
+      <wsdl:documentation />
+      <wsdl:part name="SetDeliveryNoteResponse" element="p2:SetDeliveryNoteResponse" />
+   </wsdl:message>
+   <wsdl:message name="p2.SetDeliveryNoteEnhRequest">
+      <wsdl:documentation />
+      <wsdl:part name="SetDeliveryNoteEnhRequest" element="p2:SetDeliveryNoteEnhRequest" />
+   </wsdl:message>
+   <wsdl:message name="p2.SetDeliveryNoteEnhResponse">
+      <wsdl:documentation />
+      <wsdl:part name="SetDeliveryNoteEnhResponse" element="p2:SetDeliveryNoteEnhResponse" />
+   </wsdl:message>
+   <wsdl:message name="p2.SetSalesOrderStatusRequest">
+      <wsdl:documentation />
+      <wsdl:part name="SetSalesOrderStatusRequest" element="p2:SetSalesOrderStatusRequest" />
+   </wsdl:message>
+   <wsdl:message name="p2.SetSalesOrderStatusResponse">
+      <wsdl:documentation />
+      <wsdl:part name="SetSalesOrderStatusResponse" element="p2:SetSalesOrderStatusResponse" />
+   </wsdl:message>
+   <wsdl:message name="p1.GetProductListSyncRequest">
+      <wsdl:documentation />
+      <wsdl:part name="GetProductListSyncRequest" element="p1:GetProductListSyncRequest" />
+   </wsdl:message>
+   <wsdl:message name="p1.GetProductListSyncResponse">
+      <wsdl:documentation />
+      <wsdl:part name="GetProductListSyncResponse" element="p1:GetProductListSyncResponse" />
+   </wsdl:message>
+   <wsdl:message name="p1.GetDDEBusinessPartnerRequest">
+      <wsdl:documentation />
+      <wsdl:part name="GetDDEBusinessPartnerRequest" element="p1:GetDDEBusinessPartnerRequest" />
+   </wsdl:message>
+   <wsdl:message name="p1.GetDDEBusinessPartnerResponse">
+      <wsdl:documentation />
+      <wsdl:part name="GetDDEBusinessPartnerResponse" element="p1:GetDDEBusinessPartnerResponse" />
+   </wsdl:message>
+   <wsdl:message name="p2.CancelDeliveryNoteRequest">
+      <wsdl:documentation />
+      <wsdl:part name="CancelDeliveryNoteRequest" element="p2:CancelDeliveryNoteRequest" />
+   </wsdl:message>
+   <wsdl:message name="p2.CancelDeliveryNoteResponse">
+      <wsdl:documentation />
+      <wsdl:part name="CancelDeliveryNoteResponse" element="p2:CancelDeliveryNoteResponse" />
+   </wsdl:message>
+   <wsdl:message name="p1.SetMTDProductReportRequest">
+      <wsdl:documentation />
+      <wsdl:part name="SetMTDProductReportRequest" element="p1:SetMTDProductReportRequest" />
+   </wsdl:message>
+   <wsdl:message name="p1.SetMTDProductReportResponse">
+      <wsdl:documentation />
+      <wsdl:part name="SetMTDProductReportResponse" element="p1:SetMTDProductReportResponse" />
+   </wsdl:message>
+   <wsdl:message name="p2.SetDebtsDetailedRequest">
+      <wsdl:documentation />
+      <wsdl:part name="SetDebtsDetailedRequest" element="p2:SetDebtsDetailedRequest" />
+   </wsdl:message>
+   <wsdl:message name="p2.SetDebtsDetailedResponse">
+      <wsdl:documentation />
+      <wsdl:part name="SetDebtsDetailedResponse" element="p2:SetDebtsDetailedResponse" />
+   </wsdl:message>
+   <wsdl:message name="p2.GetSalesOrderRequest">
+      <wsdl:documentation />
+      <wsdl:part name="GetSalesOrderRequest" element="p2:GetSalesOrderRequest" />
+   </wsdl:message>
+   <wsdl:message name="p2.GetSalesOrderResponse">
+      <wsdl:documentation />
+      <wsdl:part name="GetSalesOrderResponse" element="p2:GetSalesOrderResponse" />
+   </wsdl:message>
+   <wsdl:message name="p2.CancelDeliveryNoteEnhRequest">
+      <wsdl:documentation />
+      <wsdl:part name="CancelDeliveryNoteEnhRequest" element="p2:CancelDeliveryNoteEnhRequest" />
+   </wsdl:message>
+   <wsdl:message name="p2.CancelDeliveryNoteEnhResponse">
+      <wsdl:documentation />
+      <wsdl:part name="CancelDeliveryNoteEnhResponse" element="p2:CancelDeliveryNoteEnhResponse" />
+   </wsdl:message>
+   <wsdl:message name="p1.SetDailyStockReportRequest">
+      <wsdl:documentation />
+      <wsdl:part name="SetDailyStockReportRequest" element="p1:SetDailyStockReportRequest" />
+   </wsdl:message>
+   <wsdl:message name="p1.SetDailyStockReportResponse">
+      <wsdl:documentation />
+      <wsdl:part name="SetDailyStockReportResponse" element="p1:SetDailyStockReportResponse" />
+   </wsdl:message>
+   <wsdl:message name="p2.SetDebtsRequest">
+      <wsdl:documentation />
+      <wsdl:part name="SetDebtsRequest" element="p2:SetDebtsRequest" />
+   </wsdl:message>
+   <wsdl:message name="p2.SetDebtsResponse">
+      <wsdl:documentation />
+      <wsdl:part name="SetDebtsResponse" element="p2:SetDebtsResponse" />
+   </wsdl:message>
+   <wsdl:message name="p1.SetMTDOutletsReportRequest">
+      <wsdl:documentation />
+      <wsdl:part name="SetMTDOutletsReportRequest" element="p1:SetMTDOutletsReportRequest" />
+   </wsdl:message>
+   <wsdl:message name="p1.SetMTDOutletsReportResponse">
+      <wsdl:documentation />
+      <wsdl:part name="SetMTDOutletsReportResponse" element="p1:SetMTDOutletsReportResponse" />
+   </wsdl:message>
+   <wsdl:portType name="WS_EFES_DDE">
+      <wsdl:documentation />
+      <wsdl:operation name="SetDeliveryNoteSync">
+         <wsdl:documentation />
+         <wsp:Policy>
+            <wsp:PolicyReference URI="#OP_SetDeliveryNoteSync" />
+         </wsp:Policy>
+         <wsdl:input message="p1:p2.SetDeliveryNoteRequest" />
+         <wsdl:output message="p1:p2.SetDeliveryNoteResponse" />
+      </wsdl:operation>
+      <wsdl:operation name="SetDeliveryNoteEnhSync">
+         <wsdl:documentation />
+         <wsp:Policy>
+            <wsp:PolicyReference URI="#OP_SetDeliveryNoteEnhSync" />
+         </wsp:Policy>
+         <wsdl:input message="p1:p2.SetDeliveryNoteEnhRequest" />
+         <wsdl:output message="p1:p2.SetDeliveryNoteEnhResponse" />
+      </wsdl:operation>
+      <wsdl:operation name="SetSalesOrderStatusSync">
+         <wsdl:documentation />
+         <wsp:Policy>
+            <wsp:PolicyReference URI="#OP_SetSalesOrderStatusSync" />
+         </wsp:Policy>
+         <wsdl:input message="p1:p2.SetSalesOrderStatusRequest" />
+         <wsdl:output message="p1:p2.SetSalesOrderStatusResponse" />
+      </wsdl:operation>
+      <wsdl:operation name="GetProductListSync">
+         <wsdl:documentation />
+         <wsp:Policy>
+            <wsp:PolicyReference URI="#OP_GetProductListSync" />
+         </wsp:Policy>
+         <wsdl:input message="p1:p1.GetProductListSyncRequest" />
+         <wsdl:output message="p1:p1.GetProductListSyncResponse" />
+      </wsdl:operation>
+      <wsdl:operation name="GetBusinessPartnerSync">
+         <wsdl:documentation />
+         <wsp:Policy>
+            <wsp:PolicyReference URI="#OP_GetBusinessPartnerSync" />
+         </wsp:Policy>
+         <wsdl:input message="p1:p1.GetDDEBusinessPartnerRequest" />
+         <wsdl:output message="p1:p1.GetDDEBusinessPartnerResponse" />
+      </wsdl:operation>
+      <wsdl:operation name="CancelDeliveryNoteSync">
+         <wsdl:documentation />
+         <wsp:Policy>
+            <wsp:PolicyReference URI="#OP_CancelDeliveryNoteSync" />
+         </wsp:Policy>
+         <wsdl:input message="p1:p2.CancelDeliveryNoteRequest" />
+         <wsdl:output message="p1:p2.CancelDeliveryNoteResponse" />
+      </wsdl:operation>
+      <wsdl:operation name="SetMTDProductReportSync">
+         <wsdl:documentation />
+         <wsp:Policy>
+            <wsp:PolicyReference URI="#OP_SetMTDProductReportSync" />
+         </wsp:Policy>
+         <wsdl:input message="p1:p1.SetMTDProductReportRequest" />
+         <wsdl:output message="p1:p1.SetMTDProductReportResponse" />
+      </wsdl:operation>
+      <wsdl:operation name="SetDebtsDetailedSync">
+         <wsdl:documentation />
+         <wsp:Policy>
+            <wsp:PolicyReference URI="#OP_SetDebtsDetailedSync" />
+         </wsp:Policy>
+         <wsdl:input message="p1:p2.SetDebtsDetailedRequest" />
+         <wsdl:output message="p1:p2.SetDebtsDetailedResponse" />
+      </wsdl:operation>
+      <wsdl:operation name="GetSalesOrderSync">
+         <wsdl:documentation />
+         <wsp:Policy>
+            <wsp:PolicyReference URI="#OP_GetSalesOrderSync" />
+         </wsp:Policy>
+         <wsdl:input message="p1:p2.GetSalesOrderRequest" />
+         <wsdl:output message="p1:p2.GetSalesOrderResponse" />
+      </wsdl:operation>
+      <wsdl:operation name="CancelDeliveryNoteEnhSync">
+         <wsdl:documentation />
+         <wsp:Policy>
+            <wsp:PolicyReference URI="#OP_CancelDeliveryNoteEnhSync" />
+         </wsp:Policy>
+         <wsdl:input message="p1:p2.CancelDeliveryNoteEnhRequest" />
+         <wsdl:output message="p1:p2.CancelDeliveryNoteEnhResponse" />
+      </wsdl:operation>
+      <wsdl:operation name="SetDailyStockReportSync">
+         <wsdl:documentation />
+         <wsp:Policy>
+            <wsp:PolicyReference URI="#OP_SetDailyStockReportSync" />
+         </wsp:Policy>
+         <wsdl:input message="p1:p1.SetDailyStockReportRequest" />
+         <wsdl:output message="p1:p1.SetDailyStockReportResponse" />
+      </wsdl:operation>
+      <wsdl:operation name="SetDebtsSync">
+         <wsdl:documentation />
+         <wsp:Policy>
+            <wsp:PolicyReference URI="#OP_SetDebtsSync" />
+         </wsp:Policy>
+         <wsdl:input message="p1:p2.SetDebtsRequest" />
+         <wsdl:output message="p1:p2.SetDebtsResponse" />
+      </wsdl:operation>
+      <wsdl:operation name="SetMTDOutletsReportSync">
+         <wsdl:documentation />
+         <wsp:Policy>
+            <wsp:PolicyReference URI="#OP_SetMTDOutletsReportSync" />
+         </wsp:Policy>
+         <wsdl:input message="p1:p1.SetMTDOutletsReportRequest" />
+         <wsdl:output message="p1:p1.SetMTDOutletsReportResponse" />
+      </wsdl:operation>
+   </wsdl:portType>
+   <wsdl:binding name="WS_EFES_DDEBinding" type="p1:WS_EFES_DDE">
+      <soap:binding xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+      <wsdl:operation name="SetDeliveryNoteSync">
+         <soap:operation xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" soapAction="http://sap.com/xi/WebService/soap1.1" />
+         <wsdl:input>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:output>
+      </wsdl:operation>
+      <wsdl:operation name="SetDeliveryNoteEnhSync">
+         <soap:operation xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" soapAction="http://sap.com/xi/WebService/soap1.1" />
+         <wsdl:input>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:output>
+      </wsdl:operation>
+      <wsdl:operation name="SetSalesOrderStatusSync">
+         <soap:operation xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" soapAction="http://sap.com/xi/WebService/soap1.1" />
+         <wsdl:input>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:output>
+      </wsdl:operation>
+      <wsdl:operation name="GetProductListSync">
+         <soap:operation xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" soapAction="http://sap.com/xi/WebService/soap1.1" />
+         <wsdl:input>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:output>
+      </wsdl:operation>
+      <wsdl:operation name="GetBusinessPartnerSync">
+         <soap:operation xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" soapAction="http://sap.com/xi/WebService/soap1.1" />
+         <wsdl:input>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:output>
+      </wsdl:operation>
+      <wsdl:operation name="CancelDeliveryNoteSync">
+         <soap:operation xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" soapAction="http://sap.com/xi/WebService/soap1.1" />
+         <wsdl:input>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:output>
+      </wsdl:operation>
+      <wsdl:operation name="SetMTDProductReportSync">
+         <soap:operation xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" soapAction="http://sap.com/xi/WebService/soap1.1" />
+         <wsdl:input>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:output>
+      </wsdl:operation>
+      <wsdl:operation name="SetDebtsDetailedSync">
+         <soap:operation xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" soapAction="http://sap.com/xi/WebService/soap1.1" />
+         <wsdl:input>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:output>
+      </wsdl:operation>
+      <wsdl:operation name="GetSalesOrderSync">
+         <soap:operation xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" soapAction="http://sap.com/xi/WebService/soap1.1" />
+         <wsdl:input>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:output>
+      </wsdl:operation>
+      <wsdl:operation name="CancelDeliveryNoteEnhSync">
+         <soap:operation xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" soapAction="http://sap.com/xi/WebService/soap1.1" />
+         <wsdl:input>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:output>
+      </wsdl:operation>
+      <wsdl:operation name="SetDailyStockReportSync">
+         <soap:operation xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" soapAction="http://sap.com/xi/WebService/soap1.1" />
+         <wsdl:input>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:output>
+      </wsdl:operation>
+      <wsdl:operation name="SetDebtsSync">
+         <soap:operation xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" soapAction="http://sap.com/xi/WebService/soap1.1" />
+         <wsdl:input>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:output>
+      </wsdl:operation>
+      <wsdl:operation name="SetMTDOutletsReportSync">
+         <soap:operation xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" soapAction="http://sap.com/xi/WebService/soap1.1" />
+         <wsdl:input>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
+         </wsdl:output>
+      </wsdl:operation>
+   </wsdl:binding>
+</wsdl:definitions>

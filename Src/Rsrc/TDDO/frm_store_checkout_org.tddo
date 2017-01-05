@@ -1,0 +1,392 @@
+## Universe-HTT / 2013
+## frm_store_v1_checkout_org.tddo
+## Форма просмотра заказа интернет магазина для агентов работающих от организаций
+##
+
+<style>
+	.frm-store-checkout-wrapper {
+		position: relative;
+		height: 100%;
+	}
+	.frm-store-checkout-header {
+		height: 100px;
+		border: 1px solid #BABEC2;
+		padding: 5px 15px;
+	}
+	.frm-store-checkout-org-blk {
+		width: 70%;
+	}
+	
+	.frm-store-checkout-org-name {
+		padding-right: 10px;
+	}
+	
+	.frm-store-checkout-org-address {
+	}
+	
+	
+	
+	#frm_store_checkout_lines__blk {
+		margin-top: 10px;
+		padding-top: 10px;
+		border: 1px solid #BABEC2;
+		overflow: auto;
+	}
+	#frm_store_checkout_lines__table {
+		border-collapse: separate;
+	}
+	#frm_store_checkout_lines__table_body td {
+	}
+	#frm_store_checkout_lines__table th {
+		text-align:center
+	}
+	#frm_store_checkout_lines__table img {
+		max-width: 64px;
+		max-height: 64px;
+	}
+	#frm_store_checkout_bottom__blk {
+		bottom: 5px;
+		position: absolute;
+	}
+	#frm_store_checkout_bottom__blk div {
+		margin: 5px;
+		float: right;
+	}
+	
+	#frm_store_checkout_amount__blk {
+		position: relative;
+		height: 30px;
+		padding: 5px;
+		font: 12pt/10pt sans-serif;
+		font-weight: bold;
+		color: gray;
+	}
+	#frm_store_checkout_amount__label {
+		padding:10px;
+		position:absolute;
+		right:0;
+	}
+	
+	.red-text {
+		color: red;
+	}
+	.green-text {
+		color: green;
+	}
+	
+</style>
+
+<div class="frm-store-checkout-wrapper uui-w100pct" id="frm_store_checkout__layout">
+	<div class="frm-store-checkout-header uui-w100pct">
+		<div class="frm-store-checkout-org-blk">
+			<div class="frm-store-checkout-org-name uui-table-cell uui-w100pct uui-valign-mid">
+				<b>Организация</b>
+				<div class="frm-store-checkout-org-name uui-w100pct">
+					<div class="uui-w100pct">
+						<div class="uui-w100pct uui-table-cell uui-valign-mid">
+							<input type="text" class="uhtt-drop-down-menu-text-field uui-w100pct" id="frm_store_checkout_org_name__txtfld" readonly="readonly"/>
+						</div>
+						<div class="uui-table-cell uui-valign-mid">
+							<input type="button" class="uhtt-drop-down-menu-button" id="frm_store_checkout_org_select_name__button"/>
+						</div>
+						<div class="uhtt-drop-down-div" id="frm_store_checkout_org_select_name__ddblk">
+							<select class="uui-w100pct uui-padding-0" id="frm_store_checkout_org_select_name__list" style="border:1px solid gray" size=10></select>
+						</div>
+					</div>
+				</div>
+				
+				<!--
+				<input type="text" class="uhtt-input uui-w100pct" id="frm_store_checkout_org_name__txtfld"/>
+				-->
+			</div>
+			<div class="uui-table-cell uui-valign-mid">
+				<b>Телефон</b><br>
+				<input type="text" class="uhtt-input" id="frm_store_checkout_org_phone__txtfld"/><br>
+			</div>
+			<b>Адрес доставки</b>
+			<div class="frm-store-checkout-org-address uui-w100pct">
+				<div class="uui-w100pct">
+					<div class="uui-w100pct uui-table-cell uui-valign-mid">
+						<input type="text" class="uhtt-drop-down-menu-text-field uui-w100pct" id="frm_store_checkout_org_address__txtfld" readonly="readonly"/>
+					</div>
+					<div class="uui-table-cell uui-valign-mid">
+						<input type="button" class="uhtt-drop-down-menu-button" id="frm_store_checkout_org_select_address__button"/>
+					</div>
+					<div class="uhtt-drop-down-div" id="frm_store_checkout_org_select_address__ddblk">
+						<select class="uui-w100pct uui-padding-0" id="frm_store_checkout_org_select_address__list" style="border:1px solid gray" size=10></select>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="uui-w100pct" id="frm_store_checkout_lines__blk">
+		<table class="uui-w100pct" id="frm_store_checkout_lines__table">
+			<thead>
+				<tr>
+					<th></th>
+					<th>Наименование</th>
+					<th>Количество</th>
+					<th>Цена</th>
+					<th>Сумма</th>
+				</tr>
+			</thead>
+			<tbody id="frm_store_checkout_lines__table_body"></tbody>
+		</table>
+	</div>
+	<div id="frm_store_checkout_amount__blk">
+		<div id="frm_store_checkout_amount__label"></div>
+	</div>
+	<div class="sprawling" id="frm_store_checkout_bottom__blk">
+		<div>
+			<input type="button" id="frm_store_checkout_cancel__btn" value="Отказаться"/>
+		</div>
+		<div>
+			<input type="button" id="frm_store_checkout_ok__btn" value="Отправить заказ"/>
+		</div>
+		<div class="uhtt-error-msg" id="frm_store_checkout_msg__blk"></div>
+	</div>
+</div>
+
+<script type="text/javascript">
+		
+	var StoreCheckoutForm = {
+		## /* Dialog */
+		Dialog : null,
+		//
+		## /* Элементы формы */
+		Layout            : $("#frm_store_checkout__layout"), 
+		//
+		
+		txtFld_OrgName    : $("#frm_store_checkout_org_name__txtfld"),
+		btn_SelectOrg     : $("#frm_store_checkout_org_select_name__button"),
+		ddBlk_Org         : $("#frm_store_checkout_org_select_name__ddblk"),
+		blk_OrgList       : $("#frm_store_checkout_org_select_name__list"),
+		//
+		txtFld_Phone      : $("#frm_store_checkout_org_phone__txtfld"),
+		txtFld_Address    : $("#frm_store_checkout_org_address__txtfld"),
+		btn_SelectAddress : $("#frm_store_checkout_org_select_address__button"),
+		ddBlk_Address     : $("#frm_store_checkout_org_select_address__ddblk"),
+		blk_AddressList   : $("#frm_store_checkout_org_select_address__list"),
+		//
+		blk_Items         : $("#frm_store_checkout_lines__blk"),
+		tblBody_Items     : $("#frm_store_checkout_lines__table_body"),
+		blk_Amount        : $("#frm_store_checkout_amount__label"),
+		//
+		blk_Message       : $("#frm_store_checkout_msg__blk"),
+		btn_Checkout      : $("#frm_store_checkout_ok__btn"),
+		btn_Cancel        : $("#frm_store_checkout_cancel__btn"),
+		//
+		Buyer : null,
+		Ctx : new UHTT.Store.OrderCtx(),
+		//
+		drawCart : function() {
+			if(!UHTT.Store.Cart.Items.isEmpty()) {
+				var n = UHTT.Store.Cart.Items.getCount();
+				var html = "";
+				var total_amount = 0.0;
+				var total_qtty = 0;
+				for(var i = 0; i < n; i++) {
+					var line = UHTT.Store.Cart.Items.at(i);
+					if(!isEmpty(line)) {
+						html += '<tr>';
+						html += '<td style="text-align:center"><img src="/dispatcher/get_obj_image?obj_type=GOODS&obj_id=' + line.GoodsID + '&default=/rsrc/images/no_photo_64.png"></td>';
+						html += '<td>' + line.GoodsName + '</td>';
+						html += '<td style="text-align:center">' + line.Quantity + '</td>';
+						html += '<td style="text-align:center">' + new Number(line.Price).toFixed(2) + '</td>';
+						html += '<td style="text-align:center">' + new Number(line.Amount).toFixed(2) + '</td>';
+						html += '</tr>';
+						total_qtty += Number(line.Quantity);
+						total_amount += Number(line.Amount);
+					}
+				}
+				this.tblBody_Items.html(html);
+				this.blk_Amount.html("Сумма заказа: " + total_amount.toFixed(2));
+			}
+		},
+		//
+		retrieveAddresses : function() {
+			var _this = this;
+			if(!isNull(_this.Buyer)) {
+				if(!isEmpty(_this.Buyer.AddrList)) {
+					var n = _this.Buyer.AddrList.length;
+					var buf = "";
+					for(var i = 0; i < n; i++) {
+						var addr = _this.Buyer.AddrList[i];
+						if(!isNull(addr)) {
+							if(addr.LocKind == 3) {
+								var ary = UHTT.ObjectUtil.getStrAssocAry("CITY", { ID: addr.CityID });
+								if(!isEmpty(ary))
+									buf += '<option addrID="' + addr.LocID + '">' + ary[0].Txt + ", " + addr.Address + '</option>';
+							}
+						}
+					}
+					_this.blk_AddressList.html(buf);
+					if(n < 10)
+						_this.blk_AddressList.attr("size", n);
+				}
+			}
+		},
+		init : function() {
+			/* Ссылка на форму */
+			var _this = this;
+			
+			_this.Dialog = UHTT.Dialog.List.getObjByProperty("ID", _this.Layout.parent("div.uhtt-dialog").attr("id"));
+			
+			_this.Dialog.setOption("title", "Оформление заказа");
+			_this.Dialog.setOption("width", $(window).innerWidth() - 100);
+			_this.Dialog.setOption("height", $(window).innerHeight() - 50);
+			
+			{
+				var view_height = _this.Layout.parent().height();
+				_this.blk_Items.height(view_height - 200);
+			}
+			
+			## /* Инициализация DropDown объектов */
+			UHTT.DDO.initObject(_this.ddBlk_Org);
+			UHTT.DDO.initObject(_this.ddBlk_Address);
+			
+			## /* Телефон */
+			_this.txtFld_Phone.Evt("focusout", function() {
+				_this.Ctx.BuyerInfo.Phone = $(this).val();
+			});
+			
+			## /* Организация */
+			_this.btn_SelectOrg.Evt("click", function(e) {
+				_this.ddBlk_Org
+					.width(_this.txtFld_OrgName.width() + 4)
+					.show();
+			});
+			_this.blk_OrgList.Evt("keypress dblclick", function(e) {
+				if(e.type === "keypress") {
+					if(e.keyCode != 13)
+						return true;
+				}
+				var idx = this.selectedIndex;
+				if(idx > -1) {
+					var item = $(this.options[idx]);
+					var psn_id = item.attr("personID");
+					_this.Buyer = UHTT.Person.getPersonByID(psn_id);
+					if(!isNull(_this.Buyer)) {
+						_this.Ctx.BuyerInfo.Name = _this.Buyer.Name;
+						_this.txtFld_OrgName.val(_this.Buyer.Name);
+						_this.retrieveAddresses();
+					}
+					_this.ddBlk_Org.hide();
+				}
+			});
+			
+			## /* Адрес */
+			_this.btn_SelectAddress.Evt("click", function(e) {
+				_this.ddBlk_Address
+					.width(_this.txtFld_Address.width() + 4)
+					.show();
+			});
+			_this.blk_AddressList.Evt("keypress dblclick", function(e) {
+				if(e.type === "keypress") {
+					if(e.keyCode != 13)
+						return true;
+				}
+				var idx = this.selectedIndex;
+				if(idx > -1) {
+					var item = $(this.options[idx]);
+					var addr_id = item.attr("addrID");
+					for(var i = 0; i < _this.Buyer.AddrList.length; i++) {
+						var addr = _this.Buyer.AddrList[i];
+						if(!isEmpty(addr)) {
+							if(addr.LocID == addr_id) {
+								_this.Ctx.BuyerInfo.AddressID = addr_id;
+								_this.txtFld_Address.val(item.html().unescapeHtml());
+								break;
+							}
+						}
+					}
+					_this.ddBlk_Address.hide();
+				}
+			});
+			
+			## /* OK/Cancel */
+			_this.btn_Checkout.Evt("click", function() {
+				if(isEmpty(_this.Ctx.BuyerInfo.Name)) {
+					_this.blk_Message.showErrorMessage("Укажите имя");
+					return;
+				}
+				if(_this.Ctx.BuyerInfo.AddressID <= 0) {
+					_this.blk_Message.showErrorMessage("Укажите адрес");
+					return;
+				}
+				if(isEmpty(_this.Ctx.BuyerInfo.Phone)) {
+					_this.blk_Message.showErrorMessage("Укажите номер телефона");
+					return;
+				}
+				//
+				UHTT.Store.checkout(
+					_this.Ctx,
+					/* success */
+					function(data, status, hdr) {
+						UHTT.Store.Cart.removeAll();
+						UHTT.Messenger.show("<b>Заказ принят</b>", "/rsrc/images/ok_48.png");
+						_this.Dialog.close();
+					},
+					/* error */
+					function(request, status, error) {
+						var msg = decodeURIComponent(request.getResponseHeader("X-UHTT-Error"));
+						if(!isEmpty(msg))
+							UHTT.Messenger.show(msg, "/rsrc/images/error_48.png");
+					},
+					/* done */
+					function() {}
+				);
+			});
+			_this.btn_Cancel.Evt("click", function() {
+				_this.Dialog.close();
+			});
+			
+			
+			//
+			var user = UHTT.UserUtil.getCurrentUser();
+			if(!isNull(user)) {
+				if(!isNull(user.Person)) {
+					_this.txtFld_OrgName.val(user.Person.Name);
+					_this.Ctx.BuyerInfo.Name = user.Person.Name;
+					if(!isEmpty(user.Person.PhoneList)) {
+						_this.txtFld_Phone.val(user.Person.PhoneList[0]);
+						_this.Ctx.BuyerInfo.Phone = user.Person.PhoneList[0];
+					}
+				}
+				if(!isEmpty(user.RelList)) {
+					var buf = "";
+					var n = user.RelList.length;
+					for(var i = 0; i < n; i++) {
+						var rel = user.RelList[i];
+						if(!isNull(rel)) {
+							var buyer = UHTT.Person.getPersonByID(rel.ID);
+							if(!isNull(buyer)) {
+								buf += '<option personID="' + buyer.ID + '">' + buyer.Name + '</option>';
+							}
+						}
+					}
+					_this.blk_OrgList.html(buf);
+					if(n < 10)
+						_this.blk_OrgList.attr("size", ((n > 1) ? n : 2));
+					
+					if(n > 1) {
+						var item = $(_this.blk_OrgList.children()[0]);
+						var psn_id = item.attr("personID");
+						_this.Buyer = UHTT.Person.getPersonByID(psn_id);
+						if(!isNull(_this.Buyer)) {
+							_this.Ctx.BuyerInfo.Name = _this.Buyer.Name;
+							_this.txtFld_OrgName.val(_this.Buyer.Name);
+							_this.retrieveAddresses();
+						}
+					}
+				}
+			}
+			//
+			_this.drawCart();
+		}
+	};
+	
+	$(document).ready(function() {
+		StoreCheckoutForm.init();
+    });
+</script>

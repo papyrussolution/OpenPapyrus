@@ -1,0 +1,121 @@
+## Universe-HTT
+## view_quote.tddo 
+## Список котировок
+##
+
+#pragma(htmlencode)
+
+<div id="UHTT_VIEW_QUOTE">
+	<div id="UHTT_VIEW_QUOTE_TABLE_MSG" class="tablesorter-overlay-msg">Обработка...</div>
+	<table id="UHTT_VIEW_QUOTE_TABLE" class="tablesorter">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Наименование товара</th>
+				<th>Вид котировки</th>
+				<th>Склад</th>
+				<th>Статья</th>
+				<th>Дата</th>
+				<th>Время</th>
+				<th>Стоимость</th>
+			</tr>
+		</thead>
+		<tbody>
+		#start(QuotArray)
+			#iter()
+			<tr class="uhtt-view-quote-table-item">
+				<td>${GoodsID.ID}</td>
+				<td>${GoodsID.Name}</td>
+				<td>${KindID.Name}</td>
+				<td>${LocID.Addr}</td>
+				<td>${LocID.OwnerID.Name}</td>
+				<td>${Dt}</td>
+				<td>${Tm}</td>
+				<td>${Val}</td>
+				<td><a class="lnk_drop_to_cart" style="cursor:pointer"><img src="/rsrc/images/cart_add.png"/></a></td>
+			</tr>
+			#end()
+		#end()
+		</tbody>
+	</table>
+	<div id="UHTT_VIEW_QUOTE_TABLE_PAGER" class="tablesorter-pager">
+		<input type="button" class="tablesorter-pager-btn-first"/>
+		<input type="button" class="tablesorter-pager-btn-prev"/>
+		<label class="tablesorter-pager-label-page-display"></label>
+		<input type="button" class="tablesorter-pager-btn-next"/>
+		<input type="button" class="tablesorter-pager-btn-last"/>
+		<b>Отображать по: </b>
+		<select class="tablesorter-pager-select-page-size">
+			<option selected="selected" value="20">20</option>
+			<option value="30">30</option>
+			<option value="40">40</option>
+			<option value="50">50</option>
+			<option value="100">100</option>
+			<option value="500">500</option>
+		</select>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var _${1}QuoteView = {
+		## /* Таблица */
+		Tbl : null,
+		## /* Контекстное меню */
+		CtxMenu : null,
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Инициализация таблицы */
+			_this.Tbl = $("#UHTT_VIEW_QUOTE_TABLE").tablesorter({ widthFixed:true });
+			_this.Tbl.tablesorterPager({ container:$("#UHTT_VIEW_QUOTE_TABLE_PAGER") });
+			_this.Tbl.Evt("sortStart", function() {
+				$("#UHTT_VIEW_QUOTE_TABLE_MSG").show();
+			}).Evt("sortEnd", function() {
+				$("#UHTT_VIEW_QUOTE_TABLE_MSG").hide();
+			});
+			## /* Инициализация контекстного меню */
+			_this.CtxMenu = $(".uhtt-view-quote-table-item").contextMenu(
+				[
+					{ "<b>Информация о товаре</b>": function() {
+							//var pers_id = $(this).find("td:eq(0)").text(); 
+							//showPersonDetails(pers_id);
+						}
+					}
+					/*,
+					$.contextMenu.separator,
+					{ "Ассоциации": function() { 
+							alert("Test");
+						}
+					}
+					*/
+				],
+				{ theme:"xp" }
+			);
+			## /* Событие двойной клик по строке */
+			_this.Tbl.delegate(".uhtt-view-quote-table-item", "dblclick", function() {
+				var goods_id = $(this).find("td:eq(0)").text();
+				showGoodsDetails(goods_id);
+				return false;
+			}).delegate(".uhtt-view-quote-table-item", "click", function(e) {
+				// todo: show quick info
+			});
+			## /* Событие клик по ссылке на добавление товара в корзину */
+			$(".lnk_drop_to_cart").bind("click", function() {
+				var suppl = {
+					"id": "${1}",
+					"name": "${@(Person, $1).Name}"
+				};
+				var goods = {
+					"id": $(this).parent().parent().find("td:eq(0)").text(),
+					"name": encodeURIComponent($(this).parent().parent().find("td:eq(1)").text()),
+					"price": $(this).parent().parent().find("td:eq(7)").text()
+				};
+				UHTT.StorepingCart.add(suppl, goods);
+				UHTT.Event.fire("UHTTShoppingCartFormUpdateHandler", null);
+				UHTT.Messenger.show("Товар '" + goods.name + "' добавлен в корзину");
+			});
+		}
+	};
+	## /* Инициализация view */
+	_${1}QuoteView.init();
+</script>

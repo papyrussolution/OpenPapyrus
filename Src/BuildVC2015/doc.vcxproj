@@ -1,0 +1,966 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|Win32">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|x64">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|Win32">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|x64">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|Win32">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|x64">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|Win32">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|x64">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Universe-HTT|Win32">
+      <Configuration>Universe-HTT</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Universe-HTT|x64">
+      <Configuration>Universe-HTT</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{E1036E36-1585-4998-AADC-2DBC4866BB72}</ProjectGuid>
+    <RootNamespace>doc</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.24720.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(Configuration)\</IntDir>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(Configuration)\</IntDir>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="..\..\ManWork\LaTex\develop.pdf" />
+    <CustomBuild Include="..\..\ManWork\LaTex\develop.tex">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">latex %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">latex %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">latex %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">latex %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">latex %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">latex %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">latex %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">latex %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">latex %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">latex %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">latex %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">latex %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+    </CustomBuild>
+    <None Include="..\..\ManWork\LaTex\features.pdf" />
+    <CustomBuild Include="..\..\ManWork\LaTex\features.tex">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">latex %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">latex %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">latex %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">latex %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">latex %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">latex %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">latex %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">latex %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">latex %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">latex %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">latex %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">latex %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\ManWork\LaTex\papyrus.cls">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <None Include="..\..\ManWork\LaTex\ppmanual.pdf" />
+    <CustomBuild Include="..\..\ManWork\LaTex\ppmanual.tex">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">latex %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">latex %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)..\PICT\*.gv;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)..\PICT\*.gv;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">latex %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">latex %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)..\PICT\*.gv;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)..\PICT\*.gv;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">latex %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">latex %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)..\PICT\*.gv;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)..\PICT\*.gv;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">latex %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">latex %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)..\PICT\*.gv;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)..\PICT\*.gv;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">latex %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">latex %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)..\PICT\*.gv;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)..\PICT\*.gv;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">latex %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">latex %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">D:\Tex\MiKTeX29\miktex\bin\pdflatex.exe -interaction=nonstopmode -max-print-line=120 -include-directory=%(RootDir)%(Directory) -output-directory=%(RootDir)%(Directory) %(FullPath)
+</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)..\PICT\*.gv;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)..\PICT\*.gv;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)%(Filename).pdf;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\ManWork\Pict\CpPayment.gv">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\ManWork\Pict\CSessWrOff.gv">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\ManWork\Pict\DebtDimRel.gv">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\ManWork\Pict\format-datetime.gv">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\ManWork\Pict\GeoObjects.gv">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\ManWork\Pict\ImpInvIdentifyGoods.gv">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\ManWork\Pict\StCalUsageHier.gv">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\ManWork\Pict\WarehouseObjects.gv">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Graphviz dot %(FullPath)--&gt;%(RootDir)%(Directory)PNG\%(Filename).png</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\Graphviz\bin\dot.exe -Tpng -o%(RootDir)%(Directory)PNG\%(Filename).png -Kdot %(FullPath)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)PNG\%(Filename).png;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Doc\Version.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

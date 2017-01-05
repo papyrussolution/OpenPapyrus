@@ -1,0 +1,998 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|Win32">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|x64">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|Win32">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|x64">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|Win32">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|x64">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|Win32">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|x64">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Universe-HTT|Win32">
+      <Configuration>Universe-HTT</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Universe-HTT|x64">
+      <Configuration>Universe-HTT</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{151F44BB-2AAA-4E54-91A6-79BA38F41639}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.24720.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\x64\$(ProjectName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\x64\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\x64\$(ProjectName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\x64\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>..\OSF\BDB;..\OSF\BDB\dbinc;..\OSF\BDB\buildinc\windows;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_UNICODE;UNICODE;_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <BrowseInformation>true</BrowseInformation>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OmitDefaultLibName>false</OmitDefaultLibName>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
+      <OpenMPSupport>false</OpenMPSupport>
+    </ClCompile>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>..\OSF\BDB;..\OSF\BDB\dbinc;..\OSF\BDB\buildinc\windows;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_UNICODE;UNICODE;_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <BrowseInformation>true</BrowseInformation>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+    </ClCompile>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>Custom</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\OSF\BDB;..\OSF\BDB\dbinc;..\OSF\BDB\buildinc\windows;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_UNICODE;UNICODE;_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OmitDefaultLibName>false</OmitDefaultLibName>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
+      <OpenMPSupport>false</OpenMPSupport>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\OSF\BDB;..\OSF\BDB\dbinc;..\OSF\BDB\buildinc\windows;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_UNICODE;UNICODE;_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>..\OSF\BDB;..\OSF\BDB\dbinc;..\OSF\BDB\buildinc\windows;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_UNICODE;UNICODE;_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <CompileAsManaged>false</CompileAsManaged>
+      <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>..\OSF\BDB;..\OSF\BDB\dbinc;..\OSF\BDB\buildinc\windows;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_UNICODE;UNICODE;_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <ClCompile>
+      <Optimization>Custom</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\OSF\BDB;..\OSF\BDB\dbinc;..\OSF\BDB\buildinc\windows;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_UNICODE;UNICODE;_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <CompileAsManaged>false</CompileAsManaged>
+      <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\OSF\BDB;..\OSF\BDB\dbinc;..\OSF\BDB\buildinc\windows;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_UNICODE;UNICODE;_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>..\OSF\BDB;..\OSF\BDB\dbinc;..\OSF\BDB\buildinc\windows;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_UNICODE;UNICODE;_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <CompileAsManaged>false</CompileAsManaged>
+      <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>..\OSF\BDB;..\OSF\BDB\dbinc;..\OSF\BDB\buildinc\windows;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_UNICODE;UNICODE;_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <ClCompile>
+      <Optimization>Custom</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\OSF\BDB;..\OSF\BDB\dbinc;..\OSF\BDB\buildinc\windows;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_UNICODE;UNICODE;_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <CompileAsManaged>false</CompileAsManaged>
+      <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\OSF\BDB;..\OSF\BDB\dbinc;..\OSF\BDB\buildinc\windows;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_UNICODE;UNICODE;_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Osf\Bdb\bdb-pch.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\Osf\Bdb\btree_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_compact.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_compare.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_compress.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_conv.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_curadj.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_cursor.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_delete.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_method.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_open.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_put.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_rec.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_reclaim.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_recno.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_rsearch.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_search.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_split.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_upgrade.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_verify.c" />
+    <ClCompile Include="..\Osf\Bdb\clib\strsep.c" />
+    <ClCompile Include="..\Osf\Bdb\clock.c" />
+    <ClCompile Include="..\Osf\Bdb\crdel_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\crdel_rec.c" />
+    <ClCompile Include="..\Osf\Bdb\crypto\aes_method.c" />
+    <ClCompile Include="..\Osf\Bdb\crypto\crypto.c" />
+    <ClCompile Include="..\Osf\Bdb\crypto\mersenne\mt19937db.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\Osf\Bdb\crypto\rijndael\rijndael-alg-fst.c" />
+    <ClCompile Include="..\Osf\Bdb\crypto\rijndael\rijndael-api-fst.c" />
+    <ClCompile Include="..\Osf\Bdb\db.c" />
+    <ClCompile Include="..\Osf\Bdb\dbreg.c" />
+    <ClCompile Include="..\Osf\Bdb\dbreg_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\dbreg_rec.c" />
+    <ClCompile Include="..\Osf\Bdb\dbreg_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\dbreg_util.c" />
+    <ClCompile Include="..\Osf\Bdb\dbt.c" />
+    <ClCompile Include="..\Osf\Bdb\db_am.c" />
+    <ClCompile Include="..\Osf\Bdb\db_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\db_byteorder.c" />
+    <ClCompile Include="..\Osf\Bdb\db_cam.c" />
+    <ClCompile Include="..\Osf\Bdb\db_cds.c" />
+    <ClCompile Include="..\Osf\Bdb\db_compact.c" />
+    <ClCompile Include="..\Osf\Bdb\db_compint.c" />
+    <ClCompile Include="..\Osf\Bdb\db_conv.c" />
+    <ClCompile Include="..\Osf\Bdb\db_copy.c" />
+    <ClCompile Include="..\Osf\Bdb\db_dispatch.c" />
+    <ClCompile Include="..\Osf\Bdb\db_dup.c" />
+    <ClCompile Include="..\Osf\Bdb\db_err.c" />
+    <ClCompile Include="..\Osf\Bdb\db_getlong.c" />
+    <ClCompile Include="..\Osf\Bdb\db_idspace.c" />
+    <ClCompile Include="..\Osf\Bdb\db_iface.c" />
+    <ClCompile Include="..\Osf\Bdb\db_join.c" />
+    <ClCompile Include="..\Osf\Bdb\db_log2.c" />
+    <ClCompile Include="..\Osf\Bdb\db_meta.c" />
+    <ClCompile Include="..\Osf\Bdb\db_method.c" />
+    <ClCompile Include="..\Osf\Bdb\db_open.c" />
+    <ClCompile Include="..\Osf\Bdb\db_overflow.c" />
+    <ClCompile Include="..\Osf\Bdb\db_ovfl_vrfy.c" />
+    <ClCompile Include="..\Osf\Bdb\db_pr.c" />
+    <ClCompile Include="..\Osf\Bdb\db_rec.c" />
+    <ClCompile Include="..\Osf\Bdb\db_reclaim.c" />
+    <ClCompile Include="..\Osf\Bdb\db_remove.c" />
+    <ClCompile Include="..\Osf\Bdb\db_rename.c" />
+    <ClCompile Include="..\Osf\Bdb\db_ret.c" />
+    <ClCompile Include="..\Osf\Bdb\db_setid.c" />
+    <ClCompile Include="..\Osf\Bdb\db_setlsn.c" />
+    <ClCompile Include="..\Osf\Bdb\db_shash.c" />
+    <ClCompile Include="..\Osf\Bdb\db_sort_multiple.c" />
+    <ClCompile Include="..\Osf\Bdb\db_stati.c" />
+    <ClCompile Include="..\Osf\Bdb\db_truncate.c" />
+    <ClCompile Include="..\Osf\Bdb\db_upg.c" />
+    <ClCompile Include="..\Osf\Bdb\db_upg_opd.c" />
+    <ClCompile Include="..\Osf\Bdb\db_vrfy.c" />
+    <ClCompile Include="..\Osf\Bdb\db_vrfyutil.c" />
+    <ClCompile Include="..\Osf\Bdb\env_alloc.c" />
+    <ClCompile Include="..\Osf\Bdb\env_config.c" />
+    <ClCompile Include="..\Osf\Bdb\env_failchk.c" />
+    <ClCompile Include="..\Osf\Bdb\env_file.c" />
+    <ClCompile Include="..\Osf\Bdb\env_globals.c" />
+    <ClCompile Include="..\Osf\Bdb\env_method.c" />
+    <ClCompile Include="..\Osf\Bdb\env_name.c" />
+    <ClCompile Include="..\Osf\Bdb\env_open.c" />
+    <ClCompile Include="..\Osf\Bdb\env_recover.c" />
+    <ClCompile Include="..\Osf\Bdb\env_region.c" />
+    <ClCompile Include="..\Osf\Bdb\env_register.c" />
+    <ClCompile Include="..\Osf\Bdb\env_sig.c" />
+    <ClCompile Include="..\Osf\Bdb\env_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\fileops_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\fop_basic.c" />
+    <ClCompile Include="..\Osf\Bdb\fop_rec.c" />
+    <ClCompile Include="..\Osf\Bdb\fop_util.c" />
+    <ClCompile Include="..\Osf\Bdb\hash.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_compact.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_conv.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_dup.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_func.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_meta.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_method.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_open.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_page.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_rec.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_reclaim.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_upgrade.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_verify.c" />
+    <ClCompile Include="..\Osf\Bdb\heap.c" />
+    <ClCompile Include="..\Osf\Bdb\heap_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\heap_autop.c" />
+    <ClCompile Include="..\Osf\Bdb\heap_conv.c" />
+    <ClCompile Include="..\Osf\Bdb\heap_method.c" />
+    <ClCompile Include="..\Osf\Bdb\heap_open.c" />
+    <ClCompile Include="..\Osf\Bdb\heap_rec.c" />
+    <ClCompile Include="..\Osf\Bdb\heap_reclaim.c" />
+    <ClCompile Include="..\Osf\Bdb\heap_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\heap_verify.c" />
+    <ClCompile Include="..\Osf\Bdb\hmac.c" />
+    <ClCompile Include="..\Osf\Bdb\lock.c" />
+    <ClCompile Include="..\Osf\Bdb\lock_deadlock.c" />
+    <ClCompile Include="..\Osf\Bdb\lock_failchk.c" />
+    <ClCompile Include="..\Osf\Bdb\lock_id.c" />
+    <ClCompile Include="..\Osf\Bdb\lock_list.c" />
+    <ClCompile Include="..\Osf\Bdb\lock_method.c" />
+    <ClCompile Include="..\Osf\Bdb\lock_region.c" />
+    <ClCompile Include="..\Osf\Bdb\lock_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\lock_timer.c" />
+    <ClCompile Include="..\Osf\Bdb\lock_util.c" />
+    <ClCompile Include="..\Osf\Bdb\log.c" />
+    <ClCompile Include="..\Osf\Bdb\log_archive.c" />
+    <ClCompile Include="..\Osf\Bdb\log_compare.c" />
+    <ClCompile Include="..\Osf\Bdb\log_debug.c" />
+    <ClCompile Include="..\Osf\Bdb\log_get.c" />
+    <ClCompile Include="..\Osf\Bdb\log_method.c" />
+    <ClCompile Include="..\Osf\Bdb\log_print.c" />
+    <ClCompile Include="..\Osf\Bdb\log_put.c" />
+    <ClCompile Include="..\Osf\Bdb\log_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\log_verify.c" />
+    <ClCompile Include="..\Osf\Bdb\log_verify_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\log_verify_int.c" />
+    <ClCompile Include="..\Osf\Bdb\log_verify_util.c" />
+    <ClCompile Include="..\Osf\Bdb\mkpath.c" />
+    <ClCompile Include="..\Osf\Bdb\mp_alloc.c" />
+    <ClCompile Include="..\Osf\Bdb\mp_bh.c" />
+    <ClCompile Include="..\Osf\Bdb\mp_fget.c" />
+    <ClCompile Include="..\Osf\Bdb\mp_fmethod.c" />
+    <ClCompile Include="..\Osf\Bdb\mp_fopen.c" />
+    <ClCompile Include="..\Osf\Bdb\mp_fput.c" />
+    <ClCompile Include="..\Osf\Bdb\mp_fset.c" />
+    <ClCompile Include="..\Osf\Bdb\mp_method.c" />
+    <ClCompile Include="..\Osf\Bdb\mp_mvcc.c" />
+    <ClCompile Include="..\Osf\Bdb\mp_region.c" />
+    <ClCompile Include="..\Osf\Bdb\mp_register.c" />
+    <ClCompile Include="..\Osf\Bdb\mp_resize.c" />
+    <ClCompile Include="..\Osf\Bdb\mp_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\mp_sync.c" />
+    <ClCompile Include="..\Osf\Bdb\mp_trickle.c" />
+    <ClCompile Include="..\Osf\Bdb\mut_alloc.c" />
+    <ClCompile Include="..\Osf\Bdb\mut_failchk.c" />
+    <ClCompile Include="..\Osf\Bdb\mut_method.c" />
+    <ClCompile Include="..\Osf\Bdb\mut_region.c" />
+    <ClCompile Include="..\Osf\Bdb\mut_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\mut_tas.c" />
+    <ClCompile Include="..\Osf\Bdb\mut_win32.c" />
+    <ClCompile Include="..\Osf\Bdb\openflags.c" />
+    <ClCompile Include="..\OSF\BDB\os\os_addrinfo.c" />
+    <ClCompile Include="..\Osf\Bdb\os\os_alloc.c" />
+    <ClCompile Include="..\Osf\Bdb\os\os_ctime.c" />
+    <ClCompile Include="..\Osf\Bdb\os\os_root.c" />
+    <ClCompile Include="..\Osf\Bdb\os\os_rpath.c" />
+    <ClCompile Include="..\Osf\Bdb\os\os_tmpdir.c" />
+    <ClCompile Include="..\Osf\Bdb\os\os_uid.c" />
+    <ClCompile Include="..\Osf\Bdb\os_method.c" />
+    <ClCompile Include="..\Osf\Bdb\os_windows\bdb_os_win.c" />
+    <ClCompile Include="..\Osf\Bdb\os_windows\os_rename.c" />
+    <ClCompile Include="..\Osf\Bdb\partition.c" />
+    <ClCompile Include="..\Osf\Bdb\qam.c" />
+    <ClCompile Include="..\Osf\Bdb\qam_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\qam_conv.c" />
+    <ClCompile Include="..\Osf\Bdb\qam_files.c" />
+    <ClCompile Include="..\Osf\Bdb\qam_method.c" />
+    <ClCompile Include="..\Osf\Bdb\qam_open.c" />
+    <ClCompile Include="..\Osf\Bdb\qam_rec.c" />
+    <ClCompile Include="..\Osf\Bdb\qam_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\qam_upgrade.c" />
+    <ClCompile Include="..\Osf\Bdb\qam_verify.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_automsg.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_elect.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_method.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_msg.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_net.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_queue.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_rec.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_sel.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_util.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_windows.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_automsg.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_backup.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_elect.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_lease.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_log.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_method.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_record.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_region.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_util.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_verify.c" />
+    <ClCompile Include="..\Osf\Bdb\sequence.c" />
+    <ClCompile Include="..\Osf\Bdb\seq_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\sha1.c" />
+    <ClCompile Include="..\Osf\Bdb\test_mutex.c" />
+    <ClCompile Include="..\Osf\Bdb\txn.c" />
+    <ClCompile Include="..\Osf\Bdb\txn_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\txn_chkpt.c" />
+    <ClCompile Include="..\Osf\Bdb\txn_failchk.c" />
+    <ClCompile Include="..\Osf\Bdb\txn_method.c" />
+    <ClCompile Include="..\Osf\Bdb\txn_rec.c" />
+    <ClCompile Include="..\Osf\Bdb\txn_recover.c" />
+    <ClCompile Include="..\Osf\Bdb\txn_region.c" />
+    <ClCompile Include="..\Osf\Bdb\txn_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\txn_util.c" />
+    <ClCompile Include="..\Osf\Bdb\util_arg.c" />
+    <ClCompile Include="..\Osf\Bdb\util_cache.c" />
+    <ClCompile Include="..\Osf\Bdb\util_log.c" />
+    <ClCompile Include="..\Osf\Bdb\util_sig.c" />
+    <ClCompile Include="..\Osf\Bdb\xa.c" />
+    <ClCompile Include="..\Osf\Bdb\xa_map.c" />
+    <ClCompile Include="..\Osf\Bdb\zerofill.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Include\BerkeleyDB\db.h" />
+    <ClInclude Include="..\Osf\Bdb\buildinc\windows\clib_port.h" />
+    <ClInclude Include="..\Osf\Bdb\buildinc\windows\db.h" />
+    <ClInclude Include="..\Osf\Bdb\buildinc\windows\dbstl_common.h" />
+    <ClInclude Include="..\Osf\Bdb\buildinc\windows\db_config.h" />
+    <ClInclude Include="..\Osf\Bdb\buildinc\windows\db_cxx.h" />
+    <ClInclude Include="..\Osf\Bdb\buildinc\windows\db_int.h" />
+    <ClInclude Include="..\Osf\Bdb\crypto\rijndael\rijndael-alg-fst.h" />
+    <ClInclude Include="..\Osf\Bdb\crypto\rijndael\rijndael-api-fst.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\atomic.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\btree.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\clock.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\crypto.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\cxx_int.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\db_am.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\db_dispatch.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\db_join.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\db_page.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\db_swap.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\db_upgrade.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\db_verify.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\debug.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\fop.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\globals.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\hash.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\heap.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\hmac.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\lock.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\log.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\log_verify.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\mp.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\mutex.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\mutex_int.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\os.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\partition.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\perfmon.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\qam.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\queue.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\region.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\rep.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\repmgr.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\shqueue.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\tcl_db.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\txn.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\win_db.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc\xa.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\btree_auto.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\btree_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\clib_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\common_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\crdel_auto.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\crypto_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\dbreg_auto.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\dbreg_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\db_auto.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\db_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\env_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\fileops_auto.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\fileops_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\hash_auto.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\hash_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\heap_auto.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\heap_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\hmac_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\lock_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\log_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\mp_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\mutex_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\os_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\qam_auto.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\qam_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\repmgr_auto.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\repmgr_automsg.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\repmgr_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\rep_automsg.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\rep_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\sequence_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\tcl_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\txn_auto.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\txn_ext.h" />
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\xa_ext.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Osf\Bdb\lock_alloc.incl" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

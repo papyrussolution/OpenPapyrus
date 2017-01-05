@@ -1,0 +1,109 @@
+## Universe-HTT
+## view_brand.tddo 
+## Список брендов
+##
+
+<style>
+	.uhtt-view-brand-table-item {
+		border: 1px solid gray;
+	}
+</style>
+
+#pragma(htmlencode)
+<div id="UHTT_VIEW_BRAND">
+	<table id="UHTT_VIEW_BRAND_TABLE" class="tablesorter">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Наименование</th>
+				<th>Владелец</th>
+			</tr>
+		</thead>
+		<tbody>
+		#start(StrAssocArray)
+			#iter()
+			<tr class="uhtt-view-brand-table-item">
+				<td>${Id}</td>
+				<td>${Txt}</td>
+				#start(Brand:${Id})
+					<td>${OwnerId.Name}</td>
+				#end()
+			</tr>
+			#end()
+		#end()
+		</tbody>
+	</table>
+	<!-- Панель навигации по списку страниц таблицы -->
+	<div id="UHTT_VIEW_BRAND_TABLE_PAGER" class="tablesorter-pager">
+		<input type="button" class="tablesorter-pager-btn-first"/>
+		<input type="button" class="tablesorter-pager-btn-prev"/>
+		<label class="tablesorter-pager-label-page-display"></label>
+		<input type="button" class="tablesorter-pager-btn-next"/>
+		<input type="button" class="tablesorter-pager-btn-last"/>
+		<b>Отображать по: </b>
+		<select class="tablesorter-pager-select-page-size">
+			<option selected="selected" value="20">20</option>
+			<option value="30">30</option>
+			<option value="40">40</option>
+			<option value="50">50</option>
+			<option value="100">100</option>
+			<option value="500">500</option>
+		</select>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var BrandView = {
+		## /* Таблица */
+		Tbl : null,
+		## /* Контекстное меню */
+		CtxMenu : null,
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Инициализация таблицы */
+			_this.Tbl = $("#UHTT_VIEW_BRAND_TABLE").tablesorter({ widthFixed:true });
+			_this.Tbl.tablesorterPager({ container:$("#UHTT_VIEW_BRAND_TABLE_PAGER") });
+			## /* Инициализация контекстного меню */
+			_this.CtxMenu = $(".uhtt-view-brand-table-item").contextMenu(
+				[
+					{ "<b>Показать товары</b>": function() {
+							var brand_id = $(this).find("td:eq(0)").text(); 
+							var brand_name = $(this).find("td:eq(1)").text();
+							_this.showGoodsByBrand(brand_id, brand_name);
+						}
+					},
+					$.contextMenu.separator,
+					#if{@(Global, 0).GetCurrentGlobalUser().Id > 0}
+					{ "Редактирование": function() {
+							var brand_id = $(this).find("td:eq(0)").text();
+							var opts = { width:400, height:200, position:"center", title:"Создать бренд" };
+							var _dlg = new SDialog("UHTT_CREATE_BRAND_DLG", "GETTDDO FRM_BRAND_EDITOR " + brand_id, opts);
+						}
+					},
+					#endif
+					{ "Информация о бренде": function() { 
+							var brand_id = $(this).find("td:eq(0)").text();
+							showBrandDetails(brand_id);
+						}
+					}
+				],
+				{ theme:"xp" }
+			);
+			## /* Событие двойной клик по строке */
+			_this.Tbl.delegate(".uhtt-view-brand-table-item", "dblclick", function() {
+				var brand_id = $(this).find("td:eq(0)").text();
+				var brand_name = $(this).find("td:eq(1)").text();
+				_this.showGoodsByBrand(brand_id, brand_name);
+				return false;
+			}).delegate(".uhtt-view-brand-table-item", "click", function(e) {
+				// todo: show quick info
+			});
+		}, showGoodsByBrand : function(brand_id, brand_name) {
+			var query = "SELECT GOODS BY BRAND(" + brand_id + ") FORMAT.TDDO(VIEW_GOODS, BRAND)";
+			new SDialog("UHTT_VIEW_GOODS_BY_BRAND_DLG", query, { resizable:true, width:600, title:"Товары относящиеся к бренду " + brand_name });
+		}
+	};
+	## /* Инициализация view */
+	BrandView.init();
+</script>

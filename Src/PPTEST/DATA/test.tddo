@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+## Это - примечание
+
+#codepage(windows-1251)
+
+#start(UhttPerson)
+	<table>
+		#if{1=1}
+			1=1
+			<tr>
+				<td>ИД:</td><td>${ID}</td> ## И это - примечание
+			</tr>
+			<tr>
+				<td>Наименование:</td><td>${Name}</td>
+				<td>#@(appellation):</td><td>${Name}</td>
+			</tr>
+			<tr>
+				<td>Код:</td><td>${Code}</td>
+			</tr>
+		#else
+			1!=1
+			<tr>
+				<td>ИД:</td><td>${ID}</td> ## И это - примечание
+			</tr>
+			<tr>
+				<td>Наименование:</td><td>${Name}</td>
+			</tr>
+			<tr>
+				<td>Код:</td><td>${Code}</td>
+			</tr>
+		#endif
+	</table>
+	<table>
+		<caption>Относится к видам:</caption>
+		#iter(KindList)
+			<tr><td>${Name}</td><td>${Code}</td></tr>
+		#end()
+	</table>
+
+	====================
+	#text(test:testtext)
+	--------------------
+	#text(test:text001)
+	====================
+
+#end()

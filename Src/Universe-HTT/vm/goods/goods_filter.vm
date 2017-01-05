@@ -1,0 +1,249 @@
+﻿## Universe-HTT / 2011, 2012, 2013
+## frm_goods_filt.vm
+## Фильтр товаров
+##
+
+<div id="frm_goods_filt_view">
+	<fieldset style="margin-top:6px">
+		<legend>Поиск по штрихкоду</legend>
+		<div id="frm_goods_filt_search_barcode_blk">
+			<table class="sprawling"><tbody class="sprawling"><tr class="sprawling">
+			<td class="sprawling"><input type="text" class="uhtt-input-with-button uhtt-search-field sprawling" style="box-sizing: border-box;" id="frm_goods_filt_search_barcode" placeholder="Введите штрихкод..." autosave="unique"/></td>
+			<td><input type="button" class="uhtt-button-with-input sprawling" id="frm_goods_filt_search_barcode_btn" value="Найти"/></td>
+			</tr></tbody></table>
+		</div>
+	</fieldset>
+	<fieldset style="margin-top:6px">
+		<legend>Фильтр</legend>
+		<b>Наименование</b>
+		<input type="text" class="uhtt-input sprawling" id="frm_goods_filt_name"/>
+		<hr>
+		<b>Выбор группы</b>
+		<div id="frm_goods_filt_group_blk">
+			<table class="sprawling"><tbody class="sprawling"><tr class="sprawling">
+			<td class="sprawling"><input type="text" class="uhtt-input-with-button sprawling" id="frm_goods_filt_group" readonly="readonly"/></td>
+			<td><input type="button" class="uhtt-button-with-input sprawling" id="frm_goods_filt_select_group_btn" value="Выбрать"/></td>
+			</tr></tbody></table>
+		</div>
+		<b>Бренд</b>
+		<div id="frm_goods_filt_brand_blk">
+			<table class="sprawling"><tbody class="sprawling"><tr class="sprawling">
+			<td class="sprawling"><input type="text" class="uhtt-drop-down-menu-text-field sprawling" id="frm_goods_filt_brand" readonly="readonly"/></td>
+			<td><input type="button" class="uhtt-drop-down-menu-button" id="frm_goods_filt_select_brand_btn"/></td>
+			</tr></tbody></table>
+			<div class="uhtt-drop-down-div" id="frm_goods_filt_brands_dd_blk">
+				<input type="text" class="uhtt-input uhtt-search-field sprawling" id="frm_goods_filt_brands_list_search" placeholder="Поиск..."/>
+				<div class="sprawling" id="frm_goods_filt_brands_lst"></div>
+			</div>
+		</div>
+		<b>Производитель</b>
+		<div id="frm_goods_filt_manufactor_blk">
+			<table class="sprawling"><tbody class="sprawling"><tr class="sprawling">
+			<td class="sprawling"><input type="text" class="uhtt-drop-down-menu-text-field sprawling" id="frm_goods_filt_manufactor" readonly="readonly"/></td>
+			<td><input type="button" class="uhtt-drop-down-menu-button" id="frm_goods_filt_select_manufactor_btn"/></td>
+			</tr></tbody></table>
+			<div class="uhtt-drop-down-div" id="frm_goods_filt_manufactors_dd_blk">
+				<input type="text" class="uhtt-input uhtt-search-field sprawling" id="frm_goods_filt_manufactors_list_search" placeholder="Поиск..."/>
+				<div class="sprawling" id="frm_goods_filt_manufactors_lst"></div>
+			</div>
+		</div>
+		<br>
+		<div>
+			#if($UHTT.checkRights($clientInfo, 10, 2, "@def") == true)
+			<input type="button" id="frm_goods_filt_create_goods_btn" style="float:left" value="Создать товар"/>
+			#end
+			<input type="button" id="frm_goods_filt_ok_btn" style="float:right" value="OK"/>
+		</div>
+	</fieldset>
+</div>
+
+<script type="text/javascript">
+	var GoodsFiltForm = {
+		## /* Фильтр */
+		F : new UHTT.Goods.Filter(),
+		## /* Элементы формы */
+		blk_SearchBarcode       : $("#frm_goods_filt_search_barcode_blk"),
+		txtFld_SearchBarcode    : $("#frm_goods_filt_search_barcode"),
+		btn_SearchBarcode       : $("#frm_goods_filt_search_barcode_btn"),
+		txtFld_GoodsName        : $("#frm_goods_filt_name"),
+		blk_GoodsGroup          : $("#frm_goods_filt_group_blk"),
+		txtFld_GoodsGroupName   : $("#frm_goods_filt_group"),
+		btn_SelectGoodsGroup    : $("#frm_goods_filt_select_group_btn"),
+		blk_Brand               : $("#frm_goods_filt_brand_blk"),
+		txtFld_BrandName        : $("#frm_goods_filt_brand"),
+		btn_SelectBrand         : $("#frm_goods_filt_select_brand_btn"),
+		ddBlk_Brands            : $("#frm_goods_filt_brands_dd_blk"),
+		txtFld_SearchBrand      : $("#frm_goods_filt_brands_list_search"),
+		blk_BrandsList          : $("#frm_goods_filt_brands_lst"),
+		blk_Manufactor          : $("#frm_goods_filt_manufactor_blk"),
+		txtFld_ManufactorName   : $("#frm_goods_filt_manufactor"),
+		btn_SelectManufactor    : $("#frm_goods_filt_select_manufactor_btn"),
+		ddBlk_Manufactors       : $("#frm_goods_filt_manufactors_dd_blk"),
+		txtFld_SearchManufactor : $("#frm_goods_filt_manufactors_list_search"),
+		blk_ManufactorsList     : $("#frm_goods_filt_manufactors_lst"),
+		btn_OK                  : $("#frm_goods_filt_ok_btn"),
+		## /* --- */
+		init : function() {
+			## /* Указатель на объект */
+			var _this = this;
+			## /* Инициализация DropDown объектов */
+			UHTT.DDO.initObject(_this.ddBlk_Brands);
+			UHTT.DDO.initObject(_this.ddBlk_Manufactors);
+			## /* Обработчик события нажатия клавиши "Ввод" строки поиска по штрихкоду */
+			_this.txtFld_SearchBarcode.Evt("keypress", function(e) {
+				if(e.keyCode == 13)
+					_this.searchByBarcode();
+			});
+			_this.btn_SearchBarcode.Evt("click", function() {
+				_this.searchByBarcode();
+			});
+			## /* Наименование */
+			_this.txtFld_GoodsName.Evt("focusout", function() {
+				_this.F.setName($(this).val());
+			});
+			## /* Список групп товаров */
+			_this.btn_SelectGoodsGroup.Evt("click", function() {
+				var view = UHTT.Content.get("GOODSGROUP_SELECT", {});
+				var opts = {
+					modal: true,
+					width: 700,
+					height: 480,
+					position: "center",
+					title: "Выбор товарных групп"
+				};
+				var dlg = new SDialog("UHTT_SELECT_GOODS_GROUP_DLG", view, opts, UHTT.Dialog.TYPE.INLINE);
+			});
+			this.F.setChangeHandler(function() {
+				if(!this.Groups.isEmpty()) {
+					if(this.Groups.getCount() == 1)
+						_this.txtFld_GoodsGroupName.val(this.Groups.at(0).Name);
+					else
+						_this.txtFld_GoodsGroupName.val("Список из " + this.Groups.getCount() + "...");
+				}
+				else
+					_this.txtFld_GoodsGroupName.val("");
+			});
+			## /* Список брендов */
+			_this.txtFld_BrandName.Evt("keydown", function(e) {
+				if(e.keyCode == 46) {
+					_this.F.setBrandID(0);
+					$(this).val("");
+				}
+			});
+			_this.btn_SelectBrand.Evt("click", function() {
+				_this.ddBlk_Brands.show();
+				_this.ddBlk_Brands.width(_this.txtFld_BrandName.width() + 5);
+				_this.blk_BrandsList.width(_this.txtFld_BrandName.width() + 5);
+			});
+			_this.txtFld_SearchBrand.Evt("keypress", function(evt) {
+				if(evt.keyCode == 13) {
+					var subname = $(this).val();
+					if(subname.length > 0) {
+						_this.blk_BrandsList.html(UHTT.requestData(null, 
+							"SELECT BRAND BY SUBNAME(" + $(this).val() + ")FORMAT.TDDO(_DD_LIST, __frm_goods_filt_brands_list, frm-goods-filt-brands-list-item)"));
+					}
+					else
+						_this.blk_BrandsList.html("");
+				}
+			});
+			_this.ddBlk_Brands.delegate("#__frm_goods_filt_brands_list", "keypress dblclick", function(e) {
+				if(e.type === "keypress") {
+					if(e.keyCode != 13)
+						return true;
+				}
+				var idx = this.selectedIndex;
+				if(idx > -1) {
+					var item = $(this.options[idx]);
+					_this.F.setBrandID(item.attr("itemID"));
+					_this.txtFld_BrandName.val(item.html().unescapeHtml());
+					_this.ddBlk_Brands.hide();
+				}
+			});
+			## /* Список производителей */
+			_this.txtFld_ManufactorName.Evt("keydown", function(e) {
+				if(e.keyCode == 46) {
+					_this.F.setManufactorID(0);
+					$(this).val("");
+				}
+			});
+			_this.btn_SelectManufactor.Evt("click", function() {
+				_this.ddBlk_Manufactors.show();
+				_this.ddBlk_Manufactors.width(_this.txtFld_ManufactorName.width() + 5);
+				_this.blk_ManufactorsList.width(_this.txtFld_ManufactorName.width() + 5);
+			});
+			_this.txtFld_SearchManufactor.Evt("keypress", function(evt) {
+				if(evt.keyCode == 13) {
+					var subname = $(this).val();
+					if(subname.length > 0) {
+						_this.blk_ManufactorsList.html(UHTT.requestData(null,
+							"SELECT PERSON BY KIND.CODE(MANUF) SUBNAME(" + subname + ") FORMAT.TDDO(_DD_LIST, __frm_goods_filt_manufactors_list, frm-goods-filt-manufactors-list-item)"));
+					}
+					else
+						_this.blk_ManufactorsList.html("");
+				}
+			});
+			_this.ddBlk_Manufactors.delegate("#__frm_goods_filt_manufactors_list", "keypress dblclick", function(e) {
+				if(e.type === "keypress") {
+					if(e.keyCode != 13)
+						return true;
+				}
+				var idx = this.selectedIndex;
+				if(idx > -1) {
+					var item = $(this.options[idx]);
+					_this.F.setManufactorID(item.attr("itemID"));
+					_this.txtFld_ManufactorName.val(item.html().unescapeHtml());
+					_this.ddBlk_Manufactors.hide();
+				}
+			});
+			## /* Кнопка "Создать товар" */
+			#if($UHTT.checkRights($clientInfo, 10, 2, "@def") == true)
+				$("#frm_goods_filt_create_goods_btn").Evt("click", function() {
+					UHTT.Goods.Editor.edit();
+				});
+			#end
+			## /* Кнопка "OK" */
+			_this.btn_OK.Evt("click", function() {
+				_this.process();
+			});
+		},
+		searchByBarcode : function() {
+			var _this = this;
+			var code = _this.txtFld_SearchBarcode.val();
+			if(!isEmpty(code)) {
+				var filt = new UHTT.Goods.Filter();
+				filt.setBarcode(code);
+				_this.process(filt);
+			}
+		},
+		process : function(F) {
+			if(isEmpty(F))
+				F = this.F;
+			var r = UHTT.Goods.Util.checkFilter(F);
+			switch(r) {
+				case 0:
+					var data = UHTT.Goods.fetch(F);
+					if(data != null)
+						UHTT.Browser.show(data, "Выборка товаров");
+					break;
+				case 1001:
+					UHTT.Messenger.show("<b>Укажите критерии поиска</b>", "/rsrc/images/attention_48.png");
+					break;
+				case 1002:
+					UHTT.Messenger.show("<b>При поиске по наименованию длина подстроки должна быть не менее 4 символов</b>", "/rsrc/images/attention_48.png");
+					break;
+				case 1003:
+					UHTT.Messenger.show("Указанный штрихкод содержит некорректные символы", "/rsrc/images/attention_48.png");
+					break;
+				case 1004:
+					UHTT.Messenger.show("При поиске по подмножеству штрихкода длина подстроки должна быть не менее 5 символов", "/rsrc/images/attention_48.png");
+					break;
+				default:
+					break;
+			}
+		}
+	};
+	## /* Инициализация формы фильтра */
+	$(document).ready(function(){
+		GoodsFiltForm.init();
+	});
+</script>

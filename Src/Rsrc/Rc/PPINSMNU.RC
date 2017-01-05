@@ -1,0 +1,8 @@
+// PPINSMNU.RC
+// Copyright (c) A.Sobolev 1996, 1997, 1998
+//
+// Описание ресурсов меню для проекта Papyrus
+//
+#include <tvdefs.h>
+#include <ppmenu.h>
+#include <ppdefs.h>

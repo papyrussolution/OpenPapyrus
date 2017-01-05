@@ -1,0 +1,12 @@
+## Universe-HTT
+## browser.tddo 
+## Браузер
+##
+
+<div id="UHTT_FRM_BROWSER_VIEW"></div>
+
+<script type="text/javascript">
+	## /* Инициализация браузера */
+	UHTT.Browser.init("UHTT_FRM_BROWSER_VIEW");
+</script>
+

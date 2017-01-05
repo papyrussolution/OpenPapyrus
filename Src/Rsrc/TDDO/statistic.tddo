@@ -1,0 +1,10 @@
+<div>
+	<fieldset style="margin-top:6px">
+		<legend>Статистика Universe-HTT</legend>
+		#start(UhttStatistic:1)
+			<span>Количество товарных групп: ${GGroupsNumber}</span><br>
+			<span>Количество брендов: ${BrandsNumber}</span><br>
+			<span>Количество товаров: ${GoodsNumber}</span>
+		#end()
+	</fieldset>
+</div>

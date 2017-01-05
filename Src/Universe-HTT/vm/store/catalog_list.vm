@@ -1,0 +1,279 @@
+﻿## Universe-HTT / 2012
+## store_v1_gc_list_view.tddo 
+## Каталог товаров магазина (список)
+## Args: ${1} - Flags
+##
+
+<style>
+	.store-v1-gc-list-wrapper {
+	}
+	.store-v1-gc-list {
+		width: 100%;
+		/*
+		-moz-user-select: none;
+		-khtml-user-select: none;
+		user-select: none;
+		*/
+		cursor: default;
+		margin-bottom: -4px;
+	}
+	.store-v1-gc-list-head {
+		border: 1px solid #AAAAAA;
+	}
+	.store-v1-gc-list-head tr {
+		border-radius: 5px 0 0 0px;
+	}
+	.store-v1-gc-list-head th {
+		height: 40px;
+		text-align: center;
+		background: #EEEEEE;
+		color: #555555;
+		font-weight: normal;
+		font: 10pt Arial;
+	}
+	.store-v1-gc-list-body {
+	}
+	.store-v1-gc-list-body tr {
+		background: #FFFFFF;
+		font: 11px Verdana, Arial, Helvetica;
+		border: 1px solid #AAAAAA;
+	}
+	.store-v1-gc-list-body tr:hover {
+		color: #336699;
+	}
+	.store-v1-gc-list-body td {
+		padding: 0 10px;
+		height: 68px;
+		vertical-align: middle;
+		text-align: center;
+	}
+	
+	tr.store-v1-gc-list-item td {
+		padding: 0 10px;
+	}
+	
+	td.store-v1-gc-list-item-img-cell {
+		padding: 2px;
+		width: 68px !important;
+	}
+	td.store-v1-gc-list-item-img-cell img {
+		max-width: 64px;
+		max-height: 64px;
+	}
+	
+	/* IE fix */
+	.ie td.store-v1-gc-list-item-img-cell img {
+		width: 64px;
+	}
+	
+	td.store-v1-gc-list-item-name-cell {
+		max-width: 230px;
+		min-width: 230px;
+		text-align: left !important;
+	}
+	
+	td.store-v1-gc-list-item-add2cart-cell {
+		padding-right: 5px !important;
+		min-width: 140px !important;
+		max-width: 140px !important;
+		/*
+		background: #EEEEEE;
+		border-left: 1px solid #AAAAAA;
+		*/
+	}
+	td.store-v1-gc-list-item-add2cart-cell a {
+		cursor: pointer
+	}
+	
+	div.store-v1-gc-list-item-count-blk {
+		float: left;
+		height: 25px;
+	}
+	div.store-v1-gc-list-item-decr-count-blk {
+		width: 30px;
+		height: 100%;
+		float: left;
+	}
+	div.store-v1-gc-list-item-decr-count-blk input {
+		height: 100%;
+		width: 100%;
+		border-radius: 4px 0 0 4px;
+		padding: 0;
+		background: url("/rsrc/images/minus.png") no-repeat center center transparent;
+	}
+	div.store-v1-gc-list-item-decr-count-blk input:hover, div.store-v1-gc-list-item-decr-count-blk input:focus {
+		background: url("/rsrc/images/minus.png") no-repeat center center transparent;
+	}
+	div.store-v1-gc-list-item-count-text-blk {
+		float:left
+	}
+	div.store-v1-gc-list-item-count-text-blk input {
+		width: 35px;
+		height: 23px;
+		line-height: 23px;
+		padding: 0;
+		text-align: center;
+		vertical-align: middle;
+	}
+	div.store-v1-gc-list-item-incr-count-blk {
+		width: 30px;
+		height: 100%;
+		float: left;
+	}
+	div.store-v1-gc-list-item-incr-count-blk input {
+		height: 100%;
+		width: 100%;
+		border-radius: 0 4px 4px 0;
+		padding: 0;
+		background: url("/rsrc/images/plus.png") no-repeat center center transparent;
+	}
+	div.store-v1-gc-list-item-incr-count-blk input:hover, div.store-v1-gc-list-item-incr-count-blk input:focus {
+		background: url("/rsrc/images/plus.png") no-repeat center center transparent;
+	}
+</style>
+
+<div class="store-v1-gc-list-wrapper uui-w100pct">
+	<table class="store-v1-gc-list">
+		<thead class="store-v1-gc-list-head">
+			<tr>
+				<th></th>
+				<th>Наименование товара</th>
+				#if($flgUseGoodsPackage == 1)
+					<th>Ёмкость<br>упаковки</th>
+				#end
+				<th>Время</th>
+				#if($flgUseGoodsRest == 1)
+					<th>Остаток</th>
+				#end
+				<th>Цена</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody class="store-v1-gc-list-body">
+		#foreach($item in $items)
+			<tr class="store-v1-gc-list-item" goodsID="${item.ID}" package=${item.Package}>
+				<td class="store-v1-gc-list-item-img-cell">
+					<img src="/dispatcher/get_obj_image?obj_type=GOODS&obj_id=${item.ID}&default=/rsrc/images/box_48.png"/>
+				</td>
+				<td class="store-v1-gc-list-item-name-cell">${item.Name}</td>
+				#if($flgUseGoodsPackage == 1)
+					<td>$item.Package</td>
+				#end
+				<td>${item.Dt}<br>${item.Tm}</td>
+				#if($flgUseGoodsRest == 1)
+					#if($item.Rest > 0)
+						#if($upRestShowThreshold > 0)
+							#if($item.Rest > $upRestShowThreshold)
+								<td>> ${upRestShowThreshold}.0</td>
+							#else
+								<td>$item.Rest</td>
+							#end
+						#else
+							<td>$item.Rest</td>
+						#end
+					#else
+						<td>Нет в наличии</td>
+					#end
+				#end
+				<td>$UHTT.format("0.00", $item.Value)</td>
+				<td class="store-v1-gc-list-item-add2cart-cell">
+					<div style="vertical-align:middle;padding:6px 0;" class="store-v1-gc-list-item-count-blk">
+						<div class="store-v1-gc-list-item-decr-count-blk">
+							<input type="button"/>
+						</div>
+						<div class="store-v1-gc-list-item-count-text-blk">
+							<input type="text" value="$item.Package"/>
+						</div>
+						<div class="store-v1-gc-list-item-incr-count-blk">
+							<input type="button"/>
+						</div>
+					</div>
+					<a><img style="vertical-align:middle" src="/rsrc/images/add2cart_32.png"/></a>
+				</td>
+			</tr>
+		#end
+		</tbody>
+	</table>
+</div>
+
+<script type="text/javascript">
+	var StoreCatalogListView = {
+		## /* Элементы */
+		Items         : $("tr.store-v1-gc-list-item"),
+		btn_DecrCount : $("div.store-v1-gc-list-item-decr-count-blk input"),
+		btn_IncrCount : $("div.store-v1-gc-list-item-incr-count-blk input"),
+		txtFld_Count  : $("div.store-v1-gc-list-item-count-text-blk input"),
+		cell_CartCtrl : $("td.store-v1-gc-list-item-add2cart-cell"),
+		btn_AddToCart : $("td.store-v1-gc-list-item-add2cart-cell a"),
+		## /* Функция инициализации */
+		init : function() {
+			## /* Указатель на объект */
+			var _view = this;
+			## /* Двойной клик по строке */
+			_view.Items.Evt("dblclick", function() {
+				var _blk = $(this);
+				var id = _blk.attr("goodsID");
+				//showGoodsDetails(id);
+				showOfferDetails(null, id);
+				return false;
+			});
+			## /* Events */
+			## // Disable double click on control cell
+			_view.cell_CartCtrl.Evt("dblclick", function() {
+				return false;
+			});
+			_view.btn_DecrCount.Evt("click", function(e) {
+				var _blk = $(this).closest("tr.store-v1-gc-list-item");
+				var pkg = Number(_blk.attr("package"));
+				var count_fld = _blk.find('input[type="text"]');
+				var count = Number(count_fld.val());
+				var val = count;
+				if(val > pkg) {
+					var f = val % pkg;
+					if(f > 0)
+						val -= f;
+					else
+						val -= pkg;
+					count_fld.val(val);
+				}
+			});
+			_view.btn_IncrCount.Evt("click", function(e) {
+				var _blk = $(this).closest("tr.store-v1-gc-list-item");
+				var pkg = Number(_blk.attr("package"));
+				var count_fld = _blk.find('input[type="text"]');
+				var count = Number(count_fld.val());
+				var val = count + pkg;
+				if(val > 9999)
+					val = 9999;
+				var f = val % pkg;
+				if(f > 0)
+					val -= f;
+				count_fld.val(val);
+			});
+			_view.txtFld_Count.Evt("keypress", function(e) {
+				var keycode = (e.keyCode ? e.keyCode : e.which);
+				var is_del       = (keycode == 8);
+				var is_backspace = (keycode == 46);
+				var is_arrow     = (keycode >= 37 && keycode <= 40);
+				var is_digit     = (keycode >= 48 && keycode <= 57);
+				var chk_length   = (is_digit ? ($(this).val().length < 5) : true);
+				return (is_del || is_backspace || is_arrow || (is_digit && chk_length));
+			}).Evt("change", function(e) {
+				if(isEmpty($(this).val()))
+					$(this).val("1");
+			});
+			## /* Клик по кнопке "Добавить в корзину" */
+			_view.btn_AddToCart.Evt("click", function() {
+				var _blk = $(this).closest("tr");
+				var pkg = Number(_blk.attr("package"));
+				var id = _blk.attr("goodsID");
+				var qtty = Number(_blk.find('input[type="text"]').val());
+				_blk.find('input[type="text"]').val(pkg);
+				UHTT.Store.Cart.add(id, qtty);
+			});
+		}
+	};
+	$(document).ready(function() {
+		StoreCatalogListView.init();
+	});
+</script>

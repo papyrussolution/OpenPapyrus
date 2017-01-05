@@ -1,0 +1,10 @@
+[label_Label1]
+labelAttributes=448,480,464,480,0
+Barcode1=BarcodeEAN,4,264,200,96,0,3
+Weight2=Weight,368,248,72,36,0,3,15.000
+Date3=PackDate,208,248,120,18,0,0,12/31/2000
+Date4=SellDate,280,266,120,18,0,0,12/31/2000
+Article5=Article,8,56,424,168,0,14,Название PLU
+Price6=Price,200,320,112,28,0,5,6666.66
+Amount7=Amount,328,300,112,56,0,6,9999.99
+Store9=Store,8,6,424,44,0,11,Название магазина

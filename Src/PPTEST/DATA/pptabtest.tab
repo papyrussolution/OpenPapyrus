@@ -1,0 +1,229 @@
+
+//
+//  Comment #1
+//
+
+//
+// colors
+// AE13_data
+// AE14_data
+// MathConst
+//
+
+BEGIN colors
+	0x00f0f8ff; "Aliceblue"
+	0x00faebd7; "Antiquewhite"
+	0x0000ffff; "Aqua"
+	0x007fffd4; "Aquamarine"
+	0x00f0ffff; "Azure"
+	0x00f5f5dc; "Beige"
+	0x00ffe4c4; "Bisque"
+	0x00000000; "Black"
+	0x00ffebcd; "Blanchedalmond"
+	0x000000ff; "Blue"
+	0x008a2be2; "Blueviolet"
+	0x00a52a2a; "Brown"
+	0x00deb887; "Burlywood"
+	0x005f9ea0; "Cadetblue"
+	0x007fff00; "Chartreuse"
+	0x00d2691e; "Chocolate"
+	0x00ff7f50; "Coral"
+	0x006495ed; "Cornflowerblue"
+	0x00fff8dc; "Cornsilk"
+	0x00dc143c; "Crimson"
+	0x0000ffff; "Cyan"
+	0x0000008b; "Darkblue"
+	0x00008b8b; "Darkcyan"
+	0x00b8860b; "Darkgoldenrod"
+	0x00555555; "Darkgrey"
+	0x00006400; "Darkgreen"
+	0x00bdb76b; "Darkkhaki"
+	0x008b008b; "Darkmagenta"
+	0x00556b2f; "Darkolivegreen"
+	0x00ff8c00; "Darkorange"
+	0x009932cc; "Darkorchid"
+	0x008b0000; "Darkred"
+	0x00e9967a; "Darksalmon"
+	0x008fbc8f; "Darkseagreen"
+	0x00483d8b; "Darkslateblue"
+	0x002f4f4f; "Darkslategrey"
+	0x0000ced1; "Darkturquoise"
+	0x009400d3; "Darkviolet"
+	0x00ff1493; "Deeppink"
+	0x0000bfff; "Deepskyblue"
+	0x00696969; "Dimgrey"
+	0x001e90ff; "Dodgerblue"
+	0x00b22222; "Firebrick"
+	0x00fffaf0; "Floralwhite"
+	0x00228b22; "Forestgreen"
+	0x00ff00ff; "Fuchsia"
+	0x00dcdcdc; "Gainsboro"
+	0x00ffd700; "Gold"
+	0x00daa520; "Goldenrod"
+	0x00808080; "Grey"
+	0x00008000; "Green"
+	0x00adff2f; "Greenyellow"
+	0x00f0fff0; "Honeydew"
+	0x00ff69b4; "Hotpink"
+	0x00cd5c5c; "Indianred"
+	0x004b0082; "Indigo"
+	0x00fffff0; "Ivory"
+	0x00f0e68c; "Khaki"
+	0x00e6e6fa; "Lavender"
+	0x00fff0f5; "Lavenderblush"
+	0x00fffacd; "Lemonchiffon"
+	0x00add8e6; "Lightblue"
+	0x00f08080; "Lightcoral"
+	0x00e0ffff; "Lightcyan"
+	0x00fafad2; "Lightgoldenrodyellow"
+	0x0090ee90; "Lightgreen"
+	0x00d3d3d3 "Lightgrey"
+	0x00ffb6c1; "Lightpink"
+	0x00ffa07a; "Lightsalmon"
+	0x0020b2aa; "Lightseagreen"
+	0x0087cefa; "Lightskyblue"
+	0x00778899; "Lightslategrey"
+	0x00b0c4de; "Lightsteelblue"
+	0x00ffffe0; "Lightyellow"
+	0x0000ff00; "Lime"
+	0x0032cd32; "Limegreen"
+	0x00faf0e6; "Linen"
+	0x00ff00ff; "Magenta"
+	0x00800000; "Maroon"
+	0x0066cdaa; "Mediumaquamarine"
+	0x000000cd; "Mediumblue"
+	0x00ba55d3; "Mediumorchid"
+	0x009370db; "Mediumpurple"
+	0x003cb371; "Mediumseagreen"
+	0x007b68ee; "Mediumslateblue"
+	0x0000fa9a; "Mediumspringgreen"
+	0x0048d1cc; "Mediumturquoise"
+	0x00c71585; "Mediumvioletred"
+	0x00191970; "Midnightblue"
+	0x00f5fffa; "Mintcream"
+	0x00ffe4e1; "Mistyrose"
+	0x00ffdead "Navajowhite"
+	0x00000080; "Navy"
+	0x00fdf5e6; "Oldlace"
+	0x00808000; "Olive"
+	0x006b8e23; "Olivedrab"
+	0x00ffa500; "Orange"
+	0x00ff4500; "Orangered"
+	0x00da70d6; "Orchid"
+	0x00eee8aa; "Palegoldenrod"
+	0x0098fb98; "Palegreen"
+	0x00afeeee; "Paleturquoise"
+	0x00db7093; "Palevioletred"
+	0x00ffefd5; "Papayawhip"
+	0x00ffdab9; "Peachpuff"
+	0x00cd853f; "Peru"
+	0x00ffc0cb; "Pink"
+	0x00dda0dd; "Plum"
+	0x00b0e0e6; "Powderblue"
+	0x00800080; "Purple"
+	0x00ff0000; "Red"
+	0x00bc8f8f; Rosybrown
+	0x004169e1; "Royalblue"
+	0x008b4513; "Saddlebrown"
+	0x00fa8072; "Salmon"
+	0x00f4a460; "Sandybrown"
+	0x002e8b57; "Seagreen"
+	0x00fff5ee; "Seashell"
+	0x00a0522d; "Sienna"
+	0x00c0c0c0; "Silver"
+	0x0087ceeb; "Skyblue"
+	0x006a5acd; "Slateblue"
+	0x00708090; "Slategrey"
+	0x00fffafa; "Snow"
+	0x0000ff7f;           "Springgreen"
+	0x004682b4; "Steelblue"
+	0x00306080; "Steelblue4"
+	0x00d2b48c; "Tan"
+	0x00008080; "Teal"
+	0x00d8bfd8; "Thistle"
+	0x00ff6347; 									"Tomato"
+	0x0040e0d0; "Turquoise"
+	0x00ee82ee; "Violet"
+	0x00f5deb3; "Wheat"
+	0x00ffffff; "White"
+	0x00f5f5f5; "Whitesmoke"
+	0x00ffff00; "Yellow"
+	0x009acd32; "Yellowgreen"
+END
+
+BEGIN AE13_data
+	-0.605773246640603460
+	-0.112535243483660900
+	0.013432266247902779
+	-0.001926845187381145
+	0.000309118337720603
+	-0.000053564132129618
+	0.000009827812880247
+	-0.000001885368984916
+	0.000000374943193568
+	-0.000000076823455870
+	0.000000016143270567
+	-0.000000003466802211
+	0.000000000758754209
+	-0.000000000168864333
+	0.000000000038145706
+	-0.000000000008733026
+	0.000000000002023672
+	-0.000000000000474132
+	0.000000000000112211
+	-0.000000000000026804
+	0.000000000000006457
+	-0.000000000000001568
+	0.000000000000000383
+	-0.000000000000000094
+	0.000000000000000023
+END
+
+BEGIN AE14_data // static double
+	-0.18929180007530170
+	-0.08648117855259871
+	0.00722410154374659
+	-0.00080975594575573
+	0.00010999134432661
+	-0.00001717332998937
+	0.00000298562751447
+	-0.00000056596491457
+	0.00000011526808397
+	-0.00000002495030440
+	0.00000000569232420
+	-0.00000000135995766
+	0.00000000033846628
+	-0.00000000008737853
+	0.00000000002331588
+	-0.00000000000641148
+	0.00000000000181224
+	-0.00000000000052538
+	0.00000000000015592
+	-0.00000000000004729
+	0.00000000000001463
+	-0.00000000000000461
+	0.00000000000000148
+	-0.00000000000000048
+	0.00000000000000016
+	-0.00000000000000005
+END
+
+BEGIN MathConst
+	SMathConst::Pi        3.1415926535897932384626433832795
+	SMathConst::Pi_f      3.14159265358979323846
+	SMathConst::E         2.71828182845904523536
+	"SMathConst::LnPi"      1.14472988584940017414342735135 // ln(pi)
+	SMathConst::Ln2       0.69314718055994530941723212146 // ln(2)
+	SMathConst::Epsilon   2.2204460492503131e-16          // smallest such that 1.0+DBL_EPSILON ! 1.0
+	SMathConst::Root4Epsilon  1.2207031250000000e-04
+	SMathConst::Root5Epsilon  7.4009597974140505e-04
+	SMathConst::SqrtMin   1.4916681462400413e-154
+	SMathConst::SqrtMax   1.3407807929942596e+154
+	SMathConst::LogMin    -7.0839641853226408e+02
+	SMathConst::LogMax    7.0978271289338397e+02
+	SMathConst::Min       2.2250738585072014e-308         // min value
+	SMathConst::Max 1.7976931348623158e+308         // max value
+	SMathConst::Euler 0.57721566490153286060651209008 // Euler constant
+	SMathConst::Sqrt2 1.41421356237309504880168872421 // sqrt(2)
+	SMathConst::SqrtPi 1.77245385090551602729816748334 // sqrt(pi)
+END

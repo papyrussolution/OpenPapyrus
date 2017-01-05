@@ -1,0 +1,64 @@
+## Universe-HTT
+## view_manufactor.tddo 
+## Список производителей
+##
+
+#pragma(htmlencode)
+
+<div id="UHTT_VIEW_CURRATES">
+	<table id="UHTT_VIEW_CURRATES_TABLE" class="tablesorter">
+		<thead>
+			<tr>
+				<th>Дата</th>
+				<th>Валюта</th>
+				<th>Символ</th>
+				<th>Код</th>
+				<th>Курс</th>
+			</tr>
+		</thead>
+		<tbody>
+		#start(UhttCurRateArray)
+			#iter()
+			<tr class="uhtt-view-currates-table-item">
+				<td>${Dt}</td>
+				<td>${CurID.Name}</td>
+				<td>${CurID.Symb}</td>
+				<td>${CurID.DigitCode}</td>
+				<td>${Rate}</td>
+			</tr>
+			#end()
+		#end()
+		</tbody>
+	</table>
+</div>
+
+<script type="text/javascript">
+	var CurRatesView = {
+		## /* Таблица */
+		Tbl : null,
+		## /* Контекстное меню */
+		CtxMenu : null,
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Инициализация таблицы */
+			_this.Tbl = $("#UHTT_VIEW_CURRATES_TABLE").tablesorter({ widthFixed:true });
+						
+			## /* Событие двойной клик по строке */
+			_this.Tbl.delegate(".uhtt-view-currates-table-item", "dblclick", function() {
+				var name = $(this).find("td:eq(1)").text();
+				var symb = $(this).find("td:eq(2)").text();
+				_this.showCurRateHistory(name, symb);
+				return false;
+			}).delegate(".uhtt-view-currates-table-item", "click", function(e) {
+				// todo: show quick info
+			});
+		},
+		showCurRateHistory : function(name, symb) {
+			var query = "SELECT CURRATEIDENT BY CUR.CODE(" + symb + ") PERIOD(2010..2013) FORMAT.TDDO(FRM_CURRATE_FLOT, " + symb + ")";
+			new SDialog("UHTT_VIEW_CURRATE_HISTORY_DLG", query, { title: name, width: 650, height: 360});
+		}
+	};
+	## /* Инициализация view */
+	CurRatesView.init();
+</script>

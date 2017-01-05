@@ -1,0 +1,149 @@
+## Universe-HTT / 2013
+## frm_acct_settings.tddo
+## Форма настройки аккаунта
+##
+
+<style>
+	#frm_acct_settings_name__label {
+		color: #555555;
+		font: 12pt/10pt sans-serif;
+	}
+	#frm_acct_settings_edit__link {
+		background: url("/rsrc/images/edit.png") no-repeat scroll 3px 50% transparent;
+		cursor: pointer;
+		font-weight: bold;
+		padding: 5px 5px 5px 25px;
+		position: relative;
+		color: #336699 !important;
+	}
+	#frm_acct_settings__panel {
+		height: 250px;
+	}
+	#frm_acct_settings__contractors {
+		padding: 0;
+	}
+	#frm_acct_settings__stores {
+		padding: 0;
+	}
+	.frm-acct-settings-list-item {
+		margin: 5px 10px 5px 10px;
+		padding: 5px;
+		border-bottom: 1px solid #DEDEDE;
+		color: #555555 !important;
+		cursor: pointer;
+	}
+	.frm-acct-settings-list-item:hover {
+		color: #336699 !important;
+		text-decoration: underline;
+	}
+</style>
+
+<div class="frm-acct-settings-layout uui-w100pct" id="frm_acct_settings__layout">
+	<div class="uui-w100pct" style="padding-top:10px">
+		<div class="uui-float-left">
+			<span id="frm_acct_settings_name__label"></span>
+		</div>
+		<div class="uui-float-right">
+			<a class="uui-float-right" id="frm_acct_settings_edit__link">Редактировать</a>
+		</div>
+	</div>
+	<br><br>
+	<div id="frm_acct_settings__panel">
+		<ul>
+			<li><a href="#frm_acct_settings__contractors">Контрагенты</a></li>
+			<li><a href="#frm_acct_settings__stores">Интернет магазины</a></li>
+		</ul>
+		<div id="frm_acct_settings__contractors">
+			<div class="uui-w100pct" id="frm_acct_settings_contractors__blk"></div>
+		</div>
+		<div id="frm_acct_settings__stores">
+			<div class="uui-w100pct" id="frm_acct_settings_stores__blk"></div>
+		</div>
+	</div>
+	<div class="uui-w100pct" style="margin-top:5px">
+		<div class="uui-float-right">
+			<input type="button" id="frm_acct_settings_ok__btn" value="OK"/>
+		</div> 
+		<div class="uhtt-error-msg uui-float-right" id="frm_acct_settings_msg__blk"></div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var AcctSettingsForm = {
+		## /* Dialog */
+		Dialog : null,
+		//
+		## /* Элементы формы */
+		Layout            : $("#frm_acct_settings__layout"),
+		TabPanel          : $("#frm_acct_settings__panel"),
+		//
+		lbl_Name          : $("#frm_acct_settings_name__label"),
+		lnk_Edit          : $("#frm_acct_settings_edit__link"),
+		blk_Contractors   : $("#frm_acct_settings_contractors__blk"),
+		blk_Stores        : $("#frm_acct_settings_stores__blk"),
+		btn_OK            : $("#frm_acct_settings_ok__btn"),
+		//
+		init : function() {
+			var _this = this;
+			
+			_this.Dialog = UHTT.Dialog.List.getObjByProperty("ID", _this.Layout.parent("div.uhtt-dialog").attr("id"));
+			_this.Dialog.setOption("width", 450);
+			
+			_this.TabPanel.tabs();
+			
+			## /* */
+			var user = UHTT.UserUtil.getCurrentUser();
+			if(!isNull(user)) {
+				if(!isNull(user.Person)) {
+					_this.lbl_Name.html(user.Person.Name);
+				}
+				if(!isEmpty(user.RelList)) {
+					var buf = "";
+					var n = user.RelList.length;
+					for(var i = 0; i < n; i++) {
+						var rel = user.RelList[i];
+						if(!isNull(rel)) {
+							buf += '<div class="frm-acct-settings-list-item frm-acct-settings-contractors-item" personID="' + rel.ID + '">';
+							buf += rel.Name;
+							buf += '</div>'
+						}
+					}
+					_this.blk_Contractors.html(buf);
+				}
+				if(!isEmpty(user.StoreList)) {
+					var buf = "";
+					var n = user.StoreList.length;
+					for(var i = 0; i < n; i++) {
+						var store = user.StoreList[i];
+						if(!isNull(store)) {
+							buf += '<div class="frm-acct-settings-list-item frm-acct-settings-stores-item" storeID="' + store.ID + '">';
+							buf += store.Name;
+							buf += '</div>'
+						}
+					}
+					_this.blk_Stores.html(buf);
+				}
+			}
+			
+			## /* События */
+			_this.lnk_Edit.Evt("click", function() {
+				var user = UHTT.UserUtil.getCurrentUser();
+				var kind_id = UHTT.requestData(null, "SELECT PERSONKIND BY NAME(UniverseHTT Account) FORMAT.TDDO(_id)");
+				UHTT.Person.Editor.edit(kind_id, user.Person.ID);
+			});
+			
+			_this.blk_Contractors.delegate(".frm-acct-settings-contractors-item", "click", function() {
+				var psnID = $(this).attr("personID");
+				var kind_id = UHTT.requestData(null, "SELECT PERSONKIND BY NAME(Производители) FORMAT.TDDO(_id)");
+				UHTT.Person.Editor.edit(kind_id, psnID);
+			});
+			
+			_this.btn_OK.Evt("click", function() {
+				_this.Dialog.close();
+			});
+		}
+	};
+	$(document).ready(function() {
+		AcctSettingsForm.init();
+    });
+</script>

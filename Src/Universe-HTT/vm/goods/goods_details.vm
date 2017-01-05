@@ -1,0 +1,342 @@
+﻿## Universe-HTT / 2013
+## goods_details.tddo
+## Форма детализации товара
+##
+
+<style type="text/css">
+	#uhtt_frm_goods_details_img_div {
+		display: table-cell;
+		padding: 4px;
+		text-align: center;
+		vertical-align: middle;
+		width: 300px;
+		height: 300px;
+		max-width: 300px;
+		max-height: 300px;
+	}
+	#uhtt_frm_goods_details_like {
+		background-image:url("/rsrc/images/like.png");
+		background-position:center center;
+		background-repeat:no-repeat;
+		width:28px;
+		/*
+		height:24px;
+		*/
+		font-weight: lighter;
+	}
+	#uhtt_frm_goods_details_dislike {
+		background-image:url("/rsrc/images/dislike.png");
+		background-position:center center;
+		background-repeat:no-repeat;
+		/*
+		height:24px;
+		*/
+		width:28px;
+	}
+	
+	#uhtt_frm_goods_like_counter__text {
+		border-radius: 0 4px 4px 0;
+		width: 26px;
+	}
+	
+	#uhtt_frm_goods_dislike__btn {
+		border-radius: 4px 0 0 4px;
+	}
+	
+	span.goods-likes-dislikes {
+		color: #666666;
+	}
+	span.goods-likes-dislikes img {
+		position: relative;
+		vertical-align: middle;
+		width: 12px;
+		height: 12px;
+	}
+	
+	
+	##
+	## Like block
+	##
+	#uhtt_frm_goods_like__blk {
+		
+	}
+	#uhtt_frm_goods_like__blk div {
+		height: 26px;
+		width: 26px;
+		border: 1px solid #AAAAAA;
+	}
+	
+	#uhtt_frm_goods_like__btn {
+		border-radius: 4px 0 0 4px;
+		background-image: url("/rsrc/images/like.png");
+		background-position: center center;
+		background-repeat: no-repeat;
+		cursor: pointer;
+	}
+	#uhtt_frm_goods_like__btn:hover {
+		border: 1px solid #336699;
+		background-color: #EEEEEE;
+	}
+	
+	#uhtt_frm_goods_like__count {
+		border-radius: 0 4px 4px 0;
+		text-align: center;
+		line-height: 2.2;
+		font-weight: bold;
+	}
+	
+	##
+	## Dislike block
+	##
+	#uhtt_frm_goods_dislike__blk {
+		
+	}
+	#uhtt_frm_goods_dislike__blk div {
+		height: 26px;
+		width: 26px;
+		border: 1px solid #AAAAAA;
+	}
+	
+	#uhtt_frm_goods_dislike__btn {
+		border-radius: 4px 0 0 4px;
+		background-image: url("/rsrc/images/dislike.png");
+		background-position: center center;
+		background-repeat: no-repeat;
+		cursor: pointer;
+	}
+	#uhtt_frm_goods_dislike__btn:hover {
+		border: 1px solid #336699;
+		background-color: #EEEEEE;
+	}
+	
+	#uhtt_frm_goods_dislike__count {
+		border-radius: 0 4px 4px 0;
+		text-align: center;
+		line-height: 2.2;
+		font-weight: bold;
+	}
+	
+	.frm-goods-details-prices-title {
+		font: 10pt/8pt sans-serif;
+		font-weight: bold;
+		color: gray;
+	}
+	
+	.portlet-msg-alert a:hover {
+		color:#336699;
+		cursor:pointer;
+	}
+	
+</style>
+
+#set($SL = $siteUtil.getObject("SL"))
+
+<div id="frm_product_details__layout">
+	<table class="uui-w100pct uhtt-fields-table"><tbody><tr><td>
+		<table class="uhtt-fields-table"><tbody style="vertical-align:top"><tr>
+		<td><b>Идентификатор</b></td>
+		<td id="frm_product_detail_id">${goods.ID}</td>
+		</tr><tr>
+		<td><b>Наименование</b></td>
+		<td id="frm_product_detail_name" style="max-width:500px">${goods.Name}</td>
+		</tr><tr>
+		<td><b>Группа</b></td>
+		<td style="max-width:250px">${UHTT.getObjName("GOODSGROUP", $goods.GroupID)}</td>
+		</tr><tr>
+
+		## @sobolev {
+		#if($goods.BrandID > 0)
+			#set($b64enc = $siteUtil.getCls("ru.uhtt.lib.base64.Base64Encoder").newInstance())
+			#set($openpar=$b64enc.encode($SL.StrCat('{"Type":"BRAND","ID":"', ${goods.BrandID}, '"}')))
+			<td><b>Бренд</b></td>
+			<td style="max-width:250px"><a href='/?open=${openpar}'>${UHTT.getObjName("BRAND", $goods.BrandID)}</a></td>
+			</tr><tr>
+		#end
+		## } @sobolev
+
+
+		## @sobolev <td><b>Бренд</b></td>
+		## @sobolev <td style="max-width:250px">${UHTT.getObjName("BRAND", $goods.BrandID)}</td>
+		## @sobolev </tr><tr>
+
+		<td><b>Производитель</b></td>
+		<td style="max-width:250px">${UHTT.getObjName("PERSON", $goods.ManufID)}</td>
+		</tr><tr>
+		<td><b>Штрихкод</b></td>
+		<td id="frm_product_detail_barcode">
+			#foreach($barcode in $goods.BarcodeList)
+				${barcode.Code}<br>
+			#end
+		</td></tr>
+		</tbody></table>
+		#if("$goods.Storage" != "")
+			<fieldset style="max-width:350px;">
+				<legend>Описание</legend>
+				${goods.Storage}
+			</fieldset>
+			<br>
+		#end
+		<fieldset>
+			<table class="uhtt-fields-table"><tbody><tr>
+			<td><b>Торговая единица</b></td>
+			<td>${UHTT.getObjName("UNIT", $goods.UnitID)}</td>
+			</tr><tr>
+			<td><b>Физическая единица</b></td>
+			<td>${UHTT.getObjName("PHUNIT", $goods.UnitID)}</td>
+			</tr><tr>
+			<td><b>Соотношение (физич. ед. / торг. ед.)</b></td>
+			<td>${goods.PhPerUnit}</td>
+			</tr><tr>
+			<td><b>Емкость упаковки поставки (торг. ед.)</b></td>
+			<td>${goods.Package}</td>
+			</tr><tr>
+			<td><b>Масса(Брутто) одной упаковки, г</b></td>
+			<td>${goods.Brutto}</td>
+			</tr></tbody></table>
+			<fieldset>
+				<legend>Габариты упаковки поставки</legend>
+				<table class="uhtt-fields-table"><tbody><tr>
+				<td>Ширина</td><td>${goods.Width} мм;</td>
+				<td>Длина</td><td>${goods.Length} мм;</td>
+				<td>Высота</td><td>${goods.Height} мм</td>
+				</tr></tbody></table>
+			</fieldset>
+		</fieldset>
+	</td><td style="vertical-align:center">
+		<div id="uhtt_frm_goods_details_img_div">
+			<img style="max-height:100%; max-width:100%;"
+				src="/dispatcher/get_obj_image?obj_type=GOODS&obj_id=${goods.ID}&default=/rsrc/images/no_photo_64.png">
+		</div>
+	</td></tr>
+	<tr>
+		<td colspan="2">
+			<div class="uui-float-right" style="margin-left:15px;margin-right:8px">
+				<div class="uui-w100pct" id="uhtt_frm_goods_dislike__blk">
+					<div class="uui-table-cell uui-valign-mid uui-float-left" id="uhtt_frm_goods_dislike__btn"></div>
+					<div class="uui-table-cell uui-valign-mid uui-float-left" id="uhtt_frm_goods_dislike__count"></div>
+				</div>
+			</div>
+			<div class="uui-float-right">
+				<div class="uui-w100pct" id="uhtt_frm_goods_like__blk">
+					<div class="uui-table-cell uui-valign-mid uui-float-left" id="uhtt_frm_goods_like__btn"></div>
+					<div class="uui-table-cell uui-valign-mid uui-float-left" id="uhtt_frm_goods_like__count"></div>
+				</div>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			<div class="portlet-msg-alert"> Для того чтобы опубликовать свои цены на этот товар <a class="uhtt-ask-link">обратитесь</a> к Администратору сайта. </div>
+		</td>
+	</tr>
+	#if($quot_ary.size() > 0)
+	<tr>
+		<td colspan="2">
+			<hr>
+			<span class="frm-goods-details-prices-title">Цены</span>
+			<ul>
+			#foreach($quot in $quot_ary)
+				<li>
+					<div style="float:left">
+						<a href="${UHTT.makeOfferURL($quot)}"><b>${UHTT.getObjName("PERSON", $quot.SellerID)}</b></a>
+					</div>
+					<div style="float:right">
+						${UHTT.format("0.00", $quot.Val)} руб.
+					</div>
+				</li>
+			#end
+			</ul>
+		</td>
+	</tr>
+	#end
+	</tbody></table>
+</div>
+
+<script type="text/javascript">
+	var VOTE_TYPE = {
+		LIKE    : "LIKE",
+		DISLIKE : "DISLIKE"
+	};
+	var GoodsDetailsForm = {
+		## /* Instance */
+		Dialog : UHTT.Dialog.List.getObjByProperty("ID", $("#uhtt_frm_goods_details_view").parent("div.uhtt-dialog").attr("id")),
+		## /* Элементы формы */
+		btn_AcceptLike    : $("#uhtt_frm_goods_like__btn"),
+		btn_AcceptDislike : $("#uhtt_frm_goods_dislike__btn"),
+		blk_LikeCount     : $("#uhtt_frm_goods_like__count"),
+		blk_DislikeCount  : $("#uhtt_frm_goods_dislike__count"),
+		## /* */
+		GoodsID : ${goods.ID},
+		## /* */
+		closeHandler : function(p_this) {
+			p_this.Dialog = null;
+		},
+		acceptVote : function(action) {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			var r = 0;
+			var url = '/dispatcher/goods/stats?id=' + _this.GoodsID + '&action=' + action;
+			jQuery.ajax({
+				url: url,
+				async: false,
+				success: function(data, status, hdr) {
+					r = Number(data);
+				},
+				error: function(request, status, error) {
+					UHTT.Messenger.show("Ошибка: " + error);
+				}
+			}).done(function() {
+				UHTT.BlockUI.unblock();
+			});
+			if(r > 0)
+				UHTT.Messenger.show("<b>Спасибо! Ваш голос учтен</b>", "/rsrc/images/ok_48.png");
+			else
+				UHTT.Messenger.show("<b>Ваш голос уже был учтен</b>", "/rsrc/images/stop_48.png");
+			_this.updateRatting();
+		},
+		updateRatting : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			var url = '/dispatcher/goods/stats?id=' + _this.GoodsID + '&action=GET';
+			jQuery.ajax({
+				url: url,
+				async: false,
+				success: function(data, status, hdr) {
+					var stats = UHTT.Util.JSON.parse(data);
+					if(!isEmpty(stats)) {
+						_this.blk_LikeCount.html(stats.LikeCount);
+						_this.blk_DislikeCount.html(stats.DislikeCount);
+					}
+				},
+				error: function(request, status, error) {
+					UHTT.Messenger.show("Ошибка: " + error);
+				}
+			}).done(function() {
+			});
+		},
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Установка обработчика закрытия окна редактора */
+			if(_this.Dialog != null)
+				_this.Dialog.setCloseHandler(_this.closeHandler, _this);
+			## /* */
+			_this.updateRatting();
+			## /* События */
+			_this.btn_AcceptLike.Evt("click", function() {
+				_this.acceptVote(VOTE_TYPE.LIKE);
+			});
+			_this.btn_AcceptDislike.Evt("click", function() {
+				_this.acceptVote(VOTE_TYPE.DISLIKE);
+			});
+			## /* */
+			$(".uhtt-ask-link").Evt("click", function() {
+				var view = UHTT.Content.get("ASK_QUESTION", {});
+				new SDialog("FRM_ASK_QUESTION", view, { title:"Задать вопрос", width:500, position:"center" }, UHTT.Dialog.TYPE.INLINE);
+			});
+		}
+	};
+	$(document).ready(function() {
+		GoodsDetailsForm.init();
+	});
+</script>

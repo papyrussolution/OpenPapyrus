@@ -1,0 +1,29 @@
+## Universe-HTT
+## frm_map.tddo
+## Вывод карты OpenStreetMap
+## Args: ${1} - Longitude;
+##       ${2} - Latitude;
+##
+
+<div id="uhtt_basic_map" style="width:100px;height:100px"></div>
+<div style="text-align:center"><span>&laquo;&copy; Участники OpenStreetMap, CC-BY-SA&raquo;</span></div>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#uhtt_basic_map").setParentWidth();
+		var map = new OpenLayers.Map("uhtt_basic_map", { controls: [] });
+		var markers = new OpenLayers.Layer.Markers("Markers");
+		map.addLayer(new OpenLayers.Layer.OSM());
+		map.addLayer(markers);
+		map.addControl(new OpenLayers.Control.MouseDefaults());
+		var coord = new OpenLayers.LonLat(${1}, ${2}).transform(
+			new OpenLayers.Projection("EPSG:4326"), // преобразование из WGS 1984
+			new OpenLayers.Projection("EPSG:900913") // в Spherical Mercator Projection
+		);
+		map.setCenter(coord, 17);
+		var size = new OpenLayers.Size(20, 25);
+		var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+		var icon = new OpenLayers.Icon("/rsrc/images/marker-blue.png", size, offset);
+		markers.addMarker(new OpenLayers.Marker(coord, icon));
+	});
+</script>

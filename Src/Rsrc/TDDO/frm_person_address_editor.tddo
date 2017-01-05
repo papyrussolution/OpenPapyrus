@@ -1,0 +1,235 @@
+ ## Universe-HTT
+## frm_address_editor.tddo // Form ID: 1001
+## Форма создания/редактирования адреса
+
+<div id="frm_address_editor__layout">
+	<table><tbody><tr>
+		<td style="padding-right:4px"><b>Почтовый код</b></td>
+		<td><b>Код</b></td>
+		</tr><tr>
+		<td style="padding-right:4px"><input type="text" class="uhtt-input" id="frm_address_editor_zip__txtfld" style="width:150px" /></td>
+		<td><input type="text" class="uhtt-input" id="frm_address_editor_code__txtfld" style="width:150px" /></td>
+	</tr></tbody></table>
+	<b>Город</b>
+	<div class="sprawling" id="frm_address_editor_city__blk">
+		<div class="sprawling">
+			<input type="text" class="uhtt-input sprawling" id="frm_address_editor_city__txtfld"/>
+		</div>
+		<div class="uhtt-drop-down-div" id="frm_address_editor_city__ddblk">
+			<select class="sprawling" id="frm_address_editor_city__list" style="padding:0;border:1px solid gray" size=10></select>
+		</div>
+	</div>
+	<!--
+	<b>Город</b>
+	<div id="frm_address_editor_city_blk">
+		<table class="sprawling"><tbody class="sprawling"><tr class="sprawling">
+		<td class="sprawling"><input type="text" class="uhtt-drop-down-menu-text-field sprawling" id="frm_address_editor_city__txtfld" readonly="readonly"/></td>
+		<td><input type="button" class="uhtt-drop-down-menu-button" id="frm_address_editor_show_cities_btn"/></td>
+		</tr></tbody></table> 
+		<div class="uhtt-drop-down-div" id="frm_address_editor_cities_dd_blk">
+			<input type="text" class="uhtt-input uhtt-search-field sprawling" id="frm_address_editor_cities_list_search" placeholder="Поиск..."/>
+			<div class="sprawling" id="frm_address_editor_cities_list_blk"></div>
+		</div>
+	</div>
+	-->
+	<b>Адрес</b>
+	<input type="text" class="uhtt-input sprawling" id="frm_address_editor_address"/>
+	<fieldset>
+		<legend>Географические координаты</legend>
+		<table><tbody><tr>
+			<td style="padding-right:4px"><b>Широта</b></td>
+			<td><b>Долгота</b></td>
+			</tr><tr>
+			<td style="padding-right:4px"><input type="text" class="uhtt-input" id="frm_address_editor_latitude" style="width:140px"/></td>
+			<td><input type="text" class="uhtt-input" id="frm_address_editor_longitude" style="width:140px"/></td>
+		</tr></tbody></table>
+	</fieldset>
+	
+	<div align="right">
+		<input type="button" id="frm_address_editor_ok_btn" value="OK"/>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var AddressEditorForm = {
+		## /* Dialog instance */
+		Dialog : UHTT.Dialog.List.getObjByProperty("ID", $("#frm_address_editor__layout").parent("div.uhtt-dialog").attr("id")),
+		## /* Элементы формы */
+		txtFld_Zip        : $("#frm_address_editor_zip__txtfld"),
+		txtFld_Code       : $("#frm_address_editor_code__txtfld"),
+		blk_City          : $("#frm_address_editor_city__blk"),
+		txtFld_CityName   : $("#frm_address_editor_city__txtfld"),
+		ddBlk_City        : $("#frm_address_editor_city__ddblk"),
+		blk_CityList      : $("#frm_address_editor_city__list"),
+		txtFld_City       : $("#frm_address_editor_city__txtfld"),
+		btn_ShowCities    : $("#frm_address_editor_show_cities_btn"),
+		ddBlk_Cities      : $("#frm_address_editor_cities_dd_blk"),
+		txtFld_SearchCity : $("#frm_address_editor_cities_list_search"),
+		blk_CitiesList    : $("#frm_address_editor_cities_list_blk"),
+		txtFld_Address    : $("#frm_address_editor_address"),
+		txtFld_Latitude   : $("#frm_address_editor_latitude"),
+		txtFld_Longitude  : $("#frm_address_editor_longitude"),
+		btn_OK            : $("#frm_address_editor_ok_btn"),
+		## /* --- */
+		CitySelectBlk : {
+			TimerID   : 0,
+			IsChanged : false
+		},
+		//
+		AddressIdx : -1,
+		//
+		## /* Обработчик закрытия окна редактора */
+		closeHandler : function(p_this) {
+			//UHTT.Address.Editor.clear();
+			//p_this.Address = null;
+			//p_this.Rec = null;
+		},
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Установка обработчика закрытия окна редактора */
+			_this.Dialog.setCloseHandler(this.closeHandler, this);
+			## /* */
+			_this.AddressIdx = UHTT.Person.Address.Editor.getArg("Idx");
+			## /* */
+			if(isNull(UHTT.Person.Address.Object))
+				throw new Error("Error: Goods editor not init");
+			## /* */
+			if(UHTT.Person.Address.Editor.IsEdition) {
+				_this.txtFld_Zip.val(UHTT.Person.Address.Editor.Object.ZIP);
+				_this.txtFld_Code.val(UHTT.Person.Address.Editor.Object.Code);
+				_this.txtFld_Address.val(UHTT.Person.Address.Editor.Object.Address);
+				_this.txtFld_Latitude.val(UHTT.Person.Address.Editor.Object.Latitude);
+				_this.txtFld_Longitude.val(UHTT.Person.Address.Editor.Object.Longitude);
+			}
+			## /* ZIP */
+			_this.txtFld_Zip.Evt("focusout", function() {
+				UHTT.Person.Address.Editor.Object.ZIP = $(this).val();
+			});
+			## /* Code */
+			_this.txtFld_Code.Evt("focusout", function() {
+				UHTT.Person.Address.Editor.Object.Code = $(this).val();
+			});
+			## /* Address */
+			_this.txtFld_Address.Evt("focusout", function() {
+				UHTT.Person.Address.Editor.Object.Address = $(this).val();
+			});
+			## /* Latitude */
+			_this.txtFld_Latitude.Evt("focusout", function() {
+				UHTT.Person.Address.Editor.Object.Latitude = $(this).val();
+			});
+			## /* Longitude */
+			_this.txtFld_Longitude.Evt("focusout", function() {
+				UHTT.Person.Address.Editor.Object.Longitude = $(this).val();
+			});
+			
+			## /* CityID */
+			if(UHTT.Person.Address.Editor.Object.CityID > 0) {
+				var sa = UHTT.ObjectUtil.getStrAssocItem("CITY", { ID: UHTT.Person.Address.Editor.Object.CityID });
+				if(!isNull(sa))
+					_this.txtFld_City.val(sa.Txt);
+			}
+			## /* Список городов */
+			_this.txtFld_CityName.Evt("keyup", function(e) {
+				var keycode = (e.keyCode ? e.keyCode : e.which);
+				var is_char      = ((keycode >= 65) && (keycode <= 90));
+				var is_del       = (keycode == 8);
+				var is_backspace = (keycode == 46);
+				//
+				$(this).removeClass("uui-green-text uui-red-text");
+				//
+				if(_this.CitySelectBlk.TimerID > 0)
+					clearTimeout(_this.CitySelectBlk.TimerID);
+				//
+				var val = $(this).val();
+				if(val.length > 2) {
+					if(is_del || is_backspace || is_char) {
+						_this.CitySelectBlk.IsChanged = true;
+						_this.CitySelectBlk.TimerID = setTimeout(function() {
+							var ary = UHTT.ObjectUtil.getStrAssocAry("CITY", { SUBNAME: val });
+							if(!isEmpty(ary)) {
+								var temp_buf = "";
+								var n_items = ary.length;
+								if(n_items == 1) {
+									_this.ddBlk_City.hide();
+									_this.CitySelectBlk.IsChanged = false;
+									UHTT.Person.Address.Editor.Object.CityID = ary[0].ID;
+									_this.txtFld_CityName.val(ary[0].Txt).removeClass("uui-red-text").addClass("uui-green-text");
+								}
+								else {
+									for(var i = 0; i < n_items; i++)
+										temp_buf += '<option cityID="' + ary[i].ID + '">' + ary[i].Txt + '</option>';
+									_this.ddBlk_City
+										.css("left", _this.ddBlk_City.parent().position().left)
+										.width(_this.txtFld_CityName.width() + 4)
+										.show();
+									_this.blk_CityList.html(temp_buf);
+									if(n_items < 10)
+										_this.blk_CityList.attr("size", n_items);
+								}
+							}
+							else {
+								_this.ddBlk_City.hide();
+								_this.txtFld_CityName.addClass("uui-red-text");
+							}
+						}, 250);
+					}
+				}
+				else {
+					_this.ddBlk_City.hide();
+				}
+			}).Evt("focusout", function() {
+				var name = $(this).val();
+				if(_this.CitySelectBlk.TimerID > 0)
+					clearTimeout(_this.CitySelectBlk.TimerID);
+				if(_this.CitySelectBlk.IsChanged && !isEmpty(name)) {
+					UHTT.Person.Address.Editor.Object.CityID = 0;
+					_this.CitySelectBlk.IsChanged = false;
+					var item = UHTT.ObjectUtil.getStrAssocItem("CITY", { NAME: name });
+					if(!isNull(item))
+						UHTT.Person.Address.Editor.Object.CityID = item.ID;
+					$(this).removeClass("uui-green-text uui-red-text").addClass((UHTT.Person.Address.Editor.Object.CityID > 0) ? "uui-green-text" : "uui-red-text");
+				}
+			});
+			_this.blk_CityList.Evt("keypress dblclick", function(e) {
+				if(e.type === "keypress") {
+					if(e.keyCode != 13)
+						return true;
+				}
+				var idx = this.selectedIndex;
+				if(idx > -1) {
+					var item = $(this.options[idx]);
+					UHTT.Person.Address.Editor.Object.CityID = item.attr("cityID");
+					_this.txtFld_CityName.val(item.html().unescapeHtml());
+					_this.txtFld_CityName.removeClass("uui-red-text").addClass("uui-green-text");
+					_this.ddBlk_City.hide();
+				}
+			});
+			## /* Кнопка "OK" */
+			_this.btn_OK.Evt("click", function() {
+				/*
+				if(isEmpty(_this.Address))
+					_this.Address = new UHTT.Address.Structure(0);
+				_this.Address.LocID     = _this.Rec.LocID;
+				_this.Address.LocKind   = _this.Rec.LocKind;
+				_this.Address.LocCode   = _this.Rec.LocCode;
+				_this.Address.LocName   = _this.Rec.LocName;
+				_this.Address.ZIP       = _this.Rec.ZIP;
+				_this.Address.Address   = _this.Rec.Address;
+				_this.Address.CityID    = _this.Rec.CityID;
+				_this.Address.Longitude = _this.Rec.Longitude;
+				_this.Address.Latitude  = _this.Rec.Latitude;
+				var handler = UHTT.Address.Editor.getHandler();
+				if(handler != null)
+					handler(_this.Address);
+				_this.Dialog.close();
+				*/
+				## // TODO: Field check
+				UHTT.Person.Editor.setAddress(_this.AddressIdx, UHTT.Person.Address.Editor.Object);
+				_this.Dialog.close();
+			});
+		}
+	};
+	## /* Инициализация формы */
+	AddressEditorForm.init();
+</script>

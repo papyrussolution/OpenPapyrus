@@ -1,0 +1,134 @@
+## Universe-HTT
+## frm_scard_filt.tddo
+## Фильтр пластиковых карт
+##
+
+<div id="uhtt_frm_scard_filt_view">
+	<fieldset style="margin-top:6px">
+		<legend>Остаток на карте</legend>
+		<div id="uhtt_frm_scard_filt_hash_div">
+			<table class="sprawling"><tbody class="sprawling"><tr class="sprawling">
+			<td class="sprawling">
+				<input type="text" class="uhtt-input" id="uhtt_frm_scard_filt_number" style="width:60%" placeholder="Номер карты..."/>
+				<input type="text" class="uhtt-input" id="uhtt_frm_scard_filt_hash" style="width:35%" placeholder="Код..."/>
+			</td>
+			<td class="sprawling"><input type="button" class="uhtt-button" id="uhtt_frm_scard_filt_hash_btn" value="Показать"/></td>
+			</tr></tbody></table>
+		</div>
+	</fieldset>
+	#if{@(Global, 0).CheckCurrentGlobalUserRights(12, 16, "@def") > 0}
+	<fieldset style="margin-top:6px">
+		<legend>Статистика операций</legend>
+		<b>Период</b>
+		<div id="uhtt_frm_scards_filt_prd_div">
+			<table><tbody><tr>
+			<td><input type="text" class="uhtt-input-with-button sprawling" id="uhtt_frm_scards_filt_prd"/></td>
+			<td><input type="button" class="uhtt-button-with-input uhtt-calendar-button sprawling" id="uhtt_frm_scards_filt_prd_show_calendar"/></td>
+			</tr></tbody></table>
+		</div>
+		<br>
+		<b>Группировка</b>
+		<div id="uhtt_frm_scards_filt_grp_div">
+			<table class="sprawling"><tbody class="sprawling"><tr class="sprawling">
+			<td class="sprawling"><input type="text" class="uhtt-drop-down-menu-text-field sprawling" id="uhtt_frm_scards_filt_grp" readonly="readonly"/></td>
+			<td><input type="button" class="uhtt-drop-down-menu-button" id="uhtt_frm_scards_filt_grp_cases_show_btn"/></td>
+			</tr></tbody></table>
+			<div class="uhtt-drop-down-div" id="uhtt_frm_scards_filt_grp_cases_data_div">
+				<select class="sprawling" size="5">
+					<option class="uhtt-frm-scard-filt-grp-kind-list-item" value="0">Без группировки</option>
+					<option class="uhtt-frm-scard-filt-grp-kind-list-item" value="1">Итог</option>
+					<option class="uhtt-frm-scard-filt-grp-kind-list-item" value="2">Дата</option>
+					<option class="uhtt-frm-scard-filt-grp-kind-list-item" value="3">Карта</option>
+					<option class="uhtt-frm-scard-filt-grp-kind-list-item" value="4">Адрес</option>
+				</select>
+			</div>
+		</div>
+		<br>
+		<div align="right"><input type="button" id="uhtt_frm_scard_filt_btn_ok" value="OK"/></div>
+	</fieldset>
+	#endif
+</div>
+
+<script type="text/javascript">
+	var SCardFiltForm = {
+		Period: null,
+		GrpKind: 0,
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Инициализация DropDown объектов */
+			UHTT.DDO.initObject($("#uhtt_frm_scards_filt_grp_cases_data_div"));
+			## /* Остаток на карте */
+			$("#uhtt_frm_scard_filt_hash_btn").Evt("click", function(event) {
+				if(isEmpty($("#uhtt_frm_scard_filt_number").val())) {
+					UHTT.Messenger.show("Укажите номер карты", "/rsrc/images/attention_48.png");
+					return;
+				}
+				if(isEmpty($("#uhtt_frm_scard_filt_hash").val())) {
+					UHTT.Messenger.show("Укажите код", "/rsrc/images/attention_48.png");
+					return;
+				}
+				var result = UHTT.requestData(null, "SCARDREST CODE(" + $("#uhtt_frm_scard_filt_number").val() + "@" +  $("#uhtt_frm_scard_filt_hash").val() + ")");
+				if(!isEmpty(result)) {
+					var data = "<b>Остаток на карте (№:" + $("#uhtt_frm_scard_filt_number").val() + "): " + result + "р. </b>";
+					UHTT.Browser.show(data, "Остаток на карте");
+				}
+			});
+			## /* Период */
+			$("#uhtt_frm_scards_filt_prd").Evt("focusout", function() {
+				_this.Period = $(this).val();
+			});
+			## /* Календарь */
+			$("#uhtt_frm_scards_filt_prd_show_calendar").DatePicker({
+				format: "d/m/Y",
+				date: new Date(),
+				starts: 1,
+				calendars: 1,
+				position: "right",
+				mode: "range",
+				locale: {
+					days: ["Воскресение", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресение"],
+					daysShort: ["Вск", "Пон", "Втр", "Срд", "Чтв", "Птн", "Сбт", "Вск"],
+					daysMin: ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"],
+					months: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+					monthsShort: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+					weekMin: "нд"
+				},
+				onBeforeShow: function(){
+					var prd = $("#uhtt_frm_scards_filt_prd").val();
+					if(isEmpty(prd))
+						prd = new Date();
+					$("#uhtt_frm_scards_filt_prd").DatePickerSetDate(prd, true);
+				},
+				onChange: function(formated, dates){
+					var str = "";
+					str += formated;
+					str = str.replace(",", "..")
+					$("#uhtt_frm_scards_filt_prd").val(str);
+					_this.Period = str;
+				}
+			});
+			## /* Список видов группировки */	
+			$("#uhtt_frm_scards_filt_grp_cases_show_btn").Evt("click", function(event) {
+				$('#uhtt_frm_scards_filt_grp_cases_data_div').show();
+				$("#uhtt_frm_scards_filt_grp_cases_data_div").width($("#uhtt_frm_scards_filt_grp").width() + 5);
+			});
+			$("#uhtt_frm_scards_filt_grp_cases_data_div").delegate(".uhtt-frm-scard-filt-grp-kind-list-item", "dblclick", function(evt) {
+				_this.GrpKind = $(this).val();
+				$("#uhtt_frm_scards_filt_grp").val($(this).html());
+				$("#uhtt_frm_scards_filt_grp_cases_data_div").hide();
+			});
+			## /* Кнопка "OK" */
+			$("#uhtt_frm_scard_filt_btn_ok").Evt("click", function(event) {
+				if(isEmpty(_this.Period)) {
+					UHTT.Messenger.show("Укажите период", "/rsrc/images/attention_48.png");
+					return;
+				}
+				var query = "SELECT UHTTSCARDOP BY PERIOD(" + _this.Period + ") GROUPING(" + _this.GrpKind + ") FORMAT.TDDO(VIEW_SCARD_OPS, " + _this.GrpKind + ")";
+				UHTT.Browser.show(UHTT.requestData(null, query), "Операции по картам");
+			});
+		}
+	};
+	## /* Инициализация формы фильтра */
+	SCardFiltForm.init();
+</script>

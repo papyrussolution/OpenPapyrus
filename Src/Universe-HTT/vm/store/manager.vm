@@ -1,0 +1,246 @@
+﻿## Universe-HTT / 2013
+## frm_store_manager.tddo
+## Форма управления интернет магазинами
+##
+
+#if($isSignedIn)
+
+<style>
+	#frm_store_manager__layout {
+		padding: 5px;
+	}
+	#frm_store_manager_select_store__select {
+		width: 300px;
+		margin: 10px 0;
+	}
+	.uui-select {
+		padding: 4px;
+		border-radius: 4px;
+	}
+	.uui-clicked-tr {
+		background: #336699;
+		color: white;
+	}
+</style>
+
+<div id="frm_store_manager__layout">
+	<select class="uui-select" id="frm_store_manager_select_store__select">
+		#foreach($store in $storeList)
+			<option storeID="$store.getID()">$store.Name</option>
+		#end
+		</select>
+	<div class="uui-w100pct" id="frm_store_manager_details__panel">
+		<ul>
+			<!-- <li><a href="#frm_store_manager_positions__tab">Позиции (<span id="frm_store_manager_positions_qtty__label"></span>)</a></li> -->
+			<li><a href="#frm_store_manager_orders__tab">Заказы (<span id="frm_store_manager_orders_qtty__label"></span>)</a></li>
+		</ul>
+		<div id="frm_store_manager_positions__tab">
+			<div class="uui-w100pct" id="frm_store_manager_positions__blk"></div>
+		</div>
+		<div id="frm_store_manager_orders__tab">
+			<div class="uui-w100pct" id="frm_store_manager_orders__blk">
+				<table class="tablesorter" id="frm_store_manager_orders__table">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Дата</th>
+							<th>Покупатель</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var StoreManagerForm = {
+		//
+		## /* Элементы формы */
+		Layout            : $("#frm_store_manager__layout"),
+		select_Stores     : $("#frm_store_manager_select_store__select"),
+		tabs_Details      : $("#frm_store_manager_details__panel"),
+		lbl_PosQtty       : $("#frm_store_manager_positions_qtty__label"),
+		lbl_OrdersQtty    : $("#frm_store_manager_orders_qtty__label"),
+		blk_Pos           : $("#frm_store_manager_positions__blk"),
+		blk_Orders        : $("#frm_store_manager_orders__blk"),
+		tbl_Orders        : $("#frm_store_manager_orders__table"),
+		tblBody_Orders    : $("#frm_store_manager_orders__table tbody"),
+		//
+		CurStoreID : 0,
+		StoreList : null,
+		//
+		redraw : function() {
+			var _this = this;
+			var elem = _this.select_Stores.get(0);
+			var idx = elem.selectedIndex;
+			if(idx > -1) {
+				var item = $(elem.options[idx]);
+				var id = item.attr("storeID");
+				_this.CurStoreID = id; 
+				var n = 0;
+				if(!isNull(_this.StoreList))
+					n = _this.StoreList.length;
+				for(var i = 0; i < n; i++) {
+					var store = _this.StoreList[i];
+					if(!isNull(store)) {
+						if(store.ID == id) {
+							_this.lbl_PosQtty.html(store.PosQtty);
+							_this.lbl_OrdersQtty.html(store.OrdersQtty);
+							{
+								var orders = UHTT.Store.getOrders(id);
+								if(!isEmpty(orders)) {
+									var n = orders.length;
+									var buf = "";
+									for(var i = 0; i < n; i++) {
+										var order = orders[i];
+										buf += '<tr orderID="' + order.ID + '">';
+										buf += '<td>' + order.ID + '</td>';
+										buf += '<td>' + order.Dt + '</td>';
+										buf += '<td>' + order.Buyer + '</td>';
+										buf += '</tr>';
+									}
+									_this.tblBody_Orders.html(buf);
+								}
+							}
+							break;
+						}
+					}
+				}
+				
+			}
+		},
+		init : function() {
+			var _this = this;
+			## /* Init tabs */
+			_this.tabs_Details.tabs();
+			## /* --- */
+			_this.StoreList = UHTT.Store.getStoreList();
+			
+			_this.select_Stores.Evt("change", function() {
+				_this.redraw();
+			});
+			
+			_this.tblBody_Orders.delegate("tr", "click", function() {
+				_this.tblBody_Orders.children().each(function() {
+					$(this).removeClass("uui-clicked-tr");
+				});
+				$(this).addClass("uui-clicked-tr");
+			});
+			
+			_this.tblBody_Orders.delegate("tr", "dblclick", function() {
+				var order_id = $(this).attr("orderID");
+				var view = UHTT.Content.get("ORDER_DETAILS", { OrderID: order_id, StoreID: _this.CurStoreID });
+				new SDialog("FRM_ORDER_DETAILS", view, {title: "Просмотр заказа", width: 450}, UHTT.Dialog.TYPE.INLINE);
+			});
+			
+			_this.redraw();
+		}
+	};
+	$(document).ready(function() {
+		StoreManagerForm.init();
+	});
+</script>
+
+#else
+
+<style>
+	.store-manager-item-blk {
+		position: relative;
+		display: inline-block;
+		height: 140px;
+		width: 140px;
+		margin: 8px 6px;
+		text-align: center;
+		
+		border-style: solid;
+		border-width: 2px;
+		border-color: #C8C9CA #9E9E9E #9E9E9E #C8C9CA;
+		
+		## -moz-box-shadow: 3px 3px 5px #888888;       /* Firefox */
+		## -webkit-box-shadow: 3px 3px 5px #888888;    /* Safari, Chrome */
+		## box-shadow: 3px 3px 5px #888888;            /* CSS3 */
+		
+		-moz-border-radius: 4px;     /* Firefox */
+		-webkit-border-radius: 4px;  /* Safari, Chrome */
+		-khtml-border-radius: 4px;   /* KHTML */
+		border-radius: 4px;          /* CSS3 */
+		
+		cursor: pointer;
+	}
+	.store-manager-item-blk:hover {
+		background: #336699;
+		color: white;
+	}
+	.store-manager-item-img-blk {
+		display: table-cell;
+		height: 100px;
+		margin: 0 auto;
+		width: 140px;
+		max-width: 140px;
+		text-align: center;
+		vertical-align: middle;
+	}
+	.store-manager-item-text-blk {
+		font: 8pt/8pt sans-serif;
+		font-weight: bold;
+		height: 40px;
+		overflow: hidden;
+		white-space: normal;
+		word-wrap: break-word;
+	}
+	#frm_store_manager_items_blk {
+		margin-top: 5px;
+		
+		-moz-border-radius: 4px;     /* Firefox */
+		-webkit-border-radius: 4px;  /* Safari, Chrome */
+		-khtml-border-radius: 4px;   /* KHTML */
+		border-radius: 4px;          /* CSS3 */
+		
+		/*
+		border-style: solid;
+		border-width: 1px;
+		border-color: #C8C9CA #9E9E9E #9E9E9E #C8C9CA;
+		*/
+	}
+</style>
+<div class="uui-helper-clearfix" id="frm_store_manager_items_blk">
+	#foreach($store in $storeList)
+		#set($url = $UHTT.getStoreURL($store))
+		#if($url != "")
+			<div class="store-manager-item-blk" url="$url">
+				<div class="store-manager-item-img-blk">
+					<img src="/rsrc/images/store_48.png"/>
+				</div>
+				<div class="store-manager-item-text-blk">$store.Name</div>
+				## <div>${UHTT.getObjName("PERSON", $store.OwnerID)}</div>
+			</div>
+		#end
+	#end
+</div>
+<hr>
+#include("store/_text.vm")
+
+<script type="text/javascript">
+	var StoreManagerForm = {
+		//
+		## /* Элементы формы */
+		StoreItem : $("div.store-manager-item-blk"),
+		//
+		init : function() {
+			var _this = this;
+			//
+			_this.StoreItem.Evt("click", function() {
+				var url = $(this).attr("url");
+				if(!isEmpty(url))
+					window.open(url);
+			});
+		}
+	};
+	$(document).ready(function() {
+		StoreManagerForm.init();
+	});
+</script>
+
+#end

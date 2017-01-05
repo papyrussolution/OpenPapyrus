@@ -1,0 +1,58 @@
+## Universe-HTT
+## frm_bank_filt.tddo // Form ID: 1002
+## Фильтр выборки банков
+
+<div id="frm_bank_filt_view">
+	<fieldset style="margin-top:6px">
+		<legend>Фильтр</legend>
+		<b>Наименование</b>
+		<input type="text" class="uhtt-input sprawling" id="frm_bank_filt_name"/>
+		<b>БИК</b>
+		<input type="text" class="uhtt-input sprawling" id="frm_bank_filt_bic"/>
+		<hr>
+		<div>
+			#if{@(Global, 0).CheckCurrentGlobalUserRights(11, 2, "BANK") > 0}
+				<input type="button" id="frm_bank_filt_create_new_bank_btn" style="float:left" value="Создать банк"/>
+			#endif
+			<input type="button" id="frm_bank_filt_ok_btn" style="float:right" value="OK"/>
+		</div>
+	</fieldset>
+</div>
+
+<script type="text/javascript">
+	var BankFiltForm = {
+		## /* Фильтр */
+		F : new UHTT.Person.Filter("BANK", "VIEW_PERSON"),
+		## /* Элементы формы */
+		txtFld_Name : $("#frm_bank_filt_name"),
+		txtFld_Bic  : $("#frm_bank_filt_bic"),
+		btn_Create  : $("#frm_bank_filt_create_new_bank_btn"),
+		btn_OK      : $("#frm_bank_filt_ok_btn"),
+		## /* Инициализация */
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Наименование */
+			_this.txtFld_Name.Evt("focusout", function() {
+				_this.F.setName($(this).val());
+			});
+			## /* БИК */
+			_this.txtFld_Bic.Evt("focusout", function() {
+				_this.F.setRegister("BIC", $(this).val());
+			});
+			## /* Кнопка OK */
+			_this.btn_OK.Evt("click", function() {
+				_this.process();
+			});
+		},
+		process : function(F) {
+			if(isEmpty(F))
+				F = this.F;
+			var data = UHTT.Person.fetch(F);
+			if(data != null)
+				UHTT.Browser.show(data, "Выборка банков");
+		}
+	}
+	## /* Инициализация формы фильтра */
+	BankFiltForm.init();
+</script>

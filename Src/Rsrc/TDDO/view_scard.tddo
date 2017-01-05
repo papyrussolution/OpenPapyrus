@@ -1,0 +1,22 @@
+
+<div id="UHTT_VIEW_SCARD">
+	<div id="UHTT_VIEW_SCARD_TABLE_MSG" class="tablesorter-overlay-msg">Обработка...</div>
+	<table id="UHTT_VIEW_SCARD_TABLE" class="tablesorter">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Наименование</th>
+			</tr>
+		</thead>
+		<tbody>
+		#start(StrAssocArray)
+			#iter()
+			<tr class="uhtt-view-scard-table-item">
+				<td>${Id}</td>
+				<td>${Txt}</td>
+			</tr>
+			#end()
+		#end()
+		</tbody>
+	</table>
+</div>

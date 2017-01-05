@@ -1,0 +1,16 @@
+## Universe-HTT
+## data_bot_brand.tddo
+## Структура бренда для предоставления поисковому боту
+
+#start(StrAssocArray)
+#pragma(htmlencode)
+	#iter()
+		{
+		#start(Brand:${ID})
+			"ID":"${ID}",
+			"Name":"${Name}",
+			"Owner":"${OwnerID.Name}"
+		#end()
+		}
+	#end()
+#end()

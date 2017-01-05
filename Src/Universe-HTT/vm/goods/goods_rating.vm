@@ -1,0 +1,70 @@
+﻿## Universe-HTT / 2013
+## goods_rating.tddo
+## Форма просмотра рейтинга товаров
+##
+
+<div id="frm_view_goods_rating">
+	<div id="frm_view_goods_rating_table_msg" class="tablesorter-overlay-msg">Обработка...</div>
+	<table id="frm_view_goods_rating_table" class="tablesorter">
+		<thead>
+			<tr>
+				<th>#</th>
+				<th>Товар</th>
+				<th><img src="/rsrc/images/like.png"/></th>
+				<th><img src="/rsrc/images/dislike.png"/></th>
+			</tr>
+		</thead>
+		<tbody>
+		#set($count = 0)
+		#foreach($item in $rating_ary)
+			#set($count = $count + 1)
+			<tr class="uhtt-goods-rating-table-item" itemID="${item.Goods.ID}">
+				<td align="center">${count}</td>
+				<td>${item.Goods.Name}</td>
+				<td align="center">${item.LikeCount}</td>
+				<td align="center">${item.DislikeCount}</td>
+			</tr>
+		#end
+		</tbody>
+	</table>
+	<div id="frm_view_goods_rating_table_pager" class="tablesorter-pager">
+		<input type="button" class="tablesorter-pager-btn-first"/>
+		<input type="button" class="tablesorter-pager-btn-prev"/>
+		<label class="tablesorter-pager-label-page-display"></label>
+		<input type="button" class="tablesorter-pager-btn-next"/>
+		<input type="button" class="tablesorter-pager-btn-last"/>
+		<b>Отображать по: </b>
+		<select class="tablesorter-pager-select-page-size">
+			<option selected="selected" value="20">20</option>
+			<option value="30">30</option>
+			<option value="40">40</option>
+			<option value="50">50</option>
+			<option value="100">100</option>
+			<option value="500">500</option>
+		</select>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var GoodsRatingForm = {
+		## /* Таблица */
+		Tbl : null,
+		## /* */
+		init : function() {
+			## /* Указатель на контекст объекта */
+			var _this = this;
+			## /* Инициализация таблицы */
+			_this.Tbl = $("#frm_view_goods_rating_table").tablesorter({ widthFixed:true });
+			_this.Tbl.tablesorterPager({ container:$("#frm_view_goods_rating_table_pager") });
+			## /* Событие двойной клик по строке */
+			_this.Tbl.delegate(".uhtt-goods-rating-table-item", "dblclick", function() {
+				var goods_id = $(this).attr("itemID");
+				showGoodsDetails(goods_id);
+				return false;
+			});
+		}
+	};
+	$(document).ready(function() {
+		GoodsRatingForm.init();
+	});
+</script>

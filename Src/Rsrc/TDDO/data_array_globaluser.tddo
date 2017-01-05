@@ -1,0 +1,19 @@
+## Universe-HTT
+## data_array_globaluser.tddo
+## ћассив структур глобальных учетных записей
+
+#pragma(htmlencode)
+#start(StrAssocArray)
+	[
+	#iter()
+		{
+		#start(GlobalUserAcc:${ID})
+			"ID":${ID},
+			"PersonID":${PersonID.ID},
+			"Name":"${Name}",
+			"Symb":"${Symb}"
+		#end()
+		},
+	#end()
+	]
+#end()

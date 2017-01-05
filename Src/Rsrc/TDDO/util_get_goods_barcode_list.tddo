@@ -1,0 +1,1 @@
+${@(Goods, $1).GetBarcodeList("<br>")}

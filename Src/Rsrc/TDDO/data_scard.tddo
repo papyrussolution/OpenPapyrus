@@ -1,0 +1,23 @@
+## Universe-HTT
+## data_brand.tddo
+## Структура бренда
+## Args: ${1} - идентификатор бренда
+
+#pragma(htmlencode)
+#start(SCard:${1})
+{
+	"ID":${ID},
+	"SeriesID":${SeriesID.ID},
+	"OwnerID":${OwnerReqID.PersonID.ID},
+	"Code":"${Code}",
+	"Hash":"${Hash}",
+	"IssueDate":"${IssueDate}",
+	"Expiry":"${Expiry}",
+	"PDis":${PDis},
+	"Overdraft":${Overdraft},
+	"Debit":${Debit},
+	"Credit":${Credit},
+	"Rest":${Rest},
+	"Flags":${Flags}
+}
+#end()
