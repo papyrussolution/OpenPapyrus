@@ -1876,7 +1876,6 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
-    <ResourceCompile Include="..\PpyDll\ppydll.rc" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="BDB.vcxproj">
