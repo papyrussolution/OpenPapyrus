@@ -1,0 +1,13 @@
+
+digraph StCalUsageHier {
+	node [fontname="Arial", fontsize=8];
+
+	A0 [shape=point,label=""]
+	A1 [shape=box,style=filled,color=linen,label="Персоналия, участвующая в штатном назначении"]
+	A2 [shape=box,style=filled,color=linen,label="Штатное назначение"]
+	A3 [shape=box,style=filled,color=linen,label="Штатная должность"]
+	A4 [shape=box,style=filled,color=linen,label="Персоналия-работодатель"]
+	A5 [shape=box,style=filled,color=linen,label="Заголовочный календарь (не привязанный к конкретному объекту)"]
+
+	A0->A1->A2->A3->A4->A5
+}

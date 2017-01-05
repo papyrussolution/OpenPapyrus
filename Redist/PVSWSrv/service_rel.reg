@@ -1,0 +1,14 @@
+REGEDIT4
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Pervasive.SQL (relational)]
+"Type"=dword:00000110
+"Start"=dword:00000002
+"ErrorControl"=dword:00000001
+"ImagePath"=hex(2):22,57,33,53,51,4c,4d,47,52,2e,45,58,45,22,00
+"ObjectName"="LocalSystem"
+"DisplayName"="Pervasive.SQL (relational)"
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Pervasive.SQL (relational)\Enum]
+"0"="Root\\LEGACY_PERVASIVE.SQL_(RELATIONAL)\\0000"
+"Count"=dword:00000001
+"NextInstance"=dword:00000001

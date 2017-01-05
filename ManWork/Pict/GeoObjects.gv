@@ -1,0 +1,16 @@
+digraph GeoObjects {
+	node [fontname="Arial", fontsize=8];
+	
+	continent [shape=ellipse, label="Континент"]
+	country [shape=ellipse, label="Государство"]
+	region [shape=ellipse, label="Регион"]
+	city [shape=ellipse, label="Город"]
+	cityarea [shape=ellipse, label="Район города"]
+	street [shape=ellipse, label="Улица"]
+
+	continent->country->region
+	country->city
+	region->city
+	city->cityarea
+	city->street
+}

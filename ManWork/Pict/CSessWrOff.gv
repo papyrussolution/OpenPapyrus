@@ -1,0 +1,11 @@
+﻿
+digraph CSessWrOff {
+	node [fontname="Arial", fontsize=8];
+	A0->A1->A2->A3->A4
+	A4->A1 [label="Повторное списание\nдля учета\nобработанного дефицита"]
+	A0 [shape=ellipse, label="Группировка кассовых чеков"]
+	A1 [shape=ellipse, label="Формирование документов\nсписания"]
+	A2 [shape=ellipse, label="Формирование документов\nпокрытия дефицита"]
+	A3 [shape=ellipse, label="Обработка дефицита"]
+	A4 [shape=ellipse, label="Обработка документов\nпокрытия дефицита"]
+}

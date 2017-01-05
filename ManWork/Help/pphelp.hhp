@@ -1,0 +1,119 @@
+[OPTIONS]
+Auto Index=Yes
+Compatibility=1.1 or later
+Compiled file=pphelp.chm
+Default Font=Arial,8,204
+Default Window=Main
+Default topic=Intro.html
+Display compile progress=No
+Full-text search=Yes
+Language=0x419 Русский
+Title=Справочная информация по системе Papyrus
+
+[WINDOWS]
+Main="Справочная информация по системе Papyrus",,,"Intro.html","Intro.html",,,,,0x40020,,0x202c,[50,50,450,450],,,,,,,0
+
+
+[FILES]
+..\pict\png\dlg-034.png
+HELP_DLG_QUOTFLT.HTML
+..\pict\png\dlg-016.png
+HELP_DLG_GDSCFG.HTML
+..\pict\png\dlg-cfg-bill-ext.png
+..\pict\png\dlg-126.png
+HELP_DLG_CLIAGT.HTML
+..\pict\png\dlg-111.png
+HELP_DLG_SCARDSER.HTML
+..\pict\png\dlg-cfg-bill.png
+..\pict\png\dlg-goodsgrp.png
+HELP_DLG_GOODSGROUP.HTML
+..\pict\png\dlg-122.png
+..\pict\png\dlg-121.png
+..\pict\png\dlg-012.png
+HELP_DLG_BILLCFG.HTML
+..\pict\png\dlg-138.png
+HELP_DLG_PREGTYP.HTML
+..\pict\png\dlg-tagvcritlnk.png
+HELP_DLG_SELTAG.HTML
+..\pict\png\dlg-cfg-equip.png
+..\pict\png\dlg-020.png
+HELP_DLG_EQUIPCFG.HTML
+..\pict\png\dlg-081.png
+HELP_DLG_CFGKBDWKEY.HTML
+..\pict\png\dlg-f-007.png
+HELP_DLG_CCHECKFLT.HTML
+..\pict\png\brw-sj.png
+HELP_BROWSER_SYSJ.HTML
+..\pict\png\dlg-f-sj.png
+HELP_DLG_SYSJFILT.HTML
+..\pict\png\brw-csess.png
+HELP_BROWSER_CSESS.HTML
+..\pict\png\dlg-f-csess.png
+HELP_DLG_CSESSFILT.HTML
+..\pict\png\brw-032.png
+HELP_BROWSER_FREIGHT.HTML
+..\pict\png\dlg-137.png
+HELP_DLG_FRGHTFLT.HTML
+..\pict\png\dlg-112.png
+HELP_DLG_SCARDFLT.HTML
+..\pict\png\dlg-f-billext.png
+HELP_DLG_BILLEXTFLT.HTML
+..\pict\png\dlg-f-003.png
+HELP_DLG_BILLFLT.HTML
+..\pict\png\dlg-billstatus.png
+HELP_DLG_BILLSTATUS.HTML
+..\pict\png\dlg-f-goods-ext2.png
+HELP_DLG_GDSFVOPT.HTML
+..\pict\png\dlg-f-goods-ext1.png
+HELP_DLG_GFLTADVOPT.HTML
+..\pict\png\dlg-f-016.png
+HELP_DLG_GOODSFLT.HTML
+..\pict\png\dlg-100.png
+HELP_DLG_CCFGSYS.HTML
+..\pict\png\dlg-commcfg-mainorg.png
+HELP_DLG_MAINORG.HTML
+..\pict\png\dlg-101.png
+HELP_DLG_CCFGOP.HTML
+..\pict\png\dlg-099.png
+HELP_DLG_COMMCFG.HTML
+..\pict\png\brw-opgrpng.png
+HELP_BROWSER_BILLOPGRPNG.HTML
+..\pict\png\plot-opgrpng.png
+..\pict\png\dlg-042.png
+HELP_DLG_OPGRPNGFLT.HTML
+..\pict\png\brw-goodsopr.png
+HELP_BROWSER_GOODSOPER.HTML
+..\pict\png\dlg-118.png
+HELP_DLG_GOODSOPRE.HTML
+..\pict\png\dlg-109.png
+HELP_DLG_GOODSOPR2.HTML
+..\pict\png\dlg-f-goodsopr.png
+HELP_DLG_GOODSOPR.HTML
+..\pict\png\brw-trfranlz-goods.png
+..\pict\png\brw-trfranlz.png
+HELP_BROWSER_TRFRANLZ.HTML
+..\pict\png\dlg-f-trfranlz-grpng.png
+HELP_DLG_TAGRPNG.HTML
+..\pict\png\dlg-f-trfranlz.png
+HELP_DLG_TRFRANLZ.HTML
+..\pict\png\dlg-goodsrest-prn.png
+..\pict\png\brw-014.png
+HELP_BROWSER_GOODSREST.HTML
+..\pict\png\dlg-040.png
+HELP_DLG_GOODSREST.HTML
+..\pict\png\dlg-goodsvad.png
+HELP_DLG_GOODSVAD.HTML
+..\pict\png\dlg-goods.png
+HELP_DLG_GOODS.HTML
+..\pict\png\dlg-login.png
+HELP_DLG_LOGIN.HTML
+
+[MAP]
+#include ..\..\Src\Include\ppbrow.h
+#include ..\..\Src\Include\pphelp.h
+
+[TEXT POPUPS]
+CSHelp.txt
+
+[INFOTYPES]
+

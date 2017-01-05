@@ -1,0 +1,1 @@
+D:\PAPYRUS\TOOLS\Graphviz\bin\dot.exe -Tpng -o%1.png -Kdot %1.gv

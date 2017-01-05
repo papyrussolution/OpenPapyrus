@@ -1,0 +1,14 @@
+﻿
+digraph DebtDimRel {
+	node [fontname="Arial", fontsize=8];
+	Article[shape=ellipse, label="Аналитическая\nстатья"]
+	DebtDim[shape=ellipse, label="Долговая\nразмерность"]
+	
+	CliAgtHdr[shape=ellipse, label="Соглашение\nс клиентом"]	
+	rankdir=LR;
+	DebtLimit[shape=record, label="{<DebtDimID> Размерность|<Limit> Кредитный\nлимит|<Stop> Стоп}|{<dd_center>}|{}"]	
+
+	Article->CliAgtHdr
+	CliAgtHdr->DebtLimit:dd_center		
+	DebtLimit:DebtDimID->DebtDim	
+}

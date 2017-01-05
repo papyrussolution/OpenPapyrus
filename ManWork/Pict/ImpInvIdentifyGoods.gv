@@ -1,0 +1,11 @@
+﻿digraph ImportInvIdentifyGoods {
+	node [fontname="Arial", fontsize=8];
+
+	Serial [shape=box,style=filled,color=linen,label="Serial\nидентификация лота по серии\lи по лоту - товара\l"]
+	GoodsID [shape=box,style=filled,color=linen,label="GoodsID\nидентификация товара по идентификатору\l"]
+	Barcode [shape=box,style=filled,color=linen,label="Barcode\nидентификация товара по штрихкоду\l"]
+	BarcodeAsSerial [shape=box,style=filled,color=linen,label="Barcode\nидентификация лота по серии\lравной полю Barcode и по лоту - товара\l"]
+	GoodsName [shape=box,style=filled,color=linen,label="GoodsName\nпоследняя попытка:\lидентификация товара по наименованию\l"]
+
+	Serial->GoodsID->Barcode->BarcodeAsSerial->GoodsName
+}

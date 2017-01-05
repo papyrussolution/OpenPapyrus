@@ -1,0 +1,10 @@
+digraph formatdatetime {
+	node [shape=record, width=0.1, height=0.1];
+	
+	LDATE [label="{LDATE (4 bytes)|{year (16 bits)|month (8 bits)|day (8 bits)}}"];
+	
+	LTIME [label="{LTIME (4 bytes)|{hour (8 bits)|minuts (8 bits)|seconds (8 bits)|hundredths of second (8 bits)}}"];
+	
+	LDATETIME [label="{LDATETIME (8 bytes)|{LDATE | LTIME}}"];
+
+}

@@ -1,0 +1,8 @@
+REGEDIT4
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Pervasive.LegacyLicenseManager.1]
+@="Pervasive Legacy License Manager 1.0"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Pervasive.LegacyLicenseManager.1\CLSID]
+@="{CC833B72-A644-11D5-ADF5-00B0D041DFB4}"
+

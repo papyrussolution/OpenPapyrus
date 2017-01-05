@@ -1,0 +1,11 @@
+digraph WarehouseObjects {
+	node [fontname="Arial", fontsize=8];
+	
+	whgroup [shape=ellipse, label="Группа складов"]
+	warehouse [shape=ellipse, label="Склад"]
+	whzone [shape=ellipse, label="Зона"]
+	whcolumn [shape=ellipse, label="Колонна"]
+	whcell [shape=ellipse, label="Ячейка"]
+
+	whgroup->warehouse->whzone->whcolumn->whcell
+}

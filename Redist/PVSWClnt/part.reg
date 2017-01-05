@@ -1,0 +1,70 @@
+REGEDIT4
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Pervasive Software]
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Pervasive Software\Microkernel Router]
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Pervasive Software\Microkernel Router\Version 8]
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Pervasive Software\Microkernel Router\Version 8\Settings]
+"Local"="yes"
+"Requester"="yes"
+"Use IDS"="no"
+"IDS Username"="<None>"
+"IDS Password"="<None>"
+"Compress IDS Data"="no"
+"Gateway Durability"="no"
+"Use Cache Engine"="no"
+"Load Retries"=dword:00000005
+"Target Engine"=dword:00000002
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Pervasive Software\MicroKernel Workgroup Engine]
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Pervasive Software\MicroKernel Workgroup Engine\Version 8]
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Pervasive Software\MicroKernel Workgroup Engine\Version 8\Settings]
+"Balanced Trees"="NO"
+"File Version"="0800"
+"System Data"="YES"
+"Max MicroKernel Memory Usage"=dword:0000005a
+"Logging"="NO"
+"Cache Size"=dword:00008000
+"Merge Sort Buffer Size"=dword:00000000
+"Max Communication Buffer Size"=dword:00000040
+"Transaction Durability"="NO"
+"Transaction Logging"="YES"
+"Transaction Log Buffer Size"=dword:00000400
+"Transaction Log File Size"=dword:00000800
+"Systrans Bundle Limit"=dword:0000ffff
+"Systrans Time Limit"=dword:00002710
+"Background Threads"=dword:00000004
+"Wait-lock Timeout"=dword:0000000f
+"Transaction Log Directory"="C:\\PVSW\\BIN\\MKDE\\LOG"
+"Work Space"=""
+"Trace"="NO"
+"Trace File"="C:\\PVSW\\BIN\\MKDE.TRA"
+"Trace Databuf Len"=dword:00000080
+"Trace Keybuf Len"=dword:00000080
+"Trace Ops"="ALL"
+"System Cache"="YES"
+"Preallocate"="NO"
+"Minimal States"="YES"
+"Minimal States Delay"=dword:0000012c
+"Worker Threads"=dword:00000004
+"Max Remote Communications Buffer Size"=dword:0000003f
+"Remote Read Buffer Size"=dword:00000004
+"Remote Worker Threads"=dword:00000010
+"Remote Sessions Enabled"="YES"
+"Supported Protocols"=hex(7):53,50,58,49,49,00,54,43,50,2f,49,50,00,4e,45,54,\
+  42,49,4f,53,00,00
+"Home Directory"="C:\\PVSW\\BIN"
+"Protocol Init Timeout"=dword:0000003c
+"TCPIP Multi-Homed"="YES"
+"Listen IP Address"="0.0.0.0"
+"Enable AutoReconnect"="NO"
+"AutoReconnect Timeout"="180"
+"Validate Request"="NO"
+"Max Pending IO"=dword:00000800
+"File Growth Factor"=dword:0000000f
+"Enable Watchdog"="YES"
+

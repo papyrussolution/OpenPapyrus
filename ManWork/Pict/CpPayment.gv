@@ -1,0 +1,33 @@
+digraph CpPayment {
+	node [fontname="Arial", fontsize=8];
+	closecheck->creditcard
+	creditcard->scwithdraw
+	scwithdraw->printcheck
+	closecheck->creditcard_needaddedpayment
+	creditcard_needaddedpayment->selectpaymethod_sc
+	closecheck->selectpaymethod
+	selectpaymethod->cpmCash
+	selectpaymethod->cpmBank
+	selectpaymethod->cpmIncorpCrd
+	selectpaymethod_sc->cpmCash
+	selectpaymethod_sc->cpmIncorpCrd
+	cpmBank->isrestenough
+	cpmIncorpCrd->isrestenough
+	isrestenough->addedpayment [label="Нет"]
+	isrestenough->printcheck [label="Да"]
+	addedpayment->printcheck
+	cpmCash->printcheck
+	
+	closecheck [shape=box, label="Закрытие чека"]
+	creditcard [shape=ellipse, label="В чеке установлена\nкредитная карта"]
+	creditcard_needaddedpayment [shape=ellipse, label="В чеке установлена\nкредитная карта\nс нехваткой остатка\nдля оплаты чека"]
+	scwithdraw [shape=ellipse, label="Списание\nсуммы чека\nс кредитной карты"]
+	selectpaymethod [shape=ellipse, label="Выбор метода оплаты"]
+	selectpaymethod_sc [shape=ellipse, label="Выбор метода оплаты\nпри установленной кредитной карте"]
+	cpmCash [shape=ellipse, label="Оплата\nналичными"]
+	cpmBank [shape=ellipse, label="Оплата\nбанковской картой"]
+	cpmIncorpCrd [shape=ellipse, label="Оплата\nкредитной картой"]
+	isrestenough [shape=invtriangle, label="Достаточно ли\nсредств на карте?"]	
+	addedpayment [shape=ellipse, label="Необходима\nдоплата наличными"]
+	printcheck [shape=box, label="Печать чека"]
+}

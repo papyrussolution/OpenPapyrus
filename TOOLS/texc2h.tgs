@@ -1,0 +1,57 @@
+BEGIN texc2h_TAGS_TABLE
+	"\chapter";"H1";0
+	"\section";"H2";0
+	"\subsection";"H3";0
+	"\subsubsection";"H4";0
+	"\begin{description}";"DL";3
+	"\end{description}";"DL";4
+	"\begin{enumerate}";"OL";3
+	"\end{enumerate}";"OL";4
+	"\begin{itemize}";"UL";3
+	"\end{itemize}";"UL";4
+	"\item";"DL|DD&UL|LI&OL|LI";2
+	"\begin{table}";"TABLE";3
+	"\end{table}";"TABLE";4
+	"\begin{ppytable2}";"TABLE";3
+	"\end{ppytable2}";"TABLE";4
+	"\eor";"</TD></TR><TR><TD>";7
+	"&";"</TD><TD>";7
+	"\emph";"EM";0
+	"\textit";"I";0
+	"\textbf";"B";0
+	"\texttt";"TT";0
+	"\smallskip";"BR";1
+	"\trademark";"B";0
+	"\ppypict";"IMG";5
+	"\ppypictsc";"IMG";6
+	"\ppybrand";"Papyrus";8
+	"\ppyterm";"I";0
+	"\paragraph";"B";0
+	"\ppyexample";"B";0
+	"\qu";"Q";0
+	"\ppymenu";"I";0
+	"\rdir";" > ";7
+	"\ppyrsrv";"Q";0
+	"\ppysyntax";"I";0
+	"\dlgflag";"I";0
+	"\indent";" ";7
+	"\keyb";"Q";0
+	"\ppynote";"I";0
+	"\ppyadmin";"I";0
+	"\dlgbutton";"U";0
+	"\dlgcombo";"";8
+	"\dlgradioi";"";8
+	"\dlgradioc";"";8
+	"\ppyexampletitle";" ";9
+	"\newline";"BR";1
+	"\dots";"...";7
+	"\pi";"3.1415";7
+	"\textdownarrow";"Стрелка вниз";7
+	"\textuparrow";"Стрелка вверх";7
+	"\textleftarrow";"Стрелка влево";7
+	"\textrightarrow";"Стрелка вправо";7
+	"\label";"";9
+	"~\ref";"";9
+	"\ref";"";9
+	"~\pageref";"";9
+END
