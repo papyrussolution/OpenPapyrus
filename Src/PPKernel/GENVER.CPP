@@ -320,9 +320,6 @@ int main(int argc, char * argv[])
 	SString in_file_name_open; // Дублер входящего файла для OpenSource-ветки
 	SString out_file_name;
 	SString rc_file_name;
-	//char in_file_name[MAXPATH];
-	//char out_file_name[MAXPATH];
-	//char rc_file_name[MAXPATH];
 	SLS.Init("PPGENVER");
 	if(argc < 2) {
 		printf("genver - helper utility for Project Papyrus\n");
@@ -332,8 +329,6 @@ int main(int argc, char * argv[])
 	}
 	else {
 		if(argc >= 2) {
-			//strip(strcpy(in_file_name, argv[1]));
-			//replaceExt(in_file_name, "ini", 0);
 			(in_file_name = argv[1]).Strip();
 			SPathStruc::ReplaceExt(in_file_name, "ini", 0);
 			{
@@ -344,20 +339,18 @@ int main(int argc, char * argv[])
 				if(!fileExists(in_file_name_open))
 					in_file_name_open = 0;
 			}
+			if(!fileExists(in_file_name) && fileExists(in_file_name_open)) {
+				in_file_name = in_file_name_open;
+				in_file_name_open = 0;
+			}
 		}
-		//strcpy(out_file_name, "stdout");
-		//strcpy(rc_file_name, "stdout");
 		out_file_name = "stdout";
 		rc_file_name = "stdout";
 		if(argc >= 3) {
-			//strip(strcpy(out_file_name, argv[2]));
-			//replaceExt(out_file_name, "c", 0);
 			(out_file_name = argv[2]).Strip();
 			SPathStruc::ReplaceExt(out_file_name, "c", 0);
 		}
 		if(argc >= 4) {
-			//strip(strcpy(rc_file_name, argv[3]));
-			//replaceExt(rc_file_name, "rc", 0);
 			(rc_file_name = argv[3]).Strip();
 			SPathStruc::ReplaceExt(rc_file_name, "rc", 0);
 		}

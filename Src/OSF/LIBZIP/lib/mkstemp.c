@@ -51,8 +51,7 @@
 int _zip_mkstemp(char * path)
 {
 #ifdef _WIN32
-	int ret;
-	ret = _creat(_mktemp(path), _S_IREAD|_S_IWRITE);
+	int ret = _creat(_mktemp(path), _S_IREAD|_S_IWRITE);
 	if(ret == -1) {
 		return 0;
 	}
