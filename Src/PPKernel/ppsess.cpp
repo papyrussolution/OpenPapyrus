@@ -1,5 +1,5 @@
 // PPSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1063,6 +1063,7 @@ int PPThreadLocalArea::PrivateCart::Set(const PPBasketPacket * pPack, int use_ta
 //
 //static
 const char * PPSession::P_JobLogin = "$SYSSERVICE$"; // @global
+const char * PPSession::P_EmptyBaseCreationLogin = "$EMPTYBASECREATION$"; // @global
 
 PPSession::ThreadCollection::ThreadCollection() : TSCollection <PPThread> ()
 {
@@ -2235,8 +2236,8 @@ int SLAPI PPSession::FetchConfig(PPID obj, PPID objID, PPConfig * pCfg)
 	int    ok = 1, r;
 	PPConfig tmp, global;
 	Reference * p_ref = GetTLA().P_Ref;
-	MEMSZERO(tmp);
-	MEMSZERO(global);
+	// @v9.4.8 (constructor) MEMSZERO(tmp);
+	// @v9.4.8 (constructor) MEMSZERO(global);
 	if(objID == 0) {
 		objID = DEFCFG_USERID;
 		r = -1;
@@ -2246,16 +2247,16 @@ int SLAPI PPSession::FetchConfig(PPID obj, PPID objID, PPConfig * pCfg)
 	}
 	if(r < 0) {
 		MEMSZERO(tmp);
-		tmp.Tag          = 0;
-		tmp.ObjID        = objID;
-		tmp.PropID       = PPPRP_CFG;
-		tmp.AccessLevel  = DEFCFG_ACCESS;
-		tmp.BaseCurID    = DEFCFG_CURRENCY;
-		tmp.RealizeOrder = DEFCFG_RLZORD;
-		tmp.Menu         = DEFCFG_MENU;
-		tmp.LocSheet     = DEFCFG_LOCSHEET;
-		tmp.Location     = DEFCFG_LOCATION;
-		tmp.Flags        = DEFCFG_FLAGS;
+		tmp.Tag           = 0;
+		tmp.ObjID         = objID;
+		tmp.PropID        = PPPRP_CFG;
+		tmp.AccessLevel   = DEFCFG_ACCESS;
+		tmp.BaseCurID     = DEFCFG_CURRENCY;
+		tmp.RealizeOrder  = DEFCFG_RLZORD;
+		tmp.Menu          = DEFCFG_MENU;
+		tmp.LocAccSheetID = DEFCFG_LOCSHEET;
+		tmp.Location      = DEFCFG_LOCATION;
+		tmp.Flags         = DEFCFG_FLAGS;
 	}
 	if(r <= 0 || tmp.Tag == PPOBJ_CONFIG || p_ref->GetConfig(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CFG, &global, sizeof(global)) <= 0)
 		global = tmp;
@@ -2340,6 +2341,12 @@ int SLAPI PPSession::CheckSystemAccount(DbLoginBlock * pDlb, PPSecur * pSecur)
 
 int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const char * pPassword)
 {
+	enum {
+        logmOrdinary          = 0,
+        logmSystem            = 1, // Под именем SYSTEM
+        logmService           = 2, // Под именем PPSession::P_JobLogin
+        logmEmptyBaseCreation = 3  // Под именем PPSession::P_EmptyBaseCreationLogin
+	};
 	int    ok = 1, r;
 	int    debug_r = 0;
 	SString dict_path, data_path, db_symb, msg_buf, temp_buf;
@@ -2360,8 +2367,10 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 	{
 		PPThreadLocalArea & r_tla = GetTLA();
 		MACAddr machine_id;
-		int    is_system_login = 0, empty_secur_base = 0, is_demo = 0;
-		int    is_service_login = 0;
+		//int    is_system_login = 0;
+		//int    is_service_login = 0;
+		int    logmode = logmOrdinary;
+		int    empty_secur_base = 0, is_demo = 0;
 		char   user_name[64];
 		ulong  term_sess_id = 0;
 		PPID   id;
@@ -2378,6 +2387,21 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 		r_tla.UfpSess.Begin(PPUPRF_SESSION); // @v8.0.6 Профилирование всей сессии работы в БД (Login..Logout)
 		PPUserFuncProfiler ufp(PPUPRF_LOGIN); // @v8.0.6 Профилирование собственно процесса авторизации в базе данных
 		const long db_path_id = DBS.GetDbPathID();
+		{
+			//
+			// Имя SYSTEM является встроенным аналогом имени MASTER и отличается //
+			// от него только идентификатором меню (MENU_SYSTEM)
+			//
+			if(stricmp(user_name, "SYSTEM") == 0) {
+				STRNSCPY(user_name, "MASTER");
+				// @v9.4.8 is_system_login = 1;
+				logmode = logmSystem; // @v9.4.8
+			}
+			else if(stricmp(user_name, PPSession::P_JobLogin) == 0)
+				logmode = logmService;
+			else if(stricmp(user_name, PPSession::P_EmptyBaseCreationLogin) == 0)
+				logmode = logmEmptyBaseCreation;
+		}
 		{
 			//
 			// Следующий блок запускается только если в эту БД данным процессом не был осуществлен хотя бы один вход
@@ -2501,553 +2525,554 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 			LEAVE_CRITICAL_SECTION
 		}
 		THROW_MEM(PPRef = new Reference);
-		debug_r = 9;
-		//
-		// Имя SYSTEM является встроенным аналогом имени MASTER и отличается //
-		// от него только идентификатором меню (MENU_SYSTEM)
-		//
-		if(stricmp(user_name, "SYSTEM") == 0) {
-			STRNSCPY(user_name, "MASTER");
-			is_system_login = 1;
-		}
-		else if(stricmp(user_name, PPSession::P_JobLogin) == 0) {
-			char   secret[64];
-			PPVersionInfo vi = Ver;
-			THROW(vi.GetSecret(secret, sizeof(secret)));
-			r = stricmp(pPassword, secret);
-			memzero(secret, sizeof(secret));
-			THROW_PP(r == 0, PPERR_INVPASSWORD);
-			is_service_login = 1;
-		}
-		THROW(r = PPRef->SearchName(PPOBJ_USR, &r_lc.User, user_name));
-		if(r < 0) {
-			id = 0;
-			THROW(r = PPRef->EnumItems(PPOBJ_USR, &id));
-			THROW_PP(r < 0, PPERR_INVUSERNAME);
-			empty_secur_base = 1;
-			r_lc.User = 0;
-			pw[0] = 0;
-		}
-		else {
-			usr_rec = *(PPSecur*)&PPRef->data;
-			THROW(Reference::VerifySecur(&usr_rec, 0));
-			Reference::GetPassword(&usr_rec, pw, sizeof(pw));
-		}
-		THROW(FetchConfig(PPOBJ_USR, r_lc.User, &r_lc));
-		// @v9.1.1 r_lc.Flags &= ~CCFLG_USELARGEDIALOG; // @v7.6.2 Введено после непонятного инцидента с крупными списками выбора
-		SLS.SetUiFlag(sluifUseLargeDialogs, 0); // @v9.1.1
-		if(!is_service_login) {
-			int    pw_is_wrong = 1;
-			if(pw[0] && (r_lc.Flags & CFGFLG_SEC_CASESENSPASSW) ? strcmp(pw, pPassword) : stricmp866(pw, pPassword)) {
-				if(is_system_login) {
-					// для совместимости со старыми версиями (раньше использовался другой механизм шифрования)
-					decrypt((char*)memcpy(pw, usr_rec.Password, sizeof(pw)), sizeof(pw));
-					if(stricmp866(pw, pPassword) == 0)
-						pw_is_wrong = 0;
-				}
+		{
+			Reference * p_ref = PPRef;
+			debug_r = 9;
+			if(oneof2(logmode, logmService, logmEmptyBaseCreation)) {
+				char   secret[64];
+				PPVersionInfo vi = Ver;
+				THROW(vi.GetSecret(secret, sizeof(secret)));
+				r = stricmp(pPassword, secret);
+				memzero(secret, sizeof(secret));
+				THROW_PP(r == 0, PPERR_INVPASSWORD);
+				// @v9.4.8 is_service_login = 1;
 			}
-			else
-				pw_is_wrong = 0;
-			memzero(pw, sizeof(pw));
-			THROW_PP(pw_is_wrong == 0, PPERR_INVPASSWORD);
-			if(!CheckExtFlag(ECF_SYSSERVICE)) {
-				//
-				// @v7.0.12 Блок перенесен в это место по причине того, что уникальность входа не должна
-				// проверяться для сеансов JobServer'а {
-				//
-				if(r_lc.Flags & CFGFLG_SEC_DSBLMULTLOGIN) {
-					PPSyncArray sync_array;
-					GetMachineID(&machine_id, 0);
-					GetSync().GetItemsList(PPSYNC_DBLOCK, &sync_array);
-					for(uint i = 0; ok && i < sync_array.getCount(); i++) {
-						PPSyncItem & r_item = sync_array.at(i);
-						THROW_PP(r_item.ObjID == 1 || stricmp866(r_item.Name, user_name) != 0 || r_item.MchnID.Cmp(machine_id) == 0, PPERR_DUPLOGINGDISABLED);
+			THROW(r = p_ref->SearchName(PPOBJ_USR, &r_lc.User, user_name));
+			if(r < 0) {
+				id = 0;
+				THROW(r = p_ref->EnumItems(PPOBJ_USR, &id));
+				THROW_PP(r < 0, PPERR_INVUSERNAME);
+				empty_secur_base = 1;
+				r_lc.User = 0;
+				pw[0] = 0;
+			}
+			else {
+				usr_rec = *(PPSecur*)&p_ref->data;
+				THROW(Reference::VerifySecur(&usr_rec, 0));
+				Reference::GetPassword(&usr_rec, pw, sizeof(pw));
+			}
+			THROW(FetchConfig(PPOBJ_USR, r_lc.User, &r_lc));
+			// @v9.1.1 r_lc.Flags &= ~CCFLG_USELARGEDIALOG; // @v7.6.2 Введено после непонятного инцидента с крупными списками выбора
+			SLS.SetUiFlag(sluifUseLargeDialogs, 0); // @v9.1.1
+			if(!oneof2(logmode, logmService, logmEmptyBaseCreation)) {
+				int    pw_is_wrong = 1;
+				if(pw[0] && (r_lc.Flags & CFGFLG_SEC_CASESENSPASSW) ? strcmp(pw, pPassword) : stricmp866(pw, pPassword)) {
+					if(logmode == logmSystem) {
+						// для совместимости со старыми версиями (раньше использовался другой механизм шифрования)
+						decrypt((char*)memcpy(pw, usr_rec.Password, sizeof(pw)), sizeof(pw));
+						if(stricmp866(pw, pPassword) == 0)
+							pw_is_wrong = 0;
 					}
 				}
-				// }
-				{
-					PPObjSecur sec_obj(PPOBJ_USR, 0);
-					sec_obj.GetPrivateDesktop(r_lc.User, &r_lc.DesktopID);
+				else
+					pw_is_wrong = 0;
+				memzero(pw, sizeof(pw));
+				THROW_PP(pw_is_wrong == 0, PPERR_INVPASSWORD);
+				if(!CheckExtFlag(ECF_SYSSERVICE)) {
+					//
+					// @v7.0.12 Блок перенесен в это место по причине того, что уникальность входа не должна
+					// проверяться для сеансов JobServer'а {
+					//
+					if(r_lc.Flags & CFGFLG_SEC_DSBLMULTLOGIN) {
+						PPSyncArray sync_array;
+						GetMachineID(&machine_id, 0);
+						GetSync().GetItemsList(PPSYNC_DBLOCK, &sync_array);
+						for(uint i = 0; ok && i < sync_array.getCount(); i++) {
+							PPSyncItem & r_item = sync_array.at(i);
+							THROW_PP(r_item.ObjID == 1 || stricmp866(r_item.Name, user_name) != 0 || r_item.MchnID.Cmp(machine_id) == 0, PPERR_DUPLOGINGDISABLED);
+						}
+					}
+					// }
+					{
+						PPObjSecur sec_obj(PPOBJ_USR, 0);
+						sec_obj.GetPrivateDesktop(r_lc.User, &r_lc.DesktopID);
+					}
 				}
 			}
-		}
-		THROW(GetCommConfig(&r_cc));
-		{
-			PPSupplAgreement suppl_agt;
-			PPObjArticle::GetSupplAgreement(0, &suppl_agt, 0);
-			r_tla.SupplDealQuotKindID        = suppl_agt.CostQuotKindID;
-			r_tla.SupplDevUpQuotKindID       = suppl_agt.DevUpQuotKindID;
-			r_tla.SupplDevDnQuotKindID       = suppl_agt.DevDnQuotKindID;
-			r_tla.InvalidSupplDealQuotAction = suppl_agt.InvPriceAction;
-			SETFLAG(r_cc.Flags2, CCFLG2_USESDONPURCHOP, suppl_agt.Flags & AGTF_USESDONPURCHOP); // @v7.2.2
-		}
-		if(!empty_secur_base)
-			THROW(r_tla.Paths.Get(PPOBJ_USR, r_lc.User));
-		SetPath(PPPATH_DAT, data_path, 0, 1);
-		SetPath(PPPATH_SYS, dict_path, 0, 1);
-		r_tla.UserName = user_name;
-		if(is_system_login)
-			r_lc.Menu = MENU_SYSTEM;
-		else if(is_service_login)
-			r_lc.Menu = -1;
-		if(r_lc.User && r_lc.User != PPUSR_MASTER) {
-			PPAccessRestriction accsr;
-			THROW(r_tla.Rights.Get(PPOBJ_USR, r_lc.User));
-			r_tla.Rights.GetAccessRestriction(accsr);
-			r_tla.Rights.ExtentOpRights();
-			getcurdatetime(&cdt, &ctm);
-			if(usr_rec.PwUpdate && accsr.PwPeriod && diffdate(&cdt, &usr_rec.PwUpdate, 0) > accsr.PwPeriod)
-				r_lc.State |= CFGST_PWEXPIRED;
-			r_lc.AccessLevel = accsr.AccessLevel;
-		}
-		else
-			r_lc.AccessLevel   = 0;
-		THROW_PP(CheckLicense(&machine_id, &is_demo) > 0, PPERR_MAX_SESSION_DEST);
-		SETFLAG(r_lc.State, CFGST_DEMOMODE, is_demo);
-		if(!CMng.HasDbEntry(db_path_id)) {
-			ulong cur_process_id = GetCurrentProcessId();
-			const char * p_func_name = "Login";
-			if(!ProcessIdToSessionId(cur_process_id, &term_sess_id)) {
-				PPGetMessage(mfError, PPERR_SLIB, 0, 0, msg_buf = 0);
-				msg_buf.Space().CatEq("Function", p_func_name);
-				PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+			THROW(GetCommConfig(&r_cc));
+			{
+				PPSupplAgreement suppl_agt;
+				PPObjArticle::GetSupplAgreement(0, &suppl_agt, 0);
+				r_tla.SupplDealQuotKindID        = suppl_agt.CostQuotKindID;
+				r_tla.SupplDevUpQuotKindID       = suppl_agt.DevUpQuotKindID;
+				r_tla.SupplDevDnQuotKindID       = suppl_agt.DevDnQuotKindID;
+				r_tla.InvalidSupplDealQuotAction = suppl_agt.InvPriceAction;
+				SETFLAG(r_cc.Flags2, CCFLG2_USESDONPURCHOP, suppl_agt.Flags & AGTF_USESDONPURCHOP); // @v7.2.2
 			}
-			LogTerminalSessInfo(cur_process_id, term_sess_id, p_func_name);
-		}
-		GetSync().LoginUser(r_lc.User, user_name, &r_lc.SessionID, &machine_id, term_sess_id);
-		r_lc.State |= CFGST_INITIATE;
-		if(empty_secur_base)
-			r_lc.State |= CFGST_EMPTYBASE;
-		/* @v8.6.1 @1 Блок перенесен ниже с целью оптимизации производительности (порядок создания объектов данных)
-		if(r_lc.MainOrg)
-			SetMainOrgID(r_lc.MainOrg, 1);
-		else if(r_cc.MainOrgID)
-			SetMainOrgID(r_cc.MainOrgID, 1);
-		if(r_lc.Location)
-			SetLocation(r_lc.Location);
-		if(r_lc.DBDiv) {
-			r_tla.CurDbDivName.Id = r_lc.DBDiv;
-			GetObjectName(PPOBJ_DBDIV, r_lc.DBDiv, r_tla.CurDbDivName);
-		}
-		*/
-		//
-		// Флаг ECF_FULLGOODSCACHE должен быть определен до создания экземпляра
-		// PPObjGoods (который создается внутри конструктора PPObjBill)
-		//
+			if(!empty_secur_base)
+				THROW(r_tla.Paths.Get(PPOBJ_USR, r_lc.User));
+			SetPath(PPPATH_DAT, data_path, 0, 1);
+			SetPath(PPPATH_SYS, dict_path, 0, 1);
+			r_tla.UserName = user_name;
+			if(/*is_system_login*/logmode == logmSystem)
+				r_lc.Menu = MENU_SYSTEM;
+			else if(/*is_service_login*/logmode == logmService)
+				r_lc.Menu = -1;
+			if(r_lc.User && r_lc.User != PPUSR_MASTER) {
+				PPAccessRestriction accsr;
+				THROW(r_tla.Rights.Get(PPOBJ_USR, r_lc.User));
+				r_tla.Rights.GetAccessRestriction(accsr);
+				r_tla.Rights.ExtentOpRights();
+				getcurdatetime(&cdt, &ctm);
+				if(usr_rec.PwUpdate && accsr.PwPeriod && diffdate(&cdt, &usr_rec.PwUpdate, 0) > accsr.PwPeriod)
+					r_lc.State |= CFGST_PWEXPIRED;
+				r_lc.AccessLevel = accsr.AccessLevel;
+			}
+			else
+				r_lc.AccessLevel   = 0;
+			THROW_PP(CheckLicense(&machine_id, &is_demo) > 0, PPERR_MAX_SESSION_DEST);
+			SETFLAG(r_lc.State, CFGST_DEMOMODE, is_demo);
+			if(!CMng.HasDbEntry(db_path_id)) {
+				ulong cur_process_id = GetCurrentProcessId();
+				const char * p_func_name = "Login";
+				if(!ProcessIdToSessionId(cur_process_id, &term_sess_id)) {
+					PPGetMessage(mfError, PPERR_SLIB, 0, 0, msg_buf = 0);
+					msg_buf.Space().CatEq("Function", p_func_name);
+					PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+				}
+				LogTerminalSessInfo(cur_process_id, term_sess_id, p_func_name);
+			}
+			GetSync().LoginUser(r_lc.User, user_name, &r_lc.SessionID, &machine_id, term_sess_id);
+			r_lc.State |= CFGST_INITIATE;
+			if(empty_secur_base)
+				r_lc.State |= CFGST_EMPTYBASE;
+			/* @v8.6.1 @1 Блок перенесен ниже с целью оптимизации производительности (порядок создания объектов данных)
+			if(r_lc.MainOrg)
+				SetMainOrgID(r_lc.MainOrg, 1);
+			else if(r_cc.MainOrgID)
+				SetMainOrgID(r_cc.MainOrgID, 1);
+			if(r_lc.Location)
+				SetLocation(r_lc.Location);
+			if(r_lc.DBDiv) {
+				r_tla.CurDbDivName.Id = r_lc.DBDiv;
+				GetObjectName(PPOBJ_DBDIV, r_lc.DBDiv, r_tla.CurDbDivName);
+			}
+			*/
+			//
+			// Флаг ECF_FULLGOODSCACHE должен быть определен до создания экземпляра
+			// PPObjGoods (который создается внутри конструктора PPObjBill)
+			//
 #ifndef NDEBUG
-		//ExtFlags |= ECF_FULLGOODSCACHE;
+			//ExtFlags |= ECF_FULLGOODSCACHE;
 #endif
-		//
-		SetupConfigByOps(); // Must be called before 'new PPObjBill'
-		THROW_MEM(BillObj = new PPObjBill(0));
-		// @v8.6.1 Блок перенесен из позиции @1 {
-		if(r_lc.MainOrg)
-			SetMainOrgID(r_lc.MainOrg, 1);
-		else if(r_cc.MainOrgID)
-			SetMainOrgID(r_cc.MainOrgID, 1);
-		if(r_lc.Location)
-			SetLocation(r_lc.Location);
-		if(r_lc.DBDiv) {
-			r_tla.CurDbDivName.Id = r_lc.DBDiv;
-			GetObjectName(PPOBJ_DBDIV, r_lc.DBDiv, r_tla.CurDbDivName);
-		}
-		// } @v8.6.1
-		if(!(CurDict->GetCapability() & DbProvider::cSQL)) { // @debug
-			if(PPCheckDatabaseChain() == 0) {
-				delay(10000);
-				CALLEXCEPT();
+			//
+			SetupConfigByOps(); // Must be called before 'new PPObjBill'
+			THROW_MEM(BillObj = new PPObjBill(0));
+			// @v8.6.1 Блок перенесен из позиции @1 {
+			if(r_lc.MainOrg)
+				SetMainOrgID(r_lc.MainOrg, 1);
+			else if(r_cc.MainOrgID)
+				SetMainOrgID(r_cc.MainOrgID, 1);
+			if(r_lc.Location)
+				SetLocation(r_lc.Location);
+			if(r_lc.DBDiv) {
+				r_tla.CurDbDivName.Id = r_lc.DBDiv;
+				GetObjectName(PPOBJ_DBDIV, r_lc.DBDiv, r_tla.CurDbDivName);
 			}
-		}
-		THROW_MEM(r_tla.P_SysJ = new SysJournal);
-		THROW_MEM(r_tla.P_ObjSync = new ObjSyncCore);
-		// @v8.2.5 (moved down) LogAction(PPACN_LOGIN, 0, 0, r_lc.SessionID, 1);
-		{
-			int    iv;
-			SString sv;
-			LDATE  dt;
-			if(!CheckExtFlag(ECF_INITONLOGIN)) {
+			// } @v8.6.1
+			if(!(CurDict->GetCapability() & DbProvider::cSQL)) { // @debug
+				if(PPCheckDatabaseChain() == 0) {
+					delay(10000);
+					CALLEXCEPT();
+				}
+			}
+			THROW_MEM(r_tla.P_SysJ = new SysJournal);
+			THROW_MEM(r_tla.P_ObjSync = new ObjSyncCore);
+			// @v8.2.5 (moved down) LogAction(PPACN_LOGIN, 0, 0, r_lc.SessionID, 1);
+			{
+				int    iv;
+				SString sv;
+				LDATE  dt;
 				if(!CheckExtFlag(ECF_INITONLOGIN)) {
-					// @v8.0.3 ExtFlags = (ExtFlags & (ECF_SYSSERVICE | ECF_DBDICTDL600));
-					SetExtFlag(~(ECF_SYSSERVICE | ECF_DBDICTDL600 | ECF_DETECTCRDBTEXISTBYOPEN), 0); // @v8.0.3 // @v8.2.4 ECF_DETECTCRDBTEXISTBYOPEN
-					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_GRPACK, &(iv = 0)) > 0 && iv == 1)
-						SetExtFlag(ECF_GOODSRESTPACK, 1);
-					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_TIDPACK, &(iv = 0)) > 0 && iv == 1)
-						SetExtFlag(ECF_TRFRITEMPACK, 1);
-					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_GBFSDEBT, &(iv = 0)) > 0 && iv == 1)
-						SetExtFlag(ECF_GOODSBILLFILTSHOWDEBT, 1);
-					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ECOGOODSSEL, &(iv = 0)) > 0 && iv == 1)
-						SetExtFlag(ECF_ECOGOODSSEL, 1);
-					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_433_OLDGENBARCODEMETHOD, &(iv = 0)) > 0 && iv == 1)
-						SetExtFlag(ECF_433OLDGENBARCODEMETHOD, 1);
-					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_AVERAGE, &(iv = 0)) > 0 && iv == 1)
-						SetExtFlag(ECF_AVERAGE, 1);
-					{
-						SetExtFlag(ECF_PREPROCBRWONCHGFILT, 1);
-						if(ini_file.GetInt(PPINISECT_SYSTEM, PPINIPARAM_PREPROCESSBRWFROMCHNGFLT, &(iv = 0)) > 0 && iv == 0)
-							SetExtFlag(ECF_PREPROCBRWONCHGFILT, 0);
-					}
-					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIH_USEGOODSLOCASSOC, &(iv = 0)) > 0 && iv != 0)
-						SetExtFlag(ECF_CHKPAN_USEGDSLOCASSOC, 1);
-					// @v7.3.11 {
-					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DEBUG_MTX_DIRTY, &(iv = 0)) > 0 && iv != 0)
-						SetExtFlag(ECF_DEBUGDIRTYMTX, 1);
-					// } @v7.3.11
-					// @v7.4.8 {
-					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_USE_CDB, &(iv = 0)) > 0 && iv != 0)
-						SetExtFlag(ECF_USECDB, 1);
-					// } @v7.4.8
-					// @v7.5.9 {
-					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_RCPTDLVRLOCASWAREHOUSE, &(iv = 0)) > 0 && iv != 0)
-						SetExtFlag(ECF_RCPTDLVRLOCASWAREHOUSE, 1);
-					// } @v7.5.9
-					// @v8.2.5 {
-					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_USESJLOGINEVENT, &(iv = 0)) > 0 && iv != 0)
-						SetExtFlag(ECF_USESJLOGINEVENT, 1);
-					// } @v8.2.5
-					// @v8.4.11 {
-					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CODEPREFIXEDLIST, &(iv = 0)) > 0 && iv != 0)
-						SetExtFlag(ECF_CODEPREFIXEDLIST, 1);
-					else
-						SetExtFlag(ECF_CODEPREFIXEDLIST, 0);
-					// } @v8.4.11
-					// @v8.5.12 {
-					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DISABLEASYNCADVQUEUE, &(iv = 0)) > 0 && iv != 0)
-						SetExtFlag(ECF_DISABLEASYNCADVQUEUE, 1);
-					else
-						SetExtFlag(ECF_DISABLEASYNCADVQUEUE, 0);
-					// } @v8.5.12
-					// @v8.5.7 {
-					{
-						SetExtFlag(ECF_TRACESYNCLOT, 0);
-						if(ini_file.GetParam("config", "tracesynclot", temp_buf = 0) > 0) {
-							long tsl = temp_buf.ToLong();
-							if(tsl > 0)
-								SetExtFlag(ECF_TRACESYNCLOT, 1);
-						}
-					}
-					// } @v8.5.7
-					// @v8.6.11 {
-					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_USEGEOTRACKING, &(iv = 0)) > 0 && iv != 0)
-						SetExtFlag(ECF_USEGEOTRACKING, 1);
-					// } @v8.6.11
-					SetExtFlag(ECF_INITONLOGIN, 1);
-				}
-			}
-			//
-			// По историческим причинам параметр debug может быть установлен как в зоне [system]
-			// так и в зоне [config].
-			//
-			if(ini_file.GetInt(PPINISECT_SYSTEM, PPINIPARAM_DEBUG, &(iv = 0)) > 0 && iv == 1)
-				r_cc.Flags |= CCFLG_DEBUG;
-			else if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DEBUG, &(iv = 0)) > 0 && iv == 1)
-				r_cc.Flags |= CCFLG_DEBUG;
-			//
-			if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DEBUGTRFRERROR, &(iv = 0)) > 0 && iv != 0)
-				r_cc.Flags |= CCFLG_DEBUGTRFRERROR;
-			if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_LOGCCHECK, &(iv = 0)) > 0 && iv != 0)
-				r_cc.Flags |= CCFLG_LOGCCHECK;
-			r_cc._390_DisCalcMethodLockDate = ZERODATE;
-			if(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_390_DISCALCMETHODLOCKDATE, sv) > 0) {
-				dt = strtodate_(sv, DATF_DMY);
-				if(checkdate(dt, 0))
-					r_cc._390_DisCalcMethodLockDate = dt;
-			}
-			if(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_3918_TDISCALCMETHODLOCKDATE, sv) > 0) {
-				dt = strtodate_(sv, DATF_DMY);
-				if(checkdate(dt, 0))
-					r_cc._3918_TDisCalcMethodLockDate = dt;
-			}
-			r_cc._405_TDisCalcMethodLockDate = ZERODATE;
-			if(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_405_TDISCALCMETHODLOCKDATE, sv) > 0) {
-				dt = strtodate_(sv, DATF_DMY);
-				if(checkdate(dt, 0))
-					r_cc._405_TDisCalcMethodLockDate = dt;
-			}
-			r_cc._418_TDisCalcMethodLockDate = ZERODATE;
-			if(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_418_TDISCALCMETHODLOCKDATE, sv) > 0) {
-				dt = strtodate_(sv, DATF_DMY);
-				if(checkdate(dt, 0))
-					r_cc._418_TDisCalcMethodLockDate = dt;
-			}
-			{
-				r_tla.SCardPatterns.Id = 1;
-				r_tla.SCardPatterns.CopyFrom(0);
-				if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SCARD_PATTERNS, sv) && sv.NotEmptyS())
-					r_tla.SCardPatterns.CopyFrom(sv);
-			}
-			// @v7.8.0 {
-			{
-				r_tla.DL600XMLEntityParam = 0;
-				if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_DL600XMLENTITY, sv) && sv.NotEmptyS())
-					r_tla.DL600XMLEntityParam = sv;
-			}
-			// } @v7.8.0
-			// @v9.4.6 {
-			{
-				r_tla.DL600XmlCp = cpANSI; // Правильно было бы UTF-8, но для обратной совместимости придется по умолчанию использовать ANSI
-				if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_DL600XMLCP, sv) && sv.NotEmptyS())
-					r_tla.DL600XmlCp.FromStr(sv);
-			}
-			// } @v9.4.6
-			// @v7.9.6 {
-			if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ADJCPANCCLINETRANS, &(iv = 0)) > 0 && iv != 0)
-				r_cc.Flags2 |= CCFLG2_ADJCPANCCLINETRANS;
-			else
-				r_cc.Flags2 &= ~CCFLG2_ADJCPANCCLINETRANS; // @paranoic
-			// } @v7.9.6
-			// @v8.1.9 {
-			if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DONTUSE3TIERGMTX, &(iv = 0)) > 0 && iv != 0)
-				r_cc.Flags2 |= CCFLG2_DONTUSE3TIERGMTX;
-			else
-				r_cc.Flags2 &= ~CCFLG2_DONTUSE3TIERGMTX; // @paranoic
-			// } @v8.1.9
-			// @v8.6.0 {
-			r_cc._InvcMergeTaxCalcAlg2Since = ZERODATE;
-			if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_INVCMERGETAXCALCALG2SINCE, sv) > 0) {
-				dt = strtodate_(sv, DATF_DMY);
-				if(checkdate(dt, 0))
-					r_cc._InvcMergeTaxCalcAlg2Since = dt;
-			}
-			// } @v8.6.0
-			r_tla.Bac.Load();
-		}
-		// @v8.2.5 {
-		if(CheckExtFlag(ECF_USESJLOGINEVENT))
-			LogAction(PPACN_LOGIN, 0, 0, r_lc.SessionID, 1);
-		// } @v8.2.5
-		if(CurDict->GetCapability() & DbProvider::cSQL) {
-			//
-			// Для Oracle необходимо, чтобы все регулярные таблицы были созданы ради того,
-			// чтобы не возникла ситуация, когда отсутствующая таблица создается внутри транзакции.
-			//
-			SendObjMessage(DBMSG_DUMMY, 0, 0, 0);
-		}
-		{
-			class PPDbDispatchSession : public PPThread {
-			public:
-				SLAPI PPDbDispatchSession(long dbPathID, const char * pDbSymb) : PPThread(PPThread::kDbDispatcher, pDbSymb, 0)
-				{
-					DbPathID = dbPathID;
-					DbSymb = pDbSymb;
-				}
-			private:
-				virtual void Run()
-				{
-					SString msg_buf, temp_buf;
-					STimer timer;
-					Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
-					char   secret[64];
-
-					PPVersionInfo vi = DS.GetVersionInfo();
-					THROW(vi.GetSecret(secret, sizeof(secret)));
-					THROW(DS.Login(DbSymb, PPSession::P_JobLogin, secret));
-					memzero(secret, sizeof(secret));
-					{
-						PPLoadText(PPTXT_LOG_DISPTHRCROK, msg_buf);
-						msg_buf.Space().CatQStr(DbSymb);
-						PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME);
-					}
-					for(int stop = 0; !stop;) {
-						LDATETIME dtm = getcurdatetime_();
-						dtm.addsec(5);
-						timer.Set(dtm, 0);
-						uint   h_count = 0;
-						HANDLE h_list[32];
-						h_list[h_count++] = timer;
-						h_list[h_count++] = stop_event;
-						uint   r = WaitForMultipleObjects(h_count, h_list, 0, INFINITE);
-						if(r == WAIT_OBJECT_0 + 0) { // timer
-							DS.DirtyDbCache(DbPathID, 0);
-						}
-						else if(r == WAIT_OBJECT_0 + 2) { // stop event
-							stop = 1; // quit loop
-						}
-						else if(r == WAIT_FAILED) {
-							// error
-						}
-					}
-					CATCH
+					if(!CheckExtFlag(ECF_INITONLOGIN)) {
+						// @v8.0.3 ExtFlags = (ExtFlags & (ECF_SYSSERVICE | ECF_DBDICTDL600));
+						SetExtFlag(~(ECF_SYSSERVICE | ECF_DBDICTDL600 | ECF_DETECTCRDBTEXISTBYOPEN), 0); // @v8.0.3 // @v8.2.4 ECF_DETECTCRDBTEXISTBYOPEN
+						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_GRPACK, &(iv = 0)) > 0 && iv == 1)
+							SetExtFlag(ECF_GOODSRESTPACK, 1);
+						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_TIDPACK, &(iv = 0)) > 0 && iv == 1)
+							SetExtFlag(ECF_TRFRITEMPACK, 1);
+						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_GBFSDEBT, &(iv = 0)) > 0 && iv == 1)
+							SetExtFlag(ECF_GOODSBILLFILTSHOWDEBT, 1);
+						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ECOGOODSSEL, &(iv = 0)) > 0 && iv == 1)
+							SetExtFlag(ECF_ECOGOODSSEL, 1);
+						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_433_OLDGENBARCODEMETHOD, &(iv = 0)) > 0 && iv == 1)
+							SetExtFlag(ECF_433OLDGENBARCODEMETHOD, 1);
+						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_AVERAGE, &(iv = 0)) > 0 && iv == 1)
+							SetExtFlag(ECF_AVERAGE, 1);
 						{
-							//PPTXT_LOG_DISPTHRCROK        "Диспетчерский поток сервера успешно создан"
-							//PPTXT_LOG_DISPTHRCRERR       "Ошибка создания диспетчерского потока сервера"
-							PPLoadText(PPTXT_LOG_DISPTHRCRERR, msg_buf);
-							PPGetMessage(mfError, PPErrCode, 0, 1, temp_buf);
-							msg_buf.Space().CatQStr(DbSymb).CatDiv(':', 2).Cat(temp_buf);
-							PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME);
+							SetExtFlag(ECF_PREPROCBRWONCHGFILT, 1);
+							if(ini_file.GetInt(PPINISECT_SYSTEM, PPINIPARAM_PREPROCESSBRWFROMCHNGFLT, &(iv = 0)) > 0 && iv == 0)
+								SetExtFlag(ECF_PREPROCBRWONCHGFILT, 0);
 						}
-					ENDCATCH
-					DS.Logout();
-					memzero(secret, sizeof(secret));
+						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIH_USEGOODSLOCASSOC, &(iv = 0)) > 0 && iv != 0)
+							SetExtFlag(ECF_CHKPAN_USEGDSLOCASSOC, 1);
+						// @v7.3.11 {
+						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DEBUG_MTX_DIRTY, &(iv = 0)) > 0 && iv != 0)
+							SetExtFlag(ECF_DEBUGDIRTYMTX, 1);
+						// } @v7.3.11
+						// @v7.4.8 {
+						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_USE_CDB, &(iv = 0)) > 0 && iv != 0)
+							SetExtFlag(ECF_USECDB, 1);
+						// } @v7.4.8
+						// @v7.5.9 {
+						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_RCPTDLVRLOCASWAREHOUSE, &(iv = 0)) > 0 && iv != 0)
+							SetExtFlag(ECF_RCPTDLVRLOCASWAREHOUSE, 1);
+						// } @v7.5.9
+						// @v8.2.5 {
+						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_USESJLOGINEVENT, &(iv = 0)) > 0 && iv != 0)
+							SetExtFlag(ECF_USESJLOGINEVENT, 1);
+						// } @v8.2.5
+						// @v8.4.11 {
+						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CODEPREFIXEDLIST, &(iv = 0)) > 0 && iv != 0)
+							SetExtFlag(ECF_CODEPREFIXEDLIST, 1);
+						else
+							SetExtFlag(ECF_CODEPREFIXEDLIST, 0);
+						// } @v8.4.11
+						// @v8.5.12 {
+						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DISABLEASYNCADVQUEUE, &(iv = 0)) > 0 && iv != 0)
+							SetExtFlag(ECF_DISABLEASYNCADVQUEUE, 1);
+						else
+							SetExtFlag(ECF_DISABLEASYNCADVQUEUE, 0);
+						// } @v8.5.12
+						// @v8.5.7 {
+						{
+							SetExtFlag(ECF_TRACESYNCLOT, 0);
+							if(ini_file.GetParam("config", "tracesynclot", temp_buf = 0) > 0) {
+								long tsl = temp_buf.ToLong();
+								if(tsl > 0)
+									SetExtFlag(ECF_TRACESYNCLOT, 1);
+							}
+						}
+						// } @v8.5.7
+						// @v8.6.11 {
+						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_USEGEOTRACKING, &(iv = 0)) > 0 && iv != 0)
+							SetExtFlag(ECF_USEGEOTRACKING, 1);
+						// } @v8.6.11
+						SetExtFlag(ECF_INITONLOGIN, 1);
+					}
 				}
-				long   DbPathID;
-				SString DbSymb;
-			};
-			int    is_new_cdb_entry = BIN(CMng.CreateDbEntry(db_path_id) > 0);
-			if(CheckExtFlag(ECF_SYSSERVICE)) {
-				if(is_new_cdb_entry) {
-					PPDbDispatchSession * p_sess = new PPDbDispatchSession(db_path_id, db_symb);
-					p_sess->Start(0 /* @v8.5.10 1-->0*/);
+				//
+				// По историческим причинам параметр debug может быть установлен как в зоне [system]
+				// так и в зоне [config].
+				//
+				if(ini_file.GetInt(PPINISECT_SYSTEM, PPINIPARAM_DEBUG, &(iv = 0)) > 0 && iv == 1)
+					r_cc.Flags |= CCFLG_DEBUG;
+				else if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DEBUG, &(iv = 0)) > 0 && iv == 1)
+					r_cc.Flags |= CCFLG_DEBUG;
+				//
+				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DEBUGTRFRERROR, &(iv = 0)) > 0 && iv != 0)
+					r_cc.Flags |= CCFLG_DEBUGTRFRERROR;
+				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_LOGCCHECK, &(iv = 0)) > 0 && iv != 0)
+					r_cc.Flags |= CCFLG_LOGCCHECK;
+				r_cc._390_DisCalcMethodLockDate = ZERODATE;
+				if(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_390_DISCALCMETHODLOCKDATE, sv) > 0) {
+					dt = strtodate_(sv, DATF_DMY);
+					if(checkdate(dt, 0))
+						r_cc._390_DisCalcMethodLockDate = dt;
+				}
+				if(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_3918_TDISCALCMETHODLOCKDATE, sv) > 0) {
+					dt = strtodate_(sv, DATF_DMY);
+					if(checkdate(dt, 0))
+						r_cc._3918_TDisCalcMethodLockDate = dt;
+				}
+				r_cc._405_TDisCalcMethodLockDate = ZERODATE;
+				if(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_405_TDISCALCMETHODLOCKDATE, sv) > 0) {
+					dt = strtodate_(sv, DATF_DMY);
+					if(checkdate(dt, 0))
+						r_cc._405_TDisCalcMethodLockDate = dt;
+				}
+				r_cc._418_TDisCalcMethodLockDate = ZERODATE;
+				if(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_418_TDISCALCMETHODLOCKDATE, sv) > 0) {
+					dt = strtodate_(sv, DATF_DMY);
+					if(checkdate(dt, 0))
+						r_cc._418_TDisCalcMethodLockDate = dt;
+				}
+				{
+					r_tla.SCardPatterns.Id = 1;
+					r_tla.SCardPatterns.CopyFrom(0);
+					if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SCARD_PATTERNS, sv) && sv.NotEmptyS())
+						r_tla.SCardPatterns.CopyFrom(sv);
+				}
+				// @v7.8.0 {
+				{
+					r_tla.DL600XMLEntityParam = 0;
+					if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_DL600XMLENTITY, sv) && sv.NotEmptyS())
+						r_tla.DL600XMLEntityParam = sv;
+				}
+				// } @v7.8.0
+				// @v9.4.6 {
+				{
+					r_tla.DL600XmlCp = cpANSI; // Правильно было бы UTF-8, но для обратной совместимости придется по умолчанию использовать ANSI
+					if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_DL600XMLCP, sv) && sv.NotEmptyS())
+						r_tla.DL600XmlCp.FromStr(sv);
+				}
+				// } @v9.4.6
+				// @v7.9.6 {
+				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ADJCPANCCLINETRANS, &(iv = 0)) > 0 && iv != 0)
+					r_cc.Flags2 |= CCFLG2_ADJCPANCCLINETRANS;
+				else
+					r_cc.Flags2 &= ~CCFLG2_ADJCPANCCLINETRANS; // @paranoic
+				// } @v7.9.6
+				// @v8.1.9 {
+				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DONTUSE3TIERGMTX, &(iv = 0)) > 0 && iv != 0)
+					r_cc.Flags2 |= CCFLG2_DONTUSE3TIERGMTX;
+				else
+					r_cc.Flags2 &= ~CCFLG2_DONTUSE3TIERGMTX; // @paranoic
+				// } @v8.1.9
+				// @v8.6.0 {
+				r_cc._InvcMergeTaxCalcAlg2Since = ZERODATE;
+				if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_INVCMERGETAXCALCALG2SINCE, sv) > 0) {
+					dt = strtodate_(sv, DATF_DMY);
+					if(checkdate(dt, 0))
+						r_cc._InvcMergeTaxCalcAlg2Since = dt;
+				}
+				// } @v8.6.0
+				r_tla.Bac.Load();
+			}
+			// @v8.2.5 {
+			if(CheckExtFlag(ECF_USESJLOGINEVENT))
+				LogAction(PPACN_LOGIN, 0, 0, r_lc.SessionID, 1);
+			// } @v8.2.5
+			if(CurDict->GetCapability() & DbProvider::cSQL) {
+				//
+				// Для Oracle необходимо, чтобы все регулярные таблицы были созданы ради того,
+				// чтобы не возникла ситуация, когда отсутствующая таблица создается внутри транзакции.
+				//
+				SendObjMessage(DBMSG_DUMMY, 0, 0, 0);
+			}
+			if(logmode == logmEmptyBaseCreation) {
+				PPObject::CreateReservedObjects(PPObject::mrfInitializeDb);
+				if(PPCheckDatabaseChain() < 0) {
+					PPChainDatabase(0);
 				}
 			}
 			else {
-				{
-					class PPAdviseEventCollectorSjSession : public PPThread {
-					public:
-						SLAPI PPAdviseEventCollectorSjSession(const DbLoginBlock & rLB, long cycleMs) :
-							PPThread(PPThread::kEventCollector, 0, 0)
+				class PPDbDispatchSession : public PPThread {
+				public:
+					SLAPI PPDbDispatchSession(long dbPathID, const char * pDbSymb) : PPThread(PPThread::kDbDispatcher, pDbSymb, 0)
+					{
+						DbPathID = dbPathID;
+						DbSymb = pDbSymb;
+					}
+				private:
+					virtual void Run()
+					{
+						SString msg_buf, temp_buf;
+						STimer timer;
+						Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
+						char   secret[64];
+
+						PPVersionInfo vi = DS.GetVersionInfo();
+						THROW(vi.GetSecret(secret, sizeof(secret)));
+						THROW(DS.Login(DbSymb, PPSession::P_JobLogin, secret));
+						memzero(secret, sizeof(secret));
 						{
-							CycleMs = (cycleMs > 0) ? cycleMs : 29989;
-							LB = rLB;
-							P_Sj = 0;
+							PPLoadText(PPTXT_LOG_DISPTHRCROK, msg_buf);
+							msg_buf.Space().CatQStr(DbSymb);
+							PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME);
 						}
-					private:
-						virtual void SLAPI Shutdown()
-						{
-							//
-							// То же, что и PPThread::Shutdown() но без DS.Logout()
-							//
-							DS.ReleaseThread();
-							DBS.ReleaseThread();
-							SlThread::Shutdown();
+						for(int stop = 0; !stop;) {
+							LDATETIME dtm = getcurdatetime_();
+							dtm.addsec(5);
+							timer.Set(dtm, 0);
+							uint   h_count = 0;
+							HANDLE h_list[32];
+							h_list[h_count++] = timer;
+							h_list[h_count++] = stop_event;
+							uint   r = WaitForMultipleObjects(h_count, h_list, 0, INFINITE);
+							if(r == WAIT_OBJECT_0 + 0) { // timer
+								DS.DirtyDbCache(DbPathID, 0);
+							}
+							else if(r == WAIT_OBJECT_0 + 2) { // stop event
+								stop = 1; // quit loop
+							}
+							else if(r == WAIT_FAILED) {
+								// error
+							}
 						}
-						virtual void Run()
-						{
-							const long purge_cycle = 3600;
+						CATCH
+							{
+								//PPTXT_LOG_DISPTHRCROK        "Диспетчерский поток сервера успешно создан"
+								//PPTXT_LOG_DISPTHRCRERR       "Ошибка создания диспетчерского потока сервера"
+								PPLoadText(PPTXT_LOG_DISPTHRCRERR, msg_buf);
+								PPGetMessage(mfError, PPErrCode, 0, 1, temp_buf);
+								msg_buf.Space().CatQStr(DbSymb).CatDiv(':', 2).Cat(temp_buf);
+								PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME);
+							}
+						ENDCATCH
+						DS.Logout();
+						memzero(secret, sizeof(secret));
+					}
+					long   DbPathID;
+					SString DbSymb;
+				};
+				int    is_new_cdb_entry = BIN(CMng.CreateDbEntry(db_path_id) > 0);
+				if(CheckExtFlag(ECF_SYSSERVICE)) {
+					if(is_new_cdb_entry) {
+						PPDbDispatchSession * p_sess = new PPDbDispatchSession(db_path_id, db_symb);
+						p_sess->Start(0 /* @v8.5.10 1-->0*/);
+					}
+				}
+				else {
+					{
+						class PPAdviseEventCollectorSjSession : public PPThread {
+						public:
+							SLAPI PPAdviseEventCollectorSjSession(const DbLoginBlock & rLB, long cycleMs) :
+								PPThread(PPThread::kEventCollector, 0, 0)
+							{
+								CycleMs = (cycleMs > 0) ? cycleMs : 29989;
+								LB = rLB;
+								P_Sj = 0;
+							}
+						private:
+							virtual void SLAPI Shutdown()
+							{
+								//
+								// То же, что и PPThread::Shutdown() но без DS.Logout()
+								//
+								DS.ReleaseThread();
+								DBS.ReleaseThread();
+								SlThread::Shutdown();
+							}
+							virtual void Run()
+							{
+								const long purge_cycle = 3600;
 
-							SString msg_buf, temp_buf;
-							//STimer timer;
-							LDATETIME dtm;
-							LDATETIME last_purge_time = getcurdatetime_();
-							TSArray <PPAdviseEvent> temp_list;
-							Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
-							BExtQuery * p_q = 0;
+								SString msg_buf, temp_buf;
+								//STimer timer;
+								LDATETIME dtm;
+								LDATETIME last_purge_time = getcurdatetime_();
+								TSArray <PPAdviseEvent> temp_list;
+								Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
+								BExtQuery * p_q = 0;
 
-							THROW(DS.OpenDictionary2(&LB));
-							THROW_MEM(P_Sj = new SysJournal);
+								THROW(DS.OpenDictionary2(&LB));
+								THROW_MEM(P_Sj = new SysJournal);
 
-							Since = getcurdatetime_();
-							for(int stop = 0; !stop;) {
-								//dtm = getcurdatetime_();
-								//dtm.addhs(CycleMs / 10);
-								//timer.Set(dtm, 0);
+								Since = getcurdatetime_();
+								for(int stop = 0; !stop;) {
+									//dtm = getcurdatetime_();
+									//dtm.addhs(CycleMs / 10);
+									//timer.Set(dtm, 0);
 
-								uint   h_count = 0;
-								HANDLE h_list[32];
-								//h_list[h_count++] = timer;
-								h_list[h_count++] = stop_event;
-								uint   r = WaitForMultipleObjects(h_count, h_list, 0, CycleMs/*INFINITE*/);
-								//if(r == WAIT_OBJECT_0 + 0) { // timer
-								if(r == WAIT_TIMEOUT) {
-									LDATETIME last_ev_dtm = ZERODATETIME;
-									temp_list.clear();
-									PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(0);
-									if(p_queue) {
-										{
-											dtm = getcurdatetime_();
-											if(diffdatetime(dtm, last_purge_time, 3, 0) >= purge_cycle) {
-												p_queue->Purge();
-												last_purge_time = dtm;
-											}
-										}
-										SysJournalTbl::Key0 k0, k0_;
-										k0.Dt = Since.d;
-										k0.Tm = Since.t;
-										k0_ = k0;
-										if(!p_q) {
-											if(P_Sj->search(&k0_, spGt)) {
-												p_q = new BExtQuery(P_Sj, 0);
-												p_q->selectAll().where(P_Sj->Dt >= Since.d);
-												p_q->initIteration(0, &k0, spGt);
-											}
-										}
-										else {
-											p_q->resetEof();
-										}
-										if(p_q) {
-											int ir;
-											while((ir = p_q->nextIteration()) > 0) {
-												SysJournalTbl::Rec rec;
-												P_Sj->copyBufTo(&rec);
-												if(cmp(Since, rec.Dt, rec.Tm) < 0) {
-													PPAdviseEvent ev;
-													ev = rec;
-													temp_list.insert(&ev);
-													last_ev_dtm.Set(rec.Dt, rec.Tm);
+									uint   h_count = 0;
+									HANDLE h_list[32];
+									//h_list[h_count++] = timer;
+									h_list[h_count++] = stop_event;
+									uint   r = WaitForMultipleObjects(h_count, h_list, 0, CycleMs/*INFINITE*/);
+									//if(r == WAIT_OBJECT_0 + 0) { // timer
+									if(r == WAIT_TIMEOUT) {
+										LDATETIME last_ev_dtm = ZERODATETIME;
+										temp_list.clear();
+										PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(0);
+										if(p_queue) {
+											{
+												dtm = getcurdatetime_();
+												if(diffdatetime(dtm, last_purge_time, 3, 0) >= purge_cycle) {
+													p_queue->Purge();
+													last_purge_time = dtm;
 												}
 											}
-											p_queue->Push(temp_list);
-											if(!!last_ev_dtm)
-												Since = last_ev_dtm;
-											if(!BTROKORNFOUND) {
-												PPSetErrorDB();
-												PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-												PPLogMessage(PPFILNAM_INFO_LOG, PPSTR_TEXT, PPTXT_ASYNCEVQUEUESJFAULT, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-												ZDELETE(p_q);
+											SysJournalTbl::Key0 k0, k0_;
+											k0.Dt = Since.d;
+											k0.Tm = Since.t;
+											k0_ = k0;
+											if(!p_q) {
+												if(P_Sj->search(&k0_, spGt)) {
+													p_q = new BExtQuery(P_Sj, 0);
+													p_q->selectAll().where(P_Sj->Dt >= Since.d);
+													p_q->initIteration(0, &k0, spGt);
+												}
+											}
+											else {
+												p_q->resetEof();
+											}
+											if(p_q) {
+												int ir;
+												while((ir = p_q->nextIteration()) > 0) {
+													SysJournalTbl::Rec rec;
+													P_Sj->copyBufTo(&rec);
+													if(cmp(Since, rec.Dt, rec.Tm) < 0) {
+														PPAdviseEvent ev;
+														ev = rec;
+														temp_list.insert(&ev);
+														last_ev_dtm.Set(rec.Dt, rec.Tm);
+													}
+												}
+												p_queue->Push(temp_list);
+												if(!!last_ev_dtm)
+													Since = last_ev_dtm;
+												if(!BTROKORNFOUND) {
+													PPSetErrorDB();
+													PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+													PPLogMessage(PPFILNAM_INFO_LOG, PPSTR_TEXT, PPTXT_ASYNCEVQUEUESJFAULT, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+													ZDELETE(p_q);
+												}
 											}
 										}
 									}
+									else if(r == WAIT_OBJECT_0 + 0) { // stop event
+										stop = 1; // quit loop
+									}
+									else if(r == WAIT_FAILED) {
+										// error
+									}
 								}
-								else if(r == WAIT_OBJECT_0 + 0) { // stop event
-									stop = 1; // quit loop
-								}
-								else if(r == WAIT_FAILED) {
-									// error
-								}
+								CATCH
+									{
+									}
+								ENDCATCH
+								delete p_q;
+								ZDELETE(P_Sj);
+								DBS.CloseDictionary();
 							}
-							CATCH
-								{
-								}
-							ENDCATCH
-							delete p_q;
-							ZDELETE(P_Sj);
-							DBS.CloseDictionary();
-						}
-						long   CycleMs;
-						LDATETIME Since;
-						DbLoginBlock LB;
-						SysJournal * P_Sj;
-					};
-#if USE_ADVEVQUEUE
-					int    cycle_ms = 0;
-					ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ADVISEEVENTCOLLECTORPERIOD, &cycle_ms);
-					if(cycle_ms <= 0 || cycle_ms > 600000)
-						cycle_ms = 5113;
-					PPAdviseEventCollectorSjSession * p_evc = new PPAdviseEventCollectorSjSession(blk, cycle_ms);
-					p_evc->Start(0);
-					r_tla.P_AeqThrd = p_evc; // @v8.6.7
-#endif // USE_ADVEVQUEUE
-				}
-				int    r = 0;
-				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_3TIER, &r) > 0 && r) {
-					if(r_tla.SrvSess.Connect(0, -1)) {
-						r_cc.Flags |= CCFLG_3TIER;
-						struct InfProcWrapper {
-							static int Proc(const char * pMsg, void * pParam)
-							{
-								PPWaitMsg(pMsg);
-								return 1;
-							}
+							long   CycleMs;
+							LDATETIME Since;
+							DbLoginBlock LB;
+							SysJournal * P_Sj;
 						};
-						r_tla.SrvSess.Login(db_symb, pUserName, pPassword);
-						r_tla.SrvSess.SetInformerProc(InfProcWrapper::Proc, 0);
+#if USE_ADVEVQUEUE
+						int    cycle_ms = 0;
+						ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ADVISEEVENTCOLLECTORPERIOD, &cycle_ms);
+						if(cycle_ms <= 0 || cycle_ms > 600000)
+							cycle_ms = 5113;
+						PPAdviseEventCollectorSjSession * p_evc = new PPAdviseEventCollectorSjSession(blk, cycle_ms);
+						p_evc->Start(0);
+						r_tla.P_AeqThrd = p_evc; // @v8.6.7
+#endif // USE_ADVEVQUEUE
+					}
+					int    r = 0;
+					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_3TIER, &r) > 0 && r) {
+						if(r_tla.SrvSess.Connect(0, -1)) {
+							r_cc.Flags |= CCFLG_3TIER;
+							struct InfProcWrapper {
+								static int Proc(const char * pMsg, void * pParam)
+								{
+									PPWaitMsg(pMsg);
+									return 1;
+								}
+							};
+							r_tla.SrvSess.Login(db_symb, pUserName, pPassword);
+							r_tla.SrvSess.SetInformerProc(InfProcWrapper::Proc, 0);
+						}
 					}
 				}
 			}
+			// @v8.1.12 {
+			{
+				char   domain_user[128];
+				DWORD  duser_len = sizeof(domain_user);
+				memzero(domain_user, sizeof(domain_user));
+				if(!::GetUserName(domain_user, &duser_len)) // @unicodeproblem
+					STRNSCPY(domain_user, "!undefined");
+				PPLoadText(PPTXT_LOGININFO, temp_buf = 0);
+				msg_buf.Printf(temp_buf, domain_user);
+				PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_COMP);
+			}
+			r_tla.State |= PPThreadLocalArea::stAuth; // @v8.6.11
+			ufp.Commit();
+			// } @v8.1.12
 		}
-		// @v8.1.12 {
-		{
-			char   domain_user[128];
-			DWORD  duser_len = sizeof(domain_user);
-			memzero(domain_user, sizeof(domain_user));
-			if(!::GetUserName(domain_user, &duser_len)) // @unicodeproblem
-				STRNSCPY(domain_user, "!undefined");
-			PPLoadText(PPTXT_LOGININFO, temp_buf = 0);
-			msg_buf.Printf(temp_buf, domain_user);
-			PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_COMP);
-		}
-		r_tla.State |= PPThreadLocalArea::stAuth; // @v8.6.11
-		ufp.Commit();
-		// } @v8.1.12
 	}
 	CATCH
 		ok = 0;

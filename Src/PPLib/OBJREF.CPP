@@ -733,7 +733,7 @@ int SLAPI PPObjReference::LoadReservedItems(uint rezID)
 	return ok;
 }
 
-int SLAPI PPObjReference::MakeReserved(long)
+int SLAPI PPObjReference::MakeReserved(long flags)
 {
 	uint   rez_id = 0;
 	switch(Obj) {

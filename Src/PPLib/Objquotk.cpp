@@ -234,7 +234,7 @@ int SLAPI PPObjQuotKind::Classify(PPID id, int * pCls)
 	return ok;
 }
 
-int SLAPI PPObjQuotKind::MakeReserved(long)
+int SLAPI PPObjQuotKind::MakeReserved(long flags)
 {
 	int    ok = 1;
 	uint   num_recs, i;
@@ -559,7 +559,7 @@ int  SLAPI PPObjQuotKind::RemoveObjV(PPID id, ObjCollection * pObjColl, uint opt
 		PPObjQuotKind::Special spc;
 		PPObjQuotKind::GetSpecialKinds(&spc, 0);
 		const char * p_spcqk_symb = 0;
-		if(id == spc.MtxID) 
+		if(id == spc.MtxID)
 			p_spcqk_symb = "qkspc_goodsmatrix";
 		else if(id == spc.MtxRestrID)
 			p_spcqk_symb = "qkspc_goodsmatrixrestr";

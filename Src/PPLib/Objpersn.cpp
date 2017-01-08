@@ -1957,6 +1957,33 @@ const char * SLAPI PPObjPerson::GetNamePtr()
 	return P_Tbl->data.Name;
 }
 
+//virtual
+int SLAPI PPObjPerson::MakeReserved(long flags)
+{
+    int    ok = -1;
+    if(flags & mrfInitializeDb) {
+		long    _count = 0;
+		{
+			PPIDArray main_org_list;
+			GetListByKind(PPPRK_MAIN, &main_org_list, 0);
+			_count = main_org_list.getCount();
+		}
+        if(_count == 0) {
+			PPID   id = 0;
+			SString temp_buf;
+            PPPersonPacket pack;
+			PPLoadString("mainorg", temp_buf);
+			STRNSCPY(pack.Rec.Name, temp_buf);
+			pack.Rec.Status = PPPRS_LEGAL;
+            pack.Kinds.add(PPPRK_MAIN);
+            THROW(PutPacket(&id, &pack, 1));
+			ok = 1;
+        }
+    }
+    CATCHZOK
+    return ok;
+}
+
 int SLAPI PPObjPerson::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;

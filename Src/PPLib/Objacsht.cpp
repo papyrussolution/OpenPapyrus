@@ -1,16 +1,26 @@
 // OBJACSHT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
 //
 // @ModuleDef(PPObjAccSheet)
 //
+SLAPI PPAccSheet2::PPAccSheet2()
+{
+	Init();
+}
+
+void SLAPI PPAccSheet2::Init()
+{
+	THISZERO();
+	Tag = PPOBJ_ACCSHEET;
+}
+
 class AccSheetDialog : public TDialog {
 public:
 	AccSheetDialog() : TDialog(DLG_ACCSHEET)
 	{
-		MEMSZERO(Data);
 	}
 	int    setDTS(const PPAccSheet * pData)
 	{
@@ -90,7 +100,7 @@ void AccSheetDialog::checkLink()
 		PPID   tmp_id = 0;
 		ArticleFilt ar_filt;
 		ar_filt.AccSheetID = Data.ID;
-		ar_filt.Ft_Closed = 0; 
+		ar_filt.Ft_Closed = 0;
 		PPObjArticle arobj(&ar_filt/*(void *)Data.ID*/);
 		if((r = arobj.GetFreeArticle(&tmp_id, Data.ID)) == 0)
 			PPError();
@@ -132,6 +142,60 @@ SLAPI PPObjAccSheet::PPObjAccSheet(void * extraPtr) : PPObjReference(PPOBJ_ACCSH
 	filt = 0;
 }
 
+//virtual
+int SLAPI PPObjAccSheet::MakeReserved(long flags)
+{
+	int    ok = -1;
+    if(flags & mrfInitializeDb) {
+		long    _count = 0;
+		PPAccSheet acs_rec;
+		{
+			for(SEnum en = ref->Enum(Obj, 0); en.Next(&acs_rec) > 0;) {
+				_count++;
+			}
+		}
+        if(_count == 0) {
+			SString temp_buf;
+			const PPID zero_id = 0;
+			{
+				acs_rec.Init();
+				PPLoadString("warehouse_pl", temp_buf);
+				STRNSCPY(acs_rec.Name, temp_buf);
+				STRNSCPY(acs_rec.Symb, "ACS-WH");
+				acs_rec.Assoc = PPOBJ_LOCATION;
+				acs_rec.Flags |= ACSHF_AUTOCREATART;
+				THROW(EditItem(Obj, zero_id, &acs_rec, 1));
+				ok = 1;
+			}
+			{
+				PPPersonKind pk_rec;
+				for(SEnum en = ref->Enum(PPOBJ_PRSNKIND, 0); en.Next(&pk_rec) > 0;) {
+					if(oneof6(pk_rec.ID, PPPRK_MAIN, PPPRK_EMPL, PPPRK_CLIENT, PPPRK_SUPPL, PPPRK_BANK, PPPRK_AGENT)) {
+						acs_rec.Init();
+						STRNSCPY(acs_rec.Name, pk_rec.Name);
+						if(pk_rec.Symb[0]) {
+							(temp_buf = "ACS").CatChar('-').Cat(pk_rec.Symb);
+							STRNSCPY(acs_rec.Symb, temp_buf);
+						}
+						acs_rec.Assoc = PPOBJ_PERSON;
+						acs_rec.ObjGroup = pk_rec.ID;
+						if(pk_rec.ID != PPPRK_BANK)
+							acs_rec.Flags |= ACSHF_AUTOCREATART;
+						if(pk_rec.ID == PPPRK_CLIENT)
+							acs_rec.Flags |= ACSHF_USECLIAGT;
+						else if(pk_rec.ID == PPPRK_SUPPL)
+							acs_rec.Flags |= ACSHF_USESUPPLAGT;
+						THROW(EditItem(Obj, zero_id, &acs_rec, 1));
+						ok = 1;
+					}
+				}
+			}
+        }
+    }
+    CATCHZOK
+    return ok;
+}
+
 int SLAPI PPObjAccSheet::IsAssoc(PPID acsID, PPID objType, PPAccSheet * pRec)
 {
 	int    ok = -1;
@@ -148,23 +212,21 @@ int SLAPI PPObjAccSheet::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1;
 	int    r = cmCancel, valid_data = 0;
-	PPAccSheet sheet;
+	PPAccSheet rec;
 	AccSheetDialog * dlg = 0;
 	THROW(CheckRightsModByID(pID));
 	if(*pID) {
-		THROW(Search(*pID, &sheet) > 0);
+		THROW(Search(*pID, &rec) > 0);
 	}
-	else
-		MEMSZERO(sheet);
 	THROW(CheckDialogPtr(&(dlg = new AccSheetDialog)));
-	dlg->setDTS(&sheet);
+	dlg->setDTS(&rec);
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
-		if(dlg->getDTS(&sheet)) {
+		if(dlg->getDTS(&rec)) {
 			if(*pID)
-				*pID = sheet.ID;
-			if(!CheckName(*pID, sheet.Name, 0))
+				*pID = rec.ID;
+			if(!CheckName(*pID, rec.Name, 0))
 				dlg->selectCtrl(CTL_ACCSHEET_NAME);
-			else if(EditItem(Obj, *pID, &sheet, 1)) {
+			else if(EditItem(Obj, *pID, &rec, 1)) {
 				Dirty(*pID);
 				valid_data = 1;
 			}
@@ -397,7 +459,7 @@ int SLAPI AccSheetCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 {
 	PPAccSheet * p_data_rec = (PPAccSheet *)pDataRec;
 	const AccSheetData * p_cache_rec = (const AccSheetData *)pEntry;
-	memzero(p_data_rec, sizeof(*p_data_rec));
+	p_data_rec->Init();
 	p_data_rec->Tag   = PPOBJ_ACCSHEET;
 	p_data_rec->ID    = p_cache_rec->ID;
 	p_data_rec->BinArID = p_cache_rec->BinArID;

@@ -1,5 +1,5 @@
 // PPUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @Kernel
 //
 #include <pp.h>
@@ -1641,15 +1641,19 @@ int SLAPI PPChainDatabase(const char * pPassword)
 	// 1.
 	if(PPCheckDatabaseChain() < 0) {
 
+		PPObjBill * p_bobj = BillObj;
+		Reference * p_ref = PPRef;
+
 		// 2.
 		MEMSZERO(bill_rec);
 		id_max = 0;
-		r = BillObj->P_Tbl->search(0, &id_max, spLast);
-		if(r == 0)
+		r = p_bobj->P_Tbl->search(0, &id_max, spLast);
+		if(r == 0) {
 			if(BTRNFOUND)
 				id_max = 1;
 			else
 				CALLEXCEPT_PP(PPERR_DBENGINE);
+		}
 		IdeaRandMem(&id_delta, sizeof(id_delta));
 		id_delta = (labs(id_delta) % 23) + 1;
 		bill_rec.ID = id_max + id_delta;
@@ -1662,8 +1666,9 @@ int SLAPI PPChainDatabase(const char * pPassword)
 		// 3.
 		MEMSZERO(ar_rec);
 		id_max = 0;
-		THROW(r = BillObj->atobj->P_Tbl->Art.search(0, &id_max, spLast));
-		if(r < 0)
+		r = p_bobj->atobj->P_Tbl->Art.search(0, &id_max, spLast);
+		THROW_DB(r || BTROKORNFOUND);
+		if(r <= 0)
 			id_max = 1;
 		IdeaRandMem(&id_delta, sizeof(id_delta));
 		id_delta = (labs(id_delta) % 37) + 1;
@@ -1695,10 +1700,10 @@ int SLAPI PPChainDatabase(const char * pPassword)
 		{
 			PPTransaction tra(1);
 			THROW(tra);
-			BillObj->P_Tbl->copyBufFrom(&bill_rec);
-			THROW_DB(BillObj->P_Tbl->insertRec());
-			THROW_DB(BillObj->atobj->P_Tbl->Art.insertRecBuf(&ar_rec));
-			THROW_DB(PPRef->insertRecBuf(&ref_rec));
+			p_bobj->P_Tbl->copyBufFrom(&bill_rec);
+			THROW_DB(p_bobj->P_Tbl->insertRec());
+			THROW_DB(p_bobj->atobj->P_Tbl->Art.insertRecBuf(&ar_rec));
+			THROW_DB(p_ref->insertRecBuf(&ref_rec));
 			THROW(tra.Commit());
 		}
 	}

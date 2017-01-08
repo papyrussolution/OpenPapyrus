@@ -2597,7 +2597,6 @@ int32 DL6ICLS_PPObjAccSheet::Search(int32 id, PPYOBJREC rec)
 	PPObjAccSheet * p_obj = (PPObjAccSheet *)ExtraPtr;
 	if(p_obj) {
 		PPAccSheet acs_rec;
-		MEMSZERO(acs_rec);
 		ok = p_obj->Fetch(id, &acs_rec);
 		FillAccSheetRec(&acs_rec, (SPpyO_AccSheet *)rec);
 	}
@@ -2611,8 +2610,7 @@ int32 DL6ICLS_PPObjAccSheet::SearchByName(SString & text, int32 kind, int32 extr
 	PPObjAccSheet * p_obj = (PPObjAccSheet *)ExtraPtr;
 	if(p_obj) {
 		PPAccSheet acs_rec;
-		PPID id = 0;
-		MEMSZERO(acs_rec);
+		PPID   id = 0;
 		ok = p_obj->SearchByName(text, &id, &acs_rec);
 		FillAccSheetRec(&acs_rec, (SPpyO_AccSheet *)rec);
 	}

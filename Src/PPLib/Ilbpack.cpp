@@ -1,5 +1,5 @@
 // ILBPACK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -2519,6 +2519,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 	const  int trace_sync_lot = BIN(DS.CheckExtFlag(ECF_TRACESYNCLOT));
 
 	int    ok = 1, r;
+	const PPConfig & r_cfg = LConfig;
 	PPID   err_id   = 0; // ИД документа, вызвавшего ошибку
 	int    err_code = 0; // Код ошибки
 	SString err_bill_code; // Номер документа, вызвавшего ошибку
@@ -2526,7 +2527,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 	uint   i;
 	PPTransferItem * p_ti;
 	ILBillPacket   * p_pack = (ILBillPacket*)p->Data;
-	const short save_rlz_order = LConfig.RealizeOrder;
+	const short save_rlz_order = r_cfg.RealizeOrder;
 	if(p_pack) {
 		if(stream == 0) {
 			int    skip = 0, warn = 0;
@@ -2550,7 +2551,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 				else
 					bp.Rec.LinkBillID = 0;
 				if(!skip) {
-					bp.Rec.UserID = LConfig.User;
+					bp.Rec.UserID = r_cfg.User;
 					err_code = PPTXT_ERRACCEPTBILL_CONVERT;
 					err_id = p_pack->Rec.ID;
 					PPObjBill::MakeCodeString(&p_pack->Rec, 0, err_bill_code);
@@ -2632,7 +2633,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 				PPTransaction tra(1);
 				THROW(tra);
 				if(oneof2(op_type_id, PPOPT_ACCTURN, PPOPT_PAYMENT) || IsDraftOp(p_pack->Rec.OpID)) {
-					bp.Rec.UserID = LConfig.User;
+					bp.Rec.UserID = r_cfg.User;
 					err_code = PPTXT_ERRACCEPTBILL_CONVERT;
 					err_id = p_pack->Rec.ID;
 					PPObjBill::MakeCodeString(&p_pack->Rec, 0, err_bill_code);

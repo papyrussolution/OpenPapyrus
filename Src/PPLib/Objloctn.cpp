@@ -1,5 +1,5 @@
 // OBJLOCTN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1251,7 +1251,8 @@ int LocationView::Restore()
 	PPObjLocation loc_obj;
 	PPLogger logger;
 	MEMSZERO(rec);
-	while(ar_obj.P_Tbl->EnumBySheet(LConfig.LocSheet, &art_no, &rec) > 0) {
+	const  PPID loc_acs_id = LConfig.LocAccSheetID;
+	while(ar_obj.P_Tbl->EnumBySheet(loc_acs_id, &art_no, &rec) > 0) {
 		int    r = loc_obj.Search(rec.ObjID, 0);
 		if(r < 0) {
 			LocationTbl::Rec loc_rec;
@@ -2513,7 +2514,7 @@ int SLAPI PPObjLocation::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 	return ok;
 }
 
-int SLAPI PPObjLocation::MakeReserved(long)
+int SLAPI PPObjLocation::MakeReserved(long flags)
 {
 	int    ok = 1;
 	uint   num_recs, i;
@@ -3015,7 +3016,7 @@ int SLAPI LocationCache::AddWarehouseEntry(const LocationTbl::Rec * pRec)
 		WhObjList.atFree(pos);
 	if(ObjRts.CheckLocID(entry.LocID, 0)) {
 		PPObjAccTurn * p_atobj = BillObj->atobj;
-		if(p_atobj->P_Tbl->Art.SearchObjRef(LConfig.LocSheet, entry.LocID) > 0)
+		if(p_atobj->P_Tbl->Art.SearchObjRef(LConfig.LocAccSheetID, entry.LocID) > 0)
 			entry.ObjID = p_atobj->P_Tbl->Art.data.ID;
 		ok = WhObjList.insert(&entry) ? 1 : PPSetErrorSLib();
 	}
@@ -3154,7 +3155,7 @@ int SLAPI LocationCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		if(rec.Type == LOCTYP_WAREHOUSE) {
 			//PPObjAccTurn * p_atobj = BillObj->atobj;
 			ArticleCore & r_arc = BillObj->atobj->P_Tbl->Art;
-			if(/*p_atobj->P_Tbl->Art*/r_arc.SearchObjRef(LConfig.LocSheet, id) > 0)
+			if(/*p_atobj->P_Tbl->Art*/r_arc.SearchObjRef(LConfig.LocAccSheetID, id) > 0)
 				p_cache_rec->ArID = /*p_atobj->P_Tbl->Art*/r_arc.data.ID;
 		}
 		MultTextBlock b;

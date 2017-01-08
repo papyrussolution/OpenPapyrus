@@ -1,5 +1,5 @@
 // PPDBMAKE.CPP
-// Copyright (c) Osolotkin A.V, Sobolev A. 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2013, 2016
+// Copyright (c) Osolotkin A.V, Sobolev A. 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2013, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -236,81 +236,6 @@ int SLAPI CreateByExample(const char * pPath)
 	return ok;
 }
 
-int SLAPI CreateEmpty(const char * pPath)
-{
-	int    ok = 1;
-	//SString src_path;
-	//SString dst_path;
-	//SString base_path;
-	//SString msg_buf;
-	//SDirEntry sde;
-	//SDirec sd;
-	//PPIniFile ini_file;
-	SString empty_path;
-	SString pack_path;
-
-	PPWait(1);
-	//
-	// Вычисляем необходимый размер дискового пространства и сравниваем его с доступным
-	//
-	int64  disk_total = 0, disk_avail = 0;
-	SFileUtil::GetDiskSpace(pPath, &disk_total, &disk_avail);
-	// *3/2 - коэффициент запаса
-	if((calcNeededSize(1) * 3 / 2) > disk_avail) {
-		DBErrCode = SDBERR_BU_NOFREESPACE;
-		CALLEXCEPT_PP(PPERR_DBLIB);
-	}
-	//
-	//PPGetPath(PPPATH_ROOT, base_path);
-	//(empty_path = base_path.SetLastSlash()).Cat("empty");
-	// AHTOXA {
-	//if(!isDir(empty_path))
-	//	THROW_PP_S(createDir(empty_path), PPERR_SLIB, empty_path);
-	//ini_file.Get(PPINISECT_PATH, PPINIPARAM_PACK, pack_path);
-	//msg_buf.Printf("%s\\empty.zip распаковщиком %s\\pkunzip.exe", (const char *)pack_path, (const char *)pack_path);
-	//PPSetAddedMsgString(msg_buf.ToOem());
-	// @v9.4.8 THROW_PP(PKUnzip(pack_path, empty_path, "empty.zip"), PPERR_ZIPEXTRACT);
-	// @v9.4.8 {
-	{
-		SArchive arc;
-		PPGetFilePath(PPPATH_PACK, "empty.zip", pack_path);
-		THROW_SL(arc.Open(SArchive::tZip, pack_path, SFile::mRead));
-		{
-			int64 c = arc.GetEntriesCount();
-			if(c > 0) {
-				(empty_path = pPath).SetLastSlash();
-				for(int64 i = 0; i < c; i++) {
-					THROW(arc.ExtractEntry(i, empty_path));
-				}
-			}
-		}
-		arc.Close();
-	}
-	// } @v9.4.8 
-	// } AHTOXA
-	/*
-	empty_path.SetLastSlash().Cat("*.btr");
-	sd.Init(empty_path);
-	(empty_path = pPath).SetLastSlash();
-	while(sd.Next(&sde) > 0) {
-		PPWaitMsg(sde.FileName);
-		THROW(PPCheckUserBreak());
-		(src_path = base_path).Cat("empty").SetLastSlash().Cat(sde.FileName);
-		(dst_path = empty_path).Cat(sde.FileName);
-		THROW(copyFileByName(src_path, dst_path) > 0);
-	}
-	*/
-	CATCH
-		if(PPErrCode == PPERR_USERBREAK) {
-			// @v9.2.1 RemovePath(pPath);
-			RemoveDir(pPath); // @v9.2.1
-		}
-		ok = PPErrorZ();
-	ENDCATCH
-	PPWait(0);
-	return ok;
-}
-
 int SLAPI MakeDatabase()
 {
 	#define FBB_GROUP1 1
@@ -418,14 +343,94 @@ int SLAPI MakeDatabase()
 					// PPMessage(mfInfo | mfCancel, PPINF_CANTMKDIR, 0);
 				}
 				if(i) {
-					if(dbid == 0)
+					if(dbid == 0) {
 						valid_data = CreateByExample(dbpath);
-					else
-						valid_data = CreateEmpty(dbpath);
-					if(valid_data > 0) {
-						dbname.Comma().Cat(dbpath.RmvLastSlash());
-						ini_file.AppendParam("dbname", dbentry, dbname, 1);
-						ok = 1;
+						if(valid_data > 0) {
+							dbname.Comma().Cat(dbpath.RmvLastSlash());
+							ini_file.AppendParam("dbname", dbentry, dbname, 1);
+							ok = 1;
+						}
+					}
+					else {
+						//valid_data = CreateEmpty(dbpath);
+						//int SLAPI CreateEmpty(const char * pPath)
+						{
+							class PPCreateDatabaseSession : public PPThread {
+							public:
+								SLAPI PPCreateDatabaseSession(const char * pDbSymb) : PPThread(PPThread::kUnknown, 0, 0)
+								{
+									DbSymb = pDbSymb;
+									InitStartupSignal();
+								}
+							private:
+								void SLAPI Startup()
+								{
+									PPThread::Startup();
+									SignalStartup();
+								}
+								virtual void Run()
+								{
+									char    secret[256];
+									PPVersionInfo vi = DS.GetVersionInfo();
+									THROW(vi.GetSecret(secret, sizeof(secret)));
+									THROW(DS.Login(DbSymb, PPSession::P_EmptyBaseCreationLogin, secret));
+									DS.Logout();
+									CATCH
+										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+									ENDCATCH
+									memzero(secret, sizeof(secret));
+								}
+								SString DbSymb;
+							};
+
+							int    ok = 1;
+							SString empty_path;
+							SString pack_path;
+
+							PPWait(1);
+							//
+							// Вычисляем необходимый размер дискового пространства и сравниваем его с доступным
+							//
+							int64  disk_total = 0, disk_avail = 0;
+							SFileUtil::GetDiskSpace(dbpath, &disk_total, &disk_avail);
+							// *3/2 - коэффициент запаса
+							if((calcNeededSize(1) * 3 / 2) > disk_avail) {
+								DBErrCode = SDBERR_BU_NOFREESPACE;
+								CALLEXCEPT_PP(PPERR_DBLIB);
+							}
+							/*
+							{
+								SArchive arc;
+								PPGetFilePath(PPPATH_PACK, "empty.zip", pack_path);
+								if(fileExists(pack_path)) {
+									THROW_SL(arc.Open(SArchive::tZip, pack_path, SFile::mRead));
+									{
+										const int64 c = arc.GetEntriesCount();
+										if(c > 0) {
+											(empty_path = dbpath).SetLastSlash();
+											for(int64 i = 0; i < c; i++) {
+												THROW(arc.ExtractEntry(i, empty_path));
+											}
+										}
+									}
+									arc.Close();
+								}
+							}
+							*/
+							dbname.Comma().Cat(dbpath.RmvLastSlash());
+							ini_file.AppendParam("dbname", dbentry, dbname, 1);
+							{
+								PPCreateDatabaseSession * p_sess = new PPCreateDatabaseSession(dbentry);
+								p_sess->Start(1);
+							}
+							/*CATCH
+								if(PPErrCode == PPERR_USERBREAK) {
+									RemoveDir(dbpath);
+								}
+								valid_data = PPErrorZ();
+							ENDCATCH*/
+							PPWait(0);
+						}
 					}
 				}
 			}

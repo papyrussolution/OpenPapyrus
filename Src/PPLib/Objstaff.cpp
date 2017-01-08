@@ -1216,7 +1216,7 @@ int SLAPI PPObjStaffList::GetFixedPostOnDate(PPID orgID, PPID fixID, LDATE dt, P
 
 int SLAPI PPObjStaffList::EditFixedStaffPost(PPID orgID)
 {
-	int    ok = -1, ta = 0;
+	int    ok = -1;
 	TDialog * dlg = 0;
 	struct StaffPair {
 		PPID   PostID;
@@ -1238,14 +1238,15 @@ int SLAPI PPObjStaffList::EditFixedStaffPost(PPID orgID)
 	if(ExecView(dlg) == cmOK) {
 		PPID   new_dir_id = dlg->getCtrlLong(CTLSEL_FIXSTAFF_DIRECTOR);
 		PPID   new_acc_id = dlg->getCtrlLong(CTLSEL_FIXSTAFF_ACCTNT);
-		THROW(PPStartTransaction(&ta, 1));
+		const  LDATE oper_date = LConfig.OperDate;
+		PPTransaction tra(1);
+		THROW(tra);
 		if(dir.PersonID != new_dir_id) {
 			if(dir.StaffID == 0) {
 				THROW(CreateFixedStaff(&dir.StaffID, orgID, 0, PPFIXSTF_DIRECTOR, 0));
 			}
 			else if(dir.ID) {
-				// @v6.3.14 THROW(PutPostPacket(&dir.PostID, 0, 0));
-				THROW(RevokePersonPost(dir.PersonID, dir.StaffID, LConfig.OperDate, 0)); // @v6.3.14
+				THROW(RevokePersonPost(dir.PersonID, dir.StaffID, oper_date, 0));
 			}
 			THROW(AssignPersonToStaff(new_dir_id, dir.StaffID, ZERODATE, 0));
 		}
@@ -1254,15 +1255,13 @@ int SLAPI PPObjStaffList::EditFixedStaffPost(PPID orgID)
 				THROW(CreateFixedStaff(&acc.StaffID, orgID, 0, PPFIXSTF_ACCOUNTANT, 0));
 			}
 			else if(acc.ID) {
-				// @v6.3.14 THROW(PutPostPacket(&acc.PostID, 0, 0));
-				THROW(RevokePersonPost(acc.PersonID, acc.StaffID, LConfig.OperDate, 0)); // @v6.3.14
+				THROW(RevokePersonPost(acc.PersonID, acc.StaffID, oper_date, 0));
 			}
 			THROW(AssignPersonToStaff(new_acc_id, acc.StaffID, ZERODATE, 0));
 		}
-		THROW(PPCommitWork(&ta));
+		THROW(tra.Commit());
 	}
 	CATCH
-		PPRollbackWork(&ta);
 		ok = PPErrorZ();
 	ENDCATCH
 	delete dlg;

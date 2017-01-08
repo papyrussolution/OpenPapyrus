@@ -1,7 +1,7 @@
 // PPSYNC.CPP
 // (c) Alexander Simanov, 1999
 // Database lock file implementation
-// Modified by Anton Sobolev 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016
+// Modified by Anton Sobolev 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -36,7 +36,7 @@ int SLAPI PPSync::Release()
 {
 	int    ok = 1;
 	if(Handle >= 0) {
-		int    is_db_locked = IsDBInUse();
+		const int is_db_locked = IsDBInUse();
 		SString file_name;
 		close(Handle);
 		Handle = -1;
@@ -72,7 +72,7 @@ int SLAPI PPSync::Init(const char * pDataPath)
 	Handle = _sopen(file_name, O_RDWR | O_BINARY, SH_DENYNO, S_IREAD | S_IWRITE);
 	THROW_PP_S(Handle >= 0, PPErrCode = PPERR_SYNCOPEN, file_name);
 	if(!empty_file_created && GetHeader(0, &hdr, 0) && hdr.Ver < 1) {
-		int    r = Release();
+		const int r = Release();
 		THROW_PP_S(r == 2, PPERR_SYNCOPEN, file_name);
 		THROW(Init(pDataPath));
 	}
@@ -82,22 +82,23 @@ int SLAPI PPSync::Init(const char * pDataPath)
 
 int SLAPI PPSync::CreateEmptyFile()
 {
-	int    h, r1, r2;
+	int    ok = 0;
 	long   lockfield = 0;
 	SString file_name;
 	PPSyncHeader hdr;
 	MEMSZERO(hdr);
 	hdr.Magic = LOCK_MAGIC;
 	hdr.Ver = 1;
-	h = ::creat(GetFileName(file_name), S_IWRITE);
+	const int h = ::creat(GetFileName(file_name), S_IWRITE);
 	if(h < 0)
-		return PPSetError(PPERR_SYNCCREAT, file_name);
+		ok = PPSetError(PPERR_SYNCCREAT, file_name);
 	else {
-		r1 = ::write(h, &lockfield, LOCK_PRFX_SIZE);
-		r2 = ::write(h, &hdr, sizeof(hdr));
+		const int r1 = ::write(h, &lockfield, LOCK_PRFX_SIZE);
+		const int r2 = ::write(h, &hdr, sizeof(hdr));
 		::close(h);
-		return ((r1 < 0) || (r2 < 0)) ? PPSetError(PPERR_SYNCWRITE, file_name) : 1;
+		ok = ((r1 < 0) || (r2 < 0)) ? PPSetError(PPERR_SYNCWRITE, file_name) : 1;
 	}
+	return ok;
 }
 
 int SLAPI PPSync::ImplementGetBlock(ulong offs, void * pBuf, int * pIsLocked)
@@ -112,8 +113,7 @@ int SLAPI PPSync::ImplementGetBlock(ulong offs, void * pBuf, int * pIsLocked)
 		MEMSZERO(blk);
 		int    r = read(Handle, &blk, offs ? sizeof(PPSyncItem) : sizeof(PPSyncHeader));
 		if(r >= 0) {
-			if(pIsLocked)
-				*pIsLocked = BIN(IsLocked(offs));
+			ASSIGN_PTR(pIsLocked, BIN(IsLocked(offs)));
 			if(pBuf)
 				memcpy(pBuf, &blk, offs ? sizeof(blk.item) : sizeof(blk.hdr));
 		}
@@ -141,8 +141,7 @@ int SLAPI PPSync::GetItemsList(long recType, PPSyncArray * pList)
 	ulong  o = 0;
 	long   numrecs = 0;
 	PPSyncItem item;
-	if(pList)
-		pList->freeAll();
+	CALLPTRMEMB(pList, freeAll());
 	if(GetInitPosition(&o, &numrecs) > 0) {
 		if(pList)
 			for(long i = 0; i < numrecs; AdvanceOffset(&o), i++)
@@ -229,16 +228,16 @@ int SLAPI PPSync::GetFreeEntry(ulong * offs, long * id)
 	long   free_id = 0;
 	PPSyncItem   item;
 	if(GetInitPosition(&o, &numrecs) > 0) {
-		for(long i = 0; ok && i < numrecs; AdvanceOffset(&o), i++)
+		for(long i = 0; ok && i < numrecs; AdvanceOffset(&o), i++) {
 			if(GetItem(o, &item, 0) > 0) {
-				if(item.ID > free_id)
-					free_id = item.ID;
+				SETMAX(free_id, item.ID);
 				if(item.ID == 0 && free_offs == 0 && !IsLocked(o))
 					free_offs = o;
 				ok = 1;
 			}
 			else
 				ok = 0;
+		}
 		if(ok && free_offs == 0) {
 			free_offs = o;
 			ok = -1;

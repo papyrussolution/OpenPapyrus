@@ -1,5 +1,5 @@
 // PALM.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -927,7 +927,7 @@ int SLAPI PPObjStyloPalm::ResolveClientID(const char * pInTblPath, PPID inID, PP
 {
 	int    ok = -1;
 	PPID   acsh_id = GetSellAccSheet();
-	PPAccSheet acsh_rec;
+	PPAccSheet acs_rec;
 	PPObjArticle ar_obj;
 	ArticleTbl::Rec ar_rec;
 	if(inID > 0) {
@@ -943,20 +943,19 @@ int SLAPI PPObjStyloPalm::ResolveClientID(const char * pInTblPath, PPID inID, PP
 				ASSIGN_PTR(pOutID, ar_rec.ID);
 				ok = 1;
 			}
-			else if(SearchObject(PPOBJ_ACCSHEET, acsh_id, &acsh_rec) > 0)
-				if(acsh_rec.Assoc == PPOBJ_PERSON) {
-					PPID psn_id = 0, ar_id = 0;
+			else if(SearchObject(PPOBJ_ACCSHEET, acsh_id, &acs_rec) > 0)
+				if(acs_rec.Assoc == PPOBJ_PERSON) {
+					PPID   psn_id = 0, ar_id = 0;
 					PPObjPerson psn_obj;
-					THROW(psn_obj.AddSimple(&psn_id, pda_rec.Name,
-						acsh_rec.ObjGroup, PPPRS_LEGAL, 1));
+					THROW(psn_obj.AddSimple(&psn_id, pda_rec.Name, acs_rec.ObjGroup, PPPRS_LEGAL, 1));
 					if(ar_obj.P_Tbl->SearchObjRef(acsh_id, psn_id) < 0) {
 						THROW(ar_obj.CreateObjRef(&ar_id, acsh_id, psn_id, 0, 1));
 						ASSIGN_PTR(pOutID, ar_id);
 						ok = 1;
 					}
 				}
-				else if(acsh_rec.Assoc == 0) {
-					PPID ar_id = 0;
+				else if(acs_rec.Assoc == 0) {
+					PPID   ar_id = 0;
 					THROW(ar_obj.AddSimple(&ar_id, acsh_id, pda_rec.Name, 0, 1));
 					ASSIGN_PTR(pOutID, ar_id);
 					ok = 1;
@@ -3643,9 +3642,9 @@ int SLAPI PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock 
 		ar_filt.AccSheetID = acsID;
 		ArticleViewItem ar_item;
 		PPObjAccSheet acc_sheet_obj;
-		PPAccSheet acc_sheet_rec;
+		PPAccSheet acs_rec;
 
-		THROW(acc_sheet_obj.Fetch(acsID, &acc_sheet_rec) > 0);
+		THROW(acc_sheet_obj.Fetch(acsID, &acs_rec) > 0);
 		PPLoadText(PPTXT_WAIT_PALMEXPCLI, wait_msg);
 		THROW(ar_view.Init_(&ar_filt));
 		for(ar_view.InitIteration(); ar_view.NextIteration(&ar_item) > 0;) {
@@ -3655,7 +3654,7 @@ int SLAPI PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock 
 				long   _flags = 0;
 				PPID   quot_kind_id = 0;
 				PPClientAgreement cli_agt;
-				if(acc_sheet_rec.Assoc == PPOBJ_PERSON) {
+				if(acs_rec.Assoc == PPOBJ_PERSON) {
 					uint   i;
 					dlvr_loc_list.clear();
 					THROW(rBlk.P_PsnObj->GetDlvrLocList(ar_item.ObjID, &dlvr_loc_list));

@@ -114,12 +114,12 @@ int SLAPI PPPaths::Resize(size_t sz)
 	if(sz == 0)
 		ZFREE(P);
 	else {
-		size_t prevSize = Size();
+		const size_t prev_size = Size();
 		sz = (sz < sizeof(PathData)) ? sizeof(PathData) : sz;
 		P = (PathData*)realloc(P, sz);
 		if(P) {
-			if(sz > prevSize)
-				memzero(((char*)P) + prevSize, sz - prevSize);
+			if(sz > prev_size)
+				memzero(((char*)P) + prev_size, sz - prev_size);
 			P->TailSize = sz - sizeof(PathData);
 		}
 		else
@@ -130,7 +130,7 @@ int SLAPI PPPaths::Resize(size_t sz)
 
 int SLAPI PPPaths::GetPath(PPID pathID, short * pFlags, char * pBuf, size_t bufLen) const
 {
-	if(P)
+	if(P) {
 		for(uint s = 0; s < P->TailSize;) {
 			const PathItem * p = (const PathItem*)(((char*)(P + 1)) + s);
 			if(p->ID == pathID) {
@@ -139,6 +139,7 @@ int SLAPI PPPaths::GetPath(PPID pathID, short * pFlags, char * pBuf, size_t bufL
 			}
 			s += p->Size;
 		}
+	}
 	ASSIGN_PTR(pFlags, PATHF_EMPTY);
 	ASSIGN_PTR(pBuf, 0);
 	return -1;
@@ -147,7 +148,7 @@ int SLAPI PPPaths::GetPath(PPID pathID, short * pFlags, char * pBuf, size_t bufL
 int SLAPI PPPaths::GetPath(PPID pathID, short * pFlags, SString & rBuf) const
 {
 	rBuf = 0;
-	if(P)
+	if(P) {
 		for(uint s = 0; s < P->TailSize;) {
 			const PathItem * p = (const PathItem*)(((const char*)(P + 1)) + s);
 			if(p->ID == pathID) {
@@ -156,6 +157,7 @@ int SLAPI PPPaths::GetPath(PPID pathID, short * pFlags, SString & rBuf) const
 			}
 			s += p->Size;
 		}
+	}
 	ASSIGN_PTR(pFlags, PATHF_EMPTY);
 	return -1;
 }
@@ -177,7 +179,7 @@ int SLAPI PPPaths::SetPath(PPID pathID, const char * pBuf, short flags, int repl
 	THROW(pi = new(pBuf) PathItem(pathID, flags, pBuf));
 	while(s < ts && !found) {
 		PathItem * p = (PathItem*)(cp + s);
-		size_t os = p->Size;
+		const size_t os = p->Size;
 		if(p->ID == 0 || os == 0) {
 			//
 			// “ака€ ситуаци€ встречатьс€ не должна, но на вс€кий случай обработать ее стоит.

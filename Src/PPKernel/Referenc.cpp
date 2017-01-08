@@ -1,5 +1,5 @@
 // REFERENC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // @Kernel
 //
@@ -15,9 +15,12 @@ int SLAPI Reference::Encrypt(int cryptMethod, const char * pText, char * pBuf, s
 		SString temp_buf;
 		char   pw_buf[128], pw_buf2[128];
 		const  size_t bin_pw_size = (bufLen >= 34) ? 24 : (bufLen * 3 / 4 - 3);
-		size_t pw_len = strlen(pText);
+		size_t pw_len = sstrlen(pText);
 		IdeaRandMem(pw_buf2, sizeof(pw_buf2));
-		memcpy(pw_buf2, pText, pw_len+1);
+		if(pText)
+			memcpy(pw_buf2, pText, pw_len+1);
+		else
+			pw_buf2[0] = 0;
 		IdeaRandMem(pw_buf, sizeof(pw_buf));
 		IdeaEncrypt(0, pw_buf2, bin_pw_size);
 		temp_buf.EncodeMime64(pw_buf2, bin_pw_size).CopyTo(pBuf, bufLen);
@@ -1774,7 +1777,7 @@ int SLAPI GetCommConfig(PPCommConfig * pCfg)
 
 int SLAPI SetCommConfig(PPCommConfig * pCfg, int use_ta)
 {
-	return PPRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_COMMCFG, pCfg, sizeof(*pCfg), 1);
+	return PPRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_COMMCFG, pCfg, sizeof(*pCfg), use_ta);
 }
 //
 // PPSecurPacket
@@ -1782,7 +1785,7 @@ int SLAPI SetCommConfig(PPCommConfig * pCfg, int use_ta)
 SLAPI PPSecurPacket::PPSecurPacket(PPID obj, PPID id)
 {
 	MEMSZERO(Secur);
-	MEMSZERO(Config);
+	// @v9.4.9 (constructor) MEMSZERO(Config);
 	Secur.Tag = obj;
 	Secur.ID  = id;
 }

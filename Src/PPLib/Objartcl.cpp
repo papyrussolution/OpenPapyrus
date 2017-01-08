@@ -1,5 +1,5 @@
 // OBJARTCL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -65,8 +65,8 @@ PPID FASTCALL ObjectToPerson(PPID objID, PPID * pAccSheetID)
 	PPID   acc_sheet_id = 0, lnk_obj_id = 0;
 	if(GetArticleSheetID(objID, &acc_sheet_id, &lnk_obj_id) > 0) {
 		PPObjAccSheet acc_sheet_obj;
-		PPAccSheet acc_sheet_rec;
-		if(acc_sheet_obj.Fetch(acc_sheet_id, &acc_sheet_rec) > 0 && acc_sheet_rec.Assoc == PPOBJ_PERSON) {
+		PPAccSheet acs_rec;
+		if(acc_sheet_obj.Fetch(acc_sheet_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON) {
 			ASSIGN_PTR(pAccSheetID, acc_sheet_id);
 			return lnk_obj_id;
 		}
@@ -397,13 +397,13 @@ int ArticleAutoAddDialog::save()
 void ArticleAutoAddDialog::init(PPID sheetID)
 {
 	int    r;
-	PPAccSheet sheet;
-	THROW(SearchObject(PPOBJ_ACCSHEET, sheetID, &sheet) > 0);
+	PPAccSheet acs_rec;
+	THROW(SearchObject(PPOBJ_ACCSHEET, sheetID, &acs_rec) > 0);
 	MEMSZERO(Rec);
 	Rec.AccSheetID = sheetID;
 	THROW(ArObj.GetFreeArticle(&Rec.Article, sheetID));
-	Assoc = sheet.Assoc;
-	GroupID = sheet.ObjGroup;
+	Assoc = acs_rec.Assoc;
+	GroupID = acs_rec.ObjGroup;
 	THROW(makeQuery());
 	THROW((r = fetch(spFirst)) != 0);
 	if(r > 0) {
@@ -988,7 +988,7 @@ int SLAPI PPObjArticle::NewArticle(PPID * pID, long sheetID)
 	int    cm = cmCancel, done = 0;
 	PPID   obj_id = 0;
 	PPObject * ppobj = 0;
-	PPAccSheet sheet;
+	PPAccSheet acs_rec;
 	ArticleDlgData  pack;
 	union {
 		PersonTbl::Rec   psnrec;
@@ -996,9 +996,9 @@ int SLAPI PPObjArticle::NewArticle(PPID * pID, long sheetID)
 		PPAccount  accnt;
 		PPGlobalUserAcc gua_rec; // @v9.1.3
 	} assoc_obj_rec;
-	THROW(SearchObject(PPOBJ_ACCSHEET, sheetID, &sheet) > 0);
+	THROW(SearchObject(PPOBJ_ACCSHEET, sheetID, &acs_rec) > 0);
 	pack.Rec.AccSheetID = sheetID;
-	pack.Assoc = sheet.Assoc;
+	pack.Assoc = acs_rec.Assoc;
 	THROW(GetFreeArticle(&pack.Rec.Article, sheetID));
 	if(oneof3(pack.Assoc, 0, PPOBJ_ACCOUNT_PRE9004, PPOBJ_ACCOUNT2)) {
 		pack.Options &= ~ArticleDlgData::fDisableName;
@@ -1009,9 +1009,9 @@ int SLAPI PPObjArticle::NewArticle(PPID * pID, long sheetID)
 	}
 	else {
 		long   extra_data = 0;
-		THROW(cm = AutoFill(&sheet));
+		THROW(cm = AutoFill(&acs_rec));
 		if(pack.Assoc == PPOBJ_PERSON)
-			extra_data = sheet.ObjGroup;
+			extra_data = acs_rec.ObjGroup;
 		THROW(ppobj = GetPPObject(pack.Assoc, (void *)extra_data));
 		obj_id = 0;
 		THROW(cm = ppobj->Edit(&obj_id, (void *)extra_data));
@@ -1023,14 +1023,14 @@ int SLAPI PPObjArticle::NewArticle(PPID * pID, long sheetID)
 			}
 			else {
 				THROW(ppobj->Search(obj_id, &assoc_obj_rec) > 0);
-				if(sheet.Assoc == PPOBJ_PERSON)
+				if(acs_rec.Assoc == PPOBJ_PERSON)
 					STRNSCPY(pack.Rec.Name, assoc_obj_rec.psnrec.Name);
-				else if(sheet.Assoc == PPOBJ_LOCATION)
+				else if(acs_rec.Assoc == PPOBJ_LOCATION)
 					STRNSCPY(pack.Rec.Name, assoc_obj_rec.locrec.Name);
-				else if(sheet.Assoc == PPOBJ_GLOBALUSERACC) // @v9.1.3
+				else if(acs_rec.Assoc == PPOBJ_GLOBALUSERACC) // @v9.1.3
 					STRNSCPY(pack.Rec.Name, assoc_obj_rec.gua_rec.Name);
 				pack.Rec.ObjID = obj_id;
-				if(sheet.Flags & ACSHF_AUTOCREATART)
+				if(acs_rec.Flags & ACSHF_AUTOCREATART)
 					cm = cmOK;
 				else {
 					pack.Options |= ArticleDlgData::fDisableName;
@@ -1342,14 +1342,14 @@ StrAssocArray * SLAPI PPObjArticle::MakeStrAssocList(void * extraPtr /*accSheetI
 	// @v9.2.1 const  int full_list = BIN(acs_id < 0);
 	// @v9.2.1 acs_id = labs(acs_id);
 	PPObjAccSheet acc_sheet_obj;
-	PPAccSheet sheet_rec;
+	PPAccSheet acs_rec;
 	ArticleTbl::Rec ar_rec;
 	PPSupplAgreement suppl_agt;
 	DBQ  * dbq = 0;
 	BExtQuery q(P_Tbl, 2);
 	THROW_MEM(p_list = new StrAssocArray);
 	if(acs_id)
-		THROW(acc_sheet_obj.Fetch(acs_id, &sheet_rec) > 0);
+		THROW(acc_sheet_obj.Fetch(acs_id, &acs_rec) > 0);
 #ifdef DO_GET_NAME_FROM_CACHE
 	q.select(P_Tbl->ID, P_Tbl->ObjID, 0L);
 #else
@@ -1455,10 +1455,10 @@ int SLAPI PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				const PPID kind_id = (long)extraPtr;
 
 				PPID   sheet_id = 0;
-				PPAccSheet as_rec;
+				PPAccSheet acs_rec;
 				PPObjAccSheet as_obj;
-				while(ok == DBRPL_OK && as_obj.EnumItems(&sheet_id, &as_rec) > 0) {
-					if(as_rec.Assoc == PPOBJ_PERSON && as_rec.ObjGroup == kind_id && as_rec.Flags & ACSHF_AUTOCREATART) {
+				while(ok == DBRPL_OK && as_obj.EnumItems(&sheet_id, &acs_rec) > 0) {
+					if(acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == kind_id && acs_rec.Flags & ACSHF_AUTOCREATART) {
 						if(P_Tbl->SearchObjRef(sheet_id, person_id) < 0) {
 							PPID   ar_id = 0;
 							if(!CreateObjRef(&ar_id, sheet_id, person_id, 0, 0))
@@ -1501,11 +1501,11 @@ int SLAPI PPObjArticle::SearchAssocObjRef(PPID _obj, PPID _id, PPID * pAccSheetI
 {
 	int    r;
 	PPID   acc_sheet_id = pAccSheetID ? *pAccSheetID : 0;
-	PPAccSheet as_rec;
+	PPAccSheet acs_rec;
 	PPObjAccSheet as_obj;
 	ASSIGN_PTR(pID, 0);
-	while((r = as_obj.EnumItems(&acc_sheet_id, &as_rec)) > 0)
-		if(as_rec.Assoc == _obj && (!kind || as_rec.ObjGroup == kind)) {
+	while((r = as_obj.EnumItems(&acc_sheet_id, &acs_rec)) > 0)
+		if(acs_rec.Assoc == _obj && (!kind || acs_rec.ObjGroup == kind)) {
 			ArticleTbl::Rec rec;
 			if((r = P_Tbl->SearchObjRef(acc_sheet_id, _id, &rec)) >= 0) {
 				if(r > 0)
@@ -1524,21 +1524,23 @@ int SLAPI PPObjArticle::AddSimple(PPID * pID, PPID accSheetID, const char * pNam
 	PPObjAccSheet acs_obj;
 	PPAccSheet acs_rec;
 	MEMSZERO(rec);
-	PPTransaction tra(use_ta);
-	THROW(tra);
-	THROW(acs_obj.Fetch(accSheetID, &acs_rec) > 0);
-	THROW_PP(*strip(STRNSCPY(rec.Name, pName)), PPERR_NAMENEEDED);
-	if(ar == 0) {
-		THROW(P_Tbl->SearchFreeNum(accSheetID, &ar));
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		THROW(acs_obj.Fetch(accSheetID, &acs_rec) > 0);
+		THROW_PP(*strip(STRNSCPY(rec.Name, pName)), PPERR_NAMENEEDED);
+		if(ar == 0) {
+			THROW(P_Tbl->SearchFreeNum(accSheetID, &ar));
+		}
+		else {
+			THROW(P_Tbl->SearchFreeNum(accSheetID, &ar) < 0);
+		}
+		rec.AccSheetID = accSheetID;
+		rec.Article = ar;
+		THROW(AddObjRecByID(P_Tbl, Obj, pID, &rec, 0));
+		DS.LogAction(PPACN_OBJADD, Obj, *pID, 0, 0);
+		THROW(tra.Commit());
 	}
-	else {
-		THROW(P_Tbl->SearchFreeNum(accSheetID, &ar) < 0);
-	}
-	rec.AccSheetID = accSheetID;
-	rec.Article = ar;
-	THROW(AddObjRecByID(P_Tbl, Obj, pID, &rec, 0));
-	DS.LogAction(PPACN_OBJADD, Obj, *pID, 0, 0);
-	THROW(tra.Commit());
 	CATCHZOK
 	return ok;
 }
@@ -1550,23 +1552,25 @@ int SLAPI PPObjArticle::CreateObjRef(PPID * pID, PPID accSheetID, PPID objID, lo
 	PPObjAccSheet acs_obj;
 	PPAccSheet acs_rec;
 	MEMSZERO(rec);
-	PPTransaction tra(use_ta);
-	THROW(tra);
-	THROW(acs_obj.Fetch(accSheetID, &acs_rec) > 0);
-	THROW(GetObjectName(acs_rec.Assoc, objID, rec.Name, sizeof(rec.Name)) > 0);
-	strip(rec.Name);
-	if(ar == 0) {
-		THROW(P_Tbl->SearchFreeNum(accSheetID, &ar));
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		THROW(acs_obj.Fetch(accSheetID, &acs_rec) > 0);
+		THROW(GetObjectName(acs_rec.Assoc, objID, rec.Name, sizeof(rec.Name)) > 0);
+		strip(rec.Name);
+		if(ar == 0) {
+			THROW(P_Tbl->SearchFreeNum(accSheetID, &ar));
+		}
+		else {
+			THROW(P_Tbl->SearchFreeNum(accSheetID, &ar) < 0);
+		}
+		rec.AccSheetID = accSheetID;
+		rec.ObjID   = objID;
+		rec.Article = ar;
+		THROW(AddObjRecByID(P_Tbl, Obj, pID, &rec, 0));
+		DS.LogAction(PPACN_OBJADD, Obj, *pID, 0, 0);
+		THROW(tra.Commit());
 	}
-	else {
-		THROW(P_Tbl->SearchFreeNum(accSheetID, &ar) < 0);
-	}
-	rec.AccSheetID = accSheetID;
-	rec.ObjID   = objID;
-	rec.Article = ar;
-	THROW(AddObjRecByID(P_Tbl, Obj, pID, &rec, 0));
-	DS.LogAction(PPACN_OBJADD, Obj, *pID, 0, 0);
-	THROW(tra.Commit());
 	CATCHZOK
 	return ok;
 }
@@ -1596,10 +1600,9 @@ int SLAPI PPObjArticle::_ProcessSearch(int r, PPID id)
 //
 int SLAPI PPObjArticle::ReplyObjectCreated(PPID objType, PPID objID)
 {
-	PPID   acs_id = 0;
 	PPAccSheet acs_rec;
 	PPObjAccSheet acs_obj;
-	while(acs_obj.EnumItems(&acs_id, &acs_rec) > 0) {
+	for(PPID acs_id = 0; acs_obj.EnumItems(&acs_id, &acs_rec) > 0;) {
 		if(acs_rec.Assoc == objType && acs_rec.Flags & ACSHF_AUTOCREATART) {
 			if(P_Tbl->SearchObjRef(acs_id, objID) < 0) {
 				PPID ar_id = 0;
@@ -2096,8 +2099,8 @@ int SLAPI PPObjArticle::Dirty(PPID id)
 	ArticleTbl::Rec rec;
 	if(Fetch(id, &rec) > 0 && rec.ObjID) {
 		PPObjAccSheet acc_sheet_obj;
-		PPAccSheet acc_sheet_rec;
-		if(acc_sheet_obj.Fetch(rec.AccSheetID, &acc_sheet_rec) > 0 && acc_sheet_rec.Assoc == PPOBJ_LOCATION) {
+		PPAccSheet acs_rec;
+		if(acc_sheet_obj.Fetch(rec.AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_LOCATION) {
 			PPObjLocation loc_obj;
 			loc_obj.Dirty(rec.ObjID);
 		}

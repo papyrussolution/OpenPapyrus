@@ -743,6 +743,7 @@ double SLAPI __CalcOrderQuantity(
 int SLAPI PPViewSStat::CreateTempTable(int use_ta)
 {
 	int    ok = 1;
+	const PPConfig & r_cfg = LConfig;
 	Predictor predictor;
 	GoodsIterator g_iter;
 	Goods2Tbl::Rec goods_rec;
@@ -803,7 +804,7 @@ int SLAPI PPViewSStat::CreateTempTable(int use_ta)
 				PPID   subst_id = subst_list.get(i);
 				id_list.clear();
 				THROW(Gsl.GetGoodsBySubstID(subst_id, &id_list));
-				if(id_list.getCount())
+				if(id_list.getCount()) {
 					if(CycleList.getCount() > 0) {
 						THROW(AddStatByCycles(subst_id, &id_list, 0, &bei, 0));
 					}
@@ -816,6 +817,7 @@ int SLAPI PPViewSStat::CreateTempTable(int use_ta)
 						if(PsT.CalcStat(id_list, objlf_loc_list, &Filt.Period, &pss) > 0)
 							THROW(AddStat(subst_id, ZERODATE, 0, &pss, &bei));
 					}
+				}
 				PPWaitPercent(cntr.Add(id_list.getCount()));
 			}
 		}
@@ -827,13 +829,13 @@ int SLAPI PPViewSStat::CreateTempTable(int use_ta)
 			// то прогноз строится на основе данных статистики продаж за выбранный период по простому среднему,
 			// иначе - по стандартной процедуре прогнозирования спроса (класс Predictor).
 			//
-			const int use_matrix = BIN(LConfig.Flags & CFGFLG_USEGOODSMATRIX);
+			const int use_matrix = BIN(r_cfg.Flags & CFGFLG_USEGOODSMATRIX);
 			const int minstock_as_minorder = BIN(PrCfg.Flags & PPPredictConfig::fMinStockAsMinOrder);
 			const int use_insur_stock = BIN(Filt.Flags & SStatFilt::fUseInsurStock);
 			GoodsRestViewItem item;
 			long   num_days = 0;
 			{
-				const LDATE dt = NZOR(Filt.Period.upp, LConfig.OperDate);
+				const LDATE dt = NZOR(Filt.Period.upp, r_cfg.OperDate);
 				for(long i = 1; i <= Filt.OrdTerm + Filt.DlvrTerm; i++)
 					if(predictor.IsWorkDay(&Filt.LocList, plusdate(dt, i)))
 						num_days++;
@@ -883,7 +885,7 @@ int SLAPI PPViewSStat::CreateTempTable(int use_ta)
 							//
 							min_stock_qtty = 0.0;
 						}
-						period.low = NZOR(Filt.RestDate, LConfig.OperDate);
+						period.low = NZOR(Filt.RestDate, r_cfg.OperDate);
 						period.upp = plusdate(period.low, add_days);
 						ep.Set(&Filt.LocList, item.GoodsID, period);
 						ep.LoadUpDate = Filt.Period.upp;
@@ -985,8 +987,7 @@ DBQuery * SLAPI PPViewSStat::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	}
 	else {
 		DBFieldList fld_list;
-		long   ff = (LConfig.Flags & CFGFLG_USEPACKAGE) ?
-			(QTTYF_COMPLPACK | QTTYF_FRACTION | NMBF_NOZERO) : (QTTYF_FRACTION | NMBF_NOZERO);
+		long   ff = (LConfig.Flags & CFGFLG_USEPACKAGE) ? (QTTYF_COMPLPACK | QTTYF_FRACTION | NMBF_NOZERO) : (QTTYF_FRACTION | NMBF_NOZERO);
 		if(Filt.Flags & SStatFilt::fSupplOrderForm)
 			brw_id = BROWSER_SSTAT_SORD;
 		else

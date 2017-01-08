@@ -1,5 +1,5 @@
 // D_CHARRY.CPP
-// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016
+// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -2676,9 +2676,8 @@ int SLAPI PPDS_CrrQuotKind::TransferField(long fldID, Tfd dir, uint * pIter, SSt
 				SString buf;
 				if(dir == tfdDataToBuf) {
 					PPOprKind opk_rec;
-					MEMSZERO(opk_rec);
 					if(OpKObj.Search(Data.OpID, &opk_rec) > 0)
-						buf.CopyFrom(opk_rec.Name);
+						buf = opk_rec.Name;
 				}
 				ok = TransferData(buf, dir, rBuf);
 				if(dir == tfdBufToData)
@@ -2689,10 +2688,9 @@ int SLAPI PPDS_CrrQuotKind::TransferField(long fldID, Tfd dir, uint * pIter, SSt
 			{
 				SString buf;
 				if(dir == tfdDataToBuf) {
-					PPAccSheet accs_rec;
-					MEMSZERO(accs_rec);
-					if(ACCSObj.Search(Data.AccSheetID, &accs_rec) > 0)
-						buf.CopyFrom(accs_rec.Name);
+					PPAccSheet acs_rec;
+					if(ACCSObj.Search(Data.AccSheetID, &acs_rec) > 0)
+						buf = acs_rec.Name;
 				}
 				ok = TransferData(buf, dir, rBuf);
 				if(dir == tfdBufToData)
@@ -3923,10 +3921,9 @@ int SLAPI PPDS_CrrArticle::CreateListItem(long fldID, uint * pIter, PPDeclStruc 
 	int    ok = -1;
 	long assoc = 0;
 	if(Data.AccSheetID) {
-		PPAccSheet accs_rec;
-		MEMSZERO(accs_rec);
-		AccSheetObj.Fetch(Data.AccSheetID, &accs_rec);
-		assoc = accs_rec.Assoc;
+		PPAccSheet acs_rec;
+		AccSheetObj.Fetch(Data.AccSheetID, &acs_rec);
+		assoc = acs_rec.Assoc;
 	}
 	if(fldID == DSF_CRRARTICLE_ACCSHEET) {
 		if(*pIter == 0 && Data.AccSheetID) {
@@ -3978,7 +3975,7 @@ int SLAPI PPDS_CrrAccSheet::InitData(Ido op, void * dataPtr, long addedParam)
 	}
 	else if(op == idoAccept) {
 		if(strlen(Data.Name) || strlen(Data.Symb)) {
-			PPID id = 0;
+			PPID   id = 0;
 			PPAccSheet rec;
 			if((*strip(Data.Symb) != 0 && Obj.SearchBySymb(Data.Symb, &id, &rec) > 0) ||
 				(*strip(Data.Name) != 0 && Obj.SearchByName(Data.Name, &id, &rec) > 0)

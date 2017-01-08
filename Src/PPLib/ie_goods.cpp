@@ -1,5 +1,5 @@
 // IE_GOODS.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Starodub 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -653,7 +653,7 @@ int GoodsImpExpDialog::setDTS(const PPGoodsImpExpParam * pData)
 	{
 		PPObjAccSheet acs_obj;
 		PPAccSheet acs_rec;
-		PPID   acs_id = (acs_obj.Fetch(Data.AccSheetID, &acs_rec) > 0) ? Data.AccSheetID : GetSupplAccSheet();
+		const PPID acs_id = (acs_obj.Fetch(Data.AccSheetID, &acs_rec) > 0) ? Data.AccSheetID : GetSupplAccSheet();
 		setCtrlString(CTL_IMPEXPGOODS_SUBCODE, Data.SubCode);
 		SetupPPObjCombo(this, CTLSEL_IMPEXPGOODS_ACS, PPOBJ_ACCSHEET, acs_id, 0, 0);
 		SetupArCombo(this, CTLSEL_IMPEXPGOODS_SUPPL, Data.SupplID, 0, acs_id, sacfDisableIfZeroSheet);

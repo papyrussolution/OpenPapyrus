@@ -1,5 +1,5 @@
 // OBJVATBK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017
 // @codepage windows-1251
 // Книги продаж и покупок
 //
@@ -2894,7 +2894,8 @@ int SLAPI PPViewVatBook::Export()
 						long   base_cur_code = 0;
 						VatBookViewItem item;
 						uint   line_no = 0;
-						if(LConfig.BaseCurID && cur_obj.Fetch(LConfig.BaseCurID, &cur_rec) > 0) {
+						const  PPID base_cur_id = LConfig.BaseCurID;
+						if(base_cur_id && cur_obj.Fetch(base_cur_id, &cur_rec) > 0) {
 							base_cur_code = cur_rec.Code;
 						}
 						SETIFZ(base_cur_code, 643); // По умолчанию Российский Рубль

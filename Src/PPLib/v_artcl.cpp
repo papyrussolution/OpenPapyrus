@@ -1,5 +1,5 @@
 // V_ARTCL.CPP
-// A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016
+// A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -291,7 +291,7 @@ int SLAPI PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 int SLAPI PPViewArticle::InitIteration()
 {
 	int    ok = 1;
-	PPAccSheet sheet_rec;
+	PPAccSheet acs_rec;
 	DBQ  * dbq = 0;
 	union {
 		ArticleTbl::Key0 k0;
@@ -299,7 +299,6 @@ int SLAPI PPViewArticle::InitIteration()
 		ArticleTbl::Key2 k2;
 		ArticleTbl::Key3 k3;
 	} k, temp_k;
-	MEMSZERO(sheet_rec);
 	MEMSZERO(k);
 	ZDELETE(P_IterQuery);
 	if(Filt.Order == PPViewArticle::ordByName)
@@ -313,8 +312,8 @@ int SLAPI PPViewArticle::InitIteration()
 	if(Filt.PersonID)
 		dbq = &(*dbq && ArObj.P_Tbl->ObjID == Filt.PersonID);
 	else {
-		THROW(SearchObject(PPOBJ_ACCSHEET, Filt.AccSheetID, &sheet_rec) > 0);
-		dbq = &(*dbq && ArObj.P_Tbl->AccSheetID == sheet_rec.ID);
+		THROW(SearchObject(PPOBJ_ACCSHEET, Filt.AccSheetID, &acs_rec) > 0);
+		dbq = &(*dbq && ArObj.P_Tbl->AccSheetID == acs_rec.ID);
 	}
 	P_IterQuery->where(*dbq);
 	if(Filt.PersonID)
@@ -322,9 +321,9 @@ int SLAPI PPViewArticle::InitIteration()
 	else if(Filt.Order == PPViewArticle::ordByDefault)
 		k.k0.ID = 0;
 	else if(Filt.Order == PPViewArticle::ordByArticle)
-		k.k1.AccSheetID = sheet_rec.ID;
+		k.k1.AccSheetID = acs_rec.ID;
 	else
-		k.k2.AccSheetID = sheet_rec.ID;
+		k.k2.AccSheetID = acs_rec.ID;
 	temp_k = k;
 	Counter.Init(P_IterQuery->countIterations(0, &temp_k, spGe));
 	P_IterQuery->initIteration(0, &k, spGe);
@@ -474,7 +473,7 @@ int SLAPI PPViewArticle::RecoverLinkObjects()
 	int    ok = -1;
 	if(Filt.AccSheetID) {
 		PPObjAccSheet acs_obj;
-		PPAccSheet2 acs_rec;
+		PPAccSheet acs_rec;
 		if(acs_obj.Search(Filt.AccSheetID, &acs_rec) > 0) {
 			if(acs_rec.Assoc == PPOBJ_LOCATION) {
 				PPObjLocation loc_obj;
@@ -679,8 +678,7 @@ DBQuery * SLAPI PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	if(ArObj.P_Tbl) {
 		DBE  * dbe_stop = 0;
 		DBQ  * dbq = 0;
-		PPAccSheet sheet_rec;
-		MEMSZERO(sheet_rec);
+		PPAccSheet acs_rec;
 		THROW(ArObj.CheckRights(PPR_READ));
 		THROW(CheckTblPtr(a = new ArticleTbl(ArObj.P_Tbl->fileName)));
 		dbe_stop = & flagtoa(a->Flags, ARTRF_STOPBILL, stop_subst.Get(PPTXT_AR_STOP));
@@ -697,7 +695,7 @@ DBQuery * SLAPI PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 			dbq = &(rf->ObjType == PPOBJ_ACCSHEET && rf->ObjID == a->AccSheetID && a->ObjID == Filt.PersonID);
 		}
 		else {
-			THROW(SearchObject(PPOBJ_ACCSHEET, Filt.AccSheetID, &sheet_rec) > 0);
+			THROW(SearchObject(PPOBJ_ACCSHEET, Filt.AccSheetID, &acs_rec) > 0);
 			p_q = & select(
 				a->ID,       // #00
 				a->Article,  // #01
@@ -706,7 +704,7 @@ DBQuery * SLAPI PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 				*dbe_stop,   // #04
 				a->ID,       // #05 @stub
 				0L).from(a, 0L);
-			dbq = &(a->AccSheetID == sheet_rec.ID);
+			dbq = &(a->AccSheetID == acs_rec.ID);
 		}
 		if(P_TempTbl) {
 			SString fld_name;

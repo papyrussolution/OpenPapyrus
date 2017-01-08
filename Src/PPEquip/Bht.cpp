@@ -1,5 +1,5 @@
 // BHT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -4096,6 +4096,7 @@ int SLAPI PPObjBHT::AcceptExpendBillsPalm(const char * pHName, const char * pLNa
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
+	const PPConfig & r_cfg = LConfig;
 	PPID   op_id = 0;
 	DbfTable ebill_tbl(pHName);
 	DbfTable line_tbl(pLName);
@@ -4132,19 +4133,19 @@ int SLAPI PPObjBHT::AcceptExpendBillsPalm(const char * pHName, const char * pLNa
 				eb_rec.get(fldn_inlocid, in_loc_id);
 				eb_rec.get(fldn_outlocid, out_loc_id);
 				eb_rec.get(fldn_dt, dt);
-				SETIFZ(dt, LConfig.OperDate);
+				SETIFZ(dt, r_cfg.OperDate);
 				if(in_loc_id && out_loc_id) {
 					PPOprKind op_rec;
 					op_id = pBhtRec->IntrExpndOpID;
 					THROW_PP(GetOpData(op_id, &op_rec) > 0, PPERR_INTREXPNDNOTDEF);
 					THROW_PP(oneof2(op_rec.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND), PPERR_INTREXPNDNOTDEF);
-					THROW_PP(op_rec.AccSheetID == LConfig.LocSheet, PPERR_INTREXPNDNOTDEF);
+					THROW_PP(op_rec.AccSheetID == r_cfg.LocAccSheetID, PPERR_INTREXPNDNOTDEF);
 				}
 				else {
 					op_id = pBhtRec->ExpendOpID;
 					THROW_PP(op_id && oneof2(GetOpType(op_id), PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND), PPERR_INVEXPOP);
 				}
-				SETIFZ(in_loc_id, LConfig.Location);
+				SETIFZ(in_loc_id, r_cfg.Location);
 				THROW(b_pack.CreateBlank(op_id, 0, in_loc_id, 0));
 				b_pack.Rec.LocID = in_loc_id;
 				b_pack.Rec.Dt    = dt;

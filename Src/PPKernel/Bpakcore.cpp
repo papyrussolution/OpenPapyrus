@@ -1,5 +1,5 @@
 // BPAKCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // @Kernel
 //
@@ -1811,8 +1811,8 @@ int SLAPI PPBillPacket::CreateBlankBySample(PPID sampleBillID, int use_ta)
 int SLAPI PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int dontInitCode, int use_ta /* = 1 */)
 {
 	int    ok = 1, r;
+	const PPConfig & r_cfg = LConfig;
 	PPOprKind op_rec;
-	MEMSZERO(op_rec);
 	destroy();
 	if(opID) {
 		PPID   op_counter_id = 0;
@@ -1841,7 +1841,7 @@ int SLAPI PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int
 		}
 		if(op_counter_id) {
 			PPObjOpCounter opc_obj;
-			THROW(opc_obj.GetCode(op_counter_id, &Counter, Rec.Code, sizeof(Rec.Code), NZOR(locID, LConfig.Location), use_ta));
+			THROW(opc_obj.GetCode(op_counter_id, &Counter, Rec.Code, sizeof(Rec.Code), NZOR(locID, r_cfg.Location), use_ta));
 		}
 	}
 	else // Теневой документ
@@ -1852,14 +1852,14 @@ int SLAPI PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int
 	ErrLine  = 0;
 	TiErrList.freeAll();
 	Rec.OpID = opID;
-	Rec.Dt   = LConfig.OperDate;
-	if(LConfig.Cash && oneof2(opID, GetCashOp(), GetCashRetOp())) {
-		Rec.UserID = LConfig.Cash;
+	Rec.Dt   = r_cfg.OperDate;
+	if(r_cfg.Cash && oneof2(opID, GetCashOp(), GetCashRetOp())) {
+		Rec.UserID = r_cfg.Cash;
 		Rec.Flags |= (BILLF_CASH | BILLF_NOATURN);
 	}
 	else
-		Rec.UserID = LConfig.User;
-	Rec.LocID = NZOR(locID, LConfig.Location); // @v8.8.8 @fix LConfig.Location-->NZOR(locID, LConfig.Location)
+		Rec.UserID = r_cfg.User;
+	Rec.LocID = NZOR(locID, r_cfg.Location); // @v8.8.8 @fix r_cfg.Location-->NZOR(locID, r_cfg.Location)
 	Rec.CurID = 0L;
 	Rec.LinkBillID = linkBillID;
 	if(op_rec.Flags & OPKF_NEEDPAYMENT)

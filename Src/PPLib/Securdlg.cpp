@@ -1,5 +1,5 @@
 // SECURDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2011, 2012, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2011, 2012, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -11,14 +11,15 @@ int SLAPI UpdatePassword()
 	char   password[64];
 	PPSecurPacket spack;
 	PPAccessRestriction accsr;
-	THROW(PPRef->LoadSecur(PPOBJ_USR, LConfig.User, &spack));
+	Reference * p_ref = PPRef;
+	THROW(p_ref->LoadSecur(PPOBJ_USR, LConfig.User, &spack));
 	if(spack.Rights.IsEmpty())
 		ObjRts.GetAccessRestriction(accsr);
 	else
 		spack.Rights.GetAccessRestriction(accsr);
 	if(PasswordDialog(0, password, sizeof(password), accsr.PwMinLen) > 0) {
 		memcpy(spack.Secur.Password, password, sizeof(spack.Secur.Password));
-		THROW(PPRef->EditSecur(PPOBJ_USR, LConfig.User, &spack, 0));
+		THROW(p_ref->EditSecur(PPOBJ_USR, LConfig.User, &spack, 0));
 		PPMessage(mfInfo|mfOK, PPINF_PASSWORDUPDATED, 0);
 	}
 	else
@@ -383,7 +384,7 @@ int CfgOptionsDialog::setDTS(const PPConfig * pCfg)
 		setCtrlData(CTL_CFGOPTIONS_ACCESS, &Cfg.AccessLevel);
 		setCtrlData(CTL_CFGOPTIONS_MENU,   &Cfg.Menu);
 		SetupPPObjCombo(this, CTLSEL_CONFIG_MAINORG, PPOBJ_PERSON, Cfg.MainOrg, 0, (void *)PPPRK_MAIN);
-		SetupPPObjCombo(this, CTLSEL_CFGOPTIONS_SHEET, PPOBJ_ACCSHEET, Cfg.LocSheet, 0);
+		SetupPPObjCombo(this, CTLSEL_CFGOPTIONS_SHEET, PPOBJ_ACCSHEET, Cfg.LocAccSheetID, 0);
 		SetupPPObjCombo(this, CTLSEL_CFGOPTIONS_LOC, PPOBJ_LOCATION, Cfg.Location, 0);
 		SetupPPObjCombo(this, CTLSEL_CFGOPTIONS_DBDIV, PPOBJ_DBDIV, Cfg.DBDiv, 0);
 		if(Id == DLG_CFGOPTIONS) {
@@ -433,7 +434,7 @@ int CfgOptionsDialog::getDTS(PPConfig * pCfg)
 		getCtrlData(CTL_CFGOPTIONS_ACCESS,   &Cfg.AccessLevel);
 		getCtrlData(CTL_CFGOPTIONS_MENU,     &Cfg.Menu);
 		getCtrlData(CTLSEL_CONFIG_MAINORG,   &Cfg.MainOrg);
-		getCtrlData(CTLSEL_CFGOPTIONS_SHEET, &Cfg.LocSheet);
+		getCtrlData(CTLSEL_CFGOPTIONS_SHEET, &Cfg.LocAccSheetID);
 		getCtrlData(CTLSEL_CFGOPTIONS_LOC,   &Cfg.Location);
 		getCtrlData(CTLSEL_CFGOPTIONS_DBDIV, &Cfg.DBDiv);
 		if(Id == DLG_CFGOPTIONS) {

@@ -857,7 +857,7 @@ SLAPI PPObjTag::~PPObjTag()
 {
 }
 
-int SLAPI PPObjTag::MakeReserved(long extra)
+int SLAPI PPObjTag::MakeReserved(long flags)
 {
 	/*
 \begin{description}

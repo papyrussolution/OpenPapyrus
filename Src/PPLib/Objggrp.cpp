@@ -112,6 +112,26 @@ int SLAPI PPObjGoodsGroup::CalcTotal(GoodsGroupTotal * pTotal)
 	return 1;
 }
 
+//virtual
+int SLAPI PPObjGoodsGroup::MakeReserved(long flags)
+{
+    int    ok = -1;
+    if(flags & mrfInitializeDb) {
+		long    _count = 0;
+		{
+			StrAssocArray * p_list = PPObjGoodsGroup::MakeStrAssocList(0);
+			_count = p_list ? p_list->getCount() : 0;
+		}
+        if(_count == 0) {
+			PPID   id = 0;
+            THROW(AddSimple(&id, gpkndOrdinaryGroup, 0, "default", 0, 0, 1));
+			ok = 1;
+        }
+    }
+    CATCHZOK
+    return ok;
+}
+
 //int SLAPI PPObjGoodsGroup::Remove(PPID id, long extraData, uint flags /* = user_request | use_transaction */)
 //virtual
 int  SLAPI PPObjGoodsGroup::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
@@ -598,7 +618,7 @@ StrAssocArray * PPObjGoodsGroup::MakeStrAssocList(void * extraPtr)
 				if(IsAssetType(P_Tbl->data.GoodsTypeID))
 					continue;
 			}
-			p_list->AddFast(P_Tbl->data.ID, P_Tbl->data.ParentID, P_Tbl->data.Name); 
+			p_list->AddFast(P_Tbl->data.ID, P_Tbl->data.ParentID, P_Tbl->data.Name);
 		}
 	}
 	p_list->SortByText(); // @v7.4.2

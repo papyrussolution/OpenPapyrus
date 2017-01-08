@@ -1,5 +1,5 @@
 // OBJBIZSC.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1184,9 +1184,9 @@ int SLAPI CreateBizScGlblUserAcct()
 		buf.Cat(sguid).CR();
 		buf.Cat(LConfig.User).CR();
 
-		IdeaEncrypt(0, (void*)(const char*)buf, buf.Len());
+		IdeaEncrypt(0, (void*)buf.cptr(), buf.Len());
 		out_buf.EncodeMime64(buf, buf.Len());
-		crc = crc32.Calc(crc, (const uint8*)(const char*)out_buf, out_buf.Len());
+		crc = crc32.Calc(crc, out_buf.ucptr(), out_buf.Len());
 		file.Write(&crc, sizeof(crc));
 		file.WriteLine(out_buf);
 		file.Close();

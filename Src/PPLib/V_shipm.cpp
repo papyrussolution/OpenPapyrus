@@ -74,8 +74,9 @@ int SLAPI PPViewShipmAnalyze::EditBaseFilt(PPBaseFilt * pFilt)
 			PPIDArray types;
 			PPOprKind opk;
 			Data = *pFilt;
-			SETIFZ(Data.Period.low, LConfig.InitDate);
-			SETIFZ(Data.Period.upp, LConfig.OperDate);
+			const PPConfig & r_cfg = LConfig;
+			SETIFZ(Data.Period.low, r_cfg.InitDate);
+			SETIFZ(Data.Period.upp, r_cfg.OperDate);
 			SetPeriodInput(this, CTL_SHANLZFLT_PERIOD, &Data.Period);
 			types.addzlist(PPOPT_GOODSORDER, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSACK, 0);
 			SetupOprKindCombo(this, CTLSEL_SHANLZFLT_OPRKIND, Data.OpID, 0, &types, 0);

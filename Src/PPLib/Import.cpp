@@ -1,5 +1,5 @@
 // IMPORT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 // Функции импорта справочников из DBF-файла
@@ -1602,9 +1602,9 @@ int SLAPI PPObjPerson::Import(int specKind, int use_ta)
 		if(reg_type_id == 0) {
 			if(specKind == PPPRK_SUPPL) {
 				PPID acc_sheet_id = GetSupplAccSheet();
-				PPAccSheet acc_sheet_rec;
-				if(SearchObject(PPOBJ_ACCSHEET, acc_sheet_id, &acc_sheet_rec) > 0)
-					reg_type_id = acc_sheet_rec.CodeRegTypeID;
+				PPAccSheet acs_rec;
+				if(SearchObject(PPOBJ_ACCSHEET, acc_sheet_id, &acs_rec) > 0)
+					reg_type_id = acs_rec.CodeRegTypeID;
 			}
 		}
 		do {

@@ -1,5 +1,5 @@
 // OBJOPRK.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -814,13 +814,18 @@ int SLAPI PPObjOprKind::GetProfitableOpList(PPID accSheetID, PPIDArray * pList)
 	return ok;
 }
 
+SLAPI PPObjOprKind::ReservedOpCreateBlock::ReservedOpCreateBlock()
+{
+	THISZERO();
+}
+
 int SLAPI PPObjOprKind::Helper_GetReservedOp(PPID * pID, const ReservedOpCreateBlock & rBlk, int use_ta)
 {
-	assert(rBlk.OpID);
+	// @v9.4.8 assert(rBlk.OpID);
 	int    ok = 1;
 	PPID   op_id = 0;
 	PPOprKind op_rec;
-	if(Search(rBlk.OpID, &op_rec) > 0) {
+	if(rBlk.OpID && Search(rBlk.OpID, &op_rec) > 0) {
 		op_id = op_rec.ID;
 	}
 	else {
@@ -836,6 +841,7 @@ int SLAPI PPObjOprKind::Helper_GetReservedOp(PPID * pID, const ReservedOpCreateB
         THROW(temp_buf.NotEmptyS());
         STRNSCPY(op_pack.Rec.Name, temp_buf);
         STRNSCPY(op_pack.Rec.Symb, rBlk.P_Symb);
+        op_pack.Rec.AccSheetID = rBlk.AccSheetID; // @v9.4.8
         op_pack.Rec.OpTypeID = rBlk.OpTypeID;
 		op_pack.Rec.Flags |= rBlk.Flags;
 		op_pack.OpCntrPack.Init(0);
@@ -894,6 +900,159 @@ int SLAPI PPObjOprKind::GetEdiWrOffShopOp(PPID * pID, int use_ta)
 	blk.P_Symb = "EDISHOPWROFF";
 	blk.P_CodeTempl = "EDISWO%05";
 	return Helper_GetReservedOp(pID, blk, use_ta);
+}
+
+//virtual
+int SLAPI PPObjOprKind::MakeReserved(long flags)
+{
+    int    ok = -1;
+    if(flags & mrfInitializeDb) {
+		/*
+// PPTXT_OPK_COMM_GENERICACCTURN  "Общая бухгалтерская проводка"
+// PPTXT_OPK_COMM_RECEIPT         "Приход товара от поставщика"
+// PPTXT_OPK_COMM_SALE            "Продажа покупателю"
+// PPTXT_OPK_COMM_RETAIL          "Розничная продажа"
+// PPTXT_OPK_COMM_INTREXPEND      "Внутренняя передача"
+// PPTXT_OPK_COMM_INTRRECEIPT     "Межскладской приход"
+PPTXT_OPK_COMM_INVENTORY       "Инвентаризация"
+// PPTXT_OPK_COMM_ORDER           "Заказ от покупателя"
+// PPTXT_OPK_COMM_PURCHASE        "Закупка"
+		*/
+		long    _count = 0;
+		PPOprKind op_rec;
+		{
+			for(SEnum en = ref->Enum(Obj, 0); en.Next(&op_rec) > 0;) {
+				_count++;
+			}
+		}
+        if(_count == 0) {
+			PPObjAccSheet acs_obj;
+			PPAccSheet acs_rec;
+			PPIDArray acs_id_list;
+			{
+				ReservedOpCreateBlock blk;
+				PPID   op_id = blk.OpID = PPOPK_GENERICACCTURN;
+				blk.OpTypeID = PPOPT_ACCTURN;
+				blk.NameTxtId = PPTXT_OPK_COMM_GENERICACCTURN;
+				blk.Flags = 0;
+				blk.P_Symb = "OP-GENATURN";
+				blk.P_CodeTempl = "AT%05";
+				THROW(Helper_GetReservedOp(&op_id, blk, 1));
+			}
+			{
+				ReservedOpCreateBlock blk;
+				PPID   op_id = blk.OpID = PPOPK_RETAIL;
+				blk.OpTypeID = PPOPT_GOODSEXPEND;
+				blk.NameTxtId = PPTXT_OPK_COMM_RETAIL;
+				blk.Flags = OPKF_PROFITABLE|OPKF_GEXPEND|OPKF_SELLING;
+				blk.P_Symb = "OP-RETAIL";
+				blk.P_CodeTempl = "RTL%05";
+				THROW(Helper_GetReservedOp(&op_id, blk, 1));
+			}
+			{
+				acs_id_list.clear();
+				{
+					for(PPID acs_id = 0; acs_obj.EnumItems(&acs_id, &acs_rec) > 0;) {
+						if(acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == PPPRK_SUPPL)
+							acs_id_list.add(acs_rec.ID);
+					}
+				}
+				if(acs_id_list.getCount()) {
+					{
+						ReservedOpCreateBlock blk;
+						PPID   op_id = blk.OpID = PPOPK_RECEIPT;
+						blk.OpTypeID = PPOPT_GOODSRECEIPT;
+						blk.NameTxtId = PPTXT_OPK_COMM_RECEIPT;
+						blk.AccSheetID = acs_id_list.get(0);
+						blk.Flags = OPKF_GRECEIPT|OPKF_BUYING|OPKF_NEEDPAYMENT;
+						blk.P_Symb = "OP-RCPT";
+						blk.P_CodeTempl = "RC%05";
+						THROW(Helper_GetReservedOp(&op_id, blk, 1));
+					}
+					{
+						ReservedOpCreateBlock blk;
+						PPID   op_id = blk.OpID = 0;
+						blk.OpTypeID = PPOPT_DRAFTRECEIPT;
+						blk.NameTxtId = PPTXT_OPK_COMM_PURCHASE;
+						blk.AccSheetID = acs_id_list.get(0);
+						blk.Flags = OPKF_BUYING;
+						blk.P_Symb = "OP-PURCHASE";
+						blk.P_CodeTempl = "PCH%05";
+						THROW(Helper_GetReservedOp(&op_id, blk, 1));
+					}
+				}
+			}
+			{
+				acs_id_list.clear();
+				{
+					for(PPID acs_id = 0; acs_obj.EnumItems(&acs_id, &acs_rec) > 0;) {
+						if(acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == PPPRK_CLIENT)
+							acs_id_list.add(acs_rec.ID);
+					}
+				}
+				if(acs_id_list.getCount()) {
+					{
+						ReservedOpCreateBlock blk;
+						PPID   op_id = blk.OpID = PPOPK_SELL;
+						blk.OpTypeID = PPOPT_GOODSEXPEND;
+						blk.NameTxtId = PPTXT_OPK_COMM_SALE;
+						blk.AccSheetID = acs_id_list.get(0);
+						blk.Flags = OPKF_GEXPEND|OPKF_SELLING|OPKF_NEEDPAYMENT|OPKF_ONORDER|OPKF_FREIGHT;
+						blk.P_Symb = "OP-SALE";
+						blk.P_CodeTempl = "SL%05";
+						THROW(Helper_GetReservedOp(&op_id, blk, 1));
+					}
+					{
+						ReservedOpCreateBlock blk;
+						PPID   op_id = blk.OpID = 0;
+						blk.OpTypeID = PPOPT_GOODSORDER;
+						blk.NameTxtId = PPTXT_OPK_COMM_ORDER;
+						blk.AccSheetID = acs_id_list.get(0);
+						blk.Flags = OPKF_SELLING;
+						blk.P_Symb = "OP-ORDER";
+						blk.P_CodeTempl = "ORD%05";
+						THROW(Helper_GetReservedOp(&op_id, blk, 1));
+					}
+				}
+			}
+			{
+				acs_id_list.clear();
+				{
+					for(PPID acs_id = 0; acs_obj.EnumItems(&acs_id, &acs_rec) > 0;) {
+						if(acs_rec.Assoc == PPOBJ_LOCATION)
+							acs_id_list.add(acs_rec.ID);
+					}
+				}
+				if(acs_id_list.getCount()) {
+					{
+						ReservedOpCreateBlock blk;
+						PPID   op_id = blk.OpID = PPOPK_INTREXPEND;
+						blk.OpTypeID = PPOPT_GOODSEXPEND;
+						blk.NameTxtId = PPTXT_OPK_COMM_INTREXPEND;
+						blk.AccSheetID = acs_id_list.get(0);
+						blk.Flags = OPKF_GEXPEND;
+						blk.P_Symb = "OP-INTREXPEND";
+						blk.P_CodeTempl = "IE%05";
+						THROW(Helper_GetReservedOp(&op_id, blk, 1));
+					}
+					{
+						ReservedOpCreateBlock blk;
+						PPID   op_id = blk.OpID = PPOPK_INTRRECEIPT;
+						blk.OpTypeID = PPOPT_GOODSRECEIPT;
+						blk.NameTxtId = PPTXT_OPK_COMM_INTRRECEIPT;
+						blk.AccSheetID = acs_id_list.get(0);
+						blk.Flags = OPKF_GRECEIPT;
+						blk.P_Symb = "OP-INTRRCPT";
+						blk.P_CodeTempl = "IR%05";
+						THROW(Helper_GetReservedOp(&op_id, blk, 1));
+					}
+				}
+			}
+			ok = 1;
+        }
+    }
+    CATCHZOK
+    return ok;
 }
 
 // virtual
@@ -3126,7 +3285,7 @@ int FASTCALL IsIntrOp(PPID opID)
 	else if(opID == PPOPK_INTRRECEIPT)
 		r = INTRRCPT;
 	else if(opID && GetOpData(opID, &opk))
-		if(opk.AccSheetID == LConfig.LocSheet)
+		if(opk.AccSheetID == LConfig.LocAccSheetID)
 			if(opk.OpTypeID == PPOPT_GOODSEXPEND)
 				r = INTREXPND;
 			else if(opk.OpTypeID == PPOPT_GOODSRECEIPT)

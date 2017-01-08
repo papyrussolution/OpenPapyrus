@@ -1,5 +1,5 @@
 // V_TODO.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1177,10 +1177,11 @@ int PrjTaskFiltDialog::getDTS(PrjTaskFilt * pData)
 	getCtrlData(CTLSEL_TODOFILT_ORDER,    &Data.Order);
 	getCtrlData(CTLSEL_TODOFILT_CROSSTAB, &Data.TabType);
 	if(Data.StartPeriod.IsZero() && Data.TabType != PrjTaskFilt::crstNone) {
-		if(Data.TabType == PrjTaskFilt::crstDateHour || Data.TabType == PrjTaskFilt::crstEmployerHour)
-			Data.StartPeriod.low = Data.StartPeriod.upp = LConfig.OperDate;
+		const LDATE oper_date = LConfig.OperDate;
+		if(oneof2(Data.TabType, PrjTaskFilt::crstDateHour, PrjTaskFilt::crstEmployerHour))
+			Data.StartPeriod.low = Data.StartPeriod.upp = oper_date;
 		else {
-			LDATE odt = LConfig.OperDate;
+			LDATE odt = oper_date;
 			encodedate(1, odt.month(), odt.year(), &Data.StartPeriod.low);
 			encodedate(dayspermonth(odt.month(), odt.year()), odt.month(), odt.year(), &Data.StartPeriod.upp);
 		}

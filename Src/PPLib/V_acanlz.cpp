@@ -1,5 +1,5 @@
 // V_ACANLZ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1106,20 +1106,20 @@ int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 		//
 		int    is_person_rel = 0;
 		ArticleTbl::Rec ar_rec;
-		PPAccSheet acc_sheet_rec;
+		PPAccSheet acs_rec;
 		TSArray <AcctRelTbl::Rec> acr_list;
 		THROW(P_TmpATTbl = CreateTempATFile());
-		THROW(AccObj.Fetch(Filt.AccID, &acc_rec) > 0); // @v7.1.2 Search-->Fetch
+		THROW(AccObj.Fetch(Filt.AccID, &acc_rec) > 0);
 		THROW_PP(acc_rec.AccSheetID, PPERR_ACCHASNTSHEET);
-		THROW(SearchObject(PPOBJ_ACCSHEET, acc_rec.AccSheetID, &acc_sheet_rec) > 0);
-		if(acc_sheet_rec.Assoc == PPOBJ_PERSON)
+		THROW(SearchObject(PPOBJ_ACCSHEET, acc_rec.AccSheetID, &acs_rec) > 0);
+		if(acs_rec.Assoc == PPOBJ_PERSON)
 			is_person_rel = 1;
 		{
 			PPViewAccAnlz temp_view;
 			BExtInsert bei(P_TmpATTbl);
 			if(IsGenAcc) {
 				if(Filt.SingleArID) {
-					if(ArObj.Fetch(Filt.SingleArID, &ar_rec) > 0) { // @v7.1.2 Search-->Fetch
+					if(ArObj.Fetch(Filt.SingleArID, &ar_rec) > 0) {
 						MEMSZERO(acr_rec);
 						acr_rec.ID = Filt.SingleArID;
 						acr_rec.Ac = acc_rec.A.Ac;
@@ -2266,12 +2266,12 @@ int PPALDD_Article::InitData(PPFilt & rFilt, long rsrv)
 			H.Stop    = BIN(rec.Flags & ARTRF_STOPBILL);
 			STRNSCPY(H.Name, rec.Name);
 			PPObjAccSheet acc_sheet_obj;
-			PPAccSheet acc_sheet_rec;
-			if(acc_sheet_obj.Fetch(rec.AccSheetID, &acc_sheet_rec) > 0) {
-				H.LinkObjType = acc_sheet_rec.Assoc;
-				if(acc_sheet_rec.Assoc == PPOBJ_PERSON)
+			PPAccSheet acs_rec;
+			if(acc_sheet_obj.Fetch(rec.AccSheetID, &acs_rec) > 0) {
+				H.LinkObjType = acs_rec.Assoc;
+				if(acs_rec.Assoc == PPOBJ_PERSON)
 					H.PersonID = rec.ObjID;
-				else if(acc_sheet_rec.Assoc == PPOBJ_LOCATION)
+				else if(acs_rec.Assoc == PPOBJ_LOCATION)
 					H.WhID = rec.ObjID;
 			}
 			ok = DlRtm::InitData(rFilt, rsrv);

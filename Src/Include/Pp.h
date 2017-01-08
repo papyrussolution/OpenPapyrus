@@ -1,5 +1,5 @@
 // PP.H
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 // Спасибо за проделанную работу:
@@ -444,7 +444,7 @@ public:
 	SVerT  MinVer;         // Минимальная версия базы данных, с которой может работать данная версия системы
 	int32  AssemblyN;      // Номер сборки
 	// @v9.4.8 int32  Demo;           // Если !0, то демо-версия
-	int32  Flags;          // @v9.4.8  
+	int32  Flags;          // @v9.4.8
     SString ProductName;   // Наименование продукта
     SString Team;          // Команда разработчиков
 	SString Secret;        // Секретный текст
@@ -2704,7 +2704,7 @@ extern "C" typedef PPBaseFilt * (*FN_PPFILT_FACTORY)();
 	// раздельно назначать ее разным пользователям (группам).
 #define CFGFLG_SEC_DSBLNSYSDATE        0x08000000L // Запрет на вход с операционной датой, отличной от системной
 #define CFGFLG_DONTPROCESSDATAONJOBSRV 0x10000000L // Не обрабатывать данные на Job сервере
-#define CFGFLG_FEFO                    0x20000000L // @v8.6.6 Модификация метода подбора партий по наиболее билзкому сроку истечения годности лота
+#define CFGFLG_FEFO                    0x20000000L // @v8.6.6 Модификация метода подбора партий по наиболее близкому сроку истечения годности лота
 
 #define CFGST_INITIATE           0x00000001L // Структура инициализирована
 #define CFGST_INHERITED          0x00000002L // Структура унаследована от предыдущего уровня //
@@ -2735,6 +2735,8 @@ extern "C" typedef PPBaseFilt * (*FN_PPFILT_FACTORY)();
 #define DEFCFG_CURRENCY          0
 
 struct PPConfig {          // @persistent @store(PropertyTbl) size=92
+	SLAPI  PPConfig();
+
 	long   Tag;            //  4  0 || PPOBJ_CONFIG || PPOBJ_USRGRP || PPOBJ_USR
 	long   ObjID;          //  8  Идентификатор объекта к которому относится конфигурация //
 	long   PropID;         // 12  Const=PPPROP_CFG
@@ -2746,7 +2748,7 @@ struct PPConfig {          // @persistent @store(PropertyTbl) size=92
 	short  RealizeOrder;   // 32  Порядок использования лотов при расходе товара
 	short  Menu;           // 34  Номер меню, используемого этой конфигурацией
 	PPID   User;           // 38
-	PPID   LocSheet;       // 42  Таблица аналитических статей, содержащая активную позицию
+	PPID   LocAccSheetID;  // 42  Таблица аналитических статей, содержащая активную позицию
 	PPID   Location;       // 46  Активная позиция //
 	long   Flags;          // 50  Флаги CFGFLG_XXX
 	long   State;          // 54  Текущее состояние (Только для текущего сеанса) CFGST_XXX
@@ -6467,6 +6469,7 @@ public:
 		fDenyLogQueue = 0x0002  // Не инициализировать очередь журнальных сообщений (вывод прямо в файл)
 	};
 	static const char * P_JobLogin; // "$SYSSERVICE$"
+	static const char * P_EmptyBaseCreationLogin; // "$EMPTYBASECREATION$"
 
 	SLAPI  PPSession();
 	SLAPI ~PPSession();
@@ -7529,7 +7532,13 @@ public:
 	//   то вызывается PPObject::ReplaceObj()
 	//
 	static int SLAPI ReplaceObjInteractive(PPID objType, PPID srcID = 0);
-	static int SLAPI CreateReservedObjects();
+	//
+	// Descr: Флаги функций MakeReserved и CreateReservedObjects
+	//
+	enum {
+		mrfInitializeDb = 0x0001 // Функция MakeReserved должна создать объекты для пустой базы данных.
+	};
+	static int SLAPI CreateReservedObjects(long flags);
 	static SString & SLAPI GetAcceptMsg(PPID objType, PPID objID, int upd, SString & rBuf);
 	static int SLAPI Helper_PutConfig(PPID cfgPropID, PPID cfgObjType, int isNew, void * pData, size_t sz, int use_ta);
 	//
@@ -7707,8 +7716,9 @@ public:
 	virtual int    SLAPI EditRights(uint bufSize, ObjRights * buf, EmbedDialog * pDlg = 0);
 	//
 	// Descr: создает зарезервированные записи.
+	// ARG(flags IN): 0 или один из флагов PPObject::mrfXXX
 	//
-	virtual int    SLAPI MakeReserved(long extra);
+	virtual int    SLAPI MakeReserved(long flags);
 	virtual int    SLAPI HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
 	virtual void   SLAPI Destroy(PPObjPack * p);
 	//
@@ -14659,7 +14669,7 @@ public:
 	virtual int  SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
 	virtual int  SLAPI Search(PPID id, void * pRec = 0);
 	virtual StrAssocArray * SLAPI MakeStrAssocList(void * extraPtr);
-	virtual int  SLAPI MakeReserved(long);
+	virtual int  SLAPI MakeReserved(long flags);
 	int    SLAPI EnumItems(PPID * pID, void * pRec = 0);
 	//
 	// Descr: Стандартный енумератор.
@@ -14840,7 +14850,7 @@ protected:
 	virtual int  SLAPI Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual int  SLAPI HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
-	virtual int  SLAPI MakeReserved(long extra);
+	virtual int  SLAPI MakeReserved(long flags);
 private:
 	ObjTagFilt & SLAPI InitFilt(void * extraPtr, ObjTagFilt & rFilt) const;
 	int    SLAPI Helper_CreateEnumObject(PPObjTagPacket & rPack);
@@ -15401,7 +15411,7 @@ public:
 	int    SLAPI PutPacket(PPID *pOpCntrID, const PPOpCounterPacket *, int use_ta);
 	int    SLAPI GetPacket(PPID opCntrID, PPOpCounterPacket *); // AHTOXA
 private:
-	virtual int SLAPI MakeReserved(long extra);
+	virtual int SLAPI MakeReserved(long flags);
 	int    SLAPI Helper_GetCounter(PPID id, PPID locID, long * pCounter, SString * pCodeBuf, int use_ta);
 };
 //
@@ -15999,15 +16009,18 @@ private:
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
 	virtual void SLAPI Destroy(PPObjPack*);
+	virtual int  SLAPI MakeReserved(long flags);
 	int    SLAPI SetReckonExData(PPID, PPReckonOpEx *, int use_ta);
 	int    SLAPI SetPoolExData(PPID, PPBillPoolOpEx *, int use_ta);
 	int    SLAPI SetDraftExData(PPID id, const PPDraftOpEx * pData);
 	int    SLAPI SerializePacket(int dir, PPOprKindPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 	struct ReservedOpCreateBlock {
+		SLAPI  ReservedOpCreateBlock();
 		PPID   OpID;
 		PPID   OpTypeID;
 		uint   NameTxtId;
+		PPID   AccSheetID; // @v9.4.8
 		long   Flags;
 		const char * P_Symb;
 		const char * P_CodeTempl;
@@ -16764,6 +16777,9 @@ public:
 #define ACSHF_USESUPPLAGT   0x0008L // Использует соглашения с поставщиками
 
 struct PPAccSheet2 {       // @persistent @store(Reference2Tbl+)
+	SLAPI  PPAccSheet2();
+	void   SLAPI Init();
+
 	long   Tag;            // Const=PPOBJ_ACCSHEET
 	long   ID;             // @id
 	char   Name[48];       // @name
@@ -16790,6 +16806,7 @@ private:
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
 	virtual void * SLAPI CreateObjListWin(uint flags, void * extraPtr);
+	virtual int  SLAPI MakeReserved(long flags);
 };
 //
 // @ModuleDecl(PPAbstractDevice)
@@ -20837,7 +20854,7 @@ private:
 	virtual void SLAPI Destroy(PPObjPack * p);
 	virtual int  SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  SLAPI EditRights(uint, ObjRights *, EmbedDialog * pDlg = 0);
-	virtual int  SLAPI MakeReserved(long);
+	virtual int  SLAPI MakeReserved(long flags);
 	int    SLAPI Helper_GetRtlList(const LDATETIME & rDtm, PPIDArray * pList, PPIDArray * pTmList, long flags);
 	int    SLAPI FetchRtlList(PPIDArray & rList, PPIDArray & rTmList);
 	int    SLAPI SerializePacket(int dir, PPQuotKindPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
@@ -21777,7 +21794,7 @@ private:
 	virtual int SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
 	virtual void SLAPI Destroy(PPObjPack * p);
-	virtual int SLAPI MakeReserved(long);
+	virtual int SLAPI MakeReserved(long flags);
 	virtual const char * SLAPI GetNamePtr();
 	int    AddListItem(StrAssocArray * pList, LocationTbl::Rec * pLocRec, long zeroParentId, PPIDArray * pRecurTrace);
 		// @<<PPObjLocation::MakeList(const LocationFilt, long)
@@ -22596,6 +22613,7 @@ private:
 	virtual int    SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int    SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
 	virtual const char * SLAPI GetNamePtr();
+	virtual int    SLAPI MakeReserved(long flags);
 	int    SLAPI ReplyPersonELinkDel(PPID);
 	int    SLAPI ReplyPersonTagDel(PPID);
 	int    SLAPI ReplyLocationReplace(PPID dest, PPID src);
@@ -26409,6 +26427,8 @@ public:
 	static int SLAPI AddDynamicAltGroupByFilt(GoodsFilt * pFilt, PPID * pDynamicAltGrpID, long owner, int useTa);
 	static int SLAPI SetDynamicOwner(PPID id, long curOwner, long newOwner);
 	static int SLAPI RemoveDynamicAlt(PPID id, long owner, int forceDel = 0, int useTa = 1);
+private:
+	virtual int    SLAPI MakeReserved(long flags);
 };
 //
 //

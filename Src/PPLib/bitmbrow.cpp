@@ -327,15 +327,16 @@ int SLAPI PPObjBill::ViewPckgDetail(PPID pckgID)
 int SLAPI ViewBillDetails(PPBillPacket * pack, long options, PPObjBill * pBObj)
 {
 	uint   res_id;
+	const PPConfig & r_cfg = LConfig;
 	if(pack->Rec.Flags & BILLF_CASH)
 		res_id = BROWSER_ID(CHECKITEM_W);
 	else if(pack->OprType == PPOPT_GOODSORDER)
 		res_id = BROWSER_ID(ORDERITEM_W);
 	else if(pack->OprType == PPOPT_GOODSREVAL)
 		res_id = BROWSER_ID(GOODSITEM_REVAL_W);
-	else if((LConfig.Flags & CFGFLG_SHOWPHQTTY) && pack->Rec.CurID)
+	else if((r_cfg.Flags & CFGFLG_SHOWPHQTTY) && pack->Rec.CurID)
 		res_id = BROWSER_ID(GOODSITEMPH_CUR_W);
-	else if(LConfig.Flags & CFGFLG_SHOWPHQTTY)
+	else if(r_cfg.Flags & CFGFLG_SHOWPHQTTY)
 		res_id = BROWSER_ID(GOODSITEMPH_W);
 	else if(pack->Rec.CurID)
 		res_id = BROWSER_ID(GOODSITEM_CUR_W);
@@ -350,7 +351,7 @@ int SLAPI ViewBillDetails(PPBillPacket * pack, long options, PPObjBill * pBObj)
 			if(pack->Rec.Flags & BILLF_CASH) {
 				PPObjCashNode cn_obj;
 				PPCashNode cn_rec;
-				if(cn_obj.Fetch(LConfig.Cash, &cn_rec) > 0 && !(cn_rec.Flags & CASHF_NAFCL)) {
+				if(cn_obj.Fetch(r_cfg.Cash, &cn_rec) > 0 && !(cn_rec.Flags & CASHF_NAFCL)) {
 					//ActivateNewRow = 1;
 					p_brw->State |= BillItemBrowser::stActivateNewRow;
 				}
@@ -2423,6 +2424,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 		ReceiptTbl::Rec lot_rec;
 		double qtty = 0.0;
 		int    init_chr = (TVKEY == kbF3) ? 0 : c;
+		const  long cfg_flags = LConfig.Flags;
 		if(GObj.SelectGoodsByBarcode(init_chr, P_Pack->Rec.Object, &grec, &qtty, code) > 0) {
 			uint   pos = 0;
 			if(!(P_BObj->Cfg.Flags & BCF_DONTWARNDUPGOODS) &&
@@ -2435,7 +2437,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 				TIDlgInitData tidi;
 				SETFLAG(tidi.Flags, TIDIF_AUTOQTTY, skip_dlg);
 				tidi.GoodsID  = grec.ID;
-				tidi.Quantity = (tidi.Flags & TIDIF_AUTOQTTY) ? 1.0 : ((LConfig.Flags & CFGFLG_USEPACKAGE) ? 0.0 : qtty);
+				tidi.Quantity = (tidi.Flags & TIDIF_AUTOQTTY) ? 1.0 : ((cfg_flags & CFGFLG_USEPACKAGE) ? 0.0 : qtty);
 				addItem(0, &tidi);
 			}
 		}
@@ -2449,7 +2451,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 			TIDlgInitData tidi;
 			tidi.GoodsID  = labs(lot_rec.GoodsID);
 			tidi.LotID    = lot_rec.ID;
-			tidi.Quantity = (LConfig.Flags & CFGFLG_USEPACKAGE) ? 0.0 : qtty;
+			tidi.Quantity = (cfg_flags & CFGFLG_USEPACKAGE) ? 0.0 : qtty;
 			addItem(0, &tidi);
 		}
 	}

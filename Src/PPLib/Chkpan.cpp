@@ -1,5 +1,5 @@
 // CHKPAN.CPP
-// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // Панель ввода кассовых чеков
 //
@@ -1707,8 +1707,9 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 				double price_by_serial = 0.0;
 				if(p_item->Serial[0]) {
 					PPIDArray  lot_list;
-					if(BillObj->SearchLotsBySerial(p_item->Serial, &lot_list) > 0) {
-						ReceiptCore & r_rcpt = BillObj->trfr->Rcpt;
+					PPObjBill * p_bobj = BillObj;
+					if(p_bobj->SearchLotsBySerial(p_item->Serial, &lot_list) > 0) {
+						ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
 						LDATE  last_date = ZERODATE;
 						const  PPID  loc_id = GetCnLocID(goods_id);
 						for(uint j = 0; j < lot_list.getCount(); j++) {
@@ -3904,17 +3905,18 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 						}
 					}
 					else {
+						PPObjBill * p_bobj = BillObj;
 						PPID   lot_id = 0;
 						ReceiptTbl::Rec lot_rec;
 						PPIDArray  lot_list;
-						if(BillObj->SearchLotsBySerial(code, &lot_list) > 0) {
+						if(p_bobj->SearchLotsBySerial(code, &lot_list) > 0) {
 							if(CnFlags & CASHF_DISABLEZEROAGENT && !P.GetAgentID()) {
 								r = 1000;
 								MessageError(PPERR_CHKPAN_SALERNEEDED, 0, eomBeep|eomStatusLine);
 							}
 							else {
 								if(ExtCashNodeID && ExtCnLocID) {
-									if(BillObj->SelectLotFromSerialList(&lot_list, ExtCnLocID, &lot_id, &lot_rec) > 0 &&
+									if(p_bobj->SelectLotFromSerialList(&lot_list, ExtCnLocID, &lot_id, &lot_rec) > 0 &&
 										BelongToExtCashNode(labs(lot_rec.GoodsID))) {
 										goods_id = labs(lot_rec.GoodsID);
 										price  = lot_rec.Price;
@@ -3923,7 +3925,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 										r = 1;
 									}
 								}
-								if(!goods_id && BillObj->SelectLotFromSerialList(&lot_list, CnLocID, &lot_id, &lot_rec) > 0) {
+								if(!goods_id && p_bobj->SelectLotFromSerialList(&lot_list, CnLocID, &lot_id, &lot_rec) > 0) {
 									goods_id = labs(lot_rec.GoodsID);
 									price  = lot_rec.Price;
 									loc_id = CnLocID;
@@ -7909,6 +7911,7 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 {
 	rSerial = 0;
 	int    ok = -1;
+	PPObjBill * p_bobj = BillObj;
 	SelLotBrowser::Entry * p_sel = 0;
 	int    r, found = 0;
 	uint   s = 0;
@@ -7918,7 +7921,7 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 	DateIter diter;
 	SArray * p_ary = 0;
 	SelLotBrowser * p_brw = 0;
-	ReceiptCore & r_rcpt = BillObj->trfr->Rcpt;
+	ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
 	ReceiptTbl::Rec lot_rec;
 	StringSet seek_serial_list;
 	const   PPID loc_id = GetCnLocID(goodsID); // @v8.8.0
@@ -7928,7 +7931,7 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 	while((r = r_rcpt.EnumLots(goodsID, loc_id, &diter, &lot_rec)) > 0) {
 		double exp = 0.0;
 		double rest = lot_rec.Rest;
-		BillObj->GetSerialNumberByLot(lot_rec.ID, serial = 0, 1);
+		p_bobj->GetSerialNumberByLot(lot_rec.ID, serial = 0, 1);
 		if(serial.NotEmpty()) {
 			//
 			// Защита от повторного учета текущих продаж на разных лотах, имеющих одинаковые серии
@@ -7953,7 +7956,7 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 	}
 	THROW(r);
 	if(p_ary->getCount()) {
-		THROW_MEM(p_brw = new SelLotBrowser(BillObj, p_ary, s, 0)); // @newok
+		THROW_MEM(p_brw = new SelLotBrowser(p_bobj, p_ary, s, 0)); // @newok
 		if(ExecView(p_brw) == cmOK && (p_sel = (SelLotBrowser::Entry *)p_brw->view->getCurItem()) != 0) {
 			if(strip(p_sel->Serial)[0] != 0) {
 				ASSIGN_PTR(pPrice, p_sel->Price);

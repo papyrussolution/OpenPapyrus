@@ -1,5 +1,5 @@
 // BILLDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -2693,7 +2693,7 @@ int BillDialog::getDTS(int onCancel)
 			intr = IsIntrOp(doe.WrOffOpID);
 	}
 	if(intr) {
-		PPID   prim_sheet_id    = LConfig.LocSheet;
+		PPID   prim_sheet_id    = LConfig.LocAccSheetID;
 		PPID   foreign_sheet_id = P_Pack->AccSheet;
 		THROW_PP(P_Pack->Rec.Object || intr != INTREXPND, PPERR_INTRDESTNEEDED);
 		if(prim_sheet_id && prim_sheet_id == foreign_sheet_id) {

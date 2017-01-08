@@ -165,10 +165,9 @@ int DbLoginBlockArray::Add(long id, const DbLoginBlock * pBlk, int replaceDup)
 		// и до первого включительно.
 		//
 		i = to_remove_list.getCount();
-		if(i)
-			do {
-				atFree(to_remove_list.get(--i));
-			} while(i);
+		if(i) do {
+			atFree(to_remove_list.get(--i));
+		} while(i);
 		THROW(insert(p_blk));
 		p_blk = 0; // Дабы не удалить вставленный блок в конце функции
 	}

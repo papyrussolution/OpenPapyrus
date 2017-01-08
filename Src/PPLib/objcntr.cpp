@@ -356,7 +356,7 @@ int SLAPI PPObjOpCounter::PutPacket(PPID * pOpCntrID, const PPOpCounterPacket * 
 	return ok;
 }
 
-int SLAPI PPObjOpCounter::MakeReserved(long)
+int SLAPI PPObjOpCounter::MakeReserved(long flags)
 {
 	// {ID, Name, Symb, CodeTemplate }
 	int    ok = 1;

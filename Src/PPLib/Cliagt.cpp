@@ -1,5 +1,5 @@
 // CLIAGT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // Соглашения с клиентами об условиях торговли
 //
@@ -2055,12 +2055,12 @@ int PPALDD_Agreement::InitData(PPFilt & rFilt, long rsrv)
 		ArticleTbl::Rec  ar_rec;
 		PPObjArticle * p_ar_obj = (PPObjArticle *)(Extra[0].Ptr);
 		if(p_ar_obj->Search(rFilt.ID, &ar_rec) > 0) {
-			PPAccSheet    acc_sheet_rec;
+			PPAccSheet acs_rec;
 			PPObjAccSheet acc_sheet_obj;
-			if(acc_sheet_obj.Fetch(ar_rec.AccSheetID, &acc_sheet_rec) > 0) {
+			if(acc_sheet_obj.Fetch(ar_rec.AccSheetID, &acs_rec) > 0) {
 				PPClientAgreement  cli_agt;
 				PPSupplAgreement   suppl_agt;
-				if((acc_sheet_rec.Flags & ACSHF_USECLIAGT) && p_ar_obj->GetClientAgreement(H.ID, &cli_agt, 0) > 0) {
+				if((acs_rec.Flags & ACSHF_USECLIAGT) && p_ar_obj->GetClientAgreement(H.ID, &cli_agt, 0) > 0) {
 					H.AgentID      = cli_agt.DefAgentID;
 					H.ExtObjectID  = cli_agt.ExtObjectID; // @v7.5.9
 					H.QKindID      = cli_agt.DefQuotKindID;
@@ -2072,7 +2072,7 @@ int PPALDD_Agreement::InitData(PPFilt & rFilt, long rsrv)
 					H.DefPayPeriod = cli_agt.DefPayPeriod;
 					STRNSCPY(H.Code, cli_agt.Code);
 				}
-				else if((acc_sheet_rec.Flags & ACSHF_USESUPPLAGT) && p_ar_obj->GetSupplAgreement(H.ID, &suppl_agt, 0) > 0) {
+				else if((acs_rec.Flags & ACSHF_USESUPPLAGT) && p_ar_obj->GetSupplAgreement(H.ID, &suppl_agt, 0) > 0) {
 					H.AgentID      = suppl_agt.DefAgentID;
 					H.BegDt        = suppl_agt.BegDt;
 					H.Expiry       = suppl_agt.Expiry;

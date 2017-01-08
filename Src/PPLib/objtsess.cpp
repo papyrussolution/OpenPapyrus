@@ -3248,9 +3248,9 @@ int SLAPI PPObjTSession::ConvertWrOffDeficit(PPID sessID, PPID locID, const PUGL
 							THROW_SL(pack_list.insert(p_pack));
 						}
 						if(GetOpData(p_pack->Rec.OpID, &op_rec) > 0) {
-							if(op_rec.AccSheetID == LConfig.LocSheet)
+							if(op_rec.AccSheetID == LConfig.LocAccSheetID)
 								p_pack->Rec.Object = PPObjLocation::WarehouseToObj(locID);
-							if(op_rec.AccSheet2ID == LConfig.LocSheet)
+							if(op_rec.AccSheet2ID == LConfig.LocAccSheetID)
 								p_pack->Rec.Object2 = PPObjLocation::WarehouseToObj(locID);
 						}
 						THROW(ti.Init(&p_pack->Rec));

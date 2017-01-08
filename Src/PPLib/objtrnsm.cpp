@@ -1,5 +1,5 @@
 // OBJTRNSM.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // Передача объектов между разделами БД
 //
@@ -495,6 +495,7 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempSyncCmp, TempSyncCmp);
 
 SLAPI PPObjectTransmit::PPObjectTransmit(TransmitMode mode, int syncCmp, int recoverTransmission)
 {
+	const PPConfig & r_cfg = LConfig;
 	CtrError = 0;
 	IamDispatcher = 0;
 	RecoverTransmission = BIN(recoverTransmission); // @v8.2.3
@@ -509,12 +510,12 @@ SLAPI PPObjectTransmit::PPObjectTransmit(TransmitMode mode, int syncCmp, int rec
 	Mode = mode;
 	DestDbDivID = 0;
 	if(Mode == PPObjectTransmit::tmReading) {
-		SetDestDbDivID(LConfig.DBDiv);
+		SetDestDbDivID(r_cfg.DBDiv);
 		Ctx.P_DestDbDivPack = 0;
 	}
 	else
 		Ctx.P_DestDbDivPack = &DestDbDivPack;
-	if(DObj.Get(LConfig.DBDiv, &ThisDbDivPack) <= 0)
+	if(DObj.Get(r_cfg.DBDiv, &ThisDbDivPack) <= 0)
 		CtrError = 1;
 	Ctx.P_ThisDbDivPack = &ThisDbDivPack;
 	IamDispatcher = BIN(ThisDbDivPack.Rec.Flags & DBDIVF_DISPATCH);
@@ -556,13 +557,14 @@ int SLAPI PPObjectTransmit::SetDestDbDivID(PPID dbDivID)
 
 void SLAPI PPObjectTransmit::SetupHeader(uint type, PPID destDBID, PPObjectTransmit::Header * pHdr)
 {
+	const PPConfig & r_cfg = LConfig;
 	memzero(pHdr, sizeof(*pHdr));
 	pHdr->Magic      = OT_MAGIC;
 	pHdr->PacketType = type;
-	pHdr->DBID       = LConfig.DBDiv;
+	pHdr->DBID       = r_cfg.DBDiv;
 	pHdr->DestDBID   = destDBID;
 	pHdr->ExtraData  = 0;
-	pHdr->UserID     = LConfig.User; // @v6.2.2
+	pHdr->UserID     = r_cfg.User;
 	if(type == PPOT_OBJ) {
 		if(Ctx.Cfg.Flags & DBDXF_IGNOREACK)
 			pHdr->Flags |= PPOTF_IGNACK;
@@ -757,7 +759,9 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 {
 	#define NEED_SEND_NOOBJ 1000
 
-	int    ok = 1, r, need_send = -1;
+	int    ok = 1;
+	const PPConfig & r_cfg = LConfig;
+	int    r, need_send = -1;
 	int    this_obj_upd_protocol = updProtocol;
 	PPObjID oi;
 	oi.Set(objType, objID);
@@ -775,7 +779,7 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 			MEMSZERO(k1);
 			k1.ObjType = (short)oi.Obj;
 			k1.ObjID   = oi.Id;
-			k1.DBID    = (short)LConfig.DBDiv;
+			k1.DBID    = (short)r_cfg.DBDiv;
 			int    r = SearchByKey(P_TmpIdxTbl, 1, &k1, 0);
 			THROW(r);
 			if(r > 0)
@@ -826,7 +830,7 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 		if(RecoverTransmission)
 			transmit_flags |= PPObjPack::fRecover;
 		// } @v8.2.3
-		rec.DBID     = (short)LConfig.DBDiv;
+		rec.DBID     = (short)r_cfg.DBDiv;
 		rec.ObjType  = (ushort)objType;
 		rec.ObjID    = objID;
 		rec.Flags    = transmit_flags;
@@ -886,7 +890,7 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 		//
 		if(need_send && p_obj->GetName(objID, &obj_name) > 0) {
 			MEMSZERO(rec);
-			rec.DBID     = (short)LConfig.DBDiv;
+			rec.DBID     = (short)r_cfg.DBDiv;
 			rec.ObjType  = (ushort)objType;
 			rec.ObjID    = objID;
 			rec.Flags    = (ushort)pack.Flags;
@@ -932,9 +936,9 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 static int SLAPI ConvertInBill(ILBillPacket * pPack, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
-	int    intr_op_tag = IsIntrOp(pPack->Rec.OpID);
+	const  int intr_op_tag = IsIntrOp(pPack->Rec.OpID);
 	if(pCtx->Cfg.OneRcvLocID) {
-		if(intr_op_tag == INTREXPND || intr_op_tag == INTRRCPT)
+		if(oneof2(intr_op_tag, INTREXPND, INTRRCPT))
 			ok = -1;
 		else
 			pPack->Rec.LocID = pCtx->Cfg.OneRcvLocID;
@@ -960,7 +964,7 @@ static int SLAPI ConvertInBill(ILBillPacket * pPack, ObjTransmContext * pCtx)
 					SString msg_buf, fmt_buf, id_buf;
 					ArticleTbl::Rec ar_rec;
 					PPObjAccTurn * p_atobj = BillObj->atobj;
-					if(p_atobj->P_Tbl->Art.SearchObjRef(LConfig.LocSheet, loc_id, &ar_rec) > 0) {
+					if(p_atobj->P_Tbl->Art.SearchObjRef(LConfig.LocAccSheetID, loc_id, &ar_rec) > 0) {
 						pPack->Rec.Object = ar_rec.ID;
 						PPLoadText(PPTXT_DIAG_WHTOOBJ657_SUCC, fmt_buf);
 					}

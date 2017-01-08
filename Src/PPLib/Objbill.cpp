@@ -502,7 +502,8 @@ int SLAPI PPObjBill::GetCurRate(PPID curID, PPID rateTypeID, PPID relCurID, LDAT
 
 int SLAPI PPObjBill::GetCurRate(PPID curID, LDATE * pDt, double * pRate)
 {
-	return GetCurRate(curID, LConfig.BaseRateTypeID, LConfig.BaseCurID, pDt, pRate);
+	const PPConfig & r_cfg = LConfig;
+	return GetCurRate(curID, r_cfg.BaseRateTypeID, r_cfg.BaseCurID, pDt, pRate);
 }
 
 int SLAPI PPObjBill::GetShipmByOrder(PPID orderID, const DateRange * pRange, PPIDArray * pList)
@@ -1044,7 +1045,7 @@ int SLAPI PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const S
 int SLAPI PPObjBill::AddDraftByOrder(PPID * pBillID, PPID sampleBillID, const SelAddBySampleParam * pParam)
 {
 	int    r = 1, ok = 1, res = cmCancel;
-	PPID   save_loc = LConfig.Location;
+	const  PPID save_loc = LConfig.Location;
 	PPID   op_type = 0;
 	PPOprKind    op_rec;
 	PPBillPacket pack, sample_pack;
@@ -1270,7 +1271,8 @@ int SLAPI PPObjBill::AddRetBill(PPID op, long link, PPID locID)
 
 int SLAPI PPObjBill::AddGoodsBill(PPID * pBillID, const AddBlock * pBlk)
 {
-	const  PPID preserve_loc = LConfig.Location;
+	const PPConfig & r_cfg = LConfig;
+	const  PPID preserve_loc = r_cfg.Location;
 
 	int    r = 1, ok = 1, res = cmCancel;
 	PPID   op_type = 0;
@@ -1291,7 +1293,7 @@ int SLAPI PPObjBill::AddGoodsBill(PPID * pBillID, const AddBlock * pBlk)
 			pack.UngetCounter();
 	}
 	else {
-		PPID   loc_id = NZOR(blk.LocID, LConfig.Location);
+		PPID   loc_id = NZOR(blk.LocID, r_cfg.Location);
 		THROW_PP(blk.OpID > 0, PPERR_INVOPRKIND);
 		op_type = GetOpType(blk.OpID, &op_rec);
 		while(r > 0 && !loc_id) {
@@ -1301,7 +1303,7 @@ int SLAPI PPObjBill::AddGoodsBill(PPID * pBillID, const AddBlock * pBlk)
 			else {
 				THROW(r = PPObjLocation::SelectWarehouse());
 				if(r > 0)
-					loc_id = LConfig.Location;
+					loc_id = r_cfg.Location;
 			}
 		}
 		if(r > 0) {
@@ -1559,8 +1561,8 @@ int SLAPI PPObjBill::AddGenAccturn(PPID * pBillID, PPID opID, PPID registerID)
 int SLAPI PPObjBill::AddAccturn(PPID * pBillID, const AddBlock * pBlk)
 {
 	int    ok = 1, r = 1;
-	PPID   loc_id = LConfig.Location;
-	PPID   save_loc_id = LConfig.Location;
+	const  PPID save_loc_id = LConfig.Location;
+	PPID   loc_id = save_loc_id;
 	PPBillPacket pack;
 	AddBlock blk(pBlk);
 	if(blk.OpID == 0) {
@@ -1568,9 +1570,10 @@ int SLAPI PPObjBill::AddAccturn(PPID * pBillID, const AddBlock * pBlk)
 		uint   opfl = 0;
 		if(blk.RegisterID) {
 			PPOprKind op_rec;
-			for(PPID op_id = 0; EnumOperations(PPOPT_ACCTURN, &op_id, &op_rec) > 0;)
+			for(PPID op_id = 0; EnumOperations(PPOPT_ACCTURN, &op_id, &op_rec) > 0;) {
 				if(op_rec.SubType == OPSUBT_REGISTER)
 					op_list.add(op_id);
+			}
 			THROW_PP(op_list.getCount(), PPERR_NONEREGISTEROPS);
 			blk.OpID = op_list.getSingle();
 			opfl = OPKLF_OPLIST;

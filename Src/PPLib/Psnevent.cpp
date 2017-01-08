@@ -648,8 +648,7 @@ int ExecuteGenericDeviceCommand(PPID dvcID, const char * pCmd, long options)
 						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
 						ok = 0;
 					ENDCATCH
-					if(P_Mutex)
-						P_Mutex->Release();
+					CALLPTRMEMB(P_Mutex, Release());
 				}
 				StrAssocArray OutArr;
 				PPAbstractDevice Ad;
