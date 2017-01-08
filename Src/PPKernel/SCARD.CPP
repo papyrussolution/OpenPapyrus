@@ -1,5 +1,5 @@
 // SCARD.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2006, 2007, 2009, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2006, 2007, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @Kernel
 //
 #include <pp.h>
@@ -893,6 +893,7 @@ int SLAPI SCardCore::PutOpByBill(PPID billID, PPID scardID, LDATE dt, double amo
 int SLAPI SCardCore::PutOpBlk(const OpBlock & rBlk, int use_ta)
 {
 	int    ok = 1;
+	const  PPID user_id = LConfig.User;
 	TSArray <OpBlock> ex_link_op_list;
 	PPTransaction tra(use_ta);
 	THROW(tra);
@@ -918,7 +919,7 @@ int SLAPI SCardCore::PutOpBlk(const OpBlock & rBlk, int use_ta)
 		}
 		else
 			rec.Amount = rBlk.Amount;
-		rec.UserID = LConfig.User;
+		rec.UserID = user_id;
 		if(rBlk.Flags & rBlk.fFreezing) {
 			rec.Flags |= SCARDOPF_FREEZING;
 			THROW(rBlk.CheckFreezingPeriod(ZERODATE));
@@ -936,7 +937,7 @@ int SLAPI SCardCore::PutOpBlk(const OpBlock & rBlk, int use_ta)
 			rec.LinkObjType = rBlk.LinkOi.Obj;
 			rec.LinkObjID   = rBlk.LinkOi.Id;
 			rec.Amount = fabs(rBlk.Amount);
-			rec.UserID = LConfig.User;
+			rec.UserID = user_id;
 			rec.DestSCardID = rBlk.SCardID;
 			THROW(PutOpRec(&rec, 0));
 			DS.LogAction(PPACN_SCARDOPMOV, PPOBJ_SCARD, rBlk.SCardID, rBlk.DestSCardID, 0); // @v8.0.0
@@ -951,7 +952,7 @@ int SLAPI SCardCore::PutOpBlk(const OpBlock & rBlk, int use_ta)
 		rec.LinkObjType = rBlk.LinkOi.Obj;
 		rec.LinkObjID   = rBlk.LinkOi.Id;
 		rec.Amount = rBlk.Amount;
-		rec.UserID = LConfig.User;
+		rec.UserID = user_id;
 		if(rBlk.Flags & rBlk.fFreezing) {
 			rec.Flags |= SCARDOPF_FREEZING;
 			THROW(rBlk.CheckFreezingPeriod(ZERODATE));

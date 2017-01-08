@@ -1,11 +1,16 @@
 // OBJSECUR.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2005, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2005, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
 #include <idea.h>
 
 #define SECUREXTRAPARAMSIGN 0xABCDEF07
+
+SLAPI PPConfig::PPConfig()
+{
+	THISZERO();
+}
 
 PPObjSecur::Exclusion::Exclusion(int exclrt)
 {
@@ -221,8 +226,7 @@ int SLAPI PPObjSecur::GetPrivateDesktop(PPID userID, PPID * pDesktopID)
 				ZDELETE(p_mgr);
 			}
 		}
-		if(!dt_id)
-			dt_id = cfgp_rec.DesktopID;
+		SETIFZ(dt_id, cfgp_rec.DesktopID);
 		ok = 2;
 	}
 	else if(dt_id) // desktop for users group

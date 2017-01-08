@@ -1,5 +1,5 @@
 // CCHECK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // @Kernel
 //
@@ -4440,6 +4440,7 @@ int SLAPI CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pT
 {
 	int    ok = -1, r = 1;
 	PPObjBill * p_bobj = BillObj;
+	const PPConfig & r_cfg = LConfig;
 	if(EqCfg.OpOnDfctThisLoc || EqCfg.OpOnDfctOthrLoc) {
 		PPObjGoods goods_obj;
 		CSessionTbl::Rec sess_rec;
@@ -4480,7 +4481,7 @@ int SLAPI CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pT
 			}
 		}
 		if(r > 0) {
-			const  LDATE save_oper_date = LConfig.OperDate;
+			const  LDATE save_oper_date = r_cfg.OperDate;
 			uint   i = 0, j, k;
 			PPIDArray date_list;
 			CSessDfctList dfct_list;
@@ -4536,9 +4537,9 @@ int SLAPI CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pT
 								THROW_SL(pack_list.insert(p_pack));
 							}
 							if(GetOpData(p_pack->Rec.OpID, &op_rec) > 0) {
-								if(op_rec.AccSheetID == LConfig.LocSheet)
+								if(op_rec.AccSheetID == r_cfg.LocAccSheetID)
 									p_pack->Rec.Object = PPObjLocation::WarehouseToObj(locID);
-								if(op_rec.AccSheet2ID == LConfig.LocSheet)
+								if(op_rec.AccSheet2ID == r_cfg.LocAccSheetID)
 									p_pack->Rec.Object2 = PPObjLocation::WarehouseToObj(locID);
 							}
 							THROW(ti.Init(&p_pack->Rec));
@@ -4605,8 +4606,9 @@ int SLAPI CSessGrouping::Convert(PPID sessID, PPID locID, void * pData, CSessTot
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
-	PPID   save_loc  = LConfig.Location;
-	LDATE  save_date = LConfig.OperDate;
+	const PPConfig & r_cfg = LConfig;
+	const PPID   save_loc  = r_cfg.Location;
+	const LDATE  save_date = r_cfg.OperDate;
 	DS.SetLocation(locID);
 	OptimalAmountDamper oad;
 	double local_wr_off_amount = 0.0;

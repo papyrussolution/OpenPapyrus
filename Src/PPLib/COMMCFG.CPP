@@ -229,13 +229,14 @@ int SLAPI EditCommConfig()
 	THROW(GetCommConfig(&cfg));
 	THROW(CheckDialogPtr(&(dlg = new CommCfgDialog)));
 	dlg->setDTS(&cfg);
-	while(!valid_data && (r = ExecView(dlg)) == cmOK)
+	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		if(dlg->getDTS(&cfg)) {
 			valid_data = 1;
 			THROW(SetCommConfig(&cfg, 1));
 		}
 		else
 			PPError();
+	}
 	CATCH
 		r = PPErrorZ();
 	ENDCATCH

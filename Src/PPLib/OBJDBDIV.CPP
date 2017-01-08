@@ -1,5 +1,5 @@
 // OBJDBDIV.CPP
-// Copyright (c) A.Sobolev 1997-2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1997-2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // Объект, управляющий разделами БД
 //
@@ -497,18 +497,20 @@ int SLAPI PPObjDBDiv::GetUuid(PPID dbid, S_GUID * pUuid, int use_ta)
 
 int SLAPI PPObjDBDiv::GetCounter(PPID dbid, long * pCounter, int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	PPDBDiv rec;
 	dbid = NZOR(dbid, LConfig.DBDiv);
-	THROW(PPStartTransaction(&ta, use_ta));
-	THROW(ref->GetItem(PPOBJ_DBDIV, dbid, &rec) > 0);
-	*pCounter = ++rec.OutCounter;
-	if(rec.OutCounter >= 1000000L) // @v7.4.7 10000L-->1000000L
-		rec.OutCounter = 0;
-	THROW(ref->UpdateItem(PPOBJ_DBDIV, dbid, &rec, 1, 0));
-	THROW(PPCommitWork(&ta));
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		THROW(ref->GetItem(PPOBJ_DBDIV, dbid, &rec) > 0);
+		*pCounter = ++rec.OutCounter;
+		if(rec.OutCounter >= 1000000L) // @v7.4.7 10000L-->1000000L
+			rec.OutCounter = 0;
+		THROW(ref->UpdateItem(PPOBJ_DBDIV, dbid, &rec, 1, 0));
+		THROW(tra.Commit());
+	}
 	CATCH
-		PPRollbackWork(&ta);
 		*pCounter = 0;
 		ok = 0;
 	ENDCATCH

@@ -1,5 +1,5 @@
 // PPAPPO.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 // Overlaid part of PPApp class implementation
 //
@@ -662,8 +662,8 @@ int PPApp::processCommand(uint cmd)
 		case cmResetOpCounters:      PPObjOpCounter::ResetAll();        break;
 		case cmCorrectLotsCloseTags: CorrectLotsCloseTags();            break;
 		case cmCorrectLotSuppl:      CorrectLotSuppl();                 break;
-		case cmCreateReservedObjs:   PPObject::CreateReservedObjects(); break;
-		case cmCheckPane:            CCheckPane(0, 0);                  break;
+		case cmCreateReservedObjs:   PPObject::CreateReservedObjects(0);  break;
+		case cmCheckPane:            CCheckPane(0, 0);                    break;
 		case cmViewCCheck:           ViewCCheck(0, PPView::exefModeless); break;
 		case cmSCardPane:            ViewSCardInfo(0, 0);               break; // @v6.4.5
 		case cmScalePrepareData:     PPObjScale::PrepareData(0);        break;
@@ -1089,7 +1089,7 @@ int SLAPI PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 				title_buf.Space().Cat(temp_buf);
 				dlg->setTitle(title_buf);
 			}
-			// } @v9.4.3 
+			// } @v9.4.3
 			skip_edit_dlg = BIN(!retryLogin && !usedbsel && sysAccLogin);
 			decodedate(&r, &DefaultMonth, &DefaultYear, &curdate);
 			r = 0;
@@ -1864,20 +1864,21 @@ int PPApp::InitDeskTop()
 
 int PPApp::InitMenuBar()
 {
-	int    from_rc = (LConfig.MenuID && !PPMaster) ? 0 : 1;
+	const  PPConfig & r_cfg = LConfig;
+	int    from_rc = (r_cfg.MenuID && !PPMaster) ? 0 : 1;
 	HMENU  m;
-	if(LConfig.Menu || LConfig.MenuID || PPMaster) {
+	if(r_cfg.Menu || r_cfg.MenuID || PPMaster) {
 		int not_found = 0;
-		if((m = PPLoadMenu(P_SlRez, from_rc ? LConfig.Menu : LConfig.MenuID, from_rc, &not_found)) == 0 || not_found) {
+		if((m = PPLoadMenu(P_SlRez, from_rc ? r_cfg.Menu : r_cfg.MenuID, from_rc, &not_found)) == 0 || not_found) {
 			if(PPMaster) {
 				DS.GetTLA().Lc.Menu = 1;
 				if(m)
 					DestroyMenu(m);
-				if((m = PPLoadMenu(P_SlRez, LConfig.Menu, 1, &not_found)) == 0 || not_found) {
+				if((m = PPLoadMenu(P_SlRez, r_cfg.Menu, 1, &not_found)) == 0 || not_found) {
 					if(m)
 						DestroyMenu(m);
 					DS.SetMenu(MENU_MASTER);
-					m =	LoadMenu(TProgram::GetInst(), MAKEINTRESOURCE(LConfig.Menu));
+					m =	LoadMenu(TProgram::GetInst(), MAKEINTRESOURCE(r_cfg.Menu));
 				}
 			}
 			if(!m)

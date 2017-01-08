@@ -1,5 +1,5 @@
 // RECEIPT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017
 // @Kernel
 //
 #include <pp.h>
@@ -631,13 +631,14 @@ int SLAPI ReceiptCore::GetListOfOpenedLots(int dir, PPID goodsID, PPID locID, LD
 	const int use_bextq = 0; // @v8.5.6 // @v8.6.5 1-->0
 
 	int    ok = -1;
+	const PPConfig & r_cfg = LConfig;
 	{
 		PPUserFuncProfiler ufp(PPUPRF_GETOPENEDLOTS); // @v8.5.8
 		uint   ufp_factor_i = 0;
 		ReceiptTbl::Key3 k;
 		MEMSZERO(k);
 		if(dir < 0) {
-			if(LConfig.RealizeOrder == RLZORD_LIFO)
+			if(r_cfg.RealizeOrder == RLZORD_LIFO)
 				dir = 0; // Enumerate lots backward
 			else
 				dir = 1; // Enumerate lots forward
@@ -674,7 +675,7 @@ int SLAPI ReceiptCore::GetListOfOpenedLots(int dir, PPID goodsID, PPID locID, LD
 		}
 		// } @v8.5.6
 		if(ok > 0 && pList) {
-			if(LConfig.Flags & CFGFLG_FEFO) {
+			if(r_cfg.Flags & CFGFLG_FEFO) {
 				if(dir == 0) {
 					pList->sort(PTR_CMPFUNC(Receipt_DtOprNo_FEFO_Desc));
 				}

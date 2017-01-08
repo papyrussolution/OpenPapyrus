@@ -1,5 +1,5 @@
 // CSHMCHN.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 // Механизм работы с кассовыми машинами
@@ -255,18 +255,19 @@ int SLAPI PPCashMachine::GetAsyncIntrf()
 //
 int SLAPI PPCashMachine::NewDayDialog(LDATE * pDt)
 {
-	int    r;
+	int    ok = 0;
 	TDialog * dlg = new TDialog(SLS.CheckUiFlag(sluifUseLargeDialogs) ? DLG_NEWDAY_L : DLG_NEWDAY);
-	if(!CheckDialogPtr(&dlg))
-		return 0;
-	if(*pDt == 0)
-		*pDt = LConfig.OperDate;
-	dlg->SetupCalDate(CTLCAL_NEWDAY_DATE, CTL_NEWDAY_DATE);
-	dlg->setCtrlData(CTL_NEWDAY_DATE, pDt);
-	if((r = ExecView(dlg)) == cmOK)
-		dlg->getCtrlData(CTL_NEWDAY_DATE, pDt);
+	if(CheckDialogPtr(&dlg)) {
+		if(*pDt == 0)
+			*pDt = LConfig.OperDate;
+		dlg->SetupCalDate(CTLCAL_NEWDAY_DATE, CTL_NEWDAY_DATE);
+		dlg->setCtrlData(CTL_NEWDAY_DATE, pDt);
+		ok = ExecView(dlg);
+		if(ok == cmOK)
+			dlg->getCtrlData(CTL_NEWDAY_DATE, pDt);
+	}
 	delete dlg;
-	return r;
+	return ok;
 }
 
 int SLAPI PPCashMachine::SyncOpenSession(LDATE * pDate)
@@ -405,9 +406,10 @@ int SLAPI PPCashMachine::SyncCloseSession()
 {
 	int    ok = -1, r, is_locked = 0, my_lock = 0;
 	int    close_sess = 1;
-	const  LDATE  save_date   = LConfig.OperDate;
-	const  PPID   save_loc_id = LConfig.Location;
-	const  PPID   save_cash_id = LConfig.Cash;
+	const  PPConfig & r_cfg = LConfig;
+	const  LDATE  save_date   = r_cfg.OperDate;
+	const  PPID   save_loc_id = r_cfg.Location;
+	const  PPID   save_cash_id = r_cfg.Cash;
 	CCheckCore  chk_core;
 	THROW_PP(BillObj->CheckRights(BILLRT_CLOSECASH), PPERR_NORTCLOSECASH);
 	THROW((my_lock = PPObjCashNode::IsLocked(NodeID)) <= 0);
@@ -578,8 +580,9 @@ int SLAPI PPCashMachine::SyncViewSessionStat(long options)
 	int    ok = cmCancel;
 	CashStat stat;
 	double sum;
-	PPID   save_cash_id = LConfig.Cash;
-	PPID   save_loc_id  = LConfig.Location;
+	const  PPConfig & r_cfg = LConfig;
+	PPID   save_cash_id = r_cfg.Cash;
+	PPID   save_loc_id  = r_cfg.Location;
 	SString font_face, msg_buf;
 	TDialog * dlg = 0;
 	THROW(GetSyncIntrf());
@@ -670,6 +673,7 @@ int SLAPI PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
+	const  PPConfig & r_cfg = LConfig;
 	int    r = cmOK;
 	int    deny_ops = 0;
 	const  long save_state = p_bobj->State;
@@ -705,7 +709,7 @@ int SLAPI PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long
 				}
 			}
 			else {
-				save_date = LConfig.OperDate;
+				save_date = r_cfg.OperDate;
 				DS.SetOperDate(NodeRec.CurDate);
 			}
 		}
@@ -752,7 +756,7 @@ int SLAPI PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long
 				}
 				else {
 					CCheckFilt ccflt;
-					//ccflt.Period.SetDate(LConfig.OperDate);
+					//ccflt.Period.SetDate(r_cfg.OperDate);
 					ccflt.NodeList.Add(NodeID);
 					ccflt.CashNumber = NodeID;
 					if(!!cml)
@@ -763,8 +767,8 @@ int SLAPI PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long
 			}
 			else {
 				BillFilt flt;
-				flt.Period.SetDate(LConfig.OperDate);
-				flt.LocList.Add(NodeRec.LocID ? NodeRec.LocID : LConfig.Location, 1);
+				flt.Period.SetDate(r_cfg.OperDate);
+				flt.LocList.Add(NodeRec.LocID ? NodeRec.LocID : r_cfg.Location, 1);
 				flt.Flags |= BillFilt::fCashOnly;
 				if(deny_ops)
 					flt.Flags |= (BillFilt::fDenyAdd|BillFilt::fDenyUpdate|BillFilt::fDenyRemove);
@@ -1701,8 +1705,9 @@ int SLAPI ViewCashBills(PPID cashNodeID)
 {
 	int    ok = 1;
 	PPCashMachine * p_cm = 0;
-	if(cashNodeID == 0)
+	if(cashNodeID == 0) {
 		THROW(cashNodeID = PPObjCashNode::Select(LConfig.Location, 1));
+	}
 	if(cashNodeID > 0) {
 		THROW(p_cm = PPCashMachine::CreateInstance(cashNodeID));
 		THROW(p_cm->SyncBrowseCheckList(0, 0));

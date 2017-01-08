@@ -1,5 +1,5 @@
 // PPACTION.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017
 // @Kernel
 //
 #include <pp.h>
@@ -20,62 +20,62 @@ SLAPI SysJournal::~SysJournal()
 
 int SLAPI SysJournal::LogEvent(PPID action, PPID obj, PPID id, long extData, int use_ta)
 {
-	int    ok = -1, ta = 0;
+	int    ok = -1;
 	const LDATETIME dtm = getcurdatetime_();
-	THROW(PPStartTransaction(&ta, use_ta));
-	data.Dt      = dtm.d;
-	data.Tm      = dtm.t;
-	data.UserID  = LConfig.User;
-	data.Action  = action;
-	data.ObjType = obj;
-	data.ObjID   = id;
-	data.Extra   = extData;
-	if(insertRec())
-		ok = 1;
-	if(ok <= 0) {
-		PPSetError(PPERR_DBENGINE);
-		{
-			int    rsrv_ok = -1;
-			if(P_RsrvT) {
-				//
-				// Следующий участок кода полностью повторяет внесение записи в SysJournal (см. выше),
-				// с поправкой на то, что запись вносится в резервную таблицу.
-				// Дата и время инициализируются тем же значением, с которым осуществлялась
-				// самая первая попытка добавления записи в регулярную таблицу.
-				//
-				P_RsrvT->data.Dt      = dtm.d;
-				P_RsrvT->data.Tm      = dtm.t;
-				P_RsrvT->data.UserID  = LConfig.User;
-				P_RsrvT->data.Action  = action;
-				P_RsrvT->data.ObjType = obj;
-				P_RsrvT->data.ObjID   = id;
-				P_RsrvT->data.Extra   = extData;
-				if(P_RsrvT->insertRec())
-					rsrv_ok = 1;
-			}
+	const PPID user_id = LConfig.User;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		data.Dt      = dtm.d;
+		data.Tm      = dtm.t;
+		data.UserID  = user_id;
+		data.Action  = action;
+		data.ObjType = obj;
+		data.ObjID   = id;
+		data.Extra   = extData;
+		if(insertRec())
+			ok = 1;
+		if(ok <= 0) {
+			PPSetError(PPERR_DBENGINE);
 			{
-				//SString msg_buf, added_buf, temp_buf;
-				PPGetMessage(mfError, PPErrCode, 0, 1, MsgBuf = 0);
-				(AddedBuf = 0).Cat(data.Action).Semicol().Cat(obj).Semicol().Cat(id).Semicol().Cat(extData).
-					Semicol().Cat(MsgBuf);
-				TempBuf = 0;
-				if(rsrv_ok < 0)
-					TempBuf.CatParStr("NR");
-				else if(rsrv_ok > 0)
-					TempBuf.CatParStr("R1");
-				else
-					TempBuf.CatParStr("R0");
-				(MsgBuf = 0).Printf(TempBuf.Space().Cat(FmtBuf), (const char *)AddedBuf);
-				PPLogMessage(PPFILNAM_ERR_LOG, MsgBuf, LOGMSGF_TIME|LOGMSGF_USER);
+				int    rsrv_ok = -1;
+				if(P_RsrvT) {
+					//
+					// Следующий участок кода полностью повторяет внесение записи в SysJournal (см. выше),
+					// с поправкой на то, что запись вносится в резервную таблицу.
+					// Дата и время инициализируются тем же значением, с которым осуществлялась
+					// самая первая попытка добавления записи в регулярную таблицу.
+					//
+					P_RsrvT->data.Dt      = dtm.d;
+					P_RsrvT->data.Tm      = dtm.t;
+					P_RsrvT->data.UserID  = user_id;
+					P_RsrvT->data.Action  = action;
+					P_RsrvT->data.ObjType = obj;
+					P_RsrvT->data.ObjID   = id;
+					P_RsrvT->data.Extra   = extData;
+					if(P_RsrvT->insertRec())
+						rsrv_ok = 1;
+				}
+				{
+					//SString msg_buf, added_buf, temp_buf;
+					PPGetMessage(mfError, PPErrCode, 0, 1, MsgBuf = 0);
+					(AddedBuf = 0).Cat(data.Action).Semicol().Cat(obj).Semicol().Cat(id).Semicol().Cat(extData).Semicol().Cat(MsgBuf);
+					TempBuf = 0;
+					if(rsrv_ok < 0)
+						TempBuf.CatParStr("NR");
+					else if(rsrv_ok > 0)
+						TempBuf.CatParStr("R1");
+					else
+						TempBuf.CatParStr("R0");
+					(MsgBuf = 0).Printf(TempBuf.Space().Cat(FmtBuf), (const char *)AddedBuf);
+					PPLogMessage(PPFILNAM_ERR_LOG, MsgBuf, LOGMSGF_TIME|LOGMSGF_USER);
+				}
 			}
+			ok = 0;
 		}
-		ok = 0;
+		THROW(tra.Commit());
 	}
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 

@@ -469,19 +469,175 @@ SLAPI PPObjPack::PPObjPack()
 	Data  = 0;
 }
 
-int SLAPI PPObject::CreateReservedObjects()
+int SLAPI PPObject::CreateReservedObjects(long flags)
 {
 	// @todo Выдавать на экран список объектов, созданных в результате работы функции
 	int    ok = 1;
 	PPIDArray obj_type_list;
 	PPWait(1);
 	PPGetObjTypeList(&obj_type_list, 0);
+    {
+    	uint   p1 = 0, p2 = 0;
+    	if(obj_type_list.lsearch(PPOBJ_PRSNKIND, &p1) && obj_type_list.lsearch(PPOBJ_ACCSHEET, &p2)) {
+			if(p1 > p2)
+				obj_type_list.swap(p1, p2);
+    	}
+    	p1 = p2 = 0;
+    	if(obj_type_list.lsearch(PPOBJ_ACCSHEET, &p1) && obj_type_list.lsearch(PPOBJ_OPRKIND, &p2)) {
+			if(p1 > p2)
+				obj_type_list.swap(p1, p2);
+    	}
+    }
 	for(uint i = 0; i < obj_type_list.getCount(); i++) {
 		PPObject * p_o = GetPPObject(obj_type_list.at(i), 0);
-		if(p_o && !p_o->MakeReserved(0))
+		if(p_o && !p_o->MakeReserved(flags))
 			ok = PPErrorZ();
 		delete p_o;
 	}
+	if(flags & mrfInitializeDb) {
+		PPObjSecur sec_obj(PPOBJ_CONFIG, 0);
+		PPSecur sec_rec;
+		if(sec_obj.Search(PPCFG_MAIN, &sec_rec) > 0) {
+			PPConfig cfg_rec;
+			PPCommConfig comm_cfg;
+			Reference * p_ref = PPRef;
+			PPIDArray loc_acs_list;
+			PPIDArray sell_acs_list;
+			PPIDArray suppl_acs_list;
+			PPIDArray main_org_list;
+			PPIDArray loc_list;
+			PPID   suppl_acs_id = 0;
+			PPID   rcpt_op_id = 0;
+			PPID   purchase_op_id = 0;
+			PPID   retail_op_id = 0;
+			PPID   intr_rcpt_op_id = 0;
+			{
+				PPObjAccSheet acs_obj;
+				PPAccSheet acs_rec;
+				for(PPID acs_id = 0; acs_obj.EnumItems(&acs_id, &acs_rec) > 0;) {
+					if(acs_rec.Assoc == PPOBJ_LOCATION)
+						loc_acs_list.add(acs_rec.ID);
+					else if(acs_rec.Assoc == PPOBJ_PERSON) {
+						if(acs_rec.ObjGroup == PPPRK_CLIENT)
+							sell_acs_list.add(acs_rec.ID);
+						else if(acs_rec.ObjGroup == PPPRK_SUPPL)
+							suppl_acs_list.add(acs_rec.ID);
+					}
+				}
+				if(suppl_acs_list.getCount() == 1)
+					suppl_acs_id = suppl_acs_list.get(0);
+			}
+			{
+				PPObjPerson psn_obj;
+				psn_obj.GetListByKind(PPPRK_MAIN, &main_org_list, 0);
+				{
+					LocationTbl::Rec loc_rec;
+					for(SEnum en = psn_obj.LocObj.P_Tbl->Enum(LOCTYP_WAREHOUSE, 0, 0); en.Next(&loc_rec) > 0;) {
+						loc_list.add(loc_rec.ID);
+					}
+				}
+			}
+			{
+				PPObjOprKind op_obj;
+				PPOprKind op_rec;
+				if(suppl_acs_id) {
+					if(op_obj.Search(PPOPK_RECEIPT, &op_rec) > 0 && op_rec.AccSheetID == suppl_acs_id) {
+						rcpt_op_id = op_rec.ID;
+					}
+				}
+				if(op_obj.Search(PPOPK_RETAIL, &op_rec) > 0) {
+					retail_op_id = op_rec.ID;
+				}
+				if(op_obj.Search(PPOPK_INTRRECEIPT, &op_rec) > 0) {
+					intr_rcpt_op_id = op_rec.ID;
+				}
+				if(suppl_acs_id) {
+					PPIDArray temp_op_list;
+					PPIDArray candid_list;
+					GetOpList(PPOPT_DRAFTRECEIPT, &temp_op_list);
+					for(uint i = 0; i < temp_op_list.getCount(); i++) {
+						const PPID temp_op_id = temp_op_list.get(i);
+						if(op_obj.Search(temp_op_id, &op_rec) > 0 && op_rec.AccSheetID == suppl_acs_id) 
+							candid_list.add(temp_op_id);
+					}
+					if(candid_list.getCount() == 1)
+						purchase_op_id = candid_list.get(0);
+				}
+			}
+			{
+				int    do_update = 0;
+				int    do_update_comm_cfg = 0;
+				PPTransaction tra(1);
+				THROW(tra);
+				int    r = p_ref->GetConfig(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CFG, &cfg_rec, sizeof(cfg_rec));
+				THROW(r);
+				THROW(GetCommConfig(&comm_cfg));
+				if(r < 0) {
+					cfg_rec.Tag           = 0;
+					cfg_rec.ObjID         = PPCFG_MAIN;
+					cfg_rec.PropID        = PPPRP_CFG;
+					cfg_rec.AccessLevel   = DEFCFG_ACCESS;
+					cfg_rec.BaseCurID     = DEFCFG_CURRENCY;
+					cfg_rec.RealizeOrder  = DEFCFG_RLZORD;
+					cfg_rec.Menu          = DEFCFG_MENU;
+					cfg_rec.LocAccSheetID = 0;
+					cfg_rec.Location      = 0;
+					cfg_rec.Flags         = CFGFLG_UNITEINTRTRFR;
+					do_update = 1;
+				}
+				if(!cfg_rec.LocAccSheetID && loc_acs_list.getCount() == 1) {
+					cfg_rec.LocAccSheetID = loc_acs_list.get(0);
+					do_update = 1;
+				}
+				if(!cfg_rec.MainOrg && main_org_list.getCount() == 1) {
+					cfg_rec.MainOrg = main_org_list.get(0);
+					do_update = 1;
+				}
+				if(!cfg_rec.Location && loc_list.getCount() == 1) {
+					cfg_rec.Location = loc_list.get(0);
+					do_update = 1;
+				}
+				if(!cfg_rec.RealizeOrder) {
+					cfg_rec.RealizeOrder = RLZORD_FIFO;
+					do_update = 1;
+				}
+				//
+				if(!comm_cfg.SellAccSheet && sell_acs_list.getCount() == 1) {
+					comm_cfg.SellAccSheet = sell_acs_list.get(0);
+					do_update_comm_cfg = 1;
+				}
+				if(!comm_cfg.SupplAccSheet && suppl_acs_id) {
+					comm_cfg.SupplAccSheet = suppl_acs_id;
+					do_update_comm_cfg = 1;
+				}
+				{
+					comm_cfg.Flags |= (CCFLG_USEDRAFTBILL|CCFLG_USEGDSCLS|CCFLG_USEHISTBILL|CCFLG_USEHISTGOODS|
+						CCFLG_THROUGHSCARDUNIQ|CCFLG_USECCHECKEXT|CCFLG_USECCHECKLINEEXT|CCFLG_GENLOTONUNLIMORDER|
+						CCFLG_USEARGOODSCODE|CCFLG_LOGCCHECK|CCFLG_RSRVSJ);
+					comm_cfg.Flags2 |= (CCFLG2_QUOT2|CCFLG2_INDEXEADDR|CCFLG2_SYNCLOT);
+					comm_cfg.IncomeCalcMethod = INCM_BYSHIPMENT;
+					if(rcpt_op_id)
+						comm_cfg.ReceiptOp = rcpt_op_id;
+					if(intr_rcpt_op_id)
+						comm_cfg.IntrReceiptOp = intr_rcpt_op_id;
+					if(retail_op_id)
+						comm_cfg.RetailOp = retail_op_id;
+					if(purchase_op_id)
+						comm_cfg.DraftRcptOp = purchase_op_id;
+					do_update_comm_cfg = 1;
+				}
+				//
+				if(do_update) {
+					THROW(p_ref->SetConfig(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CFG, &cfg_rec, sizeof(cfg_rec)));
+				}
+				if(do_update_comm_cfg) {
+					THROW(SetCommConfig(&comm_cfg, 0));
+				}
+				THROW(tra.Commit());
+			}
+		}
+	}
+	CATCHZOK
 	PPWait(0);
 	return ok;
 }
@@ -602,7 +758,7 @@ int SLAPI PPObject::GetName(PPID id, SString * pBuf)
 	return ok;
 }
 
-int SLAPI PPObject::MakeReserved(long /*extra*/)
+int SLAPI PPObject::MakeReserved(long flags)
 {
 	return 1;
 }
