@@ -962,18 +962,19 @@ int SLAPI Transfer::GetBounds(PPID lot, LDATE date, long oprno, double * pMinusD
 	return ok;
 }
 
-int SLAPI Transfer::GetAvailableGoodsRest(PPID goodsID, PPID locID, const DateRange & rPeriod, double * pRest)
+int SLAPI Transfer::GetAvailableGoodsRest(PPID goodsID, PPID locID, const DateRange & rPeriod, double ignoreEpsilon, double * pRest)
 {
 	int    ok = 1;
-	uint   i;
+	const  double _epsilon = (ignoreEpsilon > 0.0) ? ignoreEpsilon : 0.0;
 	double lot_rest, rest = 0.0;
 	LotArray lot_list;
 	THROW(Rcpt.GetListOfOpenedLots(1, goodsID, locID, rPeriod.upp, &lot_list));
-	for(i = 0; i < lot_list.getCount(); i++) {
+	for(uint i = 0; i < lot_list.getCount(); i++) {
 		const ReceiptTbl::Rec & r_rec = lot_list.at(i);
 		if(r_rec.Dt >= rPeriod.low) {
 			THROW(GetBounds(r_rec.ID, rPeriod.upp, -1, &lot_rest, 0));
-			rest += lot_rest;
+			if(lot_rest > _epsilon) // @v9.4.8
+				rest += lot_rest;
 		}
 	}
 	CATCHZOK

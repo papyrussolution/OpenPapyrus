@@ -2790,11 +2790,11 @@ public:
 	int    SLAPI Get(PPID securType, PPID securID);
 	int    SLAPI Put(PPID securType, PPID securID);
 	int    SLAPI Remove(PPID securType, PPID securID);
-	int    SLAPI GetPath(PPID pathID, short * pFlags, char * pBuf, size_t bufSize) const;
+	// @v9.4.8 int    SLAPI GetPath(PPID pathID, short * pFlags, char * pBuf, size_t bufSize) const;
 	int    SLAPI GetPath(PPID pathID, short * pFlags, SString & rBuf) const;
 	int    SLAPI SetPath(PPID pathID, const char * buf, short flags = 0, int replace = 1);
 	int    SLAPI Get(PPID obj, PPID id, PPID pathID, SString & rBuf);
-	int    SLAPI Get(PPID obj, PPID id, PPID p, char * pBuf, size_t bufLen); // @obsolete
+	// @v9.4.8 int    SLAPI Get(PPID obj, PPID id, PPID p, char * pBuf, size_t bufLen); // @obsolete
 private:
 	size_t SLAPI Size() const;
 	int    SLAPI Resize(size_t);
@@ -3617,6 +3617,12 @@ public:
 	int    SLAPI GetPropArrayFromRecBuf(SArray * pAry);
 	int    SLAPI GetPropArray(PPID obj, PPID id, PPID prop, SArray *);
 	int    SLAPI PutPropArray(PPID obj, PPID id, PPID prop, const SArray *, int use_ta);
+
+	static int SLAPI Helper_Encrypt_(int cryptMethod, const char * pEncPw, const char * pText, char * pBuf, size_t bufLen);
+	static int SLAPI Helper_Decrypt_(int cryptMethod, const char * pEncPw, const char * pBuf, size_t bufLen, SString & rText);
+	//
+	static int SLAPI Helper_EncodeOtherPw(const char * pEncPw, const char * pPw, size_t pwBufSize, SString & rResult);
+	static int SLAPI Helper_DecodeOtherPw(const char * pEncPw, const char * pPw, size_t pwBufSize, SString & rResult);
 protected:
 	int    SLAPI _GetFreeID(PPID obj, PPID * id, PPID firstID);
 	int    SLAPI _Search(PPID obj, PPID id, int spMode, void *);
@@ -11753,7 +11759,12 @@ public:
 	//   отработает несколько быстрее.
 	//
 	int    SLAPI GetBounds(PPID lotID, LDATE, long oprno, double * down, double * up);
-	int    SLAPI GetAvailableGoodsRest(PPID goodsID, PPID locID, const DateRange & rPeriod, double * pRest);
+	//
+	// Descr: –ассчитывает доступный остаток товара goodsID по складу locID.
+	//   –ассматриваютс€ только открытые лоты, попадающие в период rPeriod.
+	//   ≈сли аргумент ignoreEpsilon > 0, то игнорируютс€ лоты, имеющие остаток меньший чем ignoreEpsilon.
+	//
+	int    SLAPI GetAvailableGoodsRest(PPID goodsID, PPID locID, const DateRange & rPeriod, double ignoreEpsilon, double * pRest);
 	//
 	// Descr: ѕолучает оригинальные значени€ количества и цены дл€ строки корректирующего документа rTi.
 	// ARG(rTi IN): —трока корректирующего документа
@@ -19066,8 +19077,8 @@ public:
 	SLAPI  PPObjPhoneService(void * extraPtr);
 	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual int SLAPI Browse(void * extraPtr);
-	int    PutPacket(PPID * pID, PPPhoneServicePacket *, int use_ta);
-	int    GetPacket(PPID id, PPPhoneServicePacket *);
+	int    SLAPI PutPacket(PPID * pID, PPPhoneServicePacket *, int use_ta);
+	int    SLAPI GetPacket(PPID id, PPPhoneServicePacket *);
 };
 //
 //
@@ -26725,10 +26736,10 @@ struct PPAlbatrosCfgHdr { // @persistent @store(PropertyTbl)
 
 class PPAlbatrosConfig {
 public:
-	PPAlbatrosConfig();
-	PPAlbatrosConfig & Clear();
-	int    SetPassword(int fld, const char * pPw);
-	int    GetPassword(int fld, SString & rPw);
+	SLAPI  PPAlbatrosConfig();
+	PPAlbatrosConfig & SLAPI Clear();
+	int    SLAPI SetPassword(int fld, const char * pPw);
+	int    SLAPI GetPassword(int fld, SString & rPw);
 
 	PPAlbatrosCfgHdr Hdr;
 	SString UhttUrn;
@@ -26744,9 +26755,13 @@ public:
 	static int SLAPI Fetch(PPAlbatrosConfig * pCfg);
 	static int SLAPI Put(PPAlbatrosConfig * pCfg, int use_ta);
 	static int SLAPI Edit();
+	//
+	static int SLAPI Helper_Get(Reference * pRef, PPAlbatrosConfig * pCfg);
+	static int SLAPI Helper_Put(Reference * pRef, PPAlbatrosConfig * pCfg, int use_ta);
 private:
 	static int SLAPI Get(PPAlbatrosCfgHdr * pHdr);
 	static int SLAPI Put(const PPAlbatrosCfgHdr * pHdr, int use_ta);
+	static int SLAPI Helper_Get(Reference * pRef, PPAlbatrosCfgHdr * pHdr);
 };
 //
 //

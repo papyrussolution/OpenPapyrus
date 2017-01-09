@@ -715,7 +715,7 @@ toolbar export GOODSBILLITEM TB_FIRST_TOOLBAR {
 	kbF2,      "Расширенное добавление строки\tF2",     TBBM_EXTADDTI
 	kbShiftF2, "Редактировать товар\tShift-F2",         TBBM_GOODS
 	kbShiftF3, "Партии по строке\tShift-F3",            TBBM_LOTS
-	kbF3,      "Поиск по штрихкоду\tF3",                TBBM_BARCODE
+	kbF3,      "@{searchbybarcode}\tF3",                TBBM_BARCODE
 	kbF4,      "Поиск по наименованию\tF4",             TBBM_ABC
 	kbCtrlF4,  "Подбор по серийному номеру\tCtrl-F4",   TBBM_SERIAL
 	kbF5,      "Подбор по цене\tF5",                    TBBM_PRICE
@@ -1751,7 +1751,7 @@ browser INVNTRYLINES north(100), 1, 1, "Строки инвентаризации {%s}", OWNER|GRID,
 		ADDITEM       : kbIns,     TBBM_INSERT,    "Стандартное добавление строки\tInsert"
 		DELETEITEM    : kbDel,     TBBM_DELETE,    "@{doremoverow}\tDelete"
 		ADDITEMEXT    : kbF2,      TBBM_EXTADDTI,  "Расширенное добавление строки\tF2"
-		SELECTBYCODE  : kbF3,      TBBM_BARCODE,   "Поиск по штрихкоду\tF3"
+		SELECTBYCODE  : kbF3,      TBBM_BARCODE,   "@{searchbybarcode}\tF3"
 		SELECTBYNAME  : kbF4,      TBBM_ABC,       "Поиск по наименованию\tF4"
 		PRINT         : kbF7,      TBBM_PRINT,     "@{print}\tF7"
 		EDITGOODS     : kbShiftF2, TBBM_GOODS,     "@{ware}\tShift-F2"
@@ -2033,7 +2033,7 @@ browser OPSBYLOT south(56), 1, 0, "@{view_lotop} {%s}", OWNER|GRID, 0
 	"@oprkind",     8, notype, 0, 20 // @v4.6.12
 	"@contractor",  3, notype, 0, 20
 	"@qtty",        4, notype, NMBF_NOTRAILZ, 7.3
-	"@rest",        5, notype, NMBF_NOTRAILZ, 7.3
+	"@rest",        5, notype, NMBF_NOTRAILZ, 10.7
 	"Ц пост",       6, notype, NMBF_NOZERO, 8.2
 	"Ц реал",       7, notype, NMBF_NOZERO, 8.2
 	toolbar TB_FIRST_TOOLBAR {
@@ -2048,20 +2048,20 @@ browser OPSBYLOT south(56), 1, 0, "@{view_lotop} {%s}", OWNER|GRID, 0
 browser OPSBYLOT_WT south(60), 3, 0, "@{view_lotop} {%s}", OWNER|GRID, 0
 {
 	"@date",       0, notype, DATF_DMY, 8
-	"@billno",       2, notype, 0, 7
+	"@billno",     2, notype, 0, 7
 	"@oprkind",    8, notype, 0, 20 // @v4.6.12
 	"@contractor", 3, notype, 0, 20
 	group "В торговых единицах" {
 		"@qtty",     4, notype, NMBF_NOTRAILZ, 7.3
-		"@rest",  5, notype, NMBF_NOTRAILZ, 7.3
+		"@rest",     5, notype, NMBF_NOTRAILZ, 10.7
 	}
 	group "В физических единицах" {
 		"@qtty",     9, notype, NMBF_NOTRAILZ, 7.3
-		"@rest", 10, notype, NMBF_NOTRAILZ, 7.3
+		"@rest",    10, notype, NMBF_NOTRAILZ, 7.3
 	}
 	group "@price" {
-		"Поступл",      6, notype, NMBF_NOZERO, 8.2
-		"Реализ",       7, notype, NMBF_NOZERO, 8.2
+		"Поступл",   6, notype, NMBF_NOZERO, 8.2
+		"Реализ",    7, notype, NMBF_NOZERO, 8.2
 	}
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL     : kbEnter,  TBBM_EDIT,     "Операции по порожденному лоту\tEnter"
@@ -2089,9 +2089,9 @@ browser OPSBYGOODS north(100), 1, 0, "Операции по товару {%s}", OWNER|GRID, 0
 	"@billno",       2, notype, 0, 7
 	"@contractor", 3, notype, 0, 20
 	"@qtty",       4, notype, NMBF_NOTRAILZ, 7.3
-	"@rest",       5, notype, NMBF_NOTRAILZ, 7.3
-	"Ц пост",      6, notype, NMBF_NOZERO, 8.2
-	"Ц реал",      7, notype, NMBF_NOZERO, 8.2
+	"@rest",       5, notype, NMBF_NOTRAILZ, 10.7
+	"Ц пост",      6, notype, NMBF_NOZERO,   8.2
+	"Ц реал",      7, notype, NMBF_NOZERO,   8.2
 }
 
 browser LOT2 north(100), 1, 0, "@{view_lot} {%s}", OWNER|GRID, 0
@@ -2100,8 +2100,8 @@ browser LOT2 north(100), 1, 0, "@{view_lot} {%s}", OWNER|GRID, 0
 	"@warehouse",      3, notype, 0, 16
 	"@ware",           4, notype, 0, 20
 	"@supplier",       5, notype, 0, 18
-	"Пришло",          6, notype, NMBF_NOTRAILZ, 6.3
-	"@rest",           7, notype, NMBF_NOTRAILZ, 6.3
+	"Пришло",          6, notype, NMBF_NOTRAILZ,  6.3
+	"@rest",           7, notype, NMBF_NOTRAILZ, 10.7
 	"@lot_closedate", 11, notype, DATF_DMY, 8
 	"Ц пост",          8, notype, NMBF_NOZERO, 8.2
 	"Ц реал",          9, notype, NMBF_NOZERO, 8.2
@@ -2117,8 +2117,8 @@ browser LOTOPER2 north(100), 3, 0, "@{view_lot} {%s}", OWNER|GRID, 0
 	"@supplier",       5, notype, 0, 18
 	"Пришло",          6, notype, NMBF_NOTRAILZ, 6.3
 	group "@rest" {
-		"На начало",  12, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 6.3
-		"На конец",   13, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 6.3
+		"На начало",  12, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 10.7
+		"На конец",   13, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 10.7
 	}
 	"@lot_closedate", 11, notype, DATF_DMY, 8
 	"Ц пост",          8, notype, NMBF_NOZERO, 8.2

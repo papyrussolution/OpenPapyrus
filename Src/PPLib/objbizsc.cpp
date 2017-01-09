@@ -1013,106 +1013,106 @@ int SLAPI BizScoreCore::DeleteItem(LDATE actualDate, PPID scID, PPID objID, int 
 
 int SLAPI BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, long flags, double val, int use_ta)
 {
-	int    ok = -1, ta = 0, r;
+	int    ok = -1, r;
 	BizScoreTbl::Rec rec;
-	THROW(PPStartTransaction(&ta, use_ta));
-	THROW(r = Search(actualDate, scID, 0, &rec));
-	if(r > 0) {
-		if(val != rec.Val || flags != rec.Flags) {
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		THROW(r = Search(actualDate, scID, 0, &rec));
+		if(r > 0) {
+			if(val != rec.Val || flags != rec.Flags) {
+				getcurdatetime(&rec.Dt, &rec.Tm);
+				rec.UserID = userID;
+				rec.Val = val;
+				rec.Flags = flags;
+				THROW_DB(updateRecBuf(&rec));
+				ok = 1;
+			}
+		}
+		else {
+			MEMSZERO(rec);
+			rec.ActualDate = actualDate;
 			getcurdatetime(&rec.Dt, &rec.Tm);
 			rec.UserID = userID;
+			rec.ScoreID = scID;
 			rec.Val = val;
 			rec.Flags = flags;
-			THROW_DB(updateRecBuf(&rec));
-			ok = 1;
+			THROW_DB(insertRecBuf(&rec));
+			ok = 2;
 		}
+		THROW(tra.Commit());
 	}
-	else {
-		MEMSZERO(rec);
-		rec.ActualDate = actualDate;
-		getcurdatetime(&rec.Dt, &rec.Tm);
-		rec.UserID = userID;
-		rec.ScoreID = scID;
-		rec.Val = val;
-		rec.Flags = flags;
-		THROW_DB(insertRecBuf(&rec));
-		ok = 2;
-	}
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
 int SLAPI BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, const char * pStr, int use_ta)
 {
-	int    ok = -1, ta = 0, r;
+	int    ok = -1, r;
 	BizScoreTbl::Rec rec;
-	THROW(PPStartTransaction(&ta, use_ta));
-	THROW(r = Search(actualDate, scID, 0, &rec));
-	if(r > 0) {
-		if(strcmp(pStr, rec.Str) != 0) {
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		THROW(r = Search(actualDate, scID, 0, &rec));
+		if(r > 0) {
+			if(strcmp(pStr, rec.Str) != 0) {
+				getcurdatetime(&rec.Dt, &rec.Tm);
+				rec.UserID = userID;
+				STRNSCPY(rec.Str, pStr);
+				THROW_DB(updateRecBuf(&rec));
+				ok = 1;
+			}
+		}
+		else {
+			MEMSZERO(rec);
+			rec.ActualDate = actualDate;
 			getcurdatetime(&rec.Dt, &rec.Tm);
 			rec.UserID = userID;
+			rec.ScoreID = scID;
 			STRNSCPY(rec.Str, pStr);
-			THROW_DB(updateRecBuf(&rec));
-			ok = 1;
+			THROW_DB(insertRecBuf(&rec));
+			ok = 2;
 		}
+		THROW(tra.Commit());
 	}
-	else {
-		MEMSZERO(rec);
-		rec.ActualDate = actualDate;
-		getcurdatetime(&rec.Dt, &rec.Tm);
-		rec.UserID = userID;
-		rec.ScoreID = scID;
-		STRNSCPY(rec.Str, pStr);
-		THROW_DB(insertRecBuf(&rec));
-		ok = 2;
-	}
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
 int SLAPI BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, PPObjID obj, const char * pStr, int use_ta)
 {
-	int    ok = -1, ta = 0, r;
+	int    ok = -1, r;
 	BizScoreTbl::Rec rec;
-	THROW(PPStartTransaction(&ta, use_ta));
-	THROW(r = Search(actualDate, scID, obj.Id, &rec));
-	if(r > 0) {
-		if(obj.Id != rec.ObjID || strcmp(pStr, rec.Str) != 0) {
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		THROW(r = Search(actualDate, scID, obj.Id, &rec));
+		if(r > 0) {
+			if(obj.Id != rec.ObjID || strcmp(pStr, rec.Str) != 0) {
+				getcurdatetime(&rec.Dt, &rec.Tm);
+				rec.UserID = userID;
+				rec.ObjType = obj.Obj;
+				rec.ObjID = obj.Id;
+				STRNSCPY(rec.Str, pStr);
+				THROW_DB(updateRecBuf(&rec));
+				ok = 1;
+			}
+		}
+		else {
+			MEMSZERO(rec);
+			rec.ActualDate = actualDate;
 			getcurdatetime(&rec.Dt, &rec.Tm);
 			rec.UserID = userID;
+			rec.ScoreID = scID;
 			rec.ObjType = obj.Obj;
 			rec.ObjID = obj.Id;
 			STRNSCPY(rec.Str, pStr);
-			THROW_DB(updateRecBuf(&rec));
-			ok = 1;
+			THROW_DB(insertRecBuf(&rec));
+			ok = 2;
 		}
+		THROW(tra.Commit());
 	}
-	else {
-		MEMSZERO(rec);
-		rec.ActualDate = actualDate;
-		getcurdatetime(&rec.Dt, &rec.Tm);
-		rec.UserID = userID;
-		rec.ScoreID = scID;
-		rec.ObjType = obj.Obj;
-		rec.ObjID = obj.Id;
-		STRNSCPY(rec.Str, pStr);
-		THROW_DB(insertRecBuf(&rec));
-		ok = 2;
-	}
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -1166,10 +1166,10 @@ int SLAPI CreateBizScGlblUserAcct()
 		}
 	}
 	if(ok > 0) {
-		ulong crc = 0;
-		CRC32 crc32;
+		ulong  crc = 0;
+		CRC32  crc32;
 		SString out_buf, buf, path, sguid, file_name;
-		SFile file;
+		SFile  file;
 		S_GUID dbuuid;
 
 		CurDict->GetDbUUID(&dbuuid);

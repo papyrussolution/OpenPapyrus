@@ -1452,7 +1452,7 @@ int SLAPI SetupStrAssocCombo(TDialog * dlg, uint ctlID, const StrAssocArray * pL
 		if(offs) {
 			for(uint i = 0; i < pList->getCount(); i++) {
 				StrAssocArray::Item item = pList->at_WithoutParent(i);
-				size_t len = item.Txt ? strlen(item.Txt) : 0;
+				const size_t len = sstrlen(item.Txt);
 				if(offs < len)
 					p_list->Add(item.Id, item.Txt+offs);
 				else
@@ -1805,7 +1805,7 @@ static int SplitPath(const char * pDirNFile, SString & rDir, SString & rFile)
 {
 	int    ok = -1;
 	rDir = rFile = 0;
-	if(pDirNFile && strlen(pDirNFile) > 0) {
+	if(!isempty(pDirNFile)) {
 		SPathStruc  ps;
 		ps.Split(pDirNFile);
 		ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, rDir);

@@ -1,5 +1,5 @@
 // GDSPACK.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -886,7 +886,8 @@ int SLAPI PPGdsClsPacket::PropNameToID(int prop, const char * pName, PPID * pID,
 	// } @v7.4.7
 	if(obj_type && IS_REF_OBJTYPE(obj_type)) {
 		PPID   id = 0;
-		if(PPRef->SearchName(obj_type, &id, pName, 0) > 0) {
+		Reference * p_ref = PPRef;
+		if(p_ref->SearchName(obj_type, &id, pName, 0) > 0) {
 			ASSIGN_PTR(pID, id);
 			ok = 1;
 		}
@@ -894,7 +895,7 @@ int SLAPI PPGdsClsPacket::PropNameToID(int prop, const char * pName, PPID * pID,
 			ReferenceTbl::Rec rec;
 			MEMSZERO(rec);
 			STRNSCPY(rec.ObjName, pName);
-			THROW(PPRef->AddItem(obj_type, &(id = 0), &rec, use_ta));
+			THROW(p_ref->AddItem(obj_type, &(id = 0), &rec, use_ta));
 			ASSIGN_PTR(pID, id);
 			ok = 1;
 		}

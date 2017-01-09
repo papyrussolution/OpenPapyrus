@@ -1602,7 +1602,7 @@ static int SLAPI _F2_(const BillTbl::Rec * pBillRec, const ArticleTbl::Rec * pAr
 {
 	const size_t ar_buf_offs = 10;
 	memzero(pRefRec->ObjName, sizeof(pRefRec->ObjName));
-	size_t len = MIN(sizeof(pArRec->Name), sizeof(pRefRec->ObjName))-1;
+	const size_t len = MIN(sizeof(pArRec->Name), sizeof(pRefRec->ObjName))-1;
 	for(size_t i = 0; i < len; i++) {
 		char s = pArRec->Name[i];
 		if(i >= ar_buf_offs && i < (ar_buf_offs + sizeof(pBillRec->Code) - 1))
@@ -1713,9 +1713,16 @@ int SLAPI PPChainDatabase(const char * pPassword)
 	return ok;
 }
 
-static int SLAPI ProcessDatabaseChain(int unchain, const char * pPassword)
+enum {
+	pdbcmVerify    = 0,
+	pdbcmUnchain   = 1,
+	pdbcmReEncrypt = 2,
+};
+
+static int SLAPI ProcessDatabaseChain(PPObjBill * pBObj, Reference * pRef, int mode, const char * pPassword, const char * pSrcEncPw, const char * pDestEncPw)
 {
 	int    ok = -1;
+	SString pw;
 	ReferenceTbl::Rec ref_rec, ref_rec2;
 	BillTbl::Rec      bill_rec;
 	ArticleTbl::Rec   ar_rec;
@@ -1723,28 +1730,34 @@ static int SLAPI ProcessDatabaseChain(int unchain, const char * pPassword)
 		ok = 1;
 	else {
 		uint   i;
-		ArticleCore & r_ar_tbl = BillObj->atobj->P_Tbl->Art;
-		if(PPRef->GetItem(PPOBJ_UNASSIGNED, 1L, &ref_rec) > 0) {
-			int    r = BillObj->P_Tbl->Search(ref_rec.Val1, &bill_rec);
+		ArticleCore & r_ar_tbl = pBObj->atobj->P_Tbl->Art;
+		if(pRef->GetItem(PPOBJ_UNASSIGNED, 1L, &ref_rec) > 0) {
+			int    r = pBObj->P_Tbl->Search(ref_rec.Val1, &bill_rec);
 			THROW(r);
 			THROW_PP(r > 0, PPERR_DBCHA_BILLABSENCE);
-			size_t len = strlen(bill_rec.Code);
+			const size_t len = strlen(bill_rec.Code);
 			memzero(bill_rec.Code+len, sizeof(bill_rec.Code)-len);
 			THROW_PP(r_ar_tbl.Search(ref_rec.Val2, &ar_rec) > 0, PPERR_DBCHA_ARABSENCE);
 			_F2_(&bill_rec, &ar_rec, &ref_rec2);
-			IdeaDecrypt(0, ref_rec.ObjName, sizeof(ref_rec.ObjName)-1);
-			for(i = 0; ok && i < sizeof(ref_rec.ObjName)-1; i++)
+			IdeaDecrypt(/*0*/pSrcEncPw, ref_rec.ObjName, sizeof(ref_rec.ObjName)-1);
+			for(i = 0; ok && i < sizeof(ref_rec.ObjName)-1; i++) {
 				THROW_PP(ref_rec.ObjName[i] == ref_rec2.ObjName[i], PPERR_DBCHA_INVDATA);
+			}
 			THROW_PP(bill_rec.Object == ar_rec.ID && ar_rec.ObjID == bill_rec.ID, PPERR_DBCHA_INVLINKS);
-			if(unchain) {
-				SString pw;
+			if(mode == pdbcmReEncrypt) {
+				THROW(Reference::Helper_Decrypt_(Reference::crymRef2, pSrcEncPw, ref_rec.Symb, sizeof(ref_rec.Symb), pw));
+				THROW(Reference::Helper_Encrypt_(Reference::crymRef2, pDestEncPw, pw, ref_rec.Symb, sizeof(ref_rec.Symb)));
+				IdeaEncrypt(pDestEncPw, ref_rec.ObjName, sizeof(ref_rec.ObjName)-1);
+				THROW(pRef->UpdateItem(PPOBJ_UNASSIGNED, 1L, &ref_rec, 0, 1 /*use_ta*/));
+			}
+			else if(mode == pdbcmUnchain) {
 				THROW(Reference::Decrypt(Reference::crymRef2, ref_rec.Symb, sizeof(ref_rec.Symb), pw));
 				THROW_PP(pPassword && pw.CmpNC(pPassword) != 0, PPERR_DBCHA_INVPASSWORD);
 				{
 					PPTransaction tra(1);
 					THROW(tra);
-					THROW(PPRef->RemoveItem(PPOBJ_UNASSIGNED, 1L, 0));
-					THROW_DB(BillObj->P_Tbl->deleteRec());
+					THROW(pRef->RemoveItem(PPOBJ_UNASSIGNED, 1L, 0));
+					THROW_DB(pBObj->P_Tbl->deleteRec());
 					THROW_DB(r_ar_tbl.deleteRec());
 					THROW(tra.Commit());
 				}
@@ -1754,7 +1767,7 @@ static int SLAPI ProcessDatabaseChain(int unchain, const char * pPassword)
 		else {
 			DateIter di;
 			long   ar_no = 0;
-			THROW_PP(BillObj->P_Tbl->EnumByOpr(PPOPK_UNASSIGNED, &di, &bill_rec) < 0, PPERR_DBCHA_REFABSENCE);
+			THROW_PP(pBObj->P_Tbl->EnumByOpr(PPOPK_UNASSIGNED, &di, &bill_rec) < 0, PPERR_DBCHA_REFABSENCE);
 			THROW_PP(r_ar_tbl.EnumBySheet(PPACSH_UNASSIGNED, &ar_no, &ar_rec) < 0, PPERR_DBCHA_REFABSENCE);
 		}
 	}
@@ -1763,17 +1776,23 @@ static int SLAPI ProcessDatabaseChain(int unchain, const char * pPassword)
 	IdeaRandMem(&ref_rec2, sizeof(ref_rec2));
 	IdeaRandMem(&bill_rec, sizeof(bill_rec));
 	IdeaRandMem(&ar_rec,   sizeof(ar_rec));
+	pw.Obfuscate();
 	return ok;
 }
 
 int SLAPI PPUnchainDatabase(const char * pPassword)
 {
-	return ProcessDatabaseChain(1, pPassword);
+	return ProcessDatabaseChain(BillObj, PPRef, pdbcmUnchain, pPassword, 0, 0);
 }
 
 int SLAPI PPCheckDatabaseChain()
 {
-	return ProcessDatabaseChain(0, 0);
+	return ProcessDatabaseChain(BillObj, PPRef, pdbcmVerify, 0, 0, 0);
+}
+
+int SLAPI PPReEncryptDatabaseChain(PPObjBill * pBObj, Reference * pRef, const char * pSrcEncPw, const char * pDestEncPw)
+{
+	return ProcessDatabaseChain(pBObj, pRef, pdbcmReEncrypt, 0, pSrcEncPw, pDestEncPw);
 }
 //
 //
@@ -2481,26 +2500,25 @@ int SLAPI XMLFillDTDEntitys(void * pWriter)
 int CheckCorrAcc(const char * pCode, const char * pBic)
 {
 	int    ok = 0;
-	if(pCode && pBic) {
-		const size_t len = strlen(pCode);
-		if(len == 20 && strlen(pBic) >= 6) {
-			int    r = 1;
-			size_t i;
-			for(i = 0; r && i < len; i++) {
-				if(pCode[i] < '0' || pCode[i] > '9')
-					r = 0;
+	const size_t len = sstrlen(pCode);
+	const size_t bic_len = sstrlen(pBic);
+	if(len == 20 && bic_len >= 6) {
+		int    r = 1;
+		size_t i;
+		for(i = 0; r && i < len; i++) {
+			if(pCode[i] < '0' || pCode[i] > '9')
+				r = 0;
+		}
+		if(r) {
+			const int8 w[] = {7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1};
+			ulong  sum = 0;
+			sum += w[0] * 0;
+			sum += w[1] * (pBic[4]-'0');
+			sum += w[2] * (pBic[5]-'0');
+			for(i = 0; i < len; i++) {
+				sum += (w[i+3] * (pCode[i]-'0'));
 			}
-			if(r) {
-				const int8 w[] = {7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1};
-				ulong  sum = 0;
-				sum += w[0] * 0;
-				sum += w[1] * (pBic[4]-'0');
-				sum += w[2] * (pBic[5]-'0');
-				for(i = 0; i < len; i++) {
-					sum += (w[i+3] * (pCode[i]-'0'));
-				}
-				ok = BIN((sum % 10) == 0);
-			}
+			ok = BIN((sum % 10) == 0);
 		}
 	}
 	return ok;
@@ -2517,27 +2535,25 @@ int CheckCorrAcc(const char * pCode, const char * pBic)
 int CheckBnkAcc(const char * pCode, const char * pBic)
 {
 	int    ok = 0;
-	if(pCode && pBic) {
-		const size_t len = strlen(pCode);
-		const size_t bic_len = strlen(pBic);
-		if(len == 20 && bic_len >= 3) {
-			int    r = 1;
-			size_t i;
-			for(i = 0; r && i < len; i++) {
-				if(pCode[i] < '0' || pCode[i] > '9')
-					r = 0;
+	const size_t len = sstrlen(pCode);
+	const size_t bic_len = sstrlen(pBic);
+	if(len == 20 && bic_len >= 3) {
+		int    r = 1;
+		size_t i;
+		for(i = 0; r && i < len; i++) {
+			if(pCode[i] < '0' || pCode[i] > '9')
+				r = 0;
+		}
+		if(r) {
+			const int8 w[] = {7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1};
+			ulong  sum = 0;
+			sum += w[0] * (pBic[bic_len-3]-'0');
+			sum += w[1] * (pBic[bic_len-2]-'0');
+			sum += w[2] * (pBic[bic_len-1]-'0');
+			for(i = 0; i < len; i++) {
+				sum += (w[i+3] * (pCode[i]-'0'));
 			}
-			if(r) {
-				const int8 w[] = {7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1};
-				ulong  sum = 0;
-				sum += w[0] * (pBic[bic_len-3]-'0');
-				sum += w[1] * (pBic[bic_len-2]-'0');
-				sum += w[2] * (pBic[bic_len-1]-'0');
-				for(i = 0; i < len; i++) {
-					sum += (w[i+3] * (pCode[i]-'0'));
-				}
-				ok = BIN((sum % 10) == 0);
-			}
+			ok = BIN((sum % 10) == 0);
 		}
 	}
 	return ok;
@@ -2557,8 +2573,8 @@ int CheckBnkAcc(const char * pCode, const char * pBic)
 int CheckOKPO(const char * pCode)
 {
 	int    ok = 0;
-	const  size_t len = strlen(pCode);
 	size_t i;
+	const  size_t len = sstrlen(pCode);
 	if(len == 8) {
 		int    r = 1;
 		for(i = 0; r && i < len; i++) {

@@ -115,9 +115,10 @@ void SecurDialog::getPassword()
 int SecurDialog::setPathFld(TDialog * dlg, long pathID, uint fldID, uint labelID)
 {
 	short  flags;
-	char   buf[128], st[8];
-	Pack.Paths.GetPath(pathID, &flags, buf, sizeof(buf));
-	dlg->setCtrlData(fldID, strip(buf));
+	char   st[8];
+	SString temp_buf;
+	Pack.Paths.GetPath(pathID, &flags, temp_buf);
+	dlg->setCtrlString(fldID, temp_buf.Strip());
 	st[0] = ' ';
 	st[1] = (flags & PATHF_INHERITED) ? '.' : ' ';
 	st[2] = 0;
@@ -127,15 +128,19 @@ int SecurDialog::setPathFld(TDialog * dlg, long pathID, uint fldID, uint labelID
 
 int SecurDialog::getPathFld(TDialog * dlg, long pathID, uint fldID)
 {
+	int    ok = 1;
 	short  flags;
-	char   buf[128], pattern[128];
-	Pack.Paths.GetPath(pathID, &flags, pattern, sizeof(pattern));
-	buf[0] = 0;
-	dlg->getCtrlData(fldID, buf);
-	if(stricmp(strip(buf), strip(pattern)))
-		if(!Pack.Paths.SetPath(pathID, buf, 0, 1))
-			return 0;
-	return 1;
+	SString pattern;
+	SString temp_buf;
+	Pack.Paths.GetPath(pathID, &flags, pattern);
+	dlg->getCtrlString(fldID, temp_buf);
+	temp_buf.Strip();
+	pattern.Strip();
+	if(temp_buf.CmpNC(pattern) != 0) {
+		if(!Pack.Paths.SetPath(pathID, temp_buf, 0, 1))
+			ok = 0;
+	}
+	return ok;
 }
 
 int SecurDialog::getPaths()

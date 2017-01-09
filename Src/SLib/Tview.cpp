@@ -1366,13 +1366,13 @@ SLAPI TGroup::~TGroup()
 	// } @v7.0.0
 }
 
-TView * FASTCALL TGroup::at(short index) const
+/* @v9.4.8 TView * FASTCALL TGroup::at(short index) const
 {
 	TView * p_temp = P_Last;
 	while(index-- > 0)
 		p_temp = p_temp->next;
 	return p_temp;
-}
+}*/
 
 /* @v9.0.1
 TView * TGroup::firstThat(Boolean (*func)(TView *, void *), void *args)
@@ -1463,7 +1463,7 @@ ushort TGroup::execView(TWindow * p)
 {
 	ushort retval = cmCancel;
 	if(p) {
-		uint32 save_options = p->options;
+		const uint32 save_options = p->options;
 		TGroup  * save_owner = p->owner;
 		TWindow * save_top_view = APPL->P_TopView;
 		TView   * save_current = P_Current;
@@ -1609,12 +1609,12 @@ void TGroup::setCurrent(TView * p, selectMode mode)
 {
 	if(P_Current != p || mode == forceSelect) {
 		TView * p_save_current = P_Current;
-		if(mode != enterSelect)
-			if(P_Current)
-				P_Current->setState(sfSelected, false);
-		if(mode != leaveSelect)
-			if(p)
-				p->setState(sfSelected, true);
+		if(mode != enterSelect) {
+			CALLPTRMEMB(P_Current, setState(sfSelected, false));
+		}
+		if(mode != leaveSelect) {
+			CALLPTRMEMB(p, setState(sfSelected, true));
+		}
 		if(IsInState(sfFocused) && p)
 			p->setState(sfFocused, true);
 		if(!p || p->IsConsistent()) {
@@ -1650,10 +1650,10 @@ void TGroup::setState(uint aState, bool enable)
 		P_Current->setState(sfFocused, enable);
 }
 
-static bool isInvalid(TView * p, void * cmd)
+/* @v9.4.8 static bool isInvalid(TView * p, void * cmd)
 {
 	return p->valid((ushort)cmd) ? false : true; // @valid
-}
+}*/
 
 int FASTCALL TGroup::valid(ushort command)
 {

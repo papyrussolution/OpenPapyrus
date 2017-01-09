@@ -2528,6 +2528,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 						if(c >= 0 && c < (int)P_Pack->GetTCount()) {
 							const PPTransferItem & r_ti = P_Pack->ConstTI((uint)c);
 							if(oneof4(P_Pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_ACTCHARGEON, PPOPK_EDI_ACTCHARGEONSHOP, PPOPK_EDI_SHOPCHARGEON)) {
+								Reference * p_ref = PPRef;
 								uint   i;
 								SString ref_b, egais_code;
 								StringSet ss_egais_codes;
@@ -2537,13 +2538,13 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
                                 slp.GoodsList.add(labs(r_ti.GoodsID));
                                 if(P_Pack->LTagL.GetTagStr(c, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code) > 0) {
 									temp_list.clear();
-									PPRef->Ot.SearchObjectsByStr(PPOBJ_LOT, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code, &temp_list);
+									p_ref->Ot.SearchObjectsByStr(PPOBJ_LOT, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code, &temp_list);
                                     slp.AddendumLotList.add(&temp_list);
 									ss_egais_codes.add(egais_code);
                                 }
                                 if(P_Pack->LTagL.GetTagStr(c, PPTAG_LOT_FSRARINFB, ref_b) > 0) {
 									temp_list.clear();
-									PPRef->Ot.SearchObjectsByStr(PPOBJ_LOT, PPTAG_LOT_FSRARINFB, ref_b, &temp_list);
+									p_ref->Ot.SearchObjectsByStr(PPOBJ_LOT, PPTAG_LOT_FSRARINFB, ref_b, &temp_list);
                                     slp.AddendumLotList.add(&temp_list);
                                 }
                                 slp.AddendumLotList.sortAndUndup();

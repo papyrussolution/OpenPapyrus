@@ -21,8 +21,8 @@ struct CashierEntry {
 IMPL_CMPFUNC(CashierEnKey, i1, i2)
 {
 	int    cmp = 0;
-	CashierEntry * k1 = (CashierEntry*)i1;
-	CashierEntry * k2 = (CashierEntry*)i2;
+	const CashierEntry * k1 = (CashierEntry*)i1;
+	const CashierEntry * k2 = (CashierEntry*)i2;
 	if(k1->TabNum < k2->TabNum)
 		cmp = -1;
 	else if(k1->TabNum > k2->TabNum)
@@ -356,7 +356,7 @@ static long SLAPI GetDscntCode(PPID goodsID, PPID objID, int isQuotKind)
 
 static void SLAPI AddTimeToFileName(SString & fName)
 {
-	LTIME  cur_time = getcurtime_();
+	const LTIME cur_time = getcurtime_();
 	SPathStruc ps;
 	ps.Split(fName);
 	ps.Nam.CatLongZ(cur_time.hour(), 2).CatLongZ(cur_time.minut(), 2).CatLongZ(cur_time.sec(), 2);

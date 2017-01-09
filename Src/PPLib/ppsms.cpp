@@ -228,6 +228,7 @@ int SLAPI PPSmsAccPacket::Verify(long flags) const
 
 int SLAPI PPSmsAccPacket::SetPassword(const char * pPassword)
 {
+	/*
 	const  size_t temp_buf_len = 128;
 	char   temp_pw[128], temp_buf[512];
 	STRNSCPY(temp_pw, pPassword);
@@ -239,6 +240,9 @@ int SLAPI PPSmsAccPacket::SetPassword(const char * pPassword)
 		p += 3;
 	}
 	temp_buf[p] = 0;
+	*/
+	SString temp_buf;
+	Reference::Helper_EncodeOtherPw(0, pPassword, MAX_PASSWORD_LEN, temp_buf);
 	return PPPutExtStrData(SMEXTSTR_PASSWORD, ExtStr, temp_buf);
 }
 
@@ -246,9 +250,11 @@ int SLAPI PPSmsAccPacket::GetPassword(SString & rBuf) const
 {
 	rBuf = 0;
 	int    ok = 1;
-	char   temp_pw[128];
 	SString temp_buf;
 	PPGetExtStrData(SMEXTSTR_PASSWORD, ExtStr, temp_buf);
+	Reference::Helper_DecodeOtherPw(0, temp_buf, MAX_PASSWORD_LEN, rBuf);
+	/*
+	char   temp_pw[128];
 	memzero(temp_pw, sizeof(temp_pw));
 	if(temp_buf.Len() == (MAX_PASSWORD_LEN*3)) {
 		for(size_t i = 0, p = 0; i < MAX_PASSWORD_LEN; i++) {
@@ -266,6 +272,7 @@ int SLAPI PPSmsAccPacket::GetPassword(SString & rBuf) const
 	}
 	else
 		ok = 0;
+	*/
 	return ok;
 }
 

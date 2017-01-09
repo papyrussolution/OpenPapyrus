@@ -212,8 +212,7 @@ int SLAPI PPPhoneServicePacket::GetExField(int fldId, SString & rBuf) const
 	int    ok = -1;
 	rBuf = 0;
 	if(oneof4(fldId, PHNSVCEXSTR_ADDR, PHNSVCEXSTR_PORT, PHNSVCEXSTR_USER, PHNSVCEXSTR_PASSWORD)) {
-		SString temp_buf = Tail;
-		ok = PPGetExtStrData(fldId, temp_buf, rBuf);
+		ok = PPGetExtStrData(fldId, Tail, rBuf);
 	}
 	return ok;
 }
@@ -231,12 +230,13 @@ int SLAPI PPPhoneServicePacket::SetExField(int fldId, const char * pBuf)
 
 int SLAPI PPPhoneServicePacket::GetPassword(SString & rBuf) const
 {
-	rBuf = 0;
-
 	int    ok = 1;
-	char   temp_pw[PHNSVC_PW_SIZE], temp_str[PHNSVC_PW_SIZE*3+8];
 	SString temp_buf;
 	GetExField(PHNSVCEXSTR_PASSWORD, temp_buf);
+	Reference::Helper_DecodeOtherPw(0, temp_buf, PHNSVC_PW_SIZE, rBuf);
+	/*
+	rBuf = 0;
+	char   temp_pw[PHNSVC_PW_SIZE], temp_str[PHNSVC_PW_SIZE*3+8];
 	temp_buf.CopyTo(temp_str, sizeof(temp_str));
 	if(strlen(temp_str) == (PHNSVC_PW_SIZE*3)) {
 		for(size_t i = 0, p = 0; i < PHNSVC_PW_SIZE; i++) {
@@ -254,12 +254,14 @@ int SLAPI PPPhoneServicePacket::GetPassword(SString & rBuf) const
 		temp_pw[0] = 0;
 	rBuf = temp_pw;
 	IdeaRandMem(temp_pw, sizeof(temp_pw));
+	*/
 	return ok;
 }
 
 int SLAPI PPPhoneServicePacket::SetPassword(const char * pPassword)
 {
 	int    ok = 1;
+	/*
 	char   temp_pw[PHNSVC_PW_SIZE], temp_str[PHNSVC_PW_SIZE*3+8];
 	STRNSCPY(temp_pw, pPassword);
 	IdeaEncrypt(0, temp_pw, sizeof(temp_pw));
@@ -270,6 +272,9 @@ int SLAPI PPPhoneServicePacket::SetPassword(const char * pPassword)
 	}
 	temp_str[p] = 0;
 	SString temp_buf = temp_str;
+	*/
+	SString temp_buf;
+	Reference::Helper_EncodeOtherPw(0, pPassword, PHNSVC_PW_SIZE, temp_buf);
 	SetExField(PHNSVCEXSTR_PASSWORD, temp_buf);
 	return ok;
 }
@@ -401,7 +406,7 @@ int SLAPI PPObjPhoneService::PutPacket(PPID * pID, PPPhoneServicePacket * pPack,
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		if(*pID)
+		if(*pID) {
 			if(pPack) {
 				THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
 				tail = pPack->Tail;
@@ -409,6 +414,7 @@ int SLAPI PPObjPhoneService::PutPacket(PPID * pID, PPPhoneServicePacket * pPack,
 			else {
 				THROW(ref->RemoveItem(Obj, *pID, 0));
 			}
+		}
 		else {
 			*pID = pPack->Rec.ID;
 			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));

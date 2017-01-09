@@ -1,5 +1,5 @@
 // CHKINPSN.CPP
-// Copyright (c) A.Sobolev 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2013, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -648,11 +648,12 @@ int SLAPI PPCheckInPersonMngr::Search(/*int kind, PPID prmrID, PPID personID*/co
 int SLAPI PPCheckInPersonMngr::GetList(int kind, PPID prmrID, PPCheckInPersonArray & rList)
 {
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	TSArray <ObjAssocTbl::Rec> items_list;
 	PPID   assc_type = GetAssocType(kind);
 	rList.Init(kind, prmrID);
 	THROW(assc_type);
-	THROW(PPRef->Assc.GetItemsListByPrmr(assc_type, prmrID, &items_list));
+	THROW(p_ref->Assc.GetItemsListByPrmr(assc_type, prmrID, &items_list));
 	for(uint i = 0; i < items_list.getCount(); i++) {
 		const ObjAssocTbl::Rec & r_rec = items_list.at(i);
 		PPCheckInPersonItem item;
@@ -662,7 +663,7 @@ int SLAPI PPCheckInPersonMngr::GetList(int kind, PPID prmrID, PPCheckInPersonArr
 	}
 	{
 		SString mempool_buf;
-		THROW(PPRef->GetPropVlrString(assc_type, prmrID, PPPRP_CHKINPMEMO, mempool_buf));
+		THROW(p_ref->GetPropVlrString(assc_type, prmrID, PPPRP_CHKINPMEMO, mempool_buf));
 		if(mempool_buf.NotEmpty()) {
 			rList.MemoPool.setBuf(mempool_buf, mempool_buf.Len()+1);
 		}
@@ -729,6 +730,7 @@ int SLAPI PPCheckInPersonMngr::Put(PPCheckInPersonArray & rList, int use_ta)
 		THROW_PP(rList.InvariantC(&invp), PPERR_CHKINP_LISTINVARIANT);
 	}
 	{
+		Reference * p_ref = PPRef;
 		int    is_any_memo = 0;
 		uint   i;
 		SString memo_buf, memo_buf2;
@@ -767,7 +769,7 @@ int SLAPI PPCheckInPersonMngr::Put(PPCheckInPersonArray & rList, int use_ta)
 		}
 		for(i = 0; i < rmv_orgpos_list.getCount(); i++) {
 			const  PPCheckInPersonItem & r_org_item = org_list.Get(rmv_orgpos_list.get(i));
-			THROW(PPRef->Assc.Remove(r_org_item.ID, 0));
+			THROW(p_ref->Assc.Remove(r_org_item.ID, 0));
 			ok = 1;
 		}
 		for(i = 0; i < upd_pos_list.getCount(); i++) {
@@ -782,7 +784,7 @@ int SLAPI PPCheckInPersonMngr::Put(PPCheckInPersonArray & rList, int use_ta)
 		{
 			PPID   assc_type = GetAssocType(rList.Kind);
 			const  char * p_memopool_buf = is_any_memo ? rList.MemoPool.getBuf() : 0;
-			THROW(PPRef->PutPropVlrString(assc_type, rList.PrmrID, PPPRP_CHKINPMEMO, p_memopool_buf, 0));
+			THROW(p_ref->PutPropVlrString(assc_type, rList.PrmrID, PPPRP_CHKINPMEMO, p_memopool_buf, 0));
 		}
 		THROW(tra.Commit());
 	}

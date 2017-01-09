@@ -656,8 +656,8 @@ int SLAPI GoodsCore::PutStockExt(PPID id, const GoodsStockExt * pData, int use_t
 		}
 		p_min_stock_list = &pData->MinStockList;
 	}
-	THROW(PPRef->PutProp(PPOBJ_GOODS, id, GDSPRP_STOCKDATA, p_strg, sz, use_ta));
-	THROW(PPRef->PutPropArray(PPOBJ_GOODS, id, GDSPRP_MINSTOCKBYLOC, p_min_stock_list, use_ta));
+	THROW(P_Ref->PutProp(PPOBJ_GOODS, id, GDSPRP_STOCKDATA, p_strg, sz, use_ta));
+	THROW(P_Ref->PutPropArray(PPOBJ_GOODS, id, GDSPRP_MINSTOCKBYLOC, p_min_stock_list, use_ta));
 	CATCHZOK
 	free(p_strg);
 	return ok;
@@ -678,13 +678,13 @@ int SLAPI GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*
 		sz = sizeof(__GoodsStockExt) + (sizeof(GoodsStockExt::Pallet) * init_plt_c);
 		THROW_MEM(p_strg = (__GoodsStockExt *)malloc(sz));
 		memzero(p_strg, sizeof(*p_strg));
-		THROW(ok = PPRef->GetProp(PPOBJ_GOODS, id, GDSPRP_STOCKDATA, p_strg, sz));
+		THROW(ok = P_Ref->GetProp(PPOBJ_GOODS, id, GDSPRP_STOCKDATA, p_strg, sz));
 		if(ok > 0) {
 			if(p_strg->PltList.Count > init_plt_c && p_strg->PltList.Count <= 8) {
 				init_plt_c = p_strg->PltList.Count;
 				sz = sizeof(__GoodsStockExt) + (sizeof(GoodsStockExt::Pallet) * init_plt_c);
 				THROW_MEM(p_strg = (__GoodsStockExt *)realloc(p_strg, sz));
-				THROW(PPRef->GetProp(PPOBJ_GOODS, id, GDSPRP_STOCKDATA, p_strg, sz) > 0);
+				THROW(P_Ref->GetProp(PPOBJ_GOODS, id, GDSPRP_STOCKDATA, p_strg, sz) > 0);
 			}
 			// «ащита от 'гр€зных' значений в базе данных {
 			SETMAX(p_strg->Brutto, 0);
@@ -701,7 +701,7 @@ int SLAPI GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*
 			for(uint i = 0; i < p_strg->PltList.Count; i++) {
 				THROW_SL(pData->PltList.insert(&p_strg->PltList.Item[i]));
 			}
-			if(PPRef->GetPropArray(PPOBJ_GOODS, id, GDSPRP_MINSTOCKBYLOC, &pData->MinStockList) > 0) {
+			if(P_Ref->GetPropArray(PPOBJ_GOODS, id, GDSPRP_MINSTOCKBYLOC, &pData->MinStockList) > 0) {
 				uint min_stock_count = pData->MinStockList.getCount();
 				for(uint i = 0; i < min_stock_count; i++) {
 					double min_stock = pData->MinStockList.at(i).Val;
@@ -888,16 +888,16 @@ int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pLis
 	if(flags & glsfByExtStr) {
 		SString ext_str;
 		PropertyTbl::Key0 k;
-		BExtQuery q(&PPRef->Prop, 0);
+		BExtQuery q(&P_Ref->Prop, 0);
 		k.ObjType = PPOBJ_GOODS;
 		k.ObjID   = 0;
 		k.Prop    = GDSPRP_EXTSTRDATA;
-		q.select(PPRef->Prop.ObjID, 0L).where(PPRef->Prop.ObjType == PPOBJ_GOODS && PPRef->Prop.Prop == GDSPRP_EXTSTRDATA);
+		q.select(P_Ref->Prop.ObjID, 0L).where(P_Ref->Prop.ObjType == PPOBJ_GOODS && P_Ref->Prop.Prop == GDSPRP_EXTSTRDATA);
 		for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
-			PPID   goods_id = PPRef->Prop.data.ObjID;
+			PPID   goods_id = P_Ref->Prop.data.ObjID;
 			Goods2Tbl::Rec goods_rec;
 			if(Fetch(goods_id, &goods_rec) > 0 && !(skip_passive && data.Flags & GF_PASSIV)) {
-				if(PPRef->GetPropVlrString(PPOBJ_GOODS, goods_id, GDSPRP_EXTSTRDATA, ext_str) > 0) {
+				if(P_Ref->GetPropVlrString(PPOBJ_GOODS, goods_id, GDSPRP_EXTSTRDATA, ext_str) > 0) {
 					if(ExtStrSrch(ext_str, pSubstr)) {
 						if(p_list) {
 							THROW_SL(p_list->addUnique(goods_id));
@@ -1855,7 +1855,7 @@ int SLAPI GoodsCore::GetGoodsCodeInAltGrp(PPID goodsID, PPID grpID, long * pInne
 		Goods2Tbl::Rec grp_rec;
 		if(Fetch(grpID, &grp_rec) > 0 && (grp_rec.Flags & GF_ALTGROUP) && !(grp_rec.Flags & GF_DYNAMIC)) {
 			ObjAssocTbl::Rec oa_rec;
-			if(PPRef->Assc.Search(PPASS_ALTGOODSGRP, grpID, goodsID, &oa_rec) > 0) {
+			if(P_Ref->Assc.Search(PPASS_ALTGOODSGRP, grpID, goodsID, &oa_rec) > 0) {
 				num = oa_rec.InnerNum;
 				ok = 1;
 			}
@@ -1868,7 +1868,7 @@ int SLAPI GoodsCore::GetGoodsCodeInAltGrp(PPID goodsID, PPID grpID, long * pInne
 int SLAPI GoodsCore::GetAltGroupsForGoods(PPID goodsID, PPIDArray * pGrpIDList)
 {
 	ObjAssocTbl::Rec assc_rec;
-	for(SEnum en = PPRef->Assc.Enum(PPASS_ALTGOODSGRP, goodsID, 1); en.Next(&assc_rec) > 0;) {
+	for(SEnum en = P_Ref->Assc.Enum(PPASS_ALTGOODSGRP, goodsID, 1); en.Next(&assc_rec) > 0;) {
 		if(!pGrpIDList->add(assc_rec.PrmrObjID))
 			return PPSetErrorSLib();
 	}
@@ -1982,7 +1982,7 @@ int SLAPI GoodsCore::SetAltGrpList(PPID grpID, const PPIDArray & rList, int use_
 		PPIDArray new_member_list, rmv_member_list;
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		PPRef->Assc.GetListByPrmr(PPASS_ALTGOODSGRP, grpID, &rmv_member_list);
+		P_Ref->Assc.GetListByPrmr(PPASS_ALTGOODSGRP, grpID, &rmv_member_list);
 		rmv_member_list.sortAndUndup();
 		uint   i = rmv_member_list.getCount();
 		if(i) do {
@@ -1998,7 +1998,7 @@ int SLAPI GoodsCore::SetAltGrpList(PPID grpID, const PPIDArray & rList, int use_
 		}
 		for(i = 0; i < rmv_member_list.getCount(); i++) {
 			const PPID item_id = rmv_member_list.get(i);
-			THROW(PPRef->Assc.Remove(PPASS_ALTGOODSGRP, grpID, item_id, 0));
+			THROW(P_Ref->Assc.Remove(PPASS_ALTGOODSGRP, grpID, item_id, 0));
 		}
 		for(i = 0; i < new_member_list.getCount(); i++) {
 			const PPID item_id = new_member_list.get(i);
@@ -2121,7 +2121,7 @@ int SLAPI GoodsCore::BelongToGen(PPID goodsID, PPID * pGenID, ObjAssocTbl::Rec *
 		}
 		else {
 			ObjAssocTbl::Rec assc_rec;
-			for(SEnum en = PPRef->Assc.Enum(PPASS_GENGOODS, goodsID, 1); en.Next(&assc_rec) > 0;) {
+			for(SEnum en = P_Ref->Assc.Enum(PPASS_GENGOODS, goodsID, 1); en.Next(&assc_rec) > 0;) {
 				ASSIGN_PTR(pGenID, assc_rec.PrmrObjID);
 				ASSIGN_PTR(b, assc_rec);
 				ok = 1;

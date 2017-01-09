@@ -1627,7 +1627,7 @@ public:
 	// @v9.0.1 TView * firstThat(Boolean (*func)(TView *, void *), void *args);
 	void    forEach(void (*func)(TView *, void *), void *args);
 	void    insertBefore(TView *p, TView *Target);
-	TView * FASTCALL at(short index) const;
+	// @v9.4.8 TView * FASTCALL at(short index) const;
 	TView * first() const;
 	void   redraw();
 	void   lock();
@@ -1644,7 +1644,7 @@ public:
 	};
 	uint   MsgLockFlags; // fLockMsgXXX
 private:
-	bool   invalid(TView *p, ushort command);
+	// @v9.4.8 bool   invalid(TView *p, ushort command);
 };
 //
 //

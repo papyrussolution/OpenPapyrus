@@ -1,5 +1,5 @@
 // DECLSTRU.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2015, 2016
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -139,10 +139,20 @@ public:
 		PPID   DestPersonID;
 		char   DestAddr[64];
 	};
-	SLAPI  PrcssrMailCharry();
-	int    SLAPI InitParam(Param *);
+	SLAPI  PrcssrMailCharry()
+	{
+	}
+	int    SLAPI InitParam(Param * pParam)
+	{
+		RestoreParam(pParam);
+		return 1;
+	}
 	int    SLAPI EditParam(Param *);
-	int    SLAPI Init(const Param *);
+	int    SLAPI Init(const Param * pParam)
+	{
+		P = *pParam;
+		return 1;
+	}
 	int    SLAPI Run();
 private:
 	int    SLAPI SaveParam(const Param *);
@@ -151,100 +161,77 @@ private:
 	Param  P;
 };
 
-SLAPI PrcssrMailCharry::PrcssrMailCharry()
-{
-}
-
-int SLAPI PrcssrMailCharry::InitParam(Param * pParam)
-{
-	RestoreParam(pParam);
-	return 1;
-}
-
 #define GRP_MAILACC 1
-
-class MailCharryParamDialog : public TDialog {
-public:
-	MailCharryParamDialog() : TDialog(DLG_MAILCHRY)
-	{
-		MailAccCtrlGroup * p_grp = new MailAccCtrlGroup(CTLSEL_MAILCHRY_MAILACC, cmEditMailAcc);
-		addGroup(GRP_MAILACC, p_grp);
-	}
-	int    setDTS(const PrcssrMailCharry::Param *);
-	int    getDTS(PrcssrMailCharry::Param *);
-private:
-	DECL_HANDLE_EVENT;
-	PrcssrMailCharry::Param Data;
-};
-
-IMPL_HANDLE_EVENT(MailCharryParamDialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isCmd(cmAddressBook)) {
-		PPID   person_id = 0;
-		SString addr;
-		if(SelectAddressFromBook(&person_id, addr) > 0) {
-			Data.DestPersonID = person_id;
-			setCtrlString(CTL_MAILCHRY_DESTADDR, addr);
-		}
-	}
-	else
-		return;
-	clearEvent(event);
-}
-
-int MailCharryParamDialog::setDTS(const PrcssrMailCharry::Param * pData)
-{
-	Data = *pData;
-	ushort v = 0;
-	MailAccCtrlGroup::Rec mac_rec;
-	mac_rec.MailAccID = Data.MailAccID;
-	mac_rec.Extra = INETACCT_ONLYMAIL;
-	setGroupData(GRP_MAILACC, &mac_rec);
-	setCtrlData(CTL_MAILCHRY_DESTADDR, Data.DestAddr);
-	SETFLAG(v, 0x01, Data.Flags & PrcssrMailCharry::Param::fRemoveSrcFiles);
-	setCtrlData(CTL_MAILCHRY_FLAGS, &v);
-	return 1;
-}
-
-int MailCharryParamDialog::getDTS(PrcssrMailCharry::Param * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	ushort v = 0;
-	MailAccCtrlGroup::Rec mac_rec;
-	sel = CTLSEL_MAILCHRY_MAILACC;
-	getGroupData(GRP_MAILACC, &mac_rec);
-	Data.MailAccID = mac_rec.MailAccID;
-	THROW_PP(Data.MailAccID, PPERR_MAILACCNEEDED);
-	getCtrlData(sel = CTL_MAILCHRY_DESTADDR, Data.DestAddr);
-	{
-		// @v8.8.11 THROW_PP_S(strchr(Data.DestAddr, '@'), PPERR_INVEMAILADDR, Data.DestAddr);
-		// @v8.8.11 {
-		PPTokenRecognizer tr;
-		PPNaturalTokenArray nta;
-		tr.Run((const uchar *)Data.DestAddr, nta, 0);
-		THROW_PP_S(nta.Has(PPNTOK_EMAIL) > 0.0f, PPERR_INVEMAILADDR, Data.DestAddr);
-		// } @v8.8.11
-	}
-	getCtrlData(CTL_MAILCHRY_FLAGS, &(v = 0));
-	SETFLAG(Data.Flags, PrcssrMailCharry::Param::fRemoveSrcFiles, v & 0x01);
-	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
-	ENDCATCH
-	return ok;
-}
 
 int SLAPI PrcssrMailCharry::EditParam(Param * pParam)
 {
+	class MailCharryParamDialog : public TDialog {
+	public:
+		MailCharryParamDialog() : TDialog(DLG_MAILCHRY)
+		{
+			MailAccCtrlGroup * p_grp = new MailAccCtrlGroup(CTLSEL_MAILCHRY_MAILACC, cmEditMailAcc);
+			addGroup(GRP_MAILACC, p_grp);
+		}
+		int    setDTS(const PrcssrMailCharry::Param * pData)
+		{
+			Data = *pData;
+			ushort v = 0;
+			MailAccCtrlGroup::Rec mac_rec;
+			mac_rec.MailAccID = Data.MailAccID;
+			mac_rec.Extra = INETACCT_ONLYMAIL;
+			setGroupData(GRP_MAILACC, &mac_rec);
+			setCtrlData(CTL_MAILCHRY_DESTADDR, Data.DestAddr);
+			SETFLAG(v, 0x01, Data.Flags & PrcssrMailCharry::Param::fRemoveSrcFiles);
+			setCtrlData(CTL_MAILCHRY_FLAGS, &v);
+			return 1;
+		}
+		int    getDTS(PrcssrMailCharry::Param * pData)
+		{
+			int    ok = 1;
+			uint   sel = 0;
+			ushort v = 0;
+			MailAccCtrlGroup::Rec mac_rec;
+			sel = CTLSEL_MAILCHRY_MAILACC;
+			getGroupData(GRP_MAILACC, &mac_rec);
+			Data.MailAccID = mac_rec.MailAccID;
+			THROW_PP(Data.MailAccID, PPERR_MAILACCNEEDED);
+			getCtrlData(sel = CTL_MAILCHRY_DESTADDR, Data.DestAddr);
+			{
+				// @v8.8.11 THROW_PP_S(strchr(Data.DestAddr, '@'), PPERR_INVEMAILADDR, Data.DestAddr);
+				// @v8.8.11 {
+				PPTokenRecognizer tr;
+				PPNaturalTokenArray nta;
+				tr.Run((const uchar *)Data.DestAddr, nta, 0);
+				THROW_PP_S(nta.Has(PPNTOK_EMAIL) > 0.0f, PPERR_INVEMAILADDR, Data.DestAddr);
+				// } @v8.8.11
+			}
+			getCtrlData(CTL_MAILCHRY_FLAGS, &(v = 0));
+			SETFLAG(Data.Flags, PrcssrMailCharry::Param::fRemoveSrcFiles, v & 0x01);
+			ASSIGN_PTR(pData, Data);
+			CATCH
+				ok = PPErrorByDialog(this, sel, -1);
+			ENDCATCH
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmAddressBook)) {
+				PPID   person_id = 0;
+				SString addr;
+				if(SelectAddressFromBook(&person_id, addr) > 0) {
+					Data.DestPersonID = person_id;
+					setCtrlString(CTL_MAILCHRY_DESTADDR, addr);
+				}
+			}
+			else
+				return;
+			clearEvent(event);
+		}
+		PrcssrMailCharry::Param Data;
+	};
 	DIALOG_PROC_BODY(MailCharryParamDialog, pParam);
-}
-
-int SLAPI PrcssrMailCharry::Init(const Param * pParam)
-{
-	P = *pParam;
-	return 1;
 }
 
 struct __MailCharryParam {
@@ -374,8 +361,7 @@ int SLAPI ReceiveCharryObjects(RcvCharryParam * pParam)
 		uint   p;
 		SString path, file_path;
 		PPFileNameArray fary;
-		if(pParam)
-			rcp = *pParam;
+		RVALUEPTR(rcp, pParam);
 		if(rcp.Action == RcvCharryParam::aRcvFromFile) {
 			if(PPOpenFile(PPTXT_FILPAT_CHARRY, path, 0, APPL->H_MainWnd) > 0) {
 				PPDeclStrucProcessor dsp;

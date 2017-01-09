@@ -80,51 +80,6 @@ int SLAPI PapyrusPrivateBlock::Serialize(int dir, SBuffer & rBuf, SSerializeCont
 	return ok;
 }
 
-#ifdef GENVERC // {
-
-//int PPErrCode;
-
-/*
-
-[version]
-Signature    = 46V9FLAG19CZ5GPF
-Product      = Project Papyrus
-Team         = Andrey Fokin, Anton Sobolev
-Secret       = any_secret_word
-StartDevYear = 1996
-LastDevYear  = 2001
-MajorVer     = 3
-MinorVer     = 2
-Revision     = 7
-Demo         = 0
-OpenSouruce  = 0
-MinMajorVer  = 3
-MinMinorVer  = 2
-MinRevision  = 0
-
-CCP = "xxxxx"
-UHTT = "xxxx:xxxxx"
-MSTR = "xxxx:xxxx"
-*/
-
-/* @v5.1.6
-Pchar SLAPI replaceExt(Pchar fileName, PCchar newExt, int force)
-{
-	char drv[MAXDRIVE], dir[MAXPATH], nam[MAXFILE], ext[MAXEXT];
-	fnsplit(fileName, drv, dir, nam, ext);
-	if(force || *ext == 0) {
-		if(newExt[0] != '.') {
-			ext[0] = '.';
-			strnzcpy(ext+1, newExt, sizeof(ext)-1);
-		}
-		else
-			strnzcpy(ext, newExt, sizeof(ext));
-		fnmerge(fileName, drv, dir, nam, ext);
-	}
-	return fileName;
-}
-*/
-
 int SLAPI PapyrusPrivateBlock::ReadFromIni(SIniFile & rIniFile)
 {
 	int    ok = 1;
@@ -172,6 +127,51 @@ int SLAPI PapyrusPrivateBlock::ReadFromIni(SIniFile & rIniFile)
 	}
 	return ok;
 }
+
+#ifdef GENVERC // {
+
+//int PPErrCode;
+
+/*
+
+[version]
+Signature    = 46V9FLAG19CZ5GPF
+Product      = Project Papyrus
+Team         = Andrey Fokin, Anton Sobolev
+Secret       = any_secret_word
+StartDevYear = 1996
+LastDevYear  = 2001
+MajorVer     = 3
+MinorVer     = 2
+Revision     = 7
+Demo         = 0
+OpenSouruce  = 0
+MinMajorVer  = 3
+MinMinorVer  = 2
+MinRevision  = 0
+
+CCP = "xxxxx"
+UHTT = "xxxx:xxxxx"
+MSTR = "xxxx:xxxx"
+*/
+
+/* @v5.1.6
+Pchar SLAPI replaceExt(Pchar fileName, PCchar newExt, int force)
+{
+	char drv[MAXDRIVE], dir[MAXPATH], nam[MAXFILE], ext[MAXEXT];
+	fnsplit(fileName, drv, dir, nam, ext);
+	if(force || *ext == 0) {
+		if(newExt[0] != '.') {
+			ext[0] = '.';
+			strnzcpy(ext+1, newExt, sizeof(ext)-1);
+		}
+		else
+			strnzcpy(ext, newExt, sizeof(ext));
+		fnmerge(fileName, drv, dir, nam, ext);
+	}
+	return fileName;
+}
+*/
 
 int SLAPI PapyrusPrivateBlock::WriteToSrc(const char * pFileName)
 {

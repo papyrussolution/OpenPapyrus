@@ -1,5 +1,5 @@
 // CREVAL.CPP
-// Copyright (c) A.Sobolev 2000-2002, 2003, 2004, 2006, 2007, 2008, 2015, 2016
+// Copyright (c) A.Sobolev 2000-2002, 2003, 2004, 2006, 2007, 2008, 2015, 2016, 2017
 // @codepage windows-1251
 // Валютная переоценка
 //
@@ -75,11 +75,12 @@ int CRevalDialog::getDTS(CurRevalParam * pData)
 		PPIDArray cur_list;
 		if(AccObj.GetCurList(*p_acc_id, 0, &cur_list) > 0) {
 			PPID * p_cur_id = 0;
-	   	    for(uint j = 0; cur_list.enumItems(&j, (void**)&p_cur_id);)
+	   	    for(uint j = 0; cur_list.enumItems(&j, (void**)&p_cur_id);) {
 		   	    if(*p_cur_id) {
-					double crate = Data.CRateList.Get(PPAMT_CRATE, *p_cur_id);
-					THROW_PP(crate > 0, PPERR_INVCRATE);
+					const double crate = Data.CRateList.Get(PPAMT_CRATE, *p_cur_id);
+					THROW_PP(crate > 0.0, PPERR_INVCRATE);
 				}
+			}
 		}
 	}
 	*pData = Data;
@@ -122,7 +123,7 @@ IMPL_HANDLE_EVENT(CRevalDialog)
 		}
 		else if(TVCMD == cmReleasedFocus || TVCMD == cmCommitInput)
 			if(TVINFOVIEW->TestId(CTL_CREVAL_DT)) {
-				LDATE dt = getCtrlDate(CTL_CREVAL_DT);
+				const LDATE dt = getCtrlDate(CTL_CREVAL_DT);
 				if(checkdate(dt, 0)) {
 					Data.Dt = dt;
 					setupCRateList(0, 0);
@@ -140,11 +141,10 @@ void CRevalDialog::editCRate()
 {
 	SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_CREVAL_CRATELIST);
 	if(p_list) {
-		long pos = p_list->def->_curItem();
+		const long pos = p_list->def->_curItem();
 		if(pos >= 0 && pos < (long)Data.CRateList.getCount()) {
 			AmtEntry * p_entry = &Data.CRateList.at((uint)pos);
-			LDATE dt;
-			getCtrlData(CTL_CREVAL_DT, &dt);
+			const LDATE dt = getCtrlDate(CTL_CREVAL_DT);
 			double rate = p_entry->Amt;
 			if(SelectCurRate(p_entry->CurID, LConfig.BaseRateTypeID, &rate) > 0) {
 				p_entry->AmtTypeID = PPAMT_CRATE;
@@ -161,12 +161,13 @@ void CRevalDialog::updateCRateList()
 	SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_CREVAL_CRATELIST);
 	if(p_list) {
 		lock();
-		int sav_pos = (int)p_list->def->_curItem();
+		const int sav_pos = (int)p_list->def->_curItem();
+		StringSet ss(SLBColumnDelim);
 		p_list->freeAll();
 		for(uint i = 0; Data.CRateList.enumItems(&i, (void**)&p_entry);) {
 			char sub[64];
-			StringSet ss(SLBColumnDelim);
 			PPCurrency cur_rec;
+			ss.clear(1);
 			if(p_entry->CurID && PPRef->GetItem(PPOBJ_CURRENCY, p_entry->CurID, &cur_rec) > 0)
 				ss.add(cur_rec.Symb);
 			else
@@ -283,8 +284,7 @@ int SLAPI PutCurRevalConfig(CurRevalParam * pData, int use_ta)
 		for(i = 0; i < pData->AccList.getCount(); i++)
 			THROW_SL(temp.add(pData->AccList.at(i)));
 	}
-	THROW(PPRef->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CURREVALCFG,
-		(pData ? &temp : (PPIDArray*)0), use_ta));
+	THROW(PPRef->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CURREVALCFG, (pData ? &temp : (PPIDArray*)0), use_ta));
 	CATCHZOK
 	return ok;
 }

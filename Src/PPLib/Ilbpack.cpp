@@ -1866,9 +1866,10 @@ SLAPI BillTransmDeficit::~BillTransmDeficit()
 
 BillTransmDeficit::LocPeriod * BillTransmDeficit::GetLocPeriod(PPID locID)
 {
+	BillTransmDeficit::LocPeriod * p_result = 0;
 	uint   pos = 0;
 	if(LocPeriodList_.lsearch(&locID, &pos, CMPF_LONG)) {
-		return &LocPeriodList_.at(pos);
+		p_result = &LocPeriodList_.at(pos);
 	}
 	else {
 		LocPeriod new_item;
@@ -1876,10 +1877,11 @@ BillTransmDeficit::LocPeriod * BillTransmDeficit::GetLocPeriod(PPID locID)
 		new_item.P.SetZero();
 		pos = LocPeriodList_.getCount();
 		if(LocPeriodList_.insert(&new_item))
-			return &LocPeriodList_.at(pos);
+			p_result = &LocPeriodList_.at(pos);
 		else
-			return (PPSetErrorSLib(), 0);
+			PPSetErrorSLib();
 	}
+	return p_result;
 }
 
 int SLAPI BillTransmDeficit::Search(PPID locID, PPID goodsID, PPID supplID, TempDeficitTbl::Rec * pRec)
@@ -1891,37 +1893,41 @@ int SLAPI BillTransmDeficit::Search(PPID locID, PPID goodsID, PPID supplID, Temp
 	return SearchByKey(Tbl, 0, &k, pRec);
 }
 
-int SLAPI BillTransmDeficit::_CompleteGoodsRest(PPID locID, PPID goodsID,
-	SArray * pRecList, uint startPos, double supplQtty)
+int SLAPI BillTransmDeficit::_CompleteGoodsRest(PPID locID, PPID goodsID, SArray * pRecList, uint startPos, double supplQtty)
 {
 	int    ok = 1;
-	uint   i;
+	const  int round_prec = GObj.CheckFlag(goodsID, GF_INTVAL) ? 0 : 6;
+	const  LocPeriod * p_lc = GetLocPeriod(locID);
 	int    zero_deficit = 0;
 	double rest = 0.0, partitial_rest = 0.0;
 	TempDeficitTbl::Rec * p_rec;
-	int    round_prec = GObj.CheckFlag(goodsID, GF_INTVAL) ? 0 : 6;
-	LocPeriod * p_lc = GetLocPeriod(locID);
-	THROW(p_lc);
 	DateRange lot_period;
+	THROW(p_lc);
 	lot_period.Set(ZERODATE, /*Period.low*/p_lc->P.low);
-	THROW(BillObj->trfr->GetAvailableGoodsRest(goodsID, locID, lot_period, &rest));
-	for(i = startPos; pRecList->enumItems(&i, (void**)&p_rec);)
-		if(p_rec->SupplID == 0) {
-			p_rec->Rest = rest;
-			if(p_rec->Rest >= p_rec->Req)
-				zero_deficit = 1;
-		}
-		else if(supplQtty != 0.0)
-			if(i < pRecList->getCount()) {
-				p_rec->Rest = round(rest * p_rec->Req / supplQtty, round_prec);
-				partitial_rest += p_rec->Rest;
+	THROW(BillObj->trfr->GetAvailableGoodsRest(goodsID, locID, lot_period, 0.0, &rest));
+	{
+		for(uint i = startPos; pRecList->enumItems(&i, (void**)&p_rec);) {
+			if(p_rec->SupplID == 0) {
+				p_rec->Rest = rest;
+				if(p_rec->Rest >= p_rec->Req)
+					zero_deficit = 1;
 			}
+			else if(supplQtty != 0.0)
+				if(i < pRecList->getCount()) {
+					p_rec->Rest = round(rest * p_rec->Req / supplQtty, round_prec);
+					partitial_rest += p_rec->Rest;
+				}
+				else
+					p_rec->Rest = round(rest - partitial_rest, round_prec);
 			else
-				p_rec->Rest = round(rest - partitial_rest, round_prec);
-		else
-			p_rec->Rest = 0.0;
-	for(i = startPos; pRecList->enumItems(&i, (void**)&p_rec);)
-		p_rec->HasDeficit = zero_deficit ? 0 : 1;
+				p_rec->Rest = 0.0;
+		}
+	}
+	{
+		const int32 has_deficit = zero_deficit ? 0 : 1;
+		for(uint i = startPos; pRecList->enumItems(&i, (void**)&p_rec);)
+			p_rec->HasDeficit = has_deficit;
+	}
 	CATCHZOK
 	return ok;
 }

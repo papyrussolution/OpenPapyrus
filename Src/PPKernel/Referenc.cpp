@@ -8,7 +8,58 @@
 #include <idea.h>
 
 //static
-int SLAPI Reference::Encrypt(int cryptMethod, const char * pText, char * pBuf, size_t bufLen)
+int SLAPI Reference::Helper_EncodeOtherPw(const char * pEncPw, const char * pPw, size_t pwBufSize, SString & rResult)
+{
+	rResult = 0;
+	int    ok = 1;
+	const  size_t buf_quant = 256;
+	assert(buf_quant >= pwBufSize);
+	char   temp_pw[buf_quant], temp_str[buf_quant*3+8];
+	STRNSCPY(temp_pw, pPw);
+	IdeaEncrypt(pEncPw, temp_pw, pwBufSize);
+	size_t i = 0, p = 0;
+	for(; i < pwBufSize; i++) {
+		sprintf(temp_str+p, "%03u", (uint8)temp_pw[i]);
+		p += 3;
+	}
+	temp_str[p] = 0;
+	rResult = temp_str;
+	return ok;
+}
+
+//static
+int SLAPI Reference::Helper_DecodeOtherPw(const char * pEncPw, const char * pPw, size_t pwBufSize, SString & rResult)
+{
+	rResult = 0;
+
+	int    ok = 1;
+	const  size_t buf_quant = 256;
+	assert(buf_quant >= pwBufSize);
+	char   temp_pw[buf_quant], temp_str[buf_quant*3+8];
+	STRNSCPY(temp_str, pPw);
+	if(strlen(temp_str) == (pwBufSize*3)) {
+		for(size_t i = 0, p = 0; i < pwBufSize; i++) {
+			char   nmb[16];
+			nmb[0] = temp_str[p];
+			nmb[1] = temp_str[p+1];
+			nmb[2] = temp_str[p+2];
+			nmb[3] = 0;
+			temp_pw[i] = atoi(nmb);
+			p += 3;
+		}
+		IdeaDecrypt(pEncPw, temp_pw, pwBufSize);
+	}
+	else {
+		temp_pw[0] = 0;
+		ok = 0;
+	}
+	rResult = temp_pw;
+	IdeaRandMem(temp_pw, sizeof(temp_pw));
+	return ok;
+}
+
+//static
+int SLAPI Reference::Helper_Encrypt_(int cryptMethod, const char * pEncPw, const char * pText, char * pBuf, size_t bufLen)
 {
 	int    ok = 1;
 	if(cryptMethod == crymRef2) {
@@ -22,7 +73,7 @@ int SLAPI Reference::Encrypt(int cryptMethod, const char * pText, char * pBuf, s
 		else
 			pw_buf2[0] = 0;
 		IdeaRandMem(pw_buf, sizeof(pw_buf));
-		IdeaEncrypt(0, pw_buf2, bin_pw_size);
+		IdeaEncrypt(/*0*/pEncPw, pw_buf2, bin_pw_size);
 		temp_buf.EncodeMime64(pw_buf2, bin_pw_size).CopyTo(pBuf, bufLen);
 		if(temp_buf.Len() > (bufLen-1))
 			ok = 0;
@@ -30,7 +81,7 @@ int SLAPI Reference::Encrypt(int cryptMethod, const char * pText, char * pBuf, s
 	else if(cryptMethod == crymDefault) {
 		IdeaRandMem(pBuf, bufLen);
 		strnzcpy(pBuf, pText, bufLen);
-		IdeaEncrypt(0, pBuf, bufLen);
+		IdeaEncrypt(/*0*/pEncPw, pBuf, bufLen);
 	}
 	else
 		ok = 0;
@@ -38,7 +89,7 @@ int SLAPI Reference::Encrypt(int cryptMethod, const char * pText, char * pBuf, s
 }
 
 //static
-int SLAPI Reference::Decrypt(int cryptMethod, const char * pBuf, size_t bufLen, SString & rText)
+int SLAPI Reference::Helper_Decrypt_(int cryptMethod, const char * pEncPw, const char * pBuf, size_t bufLen, SString & rText)
 {
 	int    ok = 1;
 	char   pw_buf[128];
@@ -48,7 +99,7 @@ int SLAPI Reference::Decrypt(int cryptMethod, const char * pBuf, size_t bufLen, 
 		size_t bin_pw_size = 0;
 		temp_buf = pBuf;
 		if(temp_buf.DecodeMime64(pw_buf, sizeof(pw_buf), &bin_pw_size) > 0) {
-			IdeaDecrypt(0, pw_buf, bin_pw_size);
+			IdeaDecrypt(/*0*/pEncPw, pw_buf, bin_pw_size);
 			rText = pw_buf;
 		}
 		else
@@ -56,12 +107,24 @@ int SLAPI Reference::Decrypt(int cryptMethod, const char * pBuf, size_t bufLen, 
 	}
 	else if(cryptMethod == crymDefault) {
 		memcpy(pw_buf, pBuf, bufLen);
-		IdeaDecrypt(0, pw_buf, bufLen);
+		IdeaDecrypt(/*0*/pEncPw, pw_buf, bufLen);
 		rText = pw_buf;
 	}
 	else
 		ok = 0;
 	return ok;
+}
+
+//static
+int SLAPI Reference::Encrypt(int cryptMethod, const char * pText, char * pBuf, size_t bufLen)
+{
+	return Reference::Helper_Encrypt_(cryptMethod, 0, pText, pBuf, bufLen);
+}
+
+//static
+int SLAPI Reference::Decrypt(int cryptMethod, const char * pBuf, size_t bufLen, SString & rText)
+{
+	return Reference::Helper_Decrypt_(cryptMethod, 0, pBuf, bufLen, rText);
 }
 
 //static
@@ -690,7 +753,7 @@ int SLAPI Reference::PutPropVlrString(PPID obj, PPID id, PPID prop, const char *
 	int    ok = 1;
 	PropVlrString * pm = 0;
 	uint   s = 0;
-	if(b && b[0]) {
+	if(!isempty(b)) {
 		uint sz = strlen(b) + 1;
 		s = MAX(sizeof(PropVlrString) + sz, PROPRECFIXSIZE);
 		THROW_MEM(pm = (PropVlrString*)malloc(s));
@@ -883,7 +946,7 @@ int SLAPI Reference::EditSecur(PPID obj, PPID id, PPSecurPacket * sp, int isNew)
 	{
 		PPTransaction tra(1);
 		THROW(tra);
-		if(is_user)
+		if(is_user) {
 			if(isNew)
 				sp->Secur.PwUpdate = getcurdate_();
 			else {
@@ -891,6 +954,7 @@ int SLAPI Reference::EditSecur(PPID obj, PPID id, PPSecurPacket * sp, int isNew)
 				if(memcmp(sp->Secur.Password, ((PPSecur*)&data)->Password, sizeof(sp->Secur.Password)))
 					sp->Secur.PwUpdate = getcurdate_();
 			}
+		}
 		THROW(Reference::VerifySecur(&sp->Secur, 1));
 		THROW(isNew ? AddItem(obj, &id, &sp->Secur, 0) : UpdateItem(obj, id, &sp->Secur, 1, 0));
 		THROW(sp->Paths.Put(obj, id));

@@ -1,5 +1,5 @@
 // PATH.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017
 // @codepage windows-1251
 // @Kernel
 //
@@ -12,10 +12,15 @@ struct PathItem { // Variable length struct
 	SLAPI  PathItem(PPID pathID = 0, short flags = 0, const char * str = 0);
 	void * SLAPI operator new(size_t sz, const char * str = 0);
 	void   SLAPI operator delete(void *, const char *);
-	int    SLAPI GetPath(char * buf, size_t bufSize) const;
-	SString & FASTCALL GetPath(SString &) const;
-	const  char * SLAPI Path() const;
-
+	// @v9.4.8 int    SLAPI GetPath(char * buf, size_t bufSize) const;
+	SString & FASTCALL GetPath(SString & rBuf) const
+	{
+		return (rBuf = Path());
+	}
+	const  char * SLAPI Path() const
+	{
+		return (Size > sizeof(PathItem)) ? (char *)(this + 1) : 0;
+	}
 	PPID   ID;
 	int16  Flags;
 	uint16 Size;
@@ -37,8 +42,8 @@ SLAPI PathItem::PathItem(PPID pathID, short flags, const char * str)
 {
 	ID    = pathID;
 	Flags = flags;
-	if(str && str[0]) {
-		size_t len = strlen(str) + 1;
+	if(!isempty(str)) {
+		const size_t len = strlen(str) + 1;
 		Size  = (uint16)(sizeof(PathItem) + len);
 		memcpy(this + 1, str, len);
 	}
@@ -48,7 +53,7 @@ SLAPI PathItem::PathItem(PPID pathID, short flags, const char * str)
 
 void * SLAPI PathItem::operator new(size_t sz, const char * str)
 {
-	size_t len = (str && str[0]) ? (strlen(str) + 1) : 0;
+	const size_t len = (str && str[0]) ? (strlen(str) + 1) : 0;
 	return ::new char[sz + len];
 }
 
@@ -57,21 +62,11 @@ void SLAPI PathItem::operator delete(void * p, const char *)
 	::delete(p);
 }
 
-const char * SLAPI PathItem::Path() const
-{
-	return (Size > sizeof(PathItem)) ? (char *)(this + 1) : 0;
-}
-
-int SLAPI PathItem::GetPath(char * pBuf, size_t bufLen) const
+/*int SLAPI PathItem::GetPath(char * pBuf, size_t bufLen) const
 {
 	strnzcpy(pBuf, Path(), bufLen);
 	return 1;
-}
-
-SString & FASTCALL PathItem::GetPath(SString & rBuf) const
-{
-	return (rBuf = Path());
-}
+}*/
 //
 //
 //
@@ -128,7 +123,7 @@ int SLAPI PPPaths::Resize(size_t sz)
 	return ok;
 }
 
-int SLAPI PPPaths::GetPath(PPID pathID, short * pFlags, char * pBuf, size_t bufLen) const
+/* @v9.4.8 int SLAPI PPPaths::GetPath(PPID pathID, short * pFlags, char * pBuf, size_t bufLen) const
 {
 	if(P) {
 		for(uint s = 0; s < P->TailSize;) {
@@ -143,7 +138,7 @@ int SLAPI PPPaths::GetPath(PPID pathID, short * pFlags, char * pBuf, size_t bufL
 	ASSIGN_PTR(pFlags, PATHF_EMPTY);
 	ASSIGN_PTR(pBuf, 0);
 	return -1;
-}
+}*/
 
 int SLAPI PPPaths::GetPath(PPID pathID, short * pFlags, SString & rBuf) const
 {
@@ -234,13 +229,13 @@ int SLAPI PPPaths::SetPath(PPID pathID, const char * pBuf, short flags, int repl
 	return ok;
 }
 
-int SLAPI PPPaths::Get(PPID obj, PPID id, PPID pathID, char * pBuf, size_t bufLen)
+/* @v9.4.8 int SLAPI PPPaths::Get(PPID obj, PPID id, PPID pathID, char * pBuf, size_t bufLen)
 {
 	SString temp_buf;
 	int    ok = Get(obj, id, pathID, temp_buf);
 	temp_buf.CopyTo(pBuf, bufLen);
 	return ok;
-}
+} */
 
 int SLAPI PPPaths::Get(PPID obj, PPID id, PPID pathID, SString & rBuf)
 {

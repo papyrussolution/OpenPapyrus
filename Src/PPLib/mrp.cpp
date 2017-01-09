@@ -363,7 +363,7 @@ int SLAPI MrpTabCore::Helper_GetDeficit(const MrpLineTbl::Rec & rRec, int termin
 				RAssocArray alt_goods_list;
 				THROW(goods_obj.GetSubstList(goods_id, 0, alt_goods_list));
 				for(uint i = 0; i < alt_goods_list.getCount(); i++) {
-					PPID   alt_goods_id = alt_goods_list.at(i).Key;
+					const PPID alt_goods_id = alt_goods_list.at(i).Key;
 					if(goods_obj.Fetch(alt_goods_id, &goods_rec) > 0 && !(goods_rec.Flags & (GF_PASSIV|GF_GENERIC))) {
 						ratio = alt_goods_list.at(i).Val;
 						goods_id = alt_goods_id;
@@ -1176,7 +1176,7 @@ int SLAPI PPObjMrpTab::LoadPacket(PPID tabID, MrpTabPacket * pTree)
 
 int SLAPI PPObjMrpTab::AddIndep(MrpTabPacket * pMrpPack, PPID tabID, PPID goodsID, double req, double price, int ignoreRest)
 {
-	long   lflags = ignoreRest ? (MRPLF_TERMINAL|MRPLF_IGNOREREST) : MRPLF_TERMINAL;
+	const long lflags = ignoreRest ? (MRPLF_TERMINAL|MRPLF_IGNOREREST) : MRPLF_TERMINAL;
 	return pMrpPack->AddLine__(tabID, goodsID, MRPSRCV_TOTAL, req, 0, price, lflags);
 }
 
@@ -1184,9 +1184,10 @@ int SLAPI PPObjMrpTab::AddIndep(MrpTabPacket * pMrpPack, PPID tabID, PPID goodsI
 int SLAPI PPObjMrpTab::GetAvailGoodsRest(PPID goodsID, const MrpTabLeaf * pLeaf, LDATE afterDate, double * pRest)
 {
 	*pRest = 0;
+	const  double ignore_epsilon = BillCore::GetQttyEpsilon();
 	DateRange lot_period;
 	lot_period.Set(afterDate, pLeaf->Dt);
-	return BillObj->trfr->GetAvailableGoodsRest(goodsID, pLeaf->LocID, lot_period, pRest);
+	return BillObj->trfr->GetAvailableGoodsRest(goodsID, pLeaf->LocID, lot_period, ignore_epsilon, pRest);
 }
 
 int SLAPI PPObjMrpTab::SetupRest(const MrpTabPacket * pPack, const MrpTabLeaf * pLeaf, long cflags, int use_ta)
@@ -1269,10 +1270,11 @@ int SLAPI MrpTabPacket::GetAvailGoodsRest(PPID goodsID, const MrpTabLeaf * pLeaf
 		}
 	}
 	{
+		const  double ignore_epsilon = BillCore::GetQttyEpsilon();
 		double avl_rest = 0.0;
 		DateRange lot_period;
 		lot_period.Set(after_date ? plusdate(after_date, 1) : ZERODATE, pLeaf->Dt);
-		THROW(BillObj->trfr->GetAvailableGoodsRest(goodsID, pLeaf->LocID, lot_period, &avl_rest));
+		THROW(BillObj->trfr->GetAvailableGoodsRest(goodsID, pLeaf->LocID, lot_period, ignore_epsilon, &avl_rest));
 		rest += avl_rest;
 	}
 	CATCHZOK

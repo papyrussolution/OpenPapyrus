@@ -1,5 +1,5 @@
 // CLIBNK2.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 // Модуль формирования данных для передачи в системы клиент-банк
@@ -564,14 +564,15 @@ int SLAPI ClientBankImportDef::ReadAssocList(SArray * pList)
 		PPID   OpID;             //
 	};
 	int    ok = -1, r;
+	Reference * p_ref = PPRef;
 	SArray prev_list(sizeof(BankStmntAssocItem_Pre578));
 	SArray temp_list(sizeof(BankStmntAssocItem));
-	THROW(r = PPRef->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CLIBNKASSCCFG2, &temp_list));
+	THROW(r = p_ref->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CLIBNKASSCCFG2, &temp_list));
 	if(r > 0) {
 		THROW_SL(pList->copy(temp_list));
 	}
 	else {
-		THROW(r = PPRef->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CLIBNKASSCCFG, &prev_list));
+		THROW(r = p_ref->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CLIBNKASSCCFG, &prev_list));
 		if(r > 0) {
 			BankStmntAssocItem_Pre578 * p_item = 0;
 			for(uint i = 0; prev_list.enumItems(&i, (void **)&p_item);) {
@@ -597,13 +598,14 @@ int SLAPI ClientBankImportDef::ReadAssocList(SArray * pList)
 int SLAPI ClientBankImportDef::WriteAssocList(const SArray * pList, int use_ta)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(PPRef->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CLIBNKASSCCFG2, pList, 0));
+		THROW(p_ref->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CLIBNKASSCCFG2, pList, 0));
 		if(pList) {
 			// Удаляем старую версию ассоциаций
-			THROW(PPRef->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CLIBNKASSCCFG, 0, 0));
+			THROW(p_ref->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CLIBNKASSCCFG, 0, 0));
 		}
 		THROW(tra.Commit());
 	}

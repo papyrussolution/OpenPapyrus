@@ -1,5 +1,5 @@
 // ALBATROS.CPP
-// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -120,12 +120,12 @@ int AlbatrosConfigDialog::getDTS(PPAlbatrosConfig * pCfg)
 	return 1;
 }
 
-PPAlbatrosConfig::PPAlbatrosConfig()
+SLAPI PPAlbatrosConfig::PPAlbatrosConfig()
 {
 	MEMSZERO(Hdr);
 }
 
-PPAlbatrosConfig & PPAlbatrosConfig::Clear()
+PPAlbatrosConfig & SLAPI PPAlbatrosConfig::Clear()
 {
 	MEMSZERO(Hdr);
 	UhttUrn = 0;
@@ -137,10 +137,11 @@ PPAlbatrosConfig & PPAlbatrosConfig::Clear()
 
 #define UHTT_PW_SIZE 20
 
-int PPAlbatrosConfig::SetPassword(int fld, const char * pPassword)
+int SLAPI PPAlbatrosConfig::SetPassword(int fld, const char * pPassword)
 {
 	int    ok = 1;
 	if(fld == ALBATROSEXSTR_UHTTPASSW) {
+		/*
 		char   temp_pw[UHTT_PW_SIZE], temp_buf[UHTT_PW_SIZE*3+8];
 		STRNSCPY(temp_pw, pPassword);
 		IdeaEncrypt(0, temp_pw, sizeof(temp_pw));
@@ -151,6 +152,8 @@ int PPAlbatrosConfig::SetPassword(int fld, const char * pPassword)
 		}
 		temp_buf[p] = 0;
 		UhttPassword = temp_buf;
+		*/
+		Reference::Helper_EncodeOtherPw(0, pPassword, UHTT_PW_SIZE, UhttPassword);
 	}
 	else {
 		ok = -1;
@@ -158,13 +161,14 @@ int PPAlbatrosConfig::SetPassword(int fld, const char * pPassword)
 	return ok;
 }
 
-int PPAlbatrosConfig::GetPassword(int fld, SString & rPw)
+int SLAPI PPAlbatrosConfig::GetPassword(int fld, SString & rPw)
 {
 	rPw = 0;
 
 	int    ok = 1;
-	char   temp_pw[UHTT_PW_SIZE], temp_buf[UHTT_PW_SIZE*3+8];
 	if(fld == ALBATROSEXSTR_UHTTPASSW) {
+		/*
+		char   temp_pw[UHTT_PW_SIZE], temp_buf[UHTT_PW_SIZE*3+8];
 		UhttPassword.CopyTo(temp_buf, sizeof(temp_buf));
 		if(strlen(temp_buf) == (UHTT_PW_SIZE*3)) {
 			for(size_t i = 0, p = 0; i < UHTT_PW_SIZE; i++) {
@@ -182,6 +186,8 @@ int PPAlbatrosConfig::GetPassword(int fld, SString & rPw)
 			temp_pw[0] = 0;
 		rPw = temp_pw;
 		IdeaRandMem(temp_pw, sizeof(temp_pw));
+		*/
+		Reference::Helper_DecodeOtherPw(0, UhttPassword, UHTT_PW_SIZE, rPw);
 	}
 	else
 		ok = -1;
@@ -189,7 +195,7 @@ int PPAlbatrosConfig::GetPassword(int fld, SString & rPw)
 }
 
 //static
-int SLAPI PPAlbatrosCfgMngr::Put(PPAlbatrosConfig * pCfg, int use_ta)
+int SLAPI PPAlbatrosCfgMngr::Helper_Put(Reference * pRef, PPAlbatrosConfig * pCfg, int use_ta)
 {
 	int    ok = 1;
 	size_t p = 0;
@@ -211,7 +217,7 @@ int SLAPI PPAlbatrosCfgMngr::Put(PPAlbatrosConfig * pCfg, int use_ta)
 		memcpy(buffer + p, &pCfg->Hdr, sizeof(pCfg->Hdr));
 		p += sizeof(pCfg->Hdr);
 		memcpy(buffer + p, (const char *)tail, tail.Len()+1);
-		THROW(PPRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG2, buffer, s, 0));
+		THROW(pRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG2, buffer, s, 0));
 		DS.LogAction(PPACN_CONFIGUPDATED, PPCFGOBJ_ALBATROS, 0, 0, 0);
 	}
 	THROW(tra.Commit());
@@ -221,20 +227,24 @@ int SLAPI PPAlbatrosCfgMngr::Put(PPAlbatrosConfig * pCfg, int use_ta)
 }
 
 //static
-int SLAPI PPAlbatrosCfgMngr::Get(PPAlbatrosConfig * pCfg)
+int SLAPI PPAlbatrosCfgMngr::Put(PPAlbatrosConfig * pCfg, int use_ta)
+{
+	return Helper_Put(PPRef, pCfg, use_ta);
+}
+
+int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrosConfig * pCfg)
 {
 	int    ok = 1, r;
 	SString tail;
 	STempBuffer buffer(2048);
 	pCfg->Clear();
-	Reference * p_ref = PPRef;
-	if(p_ref) {
-		THROW(r = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG2, buffer, buffer.GetSize()));
+	if(pRef) {
+		THROW(r = pRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG2, buffer, buffer.GetSize()));
 		if(r > 0) {
 			size_t sz = pCfg->Hdr.Size;
 			if(sz > buffer.GetSize()) {
 				THROW_SL(buffer.Alloc(sz));
-				THROW(p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG2, buffer, sz) > 0);
+				THROW(pRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG2, buffer, sz) > 0);
 			}
 			memcpy(&pCfg->Hdr, buffer, sizeof(pCfg->Hdr));
 			tail = ((const char *)buffer)+sizeof(pCfg->Hdr);
@@ -259,7 +269,7 @@ int SLAPI PPAlbatrosCfgMngr::Get(PPAlbatrosConfig * pCfg)
 				char   MailAddr[48];
 			};
 			OldConfig old_cfg;
-			if(p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG, &old_cfg, sizeof(old_cfg)) > 0) {
+			if(pRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG, &old_cfg, sizeof(old_cfg)) > 0) {
 				PPID   mac_id = 0;
 				PPAlbatrosCfgHdr cfg;
 				PPObjInternetAccount mac_obj;
@@ -284,10 +294,10 @@ int SLAPI PPAlbatrosCfgMngr::Get(PPAlbatrosConfig * pCfg)
 				cfg.MailAccID = mac_id;
 				THROW(PPAlbatrosCfgMngr::Put(&cfg, 0));
 				// Удаляем старую запись
-				THROW(p_ref->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG, 0, 0));
+				THROW(pRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG, 0, 0));
 				DS.LogAction(PPACN_CONFIGUPDATED, PPCFGOBJ_ALBATROS, 0, 0, 0);
 				THROW(tra.Commit());
-				THROW(PPAlbatrosCfgMngr::Get(&pCfg->Hdr)); // @recursion
+				THROW(PPAlbatrosCfgMngr::Helper_Get(pRef, &pCfg->Hdr)); // @recursion
 			}
 			else {
 				ok = (PPErrCode = PPERR_UNDEFALBATROCONFIG, -1);
@@ -301,12 +311,17 @@ int SLAPI PPAlbatrosCfgMngr::Get(PPAlbatrosConfig * pCfg)
 }
 
 //static
-int SLAPI PPAlbatrosCfgMngr::Get(PPAlbatrosCfgHdr * pCfg)
+int SLAPI PPAlbatrosCfgMngr::Get(PPAlbatrosConfig * pCfg)
+{
+	return Helper_Get(PPRef, pCfg);
+}
+
+//static
+int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrosCfgHdr * pCfg)
 {
 	int    ok = 1, r;
 	PPAlbatrosCfgHdr cfg;
-	Reference * p_ref = PPRef;
-	THROW(r = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG2, &cfg, sizeof(cfg)));
+	THROW(r = pRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG2, &cfg, sizeof(cfg)));
 	if(r < 0) {
 		//
 		// Пытаемся найти запись в старом формате и конвертировать в новый
@@ -322,7 +337,7 @@ int SLAPI PPAlbatrosCfgMngr::Get(PPAlbatrosCfgHdr * pCfg)
 			char   MailAddr[48];
 		};
 		OldConfig old_cfg;
-		if(p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG, &old_cfg, sizeof(old_cfg)) > 0) {
+		if(pRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG, &old_cfg, sizeof(old_cfg)) > 0) {
 			PPID   mac_id = 0;
 			PPObjInternetAccount mac_obj;
 			PPInternetAccount mac;
@@ -347,11 +362,11 @@ int SLAPI PPAlbatrosCfgMngr::Get(PPAlbatrosCfgHdr * pCfg)
 				cfg.MailAccID = mac_id;
 				THROW(PPAlbatrosCfgMngr::Put(&cfg, 0));
 				// Удаляем старую запись
-				THROW(p_ref->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG, 0, 0));
+				THROW(pRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG, 0, 0));
 				DS.LogAction(PPACN_CONFIGUPDATED, PPCFGOBJ_ALBATROS, 0, 0, 0);
 				THROW(tra.Commit());
 			}
-			THROW(PPAlbatrosCfgMngr::Get(&cfg));
+			THROW(PPAlbatrosCfgMngr::Helper_Get(pRef, &cfg));
 		}
 		else {
 			MEMSZERO(cfg);
@@ -361,6 +376,12 @@ int SLAPI PPAlbatrosCfgMngr::Get(PPAlbatrosCfgHdr * pCfg)
 	ASSIGN_PTR(pCfg, cfg);
 	CATCHZOK
 	return ok;
+}
+
+//static
+int SLAPI PPAlbatrosCfgMngr::Get(PPAlbatrosCfgHdr * pCfg)
+{
+	return Helper_Get(PPRef, pCfg);
 }
 
 //static

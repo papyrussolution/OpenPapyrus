@@ -10759,6 +10759,7 @@
 #define PPERR_INVMODELPARAM       498 // Параметры модели должны быть положительными числами
 #define PPERR_CANTREADPREVDTFILL  499 // Невозможно извлечь дату последнего обновлени
 #define PPERR_BASKETLOCKED        500 // Корзина заблокирована другим пользователем %s
+/* @v9.4.8
 //
 // Decl Struc Parsing
 //
@@ -10773,6 +10774,7 @@
 #define PPERR_DS_STRUCITEMEXISTS  609 // Элемент структуры %s уже существует
 #define PPERR_DS_EXPRBRACEORNAME  610 // Ожидается '}' или имя пол
 #define PPERR_DS_SYNTAX           611 // Синтаксическая ошибка
+@v9.4.8 */
 //
 //
 //

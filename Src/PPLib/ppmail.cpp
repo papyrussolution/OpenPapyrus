@@ -184,6 +184,7 @@ int SLAPI PPInternetAccount::SetExtField(int fldID, const char * pBuf)
 
 int SLAPI PPInternetAccount::SetPassword(const char * pPassword, int fldID /* = MAEXSTR_RCVPASSWORD */)
 {
+	/*
 	char   temp_pw[POP3_PW_SIZE], temp_buf[POP3_PW_SIZE*3+8];
 	STRNSCPY(temp_pw, pPassword);
 	IdeaEncrypt(0, temp_pw, sizeof(temp_pw));
@@ -193,14 +194,20 @@ int SLAPI PPInternetAccount::SetPassword(const char * pPassword, int fldID /* = 
 		p += 3;
 	}
 	temp_buf[p] = 0;
+	*/
+	SString temp_buf;
+	Reference::Helper_EncodeOtherPw(0, pPassword, POP3_PW_SIZE, temp_buf);
 	return SetExtField(fldID, temp_buf);
 }
 
 int SLAPI PPInternetAccount::GetPassword(char * pBuf, size_t bufLen, int fldID /* = MAEXSTR_RCVPASSWORD */)
 {
-	char   temp_pw[POP3_PW_SIZE]; // , temp_buf[POP3_PW_SIZE*3+8];
-	SString temp_buf;
+	SString temp_buf, pw_buf;
 	GetExtField(fldID, temp_buf);
+	Reference::Helper_DecodeOtherPw(0, temp_buf, POP3_PW_SIZE, pw_buf);
+	pw_buf.CopyTo(pBuf, bufLen);
+	/*
+	char   temp_pw[POP3_PW_SIZE]; // , temp_buf[POP3_PW_SIZE*3+8];
 	if(temp_buf.Len() == (POP3_PW_SIZE*3)) {
 		for(size_t i = 0, p = 0; i < POP3_PW_SIZE; i++) {
 			char   nmb[16];
@@ -217,16 +224,17 @@ int SLAPI PPInternetAccount::GetPassword(char * pBuf, size_t bufLen, int fldID /
 		temp_pw[0] = 0;
 	strnzcpy(pBuf, temp_pw, bufLen);
 	IdeaRandMem(temp_pw, sizeof(temp_pw));
+	*/
 	return 1;
 }
 
 int SLAPI PPInternetAccount::SetMimedPassword(const char * pPassword, int fldID /* = MAEXSTR_RCVPASSWORD */)
 {
 	int    ok = -1;
-	size_t pwd_len = 0;
-	if(pPassword && (pwd_len = strlen(pPassword))) {
+	const  size_t pwd_len = sstrlen(pPassword);
+	if(pwd_len) {
 		size_t len = 0;
-		char out_buf[512];
+		char   out_buf[512];
 		MIME64 m64;
 		memzero(out_buf, sizeof(out_buf));
 		m64.Decode(pPassword, pwd_len, out_buf, &len);
@@ -319,8 +327,7 @@ public:
 	virtual int setDTS(const PPInternetAccount * pData)
 	{
 		char   temp_buf[256];
-		if(pData)
-			Data = *pData;
+		RVALUEPTR(Data, pData);
 		setCtrlData(CTL_MAILACC_NAME, Data.Name);
 		setCtrlData(CTL_MAILACC_ID,   &Data.ID);
 		disableCtrl(CTL_MAILACC_ID, (!PPMaster || Data.ID));
@@ -378,8 +385,7 @@ public:
 	virtual int setDTS(const PPInternetAccount * pData)
 	{
 		char temp_buf[64];
-		if(pData)
-			Data = *pData;
+		RVALUEPTR(Data, pData);
 		setCtrlData(CTL_FTPACCT_NAME, Data.Name);
 		setCtrlData(CTL_FTPACCT_ID,   &Data.ID);
 		disableCtrl(CTL_FTPACCT_ID, (!PPMaster || Data.ID));
@@ -396,7 +402,7 @@ public:
 		setCtrlData(CTL_FTPACCT_PROXYPWD, temp_buf);
 		IdeaRandMem(temp_buf, sizeof(temp_buf));
 		setCtrlData(CTL_FTPACCT_TIMEOUT, &Data.Timeout);
-		AddClusterAssoc(CTL_FTPACCT_FLAGS, 0, PPInternetAccount::fFtpPassive); // @v6.4.4 AHTOXA
+		AddClusterAssoc(CTL_FTPACCT_FLAGS, 0, PPInternetAccount::fFtpPassive);
 		SetClusterData(CTL_FTPACCT_FLAGS, Data.Flags);
 		return 1;
 	}

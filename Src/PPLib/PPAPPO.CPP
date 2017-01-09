@@ -936,7 +936,8 @@ enum {
 	cmdlExportDialogs, // EXPORTDIALOGS
 	cmdlSelfBuild,     // SELFBUILD
 	cmdlSartrTest,     // SARTRTEST
-	cmdlAutoTranslate  // AUTOTRANSLATE
+	cmdlAutoTranslate, // AUTOTRANSLATE
+	cmdlConvertCipher  // CONVERTCIPHER
 };
 
 static int SLAPI GetStartUpOption(int o, SString & rArgBuf)
@@ -1693,6 +1694,14 @@ void PPApp::login(int processCmdLine)
 		{
 			StringStore2 s;
 			s.Compile(src_file_path, flags, auto_transl_lang);
+		}
+		TView::message(this, evCommand, cmQuit);
+	}
+	else if(GetStartUpOption(cmdlConvertCipher, arg_buf)) {
+		//int SLAPI ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char * pSrcIniFileName, const char * pDestIniFileName)
+		SString db_symb;
+		if(GetStartUpOption(cmdlDB, db_symb)) {
+            //StringSet()
 		}
 		TView::message(this, evCommand, cmQuit);
 	}
