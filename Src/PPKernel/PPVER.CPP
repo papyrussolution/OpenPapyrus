@@ -345,6 +345,17 @@ int SLAPI PPVersionInfo::GetDefaultEncrKey(SString & rBuf)
 	return ok;
 }
 
+long SLAPI PPVersionInfo::GetFlags()
+{
+	long   result = 0;
+	if(Decrypt()) {
+		if(P_Info_)
+			result = P_Info_->Flags;
+		Clear();
+	}
+	return result;
+}
+
 int SLAPI PPVersionInfo::GetCopyrightText(SString & rBuf)
 {
 	rBuf = 0;
