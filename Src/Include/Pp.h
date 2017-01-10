@@ -471,6 +471,7 @@ public:
 	int    SLAPI GetVersionText(char *, size_t);
 	int    SLAPI GetCopyrightText(SString & rBuf);
 	int    SLAPI GetDefaultEncrKey(SString & rBuf);
+	long   SLAPI GetFlags();
 	// @v9.3.3 int    SLAPI GetMaxUserNumber(int *);
 	// @v9.3.3 int    SLAPI GetRegistrInfo(PPRegistrInfo *, const char *);
 	// @v9.3.3 int    SLAPI UpdateLicense(const PPRegistrInfo *, const char * , const char *);
@@ -486,6 +487,8 @@ private:
 // Descr: Блок данных о лицензиях, которыми владеет пользователь программы.
 //
 struct PPLicData {
+	SLAPI  PPLicData();
+
 	enum {
 		effJobServer  = 0x0001,
 		effDebtorStat = 0x0002,
@@ -5160,6 +5163,7 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 #define ECF_DISABLEASYNCADVQUEUE   0x00100000L // @v8.5.12 Защитный флаг, препятствующий применению техники асинхронной очереди системных событий
 #define ECF_USEGEOTRACKING         0x00200000L // @v8.6.11 Если флаг не установлен, то коммуникации с мобильными устройствами по гео-трекингу отключены
 #define ECF_DLLMODULE              0x00400000L // @v9.2.6 Работа в режиме DLL-модуля
+#define ECF_OPENSOURCE             0x00800000L // @v9.4.9 Система собрана в opensource-варианте
 //
 //
 //

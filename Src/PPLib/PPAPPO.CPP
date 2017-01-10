@@ -294,6 +294,7 @@ static int SLAPI PPAbout()
 	int    ok = 1;
 	TDialog * dlg = new TDialog(DLG_ABOUT);
 	if(CheckDialogPtr(&dlg, 1)) {
+		const int is_open = DS.CheckExtFlag(ECF_OPENSOURCE);
 		char  c_buf[512];
 		SString fmt, text;
 		SString temp_buf;
@@ -322,18 +323,24 @@ static int SLAPI PPAbout()
 			(text = 0).CatParStr("c").Space().Cat(c_buf).Space().Cat(start_year).CatChar('-').Cat(end_year);
 			dlg->setStaticText(CTL_ABOUT_TEAM, text);
 		}
-		dlg->setCtrlString(CTL_ABOUT_LICNAME, text = lic.RegName);
-		dlg->setCtrlString(CTL_ABOUT_LICREG, text = lic.RegNumber);
-		dlg->setCtrlLong(CTL_ABOUT_LICCOUNT, lic.LicCount);
+		text = is_open ? 0 : lic.RegName;
+		dlg->setCtrlString(CTL_ABOUT_LICNAME, text);
+		text = is_open ? 0 : lic.RegNumber;
+		dlg->setCtrlString(CTL_ABOUT_LICREG, text);
+		dlg->setCtrlLong(CTL_ABOUT_LICCOUNT, is_open ? 1000 : lic.LicCount);
 		dlg->setCtrlLong(CTL_ABOUT_FREELICCOUNT, lic.FreeLicCount);
 		{
 			text = 0;
-			if(lic.ExtFunc & PPLicData::effJobServer)
-				text.Cat("JobServer");
-			if(lic.ExtFunc & PPLicData::effEgais)
-				text.CatDiv(' ', 1).Cat("EGAIS");
-			if(lic.ExtFunc & PPLicData::effDebtorStat)
-				text.CatDiv(' ', 1).Cat("DebtorStat");
+			if(is_open)
+				text = "OpenSource";
+			else {
+				if(lic.ExtFunc & PPLicData::effJobServer)
+					text.Cat("JobServer");
+				if(lic.ExtFunc & PPLicData::effEgais)
+					text.CatDiv(' ', 1).Cat("EGAIS");
+				if(lic.ExtFunc & PPLicData::effDebtorStat)
+					text.CatDiv(' ', 1).Cat("DebtorStat");
+			}
 			dlg->setStaticText(CTL_ABOUT_LICADDON, text);
 		}
 		ExecViewAndDestroy(dlg);

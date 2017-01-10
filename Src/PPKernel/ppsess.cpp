@@ -1687,6 +1687,7 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 		PPVersionInfo vi = GetVersionInfo();
 		vi.GetProductName(temp_buf);
 		SLS.SetAppName(temp_buf);
+		SetExtFlag(ECF_OPENSOURCE, vi.GetFlags() & PapyrusPrivateBlock::fOpenSource); // @v9.4.9
 	}
 	SLS.InitWSA();
 	{
@@ -2040,13 +2041,12 @@ int SLAPI LogTerminalSessInfo(ulong processID, ulong termSessID, const char * pA
 
 int SLAPI PPSession::CheckLicense(MACAddr * pMachineID, int * pIsDemo)
 {
-	int    ok = -1, this_machine_logged = 0;
+	int    ok = -1;
 	ulong  cur_term_sess_id = 0;
-	PPSyncArray sync_array;
 	MACAddrArray ma_list;
 	MACAddr machine_id;
 	PPLicData lic;
-	int32  max_user_count = (PPGetLicData(&lic) > 0) ? lic.LicCount : 0;
+	int32  max_user_count = CheckExtFlag(ECF_OPENSOURCE) ? 1000 : ((PPGetLicData(&lic) > 0) ? lic.LicCount : 0);
 	if(!max_user_count) {
 		ASSIGN_PTR(pIsDemo, 1);
 		max_user_count = 1;
@@ -2055,29 +2055,33 @@ int SLAPI PPSession::CheckLicense(MACAddr * pMachineID, int * pIsDemo)
 		ASSIGN_PTR(pIsDemo, 0);
 	GetMachineID(&machine_id, 0);
 	{
-		ulong cur_process_id = GetCurrentProcessId();
+		const ulong cur_process_id = GetCurrentProcessId();
 		const char * p_func_name = "CheckLicense";
 		if(!ProcessIdToSessionId(cur_process_id, &cur_term_sess_id)) {
 			SString msg_buf;
 			PPGetMessage(mfError, PPERR_SLIB, 0, 0, msg_buf);
-			msg_buf.Space().Cat("Function=").Cat(p_func_name);
+			msg_buf.Space().CatEq("Function", p_func_name);
 			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 		}
 		LogTerminalSessInfo(cur_process_id, cur_term_sess_id, p_func_name);
 	}
-	GetSync().GetItemsList(PPSYNC_DBLOCK, &sync_array);
-	for(uint i = 0; i < sync_array.getCount(); i++) {
-		const PPSyncItem & r_item = sync_array.at(i);
-		ulong  term_sess_id = r_item.TerminalSessID;
-		MACAddr ma = r_item.MchnID;
-		if(r_item.ObjID != 1) // @v7.1.0 Серверные сессии не учитываем при подсчете занятых лицензий
-			ma_list.addUnique(ma);
-		if(ma.Cmp(machine_id) == 0 && (cur_term_sess_id == 0 || cur_term_sess_id == term_sess_id))
-			this_machine_logged = 1;
+	{
+		int    this_machine_logged = 0;
+		PPSyncArray sync_array;
+		GetSync().GetItemsList(PPSYNC_DBLOCK, &sync_array);
+		for(uint i = 0; i < sync_array.getCount(); i++) {
+			const PPSyncItem & r_item = sync_array.at(i);
+			const ulong  term_sess_id = r_item.TerminalSessID;
+			const MACAddr ma = r_item.MchnID;
+			if(r_item.ObjID != 1) // @v7.1.0 Серверные сессии не учитываем при подсчете занятых лицензий
+				ma_list.addUnique(ma);
+			if(ma.Cmp(machine_id) == 0 && (cur_term_sess_id == 0 || cur_term_sess_id == term_sess_id))
+				this_machine_logged = 1;
+		}
+		ok = (this_machine_logged || max_user_count > (int32)ma_list.getCount()) ? 1 : -1;
+		if(!this_machine_logged)
+			GetMachineID(&machine_id, 1);
 	}
-	ok = (this_machine_logged || max_user_count > (int32)ma_list.getCount()) ? 1 : -1;
-	if(!this_machine_logged)
-		GetMachineID(&machine_id, 1);
 	ASSIGN_PTR(pMachineID, machine_id);
 	return ok;
 }
@@ -2623,7 +2627,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 			THROW_PP(CheckLicense(&machine_id, &is_demo) > 0, PPERR_MAX_SESSION_DEST);
 			SETFLAG(r_lc.State, CFGST_DEMOMODE, is_demo);
 			if(!CMng.HasDbEntry(db_path_id)) {
-				ulong cur_process_id = GetCurrentProcessId();
+				const ulong cur_process_id = GetCurrentProcessId();
 				const char * p_func_name = "Login";
 				if(!ProcessIdToSessionId(cur_process_id, &term_sess_id)) {
 					PPGetMessage(mfError, PPERR_SLIB, 0, 0, msg_buf = 0);

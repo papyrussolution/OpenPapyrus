@@ -3291,7 +3291,7 @@ SLAPI PrcssrDebtRate::PrcssrDebtRate()
 {
 	IsThereDebtRateLic = 0;
 	PPLicData ld;
-	if(PPGetLicData(&ld) > 0 && ld.ExtFunc & PPLicData::effDebtorStat)
+	if(DS.CheckExtFlag(ECF_OPENSOURCE) || (PPGetLicData(&ld) > 0 && ld.ExtFunc & PPLicData::effDebtorStat))
 		IsThereDebtRateLic = 1;
 	PPDebtorStatConfig::Read(&Cfg);
 }
@@ -4265,7 +4265,7 @@ int SLAPI PPViewDebtorStat::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	PPLicData ld;
-	THROW_PP(PPGetLicData(&ld) > 0 && ld.ExtFunc & PPLicData::effDebtorStat, PPERR_NOLIC_DEBTORSTAT);
+	THROW_PP(DS.CheckExtFlag(ECF_OPENSOURCE) || (PPGetLicData(&ld) > 0 && ld.ExtFunc & PPLicData::effDebtorStat), PPERR_NOLIC_DEBTORSTAT);
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	ZDELETE(P_IterQuery);
 	ZDELETE(P_TempTbl);

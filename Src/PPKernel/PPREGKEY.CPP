@@ -76,6 +76,13 @@ int SLAPI PPCheckRegisterKey(const char * pName, const char * pRegKey)
 //
 //
 //
+SLAPI PPLicData::PPLicData()
+{
+    THISZERO();
+}
+//
+//
+//
 static void SLAPI GetRegDataSign(char * pSign)
 {
 	// "-{+7g./0a"
@@ -164,7 +171,6 @@ int SLAPI PPReadLicData(const char * pFileName, PPLicData * pData)
 int SLAPI PPGetLicData(PPLicData * pData)
 {
 	int    ok = -1;
-	//char   path[MAXPATH];
 	SString path;
 	PPGetFilePath(PPPATH_BIN, PPFILNAM_REGDATA, path);
 	if(fileExists(path)) {

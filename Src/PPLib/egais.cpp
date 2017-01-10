@@ -980,7 +980,9 @@ SLAPI PPEgaisProcessor::PPEgaisProcessor(long cflags, PPLogger * pOuterLogger) :
 	if(cflags & cfDebugMode) {
 		State |= stTestSendingMode;
 	}
-	{
+	if(DS.CheckExtFlag(ECF_OPENSOURCE))
+		State |= stValidLic;
+	else {
 		PPLicData ld;
 		if(PPGetLicData(&ld) > 0 && ld.ExtFunc & PPLicData::effEgais)
 			State |= stValidLic;
