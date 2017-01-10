@@ -3860,6 +3860,8 @@ PPTXT_FILPAT_MAILACC         "Почтовые учетные записи (*.ac
 PPTXT_FILPAT_CHARRY          "Файлы charry (*.chy):*.chy"
 PPTXT_FILPAT_MENU            "Файлы меню (*.bin):*.bin"
 PPTXT_FILPAT_GOODS_XML       "@{ware_pl} (*.xml):*.xml"
+PPTXT_FILPAT_INI             "Файлы конфигураций (*.ini):*.ini"
+PPTXT_FILPAT_DAT             "Файлы данных (*.dat):*.dat"
 
 PPTXT_VCARD_PROPERTIES       /!/ "BEGIN:VCARD;END:VCARD;VERSION:2.1;FN;ORG;BDAY;ADR;TEL;TEL;EMAIL"
 PPTXT_VCARD_PROPATTRIBUTE    /!/ "NONE;WORK;HOME;CELL;INTERNET;VOICE;FAX"
@@ -4598,7 +4600,7 @@ MODEL;CODE;SUBCODE;OWNER;CAPTAIN;INVOICEDATE;INVOICENO;DLVRLOCCODE;FGDATE;INN;KP
 PPSSYM_ACCSIDE "0DBT,0DB,0D,0ДБТ,0ДБ,0Д,1CRD,1CR,1KRD,1KR,1C,1K,1КРД,1КР,1К"
 // Опции командной строки
 PPSSYM_CMDLINEOP "?,CASH,EXP,IMP,IN,OUT,BATCH,SYNCPUT,SYNCGET,DB,BACKUP,BILLCASH,PRC,\
-TSESS,GOODSINFO,VERHIST,RECOVERTRANSFER,CONVERTRBCBNK,NOLOGIN,PPOS,EXPORTDIALOGS,SELFBUILD,SARTRTEST,AUTOTRANSLATE;CONVERTCIPHER"
+TSESS,GOODSINFO,VERHIST,RECOVERTRANSFER,CONVERTRBCBNK,NOLOGIN,PPOS,EXPORTDIALOGS,SELFBUILD,SARTRTEST,AUTOTRANSLATE,CONVERTCIPHER"
 // Наименования параметров импорта/экспорта
 PPSSYM_IMPEXPPAR "FILENAME,FILE;IMPEXP;FORMAT;ORIENTATION,ORIENT;CODEPAGE;OEMTEXT,OEM;QUOTSTR;\
 FIELDDIV,FLDDIV,DIV;FIXEDFIELDS;FIELDEQVAL,FLDEQVAL;FORMULA;ROOTTAG;RECTAG;FLDNAMEREC;\
@@ -10151,6 +10153,12 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @makedb_path                              "Путь к новой базе данных"
 @makedb_name                              "Имя базы данных"
 @makedb_symb                              "@{dbsymb}"
+
+@cvtcipher                                "Конвертация зашифрованных полей"
+@cvtcipher_database                       "@{database}"
+@cvtcipher_password                       "@{password}"
+@cvtcipher_inisrc                         "Путь к исходному файлу ключей"
+@cvtcipher_inidest                        "Путь к файлу новых ключей"
 
 [121]
 1   "Вход"

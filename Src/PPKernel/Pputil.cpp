@@ -1719,7 +1719,7 @@ enum {
 	pdbcmReEncrypt = 2,
 };
 
-static int SLAPI ProcessDatabaseChain(PPObjBill * pBObj, Reference * pRef, int mode, const char * pPassword, const char * pSrcEncPw, const char * pDestEncPw)
+static int SLAPI ProcessDatabaseChain(PPObjBill * pBObj, Reference * pRef, int mode, const char * pPassword, const char * pSrcEncPw, const char * pDestEncPw, int use_ta)
 {
 	int    ok = -1;
 	SString pw;
@@ -1748,13 +1748,13 @@ static int SLAPI ProcessDatabaseChain(PPObjBill * pBObj, Reference * pRef, int m
 				THROW(Reference::Helper_Decrypt_(Reference::crymRef2, pSrcEncPw, ref_rec.Symb, sizeof(ref_rec.Symb), pw));
 				THROW(Reference::Helper_Encrypt_(Reference::crymRef2, pDestEncPw, pw, ref_rec.Symb, sizeof(ref_rec.Symb)));
 				IdeaEncrypt(pDestEncPw, ref_rec.ObjName, sizeof(ref_rec.ObjName)-1);
-				THROW(pRef->UpdateItem(PPOBJ_UNASSIGNED, 1L, &ref_rec, 0, 1 /*use_ta*/));
+				THROW(pRef->UpdateItem(PPOBJ_UNASSIGNED, 1L, &ref_rec, 0, use_ta));
 			}
 			else if(mode == pdbcmUnchain) {
 				THROW(Reference::Decrypt(Reference::crymRef2, ref_rec.Symb, sizeof(ref_rec.Symb), pw));
 				THROW_PP(pPassword && pw.CmpNC(pPassword) != 0, PPERR_DBCHA_INVPASSWORD);
 				{
-					PPTransaction tra(1);
+					PPTransaction tra(use_ta);
 					THROW(tra);
 					THROW(pRef->RemoveItem(PPOBJ_UNASSIGNED, 1L, 0));
 					THROW_DB(pBObj->P_Tbl->deleteRec());
@@ -1782,17 +1782,17 @@ static int SLAPI ProcessDatabaseChain(PPObjBill * pBObj, Reference * pRef, int m
 
 int SLAPI PPUnchainDatabase(const char * pPassword)
 {
-	return ProcessDatabaseChain(BillObj, PPRef, pdbcmUnchain, pPassword, 0, 0);
+	return ProcessDatabaseChain(BillObj, PPRef, pdbcmUnchain, pPassword, 0, 0, 1);
 }
 
 int SLAPI PPCheckDatabaseChain()
 {
-	return ProcessDatabaseChain(BillObj, PPRef, pdbcmVerify, 0, 0, 0);
+	return ProcessDatabaseChain(BillObj, PPRef, pdbcmVerify, 0, 0, 0, 1);
 }
 
-int SLAPI PPReEncryptDatabaseChain(PPObjBill * pBObj, Reference * pRef, const char * pSrcEncPw, const char * pDestEncPw)
+int SLAPI PPReEncryptDatabaseChain(PPObjBill * pBObj, Reference * pRef, const char * pSrcEncPw, const char * pDestEncPw, int use_ta)
 {
-	return ProcessDatabaseChain(pBObj, pRef, pdbcmReEncrypt, 0, pSrcEncPw, pDestEncPw);
+	return ProcessDatabaseChain(pBObj, pRef, pdbcmReEncrypt, 0, pSrcEncPw, pDestEncPw, use_ta);
 }
 //
 //

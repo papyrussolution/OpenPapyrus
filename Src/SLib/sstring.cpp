@@ -1,5 +1,5 @@
 // SSTRING.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -691,7 +691,7 @@ void SLAPI SString::Obfuscate()
 	if(Size && P_Buf) {
 		SlThreadLocalArea & r_tla = SLS.GetTLA();
 		r_tla.Rg.ObfuscateBuffer(P_Buf, Size);
-		P_Buf[L] = 0;
+		P_Buf[L-1] = 0;
 	}
 }
 
@@ -1411,7 +1411,13 @@ int FASTCALL SString::Alloc(size_t sz)
 		if(p) {
 			Size = new_size;
 			P_Buf = p;
-			P_Buf[L] = 0;
+			// @v9.4.9 @fix (big mistake) P_Buf[L] = 0;
+			// @v9.4.9 {
+			if(L)
+				P_Buf[L-1] = 0;
+			else
+				P_Buf[0] = 0;
+			// } @v9.4.9 
 		}
 		else
 			ok = (SLibError = SLERR_NOMEM, 0);
@@ -3379,7 +3385,13 @@ int FASTCALL SStringU::Alloc(size_t sz)
 		if(p) {
 			Size = new_size;
 			P_Buf = p;
-			P_Buf[L] = 0;
+			// @v9.4.9 @fix (big mistake) P_Buf[L] = 0;
+			// @v9.4.9 {
+			if(L)
+				P_Buf[L-1] = 0;
+			else
+				P_Buf[0] = 0;
+			// } @v9.4.9 
 		}
 		else
 			ok = (SLibError = SLERR_NOMEM, 0);

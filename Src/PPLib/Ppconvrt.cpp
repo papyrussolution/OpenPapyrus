@@ -10,7 +10,7 @@
 //
 //
 //
-int SLAPI PPReEncryptDatabaseChain(PPObjBill * pBObj, Reference * pRef, const char * pSrcEncPw, const char * pDestEncPw);
+int SLAPI PPReEncryptDatabaseChain(PPObjBill * pBObj, Reference * pRef, const char * pSrcEncPw, const char * pDestEncPw, int use_ta);
 
 int SLAPI ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char * pSrcIniFileName, const char * pDestIniFileName)
 {
@@ -39,47 +39,53 @@ int SLAPI ConvertCipher(const char * pDbSymb, const char * pMasterPassword, cons
 				THROW(DS.OpenDictionary2(&dblb));
 				is_dict_opened = 1;
 				PPID   user_id = 0;
-				Reference ref;
-				PPObjBill bill_obj;
 				PPSecur sec_rec;
-				THROW(PPReEncryptDatabaseChain(&bill_obj, &ref, ppb_src.DefPassword, ppb_dest.DefPassword)); // Собсвенная транзакция
+				THROW_MEM(PPRef = new Reference);
+				THROW_MEM(BillObj = new PPObjBill(0));
+				Reference * p_ref = PPRef;
+				PPObjBill * p_bobj = BillObj;
 				{
 					const PPID secur_obj_list[] = { PPOBJ_CONFIG, PPOBJ_USRGRP, PPOBJ_USR };
 					PPTransaction tra(1);
 					THROW(tra);
+					THROW(PPReEncryptDatabaseChain(p_bobj, p_ref, ppb_src.DefPassword, ppb_dest.DefPassword, 0)); // Собсвенная транзакция
 					for(uint si = 0; si < SIZEOFARRAY(secur_obj_list); si++) {
 						const PPID sec_obj_type = secur_obj_list[si];
-						for(PPID sec_id = 0; ref.EnumItems(sec_obj_type, &sec_id, &sec_rec) > 0;) {
-							THROW(Reference::Helper_Decrypt_(Reference::crymRef2, ppb_src.DefPassword, sec_rec.Password, sizeof(sec_rec.Password), temp_buf));
+						for(PPID sec_id = 0; p_ref->EnumItems(sec_obj_type, &sec_id, &sec_rec) > 0;) {
+							if(strlen(sec_rec.Password)) {
+								THROW(Reference::Helper_Decrypt_(Reference::crymRef2, ppb_src.DefPassword, sec_rec.Password, sizeof(sec_rec.Password), temp_buf));
+							}
+							else
+								temp_buf = 0;
 							THROW(Reference::Helper_Encrypt_(Reference::crymRef2, ppb_dest.DefPassword, temp_buf, sec_rec.Password, sizeof(sec_rec.Password)));
 							THROW(Reference::VerifySecur(&sec_rec, 1));
-							THROW(ref.UpdateItem(sec_obj_type, sec_id, &sec_rec, 0, 0));
+							THROW(p_ref->UpdateItem(sec_obj_type, sec_id, &sec_rec, 0, 0));
 						}
 					}
 					{
 						PPAlbatrosConfig acfg;
-						if(PPAlbatrosCfgMngr::Helper_Get(&ref, &acfg) > 0) {
+						if(PPAlbatrosCfgMngr::Helper_Get(p_ref, &acfg) > 0) {
 							Reference::Helper_DecodeOtherPw(ppb_src.DefPassword, acfg.UhttPassword, /*UHTT_PW_SIZE*/20, temp_buf);
 							Reference::Helper_EncodeOtherPw(ppb_dest.DefPassword, temp_buf, /*UHTT_PW_SIZE*/20, acfg.UhttPassword);
-							THROW(PPAlbatrosCfgMngr::Helper_Put(&ref, &acfg, 0));
+							THROW(PPAlbatrosCfgMngr::Helper_Put(p_ref, &acfg, 0));
 						}
 					}
 					{
 						PPPhoneService phs_rec;
-						for(PPID phs_id = 0; ref.EnumItems(PPOBJ_PHONESERVICE, &phs_id, &phs_rec) > 0;) {
-							if(ref.GetPropVlrString(PPOBJ_PHONESERVICE, phs_id, PHNSVCPRP_TAIL, temp_buf) > 0) {
+						for(PPID phs_id = 0; p_ref->EnumItems(PPOBJ_PHONESERVICE, &phs_id, &phs_rec) > 0;) {
+							if(p_ref->GetPropVlrString(PPOBJ_PHONESERVICE, phs_id, PHNSVCPRP_TAIL, temp_buf) > 0) {
 								PPGetExtStrData(PHNSVCEXSTR_PASSWORD, temp_buf, src_pw_buf);
 								Reference::Helper_DecodeOtherPw(ppb_src.DefPassword, src_pw_buf, /*PHNSVC_PW_SIZE*/20, dest_pw_buf);
 								Reference::Helper_EncodeOtherPw(ppb_dest.DefPassword, dest_pw_buf, /*PHNSVC_PW_SIZE*/20, src_pw_buf);
 								PPPutExtStrData(PHNSVCEXSTR_PASSWORD, temp_buf, src_pw_buf);
-								THROW(ref.PutPropVlrString(PPOBJ_PHONESERVICE, phs_id, PHNSVCPRP_TAIL, temp_buf));
+								THROW(p_ref->PutPropVlrString(PPOBJ_PHONESERVICE, phs_id, PHNSVCPRP_TAIL, temp_buf));
 							}
 						}
 					}
 					{
 						PPInternetAccount in_rec;
-						for(PPID in_id = 0; ref.EnumItems(PPOBJ_INTERNETACCOUNT, &in_id, &in_rec) > 0;) {
-							if(ref.GetPropVlrString(PPOBJ_INTERNETACCOUNT, in_id, MACPRP_EXTRA, in_rec.ExtStr)) {
+						for(PPID in_id = 0; p_ref->EnumItems(PPOBJ_INTERNETACCOUNT, &in_id, &in_rec) > 0;) {
+							if(p_ref->GetPropVlrString(PPOBJ_INTERNETACCOUNT, in_id, MACPRP_EXTRA, in_rec.ExtStr)) {
 								{
 									PPGetExtStrData(MAEXSTR_RCVPASSWORD, temp_buf, src_pw_buf);
 									Reference::Helper_DecodeOtherPw(ppb_src.DefPassword, src_pw_buf, /*POP3_PW_SIZE*/20, dest_pw_buf);
@@ -98,7 +104,7 @@ int SLAPI ConvertCipher(const char * pDbSymb, const char * pMasterPassword, cons
 									Reference::Helper_EncodeOtherPw(ppb_dest.DefPassword, dest_pw_buf, /*POP3_PW_SIZE*/20, src_pw_buf);
 									PPPutExtStrData(FTPAEXSTR_PROXYPASSWORD, temp_buf, src_pw_buf);
 								}
-								THROW(ref.PutPropVlrString(PPOBJ_INTERNETACCOUNT, in_id, MACPRP_EXTRA, temp_buf));
+								THROW(p_ref->PutPropVlrString(PPOBJ_INTERNETACCOUNT, in_id, MACPRP_EXTRA, temp_buf));
 							}
 						}
 					}
@@ -108,6 +114,8 @@ int SLAPI ConvertCipher(const char * pDbSymb, const char * pMasterPassword, cons
         }
 	}
 	CATCHZOK
+	ZDELETE(BillObj);
+	ZDELETE(PPRef);
 	if(is_dict_opened)
 		DBS.CloseDictionary();
 	return ok;

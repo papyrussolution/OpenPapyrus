@@ -1604,6 +1604,7 @@ int SLAPI ExportDialogs(const char * pFileName); // @prototype
 int TestAddressRecognition(); // @prototype @debug
 int SLAPI SelfBuild();        // @prototype ppbuild.cpp
 int SLAPI SartTest();         // @prototype sartr.cpp
+int SLAPI ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char * pSrcIniFileName, const char * pDestIniFileName);
 
 #ifndef NDEBUG // {
 // @test {
@@ -1698,11 +1699,43 @@ void PPApp::login(int processCmdLine)
 		TView::message(this, evCommand, cmQuit);
 	}
 	else if(GetStartUpOption(cmdlConvertCipher, arg_buf)) {
-		//int SLAPI ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char * pSrcIniFileName, const char * pDestIniFileName)
+		class CvtCipherDialog : public TDialog {
+		public:
+			CvtCipherDialog() : TDialog(DLG_CVTCIPHER)
+			{
+				FileBrowseCtrlGroup::Setup(this, CTLBRW_CVTCIPHER_INISRC,  CTL_CVTCIPHER_INISRC,  1, 0, PPTXT_FILPAT_DAT, FileBrowseCtrlGroup::fbcgfFile);
+				FileBrowseCtrlGroup::Setup(this, CTLBRW_CVTCIPHER_INIDEST, CTL_CVTCIPHER_INIDEST, 2, 0, PPTXT_FILPAT_DAT, FileBrowseCtrlGroup::fbcgfFile);
+			}
+		};
 		SString db_symb;
-		if(GetStartUpOption(cmdlDB, db_symb)) {
-            //StringSet()
+		SString pw;
+		SString ini_src, ini_dest;
+		CvtCipherDialog * dlg = new CvtCipherDialog();
+		if(CheckDialogPtr(&dlg, 1)) {
+			PPIniFile ini_file;
+			PPDbEntrySet2 dbes;
+			dbes.ReadFromProfile(&ini_file);
+			SetupDBEntryComboBox(dlg, CTLSEL_CVTCIPHER_DB, &dbes);
+            dlg->setCtrlString(CTL_CVTCIPHER_PASSWORD, pw);
+            dlg->setCtrlString(CTL_CVTCIPHER_INISRC, ini_src);
+            dlg->setCtrlString(CTL_CVTCIPHER_INIDEST, ini_dest);
+            for(int r = -1; r < 0 && ExecView(dlg) == cmOK;) {
+				dlg->getCtrlString(CTL_CVTCIPHER_PASSWORD, pw);
+				dlg->getCtrlString(CTL_CVTCIPHER_INISRC, ini_src);
+				dlg->getCtrlString(CTL_CVTCIPHER_INIDEST, ini_dest);
+				long    db_sel = dlg->getCtrlLong(CTLSEL_CVTCIPHER_DB);
+				DbLoginBlock dblb;
+				if(dbes.GetByID(db_sel, &dblb) > 0) {
+					dblb.GetAttr(dblb.attrDbSymb, db_symb);
+					if(ConvertCipher(db_symb, pw, ini_src, ini_dest)) {
+						r = 1;
+					}
+					else
+						PPError();
+				}
+            }
 		}
+		ZDELETE(dlg);
 		TView::message(this, evCommand, cmQuit);
 	}
 	else if(GetStartUpOption(cmdlSartrTest, arg_buf)) {
