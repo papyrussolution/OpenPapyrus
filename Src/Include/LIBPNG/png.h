@@ -368,7 +368,7 @@
 
 #ifndef PNG_VERSION_INFO_ONLY
    /* Machine specific configuration. */
-#  include "pngconf.h"
+	#include "pngconf.h"
 #endif
 
 /*
@@ -511,8 +511,7 @@ typedef const png_info * PNG_RESTRICT png_const_inforp;
  * exact size) is not important, although the size of the fields need to
  * be png_byte or png_uint_16 (as defined below).
  */
-typedef struct png_color_struct
-{
+typedef struct png_color_struct {
    png_byte red;
    png_byte green;
    png_byte blue;
@@ -521,8 +520,7 @@ typedef png_color * png_colorp;
 typedef const png_color * png_const_colorp;
 typedef png_color * * png_colorpp;
 
-typedef struct png_color_16_struct
-{
+typedef struct png_color_16_struct {
    png_byte index;    /* used for palette files */
    png_uint_16 red;   /* for use in red green blue files */
    png_uint_16 green;

@@ -1332,11 +1332,11 @@ int FASTCALL TextFieldAnalyzer::ScanLex(SString & rBuf)
 		Scan.RegisterRe("^[m]?[0-9]+[ ]*:[ ]*[0-9]+",             &ReH_Scale); // ћасштаб
 		Scan.RegisterRe("^[0-9]+([\\.,][0-9]*)\\-[0-9]+([\\.,][0-9]*)?[ ]*%", &ReH_PctRange);
 		Scan.RegisterRe("^[0-9]+([\\.,\\-][0-9]*)?[ ]*%", &ReH_PctNum);
-		temp_buf = "^[2-6][ ]*((in)|[в¬]|(\\/))[ ]*1";
-		Scan.RegisterRe(temp_buf.ToOem(), &ReH_ManyInOne);
+		(temp_buf = "^[2-6][ ]*((in)|[в¬]|(\\/))[ ]*1").Transf(CTRANSF_OUTER_TO_INNER);
+		Scan.RegisterRe(temp_buf, &ReH_ManyInOne);
 		Scan.RegisterRe("^[0-9]+(\\/[0-9]+)+", &ReH_Frac);
-		temp_buf = "^[Aaја][1-6][ ]"; // ¬тора€ пара Aa - русские буквы //
-		Scan.RegisterRe(temp_buf.ToOem(), &ReH_PaperFmt);
+		(temp_buf = "^[Aaја][1-6][ ]").Transf(CTRANSF_OUTER_TO_INNER); // ¬тора€ пара Aa - русские буквы //
+		Scan.RegisterRe(temp_buf, &ReH_PaperFmt);
 		ReInit = 1;
 	}
 	int    lex = 0;
@@ -1503,7 +1503,7 @@ int SLAPI TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
 				THROW_SL(WordCounter.Add((long)word_id, 1.0));
 			}
 			{
-				word_set.add(TempBuf.ToOem());
+				word_set.add(TempBuf.Transf(CTRANSF_OUTER_TO_INNER));
 				word_count++;
 			}
 			Scan.Skip();
@@ -1699,16 +1699,16 @@ int SLAPI PPGoodsImporter::PutUnit(const Sdr_Goods2 & rRec, PPID defPhUnitID, PP
 				if(temp_buf.NotEmptyS()) {
 					val_buf = temp_buf;
 					if(val_buf.CmpNC("g") == 0 || stricmp866(val_buf, "Г") == 0 || stricmp866(val_buf, "£а") == 0) {
-						(val_buf = "кг").ToOem();
+						(val_buf = "кг").Transf(CTRANSF_OUTER_TO_INNER);
 						phperu /= 1000L;
 					}
 					else if(val_buf.CmpNC("kg") == 0)
-						(val_buf = "кг").ToOem();
+						(val_buf = "кг").Transf(CTRANSF_OUTER_TO_INNER);
 					else if(stricmp866(val_buf, "Л") == 0) {
-						(val_buf = "литр").ToOem();
+						(val_buf = "литр").Transf(CTRANSF_OUTER_TO_INNER);
 					}
 					else if(stricmp866(val_buf, "ђЂ") == 0) {
-						(val_buf = "литр").ToOem();
+						(val_buf = "литр").Transf(CTRANSF_OUTER_TO_INNER);
 						phperu /= 1000L;
 					}
 					THROW(UnitObj.AddSimple(&pPack->Rec.PhUnitID, val_buf, PPUnit::Trade | PPUnit::Phisical, 0));

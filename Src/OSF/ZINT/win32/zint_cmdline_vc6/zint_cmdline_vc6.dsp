@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\..\backend" /I "..\..\..\zlib" /I "..\..\..\lpng" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /D ZINT_VERSION="\"2.7.3\"" /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\..\backend" /I "..\..\..\zlib" /I "..\..\..\lpng" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /D ZINT_VERSION="\"2.5.1\"" /c
 # ADD BASE RSC /l 0x407 /d "NDEBUG"
 # ADD RSC /l 0x407 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -66,7 +66,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /I "..\..\backend" /I "..\..\..\lpng" /I "..\..\..\zlib" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /D ZINT_VERSION="\"2.7.4\"" /YX /FD /D /D /D /D /D /D /GZ /c
+# ADD CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /I "..\..\backend" /I "..\..\..\lpng" /I "..\..\..\zlib" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /D "NO_PNG" /YX /FD /GZ /D ZINT_VERSION="\"2.5\"" /c
 # ADD BASE RSC /l 0x407 /d "_DEBUG"
 # ADD RSC /l 0x407 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -97,6 +97,14 @@ SOURCE=..\..\backend\auspost.c
 # Begin Source File
 
 SOURCE=..\..\backend\aztec.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\backend\bmp.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\backend\codablock.c
 # End Source File
 # Begin Source File
 
@@ -132,6 +140,14 @@ SOURCE=..\..\backend\dmatrix.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\backend\dotcode.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\backend\eci.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\frontend\getopt.c
 # End Source File
 # Begin Source File
@@ -140,11 +156,19 @@ SOURCE=..\..\frontend\getopt1.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\backend\gif.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\backend\gridmtx.c
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\backend\gs1.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\backend\hanxin.c
 # End Source File
 # Begin Source File
 
@@ -172,6 +196,10 @@ SOURCE=..\..\backend\medical.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\backend\pcx.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\backend\pdf417.c
 # End Source File
 # Begin Source File
@@ -193,6 +221,10 @@ SOURCE=..\..\backend\ps.c
 # Begin Source File
 
 SOURCE=..\..\backend\qr.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\backend\raster.c
 # End Source File
 # Begin Source File
 

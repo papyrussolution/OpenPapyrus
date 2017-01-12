@@ -323,7 +323,8 @@ int SLAPI GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, lo
 int SLAPI GTaxVect::CalcTI(const PPTransferItem * pTI, PPID opID, int tiamt, long exclFlags)
 {
 	int    ok = 1;
-	int    calcti_costwovat_byprice = (CConfig.Flags & CCFLG_COSTWOVATBYSUM) ? 0 : 1;
+	const  PPCommConfig & r_ccfg = CConfig;
+	int    calcti_costwovat_byprice = (r_ccfg.Flags & CCFLG_COSTWOVATBYSUM) ? 0 : 1;
 	int    cost_wo_vat = 0;
 	int    is_asset = 0;
 	int    is_exclvat = 0;
@@ -341,10 +342,10 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem * pTI, PPID opID, int tiamt, lon
 		if(goods_rec.Flags & GF_ASSETS)
 			is_asset = 1;
 		tax_grp_id = goods_rec.TaxGrpID;
-		if(!(exclFlags & GTAXVF_NOMINAL) && CConfig.DynGoodsTypeForSupplAgent && pTI->LotID && BillObj->GetSupplAgent(pTI->LotID) > 0) {
+		if(!(exclFlags & GTAXVF_NOMINAL) && r_ccfg.DynGoodsTypeForSupplAgent && pTI->LotID && BillObj->GetSupplAgent(pTI->LotID) > 0) {
 			PPObjGoodsType gt_obj;
 			PPGoodsType gt_rec;
-			if(gt_obj.Fetch(CConfig.DynGoodsTypeForSupplAgent, &gt_rec) > 0 && gt_rec.Flags & GTF_EXCLVAT)
+			if(gt_obj.Fetch(r_ccfg.DynGoodsTypeForSupplAgent, &gt_rec) > 0 && gt_rec.Flags & GTF_EXCLVAT)
 				is_exclvat = 1;
 		}
 		else if(goods_rec.Flags & GF_EXCLVAT)
@@ -387,7 +388,7 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem * pTI, PPID opID, int tiamt, lon
 			if(pTI->Flags & PPTFR_COSTWOVAT && is_asset)
 				amt_flags &= ~GTAXVF_VAT;
 			int    re = BIN(pTI->Flags & PPTFR_RMVEXCISE);
-			if((CConfig.Flags & CCFLG_PRICEWOEXCISE) ? !re : re)
+			if((r_ccfg.Flags & CCFLG_PRICEWOEXCISE) ? !re : re)
 				exclFlags |= GTAXVF_SALESTAX;
 			MEMSZERO(gtx);
 			gtobj.Fetch(tax_grp_id, pTI->Date, opID, &gtx);

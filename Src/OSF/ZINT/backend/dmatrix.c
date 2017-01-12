@@ -37,15 +37,26 @@
     OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
  */
+
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <ctype.h>
+//#include <string.h>
+//#include <assert.h>
+//#include <math.h>
+#ifdef _MSC_VER
+	#include <malloc.h>
+	// ceilf (C99) not before MSVC++2013 (C++ 12.0) 
+	/*#if _MSC_VER < 1800
+		#define ceilf ceil
+	#endif*/
+#endif
 #include "common.h"
 #include "reedsol.h"
 #include "dmatrix.h"
-#ifdef _MSC_VER
-	#include <malloc.h>
-#endif
 
 /* Annex M placement alorithm low level */
-static void ecc200placementbit(int * array, const int NR, const int NC, int r, int c, const int p, const char b) 
+static void ecc200placementbit(int * array, const int NR, const int NC, int r, int c, const int p, const char b)
 {
 	if(r < 0) {
 		r += NR;
@@ -80,7 +91,8 @@ static void ecc200placementbit(int * array, const int NR, const int NC, int r, i
 	array[r * NC + c] = (p << 3) + b;
 }
 
-static void ecc200placementblock(int * array, const int NR, const int NC, const int r, const int c, const int p) 
+static void ecc200placementblock(int * array, const int NR, const int NC, const int r,
+    const int c, const int p)
 {
 	ecc200placementbit(array, NR, NC, r - 2, c - 2, p, 7);
 	ecc200placementbit(array, NR, NC, r - 2, c - 1, p, 6);
@@ -92,7 +104,8 @@ static void ecc200placementblock(int * array, const int NR, const int NC, const 
 	ecc200placementbit(array, NR, NC, r - 0, c - 0, p, 0);
 }
 
-static void ecc200placementcornerA(int * array, const int NR, const int NC, const int p) {
+static void ecc200placementcornerA(int * array, const int NR, const int NC, const int p)
+{
 	ecc200placementbit(array, NR, NC, NR - 1, 0, p, 7);
 	ecc200placementbit(array, NR, NC, NR - 1, 1, p, 6);
 	ecc200placementbit(array, NR, NC, NR - 1, 2, p, 5);
@@ -103,7 +116,7 @@ static void ecc200placementcornerA(int * array, const int NR, const int NC, cons
 	ecc200placementbit(array, NR, NC, 3, NC - 1, p, 0);
 }
 
-static void ecc200placementcornerB(int * array, const int NR, const int NC, const int p) 
+static void ecc200placementcornerB(int * array, const int NR, const int NC, const int p)
 {
 	ecc200placementbit(array, NR, NC, NR - 3, 0, p, 7);
 	ecc200placementbit(array, NR, NC, NR - 2, 0, p, 6);
@@ -115,7 +128,7 @@ static void ecc200placementcornerB(int * array, const int NR, const int NC, cons
 	ecc200placementbit(array, NR, NC, 1, NC - 1, p, 0);
 }
 
-static void ecc200placementcornerC(int * array, const int NR, const int NC, const int p) 
+static void ecc200placementcornerC(int * array, const int NR, const int NC, const int p)
 {
 	ecc200placementbit(array, NR, NC, NR - 3, 0, p, 7);
 	ecc200placementbit(array, NR, NC, NR - 2, 0, p, 6);
@@ -127,7 +140,7 @@ static void ecc200placementcornerC(int * array, const int NR, const int NC, cons
 	ecc200placementbit(array, NR, NC, 3, NC - 1, p, 0);
 }
 
-static void ecc200placementcornerD(int * array, const int NR, const int NC, const int p) 
+static void ecc200placementcornerD(int * array, const int NR, const int NC, const int p)
 {
 	ecc200placementbit(array, NR, NC, NR - 1, 0, p, 7);
 	ecc200placementbit(array, NR, NC, NR - 1, NC - 1, p, 6);
@@ -140,7 +153,7 @@ static void ecc200placementcornerD(int * array, const int NR, const int NC, cons
 }
 
 /* Annex M placement alorithm main function */
-static void ecc200placement(int * array, const int NR, const int NC) 
+static void ecc200placement(int * array, const int NR, const int NC)
 {
 	int r, c, p;
 	// invalidate
@@ -186,7 +199,7 @@ static void ecc200placement(int * array, const int NR, const int NC)
 }
 
 /* calculate and append ecc code, and if necessary interleave */
-static void ecc200(uchar * binary, const int bytes, const int datablock, const int rsblock, const int skew) 
+static void ecc200(uchar * binary, const int bytes, const int datablock, const int rsblock, const int skew)
 {
 	int blocks = (bytes + 2) / datablock, b;
 	int n, p;
@@ -219,7 +232,8 @@ static void ecc200(uchar * binary, const int bytes, const int datablock, const i
 }
 
 /* Return true (1) if a character is valid in X12 set */
-static int isX12(const int source) {
+static int isX12(const int source)
+{
 	if(source == 13) {
 		return 1;
 	}
@@ -243,17 +257,19 @@ static int isX12(const int source) {
 }
 
 /* Insert a character into the middle of a string at position posn */
-static void dminsert(char binary_string[], const int posn, const char newbit) {
+static void dminsert(char binary_string[], const int posn, const char newbit)
+{
 	int i, end;
 
 	end = (int)strlen(binary_string);
-	for(i = end; i > posn; i--) {
+	for(i = end + 1; i > posn; i--) {
 		binary_string[i] = binary_string[i - 1];
 	}
 	binary_string[posn] = newbit;
 }
 
-static void insert_value(uchar binary_stream[], const int posn, const int streamlen, const int newbit) {
+static void insert_value(uchar binary_stream[], const int posn, const int streamlen, const int newbit)
+{
 	int i;
 
 	for(i = streamlen; i > posn; i--) {
@@ -262,7 +278,8 @@ static void insert_value(uchar binary_stream[], const int posn, const int stream
 	binary_stream[posn] = (uchar)newbit;
 }
 
-static int p_r_6_2_1(const uchar inputData[], const int position, const int sourcelen) {
+static int p_r_6_2_1(const uchar inputData[], const int position, const int sourcelen)
+{
 	/* Annex P section (r)(6)(ii)(I)
 	   "If one of the three X12 terminator/separator characters first
 	    occurs in the yet to be processed data before a non-X12 character..."
@@ -275,7 +292,7 @@ static int p_r_6_2_1(const uchar inputData[], const int position, const int sour
 
 	for(i = position; i < sourcelen; i++) {
 		if(nonX12Position == 0) {
-			if(isX12(i) == 1) {
+			if(isX12(inputData[i]) != 1) {
 				nonX12Position = i;
 			}
 		}
@@ -299,69 +316,86 @@ static int p_r_6_2_1(const uchar inputData[], const int position, const int sour
 }
 
 /* 'look ahead test' from Annex P */
-static int look_ahead_test(const uchar inputData[], const int sourcelen, const int position, const int current_mode, const int gs1) 
+static int look_ahead_test(const uchar inputData[], const int sourcelen, const int position, const int current_mode, const int gs1)
 {
-	float  ascii_count, c40_count, text_count, x12_count, edf_count, b256_count, best_count;
-	int    sp;
-	int    best_scheme = DM_NULL;
-	// step (j) 
+	float ascii_count, c40_count, text_count, x12_count, edf_count, b256_count, best_count;
+	const float stiction = (1.0F / 24.0F); // smallest change to act on, to get around floating point inaccuracies
+	int sp, best_scheme;
+
+	best_scheme = DM_NULL;
+
+	/* step (j) */
 	if(current_mode == DM_ASCII) {
-		ascii_count = 0.0f;
-		c40_count = 1.0f;
-		text_count = 1.0f;
-		x12_count = 1.0f;
-		edf_count = 1.0f;
-		b256_count = 1.25f;
+		ascii_count = 0.0F;
+		c40_count = 1.0F;
+		text_count = 1.0F;
+		x12_count = 1.0F;
+		edf_count = 1.0F;
+		b256_count = 1.25F;
 	}
 	else {
-		ascii_count = 1.0f;
-		c40_count = 2.0f;
-		text_count = 2.0f;
-		x12_count = 2.0f;
-		edf_count = 2.0f;
-		b256_count = 2.25f;
+		ascii_count = 1.0F;
+		c40_count = 2.0F;
+		text_count = 2.0F;
+		x12_count = 2.0F;
+		edf_count = 2.0F;
+		b256_count = 2.25F;
 	}
+
 	switch(current_mode) {
-		case DM_C40: c40_count = 0.0f; break;
-		case DM_TEXT: text_count = 0.0f; break;
-		case DM_X12: x12_count = 0.0f; break;
-		case DM_EDIFACT: edf_count = 0.0f; break;
-		case DM_BASE256: b256_count = 0.0f; break;
+		case DM_C40: c40_count = 0.0F;
+		    break;
+		case DM_TEXT: text_count = 0.0F;
+		    break;
+		case DM_X12: x12_count = 0.0F;
+		    break;
+		case DM_EDIFACT: edf_count = 0.0F;
+		    break;
+		case DM_BASE256: b256_count = 0.0F;
+		    break;
 	}
+
 	sp = position;
+
 	do {
-		if(sp == (sourcelen - 1)) {
-			// At the end of data ... step (k) 
+		if(sp == sourcelen) {
+			/* At the end of data ... step (k) */
 			ascii_count = ceilf(ascii_count);
 			b256_count = ceilf(b256_count);
 			edf_count = ceilf(edf_count);
 			text_count = ceilf(text_count);
 			x12_count = ceilf(x12_count);
 			c40_count = ceilf(c40_count);
+
 			best_count = c40_count;
 			best_scheme = DM_C40; // (k)(7)
-			if(x12_count < best_count) {
+
+			if(x12_count < (best_count - stiction)) {
 				best_count = x12_count;
 				best_scheme = DM_X12; // (k)(6)
 			}
-			if(text_count < best_count) {
+
+			if(text_count < (best_count - stiction)) {
 				best_count = text_count;
 				best_scheme = DM_TEXT; // (k)(5)
 			}
-			if(edf_count < best_count) {
+
+			if(edf_count < (best_count - stiction)) {
 				best_count = edf_count;
 				best_scheme = DM_EDIFACT; // (k)(4)
 			}
-			if(b256_count < best_count) {
+
+			if(b256_count < (best_count - stiction)) {
 				best_count = b256_count;
 				best_scheme = DM_BASE256; // (k)(3)
 			}
-			if(ascii_count <= best_count) {
+
+			if(ascii_count <= (best_count + stiction)) {
 				best_scheme = DM_ASCII; // (k)(2)
 			}
 		}
 		else {
-			// ascii ... step (l) 
+			/* ascii ... step (l) */
 			if((inputData[sp] >= '0') && (inputData[sp] <= '9')) {
 				ascii_count += 0.5F; // (l)(1)
 			}
@@ -373,8 +407,11 @@ static int look_ahead_test(const uchar inputData[], const int sourcelen, const i
 					ascii_count = ceilf(ascii_count) + 1.0F; // (l)(3)
 				}
 			}
-			// c40 ... step (m) 
-			if((inputData[sp] == ' ') || (((inputData[sp] >= '0') && (inputData[sp] <= '9')) || ((inputData[sp] >= 'A') && (inputData[sp] <= 'Z')))) {
+
+			/* c40 ... step (m) */
+			if((inputData[sp] == ' ') ||
+			    (((inputData[sp] >= '0') && (inputData[sp] <= '9')) ||
+				    ((inputData[sp] >= 'A') && (inputData[sp] <= 'Z')))) {
 				c40_count += (2.0F / 3.0F); // (m)(1)
 			}
 			else {
@@ -385,8 +422,11 @@ static int look_ahead_test(const uchar inputData[], const int sourcelen, const i
 					c40_count += (4.0F / 3.0F); // (m)(3)
 				}
 			}
+
 			/* text ... step (n) */
-			if((inputData[sp] == ' ') || (((inputData[sp] >= '0') && (inputData[sp] <= '9')) || ((inputData[sp] >= 'a') && (inputData[sp] <= 'z')))) {
+			if((inputData[sp] == ' ') ||
+			    (((inputData[sp] >= '0') && (inputData[sp] <= '9')) ||
+				    ((inputData[sp] >= 'a') && (inputData[sp] <= 'z')))) {
 				text_count += (2.0F / 3.0F); // (n)(1)
 			}
 			else {
@@ -417,14 +457,14 @@ static int look_ahead_test(const uchar inputData[], const int sourcelen, const i
 			}
 			else {
 				if(inputData[sp] > 127) {
-					edf_count += (17.0F / 4.0F); // (p)(2)
+					edf_count += 17.0F; // (p)(2) > Value changed from ISO
 				}
 				else {
-					edf_count += (13.0F / 4.0F); // (p)(3)
+					edf_count += 13.0F; // (p)(3) > Value changed from ISO
 				}
 			}
 			if((gs1 == 1) && (inputData[sp] == '[')) {
-				edf_count += 6.0F;
+				edf_count += 13.0F; //  > Value changed from ISO
 			}
 
 			/* base 256 ... step (q) */
@@ -440,15 +480,16 @@ static int look_ahead_test(const uchar inputData[], const int sourcelen, const i
 			/* 4 data characters processed ... step (r) */
 
 			/* step (r)(6) */
-			if(((c40_count + 1.0F) < ascii_count) &&
-			    ((c40_count + 1.0F) < b256_count) &&
-			    ((c40_count + 1.0F) < edf_count) &&
-			    ((c40_count + 1.0F) < text_count)) {
-				if(c40_count < x12_count) {
+			if(((c40_count + 1.0F) < (ascii_count - stiction)) &&
+			    ((c40_count + 1.0F) < (b256_count - stiction)) &&
+			    ((c40_count + 1.0F) < (edf_count - stiction)) &&
+			    ((c40_count + 1.0F) < (text_count - stiction))) {
+				if(c40_count < (x12_count - stiction)) {
 					best_scheme = DM_C40;
 				}
 
-				if(c40_count == x12_count) {
+				if((c40_count >= (x12_count - stiction))
+				    && (c40_count <= (x12_count + stiction))) {
 					if(p_r_6_2_1(inputData, sp, sourcelen) == 1) {
 						// Test (r)(6)(ii)(i)
 						best_scheme = DM_X12;
@@ -460,50 +501,53 @@ static int look_ahead_test(const uchar inputData[], const int sourcelen, const i
 			}
 
 			/* step (r)(5) */
-			if(((x12_count + 1.0F) < ascii_count) &&
-			    ((x12_count + 1.0F) < b256_count) &&
-			    ((x12_count + 1.0F) < edf_count) &&
-			    ((x12_count + 1.0F) < text_count) &&
-			    ((x12_count + 1.0F) < c40_count)) {
+			if(((x12_count + 1.0F) < (ascii_count - stiction)) &&
+			    ((x12_count + 1.0F) < (b256_count - stiction)) &&
+			    ((x12_count + 1.0F) < (edf_count - stiction)) &&
+			    ((x12_count + 1.0F) < (text_count - stiction)) &&
+			    ((x12_count + 1.0F) < (c40_count - stiction))) {
 				best_scheme = DM_X12;
 			}
 
 			/* step (r)(4) */
-			if(((text_count + 1.0F) < ascii_count) &&
-			    ((text_count + 1.0F) < b256_count) &&
-			    ((text_count + 1.0F) < edf_count) &&
-			    ((text_count + 1.0F) < x12_count) &&
-			    ((text_count + 1.0F) < c40_count)) {
+			if(((text_count + 1.0F) < (ascii_count - stiction)) &&
+			    ((text_count + 1.0F) < (b256_count - stiction)) &&
+			    ((text_count + 1.0F) < (edf_count - stiction)) &&
+			    ((text_count + 1.0F) < (x12_count - stiction)) &&
+			    ((text_count + 1.0F) < (c40_count - stiction))) {
 				best_scheme = DM_TEXT;
 			}
 
 			/* step (r)(3) */
-			if(((edf_count + 1.0F) < ascii_count) &&
-			    ((edf_count + 1.0F) < b256_count) &&
-			    ((edf_count + 1.0F) < text_count) &&
-			    ((edf_count + 1.0F) < x12_count) &&
-			    ((edf_count + 1.0F) < c40_count)) {
+			if(((edf_count + 1.0F) < (ascii_count - stiction)) &&
+			    ((edf_count + 1.0F) < (b256_count - stiction)) &&
+			    ((edf_count + 1.0F) < (text_count - stiction)) &&
+			    ((edf_count + 1.0F) < (x12_count - stiction)) &&
+			    ((edf_count + 1.0F) < (c40_count - stiction))) {
 				best_scheme = DM_EDIFACT;
 			}
 
 			/* step (r)(2) */
-			if(((b256_count + 1.0F) <= ascii_count) ||
-			    (((b256_count + 1.0F) < edf_count) &&
-				    ((b256_count + 1.0F) < text_count) &&
-				    ((b256_count + 1.0F) < x12_count) &&
-				    ((b256_count + 1.0F) < c40_count))) {
+			if(((b256_count + 1.0F) <= (ascii_count + stiction)) ||
+			    (((b256_count + 1.0F) < (edf_count - stiction)) &&
+				    ((b256_count + 1.0F) < (text_count - stiction)) &&
+				    ((b256_count + 1.0F) < (x12_count - stiction)) &&
+				    ((b256_count + 1.0F) < (c40_count - stiction)))) {
 				best_scheme = DM_BASE256;
 			}
 
 			/* step (r)(1) */
-			if(((ascii_count + 1.0F) <= b256_count) &&
-			    ((ascii_count + 1.0F) <= edf_count) &&
-			    ((ascii_count + 1.0F) <= text_count) &&
-			    ((ascii_count + 1.0F) <= x12_count) &&
-			    ((ascii_count + 1.0F) <= c40_count)) {
+			if(((ascii_count + 1.0F) <= (b256_count + stiction)) &&
+			    ((ascii_count + 1.0F) <= (edf_count + stiction)) &&
+			    ((ascii_count + 1.0F) <= (text_count + stiction)) &&
+			    ((ascii_count + 1.0F) <= (x12_count + stiction)) &&
+			    ((ascii_count + 1.0F) <= (c40_count + stiction))) {
 				best_scheme = DM_ASCII;
 			}
 		}
+
+		//printf("Char %d[%c]: ASC:%.2f C40:%.2f X12:%.2f TXT:%.2f EDI:%.2f BIN:%.2f\n", sp,
+		//        inputData[sp], ascii_count, c40_count, x12_count, text_count, edf_count, b256_count);
 
 		sp++;
 	} while(best_scheme == DM_NULL); // step (s)
@@ -513,10 +557,15 @@ static int look_ahead_test(const uchar inputData[], const int sourcelen, const i
 
 /* Encodes data using ASCII, C40, Text, X12, EDIFACT or Base 256 modes as appropriate
    Supports encoding FNC1 in supporting systems */
-static int dm200encode(ZintSymbol * symbol, const uchar source[], uchar target[],
-    int * last_mode, int * length_p, int process_buffer[], int * process_p) 
+static int dm200encode(struct ZintSymbol * symbol,
+    const uchar source[],
+    uchar target[],
+    int * last_mode,
+    int * length_p,
+    int process_buffer[],
+    int * process_p)
 {
-	int i, gs1;
+	int sp, tp, i, gs1;
 	int current_mode, next_mode;
 	int inputlen = *length_p;
 	int debug = 0;
@@ -525,14 +574,17 @@ static int dm200encode(ZintSymbol * symbol, const uchar source[], uchar target[]
 #else
 	char* binary = (char*)_alloca(2 * inputlen);
 #endif
-	int sp = 0;
-	int tp = 0;
-	memzero(process_buffer, 8);
+
+	sp = 0;
+	tp = 0;
+	memset(process_buffer, 0, 8);
 	*process_p = 0;
 	strcpy(binary, "");
+
 	/* step (a) */
 	current_mode = DM_ASCII;
 	next_mode = DM_ASCII;
+
 	if(symbol->input_mode == GS1_MODE) {
 		gs1 = 1;
 	}
@@ -549,7 +601,7 @@ static int dm200encode(ZintSymbol * symbol, const uchar source[], uchar target[]
 
 	if(symbol->output_options & READER_INIT) {
 		if(gs1) {
-			strcpy(symbol->errtxt, "Cannot encode in GS1 mode and Reader Initialisation at the same time");
+			strcpy(symbol->errtxt, "Cannot encode in GS1 mode and Reader Initialisation at the same time (E10)");
 			return ZINT_ERROR_INVALID_OPTION;
 		}
 		else {
@@ -558,6 +610,14 @@ static int dm200encode(ZintSymbol * symbol, const uchar source[], uchar target[]
 			strcat(binary, " ");
 			if(debug) printf("RP ");
 		}
+	}
+
+	if(symbol->eci > 3) {
+		target[tp] = 241; /* ECI Character */
+		tp++;
+		target[tp] = (uchar)(symbol->eci + 1);
+		tp++;
+		if(debug) printf("ECI %d ", symbol->eci + 1);
 	}
 
 	/* Check for Macro05/Macro06 */
@@ -705,7 +765,7 @@ static int dm200encode(ZintSymbol * symbol, const uchar source[], uchar target[]
 					int iv;
 
 					iv = (1600 * process_buffer[0]) + (40 * process_buffer[1]) + (process_buffer[2]) + 1;
-					target[tp] = iv / 256;
+					target[tp] = (uchar)(iv / 256);
 					tp++;
 					target[tp] = iv % 256;
 					tp++;
@@ -770,7 +830,7 @@ static int dm200encode(ZintSymbol * symbol, const uchar source[], uchar target[]
 					int iv;
 
 					iv = (1600 * process_buffer[0]) + (40 * process_buffer[1]) + (process_buffer[2]) + 1;
-					target[tp] = iv / 256;
+					target[tp] = (uchar)(iv / 256);
 					tp++;
 					target[tp] = iv % 256;
 					tp++;
@@ -832,7 +892,7 @@ static int dm200encode(ZintSymbol * symbol, const uchar source[], uchar target[]
 					int iv;
 
 					iv = (1600 * process_buffer[0]) + (40 * process_buffer[1]) + (process_buffer[2]) + 1;
-					target[tp] = iv / 256;
+					target[tp] = (uchar)(iv / 256);
 					tp++;
 					target[tp] = iv % 256;
 					tp++;
@@ -866,13 +926,11 @@ static int dm200encode(ZintSymbol * symbol, const uchar source[], uchar target[]
 				next_mode = DM_ASCII;
 			}
 			else {
-				if((source[sp] >= '@') && (source[sp] <= '^')) {
-					value = source[sp] - '@';
+				value = source[sp];
+
+				if(source[sp] >= 64) { // '@'
+					value -= 64;
 				}
-				if((source[sp] >= ' ') && (source[sp] <= '?')) {
-					value = source[sp];
-				}
-				/* possibility put an assertion here for invalid character (none of the ifs trigger) */
 
 				process_buffer[*process_p] = value;
 				(*process_p)++;
@@ -880,11 +938,11 @@ static int dm200encode(ZintSymbol * symbol, const uchar source[], uchar target[]
 			}
 
 			if(*process_p >= 4) {
-				target[tp] = (process_buffer[0] << 2) + ((process_buffer[1] & 0x30) >> 4);
+				target[tp] = (uchar)((process_buffer[0] << 2) + ((process_buffer[1] & 0x30) >> 4));
 				tp++;
 				target[tp] = ((process_buffer[1] & 0x0f) << 4) + ((process_buffer[2] & 0x3c) >> 2);
 				tp++;
-				target[tp] = ((process_buffer[2] & 0x03) << 6) + process_buffer[3];
+				target[tp] = (uchar)(((process_buffer[2] & 0x03) << 6) + process_buffer[3]);
 				tp++;
 				strcat(binary, "   ");
 				if(debug) printf("[%d %d %d %d] ", process_buffer[0], process_buffer[1], process_buffer[2],
@@ -932,7 +990,7 @@ static int dm200encode(ZintSymbol * symbol, const uchar source[], uchar target[]
 				/* start of binary data */
 				int binary_count; /* length of b256 data */
 
-				for(binary_count = 0; binary[binary_count + i] == 'b'; binary_count++) ;
+				for(binary_count = 0; binary_count + i < tp && binary[binary_count + i] == 'b'; binary_count++) ;
 
 				if(binary_count <= 249) {
 					dminsert(binary, i, 'b');
@@ -959,10 +1017,10 @@ static int dm200encode(ZintSymbol * symbol, const uchar source[], uchar target[]
 			prn = ((149 * (i + 1)) % 255) + 1;
 			temp = target[i] + prn;
 			if(temp <= 255) {
-				target[i] = temp;
+				target[i] = (uchar)(temp);
 			}
 			else {
-				target[i] = temp - 256;
+				target[i] = (uchar)(temp - 256);
 			}
 		}
 	}
@@ -978,65 +1036,51 @@ static int dm200encode_remainder(uchar target[],
     const int last_mode,
     const int process_buffer[],
     const int process_p,
-    const int symbols_left) {
+    const int symbols_left)
+{
 	int debug = 0;
 
 	switch(last_mode) {
 		case DM_C40:
 		case DM_TEXT:
-		    if(symbols_left == process_p) { // No unlatch required!
-			    if(process_p == 1) { // 1 data character left to encode.
-				    target[target_length] = source[inputlen - 1] + 1;
-				    target_length++;
+		    if(process_p == 1) { // 1 data character left to encode.
+			    if(symbols_left > 1) {
+				    target[target_length] = 254;
+				    target_length++; // Unlatch and encode remaining data in ascii.
 			    }
-
-			    if(process_p == 2) { // 2 data characters left to encode.
-				    // Pad with shift 1 value (0) and encode as double.
-				    int intValue = (1600 * process_buffer[0]) + (40 * process_buffer[1]) + 1; // ie (0 +
-				                                                                              // 1).
-				    target[target_length] = (uchar)(intValue / 256);
-				    target_length++;
-				    target[target_length] = (uchar)(intValue % 256);
+			    target[target_length] = source[inputlen - 1] + 1;
+			    target_length++;
+		    }
+		    else if(process_p == 2) { // 2 data characters left to encode.
+			    // Pad with shift 1 value (0) and encode as double.
+			    int intValue = (1600 * process_buffer[0]) + (40 * process_buffer[1]) + 1; // ie (0 + 1).
+			    target[target_length] = (uchar)(intValue / 256);
+			    target_length++;
+			    target[target_length] = (uchar)(intValue % 256);
+			    target_length++;
+			    if(symbols_left > 2) {
+				    target[target_length] = 254; // Unlatch
 				    target_length++;
 			    }
 		    }
-
-		    if(symbols_left > process_p) {
-			    target[target_length] = (254);
-			    target_length++; // Unlatch and encode remaining data in ascii.
-			    if(process_p == 1 || (process_p == 2 && process_buffer[0] < 3)) { // Check for a shift
-			                                                                      // value.
-				    target[target_length] = source[inputlen - 1] + 1;
-				    target_length++;
-			    }
-			    else if(process_p == 2) {
-				    target[target_length] = source[inputlen - 2] + 1;
-				    target_length++;
-				    target[target_length] = source[inputlen - 1] + 1;
+		    else {
+			    if(symbols_left > 0) {
+				    target[target_length] = 254; // Unlatch
 				    target_length++;
 			    }
 		    }
 		    break;
 
 		case DM_X12:
-		    if(symbols_left == process_p) { // Unlatch not required!
-			    if(process_p == 1) { // 1 data character left to encode.
-				    target[target_length] = source[inputlen - 1] + 1;
-				    target_length++;
-			    }
-
-			    if(process_p == 2) {
-				    // Encode last 2 bytes as ascii.
-				    target[target_length] = source[inputlen - 2] + 1;
-				    target_length++;
-				    target[target_length] = source[inputlen - 1] + 1;
-				    target_length++;
-			    }
+		    if((symbols_left == process_p) && (process_p == 1)) {
+			    // Unlatch not required!
+			    target[target_length] = source[inputlen - 1] + 1;
+			    target_length++;
 		    }
-
-		    if(symbols_left > process_p) { // Unlatch and encode remaining data in ascii.
+		    else {
 			    target[target_length] = (254);
 			    target_length++; // Unlatch.
+
 			    if(process_p == 1) {
 				    target[target_length] = source[inputlen - 1] + 1;
 				    target_length++;
@@ -1052,7 +1096,7 @@ static int dm200encode_remainder(uchar target[],
 		    break;
 
 		case DM_EDIFACT:
-		    if(symbols_left == process_p) { // Unlatch not required!
+		    if(symbols_left <= 2) { // Unlatch not required!
 			    if(process_p == 1) {
 				    target[target_length] = source[inputlen - 1] + 1;
 				    target_length++;
@@ -1062,48 +1106,45 @@ static int dm200encode_remainder(uchar target[],
 				    target[target_length] = source[inputlen - 2] + 1;
 				    target_length++;
 				    target[target_length] = source[inputlen - 1] + 1;
-				    target_length++;
-			    }
-
-			    if(process_p == 3) { // Append edifact unlatch value (31) and encode as triple.
-				    target[target_length] = (uchar)((process_buffer[0] << 2) + ((process_buffer[1] & 0x30) >> 4));
-				    target_length++;
-				    target[target_length] =
-				    (uchar)(((process_buffer[1] & 0x0f) << 4) + ((process_buffer[2] & 0x3c) >> 2));
-				    target_length++;
-				    target[target_length] = (uchar)(((process_buffer[2] & 0x03) << 6) + 31);
 				    target_length++;
 			    }
 		    }
+		    else {
+			    // Append edifact unlatch value (31) and encode as triple
 
-		    if(symbols_left > process_p) { // Unlatch and encode remaining data in ascii.
-			    // Edifact unlatch.
-			    if(symbols_left < 3) {
-				    target[target_length] = 31;
+			    if(process_p == 0) {
+				    target[target_length] = (uchar)(31 << 2);
+				    target_length++;
+				    target[target_length] = 0;
+				    target_length++;
+				    target[target_length] = 0;
 				    target_length++;
 			    }
-			    else
-				    target[target_length] = (31 << 2);
-			    target_length++;
 
 			    if(process_p == 1) {
-				    target[target_length] = source[inputlen - 1] + 1;
+				    target[target_length] = (uchar)((process_buffer[0] << 2) + ((31 & 0x30) >> 4));
+				    target_length++;
+				    target[target_length] = (uchar)((31 & 0x0f) << 4);
+				    target_length++;
+				    target[target_length] = (uchar)0;
 				    target_length++;
 			    }
 
 			    if(process_p == 2) {
-				    target[target_length] = source[inputlen - 2] + 1;
+				    target[target_length] = (uchar)((process_buffer[0] << 2) + ((process_buffer[1] & 0x30) >> 4));
 				    target_length++;
-				    target[target_length] = source[inputlen - 1] + 1;
+				    target[target_length] = (uchar)(((process_buffer[1] & 0x0f) << 4) + ((31 & 0x3c) >> 2));
+				    target_length++;
+				    target[target_length] = (uchar)(((31 & 0x03) << 6));
 				    target_length++;
 			    }
 
 			    if(process_p == 3) {
-				    target[target_length] = source[inputlen - 3] + 1;
+				    target[target_length] = (uchar)((process_buffer[0] << 2) + ((process_buffer[1] & 0x30) >> 4));
 				    target_length++;
-				    target[target_length] = source[inputlen - 2] + 1;
+				    target[target_length] = (uchar)(((process_buffer[1] & 0x0f) << 4) + ((process_buffer[2] & 0x3c) >> 2));
 				    target_length++;
-				    target[target_length] = source[inputlen - 1] + 1;
+				    target[target_length] = (uchar)(((process_buffer[2] & 0x03) << 6) + 31);
 				    target_length++;
 			    }
 		    }
@@ -1123,7 +1164,8 @@ static int dm200encode_remainder(uchar target[],
 }
 
 /* add pad bits */
-static void add_tail(uchar target[], int tp, const int tail_length) {
+static void add_tail(uchar target[], int tp, const int tail_length)
+{
 	int i, prn, temp;
 
 	for(i = tail_length; i > 0; i--) {
@@ -1135,19 +1177,20 @@ static void add_tail(uchar target[], int tp, const int tail_length) {
 			prn = ((149 * (tp + 1)) % 253) + 1;
 			temp = 129 + prn;
 			if(temp <= 254) {
-				target[tp] = temp;
+				target[tp] = (uchar)(temp);
 				tp++;
 			}
 			else {
-				target[tp] = temp - 254;
+				target[tp] = (uchar)(temp - 254);
 				tp++;
 			}
 		}
 	}
 }
 
-int data_matrix_200(ZintSymbol * symbol, uchar source[], const int length) {
-	int inputlen, i, skew = 0;
+int data_matrix_200(struct ZintSymbol * symbol, const uchar source[], const int in_length)
+{
+	int i, inputlen = in_length, skew = 0;
 	uchar binary[2200];
 	int binlen;
 	int process_buffer[8]; /* holds remaining data to finalised */
@@ -1155,16 +1198,15 @@ int data_matrix_200(ZintSymbol * symbol, uchar source[], const int length) {
 	int symbolsize, optionsize, calcsize;
 	int taillength, error_number = 0;
 	int H, W, FH, FW, datablock, bytes, rsblock;
-	int last_mode;
+	int last_mode = DM_ASCII;
 	uchar * grid = 0;
 	int symbols_left;
-	inputlen = length;
 
 	/* inputlen may be decremented by 2 if macro character is used */
 	binlen = dm200encode(symbol, source, binary, &last_mode, &inputlen, process_buffer, &process_p);
 
 	if(binlen == 0) {
-		strcpy(symbol->errtxt, "Data too long to fit in symbol");
+		strcpy(symbol->errtxt, "Data too long to fit in symbol (E11)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 
@@ -1202,13 +1244,18 @@ int data_matrix_200(ZintSymbol * symbol, uchar source[], const int length) {
 		if(optionsize != -1) {
 			/* flag an error */
 			error_number = ZINT_WARN_INVALID_OPTION;
-			strcpy(symbol->errtxt, "Data does not fit in selected symbol size");
+			strcpy(symbol->errtxt, "Data does not fit in selected symbol size (E12)");
 		}
 	}
 
 	// Now we know the symbol size we can handle the remaining data in the process buffer.
 	symbols_left = matrixbytes[symbolsize] - binlen;
 	binlen = dm200encode_remainder(binary, binlen, source, inputlen, last_mode, process_buffer, process_p, symbols_left);
+
+	if(binlen > matrixbytes[symbolsize]) {
+		strcpy(symbol->errtxt, "Data too long to fit in symbol (E12A)");
+		return ZINT_ERROR_TOO_LONG;
+	}
 
 	H = matrixH[symbolsize];
 	W = matrixW[symbolsize];
@@ -1250,7 +1297,7 @@ int data_matrix_200(ZintSymbol * symbol, uchar source[], const int length) {
 		places = (int*)malloc(NC * NR * sizeof(int));
 		ecc200placement(places, NR, NC);
 		grid = (uchar*)malloc(W * H);
-		memzero(grid, W * H);
+		memset(grid, 0, W * H);
 		for(y = 0; y < H; y += FH) {
 			for(x = 0; x < W; x++)
 				grid[y * W + x] = 1;
@@ -1303,16 +1350,17 @@ int data_matrix_200(ZintSymbol * symbol, uchar source[], const int length) {
 	return error_number;
 }
 
-int dmatrix(ZintSymbol * symbol, uchar source[], const int length) {
+int dmatrix(struct ZintSymbol * symbol, const uchar source[], const int in_length)
+{
 	int error_number;
 
 	if(symbol->option_1 <= 1) {
 		/* ECC 200 */
-		error_number = data_matrix_200(symbol, source, length);
+		error_number = data_matrix_200(symbol, source, in_length);
 	}
 	else {
 		/* ECC 000 - 140 */
-		strcpy(symbol->errtxt, "Older Data Matrix standards are no longer supported");
+		strcpy(symbol->errtxt, "Older Data Matrix standards are no longer supported (E13)");
 		error_number = ZINT_ERROR_INVALID_OPTION;
 	}
 

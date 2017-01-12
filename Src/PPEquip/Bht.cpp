@@ -125,7 +125,9 @@ int SLAPI StyloBhtIIOnHostCfg::IsCostAsPrice(PPID opID) const
 //
 SLAPI PPBhtTerminalPacket::PPBhtTerminalPacket()
 {
-	THISZERO();
+	MEMSZERO(Rec);
+	P_Filt = 0;
+	P_SBIICfg = 0;
 }
 
 SLAPI PPBhtTerminalPacket::~PPBhtTerminalPacket()
@@ -138,14 +140,14 @@ PPBhtTerminalPacket & FASTCALL PPBhtTerminalPacket::operator = (const PPBhtTermi
 {
 	Rec = s.Rec;
 	ZDELETE(P_Filt);
-	ZDELETE(P_SBIICfg); // @v6.0.8 AHTOXA
+	ZDELETE(P_SBIICfg);
 	if(s.P_Filt)
 		P_Filt = new GoodsFilt(*s.P_Filt);
-	if(s.P_SBIICfg) { // @v6.0.8 AHTOXA {
+	if(s.P_SBIICfg) {
 		P_SBIICfg = new StyloBhtIIOnHostCfg;
 		*P_SBIICfg = *s.P_SBIICfg;
-	} // } @v6.0.8 AHTOXA
-	STRNSCPY(ImpExpPath, s.ImpExpPath);
+	}
+	ImpExpPath_ = s.ImpExpPath_;
 	return *this;
 }
 
@@ -247,7 +249,7 @@ int BhtDialog::setDTS(const PPBhtTerminalPacket * pData)
 		setCtrlData(CTL_BHT_MAXTRIES, &Data.Rec.BhtpMaxTries);
 	}
 	else if(Data.Rec.BhtTypeID != PPObjBHT::btCom)
-		setCtrlData(CTL_BHT_IMPEXPPATH, Data.ImpExpPath);
+		setCtrlString(CTL_BHT_IMPEXPPATH, Data.ImpExpPath_);
 	SetupLocationCombo(this, CTLSEL_BHT_LOC, Data.Rec.LocID, 0, LOCTYP_WAREHOUSE, 0); // @v8.4.2
 	SetupPPObjCombo(this, CTLSEL_BHT_INVENTOP, PPOBJ_OPRKIND, Data.Rec.InventOpID, 0, (void *)PPOPT_INVENTORY);
 	PPIDArray op_type_list;
@@ -290,10 +292,10 @@ int BhtDialog::getDTS(PPBhtTerminalPacket * pData)
 		getCtrlData(CTL_BHT_MAXTRIES, &Data.Rec.BhtpMaxTries);
 	}
 	else if(Data.Rec.BhtTypeID != PPObjBHT::btCom) {
-		getCtrlData(CTL_BHT_IMPEXPPATH, Data.ImpExpPath);
-		if(*strip(Data.ImpExpPath)) {
+		getCtrlString(CTL_BHT_IMPEXPPATH, Data.ImpExpPath_);
+		if(Data.ImpExpPath_.NotEmptyS()) {
 			SPathStruc ps;
-			ps.Split(Data.ImpExpPath);
+			ps.Split(Data.ImpExpPath_);
 			if(ps.Drv.Empty())
 				ok = PPSetError(PPERR_IMPEXPPATHNOTVALID);
 		}
@@ -912,9 +914,7 @@ int SLAPI PPObjBHT::GetPacket(PPID id, PPBhtTerminalPacket * pPack)
 			}
 		}
 		if(oneof3(pPack->Rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
-			SString temp_buf;
-			PPRef->GetPropVlrString(PPOBJ_BHT, id, BHTPRP_PATH, temp_buf);
-			temp_buf.CopyTo(pPack->ImpExpPath, sizeof(pPack->ImpExpPath));
+			ref->GetPropVlrString(PPOBJ_BHT, id, BHTPRP_PATH, pPack->ImpExpPath_);
 		}
 	}
 	else
@@ -987,7 +987,7 @@ int SLAPI PPObjBHT::PutPacket(PPID * pID, PPBhtTerminalPacket * pPack, int use_t
 	}
 	THROW(ref->RemoveProp(Obj, *pID, BHTPRP_SBIICFG, 0)); // Удаляем прежнюю версию записи
 	THROW(ref->PutPropVlrString(PPOBJ_BHT, *pID, BHTPRP_PATH,
-		oneof3(pPack->Rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII) ? pPack->ImpExpPath : 0));
+		oneof3(pPack->Rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII) ? pPack->ImpExpPath_ : (const char *)0));
 	THROW(tra.Commit());
 	CATCHZOK
 	free(p_buf);
@@ -1091,7 +1091,6 @@ public:
 	int    SLAPI ReleaseConnection();
 	int    SLAPI SendRecord(uint recNo, const BhtRecord *);
 	int    SLAPI SendDataHeadingText(const char * pFileName, uint numRecs, const BhtRecord *);
-
 	//
 	// Receiver
 	//
@@ -1961,8 +1960,7 @@ int SLAPI CipherProtocol::PutChrEx(int c)
 
 int SLAPI CipherProtocol::GetChrEx()
 {
-	int c = 0;
-	c = GetChr();
+	int c = GetChr();
 	if(c != 0)
 		GetChr();
 	return c;
@@ -2209,7 +2207,7 @@ int SLAPI PPObjBHT::PrepareBillRowCellData(PPBhtTerminalPacket * pPack, PPID bil
 		PPImpExpParam ie_param_brow;
 
 		PPGetFileName(PPFILNAM_BHT_BROWSWCELLS, fname);
-		(path = pPack->ImpExpPath).SetLastSlash().Cat(fname);
+		(path = pPack->ImpExpPath_).SetLastSlash().Cat(fname);
 		THROW(InitImpExpDbfParam(PPREC_SBIIBILLROWWITHCELLS, &ie_param_brow, path, 1));
 		THROW_MEM(p_ie_brow = new PPImpExp(&ie_param_brow, 0));
 		THROW(p_ie_brow->OpenFileForWriting(0, 1));
@@ -2304,6 +2302,8 @@ int SLAPI PPObjBHT::PrepareBillRowCellData(PPBhtTerminalPacket * pPack, PPID bil
 	ZDELETE(p_ie_brow);
 	return ok;
 }
+
+#if 0 // @v9.4.9 {
 
 int SLAPI PPObjBHT::PrepareBillData(PPBhtTerminalPacket * pPack, int uniteGoods /*=1*/)
 {
@@ -2421,11 +2421,11 @@ int SLAPI PPObjBHT::PrepareBillData(PPBhtTerminalPacket * pPack, int uniteGoods 
 			p_ie_bill->CloseFile();
 			p_ie_brow->CloseFile();
 			PPGetFileName(PPFILNAM_BHT_SAMPLEBILLS, fname);
-			(path = pPack->ImpExpPath).SetLastSlash().Cat(fname).Transf(CTRANSF_INNER_TO_OUTER);
+			(path = pPack->ImpExpPath_).SetLastSlash().Cat(fname).Transf(CTRANSF_INNER_TO_OUTER);
 			SCopyFile(h_path, path, 0, FILE_SHARE_READ, 0);
 
 			PPGetFileName(PPFILNAM_BHT_SAMPLEBROWS, fname);
-			(path = pPack->ImpExpPath).SetLastSlash().Cat(fname).Transf(CTRANSF_INNER_TO_OUTER);
+			(path = pPack->ImpExpPath_).SetLastSlash().Cat(fname).Transf(CTRANSF_INNER_TO_OUTER);
 			SCopyFile(r_path, path, 0, FILE_SHARE_READ, 0);
 		}
 	}
@@ -2434,6 +2434,8 @@ int SLAPI PPObjBHT::PrepareBillData(PPBhtTerminalPacket * pPack, int uniteGoods 
 	ZDELETE(p_ie_brow);
 	return ok;
 }
+
+#endif // } 0 @v9.4.9
 
 struct BHT_BillOpEntry {
 	BHT_BillOpEntry()
@@ -2581,11 +2583,11 @@ int SLAPI PPObjBHT::PrepareBillData2(PPBhtTerminalPacket * pPack, PPIDArray * pG
 			p_ie_bill->CloseFile();
 			p_ie_brow->CloseFile();
 			PPGetFileName(PPFILNAM_BHT_SAMPLEBILLS, fname);
-			(path = pPack->ImpExpPath).SetLastSlash().Cat(fname).Transf(CTRANSF_INNER_TO_OUTER);
+			(path = pPack->ImpExpPath_).SetLastSlash().Cat(fname).Transf(CTRANSF_INNER_TO_OUTER);
 			SCopyFile(h_path, path, 0, FILE_SHARE_READ, 0);
 
 			PPGetFileName(PPFILNAM_BHT_SAMPLEBROWS, fname);
-			(path = pPack->ImpExpPath).SetLastSlash().Cat(fname).Transf(CTRANSF_INNER_TO_OUTER);
+			(path = pPack->ImpExpPath_).SetLastSlash().Cat(fname).Transf(CTRANSF_INNER_TO_OUTER);
 			SCopyFile(r_path, path, 0, FILE_SHARE_READ, 0);
 		}
 	}
@@ -2639,7 +2641,7 @@ int SLAPI PPObjBHT::PrepareLocCellData(PPBhtTerminalPacket * pPack)
 			}
 			p_ie_loc->CloseFile();
 			PPGetFileName(PPFILNAM_BHT_LOCCELLS, temp_buf);
-			(path = pPack->ImpExpPath).SetLastSlash().Cat(temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
+			(path = pPack->ImpExpPath_).SetLastSlash().Cat(temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
 			SCopyFile(out_path, path, 0, FILE_SHARE_READ, 0);
 		}
 		else {
@@ -2687,11 +2689,11 @@ int SLAPI PPObjBHT::PrepareConfigData(const PPBhtTerminalPacket * pPack, StyloBh
 		}
 		p_ie_op->CloseFile();
 		PPGetFileName(PPFILNAM_BHT_OPLIST, fname);
-		(path = pPack->ImpExpPath).SetLastSlash().Cat(fname).Transf(CTRANSF_INNER_TO_OUTER);
+		(path = pPack->ImpExpPath_).SetLastSlash().Cat(fname).Transf(CTRANSF_INNER_TO_OUTER);
 		SCopyFile(out_path, path, 0, FILE_SHARE_READ, 0);
 	}
 	PPGetFileName(PPFILNAM_BHT_CONFIG, fname);
-	(path = pPack->ImpExpPath).SetLastSlash().Cat(fname).Transf(CTRANSF_INNER_TO_OUTER);
+	(path = pPack->ImpExpPath_).SetLastSlash().Cat(fname).Transf(CTRANSF_INNER_TO_OUTER);
 	pCfg->ToDevice();
 	THROW_SL(file.Open(path, SFile::mWrite|SFile::mBinary));
 	THROW_SL(file.Write(pCfg, sizeof(StyloBhtIIConfig)));
@@ -4204,28 +4206,25 @@ int SLAPI PPObjBHT::AcceptBills(const char * pHName, const char * pLName, PPLogg
 	SString temp_buf, suppl_name;
 	BhtFile bf_bill(pHName);
 	BhtFile bf_line(pLName);
-	BhtRecord * p_br_bill = 0;
-	BhtRecord * p_br_line = 0;
-
-	THROW_MEM(p_br_bill = new BhtRecord);
-	THROW_MEM(p_br_line = new BhtRecord);
+	BhtRecord br_bill;
+	BhtRecord br_line;
 	{
 		PPTransaction tra(1);
 		THROW(tra);
-		THROW(bf_bill.InitRecord(p_br_bill));
-		THROW(bf_line.InitRecord(p_br_line));
-		for(bi = 0; bf_bill.EnumRecords(&bi, p_br_bill) > 0;) {
+		THROW(bf_bill.InitRecord(&br_bill));
+		THROW(bf_line.InitRecord(&br_line));
+		for(bi = 0; bf_bill.EnumRecords(&bi, &br_bill) > 0;) {
 			PPID   alt_grp_id = 0;
 			char   bid[12], bdate[16];
 			PPID   suppl_id = 0;
-			p_br_bill->GetStr(0, bid, sizeof(bid));
-			p_br_bill->GetStr(1, bdate, sizeof(bdate));
-			p_br_bill->GetInt(2, &suppl_id);
+			br_bill.GetStr(0, bid, sizeof(bid));
+			br_bill.GetStr(1, bdate, sizeof(bdate));
+			br_bill.GetInt(2, &suppl_id);
 			GetArticleName(suppl_id, suppl_name);
-			for(li = 0; bf_line.EnumRecords(&li, p_br_line) > 0;) {
+			for(li = 0; bf_line.EnumRecords(&li, &br_line) > 0;) {
 				char   lbid[12], gid[16];
-				p_br_line->GetStr(0, lbid, sizeof(lbid));
-				p_br_line->GetStr(1, gid, sizeof(gid));
+				br_line.GetStr(0, lbid, sizeof(lbid));
+				br_line.GetStr(1, gid, sizeof(gid));
 				if(stricmp(bid, lbid) == 0) {
 					if(alt_grp_id == 0) {
 						PPID   temp_id = 0;
@@ -4309,33 +4308,31 @@ int SLAPI PPObjBHT::AcceptBillsToGBasket(const char * pHName, const char * pLNam
 	uint   bi, li;
 	SString temp_buf, suppl_name;
 	SString barcode;
+	SString basket_name;
 	ResolveGoodsItemList goods_list;
 	BhtFile bf_bill(pHName);
 	BhtFile bf_line(pLName);
-	BhtRecord * p_br_bill = 0;
-	BhtRecord * p_br_line = 0;
+	BhtRecord br_bill;
+	BhtRecord br_line;
 	PPObjGoods       g_obj;
 	PPObjGoodsBasket gb_obj;
 
-	THROW_MEM(p_br_bill = new BhtRecord);
-	THROW_MEM(p_br_line = new BhtRecord);
-
-	THROW(bf_bill.InitRecord(p_br_bill));
-	THROW(bf_line.InitRecord(p_br_line));
+	THROW(bf_bill.InitRecord(&br_bill));
+	THROW(bf_line.InitRecord(&br_line));
 	//
 	// Загрузим строки документов в массив
 	//
-	for(li = 0; bf_line.EnumRecords(&li, p_br_line) > 0;) {
+	for(li = 0; bf_line.EnumRecords(&li, &br_line) > 0;) {
 		char   lbid[12], gid[16], str_price[16], expiry[16];
 		PPID   goods_id = 0;
 		Goods2Tbl::Rec goods_rec;
 		double qtty = 0, price = 0;
 		ILTI   item;
-		p_br_line->GetStr(0, lbid, sizeof(lbid));
-		p_br_line->GetStr(1, gid, sizeof(gid));
-		p_br_line->GetDbl(2, &qtty);
-		p_br_line->GetStr(3, str_price, sizeof(str_price));
-		p_br_line->GetStr(4, expiry, sizeof(expiry));
+		br_line.GetStr(0, lbid, sizeof(lbid));
+		br_line.GetStr(1, gid, sizeof(gid));
+		br_line.GetDbl(2, &qtty);
+		br_line.GetStr(3, str_price, sizeof(str_price));
+		br_line.GetStr(4, expiry, sizeof(expiry));
 		barcode = gid;
 		IdentifyGoods(&g_obj, barcode, &goods_id, &goods_rec);
 		if(qtty != 0.0 && (goods_id || barcode.Len())) {
@@ -4402,16 +4399,15 @@ int SLAPI PPObjBHT::AcceptBillsToGBasket(const char * pHName, const char * pLNam
 		PPWait(1);
 		if(resume > 0 && brows_list.getCount()) {
 			uint rows_count = brows_list.getCount();
-			for(bi = 0; bf_bill.EnumRecords(&bi, p_br_bill) > 0;) {
+			for(bi = 0; bf_bill.EnumRecords(&bi, &br_bill) > 0;) {
 				int    gb_exists = 0, r = 0;
 				char   bid[12], bdate[16];
 				long   bills_num = 0;
 				PPID   suppl_id = 0, gb_id = 0;
-				SString basket_name;
 				PPBasketPacket gb_packet;
-				p_br_bill->GetStr(0, bid, sizeof(bid));
-				p_br_bill->GetStr(1, bdate, sizeof(bdate));
-				p_br_bill->GetInt(2, &suppl_id);
+				br_bill.GetStr(0, bid, sizeof(bid));
+				br_bill.GetStr(1, bdate, sizeof(bdate));
+				br_bill.GetInt(2, &suppl_id);
 				GetArticleName(suppl_id, suppl_name);
 				(temp_buf = 0).Cat(bid).Space().Cat(bdate).Space().Cat(suppl_name);
 				basket_name = temp_buf;
@@ -4439,8 +4435,8 @@ int SLAPI PPObjBHT::AcceptBillsToGBasket(const char * pHName, const char * pLNam
 				}
 				*/
 				if(!gb_exists) {
-					uint row_pos = 0;
-					long bill_id = atol(bid);
+					const  long bill_id = atol(bid);
+					uint   row_pos = 0;
 					if(brows_list.lsearch(&bill_id, &row_pos, CMPF_LONG) > 0) {
 						BillRowEntry * p_brow = 0;
 						for(;brows_list.enumItems(&row_pos, (void**)&p_brow) > 0 && p_brow->BillID == bill_id;) {
@@ -4479,47 +4475,41 @@ int SLAPI PPObjBHT::AcceptInvent(const char * pHName, const char * pLName, PPID 
 	uint   line_counter = 0;
 	uint   nr_bill = 0, nr_line = 0; // Количество записей, соответственно, в файле документов и строк
 	SString msg_buf;
+	SString barcode;
 	PPBillPacket pack;
 	BhtFile bf_bill(pHName);
 	BhtFile bf_line(pLName);
-	BhtRecord * p_br_bill = 0;
-	BhtRecord * p_br_line = 0;
+	BhtRecord br_bill;
+	BhtRecord br_line;
 	InventoryCore & r_inv_tbl = p_bobj->GetInvT();
 	PPObjGoods g_obj;
-
 	PPLoadText(PPTXT_IMP_INVENTORYLINES, msg_buf);
 	THROW_PP(opID, PPERR_INVOPNOTDEF);
-	THROW_MEM(p_br_bill = new BhtRecord);
-	THROW_MEM(p_br_line = new BhtRecord);
 	{
 		PPTransaction tra(1);
 		THROW(tra);
 		bf_line.GetNumRecs(&nr_line);
-		THROW(bf_bill.InitRecord(p_br_bill));
-		THROW(bf_line.InitRecord(p_br_line));
-		for(bi = 0; bf_bill.EnumRecords(&bi, p_br_bill) > 0;) {
+		THROW(bf_bill.InitRecord(&br_bill));
+		THROW(bf_line.InitRecord(&br_line));
+		for(bi = 0; bf_bill.EnumRecords(&bi, &br_bill) > 0;) {
 			LDATE  inv_dt;
 			PPID   inv_id = 0;
 			char   bid[12], bdate[16];
 			PPObjBill::InvBlock inv_blk;
-
-			p_br_bill->GetStr(0, bid, sizeof(bid));
-			p_br_bill->GetStr(1, bdate, sizeof(bdate));
+			br_bill.GetStr(0, bid, sizeof(bid));
+			br_bill.GetStr(1, bdate, sizeof(bdate));
 			strtodate(bdate, DATF_DMY, &inv_dt);
 			SETIFZ(inv_dt, LConfig.OperDate);
-			for(li = 0; bf_line.EnumRecords(&li, p_br_line) > 0;) {
+			for(li = 0; bf_line.EnumRecords(&li, &br_line) > 0;) {
 				char   lbid[32];
 				char   bcode[24];
 				long   goods_id = 0;
 				double qtty = 0.0;
-
-				p_br_line->GetStr(0, lbid,  sizeof(lbid));
-				p_br_line->GetStr(1, bcode, sizeof(bcode));
-				p_br_line->GetDbl(2, &qtty);
+				br_line.GetStr(0, lbid,  sizeof(lbid));
+				br_line.GetStr(1, bcode, sizeof(bcode));
+				br_line.GetDbl(2, &qtty);
 				if(stricmp(bid, lbid) == 0) {
-					SString barcode;
 					Goods2Tbl::Rec goods_rec;
-
 					MEMSZERO(goods_rec);
 					barcode = bcode;
 					IdentifyGoods(&g_obj, barcode, &goods_id, &goods_rec);
@@ -4591,8 +4581,6 @@ int SLAPI PPObjBHT::AcceptInvent(const char * pHName, const char * pLName, PPID 
 		THROW(tra.Commit());
 	}
 	CATCHZOK
-	delete p_br_bill;
-	delete p_br_line;
 	return ok;
 }
 
@@ -4605,99 +4593,59 @@ int SLAPI PPObjBHT::AcceptExpendBills(const char * pHName, const char * pLName, 
 	uint   bi, li;
 	BhtFile bf_bill(pHName);
 	BhtFile bf_line(pLName);
-	BhtRecord * p_br_bill = 0;
-	BhtRecord * p_br_line = 0;
+	BhtRecord br_bill;
+	BhtRecord br_line;
 	PPOprKind  op_rec;
 	PPObjGoods g_obj;
-
 	MEMSZERO(op_rec);
 	r = GetOpData(pBhtRec->ExpendOpID, &op_rec);
 	PPSetAddedMsgString(longfmtz(op_rec.ID, 0, op_id, sizeof(op_id)));
 	THROW_PP(r > 0 && op_rec.OpTypeID == PPOPT_GOODSEXPEND, PPERR_INVEXPOP)
-
-	THROW_MEM(p_br_bill = new BhtRecord);
-	THROW_MEM(p_br_line = new BhtRecord);
 	{
 		PPTransaction tra(1);
 		THROW(tra);
-		THROW(bf_bill.InitRecord(p_br_bill));
-		THROW(bf_line.InitRecord(p_br_line));
-		for(bi = 0; bf_bill.EnumRecords(&bi, p_br_bill) > 0;) {
+		THROW(bf_bill.InitRecord(&br_bill));
+		THROW(bf_line.InitRecord(&br_line));
+		for(bi = 0; bf_bill.EnumRecords(&bi, &br_bill) > 0;) {
 			LDATE  be_dt = ZERODATE;
 			char   beid[12], bdate[16];
 			BillTbl::Rec same_rec;
 			PPBillPacket b_pack;
-			p_br_bill->GetStr(0, beid, sizeof(beid));
-			p_br_bill->GetStr(1, bdate, sizeof(bdate));
+			br_bill.GetStr(0, beid, sizeof(beid));
+			br_bill.GetStr(1, bdate, sizeof(bdate));
 			strtodate(bdate, DATF_DMY, &be_dt);
-			// @v7.2.0 {
 			if(!checkdate(be_dt, 0))
 				be_dt = getcurdate_();
-			// } @v7.2.0
-			// @v7.2.0 SETIFZ(be_dt, LConfig.OperDate);
 			THROW(b_pack.CreateBlank(pBhtRec->ExpendOpID, 0, 0, 0))
 			b_pack.Rec.Dt = be_dt;
 			STRNSCPY(b_pack.Rec.Code, beid);
 			THROW(r = p_bobj->P_Tbl->SearchAnalog(&b_pack.Rec, 0, &same_rec));
 			if(r < 0) {
-				for(li = 0; bf_line.EnumRecords(&li, p_br_line) > 0;) {
+				for(li = 0; bf_line.EnumRecords(&li, &br_line) > 0;) {
 					char   lbeid[12], barcode[14];
 					PPID   lot_id = 0;
 					double qtty = 0.0, count = 0.0;
 					PUGL   deficit_list;
-
-					p_br_line->GetStr(0, lbeid, sizeof(lbeid));
-					p_br_line->GetStr(1, barcode, sizeof(barcode));
-					p_br_line->GetDbl(2, &qtty);
-					p_br_line->GetDbl(3, &count);
+					br_line.GetStr(0, lbeid, sizeof(lbeid));
+					br_line.GetStr(1, barcode, sizeof(barcode));
+					br_line.GetDbl(2, &qtty);
+					br_line.GetDbl(3, &count);
 					if(stricmp(beid, lbeid) == 0 && barcode[0] != '\0' && count > 0) {
 						AddEBLineToPacket(&b_pack, barcode, count, 0, pLog);
 						ok = 1;
 					}
 				}
-				b_pack.Rec.Flags2 |= BILLF2_BHT; // @v7.2.0
+				b_pack.Rec.Flags2 |= BILLF2_BHT;
 				THROW(p_bobj->__TurnPacket(&b_pack, 0, 1, 0));
 			}
 		}
 		THROW(tra.Commit());
 	}
 	CATCHZOK
-	delete p_br_bill;
-	delete p_br_line;
 	return ok;
 }
 
-// AHTOXA {
-static int SLAPI CheckFile2(PPID fileID, const char * pDir, SStrCollection * pFiles,
-	int * pFileDescr, PPID bhtTypeID = PPObjBHT::btPalm)
-{
-	int    ok = 0;
-	SString path, name;
-	path = pDir;
-	PPGetFileName(fileID, name);
-	if(bhtTypeID == PPObjBHT::btPalm)
-		path.SetLastSlash().Cat("out");
-	path.SetLastSlash().Cat(name);
-	if(bhtTypeID == PPObjBHT::btWinCe)
-		SPathStruc::ReplaceExt(path.Transf(CTRANSF_INNER_TO_OUTER), "dbf", 1);
-	if(fileExists(path)) {
-		int    descr = pFiles->getCount();
-		if(bhtTypeID == PPObjBHT::btWinCe) {
-			long   s = 1;
-			SString new_dir, new_path;
-			PPGetPath(PPPATH_IN, new_dir);
-			MakeTempFileName(new_dir, "BHT", "DBF", &s, new_path);
-			SCopyFile(path, new_path, 0, FILE_SHARE_READ, 0);
-			path = new_path;
-		}
-		pFiles->insert(newStr(path));
-		ASSIGN_PTR(pFileDescr, descr);
-		ok = 1;
-	}
-	return ok;
-}
-// } AHTOXA
-
+#if 0 // @v9.4.9 {
 static int SLAPI SaveFile(PPID fileID, const char * pDir, int removeSrc, int isWinCe = 0)
 {
 	int    ok = -1;
@@ -4729,9 +4677,105 @@ static int SLAPI SaveFile(PPID fileID, const char * pDir, int removeSrc, int isW
 	return ok;
 }
 
+static int SLAPI CheckFile2(PPID fileID, const char * pDir, SStrCollection * pFiles, int * pFileDescr, PPID bhtTypeID = PPObjBHT::btPalm)
+{
+	int    ok = 0;
+	SString name;
+	SString path = pDir;
+	PPGetFileName(fileID, name);
+	if(bhtTypeID == PPObjBHT::btPalm)
+		path.SetLastSlash().Cat("out");
+	path.SetLastSlash().Cat(name);
+	if(bhtTypeID == PPObjBHT::btWinCe)
+		SPathStruc::ReplaceExt(path.Transf(CTRANSF_INNER_TO_OUTER), "dbf", 1);
+	if(fileExists(path)) {
+		int    descr = pFiles->getCount();
+		if(bhtTypeID == PPObjBHT::btWinCe) {
+			long   s = 1;
+			SString new_dir, new_path;
+			PPGetPath(PPPATH_IN, new_dir);
+			MakeTempFileName(new_dir, "BHT", "DBF", &s, new_path);
+			SCopyFile(path, new_path, 0, FILE_SHARE_READ, 0);
+			path = new_path;
+		}
+		pFiles->insert(newStr(path));
+		ASSIGN_PTR(pFileDescr, descr);
+		ok = 1;
+	}
+	return ok;
+}
+#endif // } 0 @v9.4.9
+
 // static
 int SLAPI PPObjBHT::ReceiveData()
 {
+	class ReceiveData_LocalBlock {
+	public:
+		ReceiveData_LocalBlock(const PPBhtTerminalPacket & rPack, SStrCollection & rFiles) :
+			R_Pack(rPack), R_Files(rFiles)
+		{
+		}
+		int SLAPI CheckFile2(PPID fileID, int * pFileDescr, PPID bhtTypeID = PPObjBHT::btPalm)
+		{
+			int    ok = 0;
+			SString name;
+			SString path = R_Pack.ImpExpPath_;
+			PPGetFileName(fileID, name);
+			if(bhtTypeID == PPObjBHT::btPalm)
+				path.SetLastSlash().Cat("out");
+			path.SetLastSlash().Cat(name);
+			if(bhtTypeID == PPObjBHT::btWinCe)
+				SPathStruc::ReplaceExt(path.Transf(CTRANSF_INNER_TO_OUTER), "dbf", 1);
+			if(fileExists(path)) {
+				int    descr = R_Files.getCount();
+				if(bhtTypeID == PPObjBHT::btWinCe) {
+					long   s = 1;
+					SString new_dir, new_path;
+					PPGetPath(PPPATH_IN, new_dir);
+					MakeTempFileName(new_dir, "BHT", "DBF", &s, new_path);
+					SCopyFile(path, new_path, 0, FILE_SHARE_READ, 0);
+					path = new_path;
+				}
+				R_Files.insert(newStr(path));
+				ASSIGN_PTR(pFileDescr, descr);
+				ok = 1;
+			}
+			return ok;
+		}
+		int SLAPI SaveFile(PPID fileID, int removeSrc, int isWinCe = 0)
+		{
+			int    ok = -1;
+			if(fileID && R_Pack.ImpExpPath_.NotEmpty()) {
+				SString src_path = R_Pack.ImpExpPath_;
+				SString name;
+				PPGetFileName(fileID, name);
+				if(!isWinCe)
+					src_path.SetLastSlash().Cat("out");
+				src_path.SetLastSlash().Cat(name);
+				if(isWinCe) {
+					SPathStruc::ReplaceExt(src_path, "dbf", 1);
+					src_path.Transf(CTRANSF_INNER_TO_OUTER);
+				}
+				if(fileExists(src_path)) {
+					SString save_path;
+					SPathStruc sps;
+					PPGetPath(PPPATH_ROOT, save_path);
+					save_path.SetLastSlash().Cat("Save").SetLastSlash();
+					createDir(save_path);
+					sps.Split(src_path);
+					save_path.Cat(sps.Nam).Dot().Cat(sps.Ext);
+					SCopyFile(src_path, save_path, 0, FILE_SHARE_READ, 0);
+					if(removeSrc)
+						SFile::Remove(src_path);
+					ok = 1;
+				}
+			}
+			return ok;
+		}
+	private:
+		const PPBhtTerminalPacket & R_Pack;
+		SStrCollection & R_Files;
+	};
 	int    ok = -1, r, valid_data = 0;
 	int    fi_bill  = -1, fi_line   = -1;
 	int    fi_inv   = -1, fi_iline  = -1;
@@ -4740,7 +4784,6 @@ int SLAPI PPObjBHT::ReceiveData()
 	uint   i = 0;
 	PPObjBHT bht_obj;
 	PPID   bht_id = 0;
-	PPBhtTerminal bht_rec;
 	PPBhtTerminalPacket pack;
 	TDialog * dlg = new TDialog(DLG_BHTRCV);
 	THROW(CheckDialogPtr(&dlg, 0));
@@ -4751,13 +4794,12 @@ int SLAPI PPObjBHT::ReceiveData()
 		if(bht_id > 0)
 			valid_data = 1;
 	}
-	delete dlg;
-	dlg = 0;
-	if(valid_data && bht_obj.Search(bht_id, &bht_rec) > 0) {
+	ZDELETE(dlg);
+	// @v9.4.9 if(valid_data && bht_obj.Search(bht_id, &bht_rec) > 0) {
+	if(valid_data && bht_obj.GetPacket(bht_id, &pack) > 0) { // @v9.4.9 
 		int    is_debug = 0;
 		long   s = 1, timeout = 30000L;
 		SString dir, path;
-		//char   fn_bill[16], fn_bline[16], fn_invent[16], fn_iline[16], fn_ebill[16], fn_ebline[16];
 		SString fn_bill;
 		SString fn_bline;
 		SString fn_invent;
@@ -4767,10 +4809,12 @@ int SLAPI PPObjBHT::ReceiveData()
 		BhtProtocol bp;
 		CipherProtocol cp;
 		SStrCollection files;
-		THROW_PP(bht_rec.BhtTypeID != PPObjBHT::btCom, PPERR_BHTSUPPFROMEXTMOD);
+		PPLogger logger;
+		ReceiveData_LocalBlock _lb(pack, files);
+		const   int bht_type = pack.Rec.BhtTypeID;
+		THROW_PP(bht_type != PPObjBHT::btCom, PPERR_BHTSUPPFROMEXTMOD);
 		PPWait(1);
-		// AHTOXA {
-		if(!oneof3(bht_rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
+		if(!oneof3(bht_type, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
 			PPGetFileName(PPFILNAM_BHT_BILL,   fn_bill);
 			PPGetFileName(PPFILNAM_BHT_BLINE,  fn_bline);
 			PPGetFileName(PPFILNAM_BHT_INVENT, fn_invent);
@@ -4778,16 +4822,15 @@ int SLAPI PPObjBHT::ReceiveData()
 			PPGetFileName(PPFILNAM_BHT_EBILL,  fn_ebill);
 			PPGetFileName(PPFILNAM_BHT_EBLINE, fn_ebline);
 		}
-		// } AHTOXA
-		if(PPObjBHT::btDenso == bht_rec.BhtTypeID) {
+		if(bht_type == PPObjBHT::btDenso) {
 			THROW(bht_obj.InitProtocol(bht_id, &bp));
 		}
-		else if(PPObjBHT::btSyntech == bht_rec.BhtTypeID) {
+		else if(bht_type == PPObjBHT::btSyntech) {
 			THROW(bht_obj.InitProtocol(bht_id, &cp));
 		}
 #ifdef NDEBUG
 	is_debug = 0;
-#endif if
+#endif
 		if(is_debug) {
 			PPGetPath(PPPATH_IN, dir);
 			(path = dir.SetLastSlash()).Cat("bht?????.dat");
@@ -4795,14 +4838,14 @@ int SLAPI PPObjBHT::ReceiveData()
 			for(SDirec sd(path); sd.Next(&sde) > 0;)
 				files.insert(newStr((path = dir).Cat(sde.FileName)));
 		}
-		else if(!oneof3(bht_rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
+		else if(!oneof3(bht_type, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
 			do {
 				PPGetPath(PPPATH_IN, dir);
 				MakeTempFileName(dir, "BHT", "DAT", &s, path);
-				if(PPObjBHT::btDenso == bht_rec.BhtTypeID) {
+				if(bht_type == PPObjBHT::btDenso) {
 					THROW(r = bp.ReceiveFile(path, timeout));
 				}
-				else if(PPObjBHT::btSyntech == bht_rec.BhtTypeID) {
+				else if(bht_type == PPObjBHT::btSyntech) {
 					THROW(r = cp.ReceiveFile(path, timeout));
 				}
 				if(r > 0) {
@@ -4814,25 +4857,25 @@ int SLAPI PPObjBHT::ReceiveData()
 					SFile::Remove(path);
 			} while(r > 0);
 		}
-		else if(bht_obj.GetPacket(bht_id, &pack) > 0) {
-			if(bht_rec.BhtTypeID == PPObjBHT::btPalm) {
-				CheckFile2(PPFILNAM_BHTPALM_BILL,      pack.ImpExpPath, &files, &fi_bill);
-				CheckFile2(PPFILNAM_BHTPALM_BITEM,     pack.ImpExpPath, &files, &fi_line);
-				CheckFile2(PPFILNAM_BHTPALM_EBILL,     pack.ImpExpPath, &files, &fi_ebill);
-				CheckFile2(PPFILNAM_BHTPALM_EBITEM,    pack.ImpExpPath, &files, &fi_ebline);
-				CheckFile2(PPFILNAM_BHTPALM_INVENT,    pack.ImpExpPath, &files, &fi_inv);
-				CheckFile2(PPFILNAM_BHTPALM_IITEM,     pack.ImpExpPath, &files, &fi_iline);
-				CheckFile2(PPFILNAM_BHTPALM_TSESSITEM, pack.ImpExpPath, &files, &fi_tsline);
+		else {
+			if(bht_type == PPObjBHT::btPalm) {
+				_lb.CheckFile2(PPFILNAM_BHTPALM_BILL,      &fi_bill);
+				_lb.CheckFile2(PPFILNAM_BHTPALM_BITEM,     &fi_line);
+				_lb.CheckFile2(PPFILNAM_BHTPALM_EBILL,     &fi_ebill);
+				_lb.CheckFile2(PPFILNAM_BHTPALM_EBITEM,    &fi_ebline);
+				_lb.CheckFile2(PPFILNAM_BHTPALM_INVENT,    &fi_inv);
+				_lb.CheckFile2(PPFILNAM_BHTPALM_IITEM,     &fi_iline);
+				_lb.CheckFile2(PPFILNAM_BHTPALM_TSESSITEM, &fi_tsline);
 			}
 			else {
-				CheckFile2(PPFILNAM_BHT_BILL,      pack.ImpExpPath, &files, &fi_bill,  PPObjBHT::btWinCe);
-				CheckFile2(PPFILNAM_BHT_BLINE,     pack.ImpExpPath, &files, &fi_line,  PPObjBHT::btWinCe);
-				CheckFile2(PPFILNAM_BHT_INVENT,    pack.ImpExpPath, &files, &fi_inv,   PPObjBHT::btWinCe);
-				CheckFile2(PPFILNAM_BHT_ILINE,     pack.ImpExpPath, &files, &fi_iline, PPObjBHT::btWinCe);
-				CheckFile2(PPFILNAM_BHT_TSESSITEM, pack.ImpExpPath, &files, &fi_tsline, PPObjBHT::btWinCe);
+				_lb.CheckFile2(PPFILNAM_BHT_BILL,      &fi_bill,  PPObjBHT::btWinCe);
+				_lb.CheckFile2(PPFILNAM_BHT_BLINE,     &fi_line,  PPObjBHT::btWinCe);
+				_lb.CheckFile2(PPFILNAM_BHT_INVENT,    &fi_inv,   PPObjBHT::btWinCe);
+				_lb.CheckFile2(PPFILNAM_BHT_ILINE,     &fi_iline, PPObjBHT::btWinCe);
+				_lb.CheckFile2(PPFILNAM_BHT_TSESSITEM, &fi_tsline, PPObjBHT::btWinCe);
 			}
 		}
-		if(!oneof3(bht_rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
+		if(!oneof3(bht_type, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
 			for(i = 0; i < files.getCount(); i++) {
 				BhtFile bf(files.at(i));
 				if(stricmp(bf.Name, fn_bill) == 0)
@@ -4849,66 +4892,65 @@ int SLAPI PPObjBHT::ReceiveData()
 					fi_ebline = i;
 			}
 		}
-		PPLogger log;
 		if(fi_bill >= 0 && fi_line >= 0) {
-			if(bht_rec.BhtTypeID == PPObjBHT::btStyloBhtII) {
-				THROW(AcceptBillsSBII(&pack, files.at(fi_bill), files.at(fi_line), &log));
+			if(bht_type == PPObjBHT::btStyloBhtII) {
+				THROW(AcceptBillsSBII(&pack, files.at(fi_bill), files.at(fi_line), &logger));
 			}
-			else if(bht_rec.ReceiptPlace == RCPTPLACE_ALTGROUP) {
-				if(!oneof2(bht_rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe)) {
-					THROW(AcceptBills(files.at(fi_bill), files.at(fi_line), &log));
+			else if(pack.Rec.ReceiptPlace == RCPTPLACE_ALTGROUP) {
+				if(!oneof2(bht_type, PPObjBHT::btPalm, PPObjBHT::btWinCe)) {
+					THROW(AcceptBills(files.at(fi_bill), files.at(fi_line), &logger));
 				}
 				else {
-					THROW(AcceptBillsPalm(files.at(fi_bill), files.at(fi_line), &log));
+					THROW(AcceptBillsPalm(files.at(fi_bill), files.at(fi_line), &logger));
 				}
 			}
-			else if(bht_rec.ReceiptPlace == RCPTPLACE_GBASKET)
-				if(bht_rec.BhtTypeID != PPObjBHT::btPalm && bht_rec.BhtTypeID != PPObjBHT::btWinCe) {
-					THROW(AcceptBillsToGBasket(files.at(fi_bill), files.at(fi_line), &log));
+			else if(pack.Rec.ReceiptPlace == RCPTPLACE_GBASKET)
+				if(!oneof2(bht_type, PPObjBHT::btPalm, PPObjBHT::btWinCe)) {
+					THROW(AcceptBillsToGBasket(files.at(fi_bill), files.at(fi_line), &logger));
 				}
 				else {
-					THROW(AcceptBillsToGBasketPalm(files.at(fi_bill), files.at(fi_line), &log));
+					THROW(AcceptBillsToGBasketPalm(files.at(fi_bill), files.at(fi_line), &logger));
 				}
 		}
-		if(bht_rec.BhtTypeID != PPObjBHT::btStyloBhtII && fi_inv >= 0 && fi_iline >= 0) {
-			if(!oneof2(bht_rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe)) {
-				THROW(AcceptInvent(files.at(fi_inv), files.at(fi_iline), bht_rec.InventOpID, &log));
+		if(bht_type != PPObjBHT::btStyloBhtII && fi_inv >= 0 && fi_iline >= 0) {
+			if(!oneof2(bht_type, PPObjBHT::btPalm, PPObjBHT::btWinCe)) {
+				THROW(AcceptInvent(files.at(fi_inv), files.at(fi_iline), pack.Rec.InventOpID, &logger));
 			}
 			else {
-				THROW(AcceptInventPalm(files.at(fi_inv), files.at(fi_iline), bht_rec.InventOpID, &log));
+				THROW(AcceptInventPalm(files.at(fi_inv), files.at(fi_iline), pack.Rec.InventOpID, &logger));
 			}
 		}
-		if(bht_rec.BhtTypeID != PPObjBHT::btStyloBhtII && fi_ebill >=0 && fi_ebline >=0) {
-			if(!oneof2(bht_rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe)) {
-				THROW(AcceptExpendBills(files.at(fi_ebill), files.at(fi_ebline), &bht_rec, &log));
+		if(bht_type != PPObjBHT::btStyloBhtII && fi_ebill >=0 && fi_ebline >=0) {
+			if(!oneof2(bht_type, PPObjBHT::btPalm, PPObjBHT::btWinCe)) {
+				THROW(AcceptExpendBills(files.at(fi_ebill), files.at(fi_ebline), &pack.Rec, &logger));
 			}
 			else {
-				THROW(AcceptExpendBillsPalm(files.at(fi_ebill), files.at(fi_ebline), &bht_rec, &log));
+				THROW(AcceptExpendBillsPalm(files.at(fi_ebill), files.at(fi_ebline), &pack.Rec, &logger));
 			}
 		}
 		if(fi_tsline >= 0) {
-			if(oneof2(bht_rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe)) {
-				THROW(AcceptTechSessPalm(files.at(fi_tsline), &log));
+			if(oneof2(bht_type, PPObjBHT::btPalm, PPObjBHT::btWinCe)) {
+				THROW(AcceptTechSessPalm(files.at(fi_tsline), &logger));
 			}
 		}
-		if(oneof3(bht_rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
-			if(bht_rec.BhtTypeID == PPObjBHT::btPalm) {
-				SaveFile(PPFILNAM_BHTPALM_BILL,      pack.ImpExpPath, 1);
-				SaveFile(PPFILNAM_BHTPALM_BITEM,     pack.ImpExpPath, 1);
-				SaveFile(PPFILNAM_BHTPALM_EBILL,     pack.ImpExpPath, 1);
-				SaveFile(PPFILNAM_BHTPALM_EBITEM,    pack.ImpExpPath, 1);
-				SaveFile(PPFILNAM_BHTPALM_INVENT,    pack.ImpExpPath, 1);
-				SaveFile(PPFILNAM_BHTPALM_IITEM,     pack.ImpExpPath, 1);
-				SaveFile(PPFILNAM_BHTPALM_TSESSITEM, pack.ImpExpPath, 1);
+		if(oneof3(bht_type, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
+			if(bht_type == PPObjBHT::btPalm) {
+				_lb.SaveFile(PPFILNAM_BHTPALM_BILL,      1);
+				_lb.SaveFile(PPFILNAM_BHTPALM_BITEM,     1);
+				_lb.SaveFile(PPFILNAM_BHTPALM_EBILL,     1);
+				_lb.SaveFile(PPFILNAM_BHTPALM_EBITEM,    1);
+				_lb.SaveFile(PPFILNAM_BHTPALM_INVENT,    1);
+				_lb.SaveFile(PPFILNAM_BHTPALM_IITEM,     1);
+				_lb.SaveFile(PPFILNAM_BHTPALM_TSESSITEM, 1);
 			}
 			else {
-				int    del_src = (bht_rec.Flags & PPBhtTerminal::fDelAfterImport) ? 1 : 0;
-				SaveFile(PPFILNAM_BHT_BILL,      pack.ImpExpPath, del_src, 1);
-				SaveFile(PPFILNAM_BHT_BLINE,     pack.ImpExpPath, del_src, 1);
-				if(bht_rec.BhtTypeID == PPObjBHT::btWinCe) {
-					SaveFile(PPFILNAM_BHT_INVENT,    pack.ImpExpPath, del_src, 1);
-					SaveFile(PPFILNAM_BHT_ILINE,     pack.ImpExpPath, del_src, 1);
-					SaveFile(PPFILNAM_BHT_TSESSITEM, pack.ImpExpPath, del_src, 1);
+				const int del_src = BIN(pack.Rec.Flags & PPBhtTerminal::fDelAfterImport);
+				_lb.SaveFile(PPFILNAM_BHT_BILL,      del_src, 1);
+				_lb.SaveFile(PPFILNAM_BHT_BLINE,     del_src, 1);
+				if(bht_type == PPObjBHT::btWinCe) {
+					_lb.SaveFile(PPFILNAM_BHT_INVENT,    del_src, 1);
+					_lb.SaveFile(PPFILNAM_BHT_ILINE,     del_src, 1);
+					_lb.SaveFile(PPFILNAM_BHT_TSESSITEM, del_src, 1);
 				}
 			}
 			for(uint i = 0; i < files.getCount(); i++)
@@ -4977,7 +5019,7 @@ int SLAPI PPObjBHT::TransmitData()
 		BhtSendDlg(PPObjBHT * pObj) : TDialog(DLG_BHTSEND)
 		{
 			ushort v = 0;
-			PPID   bht_id = pObj ? pObj->GetSingle() : 0;
+			const  PPID   bht_id = pObj ? pObj->GetSingle() : 0;
 			P_BhtObj = pObj;
 			SetupPPObjCombo(this, CTLSEL_BHTSEND_BHT, PPOBJ_BHT, bht_id, 0);
 			setCtrlData(CTL_BHTSEND_WHAT,  &v);
@@ -4995,7 +5037,7 @@ int SLAPI PPObjBHT::TransmitData()
 		}
 		void   DisableCtrls()
 		{
-			PPID   bht_id = getCtrlLong(CTLSEL_BHTSEND_BHT);
+			const PPID bht_id = getCtrlLong(CTLSEL_BHTSEND_BHT);
 			PPBhtTerminalPacket pack;
 			if(P_BhtObj && bht_id && P_BhtObj->GetPacket(bht_id, &pack) > 0) {
 				DisableClusterItem(CTL_BHTSEND_WHAT, 3, pack.Rec.BhtTypeID != PPObjBHT::btPalm);
@@ -5005,8 +5047,7 @@ int SLAPI PPObjBHT::TransmitData()
 					setCtrlData(CTL_BHTSEND_WHAT, &(v = 0));
 				if(pack.Rec.BhtTypeID != PPObjBHT::btStyloBhtII && v == 4)
 					setCtrlData(CTL_BHTSEND_WHAT, &(v = 0));
-				disableCtrl(CTL_BHTSEND_FLAGS, oneof4(pack.Rec.BhtTypeID,
-					PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btCom, PPObjBHT::btStyloBhtII));
+				disableCtrl(CTL_BHTSEND_FLAGS, oneof4(pack.Rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btCom, PPObjBHT::btStyloBhtII));
 			}
 		}
 		PPObjBHT * P_BhtObj;
@@ -5064,8 +5105,8 @@ int SLAPI PPObjBHT::TransmitData()
 			SString suppl_path, goods_path;
 			PPBhtTerminalPacket pack;
 			THROW(bht_obj.GetPacket(bht_id, &pack));
-			MakeDBFFilePath(pack.ImpExpPath, PPFILNAM_BHT_SUPPL, suppl_path);
-			MakeDBFFilePath(pack.ImpExpPath, PPFILNAM_BHT_GOODS, goods_path);
+			MakeDBFFilePath(pack.ImpExpPath_, PPFILNAM_BHT_SUPPL, suppl_path);
+			MakeDBFFilePath(pack.ImpExpPath_, PPFILNAM_BHT_GOODS, goods_path);
 			PPWait(1);
 			if(what == 0) {
 				PPIDArray addendum_goods_list;
@@ -5103,7 +5144,7 @@ int SLAPI PPObjBHT::TransmitData()
 			PPGetFileName(PPFILNAM_BHTPALM_LOC,      loc_file);
 			PPGetFileName(PPFILNAM_BHTPALM_GOODS,    goods_file);
 			PPGetFileName(PPFILNAM_BHTPALM_TSESSHDR, tsess_file);
-			(goods_path = pack.ImpExpPath).SetLastSlash().Cat("in").SetLastSlash();
+			(goods_path = pack.ImpExpPath_).SetLastSlash().Cat("in").SetLastSlash();
 			(suppl_path = goods_path).Cat(suppl_file);
 			(loc_path   = goods_path).Cat(loc_file);
 			(tsess_path = goods_path).Cat(tsess_file);
@@ -5174,7 +5215,7 @@ void DisplayError(HRESULT hr)
 	else if(hr == CPT720_ERR_DBFOPENFLT)
 		STRNSCPY(buf, "Can't open DBF table");
 	if(buf[0] != '\0')
-		MessageBox(NULL, (LPCTSTR)buf, (LPCTSTR)"CPT720 error", MB_OK | MB_ICONERROR);
+		MessageBox(NULL, (LPCTSTR)buf, _T("CPT720 error"), MB_OK | MB_ICONERROR);
 }
 
 void CallbackSndFilePrctFunc(long prct, long total, const char * addedMsg, size_t addedMsgSize)

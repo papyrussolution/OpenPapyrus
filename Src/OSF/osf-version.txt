@@ -19,3 +19,4 @@ gperftools   2.4
 curl         7.45
 	@v9.1.12 внесены файлы src\slist_wc.h и src\slist_wc.c из версии 7.49.1
 libzip       1.1.3
+zint         2.5.1 (have pulled from git-repository 2017/01/12)

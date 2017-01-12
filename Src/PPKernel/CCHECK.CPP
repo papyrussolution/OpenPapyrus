@@ -9,7 +9,8 @@
 
 static int DoCCheckTextLog()
 {
-	return BIN(/* @temp(..31/12/2010) {*/CConfig.Flags & CCFLG_DEBUG || /*}*/ CConfig.Flags & CCFLG_LOGCCHECK);
+	const PPCommConfig & r_ccfg = CConfig;
+	return BIN(/* @temp(..31/12/2010) {*/r_ccfg.Flags & CCFLG_DEBUG || /*}*/ r_ccfg.Flags & CCFLG_LOGCCHECK);
 }
 
 //#define DECL_INVARIANT_C()    int SLAPI InvariantC(SInvariantParam * pInvP) const
@@ -1454,8 +1455,9 @@ SString & SLAPI CCheckCore::MakeCodeString(const CCheckTbl::Rec * pRec, SString 
 SLAPI CCheckCore::CCheckCore() : CCheckTbl()
 {
 	P_ChkOpJrnl = 0;
-	P_Ext = (CConfig.Flags & CCFLG_USECCHECKEXT) ? new CCheckExtTbl : 0;
-	P_LnExt = (CConfig.Flags & CCFLG_USECCHECKLINEEXT) ? new CCheckLineExtTbl : 0;
+	const PPCommConfig & r_ccfg = CConfig;
+	P_Ext = (r_ccfg.Flags & CCFLG_USECCHECKEXT) ? new CCheckExtTbl : 0;
+	P_LnExt = (r_ccfg.Flags & CCFLG_USECCHECKLINEEXT) ? new CCheckLineExtTbl : 0;
 	{
 		PPEquipConfig eq_cfg;
 		ReadEquipConfig(&eq_cfg);

@@ -1,5 +1,5 @@
 // HOLIDAYS.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2012, 2015, 2016
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2012, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -27,10 +27,9 @@ SString & SLAPI PPHolidays::Format(LDATE dt, SString & rBuf)
 	decodedate(&d, &m, &y, &dt);
 	if(d >= 1 && d <= 7 && m == 0 && y == 0) { // day of week
 		GetDayOfWeekText(dowtRuShrt, d, rBuf);
-		rBuf.ToOem();
+		rBuf.Transf(CTRANSF_OUTER_TO_INNER);
 	}
 	else if(y == 0) { // calendar date
-		//char   temp_buf[64];
 		SString temp_buf;
 		SGetMonthText(m, MONF_SHORT|MONF_OEM, temp_buf);
 		rBuf.Cat(d).Space().Cat(/*getMonthText(m, MONF_SHORT|MONF_OEM, temp_buf)*/temp_buf);

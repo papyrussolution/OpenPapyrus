@@ -1456,7 +1456,7 @@ int SLAPI PPViewPrjTask::Transmit(PPID /*id*/, int kind)
 			if(item.ClientID) {
 				GetObjectName(PPOBJ_PERSON, item.ClientID, vrec.Contact);
 			}
-			// } @v9.4.3 
+			// } @v9.4.3
 			PPGetWord(PPWORD_WORK, 0, vrec.Location);
 			vrec.Summary = item.Descr;
 			vrec.Descr = item.Descr;
@@ -1698,7 +1698,8 @@ DBQuery * SLAPI PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 			GetObjectName(PPOBJ_PRJTASK, Filt.LinkTaskID, link_task_name, 0);
 			if(!link_task_name.NotEmptyS())
 				link_task_name.CatChar('#').Cat(Filt.LinkTaskID);
-			pSubTitle->CopyFrom("Связанные с ").ToOem().Cat(link_task_name);
+			PPLoadString("connectedto", *pSubTitle);
+			pSubTitle->Space().Cat(link_task_name);
 		}
 	}
 	CATCH

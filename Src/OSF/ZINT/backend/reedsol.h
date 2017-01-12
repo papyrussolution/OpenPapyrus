@@ -41,7 +41,7 @@ extern void rs_init_gf(const int poly);
 extern void rs_init_code(const int nsym,int index);
 extern void rs_encode(const int len,const uchar *data, uchar *res);
 extern void rs_encode_long(const int len,const uint *data, uint *res);
-extern void rs_free();
+    extern void rs_free(void);
 
 #ifdef __cplusplus
 }

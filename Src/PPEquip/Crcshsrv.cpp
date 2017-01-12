@@ -1,5 +1,5 @@
 // CRCSHSRV.CPP
-// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу кассового сервера (ООО Кристалл Сервис)
 //
@@ -617,7 +617,7 @@ int SLAPI XmlWriter::TimeStamp(LTIME tm, SString & rBuf)
 
 int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	int    check_dig = 0;
 	int    add_time_to_fname = 0;
 	int    use_new_dscnt_code_alg = 0;
@@ -1253,7 +1253,6 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		p_writer->EndElement();
 		ZDELETE(p_writer);
 	}
-	// @v7.9.11 THROW(PPCommitWork(&ta));
 	PPWait(0);
 	PPWait(1);
 
@@ -1267,7 +1266,6 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	if(StatID)
 		P_Dls->FinishLoading(StatID, 1, 1);
 	CATCH
-		// @v7.9.11 PPRollbackWork(&ta);
 		SFile::Remove(path_goods);
 		SFile::Remove(path_cashiers);
 		ok = 0;
@@ -1442,7 +1440,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 	const long alco_special_grp_id = 100000000;
 	const char * p_alco_special_grp_name = "Alcohol-EGAIS";
 
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	CrsFilePool fp;
 	AsyncCashGoodsIterator * p_gds_iter = 0;
 	AsyncCashGoodsGroupIterator * p_grp_iter = 0;
@@ -1574,7 +1572,6 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 		}
 		THROW_MEM(p_gds_iter = new AsyncCashGoodsIterator(NodeID, acgif, SinceDlsID, P_Dls));
 	}
-	// @v7.9.11 THROW(PPStartTransaction(&ta, 1));
 	PROFILE_START
 	if(cn_data.Flags & CASHF_EXPGOODSGROUPS) {
 		DbfTable * p_out_tbl_group = 0;
@@ -1969,17 +1966,13 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 		}
 	}
 #endif // } 0
-	// @v7.9.11 THROW(PPCommitWork(&ta));
 	PPWait(0);
 	PPWait(1);
 	THROW(fp.CloseFiles());
 	THROW(fp.DistributeFiles(this));
 	if(StatID)
 		P_Dls->FinishLoading(StatID, 1, 1);
-	CATCH
-		// @v7.9.11 PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	PPWait(0);
 	return ok;
 }
@@ -1991,10 +1984,17 @@ int SLAPI ACS_CRCSHSRV::ExportData(int updOnly)
 
 int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 {
-	int    ok = 1, ta = 0;
-	DbfTable * p_out_tbl_goods = 0, * p_out_tbl_group = 0, * p_out_tbl_dscnt = 0, * p_out_tbl_barcode = 0,
-		* p_out_tbl_cards = 0, * p_out_tbl_cashiers = 0, * p_out_tbl_gdsqtty_dscnt = 0, * p_out_tbl_grpqtty_dscnt = 0,
-		* p_out_tbl_sggrp = 0, * p_out_tbl_sggrpi = 0;
+	int    ok = 1;;
+	DbfTable * p_out_tbl_goods = 0;
+	DbfTable * p_out_tbl_group = 0;
+	DbfTable * p_out_tbl_dscnt = 0;
+	DbfTable * p_out_tbl_barcode = 0;
+	DbfTable * p_out_tbl_cards = 0;
+	DbfTable * p_out_tbl_cashiers = 0;
+	DbfTable * p_out_tbl_gdsqtty_dscnt = 0;
+	DbfTable * p_out_tbl_grpqtty_dscnt = 0;
+	DbfTable * p_out_tbl_sggrp = 0;
+	DbfTable * p_out_tbl_sggrpi = 0;
 	AsyncCashGoodsIterator * p_gds_iter = 0;
 	AsyncCashGoodsGroupIterator * p_grp_iter = 0;
 	if(ModuleVer == 10)
@@ -2133,7 +2133,6 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 		if(!use_new_dscnt_code_alg)
 			PrepareDscntCodeBiasList(&dscnt_code_ary);
 		THROW_MEM(p_gds_iter = new AsyncCashGoodsIterator(NodeID, (updOnly ? ACGIF_UPDATEDONLY : 0), SinceDlsID, P_Dls));
-		// @v7.9.11 THROW(PPStartTransaction(&ta, 1));
 		PROFILE_START
 		if(cn_data.Flags & CASHF_EXPGOODSGROUPS) {
 			THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_CS_GROUP_DBF, path_group));
@@ -2146,7 +2145,8 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 			THROW(p_out_tbl_grpqtty_dscnt = CreateDbfTable(DBFS_CRCS_GRPQTTYDSC_EXPORT, path_grpqtty_dscnt, 1));
 			THROW_MEM(p_grp_iter  = new AsyncCashGoodsGroupIterator(NodeID, 0, P_Dls));
 			while(p_grp_iter->Next(&grp_info) > 0) {
-				uint   level  = MIN(4, grp_info.Level), pos;
+				uint   level  = MIN(4, grp_info.Level);
+				uint   pos;
 				PPID   parent = grp_info.ParentID;
 				_GroupEntry  grpe;
 				MEMSZERO(grpe);
@@ -2423,7 +2423,6 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 				}
 			}
 		}
-		// @v7.9.11 THROW(PPCommitWork(&ta));
 		PPWait(0);
 		PPWait(1);
 		ZDELETE(p_out_tbl_barcode);
@@ -2465,10 +2464,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 		if(StatID)
 			P_Dls->FinishLoading(StatID, 1, 1);
 	}
-	CATCH
-		// @v7.9.11 PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	PPWait(0);
 	delete p_gds_iter;
 	delete p_grp_iter;
@@ -3986,7 +3982,7 @@ int SLAPI ACS_CRCSHSRV::ConvertCheckRows(const char * pWaitMsg)
 						goods_id = bc_rec.GoodsID;
 					else if(cs_chkln.Article && goods_obj.SearchByArticle(cs_chkln.Article, &bc_rec) > 0)
 						goods_id = bc_rec.GoodsID;
-					else if((goods_name = cs_chkln.GoodsName).ToOem().NotEmptyS()) {
+					else if((goods_name = cs_chkln.GoodsName).Transf(CTRANSF_OUTER_TO_INNER).NotEmptyS()) {
 						gds_pack.destroy();
 						THROW(goods_obj.P_Tbl->SearchByName(PPGDSK_GOODS, goods_name, &goods_id, &gds_pack.Rec));
 					}

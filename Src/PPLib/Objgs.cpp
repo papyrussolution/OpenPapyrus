@@ -1,5 +1,5 @@
 // OBJGS.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -2825,6 +2825,7 @@ int SaGiftArray::SelectGift(const TSArray <SaSaleItem> & rSaleList, const RAssoc
 	rGift.Init();
 
 	int    ok = -1;
+	const  PPCommConfig & r_ccfg = CConfig;
 	uint   i;
 	PPID   goods_id = 0;
 	SString msg_buf, fmt_buf;
@@ -2838,7 +2839,7 @@ int SaGiftArray::SelectGift(const TSArray <SaSaleItem> & rSaleList, const RAssoc
 		const PPID sale_goods_id = rSaleList.at(i).GoodsID;
 		if(Index.GetListByVal(sale_goods_id, temp_list) > 0) {
 			THROW_SL(struc_list.addUnique(&temp_list));
-			if(CConfig.Flags & CCFLG_DEBUG) {
+			if(r_ccfg.Flags & CCFLG_DEBUG) {
 				//PPTXT_LOG_GOODSBELONGSGIFT        "Идентифицирована подарочная ассоциация @int --> @int"
 				PPLoadText(PPTXT_LOG_GOODSBELONGSGIFT, fmt_buf);
 				for(uint n = 0; n < temp_list.getCount(); n++) {
@@ -2894,7 +2895,7 @@ int SaGiftArray::SelectGift(const TSArray <SaSaleItem> & rSaleList, const RAssoc
 			}
 		}
 		else {
-			if(CConfig.Flags & CCFLG_DEBUG) {
+			if(r_ccfg.Flags & CCFLG_DEBUG) {
 				//PPTXT_LOG_GIFTSTRUCNFINSAGIFTARRAY "Подарочная структура @int не обнаружена в списке SaGiftArray"
 				PPFormatT(PPTXT_LOG_GIFTSTRUCNFINSAGIFTARRAY, &msg_buf, struc_id);
 				PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);

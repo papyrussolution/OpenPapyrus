@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147488621
+LastSignatureCode=2147488625
 LastAutoCodeList=1,10830;102,10160;103,10068;110,10000;111,11528;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10074;120,10005;1001,10000;121,10000;122,10000;123,10006;1002,10000;1003,10000;1004,10000;1005,10000
 
 [SignatureList]
@@ -95,6 +95,7 @@ nomatter=2147483720
 undefined=2147486934
 bydefault=2147486935
 attention=2147487667
+connectedto=2147488622
 exit=2147486903
 rights=2147488008
 analogs=2147483721
@@ -2943,6 +2944,7 @@ internetaccount_person=2147485716
 internetaccount_symb=2147485717
 internetaccount_tag=2147485718
 internetaccount_timeout=2147486470
+inventory_item=2147488623
 inventory_bill=2147485719
 inventory_csesdfctprice=2147486471
 inventory_diffpctqtty=2147485720
@@ -2951,6 +2953,7 @@ inventory_flags=2147485722
 inventory_goods=2147485723
 inventory_oprno=2147485724
 inventory_price=2147485725
+inventory_cost=2147488624
 inventory_quantity=2147485726
 inventory_serial=2147485727
 inventory_stockprice=2147485728
@@ -2958,6 +2961,7 @@ inventory_stockrest=2147485729
 inventory_unitperpack=2147485730
 inventory_unwriteddiff=2147485731
 inventory_wroffprice=2147485732
+inventory_actualrest=2147488625
 linkfiles_id=2147485733
 linkfiles_prop=2147485734
 linkfiles_size=2147485735

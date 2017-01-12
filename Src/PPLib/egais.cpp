@@ -4987,7 +4987,20 @@ int SLAPI PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const D
 						uint   new_pos = p_bp->GetTCount();
 						THROW(ti.Init(&p_bp->Rec, 1));
 						THROW(ti.SetupGoods(r_item.GoodsID, 0));
-						ti.Quantity_ = r_item.Rest;
+						// @v9.4.9 ti.Quantity_ = r_item.Rest;
+						// @v9.4.9 {
+						{
+							GoodsItem _agi;
+							PreprocessGoodsItem(ti.GoodsID, 0, 0, 0, _agi);
+							if(_agi.UnpackedVolume > 0.0) {
+								const double mult = _agi.UnpackedVolume / 10.0;
+								ti.Quantity_ = R6(r_item.Rest / mult);
+							}
+							else {
+								ti.Quantity_ = r_item.Rest;
+							}
+						}
+						// } @v9.4.9
 						THROW(p_bp->LoadTItem(&ti, 0, 0));
 						{
 							ObjTagList tag_list;
@@ -5303,6 +5316,10 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 											}
 											(line_buf = 0).Cat(p_qb->CodeType).Tab().Cat(p_qb->Rank).Tab().Cat(p_qb->Number).Tab().Cat(p_qb->Result).CR();
 											out_file.WriteLine(line_buf);
+											{
+                                                PPGetFilePath(PPPATH_OUT, p_qb->Result, temp_buf);
+												PPBarcode::CreateImage(p_qb->Result, BARCSTD_PDF417, SFileFormat::Png, temp_buf);
+											}
 										}
                         			}
                         		}

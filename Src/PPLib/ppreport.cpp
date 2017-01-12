@@ -1401,7 +1401,7 @@ void ReportError(short printJob)
 	PEGetErrorText(printJob, &text_handle, &text_length);
 	char * p_error_text = (char *)malloc(text_length);
 	PEGetHandleString(text_handle, p_error_text, text_length);
-	::MessageBox(0, p_error_text, "Print Job Failed", MB_OK|MB_ICONEXCLAMATION); // @unicodeproblem
+	::MessageBox(0, p_error_text, _T("Print Job Failed"), MB_OK|MB_ICONEXCLAMATION); // @unicodeproblem
 	free(p_error_text);
 }
 
@@ -1461,13 +1461,13 @@ static int SLAPI SetupSubReportLocations(short hJob, RptTblLoc & rLoc, int secti
 {
 	int    ok = 1;
 	for(short sn = 0; sn < 3; sn++) {
-		short  sect_code = PE_SECTION_CODE(/*PE_SECT_REPORT_HEADER*/section, 0, sn);
-		short  num_sub_rep = PEGetNSubreportsInSection(hJob, sect_code);
+		const short  sect_code = PE_SECTION_CODE(/*PE_SECT_REPORT_HEADER*/section, 0, sn);
+		const short  num_sub_rep = PEGetNSubreportsInSection(hJob, sect_code);
 		for(short i = 0; i < num_sub_rep; i++) {
 			PESubreportInfo sub_info;
 			MEMSZERO(sub_info);
 			sub_info.StructSize = sizeof(sub_info);
-			DWORD  sub_id = PEGetNthSubreportInSection(hJob, sect_code, i);
+			const DWORD  sub_id = PEGetNthSubreportInSection(hJob, sect_code, i);
 			if(sub_id > 0 && PEGetSubreportInfo(hJob, sub_id, &sub_info)) {
 				short hjob_sub = PEOpenSubreport(hJob, sub_info.name);
 				if(hjob_sub) {
@@ -1497,18 +1497,18 @@ static int SLAPI SetupReportLocations(short hJob, const char * pPath, int isPrin
 		PESetNthTableLocation(hJob, 1, &loc.Iter);
 	}
 	{
-		int    __sections[2] = { PE_SECT_REPORT_HEADER, PE_SECT_REPORT_FOOTER };
+		const int __sections[2] = { PE_SECT_REPORT_HEADER, PE_SECT_REPORT_FOOTER };
 		for(uint j = 0; j < SIZEOFARRAY(__sections); j++) {
 			for(short sn = 0; sn < 3; sn++) {
-				short  sect_code = PE_SECTION_CODE(/*PE_SECT_REPORT_HEADER*/__sections[j], 0, sn);
-				short  num_sub_rep = PEGetNSubreportsInSection(hJob, sect_code);
+				const short  sect_code = PE_SECTION_CODE(/*PE_SECT_REPORT_HEADER*/__sections[j], 0, sn);
+				const short  num_sub_rep = PEGetNSubreportsInSection(hJob, sect_code);
 				for(short i = 0; i < num_sub_rep; i++) {
 					PESubreportInfo sub_info;
 					MEMSZERO(sub_info);
 					sub_info.StructSize = sizeof(sub_info);
 					DWORD  sub_id = PEGetNthSubreportInSection(hJob, sect_code, i);
 					if(sub_id > 0 && PEGetSubreportInfo(hJob, sub_id, &sub_info)) {
-						short hjob_sub = PEOpenSubreport(hJob, sub_info.name);
+						const short hjob_sub = PEOpenSubreport(hJob, sub_info.name);
 						if(hjob_sub) {
 							PESetNthTableLocation(hjob_sub, 0, &loc.Hdr);
 							PESetNthTableLocation(hjob_sub, 1, &loc.Iter);
@@ -1552,11 +1552,7 @@ static int SLAPI RemoveCompName(SString & rPrintDevice)
 static int SLAPI SetPrinterParam(short hJob, const char * pPrinter, long options)
 {
 	int    ok = 1;
-	SString print_device;
-	if(!isempty(pPrinter))
-		print_device = pPrinter;
-	else
-		print_device = DS.GetConstTLA().PrintDevice;
+	SString print_device = isempty(pPrinter) ? DS.GetConstTLA().PrintDevice : pPrinter;
 	RemoveCompName(print_device);
 	DEVMODE * p_dm = 0, dm;
 	if(options & SPRN_USEDUPLEXPRINTING || print_device.NotEmptyS()) {
@@ -1616,6 +1612,7 @@ int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const 
 	int    ok = 1;
 	int    zero_print_device = 0;
 	short  h_job = PEOpenPrintJob(pReportName);
+	SString msg_buf;
 	PEReportOptions ro;
 	THROW_PP(h_job, PPERR_CRYSTAL_REPORT);
 	ro.StructSize = sizeof(ro);
@@ -1630,8 +1627,7 @@ int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const 
 	THROW(SetupReportLocations(h_job, pDir, (options & SPRN_DONTRENAMEFILES) ? 0 : 1));
 	if(options & SPRN_PREVIEW) {
 		THROW_PP(PEOutputToWindow(h_job, "", CW_USEDEFAULT, CW_USEDEFAULT,
-			CW_USEDEFAULT, CW_USEDEFAULT, WS_MAXIMIZE|WS_VISIBLE|WS_MINIMIZEBOX|
-			WS_MAXIMIZEBOX|WS_SYSMENU, 0), PPERR_CRYSTAL_REPORT);
+			CW_USEDEFAULT, CW_USEDEFAULT, WS_MAXIMIZE|WS_VISIBLE|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_SYSMENU, 0), PPERR_CRYSTAL_REPORT);
 	}
 	else {
 		THROW_PP(PEOutputToPrinter(h_job, numCopies), PPERR_CRYSTAL_REPORT);
@@ -1671,8 +1667,7 @@ int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const 
 		THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
 		const uint64 profile_end = DS.GetProfileTime();
 		{
-			SString msg_buf;
-			msg_buf.CatEq("Report", pReportName);
+			(msg_buf = 0).CatEq("Report", pReportName);
 			if(!isempty(pPrinter))
 				msg_buf.CatDiv(';', 2).CatEq("Printer", pPrinter);
 			if(numCopies > 1)
@@ -1685,8 +1680,12 @@ int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const 
 		CrwError = PEGetErrorCode(h_job);
 		// @v8.3.4 @debug {
 		{
-			SString msg_buf;
-			(msg_buf = "Crystal Reports error:").CatDiv(':', 2).Cat(CrwError);
+			// @v9.4.9 (msg_buf = "Crystal Reports error:").CatDiv(':', 2).Cat(CrwError);
+			// @v9.4.9 {
+			PPLoadString("err_crpe", msg_buf = 0);
+			msg_buf.Transf(CTRANSF_INNER_TO_OUTER);
+			msg_buf.CatDiv(':', 2).Cat(CrwError);
+			// } @v9.4.9
 			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_COMP|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 		}
 		// } @v8.3.4 @debug

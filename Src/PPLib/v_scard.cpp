@@ -1,5 +1,5 @@
 // V_SCARD.CPP
-// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -613,25 +613,25 @@ int SLAPI PPViewSCard::PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCar
 					temp_buf.CopyTo(pDestRec->Address, sizeof(pDestRec->Address));
 					Las.Recognize(temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
 					if(Las.Get(PPLocAddrStruc::tZip, temp_buf)) {
-						temp_buf.ToOem().CopyTo(pDestRec->ZIP, sizeof(pDestRec->ZIP));
+						temp_buf.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pDestRec->ZIP, sizeof(pDestRec->ZIP));
 					}
 					if(Las.Get(PPLocAddrStruc::tLocalArea, temp_buf)) {
 						result_buf = 0;
 						if(Las.Get(PPLocAddrStruc::tLocalAreaKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
-						result_buf.Cat(temp_buf).ToOem().CopyTo(pDestRec->LocalArea, sizeof(pDestRec->LocalArea));
+						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pDestRec->LocalArea, sizeof(pDestRec->LocalArea));
 					}
 					if(Las.Get(PPLocAddrStruc::tCity, temp_buf)) {
 						result_buf = 0;
 						if(Las.Get(PPLocAddrStruc::tCityKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
-						result_buf.Cat(temp_buf).ToOem().CopyTo(pDestRec->City, sizeof(pDestRec->City));
+						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pDestRec->City, sizeof(pDestRec->City));
 					}
 					if(Las.Get(PPLocAddrStruc::tStreet, temp_buf)) {
 						result_buf = 0;
 						if(Las.Get(PPLocAddrStruc::tStreetKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
-						result_buf.Cat(temp_buf).ToOem().CopyTo(pDestRec->Street, sizeof(pDestRec->Street));
+						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pDestRec->Street, sizeof(pDestRec->Street));
 					}
 					if(Las.Get(PPLocAddrStruc::tHouse, temp_buf)) {
 						result_buf = 0;
@@ -644,16 +644,16 @@ int SLAPI PPViewSCard::PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCar
 								result_buf.Cat(temp_buf2).Space();
 							result_buf.Cat(temp_buf);
 						}
-						result_buf.ToOem().CopyTo(pDestRec->House, sizeof(pDestRec->House));
+						result_buf.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pDestRec->House, sizeof(pDestRec->House));
 					}
 					if(Las.Get(PPLocAddrStruc::tApart, temp_buf)) {
 						result_buf = 0;
 						if(Las.Get(PPLocAddrStruc::tApartKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
-						result_buf.Cat(temp_buf).ToOem().CopyTo(pDestRec->Apart, sizeof(pDestRec->Apart));
+						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pDestRec->Apart, sizeof(pDestRec->Apart));
 					}
 					if(Las.Get(PPLocAddrStruc::tAddendum, temp_buf)) {
-						temp_buf.ToOem().CopyTo(pDestRec->AddrAddend, sizeof(pDestRec->AddrAddend));
+						temp_buf.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pDestRec->AddrAddend, sizeof(pDestRec->AddrAddend));
 					}
 				}
 			}

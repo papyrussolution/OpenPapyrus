@@ -1,5 +1,5 @@
 // V_INV.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -52,9 +52,6 @@ SLAPI PPViewInventory::PPViewInventory() : PPView(0, &Filt, PPVIEW_INVENTORY)
 	P_TempSubstTbl = 0;
 	P_GgIter = 0;
 	P_GIter = 0;
-	//IsZeroByDefault = 0;
-	//SelGoodsByName = 0;
-	//WasUpdated = 0;
 	Flags = 0;
 	CommonLocID = 0;
 	CommonDate = ZERODATE;
@@ -97,10 +94,9 @@ public:
 			rec.GoodsID = Data.GoodsID;
 			rec.Flags   = GoodsCtrlGroup::enableSelUpLevel;
 			setGroupData(GRP_GOODS, &rec);
-			//SetupPPObjCombo(this, CTLSEL_INVDIFFLT_GRP, PPOBJ_GOODSGROUP, Data.GoodsGrpID, OLW_CANSELUPLEVEL, 0);
 		}
 		{
-			PPID   strg_loc_id = Data.StorageLocID;
+			const PPID strg_loc_id = Data.StorageLocID;
 			LocationFilt loc_filt(LOCTYP_WAREPLACE, 0, 0);
 			SetupLocationCombo(this, CTLSEL_INVDIFFLT_STRGLOC, strg_loc_id, OLW_CANSELUPLEVEL, &loc_filt);
 		}
@@ -904,6 +900,14 @@ public:
 		addGroup(GRP_QTTY,  new QuantityCtrlGroup(CTL_INVITEM_UNITPERPACK, CTL_INVITEM_PACKS, CTL_INVITEM_QUANTITY));
 		disableCtrls(1, CTL_INVITEM_STOCKREST, CTL_INVITEM_DIFFREST, 0);
 		SETFLAG(St, stUseSerial, InvOpEx.Flags & INVOPF_USESERIAL);
+		{
+			SString temp_buf;
+			if(InvOpEx.Flags & INVOPF_COSTNOMINAL)
+				PPLoadString("inventory_cost", temp_buf);
+			else
+				PPLoadString("inventory_price", temp_buf);
+			setLabelText(CTL_INVITEM_PRICE, temp_buf);
+		}
 	}
 	int    setDTS(const InventoryTbl::Rec * pData)
 	{
@@ -1026,9 +1030,9 @@ int InventoryItemDialog::replyGoodsSelection()
 void InventoryItemDialog::recalcUnitsToPhUnits()
 {
 	Goods2Tbl::Rec goods_rec;
-	PPID   goods_id = getCtrlLong(CTLSEL_INVITEM_GOODS);
+	const PPID goods_id = getCtrlLong(CTLSEL_INVITEM_GOODS);
 	if(goods_id && GObj.Fetch(goods_id, &goods_rec) > 0) {
-		double qtty = getCtrlReal(CTL_INVITEM_QUANTITY);
+		const double qtty = getCtrlReal(CTL_INVITEM_QUANTITY);
 		if(goods_rec.PhUPerU > 0.0) {
 			Data.Quantity = R6(qtty / goods_rec.PhUPerU);
 			setupQuantity();

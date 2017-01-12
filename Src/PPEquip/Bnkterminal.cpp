@@ -1,5 +1,5 @@
 // BNKTERMINAL.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -80,7 +80,7 @@ int PPBnkTerminal::Connect(int port)
 	Arr_Out.Clear();
 	SString msg = "Œœ≈–¿÷»ﬂ: “≈—“ —¬ﬂ«»";
 	PPWait(1);
-	PPWaitMsg(msg.ToOem());
+	PPWaitMsg(msg.Transf(CTRANSF_OUTER_TO_INNER));
 	ok = ExecOper(DVCCMD_CONNECT, Arr_In, Arr_Out);
 	PPWait(0);
 	if(ok)
@@ -112,7 +112,7 @@ int PPBnkTerminal::Pay(double amount)
 	BnkTermArrAdd(Arr_In, DVCPARAM_AMOUNT, (int)amount);
 	SString msg = "Œœ≈–¿÷»ﬂ: ŒœÀ¿“¿\n Œ¡–¿¡Œ“ ¿...";
 	PPWait(1);
-	PPWaitMsg(msg.ToOem());
+	PPWaitMsg(msg.Transf(CTRANSF_OUTER_TO_INNER));
 	ok = ExecOper(DVCCMD_PAY, Arr_In, Arr_Out);
 	PPWait(0);
 	return ok;
@@ -127,7 +127,7 @@ int PPBnkTerminal::Refund(double amount)
 	BnkTermArrAdd(Arr_In, DVCPARAM_AMOUNT, (int)amount);
 	SString msg = "Œœ≈–¿÷»ﬂ: ¬Œ«¬–¿“\n Œ¡–¿¡Œ“ ¿...";
 	PPWait(1);
-	PPWaitMsg(msg.ToOem());
+	PPWaitMsg(msg.Transf(CTRANSF_OUTER_TO_INNER));
 	ok = ExecOper(DVCCMD_REFUND, Arr_In, Arr_Out);
 	PPWait(0);
 	return ok;
@@ -140,7 +140,7 @@ int PPBnkTerminal::GetSessReport(SString & rZCheck)
 	Arr_Out.Clear();
 	SString msg = "Œœ≈–¿÷»ﬂ: «¿ –€“»≈ ƒÕﬂ\n Œ¡–¿¡Œ“ ¿...";
 	PPWait(1);
-	PPWaitMsg(msg.ToOem());
+	PPWaitMsg(msg.Transf(CTRANSF_OUTER_TO_INNER));
 	if(ok = ExecOper(DVCCMD_GETBANKREPORT, Arr_In, Arr_Out))
 		Arr_Out.Get(0, rZCheck);
 	PPWait(0);

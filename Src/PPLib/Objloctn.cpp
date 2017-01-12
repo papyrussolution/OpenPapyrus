@@ -4004,6 +4004,21 @@ PPLocAddrStruc::DetectBlock & PPLocAddrStruc::DetectBlock::Init(int entityType, 
 	return *this;
 }
 
+SLAPI PPLocAddrStruc::_MatchEntry::_MatchEntry(uint p1, uint p2, int reverse)
+{
+	P1 = p1;
+	P2 = p2;
+	Reverse = reverse;
+}
+
+SLAPI PPLocAddrStruc::_MatchEntry::_MatchEntry(const _MatchEntry & rS)
+{
+	P1 = rS.P1;
+	P2 = rS.P2;
+	Reverse = rS.Reverse;
+	CityStreetList = rS.CityStreetList;
+}
+
 int SLAPI PPLocAddrStruc::Helper_Construct()
 {
 	int    ok = 1;

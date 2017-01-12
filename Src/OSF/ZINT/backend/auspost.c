@@ -54,37 +54,37 @@ static const char * AusBarTable[64] = {
 	"332", "333"
 };
 
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "common.h"
 #include "reedsol.h"
 #ifdef _MSC_VER
-	#define inline _inline
+#define inline _inline
 #endif
 
-static inline char convert_pattern(char data, int shift) 
+static inline char convert_pattern(char data, int shift)
 {
 	return (data - '0') << shift;
 }
 
 /* Adds Reed-Solomon error correction to auspost */
-void rs_error(char data_pattern[]) 
+void rs_error(char data_pattern[])
 {
 	int reader, triple_writer = 0;
 	char triple[31], inv_triple[31];
 	uchar result[5];
-	for(reader = 2; reader < (int)strlen(data_pattern); reader += 3, triple_writer++) {
+	for(reader = 2; reader < strlen(data_pattern); reader += 3, triple_writer++) {
 		triple[triple_writer] = convert_pattern(data_pattern[reader], 4)
 		    + convert_pattern(data_pattern[reader + 1], 2)
 		    + convert_pattern(data_pattern[reader + 2], 0);
 	}
-
 	for(reader = 0; reader < triple_writer; reader++) {
 		inv_triple[reader] = triple[(triple_writer - 1) - reader];
 	}
-
 	rs_init_gf(0x43);
 	rs_init_code(4, 1);
 	rs_encode(triple_writer, (uchar*)inv_triple, result);
-
 	for(reader = 4; reader > 0; reader--) {
 		strcat(data_pattern, AusBarTable[(int)result[reader - 1]]);
 	}
@@ -92,7 +92,8 @@ void rs_error(char data_pattern[])
 }
 
 /* Handles Australia Posts's 4 State Codes */
-int australia_post(ZintSymbol * symbol, uchar source[], int length) {
+int australia_post(struct ZintSymbol * symbol, uchar source[], int length)
+{
 	/* Customer Standard Barcode, Barcode 2 or Barcode 3 system determined automatically
 	   (i.e. the FCC doesn't need to be specified by the user) dependent
 	   on the length of the input string */
@@ -104,7 +105,8 @@ int australia_post(ZintSymbol * symbol, uchar source[], int length) {
 	   3 = Tracker only */
 	int error_number, zeroes;
 	int writer;
-	uint loopey, reader, h;
+	uint loopey, reader;
+	size_t h;
 
 	char data_pattern[200];
 	char fcc[3] = {0, 0, 0}, dpid[10];
@@ -135,46 +137,53 @@ int australia_post(ZintSymbol * symbol, uchar source[], int length) {
 			    error_number = is_sane(NEON, source, length);
 			    break;
 			default:
-			    strcpy(symbol->errtxt, "Auspost input is wrong length");
+			    strcpy(symbol->errtxt, "Auspost input is wrong length (D01)");
 			    return ZINT_ERROR_TOO_LONG;
 		}
 		if(error_number == ZINT_ERROR_INVALID_DATA) {
-			strcpy(symbol->errtxt, "Invalid characters in data");
+			strcpy(symbol->errtxt, "Invalid characters in data (D02)");
 			return error_number;
 		}
 	}
 	else {
 		if(length > 8) {
-			strcpy(symbol->errtxt, "Auspost input is too long");
+			strcpy(symbol->errtxt, "Auspost input is too long (D03)");
 			return ZINT_ERROR_TOO_LONG;
 		}
 		switch(symbol->Std) {
-			case BARCODE_AUSREPLY: strcpy(fcc, "45"); break;
-			case BARCODE_AUSROUTE: strcpy(fcc, "87"); break;
-			case BARCODE_AUSREDIRECT: strcpy(fcc, "92"); break;
+			case BARCODE_AUSREPLY: strcpy(fcc, "45");
+			    break;
+			case BARCODE_AUSROUTE: strcpy(fcc, "87");
+			    break;
+			case BARCODE_AUSREDIRECT: strcpy(fcc, "92");
+			    break;
 		}
 		/* Add leading zeros as required */
 		zeroes = 8 - length;
 		memset(localstr, '0', zeroes);
 		localstr[8] = '\0';
 	}
+
 	strcat(localstr, (char*)source);
 	h = strlen(localstr);
 	error_number = is_sane(GDSET, (uchar*)localstr, h);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in data");
+		strcpy(symbol->errtxt, "Invalid characters in data (D04)");
 		return error_number;
 	}
+
 	/* Verifiy that the first 8 characters are numbers */
 	memcpy(dpid, localstr, 8);
 	dpid[8] = '\0';
 	error_number = is_sane(NEON, (uchar*)dpid, strlen(dpid));
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in DPID");
+		strcpy(symbol->errtxt, "Invalid characters in DPID (D05)");
 		return error_number;
 	}
+
 	/* Start character */
 	strcpy(data_pattern, "13");
+
 	/* Encode the FCC */
 	for(reader = 0; reader < 2; reader++) {
 		lookup(NEON, AusNTable, fcc[reader], data_pattern);

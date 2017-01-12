@@ -2505,7 +2505,7 @@ int FASTCALL SString::CmpNC(const char * pS) const
 
 int FASTCALL SString::CmpPrefix(const char * pS, int ignoreCase) const
 {
-	size_t len = sstrlen(pS);
+	const size_t len = sstrlen(pS);
 	if(len && Len() >= len)
 		return ignoreCase ? strnicmp866(P_Buf, pS, len) : strncmp(P_Buf, pS, len);
 	else

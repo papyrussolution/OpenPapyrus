@@ -1,5 +1,5 @@
 // OBJTAG.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 // Теги объектов
@@ -12,6 +12,7 @@
 //
 const char * P_EmptyTagValRestrict = "#EMPTY";
 const char * P_ExistTagValRestrict = "#EXIST";
+const char * P_ListTagValRestrict = "#LIST";
 
 //static
 int SLAPI TagFilt::ParseString(const char * pItemString, SString & rRestrictionBuf, SString & rColorBuf)
@@ -26,7 +27,59 @@ int SLAPI TagFilt::ParseString(const char * pItemString, SString & rRestrictionB
 	else {
 		rColorBuf = 0;
 		(rRestrictionBuf = pItemString).Strip();
+		if(rRestrictionBuf.CmpPrefix(P_ListTagValRestrict, 1) == 0)
+			ok = 4;
+		else
+			ok = 1;
+	}
+	return ok;
+}
+
+//static
+int FASTCALL TagFilt::SetRestrictionIdList(SString & rRestrictionBuf, const PPIDArray & rList)
+{
+	int    ok = -1;
+	rRestrictionBuf = 0;
+	const uint _c = rList.getCount();
+	if(_c == 1) {
+        rRestrictionBuf.Cat(rList.get(0));
 		ok = 1;
+	}
+	else if(_c > 1) {
+		rRestrictionBuf.Cat(P_ListTagValRestrict).CatChar(':');
+		for(uint i = 0; i < _c; i++) {
+			if(i)
+				rRestrictionBuf.CatChar(';');
+			rRestrictionBuf.Cat(rList.get(i));
+		}
+		ok = 2;
+	}
+	return ok;
+}
+
+//static
+int FASTCALL TagFilt::GetRestrictionIdList(const SString & rRestrictionBuf, PPIDArray * pList)
+{
+	int    ok = -1;
+	CALLPTRMEMB(pList, clear());
+	if(rRestrictionBuf.CmpPrefix(P_ListTagValRestrict, 1) == 0) {
+		SString restrict = rRestrictionBuf;
+		restrict.ShiftLeft(strlen(P_ListTagValRestrict)).Strip().ShiftLeftChr(':').Strip();
+		StringSet ss(';', restrict);
+		for(uint ssp = 0; ss.get(&ssp, restrict);) {
+			const PPID restrict_val = restrict.ToLong();
+			if(restrict_val > 0) {
+				CALLPTRMEMB(pList, add(restrict_val));
+				ok = 2;
+			}
+		}
+	}
+	else {
+		const PPID restrict_val = rRestrictionBuf.ToLong();
+        if(restrict_val > 0) {
+			CALLPTRMEMB(pList, add(restrict_val));
+			ok = 1;
+        }
 	}
 	return ok;
 }
@@ -152,6 +205,38 @@ int SLAPI TagFilt::SelectIndicator(PPID objID, SColor & rClr) const
 	return select_ok;
 }
 
+int SLAPI TagFilt::Helper_CheckTagItemForRestrict_EnumID(const ObjTagItem * pItem, long restrictVal) const
+{
+	int    check_ok = 0;
+	if(restrictVal == pItem->Val.IntVal)
+		check_ok = 1;
+	else {
+		PPID   item_id = pItem->Val.IntVal;
+		if(item_id && IS_DYN_OBJTYPE(pItem->TagEnumID)) {
+			PPObjTag tag_obj;
+			PPObjectTag tag_rec;
+			if(tag_obj.Fetch(pItem->TagID, &tag_rec) > 0 && tag_rec.Flags & OTF_HIERENUM) {
+				assert(tag_rec.TagEnumID == pItem->TagEnumID);
+				ReferenceTbl::Rec rec;
+				PPIDArray recur_list;
+				if(PPRef->GetItem(tag_rec.TagEnumID, item_id, &rec) > 0 && rec.Val2) {
+					recur_list.add(item_id);
+					for(item_id = rec.Val2; !check_ok && item_id && PPRef->GetItem(tag_rec.TagEnumID, item_id, &rec) > 0; item_id = rec.Val2) {
+						if(recur_list.addUnique(item_id) > 0) {
+							if(restrictVal == item_id) {
+								check_ok = 1;
+							}
+						}
+						else
+							break; // Зацикленная цепь ребенок->родитель
+					}
+				}
+			}
+		}
+	}
+	return check_ok;
+}
+
 int SLAPI TagFilt::CheckTagItemForRestrict(const ObjTagItem * pItem, const SString & rRestrict) const
 {
 	int    check_ok = 1;
@@ -166,38 +251,24 @@ int SLAPI TagFilt::CheckTagItemForRestrict(const ObjTagItem * pItem, const SStri
 			else if(oneof2(pItem->TagDataType, OTTYP_BOOL, OTTYP_OBJLINK))
 				check_ok = BIN(rRestrict.ToLong() == pItem->Val.IntVal);
 			else if(pItem->TagDataType == OTTYP_ENUM) {
-				const PPID restrict_val = rRestrict.ToLong();
-				if(restrict_val == pItem->Val.IntVal)
-					check_ok = 1;
-				else {
+				if(rRestrict.CmpPrefix(P_ListTagValRestrict, 1) == 0) {
+					SString restrict = rRestrict;
+					restrict.ShiftLeft(strlen(P_ListTagValRestrict)).Strip().ShiftLeftChr(':').Strip();
+					StringSet ss(';', restrict);
 					check_ok = 0;
-					PPID item_id = pItem->Val.IntVal;
-					if(item_id && IS_DYN_OBJTYPE(pItem->TagEnumID)) {
-						PPObjTag tag_obj;
-						PPObjectTag tag_rec;
-						if(tag_obj.Fetch(pItem->TagID, &tag_rec) > 0 && tag_rec.Flags & OTF_HIERENUM) {
-							assert(tag_rec.TagEnumID == pItem->TagEnumID);
-							ReferenceTbl::Rec rec;
-							PPIDArray recur_list;
-							if(PPRef->GetItem(tag_rec.TagEnumID, item_id, &rec) > 0 && rec.Val2) {
-								recur_list.add(item_id);
-								for(item_id = rec.Val2; !check_ok && item_id && PPRef->GetItem(tag_rec.TagEnumID, item_id, &rec) > 0; item_id = rec.Val2) {
-									if(recur_list.addUnique(item_id) > 0) {
-										if(restrict_val == item_id) {
-											check_ok = 1;
-										}
-									}
-									else
-										break; // Зацикленная цепь ребенок->родитель
-								}
-							}
-						}
+					for(uint ssp = 0; !check_ok && ss.get(&ssp, restrict);) {
+						const PPID restrict_val = restrict.ToLong();
+						check_ok = Helper_CheckTagItemForRestrict_EnumID(pItem, restrict_val);
 					}
+				}
+				else {
+					const PPID restrict_val = rRestrict.ToLong();
+					check_ok = Helper_CheckTagItemForRestrict_EnumID(pItem, restrict_val);
 				}
 			}
 			else if(pItem->TagDataType == OTTYP_NUMBER) {
 				RealRange rr;
-				strtorrng((const char*)rRestrict, &rr.low, &rr.upp);
+				strtorrng(rRestrict.cptr(), &rr.low, &rr.upp);
 				check_ok = rr.CheckVal(pItem->Val.RealVal);
 			}
 			else if(oneof2(pItem->TagDataType, OTTYP_STRING, OTTYP_GUID)) {
@@ -1859,7 +1930,7 @@ public:
 		AddClusterAssoc(CTL_SELTAG_OPTION, 1, 1);
 		AddClusterAssoc(CTL_SELTAG_OPTION, 2, 2);
 		SetClusterData(CTL_SELTAG_OPTION, option);
-		EnumID = (option == 0 && oneof2(tag.TagDataType, OTTYP_ENUM, OTTYP_OBJLINK)) ? Data.Txt.ToLong() : 0;
+		// @v9.4.9 EnumID = (option == 0 && oneof2(tag.TagDataType, OTTYP_ENUM, OTTYP_OBJLINK)) ? Data.Txt.ToLong() : 0;
 		SetupRestrict(tag.TagDataType, restrict_buf, tag.TagEnumID);
 		SetupTag(Data.Id);
 		{
@@ -1886,13 +1957,19 @@ public:
 		else if(option == 2)
 			restrict_buf = P_ExistTagValRestrict;
 		else {
+			getCtrlString(CTL_SELTAG_RESTRICT, restrict_buf);
 			if(oneof2(tag.TagDataType, OTTYP_ENUM, OTTYP_OBJLINK)) {
-				if(CheckRestrict)
-					THROW_PP(EnumID, PPERR_USERINPUT);
-				(restrict_buf = 0).Cat(EnumID);
+				if(EnumID) {
+					(restrict_buf = 0).Cat(EnumID);
+				}
+				PPIDArray id_list;
+				TagFilt::GetRestrictionIdList(restrict_buf, &id_list);
+				if(CheckRestrict) {
+					THROW_PP(id_list.getCount(), PPERR_USERINPUT);
+				}
+				//(restrict_buf = 0).Cat(EnumID);
 			}
 			else {
-				getCtrlString(CTL_SELTAG_RESTRICT, restrict_buf);
 				if(CheckRestrict) {
 					if(tag.TagDataType == OTTYP_BOOL) {
 						THROW_PP(oneof2(restrict_buf.C(0), '0', '1'), PPERR_USERINPUT);
@@ -1938,10 +2015,27 @@ private:
 			getCtrlData(CTLSEL_SELTAG_TAG, &Data.Id);
 			getCtrlString(CTL_SELTAG_RESTRICT, restrict_buf);
 			GetTagRec(Data.Id, &tag);
-			if(ListBoxSelDialog(tag.TagEnumID, &EnumID, (void *)((tag.TagDataType == OTTYP_OBJLINK) ? tag.LinkObjGrp : 0)) > 0) {
+			void * extra_ptr = (void *)((tag.TagDataType == OTTYP_OBJLINK) ? tag.LinkObjGrp : 0);
+			// @v9.4.9 {
+			{
+				PPIDArray id_list;
+				TagFilt::GetRestrictionIdList(restrict_buf, &id_list);
+				ListToListData ltld(tag.TagEnumID, extra_ptr, &id_list);
+				if(tag.Flags & OTF_HIERENUM)
+					ltld.Flags |= ListToListData::fIsTreeList;
+				ltld.TitleStrID = 0; // PPTXT_XXX;
+				if(ListToListDialog(&ltld) > 0) {
+					TagFilt::SetRestrictionIdList(restrict_buf, id_list);
+					SetupRestrict(tag.TagDataType, restrict_buf, tag.TagEnumID);
+				}
+			}
+			// } @v9.4.9
+			/* @v9.4.9
+			if(ListBoxSelDialog(tag.TagEnumID, &EnumID, extra_ptr) > 0) {
 				(restrict_buf = 0).Cat(EnumID);
 				SetupRestrict(tag.TagDataType, restrict_buf, tag.TagEnumID);
 			}
+			*/
 		}
 		else if(event.isClusterClk(CTL_SELTAG_OPTION)) {
 			const  int  option = GetClusterData(CTL_SELTAG_OPTION);
@@ -1980,13 +2074,7 @@ private:
 			GetTagRec(tagID, &tag);
 			if(p_text) {
 				SString type_str, msg;
-				ObjTagItem::GetTypeString(tag.TagDataType, 0, type_str); // @v7.5.0
-				/* @v7.5.0
-				if(tag.TagDataType != OTTYP_GROUP)
-					PPGetSubStr(PPTXT_OTTYP, (tag.TagDataType-1), type_str);
-				else
-					PPGetWord(PPWORD_GROUP, 0, msg);
-				*/
+				ObjTagItem::GetTypeString(tag.TagDataType, 0, type_str);
 				if(tag.TagDataType == OTTYP_BOOL)
 					(msg = 0).CatChar('[').Cat(type_str).CatDiv('-', 1).CatChar('0').Comma().CatChar('1').CatChar(']');
 				else if(oneof2(tag.TagDataType, OTTYP_NUMBER, OTTYP_DATE))
@@ -2015,7 +2103,15 @@ private:
 		SetClusterData(CTL_SELTAG_OPTION, option);
 		disableCtrl(CTL_SELTAG_RESTRICT, oneof2(tagType, OTTYP_ENUM, OTTYP_OBJLINK) || option != 0);
 		if(option == 0 && oneof2(tagType, OTTYP_ENUM, OTTYP_OBJLINK)) {
-			GetObjectName(extra, EnumID, restrict);
+			PPIDArray id_list;
+			int r = TagFilt::GetRestrictionIdList(restrict, &id_list);
+			if(r == 1) {
+				assert(id_list.getCount() == 1);
+				EnumID = id_list.get(0);
+				GetObjectName(extra, EnumID, restrict);
+			}
+			else
+				EnumID = 0;
 		}
 		setCtrlString(CTL_SELTAG_RESTRICT, restrict);
 		return 1;
@@ -2056,6 +2152,7 @@ int TagFiltDialog::setupList()
 {
 	int    ok = 1;
 	SString restrict;
+	PPIDArray id_list;
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; i < Data.TagsRestrict.getCount(); i++) {
 		StrAssocArray::Item item = Data.TagsRestrict.at(i);
@@ -2064,8 +2161,13 @@ int TagFiltDialog::setupList()
 		THROW(ObjTag.Fetch(item.Id, &tag));
 		ss.clear();
 		ss.add(tag.Name);
-		if(oneof2(tag.TagDataType, OTTYP_ENUM, OTTYP_OBJLINK))
-			GetObjectName(tag.TagEnumID, atol(item.Txt), restrict = 0);
+		if(oneof2(tag.TagDataType, OTTYP_ENUM, OTTYP_OBJLINK)) {
+			int r = TagFilt::GetRestrictionIdList(restrict, &id_list);
+			if(r == 1) {
+				assert(id_list.getCount() == 1);
+				GetObjectName(tag.TagEnumID, id_list.get(0), restrict = 0);
+			}
+		}
 		ss.add(restrict);
 		THROW(addStringToList(i - 1, ss.getBuf()));
 	}

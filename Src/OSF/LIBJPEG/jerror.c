@@ -89,18 +89,14 @@ error_exit(j_common_ptr cinfo)
  * not just not use this routine.
  */
 
-METHODDEF(void)
-output_message(j_common_ptr cinfo)
+METHODDEF(void) output_message(j_common_ptr cinfo)
 {
 	char buffer[JMSG_LENGTH_MAX];
-
 	/* Create the message */
 	(*cinfo->err->format_message)(cinfo, buffer);
-
 #ifdef USE_WINDOWS_MESSAGEBOX
 	/* Display it in a message dialog box */
-	MessageBox(GetActiveWindow(), buffer, "JPEG Library Error",
-	    MB_OK | MB_ICONERROR);
+	MessageBox(GetActiveWindow(), buffer, "JPEG Library Error", MB_OK | MB_ICONERROR);
 #else
 	/* Send it to stderr, adding a newline */
 	fprintf(stderr, "%s\n", buffer);

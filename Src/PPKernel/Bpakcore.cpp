@@ -1135,6 +1135,7 @@ int SLAPI PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 		PPObjGoods goods_obj;
 		SString msg;
 		const int invp_act = DS.GetTLA().InvalidSupplDealQuotAction;
+		const PPCommConfig & r_ccfg = CConfig;
 		for(uint i = 0; i < GetTCount(); i++) {
 			const PPTransferItem & r_ti = ConstTI(i);
 			THROW(CheckGoodsForRestrictions((int)i, r_ti.GoodsID, TISIGN_UNDEF, r_ti.Qtty(), cgrfObject, 0));
@@ -1144,7 +1145,7 @@ int SLAPI PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 				goods_obj.GetSupplDeal(r_ti.GoodsID, qi, &sd, 1);
 				THROW_PP(!sd.IsDisabled, PPERR_GOODSRCPTDISABLED);
 				if(invp_act == PPSupplAgreement::invpaRestrict &&
-					(OprType == PPOPT_GOODSRECEIPT || (Rec.OpID == CConfig.DraftRcptOp && CConfig.Flags2 & CCFLG2_USESDONPURCHOP))) {
+					(OprType == PPOPT_GOODSRECEIPT || (Rec.OpID == r_ccfg.DraftRcptOp && r_ccfg.Flags2 & CCFLG2_USESDONPURCHOP))) {
 					THROW_PP_S(sd.CheckCost(r_ti.Cost), PPERR_SUPPLDEALVIOLATION, sd.Format(msg));
 				}
 			}
@@ -2717,14 +2718,15 @@ int SLAPI PPBillPacket::GetQuotExt(const PPTransferItem & rTi, double * pPrice)
 
 static void SLAPI AddSalesTax(PPTransferItem * pTI, double rate, int plus)
 {
-	if(!(CConfig.Flags & CCFLG_TGGLEXCSNPRICE) && !(pTI->Flags & PPTFR_PRICEWOTAXES)) {
+	const PPCommConfig & r_ccfg = CConfig;
+	if(!(r_ccfg.Flags & CCFLG_TGGLEXCSNPRICE) && !(pTI->Flags & PPTFR_PRICEWOTAXES)) {
 		double net_price_rate = 0.0;
 		if(pTI->Flags & PPTFR_ORDER)
 			net_price_rate = pTI->Price * rate;
 		else
 			net_price_rate = pTI->NetPrice() * rate;
 		double add_dis = 0.0;
-		if(!(CConfig.Flags & CCFLG_PRICEWOEXCISE))
+		if(!(r_ccfg.Flags & CCFLG_PRICEWOEXCISE))
 			plus = plus ? 0 : 1;
 		if(plus)
 			add_dis = net_price_rate / (100.0 + rate);
@@ -2777,9 +2779,10 @@ static void FASTCALL set_ti_dis(PPTransferItem * pTi, double d)
 void SLAPI PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 {
 	if(!oneof2(OprType, PPOPT_GOODSREVAL, PPOPT_CORRECTION)) {
+		const  PPCommConfig & r_ccfg = CConfig;
 		const  PPBillConfig & cfg = P_BObj->GetConfig();
 		const  int zero = BIN(dis == 0.0 && rmvexcise == 0);
-		const  int empty_toggle = BIN((CConfig.Flags & CCFLG_TGGLEXCSNPRICE) || (Rec.Flags & BILLF_TGGLEXCSNPRICE));
+		const  int empty_toggle = BIN((r_ccfg.Flags & CCFLG_TGGLEXCSNPRICE) || (Rec.Flags & BILLF_TGGLEXCSNPRICE));
 		uint   i;
 		PPTransferItem * ti;
 		uint   last_index = 0;
@@ -2922,9 +2925,9 @@ void SLAPI PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 			// так как является хорошо отлаженным и ошибки в нем могут привести к модификации
 			// сумм документов в базах данных задним числом.
 			//
-			const int  v3918_calc_method = (Rec.Dt <= CConfig._3918_TDisCalcMethodLockDate) ? 0 : 1;
-			const int  v405_calc_method  = (Rec.Dt <= CConfig._405_TDisCalcMethodLockDate) ? 0 : 1;
-			const int  v418_calc_method  = (Rec.Dt <= CConfig._418_TDisCalcMethodLockDate) ? 0 : 1;
+			const int  v3918_calc_method = (Rec.Dt <= r_ccfg._3918_TDisCalcMethodLockDate) ? 0 : 1;
+			const int  v405_calc_method  = (Rec.Dt <= r_ccfg._405_TDisCalcMethodLockDate) ? 0 : 1;
+			const int  v418_calc_method  = (Rec.Dt <= r_ccfg._418_TDisCalcMethodLockDate) ? 0 : 1;
 			for(i = 0; EnumTItems(&i, &ti);) {
 				if(!(ti->Flags & PPTFR_PCKG)) {
 					const  int skip_dis = 0;
@@ -3487,7 +3490,8 @@ int SLAPI PPBillPacket::CheckLargeBill(int genWarn)
 			is_max_items = 1;
 	}
 	else {
-		uint   max_items = (CConfig.MaxGoodsBillLines > 0) ? CConfig.MaxGoodsBillLines : 300;
+		const PPCommConfig & r_ccfg = CConfig;
+		const uint max_items = (r_ccfg.MaxGoodsBillLines > 0) ? r_ccfg.MaxGoodsBillLines : 300;
 		if(GetTCount() > max_items || (P_ACPack && P_ACPack->GetTCount() > max_items))
 			is_max_items = 1;
 	}

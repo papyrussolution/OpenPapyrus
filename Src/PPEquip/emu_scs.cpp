@@ -135,25 +135,25 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 
 			// —тавим кодовую таблицу CP-866
 			{
-				char cmd[3] = { AXIOHM_CMD_SETCHARTBL_BYTE1, AXIOHM_CMD_SETCHARTBL_BYTE2, AXIOHM_CMD_CODETABL_CP866_ID };
+				const char cmd[3] = { AXIOHM_CMD_SETCHARTBL_BYTE1, AXIOHM_CMD_SETCHARTBL_BYTE2, AXIOHM_CMD_CODETABL_CP866_ID };
 				THROW(WriteFile(h_port, cmd, sizeof(cmd), &sz, 0));
 			}
 
 			// ”становим меньшее рассто€ние между строками (специально дл€ евреев)
 			{
-				char cmd[3] = { AXIOHM_CMD_LINESPACE_BYTE1, AXIOHM_CMD_LINESPACE_BYTE2, 1 };
+				const char cmd[3] = { AXIOHM_CMD_LINESPACE_BYTE1, AXIOHM_CMD_LINESPACE_BYTE2, 1 };
 				THROW(WriteFile(h_port, cmd, sizeof(cmd), &sz, 0));
 			}
 
 			for(uint i = 0; i < pPrnLines->getCount(); i++) {
 				PrnLineStruc * p_prn_line = pPrnLines->at(i);
-				p_prn_line->PrnBuf.CatChar(AXIOHM_CMD_PRINTANDFEEDLINE);
-				THROW(WriteFile(h_port, p_prn_line->PrnBuf.ToOem(), p_prn_line->PrnBuf.Len(), &sz, 0));
+				p_prn_line->PrnBuf.CatChar(AXIOHM_CMD_PRINTANDFEEDLINE).Transf(CTRANSF_OUTER_TO_INNER);
+				THROW(WriteFile(h_port, p_prn_line->PrnBuf, p_prn_line->PrnBuf.Len(), &sz, 0));
 				sz = 0;
 			}
 			// ¬ конце шлем команду отрезки чека
 			{
-				char cmd = AXIOHM_CMD_FULLCUT;
+				const char cmd = AXIOHM_CMD_FULLCUT;
 				sz = 0;
 				THROW(WriteFile(h_port, &cmd, 1, &sz, 0));
 			}

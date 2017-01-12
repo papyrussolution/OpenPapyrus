@@ -262,7 +262,7 @@ int SLAPI PPCustDisp::ExecOper(int cmd, StrAssocArray & rIn, StrAssocArray & rOu
 		if(P_AbstrDvc->RunCmd__(DVCCMD_GETLASTERRORTEXT, rIn.Clear(), rOut.Clear()))
 			rOut.Get(0, err_msg);
 		if(err_msg.NotEmpty())
-			PPSetError(PPERR_CUSTDISP, err_msg.ToOem());
+			PPSetError(PPERR_CUSTDISP, err_msg.Transf(CTRANSF_OUTER_TO_INNER));
 		ok = 0;
 	}
 	return ok;

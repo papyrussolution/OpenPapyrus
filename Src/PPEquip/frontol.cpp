@@ -1123,7 +1123,7 @@ int SLAPI ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 						if(!goods_name.NotEmptyS())
 							(goods_name = 0).CatEq("ID", goods_id);
 						else
-							goods_name.ToOem();
+							goods_name.Transf(CTRANSF_OUTER_TO_INNER);
 						if(goods_obj.P_Tbl->SearchByArCode(0, arcode, 0, &goods_rec) > 0)
 							goods_id = goods_rec.ID;
 						else {

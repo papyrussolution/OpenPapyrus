@@ -832,20 +832,20 @@ SString & Helper_ClientBank2::MakeVatText(const PPBillPacket * pPack, SString & 
 	// @v9.0.2 PPGetWord(PPWORD_VAT, 1, rBuf).Space();
 	// @v9.0.2 {
 	PPLoadString("vat", rBuf);
-	rBuf.Transf(CTRANSF_INNER_TO_OUTER).Space();
+	rBuf.Space();
 	// } @v9.0.2
-	if(pPack->P_PaymOrder->VATSum > 0)
+	if(pPack->P_PaymOrder->VATSum > 0) {
 		if(pPack->P_PaymOrder->VATRate)
-			rBuf.Space().Cat(pPack->P_PaymOrder->VATRate).CatChar('%').
-				CatDiv('-', 1).Cat(pPack->P_PaymOrder->VATSum, SFMT_MONEY);
+			rBuf.Space().Cat(pPack->P_PaymOrder->VATRate).CatChar('%').CatDiv('-', 1).Cat(pPack->P_PaymOrder->VATSum, SFMT_MONEY);
 		else
 			rBuf.CatDiv('-', 1).Cat(pPack->P_PaymOrder->VATSum, SFMT_MONEY);
+	}
 	else {
 		SString n;
 		rBuf.CatDiv('-', 1).Cat(PPGetWord(PPWORD_NOTAX_VERB, 0, n));
-		rBuf = "НДС - не облагается";
+		(rBuf = "НДС - не облагается").Transf(CTRANSF_OUTER_TO_INNER);
 	}
-	return rBuf.ToOem();
+	return rBuf;
 }
 
 int SLAPI Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBillID, PPLogger * pLogger)

@@ -1,5 +1,5 @@
 // V_REPORT.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -385,7 +385,8 @@ int SLAPI PPViewReport::Init_(const PPBaseFilt * pFilt)
 	THROW_MEM(P_RptFile = new PPIniFile(temp_fname, 0, 0, 1));
 	THROW(P_StdRptFile->IsValid() && P_RptFile->IsValid());
 	{
-		int    codepage = 866;
+		//int    codepage = 866;
+		//SCodepage _cp = cp866;
 		ReportViewItemArray list;
 		ZDELETE(P_TempTbl);
 		THROW(P_TempTbl = CreateTempFile());
@@ -744,7 +745,7 @@ int SLAPI PPViewReport::CreateStdRptList(ReportViewItemArray * pList)
 {
 	int    ok = 1;
 	int    close_file = 0;
-	int    codepage = 866;
+	SCodepage _cp = cp866;
 	uint   i  = 0;
 	long   id = 0;
 	SString sect;
@@ -759,8 +760,12 @@ int SLAPI PPViewReport::CreateStdRptList(ReportViewItemArray * pList)
 	THROW(p_file->GetSections(&sections));
 	for(i = 0, id = 0; sections.get(&i, sect = 0) > 0; id++) {
 		if(sect.CmpNC(SystemSect) == 0) {
-			p_file->GetIntParam(sect, CodepageParam, &codepage);
-			SETIFZ(codepage, 866);
+			int    icp = 0;
+			p_file->GetIntParam(sect, CodepageParam, &icp);
+			if(icp == 1251)
+				_cp = cp1251;
+			else 
+				_cp = cp866;
 		}
 		else {
 			SString data, dt, descr;
@@ -780,7 +785,9 @@ int SLAPI PPViewReport::CreateStdRptList(ReportViewItemArray * pList)
 				sect.CopyTo(item.StdName, sizeof(item.StdName));
 				data.CopyTo(item.StrucName, sizeof(item.StrucName));
 				strtodate((const char*)dt, DATF_DMY, &item.ModifDt);
-				(codepage == 866 ? descr : descr.ToOem()).CopyTo(item.Descr, sizeof(item.Descr));
+				if(_cp == cp866)
+					descr.Transf(CTRANSF_OUTER_TO_INNER);
+				descr.CopyTo(item.Descr, sizeof(item.Descr));
 				item.Type = ReportFilt::rpttStandart;
 				THROW_SL(pList->insert(&item));
 			}
@@ -794,13 +801,12 @@ int SLAPI PPViewReport::CreateStdRptList(ReportViewItemArray * pList)
 
 int SLAPI PPViewReport::SplitLocalRptStr(PPIniFile * pFile, int codepage, SString & rSect, SString & rBuf, ReportViewItem * pItem)
 {
-	int ok = -1;
-	long id = 0;
+	int    ok = -1;
+	long   id = 0;
 	ReportViewItem item;
-	uint k = 0;
+	uint   k = 0;
 	SString par, val;
 	StringSet ss("=");
-
 	MEMSZERO(item);
 	THROW_PP(pFile, PPERR_INVPARAM);
 	ss.setBuf(rBuf, rBuf.Len() + 1);
@@ -815,7 +821,9 @@ int SLAPI PPViewReport::SplitLocalRptStr(PPIniFile * pFile, int codepage, SStrin
 		if(descr.Len()) {
 			item.ID = id + 1;
 			rSect.CopyTo(item.StdName, sizeof(item.StdName));
-			(codepage == 866 ? descr : descr.ToOem()).CopyTo(item.Descr, sizeof(item.Descr));
+			if(codepage == 866)
+				descr.Transf(CTRANSF_OUTER_TO_INNER);
+			descr.CopyTo(item.Descr, sizeof(item.Descr));
 			if(par.CmpNC("std")) {
 				par.CopyTo(item.Path, sizeof(item.Path));
 				item.Type = ReportFilt::rpttLocal;

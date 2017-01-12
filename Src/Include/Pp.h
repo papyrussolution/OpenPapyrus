@@ -291,6 +291,7 @@ class  PPSCardPacket;
 class  SCardTransmitPacket;
 class  PPWorkbookExporter;
 class  PPEgaisProcessor;
+struct AddrItemDescr;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -2644,6 +2645,8 @@ public:
 	static int FASTCALL SetColor(const SColor * pClr, SString & rItemBuf);
 	static int FASTCALL GetRestriction(const char * pItemString, SString & rRestrictionBuf);
 	static int FASTCALL GetColor(const char * pItemString, SColor & rClr);
+	static int FASTCALL SetRestrictionIdList(SString & rRestrictionBuf, const PPIDArray & rList);
+	static int FASTCALL GetRestrictionIdList(const SString & rRestrictionBuf, PPIDArray * pList);
 
 	SLAPI  TagFilt();
 	virtual int SLAPI IsEmpty() const;
@@ -2658,6 +2661,7 @@ public:
 private:
 	static int SLAPI ParseString(const char * pItemString, SString & rRestrictionBuf, SString & rColorBuf);
 	static int SLAPI MergeString(const char * pRestrictionString, const char * pColorString, SString & rItemBuf);
+	int   SLAPI Helper_CheckTagItemForRestrict_EnumID(const ObjTagItem * pItem, long restrictVal) const;
 };
 //
 //
@@ -21842,24 +21846,12 @@ public:
 //
 //
 //
-struct AddrItemDescr;
-
 class PPLocAddrStruc : public StrAssocArray {
 public:
 	struct _MatchEntry {
-		_MatchEntry(uint p1 = 0, uint p2 = 0, int reverse = 0)
-		{
-			P1 = p1;
-			P2 = p2;
-			Reverse = reverse;
-		}
-		_MatchEntry(const _MatchEntry & rS)
-		{
-			P1 = rS.P1;
-			P2 = rS.P2;
-			Reverse = rS.Reverse;
-			CityStreetList = rS.CityStreetList;
-		}
+		SLAPI  _MatchEntry(uint p1 = 0, uint p2 = 0, int reverse = 0);
+		SLAPI  _MatchEntry(const _MatchEntry & rS);
+
 		uint   P1;
 		uint   P2;
 		int    Reverse;
@@ -28161,7 +28153,8 @@ struct PPBhtTerminalPacket {
 	PPBhtTerminal Rec;
 	GoodsFilt * P_Filt;
 	StyloBhtIIOnHostCfg * P_SBIICfg;
-	char   ImpExpPath[256];
+	//char   ImpExpPath_[256];
+	SString ImpExpPath_;
 };
 
 class PPObjBHT : public PPObjReference {
@@ -28189,7 +28182,6 @@ public:
 	struct InventRec {
 		PPID   ID;
 		LDATE  Dt;
-		//char  Guid[40];
 		S_GUID Uuid;
 		char   Code[32];
 	};
@@ -28219,7 +28211,7 @@ public:
 	int    SLAPI AcceptBill(PPObjBHT::BillRec * pRec, PPBasketPacket * pGBPack, PPID * pAltGrpID);
 	int    SLAPI AcceptBillLine(PPID billID, PPObjBHT::BillLineRec * pRec, PPBasketPacket * pGBPack, PPID * pAltGrpID);
 	int    SLAPI AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl::Rec * pInvRec, PPLogger * pLogger);
-	int    SLAPI PrepareBillData(PPBhtTerminalPacket * pPack, int uniteGoods = 1);
+	// @v9.4.9 int    SLAPI PrepareBillData(PPBhtTerminalPacket * pPack, int uniteGoods = 1);
 	int    SLAPI PrepareBillData2(PPBhtTerminalPacket * pPack, PPIDArray * pGoodsList, int uniteGoods = 1);
 	int    SLAPI PrepareBillRowCellData(PPBhtTerminalPacket * pPack, PPID billID);
 	int    SLAPI PrepareLocCellData(PPBhtTerminalPacket * pPack);

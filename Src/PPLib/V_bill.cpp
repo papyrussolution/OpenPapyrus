@@ -6081,7 +6081,8 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId, long rsrv)
 	// 2. Каждая из строк, включенных в объединенную, обсчитываются порознь, а результат складывается.
 	//
 	int   merge_line_tax_alg = 1;
-	if(checkdate(CConfig._InvcMergeTaxCalcAlg2Since, 0) && p_pack->Rec.Dt >= CConfig._InvcMergeTaxCalcAlg2Since) {
+	const PPCommConfig & r_ccfg = CConfig;
+	if(checkdate(r_ccfg._InvcMergeTaxCalcAlg2Since, 0) && p_pack->Rec.Dt >= r_ccfg._InvcMergeTaxCalcAlg2Since) {
 		merge_line_tax_alg = 2;
 	}
 	//
@@ -7580,6 +7581,7 @@ PPALDD_DESTRUCTOR(CashOrder)
 int PPALDD_CashOrder::InitData(PPFilt & rFilt, long rsrv)
 {
 	PPObjBill * p_bobj = BillObj;
+	const  PPCommConfig & r_ccfg = CConfig;
 	uint   pos;
 	Acct   corr_acct;
 	PPBillPacket * pack = (PPBillPacket *)rFilt.Ptr;
@@ -7594,10 +7596,10 @@ int PPALDD_CashOrder::InitData(PPFilt & rFilt, long rsrv)
 	H.ArticleID = pack->Rec.Object;
 	H.Article2ID = pack->Rec.Object2;
 	H.Amount     = fabs(pack->GetAmount());
-	if(p_bobj->atobj->SearchAccturnInPacketByCorrAcc(pack, PPDEBIT, CConfig.CashAcct.ac, &corr_acct, &pos) ||
-		p_bobj->atobj->SearchAccturnInPacketByCorrAcc(pack, PPCREDIT, CConfig.CashAcct.ac, &corr_acct, &pos)) {
-		H.CashAc = CConfig.CashAcct.ac;
-		H.CashSb = CConfig.CashAcct.sb;
+	if(p_bobj->atobj->SearchAccturnInPacketByCorrAcc(pack, PPDEBIT, r_ccfg.CashAcct.ac, &corr_acct, &pos) ||
+		p_bobj->atobj->SearchAccturnInPacketByCorrAcc(pack, PPCREDIT, r_ccfg.CashAcct.ac, &corr_acct, &pos)) {
+		H.CashAc = r_ccfg.CashAcct.ac;
+		H.CashSb = r_ccfg.CashAcct.sb;
 		H.Ac = corr_acct.ac;
 		H.Sb = corr_acct.sb;
 		H.Ar = corr_acct.ar;

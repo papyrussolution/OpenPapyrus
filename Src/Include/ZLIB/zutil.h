@@ -217,32 +217,29 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
 
 /* Diagnostic functions */
 #ifdef DEBUG
-#  include <stdio.h>
+	#include <stdio.h>
    extern int ZLIB_INTERNAL z_verbose;
    extern void ZLIB_INTERNAL z_error OF((char *m));
-#  define Assert(cond,msg) {if(!(cond)) z_error(msg);}
-#  define Trace(x) {if (z_verbose>=0) fprintf x ;}
-#  define Tracev(x) {if (z_verbose>0) fprintf x ;}
-#  define Tracevv(x) {if (z_verbose>1) fprintf x ;}
-#  define Tracec(c,x) {if (z_verbose>0 && (c)) fprintf x ;}
-#  define Tracecv(c,x) {if (z_verbose>1 && (c)) fprintf x ;}
+	#define Assert(cond,msg) {if(!(cond)) z_error(msg);}
+	#define Trace(x) {if (z_verbose>=0) fprintf x ;}
+	#define Tracev(x) {if (z_verbose>0) fprintf x ;}
+	#define Tracevv(x) {if (z_verbose>1) fprintf x ;}
+	#define Tracec(c,x) {if (z_verbose>0 && (c)) fprintf x ;}
+	#define Tracecv(c,x) {if (z_verbose>1 && (c)) fprintf x ;}
 #else
-#  define Assert(cond,msg)
-#  define Trace(x)
-#  define Tracev(x)
-#  define Tracevv(x)
-#  define Tracec(c,x)
-#  define Tracecv(c,x)
+	#define Assert(cond,msg)
+	#define Trace(x)
+	#define Tracev(x)
+	#define Tracevv(x)
+	#define Tracec(c,x)
+	#define Tracecv(c,x)
 #endif
 
 #ifndef Z_SOLO
-   voidpf ZLIB_INTERNAL zcalloc OF((voidpf opaque, unsigned items,
-                                    unsigned size));
+   voidpf ZLIB_INTERNAL zcalloc OF((voidpf opaque, unsigned items, unsigned size));
    void ZLIB_INTERNAL zcfree  OF((voidpf opaque, voidpf ptr));
 #endif
-
-#define ZALLOC(strm, items, size) \
-           (*((strm)->zalloc))((strm)->opaque, (items), (size))
+#define ZALLOC(strm, items, size) (*((strm)->zalloc))((strm)->opaque, (items), (size))
 #define ZFREE(strm, addr)  (*((strm)->zfree))((strm)->opaque, (voidpf)(addr))
 #define TRY_FREE(s, p) {if (p) ZFREE(s, p);}
 

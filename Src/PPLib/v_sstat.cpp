@@ -1,5 +1,5 @@
 // V_SSTAT.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Starodub, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1434,7 +1434,7 @@ int SLAPI PPViewSStat::CreatePurchaseBill(LDATE docDt, int autoOrder, PPBillPack
 					ti.Quantity_   = fabs(ss_item.SupplOrder);
 					ti.Cost        = R5(lot_rec.Cost);
 					if(suppl_deal_qk_id && pPack->Rec.Object) {
-						QuotIdent qic(pPack->Rec.LocID, suppl_deal_qk_id, 0, pPack->Rec.Object);
+						const QuotIdent qic(pPack->Rec.LocID, suppl_deal_qk_id, 0, pPack->Rec.Object);
 						double c = 0.0;
 						if(GObj.GetQuotExt(goods_id, qic, lot_rec.Cost, lot_rec.Price, &c, 1) > 0 && c > 0.0)
 							ti.Cost = R5(c);

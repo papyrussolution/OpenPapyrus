@@ -1,5 +1,5 @@
 // DL200PRS.CPP
-// Copyrigh (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2009, 2012, 2013, 2015, 2016
+// Copyrigh (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2009, 2012, 2013, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -532,6 +532,7 @@ long SLAPI DL2_Resolver::GetCurArticle() const
 int SLAPI DL2_Resolver::ResolveName(const char * pExpression, SString & rName)
 {
 	int    ok = 1;
+	const  PPCommConfig & r_ccfg = CConfig;
 	uint   pos = 0;
 	long   id = -1;
 	SString buf;
@@ -543,13 +544,13 @@ int SLAPI DL2_Resolver::ResolveName(const char * pExpression, SString & rName)
 			rName = GetMainOrgName(rName);
 			break;
 		case PPDL200_NAMEVAR_MAINORGADDR:
-			PsnObj.GetAddress(CConfig.MainOrgID, rName);
+			PsnObj.GetAddress(r_ccfg.MainOrgID, rName);
 			break;
 		case PPDL200_NAMEVAR_MAINORGINN:
 		case PPDL200_NAMEVAR_MAINORGOKPO:
 			{
 				PersonReq psn_req;
-				PsnObj.GetPersonReq(CConfig.MainOrgID, &psn_req);
+				PsnObj.GetPersonReq(r_ccfg.MainOrgID, &psn_req);
 				if(id == PPDL200_NAMEVAR_MAINORGINN)
 					rName.CopyFrom(psn_req.TPID);
 				else
@@ -559,13 +560,13 @@ int SLAPI DL2_Resolver::ResolveName(const char * pExpression, SString & rName)
 		case PPDL200_NAMEVAR_DIRECTOR:
 			{
 				DS.GetTLA().InitMainOrgData(0); // @v8.6.1
-				GetPersonName(CConfig.MainOrgDirector_, rName);
+				GetPersonName(r_ccfg.MainOrgDirector_, rName);
 			}
 			break;
 		case PPDL200_NAMEVAR_ACCOUNTANT:
 			{
 				DS.GetTLA().InitMainOrgData(0); // @v8.6.1
-				GetPersonName(CConfig.MainOrgAccountant_, rName);
+				GetPersonName(r_ccfg.MainOrgAccountant_, rName);
 			}
 			break;
 		case PPDL200_NAMEVAR_DBNAME:

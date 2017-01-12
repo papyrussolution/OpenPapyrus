@@ -36,41 +36,42 @@
 extern "C" {
 #endif /* __cplusplus */
 
-struct ZintRenderLine : public FPoint {
-	float length;
-	float width;
-	ZintRenderLine * next; /* Pointer to next line */
+struct zint_render_line {
+	float x, y, length, width;
+	struct zint_render_line * next; /* Pointer to next line */
 };
 
-struct ZintRenderString : public FPoint {
-	float fsize;
-	float width; // Suggested string width, may be 0 if none recommended
-	int   length;
+struct zint_render_string {
+	float x, y, fsize;
+	float width; /* Suggested string width, may be 0 if none recommended */
+	int length;
 	uchar * text;
-	ZintRenderString * next; // Pointer to next character
+	struct zint_render_string * next; /* Pointer to next character */
 };
 
-struct ZintRenderRing : public FPoint {
-	float  radius;
-	float  line_width;
-	ZintRenderRing * next; // Pointer to next ring
+struct zint_render_ring {
+	float x, y, radius, line_width;
+	struct zint_render_ring * next; /* Pointer to next ring */
 };
 
-struct ZintRenderHexagon : public FPoint {
-	ZintRenderHexagon * next; // Pointer to next hexagon
+struct zint_render_hexagon {
+	float x, y;
+	struct zint_render_hexagon * next; /* Pointer to next hexagon */
 };
 
-struct ZintRender : public FPoint {
-	// X - width
-	// Y - height
-	ZintRenderLine    * lines;    // Pointer to first line
-	ZintRenderString  * strings;  // Pointer to first string
-	ZintRenderRing    * rings;    // Pointer to first ring
-	ZintRenderHexagon * hexagons; // Pointer to first hexagon
+struct zint_render {
+	float width, height;
+	struct zint_render_line * lines; /* Pointer to first line */
+
+	struct zint_render_string * strings; /* Pointer to first string */
+
+	struct zint_render_ring * rings; /* Pointer to first ring */
+
+	struct zint_render_hexagon * hexagons; /* Pointer to first hexagon */
 };
 
 struct ZintSymbol {
-	int    Std;               // BARCODE_XXX
+	int    Std;
 	int    height;
 	int    whitespace_width;
 	int    border_width;
@@ -84,21 +85,27 @@ struct ZintSymbol {
 	int    option_3;
 	int    show_hrt;
 	int    input_mode;
-	uchar  text[128];
+	int    eci;
+	uchar text[128];
 	int    rows;
 	int    width;
 	char   primary[128];
-	uchar  encoded_data[178][143];
-	int    row_height[178];   // Largest symbol is 177x177 QR Code
+	uchar encoded_data[200][143];
+	int    row_height[200]; /* Largest symbol is 189 x 189 Han Xin */
 	char   errtxt[100];
-	char * P_Bitmap;
+	char * bitmap;
 	int    bitmap_width;
 	int    bitmap_height;
-	ZintRender * rendered;
+	uint bitmap_byte_length;
+	float  dot_size;
+	struct zint_render * rendered;
 };
-//
-// Tbarcode 7 codes
-//
+
+#define ZINT_VERSION_MAJOR      2
+#define ZINT_VERSION_MINOR      5
+#define ZINT_VERSION_RELEASE    1
+
+/* Tbarcode 7 codes */
 #define BARCODE_CODE11          1
 #define BARCODE_C25MATRIX       2
 #define BARCODE_C25INTER        3
@@ -108,6 +115,7 @@ struct ZintSymbol {
 #define BARCODE_CODE39          8
 #define BARCODE_EXCODE39        9
 #define BARCODE_EANX            13
+#define BARCODE_EANX_CHK        14
 #define BARCODE_EAN128          16
 #define BARCODE_CODABAR         18
 #define BARCODE_CODE128         20
@@ -122,7 +130,9 @@ struct ZintSymbol {
 #define BARCODE_RSS_EXP         31
 #define BARCODE_TELEPEN         32
 #define BARCODE_UPCA            34
+#define BARCODE_UPCA_CHK        35
 #define BARCODE_UPCE            37
+#define BARCODE_UPCE_CHK        38
 #define BARCODE_POSTNET         40
 #define BARCODE_MSI_PLESSEY     47
 #define BARCODE_FIM             49
@@ -154,18 +164,16 @@ struct ZintSymbol {
 #define BARCODE_MICROPDF417     84
 #define BARCODE_ONECODE         85
 #define BARCODE_PLESSEY         86
-//
-// Tbarcode 8 codes
-//
+
+/* Tbarcode 8 codes */
 #define BARCODE_TELEPEN_NUM     87
 #define BARCODE_ITF14           89
 #define BARCODE_KIX             90
 #define BARCODE_AZTEC           92
 #define BARCODE_DAFT            93
 #define BARCODE_MICROQR         97
-//
-// Tbarcode 9 codes
-//
+
+/* Tbarcode 9 codes */
 #define BARCODE_HIBC_128        98
 #define BARCODE_HIBC_39         99
 #define BARCODE_HIBC_DM         102
@@ -174,9 +182,12 @@ struct ZintSymbol {
 #define BARCODE_HIBC_MICPDF     108
 #define BARCODE_HIBC_BLOCKF     110
 #define BARCODE_HIBC_AZTEC      112
-//
-// Zint specific
-//
+
+/* Tbarcode 10 codes */
+#define BARCODE_DOTCODE         115
+#define BARCODE_HANXIN          116
+
+/* Zint specific */
 #define BARCODE_AZRUNE          128
 #define BARCODE_CODE32          129
 #define BARCODE_EANX_CC         130
@@ -193,44 +204,75 @@ struct ZintSymbol {
 #define BARCODE_CODEONE         141
 #define BARCODE_GRIDMATRIX      142
 
+// Output options
 #define BARCODE_NO_ASCII        1
 #define BARCODE_BIND            2
 #define BARCODE_BOX             4
 #define BARCODE_STDOUT          8
 #define READER_INIT             16
 #define SMALL_TEXT              32
+#define BOLD_TEXT               64
+#define CMYK_COLOUR             128
+#define BARCODE_DOTTY_MODE      256
 
+// Input data types
 #define DATA_MODE       0
 #define UNICODE_MODE    1
 #define GS1_MODE        2
 #define KANJI_MODE      3
 #define SJIS_MODE       4
 
+// Data Matrix specific options
 #define DM_SQUARE       100
-#define DM_DMRE 101
+#define DM_DMRE         101
 
+// Warning and error conditions
 #define ZINT_WARN_INVALID_OPTION        2
+#define ZINT_WARN_USES_ECI              3
 #define ZINT_ERROR_TOO_LONG             5
-#define ZINT_ERROR_INVALID_DATA 6
+#define ZINT_ERROR_INVALID_DATA         6
 #define ZINT_ERROR_INVALID_CHECK        7
 #define ZINT_ERROR_INVALID_OPTION       8
 #define ZINT_ERROR_ENCODING_PROBLEM     9
-#define ZINT_ERROR_FILE_ACCESS  10
+#define ZINT_ERROR_FILE_ACCESS          10
 #define ZINT_ERROR_MEMORY               11
 
-ZintSymbol * ZBarcode_Create();
-void ZBarcode_Clear(ZintSymbol * symbol);
-void ZBarcode_Delete(ZintSymbol * symbol);
-int ZBarcode_Encode(ZintSymbol * symbol, const uchar * input, int length);
-int ZBarcode_Encode_File(ZintSymbol * symbol, const char * filename);
-int ZBarcode_Print(ZintSymbol * symbol, int rotate_angle);
-int ZBarcode_Encode_and_Print(ZintSymbol * symbol, const uchar * input, int length, int rotate_angle);
-int ZBarcode_Encode_File_and_Print(ZintSymbol * symbol, char * filename, int rotate_angle);
-int ZBarcode_Render(ZintSymbol * symbol, const float width, const float height);
-int ZBarcode_Buffer(ZintSymbol * symbol, int rotate_angle);
-int ZBarcode_Encode_and_Buffer(ZintSymbol * symbol, const uchar * input, int length, int rotate_angle);
-int ZBarcode_Encode_File_and_Buffer(ZintSymbol * symbol, char * filename, int rotate_angle);
-int ZBarcode_ValidID(int symbol_id);
+// Raster file types
+#define OUT_BUFFER          0
+#define OUT_PNG_FILE        100
+#define OUT_BMP_FILE        120
+#define OUT_GIF_FILE        140
+#define OUT_PCX_FILE        160
+
+#if defined(__WIN32__) || defined(_WIN32) || defined(WIN32) || defined(_MSC_VER)
+#if defined (DLL_EXPORT) || defined(PIC) || defined(_USRDLL)
+#define ZINT_EXTERN __declspec(dllexport)
+#elif defined(ZINT_DLL)
+#define ZINT_EXTERN __declspec(dllimport)
+#else
+#define ZINT_EXTERN extern
+#endif
+#else
+#define ZINT_EXTERN extern
+#endif
+
+ZINT_EXTERN struct ZintSymbol * ZBarcode_Create(void);
+ZINT_EXTERN void ZBarcode_Clear(struct ZintSymbol * symbol);
+ZINT_EXTERN void ZBarcode_Delete(struct ZintSymbol * symbol);
+
+ZINT_EXTERN int ZBarcode_Encode(struct ZintSymbol * symbol, const uchar * input, int length);
+ZINT_EXTERN int ZBarcode_Encode_File(struct ZintSymbol * symbol, char * filename);
+ZINT_EXTERN int ZBarcode_Print(struct ZintSymbol * symbol, int rotate_angle);
+ZINT_EXTERN int ZBarcode_Encode_and_Print(struct ZintSymbol * symbol, uchar * input, int length, int rotate_angle);
+ZINT_EXTERN int ZBarcode_Encode_File_and_Print(struct ZintSymbol * symbol, char * filename, int rotate_angle);
+
+ZINT_EXTERN int ZBarcode_Render(struct ZintSymbol * symbol, const float width, const float height);
+
+ZINT_EXTERN int ZBarcode_Buffer(struct ZintSymbol * symbol, int rotate_angle);
+ZINT_EXTERN int ZBarcode_Encode_and_Buffer(struct ZintSymbol * symbol, uchar * input, int length, int rotate_angle);
+ZINT_EXTERN int ZBarcode_Encode_File_and_Buffer(struct ZintSymbol * symbol, char * filename, int rotate_angle);
+
+ZINT_EXTERN int ZBarcode_ValidID(int symbol_id);
 
 #ifdef __cplusplus
 }

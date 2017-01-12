@@ -47,6 +47,9 @@
 // replaced with constants in the obvious way, and additionally
 // malloc/free can be avoided by using static arrays of a suitable
 // size.
+
+//#include <stdio.h>              // only needed for debug (main)
+//#include <stdlib.h>             // only needed for malloc/free
 #include "common.h"
 #include "reedsol.h"
 static int logmod; // 2**symsize - 1
@@ -72,12 +75,10 @@ void rs_init_gf(const int poly)
 		m++;
 	b >>= 1;
 	m--;
-
 	// Calculate the log/alog tables
 	logmod = (1 << m) - 1;
 	logt = (int*)malloc(sizeof(int) * (logmod + 1));
 	alog = (int*)malloc(sizeof(int) * logmod);
-
 	for(p = 1, v = 0; v < logmod; v++) {
 		alog[v] = p;
 		logt[p] = v;
@@ -94,13 +95,11 @@ void rs_init_gf(const int poly)
 // (x + 2**i)*(x + 2**(i+1))*...   [nsym terms]
 // For ECC200, index is 1.
 
-void rs_init_code(const int nsym, int index) {
+void rs_init_code(const int nsym, int index)
+{
 	int i, k;
-
 	rspoly = (int*)malloc(sizeof(int) * (nsym + 1));
-
 	rlen = nsym;
-
 	rspoly[0] = 1;
 	for(i = 1; i <= nsym; i++) {
 		rspoly[i] = 1;
@@ -114,7 +113,8 @@ void rs_init_code(const int nsym, int index) {
 	}
 }
 
-void rs_encode(const int len, const uchar * data, uchar * res) {
+void rs_encode(const int len, const uchar * data, uchar * res)
+{
 	int i, k, m;
 	for(i = 0; i < rlen; i++)
 		res[i] = 0;
@@ -132,10 +132,9 @@ void rs_encode(const int len, const uchar * data, uchar * res) {
 			res[0] = 0;
 	}
 }
-/* 
-	The same as above but for larger bitlengths - Aztec code compatible 
-*/
-void rs_encode_long(const int len, const uint * data, uint * res) 
+
+/* The same as above but for larger bitlengths - Aztec code compatible */
+void rs_encode_long(const int len, const uint * data, uint * res)
 {
 	int i, k, m;
 	for(i = 0; i < rlen; i++)
@@ -155,7 +154,8 @@ void rs_encode_long(const int len, const uint * data, uint * res)
 	}
 }
 
-void rs_free() 
+/* Free memory */
+void rs_free(void)
 {
 	free(logt);
 	free(alog);

@@ -907,6 +907,7 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 					if(sdc_param.PageWidth > 36)
 						out_buf.CatCharN('\t', 2).Cat("PageWidthOverflow").CatDiv(':', 2).Cat(sdc_param.PageWidth).CatChar('>').Cat(36).CR();
 					for(p_formatter->InitIteration(pPack); p_formatter->NextIteration(line_buf, &sl_param) > 0;) {
+						line_buf.Transf(CTRANSF_OUTER_TO_INNER);
 						if(sl_param.Flags & SlipLineParam::fRegFiscal) {
 							double _q = sl_param.Qtty;
 							double _p = sl_param.Price;
@@ -915,10 +916,10 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 							out_buf.CatCharN('\t', 2).CatEq("Quantity", _q, MKSFMTD(0, 20, NMBF_NOTRAILZ)).CatChar('\t').
 								CatEq("Price", _p, MKSFMTD(0, 20, NMBF_NOTRAILZ)).CatChar('\t').
 								CatEq("RunningTotal", running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).CatChar('\t').
-								CatEq("Line", line_buf.ToOem()).CR();
+								CatEq("Line", line_buf).CR();
 						}
 						else {
-							out_buf.CatCharN('\t', 2).CatEq("Line", line_buf.ToOem()).CR();
+							out_buf.CatCharN('\t', 2).CatEq("Line", line_buf).CR();
 						}
 					}
 					if(prn_total_sale) {

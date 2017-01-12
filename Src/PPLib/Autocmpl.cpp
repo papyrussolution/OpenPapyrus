@@ -1,5 +1,5 @@
 // AUTOCMPL.CPP
-// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2016
+// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2016, 2017
 // @codepage windows-1251
 // Автоматическая комплектация //
 //
@@ -1159,12 +1159,13 @@ int SLAPI PPBillPacket::InitACPacket()
 {
 	int    ok = 1;
 	PPOprKind op_rec;
-	THROW_PP(CConfig.AutoComplOp, PPERR_UNDEFAUTOCOMPLOP);
-	THROW_PP(GetOpData(CConfig.AutoComplOp, &op_rec) > 0, PPERR_UNDEFAUTOCOMPLOP);
+	const PPCommConfig & r_ccfg = CConfig;
+	THROW_PP(r_ccfg.AutoComplOp, PPERR_UNDEFAUTOCOMPLOP);
+	THROW_PP(GetOpData(r_ccfg.AutoComplOp, &op_rec) > 0, PPERR_UNDEFAUTOCOMPLOP);
 	THROW_PP(op_rec.OpTypeID == PPOPT_GOODSMODIF, PPERR_INVAUTOCOMPLOP);
 	ZDELETE(P_ACPack);
 	THROW_MEM(P_ACPack = new PPBillPacket);
-	THROW(P_ACPack->CreateBlank(CConfig.AutoComplOp, 0, Rec.LocID, 1));
+	THROW(P_ACPack->CreateBlank(r_ccfg.AutoComplOp, 0, Rec.LocID, 1));
 	P_ACPack->Rec.Dt    = Rec.Dt;
 	P_ACPack->Rec.LocID = Rec.LocID;
 	P_ACPack->P_Outer   = this;

@@ -8954,12 +8954,12 @@ int SCardInfoDialog::SetupMode(long mode, int force)
 				SString columns_buf, text, temp_buf;
 				if(Mode == modeCheckView) {
 					setButtonText(cmCheckOpSwitch, OperationsText);
-					setLabelText(CTL_SCARDVIEW_LIST, (text = ChecksText).ToOem());
+					setLabelText(CTL_SCARDVIEW_LIST, (text = ChecksText).Transf(CTRANSF_OUTER_TO_INNER));
 					columns_buf = "@lbt_scardcheck";
 				}
 				else if(Mode == modeOpView) {
 					setButtonText(cmCheckOpSwitch, ChecksText);
-					setLabelText(CTL_SCARDVIEW_LIST, (text = OperationsText).ToOem());
+					setLabelText(CTL_SCARDVIEW_LIST, (text = OperationsText).Transf(CTRANSF_OUTER_TO_INNER));
 					columns_buf = "@lbt_scardop";
 				}
 				else if(Mode == modeSelectByOwner) {
@@ -8973,7 +8973,7 @@ int SCardInfoDialog::SetupMode(long mode, int force)
 					columns_buf = "@lbt_selscardbyowner";
 				}
 				else if(Mode == modeMovCrd) {
-					// @v8.5.10 (temp_buf = "Перенос остатков с карт...").ToOem();
+					// @v8.5.10 (temp_buf = "Перенос остатков с карт...").Transf(CTRANSF_OUTER_TO_INNER);
 					PPLoadText(PPTXT_MOVSCARDREST, temp_buf); // @v8.5.10
 					setLabelText(CTL_SCARDVIEW_LIST, temp_buf);
 					columns_buf = "@lbt_scardmovlist";

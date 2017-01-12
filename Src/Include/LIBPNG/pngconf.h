@@ -41,18 +41,16 @@
  */
 
 #ifdef PNG_STDIO_SUPPORTED
-/* Required for the definition of FILE: */
-#  include <stdio.h>
+	/* Required for the definition of FILE: */
+	#include <stdio.h>
 #endif
-
 #ifdef PNG_SETJMP_SUPPORTED
 /* Required for the definition of jmp_buf and the declaration of longjmp: */
-#  include <setjmp.h>
+	#include <setjmp.h>
 #endif
-
 #ifdef PNG_CONVERT_tIME_SUPPORTED
 /* Required for struct tm: */
-#  include <time.h>
+	#include <time.h>
 #endif
 
 #endif /* PNG_BUILDING_SYMBOL_TABLE */

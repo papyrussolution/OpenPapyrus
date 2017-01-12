@@ -882,7 +882,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 					if(Cfg.DeviceID)
 						THROW(bht_obj.GetPacket(Cfg.DeviceID, &BhtPack) > 0);
 					THROW(BhtPack.P_SBIICfg && BhtPack.P_SBIICfg->IsValid());
-					(DeviceDir = BhtPack.ImpExpPath).SetLastSlash().Transf(CTRANSF_INNER_TO_OUTER);
+					(DeviceDir = BhtPack.ImpExpPath_).SetLastSlash().Transf(CTRANSF_INNER_TO_OUTER);
 					r = 1;
 				}
 				break;

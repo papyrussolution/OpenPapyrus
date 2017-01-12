@@ -1,5 +1,5 @@
 // SCOMPORT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2006, 2010, 2011, 2013, 2014, 2016
+// Copyright (c) A.Sobolev 2001, 2002, 2006, 2010, 2011, 2013, 2014, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -170,13 +170,13 @@ int SLAPI SCommPort::SetTimeouts(const CommPortTimeouts * pParam)
 
 static void __OutLastErr()
 {
-	DWORD  last_err = GetLastError();
-	LPVOID lpMsgBuf;
+	const  DWORD last_err = GetLastError();
+	LPVOID p_msg_buf;
 	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
 		FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(),
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, NULL);
-	MessageBox(NULL, (LPCTSTR)lpMsgBuf, "Error", MB_OK | MB_ICONINFORMATION);
-	LocalFree(lpMsgBuf);
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &p_msg_buf, 0, NULL);
+	::MessageBox(NULL, (LPCTSTR)p_msg_buf, "Error", MB_OK | MB_ICONINFORMATION);
+	LocalFree(p_msg_buf);
 }
 
 int SLAPI SCommPort::InitPort(int portNo)

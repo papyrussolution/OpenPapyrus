@@ -1278,8 +1278,7 @@ int Lst2LstObjDialog::removeAll()
 int SLAPI ListToListDialog(ListToListData * pData)
 {
 	int    r;
-	Lst2LstObjDialog * dlg = new Lst2LstObjDialog(
-		(pData && (pData->Flags & ListToListData::fIsTreeList)) ? DLG_TLST2TLST : DLG_LST2LST, pData);
+	Lst2LstObjDialog * dlg = new Lst2LstObjDialog((pData && (pData->Flags & ListToListData::fIsTreeList)) ? DLG_TLST2TLST : DLG_LST2LST, pData);
 	if(CheckDialogPtr(&dlg)) {
 		if((r = ExecView(dlg)) == cmOK)
 			if(!dlg->getDTS(pData->P_List))
@@ -2308,7 +2307,7 @@ void BarcodeSrchDialog::setChkDig()
 {
 	SString buf;
 	getCtrlString(CTL_SRCHBCODE_CODE, buf);
-	int    cd = CalcBarcodeCheckDigit(buf);
+	const int cd = CalcBarcodeCheckDigit(buf);
 	setCtrlString(CTL_SRCHBCODE_CHKDIG, (buf = 0).Cat(cd));
 }
 
@@ -2394,8 +2393,7 @@ ListBoxSelDlg::ListBoxSelDlg(ListBoxDef * pDef, uint dlgID /*=0*/) :
 // AHTOXA {
 int ListBoxSelDlg::setupList()
 {
-	if(P_Box)
-		P_Box->setDef(P_Def);
+	CALLPTRMEMB(P_Box, setDef(P_Def));
 	return 1;
 }
 

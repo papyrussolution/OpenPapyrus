@@ -97,7 +97,7 @@ static char * SLAPI EncodeEAN8(const char * pCode, char * pBuf)
 {
 	size_t p = 0;
 	pBuf[p++] = 'x';
-	for(size_t i = 0; i < 8; i++)
+	for(size_t i = 0; i < 8; i++) {
 		if(i <= 3) {
 			pBuf[p++] = pCode[i];
 			if(i == 3)
@@ -105,6 +105,7 @@ static char * SLAPI EncodeEAN8(const char * pCode, char * pBuf)
 		}
 		else if(i >= 4 && i <= 7)
 			pBuf[p++] = 'a' + (pCode[i]-'0');
+	}
 	pBuf[p++] = 'x';
 	pBuf[p] = 0;
 	return pBuf;
@@ -385,9 +386,7 @@ static int SLAPI BarcodeList(BarcodeArray * pCodes, int * pSelection)
 				}
 				ok = 1;
 			}
-			CATCH
-				ok = 0;
-			ENDCATCH
+			CATCHZOK
 			return ok;
 		}
 		BarcodeArray * P_BCodesList;
@@ -1400,7 +1399,7 @@ public:
 	{
 		QuotKindsAry = rQuotKinds;
 	}
-	void   UpdateList(QuotIdent * pIdent, double lastCost, double lastPrice);
+	void   UpdateList(const QuotIdent & rIdent, double lastCost, double lastPrice);
 private:
 	virtual int  setupList();
 	virtual int  editItem(long pos, long id);
@@ -1416,9 +1415,9 @@ private:
 	double LastPrice;
 };
 
-void QuotListDialog::UpdateList(QuotIdent * pIdent, double lastCost, double lastPrice)
+void QuotListDialog::UpdateList(const QuotIdent & rIdent, double lastCost, double lastPrice)
 {
-	QIdent    = *pIdent;
+	QIdent    = rIdent;
 	LastCost  = lastCost;
 	LastPrice = lastPrice;
 	updateList(-1);
@@ -1879,18 +1878,19 @@ int QuotationDialog::SetupMatrixLocEntry(const StrAssocArray::Item & rItem, Smar
 	ss.add(buf);
 
 	PPQuot quot;
-	QuotIdent qi(loc_id, Kinds[0], SelCurID, SelArticleID);
+	const QuotIdent qi(loc_id, Kinds[0], SelCurID, SelArticleID);
 	Data.GetQuot(qi, &quot);
 	buf = 0;
 	const double _q = round(quot.Quot, 0);
-	if(_q != 0.0)
+	if(_q != 0.0) {
 		if(Cls == PPQuot::clsMtx) {
 			PPLoadString((_q < 0.0) ? "no" : "yes", buf);
 		}
 		else
 			buf.Cat((long)quot.Quot);
+	}
 	else if(Cls == PPQuot::clsMtx) {
-		QuotIdent qi(loc_id, Kinds[0], SelCurID, SelArticleID);
+		// @v9.4.9 QuotIdent qi(loc_id, Kinds[0], SelCurID, SelArticleID);
 		int    r = 0;
 		double result = 0.0;
 		Goods2Tbl::Rec goods_rec;
@@ -2017,7 +2017,7 @@ IMPL_HANDLE_EVENT(QuotationDialog)
 				if(p_box && p_box->def && p_box->getCurID(&i) && i > 0 && i <= (long)Data.getCount()) {
 					PPQuot quot = Data.at(i-1); // @copy
 					if(quot.Kind == Spc.PredictCoeffID && EditQuotVal(&quot, Cls) > 0) {
-						QuotIdent qident(quot.LocID, Spc.PredictCoeffID, 0, quot.ArID);
+						const QuotIdent qident(quot.LocID, Spc.PredictCoeffID, 0, quot.ArID);
 						int    p = Data.SetQuot(qident, quot.Quot, quot.Flags, 0, &quot.Period);
 						if(p > 0)
 							updatePage();
@@ -2037,7 +2037,7 @@ IMPL_HANDLE_EVENT(QuotationDialog)
 			quot.LocID = SelLocID;
 			quot.CurID = 0;
 			if(EditQuotVal(&quot, Cls) > 0) {
-				QuotIdent qident(SelLocID, Spc.PredictCoeffID, 0, SelArticleID);
+				const QuotIdent qident(SelLocID, Spc.PredictCoeffID, 0, SelArticleID);
 				int    p = Data.SetQuot(qident, quot.Quot, quot.Flags, 0, &quot.Period);
 				if(p > 0) {
 					updatePage();
@@ -2074,22 +2074,22 @@ IMPL_HANDLE_EVENT(QuotationDialog)
 		}
 	}
 	else if(event.isClusterClk(CTL_GQUOT_VIEW)) {
-		ushort quot_view_val = HasPeriodVal() ? 1 : getCtrlUInt16(CTL_GQUOT_VIEW);
+		const ushort quot_view_val = HasPeriodVal() ? 1 : getCtrlUInt16(CTL_GQUOT_VIEW);
 		if(ViewQuotsAsListBox != quot_view_val) {
 			ViewQuotsAsListBox = quot_view_val;
 			updatePage();
 		}
 	}
 	else if(event.isCbSelected(CTLSEL_GQUOT_ACCSHEET)) {
-		PPID   acc_sheet_id = getCtrlLong(CTLSEL_GQUOT_ACCSHEET);
+		const PPID acc_sheet_id = getCtrlLong(CTLSEL_GQUOT_ACCSHEET);
 		if(Cls != PPQuot::clsSupplDeal && acc_sheet_id != AccSheetID) {
 			AccSheetID = acc_sheet_id;
 			SelArticleID = 0;
 			SetupArCombo(this, CTLSEL_GQUOT_ARTICLE, SelArticleID, OLW_CANINSERT|OLW_LOADDEFONOPEN, AccSheetID, sacfDisableIfZeroSheet);
 			// @v9.3.10 {
-			SetupKinds(0); 
+			SetupKinds(0);
 			updatePage();
-			// } @v9.3.10 
+			// } @v9.3.10
 		}
 	}
 	else if(event.isCbSelected(CTLSEL_GQUOT_ARTICLE))
@@ -2109,12 +2109,13 @@ IMPL_HANDLE_EVENT(QuotationDialog)
 				ctl_id = CTL_GQUOT_BASE;
 				idx = -1;
 			}
-			else
+			else {
 				for(int i = 0; !ctl_id && i < NUM_QUOTS_IN_DLG; i++)
 					if(isCurrCtlID(quotCtl(i))) {
 						ctl_id = quotCtl(i);
 						idx = i;
 					}
+			}
 			if(ctl_id) {
 				PPQuot quot;
 				if(getQuotVal(ctl_id, &quot.Quot, &quot.Flags) && EditQuotVal(&quot, Cls) > 0) {
@@ -2134,10 +2135,11 @@ IMPL_HANDLE_EVENT(QuotationDialog)
 				qk_id = GObj.GetConfig().MtxRestrQkID;
 			else if(isCurrCtlID(CTL_GQUOT_BASE))
 				qk_id = PPQUOTK_BASE;
-			else
+			else {
 				for(int i = 0; !qk_id && i < NUM_QUOTS_IN_DLG; i++)
 					if(isCurrCtlID(quotCtl(i)))
 						qk_id = Kinds[i];
+			}
 			if(qk_id) {
 				QkObj.Edit(&qk_id, 0);
 			}
@@ -2192,7 +2194,7 @@ void QuotationDialog::setupResultPrice(int i)
 {
 	if(Cls == PPQuot::clsGeneral) {
 		double price = 0.0;
-		QuotIdent qi(SelLocID, (i >= 0) ? Kinds[i] : PPQUOTK_BASE, SelCurID, SelArticleID);
+		const  QuotIdent qi(SelLocID, (i >= 0) ? Kinds[i] : PPQUOTK_BASE, SelCurID, SelArticleID);
 		GObj.GetQuotExtByList(&Data, qi, LastCost, LastPrice, &price);
 		if(i >= 0)
 			setCtrlData(quotCtl(i)+2, &price);
@@ -2210,7 +2212,7 @@ void QuotationDialog::setPage()
 		if(::GetCurGoodsPrice(GoodsID, SelLocID, GPRET_INDEF, &price, &lot_rec) > 0) {
 			LastCost  = R5(lot_rec.Cost);
 			LastPrice = R5(lot_rec.Price);
-			double disp_cost = BillObj->CheckRights(BILLRT_ACCSCOST) ? LastCost : 0.0;
+			const double disp_cost = BillObj->CheckRights(BILLRT_ACCSCOST) ? LastCost : 0.0;
 			temp_buf.Printf(FmtBuf, disp_cost, LastPrice);
 		}
 		else
@@ -2224,16 +2226,17 @@ void QuotationDialog::setPage()
 				setCtrlString(CTL_GQUOT_BASE, q.PutValToStr(temp_buf));
 				setupResultPrice(-1);
 			}
-			for(int i = 0; i < NUM_QUOTS_IN_DLG; i++)
+			for(int i = 0; i < NUM_QUOTS_IN_DLG; i++) {
 				if(Kinds[i]) {
 					PPQuot q;
 					qi.QuotKindID = Kinds[i];
 					Data.GetQuot(qi, &q);
-					uint ctl_id = quotCtl(i);
+					const uint ctl_id = quotCtl(i);
 					if(ctl_id)
 						setCtrlString(ctl_id, q.PutValToStr(temp_buf));
 					setupResultPrice(i);
 				}
+			}
 		}
 	}
 }
@@ -2271,7 +2274,6 @@ void QuotationDialog::updatePage()
 		SmartListBox * p_box = (SmartListBox *)getCtrlView(CTL_GQUOT_PRDLIST);
 		if(p_box) {
 			p_box->freeAll();
-
 			double effect_val = 0.0;
 			QuotIdent qident(SelLocID, Spc.PredictCoeffID, 0, SelArticleID);
 			qident.Dt = getcurdate_();
@@ -2299,7 +2301,7 @@ void QuotationDialog::updatePage()
 			QuotListDialog * p_inner_dlg = (QuotListDialog *)P_ChildDlg;
 			if(p_inner_dlg) {
 				p_inner_dlg->SetQuotKinds(QuotKindsOrder); // @v9.3.10
-				p_inner_dlg->UpdateList(&qident, LastCost, LastPrice);
+				p_inner_dlg->UpdateList(qident, LastCost, LastPrice);
 			}
 		}
 		else {
@@ -2427,19 +2429,20 @@ int SLAPI PPObjGoods::CheckMatrixRestrict(PPID goodsID, PPID locID, long restric
 
 int SLAPI PPSupplDeal::CheckCost(double c) const
 {
+	int    ok = 1;
 	if(c > 0.0 && Cost > 0.0) {
 		if(c > Cost) {
-			double p = 100.0 * (c - Cost) / Cost;
+			const double p = 100.0 * (c - Cost) / Cost;
 			if(p > UpDev)
-				return 0;
+				ok = 0;
 		}
 		else if(c < Cost) {
-			double p = 100.0 * (Cost - c) / Cost;
+			const double p = 100.0 * (Cost - c) / Cost;
 			if(p > DnDev)
-				return 0;
+				ok = 0;
 		}
 	}
-	return 1;
+	return ok;
 }
 
 SString & FASTCALL PPSupplDeal::Format(SString & rBuf) const
@@ -2890,7 +2893,7 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 		}
 		if(Flags & RTLPF_PRICEBYQUOT) {
 			double q_price = 0.0;
-			QuotIdent qi(curdt, LocID, PPQUOTK_BASE, 0, ArID);
+			const QuotIdent qi(curdt, LocID, PPQUOTK_BASE, 0, ArID);
 			if(P_GObj->GetQuotExt(goodsID, qi, lot_rec.Cost, price, &q_price, use_quot_cache) > 0) {
 				pItem->QuotKindUsedForPrice = PPQUOTK_BASE;
 				price = q_price;
@@ -2908,7 +2911,7 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 			int    eq_disabled = 0;
 			for(uint i = 0; i < eqc; i++) {
 				const PPID ext_qk_id = EqBlk.QkList.get(i);
-				QuotIdent qi(curdt, LocID, ext_qk_id, 0, ArID);
+				const QuotIdent qi(curdt, LocID, ext_qk_id, 0, ArID);
 				THROW(r = P_GObj->GetQuotExt(goodsID, qi, lot_rec.Cost, price, &quot, use_quot_cache));
 				if(r > 0) {
 					if(Flags & RTLPF_USEMINEXTQVAL) {
@@ -2933,7 +2936,7 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 	}
 	for(i = 0; i < pItem->QuotList.getCount(); i++) {
 		RAssoc & r_quot_item = pItem->QuotList.at(i);
-		QuotIdent qi(curdt, LocID, r_quot_item.Key, 0, ArID);
+		const QuotIdent qi(curdt, LocID, r_quot_item.Key, 0, ArID);
 		THROW(r = P_GObj->GetQuotExt(goodsID, qi, lot_rec.Cost, price, &quot, use_quot_cache));
 		r_quot_item.Val = (r > 0) ? quot : 0.0;
 	}

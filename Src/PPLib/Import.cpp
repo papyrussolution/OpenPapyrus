@@ -1522,7 +1522,7 @@ int SLAPI PPObjPerson::Import(int specKind, int use_ta)
 			if(PPRef->SearchName(PPOBJ_PRSNKIND, &kind_id, kind_name) > 0)
 				kind_list.addUnique(kind_id);
 			else {
-				kind_name.ToOem();
+				kind_name.Transf(CTRANSF_OUTER_TO_INNER);
 				if(PPRef->SearchName(PPOBJ_PRSNKIND, &kind_id, kind_name) > 0)
 					kind_list.addUnique(kind_id);
 			}
@@ -1860,16 +1860,16 @@ int SLAPI ImportSpecSeries()
 					MEMSZERO(ss_rec);
 					ss_rec.InfoKind = SPCSERIK_SPOILAGE;
 					STRNSCPY(ss_rec.Serial, src_rec.Serial);
-					SpecSeriesCore::SetExField(&ss_rec, SPCSNEXSTR_GOODSNAME, (temp_buf = src_rec.GoodsName).ToOem());
-					SpecSeriesCore::SetExField(&ss_rec, SPCSNEXSTR_MANUFNAME, (temp_buf = src_rec.ManufName).ToOem());
+					SpecSeriesCore::SetExField(&ss_rec, SPCSNEXSTR_GOODSNAME, (temp_buf = src_rec.GoodsName).Transf(CTRANSF_OUTER_TO_INNER));
+					SpecSeriesCore::SetExField(&ss_rec, SPCSNEXSTR_MANUFNAME, (temp_buf = src_rec.ManufName).Transf(CTRANSF_OUTER_TO_INNER));
 					ss_rec.InfoDate = src_rec.InfoDate;
 					//
 					STRNSCPY(ss_rec.InfoIdent, src_rec.InfoIdent);
-					SpecSeriesCore::SetExField(&ss_rec, SPCSNEXSTR_LABNAME, (temp_buf = src_rec.LabName).ToOem());
-					SpecSeriesCore::SetExField(&ss_rec, SPCSNEXSTR_MANUFCOUNTRYNAME, (temp_buf = src_rec.ManufCountryName).ToOem());
+					SpecSeriesCore::SetExField(&ss_rec, SPCSNEXSTR_LABNAME, (temp_buf = src_rec.LabName).Transf(CTRANSF_OUTER_TO_INNER));
+					SpecSeriesCore::SetExField(&ss_rec, SPCSNEXSTR_MANUFCOUNTRYNAME, (temp_buf = src_rec.ManufCountryName).Transf(CTRANSF_OUTER_TO_INNER));
 					ss_rec.AllowDate = src_rec.AllowDate;
 					STRNSCPY(ss_rec.AllowNumber, src_rec.AllowNumber);
-					SpecSeriesCore::SetExField(&ss_rec, SPCSNEXSTR_DESCRIPTION, (temp_buf = src_rec.SpecName).ToOem());
+					SpecSeriesCore::SetExField(&ss_rec, SPCSNEXSTR_DESCRIPTION, (temp_buf = src_rec.SpecName).Transf(CTRANSF_OUTER_TO_INNER));
 					STRNSCPY(ss_rec.LetterType, src_rec.LetterType);
 					SETFLAG(ss_rec.Flags, SPCSELIF_FALSIFICATION, src_rec.FalsificationFlag);
 					SETFLAG(ss_rec.Flags, SPCSELIF_ALLOW, src_rec.AllowFlag);
@@ -2199,8 +2199,8 @@ int SLAPI PrcssrPhoneListImport::Run()
 							phone = (temp_buf = city_prefix).Cat(phone);
 						}
 					}
-					(address = rec.Address).Strip().ReplaceStr("  ", " ", 0).ToOem();
-					(contact = rec.Contact).Strip().ReplaceStr("  ", " ", 0).ToOem();
+					(address = rec.Address).Strip().ReplaceStr("  ", " ", 0).Transf(CTRANSF_OUTER_TO_INNER);
+					(contact = rec.Contact).Strip().ReplaceStr("  ", " ", 0).Transf(CTRANSF_OUTER_TO_INNER);
 					if(address.NotEmpty() || contact.NotEmpty()) {
 						phone_idx_list.clear();
 						if(LocObj.P_Tbl->SearchPhoneIndex(phone, 0, phone_idx_list) > 0) {
@@ -2279,7 +2279,7 @@ int SLAPI ImportPhoneList()
 //
 int SLAPI ImportBanks()
 {
-	int    ok = 1, ta = 0, import = 0;
+	int    ok = 1, import = 0;
 	PPLogger logger;
 	IterCounter cntr;
 	PPID   srch_region = 0;
@@ -2290,164 +2290,166 @@ int SLAPI ImportBanks()
 
 	PPLoadText(PPTXT_IMPBANK, wait_msg);
 	PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPORT_INI, file_name);
-	if(!fileExists(file_name))
-		return -1;
-	PPIniFile ini_file(file_name);
+	THROW_SL(fileExists(file_name));
+	{
+		PPIniFile ini_file(file_name);
 
-	int fldn_regionid = 0;
-	int fldn_region   = 0;
-	int fldn_city     = 0;
-	int fldn_name     = 0;
-	int fldn_bic      = 0;
-	int fldn_corracc  = 0;
+		int fldn_regionid = 0;
+		int fldn_region   = 0;
+		int fldn_city     = 0;
+		int fldn_name     = 0;
+		int fldn_bic      = 0;
+		int fldn_corracc  = 0;
 
-	memzero(srch_city, sizeof(srch_city));
+		memzero(srch_city, sizeof(srch_city));
 
-	ini_file.Get(sect, PPINIPARAM_REGIONFILE, file_name);
-	DbfTable region_tbl(file_name);
-	SCollection region_sc, city_sc;
+		ini_file.Get(sect, PPINIPARAM_REGIONFILE, file_name);
+		DbfTable region_tbl(file_name);
+		SCollection region_sc, city_sc;
 
-	ini_file.Get(sect, PPINIPARAM_FILE, file_name);
-	DbfTable in_tbl(file_name);
+		ini_file.Get(sect, PPINIPARAM_FILE, file_name);
+		DbfTable in_tbl(file_name);
 
-	THROW_PP(region_tbl.isOpened() && in_tbl.isOpened(), PPERR_DBFOPFAULT);
+		THROW_PP(region_tbl.isOpened() && in_tbl.isOpened(), PPERR_DBFOPFAULT);
 
-	get_fld_number(&ini_file, &region_tbl, sect, PPINIPARAM_REGIONID, &fldn_regionid);
-	get_fld_number(&ini_file, &region_tbl, sect, PPINIPARAM_REGIONNAME, &fldn_region);
+		get_fld_number(&ini_file, &region_tbl, sect, PPINIPARAM_REGIONID, &fldn_regionid);
+		get_fld_number(&ini_file, &region_tbl, sect, PPINIPARAM_REGIONNAME, &fldn_region);
 
-	get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_CITY,      &fldn_city);
-	get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_NAME,      &fldn_name);
-	get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_BIC,       &fldn_bic);
-	get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_CORRACC,   &fldn_corracc);
+		get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_CITY,      &fldn_city);
+		get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_NAME,      &fldn_name);
+		get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_BIC,       &fldn_bic);
+		get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_CORRACC,   &fldn_corracc);
 
-	PPWait(1);
-	if(region_tbl.top()) {
-		do {
-			long   id = 0;
-			if(region_tbl.isDeletedRec() <= 0) {
-				DbfRecord rec(&region_tbl);
-				THROW(region_tbl.getRec(&rec));
-				rec.get(fldn_regionid, id);
-				rec.get(fldn_region, name);
-				if(name.NotEmptyS()) {
-					char idstr[128];
-					StringSet ss(onecstr(','));
-					ss.add(ltoa(id, idstr, 10));
-					ss.add(name);
-					region_sc.insert(newStr(ss.getBuf()));
-				}
-			}
-		} while(region_tbl.next());
-	}
-	if(in_tbl.top()) {
-		long   i = 1;
-		do {
-			if(in_tbl.isDeletedRec() <= 0) {
-				DbfRecord rec(&in_tbl);
-				THROW(in_tbl.getRec(&rec));
-				rec.get(fldn_city, name);
-				if(name.NotEmptyS() && !city_sc.lsearch(name, 0, PTR_CMPFUNC(Pchar))) {
-					city_sc.insert(newStr(name));
-					i++;
-				}
-			}
-		} while(in_tbl.next());
-	}
-	PPWait(0);
-
-	p_dlg = new TDialog(DLG_REGIONSEL);
-	THROW(CheckDialogPtr(&p_dlg, 0));
-	city_sc.sort(PTR_CMPFUNC(Pchar));
-	SetupSCollectionComboBox(p_dlg, CTLSEL_REGIONSEL_REGION, &region_sc, 0);
-	SetupSCollectionComboBox(p_dlg, CTLSEL_REGIONSEL_CITY, &city_sc, 0);
-	if(ExecView(p_dlg) == cmOK) {
-		srch_region = p_dlg->getCtrlLong(CTLSEL_REGIONSEL_REGION);
-		long   pos = p_dlg->getCtrlLong(CTLSEL_REGIONSEL_CITY);
-		if(pos > 0) {
-			char * p_buf = (char*)city_sc.at(--pos);
-			STRNSCPY(srch_city, p_buf);
-		}
-		import = 1;
-	}
-	if(import) {
-		int    accepted_recs_count = 0;
-		SString fmt_buf, msg_buf;
-		SString city, name, bic, corracc, addr;
-		PPObjPerson psn_obj;
-		PPWaitMsg(wait_msg);
-		THROW(PPStartTransaction(&ta, 1));
-		cntr.Init(in_tbl.getNumRecs());
 		PPWait(1);
-		if(in_tbl.top()) {
-			PPObjWorld w_obj;
+		if(region_tbl.top()) {
+			StringSet ss(onecstr(','));
 			do {
-				int    accept_rec = 1;
-				if(in_tbl.isDeletedRec() <= 0) {
-					PPID   psn_id = 0, region = 0;
-					PPPersonPacket pack;
-					DbfRecord rec(&in_tbl);
-					THROW(in_tbl.getRec(&rec));
-					pack.Rec.Status = PPPRS_LEGAL;
-					pack.Kinds.add(PPPRK_BANK);
-					rec.get(fldn_city, city);
-					city.Strip();
-					rec.get(fldn_name, name);
-					if(name.NotEmptyS())
-						name.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
-					rec.get(fldn_corracc, corracc);
-					if(corracc.NotEmptyS())
-						pack.AddRegister(PPREGT_BNKCORRACC, corracc, 1);
-					rec.get(fldn_bic, bic);
-					if(bic.NotEmptyS())
-						pack.AddRegister(PPREGT_BIC, bic, 1);
-					region = bic.Sub(2, 3, temp_buf).ToLong();
-					accept_rec = BIN((!srch_city[0] || stricmp866(srch_city, city) == 0) && (!srch_region || srch_region == region));
-					if(accept_rec) {
-						if(psn_obj.SearchMaxLike(&pack, &psn_id, 0, PPREGT_BIC) > 0) {
-							THROW(psn_obj.GetPacket(psn_id, &pack, 0) > 0);
-							LocationCore::GetExField(&pack.Loc, LOCEXSTR_SHORTADDR, addr);
-							if(addr.Empty() || addr.CmpNC(city) == 0) {
-								THROW(w_obj.AddSimple(&pack.Loc.CityID, WORLDOBJ_CITY, city, 0, 0));
-								LocationCore::SetExField(&pack.Loc, LOCEXSTR_SHORTADDR, addr = 0);
-								name.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
-								if(corracc.NotEmpty()) {
-									if(!pack.AddRegister(PPREGT_BNKCORRACC, corracc, 1)) {
-										logger.LogLastError();
-										accept_rec = 0;
-									}
-								}
-								if(bic.NotEmpty()) {
-									if(!pack.AddRegister(PPREGT_BIC, bic, 1)) {
-										logger.LogLastError();
-										accept_rec = 0;
-									}
-								}
-								if(accept_rec) {
-									THROW(psn_obj.PutPacket(&pack.Rec.ID, &pack, 0));
-									PPFormatT(PPTXT_LOG_IMPBNK_UPD, &msg_buf, (const char *)name, (const char *)city,
-										(const char *)bic, (const char *)corracc);
-									logger.Log(msg_buf);
-								}
-							}
-						}
-						else {
-							THROW(w_obj.AddSimple(&pack.Loc.CityID, WORLDOBJ_CITY, city, 0, 0));
-							THROW(psn_obj.PutPacket(&(psn_id = 0), &pack, 0));
-							PPFormatT(PPTXT_LOG_IMPBNK_ADD, &msg_buf, (const char *)name, (const char *)city,
-								(const char *)bic, (const char *)corracc);
-							logger.Log(msg_buf);
-							accepted_recs_count++;
-						}
+				long   id = 0;
+				if(region_tbl.isDeletedRec() <= 0) {
+					DbfRecord rec(&region_tbl);
+					THROW(region_tbl.getRec(&rec));
+					rec.get(fldn_regionid, id);
+					rec.get(fldn_region, name);
+					if(name.NotEmptyS()) {
+						char idstr[128];
+						ss.clear(1);
+						ss.add(ltoa(id, idstr, 10));
+						ss.add(name);
+						region_sc.insert(newStr(ss.getBuf()));
 					}
 				}
-				PPWaitPercent(cntr.Increment(), wait_msg);
+			} while(region_tbl.next());
+		}
+		if(in_tbl.top()) {
+			long   i = 1;
+			do {
+				if(in_tbl.isDeletedRec() <= 0) {
+					DbfRecord rec(&in_tbl);
+					THROW(in_tbl.getRec(&rec));
+					rec.get(fldn_city, name);
+					if(name.NotEmptyS() && !city_sc.lsearch(name, 0, PTR_CMPFUNC(Pchar))) {
+						city_sc.insert(newStr(name));
+						i++;
+					}
+				}
 			} while(in_tbl.next());
 		}
 		PPWait(0);
-		THROW(PPCommitWork(&ta));
+
+		p_dlg = new TDialog(DLG_REGIONSEL);
+		THROW(CheckDialogPtr(&p_dlg, 0));
+		city_sc.sort(PTR_CMPFUNC(Pchar));
+		SetupSCollectionComboBox(p_dlg, CTLSEL_REGIONSEL_REGION, &region_sc, 0);
+		SetupSCollectionComboBox(p_dlg, CTLSEL_REGIONSEL_CITY, &city_sc, 0);
+		if(ExecView(p_dlg) == cmOK) {
+			srch_region = p_dlg->getCtrlLong(CTLSEL_REGIONSEL_REGION);
+			const long pos = p_dlg->getCtrlLong(CTLSEL_REGIONSEL_CITY);
+			if(pos > 0) {
+				const char * p_buf = (const char *)city_sc.at(pos-1);
+				STRNSCPY(srch_city, p_buf);
+			}
+			import = 1;
+		}
+		if(import) {
+			int    accepted_recs_count = 0;
+			SString fmt_buf, msg_buf;
+			SString city, name, bic, corracc, addr;
+			PPObjPerson psn_obj;
+			PPWaitMsg(wait_msg);
+			{
+				PPTransaction tra(1);
+				THROW(tra);
+				cntr.Init(in_tbl.getNumRecs());
+				PPWait(1);
+				if(in_tbl.top()) {
+					PPObjWorld w_obj;
+					do {
+						int    accept_rec = 1;
+						if(in_tbl.isDeletedRec() <= 0) {
+							PPID   psn_id = 0, region = 0;
+							PPPersonPacket pack;
+							DbfRecord rec(&in_tbl);
+							THROW(in_tbl.getRec(&rec));
+							pack.Rec.Status = PPPRS_LEGAL;
+							pack.Kinds.add(PPPRK_BANK);
+							rec.get(fldn_city, city);
+							city.Strip();
+							rec.get(fldn_name, name);
+							if(name.NotEmptyS())
+								name.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
+							rec.get(fldn_corracc, corracc);
+							if(corracc.NotEmptyS())
+								pack.AddRegister(PPREGT_BNKCORRACC, corracc, 1);
+							rec.get(fldn_bic, bic);
+							if(bic.NotEmptyS())
+								pack.AddRegister(PPREGT_BIC, bic, 1);
+							region = bic.Sub(2, 3, temp_buf).ToLong();
+							accept_rec = BIN((!srch_city[0] || stricmp866(srch_city, city) == 0) && (!srch_region || srch_region == region));
+							if(accept_rec) {
+								if(psn_obj.SearchMaxLike(&pack, &psn_id, 0, PPREGT_BIC) > 0) {
+									THROW(psn_obj.GetPacket(psn_id, &pack, 0) > 0);
+									LocationCore::GetExField(&pack.Loc, LOCEXSTR_SHORTADDR, addr);
+									if(addr.Empty() || addr.CmpNC(city) == 0) {
+										THROW(w_obj.AddSimple(&pack.Loc.CityID, WORLDOBJ_CITY, city, 0, 0));
+										LocationCore::SetExField(&pack.Loc, LOCEXSTR_SHORTADDR, addr = 0);
+										name.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
+										if(corracc.NotEmpty()) {
+											if(!pack.AddRegister(PPREGT_BNKCORRACC, corracc, 1)) {
+												logger.LogLastError();
+												accept_rec = 0;
+											}
+										}
+										if(bic.NotEmpty()) {
+											if(!pack.AddRegister(PPREGT_BIC, bic, 1)) {
+												logger.LogLastError();
+												accept_rec = 0;
+											}
+										}
+										if(accept_rec) {
+											THROW(psn_obj.PutPacket(&pack.Rec.ID, &pack, 0));
+											PPFormatT(PPTXT_LOG_IMPBNK_UPD, &msg_buf, name.cptr(), city.cptr(), bic.cptr(), corracc.cptr());
+											logger.Log(msg_buf);
+										}
+									}
+								}
+								else {
+									THROW(w_obj.AddSimple(&pack.Loc.CityID, WORLDOBJ_CITY, city, 0, 0));
+									THROW(psn_obj.PutPacket(&(psn_id = 0), &pack, 0));
+									PPFormatT(PPTXT_LOG_IMPBNK_ADD, &msg_buf, name.cptr(), city.cptr(), bic.cptr(), corracc.cptr());
+									logger.Log(msg_buf);
+									accepted_recs_count++;
+								}
+							}
+						}
+						PPWaitPercent(cntr.Increment(), wait_msg);
+					} while(in_tbl.next());
+				}
+				PPWait(0);
+				THROW(tra.Commit());
+			}
+		}
 	}
 	CATCH
-		PPRollbackWork(&ta);
 		logger.LogLastError();
 		ok = PPErrorZ();
 	ENDCATCH
@@ -2672,6 +2674,7 @@ int SLAPI PrcssrImportKLADR::PreImport()
 	PPID   native_country_id = 0;
 	PPImpExp * p_impexp = 0;
 	SString ini_file_name, sect_name, wait_msg;
+	SString temp_buf;
 	PPWait(1);
 	THROW(WObj.GetNativeCountry(&native_country_id) > 0);
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPORT_INI, ini_file_name));
@@ -2695,8 +2698,10 @@ int SLAPI PrcssrImportKLADR::PreImport()
 				Status rec;
 				MEMSZERO(rec);
 				rec.Code = src_rec.Code;
-				SCharToOem(STRNSCPY(rec.Name, src_rec.Name));
-				SCharToOem(STRNSCPY(rec.Abbr, src_rec.Abbr));
+				(temp_buf = src_rec.Name).Transf(CTRANSF_OUTER_TO_INNER);
+				STRNSCPY(rec.Name, temp_buf);
+				(temp_buf = src_rec.Abbr).Transf(CTRANSF_OUTER_TO_INNER);
+				STRNSCPY(rec.Abbr, temp_buf);
 				long fcode = 0;
 				int  fpos = SearchStatus(rec.Abbr, 1, &fcode);
 				if(fpos) {
@@ -2737,8 +2742,10 @@ int SLAPI PrcssrImportKLADR::PreImport()
 				char status_text[64];
 				TempKLADRTbl::Rec rec;
 				MEMSZERO(rec);
-				SCharToOem(STRNSCPY(rec.Name, src_rec.Name));
-				SCharToOem(STRNSCPY(status_text, src_rec.StatusAbbr));
+				(temp_buf = src_rec.Name).Transf(CTRANSF_OUTER_TO_INNER);
+				STRNSCPY(rec.Name, temp_buf);
+				(temp_buf = src_rec.StatusAbbr).Transf(CTRANSF_OUTER_TO_INNER);
+				STRNSCPY(status_text, temp_buf);
 				SearchStatus(status_text, 1, &rec.StatusCode);
 				STRNSCPY(rec.Code, src_rec.Code);
 				STRNSCPY(rec.ZIP, src_rec.ZIP);
@@ -2769,8 +2776,10 @@ int SLAPI PrcssrImportKLADR::PreImport()
 				char status_text[64];
 				TempKLADRTbl::Rec rec;
 				MEMSZERO(rec);
-				SCharToOem(STRNSCPY(rec.Name, src_rec.Name));
-				SCharToOem(STRNSCPY(status_text, src_rec.StatusAbbr));
+				(temp_buf = src_rec.Name).Transf(CTRANSF_OUTER_TO_INNER);
+				STRNSCPY(rec.Name, temp_buf);
+				(temp_buf = src_rec.StatusAbbr).Transf(CTRANSF_OUTER_TO_INNER);
+				STRNSCPY(status_text, temp_buf);
 				SearchStatus(status_text, 1, &rec.StatusCode);
 				STRNSCPY(rec.Code, src_rec.Code);
 				STRNSCPY(rec.ZIP, src_rec.ZIP);
@@ -3290,7 +3299,7 @@ int SLAPI PrcssrPersonImport::ProcessComplexELinkText(const char * pText, PPPers
 		size_t sc_offs = scan.Offs;
 		int    elinktype = 0;
 		for(uint i = 0; !elinktype && i < SIZEOFARRAY(pe); i++) {
-			(temp_buf = pe[i].P_Prefix).ToOem();
+			(temp_buf = pe[i].P_Prefix).Transf(CTRANSF_OUTER_TO_INNER);
 			if(strnicmp866(temp_buf, scan, temp_buf.Len()) == 0) {
 				elinktype = pe[i].ELinkType;
 				scan.Incr(temp_buf.Len());
@@ -3913,7 +3922,8 @@ int SLAPI ImportSR25()
 {
 	int    ok = 1, r = 1;
 	uint   count = 0, i = 0, pos = 0;
-	SString file_path, wait_msg, brc_str, msg_buf, buf;
+	SString wait_msg, brc_str, msg_buf;
+	SString temp_buf;
 	SString unit_abbr;
 	ReadDBSR25 sr25;
 	PPObjSuprWare sw_obj;
@@ -3921,8 +3931,6 @@ int SLAPI ImportSR25()
 	PPSuprWareAssoc sw_item;
 	PPObjUnit unit_obj;
 	PPSuprWarePacket comp_goods_pack;
-	//PPObjGoods goods_obj;
-	//PPGoodsPacket goods_pack;
 	StrAssocArray goods_arr;
 	PPLogger logger;
 	LAssocArray goods_ids_assoc, nutrs_ids_assoc; // Это ассоциации ИД товаров/компонентов, указанные в файле импорта, и их ИД в Papyrus
@@ -3952,8 +3960,8 @@ int SLAPI ImportSR25()
 				}
 				else {
 					sw_pack.Init();
-					STRNSCPY(sw_pack.Rec.Name, _item.Txt);
-					SCharToOem(sw_pack.Rec.Name);
+					(temp_buf = _item.Txt).Transf(CTRANSF_OUTER_TO_INNER);
+					STRNSCPY(sw_pack.Rec.Name, temp_buf);
 					brc_str.CopyTo(sw_pack.Rec.Code, sizeof(sw_pack.Rec.Code));
 					sw_pack.Rec.SuprWareType = SUPRWARETYPE_GOODS;
 					sw_pack.Rec.SuprWareCat = SUPRWARECLASS_NUTRITION;
@@ -3965,8 +3973,8 @@ int SLAPI ImportSR25()
 		// @v9.2.4 PPLoadText(PPTXT_GOODS, msg_buf);
 		PPLoadString("ware_pl", msg_buf); // @v9.2.4
 		logger.Log(msg_buf);
-		PPLoadText(PPTXT_IMPORTEDRECS, buf);
-		logger.Log(msg_buf.Printf(buf, count, goods_arr.getCount()));
+		PPLoadText(PPTXT_IMPORTEDRECS, temp_buf);
+		logger.Log(msg_buf.Printf(temp_buf, count, goods_arr.getCount()));
 		for(i = 0, count = 0; i < nutr_arr.getCount(); i++) {
 			const  PPComps & r_nutr_item = nutr_arr.at(i);
 			const  long sr25_id = r_nutr_item.CompID;
@@ -3978,8 +3986,8 @@ int SLAPI ImportSR25()
 			}
 			else {
 				sw_pack.Init();
-				STRNSCPY(sw_pack.Rec.Name, r_nutr_item.CompName);
-				SCharToOem(sw_pack.Rec.Name);
+				(temp_buf = r_nutr_item.CompName).Transf(CTRANSF_OUTER_TO_INNER);
+				STRNSCPY(sw_pack.Rec.Name, temp_buf);
 				if(sw_obj.P_Tbl->SearchByName(PPGDSK_SUPRWARE, sw_pack.Rec.Name, &sw_id) > 0) {
 				}
 				else {
@@ -3995,10 +4003,10 @@ int SLAPI ImportSR25()
 		goods_ids_assoc.Sort();
 		nutrs_ids_assoc.Sort();
 
-		PPLoadText(PPTXT_COMPONENTS, buf);
-		logger.Log(buf);
-		PPLoadText(PPTXT_IMPORTEDRECS, buf);
-		logger.Log(msg_buf.Printf(buf, count, nutr_arr.getCount()));
+		PPLoadText(PPTXT_COMPONENTS, temp_buf);
+		logger.Log(temp_buf);
+		PPLoadText(PPTXT_IMPORTEDRECS, temp_buf);
+		logger.Log(msg_buf.Printf(temp_buf, count, nutr_arr.getCount()));
 		//
 		// Загрузим ассоциации товар - компонент
 		//
@@ -4026,14 +4034,14 @@ int SLAPI ImportSR25()
 						unit_abbr = r_comp.UnitAbbr;
 						if(unit_abbr.NotEmptyS()) {
 							PPUnit2 unit_rec;
-							char micro_prefix[] = {(char)181, 0};
+							const char micro_prefix[] = {(char)181, 0};
 							uint pos = 0;
 							MEMSZERO(unit_rec);
 							unit_rec.Tag = PPOBJ_UNIT;
-							if((buf = r_comp.UnitAbbr).HasChr(181) || buf.HasChr(-75)) // Если есть приставка "микро" (проверяем по двум кодам)
-								buf.ReplaceStr(micro_prefix, "mk", 1);
-							buf.CopyTo(unit_rec.Name, sizeof(unit_rec.Name));
-							buf.CopyTo(unit_rec.Abbr, sizeof(unit_rec.Abbr));
+							if((temp_buf = r_comp.UnitAbbr).HasChr(181) || temp_buf.HasChr(-75)) // Если есть приставка "микро" (проверяем по двум кодам)
+								temp_buf.ReplaceStr(micro_prefix, "mk", 1);
+							temp_buf.CopyTo(unit_rec.Name, sizeof(unit_rec.Name));
+							temp_buf.CopyTo(unit_rec.Abbr, sizeof(unit_rec.Abbr));
 							unit_rec.Flags = unit_rec.Phisical;
 							//
 							// Сначала посмотрим, есть ли такая единица измерения
@@ -4164,7 +4172,7 @@ int SLAPI ImportCompGS()
 				PPSuprWareAssoc sw_item;
 				PPID   comp_id = 0;
 				PPID   unit_id = 0;
-				(comp_name = r_item.CompName).ToOem();
+				(comp_name = r_item.CompName).Transf(CTRANSF_OUTER_TO_INNER);
 				THROW(r = sw_obj.P_Tbl->SearchByName(PPGDSK_SUPRWARE, comp_name, &comp_id));
 				if(r < 0) {
 					PPSuprWarePacket comp_pack;

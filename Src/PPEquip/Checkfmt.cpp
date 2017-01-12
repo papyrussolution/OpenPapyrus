@@ -1669,7 +1669,7 @@ int PPSlipFormat::NextToken(SFile & rFile, SString & rResult)
 			break;
 		case '\"':
 			token = Scan.GetQuotedString(rResult) ? tokString : 0;
-			rResult.ToOem();
+			rResult.Transf(CTRANSF_OUTER_TO_INNER);
 			break;
 		case  '/':
 			if(Scan[1] == '/') {

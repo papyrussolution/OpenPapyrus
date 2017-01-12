@@ -6054,15 +6054,16 @@ int SLAPI PPObjBill::CheckPckgCodeUnique(const LPackage * pPckg, PPBillPacket * 
 
 int SLAPI PPObjBill::PutPckgList(PPBillPacket * pPack, int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	uint   i, j;
 	if(CConfig.Flags & CCFLG_USEGOODSPCKG) {
 		THROW(pPack->InitPckg());
 		if(pPack->P_PckgList) {
 			LPackage * p_pckg;
 			ReceiptTbl::Rec lot_rec;
-			THROW(PPStartTransaction(&ta, use_ta));
-			for(i = 0; pPack->P_PckgList->EnumItems(&i, &p_pckg);)
+			PPTransaction tra(use_ta);
+			THROW(tra);
+			for(i = 0; pPack->P_PckgList->EnumItems(&i, &p_pckg);) {
 				if(trfr->Rcpt.Search(p_pckg->ID, &lot_rec) > 0) {
 					p_pckg->Closed = (lot_rec.Rest <= 0) ? 1 : 0;
 					p_pckg->LocID  = lot_rec.LocID;
@@ -6099,13 +6100,11 @@ int SLAPI PPObjBill::PutPckgList(PPBillPacket * pPack, int use_ta)
 				}
 				else
 					THROW(P_PckgT->PutPckg(p_pckg->ID, 0, 0));
-			THROW(PPCommitWork(&ta));
+			}
+			THROW(tra.Commit());
 		}
 	}
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 

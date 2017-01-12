@@ -103,8 +103,10 @@ void   A_DebugBreak(void);                                     // Makes a debug 
    uint32_t ReadTSC(void);                                     // Read microprocessor internal clock (only 32 bits supported by compiler)
 #endif
 void cpuid_ex (int abcd[4], int eax, int ecx);                 // call CPUID instruction
-static inline void cpuid_abcd (int abcd[4], int eax) {
-   cpuid_ex(abcd, eax, 0);}
+static inline void cpuid_abcd (int abcd[4], int eax) 
+{
+   cpuid_ex(abcd, eax, 0);
+}
 
 #ifdef __cplusplus
 }  // end of extern "C"

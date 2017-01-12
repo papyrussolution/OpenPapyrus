@@ -16,14 +16,12 @@ local int gz_init(gz_statep state)
 {
 	int ret;
 	z_streamp strm = &(state->strm);
-
 	/* allocate input buffer */
 	state->in = (unsigned char*)malloc(state->want);
 	if(state->in == NULL) {
 		gz_error(state, Z_MEM_ERROR, "out of memory");
 		return -1;
 	}
-
 	/* only need output buffer and deflate state if compressing */
 	if(!state->direct) {
 		/* allocate output buffer */
@@ -33,13 +31,11 @@ local int gz_init(gz_statep state)
 			gz_error(state, Z_MEM_ERROR, "out of memory");
 			return -1;
 		}
-
 		/* allocate deflate memory, set up for gzip compression */
 		strm->zalloc = Z_NULL;
 		strm->zfree = Z_NULL;
 		strm->opaque = Z_NULL;
-		ret = deflateInit2(strm, state->level, Z_DEFLATED,
-		    MAX_WBITS + 16, DEF_MEM_LEVEL, state->strategy);
+		ret = deflateInit2(strm, state->level, Z_DEFLATED, MAX_WBITS + 16, DEF_MEM_LEVEL, state->strategy);
 		if(ret != Z_OK) {
 			free(state->out);
 			free(state->in);
@@ -47,10 +43,8 @@ local int gz_init(gz_statep state)
 			return -1;
 		}
 	}
-
 	/* mark state as initialized */
 	state->size = state->want;
-
 	/* initialize write buffer if compressing */
 	if(!state->direct) {
 		strm->avail_out = state->size;

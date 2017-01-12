@@ -1558,7 +1558,7 @@ SString & CALDATE::Format(int options, SString & rBuf) const
 	decodedate(&d, &m, &y, this);
 	if(d >= 1 && d <= 7 && m == 0 && y == 0) { // day of week
 		GetDayOfWeekText(dowtRuShrt, d, rBuf);
-		rBuf.ToOem();
+		rBuf.Transf(CTRANSF_OUTER_TO_INNER);
 	}
 	else if(y == 0) { // calendar date
 		//char   temp_buf[64];
@@ -2059,7 +2059,8 @@ SString & SLAPI DateRepeating::Format(int fmt, SString & rBuf) const
 						_first = 0;
 					}
 				}
-				rBuf.TrimRight().ToOem().CatDiv(';', 2);
+				// @v9.4.9 rBuf.TrimRight().ToOem().CatDiv(';', 2);
+				rBuf.TrimRight().Transf(CTRANSF_OUTER_TO_INNER).CatDiv(';', 2); // @v9.4.9 
 			}
 			break;
 		case PRD_MONTH:
@@ -2081,7 +2082,8 @@ SString & SLAPI DateRepeating::Format(int fmt, SString & rBuf) const
 				}
 				if(num_prd)
 					rBuf.CatDiv('-', 1).Cat(num_prd).CatDiv(';', 2);
-				rBuf.Cat(buf).ToOem().CatDiv(';', 2);
+				// @v9.4.9 rBuf.Cat(buf).ToOem().CatDiv(';', 2);
+				rBuf.Cat(buf).Transf(CTRANSF_OUTER_TO_INNER).CatDiv(';', 2); // @v9.4.9 
 			}
 			break;
 		case PRD_ANNUAL:
@@ -2108,7 +2110,7 @@ SString & SLAPI DateRepeating::Format(int fmt, SString & rBuf) const
 					//getMonthText(month, MONF_CASENOM, month_txt);
 					SGetMonthText(month, MONF_CASENOM, month_txt);
 				}
-				rBuf.CatDiv('-', 1).Cat(buf).Comma().Cat(month_txt).Semicol().ToOem();
+				rBuf.CatDiv('-', 1).Cat(buf).Comma().Cat(month_txt).Semicol().Transf(CTRANSF_OUTER_TO_INNER);
 			}
 			break;
 		case PRD_REPEATAFTERPRD:

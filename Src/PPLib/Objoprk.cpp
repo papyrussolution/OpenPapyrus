@@ -3421,20 +3421,24 @@ int SLAPI GetOpCommonAccSheet(PPID opID, PPID * pAccSheetID, PPID * pAccSheet2ID
 
 PPID SLAPI GetCashOp()
 {
-	return CConfig.RetailOp ? CConfig.RetailOp : PPOPK_RETAIL;
+	const PPCommConfig & r_ccfg = CConfig;
+	return NZOR(r_ccfg.RetailOp, PPOPK_RETAIL);
 }
 
 PPID SLAPI GetCashRetOp()
 {
-	if(CConfig.RetailRetOp)
-		return CConfig.RetailRetOp;
+	const  PPCommConfig & r_ccfg = CConfig;
+	PPID   op_id_ = -1;
+	if(r_ccfg.RetailRetOp)
+		op_id_ = r_ccfg.RetailRetOp;
 	else {
+		const PPID cash_op_id = GetCashOp();
 		PPOprKind opk;
-		for(PPID op_id = 0; EnumOperations(PPOPT_GOODSRETURN, &op_id, &opk) > 0;)
-			if(opk.LinkOpID == GetCashOp())
-				return op_id;
+		for(PPID iter_op_id = 0; op_id_ < 0 && EnumOperations(PPOPT_GOODSRETURN, &iter_op_id, &opk) > 0;)
+			if(opk.LinkOpID == cash_op_id)
+				op_id_ = iter_op_id;
 	}
-	return -1;
+	return op_id_;
 }
 
 PPID SLAPI GetReceiptOp()

@@ -74,7 +74,7 @@ struct Test_SFindFile_ : public SFindFile {
 		if(pEntry->FileName[0] == 0)
 			/*PPWaitMsg(path.ToOem())*/;
 		else
-			PPLogMessage(PPFILNAM_DEBUG_LOG, path.Cat(pEntry->FileName).ToOem(), 0);
+			PPLogMessage(PPFILNAM_DEBUG_LOG, path.Cat(pEntry->FileName).Transf(CTRANSF_OUTER_TO_INNER), 0);
 		return 1;
 	}
 };

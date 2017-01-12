@@ -647,6 +647,8 @@
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">CompileAsCpp</CompileAs>
     </ClCompile>
+    <ClCompile Include="..\OSF\ZINT\backend\bmp.c" />
+    <ClCompile Include="..\OSF\ZINT\backend\codablock.c" />
     <ClCompile Include="..\Osf\Zint\backend\code.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">CompileAsCpp</CompileAs>
@@ -773,6 +775,9 @@
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">CompileAsCpp</CompileAs>
     </ClCompile>
+    <ClCompile Include="..\OSF\ZINT\backend\dotcode.c" />
+    <ClCompile Include="..\OSF\ZINT\backend\eci.c" />
+    <ClCompile Include="..\OSF\ZINT\backend\gif.c" />
     <ClCompile Include="..\Osf\Zint\backend\gridmtx.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">CompileAsCpp</CompileAs>
@@ -801,6 +806,7 @@
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">CompileAsCpp</CompileAs>
     </ClCompile>
+    <ClCompile Include="..\OSF\ZINT\backend\hanxin.c" />
     <ClCompile Include="..\Osf\Zint\backend\imail.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">CompileAsCpp</CompileAs>
@@ -871,6 +877,7 @@
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">CompileAsCpp</CompileAs>
     </ClCompile>
+    <ClCompile Include="..\OSF\ZINT\backend\pcx.c" />
     <ClCompile Include="..\Osf\Zint\backend\pdf417.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">CompileAsCpp</CompileAs>
@@ -955,6 +962,7 @@
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">CompileAsCpp</CompileAs>
     </ClCompile>
+    <ClCompile Include="..\OSF\ZINT\backend\raster.c" />
     <ClCompile Include="..\Osf\Zint\backend\reedsol.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">CompileAsCpp</CompileAs>
@@ -1042,24 +1050,30 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Osf\Zint\backend\aztec.h" />
+    <ClInclude Include="..\OSF\ZINT\backend\bmp.h" />
     <ClInclude Include="..\Osf\Zint\backend\code1.h" />
     <ClInclude Include="..\Osf\Zint\backend\code49.h" />
     <ClInclude Include="..\Osf\Zint\backend\common.h" />
     <ClInclude Include="..\Osf\Zint\backend\composite.h" />
     <ClInclude Include="..\Osf\Zint\backend\dmatrix.h" />
+    <ClInclude Include="..\OSF\ZINT\backend\eci.h" />
     <ClInclude Include="..\Osf\Zint\backend\font.h" />
+    <ClInclude Include="..\OSF\ZINT\backend\gb18030.h" />
     <ClInclude Include="..\Osf\Zint\backend\gb2312.h" />
     <ClInclude Include="..\Osf\Zint\backend\gridmtx.h" />
     <ClInclude Include="..\Osf\Zint\backend\gs1.h" />
+    <ClInclude Include="..\OSF\ZINT\backend\hanxin.h" />
     <ClInclude Include="..\Osf\Zint\backend\large.h" />
     <ClInclude Include="..\Osf\Zint\backend\maxicode.h" />
     <ClInclude Include="..\Osf\Zint\backend\maxipng.h" />
     <ClInclude Include="..\Osf\Zint\backend\ms_stdint.h" />
+    <ClInclude Include="..\OSF\ZINT\backend\pcx.h" />
     <ClInclude Include="..\Osf\Zint\backend\pdf417.h" />
     <ClInclude Include="..\Osf\Zint\backend\qr.h" />
     <ClInclude Include="..\Osf\Zint\backend\reedsol.h" />
     <ClInclude Include="..\Osf\Zint\backend\rss.h" />
     <ClInclude Include="..\Osf\Zint\backend\sjis.h" />
+    <ClInclude Include="..\OSF\ZINT\backend\stdint_msvc.h" />
     <ClInclude Include="..\Osf\Zint\backend\zint.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

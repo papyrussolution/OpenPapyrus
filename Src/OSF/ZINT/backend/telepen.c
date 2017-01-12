@@ -32,6 +32,9 @@
 
 #define SODIUM  "0123456789X"
 
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "common.h"
 
 static char * TeleTable[] = {
@@ -53,105 +56,106 @@ static char * TeleTable[] = {
 	"3113111113", "11311111111111", "331111111111", "111113111113", "31111111111111", "111311111113", "131111111113"
 };
 
-int telepen(ZintSymbol * symbol, uchar source[], int src_len) 
+int telepen(struct ZintSymbol * symbol, uchar source[], int src_len)
 {
-	uint   check_digit;
-	int    i;
-	char   dest[512]; /*14 + 30 * 14 + 14 + 14 + 1 ~ 512 */
 	int    error_number = 0;
+	uint   check_digit;
+	char   dest[512]; /*14 + 30 * 14 + 14 + 14 + 1 ~ 512 */
 	uint   count = 0;
 	if(src_len > 30) {
-		strcpy(symbol->errtxt, "Input too long");
-		return ZINT_ERROR_TOO_LONG;
+		strcpy(symbol->errtxt, "Input too long (C90)");
+		error_number = ZINT_ERROR_TOO_LONG;
 	}
-	/* Start character */
-	strcpy(dest, TeleTable['_']);
-	for(i = 0; i < src_len; i++) {
-		if(source[i] > 126) {
-			/* Cannot encode extended ASCII */
-			strcpy(symbol->errtxt, "Invalid characters in input data");
-			return ZINT_ERROR_INVALID_DATA;
+	else {
+		int    i;
+		/* Start character */
+		strcpy(dest, TeleTable['_']);
+		for(i = 0; i < src_len; i++) {
+			if(source[i] > 126) {
+				/* Cannot encode extended ASCII */
+				strcpy(symbol->errtxt, "Invalid characters in input data (C91)");
+				return ZINT_ERROR_INVALID_DATA;
+			}
+			strcat(dest, TeleTable[source[i]]);
+			count += source[i];
 		}
-		strcat(dest, TeleTable[source[i]]);
-		count += source[i];
-	}
-	check_digit = 127 - (count % 127);
-	if(check_digit == 127) {
-		check_digit = 0;
-	}
-	strcat(dest, TeleTable[check_digit]);
-	/* Stop character */
-	strcat(dest, TeleTable['z']);
-	expand(symbol, dest);
-	for(i = 0; i < src_len; i++) {
-		if(source[i] == '\0') {
-			symbol->text[i] = ' ';
+		check_digit = 127 - (count % 127);
+		if(check_digit == 127) {
+			check_digit = 0;
 		}
-		else {
-			symbol->text[i] = source[i];
+		strcat(dest, TeleTable[check_digit]);
+		/* Stop character */
+		strcat(dest, TeleTable['z']);
+		expand(symbol, dest);
+		for(i = 0; i < src_len; i++) {
+			if(source[i] == '\0') {
+				symbol->text[i] = ' ';
+			}
+			else {
+				symbol->text[i] = source[i];
+			}
 		}
+		symbol->text[src_len] = '\0';
 	}
-	symbol->text[src_len] = '\0';
 	return error_number;
 }
 
-int telepen_num(ZintSymbol * symbol, uchar source[], int src_len) 
+int telepen_num(struct ZintSymbol * symbol, uchar source[], int src_len)
 {
+	int    error_number = 0;
 	uint   check_digit, glyph;
-	int    i;
 	int    temp_length = src_len;
 	char   dest[1024]; /* 14 + 60 * 14 + 14 + 14 + 1 ~ 1024 */
 	uchar  temp[64];
-	int    error_number = 0;
 	uint   count = 0;
 	if(temp_length > 60) {
-		strcpy(symbol->errtxt, "Input too long");
-		return ZINT_ERROR_TOO_LONG;
+		strcpy(symbol->errtxt, "Input too long (C92)");
+		error_number = ZINT_ERROR_TOO_LONG;
 	}
-	ustrcpy(temp, source);
-	to_upper(temp);
-	error_number = is_sane(NEON, temp, temp_length);
-	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in data");
-		return error_number;
-	}
-	/* Add a leading zero if required */
-	if(temp_length & 1) {
-		memmove(temp + 1, temp, temp_length);
-		temp[0] = '0';
-		temp[++temp_length] = '\0';
-	}
-	/* Start character */
-	strcpy(dest, TeleTable['_']);
-	for(i = 0; i < temp_length; i += 2) {
-		if(temp[i] == 'X') {
-			strcpy(symbol->errtxt, "Invalid position of X in Telepen data");
-			return ZINT_ERROR_INVALID_DATA;
-		}
-
-		if(temp[i + 1] == 'X') {
-			glyph = ctoi(temp[i]) + 17;
-			count += glyph;
+	else {
+		ustrcpy(temp, source);
+		to_upper(temp);
+		error_number = is_sane(NEON, temp, temp_length);
+		if(error_number == ZINT_ERROR_INVALID_DATA) {
+			strcpy(symbol->errtxt, "Invalid characters in data (C93)");
 		}
 		else {
-			glyph = (10 * ctoi(temp[i])) + ctoi(temp[i + 1]);
-			glyph += 27;
-			count += glyph;
+			/* Add a leading zero if required */
+			if(temp_length & 1) {
+				memmove(temp + 1, temp, temp_length);
+				temp[0] = '0';
+				temp[++temp_length] = '\0';
+			}
+			/* Start character */
+			strcpy(dest, TeleTable['_']);
+			{
+				for(int i = 0; i < temp_length; i += 2) {
+					if(temp[i] == 'X') {
+						strcpy(symbol->errtxt, "Invalid position of X in Telepen data (C94)");
+						return ZINT_ERROR_INVALID_DATA;
+					}
+					if(temp[i + 1] == 'X') {
+						glyph = ctoi(temp[i]) + 17;
+						count += glyph;
+					}
+					else {
+						glyph = (10 * ctoi(temp[i])) + ctoi(temp[i + 1]);
+						glyph += 27;
+						count += glyph;
+					}
+					strcat(dest, TeleTable[glyph]);
+				}
+			}
+			check_digit = 127 - (count % 127);
+			if(check_digit == 127)
+				check_digit = 0;
+			strcat(dest, TeleTable[check_digit]);
+			/* Stop character */
+			strcat(dest, TeleTable['z']);
+			expand(symbol, dest);
+			ustrcpy(symbol->text, temp);
 		}
-		strcat(dest, TeleTable[glyph]);
 	}
-
-	check_digit = 127 - (count % 127);
-	if(check_digit == 127) {
-		check_digit = 0;
-	}
-	strcat(dest, TeleTable[check_digit]);
-
-	/* Stop character */
-	strcat(dest, TeleTable['z']);
-
-	expand(symbol, dest);
-	ustrcpy(symbol->text, temp);
 	return error_number;
 }
 

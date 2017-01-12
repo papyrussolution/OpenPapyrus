@@ -2690,7 +2690,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				if(!CheckExtFlag(ECF_INITONLOGIN)) {
 					if(!CheckExtFlag(ECF_INITONLOGIN)) {
 						// @v8.0.3 ExtFlags = (ExtFlags & (ECF_SYSSERVICE | ECF_DBDICTDL600));
-						SetExtFlag(~(ECF_SYSSERVICE | ECF_DBDICTDL600 | ECF_DETECTCRDBTEXISTBYOPEN), 0); // @v8.0.3 // @v8.2.4 ECF_DETECTCRDBTEXISTBYOPEN
+						SetExtFlag(~(ECF_SYSSERVICE|ECF_DBDICTDL600|ECF_DETECTCRDBTEXISTBYOPEN|ECF_OPENSOURCE), 0); // @v8.0.3 // @v8.2.4 ECF_DETECTCRDBTEXISTBYOPEN // @v9.4.9 ECF_OPENSOURCE
 						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_GRPACK, &(iv = 0)) > 0 && iv == 1)
 							SetExtFlag(ECF_GOODSRESTPACK, 1);
 						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_TIDPACK, &(iv = 0)) > 0 && iv == 1)

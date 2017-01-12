@@ -36,8 +36,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
-    extern int gs1_verify(ZintSymbol *symbol, const uchar source[], const uint src_len, char reduced[]);
-    extern int ugs1_verify(ZintSymbol *symbol, const uchar source[], const uint src_len, uchar reduced[]);
+    extern int gs1_verify(struct ZintSymbol *symbol, const uchar source[], const size_t src_len, char reduced[]);
+    extern int ugs1_verify(struct ZintSymbol *symbol, const uchar source[], const uint src_len, uchar reduced[]);
 
 #ifdef __cplusplus
 }

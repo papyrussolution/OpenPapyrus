@@ -61,19 +61,24 @@
  * RSS Expanded > GS1 DataBar Expanded Omnidirectional
  * RSS Expanded Stacked > GS1 DataBar Expanded Stacked Omnidirectional
  */
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#ifdef _MSC_VER
+#include <malloc.h>
+#endif
 #include "common.h"
 #include "large.h"
 #include "rss.h"
 #include "gs1.h"
-#ifdef _MSC_VER
-	#include <malloc.h>
-#endif
 
 /**********************************************************************
 * combins(n,r): returns the number of Combinations of r selected from n:
 *   Combinations = n! / ((n - r)! * r!)
 **********************************************************************/
-int combins(int n, int r) {
+int combins(int n, int r)
+{
 	int i, j;
 	int maxDenom, minDenom;
 	int val;
@@ -115,7 +120,8 @@ int combins(int n, int r) {
 * Return:
 * static int widths[] = element widths
 **********************************************************************/
-void getRSSwidths(int val, int n, int elements, int maxWidth, int noNarrow) {
+void getRSSwidths(int val, int n, int elements, int maxWidth, int noNarrow)
+{
 	int bar;
 	int elmWidth;
 	int mxwElement;
@@ -157,9 +163,10 @@ void getRSSwidths(int val, int n, int elements, int maxWidth, int noNarrow) {
 }
 
 /* GS1 DataBar-14 */
-int rss14(ZintSymbol * symbol, uchar source[], int src_len) {
+int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
+{
 	int error_number = 0, i, j, mask;
-	short accum[112], left_reg[112], right_reg[112], x_reg[112], y_reg[112];
+	short int accum[112], left_reg[112], right_reg[112], x_reg[112], y_reg[112];
 	int data_character[4], data_group[4], v_odd[4], v_even[4];
 	int data_widths[8][4], checksum, c_left, c_right, total_widths[46], writer;
 	char latch, hrt[15], temp[32];
@@ -168,12 +175,12 @@ int rss14(ZintSymbol * symbol, uchar source[], int src_len) {
 	separator_row = 0;
 
 	if(src_len > 13) {
-		strcpy(symbol->errtxt, "Input too long");
+		strcpy(symbol->errtxt, "Input too long (C80)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	error_number = is_sane(NEON, source, src_len);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in data");
+		strcpy(symbol->errtxt, "Invalid characters in data (C81)");
 		return error_number;
 	}
 
@@ -516,6 +523,8 @@ int rss14(ZintSymbol * symbol, uchar source[], int src_len) {
 		hrt[13] = itoc(check_digit);
 
 		strcat((char*)symbol->text, hrt);
+
+		set_minimum_height(symbol, 14); // Minimum height is 14X for truncated symbol
 	}
 
 	if((symbol->Std == BARCODE_RSS14STACK) || (symbol->Std == BARCODE_RSS14STACK_CC)) {
@@ -610,7 +619,6 @@ int rss14(ZintSymbol * symbol, uchar source[], int src_len) {
 			symbol->width = 50;
 		}
 	}
-
 	if((symbol->Std == BARCODE_RSS14STACK_OMNI) || (symbol->Std == BARCODE_RSS14_OMNI_CC)) {
 		/* top row */
 		writer = 0;
@@ -734,15 +742,18 @@ int rss14(ZintSymbol * symbol, uchar source[], int src_len) {
 			}
 		}
 		symbol->rows = symbol->rows + 1;
+
+		set_minimum_height(symbol, 33);
 	}
 
 	return error_number;
 }
 
 /* GS1 DataBar Limited */
-int rsslimited(ZintSymbol * symbol, uchar source[], int src_len) {
+int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
+{
 	int error_number = 0, i, mask;
-	short accum[112], left_reg[112], right_reg[112], x_reg[112], y_reg[112];
+	short int accum[112], left_reg[112], right_reg[112], x_reg[112], y_reg[112];
 	int left_group, right_group, left_odd, left_even, right_odd, right_even;
 	int left_character, right_character, left_widths[14], right_widths[14];
 	int checksum, check_elements[14], total_widths[46], writer, j, check_digit, count;
@@ -752,21 +763,20 @@ int rsslimited(ZintSymbol * symbol, uchar source[], int src_len) {
 	separator_row = 0;
 
 	if(src_len > 13) {
-		strcpy(symbol->errtxt, "Input too long");
+		strcpy(symbol->errtxt, "Input too long (C82)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	error_number = is_sane(NEON, source, src_len);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in data");
+		strcpy(symbol->errtxt, "Invalid characters in data (C83)");
 		return error_number;
 	}
 	if(src_len == 13) {
 		if((source[0] != '0') && (source[0] != '1')) {
-			strcpy(symbol->errtxt, "Input out of range");
+			strcpy(symbol->errtxt, "Input out of range (C84)");
 			return ZINT_ERROR_INVALID_DATA;
 		}
 	}
-
 	/* make some room for a separator row for composite symbols */
 	if(symbol->Std == BARCODE_RSS_LTD_CC) {
 		separator_row = symbol->rows;
@@ -1020,7 +1030,6 @@ int rsslimited(ZintSymbol * symbol, uchar source[], int src_len) {
 		symbol->width = writer;
 	}
 	symbol->rows = symbol->rows + 1;
-
 	/* add separator pattern if composite symbol */
 	if(symbol->Std == BARCODE_RSS_LTD_CC) {
 		for(i = 4; i < 70; i++) {
@@ -1029,9 +1038,12 @@ int rsslimited(ZintSymbol * symbol, uchar source[], int src_len) {
 			}
 		}
 	}
+
 	/* Calculate check digit from Annex A and place human readable text */
+
 	check_digit = 0;
 	count = 0;
+
 	ustrcpy(symbol->text, (uchar*)"(01)");
 	for(i = 0; i < 14; i++) {
 		hrt[i] = '0';
@@ -1039,34 +1051,43 @@ int rsslimited(ZintSymbol * symbol, uchar source[], int src_len) {
 	for(i = 0; i < src_len; i++) {
 		hrt[12 - i] = source[src_len - i - 1];
 	}
+
 	for(i = 0; i < 13; i++) {
 		count += ctoi(hrt[i]);
+
 		if(!(i & 1)) {
 			count += 2 * (ctoi(hrt[i]));
 		}
 	}
+
 	check_digit = 10 - (count % 10);
 	if(check_digit == 10) {
 		check_digit = 0;
 	}
+
 	hrt[13] = itoc(check_digit);
 	hrt[14] = '\0';
+
 	strcat((char*)symbol->text, hrt);
+
+	set_minimum_height(symbol, 10);
+
 	return error_number;
 }
-//
-// Attempts to apply encoding rules from secions 7.2.5.5.1 to 7.2.5.5.3 of ISO/IEC 24724:2006
-//
-int general_rules(char field[], char type[]) 
+
+/* Attempts to apply encoding rules from secions 7.2.5.5.1 to 7.2.5.5.3
+ * of ISO/IEC 24724:2006 */
+int general_rules(char field[], char type[])
 {
-	int    block[2][200], j, k;
-	char   current, next, last;
-	int    block_count = 0;
-	int    i;
+	int block[2][200], block_count, i, j, k;
+	char current, next, last;
+
+	block_count = 0;
+
 	block[0][block_count] = 1;
 	block[1][block_count] = type[0];
-	const int _len = strlen(type);
-	for(i = 1; i < _len; i++) {
+
+	for(i = 1; i < strlen(type); i++) {
 		current = type[i];
 		last = type[i - 1];
 		if(current == last) {
@@ -1079,8 +1100,6 @@ int general_rules(char field[], char type[])
 		}
 	}
 	block_count++;
-	for(i = 0; i < block_count; i++) {
-	}
 	for(i = 0; i < block_count; i++) {
 		current = block[1][i];
 		next = (block[1][i + 1] & 0xFF);
@@ -1098,10 +1117,12 @@ int general_rules(char field[], char type[])
 				block[1][i + 1] = ISOIEC;
 			}
 		}
+
 		if(current == ALPHA_OR_ISO) {
 			block[1][i] = ALPHA;
 			current = ALPHA;
 		}
+
 		if((current == ALPHA) && (i != (block_count - 1))) {
 			if((next == ANY_ENC) && (block[0][i + 1] >= 6)) {
 				block[1][i + 1] = NUMERIC;
@@ -1115,10 +1136,12 @@ int general_rules(char field[], char type[])
 				}
 			}
 		}
+
 		if(current == ANY_ENC) {
 			block[1][i] = NUMERIC;
 		}
 	}
+
 	if(block_count > 1) {
 		i = 1;
 		while(i < block_count) {
@@ -1126,6 +1149,7 @@ int general_rules(char field[], char type[])
 				/* bring together */
 				block[0][i - 1] = block[0][i - 1] + block[0][i];
 				j = i + 1;
+
 				/* decreace the list */
 				while(j < block_count) {
 					block[0][j - 1] = block[0][j];
@@ -1138,6 +1162,7 @@ int general_rules(char field[], char type[])
 			i++;
 		}
 	}
+
 	for(i = 0; i < block_count - 1; i++) {
 		if((block[1][i] == NUMERIC) && (block[0][i] & 1)) {
 			/* Odd size numeric block */
@@ -1145,6 +1170,7 @@ int general_rules(char field[], char type[])
 			block[0][i + 1] = block[0][i + 1] + 1;
 		}
 	}
+
 	j = 0;
 	for(i = 0; i < block_count; i++) {
 		for(k = 0; k < block[0][i]; k++) {
@@ -1152,6 +1178,7 @@ int general_rules(char field[], char type[])
 			j++;
 		}
 	}
+
 	if((block[1][block_count - 1] == NUMERIC) && (block[0][block_count - 1] & 1)) {
 		/* If the last block is numeric and an odd size, further
 		   processing needs to be done outside this procedure */
@@ -1163,126 +1190,150 @@ int general_rules(char field[], char type[])
 }
 
 /* Handles all data encodation from section 7.2.5 of ISO/IEC 24724 */
-static int rss_binary_string(ZintSymbol * symbol, const char source[], char binary_string[]) 
+int rss_binary_string(struct ZintSymbol * symbol, char source[], char binary_string[])
 {
-	int    encoding_method, i, mask, j, latch, debug = 0, last_mode = ISOIEC;
+	int encoding_method, i, mask, j, read_posn, latch, debug = 0, last_mode = ISOIEC;
+	int symbol_characters, characters_per_row;
 #ifndef _MSC_VER
-	char   general_field[strlen(source) + 1], general_field_type[strlen(source) + 1];
+	char general_field[strlen(source) + 1], general_field_type[strlen(source) + 1];
 #else
-	char * general_field = (char*)_alloca(strlen(source) + 1);
-	char * general_field_type = (char*)_alloca(strlen(source) + 1);
+	char* general_field = (char*)_alloca(strlen(source) + 1);
+	char* general_field_type = (char*)_alloca(strlen(source) + 1);
 #endif
-	int    remainder, d1, d2;
-	int    read_posn = 0;
-	int    value = 0;
-	char   padstring[40];
-	const  size_t src_len = sstrlen(source);
-	//
-	// Decide whether a compressed data field is required and if so what
-	// method to use - method 2 = no compressed data field
-	//
-	if((src_len >= 16) && ((source[0] == '0') && (source[1] == '1'))) {
+	int remainder, d1, d2, value;
+	char padstring[40];
+
+	read_posn = 0;
+	value = 0;
+
+	/* Decide whether a compressed data field is required and if so what
+	   method to use - method 2 = no compressed data field */
+
+	if((strlen(source) >= 16) && ((source[0] == '0') && (source[1] == '1'))) {
 		/* (01) and other AIs */
 		encoding_method = 1;
-		if(debug) 
-			printf("Choosing Method 1\n");
+		if(debug) printf("Choosing Method 1\n");
 	}
 	else {
 		/* any AIs */
 		encoding_method = 2;
-		if(debug) 
-			printf("Choosing Mehod 2\n");
+		if(debug) printf("Choosing Mehod 2\n");
 	}
-	if(((src_len >= 20) && (encoding_method == 1)) && ((source[2] == '9') && (source[16] == '3'))) {
+
+	if(((strlen(source) >= 20) && (encoding_method == 1)) && ((source[2] == '9') && (source[16] == '3'))) {
 		/* Possibly encoding method > 2 */
-		if(debug) 
-			printf("Checking for other methods\n");
-		if((src_len >= 26) && (source[17] == '1')) {
+		if(debug) printf("Checking for other methods\n");
+
+		if((strlen(source) >= 26) && (source[17] == '1')) {
 			/* Methods 3, 7, 9, 11 and 13 */
+
 			if(source[18] == '0') {
 				/* (01) and (310x) */
-				char   weight_str[7];
-				float  weight; /* In kilos */
+				char weight_str[7];
+				float weight; /* In kilos */
+
 				for(i = 0; i < 6; i++) {
 					weight_str[i] = source[20 + i];
 				}
 				weight_str[6] = '\0';
+
 				if(weight_str[0] == '0') { /* Maximum weight = 99999 */
 					encoding_method = 7;
-					if((source[19] == '3') && (src_len == 26)) {
+
+					if((source[19] == '3') && (strlen(source) == 26)) {
 						/* (01) and (3103) */
-						weight = (float)(atof(weight_str) / 1000.0);
+						weight = atof(weight_str) / 1000.0;
+
 						if(weight <= 32.767) {
 							encoding_method = 3;
 						}
 					}
-					if(src_len == 34) {
+
+					if(strlen(source) == 34) {
 						if((source[26] == '1') && (source[27] == '1')) {
-							encoding_method = 7; // (01), (310x) and (11) - metric weight and production date
+							/* (01), (310x) and (11) - metric weight and production date */
+							encoding_method = 7;
 						}
+
 						if((source[26] == '1') && (source[27] == '3')) {
-							encoding_method = 9; // (01), (310x) and (13) - metric weight and packaging date
+							/* (01), (310x) and (13) - metric weight and packaging date */
+							encoding_method = 9;
 						}
+
 						if((source[26] == '1') && (source[27] == '5')) {
-							encoding_method = 11; // (01), (310x) and (15) - metric weight and "best before" date
+							/* (01), (310x) and (15) - metric weight and "best before" date */
+							encoding_method = 11;
 						}
+
 						if((source[26] == '1') && (source[27] == '7')) {
-							encoding_method = 13; // (01), (310x) and (17) - metric weight and expiration date
+							/* (01), (310x) and (17) - metric weight and expiration date */
+							encoding_method = 13;
 						}
 					}
 				}
 			}
-			if(debug) 
-				printf("Now using method %d\n", encoding_method);
+			if(debug) printf("Now using method %d\n", encoding_method);
 		}
-		if((src_len >= 26) && (source[17] == '2')) {
+
+		if((strlen(source) >= 26) && (source[17] == '2')) {
 			/* Methods 4, 8, 10, 12 and 14 */
+
 			if(source[18] == '0') {
 				/* (01) and (320x) */
-				char  weight_str[7];
+				char weight_str[7];
 				float weight; /* In pounds */
+
 				for(i = 0; i < 6; i++) {
 					weight_str[i] = source[20 + i];
 				}
 				weight_str[6] = '\0';
+
 				if(weight_str[0] == '0') { /* Maximum weight = 99999 */
 					encoding_method = 8;
-					if(((source[19] == '2') || (source[19] == '3')) && (src_len == 26)) {
+
+					if(((source[19] == '2') || (source[19] == '3')) && (strlen(source) == 26)) {
 						/* (01) and (3202)/(3203) */
+
 						if(source[19] == '3') {
 							weight = (float)(atof(weight_str) / 1000.0F);
-							if(weight <= 22.767)
+							if(weight <= 22.767) {
 								encoding_method = 4;
+							}
 						}
 						else {
 							weight = (float)(atof(weight_str) / 100.0F);
-							if(weight <= 99.99)
+							if(weight <= 99.99) {
 								encoding_method = 4;
+							}
 						}
 					}
-					if(src_len == 34) {
+
+					if(strlen(source) == 34) {
 						if((source[26] == '1') && (source[27] == '1')) {
-							// (01), (320x) and (11) - English weight and production date 
+							/* (01), (320x) and (11) - English weight and production date */
 							encoding_method = 8;
 						}
+
 						if((source[26] == '1') && (source[27] == '3')) {
-							// (01), (320x) and (13) - English weight and packaging date
+							/* (01), (320x) and (13) - English weight and packaging date */
 							encoding_method = 10;
 						}
+
 						if((source[26] == '1') && (source[27] == '5')) {
-							// (01), (320x) and (15) - English weight and "best before" date
+							/* (01), (320x) and (15) - English weight and "best before" date */
 							encoding_method = 12;
 						}
+
 						if((source[26] == '1') && (source[27] == '7')) {
-							// (01), (320x) and (17) - English weight and expiration date 
+							/* (01), (320x) and (17) - English weight and expiration date */
 							encoding_method = 14;
 						}
 					}
 				}
 			}
-			if(debug) 
-				printf("Now using method %d\n", encoding_method);
+			if(debug) printf("Now using method %d\n", encoding_method);
 		}
+
 		if(source[17] == '9') {
 			/* Methods 5 and 6 */
 			if((source[18] == '2') && ((source[19] >= '0') && (source[19] <= '3'))) {
@@ -1296,6 +1347,7 @@ static int rss_binary_string(ZintSymbol * symbol, const char source[], char bina
 			if(debug) printf("Now using method %d\n", encoding_method);
 		}
 	}
+
 	switch(encoding_method) { /* Encoding method - Table 10 */
 		case 1: strcat(binary_string, "1XX");
 		    read_posn = 16;
@@ -1304,10 +1356,10 @@ static int rss_binary_string(ZintSymbol * symbol, const char source[], char bina
 		    read_posn = 0;
 		    break;
 		case 3: strcat(binary_string, "0100");
-		    read_posn = src_len;
+		    read_posn = strlen(source);
 		    break;
 		case 4: strcat(binary_string, "0101");
-		    read_posn = src_len;
+		    read_posn = strlen(source);
 		    break;
 		case 5: strcat(binary_string, "01100XX");
 		    read_posn = 20;
@@ -1316,32 +1368,32 @@ static int rss_binary_string(ZintSymbol * symbol, const char source[], char bina
 		    read_posn = 23;
 		    break;
 		case 7: strcat(binary_string, "0111000");
-		    read_posn = src_len;
+		    read_posn = strlen(source);
 		    break;
 		case 8: strcat(binary_string, "0111001");
-		    read_posn = src_len;
+		    read_posn = strlen(source);
 		    break;
 		case 9: strcat(binary_string, "0111010");
-		    read_posn = src_len;
+		    read_posn = strlen(source);
 		    break;
 		case 10: strcat(binary_string, "0111011");
-		    read_posn = src_len;
+		    read_posn = strlen(source);
 		    break;
 		case 11: strcat(binary_string, "0111100");
-		    read_posn = src_len;
+		    read_posn = strlen(source);
 		    break;
 		case 12: strcat(binary_string, "0111101");
-		    read_posn = src_len;
+		    read_posn = strlen(source);
 		    break;
 		case 13: strcat(binary_string, "0111110");
-		    read_posn = src_len;
+		    read_posn = strlen(source);
 		    break;
 		case 14: strcat(binary_string, "0111111");
-		    read_posn = src_len;
+		    read_posn = strlen(source);
 		    break;
 	}
-	if(debug) 
-		printf("Setting binary = %s\n", binary_string);
+	if(debug) printf("Setting binary = %s\n", binary_string);
+
 	/* Variable length symbol bit field is just given a place holder (XX)
 	   for the time being */
 
@@ -1351,32 +1403,37 @@ static int rss_binary_string(ZintSymbol * symbol, const char source[], char bina
 		if((source[i] < '0') || (source[i] > '9')) {
 			if((source[i] != '[') && (source[i] != ']')) {
 				/* Something is wrong */
-				strcpy(symbol->errtxt, "Invalid characters in input data");
+				strcpy(symbol->errtxt, "Invalid characters in input data (C85)");
 				return ZINT_ERROR_INVALID_DATA;
 			}
 		}
 	}
+
 	/* Now encode the compressed data field */
-	if(debug) 
-		printf("Proceeding to encode data\n");
+
+	if(debug) printf("Proceeding to encode data\n");
 	if(encoding_method == 1) {
 		/* Encoding method field "1" - general item identification data */
 		char group[4];
 		int group_val;
+
 		group[0] = source[2];
 		group[1] = '\0';
 		group_val = atoi(group);
+
 		mask = 0x08;
 		for(j = 0; j < 4; j++) {
 			strcat(binary_string, (group_val & mask) ? "1" : "0");
 			mask = mask >> 1;
 		}
+
 		for(i = 1; i < 5; i++) {
 			group[0] = source[(i * 3)];
 			group[1] = source[(i * 3) + 1];
 			group[2] = source[(i * 3) + 2];
 			group[3] = '\0';
 			group_val = atoi(group);
+
 			mask = 0x200;
 			for(j = 0; j < 10; j++) {
 				strcat(binary_string, (group_val & mask) ? "1" : "0");
@@ -1384,66 +1441,79 @@ static int rss_binary_string(ZintSymbol * symbol, const char source[], char bina
 			}
 		}
 	}
+
 	if(encoding_method == 3) {
-		// Encoding method field "0100" - variable weight item (0,001 kilogram icrements)
+		/* Encoding method field "0100" - variable weight item
+		   (0,001 kilogram icrements) */
 		char group[4];
 		int group_val;
 		char weight_str[7];
+
 		for(i = 1; i < 5; i++) {
 			group[0] = source[(i * 3)];
 			group[1] = source[(i * 3) + 1];
 			group[2] = source[(i * 3) + 2];
 			group[3] = '\0';
 			group_val = atoi(group);
+
 			mask = 0x200;
 			for(j = 0; j < 10; j++) {
 				strcat(binary_string, (group_val & mask) ? "1" : "0");
 				mask = mask >> 1;
 			}
 		}
+
 		for(i = 0; i < 6; i++) {
 			weight_str[i] = source[20 + i];
 		}
 		weight_str[6] = '\0';
 		group_val = atoi(weight_str);
+
 		mask = 0x4000;
 		for(j = 0; j < 15; j++) {
 			strcat(binary_string, (group_val & mask) ? "1" : "0");
 			mask = mask >> 1;
 		}
 	}
+
 	if(encoding_method == 4) {
 		/* Encoding method field "0101" - variable weight item (0,01 or
 		   0,001 pound increment) */
 		char group[4];
 		int group_val;
 		char weight_str[7];
+
 		for(i = 1; i < 5; i++) {
 			group[0] = source[(i * 3)];
 			group[1] = source[(i * 3) + 1];
 			group[2] = source[(i * 3) + 2];
 			group[3] = '\0';
 			group_val = atoi(group);
+
 			mask = 0x200;
 			for(j = 0; j < 10; j++) {
 				strcat(binary_string, (group_val & mask) ? "1" : "0");
 				mask = mask >> 1;
 			}
 		}
+
 		for(i = 0; i < 6; i++) {
 			weight_str[i] = source[20 + i];
 		}
 		weight_str[6] = '\0';
 		group_val = atoi(weight_str);
+
 		if(source[19] == '3') {
 			group_val = group_val + 10000;
 		}
+
 		mask = 0x4000;
 		for(j = 0; j < 15; j++) {
 			strcat(binary_string, (group_val & mask) ? "1" : "0");
 			mask = mask >> 1;
 		}
 	}
+
 	if((encoding_method >= 7) && (encoding_method <= 14)) {
 		/* Encoding method fields "0111000" through "0111111" - variable
 		   weight item plus date */
@@ -1451,38 +1521,46 @@ static int rss_binary_string(ZintSymbol * symbol, const char source[], char bina
 		int group_val;
 		char weight_str[8];
 		char date_str[4];
+
 		for(i = 1; i < 5; i++) {
 			group[0] = source[(i * 3)];
 			group[1] = source[(i * 3) + 1];
 			group[2] = source[(i * 3) + 2];
 			group[3] = '\0';
 			group_val = atoi(group);
+
 			mask = 0x200;
 			for(j = 0; j < 10; j++) {
 				strcat(binary_string, (group_val & mask) ? "1" : "0");
 				mask = mask >> 1;
 			}
 		}
+
 		weight_str[0] = source[19];
+
 		for(i = 0; i < 5; i++) {
 			weight_str[i + 1] = source[21 + i];
 		}
 		weight_str[6] = '\0';
 		group_val = atoi(weight_str);
+
 		mask = 0x80000;
 		for(j = 0; j < 20; j++) {
 			strcat(binary_string, (group_val & mask) ? "1" : "0");
 			mask = mask >> 1;
 		}
-		if(src_len == 34) {
+
+		if(strlen(source) == 34) {
 			/* Date information is included */
 			date_str[0] = source[28];
 			date_str[1] = source[29];
 			date_str[2] = '\0';
 			group_val = atoi(date_str) * 384;
+
 			date_str[0] = source[30];
 			date_str[1] = source[31];
 			group_val += (atoi(date_str) - 1) * 32;
+
 			date_str[0] = source[32];
 			date_str[1] = source[33];
 			group_val += atoi(date_str);
@@ -1490,83 +1568,104 @@ static int rss_binary_string(ZintSymbol * symbol, const char source[], char bina
 		else {
 			group_val = 38400;
 		}
+
 		mask = 0x8000;
 		for(j = 0; j < 16; j++) {
 			strcat(binary_string, (group_val & mask) ? "1" : "0");
 			mask = mask >> 1;
 		}
 	}
+
 	if(encoding_method == 5) {
 		/* Encoding method field "01100" - variable measure item and price */
 		char group[4];
 		int group_val;
+
 		for(i = 1; i < 5; i++) {
 			group[0] = source[(i * 3)];
 			group[1] = source[(i * 3) + 1];
 			group[2] = source[(i * 3) + 2];
 			group[3] = '\0';
 			group_val = atoi(group);
+
 			mask = 0x200;
 			for(j = 0; j < 10; j++) {
 				strcat(binary_string, (group_val & mask) ? "1" : "0");
 				mask = mask >> 1;
 			}
 		}
+
 		switch(source[19]) {
-			case '0': strcat(binary_string, "00"); break;
-			case '1': strcat(binary_string, "01"); break;
-			case '2': strcat(binary_string, "10"); break;
-			case '3': strcat(binary_string, "11"); break;
+			case '0': strcat(binary_string, "00");
+			    break;
+			case '1': strcat(binary_string, "01");
+			    break;
+			case '2': strcat(binary_string, "10");
+			    break;
+			case '3': strcat(binary_string, "11");
+			    break;
 		}
 	}
+
 	if(encoding_method == 6) {
 		/* Encoding method "01101" - variable measure item and price with ISO 4217
 		   Currency Code */
+
 		char group[4];
 		int group_val;
 		char currency_str[5];
+
 		for(i = 1; i < 5; i++) {
 			group[0] = source[(i * 3)];
 			group[1] = source[(i * 3) + 1];
 			group[2] = source[(i * 3) + 2];
 			group[3] = '\0';
 			group_val = atoi(group);
+
 			mask = 0x200;
 			for(j = 0; j < 10; j++) {
 				strcat(binary_string, (group_val & mask) ? "1" : "0");
 				mask = mask >> 1;
 			}
 		}
+
 		switch(source[19]) {
-			case '0': strcat(binary_string, "00"); break;
-			case '1': strcat(binary_string, "01"); break;
-			case '2': strcat(binary_string, "10"); break;
-			case '3': strcat(binary_string, "11"); break;
+			case '0': strcat(binary_string, "00");
+			    break;
+			case '1': strcat(binary_string, "01");
+			    break;
+			case '2': strcat(binary_string, "10");
+			    break;
+			case '3': strcat(binary_string, "11");
+			    break;
 		}
+
 		for(i = 0; i < 3; i++) {
 			currency_str[i] = source[20 + i];
 		}
 		currency_str[3] = '\0';
 		group_val = atoi(currency_str);
+
 		mask = 0x200;
 		for(j = 0; j < 10; j++) {
 			strcat(binary_string, (group_val & mask) ? "1" : "0");
 			mask = mask >> 1;
 		}
 	}
+
 	/* The compressed data field has been processed if appropriate - the
 	   rest of the data (if any) goes into a general-purpose data compaction field */
 
 	j = 0;
-	for(i = read_posn; i < (int)src_len; i++) {
+	for(i = read_posn; i < strlen(source); i++) {
 		general_field[j] = source[i];
 		j++;
 	}
 	general_field[j] = '\0';
-	if(debug) 
-		printf("General field data = %s\n", general_field);
+	if(debug) printf("General field data = %s\n", general_field);
+
 	latch = 0;
-	for(i = 0; i < (int)strlen(general_field); i++) {
+	for(i = 0; i < strlen(general_field); i++) {
 		/* Table 13 - ISO/IEC 646 encodation */
 		if((general_field[i] < ' ') || (general_field[i] > 'z')) {
 			general_field_type[i] = INVALID_CHAR;
@@ -1636,23 +1735,27 @@ static int rss_binary_string(ZintSymbol * symbol, const char source[], char bina
 
 	if(latch == 1) {
 		/* Invalid characters in input data */
-		strcpy(symbol->errtxt, "Invalid characters in input data");
+		strcpy(symbol->errtxt, "Invalid characters in input data (C86)");
 		return ZINT_ERROR_INVALID_DATA;
 	}
-	for(i = 0; i < (int)strlen(general_field); i++) {
+
+	for(i = 0; i < strlen(general_field); i++) {
 		if((general_field_type[i] == ISOIEC) && (general_field[i + 1] == '[')) {
 			general_field_type[i + 1] = ISOIEC;
 		}
 	}
-	for(i = 0; i < (int)strlen(general_field); i++) {
+
+	for(i = 0; i < strlen(general_field); i++) {
 		if((general_field_type[i] == ALPHA_OR_ISO) && (general_field[i + 1] == '[')) {
 			general_field_type[i + 1] = ALPHA_OR_ISO;
 		}
 	}
+
 	latch = general_rules(general_field, general_field_type);
-	if(debug) 
-		printf("General field type: %s\n", general_field_type);
+	if(debug) printf("General field type: %s\n", general_field_type);
+
 	last_mode = NUMERIC;
+
 	/* Set initial mode if not NUMERIC */
 	if(general_field_type[0] == ALPHA) {
 		strcat(binary_string, "0000"); /* Alphanumeric latch */
@@ -1824,18 +1927,31 @@ static int rss_binary_string(ZintSymbol * symbol, const char source[], char bina
 			    i++;
 			    break;
 		}
-	} while((i + latch) < (int)strlen(general_field));
-	if(debug) 
-		printf("Resultant binary = %s\n", binary_string);
-	if(debug) 
-		printf("\tLength: %d\n", (int)strlen(binary_string));
+	} while(i + latch < strlen(general_field));
+	if(debug) printf("Resultant binary = %s\n", binary_string);
+	if(debug) printf("\tLength: %d\n", (int)strlen(binary_string));
+
 	remainder = 12 - (strlen(binary_string) % 12);
 	if(remainder == 12) {
 		remainder = 0;
 	}
-	if(strlen(binary_string) < 36) {
-		remainder = 36 - strlen(binary_string);
+	symbol_characters = ((strlen(binary_string) + remainder) / 12) + 1;
+	if((symbol->Std == BARCODE_RSS_EXPSTACK) || (symbol->Std == BARCODE_RSS_EXPSTACK_CC)) {
+		characters_per_row = symbol->option_2 * 2;
+		if((characters_per_row < 2) || (characters_per_row > 20)) {
+			characters_per_row = 4;
+		}
+		if((symbol_characters % characters_per_row) == 1) {
+			symbol_characters++;
+		}
+		if(symbol_characters < 4) {
+			symbol_characters = 4;
+		}
 	}
+	if(symbol_characters < 3) {
+		symbol_characters = 3;
+	}
+	remainder = (12 * (symbol_characters - 1)) - strlen(binary_string);
 	if(latch == 1) {
 		/* There is still one more numeric digit to encode */
 		if(debug) 
@@ -1844,6 +1960,7 @@ static int rss_binary_string(ZintSymbol * symbol, const char source[], char bina
 			if((remainder >= 4) && (remainder <= 6)) {
 				value = ctoi(general_field[i]);
 				value++;
+
 				mask = 0x08;
 				for(j = 0; j < 4; j++) {
 					strcat(binary_string, (value & mask) ? "1" : "0");
@@ -1853,7 +1970,9 @@ static int rss_binary_string(ZintSymbol * symbol, const char source[], char bina
 			else {
 				d1 = ctoi(general_field[i]);
 				d2 = 10;
+
 				value = (11 * d1) + d2 + 8;
+
 				mask = 0x40;
 				for(j = 0; j < 7; j++) {
 					strcat(binary_string, (value & mask) ? "1" : "0");
@@ -1863,28 +1982,50 @@ static int rss_binary_string(ZintSymbol * symbol, const char source[], char bina
 		}
 		else {
 			value = general_field[i] - 43;
+
 			mask = 0x10;
 			for(j = 0; j < 5; j++) {
 				strcat(binary_string, (value & mask) ? "1" : "0");
 				mask = mask >> 1;
 			}
 		}
+
 		remainder = 12 - (strlen(binary_string) % 12);
 		if(remainder == 12) {
 			remainder = 0;
 		}
-		if(strlen(binary_string) < 36) {
-			remainder = 36 - strlen(binary_string);
+		symbol_characters = ((strlen(binary_string) + remainder) / 12) + 1;
+		if((symbol->Std == BARCODE_RSS_EXPSTACK) || (symbol->Std == BARCODE_RSS_EXPSTACK_CC)) {
+			characters_per_row = symbol->option_2 * 2;
+
+			if((characters_per_row < 2) || (characters_per_row > 20)) {
+				characters_per_row = 4;
+			}
+
+			if((symbol_characters % characters_per_row) == 1) {
+				symbol_characters++;
+			}
+
+			if(symbol_characters < 4) {
+				symbol_characters = 4;
+			}
 		}
-		if(debug) 
-			printf("Resultant binary = %s\n", binary_string);
-		if(debug) 
-			printf("\tLength: %d\n", (int)strlen(binary_string));
+
+		if(symbol_characters < 3) {
+			symbol_characters = 3;
+		}
+
+		remainder = (12 * (symbol_characters - 1)) - strlen(binary_string);
+
+		if(debug) printf("Resultant binary = %s\n", binary_string);
+		if(debug) printf("\tLength: %d\n", (int)strlen(binary_string));
 	}
+
 	if(strlen(binary_string) > 252) {
 		strcpy(symbol->errtxt, "Input too long");
 		return ZINT_ERROR_TOO_LONG;
 	}
+
 	/* Now add padding to binary string (7.2.5.5.4) */
 	i = remainder;
 	if((strlen(general_field) != 0) && (last_mode == NUMERIC)) {
@@ -1897,16 +2038,20 @@ static int rss_binary_string(ZintSymbol * symbol, const char source[], char bina
 	for(; i > 0; i -= 5) {
 		strcat(padstring, "00100");
 	}
+
 	padstring[remainder] = '\0';
 	strcat(binary_string, padstring);
+
 	/* Patch variable length symbol bit field */
-	d1 = ((strlen(binary_string) / 12) + 1) & 1;
-	if(strlen(binary_string) <= 156) {
+	d1 = symbol_characters & 1;
+
+	if(symbol_characters <= 14) {
 		d2 = 0;
 	}
 	else {
 		d2 = 1;
 	}
+
 	if(encoding_method == 1) {
 		binary_string[2] = d1 ? '1' : '0';
 		binary_string[3] = d2 ? '1' : '0';
@@ -1919,16 +2064,15 @@ static int rss_binary_string(ZintSymbol * symbol, const char source[], char bina
 		binary_string[6] = d1 ? '1' : '0';
 		binary_string[7] = d2 ? '1' : '0';
 	}
-	if(debug) 
-		printf("Resultant binary = %s\n", binary_string);
-	if(debug) 
-		printf("\tLength: %d\n", (int)strlen(binary_string));
+	if(debug) printf("Resultant binary = %s\n", binary_string);
+	if(debug) printf("\tLength: %d\n", (int)strlen(binary_string));
 	return 0;
 }
 
 /* GS1 DataBar Expanded */
-int rssexpanded(ZintSymbol * symbol, uchar source[], int src_len) {
-	int i, j, k, l, p, data_chars, vs[21], group[21], v_odd[21], v_even[21];
+int rssexpanded(struct ZintSymbol * symbol, uchar source[], int src_len)
+{
+	int i, j, k, p, data_chars, vs[21], group[21], v_odd[21], v_even[21];
 	char substring[21][14], latch;
 	int char_widths[21][8], checksum, check_widths[8], c_group;
 	int check_char, c_odd, c_even, elements[235], pattern_width, reader, writer;
@@ -1952,7 +2096,6 @@ int rssexpanded(ZintSymbol * symbol, uchar source[], int src_len) {
 			return i;
 		}
 	}
-
 	if((symbol->Std == BARCODE_RSS_EXP_CC) || (symbol->Std == BARCODE_RSS_EXPSTACK_CC)) {
 		/* make space for a composite separator pattern */
 		separator_row = symbol->rows;
@@ -2072,11 +2215,6 @@ int rssexpanded(ZintSymbol * symbol, uchar source[], int src_len) {
 		elements[i] = 0;
 	}
 
-	elements[0] = 1;
-	elements[1] = 1;
-	elements[pattern_width - 2] = 1;
-	elements[pattern_width - 1] = 1;
-
 	/* Put finder patterns in element array */
 	for(i = 0; i < (((data_chars + 1) / 2) + ((data_chars + 1) & 1)); i++) {
 		k = ((((((data_chars + 1) - 2) / 2) + ((data_chars + 1) & 1)) - 1) * 11) + i;
@@ -2103,9 +2241,15 @@ int rssexpanded(ZintSymbol * symbol, uchar source[], int src_len) {
 			elements[((i / 2) * 21) + 15 + j] = char_widths[i][7 - j];
 		}
 	}
-
 	if((symbol->Std == BARCODE_RSS_EXP) || (symbol->Std == BARCODE_RSS_EXP_CC)) {
 		/* Copy elements into symbol */
+
+		elements[0] = 1; // left guard
+		elements[1] = 1;
+
+		elements[pattern_width - 2] = 1; // right guard
+		elements[pattern_width - 1] = 1;
+
 		writer = 0;
 		latch = '0';
 		for(i = 0; i < pattern_width; i++) {
@@ -2198,7 +2342,7 @@ int rssexpanded(ZintSymbol * symbol, uchar source[], int src_len) {
 			special_case_row = 0;
 
 			/* Row Start */
-			sub_elements[0] = 1;
+			sub_elements[0] = 1; // left guard
 			sub_elements[1] = 1;
 			elements_in_sub = 2;
 
@@ -2214,34 +2358,19 @@ int rssexpanded(ZintSymbol * symbol, uchar source[], int src_len) {
 					for(j = 0; j < 21; j++) {
 						if((i + j) < pattern_width) {
 							sub_elements[j + (reader * 21) + 2] = elements[i + j];
-							elements_in_sub++;
 						}
+						elements_in_sub++;
 					}
 				}
 				else {
 					/* right to left */
 					left_to_right = 0;
-					if((current_row * symbol->option_2) < codeblocks) {
-						/* a full row */
-						i = 2 + (((current_row * symbol->option_2) - reader - 1) * 21);
-						for(j = 0; j < 21; j++) {
-							if((i + j) < pattern_width) {
-								sub_elements[(20 - j) + (reader * 21) + 2] = elements[i + j];
-								elements_in_sub++;
-							}
+					i = 2 + (((current_row * symbol->option_2) - reader - 1) * 21);
+					for(j = 0; j < 21; j++) {
+						if((i + j) < pattern_width) {
+							sub_elements[(20 - j) + (reader * 21) + 2] = elements[i + j];
 						}
-					}
-					else {
-						/* a partial row */
-						k = ((current_row * symbol->option_2) - codeblocks);
-						l = (current_row * symbol->option_2) - reader - 1;
-						i = 2 + ((l - k) * 21);
-						for(j = 0; j < 21; j++) {
-							if((i + j) < pattern_width) {
-								sub_elements[(20 - j) + (reader * 21) + 2] = elements[i + j];
-								elements_in_sub++;
-							}
-						}
+						elements_in_sub++;
 					}
 				}
 				reader++;
@@ -2249,14 +2378,14 @@ int rssexpanded(ZintSymbol * symbol, uchar source[], int src_len) {
 			} while((reader < symbol->option_2) && (current_block < codeblocks));
 
 			/* Row Stop */
-			sub_elements[elements_in_sub] = 1;
+			sub_elements[elements_in_sub] = 1; // right guard
 			sub_elements[elements_in_sub + 1] = 1;
 			elements_in_sub += 2;
 
 			latch = current_row & 1 ? '0' : '1';
 
 			if((current_row == stack_rows) && (codeblocks != (current_row * symbol->option_2)) &&
-			    (((current_row * symbol->option_2) - codeblocks) & 1)) {
+			    ((current_row & 1) == 0) && ((symbol->option_2 & 1) == 0)) {
 				/* Special case bottom row */
 				special_case_row = 1;
 				sub_elements[0] = 2;
@@ -2303,7 +2432,7 @@ int rssexpanded(ZintSymbol * symbol, uchar source[], int src_len) {
 				symbol->row_height[symbol->rows - 1] = 1;
 				/* finder bar adjustment */
 				for(j = 0; j < reader; j++) {
-					k = (49 * j) + (special_case_row ? 19 : 18);
+					k = (49 * j) + 18 + special_case_row;
 					if(left_to_right) {
 						for(i = 0; i < 15; i++) {
 							if((!(module_is_set(symbol, symbol->rows, i + k - 1))) &&
@@ -2314,6 +2443,9 @@ int rssexpanded(ZintSymbol * symbol, uchar source[], int src_len) {
 						}
 					}
 					else {
+						if((current_row == stack_rows) && (data_chars % 2 == 0)) {
+							k -= 18;
+						}
 						for(i = 14; i >= 0; i--) {
 							if((!(module_is_set(symbol, symbol->rows, i + k + 1))) &&
 							    (!(module_is_set(symbol, symbol->rows, i + k))) &&
@@ -2383,6 +2515,12 @@ int rssexpanded(ZintSymbol * symbol, uchar source[], int src_len) {
 					}
 				}
 			}
+		}
+	}
+
+	for(i = 0; i < symbol->rows; i++) {
+		if(symbol->row_height[i] == 0) {
+			symbol->row_height[i] = 34;
 		}
 	}
 

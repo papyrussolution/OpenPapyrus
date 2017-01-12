@@ -1,5 +1,5 @@
 // IE_BILL.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -3370,7 +3370,7 @@ int SignBillDialog::DrawList()
 			if(p_list) {
 				for(uint i = 0; i < names_arr.getCount(); i++) {
 					names_arr.Get(i, signer_name = 0);
-					THROW_SL(p_list->addItem(i, signer_name.ToOem()));
+					THROW_SL(p_list->addItem(i, signer_name.Transf(CTRANSF_OUTER_TO_INNER)));
 				}
 			}
 			p_list->draw();
@@ -3383,7 +3383,7 @@ int SignBillDialog::DrawList()
 			if(p_list) {
 				for(uint i = 0; i < files_arr.getCount(); i++) {
 					files_arr.Get(i, file_name = 0);
-					THROW_SL(p_list->addItem(i, file_name.ToOem()));
+					THROW_SL(p_list->addItem(i, file_name.Transf(CTRANSF_OUTER_TO_INNER)));
 				}
 			}
 			p_list->draw();

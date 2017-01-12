@@ -596,7 +596,7 @@ void SLAPI ComDispInterface::SetErrCode()
 		PPLoadTextWin(PPTXT_RETCODE, temp_buf);
 		sys_err_buf.Cat(temp_buf).Space().CatHex(HRes);
 	}
-	err_msg.CatQStr(ProgIdent).Space().Cat(sys_err_buf.ToOem());
+	err_msg.CatQStr(ProgIdent).Space().Cat(sys_err_buf.Transf(CTRANSF_OUTER_TO_INNER));
 	//PPSetError(PPERR_COMINTERFACE, err_msg.ToOem());
 	PPSetError(PPERR_DISPIFCCLI, err_msg);
 }

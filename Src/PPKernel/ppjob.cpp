@@ -1,5 +1,5 @@
 // PPJOB.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // @Kernel
 //
@@ -2207,18 +2207,19 @@ public:
 	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
+		const  PPCommConfig & r_ccfg = CConfig;
 		SString fmt_buf, msg_buf;
 		ExportBillsFiltDialog::ExpBillsFilt filt;
 		CoInitialize(NULL);
 		THROW(filt.Read(*pParam, 0) > 0);
-		if(CConfig.Flags & CCFLG_DEBUG) {
+		if(r_ccfg.Flags & CCFLG_DEBUG) {
 			PPLogMessage(PPFILNAM_DEBUG_LOG, PPLoadTextS(PPTXT_LOG_JOBEXPBILL_READFILT, msg_buf), LOGMSGF_USER|LOGMSGF_TIME);
 		}
 		{
 			PPViewBill view;
 			PPBillImpExpParam bill_param, brow_param;
 			THROW(ExportBillsFiltDialog::GetParamsByName(filt.BillParam, filt.BRowParam, &bill_param, &brow_param));
-			if(CConfig.Flags & CCFLG_DEBUG) {
+			if(r_ccfg.Flags & CCFLG_DEBUG) {
 				const char * p1 = filt.BillParam.NotEmpty() ? filt.BillParam.cptr() : "";
 				const char * p2 = filt.BRowParam.NotEmpty() ? filt.BRowParam.cptr() : "";
 				PPFormatT(PPTXT_LOG_JOBEXPBILL_GETPARAM, &msg_buf, p1, p2);
@@ -2226,7 +2227,7 @@ public:
 			}
 			THROW(view.Init_(&filt.Filt));
 			ok = view.ExportGoodsBill(&bill_param, &brow_param);
-			if(CConfig.Flags & CCFLG_DEBUG) {
+			if(r_ccfg.Flags & CCFLG_DEBUG) {
 				PPFormatT(PPTXT_LOG_JOBEXPBILL_DONE, &msg_buf, ok);
 				PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);
 			}
@@ -3743,11 +3744,12 @@ public:
 	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
+		const  PPCommConfig & r_ccfg = CConfig;
 		SString fmt_buf, msg_buf;
 		TSessionFilt filt;
 		CoInitialize(NULL);
 		THROW(filt.Read(*pParam, 0) > 0);
-		if(CConfig.Flags & CCFLG_DEBUG) {
+		if(r_ccfg.Flags & CCFLG_DEBUG) {
 			PPLoadText(PPTXT_LOG_JOBTSESSAUTOSMS_READFILT, msg_buf);
 			PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);
 		}
@@ -3755,7 +3757,7 @@ public:
 			PPViewTSession view;
 			THROW(view.Init_(&filt));
 			ok = view.SendAutoSms();
-			if(CConfig.Flags & CCFLG_DEBUG) {
+			if(r_ccfg.Flags & CCFLG_DEBUG) {
 				PPFormatT(PPTXT_LOG_JOBTSESSAUTOSMS_DONE, &msg_buf, ok);
 				PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);
 			}

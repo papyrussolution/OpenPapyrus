@@ -8,6 +8,8 @@
 #ifndef ZCONF_H
 #define ZCONF_H
 
+typedef unsigned char uchar; // @sobolev
+
 /*
  * If you *really* need a unique prefix for all types and library functions,
  * compile with -DZ_PREFIX. The "standard" zlib should be compiled without it.
@@ -179,12 +181,11 @@
  * than 64k bytes at a time (needed on systems with 16-bit int).
  */
 #ifdef SYS16BIT
-#  define MAXSEG_64K
+	#define MAXSEG_64K
 #endif
 #ifdef MSDOS
-#  define UNALIGNED_OK
+	#define UNALIGNED_OK
 #endif
-
 #ifdef __STDC_VERSION__
 #  ifndef STDC
 #    define STDC

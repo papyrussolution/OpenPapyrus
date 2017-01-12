@@ -1,5 +1,5 @@
 // RFLDCORR.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -11,8 +11,14 @@ int SLAPI SetupSdRecFieldCombo(TDialog * dlg, uint ctlID, uint id, const SdRecor
 {
 	StrAssocArray list;
 	SdbField fld;
-	for(uint i = 0; pRec->EnumFields(&i, &fld);)
-		list.Add(fld.ID, fld.Descr.NotEmpty() ? fld.Descr.ToOem() : fld.Name);
+	for(uint i = 0; pRec->EnumFields(&i, &fld);) {
+		if(fld.Descr.NotEmpty()) {
+			fld.Descr.Transf(CTRANSF_OUTER_TO_INNER);
+			list.Add(fld.ID, fld.Descr);
+		}
+		else
+			list.Add(fld.ID, fld.Name);
+	}
 	return SetupStrAssocCombo(dlg, ctlID, &list, (long)id, 0);
 }
 
@@ -50,7 +56,7 @@ int SLAPI EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField)
 			disableCtrl(CTLSEL_FLDCORR_INNERFLD, use_formula);
 			disableCtrl(CTL_FLDCORR_FORMULA, !use_formula);
 			SetupBaseSTypeCombo(this, CTLSEL_FLDCORR_OUTERTYPE, Data.T.Typ);
-			setCtrlString(CTL_FLDCORR_OUTERFLD, (temp_buf = Data.Name).ToOem());
+			setCtrlString(CTL_FLDCORR_OUTERFLD, (temp_buf = Data.Name).Transf(CTRANSF_OUTER_TO_INNER));
 			setupOuterLen();
 			return 1;
 		}
@@ -252,7 +258,7 @@ int SdFieldCorrListDialog::setupList()
 			sub = inner_fld.Name;
 		ss.add(sub);
 		// @v7.0.3 ss.add(fld.Name);
-		ss.add((sub = fld.Name).ToOem()); // @v7.0.3
+		ss.add((sub = fld.Name).Transf(CTRANSF_OUTER_TO_INNER)); // @v7.0.3
 		ss.add(GetBaseTypeString(stbase(fld.T.Typ), BTSF_NATIVE|BTSF_OEM, sub));
 		len = SFMTLEN(fld.OuterFormat);
 		(sub = 0).Cat(len);
@@ -297,7 +303,7 @@ int EditTextDbFileParam(/*TextDbFile::Param * pData*/ PPImpExpParam * pIeParam)
 			AddClusterAssoc(CTL_TXTDBPARAM_FLAGS, 4, TextDbFile::fQuotText);
 			SetClusterData(CTL_TXTDBPARAM_FLAGS, Data.Flags);
 			setCtrlData(CTL_TXTDBPARAM_HDRCOUNT, &Data.HdrLinesCount);
-			setCtrlString(CTL_TXTDBPARAM_FOOTER, (temp_buf = Data.FooterLine).ToOem()); // @v7.4.1
+			setCtrlString(CTL_TXTDBPARAM_FOOTER, (temp_buf = Data.FooterLine).Transf(CTRANSF_OUTER_TO_INNER)); // @v7.4.1
 			onOrientSelection();
 			return 1;
 		}
@@ -352,7 +358,7 @@ int EditTextDbFileParam(/*TextDbFile::Param * pData*/ PPImpExpParam * pIeParam)
 			PPGetSubStr(PPTXT_LAB_TXTDBPARAM_DIV, orient, label_text);
 			setLabelText(CTL_TXTDBPARAM_DIV, label_text);
 			label_text = orient ? Data.VertRecTerm : Data.FldDiv;
-			setCtrlString(CTL_TXTDBPARAM_DIV, label_text.ToOem());
+			setCtrlString(CTL_TXTDBPARAM_DIV, label_text.Transf(CTRANSF_OUTER_TO_INNER));
 			disableCtrl(CTL_TXTDBPARAM_FOOTER, orient != 1); // @v7.4.1
 		}
 		TextDbFile::Param Data;
@@ -373,9 +379,9 @@ int EditXmlDbFileParam(/*XmlDbFile::Param * pData*/PPImpExpParam * pIeParam)
 		{
 			if(!RVALUEPTR(Data, pData))
 				Data.Init(0, 0, 0, 0);
-			setCtrlString(CTL_XMLDBPARAM_ROOTTAG, Data.RootTag.ToOem());
-			setCtrlString(CTL_XMLDBPARAM_RECTAG,  Data.RecTag.ToOem());
-			setCtrlString(CTL_XMLDBPARAM_HDRTAG,  Data.HdrTag.ToOem());
+			setCtrlString(CTL_XMLDBPARAM_ROOTTAG, Data.RootTag.Transf(CTRANSF_OUTER_TO_INNER));
+			setCtrlString(CTL_XMLDBPARAM_RECTAG,  Data.RecTag.Transf(CTRANSF_OUTER_TO_INNER));
+			setCtrlString(CTL_XMLDBPARAM_HDRTAG,  Data.HdrTag.Transf(CTRANSF_OUTER_TO_INNER));
 			AddClusterAssoc(CTL_XMLDBPARAM_FLAGS, 0, XmlDbFile::Param::fUseDTD);
 			AddClusterAssoc(CTL_XMLDBPARAM_FLAGS, 1, XmlDbFile::Param::fUtf8Codepage);
 			AddClusterAssoc(CTL_XMLDBPARAM_FLAGS, 2, XmlDbFile::Param::fHaveSubRec);
@@ -1895,7 +1901,7 @@ int PPImpExp::Push(PPImpExpParam * pParam)
 	int    ok = 1;
 	if(pParam && P_XmlT && P.DataFormat == PPImpExpParam::dfXml && pParam->DataFormat == PPImpExpParam::dfXml) {
 		SString file_name = P.FileName;
-		file_name.ToOem();
+		file_name.Transf(CTRANSF_OUTER_TO_INNER);
 		if(pParam->FileName.CmpNC(file_name) == 0) {
 			int    pos = -1;
 			StateBlock * p_state = 0;

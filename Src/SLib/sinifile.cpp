@@ -1,5 +1,5 @@
 // SINIFILE.CPP
-// Copyright (c) A.Sobolev 2007, 2010, 2011, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2007, 2010, 2011, 2014, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -298,7 +298,7 @@ long SLAPI SIniFile::GetFlags() const
 
 long SLAPI SIniFile::SetFlag(long f, int set)
 {
-	long   prev = Flags;
+	const long prev = Flags;
 	SETFLAG(Flags, f, set);
 	return prev;
 }
@@ -395,7 +395,7 @@ int SLAPI SIniFile::IsSection(const SString & rLineBuf, const char * pPattern, S
 			Scan.Get(sect_name);
 			if(sect_name.NotEmptyS()) {
 				if(Flags & fWinCoding)
-					sect_name.ToOem();
+					sect_name.Transf(CTRANSF_OUTER_TO_INNER);
 				ok = (pPattern && sect_name.CmpNC(pPattern) == 0) ? 2 : 1;
 				ASSIGN_PTR(pRet, sect_name);
 			}
@@ -457,7 +457,7 @@ int SLAPI SIniFile::GetEntries(const char * pSect, StringSet * pEntries, int sto
 				for(uint pos = 0; p_sect_buf->EnumParams(&pos, &temp_buf, &val) > 0;) {
 					if(storeAllString) {
 						if(Flags & fWinCoding)
-							val.ToOem();
+							val.Transf(CTRANSF_OUTER_TO_INNER);
 						temp_buf.Eq().Cat(val);
 					}
 					pEntries->add(temp_buf, 0);
@@ -483,7 +483,7 @@ int SLAPI SIniFile::GetEntries(const char * pSect, StringSet * pEntries, int sto
 						temp_buf = 0;
 					if(temp_buf.NotEmptyS()) {
 						if(Flags & fWinCoding)
-							temp_buf.ToOem();
+							temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
 						THROW(pEntries->add(temp_buf));
 					}
 				}
@@ -511,8 +511,8 @@ int SLAPI SIniFile::SearchParam(const char * pSect, const char * pParam, SString
 		do_close_file = 1;
 		THROW(Open(FileName));
 		if(Flags & fWinCoding) {
-			sect.ToOem();
-			key.ToOem();
+			sect.Transf(CTRANSF_OUTER_TO_INNER);
+			key.Transf(CTRANSF_OUTER_TO_INNER);
 		}
 		for(File.Seek(0); ok < 0 && File.ReadLine(line_buf);) {
 			int    r = IsSection(line_buf, sect, 0);

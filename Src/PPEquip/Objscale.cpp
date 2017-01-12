@@ -1,5 +1,5 @@
 // OBJSCALE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -380,13 +380,12 @@ int SLAPI PPScaleDevice::PutChr(uint8 c, int direct, int special)
 
 static SString & __GetLastSystemErr(SString & rBuf)
 {
-	DWORD  last_err = GetLastError();
+	const  DWORD last_err = GetLastError();
 	LPVOID p_msg_buf = 0;
-	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
-		FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(),
+	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, last_err,
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&p_msg_buf, 0, NULL);
 	rBuf = (char *)p_msg_buf;
-	rBuf.Chomp().ToOem();
+	rBuf.Chomp().Transf(CTRANSF_OUTER_TO_INNER);
 	//MessageBox(NULL, (LPCTSTR)lpMsgBuf, "Error", MB_OK | MB_ICONINFORMATION);
 	LocalFree(p_msg_buf);
 	return rBuf;

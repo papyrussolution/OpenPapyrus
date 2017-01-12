@@ -1,5 +1,5 @@
 // C_TRFR.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // Процедуры корректировки товарных проводок
 //
@@ -1760,36 +1760,38 @@ int SLAPI Transfer::RecalcLcr()
 
 int SLAPI PPObjBill::CorrectPckgCloseTag()
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	if(CConfig.Flags & CCFLG_USEGOODSPCKG) {
 		IterCounter cntr;
 		PPID   k = 0;
 		PackageTbl::Rec pckg_rec;
 		PPWait(1);
 		cntr.Init(P_PckgT);
-		THROW(PPStartTransaction(&ta, 1));
-		while(P_PckgT->search(0, &k, spGt)) {
-			ReceiptTbl::Rec lot_rec;
-			P_PckgT->copyBufTo(&pckg_rec);
-			if(trfr->Rcpt.Search(pckg_rec.ID, &lot_rec) > 0) {
-				int16 old_val = pckg_rec.Closed ? 1 : 0;
-				pckg_rec.Closed = (lot_rec.Rest > 0) ? 0 : 1;
-				P_PckgT->copyBufFrom(&pckg_rec);
-				if(old_val != pckg_rec.Closed)
-					if(!pckg_rec.Closed && !P_PckgT->AdjustUniqCntr(&pckg_rec)) {
-						PPError();
-						PPWait(1);
-					}
-					else
-						THROW(UpdateByID(P_PckgT, PPOBJ_PACKAGE, pckg_rec.ID, &pckg_rec, 0));
+		{
+			PPTransaction tra(1);
+			THROW(tra);
+			while(P_PckgT->search(0, &k, spGt)) {
+				ReceiptTbl::Rec lot_rec;
+				P_PckgT->copyBufTo(&pckg_rec);
+				if(trfr->Rcpt.Search(pckg_rec.ID, &lot_rec) > 0) {
+					int16 old_val = pckg_rec.Closed ? 1 : 0;
+					pckg_rec.Closed = (lot_rec.Rest > 0) ? 0 : 1;
+					P_PckgT->copyBufFrom(&pckg_rec);
+					if(old_val != pckg_rec.Closed)
+						if(!pckg_rec.Closed && !P_PckgT->AdjustUniqCntr(&pckg_rec)) {
+							PPError();
+							PPWait(1);
+						}
+						else
+							THROW(UpdateByID(P_PckgT, PPOBJ_PACKAGE, pckg_rec.ID, &pckg_rec, 0));
+				}
+				PPWaitPercent(cntr.Increment());
 			}
-			PPWaitPercent(cntr.Increment());
+			THROW(tra.Commit());
 		}
-		THROW(PPCommitWork(&ta));
 		PPWait(0);
 	}
 	CATCH
-		PPRollbackWork(&ta);
 		ok = PPErrorZ();
 	ENDCATCH
 	return ok;
