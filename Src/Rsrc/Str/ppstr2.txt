@@ -1860,6 +1860,7 @@ PPERR_SUPPLIXNOTINITED           "@{err_internal}: объект PrcssrSupplInter
 PPERR_UNABLERMVSPCQUOTKIND       "Вид котировки не может быть удален поскольку имеет специальное назначение '%s'"
 PPERR_SUPPLIX_UNDEFCLICTAG       "В конфигурации обмена с поставщиком '%s' не определен тег кода контрагента"
 PPERR_SUPPLIX_UNDEFLOCCTAG       "В конфигурации обмена с поставщиком '%s' не определен тег кода локации"
+PPERR_GGRPHASREFINGCFG           "На товарную группу ссылается конфигурация товаров: удаление невозможно"
 //
 // Decl Struc Parsing
 //
@@ -2311,20 +2312,12 @@ description for teststring
 79 /!/ "DATE;TIME;BANK;CHECK;USER;OPERATION;AMOUNT0;AMOUNT1;AMOUNT2;AMOUNT3;RETURN0;RETURN1;RETURN2;RETURN3"
 80 /!/ "CODE;PRICE;DIVNUM;BANK;CHECK;WEIGHT;RATE;EXTRA"
 81 "Сохранение баланса;Восстановление баланса;Усечение товарных строк;Усечение документов"
-82 "Unknown account ID = %ld"
 83 "@{novat};Комплект;  Заказ: "
 84 /!/ "%6ld %6ld %6ld %3d %3d %6ld %6ld %12.2lf\n;%ld%ld%ld%d%d%ld%ld%lf"
 85 /!/ "label;size;home;text;barcode;serialcode;gap;gname;price;revalprice;expiry;country;\
 date;time;user;serial;billdate;billno;qtty;phqtty;pack;brutto;objname;obj2name;ext_a;ext_b;ext_c;ext_d;ext_e;prcname;goodsgrpname;\
 brand;gcdimx;gcdimy;gcdimz;gcdimw;gckind;gcgrade;gcaddprop2;gcaddprop;linecost;lineprice;manufdate;manuf;quot:;goodscode;\
 memory;codepage;load;file;serxnom;wrap"
-86 "Расчет товарных остатков"
-87 "Расчет входящих товарных остатков"
-88 "Расчет исходящих товарных остатков"
-89 "Расчет группировки операций"
-90 "Подготовка к передаче данных"
-91 "Сохранение данных в пакете передачи"
-94 "Ошибка разрешения ссылки объекта (Type = %ld, ID = %ld)"
 98 "1,ОКА-500.1;2,Електроника-92-Аквариус-Ф;3,АМС-100Ф;4,ЭКР-4110Ф;\
 5,СуперМаг УКМ;6,Эмулятор (синхронный);\
 7,Петрович (Ладога-Ф, Електроника-92, ЭКР-3102Ф);8,АМС-200Ф;\
@@ -4490,7 +4483,14 @@ PPTXT_LOG_WBS_WBVACCEPTED      "Рабочая книга '@zstr' акцепти
 PPTXT_LOG_WBS_WBVSENTTOUHTT    "Рабочая книга '@zstr' передана на сервер"
 PPTXT_LOG_WBS_WBCVSENTTOUHTT   "Содержимое рабочей книги '@zstr' передано на сервер"
 PPTXT_GREETING                 "Вас приветствует система"
-
+PPTXT_UNKNOWNACC               "Неизвестный бухгалтерский счет"
+PPTXT_CALCREST                 "Расчет товарных остатков"
+PPTXT_CALCINREST               "Расчет входящих товарных остатков"
+PPTXT_CALCOUTREST              "Расчет исходящих товарных остатков"
+PPTXT_CALCOPGRPNG              "Расчет группировки операций"
+PPTXT_PREPTRANSMOBJ            "Подготовка к передаче данных"
+PPTXT_PUTTINGOBJTOSTRM         "Сохранение данных в пакете передачи"
+PPTXT_RCVREFUNRESOLVED         "Ошибка разрешения ссылки объекта (Type = %ld, ID = %ld)"
 //
 // LastText
 
@@ -7271,7 +7271,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgcomm_ilticvtqttyepsilon               "Максимальный количественный дефицит, 1E-7"
 @cfgcomm_imprestacct                      "Счет расчетов с подотчетными лицами"
 @cfgcomm_incomecalcmethod                 "Метод расчета доходности"
-@cfgcomm_lcrusage                         "Варианты использования текущих остатков по лотам"
+@cfgcomm_lcrusage                         "Применение текущих остатков по лотам"
+@cfgcomm_lcrusage_none                    "Не использовать"
+@cfgcomm_lcrusage_maintainuptodate        "Поддерживать в актуальном состоянии"
+@cfgcomm_lcrusage_use                     "Использовать при расчетах"
 @cfgcomm_mainorg                          "@{mainorg}"
 @cfgcomm_mainorgaccountant_               "Бухгалтер главной организации"
 @cfgcomm_mainorgdirector_                 "Директор главной организации"
@@ -7289,6 +7292,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgcomm_supplacct                        "Счет поставщиков"
 @cfgcomm_tag                              "@{tag}"
 @cfgcomm_prepayinvoicegoodscode           "Код товара для счет-фактуры на предоплату"
+@cfgcomm_frrl_days                        "Порог блокировки пересчета форвардных остатков, дней"
+@cfgcomm_csessunitingperiod               "Период объединения кассовых сессий, минут"
+@cfgcomm_csessfwasscperiod                "Период действия форвардной кассовой сессии, минут"
 
 @cfgdbmaintain_dlsdays                    "@{days}"
 @cfgdbmaintain_id                         "@{id}"

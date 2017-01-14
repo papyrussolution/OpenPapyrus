@@ -1803,7 +1803,8 @@ int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID
 				uint   fl = 0;
 				ilti.Setup(item.GoodsID, -1, item.Qtty, 0, item.Price);
 				r = p_bobj->ConvertILTI(&ilti, &pack, &rows, fl, 0);
-				if(r > 0 && ilti.Rest != 0) {
+				// @v9.4.9 if(r > 0 && ilti.Rest != 0) {
+				if(r > 0 && ilti.HasDeficit()) { // @v9.4.9
 					int   r2 = ProcessUnsuffisientGoods(item.GoodsID, pugpNoBalance);
 					if(r2 == PCUG_EXCLUDE)
 						pack.RemoveRows(&rows);

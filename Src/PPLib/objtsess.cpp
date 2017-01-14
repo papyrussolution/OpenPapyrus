@@ -3618,9 +3618,9 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 						if(ilti.UnitPerPack <= 0.0)
 							ilti.UnitPerPack = lot_rec.UnitPerPack;
 					}
-					THROW(p_bill_obj->ConvertILTI(&ilti, &bill_pack, &rows,
-						CILTIF_USESUBST | CILTIF_SUBSTSERIAL, strip(line_rec.Serial)));
-					if(R6(ilti.Rest) != 0) {
+					THROW(p_bill_obj->ConvertILTI(&ilti, &bill_pack, &rows, CILTIF_USESUBST|CILTIF_SUBSTSERIAL, strip(line_rec.Serial)));
+					// @v9.4.9 if(R6(ilti.Rest) != 0) {
+					if(ilti.HasDeficit()) { // @v9.4.9
   						THROW(local_pugl.Add(&ilti, bill_pack.Rec.LocID, (uint)oprno, bill_pack.Rec.Dt));
   						incomplete = 1;
 					}
@@ -3670,7 +3670,8 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 					ilti.GoodsID = gs_item.GoodsID;
 					ilti.SetQtty(qtty, 0, (qtty > 0) ? (PPTFR_PLUS | PPTFR_RECEIPT) : PPTFR_MINUS);
 					THROW(p_bill_obj->ConvertILTI(&ilti, &bill_pack, &rows, CILTIF_USESUBST, 0));
-					if(R6(ilti.Rest) != 0) {
+					// @v9.4.9 if(R6(ilti.Rest) != 0) {
+					if(ilti.HasDeficit()) { // @v9.4.9
 						THROW(local_pugl.Add(&ilti, bill_pack.Rec.LocID, 0, bill_pack.Rec.Dt));
 						incomplete = 1;
 					}

@@ -36,7 +36,7 @@ int SLAPI ConvertCipher(const char * pDbSymb, const char * pMasterPassword, cons
 			dbes.ReadFromProfile(&ini_file);
 			int dbsel = dbes.GetBySymb(pDbSymb, &dblb);
 			if(dbsel > 0) {
-				THROW(DS.OpenDictionary2(&dblb));
+				THROW(DS.OpenDictionary2(&dblb, 0));
 				is_dict_opened = 1;
 				PPID   user_id = 0;
 				PPSecur sec_rec;

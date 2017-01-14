@@ -102,7 +102,7 @@ TLP_IMPL(PPObjBill, CpTransfCore, P_CpTrfr);
 TLP_IMPL(PPObjBill, AdvBillItemTbl, P_AdvBI);
 TLP_IMPL(PPObjBill, HistBillCore, HistBill);
 
-SLAPI PPObjBill::PPObjBill(void * extraPtr) : PPObject(PPOBJ_BILL)
+SLAPI PPObjBill::PPObjBill(void * extraPtr) : PPObject(PPOBJ_BILL), CcFlags(CConfig.Flags)
 {
 	P_PckgT = 0;
 	P_CpTrfr = 0;
@@ -114,16 +114,16 @@ SLAPI PPObjBill::PPObjBill(void * extraPtr) : PPObject(PPOBJ_BILL)
 	P_Cr = 0;
 	atobj   = new PPObjAccTurn(0);
 	P_OpObj = new PPObjOprKind(0);
-	const long ccf = CConfig.Flags;
-	if(ccf & CCFLG_USEGOODSPCKG)
+	//const long ccf = CConfig.Flags;
+	if(CcFlags & CCFLG_USEGOODSPCKG)
 		P_PckgT = new PackageCore;
 	TLP_OPEN(P_Tbl);
 	TLP_OPEN(trfr);
-	if(ccf & CCFLG_USEDRAFTBILL)
+	if(CcFlags & CCFLG_USEDRAFTBILL)
 		TLP_OPEN(P_CpTrfr);
-	if(ccf & CCFLG_USEADVBILLITEMS)
+	if(CcFlags & CCFLG_USEADVBILLITEMS)
 		TLP_OPEN(P_AdvBI);
-	if(ccf & CCFLG_USEHISTBILL)
+	if(CcFlags & CCFLG_USEHISTBILL)
 		TLP_OPEN(HistBill);
 	ReadConfig(&Cfg);
 	ExtraPtr = extraPtr;
@@ -821,7 +821,7 @@ int SLAPI PPObjBill::Debug_TrfrError(const PPBillPacket * pPack)
 {
 	int    ok = 1;
 	PPLogger logger;
-	if(pPack && CConfig.Flags & CCFLG_DEBUGTRFRERROR) {
+	if(pPack && CcFlags & CCFLG_DEBUGTRFRERROR) {
 		uint   i;
 		PPIDArray lot_list, child_list;
 		PPIDArray goods_list;
@@ -982,8 +982,8 @@ int SLAPI PPObjBill::AddExpendByReceipt(PPID * pBillID, PPID sampleBillID, const
 
 int SLAPI PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddBySampleParam * pParam)
 {
+	const  PPID save_loc = LConfig.Location;
 	int    r = 1, ok = 1, res = cmCancel;
-	PPID   save_loc = LConfig.Location;
 	PPID   op_type = 0;
 	SString temp_buf;
 	PPOprKind    op_rec;
@@ -1362,7 +1362,7 @@ int SLAPI PPObjBill::EditGoodsBill(PPID id, const EditParam * pExtraParam)
 	int    ok = cmYes;
 	long   egbf = efEdit;
 	uint   flags = BPLD_LOCK;
-	PPID   save_loc_id = LConfig.Location;
+	const  PPID save_loc_id = LConfig.Location;
 	PPBillPacket pack;
 	if(pExtraParam)
 		egbf |= pExtraParam->Flags;
@@ -5839,7 +5839,7 @@ int SLAPI PPObjBill::ProcessLink(BillTbl::Rec * pRec, PPID paymLinkID, const Bil
 			// документе (если он требует оплаты) изменяем оплаченную сумму
 			//
 			if(paym_t) {
-				if(CConfig.Flags & CCFLG_SETWLONLINK)
+				if(CcFlags & CCFLG_SETWLONLINK)
 					SETFLAG(pRec->Flags, BILLF_WHITELABEL, P_Tbl->data.Flags & BILLF_WHITELABEL);
 				if(P_Tbl->data.Flags & BILLF_NEEDPAYMENT) {
 					const int is_neg = (paym_t == PPOPT_CHARGE && CheckOpFlags(pRec->OpID, OPKF_CHARGENEGPAYM));
@@ -5982,8 +5982,12 @@ int SLAPI PPObjBill::ProcessShadowPacket(PPBillPacket * pPack, int update)
 int SLAPI PPObjBill::LockFRR(LDATE dt, int * pFRRL_Tag, int use_ta)
 {
 	int    ok = -1;
-	if(CConfig.FRRL_Days && diffdate(&LConfig.OperDate, &dt, 0) >= CConfig.FRRL_Days)
-		ok = atobj->P_Tbl->LockingFRR(1, pFRRL_Tag, use_ta);
+	const  int16 frrl_days = CConfig.FRRL_Days;
+	if(frrl_days) {
+		const LDATE _cd = LConfig.OperDate;
+		if(diffdate(&_cd, &dt, 0) >= frrl_days)
+			ok = atobj->P_Tbl->LockingFRR(1, pFRRL_Tag, use_ta);
+	}
 	return ok;
 }
 
@@ -5997,7 +6001,7 @@ int SLAPI PPObjBill::GenPckgCode(PPID pckgTypeID, char * pBuf, size_t bufLen)
 	int    ok = 1;
 	char   code[32];
 	code[0] = 0;
-	if(CConfig.Flags & CCFLG_USEGOODSPCKG && pckgTypeID) {
+	if(CcFlags & CCFLG_USEGOODSPCKG && pckgTypeID) {
 		PPObjPckgType pt_obj;
 		PPGdsPckgType pt_rec;
 		if(pt_obj.Get(pckgTypeID, &pt_rec) > 0) {
@@ -6022,7 +6026,7 @@ int SLAPI PPObjBill::GenPckgCode(PPID pckgTypeID, char * pBuf, size_t bufLen)
 int SLAPI PPObjBill::InitPckg(LPackage * pPckg)
 {
 	int    ok = 1;
-	if(CConfig.Flags & CCFLG_USEGOODSPCKG) {
+	if(CcFlags & CCFLG_USEGOODSPCKG) {
 		PPObjPckgType pt_obj;
 		pPckg->Init();
 		PPID   pt_id = GObj.GetConfig().DefPckgTypeID;
@@ -6040,7 +6044,7 @@ int SLAPI PPObjBill::InitPckg(LPackage * pPckg)
 
 int SLAPI PPObjBill::IsLotInPckg(PPID lotID)
 {
-	return BIN(CConfig.Flags & CCFLG_USEGOODSPCKG && lotID && P_PckgT->GetLotLink(lotID, 0, 0) > 0);
+	return BIN(CcFlags & CCFLG_USEGOODSPCKG && lotID && P_PckgT->GetLotLink(lotID, 0, 0) > 0);
 }
 
 int SLAPI PPObjBill::CheckPckgCodeUnique(const LPackage * pPckg, PPBillPacket * pPack)
@@ -6056,7 +6060,7 @@ int SLAPI PPObjBill::PutPckgList(PPBillPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	uint   i, j;
-	if(CConfig.Flags & CCFLG_USEGOODSPCKG) {
+	if(CcFlags & CCFLG_USEGOODSPCKG) {
 		THROW(pPack->InitPckg());
 		if(pPack->P_PckgList) {
 			LPackage * p_pckg;
@@ -6110,9 +6114,9 @@ int SLAPI PPObjBill::PutPckgList(PPBillPacket * pPack, int use_ta)
 
 int SLAPI PPObjBill::LoadPckgList(PPBillPacket * pPack)
 {
-	int ok = -1;
+	int    ok = -1;
 	LPackageList * p_pckg_list = 0;
-	if(CConfig.Flags & CCFLG_USEGOODSPCKG) {
+	if(CcFlags & CCFLG_USEGOODSPCKG) {
 		int    is_intrexpnd = IsIntrExpndOp(pPack->Rec.OpID);
 		uint   i = 0;
 		PPTransferItem * p_ti;
@@ -6166,7 +6170,7 @@ int SLAPI PPObjBill::LoadPckgList(PPBillPacket * pPack)
 int SLAPI PPObjBill::SearchAdvLinkToBill(PPID billID, AdvBillItemTbl::Rec * pItemRec, BillTbl::Rec * pBillRec)
 {
 	int    ok = -1;
-	if(CConfig.Flags & CCFLG_USEADVBILLITEMS && P_AdvBI && billID) {
+	if(CcFlags & CCFLG_USEADVBILLITEMS && P_AdvBI && billID) {
 		AdvBillItemTbl::Key2 k2;
 		MEMSZERO(k2);
 		k2.AdvBillID = billID;
@@ -6184,7 +6188,7 @@ int SLAPI PPObjBill::LoadAdvList(PPID billID, PPID opID, PPAdvBillItemList * pLi
 {
 	int    ok = 1;
 	pList->Clear();
-	if(CConfig.Flags & CCFLG_USEADVBILLITEMS && P_AdvBI && billID) {
+	if(CcFlags & CCFLG_USEADVBILLITEMS && P_AdvBI && billID) {
 		PPOprKind op_rec;
 		if(GetOpType(opID, &op_rec) == PPOPT_ACCTURN && op_rec.Flags & OPKF_ADVACC) {
 			AdvBillItemTbl::Key0 k0;
@@ -6203,7 +6207,7 @@ int SLAPI PPObjBill::TurnAdvList(PPID billID, PPBillPacket * pPack, int use_ta)
 {
 	int    ok = 1, ta = 0;
 	AdvBillItemTbl::Rec abi_rec;
-	if(CConfig.Flags & CCFLG_USEADVBILLITEMS && P_AdvBI && billID) {
+	if(CcFlags & CCFLG_USEADVBILLITEMS && P_AdvBI && billID) {
 		THROW(PPStartTransaction(&ta, use_ta));
 		THROW_DB(deleteFrom(P_AdvBI, 0, (P_AdvBI->BillID == billID)));
 		if(pPack)
@@ -6568,7 +6572,7 @@ int SLAPI PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 		THROW(PutPckgList(pPack, 0));
 		THROW(TurnAdvList(id, pPack, 0));
 		THROW(pPack->LnkFiles.WriteToProp(pPack->Rec.ID, 0));
-		if(!(pPack->Rec.Flags & BILLF_NOATURN) && !(CConfig.Flags & CCFLG_DISABLEACCTURN)) {
+		if(!(pPack->Rec.Flags & BILLF_NOATURN) && !(CcFlags & CCFLG_DISABLEACCTURN)) {
 			pPack->ErrCause = PPBillPacket::err_on_accturn;
 			for(i = 0; pPack->Turns.enumItems(&i, (void**)&pat);) {
 				pPack->ErrLine = i-1;
@@ -6706,7 +6710,7 @@ int SLAPI PPObjBill::RemoveTransferItem(PPID billID, int rByBill, int force)
 			mirror_flags  = trfr->data.Flags;
 		}
 		THROW(trfr->RemoveItem(billID, rByBill, force, 0));
-		if(CConfig.Flags & CCFLG_USEGOODSPCKG && ti_flags & PPTFR_PCKG) {
+		if(CcFlags & CCFLG_USEGOODSPCKG && ti_flags & PPTFR_PCKG) {
 			if(mirror_lot_id && mirror_flags & PPTFR_RECEIPT)
 				THROW(P_PckgT->PutPckg(mirror_lot_id, 0, 0));
 			if(ti_flags & PPTFR_RECEIPT) {
@@ -6945,7 +6949,7 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 		//
 		// Вычищаем и модифицируем проводки.
 		//
-		if(!(CConfig.Flags & CCFLG_DISABLEACCTURN)) {
+		if(!(CcFlags & CCFLG_DISABLEACCTURN)) {
 			if(!(pPack->Rec.Flags & BILLF_NOATURN)) {
 				pPack->ErrCause = PPBillPacket::err_on_accturn;
 				pPack->ErrLine  = -1;
@@ -7402,7 +7406,7 @@ int SLAPI PPObjBill::ExtractPacket(PPID id, PPBillPacket * pPack, uint fl)
 		THROW_SL(pPack->Turns.insert(&at));
 	}
 	if(!r) {
-		if(CConfig.Flags & CCFLG_DEBUG) {
+		if(CcFlags & CCFLG_DEBUG) {
 			SString fmt_buf, temp_buf;
 			PPGetMessage(mfError, PPErrCode, 0, 1, temp_buf);
 			PPFormatT(PPTXT_LOG_LOADACCTURNFAULT, &msg_buf, id, (const char *)temp_buf);

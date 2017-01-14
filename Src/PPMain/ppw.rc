@@ -6587,16 +6587,16 @@ BEGIN
     GROUPBOX        "",IDC_STATIC,10,0,250,75
     LTEXT           "@cfgcomm_maxgoodsbilllines",4001,15,10,195,8
     EDITTEXT        CTL_CCFGSYS_MAXGBLINES,215,10,40,13,ES_AUTOHSCROLL
-    LTEXT           "Порог блокировки пересчета форвардных остатков, дней",4002,15,25,212,8
+    LTEXT           "@cfgcomm_frrl_days",4002,15,25,195,8
     EDITTEXT        CTL_CCFGSYS_FRRLDAYS,215,25,40,13,ES_AUTOHSCROLL
-    LTEXT           "@cfgcomm_grestcalcthreshold",4003,15,40,180,8
+    LTEXT           "@cfgcomm_grestcalcthreshold",4003,15,40,195,8
     EDITTEXT        CTL_CCFGSYS_GRESTTHR,215,40,40,13,ES_AUTOHSCROLL
     LTEXT           "@cfgcomm_ilticvtqttyepsilon",4004,15,55,195,8
     EDITTEXT        CTL_CCFGSYS_ICQTTYEPS,215,55,40,13,ES_AUTOHSCROLL
     GROUPBOX        "",IDC_STATIC,10,75,250,45
-    LTEXT           "Период объединения кассовых сессий (минут)",4005,15,85,195,8
+    LTEXT           "@cfgcomm_csessunitingperiod",4005,15,85,195,8
     EDITTEXT        CTL_CCFGSYS_CSUNITPRD,215,85,40,13,ES_AUTOHSCROLL
-    LTEXT           "Период действия форвардной кассовой сессии (минут)",4006,15,100,195,8
+    LTEXT           "@cfgcomm_csessfwasscperiod",4006,15,100,195,8
     EDITTEXT        CTL_CCFGSYS_CSFWPRD,215,100,40,13,ES_AUTOHSCROLL
     GROUPBOX        "",CTL_CCFGSYS_FLAGS,265,0,230,160,WS_GROUP
     CONTROL         "@cfgcomm_ccflg_usegdscls",5299,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,10,219,10
@@ -6613,10 +6613,10 @@ BEGIN
     CONTROL         "@cfgcomm_ccflg_individbillextfilt",50355,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,120,219,10
     CONTROL         "@cfgcomm_ccflg_usedistribcost",54451,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,130,219,10
     CONTROL         "@cfgcomm_ccflg_rsrvsj",58547,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,140,219,10
-    GROUPBOX        "Применение текущих остатков по лотам",CTL_CCFGSYS_LCRUSAGE,10,120,185,45,WS_GROUP
-    CONTROL         "Не использовать",5303,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,130,160,10
-    CONTROL         "Поддерживать в актуальном состоянии",9399,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,140,155,10
-    CONTROL         "Использовать при расчетах",13495,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,150,160,10
+    GROUPBOX        "@cfgcomm_lcrusage",CTL_CCFGSYS_LCRUSAGE,10,120,185,45,WS_GROUP
+    CONTROL         "@cfgcomm_lcrusage_none",5303,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,130,170,10
+    CONTROL         "@cfgcomm_lcrusage_maintainuptodate",9399,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,140,175,10
+    CONTROL         "@cfgcomm_lcrusage_use",13495,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,150,170,10
     GROUPBOX        "",CTL_CCFGSYS_FLAGS2,10,165,185,65,WS_GROUP
     CONTROL         "@cfgcomm_ccflg_quot2",5304,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,175,145,10
     CONTROL         "@cfgcomm_ccflg_indexeaddr",9400,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,185,150,10

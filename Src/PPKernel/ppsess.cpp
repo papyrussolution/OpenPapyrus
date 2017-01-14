@@ -2150,7 +2150,7 @@ static int _dbLoadStructure(const char * pTblName, DBTable * pTbl, long options)
 //
 //
 //
-int SLAPI PPSession::OpenDictionary2(DbLoginBlock * pBlk)
+int SLAPI PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 {
 	int    ok = 1, r;
 	SString data_path, temp_path, temp_buf;
@@ -2166,12 +2166,13 @@ int SLAPI PPSession::OpenDictionary2(DbLoginBlock * pBlk)
 	// Проверяем доступность каталога базы данных
 	//
 	THROW_PP_S(::access(data_path, 0) == 0, PPERR_DBDIRNFOUND, data_path);
-	//
-	// Инициализируем таблицу блокировок и проверяем не заблокирована ли база данных
-	//
-	THROW(GetSync().Init(data_path)); // @todo InitSync(data_path)
-	THROW_PP(!GetSync().IsDBLocked(), PPERR_SYNCDBLOCKED);
-
+	if(!(flags & PPSession::odfDontInitSync)) {
+		//
+		// Инициализируем таблицу блокировок и проверяем не заблокирована ли база данных
+		//
+		THROW(GetSync().Init(data_path)); // @todo InitSync(data_path)
+		THROW_PP(!GetSync().IsDBLocked(), PPERR_SYNCDBLOCKED);
+	}
 	GetPath(PPPATH_TEMP, temp_path);
 	pBlk->SetAttr(DbLoginBlock::attrTempPath, temp_path);
 	//
@@ -2319,7 +2320,7 @@ int SLAPI PPSession::CheckSystemAccount(DbLoginBlock * pDlb, PPSecur * pSecur)
 	char   domain_user[64];
 	DWORD  duser_len = sizeof(domain_user);
 	memzero(domain_user, sizeof(domain_user));
-	THROW(OpenDictionary2(pDlb));
+	THROW(OpenDictionary2(pDlb, odfDontInitSync)); // @v9.4.9 odfDontInitSync
 	if(::GetUserName(domain_user, &duser_len)) { // @unicodeproblem
 		PPID   user_id = 0;
 		Reference ref;
@@ -2385,7 +2386,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 		PPCommConfig & r_cc = r_tla.Cc;
 		STRNSCPY(user_name, pUserName);
 		r_tla.State &= ~PPThreadLocalArea::stAuth; // @v8.6.11
-		THROW(OpenDictionary2(&blk));
+		THROW(OpenDictionary2(&blk, 0));
 		debug_r = 4;
 		r_tla.Prf.InitUserProfile(user_name); // @v8.0.6 Инициализация профайлера с параметрами БД сразу после соединения с сервером БД.
 		r_tla.UfpSess.Begin(PPUPRF_SESSION); // @v8.0.6 Профилирование всей сессии работы в БД (Login..Logout)
@@ -2950,7 +2951,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 								Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
 								BExtQuery * p_q = 0;
 
-								THROW(DS.OpenDictionary2(&LB));
+								THROW(DS.OpenDictionary2(&LB, PPSession::odfDontInitSync)); // @v9.4.9 PPSession::odfDontInitSync
 								THROW_MEM(P_Sj = new SysJournal);
 
 								Since = getcurdatetime_();

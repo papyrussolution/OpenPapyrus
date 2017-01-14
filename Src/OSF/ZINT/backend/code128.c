@@ -31,17 +31,17 @@
     SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+//#include <stdio.h>
+//#include <string.h>
+//#include <stdlib.h>
 #ifdef _MSC_VER
-#include <malloc.h>
+	#include <malloc.h>
 #endif
 #include "common.h"
 #include "gs1.h"
 
-#define TRUE 1
-#define FALSE 0
+//#define TRUE 1
+//#define FALSE 0
 #define SHIFTA 90
 #define LATCHA 91
 #define SHIFTB 92
@@ -77,9 +77,7 @@ static const char * C128Table[107] = {
 /* Determine appropriate mode for a given character */
 int parunmodd(const uchar llyth)
 {
-	int modd;
-	modd = 0;
-
+	int    modd = 0;
 	if(llyth <= 31) {
 		modd = SHIFTA;
 	}
@@ -101,17 +99,14 @@ int parunmodd(const uchar llyth)
 	else {
 		modd = SHIFTB;
 	}
-
 	return modd;
 }
-
 /**
  * bring together same type blocks
  */
 void grwp(int * indexliste)
 {
 	int i, j;
-
 	/* bring together same type blocks */
 	if(*(indexliste) > 1) {
 		i = 1;
@@ -141,7 +136,6 @@ void grwp(int * indexliste)
 void dxsmooth(int * indexliste)
 {
 	int i, current, last, next, length;
-
 	for(i = 0; i < *(indexliste); i++) {
 		current = list[1][i];
 		length = list[0][i];
@@ -157,7 +151,6 @@ void dxsmooth(int * indexliste)
 		else {
 			next = FALSE;
 		}
-
 		if(i == 0) { /* first block */
 			if((*(indexliste) == 1) && ((length == 2) && (current == ABORC))) {
 				/* Rule 1a */
@@ -945,23 +938,17 @@ int ean_128(struct ZintSymbol * symbol, uchar source[], const size_t length)
 		case 2:
 		    /* CC-A or CC-B 2D component */
 		    switch(set[strlen(reduced) - 1]) {
-			    case 'A': linkage_flag = 100;
-				break;
-			    case 'B': linkage_flag = 99;
-				break;
-			    case 'C': linkage_flag = 101;
-				break;
+			    case 'A': linkage_flag = 100; break;
+			    case 'B': linkage_flag = 99; break;
+			    case 'C': linkage_flag = 101; break;
 		    }
 		    break;
 		case 3:
 		    /* CC-C 2D component */
 		    switch(set[strlen(reduced) - 1]) {
-			    case 'A': linkage_flag = 99;
-				break;
-			    case 'B': linkage_flag = 101;
-				break;
-			    case 'C': linkage_flag = 100;
-				break;
+			    case 'A': linkage_flag = 99; break;
+			    case 'B': linkage_flag = 101; break;
+			    case 'C': linkage_flag = 100; break;
 		    }
 		    break;
 	}

@@ -3145,7 +3145,7 @@ void BillItemBrowser::addNewPackage()
 
 int SLAPI PPObjBill::SelectPckgByCode(char * pCode, PPID locID, PPID * pPckgID)
 {
-	if(CConfig.Flags & CCFLG_USEGOODSPCKG) {
+	if(CcFlags & CCFLG_USEGOODSPCKG) {
 		PPIDArray pckg_id_list;
 		if(P_PckgT->SearchByCode(-1, pCode, &pckg_id_list) > 0) {
 			for(int i = pckg_id_list.getCount()-1; i >= 0; i--) {
@@ -3169,7 +3169,7 @@ int SLAPI PPObjBill::SelectPckgByCode(char * pCode, PPID locID, PPID * pPckgID)
 int SLAPI PPObjBill::AddPckgToBillPacket(PPID pckgID, PPBillPacket * pPack)
 {
 	int    ok = 1;
-	if(CConfig.Flags & CCFLG_USEGOODSPCKG) {
+	if(CcFlags & CCFLG_USEGOODSPCKG) {
 		uint   j;
 		int    idx;
 		PPID   lot_id;

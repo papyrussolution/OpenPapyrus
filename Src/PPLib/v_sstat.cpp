@@ -432,7 +432,7 @@ int SLAPI PPViewSStat::CreateOrderTable(long ord, TempOrderTbl ** ppTbl, int use
 						strcat(ord_rec.Name, datefmt(&p_t->data.Dt, DATF_YMD|DATF_CENTURY, dt_buf));
 					}
 					if(ord == OrdByCount)
-						sprintf(ord_rec.Name, p_fmt, large_val-p_t->data.Count);
+						sprintf(ord_rec.Name, p_fmt, (double)large_val-p_t->data.Count);
 					else if(ord == OrdByQttyAvg)
 						sprintf(ord_rec.Name, p_fmt, large_val-p_t->data.QttyAvg);
 					else if(ord == OrdByQttyVar)

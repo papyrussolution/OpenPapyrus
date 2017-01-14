@@ -11544,17 +11544,17 @@
 #define PPTXT_EL92AQCASHLIST       79 // Список DBF-полей структуры CashList для драйвера MnCash
 #define PPTXT_EL92AQWARELIST       80 // Список DBF-полей структуры WareList для драйвера MnCash
 #define PPTXT_CUTTINGPROCESS       81 // Строки информации о процессе усечения базы данных
-#define PPTXT_UNKNOWNACC           82 // "Unknown account ID = %ld"
 #define PPTXT_TIDLG_STRINGS        83 // Строки класса TrfrItemDialog
 #define PPTXT_SAVBAL_STRINGS       84 // Форматы сохранения и восстановления балансов
 #define PPTXT_BCLABEL_VARS         85 // Переменные определения этикетки штрихкодов
-#define PPTXT_CALCREST             86 // Расчет товарных остатков
-#define PPTXT_CALCINREST           87 // Расчет входящих товарных остатков
-#define PPTXT_CALCOUTREST          88 // Расчет исходящих товарных остатков
-#define PPTXT_CALCOPGRPNG          89 // Расчет группировки операций
-#define PPTXT_PREPTRANSMOBJ        90 // Подготовка к передаче объектов
-#define PPTXT_PUTTINGOBJTOSTRM     91 // Сохранение объектов в потоке
-#define PPTXT_RCVREFUNRESOLVED     94 // Ошибка разрешения ссылки при приеме объекта
+//#define PPTXT_UNKNOWNACC           82 // "Unknown account ID = %ld"
+//#define PPTXT_CALCREST             86 // Расчет товарных остатков
+//#define PPTXT_CALCINREST           87 // Расчет входящих товарных остатков
+//#define PPTXT_CALCOUTREST          88 // Расчет исходящих товарных остатков
+//#define PPTXT_CALCOPGRPNG          89 // Расчет группировки операций
+//#define PPTXT_PREPTRANSMOBJ        90 // Подготовка к передаче объектов
+//#define PPTXT_PUTTINGOBJTOSTRM     91 // Сохранение объектов в потоке
+//#define PPTXT_RCVREFUNRESOLVED     94 // Ошибка разрешения ссылки при приеме объекта
 #define PPTXT_CMT                  98 // Список типов кассовых аппаратов
 #define PPTXT_BCPT                 99 // Список типов принтеров штрихкодов
 #define PPTXT_SCLT                100 // Список типов электронных весов

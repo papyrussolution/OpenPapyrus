@@ -1930,8 +1930,9 @@ int SLAPI GoodsCore::CheckGoodsForExclusiveAltGrp(PPID goodsID, PPID altGrpID)
 		GetGroupTerminalList(parent_id, &term_grp_list, 0);
 		alt_grp_list.intersect(&term_grp_list);
 		if(alt_grp_list.getCount()) {
-			PPObject::SetLastErrObj(PPOBJ_GOODS, alt_grp_list.at(0));
-			ok = PPSetError(PPERR_DUPEXCLALTGRPMEMBER);
+			// @v9.4.9 PPObject::SetLastErrObj(PPOBJ_GOODS, alt_grp_list.at(0));
+			// @v9.4.9 ok = PPSetError(PPERR_DUPEXCLALTGRPMEMBER);
+			ok = PPSetObjError(PPERR_DUPEXCLALTGRPMEMBER, PPOBJ_GOODS, alt_grp_list.at(0)); // @v9.4.9
 		}
 	}
 	return ok;
@@ -3116,8 +3117,9 @@ int SLAPI GoodsCore::SearchByExt(const GoodsExtTbl::Rec * pExtRec, PPID * pGoods
 			ok = 1;
 		}
 		else {
-			PPObject::SetLastErrObj(PPOBJ_GOODS, goods_id);
-			ok = PPSetError(PPERR_BL_EXT2GOODS);
+			// @v9.4.9 PPObject::SetLastErrObj(PPOBJ_GOODS, goods_id);
+			// @v9.4.9 ok = PPSetError(PPERR_BL_EXT2GOODS);
+			ok = PPSetObjError(PPERR_BL_EXT2GOODS, PPOBJ_GOODS, goods_id); // @v9.4.9 
 		}
 	}
 	else

@@ -4591,9 +4591,12 @@ int SLAPI PPObjScale::Edit(PPID * pID, void * extraPtr)
 			ref->GetPropVlrString(PPOBJ_SCALE, *pID, SCLPRP_EXPPATHS, paths);
 	}
 	else {
+		SString temp_buf;
 		MEMSZERO(scale);
 		for(int i = 1; i <= 32; i++) {
-			sprintf(scale.Name, "Scale #%d", i);
+			// @v9.4.9 sprintf(scale.Name, "Scale #%d", i);
+			(temp_buf = "Scale").Space().CatChar('#').Cat(i); // @v9.4.9 
+			STRNSCPY(scale.Name, temp_buf); // @v9.4.9 
 			if(CheckDupName(*pID, scale.Name))
 				break;
 			else
@@ -5014,8 +5017,7 @@ int SLAPI PPObjScale::SendPlu(PPScale * pScaleData, const char * pFileName, int 
 		StatBuf.NumGetColl      = p_comm->NumGetColl;
 		StatBuf.MaxGetCollIters = p_comm->MaxGetCollIters;
 		if(CConfig.Flags & CCFLG_DEBUG) {
-			PPFormatT(PPTXT_LOG_SCALELOADSTAT, &msg_buf, StatBuf.NumSendPluColl,
-				StatBuf.MaxSendPluCollIters, StatBuf.NumGetColl, StatBuf.MaxGetCollIters);
+			PPFormatT(PPTXT_LOG_SCALELOADSTAT, &msg_buf, StatBuf.NumSendPluColl, StatBuf.MaxSendPluCollIters, StatBuf.NumGetColl, StatBuf.MaxGetCollIters);
 			if(pLogger)
 				pLogger->Log(msg_buf);
 			else

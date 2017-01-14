@@ -33,9 +33,9 @@
 #define EAN2    102
 #define EAN5    105
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+//#include <stdio.h>
+//#include <string.h>
+//#include <stdlib.h>
 #include "common.h"
 
 /* UPC and EAN tables checked against EN 797:1996 */
@@ -82,18 +82,14 @@ static const char * EANsetB[10] = {
 /* Calculate the correct check digit for a UPC barcode */
 char upc_check(char source[])
 {
-	uint i, count, check_digit;
-
-	count = 0;
-
+	uint   i, check_digit;
+	uint   count = 0;
 	for(i = 0; i < strlen(source); i++) {
 		count += ctoi(source[i]);
-
 		if(!(i & 1)) {
 			count += 2 * (ctoi(source[i]));
 		}
 	}
-
 	check_digit = 10 - (count % 10);
 	if(check_digit == 10) {
 		check_digit = 0;
@@ -104,13 +100,10 @@ char upc_check(char source[])
 /* UPC A is usually used for 12 digit numbers, but this function takes a source of any length */
 void upca_draw(char source[], char dest[])
 {
-	uint i, half_way;
-
-	half_way = strlen(source) / 2;
-
+	uint   i;
+	uint   half_way = strlen(source) / 2;
 	/* start character */
 	strcat(dest, "111");
-
 	for(i = 0; i <= strlen(source); i++) {
 		if(i == half_way) {
 			/* middle character - separates manufacturer no. from product no. */
@@ -120,7 +113,6 @@ void upca_draw(char source[], char dest[])
 
 		lookup(NEON, EANsetA, source[i], dest);
 	}
-
 	/* stop character */
 	strcat(dest, "111");
 }
@@ -130,10 +122,8 @@ int upca(struct ZintSymbol * symbol, uchar source[], char dest[])
 {
 	int length;
 	char gtin[15];
-
 	strcpy(gtin, (char*)source);
 	length = strlen(gtin);
-
 	if(length == 11) {
 		gtin[length] = upc_check(gtin);
 		gtin[length + 1] = '\0';
@@ -949,7 +939,6 @@ int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 		    symbol->width += 2;
 		    break;
 	}
-
 	return 0;
 }
 

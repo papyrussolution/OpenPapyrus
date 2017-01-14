@@ -1171,12 +1171,13 @@ int SLAPI PPViewSCard::RenameDup(PPIDArray * pIdList)
 				}
 		}
 		{
+			SString code;
+			SString temp_buf;
 			CCheckCore & r_cc = *SCObj.P_CcTbl;
 			PPTransaction tra(1);
 			THROW(tra);
 			for(uint i = 0; i < dupl_ary.getCount(); i++) {
 				uint   p = 0;
-				SString code, buf;
 				PPID   dupl_scard = dupl_ary.at(i).Key;
 				PPID   dest_scard = dupl_ary.at(i).Val;
 				long   code_postfx;
@@ -1184,7 +1185,7 @@ int SLAPI PPViewSCard::RenameDup(PPIDArray * pIdList)
 				MEMSZERO(rec);
 				MEMSZERO(k1);
 				THROW(SCObj.Search(dupl_scard, &rec) > 0);
-				code.CopyFrom(rec.Code);
+				code = rec.Code;
 				if(code.StrChr('#', &p))
 					code.Trim(p + 1);
 				else {
@@ -1194,10 +1195,11 @@ int SLAPI PPViewSCard::RenameDup(PPIDArray * pIdList)
 				code.CopyTo(k1.Code, sizeof(k1.Code));
 				for(code_postfx = 1; SCObj.P_Tbl->search(1, &k1, spGt) > 0 && strnicmp866(code, k1.Code, strlen(code)) == 0;) {
 					long   n = 0;
-					buf = SCObj.P_Tbl->data.Code;
-					code_postfx = ((n = buf.ShiftLeft(p + 1).ToLong() + 1) >= code_postfx) ? n : code_postfx;
+					temp_buf = SCObj.P_Tbl->data.Code;
+					code_postfx = ((n = temp_buf.ShiftLeft(p + 1).ToLong() + 1) >= code_postfx) ? n : code_postfx;
 				}
-				sprintf(rec.Code, "%s%ld", (const char*)code, code_postfx);
+				// @v9.4.9 sprintf(rec.Code, "%s%ld", code.cptr(), code_postfx);
+				(temp_buf = code).Cat(code_postfx).CopyTo(rec.Code, sizeof(rec.Code)); // @v9.4.9
 				THROW(SCObj.P_Tbl->Update(dupl_scard, &rec, 0));
 				if(replace_trnovr)
 					THROW(r_cc.ReplaceSCard(dest_scard, dupl_scard, 0));

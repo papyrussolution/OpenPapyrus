@@ -79,8 +79,9 @@ int SLAPI StyloBhtIIOnHostCfg::IsValid()
 		const SBIIOpInfo & r_op_info = P_OpList->at(i);
 		if(r_op_info.ToHostOpID == 0) {
 			if(r_op_info.OpID > 0) {
-				PPObject::SetLastErrObj(PPOBJ_OPRKIND, r_op_info.OpID);
-				PPSetError(PPERR_INVTOHOSTOP);
+				// @v9.4.9 PPObject::SetLastErrObj(PPOBJ_OPRKIND, r_op_info.OpID);
+				// @v9.4.9 PPSetError(PPERR_INVTOHOSTOP);
+				PPSetObjError(PPERR_INVTOHOSTOP, PPOBJ_OPRKIND, r_op_info.OpID); // @v9.4.9
 			}
 			else if(r_op_info.OpID == -StyloBhtIIConfig::oprkExpend)
 				PPSetError(PPERR_INVEXPENDOPTOHOSTOP);
@@ -105,21 +106,14 @@ int SLAPI StyloBhtIIOnHostCfg::IsEmpty() const
 PPID SLAPI StyloBhtIIOnHostCfg::GetOpID(PPID opID) const
 {
 	uint   pos = 0;
-	PPID   op_id = 0;
-	if(P_OpList && P_OpList->lsearch(&opID, &pos, PTR_CMPFUNC(long)) > 0)
-		op_id = P_OpList->at(pos).ToHostOpID;
-	return op_id;
+	return (P_OpList && P_OpList->lsearch(&opID, &pos, PTR_CMPFUNC(long)) > 0) ? P_OpList->at(pos).ToHostOpID : 0;
 }
 
 int SLAPI StyloBhtIIOnHostCfg::IsCostAsPrice(PPID opID) const
 {
-	int    as_price = 0;
 	uint   pos = 0;
-	if(P_OpList && P_OpList->lsearch(&opID, &pos, PTR_CMPFUNC(long)) > 0)
-		as_price = BIN(P_OpList->at(pos).Flags & StyloBhtIIConfig::foprCostAsPrice);
-	return as_price;
+	return (P_OpList && P_OpList->lsearch(&opID, &pos, PTR_CMPFUNC(long)) > 0) ? BIN(P_OpList->at(pos).Flags & StyloBhtIIConfig::foprCostAsPrice) : 0;
 }
-
 //
 //
 //
@@ -3922,10 +3916,12 @@ int SLAPI PPObjBHT::AcceptBillsSBII(PPBhtTerminalPacket * pPack, const char * pH
 								SETFLAG(ilti.Flags, PPTFR_RECEIPT, sign > 0);
 								ilti.Expiry = sdr_brow.Expiry;
 								if(p_bobj->ConvertILTI(&ilti, &pack, 0, CILTIF_INHLOTTAGS|CILTIF_ALLOWZPRICE, is_serial ? serial : (const char*)0) > 0) {
-									if(ilti.Rest != 0.0 && sign == -1) {
+									// @v9.4.9 if(ilti.Rest != 0.0 && sign == -1) {
+									if(sign == -1 && ilti.HasDeficit()) { // @v9.4.9
 										if(pLog) {
-											PPObject::SetLastErrObj(PPOBJ_GOODS, labs(ilti.GoodsID));
-											PPSetError(PPERR_LOTRESTBOUND);
+											// @v9.4.9 PPObject::SetLastErrObj(PPOBJ_GOODS, labs(ilti.GoodsID));
+											// @v9.4.9 PPSetError(PPERR_LOTRESTBOUND);
+											PPSetObjError(PPERR_LOTRESTBOUND, PPOBJ_GOODS, labs(ilti.GoodsID)); // @v9.4.9 
 											pLog->LogLastError();
 										}
 										accept_doc = 0;
@@ -4025,7 +4021,8 @@ int SLAPI PPObjBHT::AddEBLineToPacket(PPBillPacket * pPack, const char * pBarcod
 			ilti.SetQtty(-qtty);
 			ilti.Price    = price;
 			THROW(p_bobj->ConvertILTI(&ilti, pPack, 0, CILTIF_DEFAULT, 0));
-			if(R6(ilti.Rest) != 0)
+			// @v9.4.9 if(R6(ilti.Rest) != 0)
+			if(ilti.HasDeficit()) // @v9.4.9
 				THROW(deficit_list.Add(&ilti, pPack->Rec.LocID, 0, pPack->Rec.Dt));
 		}
 		else if(p_bobj->SelectLotBySerial(pBarcode, 0, LConfig.Location, &lot_rec) > 0) {

@@ -1761,7 +1761,7 @@ int SLAPI Transfer::RecalcLcr()
 int SLAPI PPObjBill::CorrectPckgCloseTag()
 {
 	int    ok = 1;
-	if(CConfig.Flags & CCFLG_USEGOODSPCKG) {
+	if(CcFlags & CCFLG_USEGOODSPCKG) {
 		IterCounter cntr;
 		PPID   k = 0;
 		PackageTbl::Rec pckg_rec;

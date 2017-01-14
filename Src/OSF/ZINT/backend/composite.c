@@ -48,12 +48,12 @@
    The date of publication for these functions is 31 May 2006
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
+//#include <stdio.h>
+//#include <string.h>
+//#include <stdlib.h>
+//#include <math.h>
 #ifdef _MSC_VER
-#include <malloc.h>
+	#include <malloc.h>
 #endif
 #include "common.h"
 #include "large.h"
@@ -1178,13 +1178,10 @@ int cc_binary_string(struct ZintSymbol * symbol,
 			i++;
 		} while((strlen(source) > i + 2) && ('[' != source[i + 2]));
 		ninety[i] = '\0';
-
 		/* Find out if the AI 90 data is alphabetic or numeric or both */
-
 		alpha = 0;
 		alphanum = 0;
 		numeric = 0;
-
 		for(i = 0; i < (int)strlen(ninety); i++) {
 			if((ninety[i] >= 'A') && (ninety[i] <= 'Z')) {
 				/* Character is alphabetic */

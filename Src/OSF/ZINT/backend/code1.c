@@ -34,9 +34,9 @@
 #include "code1.h"
 #include "reedsol.h"
 #include "large.h"
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
+//#include <stdio.h>
+//#include <string.h>
+//#include <math.h>
 
 void horiz(struct ZintSymbol * symbol, int row_no, int full)
 {

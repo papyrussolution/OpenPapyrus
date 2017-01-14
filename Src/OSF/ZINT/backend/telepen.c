@@ -32,9 +32,9 @@
 
 #define SODIUM  "0123456789X"
 
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
+//#include <string.h>
+//#include <stdio.h>
+//#include <stdlib.h>
 #include "common.h"
 
 static char * TeleTable[] = {

@@ -36,14 +36,14 @@
     SUCH DAMAGE.
  */
 
-#include <locale.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#ifdef _MSC_VER
-#include <malloc.h>
-#endif
+//#include <string.h>
+//#include <stdlib.h>
+//#include <stdio.h>
 #include "common.h"
+#ifdef _MSC_VER
+	#include <malloc.h>
+#endif
+#include <locale.h>
 
 #define   GL_CONST  2.8346f
 
@@ -113,14 +113,14 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 	r = 0;
 	/* Isolate add-on text */
 	if(is_extendable(symbol->Std)) {
-		for(i = 0; i < ustrlen(symbol->text); i++) {
+		const size_t stl_ = ustrlen(symbol->text);
+		for(size_t sti = 0; sti < stl_; sti++) {
 			if(latch == 1) {
-				addon[r] = symbol->text[i];
+				addon[r] = symbol->text[sti];
 				r++;
 			}
-			if(symbol->text[i] == '+') {
+			if(symbol->text[sti] == '+')
 				latch = 1;
-			}
 		}
 	}
 	addon[r] = '\0';
@@ -183,12 +183,10 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 			main_symbol_width_x = 96 + symbol_lead_in;
 		}
 		switch(ustrlen(symbol->text)) {
-			case 15:
-			    /* EAN-2 add-on */
+			case 15: /* EAN-2 add-on */
 			    addon_width_x = 31;
 			    break;
-			case 18:
-			    /* EAN-5 add-on */
+			case 18: /* EAN-5 add-on */
 			    addon_width_x = 58;
 			    break;
 		}
@@ -200,23 +198,18 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 			main_symbol_width_x = 51 + symbol_lead_in;
 		}
 		switch(ustrlen(symbol->text)) {
-			case 11:
-			    /* EAN-2 add-on */
+			case 11: /* EAN-2 add-on */
 			    addon_width_x = 31;
 			    break;
-			case 14:
-			    /* EAN-5 add-on */
+			case 14: /* EAN-5 add-on */
 			    addon_width_x = 58;
 			    break;
 		}
 	}
-
 	total_symbol_width_x = main_symbol_width_x + addon_width_x;
 	total_area_width_x = total_symbol_width_x + (2 * (symbol->border_width + symbol->whitespace_width));
-
 	xoffset = symbol->border_width + symbol->whitespace_width;
 	yoffset = symbol->border_width;
-
 	// Determine if height should be overridden
 	large_bar_count = 0;
 	preset_height = 0.0;
@@ -226,7 +219,6 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 			large_bar_count++;
 		}
 	}
-
 	if(large_bar_count == 0) {
 		required_aspect = width / height;
 		symbol_aspect = (total_symbol_width_x + (2 * xoffset)) / (preset_height + (2 * yoffset) + text_offset + text_height);
@@ -247,22 +239,18 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 	else {
 		scaler = width / (total_symbol_width_x + (2 * xoffset));
 		symbol->height = (int)((height / scaler) - ((2 * yoffset) + text_offset + text_height));
-
 		render->width = width;
 		render->height = height;
 	}
 	large_bar_height = (symbol->height - preset_height) / large_bar_count;
-
 	if((symbol->output_options & BARCODE_BOX) || (symbol->output_options & BARCODE_BIND)) {
 		default_text_posn = (symbol->height + text_offset + symbol->border_width + symbol->border_width) * scaler;
 	}
 	else {
 		default_text_posn = (symbol->height + text_offset + symbol->border_width) * scaler;
 	}
-
 	x_dimension = render->width / total_area_width_x;
 	x_dimension /= GL_CONST;
-
 	/* Set minimum size of symbol */
 	/* Barcode must be at least 2mm high by 2mm across */
 	if(render->height < ((x_dimension * ((2 * symbol->border_width) + text_offset + text_height)) + 2.0) * GL_CONST) {
@@ -287,7 +275,6 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 			render->height = render->width / symbol_aspect;
 		}
 	}
-
 	if(upceanflag != 0) {
 		/* The X-dimension of UPC/EAN symbols is fixed at 0.330mm */
 		/* NOTE: This code will need adjustment before it correctly deals with composite symbols */
@@ -312,7 +299,6 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 			    render->height = ((0.330f * ((2 * symbol->border_width) + text_offset + text_height)) + 21.10f) * GL_CONST;
 		}
 	}
-
 	if(symbol->Std == BARCODE_ONECODE) {
 		/* The size of USPS Intelligent Mail barcode is fixed */
 		render->width = 0.508f * GL_CONST * total_area_width_x;
@@ -377,7 +363,6 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 				}
 			}
 			row_posn += yoffset;
-
 			i = 0;
 			if(module_is_set(symbol, this_row, 0)) {
 				latch = 1;
@@ -385,7 +370,6 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 			else {
 				latch = 0;
 			}
-
 			do {
 				block_width = 0;
 				do {

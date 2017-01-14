@@ -29,12 +29,12 @@
     SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string.h>
+//#include <errno.h>
 #ifdef _MSC_VER
-#include <malloc.h>
+	#include <malloc.h>
 #endif
 #include "common.h"
 #include "gs1.h"
@@ -72,7 +72,7 @@ struct ZintSymbol * ZBarcode_Create()
 	symbol->bitmap_width = 0;
 	symbol->bitmap_height = 0;
 	symbol->eci = 3;
-	symbol->dot_size = 4.0 / 5.0;
+	symbol->dot_size = 4.0f / 5.0f;
 	return symbol;
 }
 

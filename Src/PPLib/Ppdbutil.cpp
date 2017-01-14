@@ -216,7 +216,7 @@ PPBackup * SLAPI PPBackup::CreateInstance(PPDbEntrySet2 * dbes)
 	if(dbes->GetByID(dbes->GetSelection(), &dlb)) {
 		SString db_name;
 		dlb.GetAttr(DbLoginBlock::attrDbSymb, db_name);
-		if(DS.OpenDictionary2(&dlb)) {
+		if(DS.OpenDictionary2(&dlb, 0)) {
 			ppb = new PPBackup(db_name, CurDict);
 			if(!ppb || !ppb->IsValid())
 				ZDELETE(ppb);
@@ -876,7 +876,7 @@ int SLAPI PrcssrDbDump::Run()
 		PPDbEntrySet2 dbes;
 		dbes.ReadFromProfile(&ini_file);
 		THROW_SL(dbes.GetBySymb(P.DbSymb, &dlb));
-		THROW(DS.OpenDictionary2(&dlb));
+		THROW(DS.OpenDictionary2(&dlb, 0));
 	}
 	THROW(DS.GetSync().LockDB());
 	db_locked = 1;
@@ -2084,7 +2084,7 @@ static int SLAPI _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 				}
 			}
 			if(ret) {
-				THROW(DS.OpenDictionary2(&dlb));
+				THROW(DS.OpenDictionary2(&dlb, 0));
 				THROW(pBP->LockDatabase() > 0);
 				PPWait(1);
 				param.P_DestPath = path;
@@ -2457,7 +2457,7 @@ static int SLAPI ProtectDatabase(DbLoginBlock * pDlb, int protect, char * pPw, c
 		DbTableStat ts;
 		StrAssocArray tbl_list;
 		PPWait(1);
-		THROW(DS.OpenDictionary2(pDlb));
+		THROW(DS.OpenDictionary2(pDlb, 0));
 		{
 			DbProvider * p_db = CurDict;
 			p_db->GetListOfTables(0, &tbl_list);

@@ -1,5 +1,5 @@
 // V_PCKG.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2006, 2007, 2010, 2016
+// Copyright (c) A.Sobolev 2001, 2002, 2006, 2007, 2010, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -176,8 +176,8 @@ IMPL_HANDLE_EVENT(SelPckgDialog)
 
 int SLAPI PPObjBill::SelectPckg(PckgFilt * pFilt, PPID * pPckgID)
 {
-	int ok = -1;
-	if(CConfig.Flags & CCFLG_USEGOODSPCKG) {
+	int    ok = -1;
+	if(CcFlags & CCFLG_USEGOODSPCKG) {
 		SArray list(sizeof(PckgViewListEntry));
 		SelPckgDialog * dlg = new SelPckgDialog(this);
 		if(CheckDialogPtr(&dlg, 1)) {

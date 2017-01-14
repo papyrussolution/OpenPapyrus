@@ -366,7 +366,8 @@ static int SLAPI InsertComplList(PPBillPacket * pPack, PPComplBlock & rList, int
 			if(src_serial.NotEmpty())
 				ok = 2;
 			r_item.FreeQty = r_item.NeedQty - fabs(ilti.Rest);
-			if(R6(ilti.Rest) != 0.0) {
+			// @v9.4.9 if(R6(ilti.Rest) != 0.0) {
+			if(ilti.HasDeficit()) { // @v9.4.9
 				THROW(p_deficit_list->Add(&ilti, pPack->Rec.LocID, i-1, pPack->Rec.Dt));
 				incomplete = 1;
 			}
@@ -484,7 +485,8 @@ int SLAPI PPObjBill::Helper_WrOffDrft_ExpModif(WrOffDraftBlock & rBlk, int use_t
 		ilti.Flags |= PPTFR_MINUS;
 		rows.clear();
 		THROW(ConvertILTI(&ilti, p_pack, &rows, CILTIF_DEFAULT, 0));
-		if(ilti.Rest == 0.0) {
+		// @v9.4.9 if(ilti.Rest == 0.0) {
+		if(!ilti.HasDeficit()) { // @v9.4.9
 			PPGoodsStruc::Ident gs_ident(r_src_ti.GoodsID, GSF_DECOMPL, GSF_PARTITIAL, p_pack->Rec.Dt);
 			if(LoadGoodsStruc(&gs_ident, &gs) > 0) {
 				for(uint j = rows.getCount()-1; !incomplete && j >= 0; j--) {
@@ -539,7 +541,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 				ILTI ilti(&r_src_ti);
 				uint ciltif = CILTIF_USESUBST|CILTIF_USESUBST_STRUCONLY|CILTIF_SUBSTSERIAL|CILTIF_ALLOWZPRICE;
 					// @v8.4.8 CILTIF_SUBSTSERIAL // @v9.2.1 CILTIF_ALLOWZPRICE
-				if(!(CConfig.Flags & CCFLG_NOADJPRWROFFDRAFT)) // @v9.3.4
+				if(!(CcFlags & CCFLG_NOADJPRWROFFDRAFT)) // @v9.3.4
 					ciltif |= CILTIF_CAREFULLYALIGNPRICE;
 				THROW(ConvertILTI(&ilti, p_pack, &rows, ciltif, serial_buf));
 				if(ilti.HasDeficit()) {

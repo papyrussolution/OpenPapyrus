@@ -99,6 +99,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesOrder> * EfesGetSalesOrder
 	gSoapClientInit(&proxi, 0, 0);
 	ns2__GetSalesOrderRequestType param;
 	ns2__GetSalesOrderResponseType resp;
+	char * p_empty_doc_num = "";
 
 	InitEfecCallParam(param, rH, arg_str_pool);
 	proxi.userid = GetDynamicParamString((temp_buf = rSess.GetUser()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
@@ -107,12 +108,16 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesOrder> * EfesGetSalesOrder
 		DateRange period;
 		if(!RVALUEPTR(period, pPeriod))
 			period.SetZero();
-		SETIFZ(period.low, encodedate(1, 9, 2016));
-		SETIFZ(period.upp, encodedate(31, 12, 2030));
+		SETIFZ(period.low, encodedate(1, 12, 2016));
+		SETIFZ(period.upp, encodedate(31, 12, 2017));
 		param.DateFrom =  GetDynamicParamString(period.low, DATF_ISO8601|DATF_CENTURY, arg_str_pool);
 		param.DateTo   =  GetDynamicParamString(period.upp, DATF_ISO8601|DATF_CENTURY, arg_str_pool);
 	}
 	param.RepeatFlag = GetDynamicParamString(repeat, arg_str_pool);
+	{
+		param.EFRDocNum = &p_empty_doc_num;
+		param.__sizeEFRDocNum = 0;
+	}
 	THROW(PreprocessCall(proxi, rSess, proxi.GetSalesOrderSync(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
 	if(resp.SalesOrder && resp.__sizeSalesOrder > 0) {
 		THROW(p_result = new TSCollection <SapEfesOrder>);

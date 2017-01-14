@@ -984,15 +984,18 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, long param)
 		else {
 			trec.Ac = 999;
 			trec.Ar = pRec->CorrAcc % 1000L;
-			if(PPLoadText(PPTXT_UNKNOWNACC, temp_buf))
-				sprintf(trec.Name, temp_buf, pRec->CorrAcc);
+			if(PPLoadText(PPTXT_UNKNOWNACC, temp_buf)) {
+				//sprintf(trec.Name, temp_buf, pRec->CorrAcc);
+				temp_buf.Space();
+				ideqvalstr(pRec->CorrAcc, temp_buf);
+			}
 			else
 				ltoa(pRec->CorrAcc, trec.Name, 10);
 		}
 	}
-	double amount = MONEYTOLDBL(pRec->Amount);
+	const double amount = MONEYTOLDBL(pRec->Amount);
 	if((p.IsRegister && amount < 0.0) || pRec->Reverse) {
-		double temp_amt = p.IsRegister ? fabs(amount) : amount;
+		const double temp_amt = p.IsRegister ? fabs(amount) : amount;
 		p.Total->CrdTrnovr.Add(1L, trec.CurID, 1L);
 		p.Total->AddTrnovr(0, trec.CurID, temp_amt);
 		trec.Dbt = 0.0;

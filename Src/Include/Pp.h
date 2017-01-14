@@ -6542,7 +6542,13 @@ public:
 	int    SLAPI CheckSystemAccount(DbLoginBlock * pDlb, PPSecur * pSecur);
 	int    SLAPI Login(const char * pDbSymb, const char * pUserName, const char * pPassword);
 	int    SLAPI Logout();
-	int    SLAPI OpenDictionary2(DbLoginBlock * pBlk);
+	//
+	// Descr: Флаги функции OpenDictionary2
+	//
+	enum {
+		odfDontInitSync = 0x0001 // Не открывать файл синхронизации Sync
+	};
+	int    SLAPI OpenDictionary2(DbLoginBlock * pBlk, long flags);
 	int    SLAPI SetPath(PPID pathID, const char * pBuf, short flags, int replace);
 	int    SLAPI GetPath(PPID pathID, SString & rBuf);
 	//
@@ -26233,7 +26239,7 @@ public:
 	//   данных в интернет-магазин Universe-HTT
 	//
 	struct Ext {
-		Ext & Clear();
+		Ext  & SLAPI Clear();
 
 		PPID   GoodsID;
 		PPID   CurID;
@@ -30029,6 +30035,7 @@ private:
 	};
 	TSArray <LockSet> locks;
 	GtaBlock GtaB;
+	const  long CcFlags;     // Копия CConfig.Flags ради небольшого увеличения эффективности кода по размеру и скорости работы
  	int    DemoRestrict;
 	SString NameBuf;         // Returned by GetNamePtr
 	PackageCore * P_PckgT;   //

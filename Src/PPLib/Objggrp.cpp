@@ -1,5 +1,5 @@
 // OBJGGRP.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -151,6 +151,15 @@ int SLAPI PPObjGoodsGroup::DeleteObj(PPID id)
 	int    ok = 1, r;
 	PPID   branch_id = 0;
 	Goods2Tbl::Rec rec;
+	// @v9.4.9 {
+	if(id) {
+		PPGoodsConfig cfg;
+		if(PPObjGoods::ReadConfig(&cfg) > 0) {
+			THROW_PP(cfg.AssetGrpID != id, PPERR_GGRPHASREFINGCFG);
+			THROW_PP(cfg.DefGroupID != id, PPERR_GGRPHASREFINGCFG);
+		}
+	}
+	// } @v9.4.9 
 	while(ok > 0 && (r = P_Tbl->SearchAnyRef(PPOBJ_GOODSGROUP, id, &branch_id)) > 0) {
 		if(Search(branch_id, &rec) > 0) {
 			//
@@ -1207,15 +1216,16 @@ int SLAPI PPObjTransport::ReadConfig(PPTransportConfig * pCfg)
 {
 	const  long prop_cfg_id = PPPRP_TRANSPCFG;
 	int    ok = -1, r;
+	Reference * p_ref = PPRef;
 	size_t sz = sizeof(Storage_PPTranspConfig) + 256;
 	Storage_PPTranspConfig * p_cfg = (Storage_PPTranspConfig *)malloc(sz);
 	THROW_MEM(p_cfg);
-	THROW(r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, p_cfg, sz));
+	THROW(r = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, p_cfg, sz));
 	if(r > 0 && p_cfg->GetSize() > sz) {
 		sz = p_cfg->GetSize();
 		p_cfg = (Storage_PPTranspConfig *)realloc(p_cfg, sz);
 		THROW_MEM(p_cfg);
-		THROW(r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, p_cfg, sz));
+		THROW(r = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, p_cfg, sz));
 	}
 	if(r > 0) {
 		pCfg->Flags = p_cfg->Flags;
@@ -2444,6 +2454,7 @@ int SLAPI PPObjSuprWare::Put(PPID * pID, const PPSuprWarePacket * pPack, int use
 	const  PPID assoc_type = PPASS_GOODSCOMP;
 
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	int    action = 0;
 	int    skip_items = 0;
 	uint   i;
@@ -2499,7 +2510,7 @@ int SLAPI PPObjSuprWare::Put(PPID * pID, const PPSuprWarePacket * pPack, int use
 		}
 		if(!skip_items) {
 			if(items.getCount() == 0) {
-				THROW(PPRef->Assc.Remove(assoc_type, *pID, 0, 0));
+				THROW(p_ref->Assc.Remove(assoc_type, *pID, 0, 0));
 				ok = 1;
 			}
 			else {
@@ -2507,7 +2518,7 @@ int SLAPI PPObjSuprWare::Put(PPID * pID, const PPSuprWarePacket * pPack, int use
 				_GCompItem gci;
 				SArray prev_items(sizeof(ObjAssocTbl::Rec));
 				LongArray found_pos_list;
-				for(SEnum en = PPRef->Assc.Enum(assoc_type, *pID, 0); en.Next(&gci) > 0;) {
+				for(SEnum en = p_ref->Assc.Enum(assoc_type, *pID, 0); en.Next(&gci) > 0;) {
 					THROW_SL(prev_items.insert(&gci));
 					SETMAX(last_num, gci.InnerNum);
 				}
@@ -2520,19 +2531,19 @@ int SLAPI PPObjSuprWare::Put(PPID * pID, const PPSuprWarePacket * pPack, int use
 						if(p_list_item->Qtty != gci.Qtty || p_list_item->UnitID != gci.UnitID) {
 							gci.Qtty = p_list_item->Qtty;
 							gci.UnitID = p_list_item->UnitID;
-							THROW(PPRef->Assc.Update(gci.ID, (ObjAssocTbl::Rec *)&gci, 0));
+							THROW(p_ref->Assc.Update(gci.ID, (ObjAssocTbl::Rec *)&gci, 0));
 							ok = 1;
 						}
 					}
 					else {
 						if(gci.InnerNum == last_num)
 							last_num--;
-						THROW(PPRef->Assc.Remove(gci.ID, 0));
+						THROW(p_ref->Assc.Remove(gci.ID, 0));
 						ok = 1;
 					}
 				}
 				{
-					BExtInsert bei(&PPRef->Assc);
+					BExtInsert bei(&p_ref->Assc);
 					for(i = 0; i < items.getCount(); i++) {
 						if(!found_pos_list.lsearch((long)i)) {
 							_GCompItem * p_list_item = (_GCompItem *)items.at(i);
@@ -2562,6 +2573,7 @@ int SLAPI PPObjSuprWare::PutAssoc(PPSuprWareAssoc & rItem, int use_ta)
 	const  PPID assoc_type = PPASS_GOODSCOMP;
 
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	PPID   assc_id = 0;
 	{
 		_GCompItem gci, org_gci;
@@ -2575,19 +2587,19 @@ int SLAPI PPObjSuprWare::PutAssoc(PPSuprWareAssoc & rItem, int use_ta)
 		gci.UnitID   = rItem.UnitID;
 		gci.Qtty     = rItem.Qtty;
 
-		if(PPRef->Assc.Search(assoc_type, rItem.GoodsID, rItem.CompID, (ObjAssocTbl::Rec *)&org_gci) > 0) {
+		if(p_ref->Assc.Search(assoc_type, rItem.GoodsID, rItem.CompID, (ObjAssocTbl::Rec *)&org_gci) > 0) {
 			if(gci.Qtty != org_gci.Qtty || gci.UnitID != org_gci.UnitID) {
 				org_gci.Qtty = gci.Qtty;
 				org_gci.UnitID = gci.UnitID;
-				THROW(PPRef->Assc.Update(org_gci.ID, (ObjAssocTbl::Rec *)&org_gci, 0));
+				THROW(p_ref->Assc.Update(org_gci.ID, (ObjAssocTbl::Rec *)&org_gci, 0));
 				ok = 2;
 			}
 			else
 				ok = -1;
 		}
 		else {
-			THROW(PPRef->Assc.SearchFreeNum(assoc_type, gci.GoodsID, &gci.InnerNum, 0));
-			THROW(PPRef->Assc.Add(&assc_id, (ObjAssocTbl::Rec *)&gci, 0));
+			THROW(p_ref->Assc.SearchFreeNum(assoc_type, gci.GoodsID, &gci.InnerNum, 0));
+			THROW(p_ref->Assc.Add(&assc_id, (ObjAssocTbl::Rec *)&gci, 0));
 			ok = 1;
 		}
 		THROW(tra.Commit());

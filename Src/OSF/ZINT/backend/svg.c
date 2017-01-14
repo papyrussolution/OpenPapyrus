@@ -30,22 +30,23 @@
     SUCH DAMAGE.
  */
 
+//#include <string.h>
+//#include <stdlib.h>
+//#include <stdio.h>
+//#include <math.h>
+#include "common.h"
 #include <locale.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
 #ifdef _MSC_VER
 	#include <malloc.h>
 #endif
-#include "common.h"
 
 #define SSET    "0123456789ABCDEF"
 
 int svg_plot(struct ZintSymbol * symbol)
 {
-	int i, block_width, latch, r, this_row;
-	float textpos, large_bar_height, preset_height, row_height, row_posn = 0.0;
+	int    block_width, latch, r, this_row;
+	uint   i;
+	float  textpos, large_bar_height, preset_height, row_height, row_posn = 0.0;
 	FILE * fsvg;
 	int error_number = 0;
 	int textoffset, xoffset, yoffset, textdone, main_width;
@@ -134,11 +135,10 @@ int svg_plot(struct ZintSymbol * symbol)
 	SETIFZ(symbol->height, 50);
 	large_bar_count = 0;
 	preset_height = 0.0;
-	for(i = 0; i < symbol->rows; i++) {
+	for(i = 0; i < (uint)symbol->rows; i++) {
 		preset_height += symbol->row_height[i];
-		if(symbol->row_height[i] == 0) {
+		if(symbol->row_height[i] == 0)
 			large_bar_count++;
-		}
 	}
 	large_bar_height = (symbol->height - preset_height) / large_bar_count;
 	if(large_bar_count == 0) {
@@ -205,7 +205,7 @@ int svg_plot(struct ZintSymbol * symbol)
 	}
 	else {
 		fprintf(fsvg, "<svg width=\"%d\" height=\"%d\" version=\"1.1\"\n", (int)ceil(
-			    (74.0F + xoffset + xoffset) * scaler), (int)ceil((72.0F + yoffset + yoffset) * scaler));
+			    (74.0f + xoffset + xoffset) * scaler), (int)ceil((72.0f + yoffset + yoffset) * scaler));
 	}
 	fprintf(fsvg, "   xmlns=\"http://www.w3.org/2000/svg\">\n");
 	if((ustrlen(local_text) != 0) && (symbol->show_hrt != 0)) {
@@ -216,7 +216,6 @@ int svg_plot(struct ZintSymbol * symbol)
 	}
 	fprintf(fsvg, "   </desc>\n");
 	fprintf(fsvg, "\n   <g id=\"barcode\" fill=\"#%s\">\n", symbol->fgcolour);
-
 	if(symbol->Std != BARCODE_MAXICODE) {
 		fprintf(fsvg, "      <rect x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" fill=\"#%s\" />\n",
 		    (int)ceil((symbol->width + xoffset + xoffset) * scaler),
@@ -226,7 +225,6 @@ int svg_plot(struct ZintSymbol * symbol)
 		fprintf(fsvg, "      <rect x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" fill=\"#%s\" />\n",
 		    (int)ceil((74.0F + xoffset + xoffset) * scaler), (int)ceil((72.0F + yoffset + yoffset) * scaler), symbol->bgcolour);
 	}
-
 	if((symbol->output_options & BARCODE_BOX) || (symbol->output_options & BARCODE_BIND)) {
 		default_text_posn = (symbol->height + textoffset + symbol->border_width + symbol->border_width) * scaler;
 	}
@@ -268,7 +266,7 @@ int svg_plot(struct ZintSymbol * symbol)
 		fprintf(fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" />\n", (35.76 + xoffset) * scaler,
 		    (35.60 + yoffset) * scaler, 1.43 * scaler, symbol->bgcolour);
 		for(r = 0; r < symbol->rows; r++) {
-			for(i = 0; i < symbol->width; i++) {
+			for(i = 0; i < (uint)symbol->width; i++) {
 				if(module_is_set(symbol, r, i)) {
 					/* Dump a hexagon */
 					my = r * 2.135f + 1.43f;
@@ -301,7 +299,6 @@ int svg_plot(struct ZintSymbol * symbol)
 		/* everything else uses rectangles (or squares) */
 		/* Works from the bottom of the symbol up */
 		int addon_latch = 0;
-
 		for(r = 0; r < symbol->rows; r++) {
 			this_row = r;
 			if(symbol->row_height[this_row] == 0) {
@@ -311,7 +308,7 @@ int svg_plot(struct ZintSymbol * symbol)
 				row_height = (float)symbol->row_height[this_row];
 			}
 			row_posn = 0;
-			for(i = 0; i < r; i++) {
+			for(i = 0; i < (uint)r; i++) {
 				if(symbol->row_height[i] == 0) {
 					row_posn += large_bar_height;
 				}
@@ -323,7 +320,7 @@ int svg_plot(struct ZintSymbol * symbol)
 
 			if(symbol->output_options & BARCODE_DOTTY_MODE) {
 				/* Use (currently undocumented) dot mode - see SF ticket #29 */
-				for(i = 0; i < symbol->width; i++) {
+				for(i = 0; i < (uint)symbol->width; i++) {
 					if(module_is_set(symbol, this_row, i)) {
 						fprintf(fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" />\n",
 						    ((i + xoffset) * scaler) + (scaler / 2.0), (row_posn * scaler) + (scaler / 2.0),
@@ -346,7 +343,7 @@ int svg_plot(struct ZintSymbol * symbol)
 					do {
 						block_width++;
 					} while(module_is_set(symbol, this_row, i + block_width) == module_is_set(symbol, this_row, i));
-					if((addon_latch == 0) && (r == (symbol->rows - 1)) && (i > main_width)) {
+					if((addon_latch == 0) && (r == (symbol->rows - 1)) && (i > (uint)main_width)) {
 						addon_text_posn = (row_posn + 8.0f) * scaler;
 						addon_latch = 1;
 					}
@@ -367,7 +364,7 @@ int svg_plot(struct ZintSymbol * symbol)
 						latch = 1;
 					}
 					i += block_width;
-				} while(i < symbol->width);
+				} while(i < (uint)symbol->width);
 			}
 		}
 	}
@@ -595,19 +592,11 @@ int svg_plot(struct ZintSymbol * symbol)
 				latch = 1;
 			}
 			i += block_width;
-		} while(i < 11 + comp_offset);
-		fprintf(fsvg,
-		    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-		    (46 + xoffset) * scaler,
-		    row_posn,
-		    scaler,
-		    5.0 * scaler);
-		fprintf(fsvg,
-		    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-		    (48 + xoffset) * scaler,
-		    row_posn,
-		    scaler,
-		    5.0 * scaler);
+		} while(i < (uint)(11 + comp_offset));
+		fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+		    (46 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+		fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+		    (48 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
 		latch = 1;
 		i = 85 + comp_offset;
 		do {
@@ -626,7 +615,7 @@ int svg_plot(struct ZintSymbol * symbol)
 				latch = 1;
 			}
 			i += block_width;
-		} while(i < 96 + comp_offset);
+		} while(i < (uint)(96 + comp_offset));
 		textpart[0] = local_text[0];
 		textpart[1] = '\0';
 		textpos = -5;

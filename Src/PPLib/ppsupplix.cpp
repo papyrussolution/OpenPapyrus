@@ -4433,7 +4433,7 @@ int SLAPI SapEfes::ReceiveOrders()
 	EFESGETSALESORDERSYNCLIST_PROC func = 0;
 
 	DateRange period;
-	period.Set(encodedate(1, 1, 2016), encodedate(31, 12, 2030));
+	period.Set(encodedate(1, 12, 2016), encodedate(31, 12, 2017));
 
 	SString tech_buf;
 	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
@@ -4449,7 +4449,7 @@ int SLAPI SapEfes::ReceiveOrders()
 	THROW_SL(func = (EFESGETSALESORDERSYNCLIST_PROC)P_Lib->GetProcAddr("EfesGetSalesOrderSyncList"));
 	sess.Setup(SvcUrl, UserName, Password);
 	InitCallHeader(sech);
-	p_result = func(sess, sech, &period, 0 /*inclProcessedItems*/);
+	p_result = func(sess, sech, &period, 1 /*inclProcessedItems*/);
 	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 	{
 		//PPTXT_LOG_SUPPLIX_IMPORD_E    "Импортировано @int заказов @zstr"

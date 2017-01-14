@@ -1027,14 +1027,15 @@ int SLAPI PPBillPacket::InsertPartitialStruc()
 					else if(is_sum_val)
 						ilti.Price = r_item.Val;
 					if(!(is_sum_val && ilti.Price > 0.0) && (goods_obj.CheckFlag(ilti.GoodsID, GF_UNLIM) || ilti.Price == 0.0)) {
-						QuotIdent qi(Rec.LocID, PPQUOTK_BASE, Rec.CurID);
+						const QuotIdent qi(Rec.LocID, PPQUOTK_BASE, Rec.CurID);
 						goods_obj.GetQuotExt(ilti.GoodsID, qi, 0, 0, &ilti.Price, 1);
 					}
 					ilti.SetQtty(qtty, 0, (sign > 0) ? (PPTFR_RECEIPT|PPTFR_PLUS) : PPTFR_MINUS);
 					THROW(P_BObj->ConvertILTI(&ilti, this, &pos_list, CILTIF_OPTMZLOTS | CILTIF_ABSQTTY, 0));
 					ok = 1;
-					if(ilti.Rest != 0.0) {
-						int    reply = ProcessUnsuffisientGoods(ilti.GoodsID, pugpNoBalance);
+					// @v9.4.9 if(ilti.Rest != 0.0) {
+					if(ilti.HasDeficit()) { // @v9.4.9
+						const int reply = ProcessUnsuffisientGoods(ilti.GoodsID, pugpNoBalance);
 						if(reply == PCUG_EXCLUDE)
 							RemoveRows(&pos_list, last_pos);
 						else if(reply == PCUG_CANCEL) {

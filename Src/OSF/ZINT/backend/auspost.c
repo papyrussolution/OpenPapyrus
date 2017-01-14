@@ -54,13 +54,13 @@ static const char * AusBarTable[64] = {
 	"332", "333"
 };
 
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
+//#include <string.h>
+//#include <stdio.h>
+//#include <stdlib.h>
 #include "common.h"
 #include "reedsol.h"
 #ifdef _MSC_VER
-#define inline _inline
+	#define inline _inline
 #endif
 
 static inline char convert_pattern(char data, int shift)
@@ -74,10 +74,11 @@ void rs_error(char data_pattern[])
 	int reader, triple_writer = 0;
 	char triple[31], inv_triple[31];
 	uchar result[5];
-	for(reader = 2; reader < strlen(data_pattern); reader += 3, triple_writer++) {
-		triple[triple_writer] = convert_pattern(data_pattern[reader], 4)
-		    + convert_pattern(data_pattern[reader + 1], 2)
-		    + convert_pattern(data_pattern[reader + 2], 0);
+	{
+		const size_t dpl_ = strlen(data_pattern);
+		for(size_t ri = 2; ri < dpl_; ri += 3, triple_writer++) {
+			triple[triple_writer] = convert_pattern(data_pattern[ri], 4) + convert_pattern(data_pattern[ri+1], 2) + convert_pattern(data_pattern[ri+2], 0);
+		}
 	}
 	for(reader = 0; reader < triple_writer; reader++) {
 		inv_triple[reader] = triple[(triple_writer - 1) - reader];
@@ -86,7 +87,7 @@ void rs_error(char data_pattern[])
 	rs_init_code(4, 1);
 	rs_encode(triple_writer, (uchar*)inv_triple, result);
 	for(reader = 4; reader > 0; reader--) {
-		strcat(data_pattern, AusBarTable[(int)result[reader - 1]]);
+		strcat(data_pattern, AusBarTable[(int)result[reader-1]]);
 	}
 	rs_free();
 }
@@ -119,19 +120,13 @@ int australia_post(struct ZintSymbol * symbol, uchar source[], int length)
 	if(symbol->Std == BARCODE_AUSPOST) {
 		/* Format control code (FCC) */
 		switch(length) {
-			case 8:
-			    strcpy(fcc, "11");
+			case 8: strcpy(fcc, "11"); break;
+			case 13: strcpy(fcc, "59"); break;
+			case 16: 
+				strcpy(fcc, "59"); 
+				error_number = is_sane(NEON, source, length);
 			    break;
-			case 13:
-			    strcpy(fcc, "59");
-			    break;
-			case 16:
-			    strcpy(fcc, "59");
-			    error_number = is_sane(NEON, source, length);
-			    break;
-			case 18:
-			    strcpy(fcc, "62");
-			    break;
+			case 18: strcpy(fcc, "62"); break;
 			case 23:
 			    strcpy(fcc, "62");
 			    error_number = is_sane(NEON, source, length);
@@ -151,19 +146,15 @@ int australia_post(struct ZintSymbol * symbol, uchar source[], int length)
 			return ZINT_ERROR_TOO_LONG;
 		}
 		switch(symbol->Std) {
-			case BARCODE_AUSREPLY: strcpy(fcc, "45");
-			    break;
-			case BARCODE_AUSROUTE: strcpy(fcc, "87");
-			    break;
-			case BARCODE_AUSREDIRECT: strcpy(fcc, "92");
-			    break;
+			case BARCODE_AUSREPLY: strcpy(fcc, "45"); break;
+			case BARCODE_AUSROUTE: strcpy(fcc, "87"); break;
+			case BARCODE_AUSREDIRECT: strcpy(fcc, "92"); break;
 		}
 		/* Add leading zeros as required */
 		zeroes = 8 - length;
 		memset(localstr, '0', zeroes);
 		localstr[8] = '\0';
 	}
-
 	strcat(localstr, (char*)source);
 	h = strlen(localstr);
 	error_number = is_sane(GDSET, (uchar*)localstr, h);
@@ -171,7 +162,6 @@ int australia_post(struct ZintSymbol * symbol, uchar source[], int length)
 		strcpy(symbol->errtxt, "Invalid characters in data (D04)");
 		return error_number;
 	}
-
 	/* Verifiy that the first 8 characters are numbers */
 	memcpy(dpid, localstr, 8);
 	dpid[8] = '\0';
@@ -180,10 +170,8 @@ int australia_post(struct ZintSymbol * symbol, uchar source[], int length)
 		strcpy(symbol->errtxt, "Invalid characters in DPID (D05)");
 		return error_number;
 	}
-
 	/* Start character */
 	strcpy(data_pattern, "13");
-
 	/* Encode the FCC */
 	for(reader = 0; reader < 2; reader++) {
 		lookup(NEON, AusNTable, fcc[reader], data_pattern);
@@ -198,12 +186,12 @@ int australia_post(struct ZintSymbol * symbol, uchar source[], int length)
 
 	/* Customer Information */
 	if(h > 8) {
-		if((h == 13) || (h == 18)) {
+		if(oneof2(h, 13, 18)) {
 			for(reader = 8; reader < h; reader++) {
 				lookup(GDSET, AusCTable, localstr[reader], data_pattern);
 			}
 		}
-		else if((h == 16) || (h == 23)) {
+		else if(oneof2(h, 16, 23)) {
 			for(reader = 8; reader < h; reader++) {
 				lookup(NEON, AusNTable, localstr[reader], data_pattern);
 			}
@@ -215,19 +203,13 @@ int australia_post(struct ZintSymbol * symbol, uchar source[], int length)
 	switch(h) {
 		case 22:
 		case 37:
-		case 52:
-		    strcat(data_pattern, "3");
-		    break;
-		default:
-		    break;
+		case 52: strcat(data_pattern, "3"); break;
+		default: break;
 	}
-
 	/* Reed Solomon error correction */
 	rs_error(data_pattern);
-
 	/* Stop character */
 	strcat(data_pattern, "13");
-
 	/* Turn the symbol into a bar pattern ready for plotting */
 	writer = 0;
 	h = strlen(data_pattern);
