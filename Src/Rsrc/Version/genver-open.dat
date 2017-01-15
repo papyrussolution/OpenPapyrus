@@ -5,7 +5,7 @@
 ;
 [version]
 Signature    = keD12Hg8v8PW32vU
-Product      = Open Papyrus
+Product      = OpenPapyrus
 Team         = Andrey Fokin, Anton Sobolev
 Secret       = B5IwV3V03KT16vzt
 StartDevYear = 1996
@@ -15,7 +15,7 @@ OpenSource   = 1
 MajorVer     =9
 MinorVer     =4
 Revision     =9
-AssemblyVer=20915
+AssemblyVer=20928
 MinMajorVer  =9
 MinMinorVer  =4
 MinRevision  =0

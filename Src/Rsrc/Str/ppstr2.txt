@@ -2978,6 +2978,8 @@ PPFILNAM_PPDV_WTA              "ppdv.wta" // Набор инструментов
 PPFILNAM_EGAIS_PERSON_TXT      "egais-person.txt"
 PPFILNAM_EGAIS_PRODUCT_TXT     "egais-product.txt"
 PPFILNAM_EGAIS_REFA_TXT        "egais-refa.txt"
+PPFILNAM_GENVER_DAT            "genver.dat"
+PPFILNAM_GENVEROPEN_DAT        "genver-open.dat"
 
 #!} // dont_translate
 

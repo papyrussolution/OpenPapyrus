@@ -1,5 +1,5 @@
 // PPBUILD.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -24,7 +24,8 @@ public:
 			fBuildDrv        = 0x0008,
 			fBuildSoap       = 0x0010,
 			fBuildDistrib    = 0x0020,
-			fCopyToUhtt      = 0x0040
+			fCopyToUhtt      = 0x0040,
+			fOpenSource      = 0x0080  // OpenSource-вариант сборки
 		};
 		Param()
 		{
@@ -68,6 +69,7 @@ int	SLAPI PrcssrBuild::InitParam(Param * pParam)
 {
 	int    ok = 1;
 	SString temp_buf, full_path_buf;
+	SString file_name_buf;
 	PPIniFile ini_file;
 	//
 	ini_file.Get(PPINISECT_PATH, PPINIPARAM_BUILDROOT, temp_buf = 0);
@@ -109,9 +111,29 @@ int	SLAPI PrcssrBuild::InitParam(Param * pParam)
 		//
 		// Извлекаем из файла SRC\RSRC\VERSION\genver.dat номер создаваемой версии
 		//
-		(temp_buf = pParam->SrcPath).SetLastSlash().Cat("RSRC").SetLastSlash().Cat("Version").SetLastSlash().Cat("genver.dat");
+		(temp_buf = pParam->SrcPath).SetLastSlash().Cat("RSRC").SetLastSlash().Cat("Version").SetLastSlash();
+		//(temp_buf = pParam->SrcPath).SetLastSlash().Cat("RSRC").SetLastSlash().Cat("Version").SetLastSlash().Cat("genver.dat");
+		PPGetFileName(PPFILNAM_GENVER_DAT, file_name_buf);
+		(full_path_buf = temp_buf).Cat(file_name_buf);
+		if(!fileExists(full_path_buf)) {
+			PPGetFileName(PPFILNAM_GENVEROPEN_DAT, file_name_buf);
+			(full_path_buf = temp_buf).Cat(file_name_buf);
+		}
+		temp_buf = full_path_buf;
 		THROW(fileExists(temp_buf));
 		{
+			// @v9.4.9 {
+			SIniFile f_genver_file(temp_buf);
+			PapyrusPrivateBlock ppb;
+			THROW(ppb.ReadFromIni(f_genver_file));
+			{
+				ppb.Ver.Get(&pParam->Ver.Major, &pParam->Ver.Minor, &pParam->Ver.Revision);
+				pParam->Ver.Asm = ppb.AssemblyN;
+				if(ppb.Flags & ppb.fOpenSource)
+				SETFLAG(pParam->Flags, Param::fOpenSource, (ppb.Flags & ppb.fOpenSource));
+			}
+			// } @v9.4.9
+			/* @v9.4.9
 			SString line_buf, key_buf, val_buf;
 			int    mj_difined = 0;
 			int    mn_difined = 0;
@@ -139,8 +161,14 @@ int	SLAPI PrcssrBuild::InitParam(Param * pParam)
 						pParam->Ver.Asm = val_buf.Strip().ToLong();
 						a_difined = 1;
 					}
+					else if(key_buf.CmpNC("OpenSource") == 0) {
+						if(val_buf.Strip().ToLong() > 0) {
+							pParam->Flags |= Param::fOpenSource;
+						}
+					}
 				}
 			}
+			*/
 		}
 	}
 	//
@@ -438,7 +466,7 @@ int	SLAPI PrcssrBuild::Run()
 			const char * P_NsisFile;
 			const char * P_UhttSymb;
 
-			char  FileName[512];
+			char   FileName[512];
 		};
 		NsisEntry nsis_list[] = {
 			{ "Server",      "INSTALL_SERVER", "papyrus.nsi", "papyrus-setup-server",    "" }, // #0
@@ -493,6 +521,11 @@ int	SLAPI PrcssrBuild::Run()
 				if(r_nsis_entry.P_Config) {
 					temp_buf.Cat("/D").Cat(r_nsis_entry.P_Config).Space();
 				}
+				// @v9.4.9 {
+				if(P.Flags & Param::fOpenSource) {
+					temp_buf.Cat("/D").Cat("OPENSOURCE").Space();
+				}
+				// } @v9.4.9
 				temp_buf.Cat("/O").Cat(build_log_path).Space().Cat(r_nsis_entry.P_NsisFile);
 
 				STempBuffer cmd_line(temp_buf.Len()*2);

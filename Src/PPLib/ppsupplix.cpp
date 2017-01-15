@@ -1,5 +1,5 @@
 // PPSUPPLIX.CPP
-// Copyright (c) A.Sobolev 2016
+// Copyright (c) A.Sobolev 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -3828,7 +3828,8 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 			p_new_pack->IncDtm.SetZero();
 			pack.Pays.GetLast(&p_new_pack->DueDate, 0, 0);
 			p_new_pack->Status = do_cancel ? 1 : 0;
-			(p_new_pack->Memo = pack.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8);
+			// @v9.4.9 (p_new_pack->Memo = pack.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8); 
+			p_new_pack->Memo = 0; // @v9.4.9
 			if(outerDocType == 6) { // Приход (подтверждение)
 				(p_new_pack->SellerCode = 0).Cat(psn_id);
 				(p_new_pack->ShipFrom = 0).Cat(psn_id);

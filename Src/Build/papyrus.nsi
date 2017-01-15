@@ -1,5 +1,5 @@
 ; PAPYRUS.NSI
-; Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016
+; Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017
 ; Скрипт создания инсталляции системы Papyrus
 ;
 ;
@@ -17,6 +17,8 @@
 ;!define INSTALL_UPDATE
 ; Установка Demo-версии
 ;!define INSTALL_DEMO
+; Установка OpenSource-варианта сборки
+;!define OPENSOURCE
 
 !define PRODUCT_PUBLISHER        "A.Fokin, A.Sobolev"
 !define PRODUCT_WEB_SITE         "http://www.petroglif.ru"
@@ -282,7 +284,9 @@ Section "Файлы приложения" SEC01
 	File "${SRC_TARGET}\ppShuttleSG15_20.exe" ; @v7.4.10
 	File "${SRC_TARGET}\ppwmt.dll"
 	File "${SRC_TARGET}\PPSoapUhtt.dll"       ; @v7.3.0
-	File "${SRC_TARGET}\PPSoapPepsi.dll"      ; @v9.2.3
+	!ifndef OPENSOURCE
+		File "${SRC_TARGET}\PPSoapPepsi.dll"      ; @v9.2.3
+	!endif
 	File "${SRC_TARGET}\ppraw.res"
 	; @v8.9.8 File "${SRC_TARGET}\pprpt.res"
 	; @v5.8.8 File "${SRC_TARGET}\pp.str"
@@ -437,18 +441,29 @@ Section -PACK SEC_PACK
 	File "${SRC_TOOLS}\7z.exe"
 	; @v7.5.3 File File "${SRC_ROOT}\BASE\empty.7z"
 	; @v7.5.3 File File "${SRC_ROOT}\BASE\sample.7z"
+	; @v9.4.9 {
+	!ifdef OPENSOURCE
+		File "${SRC_ROOT}\BASE\empty-open.zip"
+		File "${SRC_ROOT}\BASE\sample-open.zip"
+	!else
+		File "${SRC_ROOT}\BASE\empty.zip"
+		File "${SRC_ROOT}\BASE\sample.zip"
+	!endif
+	; } @v9.4.9
 	File "${SRC_ROOT}\BASE\INIT_DDF\800\*.ddf"
 SectionEnd
 
-Section -SBII SEC_SBII
-	SetOutPath "${DIR_SBII}"
-	SetOverwrite on
-        File "${SRC_3P_REDIST}\SBII\BHT400BWCE_StylobhtII.exe"
-        File "${SRC_3P_REDIST}\SBII\DatalogicMemor_StyloBhtII.exe"
-        File "${SRC_3P_REDIST}\SBII\Falcon4420_StylobhtII.exe"
-        File "${SRC_3P_REDIST}\SBII\MC6200S_StylobhtII.exe"
-        File "${SRC_3P_REDIST}\SBII\SymbolMC9090_StyloBhtII.exe"
-SectionEnd
+!ifndef OPENSOURCE
+	Section -SBII SEC_SBII
+		SetOutPath "${DIR_SBII}"
+		SetOverwrite on
+        	File "${SRC_3P_REDIST}\SBII\BHT400BWCE_StylobhtII.exe"
+	        File "${SRC_3P_REDIST}\SBII\DatalogicMemor_StyloBhtII.exe"
+        	File "${SRC_3P_REDIST}\SBII\Falcon4420_StylobhtII.exe"
+	        File "${SRC_3P_REDIST}\SBII\MC6200S_StylobhtII.exe"
+        	File "${SRC_3P_REDIST}\SBII\SymbolMC9090_StyloBhtII.exe"
+	SectionEnd
+!endif
 
 !endif
 
@@ -467,13 +482,21 @@ SectionEnd
 Section -BASEEMPTY SEC_BASEEMPTY
 	SetOutPath "$INSTDIR\DATA\EMPTY"
 	SetOverwrite off
-	File "${SRC_ROOT}\BASE\EMPTY\*.btr"
+	!ifdef OPENSOURCE
+		File "${SRC_ROOT}\BASE\OPENPAPYRUS\EMPTY\*.btr"
+	!else
+		File "${SRC_ROOT}\BASE\EMPTY\*.btr"
+	!endif
 SectionEnd
 
 Section -BASESAMPLE SEC_BASESAMPLE
 	SetOutPath "$INSTDIR\DATA\SAMPLE"
 	SetOverwrite off
-    File "${SRC_ROOT}\BASE\SAMPLE\*.btr"
+	!ifdef OPENSOURCE
+		File "${SRC_ROOT}\BASE\OPENPAPYRUS\SAMPLE\*.btr"
+	!else
+		File "${SRC_ROOT}\BASE\SAMPLE\*.btr"
+	!endif
 SectionEnd
 
 Section "Руководство пользователя" SEC_MANUAL

@@ -80,7 +80,7 @@
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;gdiplus.lib;..\osf\openssl\lib\libeay32.lib;..\osf\openssl\lib\ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;shlwapi.lib;mpr.lib;gdiplus.lib;..\osf\openssl\lib\libeay32.lib;..\osf\openssl\lib\ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\..\ppy\bin\ppdrv-ie-leradata.dll</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)ImpExpLeraData.pdb</ProgramDatabaseFile>
@@ -120,7 +120,7 @@
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;gdiplus.lib;..\osf\openssl\lib\libeay32.lib;..\osf\openssl\lib\ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;shlwapi.lib;mpr.lib;gdiplus.lib;..\osf\openssl\lib\libeay32.lib;..\osf\openssl\lib\ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\..\ppy\bin\ppdrv-ie-leradata.dll</OutputFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
