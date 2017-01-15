@@ -1,0 +1,7 @@
+shlwapi.dll  - Win32-библиотека Shell. Необходима при установке системы
+               на Windows95, Windows98 (не SE), WindowsNT 4.0.
+w3dbav80.dll - Библиотека поддержки баз данных PervasiveSQL 8.0
+gdiplus.dll  - Win32-библиотека. Необходима при установке системы на
+				Win95, Win98, WinNT 4.0, Win2000.
+				Для WinXP этот DLL не нужен (уже установлен в системе)
+
