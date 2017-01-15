@@ -399,6 +399,58 @@
   <ItemGroup>
     <ClInclude Include="..\Include\ppsoapclient.h" />
   </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\SOAP\CLIENT\Pepsi\accountingtransfer.asmx.xml">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o pepsiSoap.h %(Filename)%(Extension)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -ppepsiSoap pepsiSoap.h
+cd $(SolutionDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">cd %(RelativeDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o pepsiSoap.h %(Filename)%(Extension)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -ppepsiSoap pepsiSoap.h
+cd $(SolutionDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">cd %(RelativeDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o pepsiSoap.h %(Filename)%(Extension)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -ppepsiSoap pepsiSoap.h
+cd $(SolutionDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">cd %(RelativeDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o pepsiSoap.h %(Filename)%(Extension)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -ppepsiSoap pepsiSoap.h
+cd $(SolutionDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o pepsiSoap.h %(Filename)%(Extension)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -ppepsiSoap pepsiSoap.h
+cd $(SolutionDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">cd %(RelativeDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o pepsiSoap.h %(Filename)%(Extension)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -ppepsiSoap pepsiSoap.h
+cd $(SolutionDir)
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)pepsiSoapC.cpp;%(RelativeDir)pepsiSoapAccountingTransferSoapProxy.cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RelativeDir)pepsiSoapC.cpp;%(RelativeDir)pepsiSoapAccountingTransferSoapProxy.cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RelativeDir)pepsiSoapC.cpp;%(RelativeDir)pepsiSoapAccountingTransferSoapProxy.cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RelativeDir)pepsiSoapC.cpp;%(RelativeDir)pepsiSoapAccountingTransferSoapProxy.cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)pepsiSoapC.cpp;%(RelativeDir)pepsiSoapAccountingTransferSoapProxy.cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RelativeDir)pepsiSoapC.cpp;%(RelativeDir)pepsiSoapAccountingTransferSoapProxy.cpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Construction of gSOAP sources %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Construction of gSOAP sources %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Construction of gSOAP sources %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Construction of gSOAP sources %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Construction of gSOAP sources %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Construction of gSOAP sources %(FullPath)</Message>
+    </CustomBuild>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

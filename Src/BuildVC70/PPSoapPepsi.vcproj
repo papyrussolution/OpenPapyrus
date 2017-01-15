@@ -343,6 +343,81 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
+				RelativePath="..\Soap\Client\Pepsi\accountingtransfer.asmx.xml">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Construction of gSOAP sources $(InputPath)"
+						CommandLine="cd $(InputDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o pepsiSoap.h $(InputFileName)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -ppepsiSoap pepsiSoap.h
+cd $(SolutionDir)
+"
+						Outputs="$(InputDir)pepsiSoapC.cpp;$(InputDir)pepsiSoapAccountingTransferSoapProxy.cpp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Construction of gSOAP sources $(InputPath)"
+						CommandLine="cd $(InputDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o pepsiSoap.h $(InputFileName)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -ppepsiSoap pepsiSoap.h
+cd $(SolutionDir)
+"
+						Outputs="$(InputDir)pepsiSoapC.cpp;$(InputDir)pepsiSoapAccountingTransferSoapProxy.cpp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Construction of gSOAP sources $(InputPath)"
+						CommandLine="cd $(InputDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o pepsiSoap.h $(InputFileName)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -ppepsiSoap pepsiSoap.h
+cd $(SolutionDir)
+"
+						Outputs="$(InputDir)pepsiSoapC.cpp;$(InputDir)pepsiSoapAccountingTransferSoapProxy.cpp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Construction of gSOAP sources $(InputPath)"
+						CommandLine="cd $(InputDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o pepsiSoap.h $(InputFileName)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -ppepsiSoap pepsiSoap.h
+cd $(SolutionDir)
+"
+						Outputs="$(InputDir)pepsiSoapC.cpp;$(InputDir)pepsiSoapAccountingTransferSoapProxy.cpp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Construction of gSOAP sources $(InputPath)"
+						CommandLine="cd $(InputDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o pepsiSoap.h $(InputFileName)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -ppepsiSoap pepsiSoap.h
+cd $(SolutionDir)
+"
+						Outputs="$(InputDir)pepsiSoapC.cpp;$(InputDir)pepsiSoapAccountingTransferSoapProxy.cpp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Construction of gSOAP sources $(InputPath)"
+						CommandLine="cd $(InputDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o pepsiSoap.h $(InputFileName)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -ppepsiSoap pepsiSoap.h
+cd $(SolutionDir)
+"
+						Outputs="$(InputDir)pepsiSoapC.cpp;$(InputDir)pepsiSoapAccountingTransferSoapProxy.cpp"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\Soap\Client\Pepsi\pepsiSoapAccountingTransferSoapProxy.cpp">
 			</File>
 			<File

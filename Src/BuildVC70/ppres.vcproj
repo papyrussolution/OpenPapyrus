@@ -724,8 +724,7 @@ XCOPY /Y $(InputDir)$(InputName).CPP ..\PPKERNEL
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="—борка диалогов"
-						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools
-"
+						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools"
 						AdditionalDependencies=""
 						Outputs="$(InputDir)$(InputName)-.rc;$(InputDir)$(InputName)w-.rc"/>
 				</FileConfiguration>
@@ -734,8 +733,7 @@ XCOPY /Y $(InputDir)$(InputName).CPP ..\PPKERNEL
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="—борка диалогов"
-						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools
-"
+						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools"
 						AdditionalDependencies=""
 						Outputs="$(InputDir)$(InputName)-.rc;$(InputDir)$(InputName)w-.rc"/>
 				</FileConfiguration>
@@ -744,8 +742,7 @@ XCOPY /Y $(InputDir)$(InputName).CPP ..\PPKERNEL
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="—борка диалогов"
-						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools
-"
+						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools"
 						AdditionalDependencies=""
 						Outputs="$(InputDir)$(InputName)-.rc;$(InputDir)$(InputName)w-.rc"/>
 				</FileConfiguration>
@@ -754,8 +751,7 @@ XCOPY /Y $(InputDir)$(InputName).CPP ..\PPKERNEL
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="—борка диалогов"
-						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools
-"
+						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools"
 						AdditionalDependencies=""
 						Outputs="$(InputDir)$(InputName)-.rc;$(InputDir)$(InputName)w-.rc"/>
 				</FileConfiguration>
@@ -764,8 +760,7 @@ XCOPY /Y $(InputDir)$(InputName).CPP ..\PPKERNEL
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="—борка диалогов"
-						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools
-"
+						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools"
 						AdditionalDependencies=""
 						Outputs="$(InputDir)$(InputName)-.rc;$(InputDir)$(InputName)w-.rc"/>
 				</FileConfiguration>
@@ -774,9 +769,16 @@ XCOPY /Y $(InputDir)$(InputName).CPP ..\PPKERNEL
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="—борка диалогов"
-						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools
-"
+						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools"
 						AdditionalDependencies=""
+						Outputs="$(InputDir)$(InputName)-.rc;$(InputDir)$(InputName)w-.rc"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Universe-HTT|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="—борка диалогов"
+						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools"
 						Outputs="$(InputDir)$(InputName)-.rc;$(InputDir)$(InputName)w-.rc"/>
 				</FileConfiguration>
 			</File>

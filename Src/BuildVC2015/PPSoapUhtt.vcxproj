@@ -746,6 +746,66 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\SOAP\CLIENT\UHTT2\iface.xml">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o uhttSoap.h %(Filename)%(Extension)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -puhttSoap uhttSoap.h
+cd $(SolutionDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">cd %(RelativeDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o uhttSoap.h %(Filename)%(Extension)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -puhttSoap uhttSoap.h
+cd $(SolutionDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">cd %(RelativeDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o uhttSoap.h %(Filename)%(Extension)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -puhttSoap uhttSoap.h
+cd $(SolutionDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">cd %(RelativeDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o uhttSoap.h %(Filename)%(Extension)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -puhttSoap uhttSoap.h
+cd $(SolutionDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">cd %(RelativeDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o uhttSoap.h %(Filename)%(Extension)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -puhttSoap uhttSoap.h
+cd $(SolutionDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o uhttSoap.h %(Filename)%(Extension)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -puhttSoap uhttSoap.h
+cd $(SolutionDir)
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">cd %(RelativeDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o uhttSoap.h %(Filename)%(Extension)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -puhttSoap uhttSoap.h
+cd $(SolutionDir)
+</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Construction of gSOAP sources %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)uhttSoapC.cpp;%(RelativeDir)uhttSoapWSInterfaceImplServiceSoapBindingProxy.cpp</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Construction of gSOAP sources %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RelativeDir)uhttSoapC.cpp;%(RelativeDir)uhttSoapWSInterfaceImplServiceSoapBindingProxy.cpp</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Construction of gSOAP sources %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RelativeDir)uhttSoapC.cpp;%(RelativeDir)uhttSoapWSInterfaceImplServiceSoapBindingProxy.cpp</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Construction of gSOAP sources %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RelativeDir)uhttSoapC.cpp;%(RelativeDir)uhttSoapWSInterfaceImplServiceSoapBindingProxy.cpp</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">Construction of gSOAP sources %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">%(RelativeDir)uhttSoapC.cpp;%(RelativeDir)uhttSoapWSInterfaceImplServiceSoapBindingProxy.cpp</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Construction of gSOAP sources %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)uhttSoapC.cpp;%(RelativeDir)uhttSoapWSInterfaceImplServiceSoapBindingProxy.cpp</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Construction of gSOAP sources %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RelativeDir)uhttSoapC.cpp;%(RelativeDir)uhttSoapWSInterfaceImplServiceSoapBindingProxy.cpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

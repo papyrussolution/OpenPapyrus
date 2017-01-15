@@ -1,5 +1,5 @@
 // TEXC2H.CPP
-// Copyright (c) M.Kazakov, 2010
+// Copyright (c) M.Kazakov, 2010, 2017
 //
 #include <slib.h>
 //
@@ -516,100 +516,104 @@ static void PrintHTMLEnding(SFile * pFile)
 
 int main(int argc, char * argv[])
 {
+	int    ret = 0;
 	puts("Tex to HTML translator\n===========================");
 	if(argc < 5) {
 		printf("Usage: texc2h.exe [file.tex] [HHP project file path] [pictures prefix] [output path]");
-		exit(0);
 	}
-	
-	SLS.Init("texc2h", 0);
-	Texc2h		texc2h;
-	SFile		in_file;
-	SFile		out_file;
-	SString		out_dir;
-	SString		out_fpath;
-	SString		tmp_out_dir;
-	SString		tmp_out_fpath;
-	SString		line;
-	uint		pos;
-	
-	if(!in_file.Open(argv[1], SFile::mRead)) {
-		printf("File not found: %s\n", argv[1]);
-		exit(-1);
-	}
-	printf("Tex file: %s\n", argv[1]);
-	
-	/* store hhp project file path */
-	texc2h.PrjFileName = argv[2];
-	
-	/* prepare pictures prefix string */
-	texc2h.PictPrefix = argv[3];
-	texc2h.PictPrefix.RmvLastSlash();
-	texc2h.PictPrefix.Cat("\\");
-	
-	/* prepare out folder string */
-	out_dir = argv[4];
-	out_dir.RmvLastSlash();
-	out_dir.Cat("\\");
-	
-	tmp_out_dir = out_dir;
-	tmp_out_dir.Cat(TEMP_DIR);
-	CreateDirectory(tmp_out_dir, NULL);
-	
-	/* read tags assoc table */
-	LoadTagsList(&texc2h);
-	
-	puts("Begin translation...");
-	while(in_file.ReadLine(line)) {
-		if(line.Len() != 0) {
-			Translate(&texc2h, &line);
+	else {
+		SLS.Init("texc2h", 0);
+		Texc2h texc2h;
+		SFile  in_file;
+		SFile  out_file;
+		SString out_dir;
+		SString out_fpath;
+		SString tmp_out_dir;
+		SString tmp_out_fpath;
+		SString line;
+		uint   pos;
+		if(!in_file.Open(argv[1], SFile::mRead)) {
+			printf("File not found: %s\n", argv[1]);
+			ret = -1;
+		}
+		else {
+			printf("Tex file: %s\n", argv[1]);
+			//
+			// store hhp project file path
+			//
+			texc2h.PrjFileName = argv[2];
+			//
+			// prepare pictures prefix string 
+			//
+			(texc2h.PictPrefix = argv[3]).RmvLastSlash().Cat("\\");
+			//
+			// prepare out folder string 
+			//
+			(out_dir = argv[4]).RmvLastSlash().Cat("\\");
 			
-			if(texc2h.CurrTopicName.NotEmpty()) {
-				tmp_out_fpath = tmp_out_dir;
-				tmp_out_fpath.Cat(texc2h.CurrTopicName);
-				
-				if(!out_file.IsValid()) {
-					out_file.Open(tmp_out_fpath, SFile::mWrite);
-					PrintHTMLHeader(&out_file, texc2h.CurrTopicName);
-					puts(texc2h.CurrTopicName);
-					out_file.WriteLine(line);
-				}
-				else {
-					if(out_file.GetName() == tmp_out_fpath)
-						out_file.WriteLine(line);
+			(tmp_out_dir = out_dir).Cat(TEMP_DIR);
+			CreateDirectory(tmp_out_dir, NULL);
+			//
+			// read tags assoc table 
+			//
+			LoadTagsList(&texc2h);
+			puts("Begin translation...");
+			while(in_file.ReadLine(line)) {
+				if(line.Len() != 0) {
+					Translate(&texc2h, &line);
+					if(texc2h.CurrTopicName.NotEmpty()) {
+						(tmp_out_fpath = tmp_out_dir).Cat(texc2h.CurrTopicName);
+						if(!out_file.IsValid()) {
+							out_file.Open(tmp_out_fpath, SFile::mWrite);
+							PrintHTMLHeader(&out_file, texc2h.CurrTopicName);
+							puts(texc2h.CurrTopicName);
+							out_file.WriteLine(line);
+						}
+						else {
+							if(out_file.GetName() == tmp_out_fpath)
+								out_file.WriteLine(line);
+							else {
+								out_file.WriteLine(line);
+								tmp_out_fpath = out_file.GetName();
+								PrintHTMLEnding(&out_file);
+								out_file.Close();
+								out_fpath = tmp_out_fpath;
+								if(out_fpath.Search(TEMP_DIR, 0, 0, &pos))
+									out_fpath.Excise(pos, 5);
+								if(out_file.Compare(tmp_out_fpath, out_fpath, 0) <= 0)
+									copyFileByName(tmp_out_fpath, out_fpath);
+								DeleteFile(tmp_out_fpath);
+							}
+						}
+					}
 					else {
-						out_file.WriteLine(line);
-						tmp_out_fpath = out_file.GetName();
-						PrintHTMLEnding(&out_file);
-						out_file.Close();
-						out_fpath = tmp_out_fpath;
-						if(out_fpath.Search(TEMP_DIR, 0, 0, &pos))
-							out_fpath.Excise(pos, 5);
-						if(out_file.Compare(tmp_out_fpath, out_fpath, 0) <= 0)
-							copyFileByName(tmp_out_fpath, out_fpath);
-						DeleteFile(tmp_out_fpath);
+						if(out_file.IsValid()) {
+							tmp_out_fpath = out_file.GetName();
+							PrintHTMLEnding(&out_file);
+							out_file.Close();
+							out_fpath = tmp_out_fpath;
+							if(out_fpath.Search(TEMP_DIR, 0, 0, &pos))
+								out_fpath.Excise(pos, 5);
+							if(out_file.Compare(tmp_out_fpath, out_fpath, 0) <= 0)
+								copyFileByName(tmp_out_fpath, out_fpath);
+							DeleteFile(tmp_out_fpath);
+						}
 					}
 				}
 			}
-			else {
-				if(out_file.IsValid()) {
-					tmp_out_fpath = out_file.GetName();
-					PrintHTMLEnding(&out_file);
-					out_file.Close();
-					out_fpath = tmp_out_fpath;
-					if(out_fpath.Search(TEMP_DIR, 0, 0, &pos))
-						out_fpath.Excise(pos, 5);
-					if(out_file.Compare(tmp_out_fpath, out_fpath, 0) <= 0)
-						copyFileByName(tmp_out_fpath, out_fpath);
-					DeleteFile(tmp_out_fpath);
-				}
+			in_file.Close();
+			out_file.Close();
+			RemoveDirectory(tmp_out_dir);
+			{
+				//
+				// Создаем пустой файл empty_target.txt для того, чтобы компилятор понял, 
+				// что работа сделана и не пытался при каждой сборке запускать этот скрипт.
+				//
+				(line = out_dir).SetLastSlash().Cat("empty_target.txt");
+				SFile f_empty_target(line, SFile::mWrite);
 			}
+			puts("done");
 		}
 	}
-	
-	in_file.Close();
-	out_file.Close();
-	RemoveDirectory(tmp_out_dir);
-	puts("done");
-	return 0;
+	return ret;
 }

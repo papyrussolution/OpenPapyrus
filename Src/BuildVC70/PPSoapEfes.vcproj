@@ -360,6 +360,81 @@
 			<File
 				RelativePath="..\PPLib\ppsoapclient.cpp">
 			</File>
+			<File
+				RelativePath="..\Soap\Client\Efes\WS_EFES_DDE.wsdl">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Construction of gSOAP sources $(InputPath)"
+						CommandLine="cd $(InputDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o efesSoap.h $(InputFileName)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pefesSoap efesSoap.h
+cd $(SolutionDir)
+"
+						Outputs="$(InputDir)efesSoapC.cpp;$(InputDir)efesSoapWS_USCOREEFES_USCOREDDEBindingProxy.cpp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Construction of gSOAP sources $(InputPath)"
+						CommandLine="cd $(InputDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o efesSoap.h $(InputFileName)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pefesSoap efesSoap.h
+cd $(SolutionDir)
+"
+						Outputs="$(InputDir)efesSoapC.cpp;$(InputDir)efesSoapWS_USCOREEFES_USCOREDDEBindingProxy.cpp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Construction of gSOAP sources $(InputPath)"
+						CommandLine="cd $(InputDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o efesSoap.h $(InputFileName)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pefesSoap efesSoap.h
+cd $(SolutionDir)
+"
+						Outputs="$(InputDir)efesSoapC.cpp;$(InputDir)efesSoapWS_USCOREEFES_USCOREDDEBindingProxy.cpp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Construction of gSOAP sources $(InputPath)"
+						CommandLine="cd $(InputDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o efesSoap.h $(InputFileName)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pefesSoap efesSoap.h
+cd $(SolutionDir)
+"
+						Outputs="$(InputDir)efesSoapC.cpp;$(InputDir)efesSoapWS_USCOREEFES_USCOREDDEBindingProxy.cpp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Construction of gSOAP sources $(InputPath)"
+						CommandLine="cd $(InputDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o efesSoap.h $(InputFileName)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pefesSoap efesSoap.h
+cd $(SolutionDir)
+"
+						Outputs="$(InputDir)efesSoapC.cpp;$(InputDir)efesSoapWS_USCOREEFES_USCOREDDEBindingProxy.cpp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Construction of gSOAP sources $(InputPath)"
+						CommandLine="cd $(InputDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o efesSoap.h $(InputFileName)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pefesSoap efesSoap.h
+cd $(SolutionDir)
+"
+						Outputs="$(InputDir)efesSoapC.cpp;$(InputDir)efesSoapWS_USCOREEFES_USCOREDDEBindingProxy.cpp"/>
+				</FileConfiguration>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
