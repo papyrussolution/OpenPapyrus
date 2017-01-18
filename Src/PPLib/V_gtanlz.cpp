@@ -254,6 +254,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
 	int    by_comlex_paym = 0;
+	SString temp_buf;
 	THROW(Helper_InitBaseFilt(pFilt));
 	Filt.Period.Actualize(ZERODATE); // @v8.7.7
 	OpList.freeAll();
@@ -573,7 +574,8 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 									rec.GoodsID = final_goods_id;
 									rec.GoodsGrpID = Filt.Sgg ? 0 : goods_rec.ParentID;
 									if(Filt.Sgg) {
-										THROW(GObj.GetSubstText(final_goods_id, Filt.Sgg, &Gsl, rec.Name, sizeof(rec.Name)));
+										THROW(GObj.GetSubstText(final_goods_id, Filt.Sgg, &Gsl, temp_buf));
+										STRNSCPY(rec.Name, temp_buf);
 									}
 									else
 										STRNSCPY(rec.Name, goods_rec.Name);

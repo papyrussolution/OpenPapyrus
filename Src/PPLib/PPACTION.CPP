@@ -391,105 +391,105 @@ int SLAPI SysJournal::IsEventExists(PPID objType, PPID objID, PPID userID, const
 
 int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	SString fmt_buf, msg_buf, added_buf, temp_buf;
 	IterCounter counter;
 	SysJournalTbl::Key0 k;
-	PPStartTransaction(&ta, 1);
-	if(recover && P_RsrvT) {
-		SjRsrvTbl::Key0 rk0;
-		MEMSZERO(rk0);
-		counter.Init(P_RsrvT);
-		if(P_RsrvT->searchForUpdate(0, &rk0, spFirst)) {
-			do {
-				int    r = 0;
-				SjRsrvTbl::Rec rsrv_rec;
-				P_RsrvT->copyBufTo(&rsrv_rec);
-				LDATETIME dtm;
-				dtm.Set(rsrv_rec.Dt, rsrv_rec.Tm);
-				data.Dt      = dtm.d;
-				data.Tm      = dtm.t;
-				data.UserID  = rsrv_rec.UserID;
-				data.Action  = rsrv_rec.Action;
-				data.ObjType = rsrv_rec.ObjType;
-				data.ObjID   = rsrv_rec.ObjID;
-				data.Extra   = rsrv_rec.Extra;
-#if 0 // @v7.7.8 {
-				for(int i = 0; !r && i < 20; i++) {
+	{
+		PPTransaction tra(1);
+		THROW(tra);
+		if(recover && P_RsrvT) {
+			SjRsrvTbl::Key0 rk0;
+			MEMSZERO(rk0);
+			counter.Init(P_RsrvT);
+			if(P_RsrvT->searchForUpdate(0, &rk0, spFirst)) {
+				do {
+					int    r = 0;
+					SjRsrvTbl::Rec rsrv_rec;
+					P_RsrvT->copyBufTo(&rsrv_rec);
+					LDATETIME dtm;
+					dtm.Set(rsrv_rec.Dt, rsrv_rec.Tm);
+					data.Dt      = dtm.d;
+					data.Tm      = dtm.t;
+					data.UserID  = rsrv_rec.UserID;
+					data.Action  = rsrv_rec.Action;
+					data.ObjType = rsrv_rec.ObjType;
+					data.ObjID   = rsrv_rec.ObjID;
+					data.Extra   = rsrv_rec.Extra;
+	#if 0 // @v7.7.8 {
+					for(int i = 0; !r && i < 20; i++) {
+						if(insertRec()) {
+							THROW_DB(P_RsrvT->deleteRec()); // @sfu
+							r = 1;
+						}
+						else {
+							int    dberr = BtrError;
+							if(oneof3(dberr, BE_DUP, BE_RECLOCK, BE_DEADLOCK)) {
+								plusdatetime(dtm, 1, 4);
+								data.Dt = dtm.d;
+								data.Tm = dtm.t;
+							}
+							else
+								break;
+						}
+					}
+					if(!r) {
+						PPSetError(PPERR_DBENGINE);
+						PPLoadText(PPTXT_ERR_SYSJRECOVERING, fmt_buf);
+						PPGetMessage(mfError, PPErrCode, 0, 1, msg_buf);
+						(added_buf = 0).Cat(rsrv_rec.Action).Semicol().Cat(rsrv_rec.ObjType).Semicol().Cat(rsrv_rec.ObjID).
+							Semicol().Cat(rsrv_rec.Extra).Semicol().Cat(msg_buf);
+						(msg_buf = 0).Printf(fmt_buf, (const char *)added_buf);
+						if(pLogger)
+							pLogger->Log(msg_buf);
+						else
+							PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+					}
+	#else // }{
 					if(insertRec()) {
 						THROW_DB(P_RsrvT->deleteRec()); // @sfu
-						r = 1;
 					}
 					else {
-						int    dberr = BtrError;
-						if(oneof3(dberr, BE_DUP, BE_RECLOCK, BE_DEADLOCK)) {
-							plusdatetime(dtm, 1, 4);
-							data.Dt = dtm.d;
-							data.Tm = dtm.t;
-						}
+						PPSetError(PPERR_DBENGINE);
+						PPLoadText(PPTXT_ERR_SYSJRECOVERING, fmt_buf);
+						PPGetMessage(mfError, PPErrCode, 0, 1, msg_buf);
+						(added_buf = 0).Cat(rsrv_rec.Action).Semicol().Cat(rsrv_rec.ObjType).Semicol().Cat(rsrv_rec.ObjID).
+							Semicol().Cat(rsrv_rec.Extra).Semicol().Cat(msg_buf);
+						(msg_buf = 0).Printf(fmt_buf, (const char *)added_buf);
+						if(pLogger)
+							pLogger->Log(msg_buf);
 						else
-							break;
+							PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 					}
-				}
-				if(!r) {
-					PPSetError(PPERR_DBENGINE);
-					PPLoadText(PPTXT_ERR_SYSJRECOVERING, fmt_buf);
-					PPGetMessage(mfError, PPErrCode, 0, 1, msg_buf);
-					(added_buf = 0).Cat(rsrv_rec.Action).Semicol().Cat(rsrv_rec.ObjType).Semicol().Cat(rsrv_rec.ObjID).
-						Semicol().Cat(rsrv_rec.Extra).Semicol().Cat(msg_buf);
-					(msg_buf = 0).Printf(fmt_buf, (const char *)added_buf);
-					if(pLogger)
-						pLogger->Log(msg_buf);
-					else
-						PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
-				}
-#else // }{
-				if(insertRec()) {
-					THROW_DB(P_RsrvT->deleteRec()); // @sfu
-				}
-				else {
-					PPSetError(PPERR_DBENGINE);
-					PPLoadText(PPTXT_ERR_SYSJRECOVERING, fmt_buf);
-					PPGetMessage(mfError, PPErrCode, 0, 1, msg_buf);
-					(added_buf = 0).Cat(rsrv_rec.Action).Semicol().Cat(rsrv_rec.ObjType).Semicol().Cat(rsrv_rec.ObjID).
-						Semicol().Cat(rsrv_rec.Extra).Semicol().Cat(msg_buf);
-					(msg_buf = 0).Printf(fmt_buf, (const char *)added_buf);
-					if(pLogger)
-						pLogger->Log(msg_buf);
-					else
-						PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
-				}
-#endif // } @v7.7.8
-				PPWaitPercent(counter.Increment());
-			} while(P_RsrvT->searchForUpdate(0, &rk0, spNext));
+	#endif // } @v7.7.8
+					PPWaitPercent(counter.Increment());
+				} while(P_RsrvT->searchForUpdate(0, &rk0, spNext));
+			}
+			else if(BTROKORNFOUND && pLogger)
+				pLogger->LogString(PPTXT_RSRVSYSJNOTHING, 0);
+			THROW_DB(BTROKORNFOUND);
 		}
-		else if(BTROKORNFOUND && pLogger)
-			pLogger->LogString(PPTXT_RSRVSYSJNOTHING, 0);
-		THROW_DB(BTROKORNFOUND);
+		if(toDt) {
+			PPLoadText(PPTXT_DBMAINTAIN, fmt_buf);
+			SPathStruc ps;
+			ps.Split(fileName);
+			ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
+			msg_buf.Printf(fmt_buf, (const char *)temp_buf);
+			{
+				MEMSZERO(k);
+				BExtQuery q(this, 0);
+				q.select(this->Dt, this->Tm, 0).where(this->Dt <= toDt);
+				counter.Init(q.countIterations(0, &k, spFirst));
+			}
+			k.Dt = toDt;
+			k.Tm = MAXTIME;
+			for(; searchForUpdate(0, &k, spLt) && k.Dt <= toDt; PPWaitPercent(counter.Increment(), msg_buf)) {
+				THROW_DB(deleteRec()); // @sfu
+			}
+		}
+		THROW(tra.Commit());
 	}
-	if(toDt) {
-		PPLoadText(PPTXT_DBMAINTAIN, fmt_buf);
-		SPathStruc ps;
-		ps.Split(fileName);
-		ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
-		msg_buf.Printf(fmt_buf, (const char *)temp_buf);
-		{
-			MEMSZERO(k);
-			BExtQuery q(this, 0);
-			q.select(this->Dt, this->Tm, 0).where(this->Dt <= toDt);
-			counter.Init(q.countIterations(0, &k, spFirst));
-		}
-		k.Dt = toDt;
-		k.Tm = MAXTIME;
-		for(; searchForUpdate(0, &k, spLt) && k.Dt <= toDt; PPWaitPercent(counter.Increment(), msg_buf)) {
-			THROW_DB(deleteRec()); // @sfu
-		}
-	}
-	PPCommitWork(&ta);
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 

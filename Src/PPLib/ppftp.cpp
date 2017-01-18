@@ -401,7 +401,7 @@ int SLAPI PPFTP::GetReply(SString & aReply)
 	int    ok = -1;
 	if(P_ControlConn) {
 		char buf[512];
-		memset(buf, 0, sizeof(buf));
+		memzero(buf, sizeof(buf));
 		THROW_SL(P_ControlConn->Recv(buf, sizeof(buf), 0) >= 0);
 		aReply.CopyFrom(chomp(buf));
 	}

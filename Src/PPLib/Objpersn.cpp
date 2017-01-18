@@ -3304,38 +3304,38 @@ int SLAPI PPObjPerson::GetSubstObjType(long id, const SubstParam * pParam, PPObj
 	return 1;
 }
 
-int SLAPI PPObjPerson::GetSubstText(PPID id, PPID dlvrLocID, SubstParam * pParam, char * pBuf, size_t bufLen)
+int SLAPI PPObjPerson::GetSubstText(PPID id, PPID dlvrLocID, SubstParam * pParam, SString & rBuf)
 {
+	rBuf = 0;
 	SString temp_buf, addr_buf;
 	if(id & sgpArticleMask)
-		GetArticleName((id & ~sgpArticleMask), temp_buf);
+		GetArticleName((id & ~sgpArticleMask), rBuf);
 	else {
 		if(oneof3(pParam->Sgp, sgpCity, sgpCountry, sgpRegion)) {
 			WorldTbl::Rec w_rec;
 			if(pParam->WObj.Fetch(id, &w_rec) > 0)
-				temp_buf = w_rec.Name;
+				rBuf = w_rec.Name;
 		}
 		else if(pParam->Sgp == sgpCategory)
-			GetObjectName(PPOBJ_PRSNCATEGORY, id, temp_buf);
+			GetObjectName(PPOBJ_PRSNCATEGORY, id, rBuf);
 		else if(pParam->Sgp == sgpAccSheet) {
 			PPObjAccSheet acs_obj;
 			PPAccSheet acs_rec;
 			if(acs_obj.Fetch(id, &acs_rec) > 0)
-				temp_buf = acs_rec.Name;
+				rBuf = acs_rec.Name;
 		}
 		else {
 			PersonTbl::Rec psn_rec;
 			if(Fetch(id, &psn_rec) > 0)
-				temp_buf = psn_rec.Name;
+				rBuf = psn_rec.Name;
 			if(dlvrLocID) {
 				LocObj.P_Tbl->GetAddress(dlvrLocID, 0, addr_buf);
-				temp_buf.CatDiv(';', 2, 1).Cat(addr_buf);
+				rBuf.CatDiv(';', 2, 1).Cat(addr_buf);
 			}
 		}
-		if(temp_buf.Empty())
-			temp_buf.CatChar('#').Cat(id);
+		if(rBuf.Empty())
+			rBuf.CatChar('#').Cat(id);
 	}
-	strnzcpy(pBuf, temp_buf, bufLen);
 	return 1;
 }
 //

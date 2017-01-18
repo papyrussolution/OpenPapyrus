@@ -5375,41 +5375,40 @@ xmlChar * xmlXPathCastToString(xmlXPathObjectPtr val)
  * Returns the new object, the old one is freed (or the operation
  *         is done directly on @val)
  */
-xmlXPathObjectPtr xmlXPathConvertString(xmlXPathObjectPtr val) {
+xmlXPathObjectPtr xmlXPathConvertString(xmlXPathObjectPtr val) 
+{
 	xmlChar * res = NULL;
-
 	if(val == NULL)
-		return(xmlXPathNewCString(""));
-
-	switch(val->type) {
-		case XPATH_UNDEFINED:
-#ifdef DEBUG_EXPR
-		    xmlGenericError(xmlGenericErrorContext, "STRING: undefined\n");
-#endif
-		    break;
-		case XPATH_NODESET:
-		case XPATH_XSLT_TREE:
-		    res = xmlXPathCastNodeSetToString(val->nodesetval);
-		    break;
-		case XPATH_STRING:
-		    return(val);
-		case XPATH_BOOLEAN:
-		    res = xmlXPathCastBooleanToString(val->boolval);
-		    break;
-		case XPATH_NUMBER:
-		    res = xmlXPathCastNumberToString(val->floatval);
-		    break;
-		case XPATH_USERS:
-		case XPATH_POINT:
-		case XPATH_RANGE:
-		case XPATH_LOCATIONSET:
-		    TODO;
-		    break;
+		return xmlXPathNewCString("");
+	else {
+		switch(val->type) {
+			case XPATH_UNDEFINED:
+	#ifdef DEBUG_EXPR
+				xmlGenericError(xmlGenericErrorContext, "STRING: undefined\n");
+	#endif
+				break;
+			case XPATH_NODESET:
+			case XPATH_XSLT_TREE:
+				res = xmlXPathCastNodeSetToString(val->nodesetval);
+				break;
+			case XPATH_STRING:
+				return(val);
+			case XPATH_BOOLEAN:
+				res = xmlXPathCastBooleanToString(val->boolval);
+				break;
+			case XPATH_NUMBER:
+				res = xmlXPathCastNumberToString(val->floatval);
+				break;
+			case XPATH_USERS:
+			case XPATH_POINT:
+			case XPATH_RANGE:
+			case XPATH_LOCATIONSET:
+				TODO;
+				break;
+		}
+		xmlXPathFreeObject(val);
+		return res ? xmlXPathWrapString(res) : xmlXPathNewCString("");
 	}
-	xmlXPathFreeObject(val);
-	if(res == NULL)
-		return(xmlXPathNewCString(""));
-	return(xmlXPathWrapString(res));
 }
 
 /**
@@ -5420,10 +5419,9 @@ xmlXPathObjectPtr xmlXPathConvertString(xmlXPathObjectPtr val) {
  *
  * Returns the number value
  */
-double xmlXPathCastBooleanToNumber(int val) {
-	if(val)
-		return(1.0);
-	return(0.0);
+double xmlXPathCastBooleanToNumber(int val) 
+{
+	return val ? 1.0 : 0.0;
 }
 
 /**
@@ -5436,7 +5434,7 @@ double xmlXPathCastBooleanToNumber(int val) {
  */
 double xmlXPathCastStringToNumber(const xmlChar * val)
 {
-	return(xmlXPathStringEvalNumber(val));
+	return xmlXPathStringEvalNumber(val);
 }
 
 /**
@@ -5449,15 +5447,14 @@ double xmlXPathCastStringToNumber(const xmlChar * val)
  */
 double xmlXPathCastNodeToNumber(xmlNodePtr node)
 {
-	xmlChar * strval;
-	double ret;
-	if(node == NULL)
-		return(xmlXPathNAN);
-	strval = xmlXPathCastNodeToString(node);
-	if(strval == NULL)
-		return(xmlXPathNAN);
-	ret = xmlXPathCastStringToNumber(strval);
-	free(strval);
+	double ret = xmlXPathNAN;
+	if(node) {
+		xmlChar * strval = xmlXPathCastNodeToString(node);
+		if(strval) {
+			ret = xmlXPathCastStringToNumber(strval);
+			free(strval);
+		}
+	}
 	return ret;
 }
 
@@ -5471,10 +5468,8 @@ double xmlXPathCastNodeToNumber(xmlNodePtr node)
  */
 double xmlXPathCastNodeSetToNumber(xmlNodeSetPtr ns)
 {
-	double ret;
-	if(ns == NULL)
-		ret = xmlXPathNAN;
-	else {
+	double ret = xmlXPathNAN;
+	if(ns) {
 		xmlChar * str = xmlXPathCastNodeSetToString(ns);
 		ret = xmlXPathCastStringToNumber(str);
 		free(str);
@@ -5640,14 +5635,15 @@ int xmlXPathCastToBoolean(xmlXPathObjectPtr val)
  */
 xmlXPathObjectPtr xmlXPathConvertBoolean(xmlXPathObjectPtr val)
 {
-	xmlXPathObjectPtr ret;
 	if(val == NULL)
-		return(xmlXPathNewBoolean(0));
-	if(val->type == XPATH_BOOLEAN)
-		return(val);
-	ret = xmlXPathNewBoolean(xmlXPathCastToBoolean(val));
-	xmlXPathFreeObject(val);
-	return ret;
+		return xmlXPathNewBoolean(0);
+	else if(val->type == XPATH_BOOLEAN)
+		return val;
+	else {
+		xmlXPathObjectPtr ret = xmlXPathNewBoolean(xmlXPathCastToBoolean(val));
+		xmlXPathFreeObject(val);
+		return ret;
+	}
 }
 
 /************************************************************************

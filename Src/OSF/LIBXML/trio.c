@@ -1127,7 +1127,7 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 	 * The 'parameters' array is not initialized, but we need to
 	 * know which entries we have used.
 	 */
-	memset(usedEntries, 0, sizeof(usedEntries));
+	memzero(usedEntries, sizeof(usedEntries));
 	save_errno = errno;
 	index = 0;
 	parameterPosition = 0;
@@ -4983,7 +4983,7 @@ TRIO_PRIVATE int TrioScanProcess(trio_class_t * data, TRIO_CONST char * format, 
 				    }
 				    /* Skip over group specifier */
 				    index++;
-				    memset(characterclass, 0, sizeof(characterclass));
+				    memzero(characterclass, sizeof(characterclass));
 				    rc = TrioGetCharacterClass(format, &index, &flags, characterclass);
 				    if(rc < 0)
 					    return rc;

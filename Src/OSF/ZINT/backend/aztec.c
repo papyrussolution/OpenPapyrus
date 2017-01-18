@@ -910,10 +910,8 @@ int aztec(struct ZintSymbol * symbol, uchar source[], int length)
 	uint* data_part;
 	uint* ecc_part;
 #endif
-
-	memset(binary_string, 0, 20000);
-	memset(adjusted_string, 0, 20000);
-
+	memzero(binary_string, sizeof(binary_string));
+	memzero(adjusted_string, sizeof(adjusted_string));
 	if(symbol->input_mode == GS1_MODE) {
 		gs1 = 1;
 	}
@@ -1276,9 +1274,8 @@ int aztec(struct ZintSymbol * symbol, uchar source[], int length)
 	ecc_part = (uint*)_alloca((ecc_blocks + 3) * sizeof(uint));
 #endif
 	/* Copy across data into separate integers */
-	memset(data_part, 0, (data_blocks + 2) * sizeof(int));
-	memset(ecc_part, 0, (ecc_blocks + 2) * sizeof(int));
-
+	memzero(data_part, (data_blocks + 2) * sizeof(int));
+	memzero(ecc_part, (ecc_blocks + 2) * sizeof(int));
 	/* Split into codewords and calculate reed-colomon error correction codes */
 	switch(codeword_size) {
 		case 6:
@@ -1374,20 +1371,16 @@ int aztec(struct ZintSymbol * symbol, uchar source[], int length)
 		    rs_free();
 		    break;
 	}
-
 	/* Invert the data so that actual data is on the outside and reed-solomon on the inside */
 	memset(bit_pattern, '0', 20045);
-
 	total_bits = (data_blocks + ecc_blocks) * codeword_size;
 	for(i = 0; i < total_bits; i++) {
 		bit_pattern[i] = adjusted_string[total_bits - i - 1];
 	}
-
 	/* Now add the symbol descriptor */
-	memset(desc_data, 0, 4);
-	memset(desc_ecc, 0, 6);
-	memset(descriptor, 0, 42);
-
+	memzero(desc_data, 4);
+	memzero(desc_ecc, 6);
+	memzero(descriptor, 42);
 	if(compact) {
 		/* The first 2 bits represent the number of layers minus 1 */
 		if((layers - 1) & 0x02) {

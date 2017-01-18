@@ -1,5 +1,5 @@
 // SPECSN.CPP
-// Copyright (c) A.Starodub 2004, 2005, 2006, 2007, 2008, 2012, 2013, 2015, 2016
+// Copyright (c) A.Starodub 2004, 2005, 2006, 2007, 2008, 2012, 2013, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -52,30 +52,30 @@ int SLAPI SpecSeriesCore::Search(PPID id, SpecSeries2Tbl::Rec * pRec)
 
 int SLAPI SpecSeriesCore::Put(PPID * pID, SpecSeries2Tbl::Rec * pRec, int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	SpecSeries2Tbl::Rec prev_rec;
-	THROW(PPStartTransaction(&ta, 1));
-	if(pRec) {
-		if(*pID) {
-			THROW(SearchByID_ForUpdate(this, PPOBJ_SPECSERIES, *pID, &prev_rec) > 0);
-			if(memcmp(pRec, &prev_rec, sizeof(prev_rec)) == 0)
-				ok = -1;
+	{
+		PPTransaction tra(1);
+		THROW(tra);
+		if(pRec) {
+			if(*pID) {
+				THROW(SearchByID_ForUpdate(this, PPOBJ_SPECSERIES, *pID, &prev_rec) > 0);
+				if(memcmp(pRec, &prev_rec, sizeof(prev_rec)) == 0)
+					ok = -1;
+				else {
+					THROW_DB(updateRecBuf(pRec)); // @sfu
+				}
+			}
 			else {
-				THROW_DB(updateRecBuf(pRec)); // @sfu
+				THROW(AddByID(this, pID, pRec, 0));
 			}
 		}
-		else {
-			THROW(AddByID(this, pID, pRec, 0));
+		else if(*pID) {
+			THROW(RemoveByID(this, *pID, 0));
 		}
+		THROW(tra.Commit());
 	}
-	else if(*pID) {
-		THROW(RemoveByID(this, *pID, 0));
-	}
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 

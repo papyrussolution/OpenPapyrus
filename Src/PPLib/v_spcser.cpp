@@ -496,11 +496,11 @@ int SLAPI PPViewSpecSeries::ImportUhtt()
 					if(id > 0) {
 						accepted_count++;
 						logger.Log(PPFormatT(PPTXT_LOG_UHTT_SPECSERIESIMP, &msg_buf, (const char *)rec.Serial,
-							(const char *)(temp_buf = 0).Cat(rec.InfoDate), (const char *)p_pack->GoodsName, (const char *)rec.Barcode));
+							(temp_buf = 0).Cat(rec.InfoDate).cptr(), p_pack->GoodsName.cptr(), (const char *)rec.Barcode));
 					}
 					else {
-						PPGetMessage(mfError, PPErrorZ(), 0, 0, temp_buf);
-						logger.Log(PPFormatT(PPTXT_LOG_UHTT_SPECSERIESIMPFAULT, &msg_buf, (const char *)rec.Serial, (const char *)temp_buf));
+						PPGetMessage(mfError, PPErrCode, 0, 0, temp_buf);
+						logger.Log(PPFormatT(PPTXT_LOG_UHTT_SPECSERIESIMPFAULT, &msg_buf, (const char *)rec.Serial, temp_buf.cptr()));
 					}
 				}
 			}

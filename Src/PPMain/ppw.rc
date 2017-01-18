@@ -26,19 +26,19 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resrc1.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#include ""resource.h""\r\n"
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "#include ""ppw_ver.rc""\r\n"
     "#include ""ppbrow-embed.rc""\r\n"
@@ -5866,7 +5866,7 @@ BEGIN
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,170,25,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,170,45,60,13
     PUSHBUTTON      "@{cmd_goods}",4001,170,80,60,13
-    PUSHBUTTON      "&Передать",4002,170,115,60,13
+    PUSHBUTTON      "@but_transmit",4002,170,115,60,13
     PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,170,205,60,13
 END
 
@@ -16272,7 +16272,7 @@ BEGIN
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,180,25,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,180,45,60,13
     PUSHBUTTON      "@{export}...",4001,180,75,60,13
-    PUSHBUTTON      "Передать charry",4002,180,95,60,13
+    PUSHBUTTON      "@dotransmitcharry",4002,180,95,60,13
     PUSHBUTTON      "@but_sysj",4003,180,115,60,13
     PUSHBUTTON      "@but_close",STDCTL_OKBUTTON,180,155,60,13
 END
@@ -19769,8 +19769,8 @@ BEGIN
     PUSHBUTTON      "@but_edit",STDCTL_EDITBUTTON,190,5,60,13
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,190,25,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,190,45,60,13
-    PUSHBUTTON      "Передать charry",4001,190,70,60,13
-    PUSHBUTTON      "&Передать...",4002,190,90,60,13
+    PUSHBUTTON      "@dotransmitcharry",4001,190,70,60,13
+    PUSHBUTTON      "@but_transmit",4002,190,90,60,13
     PUSHBUTTON      "@but_sysj",4003,190,110,60,13
     PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,190,195,60,13
 END
@@ -21820,21 +21820,21 @@ BEGIN
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,135,30,50,13
 END
 
-DLG_SELFBUILD DIALOGEX 36, 0, 282, 215
+DLG_SELFBUILD DIALOGEX 36, 0, 283, 227
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Сборка версии системы"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,145,195,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,225,195,50,13
-    GROUPBOX        "",CTL_SELFBUILD_FLAGS,5,0,185,85,WS_GROUP
-    CONTROL         "Собрать проект Papyrus",5347,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,10,171,10
-    CONTROL         "Собрать JobServer",9443,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,20,171,10
-    CONTROL         "Собрать библиотеку интерфейсов",13539,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,30,171,10
-    CONTROL         "Собрать драйверы устройств",17635,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,40,171,10
-    CONTROL         "Собрать библиотеку SOAP-клиентов",21731,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,50,171,10
-    CONTROL         "Построить дистрибутивы",25827,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,60,171,10
-    CONTROL         "Отправить дистрибутивы на Universe-HTT",29923,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,70,171,10
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,160,205,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,225,205,50,13
+    GROUPBOX        "",CTL_SELFBUILD_FLAGS,5,0,270,85,WS_GROUP
+    CONTROL         "Собрать проект Papyrus",5347,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,10,260,10
+    CONTROL         "Собрать JobServer",9443,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,20,260,10
+    CONTROL         "Собрать библиотеку интерфейсов",13539,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,30,260,10
+    CONTROL         "Собрать драйверы устройств",17635,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,40,260,10
+    CONTROL         "Собрать библиотеку SOAP-клиентов",21731,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,50,260,10
+    CONTROL         "Построить дистрибутивы",25827,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,60,260,10
+    CONTROL         "Отправить дистрибутивы на Universe-HTT",29923,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,70,260,10
     LTEXT           "Путь к инструменту сборки проектов",4001,5,95,135,8
     EDITTEXT        CTL_SELFBUILD_CMPLRPATH,5,105,270,13,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "Путь к сборщику дистрибутива",4002,5,120,260,8
@@ -21844,6 +21844,7 @@ BEGIN
     LTEXT           "Суффикс версии",4004,5,170,95,8
     EDITTEXT        CTL_SELFBUILD_VERSFX,105,170,90,13,ES_AUTOHSCROLL
     LTEXT           "",CTL_SELFBUILD_TIMEOUT,205,170,70,13,0,WS_EX_STATICEDGE
+    LTEXT           "",CTL_SELFBUILD_ST_INFO,10,185,265,10,0,WS_EX_STATICEDGE
 END
 
 DLG_SELFSYNC DIALOGEX 72, 48, 212, 71
@@ -22876,7 +22877,7 @@ END
 
 DLG_PERSONTOTAL DIALOG 93, 72, 192, 31
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Итоги по выборке персоналий"
+CAPTION "@ttl_persons"
 FONT 8, "MS Sans Serif"
 BEGIN
     LTEXT           "@qtty",4001,15,10,44,8
@@ -22922,7 +22923,7 @@ END
 
 DLG_PSNEVTTOTAL DIALOGEX 93, 72, 167, 25
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Итоги по выборке"
+CAPTION "@ttl_personevent"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@qtty",4001,5,5,44,8
@@ -22932,7 +22933,7 @@ END
 
 DLG_QCERTTOTAL DIALOGEX 93, 72, 223, 31
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Итоги по выборке сертификатов качества"
+CAPTION "@ttl_qcert"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@qtty",4001,10,10,44,8
@@ -22942,7 +22943,7 @@ END
 
 DLG_QUOTTOTAL DIALOGEX 93, 72, 223, 47
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Итоги по выборке котировок"
+CAPTION "@ttl_quot"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@qtty",4001,15,20,55,8
@@ -22952,7 +22953,7 @@ END
 
 DLG_SCARDTOTAL DIALOGEX 72, 40, 177, 89
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Итоги по выборке дисконтных карт"
+CAPTION "@ttl_personcard"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@qtty",4001,25,10,44,8
@@ -22964,7 +22965,7 @@ END
 
 DLG_SLEDGTOTAL DIALOGEX 88, 24, 172, 121
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Итоги по книге продаж/покупок"
+CAPTION "@ttl_vatledger"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@linecount",4001,10,5,70,8
@@ -23009,7 +23010,7 @@ END
 
 DLG_SYNCCMPTOTAL DIALOG 72, 40, 227, 151
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Итоги анализа синхронизации"
+CAPTION "@ttl_syncanalyze"
 FONT 8, "MS Sans Serif"
 BEGIN
     LTEXT           "Количество безошибочных элементов",4001,10,10,135,8
@@ -23029,7 +23030,7 @@ END
 
 DLG_TODOTOTAL DIALOGEX 93, 72, 192, 31
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Итоги по выборке задач"
+CAPTION "@ttl_todo"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@qtty",4001,15,10,44,8
@@ -23039,7 +23040,7 @@ END
 
 DLG_TRFRANLZTOTAL_S DIALOGEX 88, 24, 272, 156
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Итоги анализа товарных операций"
+CAPTION "@ttl_trfranlz"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@linecount",4001,10,10,80,8
@@ -23068,7 +23069,7 @@ END
 
 DLG_TRFRANLZTOTAL DIALOGEX 88, 24, 272, 126
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Итоги анализа товарных операций"
+CAPTION "@ttl_trfranlz"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@linecount",4001,10,10,80,8
@@ -23263,7 +23264,7 @@ BEGIN
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,210,30,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,210,50,60,13
     PUSHBUTTON      "&Перечисл",4001,210,125,60,13
-    PUSHBUTTON      "Передать charry",4002,210,80,60,13
+    PUSHBUTTON      "@dotransmitcharry",4002,210,80,60,13
     PUSHBUTTON      "@but_sysj",4003,210,160,60,13
     PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,210,250,60,13
 END
@@ -24167,7 +24168,7 @@ BEGIN
     LTEXT           "@city",4010,280,85,195,8
     EDITTEXT        CTL_GTO_CITY,280,95,205,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_GTO_CITY,485,95,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@trfranlzfilt_psncat",4011,280,110,160,8
+    LTEXT           "@trfranlzfilt_psncat",4011,280,110,200,8
     EDITTEXT        CTL_GTO_PSNCAT,280,119,205,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_GTO_PSNCAT,485,119,13,13,BS_BITMAP | NOT WS_TABSTOP
     LTEXT           "@supplier",4008,10,150,140,8
@@ -24191,10 +24192,11 @@ BEGIN
     PUSHBUTTON      "",CTLSEL_GTO_GOODS,470,250,12,13,BS_BITMAP | NOT WS_TABSTOP
     CONTROL         "@trfranlzfilt_fgbydate",5320,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,265,130,13
     GROUPBOX        "",CTL_GTO_FLAGS,280,140,225,65,WS_GROUP
-    CONTROL         "@trfranlzfilt_fcalcvat",5317,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,285,150,145,10
-    CONTROL         "@trfranlzfilt_fcwovat",9413,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,285,160,145,10
-    CONTROL         "@trfranlzfilt_fshowgoodscode",13509,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,285,170,145,10
-    CONTROL         "@trfranlzfilt_fshowserial",17605,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,285,180,145,10
+    CONTROL         "@trfranlzfilt_fcalcvat",5317,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,285,150,210,10
+    CONTROL         "@trfranlzfilt_fcwovat",9413,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,285,160,210,10
+    CONTROL         "@trfranlzfilt_fshowgoodscode",13509,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,285,170,210,10
+    CONTROL         "@trfranlzfilt_fshowserial",17605,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,285,180,210,10
+    CONTROL         "@trfranlzfilt_fcomparewroff",21701,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,285,190,210,10
     LTEXT           "@{saldolast}: \n",CTL_GTO_SALDOINFO,5,290,185,8
     PUSHBUTTON      "Параметры группировки...",4015,215,290,100,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,365,290,50,13
@@ -30756,7 +30758,8 @@ BEGIN
 
     DLG_SELFBUILD, DIALOG
     BEGIN
-        RIGHTMARGIN, 213
+        RIGHTMARGIN, 214
+        BOTTOMMARGIN, 215
     END
 
     DLG_SMSACC, DIALOG
@@ -30963,6 +30966,10 @@ BEGIN
     BEGIN
         RIGHTMARGIN, 434
         BOTTOMMARGIN, 165
+    END
+
+    DLG_TRFRANLZ, DIALOG
+    BEGIN
     END
 
     DLG_TR_CAR, DIALOG
@@ -32179,6 +32186,11 @@ BEGIN
 END
 
 DLG_INVITEM AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_SELFBUILD AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

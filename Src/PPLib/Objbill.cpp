@@ -2330,10 +2330,9 @@ int SLAPI PPObjBill::GetComplementGoodsBillList(PPID billID, PPIDArray & rComplB
 	if(Fetch(billID, &bill_rec) > 0) {
 		if(IsDraftOp(bill_rec.OpID)) {
 			for(DateIter di; P_Tbl->EnumLinks(billID, &di, BLNK_ALL, &link_rec) > 0;) {
-				PPID   op_type_id = GetOpType(link_rec.OpID);
-				if(oneof5(op_type_id, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT)) {
+				const PPID op_type_id = GetOpType(link_rec.OpID);
+				if(oneof5(op_type_id, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT))
 					rh_bill_list.addUnique(link_rec.ID);
-				}
 			}
 		}
 		else if(bill_rec.LinkBillID && Fetch(bill_rec.LinkBillID, &link_rec) > 0) {
@@ -5054,10 +5053,8 @@ int SLAPI PPObjBill::GetSubstText(PPID srcID, SubstParam * pParam, SString & rBu
 	}
 	if(ar) {
 		if(pParam->Sgb.S2.Sgp) {
-			char   c_temp_buf[256];
 			PPObjPerson psn_obj;
-			psn_obj.GetSubstText(val, 0, &pParam->Psp, c_temp_buf, sizeof(c_temp_buf));
-			rBuf = c_temp_buf;
+			psn_obj.GetSubstText(val, 0, &pParam->Psp, rBuf);
 		}
 		else
 			GetArticleName(val, rBuf);

@@ -1,5 +1,5 @@
 // CRUKM.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу ККМ "Кристалл-УКМ" (ООО Кристалл Сервис)
 //
@@ -167,59 +167,58 @@ int SLAPI ACS_CRUKM::ExportOpByCrdCard(SCardCore * pSc, PPID cardID, const char 
 
 int SLAPI ACS_CRUKM::ExportSCard(Cr_PosLoadTbl * pOutTbl, Cr_CredoPayTbl * pScCrdTbl, const PPIDArray * pLogNumList, int updOnly)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	PPID   ser_id = 0;
 	PPSCardSeries ser_rec;
 	AsyncCashSCardInfo  info;
 	AsyncCashSCardsIterator * p_iter = 0;
-
 	THROW_MEM(p_iter = new AsyncCashSCardsIterator(NodeID, updOnly, P_Dls, StatID));
-	THROW(PPStartTransaction(&ta, 1));
-	MEMSZERO(ser_rec);
-	for(ser_id = 0; SCrdSObj.EnumItems(&ser_id, &ser_rec) > 0;) {
-		PPSCardSerPacket scs_pack;
-		THROW(SCrdSObj.GetPacket(ser_id, &scs_pack) > 0);
-		THROW(p_iter->Init(&scs_pack));
-		while(p_iter->Next(&info) > 0) {
-			AdjustSCardCode(info.Rec.Code);
-			if(ser_rec.Flags & SCRDSF_CREDIT && !info.IsClosed)
-				THROW(ExportOpByCrdCard(SCrdObj.P_Tbl, info.Rec.ID, info.Rec.Code, pScCrdTbl));
-			for(uint i = 0; i < pLogNumList->getCount(); i++) {
-				char   tempbuf[80];
-				char   cardname[128], * p;
-				PPID   log_num = pLogNumList->at(i);
-				Cr_PosLoadTbl::Rec rec;
-				MEMSZERO(rec);
-				ZStrToLStr(rec.Cash_Code, ltoa(log_num, tempbuf, 10), sizeof(rec.Cash_Code));
-				rec.DataType   = 11;
-				// 0 - discount card, -1 - credit card
-				rec.KeyLongint = (ser_rec.Flags & SCRDSF_CREDIT) ? -1 : 0;
-				ZStrToLStr(rec.KeyString, info.Rec.Code, sizeof(rec.KeyString));
-				tempbuf[0] = info.IsClosed ? '-' : '+';
-				tempbuf[1] = 0;
-				ZStrToLStr(rec.F_MODE, tempbuf, sizeof(rec.F_MODE));
-				ZStrToLStr(rec.F_ARTIKL, info.Rec.Code, sizeof(rec.F_ARTIKL));
-				rec.F_CONTR_COST = fdiv100i(info.Rec.PDis);
-				rec.F_COST = info.Rec.MaxCredit;
-				memzero(cardname, sizeof(cardname));
-				p = stpcpy(cardname, info.Rec.Code);
-				if(info.PsnName[0]) {
-					*p++ = ':';
-					p = stpcpy(p, info.PsnName);
+	{
+		PPTransaction tra(1);
+		THROW(tra);
+		MEMSZERO(ser_rec);
+		for(ser_id = 0; SCrdSObj.EnumItems(&ser_id, &ser_rec) > 0;) {
+			PPSCardSerPacket scs_pack;
+			THROW(SCrdSObj.GetPacket(ser_id, &scs_pack) > 0);
+			THROW(p_iter->Init(&scs_pack));
+			while(p_iter->Next(&info) > 0) {
+				AdjustSCardCode(info.Rec.Code);
+				if(ser_rec.Flags & SCRDSF_CREDIT && !info.IsClosed)
+					THROW(ExportOpByCrdCard(SCrdObj.P_Tbl, info.Rec.ID, info.Rec.Code, pScCrdTbl));
+				for(uint i = 0; i < pLogNumList->getCount(); i++) {
+					char   tempbuf[80];
+					char   cardname[128], * p;
+					PPID   log_num = pLogNumList->at(i);
+					Cr_PosLoadTbl::Rec rec;
+					MEMSZERO(rec);
+					ZStrToLStr(rec.Cash_Code, ltoa(log_num, tempbuf, 10), sizeof(rec.Cash_Code));
+					rec.DataType   = 11;
+					// 0 - discount card, -1 - credit card
+					rec.KeyLongint = (ser_rec.Flags & SCRDSF_CREDIT) ? -1 : 0;
+					ZStrToLStr(rec.KeyString, info.Rec.Code, sizeof(rec.KeyString));
+					tempbuf[0] = info.IsClosed ? '-' : '+';
+					tempbuf[1] = 0;
+					ZStrToLStr(rec.F_MODE, tempbuf, sizeof(rec.F_MODE));
+					ZStrToLStr(rec.F_ARTIKL, info.Rec.Code, sizeof(rec.F_ARTIKL));
+					rec.F_CONTR_COST = fdiv100i(info.Rec.PDis);
+					rec.F_COST = info.Rec.MaxCredit;
+					memzero(cardname, sizeof(cardname));
+					p = stpcpy(cardname, info.Rec.Code);
+					if(info.PsnName[0]) {
+						*p++ = ':';
+						p = stpcpy(p, info.PsnName);
+					}
+					ZStrToLStr(rec.F_FIRM_NAME, cardname, sizeof(rec.F_FIRM_NAME));
+					ZStrToLStr(rec.F_S_COD, cardname, sizeof(rec.F_S_COD));
+					rec.F_M_COD = info.Rec.ID;
+					THROW_DB(pOutTbl->insertRecBuf(&rec));
+					p_iter->SetStat();
 				}
-				ZStrToLStr(rec.F_FIRM_NAME, cardname, sizeof(rec.F_FIRM_NAME));
-				ZStrToLStr(rec.F_S_COD, cardname, sizeof(rec.F_S_COD));
-				rec.F_M_COD = info.Rec.ID;
-				THROW_DB(pOutTbl->insertRecBuf(&rec));
-				p_iter->SetStat();
 			}
 		}
+		THROW(tra.Commit());
 	}
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	delete p_iter;
 	return ok;
 }
@@ -697,6 +696,7 @@ int SLAPI ACS_CRUKM::UpdateZReportData(Cr_ZReportTbl * pZReportTbl)
 	return 1;
 }
 
+/*
 static char * SLAPI MakeMsgByCheck(const LDATETIME * pDT, long cashCode, long chkNumber, char * pBuf)
 {
 	char * p = pBuf;
@@ -711,10 +711,16 @@ static char * SLAPI MakeMsgByCheck(const LDATETIME * pDT, long cashCode, long ch
 	p += strlen(ltoa(chkNumber, p, 10));
 	return pBuf;
 }
+*/
+
+static SString & SLAPI MakeMsgByCheck(const LDATETIME * pDT, long cashCode, long chkNumber, SString & rBuf)
+{
+	return (rBuf = 0).Cat(*pDT, DATF_DMY, TIMF_HMS|TIMF_MSEC).CatDiv(':', 1).Cat(cashCode).CatDiv(':', 1).Cat(chkNumber);
+}
 
 static void SLAPI WaitMsgByCheck(const LDATETIME * pDT, long cashCode, long chkNumber)
 {
-	char   msg_buf[128];
+	SString msg_buf;
 	PPWaitMsg(MakeMsgByCheck(pDT, cashCode, chkNumber, msg_buf));
 }
 
@@ -811,73 +817,72 @@ int SLAPI ACS_CRUKM::ImportSession(int sessIdx)
 	int    ok = -1, r, i;
 	int    is_tables_created = 0;
 	LDATE  last_date = ZERODATE;
+	SString msg_buf;
 	Cr_SaleTbl::Key8 k8;
 	const SessEntry * p_entry = (SessEntry*)P_TmpSessList->at(sessIdx);
 
 	for(i = 0; i < 2; i++) {
-		if(PP_SalesFileName[i] == 0 || !fileExists(PP_SalesFileName[i]))
-			continue;
-		Cr_SaleTbl in_tbl(PP_SalesFileName[i]);
-		k8.Cash_Code = p_entry->CashNo;
-		k8.NSmena    = p_entry->SessNo;
-		if(in_tbl.search(8, &k8, spEq)) {
-			if(!is_tables_created) {
-				THROW(CreateTables());
-				is_tables_created = 1;
-			}
-			do {
-				Cr_SaleTbl::Rec in_rec;
-				int    sign;
-				PPID   chk_id = 0;
-				double qtty, price, discount;
-				double line_amount;
-				char   tmpbuf[64];
-
-				in_tbl.copyBufTo(&in_rec);
-				if(in_rec.DateOperation > last_date)
-					last_date = in_rec.DateOperation;
-				if(last_date && labs(diffdate(&last_date, &in_rec.DateOperation, 0)) > 3)
-					continue;
-				LStrToZStr(tmpbuf, in_rec.Operation);
-				sign = (toupper(tmpbuf[0]) == 'R') ? 0 : 1;
-				THROW(r = SearchTempCheckByCode(in_rec.Cash_Code, in_rec.Ck_Number));
-				if(r > 0)
-					chk_id = P_TmpCcTbl->data.ID;
-				else {
-					LDATETIME dm;
-					dm.Set(in_rec.DateOperation, in_rec.Times);
-					PPID   card_id = 0;
-					int    is_credit_card = 0;
-					long   f = (p_entry->Temporary > 0) ? CCHKF_TEMPSESS : 0;
-					THROW(ProcessSCardByCheck(&in_rec, &card_id, &is_credit_card));
-					while(SearchTempCheckByTime(in_rec.Cash_Code, &dm) > 0) {
-						char   msg_buf[128];
-						int    h, m, s, hs;
-						decodetime(&h, &m, &s, &hs, &dm.t);
-						THROW_PP_S(hs < 99, PPERR_DUPTEMPCHECK, MakeMsgByCheck(&dm, in_rec.Cash_Code, in_rec.Ck_Number, msg_buf));
-						dm.t = encodetime(h, m, s, hs + 1);
+		if(PP_SalesFileName[i] && fileExists(PP_SalesFileName[i])) {
+			Cr_SaleTbl in_tbl(PP_SalesFileName[i]);
+			k8.Cash_Code = p_entry->CashNo;
+			k8.NSmena    = p_entry->SessNo;
+			if(in_tbl.search(8, &k8, spEq)) {
+				if(!is_tables_created) {
+					THROW(CreateTables());
+					is_tables_created = 1;
+				}
+				do {
+					Cr_SaleTbl::Rec in_rec;
+					int    sign;
+					PPID   chk_id = 0;
+					double qtty, price, discount;
+					double line_amount;
+					char   tmpbuf[64];
+					in_tbl.copyBufTo(&in_rec);
+					if(in_rec.DateOperation > last_date)
+						last_date = in_rec.DateOperation;
+					if(last_date && labs(diffdate(&last_date, &in_rec.DateOperation, 0)) > 3)
+						continue;
+					LStrToZStr(tmpbuf, in_rec.Operation);
+					sign = (toupper(tmpbuf[0]) == 'R') ? 0 : 1;
+					THROW(r = SearchTempCheckByCode(in_rec.Cash_Code, in_rec.Ck_Number));
+					if(r > 0)
+						chk_id = P_TmpCcTbl->data.ID;
+					else {
+						LDATETIME dm;
+						dm.Set(in_rec.DateOperation, in_rec.Times);
+						PPID   card_id = 0;
+						int    is_credit_card = 0;
+						long   f = (p_entry->Temporary > 0) ? CCHKF_TEMPSESS : 0;
+						THROW(ProcessSCardByCheck(&in_rec, &card_id, &is_credit_card));
+						while(SearchTempCheckByTime(in_rec.Cash_Code, &dm) > 0) {
+							int    h, m, s, hs;
+							decodetime(&h, &m, &s, &hs, &dm.t);
+							THROW_PP_S(hs < 99, PPERR_DUPTEMPCHECK, MakeMsgByCheck(&dm, in_rec.Cash_Code, in_rec.Ck_Number, msg_buf));
+							dm.t = encodetime(h, m, s, hs + 1);
+						}
+						WaitMsgByCheck(&dm, in_rec.Cash_Code, in_rec.Ck_Number);
+						THROW(AddTempCheck(&chk_id, in_rec.NSmena, f, in_rec.Cash_Code, in_rec.Ck_Number, 0, card_id, &dm, 0, 0));
 					}
-					WaitMsgByCheck(&dm, in_rec.Cash_Code, in_rec.Ck_Number);
-					THROW(AddTempCheck(&chk_id, in_rec.NSmena, f, in_rec.Cash_Code, in_rec.Ck_Number, 0, card_id, &dm, 0, 0));
-				}
-				qtty = (sign == 0) ? -fabs(in_rec.Quant) : fabs(in_rec.Quant);
-				SetupTempCcLineRec(0, chk_id, in_rec.Ck_Number, in_rec.DateOperation, 0, in_rec.Code);
-				if(in_rec.Code) {
-					line_amount = (in_rec.Price * qtty - (in_rec.Ck_Disc + in_rec.Ck_Disg));
-					price    = R2((qtty != 0) ? (line_amount / qtty) : line_amount);
-					discount = 0L; // in_rec.Ck_Disc
-				}
-				else {
-					line_amount = in_rec.Summa;
-					price    = R2((qtty != 0) ? (in_rec.Summa / qtty) : in_rec.Summa);
-					discount = 0L; // in_rec.Ck_Disc
-				}
-				line_amount = R2(line_amount);
-				SetTempCcLineValues(0, qtty, price, discount);
-				THROW_DB(P_TmpCclTbl->insertRec());
-				THROW(AddTempCheckAmounts(chk_id, line_amount, in_rec.Ck_Disc + in_rec.Ck_Disg));
-			} while(in_tbl.search(8, &k8, spNext) && k8.Cash_Code == p_entry->CashNo && k8.NSmena == p_entry->SessNo);
-			ok = 1;
+					qtty = (sign == 0) ? -fabs(in_rec.Quant) : fabs(in_rec.Quant);
+					SetupTempCcLineRec(0, chk_id, in_rec.Ck_Number, in_rec.DateOperation, 0, in_rec.Code);
+					if(in_rec.Code) {
+						line_amount = (in_rec.Price * qtty - (in_rec.Ck_Disc + in_rec.Ck_Disg));
+						price    = R2((qtty != 0) ? (line_amount / qtty) : line_amount);
+						discount = 0L; // in_rec.Ck_Disc
+					}
+					else {
+						line_amount = in_rec.Summa;
+						price    = R2((qtty != 0) ? (in_rec.Summa / qtty) : in_rec.Summa);
+						discount = 0L; // in_rec.Ck_Disc
+					}
+					line_amount = R2(line_amount);
+					SetTempCcLineValues(0, qtty, price, discount);
+					THROW_DB(P_TmpCclTbl->insertRec());
+					THROW(AddTempCheckAmounts(chk_id, line_amount, in_rec.Ck_Disc + in_rec.Ck_Disg));
+				} while(in_tbl.search(8, &k8, spNext) && k8.Cash_Code == p_entry->CashNo && k8.NSmena == p_entry->SessNo);
+				ok = 1;
+			}
 		}
 	}
 	CATCHZOK

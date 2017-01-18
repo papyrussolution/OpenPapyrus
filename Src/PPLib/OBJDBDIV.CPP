@@ -130,9 +130,7 @@ private:
 				THROW(addStringToList(++i, temp_buf));
 			}
 		}
-		CATCH
-			ok = 0;
-		ENDCATCH
+		CATCHZOK
 		return ok;
 	}
 	virtual int addItem(long * pPos, long * pID)
@@ -437,22 +435,22 @@ StrAssocArray * SLAPI PPObjDBDiv::MakeStrAssocList(void * extraPtr)
 
 int SLAPI PPObjDBDiv::Put(PPID * pID, DBDivPack * pPack, int use_ta)
 {
-	int    ok = 1, ta = 0;
-	THROW(PPStartTransaction(&ta, use_ta));
-	if(*pID) {
-		THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+	int    ok = 1;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(*pID) {
+			THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+		}
+		else {
+			THROW(ref->AddItem(Obj, &pPack->Rec.ID, &pPack->Rec, 0));
+			*pID = pPack->Rec.ID;
+		}
+		THROW(ref->PutPropArray(Obj, *pID, DBDPRP_LOCLIST, &pPack->LocList, 0));
+		THROW(ref->PutPropVlrString(Obj, *pID, DBDPRP_EXTSTRING, pPack->ExtString));
+		THROW(tra.Commit());
 	}
-	else {
-		THROW(ref->AddItem(Obj, &pPack->Rec.ID, &pPack->Rec, 0));
-		*pID = pPack->Rec.ID;
-	}
-	THROW(ref->PutPropArray(Obj, *pID, DBDPRP_LOCLIST, &pPack->LocList, 0));
-	THROW(ref->PutPropVlrString(Obj, *pID, DBDPRP_EXTSTRING, pPack->ExtString));
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 

@@ -1,5 +1,5 @@
 // V_DEBT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 // Implementation of PPViewDebtTrnovr
 //
@@ -450,7 +450,7 @@ int SLAPI PPViewDebtTrnovr::GetPayableBillList_(const PPIDArray * pOpList, PPID 
 					}
 					else if(Filt.ExtKind == DebtTrnovrFilt::ekExpiryPart) {
 						if(debt > 0.0) {
-							LDATE  pd = (Filt.ExtExpiryTerm > 0) ? plusdate(p_item->Dt, Filt.ExtExpiryTerm) : NZOR(paydt, p_item->Dt);
+							const LDATE pd = (Filt.ExtExpiryTerm > 0) ? plusdate(p_item->Dt, Filt.ExtExpiryTerm) : NZOR(paydt, p_item->Dt);
 							double _exp_debt = (pd < current_date) ? debt : 0.0;
 							//
 							// Для этого (специального) вида отчета в качестве оплаты учитываем
@@ -508,13 +508,13 @@ int SLAPI PPViewDebtTrnovr::SetupRecVals(PPID curID, long tabID, const DebtEntry
 {
 	int    ok = -1, skip = 0;
 	double rdebt = 0.0, rpaym = 0.0, reckon = 0.0, tdebt = 0.0;
-	double sell = R2(pEntry->DbtList.Get(tabID, curID));
-	double paym = R2(pEntry->PaymList.Get(tabID, curID));
+	const  double sell = R2(pEntry->DbtList.Get(tabID, curID));
+	const  double paym = R2(pEntry->PaymList.Get(tabID, curID));
+	const  double expiry_debt = R2(pEntry->ExpiryDebtList.Get(tabID, curID)); // @v9.1.8
 	double debt = R2(sell - paym);
-	double expiry_debt = R2(pEntry->ExpiryDebtList.Get(tabID, curID)); // @v9.1.8
 	if(Filt.Flags & DebtTrnovrFilt::fCalcTotalDebt) {
-		double total_sell = R2(pEntry->TotalDbtList.Get(tabID, curID));
-		double total_paym = R2(pEntry->TotalPaymList.Get(tabID, curID));
+		const double total_sell = R2(pEntry->TotalDbtList.Get(tabID, curID));
+		const double total_paym = R2(pEntry->TotalPaymList.Get(tabID, curID));
 		debt = R2(total_sell - total_paym);
 	}
 	pRec->CurID   = curID;
@@ -534,7 +534,7 @@ int SLAPI PPViewDebtTrnovr::SetupRecVals(PPID curID, long tabID, const DebtEntry
 		pRec->TDebt   += tdebt;
 	}
 	if(Filt.ExtKind == DebtTrnovrFilt::ekExpiryPart) {
-		double part = 100.0 * debt / sell;
+		const double part = 100.0 * debt / sell;
 		if(Filt.ExtExpiryMinPart > 0 && part < Filt.ExtExpiryMinPart)
 			skip = 1;
 	}
@@ -1038,8 +1038,8 @@ int SLAPI PPViewDebtTrnovr::ProcessBillPaymPlanEntry(const BillTbl::Rec & rRec, 
 			}
 			else if(Filt.ExtKind == DebtTrnovrFilt::ekExpiryPart) {
 				if(rBlk.Debt > 0.0) {
-					LDATE  pd = (Filt.ExtExpiryTerm > 0) ? plusdate(rBlk.Date, Filt.ExtExpiryTerm) : NZOR(rBlk.PayDate, rBlk.Date);
-					double _exp_debt = (pd < rBlk.CurrentDate) ? rBlk.Debt : 0.0;
+					const LDATE  pd = (Filt.ExtExpiryTerm > 0) ? plusdate(rBlk.Date, Filt.ExtExpiryTerm) : NZOR(rBlk.PayDate, rBlk.Date);
+					const double _exp_debt = (pd < rBlk.CurrentDate) ? rBlk.Debt : 0.0;
 					//
 					// Для этого (специального) вида отчета в качестве оплаты учитываем
 					// общую сумму долга за вычетом просроченного долга.
@@ -2003,9 +2003,9 @@ int SLAPI PPViewDebtTrnovr::ViewTotal()
 		void   UpdatePage(PPID curID)
 		{
 			if(Kind == 1) {
-				double debt = P_Total->Debit.Get(0L, curID);
-				double exp_debt = P_Total->Debt.Get(0L, curID);
-				double part = fdivnz(exp_debt, debt) * 100.0;
+				const double debt = P_Total->Debit.Get(0L, curID);
+				const double exp_debt = P_Total->Debt.Get(0L, curID);
+				const double part = fdivnz(exp_debt, debt) * 100.0;
 				setCtrlReal(CTL_EXTTDEBT_DEBT,    debt);
 				setCtrlReal(CTL_EXTTDEBT_EXPDEBT, exp_debt);
 				setCtrlReal(CTL_EXTTDEBT_EXPDEBTPART, part);
@@ -2413,7 +2413,7 @@ static int SLAPI SelectPrintingDebtTrnovrSheet(int * pWhat, LDATE * pExpiry, ush
 		{
 			TDialog::handleEvent(event);
 			if(event.isClusterClk(CTL_PRNSELLTO_FLAGS)) {
-				ushort v = getCtrlUInt16(CTL_PRNSELLTO_FLAGS);
+				const ushort v = getCtrlUInt16(CTL_PRNSELLTO_FLAGS);
 				disableCtrls(v != 2, CTL_PRNSELLTO_DTIN, CTLCAL_PRNSELLTO_DTIN, 0);
 				disableCtrl(CTL_PRNSELLTO_ORDER, v == 2);
 				clearEvent(event);

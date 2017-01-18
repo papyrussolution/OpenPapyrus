@@ -1,5 +1,5 @@
 // V_PAYPLN.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017
 // Plan of Payments View
 //
 #include <pp.h>
@@ -154,8 +154,7 @@ int IterProc_PPViewPaymPlan_ProcessPeriod(PayPlanTbl::Rec * pRec, long extraPara
 
 					if(p_v->Filt.Sgp == sgpBillAgent) {
 						PPBillExt billext_rec;
-						// @v6.3.14 if(p_v->P_BObj->tbl->GetExtraData(bill_rec.ID, &billext_rec) > 0)
-						if(p_v->P_BObj->FetchExt(bill_rec.ID, &billext_rec) > 0 && billext_rec.AgentID) // @v6.3.14
+						if(p_v->P_BObj->FetchExt(bill_rec.ID, &billext_rec) > 0 && billext_rec.AgentID)
 							_psn_id = ObjectToPerson(billext_rec.AgentID);
 					}
 					else if(p_v->Filt.Sgp == sgpVesselAgent) {
@@ -202,7 +201,9 @@ int IterProc_PPViewPaymPlan_ProcessPeriod(PayPlanTbl::Rec * pRec, long extraPara
 				}
 				else {
 					if(rec.ObjID) {
-						p_v->PsnObj.GetSubstText(rec.ObjID, 0, &p_v->Psp, rec.Name, sizeof(rec.Name));
+						SString temp_buf;
+						p_v->PsnObj.GetSubstText(rec.ObjID, 0, &p_v->Psp, temp_buf);
+						STRNSCPY(rec.Name, temp_buf);
 					}
 					THROW_DB(p_v->P_TempTbl->insertRecBuf(&rec));
 				}

@@ -557,13 +557,8 @@ static int look_ahead_test(const uchar inputData[], const int sourcelen, const i
 
 /* Encodes data using ASCII, C40, Text, X12, EDIFACT or Base 256 modes as appropriate
    Supports encoding FNC1 in supporting systems */
-static int dm200encode(struct ZintSymbol * symbol,
-    const uchar source[],
-    uchar target[],
-    int * last_mode,
-    int * length_p,
-    int process_buffer[],
-    int * process_p)
+static int dm200encode(struct ZintSymbol * symbol, const uchar source[],
+    uchar target[], int * last_mode, int * length_p, int process_buffer[], int * process_p)
 {
 	int sp, tp, i, gs1;
 	int current_mode, next_mode;
@@ -574,13 +569,11 @@ static int dm200encode(struct ZintSymbol * symbol,
 #else
 	char* binary = (char*)_alloca(2 * inputlen);
 #endif
-
 	sp = 0;
 	tp = 0;
-	memset(process_buffer, 0, 8);
+	memzero(process_buffer, 8);
 	*process_p = 0;
 	strcpy(binary, "");
-
 	/* step (a) */
 	current_mode = DM_ASCII;
 	next_mode = DM_ASCII;
@@ -1297,7 +1290,7 @@ int data_matrix_200(struct ZintSymbol * symbol, const uchar source[], const int 
 		places = (int*)malloc(NC * NR * sizeof(int));
 		ecc200placement(places, NR, NC);
 		grid = (uchar*)malloc(W * H);
-		memset(grid, 0, W * H);
+		memzero(grid, W * H);
 		for(y = 0; y < H; y += FH) {
 			for(x = 0; x < W; x++)
 				grid[y * W + x] = 1;

@@ -1,5 +1,5 @@
 // PPSMS.CPP
-// Copyright (c) V.Miller 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) V.Miller 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <pp.h>
@@ -761,28 +761,28 @@ int SLAPI PPObjSmsAccount::Edit(PPID * pID, void * extraPtr)
 
 int SLAPI PPObjSmsAccount::PutPacket(PPID * pID, PPSmsAccPacket * pPack, int use_ta)
 {
-	int    ok = 1, ta = 0;
-	THROW(PPStartTransaction(&ta, use_ta));
-	if(*pID) {
-		THROW(CheckDupName(*pID, pPack->Rec.Name));
-		if(pPack) {
-			THROW(ref->UpdateItem(Obj, *pID, &(pPack->Rec), 1, 0));
+	int    ok = 1;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(*pID) {
+			THROW(CheckDupName(*pID, pPack->Rec.Name));
+			if(pPack) {
+				THROW(ref->UpdateItem(Obj, *pID, &(pPack->Rec), 1, 0));
+			}
+			else {
+				THROW(ref->RemoveItem(Obj, *pID, 0));
+			}
 		}
 		else {
-			THROW(ref->RemoveItem(Obj, *pID, 0));
+			*pID = pPack->Rec.ID;
+			THROW(ref->AddItem(Obj, pID, &(pPack->Rec), 0));
 		}
+		if(*pID)
+			THROW(ref->PutPropVlrString(Obj, *pID, SMACCPRP_EXTRA, pPack->ExtStr));
+		THROW(tra.Commit());
 	}
-	else {
-		*pID = pPack->Rec.ID;
-		THROW(ref->AddItem(Obj, pID, &(pPack->Rec), 0));
-	}
-	if(*pID)
-		THROW(ref->PutPropVlrString(Obj, *pID, SMACCPRP_EXTRA, pPack->ExtStr));
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 

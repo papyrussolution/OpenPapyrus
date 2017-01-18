@@ -981,7 +981,8 @@ int SLAPI PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRes
 			rec.LotID   = rItem.LotID; // @v8.1.1
 			rec.LocID   = rItem.LocID;
 			if(Filt.Sgg) {
-				THROW(GObj.GetSubstText(goods_id, Filt.Sgg, &Gsl, rec.GoodsName, sizeof(rec.GoodsName)));
+				THROW(GObj.GetSubstText(goods_id, Filt.Sgg, &Gsl, temp_buf));
+				STRNSCPY(rec.GoodsName, temp_buf);
 			}
 			else {
 				if(GObj.Fetch(goods_id, &goods_rec) > 0) {

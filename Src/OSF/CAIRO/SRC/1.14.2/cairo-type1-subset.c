@@ -146,9 +146,8 @@ static cairo_status_t _cairo_type1_font_subset_init(cairo_type1_font_subset_t  *
     cairo_scaled_font_subset_t * scaled_font_subset,
     cairo_bool_t hex_encode)
 {
-	memset(font, 0, sizeof(*font));
+	memzero(font, sizeof(*font));
 	font->scaled_font_subset = scaled_font_subset;
-
 	_cairo_array_init(&font->glyphs_array, sizeof(glyph_data_t));
 	_cairo_array_init(&font->glyph_names_array, sizeof(char *));
 	font->subset_index_to_glyphs = NULL;
@@ -267,14 +266,9 @@ static void cairo_type1_font_erase_dict_key(cairo_type1_font_subset_t * font,
 		if(start) {
 			p = start + strlen(key);
 			/* skip integers or array of integers */
-			while(p < segment_end &&
-			    (_cairo_isspace(*p) ||
-				    _cairo_isdigit(*p) ||
-				    *p == '[' ||
-				    *p == ']')) {
+			while(p < segment_end && (_cairo_isspace(*p) || _cairo_isdigit(*p) || *p == '[' || *p == ']')) {
 				p++;
 			}
-
 			if(p + 3 < segment_end && memcmp(p, "def", 3) == 0) {
 				/* erase definition of the key */
 				memset((char*)start, ' ', p + 3 - start);

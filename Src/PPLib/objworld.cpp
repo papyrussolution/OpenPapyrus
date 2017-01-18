@@ -1,5 +1,5 @@
 // OBJWORLD.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2003, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev, A.Starodub 2003, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -87,30 +87,30 @@ int SLAPI PPObjWorldObjStatus::Edit(PPID * pID, void * extraPtr)
 
 int SLAPI PPObjWorldObjStatus::AddSimple(PPID * pID, const char * pName, const char * pAbbr, long kind, long code, int use_ta)
 {
-	int    ok = -1, ta = 0;
+	int    ok = -1;
 	long   h = -1;
 	PPID   id = 0;
 	PPWorldObjStatus rec;
-	THROW(PPStartTransaction(&ta, use_ta));
-	if(SearchByCode(code, kind, &(id = 0), &rec) > 0)
-		ok = 1;
-	else if(ref->SearchSymb(Obj, &(id = 0), pName, offsetof(PPWorldObjStatus, Name)) > 0)
-		ok = 1;
-	else {
-		MEMSZERO(rec);
-		rec.Tag = Obj;
-		STRNSCPY(rec.Name, pName);
-		STRNSCPY(rec.Abbr, pAbbr);
-		rec.Kind = kind;
-		rec.Code = code;
-		THROW(ref->AddItem(Obj, &(id = 0), &rec, 0));
-		ok = 1;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(SearchByCode(code, kind, &(id = 0), &rec) > 0)
+			ok = 1;
+		else if(ref->SearchSymb(Obj, &(id = 0), pName, offsetof(PPWorldObjStatus, Name)) > 0)
+			ok = 1;
+		else {
+			MEMSZERO(rec);
+			rec.Tag = Obj;
+			STRNSCPY(rec.Name, pName);
+			STRNSCPY(rec.Abbr, pAbbr);
+			rec.Kind = kind;
+			rec.Code = code;
+			THROW(ref->AddItem(Obj, &(id = 0), &rec, 0));
+			ok = 1;
+		}
+		THROW(tra.Commit());
 	}
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	ASSIGN_PTR(pID, id);
 	return ok;
 }
@@ -974,53 +974,54 @@ int SLAPI PPObjWorld::DeleteObj(PPID id)
 
 int SLAPI PPObjWorld::PutPacket(PPID * pID, PPWorldPacket * pPack, int useTa)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	if(pID) {
 		PPID   action = 0;
-		PPStartTransaction(&ta, useTa);
-		if(*pID) {
-			WorldTbl::Rec rec;
-			THROW(Search(*pID, &rec) > 0);
-			if(!pPack) {
-				PPIDArray list;
-				THROW(CheckRights(PPR_DEL));
-				THROW(GetChildList(*pID, &list, 0));
-				for(uint i = 0; i < list.getCount(); i++) {
-					PPID id = list.at(i);
-					if(Search(id, 0) > 0) {
-						THROW(RemoveObjV(id, 0, PPObject::not_addtolog | PPObject::not_checkrights, 0));
+		{
+			PPTransaction tra(useTa);
+			THROW(tra);
+			if(*pID) {
+				WorldTbl::Rec rec;
+				THROW(Search(*pID, &rec) > 0);
+				if(!pPack) {
+					PPIDArray list;
+					THROW(CheckRights(PPR_DEL));
+					THROW(GetChildList(*pID, &list, 0));
+					for(uint i = 0; i < list.getCount(); i++) {
+						const PPID id = list.at(i);
+						if(Search(id, 0) > 0) {
+							THROW(RemoveObjV(id, 0, PPObject::not_addtolog | PPObject::not_checkrights, 0));
+						}
 					}
+					/*
+					if(list.getCount()) {
+						PPObject::SetLastErrObj(PPOBJ_WORLD, list.at(0));
+						CALLEXCEPT_PP(PPERR_REFSEXISTS);
+					}
+					*/
+					THROW(RemoveByID(P_Tbl, *pID, 0));
+					action = PPACN_OBJRMV;
 				}
-				/*
-				if(list.getCount()) {
-					PPObject::SetLastErrObj(PPOBJ_WORLD, list.at(0));
-					CALLEXCEPT_PP(PPERR_REFSEXISTS);
+				else if(memcmp(&pPack->Rec, &rec, sizeof(rec)) != 0) {
+					THROW(CheckRights(PPR_MOD)); // @v8.1.2
+					THROW(UpdateByID(P_Tbl, Obj, *pID, &pPack->Rec, 0));
+					action = PPACN_OBJUPD;
 				}
-				*/
-				THROW(RemoveByID(P_Tbl, *pID, 0));
-				action = PPACN_OBJRMV;
+				else
+					ok = -1;
 			}
-			else if(memcmp(&pPack->Rec, &rec, sizeof(rec)) != 0) {
-				THROW(CheckRights(PPR_MOD)); // @v8.1.2
-				THROW(UpdateByID(P_Tbl, Obj, *pID, &pPack->Rec, 0));
-				action = PPACN_OBJUPD;
+			else if(pPack) {
+				THROW(CheckRights(PPR_INS)); // @v8.1.2
+				THROW(AddObjRecByID(P_Tbl, Obj, pID, &pPack->Rec, 0));
+				action = PPACN_OBJADD;
 			}
-			else
-				ok = -1;
+			DS.LogAction(action, PPOBJ_WORLD, *pID, 0, 0);
+			THROW(tra.Commit());
 		}
-		else if(pPack) {
-			THROW(CheckRights(PPR_INS)); // @v8.1.2
-			THROW(AddObjRecByID(P_Tbl, Obj, pID, &pPack->Rec, 0));
-			action = PPACN_OBJADD;
-		}
-		DS.LogAction(action, PPOBJ_WORLD, *pID, 0, 0);
-		PPCommitWork(&ta);
 		if(action)
 			Dirty(*pID);
 	}
-	CATCH
-		ok = (PPRollbackWork(&ta), 0);
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 

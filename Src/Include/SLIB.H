@@ -1504,14 +1504,14 @@ public:
 	static int    FASTCALL ShrinkDate(LDATE dt);
 	static LDATE  FASTCALL ExpandDate(int16 sdt);
 
-	int    SetDate(LDATE dt);
-	int    SetDayOfWeek(int dayOfWeek);
+	int    FASTCALL SetDate(LDATE dt);
+	int    FASTCALL SetDayOfWeek(int dayOfWeek);
 	int    SetDayOfYear(int day, int mon);
 	LDATE  IsDate() const;
 	int    IsDayOfWeek() const;
 	LDATE  IsDayOfYear() const;
-	int    IsEqual(LDATE) const;
-	int    IsEqual(WorkDate) const;
+	int    FASTCALL IsEqual(LDATE) const;
+	int    FASTCALL IsEqual(WorkDate) const;
 	int    GetVal() const;
 private:
 	static LDATE InitDate; // @global
@@ -3705,7 +3705,7 @@ char * SLAPI alignstr(char * pStr, size_t width, int adj);
 int    SLAPI getTextHight(Pchar str, int width);
 int    SLAPI searchstr(const char * pStr, const SSrchParam & rParam, size_t * pBeg, size_t * pLen);
 int    SLAPI replacestr(char * pStr, const char * pReplacer, size_t * pPos, size_t * pLen, uint maxlen);
-char * SLAPI quotstr(char * pStr, int leftQuotChr, int rightQuotChr);
+// @v9.4.10 (unused) char * SLAPI quotstr(char * pStr, int leftQuotChr, int rightQuotChr);
 // AHTOXA convert hex or octal representation of symbol to symbol in string
 int    SLAPI hostrtocstr(const char * pInBuf, char * pOutBuf, size_t outBufSize);
 uint   GetTextHeight(char * pBuf, size_t strLen);
@@ -3719,7 +3719,7 @@ int    SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 //   ptr                       // -> abc.
 //   ptr = catdiv(ptr, '-', 1) // -> abc - .
 //
-char * SLAPI catdiv(char * pStr, int div, int addSpaces);
+// @v9.4.10 (unused) char * SLAPI catdiv(char * pStr, int div, int addSpaces);
 
 //get string - used in network @vantonov
 int QuotedStringToStr(char **pStr, char * pBuf, int maxBytes, char dStr = '\"');
@@ -3929,7 +3929,7 @@ int   SLAPI GetDayOfWeekByText(const char * pText);
 int   SLAPI _encodetime(int h, int m, int s, int ts, void *, int);
 int   SLAPI _decodetime(int * h, int * m, int * s, int * ts, void *, int);
 int   SLAPI encodetime(int h, int m, int s, int ts, void *);
-int   SLAPI decodetime(int * h, int * m, int * s, int * ts, void *);
+void  SLAPI decodetime(int * h, int * m, int * s, int * ts, void *);
 LTIME SLAPI encodetime(int h, int m, int s, int ts);
 /*
 	Result of difftime:

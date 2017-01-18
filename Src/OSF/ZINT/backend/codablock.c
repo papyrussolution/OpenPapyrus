@@ -114,16 +114,13 @@ int GetPossibleCharacterSet(uchar C)
  */
 void CreateCharacterSetTable(CharacterSetTable T[], uchar * data, int dataLength)
 {
-	int charCur;
 	int runChar;
-
 	/* Treat the Data backwards */
-	charCur = dataLength-1;
+	int charCur = dataLength-1;
 	T[charCur].CharacterSet = GetPossibleCharacterSet(data[charCur]);
 	T[charCur].AFollowing = ((T[charCur].CharacterSet & CodeA)==0) ? 0 : 1;
 	T[charCur].BFollowing = ((T[charCur].CharacterSet & CodeB)==0) ? 0 : 1;
 	T[charCur].CFollowing = 0;
-
 	for(charCur--; charCur>=0; charCur--) {
 		T[charCur].CharacterSet = GetPossibleCharacterSet(data[charCur]);
 		T[charCur].AFollowing =
@@ -166,10 +163,8 @@ void CreateCharacterSetTable(CharacterSetTable T[], uchar * data, int dataLength
  */
 int RemainingDigits(CharacterSetTable * T, int charCur, int emptyColumns)
 {
-	int digitCount; /* Numerical digits fitting in the line */
-	int runChar;
-	runChar = charCur;
-	digitCount = 0;
+	int runChar = charCur;
+	int digitCount = 0; /* Numerical digits fitting in the line */
 	while(emptyColumns>0 && runChar<charCur+T[charCur].CFollowing) {
 		if(T[runChar].CharacterSet!=ZTFNC1) {
 			/* NOT FNC1 */
@@ -195,10 +190,8 @@ int RemainingDigits(CharacterSetTable * T, int charCur, int emptyColumns)
  *  Return value    Resulting row count
  */
 
-int Columns2Rows(CharacterSetTable * T, uchar * data, int dataLength,
-    int * pRows, int * pUseColumns, int * pSet, int * pFillings)
+int Columns2Rows(CharacterSetTable * T, uchar * data, int dataLength, int * pRows, int * pUseColumns, int * pSet, int * pFillings)
 {
-	int useColumns; /* Usable Characters per line */
 	int fillings;   /* Number of filling characters */
 	int rowsCur;
 	int charCur;
@@ -208,32 +201,23 @@ int Columns2Rows(CharacterSetTable * T, uchar * data, int dataLength,
 	int fOneLiner;  /* Flag if One Liner */
 	int CPaires;    /* Number of digit pairs which may fit in the line */
 	int characterSetCur;    /* Current Character Set */
-
-	useColumns = *pUseColumns;
-	if(useColumns<3)
-		useColumns = 3;
-
+	int useColumns = *pUseColumns; /* Usable Characters per line */
+	SETMAX(useColumns, 3);
 	/* >>> Loop until rowsCur<44 */
 	do {
-		memset(pSet, 0, dataLength*sizeof(int));
+		memzero(pSet, dataLength*sizeof(int));
 		charCur = 0;
 		rowsCur = 0;
 		fOneLiner = 1; /* First try one-Liner */
-
 		/* >>> Line and OneLiner-try Loop */
 		do {
 			/* >> Start Character */
 			emptyColumns = useColumns; /* Remained place in Line */
 			if(fOneLiner)
 				emptyColumns += 2;
-
 			/* >>Choose in Set A or B */
 			/* (C is changed as an option later on) */
-
-			pSet[charCur] = characterSetCur =
-			    (T[charCur].AFollowing > T[charCur].BFollowing)
-			    ? CodeA : CodeB;
-
+			pSet[charCur] = characterSetCur = (T[charCur].AFollowing > T[charCur].BFollowing) ? CodeA : CodeB;
 			/* >> Test on Numeric Mode C */
 			CPaires = RemainingDigits(T, charCur, emptyColumns);
 			if(CPaires>=4) {
@@ -355,7 +339,7 @@ int Columns2Rows(CharacterSetTable * T, uchar * data, int dataLength,
 					/* Reset and Start again */
 					charCur = 0;
 					rowsCur = 0;
-					memset(pSet, 0, dataLength*sizeof(int));
+					memzero(pSet, dataLength*sizeof(int));
 				}
 				else{
 					/* Calculate real Length of OneLiner */

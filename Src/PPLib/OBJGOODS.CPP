@@ -2162,15 +2162,6 @@ int SLAPI PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstL
 	return 1;
 }
 
-int SLAPI PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstList * pGsl, char * pBuf, size_t bufLen)
-{
-	SString buf;
-	pBuf[0] = 0;
-	GetSubstText(id, sgg, pGsl, buf);
-	buf.CopyTo(pBuf, bufLen);
-	return 1;
-}
-
 int SLAPI PPObjGoods::GetParentID(PPID id, PPID * pParentID)
 {
 	Goods2Tbl::Rec goods_rec;

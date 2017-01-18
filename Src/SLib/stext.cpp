@@ -1,5 +1,5 @@
 // STEXT.CPP
-// Copyright (c) A.Sobolev 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 // Преобразование символов и строк, и другие текстовые функции
 //
@@ -2072,7 +2072,7 @@ const char * FASTCALL onecstr(char c)
 #endif
 }
 
-char * SLAPI quotstr(char * pS, int leftQuotChr, int rightQuotChr)
+/* @v9.4.10 (unused) char * SLAPI quotstr(char * pS, int leftQuotChr, int rightQuotChr)
 {
 	if(pS) {
 		size_t n = strlen(pS);
@@ -2082,9 +2082,9 @@ char * SLAPI quotstr(char * pS, int leftQuotChr, int rightQuotChr)
 		pS[n+2] = 0;
 	}
 	return pS;
-}
+}*/
 
-char * SLAPI catdiv(char * pStr, int div, int addSpaces)
+/* @v9.4.10 (unused) char * SLAPI catdiv(char * pStr, int div, int addSpaces)
 {
 	if(addSpaces)
 		*pStr++ = ' ';
@@ -2092,7 +2092,7 @@ char * SLAPI catdiv(char * pStr, int div, int addSpaces)
 	if(addSpaces)
 		*pStr++ = ' ';
 	return pStr;
-}
+}*/
 //
 // Предполагается, что под строку выделено
 // достаточно места, чтобы вместить набивку

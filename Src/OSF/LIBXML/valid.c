@@ -1009,29 +1009,24 @@ xmlElementContentPtr xmlCopyDocElementContent(xmlDocPtr doc, xmlElementContentPt
 				xmlVErrMemory(NULL, "malloc failed");
 				return ret;
 			}
-			memset(tmp, 0, sizeof(xmlElementContent));
-			tmp->type = cur->type;
-			tmp->ocur = cur->ocur;
-			prev->c2 = tmp;
-			if(cur->name != NULL) {
-				if(dict)
-					tmp->name = xmlDictLookup(dict, cur->name, -1);
-				else
-					tmp->name = xmlStrdup(cur->name);
+			else {
+				memzero(tmp, sizeof(xmlElementContent));
+				tmp->type = cur->type;
+				tmp->ocur = cur->ocur;
+				prev->c2 = tmp;
+				if(cur->name != NULL) {
+					tmp->name = dict ? xmlDictLookup(dict, cur->name, -1) : xmlStrdup(cur->name);
+				}
+				if(cur->prefix != NULL) {
+					tmp->prefix = dict ? xmlDictLookup(dict, cur->prefix, -1) : xmlStrdup(cur->prefix);
+				}
+				if(cur->c1 != NULL)
+					tmp->c1 = xmlCopyDocElementContent(doc, cur->c1);
+				if(tmp->c1 != NULL)
+					tmp->c1->parent = ret;
+				prev = tmp;
+				cur = cur->c2;
 			}
-
-			if(cur->prefix != NULL) {
-				if(dict)
-					tmp->prefix = xmlDictLookup(dict, cur->prefix, -1);
-				else
-					tmp->prefix = xmlStrdup(cur->prefix);
-			}
-			if(cur->c1 != NULL)
-				tmp->c1 = xmlCopyDocElementContent(doc, cur->c1);
-			if(tmp->c1 != NULL)
-				tmp->c1->parent = ret;
-			prev = tmp;
-			cur = cur->c2;
 		}
 	}
 	return ret;
@@ -1046,7 +1041,8 @@ xmlElementContentPtr xmlCopyDocElementContent(xmlDocPtr doc, xmlElementContentPt
  *
  * Returns the new xmlElementContentPtr or NULL in case of error.
  */
-xmlElementContentPtr xmlCopyElementContent(xmlElementContentPtr cur) {
+xmlElementContentPtr xmlCopyElementContent(xmlElementContentPtr cur) 
+{
 	return(xmlCopyDocElementContent(NULL, cur));
 }
 
@@ -1057,13 +1053,12 @@ xmlElementContentPtr xmlCopyElementContent(xmlElementContentPtr cur) {
  *
  * Free an element content structure. The whole subtree is removed.
  */
-void xmlFreeDocElementContent(xmlDocPtr doc, xmlElementContentPtr cur) {
+void xmlFreeDocElementContent(xmlDocPtr doc, xmlElementContentPtr cur) 
+{
 	xmlElementContentPtr next;
 	xmlDictPtr dict = NULL;
-
 	if(doc != NULL)
 		dict = doc->dict;
-
 	while(cur != NULL) {
 		next = cur->c2;
 		switch(cur->type) {

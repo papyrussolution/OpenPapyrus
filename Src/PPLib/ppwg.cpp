@@ -1,5 +1,5 @@
 // PPWG.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2010, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2006, 2007, 2010, 2013, 2015, 2016, 2017
 //
 // Графики рабочего времени
 //
@@ -268,28 +268,28 @@ int SLAPI PPObjDutySched::SearchByObjType(PPID objType, long objGroup, PPID * pI
 
 int SLAPI PPObjDutySched::PutPacket(PPID * pID, PPDutySchedPacket * pPack, int use_ta)
 {
-	int    ok = 1, ta = 0;
-	THROW(PPStartTransaction(&ta, use_ta));
-	if(pPack) {
-		THROW(CheckDupName(*pID, pPack->Rec.Name));
-		if(*pID) {
-			THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+	int    ok = 1;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(pPack) {
+			THROW(CheckDupName(*pID, pPack->Rec.Name));
+			if(*pID) {
+				THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+			}
+			else {
+				*pID = pPack->Rec.ID;
+				THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
+			}
+			THROW(ref->PutPropArray(Obj, *pID, DSHPRP_LIST, &pPack->List, 0));
+			THROW(ref->PutPropArray(Obj, *pID, DSHPRP_POINTLIST, &pPack->CpList, 0));
 		}
-		else {
-			*pID = pPack->Rec.ID;
-			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
+		else if(*pID) {
+			THROW(ref->RemoveItem(Obj, *pID, 0));
 		}
-		THROW(ref->PutPropArray(Obj, *pID, DSHPRP_LIST, &pPack->List, 0));
-		THROW(ref->PutPropArray(Obj, *pID, DSHPRP_POINTLIST, &pPack->CpList, 0));
+		THROW(tra.Commit());
 	}
-	else if(*pID) {
-		THROW(ref->RemoveItem(Obj, *pID, 0));
-	}
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 

@@ -4038,6 +4038,9 @@ table TempTrfrGrpng { // Size=
 	double SaldoAmt;
 	double PVat;           // @v6.4.2 Сумма НДС в ценах реализации
 	double Brutto;         // @v8.7.7
+	double LinkQtty;       // @v9.4.10 Количество в связанных докуменах (e.g. документах списания)
+	double LinkCost;       // @v9.4.10 Сумма в ценах поступления в связанных докуменах (e.g. документах списания)
+	double LinkPrice;      // @v9.4.10 Сумма в ценах реализации в связанных докуменах (e.g. документах списания)
 	double ExtVal1;        // @v9.3.4
 	string DtText[32];
 	string GoodsText[128];  // @v6.4.1 [64]-->[128]
@@ -4070,6 +4073,9 @@ table TempTrfrAnlz {       //
 	double Discount;       // Amt for GoodsCard
 	double PVat;           // Сумма НДС в ценах реализации
 	double Brutto;         // @v8.7.7
+	double LinkQtty;       // @v9.4.10 Количество в связанных докуменах (e.g. документах списания)
+	double LinkCost;       // @v9.4.10 Сумма в ценах поступления в связанных докуменах (e.g. документах списания)
+	double LinkPrice;      // @v9.4.10 Сумма в ценах реализации в связанных докуменах (e.g. документах списания)
 	double ExtVal1;        // @v9.3.4
 index:
 	Dt, OprNo (unique mod);

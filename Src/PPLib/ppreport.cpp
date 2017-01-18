@@ -1863,7 +1863,7 @@ int SLAPI SReport::checkval(int16 *flds, char **ptr)
 			if(f->data)
 				memcpy((*ptr) + ofs, f->data, s);
 			else
-				memset((*ptr) + ofs, 0, s);
+				memzero((*ptr) + ofs, s);
 			ofs += s;
 		}
 	return r;

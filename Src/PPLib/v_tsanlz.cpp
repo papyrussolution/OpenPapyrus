@@ -1,5 +1,5 @@
 // V_TSANLZ.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -727,8 +727,7 @@ int SLAPI PPViewTSessAnlz::CreateBySess(PPID sessID, TSessAnlzList * pResult, PP
 				THROW(ProcessSession(&sess_rec, pResult));
 			}
 		}
-		if(pProcessedList)
-			pProcessedList->addUnique(sessID);
+		CALLPTRMEMB(pProcessedList, addUnique(sessID));
 	}
 	CATCHZOK
 	TSesObj.P_Tbl->DestroyIter(enum_handle);
@@ -750,8 +749,7 @@ int SLAPI PPViewTSessAnlz::GetDutySchedPacket(PPID prcID, PPDutySchedPacket * pD
 	return ok;
 }
 
-int SLAPI PPViewTSessAnlz::CalcArTimes(const PPDutySchedPacket * pDsPack,
-	const STimeChunk & rBounds, RAssocArray * pDurationList)
+int SLAPI PPViewTSessAnlz::CalcArTimes(const PPDutySchedPacket * pDsPack, const STimeChunk & rBounds, RAssocArray * pDurationList)
 {
 	int    ok = -1;
 	PPDutySchedPacket::EnumParam ep;
@@ -840,16 +838,17 @@ int SLAPI PPViewTSessAnlz::Init_(const PPBaseFilt * pBaseFilt)
 					if(GetDutySchedPacket(sess_rec.PrcID, &ds_pack) > 0) {
 						RAssocArray ar_times;
 						STimeChunk bounds;
-						double total;
 						bounds.Start.Set(sess_rec.StDt, sess_rec.StTm);
 						bounds.Finish.Set(sess_rec.FinDt, sess_rec.FinTm);
 						THROW(CalcArTimes(&ds_pack, bounds, &ArTimesList));
-						total = ArTimesList.GetTotal();
-						if(total)
-							ArTimesList.Scale(1.0 / total);
-						else {
-							ArTimesList.freeAll();
-							Filt.Flags &= ~TSessAnlzFilt::fInterpolPlanToAr;
+						{
+							const double total = ArTimesList.GetTotal();
+							if(total != 0.0)
+								ArTimesList.Scale(1.0 / total);
+							else {
+								ArTimesList.freeAll();
+								Filt.Flags &= ~TSessAnlzFilt::fInterpolPlanToAr;
+							}
 						}
 					}
 					else
@@ -930,10 +929,12 @@ int SLAPI PPViewTSessAnlz::Init_(const PPBaseFilt * pBaseFilt)
 				rec.OutCompPart = p_entry->OutCompPart;
 				if(rec.PrmrGoodsID == MAXLONG)
 					STRNSCPY(rec.PrmrGoodsName, word_total);
-				else
-					GObj.GetSubstText(rec.PrmrGoodsID, Filt.Sgg, &result.PrmrSggList,
-						rec.PrmrGoodsName, sizeof(rec.PrmrGoodsName));
-				GObj.GetSubstText(rec.GoodsID, Filt.Sgg, result.P_ScndSggList, rec.GoodsName, sizeof(rec.GoodsName));
+				else {
+					GObj.GetSubstText(rec.PrmrGoodsID, Filt.Sgg, &result.PrmrSggList, temp_buf);
+					STRNSCPY(rec.PrmrGoodsName, temp_buf);
+				}
+				GObj.GetSubstText(rec.GoodsID, Filt.Sgg, result.P_ScndSggList, temp_buf);
+				STRNSCPY(rec.GoodsName, temp_buf);
 				if(rec.DtVal == MAXLONG)
 					STRNSCPY(rec.DtText, word_total);
 				else if(Filt.DiffDt == TSessAnlzFilt::difdtDate)
@@ -1107,7 +1108,7 @@ int SLAPI PPViewTSessAnlz::GetPhQtty(const TSessAnlzViewItem * pItem, PPID * pPh
 	return ok;
 }
 
-int SLAPI PPViewTSessAnlz::RecToViewItem(const TempTSessRepTbl::Rec * pRec, TSessAnlzViewItem * pItem)
+void SLAPI PPViewTSessAnlz::RecToViewItem(const TempTSessRepTbl::Rec * pRec, TSessAnlzViewItem * pItem)
 {
 	if(pItem && pRec) {
 		memzero(pItem, sizeof(*pItem));
@@ -1132,17 +1133,17 @@ int SLAPI PPViewTSessAnlz::RecToViewItem(const TempTSessRepTbl::Rec * pRec, TSes
 		STRNSCPY(pItem->DtText,  pRec->DtText);
 		GetPhQtty(pItem, 0, &pItem->InQttyPh, &pItem->OutQttyPh);
 	}
-	return 1;
 }
 
 int SLAPI PPViewTSessAnlz::GetItem(PPID __id, TSessAnlzViewItem * pItem)
 {
+	int    ok = -1;
 	TempTSessRepTbl::Rec rec;
 	if(SearchByID(P_TempTbl, 0, __id, &rec) > 0) {
 		RecToViewItem(&rec, pItem);
-		return 1;
+		ok = 1;
 	}
-	return -1;
+	return ok;
 }
 
 int SLAPI PPViewTSessAnlz::EditGoods(PPID goodsID)

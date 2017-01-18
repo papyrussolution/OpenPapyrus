@@ -2325,7 +2325,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									double _qtty = fabs(r_ti.Quantity_);
 									long   _fmt = 0;
 									if(agi.UnpackedVolume > 0.0) {
-										_qtty = R4(_qtty);
+										const double mult = agi.UnpackedVolume / 10.0;
+										_qtty = R4(_qtty * mult);
 										_fmt = MKSFMTD(0, 4, 0);
 									}
 									else {
@@ -2359,7 +2360,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									double _qtty = fabs(r_ti.Quantity_);
 									long   _fmt = 0;
 									if(agi.UnpackedVolume > 0.0) {
-										_qtty = R4(_qtty);
+										const double mult = agi.UnpackedVolume / 10.0;
+										_qtty = R4(_qtty * mult);
 										_fmt = MKSFMTD(0, 4, 0);
 									}
 									else {

@@ -11,7 +11,7 @@ DBFCreateFld * SLAPI LoadDBFStruct(uint rezID, uint * pNumFlds);
 
 int SLAPI dbl_cmp(double v1, double v2)
 {
-	double diff = round(v1 - v2, 6);
+	const double diff = round(v1 - v2, 6);
 	if(diff < 0)
 		return -1;
 	else if(diff > 0)
@@ -27,8 +27,8 @@ IMPL_CMPFUNC(PPLBItem, i1, i2)
 
 IMPL_CMPFUNC(PPTLBItem, i1, i2)
 {
-	PPID   parent_id1 = *(long *)i1;
-	PPID   parent_id2 = *(long *)i2;
+	const PPID parent_id1 = *(long *)i1;
+	const PPID parent_id2 = *(long *)i2;
 	if(parent_id1 > parent_id2)
 		return 1;
 	else if(parent_id1 < parent_id2)
@@ -1993,14 +1993,14 @@ int SLAPI ExpandSubstDate(SubstGrpDate sgd, LDATE dt, DateRange * pPeriod)
 	return ok;
 }
 
-int SLAPI FormatSubstDateExt(SubstGrpDate sgd, LDATE dt, LTIME tm, SString & rBuf, long dtFmt /*=0*/, long tmFmt /*=0*/)
+void SLAPI FormatSubstDateExt(SubstGrpDate sgd, LDATE dt, LTIME tm, SString & rBuf, long dtFmt /*=0*/, long tmFmt /*=0*/)
 {
 	char   buf[256];
 	memzero(buf, sizeof(buf));
 	if(sgd == sgdHour) {
-		long format = (tmFmt == 0) ? TIMF_HM : tmFmt;
-		int h = tm.hour(), m = tm.minut();
-		SString temp_buf;
+		const long format = (tmFmt == 0) ? TIMF_HM : tmFmt;
+		int    h = tm.hour();
+		int    m = tm.minut();
 		rBuf.Cat(tm, format).Dot().Dot();
 		if(m < 15) m = 15;
 		else if(m < 30) m = 30;
@@ -2013,21 +2013,19 @@ int SLAPI FormatSubstDateExt(SubstGrpDate sgd, LDATE dt, LTIME tm, SString & rBu
 	}
 	else {
 		FormatSubstDate(sgd, dt, buf, sizeof(buf));
-		rBuf.CopyFrom(buf);
+		rBuf = buf;
 	}
-	return 1;
 }
 
-int SLAPI FormatSubstDate(SubstGrpDate sgd, LDATE dt, SString & rBuf, long fmt /*=0*/)
+void SLAPI FormatSubstDate(SubstGrpDate sgd, LDATE dt, SString & rBuf, long fmt /*=0*/)
 {
 	char   buf[256];
 	memzero(buf, sizeof(buf));
 	FormatSubstDate(sgd, dt, buf, sizeof(buf));
-	rBuf.CopyFrom(buf);
-	return 1;
+	rBuf = buf;
 }
 
-int SLAPI FormatSubstDate(SubstGrpDate sgd, LDATE dt, char * pBuf, size_t bufLen, long fmt /*=0*/)
+void SLAPI FormatSubstDate(SubstGrpDate sgd, LDATE dt, char * pBuf, size_t bufLen, long fmt /*=0*/)
 {
 	char   temp[128], * p = temp;
 	SString temp_buf;
@@ -2062,7 +2060,6 @@ int SLAPI FormatSubstDate(SubstGrpDate sgd, LDATE dt, char * pBuf, size_t bufLen
 	else
 		datefmt(&dt, format, temp);
 	strnzcpy(pBuf, temp, bufLen);
-	return 1;
 }
 
 static SString & SLAPIV Helper_PPFormat(const SString & rFmt, SString * pBuf, /*...*/va_list pArgList)

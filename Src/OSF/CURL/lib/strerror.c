@@ -642,9 +642,7 @@ const char *Curl_strerror(struct connectdata *conn, int err)
   {
     wchar_t wbuf[256];
     wbuf[0] = L'\0';
-
-    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err,
-                  LANG_NEUTRAL, wbuf, sizeof(wbuf)/sizeof(wchar_t), NULL);
+    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, LANG_NEUTRAL, wbuf, sizeof(wbuf)/sizeof(wchar_t), NULL);
     wcstombs(buf, wbuf, max);
   }
 #else
@@ -1091,10 +1089,7 @@ const char *Curl_sspi_strerror (struct connectdata *conn, int err)
       wchar_t wbuf[256];
       wbuf[0] = L'\0';
 
-      if(FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM |
-                       FORMAT_MESSAGE_IGNORE_INSERTS,
-                       NULL, err, LANG_NEUTRAL,
-                       wbuf, sizeof(wbuf)/sizeof(wchar_t), NULL)) {
+      if(FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, err, LANG_NEUTRAL, wbuf, sizeof(wbuf)/sizeof(wchar_t), NULL)) {
         wcstombs(msgbuf, wbuf, sizeof(msgbuf)-1);
         msg_formatted = TRUE;
       }

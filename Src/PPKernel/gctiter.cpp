@@ -1,5 +1,5 @@
 // GCTITER.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
 // @Kernel
 //
 // GCTIterator
@@ -346,6 +346,51 @@ int SLAPI GCTIterator::GoodsRestArray::Serialize(int dir, SBuffer & rBuf, SSeria
 	CATCHZOK
 	return ok;
 }
+
+// static
+long SLAPI GCTIterator::AnalyzeOp(PPID opID, PPIDArray * pResultOpList)
+{
+	long   result = 0;
+	PPIDArray op_list;
+	if(IsGenericOp(opID) > 0) {
+		result |= aorfGeneric;
+		GetGenericOpList(opID, &op_list);
+	}
+	else if(opID == PPOPK_INTRRECEIPT) {
+		result |= aorfIntrRcpt;
+		PPOprKind op_rec;
+		for(SEnum en = PPRef->Enum(PPOBJ_OPRKIND, 0); en.Next(&op_rec) > 0;)
+			if(IsIntrExpndOp(op_rec.ID))
+				op_list.add(op_rec.ID);
+	}
+	else if(opID)
+		op_list.add(opID);
+	{
+		const uint oc = op_list.getCount();
+		if(oc) {
+			result |= aorfOnlyDrafts;
+			result |= aorfOnlyOrders;
+			for(uint i = 0; i < oc; i++) {
+				const PPID op_id = op_list.get(i);
+				const PPID op_type_id = GetOpType(op_id);
+				if(oneof3(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT)) {
+					result |= stThereAreDrafts;
+					result &= ~stOnlyOrders;
+				}
+				else {
+					result &= ~stOnlyDrafts;
+					if(op_type_id == PPOPT_GOODSORDER)
+						result |= stThereAreOrders;
+					else
+						result &= ~stOnlyOrders;
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pResultOpList, op_list);
+	return result;
+}
+
 //
 // GCTIterator
 //
@@ -393,7 +438,17 @@ SLAPI GCTIterator::GCTIterator(const GCTFilt * pFilt, const DateRange * pDRange)
 		// @v8.1.0 (сортировку теперь выполняет GetBillListByExt) SupplAgentBillList.sort();
 	}
 	{
+		// @v9.4.10 {
 		PPIDArray op_list;
+		const long aor = AnalyzeOp(Filt.OpID, &op_list);
+		SETFLAG(State, stOnlyDrafts, aor & aorfOnlyDrafts);
+		SETFLAG(State, stOnlyOrders, aor & aorfOnlyOrders);
+		SETFLAG(State, stThereAreDrafts, aor & aorfThereAreDrafts);
+		SETFLAG(State, stThereAreOrders, aor & aorfThereAreOrders);
+		if(op_list.getCount())
+			OpList.Set(&op_list);
+		// } @v9.4.10
+#if 0 // @v9.4.10 {
 		if(IsGenericOp(Filt.OpID) > 0)
 			GetGenericOpList(Filt.OpID, &op_list);
 		else if(Filt.OpID == PPOPK_INTRRECEIPT) {
@@ -433,6 +488,7 @@ SLAPI GCTIterator::GCTIterator(const GCTFilt * pFilt, const DateRange * pDRange)
 				OpList.Set(&op_list);
 			}
 		}
+#endif // } 0 @v9.4.10
 	}
 }
 
@@ -678,6 +734,7 @@ int SLAPI GCTIterator::NextOuter()
 {
 	int    ok = -1;
 	const  int soft_restr = BIN(Filt.SoftRestrict);
+	Cbb.Clear();
 	switch(ByWhat_) {
 		case bwLot:
 			while(ok < 0 && rcpt_q->nextIteration() > 0) {
@@ -705,7 +762,7 @@ int SLAPI GCTIterator::NextOuter()
 	return ok;
 }
 
-int SLAPI GCTIterator::AcceptTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec)
+int SLAPI GCTIterator::AcceptTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
 {
 	int    ok = -1;
 	const  int    soft_restr = BIN(Filt.SoftRestrict);
@@ -727,7 +784,7 @@ int SLAPI GCTIterator::AcceptTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec *
 				PPIDArray lot_id_list; // Storage for cycle safe code
 				ReceiptTbl::Rec lot_rec;
 				while(lot_id && Trfr->Rcpt.Search(lot_id, &lot_rec) > 0) {
-					PPID   prev_id = lot_rec.PrevLotID;
+					const PPID prev_id = lot_rec.PrevLotID;
 					lot_id_list.add(lot_id);
 					if(prev_id && !lot_id_list.lsearch(prev_id))
 						lot_id = prev_id;
@@ -795,7 +852,7 @@ int SLAPI GCTIterator::AcceptTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec *
 	return ok;
 }
 
-int SLAPI GCTIterator::AcceptCpTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec)
+int SLAPI GCTIterator::AcceptCpTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
 {
 	int    ok = -1;
 	const  int    soft_restr = BIN(Filt.SoftRestrict);
@@ -827,8 +884,8 @@ int SLAPI GCTIterator::AcceptCpTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec
 		if(soft_restr) {
 			PPObjBill * p_bobj = BillObj;
 			PPBillExt ext_rec;
-			int    article_notvalid = !ArList.CheckID(pBillRec->Object);
-			int    goods_notvalid = BIN(Filt.GoodsID && labs(Filt.GoodsID) != goods_id || (State & stUseGoodsList) && !goods_found); // @v7.1.3 labs()
+			const int article_notvalid = !ArList.CheckID(pBillRec->Object);
+			const int goods_notvalid = BIN(Filt.GoodsID && labs(Filt.GoodsID) != goods_id || (State & stUseGoodsList) && !goods_found);
 			int    agent_notvalid = 0;
 			if(Filt.Flags & OPG_BYZEROAGENT) {
 				if(p_bobj->FetchExt(bill_id, &ext_rec) > 0 && ext_rec.AgentID != 0)
@@ -870,7 +927,7 @@ int SLAPI GCTIterator::AcceptCpTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec
 	return ok;
 }
 
-int SLAPI GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec)
+int SLAPI GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
 {
 	union {
 		TransferTbl::Key0 k0;
@@ -882,8 +939,8 @@ int SLAPI GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBi
 		CpTransfTbl::Key0 k0;
 		CpTransfTbl::Key1 k1;
 	} cpk;
+	const  int opt_for_psales = BIN(Filt.Flags & OPG_OPTIMIZEFORPSALES && (State & stUseGoodsList) && !Filt.SoftRestrict);
 	int    idx;
-	int    opt_for_psales = BIN(Filt.Flags & OPG_OPTIMIZEFORPSALES && (State & stUseGoodsList) && !Filt.SoftRestrict);
 	DBQ  * dbq = 0;
 	MEMSZERO(k);
 	MEMSZERO(cpk);
@@ -939,12 +996,13 @@ int SLAPI GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBi
 	delete trfr_q;
 	trfr_q  = q;
 	trfr_q->initIteration(0, &k, spGt);
-	return NextTrfr(pTrfrRec, pBillRec);
+	return NextTrfr(pTrfrRec, pBillRec, pExt);
 }
 
-int SLAPI GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec)
+int SLAPI GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
 {
 	int    ok = -1;
+	int    done = 0;
 	union {
 		CpTransfTbl::Key0 k0;
 		CpTransfTbl::Key1 k1;
@@ -953,7 +1011,48 @@ int SLAPI GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * p
 	int    opt_for_psales = BIN(Filt.Flags & OPG_OPTIMIZEFORPSALES && (State & stUseGoodsList) && !Filt.SoftRestrict);
 	DBQ  * dbq = 0;
 	MEMSZERO(cpk);
-	if(oneof2(ByWhat_, bwBill, bwGoods)) {
+	// @v9.4.10 {
+	Cbb.Clear();
+	if(Filt.Flags & OPG_COMPAREWROFF && ByWhat_ == bwBill) {
+		BillTbl::Rec bill_rec;
+        if(BCache && BCache->Get(CurrID, &bill_rec) > 0 && IsDraftOp(bill_rec.OpID)) {
+			PPObjBill * p_bobj = BillObj;
+			PPTransferItem ti;
+            THROW_MEM(SETIFZ(Cbb.P_Pack, new PPBillPacket));
+			if(p_bobj->ExtractPacket(CurrID, Cbb.P_Pack, 0) > 0) {
+				for(DateIter di; BT->EnumLinks(Cbb.P_Pack->Rec.ID, &di, BLNK_ALL, &bill_rec) > 0;) {
+					PPBillPacket temp_pack;
+					THROW_MEM(SETIFZ(Cbb.P_WrOffPack, new PPBillPacket));
+					if(p_bobj->ExtractPacket(bill_rec.ID, &temp_pack) > 0) {
+						for(temp_pack.InitExtTIter(ETIEF_UNITEBYGOODS, 0); temp_pack.EnumTItemsExt(0, &ti) > 0;) {
+							THROW(Cbb.P_WrOffPack->LoadTItem(&ti, 0, 0));
+						}
+					}
+				}
+				if(Cbb.P_WrOffPack) {
+					for(Cbb.P_WrOffPack->InitExtTIter(ETIEF_UNITEBYGOODS, 0); Cbb.P_WrOffPack->EnumTItemsExt(0, &ti) > 0;) {
+						if(!Cbb.P_Pack->SearchGoods(ti.GoodsID, 0)) {
+							ti.Quantity_ = 0.0;
+							ti.Cost = 0.0;
+							ti.Price = 0.0;
+							ti.Discount = 0.0;
+							ti.WtQtty = 0.0;
+							THROW(Cbb.P_Pack->LoadTItem(&ti, 0, 0));
+						}
+					}
+				}
+				Cbb.P_Pack->InitExtTIter(ETIEF_UNITEBYGOODS, 0);
+				ok = NextCpTrfr(pTrfrRec, pBillRec, pExt);
+			}
+			else {
+				Cbb.Clear();
+				ok = -1;
+			}
+			done = 1;
+        }
+	}
+	// } @v9.4.10
+	if(!done && oneof2(ByWhat_, bwBill, bwGoods)) {
 		if(ByWhat_ == bwBill) {
 			idx = 0;
 			cpk.k0.BillID = CurrID;
@@ -961,7 +1060,7 @@ int SLAPI GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * p
 		}
 		else if(ByWhat_ == bwGoods) {
 			idx = 3;
-			PPID   goods_id = GoodsArray.get(GoodsArray.getPointer());
+			const PPID goods_id = GoodsArray.get(GoodsArray.getPointer());
 			cpk.k1.GoodsID = goods_id;
 			dbq = & (CpTrfr->GoodsID == goods_id);
 		}
@@ -977,80 +1076,143 @@ int SLAPI GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * p
 			dbq = ppcheckfiltid(dbq, CpTrfr->GoodsID, Filt.GoodsID);
 		dbq = ppcheckfiltidlist(dbq, CpTrfr->LocID, &Filt.LocList.Get());
 		BExtQuery * q = new BExtQuery(CpTrfr, idx, 256);
-		if(q == 0)
-			return PPSetErrorNoMem();
+		THROW_MEM(q);
 		q->select(CpTrfr->BillID, CpTrfr->GoodsID, CpTrfr->LocID, CpTrfr->Flags,
 			CpTrfr->Qtty, CpTrfr->Rest, CpTrfr->Cost, CpTrfr->Price, CpTrfr->Discount, 0L).where(*dbq);
 		delete cptrfr_q;
 		cptrfr_q  = q;
 		cptrfr_q->initIteration(0, &cpk, spGt);
-		ok = NextCpTrfr(pTrfrRec, pBillRec);
+		ok = NextCpTrfr(pTrfrRec, pBillRec, pExt);
 	}
+	CATCHZOK
 	return ok;
 }
 
-int SLAPI GCTIterator::NextTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec)
+int SLAPI GCTIterator::NextTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
 {
 	while(trfr_q->nextIteration() > 0) {
-		if(AcceptTrfrRec(pTrfrRec, pBillRec) > 0)
+		if(AcceptTrfrRec(pTrfrRec, pBillRec, pExt) > 0)
 			return 1;
 	}
 	return -1;
 }
 
-int SLAPI GCTIterator::NextCpTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec)
+int SLAPI GCTIterator::NextCpTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
 {
-	while(cptrfr_q->nextIteration() > 0) {
-		if(AcceptCpTrfrRec(pTrfrRec, pBillRec) > 0)
-			return 1;
-	}
-	return -1;
-}
-
-int SLAPI GCTIterator::First(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec)
-{
-	/*
-	if(InitQuery(0) > 0) {
-		do {
-			if(TrfrQuery(pTrfrRec, pBillRec) > 0)
-				return 1;
-		} while(NextOuter() > 0);
-	}
-	return -1;
-	*/
-	IterPhase = iterphaseInit;
-	return Iterate(pTrfrRec, pBillRec);
-}
-
-int SLAPI GCTIterator::Next(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec)
-{
-	return Iterate(pTrfrRec, pBillRec);
-	/*
 	int    ok = -1;
-	PROFILE_START
-	if(NextTrfr(pTrfrRec, pBillRec) > 0) {
-	 	ok = 1;
+	if(Cbb.P_Pack) {
+		PPTransferItem ti;
+		const  int soft_restr = BIN(Filt.SoftRestrict);
+		while(ok < 0 && Cbb.P_Pack->EnumTItemsExt(0, &ti) > 0) {
+			const PPID goods_id = labs(ti.GoodsID);
+			int  goods_found = 0;
+			if(State & stUseGoodsList) {
+				PROFILE(goods_found = GoodsArray.bsearch(goods_id));
+			}
+			else
+				goods_found = 1;
+			if(goods_found || soft_restr) {
+				const PPID bill_id = Cbb.P_Pack->Rec.ID;
+				ASSIGN_PTR(pBillRec, Cbb.P_Pack->Rec);
+				memzero(pTrfrRec, sizeof(*pTrfrRec));
+				pTrfrRec->BillID = bill_id;
+				pTrfrRec->OprNo = ++SurrOprNo;
+				pTrfrRec->Dt = Cbb.P_Pack->Rec.Dt;
+				pTrfrRec->Flags = ti.Flags;
+				pTrfrRec->RByBill = ti.RByBill;
+				pTrfrRec->LocID = ti.LocID;
+				pTrfrRec->GoodsID = goods_id;
+				pTrfrRec->CurID = ti.CurID;
+				pTrfrRec->Quantity = ti.Quantity_;
+				pTrfrRec->Cost = ti.Cost;
+				pTrfrRec->Price = ti.Price;
+				pTrfrRec->Discount = ti.Discount;
+				pTrfrRec->CurPrice = ti.CurPrice;
+				if(soft_restr) {
+					PPObjBill * p_bobj = BillObj;
+					PPBillExt ext_rec;
+					const int article_notvalid = !ArList.CheckID(pBillRec->Object);
+					const int goods_notvalid = BIN(Filt.GoodsID && labs(Filt.GoodsID) != goods_id || (State & stUseGoodsList) && !goods_found);
+					int    agent_notvalid = 0;
+					if(Filt.Flags & OPG_BYZEROAGENT) {
+						if(p_bobj->FetchExt(bill_id, &ext_rec) > 0 && ext_rec.AgentID != 0)
+							agent_notvalid = 1;
+					}
+					else if(Filt.AgentList.GetCount()) {
+						if(BCache) {
+							if(!BCache->CheckBillForAgent(bill_id))
+								agent_notvalid = 1;
+						}
+						else {
+							const PPIDArray & r_agent_list = Filt.AgentList.Get();
+							int    f = 0;
+							for(uint i = 0; !f && i < r_agent_list.getCount(); i++) {
+								const PPID agent_id = r_agent_list.get(i);
+								if(p_bobj->FetchExt(bill_id, &ext_rec) > 0 && ext_rec.AgentID == agent_id)
+									f = 1;
+							}
+							if(!f)
+								agent_notvalid = 1;
+						}
+					}
+					if(article_notvalid || agent_notvalid || goods_notvalid) {
+						pTrfrRec->Cost     = 0.0;
+						pTrfrRec->Rest     = 0.0;
+						pTrfrRec->CurPrice = 0.0;
+						pTrfrRec->WtQtty   = 0.0f;
+						pTrfrRec->WtRest   = 0.0f;
+						pTrfrRec->Price    = 0.0;
+						pTrfrRec->Quantity = 0.0;
+						pBillRec->Amount   = 0.0;
+						if(article_notvalid)
+							pBillRec->Object = Filt.ArList.GetSingle(); // Здесь присваиваем контрагента (возможно группирующего) из фильтра
+						if(goods_notvalid)
+							pTrfrRec->GoodsID = NZOR(Filt.GoodsID, Filt.GoodsGrpID);
+					}
+				}				
+				if(Cbb.P_WrOffPack) {
+					if(Filt.Flags & OPG_COMPAREWROFF && pExt) {
+						double sum_cost = 0.0;
+						double sum_price = 0.0;
+						double sum_qtty = 0.0;
+						double sum_qtty_abs = 0.0;
+						for(uint wop = 0; Cbb.P_WrOffPack->SearchGoods(goods_id, &wop); wop++) {
+							const PPTransferItem & r_ti = Cbb.P_WrOffPack->ConstTI(wop);
+							const double aq = fabs(r_ti.Quantity_);
+							sum_qtty += r_ti.Quantity_;
+							sum_qtty_abs += aq;
+							sum_cost += fabs(r_ti.Cost) * aq;
+							sum_price += fabs(r_ti.Price - r_ti.Discount) * aq;
+						}
+						pExt->LinkQtty = sum_qtty;
+						pExt->LinkCost = fdivnz(sum_cost, sum_qtty_abs);
+						pExt->LinkPrice = fdivnz(sum_price, sum_qtty_abs);
+					}
+				}
+				ok = 1;
+			}
+		}
 	}
 	else {
-		while(ok < 0 && NextOuter() > 0) {
-			if(TrfrQuery(pTrfrRec, pBillRec) > 0)
+		while(ok < 0 && cptrfr_q->nextIteration() > 0) {
+			if(AcceptCpTrfrRec(pTrfrRec, pBillRec, pExt) > 0)
 				ok = 1;
 		}
 	}
-	PROFILE_END
 	return ok;
-	*/
 }
 
-int SLAPI GCTIterator::Iterate(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec)
+int SLAPI GCTIterator::Iterate(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
 {
 	int    ok = -1;
+	if(pExt)
+		memzero(pExt, sizeof(*pExt));
 	if(IterPhase == iterphaseInit) {
 		SurrOprNo = 0;
 		IterPhase = iterphaseTrfr;
 		if(!(State & stOnlyDrafts) && InitQuery(0) > 0) {
 			do {
-				if(TrfrQuery(pTrfrRec, pBillRec) > 0)
+				if(TrfrQuery(pTrfrRec, pBillRec, pExt) > 0)
 					ok = 1;
 			} while(ok < 0 && NextOuter() > 0);
 		}
@@ -1058,12 +1220,12 @@ int SLAPI GCTIterator::Iterate(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBill
 			IterPhase = iterphaseCpInit;
 	}
 	else if(IterPhase == iterphaseTrfr) {
-		if(NextTrfr(pTrfrRec, pBillRec) > 0) {
+		if(NextTrfr(pTrfrRec, pBillRec, pExt) > 0) {
 	 		ok = 1;
 		}
 		else {
 			while(ok < 0 && NextOuter() > 0) {
-				if(TrfrQuery(pTrfrRec, pBillRec) > 0)
+				if(TrfrQuery(pTrfrRec, pBillRec, pExt) > 0)
 					ok = 1;
 			}
 		}
@@ -1075,22 +1237,44 @@ int SLAPI GCTIterator::Iterate(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBill
 			IterPhase = iterphaseCpTrfr;
 			if(InitQuery(1) > 0) {
 				do {
-					if(CpTrfrQuery(pTrfrRec, pBillRec) > 0)
+					if(CpTrfrQuery(pTrfrRec, pBillRec, pExt) > 0)
 						ok = 1;
 				} while(ok < 0 && NextOuter() > 0);
 			}
 		}
 		else if(IterPhase == iterphaseCpTrfr) {
-			if(NextCpTrfr(pTrfrRec, pBillRec) > 0) {
+			if(NextCpTrfr(pTrfrRec, pBillRec, pExt) > 0) {
 	 			ok = 1;
 			}
 			else {
 				while(ok < 0 && NextOuter() > 0) {
-					if(CpTrfrQuery(pTrfrRec, pBillRec) > 0)
+					if(CpTrfrQuery(pTrfrRec, pBillRec, pExt) > 0)
 						ok = 1;
 				}
 			}
 		}
 	}
 	return ok;
+}
+
+int SLAPI GCTIterator::First(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec)
+{
+	IterPhase = iterphaseInit;
+	return Iterate(pTrfrRec, pBillRec, 0);
+}
+
+int SLAPI GCTIterator::Next(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec)
+{
+	return Iterate(pTrfrRec, pBillRec, 0);
+}
+
+int SLAPI GCTIterator::First(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
+{
+	IterPhase = iterphaseInit;
+	return Iterate(pTrfrRec, pBillRec, pExt);
+}
+
+int SLAPI GCTIterator::Next(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
+{
+	return Iterate(pTrfrRec, pBillRec, pExt);
 }

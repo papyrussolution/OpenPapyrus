@@ -1,5 +1,5 @@
 // PSALES.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -730,46 +730,46 @@ int SLAPI PredictSalesCore::SearchItem(int typ, PPID locID, PPID goodsID, LDATE 
 
 int SLAPI PredictSalesCore::RemovePeriod(PPID locID, PPID goodsID, const DateRange * pPeriod, int use_ta)
 {
-	int    ok = 1, ta = 0;
-	THROW(PPStartTransaction(&ta, use_ta));
-	if(locID < 0) {
-		LocTabEntry * p_entry;
-		if(P_LocTab)
-			for(uint i = 0; P_LocTab->enumItems(&i, (void **)&p_entry);)
-				if(p_entry->LocID >= 0)
-					THROW(RemovePeriod(p_entry->LocID, goodsID, pPeriod, 0)); // @recursion
-	}
-	else {
-		int16  loc_idx = 0, lowdt = 0, maxdt = MAXSHORT;
-		ShrinkLoc(locID, &loc_idx);
-		if(pPeriod) {
-			ShrinkDate(pPeriod->low, &lowdt);
-			if(pPeriod->upp)
-				ShrinkDate(pPeriod->upp, &maxdt);
+	int    ok = 1;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(locID < 0) {
+			LocTabEntry * p_entry;
+			if(P_LocTab)
+				for(uint i = 0; P_LocTab->enumItems(&i, (void **)&p_entry);)
+					if(p_entry->LocID >= 0)
+						THROW(RemovePeriod(p_entry->LocID, goodsID, pPeriod, 0)); // @recursion
 		}
-		// @v8.0.11 {
-		{
-			// RType, Loc, GoodsID, Dt (unique mod);
-			PredictSalesTbl::Key0 k0;
-			k0.RType = PSRECTYPE_DAY;
-			k0.Loc = loc_idx;
-			k0.GoodsID = goodsID;
-			k0.Dt = lowdt;
-			if(search(0, &k0, spGe) && data.RType == PSRECTYPE_DAY && data.Loc == loc_idx && data.GoodsID == goodsID && data.Dt <= maxdt) do {
-				THROW_DB(deleteRec());
-			} while(search(0, &k0, spNext) && data.RType == PSRECTYPE_DAY && data.Loc == loc_idx && data.GoodsID == goodsID && data.Dt <= maxdt);
+		else {
+			int16  loc_idx = 0, lowdt = 0, maxdt = MAXSHORT;
+			ShrinkLoc(locID, &loc_idx);
+			if(pPeriod) {
+				ShrinkDate(pPeriod->low, &lowdt);
+				if(pPeriod->upp)
+					ShrinkDate(pPeriod->upp, &maxdt);
+			}
+			// @v8.0.11 {
+			{
+				// RType, Loc, GoodsID, Dt (unique mod);
+				PredictSalesTbl::Key0 k0;
+				k0.RType = PSRECTYPE_DAY;
+				k0.Loc = loc_idx;
+				k0.GoodsID = goodsID;
+				k0.Dt = lowdt;
+				if(search(0, &k0, spGe) && data.RType == PSRECTYPE_DAY && data.Loc == loc_idx && data.GoodsID == goodsID && data.Dt <= maxdt) do {
+					THROW_DB(deleteRec());
+				} while(search(0, &k0, spNext) && data.RType == PSRECTYPE_DAY && data.Loc == loc_idx && data.GoodsID == goodsID && data.Dt <= maxdt);
+			}
+			// } @v8.0.11
+			/*
+			THROW_DB(deleteFrom(this, 0, this->RType == (long)PSRECTYPE_DAY && this->Loc == (long)loc_idx &&
+				this->GoodsID == (long)goodsID && this->Dt >= (long)lowdt && this->Dt <= (long)maxdt));
+			*/
 		}
-		// } @v8.0.11
-		/*
-		THROW_DB(deleteFrom(this, 0, this->RType == (long)PSRECTYPE_DAY && this->Loc == (long)loc_idx &&
-			this->GoodsID == (long)goodsID && this->Dt >= (long)lowdt && this->Dt <= (long)maxdt));
-		*/
+		THROW(tra.Commit());
 	}
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 

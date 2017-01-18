@@ -586,17 +586,14 @@ void maxi_do_primary_3(char postcode[], int country, int service)
 
 int maxicode(struct ZintSymbol * symbol, uchar local_source[], int length)
 {
-	int i, j, block, bit, mode, countrycode = 0, service = 0, lp = 0;
+	int i, j, block, bit, countrycode = 0, service = 0, lp = 0;
 	int bit_pattern[7], internal_error = 0, eclen;
 	char postcode[12], countrystr[4], servicestr[4];
-
-	mode = symbol->option_1;
+	int    mode = symbol->option_1;
 	strcpy(postcode, "");
 	strcpy(countrystr, "");
 	strcpy(servicestr, "");
-
-	memset(maxi_codeword, 0, sizeof(maxi_codeword));
-
+	memzero(maxi_codeword, sizeof(maxi_codeword));
 	if(mode == -1) { /* If mode is unspecified */
 		lp = strlen(symbol->primary);
 		if(lp == 0) {

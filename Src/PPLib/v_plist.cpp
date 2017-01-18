@@ -409,6 +409,7 @@ int SLAPI PPViewPriceList::SubstGoods(PPID goodsID, PPID * pSubstID, char * pBuf
 {
 	int    ok = 1;
 	PPID   subst_id = goodsID;
+	SString temp_buf;
 	PPObjGoods::SubstBlock sgg_blk;
 	sgg_blk.LocID = Filt.LocID;
 	THROW(GObj.SubstGoods(goodsID, &subst_id, Filt.Sgg, &sgg_blk, &Gsl));
@@ -420,12 +421,13 @@ int SLAPI PPViewPriceList::SubstGoods(PPID goodsID, PPID * pSubstID, char * pBuf
 			THROW(GCObj.Fetch(g_pack.Rec.GdsClsID, &gc_pack));
 			if(gc_pack.NameConv.NotEmptyS())
 				gc_pack.GetNameByTemplate(&g_pack, gc_pack.NameConv, pBuf, bufSize, Filt.Sgg);
-			else
-				GObj.GetSubstText(subst_id, Filt.Sgg, &Gsl, pBuf, bufSize);
+			else {
+				GObj.GetSubstText(subst_id, Filt.Sgg, &Gsl, temp_buf);
+				temp_buf.CopyTo(pBuf, bufSize);
+			}
 		}
 		else {
-			SString goods_name;
-			GetGoodsName(goodsID, goods_name).CopyTo(pBuf, bufSize);
+			GetGoodsName(goodsID, temp_buf).CopyTo(pBuf, bufSize);
 		}
 	}
 	CATCHZOK

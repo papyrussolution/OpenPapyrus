@@ -520,7 +520,7 @@ xmlDictPtr xmlDictCreate()
 		dict->strings = NULL;
 		dict->subdict = NULL;
 		if(dict->dict) {
-			memset(dict->dict, 0, MIN_DICT_SIZE * sizeof(xmlDictEntry));
+			memzero(dict->dict, MIN_DICT_SIZE * sizeof(xmlDictEntry));
 #ifdef DICT_RANDOMIZATION
 			dict->seed = __xmlRandom();
 #else

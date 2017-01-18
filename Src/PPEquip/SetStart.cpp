@@ -1,5 +1,5 @@
 // SETSTART.CPP
-// Copyright (c) A.Sobolev 2016
+// Copyright (c) A.Sobolev 2016, 2017
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу SetStart (аналогичен ФРОНТОЛ'у)
 //
@@ -747,15 +747,18 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 
 int SLAPI ACS_SETSTART::ImportFiles()
 {
-	long   delay_quant = 5 * 60 * 1000; // 5 мин
+	const  long   delay_quant = 5 * 60 * 1000; // 5 мин
+	const  int    notify_timeout = (ImpExpTimeout) ? ImpExpTimeout : (1 * 60 * 60 * 1000); // таймаут по умолчанию - 1 час.
+	const  double timeouts_c = (double)notify_timeout / (double)delay_quant;
 	const  char * p_ftp_flag = "ftp:";
 	const  char * p_email_flag = "email";
-	int    ok = 1, ftp_connected = 0, notify_timeout = (ImpExpTimeout) ? ImpExpTimeout : (1 * 60 * 60 * 1000); // таймаут по умолчанию - 1 час.
+	int    ok = 1;
+	int    ftp_connected = 0;
 	int    mail_connected = 0;
-	double timeouts_c = (double)notify_timeout / (double)delay_quant;
 	uint   set_no = 0;
 	SString imp_path, exp_path, path_rpt, path_flag, str_imp_paths;
 	SString dir_in;
+	SString temp_path;
 	LDATE  first_date = ChkRepPeriod.low;
 	LDATE  last_date = ChkRepPeriod.upp;
 	StringSet imp_paths(";");
@@ -824,7 +827,6 @@ int SLAPI ACS_SETSTART::ImportFiles()
 				SString wait_msg;
 				SString temp_fname;
 				SString dest_fname;
-				SString temp_path;
 
 				PPGetPath(PPPATH_TEMP, temp_path);
 				THROW(mail.Init(&mac_rec));
@@ -866,7 +868,7 @@ int SLAPI ACS_SETSTART::ImportFiles()
 	}
 	{
 		const char * p_prefix = "slp";
-		SString path, temp_path;
+		SString path;
 		SString temp_dir = dir_in;
 		for(uint file_no = 0; path.GetSubFrom(ImportedFiles, ';', file_no) > 0; file_no++) {
 			if(fileExists(path)) {
@@ -880,8 +882,8 @@ int SLAPI ACS_SETSTART::ImportFiles()
 					dtm.SetFar();
 					SString firstf_path;
 					SDirEntry sde;
-					dtm.d = MAXLONG;
-					dtm.t = MAXLONG;
+					// @v9.4.10 dtm.d = MAXLONG;
+					// @v9.4.10 dtm.t = MAXLONG;
 					(temp_path = temp_dir.SetLastSlash()).Cat(p_prefix).Cat("?????.txt");
 					for(SDirec sd(temp_path); sd.Next(&sde) > 0;) {
 						if(dtm.IsFar() || cmp(sde.WriteTime, dtm) < 0) {
@@ -1090,6 +1092,7 @@ int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
 	LDATETIME dtm;
 	SString   buf, card_code, wait_msg;
 	SString   barcode, goods_name, arcode;
+	SString   goods_ident_txt; // Текстовый идентификатор товара
 	StringSet ss(';', 0);
 	IterCounter   cntr;
 	PPObjSCard sc_obj;
@@ -1219,68 +1222,83 @@ int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
 				double dscnt = 0.0;
 				int    div = 0; // @v8.8.6 Номер отдела
 				const  int is_free_price = oneof2(op_type, FRONTOL_OPTYPE_CHKLINEFREE, FRONTOL_OPTYPE_STORNOFREE);
-				ss.get(&pos, buf);
-				if(is_free_price) {
-					goods_id = def_goods_id;
-				}
-				else {
-					goods_id = buf.ToLong(); // #08 ID товара
-					if(UseAltImport) {
-						Goods2Tbl::Rec goods_rec;
-						buf.Divide('|', arcode, goods_name);
-						if(!goods_name.NotEmptyS())
-							(goods_name = 0).CatEq("ID", goods_id);
-						else
-							goods_name.ToOem();
-						if(goods_obj.P_Tbl->SearchByArCode(0, arcode, 0, &goods_rec) > 0)
-							goods_id = goods_rec.ID;
-						else {
-							buf = "ATOL";
-							if(!grp_id && goods_obj.P_Tbl->SearchByName(PPGDSK_GROUP, buf, &grp_id, &gds_pack.Rec) <= 0) {
-								gds_pack.destroy();
-								gds_pack.Rec.Kind = PPGDSK_GROUP;
-								buf.CopyTo(gds_pack.Rec.Name, sizeof(gds_pack.Rec.Name));
-								THROW(goods_obj.PutPacket(&grp_id, &gds_pack, 0));
-							}
-							gds_pack.destroy();
-							gds_pack.Rec.Kind = PPGDSK_GOODS;
-							gds_pack.Rec.ParentID = grp_id;
-
-							PPID   dup_goods_id = 0L;
-							if(goods_obj.P_Tbl->SearchByName(PPGDSK_GOODS, goods_name, &dup_goods_id, &goods_rec) > 0)
-								goods_name.CatChar('_').Cat(buf);
-							goods_name.CopyTo(gds_pack.Rec.Name, sizeof(gds_pack.Rec.Name));
-							STRNSCPY(gds_pack.Rec.Abbr, gds_pack.Rec.Name);
-							gds_pack.Rec.UnitID   = goods_cfg.DefUnitID;
-							// gds_pack.Codes.Add((buf = onecstr('$')).Cat(goods_id), -1, 1.0);
-							THROW(new_goods.add(goods_id));
-							THROW(goods_obj.PutPacket(&(goods_id = 0), &gds_pack, 0));
-							THROW(goods_obj.P_Tbl->SetArCode(goods_id, 0, arcode, 0));
-						}
-					}
-				}
+				ss.get(&pos, goods_ident_txt); // #08 ID товара
 				ss.get(&pos, buf);          // #09 Коды значений разрезов
 				ss.get(&pos, buf);          // #10 Цена
 				price = buf.ToReal();
-				ss.get(&pos, buf);
-				qtty = buf.ToReal();        // #11 Количество
-				for(field_no = 11; field_no < 15 && ss.get(&pos, buf) > 0; field_no++); // #12-14 пропускаем
-											// #12 Сумма товара + сумма округления //
-											// #13 Операция //
-											// #14 Номер смены
-				dscnt_price = buf.ToReal(); // #15 Цена  со скидками
-				ss.get(&pos, buf);
-				dscnt = buf.ToReal();       // #16 Сумма со скидками
+				ss.get(&pos, buf);          // #11 Количество
+				qtty = buf.ToReal();        
+				ss.get(&pos, buf);          // #12 Сумма товара + сумма округления (пропускаем)
+				ss.get(&pos, buf);          // #13 Операция (пропускаем)
+				ss.get(&pos, buf);          // #14 Номер смены (пропускаем)
+				ss.get(&pos, buf);          // #15 Цена  со скидками
+				dscnt_price = buf.ToReal(); // 
+				ss.get(&pos, buf);          // #16 Сумма со скидками
+				dscnt = buf.ToReal();       
 				// @v8.8.6 {
-				for(field_no = 17; field_no <= 20 && ss.get(&pos, buf) > 0; field_no++); // #17-20 пропускаем
+				ss.get(&pos, buf);          // #17 пропускаем
+				ss.get(&pos, buf);          // #18 пропускаем
+				ss.get(&pos, barcode);          // #19 barcode
+				ss.get(&pos, buf);          // #20 пропускаем
 				ss.get(&pos, buf = 0);      // #21 Номер отдела
 				div = buf.ToLong();
 				// } @v8.8.6
 				THROW(r = SearchTempCheckByCode(cash_no, chk_no, cur_zrep_n));
 				if(r > 0) {
 					double line_amount;
-					PPID   chk_id = P_TmpCcTbl->data.ID;
+					const  PPID chk_id = P_TmpCcTbl->data.ID;
 					if(!closed_check_list.Has((ulong)chk_id)) {
+						if(is_free_price) {
+							goods_id = def_goods_id;
+						}
+						else {
+							Goods2Tbl::Rec goods_rec;
+							goods_id = goods_ident_txt.ToLong(); 
+							if(UseAltImport) {
+								goods_ident_txt.Divide('|', arcode, goods_name);
+								if(!goods_name.NotEmptyS())
+									(goods_name = 0).CatEq("ID", goods_id);
+								else
+									goods_name.Transf(CTRANSF_OUTER_TO_INNER);
+								if(goods_obj.P_Tbl->SearchByArCode(0, arcode, 0, &goods_rec) > 0)
+									goods_id = goods_rec.ID;
+								else {
+									buf = "ATOL";
+									if(!grp_id && goods_obj.P_Tbl->SearchByName(PPGDSK_GROUP, buf, &grp_id, &gds_pack.Rec) <= 0) {
+										gds_pack.destroy();
+										gds_pack.Rec.Kind = PPGDSK_GROUP;
+										buf.CopyTo(gds_pack.Rec.Name, sizeof(gds_pack.Rec.Name));
+										THROW(goods_obj.PutPacket(&grp_id, &gds_pack, 0));
+									}
+									gds_pack.destroy();
+									gds_pack.Rec.Kind = PPGDSK_GOODS;
+									gds_pack.Rec.ParentID = grp_id;
+
+									PPID   dup_goods_id = 0L;
+									if(goods_obj.P_Tbl->SearchByName(PPGDSK_GOODS, goods_name, &dup_goods_id, &goods_rec) > 0)
+										goods_name.CatChar('_').Cat(buf);
+									goods_name.CopyTo(gds_pack.Rec.Name, sizeof(gds_pack.Rec.Name));
+									STRNSCPY(gds_pack.Rec.Abbr, gds_pack.Rec.Name);
+									gds_pack.Rec.UnitID   = goods_cfg.DefUnitID;
+									// gds_pack.Codes.Add((buf = onecstr('$')).Cat(goods_id), -1, 1.0);
+									THROW(new_goods.add(goods_id));
+									THROW(goods_obj.PutPacket(&(goods_id = 0), &gds_pack, 0));
+									THROW(goods_obj.P_Tbl->SetArCode(goods_id, 0, arcode, 0));
+								}
+							}
+							// @v9.4.10 {
+							if(goods_obj.Fetch(goods_id, &goods_rec) > 0) {
+								; // ok
+							}
+							else {
+								if(barcode.NotEmptyS() && goods_obj.SearchByBarcode(barcode, 0, &goods_rec) > 0) {
+									goods_id = goods_rec.ID;
+								}
+								else
+									goods_id = 0;
+							}
+							// @v9.4.10 {
+						}
 						qtty = (P_TmpCcTbl->data.Flags & CCHKF_RETURN) ? -fabs(qtty) : fabs(qtty);
 						if(op_type == FRONTOL_OPTYPE_STORNO) {
 							TempCCheckLineTbl::Key2 k2;

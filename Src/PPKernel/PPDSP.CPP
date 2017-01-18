@@ -1,5 +1,5 @@
 // PPDSP.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2005, 2007, 2009, 2010, 2011, 2015, 2016
+// Copyright (c) A.Sobolev 2001, 2002, 2005, 2007, 2009, 2010, 2011, 2015, 2016, 2017
 //
 #pragma hdrstop
 #ifdef PPDSC
@@ -27,7 +27,7 @@ SLAPI PPDeclStrucProcessor::~PPDeclStrucProcessor()
 int SLAPI PPDeclStrucProcessor::MakeErrMsgString(char * pBuf, size_t bufLen)
 {
 	SString file_msg, msg;
-	PPGetMessage(mfError|mfOK, PPErrCode, 0, 1, msg);
+	PPGetMessage(mfError, PPErrCode, 0, 1, msg);
 	if(P_FileName) {
 		file_msg.Cat("File").Space().Cat(P_FileName).CatDiv(',', 2).
 			Cat("Line").Space().Cat(Line).CatDiv(':', 2).Cat(msg);
@@ -321,7 +321,7 @@ int SLAPI PPDeclStruc::LoadFromResource(long declID)
 		items_count = p_rez->getUINT();
 		for(i = 0; i < items_count; i++) {
 			PPDeclStrucItem item;
-			memset(&item, 0, sizeof(item));
+			MEMSZERO(item);
 			item.ID    = p_rez->getUINT();
 			p_rez->getString(name_buf);
 			STRNSCPY(item.Name, name_buf);

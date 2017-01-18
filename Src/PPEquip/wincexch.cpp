@@ -627,9 +627,12 @@ int SLAPI StyloBhtIIExchanger::Log(uint errCode, uint msgCode, const char * pAdd
 		}
 	}
 	else {
+		PPLogMessage(PPFILNAM_INFO_LOG, buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER); // @v9.4.10
+		/* @v9.4.10
 		PPLogger log;
 		log.Log(buf);
 		log.Save(PPFILNAM_INFO_LOG, 0);
+		*/
 	}
 	return 1;
 }
@@ -638,9 +641,11 @@ int SLAPI StyloBhtIIExchanger::Log(uint errCode, uint msgCode, const char * pAdd
 {
 	SString add_info;
 	if(total)
-		add_info.Cat(count).CatChar('/').Cat(total).Space().Cat(pAddInfo);
+		add_info.Cat(count).CatChar('/').Cat(total);
 	else
-		add_info.Cat(count).Space().Cat(pAddInfo);
+		add_info.Cat(count);
+	if(pAddInfo)
+		add_info.Space().Cat(pAddInfo);
 	return Log(errCode, msgCode, add_info);
 }
 

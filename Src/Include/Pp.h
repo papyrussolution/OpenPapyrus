@@ -14651,14 +14651,14 @@ enum SubstGrpPersonEvent {
 	sgpeCntrAg         // Контрагент //
 };
 
-int SLAPI ShrinkSubstDate(SubstGrpDate sgd, LDATE orgDt, LDATE * pDestDt);
-int SLAPI ShrinkSubstDateExt(SubstGrpDate sgd, LDATE orgDt, LTIME orgTm, LDATE * pDestDt, LTIME * pDestTm);
-int SLAPI ExpandSubstDate(SubstGrpDate sgd, LDATE dt, DateRange *);
-int SLAPI ExpandSubstDateExt(SubstGrpDate sgd, LDATE dt, LTIME tm, DateRange * pPeriod, TimeRange * pTmPeriod);
-int SLAPI AdjustPeriodToSubst(SubstGrpDate sgd, DateRange *);
-int SLAPI FormatSubstDate(SubstGrpDate sgd, LDATE dt, SString & rBuf, long fmt = 0);
-int SLAPI FormatSubstDate(SubstGrpDate sgd, LDATE dt, char * pBuf, size_t bufLen, long fmt = 0);
-int SLAPI FormatSubstDateExt(SubstGrpDate sgd, LDATE dt, LTIME tm, SString & rBuf, long dtFmt = 0, long tmFmt = 0);
+int    SLAPI ShrinkSubstDate(SubstGrpDate sgd, LDATE orgDt, LDATE * pDestDt);
+int    SLAPI ShrinkSubstDateExt(SubstGrpDate sgd, LDATE orgDt, LTIME orgTm, LDATE * pDestDt, LTIME * pDestTm);
+int    SLAPI ExpandSubstDate(SubstGrpDate sgd, LDATE dt, DateRange *);
+int    SLAPI ExpandSubstDateExt(SubstGrpDate sgd, LDATE dt, LTIME tm, DateRange * pPeriod, TimeRange * pTmPeriod);
+int    SLAPI AdjustPeriodToSubst(SubstGrpDate sgd, DateRange *);
+void   SLAPI FormatSubstDate(SubstGrpDate sgd, LDATE dt, SString & rBuf, long fmt = 0);
+void   SLAPI FormatSubstDate(SubstGrpDate sgd, LDATE dt, char * pBuf, size_t bufLen, long fmt = 0);
+void   SLAPI FormatSubstDateExt(SubstGrpDate sgd, LDATE dt, LTIME tm, SString & rBuf, long dtFmt = 0, long tmFmt = 0);
 
 struct PPCommObjEntry {
 	enum {
@@ -22603,7 +22603,7 @@ public:
 	};
 	int    SLAPI Subst(PPID, PPID dlvrLocID, SubstParam *, long flags, PPID * pDestID);
 	int    SLAPI GetSubstObjType(long id, const SubstParam * pParam, PPObjID * pObjId) const;
-	int    SLAPI GetSubstText(PPID, PPID dlvrLocID, SubstParam *, char * pBuf, size_t bufLen);
+	int    SLAPI GetSubstText(PPID, PPID dlvrLocID, SubstParam *, SString & rBuf);
 	//
 	// Descr: Сравнивает записи и возвращает их похожесть в диапазоне [0..1]
 	// pSwap = 1, значит что элемент 2 сравнивался с элементом 1, иначе элемент 1 с элементом 2
@@ -25981,9 +25981,7 @@ public:
 	};
 	int    SLAPI SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, SubstBlock * pBlk, GoodsSubstList *);
 	//int    SLAPI SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods, PPID exclParentID, PPID supplID, PPID locID, GoodsSubstList *);
-	int    SLAPI GetSubstText(PPID id, SubstGrpGoods, const GoodsSubstList *, char * pBuf, size_t bufLen);
-	//  @<<GetSubstText(PPID id, SubstGrpGoods, const GoodsSubstList *, char * pBuf, size_t bufLen)
-	int    SLAPI GetSubstText(PPID id, SubstGrpGoods, const GoodsSubstList *, SString & rBuf); // @v6.x.x AHTOXA
+	int    SLAPI GetSubstText(PPID id, SubstGrpGoods, const GoodsSubstList *, SString & rBuf);
 	//
 	int    SLAPI ReplaceName(PPGoodsPacket *, const PPGoodsReplaceNameParam *);
 	int    SLAPI ShowGoodsAsscInfo(PPID goodsID);
@@ -25997,7 +25995,7 @@ public:
 	//   для редактирования другим сеансом
 	//
 	int    SLAPI Unlock(PPID goodsID);
-	int    SLAPI Helper_Edit(PPID *, PPGoodsPacket *, GoodsPacketKind, int IsNew, int viewOnly = 0); // @v5.0.10 AHTOXA change
+	int    SLAPI Helper_Edit(PPID *, PPGoodsPacket *, GoodsPacketKind, int IsNew, int viewOnly = 0);
 	int    SLAPI GetRandomIdsAry(int count, PPIDArray * pAry); // @v5.2.2 VADIM
 	//
 	// Descr: Проверяет товар на принадлежность товарной матрице и контрактным ценам поставщика
@@ -30378,6 +30376,7 @@ private:
 	// информацию о ежедневных остатках товаров с детализацией по складам.
 #define OPG_LABELONLY         0x00002000L //
 #define OPG_NOZEROEXCISE      0x00004000L // Перебирать только подакцизные товары
+#define OPG_COMPAREWROFF      0x00008000L // @v9.4.10 Если перебор ведется по драфт-документам, то сравнивать с документами списания //
 #define OPG_GRPBYGENGOODS     0x00010000L // Группировать по обобщенным товарам (анализ товарных операций)
 //
 // Descr: Флаг OPG_SETTAXES предписывает процедуре
@@ -30400,7 +30399,7 @@ private:
 //
 #define OPG_PROCESSGENOP      0x00400000L //
 // Флаг используются со структурой GoodsGrpngEntry
-#define OPG_PROCESSBYLOTS     0x00800000L // AHTOXA
+#define OPG_PROCESSBYLOTS     0x00800000L //
 #define OPG_CALCBILLROWS      0x01000000L // Обрабатывать статистику по строкам каждого документа
 #define OPG_BYZEROAGENT       0x02000000L // Ограничивать документами, в которых не указан агент
 	// Ограничение по этому флагу имеет приоритет перед полем GCTFilt::AgentID
@@ -30480,7 +30479,7 @@ struct GCTFilt : public PPBaseFilt {
 	// передаче запись (межскладской приход)
 #define GGEF_SUPPRDISCOUNT   0x4000L // @v6.4.11 @internal
 
-struct GoodsGrpngEntry {   // size=172
+struct GoodsGrpngEntry {
 	SLAPI  GoodsGrpngEntry();
 	PPID   FASTCALL IsProfitable(int incomeCalcMethod = -1) const;
 	double FASTCALL Income(int incomeCalcMethod = -1) const;
@@ -30495,7 +30494,7 @@ struct GoodsGrpngEntry {   // size=172
 	long   Count;          //
 	long   LnCount;        // Суммарное количество товарных строк в документах
 	long   AvgLn;          // Среднее количество товарных строк в документах
-	char   OpName[48];     // @v6.2.4 [42]-->[48]
+	char   OpName[48];     // Наименование вида операции
 	int16  Sign;           // Знак операции
 	int16  Reserve;        // @alignment
 	double Quantity;       //
@@ -30508,7 +30507,7 @@ struct GoodsGrpngEntry {   // size=172
 	double ExtCost;        //
 	double ExtPrice;       //
 	double ExtDis;         //
-	double CostPaymPart;   // @v6.4.8 Оплаченная часть документа оригинального лота операции
+	double CostPaymPart;   // Оплаченная часть документа оригинального лота операции
 		// Рассчитывается только если GGEF_COSTBYPAYM. В противном случае 1.0.
 	long   Flags;          //
 	LDATE  LotDate;        // Дата поступления товара. Необходима для расчета налогов в ценах поступления.
@@ -32978,7 +32977,7 @@ private:
 	virtual int   SLAPI Print(const void *);
 	int    SLAPI CreateTSessFiltByPlan(const TSessionTbl::Rec * pPlanRec, TSessionFilt * pFilt) const;
 	int    SLAPI CreateBySess(PPID sessID, TSessAnlzList * pResult, PPIDArray * pProcessedList);
-	int    SLAPI RecToViewItem(const TempTSessRepTbl::Rec * pRec, TSessAnlzViewItem * pItem);
+	void   SLAPI RecToViewItem(const TempTSessRepTbl::Rec * pRec, TSessAnlzViewItem * pItem);
 	int    SLAPI IsGoodsBelongToGen(PPID goodsID, PPID * pGenID);
 	int    SLAPI GetPlanWithSubst(PPID arID, PPID * pGoodsID, double * pPlan, int * pSign);
 	int    SLAPI NmGoodsSubst(PPID prmrGoodsID, PPID * pGoodsID); // @<<ProcessSession
@@ -33100,7 +33099,7 @@ private:
 	virtual int   SLAPI HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
 	int    SLAPI ProcessPrc(PPID prcID, BExtInsert * pBei);
 	int    SLAPI Update(const PPIDArray & rPrcList);
-	int    SLAPI RecToViewItem(const TempPrcBusyTbl::Rec * pRec, PrcBusyViewItem * pItem) const;
+	void   SLAPI RecToViewItem(const TempPrcBusyTbl::Rec * pRec, PrcBusyViewItem * pItem) const;
 	int    SLAPI AddSession(PrcBusyViewItem * pItem);
 	int    SLAPI ViewTSessLines(PPID);
 	int    SLAPI TimeChunkBrowser();
@@ -33872,22 +33871,39 @@ public:
 		DateRange AccumPeriod;
 		PPIDArray LocList; // @!Sort()
 	};
+	struct ItemExtension {
+		double LinkQtty;
+		double LinkCost;
+		double LinkPrice;
+	};
+
+	enum {
+		aorfGeneric        = 0x0001,
+		aorfThereAreDrafts = 0x0002,
+		aorfThereAreOrders = 0x0004,
+		aorfOnlyDrafts     = 0x0008,
+		aorfOnlyOrders     = 0x0010,
+		aorfIntrRcpt       = 0x0020
+	};
+	static long  SLAPI AnalyzeOp(PPID opID, PPIDArray * pResultOpList);
 
 	SLAPI  GCTIterator(const GCTFilt * pFilt, const DateRange * pPeriod);
 	SLAPI ~GCTIterator();
 	int    SLAPI First(TransferTbl::Rec *, BillTbl::Rec *);
 	int    SLAPI Next(TransferTbl::Rec *, BillTbl::Rec *);
+	int    SLAPI First(TransferTbl::Rec *, BillTbl::Rec *, ItemExtension * pExt);
+	int    SLAPI Next(TransferTbl::Rec *, BillTbl::Rec *, ItemExtension * pExt);
 	const  GCTIterator::GoodsRestArray * GetGoodsRestList() const;
 private:
-	int    SLAPI Iterate(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec);
+	int    SLAPI Iterate(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, ItemExtension * pExt);
 	int    SLAPI InitQuery(int cpMode);
 	int    SLAPI NextOuter();
-	int    SLAPI TrfrQuery(TransferTbl::Rec *, BillTbl::Rec *);
-	int    SLAPI CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec);
-	int    SLAPI NextTrfr(TransferTbl::Rec *, BillTbl::Rec *);
-	int    SLAPI NextCpTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec);
-	int    SLAPI AcceptTrfrRec(TransferTbl::Rec *, BillTbl::Rec *);
-	int    SLAPI AcceptCpTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec);
+	int    SLAPI TrfrQuery(TransferTbl::Rec *, BillTbl::Rec *, GCTIterator::ItemExtension * pExt);
+	int    SLAPI CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt);
+	int    SLAPI NextTrfr(TransferTbl::Rec *, BillTbl::Rec *, GCTIterator::ItemExtension * pExt);
+	int    SLAPI NextCpTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt);
+	int    SLAPI AcceptTrfrRec(TransferTbl::Rec *, BillTbl::Rec *, GCTIterator::ItemExtension * pExt);
+	int    SLAPI AcceptCpTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt);
 	int    FASTCALL CheckBillForFilt(const BillTbl::Rec & rBillRec) const;
 	int    FASTCALL SetupGoodsRest(TransferTbl::Rec * pRec);
 	GCTFilt Filt;
@@ -33942,7 +33958,26 @@ private:
 	BExtQuery  * trfr_q;
 	BExtQuery  * rcpt_q;
 	BExtQuery  * cptrfr_q;
-	BillTbl::Rec   CurBillRec;
+	//BillTbl::Rec   CurBillRec;
+    struct CurrentBillBlock {
+    	SLAPI  CurrentBillBlock()
+    	{
+    		P_Pack = 0;
+    		P_WrOffPack = 0;
+    	}
+    	SLAPI ~CurrentBillBlock()
+    	{
+    		Clear();
+    	}
+    	void   SLAPI Clear()
+    	{
+    		ZDELETE(P_Pack);
+    		ZDELETE(P_WrOffPack);
+    	}
+        PPBillPacket * P_Pack;
+		PPBillPacket * P_WrOffPack; // Агрегированный пакет документов списания
+    };
+    CurrentBillBlock Cbb;
 	GCT_BillCache * BCache;
 	PPIDArray BillList;
 	PPIDArray SupplAgentBillList; // @v7.0.11 Список документов, сопоставленных с агентом поставщика (Filt.SupplAgentID)
@@ -38605,7 +38640,9 @@ public:
 		fForceInitDlvrAddr  = 0x00020000,   // @v8.3.0  Инициализировать адрес доставки без группировки
 		fShowGoodsCode      = 0x00040000,   // @v8.4.11 Показывать код (single) товара
 		fShowSerial         = 0x00080000,   // @v8.4.11 Показывать серийный номер лота
-		fCalcAvgRest        = 0x00100000    // @v9.1.3 Рассчитывать среднедневные остатки (предполагает наличие флага fCalcRest)
+		fCalcAvgRest        = 0x00100000,   // @v9.1.3 Рассчитывать среднедневные остатки (предполагает наличие флага fCalcRest)
+		fCompareWrOff       = 0x00200000    // @v9.4.10 Если отчет строится по драфт-документам, то выводить результаты
+			// сравнения с документами списания.
 	};
 	enum {
 		ctNone       = 0,  // Без кросстаба
@@ -38630,9 +38667,7 @@ public:
 	//
 	enum {
 		extvNone = 0,
-		extvLinkOrderDiscount = 1, // Величина скидки в связанном со строкой продажи заказе
-		extvLinkWrOffQtty     = 2  // @v9.4.4 Количество по строкам в документах
-			// списания драфта (если строка отчета сформирована по драфт-документу)
+		extvLinkOrderDiscount = 1 // Величина скидки в связанном со строкой продажи заказе
 	};
 	//
 	//
@@ -38825,7 +38860,7 @@ private:
 
 	int    SLAPI CreateTempTable();
 	int    SLAPI CreateOrderTable(IterOrder);
-	int    SLAPI Add(BExtInsert *, long *, TransferTbl::Rec *, BillTbl::Rec *);
+	int    SLAPI Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt);
 	int    SLAPI InitGrpngNames();
 	int    SLAPI NextOuterIteration();
 	int    SLAPI NextInnerIteration(TrfrAnlzViewItem *);
@@ -39631,7 +39666,6 @@ public:
 	{
 		BasketID = 0;
 	}
-
 	PPID   BasketID;
 	PPBasketPacket Pack;
 	PPObjGoodsBasket::Locking Lck;
@@ -39698,14 +39732,11 @@ public:
 	int    SLAPI Browse(int);
 	int    SLAPI Print();
 private:
-	//SArray * SLAPI MakeGoodsTurnover();
 	SArray * SLAPI CreateBrowserQuery();
 
 	SArray * P_Items;
 	GoodsTrnovrFilt Filt;
 	IterCounter Cntr;
-	//long   IterCount;
-	//long   NumIters;
 };
 //
 // Descr: План платежей
@@ -39938,7 +39969,7 @@ private:
 	virtual int  SLAPI Print(const void *);
 	virtual int  SLAPI ViewTotal();
 	int    SLAPI CalcTotal(SStatTotal * pTotal);
-	int    SLAPI RecToViewItem(const TempGoodsStatTbl::Rec * pRec, SStatViewItem * pItem);
+	void   SLAPI RecToViewItem(const TempGoodsStatTbl::Rec * pRec, SStatViewItem * pItem);
 	int    SLAPI EditDlvrOrderFilt(SStatFilt *);
 	int    SLAPI CreateTempTable(int use_ta);
 	int    SLAPI CreateOrderTable(long ord, TempOrderTbl ** ppTbl, int use_ta);

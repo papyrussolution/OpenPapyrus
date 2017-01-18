@@ -129,7 +129,6 @@ int	SLAPI PrcssrBuild::InitParam(Param * pParam)
 			{
 				ppb.Ver.Get(&pParam->Ver.Major, &pParam->Ver.Minor, &pParam->Ver.Revision);
 				pParam->Ver.Asm = ppb.AssemblyN;
-				if(ppb.Flags & ppb.fOpenSource)
 				SETFLAG(pParam->Flags, Param::fOpenSource, (ppb.Flags & ppb.fOpenSource));
 			}
 			// } @v9.4.9
@@ -177,7 +176,8 @@ int	SLAPI PrcssrBuild::InitParam(Param * pParam)
 	THROW_SL(fileExists(temp_buf));
 	pParam->DistribPath = temp_buf;
 	//
-	pParam->Flags = (Param::fBuildClient|Param::fBuildServer|Param::fBuildMtdll|Param::fBuildDrv|Param::fBuildSoap|Param::fBuildDistrib/*|Param::fCopyToUhtt*/);
+	pParam->Flags |= (Param::fBuildClient|Param::fBuildServer|Param::fBuildMtdll|
+		Param::fBuildDrv|Param::fBuildSoap|Param::fBuildDistrib/*|Param::fCopyToUhtt*/);
 	CATCHZOK
 	return ok;
 }
@@ -214,6 +214,13 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 				setCtrlString(CTL_SELFBUILD_CMPLRPATH, temp_buf);
 			}
 			setCtrlString(CTL_SELFBUILD_IMPATH, Data.NsisPath);
+			{
+				temp_buf = 0;
+				if(Data.Flags & Data.fOpenSource) {
+					temp_buf = "OPENSOURCE";
+				}
+				setStaticText(CTL_SELFBUILD_ST_INFO, temp_buf);
+			}
 			if(CloseTimeout >= 0)
 				setStaticText(CTL_SELFBUILD_TIMEOUT, (temp_buf = 0).Cat(CloseTimeout));
 			StartClock = clock();

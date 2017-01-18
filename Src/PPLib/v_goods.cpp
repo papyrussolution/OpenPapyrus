@@ -1,5 +1,5 @@
 // V_GOODS.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -4169,6 +4169,8 @@ int PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & r
 	#define _RET_LONG    (*(long *)rS.GetPtr(pApl->Get(0)))
 	#define _RET_DBL     (*(double *)rS.GetPtr(pApl->Get(0)))
 
+	PPObjBill * p_bobj = BillObj;
+	ReceiptTbl::Rec lot_rec;
 	if(pF->Name == "?GetArCode") {
 		_RET_STR = 0;
 		DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
@@ -4184,15 +4186,13 @@ int PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & r
 		}
 	}
 	else if(pF->Name == "?GetLastLot") {
-		ReceiptTbl::Rec lot_rec;
-		if(BillObj->trfr->Rcpt.GetLastLot(H.ID, _ARG_LONG(1), MAXDATE, &lot_rec) > 0)
+		if(p_bobj->trfr->Rcpt.GetLastLot(H.ID, _ARG_LONG(1), MAXDATE, &lot_rec) > 0)
 			_RET_LONG = lot_rec.ID;
 		else
 			_RET_LONG = 0;
 	}
 	else if(pF->Name == "?GetLastLotForDate") {
-		ReceiptTbl::Rec lot_rec;
-		if(BillObj->trfr->Rcpt.GetLastLot(H.ID, _ARG_LONG(1), _ARG_DT(2), &lot_rec) > 0)
+		if(p_bobj->trfr->Rcpt.GetLastLot(H.ID, _ARG_LONG(1), _ARG_DT(2), &lot_rec) > 0)
 			_RET_LONG = lot_rec.ID;
 		else
 			_RET_LONG = 0;
@@ -4206,11 +4206,10 @@ int PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & r
 			PPID   qk_id = 0;
 			if(qk_obj.SearchSymb(&qk_id, _ARG_STR(1)) > 0) {
 				PPID   loc_id = _ARG_LONG(2);
-				QuotIdent qi(loc_id, qk_id, _ARG_LONG(4), _ARG_LONG(3));
-				ReceiptTbl::Rec lot_rec;
+				const  QuotIdent qi(loc_id, qk_id, _ARG_LONG(4), _ARG_LONG(3));
 				double cost = 0.0;
 				double price = 0.0;
-				if(BillObj->trfr->Rcpt.GetLastLot(H.ID, loc_id, MAXDATE, &lot_rec) > 0) {
+				if(p_bobj->trfr->Rcpt.GetLastLot(H.ID, loc_id, MAXDATE, &lot_rec) > 0) {
 					cost = lot_rec.Cost;
 					price = lot_rec.Price;
 				}
@@ -4289,7 +4288,7 @@ int PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & r
 		SString temp_buf;
 		DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
 		if(p_blk && p_blk->Pack.Rec.ID) {
-			uint   n = p_blk->Pack.Codes.getCount();
+			const uint n = p_blk->Pack.Codes.getCount();
 			for(uint i = 0; i < n; i++) {
 				BarcodeTbl::Rec & r_bc_rec = p_blk->Pack.Codes.at(i);
 				temp_buf.Cat(r_bc_rec.Code);
@@ -4300,6 +4299,25 @@ int PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & r
 		_RET_STR = temp_buf;
 	}
 	// } @v7.1.12
+	// @v9.4.10 {
+	else if(pF->Name == "?GetSingleEgaisCode") {
+		SString temp_buf;
+		DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
+		int    found = 0;
+		if(p_blk && p_blk->Pack.Rec.ID) {
+			const uint n = p_blk->Pack.Codes.getCount();
+			for(uint i = 0; !found && i < n; i++) {
+				BarcodeTbl::Rec & r_bc_rec = p_blk->Pack.Codes.at(i);
+				temp_buf = r_bc_rec.Code;
+				if(temp_buf.Len() == 19)
+					found = 1;
+			}
+		}
+		if(!found)
+			temp_buf = 0;
+		_RET_STR = temp_buf;
+	}
+	// } @v9.4.10
 	else if(pF->Name == "?GetImagePath") {
 		_RET_STR = 0;
 		//string GetImagePath[256](int rel, string stub[256]);

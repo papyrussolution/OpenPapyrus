@@ -1,5 +1,5 @@
 // GDSGRPNG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @Kernel
 // @codepage windows-1251
 // Группировка операций по товару
@@ -21,7 +21,7 @@ void FASTCALL GoodsGrpngEntry::SetOp(const PPOprKind * pOpRec)
 
 double FASTCALL GoodsGrpngEntry::IncomeByOpr(PPID opID) const
 {
-	double income = (Price - Cost);
+	const double income = (Price - Cost);
 	return (IsExpendOp(opID) > 0) ? income : -income;
 }
 
@@ -66,14 +66,14 @@ PPID FASTCALL GoodsGrpngEntry::IsProfitable(int incomeCalcMethod /*=-1*/) const
 
 double FASTCALL GoodsGrpngEntry::Income(int incomeCalcMethod /*=-1*/) const
 {
-	PPID   op_id = IsProfitable(incomeCalcMethod);
+	const PPID op_id = IsProfitable(incomeCalcMethod);
 	return op_id ? IncomeByOpr(op_id) : 0L;
 }
 
 IMPL_CMPFUNC(GGAKey, i1, i2)
 {
-	GoodsGrpngEntry * k1 = (GoodsGrpngEntry*)i1;
-	GoodsGrpngEntry * k2 = (GoodsGrpngEntry*)i2;
+	const GoodsGrpngEntry * k1 = (const GoodsGrpngEntry *)i1;
+	const GoodsGrpngEntry * k2 = (const GoodsGrpngEntry *)i2;
 	if(k1->LotID < k2->LotID) return -1;
 	if(k1->LotID > k2->LotID) return 1;
 	if(k1->OpID < k2->OpID) return -1;
@@ -85,12 +85,15 @@ IMPL_CMPFUNC(GGAKey, i1, i2)
 	if(k1->LotTaxGrpID > k2->LotTaxGrpID) return 1;
 	if(k1->GoodsTaxGrpID < k2->GoodsTaxGrpID) return -1;
 	if(k1->GoodsTaxGrpID > k2->GoodsTaxGrpID) return 1;
-	long   m  = (GGEF_VATFREE | GGEF_TOGGLESTAX | GGEF_PRICEWOTAXES | GGEF_RECKONING | GGEF_LOCVATFREE /* @v6.8.11 { */ | GGEF_PAYMBYPAYOUTLOT /* } @v6.8.11 */);
-	long   f1 = (k1->Flags & m);
-	long   f2 = (k2->Flags & m);
-	if(f1 < f2) return -1;
-	if(f1 > f2) return 1;
-	return 0;
+	const long m  = (GGEF_VATFREE|GGEF_TOGGLESTAX|GGEF_PRICEWOTAXES|GGEF_RECKONING|GGEF_LOCVATFREE|GGEF_PAYMBYPAYOUTLOT);
+	const long f1 = (k1->Flags & m);
+	const long f2 = (k2->Flags & m);
+	if(f1 < f2)
+		return -1;
+	else if(f1 > f2)
+		return 1;
+	else
+		return 0;
 }
 
 SLAPI GoodsGrpngArray::GoodsGrpngArray(PPLogger * pLogger) : SArray(sizeof(GoodsGrpngEntry))

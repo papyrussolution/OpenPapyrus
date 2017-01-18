@@ -731,7 +731,7 @@ IMPL_HANDLE_EVENT(PrcPaneDialog)
 void PrcPaneDialog::showMessage(int msgKind, int msgCode, const char * pAddMsg)
 {
 	SString msg_buf;
-	PPGetMessage(msgKind, msgCode ? msgCode : PPErrCode, pAddMsg, 1, msg_buf);
+	PPGetMessage(msgKind, NZOR(msgCode, PPErrCode), pAddMsg, 1, msg_buf);
 	setCtrlString(CTL_PRCPAN_INFO, msg_buf);
 }
 

@@ -1820,7 +1820,7 @@ int SLAPI PPObjectTransmit::CommitAck()
 	int    ok = 1;
 	Ack    ack;
 	fseek(P_InStream, sizeof(Header), SEEK_SET);
-	while(Read(P_InStream, &ack, sizeof(ack)))
+	while(Read(P_InStream, &ack, sizeof(ack))) {
 		if(ack.Obj != -1) {
 			THROW(SyncTbl.AckObj(ack.Obj, ack.Id, ack.CommId, InHead.DBID, &ack.DT, 1));
 		}
@@ -1842,6 +1842,7 @@ int SLAPI PPObjectTransmit::CommitAck()
 				}
 			}
 		}
+	}
 	InHead.Flags |= PPOTF_ACK;
 	THROW(UpdateInHeader(P_InStream, &InHead));
 	CATCHZOK
@@ -2334,7 +2335,7 @@ int BillTransDialog::updateList()
 		if(Data.DestDBDivList.GetCount()) {
 			const PPIDArray & rary = Data.DestDBDivList.Get();
 			for(uint i = 0; i < rary.getCount(); i++) {
-				PPID   id = rary.at(i);
+				const PPID id = rary.at(i);
 				GetObjectName(PPOBJ_DBDIV, id, text, 0);
 				THROW_SL(p_list->addItem(id, text));
 			}

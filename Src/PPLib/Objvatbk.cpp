@@ -245,7 +245,7 @@ int SLAPI PPObjVATBook::ReadCfgList(PPID kind, VATBCfg * pConfig)
 // static
 int SLAPI PPObjVATBook::WriteCfgList(PPID kind, const VATBCfg * pConfig, int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	const  uint items_count = pConfig->List.getCount();
 	uint   i, sz = sizeof(PPVATBConfig) + items_count * sizeof(VATBCfg::Item);
 	PPID   prop = 0;
@@ -278,14 +278,14 @@ int SLAPI PPObjVATBook::WriteCfgList(PPID kind, const VATBCfg * pConfig, int use
 	for(i = 0; i < items_count; i++) {
 		((VATBCfg::Item *)&p_cfg[1])[i] = pConfig->List.at(i);
 	}
-	THROW(PPStartTransaction(&ta, use_ta));
-	THROW(PPRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, prop, p_cfg, sz, 0));
-	DS.LogAction(PPACN_CONFIGUPDATED, cfg_id, 0, 0, 0);
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		THROW(PPRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, prop, p_cfg, sz, 0));
+		DS.LogAction(PPACN_CONFIGUPDATED, cfg_id, 0, 0, 0);
+		THROW(tra.Commit());
+	}
+	CATCHZOK
 	free(p_cfg);
 	return ok;
 }

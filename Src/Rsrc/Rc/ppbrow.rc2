@@ -884,7 +884,7 @@ toolbar export LIST_DEFAULT TB_FIRST_TOOLBAR {
 	separator
 	cmUniteObj,        "Объединить",                 TBBM_UNITE
 	separator
-	cmTransmit,        "Передать",                   TBBM_SENDOBJ
+	cmTransmit,        "@{dotransmit_short}",        TBBM_SENDOBJ
 	separator
 	cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J", TBBM_SYSJ
 }
@@ -908,7 +908,7 @@ toolbar export LIST_WORLD TB_FIRST_TOOLBAR {
 	separator
 	cmaMore,           "Улицы",                      TBBM_HOUSE
 	separator
-	cmTransmit,        "Передать",                   TBBM_SENDOBJ
+	cmTransmit,        "@{dotransmit_short}",        TBBM_SENDOBJ
 	separator
 	cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J", TBBM_SYSJ
 }
@@ -932,7 +932,7 @@ toolbar export LIST_ACCSHEET TB_FIRST_TOOLBAR {
 	separator
 	cmaMore,           "Статьи",                   TBBM_NOICON
 	separator
-	cmTransmit,        "Передать",                 TBBM_SENDOBJ
+	cmTransmit,        "@{dotransmit_short}",      TBBM_SENDOBJ
 	separator
 	cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J", TBBM_SYSJ
 }
@@ -945,7 +945,7 @@ toolbar export LIST_GOODSBASKET TB_FIRST_TOOLBAR {
 	cmaMore,           "@{cmd_goods}",             TBBM_GOODS
 	separator
 	cmForceUnlock,     "Разблокировать корзину",   TBBM_UNLOCK
-	cmTransmit,        "Передать",                 TBBM_SENDOBJ
+	cmTransmit,        "@{dotransmit_short}",      TBBM_SENDOBJ
 	separator
 	cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J", TBBM_SYSJ
 }
@@ -963,52 +963,52 @@ toolbar export LIST_BILLSTATUS TB_FIRST_TOOLBAR {
 	cmaInsert,         "@{add}\tInsert",           TBBM_INSERT
 	cmaDelete,         "@{delete}\tDelete",        TBBM_DELETE
 	separator
-	cmTransmit,        "Передать",                 TBBM_SENDOBJ
+	cmTransmit,        "@{dotransmit_short}",      TBBM_SENDOBJ
 	cmTransmitCharry,  "@{dotransmitcharry}",      TBBM_SENDCHARRY
 	separator
 	cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J", TBBM_SYSJ
 }
 
 toolbar export LIST_PSNOPKIND TB_FIRST_TOOLBAR {
-	cmaEdit,           "@{edit}\tEnter",         TBBM_EDIT
-	cmaInsert,         "@{add}\tInsert",         TBBM_INSERT
-	cmaDelete,         "@{delete}\tDelete",      TBBM_DELETE
+	cmaEdit,           "@{edit}\tEnter",              TBBM_EDIT
+	cmaInsert,         "@{add}\tInsert",              TBBM_INSERT
+	cmaDelete,         "@{delete}\tDelete",           TBBM_DELETE
 	separator
-	cmaMore,           "@{personevent_pl}\tF11", TBBM_PSNEVENTS
-	cmPrint,           "@{print}\tF7",           TBBM_PRINT
+	cmaMore,           "@{personevent_pl}\tF11",      TBBM_PSNEVENTS
+	cmPrint,           "@{print}\tF7",                TBBM_PRINT
 	separator
-	cmTransmit,        "Передать\tCtrl-H",       TBBM_SENDOBJ
+	cmTransmit,        "@{dotransmit_short}\tCtrl-H", TBBM_SENDOBJ
 	separator
 	cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J",  TBBM_SYSJ
 }
 
 toolbar export LIST_SCARDSERIES TB_FIRST_TOOLBAR {
-	cmaEdit,           "@{edit}\tEnter",             TBBM_EDIT
-	cmaInsert,         "@{add}\tInsert",             TBBM_INSERT
-	cmaDelete,         "@{delete}\tDelete",          TBBM_DELETE
+	cmaEdit,           "@{edit}\tEnter",              TBBM_EDIT
+	cmaInsert,         "@{add}\tInsert",              TBBM_INSERT
+	cmaDelete,         "@{delete}\tDelete",           TBBM_DELETE
 	separator
-	cmaMore,           "Карты\tF11",                 TBBM_SCARD
-	cmPrint,           "@{print}\tF7",               TBBM_PRINT
+	cmaMore,           "Карты\tF11",                  TBBM_SCARD
+	cmPrint,           "@{print}\tF7",                TBBM_PRINT
 	separator
-	cmTransmit,        "Передать\tCtrl-H",           TBBM_SENDOBJ
+	cmTransmit,        "@{dotransmit_short}\tCtrl-H", TBBM_SENDOBJ
 	separator
-	cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J", TBBM_SYSJ
+	cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J",  TBBM_SYSJ
 }
 
 toolbar export LIST_WORKBOOK TB_FIRST_TOOLBAR {
-	cmaEdit,           "@{edit}\tEnter",     TBBM_EDIT
-	cmaInsert,         "@{add}\tInsert",         TBBM_INSERT
-	cmaDelete,         "@{delete}\tDelete",          TBBM_DELETE
+	cmaEdit,           "@{edit}\tEnter",              TBBM_EDIT
+	cmaInsert,         "@{add}\tInsert",              TBBM_INSERT
+	cmaDelete,         "@{delete}\tDelete",           TBBM_DELETE
 	//separator
-	//cmUp,              "Переместить вверх",        TBBM_ARROWUP
-	//cmDown,            "Переместить вниз",         TBBM_ARROWDN
+	//cmUp,              "Переместить вверх",         TBBM_ARROWUP
+	//cmDown,            "Переместить вниз",          TBBM_ARROWDN
 	separator
-	cmaMore,           "Материал",                 TBBM_BROWSE
+	cmaMore,           "Материал",                    TBBM_BROWSE
 	separator
-	cmTransmit,        "Передать\tCtrl-H",         TBBM_SENDOBJ
-	cmImport,          "Импорт каталога",          TBBM_IMPORT
-	cmExport,          "@{export}",                TBBM_EXPORT
-	cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J", TBBM_SYSJ
+	cmTransmit,        "@{dotransmit_short}\tCtrl-H", TBBM_SENDOBJ
+	cmImport,          "Импорт каталога",             TBBM_IMPORT
+	cmExport,          "@{export}",                   TBBM_EXPORT
+	cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J",  TBBM_SYSJ
 }
 //
 //
@@ -2559,7 +2559,7 @@ browser TRFRGR_DPAG north(100), 1, 2, "Группировка товарных операций по дате, ко
 {
 	"@date",            8, notype, 0, 10
 	"@contractor",      7, notype, 0, 30
-	"@agent",          18, notype, 0, 30
+	"@agent",          21, notype, 0, 30
 	"@ware",            6, notype, 0, 30
 	"@qtty",            9, notype, NMBF_NOTRAILZ, 8.3
 	"Физ. количество", 10, notype, NMBF_NOTRAILZ, 8.3

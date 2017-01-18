@@ -147,34 +147,27 @@ void MD5::Update(const void * data, UINT32 len)
  */
 void MD5::Final(UINT8 digest[16])
 {
-	UINT32 count;
-	UINT8 * p;
-
-	/* Compute number of bytes mod 64 */
-	count = (m_bits[0]>>3)&0x3F;
-
+	UINT32 count = (m_bits[0]>>3)&0x3F; /* Compute number of bytes mod 64 */
 	/* Set the first char of padding to 0x80.  This is safe since there is
 	 * always at least one byte free */
-	p    = m_in+count;
+	UINT8 * p    = m_in+count;
 	*p++ = 0x80;
-
 	/* Bytes of padding needed to make 64 bytes */
 	count = 64-1-count;
 	/* Pad out to 56 mod 64 */
 	if(count < 8) {
 		/* Two lots of padding:  Pad the first block to 64 bytes */
-		memset(p, 0, count);
+		memzero(p, count);
 		if(m_need_byteswap) {
 			reverse_u32(m_in, 16);
 		}
 		Transform(m_buf, (UINT32 *)m_in);
-
 		/* Now fill the next block with 56 bytes */
-		memset(m_in, 0, 56);
+		memzero(m_in, 56);
 	}
 	else {
 		/* Pad block to 56 bytes */
-		memset(p, 0, count-8);
+		memzero(p, count-8);
 	}
 	if(m_need_byteswap) {
 		reverse_u32(m_in, 14);

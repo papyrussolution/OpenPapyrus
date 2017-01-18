@@ -2026,7 +2026,7 @@ int composite(struct ZintSymbol * symbol, uchar source[], int length)
 		case BARCODE_RSS14_OMNI_CC: cc_width = 2; break;
 		case BARCODE_RSS_EXPSTACK_CC: cc_width = 4; break;
 	}
-	memset(binary_string, 0, bs);
+	memzero(binary_string, bs);
 	if(cc_mode < 1 || cc_mode > 3) {
 		cc_mode = 1;
 	}

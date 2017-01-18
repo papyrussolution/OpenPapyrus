@@ -342,24 +342,22 @@ static int c1_look_ahead_test(uchar source[], int sourcelen, int position, int c
 int c1_encode(struct ZintSymbol * symbol, uchar source[], uint target[], int length)
 {
 	int current_mode, next_mode;
-	int sp, tp, gs1, i, j, p, latch;
+	int gs1, i, j, p;
 	int c40_buffer[6], c40_p;
 	int text_buffer[6], text_p;
 	int edi_buffer[6], edi_p;
 	char decimal_binary[40];
 	int byte_start = 0;
-
-	sp = 0;
-	tp = 0;
-	latch = 0;
-	memset(c40_buffer, 0, 6);
+	int sp = 0;
+	int tp = 0;
+	int latch = 0;
+	memzero(c40_buffer, sizeof(c40_buffer));
 	c40_p = 0;
-	memset(text_buffer, 0, 6);
+	memzero(text_buffer, sizeof(text_buffer));
 	text_p = 0;
-	memset(edi_buffer, 0, 6);
+	memzero(edi_buffer, sizeof(edi_buffer));
 	edi_p = 0;
 	strcpy(decimal_binary, "");
-
 	if(symbol->input_mode == GS1_MODE) {
 		gs1 = 1;
 	}

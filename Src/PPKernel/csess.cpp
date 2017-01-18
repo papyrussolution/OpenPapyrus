@@ -1,5 +1,5 @@
 // CSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2013, 2015, 2016, 2017
 // @codepage windows-1251
 // @Kernel
 //
@@ -58,6 +58,7 @@ int SLAPI CSessionCore::GetSubSessList(PPID superSessID, PPIDArray * pList)
 
 int SLAPI CSessionCore::GetLastNumber(PPID cashNodeID, long cashN, long * pNumber, CSessionTbl::Rec * pRec)
 {
+	int    ok = 1;
 	CSessionTbl::Key2 k;
 	k.CashNodeID = cashNodeID;
 	k.CashNumber = cashN;
@@ -66,10 +67,12 @@ int SLAPI CSessionCore::GetLastNumber(PPID cashNodeID, long cashN, long * pNumbe
 	if(search(2, &k, spLt) && k.CashNodeID == cashNodeID && k.CashNumber == cashN) {
 		ASSIGN_PTR(pRec, data);
 		ASSIGN_PTR(pNumber, k.SessNumber);
-		return 1;
 	}
-	ASSIGN_PTR(pNumber, 0);
-	return -1;
+	else {
+		ASSIGN_PTR(pNumber, 0);
+		ok = -1;
+	}
+	return ok;
 }
 
 int SLAPI CSessionCore::SetSessDateTime(PPID sessID, const LDATETIME & rDtm, int use_ta)

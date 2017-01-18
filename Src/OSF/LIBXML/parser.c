@@ -11416,7 +11416,7 @@ xmlParserCtxtPtr xmlCreatePushParserCtxt(xmlSAXHandlerPtr sax, void * user_data,
 			xmlFreeParserCtxt(ctxt);
 			return 0;
 		}
-		memset(ctxt->sax, 0, sizeof(xmlSAXHandler));
+		memzero(ctxt->sax, sizeof(xmlSAXHandler));
 		if(sax->initialized == XML_SAX2_MAGIC)
 			memcpy(ctxt->sax, sax, sizeof(xmlSAXHandler));
 		else
@@ -11532,7 +11532,7 @@ xmlParserCtxtPtr xmlCreateIOParserCtxt(xmlSAXHandlerPtr sax, void * user_data, x
 			xmlFreeParserCtxt(ctxt);
 			return 0;
 		}
-		memset(ctxt->sax, 0, sizeof(xmlSAXHandler));
+		memzero(ctxt->sax, sizeof(xmlSAXHandler));
 		if(sax->initialized == XML_SAX2_MAGIC)
 			memcpy(ctxt->sax, sax, sizeof(xmlSAXHandler));
 		else

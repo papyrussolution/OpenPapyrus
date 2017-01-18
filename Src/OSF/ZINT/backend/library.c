@@ -43,12 +43,10 @@
 
 struct ZintSymbol * ZBarcode_Create()
 {
-	struct ZintSymbol * symbol;
-
-	symbol = (struct ZintSymbol*)malloc(sizeof(*symbol));
-	if(!symbol) return NULL;
-
-	memset(symbol, 0, sizeof(*symbol));
+	struct ZintSymbol * symbol = (struct ZintSymbol*)malloc(sizeof(*symbol));
+	if(!symbol) 
+		return NULL;
+	memzero(symbol, sizeof(*symbol));
 	symbol->Std = BARCODE_CODE128;
 	symbol->height = 50;
 	symbol->whitespace_width = 0;
@@ -66,8 +64,8 @@ struct ZintSymbol * ZBarcode_Create()
 	symbol->show_hrt = 1; // Show human readable text
 	symbol->input_mode = DATA_MODE;
 	strcpy(symbol->primary, "");
-	memset(&(symbol->encoded_data[0][0]), 0, sizeof(symbol->encoded_data));
-	memset(&(symbol->row_height[0]), 0, sizeof(symbol->row_height));
+	memzero(&(symbol->encoded_data[0][0]), sizeof(symbol->encoded_data));
+	memzero(&(symbol->row_height[0]), sizeof(symbol->row_height));
 	symbol->bitmap = NULL;
 	symbol->bitmap_width = 0;
 	symbol->bitmap_height = 0;
@@ -79,7 +77,6 @@ struct ZintSymbol * ZBarcode_Create()
 void ZBarcode_Clear(struct ZintSymbol * symbol)
 {
 	int i, j;
-
 	for(i = 0; i < symbol->rows; i++) {
 		for(j = 0; j < symbol->width; j++) {
 			unset_module(symbol, i, j);
@@ -87,31 +84,22 @@ void ZBarcode_Clear(struct ZintSymbol * symbol)
 	}
 	symbol->rows = 0;
 	symbol->width = 0;
-	memset(symbol->text, 0, sizeof(symbol->text));
+	memzero(symbol->text, sizeof(symbol->text));
 	symbol->errtxt[0] = '\0';
-	if(symbol->bitmap != NULL) {
-		free(symbol->bitmap);
-		symbol->bitmap = NULL;
-	}
+	ZFREE(symbol->bitmap);
 	symbol->bitmap_width = 0;
 	symbol->bitmap_height = 0;
 }
 
 void ZBarcode_Delete(struct ZintSymbol * symbol)
 {
-	if(symbol->bitmap != NULL)
-		free(symbol->bitmap);
-
+	free(symbol->bitmap);
 	// If there is a rendered version, ensure its memory is released
 	if(symbol->rendered != NULL) {
 		struct zint_render_line * line, * l;
-
 		struct zint_render_string * string, * s;
-
 		struct zint_render_ring * ring, * r;
-
 		struct zint_render_hexagon * hexagon, * h;
-
 		// Free lines
 		line = symbol->rendered->lines;
 		while(line) {

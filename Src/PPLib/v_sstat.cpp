@@ -591,7 +591,7 @@ int SLAPI PPViewSStat::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewSStat::RecToViewItem(const TempGoodsStatTbl::Rec * pRec, SStatViewItem * pItem)
+void SLAPI PPViewSStat::RecToViewItem(const TempGoodsStatTbl::Rec * pRec, SStatViewItem * pItem)
 {
 	SStatViewItem item;
 	MEMSZERO(item);
@@ -622,7 +622,6 @@ int SLAPI PPViewSStat::RecToViewItem(const TempGoodsStatTbl::Rec * pRec, SStatVi
 		}
 	}
 	ASSIGN_PTR(pItem, item);
-	return 1;
 }
 
 int SLAPI PPViewSStat::NextIteration(SStatViewItem * pItem)
@@ -659,11 +658,13 @@ int SLAPI PPViewSStat::AddStat(PPID goodsID, LDATE dt, int setTotal, const Predi
 {
 	int    ok = 1;
 	if(pStat->Count || !(Filt.Flags & SStatFilt::fSkipZeroNhCount)) {
+		SString temp_buf;
 		TempGoodsStatTbl::Rec rec;
 		MEMSZERO(rec);
 		rec.GoodsID  = goodsID;
 		rec.Dt = dt;
-		GObj.GetSubstText(goodsID, Filt.Sgg, &Gsl, rec.GoodsName, sizeof(rec.GoodsName));
+		GObj.GetSubstText(goodsID, Filt.Sgg, &Gsl, temp_buf);
+		STRNSCPY(rec.GoodsName, temp_buf);
 		rec.Count     = pStat->Count;
 		rec.QttyAvg   = setTotal ? pStat->QttySum : pStat->GetAverage(PSSV_QTTY);
 		rec.QttySigma = pStat->GetSigma(PSSV_QTTY);
@@ -1194,11 +1195,11 @@ int SLAPI PPViewSStat::Detail(const void * pHdr, PPViewBrowser * pBrw)
 		ps_filt.Period = Filt.Period;
 		ps_filt.Flags |= PredictSalesFilt::fShowNoData;
 		if(Filt.Sgg) {
-			char   subst_text[128];
+			SString temp_buf;
 			PPIDArray id_list;
 			Gsl.GetGoodsBySubstID(goods_id, &id_list);
-			GObj.GetSubstText(goods_id, Filt.Sgg, &Gsl, subst_text, sizeof(subst_text));
-			ps_filt.SetGoodsList(&id_list, subst_text);
+			GObj.GetSubstText(goods_id, Filt.Sgg, &Gsl, temp_buf);
+			ps_filt.SetGoodsList(&id_list, temp_buf);
 			ps_filt.LocList = Filt.LocList;
 			if(Filt.Sgg == sggLocation)
 				ps_filt.LocList.Add(goods_id & ~GOODSSUBSTMASK, 0);

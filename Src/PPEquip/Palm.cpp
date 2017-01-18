@@ -1833,7 +1833,7 @@ int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID
 	else { // выведем подробную информацию о том, что такой документ уже существует
 		if(pLogger) {
 			PPLoadString("date", temp_buf);
-			PPGetMessage(mfError, PPERR_DOC_ALREADY_EXISTS, pack.Rec.Code, 1, msg_buf = 0);
+			PPGetMessage(mfError, PPERR_DOC_ALREADY_EXISTS, pack.Rec.Code, 1, msg_buf);
 			pLogger->Log(msg_buf.Space().Cat(temp_buf).Cat(pack.Rec.Dt).Dot().Space().Cat(palm_rec.Name));
 		}
 		//ord_already_ex_count++;
@@ -1843,7 +1843,7 @@ int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID
 	CATCH
 		ok = 0;
 		if(pLogger) {
-			PPGetMessage(mfError, PPErrCode, 0, 1, temp_buf = 0);
+			PPGetMessage(mfError, PPErrCode, 0, 1, temp_buf);
 			pLogger->Log((msg_buf = palm_rec.Name).CatChar(':').Space().Cat(temp_buf));
 		}
 	ENDCATCH

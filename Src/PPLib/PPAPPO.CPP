@@ -258,7 +258,7 @@ int SLAPI RestoreGoods2()
 			*/
 			if(bad_group) {
 				temp_rec = rec;
-				memset(&rec, 0, sizeof(rec));
+				MEMSZERO(rec);
 				rec.ID = temp_rec.ID;
 				rec.Kind = temp_rec.Kind;
 				STRNSCPY(rec.Name, temp_rec.Name);

@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147488631
+LastSignatureCode=2147488642
 LastAutoCodeList=1,10831;102,10160;103,10068;110,10000;111,11538;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10074;120,10005;1001,10000;121,10000;122,10000;123,10006;1002,10000;1003,10000;1004,10000;1005,10000
 
 [SignatureList]
@@ -588,6 +588,7 @@ doputtobasket=2147486791
 docorrecterrors=2147486809
 doremoveall=2147486814
 doaddbysample=2147486815
+dotransmit_short=2147488633
 dotransmit=2147486816
 dotransmitcharry=2147488571
 doupdatetags=2147486831
@@ -695,6 +696,15 @@ msg_arhasntagreement=2147487546
 ttl_selcopygstrucsrc=2147488205
 ttl_selgroup=2147488206
 ttl_seladdress=2147488572
+ttl_persons=2147488634
+ttl_personevent=2147488635
+ttl_qcert=2147488636
+ttl_quot=2147488637
+ttl_personcard=2147488638
+ttl_vatledger=2147488639
+ttl_syncanalyze=2147488640
+ttl_todo=2147488641
+ttl_trfranlz=2147488642
 qkcls_general=2147487960
 qkcls_goodsmatrix=2147487961
 qkcls_goodsmatrixrestr=2147487962
@@ -4729,6 +4739,7 @@ trfranlzfilt_forceinitdlvraddr=2147487787
 trfranlzfilt_fshowgoodscode=2147487788
 trfranlzfilt_fshowserial=2147487789
 trfranlzfilt_fcalcavgrest=2147487790
+trfranlzfilt_fcomparewroff=2147488632
 trfranlzfilt_initord=2147487791
 trfranlzfilt_crosstab=2147487792
 trfranlzfilt_ctkind=2147487793

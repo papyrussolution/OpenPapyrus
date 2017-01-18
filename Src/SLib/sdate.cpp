@@ -1,5 +1,5 @@
 // SDATE.CPP
-// Copyright (C) Sobolev A. 1994, 1995, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016
+// Copyright (C) Sobolev A. 1994, 1995, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -767,13 +767,12 @@ LTIME SLAPI encodetime(int h, int m, int s, int ts)
 	return tm;
 }
 
-int SLAPI decodetime(int * h, int * m, int * s, int * ts, void * tm)
+void SLAPI decodetime(int * h, int * m, int * s, int * ts, void * tm)
 {
-	ASSIGN_PTR(h,  ((Pchar)tm)[3]);
-	ASSIGN_PTR(m,  ((Pchar)tm)[2]);
-	ASSIGN_PTR(s,  ((Pchar)tm)[1]);
-	ASSIGN_PTR(ts, ((Pchar)tm)[0]);
-	return 1;
+	ASSIGN_PTR(h,  ((char *)tm)[3]);
+	ASSIGN_PTR(m,  ((char *)tm)[2]);
+	ASSIGN_PTR(s,  ((char *)tm)[1]);
+	ASSIGN_PTR(ts, ((char *)tm)[0]);
 }
 
 long SLAPI DiffTime(LTIME t1, LTIME t2, int dim)
@@ -842,7 +841,7 @@ long FASTCALL diffdatetimesec(const LDATETIME & dtm1, const LDATETIME & dtm2)
 LDATETIME FASTCALL plusdatetime(const LDATETIME & dtm1, long plus, int dim)
 {
 	int    days = 0;
-	LTIME  tm = dtm1.t;
+	const  LTIME  tm = dtm1.t;
 	LDATETIME dest;
 	int    h = tm.hour();
 	int    m = tm.minut();
@@ -991,7 +990,7 @@ LDATE FASTCALL WorkDate::ExpandDate(int16 sdt)
 	return dt;
 }
 
-int WorkDate::SetDate(LDATE dt)
+int FASTCALL WorkDate::SetDate(LDATE dt)
 {
 	if(!dt || checkdate(&dt)) {
 		int    d = ShrinkDate(dt);
@@ -1003,7 +1002,7 @@ int WorkDate::SetDate(LDATE dt)
 	return 0;
 }
 
-int WorkDate::SetDayOfWeek(int dayOfWeek)
+int FASTCALL WorkDate::SetDayOfWeek(int dayOfWeek)
 {
 	if(dayOfWeek >= 1 && dayOfWeek <= 7) {
 		V = -dayOfWeek;
@@ -1039,7 +1038,7 @@ LDATE WorkDate::IsDayOfYear() const
 	return (V <= -100) ? ExpandDate(-V) : ZERODATE;
 }
 
-int WorkDate::IsEqual(LDATE dt) const
+int FASTCALL WorkDate::IsEqual(LDATE dt) const
 {
 	int    dow = IsDayOfWeek();
 	if(dow)
@@ -1057,7 +1056,7 @@ int WorkDate::IsEqual(LDATE dt) const
 	return 0;
 }
 
-int WorkDate::IsEqual(WorkDate wd) const
+int FASTCALL WorkDate::IsEqual(WorkDate wd) const
 {
 	return (wd.V == V);
 }

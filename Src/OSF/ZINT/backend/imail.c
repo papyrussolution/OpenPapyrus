@@ -467,8 +467,7 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 
 	accum[103] = 0;
 	accum[102] = 0;
-
-	memset(byte_array, 0, 13);
+	memzero(byte_array, sizeof(byte_array));
 	for(j = 0; j < 13; j++) {
 		i = 96 - (8 * j);
 		byte_array[j] = 0;

@@ -1319,21 +1319,18 @@ int han_xin(struct ZintSymbol * symbol, const uchar source[], int length)
 		}
 		length = posn;
 	}
-
 	hx_define_mode(mode, gbdata, length);
-
 	est_binlen = calculate_binlength(mode, gbdata, length, symbol->eci);
 	est_codewords = est_binlen / 8;
 	if(est_binlen % 8 != 0) {
 		est_codewords++;
 	}
-
 #ifndef _MSC_VER
 	char binary[est_binlen + 1];
 #else
 	binary = (char*)_alloca((est_binlen + 10) * sizeof(char));
 #endif
-	memset(binary, 0, (est_binlen + 1) * sizeof(char));
+	memzero(binary, (est_binlen + 1) * sizeof(char));
 	if((ecc_level <= 0) || (ecc_level >= 5)) {
 		ecc_level = 1;
 	}

@@ -2019,8 +2019,7 @@ int SLAPI PPViewGoodsOpAnalyze::PutBillToTempTable(PPBillPacket * pPack, double 
 		for(DateIter di; P_BObj->P_Tbl->EnumLinks(pPack->Rec.ID, &di, BLNK_ALL, &link_rec) > 0;) {
 			PPTransferItem ti;
 			PPBillPacket temp_pack;
-			if(!p_link_pack)
-				THROW_MEM(p_link_pack = new PPBillPacket);
+			THROW_MEM(SETIFZ(p_link_pack, new PPBillPacket));
 			THROW(P_BObj->ExtractPacket(link_rec.ID, &temp_pack));
 			for(temp_pack.InitExtTIter(ETIEF_UNITEBYGOODS, 0); temp_pack.EnumTItemsExt(0, &ti) > 0;) {
 				THROW(p_link_pack->LoadTItem(&ti, 0, 0));
@@ -2029,7 +2028,7 @@ int SLAPI PPViewGoodsOpAnalyze::PutBillToTempTable(PPBillPacket * pPack, double 
 		if(p_link_pack) {
 			PPTransferItem ti;
 			for(p_link_pack->InitExtTIter(ETIEF_UNITEBYGOODS, 0); p_link_pack->EnumTItemsExt(0, &ti) > 0;) {
-				if(pPack->SearchGoods(ti.GoodsID, 0) <= 0) {
+				if(!pPack->SearchGoods(ti.GoodsID, 0)) {
 					ti.Quantity_ = 0.0;
 					ti.WtQtty = 0.0;
 					THROW(pPack->LoadTItem(&ti, 0, 0));
@@ -2662,7 +2661,7 @@ int SLAPI PPViewGoodsOpAnalyze::FlashCacheItems(uint count)
 			}
 			lru_array.Sort();
 			for(i = 0, count = MIN(count, lru_array.getCount()); i < count; i++) {
-				uint pos = lru_array.at(i).Val;
+				const uint pos = lru_array.at(i).Val;
 				THROW(FlashCacheItem(&bei, GetCacheItem(pos)));
 				THROW(lru_pos_array.add(pos));
 			}
@@ -2718,7 +2717,8 @@ int SLAPI PPViewGoodsOpAnalyze::FlashCacheItem(BExtInsert * pBei, const GoaCache
 			temp_buf.CopyTo(rec.Text, sizeof(rec.Text));
 		}
 		else {
-			GObj.GetSubstText(pItem->GoodsID, Filt.Sgg, &Gsl, rec.Text, sizeof(rec.Text));
+			GObj.GetSubstText(pItem->GoodsID, Filt.Sgg, &Gsl, temp_buf);
+			STRNSCPY(rec.Text, temp_buf);
 			if(!(pItem->GoodsID & GOODSSUBSTMASK) && pItem->GoodsID) {
 				if(State & sFiltExclFolder) {
 					PPID   parent_id = 0;
@@ -3011,7 +3011,7 @@ int SLAPI PPViewGoodsOpAnalyze::PreprocessTi(const PPTransferItem * pTi, const P
 		else
 			pBlk->Cost = pTi->Cost;
 	if(Filt.QuotKindID > 0) {
-		QuotIdent qi(pBlk->LocID, Filt.QuotKindID);
+		const QuotIdent qi(pBlk->LocID, Filt.QuotKindID);
 		GObj.GetQuotExt(pTi->GoodsID, qi, pTi->Cost, pTi->Price, &pBlk->Price, 1);
 	}
 	else if(pTi->Flags & PPTFR_REVAL) {
@@ -3053,7 +3053,7 @@ int SLAPI PPViewGoodsOpAnalyze::PreprocessTi(const PPTransferItem * pTi, const P
 				if(pBlk->Flags & GoaAddingBlock::fIncomeWithoutExcise) {
 					GTaxVect vect;
 					vect.Calc_(&gtx, pBlk->Price, tax_factor, GTAXVF_BEFORETAXES, excl_stax ? GTAXVF_SALESTAX : 0);
-					double excise = vect.GetValue(GTAXVF_EXCISE);
+					const double excise = vect.GetValue(GTAXVF_EXCISE);
 					pBlk->Price -= excise;
 					if(pBlk->OldPrice != 0.0 && (!(Filt.Flags & GoodsOpAnalyzeFilt::fPriceDeviation)))
 						pBlk->OldPrice -= excise;

@@ -292,7 +292,7 @@ int SLAPI PPViewPrcBusy::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewPrcBusy::RecToViewItem(const TempPrcBusyTbl::Rec * pRec, PrcBusyViewItem * pItem) const
+void SLAPI PPViewPrcBusy::RecToViewItem(const TempPrcBusyTbl::Rec * pRec, PrcBusyViewItem * pItem) const
 {
 	PrcBusyViewItem item;
 	MEMSZERO(item);
@@ -306,7 +306,6 @@ int SLAPI PPViewPrcBusy::RecToViewItem(const TempPrcBusyTbl::Rec * pRec, PrcBusy
 		STRNSCPY(item.TxtDuration, pRec->TxtDuration);
 	}
 	ASSIGN_PTR(pItem, item);
-	return 1;
 }
 
 int SLAPI PPViewPrcBusy::NextIteration(PrcBusyViewItem * pItem)
