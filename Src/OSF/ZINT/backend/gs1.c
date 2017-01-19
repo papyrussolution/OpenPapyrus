@@ -30,14 +30,11 @@
     SUCH DAMAGE.
  */
 
-//#include <string.h>
-//#include <stdlib.h>
-//#include <stdio.h>
+#include "common.h"
+#include "gs1.h"
 #ifdef _MSC_VER
 	#include <malloc.h>
 #endif
-#include "common.h"
-#include "gs1.h"
 
 /* This code does some checks on the integrity of GS1 data. It is not intended
    to be bulletproof, nor does it report very accurately what problem was found

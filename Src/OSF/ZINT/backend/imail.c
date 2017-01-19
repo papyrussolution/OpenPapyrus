@@ -33,7 +33,10 @@
 /*  The function "USPS_MSB_Math_CRC11GenerateFrameCheckSequence"
     is Copyright (C) 2006 United States Postal Service */
 
-static const short int BCD[40] = {
+#include "common.h"
+#include "large.h"
+
+static const short BCD[40] = {
 	0, 0, 0, 0,
 	1, 0, 0, 0,
 	0, 1, 0, 0,
@@ -45,12 +48,6 @@ static const short int BCD[40] = {
 	0, 0, 0, 1,
 	1, 0, 0, 1
 };
-
-//#include <string.h>
-//#include <stdlib.h>
-//#include <stdio.h>
-#include "common.h"
-#include "large.h"
 
 #define SODIUM  "0123456789-"
 
@@ -263,12 +260,12 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 	char data_pattern[200];
 	int    i, j, read;
 	char   zip[35], tracker[35], zip_adder[11], temp[2];
-	short int accum[112], x_reg[112], y_reg[112];
+	short accum[112], x_reg[112], y_reg[112];
 	uchar byte_array[13];
 	unsigned short usps_crc;
 	int    codeword[10];
 	unsigned short characters[10];
-	short int bar_map[130];
+	short bar_map[130];
 	int    error_number = 0;
 	if(length > 32) {
 		strcpy(symbol->errtxt, "Input too long (D50)");

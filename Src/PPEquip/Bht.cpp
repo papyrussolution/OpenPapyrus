@@ -2193,6 +2193,7 @@ int SLAPI PPObjBHT::PrepareBillRowCellData(PPBhtTerminalPacket * pPack, PPID bil
 {
 	int    ok = -1, num_flds = 0;
 	SString fname, path, serial;
+	SString temp_buf;
 	PPBillPacket pack;
 	PPImpExp * p_ie_brow = 0;
 	if(P_BObj->ExtractPacket(billID, &pack, BPLD_FORCESERIALS) > 0) {
@@ -2219,7 +2220,9 @@ int SLAPI PPObjBHT::PrepareBillRowCellData(PPBhtTerminalPacket * pPack, PPID bil
 			sdr_brow.Cost     = ti.Cost;
 			sdr_brow.RByBill  = (long)ti.RByBill;
 			GetObjectName(PPOBJ_GOODS, ti.GoodsID, sdr_brow.Name, sizeof(sdr_brow.Name));
-			SOemToChar(sdr_brow.Name);
+			// @v9.4.11 SOemToChar(sdr_brow.Name);
+			(temp_buf = sdr_brow.Name).Transf(CTRANSF_INNER_TO_OUTER); // @v9.4.11
+			STRNSCPY(sdr_brow.Name, temp_buf); // @v9.4.11
 			qtty = sdr_brow.Qtty;
 			{
 				LocTransfCore loct_tbl;
@@ -2248,7 +2251,9 @@ int SLAPI PPObjBHT::PrepareBillRowCellData(PPBhtTerminalPacket * pPack, PPID bil
 							GetObjectName(PPOBJ_LOCATION, sdr_brow.LocID, sdr_brow.Name, sizeof(sdr_brow.Name));
 							(name = 0).Space().Space().Space().Space().Cat(sdr_brow.Name);
 							name.CopyTo(sdr_brow.Name, sizeof(sdr_brow.Name));
-							SOemToChar(sdr_brow.Name);
+							// @v9.4.11 SOemToChar(sdr_brow.Name);
+							(temp_buf = sdr_brow.Name).Transf(CTRANSF_INNER_TO_OUTER); // @v9.4.11
+							STRNSCPY(sdr_brow.Name, temp_buf); // @v9.4.11
 							THROW(p_ie_brow->AppendRecord(&sdr_brow, sizeof(sdr_brow)));
 						}
 					}
@@ -2265,7 +2270,9 @@ int SLAPI PPObjBHT::PrepareBillRowCellData(PPBhtTerminalPacket * pPack, PPID bil
 							GetObjectName(PPOBJ_LOCATION, sdr_brow.LocID, sdr_brow.Name, sizeof(sdr_brow.Name));
 							(name = 0).Space().Space().Space().Space().Cat(sdr_brow.Name);
 							name.CopyTo(sdr_brow.Name, sizeof(sdr_brow.Name));
-							SOemToChar(sdr_brow.Name);
+							// @v9.4.11 SOemToChar(sdr_brow.Name);
+							(temp_buf = sdr_brow.Name).Transf(CTRANSF_INNER_TO_OUTER); // @v9.4.11
+							STRNSCPY(sdr_brow.Name, temp_buf); // @v9.4.11
 							THROW(p_ie_brow->AppendRecord(&sdr_brow, sizeof(sdr_brow)));
 						}
 					}
@@ -2285,7 +2292,9 @@ int SLAPI PPObjBHT::PrepareBillRowCellData(PPBhtTerminalPacket * pPack, PPID bil
 						GetObjectName(PPOBJ_LOCATION, sdr_brow.LocID, sdr_brow.Name, sizeof(sdr_brow.Name));
 						name.Space().Space().Space().Space().Cat(sdr_brow.Name);
 						name.CopyTo(sdr_brow.Name, sizeof(sdr_brow.Name));
-						SOemToChar(sdr_brow.Name);
+						// @v9.4.11 SOemToChar(sdr_brow.Name);
+						(temp_buf = sdr_brow.Name).Transf(CTRANSF_INNER_TO_OUTER); // @v9.4.11
+						STRNSCPY(sdr_brow.Name, temp_buf); // @v9.4.11
 						THROW(p_ie_brow->AppendRecord(&sdr_brow, sizeof(sdr_brow)));
 					}
 				}
@@ -2396,7 +2405,6 @@ int SLAPI PPObjBHT::PrepareBillData(PPBhtTerminalPacket * pPack, int uniteGoods 
 								serial.CopyTo(sdr_brow.Serial, sizeof(sdr_brow.Serial));
 	 							sdr_brow.Qtty = fabs(ti.Qtty());
 								sdr_brow.Cost = ti.Cost;
-
 								{
 									PPSupplDeal sd;
 									GObj.GetSupplDeal(ti.GoodsID, suppl_deal_qi, &sd);
@@ -2455,6 +2463,7 @@ int SLAPI PPObjBHT::PrepareBillData2(PPBhtTerminalPacket * pPack, PPIDArray * pG
 	int    ok = -1, num_flds = 0;
 	uint   i;
 	SString fname, path, h_path, r_path, serial;
+	SString temp_buf;
 	PPImpExp * p_ie_bill = 0, * p_ie_brow = 0;
 
 	TSArray <BHT_BillOpEntry> bill_op_list;
@@ -2541,7 +2550,9 @@ int SLAPI PPObjBHT::PrepareBillData2(PPBhtTerminalPacket * pPack, PPIDArray * pG
 				Sdr_SBIISampleBill sdr_bill;
 
 				MEMSZERO(sdr_bill);
-				SOemToChar(item.Code);
+				// @v9.4.11 SOemToChar(item.Code);
+				(temp_buf = item.Code).Transf(CTRANSF_INNER_TO_OUTER); // @v9.4.11
+				STRNSCPY(item.Code, temp_buf); // @v9.4.11
 				sdr_bill.ID      = item.ID;
 				sdr_bill.Date    = (r_entry.Flags & BHT_BillOpEntry::fUseDueDate && checkdate(item.DueDate, 0)) ? item.DueDate : item.Dt;
 				sdr_bill.Article = item.Object;
@@ -3921,7 +3932,7 @@ int SLAPI PPObjBHT::AcceptBillsSBII(PPBhtTerminalPacket * pPack, const char * pH
 										if(pLog) {
 											// @v9.4.9 PPObject::SetLastErrObj(PPOBJ_GOODS, labs(ilti.GoodsID));
 											// @v9.4.9 PPSetError(PPERR_LOTRESTBOUND);
-											PPSetObjError(PPERR_LOTRESTBOUND, PPOBJ_GOODS, labs(ilti.GoodsID)); // @v9.4.9 
+											PPSetObjError(PPERR_LOTRESTBOUND, PPOBJ_GOODS, labs(ilti.GoodsID)); // @v9.4.9
 											pLog->LogLastError();
 										}
 										accept_doc = 0;
@@ -4793,7 +4804,7 @@ int SLAPI PPObjBHT::ReceiveData()
 	}
 	ZDELETE(dlg);
 	// @v9.4.9 if(valid_data && bht_obj.Search(bht_id, &bht_rec) > 0) {
-	if(valid_data && bht_obj.GetPacket(bht_id, &pack) > 0) { // @v9.4.9 
+	if(valid_data && bht_obj.GetPacket(bht_id, &pack) > 0) { // @v9.4.9
 		int    is_debug = 0;
 		long   s = 1, timeout = 30000L;
 		SString dir, path;

@@ -30,15 +30,11 @@
     OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
  */
-
-//#include <stdio.h>
-//#include <string.h>
-//#include <stdlib.h>
+#include "common.h"
+#include "gs1.h"
 #ifdef _MSC_VER
 	#include <malloc.h>
 #endif
-#include "common.h"
-#include "gs1.h"
 
 //#define TRUE 1
 //#define FALSE 0
@@ -1019,7 +1015,7 @@ int nve_18(struct ZintSymbol * symbol, uchar source[], int length)
 	ean128_equiv[21] = itoc(nve_check);
 	ean128_equiv[22] = '\0';
 
-	error_number = ean_128(symbol, ean128_equiv, ustrlen(ean128_equiv));
+	error_number = ean_128(symbol, ean128_equiv, sstrlen(ean128_equiv));
 
 	return error_number;
 }
@@ -1062,7 +1058,7 @@ int ean_14(struct ZintSymbol * symbol, uchar source[], int length)
 	ean128_equiv[17] = itoc(check_digit);
 	ean128_equiv[18] = '\0';
 
-	error_number = ean_128(symbol, ean128_equiv, ustrlen(ean128_equiv));
+	error_number = ean_128(symbol, ean128_equiv, sstrlen(ean128_equiv));
 
 	return error_number;
 }

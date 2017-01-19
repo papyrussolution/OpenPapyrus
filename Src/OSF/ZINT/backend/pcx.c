@@ -30,12 +30,8 @@
     SUCH DAMAGE.
  */
 
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
 #include "common.h"
 #include "pcx.h"        /* PCX header structure */
-//#include <math.h>
 #ifdef _MSC_VER
 	#include <io.h>
 	#include <fcntl.h>

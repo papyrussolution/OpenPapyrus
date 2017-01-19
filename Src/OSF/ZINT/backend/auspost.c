@@ -30,6 +30,12 @@
     SUCH DAMAGE.
  */
 
+#include "common.h"
+#include "reedsol.h"
+#ifdef _MSC_VER
+	#define inline _inline
+#endif
+
 #define GDSET   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz #"
 
 static const char * AusNTable[10] = {
@@ -53,15 +59,6 @@ static const char * AusBarTable[64] = {
 	"301", "302", "303", "310", "311", "312", "313", "320", "321", "322", "323", "330", "331",
 	"332", "333"
 };
-
-//#include <string.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-#include "common.h"
-#include "reedsol.h"
-#ifdef _MSC_VER
-	#define inline _inline
-#endif
 
 static inline char convert_pattern(char data, int shift)
 {

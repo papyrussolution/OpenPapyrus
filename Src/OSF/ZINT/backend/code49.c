@@ -30,9 +30,6 @@
     SUCH DAMAGE.
  */
 
-//#include <string.h>
-//#include <stdio.h>
-//#include <stdlib.h>
 #include "common.h"
 #include "code49.h"
 

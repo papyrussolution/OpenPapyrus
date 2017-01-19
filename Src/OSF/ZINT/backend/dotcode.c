@@ -34,18 +34,14 @@
  * Attempts to encode DotCode according to AIMD013 Rev 1.34a, dated Feb 19, 2009
  */
 
-//#include <stdio.h>
-//#include <string.h>
-//#include <stdlib.h>
-//#include <math.h>
+#include "common.h"
+#include "gs1.h"
 #ifndef _MSC_VER
 	#include <stdint.h>
 #else
 	#include "ms_stdint.h"
 	#include <malloc.h>
 #endif
-#include "common.h"
-#include "gs1.h"
 
 #define GF 113
 #define PM 3

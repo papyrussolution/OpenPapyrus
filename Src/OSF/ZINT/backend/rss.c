@@ -62,16 +62,13 @@
  * RSS Expanded Stacked > GS1 DataBar Expanded Stacked Omnidirectional
  */
 
-//#include <stdio.h>
-//#include <string.h>
-//#include <stdlib.h>
-#ifdef _MSC_VER
-	#include <malloc.h>
-#endif
 #include "common.h"
 #include "large.h"
 #include "rss.h"
 #include "gs1.h"
+#ifdef _MSC_VER
+	#include <malloc.h>
+#endif
 
 /**********************************************************************
 * combins(n,r): returns the number of Combinations of r selected from n:
@@ -165,7 +162,7 @@ void getRSSwidths(int val, int n, int elements, int maxWidth, int noNarrow)
 int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 {
 	int error_number = 0, i, j, mask;
-	short int accum[112], left_reg[112], right_reg[112], x_reg[112], y_reg[112];
+	short accum[112], left_reg[112], right_reg[112], x_reg[112], y_reg[112];
 	int data_character[4], data_group[4], v_odd[4], v_even[4];
 	int data_widths[8][4], checksum, c_left, c_right, total_widths[46], writer;
 	char latch, hrt[15], temp[32];
@@ -752,7 +749,7 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 {
 	int error_number = 0, i, mask;
-	short int accum[112], left_reg[112], right_reg[112], x_reg[112], y_reg[112];
+	short accum[112], left_reg[112], right_reg[112], x_reg[112], y_reg[112];
 	int left_group, right_group, left_odd, left_even, right_odd, right_even;
 	int left_character, right_character, left_widths[14], right_widths[14];
 	int checksum, check_elements[14], total_widths[46], writer, j, check_digit, count;
@@ -1073,10 +1070,10 @@ int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 
 	return error_number;
 }
-
-/* Attempts to apply encoding rules from secions 7.2.5.5.1 to 7.2.5.5.3
- * of ISO/IEC 24724:2006 */
-int general_rules(char field[], char type[])
+//
+// Attempts to apply encoding rules from secions 7.2.5.5.1 to 7.2.5.5.3 of ISO/IEC 24724:2006 
+//
+int general_rules(const char field[], char type[])
 {
 	int    block[2][200], k;
 	char   current, next, last;
@@ -1178,82 +1175,75 @@ int general_rules(char field[], char type[])
 		return 0;
 	}
 }
-
-/* Handles all data encodation from section 7.2.5 of ISO/IEC 24724 */
-int rss_binary_string(struct ZintSymbol * symbol, char source[], char binary_string[])
+//
+// Handles all data encodation from section 7.2.5 of ISO/IEC 24724 
+//
+static int rss_binary_string(struct ZintSymbol * symbol, const char source[], char binary_string[])
 {
-	int encoding_method, i, mask, j, read_posn, latch, debug = 0, last_mode = ISOIEC;
-	int symbol_characters, characters_per_row;
+	const  size_t src_len = sstrlen(source);
+	int    encoding_method, i, mask, j, latch, debug = 0, last_mode = ISOIEC;
+	int    symbol_characters, characters_per_row;
 #ifndef _MSC_VER
-	char general_field[strlen(source) + 1], general_field_type[strlen(source) + 1];
+	char   general_field[src_len + 1];
+	char   general_field_type[src_len + 1];
 #else
-	char* general_field = (char*)_alloca(strlen(source) + 1);
-	char* general_field_type = (char*)_alloca(strlen(source) + 1);
+	char * general_field = (char*)_alloca(src_len + 1);
+	char * general_field_type = (char*)_alloca(src_len + 1);
 #endif
-	int remainder, d1, d2, value;
-	char padstring[40];
-
-	read_posn = 0;
-	value = 0;
-
-	/* Decide whether a compressed data field is required and if so what
-	   method to use - method 2 = no compressed data field */
-
-	if((strlen(source) >= 16) && ((source[0] == '0') && (source[1] == '1'))) {
+	int    remainder, d1, d2;
+	char   padstring[40];
+	int    read_posn = 0;
+	int    value = 0;
+	// Decide whether a compressed data field is required and if so what
+	// method to use - method 2 = no compressed data field 
+	if((src_len >= 16) && ((source[0] == '0') && (source[1] == '1'))) {
 		/* (01) and other AIs */
 		encoding_method = 1;
-		if(debug) printf("Choosing Method 1\n");
+		if(debug) 
+			printf("Choosing Method 1\n");
 	}
 	else {
 		/* any AIs */
 		encoding_method = 2;
-		if(debug) printf("Choosing Mehod 2\n");
+		if(debug) 
+			printf("Choosing Mehod 2\n");
 	}
-
-	if(((strlen(source) >= 20) && (encoding_method == 1)) && ((source[2] == '9') && (source[16] == '3'))) {
+	if(((src_len >= 20) && (encoding_method == 1)) && ((source[2] == '9') && (source[16] == '3'))) {
 		/* Possibly encoding method > 2 */
-		if(debug) printf("Checking for other methods\n");
-
-		if((strlen(source) >= 26) && (source[17] == '1')) {
+		if(debug) 
+			printf("Checking for other methods\n");
+		if((src_len >= 26) && (source[17] == '1')) {
 			/* Methods 3, 7, 9, 11 and 13 */
-
 			if(source[18] == '0') {
 				/* (01) and (310x) */
 				char weight_str[7];
 				float weight; /* In kilos */
-
 				for(i = 0; i < 6; i++) {
 					weight_str[i] = source[20 + i];
 				}
 				weight_str[6] = '\0';
-
 				if(weight_str[0] == '0') { /* Maximum weight = 99999 */
 					encoding_method = 7;
-
-					if((source[19] == '3') && (strlen(source) == 26)) {
+					if((source[19] == '3') && (src_len == 26)) {
 						/* (01) and (3103) */
 						weight = (float)(atof(weight_str) / 1000.0);
 						if(weight <= 32.767) {
 							encoding_method = 3;
 						}
 					}
-
-					if(strlen(source) == 34) {
+					if(src_len == 34) {
 						if((source[26] == '1') && (source[27] == '1')) {
 							/* (01), (310x) and (11) - metric weight and production date */
 							encoding_method = 7;
 						}
-
 						if((source[26] == '1') && (source[27] == '3')) {
 							/* (01), (310x) and (13) - metric weight and packaging date */
 							encoding_method = 9;
 						}
-
 						if((source[26] == '1') && (source[27] == '5')) {
 							/* (01), (310x) and (15) - metric weight and "best before" date */
 							encoding_method = 11;
 						}
-
 						if((source[26] == '1') && (source[27] == '7')) {
 							/* (01), (310x) and (17) - metric weight and expiration date */
 							encoding_method = 13;
@@ -1261,66 +1251,50 @@ int rss_binary_string(struct ZintSymbol * symbol, char source[], char binary_str
 					}
 				}
 			}
-			if(debug) printf("Now using method %d\n", encoding_method);
+			if(debug) 
+				printf("Now using method %d\n", encoding_method);
 		}
-
-		if((strlen(source) >= 26) && (source[17] == '2')) {
+		if((src_len >= 26) && (source[17] == '2')) {
 			/* Methods 4, 8, 10, 12 and 14 */
-
 			if(source[18] == '0') {
 				/* (01) and (320x) */
 				char weight_str[7];
 				float weight; /* In pounds */
-
 				for(i = 0; i < 6; i++) {
 					weight_str[i] = source[20 + i];
 				}
 				weight_str[6] = '\0';
-
 				if(weight_str[0] == '0') { /* Maximum weight = 99999 */
 					encoding_method = 8;
-
-					if(((source[19] == '2') || (source[19] == '3')) && (strlen(source) == 26)) {
+					if(((source[19] == '2') || (source[19] == '3')) && (src_len == 26)) {
 						/* (01) and (3202)/(3203) */
-
 						if(source[19] == '3') {
 							weight = (float)(atof(weight_str) / 1000.0F);
-							if(weight <= 22.767) {
+							if(weight <= 22.767)
 								encoding_method = 4;
-							}
 						}
 						else {
 							weight = (float)(atof(weight_str) / 100.0F);
-							if(weight <= 99.99) {
+							if(weight <= 99.99)
 								encoding_method = 4;
-							}
 						}
 					}
-
-					if(strlen(source) == 34) {
-						if((source[26] == '1') && (source[27] == '1')) {
-							/* (01), (320x) and (11) - English weight and production date */
-							encoding_method = 8;
-						}
-
-						if((source[26] == '1') && (source[27] == '3')) {
-							/* (01), (320x) and (13) - English weight and packaging date */
-							encoding_method = 10;
-						}
-
-						if((source[26] == '1') && (source[27] == '5')) {
-							/* (01), (320x) and (15) - English weight and "best before" date */
-							encoding_method = 12;
-						}
-
-						if((source[26] == '1') && (source[27] == '7')) {
-							/* (01), (320x) and (17) - English weight and expiration date */
-							encoding_method = 14;
+					if(src_len == 34) {
+						if(source[26] == '1') {
+							if(source[27] == '1')
+								encoding_method = 8; // (01), (320x) and (11) - English weight and production date 
+							else if(source[27] == '3')
+								encoding_method = 10; // (01), (320x) and (13) - English weight and packaging date
+							else if(source[27] == '5')
+								encoding_method = 12; // (01), (320x) and (15) - English weight and "best before" date 
+							else if(source[27] == '7')
+								encoding_method = 14; // (01), (320x) and (17) - English weight and expiration date
 						}
 					}
 				}
 			}
-			if(debug) printf("Now using method %d\n", encoding_method);
+			if(debug) 
+				printf("Now using method %d\n", encoding_method);
 		}
 
 		if(source[17] == '9') {
@@ -1333,55 +1307,28 @@ int rss_binary_string(struct ZintSymbol * symbol, char source[], char binary_str
 				/* (01) and (393x) */
 				encoding_method = 6;
 			}
-			if(debug) printf("Now using method %d\n", encoding_method);
+			if(debug) 
+				printf("Now using method %d\n", encoding_method);
 		}
 	}
-
 	switch(encoding_method) { /* Encoding method - Table 10 */
-		case 1: strcat(binary_string, "1XX");
-		    read_posn = 16;
-		    break;
-		case 2: strcat(binary_string, "00XX");
-		    read_posn = 0;
-		    break;
-		case 3: strcat(binary_string, "0100");
-		    read_posn = strlen(source);
-		    break;
-		case 4: strcat(binary_string, "0101");
-		    read_posn = strlen(source);
-		    break;
-		case 5: strcat(binary_string, "01100XX");
-		    read_posn = 20;
-		    break;
-		case 6: strcat(binary_string, "01101XX");
-		    read_posn = 23;
-		    break;
-		case 7: strcat(binary_string, "0111000");
-		    read_posn = strlen(source);
-		    break;
-		case 8: strcat(binary_string, "0111001");
-		    read_posn = strlen(source);
-		    break;
-		case 9: strcat(binary_string, "0111010");
-		    read_posn = strlen(source);
-		    break;
-		case 10: strcat(binary_string, "0111011");
-		    read_posn = strlen(source);
-		    break;
-		case 11: strcat(binary_string, "0111100");
-		    read_posn = strlen(source);
-		    break;
-		case 12: strcat(binary_string, "0111101");
-		    read_posn = strlen(source);
-		    break;
-		case 13: strcat(binary_string, "0111110");
-		    read_posn = strlen(source);
-		    break;
-		case 14: strcat(binary_string, "0111111");
-		    read_posn = strlen(source);
-		    break;
+		case  1: strcat(binary_string, "1XX"); read_posn = 16; break;
+		case  2: strcat(binary_string, "00XX"); read_posn = 0; break;
+		case  3: strcat(binary_string, "0100"); read_posn = src_len; break;
+		case  4: strcat(binary_string, "0101"); read_posn = src_len; break;
+		case  5: strcat(binary_string, "01100XX"); read_posn = 20; break;
+		case  6: strcat(binary_string, "01101XX"); read_posn = 23; break;
+		case  7: strcat(binary_string, "0111000"); read_posn = src_len; break;
+		case  8: strcat(binary_string, "0111001"); read_posn = src_len; break;
+		case  9: strcat(binary_string, "0111010"); read_posn = src_len; break;
+		case 10: strcat(binary_string, "0111011"); read_posn = src_len; break;
+		case 11: strcat(binary_string, "0111100"); read_posn = src_len; break;
+		case 12: strcat(binary_string, "0111101"); read_posn = src_len; break;
+		case 13: strcat(binary_string, "0111110"); read_posn = src_len; break;
+		case 14: strcat(binary_string, "0111111"); read_posn = src_len; break;
 	}
-	if(debug) printf("Setting binary = %s\n", binary_string);
+	if(debug) 
+		printf("Setting binary = %s\n", binary_string);
 
 	/* Variable length symbol bit field is just given a place holder (XX)
 	   for the time being */
@@ -1397,32 +1344,27 @@ int rss_binary_string(struct ZintSymbol * symbol, char source[], char binary_str
 			}
 		}
 	}
-
 	/* Now encode the compressed data field */
-
-	if(debug) printf("Proceeding to encode data\n");
+	if(debug) 
+		printf("Proceeding to encode data\n");
 	if(encoding_method == 1) {
 		/* Encoding method field "1" - general item identification data */
 		char group[4];
 		int group_val;
-
 		group[0] = source[2];
 		group[1] = '\0';
 		group_val = atoi(group);
-
 		mask = 0x08;
 		for(j = 0; j < 4; j++) {
 			strcat(binary_string, (group_val & mask) ? "1" : "0");
 			mask = mask >> 1;
 		}
-
 		for(i = 1; i < 5; i++) {
 			group[0] = source[(i * 3)];
 			group[1] = source[(i * 3) + 1];
 			group[2] = source[(i * 3) + 2];
 			group[3] = '\0';
 			group_val = atoi(group);
-
 			mask = 0x200;
 			for(j = 0; j < 10; j++) {
 				strcat(binary_string, (group_val & mask) ? "1" : "0");
@@ -1430,55 +1372,46 @@ int rss_binary_string(struct ZintSymbol * symbol, char source[], char binary_str
 			}
 		}
 	}
-
 	if(encoding_method == 3) {
-		/* Encoding method field "0100" - variable weight item
-		   (0,001 kilogram icrements) */
+		// Encoding method field "0100" - variable weight item (0,001 kilogram icrements) 
 		char group[4];
 		int group_val;
 		char weight_str[7];
-
 		for(i = 1; i < 5; i++) {
 			group[0] = source[(i * 3)];
 			group[1] = source[(i * 3) + 1];
 			group[2] = source[(i * 3) + 2];
 			group[3] = '\0';
 			group_val = atoi(group);
-
 			mask = 0x200;
 			for(j = 0; j < 10; j++) {
 				strcat(binary_string, (group_val & mask) ? "1" : "0");
 				mask = mask >> 1;
 			}
 		}
-
 		for(i = 0; i < 6; i++) {
 			weight_str[i] = source[20 + i];
 		}
 		weight_str[6] = '\0';
 		group_val = atoi(weight_str);
-
 		mask = 0x4000;
 		for(j = 0; j < 15; j++) {
 			strcat(binary_string, (group_val & mask) ? "1" : "0");
 			mask = mask >> 1;
 		}
 	}
-
 	if(encoding_method == 4) {
 		/* Encoding method field "0101" - variable weight item (0,01 or
 		   0,001 pound increment) */
 		char group[4];
 		int group_val;
 		char weight_str[7];
-
 		for(i = 1; i < 5; i++) {
 			group[0] = source[(i * 3)];
 			group[1] = source[(i * 3) + 1];
 			group[2] = source[(i * 3) + 2];
 			group[3] = '\0';
 			group_val = atoi(group);
-
 			mask = 0x200;
 			for(j = 0; j < 10; j++) {
 				strcat(binary_string, (group_val & mask) ? "1" : "0");
@@ -1535,7 +1468,7 @@ int rss_binary_string(struct ZintSymbol * symbol, char source[], char binary_str
 			strcat(binary_string, (group_val & mask) ? "1" : "0");
 			mask = mask >> 1;
 		}
-		if(strlen(source) == 34) {
+		if(src_len == 34) {
 			/* Date information is included */
 			date_str[0] = source[28];
 			date_str[1] = source[29];
@@ -1618,12 +1551,12 @@ int rss_binary_string(struct ZintSymbol * symbol, char source[], char binary_str
 	}
 	// The compressed data field has been processed if appropriate - the
 	// rest of the data (if any) goes into a general-purpose data compaction field 
-	j = 0;
-	for(i = read_posn; i < strlen(source); i++) {
-		general_field[j] = source[i];
-		j++;
+	{
+		j = 0;
+		for(size_t si_ = read_posn; si_ < src_len; si_++)
+			general_field[j++] = source[si_];
+		general_field[j] = '\0';
 	}
-	general_field[j] = '\0';
 	if(debug) 
 		printf("General field data = %s\n", general_field);
 	latch = 0;
@@ -1660,7 +1593,7 @@ int rss_binary_string(struct ZintSymbol * symbol, char source[], char binary_str
 			general_field_type[i] = INVALID_CHAR;
 			latch = 1;
 		}
-		/* Table 12 - Alphanumeric encodation */
+		// Table 12 - Alphanumeric encodation 
 		if((general_field[i] >= 'A') && (general_field[i] <= 'Z')) {
 			general_field_type[i] = ALPHA_OR_ISO;
 		}
@@ -1679,20 +1612,19 @@ int rss_binary_string(struct ZintSymbol * symbol, char source[], char binary_str
 		if(general_field[i] == '/') {
 			general_field_type[i] = ALPHA_OR_ISO;
 		}
-		/* Numeric encodation */
+		// Numeric encodation 
 		if((general_field[i] >= '0') && (general_field[i] <= '9')) {
 			general_field_type[i] = ANY_ENC;
 		}
 		if(general_field[i] == '[') {
-			/* FNC1 can be encoded in any system */
-			general_field_type[i] = ANY_ENC;
+			general_field_type[i] = ANY_ENC; // FNC1 can be encoded in any system 
 		}
 	}
 	general_field_type[strlen(general_field)] = '\0';
 	if(debug) 
 		printf("General field type: %s\n", general_field_type);
 	if(latch == 1) {
-		/* Invalid characters in input data */
+		// Invalid characters in input data 
 		strcpy(symbol->errtxt, "Invalid characters in input data (C86)");
 		return ZINT_ERROR_INVALID_DATA;
 	}
@@ -1730,7 +1662,8 @@ int rss_binary_string(struct ZintSymbol * symbol, char source[], char binary_str
 					printf("as NUMERIC:");
 			    if(last_mode != NUMERIC) {
 				    strcat(binary_string, "000"); /* Numeric latch */
-				    if(debug) printf("<NUMERIC LATCH>\n");
+				    if(debug) 
+						printf("<NUMERIC LATCH>\n");
 			    }
 			    if(debug) 
 					printf("  %c%c > ", general_field[i], general_field[i + 1]);
@@ -1791,16 +1724,21 @@ int rss_binary_string(struct ZintSymbol * symbol, char source[], char binary_str
 				    strcat(binary_string, "01111");
 				    last_mode = NUMERIC;
 			    } /* FNC1/Numeric latch */
-			    if(general_field[i] == '*') strcat(binary_string, "111010");  /* asterisk */
-			    if(general_field[i] == ',') strcat(binary_string, "111011");  /* comma */
-			    if(general_field[i] == '-') strcat(binary_string, "111100");  /* minus or hyphen */
-			    if(general_field[i] == '.') strcat(binary_string, "111101");  /* period or full stop */
-			    if(general_field[i] == '/') strcat(binary_string, "111110");  /* slash or solidus */
-
+			    if(general_field[i] == '*') 
+					strcat(binary_string, "111010");  /* asterisk */
+			    if(general_field[i] == ',') 
+					strcat(binary_string, "111011");  /* comma */
+			    if(general_field[i] == '-') 
+					strcat(binary_string, "111100");  /* minus or hyphen */
+			    if(general_field[i] == '.') 
+					strcat(binary_string, "111101");  /* period or full stop */
+			    if(general_field[i] == '/') 
+					strcat(binary_string, "111110");  /* slash or solidus */
 			    i++;
 			    break;
 			case ISOIEC:
-			    if(debug) printf("as ISOIEC\n");
+			    if(debug) 
+					printf("as ISOIEC\n");
 			    if(i != 0) {
 				    if(last_mode == NUMERIC) {
 					    strcat(binary_string, "0000"); /* Alphanumeric latch */
@@ -1865,10 +1803,11 @@ int rss_binary_string(struct ZintSymbol * symbol, char source[], char binary_str
 			    i++;
 			    break;
 		}
-	} while(i + latch < strlen(general_field));
-	if(debug) printf("Resultant binary = %s\n", binary_string);
-	if(debug) printf("\tLength: %d\n", (int)strlen(binary_string));
-
+	} while((i + latch) < strlen(general_field));
+	if(debug) 
+		printf("Resultant binary = %s\n", binary_string);
+	if(debug) 
+		printf("\tLength: %d\n", (int)strlen(binary_string));
 	remainder = 12 - (strlen(binary_string) % 12);
 	if(remainder == 12) {
 		remainder = 0;

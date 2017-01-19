@@ -32,16 +32,13 @@
 /* This file impliments Grid Matrix as specified in
    AIM Global Document Number AIMD014 Rev. 1.63 Revised 9 Dec 2008 */
 
-//#include <stdio.h>
-//#include <string.h>
-//#include <stdlib.h>
-#ifdef _MSC_VER
-	#include <malloc.h>
-#endif
 #include "common.h"
 #include "reedsol.h"
 #include "gridmtx.h"
 #include "gb2312.h"
+#ifdef _MSC_VER
+	#include <malloc.h>
+#endif
 
 int number_lat(int gbdata[], int length, int position)
 {
@@ -864,15 +861,15 @@ static void gm_add_ecc(const char binary[], const size_t data_posn, const int la
 	for(i = 0; i < 1320; i++) {
 		data[i] = 0;
 	}
-	/* Convert from binary sream to 7-bit codewords */
-	for(i = 0; i < data_posn; i++) {
+	// Convert from binary sream to 7-bit codewords 
+	for(i = 0; i < (int)data_posn; i++) {
 		for(p = 0; p < 7; p++) {
 			if(binary[i * 7 + p] == '1') {
 				data[i] += (0x40 >> p);
 			}
 		}
 	}
-	/* Add padding codewords */
+	// Add padding codewords 
 	data[data_posn] = 0x00;
 	for(i = (int)(data_posn + 1); i < data_cw; i++) {
 		if(i & 1) {
@@ -882,7 +879,7 @@ static void gm_add_ecc(const char binary[], const size_t data_posn, const int la
 			data[i] = 0x00;
 		}
 	}
-	/* Get block sizes */
+	// Get block sizes 
 	n1 = gm_n1[(layers - 1)];
 	b1 = gm_b1[(layers - 1)];
 	n2 = n1 - 1;

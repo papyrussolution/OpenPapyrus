@@ -32,9 +32,6 @@
 
 /* In version 0.5 this file was 1,553 lines long! */
 
-//#include <string.h>
-//#include <stdio.h>
-//#include <stdlib.h>
 #include "common.h"
 
 #define SODIUM  "0123456789-"
@@ -332,7 +329,7 @@ int ec39(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 
 	/* Then sends the buffer to the C39 function */
-	error_number = c39(symbol, buffer, ustrlen(buffer));
+	error_number = c39(symbol, buffer, sstrlen(buffer));
 
 	for(i = 0; i < (uint)length; i++)
 		symbol->text[i] = source[i] ? source[i] : ' ';

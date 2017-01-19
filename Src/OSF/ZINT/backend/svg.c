@@ -30,10 +30,6 @@
     SUCH DAMAGE.
  */
 
-//#include <string.h>
-//#include <stdlib.h>
-//#include <stdio.h>
-//#include <math.h>
 #include "common.h"
 #include <locale.h>
 #ifdef _MSC_VER
@@ -57,9 +53,9 @@ int svg_plot(struct ZintSymbol * symbol)
 	float default_text_posn;
 	const char * locale = NULL;
 #ifndef _MSC_VER
-	uchar local_text[ustrlen(symbol->text) + 1];
+	uchar local_text[sstrlen(symbol->text) + 1];
 #else
-	uchar* local_text = (uchar*)_alloca(ustrlen(symbol->text) + 1);
+	uchar* local_text = (uchar*)_alloca(sstrlen(symbol->text) + 1);
 #endif
 
 	row_height = 0;
@@ -85,14 +81,14 @@ int svg_plot(struct ZintSymbol * symbol)
 			case BARCODE_UPCE_CC:
 			    // For these symbols use dummy text to ensure formatting is done
 			    // properly even if no text is required
-			    for(i = 0; i < ustrlen(symbol->text); i++) {
+			    for(i = 0; i < sstrlen(symbol->text); i++) {
 				    if(symbol->text[i] == '+') {
 					    local_text[i] = '+';
 				    }
 				    else {
 					    local_text[i] = ' ';
 				    }
-				    local_text[ustrlen(symbol->text)] = '\0';
+				    local_text[sstrlen(symbol->text)] = '\0';
 			    }
 			    break;
 			default:
@@ -149,7 +145,7 @@ int svg_plot(struct ZintSymbol * symbol)
 	}
 	/* Certain symbols need whitespace otherwise characters get chopped off the sides */
 	if((((symbol->Std == BARCODE_EANX) && (symbol->rows == 1)) || (symbol->Std == BARCODE_EANX_CC)) || (symbol->Std == BARCODE_ISBNX)) {
-		switch(ustrlen(local_text)) {
+		switch(sstrlen(local_text)) {
 			case 13: /* EAN 13 */
 			case 16:
 			case 19:
@@ -176,7 +172,7 @@ int svg_plot(struct ZintSymbol * symbol)
 	r = 0;
 	/* Isolate add-on text */
 	if(is_extendable(symbol->Std)) {
-		for(i = 0; i < ustrlen(local_text); i++) {
+		for(i = 0; i < sstrlen(local_text); i++) {
 			if(latch == 1) {
 				addon[r] = local_text[i];
 				r++;
@@ -187,7 +183,7 @@ int svg_plot(struct ZintSymbol * symbol)
 		}
 	}
 	addon[r] = '\0';
-	if(ustrlen(local_text) != 0) {
+	if(sstrlen(local_text) != 0) {
 		textoffset = 9;
 	}
 	else {
@@ -208,7 +204,7 @@ int svg_plot(struct ZintSymbol * symbol)
 			    (74.0f + xoffset + xoffset) * scaler), (int)ceil((72.0f + yoffset + yoffset) * scaler));
 	}
 	fprintf(fsvg, "   xmlns=\"http://www.w3.org/2000/svg\">\n");
-	if((ustrlen(local_text) != 0) && (symbol->show_hrt != 0)) {
+	if((sstrlen(local_text) != 0) && (symbol->show_hrt != 0)) {
 		fprintf(fsvg, "   <desc>%s\n", local_text);
 	}
 	else {
@@ -374,7 +370,7 @@ int svg_plot(struct ZintSymbol * symbol)
 	if((((symbol->Std == BARCODE_EANX) &&
 			    (symbol->rows == 1)) || (symbol->Std == BARCODE_EANX_CC)) || (symbol->Std == BARCODE_ISBNX)) {
 		/* guard bar extensions and text formatting for EAN8 and EAN13 */
-		switch(ustrlen(local_text)) {
+		switch(sstrlen(local_text)) {
 			case 8: /* EAN-8 */
 			case 11:
 			case 14:
@@ -813,7 +809,7 @@ int svg_plot(struct ZintSymbol * symbol)
 	}
 
 	/* Put the human readable text at the bottom */
-	if((textdone == 0) && ustrlen(local_text)) {
+	if((textdone == 0) && sstrlen(local_text)) {
 		textpos = symbol->width / 2.0f;
 		fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n", (textpos + xoffset) * scaler, default_text_posn);
 		fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n", 8.0 * scaler, symbol->fgcolour);

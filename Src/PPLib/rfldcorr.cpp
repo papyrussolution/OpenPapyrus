@@ -2429,7 +2429,7 @@ int PPImpExp::AppendRecord(void * pInnerBuf, size_t bufLen)
 	else if(P_DbfT) { // DbfTable
 		DbfRecord dbfrec(P_DbfT);
 		THROW(dbfrec.put(P.OtrRec));
-		THROW(P_DbfT->appendRec(&dbfrec));
+		THROW_SL(P_DbfT->appendRec(&dbfrec));
 	}
 	else if(P_XmlT) {
 		THROW_SL(P_XmlT->AppendRecord(P.OtrRec, P.OtrRec.GetDataC()));

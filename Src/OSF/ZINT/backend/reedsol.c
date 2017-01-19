@@ -48,8 +48,6 @@
 // malloc/free can be avoided by using static arrays of a suitable
 // size.
 
-//#include <stdio.h>              // only needed for debug (main)
-//#include <stdlib.h>             // only needed for malloc/free
 #include "common.h"
 #include "reedsol.h"
 static int logmod; // 2**symsize - 1

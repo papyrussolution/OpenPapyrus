@@ -30,9 +30,6 @@
     SUCH DAMAGE.
  */
 
-//#include <stdio.h>
-//#include <string.h>
-//#include <stdlib.h>
 #include "common.h"
 
 extern int c39(struct ZintSymbol * symbol, uchar source[], const size_t length);

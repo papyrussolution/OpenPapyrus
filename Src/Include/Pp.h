@@ -28265,8 +28265,8 @@ private:
 	int    SLAPI PrintBarcode(const char * pBarcode);
 	int    SLAPI SendCmd(TcpSocket & rSo, int16 cmd, int32 retcode, const void * pBuf, size_t bufSize);
 	int    SLAPI RecvCommand(TcpSocket & rSo, void * pBuf, size_t bufSize, size_t * pRecvBytes = 0);
-	int    SLAPI Log(uint errCode, uint msgCode, const char * pAddInfo);
-	int    SLAPI Log(uint errCode, uint msgCode, const char * pAddInfo, long count, long total);
+	int    SLAPI Log_(uint errCode, uint msgCode, const char * pAddInfo);
+	int    SLAPI Log_(uint errCode, uint msgCode, const char * pAddInfo, long count, long total);
 
 	SString DeviceDir;
 	//TcpSocket * P_So;

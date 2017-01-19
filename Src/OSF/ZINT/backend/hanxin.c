@@ -31,17 +31,14 @@
 
 /* This code attempts to implement Han Xin Code according to AIMD-015:2010 (Rev 0.8) */
 
-//#include <stdio.h>
-//#include <string.h>
-//#include <stdlib.h>
-#ifdef _MSC_VER
-	#include <malloc.h>
-#endif
 #include "common.h"
 #include "reedsol.h"
 #include "hanxin.h"
 #include "gb18030.h"
 #include "assert.h"
+#ifdef _MSC_VER
+	#include <malloc.h>
+#endif
 
 /* Find which submode to use for a text character */
 int getsubmode(char input)

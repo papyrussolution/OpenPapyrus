@@ -30,10 +30,6 @@
     SUCH DAMAGE.
  */
 
-//#include <string.h>
-//#include <stdlib.h>
-//#include <stdio.h>
-//#include <math.h>
 #include "common.h"
 #include <locale.h>
 
@@ -57,9 +53,9 @@ int ps_plot(struct ZintSymbol * symbol)
 	float default_text_posn;
 	const char * locale = NULL;
 #ifndef _MSC_VER
-	uchar local_text[ustrlen(symbol->text) + 1];
+	uchar local_text[sstrlen(symbol->text) + 1];
 #else
-	uchar* local_text = (uchar*)malloc(ustrlen(symbol->text) + 1);
+	uchar* local_text = (uchar*)malloc(sstrlen(symbol->text) + 1);
 #endif
 	row_height = 0;
 	textdone = 0;
@@ -72,7 +68,7 @@ int ps_plot(struct ZintSymbol * symbol)
 		ustrcpy(local_text, symbol->text);
 	}
 	else {
-		/* No text needed */
+		// No text needed 
 		switch(symbol->Std) {
 			case BARCODE_EANX:
 			case BARCODE_EANX_CC:
@@ -81,12 +77,14 @@ int ps_plot(struct ZintSymbol * symbol)
 			case BARCODE_UPCE:
 			case BARCODE_UPCA_CC:
 			case BARCODE_UPCE_CC:
-			    // For these symbols use dummy text to ensure formatting is done
-			    // properly even if no text is required 
-			    for(i = 0; i < ustrlen(symbol->text); i++) {
-				    local_text[i] = (symbol->text[i] == '+') ? '+' : ' ';
-				    local_text[ustrlen(symbol->text)] = '\0';
-			    }
+				{
+					// For these symbols use dummy text to ensure formatting is done
+					// properly even if no text is required 
+					const size_t stl_ = sstrlen(symbol->text);
+					for(size_t sti = 0; sti < stl_; sti++)
+						local_text[sti] = (symbol->text[sti] == '+') ? '+' : ' ';
+					local_text[stl_] = '\0';
+				}
 			    break;
 			default: // For everything else, just remove the text
 			    local_text[0] = '\0';
@@ -139,7 +137,6 @@ int ps_plot(struct ZintSymbol * symbol)
 		return ZINT_ERROR_INVALID_OPTION;
 	}
 	locale = setlocale(LC_ALL, "C");
-
 	fgred = (16 * ctoi(symbol->fgcolour[0])) + ctoi(symbol->fgcolour[1]);
 	fggrn = (16 * ctoi(symbol->fgcolour[2])) + ctoi(symbol->fgcolour[3]);
 	fgblu = (16 * ctoi(symbol->fgcolour[4])) + ctoi(symbol->fgcolour[5]);
@@ -154,20 +151,10 @@ int ps_plot(struct ZintSymbol * symbol)
 	blue_paper = bgblu / 256.0f;
 	/* Convert RGB to CMYK */
 	if(red_ink > green_ink) {
-		if(blue_ink > red_ink) {
-			black_ink = 1 - blue_ink;
-		}
-		else {
-			black_ink = 1 - red_ink;
-		}
+		black_ink = (blue_ink > red_ink) ? (1 - blue_ink) : (1 - red_ink);
 	}
 	else {
-		if(blue_ink > red_ink) {
-			black_ink = 1 - blue_ink;
-		}
-		else {
-			black_ink = 1 - green_ink;
-		}
+		black_ink = (blue_ink > red_ink) ? (1 - blue_ink) : (1 - green_ink);
 	}
 	if(black_ink < 1.0) {
 		cyan_ink = (1 - red_ink - black_ink) / (1 - black_ink);
@@ -179,22 +166,11 @@ int ps_plot(struct ZintSymbol * symbol)
 		magenta_ink = 0.0;
 		yellow_ink = 0.0;
 	}
-
 	if(red_paper > green_paper) {
-		if(blue_paper > red_paper) {
-			black_paper = 1 - blue_paper;
-		}
-		else {
-			black_paper = 1 - red_paper;
-		}
+		black_paper = (blue_paper > red_paper) ? (1 - blue_paper) : (1 - red_paper);
 	}
 	else {
-		if(blue_paper > red_paper) {
-			black_paper = 1 - blue_paper;
-		}
-		else {
-			black_paper = 1 - green_paper;
-		}
+		black_paper = (blue_paper > red_paper) ? (1 - blue_paper) : (1 - green_paper);
 	}
 	if(black_paper < 1.0) {
 		cyan_paper = (1 - red_paper - black_paper) / (1 - black_paper);
@@ -206,11 +182,7 @@ int ps_plot(struct ZintSymbol * symbol)
 		magenta_paper = 0.0;
 		yellow_paper = 0.0;
 	}
-
-	if(symbol->height == 0) {
-		symbol->height = 50;
-	}
-
+	SETIFZ(symbol->height, 50);
 	large_bar_count = 0;
 	preset_height = 0.0;
 	for(i = 0; i < symbol->rows; i++) {
@@ -228,13 +200,11 @@ int ps_plot(struct ZintSymbol * symbol)
 	}
 	/* Certain symbols need whitespace otherwise characters get chopped off the sides */
 	if((((symbol->Std == BARCODE_EANX) && (symbol->rows == 1)) || (symbol->Std == BARCODE_EANX_CC)) || (symbol->Std == BARCODE_ISBNX)) {
-		switch(ustrlen(local_text)) {
+		switch(sstrlen(local_text)) {
 			case 13: /* EAN 13 */
 			case 16:
 			case 19:
-			    if(symbol->whitespace_width == 0) {
-				    symbol->whitespace_width = 10;
-			    }
+				SETIFZ(symbol->whitespace_width, 10);
 			    main_width = 96 + comp_offset;
 			    break;
 			default:
@@ -253,35 +223,30 @@ int ps_plot(struct ZintSymbol * symbol)
 			main_width = 51 + comp_offset;
 		}
 	}
-	latch = 0;
-	r = 0;
-	/* Isolate add-on text */
-	if(is_extendable(symbol->Std)) {
-		for(i = 0; i < ustrlen(local_text); i++) {
-			if(latch == 1) {
-				addon[r] = local_text[i];
-				r++;
-			}
-			if(local_text[i] == '+') {
-				latch = 1;
+	{
+		latch = 0;
+		r = 0;
+		// Isolate add-on text 
+		if(is_extendable(symbol->Std)) {
+			const size_t ltl_ = sstrlen(local_text);
+			for(size_t lti = 0; lti < ltl_; lti++) {
+				if(latch == 1) {
+					addon[r] = local_text[lti];
+					r++;
+				}
+				if(local_text[lti] == '+')
+					latch = 1;
 			}
 		}
+		addon[r] = '\0';
 	}
-	addon[r] = '\0';
-
-	if(ustrlen(local_text) != 0) {
-		textoffset = 9;
-	}
-	else {
-		textoffset = 0;
-	}
+	textoffset = (sstrlen(local_text) != 0) ? 9 : 0;
 	xoffset = symbol->border_width + symbol->whitespace_width;
 	yoffset = symbol->border_width;
-
-	/* Start writing the header */
+	// Start writing the header 
 	fprintf(feps, "%%!PS-Adobe-3.0 EPSF-3.0\n");
 	fprintf(feps, "%%%%Creator: Zint %d.%d.%d\n", ZINT_VERSION_MAJOR, ZINT_VERSION_MINOR, ZINT_VERSION_RELEASE);
-	if((ustrlen(local_text) != 0) && (symbol->show_hrt != 0)) {
+	if((sstrlen(local_text) != 0) && (symbol->show_hrt != 0)) {
 		fprintf(feps, "%%%%Title: %s\n", local_text);
 	}
 	else {
@@ -522,7 +487,7 @@ int ps_plot(struct ZintSymbol * symbol)
 	xoffset += comp_offset;
 	if((((symbol->Std == BARCODE_EANX) && (symbol->rows == 1)) || (symbol->Std == BARCODE_EANX_CC)) || (symbol->Std == BARCODE_ISBNX)) {
 		/* guard bar extensions and text formatting for EAN8 and EAN13 */
-		switch(ustrlen(local_text)) {
+		switch(sstrlen(local_text)) {
 			case 8: /* EAN-8 */
 			case 11:
 			case 14:
@@ -1006,7 +971,7 @@ int ps_plot(struct ZintSymbol * symbol)
 		    break;
 	}
 	/* Put the human readable text at the bottom */
-	if((textdone == 0) && (ustrlen(local_text))) {
+	if((textdone == 0) && (sstrlen(local_text))) {
 		fprintf(feps, "TE\n");
 		if((symbol->output_options & CMYK_COLOUR) == 0) {
 			fprintf(feps, "%.2f %.2f %.2f setrgbcolor\n", red_ink, green_ink, blue_ink);

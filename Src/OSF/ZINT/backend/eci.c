@@ -30,9 +30,6 @@
  */
 
 #include "common.h"
-//#include <string.h>
-//#include <stdio.h>
-//#include <stdlib.h>
 #include "eci.h"
 #include "zint.h"
 #ifdef _MSC_VER

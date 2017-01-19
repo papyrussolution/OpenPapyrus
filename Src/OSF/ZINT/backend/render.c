@@ -36,9 +36,6 @@
     SUCH DAMAGE.
  */
 
-//#include <string.h>
-//#include <stdlib.h>
-//#include <stdio.h>
 #include "common.h"
 #ifdef _MSC_VER
 	#include <malloc.h>
@@ -113,7 +110,7 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 	r = 0;
 	/* Isolate add-on text */
 	if(is_extendable(symbol->Std)) {
-		const size_t stl_ = ustrlen(symbol->text);
+		const size_t stl_ = sstrlen(symbol->text);
 		for(size_t sti = 0; sti < stl_; sti++) {
 			if(latch == 1) {
 				addon[r] = symbol->text[sti];
@@ -124,7 +121,7 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 		}
 	}
 	addon[r] = '\0';
-	if((!symbol->show_hrt) || (ustrlen(symbol->text) == 0)) {
+	if((!symbol->show_hrt) || (sstrlen(symbol->text) == 0)) {
 		hide_text = 1;
 		text_height = text_offset = 0;
 	}
@@ -141,7 +138,7 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 	}
 	/* Certain symbols need whitespace otherwise characters get chopped off the sides */
 	if((((symbol->Std == BARCODE_EANX) && (symbol->rows == 1)) || (symbol->Std == BARCODE_EANX_CC)) || (symbol->Std == BARCODE_ISBNX)) {
-		switch(ustrlen(symbol->text)) {
+		switch(sstrlen(symbol->text)) {
 			case 13: /* EAN 13 */
 			case 16:
 			case 19:
@@ -163,7 +160,7 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 			    main_symbol_width_x = 68 + symbol_lead_in;
 			    upceanflag = 8;
 		}
-		switch(ustrlen(symbol->text)) {
+		switch(sstrlen(symbol->text)) {
 			case 11:
 			case 16:
 			    /* EAN-2 add-on */
@@ -182,7 +179,7 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 			symbol->whitespace_width = 10;
 			main_symbol_width_x = 96 + symbol_lead_in;
 		}
-		switch(ustrlen(symbol->text)) {
+		switch(sstrlen(symbol->text)) {
 			case 15: /* EAN-2 add-on */
 			    addon_width_x = 31;
 			    break;
@@ -197,7 +194,7 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 			symbol->whitespace_width = 10;
 			main_symbol_width_x = 51 + symbol_lead_in;
 		}
-		switch(ustrlen(symbol->text)) {
+		switch(sstrlen(symbol->text)) {
 			case 11: /* EAN-2 add-on */
 			    addon_width_x = 31;
 			    break;
@@ -787,8 +784,8 @@ int render_plot_add_string(struct ZintSymbol * symbol,
 	string->y = y;
 	string->width = width;
 	string->fsize = fsize;
-	string->length = ustrlen(text);
-	string->text = (uchar*)malloc(sizeof(uchar) * (ustrlen(text) + 1));
+	string->length = sstrlen(text);
+	string->text = (uchar*)malloc(sizeof(uchar) * (sstrlen(text) + 1));
 	ustrcpy(string->text, text);
 
 	if(*last_string)

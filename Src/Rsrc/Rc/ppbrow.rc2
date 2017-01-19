@@ -587,7 +587,7 @@ toolbar export LOTS TB_FIRST_TOOLBAR {
 	MOVLOTOP      : kbCtrlM,  TBBM_OPERMOVE,   "Перенос операций\tCtrl-M"
 	EXTUPDATE     : kbCtrlC,  TBBM_CHNGPRICE,  "Изменение цен\tCtrl-C"
 	PUTTOBASKET   : kbCtrlF4, TBBM_BASKET,     "@{doputtobasket}\tCtrl-F4"
-	PUTTOBASKETALL: kbShiftF4, TBBM_ADDTISTOBASKET, "Добавить в корзину все товары из отчета\tShift-F4"
+	PUTTOBASKETALL: kbShiftF4, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tShift-F4"
 	PRINTLABEL    : kbCtrlL,  TBBM_PRNLABELS,  "Печать этикеток по лоту\tCtrl-L"
 	EDITPERSON    : kbCtrlS,  TBBM_PERSONS,    "@{supplier}\tCtrl-S"
 	separator
@@ -613,7 +613,7 @@ toolbar export ORDLOTS TB_FIRST_TOOLBAR {
 	DETAIL        : kbF3,      TBBM_LOTSOPER,       "@{view_lotop}\tF3"
 	SYSTEMINFO    : kbCtrlF3,  TBBM_SYSTEMINFO,     "@{sysinfo}\tCtrl-F3"
 	PUTTOBASKET   : kbCtrlF4,  TBBM_BASKET,         "@{doputtobasket}\tCtrl-F4"
-	PUTTOBASKETALL: kbShiftF4, TBBM_ADDTISTOBASKET, "Добавить в корзину все товары из отчета\tShift-F4"
+	PUTTOBASKETALL: kbShiftF4, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tShift-F4"
 	separator
 	TAGS          : kbCtrlF6,  TBBM_TAGS,       "@{tags}\tCtrl-F6"
 	TAGSALL       : kbShiftF6, TBBM_TAGSALL,    "@{doupdatetags}\tShift-F6"
@@ -631,9 +631,9 @@ toolbar export GOODSREST TB_FIRST_TOOLBAR {
 	EDITGOODS         : kbF2,     TBBM_GOODS,     "@{ware}\tF2"
 	//PUTTOBASKET     : kbCtrlF4, TBBM_BASKET,    "@{doputtobasket}\tCtrl-F4"
 	PUTTOBASKET       : kbSpace,  TBBM_BASKET,    "@{doputtobasket}\tПробел"
-	PUTTOBASKETALL    : kbCtrlF8, TBBM_ADDTISTOBASKET, "Добавить в корзину все товары из отчета\tCtrl-F8"
+	PUTTOBASKETALL    : kbCtrlF8, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tCtrl-F8"
 	VIEWOPGRPNG       : kbF5,     TBBM_OPGRPNG,   "Группировка операций по товару\tF5"
-	VIEWFORECAST      : kbCtrlF9, TBBM_PROGNOSIS, "Прогноз\tCtrl-F9"
+	VIEWFORECAST      : kbCtrlF9, TBBM_PROGNOSIS, "@{cmd_getprognosis}\tCtrl-F9"
 	VIEWSELLTAB       : kbCtrlS,  TBBM_SELLTAB,   "Таблица продаж товара\tCtrl-S"
 	VIEWGOODSCARD     : kbCtrlF3, TBBM_TRFRANLZ,  "@{view_trfranlz}\tCtrl-F3"
 	SETCONTRACTPRICES : kbCtrlP,  TBBM_NOICON,    "Установить контрактные цены\tCtrl-P"
@@ -671,7 +671,7 @@ toolbar export PERSON TB_FIRST_TOOLBAR {
 	TRANSMKIND     : kbCtrlB,     TBBM_NOICON,        "Передать выборку видов персоналий\tCtrl-B"
 	EXPORTVCARD    : kbCtrlD,     TBBM_NOICON,        "Передать персоналию в формате vCard\tCtrl-D"
 	FOLDER         : kbF4,        TBBM_FOLDER,        "Папка клиента\tF4"
-	ARTICLES       : kbCtrlA,     TBBM_NOICON,        "Аналитические статьи\tCtrl-A"
+	ARTICLES       : kbCtrlA,     TBBM_NOICON,        "@{cmd_accarticle}\tCtrl-A"
 	TASKS          : kbCtrlT,     TBBM_PRJTASK,       "Просмотр задач по персоналии\tCtrl-T"
 	VIEWSCARDS     : kbCtrlS,     TBBM_SCARD,         "Просмотр персональных карт\tCtrl-S"
 	UNITEOBJ       : kbCtrlU,     TBBM_UNITE,         "Объединение персоналий\tCtrl-U"
@@ -691,7 +691,7 @@ toolbar export ACCOUNT TB_FIRST_TOOLBAR {
 	ADDITEM          : kbIns,     TBBM_INSERT,    "@{add}\tInsert"
 	DELETEITEM       : kbDel,     TBBM_DELETE,    "@{delete}\tDelete"
 	ACCANLZ          : kbF3,      TBBM_ACCANLZ,   "Анализ\tF3"
-	ARTICLES         : kbF4,      TBBM_LINS,      "Аналитические статьи\tF4"
+	ARTICLES         : kbF4,      TBBM_LINS,      "@{cmd_accarticle}\tF4"
 	PRINT            : kbF7,      TBBM_PRINT,     "@{print}\tF7"
 	separator
 	TRANSMIT         : kbCtrlH,   TBBM_SENDOBJ,    "@{dotransmit}\tCtrl-H"
@@ -721,7 +721,7 @@ toolbar export GOODSBILLITEM TB_FIRST_TOOLBAR {
 	kbF5,      "Подбор по цене\tF5",                    TBBM_PRICE
 	kbF6,      "Добавить из заказа\tF6",                TBBM_ADDTIFROMORD
 	kbF8,      "Добавить из корзины\tF8",               TBBM_ADDTISFROMBASKET
-	kbCtrlF8,  "Добавить в корзину\tCtrl-F8",           TBBM_ADDTISTOBASKET
+	kbCtrlF8,  "@{doputtobasket}\tCtrl-F8",             TBBM_ADDTISTOBASKET
 	separator
 	kbCtrlL,   "Печать этикетки\tCtrl-L",               TBBM_BARLABEL
 	kbCtrlS,   "Генерировать серийные номера\tCtrl-S",  TBBM_SERIALGEN
@@ -788,7 +788,7 @@ toolbar export GOODSOPER TB_FIRST_TOOLBAR {
 	TRFRANLZ       : kbF3,      TBBM_TRFRANLZ,       "@{view_trfranlz}\tF3"
 	OPGRPNG        : kbF5,      TBBM_OPGRPNG,        "@{opgrouping}\tF5"
 	ADDTOBASKET    : kbSpace,   TBBM_BASKET,         "@{doputtobasket}\tПробел" // kbCtrlF4
-	ADDALLTOBASKET : kbCtrlF8,  TBBM_ADDTISTOBASKET, "Добавить в корзину все товары из отчета\tCtrl-F8"
+	ADDALLTOBASKET : kbCtrlF8,  TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tCtrl-F8"
 	separator
 	SORT           : kbCtrlO,   TBBM_SORT,           "@{sorting}\tCtrl-O"
 	PRINT          : kbF7,      TBBM_PRINT,          "@{print}\tF7"
@@ -1145,7 +1145,7 @@ browser PERSONREL north(100), 1, 0, "Отношения персоналий", OWNER|GRID, 0
 	}
 }
 
-browser ARTICLE north(100), 1, 0, "Аналитические статьи {%s}", OWNER|GRID, 0
+browser ARTICLE north(100), 1, 0, "@{view_article} {%s}", OWNER|GRID, 0
 {
 	"@id",           0, notype, 0, 14
 	"@number",       1, notype, 0, 10
@@ -1155,7 +1155,7 @@ browser ARTICLE north(100), 1, 0, "Аналитические статьи {%s}", OWNER|GRID, 0
 	toolbar ARTICLE
 }
 
-browser ARTICLE_AGTSUPPL north(100), 3, 0, "Аналитические статьи {%s}", OWNER|GRID, 0
+browser ARTICLE_AGTSUPPL north(100), 3, 0, "@{view_article} {%s}", OWNER|GRID, 0
 {
 	"@id",           0, notype, 0, 14
 	"@number",       1, notype, 0, 10
@@ -1174,7 +1174,7 @@ browser ARTICLE_AGTSUPPL north(100), 3, 0, "Аналитические статьи {%s}", OWNER|GR
 	toolbar ARTICLE
 }
 
-browser ARTICLE_AGTCLI north(100), 3, 0, "Аналитические статьи {%s}", OWNER|GRID, 0
+browser ARTICLE_AGTCLI north(100), 3, 0, "@{view_article} {%s}", OWNER|GRID, 0
 {
 	"@id",           0, notype, 0, 14
 	"@number",       1, notype, 0, 10
@@ -1756,7 +1756,7 @@ browser INVNTRYLINES north(100), 1, 1, "Строки инвентаризации {%s}", OWNER|GRID,
 		PRINT         : kbF7,      TBBM_PRINT,     "@{print}\tF7"
 		EDITGOODS     : kbShiftF2, TBBM_GOODS,     "@{ware}\tShift-F2"
 		ADDFROMBASKET : kbAltF8,   TBBM_ADDTISFROMBASKET, "Добавить из корзины\tAlt-F8"
-		ADDTOBASKET   : kbCtrlF8,  TBBM_ADDTISTOBASKET,   "Добавить в корзину\tCtrl-F8"
+		ADDTOBASKET   : kbCtrlF8,  TBBM_ADDTISTOBASKET,   "@{doputtobasket}\tCtrl-F8"
 		separator
 		BUILD         : kbF8,      TBBM_REFRESH,   "Автозаполнение инвентарной ведомости\tF8"
 		RECALCREST    : kbCtrlR,   TBBM_HAMMER,    "Пересчет учетных остатков\tCtrl-R"
@@ -3126,7 +3126,7 @@ browser GOODSOPER_PRICEDEV north(100), 3, 1, "Товарный отчет с отклонением цен {
 		GOODS          : kbF2,      TBBM_GOODS,          "@{ware}\tF2"
 		OPGRPNG        : kbF5,      TBBM_OPGRPNG,        "@{opgrouping}\tF5"
 		ADDTOBASKET    : kbCtrlF4,  TBBM_BASKET,         "@{doputtobasket}\tCtrl-F4"
-		ADDALLTOBASKET : kbCtrlF8,  TBBM_ADDTISTOBASKET, "Добавить в корзину все товары из отчета\tCtrl-F8"
+		ADDALLTOBASKET : kbCtrlF8,  TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tCtrl-F8"
 		separator
 		SORT           : kbCtrlO,   TBBM_SORT,           "@{sorting}\tCtrl-O"
 		PRINT          : kbF7,      TBBM_PRINT,          "@{print}\tF7"
@@ -3309,7 +3309,7 @@ browser PLINES north(100), 1, 1, "@{pricelist} {%s}", OWNER|GRID, 0
 		VIEWLOTS         : kbF3,       TBBM_LOTS,             "@{lots}\tF3"
 		ADDTOBASKET      : kbCtrlF4,   TBBM_BASKET,           "@{doputtobasket}\tCtrl-F4"
 		ADDFROMBASKET    : kbCtrlF5,   TBBM_ADDTISFROMBASKET, "Извлечь прайс-лист из корзины\tCtrl-F5"
-		PUTTOBASKETALL   : kbCtrlF9,   TBBM_ADDTISTOBASKET,   "Положить все в корзину\tCtrl-F9"
+		PUTTOBASKETALL   : kbCtrlF9,   TBBM_ADDTISTOBASKET,   "@{doputtobasketall}\tCtrl-F9"
 		// @v7.6.0 POSTALBATROS     : kbF6,       TBBM_POSTALBATROS,     "Опубликовать прайс-лист в Albatros\tF6"
 		EXPORTUHTT       : kbAltU,     TBBM_EXPORTUHTT,       "@{exporttouhtt}\tAlt-U" // @v7.6.0
 		// @v9.3.2 EXPORT           : kbCtrlL,    TBBM_EXPORT,           "Экспорт в формате EXCEL\tCtrl-L"
@@ -3339,7 +3339,7 @@ browser PLINES_BYALLQUOTS north(100), 1, 1, "@{pricelist} {%s}", OWNER|GRID, 0
 		VIEWLOTS         : kbF3,       TBBM_LOTS,             "@{lots}\tF3"
 		ADDTOBASKET      : kbCtrlF4,   TBBM_BASKET,           "@{doputtobasket}\tCtrl-F4"
 		ADDFROMBASKET    : kbCtrlF5,   TBBM_ADDTISFROMBASKET, "Извлечь прайс-лист из корзины\tCtrl-F5"
-		PUTTOBASKETALL   : kbCtrlF9,   TBBM_ADDTISTOBASKET,   "Положить все в корзину\tCtrl-F9"
+		PUTTOBASKETALL   : kbCtrlF9,   TBBM_ADDTISTOBASKET,   "@{doputtobasketall}\tCtrl-F9"
 		// @v7.6.0 POSTALBATROS     : kbF6,       TBBM_POSTALBATROS,     "Опубликовать прайс-лист в Albatros\tF6"
 		EXPORTUHTT       : kbAltU,     TBBM_EXPORTUHTT,       "@{exporttouhtt}\tAlt-U" // @v7.6.0
 		// @v9.3.2 EXPORT           : kbCtrlL,    TBBM_EXPORT,           "Экспорт в формате EXCEL\tCtrl-L"
@@ -3723,7 +3723,7 @@ browser CCHECKGRP_GOODS north(100), 1, 1, "Кассовые чеки по товарам", OWNER|GRID
 	"@{fraction},%",  7, notype, 0, 6.4
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL         : kbEnter,  TBBM_LINS,   "@{detail}\tEnter"
-		ADDALLTOBASKET : kbCtrlF8, TBBM_ADDTISTOBASKET, "Добавить в корзину все товары из отчета\tCtrl-F8"
+		ADDALLTOBASKET : kbCtrlF8, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tCtrl-F8"
 		TOTAL          : kbF9,     TBBM_SIGM,   "@{totals}\tF9"
 		PRINT          : kbF7,     TBBM_PRINT,  "@{print}\tF7"
 		CHANGEFILT     : kbCtrlV,  TBBM_FILTER, "@{filter}\tCtrl-V"
@@ -4164,7 +4164,7 @@ browser CSESSEXC north(100), 3, 1, "Дефицит по кассовым сессиям", OWNER|GRID, 0
 		VIEWLOTS      : kbF3,     TBBM_LOTS,           "@{lots}\tF3"
 		SETALTGOODS   : kbF4,     TBBM_CSEXCAG,        "Альт товар\tF4"
 		separator
-		PUTTOBASKETALL: kbCtrlF8, TBBM_ADDTISTOBASKET, "Добавить в корзину все товары из отчета\tCtrl-F8"
+		PUTTOBASKETALL: kbCtrlF8, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tCtrl-F8"
 		PRINT         : kbF7,     TBBM_PRINT,          "@{print}\tF7"
 		TOTAL         : kbF9,     TBBM_SIGM,           "@{totals}\tF9"
 		separator
@@ -4900,7 +4900,7 @@ browser GBILLCMP north(100), 3, 1, "Сравнение документов %s", OWNER|GRID, 0
 	toolbar TB_FIRST_TOOLBAR {
 		EDITGOODS      : kbF2,     TBBM_GOODS,          "@{ware}\tF2"
 		PUTTOBASKET    : kbSpace,  TBBM_BASKET,         "@{doputtobasket}\tПробел"
-		PUTTOBASKETALL : kbCtrlF4, TBBM_ADDTISTOBASKET, "Положить в корзину различающиеся товары\tCtrl-F4"
+		PUTTOBASKETALL : kbCtrlF4, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tCtrl-F4"
 		PRINT          : kbF7,     TBBM_PRINT,          "@{print}\tF7"
 		TOTAL          : kbF9,     TBBM_SIGM,           "@{totals}\tF9"
 		separator
@@ -4995,7 +4995,7 @@ browser MRPLINE north(100), 1, 1, "Строки MRP-таблицы {%s}", OWNER|GRID, 0
 		VIEWLOTS       : kbF3,    TBBM_LOTS,    "@{lots}\tF3"
 		REPLACEMENT    : kbF4,    TBBM_REPLACE, "Замещения\tF4"
 		PUTTOBASKET    : kbCtrlF4, TBBM_BASKET,         "@{doputtobasket}\tCtrl-F4"
-		PUTTOBASKETALL : kbCtrlF8, TBBM_ADDTISTOBASKET, "Добавить в корзину все товары из отчета\tCtrl-F8"
+		PUTTOBASKETALL : kbCtrlF8, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tCtrl-F8"
 		TOTAL          : kbF9,    TBBM_SIGM,    "@{totals}\tF9"
 		PRINT          : kbF7,    TBBM_PRINT,   "@{print}\tF7"
 		separator

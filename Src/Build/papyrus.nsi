@@ -43,7 +43,6 @@
 !ifndef PRODUCT_VERSION
 	!define PRODUCT_VERSION "Null version"
 !endif
-
 !ifdef INSTALL_SERVER
 	!define PRODUCT_NAME "Papyrus Server"
 !else ifdef INSTALL_UPDATE
@@ -56,6 +55,11 @@
 	!define PRODUCT_NAME "Papyrus Manual"
 !else 
 	!define PRODUCT_NAME "Papyrus"
+!endif
+!ifdef OPENSOURCE
+	!define PRODUCT_PREFIX "OpenPapyrus"
+!else
+	!define PRODUCT_PREFIX "Ppy"
 !endif
 
 !define VERSELDLL  "versel.dll"
@@ -256,15 +260,15 @@ FunctionEnd
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 !ifdef INSTALL_SERVER
-	OutFile PpyServer_${PRODUCT_VERSION}.exe
+	OutFile ${PRODUCT_PREFIX}Server_${PRODUCT_VERSION}.exe
 !else ifdef INSTALL_CLIENT
-	OutFile PpyClient_${PRODUCT_VERSION}.exe
+	OutFile ${PRODUCT_PREFIX}Client_${PRODUCT_VERSION}.exe
 !else ifdef INSTALL_UPDATE
-	OutFile PpyUpdate_${PRODUCT_VERSION}.exe
+	OutFile ${PRODUCT_PREFIX}Update_${PRODUCT_VERSION}.exe
 !else ifdef INSTALL_DEMO
-	OutFile PpyDemo_${PRODUCT_VERSION}.exe
+	OutFile ${PRODUCT_PREFIX}Demo_${PRODUCT_VERSION}.exe
 !else ifdef INSTALL_MANUAL
-	OutFile PpyManual_${PRODUCT_VERSION}.exe
+	OutFile ${PRODUCT_PREFIX}Manual_${PRODUCT_VERSION}.exe
 !else	
 	OutFile "setup.exe"
 !endif

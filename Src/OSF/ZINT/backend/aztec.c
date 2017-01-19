@@ -30,15 +30,12 @@
     SUCH DAMAGE.
  */
 
-//#include <stdio.h>
-//#include <string.h>
-//#include <stdlib.h>
-#ifdef _MSC_VER
-	#include <malloc.h>
-#endif
 #include "common.h"
 #include "aztec.h"
 #include "reedsol.h"
+#ifdef _MSC_VER
+	#include <malloc.h>
+#endif
 
 static int AztecMap[22801];
 

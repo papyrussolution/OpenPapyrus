@@ -31,13 +31,10 @@
     SUCH DAMAGE.
  */
 
-//#include <string.h>
-//#include <stdlib.h>
-//#include <stdio.h>
+#include "common.h"
 #ifdef _MSC_VER
 	#include <malloc.h>
 #endif
-#include "common.h"
 
 #define DAFTSET "DAFT"
 #define KRSET "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"

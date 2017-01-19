@@ -34,20 +34,16 @@
 #include "code1.h"
 #include "reedsol.h"
 #include "large.h"
-//#include <stdio.h>
-//#include <string.h>
-//#include <math.h>
 
 void horiz(struct ZintSymbol * symbol, int row_no, int full)
 {
-	int i;
 	if(full) {
-		for(i = 0; i < symbol->width; i++) {
+		for(int i = 0; i < symbol->width; i++) {
 			set_module(symbol, row_no, i);
 		}
 	}
 	else {
-		for(i = 1; i < symbol->width - 1; i++) {
+		for(int i = 1; i < symbol->width - 1; i++) {
 			set_module(symbol, row_no, i);
 		}
 	}
@@ -1228,7 +1224,7 @@ int code_one(struct ZintSymbol * symbol, uchar source[], int length)
 	if(symbol->option_2 == 9) {
 		/* Version S */
 		int codewords;
-		short int elreg[112];
+		short elreg[112];
 		uint data[15], ecc[15];
 		int stream[30];
 		int block_width;

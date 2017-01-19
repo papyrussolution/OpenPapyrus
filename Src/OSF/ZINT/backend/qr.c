@@ -30,17 +30,13 @@
     SUCH DAMAGE.
  */
 
-//#include <string.h>
-#ifdef _MSC_VER
-	#include <malloc.h>
-#endif
 #include "common.h"
-//#include <stdio.h>
 #include "sjis.h"
 #include "qr.h"
 #include "reedsol.h"
-//#include <stdlib.h>     /* abs */
-//#include <assert.h>
+#ifdef _MSC_VER
+	#include <malloc.h>
+#endif
 
 /* Returns true if input glyph is in the Alphanumeric set */
 int in_alpha(int glyph)

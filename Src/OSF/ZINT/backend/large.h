@@ -36,12 +36,12 @@
 extern "C" {
 #endif /* __cplusplus */
 
-extern void binary_load(short int reg[], char data[], const uint src_len);
-extern void binary_add(short int accumulator[], short int input_buffer[]);
-extern void binary_subtract(short int accumulator[], short int input_buffer[]);
-extern void shiftdown(short int buffer[]);
-extern void shiftup(short int buffer[]);
-extern short int islarger(short int accum[], short int reg[]);
+extern void binary_load(short reg[], char data[], const uint src_len);
+extern void binary_add(short accumulator[], short input_buffer[]);
+extern void binary_subtract(short accumulator[], short input_buffer[]);
+extern void shiftdown(short buffer[]);
+extern void shiftup(short buffer[]);
+extern short islarger(short accum[], short reg[]);
 
 #ifdef __cplusplus
 }

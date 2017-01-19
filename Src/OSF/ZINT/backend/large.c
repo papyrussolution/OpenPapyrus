@@ -30,12 +30,10 @@
     SUCH DAMAGE.
  */
 
-//#include <stdio.h>
-//#include <string.h>
 #include "common.h"
 #include "large.h"
 
-static const short int BCD[40] = {
+static const short BCD[40] = {
 	0, 0, 0, 0,
 	1, 0, 0, 0,
 	0, 1, 0, 0,
@@ -48,56 +46,47 @@ static const short int BCD[40] = {
 	1, 0, 0, 1
 };
 
-void binary_add(short int accumulator[], short int input_buffer[])   /* Binary addition */
+void binary_add(short accumulator[], short input_buffer[])   /* Binary addition */
 {
-	int    done;
 	int    carry = 0;
 	for(int i = 0; i < 112; i++) {
-		done = 0;
-		if(((input_buffer[i] == 0) && (accumulator[i] == 0))
-		    && ((carry == 0) && (done == 0))) {
+		int done = 0;
+		if(((input_buffer[i] == 0) && (accumulator[i] == 0)) && ((carry == 0) && !done)) {
 			accumulator[i] = 0;
 			carry = 0;
 			done = 1;
 		}
-		if(((input_buffer[i] == 0) && (accumulator[i] == 0))
-		    && ((carry == 1) && (done == 0))) {
+		if(((input_buffer[i] == 0) && (accumulator[i] == 0)) && ((carry == 1) && !done)) {
 			accumulator[i] = 1;
 			carry = 0;
 			done = 1;
 		}
-		if(((input_buffer[i] == 0) && (accumulator[i] == 1))
-		    && ((carry == 0) && (done == 0))) {
+		if(((input_buffer[i] == 0) && (accumulator[i] == 1)) && ((carry == 0) && !done)) {
 			accumulator[i] = 1;
 			carry = 0;
 			done = 1;
 		}
-		if(((input_buffer[i] == 0) && (accumulator[i] == 1))
-		    && ((carry == 1) && (done == 0))) {
+		if(((input_buffer[i] == 0) && (accumulator[i] == 1)) && ((carry == 1) && !done)) {
 			accumulator[i] = 0;
 			carry = 1;
 			done = 1;
 		}
-		if(((input_buffer[i] == 1) && (accumulator[i] == 0))
-		    && ((carry == 0) && (done == 0))) {
+		if(((input_buffer[i] == 1) && (accumulator[i] == 0)) && ((carry == 0) && !done)) {
 			accumulator[i] = 1;
 			carry = 0;
 			done = 1;
 		}
-		if(((input_buffer[i] == 1) && (accumulator[i] == 0))
-		    && ((carry == 1) && (done == 0))) {
+		if(((input_buffer[i] == 1) && (accumulator[i] == 0)) && ((carry == 1) && !done)) {
 			accumulator[i] = 0;
 			carry = 1;
 			done = 1;
 		}
-		if(((input_buffer[i] == 1) && (accumulator[i] == 1))
-		    && ((carry == 0) && (done == 0))) {
+		if(((input_buffer[i] == 1) && (accumulator[i] == 1)) && ((carry == 0) && !done)) {
 			accumulator[i] = 0;
 			carry = 1;
 			done = 1;
 		}
-		if(((input_buffer[i] == 1) && (accumulator[i] == 1))
-		    && ((carry == 1) && (done == 0))) {
+		if(((input_buffer[i] == 1) && (accumulator[i] == 1)) && ((carry == 1) && !done)) {
 			accumulator[i] = 1;
 			carry = 1;
 			done = 1;
@@ -105,12 +94,12 @@ void binary_add(short int accumulator[], short int input_buffer[])   /* Binary a
 	}
 }
 
-void binary_subtract(short int accumulator[], short int input_buffer[])
+void binary_subtract(short accumulator[], short input_buffer[])
 {
 	/* 2's compliment subtraction */
 	/* take input_buffer from accumulator and put answer in accumulator */
 	int i;
-	short int sub_buffer[112];
+	short sub_buffer[112];
 
 	for(i = 0; i < 112; i++) {
 		if(input_buffer[i] == 0) {
@@ -130,7 +119,7 @@ void binary_subtract(short int accumulator[], short int input_buffer[])
 	binary_add(accumulator, sub_buffer);
 }
 
-void shiftdown(short int buffer[])
+void shiftdown(short buffer[])
 {
 	int i;
 
@@ -142,7 +131,7 @@ void shiftdown(short int buffer[])
 	}
 }
 
-void shiftup(short int buffer[])
+void shiftup(short buffer[])
 {
 	int i;
 
@@ -153,7 +142,7 @@ void shiftup(short int buffer[])
 	buffer[0] = 0;
 }
 
-short int islarger(short int accum[], short int reg[])
+short islarger(short accum[], short reg[])
 {
 	/* Returns 1 if accum[] is larger than reg[], else 0 */
 	int i, latch, larger;
@@ -174,27 +163,20 @@ short int islarger(short int accum[], short int reg[])
 	return larger;
 }
 
-void binary_load(short int reg[], char data[], const uint src_len)
+void binary_load(short reg[], char data[], const uint src_len)
 {
-	int read, i;
-	short int temp[112] = {0};
-	for(i = 0; i < 112; i++) {
-		reg[i] = 0;
-	}
-	for(read = 0; read < src_len; read++) {
-		for(i = 0; i < 112; i++) {
-			temp[i] = reg[i];
-		}
-		for(i = 0; i < 9; i++) {
+	short  temp[112] = {0};
+	memzero(reg, sizeof(reg[0]) * 112);
+	for(uint read = 0; read < src_len; read++) {
+		memcpy(temp, reg, sizeof(temp));
+		for(int i = 0; i < 9; i++) {
 			binary_add(reg, temp);
 		}
 		temp[0] = BCD[ctoi(data[read]) * 4];
 		temp[1] = BCD[(ctoi(data[read]) * 4) + 1];
 		temp[2] = BCD[(ctoi(data[read]) * 4) + 2];
 		temp[3] = BCD[(ctoi(data[read]) * 4) + 3];
-		for(i = 4; i < 112; i++) {
-			temp[i] = 0;
-		}
+		memzero(temp+4, sizeof(temp) - 4 * sizeof(temp[0]));
 		binary_add(reg, temp);
 	}
 }

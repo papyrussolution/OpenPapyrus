@@ -34,9 +34,6 @@
 
 /* Code 16k can hold up to 77 characters or 154 numbers */
 
-//#include <string.h>
-//#include <stdio.h>
-//#include <stdlib.h>
 #include "common.h"
 
 //#define TRUE 1
@@ -667,7 +664,7 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 			bar_characters++;
 			read++;
 		}
-	} while(read < ustrlen(source));
+	} while(read < sstrlen(source));
 
 	pads_needed = 5 - ((bar_characters + 2) % 5);
 	if(pads_needed == 5) {

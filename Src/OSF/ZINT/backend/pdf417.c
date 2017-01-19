@@ -41,19 +41,15 @@
    symbol->option_2 is used to adjust the width of the resulting symbol (i.e. the
    number of codeword columns not including row start and end data) */
 
-//#include <stdio.h>
-//#include <string.h>
-//#include <stdlib.h>
-//#include <math.h>
+#include "common.h"
+#include "pdf417.h"
+#include "large.h"
 #ifndef _MSC_VER
 	#include <stdint.h>
 #else
 	#include <malloc.h>
 	#include "ms_stdint.h"
 #endif
-#include "common.h"
-#include "pdf417.h"
-#include "large.h"
 
 /*
    Three figure numbers in comments give the location of command equivalents in the

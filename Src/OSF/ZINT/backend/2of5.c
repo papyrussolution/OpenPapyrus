@@ -30,13 +30,10 @@
     SUCH DAMAGE.
  */
 
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "common.h"
 #ifdef _MSC_VER
-#include <malloc.h>
-#define inline _inline
+	#include <malloc.h>
+	#define inline _inline
 #endif
 
 static const char * C25MatrixTable[10] = {
@@ -289,7 +286,8 @@ int dpleit(struct ZintSymbol * symbol, uchar source[], int length)
 /* Deutsche Post Identcode */
 int dpident(struct ZintSymbol * symbol, uchar source[], int length)
 {
-	int    i, error_number, zeroes;
+	int    error_number;
+	int    i, zeroes;
 	char   localstr[16];
 	uint   count = 0;
 	if(length > 11) {

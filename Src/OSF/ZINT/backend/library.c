@@ -29,15 +29,11 @@
     SUCH DAMAGE.
  */
 
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <errno.h>
+#include "common.h"
+#include "gs1.h"
 #ifdef _MSC_VER
 	#include <malloc.h>
 #endif
-#include "common.h"
-#include "gs1.h"
 
 #define TECHNETIUM      "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%"
 
@@ -278,14 +274,14 @@ int dump_plot(struct ZintSymbol * symbol)
 
 	return 0;
 }
-
-/* Process health industry bar code data */
+//
+// Process health industry bar code data 
+//
 static int hibc(struct ZintSymbol * symbol, uchar source[], size_t length)
 {
-	int counter, error_number, i;
-	char to_process[113], temp[2], check_digit;
-
-	/* without "+" and check: max 110 characters in HIBC 2.6 */
+	int    counter, error_number;
+	char   to_process[113], temp[2], check_digit;
+	// without "+" and check: max 110 characters in HIBC 2.6 
 	if(length > 110) {
 		strcpy(symbol->errtxt, "Data too long for HIBC LIC (B02)");
 		return ZINT_ERROR_TOO_LONG;
@@ -296,14 +292,13 @@ static int hibc(struct ZintSymbol * symbol, uchar source[], size_t length)
 		strcpy(symbol->errtxt, "Invalid characters in data (B03)");
 		return error_number;
 	}
-
 	strcpy(to_process, "+");
-	counter = 41;
-	for(i = 0; i < length; i++) {
-		counter += posn(TECHNETIUM, source[i]);
+	{
+		counter = 41;
+		for(size_t i = 0; i < length; i++)
+			counter += posn(TECHNETIUM, source[i]);
+		counter = counter % 43;
 	}
-	counter = counter % 43;
-
 	if(counter < 10) {
 		check_digit = itoc(counter);
 	}
@@ -313,33 +308,22 @@ static int hibc(struct ZintSymbol * symbol, uchar source[], size_t length)
 		}
 		else {
 			switch(counter) {
-				case 36: check_digit = '-';
-				    break;
-				case 37: check_digit = '.';
-				    break;
-				case 38: check_digit = ' ';
-				    break;
-				case 39: check_digit = '$';
-				    break;
-				case 40: check_digit = '/';
-				    break;
-				case 41: check_digit = '+';
-				    break;
-				case 42: check_digit = '%';
-				    break;
-				default: check_digit = ' ';
-				    break; /* Keep compiler happy */
+				case 36: check_digit = '-'; break;
+				case 37: check_digit = '.'; break;
+				case 38: check_digit = ' '; break;
+				case 39: check_digit = '$'; break;
+				case 40: check_digit = '/'; break;
+				case 41: check_digit = '+'; break;
+				case 42: check_digit = '%'; break;
+				default: check_digit = ' '; break; /* Keep compiler happy */
 			}
 		}
 	}
-
 	temp[0] = check_digit;
 	temp[1] = '\0';
-
 	strcat(to_process, (char*)source);
 	strcat(to_process, temp);
 	length = strlen(to_process);
-
 	switch(symbol->Std) {
 		case BARCODE_HIBC_128:
 		    error_number = code_128(symbol, (uchar*)to_process, length);
@@ -373,7 +357,6 @@ static int hibc(struct ZintSymbol * symbol, uchar source[], size_t length)
 		    error_number = codablock(symbol, (uchar*)to_process, length);
 		    break;
 	}
-
 	return error_number;
 }
 
@@ -820,16 +803,14 @@ int ZBarcode_Encode(struct ZintSymbol * symbol, const uchar * source, int length
 	uchar* local_source;
 #endif
 	error_number = 0;
-
 	if(length == 0) {
-		length = (int)ustrlen(source);
+		length = (int)sstrlen(source);
 	}
 	if(length == 0) {
 		strcpy(symbol->errtxt, "No input data (B05)");
 		error_tag(symbol->errtxt, ZINT_ERROR_INVALID_DATA);
 		return ZINT_ERROR_INVALID_DATA;
 	}
-
 	if(strcmp(symbol->outfile, "") == 0) {
 #ifdef NO_PNG
 		strcpy(symbol->outfile, "out.gif");
@@ -1006,7 +987,7 @@ int ZBarcode_Encode(struct ZintSymbol * symbol, const uchar * source, int length
 			if(error_number != 0) {
 				return error_number;
 			}
-			length = ustrlen(local_source);
+			length = sstrlen(local_source);
 		}
 		else {
 			strcpy(symbol->errtxt, "Selected symbology does not support GS1 mode (B20)");

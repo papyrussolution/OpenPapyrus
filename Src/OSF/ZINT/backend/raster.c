@@ -30,15 +30,11 @@
     SUCH DAMAGE.
  */
 
-//#include <stdio.h>
+#include "common.h"
 #ifdef _MSC_VER
 	#include <fcntl.h>
 	#include <io.h>
 #endif
-//#include <stdlib.h>
-//#include <string.h>
-#include "common.h"
-
 #ifdef _MSC_VER
 	#include <malloc.h>
 #endif /* _MSC_VER */
@@ -569,7 +565,7 @@ void to_latin1(uchar source[], uchar preprocessed[])
 {
 	int j, i, input_length;
 
-	input_length = ustrlen(source);
+	input_length = sstrlen(source);
 
 	j = 0;
 	i = 0;
@@ -669,9 +665,9 @@ int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int data_t
 	int horiz, vert;
 	int scale_width, scale_height;
 #ifndef _MSC_VER
-	uchar local_text[ustrlen(symbol->text) + 1];
+	uchar local_text[sstrlen(symbol->text) + 1];
 #else
-	uchar * local_text = (uchar*)_alloca(ustrlen(symbol->text) + 1);
+	uchar * local_text = (uchar*)_alloca(sstrlen(symbol->text) + 1);
 #endif
 	if(symbol->show_hrt != 0) {
 		to_latin1(symbol->text, local_text); // Copy text from symbol 
@@ -689,7 +685,7 @@ int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int data_t
 				{
 					// For these symbols use dummy text to ensure formatting is done
 					// properly even if no text is required
-					const size_t stl_ = ustrlen(symbol->text);
+					const size_t stl_ = sstrlen(symbol->text);
 					for(size_t sti = 0; sti < stl_; sti++) {
 						local_text[sti] = (symbol->text[sti] == '+') ? '+' : ' ';
 					}
@@ -734,7 +730,7 @@ int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int data_t
 	}
 	/* Certain symbols need whitespace otherwise characters get chopped off the sides */
 	if((((symbol->Std == BARCODE_EANX) && (symbol->rows == 1)) || (symbol->Std == BARCODE_EANX_CC)) || (symbol->Std == BARCODE_ISBNX)) {
-		switch(ustrlen(local_text)) {
+		switch(sstrlen(local_text)) {
 			case 13: /* EAN 13 */
 			case 16:
 			case 19:
@@ -761,7 +757,7 @@ int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int data_t
 	r = 0;
 	/* Isolate add-on text */
 	if(is_extendable(symbol->Std)) {
-		const size_t ltl_ = ustrlen(local_text);
+		const size_t ltl_ = sstrlen(local_text);
 		for(size_t lti = 0; lti < ltl_; lti++) {
 			if(latch == 1) {
 				addon[r] = local_text[lti];
@@ -772,7 +768,7 @@ int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int data_t
 		}
 	}
 	addon[r] = '\0';
-	textoffset = (ustrlen(local_text) != 0) ? 9 : 0;
+	textoffset = (sstrlen(local_text) != 0) ? 9 : 0;
 	xoffset = symbol->border_width + symbol->whitespace_width;
 	yoffset = symbol->border_width;
 	image_width = 2 * (symbol->width + xoffset + xoffset);
@@ -852,7 +848,7 @@ int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int data_t
 	xoffset += comp_offset;
 	if((((symbol->Std == BARCODE_EANX) && (symbol->rows == 1)) || (symbol->Std == BARCODE_EANX_CC)) || (symbol->Std == BARCODE_ISBNX)) {
 		/* guard bar extensions and text formatting for EAN8 and EAN13 */
-		switch(ustrlen(local_text)) {
+		switch(sstrlen(local_text)) {
 			case 8: /* EAN-8 */
 			case 11:
 			case 14:
@@ -1096,7 +1092,7 @@ int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int data_t
 	}
 
 	/* Put the human readable text at the bottom */
-	if((textdone == 0) && (ustrlen(local_text) != 0)) {
+	if((textdone == 0) && (sstrlen(local_text) != 0)) {
 		textpos = (image_width / 2);
 		draw_string(pixelbuf, (char*)local_text, textpos, default_text_posn, textflags, image_width, image_height);
 	}

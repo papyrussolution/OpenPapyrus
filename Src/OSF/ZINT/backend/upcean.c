@@ -29,14 +29,11 @@
     SUCH DAMAGE.
  */
 
+#include "common.h"
+
 #define SODIUM  "0123456789+"
 #define EAN2    102
 #define EAN5    105
-
-//#include <stdio.h>
-//#include <string.h>
-//#include <stdlib.h>
-#include "common.h"
 
 /* UPC and EAN tables checked against EN 797:1996 */
 
@@ -150,7 +147,7 @@ int upce(struct ZintSymbol * symbol, uchar source[], char dest[])
 	/* Two number systems can be used - system 0 and system 1 */
 	if(symbol->Std != BARCODE_UPCE_CHK) {
 		/* No check digit in input data */
-		if(ustrlen(source) == 7) {
+		if(sstrlen(source) == 7) {
 			switch(source[0]) {
 				case '0': num_system = 0;
 				    break;
@@ -175,7 +172,7 @@ int upce(struct ZintSymbol * symbol, uchar source[], char dest[])
 	}
 	else {
 		/* Check digit is included in input data */
-		if(ustrlen(source) == 8) {
+		if(sstrlen(source) == 8) {
 			switch(source[0]) {
 				case '0': num_system = 0;
 				    break;
@@ -273,7 +270,7 @@ int upce(struct ZintSymbol * symbol, uchar source[], char dest[])
 
 	/* start character */
 	strcat(dest, "111");
-	for(i = 0; i <= ustrlen(source); i++) {
+	for(i = 0; i <= sstrlen(source); i++) {
 		switch(parity[i]) {
 			case 'A': lookup(NEON, EANsetA, source[i], dest);
 			    break;
@@ -312,7 +309,7 @@ void add_on(uchar source[], char dest[], int mode)
 	strcat(dest, "112");
 
 	/* Determine EAN2 or EAN5 add-on */
-	if(ustrlen(source) == 2) {
+	if(sstrlen(source) == 2) {
 		code_type = EAN2;
 	}
 	else {
@@ -342,7 +339,7 @@ void add_on(uchar source[], char dest[], int mode)
 		strcpy(parity, EAN5Parity[parity_bit]);
 	}
 
-	for(i = 0; i < ustrlen(source); i++) {
+	for(i = 0; i < sstrlen(source); i++) {
 		switch(parity[i]) {
 			case 'A': lookup(NEON, EANsetA, source[i], dest);
 			    break;
@@ -351,7 +348,7 @@ void add_on(uchar source[], char dest[], int mode)
 		}
 
 		/* Glyph separator */
-		if(i != (ustrlen(source) - 1)) {
+		if(i != (sstrlen(source) - 1)) {
 			strcat(dest, "11");
 		}
 	}
@@ -473,7 +470,7 @@ char isbn13_check(uchar source[])
 
 	sum = 0;
 	weight = 1;
-	h = ustrlen(source) - 1;
+	h = sstrlen(source) - 1;
 
 	for(i = 0; i < h; i++) {
 		sum += ctoi(source[i]) * weight;
@@ -495,7 +492,7 @@ char isbn_check(uchar source[])
 
 	sum = 0;
 	weight = 1;
-	h = ustrlen(source) - 1;
+	h = sstrlen(source) - 1;
 
 	for(i = 0; i < h; i++) {
 		sum += ctoi(source[i]) * weight;
@@ -572,7 +569,7 @@ int isbn(struct ZintSymbol * symbol, uchar source[], const uint src_len, char de
 
 		/* Verify check digit */
 		check_digit = isbn_check(source);
-		if(check_digit != source[ustrlen(source) - 1]) {
+		if(check_digit != source[sstrlen(source) - 1]) {
 			strcpy(symbol->errtxt, "Incorrect SBN check (C6C)");
 			return ZINT_ERROR_INVALID_CHECK;
 		}
@@ -599,7 +596,7 @@ void ean_leading_zeroes(struct ZintSymbol * symbol, uchar source[], uchar local_
 	int with_addon = 0;
 	int first_len = 0, second_len = 0, zfirst_len = 0, zsecond_len = 0, i, h;
 
-	h = ustrlen(source);
+	h = sstrlen(source);
 	for(i = 0; i < h; i++) {
 		if(source[i] == '+') {
 			with_addon = 1;
@@ -758,7 +755,7 @@ int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 		to_upper(local_source);
 	}
 	ean_leading_zeroes(symbol, source, local_source);
-	for(reader = 0; reader <= ustrlen(local_source); reader++) {
+	for(reader = 0; reader <= sstrlen(local_source); reader++) {
 		if(source[reader] == '+') {
 			with_addon = TRUE;
 		}
@@ -783,7 +780,7 @@ int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 				reader++;
 				writer++;
 			}
-		} while(reader <= ustrlen(local_source));
+		} while(reader <= sstrlen(local_source));
 	}
 	else {
 		strcpy((char*)first_part, (char*)local_source);
@@ -791,7 +788,7 @@ int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 	switch(symbol->Std) {
 		case BARCODE_EANX:
 		case BARCODE_EANX_CHK:
-		    switch(ustrlen(first_part)) {
+		    switch(sstrlen(first_part)) {
 			    case 2: add_on(first_part, (char*)dest, 0);
 				ustrcpy(symbol->text, first_part);
 				break;
@@ -809,7 +806,7 @@ int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 		    }
 		    break;
 		case BARCODE_EANX_CC:
-		    switch(ustrlen(first_part)) { /* Adds vertical separator bars according to ISO/IEC 24723 section 11.4 */
+		    switch(sstrlen(first_part)) { /* Adds vertical separator bars according to ISO/IEC 24723 section 11.4 */
 			    case 7: set_module(symbol, symbol->rows, 1);
 				set_module(symbol, symbol->rows, 67);
 				set_module(symbol, symbol->rows + 1, 0);
@@ -840,7 +837,7 @@ int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 		    break;
 		case BARCODE_UPCA:
 		case BARCODE_UPCA_CHK:
-		    if((ustrlen(first_part) == 11) || (ustrlen(first_part) == 12)) {
+		    if((sstrlen(first_part) == 11) || (sstrlen(first_part) == 12)) {
 			    error_number = upca(symbol, first_part, (char*)dest);
 		    }
 		    else {
@@ -849,7 +846,7 @@ int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 		    }
 		    break;
 		case BARCODE_UPCA_CC:
-		    if(ustrlen(first_part) == 11) {
+		    if(sstrlen(first_part) == 11) {
 			    set_module(symbol, symbol->rows, 1);
 			    set_module(symbol, symbol->rows, 95);
 			    set_module(symbol, symbol->rows + 1, 0);
@@ -869,7 +866,7 @@ int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 		    break;
 		case BARCODE_UPCE:
 		case BARCODE_UPCE_CHK:
-		    if((ustrlen(first_part) >= 6) && (ustrlen(first_part) <= 8)) {
+		    if((sstrlen(first_part) >= 6) && (sstrlen(first_part) <= 8)) {
 			    error_number = upce(symbol, first_part, (char*)dest);
 		    }
 		    else {
@@ -878,7 +875,7 @@ int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 		    }
 		    break;
 		case BARCODE_UPCE_CC:
-		    if((ustrlen(first_part) >= 6) && (ustrlen(first_part) <= 7)) {
+		    if((sstrlen(first_part) >= 6) && (sstrlen(first_part) <= 7)) {
 			    set_module(symbol, symbol->rows, 1);
 			    set_module(symbol, symbol->rows, 51);
 			    set_module(symbol, symbol->rows + 1, 0);
@@ -897,7 +894,7 @@ int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 		    }
 		    break;
 		case BARCODE_ISBNX:
-		    error_number = isbn(symbol, first_part, ustrlen(first_part), (char*)dest);
+		    error_number = isbn(symbol, first_part, sstrlen(first_part), (char*)dest);
 		    break;
 	}
 
@@ -905,7 +902,7 @@ int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 		return error_number;
 	}
 
-	switch(ustrlen(second_part)) {
+	switch(sstrlen(second_part)) {
 		case 0: break;
 		case 2:
 		    add_on(second_part, (char*)dest, 1);

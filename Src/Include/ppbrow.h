@@ -55,11 +55,11 @@
 	#define HELP_BROWSER_PERSONATTR_TAG                 9
 #define BROWSER_PERSONREL                     10 // Отношения персоналий
 	#define HELP_BROWSER_PERSONREL                     10
-#define BROWSER_ARTICLE                       11 // Аналитические статьи {%s}
+#define BROWSER_ARTICLE                       11 // @{view_article} {%s}
 	#define HELP_BROWSER_ARTICLE                       11
-#define BROWSER_ARTICLE_AGTSUPPL              12 // Аналитические статьи {%s}
+#define BROWSER_ARTICLE_AGTSUPPL              12 // @{view_article} {%s}
 	#define HELP_BROWSER_ARTICLE_AGTSUPPL              12
-#define BROWSER_ARTICLE_AGTCLI                13 // Аналитические статьи {%s}
+#define BROWSER_ARTICLE_AGTCLI                13 // @{view_article} {%s}
 	#define HELP_BROWSER_ARTICLE_AGTCLI                13
 #define BROWSER_ACCOUNT                       14 // %s
 	#define HELP_BROWSER_ACCOUNT                       14

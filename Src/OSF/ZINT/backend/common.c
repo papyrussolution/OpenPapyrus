@@ -29,16 +29,13 @@
     OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
  */
-//#include <string.h>
-//#include <stdio.h>
-//#include <stdlib.h>
 #include "common.h"
 
-/* Local replacement for strlen() with uchar strings */
-size_t ustrlen(const uchar data[])
+// Local replacement for strlen() with uchar strings 
+/*size_t ustrlen_(const uchar data[])
 {
 	return strlen((const char*)data);
-}
+}*/
 
 /* Converts a character 0-9 to its equivalent integer value */
 int ctoi(const char source)
@@ -62,7 +59,7 @@ char itoc(const int source)
 /* Converts lower case characters to upper case in a string source[] */
 void to_upper(uchar source[])
 {
-	size_t i, src_len = ustrlen(source);
+	size_t i, src_len = sstrlen(source);
 
 	for(i = 0; i < src_len; i++) {
 		if((source[i] >= 'a') && (source[i] <= 'z')) {

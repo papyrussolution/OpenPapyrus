@@ -30,9 +30,6 @@
     SUCH DAMAGE.
  */
 
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
 #include "common.h"
 
 #define SSET    "0123456789ABCDEF"

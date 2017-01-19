@@ -30,16 +30,12 @@
     SUCH DAMAGE.
  */
 
-//#include <stdio.h>
+#include "common.h"
 #ifdef _MSC_VER
 	#include <fcntl.h>
 	#include <io.h>
 	#include <malloc.h>
 #endif
-//#include <stdlib.h>
-//#include <string.h>
-#include "common.h"
-
 #ifndef NO_PNG
 #include <libpng/png.h>
 #include <zlib.h>

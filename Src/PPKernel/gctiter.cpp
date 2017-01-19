@@ -268,10 +268,7 @@ void SLAPI GCTIterator::GoodsRestArray::Finish()
 				if(loc_id != current_loc_id || goods_id != current_goods_id) {
 					current_goods_id = goods_id;
 					current_loc_id = loc_id;
-                    if(!r_entry.Dt)
-						current_rest = r_entry.Rest;
-					else
-						current_rest = 0.0;
+                    current_rest = (!r_entry.Dt) ? r_entry.Rest : 0.0;
 				}
                 if(r_entry.Dt) {
 					const double new_rest = current_rest + r_entry.Rest;
@@ -1169,7 +1166,7 @@ int SLAPI GCTIterator::NextCpTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pB
 						if(goods_notvalid)
 							pTrfrRec->GoodsID = NZOR(Filt.GoodsID, Filt.GoodsGrpID);
 					}
-				}				
+				}
 				if(Cbb.P_WrOffPack) {
 					if(Filt.Flags & OPG_COMPAREWROFF && pExt) {
 						double sum_cost = 0.0;

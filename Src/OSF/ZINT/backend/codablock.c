@@ -30,15 +30,11 @@
     SUCH DAMAGE.
  */
 
-//#include <stdio.h>
-//#include <math.h>
-//#include <string.h>
-//#include <stdlib.h>
+#include "common.h"
+#include "gs1.h"
 #ifdef _MSC_VER
 	#include <malloc.h>
 #endif
-#include "common.h"
-#include "gs1.h"
 
 /* FTab C128 flags - may be added */
 #define CodeA 1

@@ -38,12 +38,9 @@
     SUCH DAMAGE.
  */
 
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <ctype.h>
-//#include <string.h>
-//#include <assert.h>
-//#include <math.h>
+#include "common.h"
+#include "reedsol.h"
+#include "dmatrix.h"
 #ifdef _MSC_VER
 	#include <malloc.h>
 	// ceilf (C99) not before MSVC++2013 (C++ 12.0) 
@@ -51,9 +48,6 @@
 		#define ceilf ceil
 	#endif*/
 #endif
-#include "common.h"
-#include "reedsol.h"
-#include "dmatrix.h"
 
 /* Annex M placement alorithm low level */
 static void ecc200placementbit(int * array, const int NR, const int NC, int r, int c, const int p, const char b)
