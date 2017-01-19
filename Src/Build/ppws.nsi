@@ -1,5 +1,5 @@
 ; PPWS.NSI
-; Copyright (c) A.Sobolev 2005, 2006, 2007, 2008
+; Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2017
 ; —крипт создани€ инсталл€ции сервера задач системы Papyrus
 ;
 !define PRODUCT_PUBLISHER "A.Fokin, A.Sobolev"
@@ -18,6 +18,15 @@
 !define SERVICE_CONTROL_STOP  1
 !define FALSEPASSW            "FaLsEpAsSwOrD"
 !define SERVICE_NAME          "PAPYRUS_SERVICE"
+;
+; ¬нимание: функци€ сборки дистрибутива, встроенна€ в Papyrus полагаетс€ на следующие значени€ префиксов дистрибутивов
+;
+!ifdef OPENSOURCE
+	!define PRODUCT_PREFIX "OPpy"
+!else
+	!define PRODUCT_PREFIX "Ppy"
+!endif
+
 
 Var hwnd
 Var hSCManager
@@ -245,7 +254,7 @@ PageExEnd
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile PpyJobSrvr_${PRODUCT_VERSION}.exe
+OutFile ${PRODUCT_PREFIX}JobSrvr_${PRODUCT_VERSION}.exe
 ShowInstDetails show
 ShowUnInstDetails show
 
