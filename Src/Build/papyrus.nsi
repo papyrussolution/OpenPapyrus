@@ -56,12 +56,17 @@
 !else 
 	!define PRODUCT_NAME "Papyrus"
 !endif
+;
+; Внимание: функция сборки дистрибутива, встроенная в Papyrus полагается на следующие значения префиксов дистрибутивов
+;
 !ifdef OPENSOURCE
-	!define PRODUCT_PREFIX "OpenPapyrus"
+	!define PRODUCT_PREFIX "OPpy"
 !else
 	!define PRODUCT_PREFIX "Ppy"
 !endif
-
+;
+; Утилита, собираемая проектом VersionSelector
+;
 !define VERSELDLL  "versel.dll"
 
 SetCompressor lzma

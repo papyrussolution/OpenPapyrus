@@ -519,8 +519,8 @@ int	SLAPI PrcssrBuild::Run()
 				MEMSZERO(si);
 				si.cb = sizeof(si);
 				MEMSZERO(pi);
-
-				(target_file_name = "Ppy").Cat(r_nsis_entry.P_Name).CatChar('_').Cat(ver_label).Dot().Cat("exe");
+				target_file_name = (P.Flags & Param::fOpenSource) ? "OPpy" : "Ppy";
+				target_file_name.Cat(r_nsis_entry.P_Name).CatChar('_').Cat(ver_label).Dot().Cat("exe");
 				PPGetPath(PPPATH_LOG, build_log_path);
 				build_log_path.SetLastSlash().Cat("build").CatChar('-').Cat("nsis").CatChar('-').Cat(r_nsis_entry.P_Name).Dot().Cat("log");
 				(temp_buf = 0).CatQStr(P.NsisPath).Space().CatEq("/DPRODUCT_VERSION", ver_label).Space().
