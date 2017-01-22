@@ -1607,9 +1607,11 @@ int SLAPI PPMailSmtp::SendMsgToFile(PPMailMsg * pMsg, SString & rFileName)
 	FILE * out = 0;
 
 	THROW_PP(pMsg, PPERR_INVPARAM);
+	/*
 	if(!PPGetPath(PPPATH_TEMP, temp_buf))
 		PPGetPath(PPPATH_OUT, temp_buf);
-	MakeTempFileName(temp_buf, "ppm", "msg", 0, fname);
+	*/
+	PPMakeTempFileName("ppm", "msg", 0, fname);
 	PPSetAddedMsgString(fname);
 	THROW_PP_S(out = fopen(fname, "wt"), PPERR_CANTOPENFILE, fname);
 	pMsg->SetField(PPMailMsg::fldBoundary, pMsg->MakeBoundaryCode(temp_buf));

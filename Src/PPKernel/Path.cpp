@@ -429,6 +429,13 @@ SString & FASTCALL PPGetFileName(uint fnameID, SString & rBuf)
 	return rBuf;
 }
 
+SString & SLAPI PPMakeTempFileName(const char * pPrefix, const char * pExt, long * pStart, SString & rBuf)
+{
+	SString path;
+	PPGetPath(PPPATH_TEMP, path);
+	return MakeTempFileName(path.SetLastSlash(), pPrefix, pExt, pStart, rBuf);
+}
+
 int SLAPI PPRemoveFiles(const PPFileNameArray * pFileList)
 {
 	int    ok = -1;

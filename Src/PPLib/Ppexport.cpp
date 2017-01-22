@@ -105,19 +105,20 @@ int SLAPI PPDbTableXmlExporter::Run(const char * pOutFileName)
 		xmlTextWriterStartDocument(writer, 0, "utf-8", 0);
 		// XMLWriteSpecSymbEntities(writer);
 		{
+			DbProvider * p_dict = CurDict;
 			SLS.GetTLA().TxtDateFmt_ = DATF_DMY|DATF_CENTURY;
 			(temp_buf = p_t->tableName).ToUtf8();
 			SXml::WNode n_tbl(writer, temp_buf);
 			DS.GetVersion().ToStr(temp_buf = 0);
 			n_tbl.PutAttrib("version", temp_buf);
 			{
-				CurDict->GetDbSymb(temp_buf);
+				p_dict->GetDbSymb(temp_buf);
 				temp_buf.ToUtf8();
 				n_tbl.PutAttrib("dbsymb", temp_buf);
 			}
 			{
 				S_GUID uuid;
-				CurDict->GetDbUUID(&uuid);
+				p_dict->GetDbUUID(&uuid);
 				uuid.ToStr(S_GUID::fmtIDL, temp_buf);
 				n_tbl.PutAttrib("dbuuid", temp_buf);
 			}

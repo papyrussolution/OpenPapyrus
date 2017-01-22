@@ -1,5 +1,5 @@
 // PPPOSPROTOCOL.CPP
-// Copyright (c) A.Sobolev 2016
+// Copyright (c) A.Sobolev 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -737,13 +737,14 @@ int SLAPI ACS_PAPYRUS_APN::ExportData(int updOnly)
         qk_list.sortAndUndup();
 	}
 	{
+		DbProvider * p_dict = CurDict;
 		PPPosProtocol::RouteBlock rb;
 		PPVersionInfo vi = DS.GetVersionInfo();
 		vi.GetProductName(rb.System);
 		vi.GetVersion().ToStr(rb.Version);
-        if(CurDict) {
-			CurDict->GetDbUUID(&rb.Uuid);
-			CurDict->GetDbSymb(rb.Code);
+        if(p_dict) {
+			p_dict->GetDbUUID(&rb.Uuid);
+			p_dict->GetDbSymb(rb.Code);
         }
         THROW(Pp.WriteRouteInfo(wb, "source", rb));
 	}

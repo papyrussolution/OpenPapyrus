@@ -1904,7 +1904,7 @@ public:
 	int    getDTS(PPViewVatBook::AutoBuildFilt * pData);
 private:
 	DECL_HANDLE_EVENT;
-	int    SetupCtrls();
+	void   SetupCtrls();
 
 	PPID   Kind;
 	PPViewVatBook::AutoBuildFilt Data;
@@ -1924,7 +1924,7 @@ IMPL_HANDLE_EVENT(AutoBuildFiltDialog)
 	clearEvent(event);
 }
 
-int AutoBuildFiltDialog::SetupCtrls()
+void AutoBuildFiltDialog::SetupCtrls()
 {
 	if(Kind == PPVTB_SELL) {
 		GetClusterData(CTL_VATBABFLT_FLAGS, &Data.Flags);
@@ -1938,7 +1938,6 @@ int AutoBuildFiltDialog::SetupCtrls()
 		disableCtrls(1, CTLSEL_VATBABFLT_SHEET2, CTLSEL_VATBABFLT_OBJECT2, 0);
 		DisableClusterItem(CTL_VATBABFLT_FLAGS, 0, 1);
 	}
-	return 1;
 }
 
 int AutoBuildFiltDialog::setDTS(const PPViewVatBook::AutoBuildFilt * pData)

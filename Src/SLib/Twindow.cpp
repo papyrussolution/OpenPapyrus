@@ -640,7 +640,17 @@ void SLAPI TWindow::showCtrl(ushort ctlID, int s)
 	}
 }
 
-void FASTCALL TWindow::setTitle(const char * pBuf, int setOrgTitle)
+void FASTCALL TWindow::setTitle(const char * pBuf)
+{
+	return Helper_SetTitle(pBuf, 0);
+}
+
+void FASTCALL TWindow::setOrgTitle(const char * pBuf)
+{
+	return Helper_SetTitle(pBuf, 1);
+}
+
+void FASTCALL TWindow::Helper_SetTitle(const char * pBuf, int setOrgTitle)
 {
 	if(!isempty(pBuf)) { // @v8.8.4
 		SString temp_title = pBuf;

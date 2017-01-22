@@ -1171,6 +1171,7 @@ int CPosProcessor::GetCheckInfo(CCheckPacket * pPack)
 	}
 	if(pPack->Rec.SCardID) {
 		SCardOpTbl::Rec scop_rec;
+		/* @v9.4.11
 		if(pPack->Ext.LinkCheckID) {
 			if(ScObj.P_Tbl->SearchOpByCheck(pPack->Ext.LinkCheckID, &scop_rec) > 0) {
 				if(scop_rec.Amount > 0.0)
@@ -1183,6 +1184,10 @@ int CPosProcessor::GetCheckInfo(CCheckPacket * pPack)
 					pPack->_OrdPrepay = scop_rec.Amount;
 			}
 		}
+		*/
+		const PPID prepay_cc_id = NZOR(pPack->Ext.LinkCheckID, ((pPack->Rec.Flags & CCHKF_ORDER) ? pPack->Rec.ID : 0));
+		if(prepay_cc_id && ScObj.P_Tbl->SearchOpByCheck(prepay_cc_id, &scop_rec) > 0 && scop_rec.Amount > 0.0)
+			pPack->_OrdPrepay = scop_rec.Amount;
 	}
 	CATCHZOK
 	return ok;
@@ -2589,6 +2594,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 						SETIFZ(P.Eccd.Addr_.Type, LOCTYP_ADDRESS);
 						THROW(PsnObj.LocObj.PutRecord(&P.Eccd.Addr_.ID, &P.Eccd.Addr_, 0));
 					}
+					/* @v9.4.11
 					// @v9.4.5 {
 					if(P.Eccd.Addr_.ID && P.Eccd.SCardID_) {
 						PPSCardPacket sc_pack;
@@ -2600,6 +2606,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 						}
 					}
 					// } @v9.4.5
+					*/
 					pPack->Ext.AddrID = P.Eccd.Addr_.ID;
 				}
 			}
@@ -4775,7 +4782,7 @@ int SelCheckListDialog::SetupItemList()
 					enableCommand(cmUniteChecks, to_disable);
 				}
 				{
-					PPLoadString(memo_has_addr ? "address" : "memo", sub = 0);
+					PPLoadString(memo_has_addr ? "address" : "memo", sub);
 					setLabelText(CTL_SELCHECK_MEMO, sub);
 					setCtrlString(CTL_SELCHECK_MEMO, memo_buf);
 				}
@@ -4806,10 +4813,10 @@ public:
 	{
 		SString agent_name;
 		P_Pack = pPack;
-		double amount = MONEYTOLDBL(P_Pack->Rec.Amount);
+		const double amount = MONEYTOLDBL(P_Pack->Rec.Amount);
 		GetArticleName(P_Pack->Ext.SalerID, agent_name);
 		setCtrlString(CTL_SPLITSUSCHK_AGENT, agent_name);
-		setCtrlData(CTL_SPLITSUSCHK_AMOUNT, &amount);
+		setCtrlReal(CTL_SPLITSUSCHK_AMOUNT, amount);
 		setCtrlData(CTL_SPLITSUSCHK_TABLE,  &P_Pack->Ext.TableNo);
 		disableCtrls(1, CTL_SPLITSUSCHK_AGENT, CTL_SPLITSUSCHK_AMOUNT, CTL_SPLITSUSCHK_TABLE, 0L);
 		SetupStrListBox(this, CTL_SPLITSUSCHK_LIST1);
@@ -5286,6 +5293,12 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 				setGroupData(GRP_SCARD, &screc);
 			}
 			// } @v9.4.5
+			// @v9.4.11 {
+			{
+				AddClusterAssoc(CTL_CCHKDLVR_LPHTOCRD, 0, Data.fAttachPhoneToSCard);
+				SetClusterData(CTL_CCHKDLVR_LPHTOCRD, Data.Flags);
+			}
+			// } @v9.4.11
 			return ok;
 		}
 		int    getDTS(CheckPaneDialog::ExtCcData * pData)
@@ -5310,6 +5323,7 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 				LocationCore::SetExField(&Data.Addr_, LOCEXSTR_CONTACT, temp_buf);
 				Data.DlvrDtm.d = getCtrlDate(CTL_CCHKDLVR_DT);
 				Data.DlvrDtm.t = getCtrlTime(CTL_CCHKDLVR_TM);
+				GetClusterData(CTL_CCHKDLVR_LPHTOCRD, &Data.Flags); // @v9.4.11
 			}
 			else {
 			}
@@ -5374,7 +5388,7 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 					if(scgrec.SCardID) {
 						int    local_ok = 0;
 						SCardTbl::Rec sc_rec;
-						if(ScObj.Search(scgrec.SCardID, &sc_rec) > 0) {
+						if(ScObj.Fetch(scgrec.SCardID, &sc_rec) > 0) { // @v9.4.11 Search-->Fetch
 							if((!sc_rec.LocID || sc_rec.LocID == Data.Addr_.ID) && (!sc_rec.PersonID || sc_rec.PersonID == Data.Addr_.OwnerID)) {
 								Data.SCardID_ = scgrec.SCardID;
 								local_ok = 1;
@@ -5385,6 +5399,9 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 							setGroupData(GRP_SCARD, &scgrec);
 						}
 					}
+					else
+						Data.SCardID_ = 0;
+					SetupDeliveryCtrls(0); // @v9.4.11
 				}
 			}
 			else
@@ -5650,6 +5667,9 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 		void   SetupDeliveryCtrls(const char * pPhone)
 		{
 			SString temp_buf;
+			SString loc_phone;
+			SString sc_phone;
+			SCardTbl::Rec sc_rec;
 			LockAddrModChecking = 1;
 			if(Data.Flags & Data.fDelivery) {
 				if(LocationCore::IsEmptyAddressRec(Data.Addr_)) {
@@ -5657,7 +5677,6 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 						LocationCore::SetExField(&Data.Addr_, LOCEXSTR_PHONE, pPhone);
 					}
 					else if(Data.SCardID_) {
-						SCardTbl::Rec sc_rec;
 						PPPersonPacket pack;
 						if(ScObj.Search(Data.SCardID_, &sc_rec) > 0 && sc_rec.PersonID && PsnObj.GetPacket(sc_rec.PersonID, &pack, 0) > 0) {
 							PersonID = sc_rec.PersonID;
@@ -5685,10 +5704,12 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 				setCtrlLong(CTLSEL_CCHKDLVR_CITY, NZOR(Data.Addr_.CityID, DefCityID));
 				LocationCore::GetExField(&Data.Addr_, LOCEXSTR_SHORTADDR, temp_buf);
 				setCtrlString(CTL_CCHKDLVR_ADDR, temp_buf);
-				LocationCore::GetExField(&Data.Addr_, LOCEXSTR_PHONE, temp_buf);
-				if(temp_buf.Empty() && PersonID)
-					temp_buf = DlvrPhone;
-				setCtrlString(CTL_CCHKDLVR_PHONE, temp_buf);
+				{
+					LocationCore::GetExField(&Data.Addr_, LOCEXSTR_PHONE, loc_phone);
+					if(loc_phone.Empty() && PersonID)
+						loc_phone = DlvrPhone;
+					setCtrlString(CTL_CCHKDLVR_PHONE, loc_phone);
+				}
 				LocationCore::GetExField(&Data.Addr_, LOCEXSTR_CONTACT, temp_buf);
 				if(temp_buf.Empty() && PersonID)
 					GetPersonName(PersonID, temp_buf);
@@ -5696,43 +5717,64 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 				SETIFZ(Data.DlvrDtm.d, getcurdate_());
 				setCtrlDate(CTL_CCHKDLVR_DT, Data.DlvrDtm.d);
 				setCtrlTime(CTL_CCHKDLVR_TM, Data.DlvrDtm.t);
-				if(PersonID) {
-					ComboBox * p_cb = (ComboBox *)getCtrlView(CTLSEL_CCHKDLVR_SCARD);
-					if(p_cb) {
-						PPIDArray sc_list;
-						ScObj.P_Tbl->GetListByPerson(PersonID, 0, &sc_list);
-						if(sc_list.getCount()) {
-							StrAssocArray * p_list = new StrAssocArray;
-							if(p_list) {
-								for(uint i = 0; i < sc_list.getCount(); i++) {
-									SCardTbl::Rec sc_rec;
-									if(ScObj.Search(sc_list.get(i), &sc_rec) > 0)
-										p_list->Add(sc_rec.ID, sc_rec.Code);
-								}
-								ListWindow * p_lw = CreateListWindow(p_list, lbtDisposeData | lbtDblClkNotify);
-								if(p_lw) {
-									p_cb->setListWindow(p_lw);
-									if(Data.SCardID_)
-										p_cb->TransmitData(+1, &Data.SCardID_);
-									else {
-										p_cb->setInputLineText(0);
-										p_cb->setUndefTag(1);
-									}
+				ComboBox * p_cb = (ComboBox *)getCtrlView(CTLSEL_CCHKDLVR_SCARD);
+				if(PersonID && p_cb) {
+					PPIDArray sc_list;
+					ScObj.P_Tbl->GetListByPerson(PersonID, 0, &sc_list);
+					if(sc_list.getCount()) {
+						StrAssocArray * p_list = new StrAssocArray;
+						if(p_list) {
+							for(uint i = 0; i < sc_list.getCount(); i++) {
+								if(ScObj.Fetch(sc_list.get(i), &sc_rec) > 0) // @v9.4.11 Search-->Fetch
+									p_list->Add(sc_rec.ID, sc_rec.Code);
+							}
+							ListWindow * p_lw = CreateListWindow(p_list, lbtDisposeData | lbtDblClkNotify);
+							if(p_lw) {
+								p_cb->setListWindow(p_lw);
+								if(Data.SCardID_)
+									p_cb->TransmitData(+1, &Data.SCardID_);
+								else {
+									p_cb->setInputLineText(0);
+									p_cb->setUndefTag(1);
 								}
 							}
 						}
 					}
 				}
+				// @v9.4.11 {
+				{
+					int    is_attachm_phn_to_sc_allowed = 0;
+					if(Data.SCardID_ && loc_phone.NotEmpty() && ScObj.Fetch(Data.SCardID_, &sc_rec) > 0) {
+						is_attachm_phn_to_sc_allowed = 1;
+						if(sc_rec.PersonID || sc_rec.LocID)
+							is_attachm_phn_to_sc_allowed = 0;
+						else {
+							PPSCardPacket sc_pack;
+							if(ScObj.GetPacket(Data.SCardID_, &sc_pack) > 0) {
+								if(sc_pack.GetExtStrData(PPSCardPacket::extssPhone, sc_phone) > 0 && sc_phone.NotEmptyS())
+									is_attachm_phn_to_sc_allowed = 0;
+							}
+							else
+								is_attachm_phn_to_sc_allowed = 0;
+						}
+					}
+					DisableClusterItem(CTL_CCHKDLVR_LPHTOCRD, 0, !is_attachm_phn_to_sc_allowed);
+					if(!is_attachm_phn_to_sc_allowed) {
+                        Data.Flags &= ~Data.fAttachPhoneToSCard;
+						SetClusterData(CTL_CCHKDLVR_LPHTOCRD, Data.Flags);
+					}
+				}
+				// } @v9.4.11
 			}
 			disableCtrls(!(Data.Flags & Data.fDelivery), CTL_CCHKDLVR_ADDRID, CTLSEL_CCHKDLVR_CITY,
-				CTL_CCHKDLVR_ADDR, CTL_CCHKDLVR_PHONE, CTL_CCHKDLVR_CONTACT, CTL_CCHKDLVR_DT, CTL_CCHKDLVR_TM, 0);
+				CTL_CCHKDLVR_ADDR, CTL_CCHKDLVR_PHONE, CTL_CCHKDLVR_CONTACT,
+				CTL_CCHKDLVR_DT, CTL_CCHKDLVR_TM, 0);
 			LockAddrModChecking = 0;
 		}
 
 		CheckPaneDialog::ExtCcData Data;
 		LocationTbl::Rec OrgLocRec;
 		PPID   DefCityID;
-		//PPID   _SCardID;
 		PPID   PersonID;
 		int    LockAddrModChecking;
 		SString DlvrPhone;
@@ -5753,8 +5795,29 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 	if(CheckDialogPtr(&dlg, 1) && dlg->setDTS(&P.Eccd)) {
 		while(ok <= 0 && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS(&P.Eccd)) {
-				if(dlg->getSCardID(&sc_id) && sc_id != CSt.GetID())
-					AcceptSCard(0, sc_id);
+				if(dlg->getSCardID(&sc_id)) {
+					// @v9.4.11 {
+					assert(P.Eccd.SCardID_ == sc_id);
+					if(sc_id && P.Eccd.Flags & P.Eccd.fAttachPhoneToSCard) {
+						SString loc_phone;
+						SString ex_sc_phone;
+						LocationCore::GetExField(&P.Eccd.Addr_, LOCEXSTR_PHONE, loc_phone);
+						if(loc_phone.NotEmptyS()) {
+							PPSCardPacket sc_pack;
+							if(ScObj.GetPacket(P.Eccd.SCardID_, &sc_pack) > 0) {
+								sc_pack.GetExtStrData(PPSCardPacket::extssPhone, ex_sc_phone);
+								if(sc_pack.Rec.LocID == 0 && sc_pack.Rec.PersonID == 0 && ex_sc_phone.Empty()) {
+									sc_pack.PutExtStrData(PPSCardPacket::extssPhone, loc_phone);
+									if(!ScObj.PutPacket(&sc_id, &sc_pack, 1))
+										PPError();
+								}
+							}
+						}
+					}
+					// } @v9.4.11
+					if(sc_id != CSt.GetID())
+						AcceptSCard(0, sc_id);
+				}
 				ok = 1;
 			}
 		}
@@ -6079,11 +6142,11 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					if(CnSpeciality == PPCashNode::spCafe) {
 						PPLoadString("guestcount", name);
 						SetCtrlToolTip(CTL_CHKPAN_BYPRICE, name.Transf(CTRANSF_INNER_TO_OUTER));
-						PPLoadString("ftableorders", name = 0);
+						PPLoadString("ftableorders", name);
 						SetCtrlToolTip(CTL_CHKPAN_DIVISION, name.Transf(CTRANSF_INNER_TO_OUTER));
 					}
 					else if(CnSpeciality == PPCashNode::spDelivery) {
-						PPLoadString("delivery", name = 0);
+						PPLoadString("delivery", name);
 						SetCtrlToolTip(CTL_CHKPAN_DIVISION, name.Transf(CTRANSF_INNER_TO_OUTER));
 					}
 				}

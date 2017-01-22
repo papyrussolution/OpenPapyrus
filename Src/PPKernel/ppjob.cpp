@@ -2776,7 +2776,7 @@ RFIDDevPrcssr::RFIDDevPrcssr()
 	PriceNotDef.CatN(temp_buf, DISPLAY_ROW_SIZE);
 	PriceNotDef.CatCharN(' ', DISPLAY_ROW_SIZE - PriceNotDef.Len());
 
-	PPLoadString("err_internal", (temp_buf = 0));
+	PPLoadString("err_internal", temp_buf);
 	InternalErr.CatN(temp_buf, DISPLAY_ROW_SIZE);
 
 	CantPlay.Transf(CTRANSF_INNER_TO_OUTER);

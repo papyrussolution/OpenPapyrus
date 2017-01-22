@@ -734,9 +734,6 @@ int SLAPI ACS_FRONTOL::ImportFiles()
 				SString wait_msg;
 				SString temp_fname;
 				SString dest_fname;
-				SString temp_path;
-
-				PPGetPath(PPPATH_TEMP, temp_path);
 				THROW(mail.Init(&mac_rec));
 				mac_rec.GetExtField(MAEXSTR_RCVSERVER, wait_msg);
 				PPWaitMsg(PPSTR_TEXT, PPTXT_WTMAILCONNECTION, wait_msg);
@@ -757,7 +754,7 @@ int SLAPI ACS_FRONTOL::ImportFiles()
 				msg_counter.Init(msg_list.getCount());
 				for(i = 0; i < msg_list.getCount(); i++) {
 					PPMailMsg msg;
-					MakeTempFileName(temp_path, 0, "msg", 0, temp_fname = 0);
+					PPMakeTempFileName(0, "msg", 0, temp_fname = 0);
 					msg_counter.Increment();
 					THROW(mail.GetMsg(msg_list.at(i), &msg, temp_fname, RcvMailCallback, msg_counter));
 					{

@@ -1,5 +1,5 @@
 // PPSERVER.CPP
-// Copyright (c) A.Sobolev 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -797,7 +797,7 @@ int SLAPI PPJobSession::MailNotify(const char * pTmpLogFileName)
 int SLAPI PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
 {
 	int    ok = 1;
-	SString tmp_log_fpath, fmt_buf, msg_buf, path;
+	SString tmp_log_fpath, fmt_buf, msg_buf;
 	PPJob  inner_job;
 	THROW_PP(pMngr && pJob, PPERR_INVPARAM);
 	if(pJob->NextJobID) {
@@ -841,8 +841,7 @@ int SLAPI PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
 			long   job_info_id = 0;
 			long   logmsg_flags = LOGMSGF_TIME|LOGMSGF_THREADID|LOGMSGF_THREADINFO;
 			if(p_job->Flags & PPJob::fNotifyByMail) {
-				PPGetPath(PPPATH_TEMP, path);
-				MakeTempFileName(path.SetLastSlash(), "JSL", "TMP", 0, tmp_log_fpath);
+				PPMakeTempFileName("JSL", "TMP", 0, tmp_log_fpath);
 				DS.SetTempLogFileName(tmp_log_fpath);
 				if(p_job->Flags & PPJob::fSkipEmptyNotification)
 					logmsg_flags |= LOGMSGF_NODUPFORJOB;
@@ -2249,14 +2248,14 @@ PPServerSession::CmdRet SLAPI PPServerSession::ReceiveFile(int verb, const char 
 		if(blk.TransmType == blk.ttObjImage) {
 			THROW_PP_S(oneof5(blk.ObjType, PPOBJ_GOODS, PPOBJ_BRAND, PPOBJ_PERSON, PPOBJ_TSESSION, PPOBJ_WORKBOOK), PPERR_JOBSRV_OBJTYPENOTSUPP, (temp_buf = 0).Cat(blk.ObjType));
 			m |= SFile::mBinary;
-			PPGetPath(PPPATH_TEMP, temp_buf);
-			MakeTempFileName(temp_buf, "oimg", file_ext, 0, file_path);
+			// @v9.4.11 PPGetPath(PPPATH_TEMP, temp_buf);
+			PPMakeTempFileName("oimg", file_ext, 0, file_path);
 		}
 		else if(blk.TransmType == blk.ttWorkbookContent) {
 			THROW_PP_S(blk.ObjType = PPOBJ_WORKBOOK, PPERR_JOBSRV_OBJTYPENOTSUPP, (temp_buf = 0).Cat(blk.ObjType));
 			m |= SFile::mBinary;
-			PPGetPath(PPPATH_TEMP, temp_buf);
-			MakeTempFileName(temp_buf, "wbc", file_ext, 0, file_path);
+			// @v9.4.11 PPGetPath(PPPATH_TEMP, temp_buf);
+			PPMakeTempFileName("wbc", file_ext, 0, file_path);
 		}
 		else {
 			file_path = pParam;
@@ -3057,7 +3056,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 			// SETIMAGEMIME goods 52103 updateFlags ContentType ContentMime64
 			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
 			{
-				SString content_type, img_mime, path, file_name, file_ext;
+				SString content_type, img_mime, file_name, file_ext;
 				PPGetExtStrData(1, pEv->Params, name);
 				long   upd_flags = 0;
 				size_t bin_size = 0;
@@ -3072,7 +3071,6 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 				PPGetExtStrData(5, pEv->Params, img_mime);
 				SFileFormat ff;
 				ff.IdentifyMime(content_type);
-				PPGetPath(PPPATH_TEMP, path);
 				switch(ff) {
 					case ff.Jpeg: file_ext = "jpg"; break;
 					case ff.Png:  file_ext = "png"; break;
@@ -3080,7 +3078,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 					case ff.Gif:  file_ext = "gif"; break;
 					case ff.Bmp:  file_ext = "bmp"; break;
 				}
-				MakeTempFileName(path, "objimg", file_ext, 0, file_name);
+				PPMakeTempFileName("objimg", file_ext, 0, file_name);
 				{
 					STempBuffer tbuf(img_mime.Len() * 2);
 					THROW_SL(tbuf.IsValid());

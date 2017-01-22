@@ -1,5 +1,5 @@
 // PPLOG.CPP
-// Copyright (c) A.Sobolev, A.Osolotkin 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev, A.Osolotkin 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -489,11 +489,14 @@ long SLAPI PPMsgLog::Init()
 	if(!P_Index)
 		return 0;
 	{
-		SString path, fname;
+		SString fname;
+		/*
+		SString path;
 		if(!PPGetPath(PPPATH_TEMP, path))
 			PPGetPath(PPPATH_OUT, path);
-		MakeTempFileName(path, "logl", 0, 0, FileName);
-		MakeTempFileName(path, "logi", 0, 0, InFileName);
+		*/
+		PPMakeTempFileName("logl", 0, 0, FileName);
+		PPMakeTempFileName("logi", 0, 0, InFileName);
 	}
 	Stream = creat(FileName, S_IWRITE);
 	if(Stream < 0) {
@@ -1208,8 +1211,9 @@ int SLAPI PPSession::Log(const char * pFileName, const char * pStr, long options
 		if(options & LOGMSGF_TIME)
 			item.Prefix.Cat(getcurdatetime_()).Tab();
 		if(options & LOGMSGF_DBINFO) {
-			if(CurDict)
-				CurDict->GetDbSymb(temp_buf = 0);
+			DbProvider * p_dict = CurDict;
+			if(p_dict)
+				p_dict->GetDbSymb(temp_buf = 0);
 			else
 				temp_buf = "nologin";
 			item.Prefix.Cat(temp_buf).Tab();

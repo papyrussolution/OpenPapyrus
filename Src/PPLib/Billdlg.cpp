@@ -1646,7 +1646,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 											SetupArCombo(this, CTLSEL_BILL_OBJECT, P_Pack->Rec.Object, OLW_LOADDEFONOPEN|OLW_CANINSERT, P_Pack->AccSheet);
 											ReplyCntragntSelection(1);
 										}
-										double amt = getCtrlReal(CTL_BILL_AMOUNT);
+										const double amt = getCtrlReal(CTL_BILL_AMOUNT);
 										if(amt == 0.0) {
 											double paym = 0.0;
 											P_BObj->P_Tbl->GetAmount(bill_rec.ID, PPAMT_PAYMENT, bill_rec.CurID, &paym);

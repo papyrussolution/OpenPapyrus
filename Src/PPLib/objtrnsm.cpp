@@ -124,16 +124,15 @@ int SLAPI PPObjectTransmit::EditConfig()
 				clearEvent(event);
 			}
 		}
-		int    SetupCtrls(long flags)
+		void   SetupCtrls(long flags)
 		{
-			int    disable = (!(flags & DBDXF_TURNTOTALDEFICITE) && (flags & DBDXF_CALCTOTALDEFICITE)) ? 0 : 1;
+			const int disable = (!(flags & DBDXF_TURNTOTALDEFICITE) && (flags & DBDXF_CALCTOTALDEFICITE)) ? 0 : 1;
 			DisableClusterItem(CTL_DBXCHGCFG_CHARRYF, 2, disable);
 			if(disable) {
 				GetClusterData(CTL_DBXCHGCFG_CHARRYF, &(flags = 0));
 				flags &= ~DBDXF_SUBSTDEFICITGOODS;
 				SetClusterData(CTL_DBXCHGCFG_CHARRYF, flags);
 			}
-			return 1;
 		}
 		PPDBXchgConfig Data;
 	};
@@ -2305,24 +2304,23 @@ private:
 			return;
 		clearEvent(event);
 	}
-	int   SetupCtrls();
-	int   updateList();
-	int   addItem();
-	int   delItem();
+	void   SetupCtrls();
+	int    updateList();
+	int    addItem();
+	int    delItem();
 
 	BillTransmitParam Data;
 };
 
-int BillTransDialog::SetupCtrls()
+void BillTransDialog::SetupCtrls()
 {
-	PPID   op_id = getCtrlLong(CTLSEL_BTRAN_OP);
+	const  PPID op_id = getCtrlLong(CTLSEL_BTRAN_OP);
 	PPID   op_type = GetOpType(op_id);
-	int    disable = BIN(!op_id || ((op_type = GetOpType(op_id)) == PPOPT_GENERIC) ||
+	const  int  disable = BIN(!op_id || ((op_type = GetOpType(op_id)) == PPOPT_GENERIC) ||
 		!oneof2(op_type, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT));
 	disableCtrl(CTLSEL_BTRAN_TOOP, disable);
 	if(disable)
 		setCtrlLong(CTLSEL_BTRAN_TOOP, 0);
-	return 1;
 }
 
 int BillTransDialog::updateList()

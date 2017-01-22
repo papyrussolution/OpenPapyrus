@@ -342,13 +342,12 @@ IMPL_HANDLE_EVENT(BillHdrImpExpDialog)
 	clearEvent(event);
 }
 
-int BillHdrImpExpDialog::SetupCtrls(long direction)
+void BillHdrImpExpDialog::SetupCtrls(long direction)
 {
 	disableCtrls(direction == 0, CTL_IMPEXPBILH_FLAGS, CTLSEL_IMPEXPBILH_IMPOP, 0);
 	DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 0, direction == 0);
 	DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 1, direction == 0 && !(Data.Flags & PPBillImpExpParam::fImpRowsFromSameFile));
 	DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 3, direction);
-	return 1;
 }
 
 int BillHdrImpExpDialog::setDTS(const PPBillImpExpParam * pData)

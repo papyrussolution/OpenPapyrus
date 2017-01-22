@@ -1,5 +1,5 @@
 // DBEOP.CPP
-// Copyright (c) Sobolev A. 1995-2001, 2005, 2007, 2008, 2009, 2010, 2014, 2016
+// Copyright (c) Sobolev A. 1995-2001, 2005, 2007, 2008, 2009, 2010, 2014, 2016, 2017
 //
 #include <db.h>
 #pragma hdrstop
@@ -107,12 +107,12 @@ static DBE & __stdcall binary_op(DBItem & i1, DBItem & i2, int op)
 	DBFunc f = get_2op(op, i1.baseType(), i2.baseType());
 	assert(f != dbq_error);
 	DBFuncInfo * fi = DbqFuncTab::Get(f);
-	CHECK(fi != 0);
+	assert(fi != 0);
 	int adj_type;
 	adj_type = adjust_type(i1, fi->paramTypes[0], i1.baseType());
-	CHECK(adj_type != 0);
+	assert(adj_type != 0);
 	adj_type = adjust_type(i2, fi->paramTypes[1], i2.baseType());
-	CHECK(adj_type != 0);
+	assert(adj_type != 0);
 	return binary_func(i1, i2, f);
 }
 
@@ -226,14 +226,14 @@ DBE & __stdcall right(DBItem & i, int n)
 	return binary_func(i, c, dbq_right);
 }
 
-DBE & __stdcall lower(DBItem & i)  { CHECK(i.baseType() == BTS_STRING); return unary_func(i, dbq_lower); }
-DBE & __stdcall upper(DBItem & i)  { CHECK(i.baseType() == BTS_STRING); return unary_func(i, dbq_upper); }
-DBE & __stdcall day(DBItem & i)    { CHECK(i.baseType() == BTS_DATE); return unary_func(i, dbq_day); }
-DBE & __stdcall month(DBItem & i)  { CHECK(i.baseType() == BTS_DATE); return unary_func(i, dbq_mon); }
-DBE & __stdcall year(DBItem & i)   { CHECK(i.baseType() == BTS_DATE); return unary_func(i, dbq_year); }
-DBE & __stdcall hour(DBItem & i)   { CHECK(i.baseType() == BTS_TIME); return unary_func(i, dbq_hour); }
-DBE & __stdcall minute(DBItem & i) { CHECK(i.baseType() == BTS_TIME); return unary_func(i, dbq_minute); }
-DBE & __stdcall millisecond(DBItem & i) { CHECK(i.baseType() == BTS_TIME); return unary_func(i, dbq_millisecond); }
+DBE & __stdcall lower(DBItem & i)  { assert(i.baseType() == BTS_STRING); return unary_func(i, dbq_lower); }
+DBE & __stdcall upper(DBItem & i)  { assert(i.baseType() == BTS_STRING); return unary_func(i, dbq_upper); }
+DBE & __stdcall day(DBItem & i)    { assert(i.baseType() == BTS_DATE); return unary_func(i, dbq_day); }
+DBE & __stdcall month(DBItem & i)  { assert(i.baseType() == BTS_DATE); return unary_func(i, dbq_mon); }
+DBE & __stdcall year(DBItem & i)   { assert(i.baseType() == BTS_DATE); return unary_func(i, dbq_year); }
+DBE & __stdcall hour(DBItem & i)   { assert(i.baseType() == BTS_TIME); return unary_func(i, dbq_hour); }
+DBE & __stdcall minute(DBItem & i) { assert(i.baseType() == BTS_TIME); return unary_func(i, dbq_minute); }
+DBE & __stdcall millisecond(DBItem & i) { assert(i.baseType() == BTS_TIME); return unary_func(i, dbq_millisecond); }
 //
 //
 //

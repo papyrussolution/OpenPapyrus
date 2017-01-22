@@ -1,5 +1,5 @@
 // GOODSDLG.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 // Диалог редактирования товара
 //
@@ -418,7 +418,7 @@ int GoodsFiltCtrlGroup::getData(TDialog * pDlg, void * pData)
 	return ok;
 }
 
-int GoodsFiltCtrlGroup::SetupCtrls(TDialog * pDlg)
+void GoodsFiltCtrlGroup::SetupCtrls(TDialog * pDlg)
 {
 	int    by_filt = Filt.IsEmpty() ? 0 : 1;
 	pDlg->disableCtrl(CtlselGoods, by_filt);
@@ -434,7 +434,6 @@ int GoodsFiltCtrlGroup::SetupCtrls(TDialog * pDlg)
 		SString buf;
 		SetComboBoxLinkText(pDlg, CtlselGoodsGrp, PPGetWord(PPWORD_TEMPALTGRP, 0, buf));
 	}
-	return 1;
 }
 
 int GoodsFiltCtrlGroup::EditFilt(TDialog * pDlg)
@@ -1251,13 +1250,13 @@ void GoodsDialog::SetupAddedInfo()
 						last_sell_date = r_t.data.Dt;
 					}
 				} while(!last_sell_date && r_t.search(3, &k3, spLt) && r_t.data.GoodsID == goods_id);
-				PPLoadString("lastselldate", title_buf = 0);
+				PPLoadString("lastselldate", title_buf);
                 title_buf.CatDiv(':', 2);
                 if(checkdate(last_sell_date, 0)) {
 					title_buf.Cat(last_sell_date, DATF_DMY|DATF_CENTURY);
                 }
                 else {
-					PPLoadString("no", temp_buf = 0);
+					PPLoadString("no", temp_buf);
 					title_buf.Cat(temp_buf);
                 }
 			}
@@ -3031,7 +3030,7 @@ private:
 	int    groupList();
 	int    vatFilt();
 	void   setupVat();
-	int    SetupCtrls();
+	void   SetupCtrls();
 
 	GoodsFilt Data;
 };
@@ -3056,18 +3055,17 @@ private:
 			clearEvent(event);
 		}
 	}
-	int    SetupCtrls();
+	void   SetupCtrls();
 
 	GoodsFilt Data;
 	int	   CtlDisableSuppl;
 };
 
-int GoodsFiltAdvDialog::SetupCtrls()
+void GoodsFiltAdvDialog::SetupCtrls()
 {
 	GetClusterData(CTL_GFLTADVOPT_FLAGS, &Data.Flags);
 	DisableClusterItem(CTL_GFLTADVOPT_FLAGS, 1, Data.Flags & GoodsFilt::fNewLots);
 	DisableClusterItem(CTL_GFLTADVOPT_FLAGS, 0, Data.Flags & GoodsFilt::fNoZeroRestOnLotPeriod);
-	return 1;
 }
 
 int GoodsFiltAdvDialog::setDTS(const GoodsFilt * pFilt)
@@ -3501,7 +3499,7 @@ void GoodsFiltDialog::setupVat()
 	}
 }
 
-int GoodsFiltDialog::SetupCtrls()
+void GoodsFiltDialog::SetupCtrls()
 {
 	ushort v = getCtrlUInt16(CTL_GOODSFLT_NOKIND);
 	if(!v) {
@@ -3538,7 +3536,6 @@ int GoodsFiltDialog::SetupCtrls()
 		Data.VatDate = ZERODATE;
 		Data.VatRate = 0;
 	}
-	return 1;
 }
 
 int GoodsFiltDialog::setDTS(GoodsFilt * pFilt)

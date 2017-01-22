@@ -182,10 +182,9 @@ IMPL_HANDLE_EVENT(QuotImpExpDialog)
 	clearEvent(event);
 }
 
-int QuotImpExpDialog::SetupCtrls(long direction)
+void QuotImpExpDialog::SetupCtrls(long direction)
 {
 	disableCtrls(direction == 0, CTLSEL_IMPEXPQUOT_QK, CTLSEL_IMPEXPQUOT_CURR, CTLSEL_IMPEXPQUOT_AR, CTLSEL_IMPEXPQUOT_LOC, 0L);
-	return 1;
 }
 
 int SLAPI EditQuotImpExpParam(const char * pIniSection)
@@ -735,7 +734,7 @@ IMPL_HANDLE_EVENT(GoodsImpExpDialog)
 	clearEvent(event);
 }
 
-int GoodsImpExpDialog::SetupCtrls(long direction)
+void GoodsImpExpDialog::SetupCtrls(long direction)
 {
 	disableCtrls(direction == 0, CTL_IMPEXPGOODS_SUBCODE, CTLSEL_IMPEXPGOODS_SUPPL, CTLSEL_IMPEXPGOODS_UNIT, CTLSEL_IMPEXPGOODS_PHUNI,
 		CTLSEL_IMPEXPGOODS_GRP, CTLSEL_IMPEXPGOODS_OP, CTLSEL_IMPEXPGOODS_LOC, CTL_IMPEXPGOODS_MXACT, 0L);
@@ -746,7 +745,6 @@ int GoodsImpExpDialog::SetupCtrls(long direction)
 	DisableClusterItem(CTL_IMPEXPGOODS_FLAGS, 4, direction == 0);
 	DisableClusterItem(CTL_IMPEXPGOODS_FLAGS, 5, direction == 0);
 	// DisableClusterItem(CTL_IMPEXPGOODS_FLAGS, 6, direction == 0); // @v7.9.0
-	return 1;
 }
 
 int SLAPI EditGoodsImpExpParams(const char * pIniSection)

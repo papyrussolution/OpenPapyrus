@@ -492,7 +492,11 @@ void * SLAPI PPObjTag::CreateObjListWin(uint flags, void * extraPtr)
 			//
 			DefaultCmd = cmaEdit;
 			SetToolbar(TOOLBAR_LIST_TAG);
-			setTitle("Теги объектов");
+			{
+				SString title_buf;
+				PPLoadString("objtags", title_buf);
+				setTitle(title_buf);
+			}
 		}
 	private:
 		DECL_HANDLE_EVENT

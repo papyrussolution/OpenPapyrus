@@ -194,8 +194,8 @@ int PervasiveDBCatalog::CreateDB(const char * pEntryName, const char * pDict, co
 	THROW_V(pathToUNC(pDict, dict_path), SDBERR_SLIB);
 	THROW_V(pathToUNC(pData, data_path), SDBERR_SLIB);
 	p_entry_name = (char *)pEntryName;
-	p_dict = (char *)(const char *)dict_path;
-	p_data = (char *)(const char *)data_path;
+	p_dict = (char *)dict_path.cptr(); // @badcast
+	p_data = (char *)data_path.cptr(); // @badcast
 	r = PvCreateDatabase(H_Connection, p_entry_name, p_dict, p_dict, 0);
 	if(r ==  P_OK)
 		r = PvCreateDSN(H_Connection, p_entry_name, p_entry_name, p_entry_name, NORMAL_MODE);

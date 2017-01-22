@@ -1357,7 +1357,7 @@ int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSo
 			}
 		}
 		else {
-			PPLoadString(PPSTR_TEXT, PPTXT_BIZSCORE_NODATA, buf = 0);
+			PPLoadString(PPSTR_TEXT, PPTXT_BIZSCORE_NODATA, buf);
 			buf.CRB().Transf(CTRANSF_INNER_TO_OUTER);
 			THROW(pSock->Send(buf, buf.Len(), 0));
 		}
@@ -2363,8 +2363,9 @@ int PPALDD_BizScoreValView::NextIteration(long iterId, long rsrv)
 	I.Tm         = item.Tm;
 	{
 		S_GUID dbuuid;
-		if(CurDict)
-			CurDict->GetDbUUID(&dbuuid);
+		DbProvider * p_dict = CurDict;
+		if(p_dict)
+			p_dict->GetDbUUID(&dbuuid);
 		else
 			dbuuid.SetZero();
 		SString dbuuid_buf;

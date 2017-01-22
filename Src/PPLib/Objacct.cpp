@@ -1,5 +1,5 @@
 // OBJACCT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -568,7 +568,7 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	virtual int  getObjName(PPID objID, long objFlags, SString &);
-	virtual int  getExtText(PPID objID, long objFlags, SString &);
+	virtual void getExtText(PPID objID, long objFlags, SString &);
 	virtual int  editItemDialog(ObjRestrictItem *);
 	virtual int  addItem(long * pPos, long * pID);
 	virtual int  delItem(long pos, long id);
@@ -649,7 +649,7 @@ int GenAccountDialog::getObjName(PPID objID, long objFlags, SString & rBuf)
 	return 1;
 }
 
-int GenAccountDialog::getExtText(PPID, long objFlags, SString & rBuf)
+void GenAccountDialog::getExtText(PPID, long objFlags, SString & rBuf)
 {
 	rBuf = 0;
 	int    aco = abs(GetAcoByGenFlags(objFlags));
@@ -659,7 +659,6 @@ int GenAccountDialog::getExtText(PPID, long objFlags, SString & rBuf)
 		rBuf.CatChar('g').CatChar('2');
 	if(objFlags & ACGF_NEGATIVE)
 		rBuf.CatChar('-');
-	return 1;
 }
 
 int GenAccountDialog::editItemDialog(ObjRestrictItem * pItem)

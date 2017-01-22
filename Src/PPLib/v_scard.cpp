@@ -895,7 +895,7 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	int    SetupPerson(PPID series);
-	int    SetupCtrls();
+	void   SetupCtrls();
 
 	SCardFilt Data;
 	PPObjSCardSeries ObjSCardSer;
@@ -1025,7 +1025,7 @@ IMPL_HANDLE_EVENT(SCardFiltDialog)
 	clearEvent(event);
 }
 
-int SCardFiltDialog::SetupCtrls()
+void SCardFiltDialog::SetupCtrls()
 {
 	GetClusterData(CTL_SCARDFLT_WOOWNER, &Data.Flags);
 	if(Data.Flags & SCardFilt::fWoOwner) {
@@ -1038,7 +1038,6 @@ int SCardFiltDialog::SetupCtrls()
 	disableCtrl(CTLSEL_SCARDFLT_PERSON, BIN(Data.Flags & SCardFilt::fWoOwner));
 	enableCommand(cmExcludeOwnerScFilt, BIN(!(Data.Flags & SCardFilt::fInnerFilter))); // @v8.4.3
 	disableCtrl(CTL_SCARDFLT_ORD, BIN(Data.Flags & SCardFilt::fInnerFilter)); // @v8.4.3
-	return 1;
 }
 
 int SCardFiltDialog::SetupPerson(PPID series)

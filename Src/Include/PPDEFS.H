@@ -945,8 +945,10 @@
 	#define PPUPRF_CALCARTDEBT       67
 	#define PPUPRF_VIEW_DEBT         68
 	#define PPUPRF_GETOPENEDLOTS     69
+	#define PPUPRF_BHTPREPBILL       70 // @v9.4.11
+	#define PPUPRF_BHTPREPGOODS      71 // @v9.4.11
 
-	#define PPUPRF_LAST              70
+	#define PPUPRF_LAST              72
 #define PPOBJ_EDIPROVIDER	74L // Провайдеры EDI-обмена
 	#define EDIPRVPRP_EXTSTRING  1L // Текстовые данные пакета
 #define PPOBJ_USREXCLRIGHTS 75L // Исключения для пользовательских прав доступа при некоторых действиях
@@ -9207,6 +9209,7 @@
 	#define CTL_CCHKDLVR_SCARD        (15 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CCHKDLVR_SCARD     (16 + WINDOWS_ID_BIAS)
 	#define CTL_CCHKDLVR_ST_SIP       (17 + WINDOWS_ID_BIAS)
+	#define CTL_CCHKDLVR_LPHTOCRD     (18 + WINDOWS_ID_BIAS)
 #define DLG_FLTSCARDCHNG             1169
 	#define cmSCardFilt               101
 	#define CTL_FLTSCARDCHNG_FLAGS    (1 + WINDOWS_ID_BIAS)

@@ -1971,11 +1971,11 @@ public:
 				XLARegKeyDir = reg_path;
 		}
 	}
-	int setDTS(const RegComSvrDialog::Param *);
-	int getDTS(RegComSvrDialog::Param *);
+	int   setDTS(const RegComSvrDialog::Param *);
+	int   getDTS(RegComSvrDialog::Param *);
 private:
 	DECL_HANDLE_EVENT;
-	int SetupCtrls(long action);
+	void   SetupCtrls(long action);
 
 	SString XLARegKeyDir;
 	Param   Data;
@@ -1990,20 +1990,17 @@ IMPL_HANDLE_EVENT(RegComSvrDialog)
 	}
 }
 
-int RegComSvrDialog::SetupCtrls(long action)
+void RegComSvrDialog::SetupCtrls(long action)
 {
 	const int disable = BIN(XLARegKeyDir.Len() == 0 || action == aDeregister);
 	DisableClusterItem(CTL_REGCOMSVR_DL200INST, 0, disable);
 	if(disable)
 		SetClusterData(CTL_REGCOMSVR_DL200INST, 0);
-	return 1;
 }
 
 int RegComSvrDialog::setDTS(const RegComSvrDialog::Param * pData)
 {
-	if(pData)
-		Data = *pData;
-	else
+	if(!RVALUEPTR(Data, pData))
 		Data.Init();
 	AddClusterAssoc(CTL_REGCOMSVR_ACTION, -1, aRegister);
 	AddClusterAssoc(CTL_REGCOMSVR_ACTION,  0, aRegister);

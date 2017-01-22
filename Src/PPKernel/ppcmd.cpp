@@ -1,5 +1,5 @@
 // PPCMD.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @Kernel
 //
 #include <pp.h>
@@ -1530,7 +1530,7 @@ public:
 	int    getDTS(Rec *);
 private:
 	DECL_HANDLE_EVENT;
-	int    SetupCtrls();
+	void   SetupCtrls();
 	Rec    Data;
 	PPPersonKind PsnKindRec;
 	PPPersonKind PsnScndKindRec;
@@ -1548,7 +1548,7 @@ IMPL_HANDLE_EVENT(SelectPersonByCodeDialog)
 	}
 }
 
-int SelectPersonByCodeDialog::SetupCtrls()
+void SelectPersonByCodeDialog::SetupCtrls()
 {
 	SString code;
 	PPID   psn_id = getCtrlLong(CTLSEL_SELPERSONC_PRSN);
@@ -1568,7 +1568,6 @@ int SelectPersonByCodeDialog::SetupCtrls()
 		showCtrl(CTLSEL_SELPERSONC_SCARD, 0); // @v9.1.3
 	disableCtrl(CTL_SELPERSONC_CODEINP, psn_id);
 	setCtrlString(CTL_SELPERSONC_CODEINP, code);
-	return 1;
 }
 
 int SelectPersonByCodeDialog::setDTS(const Rec * pData)

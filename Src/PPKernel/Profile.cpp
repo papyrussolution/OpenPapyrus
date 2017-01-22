@@ -1,5 +1,5 @@
 // PROFILE.CPP
-// Copyright (c) A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -134,41 +134,41 @@ uint64 SLAPI Profile::GetAbsTimeMicroseconds()
 	uint16 Flags;
 */
 static const PPUserProfileFuncEntry PPUserProfileFuncTab[] = {
-	{ PPUPRF_LOGIN,         0, 0, 0, 0 },
-	{ PPUPRF_SESSION,       0, 0, 0, 0 },
+	{ PPUPRF_LOGIN,             0, 0, 0, 0 },
+	{ PPUPRF_SESSION,           0, 0, 0, 0 },
 
-	{ PPUPRF_BILLTURN_RCPT, 0, 1, 0, 0 },
-	{ PPUPRF_BILLTURN_EXP,  0, 1, 0, 0 },
-	{ PPUPRF_BILLTURN_IEXP, 0, 1, 0, 0 },
-	{ PPUPRF_BILLTURN_MOD,  0, 1, 0, 0 },
-	{ PPUPRF_BILLTURN_RVL,  0, 1, 0, 0 },
-	{ PPUPRF_BILLTURN_ORD,  0, 1, 0, 0 },
-	{ PPUPRF_BILLTURN_DRFT, 0, 1, 0, 0 },
-	{ PPUPRF_BILLTURN_RET,  0, 1, 0, 0 },
-	{ PPUPRF_BILLTURN_ETC,  0, 1, 0, 0 },
+	{ PPUPRF_BILLTURN_RCPT,     0, 1, 0, 0 },
+	{ PPUPRF_BILLTURN_EXP,      0, 1, 0, 0 },
+	{ PPUPRF_BILLTURN_IEXP,     0, 1, 0, 0 },
+	{ PPUPRF_BILLTURN_MOD,      0, 1, 0, 0 },
+	{ PPUPRF_BILLTURN_RVL,      0, 1, 0, 0 },
+	{ PPUPRF_BILLTURN_ORD,      0, 1, 0, 0 },
+	{ PPUPRF_BILLTURN_DRFT,     0, 1, 0, 0 },
+	{ PPUPRF_BILLTURN_RET,      0, 1, 0, 0 },
+	{ PPUPRF_BILLTURN_ETC,      0, 1, 0, 0 },
 
-	{ PPUPRF_BILLUPD_RCPT,  0, 1, 0, 0 },
-	{ PPUPRF_BILLUPD_EXP,   0, 1, 0, 0 },
-	{ PPUPRF_BILLUPD_IEXP,  0, 1, 0, 0 },
-	{ PPUPRF_BILLUPD_MOD,   0, 1, 0, 0 },
-	{ PPUPRF_BILLUPD_RVL,   0, 1, 0, 0 },
-	{ PPUPRF_BILLUPD_ORD,   0, 1, 0, 0 },
-	{ PPUPRF_BILLUPD_DRFT,  0, 1, 0, 0 },
-	{ PPUPRF_BILLUPD_RET,   0, 1, 0, 0 },
-	{ PPUPRF_BILLUPD_ETC,   0, 1, 0, 0 },
+	{ PPUPRF_BILLUPD_RCPT,      0, 1, 0, 0 },
+	{ PPUPRF_BILLUPD_EXP,       0, 1, 0, 0 },
+	{ PPUPRF_BILLUPD_IEXP,      0, 1, 0, 0 },
+	{ PPUPRF_BILLUPD_MOD,       0, 1, 0, 0 },
+	{ PPUPRF_BILLUPD_RVL,       0, 1, 0, 0 },
+	{ PPUPRF_BILLUPD_ORD,       0, 1, 0, 0 },
+	{ PPUPRF_BILLUPD_DRFT,      0, 1, 0, 0 },
+	{ PPUPRF_BILLUPD_RET,       0, 1, 0, 0 },
+	{ PPUPRF_BILLUPD_ETC,       0, 1, 0, 0 },
 
-	{ PPUPRF_BILLRMV_RCPT,  0, 1, 0, 0 },
-	{ PPUPRF_BILLRMV_EXP,   0, 1, 0, 0 },
-	{ PPUPRF_BILLRMV_IEXP,  0, 1, 0, 0 },
-	{ PPUPRF_BILLRMV_MOD,   0, 1, 0, 0 },
-	{ PPUPRF_BILLRMV_RVL,   0, 1, 0, 0 },
-	{ PPUPRF_BILLRMV_ORD,   0, 1, 0, 0 },
-	{ PPUPRF_BILLRMV_DRFT,  0, 1, 0, 0 },
-	{ PPUPRF_BILLRMV_RET,   0, 1, 0, 0 },
-	{ PPUPRF_BILLRMV_ETC,   0, 1, 0, 0 },
+	{ PPUPRF_BILLRMV_RCPT,      0, 1, 0, 0 },
+	{ PPUPRF_BILLRMV_EXP,       0, 1, 0, 0 },
+	{ PPUPRF_BILLRMV_IEXP,      0, 1, 0, 0 },
+	{ PPUPRF_BILLRMV_MOD,       0, 1, 0, 0 },
+	{ PPUPRF_BILLRMV_RVL,       0, 1, 0, 0 },
+	{ PPUPRF_BILLRMV_ORD,       0, 1, 0, 0 },
+	{ PPUPRF_BILLRMV_DRFT,      0, 1, 0, 0 },
+	{ PPUPRF_BILLRMV_RET,       0, 1, 0, 0 },
+	{ PPUPRF_BILLRMV_ETC,       0, 1, 0, 0 },
 
-	{ PPUPRF_VIEW_GREST,    0, 1, 0, 0 },
-	{ PPUPRF_VIEW_GREST_DT, 0, 1, 0, 0 },
+	{ PPUPRF_VIEW_GREST,        0, 1, 0, 0 },
+	{ PPUPRF_VIEW_GREST_DT,     0, 1, 0, 0 },
 
 	{ PPUPRF_VATFREEPERSONLIST, 0, 1, 0, 0 },
 
@@ -189,7 +189,9 @@ static const PPUserProfileFuncEntry PPUserProfileFuncTab[] = {
 	{ PPUPRF_INVENTAUTOBUILD,   0, 1, 0, 0 },
 	{ PPUPRF_CALCARTDEBT,       0, 2, PPUserProfileFuncEntry::fAccumulate, 100 },
 	{ PPUPRF_VIEW_DEBT,         0, 1, 0, 0 },
-	{ PPUPRF_GETOPENEDLOTS,     0, 2, PPUserProfileFuncEntry::fAccumulate, 10000 }
+	{ PPUPRF_GETOPENEDLOTS,     0, 2, PPUserProfileFuncEntry::fAccumulate, 10000 },
+	{ PPUPRF_BHTPREPBILL,       0, 1, 0, 0 }, // @v9.4.11
+	{ PPUPRF_BHTPREPGOODS,      0, 1, 0, 0 } // @v9.4.11
 };
 
 static const PPUserProfileFuncEntry * FASTCALL _GetUserProfileFuncEntry(int funcId)
@@ -467,6 +469,7 @@ int SLAPI Profile::Finish(uint logFileId, const char * pName, const char * pAdde
 int SLAPI Profile::InitUserProfile(const char * pUserName)
 {
 	int    ok = 1;
+	DbProvider * p_dict = CurDict;
 	SString temp_buf, fname, line_buf;
 	const ThreadID thread_id = DS.GetConstTLA().GetThreadID();
 
@@ -475,9 +478,9 @@ int SLAPI Profile::InitUserProfile(const char * pUserName)
 	UPSB.LogItemPrefix = 0;
 
 	UPSB.SessUuid = SLS.GetSessUuid();
-	if(CurDict) {
-		CurDict->GetDbUUID(&UPSB.DbUuid);
-		CurDict->GetDbSymb(UPSB.DbSymb);
+	if(p_dict) {
+		p_dict->GetDbUUID(&UPSB.DbUuid);
+		p_dict->GetDbSymb(UPSB.DbSymb);
 		if(!isempty(pUserName)) {
 			GetUserProfileFileName(fkSession, fname);
 			if(fname.NotEmptyS()) {

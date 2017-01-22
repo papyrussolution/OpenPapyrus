@@ -203,7 +203,7 @@ int SLAPI PPObjWorld::ConvertExtraParam(void * extraPtr, SelFilt * pFilt)
 //static
 SString & SLAPI PPObjWorld::GetNativeCountryName(SString & rBuf)
 {
-	PPLoadString("nativecountry", rBuf = 0);
+	PPLoadString("nativecountry", rBuf);
 	return rBuf;
 }
 //

@@ -1,5 +1,5 @@
 // PPDBUTIL.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1000,6 +1000,7 @@ int SLAPI PrcssrDbDump::Helper_Undump(long tblID)
 		TblNameList.Get(tblID, tbl_name);
 		THROW_SL(FDump.Seek64(r_entry.Offs));
 		{
+			DbProvider * p_dict = CurDict;
 			IterCounter cntr;
 			DBTable tbl(tbl_name);
 			RECORDSIZE fix_rec_size = 0;
@@ -1010,7 +1011,7 @@ int SLAPI PrcssrDbDump::Helper_Undump(long tblID)
 			if(tbl.HasLob(&lob_fld) > 0) {
 				has_lob = 1;
 			}
-			THROW_DB(CurDict->RenewFile(tbl, 0, 0));
+			THROW_DB(p_dict->RenewFile(tbl, 0, 0));
 			{
 				PPTransaction tra(1);
 				THROW(tra);
@@ -1040,7 +1041,7 @@ int SLAPI PrcssrDbDump::Helper_Undump(long tblID)
 				}
 				THROW(tra.Commit());
 			}
-			THROW(CurDict->PostProcessAfterUndump(&tbl));
+			THROW(p_dict->PostProcessAfterUndump(&tbl));
 		}
 	}
 	CATCHZOK
@@ -1726,6 +1727,7 @@ int BackupParamDialog::setDTS(const PPBackupScen * pScen)
 int BackupParamDialog::getDTS(SString & rDBSymb, PPBackupScen * pScen)
 {
 	int    ok = 1;
+	DbProvider * p_dict = CurDict;
 	SString dbname;
 	PPIniFile ini_file;
 	PPDbEntrySet2 dbes;
@@ -1736,10 +1738,10 @@ int BackupParamDialog::getDTS(SString & rDBSymb, PPBackupScen * pScen)
 	PPSetAddedMsgString(setLastSlash(Scen.BackupPath));
 	THROW_PP(pathValid(Scen.BackupPath, 0), PPERR_NEXISTPATH);
 	Scen.numCopies = (Scen.numCopies <= 0) ? 1 : Scen.numCopies;
-	CurDict->GetDbSymb(rDBSymb);
+	p_dict->GetDbSymb(rDBSymb);
 	Scen.ID = dbes.GetBySymb(rDBSymb, 0);
 	rDBSymb.CopyTo(Scen.Name, sizeof(Scen.Name));
-	CurDict->GetDbName(dbname);
+	p_dict->GetDbName(dbname);
 	dbname.CopyTo(Scen.DBName, sizeof(Scen.DBName));
 	ASSIGN_PTR(pScen, Scen);
 	CATCHZOKPPERR

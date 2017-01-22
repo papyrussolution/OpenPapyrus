@@ -1,20 +1,9 @@
 // PPDBS.DL6
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // Database structures
-
 //
-// Замечания по индексам.
-//
-// Первый индекс в подавляющем большинстве таблиц является строго фиксированным.// Он уникальный и неизменяемый. Ни в коем случае нельзя менять его структуру или
-// присваивать ему отличный от нуля номер.
-// На другие индексы ограничения помягче, однако нет никаких гарантий, что
-// программа на них явно не полагается.
-//
-
-
-//
-// Справочники
+// Общие справочники
 //
 // Первые 100 типов объектов и 100 идентификаторов объектов зарезервированы за главным приложением.
 // Следующие 900 номеров зарезервированы для сторонних приложений.
@@ -151,19 +140,6 @@ file:
 //
 // Таблица синхронизации объектов. Используется для синхронизации объектов в распределенной базе данных.
 //
-// Поле CommonID получает значение, общее для всех разделов БД.
-// Самый старший байт этого поля равен ИД раздела БД, который создал данный объект.
-// Таким образом разрешается проблема общих идентификаторов одного и того же объекта в разных разделах.
-// Это же накладывает ограничение на количество разделов (255).
-//
-// @todo 02/04/2005 {
-//     1. Убрать поле Deleted (перенести в Flags)
-//     2. Перед полем CommonID добавить поле 'int16 Reserve' (для выравнивания и резерв на расширение CommonID)
-//     3. DBID    long-->int16
-//     4. ObjType long-->int16
-// } @done 5.6.8
-//
-// Новый вариант таблицы синхронизации.
 // Координаты {DBID, ObjType, ObjID=0, CommIdPfx=DBID} используются для хранения последнего использованного
 //   значения общего идентификатора CommID. Это необходимо для того, чтобы избежать сбоя синхронизации при
 //   удалении объекта, соответствующего максимальному значению.
@@ -245,11 +221,6 @@ file:
 // что одному первичному (PrmrObjID) объекту может быть поставлено
 // в соответствие множество вторичных объектов (ScndObjID).
 //
-// @todo {
-//    Тип поля Name изменить на raw
-//    Убрать индекс {AsscType, PrmrObjID, Name}
-// } @done v6.2.2
-//
 table ObjAssoc {           // size=84
 	autolong ID;           // @id
 	long   AsscType;       // Тип ассоциации
@@ -296,7 +267,7 @@ file:
 }
 //
 // Государство
-// @obsolete
+// @obsolete (moved to table World)
 //
 table Country {         // size=76
 	autolong ID;        // Ид
@@ -317,7 +288,7 @@ file:
 }
 //
 // Регион
-// @obsolete
+// @obsolete (moved to table World)
 //
 // Пока структура регионов одноуровневая на усмотрение пользователя.
 // Следовательно, государство должно однозначно делиться на вводимые регионы.
@@ -342,7 +313,7 @@ file:
 }
 //
 // Населенный пункт
-// @obsolete
+// @obsolete (moved to table World)
 //
 table City {            // size=66
 	autolong ID;        // Ид
@@ -364,7 +335,7 @@ file:
 	balanced;
 }
 //
-//
+// Индекс электронных адресов. Используется для быстрого поиска телефонов, ip-адресов и, возможно, чего-то еще.
 //
 table EAddr {
 	autolong ID;           // @id
@@ -380,7 +351,7 @@ file:
 	balanced;
 }
 //
-//
+// Географические объекты
 //
 table World {           // size=156
 	autolong   ID;      // @id
@@ -460,15 +431,6 @@ table FiasAddrObj {
     date   StartDt;         // Начало действия записи
     date   EndDt;           // Окончание действия записи
 index:
-	/*
-    RecUuID (unique mod);                       // #0
-	IdUuRef, RecUuID (unique mod);              // #1
-    ParentUuRef, RecUuID (unique mod);          // #2
-    NameTRef, SnTRef, RecUuID (unique mod);     // #3
-    OfcNameTRef, SnTRef, RecUuID (unique mod);  // #4
-    KladrCodeTRef, RecUuID (unique mod);        // #5
-    PostalCode, RecUuID (unique mod);           // #6
-    */
     RecUuID (unique mod);           // #0
 	IdUuRef (dup mod);              // #1
     ParentUuRef (dup mod);          // #2
@@ -520,10 +482,10 @@ table GeoTrack {
     int16  ExtEvent;   // Дополнительное значение, обеспечивающее привязку регистрации местоположения к некоторому событию
     int16  Dts2010;    // Дата в формате количества дней, прошедших с 1/1/2010
     time   Tm;         // Время
-    double Latitude;   // Географическая широта  (градусы)
-    double Longitude;  // Географическая долгота (градусы)
-    int16  Altitude;   // Высота, м
-    int16  Speed;      // Скорость, дм/с
+    double Latitude;   // Географическая широта  (degree)
+    double Longitude;  // Географическая долгота (degree)
+    int16  Altitude;   // Высота, m
+    int16  Speed;      // Скорость, dm/sec
 index:
     ObjType, ObjID, Dts2010, Tm (unique);
     ExtObjType, ExtObjID, Dts2010, Tm (anysegnull unique);
@@ -532,10 +494,6 @@ file:
 }
 //
 // Персоналии
-// @todo 11/02/2009 {
-//     1. Поле Name увеличить до 128 байт
-//     2. Увеличить длину поля Memo до 252 байт
-// } @done @v6.2.2
 //
 table Person {           // size=80+128
 	autolong ID;         // @id
@@ -577,6 +535,7 @@ file:
 // Банковские счета
 // @2.2.4: Для банков обязательный корр. счет в учреждениях центрального
 // банка прописывается в этой таблице с полем BankID == 0 и AccType == PPBAC_NOSTRO
+// @obsolete (moved to table Register)
 //
 table BankAccount_Pre9004 { // size=64
 	autolong ID;           // Ид счета
@@ -597,17 +556,9 @@ file:
 	access=1;
 }
 //
-// Вид персоналии
+// Ассоциации Person-PersonKind в отношении многие-ко-многим.
 //
-// Первые 100 видов зарезервированы за главным приложением.
-// Следующие 900 - за сторонними приложениями.
-// Пользовательские - с 1001-го.
-//
-// @todo 11/02/2009 {
-//     1. Поле Name увеличить до 128 байт
-// } @done @v6.2.2
-//
-table PersonKind {      // size=68
+table PersonKind {      // size=136
 	long   KindID;      // Вид персоналии ->Ref(PPOBJ_PRSNKIND)
 	long   PersonID;    //                ->Person.ID
 	// Вспомогательное поле. Один-к-одному дублирует соответствующее
@@ -715,8 +666,7 @@ file:
 	access=1;
 }
 //
-// @todo Перенести справочник в Reference @done
-// @obsolete
+// @obsolete (moved to table Reference)
 //
 table StaffList_Pre9003 {  // size=112
 	autolong ID;           // @id
@@ -1420,7 +1370,8 @@ file:
 	access=1;
 }
 //
-//
+// Специализированная таблица, позволяющая хранить список кодов, ассоциированных с лотом.
+// Пока применяется только для ассоцииации лотов со списком акцизных марок ЕГАИС для поставновки на баланс.
 //
 table LotExtCode {
 	long   LotID;
@@ -1433,7 +1384,7 @@ file:
 	access=1;
 }
 //
-//
+// Внутренняя структура для хранения данных о товарах, предоставляемых системой ЕГАИС
 //
 table EgaisProduct {
 	autolong ID;
@@ -1452,7 +1403,9 @@ file:
 	"egaisprod.btr";
 	access=1;
 }
-
+//
+// Внутренняя структура для хранения данных о контрагентах, предоставляемых системой ЕГАИС
+//
 table EgaisPerson {
 	autolong ID;
 	string RarIdent[16];
@@ -1472,7 +1425,9 @@ file:
 	"egaispsn.btr";
 	access=1;
 }
-
+//
+// Внутренняя структура для хранения данных о справках А, предоставляемых системой ЕГАИС
+//
 table EgaisRefA {
 	autolong ID;
     string RefACode[20];
@@ -1494,11 +1449,7 @@ file:
 	access=1;
 }
 //
-// Инвентаризация товаров @v2.2.5
-// @todo {
-//     Добавить поля LotID и Serial
-//     Добавить в индекс #2 сегмент LotID {GoodsID, LotID, BillID}
-// }
+// Инвентаризация товаров
 //
 table Inventory {          // size=128
 	long   BillID;         // ->Bill.ID (PPOPT_INVENTORY) Заголовочный документ
@@ -1546,11 +1497,8 @@ file:
 }
 //
 // Котировки @v2.2.4
-// @todo 02/06/2005 {
-//     1. Переименовать поле Location в LocID
-//     2. Добавить индекс {Kind, GoodsID, Actual, Dt, OprNo}
-//     3. Добавить индекс {ArticleID, GoodsID, Actual, Dt, OprNo}
-// }
+// Используется для хранения котировок 1-го поколения.
+// Котировки 2-го поколения хранятся в таблицах Quot2Rel и Quotation2.
 //
 table Quotation {          // size=56
 	autolong ID;           // @id
@@ -1851,37 +1799,6 @@ file:
 	vlr;
 	page=4096;  // @v8.3.0 При автоматически определяемом размере страницы может не хватить предела для размера файла.
 }
-
-/*
-table CpTransf2 {         // size=96
-	long   BillID;        // ->Bill.ID
-	int16  RByBill;       //
-	int16  Reserve1;      //
-	long   GoodsID;       // ->Goods2.ID
-	long   LocID;         // ->Location.ID
-	long   OrdLotID;      // ->Receipt.ID
-	long   CurID;         // ->Ref(PPOBJ_CURRENCY)
-	double UnitPerPack;   //
-	double Qtty;          //
-	double Rest;          // Излишек при списании
-	double Cost;          //
-	double Price;         //
-	double Discount;      //
-	double CurPrice;      //
-	date   Expiry;        //
-	long   QCertID;       // ->QualityCert.ID
-	long   InTaxGrpID;    // ->Ref(PPOBJ_GOODSTAX)
-	long   Flags;         //
-	note   Tail[128];     //
-index:
-	BillID, RByBill (unique mod);
-	GoodsID, LocID (dup mod);
-file:
-	"cptrfr2.btr";
-	vlr;
-	page=4096;  // При автоматически определяемом размере страницы может не хватить предела для размера файла.
-}
-*/
 //
 // @v3.9.0
 // Таблица строк расширения бухгалтерских документов
@@ -1958,13 +1875,7 @@ file:
 }
 //
 // Project management
-//
-// @todo 10/05/2009 {
-//     1. Name[48]   --> Name[128]
-//     2. Code[16]   --> Code[24]
-//     3. Descr[224] --> Descr[256]
-//     4. Memo[128]  --> Memo[1024]
-// } @done
+// @todo Descr и Memo перенести в UnxTextRef
 //
 table Project {         // size=384+128=512
 	autolong   ID;      // @id
@@ -1996,11 +1907,7 @@ file:
 	vlr;
 }
 //
-// @todo 10/05/2009 {
-//     1. Code[16] --> Code[24]
-//     3. Descr[224] --> Descr[256]
-//     4. Memo[128]  --> Memo[1024]
-// } @done
+// @todo Descr и Memo перенести в UnxTextRef
 //
 table PrjTask {         // size =
 	autolong ID;        //
@@ -2052,7 +1959,7 @@ file:
 	vlr;
 }
 //
-// Descr: Дисконтные карты.
+// Descr: Персональные карты.
 // Attention: При изменении раскладки полей следует соответствующим образом изменить
 //   раскладку полей в таблице TempSCard до отметки "End SCard fields".
 //
@@ -2088,7 +1995,7 @@ file:
 	access=1;
 }
 //
-// Descr: Временная таблица для отчета по дисконтным картам.
+// Descr: Временная таблица для отчета по персональным картам.
 // Attention: Поля до отметки "End SCard fields" должны совпадать по типам и порядку следования с полями
 //   таблицы SCard.
 //
@@ -2133,7 +2040,9 @@ file:
 	"tmp_sc.btr";
 	compress;
 }
-
+//
+// Операции с персональными картами (для кредитных и бонусных карт).
+//
 table SCardOp {         // size=60 // @v7.7.12 48-->60
 	long   SCardID;     // ->SCard.ID
 	date   Dt;          //
@@ -2259,7 +2168,6 @@ file:
 //   чеков по продавцам и столам (для общепита).
 //   Эти данные не вводятся в общую структуру чека из-за того, что таблица CCheck
 //   очень большая, а поля расширения используются нечасто и лишь отдельными видами бизнеса
-// @todo Добавить поле времени создания чека @done
 //
 table CCheckExt {          // size=20
 	long   CheckID;        // ->CCheck.ID
@@ -2287,7 +2195,6 @@ file:
 	access=1;
 }
 //
-// @construction
 // Descr: Таблица платежей по чеку.
 //
 table CCheckPaym {

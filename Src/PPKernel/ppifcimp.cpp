@@ -1,5 +1,5 @@
 // PPIFCIMP.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 // Реализация интерфейсов
 //
@@ -7,6 +7,11 @@
 #pragma hdrstop
 #include <process.h>
 #include <ppidata.h>
+
+static int SLAPI IfcImpCheckDictionary()
+{
+	return CurDict ? 1 : PPSetError(PPERR_NOTLOGGEDIN);
+}
 
 SDateRange FASTCALL DateRangeToOleDateRange(DateRange period)
 {
@@ -1335,28 +1340,28 @@ int32 DL6ICLS_PPUtil::CheckFlag(int32 flags, int32 flag)
 
 int32 DL6ICLS_PPUtil::GetSellAccSheet()
 {
-	return (CurDict) ? ::GetSellAccSheet() : 0;
+	return IfcImpCheckDictionary() ? ::GetSellAccSheet() : 0;
 }
 
 int32 DL6ICLS_PPUtil::GetAgentAccSheet()
 {
-	return (CurDict) ? ::GetAgentAccSheet() : 0;
+	return IfcImpCheckDictionary() ? ::GetAgentAccSheet() : 0;
 }
 
 int32 DL6ICLS_PPUtil::GetSupplAccSheet()
 {
-	return (CurDict) ? ::GetSupplAccSheet() : 0;
+	return IfcImpCheckDictionary() ? ::GetSupplAccSheet() : 0;
 }
 
 int32 DL6ICLS_PPUtil::ObjectToPerson(int32 articleID)
 {
-	return (CurDict) ? ::ObjectToPerson(articleID) : 0;
+	return IfcImpCheckDictionary() ? ::ObjectToPerson(articleID) : 0;
 }
 
 int32 DL6ICLS_PPUtil::PersonToObject(int32 personID, int32 accSheetID)
 {
 	int32  obj_id = 0;
-	if(CurDict) {
+	if(IfcImpCheckDictionary()) {
 		PPObjArticle ar_obj;
 		ar_obj.P_Tbl->PersonToArticle(personID, accSheetID, &obj_id);
 	}
@@ -1365,19 +1370,19 @@ int32 DL6ICLS_PPUtil::PersonToObject(int32 personID, int32 accSheetID)
 
 int32 DL6ICLS_PPUtil::ObjectToWarehouse(long articleID)
 {
-	return CurDict ? PPObjLocation::ObjToWarehouse(articleID) : 0;
+	return IfcImpCheckDictionary() ? PPObjLocation::ObjToWarehouse(articleID) : 0;
 }
 
 int32 DL6ICLS_PPUtil::WarehouseToObject(int32 locID)
 {
-	return CurDict ? PPObjLocation::WarehouseToObj(locID) : 0;
+	return IfcImpCheckDictionary() ? PPObjLocation::WarehouseToObj(locID) : 0;
 }
 
 SString & DL6ICLS_PPUtil::GetObjectName(PpyObjectIdent objType, long objID)
  {
 	SString msg_buf;
 	PPID   ppy_objtyp = 0;
-	THROW(CurDict);
+	THROW(IfcImpCheckDictionary());
 	switch(objType) {
 		case ppoOprKind:        ppy_objtyp = PPOBJ_OPRKIND;       break;
 		case ppoCashNode:       ppy_objtyp = PPOBJ_CASHNODE;      break;
@@ -1439,7 +1444,7 @@ int32 DL6ICLS_PPUtil::IsFileExists(SString & rFileName)
 SString & DL6ICLS_PPUtil::ReadPPIniParamS(PpyIniSection section, SString & rParam)
 {
 	RetStrBuf = 0;
-	THROW(CurDict);
+	THROW(IfcImpCheckDictionary());
 	{
 		PPIniFile ini_file;
 		ini_file.Get(section, rParam, RetStrBuf);
@@ -1454,7 +1459,7 @@ SString & DL6ICLS_PPUtil::ReadPPIniParamS(PpyIniSection section, SString & rPara
 SString & DL6ICLS_PPUtil::ReadPPIniParam(PpyIniSection section, PpyIniParam param)
 {
 	RetStrBuf = 0;
-	THROW(CurDict);
+	THROW(IfcImpCheckDictionary());
 	{
 		long   inner_param = 0;
 		switch(param) {
@@ -1830,7 +1835,7 @@ IPapyrusObject * DL6ICLS_PPSession::CreateObject(PpyObjectIdent objType)
 	void * p_ifc = 0;
 	const char * p_cls_name = 0;
 	SString msg_buf;
-	THROW_PP(CurDict, PPERR_NOTLOGGEDIN);
+	THROW(IfcImpCheckDictionary());
 	switch(objType) {
 		case ppoUnit:           p_cls_name = "PPObjUnit";           break;
 		case ppoOprKind:        p_cls_name = "PPObjOprKind";        break;
@@ -1880,7 +1885,7 @@ IPapyrusObject * DL6ICLS_PPSession::CreateObject(PpyObjectIdent objType)
 IPapyrusUtil * DL6ICLS_PPSession::CreateUtil()
 {
 	void * p_ifc = 0;
-	THROW_PP(CurDict, PPERR_NOTLOGGEDIN);
+	THROW(IfcImpCheckDictionary());
 	THROW(CreateInnerInstance("PPUtil", "IPapyrusUtil", &p_ifc));
 	CATCH
 		AppError = 1;
@@ -1894,7 +1899,7 @@ IUnknown * DL6ICLS_PPSession::CreateSpecClass(PpySpecClassIdent clsType)
 	void * p_ifc = 0;
 	const char * p_cls_name = 0, * p_ifc_name = 0;
 	SString msg_buf;
-	THROW_PP(CurDict, PPERR_NOTLOGGEDIN);
+	THROW(IfcImpCheckDictionary());
 	switch(clsType) {
 		case spclsUtil:
 			p_cls_name = "PPUtil";
@@ -1942,7 +1947,7 @@ IPapyrusView * DL6ICLS_PPSession::CreateView(PpyViewIdent viewID)
 	void * p_ifc = 0;
 	const char * p_cls_name = 0;
 	SString msg_buf;
-	THROW_PP(CurDict, PPERR_NOTLOGGEDIN);
+	THROW(IfcImpCheckDictionary());
 	switch(viewID) {
 		case ppvCCheck:      p_cls_name = "PPViewCCheck";         break;
 		case ppvTrfrAnlz:    p_cls_name = "PPViewTrfrAnlz";       break;
@@ -5872,7 +5877,7 @@ int32 DL6ICLS_PPObjBill::EnumBillRows(long billID, SPpyO_TrfrItem * pRow)
 IPapyrusBillPacket* DL6ICLS_PPObjBill::CreatePacket()
 {
 	void * p_ifc = 0;
-	THROW_PP(CurDict, PPERR_NOTLOGGEDIN);
+	THROW(IfcImpCheckDictionary());
 	THROW(CreateInnerInstance("PPBillPacket", "IPapyrusBillPacket", &p_ifc));
 	CATCH
 		AppError = 1;
@@ -6927,7 +6932,7 @@ int32 DL6ICLS_PPPersonRelTypePacket::PutInhRegTypeList(IStrAssocList * pList)
 IPapyrusPersonRelTypePacket * DL6ICLS_PPObjPersonRelType::CreatePacket()
 {
 	void * p_ifc = 0;
-	THROW_PP(CurDict, PPERR_NOTLOGGEDIN);
+	THROW(IfcImpCheckDictionary());
 	THROW(CreateInnerInstance("PPPersonRelTypePacket", "IPapyrusPersonRelTypePacket", &p_ifc));
 	CATCH
 		AppError = 1;
@@ -10822,7 +10827,7 @@ int32 DL6ICLS_PPObjCCheck::Search(int32 id, SPpyO_CCheck* pRec)
 ICCheckPacket* DL6ICLS_PPObjCCheck::CreatePacket()
 {
 	void * p_ifc = 0;
-	THROW_PP(CurDict, PPERR_NOTLOGGEDIN);
+	THROW(IfcImpCheckDictionary());
 	THROW(CreateInnerInstance("PPCCheckPacket", "ICCheckPacket", &p_ifc));
 	CATCH
 		AppError = 1;

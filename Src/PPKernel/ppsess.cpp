@@ -2392,6 +2392,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 		r_tla.UfpSess.Begin(PPUPRF_SESSION); // @v8.0.6 Профилирование всей сессии работы в БД (Login..Logout)
 		PPUserFuncProfiler ufp(PPUPRF_LOGIN); // @v8.0.6 Профилирование собственно процесса авторизации в базе данных
 		const long db_path_id = DBS.GetDbPathID();
+		DbProvider * p_dict = CurDict;
 		{
 			//
 			// Имя SYSTEM является встроенным аналогом имени MASTER и отличается //
@@ -2423,19 +2424,19 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 					DBTable * p_test_tbl = new DBTable;
 					THROW_MEM(p_test_tbl);
 					debug_r = 5;
-					THROW_DB(CurDict->CreateTempFile(p_test_tbl_name, file_name, 1));
+					THROW_DB(p_dict->CreateTempFile(p_test_tbl_name, file_name, 1));
 					debug_r = 6;
 					THROW_DB(p_test_tbl->open(p_test_tbl_name, file_name));
 					debug_r = 7;
 					ZDELETE(p_test_tbl);
-					CurDict->DropFile(file_name);
+					p_dict->DropFile(file_name);
 					DBTable::OpenExceptionProc = _dbOpenException;
 				}
 				//
 				// Процедура проверки необходимости конвертации и собственно конвертации
 				// не запускается если провайдер базы данных НЕ Btrieve (SQL-сервера в разработке)
 				//
-				if(!(CurDict->GetCapability() & DbProvider::cSQL)) {
+				if(!(p_dict->GetCapability() & DbProvider::cSQL)) {
 					//
 					// Блок конвертации данных.
 					//
@@ -2675,7 +2676,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				GetObjectName(PPOBJ_DBDIV, r_lc.DBDiv, r_tla.CurDbDivName);
 			}
 			// } @v8.6.1
-			if(!(CurDict->GetCapability() & DbProvider::cSQL)) { // @debug
+			if(!(p_dict->GetCapability() & DbProvider::cSQL)) { // @debug
 				if(PPCheckDatabaseChain() == 0) {
 					delay(10000);
 					CALLEXCEPT();
@@ -2838,7 +2839,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 			if(CheckExtFlag(ECF_USESJLOGINEVENT))
 				LogAction(PPACN_LOGIN, 0, 0, r_lc.SessionID, 1);
 			// } @v8.2.5
-			if(CurDict->GetCapability() & DbProvider::cSQL) {
+			if(p_dict->GetCapability() & DbProvider::cSQL) {
 				//
 				// Для Oracle необходимо, чтобы все регулярные таблицы были созданы ради того,
 				// чтобы не возникла ситуация, когда отсутствующая таблица создается внутри транзакции.

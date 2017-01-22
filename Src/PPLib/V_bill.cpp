@@ -1825,7 +1825,7 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 		PUGL   deficit_list;
 		for(int try_again = 1; try_again != 0;) {
 			if(s == 0) {
-				if(BObj->Search(id, &bill_rec) > 0)
+				if(BObj->Search(id, &bill_rec) > 0) {
 					if(bill_rec.Flags & BILLF_WRITEDOFF)
 						PPMessage(mfInfo|mfOK, PPINF_DRAFTALLREADYWROFF, 0);
 					else {
@@ -1838,8 +1838,9 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 							is_deficit = 1;
 						}
 					}
+				}
 			}
-			else {
+			else if(s == 1) {
 				PPIDArray idlist;
 				PPWait(1);
 				THROW(GetBillIDList(&idlist));
@@ -1863,6 +1864,70 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 					THROW(tra.Commit());
 				}
 				PPWait(0);
+			}
+			else if(s == 2) {
+				if(BObj->Search(id, &bill_rec) > 0) {
+					if(!(bill_rec.Flags & BILLF_WRITEDOFF)) {
+						PPMessage(mfInfo|mfOK, PPINF_DRAFTNOTWROFF, 0);
+					}
+					else {
+						PPIDArray wroff_bill_list;
+						BillTbl::Rec wroff_bill_rec;
+						for(DateIter diter; BObj->P_Tbl->EnumLinks(bill_rec.ID, &diter, BLNK_WROFFDRAFT, &wroff_bill_rec) > 0;)
+							wroff_bill_list.add(wroff_bill_rec.ID);
+						if(wroff_bill_list.getCount() == 1) {
+							SString bill_text;
+							PPBillPacket _this_bp;
+							PPBillPacket _link_bp;
+							const PPID   _link_id = wroff_bill_list.get(0);
+							int    do_update = 0;
+							THROW(BObj->ExtractPacket(id, &_this_bp, BPLD_FORCESERIALS) > 0);
+							THROW(BObj->ExtractPacket(_link_id, &_link_bp, BPLD_FORCESERIALS) > 0);
+							PPObjBill::MakeCodeString(&_link_bp.Rec, PPObjBill::mcsAddOpName, bill_text);
+							for(uint tbpi = 0; tbpi < _this_bp.GetTCount(); tbpi++) {
+								const PPTransferItem & r_ti = _this_bp.ConstTI(tbpi);
+								if(r_ti.RByBill > 0) {
+									const ObjTagList * p_tl = _this_bp.LTagL.Get(tbpi);
+									uint  _lp = 0;
+									if(p_tl && p_tl->GetCount() && _link_bp.SearchTI(r_ti.RByBill, &_lp)) {
+										int    do_update_local = 0;
+										const  PPTransferItem & r_link_ti = _link_bp.ConstTI(_lp);
+										ObjTagList * p_link_tl = _link_bp.LTagL.Get(_lp);
+										ObjTagList _link_tl;
+										RVALUEPTR(_link_tl, p_link_tl);
+										for(uint tli = 0; tli < p_tl->GetCount(); tli++) {
+											const ObjTagItem * p_tag = p_tl->GetItemByPos(tli);
+											if(p_tag && !p_tag->IsZeroVal()) {
+												const PPID tag_id = p_tag->TagID;
+												if(tag_id) {
+													const ObjTagItem * p_ex_link_tag = _link_tl.GetItem(tag_id);
+													if(!p_ex_link_tag || *p_ex_link_tag != *p_tag) {
+														_link_tl.PutItem(p_tag->TagID, p_tag);
+														do_update_local = 1;
+													}
+												}
+											}
+										}
+										if(do_update_local) {
+											_link_bp.LTagL.Set(_lp, &_link_tl);
+											do_update = 1;
+										}
+									}
+								}
+							}
+							if(do_update) {
+								THROW(BObj->UpdatePacket(&_link_bp, 1));
+								PPMessage(mfInfo|mfOK, PPINF_TAGSINWROFFBILLUPD, bill_text);
+							}
+							else {
+								PPMessage(mfInfo|mfOK, PPINF_TAGSINWROFFBILLNUPD, bill_text);
+							}
+						}
+						else if(wroff_bill_list.getCount() > 1) {
+							; // Ќе пон€тно что делать - не делаем ничего
+						}
+					}
+				}
 			}
 			try_again = 0;
 			if(is_deficit) {
@@ -2546,11 +2611,11 @@ int SLAPI PPViewBill::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 	if(GetOuterTitle(0)) {
 		GetOuterTitle(&title);
-		pBrw->setTitle(title, 1);
+		pBrw->setOrgTitle(title);
 	}
 	else {
 		if(caption >= 0 && PPGetSubStr(PPTXT_BILLBRWCAPTIONS, caption, title))
-			pBrw->setTitle(title, 1);
+			pBrw->setOrgTitle(title);
 		pBrw->setSubTitle(sub_title);
 	}
 	pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);

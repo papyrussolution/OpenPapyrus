@@ -1,5 +1,5 @@
 // CROSSTAB.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -288,8 +288,9 @@ int SLAPI Crosstab::DestroyTable()
 		ZDELETE(P_RTbl);
 		{
 			PPSaveErrContext();
-			CurDict->DropTable(tbl_name, 1);
-			CurDict->DropFile(file_name);
+			DbProvider * p_dict = CurDict;
+			p_dict->DropTable(tbl_name, 1);
+			p_dict->DropFile(file_name);
 			PPRestoreErrContext();
 		}
 		return 1;
@@ -405,10 +406,11 @@ int SLAPI Crosstab::CreateTable()
 	}
 	CurDict->GetUniqueTableName("CT", P_RTbl);
 	{
+		DbProvider * p_dict = CurDict;
 		SString table_name = P_RTbl->tableName;
 		SString file_name;
-		THROW_DB(CurDict->CreateTableSpec(P_RTbl));
-		THROW_DB(CurDict->CreateTempFile(table_name, file_name, 0));
+		THROW_DB(p_dict->CreateTableSpec(P_RTbl));
+		THROW_DB(p_dict->CreateTempFile(table_name, file_name, 0));
 		ZDELETE(P_RTbl);
 		THROW_MEM(P_RTbl = new DBTable(table_name, file_name));
 		P_RTbl->flags |= XTF_TEMP; // @v8.1.1

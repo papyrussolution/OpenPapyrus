@@ -545,7 +545,7 @@ int BrowserWindow::LoadResource(uint rezID, void * pData, int dataKind, uint uOp
 			// @v9.1.1 {
 			rez.getString(temp_buf = 0, 2);
 			SLS.ExpandString(temp_buf, CTRANSF_UTF8_TO_INNER);
-			setTitle(temp_buf, 1);
+			setOrgTitle(temp_buf);
 			// } @v9.1.1
 			uint   options = rez.getUINT();
 			options = NZOR(uOptions, options);

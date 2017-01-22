@@ -1,5 +1,5 @@
 // OBJCASHN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -2342,7 +2342,7 @@ public:
 	int    getDTS(PPEquipConfig *);
 private:
 	DECL_HANDLE_EVENT;
-	int    SetupCtrls();
+	void   SetupCtrls();
 	PPEquipConfig Data;
 };
 
@@ -2473,9 +2473,9 @@ int EquipConfigDlg::getDTS(PPEquipConfig * pData)
 	return ok;
 }
 
-int EquipConfigDlg::SetupCtrls()
+void EquipConfigDlg::SetupCtrls()
 {
-	PPID   quotk = getCtrlLong(CTLSEL_EQCFG_QUOT);
+	const PPID quotk = getCtrlLong(CTLSEL_EQCFG_QUOT);
 	DisableClusterItem(CTL_EQCFG_FLAGS, 6, quotk);
 	if(quotk) {
 		long   flags = 0;
@@ -2483,7 +2483,6 @@ int EquipConfigDlg::SetupCtrls()
 		flags &= ~PPEquipConfig::fIntrPriceByRetailRules;
 		SetClusterData(CTL_EQCFG_FLAGS, flags);
 	}
-	return 1;
 }
 
 IMPL_HANDLE_EVENT(EquipConfigDlg)

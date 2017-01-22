@@ -2806,12 +2806,12 @@ private:
 	DECL_HANDLE_EVENT;
 	// @v9.2.5 (@unused) void   setupAccSheet(PPID accSheetID);
 	void   SetSaldoInfo();
-	int    SetupCtrls();
+	void   SetupCtrls();
 
 	TrfrAnlzFilt Data;
 };
 
-int TrfrAnlzFiltDialog::SetupCtrls()
+void TrfrAnlzFiltDialog::SetupCtrls()
 {
 	long   flags = 0;
 	long   id = 0;
@@ -2859,7 +2859,6 @@ int TrfrAnlzFiltDialog::SetupCtrls()
 	disableCtrl(CTLSEL_GTO_AGENT, flags & TrfrAnlzFilt::fShowAllAgents);
 	if(flags & TrfrAnlzFilt::fShowAllGoods)
 		disableCtrls(1, CTLSEL_GTO_GOODS, CTLSEL_GTO_GGRP, 0L);
-	return 1;
 }
 
 int TrfrAnlzFiltDialog::setDTS(const TrfrAnlzFilt * pData)
@@ -3016,7 +3015,7 @@ public:
 	int    getDTS(TrfrAnlzFilt * pData);
 private:
 	DECL_HANDLE_EVENT;
-	int    SetupCtrls();
+	void   SetupCtrls();
 	void   GetRestParams();
 	TrfrAnlzFilt Data;
 };
@@ -3125,7 +3124,7 @@ int TrfrAnlzCtDialog::ToggleFlag(long itemId)
 		return -1;
 }
 
-int TrfrAnlzGrpngDialog::SetupCtrls()
+void TrfrAnlzGrpngDialog::SetupCtrls()
 {
 	getCtrlData(CTLSEL_TAGRPNG_GOODS, &Data.Sgg);
 	getCtrlData(CTLSEL_TAGRPNG_CNTRAGENT, &Data.Sgp);
@@ -3140,7 +3139,6 @@ int TrfrAnlzGrpngDialog::SetupCtrls()
 		int    disable_trnovr = BIN(disable_calc_rest || !(Data.Flags & TrfrAnlzFilt::fCalcRest));
 		disableCtrl(CTL_TAGRPNG_TURNOVER, disable_trnovr);
 	}
-	return 1;
 }
 
 IMPL_HANDLE_EVENT(TrfrAnlzGrpngDialog)

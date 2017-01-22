@@ -1150,8 +1150,9 @@ int SLAPI PredictSalesCore::GetStat(PPID goodsID, const ObjIdListFilt & rLocList
 int SLAPI PredictSalesCore::ClearAll()
 {
 	int    ok = 1;
-	THROW_DB(CurDict->RenewFile(*this, 0, 0));
-	THROW_DB(CurDict->RenewFile(StT, 0, 0));
+	DbProvider * p_dict = CurDict;
+	THROW_DB(p_dict->RenewFile(*this, 0, 0));
+	THROW_DB(p_dict->RenewFile(StT, 0, 0));
 	//
 	// Информация о выходных днях и таблица складов остались
 	// в памяти. Их необходимо будет сохранить вызовом функции Finish().

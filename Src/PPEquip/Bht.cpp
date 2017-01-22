@@ -344,7 +344,7 @@ private:
 		}
 	}
 	virtual int setupList();
-	int SetupCtrls(long newID);
+	void   SetupCtrls(long newID);
 
 	SString ErrList;
 	long PrevID;
@@ -355,7 +355,7 @@ private:
 #define ACTION_CANCEL  2L
 #define ACTION_IGNORE  3L
 
-int StyloBhtIIOpInfoDlg::SetupCtrls(long newID)
+void StyloBhtIIOpInfoDlg::SetupCtrls(long newID)
 {
 	long action = 0, flag = 0;
 	if(PrevID != newID) {
@@ -374,7 +374,6 @@ int StyloBhtIIOpInfoDlg::SetupCtrls(long newID)
 			PrevID = newID;
 		}
 	}
-	return 1;
 }
 
 // virtual
@@ -417,13 +416,15 @@ int StyloBhtIIOpInfoDlg::setDTS(const SBIIOpInfo * pData)
 	disableCtrls(Data.OpID < 0, CTL_SBIIRESTR_ACTION, CTL_SBIIRESTR_ERRLIST, CTL_SBIIRESTR_BHTOP, 0L);
 	updateList(-1);
 	{
-		uint i = 0;
 		SString buf;
-		StringSet ss(';', ErrList);
-		ss.get(&i, buf);
-		ss.setDelim(",");
-		ss.setBuf(buf, buf.Len() + 1);
-		ss.get(&(i = 0), buf);
+		{
+			StringSet ss(';', ErrList);
+			ss.get(0U, buf);
+		}
+		{
+			StringSet ss2(',', buf);
+			ss2.get(0U, buf);
+		}
 		SetupCtrls(buf.ToLong());
 	}
 	return 1;
@@ -2462,7 +2463,10 @@ int SLAPI PPObjBHT::PrepareBillData2(PPBhtTerminalPacket * pPack, PPIDArray * pG
 {
 	int    ok = -1, num_flds = 0;
 	uint   i;
-	SString fname, path, h_path, r_path, serial;
+	SString fname, path;
+	SString h_path;
+	SString r_path;
+	SString serial;
 	SString temp_buf;
 	PPImpExp * p_ie_bill = 0, * p_ie_brow = 0;
 
@@ -2472,129 +2476,137 @@ int SLAPI PPObjBHT::PrepareBillData2(PPBhtTerminalPacket * pPack, PPIDArray * pG
 	THROW_PP(pPack, PPERR_INVPARAM);
 	THROW_PP(pPack->Rec.BhtTypeID == PPObjBHT::btStyloBhtII && pPack->P_SBIICfg, PPERR_SBII_CFGNOTVALID);
 	PPWait(1);
-	for(i = 0; i < pPack->P_SBIICfg->P_OpList->getCount(); i++) {
-		const SBIIOpInfo & r_item = pPack->P_SBIICfg->P_OpList->at(i);
-		const PPID op_id = r_item.OpID;
-		if(op_id > 0) {
-			BHT_BillOpEntry new_entry;
-			new_entry.OpID = op_id;
-			if(r_item.Flags & StyloBhtIIConfig::foprUseDueDate) {
-				new_entry.Flags |= BHT_BillOpEntry::fUseDueDate;
-                (new_entry.DuePeriod = pPack->P_SBIICfg->ExportBillsPeriod).Actualize(ZERODATE);
+	{
+		PPUserFuncProfiler ufp(PPUPRF_BHTPREPBILL); // @v9.4.11
+		double prf_measure = 0.0;
+		for(i = 0; i < pPack->P_SBIICfg->P_OpList->getCount(); i++) {
+			const SBIIOpInfo & r_item = pPack->P_SBIICfg->P_OpList->at(i);
+			const PPID op_id = r_item.OpID;
+			if(op_id > 0) {
+				BHT_BillOpEntry new_entry;
+				new_entry.OpID = op_id;
+				if(r_item.Flags & StyloBhtIIConfig::foprUseDueDate) {
+					new_entry.Flags |= BHT_BillOpEntry::fUseDueDate;
+					(new_entry.DuePeriod = pPack->P_SBIICfg->ExportBillsPeriod).Actualize(ZERODATE);
+				}
+				else {
+					(new_entry.Period = pPack->P_SBIICfg->ExportBillsPeriod).Actualize(ZERODATE);
+				}
+				if(IsDraftOp(op_id)) {
+					new_entry.Bbt = bbtDraftBills;
+				}
+				else if(GetOpType(op_id) == PPOPT_GOODSORDER) {
+					new_entry.Bbt = bbtOrderBills;
+				}
+				else {
+					new_entry.Bbt = bbtGoodsBills;
+				}
+				THROW_SL(bill_op_list.insert(&new_entry));
 			}
-			else {
-				(new_entry.Period = pPack->P_SBIICfg->ExportBillsPeriod).Actualize(ZERODATE);
-			}
-			if(IsDraftOp(op_id)) {
-				new_entry.Bbt = bbtDraftBills;
-			}
-			else if(GetOpType(op_id) == PPOPT_GOODSORDER) {
-				new_entry.Bbt = bbtOrderBills;
-			}
-			else {
-				new_entry.Bbt = bbtGoodsBills;
-			}
-			THROW_SL(bill_op_list.insert(&new_entry));
 		}
-	}
-	if(bill_op_list.getCount()) {
-		PPIDArray bbt_list;
-		//
-		// Шапки документов
-		//
-		{
-			PPImpExpParam ie_param_bill;
-			PPGetFilePath(PPPATH_OUT, PPFILNAM_BHT_SAMPLEBILLS, h_path);
-			/*
-				PPGetFileName(PPFILNAM_BHT_SAMPLEBILLS, fname);
-				(path = pPack->ImpExpPath).SetLastSlash().Cat(fname); // @v6.2.x AHTOXA .Transf(CTRANSF_INNER_TO_OUTER); -> PPImpExp::PPImpExp
-			*/
-			THROW(InitImpExpDbfParam(PPREC_SBIISAMPLEBILL, &ie_param_bill, h_path, 1));
-			THROW_MEM(p_ie_bill = new PPImpExp(&ie_param_bill, 0));
-			THROW(p_ie_bill->OpenFileForWriting(0, 1));
-		}
-		//
-		// Строки документов
-		//
-		{
-			PPImpExpParam ie_param_brow;
-			PPGetFilePath(PPPATH_OUT, PPFILNAM_BHT_SAMPLEBROWS, r_path);
-			THROW(InitImpExpDbfParam(PPREC_SBIISAMPLEBILLROW, &ie_param_brow, r_path, 1));
-			THROW_MEM(p_ie_brow = new PPImpExp(&ie_param_brow, 0));
-			THROW(p_ie_brow->OpenFileForWriting(0, 1));
-		}
-		for(i = 0; i < bill_op_list.getCount(); i++) {
-			const BHT_BillOpEntry & r_entry = bill_op_list.at(i);
-			BillViewItem item;
-			BillFilt bill_filt;
-			PPViewBill v_bill;
-			bill_filt.SetupBrowseBillsType(r_entry.Bbt);
-			bill_filt.OpID = r_entry.OpID;
-			if(r_entry.Flags & BHT_BillOpEntry::fUseDueDate) {
-				bill_filt.DuePeriod = r_entry.DuePeriod;
+		if(bill_op_list.getCount()) {
+			PPIDArray bbt_list;
+			//
+			// Шапки документов
+			//
+			{
+				PPImpExpParam ie_param_bill;
+				// @v9.4.11 PPGetFilePath(PPPATH_OUT, PPFILNAM_BHT_SAMPLEBILLS, h_path);
+				PPMakeTempFileName("bht", "dbf", 0, h_path); // @v9.4.11
+				THROW(InitImpExpDbfParam(PPREC_SBIISAMPLEBILL, &ie_param_bill, h_path, 1));
+				THROW_MEM(p_ie_bill = new PPImpExp(&ie_param_bill, 0));
+				THROW(p_ie_bill->OpenFileForWriting(0, 1));
 			}
-			else {
-				bill_filt.Period = r_entry.Period;
+			//
+			// Строки документов
+			//
+			{
+				PPImpExpParam ie_param_brow;
+				// @v9.4.11 PPGetFilePath(PPPATH_OUT, PPFILNAM_BHT_SAMPLEBROWS, r_path);
+				PPMakeTempFileName("bht", "dbf", 0, r_path); // @v9.4.11
+				THROW(InitImpExpDbfParam(PPREC_SBIISAMPLEBILLROW, &ie_param_brow, r_path, 1));
+				THROW_MEM(p_ie_brow = new PPImpExp(&ie_param_brow, 0));
+				THROW(p_ie_brow->OpenFileForWriting(0, 1));
 			}
-			if(!bill_filt.Period.low) {
-				if(bill_filt.Period.upp)
-					bill_filt.Period.low = plusdate(bill_filt.Period.upp, -90);
-				else
-					bill_filt.Period.low = plusdate(getcurdate_(), -90);
-			}
-			THROW(v_bill.Init_(&bill_filt));
-			for(v_bill.InitIteration(PPViewBill::OrdByDate); v_bill.NextIteration(&item) > 0; PPWaitPercent(v_bill.GetCounter())) {
-				int    fld_num = 1;
-				QuotIdent suppl_deal_qi(item.Dt, item.LocID, 0, 0, item.Object);
-				PPBillPacket pack;
-				Sdr_SBIISampleBill sdr_bill;
+			for(i = 0; i < bill_op_list.getCount(); i++) {
+				const BHT_BillOpEntry & r_entry = bill_op_list.at(i);
+				BillViewItem item;
+				BillFilt bill_filt;
+				PPViewBill v_bill;
+				bill_filt.SetupBrowseBillsType(r_entry.Bbt);
+				bill_filt.OpID = r_entry.OpID;
+				if(r_entry.Flags & BHT_BillOpEntry::fUseDueDate) {
+					bill_filt.DuePeriod = r_entry.DuePeriod;
+				}
+				else {
+					bill_filt.Period = r_entry.Period;
+				}
+				if(!bill_filt.Period.low) {
+					const LDATE ctrl_pt_dt = NZOR(bill_filt.Period.upp, NZOR(bill_filt.DuePeriod.upp, NZOR(bill_filt.DuePeriod.low, getcurdate_()))); // @v9.4.11
+					bill_filt.Period.low = plusdate(ctrl_pt_dt, -30); // @v9.4.11
+					/* @v9.4.11 if(bill_filt.Period.upp)
+						bill_filt.Period.low = plusdate(bill_filt.Period.upp, -90);
+					else
+						bill_filt.Period.low = plusdate(getcurdate_(), -90);
+					*/
+				}
+				THROW(v_bill.Init_(&bill_filt));
+				for(v_bill.InitIteration(PPViewBill::OrdByDate); v_bill.NextIteration(&item) > 0; PPWaitPercent(v_bill.GetCounter())) {
+					int    fld_num = 1;
+					const  QuotIdent suppl_deal_qi(item.Dt, item.LocID, 0, 0, item.Object);
+					PPBillPacket pack;
+					Sdr_SBIISampleBill sdr_bill;
 
-				MEMSZERO(sdr_bill);
-				// @v9.4.11 SOemToChar(item.Code);
-				(temp_buf = item.Code).Transf(CTRANSF_INNER_TO_OUTER); // @v9.4.11
-				STRNSCPY(item.Code, temp_buf); // @v9.4.11
-				sdr_bill.ID      = item.ID;
-				sdr_bill.Date    = (r_entry.Flags & BHT_BillOpEntry::fUseDueDate && checkdate(item.DueDate, 0)) ? item.DueDate : item.Dt;
-				sdr_bill.Article = item.Object;
-				sdr_bill.OpID    = item.OpID;
-				STRNSCPY(sdr_bill.Code, item.Code);
-				THROW(p_ie_bill->AppendRecord(&sdr_bill, sizeof(sdr_bill)));
-				if(P_BObj->ExtractPacket(item.ID, &pack, BPLD_FORCESERIALS) > 0) {
-					uint   i = 0;
-					PPTransferItem ti;
-					for(pack.InitExtTIter(uniteGoods ? ETIEF_UNITEBYGOODS : 0); pack.EnumTItemsExt(0, &ti) > 0; i++) {
-						Sdr_SBIISampleBillRow sdr_brow;
-						MEMSZERO(sdr_brow);
-						pack.SnL.GetNumber(i, &serial);
-						sdr_brow.BillID  = item.ID;
-						sdr_brow.GoodsID = ti.GoodsID;
-						serial.CopyTo(sdr_brow.Serial, sizeof(sdr_brow.Serial));
-						sdr_brow.Qtty = fabs(ti.Qtty());
-						sdr_brow.Cost = ti.Cost;
-						{
-							PPSupplDeal sd;
-							GObj.GetSupplDeal(ti.GoodsID, suppl_deal_qi, &sd);
-							sdr_brow.SuplDeal = sd.Cost;
-							sdr_brow.SuplDLow = (int16)(sd.DnDev * 100);
-							sdr_brow.SuplDUp  = (int16)(sd.UpDev * 100);
+					MEMSZERO(sdr_bill);
+					// @v9.4.11 SOemToChar(item.Code);
+					(temp_buf = item.Code).Transf(CTRANSF_INNER_TO_OUTER); // @v9.4.11
+					STRNSCPY(item.Code, temp_buf); // @v9.4.11
+					sdr_bill.ID      = item.ID;
+					sdr_bill.Date    = (r_entry.Flags & BHT_BillOpEntry::fUseDueDate && checkdate(item.DueDate, 0)) ? item.DueDate : item.Dt;
+					sdr_bill.Article = item.Object;
+					sdr_bill.OpID    = item.OpID;
+					STRNSCPY(sdr_bill.Code, item.Code);
+					THROW(p_ie_bill->AppendRecord(&sdr_bill, sizeof(sdr_bill)));
+					if(P_BObj->ExtractPacket(item.ID, &pack, BPLD_FORCESERIALS) > 0) {
+						uint   i = 0;
+						PPTransferItem ti;
+						for(pack.InitExtTIter(uniteGoods ? ETIEF_UNITEBYGOODS : 0); pack.EnumTItemsExt(0, &ti) > 0; i++) {
+							Sdr_SBIISampleBillRow sdr_brow;
+							MEMSZERO(sdr_brow);
+							pack.SnL.GetNumber(i, &serial);
+							sdr_brow.BillID  = item.ID;
+							sdr_brow.GoodsID = ti.GoodsID;
+							serial.CopyTo(sdr_brow.Serial, sizeof(sdr_brow.Serial));
+							sdr_brow.Qtty = fabs(ti.Qtty());
+							sdr_brow.Cost = ti.Cost;
+							{
+								PPSupplDeal sd;
+								GObj.GetSupplDeal(ti.GoodsID, suppl_deal_qi, &sd);
+								sdr_brow.SuplDeal = sd.Cost;
+								sdr_brow.SuplDLow = (int16)(sd.DnDev * 100);
+								sdr_brow.SuplDUp  = (int16)(sd.UpDev * 100);
+							}
+							THROW(p_ie_brow->AppendRecord(&sdr_brow, sizeof(sdr_brow)));
+							result_goods_list.add(labs(ti.GoodsID));
 						}
-						THROW(p_ie_brow->AppendRecord(&sdr_brow, sizeof(sdr_brow)));
-						result_goods_list.add(labs(ti.GoodsID));
 					}
+					prf_measure += 1.0; // @v9.4.11
 				}
 			}
-		}
-		if(p_ie_bill && p_ie_brow) {
-			p_ie_bill->CloseFile();
-			p_ie_brow->CloseFile();
-			PPGetFileName(PPFILNAM_BHT_SAMPLEBILLS, fname);
-			(path = pPack->ImpExpPath_).SetLastSlash().Cat(fname).Transf(CTRANSF_INNER_TO_OUTER);
-			SCopyFile(h_path, path, 0, FILE_SHARE_READ, 0);
+			if(p_ie_bill && p_ie_brow) {
+				p_ie_bill->CloseFile();
+				p_ie_brow->CloseFile();
+				PPGetFileName(PPFILNAM_BHT_SAMPLEBILLS, fname);
+				(path = pPack->ImpExpPath_).SetLastSlash().Cat(fname).Transf(CTRANSF_INNER_TO_OUTER);
+				SCopyFile(h_path, path, 0, FILE_SHARE_READ, 0);
 
-			PPGetFileName(PPFILNAM_BHT_SAMPLEBROWS, fname);
-			(path = pPack->ImpExpPath_).SetLastSlash().Cat(fname).Transf(CTRANSF_INNER_TO_OUTER);
-			SCopyFile(r_path, path, 0, FILE_SHARE_READ, 0);
+				PPGetFileName(PPFILNAM_BHT_SAMPLEBROWS, fname);
+				(path = pPack->ImpExpPath_).SetLastSlash().Cat(fname).Transf(CTRANSF_INNER_TO_OUTER);
+				SCopyFile(r_path, path, 0, FILE_SHARE_READ, 0);
+			}
 		}
+		ufp.SetFactor(0, prf_measure); // @v9.4.11
+		ufp.Commit(); // @v9.4.11
 	}
 	CATCHZOK
 	ZDELETE(p_ie_bill);
@@ -2826,168 +2838,174 @@ int SLAPI PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char 
 	TempOrderTbl * p_tmp_tbl = 0;
 	BExtInsert * p_bei = 0;
 	DbfTable * p_dbf_tbl = 0; // AHTOXA
-
-	PPLoadText(PPTXT_PREPAREBHTGOODS, msg_buf);
-	// ATHOXA {
-	PPSetAddedMsgString(pPath);
-	if(!oneof3(bhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
-		THROW_PP(stream = fopen(pPath, "w"), PPERR_CANTOPENFILE);
-		if(pPath2)
-			THROW_PP_S(stream2 = fopen(pPath2, "w"), PPERR_CANTOPENFILE, pPath2);
-		THROW_MEM(p_bht_rec = new BhtRecord);
-		THROW(InitGoodsBhtRec(p_bht_rec));
-	}
-	else {
-		int    num_flds = 0;
-		SString temp_path;
-		DBFCreateFld fld_list[32];
-
-		PPGetPath(PPPATH_OUT, temp_path);
-		SPathStruc::ReplacePath((out_path = pPath), temp_path, 1);
-
-		THROW(p_dbf_tbl = new DbfTable(out_path));
-		fld_list[num_flds++].Init("ID",   'N', 10, 0);
-		fld_list[num_flds++].Init("CODE", 'C', 16, 0);
-		fld_list[num_flds++].Init("NAME", 'C', 64, 0);
-		if(oneof2(bhtTypeID, PPObjBHT::btPalm, PPObjBHT::btStyloBhtII))
-			fld_list[num_flds++].Init("UPP",  'N', 10, 2);
-		if(oneof2(bhtTypeID, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII))
-			fld_list[num_flds++].Init("PRICE", 'N', 10, 2);
-		if(bhtTypeID == PPObjBHT::btStyloBhtII) {
-			fld_list[num_flds++].Init("REST", 'N', 10, 2);
-			fld_list[num_flds++].Init("COST", 'N', 10, 2);
-		}
-		THROW(p_dbf_tbl->create(num_flds, fld_list));
-		THROW(p_dbf_tbl->open());
-	}
-	// } AHTOXA
-	THROW(p_tmp_tbl = CreateTempOrderFile());
-	THROW_MEM(p_bei = new BExtInsert(p_tmp_tbl));
-	pos_id = 0;
-	filt.ReadFromProp(Obj, bhtID, BHTPRP_GOODSFILT2, BHTPRP_GOODSFILT_);
-	GoodsIterator::GetListByFilt(&filt, &goods_id_list);
-	goods_id_list.add(pAddendumGoodsIdList);
-	goods_id_list.sortAndUndup();
-	counter.Init(goods_id_list.getCount() * 2);
-	//
-	// Для терминала с программой StyloBhtII, ид товара будем формировать уникальным для каждого штрихкода. Добавляя номер с смещением bcode_uniq_bias.
-	//
-	const long bcode_uniq_bias = 26L;
-	//while(giter.Next(&goods_rec) > 0) {
-	for(uint j = 0; j < goods_id_list.getCount(); j++) {
-		const PPID _goods_id = goods_id_list.get(j);
-		uint   i;
-		BarcodeTbl::Rec * p_barcode = 0;
-		THROW(goods_obj.ReadBarcodes(_goods_id, barcode_list));
-		for(i = 0; barcode_list.enumItems(&i, (void**)&p_barcode);) {
-			if(p_barcode->Code[0]) {
-				PPID   goods_id = _goods_id;
-				temp_buf = p_barcode->Code;
-				if(temp_buf.Len() < 7) {
-					temp_buf.PadLeft(12-temp_buf.Len(), '0');
-					if(check_dig)
-						AddBarcodeCheckDigit(temp_buf);
-				}
-				int    skip = 0;
-				if(bhtTypeID == PPObjBHT::btStyloBhtII) {
-					long addendum = (((long)i - 1) << bcode_uniq_bias);
-					if((addendum + goods_id) < 0)
-						skip = 1;
-					else
-						goods_id += addendum;
-				}
-				if(!skip) {
-					ss.clear();
-					ss.add(temp_buf);                     // barcode
-					ss.add((temp_buf = 0).Cat(goods_id)); // goodsid
-					p_tmp_tbl->clearDataBuf();
-					memcpy(p_tmp_tbl->data.Name, ss.getBuf(), ss.getDataLen());
-					p_tmp_tbl->data.ID = ++pos_id;
-					THROW_DB(p_bei->insert(&p_tmp_tbl->data));
-				}
-			}
-		}
-		PPWaitPercent(counter.Increment(), msg_buf);
-	}
-	THROW_DB(p_bei->flash());
-	ZDELETE(p_bei);
 	{
-		RECORDNUMBER nr;
-		p_tmp_tbl->getNumRecs(&nr);
-		counter.SetTotal(counter.GetTotal() / 2 + nr);
-	}
-	MEMSZERO(tmp_k1);
-	while(p_tmp_tbl->search(1, &tmp_k1, spGt)) {
-		char   barcode[32], price_buf[32];
-		uint   p = 0;
-		ss.setBuf(p_tmp_tbl->data.Name, sizeof(p_tmp_tbl->data.Name));
-		ss.get(&p, barcode, sizeof(barcode));
-		ss.get(&p, temp_buf);
-		PPID   out_goods_id = temp_buf.ToLong();
-		PPID   goods_id = out_goods_id & ((1 << bcode_uniq_bias) - 1);
-		if(goods_obj.Fetch(goods_id, &goods_rec) > 0) {
-			double price = 0.0;
-			ReceiptTbl::Rec lot_rec;
-			MEMSZERO(lot_rec);
-			if(goods_rec.Flags & GF_UNLIM) {
-				QuotIdent qi(QIDATE(getcurdate_()), loc_id, PPQUOTK_BASE, 0L /* @curID */);
-				goods_obj.GetQuot(goods_id, qi, 0L, 0L, &price);
-			}
-			else
-				::GetCurGoodsPrice(goods_id, loc_id, GPRET_INDEF, &price, &lot_rec);
-			realfmt(price, MKSFMTD(6, 2, NMBF_NOTRAILZ), price_buf);
-			if(!oneof3(bhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
-				p_bht_rec->PutInt(0, goods_id);
-				p_bht_rec->PutStr(1, barcode);
-				//
-				// @v4.0.8 p_bht_rec->PutStr(2, price_buf);
-				// int на bht от -32xxx до 32767 -> при бин. поиске 32767 + 1 = -32xxx -> ошибки
-				// Поэтому загр. в терминал 32766 записей и добавочный (если записей > 32766)
-				//
-				if((rec_no < MAXBHTRECS - 1) || !stream2)
-					PutBhtRecToFile(p_bht_rec, stream);
-				else
-					PutBhtRecToFile(p_bht_rec, stream2);
-			}
-			else {
-				int    num_fld = 1;
-				GoodsStockExt gse;
-				DbfRecord dbf_rec(p_dbf_tbl);
-				dbf_rec.put(num_fld++, out_goods_id);
-				goods_name = goods_rec.Name;
-				if(bhtTypeID == PPObjBHT::btStyloBhtII)
-					goods_name.Trim(63);
-				else
-					goods_name.Trim(47);
-				if(oneof2(bhtTypeID, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
-					goods_name.Transf(CTRANSF_INNER_TO_OUTER);
-					SOemToChar(barcode);
-				}
-				else
-					goods_name.ToLower();
-				dbf_rec.put(num_fld++, barcode);
-				dbf_rec.put(num_fld++, goods_name);
-				if(oneof2(bhtTypeID, PPObjBHT::btPalm, PPObjBHT::btStyloBhtII)) {
-					if(goods_obj.GetStockExt(goods_id, &gse) > 0 && gse.Package > 0)
-						dbf_rec.put(num_fld++, gse.Package);
-					else
-						dbf_rec.put(num_fld++, lot_rec.UnitPerPack);
-				}
-				if(oneof2(bhtTypeID, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII))
-					dbf_rec.put(num_fld++, price);
-				if(bhtTypeID == PPObjBHT::btStyloBhtII) {
-					dbf_rec.put(num_fld++, lot_rec.Rest);
-					dbf_rec.put(num_fld++, lot_rec.Cost);
-				}
-				THROW(p_dbf_tbl->appendRec(&dbf_rec));
-			}
+		PPUserFuncProfiler ufp(PPUPRF_BHTPREPGOODS); // @v9.4.11
+		double prf_measure = 0.0;
+		PPLoadText(PPTXT_PREPAREBHTGOODS, msg_buf);
+		// ATHOXA {
+		PPSetAddedMsgString(pPath);
+		if(!oneof3(bhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
+			THROW_PP(stream = fopen(pPath, "w"), PPERR_CANTOPENFILE);
+			if(pPath2)
+				THROW_PP_S(stream2 = fopen(pPath2, "w"), PPERR_CANTOPENFILE, pPath2);
+			THROW_MEM(p_bht_rec = new BhtRecord);
+			THROW(InitGoodsBhtRec(p_bht_rec));
 		}
-		PPWaitPercent(counter.Increment(), msg_buf);
-		rec_no++;
-	}
-	if(oneof3(bhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
-		p_dbf_tbl->close();
-		SCopyFile(out_path, pPath, 0, FILE_SHARE_READ, 0);
+		else {
+			int    num_flds = 0;
+			SString temp_path;
+			DBFCreateFld fld_list[32];
+
+			PPGetPath(PPPATH_OUT, temp_path);
+			SPathStruc::ReplacePath((out_path = pPath), temp_path, 1);
+
+			THROW(p_dbf_tbl = new DbfTable(out_path));
+			fld_list[num_flds++].Init("ID",   'N', 10, 0);
+			fld_list[num_flds++].Init("CODE", 'C', 16, 0);
+			fld_list[num_flds++].Init("NAME", 'C', 64, 0);
+			if(oneof2(bhtTypeID, PPObjBHT::btPalm, PPObjBHT::btStyloBhtII))
+				fld_list[num_flds++].Init("UPP",  'N', 10, 2);
+			if(oneof2(bhtTypeID, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII))
+				fld_list[num_flds++].Init("PRICE", 'N', 10, 2);
+			if(bhtTypeID == PPObjBHT::btStyloBhtII) {
+				fld_list[num_flds++].Init("REST", 'N', 10, 2);
+				fld_list[num_flds++].Init("COST", 'N', 10, 2);
+			}
+			THROW(p_dbf_tbl->create(num_flds, fld_list));
+			THROW(p_dbf_tbl->open());
+		}
+		// } AHTOXA
+		THROW(p_tmp_tbl = CreateTempOrderFile());
+		THROW_MEM(p_bei = new BExtInsert(p_tmp_tbl));
+		pos_id = 0;
+		filt.ReadFromProp(Obj, bhtID, BHTPRP_GOODSFILT2, BHTPRP_GOODSFILT_);
+		GoodsIterator::GetListByFilt(&filt, &goods_id_list);
+		goods_id_list.add(pAddendumGoodsIdList);
+		goods_id_list.sortAndUndup();
+		counter.Init(goods_id_list.getCount() * 2);
+		//
+		// Для терминала с программой StyloBhtII, ид товара будем формировать уникальным для каждого штрихкода. Добавляя номер с смещением bcode_uniq_bias.
+		//
+		const long bcode_uniq_bias = 26L;
+		//while(giter.Next(&goods_rec) > 0) {
+		for(uint j = 0; j < goods_id_list.getCount(); j++) {
+			prf_measure += 1.0; // @v9.4.11
+			const PPID _goods_id = goods_id_list.get(j);
+			uint   i;
+			BarcodeTbl::Rec * p_barcode = 0;
+			THROW(goods_obj.ReadBarcodes(_goods_id, barcode_list));
+			for(i = 0; barcode_list.enumItems(&i, (void**)&p_barcode);) {
+				if(p_barcode->Code[0]) {
+					PPID   goods_id = _goods_id;
+					temp_buf = p_barcode->Code;
+					if(temp_buf.Len() < 7) {
+						temp_buf.PadLeft(12-temp_buf.Len(), '0');
+						if(check_dig)
+							AddBarcodeCheckDigit(temp_buf);
+					}
+					int    skip = 0;
+					if(bhtTypeID == PPObjBHT::btStyloBhtII) {
+						long addendum = (((long)i - 1) << bcode_uniq_bias);
+						if((addendum + goods_id) < 0)
+							skip = 1;
+						else
+							goods_id += addendum;
+					}
+					if(!skip) {
+						ss.clear();
+						ss.add(temp_buf);                     // barcode
+						ss.add((temp_buf = 0).Cat(goods_id)); // goodsid
+						p_tmp_tbl->clearDataBuf();
+						memcpy(p_tmp_tbl->data.Name, ss.getBuf(), ss.getDataLen());
+						p_tmp_tbl->data.ID = ++pos_id;
+						THROW_DB(p_bei->insert(&p_tmp_tbl->data));
+					}
+				}
+			}
+			PPWaitPercent(counter.Increment(), msg_buf);
+		}
+		THROW_DB(p_bei->flash());
+		ZDELETE(p_bei);
+		{
+			RECORDNUMBER nr;
+			p_tmp_tbl->getNumRecs(&nr);
+			counter.SetTotal(counter.GetTotal() / 2 + nr);
+		}
+		MEMSZERO(tmp_k1);
+		while(p_tmp_tbl->search(1, &tmp_k1, spGt)) {
+			char   barcode[32], price_buf[32];
+			uint   p = 0;
+			ss.setBuf(p_tmp_tbl->data.Name, sizeof(p_tmp_tbl->data.Name));
+			ss.get(&p, barcode, sizeof(barcode));
+			ss.get(&p, temp_buf);
+			PPID   out_goods_id = temp_buf.ToLong();
+			PPID   goods_id = out_goods_id & ((1 << bcode_uniq_bias) - 1);
+			if(goods_obj.Fetch(goods_id, &goods_rec) > 0) {
+				double price = 0.0;
+				ReceiptTbl::Rec lot_rec;
+				MEMSZERO(lot_rec);
+				if(goods_rec.Flags & GF_UNLIM) {
+					const QuotIdent qi(QIDATE(getcurdate_()), loc_id, PPQUOTK_BASE, 0L /* @curID */);
+					goods_obj.GetQuot(goods_id, qi, 0L, 0L, &price);
+				}
+				else
+					::GetCurGoodsPrice(goods_id, loc_id, GPRET_INDEF, &price, &lot_rec);
+				realfmt(price, MKSFMTD(6, 2, NMBF_NOTRAILZ), price_buf);
+				if(!oneof3(bhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
+					p_bht_rec->PutInt(0, goods_id);
+					p_bht_rec->PutStr(1, barcode);
+					//
+					// @v4.0.8 p_bht_rec->PutStr(2, price_buf);
+					// int на bht от -32xxx до 32767 -> при бин. поиске 32767 + 1 = -32xxx -> ошибки
+					// Поэтому загр. в терминал 32766 записей и добавочный (если записей > 32766)
+					//
+					if((rec_no < MAXBHTRECS - 1) || !stream2)
+						PutBhtRecToFile(p_bht_rec, stream);
+					else
+						PutBhtRecToFile(p_bht_rec, stream2);
+				}
+				else {
+					int    num_fld = 1;
+					GoodsStockExt gse;
+					DbfRecord dbf_rec(p_dbf_tbl);
+					dbf_rec.put(num_fld++, out_goods_id);
+					goods_name = goods_rec.Name;
+					if(bhtTypeID == PPObjBHT::btStyloBhtII)
+						goods_name.Trim(63);
+					else
+						goods_name.Trim(47);
+					if(oneof2(bhtTypeID, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
+						goods_name.Transf(CTRANSF_INNER_TO_OUTER);
+						SOemToChar(barcode);
+					}
+					else
+						goods_name.ToLower();
+					dbf_rec.put(num_fld++, barcode);
+					dbf_rec.put(num_fld++, goods_name);
+					if(oneof2(bhtTypeID, PPObjBHT::btPalm, PPObjBHT::btStyloBhtII)) {
+						if(goods_obj.GetStockExt(goods_id, &gse) > 0 && gse.Package > 0)
+							dbf_rec.put(num_fld++, gse.Package);
+						else
+							dbf_rec.put(num_fld++, lot_rec.UnitPerPack);
+					}
+					if(oneof2(bhtTypeID, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII))
+						dbf_rec.put(num_fld++, price);
+					if(bhtTypeID == PPObjBHT::btStyloBhtII) {
+						dbf_rec.put(num_fld++, lot_rec.Rest);
+						dbf_rec.put(num_fld++, lot_rec.Cost);
+					}
+					THROW(p_dbf_tbl->appendRec(&dbf_rec));
+				}
+			}
+			PPWaitPercent(counter.Increment(), msg_buf);
+			rec_no++;
+		}
+		if(oneof3(bhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
+			p_dbf_tbl->close();
+			SCopyFile(out_path, pPath, 0, FILE_SHARE_READ, 0);
+		}
+		ufp.SetFactor(0, prf_measure); // @v9.4.11
+		ufp.Commit(); // @v9.4.11
 	}
 	CATCHZOK
 	delete p_bei;

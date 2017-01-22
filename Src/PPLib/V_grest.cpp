@@ -1,5 +1,5 @@
 // V_GREST.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -406,7 +406,7 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	int    editAdvOptions();
-	int    SetupCtrls();
+	void   SetupCtrls();
 	int    SetupCrosstab();
 	GoodsRestFilt Data;
 };
@@ -557,7 +557,7 @@ int GoodsRestFiltDlg::getDTS(GoodsRestFilt * pFilt)
 	return ok;
 }
 
-int GoodsRestFiltDlg::SetupCtrls()
+void GoodsRestFiltDlg::SetupCtrls()
 {
 	int    disable_draft_rcpt = BIN(!DS.GetTLA().Cc.DraftRcptOp || (Data.Flags & GoodsRestFilt::fCalcDeficit));
 	long   prev_flags = Data.Flags;
@@ -583,7 +583,6 @@ int GoodsRestFiltDlg::SetupCtrls()
 	DisableClusterItem(CTL_GOODSREST_FLAGS, 10, disable_draft_rcpt);
 	enableCommand(cmAdvOptions, !(Data.Flags & GoodsRestFilt::fShowDraftReceipt));
 	SetClusterData(CTL_GOODSREST_FLAGS, Data.Flags);
-	return 1;
 }
 
 IMPL_HANDLE_EVENT(GoodsRestFiltDlg)

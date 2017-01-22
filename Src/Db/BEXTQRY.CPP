@@ -495,7 +495,7 @@ int SLAPI BExtQuery::add_term(int link, int n)
 	char   val[1024];
 	const  BNField * fld = 0;
 	DBQ::T & t = P_Restrict->items[n];
-	CHECK(t.left.i.id == P_Tbl->handle || t.right.i.id == P_Tbl->handle);
+	assert(t.left.i.id == P_Tbl->handle || t.right.i.id == P_Tbl->handle);
 	if(t.left.i.id == P_Tbl->handle) {
 		fld = &t.left.f.getField();
 		cmp = t.cmp;

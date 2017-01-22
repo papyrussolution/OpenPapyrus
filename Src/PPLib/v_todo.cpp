@@ -1067,7 +1067,8 @@ public:
 	int    getDTS(PrjTaskFilt *);
 private:
 	DECL_HANDLE_EVENT;
-	int    SetupCtrls();
+	void   SetupCtrls();
+
 	PrjTaskFilt Data;
 };
 
@@ -1087,7 +1088,7 @@ IMPL_HANDLE_EVENT(PrjTaskFiltDialog)
 	clearEvent(event);
 }
 
-int PrjTaskFiltDialog::SetupCtrls()
+void PrjTaskFiltDialog::SetupCtrls()
 {
 	Data.Order = (Data.TabType != PrjTaskFilt::crstNone) ? PrjTaskFilt::ordByDefault : Data.Order;
 	Data.Kind = (Data.TabType != PrjTaskFilt::crstNone) ? TODOKIND_TASK : Data.Kind;
@@ -1106,7 +1107,6 @@ int PrjTaskFiltDialog::SetupCtrls()
 	disableCtrl(CTLSEL_TODOFILT_SUBST, !oneof2(Data.TabType, PrjTaskFilt::crstClientDate, PrjTaskFilt::crstEmployerDate));
 	if(Data.TabType != PrjTaskFilt::crstClientDate && Data.TabType != PrjTaskFilt::crstEmployerDate)
 		setCtrlLong(CTLSEL_TODOFILT_SUBST, 0);
-	return 1;
 }
 
 int PrjTaskFiltDialog::setDTS(const PrjTaskFilt * pData)

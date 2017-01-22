@@ -1,5 +1,5 @@
 // PPREPORT.CPP
-// Copyright (C) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016
+// Copyright (C) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1682,7 +1682,7 @@ int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const 
 		{
 			// @v9.4.9 (msg_buf = "Crystal Reports error:").CatDiv(':', 2).Cat(CrwError);
 			// @v9.4.9 {
-			PPLoadString("err_crpe", msg_buf = 0);
+			PPLoadString("err_crpe", msg_buf);
 			msg_buf.Transf(CTRANSF_INNER_TO_OUTER);
 			msg_buf.CatDiv(':', 2).Cat(CrwError);
 			// } @v9.4.9

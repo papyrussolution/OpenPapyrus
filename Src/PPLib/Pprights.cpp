@@ -358,8 +358,8 @@ public:
 		return s;
 	}
 private:
-	//virtual int getObjName(PPID objID, long objFlags, SString &);
-	//virtual int getExtText(long objFlags, SString &);
+	//virtual int  getObjName(PPID objID, long objFlags, SString &);
+	//virtual void getExtText(long objFlags, SString &);
 	virtual int editItemDialog(ObjRestrictItem * pItem)
 	{
 		int    ok = -1, valid_data = 0;
@@ -648,11 +648,9 @@ private:
 		}
 		return ok;
 	}
-	virtual int getExtText(PPID objID, long objFlags, SString & rBuf)
+	virtual void getExtText(PPID objID, long objFlags, SString & rBuf)
 	{
-		rBuf = 0;
-		PPLoadString((objFlags == 0) ? "no" : "yes", (rBuf = 0));
-		return 1;
+		PPLoadString((objFlags == 0) ? "no" : "yes", rBuf);
 	}
 	ObjRestrictArray Data;
 	PPObjAccount AcctObj;
@@ -787,11 +785,9 @@ private:
 		}
 		return ok;
 	}
-	virtual int getExtText(PPID objID, long objFlags, SString & rBuf)
+	virtual void getExtText(PPID objID, long objFlags, SString & rBuf)
 	{
-		rBuf = 0;
 		PPLoadString((objFlags == 0) ? "no" : "yes", rBuf);
-		return 1;
 	}
 	ObjRestrictArray Data;
 	PPObjCashNode CnObj;
@@ -926,11 +922,9 @@ private:
 		}
 		return ok;
 	}
-	virtual int getExtText(PPID objID, long objFlags, SString & rBuf)
+	virtual void getExtText(PPID objID, long objFlags, SString & rBuf)
 	{
-		rBuf = 0;
 		PPLoadString((objFlags == 0) ? "no" : "yes", rBuf);
-		return 1;
 	}
 	ObjRestrictArray Data;
 	PPObjQuotKind QkObj;

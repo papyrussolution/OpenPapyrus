@@ -1,5 +1,5 @@
 // OBJBROWS.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -538,10 +538,9 @@ int ObjRestrictListDialog::getObjName(PPID objID, long, SString & rBuf)
 	}
 }
 
-int ObjRestrictListDialog::getExtText(PPID, long /*objFlags*/, SString & rBuf)
+void ObjRestrictListDialog::getExtText(PPID, long /*objFlags*/, SString & rBuf)
 {
 	rBuf = 0;
-	return -1;
 }
 
 int ObjRestrictListDialog::setupList()

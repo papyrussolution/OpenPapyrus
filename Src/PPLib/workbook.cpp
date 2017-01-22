@@ -1,5 +1,5 @@
 // WORKBOOK.CPP
-// Copyright (c) Petroglif 2014, 2015, 2016
+// Copyright (c) Petroglif 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1197,8 +1197,9 @@ int SLAPI PPObjWorkbook::AttachFile(PPID id)
 		if(EditWorkbookAttachFileParam(&param) > 0) {
 			if(param.Type != param.ftSelection) {
 				param.FileName = 0;
-				SString path, ext;
-				PPGetPath(PPPATH_TEMP, path);
+				SString ext;
+				//SString path;
+				//PPGetPath(PPPATH_TEMP, path);
 				if(param.Type == param.ftHtml)
 					ext = "html";
 				else if(param.Type == param.ftText)
@@ -1206,7 +1207,7 @@ int SLAPI PPObjWorkbook::AttachFile(PPID id)
 				else if(param.Type == param.ftVm)
 					ext = "vm";
 				if(ext.NotEmpty()) {
-					MakeTempFileName(path, "wb", ext, 0, param.FileName);
+					PPMakeTempFileName("wb", ext, 0, param.FileName);
 					SFile _f(param.FileName, SFile::mWrite);
 					THROW_SL(_f.IsValid());
 				}

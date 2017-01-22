@@ -16,6 +16,7 @@ static int isNeededFile(const char * pName)
 
 static int64 calcNeededSize(int isEmpty)
 {
+	DbProvider * p_dict = CurDict;
 	int64  size = 0;
 	SString empty_path, base_path, file_name, tbl_name;
 	DbTableStat ts;
@@ -25,10 +26,10 @@ static int64 calcNeededSize(int isEmpty)
 	empty_path.SetLastSlash();
 	PPGetPath(PPPATH_DAT, base_path);
 	base_path.SetLastSlash();
-	CurDict->GetListOfTables(0, &tbl_list);
+	p_dict->GetListOfTables(0, &tbl_list);
 	for(uint j = 0; j < tbl_list.getCount(); j++) {
 		const StrAssocArray::Item item = tbl_list.at(j);
-		if(CurDict->GetTableInfo(item.Id, &ts) && !(ts.Flags & XTF_DICT)) {
+		if(p_dict->GetTableInfo(item.Id, &ts) && !(ts.Flags & XTF_DICT)) {
 			file_name = ts.Location;
 			ps.Split(file_name);
 			if(ps.Nam.C(0) != '_' && ps.Nam.CmpPrefix("tmp", 1) != 0) {
@@ -87,10 +88,11 @@ int SLAPI CreateByExample(const char * pPath)
 		CALLEXCEPT_PP(PPERR_DBLIB);
 	}
 	//
-	CurDict->GetListOfTables(0, &tbl_list);
+	DbProvider * p_dict = CurDict;
+	p_dict->GetListOfTables(0, &tbl_list);
 	for(uint j = 0; j < tbl_list.getCount(); j++) {
 		const StrAssocArray::Item item = tbl_list.at(j);
-		if(CurDict->GetTableInfo(item.Id, &ts) && !(ts.Flags & XTF_DICT)) {
+		if(p_dict->GetTableInfo(item.Id, &ts) && !(ts.Flags & XTF_DICT)) {
 			file_name = ts.Location;
 			(src_path = pp).Cat(file_name.Strip());
 			ps.Split(file_name);

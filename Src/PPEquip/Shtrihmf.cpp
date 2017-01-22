@@ -640,7 +640,8 @@ int SLAPI ACS_SHTRIHMFRK::ImportFiles()
 	}
 	{
 		const char * p_prefix = "slp";
-		SString path, temp_path, temp_dir;
+		SString path, temp_path;
+		SString temp_dir;
 		for(uint file_no = 0; path.GetSubFrom(ImportedFiles, ';', file_no) > 0; file_no++) {
 			if(fileExists(path)) {
 				SPathStruc sp;

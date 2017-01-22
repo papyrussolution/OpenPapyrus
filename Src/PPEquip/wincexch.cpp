@@ -605,7 +605,7 @@ int SLAPI StyloBhtIIExchanger::Log_(uint errCode, uint msgCode, const char * pAd
 		buf.ShiftLeft();
 	}
 	else {
-		PPLoadString(PPSTR_TEXT, msgCode, temp_buf = 0);
+		PPLoadString(PPSTR_TEXT, msgCode, temp_buf);
 		if(temp_buf.Len()) {
 			if(pAddInfo)
 				buf.Printf(temp_buf, pAddInfo, str_dtm.cptr());

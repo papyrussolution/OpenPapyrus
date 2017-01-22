@@ -32,7 +32,6 @@ int FASTCALL CcAmountEntry::IsEqual(const CcAmountEntry & rS) const
 int CcAmountEntry::GetTypeText(SString & rBuf) const
 {
 	int    ok = 1;
-	rBuf = 0;
 	if(Type == CCAMTTYP_CASH) {
 		PPLoadString("paymt_cash", rBuf);
 	}

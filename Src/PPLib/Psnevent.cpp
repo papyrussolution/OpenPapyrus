@@ -1,5 +1,5 @@
 // PSNEVENT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -2293,7 +2293,7 @@ private:
 			clearEvent(event);
 		}
 	}
-	int    SetupCtrls(PPID opID)
+	void   SetupCtrls(PPID opID)
 	{
 		PPPsnOpKindPacket pok_pack;
 		getCtrlData(CTLSEL_FLTADDPSNEV_PRMR, &Data.PrmrPsnID);
@@ -2328,7 +2328,6 @@ private:
 			disableCtrls(1, CTLSEL_FLTADDPSNEV_PRMR, CTLSEL_FLTADDPSNEV_SCND, CTL_FLTADDPSNEV_TAGS, 0L);
 		}
 		Data.OpID = opID;
-		return 1;
 	}
 
 	AddPersonEventFilt Data;

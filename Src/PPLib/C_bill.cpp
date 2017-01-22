@@ -1,5 +1,5 @@
 // C_BILL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017
 // @codepage windows-1251
 // Корректировка документов
 //
@@ -170,7 +170,7 @@ int SLAPI PPObjBill::CheckAmounts(PPID id, PPLogger & rLogger)
 		pack.Rec.Flags |= BILLF_NOLOADTRFR;
 		THROW(pack.SumAmounts(&al, 1));
 		for(uint i = 0; i < al.getCount(); i++) {
-			PPID t = al.at(i).AmtTypeID;
+			const PPID t = al.at(i).AmtTypeID;
 			bamt = R2(pack.Amounts.Get(t, 0L /* @curID */));
 			ramt = R2(al.at(i).Amt);
 			if(bamt != ramt) {

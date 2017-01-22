@@ -1,5 +1,5 @@
 // V_TRANSP.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2012, 2014, 2015, 2016
+// Copyright (c) A.Starodub 2009, 2010, 2012, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -27,8 +27,8 @@ int SLAPI TransportFilt::Describe(long flags, SString & rBuf) const
 	PutObjMembToBuf(PPOBJ_PERSON,      OwnerID,   STRINGIZING(BrandOwnerID), rBuf);
 	PutObjMembToBuf(PPOBJ_PERSON,      CaptainID, STRINGIZING(CaptainID),    rBuf);
 	PutObjMembToBuf(PPOBJ_COUNTRY,     CountryID, STRINGIZING(CountryID),    rBuf);
-	PutMembToBuf((const char*)Code,      STRINGIZING(Code),      rBuf);
-	PutMembToBuf((const char*)TrailCode, STRINGIZING(TrailCode), rBuf);
+	PutMembToBuf(Code.cptr(),      STRINGIZING(Code),      rBuf);
+	PutMembToBuf(TrailCode.cptr(), STRINGIZING(TrailCode), rBuf);
 	// TrType
 	{
 		long id = 1;
@@ -74,11 +74,11 @@ public:
 	{
 		PPObjTransport::ReadConfig(&Cfg);
 	}
-	int setDTS(const TransportFilt *);
-	int getDTS(TransportFilt *);
+	int    setDTS(const TransportFilt *);
+	int    getDTS(TransportFilt *);
 private:
 	DECL_HANDLE_EVENT;
-	int    SetupCtrls();
+	void   SetupCtrls();
 	TransportFilt Data;
 	PPTransportConfig Cfg;
 };
@@ -92,10 +92,10 @@ IMPL_HANDLE_EVENT(TransportFilterDlg)
 	}
 }
 
-int TransportFilterDlg::SetupCtrls()
+void TransportFilterDlg::SetupCtrls()
 {
-	long tr_type = 0;
-	PPID model_id = 0, country_id = 0;
+	long   tr_type = 0;
+	PPID   model_id = 0, country_id = 0;
 	SString code, trail_code;
 	getCtrlString(CTL_FLTTRANSP_CODE,      code);
 	getCtrlString(CTL_FLTTRANSP_TRAILCODE, trail_code);
@@ -115,7 +115,6 @@ int TransportFilterDlg::SetupCtrls()
 	SetupPPObjCombo(this, CTLSEL_FLTTRANSP_CNTRY, PPOBJ_COUNTRY,     country_id, OLW_CANINSERT);
 	setCtrlString(CTL_FLTTRANSP_CODE, code);
 	setCtrlString(CTL_FLTTRANSP_TRAILCODE, trail_code);
-	return 1;
 }
 
 int TransportFilterDlg::setDTS(const TransportFilt * pData)
@@ -364,7 +363,7 @@ int SLAPI PPViewTransport::ViewTotal()
 		PPWait(0);
 		p_dlg->setCtrlLong(CTL_GOODSTOTAL_COUNT, count);
 		PPLoadString(PPSTR_TEXT, PPTXT_TRANSPTOTAL, title);
-		p_dlg->setTitle(title, 1);
+		p_dlg->setOrgTitle(title);
 		ExecViewAndDestroy(p_dlg);
 		return -1;
 	}

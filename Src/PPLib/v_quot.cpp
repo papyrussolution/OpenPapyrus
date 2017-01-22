@@ -127,7 +127,7 @@ public:
 	int    getDTS(QuotFilt *);
 private:
 	DECL_HANDLE_EVENT;
-	int    SetupCtrls();
+	void   SetupCtrls();
 
 	PPObjQuotKind::Special Spc;
 	int    Cls;
@@ -155,7 +155,7 @@ IMPL_HANDLE_EVENT(QuotFiltDialog)
 	clearEvent(event);
 }
 
-int QuotFiltDialog::SetupCtrls()
+void QuotFiltDialog::SetupCtrls()
 {
 	int    disable_qk = 0;
 	long   combo_ext = 0;
@@ -239,7 +239,6 @@ int QuotFiltDialog::SetupCtrls()
 			LastAccSheetID = acs_id;
 		}
 	}
-	return 1;
 }
 
 int QuotFiltDialog::setDTS(const QuotFilt * pData)

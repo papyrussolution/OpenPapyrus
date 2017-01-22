@@ -1,5 +1,5 @@
 // OBJPERSN.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -7095,7 +7095,8 @@ int PPALDD_Global::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 	else if(pF->Name == "?GetDbUUID") {
 		S_GUID dbuuid;
 		dbuuid.SetZero();
-		CALLPTRMEMB(CurDict, GetDbUUID(&dbuuid));
+		DbProvider * p_dict = CurDict;
+		CALLPTRMEMB(p_dict, GetDbUUID(&dbuuid));
 		dbuuid.ToStr(S_GUID::fmtIDL, _RET_STR);
 	}
 	return 1;

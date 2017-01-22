@@ -758,7 +758,6 @@ int SLAPI ACS_SETSTART::ImportFiles()
 	uint   set_no = 0;
 	SString imp_path, exp_path, path_rpt, path_flag, str_imp_paths;
 	SString dir_in;
-	SString temp_path;
 	LDATE  first_date = ChkRepPeriod.low;
 	LDATE  last_date = ChkRepPeriod.upp;
 	StringSet imp_paths(";");
@@ -828,7 +827,6 @@ int SLAPI ACS_SETSTART::ImportFiles()
 				SString temp_fname;
 				SString dest_fname;
 
-				PPGetPath(PPPATH_TEMP, temp_path);
 				THROW(mail.Init(&mac_rec));
 				mac_rec.GetExtField(MAEXSTR_RCVSERVER, wait_msg);
 				PPWaitMsg(PPSTR_TEXT, PPTXT_WTMAILCONNECTION, wait_msg);
@@ -849,7 +847,7 @@ int SLAPI ACS_SETSTART::ImportFiles()
 				msg_counter.Init(msg_list.getCount());
 				for(i = 0; i < msg_list.getCount(); i++) {
 					PPMailMsg msg;
-					MakeTempFileName(temp_path, 0, "msg", 0, temp_fname = 0);
+					PPMakeTempFileName(0, "msg", 0, temp_fname = 0);
 					msg_counter.Increment();
 					THROW(mail.GetMsg(msg_list.at(i), &msg, temp_fname, RcvMailCallback, msg_counter));
 					{
@@ -869,6 +867,7 @@ int SLAPI ACS_SETSTART::ImportFiles()
 	{
 		const char * p_prefix = "slp";
 		SString path;
+		SString temp_path;
 		SString temp_dir = dir_in;
 		for(uint file_no = 0; path.GetSubFrom(ImportedFiles, ';', file_no) > 0; file_no++) {
 			if(fileExists(path)) {

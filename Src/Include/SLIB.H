@@ -11370,6 +11370,7 @@ private:
 //
 // Debug
 //
+/* @v9.4.11 
 #ifndef __DEBUG
 	#define __DEBUG 2
 #endif
@@ -11381,6 +11382,7 @@ private:
 	#define CHECKE(p) assert(p)
 	#define CHECK(p)  assert(p)
 #endif
+*/
 //
 //
 //
@@ -11398,9 +11400,8 @@ public:
 	{
 		MemHeapTracer mht;
 		MemHeapTracer::Stat mht_stat;
-		return mht.CalcStat(&mht_stat) ? 1 : 0;
+		return BIN(mht.CalcStat(&mht_stat));
 	}
-
 	struct Stat {
 		ulong  UsedBlockCount;   // Количество используемых блоков
 		ulong  UnusedBlockCount; // Количество неиспользуемых блоков

@@ -401,18 +401,18 @@ private:
 		else if(event.isCmd(cmCrosstab))
 			EditCrosstab();
 	}
-	int EditCrosstab()
+	int    EditCrosstab()
 	{
 		Data.Grp = (CCheckFilt::Grouping)getCtrlLong(CTLSEL_CCHECKFLT_GRP);
 		DIALOG_PROC_BODYERR(CCheckFiltCtDialog, &Data);
 	}
-	int SetupCtrls();
+	void   SetupCtrls();
 
 	const int HasExt;
 	CCheckFilt Data;
 };
 
-int CCheckFiltDialog::SetupCtrls()
+void CCheckFiltDialog::SetupCtrls()
 {
 	CCheckFilt::Grouping  grp = (CCheckFilt::Grouping)getCtrlLong(CTLSEL_CCHECKFLT_GRP);
 	if(!oneof3(grp, CCheckFilt::gAmount, CCheckFilt::gQtty, CCheckFilt::gAmountNGoods)) {
@@ -446,7 +446,6 @@ int CCheckFiltDialog::SetupCtrls()
 		Data.CtKind = CCheckFilt::ctNone;
 		Data.CtValList.FreeAll();
 	}
-	return 1;
 }
 
 int CCheckFiltDialog::setDTS(const CCheckFilt * pFilt)

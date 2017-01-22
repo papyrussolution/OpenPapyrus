@@ -2848,21 +2848,20 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 
 int SLAPI PPViewPerson::CreateAuthFile(PPID psnId)
 {
-	int          ok = 1;
-	const char * p_auth_fname = "agauth.bin";
-	S_GUID       guid;
-	SString      temp_buf;
-	SFile        file;
+	int    ok = 1;
+	DbProvider * p_dict = CurDict;
+	const  char * p_auth_fname = "agauth.bin";
+	S_GUID guid;
+	SString temp_buf;
+	SFile  file;
 	Sdr_CPosAuth rec;
-
 	MEMSZERO(rec);
-
 	rec._id = 1;
-	CurDict->GetDbUUID(&guid);
+	p_dict->GetDbUUID(&guid);
 	guid.ToStr(S_GUID::fmtIDL, temp_buf);
 	temp_buf.CopyTo(rec.DbUUID, sizeof(rec.DbUUID));
 
-	CurDict->GetDbSymb(temp_buf = 0);
+	p_dict->GetDbSymb(temp_buf = 0);
 	temp_buf.CopyTo(rec.DbSymb, sizeof(rec.DbSymb));
 
 	rec.AgentID = psnId;

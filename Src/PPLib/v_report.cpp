@@ -8,67 +8,6 @@
 
 // Prototype (PPREPORT.CPP)
 int SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const char *pRepFileName);
-
-class ReportMailDialog : public TDialog {
-public:
-	struct Rec {
-		int Init()
-		{
-			memzero(this, sizeof(Rec));
-			return 1;
-		}
-
-		PPID    AccountID;
-		SString SupportMail;
-		SString MainOrg;
-		SString Licence;
-		SString User;
-		SString DB;
-		SString RptPath;
-		SString Struc;
-		LDATETIME Dtm;
-	};
-	ReportMailDialog() : TDialog(DLG_RPTMAIL) {}
-
-	int setDTS(const ReportMailDialog::Rec *);
-	int getDTS(ReportMailDialog::Rec *);
-private:
-	Rec Data;
-};
-
-int ReportMailDialog::setDTS(const ReportMailDialog::Rec * pData)
-{
-	if(!RVALUEPTR(Data, pData))
-		Data.Init();
-	SString buf;
-	SetupPPObjCombo(this, CTLSEL_RPTMAIL_ACCNT, PPOBJ_INTERNETACCOUNT, Data.AccountID, 0, INETACCT_ONLYMAIL);
-	setCtrlString(CTL_RPTMAIL_SUPPMAIL,  Data.SupportMail);
-	setCtrlString(CTL_RPTMAIL_ORG,       Data.MainOrg);
-	setCtrlString(CTL_RPTMAIL_LIC,       Data.Licence);
-	setCtrlString(CTL_RPTMAIL_USER,      Data.User);
-	setCtrlString(CTL_RPTMAIL_DB,        Data.DB);
-	setCtrlString(CTL_RPTMAIL_RPT,       Data.RptPath);
-	setCtrlString(CTL_RPTMAIL_DATASTRUC, Data.Struc);
-	setCtrlString(CTL_RPTMAIL_DATE,      (buf = 0).Cat(Data.Dtm.d));
-	setCtrlString(CTL_RPTMAIL_TIME,      (buf = 0).Cat(Data.Dtm.t));
-	disableCtrls(1, CTL_RPTMAIL_ORG, CTL_RPTMAIL_LIC, CTL_RPTMAIL_USER, CTL_RPTMAIL_DB, CTL_RPTMAIL_RPT, CTL_RPTMAIL_DATASTRUC, CTL_RPTMAIL_DATE, CTL_RPTMAIL_TIME, 0L);
-	return 1;
-}
-
-int ReportMailDialog::getDTS(ReportMailDialog::Rec * pData)
-{
-	int ok = 1;
-	uint sel = 0;
-    getCtrlData((sel = CTLSEL_RPTMAIL_ACCNT), &Data.AccountID);
-	THROW_PP(Data.AccountID != 0, PPERR_INETACCOUNTNOTDEF);
-	getCtrlString(CTL_RPTMAIL_SUPPMAIL, Data.SupportMail);
-	ASSIGN_PTR(pData, Data);
-	CATCH
-		selectCtrl(sel);
-		ok = 0;
-	ENDCATCH
-	return ok;
-}
 //
 // PPInetAccountManager
 //
@@ -369,7 +308,8 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempReport);
 int SLAPI PPViewReport::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
-	SString fname, temp_fname, temp_dir;
+	SString fname, temp_fname;
+	//SString temp_dir;
 	PPViewBrowser * p_prev_win = (PPViewBrowser *)PPFindLastBrowser();
 	THROW(Helper_InitBaseFilt(pFilt));
 	if(p_prev_win && p_prev_win->P_View)
@@ -377,11 +317,10 @@ int SLAPI PPViewReport::Init_(const PPBaseFilt * pFilt)
 	else
 		SaveChanges(1);
 	PPGetFilePath(PPPATH_BIN, PPFILNAM_STDRPT_INI, fname);
-	PPGetPath(PPPATH_TEMP, temp_dir);
-	SCopyFile(fname, MakeTempFileName(temp_dir, "stdrpt", "ini", 0, temp_fname), 0, 0, 0);
+	SCopyFile(fname, PPMakeTempFileName("stdrpt", "ini", 0, temp_fname), 0, 0, 0);
 	THROW_MEM(P_StdRptFile = new PPIniFile(temp_fname, 0, 0, 1));
 	PPGetFilePath(PPPATH_BIN, (uint)PPFILNAM_REPORT_INI, fname);
-	SCopyFile(fname, MakeTempFileName(temp_dir, "rpt", "ini", 0, temp_fname), 0, 0, 0);
+	SCopyFile(fname, PPMakeTempFileName("rpt", "ini", 0, temp_fname), 0, 0, 0);
 	THROW_MEM(P_RptFile = new PPIniFile(temp_fname, 0, 0, 1));
 	THROW(P_StdRptFile->IsValid() && P_RptFile->IsValid());
 	{
@@ -561,6 +500,71 @@ int SLAPI PPViewReport::NextIteration(ReportViewItem * pItem)
 
 int SLAPI PPViewReport::SendMail(long id)
 {
+	class ReportMailDialog : public TDialog {
+	public:
+		struct Rec {
+			Rec()
+			{
+				AccountID = 0;
+				Dtm.SetZero();
+			}
+			PPID    AccountID;
+			SString SupportMail;
+			SString MainOrg;
+			SString Licence;
+			SString User;
+			SString DB;
+			SString RptPath;
+			SString Struc;
+			LDATETIME Dtm;
+		};
+		ReportMailDialog() : TDialog(DLG_RPTMAIL) 
+		{
+		}
+		int    setDTS(const ReportMailDialog::Rec * pData)
+		{
+			if(!RVALUEPTR(Data, pData)) {
+				Data.AccountID = 0;
+				Data.SupportMail = 0;
+				Data.MainOrg = 0;
+				Data.Licence = 0;
+				Data.User = 0;
+				Data.DB = 0;
+				Data.RptPath = 0;
+				Data.Struc = 0;
+				Data.Dtm.SetZero();
+			}
+			SString buf;
+			SetupPPObjCombo(this, CTLSEL_RPTMAIL_ACCNT, PPOBJ_INTERNETACCOUNT, Data.AccountID, 0, INETACCT_ONLYMAIL);
+			setCtrlString(CTL_RPTMAIL_SUPPMAIL,  Data.SupportMail);
+			setCtrlString(CTL_RPTMAIL_ORG,       Data.MainOrg);
+			setCtrlString(CTL_RPTMAIL_LIC,       Data.Licence);
+			setCtrlString(CTL_RPTMAIL_USER,      Data.User);
+			setCtrlString(CTL_RPTMAIL_DB,        Data.DB);
+			setCtrlString(CTL_RPTMAIL_RPT,       Data.RptPath);
+			setCtrlString(CTL_RPTMAIL_DATASTRUC, Data.Struc);
+			setCtrlString(CTL_RPTMAIL_DATE,      (buf = 0).Cat(Data.Dtm.d));
+			setCtrlString(CTL_RPTMAIL_TIME,      (buf = 0).Cat(Data.Dtm.t));
+			disableCtrls(1, CTL_RPTMAIL_ORG, CTL_RPTMAIL_LIC, CTL_RPTMAIL_USER, CTL_RPTMAIL_DB, CTL_RPTMAIL_RPT, CTL_RPTMAIL_DATASTRUC, CTL_RPTMAIL_DATE, CTL_RPTMAIL_TIME, 0L);
+			return 1;
+		}
+		int    getDTS(ReportMailDialog::Rec * pData)
+		{
+			int    ok = 1;
+			uint   sel = 0;
+			getCtrlData((sel = CTLSEL_RPTMAIL_ACCNT), &Data.AccountID);
+			THROW_PP(Data.AccountID != 0, PPERR_INETACCOUNTNOTDEF);
+			getCtrlString(CTL_RPTMAIL_SUPPMAIL, Data.SupportMail);
+			ASSIGN_PTR(pData, Data);
+			CATCH
+				selectCtrl(sel);
+				ok = 0;
+			ENDCATCH
+			return ok;
+		}
+	private:
+		Rec    Data;
+	};
 	int    ok = -1, valid_data = 0;
 	ReportMailDialog * p_dlg = 0;
 	if(id && P_TempTbl && P_TempTbl->search(0, &id, spEq) > 0) {
@@ -568,11 +572,10 @@ int SLAPI PPViewReport::SendMail(long id)
 		PPIniFile ini_file;
 		PPAlbatrosConfig alb_cfg;
 		TempReportTbl::Rec & r_rec = P_TempTbl->data;
-
-		data.Init();
 		THROW(ini_file.IsValid());
 		THROW_PP(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SUPPORTMAIL, data.SupportMail) > 0, PPERR_SUPPORTMAILNOTDEF);
 		{
+			DbProvider * p_dict = CurDict;
 			PPLicData lic;
 			GetMainOrgName(data.MainOrg);
 			PPGetLicData(&lic);
@@ -581,8 +584,8 @@ int SLAPI PPViewReport::SendMail(long id)
 			data.AccountID = alb_cfg.Hdr.MailAccID;
 			data.Licence.CopyFrom(lic.RegName);
 			GetCurUserName(data.User);
-			if(CurDict)
-				CurDict->GetDataPath(data.DB);
+			if(p_dict)
+				p_dict->GetDataPath(data.DB);
 			else
 				data.DB = 0;
 			data.Struc.CopyFrom(r_rec.StrucName);

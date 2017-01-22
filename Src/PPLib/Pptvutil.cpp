@@ -1,5 +1,5 @@
 // PPTVUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -483,6 +483,7 @@ int SLAPI ViewStatus()
 		}
 	};
 	int    ok = 1;
+	DbProvider * p_dict = CurDict;
 	PPID   main_org_id = 0;
 	SString sbuf, accbuf, accbufno, datapath;
 	LDATE  oper_dt = LConfig.OperDate;
@@ -496,9 +497,9 @@ int SLAPI ViewStatus()
 	dlg->setCtrlData(CTL_STATUS_DATE, &oper_dt);
 	GetObjectName(PPOBJ_DBDIV, LConfig.DBDiv, sbuf, 0);
 	dlg->setCtrlString(CTL_STATUS_DBDIV, sbuf);
-	if(CurDict) {
-		CurDict->GetDbSymb(sbuf);
-		CurDict->GetDataPath(datapath);
+	if(p_dict) {
+		p_dict->GetDbSymb(sbuf);
+		p_dict->GetDataPath(datapath);
 	}
 	else {
 		sbuf = 0;
@@ -2093,11 +2094,11 @@ public:
 		SetupCtrls();
 		PPLoadString(PPSTR_TEXT, PPTXT_BROWSEDIR, OpenDirTitle);
 	}
-	int setDTS(const char * pPath);
-	int getDTS(SString & rPath, SString * pDefWaitFolder);
+	int    setDTS(const char * pPath);
+	int    getDTS(SString & rPath, SString * pDefWaitFolder);
 private:
 	DECL_HANDLE_EVENT;
-	int SetupCtrls();
+	void   SetupCtrls();
 
 	StringSet Patterns;
 	SString   OpenDirTitle;
@@ -2146,9 +2147,9 @@ IMPL_HANDLE_EVENT(ExtOpenFileDlg)
 	clearEvent(event);
 }
 
-int ExtOpenFileDlg::SetupCtrls()
+void ExtOpenFileDlg::SetupCtrls()
 {
-	return (enableCommand(cmWaitFile, BIN(::access(WaitFolder, 0) == 0)), 1);
+	enableCommand(cmWaitFile, BIN(::access(WaitFolder, 0) == 0));
 }
 
 int ExtOpenFileDlg::setDTS(const char * pPath)

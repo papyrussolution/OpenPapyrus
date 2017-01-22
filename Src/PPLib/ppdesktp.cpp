@@ -615,13 +615,14 @@ int PPDesktop::Init(long desktopID)
 {
 	Destroy(1);
 	int    ok = 1;
+	DbProvider * p_dict = CurDict;
 	const  PPCommandItem * p_item = 0;
 	PPCommandMngr * p_mgr = 0;
 	SLS.InitGdiplus();
-	if(CurDict) {
+	if(p_dict) {
 		SString db_symb;
 		PPCommandGroup desk_list;
-		CurDict->GetDbSymb(db_symb);
+		p_dict->GetDbSymb(db_symb);
 		{
 			THROW(p_mgr = GetCommandMngr(1, 1, 0));
 			THROW(p_mgr->Load(&desk_list));
@@ -1275,15 +1276,16 @@ PPCommandMngr * PPDesktop::LoadDeskList(int readOnly, PPCommandGroup * pDesktopL
 int PPDesktop::GetDeskName(long deskId, SString & rDeskName)
 {
 	int    ok = -1;
+	DbProvider * p_dict = CurDict;
 	PPCommandMngr * p_mgr = 0;
 	PPCommandGroup * p_desk = 0;
 	rDeskName = 0;
-	if(deskId && CurDict) {
+	if(deskId && p_dict) {
 		SString db_symb;
 		PPCommandGroup desk_list;
 		const PPCommandItem * p_item = 0;
 		p_mgr = PPDesktop::LoadDeskList(1, &desk_list);
-		CurDict->GetDbSymb(db_symb);
+		p_dict->GetDbSymb(db_symb);
 		p_item = desk_list.SearchByID(deskId, 0);
 		p_desk = (p_item && p_item->Kind == PPCommandItem::kGroup) ? (PPCommandGroup*)p_item->Dup() : 0;
 		THROW_PP(p_desk && p_desk->IsDbSymbEq(db_symb), PPERR_DESKNOTFOUND);

@@ -1,5 +1,5 @@
 // V_SPCSER.CPP
-// Copyright (c) A.Starodub 2012, 2015, 2016
+// Copyright (c) A.Starodub 2012, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -230,7 +230,7 @@ public:
 	int    getDTS(SpecSeries2Tbl::Rec *);
 private:
 	DECL_HANDLE_EVENT;
-	int    SetupCtrls();
+	void   SetupCtrls();
 
 	SpecSeries2Tbl::Rec Data;
 };
@@ -255,9 +255,9 @@ IMPL_HANDLE_EVENT(SpecSerDlg)
 	}
 }
 
-int SpecSerDlg::SetupCtrls()
+void SpecSerDlg::SetupCtrls()
 {
-	PPID id = 0;
+	PPID   id = 0;
 	SString name;
  	getCtrlData(CTLSEL_SPCSER_GOODS, &id);
 	if(id) {
@@ -272,7 +272,6 @@ int SpecSerDlg::SetupCtrls()
 		setCtrlString(CTL_SPCSER_MANUFNAME, name);
 	}
 	disableCtrl(CTL_SPCSER_MANUFNAME, (id != 0));
-	return 1;
 }
 
 int SpecSerDlg::setDTS(const SpecSeries2Tbl::Rec * pData)

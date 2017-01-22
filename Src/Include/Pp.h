@@ -6957,6 +6957,11 @@ int    FASTCALL PPGetPath(PPID pathID, SString & rBuf);
 SString & FASTCALL PPGetFileName(uint fnameID, SString & rBuf);
 int    FASTCALL PPGetFilePath(PPID pathID, const char * pFileName, SString & rBuf);
 int    FASTCALL PPGetFilePath(PPID pathID, uint fnameID, SString & rBuf);
+//
+// Descr: Формирует уникальное имя временного файла в каталоге PPPATH_TEMP.
+//
+SString & SLAPI PPMakeTempFileName(const char * pPrefix, const char * pExt, long * pStart, SString & rBuf);
+	// @>>MakeTempFileName
 int    SLAPI PPRemoveFiles(const PPFileNameArray * pFileList);
 int    SLAPI PPRemoveFilesByExt(const char * pSrc, const char * pExt);
 int    SLAPI GetFilesFromMailServer(PPID mailAccID, const char * pDestPath, long filtFlags, int clean, int deleMsg);
@@ -25263,10 +25268,10 @@ enum GoodsGroupTag {
 //
 enum GoodsPacketKind {
 	gpkndUndef         = 0, // Неопределенный (необходимо инициализировать)
-	gpkndGoods         = 1, // Товар
-	gpkndOrdinaryGroup = 2, // Обыкновенная группа
-	gpkndFolderGroup   = 3, // Папка (содержит подгруппы)
-	gpkndAltGroup      = 4, // Альтернативная группа
+	gpkndGoods         = 1, // @gpkind_goods         Товар
+	gpkndOrdinaryGroup = 2, // @gpkind_ordinarygroup Обыкновенная группа
+	gpkndFolderGroup   = 3, // @gpkind_foldergroup   Папка (содержит подгруппы)
+	gpkndAltGroup      = 4, // @gpkind_altgroup      Альтернативная группа
 	gpkndPckgType      = 5  // @v3.3.4 @UnderConstruction
 };
 //
@@ -45176,7 +45181,7 @@ public:
 private:
 	virtual void handleEvent(TDialog *, TEvent &);
 	int    EditFilt(TDialog *);
-	int    SetupCtrls(TDialog * pDlg);
+	void   SetupCtrls(TDialog * pDlg);
 
 	int    DisableGroupSelection;
 	Rec    Data;
@@ -46102,13 +46107,13 @@ public:
 	int    setParams(PPID objType, ObjRestrictArray *);
 protected:
 	DECL_HANDLE_EVENT;
-	virtual int setupList();
-	virtual int addItem(long * pPos, long * pID);
-	virtual int editItem(long pos, long id);
-	virtual int delItem(long pos, long id);
-	virtual int getObjName(PPID objID, long objFlags, SString & rBuf);
-	virtual int getExtText(PPID objID, long objFlags, SString & rBuf);
-	virtual int editItemDialog(ObjRestrictItem *) { return -1; }
+	virtual int    setupList();
+	virtual int    addItem(long * pPos, long * pID);
+	virtual int    editItem(long pos, long id);
+	virtual int    delItem(long pos, long id);
+	virtual int    getObjName(PPID objID, long objFlags, SString & rBuf);
+	virtual void   getExtText(PPID objID, long objFlags, SString & rBuf);
+	virtual int    editItemDialog(ObjRestrictItem *) { return -1; }
 
 	PPID   ObjType;
 	ObjRestrictArray * P_ORList; // ObjRestrictListDialog not owner of P_ORList
@@ -46422,7 +46427,7 @@ public:
 	int    getDTS(PPGoodsImpExpParam * pData);
 private:
 	DECL_HANDLE_EVENT;
-	int    SetupCtrls(long direction);
+	void   SetupCtrls(long direction);
 
 	PPGoodsImpExpParam Data;
 };
@@ -46436,7 +46441,7 @@ public:
 	int    getDTS(PPQuotImpExpParam * pData);
 private:
 	DECL_HANDLE_EVENT;
-	int    SetupCtrls(long direction);
+	void   SetupCtrls(long direction);
 
 	PPQuotImpExpParam Data;
 };
@@ -46494,7 +46499,7 @@ public:
 	int    getDTS(PPBillImpExpParam * pData);
 private:
 	DECL_HANDLE_EVENT;
-	int    SetupCtrls(long direction);
+	void   SetupCtrls(long direction);
 
 	PPBillImpExpParam Data;
 };
@@ -47451,8 +47456,9 @@ public:
 	};
 	struct ExtCcData {
 		enum {
-			fDelivery   = 0x0001,
-			fFixedPrice = 0x0002 // @v8.7.7 Проекция флага CCHKF_FIXEDPRICE
+			fDelivery           = 0x0001,
+			fFixedPrice         = 0x0002, // @v8.7.7 Проекция флага CCHKF_FIXEDPRICE
+			fAttachPhoneToSCard = 0x0004  // @v9.4.11 @transient Привязать номер телефона к выбранной карте
 		};
 		ExtCcData();
 		void   Clear();

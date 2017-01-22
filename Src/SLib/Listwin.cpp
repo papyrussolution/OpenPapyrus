@@ -534,25 +534,18 @@ int WordSelector::Refresh(const char * pText)
 					IsActive  = 0;
 					IsVisible = 0;
 					P_Blk->SetData(id, buf);
-					// @v7.7.12 {
-					{
-						if(P_Blk->P_OutDlg && P_Blk->OutCtlId) {
- 							uint   ctl_id = P_Blk->OutCtlId;
- 							TDialog * p_dlg = P_Blk->P_OutDlg;
-							TView * p_v = p_dlg ? p_dlg->getCtrlView(ctl_id) : 0;
- 							if(p_v) {
- 								if(p_v->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
- 									SetFocus(p_v->getHandle());
- 								}
- 								else if(p_v->IsSubSign(TV_SUBSIGN_LISTBOX)) {
- 									SmartListBox * p_lbx = (SmartListBox*)p_v;
- 									SetFocus(p_lbx->getHandle());
- 								}
-							}
+					if(P_Blk->P_OutDlg && P_Blk->P_OutDlg->IsConsistent() && P_Blk->OutCtlId) { // @v9.4.11 P_Blk->P_OutDlg->IsConsistent()
+						TView * p_v = P_Blk->P_OutDlg->getCtrlView(P_Blk->OutCtlId);
+ 						if(p_v) {
+ 							if(p_v->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
+ 								SetFocus(p_v->getHandle());
+ 							}
+ 							else if(p_v->IsSubSign(TV_SUBSIGN_LISTBOX)) {
+ 								SmartListBox * p_lbx = (SmartListBox*)p_v;
+ 								SetFocus(p_lbx->getHandle());
+ 							}
 						}
 					}
-					// } @v7.7.12
-					// P_Blk->Proc(id, buf, wseAcceptSelection, 0, (long)P_Blk);
 				}
 				else
 					IsVisible = 0;

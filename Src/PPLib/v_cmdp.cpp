@@ -1,5 +1,5 @@
 // V_CMDP.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2016
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2016, 2017
 //
 // Редактирование списка команд
 //
@@ -437,7 +437,7 @@ public:
 	int    getDTS(PPDesktopAssocCmd * pData);
 private:
 	DECL_HANDLE_EVENT;
-	int    SetupCtrls();
+	void   SetupCtrls();
 
 	long   Pos;
 	PPDesktopAssocCmd Data;
@@ -466,13 +466,12 @@ IMPL_HANDLE_EVENT(DesktopAssocCommandDialog)
 	clearEvent(event);
 }
 
-int DesktopAssocCommandDialog::SetupCtrls()
+void DesktopAssocCommandDialog::SetupCtrls()
 {
 	long   flags = 0;
 	GetClusterData(CTL_DESKCMDAI_FLAGS, &flags);
 	disableCtrl(CTL_DESKCMDAI_CODE, !(flags & PPDesktopAssocCmd::fSpecCode));
 	DisableClusterItem(CTL_DESKCMDAI_FLAGS, 1, !(flags & PPDesktopAssocCmd::fSpecCode));
-	return 1;
 }
 
 int DesktopAssocCommandDialog::setDTS(const PPDesktopAssocCmd * pData)

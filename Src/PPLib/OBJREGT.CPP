@@ -233,11 +233,10 @@ private:
 			clearEvent(event);
 		}
 	}
-	int SetupCtrls()
+	void   SetupCtrls()
 	{
-		PPID   grp_id = getCtrlLong(CTLSEL_PREGTYP_GGRP);
+		const PPID grp_id = getCtrlLong(CTLSEL_PREGTYP_GGRP);
 		disableCtrl(CTL_PREGTYP_GGRPALLOW, BIN(!grp_id));
-		return 1;
 	}
 	PPRegisterTypePacket Data;
 };

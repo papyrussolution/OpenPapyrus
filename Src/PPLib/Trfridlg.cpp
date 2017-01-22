@@ -459,7 +459,7 @@ TrfrItemDialog::TrfrItemDialog(uint dlgID, PPID opID) : TDialog(dlgID), OpID(opI
 	{
 		SString temp_buf;
 		if(GetOpName(opID, temp_buf) > 0)
-			setTitle(temp_buf, 0);
+			setTitle(temp_buf);
 	}
 	// } @v9.4.3 
 }

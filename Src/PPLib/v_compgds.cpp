@@ -1,5 +1,5 @@
 // V_COMPGDS.CPP
-// Copyright (c) V.Miller 2013, 2016
+// Copyright (c) V.Miller 2013, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -87,7 +87,7 @@ int SLAPI PPViewSuprWare::EditBaseFilt(PPBaseFilt * pBaseFilt)
 				clearEvent(event);
 			}
 		}
-		int    SetupCtrls()
+		void   SetupCtrls()
 		{
 			PPID   cat_id = 0;
 			SString str_srch;
@@ -96,7 +96,6 @@ int SLAPI PPViewSuprWare::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			SetupStringCombo(this, CTLSEL_FLTCOMPGDS_SWCAT, PPTXT_COMPGDS_TYPES, cat_id);
 			getCtrlData(CTLSEL_FLTCOMPGDS_SWCAT, &cat_id);
 			setCtrlString(CTL_FLTCOMPGDS_NAMESTR, str_srch.Strip());
-			return 1;
 		}
 		SuprWareFilt Data;
 	};

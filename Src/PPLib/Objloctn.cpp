@@ -1119,7 +1119,7 @@ public:
 				enableCommand(cmWareplaceList, 0);
 				PPLoadText(PPTXT_TITLE_WAREPLACEVIEW, fmt_buf);
 				GetLocationName(p_filt->Parent, par_name);
-				setTitle(title_.Printf(fmt_buf, (const char *)par_name));
+				setTitle(title_.Printf(fmt_buf, par_name.cptr()));
 				IsWareplaceView = 1;
 				ParentID = p_filt->Parent;
 			}
@@ -1497,7 +1497,7 @@ public:
 	int    getDTS(PPLocationPacket * pData);
 private:
 	DECL_HANDLE_EVENT;
-	int    SetupCtrls();
+	void   SetupCtrls();
 	int    CopyFullAddr();
 	int    GetGeoCoord();
 	int    SetGeoCoord();
@@ -1819,7 +1819,7 @@ int LocationDialog::getDTS(PPLocationPacket * pData)
 	return ok;
 }
 
-int LocationDialog::SetupCtrls()
+void LocationDialog::SetupCtrls()
 {
 	if(LocTyp == LOCTYP_ADDRESS) {
 		long   flags = 0;
@@ -1831,7 +1831,6 @@ int LocationDialog::SetupCtrls()
 			CopyFullAddr();
 		}
 	}
-	return 1;
 }
 
 int LocationDialog::CopyFullAddr()

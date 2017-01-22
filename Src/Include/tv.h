@@ -1805,7 +1805,8 @@ public:
 	void   SLAPI showButton(uint cmd, int s /* 1 - show, 0 - hide */);
 	int    SLAPI setButtonText(uint cmd, const char * pText);
 	int    SLAPI setButtonBitmap(uint cmd, uint bmpID);
-	void   FASTCALL setTitle(const char *, int setOrgTitle = 0);
+	void   FASTCALL setTitle(const char *);
+	void   FASTCALL setOrgTitle(const char *);
 	void   FASTCALL setSubTitle(const char *);
 	int    SLAPI setStaticText(ushort ctl, const char *);
 	int    SLAPI getStaticText(ushort ctl, SString &);
@@ -1849,6 +1850,8 @@ public:
 	HWND   HW; // hWnd;
 	ToolbarList Toolbar;
 private:
+	void   FASTCALL Helper_SetTitle(const char *, int setOrgTitle);
+
 	class LocalMenuPool {
 	public:
 		LocalMenuPool(TWindow * pWin);
