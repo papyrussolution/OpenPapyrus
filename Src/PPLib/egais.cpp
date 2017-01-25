@@ -1,5 +1,5 @@
 // EGAIS.CPP
-// Copyright (c) A.Sobolev 2015, 2016
+// Copyright (c) A.Sobolev 2015, 2016, 2017
 //
 // Поддержка форматов для обмена с системой EGAIS
 //
@@ -2357,21 +2357,18 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
 								if(IsAlcGoods(r_ti.GoodsID) && PreprocessGoodsItem(r_ti.GoodsID, 0, 0, 0, agi) > 0) { // @v9.4.7 && PreprocessGoodsItem>0
-									double _qtty = fabs(r_ti.Quantity_);
-									long   _fmt = 0;
+									double qtty = fabs(r_ti.Quantity_);
+									long   qtty_fmt = MKSFMTD(0, 0, NMBF_NOTRAILZ);
 									if(agi.UnpackedVolume > 0.0) {
 										const double mult = agi.UnpackedVolume / 10.0;
-										_qtty = R4(_qtty * mult);
-										_fmt = MKSFMTD(0, 4, 0);
-									}
-									else {
-										_qtty = R0(_qtty);
+										qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
+										qtty_fmt = MKSFMTD(0, 3, 0);
 									}
 									SXml::WNode w_p(_doc, "awr:Position");
 									w_p.PutInner("awr:Identity", EncText((temp_buf = 0).Cat(r_ti.RByBill)));
 									const ObjTagList * p_ti_tag_list = p_bp->LTagL.Get(tidx);
 									THROW(WriteProductInfo(_doc, "awr:Product", r_ti.GoodsID, 0, wpifPutManufInfo|wpifVersion2, p_ti_tag_list))
-									w_p.PutInner("awr:Quantity", EncText((temp_buf = 0).Cat(_qtty, _fmt)));
+									w_p.PutInner("awr:Quantity", EncText((temp_buf = 0).Cat(qtty, qtty_fmt)));
 								}
 							}
 						}
@@ -2565,12 +2562,14 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									SXml::WNode w_p(_doc, "awr:Position");
 									w_p.PutInner("awr:Identity", EncText((temp_buf = 0).Cat(r_ti.RByBill)));
 									{
-										double qtty = fabs(r_ti.Qtty());
+										double qtty = fabs(r_ti.Quantity_);
+										long   qtty_fmt = MKSFMTD(0, 0, NMBF_NOTRAILZ);
 										if(agi.UnpackedVolume > 0.0) {
 											const double mult = agi.UnpackedVolume / 10.0;
 											qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
+											qtty_fmt = MKSFMTD(0, 3, 0);
 										}
-										w_p.PutInner("awr:Quantity", EncText((temp_buf = 0).Cat(qtty, MKSFMTD(0, 0, NMBF_NOTRAILZ))));
+										w_p.PutInner("awr:Quantity", EncText((temp_buf = 0).Cat(qtty, qtty_fmt)));
 									}
 									{
 										MEMSZERO(lot_rec);
@@ -2603,21 +2602,25 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
 								if(r_ti.Quantity_ > 0.0 && IsAlcGoods(r_ti.GoodsID) && PreprocessGoodsItem(r_ti.GoodsID, 0, 0, 0, agi) > 0) {
-									const double qtty = fabs(r_ti.Quantity_);
 									const ObjTagList * p_ti_tag_list = p_bp->LTagL.Get(tidx);
 									infb_ident = 0;
 									rar_product_ident = 0;
-									if(p_ti_tag_list) {
-										p_ti_tag_list->GetItemStr(PPTAG_LOT_FSRARINFB, infb_ident);
-										p_ti_tag_list->GetItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, rar_product_ident);
-									}
+									CALLPTRMEMB(p_ti_tag_list, GetItemStr(PPTAG_LOT_FSRARINFB, infb_ident));
+									CALLPTRMEMB(p_ti_tag_list, GetItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, rar_product_ident));
 									if(rar_product_ident.Empty())
 										rar_product_ident = agi.EgaisCode;
 									if(rar_product_ident.NotEmpty() && infb_ident.NotEmpty()) {
+										double qtty = fabs(r_ti.Quantity_);
+										long   qtty_fmt = MKSFMTD(0, 0, NMBF_NOTRAILZ);
+										if(agi.UnpackedVolume > 0.0) {
+											const double mult = agi.UnpackedVolume / 10.0;
+											qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
+											qtty_fmt = MKSFMTD(0, 3, NMBF_NOTRAILZ);
+										}
 										SXml::WNode w_p(_doc, "tts:Position");
 										w_p.PutInner("tts:Identity",    EncText((temp_buf = 0).Cat(r_ti.RByBill)));
 										w_p.PutInner("tts:ProductCode", EncText(temp_buf = rar_product_ident));
-										w_p.PutInner("tts:Quantity", EncText((temp_buf = 0).Cat(qtty, MKSFMTD(0, 0, NMBF_NOTRAILZ))));
+										w_p.PutInner("tts:Quantity", EncText((temp_buf = 0).Cat(qtty, qtty_fmt)));
 										{
 											SXml::WNode w_refb(_doc, "tts:InformF2");
 											w_refb.PutInner("pref:F2RegId", EncText(temp_buf = infb_ident));
@@ -2642,21 +2645,25 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
 								if(r_ti.Quantity_ < 0.0 && IsAlcGoods(r_ti.GoodsID) && PreprocessGoodsItem(r_ti.GoodsID, 0, 0, 0, agi) > 0) {
-									const double qtty = fabs(r_ti.Quantity_);
 									const ObjTagList * p_ti_tag_list = p_bp->LTagL.Get(tidx);
 									infb_ident = 0;
 									rar_product_ident = 0;
-									if(p_ti_tag_list) {
-										p_ti_tag_list->GetItemStr(PPTAG_LOT_FSRARINFB, infb_ident);
-										p_ti_tag_list->GetItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, rar_product_ident);
-									}
+									CALLPTRMEMB(p_ti_tag_list, GetItemStr(PPTAG_LOT_FSRARINFB, infb_ident));
+									CALLPTRMEMB(p_ti_tag_list, GetItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, rar_product_ident));
 									if(rar_product_ident.Empty())
 										rar_product_ident = agi.EgaisCode;
 									if(rar_product_ident.NotEmpty() && infb_ident.NotEmpty()) {
+										double qtty = fabs(r_ti.Quantity_);
+										long   qtty_fmt = MKSFMTD(0, 0, NMBF_NOTRAILZ);
+										if(agi.UnpackedVolume > 0.0) {
+											const double mult = agi.UnpackedVolume / 10.0;
+											qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
+											qtty_fmt = MKSFMTD(0, 3, 0);
+										}
 										SXml::WNode w_p(_doc, "tfs:Position");
 										w_p.PutInner("tfs:Identity",    EncText((temp_buf = 0).Cat(r_ti.RByBill)));
 										w_p.PutInner("tfs:ProductCode", EncText(temp_buf = rar_product_ident));
-										w_p.PutInner("tfs:Quantity", EncText((temp_buf = 0).Cat(qtty, MKSFMTD(0, 0, NMBF_NOTRAILZ))));
+										w_p.PutInner("tfs:Quantity", EncText((temp_buf = 0).Cat(qtty, qtty_fmt)));
 										{
 											SXml::WNode w_refb(_doc, "tfs:InformF2");
 											w_refb.PutInner("pref:F2RegId", EncText(temp_buf = infb_ident));
@@ -4742,7 +4749,6 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 					if(egais_code.NotEmpty() && ref_b.NotEmpty() && PreprocessGoodsItem(labs(r_cwr_item.GoodsID), 0, 0, 0, agi) > 0) {
 						const double cwr_rest = r_cwr_item.Quantity_;
 						double shop_rest = 0.0;
-
 						PPID   lot_id = 0;
 						ReceiptTbl::Rec lot_rec;
 						ref_b_lot_list.clear();
@@ -4793,7 +4799,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 							}
 							else
 								transfer_qtty = cwr_rest;
-							if(transfer_qtty >= 1.0) {
+							if(transfer_qtty >= 0.01) { // @v9.4.12 1.0-->0.01
 								if(p_shop_rest_bp && p_shop_rest_bp->GetTCount() >= 100) {
 									p_shop_rest_bp->InitAmounts();
 									THROW(P_BObj->TurnPacket(p_shop_rest_bp, 0));

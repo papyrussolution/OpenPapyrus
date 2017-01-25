@@ -557,7 +557,6 @@ int SLAPI ObjTagItem::Put(PPID objType, PPID objID, long tagByObj, ObjTagTbl::Re
 			STRNSCPY(pRec->StrVal, Val.PStr);
 	}
 	else if(TagDataType == OTTYP_IMAGE) {
-		//SString img_path;
 		SString temp_buf;
 		SString result_fname;
 		ObjLinkFiles _lf(PPOBJ_TAG);

@@ -2726,6 +2726,7 @@ struct Sdr_SupplBill {
 	#define PPFLD_SUPPLBILLLINE_WAREID                        13
 	#define PPFLD_SUPPLBILLLINE_PRICE                         14
 	#define PPFLD_SUPPLBILLLINE_QUANTITY                      15
+	#define PPFLD_SUPPLBILLLINE_ACTIONDATE                    16
 
 struct Sdr_SupplBillLine {
 	char   CompanyId[24];
@@ -2743,6 +2744,7 @@ struct Sdr_SupplBillLine {
 	char   WareId[24];
 	double Price;
 	double Quantity;
+	LDATE  ActionDate;
 };
 
 #define PPREC_SUPPLGOODS                    26

@@ -27,7 +27,6 @@
 	!define PRODUCT_PREFIX "Ppy"
 !endif
 
-
 Var hwnd
 Var hSCManager
 Var hPPWS
@@ -40,13 +39,11 @@ Var Password
 Var Err
 
 SetCompressor lzma
-; @v5.7.0 {
 Caption "Papyrus JobServer Setup"
 BGGradient 007070 00e0f0 FFFFFF
 InstallColors FF8080 000030
 XPStyle on
 BrandingText " "
-; } @v5.7.0
 
 ;MUI 1.67 compatible ------
 !include "MUI2.nsh"

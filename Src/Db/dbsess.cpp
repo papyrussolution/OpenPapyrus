@@ -178,8 +178,8 @@ public:
 	int    SLAPI base() const;
 	int    SLAPI tobase(const void * s, void * b) const;
 	int    SLAPI baseto(void * s, const void * b) const;
-	int    SLAPI minval(void *) const;
-	int    SLAPI maxval(void *) const;
+	void   SLAPI minval(void *) const;
+	void   SLAPI maxval(void *) const;
 };
 
 SLAPI SRowId::SRowId()
@@ -218,18 +218,16 @@ int SLAPI SRowId::tobase(const void * s, void * b) const
 int SLAPI SRowId::baseto(void * s, const void * b) const
 	{ fromstr(s, 0L, (char *)b); return 1; }
 
-int SLAPI SRowId::minval(void * pData) const
+void SLAPI SRowId::minval(void * pData) const
 {
 	DBRowId * p_row_id = (DBRowId *)pData;
 	CALLPTRMEMB(p_row_id, SetZero());
-	return 1;
 }
 
-int SLAPI SRowId::maxval(void * pData) const
+void SLAPI SRowId::maxval(void * pData) const
 {
 	DBRowId * p_row_id = (DBRowId *)pData;
 	CALLPTRMEMB(p_row_id, SetMaxVal());
-	return 1;
 }
 
 class SLobType : public DataType {
@@ -501,8 +499,14 @@ void SLAPI DbSession::InitProtectData()
 
 int btrokornfound()
 {
-	int    err = BtrError;
+	const int err = BtrError;
 	return BIN(oneof3(err, 0, BE_EOF, BE_KEYNFOUND));
+}
+
+int btrnfound__()
+{
+	const int err = BtrError;
+	return BIN(oneof2(err, BE_EOF, BE_KEYNFOUND));
 }
 
 #pragma warning(disable:4073)

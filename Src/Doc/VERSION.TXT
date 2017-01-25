@@ -1,5 +1,5 @@
 VERSION.TXT
-Copyright (c) Anton Sobolev 1996-2016
+Copyright (c) Anton Sobolev 1996-2017
 
 Информация о версиях и модификациях проекта Papyrus.
 

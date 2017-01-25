@@ -1,7 +1,9 @@
 // PPSOAPCLIENT.H
-// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <slib.h>
+
+BOOL Implement_SoapModule_DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved, const char * pProductName);
 
 class PPSoapResultPtrBase {
 public:

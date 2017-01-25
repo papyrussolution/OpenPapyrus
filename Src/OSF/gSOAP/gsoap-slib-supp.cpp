@@ -13,35 +13,6 @@ SOAP_FMAC2 soap_ssl_client_context(struct soap * soap, unsigned short flags, con
 	const char * randfile)
 */
 
-#if 0 // {
-//
-// Образец функции DllMain испольуемой в dll-модулях клиентах SOAP-сервисов
-//
-BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved) 
-{ 
-	switch(dwReason) {
-		case DLL_PROCESS_ATTACH:
-			{
-				SString product_name;
-				(product_name = "Papyrus SoapModule");
-				SLS.Init(product_name, (HINSTANCE)hModule);
-			}
-			break;
-#ifdef _MT
-		case DLL_THREAD_ATTACH:
-			SLS.InitThread();
-			break;
-		case DLL_THREAD_DETACH:
-			SLS.ReleaseThread();
-			break;
-#endif
-		case DLL_PROCESS_DETACH:
-			break;
-	}
-	return TRUE;
-}
-#endif // } 0
-
 int SLAPI gSoapSslClientContextInit(struct soap * pSoap, const char * pKeyfile)
 {
 	int    ok = 1;

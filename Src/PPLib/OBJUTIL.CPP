@@ -1,5 +1,5 @@
 // OBJUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1645,6 +1645,11 @@ SLAPI ObjLinkFiles::ObjLinkFiles(const ObjLinkFiles & rS)
 	Copy(rS);
 }
 
+void SLAPI ObjLinkFiles::SetMode_IgnoreCheckStorageDir(int set)
+{
+	SETFLAG(State, stIgnoreCheckStorageDir, set);
+}
+
 void SLAPI ObjLinkFiles::Clear()
 {
 	Files.freeAll();
@@ -1708,7 +1713,7 @@ int SLAPI ObjLinkFiles::CheckFile(uint pos, const char * pPath)
 {
 	SString path = pPath;
 	const char * p_exist_file = (pos < Files.getCount()) ? Files.at(pos) : 0;
-	const int    is_store_path = (path.CmpPrefix(StoreDir, 1) == 0) ? 1 : 0;
+	const int    is_store_path = BIN(!(State & stIgnoreCheckStorageDir) && path.CmpPrefix(StoreDir, 1) == 0);
 	if(p_exist_file && is_store_path && path.CmpNC(p_exist_file) == 0)
 		return -1;
 	else

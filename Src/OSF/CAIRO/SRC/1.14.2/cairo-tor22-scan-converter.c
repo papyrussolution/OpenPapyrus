@@ -1321,14 +1321,12 @@ I void glitter_scan_converter_add_edge(glitter_scan_converter_t * converter, con
 
 static void step_edges(struct active_list * active, int count)
 {
-	struct edge * edge;
-
 	count *= GRID_Y;
-	for(edge = active->head.next; edge != &active->tail; edge = edge->next) {
-		edge->height_left -= count;
-		if(!edge->height_left) {
-			edge->prev->next = edge->next;
-			edge->next->prev = edge->prev;
+	for(struct edge * p_edge = active->head.next; p_edge != &active->tail; p_edge = p_edge->next) {
+		p_edge->height_left -= count;
+		if(!p_edge->height_left) {
+			p_edge->prev->next = p_edge->next;
+			p_edge->next->prev = p_edge->prev;
 		}
 	}
 }
@@ -1556,11 +1554,9 @@ I void glitter_scan_converter_render(glitter_scan_converter_t * converter,
 
 struct _cairo_tor22_scan_converter {
 	cairo_scan_converter_t base;
-
 	glitter_scan_converter_t converter[1];
 	CairoFillRule fill_rule;
 	cairo_antialias_t antialias;
-
 	jmp_buf jmp;
 };
 
@@ -1569,51 +1565,36 @@ typedef struct _cairo_tor22_scan_converter cairo_tor22_scan_converter_t;
 static void _cairo_tor22_scan_converter_destroy(void * converter)
 {
 	cairo_tor22_scan_converter_t * self = (cairo_tor22_scan_converter_t *)converter;
-	if(self == NULL) {
-		return;
+	if(self) {
+		_glitter_scan_converter_fini(self->converter);
+		free(self);
 	}
-	_glitter_scan_converter_fini(self->converter);
-	free(self);
 }
 
-cairo_status_t _cairo_tor22_scan_converter_add_polygon(void * converter,
-    const cairo_polygon_t * polygon)
+cairo_status_t _cairo_tor22_scan_converter_add_polygon(void * converter, const cairo_polygon_t * polygon)
 {
 	cairo_tor22_scan_converter_t * self = (cairo_tor22_scan_converter_t *)converter;
-	int i;
-
 #if 0
 	FILE * file = fopen("polygon.txt", "w");
 	_cairo_debug_print_polygon(file, polygon);
 	fclose(file);
 #endif
-
-	for(i = 0; i < polygon->num_edges; i++)
+	for(int i = 0; i < polygon->num_edges; i++)
 		glitter_scan_converter_add_edge(self->converter, &polygon->edges[i]);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cairo_tor22_scan_converter_generate(void * converter,
-    cairo_span_renderer_t       * renderer)
+static cairo_status_t _cairo_tor22_scan_converter_generate(void * converter, cairo_span_renderer_t * renderer)
 {
 	cairo_tor22_scan_converter_t * self = (cairo_tor22_scan_converter_t *)converter;
 	cairo_status_t status;
 	if((status = (cairo_status_t)setjmp(self->jmp)))
 		return _cairo_scan_converter_set_error(self, _cairo_error(status));
-	glitter_scan_converter_render(self->converter,
-	    self->fill_rule == CAIRO_FILL_RULE_WINDING ? ~0 : 1,
-	    self->antialias != CAIRO_ANTIALIAS_NONE,
-	    renderer);
+	glitter_scan_converter_render(self->converter, self->fill_rule == CAIRO_FILL_RULE_WINDING ? ~0 : 1, self->antialias != CAIRO_ANTIALIAS_NONE, renderer);
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_scan_converter_t * _cairo_tor22_scan_converter_create(int xmin,
-    int ymin,
-    int xmax,
-    int ymax,
-    CairoFillRule fill_rule,
-    cairo_antialias_t antialias)
+cairo_scan_converter_t * _cairo_tor22_scan_converter_create(int xmin, int ymin, int xmax, int ymax, CairoFillRule fill_rule, cairo_antialias_t antialias)
 {
 	cairo_status_t status;
 	cairo_tor22_scan_converter_t * self = (cairo_tor22_scan_converter_t *)malloc(sizeof(struct _cairo_tor22_scan_converter));
@@ -1621,21 +1602,15 @@ cairo_scan_converter_t * _cairo_tor22_scan_converter_create(int xmin,
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto bail_nomem;
 	}
-
 	self->base.destroy = _cairo_tor22_scan_converter_destroy;
 	self->base.generate = _cairo_tor22_scan_converter_generate;
-
 	_glitter_scan_converter_init(self->converter, &self->jmp);
-	status = glitter_scan_converter_reset(self->converter,
-	    xmin, ymin, xmax, ymax);
+	status = glitter_scan_converter_reset(self->converter, xmin, ymin, xmax, ymax);
 	if(unlikely(status))
 		goto bail;
-
 	self->fill_rule = fill_rule;
 	self->antialias = antialias;
-
 	return &self->base;
-
 bail:
 	self->base.destroy(&self->base);
 bail_nomem:

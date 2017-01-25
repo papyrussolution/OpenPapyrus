@@ -3718,7 +3718,7 @@ int SLAPI GetBillRows(const char * pLName, TSArray <Sdr_SBIIBillRow> * pList)
 }
 
 // static
-int SLAPI PPObjBHT::AcceptBillsSBII(PPBhtTerminalPacket * pPack, const char * pHName, const char * pLName, PPLogger * pLog)
+int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID destIntrLocID, const char * pHName, const char * pLName, PPLogger * pLog)
 {
 	int    ok = -1;
 	const  PPID loc_id = LConfig.Location;
@@ -3798,10 +3798,12 @@ int SLAPI PPObjBHT::AcceptBillsSBII(PPBhtTerminalPacket * pPack, const char * pH
 						op_id = pPack->P_SBIICfg->GetOpID(-sdr_bill.OpID);
 					if(op_id) {
 						PPTransferItem ti;
-						THROW(pack.CreateBlank(op_id, /*sdr_bill.SampleID*/0, 0, -1)); // @v8.6.9 use_ta 0-->-1
+						PPID   article_id = 0;
+						THROW(pack.CreateBlank(op_id, /*sdr_bill.SampleID*/0, loc_id, -1)); // @v8.6.9 use_ta 0-->-1
 						bill_code.CopyTo(pack.Rec.Code, sizeof(pack.Rec.Code));
 						pack.Rec.Dt     = sdr_bill.Date;
-						pack.Rec.Object = sdr_bill.Article;
+						//pack.Rec.Object = sdr_bill.Article;
+						article_id = sdr_bill.Article;
 						bill_rec = pack.Rec;
 						sign = (ti.GetSign(op_id) == TISIGN_MINUS) ? -1 : 1;
 						if(sdr_bill.SampleID) {
@@ -3820,7 +3822,8 @@ int SLAPI PPObjBHT::AcceptBillsSBII(PPBhtTerminalPacket * pPack, const char * pH
 										}
 									}
 									else */ {
-										SETIFZ(pack.Rec.Object, doe.WrOffObjID);
+										//SETIFZ(pack.Rec.Object, doe.WrOffObjID);
+										SETIFZ(article_id, doe.WrOffObjID);
 										pack.Rec.LinkBillID = sample_bill_rec.ID;
 										draft_wroff_id = sample_bill_rec.ID;
 										if(pack.Rec.LinkBillID)
@@ -3828,6 +3831,29 @@ int SLAPI PPObjBHT::AcceptBillsSBII(PPBhtTerminalPacket * pPack, const char * pH
 									}
 								}
 							}
+						}
+						if(!article_id && IsIntrExpndOp(op_id)) {
+							if(destIntrLocID) {
+								if(destIntrLocID != pack.Rec.LocID) {
+									article_id = PPObjLocation::WarehouseToObj(destIntrLocID);
+								}
+								else {
+									accept_doc = 0;
+									PPSetError(PPERR_PRIMEQFOREIN);
+								}
+							}
+							else {
+								accept_doc = 0;
+								PPSetError(PPERR_INTRDESTNEEDED);
+							}
+						}
+						if(article_id) {
+							PPBillPacket::SetupObjectBlock sob;
+							if(!pack.SetupObject(article_id, sob))
+								accept_doc = 0;
+						}
+						if(!accept_doc) {
+							CALLPTRMEMB(pLog, LogLastError());
 						}
 					}
 					else if(pLog) {
@@ -3838,9 +3864,9 @@ int SLAPI PPObjBHT::AcceptBillsSBII(PPBhtTerminalPacket * pPack, const char * pH
 						else if(sdr_bill.OpID == StyloBhtIIConfig::oprkReceipt)
 							PPLoadString("incoming", temp_buf);
 						else
-							PPGetWord(PPWORD_TRANSFER, 0, temp_buf);
+							PPLoadString("bailment", temp_buf);
 						PPGetMessage(mfError, PPERR_INVBHTTOHOSTOP, buf, DS.CheckExtFlag(ECF_SYSSERVICE), buf = 0);
-						add_info.Printf(buf, (const char*)temp_buf, sdr_bill.SampleID, (const char*)s_dt, (const char*)bill_code);
+						add_info.Printf(buf, temp_buf.cptr(), sdr_bill.SampleID, s_dt.cptr(), bill_code.cptr());
 						buf.ShiftLeft();
 						pLog->Log(buf);
 						accept_doc = 0;
@@ -3933,10 +3959,8 @@ int SLAPI PPObjBHT::AcceptBillsSBII(PPBhtTerminalPacket * pPack, const char * pH
 								//
 								{
 									ReceiptTbl::Rec last_lot;
-									MEMSZERO(last_lot);
+									ReceiptTbl::Rec prev_lot;
 									if(p_bobj->trfr->Rcpt.GetLastLot(sdr_brow.GoodsID, pack.Rec.LocID, pack.Rec.Dt, &last_lot) > 0) {
-										ReceiptTbl::Rec prev_lot;
-										MEMSZERO(prev_lot);
 										if(p_bobj->trfr->Rcpt.GetPreviousLot(sdr_brow.GoodsID, pack.Rec.LocID, last_lot.Dt, last_lot.OprNo, &prev_lot) > 0)
 											ilti.QCert = prev_lot.QCertID;
 									}
@@ -4810,13 +4834,16 @@ int SLAPI PPObjBHT::ReceiveData()
 	uint   i = 0;
 	PPObjBHT bht_obj;
 	PPID   bht_id = 0;
+	PPID   dest_intr_loc_id = 0; // Склад назначения для документов внутренней передачи
 	PPBhtTerminalPacket pack;
 	TDialog * dlg = new TDialog(DLG_BHTRCV);
 	THROW(CheckDialogPtr(&dlg, 0));
 	bht_id = bht_obj.GetSingle();
 	SetupPPObjCombo(dlg, CTLSEL_BHTRCV_BHT, PPOBJ_BHT, bht_id, 0);
+	SetupLocationCombo(dlg, CTLSEL_BHTRCV_DINTRLOC, dest_intr_loc_id, 0, LOCTYP_WAREHOUSE, 0); // @v9.4.12
 	for(valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 		dlg->getCtrlData(CTLSEL_BHTSEND_BHT, &bht_id);
+		dlg->getCtrlData(CTLSEL_BHTRCV_DINTRLOC, &dest_intr_loc_id);
 		if(bht_id > 0)
 			valid_data = 1;
 	}
@@ -4919,24 +4946,27 @@ int SLAPI PPObjBHT::ReceiveData()
 			}
 		}
 		if(fi_bill >= 0 && fi_line >= 0) {
+			const char * p_h_fname = files.at(fi_bill);
+			const char * p_l_fname = files.at(fi_line);
 			if(bht_type == PPObjBHT::btStyloBhtII) {
-				THROW(AcceptBillsSBII(&pack, files.at(fi_bill), files.at(fi_line), &logger));
+				THROW(AcceptBillsSBII(&pack, dest_intr_loc_id, p_h_fname, p_l_fname, &logger));
 			}
 			else if(pack.Rec.ReceiptPlace == RCPTPLACE_ALTGROUP) {
 				if(!oneof2(bht_type, PPObjBHT::btPalm, PPObjBHT::btWinCe)) {
-					THROW(AcceptBills(files.at(fi_bill), files.at(fi_line), &logger));
+					THROW(AcceptBills(p_h_fname, p_l_fname, &logger));
 				}
 				else {
-					THROW(AcceptBillsPalm(files.at(fi_bill), files.at(fi_line), &logger));
+					THROW(AcceptBillsPalm(p_h_fname, p_l_fname, &logger));
 				}
 			}
-			else if(pack.Rec.ReceiptPlace == RCPTPLACE_GBASKET)
+			else if(pack.Rec.ReceiptPlace == RCPTPLACE_GBASKET) {
 				if(!oneof2(bht_type, PPObjBHT::btPalm, PPObjBHT::btWinCe)) {
-					THROW(AcceptBillsToGBasket(files.at(fi_bill), files.at(fi_line), &logger));
+					THROW(AcceptBillsToGBasket(p_h_fname, p_l_fname, &logger));
 				}
 				else {
-					THROW(AcceptBillsToGBasketPalm(files.at(fi_bill), files.at(fi_line), &logger));
+					THROW(AcceptBillsToGBasketPalm(p_h_fname, p_l_fname, &logger));
 				}
+			}
 		}
 		if(bht_type != PPObjBHT::btStyloBhtII && fi_inv >= 0 && fi_iline >= 0) {
 			if(!oneof2(bht_type, PPObjBHT::btPalm, PPObjBHT::btWinCe)) {

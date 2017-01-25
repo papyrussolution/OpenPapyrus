@@ -614,7 +614,7 @@ int DesktopAssocCmdsDialog::setDTS(const PPDesktopAssocCmdPool * pData)
 
 int DesktopAssocCmdsDialog::getDTS(PPDesktopAssocCmdPool * pData)
 {
-	PPID   desktop_id = getCtrlLong(CTLSEL_DESKCMDA_DESKTOP);
+	const PPID desktop_id = getCtrlLong(CTLSEL_DESKCMDA_DESKTOP);
 	Data.SetDesktopID(desktop_id);
 	ASSIGN_PTR(pData, Data);
 	return 1;
@@ -672,7 +672,7 @@ int SLAPI EditName(SString & rName)
 
 class EditMenusDlg : public PPListDialog {
 public:
-	EditMenusDlg(int isDesktop, long initID) : PPListDialog(DLG_MENULIST, CTL_MENULIST_LIST)
+	EditMenusDlg(int isDesktop, long initID) : PPListDialog(DLG_MENULIST, CTL_MENULIST_LIST), IsMaster(PPMaster)
 	{
 		SString title;
 		IsDesktop = isDesktop;
@@ -684,7 +684,7 @@ public:
 			setSmartListBoxOption(CTL_MENULIST_LIST, lbtSelNotify);
 			addGroup(GRP_IMG,   new ImageBrowseCtrlGroup(PPTXT_PICFILESEXTS, CTL_MENULIST_IMAGE, cmAddImage, cmDelImage, 1));
 			addGroup(GRP_BKGND, new ColorCtrlGroup(CTL_MENULIST_BKGND, CTLSEL_MENULIST_BKGND, cmSelBkgnd, CTL_MENULIST_SELBKGND));
-			disableCtrls(!PPMaster && ObjRts.CheckDesktopID(0, PPR_INS) == 0, CTL_MENULIST_EDASSCBTN, CTL_MENULIST_EDASSCCBTN, 0L);
+			disableCtrls(!IsMaster && ObjRts.CheckDesktopID(0, PPR_INS) == 0, CTL_MENULIST_EDASSCBTN, CTL_MENULIST_EDASSCCBTN, 0L);
 		}
 		else {
 			RECT   rect, img_rect;
@@ -721,6 +721,7 @@ private:
 	int    IsMenuUsed(PPID obj, PPID menuID, int isDesktop);
 	int    LoadCfg(long id);
 
+	const  int IsMaster;
 	int    IsDesktop;
 	long   InitID;
 	long   PrevID;
@@ -788,10 +789,10 @@ int EditMenusDlg::LoadCfg(long id)
 			setGroupData(GRP_BKGND, &color_rec);
 		}
 	}
-	disableCtrls(!PPMaster && ObjRts.CheckDesktopID(0, PPR_INS) == 0,
+	disableCtrls(!IsMaster && ObjRts.CheckDesktopID(0, PPR_INS) == 0,
 		CTL_MENULIST_FLAGS, CTL_MENULIST_IMAGE, CTLSEL_MENULIST_BKGND, CTL_MENULIST_SELBKGND, 0L);
-	showCtrl(CTL_MENULIST_ADDIMG, PPMaster || ObjRts.CheckDesktopID(0, PPR_INS));
-	showCtrl(CTL_MENULIST_DELIMG, PPMaster || ObjRts.CheckDesktopID(0, PPR_INS));
+	showCtrl(CTL_MENULIST_ADDIMG, IsMaster || ObjRts.CheckDesktopID(0, PPR_INS));
+	showCtrl(CTL_MENULIST_DELIMG, IsMaster || ObjRts.CheckDesktopID(0, PPR_INS));
 	return 1;
 }
 
@@ -837,7 +838,7 @@ int EditMenusDlg::setupList()
 int EditMenusDlg::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
-	if(PPMaster || ObjRts.CheckDesktopID(0, PPR_INS)) {
+	if(IsMaster || ObjRts.CheckDesktopID(0, PPR_INS)) {
 		long   parent_id = 0;
 		SString name;
 		while(ok < 0 && SelectMenu(&parent_id, &name, IsDesktop ? SELTYPE_DESKTOPTEMPL : SELTYPE_MENUTEMPL, &Data) > 0) {
@@ -878,7 +879,7 @@ int EditMenusDlg::addItem(long * pPos, long * pID)
 int EditMenusDlg::editItem(long pos, long id)
 {
 	int    ok = -1;
-	if(PPMaster || ObjRts.CheckDesktopID(id, PPR_MOD)) {
+	if(IsMaster || ObjRts.CheckDesktopID(id, PPR_MOD)) {
 		uint ipos = 0;
 		const PPCommandItem * p_item = Data.SearchByID(id, &ipos);
 		PPCommandItem * p_savitem = 0;
@@ -905,7 +906,7 @@ int EditMenusDlg::delItem(long pos, long id)
 {
 	int ok = -1;
 	uint ipos = 0;
-	if(PPMaster || ObjRts.CheckDesktopID(id, PPR_MOD)) {
+	if(IsMaster || ObjRts.CheckDesktopID(id, PPR_MOD)) {
 		const PPCommandItem * p_item = Data.SearchByID(id, &ipos);
 		if(p_item) {
 			if(IsDesktop ? CONFIRM(PPCFM_DELDESKTOP) : CONFIRM(PPCFM_DELMENU)) {

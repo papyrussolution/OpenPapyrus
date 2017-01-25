@@ -561,21 +561,13 @@ cleanup_converter:
 	return status;
 }
 
-static cairo_int_status_t composite_polygon(const cairo_spans_compositor_t       * compositor,
-    cairo_composite_rectangles_t          * extents,
-    cairo_polygon_t                      * polygon,
-    CairoFillRule fill_rule,
-    cairo_antialias_t antialias)
+static cairo_int_status_t composite_polygon(const cairo_spans_compositor_t * compositor,
+    cairo_composite_rectangles_t * extents, cairo_polygon_t * polygon, CairoFillRule fill_rule, cairo_antialias_t antialias)
 {
 	cairo_abstract_span_renderer_t renderer;
 	cairo_scan_converter_t * converter;
-	cairo_bool_t needs_clip;
 	cairo_int_status_t status;
-
-	if(extents->is_bounded)
-		needs_clip = extents->clip->path != NULL;
-	else
-		needs_clip = !_clip_is_region(extents->clip) || extents->clip->num_boxes > 1;
+	cairo_bool_t needs_clip = (extents->is_bounded) ? (extents->clip->path != NULL) : (!_clip_is_region(extents->clip) || extents->clip->num_boxes > 1);
 	TRACE((stderr, "%s - needs_clip=%d\n", __FUNCTION__, needs_clip));
 	if(needs_clip) {
 		TRACE((stderr, "%s: unsupported clip\n", __FUNCTION__));
@@ -585,18 +577,15 @@ static cairo_int_status_t composite_polygon(const cairo_spans_compositor_t      
 	else {
 		const CairoIRect * r = &extents->unbounded;
 		if(antialias == CAIRO_ANTIALIAS_FAST) {
-			converter = _cairo_tor22_scan_converter_create(r->x, r->y,
-			    r->x + r->width, r->y + r->height, fill_rule, antialias);
+			converter = _cairo_tor22_scan_converter_create(r->x, r->y, r->x + r->width, r->y + r->height, fill_rule, antialias);
 			status = _cairo_tor22_scan_converter_add_polygon(converter, polygon);
 		}
 		else if(antialias == CAIRO_ANTIALIAS_NONE) {
-			converter = _cairo_mono_scan_converter_create(r->x, r->y,
-			    r->x + r->width, r->y + r->height, fill_rule);
+			converter = _cairo_mono_scan_converter_create(r->x, r->y, r->x + r->width, r->y + r->height, fill_rule);
 			status = _cairo_mono_scan_converter_add_polygon(converter, polygon);
 		}
 		else {
-			converter = _cairo_tor_scan_converter_create(r->x, r->y,
-			    r->x + r->width, r->y + r->height, fill_rule, antialias);
+			converter = _cairo_tor_scan_converter_create(r->x, r->y, r->x + r->width, r->y + r->height, fill_rule, antialias);
 			status = _cairo_tor_scan_converter_add_polygon(converter, polygon);
 		}
 	}

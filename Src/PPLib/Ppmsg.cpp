@@ -424,8 +424,7 @@ __loadstring:
 		else {
 			const size_t tmp_buf_size = 1024;
 			if(pAddInfo && (p_tmp_buf2 = new char[tmp_buf_size]) != 0) {
-				_snprintf(p_tmp_buf2, tmp_buf_size-1, p_tmp_buf, pAddInfo); // @v7.9.9
-				// @v7.9.9 sprintf(p_tmp_buf2, p_tmp_buf, pAddInfo);
+				_snprintf(p_tmp_buf2, tmp_buf_size-1, p_tmp_buf, pAddInfo);
 				delete p_tmp_buf;
 				p_tmp_buf = p_tmp_buf2;
 			}

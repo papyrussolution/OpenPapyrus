@@ -143,7 +143,6 @@
 91  "Заданный объект не присвоен аналитической таблице"
 92  "Попытка установить уровень доступа к объекту ниже собственного уровня"
 93  "Невозможно определить первичный объект"
-94  "Склад в межскладской передаче должен быть отличным от текущего"
 95  "В документе не должно быть двух позиций из одного лота"
 96  "Связанный документ (id=%s) не найден"
 97  "Несовместимый вид операции связанного документа"
@@ -441,7 +440,6 @@
 436 "Неверный пароль интегрирующей стяжки"
 
 440 "Отчет не доступен в DOS-версии системы"
-441 "В межскладском перемещении необходимо указать склад-получатель"
 442 "Не определен каталог TEMP в файле PP.INI ([path] temp=...)"
 443 "Не определен каталог PACK в файле PP.INI ([path] pack=...)"
 444 "Не найден каталог '%s'"
@@ -1862,6 +1860,8 @@ PPERR_UNABLERMVSPCQUOTKIND       "Вид котировки не может бы
 PPERR_SUPPLIX_UNDEFCLICTAG       "В конфигурации обмена с поставщиком '%s' не определен тег кода контрагента"
 PPERR_SUPPLIX_UNDEFLOCCTAG       "В конфигурации обмена с поставщиком '%s' не определен тег кода локации"
 PPERR_GGRPHASREFINGCFG           "На товарную группу ссылается конфигурация товаров: удаление невозможно"
+PPERR_PRIMEQFOREIN               "Склад-получатель в документе внутренней передачи должен отличаться от склада-отправителя"
+PPERR_INTRDESTNEEDED             "Не определен склад-получатель для документа внутреннего перемещения"
 //
 // Decl Struc Parsing
 //
@@ -2530,10 +2530,10 @@ PPINIPARAM_REGIONNAME                  "regionname"
 PPINIPARAM_BIC                         "bic"
 PPINIPARAM_CORRACC                     "corracc"
 PPINIPARAM_SERVER_LOG                  "log"
-PPINIPARAM_SERVER_AT                   "at"
-PPINIPARAM_SERVER_AT2                  "at2"
-PPINIPARAM_SERVER_AT3                  "at3"
-PPINIPARAM_SERVER_AT4                  "at4"
+// @v9.4.12 @obsolete PPINIPARAM_SERVER_AT                   "at"
+// @v9.4.12 @obsolete PPINIPARAM_SERVER_AT2                  "at2"
+// @v9.4.12 @obsolete PPINIPARAM_SERVER_AT3                  "at3"
+// @v9.4.12 @obsolete PPINIPARAM_SERVER_AT4                  "at4"
 PPINIPARAM_SERVER_PRICEPUBLISHING      "PricePublication"
 PPINIPARAM_SERVER_BACKUP               "Backup"
 PPINIPARAM_SERVER_TABLEFILLING         "TableFilling"
@@ -3107,6 +3107,7 @@ PaymMethod"
 // Начиная с v9.0.0 следующая строка фактически не применяется. Оставляем временно ее здесь
 // для разрешения возможных проблем.
 //
+/*
 219 /!/ "Склад;Штрихкод;Связанное кол-во;Список;Остаток;Итого:;НДС;Корзина по умолчанию;Наценка(%);Примечание;Долг;Количество;\
 Серийный номер;Остаток в ценах;Поступления;Реализации;Позиций;Группа;Дефицит;Остаток-дефицит;Базовая котировка;PLU;Валюта;Цикл;\
 Кол-во товаров в подстановке;Дата;Весь период;Процессор;Основной товар;Статус;Выбор документа;Минимальный запас;Процент скидки;@AUTO;\
@@ -3120,6 +3121,7 @@ PaymMethod"
 Расход;Приход;Передача;Все;Тест;MISCELLANEOUS;Работа;Все склады;Отгружено;Оплачено;Приватная корзина;Лист;Чеки;Операции;\
 Имеются невыполненные задачи;Только открытые;Дефицитный бюджет;Профицитный бюджет;Базовый;План;Факт;Номер устройства;Пусто;\
 Ячейка;Конфигурация экспорта;Часы;Минуты;Входящий остаток;Исходящий остаток;Агент не указан;Серия;Не найдена;Строк;Строк (ср);SKU;SKU (ср)"
+*/
 
 // @v9.0.2 PPWORD_WAREHOUSE           "Склад"
 // @v9.0.2 PPWORD_BARCODE             "Штрихкод"
@@ -3156,8 +3158,8 @@ PaymMethod"
 // @v9.0.2 PPWORD_STOP                "Стоп"
 // @v9.1.4 PPWORD_EXTOBJECT           "Дополнительный объект"
 // @v9.1.11 PPWORD_DEFAULT             "По умолчанию"
-//PPWORD_SHIPPED             "Отгружено"
-//PPWORD_PAID                "Оплачено"
+// PPWORD_SHIPPED             "Отгружено"
+// PPWORD_PAID                "Оплачено"
 // @v9.1.11 PPWORD_CHECKS              "Чеки"
 // @v9.1.11 PPWORD_OPERATIONS          "Операции"
 // @v9.0.2 PPWORD_PLAN                "План"
@@ -3183,9 +3185,9 @@ PPWORD_MINSTOCK            "Минимальный запас"
 PPWORD_PCTDIS              "Процент скидки"
 PPWORD_AT_AUTO             "@AUTO"
 PPWORD_TEMPALTGRP          "Временная группа"
-// @v9.2.5 PPWORD_CONFIG              "Конфигурация"
-PPWORD_ERROR               "ОШИБКА"
-// @v9.2.7 PPWORD_SUPERSESS           "Суперсессия"
+// @v9.2.5  PPWORD_CONFIG              "Конфигурация"
+// @v9.4.12 PPWORD_ERROR               "ОШИБКА"
+// @v9.2.7  PPWORD_SUPERSESS           "Суперсессия"
 PPWORD_BESTBEFORE          "Годен до"
 PPWORD_SUM                 "Сумма"
 PPWORD_DISCOUNT            "Скидка"
@@ -3237,8 +3239,8 @@ PPWORD_NOTLINKEXPEND       "Не привязанный расход"
 PPWORD_NOTLINKRECEIPT      "Не привязанный приход"
 PPWORD_NOTLINKTRANSFER     "Не привязанная передача"
 // @v9.3.10 PPWORD_BILLCODE            "Номер документа"
-PPWORD_TRANSFER            "Передача"
-PPWORD_ALL                 "Все"
+// @v9.4.12 PPWORD_TRANSFER            "Передача"
+// @v9.4.12 PPWORD_ALL                 "Все"
 PPWORD_TEST                "Тест"
 PPWORD_MISCELLANEOUS       "MISCELLANEOUS"
 PPWORD_WORK                "Работа"
@@ -5444,6 +5446,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ratio             "Соотношение"
 @plot              "График"
 @priority          "Приоритет"
+@bailment          "Передача" // товара
 @lot               "Лот"
 @lots              "Лоты"
 @orderlots         "Лоты заказов"

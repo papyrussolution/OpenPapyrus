@@ -363,34 +363,37 @@ void SLAPI PPBill::BaseDestroy()
 
 int FASTCALL PPBill::IsEqual(const PPBill & rS) const
 {
+	int    yes = 1;
 	PPObjBill * p_bobj = BillObj;
 	if(p_bobj) {
 		if(!p_bobj->P_Tbl->fields.IsEqualRecords(&Rec, &rS.Rec))
-			return 0;
+			yes = 0;
 	}
 	else if(memcmp(&Rec, &rS.Rec, sizeof(Rec)) != 0)
-		return 0;
-	if(!Amounts.IsEqual(&rS.Amounts))
-		return 0;
-	if(!Pays.IsEqual(rS.Pays))
-		return 0;
-	if(!Ext.IsEqual(rS.Ext))
-		return 0;
-	if(!Rent.IsEqual(rS.Rent))
-		return 0;
-	if((P_PaymOrder && !rS.P_PaymOrder) || (!P_PaymOrder && rS.P_PaymOrder))
-		return 0;
-	if(P_PaymOrder && rS.P_PaymOrder && memcmp(P_PaymOrder, rS.P_PaymOrder, sizeof(*P_PaymOrder)) != 0)
-		return 0;
-	if((P_Freight && !rS.P_Freight) || (!P_Freight && rS.P_Freight))
-		return 0;
-	if(P_Freight && rS.P_Freight && !P_Freight->IsEqual(*rS.P_Freight))
-		return 0;
-	if((P_AdvRep && !rS.P_AdvRep) || (!P_AdvRep && rS.P_AdvRep))
-		return 0;
-	if(P_AdvRep && rS.P_AdvRep && memcmp(P_AdvRep, rS.P_AdvRep, sizeof(*P_AdvRep)) != 0)
-		return 0;
-	return 1;
+		yes = 0;
+	if(yes) {
+		if(!Amounts.IsEqual(&rS.Amounts))
+			yes = 0;
+		else if(!Pays.IsEqual(rS.Pays))
+			yes = 0;
+		else if(!Ext.IsEqual(rS.Ext))
+			yes = 0;
+		else if(!Rent.IsEqual(rS.Rent))
+			yes = 0;
+		else if((P_PaymOrder && !rS.P_PaymOrder) || (!P_PaymOrder && rS.P_PaymOrder))
+			yes = 0;
+		else if(P_PaymOrder && rS.P_PaymOrder && memcmp(P_PaymOrder, rS.P_PaymOrder, sizeof(*P_PaymOrder)) != 0)
+			yes = 0;
+		else if((P_Freight && !rS.P_Freight) || (!P_Freight && rS.P_Freight))
+			yes = 0;
+		else if(P_Freight && rS.P_Freight && !P_Freight->IsEqual(*rS.P_Freight))
+			yes = 0;
+		else if((P_AdvRep && !rS.P_AdvRep) || (!P_AdvRep && rS.P_AdvRep))
+			yes = 0;
+		else if(P_AdvRep && rS.P_AdvRep && memcmp(P_AdvRep, rS.P_AdvRep, sizeof(*P_AdvRep)) != 0)
+			yes = 0;
+	}
+	return yes;
 }
 
 int FASTCALL PPBill::Copy(const PPBill & rS)
@@ -427,6 +430,7 @@ int FASTCALL PPBill::GetLastPayDate(LDATE * pDt) const
 
 int SLAPI PPBill::AddPayDate(LDATE dt, double amount)
 {
+	int    ok = 1;
 	if(checkdate(dt, 0)) {
 		PayPlanTbl::Rec rec;
 		MEMSZERO(rec);
@@ -434,9 +438,10 @@ int SLAPI PPBill::AddPayDate(LDATE dt, double amount)
 		rec.PayDate = dt;
 		rec.Amount  = BR2(amount);
 		Pays.insert(&rec);
-		return 1;
 	}
-	return -1;
+	else
+		ok = -1;
+	return ok;
 }
 
 int SLAPI PPBill::SetPayDate(LDATE dt, double amount)
@@ -515,7 +520,7 @@ int SLAPI ClbNumberList::AddNumber(int rowIdx, const char * pClbNumber)
 int SLAPI ClbNumberList::GetNumber(int rowIdx, SString * pBuf) const
 {
 	SString temp_buf;
-	SETIFZ(pBuf, &temp_buf); // Чтобы не распрелелять зря память испольуем temp_buf только если pBuf == 0
+	SETIFZ(pBuf, &temp_buf); // Чтобы не распределять зря память испольуем temp_buf только если pBuf == 0
 	*pBuf = 0;
 	if(StrAssocArray::Get(rowIdx, *pBuf) > 0) {
 		return 1;
@@ -531,7 +536,7 @@ int SLAPI ClbNumberList::SearchNumber(const char * pNumber, uint * pPos) const
 	return BIN(StrAssocArray::SearchByText(pNumber, 1, pPos));
 }
 
-int SLAPI ClbNumberList::RemovePosition(int rowIdx)
+void SLAPI ClbNumberList::RemovePosition(int rowIdx)
 {
 	int    removed_item_idx = -1;
 	for(uint i = 0; i < Assoc.getCount(); i++) {
@@ -543,7 +548,6 @@ int SLAPI ClbNumberList::RemovePosition(int rowIdx)
 	}
 	if(removed_item_idx >= 0)
 		StrAssocArray::atFree(removed_item_idx);
-	return 1;
 }
 
 int SLAPI ClbNumberList::ReplacePosition(int rowIdx, int newRowIdx)
@@ -680,7 +684,7 @@ int SLAPI PPLotTagContainer::Set(int rowIdx, const ObjTagList * pItem)
 	return ok;
 }
 
-int SLAPI PPLotTagContainer::RemovePosition(int rowIdx)
+void SLAPI PPLotTagContainer::RemovePosition(int rowIdx)
 {
 	int    removed_item_idx = -1;
 	for(uint i = 0; i < getCount(); i++) {
@@ -692,7 +696,6 @@ int SLAPI PPLotTagContainer::RemovePosition(int rowIdx)
 	}
 	if(removed_item_idx >= 0)
 		atFree(removed_item_idx);
-	return 1;
 }
 
 int SLAPI PPLotTagContainer::ReplacePosition(int rowIdx, int newRowIdx)
@@ -999,7 +1002,7 @@ LDATE SLAPI PPBillPacket::CalcDefaultPayDate(int paymTerm, long paymDateBase) co
 
 int SLAPI PPBillPacket::SetupDefaultPayDate(int paymTerm, long paymDateBase)
 {
-	LDATE  paym_date = CalcDefaultPayDate(paymTerm, paymDateBase);
+	const LDATE paym_date = CalcDefaultPayDate(paymTerm, paymDateBase);
 	return paym_date ? SetPayDate(paym_date, 0) : -1;
 }
 

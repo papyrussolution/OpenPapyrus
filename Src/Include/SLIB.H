@@ -2290,8 +2290,8 @@ public:
 	// DataType::minval and DataType::maxval sets to parameter
 	// min and max values correspondly.
 	// Returns !0 if function is supported, otherwise 0.
-	virtual int    SLAPI minval(void *) const;
-	virtual int    SLAPI maxval(void *) const;
+	virtual void   SLAPI minval(void *) const;
+	virtual void   SLAPI maxval(void *) const;
 	virtual int    SLAPI Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    SLAPI isnumber() const { return (base() == BTS_INT || base() == BTS_REAL); }
 
@@ -2317,30 +2317,19 @@ DataType & FASTCALL stype(TYPEID t, DataType *);
 TYPEID     FASTCALL bt2st(int baseType);
 
 inline int SLAPI btnumber(int bt)
-	{ return (bt == BTS_INT || bt == BTS_REAL); }
-inline size_t SLAPI stsize(TYPEID t)
-	{ DataType _t; return stype(t, &_t).size(); }
-inline int SLAPI stcomp(TYPEID t, const void * i1, const void * i2)
-	{ DataType _t; return stype(t, &_t).comp(i1, i2); }
-inline char * SLAPI sttostr(TYPEID t, const void * d, long f, char * b)
-	{ DataType _t; return stype(t, &_t).tostr(d, f, b); }
-inline int SLAPI stfromstr(TYPEID t, void * d, long f, const char * b)
-	{ DataType _t; return stype(t, &_t).fromstr(d, f, b); }
-inline int SLAPI stbase(TYPEID t)
-	{ DataType _t; return stype(t, &_t).base(); }
-inline int SLAPI sttobase(TYPEID t, const void * data, void * baseData)
-	{ DataType _t; return stype(t, &_t).tobase(data, baseData); }
-inline int SLAPI stbaseto(TYPEID t, void * data, const void * baseData)
-	{ DataType _t; return stype(t, &_t).baseto(data, baseData); }
-inline void SLAPI stdestroy(TYPEID t, void * d)
-	{ DataType _t; stype(t, &_t).destroy(d); }
-inline int SLAPI stisnumber(TYPEID t)
-	{ DataType _t; return stype(t, &_t).isnumber(); }
-inline int SLAPI stminval(TYPEID t, void * d)
-	{ DataType _t; return stype(t, &_t).minval(d); }
-inline int SLAPI stmaxval(TYPEID t, void * d)
-	{ DataType _t; return stype(t, &_t).maxval(d); }
-int SLAPI stcast(TYPEID st, TYPEID dt, const void * sd, void * dd, long f);
+	{ return oneof2(bt, BTS_INT, BTS_REAL); }
+size_t FASTCALL stsize(TYPEID t);
+int    SLAPI stcomp(TYPEID t, const void * i1, const void * i2);
+char * SLAPI sttostr(TYPEID t, const void * d, long f, char * b);
+int    SLAPI stfromstr(TYPEID t, void * d, long f, const char * b);
+int    FASTCALL stbase(TYPEID t);
+int    SLAPI sttobase(TYPEID t, const void * data, void * baseData);
+int    SLAPI stbaseto(TYPEID t, void * data, const void * baseData);
+void   FASTCALL stdestroy(TYPEID t, void * d);
+int    FASTCALL stisnumber(TYPEID t);
+void   FASTCALL stminval(TYPEID t, void * d);
+void   FASTCALL stmaxval(TYPEID t, void * d);
+int    SLAPI stcast(TYPEID st, TYPEID dt, const void * sd, void * dd, long f);
 //
 // Descr: Register all BUILT-INS SLIB TYPES (BIST)
 //
@@ -3702,7 +3691,7 @@ const  char * FASTCALL onecstr(char c);
 char * SLAPI padleft(char  * pStr, char pad, size_t n);
 char * SLAPI padright(char * pStr, char pad, size_t n);
 char * SLAPI alignstr(char * pStr, size_t width, int adj);
-int    SLAPI getTextHight(Pchar str, int width);
+int    SLAPI getTextHight(char * pStr, int width);
 int    SLAPI searchstr(const char * pStr, const SSrchParam & rParam, size_t * pBeg, size_t * pLen);
 int    SLAPI replacestr(char * pStr, const char * pReplacer, size_t * pPos, size_t * pLen, uint maxlen);
 // @v9.4.10 (unused) char * SLAPI quotstr(char * pStr, int leftQuotChr, int rightQuotChr);
@@ -3965,7 +3954,7 @@ char * SLAPI int64fmt(int64 val, long fmt, char * pBuf);
 char * SLAPI longfmtz(long val, int numDigits, char * pBuf, size_t bufLen);
 char * SLAPI uintfmt(ulong val, long fmt, char * pBuf);
 char * SLAPI uint64fmt(uint64 val, long fmt, char * pBuf);
-char * SLAPI decfmt(BCD_T val, int len, int prec, long fmt, Pchar buf);
+char * SLAPI decfmt(BCD_T val, int len, int prec, long fmt, char * pBuf);
 char * SLAPI datefmt(const void *, long fmt, char *);
 char * SLAPI timefmt(LTIME, long fmt, char *);
 char * SLAPI datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, size_t bufLen);

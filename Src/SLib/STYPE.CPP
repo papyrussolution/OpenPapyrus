@@ -1,5 +1,5 @@
 // STYPE.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016
+// Copyright (c) Sobolev A. 1995, 1996, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -29,6 +29,29 @@ DataType & FASTCALL stype(TYPEID t, DataType * pT)
 	getVptr(pT) = type_table[GETSTYPE(t)];
 	return *pT;
 }
+
+size_t FASTCALL stsize(TYPEID t)
+	{ DataType _t; return stype(t, &_t).size(); }
+int SLAPI stcomp(TYPEID t, const void * i1, const void * i2)
+	{ DataType _t; return stype(t, &_t).comp(i1, i2); }
+char * SLAPI sttostr(TYPEID t, const void * d, long f, char * b)
+	{ DataType _t; return stype(t, &_t).tostr(d, f, b); }
+int SLAPI stfromstr(TYPEID t, void * d, long f, const char * b)
+	{ DataType _t; return stype(t, &_t).fromstr(d, f, b); }
+int FASTCALL stbase(TYPEID t)
+	{ DataType _t; return stype(t, &_t).base(); }
+int SLAPI sttobase(TYPEID t, const void * data, void * baseData)
+	{ DataType _t; return stype(t, &_t).tobase(data, baseData); }
+int SLAPI stbaseto(TYPEID t, void * data, const void * baseData)
+	{ DataType _t; return stype(t, &_t).baseto(data, baseData); }
+void FASTCALL stdestroy(TYPEID t, void * d)
+	{ DataType _t; stype(t, &_t).destroy(d); }
+int FASTCALL stisnumber(TYPEID t)
+	{ DataType _t; return stype(t, &_t).isnumber(); }
+void FASTCALL stminval(TYPEID t, void * d)
+	{ DataType _t; stype(t, &_t).minval(d); }
+void FASTCALL stmaxval(TYPEID t, void * d)
+	{ DataType _t; stype(t, &_t).maxval(d); }
 //
 //
 //
@@ -55,8 +78,8 @@ int    SLAPI DataType::base() const { return BTS_VOID; }
 int    SLAPI DataType::tobase(const void * data, void * baseData) const { return 0; }
 int    SLAPI DataType::baseto(void * data, const void * baseData) const { return 0; }
 void   FASTCALL DataType::destroy(void *) {}
-int    SLAPI DataType::minval(void *) const { return 0; }
-int    SLAPI DataType::maxval(void *) const { return 0; }
+void   SLAPI DataType::minval(void *) const { }
+void   SLAPI DataType::maxval(void *) const { }
 /*
 TYPEID SLAPI DataType::recornsymb(const char *) const { return 0; }
 int    SLAPI DataType::getsymb(int style, char * pBuf, size_t bufLen) const

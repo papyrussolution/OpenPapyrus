@@ -5362,6 +5362,8 @@
 #define DLG_BHTRCV                527
 	#define CTL_BHTRCV_BHT               (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BHTRCV_BHT            (2 + WINDOWS_ID_BIAS)
+	#define CTL_BHTRCV_DINTRLOC          (3 + WINDOWS_ID_BIAS)
+	#define CTLSEL_BHTRCV_DINTRLOC       (4 + WINDOWS_ID_BIAS)
 #define DLG_BILLFLT_DRAFT         528 // Фильтр по драфт-документам
 	// CTL_BILLFLT_XXX
 #define DLG_SCARDSER              529 // Серия пластиковых карточек
@@ -10421,10 +10423,7 @@
 #define PPERR_UNABLESUBSTOBJ       90 // Невозможно подставить объект в шаблон проводки
 #define PPERR_OBJNASGNTOSHEET      91 // Заданный объект не присвоен таблице аналитических статей
 #define PPERR_ACCSLESSACCS         92 // Попытка установить уровень доступа к объекту ниже собственного уровня //
-#define PPERR_PRIMOBJNEXISTS       93 // Невозможно найти первичный объект (либо в конфигурации задана
-	// неверная таблица складов, либо активный склад в этой таблице отсутствует)
-#define PPERR_PRIMEQFOREIN         94 // В общем случае: первичный объект в операции не должен совпадать со
-	// вторичным, однако пока это означает, что выбран склад для передачи тот же, что и текущий
+#define PPERR_PRIMOBJNEXISTS       93 // Невозможно найти первичный объект (либо в конфигурации задана неверная таблица складов, либо активный склад в этой таблице отсутствует)
 #define PPERR_DUPLOTSINPACKET      95 // Дублирование в документе товара из одного лота
 #define PPERR_LINKBILLNFOUND       96 // Связанный документ (id=%s) не найден
 #define PPERR_LINKBILLOPR          97 // Несовместимый вид операции связанного документа
@@ -10726,7 +10725,6 @@
 #define PPERR_DBCHA_INVPASSWORD   436 // Неверный пароль интегрирующей стяжки
 
 #define PPERR_RPTNAVAILONDOS      440 // Отчет не доступен в DOS-версии системы
-#define PPERR_INTRDESTNEEDED      441 // В документе внутренней передачи товара необходимо указать склад-получатель
 #define PPERR_UNDEFTEMPPATH       442 // Не определен временный каталог в файле PP.INI
 #define PPERR_UNDEFPACKPATH       443 // Не определен каталог PACK в файле PP.INI
 #define PPERR_NEXISTPATH          444 // Не найден каталог %s

@@ -20,6 +20,29 @@
 ; Установка OpenSource-варианта сборки
 ;!define OPENSOURCE
 
+;
+; Внимание: функция сборки дистрибутива, встроенная в Papyrus полагается на следующие значения префиксов дистрибутивов
+;
+!ifdef OPENSOURCE
+	!define BASEPROD_NAME "OpenPapyrus"
+	!define PRODUCT_PREFIX "OPpy"
+!else
+	!define BASEPROD_NAME "Papyrus"
+	!define PRODUCT_PREFIX "Ppy"
+!endif
+!ifdef INSTALL_SERVER
+	!define PRODUCT_NAME "${BASEPROD_NAME} Server"
+!else ifdef INSTALL_UPDATE
+	!define PRODUCT_NAME "${BASEPROD_NAME} Update"
+!else ifdef INSTALL_CLIENT
+	!define PRODUCT_NAME "${BASEPROD_NAME} Client"
+!else ifdef INSTALL_DEMO
+	!define PRODUCT_NAME "${BASEPROD_NAME} Demo"
+!else ifdef INSTALL_MANUAL
+	!define PRODUCT_NAME "${BASEPROD_NAME} Manual"
+!else 
+	!define PRODUCT_NAME "${BASEPROD_NAME}"
+!endif
 !define PRODUCT_PUBLISHER        "A.Fokin, A.Sobolev"
 !define PRODUCT_WEB_SITE         "http://www.petroglif.ru"
 !define PRODUCT_DIR_REGKEY       "Software\Papyrus\System\InstallPath"
@@ -42,27 +65,6 @@
 
 !ifndef PRODUCT_VERSION
 	!define PRODUCT_VERSION "Null version"
-!endif
-!ifdef INSTALL_SERVER
-	!define PRODUCT_NAME "Papyrus Server"
-!else ifdef INSTALL_UPDATE
-	!define PRODUCT_NAME "Papyrus Update"
-!else ifdef INSTALL_CLIENT
-	!define PRODUCT_NAME "Papyrus Client"
-!else ifdef INSTALL_DEMO
-	!define PRODUCT_NAME "Papyrus Demo"
-!else ifdef INSTALL_MANUAL
-	!define PRODUCT_NAME "Papyrus Manual"
-!else 
-	!define PRODUCT_NAME "Papyrus"
-!endif
-;
-; Внимание: функция сборки дистрибутива, встроенная в Papyrus полагается на следующие значения префиксов дистрибутивов
-;
-!ifdef OPENSOURCE
-	!define PRODUCT_PREFIX "OPpy"
-!else
-	!define PRODUCT_PREFIX "Ppy"
 !endif
 ;
 ; Утилита, собираемая проектом VersionSelector
@@ -229,7 +231,7 @@ FunctionEnd
 !endif
 
 !define MUI_STARTMENUPAGE_NODISABLE
-!define MUI_STARTMENUPAGE_DEFAULTFOLDER "Papyrus"
+!define MUI_STARTMENUPAGE_DEFAULTFOLDER "${BASEPROD_NAME}"
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT "${PRODUCT_UNINST_ROOT_KEY}"
 !define MUI_STARTMENUPAGE_REGISTRY_KEY "${PRODUCT_UNINST_KEY}"
 !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "${PRODUCT_STARTMENU_REGVAL}"
@@ -368,8 +370,8 @@ Section "Файлы приложения" SEC01
 	;
 	!insertmacro MUI_STARTMENU_WRITE_BEGIN Application
 	CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
-	CreateShortCut  "$SMPROGRAMS\$ICONS_GROUP\Papyrus.lnk" "$INSTDIR\BIN\ppw.exe"
-	CreateShortCut  "$DESKTOP\Papyrus.lnk" "$INSTDIR\BIN\ppw.exe"
+	CreateShortCut  "$SMPROGRAMS\$ICONS_GROUP\${BASEPROD_NAME}.lnk" "$INSTDIR\BIN\ppw.exe"
+	CreateShortCut  "$DESKTOP\${BASEPROD_NAME}.lnk" "$INSTDIR\BIN\ppw.exe"
 	!insertmacro MUI_STARTMENU_WRITE_END
 !endif	
 SectionEnd
@@ -620,8 +622,8 @@ Section "-Ярлыки на рабочем столе" SEC_SHORTCUTS
 	;
 	!insertmacro MUI_STARTMENU_WRITE_BEGIN Application
 	CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
-	CreateShortCut  "$SMPROGRAMS\$ICONS_GROUP\Papyrus.lnk" "$INSTDIR\BIN\ppw.exe"
-	CreateShortCut  "$DESKTOP\Papyrus.lnk" "$INSTDIR\BIN\ppw.exe"
+	CreateShortCut  "$SMPROGRAMS\$ICONS_GROUP\${BASEPROD_NAME}.lnk" "$INSTDIR\BIN\ppw.exe"
+	CreateShortCut  "$DESKTOP\${BASEPROD_NAME}.lnk" "$INSTDIR\BIN\ppw.exe"
 	!insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd	
 	
@@ -726,10 +728,10 @@ SectionEnd
 ;Section descriptions
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
 !ifdef INSTALL_SERVER | INSTALL_UPDATE | INSTALL_DEMO
-	!insertmacro MUI_DESCRIPTION_TEXT ${SEC01} "Основные исполняемые и вспомогательные файлы системы Papyrus"
+	!insertmacro MUI_DESCRIPTION_TEXT ${SEC01} "Основные исполняемые и вспомогательные файлы системы ${BASEPROD_NAME}"
 !endif	
 !ifdef INSTALL_SERVER | INSTALL_DEMO
-	!insertmacro MUI_DESCRIPTION_TEXT ${SEC_PSQL_SRV} "Сервер базы данных Pervasive.SQL 8.0. Устанавливается на том компьютере, на котором будет располагаться база данных Papyrus"
+	!insertmacro MUI_DESCRIPTION_TEXT ${SEC_PSQL_SRV} "Сервер базы данных Pervasive.SQL 8.0. Устанавливается на том компьютере, на котором будет располагаться база данных ${BASEPROD_NAME}"
 	!insertmacro MUI_DESCRIPTION_TEXT ${SEC_MANUAL} "Руководство пользователя (Adobe Acrobat)"
 !endif
 !ifdef INSTALL_CLIENT | INSTALL_DEMO
@@ -919,8 +921,8 @@ Section Uninstall
 	;
 	; !!!
 	;
-	Delete "$DESKTOP\Papyrus.lnk"
-	Delete "$SMPROGRAMS\$ICONS_GROUP\Papyrus.lnk"
+	Delete "$DESKTOP\${BASEPROD_NAME}.lnk"
+	Delete "$SMPROGRAMS\$ICONS_GROUP\${BASEPROD_NAME}.lnk"
 	RMDir "$SMPROGRAMS\$ICONS_GROUP"
 	DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"
 	;

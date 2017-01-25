@@ -1,5 +1,5 @@
 // PPYIDATA.CPP
-// Copyright (c) A.Starodub 2003, 2005, 2006, 2007, 2008, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Starodub 2003, 2005, 2006, 2007, 2008, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -466,7 +466,8 @@ int WinInetFTP::SafeGet(const char * pLocalPath, const char * pFTPPath, int chec
 		else if(r == 0) {
 			SString add_buf;
 			PPGetMessage(mfError, PPErrCode, 0, 1, buf);
-			PPGetWord(PPWORD_ERROR, 0, add_buf);
+			// @v9.4.12 PPGetWord(PPWORD_ERROR, 0, add_buf);
+			PPLoadString("error", add_buf); // @v9.4.12
 			buf = add_buf.Space().Cat(buf);
 			pLogger->Log(buf);
 		}
@@ -498,7 +499,8 @@ int WinInetFTP::SafePut(const char * pLocalPath, const char * pFTPPath, int chec
 		else if(r == 0) {
 			SString add_buf;
 			PPGetMessage(mfError, PPErrCode, 0, 1, buf);
-			PPGetWord(PPWORD_ERROR, 0, add_buf);
+			// @v9.4.12 PPGetWord(PPWORD_ERROR, 0, add_buf);
+			PPLoadString("error", add_buf); // @v9.4.12
 			buf = add_buf.Space().Cat(buf);
 			pLogger->Log(buf);
 		}

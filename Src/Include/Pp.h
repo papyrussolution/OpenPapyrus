@@ -341,13 +341,15 @@ public:
 	// Descr: Флаги состояния объекта
 	//
 	enum {
-		stTransmissionNotSupported = 0x0001 // При восстановлении объекта из буфера выяснилось, что
+		stTransmissionNotSupported = 0x0001, // При восстановлении объекта из буфера выяснилось, что
 			// сторона, упаковавшая его в буфер, не поддерживает сериализацию.
+		stIgnoreCheckStorageDir    = 0x0002  // @v9.4.12 
 	};
 
 	SLAPI  ObjLinkFiles();
 	SLAPI  ObjLinkFiles(PPID objType);
 	SLAPI  ObjLinkFiles(const ObjLinkFiles & rS);
+	void   SLAPI SetMode_IgnoreCheckStorageDir(int set);
 	int    FASTCALL Copy(const ObjLinkFiles & rS);
 	ObjLinkFiles & FASTCALL operator = (const ObjLinkFiles & rSrc);
 	void   SLAPI Init(PPID objType, const char * pDir);
@@ -8953,7 +8955,7 @@ public:
 	int    SLAPI Init(const BillTbl::Rec * pBillRec, int zeroRByBill = 1, int forceSign = TISIGN_UNDEF);
 	int    SLAPI PreprocessCorrectionExp();
 	double SLAPI GetEffCorrectionExpQtty() const;
-	int    SLAPI InitShadow(const BillTbl::Rec *, const PPTransferItem * pOrder);
+	void   SLAPI InitShadow(const BillTbl::Rec *, const PPTransferItem * pOrder);
 	//
 	// Descr: инициирует элемент PPTransferItem с товаром GoodsID, определенным кодом
 	//   PPCommConfig::PrepayInvoiceGoodsCode, Quantity = 1, Cost = pPack->Amount,
@@ -8992,7 +8994,7 @@ public:
 	//   диалоговые процедуры работают с абсолютным значением поля Quantity,
 	//   а все остальные требуют корректно установленного знака.
 	//
-	int    FASTCALL SetupSign(PPID op);
+	void   FASTCALL SetupSign(PPID op);
 	//
 	// Descr: устанавливает флаги структуры, соответствующие знаку
 	//   операции (приход, расход, рекомплектация и т.д.).
@@ -9160,7 +9162,7 @@ int SLAPI IsUnlimWoLot(const TransferTbl::Rec & rRec);
 //
 struct ILTI { // @persistent(DBX) @size=80
 	SLAPI  ILTI(const PPTransferItem * = 0);
-	int    FASTCALL Init__(const PPTransferItem *);
+	void   FASTCALL Init__(const PPTransferItem *);
 	int    SLAPI Setup(PPID goodsID, int sign, double qtty, double cost, double price);
 	//
 	// Descr: Устанавливает поля Qtty и Rest в значение qtty с поправкой на флаги.
@@ -9550,7 +9552,7 @@ public:
 	int    SLAPI GetNumber(int rowIdx, SString * pBuf) const;
 	int    SLAPI SearchNumber(const char *, uint * pPos) const;
 	int    SLAPI ReplacePosition(int rowIdx, int newRowIdx);
-	int    SLAPI RemovePosition(int rowIdx);
+	void   SLAPI RemovePosition(int rowIdx);
 	void   SLAPI Release();
 	uint   SLAPI GetCount() const;
 	int    FASTCALL Write(SBuffer & rBuf) const;
@@ -9576,7 +9578,7 @@ public:
 	const ObjTagItem * SLAPI GetTag(int rowIdx, PPID tagID) const;
 	int    SLAPI SearchString(const char * pPattern, PPID tagID, long flags, LongArray & rRowIdxList) const;
 	int    SLAPI GetTagStr(int rowIdx, PPID tagID, SString & rBuf) const;
-	int    SLAPI RemovePosition(int rowIdx);
+	void   SLAPI RemovePosition(int rowIdx);
 	int    SLAPI ReplacePosition(int rowIdx, int newRowIdx);
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    SLAPI ProcessObjRefs(PPObjIDArray * ary, int replace);
@@ -26271,7 +26273,7 @@ private:
 	int    SLAPI InitInstance(PPIDArray * pDupDynGrpList);
 	int    SLAPI CreateIterQuery();
 	int    SLAPI Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID, PPIDArray * pList, int doIntersect);
-	int    FASTCALL CheckActual(const Goods2Tbl::Rec & rRec);
+	int    FASTCALL CheckActual(const Goods2Tbl::Rec & rRec) const;
 	//
 	// Descr: Проверяет элементы списка pSrcList на соответствие фильтру this->Filt.
 	//   Если pDestList != 0, то элементы, которые соответствуют фильтру, добавляются в pDestList.
@@ -28236,7 +28238,7 @@ private:
 	static int SLAPI AcceptInventPalm(const char * pHName, const char * pLName, PPID opID, PPLogger *);
 	static int SLAPI AcceptExpendBillsPalm(const char * pHName, const char * pLName, const PPBhtTerminal *, PPLogger *);
 	static int SLAPI AcceptTechSessPalm(const char * pLName, PPLogger *);
-	static int SLAPI AcceptBillsSBII(PPBhtTerminalPacket * pPack, const char * pHName, const char * pLName, PPLogger *); // @v6.0.8 AHTOXA
+	static int SLAPI AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID destIntrLocID, const char * pHName, const char * pLName, PPLogger *);
 
 	int    SLAPI PrepareGoodsData(PPID bhtID, const char * pPath, const char * pPath2, PPID bhtTypeID, const PPIDArray * pAddendumGoodsIdList);
 	int    SLAPI PrepareSupplData(const char * pPath, PPBhtTerminalPacket * pPack = 0);

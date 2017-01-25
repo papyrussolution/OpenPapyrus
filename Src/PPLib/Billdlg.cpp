@@ -2492,7 +2492,7 @@ int BillDialog::calcAmounts(double * pAmount)
 			P_Pack->Rec.Flags &= ~BILLF_TOTALDISCOUNT;
 		}
 	}
-	// @v9.4.3 if(!(P_Pack->Rec.Flags & BILLF_GOODS) && !P_Pack->IsDraft() && !CheckOpFlags(P_Pack->Rec.OpID, OPKF_ADVACC)) { 
+	// @v9.4.3 if(!(P_Pack->Rec.Flags & BILLF_GOODS) && !P_Pack->IsDraft() && !CheckOpFlags(P_Pack->Rec.OpID, OPKF_ADVACC)) {
 	if(!P_Pack->IsGoodsDetail() && !CheckOpFlags(P_Pack->Rec.OpID, OPKF_ADVACC)) { // @v9.4.3
 		if(getCtrlData(CTL_BILL_AMOUNT, &amt))
 			al.Put(PPAMT_MAIN, P_Pack->Rec.CurID, amt, 0, 0);
@@ -2697,7 +2697,7 @@ int BillDialog::getDTS(int onCancel)
 		PPID   foreign_sheet_id = P_Pack->AccSheet;
 		THROW_PP(P_Pack->Rec.Object || intr != INTREXPND, PPERR_INTRDESTNEEDED);
 		if(prim_sheet_id && prim_sheet_id == foreign_sheet_id) {
-			PPID   prim_obj_id = PPObjLocation::WarehouseToObj(P_Pack->Rec.LocID);
+			const PPID prim_obj_id = PPObjLocation::WarehouseToObj(P_Pack->Rec.LocID);
 			THROW_PP(!prim_obj_id || prim_obj_id != P_Pack->Rec.Object, PPERR_PRIMEQFOREIN);
 		}
 	}

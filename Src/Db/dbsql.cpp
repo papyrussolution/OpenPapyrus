@@ -1,5 +1,5 @@
 // DBSQL.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2016, 2017
 //
 #include <db.h>
 #pragma hdrstop
@@ -1709,10 +1709,11 @@ int SLAPI SOraDbProvider::GetFileStat(DBTable * pTbl, long reqItems, DbTableStat
 
 int SLAPI SOraDbProvider::Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword)
 {
-	if(pFileName)
+	/* @v9.4.12 if(pFileName)
 		pTbl->fileName = pFileName;
 	else
-		pTbl->fileName = pTbl->tableName;
+		pTbl->fileName = pTbl->tableName; */
+	pTbl->fileName = NZOR(pFileName, pTbl->tableName); // @v9.4.12
 	pTbl->OpenedFileName = pTbl->fileName;
 	pTbl->FixRecSize = pTbl->fields.getRecSize();
 	return 1;

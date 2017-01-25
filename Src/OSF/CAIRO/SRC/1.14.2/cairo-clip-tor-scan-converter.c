@@ -150,18 +150,18 @@ typedef int grid_scaled_y_t;
  *  You can either define GRID_X/Y_BITS to get a power-of-two scale
  *  or define GRID_X/Y separately. */
 #if !defined(GRID_X) && !defined(GRID_X_BITS)
-#  define GRID_X_BITS 8
+	#define GRID_X_BITS 8
 #endif
 #if !defined(GRID_Y) && !defined(GRID_Y_BITS)
-#  define GRID_Y 15
+	#define GRID_Y 15
 #endif
 
 /* Use GRID_X/Y_BITS to define GRID_X/Y if they're available. */
 #ifdef GRID_X_BITS
-#  define GRID_X (1 << GRID_X_BITS)
+	#define GRID_X (1 << GRID_X_BITS)
 #endif
 #ifdef GRID_Y_BITS
-#  define GRID_Y (1 << GRID_Y_BITS)
+	#define GRID_Y (1 << GRID_Y_BITS)
 #endif
 
 /* The GRID_X_TO_INT_FRAC macro splits a grid scaled coordinate into
@@ -1344,36 +1344,52 @@ static cairo_status_t glitter_scan_converter_reset(glitter_scan_converter_t * co
 /* Gah.. this bit of ugly defines INPUT_TO_GRID_X/Y so as to use
  * shifts if possible, and something saneish if not.
  */
-#if !defined(INPUT_TO_GRID_Y) && defined(GRID_Y_BITS) && GRID_Y_BITS <= GLITTER_INPUT_BITS
-	#define INPUT_TO_GRID_Y(in, out) (out) = (in) >> (GLITTER_INPUT_BITS - GRID_Y_BITS)
-#else
-	#define INPUT_TO_GRID_Y(in, out) INPUT_TO_GRID_general(in, out, GRID_Y)
-#endif
-
-#if !defined(INPUT_TO_GRID_X) && defined(GRID_X_BITS) && GRID_X_BITS <= GLITTER_INPUT_BITS
-	#define INPUT_TO_GRID_X(in, out) (out) = (in) >> (GLITTER_INPUT_BITS - GRID_X_BITS)
-#else
-	#define INPUT_TO_GRID_X(in, out) INPUT_TO_GRID_general(in, out, GRID_X)
-#endif
-
 #define INPUT_TO_GRID_general(in, out, grid_scale) do {		\
-	long long tmp__ = (long long)(grid_scale) * (in);	\
+	int64 tmp__ = (int64)(grid_scale) * (in);	\
 	tmp__ >>= GLITTER_INPUT_BITS;				\
 	(out) = tmp__;						\
 } while(0)
 
+static int64 InputToGrid_General(int32 in, int32 grid_scale)
+{
+	int64 tmp__ = (int64)(grid_scale) * (in);
+	tmp__ >>= GLITTER_INPUT_BITS;
+	return tmp__;
+}
+
+#if !defined(INPUT_TO_GRID_Y) && defined(GRID_Y_BITS) && GRID_Y_BITS <= GLITTER_INPUT_BITS
+	#define INPUT_TO_GRID_Y(in, out) (out) = (in) >> (GLITTER_INPUT_BITS - GRID_Y_BITS)
+	#define S_INPUT_TO_GRID_Y(in) ((in) >> (GLITTER_INPUT_BITS - GRID_Y_BITS))
+#else
+	#define INPUT_TO_GRID_Y(in, out) INPUT_TO_GRID_general(in, out, GRID_Y)
+	#define S_INPUT_TO_GRID_Y(in) InputToGrid_General(in, GRID_Y)
+#endif
+#if !defined(INPUT_TO_GRID_X) && defined(GRID_X_BITS) && GRID_X_BITS <= GLITTER_INPUT_BITS
+	#define INPUT_TO_GRID_X(in, out) (out) = (in) >> (GLITTER_INPUT_BITS - GRID_X_BITS)
+	#define S_INPUT_TO_GRID_X(in) ((in) >> (GLITTER_INPUT_BITS - GRID_X_BITS))
+#else
+	#define INPUT_TO_GRID_X(in, out) INPUT_TO_GRID_general(in, out, GRID_X)
+	#define S_INPUT_TO_GRID_X(in) InputToGrid_General(in, GRID_X)
+#endif
+
 static void glitter_scan_converter_add_edge(glitter_scan_converter_t * converter, const cairo_edge_t * edge, int clip)
 {
 	cairo_edge_t e;
-	INPUT_TO_GRID_Y(edge->top, e.top);
-	INPUT_TO_GRID_Y(edge->bottom, e.bottom);
+	//INPUT_TO_GRID_Y(edge->top, e.top);
+	//INPUT_TO_GRID_Y(edge->bottom, e.bottom);
+	e.top    = (int)S_INPUT_TO_GRID_Y(edge->top);
+	e.bottom = (int)S_INPUT_TO_GRID_Y(edge->bottom);
 	if(e.top < e.bottom) {
 		/* XXX: possible overflows if GRID_X/Y > 2**GLITTER_INPUT_BITS */
-		INPUT_TO_GRID_Y(edge->line.p1.y, e.line.p1.y);
-		INPUT_TO_GRID_Y(edge->line.p2.y, e.line.p2.y);
+		//INPUT_TO_GRID_Y(edge->line.p1.y, e.line.p1.y);
+		//INPUT_TO_GRID_Y(edge->line.p2.y, e.line.p2.y);
+		e.line.p1.y = (cairo_fixed_t)S_INPUT_TO_GRID_Y(edge->line.p1.y);
+		e.line.p2.y = (cairo_fixed_t)S_INPUT_TO_GRID_Y(edge->line.p2.y);
 		if(e.line.p1.y != e.line.p2.y) {
-			INPUT_TO_GRID_X(edge->line.p1.x, e.line.p1.x);
-			INPUT_TO_GRID_X(edge->line.p2.x, e.line.p2.x);
+			//INPUT_TO_GRID_X(edge->line.p1.x, e.line.p1.x);
+			//INPUT_TO_GRID_X(edge->line.p2.x, e.line.p2.x);
+			e.line.p1.x = S_INPUT_TO_GRID_X(edge->line.p1.x);
+			e.line.p2.x = S_INPUT_TO_GRID_X(edge->line.p2.x);
 			e.dir = edge->dir;
 			polygon_add_edge(converter->polygon, &e, clip);
 		}

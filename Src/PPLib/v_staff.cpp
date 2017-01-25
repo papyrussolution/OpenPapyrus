@@ -940,7 +940,8 @@ StrAssocArray * FastEditSumByDivDlg::MakeDivList()
 	PPIDArray empl_idlist;
 
 	THROW_MEM(p_ret_list = new StrAssocArray);
-	PPGetWord(PPWORD_ALL, 0, buf);
+	// @v9.4.12 PPGetWord(PPWORD_ALL, 0, buf);
+	PPLoadString("all", buf); // @v9.4.12
 	p_ret_list->Add(TOP_ID, 0, buf);
 	//
 	// Заносим работодателей

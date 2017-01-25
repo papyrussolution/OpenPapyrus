@@ -707,13 +707,14 @@ private:
 // Definitions
 //
 int btrokornfound();
+int btrnfound__();
 
 #define BTRIEVE_VER    0x0500 // 0x0600 || 0x0610
 #define NUMPGSIZES          8 // Number of Btrieve page sizes
 #define MAXKEYLEN         255
 // @v8.6.10 #define IDXSEG(_S,_M,_F,_T)   *new DBIdxSpec(offsetof(_S,_M),sizeof((((_S SFAR*)0)->_M)),_F,_T)
 // @v8.6.10 #define FILEDEF(_S,_F,_PS,_A) *new DBFileSpec(sizeof(_S),_F,_PS,_A)
-#define BTRNFOUND         (BtrError==BE_EOF || BtrError==BE_KEYNFOUND)
+#define BTRNFOUND         btrnfound__() //(BtrError==BE_EOF || BtrError==BE_KEYNFOUND)
 //#define BTROKORNFOUND     oneof3(BtrError, 0, BE_EOF, BE_KEYNFOUND)
 #define BTROKORNFOUND     btrokornfound()
 #if defined(_Windows) || defined(__WIN32__) || defined(_WIN32)

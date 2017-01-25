@@ -3600,7 +3600,7 @@ public:
 	int    setupTreeListWindow(int noUpdateSize);
 	void   search(const char * pFirstLetter, int srchMode);
 	int    search(const void * pPattern, CompFunc fcmp, int srchMode);
-	int    addItem(long id, Pchar s, long * pPos = 0);
+	int    addItem(long id, char * pS, long * pPos = 0);
 	int    removeItem(long pos);
 	int    freeAll();
 	TInputLine * link(void) const;

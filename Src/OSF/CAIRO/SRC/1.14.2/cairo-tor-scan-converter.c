@@ -1497,8 +1497,7 @@ inline static void polygon_add_edge(struct polygon * polygon, const cairo_edge_t
  * 2**GLITTER_PIXEL_BITS.  If this function fails then the scan
  * converter should be reset or destroyed.  Dir must be +1 or -1,
  * with the latter reversing the orientation of the edge. */
-I void glitter_scan_converter_add_edge(glitter_scan_converter_t * converter,
-    const cairo_edge_t * edge)
+I void glitter_scan_converter_add_edge(glitter_scan_converter_t * converter, const cairo_edge_t * edge)
 {
 	polygon_add_edge(converter->polygon, edge);
 }

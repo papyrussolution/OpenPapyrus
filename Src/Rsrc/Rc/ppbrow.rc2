@@ -7133,6 +7133,7 @@ record SupplBillLine {
 	WareId            zstring(24)         "Код товара";
 	Price             double format(10.2) "@{price}";
 	Quantity          double format(10.2) "@{qtty}";
+	ActionDate        date                "Дата реальной отгрузки клиенту"; // @v9.4.12
 };
 
 record SupplGoods {

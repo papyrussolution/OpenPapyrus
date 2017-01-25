@@ -1,5 +1,5 @@
 // TRFRITEM.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017
 // @Kernel
 //
 #include <pp.h>
@@ -51,7 +51,7 @@ int SLAPI PPTransferItem::IsRecomplete() const
 	return PPTransferItem::IsRecomplete(Flags);
 }
 
-int SLAPI PPTransferItem::InitShadow(const BillTbl::Rec * pBillRec, const PPTransferItem * pOrder)
+void SLAPI PPTransferItem::InitShadow(const BillTbl::Rec * pBillRec, const PPTransferItem * pOrder)
 {
 	THISZERO();
 	if(pBillRec) {
@@ -66,7 +66,6 @@ int SLAPI PPTransferItem::InitShadow(const BillTbl::Rec * pBillRec, const PPTran
 		LotID    = pOrder->LotID;
 		OrdLotID = 0; // @ordlotid
 	}
-	return 1;
 }
 
 double SLAPI PPTransferItem::GetEffCorrectionExpQtty() const
@@ -200,18 +199,19 @@ int SLAPI PPTransferItem::InitAccturnInvoice(const PPBillPacket * pPack)
 int SLAPI PPTransferItem::SetSignFlags(PPID op, int forceSign)
 {
 	int    ok = 1;
-	long   f = (Flags & (PPTFR_PLUS | PPTFR_MINUS));
-	PPID   op_type_id = GetOpType(op);
+	const  long   f = (Flags & (PPTFR_PLUS | PPTFR_MINUS));
+	const  PPID   op_type_id = GetOpType(op);
 	if(op_type_id == PPOPT_GOODSMODIF) {
 		// Область использования параметра forceSign {
 		if(forceSign == TISIGN_UNDEF) {
-			if(f)
+			if(f) {
 				if(f != (PPTFR_PLUS | PPTFR_MINUS)) {
 					SETFLAG(Flags, PPTFR_RECEIPT, f & PPTFR_PLUS);
 					return 1;
 				}
 				else
 					Flags &= ~(PPTFR_PLUS | PPTFR_MINUS);
+			}
 			THROW_PP(forceSign || IsRecomplete(), PPERR_GMODIFITEMSIGN);
 		}
 		Flags &= ~(PPTFR_PLUS | PPTFR_MINUS);
@@ -225,7 +225,6 @@ int SLAPI PPTransferItem::SetSignFlags(PPID op, int forceSign)
 	}
 	else if(Flags & PPTFR_PCKG && Flags & PPTFR_MODIF)
 		Flags |= PPTFR_PLUS;
-	// @v7.8.10 {
 	else if(Flags & PPTFR_CORRECTION) {
 		Flags &= ~(PPTFR_PLUS | PPTFR_MINUS);
 		if(forceSign == TISIGN_PLUS)
@@ -233,7 +232,6 @@ int SLAPI PPTransferItem::SetSignFlags(PPID op, int forceSign)
 		else if(forceSign == TISIGN_MINUS)
 			Flags |= PPTFR_MINUS;
 	}
-	// } @v7.8.10
 	else {
 		Flags &= ~(PPTFR_PLUS | PPTFR_MINUS);
 		if(op_type_id == PPOPT_DRAFTEXPEND)
@@ -306,7 +304,7 @@ double FASTCALL PPTransferItem::SQtty(PPID op) const
 	return result;
 }
 
-int FASTCALL PPTransferItem::SetupSign(PPID op)
+void FASTCALL PPTransferItem::SetupSign(PPID op)
 {
 	if(IsCorrectionExp()) {
 		;
@@ -316,7 +314,6 @@ int FASTCALL PPTransferItem::SetupSign(PPID op)
 		if(Flags & PPTFR_INDEPPHQTTY)
 			WtQtty = (GetSign(op) >= 0) ? fabs(WtQtty) : -fabs(WtQtty);
 	}
-	return 1;
 }
 
 int SLAPI PPTransferItem::SetupGoods(PPID goodsID, uint flags)

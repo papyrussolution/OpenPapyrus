@@ -1,9 +1,32 @@
 // PPSOAPCLIENT.CPP
-// Copyright (c) A.Sobolev 2015, 2016
+// Copyright (c) A.Sobolev 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
 #include <ppsoapclient.h>
+
+BOOL Implement_SoapModule_DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved, const char * pProductName)
+{
+	switch(dwReason) {
+		case DLL_PROCESS_ATTACH:
+			{
+				SString product_name = pProductName;
+				SLS.Init(product_name, (HINSTANCE)hModule);
+			}
+			break;
+#ifdef _MT
+		case DLL_THREAD_ATTACH:
+			SLS.InitThread();
+			break;
+		case DLL_THREAD_DETACH:
+			SLS.ReleaseThread();
+			break;
+#endif
+		case DLL_PROCESS_DETACH:
+			break;
+	}
+	return TRUE;
+}
 
 //static
 SCollection PPSoapResultPtrBase::ResultPtrList;

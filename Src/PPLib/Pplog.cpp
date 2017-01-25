@@ -11,11 +11,24 @@
 
 class LogListBoxDef : public StdListBoxDef {
 public:
-	SLAPI  LogListBoxDef(SArray * pArray, uint aOptions, TYPEID, TVMsgLog *);
-	SLAPI ~LogListBoxDef();
+	SLAPI  LogListBoxDef(SArray * pArray, uint aOptions, TYPEID t, TVMsgLog * pMl) : StdListBoxDef(pArray, aOptions, t)
+	{
+		P_MsgLog = pMl;
+	}
+	SLAPI ~LogListBoxDef()
+	{
+		ZDELETE(P_MsgLog);
+	}
+	virtual long SLAPI getRecsCount()
+	{
+		return P_MsgLog ? P_MsgLog->GetVisCount() : 0;
+	}
+	virtual void * FASTCALL getRow_(long r)
+	{
+		return P_MsgLog ? P_MsgLog->GetRow(r) : 0;
+	}
+	//
 	TVMsgLog * P_MsgLog; // private. Don't use !
-	virtual long   SLAPI getRecsCount();
-	virtual void * SLAPI getRow(long r);
 };
 
 class LogListWindow : public TWindow {
@@ -458,10 +471,7 @@ long SLAPI PPMsgLog::PutMessage(const char * pBody, long flags, const void * hea
 
 long SLAPI PPMsgLog::GetVisibleMessage(long nrow)
 {
-	long   rval = 0;
-	if(Valid && nrow < GetVisCount())
-		rval = *(long *)P_Index->at((uint)nrow);
-	return rval;
+	return (Valid && nrow < GetVisCount()) ? *(long *)P_Index->at((uint)nrow) : 0;
 }
 
 // static
@@ -532,11 +542,11 @@ long SLAPI PPMsgLog::Init()
 void SLAPI PPMsgLog::DeleteVisibleMessage(long nrow)
 {
 	if(Valid && nrow < GetVisCount() && GetVisCount() || nrow >= 0) {
-		long row = GetVisibleMessage(nrow);
+		const long row = GetVisibleMessage(nrow);
 		PPLogIdx li = GetLogIdx(row);
 		li.flags &= ~(LF_SHOW);
 		SetLogIdx(row, &li);
-		P_Index->atFree((uint) nrow);
+		P_Index->atFree((uint)nrow);
 	}
 }
 
@@ -544,7 +554,7 @@ long SLAPI PPMsgLog::EnumMessages(long nmsg, void * buff, int16 bsize, int16 * r
 {
 	if((!nmsg && CurMsg > GetCount()) || nmsg > GetCount())
 		return 0;
-	CurMsg = nmsg ? nmsg : CurMsg+1;
+	CurMsg = NZOR(nmsg, (CurMsg+1));
 	if(CurMsg > AllCount)
 		return 0;
 	lseek(Stream, GetLogIdx(CurMsg-1).address, SEEK_SET);
@@ -589,12 +599,14 @@ int SLAPI PPMsgLog::Print()
 
 int SLAPI PPMsgLog::InitIteration()
 {
+	int    ok = 1;
 	if(Valid) {
 		CurMsg = 0;
 		NextStrOffset = 0;
-		return 1;
 	}
-	return 0;
+	else
+		ok = 0;
+	return ok;
 }
 
 int SLAPI PPMsgLog::NextIteration(MsgLogItem * pItem)
@@ -645,15 +657,18 @@ void TVMsgLog::Delete(TVMsgLog * pMsgLog, int winDestroy)
 
 int SLAPI TVMsgLog::ShowLogWnd(const char * pTitle)
 {
-	if(!Valid)
-		return 0;
-	if(!lwnd) {
-		TRect rect(0, 15, 80, 23);
-		lwnd = new LogListWindow(rect, new LogListBoxDef(P_Index, 0, (TYPEID)MKSTYPE(S_ZSTRING, 255), this), pTitle, 0); // @todo invalid size 512 (> 255)
-		APPL->P_DeskTop->insert(lwnd);
-		lwnd->Refresh(GetVisCount());
+	int    ok = 1;
+	if(Valid) {
+		if(!lwnd) {
+			TRect rect(0, 15, 80, 23);
+			lwnd = new LogListWindow(rect, new LogListBoxDef(P_Index, 0, (TYPEID)MKSTYPE(S_ZSTRING, 255), this), pTitle, 0); // @todo invalid size 512 (> 255)
+			APPL->P_DeskTop->insert(lwnd);
+			lwnd->Refresh(GetVisCount());
+		}
 	}
-	return 1;
+	else
+		ok = 0;
+	return ok;
 }
 
 SLAPI TVMsgLog::~TVMsgLog()
@@ -796,29 +811,6 @@ int SLAPI PPLogger::Save(const char * pFileName, long options)
 	}
 	return 1;
 }
-//
-// LogListBoxDef
-//
-SLAPI LogListBoxDef::LogListBoxDef(SArray * pArray, uint aOptions, TYPEID t, TVMsgLog * pMl) :
-	StdListBoxDef(pArray, aOptions, t)
-{
-	P_MsgLog = pMl;
-}
-
-SLAPI LogListBoxDef::~LogListBoxDef()
-{
-	ZDELETE(P_MsgLog);
-}
-
-long SLAPI LogListBoxDef::getRecsCount()
-{
-	return P_MsgLog ? P_MsgLog->GetVisCount() : 0;
-}
-
-void * SLAPI LogListBoxDef::getRow(long r)
-{
-	return P_MsgLog ? P_MsgLog->GetRow(r) : 0;
-}
 
 // static
 BOOL CALLBACK LogListWindow::LogListProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -925,7 +917,7 @@ LogListWindow::~LogListWindow()
 SString & LogListWindow::GetString(int pos, SString & rBuf, int oem) const
 {
 	if(pos < def->getRecsCount()) {
-		rBuf = (const char *)def->getRow(pos)+sizeof(long);
+		rBuf = (const char *)def->getRow_(pos)+sizeof(long);
 		if(!oem)
 			rBuf.Transf(CTRANSF_INNER_TO_OUTER);
 	}
@@ -1318,7 +1310,7 @@ int PPALDD_LogList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
-	return p_ml->InitIteration() ? 1 : 0;
+	return BIN(p_ml->InitIteration());
 }
 
 int PPALDD_LogList::NextIteration(PPIterID iterId, long rsrv)

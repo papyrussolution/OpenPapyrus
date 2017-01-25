@@ -47,18 +47,10 @@ typedef struct _cairo_span_renderer cairo_span_renderer_t;
 struct _cairo_span_renderer {
 	/* Private status variable. */
 	cairo_status_t status;
-
 	/* Called to destroy the renderer. */
 	cairo_destroy_func_t destroy;
-
-	/* Render the spans on row y of the destination by whatever compositing
-	 * method is required. */
-	cairo_status_t
-	(* render_rows)(void * abstract_renderer,
-	    int y, int height,
-	    const cairo_half_open_span_t        * coverages,
-	    unsigned num_coverages);
-
+	/* Render the spans on row y of the destination by whatever compositing method is required. */
+	cairo_status_t (* render_rows)(void * abstract_renderer, int y, int height, const cairo_half_open_span_t * coverages, unsigned num_coverages);
 	/* Called after all rows have been rendered to perform whatever
 	 * final rendering step is required.  This function is called just
 	 * once before the renderer is destroyed. */
@@ -67,52 +59,27 @@ struct _cairo_span_renderer {
 
 /* Scan converter interface. */
 typedef struct _cairo_scan_converter cairo_scan_converter_t;
+
 struct _cairo_scan_converter {
 	/* Destroy this scan converter. */
 	cairo_destroy_func_t destroy;
-
 	/* Generates coverage spans for rows for the added edges and calls
 	 * the renderer function for each row. After generating spans the
 	 * only valid thing to do with the converter is to destroy it. */
-	cairo_status_t (* generate)(void * abstract_converter,
-	    cairo_span_renderer_t   * renderer);
-
+	cairo_status_t (* generate)(void * abstract_converter, cairo_span_renderer_t   * renderer);
 	/* Private status. Read with _cairo_scan_converter_status(). */
 	cairo_status_t status;
 };
 
 /* Scan converter constructors. */
 
-cairo_private cairo_scan_converter_t * _cairo_tor_scan_converter_create(int xmin,
-    int ymin,
-    int xmax,
-    int ymax,
-    CairoFillRule fill_rule,
-    cairo_antialias_t antialias);
-cairo_private cairo_status_t _cairo_tor_scan_converter_add_polygon(void * converter,
-    const cairo_polygon_t * polygon);
-
-cairo_private cairo_scan_converter_t * _cairo_tor22_scan_converter_create(int xmin,
-    int ymin,
-    int xmax,
-    int ymax,
-    CairoFillRule fill_rule,
-    cairo_antialias_t antialias);
-cairo_private cairo_status_t _cairo_tor22_scan_converter_add_polygon(void * converter,
-    const cairo_polygon_t * polygon);
-
-cairo_private cairo_scan_converter_t * _cairo_mono_scan_converter_create(int xmin,
-    int ymin,
-    int xmax,
-    int ymax,
-    CairoFillRule fill_rule);
-cairo_private cairo_status_t _cairo_mono_scan_converter_add_polygon(void * converter,
-    const cairo_polygon_t * polygon);
-
-cairo_private cairo_scan_converter_t * _cairo_clip_tor_scan_converter_create(cairo_clip_t * clip,
-    cairo_polygon_t * polygon,
-    CairoFillRule fill_rule,
-    cairo_antialias_t antialias);
+cairo_private cairo_scan_converter_t * _cairo_tor_scan_converter_create(int xmin, int ymin, int xmax, int ymax, CairoFillRule fill_rule, cairo_antialias_t antialias);
+cairo_private cairo_status_t _cairo_tor_scan_converter_add_polygon(void * converter, const cairo_polygon_t * polygon);
+cairo_private cairo_scan_converter_t * _cairo_tor22_scan_converter_create(int xmin, int ymin, int xmax, int ymax, CairoFillRule fill_rule, cairo_antialias_t antialias);
+cairo_private cairo_status_t _cairo_tor22_scan_converter_add_polygon(void * converter, const cairo_polygon_t * polygon);
+cairo_private cairo_scan_converter_t * _cairo_mono_scan_converter_create(int xmin, int ymin, int xmax, int ymax, CairoFillRule fill_rule);
+cairo_private cairo_status_t _cairo_mono_scan_converter_add_polygon(void * converter, const cairo_polygon_t * polygon);
+cairo_private cairo_scan_converter_t * _cairo_clip_tor_scan_converter_create(cairo_clip_t * clip, cairo_polygon_t * polygon, CairoFillRule fill_rule, cairo_antialias_t antialias);
 
 typedef struct _cairo_rectangular_scan_converter {
 	cairo_scan_converter_t base;
@@ -127,12 +94,8 @@ typedef struct _cairo_rectangular_scan_converter {
 	int num_rectangles;
 } cairo_rectangular_scan_converter_t;
 
-cairo_private void _cairo_rectangular_scan_converter_init(cairo_rectangular_scan_converter_t * self,
-    const CairoIRect * extents);
-
-cairo_private cairo_status_t _cairo_rectangular_scan_converter_add_box(cairo_rectangular_scan_converter_t * self,
-    const cairo_box_t * box,
-    int dir);
+cairo_private void _cairo_rectangular_scan_converter_init(cairo_rectangular_scan_converter_t * self, const CairoIRect * extents);
+cairo_private cairo_status_t _cairo_rectangular_scan_converter_add_box(cairo_rectangular_scan_converter_t * self, const cairo_box_t * box, int dir);
 
 typedef struct _cairo_botor_scan_converter {
 	cairo_scan_converter_t base;
@@ -150,29 +113,20 @@ typedef struct _cairo_botor_scan_converter {
 	int num_edges;
 } cairo_botor_scan_converter_t;
 
-cairo_private void _cairo_botor_scan_converter_init(cairo_botor_scan_converter_t * self,
-    const cairo_box_t * extents,
-    CairoFillRule fill_rule);
+cairo_private void _cairo_botor_scan_converter_init(cairo_botor_scan_converter_t * self, const cairo_box_t * extents, CairoFillRule fill_rule);
 
 /* cairo-spans.c: */
 
 cairo_private cairo_scan_converter_t * _cairo_scan_converter_create_in_error(cairo_status_t error);
-
 cairo_private cairo_status_t _cairo_scan_converter_status(void * abstract_converter);
-
-cairo_private cairo_status_t _cairo_scan_converter_set_error(void * abstract_converter,
-    cairo_status_t error);
-
+cairo_private cairo_status_t _cairo_scan_converter_set_error(void * abstract_converter, cairo_status_t error);
 cairo_private cairo_span_renderer_t * _cairo_span_renderer_create_in_error(cairo_status_t error);
-
 cairo_private cairo_status_t _cairo_span_renderer_status(void * abstract_renderer);
 
 /* Set the renderer into an error state.  This sets all the method
  * pointers except ->destroy() of the renderer to no-op
  * implementations that just return the error status. */
-cairo_private cairo_status_t _cairo_span_renderer_set_error(void * abstract_renderer,
-    cairo_status_t error);
-
+cairo_private cairo_status_t _cairo_span_renderer_set_error(void * abstract_renderer, cairo_status_t error);
 cairo_private cairo_status_t _cairo_surface_composite_polygon(cairo_surface_t       * surface,
     cairo_operator_t op,
     const cairo_pattern_t * pattern,

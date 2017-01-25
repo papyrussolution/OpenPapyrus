@@ -50,9 +50,9 @@ int SLAPI ILTI::SetQtty(double qtty, double wtQtty, long flags)
 	return 1;
 }
 
-int FASTCALL ILTI::Init__(const PPTransferItem * ti)
+void FASTCALL ILTI::Init__(const PPTransferItem * ti)
 {
-	double qtty = ti->Qtty();
+	const double qtty = ti->Qtty();
 	BillID      = 0;
 	GoodsID     = ti->GoodsID;
 	//
@@ -66,7 +66,7 @@ int FASTCALL ILTI::Init__(const PPTransferItem * ti)
 	double nq   = R6(Quantity + qtty);
 	if(nq > 0.0) {
 		Cost = (Cost * Quantity + ti->Cost * qtty) / nq;
-		double mp = Price * Quantity;
+		const double mp = Price * Quantity;
 		Price = (((ti->Flags & PPTFR_REVAL) ? ti->Price : ti->NetPrice()) * qtty + mp) / nq;
 	}
 	else {
@@ -88,7 +88,6 @@ int FASTCALL ILTI::Init__(const PPTransferItem * ti)
 	InTaxGrpID = ti->LotTaxGrpID;
 	RByBill    = ti->RByBill; // @v8.0.3
 	memzero(Reserve, sizeof(Reserve)); // @v8.0.3
-	return 1;
 }
 //
 //
@@ -1370,10 +1369,12 @@ int SLAPI ILBillPacket::Load(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 					LTagL.Set(row_idx, tag_list.GetCount() ? &tag_list : 0);
 				}
 				// } @v7.3.5
-				if(p_bobj->GetClbNumberByLot(ti.LotID, 0, clb) > 0)
+				if(p_bobj->GetClbNumberByLot(ti.LotID, 0, clb) > 0) {
 					THROW(ClbL.AddNumber(row_idx, clb));
-				if(p_bobj->GetSerialNumberByLot(ti.LotID, clb, 0) > 0)
+				}
+				if(p_bobj->GetSerialNumberByLot(ti.LotID, clb, 0) > 0) {
 					THROW(SnL.AddNumber(row_idx, clb));
+				}
 			}
 			THROW(r);
 			//

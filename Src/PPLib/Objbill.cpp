@@ -5674,6 +5674,10 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 	Reference * p_ref = PPRef;
 	PPObjTag * p_tag_obj = 0;
 	const  int is_intrexpnd = IsIntrExpndOp(pPack->Rec.OpID);
+	SString img_path;
+	SString img_tag_addendum;
+	SString fname;
+	SString temp_buf;
 	if(oneof3(pPack->OprType, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF, PPOPT_GOODSORDER) || is_intrexpnd) {
 		PPTransferItem * p_ti;
 		SString clb;
@@ -5719,7 +5723,33 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
                                     const ObjTagItem * p_item = p_tag_list->GetItemByPos(j);
                                     THROW_MEM(SETIFZ(p_tag_obj, new PPObjTag));
                                     if(p_item && !p_tag_obj->IsUnmirrored(p_item->TagID)) {
-										mirror_tag_list.PutItem(p_item->TagID, p_item);
+                                    	// @v9.4.12 {
+										if(p_item->TagDataType == OTTYP_IMAGE) {
+											ObjTagItem tag_item = *p_item;
+											//
+											ObjLinkFiles _lf_src(PPOBJ_TAG);
+											_lf_src.Load(p_item->TagID, p_ti->LotID);
+											_lf_src.At(0, img_path);
+											/*
+											if(sstrlen(tag_item.Val.PStr)) {
+												fname = tag_item.Val.PStr;
+												_lf.Replace(0, fname);
+											}
+											else
+												_lf.Remove(0);
+											*/
+											if(::fileExists(img_path)) {
+												ObjLinkFiles _lf_dest(PPOBJ_TAG);
+												_lf_dest.SetMode_IgnoreCheckStorageDir(1);
+												_lf_dest.Replace(0, img_path);
+												_lf_dest.SaveSingle(p_item->TagID, (temp_buf = 0).Cat(mirror_lot_id), 0, &fname);
+												tag_item.SetStr(p_item->TagID, fname);
+												mirror_tag_list.PutItem(tag_item.TagID, &tag_item);
+											}
+										}
+										else
+										// } @v9.4.12
+											mirror_tag_list.PutItem(p_item->TagID, p_item);
                                     }
 								}
 							}
@@ -5737,9 +5767,6 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
         SBuffer sbuf;
         if(pPack->LTagL.GetCount()) {
         	SSerializeContext sctx;
-			SString img_path;
-			SString img_tag_addendum;
-			SString fname;
 			SPathStruc sp;
 			for(uint i = 0; i < pPack->GetTCount(); i++) {
 				ObjTagList * p_tag_list = pPack->LTagL.Get(i);
@@ -6471,14 +6498,14 @@ int SLAPI PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 	// @v9.4.3 {
 	PPIDArray correction_exp_chain;
 	const PPTrfrArray preserve_lots(pPack->GetLots()); // @v9.4.3 Сохраняем строки на случай аварии в проведении документа
-	// } @v9.4.3 
+	// } @v9.4.3
 	pPack->ErrCause = pPack->ErrLine = 0;
 	if(pPack->Rec.OpID) { // Для теневого документа не проверяем период доступа
 		THROW(ObjRts.CheckBillDate(pPack->Rec.Dt));
 		// @v9.4.3 {
 		if(pPack->OprType == PPOPT_CORRECTION)
 			GetCorrectionBackChain(pPack->Rec, correction_exp_chain);
-		// } @v9.4.3 
+		// } @v9.4.3
 	}
 	if(DemoRestrict < 0) {
 		uint   major, minor, revision;
@@ -6670,7 +6697,7 @@ int SLAPI PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 		pPack->Rec.ID = 0;
 		pPack->Rec.BillNo = 0;
 		pPack->SetLots(preserve_lots); // @v9.4.3
-		/* @v9.4.3 
+		/* @v9.4.3
 		for(i = 0; pPack->EnumTItems(&i, &pti);) {
 			pti->RByBill = 0;
 			pti->BillID  = 0;
@@ -6763,7 +6790,7 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 		// @v9.4.3 {
 		if(pPack->OprType == PPOPT_CORRECTION)
 			GetCorrectionBackChain(pPack->Rec, correction_exp_chain);
-		// } @v9.4.3 
+		// } @v9.4.3
 	}
 	if(pPack->ProcessFlags & PPBillPacket::pfViewPercentOnTurn)
 		PPLoadText(PPTXT_WAIT_TURNBILLTRFR, wait_msg);

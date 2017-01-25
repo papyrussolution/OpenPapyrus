@@ -1,5 +1,5 @@
 // GDSITER.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017
 // @Kernel
 //
 #include <pp.h>
@@ -169,6 +169,7 @@ int SLAPI GoodsIterator::FilterList(PPIDArray * pSrcList, PPIDArray * pDestList,
 int SLAPI GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID, PPIDArray * pList, int doIntersect)
 {
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	PPIDArray grp_list, goods_list;
 	if(pGrpList) {
 		THROW(grp_list.add(pGrpList)); // @v8.1.0 addUnique-->add
@@ -185,9 +186,9 @@ int SLAPI GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID
 			PPLoadText(PPTXT_SELECTINGGOODSBYGROUP, fmt_buf);
 		do {
 			id_list.clear();
-			PPID   grp_id = grp_list.at(--i);
+			const PPID grp_id = grp_list.at(--i);
 			Goods2Tbl::Rec ggrec;
-			if(GObj.Fetch(grp_id, &ggrec) > 0)
+			if(GObj.Fetch(grp_id, &ggrec) > 0) {
 				if(ggrec.Flags & (GF_ALTGROUP|GF_GENERIC)) {
 					if(ggrec.Flags & GF_GENERIC) {
 						THROW(GObj.GetGenericList(grp_id, &id_list));
@@ -208,7 +209,7 @@ int SLAPI GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID
 						}
 					}
 					else {
-						PPRef->Assc.GetListByPrmr(PPASS_ALTGOODSGRP, grp_id, &id_list);
+						p_ref->Assc.GetListByPrmr(PPASS_ALTGOODSGRP, grp_id, &id_list);
 						if(CS_SERVER) {
 							long _mc = (pList ? pList->getCount() : 0) + id_list.getCount();
 							(msg_buf = fmt_buf).Space().Cat(_mc);
@@ -218,7 +219,7 @@ int SLAPI GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID
 					THROW(FilterList(&id_list, &goods_list, GOCFIF_GROUP|GOCFIF_BCLEN|GOCFIF_ARCODE|GOCFIF_SYSJ|GOCFIF_TAG));
 				}
 				else {
-					int    is_excl_alt_fold = BIN(ggrec.Flags & GF_FOLDER && ggrec.Flags & GF_EXCLALTFOLD);
+					const int is_excl_alt_fold = BIN(ggrec.Flags & GF_FOLDER && ggrec.Flags & GF_EXCLALTFOLD);
 					GoodsCore * p_t = GObj.P_Tbl;
 					PPIDArray term_grp_list, temp_alt_list;
 					THROW(p_t->GetGroupTerminalList(grp_id, &term_grp_list, 0));
@@ -232,7 +233,7 @@ int SLAPI GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID
 								THROW(id_list.add(&temp_alt_list)); // @v7.9.0 addUnique-->add
 							}
 							else {
-								THROW(PPRef->Assc.GetListByPrmr(PPASS_ALTGOODSGRP, int_grp_id, &temp_alt_list));
+								THROW(p_ref->Assc.GetListByPrmr(PPASS_ALTGOODSGRP, int_grp_id, &temp_alt_list));
 								if(CS_SERVER) {
 									long _mc = (pList ? pList->getCount() : 0) + temp_alt_list.getCount();
 									(msg_buf = fmt_buf).Space().Cat(_mc);
@@ -289,6 +290,7 @@ int SLAPI GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID
 					}
 					goods_list.add(&id_list); // @v7.9.0 addUnique-->add
 				}
+			}
 		} while(i);
 		ok = 1;
 	}
@@ -356,6 +358,7 @@ IMPL_CMPFUNC(GoodsIdListByName, p1, p2)
 int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 {
 	int    ok = 1, r;
+	PPObjBill * p_bobj = BillObj;
 	SString temp_buf;
 	Goods2Tbl::Rec goods_rec;
 	PPIDArray len_list, temp_list;
@@ -440,7 +443,7 @@ int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 					int   skip = 0;
 					double rest = 0.0;
 					if(rest_op_id) {
-						BillObj->CalcDraftTransitRest(rest_op_id, order_op_id, r_item.GoodsID, uhttsloc_id, 0 /* flags */, &rest, 0);
+						p_bobj->CalcDraftTransitRest(rest_op_id, order_op_id, r_item.GoodsID, uhttsloc_id, 0 /* flags */, &rest, 0);
 						if(rest <= 0.0 && (P_UhttsPack->Rec.Flags & PPUhttStore::fDontShowZeroRestItems))
 							skip = 1;
 					}
@@ -467,7 +470,7 @@ int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 		if(Filt.SupplID || !Filt.LotPeriod.IsZero()) {
 			GoodsByTransferFilt gbt_filt(&Filt);
 			temp_list.clear();
-			THROW(BillObj->trfr->GetGoodsIdList(gbt_filt, temp_list));
+			THROW(p_bobj->trfr->GetGoodsIdList(gbt_filt, temp_list));
 			THROW(IntersectByTempList(P_List, &temp_list, &do_intersect));
 		}
 		if(Filt.GetBarcodeLenList(len_list) > 0) {
@@ -509,7 +512,7 @@ int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 		}
 		if(Filt.P_TagF && !Filt.P_TagF->IsEmpty()) {
 			UintHashTable _list, _excl_list;
-			int   tfret = TagObj.GetObjListByFilt(PPOBJ_GOODS, Filt.P_TagF, _list, _excl_list);
+			const int tfret = TagObj.GetObjListByFilt(PPOBJ_GOODS, Filt.P_TagF, _list, _excl_list);
 			if(tfret == 100) {
 				if(_excl_list.GetCount()) {
 					THROW_MEM(SETIFZ(p_excl_list, new PPIDArray));
@@ -651,9 +654,12 @@ int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 	return ok;
 }
 
-int FASTCALL GoodsIterator::CheckActual(const Goods2Tbl::Rec & rRec)
+/* @v9.4.12 int FASTCALL GoodsIterator::CheckActual(const Goods2Tbl::Rec & rRec) const
 {
+	int    yes = 1;
 	if(P_ActualHash && !P_ActualHash->Has((uint)rRec.ID)) {
+		if(!(rRec.Flags & (GF_GENERIC|GF_UNLIM|GF_AUTOCOMPL)) && !(rRec.GoodsTypeID && UnlimTypeList.bsearch(rRec.GoodsTypeID)))
+			yes = 0;
 		if(rRec.Flags & (GF_GENERIC|GF_UNLIM|GF_AUTOCOMPL))
 			return 1;
 		else if(rRec.GoodsTypeID && UnlimTypeList.bsearch(rRec.GoodsTypeID))
@@ -663,28 +669,38 @@ int FASTCALL GoodsIterator::CheckActual(const Goods2Tbl::Rec & rRec)
 	}
 	else
 		return 1;
+	return yes;
+} */
+
+// @v9.4.12 modified
+int FASTCALL GoodsIterator::CheckActual(const Goods2Tbl::Rec & rRec) const
+{
+	int    yes = 1;
+	if(P_ActualHash && !P_ActualHash->Has((uint)rRec.ID)) {
+		if(!(rRec.Flags & (GF_GENERIC|GF_UNLIM|GF_AUTOCOMPL)) && !(rRec.GoodsTypeID && UnlimTypeList.bsearch(rRec.GoodsTypeID)))
+			yes = 0;
+	}
+	return yes;
 }
 
 int SLAPI GoodsIterator::GetSelectorListInfo(PPID * pClsID, StrAssocArray & rList) const
 {
+	int    ok = 1;
 	if(P_List && P_UhttsPack && P_UhttsPack->Sd.GetCount()) {
 		ASSIGN_PTR(pClsID, SfClsID);
 		rList = ExtSfTitleList;
-		return 1;
 	}
 	else {
 		ASSIGN_PTR(pClsID, 0);
 		rList.Clear();
-		return 0;
+		ok = 0;
 	}
+	return ok;
 }
 
 int SLAPI GoodsIterator::GetSelectorListItem(long handler, PPUhttStoreSelDescr::Entry & rEntry) const
 {
-	int    ok = 0;
-	if(P_UhttsPack && handler > 0 && handler <= (long)P_UhttsPack->Sd.GetCount())
-		ok = P_UhttsPack->Sd.GetEntry(handler-1, rEntry);
-	return ok;
+	return (P_UhttsPack && handler > 0 && handler <= (long)P_UhttsPack->Sd.GetCount()) ? P_UhttsPack->Sd.GetEntry(handler-1, rEntry) : 0;
 }
 
 int SLAPI GoodsIterator::Next(Goods2Tbl::Rec * pRec, GoodsIterator::Ext * pExt)

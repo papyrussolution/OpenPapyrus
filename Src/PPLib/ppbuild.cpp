@@ -582,10 +582,18 @@ int	SLAPI PrcssrBuild::Run()
 			//
 			// Копирование файлов дистрибутива в хранилище Universe-HTT
 			//
+			SString uhtt_symb;
 			PPWait(1);
 			for(i = 0; i < SIZEOFARRAY(nsis_list); i++) {
 				NsisEntry & r_nsis_entry = nsis_list[i];
 				if(r_nsis_entry.P_UhttSymb && r_nsis_entry.FileName[0] && fileExists(r_nsis_entry.FileName)) {
+					// @v9.4.12 {
+					if(P.Flags & Param::fOpenSource) {
+						(uhtt_symb = "open").Cat(r_nsis_entry.P_UhttSymb);
+					}
+					else
+						uhtt_symb = r_nsis_entry.P_UhttSymb;
+					// } @v9.4.12 
 					if(UploadFileToUhtt(r_nsis_entry.FileName, r_nsis_entry.P_UhttSymb, ver_label, 0)) {
 						PPLoadText(PPTXT_BUILD_UHTTCOPY_SUCCESS, fmt_buf);
 						msg_buf.Printf(fmt_buf, r_nsis_entry.FileName);

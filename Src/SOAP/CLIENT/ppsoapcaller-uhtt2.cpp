@@ -1,5 +1,5 @@
 // PPSOAPCALLER-UHTT.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <ppsoapclient.h>
 #include "uhtt2\uhttSoapWSInterfaceImplServiceSoapBindingProxy.h"
@@ -8,26 +8,7 @@
 
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 {
-	switch(dwReason) {
-		case DLL_PROCESS_ATTACH:
-			{
-				SString product_name;
-				(product_name = "Papyrus SoapModule");
-				SLS.Init(product_name, (HINSTANCE)hModule);
-			}
-			break;
-#ifdef _MT
-		case DLL_THREAD_ATTACH:
-			SLS.InitThread();
-			break;
-		case DLL_THREAD_DETACH:
-			SLS.ReleaseThread();
-			break;
-#endif
-		case DLL_PROCESS_DETACH:
-			break;
-	}
-	return TRUE;
+	return Implement_SoapModule_DllMain(hModule, dwReason, lpReserved, "Papyrus SoapModule");
 }
 
 /*
