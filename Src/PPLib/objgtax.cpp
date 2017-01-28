@@ -233,7 +233,7 @@ int SLAPI GTaxVect::CalcBackward(int n, double amount)
 	return 1;
 }
 
-int SLAPI GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, long amtFlags, long excludeFlags)
+void SLAPI GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, long amtFlags, long excludeFlags)
 {
 	int    i;
 	amount = round(amount, RoundPrec);
@@ -242,13 +242,13 @@ int SLAPI GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, lo
 	memzero(Vect,      sizeof(Vect));
 	memzero(RateVect,  sizeof(RateVect));
 	memzero(OrderVect, sizeof(OrderVect));
-	Amount    = 0;
+	Amount    = 0.0;
 	AbsVect   = 0;
 	UnionVect = 0;
 	SETIFZ(gtax->Order, PPObjGoodsTax::GetDefaultOrder());
 	GetNthTransposition(OrderVect+1, N, gtax->Order);
 	UnionVect = (gtax->UnionVect << 1);
-	for(i = 1; i <= N; i++)
+	for(i = 1; i <= N; i++) {
 		switch(OrderVect[i]) {
 			case GTAX_VAT:
 				if(!(excludeFlags & GTAXVF_VAT))
@@ -268,6 +268,7 @@ int SLAPI GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, lo
 					RateVect[i] = ((double)gtax->SalesTax) / (100L * 100L);   // @divtax
 				break;
 		}
+	}
 	if(oneof2(amtFlags, GTAXVF_BEFORETAXES, ~0L)) { // Base as Amount
 		Amount = amount;
 		CalcForward((int)N, amount);
@@ -282,12 +283,13 @@ int SLAPI GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, lo
 		// Если сумма не включает налог n, то она не включает и
 		// налоги с индексами > n
 		if(amtFlags & GTAXVF_BEFORETAXES) {
-			for(i = 1; !done && i <= N; i++)
+			for(i = 1; !done && i <= N; i++) {
 				if(!(amtFlags & (1 << VectToTax(i)))) {
 					CalcForward(i-1, amount);
 					CalcBackward(i, amount);
 					done = 1;
 				}
+			}
 			if(!done) {
 				//
 				// Эквивалент GTAXVF_BEFORETAXES
@@ -302,12 +304,13 @@ int SLAPI GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, lo
 			// Если сумма включает налог n, то она включает и
 			// налоги с индексами < n
 			//
-			for(i = (int)N; !done && i >= 1; i--)
+			for(i = (int)N; !done && i >= 1; i--) {
 				if(amtFlags & (1 << VectToTax(i))) {
 					CalcForward(i, amount);
 					CalcBackward(i+1, amount);
 					done = 1;
 				}
+			}
 			if(!done) {
 				//
 				// Эквивалент GTAXVF_AFTERTAXES
@@ -317,7 +320,6 @@ int SLAPI GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, lo
 			}
 		}
 	}
-	return 1;
 }
 
 int SLAPI GTaxVect::CalcTI(const PPTransferItem * pTI, PPID opID, int tiamt, long exclFlags)
@@ -423,7 +425,7 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem * pTI, PPID opID, int tiamt, lon
 		gobj.MultTaxFactor(pTI->GoodsID, &tax_qtty);
 	if(!(calcti_costwovat_byprice && cost_wo_vat))
 		amount *= qtty;
-	ok = Calc_(&gtx, amount, tax_qtty, amt_flags, exclFlags);
+	Calc_(&gtx, amount, tax_qtty, amt_flags, exclFlags);
 	if(calcti_costwovat_byprice && cost_wo_vat) {
 		for(int i = 0; i < N; i++)
 			Vect[i] *= qtty;

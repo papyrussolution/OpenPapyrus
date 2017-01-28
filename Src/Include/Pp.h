@@ -20540,7 +20540,7 @@ public:
 	static int SLAPI Test(PPID gtaxID);
 
 	SLAPI  GTaxVect(int roundPrec = 2);
-	int    SLAPI Calc_(PPGoodsTaxEntry *, double amount, double qtty, long amtFlags, long excludeFlags = 0);
+	void   SLAPI Calc_(PPGoodsTaxEntry *, double amount, double qtty, long amtFlags, long excludeFlags = 0);
 	int    SLAPI CalcTI(const PPTransferItem *, PPID opID, int tiamt /* TIAMT_XXX */, long exclFlags = 0L);
 	double FASTCALL GetValue(long flags /* mask GTAXVF_XXX */) const;
 	double SLAPI GetTaxRate(long taxID /* GTAX_XXX */, int * pIsAbs) const;
@@ -24382,140 +24382,6 @@ private:
 	PPObjPersonRelType ObjRelTyp;
 public:
 	TLP_MEMB(ArticleCore, P_Tbl);
-};
-//
-// @todo (Исправить структуру (порядок полей, выравнивание, метод Init - THISZERO плохо из-за SString))
-//   Заменить на SupplInterchangeFilt
-//
-struct SupplExpFilt {
-	enum {
-		expBills          = 0x0001,
-		expRest           = 0x0002,
-		expPrice          = 0x0004,
-		expDelRecentBills = 0x0008,
-		expFlatStruc      = 0x0010,
-		expSaldo          = 0x0020
-	};
-	SupplExpFilt();
-	int    Init();
-	int    Read(SBuffer & rBuf, long);
-	int    Write(SBuffer & rBuf, long) const;
-	int    OpListFromCfg(const PPSupplAgreement::ExchangeParam * pCfg);
-	int    OpListToCfg(PPSupplAgreement::ExchangeParam * pCfg);
-
-	PPID   SupplID;
-	PPID   GoodsGrpID;
-	PPID   ExpendOp;
-	DateRange Period;
-	uint32 MaxFileSizeKB;
-	long   Flags;
-	PPID   TechID;
-	ulong  IP;
-	int16  Port;
-	uint16 ProtVer;
-	char   AddScheme[32];
-	uint   AddRecType;
-	double PctDis1;
-	PPID   RcptOp;
-	PPID   SupplRetOp;
-	PPID   RetOp;
-	PPID   MovInOp;
-	PPID   MovOutOp;
-	double PctDis2;
-	PPID   PriceQuotID;
-	char   ClientCode[16];
-	SString EncodeStr;       // @anchor
-	ObjIdListFilt LocList;
-};
-
-class SupplInterchangeFilt : public PPBaseFilt, public PPExtStrContainer { // @v9.4.2 PPExtStrContainer
-public:
-    SLAPI  SupplInterchangeFilt();
-	SupplInterchangeFilt & FASTCALL operator = (const SupplInterchangeFilt & rS);
-	SupplInterchangeFilt & FASTCALL operator = (const SupplExpFilt & rS);
-	/* @v9.4.2
-	int    SLAPI GetExtStrData(int fldID, SString & rBuf) const
-	{
-		return PPGetExtStrData(fldID, ExtString, rBuf);
-	}
-	int    SLAPI PutExtStrData(int fldID, const char * pStr)
-	{
-		return PPPutExtStrData(fldID, ExtString, pStr);
-	}
-	*/
-
-	enum { // @persistent
-		extssOpSymbol   = 1,
-		extssParam      = 2,
-
-		extssAddScheme  = 3, // compatibility with SupplExpFilt::AddScheme
-		extssEncodeStr  = 4, // compatibility with SupplExpFilt::EncodeStr
-		extssClientCode = 5  // compatibility with SupplExpFilt::ClientCode
-	};
-	enum { // @persistent
-		opNone = 0,
-		opExportStocks     = 0x0001,     // EXPSTOCK
-		opExportBills      = 0x0002,     // EXPBILL
-		opExportDebts      = 0x0004,     // EXPDEBT
-		opExportGoodsDebts = 0x0008,     // EXPGOODSDEBT
-		opExportClients    = 0x0010,     // EXPCLI
-		opExportPrices     = 0x0020,     // EXPPRICE
-		opImportGoods      = 0x0040,     // IMPGOODS
-		opImportRouts      = 0x0080,     // IMPROUT
-		opImportOrders     = 0x0100,     // IMPORDER
-		opImportDesadv     = 0x0200      //
-	};
-	enum {
-		fDeleteRecentBills = 0x0001,
-		fFlatStruc         = 0x0002
-	};
-    uint8  ReserveStart[24]; // @anchor
-    float  SpcDisPct1; // Специальная скидка 1, %
-    float  SpcDisPct2; // Специальная скидка 2, %
-    PPID   SupplID;    // ->Article.ID
-	long   Actions;
-    long   Flags;
-    DateRange ExpPeriod;
-    DateRange ImpPeriod;
-    uint   MaxTransmitSize;  // Максимальный размер передаваемых данных (KByte). 0 - не ограничено
-	long   Reserve;          // @anchor
-    // @v9.4.2 SString ExtString;
-	ObjIdListFilt LocList;
-private:
-	virtual int SLAPI ReadPreviosVer(SBuffer & rBuf, int ver);
-};
-
-class PrcssrSupplInterchange {
-public:
-	class ExecuteBlock {
-	public:
-		SLAPI  ExecuteBlock();
-		SLAPI  ExecuteBlock(const ExecuteBlock & rS);
-		int    SLAPI GetSequence(long * pSeq, int use_ta);
-
-		PPSupplAgreement::ExchangeParam Ep;
-		SupplInterchangeFilt P;
-		SString ArName;    // Наименование поставщика
-	private:
-		PPID   SeqID;
-	};
-	SLAPI  PrcssrSupplInterchange();
-	SLAPI ~PrcssrSupplInterchange();
-	int    SLAPI InitParam(PPBaseFilt * pBaseFilt);
-	int    SLAPI EditParam(PPBaseFilt * pBaseFilt);
-	int    SLAPI Init(const PPBaseFilt * pBaseFilt);
-	int    SLAPI Run();
-	//
-	// Descr: Временная функция для переноса существующего кода
-	//
-    int    SLAPI InitExecuteBlock(const SupplInterchangeFilt * pParam, ExecuteBlock & rBlk);
-private:
-	enum {
-		stInited = 0x0001 // Был успешно вызван метод Init()
-	};
-	long   State;
-	ExecuteBlock * P_Eb;
-    PPObjArticle ArObj;
 };
 //
 // @ModuleDecl(PPViewSysJournal)
@@ -35537,6 +35403,136 @@ private:
 	uint   CurIterOrd;
 	double ErrAvg;    // Средняя ошибка прогнозирования (тест)
 	TestParam TP;
+};
+//
+// @todo (Исправить структуру (порядок полей, выравнивание, метод Init - THISZERO плохо из-за SString))
+//   Заменить на SupplInterchangeFilt
+//
+struct SupplExpFilt {
+	enum {
+		expBills          = 0x0001,
+		expRest           = 0x0002,
+		expPrice          = 0x0004,
+		expDelRecentBills = 0x0008,
+		expFlatStruc      = 0x0010,
+		expSaldo          = 0x0020
+	};
+	SupplExpFilt();
+	int    Init();
+	int    Read(SBuffer & rBuf, long);
+	int    Write(SBuffer & rBuf, long) const;
+	int    OpListFromCfg(const PPSupplAgreement::ExchangeParam * pCfg);
+	int    OpListToCfg(PPSupplAgreement::ExchangeParam * pCfg);
+
+	PPID   SupplID;
+	PPID   GoodsGrpID;
+	PPID   ExpendOp;
+	DateRange Period;
+	uint32 MaxFileSizeKB;
+	long   Flags;
+	PPID   TechID;
+	ulong  IP;
+	int16  Port;
+	uint16 ProtVer;
+	char   AddScheme[32];
+	uint   AddRecType;
+	double PctDis1;
+	PPID   RcptOp;
+	PPID   SupplRetOp;
+	PPID   RetOp;
+	PPID   MovInOp;
+	PPID   MovOutOp;
+	double PctDis2;
+	PPID   PriceQuotID;
+	char   ClientCode[16];
+	SString EncodeStr;       // @anchor
+	ObjIdListFilt LocList;
+};
+
+class SupplInterchangeFilt : public PPBaseFilt, public PPExtStrContainer { // @v9.4.2 PPExtStrContainer
+public:
+    SLAPI  SupplInterchangeFilt();
+	SupplInterchangeFilt & FASTCALL operator = (const SupplInterchangeFilt & rS);
+	SupplInterchangeFilt & FASTCALL operator = (const SupplExpFilt & rS);
+
+	enum { // @persistent
+		extssOpSymbol   = 1,
+		extssParam      = 2,
+
+		extssAddScheme  = 3, // compatibility with SupplExpFilt::AddScheme
+		extssEncodeStr  = 4, // compatibility with SupplExpFilt::EncodeStr
+		extssClientCode = 5, // compatibility with SupplExpFilt::ClientCode
+
+	};
+	enum { // @persistent
+		opNone = 0,
+		opExportStocks     = 0x0001,     // EXPSTOCK
+		opExportBills      = 0x0002,     // EXPBILL
+		opExportDebts      = 0x0004,     // EXPDEBT
+		opExportGoodsDebts = 0x0008,     // EXPGOODSDEBT
+		opExportClients    = 0x0010,     // EXPCLI
+		opExportPrices     = 0x0020,     // EXPPRICE
+		opImportGoods      = 0x0040,     // IMPGOODS
+		opImportRouts      = 0x0080,     // IMPROUT
+		opImportOrders     = 0x0100,     // IMPORDER
+		opImportDesadv     = 0x0200      //
+	};
+	enum {
+		fDeleteRecentBills = 0x0001,
+		fFlatStruc         = 0x0002
+	};
+    uint8  ReserveStart[24]; // @anchor
+    float  SpcDisPct1; // Специальная скидка 1, %
+    float  SpcDisPct2; // Специальная скидка 2, %
+    PPID   SupplID;    // ->Article.ID
+	long   Actions;
+    long   Flags;
+    DateRange ExpPeriod;
+    DateRange ImpPeriod;
+    uint   MaxTransmitSize;  // Максимальный размер передаваемых данных (KByte). 0 - не ограничено
+	long   Reserve;          // @anchor
+	ObjIdListFilt LocList;
+private:
+	virtual int SLAPI ReadPreviosVer(SBuffer & rBuf, int ver);
+};
+
+class PrcssrSupplInterchange {
+public:
+	class ExecuteBlock {
+	public:
+		SLAPI  ExecuteBlock();
+		SLAPI  ExecuteBlock(const ExecuteBlock & rS);
+		int    SLAPI GetSequence(long * pSeq, int use_ta);
+
+		PPSupplAgreement::ExchangeParam Ep;
+		SupplInterchangeFilt P;
+		SString ArName;    // Наименование поставщика
+	protected:
+		PPObjGoods GObj;
+		PPObjArticle ArObj;
+		PPObjLocation LocObj;
+		PPObjPerson   PsnObj;
+		PPObjBill * P_BObj;
+	private:
+		PPID   SeqID;
+	};
+	SLAPI  PrcssrSupplInterchange();
+	SLAPI ~PrcssrSupplInterchange();
+	int    SLAPI InitParam(PPBaseFilt * pBaseFilt);
+	int    SLAPI EditParam(PPBaseFilt * pBaseFilt);
+	int    SLAPI Init(const PPBaseFilt * pBaseFilt);
+	int    SLAPI Run();
+	//
+	// Descr: Временная функция для переноса существующего кода
+	//
+    int    SLAPI InitExecuteBlock(const SupplInterchangeFilt * pParam, ExecuteBlock & rBlk);
+private:
+	enum {
+		stInited = 0x0001 // Был успешно вызван метод Init()
+	};
+	long   State;
+	ExecuteBlock * P_Eb;
+    PPObjArticle ArObj;
 };
 //
 // @ModuleDecl(PPViewGoodsRest)

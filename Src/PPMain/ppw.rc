@@ -981,7 +981,7 @@ BEGIN
     GROUPBOX        "",IDC_STATIC,255,10,210,95
 END
 
-DLG_SUPPLIX DIALOGEX 15, 8, 335, 222
+DLG_SUPPLIX DIALOGEX 15, 8, 341, 247
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@supplixfilt"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
@@ -991,28 +991,30 @@ BEGIN
     PUSHBUTTON      "",CTLSEL_SUPPLIX_SUPPL,225,15,12,13,BS_BITMAP | NOT WS_TABSTOP
     LTEXT           "@supplixfilt_expperiod",4002,10,35,125,8
     EDITTEXT        CTL_SUPPLIX_EXPPRD,10,45,125,13,ES_AUTOHSCROLL
-    EDITTEXT        CTL_SUPPLIX_LOC,10,75,215,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@supplixfilt_loclist",4003,10,65,210,8
-    PUSHBUTTON      "",CTLSEL_SUPPLIX_LOC,225,75,12,13,BS_BITMAP | NOT WS_TABSTOP
-    PUSHBUTTON      "...",4004,240,75,26,13
-    GROUPBOX        "@supplixfilt_actions",CTL_SUPPLIX_ACTIONS,10,90,185,125,WS_GROUP
-    CONTROL         "@supplixfilt_acn_expstock",5355,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,105,170,10
-    CONTROL         "@supplixfilt_acn_expbill",9451,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,115,170,10
-    CONTROL         "@supplixfilt_acn_expdebt",13547,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,125,170,10
-    CONTROL         "@supplixfilt_acn_expgoodsdebt",17643,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,135,170,10
-    CONTROL         "@supplixfilt_acn_expcli",21739,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,145,170,10
-    CONTROL         "@supplixfilt_acn_expprice",25835,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,155,170,10
-    CONTROL         "@supplixfilt_acn_impgoods",29931,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,165,170,10
-    CONTROL         "@supplixfilt_acn_improut",34027,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,175,170,10
-    CONTROL         "@supplixfilt_acn_imporder",38123,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,185,170,10
-    CONTROL         "@supplixfilt_acn_impdesadv",42219,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,195,175,10
-    LTEXT           "@supplixfilt_spcdispct1",4006,205,100,120,8
-    EDITTEXT        CTL_SUPPLIX_SPCDIS1,205,111,50,13,ES_AUTOHSCROLL
-    LTEXT           "@supplixfilt_spcdispct2",4007,205,126,110,8
-    EDITTEXT        CTL_SUPPLIX_SPCDIS2,205,135,50,13,ES_AUTOHSCROLL
-    CONTROL         "@supplixfilt_fdeleterecentbills",5356,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,205,165,125,13
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,205,200,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,265,200,50,13
+    EDITTEXT        CTL_SUPPLIX_LOC,10,70,215,13,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "@supplixfilt_loclist",4003,10,60,210,8
+    PUSHBUTTON      "",CTLSEL_SUPPLIX_LOC,225,70,12,13,BS_BITMAP | NOT WS_TABSTOP
+    PUSHBUTTON      "...",4004,240,70,26,13
+    GROUPBOX        "@supplixfilt_actions",CTL_SUPPLIX_ACTIONS,10,115,185,125,WS_GROUP
+    CONTROL         "@supplixfilt_acn_expstock",5355,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,130,170,10
+    CONTROL         "@supplixfilt_acn_expbill",9451,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,140,170,10
+    CONTROL         "@supplixfilt_acn_expdebt",13547,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,150,170,10
+    CONTROL         "@supplixfilt_acn_expgoodsdebt",17643,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,160,170,10
+    CONTROL         "@supplixfilt_acn_expcli",21739,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,170,170,10
+    CONTROL         "@supplixfilt_acn_expprice",25835,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,180,170,10
+    CONTROL         "@supplixfilt_acn_impgoods",29931,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,190,170,10
+    CONTROL         "@supplixfilt_acn_improut",34027,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,200,170,10
+    CONTROL         "@supplixfilt_acn_imporder",38123,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,210,170,10
+    CONTROL         "@supplixfilt_acn_impdesadv",42219,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,220,175,10
+    LTEXT           "@supplixfilt_spcdispct1",4006,205,126,120,8
+    EDITTEXT        CTL_SUPPLIX_SPCDIS1,205,136,50,13,ES_AUTOHSCROLL
+    LTEXT           "@supplixfilt_spcdispct2",4007,205,151,110,8
+    EDITTEXT        CTL_SUPPLIX_SPCDIS2,205,160,50,13,ES_AUTOHSCROLL
+    LTEXT           "@supplixfilt_param",4008,10,90,195,8
+    EDITTEXT        CTL_SUPPLIX_ADDPARAM,10,100,315,13,ES_AUTOHSCROLL
+    CONTROL         "@supplixfilt_fdeleterecentbills",5356,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,205,190,125,13
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,210,225,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,275,225,50,13
     PUSHBUTTON      "",CTLCAL_SUPPLIX_EXPPRD,135,45,13,13,BS_BITMAP | NOT WS_TABSTOP
 END
 
@@ -28606,8 +28608,8 @@ BEGIN
 
     DLG_SUPPLIX, DIALOG
     BEGIN
-        RIGHTMARGIN, 289
-        BOTTOMMARGIN, 212
+        RIGHTMARGIN, 295
+        BOTTOMMARGIN, 237
     END
 
     DLG_SETQUOT, DIALOG

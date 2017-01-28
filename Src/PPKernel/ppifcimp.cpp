@@ -4194,23 +4194,36 @@ int32 DL6ICLS_PPObjGoodsGroup::SearchCode(SString & rCode)
 IStrAssocList * DL6ICLS_PPObjGoodsGroup::GetGGroupsFromAltGrp(long altGrpID)
 {
 	StrAssocArray * p_list = 0;
-	PPGoodsPacket pack;
+	Goods2Tbl::Rec rec;
 	PPObjGoodsGroup * p_obj = (PPObjGoodsGroup*)ExtraPtr;
-	if(p_obj && PPObjGoodsGroup::IsDynamicAlt(altGrpID) > 0 && p_obj->GetPacket(altGrpID, &pack, PPObjGoods::gpoSkipQuot) > 0) { // @v8.3.7 PPObjGoods::gpoSkipQuot
-		SString text;
+	if(p_obj && p_obj->Fetch(altGrpID, &rec) > 0) {
 		PPIDArray grp_list;
-		if(pack.P_Filt) {
-			if(pack.P_Filt->GrpIDList.IsExists())
-				pack.P_Filt->GrpIDList.CopyTo(&grp_list);
-			else if(pack.P_Filt->GrpID)
-				grp_list.add(pack.P_Filt->GrpID);
+		if((rec.Flags & GF_DYNAMICALTGRP) == GF_DYNAMICALTGRP) {
+			PPGoodsPacket pack;
+			if(p_obj->GetPacket(altGrpID, &pack, PPObjGoods::gpoSkipQuot) > 0) { // @v8.3.7 PPObjGoods::gpoSkipQuot
+				if(pack.P_Filt) {
+					if(pack.P_Filt->GrpIDList.IsExists())
+						pack.P_Filt->GrpIDList.CopyTo(&grp_list);
+					else if(pack.P_Filt->GrpID)
+						grp_list.add(pack.P_Filt->GrpID);
+				}
+			}
 		}
-		if(grp_list.getCount())
+		// @v9.5.0 {
+		else {
+			p_obj->P_Tbl->GetGroupTerminalList(altGrpID, &grp_list, 0);
+		}
+		// } @v9.5.0
+		if(grp_list.getCount()) {
 			p_list = new StrAssocArray;
-		for(uint i = 0; i < grp_list.getCount(); i++) {
-			PPID id = grp_list.at(i);
-			GetObjectName(PPOBJ_GOODSGROUP, id, text);
-			p_list->Add(id, text);
+			if(p_list) {
+				grp_list.sortAndUndup();
+				for(uint i = 0; i < grp_list.getCount(); i++) {
+					const PPID id = grp_list.at(i);
+					if(p_obj->Fetch(id, &rec) > 0)
+						p_list->AddFast(id, rec.Name);
+				}
+			}
 		}
 	}
 	return (IStrAssocList *)GetIStrAssocList(this, p_list);

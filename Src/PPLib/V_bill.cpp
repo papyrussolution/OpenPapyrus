@@ -7501,18 +7501,18 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId, long rsrv)
 						excl_flags |= GTAXVF_VAT;
 					if(gtx_cost.Flags & GTAXF_NOLOTEXCISE)
 						excl_flags |= GTAXVF_EXCISE;
-					if(gt_vect.Calc_(&gtx_cost, old_cost, tax_qtty, amt_flags, excl_flags) > 0)
-						vatsum_oldcost = gt_vect.GetValue(GTAXVF_VAT);
-					if(gt_vect.Calc_(&gtx_cost, new_cost,  tax_qtty, amt_flags, excl_flags) > 0)
-						vatsum_newcost  = gt_vect.GetValue(GTAXVF_VAT);
+					gt_vect.Calc_(&gtx_cost, old_cost, tax_qtty, amt_flags, excl_flags);
+					vatsum_oldcost = gt_vect.GetValue(GTAXVF_VAT);
+					gt_vect.Calc_(&gtx_cost, new_cost,  tax_qtty, amt_flags, excl_flags);
+					vatsum_newcost  = gt_vect.GetValue(GTAXVF_VAT);
 				}
 				{
 					long   amt_flags  = ~0L;
 					long   excl_flags = 0L;
-					if(gt_vect.Calc_(&gtx_price, old_price, tax_qtty, amt_flags, excl_flags) > 0)
-						vatsum_oldprice = gt_vect.GetValue(GTAXVF_VAT);
-					if(gt_vect.Calc_(&gtx_price, new_price,  tax_qtty, amt_flags, excl_flags) > 0)
-						vatsum_newprice = gt_vect.GetValue(GTAXVF_VAT);
+					gt_vect.Calc_(&gtx_price, old_price, tax_qtty, amt_flags, excl_flags);
+					vatsum_oldprice = gt_vect.GetValue(GTAXVF_VAT);
+					gt_vect.Calc_(&gtx_price, new_price,  tax_qtty, amt_flags, excl_flags);
+					vatsum_newprice = gt_vect.GetValue(GTAXVF_VAT);
 				}
 			}
 			else if(p_ti->Flags & PPTFR_REVAL && reval_assets_wo_vat && gobj.IsAsset(labs(p_ti->GoodsID)) > 0) {
@@ -7525,14 +7525,14 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId, long rsrv)
 					excl_flags |= GTAXVF_VAT;
 				if(gtx_cost.Flags & GTAXF_NOLOTEXCISE)
 					excl_flags |= GTAXVF_EXCISE;
-				if(gt_vect.Calc_(&gtx_cost, new_price, tax_qtty, amt_flags, excl_flags) > 0)
-					new_price = gt_vect.GetValue(~GTAXVF_BEFORETAXES & ~GTAXVF_VAT);
-				if(gt_vect.Calc_(&gtx_cost, new_cost,  tax_qtty, amt_flags, excl_flags) > 0)
-					new_cost  = gt_vect.GetValue(~GTAXVF_BEFORETAXES & ~GTAXVF_VAT);
-				if(gt_vect.Calc_(&gtx_cost, old_price, tax_qtty, amt_flags, excl_flags) > 0)
-					old_price = gt_vect.GetValue(~GTAXVF_BEFORETAXES & ~GTAXVF_VAT);
-				if(gt_vect.Calc_(&gtx_cost, old_cost,  tax_qtty, amt_flags, excl_flags) > 0)
-					old_cost  = gt_vect.GetValue(~GTAXVF_BEFORETAXES & ~GTAXVF_VAT);
+				gt_vect.Calc_(&gtx_cost, new_price, tax_qtty, amt_flags, excl_flags);
+				new_price = gt_vect.GetValue(~GTAXVF_BEFORETAXES & ~GTAXVF_VAT);
+				gt_vect.Calc_(&gtx_cost, new_cost,  tax_qtty, amt_flags, excl_flags);
+				new_cost  = gt_vect.GetValue(~GTAXVF_BEFORETAXES & ~GTAXVF_VAT);
+				gt_vect.Calc_(&gtx_cost, old_price, tax_qtty, amt_flags, excl_flags);
+				old_price = gt_vect.GetValue(~GTAXVF_BEFORETAXES & ~GTAXVF_VAT);
+				gt_vect.Calc_(&gtx_cost, old_cost,  tax_qtty, amt_flags, excl_flags);
+				old_cost  = gt_vect.GetValue(~GTAXVF_BEFORETAXES & ~GTAXVF_VAT);
 			}
 			I.nn       = nn;
 			I.GoodsID  = p_ti->GoodsID;

@@ -1409,33 +1409,34 @@ typedef soap_int32 soap_mode;
  #endif
 
  #ifdef SOAP_DEBUG
-  #ifndef SOAP_MESSAGE
-   #define SOAP_MESSAGE fprintf
-  #endif
-  #ifndef DBGLOG
-   #define DBGLOG(DBGFILE, CMD) \
-	{ if(soap) \
-	  { if(!soap->fdebug[SOAP_INDEX_ ## DBGFILE]) \
-		    soap_open_logfile((struct soap *)soap, SOAP_INDEX_ ## DBGFILE); \
-	    if(soap->fdebug[SOAP_INDEX_ ## DBGFILE]) \
-	    { FILE * fdebug = soap->fdebug[SOAP_INDEX_ ## DBGFILE]; \
-	      CMD; \
-	      fflush(fdebug); \
-	    } \
-	  } \
-	}
-  #endif
-  #ifndef DBGMSG
-   #define DBGMSG(DBGFILE, MSG, LEN) \
-	{ if(soap) \
-	  { if(!soap->fdebug[SOAP_INDEX_ ## DBGFILE]) \
-		    soap_open_logfile((struct soap *)soap, SOAP_INDEX_ ## DBGFILE); \
-	    if(soap->fdebug[SOAP_INDEX_ ## DBGFILE]) \
-	    { fwrite((MSG), 1, (LEN), soap->fdebug[SOAP_INDEX_ ## DBGFILE]); \
-	      fflush(soap->fdebug[SOAP_INDEX_ ## DBGFILE]); \
-	    } \
-	  } \
-	}
+	#ifndef SOAP_MESSAGE
+		#define SOAP_MESSAGE fprintf
+	#endif
+	#ifndef DBGLOG
+		#define DBGLOG(DBGFILE, CMD) { \
+			if(soap) { \
+				if(!soap->fdebug[SOAP_INDEX_ ## DBGFILE]) \
+					soap_open_logfile((struct soap *)soap, SOAP_INDEX_ ## DBGFILE); \
+				if(soap->fdebug[SOAP_INDEX_ ## DBGFILE]) { \
+					FILE * fdebug = soap->fdebug[SOAP_INDEX_ ## DBGFILE]; \
+					CMD; \
+					fflush(fdebug); \
+				} \
+			} \
+		}
+	#endif
+	#ifndef DBGMSG
+		#define DBGMSG(DBGFILE, MSG, LEN) { \
+			if(soap) { \
+				if(!soap->fdebug[SOAP_INDEX_ ## DBGFILE]) { \
+					soap_open_logfile((struct soap *)soap, SOAP_INDEX_ ## DBGFILE); \
+					if(soap->fdebug[SOAP_INDEX_ ## DBGFILE]) { \
+						fwrite((MSG), 1, (LEN), soap->fdebug[SOAP_INDEX_ ## DBGFILE]); \
+						fflush(soap->fdebug[SOAP_INDEX_ ## DBGFILE]); \
+					} \
+				} \
+			} \
+		}
   #endif
   #ifndef DBGFUN
    #define DBGFUN(FNAME) DBGLOG(TEST, SOAP_MESSAGE(fdebug, "%s(%d): %s()\n", __FILE__, __LINE__, FNAME))
@@ -2133,10 +2134,8 @@ extern SOAP_NMAC struct Namespace namespaces[];
  #endif
 
  #ifndef WITH_LEAN
-  #define soap_get0(soap) (((soap)->bufidx>=(soap)->buflen && \
-                            soap_recv(soap)) ? EOF : (unsigned char)(soap)->buf[(soap)->bufidx])
-  #define soap_get1(soap) (((soap)->bufidx>=(soap)->buflen && \
-                            soap_recv(soap)) ? EOF : (unsigned char)(soap)->buf[(soap)->bufidx++])
+  #define soap_get0(soap) (((soap)->bufidx>=(soap)->buflen && soap_recv(soap)) ? EOF : (unsigned char)(soap)->buf[(soap)->bufidx])
+  #define soap_get1(soap) (((soap)->bufidx>=(soap)->buflen && soap_recv(soap)) ? EOF : (unsigned char)(soap)->buf[(soap)->bufidx++])
  #else
 soap_wchar soap_get0(struct soap *);
 soap_wchar soap_get1(struct soap *);

@@ -1397,12 +1397,13 @@ int SLAPI PPObjGoods::Helper_AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID,
 	LDATE lotDate, double qtty, double * pCost /* In, Out */, double * pVatSum, int withOrWithout, int vatFreeSuppl)
 {
 	double c = *pCost;
-	double vat_sum = 0;
-	PPID   tax_grp_id = NZOR(lotTaxGrpID, goodsTaxGrpID);
+	double vat_sum = 0.0;
+	const  PPID tax_grp_id = NZOR(lotTaxGrpID, goodsTaxGrpID);
 	GTaxVect vect;
 	PPGoodsTaxEntry gt;
 	if(GTxObj.Fetch(tax_grp_id, lotDate, 0L, &gt) > 0) {
-		long   amt_fl = 0, val_fl = 0;
+		long   amt_fl = 0;
+		long   val_fl = 0;
 		long   excl_flags = (gt.Flags & GTAXF_NOLOTEXCISE) ? GTAXVF_EXCISE : 0;
 		if(withOrWithout) {
 			amt_fl = ~GTAXVF_VAT;

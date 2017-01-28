@@ -1069,8 +1069,7 @@ zlib_again:
 			register soap_wchar c;
 			char * t, tmp[17];
 			if(soap->chunksize) {
-				soap->buflen = ret = soap->frecv(
-					soap, soap->buf, soap->chunksize > SOAP_BUFLEN ? SOAP_BUFLEN : soap->chunksize);
+				soap->buflen = ret = soap->frecv(soap, soap->buf, soap->chunksize > SOAP_BUFLEN ? SOAP_BUFLEN : soap->chunksize);
 				DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Getting chunk: read %u bytes\n", (unsigned int)ret));
 				DBGMSG(RECV, soap->buf, ret);
 				soap->bufidx = 0;
@@ -1091,8 +1090,7 @@ zlib_again:
 			else
 				soap->bufidx = soap->buflen;
 			soap->buflen = soap->chunkbuflen;
-			DBGLOG(TEST,
-				SOAP_MESSAGE(fdebug, "Getting chunk size (idx=%u len=%u)\n", (unsigned int)soap->bufidx, (unsigned int)soap->buflen));
+			DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Getting chunk size (idx=%u len=%u)\n", (unsigned int)soap->bufidx, (unsigned int)soap->buflen));
 			while(!soap_isxdigit((int)(c = soap_getchunkchar(soap)))) {
 				if((int)c == EOF) {
 					soap->ahead = EOF;
@@ -1137,12 +1135,11 @@ zlib_again:
 	}
 	else
  #endif
-	{ soap->bufidx = 0;
-	  soap->buflen = ret = soap->frecv(soap, soap->buf, SOAP_BUFLEN);
-	  DBGLOG(TEST,
-		  SOAP_MESSAGE(fdebug, "Read %u bytes from socket=%d/fd=%d\n", (unsigned int)ret, soap->socket,
-			  soap->recvfd));
-	  DBGMSG(RECV, soap->buf, ret); }
+	{ 
+		soap->bufidx = 0;
+		soap->buflen = ret = soap->frecv(soap, soap->buf, SOAP_BUFLEN);
+		DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Read %u bytes from socket=%d/fd=%d\n", (unsigned int)ret, soap->socket, soap->recvfd));
+		DBGMSG(RECV, soap->buf, ret); }
  #ifdef WITH_ZLIB
 	if(soap->mode&SOAP_ENC_ZLIB) {
 		memcpy(soap->z_buf, soap->buf, SOAP_BUFLEN);
@@ -1164,10 +1161,7 @@ zlib_again:
 				goto zlib_again;
 			ret = soap->buflen;
 			if(r == Z_STREAM_END) {
-				DBGLOG(TEST,
-					SOAP_MESSAGE(fdebug, "Inflated total %lu->%lu bytes\n",
-						soap->d_stream->total_in,
-						soap->d_stream->total_out));
+				DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Inflated total %lu->%lu bytes\n", soap->d_stream->total_in, soap->d_stream->total_out));
 				soap->z_ratio_in = (float)soap->d_stream->total_in/(float)soap->d_stream->total_out;
 				soap->d_stream->next_out = Z_NULL;
 			}
@@ -1178,11 +1172,11 @@ zlib_again:
 				return soap->error = r;
   #endif
 		}
-		else {DBGLOG(TEST,
-			      SOAP_MESSAGE(fdebug, "Unable to inflate: (%d) %s\n", r,
-				      soap->d_stream->msg ? soap->d_stream->msg : SOAP_STR_EOS));
-		      soap->d_stream->next_out = Z_NULL;
-		      return soap->error = SOAP_ZLIB_ERROR; }
+		else {
+			DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Unable to inflate: (%d) %s\n", r, soap->d_stream->msg ? soap->d_stream->msg : SOAP_STR_EOS));
+			soap->d_stream->next_out = Z_NULL;
+			return soap->error = SOAP_ZLIB_ERROR; 
+		}
 	}
  #endif
  #ifndef WITH_LEANER
@@ -1228,8 +1222,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_recv(struct soap * soap)
 						return EOF;
 			}
 			soap->dime.flags = tmp[0]&0x7;
-			soap->dime.size =
-			        ((size_t)tmp[8]<<24)|((size_t)tmp[9]<<16)|((size_t)tmp[10]<<8)|((size_t)tmp[11]);
+			soap->dime.size = ((size_t)tmp[8]<<24)|((size_t)tmp[9]<<16)|((size_t)tmp[10]<<8)|((size_t)tmp[11]);
 			DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Get DIME chunk (%u bytes)\n", (unsigned int)soap->dime.size));
 			if(soap->dime.flags&SOAP_DIME_CF) {
 				DBGLOG(TEST, SOAP_MESSAGE(fdebug, "More chunking\n"));
@@ -1241,9 +1234,11 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_recv(struct soap * soap)
 				else
 					soap->dime.chunksize -= soap->buflen-soap->bufidx;
 			}
-			else {DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Last chunk\n"));
-			      soap->dime.buflen = 0;
-			      soap->dime.chunksize = 0; }
+			else {
+				DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Last chunk\n"));
+				soap->dime.buflen = 0;
+				soap->dime.chunksize = 0; 
+			}
 			soap->count = soap->buflen-soap->bufidx;
 			DBGLOG(TEST, SOAP_MESSAGE(fdebug, "%u bytes remaining\n", (unsigned int)soap->count));
 			return SOAP_OK;
@@ -3107,14 +3102,11 @@ SOAP_FMAC2 soap_ssl_error(struct soap * soap, int ret)
 		unsigned long r;
 		strcat(soap->msgbuf, "\n");
 		while((r = ERR_get_error()))
-			ERR_error_string_n(r, soap->msgbuf+strlen(soap->msgbuf), sizeof(soap->msgbuf)-
-				strlen(soap->msgbuf));
+			ERR_error_string_n(r, soap->msgbuf+strlen(soap->msgbuf), sizeof(soap->msgbuf)-strlen(soap->msgbuf));
 	}
 	else {switch(ret)      {
 		  case 0:
-		      strcpy(
-			      soap->msgbuf,
-			      "EOF was observed that violates the protocol. The client probably provided invalid authentication information.");
+		      strcpy(soap->msgbuf, "EOF was observed that violates the protocol. The client probably provided invalid authentication information.");
 		      break;
 		  case -1:
 		      sprintf(soap->msgbuf, "Error observed by underlying BIO: %s", strerror(errno));
@@ -10000,25 +9992,32 @@ SOAP_FMAC2 soap_attribute(struct soap * soap, const char * name, const char * va
 #ifndef PALM_2
 SOAP_FMAC1 int SOAP_FMAC2 soap_element_begin_in(struct soap * soap, const char * tag, int nillable, const char * type)
 {
+	int    _ec = SOAP_OK;
 	if(!soap_peek_element(soap)) {
 		if(soap->other)
-			return soap->error = SOAP_TAG_MISMATCH;
-		if(tag && *tag == '-')
-			return SOAP_OK;
-		if(!(soap->error = soap_match_tag(soap, soap->tag, tag))) {
-			soap->peeked = 0;
-			if(type && *soap->type && soap_match_tag(soap, soap->type, type))
-				return soap->error = SOAP_TYPE;
-			if(!nillable && soap->null && (soap->mode&SOAP_XML_STRICT))
-				return soap->error = SOAP_NULL;
-			if(soap->body)
-				soap->level++;
-			DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Begin element found (level=%u) '%s'='%s'\n", soap->level, soap->tag, tag ? tag : SOAP_STR_EOS ));
+			_ec = SOAP_TAG_MISMATCH;
+		else if(tag && *tag == '-')
+			; // ok
+		else {
+			_ec = soap_match_tag(soap, soap->tag, tag);
+			if(_ec == SOAP_OK) {
+				soap->peeked = 0;
+				if(type && *soap->type && soap_match_tag(soap, soap->type, type))
+					_ec = SOAP_TYPE;
+				else if(!nillable && soap->null && (soap->mode&SOAP_XML_STRICT))
+					_ec = SOAP_NULL;
+				else {
+					if(soap->body)
+						soap->level++;
+					DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Begin element found (level=%u) '%s'='%s'\n", soap->level, soap->tag, tag ? tag : SOAP_STR_EOS ));
+				}
+			}
 		}
 	}
-	else if(soap->error == SOAP_NO_TAG && tag && *tag == '-')
-		soap->error = SOAP_OK;
-	return soap->error;
+	else if(_ec == SOAP_NO_TAG && tag && *tag == '-')
+		_ec = SOAP_OK;
+	soap->error = _ec;
+	return _ec;
 }
 
 #endif
@@ -10410,7 +10409,8 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_peek_element(struct soap * soap)
 	/* whitespace leading to tag is not insignificant for DOM */
 	if(soap_blank(c)) {
 		soap->labidx = 0;
-		do {if(soap_append_lab(soap, NULL, 0))
+		do {
+			if(soap_append_lab(soap, NULL, 0))
 			    return soap->error;
 		    s = soap->labbuf+soap->labidx;
 		    i = soap->lablen-soap->labidx;
@@ -10445,8 +10445,9 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_peek_element(struct soap * soap)
 		return soap->error = SOAP_NO_TAG;
 	}
 	s = soap->tag;
-	do c = soap_get1(soap);
-	while(soap_blank(c));
+	do {
+		c = soap_get1(soap);
+	} while(soap_blank(c));
 	i = sizeof(soap->tag);
 	while(c != '>' && c != '/' && soap_notblank(c) && (int)c != EOF) {
 		if(--i > 0)

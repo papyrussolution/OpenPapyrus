@@ -6682,7 +6682,7 @@ PPTXT_LOG_SUPPLIX_EXPBILL_E "Exported @int documents @zstr provider ' @article '
 	//#org Для товара '@goods' установлен код по статье '@article' =@zstr
 PPTXT_LOG_SUPPLIX_SETARCODE "For the item ' @goods ' set the article code ' @article ' = @zstr"
 	//#org Не удалость идентифицировать контрагента документа '@zstr' по идентификатору @int
-PPTXT_LOG_SUPPLIX_CLINFOUNT "Failure to identify the counterparty of the document ' @zstr ' by @int"
+PPTXT_LOG_SUPPLIX_CLINID "Failure to identify the counterparty of the document ' @zstr ' by @int"
 	//#org Не удалость идентифицировать адрес доставки документа '@zstr' по идентификатору @int
 PPTXT_LOG_SUPPLIX_DLVRLOCNID "Failure to identify the document delivery address ' @zstr ' by @int"
 	//#org Не удалость идентифицировать товар для документа '@zstr' по идентификатору @int

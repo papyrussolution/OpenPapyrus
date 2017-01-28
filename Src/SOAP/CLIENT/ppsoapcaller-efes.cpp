@@ -71,16 +71,18 @@ static char * EncodeEfesUnitType(int unitType, TSCollection <InParamString> & rA
 	return GetDynamicParamString(temp_buf.Transf(CTRANSF_INNER_TO_UTF8), rArgStrPool);
 }
 
-extern "C" __declspec(dllexport) TSCollection <SapEfesOrder> * EfesGetSalesOrderSyncList(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const DateRange * pPeriod, int repeat)
+extern "C" __declspec(dllexport) TSCollection <SapEfesOrder> * EfesGetSalesOrderSyncList(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, 
+	const DateRange * pPeriod, int repeat, const char * pDocNumberList)
 {
 	TSCollection <SapEfesOrder> * p_result = 0;
-	WS_USCOREEFES_USCOREDDEBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
+	WS_USCOREEFES_USCOREDDEBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS|SOAP_IO_CHUNK|SOAP_IO_KEEPALIVE); // @v9.5.0 SOAP_IO_CHUNK|SOAP_IO_KEEPALIVE
+	proxi.recv_timeout = 60; // @v9.5.0
 	TSCollection <InParamString> arg_str_pool;
 	SString temp_buf;
-	gSoapClientInit(&proxi, 0, 0);
+	gSoapClientInit(&proxi, 0, 0); 
 	ns2__GetSalesOrderRequestType param;
 	ns2__GetSalesOrderResponseType resp;
-	char * p_empty_doc_num = "";
+	char * p_empty_doc_num[] = { 0 };
 
 	InitEfecCallParam(param, rH, arg_str_pool);
 	proxi.userid = GetDynamicParamString((temp_buf = rSess.GetUser()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
@@ -96,8 +98,21 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesOrder> * EfesGetSalesOrder
 	}
 	param.RepeatFlag = GetDynamicParamString(repeat, arg_str_pool);
 	{
-		param.EFRDocNum = &p_empty_doc_num;
-		param.__sizeEFRDocNum = 0;
+		if(!isempty(pDocNumberList)) {
+			StringSet ss_doc_num(';', pDocNumberList);
+			const uint doc_num_count = ss_doc_num.getCount();
+			uint  ssi = 0;
+			THROW(param.EFRDocNum = (char **)calloc(doc_num_count, sizeof(char *)));
+			for(uint ssp = 0; ss_doc_num.get(&ssp, temp_buf);) {
+				param.EFRDocNum[ssi++] = GetDynamicParamString(temp_buf.Strip().Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
+			}
+			assert(ssi == doc_num_count);
+			param.__sizeEFRDocNum = (int)doc_num_count;
+		}
+		else {
+			param.EFRDocNum = p_empty_doc_num;
+			param.__sizeEFRDocNum = 0;
+		}
 	}
 	THROW(PreprocessCall(proxi, rSess, proxi.GetSalesOrderSync(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
 	if(resp.SalesOrder && resp.__sizeSalesOrder > 0) {
@@ -169,6 +184,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesOrder> * EfesGetSalesOrder
 							p_new_row->PosType = (temp_buf = p_src_item->PosType).Transf(CTRANSF_UTF8_TO_INNER);
 							p_new_row->GoodsCode = (temp_buf = p_src_item->EFRProd).Transf(CTRANSF_UTF8_TO_INNER);
 							p_new_row->Currency = (temp_buf = p_src_item->Currency).Transf(CTRANSF_UTF8_TO_INNER);
+							p_new_row->Amount = (temp_buf = p_src_item->Amnt).Transf(CTRANSF_UTF8_TO_INNER).ToReal();
 						}
 					}
 				}
@@ -178,6 +194,8 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesOrder> * EfesGetSalesOrder
 	CATCH
 		ZDELETE(p_result);
 	ENDCATCH
+	if(param.__sizeEFRDocNum)
+		free(param.EFRDocNum);
 	return p_result;
 }
 
