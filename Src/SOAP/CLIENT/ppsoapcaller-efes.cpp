@@ -75,7 +75,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesOrder> * EfesGetSalesOrder
 	const DateRange * pPeriod, int repeat, const char * pDocNumberList)
 {
 	TSCollection <SapEfesOrder> * p_result = 0;
-	WS_USCOREEFES_USCOREDDEBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS|SOAP_IO_CHUNK|SOAP_IO_KEEPALIVE); // @v9.5.0 SOAP_IO_CHUNK|SOAP_IO_KEEPALIVE
+	WS_USCOREEFES_USCOREDDEBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS|/*SOAP_IO_CHUNK|*/SOAP_IO_KEEPALIVE); // @v9.5.0 SOAP_IO_CHUNK|SOAP_IO_KEEPALIVE
 	proxi.recv_timeout = 60; // @v9.5.0
 	TSCollection <InParamString> arg_str_pool;
 	SString temp_buf;

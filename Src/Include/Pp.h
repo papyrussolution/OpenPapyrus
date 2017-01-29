@@ -343,7 +343,7 @@ public:
 	enum {
 		stTransmissionNotSupported = 0x0001, // При восстановлении объекта из буфера выяснилось, что
 			// сторона, упаковавшая его в буфер, не поддерживает сериализацию.
-		stIgnoreCheckStorageDir    = 0x0002  // @v9.4.12 
+		stIgnoreCheckStorageDir    = 0x0002  // @v9.4.12
 	};
 
 	SLAPI  ObjLinkFiles();
@@ -5606,6 +5606,10 @@ public:
 	const SString & SLAPI GetLastMessage() const
 	{
 		return LastMsg;
+	}
+	const SString & SLAPI GetUrlBase() const
+	{
+		return UrlBase;
 	}
 private:
 	int    SLAPI StartTransferData(const char * pName, int64 totalRawSize, int32 chunkCount, int * pTransferID);

@@ -9992,32 +9992,25 @@ SOAP_FMAC2 soap_attribute(struct soap * soap, const char * name, const char * va
 #ifndef PALM_2
 SOAP_FMAC1 int SOAP_FMAC2 soap_element_begin_in(struct soap * soap, const char * tag, int nillable, const char * type)
 {
-	int    _ec = SOAP_OK;
 	if(!soap_peek_element(soap)) {
 		if(soap->other)
-			_ec = SOAP_TAG_MISMATCH;
-		else if(tag && *tag == '-')
-			; // ok
-		else {
-			_ec = soap_match_tag(soap, soap->tag, tag);
-			if(_ec == SOAP_OK) {
+			return soap->error = SOAP_TAG_MISMATCH;
+		if(tag && *tag == '-')
+			return SOAP_OK;
+		if(!(soap->error = soap_match_tag(soap, soap->tag, tag))) {
 				soap->peeked = 0;
 				if(type && *soap->type && soap_match_tag(soap, soap->type, type))
-					_ec = SOAP_TYPE;
-				else if(!nillable && soap->null && (soap->mode&SOAP_XML_STRICT))
-					_ec = SOAP_NULL;
-				else {
+				return soap->error = SOAP_TYPE;
+			if(!nillable && soap->null && (soap->mode&SOAP_XML_STRICT))
+				return soap->error = SOAP_NULL;
 					if(soap->body)
 						soap->level++;
 					DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Begin element found (level=%u) '%s'='%s'\n", soap->level, soap->tag, tag ? tag : SOAP_STR_EOS ));
 				}
 			}
-		}
-	}
-	else if(_ec == SOAP_NO_TAG && tag && *tag == '-')
-		_ec = SOAP_OK;
-	soap->error = _ec;
-	return _ec;
+	else if(soap->error == SOAP_NO_TAG && tag && *tag == '-')
+		soap->error = SOAP_OK;
+	return soap->error;
 }
 
 #endif

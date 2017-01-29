@@ -593,8 +593,14 @@ int	SLAPI PrcssrBuild::Run()
 					}
 					else
 						uhtt_symb = r_nsis_entry.P_UhttSymb;
-					// } @v9.4.12 
-					if(UploadFileToUhtt(r_nsis_entry.FileName, r_nsis_entry.P_UhttSymb, ver_label, 0)) {
+					// } @v9.4.12
+					{
+						//PPTXT_BUILD_UHTTCOPY_INFO        "Копирование на сервер @{brand_uhtt}"
+						PPLoadText(PPTXT_BUILD_UHTTCOPY_INFO, msg_buf);
+						msg_buf.CatDiv(':', 2).Cat(r_nsis_entry.FileName).CatDiv('-', 1).Cat(uhtt_symb).CatDiv('-', 1).Cat(ver_label);
+						logger.Log(msg_buf);
+					}
+					if(UploadFileToUhtt(r_nsis_entry.FileName, uhtt_symb, ver_label, 0)) {
 						PPLoadText(PPTXT_BUILD_UHTTCOPY_SUCCESS, fmt_buf);
 						msg_buf.Printf(fmt_buf, r_nsis_entry.FileName);
 						logger.Log(msg_buf);
