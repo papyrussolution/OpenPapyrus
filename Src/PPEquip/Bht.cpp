@@ -328,7 +328,7 @@ public:
 	{
 		PrevID = 0;
 		setSmartListBoxOption(CTL_SBIIRESTR_ERRLIST, lbtSelNotify);
-		PPLoadString(PPSTR_TEXT, PPTXT_SBIIERRORS, ErrList);
+		PPLoadText(PPTXT_SBIIERRORS, ErrList);
 	}
 	int setDTS(const SBIIOpInfo *);
 	int getDTS(SBIIOpInfo *);

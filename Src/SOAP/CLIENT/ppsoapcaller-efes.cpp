@@ -344,7 +344,8 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesBillStatus> * EfesSetDeliv
 								p_new_row->PosType = GetDynamicParamString((temp_buf = "").Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 								p_new_row->Currency = GetDynamicParamString((temp_buf = p_src_row->Currency).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 								p_new_row->Qty = GetDynamicParamString_(p_src_row->Qtty, MKSFMTD(0, 2, 0), arg_str_pool);
-								p_new_row->Unit = GetDynamicParamString((temp_buf = p_src_row->UnitType).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
+								//p_new_row->Unit = GetDynamicParamString((temp_buf = p_src_row->UnitType).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
+								p_new_row->Unit = EncodeEfesUnitType(p_src_row->UnitType, arg_str_pool);
 								p_new_row->Amnt = GetDynamicParamString_(p_src_row->Amount, MKSFMTD(0, 2, 0), arg_str_pool);
 							}
 						}

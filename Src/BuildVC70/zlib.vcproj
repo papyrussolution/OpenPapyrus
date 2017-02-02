@@ -348,7 +348,8 @@
 			Name="Universe-HTT|Win32"
 			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
 			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			ConfigurationType="4">
+			ConfigurationType="4"
+			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"/>
 			<Tool

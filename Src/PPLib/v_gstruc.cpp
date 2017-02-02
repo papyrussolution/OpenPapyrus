@@ -1,5 +1,5 @@
 // V_GSTRUC.CPP
-// Copyright (c) A.Starodub 2007, 2008, 2009, 2014, 2016
+// Copyright (c) A.Starodub 2007, 2008, 2009, 2014, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -63,8 +63,8 @@ int SLAPI PPViewGoodsStruc::AddItem(PPID goodsID, PPID strucID, BExtInsert * pBe
 	int    ok = 1;
 	PPGoodsStruc struc;
 	if(GSObj.Get(strucID, &struc) > 0) {
-		int    folder = BIN(struc.Rec.Flags & GSF_FOLDER);
-		uint   count  = folder ? struc.Childs.getCount() : struc.Items.getCount();
+		const  int  folder = BIN(struc.Rec.Flags & GSF_FOLDER);
+		const  uint count  = folder ? struc.Childs.getCount() : struc.Items.getCount();
 		TempGoodsStrucTbl::Rec temp_rec;
 		for(uint i = 0; i < count; i++) {
 			if(folder) {
@@ -264,14 +264,12 @@ int SLAPI PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 	if(ok > 0 && (ppvCmd == PPVCMD_EDITITEM || ppvCmd == PPVCMD_EDITGOODS)) {
 		if(UpdateTempTable(brw_hdr.GoodsID, parent_struc_id, brw_hdr.StrucID, 0, 1) == 0)
 			PPError();
-		if(pBrw)
-			pBrw->Update();
+		CALLPTRMEMB(pBrw, Update());
 	}
 	if(ok > 0 && ppvCmd == PPVCMD_EDITITEMGOODS) {
 		if(UpdateTempTable(brw_hdr.ItemID, 0, 0, 1, 1) == 0)
 			PPError();
-		if(pBrw)
-			pBrw->Update();
+		CALLPTRMEMB(pBrw, Update());
 	}
 	return ok;
 }
@@ -330,6 +328,7 @@ int PPALDD_GoodsStrucList::InitIteration(PPIterID iterId, int sortId, long rsrv)
 int PPALDD_GoodsStrucList::NextIteration(PPIterID iterId, long rsrv)
 {
 	START_PPVIEW_ALDD_ITER(GoodsStruc); // PPViewGoodsStruc
+	I.GsID = item.StrucID; // @v9.5.0
 	I.GoodsID = item.GoodsID;
 	I.ItemID  = item.ItemID;
 	STRNSCPY(I.GoodsName, item.GoodsName);

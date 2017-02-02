@@ -1895,12 +1895,13 @@ int SLAPI PPViewGoods::RemoveAll()
 			Data = *pData;
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 0, GoodsMoveParam::aMoveToGroup);
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 1, GoodsMoveParam::aChgClssfr);
-			AddClusterAssoc(CTL_REMOVEALL_WHAT, 2, GoodsMoveParam::aRemoveAll);
-			AddClusterAssoc(CTL_REMOVEALL_WHAT, 3, GoodsMoveParam::aActionByFlags);
-			AddClusterAssoc(CTL_REMOVEALL_WHAT, 4, GoodsMoveParam::aActionByRule);
-			AddClusterAssoc(CTL_REMOVEALL_WHAT, 5, GoodsMoveParam::aChgMinStock); // @v8.6.4
-			AddClusterAssoc(CTL_REMOVEALL_WHAT, 6, GoodsMoveParam::aSplitBarcodeItems); // @v8.6.9
-			AddClusterAssoc(CTL_REMOVEALL_WHAT, 7, GoodsMoveParam::aMergeDiezNames); // @v8.6.9
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 2, GoodsMoveParam::aChgTaxGroup); // @v9.5.0
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 3, GoodsMoveParam::aRemoveAll);
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 4, GoodsMoveParam::aActionByFlags);
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 5, GoodsMoveParam::aActionByRule);
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 6, GoodsMoveParam::aChgMinStock); // @v8.6.4
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 7, GoodsMoveParam::aSplitBarcodeItems); // @v8.6.9
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 8, GoodsMoveParam::aMergeDiezNames); // @v8.6.9
 
 			SetClusterData(CTL_REMOVEALL_WHAT, Data.Action);
 			AddClusterAssoc(CTL_REMOVEALL_FLAGS, 0, GoodsMoveParam::fRemoveExtTextA);
@@ -1927,9 +1928,9 @@ int SLAPI PPViewGoods::RemoveAll()
 			int    ok = 1;
 			uint   sel = 0;
 			GetClusterData(CTL_REMOVEALL_WHAT, &Data.Action);
-			THROW_PP(oneof8(Data.Action, GoodsMoveParam::aMoveToGroup, GoodsMoveParam::aChgClssfr, GoodsMoveParam::aRemoveAll,
+			THROW_PP(oneof9(Data.Action, GoodsMoveParam::aMoveToGroup, GoodsMoveParam::aChgClssfr, GoodsMoveParam::aRemoveAll,
 				GoodsMoveParam::aActionByFlags, GoodsMoveParam::aActionByRule, GoodsMoveParam::aChgMinStock,
-				GoodsMoveParam::aSplitBarcodeItems, GoodsMoveParam::aMergeDiezNames), PPERR_USERINPUT);
+				GoodsMoveParam::aSplitBarcodeItems, GoodsMoveParam::aMergeDiezNames, GoodsMoveParam::aChgTaxGroup), PPERR_USERINPUT);
 			GetClusterData(CTL_REMOVEALL_FLAGS, &Data.Flags);
 			getCtrlString(CTL_REMOVEALL_RULE, Data.Rule);
 			if(Data.Action == GoodsMoveParam::aChgClssfr) {
@@ -1948,6 +1949,12 @@ int SLAPI PPViewGoods::RemoveAll()
 				getCtrlData(sel = CTLSEL_REMOVEALL_GRP, &Data.DestGrpID);
 				THROW_PP(Data.DestGrpID, PPERR_GOODSGROUPNEEDED);
 			}
+			// @v9.5.0 {
+			else if(Data.Action == GoodsMoveParam::aChgTaxGroup) {
+				getCtrlData(sel = CTLSEL_REMOVEALL_GRP, &Data.DestGrpID);
+				THROW_PP(Data.DestGrpID, PPERR_TAXGROUPNEEDED);
+			}
+			// } @v9.5.0 
 			else if(Data.Action == GoodsMoveParam::aChgMinStock) {
 				LocationCtrlGroup::Rec loc_rec;
 				getGroupData(GRP_LOC, &loc_rec);
@@ -1996,9 +2003,11 @@ int SLAPI PPViewGoods::RemoveAll()
 		{
 			SString combo_label_buf;
 			SString rule_label_buf;
+			int    disable_grp_combo = 1;
 			if(Data.Action == GoodsMoveParam::aChgMinStock) {
 				showButton(cmLocList, 1);
-				disableCtrl(CTLSEL_REMOVEALL_GRP, 0);
+				//disableCtrl(CTLSEL_REMOVEALL_GRP, 0);
+				disable_grp_combo = 0;
 				PPLoadString("warehouse", combo_label_buf);
 				PPLoadString("minrest", rule_label_buf);
 				addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_REMOVEALL_GRP, 0, 0, cmLocList, 0, 0, 0));
@@ -2010,14 +2019,24 @@ int SLAPI PPViewGoods::RemoveAll()
 				addGroup(GRP_LOC, 0);
 				showButton(cmLocList, 0);
 				if(Data.Action == GoodsMoveParam::aMoveToGroup) {
-					disableCtrl(CTLSEL_REMOVEALL_GRP, 0);
+					//disableCtrl(CTLSEL_REMOVEALL_GRP, 0);
+					disable_grp_combo = 0;
 					PPLoadString("goodsgroup", combo_label_buf);
 					SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_GOODSGROUP, Data.DestGrpID, 0, (void *)GGRTYP_SEL_NORMAL);
 				}
+				// @v9.5.0 {
+				else if(Data.Action == GoodsMoveParam::aChgTaxGroup) {
+					//disableCtrl(CTLSEL_REMOVEALL_GRP, 0);
+					disable_grp_combo = 0;
+					PPLoadString("taxgroup", combo_label_buf);
+					SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_GOODSTAX, Data.DestGrpID, 0, 0);
+				}
+				// } @v9.5.0 
 				else {
-					disableCtrl(CTLSEL_REMOVEALL_GRP, 1);
+					//disableCtrl(CTLSEL_REMOVEALL_GRP, 1);
 				}
 			}
+			disableCtrl(CTLSEL_REMOVEALL_GRP, disable_grp_combo);
 			setLabelText(CTL_REMOVEALL_GRP, combo_label_buf);
 			setLabelText(CTL_REMOVEALL_RULE, rule_label_buf);
 			disableCtrl(CTL_REMOVEALL_RULE, !oneof2(Data.Action, GoodsMoveParam::aActionByRule, GoodsMoveParam::aChgMinStock));
@@ -2063,6 +2082,23 @@ int SLAPI PPViewGoods::RemoveAll()
 				PPWaitPercent(GetCounter());
 			}
 		}
+		// @v9.5.0 {
+		else if(GmParam.Action == GoodsMoveParam::aChgTaxGroup) {
+			for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
+				PPGoodsPacket pack;
+				if(GObj.GetPacket(item.ID, &pack, 0) > 0) {
+					pack.Rec.TaxGrpID = GmParam.DestGrpID;
+					if(GObj.PutPacket(&item.ID, &pack, 1))
+						success_count++;
+					else {
+						logger.LogLastError();
+						skip_count++;
+					}
+				}
+				PPWaitPercent(GetCounter());
+			}
+		}
+		// } @v9.5.0
 		else if(GmParam.Action == GoodsMoveParam::aChgMinStock) {
 			GoodsStockExt gse;
 			for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
@@ -5178,8 +5214,7 @@ int PPALDD_GoodsClassView::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_GoodsClassView::InitIteration(PPIterID iterId, int sortId, long rsrv)
 {
 	StrAssocArray * p_list = (StrAssocArray *)Extra[0].Ptr;
-	if(p_list)
-		p_list->setPointer(0);
+	CALLPTRMEMB(p_list, setPointer(0));
 	IterProlog(iterId, 1);
 	return 1;
 }
@@ -5310,13 +5345,13 @@ int PPALDD_GoodsLabel::NextIteration(PPIterID iterId, long rsrv)
 		if(gobj.GetRetailGoodsInfo(I.GoodsID, H.LocID, &rgi) > 0) {
 			char   bc[32];
 			STRNSCPY(bc, rgi.BarCode);
-			int    check_dig  = BIN(gobj.GetConfig().Flags & GCF_BCCHKDIG);
-			int    add_chkdig = BIN(!check_dig);
-			int    bclen = strlen(bc);
+			const  size_t check_dig  = BIN(gobj.GetConfig().Flags & GCF_BCCHKDIG);
+			const  int    add_chkdig = BIN(!check_dig);
+			const  size_t bclen = strlen(bc);
 			if(bclen) {
 				if(bclen != 3 && bclen != (7+check_dig) && bclen < (12+check_dig))
 					padleft(bc, '0', (12+check_dig) - bclen);
-				size_t len = strlen(bc);
+				const size_t len = strlen(bc);
 				if(add_chkdig && len > 3 && !gobj.GetConfig().IsWghtPrefix(bc))
 					AddBarcodeCheckDigit(bc);
 			}

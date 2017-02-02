@@ -1,5 +1,5 @@
 // V_CASHN.CPP
-// Copyright (c) A.Starodub 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Starodub 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 // Кассовые узлы
@@ -22,7 +22,7 @@ CashNodeFilt & FASTCALL CashNodeFilt::operator = (const CashNodeFilt & s)
 SLAPI PPViewCashNode::PPViewCashNode() : PPView(&ObjCashN, &Filt, PPVIEW_CASHNODE)
 {
 	P_TempTbl = 0;
-	PPLoadString(PPSTR_TEXT, PPTXT_CMT, CashTypeNames);
+	PPLoadText(PPTXT_CMT, CashTypeNames);
 	// @vmiller {
 	int    s = 0, a = 0, idx = 0;
 	SString line_buf;

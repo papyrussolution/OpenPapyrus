@@ -2741,7 +2741,7 @@ ImpExpCfgsListDialog::ImpExpCfgsListDialog() : PPListDialog(DLG_IMPEXPCFGS, CTL_
 		PPREC_QUOTVAL   // @v8.5.11
 	};
 	SString str_cfgs, buf;
-	PPLoadString(PPSTR_TEXT, PPTXT_IMPEXPCFGNAMELIST, str_cfgs);
+	PPLoadText(PPTXT_IMPEXPCFGNAMELIST, str_cfgs);
 	StringSet ss(';', str_cfgs);
 	for(uint i = 0, p = 0; ss.get(&i, buf) > 0; p++)
 		CfgsList.Add(sdrecs_id[p], 0, buf);

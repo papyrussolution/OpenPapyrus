@@ -1,5 +1,5 @@
 // PPTEST.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -840,8 +840,8 @@ int SLAPI GenerateGoodsBills()
 	plusperiod(&period.low, PRD_ANNUAL, -1, 0);
 
 	//введение количества документов
-	PPLoadString(PPSTR_TEXT, PPTXT_BILL_COUNT, title);
-	PPLoadString(PPSTR_TEXT, PPTXT_INP_BILL_COUNT, inp_title);
+	PPLoadText(PPTXT_BILL_COUNT, title);
+	PPLoadText(PPTXT_INP_BILL_COUNT, inp_title);
 	if(InputQttyDialog(title, inp_title, &bills_count) > 0) {
 		PPWait(1);
 		//

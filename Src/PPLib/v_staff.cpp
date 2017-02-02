@@ -1,5 +1,5 @@
 // V_STAFF.CPP
-// Copyright (c) A.Sobolev 2007, 2009, 2015, 2016
+// Copyright (c) A.Sobolev 2007, 2009, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -32,7 +32,7 @@ SLAPI PPViewStaffList::PPViewStaffList() : PPView(&SlObj, &Filt, PPVIEW_STAFFLIS
 	SString buf;
 	PPAmountType    at_rec;
 	PPObjAmountType at_obj;
-	PPLoadString(PPSTR_TEXT, PPTXT_SALARY_AMOUNT_TYPES, buf);
+	PPLoadText(PPTXT_SALARY_AMOUNT_TYPES, buf);
 	memzero(SalaryAmountTypes, sizeof(PPID) * 4);
 	for(PPID id = 0; at_obj.EnumItems(&id, &at_rec) > 0;)
 		if((at_rec.Flags & PPAmountType::fStaffAmount) && PPSearchSubStr(buf, &type_no, at_rec.Symb, 1) && type_no < 4)

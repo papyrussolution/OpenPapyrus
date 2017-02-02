@@ -356,15 +356,13 @@ static force_inline void save_128_write_combining(__m128i* dst,
 }
 
 /* save 4 pixels on a 16-byte boundary aligned address */
-static force_inline void save_128_aligned(__m128i* dst,
-    __m128i data)
+static force_inline void save_128_aligned(__m128i* dst, __m128i data)
 {
 	_mm_store_si128(dst, data);
 }
 
 /* save 4 pixels on a unaligned address */
-static force_inline void save_128_unaligned(__m128i* dst,
-    __m128i data)
+static force_inline void save_128_unaligned(__m128i* dst, __m128i data)
 {
 	_mm_storeu_si128(dst, data);
 }
@@ -4322,27 +4320,14 @@ static void sse2_composite_add_n_8_8888(pixman_implementation_t * imp,
 	}
 }
 
-static pixman_bool_t sse2_blt(pixman_implementation_t * imp,
-    uint32_t *               src_bits,
-    uint32_t *               dst_bits,
-    int src_stride,
-    int dst_stride,
-    int src_bpp,
-    int dst_bpp,
-    int src_x,
-    int src_y,
-    int dest_x,
-    int dest_y,
-    int width,
-    int height)
+static pixman_bool_t sse2_blt(pixman_implementation_t * imp, const uint32_t * src_bits, uint32_t * dst_bits,
+    int src_stride, int dst_stride, int src_bpp, int dst_bpp, int src_x, int src_y, int dest_x, int dest_y, int width, int height)
 {
-	uint8_t *   src_bytes;
-	uint8_t *   dst_bytes;
+	uint8_t * src_bytes;
+	uint8_t * dst_bytes;
 	int byte_width;
-
 	if(src_bpp != dst_bpp)
 		return FALSE;
-
 	if(src_bpp == 16) {
 		src_stride = src_stride * (int)sizeof(uint32_t) / 2;
 		dst_stride = dst_stride * (int)sizeof(uint32_t) / 2;

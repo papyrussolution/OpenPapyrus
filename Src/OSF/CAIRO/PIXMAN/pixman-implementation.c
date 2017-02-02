@@ -185,22 +185,11 @@ pixman_combine_32_func_t _pixman_implementation_lookup_combiner(pixman_implement
 }
 
 pixman_bool_t _pixman_implementation_blt(pixman_implementation_t * imp,
-    uint32_t *                src_bits,
-    uint32_t *                dst_bits,
-    int src_stride,
-    int dst_stride,
-    int src_bpp,
-    int dst_bpp,
-    int src_x,
-    int src_y,
-    int dest_x,
-    int dest_y,
-    int width,
-    int height)
+    const uint32_t * src_bits, uint32_t * dst_bits, int src_stride, int dst_stride, int src_bpp, int dst_bpp, 
+	int src_x, int src_y, int dest_x, int dest_y, int width, int height)
 {
 	while(imp) {
-		if(imp->blt && (*imp->blt)(imp, src_bits, dst_bits, src_stride, dst_stride,
-			    src_bpp, dst_bpp, src_x, src_y, dest_x, dest_y, width, height)) {
+		if(imp->blt && (*imp->blt)(imp, src_bits, dst_bits, src_stride, dst_stride, src_bpp, dst_bpp, src_x, src_y, dest_x, dest_y, width, height)) {
 			return TRUE;
 		}
 		imp = imp->fallback;
@@ -209,14 +198,7 @@ pixman_bool_t _pixman_implementation_blt(pixman_implementation_t * imp,
 }
 
 pixman_bool_t _pixman_implementation_fill(pixman_implementation_t * imp,
-    uint32_t *               bits,
-    int stride,
-    int bpp,
-    int x,
-    int y,
-    int width,
-    int height,
-    uint32_t filler)
+    uint32_t * bits, int stride, int bpp, int x, int y, int width, int height, uint32_t filler)
 {
 	while(imp) {
 		if(imp->fill && ((*imp->fill)(imp, bits, stride, bpp, x, y, width, height, filler))) {
@@ -233,15 +215,9 @@ static uint32_t * get_scanline_null(pixman_iter_t * iter, const uint32_t * mask)
 }
 
 void _pixman_implementation_iter_init(pixman_implementation_t * imp,
-    pixman_iter_t           * iter,
-    pixman_image_t          * image,
-    int x,
-    int y,
-    int width,
-    int height,
-    uint8_t                 * buffer,
-    iter_flags_t iter_flags,
-    uint32_t image_flags)
+    pixman_iter_t * iter, pixman_image_t * image,
+    int x, int y, int width, int height, uint8_t * buffer,
+    iter_flags_t iter_flags, uint32_t image_flags)
 {
 	pixman_format_code_t format;
 

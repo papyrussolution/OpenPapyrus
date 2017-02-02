@@ -1,5 +1,5 @@
 // V_PLIST.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 // @todo Убрать вкладку "Дополнительно" из фильтра (она полностью дублирует опции товарного фильтра)
@@ -1757,8 +1757,14 @@ int SLAPI PPViewPriceList::EditLine(PriceLineIdent * pIdent)
 
 class PPPriceListExporter {
 public:
-	SLAPI  PPPriceListExporter();
-	SLAPI ~PPPriceListExporter();
+	SLAPI  PPPriceListExporter()
+	{
+		P_IE = 0;
+	}
+	SLAPI ~PPPriceListExporter()
+	{
+		ZDELETE(P_IE);
+	}
 	int    SLAPI Init(const PPPriceListImpExpParam * pParam);
 	int    SLAPI Export(const PriceListViewItem * pItem);
 	int    SLAPI DistributeFile()
@@ -1772,16 +1778,6 @@ private:
 	PPImpExp * P_IE;
 	PPObjGoods GObj;
 };
-
-SLAPI PPPriceListExporter::PPPriceListExporter()
-{
-	P_IE = 0;
-}
-
-SLAPI PPPriceListExporter::~PPPriceListExporter()
-{
-	ZDELETE(P_IE);
-}
 
 int SLAPI PPPriceListExporter::Init(const PPPriceListImpExpParam * pParam)
 {
@@ -1869,7 +1865,7 @@ int SLAPI PPViewPriceList::SendPList()
 		PPObjQCert	qobj;
 		PPIniFile * p_ini_file = 0;
 		DbfTable  * plst_tbl = 0;
-		PPLoadString(PPSTR_TEXT, PPTXT_PLISTTOALBATROS, msg_buf);
+		PPLoadText(PPTXT_PLISTTOALBATROS, msg_buf);
 		PPWaitMsg(msg_buf);
 		PPGetFilePath(PPPATH_OUT, PPFILNAM_PLIST_CNF, path);
 		THROW_MEM(p_ini_file = new PPIniFile(path, TRUE));
@@ -2082,9 +2078,7 @@ static int SLAPI XmlWriteData(FILE * pStream, const char * pField, const char * 
 static int SLAPI XmlWriteData(FILE * pStream, const char * pField, long data, int skipZero)
 {
 	char   str_val[64];
-	if(skipZero && data == 0)
-		return -1;
-	return XmlWriteData(pStream, pField, ltoa(data, str_val, 10), 0);
+	return (skipZero && data == 0) ? -1 : XmlWriteData(pStream, pField, ltoa(data, str_val, 10), 0);
 }
 
 static int SLAPI XmlWriteData(FILE * pStream, const char * pField, double data, int skipZero)
@@ -2165,7 +2159,7 @@ int SLAPI PPViewPriceList::SendPListInXmlFormat()
 
 	THROW(ini_file.IsValid());
 	ReadPriceListConfig(&plist_cfg);
-	PPLoadString(PPSTR_TEXT, PPTXT_PLISTTOALBATROS, msg_buf);
+	PPLoadText(PPTXT_PLISTTOALBATROS, msg_buf);
 	if(*strip(plist_cfg.OrgName) == 0) {
 		SString main_org_name;
 		GetMainOrgName(main_org_name);
@@ -2509,10 +2503,11 @@ int SLAPI PPViewPriceList::Export_Pre9302()
 	{
 		int def_spec = 0;
 		if(*strip(plist_cfg.ExportSpec) == 0) {
-			PPLoadString(PPSTR_TEXT, PPTXT_DEFPLISTEXPORTSPEC, plist_cfg.ExportSpec, sizeof(plist_cfg.ExportSpec));
+			PPLoadText(PPTXT_DEFPLISTEXPORTSPEC, temp_buf);
+			STRNSCPY(plist_cfg.ExportSpec, temp_buf);
 			def_spec = 1;
 		}
-		PPLoadString(PPSTR_TEXT, PPTXT_PLISTEXPORTVAR, temp_buf);
+		PPLoadText(PPTXT_PLISTEXPORTVAR, temp_buf);
 		ParsePriceListExportSpec(plist_cfg.ExportSpec, temp_buf, def_spec, &spec);
 	}
 	if(*strip(plist_cfg.OrgName) == 0)

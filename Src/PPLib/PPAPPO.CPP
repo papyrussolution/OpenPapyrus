@@ -25,11 +25,13 @@ int PPHandlePrintError(int)
 	int    reply = 0;
 	TDialog * dlg = new TDialog(DLG_PRNERR);
 	if(CheckDialogPtr(&dlg, 1)) {
-		char   text[64];
-		text[0] = '\003';
-		if(PPLoadString(PPERR_SLIB, SLibError, text+1, sizeof(text)-1)) {
+		//char   text[64];
+		//text[0] = '\003';
+		SString text;
+		if(PPLoadString(PPERR_SLIB, SLibError, text)) {
+			text.Insert(0, "\003");
 			dlg->setStaticText(CTL_PRNERR_TEXT, text);
-			reply = (ExecView(dlg) == cmOK) ? 1 : 0;
+			reply = BIN(ExecView(dlg) == cmOK);
 		}
 	}
 	delete dlg;

@@ -4875,7 +4875,7 @@ int SLAPI PPViewBill::Helper_ExportBnkOrder(const char * pSection, PPLogger & rL
 				period.AdjustToDate(item.Dt);
 			}
 			else {
-				PPLoadString(PPSTR_TEXT, PPTXT_BILLNOTBANKING, str_fmt);
+				PPLoadText(PPTXT_BILLNOTBANKING, str_fmt);
 				(str_dt = 0).Cat(item.Dt);
 				msg.Printf(str_fmt, item.Code, str_dt.cptr());
 				rLogger.Log(msg);
@@ -5749,7 +5749,7 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				break;
 			case PPVCMD_RECEIVEDFOCUS:
 				if(!pHdr) {
-					PPID single_loc_id = LocList_.getSingle();
+					const PPID single_loc_id = LocList_.getSingle();
 					if(single_loc_id)
 						DS.SetLocation(single_loc_id);
 					StatusWinChange();
@@ -5794,7 +5794,7 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 							SString memos;
 							if(id && BObj->FetchExtMemo(id, memos) > 0) {
 							//if(id && PPRef->GetPropVlrString(PPOBJ_BILL, id, PPPRP_BILLMEMO, memos) > 0 && memos.Len() > 0) {
-								long flags = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
+								const long flags = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
 									SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow;
 								memos.ReplaceChar('\n', ' ');
 								memos.ReplaceChar('\r', ' ');
@@ -5943,7 +5943,7 @@ int PPALDD_GoodsBillBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmS
 
 	if(pF->Name == "?CalcInSaldo") {
 		double saldo = 0.0;
-		PPBillPacket * p_pack = (PPBillPacket *)Extra[0].Ptr;
+		const PPBillPacket * p_pack = (PPBillPacket *)Extra[0].Ptr;
 		if(p_pack) {
 			const PPID goods_id = _ARG_INT(1);
 			if(H.ObjectID && goods_id) {
@@ -5967,14 +5967,14 @@ int PPALDD_GoodsBillBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmS
 		_RET_DBL = saldo;
 	}
 	else if(pF->Name == "?UnlimGoodsOnly") {
-		PPBillPacket * p_pack = (PPBillPacket *)Extra[0].Ptr;
+		const PPBillPacket * p_pack = (const PPBillPacket *)Extra[0].Ptr;
 		_RET_INT = BIN(p_pack && p_pack->ProcessFlags & PPBillPacket::pfAllGoodsUnlim);
 	}
 	return 1;
 }
 
 // Prototype
-int SLAPI setupDiscountText(PPBillPacket * pack, int enableSTaxText, char * buf);
+int SLAPI setupDiscountText(const PPBillPacket * pack, int enableSTaxText, char * buf);
 
 int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -6156,16 +6156,16 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId, long rsrv)
 	ReceiptCore * p_rcpt = (p_bobj && p_bobj->trfr) ? &p_bobj->trfr->Rcpt : 0;
 	PPTransferItem * p_ti, temp_ti;
 	PPBillPacket::TiItemExt tiie;
-	double ext_price = 0.0;
-	double upp = 0.0; // Емкость упаковки
-	long   exclude_tax_flags = H.fSupplIsVatExempt ? GTAXVF_VAT : 0L;
-	int    tiamt, price_chng = 1;
-	uint   n = (uint)I.nn;
 	PPObjGoods goods_obj;
 	Goods2Tbl::Rec goods_rec;
 	PPObjQuotKind qk_obj;
 	PPQuotKind qk_rec;
+	double ext_price = 0.0;
+	double upp = 0.0; // Емкость упаковки
+	int    tiamt, price_chng = 1;
+	uint   n = (uint)I.nn;
 	const  PPID qk_id = p_pack->Ext.ExtPriceQuotKindID;
+	const  long exclude_tax_flags = H.fSupplIsVatExempt ? GTAXVF_VAT : 0L;
 	const  int  extprice_by_base = BIN(qk_obj.Fetch(qk_id, &qk_rec) > 0 && qk_rec.Flags & QUOTKF_EXTPRICEBYBASE);
 	int    treat_as_unlim = 0;
 	do {
@@ -6184,7 +6184,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId, long rsrv)
 			// } @v8.5.1
 			if(qk_id) {
 				const double base = extprice_by_base ? p_ti->Price : p_ti->NetPrice();
-				QuotIdent qi(p_ti->LocID, qk_id, p_ti->CurID, p_pack->Rec.Object);
+				const QuotIdent qi(p_ti->LocID, qk_id, p_ti->CurID, p_pack->Rec.Object);
 				goods_obj.GetQuotExt(p_ti->GoodsID, qi, p_ti->Cost, base, &ext_price, 1);
 			}
 			if(p_pack->ProcessFlags & PPBillPacket::pfPrintChangedPriceOnly) {
@@ -6194,7 +6194,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId, long rsrv)
 				if(p_rcpt) {
 					ReceiptTbl::Rec prev_rec, rec;
 					if(p_rcpt->Search(p_ti->LotID, &rec) > 0) {
-						int r = p_rcpt->GetPreviousLot(rec.GoodsID, rec.LocID, rec.Dt, rec.OprNo, &prev_rec);
+						const int r = p_rcpt->GetPreviousLot(rec.GoodsID, rec.LocID, rec.Dt, rec.OprNo, &prev_rec);
 						price_chng = BIN(r <= 0 || rec.Price != prev_rec.Price);
 						// @v7.2.0 {
 						if(!price_chng) {
@@ -8433,10 +8433,10 @@ int PPALDD_Warrant::NextIteration(PPIterID iterId, long rsrv)
 	PPBillPacket * p_pack = (PPBillPacket *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
 	if(I.LineNo < (int16)p_pack->AdvList.GetCount()) {
 		char   buf[128];
-		PPAdvBillItem & item = p_pack->AdvList.Get(I.LineNo);
-		STRNSCPY(I.GdsName, item.Memo);
-		GetObjectName(PPOBJ_UNIT, item.ArID, I.Unit, sizeof(I.Unit));
-		numbertotext(item.Amount, NTTF_NOZERO|NTTF_FIRSTCAP|NTTF_DECCURR, buf); // @v8.3.5 NTTF_DECCURR
+		const  PPAdvBillItem & r_item = p_pack->AdvList.Get(I.LineNo);
+		STRNSCPY(I.GdsName, r_item.Memo);
+		GetObjectName(PPOBJ_UNIT, r_item.ArID, I.Unit, sizeof(I.Unit));
+		numbertotext(r_item.Amount, NTTF_NOZERO|NTTF_FIRSTCAP|NTTF_DECCURR, buf); // @v8.3.5 NTTF_DECCURR
 		STRNSCPY(I.Qtty, buf);
 		I.LineNo++;
 		return DlRtm::NextIteration(iterId, rsrv);

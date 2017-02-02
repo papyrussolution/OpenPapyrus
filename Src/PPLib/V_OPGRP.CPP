@@ -1,5 +1,5 @@
 // V_OPGRP.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -71,6 +71,7 @@ enum {
 int SLAPI PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1, done = 0, create_stat = 0;
+	SString temp_buf;
 	PPLogger logger;
 	TempOpGrpngTbl * p_tbl = 0;
 	OpGroupingFilt prev_filt = Filt;
@@ -103,8 +104,9 @@ int SLAPI PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 		MEMSZERO(LastOutRest);
 		GdsOpTotal.Dt = plusdate(NZOR(Filt.Period.upp, Filt.Period.low), 1);
 		GdsOpTotal.OpID = OPGRPNG_TOTAL_ID;
-		if(!PPLoadString(PPSTR_TEXT, PPTXT_GOODSOPRTOTAL, GdsOpTotal.OpName, sizeof(GdsOpTotal.OpName)))
-			PPGetWord(PPWORD_TOTAL, 0, GdsOpTotal.OpName, 0);
+		if(!PPLoadText(PPTXT_GOODSOPRTOTAL, temp_buf))
+			PPGetWord(PPWORD_TOTAL, 0, temp_buf);
+		STRNSCPY(GdsOpTotal.OpName, temp_buf);
 		THROW(p_tbl = CreateTempFile());
 		{
 			uint   cycle_no = 0;

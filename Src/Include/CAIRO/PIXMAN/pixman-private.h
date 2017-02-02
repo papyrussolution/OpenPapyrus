@@ -366,44 +366,13 @@ typedef struct {
 	MAYBE_UNUSED int32_t width = info->width;		 \
 	MAYBE_UNUSED int32_t height = info->height
 
-typedef void (*pixman_combine_32_func_t)(pixman_implementation_t * imp,
-    pixman_op_t op,
-    uint32_t *               dest,
-    const uint32_t *         src,
-    const uint32_t *         mask,
-    int width);
-
-typedef void (*pixman_combine_float_func_t)(pixman_implementation_t * imp,
-    pixman_op_t op,
-    float *                  dest,
-    const float *            src,
-    const float *            mask,
-    int n_pixels);
-
-typedef void (*pixman_composite_func_t)(pixman_implementation_t * imp,
-    pixman_composite_info_t * info);
-typedef pixman_bool_t (*pixman_blt_func_t)(pixman_implementation_t * imp,
-    uint32_t *               src_bits,
-    uint32_t *               dst_bits,
-    int src_stride,
-    int dst_stride,
-    int src_bpp,
-    int dst_bpp,
-    int src_x,
-    int src_y,
-    int dest_x,
-    int dest_y,
-    int width,
-    int height);
-typedef pixman_bool_t (*pixman_fill_func_t)(pixman_implementation_t * imp,
-    uint32_t *               bits,
-    int stride,
-    int bpp,
-    int x,
-    int y,
-    int width,
-    int height,
-    uint32_t filler);
+typedef void (*pixman_combine_32_func_t)(pixman_implementation_t * imp, pixman_op_t op, uint32_t * dest, const uint32_t * src, const uint32_t * mask, int width);
+typedef void (*pixman_combine_float_func_t)(pixman_implementation_t * imp, pixman_op_t op, float * dest, const float * src, const float * mask, int n_pixels);
+typedef void (*pixman_composite_func_t)(pixman_implementation_t * imp, pixman_composite_info_t * info);
+typedef pixman_bool_t (*pixman_blt_func_t)(pixman_implementation_t * imp, const uint32_t * src_bits, uint32_t * dst_bits,
+    int src_stride, int dst_stride, int src_bpp, int dst_bpp, int src_x, int src_y, int dest_x, int dest_y, int width, int height);
+typedef pixman_bool_t (*pixman_fill_func_t)(pixman_implementation_t * imp, uint32_t * bits,
+    int stride, int bpp, int x, int y, int width, int height, uint32_t filler);
 
 void _pixman_setup_combiner_functions_32(pixman_implementation_t * imp);
 void _pixman_setup_combiner_functions_float(pixman_implementation_t * imp);
@@ -448,7 +417,7 @@ void _pixman_implementation_lookup_composite(pixman_implementation_t  * toplevel
 
 pixman_combine_32_func_t _pixman_implementation_lookup_combiner(pixman_implementation_t * imp,
     pixman_op_t op, pixman_bool_t component_alpha, pixman_bool_t wide);
-pixman_bool_t _pixman_implementation_blt(pixman_implementation_t * imp, uint32_t * src_bits, uint32_t * dst_bits,
+pixman_bool_t _pixman_implementation_blt(pixman_implementation_t * imp, const uint32_t * src_bits, uint32_t * dst_bits,
     int src_stride, int dst_stride, int src_bpp, int dst_bpp, int src_x, int src_y, int dest_x, int dest_y, int width, int height);
 pixman_bool_t _pixman_implementation_fill(pixman_implementation_t * imp, uint32_t * bits,
     int stride, int bpp, int x, int y, int width, int height, uint32_t filler);

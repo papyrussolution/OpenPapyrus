@@ -28,10 +28,6 @@ int SLAPI EditRentCondition(PPRentCondition * pRc)
 		}
 		int setDTS(const PPRentCondition * pRentCond)
 		{
-			/*
-			if(pRentCond)
-				Data = *pRentCond;
-			*/
 			RVALUEPTR(Data, pRentCond);
 			SetPeriodInput(this, CTL_RENT_FROMTO, &Data.Period);
 			SetupStringCombo(this, CTLSEL_RENT_PERIOD, PPTXT_CYCLELIST, Data.Cycle);
@@ -630,13 +626,9 @@ void BillDialog::SetupAgreementButton()
 
 int BillDialog::EditAgreement()
 {
-	int    ok = -1;
 	ArticleTbl::Rec ar_rec;
 	const PPID ar_id = getCtrlLong(CTLSEL_BILL_OBJECT);
-	if(ar_id && ArObj.Fetch(ar_id, &ar_rec) > 0) {
-		ok = ArObj.EditAgreement(ar_id);
-	}
-	return ok;
+	return (ar_id && ArObj.Fetch(ar_id, &ar_rec) > 0) ? ArObj.EditAgreement(ar_id) : -1;
 }
 
 void BillDialog::SetupDiscountCtrls()
@@ -646,7 +638,6 @@ void BillDialog::SetupDiscountCtrls()
 	}
 	else {
 		int rt = P_BObj->CheckRights(BILLOPRT_TOTALDSCNT, 1);
-		// @v7.0.0 {
 		if(P_Pack->GetSyncStatus() > 0) {
 			//
 			// ≈сли у пользовател€ нет прав на изменение синхронизированного документа,
@@ -658,8 +649,7 @@ void BillDialog::SetupDiscountCtrls()
 					rt = 0;
 			}
 		}
-		// } @v7.0.0
-		ushort   v = getCtrlUInt16(CTL_BILL_TTLDISCOUNT);
+		const ushort v = getCtrlUInt16(CTL_BILL_TTLDISCOUNT);
 		disableCtrl(CTL_BILL_DISCOUNT, (!v || !rt));
 		disableCtrl(CTL_BILL_TTLDISCOUNT, !rt);
 	}
@@ -883,8 +873,6 @@ int SLAPI PPLinkFilesArray::Init(const char * pStoreDir)
 	return 1;
 }
 
-#define COM_WORD  "Word.Application"
-
 int SLAPI PPLinkFilesArray::CreateExcelFile(const char * pPath)
 {
 	int    ok = 1;
@@ -917,7 +905,7 @@ int SLAPI PPLinkFilesArray::CreateWordFile(const char * pPath)
 	};
 	ComDispInterface * p_appl = 0, * p_docs = 0, * p_doc = 0;
 	THROW_MEM(p_appl = new ComDispInterface);
-	THROW(p_appl->Init(COM_WORD, 0));
+	THROW(p_appl->Init("Word.Application", 0));
 
 	THROW(ASSIGN_ID_BY_NAME(p_appl, Documents));
 	THROW(ASSIGN_ID_BY_NAME(p_appl, ActiveDocument));
@@ -1051,9 +1039,9 @@ int SLAPI PPLinkFilesArray::EditDescr(uint pos)
 {
 	int    ok = -1;
 	if(pos >= 0 && pos < getCount()) {
-		SString descr, title, fname;
+		SString title, fname;
 		PPLinkFile * p_flink = at(pos);
-		descr = p_flink->Description;
+		SString descr = p_flink->Description;
 		SPathStruc ps;
 		ps.Split(p_flink->Path);
 		ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, fname);
@@ -1071,7 +1059,7 @@ int SLAPI PPLinkFilesArray::GetFilePath(uint pos, SString & aFilePath) const
 {
 	int    ok = 0;
 	if(pos >= 0 && pos < getCount()) {
-		PPLinkFile * p_flink = at(pos);
+		const PPLinkFile * p_flink = at(pos);
 		GetFilePath(p_flink->Id, p_flink->Ext, aFilePath);
 		ok = 1;
 	}
@@ -3734,9 +3722,10 @@ class LotInfoDialog : public TDialog {
 public:
 	LotInfoDialog(ReceiptTbl::Rec * pRec, int _canEdit) : TDialog(DLG_LOTINFO)
 	{
+		P_BObj = BillObj;
 		CanEdit = _canEdit;
 		SetupPPObjCombo(this, CTLSEL_LOTINFO_LOC, PPOBJ_LOCATION, 0, 0);
-		if(BillObj->CheckRights(BILLOPRT_ACCSSUPPL, 1))
+		if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1))
 			SetupArCombo(this, CTLSEL_LOTINFO_SUPPL, pRec->SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);
 		SetupPPObjCombo(this, CTLSEL_LOTINFO_INTAXGRP, PPOBJ_GOODSTAX, 0, 0);
 		addGroup(GRP_QCERT, new QCertCtrlGroup(CTL_LOTINFO_QCERT));
@@ -3749,6 +3738,7 @@ private:
 	DECL_HANDLE_EVENT;
 	void   setupLinkedLot(int prev);
 
+	PPObjBill * P_BObj;
 	ReceiptTbl::Rec Data;
 	int    CanEdit;
 	PPIDArray Chain;
@@ -3767,13 +3757,13 @@ void LotInfoDialog::setupLinkedLot(int prev)
 		}
 	}
 	else if(Chain.getCount() > 1) {
-		uint pos = Chain.getCount() - 1;
+		const uint pos = Chain.getCount() - 1;
 		lot_id = Chain.at(pos-1);
 		Chain.atFree(pos);
 	}
 	if(lot_id) {
 		ReceiptTbl::Rec lot_rec;
-		if(BillObj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0)
+		if(P_BObj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0)
 			setDTS(&lot_rec);
 		else
 			PPError();
@@ -3783,12 +3773,12 @@ void LotInfoDialog::setupLinkedLot(int prev)
 int LotInfoDialog::setDTS(const ReceiptTbl::Rec * pRec)
 {
 	int    s;
-	const  int accs_cost = BillObj->CheckRights(BILLOPRT_ACCSSUPPL, 1);
+	const  int accs_cost = P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1);
 	Data = *pRec;
 	setCtrlLong(CTLSEL_LOTINFO_LOC, Data.LocID);
 	SetupPPObjCombo(this, CTLSEL_LOTINFO_GOODS, PPOBJ_GOODS, Data.GoodsID, OLW_LOADDEFONOPEN);
 	if(accs_cost) {
-		PPID   temp_id = getCtrlLong(CTLSEL_LOTINFO_SUPPL);
+		const PPID temp_id = getCtrlLong(CTLSEL_LOTINFO_SUPPL);
 		if(temp_id != Data.SupplID)
 			setCtrlLong(CTLSEL_LOTINFO_SUPPL, Data.SupplID);
 	}
@@ -3821,7 +3811,7 @@ int LotInfoDialog::setDTS(const ReceiptTbl::Rec * pRec)
 
 int LotInfoDialog::getDTS(ReceiptTbl::Rec * pRec)
 {
-	const  int accs_cost = BillObj->CheckRights(BILLOPRT_ACCSSUPPL, 1);
+	const  int accs_cost = P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1);
 	ushort v;
 	LDATE  dt;
 	Data.LocID = getCtrlLong(CTLSEL_LOTINFO_LOC);
@@ -3853,7 +3843,7 @@ IMPL_HANDLE_EVENT(LotInfoDialog)
 {
 	TDialog::handleEvent(event);
 	if(event.isCmd(cmLotBill)) {
-		BillObj->ViewBillInfo(Data.BillID);
+		P_BObj->ViewBillInfo(Data.BillID);
 	}
 	else if(event.isCmd(cmLotOps))
 		::ViewOpersByLot(Data.ID, 0);

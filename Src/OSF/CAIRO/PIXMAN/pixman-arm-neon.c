@@ -143,7 +143,7 @@ static pixman_bool_t arm_neon_fill (pixman_implementation_t *imp, uint32_t *    
 
 static pixman_bool_t
 arm_neon_blt (pixman_implementation_t *imp,
-              uint32_t *               src_bits,
+              const uint32_t *               src_bits,
               uint32_t *               dst_bits,
               int                      src_stride,
               int                      dst_stride,

@@ -426,7 +426,7 @@ int SLAPI PPObjWorld::UniteMaxLike()
 		if(p_list) {
 			SString msg;
 			p_list->SortByID();
-			PPLoadString(PPSTR_TEXT, PPTXT_UNITELIKEWORLDS, msg);
+			PPLoadText(PPTXT_UNITELIKEWORLDS, msg);
 			for(uint i = 0; i < p_list->getCount(); i++) {
 				long   like_flags = PPObjWorld::smlCode|PPObjWorld::smlName|smlCheckCountryOrParent;
 				PPID   id = p_list->at(i).Id, like_id = 0;
@@ -466,7 +466,7 @@ class EditWorldDialog : public TDialog {
 public:
 	EditWorldDialog(uint resID) : TDialog(resID)
 	{
-		PPLoadString(PPSTR_TEXT, PPTXT_WORLDKINDNAMES, KindNames);
+		PPLoadText(PPTXT_WORLDKINDNAMES, KindNames);
 		DupID = 0;
 	}
 	int    setDTS(const PPWorldPacket *);

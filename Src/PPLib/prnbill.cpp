@@ -1,5 +1,5 @@
 // PRNBILL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -7,28 +7,31 @@
 
 int SLAPI PrintBillImages(PPBillPacket * pPack, int prnFlags);
 
-int SLAPI setupDiscountText(PPBillPacket * pack, int enableSTaxText, char * pBuf)
+int SLAPI setupDiscountText(const PPBillPacket * pack, int enableSTaxText, char * pBuf)
 {
 	pBuf[0] = 0;
 	if(!CheckOpPrnFlags(pack->Rec.OpID, OPKF_PRT_NDISCNT)) {
 		int    isdis = 0;
-		char   inclexcise[64], * p;
+		//char   inclexcise[64], * p;
 		SString val;
-		int    re = (pack->Rec.Flags & BILLF_RMVEXCISE) ? 1 : 0;
-		int    ne = (CConfig.Flags & CCFLG_PRICEWOEXCISE) ? !re : re;
-		double dis    = pack->Amounts.Get(PPAMT_MANDIS, pack->Rec.CurID);
-		double pctdis = pack->Amounts.Get(PPAMT_PCTDIS, 0L /* @curID */);
+		SString temp_buf;
+		const  int    re = BIN(pack->Rec.Flags & BILLF_RMVEXCISE);
+		const  int    ne = (CConfig.Flags & CCFLG_PRICEWOEXCISE) ? !re : re;
+		const  double dis = pack->Amounts.Get(PPAMT_MANDIS, pack->Rec.CurID);
+		const  double pctdis = pack->Amounts.Get(PPAMT_PCTDIS, 0L /* @curID */);
 		if(dis != 0 || pctdis != 0) {
-			PPLoadString(PPSTR_TEXT, PPTXT_INCLDIS, pBuf, 48);
-			p = pBuf + strlen(pBuf);
-			if(pctdis != 0)
-				val.Cat(pctdis, MKSFMTD(0, 1, 0)).Strip().CatChar('%');
+			//PPLoadText(PPTXT_INCLDIS, pBuf, 48);
+			//p = pBuf + strlen(pBuf);
+			PPLoadText(PPTXT_INCLDIS, temp_buf);
+			if(pctdis != 0.0)
+				temp_buf.Cat(pctdis, MKSFMTD(0, 1, 0)).Strip().CatChar('%');
 			else
-				val.Cat(dis, SFMT_MONEY);
-			strcpy(p, val);
+				temp_buf.Cat(dis, SFMT_MONEY);
+			//strcpy(p, val);
 			isdis = 1;
 		}
 		if(!ne && enableSTaxText) {
+			/*
 			PPGetSubStr(PPTXT_INCLEXCISE, isdis, inclexcise, sizeof(inclexcise));
 			if(pBuf[0]) {
 				p = pBuf + strlen(pBuf);
@@ -37,7 +40,12 @@ int SLAPI setupDiscountText(PPBillPacket * pack, int enableSTaxText, char * pBuf
 			else
 				p = pBuf;
 			strcpy(p, inclexcise);
+			*/
+			PPGetSubStr(PPTXT_INCLEXCISE, isdis, val);
+			if(temp_buf.NotEmpty())
+				temp_buf.Space();
 		}
+		strcpy(pBuf, temp_buf);
 	}
 	return 1;
 }

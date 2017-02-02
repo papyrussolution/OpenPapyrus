@@ -1,5 +1,5 @@
 // V_LOG.CPP
-// Copyright (c) Starodub A. 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2016
+// Copyright (c) Starodub A. 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -114,7 +114,7 @@ int LogsDialog::SendByEmail()
 		uis.Restore();
 		if(!support.Len())
 			support.CopyFrom(uis.SupportMail);
-		PPLoadString(PPSTR_TEXT, PPTXT_INPUTEMAIL, temp_buf);
+		PPLoadText(PPTXT_INPUTEMAIL, temp_buf);
 		PPInputStringDialogParam isd_param(temp_buf, temp_buf);
 		if(InputStringDialog(&isd_param, support) > 0) {
 			THROW_PP(support.Len() > 0, PPERR_SUPPORTMAILNOTDEF);

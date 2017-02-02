@@ -31,9 +31,7 @@ static void gradient_property_changed(pixman_image_t * image)
 	pixman_gradient_stop_t * stops = gradient->stops;
 	pixman_gradient_stop_t * begin = &(gradient->stops[-1]);
 	pixman_gradient_stop_t * end = &(gradient->stops[n]);
-
-	switch(gradient->common.repeat)
-	{
+	switch(gradient->common.repeat) {
 		default:
 		case PIXMAN_REPEAT_NONE:
 		    begin->x = INT32_MIN;
@@ -41,14 +39,12 @@ static void gradient_property_changed(pixman_image_t * image)
 		    end->x = INT32_MAX;
 		    end->color = transparent_black;
 		    break;
-
 		case PIXMAN_REPEAT_NORMAL:
 		    begin->x = stops[n - 1].x - pixman_fixed_1;
 		    begin->color = stops[n - 1].color;
 		    end->x = stops[0].x + pixman_fixed_1;
 		    end->color = stops[0].color;
 		    break;
-
 		case PIXMAN_REPEAT_REFLECT:
 		    begin->x = -stops[0].x;
 		    begin->color = stops[0].color;

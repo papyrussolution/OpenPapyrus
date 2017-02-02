@@ -172,8 +172,8 @@ void VCard::Rec::Init()
 SLAPI VCard::VCard(const char * pFileName, int forExport)
 {
 	P_Stream = 0;
-	PPLoadString(PPSTR_TEXT,  PPTXT_VCARD_PROPERTIES,    Properties);
-	PPLoadString(PPSTR_TEXT,  PPTXT_VCARD_PROPATTRIBUTE, PropAttrib);
+	PPLoadText(PPTXT_VCARD_PROPERTIES,    Properties);
+	PPLoadText(PPTXT_VCARD_PROPATTRIBUTE, PropAttrib);
 	Open(pFileName, forExport);
 }
 

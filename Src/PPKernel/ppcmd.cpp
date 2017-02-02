@@ -933,7 +933,7 @@ int SLAPI PPCommandGroup::Write(SBuffer & rBuf, long extraParam) const
 	if(Flags & (fBkgndImage|fBkgndImageLoaded)) {
 		SString buf, dir;
 		PPGetPath(PPPATH_BIN, dir);
-		PPLoadString(PPSTR_TEXT, PPTXT_DESKIMGDIR, buf);
+		PPLoadText(PPTXT_DESKIMGDIR, buf);
 		dir.SetLastSlash().Cat(buf).SetLastSlash();
 		ObjLinkFiles _lf;
 		_lf.Init(PPOBJ_DESKTOP, dir);
@@ -959,7 +959,7 @@ int SLAPI PPCommandGroup::Read(SBuffer & rBuf, long extraParam)
 		PROFILE_START
 		SString buf, dir;
 		PPGetPath(PPPATH_BIN, dir);
-		PPLoadString(PPSTR_TEXT, PPTXT_DESKIMGDIR, buf);
+		PPLoadText(PPTXT_DESKIMGDIR, buf);
 		dir.SetLastSlash().Cat(buf).SetLastSlash();
 		ObjLinkFiles logo;
 		logo.Init(PPOBJ_DESKTOP, dir);
@@ -979,7 +979,7 @@ int SLAPI PPCommandGroup::LoadLogo()
 	int    ok = -1;
 	SString buf, dir;
 	PPGetPath(PPPATH_BIN, dir);
-	PPLoadString(PPSTR_TEXT, PPTXT_DESKIMGDIR, buf);
+	PPLoadText(PPTXT_DESKIMGDIR, buf);
 	dir.SetLastSlash().Cat(buf).SetLastSlash();
 	ObjLinkFiles logo;
 	logo.Init(PPOBJ_DESKTOP, dir);
@@ -994,7 +994,7 @@ int SLAPI PPCommandGroup::StoreLogo()
 	int    ok = 1;
 	SString buf, dir;
 	PPGetPath(PPPATH_BIN, dir);
-	PPLoadString(PPSTR_TEXT, PPTXT_DESKIMGDIR, buf);
+	PPLoadText(PPTXT_DESKIMGDIR, buf);
 	dir.SetLastSlash().Cat(buf).SetLastSlash();
 
 	ObjLinkFiles _lf;
@@ -2242,8 +2242,8 @@ int SLAPI SearchDlvrAddr()
 	int    ok = -1;
 	SString title, inp_title, srch_str;
 	PPInputStringDialogParam isd_param;
-	PPLoadString(PPSTR_TEXT, PPTXT_SRCHDLVRADDRTITLE, isd_param.Title);
-	PPLoadString(PPSTR_TEXT, PPTXT_SRCHDLVRADDRINPUTTITLE, isd_param.InputTitle);
+	PPLoadText(PPTXT_SRCHDLVRADDRTITLE, isd_param.Title);
+	PPLoadText(PPTXT_SRCHDLVRADDRINPUTTITLE, isd_param.InputTitle);
 	for(int valid_data = 0; !valid_data && InputStringDialog(&isd_param, srch_str) > 0;) {
 		if(srch_str.Len()) {
 			int r = 0;

@@ -694,8 +694,9 @@
 	#define PPACN_ATTACHMENTUPD    78L // @v8.7.8 Приклепленный к объекту файл изменен (доп параметр - номер файла)
 	#define PPACN_BILLWROFF        79L // @v8.8.3 Документ списан
 	#define PPACN_BILLWROFFUNDO    80L // @v8.8.3 Откат списания документа
+	#define PPACN_GOODSPASSVSET    81L // @v9.5.0 Установлен признак "Пассивный" для товара
 	// !!! При вставке нового значения изменить PPACN_LAST !!!
-	#define PPACN_LAST             80L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
+	#define PPACN_LAST             81L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
 //
 // Фантомный объект. В таблице Reference для него не существует записей.
 // Могут существовать записи в таблице Property, реализующие линейный
@@ -10350,11 +10351,6 @@
 #define PPERR_REFISBUSY            18 // Попытка добавить объект с уже используемым ид-ром
 #define PPERR_CFGOBJRDFAULT        19 // Ошибка чтения объекта конфигурации %s
 #define PPERR_USRMUSTBELONGTOGRP   20 // Пользователь должен принадлежать какой-либо группе
-#define PPERR_SECURNAMENEEDED      21 // Конфигурация, группа или пользователь должны иметь имя //
-#define PPERR_NAMENEEDED           22 // Необходимо ввести имя //
-#define PPERR_COUNTRYIDNEEDED      23 // Требуется указать государство
-#define PPERR_CITYSTATUSNEEDED     24 // Необходимо указать статус города
-#define PPERR_CITYNEEDED           25 // Требуется указать город
 #define PPERR_UNCHANGABLEPERSONKIND 26 // Данный вид персоналии не может быть присвоен или удален произвольно
 #define PPERR_DUPARTICLE           27 // Дублирование номера статьи аналитического учета
 #define PPERR_INVACCSHEETASSOC     28 // Ошибочный код ассоциации в таблице аналитических статей (очень неприятный

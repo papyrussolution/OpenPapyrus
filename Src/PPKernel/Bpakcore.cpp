@@ -2667,7 +2667,7 @@ int SLAPI PPBillPacket::ShrinkTRows(long fl /* = ETIEF_DIFFBYLOT | ETIEF_UNITEBY
 	LongArray saw;
 	PPTransferItem * p_ti;
 	for(uint i = 0; EnumTItems(&i, &p_ti);) {
-		long idx = (long)(i-1);
+		const long idx = (long)(i-1);
 		if(!saw.lsearch(idx))
 			MergeTI(p_ti, idx, fl, saw, 0);
 	}
@@ -2709,7 +2709,7 @@ int SLAPI PPBillPacket::GetQuotExt(const PPTransferItem & rTi, double * pPrice)
 	if(qk_list.getCount()) {
 		PPObjGoods goods_obj;
 		for(uint i = 0; i < qk_list.getCount(); i++) {
-			QuotIdent qi(QIDATE(rTi.Date), rTi.LocID, qk_list.get(i), 0 /* curID */, 0 /* arID */);
+			const QuotIdent qi(QIDATE(rTi.Date), rTi.LocID, qk_list.get(i), 0 /* curID */, 0 /* arID */);
 			if((r = goods_obj.GetQuotExt(labs(rTi.GoodsID), qi, rTi.Cost, *pPrice, &result, 1)) > 0)
 				ok = r;
 			break;
@@ -2723,11 +2723,7 @@ static void SLAPI AddSalesTax(PPTransferItem * pTI, double rate, int plus)
 {
 	const PPCommConfig & r_ccfg = CConfig;
 	if(!(r_ccfg.Flags & CCFLG_TGGLEXCSNPRICE) && !(pTI->Flags & PPTFR_PRICEWOTAXES)) {
-		double net_price_rate = 0.0;
-		if(pTI->Flags & PPTFR_ORDER)
-			net_price_rate = pTI->Price * rate;
-		else
-			net_price_rate = pTI->NetPrice() * rate;
+		const double net_price_rate = ((pTI->Flags & PPTFR_ORDER) ? pTI->Price : pTI->NetPrice()) * rate;
 		double add_dis = 0.0;
 		if(!(r_ccfg.Flags & CCFLG_PRICEWOEXCISE))
 			plus = plus ? 0 : 1;
@@ -2968,8 +2964,8 @@ void SLAPI PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 							ti->Flags &= ~PPTFR_RMVEXCISE;
 					}
 					if(!skip_dis && !(ti->Flags & PPTFR_NODISCOUNT) && !zero) {
-						double qtty = fabs(ti->Quantity_);
-						double p    = R2((ti->Flags & PPTFR_ORDER) ? ti->Price : ti->NetPrice());
+						const double qtty = fabs(ti->Quantity_);
+						const double p    = R2((ti->Flags & PPTFR_ORDER) ? ti->Price : ti->NetPrice());
 						amount += R2(p * qtty);
 						if(v418_calc_method) {
 							TiDisItem tdi;
@@ -2987,28 +2983,31 @@ void SLAPI PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 				}
 			}
 			if(dis != 0.0 && amount != 0.0) {
-				double d, discount = pctdis ? (dis * fdiv100r(amount)) : dis;
-				double part_dis = 0.0, part_amount = 0.0;
+				const double discount = pctdis ? (dis * fdiv100r(amount)) : dis;
+				double d;
+				double part_dis = 0.0;
+				double part_amount = 0.0;
 				if(v418_calc_method) {
 					TiDisItem * p_tdi;
 					list.sort(PTR_CMPFUNC(TiDisItem));
 					for(i = 0; list.enumItems(&i, (void **)&p_tdi);) {
-						double qtty = p_tdi->Qtty;
-						double ths  = p_tdi->Price;
-						double prev = (i > 1) ? ((TiDisItem *)list.at(i-2))->Price : SMathConst::Max;
-						double next = (i < list.getCount()) ? ((TiDisItem *)list.at(i))->Price : SMathConst::Max;
+						const double qtty = p_tdi->Qtty;
+						const double ths  = p_tdi->Price;
+						const double prev = (i > 1) ? ((TiDisItem *)list.at(i-2))->Price : SMathConst::Max;
+						const double next = (i < list.getCount()) ? ((TiDisItem *)list.at(i))->Price : SMathConst::Max;
 						if(qtty > 0.0 && (qtty < min_qtty || (qtty == min_qtty && ths > max_price)) && (ths != prev && ths != next)) {
 							last_index = p_tdi->Idx+1;
 							min_qtty   = qtty;
 							max_price  = ths;
 						}
 					}
-					double prev_price = -SMathConst::Max, prev_dis = 0.0;
+					double prev_price = -SMathConst::Max;
+					double prev_dis = 0.0;
 					for(i = 0; list.enumItems(&i, (void **)&p_tdi);) {
 						if((p_tdi->Idx+1) != (int)last_index) {
 							ti = & TI(p_tdi->Idx);
-							double p    = ti_price(ti);
-							double qtty = fabs(ti->Quantity_);
+							const double qtty = fabs(ti->Quantity_);
+							double p = ti_price(ti);
 							if(i > 1 && p == prev_price)
 								d = prev_dis;
 							else
@@ -3026,15 +3025,16 @@ void SLAPI PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 					}
 				}
 				else if(v405_calc_method) {
-					for(i = 0; EnumTItems(&i, &ti);)
+					for(i = 0; EnumTItems(&i, &ti);) {
 						if(!ti->CurID && !(ti->Flags & (PPTFR_NODISCOUNT | PPTFR_PCKG)) && i != last_index) {
-							double p    = ti_price(ti);
-							double qtty = fabs(ti->Quantity_);
+							const double p    = ti_price(ti);
+							const double qtty = fabs(ti->Quantity_);
 							d = R2(p * (discount - part_dis) / (amount - part_amount));
 							part_dis += (d * qtty);
 							part_amount += (p * qtty);
 							set_ti_dis(ti, d);
 						}
+					}
 					if(last_index) {
 						ti = &TI(last_index-1);
 						set_ti_dis(ti, R2((discount - part_dis) / fabs(ti->Quantity_)));
@@ -3122,7 +3122,7 @@ int SLAPI PPBillPacket::Helper_DistributeExtCost(double extCostSum, int alg)
 			const PPID goods_id = labs(p_ti->GoodsID);
 			if(goods_obj.Fetch(goods_id, &goods_rec) > 0 && !(goods_rec.Flags & GF_UNLIM)) {
 				const double qtty = fabs(p_ti->Quantity_);
-				double p    = (p_ti->Cost + p_ti->ExtCost);
+				const double p    = (p_ti->Cost + p_ti->ExtCost);
 				double part = 0.0;
 				GoodsStockExt gse;
 				switch(alg) {
@@ -3163,10 +3163,10 @@ int SLAPI PPBillPacket::Helper_DistributeExtCost(double extCostSum, int alg)
 		}
 		if(distr_list.getCount()) {
 			for(i = 0; EnumTItems(&i, &p_ti);) {
-				double part = distr_list.Get(i);
+				const double part = distr_list.Get(i);
 				if(part > 0.0 && i != last_index) {
 					const double qtty = fabs(p_ti->Quantity_);
-					double ext_cost = R5((part * extCostSum) / (part_sum * qtty));
+					const double ext_cost = R5((part * extCostSum) / (part_sum * qtty));
 					p_ti->Cost += ext_cost;
 					p_ti->ExtCost += ext_cost;
 					rest -= (ext_cost * qtty);
@@ -3178,7 +3178,7 @@ int SLAPI PPBillPacket::Helper_DistributeExtCost(double extCostSum, int alg)
 				double part = distr_list.Get(last_index);
 				if(part > 0.0) {
 					const double qtty = fabs(p_ti->Quantity_);
-					double ext_cost = R5(rest / qtty);
+					const double ext_cost = R5(rest / qtty);
 					p_ti->Cost += ext_cost;
 					p_ti->ExtCost += ext_cost;
 					rest -= (ext_cost * qtty);
@@ -3385,7 +3385,7 @@ int SLAPI PPBillPacket::GoodsRest(PPID goodsID, const PPTransferItem * pItem, in
 	return ok;
 }
 
-int SLAPI PPBillPacket::CalcShadowQuantity(PPID lotID, double * pQtty)
+int SLAPI PPBillPacket::CalcShadowQuantity(PPID lotID, double * pQtty) const
 {
 	int    ok = 1;
 	uint   i  = 0;
@@ -3485,7 +3485,7 @@ int SLAPI PPBillPacket::CalcModifCost()
 	return 1;
 }
 
-int SLAPI PPBillPacket::CheckLargeBill(int genWarn)
+int SLAPI PPBillPacket::CheckLargeBill(int genWarn) const
 {
 	int    is_max_items = 0;
 	if(GetOpSubType(Rec.OpID) == OPSUBT_WARRANT) {

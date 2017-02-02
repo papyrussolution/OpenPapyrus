@@ -1,5 +1,5 @@
 // V_SCALE.CPP
-// Copyright (c) A.Starodub 2008, 2009, 2010, 2015, 2016
+// Copyright (c) A.Starodub 2008, 2009, 2010, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -23,7 +23,7 @@ ScaleFilt & ScaleFilt::operator=(const ScaleFilt & s)
 PPViewScale::PPViewScale() : PPView(&ObjScale, &Filt, PPVIEW_SCALE)
 {
 	P_TempTbl = 0;
-	PPLoadString(PPSTR_TEXT, PPTXT_SCLT, ScaleTypeNames);
+	PPLoadText(PPTXT_SCLT, ScaleTypeNames);
 }
 
 PPViewScale::~PPViewScale()

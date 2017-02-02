@@ -1,5 +1,5 @@
 // PPDESKTP.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -650,7 +650,7 @@ int PPDesktop::Init(long desktopID)
 			Logotype.Init();
 			ps.Split(P_ActiveDesktop->GetLogo());
 			PPGetPath(PPPATH_BIN, path);
-			PPLoadString(PPSTR_TEXT, PPTXT_DESKIMGDIR, buf);
+			PPLoadText(PPTXT_DESKIMGDIR, buf);
 			path.SetLastSlash().Cat(buf);
 			MakeTempFileName(path, "TMP", ps.Ext, 0, (buf = 0));
 			path = buf;

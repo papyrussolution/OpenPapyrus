@@ -350,6 +350,9 @@ library PapyrusInterfaceLib {
 		BSTR AccsName;
 		BSTR AccsPassw;
 		BSTR TechSymbol;
+		long SequenceID;
+		long CliCodeTagID;
+		long LocCodeTagID;
 	} PpySupplInterchangeConfig;
 
 	typedef [v1_enum] enum _PpyViewIdent {

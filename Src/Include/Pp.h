@@ -6855,7 +6855,7 @@ int    FASTCALL PPLoadError(int code, SString & s, const char * pAddInfo);
 // Descr: «агружает строку категории PPSTR_TEXT в буфер s и перекодирует ее функцией s.Transf(CTRANSF_INNER_TO_OUTER)
 //
 int    FASTCALL PPLoadTextWin(int code, SString & s);
-int    SLAPI PPLoadString(int grp, int code, char * pBuf, size_t buflen); // @cs
+// @v9.5.0 int    SLAPI PPLoadString(int grp, int code, char * pBuf, size_t buflen); // @cs
 int    SLAPI PPGetSubStr(const char * pStr, int idx, SString &);
 int    SLAPI PPGetSubStr(const char * pStr, int idx /* 0.. */, char * pBuf, size_t bufLen);
 	// @>>PPGetSubStr(const char *, int, SString &)
@@ -7348,6 +7348,7 @@ public:
 	static int SLAPI GetStdName(int bcstd, SString & rBuf);
 	static int SLAPI RecognizeStdName(const char * pText);
 	static int SLAPI CreateImage(const char * pCode, int bcstd, int outpFormat, const char * pOutpFileName);
+	static int SLAPI RecognizeImage(const char * pInpFileName);
 	//
 	// Descr:  онвертирует штрихкод в формате UPC-E в формат UPC-A
 	// Note: Ќе провер€ет вход€щий параметр pUpce на корректное представление UPC-E
@@ -10256,7 +10257,7 @@ public:
 	//   возвращаетс€ зарезервированное количество товара (лоты заказов, имеющие признак LOTF_ORDRESERVE).
 	//
 	int    SLAPI GoodsRest(PPID goodsID, const PPTransferItem *, int pos, double * pRest, double * pReserve = 0);
-	int    SLAPI CalcShadowQuantity(PPID lot, double * pQtty);
+	int    SLAPI CalcShadowQuantity(PPID lot, double * pQtty) const;
 	int    SLAPI InsertRow(const PPTransferItem *, IntArray *, int pcug = PCUG_CANCEL);
 	int    SLAPI RemoveRow(uint *);
 	int    SLAPI RemoveRow(uint);
@@ -10289,7 +10290,7 @@ public:
 	//   то предупреждает об этом и рекомендует его сохранить, при этом
 	//   возвращает !0. ≈сли размер документа приемлем, то возвращает 0.
 	//
-	int    SLAPI CheckLargeBill(int genWarn);
+	int    SLAPI CheckLargeBill(int genWarn) const;
 	//
 	// Descr: ѕреобразует пакет товарного документа в пакет кассового чека.
 	//   ‘ункци€ пригодна только дл€ печати чека.
@@ -27129,7 +27130,8 @@ private:
 			aActionByRule,  // @v8.3.11
 			aChgMinStock,   // @v8.6.4
 			aSplitBarcodeItems, // @v8.6.9
-			aMergeDiezNames     // @v8.6.9
+			aMergeDiezNames,    // @v8.6.9
+			aChgTaxGroup        // @v9.5.0 
 		};
 		enum {
 			fMassOpAllowed  = 0x0001,
@@ -29166,7 +29168,7 @@ public:
 	int    SLAPI AddDraftByOrder(PPID * pBillID, PPID sampleBillID, const SelAddBySampleParam * pParam);
 	int    SLAPI AddRetBill(PPID opID, long link, PPID locID);
 	int    SLAPI AddRetBillByLot(PPID lotID);
-	int    SLAPI DiagGoodsTurnError(PPBillPacket *);
+	void   SLAPI DiagGoodsTurnError(const PPBillPacket *);
 	int    SLAPI GetCurRate(PPID curID, PPID rateTypeID, PPID relCurID, LDATE * pDt, double * pRate);
 	int    SLAPI GetCurRate(PPID curID, LDATE * pDt, double * pRate);
 		// @>>GetCurRate(curID, LConfig.BaseRateTypeID, LConfig.BaseCurID, pDt, pRate)
@@ -38673,8 +38675,9 @@ public:
 	// Descr: ¬арианты расчета дополнительных показателей отчета
 	//
 	enum {
-		extvNone = 0,
-		extvLinkOrderDiscount = 1 // ¬еличина скидки в св€занном со строкой продажи заказе
+		extvNone              = 0,
+		extvLinkOrderDiscount = 1, // ¬еличина скидки в св€занном со строкой продажи заказе
+		extvQuotBias          = 1000 // —мещение, обозначающее вид котировки, примен€емой дл€ вычислени€ дополнительного показател€
 	};
 	//
 	//
@@ -47072,8 +47075,9 @@ int     SLAPI BigTextDialog(uint maxLen, const char * pTitle, SString & rText);
 int     SLAPI SetComboBoxListText(TDialog *, uint comboBoxCtlID);
 int     SLAPI SetupStringCombo(TDialog *, uint ctlID, int strID, long initID);
 int     SLAPI SetupStringCombo(TDialog *, uint ctlID, const char * pStrSignature, long initID);
+int     SLAPI SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const char * pStrSignature, const StrAssocArray * pAddendumList, long initID);
 // id = <string offset> + 1
-int     SLAPI SetupStringCombo(TDialog *, uint ctlID, StringSet *, long initID, uint /*flags*/);
+// @v9.5.0 int     SLAPI SetupStringCombo(TDialog *, uint ctlID, StringSet *, long initID, uint /*flags*/);
 int     SLAPI SetupStringComboDevice(TDialog *, uint ctlID, uint dvcClass, long initID, uint /*flags*/); //@vmiller
 int		SLAPI GetStrFromDrvIni(int iniSectID, long devTypeId, int numOfOldDev, SString & str); // @vmiller
 // @v9.3.4 (используетс€ только в одном месте - теперь static) int     SLAPI SetupTaggedStringCombo(TDialog * dlg, uint ctlID, const SArray * pStrings, long initID, uint /*flags*/, size_t offs = 0, int ownerDrawListBox = 0);

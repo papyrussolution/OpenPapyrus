@@ -1,5 +1,5 @@
 // OBJGOODS.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -119,7 +119,7 @@ int SLAPI PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd
 				PPObjTag tag_obj;
 				ObjTagItem tag_item;
 				if(tag_obj.FetchTag(glob_acc_id, r_cfg.BcPrefixGuaTagID, &tag_item) > 0 && tag_item.GetStr(temp_buf) > 0) {
-					StringSet ss(';', temp_buf);
+					const StringSet ss(';', temp_buf);
 					for(uint p = 0; !ok && ss.get(&p, temp_buf);) {
 						if(temp_buf.CmpL(pBarcode, 1) == 0) {
 							diag = cddGuaPrefix;
@@ -1274,6 +1274,10 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 					else {
 						if((org_rec.Flags & GF_NODISCOUNT) && (!(pPack->Rec.Flags & GF_NODISCOUNT)))
 							DS.LogAction(PPACN_GOODSNODISRMVD, Obj, *pID, 0, 0);
+						// @v9.5.0 {
+						if(!(org_rec.Flags & GF_PASSIV) && (pPack->Rec.Flags & GF_PASSIV))
+							DS.LogAction(PPACN_GOODSPASSVSET, Obj, *pID, 0, 0);
+						// } @v9.5.0
 						if(pPack->Rec.TaxGrpID != org_rec.TaxGrpID)
 							DS.LogAction(PPACN_GOODSVATGRPCHD, Obj, *pID, org_rec.TaxGrpID, 0);
 					}

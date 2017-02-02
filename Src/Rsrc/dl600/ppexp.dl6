@@ -4312,6 +4312,7 @@ data GoodsStrucList {
 	OrgName = Glb.MainOrgName;
 	LocName = LocID.Name;
 	iteration {
+		link   GoodsStruc GsID;      // @v9.5.0
 		link   Goods     GoodsID;    // Идентификатор товара, к которому относится структура
 		link   Goods     ItemID;
 		string GoodsName[128];

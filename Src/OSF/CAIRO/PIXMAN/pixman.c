@@ -182,10 +182,7 @@ static inline pixman_bool_t clip_source_image(pixman_region32_t * region,
 	 */
 	if(!image->common.clip_sources || !image->common.client_clip)
 		return TRUE;
-
-	return clip_general_image(region,
-	    &image->common.clip_region,
-	    dx, dy);
+	return clip_general_image(region, &image->common.clip_region, dx, dy);
 }
 
 /*
@@ -625,9 +622,7 @@ PIXMAN_EXPORT void pixman_image_composite32(pixman_op_t op,
 	info.src_image = src;
 	info.mask_image = mask;
 	info.dest_image = dest;
-
 	pbox = pixman_region32_rectangles(&region, &n);
-
 	while(n--) {
 		info.src_x = pbox->x1 + src_x - dest_x;
 		info.src_y = pbox->y1 + src_y - dest_y;
@@ -637,12 +632,9 @@ PIXMAN_EXPORT void pixman_image_composite32(pixman_op_t op,
 		info.dest_y = pbox->y1;
 		info.width = pbox->x2 - pbox->x1;
 		info.height = pbox->y2 - pbox->y1;
-
 		func(imp, &info);
-
 		pbox++;
 	}
-
 out:
 	pixman_region32_fini(&region);
 }
@@ -660,59 +652,31 @@ PIXMAN_EXPORT void pixman_image_composite(pixman_op_t op,
     uint16_t width,
     uint16_t height)
 {
-	pixman_image_composite32(op, src, mask, dest, src_x, src_y,
-	    mask_x, mask_y, dest_x, dest_y, width, height);
+	pixman_image_composite32(op, src, mask, dest, src_x, src_y, mask_x, mask_y, dest_x, dest_y, width, height);
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_blt(uint32_t * src_bits,
-    uint32_t * dst_bits,
-    int src_stride,
-    int dst_stride,
-    int src_bpp,
-    int dst_bpp,
-    int src_x,
-    int src_y,
-    int dest_x,
-    int dest_y,
-    int width,
-    int height)
+PIXMAN_EXPORT pixman_bool_t pixman_blt(const uint32_t * src_bits, uint32_t * dst_bits,
+    int src_stride, int dst_stride, int src_bpp, int dst_bpp, int src_x, int src_y, int dest_x, int dest_y,
+    int width, int height)
 {
-	return _pixman_implementation_blt(get_implementation(),
-	    src_bits, dst_bits, src_stride, dst_stride,
-	    src_bpp, dst_bpp,
-	    src_x, src_y,
-	    dest_x, dest_y,
-	    width, height);
+	return _pixman_implementation_blt(get_implementation(), src_bits, dst_bits, src_stride, dst_stride,
+	    src_bpp, dst_bpp, src_x, src_y, dest_x, dest_y, width, height);
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_fill(uint32_t * bits,
-    int stride,
-    int bpp,
-    int x,
-    int y,
-    int width,
-    int height,
-    uint32_t filler)
+PIXMAN_EXPORT pixman_bool_t pixman_fill(uint32_t * bits, int stride, int bpp, int x, int y,
+    int width, int height, uint32_t filler)
 {
-	return _pixman_implementation_fill(
-	    get_implementation(), bits, stride, bpp, x, y, width, height, filler);
+	return _pixman_implementation_fill(get_implementation(), bits, stride, bpp, x, y, width, height, filler);
 }
 
 static uint32_t color_to_uint32(const pixman_color_t * color)
 {
-	return
-		(color->alpha >> 8 << 24) |
-		(color->red >> 8 << 16) |
-		(color->green & 0xff00) |
-		(color->blue >> 8);
+	return (color->alpha >> 8 << 24) | (color->red >> 8 << 16) | (color->green & 0xff00) | (color->blue >> 8);
 }
 
-static pixman_bool_t color_to_pixel(const pixman_color_t * color,
-    uint32_t *            pixel,
-    pixman_format_code_t format)
+static pixman_bool_t color_to_pixel(const pixman_color_t * color, uint32_t * pixel, pixman_format_code_t format)
 {
 	uint32_t c = color_to_uint32(color);
-
 	if(!(format == PIXMAN_a8r8g8b8     ||
 		    format == PIXMAN_x8r8g8b8     ||
 		    format == PIXMAN_a8b8g8r8     ||

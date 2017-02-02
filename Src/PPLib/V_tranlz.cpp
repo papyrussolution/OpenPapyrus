@@ -1045,23 +1045,35 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 	double pvat = 0.0;
 	// @v9.3.4 {
 	double ext_val1 = 0.0;
-	if(Filt.ExtValueParam[0] == Filt.extvLinkOrderDiscount) {
-		PPID   ord_lot_id = 0;
-		if(P_BObj->GetOrderLotForTransfer(*pTrfrRec, &ord_lot_id) > 0) {
-			assert(ord_lot_id);
-			DateIter di;
-			TransferTbl::Rec ord_rec;
-			if(P_BObj->trfr->EnumByLot(ord_lot_id, &di, &ord_rec) > 0) {
-				if(TESTMULTFLAG(ord_rec.Flags, (PPTFR_ORDER|PPTFR_RECEIPT)) && ord_rec.Discount != 0.0) {
-					const double ord_qtty = fabs(ord_rec.Quantity);
-					const double ord_price = fabs(ord_rec.Price) * ord_qtty;
-					const double ord_dis   = ord_rec.Discount * ord_qtty;
-					double ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R4(ord_dis / ord_price) : 0.0;
-					if(ord_pct_dis > 0.0)
-						ext_val1 = (pTrfrRec->Price - pTrfrRec->Discount) * ord_pct_dis * qtty / (1.0 - ord_pct_dis);
+	{
+		const long ext_val_param = Filt.ExtValueParam[0];
+		if(ext_val_param == Filt.extvLinkOrderDiscount) {
+			PPID   ord_lot_id = 0;
+			if(P_BObj->GetOrderLotForTransfer(*pTrfrRec, &ord_lot_id) > 0) {
+				assert(ord_lot_id);
+				DateIter di;
+				TransferTbl::Rec ord_rec;
+				if(P_BObj->trfr->EnumByLot(ord_lot_id, &di, &ord_rec) > 0) {
+					if(TESTMULTFLAG(ord_rec.Flags, (PPTFR_ORDER|PPTFR_RECEIPT)) && ord_rec.Discount != 0.0) {
+						const double ord_qtty = fabs(ord_rec.Quantity);
+						const double ord_price = fabs(ord_rec.Price) * ord_qtty;
+						const double ord_dis   = ord_rec.Discount * ord_qtty;
+						double ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R4(ord_dis / ord_price) : 0.0;
+						if(ord_pct_dis > 0.0)
+							ext_val1 = (pTrfrRec->Price - pTrfrRec->Discount) * ord_pct_dis * qtty / (1.0 - ord_pct_dis);
+					}
 				}
 			}
 		}
+		// @v9.5.0 {
+		else if(ext_val_param > Filt.extvQuotBias) {
+			const QuotIdent qi(pTrfrRec->LocID, ext_val_param-Filt.extvQuotBias, pTrfrRec->CurID, pBillRec->Object);
+			double _ext_quot = 0.0;
+			if(GObj.GetQuotExt(goods_id, qi, pTrfrRec->Cost, pTrfrRec->Price, &_ext_quot, 1) > 0) {
+				ext_val1 = _ext_quot * qtty * sign;
+			}
+		}
+		// } @v9.5.0 
 	}
 	// } @v9.3.4
 	if(Flags & fAsGoodsCard && Filt.Flags & TrfrAnlzFilt::fGByDate) {
@@ -3026,7 +3038,7 @@ class TrfrAnlzCtDialog : public PPListDialog {
 public:
 	TrfrAnlzCtDialog() : PPListDialog(DLG_TAC, CTL_TAC_VALLIST)
 	{
-		PPLoadString(PPSTR_TEXT, PPTXT_TRFRANLZCTVALNAMES, CtValNames);
+		PPLoadText(PPTXT_TRFRANLZCTVALNAMES, CtValNames);
 		setSmartListBoxOption(CTL_TAC_VALLIST, lbtSelNotify);
 	}
 	int    setDTS(const TrfrAnlzFilt * pData)
@@ -3134,9 +3146,9 @@ void TrfrAnlzGrpngDialog::SetupCtrls()
 	if(Data.Sgp == sgpCategory)
 		setCtrlUInt16(CTL_TAGRPNG_DIFFDLVRADDR, 0);
 	{
-		int    disable_calc_rest = BIN(Data.Sgg || !oneof2(Data.Grp, TrfrAnlzFilt::gGoods, TrfrAnlzFilt::gGoodsDate));
+		const int disable_calc_rest = BIN(Data.Sgg || !oneof2(Data.Grp, TrfrAnlzFilt::gGoods, TrfrAnlzFilt::gGoodsDate));
 		disableCtrl(CTL_TAGRPNG_CALCREST, disable_calc_rest);
-		int    disable_trnovr = BIN(disable_calc_rest || !(Data.Flags & TrfrAnlzFilt::fCalcRest));
+		const int disable_trnovr = BIN(disable_calc_rest || !(Data.Flags & TrfrAnlzFilt::fCalcRest));
 		disableCtrl(CTL_TAGRPNG_TURNOVER, disable_trnovr);
 	}
 }
@@ -3198,7 +3210,17 @@ int TrfrAnlzGrpngDialog::setDTS(const TrfrAnlzFilt * pData)
 		AddClusterAssoc(CTL_TAGRPNG_TURNOVER, 0, TrfrAnlzFilt::ravTurnoverRate);
 		SetClusterData(CTL_TAGRPNG_TURNOVER, Data.RestAddendumValue);
 	}
-	SetupStringCombo(this, CTLSEL_TAGRPNG_EXTVAL1, "trfranlz_enum_extval", Data.ExtValueParam[0]);
+	{
+		StrAssocArray qk_list_addendum;
+		PPObjQuotKind qk_obj;
+		PPQuotKind qk_rec;
+        for(SEnum en = qk_obj.Enum(0); en.Next(&qk_rec) > 0;) {
+			qk_list_addendum.AddFast(qk_rec.ID + TrfrAnlzFilt::extvQuotBias, qk_rec.Name);
+        }
+		qk_list_addendum.SortByText();
+		//
+		SetupStringComboWithAddendum(this, CTLSEL_TAGRPNG_EXTVAL1, "trfranlz_enum_extval", &qk_list_addendum, Data.ExtValueParam[0]);
+	}
 	// } @v9.1.5
 	SetupCtrls();
 	return 1;

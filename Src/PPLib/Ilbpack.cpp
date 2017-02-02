@@ -442,7 +442,7 @@ public:
 				rPrl.at(n).GetList(*p_new_list);
 				p_new_list->setPointer(0);
 				_c *= p_new_list->getCount();
-				if(_c > 10000) 
+				if(_c > 10000)
 					ok = -1;
 			}
 			if(ok > 0) {
@@ -683,9 +683,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, IntArray * p
 			if(pPack->IsDraft())
 				ti.Cost = ilti->Cost;
 			else {
-				long tisl = TISL_ADJPRICE;
-				if(flags & CILTIF_ZERODSCNT && ti.Price > 0.0)
-					tisl |= TISL_IGNPRICE;
+				const long tisl = (flags & CILTIF_ZERODSCNT && ti.Price > 0.0) ? (TISL_ADJPRICE|TISL_IGNPRICE) : TISL_ADJPRICE;
 				THROW(ti.SetupLot(lotr.ID, &lotr, tisl));
 			}
 			ti.LotID = 0;
@@ -718,7 +716,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, IntArray * p
 			qtty = 0.0;
 		}
 		else if(pPack->OprType == PPOPT_GOODSREVAL) {
-			THROW_PP(sync_lot_id, PPERR_CANTACCEPTBILLRVL_SYNCLOT);
+			THROW_PP_S(sync_lot_id, PPERR_CANTACCEPTBILLRVL_SYNCLOT, goods_rec.Name); // @v9.5.0 goods_rec.Name
 			THROW(trfr->Rcpt.Search(sync_lot_id, &lotr) > 0);
 			THROW(ti.Init(&pPack->Rec, 1, -1));
 			THROW(ti.SetupGoods(ilti->GoodsID, 0));
@@ -731,7 +729,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, IntArray * p
 			full_sync = 1;
 		}
 		else if(pPack->OprType == PPOPT_CORRECTION) {
-			THROW_PP(sync_lot_id, PPERR_CANTACCEPTBILLRVL_SYNCLOT);
+			THROW_PP_S(sync_lot_id, PPERR_CANTACCEPTBILLRVL_SYNCLOT, goods_rec.Name); // @v9.5.0 goods_rec.Name
 			THROW(trfr->Rcpt.Search(sync_lot_id, &lotr) > 0);
 			THROW(ti.Init(&pPack->Rec, 1, -1));
 			THROW(ti.SetupGoods(ilti->GoodsID, 0));
@@ -832,7 +830,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, IntArray * p
 			// @v9.3.5 if(qtty == 0.0) {
 			// @v9.3.9 if(feqeps(qtty, 0.0, 1.0E-8)) { // @v9.3.5
 			// @v9.4.0 if(qtty < (-_qtty_epsilon)) { // @v9.3.9
-			if(feqeps(qtty, 0.0, _qtty_epsilon)) { // @v9.4.0 
+			if(feqeps(qtty, 0.0, _qtty_epsilon)) { // @v9.4.0
 				if(flags & CILTIF_SYNC && sync_lot_id) {
 					if(_RowNSyncDiag(ilti, rows, flags)) {
 						const uint ti_pos = (uint)rows.at(0);

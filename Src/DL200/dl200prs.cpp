@@ -475,7 +475,7 @@ SLAPI DL2_Resolver::DL2_Resolver(long flags)
 {
 	SString buf;
 	Flags = flags;
-	PPLoadString(PPSTR_TEXT, PPTXT_DL200_NAMEVARS, buf);
+	PPLoadText(PPTXT_DL200_NAMEVARS, buf);
 	StringSet ss(';', buf);
 	for(uint i = 0, j = 0; ss.get(&i, buf) > 0; j++)
 		NameVars.Add(j + 1, buf);

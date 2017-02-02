@@ -207,7 +207,7 @@ mips_dspr2_fill (pixman_implementation_t *imp,
 
 static pixman_bool_t
 mips_dspr2_blt (pixman_implementation_t *imp,
-                uint32_t *               src_bits,
+                const uint32_t * src_bits,
                 uint32_t *               dst_bits,
                 int                      src_stride,
                 int                      dst_stride,

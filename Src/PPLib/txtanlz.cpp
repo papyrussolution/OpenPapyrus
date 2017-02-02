@@ -1,5 +1,5 @@
 // TXTANLZ.CPP
-// Copyright (c) A.Sobolev 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -446,10 +446,7 @@ PPTextAnalyzer::FindBlock::~FindBlock()
 
 PPTextAnalyzer::FindBlock * PPTextAnalyzer::FindBlock::GetRecursiveBlock()
 {
-	if(!P_Next) {
-		P_Next = new FindBlock(R);
-	}
-	if(P_Next) {
+	if(SETIFZ(P_Next, new FindBlock(R))) {
 		P_Next->P_Idx = P_Idx;
 		if(P_Idx)
 		   P_Next->State |= stParentIndex;

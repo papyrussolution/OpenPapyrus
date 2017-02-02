@@ -1377,7 +1377,7 @@ int SLAPI SetupStringComboDevice(TDialog * dlg, uint ctlID, uint dvcClass, long 
 }
 // } @vmiller
 
-static int SLAPI Helper_SetupStringCombo(TDialog * dlg, uint ctlID, const SString & rLineBuf, long initID)
+static int SLAPI Helper_SetupStringCombo(TDialog * dlg, uint ctlID, const SString & rLineBuf, const StrAssocArray * pAddendumList, long initID)
 {
 	int    ok = 1;
 	StrAssocArray * p_list = 0;
@@ -1397,7 +1397,15 @@ static int SLAPI Helper_SetupStringCombo(TDialog * dlg, uint ctlID, const SStrin
 				}
 				THROW_SL(p_list->Add(id, txt_buf));
 			}
-			p_cb->setListWindow(CreateListWindow(p_list, lbtDisposeData | lbtDblClkNotify), initID);
+			// @v9.5.0 {
+			if(pAddendumList && pAddendumList->getCount()) {
+				for(uint i = 0; i < pAddendumList->getCount(); i++) {
+					StrAssocArray::Item ai = pAddendumList->at(i);
+					THROW_SL(p_list->Add(ai.Id, ai.Txt, 0));
+				}
+			}
+			// } @v9.5.0 
+			p_cb->setListWindow(CreateListWindow(p_list, lbtDisposeData|lbtDblClkNotify), initID);
 		}
 	}
 	CATCH
@@ -1410,17 +1418,24 @@ static int SLAPI Helper_SetupStringCombo(TDialog * dlg, uint ctlID, const SStrin
 int SLAPI SetupStringCombo(TDialog * dlg, uint ctlID, int strID, long initID)
 {
 	SString line_buf;
-	return PPLoadText(strID, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, initID) : 0;
+	return PPLoadText(strID, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, 0, initID) : 0;
 }
 
 int SLAPI SetupStringCombo(TDialog * dlg, uint ctlID, const char * pStrSignature, long initID)
 {
 	SString line_buf;
-	return PPLoadString(pStrSignature, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, initID) : 0;
+	return PPLoadString(pStrSignature, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, 0, initID) : 0;
 }
 
-// id = <string offset> + 1
-int SLAPI SetupStringCombo(TDialog * dlg, uint ctlID, StringSet * pSs, long initID, uint /*flags*/)
+int SLAPI SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const char * pStrSignature, const StrAssocArray * pAddendumList, long initID)
+{
+	SString line_buf;
+	return PPLoadString(pStrSignature, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, pAddendumList, initID) : 0;
+}
+
+
+/* @v9.5.0 // id = <string offset> + 1
+int SLAPI SetupStringCombo(TDialog * dlg, uint ctlID, StringSet * pSs, long initID, uint flags)
 {
 	int    ok = 1;
 	ComboBox   * p_cb = 0;
@@ -1438,7 +1453,7 @@ int SLAPI SetupStringCombo(TDialog * dlg, uint ctlID, StringSet * pSs, long init
 	}
 	CATCHZOK
 	return ok;
-}
+} @v9.5.0 */
 
 int SLAPI SetupStrAssocCombo(TDialog * dlg, uint ctlID, const StrAssocArray * pList, long initID, uint flags, size_t offs, int ownerDrawListBox)
 {
@@ -1552,7 +1567,7 @@ int SLAPI SetupSubstGoodsCombo(TDialog * dlg, uint ctlID, long initID)
 			MEMSZERO(ggrp_total);
 			ggobj.CalcTotal(&ggrp_total);
 			count = ggrp_total.MaxLevel + sggGroupSecondLvl - 1;
-			PPLoadString(PPSTR_TEXT, PPTXT_GROUPLEVELX, item_buf);
+			PPLoadText(PPTXT_GROUPLEVELX, item_buf);
 			for(long j = 2, id = sggGroupSecondLvl; id < count; id++, j++) {
 				txt_buf.Printf(item_buf.cptr(), j);
 				p_lw->listBox()->addItem(id, txt_buf);
@@ -2092,7 +2107,7 @@ public:
 		RVALUEPTR(Patterns, pPatterns);
 		RVALUEPTR(WaitFolder, pDefWaitFolder);
 		SetupCtrls();
-		PPLoadString(PPSTR_TEXT, PPTXT_BROWSEDIR, OpenDirTitle);
+		PPLoadText(PPTXT_BROWSEDIR, OpenDirTitle);
 	}
 	int    setDTS(const char * pPath);
 	int    getDTS(SString & rPath, SString * pDefWaitFolder);

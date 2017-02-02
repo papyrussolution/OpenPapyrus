@@ -2032,7 +2032,7 @@ int SLAPI LogTerminalSessInfo(ulong processID, ulong termSessID, const char * pA
 {
 	/* @v7.9.9 ѕользы не получили, а журнал забиваетс€ //
 	SString msg_buf, buf;
-	PPLoadString(PPSTR_TEXT, PPTXT_TERMINALSESSINFO, buf);
+	PPLoadText(PPTXT_TERMINALSESSINFO, buf);
 	msg_buf.Printf((const char*)buf, pAddMsgString, (long)processID, (long)termSessID);
 	PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 	*/

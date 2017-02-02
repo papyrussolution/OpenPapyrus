@@ -425,7 +425,7 @@ int FASTCALL PPGetFilePath(PPID pathID, uint fileNameID, SString & rBuf)
 SString & FASTCALL PPGetFileName(uint fnameID, SString & rBuf)
 {
 	// PPGetSubStr(PPTXT_FILENAMES, fnameID, rBuf);
-	PPLoadString(PPSTR_TEXT, fnameID, rBuf);
+	PPLoadText(fnameID, rBuf);
 	return rBuf;
 }
 

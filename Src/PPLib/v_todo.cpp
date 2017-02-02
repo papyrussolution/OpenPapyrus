@@ -34,10 +34,10 @@ void VCalendar::Todo::Init()
 SLAPI VCalendar::VCalendar(const char * pFileName /*=0*/, int forExport /*=1*/)
 {
 	P_Stream = 0;
-	PPLoadString(PPSTR_TEXT, PPTXT_VCAL_PROPERTIES,     Properties);
-	PPLoadString(PPSTR_TEXT, PPTXT_VCAL_STATUSLIST,     Status);
-	PPLoadString(PPSTR_TEXT, PPTXT_VCAL_CLASSIFICATION, Classification);
-	PPLoadString(PPSTR_TEXT, PPTXT_VCAL_PROPATTRIBUTE,  PropAttrib);
+	PPLoadText(PPTXT_VCAL_PROPERTIES,     Properties);
+	PPLoadText(PPTXT_VCAL_STATUSLIST,     Status);
+	PPLoadText(PPTXT_VCAL_CLASSIFICATION, Classification);
+	PPLoadText(PPTXT_VCAL_PROPATTRIBUTE,  PropAttrib);
 	Open(pFileName, forExport);
 }
 

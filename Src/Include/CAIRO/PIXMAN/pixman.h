@@ -214,9 +214,9 @@ void          pixman_f_transform_from_pixman_transform(struct pixman_f_transform
 pixman_bool_t pixman_f_transform_invert(struct pixman_f_transform * dst, const struct pixman_f_transform * src);
 pixman_bool_t pixman_f_transform_point(const struct pixman_f_transform * t, struct pixman_f_vector          * v);
 void          pixman_f_transform_point_3d(const struct pixman_f_transform * t, struct pixman_f_vector          * v);
-void          pixman_f_transform_multiply(struct pixman_f_transform       * dst, const struct pixman_f_transform * l, const struct pixman_f_transform * r);
-void          pixman_f_transform_init_scale(struct pixman_f_transform       * t, double sx, double sy);
-pixman_bool_t pixman_f_transform_scale(struct pixman_f_transform       * forward, struct pixman_f_transform * reverse, double sx, double sy);
+void          pixman_f_transform_multiply(struct pixman_f_transform * dst, const struct pixman_f_transform * l, const struct pixman_f_transform * r);
+void          pixman_f_transform_init_scale(struct pixman_f_transform * t, double sx, double sy);
+pixman_bool_t pixman_f_transform_scale(struct pixman_f_transform * forward, struct pixman_f_transform * reverse, double sx, double sy);
 void          pixman_f_transform_init_rotate(struct pixman_f_transform * t, double cos, double sin);
 pixman_bool_t pixman_f_transform_rotate(struct pixman_f_transform * forward, struct pixman_f_transform * reverse, double c, double s);
 void          pixman_f_transform_init_translate(struct pixman_f_transform * t, double tx, double ty);
@@ -365,9 +365,7 @@ typedef enum {
 /* This function exists only to make it possible to preserve
  * the X ABI - it should go away at first opportunity.
  */
-void pixman_region_set_static_pointers(pixman_box16_t         * empty_box,
-    pixman_region16_data_t * empty_data,
-    pixman_region16_data_t * broken_data);
+void pixman_region_set_static_pointers(pixman_box16_t * empty_box, pixman_region16_data_t * empty_data, pixman_region16_data_t * broken_data);
 
 /* creation/destruction */
 void                    pixman_region_init(pixman_region16_t * region);
@@ -425,91 +423,36 @@ struct pixman_region32 {
 };
 
 /* creation/destruction */
-void                    pixman_region32_init(pixman_region32_t * region);
-void                    pixman_region32_init_rect(pixman_region32_t * region,
-    int x,
-    int y,
-    uint width,
-    uint height);
-pixman_bool_t           pixman_region32_init_rects(pixman_region32_t * region,
-    const pixman_box32_t * boxes,
-    int count);
-void                    pixman_region32_init_with_extents(pixman_region32_t * region,
-    pixman_box32_t    * extents);
-void                    pixman_region32_init_from_image(pixman_region32_t * region,
-    pixman_image_t    * image);
-void                    pixman_region32_fini(pixman_region32_t * region);
+void   pixman_region32_init(pixman_region32_t * region);
+void   pixman_region32_init_rect(pixman_region32_t * region, int x, int y, uint width, uint height);
+pixman_bool_t pixman_region32_init_rects(pixman_region32_t * region, const pixman_box32_t * boxes, int count);
+void   pixman_region32_init_with_extents(pixman_region32_t * region, pixman_box32_t * extents);
+void   pixman_region32_init_from_image(pixman_region32_t * region, pixman_image_t    * image);
+void   pixman_region32_fini(pixman_region32_t * region);
 
 /* manipulation */
-void                    pixman_region32_translate(pixman_region32_t * region,
-    int x,
-    int y);
-pixman_bool_t           pixman_region32_copy(pixman_region32_t * dest,
-    pixman_region32_t * source);
-pixman_bool_t           pixman_region32_intersect(pixman_region32_t * new_reg,
-    pixman_region32_t * reg1,
-    pixman_region32_t * reg2);
-pixman_bool_t           pixman_region32_union(pixman_region32_t * new_reg,
-    pixman_region32_t * reg1,
-    pixman_region32_t * reg2);
-pixman_bool_t           pixman_region32_intersect_rect(pixman_region32_t * dest,
-    pixman_region32_t * source,
-    int x,
-    int y,
-    uint width,
-    uint height);
-pixman_bool_t           pixman_region32_union_rect(pixman_region32_t * dest,
-    pixman_region32_t * source,
-    int x,
-    int y,
-    uint width,
-    uint height);
-pixman_bool_t           pixman_region32_subtract(pixman_region32_t * reg_d,
-    pixman_region32_t * reg_m,
-    pixman_region32_t * reg_s);
-pixman_bool_t           pixman_region32_inverse(pixman_region32_t * new_reg,
-    pixman_region32_t * reg1,
-    pixman_box32_t    * inv_rect);
-pixman_bool_t           pixman_region32_contains_point(pixman_region32_t * region,
-    int x,
-    int y,
-    pixman_box32_t    * box);
-pixman_region_overlap_t pixman_region32_contains_rectangle(pixman_region32_t * region,
-    pixman_box32_t    * prect);
+void   pixman_region32_translate(pixman_region32_t * region, int x, int y);
+pixman_bool_t pixman_region32_copy(pixman_region32_t * dest, pixman_region32_t * source);
+pixman_bool_t pixman_region32_intersect(pixman_region32_t * new_reg, pixman_region32_t * reg1, pixman_region32_t * reg2);
+pixman_bool_t pixman_region32_union(pixman_region32_t * new_reg, pixman_region32_t * reg1, pixman_region32_t * reg2);
+pixman_bool_t pixman_region32_intersect_rect(pixman_region32_t * dest, pixman_region32_t * source, int x, int y, uint width, uint height);
+pixman_bool_t pixman_region32_union_rect(pixman_region32_t * dest, pixman_region32_t * source, int x, int y, uint width, uint height);
+pixman_bool_t pixman_region32_subtract(pixman_region32_t * reg_d, pixman_region32_t * reg_m, pixman_region32_t * reg_s);
+pixman_bool_t pixman_region32_inverse(pixman_region32_t * new_reg, pixman_region32_t * reg1, pixman_box32_t    * inv_rect);
+pixman_bool_t pixman_region32_contains_point(pixman_region32_t * region, int x, int y, pixman_box32_t * box);
+pixman_region_overlap_t pixman_region32_contains_rectangle(pixman_region32_t * region, pixman_box32_t * prect);
 pixman_bool_t           pixman_region32_not_empty(pixman_region32_t * region);
 pixman_box32_t *        pixman_region32_extents(pixman_region32_t * region);
 int                     pixman_region32_n_rects(pixman_region32_t * region);
-pixman_box32_t *        pixman_region32_rectangles(pixman_region32_t * region,
-    int               * n_rects);
-pixman_bool_t           pixman_region32_equal(pixman_region32_t * region1,
-    pixman_region32_t * region2);
+pixman_box32_t *        pixman_region32_rectangles(pixman_region32_t * region, int * n_rects);
+pixman_bool_t           pixman_region32_equal(pixman_region32_t * region1, pixman_region32_t * region2);
 pixman_bool_t           pixman_region32_selfcheck(pixman_region32_t * region);
-void                    pixman_region32_reset(pixman_region32_t * region,
-    pixman_box32_t    * box);
+void                    pixman_region32_reset(pixman_region32_t * region, pixman_box32_t * box);
 void                    pixman_region32_clear(pixman_region32_t * region);
 
 /* Copy / Fill / Misc */
-pixman_bool_t pixman_blt(uint32_t           * src_bits,
-    uint32_t           * dst_bits,
-    int src_stride,
-    int dst_stride,
-    int src_bpp,
-    int dst_bpp,
-    int src_x,
-    int src_y,
-    int dest_x,
-    int dest_y,
-    int width,
-    int height);
-pixman_bool_t pixman_fill(uint32_t           * bits,
-    int stride,
-    int bpp,
-    int x,
-    int y,
-    int width,
-    int height,
-    uint32_t _xor);
-
+pixman_bool_t pixman_blt(const uint32_t * src_bits, uint32_t * dst_bits, int src_stride, int dst_stride, int src_bpp, int dst_bpp, int src_x, int src_y, int dest_x, int dest_y, int width, int height);
+pixman_bool_t pixman_fill(uint32_t * bits, int stride, int bpp, int x, int y, int width, int height, uint32_t _xor);
 int           pixman_version(void);
 const char*   pixman_version_string(void);
 /*
@@ -660,10 +603,8 @@ pixman_image_t * pixman_image_create_radial_gradient(const pixman_point_fixed_t 
     int n_stops);
 pixman_image_t * pixman_image_create_conical_gradient(const pixman_point_fixed_t   * center,
     pixman_fixed_t angle, const pixman_gradient_stop_t * stops, int n_stops);
-pixman_image_t * pixman_image_create_bits(pixman_format_code_t format,
-    int width, int height, uint32_t * bits, int rowstride_bytes);
-pixman_image_t * pixman_image_create_bits_no_clear(pixman_format_code_t format,
-    int width, int height, uint32_t * bits, int rowstride_bytes);
+pixman_image_t * pixman_image_create_bits(pixman_format_code_t format, int width, int height, uint32_t * bits, int rowstride_bytes);
+pixman_image_t * pixman_image_create_bits_no_clear(pixman_format_code_t format, int width, int height, uint32_t * bits, int rowstride_bytes);
 
 /* Destructor */
 pixman_image_t * pixman_image_ref(pixman_image_t * image);
@@ -684,12 +625,12 @@ void            pixman_image_set_component_alpha(pixman_image_t * image, pixman_
 pixman_bool_t   pixman_image_get_component_alpha(pixman_image_t * image);
 void            pixman_image_set_accessors(pixman_image_t * image, pixman_read_memory_func_t read_func, pixman_write_memory_func_t write_func);
 void            pixman_image_set_indexed(pixman_image_t * image, const pixman_indexed_t * indexed);
-uint32_t       * pixman_image_get_data(pixman_image_t               * image);
-int             pixman_image_get_width(pixman_image_t               * image);
-int             pixman_image_get_height(pixman_image_t               * image);
-int             pixman_image_get_stride(pixman_image_t               * image);              /* in bytes */
-int             pixman_image_get_depth(pixman_image_t               * image);
-pixman_format_code_t pixman_image_get_format(pixman_image_t               * image);
+uint32_t       * pixman_image_get_data(pixman_image_t * image);
+int             pixman_image_get_width(pixman_image_t * image);
+int             pixman_image_get_height(pixman_image_t * image);
+int             pixman_image_get_stride(pixman_image_t * image);              /* in bytes */
+int             pixman_image_get_depth(pixman_image_t * image);
+pixman_format_code_t pixman_image_get_format(pixman_image_t * image);
 
 typedef enum {
 	PIXMAN_KERNEL_IMPULSE,
@@ -889,20 +830,12 @@ struct pixman_trap {
 	pixman_span_fix_t top, bot;
 };
 
-pixman_fixed_t pixman_sample_ceil_y(pixman_fixed_t y,
-    int bpp);
-pixman_fixed_t pixman_sample_floor_y(pixman_fixed_t y,
-    int bpp);
-void           pixman_edge_step(pixman_edge_t             * e,
-    int n);
-void           pixman_edge_init(pixman_edge_t             * e,
-    int bpp,
-    pixman_fixed_t y_start,
-    pixman_fixed_t x_top,
-    pixman_fixed_t y_top,
-    pixman_fixed_t x_bot,
-    pixman_fixed_t y_bot);
-void           pixman_line_fixed_edge_init(pixman_edge_t             * e,
+pixman_fixed_t pixman_sample_ceil_y(pixman_fixed_t y, int bpp);
+pixman_fixed_t pixman_sample_floor_y(pixman_fixed_t y, int bpp);
+void           pixman_edge_step(pixman_edge_t * e, int n);
+void           pixman_edge_init(pixman_edge_t * e, int bpp,
+    pixman_fixed_t y_start, pixman_fixed_t x_top, pixman_fixed_t y_top, pixman_fixed_t x_bot, pixman_fixed_t y_bot);
+void           pixman_line_fixed_edge_init(pixman_edge_t * e,
     int bpp,
     pixman_fixed_t y,
     const pixman_line_fixed_t * line,
@@ -917,7 +850,7 @@ void           pixman_add_traps(pixman_image_t            * image,
     int16_t x_off,
     int16_t y_off,
     int ntrap,
-    const pixman_trap_t       * traps);
+    const pixman_trap_t * traps);
 void           pixman_add_trapezoids(pixman_image_t            * image,
     int16_t x_off,
     int y_off,

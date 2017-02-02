@@ -1,5 +1,5 @@
 // OBJREF.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -826,7 +826,7 @@ int SLAPI PPObjUnit::UniteMaxLike()
 		if(p_list) {
 			SString msg;
 			p_list->SortByID();
-			PPLoadString(PPSTR_TEXT, PPTXT_UNITELIKEUNITS, msg);
+			PPLoadText(PPTXT_UNITELIKEUNITS, msg);
 			for(uint i = 0; i < p_list->getCount(); i++) {
 				PPID id = p_list->at(i).Id, like_id = 0;
 				PPUnit rec;
@@ -2392,7 +2392,7 @@ static SString & MakeMsgStr(int fmtId, const char * pName, const char * pUuid, P
 	rBuf = 0;
 	SString fmt_buf, temp_buf, info_buf;
 	if(fmtId)
-		PPLoadString(PPSTR_TEXT, fmtId, fmt_buf);
+		PPLoadText(fmtId, fmt_buf);
 	PPLoadString("name", temp_buf);
 	info_buf.CatEq(temp_buf, pName);
 	info_buf.CatDiv(',', 2).CatEq("GUID", pUuid);

@@ -1,5 +1,5 @@
 // V_BBOARD.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2013, 2014, 2015, 2016
+// Copyright (c) A.Starodub 2009, 2010, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -38,7 +38,7 @@ int SLAPI PPViewServerStat::EditBaseFilt(PPBaseFilt * pFilt)
 	PPInputStringDialogParam isd_param;
 
 	THROW(ini_file.IsValid());
-	PPLoadString(PPSTR_TEXT, PPTXT_JOBSERVERADDRPORT, isd_param.Title);
+	PPLoadText(PPTXT_JOBSERVERADDRPORT, isd_param.Title);
 	isd_param.InputTitle = isd_param.Title;
 	filt.Copy(pFilt, 0);
 	if(filt.ServerAddr.Len() == 0)

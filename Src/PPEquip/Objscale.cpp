@@ -1214,7 +1214,7 @@ public:
 			GetDefaultSysParams(&Data);
 		{
 			SString buf, err_codes;
-			PPLoadString(PPSTR_TEXT, PPTXT_CASCL5000J_ERRCODES, err_codes);
+			PPLoadText(PPTXT_CASCL5000J_ERRCODES, err_codes);
 			StringSet ss(';', err_codes);
 			for(uint i = 0; ss.get(&i, (buf = 0)) > 0;) {
 				SString str_id, str_text;

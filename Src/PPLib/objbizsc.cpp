@@ -1357,7 +1357,7 @@ int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSo
 			}
 		}
 		else {
-			PPLoadString(PPSTR_TEXT, PPTXT_BIZSCORE_NODATA, buf);
+			PPLoadText(PPTXT_BIZSCORE_NODATA, buf);
 			buf.CRB().Transf(CTRANSF_INNER_TO_OUTER);
 			THROW(pSock->Send(buf, buf.Len(), 0));
 		}

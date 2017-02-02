@@ -362,7 +362,7 @@ int SLAPI PPViewTransport::ViewTotal()
 			count++;
 		PPWait(0);
 		p_dlg->setCtrlLong(CTL_GOODSTOTAL_COUNT, count);
-		PPLoadString(PPSTR_TEXT, PPTXT_TRANSPTOTAL, title);
+		PPLoadText(PPTXT_TRANSPTOTAL, title);
 		p_dlg->setOrgTitle(title);
 		ExecViewAndDestroy(p_dlg);
 		return -1;

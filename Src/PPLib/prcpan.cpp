@@ -1,5 +1,5 @@
 // PRCPAN.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2011, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2011, 2013, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -946,9 +946,9 @@ void PrcPaneDialog::updateStatus(int forceUpdate)
 {
 	if(H.PrcID) {
 		LDATETIME curdtm = getcurdatetime_();
-		long   dif = diffdatetimesec(curdtm, LastPrcStatusCheckTime);
+		const long dif = diffdatetimesec(curdtm, LastPrcStatusCheckTime);
 		if(forceUpdate || dif > 3) {
-			PPID  prev_sess_id = H.SessID;
+			const PPID prev_sess_id = H.SessID;
 			TSessionTbl::Rec ses_rec;
 			H.SessID = 0;
 			if(TSesObj.IsProcessorInProcess(H.PrcID, 0, &ses_rec) > 0) {
@@ -956,14 +956,15 @@ void PrcPaneDialog::updateStatus(int forceUpdate)
 				H.LinkBillID = ses_rec.LinkBillID;
 			}
 			if(forceUpdate || H.SessID != prev_sess_id) {
+				SString temp_buf;
 				H.SessText[0] = 0;
 				H.MainGoodsID = 0;
 				H.MainGoodsName[0] = 0;
 				TgsList.Destroy();
 				if(H.SessID) {
-					SString ses_buf;
-					TSesObj.MakeName(&ses_rec, ses_buf);
-					ses_buf.CopyTo(H.SessText, sizeof(H.SessText));
+					//SString ses_buf;
+					TSesObj.MakeName(&ses_rec, temp_buf);
+					temp_buf.CopyTo(H.SessText, sizeof(H.SessText));
 					if(ses_rec.TechID) {
 						TechTbl::Rec tec_rec;
 						Goods2Tbl::Rec goods_rec;
@@ -979,7 +980,8 @@ void PrcPaneDialog::updateStatus(int forceUpdate)
 					State = sEMPTY_SESS;
 				}
 				else {
-					PPLoadString(PPSTR_TEXT, PPTXT_PRCISFREE, H.SessText, sizeof(H.SessText));
+					PPLoadText(PPTXT_PRCISFREE, temp_buf);
+					STRNSCPY(H.SessText, temp_buf);
 					clearPanel();
 					State = sEMPTY_NOSESS;
 				}
@@ -987,18 +989,18 @@ void PrcPaneDialog::updateStatus(int forceUpdate)
 				BillTbl::Rec bill_rec;
 				SString main_goods_label_buf;
 				if(H.LinkBillID && BillObj->Search(H.LinkBillID, &bill_rec) > 0) {
-					SString bill_code_buf;
-					PPObjBill::MakeCodeString(&bill_rec, 1, bill_code_buf);
+					//SString bill_code_buf;
+					PPObjBill::MakeCodeString(&bill_rec, 1, temp_buf);
 					PPGetSubStr(PPTXT_LAB_PRCPAN_MAINGOODS, 1, main_goods_label_buf);
 					setLabelText(CTL_PRCPAN_MAINGOODS, main_goods_label_buf);
-					setCtrlString(CTL_PRCPAN_MAINGOODS, bill_code_buf);
+					setCtrlString(CTL_PRCPAN_MAINGOODS, temp_buf);
 				}
 				else {
 					PPGetSubStr(PPTXT_LAB_PRCPAN_MAINGOODS, 0, main_goods_label_buf);
 					setLabelText(CTL_PRCPAN_MAINGOODS, main_goods_label_buf);
 					setCtrlString(CTL_PRCPAN_MAINGOODS, H.MainGoodsName);
 				}
-				setCtrlString(CTL_PRCPAN_CURSESS,   H.SessText);
+				setCtrlString(CTL_PRCPAN_CURSESS, H.SessText);
 			}
 			{
 				double num_pack = 0;

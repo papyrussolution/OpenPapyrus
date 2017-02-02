@@ -1261,7 +1261,7 @@ _skip_switch:
 			}
 			else {
 				#ifndef DL600C
-				double arg = _ARG_DBL(1);
+				const double arg = _ARG_DBL(1);
 				numbertotext(arg, NTTF_CURRENCY | NTTF_FIRSTCAP, temp_buf);
 				_RET_STR = temp_buf;
 				uint   kop = (uint)R0i((arg-floor(arg))*100);

@@ -237,27 +237,21 @@ static cairo_bool_t boxes_cover_surface(cairo_boxes_t * boxes,
 	return TRUE;
 }
 
-static cairo_int_status_t draw_image_boxes(void * _dst,
-    cairo_image_surface_t * image,
-    cairo_boxes_t * boxes,
-    int dx, int dy)
+static cairo_int_status_t draw_image_boxes(void * _dst, cairo_image_surface_t * image, cairo_boxes_t * boxes, int dx, int dy)
 {
 	cairo_xlib_surface_t * dst = _dst;
 	_cairo_boxes_t::_cairo_boxes_chunk * chunk;
 	cairo_image_surface_t * shm = NULL;
 	cairo_int_status_t status;
 	int i;
-
 	if(image->base.device == dst->base.device) {
 		if(image->depth != dst->depth)
 			return CAIRO_INT_STATUS_UNSUPPORTED;
-
 		if(_cairo_xlib_shm_surface_get_pixmap(&image->base))
 			return copy_image_boxes(dst, image, boxes, dx, dy);
 
 		goto draw_image_boxes;
 	}
-
 	if(boxes_cover_surface(boxes, dst))
 		shm = (cairo_image_surface_t*)_cairo_xlib_surface_get_shm(dst, TRUE);
 	if(shm) {
@@ -280,16 +274,10 @@ static cairo_int_status_t draw_image_boxes(void * _dst,
 					    r.x + dx, r.y + dy,
 					    r.x, r.y,
 					    r.width, r.height)) {
-					pixman_image_composite32(PIXMAN_OP_SRC,
-					    image->pixman_image, NULL, shm->pixman_image,
-					    r.x + dx, r.y + dy,
-					    0, 0,
-					    r.x, r.y,
-					    r.width, r.height);
+					pixman_image_composite32(PIXMAN_OP_SRC, image->pixman_image, NULL, shm->pixman_image,
+					    r.x + dx, r.y + dy, 0, 0, r.x, r.y, r.width, r.height);
 				}
-
-				shm->base.damage =
-				    _cairo_damage_add_rectangle(shm->base.damage, &r);
+				shm->base.damage = _cairo_damage_add_rectangle(shm->base.damage, &r);
 			}
 		}
 		dst->base.is_clear = FALSE;
@@ -298,44 +286,27 @@ static cairo_int_status_t draw_image_boxes(void * _dst,
 		return CAIRO_INT_STATUS_NOTHING_TO_DO;
 	}
 
-	if(image->depth == dst->depth &&
-	    ((cairo_xlib_display_t*)dst->display)->shm) {
+	if(image->depth == dst->depth && ((cairo_xlib_display_t*)dst->display)->shm) {
 		cairo_box_t extents;
 		CairoIRect r;
-
 		_cairo_boxes_extents(boxes, &extents);
 		_cairo_box_round_to_rectangle(&extents, &r);
-
-		shm = (cairo_image_surface_t*)
-		    _cairo_xlib_surface_create_shm(dst, image->pixman_format,
-		    r.width, r.height);
+		shm = (cairo_image_surface_t*)_cairo_xlib_surface_create_shm(dst, image->pixman_format, r.width, r.height);
 		if(shm) {
 			int tx = -r.x, ty = -r.y;
-
 			assert(shm->pixman_format == image->pixman_format);
 			for(chunk = &boxes->chunks; chunk; chunk = chunk->next) {
 				for(i = 0; i < chunk->count; i++) {
 					cairo_box_t * b = &chunk->base[i];
-
 					r.x = _cairo_fixed_integer_part(b->p1.x);
 					r.y = _cairo_fixed_integer_part(b->p1.y);
 					r.width  = _cairo_fixed_integer_part(b->p2.x) - r.x;
 					r.height = _cairo_fixed_integer_part(b->p2.y) - r.y;
-
-					if(!pixman_blt((uint32_t*)image->data, (uint32_t*)shm->data,
-						    image->stride / sizeof(uint32_t),
-						    shm->stride / sizeof(uint32_t),
-						    PIXMAN_FORMAT_BPP(image->pixman_format),
-						    PIXMAN_FORMAT_BPP(shm->pixman_format),
-						    r.x + dx, r.y + dy,
-						    r.x + tx, r.y + ty,
-						    r.width, r.height)) {
-						pixman_image_composite32(PIXMAN_OP_SRC,
-						    image->pixman_image, NULL, shm->pixman_image,
-						    r.x + dx, r.y + dy,
-						    0, 0,
-						    r.x + tx, r.y + ty,
-						    r.width, r.height);
+					if(!pixman_blt((uint32_t*)image->data, (uint32_t*)shm->data, image->stride / sizeof(uint32_t),
+						    shm->stride / sizeof(uint32_t), PIXMAN_FORMAT_BPP(image->pixman_format), PIXMAN_FORMAT_BPP(shm->pixman_format),
+						    r.x + dx, r.y + dy, r.x + tx, r.y + ty, r.width, r.height)) {
+						pixman_image_composite32(PIXMAN_OP_SRC, image->pixman_image, NULL, shm->pixman_image,
+						    r.x + dx, r.y + dy, 0, 0, r.x + tx, r.y + ty, r.width, r.height);
 					}
 				}
 			}

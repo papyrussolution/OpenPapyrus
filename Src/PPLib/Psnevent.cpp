@@ -1796,7 +1796,7 @@ int PsnEventDialog::GetReportID()
 		if(regt_obj.Search(regrec.RegTypeID, &reg_type) > 0 && reg_type.Symb[0]) {
 			int  type_no = -1;
 			SString buf;
-			PPLoadString(PPSTR_TEXT, PPTXT_REGISTER_TYPE_SYMB, buf);
+			PPLoadText(PPTXT_REGISTER_TYPE_SYMB, buf);
 			if(PPSearchSubStr(buf, &type_no, reg_type.Symb, 1))
 				switch (type_no) {
 					case 0: rpt_id = REPORT_DISPATCHORDER; break;

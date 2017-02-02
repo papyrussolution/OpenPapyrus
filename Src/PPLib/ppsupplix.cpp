@@ -3914,7 +3914,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 									}
 								}
 								if(ord_dis != 0.0 && ord_price != 0.0) {
-									ord_part_dis = R4(ord_dis / ord_price);
+									ord_part_dis = R6(ord_dis / ord_price); // @v9.5.0 R4-->R6
 								}
 							}
 						}
@@ -4636,7 +4636,6 @@ int SLAPI SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacke
 		SString loc_code;
 		SString isales_code;
 		PPViewBill b_view;
-		//BillTbl::Rec bill_rec;
 		PPIDArray force_bill_list; // —писок документов которые надо послать снова
 		PPIDArray order_id_list;
 		BillFilt b_filt;
@@ -4787,6 +4786,7 @@ int SLAPI SapEfes::SendDebts()
 	THROW(P_Lib);
 	sess.Setup(SvcUrl);
 	InitCallHeader(sech);
+
     CATCHZOK
     return ok;
 }
@@ -5156,6 +5156,10 @@ int SLAPI PrcssrSupplInterchange::Run()
 		}
 		if(P_Eb->P.Actions & SupplInterchangeFilt::opExportStocks) {
 			if(!cli.SendStocks())
+				logger.LogLastError();
+		}
+		if(P_Eb->P.Actions & SupplInterchangeFilt::opExportDebts) {
+			if(!cli.SendDebts())
 				logger.LogLastError();
 		}
 	}

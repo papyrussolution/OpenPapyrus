@@ -466,6 +466,9 @@ library PapyrusInterfaceLib version(1.1) {
 		string AccsName;       // Имя аккаунат для доступа к обмену данными
 		string AccsPassw;      // Пароль для доступа к обмену данными
 		string TechSymbol;     // Символ технологии обмена
+		long   SequenceID;     // @v9.5.0 Внутренний счетчик для автоматической нумерации запросов
+		long   CliCodeTagID;   // @v9.5.0 Тег персоналии для кода в терминах поставщика
+		long   LocCodeTagID;   // @v9.5.0 Тег локации для кода в терминах поставщика
 	}
 	//
 	// Descr: Перечисление типов классов PPView.

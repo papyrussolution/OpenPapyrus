@@ -1,5 +1,5 @@
 // OBJQCERT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -226,8 +226,10 @@ int SLAPI PPObjQCert::Edit(PPID * pID, void * extraPtr /*sampleID*/)
 			rec.ID = 0;
 	}
 	else {
+		SString temp_buf;
 		MEMSZERO(rec);
-		PPLoadString(PPSTR_TEXT, PPTXT_ONPACK, rec.SPrDate, sizeof(rec.SPrDate));
+		PPLoadText(PPTXT_ONPACK, temp_buf);
+		STRNSCPY(rec.SPrDate, temp_buf);
 	}
 	if((r = EditQCertDialog(&rec, 0)) == cmOK) {
 		if(!PutPacket(pID, &rec, 1))

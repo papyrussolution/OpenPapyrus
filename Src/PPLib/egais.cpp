@@ -4980,10 +4980,15 @@ int SLAPI PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const D
 				THROW(p_bp->CreateBlank2(op_id, rest_dtm.d, loc_id, 0));
 				p_bp->Rec.EdiOp = pPack->DocType;
 				if(pPack->DocType == PPEDIOP_EGAIS_REPLYRESTSSHOP) {
-					temp_buf = p_bp->Rec.Code;
-					temp_buf.CatChar('-').Cat("SHOP");
+					(temp_buf = p_bp->Rec.Code).CatChar('-').Cat("R2"); // SHOP-->R2
 					STRNSCPY(p_bp->Rec.Code, temp_buf);
 				}
+				// @v9.5.0 {
+				else if(pPack->DocType == PPEDIOP_EGAIS_REPLYRESTS) {
+					(temp_buf = p_bp->Rec.Code).CatChar('-').Cat("R1");
+					STRNSCPY(p_bp->Rec.Code, temp_buf);
+				}
+				// } @v9.5.0
 				{
 					tag_item.SetTimestamp(PPTAG_BILL_CREATEDTM, rest_dtm);
 					p_bp->BTagL.PutItem(PPTAG_BILL_CREATEDTM, &tag_item);

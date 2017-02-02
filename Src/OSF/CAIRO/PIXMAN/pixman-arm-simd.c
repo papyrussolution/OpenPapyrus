@@ -123,7 +123,7 @@ arm_simd_fill (pixman_implementation_t *imp,
 
 static pixman_bool_t
 arm_simd_blt (pixman_implementation_t *imp,
-              uint32_t *               src_bits,
+              const uint32_t *               src_bits,
               uint32_t *               dst_bits,
               int                      src_stride, /* in 32-bit words */
               int                      dst_stride, /* in 32-bit words */
@@ -246,9 +246,7 @@ pixman_implementation_t *
 _pixman_implementation_create_arm_simd (pixman_implementation_t *fallback)
 {
     pixman_implementation_t *imp = _pixman_implementation_create (fallback, arm_simd_fast_paths);
-
     imp->blt = arm_simd_blt;
     imp->fill = arm_simd_fill;
-
     return imp;
 }

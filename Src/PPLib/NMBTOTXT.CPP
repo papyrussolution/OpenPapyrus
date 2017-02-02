@@ -1,5 +1,5 @@
 // NMBTOTXT.CPP
-// Copyright (c) A.Sobolev 1996-2000, 2002, 2004, 2006, 2007, 2016
+// Copyright (c) A.Sobolev 1996-2000, 2002, 2004, 2006, 2007, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -59,13 +59,10 @@ static const char * zero_word = "ноль";
 
 static void SLAPI ParseNumber(double nmb, int parts[])
 {
-	double v, d;
 	for(int i = 0; i < 5; i++) {
-		if(i == 4)
-			d = fpow10i(-2);
-		else
-			d = fpow10i(3 * (3 - i));
-		if((v = floor(round(nmb / d, 12))) >= 1)
+		const double d = fpow10i((i == 4) ? -2 : (3 * (3 - i)));
+		const double v = floor(round(nmb / d, 12));
+		if(v >= 1.0)
 			nmb -= ((parts[i] = (int)v) * d);
 		else
 			parts[i] = 0;
@@ -82,15 +79,15 @@ static char * SLAPI CopyDigitWord(const char * pStrings, char * pBuf, int i)
 static void SLAPI BelowThousandToText(int n, int fem, const char * pStrings, char * pBuf)
 {
 	char * p = pBuf;
-	int    i;
-	int    h = n / 100;
-	int    d = (n % 100) / 10;
-	int    o = (n % 10);
+	const int h = n / 100;
+	const int d = (n % 100) / 10;
+	const int o = (n % 10);
 	if(h)
 		p = CopyDigitWord(pStrings, p, 28 + h);
 	if(d > 1)
 		p = CopyDigitWord(pStrings, p, 19 + d);
 	if(d == 1 || o) {
+		int    i;
 		if(d != 1 && o > 0 && o < 3)
 			i = o * 2 - (fem ? 1 : 2);
 		else
@@ -101,7 +98,7 @@ static void SLAPI BelowThousandToText(int n, int fem, const char * pStrings, cha
 
 static int _fastcall sfx_form(int n)
 {
-	char   one_form[10] = {2, 0, 1, 1, 1, 2, 2, 2, 2, 2};
+	static const char one_form[10] = {2, 0, 1, 1, 1, 2, 2, 2, 2, 2};
 	n %= 100;
 	return (n > 9 && n < 20) ? 2 : one_form[n % 10];
 }

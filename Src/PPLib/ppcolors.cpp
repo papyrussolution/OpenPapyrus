@@ -1,5 +1,5 @@
 // PPCOLORS.CPP
-// Copyright (c) A.Starodub 2007, 2009, 2010, 2011, 2013, 2016
+// Copyright (c) A.Starodub 2007, 2009, 2010, 2011, 2013, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -747,7 +747,7 @@ int ColorCtrlGroup::Rec::AddUndefColorItem()
 {
 	int    ok = 1;
 	SString userdef;
-	PPLoadString(PPSTR_TEXT, PPTXT_USERDEF, userdef);
+	PPLoadText(PPTXT_USERDEF, userdef);
 	uint   cpos = 0;
 	if(ColorList.Search((long)UndefC, &cpos)) {
 		if(cpos == (ColorList.getCount()-1))
@@ -837,7 +837,7 @@ int ColorCtrlGroup::setData(TDialog * pDlg, void * pData)
 	Data = *(ColorCtrlGroup::Rec*)pData;
 	{
 		SString userdef;
-		PPLoadString(PPSTR_TEXT, PPTXT_USERDEF, userdef);
+		PPLoadText(PPTXT_USERDEF, userdef);
 		if(!Data.SearchColorItem(Data.C, 0)) {
 			Data.AddColorItem(Data.C, userdef);
 		}

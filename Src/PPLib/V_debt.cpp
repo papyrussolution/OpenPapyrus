@@ -1822,7 +1822,7 @@ IMPL_HANDLE_EVENT(DebtTrnovrCycleDialog)
 {
 	EmbedDialog::handleEvent(event);
 	if(event.isClusterClk(CTL_DEBTTOC_KIND)) {
-		long   prev_kind = Data.CycleKind;
+		const long   prev_kind = Data.CycleKind;
 		GetClusterData(CTL_DEBTTOC_KIND, &Data.CycleKind);
 		if(Data.CycleKind != prev_kind) {
 			Data.Cf.Cycle = 0;
@@ -1848,11 +1848,7 @@ int DebtTrnovrCycleDialog::embedChild()
 			ok = 0;
 	}
 	else if(Data.CycleKind == DebtTrnovrFilt::ckShipments || Data.CycleKind == DebtTrnovrFilt::ckPayments) {
-		uint   ctl_id = 0;
-		if(Data.CycleKind == DebtTrnovrFilt::ckShipments)
-			ctl_id = CTL_SLLTOFLT_PERIOD;
-		else
-			ctl_id = CTL_SLLTOFLT_PAYMPERIOD;
+		const  uint ctl_id = (Data.CycleKind == DebtTrnovrFilt::ckShipments) ? CTL_SLLTOFLT_PERIOD : CTL_SLLTOFLT_PAYMPERIOD;
 		CycleDialog * dlg = new CycleDialog(this, ctl_id);
 		if(CheckDialogPtr(&dlg, 1)) {
 			Embed(dlg);

@@ -1,5 +1,5 @@
 // PPMSG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -145,13 +145,13 @@ int FASTCALL PPLoadString(const char * pSignature, SString & rBuf)
 	return ok;
 }
 
-int SLAPI PPLoadString(int group, int code, char * buf, size_t bufLen)
+/* // @v9.5.0 int SLAPI PPLoadString(int group, int code, char * buf, size_t bufLen)
 {
 	SString temp_buf;
 	int    ok = PPLoadString(group, code, temp_buf);
 	temp_buf.CopyTo(buf, bufLen);
 	return ok;
-}
+} */
 
 int FASTCALL PPLoadText(int code, SString & s)
 {
@@ -256,8 +256,6 @@ void SLAPI PPSetAddedMsgObjName(PPID objType, PPID objID)
 
 int SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmvSpcChrs, SString & rBuf)
 {
-	char * p_tmp_buf  = 0;
-	char * p_tmp_buf2 = 0;
 	SString temp_buf;
 	char   btr_err_code[16], fname[MAXPATH];
 	int    group = 0;
@@ -369,71 +367,79 @@ int SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmv
 		default:
 			return 0;
 	}
-	if(!(p_tmp_buf = new char[PP_MSGLEN+1])) {
-		pAddInfo = "Not enough memory";
-		msgcode = 0;
-	}
-	else
-		*p_tmp_buf = 3; // ╤ююс∙хэшх сєфхЄ ЎхэЄЁшЁютрЄ№ё  //
-	if(!pAddInfo) {
-		if(oneof2(group, PPERR_DBENGINE, PPERR_DBLIB))
-			pAddInfo = DBS.GetConstTLA().AddedMsgString;
-		else if(group == PPERR_SLIB)
-			pAddInfo = SLS.GetConstTLA().AddedMsgString;
-		else
-			pAddInfo = DS.GetConstTLA().AddedMsgString;
-	}
-	if(is_win_msg) {
-		int c = (is_win_msg == 2) ? SLS.GetConstTLA().LastSockErr : SLS.GetOsError();
-		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, c, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)p_tmp_buf, PP_MSGLEN, NULL);
-		chomp(SCharToOem(p_tmp_buf));
-		/* @todo
-		if(pAddInfo) {
-			p_tmp_buf
+	{
+		SString base_msg_buf;
+		char * p_tmp_buf  = 0;
+		char * p_tmp_buf2 = 0;
+		if(!(p_tmp_buf = new char[PP_MSGLEN+1])) {
+			pAddInfo = "Not enough memory";
+			msgcode = 0;
 		}
-		*/
-	}
-	else if(msgcode) {
-__loadstring:
-		if(!PPLoadString(group, msgcode, p_tmp_buf+1, PP_MSGLEN)) {
-			if(SLibError == SLERR_NOFOUND && addcode) {
-				if(addcode == PPERR_DBENGINE) {
-					group   = PPMSG_ERROR;
-					msgcode = PPERR_DBENGINE;
-					addcode = 0;
-					pAddInfo = itoa(BtrError, btr_err_code, 10);
+		else
+			*p_tmp_buf = 3; // ╤ююс∙хэшх сєфхЄ ЎхэЄЁшЁютрЄ№ё  //
+		if(!pAddInfo) {
+			if(oneof2(group, PPERR_DBENGINE, PPERR_DBLIB))
+				pAddInfo = DBS.GetConstTLA().AddedMsgString;
+			else if(group == PPERR_SLIB)
+				pAddInfo = SLS.GetConstTLA().AddedMsgString;
+			else
+				pAddInfo = DS.GetConstTLA().AddedMsgString;
+		}
+		if(is_win_msg) {
+			int c = (is_win_msg == 2) ? SLS.GetConstTLA().LastSockErr : SLS.GetOsError();
+			FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, c, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)p_tmp_buf, PP_MSGLEN, NULL);
+			chomp(SCharToOem(p_tmp_buf));
+			/* @todo
+			if(pAddInfo) {
+				p_tmp_buf
+			}
+			*/
+		}
+		else if(msgcode) {
+	__loadstring:
+			//if(!PPLoadString(group, msgcode, p_tmp_buf+1, PP_MSGLEN)) {
+			const int lsr = PPLoadString(group, msgcode, base_msg_buf);
+			strnzcpy(p_tmp_buf+1, base_msg_buf, PP_MSGLEN);
+			if(!lsr) {
+				if(SLibError == SLERR_NOFOUND && addcode) {
+					if(addcode == PPERR_DBENGINE) {
+						group   = PPMSG_ERROR;
+						msgcode = PPERR_DBENGINE;
+						addcode = 0;
+						pAddInfo = itoa(BtrError, btr_err_code, 10);
+					}
+					else {
+						group   = PPMSG_ERROR;
+						msgcode = addcode;
+						addcode = 0;
+					}
+					goto __loadstring;
 				}
 				else {
-					group   = PPMSG_ERROR;
-					msgcode = addcode;
-					addcode = 0;
+					// @v9.0.4 sprintf(p_tmp_buf+1, "Невозможно загрузить сообщение: (%d)%d", group, msgcode);
+					// @v9.0.4 {
+					PPLoadString(PPMSG_ERROR, PPERR_TEXTLOADINGFAULT, temp_buf);
+					temp_buf.CatDiv(':', 2).CatParStr(group).Space().Cat(msgcode);
+					temp_buf.CopyTo(p_tmp_buf+1, PP_MSGLEN-1);
+					// } @v9.0.4
+					pAddInfo = p_tmp_buf;
+					msgcode = 0;
 				}
-				goto __loadstring;
 			}
 			else {
-				// @v9.0.4 sprintf(p_tmp_buf+1, "Невозможно загрузить сообщение: (%d)%d", group, msgcode);
-				// @v9.0.4 {
-				PPLoadString(PPMSG_ERROR, PPERR_TEXTLOADINGFAULT, temp_buf);
-				temp_buf.CatDiv(':', 2).CatParStr(group).Space().Cat(msgcode);
-				temp_buf.CopyTo(p_tmp_buf+1, PP_MSGLEN-1);
-				// } @v9.0.4
-				pAddInfo = p_tmp_buf;
-				msgcode = 0;
+				const size_t tmp_buf_size = 1024;
+				if(pAddInfo && (p_tmp_buf2 = new char[tmp_buf_size]) != 0) {
+					_snprintf(p_tmp_buf2, tmp_buf_size-1, p_tmp_buf, pAddInfo);
+					delete p_tmp_buf;
+					p_tmp_buf = p_tmp_buf2;
+				}
 			}
 		}
-		else {
-			const size_t tmp_buf_size = 1024;
-			if(pAddInfo && (p_tmp_buf2 = new char[tmp_buf_size]) != 0) {
-				_snprintf(p_tmp_buf2, tmp_buf_size-1, p_tmp_buf, pAddInfo);
-				delete p_tmp_buf;
-				p_tmp_buf = p_tmp_buf2;
-			}
-		}
+		rBuf = msgcode ? p_tmp_buf : pAddInfo;
+		if(rmvSpcChrs)
+			rBuf.ReplaceChar('\003', ' ').ReplaceChar('\n', ' ');
+		delete p_tmp_buf;
 	}
-	rBuf = msgcode ? p_tmp_buf : pAddInfo;
-	if(rmvSpcChrs)
-		rBuf.ReplaceChar('\003', ' ').ReplaceChar('\n', ' ');
-	delete p_tmp_buf;
 	return 1;
 }
 
@@ -814,15 +820,22 @@ int FASTCALL PPWaitPercent(ulong v, const char * pMsg)
 
 int FASTCALL PPWaitMsg(int msgGrpID, int msgID, const char * addInfo)
 {
-	char   buf[128], msg[80], * p;
-	if(PPLoadString(msgGrpID, msgID, msg, sizeof(msg))) {
-		if(addInfo)
-			sprintf(p = buf, msg, addInfo);
-		else
-			p = msg;
-		return PPWaitMsg(p);
+	//char   buf[128], * p;
+	int    ok = 0;
+	SString fmt_buf;
+	if(PPLoadString(msgGrpID, msgID, fmt_buf)) {
+		if(addInfo) {
+			//sprintf(p = buf, msg, addInfo);
+			SString msg_buf;
+			msg_buf.Printf(fmt_buf, addInfo);
+			ok = PPWaitMsg(msg_buf);
+		}
+		else {
+			//p = msg;
+			ok = PPWaitMsg(fmt_buf);
+		}
 	}
-	return 0;
+	return ok;
 }
 
 int FASTCALL PPWaitLong(long v)

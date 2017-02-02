@@ -1,5 +1,5 @@
 // V_BUDGET.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2014, 2015, 2016
+// Copyright (c) A.Starodub 2010, 2011, 2014, 2015, 2016, 2017
 //
 // PPViewBudget
 //
@@ -238,10 +238,10 @@ int SLAPI BudgetItemCore::PutItems(BudgetItemsList * pItems, int useTa)
 SLAPI PPObjBudget::PPObjBudget(void * extraPtr) : PPObjReference(PPOBJ_BUDGET, extraPtr)
 {
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
-	PPLoadString(PPSTR_TEXT, PPTXT_WEEKS,    StrWeeks);
-	PPLoadString(PPSTR_TEXT, PPTXT_MONTHES,  StrMonthes);
-	PPLoadString(PPSTR_TEXT, PPTXT_QUARTS,   StrQuarts);
-	PPLoadString(PPSTR_TEXT, PPTXT_SEMIYEAR, StrSemiYear);
+	PPLoadText(PPTXT_WEEKS,    StrWeeks);
+	PPLoadText(PPTXT_MONTHES,  StrMonthes);
+	PPLoadText(PPTXT_QUARTS,   StrQuarts);
+	PPLoadText(PPTXT_SEMIYEAR, StrSemiYear);
 }
 
 SLAPI PPObjBudget::~PPObjBudget()

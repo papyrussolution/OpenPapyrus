@@ -650,7 +650,7 @@ int SLAPI PPObjBill::Browse(void * extraPtr)
 	return 0;
 }
 
-int SLAPI PPObjBill::DiagGoodsTurnError(PPBillPacket * pPack)
+void SLAPI PPObjBill::DiagGoodsTurnError(const PPBillPacket * pPack)
 {
 	PPError();
 	const  int ln = pPack->ErrLine;
@@ -675,7 +675,6 @@ int SLAPI PPObjBill::DiagGoodsTurnError(PPBillPacket * pPack)
 		PPFormatS(PPMSG_INFORMATION, PPINF_BILLADVLINE, &msg_buf, ln+1, (const char *)advbillkind_buf, r_item.Amount, (const char *)acc_buf);
 		PPOutputMessage(msg_buf, mfInfo|mfOK);
 	}
-	return 1;
 }
 //
 // Конвертированный чек пригоден только для печати
