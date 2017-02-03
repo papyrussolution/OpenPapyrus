@@ -45,7 +45,7 @@ int SLAPI setupDiscountText(const PPBillPacket * pack, int enableSTaxText, char 
 			if(temp_buf.NotEmpty())
 				temp_buf.Space();
 		}
-		strcpy(pBuf, temp_buf);
+		strnzcpy(pBuf, temp_buf, 0);
 	}
 	return 1;
 }
