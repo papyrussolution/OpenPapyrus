@@ -4464,7 +4464,7 @@ int SLAPI CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pT
 				}
 				else {
 					THROW_MEM(p_pack = new PPBillPacket);
-					THROW(p_bobj->ExtractPacket(bill_id, p_pack, 0) > 0);
+					THROW(p_bobj->ExtractPacket(bill_id, p_pack) > 0);
 					PPObjBill::MakeCodeString(&p_pack->Rec, 1, bill_code);
 					if(p_pack->IsDraft()) {
 						if(p_pack->Rec.Flags & BILLF_WRITEDOFF) {
@@ -4653,7 +4653,7 @@ int SLAPI CSessGrouping::Convert(PPID sessID, PPID locID, void * pData, CSessTot
 			long   oad_pos, oad_ext_pos;
 			if(fabs(to_adj_amt) > 0.01 && fabs(to_adj_amt) < 10.0 && oad.GetOptimal(oad_pos, &oad_ext_pos, 0, 0)) {
 				PPBillPacket adj_pack;
-				if(p_bobj->ExtractPacket(oad_ext_pos, &adj_pack, 0) > 0) {
+				if(p_bobj->ExtractPacket(oad_ext_pos, &adj_pack) > 0) {
 					assert(oad_pos < (long)adj_pack.GetTCount());
 					if(oad_pos < (long)adj_pack.GetTCount()) {
 						const double org_amt = adj_pack.GetAmount(0);

@@ -2197,7 +2197,7 @@ int SLAPI PPObjBHT::PrepareBillRowCellData(PPBhtTerminalPacket * pPack, PPID bil
 	SString temp_buf;
 	PPBillPacket pack;
 	PPImpExp * p_ie_brow = 0;
-	if(P_BObj->ExtractPacket(billID, &pack, BPLD_FORCESERIALS) > 0) {
+	if(P_BObj->ExtractPacketWithFlags(billID, &pack, BPLD_FORCESERIALS) > 0) {
 		uint i = 0;
 		PPTransferItem ti;
 		PPImpExpParam ie_param_brow;
@@ -2567,7 +2567,7 @@ int SLAPI PPObjBHT::PrepareBillData2(PPBhtTerminalPacket * pPack, PPIDArray * pG
 					sdr_bill.OpID    = item.OpID;
 					STRNSCPY(sdr_bill.Code, item.Code);
 					THROW(p_ie_bill->AppendRecord(&sdr_bill, sizeof(sdr_bill)));
-					if(P_BObj->ExtractPacket(item.ID, &pack, BPLD_FORCESERIALS) > 0) {
+					if(P_BObj->ExtractPacketWithFlags(item.ID, &pack, BPLD_FORCESERIALS) > 0) {
 						uint   i = 0;
 						PPTransferItem ti;
 						for(pack.InitExtTIter(uniteGoods ? ETIEF_UNITEBYGOODS : 0); pack.EnumTItemsExt(0, &ti) > 0; i++) {
@@ -3827,7 +3827,7 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 										pack.Rec.LinkBillID = sample_bill_rec.ID;
 										draft_wroff_id = sample_bill_rec.ID;
 										if(pack.Rec.LinkBillID)
-											p_bobj->ExtractPacket(pack.Rec.LinkBillID, &link_pack, 0);
+											p_bobj->ExtractPacket(pack.Rec.LinkBillID, &link_pack);
 									}
 								}
 							}

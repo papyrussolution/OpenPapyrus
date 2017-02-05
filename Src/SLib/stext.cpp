@@ -1536,172 +1536,153 @@ char * FASTCALL strupr866(char * str)
 	return str;
 }
 
-// @v5.0.4 AHTOXA changed {
-char * FASTCALL _s_866_to_1251(char * src)
-{
-#ifndef _WIN32_WCE
-__asm	push ds
-__asm	push es
-__asm	cld
-__asm	les  di, src
-__asm	mov  si, di
-__asm	mov  ax, es
-__asm	mov  ds, ax
-__loop:
-__asm	lodsb
-__asm	or   al, al
-__asm	jz   __end
-	__866_to_1251();
-__asm	stosb
-__asm	jmp __loop
-__end:
-__asm	stosb
-__asm	pop  es
-__asm	pop  ds
-#endif
+#if 0 // @v9.5.1 {
+	// @v5.0.4 AHTOXA changed {
+	char * FASTCALL _s_866_to_1251(char * src)
+	{
+	#ifndef _WIN32_WCE
+	__asm	push ds
+	__asm	push es
+	__asm	cld
+	__asm	les  di, src
+	__asm	mov  si, di
+	__asm	mov  ax, es
+	__asm	mov  ds, ax
+	__loop:
+	__asm	lodsb
+	__asm	or   al, al
+	__asm	jz   __end
+		__866_to_1251();
+	__asm	stosb
+	__asm	jmp __loop
+	__end:
+	__asm	stosb
+	__asm	pop  es
+	__asm	pop  ds
+	#endif
+		return src;
+	}
+	// @v5.0.4 AHTOXA changed
+
+	char * FASTCALL _s_1251_to_866(char * src)
+	{
+	#ifndef _WIN32_WCE
+	__asm	push ds
+	__asm	push es
+	__asm	cld
+	__asm	les  di, src
+	__asm	mov  si, di
+	__asm	mov  ax, es
+	__asm	mov  ds, ax
+	__loop:
+	__asm	lodsb
+	__asm	or   al, al
+	__asm	jz   __end
+		__1251_to_866();
+	__asm	stosb
+	__asm	jmp __loop
+	__end:
+	__asm	stosb
+	__asm	pop  es
+	__asm	pop  ds
+	#endif
 	return src;
-}
-// @v5.0.4 AHTOXA changed
+	}
 
-char * FASTCALL _s_1251_to_866(char * src)
-{
-#ifndef _WIN32_WCE
-__asm	push ds
-__asm	push es
-__asm	cld
-__asm	les  di, src
-__asm	mov  si, di
-__asm	mov  ax, es
-__asm	mov  ds, ax
-__loop:
-__asm	lodsb
-__asm	or   al, al
-__asm	jz   __end
-	__1251_to_866();
-__asm	stosb
-__asm	jmp __loop
-__end:
-__asm	stosb
-__asm	pop  es
-__asm	pop  ds
-#endif
-return src;
-}
-
-int SLAPI rus_tbl_cvt(int chr, int srcTbl, int destTbl)
-{
-#ifndef _WIN32_WCE // @v5.0.4 AHTOXA
-	if(srcTbl == cp866 && destTbl == cp1251) {
-	#ifdef __WIN32__
-__asm		mov eax, chr
-	#else
-__asm		mov ax, chr
+	int SLAPI rus_tbl_cvt(int chr, int srcTbl, int destTbl)
+	{
+	#ifndef _WIN32_WCE // @v5.0.4 AHTOXA
+		if(srcTbl == cp866 && destTbl == cp1251) {
+		#ifdef __WIN32__
+	__asm		mov eax, chr
+		#else
+	__asm		mov ax, chr
+		#endif
+			return __866_to_1251();
+		}
+		if(srcTbl == cp1251 && destTbl == cp866) {
+		#ifdef __WIN32__
+	__asm		mov eax, chr
+		#else
+	__asm		mov ax, chr
+		#endif
+			return __1251_to_866();
+		}
 	#endif
-		return __866_to_1251();
+		return chr;
 	}
-	if(srcTbl == cp1251 && destTbl == cp866) {
-	#ifdef __WIN32__
-__asm		mov eax, chr
+
+	char * SLAPI rus_tbl_strcvt(char * str, int srcTbl, int destTbl)
+	{
+		if(srcTbl == cp866 && destTbl == cp1251)
+			return _s_866_to_1251(str);
+		if(srcTbl == cp1251 && destTbl == cp866)
+			return _s_1251_to_866(str);
+		return str;
+	}
+
+	#pragma option -k- -N-
+	/*
+		al - source character
+	*/
+	uchar SLAPI __866_to_1251()
+	{
+	#ifndef _WIN32_WCE // @v5.0.4 AHTOXA
+	__asm	cmp al, 80h
+	__asm	jb  __end
+	__asm	cmp al, 0afh
+	__asm	jg  __bias10
+	__asm	add al, 40h
+	__asm	jmp __end
+	__bias10:
+	__asm	cmp al, 0e0h
+	__asm	jb  __end
+	__asm	cmp al, 0efh
+	__asm	jg  __end
+	__asm	add al, 10h
+	__end:
+	#	ifdef __WIN32__
+	__asm push ax
+	__asm xor eax,eax
+	__asm pop ax
+	#	else
+	return _AL;
+	#	endif
 	#else
-__asm		mov ax, chr
+	return 0;
 	#endif
-		return __1251_to_866();
 	}
-#endif
-	return chr;
-}
-
-char * SLAPI rus_tbl_strcvt(char * str, int srcTbl, int destTbl)
-{
-	if(srcTbl == cp866 && destTbl == cp1251)
-		return _s_866_to_1251(str);
-	if(srcTbl == cp1251 && destTbl == cp866)
-		return _s_1251_to_866(str);
-	return str;
-}
-
-#pragma option -k- -N-
-/*
-	al - source character
-*/
-uchar SLAPI __866_to_1251()
-{
-#ifndef _WIN32_WCE // @v5.0.4 AHTOXA
-__asm	cmp al, 80h
-__asm	jb  __end
-__asm	cmp al, 0afh
-__asm	jg  __bias10
-__asm	add al, 40h
-__asm	jmp __end
-__bias10:
-__asm	cmp al, 0e0h
-__asm	jb  __end
-__asm	cmp al, 0efh
-__asm	jg  __end
-__asm	add al, 10h
-__end:
-#	ifdef __WIN32__
-__asm push ax
-__asm xor eax,eax
-__asm pop ax
-#	else
-return _AL;
-#	endif
-#else
-return 0;
-#endif
-}
-/*
-	al - source character
-*/
-uchar SLAPI __1251_to_866()
-{
-#ifndef _WIN32_WCE // @v5.0.4
-__asm	cmp al, 0c0h
-__asm	jb  __end
-__asm	cmp al, 0efh
-__asm	jg  __bias10
-__asm	add al, -40h
-__asm	jmp __end
-__bias10:
-__asm	cmp al, 0f0h
-__asm	jb  __end
-__asm	cmp al, 0ffh
-__asm	jg  __end
-__asm	add al, -10h
-__end:
-#	ifdef __WIN32__
-__asm push ax
-__asm xor eax,eax
-__asm pop ax
-#	else
-return _AL;
-#	endif
-#else
-return 0;
-#endif
-}
-
-char FASTCALL wchar_to_1251(int16 src)
-{
-	uchar c, buf[2];
-	*PTR16(buf) = *PTR16(&src);
-	if(buf[1] == 0x00)
-		c = buf[0];
-	else if(buf[1] == 0x04) {
-		if(buf[0] >= 0x10 && buf[0] <= 0x4F)
-			c = buf[0] + 0xB0;
-		else if(buf[0] == 0x01)
-			c = 0xA8;
-		else if(buf[0] == 0x51)
-			c = 0xB8;
-		else
-			c = ' ';
+	/*
+		al - source character
+	*/
+	uchar SLAPI __1251_to_866()
+	{
+	#ifndef _WIN32_WCE // @v5.0.4
+	__asm	cmp al, 0c0h
+	__asm	jb  __end
+	__asm	cmp al, 0efh
+	__asm	jg  __bias10
+	__asm	add al, -40h
+	__asm	jmp __end
+	__bias10:
+	__asm	cmp al, 0f0h
+	__asm	jb  __end
+	__asm	cmp al, 0ffh
+	__asm	jg  __end
+	__asm	add al, -10h
+	__end:
+	#	ifdef __WIN32__
+	__asm push ax
+	__asm xor eax,eax
+	__asm pop ax
+	#	else
+	return _AL;
+	#	endif
+	#else
+	return 0;
+	#endif
 	}
-	else
-		c = ' ';
-	return c;
-}
+#endif // } 0 @v9.5.1
 //
 // KOI
 //
@@ -1767,23 +1748,22 @@ int FASTCALL _koi8_to_866(int c)
 //
 // OEM <-> CHAR
 //
-#if !defined(__WIN32__) || defined(_WIN32_WCE)
-
-int OemToChar(const char * in, char* out)
-{
-	strcpy(out, in);
-	_s_866_to_1251(out);
-	return 1;
-}
-
-int CharToOem(const char * in, char * out)
-{
-	strcpy(out, in);
-	_s_1251_to_866(out);
-	return 1;
-}
-
-#endif
+#if 0 // @v9.5.1 {
+	#if !defined(__WIN32__) || defined(_WIN32_WCE)
+		int OemToChar(const char * in, char* out)
+		{
+			strcpy(out, in);
+			_s_866_to_1251(out);
+			return 1;
+		}
+		int CharToOem(const char * in, char * out)
+		{
+			strcpy(out, in);
+			_s_1251_to_866(out);
+			return 1;
+		}
+	#endif
+#endif // } 0 @v9.5.1
 
 char * FASTCALL SOemToChar(char * pStr)
 {
@@ -2114,22 +2094,25 @@ char * SLAPI padright(char * pStr, char pad, size_t n)
 
 char * SLAPI alignstr(char * pStr, size_t wd, int adj)
 {
-	size_t len = strlen(strip(pStr));
-	if(wd > len) {
-		size_t n = (wd - len);
-		switch(adj) {
-			case ADJ_LEFT:
-				return padright(pStr, ' ', n);
-			case ADJ_RIGHT:
-				return padleft(pStr, ' ', n);
-			case ADJ_CENTER:
-				len = n/2;
-				return padright(padleft(pStr, ' ', len), ' ', n-len);
+	if(pStr) {
+		size_t len = strlen(strip(pStr));
+		if(wd > len) {
+			size_t n = (wd - len);
+			switch(adj) {
+				case ADJ_LEFT:
+					return padright(pStr, ' ', n);
+				case ADJ_RIGHT:
+					return padleft(pStr, ' ', n);
+				case ADJ_CENTER:
+					len = n/2;
+					return padright(padleft(pStr, ' ', len), ' ', n-len);
+			}
 		}
 	}
 	return pStr;
 }
 
+#if 0 // @v9.5.1 {
 int SLAPI getTextHight(Pchar str, int width)
 {
 	char   ch = *str;
@@ -2145,6 +2128,7 @@ int SLAPI getTextHight(Pchar str, int width)
 	}
 	return y;
 }
+#endif // } 0
 
 static int SLAPI iswordchar(int ch, const char * /*pWordChars*/)
 {
@@ -2271,71 +2255,6 @@ int SLAPI replacestr(char * str, const char * rstr, size_t * pPos, size_t * pLen
 }
 
 #pragma warn .par
-
-// AHTOXA {
-uint GetTextHeight(char * pBuf, size_t strLen)
-{
-	uint   text_height = 1;
-	if(pBuf) {
-		size_t buf_len = strlen(pBuf);
-		if(buf_len > strLen) {
-			char * p_buf = pBuf;
-			uint pos = 0, prev_pos = 0, real_pos = 0, len = 0;
-			SSrchParam p;
-			p.P_Pattern = (char*)onecstr(' ');
-			p.P_WordChars = 0;
-			p.Flags = 0;
-			while(p_buf && searchstr(p_buf, p, &pos, &len) > 0) {
-				if(pos > strLen) {
-					size_t cut_pos = (prev_pos) ? prev_pos : pos;
-					text_height++;
-					prev_pos = pos = 0;
-					real_pos += cut_pos;
-					replacestr(pBuf, "\n", &real_pos, &len, 0);
-					real_pos++;
-					if(strlen(p_buf) > cut_pos + 1)
-						p_buf += cut_pos + 1;
-					else
-						p_buf = 0;
-				}
-				else {
-					prev_pos = pos;
-					pos++;
-				}
-			}
-			if(p_buf && strlen(p_buf) > strLen && prev_pos) {
-				text_height++;
-				real_pos += prev_pos;
-				replacestr(pBuf, "\n", &real_pos, &len, 0);
-			}
-		}
-	}
-	return text_height;
-}
-// } AHTOXA
-
-void FASTCALL RemoveCtrlNFromStr(char * pBuf, size_t bufLen)
-{
-	if(pBuf && bufLen) {
-		size_t s = strlen(pBuf);
-		if(s >= bufLen) {
-			s = (bufLen-1);
-			pBuf[bufLen-1] = 0;
-		}
-		if(memchr(pBuf, '\n', s) || memchr(pBuf, '\r', s)) {
-			char   c;
-			for(size_t i = 0; (c = pBuf[i]) != 0; i++) {
-				if((c == '\r' && pBuf[i+1] == '\n') || (c == '\n' && pBuf[i+1] == '\r')) {
-					size_t len = strlen(pBuf+i+1)+1;
-					memcpy(pBuf+i, pBuf+i+1, len);
-					pBuf[i] = ' ';
-				}
-				else if(c == '\n' || c == '\t')
-					pBuf[i] = ' ';
-			}
-		}
-	}
-}
 
 int SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 {

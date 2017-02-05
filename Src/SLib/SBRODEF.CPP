@@ -1,5 +1,5 @@
 // SBRODEF.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -391,6 +391,69 @@ SString & SLAPI BrowserDef::getFullText(long row, int column, SString & rBuf)
 		}
 	}
 	return rBuf;
+}
+
+// AHTOXA {
+static uint FASTCALL GetTextHeight(char * pBuf, size_t strLen)
+{
+	uint   text_height = 1;
+	size_t buf_len = sstrlen(pBuf);
+	if(buf_len > strLen) {
+		char * p_buf = pBuf;
+		uint pos = 0, prev_pos = 0, real_pos = 0, len = 0;
+		SSrchParam p;
+		p.P_Pattern = (char*)onecstr(' ');
+		p.P_WordChars = 0;
+		p.Flags = 0;
+		while(p_buf && searchstr(p_buf, p, &pos, &len) > 0) {
+			if(pos > strLen) {
+				size_t cut_pos = (prev_pos) ? prev_pos : pos;
+				text_height++;
+				prev_pos = pos = 0;
+				real_pos += cut_pos;
+				replacestr(pBuf, "\n", &real_pos, &len, 0);
+				real_pos++;
+				if(strlen(p_buf) > cut_pos + 1)
+					p_buf += cut_pos + 1;
+				else
+					p_buf = 0;
+			}
+			else {
+				prev_pos = pos;
+				pos++;
+			}
+		}
+		if(p_buf && strlen(p_buf) > strLen && prev_pos) {
+			text_height++;
+			real_pos += prev_pos;
+			replacestr(pBuf, "\n", &real_pos, &len, 0);
+		}
+	}
+	return text_height;
+}
+// } AHTOXA
+
+static void FASTCALL RemoveCtrlNFromStr(char * pBuf, size_t bufLen)
+{
+	if(pBuf && bufLen) {
+		size_t s = strlen(pBuf);
+		if(s >= bufLen) {
+			s = (bufLen-1);
+			pBuf[bufLen-1] = 0;
+		}
+		if(memchr(pBuf, '\n', s) || memchr(pBuf, '\r', s)) {
+			char   c;
+			for(size_t i = 0; (c = pBuf[i]) != 0; i++) {
+				if((c == '\r' && pBuf[i+1] == '\n') || (c == '\n' && pBuf[i+1] == '\r')) {
+					size_t len = strlen(pBuf+i+1)+1;
+					memcpy(pBuf+i, pBuf+i+1, len);
+					pBuf[i] = ' ';
+				}
+				else if(c == '\n' || c == '\t')
+					pBuf[i] = ' ';
+			}
+		}
+	}
 }
 
 char * SLAPI BrowserDef::getMultiLinesText(long row, int column, char * pBuf, uint heightMult, uint * pCalcHeight)

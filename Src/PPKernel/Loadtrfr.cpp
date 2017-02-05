@@ -1,5 +1,5 @@
 // LOADTRFR.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017
 // @codepage windows-1251
 // @Kernel
 // «агрузка товарных строк документа
@@ -186,118 +186,131 @@ int SLAPI Transfer::GetOriginalValuesForCorrection(const PPTransferItem & rTi, c
 	return ok;
 }
 
-int SLAPI Transfer::LoadItems(PPBillPacket & rPack)
+int SLAPI Transfer::LoadItems(PPBillPacket & rPack, const PPIDArray * pGoodsList)
 {
 	int    ok = 1;
-	const  int is_debug = BIN(CConfig.Flags & CCFLG_DEBUG);
-	BillTbl::Rec correction_org_bill_rec;
-	PPIDArray correction_bill_chain;
-	PROFILE_START;
-	uint   i;
-	PPTransferItem info, *p_ti;
-	rPack.PrepareTLoading();
-	rPack.ProcessFlags &= ~PPBillPacket::pfErrOnTiLoading;
-	correction_org_bill_rec.ID = 0;
-	if(rPack.OprType == PPOPT_CORRECTION) {
-		BillObj->GetCorrectionBackChain(rPack.Rec.ID, correction_bill_chain);
-	}
-	{
-		TransferTbl::Key0 k0;
-		k0.BillID  = rPack.Rec.ID;
-		k0.Reverse = 0;
-		k0.RByBill = 0;
-		BExtQuery q(this, 0, 128);
-		q.select(RByBill, GoodsID, LotID, Rest, Flags, CorrLoc, Quantity, WtQtty, Cost,
-			Price, Discount, QuotPrice, OprNo, CurID, CurPrice, 0L).where(BillID == rPack.Rec.ID && Reverse == 0.0);
-		for(q.initIteration(0, &k0, spGt); q.nextIteration() > 0;) {
-			//
-			// «ащита от недопустимых значений с плавающей точкой
-			//
-			if(is_debug) {
-				int    fpok = 1;
-				double big = 1.e9;
-				SString fp_err_var;
-	#define _FZEROINV(v) if(!IsValidIEEE(v) || fabs(v) > big) { v = 0; fp_err_var.CatDiv(';', 2, 1).Cat(#v); fpok = 0; }
-				_FZEROINV(data.Quantity);
-				_FZEROINV(data.Rest);
-				_FZEROINV(data.Cost);
-				_FZEROINV(data.WtQtty);
-				_FZEROINV(data.WtRest);
-				_FZEROINV(data.Price);
-				_FZEROINV(data.QuotPrice);
-				_FZEROINV(data.Discount);
-				_FZEROINV(data.CurPrice);
-				if(!fpok) {
-					PPSetError(PPERR_INVFPVAL, fp_err_var);
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+	assert(!pGoodsList || pGoodsList->isSorted());
+	if(!pGoodsList || pGoodsList->getCount()) {
+		const  int is_debug = BIN(CConfig.Flags & CCFLG_DEBUG);
+		BillTbl::Rec correction_org_bill_rec;
+		PPIDArray correction_bill_chain;
+		PROFILE_START;
+		uint   i;
+		PPTransferItem info, *p_ti;
+		rPack.ProcessFlags &= ~PPBillPacket::pfErrOnTiLoading;
+		correction_org_bill_rec.ID = 0;
+		if(rPack.OprType == PPOPT_CORRECTION) {
+			BillObj->GetCorrectionBackChain(rPack.Rec.ID, correction_bill_chain);
+		}
+		{
+			TransferTbl::Key0 k0;
+			k0.BillID  = rPack.Rec.ID;
+			k0.Reverse = 0;
+			k0.RByBill = 0;
+			BExtQuery q(this, 0, 128);
+			DBQ * dbq = &(this->BillID == rPack.Rec.ID && this->Reverse == 0.0);
+			if(pGoodsList) {
+				if(pGoodsList->getCount() == 1) {
+					dbq = &(*dbq && this->GoodsID == pGoodsList->get(0));
 				}
-				if(data.CurID != rPack.Rec.CurID)
-					data.CurID = rPack.Rec.CurID;
-	#undef _FZEROINV
+				else if(pGoodsList->getCount() > 1) { // @paranoic (we have allready checked it above)
+					dbq = &(*dbq && this->GoodsID >= pGoodsList->get(0) && this->GoodsID <= pGoodsList->getLast());
+				}
 			}
-			info.SetupByRec(&data);
-			if(info.Flags & PPTFR_REVAL)
-				info.Suppl = data.OprNo; // ¬ременно используем поле PPTransferItem::Suppl
-			THROW(rPack.LoadTItem(&info, 0, 0));
+			q.select(RByBill, GoodsID, LotID, Rest, Flags, CorrLoc, Quantity, WtQtty, Cost,
+				Price, Discount, QuotPrice, OprNo, CurID, CurPrice, 0L).where(*dbq);
+			for(q.initIteration(0, &k0, spGt); q.nextIteration() > 0;) {
+				if(!pGoodsList || pGoodsList->bsearch(data.GoodsID)) {
+					//
+					// «ащита от недопустимых значений с плавающей точкой
+					//
+					if(is_debug) {
+						int    fpok = 1;
+						const  double big = 1.e9;
+						SString fp_err_var;
+#define _FZEROINV(v) if(!IsValidIEEE(v) || fabs(v) > big) { v = 0; fp_err_var.CatDiv(';', 2, 1).Cat(#v); fpok = 0; }
+						_FZEROINV(data.Quantity);
+						_FZEROINV(data.Rest);
+						_FZEROINV(data.Cost);
+						_FZEROINV(data.WtQtty);
+						_FZEROINV(data.WtRest);
+						_FZEROINV(data.Price);
+						_FZEROINV(data.QuotPrice);
+						_FZEROINV(data.Discount);
+						_FZEROINV(data.CurPrice);
+						if(!fpok) {
+							PPSetError(PPERR_INVFPVAL, fp_err_var);
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+						}
+						// @v9.5.1 if(data.CurID != rPack.Rec.CurID)
+							data.CurID = rPack.Rec.CurID;
+#undef _FZEROINV
+					}
+					info.SetupByRec(&data);
+					if(info.Flags & PPTFR_REVAL)
+						info.Suppl = data.OprNo; // ¬ременно используем поле PPTransferItem::Suppl
+					THROW(rPack.LoadTItem(&info, 0, 0));
+				}
+			}
+			THROW_DB(BTROKORNFOUND);
 		}
-		THROW_DB(BTROKORNFOUND);
-	}
-	for(i = 0; rPack.EnumTItems(&i, &p_ti);) {
-		if(p_ti->IsCorrectionExp()) {
-			double org_qtty = 0.0;
-			double org_price = 0.0;
-			if(GetOriginalValuesForCorrection(*p_ti, correction_bill_chain, &org_qtty, &org_price) > 0) {
-				p_ti->Quantity_ += org_qtty;
-				p_ti->RevalCost = org_price;
-				p_ti->QuotPrice = fabs(org_qtty);
-			}
-			else {
-				// @todo «десь надо как-то отреагировать (в лог что-то написать или что-то в этом роде)
-			}
-		}
-		if(p_ti->LotID) {
-			ReceiptTbl::Rec lot_rec, org_lot_rec;
-			PPID   org_lot_id = 0;
-			int    r = 1;
-			//
-			// ѕопытка "интеллигентно" обработать ошибку, возникающую в одной
-			// из товарных строк документа, дабы документ все-таки был загружен.
-			//
-			if(Rcpt.SearchOrigin(p_ti->LotID, &org_lot_id, &lot_rec, &org_lot_rec) > 0) {
-				if(p_ti->LotID != lot_rec.ID)
-					r = PPSetError(PPERR_INT_TRFRLOADINGLOT);
+		for(i = 0; rPack.EnumTItems(&i, &p_ti);) {
+			if(p_ti->IsCorrectionExp()) {
+				double org_qtty = 0.0;
+				double org_price = 0.0;
+				if(GetOriginalValuesForCorrection(*p_ti, correction_bill_chain, &org_qtty, &org_price) > 0) {
+					p_ti->Quantity_ += org_qtty;
+					p_ti->RevalCost = org_price;
+					p_ti->QuotPrice = fabs(org_qtty);
+				}
 				else {
-					if(lot_rec.ID == lot_rec.PrevLotID)
-						lot_rec.PrevLotID = 0;
-					r = SetupItemByLot(p_ti, &lot_rec, 1, p_ti->Suppl);
+					// @todo «десь надо как-то отреагировать (в лог что-то написать или что-то в этом роде)
 				}
+			}
+			if(p_ti->LotID) {
+				ReceiptTbl::Rec lot_rec, org_lot_rec;
+				PPID   org_lot_id = 0;
+				int    r = 1;
+				//
+				// ѕопытка "интеллигентно" обработать ошибку, возникающую в одной
+				// из товарных строк документа, дабы документ все-таки был загружен.
+				//
+				if(Rcpt.SearchOrigin(p_ti->LotID, &org_lot_id, &lot_rec, &org_lot_rec) > 0) {
+					if(p_ti->LotID != lot_rec.ID)
+						r = PPSetError(PPERR_INT_TRFRLOADINGLOT);
+					else {
+						if(lot_rec.ID == lot_rec.PrevLotID)
+							lot_rec.PrevLotID = 0;
+						r = SetupItemByLot(p_ti, &lot_rec, 1, p_ti->Suppl);
+					}
+				}
+				else
+					r = 0;
+				if(!r) {
+					PPSaveErrContext();
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+					{
+						SString fmt_buf, msg_buf, bill_buf, err_buf, goods_name;
+						GetGoodsName(p_ti->GoodsID, goods_name);
+						PPObjBill::MakeCodeString(&rPack.Rec, 1, bill_buf).CatDiv(';', 2).Cat(i).CatDiv(';', 2).Cat(goods_name);
+						PPGetMessage(mfError, PPErrCode, 0, 1, err_buf);
+						msg_buf.Printf(PPLoadTextS(PPTXT_TRFRLOADINGFAULT, fmt_buf), bill_buf.cptr(), err_buf.cptr());
+						PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+					}
+					rPack.TiErrList.addUnique(i-1);
+					rPack.ProcessFlags |= PPBillPacket::pfErrOnTiLoading;
+					ok = 0;
+				}
+				p_ti->LotDate = org_lot_rec.Dt;
 			}
 			else
-				r = 0;
-			if(!r) {
-				PPSaveErrContext();
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
-				{
-					SString fmt_buf, msg_buf, bill_buf, err_buf, goods_name;
-					GetGoodsName(p_ti->GoodsID, goods_name);
-					PPObjBill::MakeCodeString(&rPack.Rec, 1, bill_buf).CatDiv(';', 2).Cat(i).CatDiv(';', 2).Cat(goods_name);
-					PPGetMessage(mfError, PPErrCode, 0, 1, err_buf);
-					msg_buf.Printf(PPLoadTextS(PPTXT_TRFRLOADINGFAULT, fmt_buf), bill_buf.cptr(), err_buf.cptr());
-					PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
-				}
-				rPack.TiErrList.addUnique(i-1);
-				rPack.ProcessFlags |= PPBillPacket::pfErrOnTiLoading;
-				ok = 0;
-			}
-			p_ti->LotDate = org_lot_rec.Dt;
+				p_ti->LotDate = p_ti->Date;
 		}
-		else
-			p_ti->LotDate = p_ti->Date;
+		if(ok == 0)
+			PPRestoreErrContext();
+		PROFILE_END;
 	}
-	if(ok == 0)
-		PPRestoreErrContext();
 	CATCHZOK
-	PROFILE_END;
 	return ok;
 }
 

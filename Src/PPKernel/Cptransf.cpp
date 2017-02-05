@@ -52,45 +52,59 @@ int SLAPI CpTransfCore::Search(PPID billID, int rByBill, CpTransfTbl::Rec * pRec
 	return SearchByKey(this, 0, &k, pRec);
 }
 
-int SLAPI CpTransfCore::LoadItems(PPID billID, PPBillPacket * pPack)
+int SLAPI CpTransfCore::LoadItems(PPID billID, PPBillPacket * pPack, const PPIDArray * pGoodsList)
 {
 	int    ok = 1;
-	PROFILE_START
-	CpTransfTbl::Key0 k;
-	k.BillID = billID;
-	k.RByBill = -MAXSHORT;
-	BExtQuery q(this, 0, 128);
-	q.select(this->BillID, this->RByBill, this->LocID, this->GoodsID, this->OrdLotID,
-		this->CurID, this->UnitPerPack, this->Qtty, this->Cost, this->Price, this->Discount,
-		this->CurPrice, this->Expiry, this->QCertID, this->InTaxGrpID, this->Flags, this->Tail, 0L).where(this->BillID == billID);
-	for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
-		PPTransferItem ti;
-		ti.Date     = pPack->Rec.Dt;
-		ti.BillID   = data.BillID;
-		ti.RByBill  = data.RByBill;
-		ti.LocID    = data.LocID;
-		ti.GoodsID  = data.GoodsID;
-		ti.OrdLotID = data.OrdLotID;
-		ti.CurID    = (int16)data.CurID;
-		ti.UnitPerPack = data.UnitPerPack;
-		ti.Quantity_ = data.Qtty;
-		ti.Cost     = data.Cost;
-		ti.Price    = data.Price;
-		ti.Discount = data.Discount;
-		ti.CurPrice = data.CurPrice;
-		ti.Expiry   = data.Expiry;
-		ti.QCert    = data.QCertID;
-		ti.LotTaxGrpID = data.InTaxGrpID;
-		ti.Flags    = data.Flags;
-		{
-			CpTrfrExt cpext;
-			MEMSZERO(cpext);
-			CpTransfCore::GetExt(data, &cpext);
-			THROW(pPack->LoadTItem(&ti, cpext.Clb, cpext.PartNo));
+	assert(!pGoodsList || pGoodsList->isSorted());
+	if(!pGoodsList || pGoodsList->getCount()) {
+		PROFILE_START
+		CpTransfTbl::Key0 k;
+		k.BillID = billID;
+		k.RByBill = -MAXSHORT;
+		BExtQuery q(this, 0, 128);
+		DBQ * dbq = &(this->BillID == billID);
+		if(pGoodsList) {
+			if(pGoodsList->getCount() == 1) {
+				dbq = &(*dbq && this->GoodsID == pGoodsList->get(0));
+			}
+			else if(pGoodsList->getCount() > 1) { // @paranoic (we have allready checked it above)
+				dbq = &(*dbq && this->GoodsID >= pGoodsList->get(0) && this->GoodsID <= pGoodsList->getLast());
+			}
 		}
+		q.select(this->BillID, this->RByBill, this->LocID, this->GoodsID, this->OrdLotID,
+			this->CurID, this->UnitPerPack, this->Qtty, this->Cost, this->Price, this->Discount,
+			this->CurPrice, this->Expiry, this->QCertID, this->InTaxGrpID, this->Flags, this->Tail, 0L).where(*dbq);
+		for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+			if(!pGoodsList || pGoodsList->bsearch(data.GoodsID)) {
+				PPTransferItem ti;
+				ti.Date     = pPack->Rec.Dt;
+				ti.BillID   = data.BillID;
+				ti.RByBill  = data.RByBill;
+				ti.LocID    = data.LocID;
+				ti.GoodsID  = data.GoodsID;
+				ti.OrdLotID = data.OrdLotID;
+				ti.CurID    = (int16)data.CurID;
+				ti.UnitPerPack = data.UnitPerPack;
+				ti.Quantity_ = data.Qtty;
+				ti.Cost     = data.Cost;
+				ti.Price    = data.Price;
+				ti.Discount = data.Discount;
+				ti.CurPrice = data.CurPrice;
+				ti.Expiry   = data.Expiry;
+				ti.QCert    = data.QCertID;
+				ti.LotTaxGrpID = data.InTaxGrpID;
+				ti.Flags    = data.Flags;
+				{
+					CpTrfrExt cpext;
+					MEMSZERO(cpext);
+					CpTransfCore::GetExt(data, &cpext);
+					THROW(pPack->LoadTItem(&ti, cpext.Clb, cpext.PartNo));
+				}
+			}
+		}
+		PROFILE_END
 	}
 	CATCHZOK
-	PROFILE_END
 	return ok;
 }
 
@@ -887,7 +901,7 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(ExtractPacket(billID, &blk.SrcDraftPack, 0) > 0); // @v8.5.8
+		THROW(ExtractPacket(billID, &blk.SrcDraftPack) > 0); // @v8.5.8
 		if(blk.P_WrOffParam->WrOffOpID == 0) {
 			// Если операция списания не определена, то, естественно, никаких документов
 			// формировать не требуется. Все, что мы должны сделать - пометить документ как списанный

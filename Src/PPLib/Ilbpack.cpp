@@ -2698,7 +2698,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 					err_code = PPTXT_ERRACCEPTBILL_CONVERT;
 					err_id = p_pack->Rec.ID;
 					PPObjBill::MakeCodeString(&p_pack->Rec, 0, err_bill_code);
-					THROW(ExtractPacket(*pID, &bp, 0) > 0);
+					THROW(ExtractPacket(*pID, &bp) > 0);
 					// @v8.0.3 {
 					if(CConfig.Flags2 & CCFLG2_SYNCLOT && GetConfig().Flags & BCF_ACCEPTGOODSBILLCHG) {
 						if(bp.Rec.Flags2 & BILLF2_FULLSYNC) {

@@ -3163,7 +3163,7 @@ int SLAPI PPObjTSession::LoadExistedDeficitBills(PPID sessID, TSCollection <PPBi
 	SString bill_code;
 	for(PPID bill_id = 0; BillObj->EnumMembersOfPool(PPASS_TSDBILLPOOL, sessID, &bill_id) > 0;) {
 		THROW_MEM(p_pack = new PPBillPacket);
-		if((r = BillObj->ExtractPacket(bill_id, p_pack, 0)) > 0) {
+		if((r = BillObj->ExtractPacket(bill_id, p_pack)) > 0) {
 			PPObjBill::MakeCodeString(&p_pack->Rec, 1, bill_code);
 			if(p_pack->IsDraft()) {
 				if(p_pack->Rec.Flags & BILLF_WRITEDOFF) {

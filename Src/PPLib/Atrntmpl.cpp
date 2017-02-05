@@ -249,14 +249,14 @@ int SLAPI PPAccTurnTempl::GetSubstObjects(ATBillParam * pParam, ATSubstObjects *
 				if(*p & LINKFLAG) {
 					if(pParam->P_Pack->Rec.LinkBillID && pParam->P_LinkPack == 0) {
 						THROW_MEM(pParam->P_LinkPack = new PPBillPacket);
-						THROW(p_bobj->ExtractPacket(pParam->P_Pack->Rec.LinkBillID, pParam->P_LinkPack, BPLD_SKIPTRFR));
+						THROW(p_bobj->ExtractPacketWithFlags(pParam->P_Pack->Rec.LinkBillID, pParam->P_LinkPack, BPLD_SKIPTRFR));
 					}
 				}
 				else if(*p & RCKNFLAG) {
 					if(!(pParam->Flags & ATBillParam::fIsRcknInited)) {
 						if(pParam->P_Pack->PaymBillID) {
 							THROW_MEM(pParam->P_RcknPack = new PPBillPacket);
-							THROW(p_bobj->ExtractPacket(pParam->P_Pack->PaymBillID, pParam->P_RcknPack, BPLD_SKIPTRFR));
+							THROW(p_bobj->ExtractPacketWithFlags(pParam->P_Pack->PaymBillID, pParam->P_RcknPack, BPLD_SKIPTRFR));
 					    }
 						pParam->Flags |= ATBillParam::fIsRcknInited;
 				    }

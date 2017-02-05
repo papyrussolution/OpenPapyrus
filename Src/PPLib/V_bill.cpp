@@ -1559,7 +1559,7 @@ int SLAPI PPViewBill::CalcTotal(BillTotal * pTotal)
 int SLAPI PPViewBill::CalcItemTotal(PPID billID, BillTotalData * pTotal)
 {
 	PPBillPacket pack;
-	return (billID && BObj->ExtractPacket(billID, &pack, 0) > 0) ? pack.CalcTotal(pTotal, BTC_CALCSALESTAXES) : -1;
+	return (billID && BObj->ExtractPacket(billID, &pack) > 0) ? pack.CalcTotal(pTotal, BTC_CALCSALESTAXES) : -1;
 }
 
 static int IterProc_CrList(BillViewItem * pItem, long p)
@@ -1881,8 +1881,8 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 							PPBillPacket _link_bp;
 							const PPID   _link_id = wroff_bill_list.get(0);
 							int    do_update = 0;
-							THROW(BObj->ExtractPacket(id, &_this_bp, BPLD_FORCESERIALS) > 0);
-							THROW(BObj->ExtractPacket(_link_id, &_link_bp, BPLD_FORCESERIALS) > 0);
+							THROW(BObj->ExtractPacketWithFlags(id, &_this_bp, BPLD_FORCESERIALS) > 0);
+							THROW(BObj->ExtractPacketWithFlags(_link_id, &_link_bp, BPLD_FORCESERIALS) > 0);
 							PPObjBill::MakeCodeString(&_link_bp.Rec, PPObjBill::mcsAddOpName, bill_text);
 							for(uint tbpi = 0; tbpi < _this_bp.GetTCount(); tbpi++) {
 								const PPTransferItem & r_ti = _this_bp.ConstTI(tbpi);
@@ -3722,7 +3722,7 @@ int SLAPI PPViewBill::ChangeFlags()
 			for(i = 0; ary.enumItems(&i, (void**)&pid);) {
 				PPBillPacket pack;
 				long   sav;
-				THROW(BObj->ExtractPacket(*pid, &pack, BPLD_SKIPTRFR));
+				THROW(BObj->ExtractPacketWithFlags(*pid, &pack, BPLD_SKIPTRFR));
 				sav = pack.Rec.Flags;
 				for(p = 0; p < 32; p++) {
 					ulong t = (1UL << p);
@@ -4123,7 +4123,7 @@ int SLAPI PPViewBill::ShowDetails(PPID billID)
 	PPViewInventory * p_v = 0;
 	PPBillPacket pack;
 	if(billID) {
-		THROW(BObj->ExtractPacket(billID, &pack, BPLD_FORCESERIALS));
+		THROW(BObj->ExtractPacketWithFlags(billID, &pack, BPLD_FORCESERIALS));
 		if(GetOpType(pack.Rec.OpID) == PPOPT_INVENTORY) {
 			InventoryFilt filt;
 			THROW(BObj->Lock(billID));
@@ -4318,7 +4318,7 @@ int SLAPI PPViewBill::UpdateAttributes()
 				THROW(PPCheckUserBreak());
 				if(ua.ObjectID || ua.Object2ID) {
 					PPBillPacket pack;
-					if(BObj->ExtractPacket(bill_id, &pack, 0) > 0) {
+					if(BObj->ExtractPacket(bill_id, &pack) > 0) {
 						if(ua.ObjectID && pack.Rec.Object != ua.ObjectID)
 							pack.Rec.Object = ua.ObjectID;
 						if(ua.Object2ID && pack.Rec.Object2 != ua.Object2ID)
@@ -4551,7 +4551,7 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 		// Первый документ необходимо извлечь из БД для того, чтобы инициализировать возможные шаблоны переменных
 		// в наименовании файла экспорта.
 		//
-		THROW(BObj->ExtractPacket(bill_id_list.get(0), &pack, BPLD_FORCESERIALS) > 0); // @v8.8.6 BPLD_FORCESERIALS
+		THROW(BObj->ExtractPacketWithFlags(bill_id_list.get(0), &pack, BPLD_FORCESERIALS) > 0); // @v8.8.6 BPLD_FORCESERIALS
 		if(!is_there_bnkpaym)
 			b_e.DisabledOptions |= PPBillImpExpBaseProcessBlock::fPaymOrdersExp;
 		THROW(r = b_e.Init(pBillParam, pBRowParam, &pack, &result_file_list));
@@ -4622,7 +4622,7 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 					for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
 						const  PPID bill_id = bill_id_list.get(_idx);
 						int    err = 0;
-						if(BObj->ExtractPacket(bill_id, &pack, BPLD_FORCESERIALS) > 0) {
+						if(BObj->ExtractPacketWithFlags(bill_id, &pack, BPLD_FORCESERIALS) > 0) {
 							// Берем начальное значение BillParam
 							b_e.BillParam = bill_param;
 							PPSupplAgreement suppl_agt;
@@ -4769,7 +4769,7 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 					if(b_e.BillParam.Flags & PPBillImpExpParam::fExpOneByOne) {
 						for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
 							const  PPID bill_id = bill_id_list.get(_idx);
-							if(BObj->ExtractPacket(bill_id, &pack, BPLD_FORCESERIALS) > 0) {
+							if(BObj->ExtractPacketWithFlags(bill_id, &pack, BPLD_FORCESERIALS) > 0) {
 								THROW(r = b_e.Init(&bill_param, &brow_param, &pack, &result_file_list));
 								{
 									PPImpExp * p_iebill = b_e.GetIEBill();
@@ -4801,7 +4801,7 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 						PPImpExp * p_iebrow = b_e.GetIEBRow();
 						for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
 							const  PPID bill_id = bill_id_list.get(_idx);
-							if(BObj->ExtractPacket(bill_id, &pack, BPLD_FORCESERIALS) > 0) {
+							if(BObj->ExtractPacketWithFlags(bill_id, &pack, BPLD_FORCESERIALS) > 0) {
 								if(!b_e.PutPacket(&pack, 0, 0)) {
 									logger.LogMsgCode(mfError, PPERR_IMPEXP_BILL, pack.Rec.Code);
 								}

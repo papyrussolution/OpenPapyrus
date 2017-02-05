@@ -595,6 +595,7 @@ int SLAPI PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 	Total.Init();
 	Bsp.Init(Filt.Sgb);
 	RcknBsp.Init(Filt.Sgb);
+	GoodsList.clear(); // @v9.5.1
 	//
 	DlvrAddrList.freeAll();
 	IsDlvrAddrListInited = 0;
@@ -635,6 +636,12 @@ int SLAPI PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 	{
 		PPUserFuncProfiler ufp(PPUPRF_VIEW_DEBT);
 		double ufp_factor = 0.0;
+		// @v9.5.1 {
+		if(Filt.GoodsGrpID) {
+			GoodsIterator::GetListByGroup(Filt.GoodsGrpID, &GoodsList);
+			GoodsList.sortAndUndup();
+		}
+		// } @v9.5.1
 		PayableOpList.clear();
 		THROW(op_obj.GetPayableOpList(Filt.AccSheetID, &PayableOpList));
 		if(Filt.OpID) {
@@ -835,6 +842,10 @@ int SLAPI PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 			THROW(P_Ct->Create(use_ta));
 			ufp_factor *= 1.1;
 		}
+		// @v9.5.1 {
+		if(Filt.GoodsGrpID)
+			ufp_factor *= 1.2;
+		// } @v9.5.1
 		ufp.SetFactor(0, ufp_factor);
 		ufp.Commit();
 	}
@@ -1062,12 +1073,13 @@ int SLAPI PPViewDebtTrnovr::ProcessBillPaymPlanEntry(const BillTbl::Rec & rRec, 
 	return ok;
 }
 
-int SLAPI PPViewDebtTrnovr::PreprocessBill(const BillTbl::Rec & rRec, const ProcessBlock & rBlk, PPID * pArID, PPBillExt * pBillExt)
+int SLAPI PPViewDebtTrnovr::PreprocessBill(const BillTbl::Rec & rRec, const ProcessBlock & rBlk, PPID * pArID, PPBillExt * pBillExt, double * pPart)
 {
 	//
 	// Проверка документа на соответствие критериям фильтра
 	//
 	int    ok = 1;
+	double __part = 1.0;
 	PPID   ar_id = rRec.Object;
 	PPBillExt bill_ext;
 	THROW((!(Filt.Flags & DebtTrnovrFilt::fLabelOnly) || rRec.Flags & BILLF_WHITELABEL) && (!Filt.Article2ID || rRec.Object2 == Filt.Article2ID));
@@ -1146,9 +1158,23 @@ int SLAPI PPViewDebtTrnovr::PreprocessBill(const BillTbl::Rec & rRec, const Proc
 		}
 	}
 	// } @v9.1.4
+	// @v9.5.1 {
+	if(Filt.GoodsGrpID) {
+		if(rRec.Amount != 0.0) {
+			PPBillPacket bp;
+			if(P_BObj->ExtractPacketWithRestriction(rRec.ID, &bp, 0, &GoodsList) > 0) {
+				bp.InitAmounts(0);
+				__part = bp.Rec.Amount / rRec.Amount;
+			}
+		}
+		else
+			__part = 0.0;
+	}
+	// } @v9.5.1
 	CATCHZOK
 	ASSIGN_PTR(pArID, ar_id);
 	ASSIGN_PTR(pBillExt, bill_ext);
+	ASSIGN_PTR(pPart, __part);
 	return ok;
 }
 
@@ -1160,7 +1186,8 @@ int SLAPI PPViewDebtTrnovr::ProcessBill(const BillTbl::Rec & rRec, ProcessBlock 
 	int    ok = 1;
 	PPID   ar_id = 0;
 	PPBillExt bill_ext;
-	if(PreprocessBill(rRec, rBlk, &ar_id, &bill_ext) > 0) {
+	double __part = 1.0; // @v9.5.1
+	if(PreprocessBill(rRec, rBlk, &ar_id, &bill_ext, &__part) > 0) {
 		rBlk.ResetStep();
         rBlk.Ext = bill_ext;
 		LDATE  pay_date = ZERODATE;

@@ -1,5 +1,5 @@
 // V_LOCTR.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2016
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -608,15 +608,17 @@ int SLAPI PPViewLocTransf::Init_(const PPBaseFilt * pFilt)
 			PPIDArray list;
 			Tbl.GetEmptyCellList(&Domain.Get(), &list);
 			BExtInsert bei(P_TempTbl);
-			PPTransaction tra(ppDbDependTransaction, 1);
-			THROW(tra);
-			for(uint i = 0; i < list.getCount(); i++) {
-				MEMSZERO(temp_rec);
-				temp_rec.LocID = list.get(i);
-				THROW_DB(bei.insert(&temp_rec));
+			{
+				PPTransaction tra(ppDbDependTransaction, 1);
+				THROW(tra);
+				for(uint i = 0; i < list.getCount(); i++) {
+					MEMSZERO(temp_rec);
+					temp_rec.LocID = list.get(i);
+					THROW_DB(bei.insert(&temp_rec));
+				}
+				THROW_DB(bei.flash());
+				THROW(tra.Commit());
 			}
-			THROW_DB(bei.flash());
-			THROW(tra.Commit());
 		}
 	}
 	else
@@ -969,7 +971,7 @@ int SLAPI PPViewLocTransf::EditItem(PPID tempRecID, PPID curLocID, long curRByLo
 			if(SearchByID(P_TempTbl, 0, tempRecID, &temp_rec) > 0) {
 				PPBillPacket pack, * p_pack = 0;
 				if(temp_rec.BillID) {
-					THROW(BillObj->ExtractPacket(temp_rec.BillID, &pack, 0) > 0);
+					THROW(BillObj->ExtractPacket(temp_rec.BillID, &pack) > 0);
 					p_pack = &pack;
 				}
 				if(temp_rec.LocID && Tbl.Search(temp_rec.LocID, temp_rec.RByLoc, &rec) > 0) {

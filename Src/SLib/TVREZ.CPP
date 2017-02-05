@@ -1,5 +1,5 @@
 // TVREZ.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2016
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -51,6 +51,27 @@ uint SLAPI TVRez::getUINT()
 	uint16 t;
 	fread(&t, sizeof(t), 1, Stream);
 	return t;
+}
+
+static char FASTCALL wchar_to_1251(int16 src)
+{
+	uchar c, buf[2];
+	*PTR16(buf) = *PTR16(&src);
+	if(buf[1] == 0x00)
+		c = buf[0];
+	else if(buf[1] == 0x04) {
+		if(buf[0] >= 0x10 && buf[0] <= 0x4F)
+			c = buf[0] + 0xB0;
+		else if(buf[0] == 0x01)
+			c = 0xA8;
+		else if(buf[0] == 0x51)
+			c = 0xB8;
+		else
+			c = ' ';
+	}
+	else
+		c = ' ';
+	return c;
 }
 
 SString & SLAPI TVRez::getString(SString & rBuf, int kind /*0 - 866, 1 - w_char, 2 - 1251*/)

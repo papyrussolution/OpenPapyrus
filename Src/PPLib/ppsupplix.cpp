@@ -2659,6 +2659,7 @@ int SLAPI iSalesPepsi::Init(/*PPID arID*/)
         Ep.GetExtStrData(Ep.extssAccsPassw, Password);
 		State |= stEpDefined;
 	}
+	InitGoodsList(0);
 	State |= stInited;
 	return ok;
 }
@@ -3683,7 +3684,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 	int    do_cancel = BIN(outerDocType < 0);
 	outerDocType = labs(outerDocType);
 	PPBillPacket pack;
-	if(P_BObj->ExtractPacket(billID, &pack, 0) > 0) {
+	if(P_BObj->ExtractPacket(billID, &pack) > 0) {
 		StrAssocArray ti_pos_list;
 		PPTransferItem ti;
 		PPBillPacket::TiItemExt tiext;
@@ -3837,7 +3838,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 					BillTbl::Rec ord_rec;
 					if(ord_id && P_BObj->Search(ord_id, &ord_rec) > 0 && ord_rec.EdiOp == PPEDIOP_SALESORDER) {
 						if(PPRef->Ot.GetTagStr(PPOBJ_BILL, ord_id, PPTAG_BILL_EDICHANNEL, temp_buf) > 0 && temp_buf.CmpNC("ISALES-PEPSI") == 0) {
-							THROW(P_BObj->ExtractPacket(ord_id, &order_pack, 0) > 0);
+							THROW(P_BObj->ExtractPacket(ord_id, &order_pack) > 0);
 							is_own_order = 1;
 							{
 								iSalesBillRef * p_new_ref = p_new_pack->Refs.CreateNewItem(0);
@@ -4060,7 +4061,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 							if(isales_code != temp_buf) {
 								Helper_MakeBillEntry(upd_bill_id, -outerDocType, rList);
 							}
-							else if(P_BObj->ExtractPacket(upd_bill_id, &pack, 0) > 0) {
+							else if(P_BObj->ExtractPacket(upd_bill_id, &pack) > 0) {
 								long   tiiterpos = 0;
 								int    is_isales_goods = 0;
 								for(uint tiidx = 0; !is_isales_goods && tiidx < pack.GetTCount(); tiidx++) {
@@ -4281,6 +4282,7 @@ private:
 	long   State;
 	SDynLibrary * P_Lib;
 	void * P_DestroyFunc;
+	PPIDArray GoodsList;
 	SString SvcUrl;
 	SString UserName;
 	SString Password;
@@ -4343,6 +4345,7 @@ int SLAPI SapEfes::Init()
 
 		State |= stEpDefined;
 	}
+	InitGoodsList(iglfWithArCodesOnly); // @v9.5.1
 	State |= stInited;
 	return ok;
 }
@@ -4652,7 +4655,7 @@ int SLAPI SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacke
 			if(!force_bill_list.bsearch(bill_id)) {
 				PPBillPacket pack;
 				PPFreight freight;
-				if(P_BObj->ExtractPacket(bill_id, &pack, 0) > 0) {
+				if(P_BObj->ExtractPacket(bill_id, &pack) > 0) {
 					int    is_own_order = 0; // !0 если документ выписан по заказу, импортированному от поставщика
 					StrAssocArray ti_pos_list;
 					PPTransferItem ti;
@@ -4689,7 +4692,7 @@ int SLAPI SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacke
 							const PPID ord_id = order_id_list.get(ordidx);
 							if(ord_id && P_BObj->Search(ord_id, &ord_rec) > 0 && ord_rec.EdiOp == PPEDIOP_SALESORDER) {
 								if(PPRef->Ot.GetTagStr(PPOBJ_BILL, ord_id, PPTAG_BILL_EDICHANNEL, temp_buf) > 0 && temp_buf.CmpNC("SAP-EFES") == 0) {
-									THROW(P_BObj->ExtractPacket(ord_id, &order_pack, 0) > 0);
+									THROW(P_BObj->ExtractPacket(ord_id, &order_pack) > 0);
 									is_own_order = 1;
 								}
 							}
@@ -4779,6 +4782,7 @@ int SLAPI SapEfes::SendInvoices()
 int SLAPI SapEfes::SendDebts()
 {
     int    ok = -1;
+	SString temp_buf;
 	PPSoapClientSession sess;
 	SapEfesCallHeader sech;
 	THROW(State & stInited);
@@ -4786,6 +4790,33 @@ int SLAPI SapEfes::SendDebts()
 	THROW(P_Lib);
 	sess.Setup(SvcUrl);
 	InitCallHeader(sech);
+	{
+		const int use_omt_paym_amt = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
+		PPViewBill bill_view;
+		BillFilt bill_filt;
+		bill_filt.Period.Set(P_BObj->GetConfig().LowDebtCalcDate, ZERODATE);
+        bill_filt.OpID = Ep.ExpendOp;
+        bill_filt.Flags |= BillFilt::fDebtOnly;
+        if(bill_view.Init_(&bill_filt)) {
+			BillViewItem bill_item;
+            for(bill_view.InitIteration(PPViewBill::OrdByDefault); bill_view.NextIteration(&bill_item) > 0;) {
+				const PPID bill_id = bill_item.ID;
+				PPBillPacket pack;
+				const double org_amount = bill_item.Amount;
+				if(org_amount > 0.0 && P_BObj->ExtractPacketWithRestriction(bill_id, &pack, 0, GetGoodsList()) > 0) {
+					pack.InitAmounts(0);
+					if(pack.Rec.Amount > 0.0) {
+						double paym = 0.0;
+						if(use_omt_paym_amt)
+							paym = bill_item.PaymAmount;
+						else
+							P_BObj->P_Tbl->CalcPayment(bill_id, 0, 0, 0/*bill_item.CurID*/, &paym);
+						paym = paym * pack.Rec.Amount / org_amount;
+					}
+				}
+            }
+        }
+	}
 
     CATCHZOK
     return ok;
@@ -4854,6 +4885,7 @@ SLAPI PrcssrSupplInterchange::ExecuteBlock::ExecuteBlock()
 {
 	P_BObj = BillObj;
 	SeqID = 0;
+	BaseState = 0;
 }
 
 SLAPI PrcssrSupplInterchange::ExecuteBlock::ExecuteBlock(const ExecuteBlock & rS)
@@ -4862,6 +4894,58 @@ SLAPI PrcssrSupplInterchange::ExecuteBlock::ExecuteBlock(const ExecuteBlock & rS
 	Ep = rS.Ep;
 	P = rS.P;
 	SeqID = Ep.Fb.SequenceID;
+	BaseState = rS.BaseState;
+	GoodsList = rS.GoodsList;
+}
+
+int SLAPI PrcssrSupplInterchange::ExecuteBlock::InitGoodsList(long flags)
+{
+	int    ok = 1;
+	if(BaseState & bstGoodsListInited) {
+		ok = -1;
+	}
+	else {
+		if(Ep.GoodsGrpID) {
+            GoodsIterator::GetListByGroup(Ep.GoodsGrpID, &GoodsList);
+            GoodsList.sortAndUndup();
+            if(flags & iglfWithArCodesOnly) {
+				SString code_buf;
+                uint c = GoodsList.getCount();
+                if(c) do {
+					const PPID goods_id = GoodsList.get(--c);
+					if(GObj.P_Tbl->GetArCode(P.SupplID, goods_id, code_buf, 0) > 0 && code_buf.NotEmptyS()) {
+                        ;
+					}
+					else
+						GoodsList.atFree(c);
+                } while(c);
+            }
+		}
+		else {
+			BaseState |= bstAnyGoods;
+			ok = 2;
+		}
+		BaseState |= bstGoodsListInited;
+	}
+	return ok;
+}
+
+int FASTCALL PrcssrSupplInterchange::ExecuteBlock::IsGoodsUsed(PPID goodsID) const
+{
+	int    ok = 0;
+	assert(BaseState & bstGoodsListInited);
+    if(BaseState & bstGoodsListInited) {
+		if(BaseState & bstAnyGoods)
+			ok = 1;
+		else if(GoodsList.bsearch(labs(goodsID)))
+			ok = 1;
+    }
+    return ok;
+}
+
+const PPIDArray * PrcssrSupplInterchange::ExecuteBlock::GetGoodsList() const
+{
+	return (BaseState & bstGoodsListInited && !(BaseState & bstAnyGoods)) ? &GoodsList : 0;
 }
 
 int SLAPI PrcssrSupplInterchange::ExecuteBlock::GetSequence(long * pSeq, int use_ta)

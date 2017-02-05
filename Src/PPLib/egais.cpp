@@ -4691,7 +4691,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 				last_wh_rest_bill_id = bill_rec.ID;
 		}
 		if(last_wh_rest_bill_id) {
-			if(P_BObj->ExtractPacket(last_wh_rest_bill_id, &current_wh_rest_bp, BPLD_FORCESERIALS) > 0) {
+			if(P_BObj->ExtractPacketWithFlags(last_wh_rest_bill_id, &current_wh_rest_bp, BPLD_FORCESERIALS) > 0) {
 				//PPTXT_EGAIS_LASTSTOCKBILLFOUND "Последний документ регистрации складских остатков в @{brand_egais}: '%s'"
 				PPObjBill::MakeCodeString(&current_wh_rest_bp.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, temp_buf);
 				LogTextWithAddendum(PPTXT_EGAIS_LASTSTOCKBILLFOUND, temp_buf);
@@ -6433,7 +6433,7 @@ int SLAPI PPEgaisProcessor::CreateActChargeOnBill(PPID * pBillID, int ediOp, PPI
 			}
 			else if(ediOp == PPEDIOP_EGAIS_ACTCHARGEONSHOP) {
 				PPBillPacket ex_bp;
-				if(P_BObj->ExtractPacket(bill_rec.ID, &ex_bp, BPLD_FORCESERIALS) > 0) {
+				if(P_BObj->ExtractPacketWithFlags(bill_rec.ID, &ex_bp, BPLD_FORCESERIALS) > 0) {
 					for(uint i = 0; i < ex_bp.GetTCount(); i++) {
 						const PPTransferItem & r_ex_ti = ex_bp.ConstTI(i);
 						if(r_ex_ti.Quantity_ > 0.0)
@@ -6946,7 +6946,7 @@ int SLAPI PPEgaisProcessor::Helper_SendBills(PPID billID, int ediOp, PPID locID,
 {
 	int    ok = -1;
 	PPEgaisProcessor::Packet pack(ediOp);
-	if(P_BObj->ExtractPacket(billID, (PPBillPacket *)pack.P_Data, BPLD_FORCESERIALS) > 0) {
+	if(P_BObj->ExtractPacketWithFlags(billID, (PPBillPacket *)pack.P_Data, BPLD_FORCESERIALS) > 0) {
 		Ack ack;
 		const int r = PutQuery(pack, locID, pUrlSuffix, ack);
 		if(r > 0)
@@ -7111,7 +7111,7 @@ int SLAPI PPEgaisProcessor::SendBills(const SendBillsParam & rP)
 				const PPID bill_id = reject_bill_list.get(i);
 				PPEgaisProcessor::Packet pack(PPEDIOP_EGAIS_WAYBILLACT);
 				PPBillPacket * p_bp = (PPBillPacket *)pack.P_Data;
-				if(P_BObj->ExtractPacket(bill_id, p_bp, BPLD_FORCESERIALS) > 0) {
+				if(P_BObj->ExtractPacketWithFlags(bill_id, p_bp, BPLD_FORCESERIALS) > 0) {
 					if(p_bp->Rec.Flags2 & BILLF2_DECLINED && p_bp->BTagL.GetItemStr(PPTAG_BILL_EDIIDENT, temp_buf) > 0) {
 						Ack ack;
 						const int r = PutQuery(pack, rP.LocID, "WayBillAct", ack);
@@ -7137,7 +7137,7 @@ int SLAPI PPEgaisProcessor::SendBills(const SendBillsParam & rP)
 				PPEgaisProcessor::Packet pack(PPEDIOP_EGAIS_WAYBILL);
 				pack.Flags |= PPEgaisProcessor::Packet::fReturnBill;
 				PPBillPacket * p_bp = (PPBillPacket *)pack.P_Data;
-				if(P_BObj->ExtractPacket(bill_id, p_bp, BPLD_FORCESERIALS) > 0) {
+				if(P_BObj->ExtractPacketWithFlags(bill_id, p_bp, BPLD_FORCESERIALS) > 0) {
 					Ack ack;
 					const int r = PutQuery(pack, rP.LocID, "WayBill", ack);
 					if(r > 0)
@@ -7153,7 +7153,7 @@ int SLAPI PPEgaisProcessor::SendBills(const SendBillsParam & rP)
 				PPEgaisProcessor::Packet pack(PPEDIOP_EGAIS_WAYBILLACT);
 				pack.Flags |= PPEgaisProcessor::Packet::fReturnBill;
 				PPBillPacket * p_bp = (PPBillPacket *)pack.P_Data;
-				if(P_BObj->ExtractPacket(bill_id, p_bp, BPLD_FORCESERIALS) > 0) {
+				if(P_BObj->ExtractPacketWithFlags(bill_id, p_bp, BPLD_FORCESERIALS) > 0) {
 					if(p_bp->Rec.Flags2 & BILLF2_DECLINED && p_bp->BTagL.GetItemStr(PPTAG_BILL_EDIIDENT, temp_buf) > 0) {
 						Ack ack;
 						const int r = PutQuery(pack, rP.LocID, "WayBillAct", ack);
@@ -7420,7 +7420,7 @@ int SLAPI PPEgaisProcessor::Helper_ExtractGoodsCodesFromBills(PPID opID, StringS
 	for(SEnum en = P_BObj->P_Tbl->EnumByOp(opID, &coperiod, 0); en.Next(&cobill_rec) > 0;) {
 		const PPID sobill_id = cobill_rec.ID;
 		PPBillPacket sobill_pack;
-		if(P_BObj->ExtractPacket(sobill_id, &sobill_pack, BPLD_FORCESERIALS) > 0) {
+		if(P_BObj->ExtractPacketWithFlags(sobill_id, &sobill_pack, BPLD_FORCESERIALS) > 0) {
 			for(uint k = 0; k < sobill_pack.GetTCount(); k++) {
 				const PPTransferItem & r_so_ti = sobill_pack.ConstTI(k);
 				if(sobill_pack.LTagL.GetTagStr(k, PPTAG_LOT_FSRARLOTGOODSCODE, temp_buf) > 0) {

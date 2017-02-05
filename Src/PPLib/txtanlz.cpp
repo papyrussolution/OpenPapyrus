@@ -5383,18 +5383,52 @@ int SLAPI SCodepageMapPool::CpMap::TranslateToU(const uint8 * pSrc, size_t srcSi
 	return 0;
 }
 
+SCodepageMapPool::CMapTranslIndexTest::CMapTranslIndexTest() : TSArray <CMapTranslEntry>()
+{
+	Reset();
+}
+
+void SCodepageMapPool::CMapTranslIndexTest::Reset()
+{
+	SArray::clear();
+	MaxSLen = 0;
+	MaxDLen = 0;
+	IdenticalCount = 0;
+	SuccCount = 0;
+	FallbackCount = 0;
+}
+
+IMPL_CMPCFUNC(CMapTranslEntry, p1, p2)
+{
+	int    si = 0;
+	CMPCASCADE4(si, (const SCodepageMapPool::CMapTranslEntry *)p1, (const SCodepageMapPool::CMapTranslEntry *)p1, S[0], S[1], S[2], S[3]);
+	return si;
+}
+
+void SCodepageMapPool::CMapTranslIndexTest::Sort()
+{
+	sort(PTR_CMPCFUNC(CMapTranslEntry));
+}
+
 SLAPI SCodepageMapPool::TranslIndex::TranslIndex()
 {
-	SL = 0;
-	DL = 0;
-	IdenticalCount = 0;
-	Count = 0;
 	P_Tab = 0;
+	Reset();
 }
 
 SLAPI SCodepageMapPool::TranslIndex::~TranslIndex()
 {
+	Reset();
+}
+
+void SLAPI SCodepageMapPool::TranslIndex::Reset()
+{
 	ZFREE(P_Tab);
+	Count = 0;
+	SL = 0;
+	DL = 0;
+	IdenticalCount = 0;
+	Flags = 0;
 }
 
 int SLAPI SCodepageMapPool::TranslIndex::Setup(const SCodepageMapPool::CMapTranslIndexTest & rIdx)
@@ -5414,38 +5448,39 @@ int SLAPI SCodepageMapPool::TranslIndex::Setup(const SCodepageMapPool::CMapTrans
 		for(uint j = 0; j < rIdx.getCount(); j++) {
 			const CMapTranslEntry & r_tcm_entry = rIdx.at(j);
 			const uint _p = r_tcm_entry.S[0];
-			assert(r_tcm_entry.S[1] == 0);
-			assert(r_tcm_entry.S[2] == 0);
-			assert(r_tcm_entry.S[3] == 0);
+			assert(r_tcm_entry.S[1] == 0 && r_tcm_entry.S[2] == 0 && r_tcm_entry.S[3] == 0);
 			assert(_p < 256);
 			if(_p >= IdenticalCount) {
+				const uint _p2 = (_p - IdenticalCount);
 				switch(maxdlen) {
 					case 1:
-						PTR8(P_Tab)[_p] = r_tcm_entry.D[0];
+						PTR8(P_Tab)[_p2] = r_tcm_entry.D[0];
 						break;
 					case 2:
-						PTR8(P_Tab)[_p*maxdlen]   = r_tcm_entry.D[0];
-						PTR8(P_Tab)[_p*maxdlen+1] = r_tcm_entry.D[1];
+						PTR8(P_Tab)[_p2*maxdlen]   = r_tcm_entry.D[0];
+						PTR8(P_Tab)[_p2*maxdlen+1] = r_tcm_entry.D[1];
 						break;
 					case 3:
-						PTR8(P_Tab)[_p*maxdlen]   = r_tcm_entry.D[0];
-						PTR8(P_Tab)[_p*maxdlen+1] = r_tcm_entry.D[1];
-						PTR8(P_Tab)[_p*maxdlen+2] = r_tcm_entry.D[2];
+						PTR8(P_Tab)[_p2*maxdlen]   = r_tcm_entry.D[0];
+						PTR8(P_Tab)[_p2*maxdlen+1] = r_tcm_entry.D[1];
+						PTR8(P_Tab)[_p2*maxdlen+2] = r_tcm_entry.D[2];
 						break;
 					case 4:
-						PTR32(P_Tab)[_p] = PTR32(r_tcm_entry.D)[0];
+						PTR32(P_Tab)[_p2] = PTR32(r_tcm_entry.D)[0];
 						break;
 				}
 			}
 		}
 	}
 	else {
-		Count = (rIdx.SuccCount + rIdx.FallbackCount) - IdenticalCount;
+		Count = (rIdx.SuccCount + rIdx.FallbackCount)/* - IdenticalCount*/;
 		size_t tab_ptr = 0;
+		uint   running_count = 0;
 		THROW_MEM(P_Tab = calloc(Count, entry_size));
 		for(uint j = 0; j < rIdx.getCount(); j++) {
 			const CMapTranslEntry & r_tcm_entry = rIdx.at(j);
-			if(!(r_tcm_entry.F & r_tcm_entry.fNone)) {
+			assert(!(r_tcm_entry.F & r_tcm_entry.fEqual) || (j == 0 || rIdx.at(j).F & CMapTranslEntry::fEqual));
+			if(!(r_tcm_entry.F & (r_tcm_entry.fNone/*|r_tcm_entry.fEqual*/))) {
                 uint8 * t = PTR8(P_Tab)+tab_ptr;
                 switch(rIdx.MaxSLen) {
                     case 2:
@@ -5480,6 +5515,8 @@ int SLAPI SCodepageMapPool::TranslIndex::Setup(const SCodepageMapPool::CMapTrans
 						break;
                 }
                 tab_ptr += entry_size;
+				running_count++;
+				assert(running_count <= Count);
 			}
 		}
 	}
@@ -5521,46 +5558,107 @@ int FASTCALL SCodepageMapPool::CpMap::Helper_BSearchB(uint32 b4, wchar_t * pU) c
 }
 */
 
+static size_t FASTCALL _GetMbQuantLen(const void * pS)
+{
+	size_t src_len = 0;
+	if(pS && PTR8(pS)[0]) {
+		src_len++;
+		if(PTR8(pS)[1]) {
+			src_len++;
+			if(PTR8(pS)[2]) {
+				src_len++;
+				if(PTR8(pS)[3])
+					src_len++;
+			}
+		}
+	}
+	return src_len;
+}
+
 const uint8 * FASTCALL SCodepageMapPool::TranslIndex::Search(const uint8 * pSrc) const
 {
 	const uint8 * p_result = 0;
-	if(SL == 1) {
-        assert(Count == (256 - IdenticalCount));
-        if(*pSrc < IdenticalCount)
-			p_result = pSrc;
-		else
-			p_result = PTR8(P_Tab) + *pSrc;
-	}
-	else {
-		/* @construction
-		const MapEntry * p_org = P_Map;
-		for(uint i = 0, lo = 0, up = Count-1; lo <= up;) {
-			const MapEntry * p = p_org + (i = (lo + up) >> 1);
-			const int cmp = CMPSIGN(PTR32(p->B)[0], b4);
-			if(cmp < 0)
-				lo = i + 1;
-			else if(cmp) {
-				if(i)
-					up = i - 1;
+	if(Flags & fIdentical)
+		p_result = pSrc;
+	else if(!(Flags & fEmpty)) {
+		const size_t src_len = _GetMbQuantLen(pSrc);
+		if(src_len <= SL) {
+			if(SL == 1) {
+				assert(Count == (256 - IdenticalCount));
+				if(*pSrc < IdenticalCount)
+					p_result = pSrc;
 				else
-					return 0;
+					p_result = PTR8(P_Tab) + *pSrc;
 			}
 			else {
-				*pU = p->U2;
-				return 1;
+				assert(SL > 1);
+				const size_t cs = MIN(src_len, SL); 
+				const size_t entry_size = GetEntrySize();
+				const uint8 * p_org = (const uint8 *)P_Tab;
+				for(uint i = 0, lo = 0, up = Count-1; lo <= up;) {
+					i = (lo + up) >> 1;
+					const uint8 * p = p_org + i * entry_size;
+					int   cmp = 0;
+					switch(cs) {
+						case 1:
+							cmp = CMPSIGN(p[0], pSrc[0]);
+							if(cmp == 0 && SL > src_len && p[1]) 
+								cmp = +1;
+							break;
+						case 2:
+							cmp = CMPSIGN(p[0], pSrc[0]);
+							if(cmp == 0) {
+								cmp = CMPSIGN(p[1], pSrc[1]);
+								if(cmp == 0 && SL > src_len && p[2]) 
+									cmp = +1;
+							}
+							break;
+						case 3:
+							cmp = CMPSIGN(p[0], pSrc[0]);
+							if(cmp == 0) {
+								cmp = CMPSIGN(p[1], pSrc[1]);
+								if(cmp == 0) {
+									cmp = CMPSIGN(p[2], pSrc[2]);
+									if(cmp == 0 && SL > src_len && p[3])
+										cmp = +1;
+								}
+							}
+							break;
+						case 4:
+							cmp = CMPSIGN(p[0], pSrc[0]);
+							if(cmp == 0) {
+								cmp = CMPSIGN(p[1], pSrc[1]);
+								if(cmp == 0) {
+									cmp = CMPSIGN(p[2], pSrc[2]);
+									if(cmp == 0)
+										cmp = CMPSIGN(p[3], pSrc[3]);
+								}
+							}
+							break;
+					}
+					if(cmp < 0)
+						lo = i + 1;
+					else if(cmp) {
+						if(i)
+							up = i - 1;
+						else
+							return 0;
+					}
+					else {
+						p_result = (p + SL);
+						return p_result;
+					}
+				}
 			}
 		}
-		return 0;
-		*/
 	}
 	return p_result;
 }
 
-int SLAPI SCodepageMapPool::Test_MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, CMapTranslIndexTest & rIdx)
+int SLAPI SCodepageMapPool::Helper_MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, CMapTranslIndexTest & rIdx, TranslIndex & rFinalIdx)
 {
 	rIdx.Reset();
-
-	TranslIndex final_index;
+	rFinalIdx.Reset();
 
 	int    ok = 1;
 	LongArray to_idx;
@@ -5591,42 +5689,39 @@ int SLAPI SCodepageMapPool::Test_MakeTranslIndex(const CpMap & rFrom, const CpMa
 				tcm_entry.F |= tcm_entry.fNone;
 		}
 		if(!(tcm_entry.F & tcm_entry.fNone)) {
-			uint src_len = 0;
-			uint dest_len = 0;
-			if(tcm_entry.S[0])
-				src_len++;
-			if(tcm_entry.S[1])
-				src_len++;
-			if(tcm_entry.S[2])
-				src_len++;
-			if(tcm_entry.S[3])
-				src_len++;
-			if(tcm_entry.D[0])
-				dest_len++;
-			if(tcm_entry.D[1])
-				dest_len++;
-			if(tcm_entry.D[2])
-				dest_len++;
-			if(tcm_entry.D[3])
-				dest_len++;
+			const uint src_len  = _GetMbQuantLen(tcm_entry.S);
+			const uint dest_len = _GetMbQuantLen(tcm_entry.D);
 			SETMAX(rIdx.MaxSLen, src_len);
 			SETMAX(rIdx.MaxDLen, dest_len);
-			if(rIdx.IdenticalCount == i && *PTR32(tcm_entry.S) == *PTR32(tcm_entry.D))
+			if(rIdx.IdenticalCount == i && src_len == dest_len && *PTR32(tcm_entry.S) == *PTR32(tcm_entry.D)) {
+				tcm_entry.F |= tcm_entry.fEqual;
 				rIdx.IdenticalCount++;
+			}
+			rIdx.insert(&tcm_entry);
 		}
-		rIdx.insert(&tcm_entry);
 	}
-	final_index.SL = rIdx.MaxSLen;
-	final_index.DL = rIdx.MaxDLen;
-	final_index.IdenticalCount = rIdx.IdenticalCount;
+	rFinalIdx.SL = rIdx.MaxSLen;
+	rFinalIdx.DL = rIdx.MaxDLen;
+	rFinalIdx.IdenticalCount = rIdx.IdenticalCount;
 	if(rIdx.IdenticalCount == rFrom.MapCount) {
         // tables are equal
+		rFinalIdx.Flags |= TranslIndex::fIdentical;
+	}
+	else if(rIdx.getCount() == 0) {
+		rFinalIdx.Flags |= TranslIndex::fIdentical;
 	}
 	else {
-		THROW(final_index.Setup(rIdx));
+		rIdx.Sort();
+		THROW(rFinalIdx.Setup(rIdx));
 	}
 	CATCHZOK
 	return ok;
+}
+
+int SLAPI SCodepageMapPool::MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, TranslIndex & rIdx)
+{
+	CMapTranslIndexTest intr_idx;
+	return Helper_MakeTranslIndex(rFrom, rTo, intr_idx, rIdx);
 }
 
 uint SLAPI SCodepageMapPool::Translate(const CpMap & rFrom, const CpMap & rTo, const uint8 * pSrc, size_t srcLen, SString & rDest)
@@ -5850,7 +5945,64 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt)
 							}
 							{
 								const size_t prefix_len = MAX(map.Name.Len()+1, map2.Name.Len()+1);
-								Test_MakeTranslIndex(map, map2, cmt_list);
+								TranslIndex final_ctm_idx;
+								Helper_MakeTranslIndex(map, map2, cmt_list, final_ctm_idx);
+								if((oneof2(map.Id, cp1251, cp866) || (map.Code == "KOI8_R")) && (oneof2(map2.Id, cp1251, cp866) || (map2.Code == "KOI8_R"))) {
+									const uint ml = MAX(cmt_list.MaxSLen, cmt_list.MaxDLen);
+									if(/*map.Id == cp1251 && map2.Id == cp866*/0) {
+										uint8 _sb[4];
+										char  _test_str[32];
+										for(uint si = 0; si < 256; si++) {
+											_sb[0] = si;
+											_sb[1] = 0;
+											_sb[2] = 0;
+											_sb[3] = 0;
+											const uint8 * p_db = final_ctm_idx.Search(_sb);
+											assert(p_db);
+											_test_str[0] = (char)_sb[0];
+											_test_str[1] = 0;
+											if(map.Id == cp1251 && map2.Id == cp866) {
+												SCharToOem(_test_str);
+												assert(_test_str[0] == p_db[0]);
+											}
+											else if(map.Id == cp866 && map2.Id == cp1251) {
+												SOemToChar(_test_str);
+												assert(_test_str[0] == p_db[0]);
+											}
+											/*
+											else if(map.Id == cp866 && map2.Code == "KOI8_R") {
+												assert(PTR8(_s_866_to_koi7(_test_str))[0] == p_db[0]);
+											}
+											*/
+										}
+									}
+									(line_buf = 0).Cat(map.Name).Align(prefix_len, ADJ_LEFT);
+									(line_buf2 = 0).Cat(map2.Name).Align(prefix_len, ADJ_LEFT);
+									for(uint ti = 0; ti < cmt_list.getCount(); ti++) {
+										const CMapTranslEntry & r_cmt = cmt_list.at(ti);
+										if(!(r_cmt.F & CMapTranslEntry::fNone)) {
+											line_buf.CatHex(r_cmt.S[0]);
+											line_buf2.CatHex(r_cmt.D[0]);
+											if(ml > 1) {
+												line_buf.CatHex(r_cmt.S[1]);
+												line_buf2.CatHex(r_cmt.D[1]);
+												if(ml > 2) {
+													line_buf.CatHex(r_cmt.S[2]);
+													line_buf2.CatHex(r_cmt.D[2]);
+													if(ml > 3) {
+														line_buf.CatHex(r_cmt.S[3]);
+														line_buf2.CatHex(r_cmt.D[3]);
+													}
+												}
+											}
+											line_buf.Space();
+											line_buf2.Space();
+										}
+									}
+									f_out_transl.WriteLine(line_buf.CR());
+									f_out_transl.WriteLine(line_buf2.CR());
+								}
+								/*
 								if(cmt_list.MaxSLen && cmt_list.MaxDLen) {
 									const uint ml = MAX(cmt_list.MaxSLen, cmt_list.MaxDLen);
 									(line_buf = 0).Cat(map.Name).Align(prefix_len, ADJ_LEFT);
@@ -5879,6 +6031,7 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt)
 									f_out_transl.WriteLine(line_buf.CR());
 									f_out_transl.WriteLine(line_buf2.CR());
 								}
+								*/
 							}
 						}
 					}

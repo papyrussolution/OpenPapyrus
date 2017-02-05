@@ -5343,7 +5343,7 @@ int32 DL6ICLS_PPObjBill::Search(int32 id, PPYOBJREC rec)
 	InnerBillExtra * p_e = (InnerBillExtra *)ExtraPtr;
 	if(p_e && p_e->P_BObj) {
 		PPBillPacket bpack;
-		ok = p_e->P_BObj->ExtractPacket(id, &bpack, 0);
+		ok = p_e->P_BObj->ExtractPacket(id, &bpack);
 		ok = (ok == 0 && DS.GetTLA().LastErr == PPERR_OBJNFOUND) ? -1 : ok;
 		FillBillRec(&bpack, (SPpyO_Bill*)rec);
 	}
@@ -5910,7 +5910,7 @@ int32 DL6ICLS_PPObjBill::SearchAnalog(SPpyO_Bill * pSample, int32 * pID, SPpyO_B
 		PPID id = 0;
 		PPBillPacket bpack;
 		FillBillPacket(pSample, &bpack);
-		if(p_e->P_BObj->P_Tbl->SearchAnalog(&bpack.Rec, &id, 0) > 0 && p_e->P_BObj->ExtractPacket(id, &bpack, 0) > 0) {
+		if(p_e->P_BObj->P_Tbl->SearchAnalog(&bpack.Rec, &id, 0) > 0 && p_e->P_BObj->ExtractPacket(id, &bpack) > 0) {
 			FillBillRec(&bpack, pRec);
 			ASSIGN_PTR(pID, (int32)id);
 			ok = 1;
@@ -5942,7 +5942,7 @@ int32 DL6ICLS_PPObjBill::GetPacket(int32 id, IPapyrusBillPacket * pPack)
 	PPBillPacket * p_pack = (PPBillPacket*)SCoClass::GetExtraPtrByInterface(pPack);
 	InnerBillExtra * p_e = (InnerBillExtra*)ExtraPtr;
 	if(p_pack && p_e->P_BObj) {
-		ok = p_e->P_BObj->ExtractPacket(id, p_pack, 0);
+		ok = p_e->P_BObj->ExtractPacket(id, p_pack);
 		ok = (ok == 0 && DS.GetTLA().LastErr == PPERR_OBJNFOUND) ? -1 : ok; // @v8.6.10
 	}
 	SetAppError(ok);
@@ -6018,7 +6018,7 @@ int32 DL6ICLS_PPObjBill::SearchByGuid(SString & rGuidStr, SPpyO_Bill * pRec)
 			BillTbl::Rec bill_rec;
 			PPBillPacket bpack;
 			MEMSZERO(bill_rec);
-			if(p_e->P_BObj->SearchByGuid(uuid, &bill_rec) > 0 && p_e->P_BObj->ExtractPacket(bill_rec.ID, &bpack, 0) > 0) {
+			if(p_e->P_BObj->SearchByGuid(uuid, &bill_rec) > 0 && p_e->P_BObj->ExtractPacket(bill_rec.ID, &bpack) > 0) {
 				FillBillRec(&bpack, pRec);
 				ok = 1;
 			}
@@ -6098,7 +6098,7 @@ int32 DL6ICLS_PPObjBill::GetTagValue(int32 billID, int32 tagID, SString * pValue
 	InnerBillExtra * p_e = (InnerBillExtra*)ExtraPtr;
 	if(p_e && p_e->P_BObj) {
 		PPBillPacket pack;
-		if(p_e->P_BObj->ExtractPacket(billID, &pack, 0) > 0) {
+		if(p_e->P_BObj->ExtractPacket(billID, &pack) > 0) {
 			const ObjTagItem * p_tag_item = 0;
 			if(p_tag_item = pack.BTagL.GetItem(tagID)) {
 				p_tag_item->GetStr(val);
@@ -6118,7 +6118,7 @@ int32 DL6ICLS_PPObjBill::PutTagValue(int32 billID, int32 tagID, SString & rValue
 	if(p_e && p_e->P_BObj) {
 		// @todo Неэффективная реализация - можно просто изменить тег не гоняя весь документ из БД и обратно
 		PPBillPacket pack;
-		if(p_e->P_BObj->ExtractPacket(billID, &pack, 0) > 0) {
+		if(p_e->P_BObj->ExtractPacket(billID, &pack) > 0) {
 			pack.BTagL.PutItemStr(tagID, rValue);
 			ok = p_e->P_BObj->TurnPacket(&pack, 1);
 		}

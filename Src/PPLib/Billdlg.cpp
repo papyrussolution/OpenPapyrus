@@ -2834,7 +2834,7 @@ int SLAPI PPObjBill::ViewBillInfo(PPID billID)
 		SString buf;
 		S_GUID guid;
 		THROW(CheckRights(BILLRT_SYSINFO));
-		THROW(ExtractPacket(billID, &pack, 0) > 0); // @v8.8.0 BPLD_SKIPTRFR-->0
+		THROW(ExtractPacket(billID, &pack) > 0); // @v8.8.0 BPLD_SKIPTRFR-->0
 		{
 			const long org_flags = pack.Rec.Flags;
 			const long org_flags2 = pack.Rec.Flags2;

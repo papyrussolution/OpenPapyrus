@@ -1497,6 +1497,7 @@ void SLAPI PPBillPacket::Helper_Init()
 	SyncStatus = -2;
 	Reserve = 0;
 	LoadMoment = ZERODATETIME; // @v8.9.8
+	Lots.setDelta(16); // @v9.5.1
 }
 
 SLAPI PPBillPacket::PPBillPacket() : PPBill()
@@ -1784,7 +1785,7 @@ int SLAPI PPBillPacket::CreateBlankBySample(PPID sampleBillID, int use_ta)
 		}
 	}
 	else if(oneof3(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT)) {
-		P_BObj->P_CpTrfr->LoadItems(rec.ID, this);
+		P_BObj->P_CpTrfr->LoadItems(rec.ID, this, 0);
 		{
 			//
 			// ѕроверка на выполнение ограничений по товарам дл€ документа
@@ -1909,9 +1910,9 @@ int SLAPI PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int
 		if(OprType == PPOPT_CORRECTION /* && GetOpType(link_rec.OpID) == PPOPT_GOODSEXPEND */) {
 			THROW_MEM(SETIFZ(P_LinkPack, new PPBillPacket));
 			P_LinkPack->destroy();
-			THROW(P_BObj->ExtractPacket(Rec.LinkBillID, P_LinkPack, 0) > 0);
+			THROW(P_BObj->ExtractPacket(Rec.LinkBillID, P_LinkPack) > 0);
 		}
-		// } @v9.4.3 
+		// } @v9.4.3
 		//
 		// —трого говор€, дл€ инвентаризации (PPOPT_INVENTORY) и драфт-документом необходимо
 		// провер€ть, чтобы вид операции создаваемого документа соответствовал операции списани€.
@@ -2153,7 +2154,7 @@ const PPTrfrArray & SLAPI PPBillPacket::GetLots() const
 	return Lots;
 }
 
-int SLAPI PPBillPacket::SetLots(const PPTrfrArray & rS) 
+int SLAPI PPBillPacket::SetLots(const PPTrfrArray & rS)
 {
 	Lots = rS;
 	return 1;
@@ -2180,12 +2181,6 @@ int FASTCALL PPBillPacket::ChkTIdx(int idx) const
 	return (idx >= 0 && idx < (int)Lots.getCount()) ? 1 : PPSetError(PPERR_INVTIIDX);
 }
 
-int SLAPI PPBillPacket::PrepareTLoading()
-{
-	Lots.setDelta(16);
-	return 1;
-}
-
 int SLAPI PPBillPacket::LoadTItem(const PPTransferItem * pItem, const char * pClb, const char * pSerial)
 {
 	int    ok = 1;
@@ -2196,7 +2191,7 @@ int SLAPI PPBillPacket::LoadTItem(const PPTransferItem * pItem, const char * pCl
 	if(pSerial)
 		THROW(SnL.AddNumber(pos, pSerial));
 	CATCHZOK
-	return 1;
+	return ok; // @v9.5.1 @fix 1-->ok
 }
 
 void SLAPI PPBillPacket::SetQuantitySign(int minus)
@@ -2498,13 +2493,15 @@ int SLAPI PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int 
                         BillTbl::Rec plan_bill_rec;
                         PPIDArray plan_bill_list;
                         DateRange plan_bill_period;
+						PPIDArray _goods_list;    // @v9.5.1
+						_goods_list.add(goodsID); // @v9.5.1
                         plan_bill_period.Set(plusdate(Rec.Dt, -180), Rec.Dt);
                         for(SEnum en = r_billc.EnumByOp(gvr_pack.Rec.ScpShipmLimitOpID, &plan_bill_period, 0); en.Next(&plan_bill_rec) > 0;) {
                             if(Rec.Dt >= plan_bill_rec.Dt && (!plan_bill_rec.DueDate || Rec.Dt < plan_bill_rec.DueDate)) {
 								if(!plan_bill_rec.Object || plan_bill_rec.Object == Rec.Object) {
 									const PPID plan_bill_id = plan_bill_rec.ID;
 									PPBillPacket plan_bill_pack;
-									P_BObj->P_CpTrfr->LoadItems(plan_bill_id, &plan_bill_pack);
+									P_BObj->P_CpTrfr->LoadItems(plan_bill_id, &plan_bill_pack, &_goods_list); // @v9.5.1 &_goods_list
 									int   has_goods = 0;
 									for(uint tiidx = 0; tiidx < plan_bill_pack.GetTCount(); tiidx++) {
 										if(plan_bill_pack.ConstTI(tiidx).GoodsID == goodsID) {
@@ -4564,8 +4561,8 @@ int FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 				cq = R2(pTI->Cost * (q - q_pre));
 				pq = R2(pTI->NetPrice() * q - pTI->RevalCost * q_pre);
 				dq = 0;
-			} 
-			else { // } @v9.4.3 
+			}
+			else { // } @v9.4.3
 				if(OpID && GetOpType(OpID) == PPOPT_GOODSMODIF) {
 					qtty = pTI->SQtty(OpID);
 					if(pTI->Flags & PPTFR_MINUS) {

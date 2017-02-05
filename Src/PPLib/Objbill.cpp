@@ -627,7 +627,7 @@ int  SLAPI PPObjBill::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options
 	if(!(options & PPObject::user_request) || PPMessage(mfConf|mfYesNo, PPCFM_DELETE, 0) == cmYes) {
 		if(options & PPObject::user_request)
 			PPWait(1);
-		if((r = ExtractPacket(id, &pack, BPLD_SKIPTRFR | BPLD_LOCK)) != 0) {
+		if((r = ExtractPacketWithFlags(id, &pack, BPLD_SKIPTRFR|BPLD_LOCK)) != 0) {
 			r = (pack.OprType == PPOPT_ACCTURN && !CheckOpFlags(pack.Rec.OpID, OPKF_EXTACCTURN)) ?
 				atobj->CheckRights(PPR_DEL) : CheckRights(PPR_DEL);
 			if(r)
@@ -1367,7 +1367,7 @@ int SLAPI PPObjBill::EditGoodsBill(PPID id, const EditParam * pExtraParam)
 		egbf |= pExtraParam->Flags;
 	SETFLAG(flags, BPLD_FORCESERIALS, (Cfg.Flags & BCF_SHOWSERIALSINGBLINES));
 	// @v8.6.1 THROW(CheckRights(PPR_MOD));
-	THROW(ExtractPacket(id, &pack, flags));
+	THROW(ExtractPacketWithFlags(id, &pack, flags));
 	DS.SetLocation(pack.Rec.LocID);
 	if(GetOpType(pack.Rec.OpID) == PPOPT_INVENTORY) {
 		THROW(CheckRights(PPR_MOD)); // @v8.6.1
@@ -1506,7 +1506,7 @@ int SLAPI PPObjBill::AddAccturnBySample(PPID * pBillID, PPID sampleBillID)
 	int    ok = 1, r;
 	long   flags = 0;
 	PPBillPacket pack, sample_pack;
-	THROW(ExtractPacket(sampleBillID, &sample_pack, BPLD_SKIPTRFR) > 0);
+	THROW(ExtractPacketWithFlags(sampleBillID, &sample_pack, BPLD_SKIPTRFR) > 0);
 	if(CheckOpFlags(sample_pack.Rec.OpID, OPKF_EXTACCTURN)) {
 		AddBlock ab;
 		ab.SampleBillID = sampleBillID;
@@ -1607,7 +1607,7 @@ int SLAPI PPObjBill::EditAccTurn(PPID id)
 	PPBillPacket pack;
 	THROW(CheckRights(PPR_MOD));
 	THROW(atobj->CheckRights(PPR_MOD));
-	THROW(ExtractPacket(id, &pack, BPLD_LOCK));
+	THROW(ExtractPacketWithFlags(id, &pack, BPLD_LOCK));
 	org_amt_list.copy(pack.Amounts);
 	org_loc_id = pack.Rec.LocID;
 	org_mem = pack.Rec.Memo;
@@ -2937,7 +2937,7 @@ int SLAPI PPObjBill::GetComplete(PPID lotID, long flags, CompleteArray * pList)
 				PPID   lot_id = lot_list.at(i);
 				for(DateIter di; trfr->EnumByLot(lot_id, &di, &trfr_rec) > 0;) {
 					if(trfr_rec.Flags & PPTFR_MODIF && (trfr_rec.Flags & (PPTFR_PLUS|PPTFR_REVAL))) {
-						THROW(ExtractPacket(trfr_rec.BillID, &pack, BPLD_FORCESERIALS) > 0);
+						THROW(ExtractPacketWithFlags(trfr_rec.BillID, &pack, BPLD_FORCESERIALS) > 0);
 						THROW(r = pack.GetComplete(lot_id, pList));
 						if(ok < 0 && r > 0)
 							ok = 1;
@@ -2951,7 +2951,7 @@ int SLAPI PPObjBill::GetComplete(PPID lotID, long flags, CompleteArray * pList)
 		for(DateIter di; trfr->EnumByLot(lotID, &di, &trfr_rec) > 0;) {
 			if(trfr_rec.Flags & PPTFR_MODIF && (trfr_rec.Flags & PPTFR_MINUS)) {
 				PPTransferItem * p_ti = 0;
-				THROW(ExtractPacket(trfr_rec.BillID, &pack, BPLD_FORCESERIALS) > 0);
+				THROW(ExtractPacketWithFlags(trfr_rec.BillID, &pack, BPLD_FORCESERIALS) > 0);
 				for(uint p = 0; pack.EnumTItems(&p, &p_ti);) {
 					if(p_ti->Flags & PPTFR_PLUS) {
 						CompleteItem item;
@@ -6779,9 +6779,10 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 	// } @v8.0.6
 	PPIDArray correction_exp_chain; // @v9.4.3
 	pPack->ErrCause = 0;
+	THROW_PP(!(pPack->ProcessFlags & PPBillPacket::pfUpdateProhited), PPERR_UPDBPACKPROHIBITED, PPObjBill::MakeCodeString(&pPack->Rec, 0, bill_code));
 	if(!(pPack->ProcessFlags & PPBillPacket::pfIgnoreStatusRestr)) { // @v8.6.6
 		THROW_PP_S(!pPack->Rec.StatusID || !CheckStatusFlag(pPack->Rec.StatusID, BILSTF_DENY_MOD), PPERR_BILLST_DENY_MOD,
-			PPObjBill::MakeCodeString(&pPack->Rec, 1, bill_code));
+			PPObjBill::MakeCodeString(&pPack->Rec, PPObjBill::mcsAddOpName, bill_code));
 	}
 	THROW(CheckParentStatus(pPack->Rec.ID));
 	if(pPack->Rec.OpID) { // Для теневого документа не проверяем период доступа
@@ -7375,7 +7376,22 @@ int PPObjBill::GetOrderLotForTransfer(const TransferTbl::Rec & rTrfrRec, PPID * 
 	return ok;
 }
 
-int SLAPI PPObjBill::ExtractPacket(PPID id, PPBillPacket * pPack, uint fl)
+int SLAPI PPObjBill::ExtractPacket(PPID id, PPBillPacket * pPack)
+{
+	return Helper_ExtractPacket(id, pPack, 0, 0);
+}
+
+int SLAPI PPObjBill::ExtractPacketWithFlags(PPID id, PPBillPacket * pPack, uint fl /* BPLD_XXX */)
+{
+	return Helper_ExtractPacket(id, pPack, fl, 0);
+}
+
+int SLAPI PPObjBill::ExtractPacketWithRestriction(PPID id, PPBillPacket * pPack, uint fl /* BPLD_XXX */, const PPIDArray * pGoodsList)
+{
+	return Helper_ExtractPacket(id, pPack, fl, pGoodsList);
+}
+
+int SLAPI PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, const PPIDArray * pGoodsList)
 {
 	int    ok = 1, r, rbybill = 0;
 	uint   i;
@@ -7415,7 +7431,7 @@ int SLAPI PPObjBill::ExtractPacket(PPID id, PPBillPacket * pPack, uint fl)
 		if(pPack->OprType == PPOPT_CORRECTION /*&& link_opk.OpTypeID == PPOPT_GOODSEXPEND*/) {
 			THROW_MEM(SETIFZ(pPack->P_LinkPack, new PPBillPacket));
 			pPack->P_LinkPack->destroy();
-			THROW(ExtractPacket(pPack->Rec.LinkBillID, pPack->P_LinkPack, 0) > 0);
+			THROW(ExtractPacket(pPack->Rec.LinkBillID, pPack->P_LinkPack) > 0);
 		}
 		// } @v9.4.3
 	}
@@ -7438,16 +7454,29 @@ int SLAPI PPObjBill::ExtractPacket(PPID id, PPBillPacket * pPack, uint fl)
 		else
 			CALLEXCEPT();
 	}
-	if(!(fl & BPLD_SKIPTRFR)) {
+	if(fl & BPLD_SKIPTRFR) {
+		pPack->ProcessFlags |= PPBillPacket::pfUpdateProhited;
+		// @v8.5.11 {
+		//
+		// Эти функции вызываются в pPack->LoadClbList, однако при (fl & BPLD_SKIPTRFR)
+		// LoadClbList не вызывается, потому приходится делать это здесь.
+		//
+		pPack->BTagL.Destroy();
+		THROW(GetTagList(pPack->Rec.ID, &pPack->BTagL));
+		// } @v8.5.11
+	}
+	else {
+		if(pGoodsList)
+			pPack->ProcessFlags |= PPBillPacket::pfUpdateProhited;
 		if(pPack->IsDraft()) {
 			if(P_CpTrfr) {
-				THROW(P_CpTrfr->LoadItems(id, pPack));
+				THROW(P_CpTrfr->LoadItems(id, pPack, pGoodsList));
 				THROW(LoadClbList(pPack, 0)); // @v8.5.5
 			}
 		}
 		else {
 			DateIter diter;
-			trfr->LoadItems(*pPack);
+			trfr->LoadItems(*pPack, pGoodsList);
 			THROW(LoadPckgList(pPack));
 			THROW(LoadClbList(pPack, BIN(fl & BPLD_FORCESERIALS)));
 			while((r = P_Tbl->EnumLinks(id, &diter, BLNK_SHADOW)) > 0) {
@@ -7489,16 +7518,6 @@ int SLAPI PPObjBill::ExtractPacket(PPID id, PPBillPacket * pPack, uint fl)
 				}
 			}
 		}
-	}
-	else {
-		// @v8.5.11 {
-		//
-		// Эти функции вызываются в pPack->LoadClbList, однако при (fl & BPLD_SKIPTRFR)
-		// LoadClbList не вызывается, потому приходится делать это здесь.
-		//
-		pPack->BTagL.Destroy();
-		THROW(GetTagList(pPack->Rec.ID, &pPack->BTagL));
-		// } @v8.5.11
 	}
 	{
 		PPBillPacket::SetupObjectBlock sob;
@@ -7692,7 +7711,7 @@ int SLAPI PPObjBill::UniteReceiptBill(PPID destBillID, PPIDArray * pSrcList, int
 	PPTransferItem * p_ti, ti;
 	PPBillPacket dest_pack;
 	THROW(atobj->P_Tbl->LockingFRR(1, &frrl_tag, use_ta));
-	THROW(ExtractPacket(destBillID, &dest_pack, BPLD_LOCK) > 0);
+	THROW(ExtractPacketWithFlags(destBillID, &dest_pack, BPLD_LOCK) > 0);
 	for(i = 0; dest_pack.EnumTItems(&i, &p_ti);)
 		THROW_SL(ary.Add(p_ti->GoodsID, p_ti->LotID, 0, 0));
 	ary.Sort();
@@ -7987,7 +8006,7 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 						if(p[next] == '.' && pPack->Rec.LinkBillID) {
 							if(p_link_pack == 0) {
 								THROW_MEM(p_link_pack = new PPBillPacket);
-								THROW(ExtractPacket(pPack->Rec.LinkBillID, p_link_pack, BPLD_SKIPTRFR));
+								THROW(ExtractPacketWithFlags(pPack->Rec.LinkBillID, p_link_pack, BPLD_SKIPTRFR));
 							}
 							pk = p_link_pack;
 							p += (next+1);
@@ -8001,7 +8020,7 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 						if(p[next] == '.' && pPack->PaymBillID) {
 							if(p_rckn_pack == 0) {
 								THROW_MEM(p_rckn_pack = new PPBillPacket);
-								THROW(ExtractPacket(pPack->PaymBillID, p_rckn_pack, BPLD_SKIPTRFR));
+								THROW(ExtractPacketWithFlags(pPack->PaymBillID, p_rckn_pack, BPLD_SKIPTRFR));
 							}
 							pk = p_rckn_pack;
 							p += (next+1);

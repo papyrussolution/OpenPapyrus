@@ -3929,37 +3929,76 @@ PPALDD_DESTRUCTOR(GoodsStruc)
 	Destroy();
 }
 
+struct Dl6_GoodsStruc_Support {
+	SLAPI  Dl6_GoodsStruc_Support(PPFilt & rFilt)
+	{
+		P_Iter = 0;
+		IsOwnPtr = 0;
+		if(rFilt.Ptr)
+			P_Iter = (GStrucIterator *)rFilt.Ptr;
+		else if(rFilt.ID) {
+			PPObjGoodsStruc gs_obj;
+			PPGoodsStruc gs;
+			if(gs_obj.Get(rFilt.ID, &gs) > 0) {
+				P_Iter = new GStrucIterator;
+				if(P_Iter) {
+					IsOwnPtr = 1;
+					P_Iter->Init(&gs, 0);
+				}
+			}
+		}
+	}
+	SLAPI ~Dl6_GoodsStruc_Support()
+	{
+		if(IsOwnPtr)
+			delete P_Iter;
+	}
+	GStrucIterator * P_Iter;
+	int    IsOwnPtr;
+};
+
 int PPALDD_GoodsStruc::InitData(PPFilt & rFilt, long rsrv)
 {
 	int    uncertainty = 0;
-	const  PPGoodsStruc * p_v = ((GStrucIterator *)rFilt.Ptr)->GetStruc();
-	Extra[1].Ptr = (void*)(GStrucIterator *)rFilt.Ptr;
-	H.ID      = p_v->Rec.ID;
-	H.GoodsID = p_v->GoodsID;
-	STRNSCPY(H.Name, p_v->Rec.Name);
-	H.Flags  = p_v->Rec.Flags;
-	H.fAllowCompl   = BIN(p_v->Rec.Flags & GSF_COMPL);
-	H.fAllowDecompl = BIN(p_v->Rec.Flags & GSF_DECOMPL);
-	H.fPartitial    = BIN(p_v->Rec.Flags & GSF_PARTITIAL);
-	H.fNamed        = BIN(p_v->Rec.Flags & GSF_NAMED);
-	H.LocID = LConfig.Location;
-	H.VariedPropObjType = p_v->Rec.VariedPropObjType;
-	H.CommDenom = p_v->Rec.CommDenom;
-	p_v->CalcEstimationPrice(&H.EstPrice, &uncertainty, 1);
-	H.fUncertainPrice = uncertainty;
-	H.ItemsCount = p_v->Items.getCount();
+	Dl6_GoodsStruc_Support * p_supp = new Dl6_GoodsStruc_Support(rFilt);
+	if(p_supp) {
+		Extra[1].Ptr = (void *)p_supp;
+		const PPGoodsStruc * p_gs = p_supp->P_Iter ? p_supp->P_Iter->GetStruc() : 0;
+		if(p_gs) {
+			H.ID      = p_gs->Rec.ID;
+			H.GoodsID = p_gs->GoodsID;
+			STRNSCPY(H.Name, p_gs->Rec.Name);
+			H.Flags  = p_gs->Rec.Flags;
+			H.fAllowCompl   = BIN(p_gs->Rec.Flags & GSF_COMPL);
+			H.fAllowDecompl = BIN(p_gs->Rec.Flags & GSF_DECOMPL);
+			H.fPartitial    = BIN(p_gs->Rec.Flags & GSF_PARTITIAL);
+			H.fNamed        = BIN(p_gs->Rec.Flags & GSF_NAMED);
+			H.LocID = LConfig.Location;
+			H.VariedPropObjType = p_gs->Rec.VariedPropObjType;
+			H.CommDenom = p_gs->Rec.CommDenom;
+			p_gs->CalcEstimationPrice(&H.EstPrice, &uncertainty, 1);
+			H.fUncertainPrice = uncertainty;
+			H.ItemsCount = p_gs->Items.getCount();
+		}
+	}
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
 int PPALDD_GoodsStruc::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 {
 	//PPGoodsStruc * p_v = (PPGoodsStruc*)(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);
+	int    ok = -1;
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
 	I.LineNo = 0;
-	((GStrucIterator*)NZOR(Extra[1].Ptr, Extra[0].Ptr))->InitIteration();
-	return 1;
+	Dl6_GoodsStruc_Support * p_supp = (Dl6_GoodsStruc_Support *)Extra[1].Ptr;
+	GStrucIterator * p_gs_iter = p_supp ? p_supp->P_Iter : 0;
+	if(p_gs_iter) {
+		p_gs_iter->InitIteration();
+		ok = 1;
+	}
+	return ok;
 }
 
 int PPALDD_GoodsStruc::NextIteration(PPIterID iterId, long rsrv)
@@ -3967,8 +4006,9 @@ int PPALDD_GoodsStruc::NextIteration(PPIterID iterId, long rsrv)
 	IterProlog(iterId, 0);
 	{
 		GStrucRecurItem gsr_item;
-		GStrucIterator * p_gs_iter = (GStrucIterator *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
-		if(p_gs_iter->NextIteration(&gsr_item) > 0) {
+		Dl6_GoodsStruc_Support * p_supp = (Dl6_GoodsStruc_Support *)Extra[1].Ptr;
+		GStrucIterator * p_gs_iter = p_supp ? p_supp->P_Iter : 0;
+		if(p_gs_iter && p_gs_iter->NextIteration(&gsr_item) > 0) {
 			PPGoodsStrucItem item = gsr_item.Item;
 			SString temp_buf;
 			MEMSZERO(I);
@@ -4001,6 +4041,8 @@ int PPALDD_GoodsStruc::NextIteration(PPIterID iterId, long rsrv)
 
 int PPALDD_GoodsStruc::Destroy()
 {
+	Dl6_GoodsStruc_Support * p_supp = (Dl6_GoodsStruc_Support *)Extra[1].Ptr;
+	delete p_supp;
 	Extra[0].Ptr = Extra[1].Ptr = 0;
 	return 1;
 }

@@ -1123,6 +1123,11 @@ typedef long PPIterID;
 #define GETISARY(typ)    ((typ)&0x0080)
 
 struct PPFilt {
+	PPFilt()
+	{
+		ID = 0;
+		Ptr = 0;
+	}
 	long   ID;
 	void * Ptr;
 };

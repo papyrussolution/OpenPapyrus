@@ -526,7 +526,7 @@ int SLAPI PPObjBill::RollbackInventoryWrOff(PPID id)
 		PPTransaction tra(1);
 		for(DateIter diter; (r = P_Tbl->EnumLinks(id, &diter, BLNK_ALL)) > 0;) {
 			const PPID link_id = P_Tbl->data.ID;
-			THROW(ExtractPacket(link_id, &link_pack, BPLD_LOCK|BPLD_FORCESERIALS) > 0);
+			THROW(ExtractPacketWithFlags(link_id, &link_pack, BPLD_LOCK|BPLD_FORCESERIALS) > 0);
 			lock_list.add(link_id);
 			for(i = 0; link_pack.EnumTItems(&i, &p_ti);) {
 				link_pack.SnL.GetNumber(i-1, &serial);
@@ -663,7 +663,7 @@ int SLAPI PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/
 			for(DateIter diter; (r = P_Tbl->EnumLinks(bill_id, &diter, BLNK_ALL)) > 0;) {
 				const PPID link_id = P_Tbl->data.ID;
 				PPTransferItem * p_ti;
-				THROW(ExtractPacket(link_id, &link_pack, BPLD_LOCK|BPLD_FORCESERIALS) > 0);
+				THROW(ExtractPacketWithFlags(link_id, &link_pack, BPLD_LOCK|BPLD_FORCESERIALS) > 0);
 				for(uint i = 0; link_pack.EnumTItems(&i, &p_ti);) {
 					link_pack.SnL.GetNumber(i-1, &serial);
 					if(r_inv_tbl.SearchIdentical(bill_id, p_ti->GoodsID, serial, &rec) > 0) {

@@ -3691,14 +3691,14 @@ const  char * FASTCALL onecstr(char c);
 char * SLAPI padleft(char  * pStr, char pad, size_t n);
 char * SLAPI padright(char * pStr, char pad, size_t n);
 char * SLAPI alignstr(char * pStr, size_t width, int adj);
-int    SLAPI getTextHight(char * pStr, int width);
+// @v9.5.1 (obsolete) int    SLAPI getTextHight(char * pStr, int width);
 int    SLAPI searchstr(const char * pStr, const SSrchParam & rParam, size_t * pBeg, size_t * pLen);
 int    SLAPI replacestr(char * pStr, const char * pReplacer, size_t * pPos, size_t * pLen, uint maxlen);
 // @v9.4.10 (unused) char * SLAPI quotstr(char * pStr, int leftQuotChr, int rightQuotChr);
 // AHTOXA convert hex or octal representation of symbol to symbol in string
 int    SLAPI hostrtocstr(const char * pInBuf, char * pOutBuf, size_t outBufSize);
-uint   GetTextHeight(char * pBuf, size_t strLen);
-void   FASTCALL RemoveCtrlNFromStr(char * pBuf, size_t bufLen);
+// @v9.5.1 (moved as static to sbrodef.cpp) uint   GetTextHeight(char * pBuf, size_t strLen);
+// @v9.5.1 (moved as static to sbrodef.cpp) void   FASTCALL RemoveCtrlNFromStr(char * pBuf, size_t bufLen);
 int    SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount);
 //
 // Descr: ƒобавл€ет по указателю pStr разделительный символ div, возможно (addSpaces != 0), обрамленный
@@ -3750,21 +3750,23 @@ int    FASTCALL ToUpper866(int ch);
 int    FASTCALL stricmp866(const char *, const char *);
 int    FASTCALL strnicmp866(const char *, const char *, size_t);
 char * FASTCALL stristr866(const char *, const char *);
-int    SLAPI rus_tbl_cvt(int ch, int srctbl, int desttbl);
 char * FASTCALL strlwr866(char *);
 char * FASTCALL strupr866(char *);
-uchar  SLAPI __866_to_1251();
-uchar  SLAPI __1251_to_866();
-char * FASTCALL _s_866_to_1251(char *);
-char * FASTCALL _s_1251_to_866(char *);
+// @v9.5.1 int    SLAPI rus_tbl_cvt(int ch, int srctbl, int desttbl);
+// @v9.5.1 uchar  SLAPI __866_to_1251();
+// @v9.5.1 uchar  SLAPI __1251_to_866();
+// @v9.5.1 char * FASTCALL _s_866_to_1251(char *);
+// @v9.5.1 char * FASTCALL _s_1251_to_866(char *);
 int    FASTCALL __866_to_koi7(int);
 char * FASTCALL _s_866_to_koi7(char *);
 int    FASTCALL _koi8_to_866(int);
-char   FASTCALL wchar_to_1251(int16);
-#if !defined(__WIN32__) || defined(_WIN32_WCE)
-	int OemToChar(const char * in, char * out);
-	int CharToOem(const char * in, char * out);
-#endif
+// @v9.5.1 (moved as static to tvrez.cpp) char   FASTCALL wchar_to_1251(int16);
+#if 0 // @v9.5.1 {
+	#if !defined(__WIN32__) || defined(_WIN32_WCE)
+		int OemToChar(const char * in, char * out);
+		int CharToOem(const char * in, char * out);
+	#endif
+#endif // } 0 @v9.5.1
 char * FASTCALL SOemToChar(char * pStr);
 char * FASTCALL SCharToOem(char * pStr);
 //
@@ -5664,6 +5666,7 @@ public:
 	int    SLAPI removeByID(long);                  // @warning dup function (see above)
 	int    SLAPI sort();
 	int    SLAPI sortAndUndup();
+	int    SLAPI isSorted() const;
 	//
 	// Descr: оставл€ет в массиве только те элементы, которые одновременно содержатс€ в
 	//   массиве pList. ≈сли pList == 0, то массив this очищаетс€ (freeAll).
@@ -11359,7 +11362,7 @@ private:
 //
 // Debug
 //
-/* @v9.4.11 
+/* @v9.4.11
 #ifndef __DEBUG
 	#define __DEBUG 2
 #endif

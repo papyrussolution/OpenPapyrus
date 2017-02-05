@@ -1,5 +1,5 @@
 // SARRAY.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <slib.h>
@@ -2678,6 +2678,23 @@ int SLAPI LongArray::sortAndUndup()
 	else
 		ok = 0;
 	return ok;
+}
+
+int SLAPI LongArray::isSorted() const
+{
+	int   yes = 1;
+    const uint c = getCount();
+    if(c > 1) {
+		long   prev = get(0);
+		for(uint i = 1; yes && i < c; i++) {
+			const long curr = get(i);
+			if(curr < prev)
+				yes = 0;
+			else
+				prev = curr;
+		}
+    }
+    return yes;
 }
 
 int SLAPI LongArray::intersect(const LongArray * p, int binary)

@@ -1016,7 +1016,7 @@ int SLAPI GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * p
 			PPObjBill * p_bobj = BillObj;
 			PPTransferItem ti;
             THROW_MEM(SETIFZ(Cbb.P_Pack, new PPBillPacket));
-			if(p_bobj->ExtractPacket(CurrID, Cbb.P_Pack, 0) > 0) {
+			if(p_bobj->ExtractPacket(CurrID, Cbb.P_Pack) > 0) {
 				for(DateIter di; BT->EnumLinks(Cbb.P_Pack->Rec.ID, &di, BLNK_ALL, &bill_rec) > 0;) {
 					PPBillPacket temp_pack;
 					THROW_MEM(SETIFZ(Cbb.P_WrOffPack, new PPBillPacket));

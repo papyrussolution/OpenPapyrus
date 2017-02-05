@@ -10090,7 +10090,6 @@ public:
 	//
 	int    SLAPI SetLots(const PPTrfrArray & rS);
 	int    FASTCALL SearchTI(int rByBill, uint * pPos) const;
-	int    SLAPI PrepareTLoading();
 	int    SLAPI UsesDistribCost() const;
 	//
 	// Descr: заносит элемент pItem в список товарных строк документа
@@ -10440,7 +10439,9 @@ public:
 		pfForeignSync           = 0x00002000, // @v8.0.3 Пакет создан в рамках приема данных из другого раздела
 		pfIgnoreStatusRestr     = 0x00004000, // @v8.6.6 При изменении документа игнорировать ограничения статуса
 		pfForceRByBill          = 0x00008000, // @v8.8.6 Для новых строк документа использовать тот RByBill, который указан (не обнулять)
-		pfNoLoadTrfr            = 0x00010000  // @v9.4.3 @construction При загрузке и обработке документа не следует загружать товарные строки
+		pfNoLoadTrfr            = 0x00010000, // @v9.4.3 @construction При загрузке и обработке документа не следует загружать товарные строки
+		pfUpdateProhited        = 0x00020000  // @v9.5.1 Проведение этого пакета функцией PPObjBill::UpdatePacket запрещено
+			// (например, по причене не полной загрузки).
 	};
 	long   ProcessFlags;       // @transient
 	PPLinkFilesArray LnkFiles;
@@ -11590,7 +11591,7 @@ public:
 	int    SLAPI PutItem(PPTransferItem * pTi, int16 forceRByBill, const CpTrfrExt * pExt, int use_ta);
 	int    SLAPI RemoveItem(PPID billID, int rByBill, int use_ta);
 	int    SLAPI EnumItems(PPID billID, int * pRByBill, PPTransferItem *, CpTrfrExt *);
-	int    SLAPI LoadItems(PPID billID, PPBillPacket *);
+	int    SLAPI LoadItems(PPID billID, PPBillPacket * pPack, const PPIDArray * pGoodsList);
 	int    SLAPI Search(PPID billID, int rByBill, CpTransfTbl::Rec * pRec = 0);
 	int    SLAPI SearchGoodsRef(PPID goodsID, CpTransfTbl::Rec * pRec = 0);
 	int    SLAPI ReplaceGoods(PPID destGoodsID, PPID srcGoodsID, int use_ta);
@@ -11741,7 +11742,7 @@ public:
 	//   1 - строки успешно загружены
 	//   0 - ошибка
 	//
-	int    SLAPI LoadItems(PPBillPacket & rPack); // @<<PPObjBill::ExtractPacket
+	int    SLAPI LoadItems(PPBillPacket & rPack, const PPIDArray * pGoodsList); // @<<PPObjBill::ExtractPacket
 	int    SLAPI SetupItemByLot(PPTransferItem *, ReceiptTbl::Rec * pLotRec, int checkLotPrices, long oprno);
 	struct BillTotal {
 		long   LineCount; // Количество строк в документе
@@ -27131,7 +27132,7 @@ private:
 			aChgMinStock,   // @v8.6.4
 			aSplitBarcodeItems, // @v8.6.9
 			aMergeDiezNames,    // @v8.6.9
-			aChgTaxGroup        // @v9.5.0 
+			aChgTaxGroup        // @v9.5.0
 		};
 		enum {
 			fMassOpAllowed  = 0x0001,
@@ -29055,11 +29056,13 @@ public:
 	int    SLAPI IsPacketEq(const PPBillPacket & rS1, const PPBillPacket & rS2, long flags);
 	int    SLAPI IsPaymentBill(const BillTbl::Rec & rRec);
 	int    SLAPI ViewHistory(PPID histID);
-	int    SLAPI SetupModifPacket(PPBillPacket *);
-	int    SLAPI TurnPacket(PPBillPacket *, int use_ta);
+	int    SLAPI SetupModifPacket(PPBillPacket * pPack);
+	int    SLAPI TurnPacket(PPBillPacket * pPack, int use_ta);
 	int    SLAPI __TurnPacket(PPBillPacket * pPack, PPIDArray * pList, int skipEmpty, int use_ta);
-	int    SLAPI UpdatePacket(PPBillPacket *, int use_ta);
-	int    SLAPI ExtractPacket(PPID, PPBillPacket *, uint flags = 0 /* BPLD_XXX */);
+	int    SLAPI UpdatePacket(PPBillPacket * pPack, int use_ta);
+	int    SLAPI ExtractPacket(PPID id, PPBillPacket * pPack);
+	int    SLAPI ExtractPacketWithFlags(PPID id, PPBillPacket * pPack, uint flags /* BPLD_XXX */);
+	int    SLAPI ExtractPacketWithRestriction(PPID id, PPBillPacket * pPack, uint flags /* BPLD_XXX */, const PPIDArray * pGoodsList);
 	int    SLAPI RemovePacket(PPID, int use_ta);
 	int    SLAPI UpdatePool(PPID poolID, int use_ta);
 	int    SLAPI RecalcTurns(PPID, long flags /* BORTF_XXX */, int use_ta);
@@ -29887,6 +29890,7 @@ private:
 	int    SLAPI CheckModificationAfterLoading(const PPBillPacket & rPack);
 	int    SLAPI Helper_CreateDeficitTi(PPBillPacket & rPack, const PUGL * pPugl, const PUGI * pItem, PUGL::SupplSubstItem * pSupplSubstItem, PPID & rComplArID);
 		// @<<PPObjBill::ProcessDeficit
+	int    SLAPI Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, const PPIDArray * pGoodsList);
 
 	struct GtaBlock {
 		//
@@ -35514,6 +35518,17 @@ public:
 		SupplInterchangeFilt P;
 		SString ArName;    // Наименование поставщика
 	protected:
+		enum {
+			iglfWithArCodesOnly = 0x0001
+		};
+        int    SLAPI InitGoodsList(long flags);
+        int    FASTCALL IsGoodsUsed(PPID goodsID) const;
+        const  PPIDArray * GetGoodsList() const;
+
+		enum {
+			bstGoodsListInited = 0x0001, // Список товаров GoodsList инициализирован
+			bstAnyGoods        = 0x0002  // Нет ограничений на товары, по которым ведется обмен с поставщиком
+		};
 		PPObjGoods GObj;
 		PPObjArticle ArObj;
 		PPObjLocation LocObj;
@@ -35521,6 +35536,8 @@ public:
 		PPObjBill * P_BObj;
 	private:
 		PPID   SeqID;
+		long   BaseState;
+		PPIDArray GoodsList;
 	};
 	SLAPI  PrcssrSupplInterchange();
 	SLAPI ~PrcssrSupplInterchange();
@@ -36505,7 +36522,8 @@ public:
 		ekTurnover,   // Оборачиваемость дебиторской задолженности
 	};
 
-	char   ReserveStart[24]; // @anchor
+	char   ReserveStart[20]; // @anchor
+	PPID   GoodsGrpID;       // @v9.5.1 Товарная группа, ограничивающая расчет
 	SubstGrpBill Sgb;        // Подстановка документа.
 	DateRange Period;        // Период отгрузки
 	DateRange PaymPeriod;    // Период оплаты
@@ -36738,13 +36756,14 @@ private:
 	int    SLAPI GetDlvrAddr(PPID billID, PPID * pAddrID);
 	int    SLAPI NextProcessIteration(PPID reckonOpID, ProcessBlock & rBlk);
 	int    SLAPI NextProcessStep(BillTbl::Rec & rRec, ProcessBlock & rBlk);
-	int    SLAPI PreprocessBill(const BillTbl::Rec & rRec, const ProcessBlock & rBlk, PPID * pArID, PPBillExt * pBillExt);
+	int    SLAPI PreprocessBill(const BillTbl::Rec & rRec, const ProcessBlock & rBlk, PPID * pArID, PPBillExt * pBillExt, double * pPart);
 	int    SLAPI ProcessBill(const BillTbl::Rec & rRec, ProcessBlock & rBlk);
 	int    SLAPI ProcessBillPaymPlanEntry(const BillTbl::Rec & rRec, const PayPlanTbl::Rec & rPayPlanEntry, PPID arID, ProcessBlock & rBlk);
 
 	const int UseOmtPaymAmt;        // @v8.5.8 = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT)
 	DebtTrnovrFilt  Filt;           // @viewstatefilt
 	PPIDArray PayableOpList;        // @!Init_() Список операций, требующих оплаты для таблицы Filt.AccSheetID. // @viewstate
+	PPIDArray GoodsList;            // @v9.5.1 @!Init_() Список товаров, ограничивающих отчет
 	DebtTrnovrTotal Total;          // @viewstate
 	PPObjBill * P_BObj;             //
 	PPObjPerson PsnObj;             //
@@ -44062,26 +44081,21 @@ public:
 		}
 		enum {
 			fNone     = 0x0001,
-			fFallback = 0x0002
+			fFallback = 0x0002,
+			fEqual    = 0x0004
 		};
 		uint8  S[4];
 		uint8  D[4];
 		uint8  F;
 	};
 	struct CMapTranslIndexTest : TSArray <CMapTranslEntry> {
-		CMapTranslIndexTest() : TSArray <CMapTranslEntry>()
-		{
-			Reset();
-		}
-		void   Reset()
-		{
-			SArray::clear();
-			MaxSLen = 0;
-			MaxDLen = 0;
-			IdenticalCount = 0;
-			SuccCount = 0;
-			FallbackCount = 0;
-		}
+		CMapTranslIndexTest();
+		void   Reset();
+		//
+		// Descr: Сортирует элементы массива по возрастанию CMapTranslEntry::S
+		//
+		void   Sort();
+
 		uint   MaxSLen;
 		uint   MaxDLen;
 		uint   IdenticalCount;
@@ -44091,15 +44105,21 @@ public:
 	struct TranslIndex {
 		SLAPI  TranslIndex();
 		SLAPI ~TranslIndex();
+		void   SLAPI Reset();
 		size_t SLAPI GetEntrySize() const;
 		int    SLAPI Setup(const CMapTranslIndexTest & rS);
 		const  uint8 * FASTCALL Search(const uint8 * pSrc) const;
 
+		enum {
+			fIdentical = 0x0001,
+			fEmpty     = 0x0002
+		};
+		void * P_Tab;
+		uint32 Count; // Количество элементов в P_Tab
 		uint8  SL;
 		uint8  DL;
 		uint16 IdenticalCount;
-		uint32 Count; // Количество элементов в P_Tab
-		void * P_Tab;
+		uint32 Flags;
 	};
 
 	SLAPI  SCodepageMapPool();
@@ -44117,7 +44137,7 @@ public:
 	int    SLAPI ParseXml(const char * pPath, SUnicodeTable * pUt);
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    SLAPI Test(const SUnicodeTable * pUt);
-	int    SLAPI Test_MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, CMapTranslIndexTest & rIdx);
+	int    SLAPI MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, TranslIndex & rIdx);
 private:
 	struct CpEntry {
 		SCodepage Id;
@@ -44141,7 +44161,7 @@ private:
 	int    SLAPI ParseXmlSingle(void * pXmlContext, const char * pFileName, SUnicodeTable * pUt);
 	int    SLAPI TranslateEntry(const CpEntry & rSrc, CpMap & rDest) const;
 	int    SLAPI SearchMapSeq(const TSArray <MapEntry> & rSeq, uint * pPos) const;
-	int    SLAPI MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, SCodepageMapPool::TranslIndex & rIdx);
+	int    SLAPI Helper_MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, CMapTranslIndexTest & rIdx, TranslIndex & rFinalIdx);
 
 	TSArray <CpEntry> CpL;
 	TSArray <MapEntry> MeL; // Список соответствий multibyte-unicode. Отрезок каждой таблицы отсортирован по B[4]
