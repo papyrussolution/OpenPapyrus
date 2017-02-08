@@ -345,6 +345,22 @@ int SLAPI PPVersionInfo::GetDefaultEncrKey(SString & rBuf)
 	return ok;
 }
 
+int SLAPI PPVersionInfo::GetMsftTranslAcc(SString & rBuf)
+{
+	rBuf = 0;
+	int    ok = 1;
+	if(Decrypt()) {
+		if(P_Info_)
+			rBuf = P_Info_->MsftTranslAcc;
+		else
+			ok = 0;
+		Clear();
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
 long SLAPI PPVersionInfo::GetFlags()
 {
 	long   result = 0;

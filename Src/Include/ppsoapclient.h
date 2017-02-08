@@ -1014,6 +1014,14 @@ struct SapEfesBillStatus {
 };
 
 struct SapEfesBillPacket {
+	SapEfesBillPacket()
+	{
+		NativeID = 0;
+		Flags = 0;
+		DocType = 0;
+		Date = ZERODATE;
+		DueDate = ZERODATE;
+	}
 	enum {
 		fHasOrderRef = 0x0001,
 		fReturn      = 0x0002
@@ -1024,6 +1032,7 @@ struct SapEfesBillPacket {
 		tBonus,      // ZDS1
 		tBonusEfes   // ZDS2
 	};
+	long   NativeID; // Идентификатор документа в собственной БД (поставщику не передается)
 	int    Flags;
     int    DocType;
     LDATE  Date;
@@ -1045,6 +1054,13 @@ struct SapEfesGoodsReportEntry {
 };
 
 struct SapEfesDebtReportEntry {
+	SapEfesDebtReportEntry()
+	{
+		Debt = 0.0;
+		CreditLimit = 0.0;
+		PayPeriod = 0;
+		DebtDelayDays = 0;
+	}
 	double Debt;
 	double CreditLimit;
 	long   PayPeriod;

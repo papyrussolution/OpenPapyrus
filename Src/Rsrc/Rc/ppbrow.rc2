@@ -7300,7 +7300,7 @@ record SBIIBill {
 record SBIIBillRow {
 	BillID   long                  "Ид документа";
 	GoodsID  long                  "@{goodsid}";
-	StorageP long                  "Место хранения";
+	StorageP long                  "@{storageplace}";
 	Number   long                  "Номер";
 	Serial   zstring(16)           "Серийный номер/штрихкод";
 	Expiry   date                  "Срок годности";
@@ -7608,7 +7608,7 @@ record SBIIBillRowWithCells {
 	RByBill       long                "Номер строки в документе";
 	Expended      long                "Товар частично израсходован";
 	Name          zstring(48)         "Наименование места хранения";
-	LocID         long                "Место хранения";
+	LocID         long                "@{storageplace}";
 }
 
 record Lot {

@@ -6779,7 +6779,7 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 	// } @v8.0.6
 	PPIDArray correction_exp_chain; // @v9.4.3
 	pPack->ErrCause = 0;
-	THROW_PP(!(pPack->ProcessFlags & PPBillPacket::pfUpdateProhited), PPERR_UPDBPACKPROHIBITED, PPObjBill::MakeCodeString(&pPack->Rec, 0, bill_code));
+	THROW_PP_S(!(pPack->ProcessFlags & PPBillPacket::pfUpdateProhited), PPERR_UPDBPACKPROHIBITED, PPObjBill::MakeCodeString(&pPack->Rec, 0, bill_code));
 	if(!(pPack->ProcessFlags & PPBillPacket::pfIgnoreStatusRestr)) { // @v8.6.6
 		THROW_PP_S(!pPack->Rec.StatusID || !CheckStatusFlag(pPack->Rec.StatusID, BILSTF_DENY_MOD), PPERR_BILLST_DENY_MOD,
 			PPObjBill::MakeCodeString(&pPack->Rec, PPObjBill::mcsAddOpName, bill_code));

@@ -1461,30 +1461,30 @@ int SLAPI PPViewBill::Enumerator(BillViewEnumProc proc, long param)
 		q->select(t->ID, t->Code, t->Dt, t->DueDate, t->BillNo, t->Object, t->OpID, /*t->StatusID,*/
 			t->CurID, t->Flags, /*@v8.3.3{*/t->Flags2,/*}*/ t->Amount, t->LinkBillID, t->LocID, t->UserID, 0L).where(*dbq);
 		for(q->initIteration(0, &k, spGt); ok > 0 && q->nextIteration() > 0;) {
-			const BillTbl::Rec bill_rec = t->data;
-			PPBillExt bext;
-			if(!CheckFlagsForFilt(&bill_rec))
-				continue;
-			if(!SingleOpID && !OpList.lsearch(bill_rec.OpID))
-				continue;
-			if(!SingleLocID && LocList_.getCount() && !LocList_.lsearch(bill_rec.LocID))
-				continue;
-			if(Filt.CreatorID & PPObjSecur::maskUserGroup) {
-				PPSecur sec_rec;
-				if(sec_obj.Fetch(bill_rec.UserID, &sec_rec) <= 0 || sec_rec.ParentID != (Filt.CreatorID & ~PPObjSecur::maskUserGroup))
+			if(CheckFlagsForFilt(&t->data)) {
+				const BillTbl::Rec bill_rec = t->data;
+				PPBillExt bext;
+				if(!SingleOpID && !OpList.lsearch(bill_rec.OpID))
 					continue;
-			}
-			if(Filt.PayerID || Filt.AgentID > 0) {
-				if(BObj->FetchExt(bill_rec.ID, &bext) <= 0 || !CheckFiltID(Filt.AgentID, bext.AgentID) || !CheckFiltID(Filt.PayerID, bext.PayerID))
+				if(!SingleLocID && LocList_.getCount() && !LocList_.lsearch(bill_rec.LocID))
 					continue;
-			}
-			else if(Filt.Flags & BillFilt::fShowWoAgent) {
-				if(BObj->FetchExt(bill_rec.ID, &bext) > 0 && bext.AgentID != 0)
+				if(Filt.CreatorID & PPObjSecur::maskUserGroup) {
+					PPSecur sec_rec;
+					if(sec_obj.Fetch(bill_rec.UserID, &sec_rec) <= 0 || sec_rec.ParentID != (Filt.CreatorID & ~PPObjSecur::maskUserGroup))
+						continue;
+				}
+				if(Filt.PayerID || Filt.AgentID > 0) {
+					if(BObj->FetchExt(bill_rec.ID, &bext) <= 0 || !CheckFiltID(Filt.AgentID, bext.AgentID) || !CheckFiltID(Filt.PayerID, bext.PayerID))
+						continue;
+				}
+				else if(Filt.Flags & BillFilt::fShowWoAgent) {
+					if(BObj->FetchExt(bill_rec.ID, &bext) > 0 && bext.AgentID != 0)
+						continue;
+				}
+				else if(PPObjTag::CheckForTagFilt(PPOBJ_BILL, bill_rec.ID, Filt.P_TagF) <= 0)
 					continue;
+				THROW(ok = Helper_EnumProc(bill_rec.ID, &bill_rec, 0, proc, param));
 			}
-			else if(PPObjTag::CheckForTagFilt(PPOBJ_BILL, bill_rec.ID, Filt.P_TagF) <= 0)
-				continue;
-			THROW(ok = Helper_EnumProc(bill_rec.ID, &bill_rec, 0, proc, param));
 		}
 	}
 	if(p_list) {
@@ -5906,12 +5906,14 @@ int SLAPI ViewBillsByPool(PPID poolType, PPID poolOwnerID)
 int SLAPI BrowseBills(BrowseBillsType bbt)
 {
 	int    ok = -1;
-	BillFilt::FiltExtraParam p(1, bbt);
 	if(bbt == bbtDraftBills && !(CConfig.Flags & CCFLG_USEDRAFTBILL))
 		ok = (PPMessage(mfInfo, PPINF_NOSETUSEDRAFTBILLFLAG, 0), -1);
 	else {
 		THROW(PPCheckDatabaseChain());
-		ok = PPView::Execute(PPVIEW_BILL, 0, GetModelessStatus(), &p);
+		{
+			BillFilt::FiltExtraParam p(1, bbt);
+			ok = PPView::Execute(PPVIEW_BILL, 0, GetModelessStatus(), &p);
+		}
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -5961,7 +5963,8 @@ int PPALDD_GoodsBillBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmS
 						qtty += p_ti->SQtty(p_pack->Rec.OpID);
 					}
 				}
-				p_bobj->GetGoodsSaldo(goods_id, H.ObjectID, H.DlvrLocID, H.Dt, oprno, &saldo, 0);
+				const PPID dlvr_loc_id = p_pack->P_Freight ? p_pack->P_Freight->DlvrAddrID : 0; // @v9.5.1
+				p_bobj->GetGoodsSaldo(goods_id, H.ObjectID, dlvr_loc_id, H.Dt, oprno, &saldo, 0); // @v9.5.1 @fix H.DlvrLocID-->dlvr_loc_id
 			}
 		}
 		_RET_DBL = saldo;
@@ -5973,8 +5976,33 @@ int PPALDD_GoodsBillBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmS
 	return 1;
 }
 
-// Prototype
-int SLAPI setupDiscountText(const PPBillPacket * pack, int enableSTaxText, char * buf);
+static void SLAPI setupDiscountText(const PPBillPacket * pPack, int enableSTaxText, char * pBuf, size_t bufSize)
+{
+	pBuf[0] = 0;
+	if(!CheckOpPrnFlags(pPack->Rec.OpID, OPKF_PRT_NDISCNT)) {
+		int    isdis = 0;
+		SString val;
+		SString temp_buf;
+		const  int    re = BIN(pPack->Rec.Flags & BILLF_RMVEXCISE);
+		const  int    ne = (CConfig.Flags & CCFLG_PRICEWOEXCISE) ? !re : re;
+		const  double dis = pPack->Amounts.Get(PPAMT_MANDIS, pPack->Rec.CurID);
+		const  double pctdis = pPack->Amounts.Get(PPAMT_PCTDIS, 0L /* @curID */);
+		if(dis != 0 || pctdis != 0) {
+			PPLoadText(PPTXT_INCLDIS, temp_buf);
+			if(pctdis != 0.0)
+				temp_buf.Cat(pctdis, MKSFMTD(0, 1, 0)).Strip().CatChar('%');
+			else
+				temp_buf.Cat(dis, SFMT_MONEY);
+			isdis = 1;
+		}
+		if(!ne && enableSTaxText) {
+			PPGetSubStr(PPTXT_INCLEXCISE, isdis, val);
+			if(temp_buf.NotEmpty())
+				temp_buf.Space();
+		}
+		strnzcpy(pBuf, temp_buf, bufSize);
+	}
+}
 
 int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -6078,7 +6106,7 @@ int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
 	p_pack->GetLastPayDate(&H.PayDt);
 	{
 		PersonTbl::Rec psn_rec;
-		PPID   suppl_person_id = (optype == PPOPT_GOODSRETURN) ? H.RcvrID : H.DlvrID;
+		const PPID suppl_person_id = (optype == PPOPT_GOODSRETURN) ? H.RcvrID : H.DlvrID;
 		if(psn_obj.Fetch(suppl_person_id, &psn_rec) > 0 && psn_rec.Flags & PSNF_NOVATAX) {
 			H.fSupplIsVatExempt = 1;
 			exclude_vat = 1;
@@ -6091,10 +6119,12 @@ int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
 	// Функция SetupVirtualTItems самостоятельно проверяет необходимые условия.
 	//
 	p_pack->SetupVirtualTItems();
-	long   btc_flags = BTC_CALCOUTAMOUNTS;
-	SETFLAG(btc_flags, BTC_EXCLUDEVAT, exclude_vat);
-	SETFLAG(btc_flags, BTC_ONLYUNLIMGOODS, p_pack->ProcessFlags & PPBillPacket::pfPrintOnlyUnlimGoods);
-	p_pack->CalcTotal(&total_data, btc_flags);
+	{
+		long   btc_flags = BTC_CALCOUTAMOUNTS;
+		SETFLAG(btc_flags, BTC_EXCLUDEVAT, exclude_vat);
+		SETFLAG(btc_flags, BTC_ONLYUNLIMGOODS, p_pack->ProcessFlags & PPBillPacket::pfPrintOnlyUnlimGoods);
+		p_pack->CalcTotal(&total_data, btc_flags);
+	}
 	H.TotalGoodsLines = total_data.LinesCount;
 	H.TotalGoodsNames = total_data.GoodsCount;
 	if(total_data.VatList.getCount() >= 1) {
@@ -6112,7 +6142,7 @@ int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
 	H.TotalBrutto = total_data.Brutto;
 	H.TotalVAT    = total_data.VAT;
 	H.TotalSalesTax = total_data.STax;
-	setupDiscountText(p_pack, BIN(total_data.STax > 0), H.TxtManualDscnt);
+	setupDiscountText(p_pack, BIN(total_data.STax > 0), H.TxtManualDscnt, sizeof(H.TxtManualDscnt));
 	return (DlRtm::InitData(rFilt, rsrv) > 0) ? 1 : -1;
 }
 
@@ -7216,150 +7246,6 @@ PPALDD_DESTRUCTOR(GoodsReval)
 {
 	Destroy();
 }
-
-#if 0 // {
-
-int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
-{
-	Extra[0].Ptr = rFilt.Ptr;
-
-	PPOprKind op_rec;
-	const PPBillPacket * p_pack = (PPBillPacket *)Extra[0].Ptr;
-	const  long bill_f = p_pack->Rec.Flags;
-	const  PPID optype = p_pack->OprType;
-	PPID   main_org_id = 0;
-	BillTotalData  total_data;
-	PPObjPerson    psn_obj;
-	int    exclude_vat = 0;
-	GetOpData(p_pack->Rec.OpID, &op_rec);
-	const  PPID object_id = (op_rec.PrnFlags & OPKF_PRT_EXTOBJ2OBJ) ? p_pack->Rec.Object2 : p_pack->Rec.Object;
-	const  PPID person_id = ObjectToPerson(object_id);
-	PPID   parent_person_id = 0;
-	{
-		PPIDArray rel_list;
-		if(person_id && psn_obj.GetRelPersonList(person_id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0)
-			parent_person_id = rel_list.at(0);
-	}
-	BillObj->LoadClbList(p_pack, 1);
-	MEMSZERO(H);
-	if(op_rec.PrnFlags & OPKF_PRT_NBILLN)
-		H.Code[0] = 0;
-	else if(bill_f & BILLF_PRINTINVOICE && p_pack->Ext.InvoiceCode[0])
-		STRNSCPY(H.Code, p_pack->Ext.InvoiceCode);
-	else
-		STRNSCPY(H.Code, p_pack->Rec.Code);
-	strip(STRNSCPY(H.Memo, p_pack->Rec.Memo));
-	H.Dt = (bill_f & BILLF_PRINTINVOICE && p_pack->Ext.InvoiceDate) ? p_pack->Ext.InvoiceDate : p_pack->Rec.Dt;
-	H.OprKindID  = p_pack->Rec.OpID;
-	H.ObjectID   = object_id;
-	H.PayerID    = p_pack->Ext.PayerID;
-	H.AgentID    = p_pack->Ext.AgentID;
-	H.LocID      = p_pack->Rec.LocID;
-	H.BillID     = p_pack->Rec.ID;
-	H.LinkBillID = p_pack->Rec.LinkBillID;
-	H.CurID      = p_pack->Rec.CurID;
-	H.fShortMainOrg = BIN(op_rec.PrnFlags & OPKF_PRT_SHRTORG);
-	p_pack->GetMainOrgID_(&main_org_id); // @v7.0.0 ::GetMainOrgID --> p_pack->GetMainOrgID_
-	H.Flags      = bill_f;
-	H.ExpendFlag = 0;
-	H.fMergeSameGoods = BIN(op_rec.PrnFlags & OPKF_PRT_MERGETI);
-	H.RowOrder = (p_pack->ProcessFlags & PPBillPacket::pfPrintPLabel) ? TiIter::ordByPLU : op_rec.PrnOrder;
-	if(op_rec.PrnFlags & OPKF_PRT_NEGINVC)
-		H.Flags |= BILLF_NEGINVOICE;
-	if(oneof2(optype, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND) || (bill_f & (BILLF_GEXPEND|BILLF_GMODIF)) ||
-		(oneof3(optype, PPOPT_ACCTURN, PPOPT_PAYMENT, PPOPT_CHARGE) && !(op_rec.PrnFlags & OPKF_PRT_INCINVC))) {
-		H.ExpendFlag = 1;
-		H.DlvrID     = main_org_id;
-		H.DlvrReq    = main_org_id;
-		H.DlvrLocID  = p_pack->Rec.LocID;
-		H.ConsignorReq = main_org_id;
-		if(object_id)
-			if(PPObjLocation::ObjToWarehouse(object_id)) {
-				H.RcvrID    = main_org_id;
-				H.RcvrReq   = main_org_id;
-				H.RcvrLocID = PPObjLocation::ObjToWarehouse(object_id);
-				H.ConsigneeReq = main_org_id;
-			}
-			else {
-				H.RcvrLocID = (bill_f & BILLF_FREIGHT && p_pack->P_Freight) ? p_pack->P_Freight->DlvrAddrID : 0;
-				if(parent_person_id) {
-					H.RcvrID = parent_person_id;
-					H.ConsigneeReq = person_id;
-				}
-				else {
-					H.RcvrID = person_id;
-					H.ConsigneeReq = H.RcvrID;
-				}
-				H.RcvrReq = H.RcvrID;
-			}
-	}
-	else if(optype == PPOPT_DRAFTRECEIPT || bill_f & BILLF_GRECEIPT ||
-		(oneof3(optype, PPOPT_ACCTURN, PPOPT_PAYMENT, PPOPT_CHARGE) && op_rec.PrnFlags & OPKF_PRT_INCINVC)) {
-		H.ExpendFlag = 2;
-		H.RcvrID    = main_org_id;
-		H.RcvrReq   = main_org_id;
-		H.RcvrLocID = p_pack->Rec.LocID;
-		H.ConsigneeReq = main_org_id;
-		if(object_id) {
-			if(IsIntrOp(p_pack->Rec.OpID) == INTRRCPT) {
-				H.DlvrID = main_org_id;
-				H.ConsignorReq = H.DlvrID;
-			}
-			else if(parent_person_id) {
-				H.DlvrID = parent_person_id;
-				H.ConsignorReq = person_id;
-			}
-			else {
-				H.DlvrID = person_id;
-				H.ConsignorReq = H.DlvrID;
-			}
-			H.DlvrReq = H.DlvrID;
-		}
-		if(H.DlvrID == main_org_id)
-			H.DlvrLocID = PPObjLocation::ObjToWarehouse(object_id);
-	}
-	p_pack->GetLastPayDate(&H.PayDt);
-	{
-		PersonTbl::Rec psn_rec;
-		PPID   suppl_person_id = (optype == PPOPT_GOODSRETURN) ? H.RcvrID : H.DlvrID;
-		if(psn_obj.Fetch(suppl_person_id, &psn_rec) > 0 && psn_rec.Flags & PSNF_NOVATAX) {
-			H.fSupplIsVatExempt = 1;
-			exclude_vat = 1;
-		}
-		else
-			H.fSupplIsVatExempt = 0;
-	}
-	//
-	// Формирование виртуальных строк для бухгалтерских документов, оплат, начислений и некоторых иных случаев.
-	// Функция SetupVirtualTItems самостоятельно проверяет необходимые условия.
-	//
-	p_pack->SetupVirtualTItems();
-	long   btc_flags = BTC_CALCOUTAMOUNTS;
-	SETFLAG(btc_flags, BTC_EXCLUDEVAT, exclude_vat);
-	SETFLAG(btc_flags, BTC_ONLYUNLIMGOODS, p_pack->ProcessFlags & PPBillPacket::pfPrintOnlyUnlimGoods);
-	p_pack->CalcTotal(&total_data, btc_flags);
-	H.TotalGoodsLines = total_data.LinesCount;
-	H.TotalGoodsNames = total_data.GoodsCount;
-	if(total_data.VatList.getCount() >= 1) {
-		H.VATRate1 = total_data.VatList.at(0).Rate;
-		H.VATSum1  = total_data.VatList.at(0).VatSum;
-	}
-	if(total_data.VatList.getCount() >= 2) {
-		H.VATRate2 = total_data.VatList.at(1).Rate;
-		H.VATSum2  = total_data.VatList.at(1).VatSum;
-	}
-	H.TotalSum    = total_data.Amt;
-	H.TotalQtty   = fabs(total_data.UnitsCount);
-	H.TotalPhQtty = fabs(total_data.PhUnitsCount);
-	H.TotalPacks  = total_data.PackCount;
-	H.TotalBrutto = total_data.Brutto;
-	H.TotalVAT    = total_data.VAT;
-	H.TotalSalesTax = total_data.STax;
-	setupDiscountText(p_pack, BIN(total_data.STax > 0), H.TxtManualDscnt);
-	return (DlRtm::InitData(rFilt, rsrv) > 0) ? 1 : -1;
-}
-
-#endif // } 0
 
 int PPALDD_GoodsReval::InitData(PPFilt & rFilt, long rsrv)
 {

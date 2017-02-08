@@ -10866,12 +10866,14 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_string_out(struct soap * soap, const char * s, in
 #ifndef PALM_2
 SOAP_FMAC1 char * SOAP_FMAC2 soap_string_in(struct soap * soap, int flag, long minlen, long maxlen)
 {
-	register char * s;
+	char * s;
 	char * t = NULL;
-	register size_t i;
-	register long l = 0;
-	register int n = 0, f = 0, m = 0;
-	register soap_wchar c;
+	size_t i;
+	long   _len_ = 0;
+	int    n = 0;
+	int    f = 0;
+	int    m = 0;
+	soap_wchar c;
  #if !defined(WITH_LEANER) && defined(HAVE_WCTOMB)
 	char buf[MB_LEN_MAX > 8 ? MB_LEN_MAX : 8];
  #else
@@ -11084,8 +11086,9 @@ SOAP_FMAC1 char * SOAP_FMAC2 soap_string_in(struct soap * soap, int flag, long m
 					else if(c == '!') {
 						c = soap_getchar(soap);
 						if(c == '[') {
-							do c = soap_getchar(soap);
-							while((int)c != EOF && c != '[');
+							do {
+								c = soap_getchar(soap);
+							} while((int)c != EOF && c != '[');
 							if((int)c == EOF)
 								goto end;
 							t = (char *)"![CDATA[";
@@ -11099,9 +11102,11 @@ SOAP_FMAC1 char * SOAP_FMAC2 soap_string_in(struct soap * soap, int flag, long m
 							m = 2;
 							soap_unget(soap, c);
 						}
-						else {t = (char *)"!";
-						      m = 1;
-						      soap_unget(soap, c); }
+						else {
+							t = (char *)"!";
+							m = 1;
+							soap_unget(soap, c); 
+						}
 						*s++ = '<';
 						break;
 					}
@@ -11141,8 +11146,8 @@ SOAP_FMAC1 char * SOAP_FMAC2 soap_string_in(struct soap * soap, int flag, long m
   #endif
 					*s++ = (char)(c&0xFF);
 				}
-				l++;
-				if(maxlen >= 0 && l > maxlen) {
+				_len_++;
+				if(maxlen >= 0 && _len_ > maxlen) {
 					DBGLOG(TEST, SOAP_MESSAGE(fdebug, "String too long: maxlen=%ld\n", maxlen));
 					soap->error = SOAP_LENGTH;
 					return NULL;
@@ -11177,23 +11182,30 @@ SOAP_FMAC1 char * SOAP_FMAC2 soap_string_in(struct soap * soap, int flag, long m
 				continue;
 			}
 			if(soap->mode&SOAP_C_UTFSTRING) {
-				if(((c = soap_get(soap))&0x80000000) && c >= -0x7FFFFF80 && c <
-				   SOAP_AP)                                    {
+				if(((c = soap_get(soap))&0x80000000) && c >= -0x7FFFFF80 && c < SOAP_AP) {
 					c &= 0x7FFFFFFF;
 					t = buf;
 					if(c < 0x0800)
 						*t++ = (char)(0xC0|((c>>6)&0x1F));
-					else {if(c < 0x010000)
-						      *t++ = (char)(0xE0|((c>>12)&0x0F));
-					      else {if(c < 0x200000)
+					else {
+						if(c < 0x010000)
+					      *t++ = (char)(0xE0|((c>>12)&0x0F));
+				      else {
+						  if(c < 0x200000)
 							    *t++ = (char)(0xF0|((c>>18)&0x07));
-						    else {if(c < 0x04000000)
+						    else {
+								if(c < 0x04000000)
 								  *t++ = (char)(0xF8|((c>>24)&0x03));
-							  else {*t++ = (char)(0xFC|((c>>30)&0x01));
-								*t++ = (char)(0x80|((c>>24)&0x3F)); }
-							  *t++ = (char)(0x80|((c>>18)&0x3F)); }
-						    *t++ = (char)(0x80|((c>>12)&0x3F)); }
-					      *t++ = (char)(0x80|((c>>6)&0x3F)); }
+								else {
+									*t++ = (char)(0xFC|((c>>30)&0x01));
+									*t++ = (char)(0x80|((c>>24)&0x3F)); 
+								}
+								*t++ = (char)(0x80|((c>>18)&0x3F)); 
+							}
+						    *t++ = (char)(0x80|((c>>12)&0x3F)); 
+						}
+						*t++ = (char)(0x80|((c>>6)&0x3F)); 
+					}
 					*t++ = (char)(0x80|(c&0x3F));
 					m = (int)(t-buf)-1;
 					t = buf;
@@ -11205,75 +11217,85 @@ SOAP_FMAC1 char * SOAP_FMAC2 soap_string_in(struct soap * soap, int flag, long m
 				c = soap_getutf8(soap);
 			switch(c) {
 			    case SOAP_TT:
-				if(n == 0)
-					goto end;
-				n--;
-				*s++ = '<';
-				t = (char *)"/";
-				m = 1;
-				break;
-			    case SOAP_LT:
-				if(f && n == 0)
-					goto end;
-				n++;
-				*s++ = '<';
-				break;
-			    case SOAP_GT:
-				*s++ = '>';
-				break;
-			    case SOAP_QT:
-				*s++ = '"';
-				break;
-			    case SOAP_AP:
-				*s++ = '\'';
-				break;
-			    case '/':
-				if(n > 0) {
-					c = soap_get(soap);
-					if(c == SOAP_GT)
-						n--;
-					soap_unget(soap, c);
-				}
-				*s++ = '/';
-				break;
-			    case (soap_wchar)('<'|0x80000000):
-				if(flag)
+					if(n == 0)
+						goto end;
+					n--;
 					*s++ = '<';
-				else {*s++ = '&';
-				      t = (char *)"lt;";
-				      m = 3; }
-				break;
-			    case (soap_wchar)('>'|0x80000000):
-				if(flag)
+					t = (char *)"/";
+					m = 1;
+					break;
+			    case SOAP_LT:
+					if(f && n == 0)
+						goto end;
+					n++;
+					*s++ = '<';
+					break;
+			    case SOAP_GT:
 					*s++ = '>';
-				else {*s++ = '&';
-				      t = (char *)"gt;";
-				      m = 3; }
-				break;
-			    case (soap_wchar)('&'|0x80000000):
-				if(flag)
-					*s++ = '&';
-				else {*s++ = '&';
-				      t = (char *)"amp;";
-				      m = 4; }
-				break;
-			    case (soap_wchar)('"'|0x80000000):
-				if(flag)
+					break;
+			    case SOAP_QT:
 					*s++ = '"';
-				else {*s++ = '&';
-				      t = (char *)"quot;";
-				      m = 5; }
-				break;
-			    case (soap_wchar)('\''|0x80000000):
-				if(flag)
+					break;
+			    case SOAP_AP:
 					*s++ = '\'';
-				else {*s++ = '&';
-				      t = (char *)"apos;";
-				      m = 5; }
-				break;
+					break;
+			    case '/':
+					if(n > 0) {
+						c = soap_get(soap);
+						if(c == SOAP_GT)
+							n--;
+						soap_unget(soap, c);
+					}
+					*s++ = '/';
+					break;
+			    case (soap_wchar)('<'|0x80000000):
+					if(flag)
+						*s++ = '<';
+					else {
+						*s++ = '&';
+						t = (char *)"lt;";
+						m = 3; 
+					}
+					break;
+			    case (soap_wchar)('>'|0x80000000):
+					if(flag)
+						*s++ = '>';
+					else {
+						*s++ = '&';
+						t = (char *)"gt;";
+						m = 3; 
+					}
+					break;
+			    case (soap_wchar)('&'|0x80000000):
+					if(flag)
+						*s++ = '&';
+					else {
+						*s++ = '&';
+						t = (char *)"amp;";
+						m = 4; 
+					}
+					break;
+			    case (soap_wchar)('"'|0x80000000):
+					if(flag)
+						*s++ = '"';
+					else {
+						*s++ = '&';
+						t = (char *)"quot;";
+						m = 5; 
+					}
+					break;
+			    case (soap_wchar)('\''|0x80000000):
+					if(flag)
+						*s++ = '\'';
+					else {
+						*s++ = '&';
+						t = (char *)"apos;";
+						m = 5; 
+					}
+					break;
 			    default:
-				if((int)c == EOF)
-					goto end;
+					if((int)c == EOF)
+						goto end;
  #ifndef WITH_LEANER
   #ifdef HAVE_WCTOMB
 				if(soap->mode&SOAP_C_MBSTRING) {
@@ -11283,16 +11305,18 @@ SOAP_FMAC1 char * SOAP_FMAC2 soap_string_in(struct soap * soap, int flag, long m
 						*s++ = *t++;
 						m--;
 					}
-					else {*s++ = SOAP_UNKNOWN_CHAR;
-					      m = 0; }
+					else {
+						*s++ = SOAP_UNKNOWN_CHAR;
+						m = 0; 
+					}
 				}
 				else
   #endif
  #endif
 				*s++ = (char)(c&0xFF);
 			}
-			l++;
-			if(maxlen >= 0 && l > maxlen) {
+			_len_++;
+			if(maxlen >= 0 && _len_ > maxlen) {
 				DBGLOG(TEST, SOAP_MESSAGE(fdebug, "String too long: maxlen=%ld\n", maxlen));
 				soap->error = SOAP_LENGTH;
 				return NULL;
@@ -11308,8 +11332,8 @@ end:
 	soap_size_block(soap, NULL, i+1);
 	t = soap_save_block(soap, NULL, 0);
  #endif
-	if(l < minlen) {
-		DBGLOG(TEST, SOAP_MESSAGE(fdebug, "String too short: %ld chars, minlen=%ld\n", l, minlen));
+	if(_len_ < minlen) {
+		DBGLOG(TEST, SOAP_MESSAGE(fdebug, "String too short: %ld chars, minlen=%ld\n", _len_, minlen));
 		soap->error = SOAP_LENGTH;
 		return NULL;
 	}
@@ -13018,11 +13042,8 @@ SOAP_FMAC2 soap_outstring(struct soap * soap, const char * tag, int id, char * c
 
 /******************************************************************************/
 #ifndef PALM_2
-SOAP_FMAC1
-char **
-SOAP_FMAC2 soap_instring(struct soap * soap, const char * tag, char ** p, const char * type, int t, int flag,
-	long minlen,
-	long maxlen)
+SOAP_FMAC1 char ** SOAP_FMAC2 soap_instring(
+	struct soap * soap, const char * tag, char ** p, const char * type, int t, int flag, long minLen, long maxLen)
 {
 	(void)type;
 	if(soap_element_begin_in(soap, tag, 1, NULL)) {
@@ -13037,7 +13058,7 @@ SOAP_FMAC2 soap_instring(struct soap * soap, const char * tag, char ** p, const 
 	if(soap->null)
 		*p = NULL;
 	else if(soap->body) {
-		*p = soap_string_in(soap, flag, minlen, maxlen);
+		*p = soap_string_in(soap, flag, minLen, /*maxLen*/-1); // @v9.5.1 maxLen-->-1
 		if(!*p || !(char *)soap_id_enter(soap, soap->id, *p, t, sizeof(char *), 0, NULL, NULL, NULL))
 			return NULL;
 		if(!**p && tag && *tag == '-') {
@@ -13049,7 +13070,7 @@ SOAP_FMAC2 soap_instring(struct soap * soap, const char * tag, char ** p, const 
 		soap->error = SOAP_NO_TAG;
 		return NULL;
 	}
-	else if(!*soap->href && minlen > 0) {
+	else if(!*soap->href && minLen > 0) {
 		soap->error = SOAP_LENGTH;
 		return NULL;
 	}

@@ -368,7 +368,7 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 			break;
 		}
 	}
-	// @v8.7.4 (Не уверен, но похоже эта строка генерирует не приятные побочные эффекты) THROW(!(cmd_flags & cmdfNeedAuth) || DS.GetConstTLA().IsAuth());
+	// @v8.7.4 (Не уверен, но похоже эта строка генерирует неприятные побочные эффекты) THROW(!(cmd_flags & cmdfNeedAuth) || DS.GetConstTLA().IsAuth());
 	// @v9.0.10 THROW_PP(!(cmd_flags & cmdfNeedAuth) || (flags & plfLoggedIn), PPERR_NOTLOGGEDIN); // @v9.0.9
 	switch(tok) {
 		case tNoArg:
@@ -473,7 +473,7 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 			if(GetWord(rLine, &p)) {
 				int    fld_n = 0;
 				PPPutExtStrData(++fld_n, Params, Term);
-				if(Term.Cmp("INLINE", 1) == 0) {
+				if(Term.CmpNC("INLINE") == 0) {
 					// inline код
 					(temp_buf = rLine).ShiftLeft(p);
 					PPPutExtStrData(++fld_n, Params, temp_buf);
@@ -567,7 +567,6 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 					if(GetWord(rLine, &p)) { // Время последнего обмена
 						PPPutExtStrData(4, Params, Term);
 					}
-
 				}
 			}
 			break;

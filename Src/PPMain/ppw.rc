@@ -26,19 +26,19 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resrc1.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#include ""resource.h""\r\n"
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "#include ""ppw_ver.rc""\r\n"
     "#include ""ppbrow-embed.rc""\r\n"
@@ -1099,7 +1099,7 @@ BEGIN
     CONTROL         "@zero",5325,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,400,95,40,13
     LTEXT           "Added Value",CTL_SG_L_VOLUME,255,115,72,8
     EDITTEXT        CTL_SG_VOLUME,331,115,50,13,ES_AUTOHSCROLL
-    PUSHBUTTON      "Полный диалог товара...",CTL_SG_FULLDLGBUTTON,5,150,95,13
+    PUSHBUTTON      "@{goodsclass_fstdeditdlg}...",CTL_SG_FULLDLGBUTTON,5,150,95,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,330,150,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,395,150,50,13
     GROUPBOX        "",IDC_STATIC,250,30,195,115
@@ -8495,29 +8495,29 @@ END
 
 DLG_DBMAINTAIN DIALOGEX 10, 16, 342, 153
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Обслуживание базы данных"
+CAPTION "@dbmaintain"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    GROUPBOX        "@options",CTL_DBMAINTAIN_TABLES,5,5,215,115,WS_GROUP
-    CONTROL         "Статистика загрузки оборудования",5297,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,15,159,10
-    CONTROL         "MRP таблица",9393,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,30,159,10
-    CONTROL         "Системный журнал",13489,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,45,159,10
-    CONTROL         "Восстанавливать резервный системный журнал",17585,
+    GROUPBOX        "@dbmaintain_tables",CTL_DBMAINTAIN_TABLES,5,5,215,115,WS_GROUP
+    CONTROL         "@dbmaintain_tbldls",5297,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,15,159,10
+    CONTROL         "@dbmaintain_tblmrp",9393,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,30,159,10
+    CONTROL         "@dbmaintain_tblsj",13489,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,45,159,10
+    CONTROL         "@dbmaintain_tblrsrvsj",17585,
                     "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,55,186,10
-    CONTROL         "История документов",21681,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,70,159,10
-    CONTROL         "Исправлять ошибки в истории документов",25777,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,80,159,10
-    CONTROL         "Удалить временные альтернативные товарные группы",29873,
+    CONTROL         "@dbmaintain_tblxbill",21681,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,70,159,10
+    CONTROL         "@dbmaintain_tblxbillrecover",25777,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,80,159,10
+    CONTROL         "@dbmaintain_tbltempaltggrp",29873,
                     "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,90,205,10
-    CONTROL         "Убрать устаревшие файлы данных",33969,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,100,205,10
-    GROUPBOX        "Сохранить записи за",IDC_STATIC,225,5,110,85
+    CONTROL         "@dbmaintain_tblmoveobsolete",33969,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,100,205,10
+    GROUPBOX        "@dbmaintain_leaverecordsfor",IDC_STATIC,225,5,110,85
     EDITTEXT        CTL_DBMAINTAIN_DLSDAYS,230,15,45,13,ES_AUTOHSCROLL
-    LTEXT           "@days",4002,280,15,50,8
+    LTEXT           "@dbmaintain_dlsdays",4002,280,15,50,8
     EDITTEXT        CTL_DBMAINTAIN_MRPDAYS,230,30,45,13,ES_AUTOHSCROLL
-    LTEXT           "@days",4004,280,30,50,8
+    LTEXT           "@dbmaintain_mrpdays",4004,280,30,50,8
     EDITTEXT        CTL_DBMAINTAIN_SJDAYS,230,45,45,13,ES_AUTOHSCROLL
-    LTEXT           "@days",4005,280,45,50,8
+    LTEXT           "@dbmaintain_sjdays",4005,280,45,50,8
     EDITTEXT        CTL_DBMAINTAIN_XBILDAYS,230,70,45,13,ES_AUTOHSCROLL
-    LTEXT           "@days",4006,280,70,50,8
+    LTEXT           "@dbmaintain_xbilldays",4006,280,70,50,8
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,105,130,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,170,130,50,13
 END
@@ -10044,19 +10044,19 @@ BEGIN
     LTEXT           "@ccheckfilt_tablecode",4011,190,125,50,8
     EDITTEXT        CTL_CCHECKFLT_TABLECODE,190,135,55,13,ES_AUTOHSCROLL
     GROUPBOX        "",CTL_CCHECKFLT_FLAGS,10,180,160,150,WS_GROUP
-    CONTROL         "@ccheckfilt_fzerosess",5301,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,195,145,10
-    CONTROL         "@ccheckfilt_fshowsuspended",9397,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,205,145,10
-    CONTROL         "@ccheckfilt_fsuspendedonly",13493,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,215,145,10
-    CONTROL         "@ccheckfilt_fretonly",17589,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,225,145,10
-    CONTROL         "@ccheckfilt_fjunkonly",21685,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,235,150,10
-    CONTROL         "@ccheckfilt_fnotprintedonly",25781,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,245,150,10
-    CONTROL         "@ccheckfilt_fgiftonly",29877,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,255,150,10
-    CONTROL         "@ccheckfilt_forderonly",33973,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,265,150,10
-    CONTROL         "@ccheckfilt_fdlvronly",38069,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,275,150,10
-    CONTROL         "@ccheckfilt_fdlvroutstandonly",42165,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,285,150,10
-    CONTROL         "@ccheckfilt_fcalcskustat",46261,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,295,150,10
-    CONTROL         "@ccheckfilt_fwithoutskiptag",50357,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,305,150,10
-    CONTROL         "@ccheckfilt_fprintdetail",54453,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,315,145,10
+    CONTROL         "@ccheckfilt_fzerosess",5301,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,190,145,10
+    CONTROL         "@ccheckfilt_fshowsuspended",9397,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,199,145,10
+    CONTROL         "@ccheckfilt_fsuspendedonly",13493,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,209,145,10
+    CONTROL         "@ccheckfilt_fretonly",17589,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,220,145,10
+    CONTROL         "@ccheckfilt_fjunkonly",21685,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,230,150,10
+    CONTROL         "@ccheckfilt_fnotprintedonly",25781,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,239,150,10
+    CONTROL         "@ccheckfilt_fgiftonly",29877,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,249,150,10
+    CONTROL         "@ccheckfilt_forderonly",33973,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,260,150,10
+    CONTROL         "@ccheckfilt_fdlvronly",38069,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,270,150,10
+    CONTROL         "@ccheckfilt_fdlvroutstandonly",42165,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,279,150,10
+    CONTROL         "@ccheckfilt_fcalcskustat",46261,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,289,150,10
+    CONTROL         "@ccheckfilt_fwithoutskiptag",50357,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,300,150,10
+    CONTROL         "@ccheckfilt_fprintdetail",54453,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,310,145,10
     GROUPBOX        "",IDC_STATIC,175,180,160,150
     LTEXT           "@grouping",4012,180,190,95,8
     EDITTEXT        CTL_CCHECKFLT_GRP,180,201,135,13,ES_AUTOHSCROLL | ES_READONLY
@@ -15919,7 +15919,7 @@ BEGIN
     DEFPUSHBUTTON   "@but_edit",STDCTL_EDITBUTTON,210,5,65,13
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,210,25,65,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,210,45,65,13
-    PUSHBUTTON      "Места\nхранения...",4001,210,70,65,30,BS_MULTILINE
+    PUSHBUTTON      "@{storageplace_pl}...",4001,210,70,65,30,BS_MULTILINE
     PUSHBUTTON      "Товарные\nассоциации...",4002,210,105,65,30,BS_MULTILINE
     PUSHBUTTON      "@but_transmit",4003,210,145,65,13
     PUSHBUTTON      "@{dotransmitcharry}...",4004,210,165,65,13
@@ -19602,7 +19602,7 @@ END
 
 DLG_QUOTUPD DIALOGEX 15, 0, 493, 277
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "@cmd_updatequots"
+CAPTION "@quotupd"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     GROUPBOX        "",CTL_QUOTUPD_WHAT,5,5,265,85,WS_GROUP
@@ -19613,73 +19613,71 @@ BEGIN
     EDITTEXT        CTL_QUOTUPD_KIND,10,70,215,12,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_QUOTUPD_KIND,225,70,13,13,BS_BITMAP
     GROUPBOX        "",IDC_STATIC,5,90,265,40
-    LTEXT           "@warehouse",4002,10,100,195,8
+    LTEXT           "@quotupd_loclist",4002,10,100,195,8
     EDITTEXT        CTL_QUOTUPD_LOC,10,110,215,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_QUOTUPD_LOC,225,110,13,13,BS_BITMAP
     PUSHBUTTON      "...",4003,245,110,20,13
-    LTEXT           "@goodsgroup",4004,10,135,200,8
+    LTEXT           "@quotupd_goodsgroup",4004,10,135,200,8
     EDITTEXT        CTL_QUOTUPD_GGRP,10,145,200,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_QUOTUPD_GGRP,210,145,13,13,BS_BITMAP
     EDITTEXT        CTL_QUOTUPD_GOODS,10,170,240,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@ware",4005,10,160,115,8
+    LTEXT           "@quotupd_goods",4005,10,160,215,8
     PUSHBUTTON      "",CTLSEL_QUOTUPD_GOODS,250,170,13,13,BS_BITMAP | NOT WS_TABSTOP
     PUSHBUTTON      "@but_filt",STDCTL_GOODSFILTBUTTON,225,145,41,13
-    LTEXT           "@client",4006,10,185,150,8
+    LTEXT           "@quotupd_article",4006,10,185,150,8
     EDITTEXT        CTL_QUOTUPD_AR,10,194,215,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_QUOTUPD_AR,225,194,13,13,BS_BITMAP
     PUSHBUTTON      "...",4007,245,194,20,13
     GROUPBOX        "",CTL_QUOTUPD_WARN,10,210,280,45,WS_GROUP
-    CONTROL         "Предупреждать об изменении абсолютных котировок на относительные",5309,
-                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,220,271,10
-    CONTROL         "Не изменять котировки для товаров с признаком 'Без скидки'",9405,
-                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,230,260,10
-    CONTROL         "Не изменять значения, заданные с периодом",13501,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,240,260,10
+    CONTROL         "@quotupd_fwarnexistsabsquot",5309,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,220,271,10
+    CONTROL         "@quotupd_fskipnodisgoods",9405,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,230,260,10
+    CONTROL         "@quotupd_fskipdatedquot",13501,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,240,260,10
     GROUPBOX        "",IDC_STATIC,275,5,205,140
     GROUPBOX        "",CTL_QUOTUPD_HOW,281,10,175,85,WS_GROUP
-    CONTROL         "По лотам",5304,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,285,20,160,10
-    CONTROL         "По последней переоценке",9400,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,285,30,160,10
-    CONTROL         "По проценту изменения",13496,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,285,40,160,10
-    CONTROL         "Новое значение котировки",17592,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,285,50,160,10
-    CONTROL         "@formula",21688,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,285,60,160,10
-    CONTROL         "По образцу (см. дополнительные опции)",25784,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,285,70,160,10
-    CONTROL         "@delete",29880,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,285,80,160,10
-    LTEXT           "@quot_valuegeneric",4008,281,100,164,8
-    EDITTEXT        CTL_QUOTUPD_PCT,281,110,175,13,ES_AUTOHSCROLL
+    CONTROL         "@quotupd_bylots",5304,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,285,20,160,10
+    CONTROL         "@quotupd_bylastreval",9400,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,285,30,160,10
+    CONTROL         "@quotupd_bypctval",13496,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,285,40,160,10
+    CONTROL         "@quotupd_byabsval",17592,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,285,50,160,10
+    CONTROL         "@quotupd_byformula",21688,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,285,60,160,10
+    CONTROL         "@quotupd_byaddedquot",25784,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,285,70,160,10
+    CONTROL         "@quotupd_bydelete",29880,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,285,80,160,10
+    LTEXT           "@quotupd_quotval",4008,281,100,164,8
+    EDITTEXT        CTL_QUOTUPD_PCT,281,110,174,13,ES_AUTOHSCROLL
     PUSHBUTTON      "* F2",4009,455,110,20,13
     GROUPBOX        "",CTL_QUOTUPD_NEXS,275,145,180,45,WS_GROUP
-    CONTROL         "Только для существующих",5305,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,280,155,160,10
-    CONTROL         "Добавить если не существует",9401,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,280,165,160,10
-    CONTROL         "Только если не существует",13497,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,280,175,165,10
+    CONTROL         "@quotupd_fexistonly",5305,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,280,155,165,10
+    CONTROL         "@quotupd_fsetupifnotexists",9401,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,280,165,170,10
+    CONTROL         "@quotupd_fnonexistonly",13497,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,280,175,165,10
     PUSHBUTTON      "@but_addendum",4010,350,195,105,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,170,260,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,241,260,50,13
     LTEXT           "",CTL_QUOTUPD_ST_VALEXT,281,125,175,13,0,WS_EX_STATICEDGE
-    LTEXT           "@quotkind",4001,10,60,155,8
+    LTEXT           "@quotupd_quotkind",4001,10,60,155,8
 END
 
 DLG_QUOTUPDA DIALOGEX 57, 40, 267, 238
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Дополнительные условия изменения котировок"
+CAPTION "@quotupdadv"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     EDITTEXT        CTL_QUOTUPDA_KIND,10,30,200,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@quotkind",4001,10,20,175,8
+    LTEXT           "@quotupd_advoptquotkind",4001,10,20,175,8
     PUSHBUTTON      "",CTLSEL_QUOTUPDA_KIND,210,30,12,13,BS_BITMAP | NOT WS_TABSTOP
     EDITTEXT        CTL_QUOTUPDA_LOC,10,55,200,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@warehouse",4002,10,45,175,8
+    LTEXT           "@quotupd_advoptloc",4002,10,45,175,8
     PUSHBUTTON      "",CTLSEL_QUOTUPDA_LOC,210,55,12,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@quote",4003,10,70,70,8
+    LTEXT           "@quotupd_advoptquot",4003,10,70,70,8
     EDITTEXT        CTL_QUOTUPDA_QUOT,10,80,65,13,ES_AUTOHSCROLL
-    CONTROL         "Переносить период действия",5309,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,95,80,155,13
+    CONTROL         "@quotupd_fsetupdatedsamples",5309,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,95,80,155,13
     EDITTEXT        CTL_QUOTUPDA_OP,10,120,200,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Вид операции для регистрирующего документа",4004,10,110,200,8
+    LTEXT           "@quotupd_registerop",4004,10,110,200,8
     PUSHBUTTON      "",CTLSEL_QUOTUPDA_OP,210,120,12,13,BS_BITMAP | NOT WS_TABSTOP
     EDITTEXT        CTL_QUOTUPDA_ACTION,10,165,200,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@event",4005,10,155,135,8
+    LTEXT           "@quotupd_eventlist",4005,10,155,195,8
     PUSHBUTTON      "",CTLSEL_QUOTUPDA_ACTION,210,165,12,13,BS_BITMAP | NOT WS_TABSTOP
     PUSHBUTTON      "...",4006,225,165,26,13
     EDITTEXT        CTL_QUOTUPDA_TOKEN,10,190,200,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Метка отсчета событий",4007,10,180,88,8
+    LTEXT           "@quotupd_evtok",4007,10,180,195,8
     PUSHBUTTON      "",CTLSEL_QUOTUPDA_TOKEN,210,190,12,13,BS_BITMAP | NOT WS_TABSTOP
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,95,220,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,160,220,50,13
@@ -32282,6 +32280,16 @@ BEGIN
 END
 
 DLG_DUPNAMES AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_QUOTUPDA AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_CCHECKFLT AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

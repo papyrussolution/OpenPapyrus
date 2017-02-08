@@ -127,7 +127,7 @@ int SLAPI SArchive::ExtractEntry(int64 idx, const char * pDestName)
 				actual_rd_size = zip_fread(p_zf, buffer, buffer.GetSize());
 				THROW(actual_rd_size >= 0);
 				if(actual_rd_size > 0)
-					THROW(f_dest.Write(buffer, actual_rd_size));
+					THROW(f_dest.Write(buffer, (size_t)actual_rd_size));
 			} while(actual_rd_size == buffer.GetSize());
 		}
     }

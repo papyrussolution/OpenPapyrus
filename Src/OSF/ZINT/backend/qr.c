@@ -1244,72 +1244,57 @@ int apply_bitmask(uchar * grid, int size, int ecc_level)
 void add_format_info(uchar * grid, int size, int ecc_level, int pattern)
 {
 	int format = pattern;
-	uint seq;
-	int i;
-
 	switch(ecc_level) {
-		case LEVEL_L: format += 0x08;
-		    break;
-		case LEVEL_Q: format += 0x18;
-		    break;
-		case LEVEL_H: format += 0x10;
-		    break;
+		case LEVEL_L: format += 0x08; break;
+		case LEVEL_Q: format += 0x18; break;
+		case LEVEL_H: format += 0x10; break;
 	}
-
-	seq = qr_annex_c[format];
-
-	for(i = 0; i < 6; i++) {
-		grid[(i * size) + 8] += (seq >> i) & 0x01;
+	{
+		const  uint  seq = qr_annex_c[format];
+		int    i;
+		for(i = 0; i < 6; i++) {
+			grid[(i * size) + 8] += (seq >> i) & 0x01;
+		}
+		for(i = 0; i < 8; i++) {
+			grid[(8 * size) + (size - i - 1)] += (seq >> i) & 0x01;
+		}
+		for(i = 0; i < 6; i++) {
+			grid[(8 * size) + (5 - i)] += (seq >> (i + 9)) & 0x01;
+		}
+		for(i = 0; i < 7; i++) {
+			grid[(((size - 7) + i) * size) + 8] += (seq >> (i + 8)) & 0x01;
+		}
+		grid[(7 * size) + 8] += (seq >> 6) & 0x01;
+		grid[(8 * size) + 8] += (seq >> 7) & 0x01;
+		grid[(8 * size) + 7] += (seq >> 8) & 0x01;
 	}
-
-	for(i = 0; i < 8; i++) {
-		grid[(8 * size) + (size - i - 1)] += (seq >> i) & 0x01;
-	}
-
-	for(i = 0; i < 6; i++) {
-		grid[(8 * size) + (5 - i)] += (seq >> (i + 9)) & 0x01;
-	}
-
-	for(i = 0; i < 7; i++) {
-		grid[(((size - 7) + i) * size) + 8] += (seq >> (i + 8)) & 0x01;
-	}
-
-	grid[(7 * size) + 8] += (seq >> 6) & 0x01;
-	grid[(8 * size) + 8] += (seq >> 7) & 0x01;
-	grid[(8 * size) + 7] += (seq >> 8) & 0x01;
 }
 
 /* Add version information */
 void add_version_info(uchar * grid, int size, int version)
 {
-	int i;
-
 	long int version_data = qr_annex_d[version - 7];
-	for(i = 0; i < 6; i++) {
-		grid[((size - 11) * size) + i] += (version_data >> (i * 3)) & 0x41;
-		grid[((size - 10) * size) + i] += (version_data >> ((i * 3) + 1)) & 0x41;
-		grid[((size - 9) * size) + i] += (version_data >> ((i * 3) + 2)) & 0x41;
-		grid[(i * size) + (size - 11)] += (version_data >> (i * 3)) & 0x41;
-		grid[(i * size) + (size - 10)] += (version_data >> ((i * 3) + 1)) & 0x41;
-		grid[(i * size) + (size - 9)] += (version_data >> ((i * 3) + 2)) & 0x41;
+	for(int i = 0; i < 6; i++) {
+		grid[((size - 11) * size) + i] += (uchar)((version_data >> (i * 3)) & 0x41);
+		grid[((size - 10) * size) + i] += (uchar)((version_data >> ((i * 3) + 1)) & 0x41);
+		grid[((size - 9) * size) + i] += (uchar)((version_data >> ((i * 3) + 2)) & 0x41);
+		grid[(i * size) + (size - 11)] += (uchar)((version_data >> (i * 3)) & 0x41);
+		grid[(i * size) + (size - 10)] += (uchar)((version_data >> ((i * 3) + 1)) & 0x41);
+		grid[(i * size) + (size - 9)] += (uchar)((version_data >> ((i * 3) + 2)) & 0x41);
 	}
 }
-
-/* Choose from three numbers based on version */
+//
+// Choose from three numbers based on version 
+//
 int tribus(int version, int a, int b, int c)
 {
-	int RetVal;
-
-	RetVal = c;
-
+	int RetVal = c;
 	if(version < 10) {
 		RetVal = a;
 	}
-
 	if((version >= 10) && (version <= 26)) {
 		RetVal = b;
 	}
-
 	return RetVal;
 }
 
@@ -1322,14 +1307,12 @@ void applyOptimisation(int version, char inputMode[], int inputLength)
 	char currentMode = ' '; // Null
 	int * blockLength;
 	char * blockMode;
-
 	for(i = 0; i < inputLength; i++) {
 		if(inputMode[i] != currentMode) {
 			currentMode = inputMode[i];
 			blockCount++;
 		}
 	}
-
 	blockLength = (int*)malloc(sizeof(int)*blockCount);
 	assert(blockLength);
 	if(!blockLength) return;

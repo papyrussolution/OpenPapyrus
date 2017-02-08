@@ -7,49 +7,6 @@
 
 int SLAPI PrintBillImages(PPBillPacket * pPack, int prnFlags);
 
-int SLAPI setupDiscountText(const PPBillPacket * pack, int enableSTaxText, char * pBuf)
-{
-	pBuf[0] = 0;
-	if(!CheckOpPrnFlags(pack->Rec.OpID, OPKF_PRT_NDISCNT)) {
-		int    isdis = 0;
-		//char   inclexcise[64], * p;
-		SString val;
-		SString temp_buf;
-		const  int    re = BIN(pack->Rec.Flags & BILLF_RMVEXCISE);
-		const  int    ne = (CConfig.Flags & CCFLG_PRICEWOEXCISE) ? !re : re;
-		const  double dis = pack->Amounts.Get(PPAMT_MANDIS, pack->Rec.CurID);
-		const  double pctdis = pack->Amounts.Get(PPAMT_PCTDIS, 0L /* @curID */);
-		if(dis != 0 || pctdis != 0) {
-			//PPLoadText(PPTXT_INCLDIS, pBuf, 48);
-			//p = pBuf + strlen(pBuf);
-			PPLoadText(PPTXT_INCLDIS, temp_buf);
-			if(pctdis != 0.0)
-				temp_buf.Cat(pctdis, MKSFMTD(0, 1, 0)).Strip().CatChar('%');
-			else
-				temp_buf.Cat(dis, SFMT_MONEY);
-			//strcpy(p, val);
-			isdis = 1;
-		}
-		if(!ne && enableSTaxText) {
-			/*
-			PPGetSubStr(PPTXT_INCLEXCISE, isdis, inclexcise, sizeof(inclexcise));
-			if(pBuf[0]) {
-				p = pBuf + strlen(pBuf);
-				*p++ = ' ';
-			}
-			else
-				p = pBuf;
-			strcpy(p, inclexcise);
-			*/
-			PPGetSubStr(PPTXT_INCLEXCISE, isdis, val);
-			if(temp_buf.NotEmpty())
-				temp_buf.Space();
-		}
-		strnzcpy(pBuf, temp_buf, 0);
-	}
-	return 1;
-}
-
 const char * BillMultiplePrintCfg              = "BillMultiplePrintCfg";
 const char * BillMultiplePrintDivByCopies      = "BillMultiplePrintDivByCopies";
 const char * BillMultiplePrintOnlyPriceChanged = "BillMultiplePrintOnlyPriceChanged";
@@ -505,7 +462,7 @@ int SLAPI PrintGoodsBill(PPBillPacket * pPack, SArray ** ppAry, int printingNoAs
 							case 6: temp_rs.RptID = REPORT_GOODSLADINGBACK; break;
 							case 7:
 								temp_rs.RptID = REPORT_SERVICEACT;
-								temp_rs.OrBppFlags = PPBillPacket::pfPrintOnlyUnlimGoods; // @v7.1.7
+								temp_rs.OrBppFlags = PPBillPacket::pfPrintOnlyUnlimGoods;
 								pPack->ProcessFlags |= PPBillPacket::pfPrintOnlyUnlimGoods;
 								break;
 							case 8:
@@ -518,13 +475,13 @@ int SLAPI PrintGoodsBill(PPBillPacket * pPack, SArray ** ppAry, int printingNoAs
 									temp_rs.NotBppFlags |= PPBillPacket::pfPrintChangedPriceOnly;
 								// } @v7.1.7
 								pPack->ProcessFlags |= PPBillPacket::pfPrintPLabel;
-								SETFLAG(pPack->ProcessFlags, PPBillPacket::pfPrintChangedPriceOnly, BIN(only_price_changed_flag)); // @v6.4.8 AHTOXA
+								SETFLAG(pPack->ProcessFlags, PPBillPacket::pfPrintChangedPriceOnly, BIN(only_price_changed_flag));
 								break;
 							case 9: // План платежей
 								break;
 							case 10:
 								temp_rs.RptID = REPORT_BILLTARESALDO;
-								temp_rs.OrBppFlags = PPBillPacket::pfPrintTareSaldo; // @v7.1.7
+								temp_rs.OrBppFlags = PPBillPacket::pfPrintTareSaldo;
 								pPack->ProcessFlags |= PPBillPacket::pfPrintTareSaldo;
 								break;
 							case 11: // Наряд на складскую сборку

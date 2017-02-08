@@ -1,5 +1,5 @@
 // GTAXDLG.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2016
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -59,40 +59,40 @@ int GoodsTaxDialog::setEntry(const PPGoodsTaxEntry * pEntry)
 int GoodsTaxDialog::getEntry(PPGoodsTaxEntry * pEntry)
 {
 	int    ok = 1;
-	char   str[32];
+	SString temp_buf;
 	double rv;
 	if(Entry.Flags & GTAXF_ENTRY) {
 		GetPeriodInput(this, CTL_GDSTAX_PERIOD, &Entry.Period);
 		getCtrlData(CTLSEL_GDSTAX_OP, &Entry.OpID);
 	}
-	getCtrlData(CTL_GDSTAX_VAT, str);
-	strtodoub(str, &rv);
+	getCtrlString(CTL_GDSTAX_VAT, temp_buf);
+	rv = temp_buf.ToReal();
 	Entry.VAT = R0i(rv * 100L);
 	Entry.Flags &= ~GTAXF_ABSEXCISE;
-	getCtrlData(CTL_GDSTAX_EXCISE, str);
-	if(*strip(str)) {
-		char * p_dollar = strchr(str, '$');
-		if(p_dollar) {
-			*p_dollar = 0;
+	getCtrlString(CTL_GDSTAX_EXCISE, temp_buf);
+	if(temp_buf.NotEmptyS()) {
+		size_t dollar_pos = 0;
+		if(temp_buf.StrChr('$', &dollar_pos)) {
+			temp_buf.Trim(dollar_pos);
 			Entry.Flags |= GTAXF_ABSEXCISE;
 		}
-		strtodoub(str, &rv);
+		rv = temp_buf.ToReal();
 		Entry.Excise = R0i(rv * 100L);
 	}
 	else
 		Entry.Excise = 0;
 	if(Entry.Excise == 0)
 		Entry.Flags &= ~GTAXF_ABSEXCISE;
-	getCtrlData(CTL_GDSTAX_STAX, str);
-	strtodoub(str, &rv);
+	getCtrlString(CTL_GDSTAX_STAX, temp_buf);
+	rv = temp_buf.ToReal();
 	Entry.SalesTax = R0i(rv * 100L);
-	getCtrlData(CTL_GDSTAX_ORDER, str);
-	if(GTxObj.StrToOrder(str, &Entry.Order, &Entry.UnionVect)) {
+	getCtrlString(CTL_GDSTAX_ORDER, temp_buf);
+	if(GTxObj.StrToOrder(temp_buf, &Entry.Order, &Entry.UnionVect)) {
 		*pEntry = Entry;
 	}
 	else {
 		selectCtrl(CTL_GDSTAX_ORDER);
-		ok = (PPError(PPERR_INVEXPR, str), 0); // @TODO (err code)
+		ok = (PPError(PPERR_INVEXPR, temp_buf), 0); // @TODO (err code)
 	}
 	return ok;
 }
@@ -208,11 +208,12 @@ int GoodsTaxListDialog::setupList()
 
 int GoodsTaxListDialog::delItem(long pos, long)
 {
+	int    ok = -1;
 	if(pos >= 0) {
 		Data.atFree((uint)pos);
-		return 1;
+		ok = 1;
 	}
-	return -1;
+	return ok;
 }
 
 int GoodsTaxListDialog::editItemDialog(int pos, PPGoodsTaxEntry * pEntry)
@@ -247,6 +248,7 @@ void GoodsTaxListDialog::addBySample()
 
 int GoodsTaxListDialog::addItem(long * pPos, long * pID)
 {
+	int    ok = -1;
 	PPGoodsTaxEntry item;
 	MEMSZERO(item);
 	Data.Rec.ToEntry(&item);
@@ -255,20 +257,20 @@ int GoodsTaxListDialog::addItem(long * pPos, long * pID)
 	if(editItemDialog(-1, &item) > 0) {
 		ASSIGN_PTR(pPos, Data.getCount()-1);
 		ASSIGN_PTR(pID, Data.getCount());
-		return 1;
+		ok = 1;
 	}
-	else
-		return -1;
+	return ok;
 }
 
 int GoodsTaxListDialog::editItem(long pos, long)
 {
+	int    ok = -1;
 	if(pos >= 0 && pos < (long)Data.getCount()) {
 		PPGoodsTaxEntry item = *(PPGoodsTaxEntry*)Data.at((uint)pos);
 		if(editItemDialog((int)pos, &item) > 0)
-			return 1;
+			ok = 1;
 	}
-	return -1;
+	return ok;
 }
 
 void GoodsTaxDialog::editList()
@@ -308,6 +310,8 @@ int SLAPI PPObjGoodsTax::AddBySample(PPID * pID, long sampleID)
 	delete dlg;
 	return r;
 }
+
+//#define TEST_GTAX
 
 int SLAPI PPObjGoodsTax::Edit(PPID * pID, void * extraPtr)
 {

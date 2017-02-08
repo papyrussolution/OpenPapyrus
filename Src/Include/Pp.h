@@ -474,6 +474,7 @@ public:
 	int    SLAPI GetVersionText(char *, size_t);
 	int    SLAPI GetCopyrightText(SString & rBuf);
 	int    SLAPI GetDefaultEncrKey(SString & rBuf);
+	int    SLAPI GetMsftTranslAcc(SString & rBuf);
 	long   SLAPI GetFlags();
 	// @v9.3.3 int    SLAPI GetMaxUserNumber(int *);
 	// @v9.3.3 int    SLAPI GetRegistrInfo(PPRegistrInfo *, const char *);
@@ -20493,7 +20494,7 @@ class PPObjGoodsTax : public PPObjReference {
 public:
 	static long  SLAPI GetDefaultOrder();
 	static int   SLAPI ReplaceGoodsTaxGrp();
-	static int   SLAPI IsIdentical(PPGoodsTax * pRec1, PPGoodsTax * pRec2);
+	static int   SLAPI IsIdentical(const PPGoodsTax * pRec1, const PPGoodsTax * pRec2);
 	static int   SLAPI Fetch(PPID, LDATE, PPID opID, PPGoodsTaxEntry *);
 	static int   SLAPI FetchByID(PPID, PPGoodsTaxEntry *);
 
@@ -20508,7 +20509,7 @@ public:
 	//
 	// Descr: Ищет налоговую группу, аналогичную по схеме налогообложения записи pPattern.
 	//
-	int    SLAPI SearchIdentical(PPGoodsTax * pPattern, PPID * pID, PPGoodsTax * pRec);
+	int    SLAPI SearchIdentical(const PPGoodsTax * pPattern, PPID * pID, PPGoodsTax * pRec);
 	int    SLAPI SearchAnalog(const PPGoodsTax * pSample, PPID * pID, PPGoodsTax * pRec);
 	int    SLAPI Test(PPID);
 	int    SLAPI FormatOrder(long order, long unionVect, char * buf, size_t buflen);
@@ -44004,24 +44005,16 @@ private:
 };
 
 class SCodepageMapPool : public SStrGroup {
+private:
+	struct CMapTranslIndexTest;
 public:
 	struct MapEntry {
 		SLAPI  MapEntry();
-		int    FASTCALL operator == (const MapEntry & rS) const
-		{
-			return BIN(Cmp(rS) == 0);
-		}
-		int    FASTCALL operator != (const MapEntry & rS) const
-		{
-			return BIN(Cmp(rS) != 0);
-		}
-		int    FASTCALL Cmp(const MapEntry & rS) const
-		{
-			int    si = CMPSIGN(*PTR32(B), *PTR32(rS.B));
-			return si ? si : CMPSIGN(U2, rS.U2);
-		}
+		int    FASTCALL operator == (const MapEntry & rS) const;
+		int    FASTCALL operator != (const MapEntry & rS) const;
+		int    FASTCALL Cmp(const MapEntry & rS) const;
+
 		uint8  B[4]; // от B[0] до B[3] в порядке следования символов в строке
-		//uint32 U;
 		uint16 U2;
 	};
 	enum {
@@ -44088,27 +44081,17 @@ public:
 		uint8  D[4];
 		uint8  F;
 	};
-	struct CMapTranslIndexTest : TSArray <CMapTranslEntry> {
-		CMapTranslIndexTest();
-		void   Reset();
-		//
-		// Descr: Сортирует элементы массива по возрастанию CMapTranslEntry::S
-		//
-		void   Sort();
+	class TranslIndex {
+	public:
+		friend class SCodepageMapPool;
 
-		uint   MaxSLen;
-		uint   MaxDLen;
-		uint   IdenticalCount;
-		uint   SuccCount;
-		uint   FallbackCount;
-	};
-	struct TranslIndex {
 		SLAPI  TranslIndex();
 		SLAPI ~TranslIndex();
+		const  uint8 * FASTCALL Search(const uint8 * pSrc) const;
+	private:
 		void   SLAPI Reset();
 		size_t SLAPI GetEntrySize() const;
-		int    SLAPI Setup(const CMapTranslIndexTest & rS);
-		const  uint8 * FASTCALL Search(const uint8 * pSrc) const;
+		int    SLAPI Setup(const SCodepageMapPool::CMapTranslIndexTest & rS);
 
 		enum {
 			fIdentical = 0x0001,
@@ -44129,7 +44112,7 @@ public:
 	int    SLAPI Get(SCodepage cp, CpMap * pM) const;
 	int    SLAPI GetByName(const char * pName, CpMap * pM) const;
 	//
-	// Descr: Сравнивает две таблицы на идентифчность.
+	// Descr: Сравнивает две таблицы на идентичность.
 	//
 	uint   SLAPI Compare(const CpMap & rS1, const CpMap & rS2) const;
 	uint   SLAPI Translate(const CpMap & rFrom, const CpMap & rTo, const uint8 * pSrc, size_t srcLen, SString & rDest);
@@ -44155,6 +44138,20 @@ private:
 		uint32 FallbackCount; // Количество позиций в FbL
 		uint32 NScriptStart;  // Начальная позиция списка натуральных скриптов в кодовой странице
 		uint32 NScriptCount;  // Количество натуральных скриптов в кодовой странице
+	};
+	struct CMapTranslIndexTest : TSArray <CMapTranslEntry> {
+		CMapTranslIndexTest();
+		void   Reset();
+		//
+		// Descr: Сортирует элементы массива по возрастанию CMapTranslEntry::S
+		//
+		void   Sort();
+
+		uint   MaxSLen;
+		uint   MaxDLen;
+		uint   IdenticalCount;
+		uint   SuccCount;
+		uint   FallbackCount;
 	};
 	int    SLAPI ParseCpName(const SString & rName, int * pSis, SString & rCode, SString & rVersion) const;
 	int    SLAPI ParseSymbols(SString & rU, const SString & rMb, MapEntry & rEntry, uint8 * pMbMl) const;

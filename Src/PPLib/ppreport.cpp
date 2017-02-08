@@ -17,7 +17,55 @@
 // Prototype
 int  SLAPI CopyDataStruct(const char *pSrc, const char *pDest, const char *pFileName);
 int  SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const char *pRepFileName);
-int  FindExeByExt(const char * pExt, char * pExe, size_t buflen, char * pAddedSearchString);
+//
+//
+//
+static int FindExeByExt(const char * pExt, char * pExe, size_t buflen, char * pAddedSearchString)
+{
+	//
+	// @todo Перестроить функцию с использованием WinRegKey
+	//
+	int    ok = 0;
+	char   buf[MAXPATH], * p_chr = 0;
+	SString temp_buf;
+	DWORD  v_type = REG_SZ ;
+	DWORD  bufsize = MAXPATH;
+	if(pExe) {
+		buf[0] = 0;
+		if(SHGetValue(HKEY_CLASSES_ROOT, pExt, NULL, &v_type, buf, &bufsize) == ERROR_SUCCESS) { // @unicodeproblem
+			v_type = REG_SZ;
+			bufsize = MAXPATH;
+			if(pAddedSearchString && stricmp(pAddedSearchString, buf)== 0 &&
+				SHGetValue(HKEY_CLASSES_ROOT, buf, NULL, &v_type, buf, &bufsize) == ERROR_SUCCESS) { // @unicodeproblem
+				v_type = REG_SZ;
+				bufsize = MAXPATH;
+				strip(buf);
+				while((p_chr = strchr(buf, ' ')) != NULL)
+					strcpy(p_chr, p_chr + 1);
+			}
+			(temp_buf = 0).CatChar('\\').Cat("shell").SetLastSlash().Cat("open").SetLastSlash().Cat("command");
+			strcat(buf, temp_buf);
+			if(SHGetValue(HKEY_CLASSES_ROOT, buf, NULL, &v_type, buf, &bufsize) == ERROR_SUCCESS) { // @unicodeproblem
+				strip(buf);
+				if(buf[0] == '"') {
+					strcpy(buf, buf + 1);
+					if((p_chr = strchr(buf, '"')) != NULL)
+						strcpy(p_chr, p_chr + 1);
+				}
+				if((p_chr = strchr(buf, '.')) != NULL)
+					if((p_chr = strchr(p_chr, ' ')) != NULL)
+						*p_chr = 0;
+				if(buflen > strlen(buf)) {
+					strcpy(pExe, buf);
+					ok = 1;
+				}
+				else
+					pExe[0] = 0;
+			}
+		}
+	}
+	return ok;
+}
 //
 //
 //
@@ -2017,50 +2065,6 @@ static int SLAPI GetSvdtStrOpt(SvdtStrDlgAns * pSsda)
 	DIALOG_PROC_BODY_P1(SvdtStrDialog, DLG_SAVEDATA, pSsda);
 }
 
-int FindExeByExt(const char * pExt, char * pExe, size_t buflen, char * pAddedSearchString)
-{
-	int    ok = 0;
-	char   buf[MAXPATH], * p_chr = 0;
-	SString temp_buf;
-	DWORD  v_type = REG_SZ ;
-	DWORD  bufsize = MAXPATH;
-	if(pExe) {
-		buf[0] = 0;
-		if(SHGetValue(HKEY_CLASSES_ROOT, pExt, NULL, &v_type, buf, &bufsize) == ERROR_SUCCESS) { // @unicodeproblem
-			v_type = REG_SZ;
-			bufsize = MAXPATH;
-			if(pAddedSearchString && stricmp(pAddedSearchString, buf)== 0 &&
-				SHGetValue(HKEY_CLASSES_ROOT, buf, NULL, &v_type, buf, &bufsize) == ERROR_SUCCESS) { // @unicodeproblem
-				v_type = REG_SZ;
-				bufsize = MAXPATH;
-				strip(buf);
-				while((p_chr = strchr(buf, ' ')) != NULL)
-					strcpy(p_chr, p_chr + 1);
-			}
-			(temp_buf = 0).CatChar('\\').Cat("shell").SetLastSlash().Cat("open").SetLastSlash().Cat("command");
-			strcat(buf, temp_buf);
-			if(SHGetValue(HKEY_CLASSES_ROOT, buf, NULL, &v_type, buf, &bufsize) == ERROR_SUCCESS) { // @unicodeproblem
-				strip(buf);
-				if(buf[0] == '"') {
-					strcpy(buf, buf + 1);
-					if((p_chr = strchr(buf, '"')) != NULL)
-						strcpy(p_chr, p_chr + 1);
-				}
-				if((p_chr = strchr(buf, '.')) != NULL)
-					if((p_chr = strchr(p_chr, ' ')) != NULL)
-						*p_chr = 0;
-				if(buflen > strlen(buf)) {
-					strcpy(pExe, buf);
-					ok = 1;
-				}
-				else
-					pExe[0] = 0;
-			}
-		}
-	}
-	return ok;
-}
-
 int SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const char *pRepFileName)
 {
 	int    ok = -1;
@@ -2243,15 +2247,7 @@ int SLAPI MakeCRptDataFiles(int verifyAll /*=0*/)
 	delete dlg;
 	return ok;
 }
-//
-// {
-//
-void DummyProc()
-{
-}
-//
-// }
-//
+
 static int SLAPI __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPReportEnv * pEnv)
 {
 	MemLeakTracer mlt;

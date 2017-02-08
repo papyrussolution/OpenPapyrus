@@ -1,5 +1,5 @@
 // GDSSALDO.CPP
-// Copyright (c) V.Nasonov 2003, 2005, 2007, 2009, 2010, 2013, 2014, 2015, 2016
+// Copyright (c) V.Nasonov 2003, 2005, 2007, 2009, 2010, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 // Расчет сальдо по товарам
@@ -20,12 +20,13 @@ int SLAPI GoodsSaldoCore::GetLastSaldo(PPID goodsID, PPID arID, PPID dlvrLocID, 
 	GoodsDebtTbl::Rec gd_rec;
 	MEMSZERO(gd_rec);
 	if(goodsID) {
+		const LDATE base_date = (pDt == 0 || *pDt == ZERODATE) ? MAXDATE : *pDt;
 		GoodsDebtTbl::Key0 k0;
 		MEMSZERO(k0);
 		k0.GoodsID = goodsID;
 		k0.ArID    = arID;
 		k0.DlvrLocID = dlvrLocID;
-		k0.Dt      = (pDt == 0 || *pDt == ZERODATE) ? MAXDATE : *pDt;
+		k0.Dt      = base_date;
 		if(search(0, &k0, spLt) && k0.GoodsID == goodsID && k0.ArID == arID && k0.DlvrLocID == dlvrLocID) { // @v8.8.0 spLe-->spLt
 			copyBufTo(&gd_rec);
 			dt = gd_rec.Dt;

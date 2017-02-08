@@ -2542,20 +2542,12 @@ SOAP_FMAC1 LONG64 * SOAP_FMAC2 soap_inLONG64(struct soap *, const char * tag, LO
 SOAP_FMAC1 short * SOAP_FMAC2 soap_inshort(struct soap *, const char * tag, short * p, const char *, int);
 SOAP_FMAC1 float * SOAP_FMAC2 soap_infloat(struct soap *, const char * tag, float * p, const char *, int);
 SOAP_FMAC1 double * SOAP_FMAC2 soap_indouble(struct soap *, const char * tag, double * p, const char *, int);
-SOAP_FMAC1 unsigned char * SOAP_FMAC2 soap_inunsignedByte(struct soap *, const char * tag, unsigned char * p,
-	const char *,
-	int);
-SOAP_FMAC1 unsigned short * SOAP_FMAC2 soap_inunsignedShort(struct soap *, const char * tag, unsigned short * p,
-	const char *,
-	int);
-SOAP_FMAC1 unsigned int * SOAP_FMAC2 soap_inunsignedInt(struct soap *, const char * tag, unsigned int * p, const char *,
-	int);
-SOAP_FMAC1 unsigned long * SOAP_FMAC2 soap_inunsignedLong(struct soap *, const char * tag, unsigned long * p,
-	const char *,
-	int);
+SOAP_FMAC1 unsigned char * SOAP_FMAC2 soap_inunsignedByte(struct soap *, const char * tag, unsigned char * p, const char *, int);
+SOAP_FMAC1 unsigned short * SOAP_FMAC2 soap_inunsignedShort(struct soap *, const char * tag, unsigned short * p, const char *, int);
+SOAP_FMAC1 unsigned int * SOAP_FMAC2 soap_inunsignedInt(struct soap *, const char * tag, unsigned int * p, const char *, int);
+SOAP_FMAC1 unsigned long * SOAP_FMAC2 soap_inunsignedLong(struct soap *, const char * tag, unsigned long * p, const char *, int);
 SOAP_FMAC1 ULONG64 * SOAP_FMAC2 soap_inULONG64(struct soap *, const char * tag, ULONG64 * p, const char *, int);
-SOAP_FMAC1 char ** SOAP_FMAC2 soap_instring(struct soap *, const char * tag, char ** p, const char *, int, int, long,
-	long);
+SOAP_FMAC1 char ** SOAP_FMAC2 soap_instring(struct soap *, const char * tag, char ** p, const char *, int, int, long, long);
 SOAP_FMAC1 char ** SOAP_FMAC2 soap_inliteral(struct soap *, const char * tag, char ** p);
 
  #ifndef WITH_LEAN
@@ -2564,8 +2556,7 @@ SOAP_FMAC1 time_t SOAP_FMAC2 soap_timegm(struct tm *);
  #endif
 
  #ifndef WITH_LEANER
-SOAP_FMAC1 wchar_t ** SOAP_FMAC2 soap_inwstring(struct soap *, const char * tag, wchar_t ** p, const char *, int, long,
-	long);
+SOAP_FMAC1 wchar_t ** SOAP_FMAC2 soap_inwstring(struct soap *, const char * tag, wchar_t ** p, const char *, int, long, long);
 SOAP_FMAC1 wchar_t ** SOAP_FMAC2 soap_inwliteral(struct soap *, const char * tag, wchar_t ** p);
  #endif
 
@@ -2576,18 +2567,10 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_outlong(struct soap *, const char * tag, int id, 
 SOAP_FMAC1 int SOAP_FMAC2 soap_outLONG64(struct soap *, const char * tag, int id, const LONG64 * p, const char *, int);
 SOAP_FMAC1 int SOAP_FMAC2 soap_outfloat(struct soap *, const char * tag, int id, const float * p, const char *, int);
 SOAP_FMAC1 int SOAP_FMAC2 soap_outdouble(struct soap *, const char * tag, int id, const double * p, const char *, int);
-SOAP_FMAC1 int SOAP_FMAC2 soap_outunsignedByte(struct soap *, const char * tag, int id, const unsigned char * p,
-	const char *,
-	int);
-SOAP_FMAC1 int SOAP_FMAC2 soap_outunsignedShort(struct soap *, const char * tag, int id, const unsigned short * p,
-	const char *,
-	int);
-SOAP_FMAC1 int SOAP_FMAC2 soap_outunsignedInt(struct soap *, const char * tag, int id, const unsigned int * p,
-	const char *,
-	int);
-SOAP_FMAC1 int SOAP_FMAC2 soap_outunsignedLong(struct soap *, const char * tag, int id, const unsigned long * p,
-	const char *,
-	int);
+SOAP_FMAC1 int SOAP_FMAC2 soap_outunsignedByte(struct soap *, const char * tag, int id, const unsigned char * p, const char *, int);
+SOAP_FMAC1 int SOAP_FMAC2 soap_outunsignedShort(struct soap *, const char * tag, int id, const unsigned short * p, const char *, int);
+SOAP_FMAC1 int SOAP_FMAC2 soap_outunsignedInt(struct soap *, const char * tag, int id, const unsigned int * p, const char *, int);
+SOAP_FMAC1 int SOAP_FMAC2 soap_outunsignedLong(struct soap *, const char * tag, int id, const unsigned long * p, const char *, int);
 SOAP_FMAC1 int SOAP_FMAC2 soap_outULONG64(struct soap *, const char * tag, int id, const ULONG64 * p, const char *, int);
 SOAP_FMAC1 int SOAP_FMAC2 soap_outstring(struct soap *, const char * tag, int id, char * const * p, const char *, int);
 SOAP_FMAC1 int SOAP_FMAC2 soap_outliteral(struct soap *, const char * tag, char * const * p, const char * type);

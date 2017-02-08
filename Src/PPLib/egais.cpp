@@ -5330,8 +5330,14 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 											(line_buf = 0).Cat(p_qb->CodeType).Tab().Cat(p_qb->Rank).Tab().Cat(p_qb->Number).Tab().Cat(p_qb->Result).CR();
 											out_file.WriteLine(line_buf);
 											{
+												out_file_name = 0;
                                                 PPGetFilePath(PPPATH_OUT, p_qb->Result, temp_buf);
-												PPBarcode::CreateImage(p_qb->Result, BARCSTD_PDF417, SFileFormat::Png, temp_buf);
+                                                if(p_qb->Rank.NotEmpty())
+													out_file_name.CatDiv('-', 0, 1).Cat(p_qb->Rank);
+												if(p_qb->Number.NotEmpty())
+													out_file_name.CatDiv('-', 0, 1).Cat(p_qb->Number);
+												out_file_name.CatDiv('-', 0, 1).Cat(temp_buf);
+												PPBarcode::CreateImage(p_qb->Result, BARCSTD_PDF417, SFileFormat::Png, out_file_name);
 											}
 										}
                         			}
@@ -7171,7 +7177,7 @@ int SLAPI PPEgaisProcessor::SendBills(const SendBillsParam & rP)
 		// Внутренние перемещения
 		//
 		totransm_bill_list.clear();
-		GetBillListForConfirmTicket(rP, bilstfReadyForAck|bilstfExpend|bilstfIntrExpend, totransm_bill_list);
+		GetBillListForConfirmTicket(rP, bilstfReadyForAck|bilstfExpend|bilstfIntrExpend|bilstfReturnToSuppl, totransm_bill_list); // @v9.5.1 bilstfReturnToSuppl
 		ObjTagItem tag_item;
 		SString reg_ident;
 		for(uint i = 0; i < totransm_bill_list.getCount(); i++) {

@@ -75,8 +75,9 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesOrder> * EfesGetSalesOrder
 	const DateRange * pPeriod, int repeat, const char * pDocNumberList)
 {
 	TSCollection <SapEfesOrder> * p_result = 0;
-	WS_USCOREEFES_USCOREDDEBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS|/*SOAP_IO_CHUNK|*/SOAP_IO_KEEPALIVE); // @v9.5.0 SOAP_IO_CHUNK|SOAP_IO_KEEPALIVE
-	proxi.recv_timeout = 60; // @v9.5.0
+	//WS_USCOREEFES_USCOREDDEBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS|/*SOAP_IO_CHUNK|*/SOAP_IO_KEEPALIVE); // @v9.5.0 SOAP_IO_CHUNK|SOAP_IO_KEEPALIVE
+	WS_USCOREEFES_USCOREDDEBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
+	//proxi.recv_timeout = 60; // @v9.5.0
 	TSCollection <InParamString> arg_str_pool;
 	SString temp_buf;
 	gSoapClientInit(&proxi, 0, 0); 
@@ -459,6 +460,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetDailyStoc
 		if(resp.ReportStatus.LogMsg && resp.ReportStatus.__sizeLogMsg) {
 			p_result = new TSCollection <SapEfesLogMsg>();
 			THROW(p_result);
+			PPSoapRegisterResultPtr(p_result);
 			for(int i = 0; i < resp.ReportStatus.__sizeLogMsg; i++) {
 				ns2__LogMsgType temp_item;
 				temp_item.MsgType = resp.ReportStatus.LogMsg[i].MsgType;
@@ -527,6 +529,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetMTDProduc
 		if(resp.ReportStatus.LogMsg && resp.ReportStatus.__sizeLogMsg) {
 			p_result = new TSCollection <SapEfesLogMsg>();
 			THROW(p_result);
+			PPSoapRegisterResultPtr(p_result);
 			for(int i = 0; i < resp.ReportStatus.__sizeLogMsg; i++) {
 				ns2__LogMsgType temp_item;
 				temp_item.MsgType = resp.ReportStatus.LogMsg[i].MsgType;
@@ -588,6 +591,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetMTDOutlet
 		if(resp.ReportStatus.LogMsg && resp.ReportStatus.__sizeLogMsg) {
 			p_result = new TSCollection <SapEfesLogMsg>();
 			THROW(p_result);
+			PPSoapRegisterResultPtr(p_result);
 			for(int i = 0; i < resp.ReportStatus.__sizeLogMsg; i++) {
 				ns2__LogMsgType temp_item;
 				temp_item.MsgType = resp.ReportStatus.LogMsg[i].MsgType;
@@ -601,5 +605,63 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetMTDOutlet
 	ENDCATCH
 	ZFREE(param.DATA[0]->Row);
 	ZFREE(param.DATA);
+	return p_result;
+}
+
+extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetDebtSync(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const TSCollection <SapEfesDebtReportEntry> * pItems)
+{
+	TSCollection <SapEfesLogMsg> * p_result = 0;
+	WS_USCOREEFES_USCOREDDEBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
+	TSCollection <InParamString> arg_str_pool;
+	SString temp_buf;
+	gSoapClientInit(&proxi, 0, 0);
+	ns2__SetDebtsRequestType param;
+	ns2__LogMsgType resp;
+	TSCollection <_ns2__SetDebtsRequestType_OutletDebts> arg_row_list;
+	//
+	TSCollection <ns2__LogMsgType> arg_msg_list;
+	{
+		ns2__DistributorRequestType temp_h;
+		InitEfecCallParam(temp_h, rH, arg_str_pool);
+		param.SalesOrg = temp_h.SalesOrg;
+		param.SessionID = temp_h.SessionID;
+		param.Wareh = temp_h.Wareh;
+	}
+	proxi.userid = GetDynamicParamString((temp_buf = rSess.GetUser()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
+	proxi.passwd = GetDynamicParamString((temp_buf = rSess.GetPassword()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
+
+	if(pItems && pItems->getCount()) {
+		THROW(param.OutletDebts = new _ns2__SetDebtsRequestType_OutletDebts[pItems->getCount()]);
+		param.__sizeOutletDebts = 0;
+		{
+			for(uint i = 0; i < pItems->getCount(); i++) {
+				const SapEfesDebtReportEntry * p_src_pack = pItems->at(i);
+				_ns2__SetDebtsRequestType_OutletDebts & r_new_item = param.OutletDebts[i];
+				if(p_src_pack) {
+					r_new_item.EFRSoldTo = GetDynamicParamString((temp_buf = p_src_pack->BuyerCode).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
+					r_new_item.DebtAmnt = GetDynamicParamString_(p_src_pack->Debt, MKSFMTD(0, 2, 0), arg_str_pool);
+					r_new_item.DebtLimit = GetDynamicParamString_(p_src_pack->CreditLimit, MKSFMTD(0, 2, 0), arg_str_pool);
+					r_new_item.DebtLmtDays = GetDynamicParamString(p_src_pack->DebtDelayDays, arg_str_pool);
+					r_new_item.DebtDelayDays = GetDynamicParamString(0L, arg_str_pool);
+					r_new_item.Comment = GetDynamicParamString("", arg_str_pool);
+					param.__sizeOutletDebts++;
+				}
+			}
+		}
+		THROW(PreprocessCall(proxi, rSess, proxi.SetDebtsSync(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
+		{
+			ns2__LogMsgType temp_item;
+			p_result = new TSCollection <SapEfesLogMsg>();
+			THROW(p_result);
+			PPSoapRegisterResultPtr(p_result);
+			temp_item.MsgType = resp.MsgType;
+			temp_item.MsgText = resp.MsgText;
+			THROW(CreateLogMsgItem(*p_result, &temp_item));
+		}
+	}
+	CATCH
+		ZFREE(p_result);
+	ENDCATCH
+	delete [] param.OutletDebts;
 	return p_result;
 }

@@ -1,10 +1,9 @@
 // OBJGTAX.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
 #pragma hdrstop
-//#define TEST_GTAX
 //
 //
 //
@@ -488,32 +487,33 @@ int SLAPI PPObjGoodsTax::Browse(void * extraPtr)
 }
 
 // static
-int SLAPI PPObjGoodsTax::IsIdentical(PPGoodsTax * pRec1, PPGoodsTax * pRec2)
+int SLAPI PPObjGoodsTax::IsIdentical(const PPGoodsTax * pRec1, const PPGoodsTax * pRec2)
 {
 	if(dbl_cmp(pRec1->VAT, pRec2->VAT) == 0 && dbl_cmp(pRec1->Excise, pRec2->Excise) == 0 &&
 		dbl_cmp(pRec1->SalesTax, pRec2->SalesTax) == 0 && pRec1->Flags == pRec2->Flags &&
 		pRec1->UnionVect == pRec2->UnionVect) {
-		long   ord1 = NZOR(pRec1->Order, PPObjGoodsTax::GetDefaultOrder());
-		long   ord2 = NZOR(pRec2->Order, PPObjGoodsTax::GetDefaultOrder());
+		const long ord1 = NZOR(pRec1->Order, PPObjGoodsTax::GetDefaultOrder());
+		const long ord2 = NZOR(pRec2->Order, PPObjGoodsTax::GetDefaultOrder());
 		if(ord1 == ord2)
 			return 1;
 	}
 	return 0;
 }
 
-int SLAPI PPObjGoodsTax::SearchIdentical(PPGoodsTax * pattern, PPID * pID, PPGoodsTax * b)
+int SLAPI PPObjGoodsTax::SearchIdentical(const PPGoodsTax * pPattern, PPID * pID, PPGoodsTax * pRec)
 {
+	int    ok = -1;
 	PPID   id = 0;
 	PPGoodsTax rec;
-	while(ref->EnumItems(Obj, &id, &rec) > 0)
-		if(PPObjGoodsTax::IsIdentical(pattern, &rec)) {
-			if(b)
-				memcpy(b, &rec, sizeof(PPGoodsTax));
-			ASSIGN_PTR(pID, id);
-			return 1;
-		}
 	ASSIGN_PTR(pID, 0);
-	return -1;
+	while(ok < 0 && ref->EnumItems(Obj, &id, &rec) > 0) {
+		if(PPObjGoodsTax::IsIdentical(pPattern, &rec)) {
+			ASSIGN_PTR(pRec, rec);
+			ASSIGN_PTR(pID, id);
+			ok = 1;
+		}
+	}
+	return ok;
 }
 
 int SLAPI PPObjGoodsTax::GetDefaultName(PPGoodsTax * rec, char * buf, size_t buflen)
