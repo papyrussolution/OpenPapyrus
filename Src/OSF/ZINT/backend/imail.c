@@ -258,7 +258,9 @@ extern unsigned short USPS_MSB_Math_CRC11GenerateFrameCheckSequence(uchar * Byte
 int imail(struct ZintSymbol * symbol, uchar source[], int length)
 {
 	char data_pattern[200];
-	int    i, j, read;
+	int    j;
+	int    i;
+	size_t read;
 	char   zip[35], tracker[35], zip_adder[11], temp[2];
 	short accum[112], x_reg[112], y_reg[112];
 	uchar byte_array[13];
@@ -321,21 +323,17 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 
 	/* *** Step 1 - Conversion of Data Fields into Binary Data *** */
 
-	/* Routing code first */
-
+	// Routing code first 
 	for(i = 0; i < 112; i++) {
 		accum[i] = 0;
 	}
-
 	for(read = 0; read < strlen(zip); read++) {
 		for(i = 0; i < 112; i++) {
 			x_reg[i] = accum[i];
 		}
-
 		for(i = 0; i < 9; i++) {
 			binary_add(accum, x_reg);
 		}
-
 		x_reg[0] = BCD[ctoi(zip[read]) * 4];
 		x_reg[1] = BCD[(ctoi(zip[read]) * 4) + 1];
 		x_reg[2] = BCD[(ctoi(zip[read]) * 4) + 2];
@@ -343,16 +341,14 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 		for(i = 4; i < 112; i++) {
 			x_reg[i] = 0;
 		}
-
 		binary_add(accum, x_reg);
 	}
-
-	/* add weight to routing code */
-
+	//
+	// add weight to routing code 
+	//
 	for(i = 0; i < 112; i++) {
 		x_reg[i] = accum[i];
 	}
-
 	if(strlen(zip) > 9) {
 		strcpy(zip_adder, "1000100001");
 	}
@@ -369,20 +365,16 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 			}
 		}
 	}
-
 	for(i = 0; i < 112; i++) {
 		accum[i] = 0;
 	}
-
 	for(read = 0; read < strlen(zip_adder); read++) {
 		for(i = 0; i < 112; i++) {
 			y_reg[i] = accum[i];
 		}
-
 		for(i = 0; i < 9; i++) {
 			binary_add(accum, y_reg);
 		}
-
 		y_reg[0] = BCD[ctoi(zip_adder[read]) * 4];
 		y_reg[1] = BCD[(ctoi(zip_adder[read]) * 4) + 1];
 		y_reg[2] = BCD[(ctoi(zip_adder[read]) * 4) + 2];
@@ -435,20 +427,17 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 	for(i = 4; i < 112; i++) {
 		y_reg[i] = 0;
 	}
-
 	binary_add(accum, y_reg);
-
-	/* and then the rest */
-
+	//
+	// and then the rest 
+	//
 	for(read = 2; read < strlen(tracker); read++) {
 		for(i = 0; i < 112; i++) {
 			y_reg[i] = accum[i];
 		}
-
 		for(i = 0; i < 9; i++) {
 			binary_add(accum, y_reg);
 		}
-
 		y_reg[0] = BCD[ctoi(tracker[read]) * 4];
 		y_reg[1] = BCD[(ctoi(tracker[read]) * 4) + 1];
 		y_reg[2] = BCD[(ctoi(tracker[read]) * 4) + 2];
@@ -456,12 +445,11 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 		for(i = 4; i < 112; i++) {
 			y_reg[i] = 0;
 		}
-
 		binary_add(accum, y_reg);
 	}
-
-	/* *** Step 2 - Generation of 11-bit CRC on Binary Data *** */
-
+	//
+	// *** Step 2 - Generation of 11-bit CRC on Binary Data *** 
+	//
 	accum[103] = 0;
 	accum[102] = 0;
 	memzero(byte_array, sizeof(byte_array));
@@ -477,12 +465,12 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 		byte_array[j] += 64 * accum[i + 6];
 		byte_array[j] += 128 * accum[i + 7];
 	}
-
 	usps_crc = USPS_MSB_Math_CRC11GenerateFrameCheckSequence(byte_array);
-
-	/* *** Step 3 - Conversion from Binary Data to Codewords *** */
-
-	/* start with codeword J which is base 636 */
+	//
+	// *** Step 3 - Conversion from Binary Data to Codewords *** 
+	//
+	// start with codeword J which is base 636 
+	//
 	for(i = 0; i < 112; i++) {
 		x_reg[i] = 0;
 		y_reg[i] = 0;
@@ -502,13 +490,11 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 		}
 		shiftdown(x_reg);
 	}
-
 	codeword[9] = (accum[9] * 512) + (accum[8] * 256) + (accum[7] * 128) + (accum[6] * 64) +
-	    (accum[5] * 32) + (accum[4] * 16) + (accum[3] * 8) + (accum[2] * 4) +
-	    (accum[1] * 2) + accum[0];
-
-	/* then codewords I to B with base 1365 */
-
+	    (accum[5] * 32) + (accum[4] * 16) + (accum[3] * 8) + (accum[2] * 4) + (accum[1] * 2) + accum[0];
+	//
+	// then codewords I to B with base 1365 
+	//
 	for(j = 8; j > 0; j--) {
 		for(i = 0; i < 112; i++) {
 			accum[i] = y_reg[i];
@@ -528,18 +514,14 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 			}
 			shiftdown(x_reg);
 		}
-
 		codeword[j] = (accum[10] * 1024) + (accum[9] * 512) + (accum[8] * 256) +
 		    (accum[7] * 128) + (accum[6] * 64) + (accum[5] * 32) +
 		    (accum[4] * 16) + (accum[3] * 8) + (accum[2] * 4) +
 		    (accum[1] * 2) + accum[0];
 	}
-
 	codeword[0] = (y_reg[10] * 1024) + (y_reg[9] * 512) + (y_reg[8] * 256) +
 	    (y_reg[7] * 128) + (y_reg[6] * 64) + (y_reg[5] * 32) +
-	    (y_reg[4] * 16) + (y_reg[3] * 8) + (y_reg[2] * 4) +
-	    (y_reg[1] * 2) + y_reg[0];
-
+	    (y_reg[4] * 16) + (y_reg[3] * 8) + (y_reg[2] * 4) + (y_reg[1] * 2) + y_reg[0];
 	for(i = 0; i < 8; i++) {
 		if(codeword[i] == 1365) {
 			codeword[i] = 0;
@@ -554,9 +536,9 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 	if(usps_crc >= 1024) {
 		codeword[0] += 659;
 	}
-
-	/* *** Step 5 - Conversion from Codewords to Characters *** */
-
+	//
+	// *** Step 5 - Conversion from Codewords to Characters *** 
+	//
 	for(i = 0; i < 10; i++) {
 		if(codeword[i] < 1287) {
 			characters[i] = AppxD_I[codeword[i]];
@@ -565,14 +547,14 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 			characters[i] = AppxD_II[codeword[i] - 1287];
 		}
 	}
-
 	for(i = 0; i < 10; i++) {
 		if(usps_crc & (1 << i)) {
 			characters[i] = 0x1FFF - characters[i];
 		}
 	}
-
-	/* *** Step 6 - Conversion from Characters to the Intelligent Mail Barcode *** */
+	//
+	// *** Step 6 - Conversion from Characters to the Intelligent Mail Barcode *** 
+	//
 	for(i = 0; i < 10; i++) {
 		for(j = 0; j < 13; j++) {
 			if(characters[i] & (1 << j)) {
@@ -595,10 +577,11 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 		temp[0] = itoc(j);
 		strcat(data_pattern, temp);
 	}
-
-	/* Translate 4-state data pattern to symbol */
+	//
+	// Translate 4-state data pattern to symbol 
+	//
 	read = 0;
-	for(i = 0; i < strlen(data_pattern); i++) {
+	for(i = 0; i < (int)strlen(data_pattern); i++) {
 		if((data_pattern[i] == '1') || (data_pattern[i] == '0')) {
 			set_module(symbol, 0, read);
 		}
@@ -608,7 +591,6 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 		}
 		read += 2;
 	}
-
 	symbol->row_height[0] = 3;
 	symbol->row_height[1] = 2;
 	symbol->row_height[2] = 3;

@@ -1056,11 +1056,13 @@ struct SapEfesGoodsReportEntry {
 struct SapEfesDebtReportEntry {
 	SapEfesDebtReportEntry()
 	{
+		NativeArID = 0;
 		Debt = 0.0;
 		CreditLimit = 0.0;
 		PayPeriod = 0;
 		DebtDelayDays = 0;
 	}
+	long   NativeArID; // @anchor(strictly the first member) @v9.5.2 Ид статьи в нашей базе данных
 	double Debt;
 	double CreditLimit;
 	long   PayPeriod;

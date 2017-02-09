@@ -1216,7 +1216,7 @@ int SLAPI PPBillPacket::AttachToOrder(const PPBillPacket * pOrdPack)
 {
 	int    ok = -1;
 	for(uint i = 0; ok && i < GetTCount(); i++) {
-		int r = AttachRowToOrder((int)i, pOrdPack);
+		const int r = AttachRowToOrder((int)i, pOrdPack);
 		if(r > 0)
 			ok = 1;
 		else if(r == 0)
@@ -1635,13 +1635,15 @@ int SLAPI PPBillPacket::IsGoodsDetail() const
 
 int SLAPI PPBillPacket::UngetCounter()
 {
-	PPOprKind op_rec;
-	if(GetOpData(Rec.OpID, &op_rec) > 0 && Counter) {
-		PPObjOpCounter opc_obj;
-		return opc_obj.UngetCounter(op_rec.OpCounterID, Counter, Rec.LocID, 1);
+	int    ok = -1;
+	if(!(CConfig.Flags & CCFLG_DONTUNDOOPCNTRONESC)) { // @v9.5.2
+		PPOprKind op_rec;
+		if(GetOpData(Rec.OpID, &op_rec) > 0 && Counter) {
+			PPObjOpCounter opc_obj;
+			ok = opc_obj.UngetCounter(op_rec.OpCounterID, Counter, Rec.LocID, 1);
+		}
 	}
-	else
-		return -1;
+	return ok;
 }
 
 int SLAPI PPBillPacket::CreateShadowPacket(PPBillPacket * pShadow)

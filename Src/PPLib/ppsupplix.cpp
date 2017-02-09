@@ -565,7 +565,7 @@ int SLAPI PPSupplExchange_Baltika::DelFiles(const char * pFileName)
 	sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, wc_path);
 	for(sd.Init(wild_card); sd.Next(&sde) > 0;) {
 		(full_path = wc_path).SetLastSlash().Cat(sde.FileName);
-		SFile::Remove((const char *)full_path);
+		SFile::Remove(full_path.cptr());
 	}
 	return 1;
 }
@@ -3423,7 +3423,7 @@ int SLAPI iSalesPepsi::SendDebts()
 				Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
 				TSCollection <iSalesPepsi::ResultItem> result_list;
 				ParseResultString(*p_result, result_list, &err_item_count); // @v9.5.1 &err_item_count
-				/* @v9.5.1 
+				/* @v9.5.1
 				{
 					for(i = 0; i < result_list.getCount(); i++) {
 						const ResultItem * p_result_item = result_list.at(i);
@@ -4411,7 +4411,7 @@ int SLAPI SapEfes::ReceiveOrders()
 	THROW_SL(func = (EFESGETSALESORDERSYNCLIST_PROC)P_Lib->GetProcAddr("EfesGetSalesOrderSyncList"));
 	sess.Setup(SvcUrl, UserName, Password);
 	InitCallHeader(sech);
-	p_result = func(sess, sech, &period, 1 /*inclProcessedItems*/, added_param);
+	p_result = func(sess, sech, &period, 0 /*inclProcessedItems*/, added_param);
 	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 	{
 		//PPTXT_LOG_SUPPLIX_IMPORD_E    "Импортировано @int заказов @zstr"
@@ -4880,26 +4880,33 @@ int SLAPI SapEfes::SendDebts()
 					pack.InitAmounts(0);
 					double paym = 0.0;
 					if(pack.Rec.Amount > 0.0) {
+						const PPID ar_id = pack.Rec.Object;
 						if(use_omt_paym_amt)
 							paym = bill_item.PaymAmount;
 						else
 							P_BObj->P_Tbl->CalcPayment(bill_id, 0, 0, 0/*bill_item.CurID*/, &paym);
 						paym = paym * pack.Rec.Amount / org_amount;
 
-						const PPID cli_psn_id = ObjectToPerson(pack.Rec.Object, 0);
+						const  PPID cli_psn_id = ObjectToPerson(ar_id, 0);
+						uint   ex_pos = 0;
 						cli_code = 0;
 						PPRef->Ot.GetTagStr(PPOBJ_PERSON, cli_psn_id, Ep.Fb.CliCodeTagID, cli_code);
 						if(!cli_code.NotEmpty()) {
 							; // @todo message
 						}
+						else if(outp_list.lsearch(&ar_id, &ex_pos, CMPF_LONG)) {
+							SapEfesDebtReportEntry * p_ex_entry = outp_list.at(ex_pos);
+							p_ex_entry->Debt += pack.Rec.Amount - paym;
+						}
 						else {
 							SapEfesDebtReportEntry * p_new_entry = outp_list.CreateNewItem(0);
 							THROW_SL(p_new_entry);
+							p_new_entry->NativeArID = ar_id;
 							p_new_entry->BuyerCode = cli_code;
 							p_new_entry->Debt = pack.Rec.Amount - paym;
 							{
 								PPClientAgreement cli_agt;
-								if(ArObj.GetClientAgreement(pack.Rec.Object, &cli_agt, 1) > 0) {
+								if(ArObj.GetClientAgreement(ar_id, &cli_agt, 1) > 0) {
 									p_new_entry->CreditLimit = cli_agt.GetCreditLimit(0);
 									p_new_entry->PayPeriod = cli_agt.DefPayPeriod;
 								}

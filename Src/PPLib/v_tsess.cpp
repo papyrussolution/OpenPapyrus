@@ -1,5 +1,5 @@
 // V_TSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -178,8 +178,7 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		ptcg_rec.IdleStatus = BIN(p_filt->Ft_Idle > 0);
  		dlg->setGroupData(GRP_PRCTECH, &ptcg_rec);
 		PrcTechCtrlGroup * p_grp = (PrcTechCtrlGroup *)dlg->getGroup(GRP_PRCTECH);
-		if(p_grp)
-			p_grp->setIdleStatus(dlg, BIN(p_filt->Ft_Idle > 0));
+		CALLPTRMEMB(p_grp, setIdleStatus(dlg, BIN(p_filt->Ft_Idle > 0)));
 	}
 	dlg->AddClusterAssoc(CTL_TSESSFILT_STATUS, 0, (1 << TSESST_PLANNED));
 	dlg->AddClusterAssoc(CTL_TSESSFILT_STATUS, -1, (1 << TSESST_PLANNED));
@@ -727,7 +726,7 @@ DBQuery * SLAPI PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	q->where(*dbq);
 	if(p_ord)
 		q->orderBy(p_ord->Name, 0L);
-	else
+	else {
 		if(Filt.SuperSessID)
 			if(State & stSuperSessIsSimple)
 				q->orderBy(p_tsst->ID, 0L);
@@ -739,6 +738,7 @@ DBQuery * SLAPI PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSub
 			q->orderBy(p_tsst->TechID, p_tsst->StDt, 0L);
 		else
 			q->orderBy(p_tsst->StDt, 0L);
+	}
 	THROW(CheckQueryPtr(q));
 	if(pSubTitle) {
 		if(Filt.SuperSessID) {
@@ -827,8 +827,7 @@ int SLAPI PPViewTSession::CalcTotal(TSessionTotal * pTotal)
 	for(InitIteration(0); NextIteration(&item) > 0;) {
 		total.Count++;
 		long   act_timing = diffdatetimesec(item.FinDt, item.FinTm, item.StDt, item.StTm);
-		if(act_timing < 0)
-			act_timing = 0;
+		SETMAX(act_timing, 0);
 		total.Duration += act_timing;
 	}
 	ASSIGN_PTR(pTotal, total);

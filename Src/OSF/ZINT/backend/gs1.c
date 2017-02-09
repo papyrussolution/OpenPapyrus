@@ -182,7 +182,7 @@ int gs1_verify(struct ZintSymbol * symbol, const uchar source[], const size_t sr
 		data_length[i] = 0;
 		do {
 			data_length[i]++;
-		} while((source[data_location[i] + data_length[i] - 1] != '[') && (data_location[i] + data_length[i] <= src_len));
+		} while((source[data_location[i] + data_length[i] - 1] != '[') && ((data_location[i] + data_length[i]) <= src_len));
 		data_length[i]--;
 	}
 

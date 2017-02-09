@@ -758,7 +758,7 @@ toolbar export GOODS TB_FIRST_TOOLBAR {
 	VIEWGOODSAGGR  : kbCtrlI,     TBBM_MEMBERSHIP,       "Членство в агрегациях\tCtrl-I"
 	DETAIL         : kbF11,       TBBM_GENGOODS,         "Обобщение\tF11"
 	separator
-	EDITARCODES    : kbF6,        TBBM_ARCODE,           "Коды по статьям\tF6"
+	EDITARCODES    : kbF6,        TBBM_ARCODE,           "@{codebyar_pl}\tF6"
 	MOVARCODES     : kbCtrlF6,    TBBM_NOICON,           "Перенести коды на другую статью\tCtrl-F6"
 	separator
 	VIEWTECH       : kbCtrlT,     TBBM_TECH,             "@{view_tech}\tCtrl-T"
@@ -1163,8 +1163,8 @@ browser ARTICLE_AGTSUPPL north(100), 3, 0, "@{view_article} {%s}", OWNER|GRID, 0
 	"Закрыт",        3, notype, NMBF_NOZERO|ALIGN_CENTER, 7
 	"@stop",         4, notype, ALIGN_CENTER,  4
 	group "@agreement" {
-		"Начало",             6, notype, 0,            6
-		"Окончание",          7, notype, 0,            6
+		"@beginning",         6, notype, 0,            6
+		"@ending",            7, notype, 0,            6
 		"Срок оплаты, дн",    8, notype, NMBF_NOZERO,  6
 		"Срок отгрузки, дн",  9, notype, NMBF_NOZERO,  6
 		"@agent",             10, notype, 0,           12
@@ -1183,8 +1183,8 @@ browser ARTICLE_AGTCLI north(100), 3, 0, "@{view_article} {%s}", OWNER|GRID, 0
 	"@stop",         4, notype, ALIGN_CENTER,  4
 	group "@agreement" {
 		"@number",           15, notype, 0,  8
-		"Начало",             6, notype, 0,  6
-		"Окончание",          7, notype, 0,  6
+		"@beginning",         6, notype, 0,  6
+		"@ending",            7, notype, 0,  6
 		"Срок оплаты, дн",    8, notype, NMBF_NOZERO,  6
 		"Срок отгрузки, дн",  9, notype, NMBF_NOZERO,  6
 		"@agent",            10, notype, 0, 12
@@ -3993,8 +3993,8 @@ browser STAFFCAL_DT north(100), 3, 1, "@{view_staffcal} {%s}", OWNER|GRID, 0
 {
 	"@date",                 3, notype, DATF_DMY, 8, BCO_DONTSHOWDUPL
 	group "@time" {
-		"Начало",            4, notype, TIMF_HM | TIMF_NOZERO,  8
-		"Конец",             5, notype, TIMF_HM | TIMF_NOZERO,  8
+		"@beginning",        4, notype, TIMF_HM | TIMF_NOZERO,  8
+		"@ending",           5, notype, TIMF_HM | TIMF_NOZERO,  8
 		"@duration",         6, notype, TIMF_HM | TIMF_NOZERO,  8
 	}
 	"@object",               8, notype, 0, 20
@@ -4014,8 +4014,8 @@ browser STAFFCAL_OBJ north(100), 3, 1, "@{view_staffcal} {%s}", OWNER|GRID, 0
 	"@object",         8, notype, 0, 20, BCO_DONTSHOWDUPL
 	"@date",           3, notype, DATF_DMY, 8
 	group "@time" {
-		"Начало",      4, notype, TIMF_HM | TIMF_NOZERO,  8
-		"Конец",       5, notype, TIMF_HM | TIMF_NOZERO,  8
+		"@beginning",  4, notype, TIMF_HM | TIMF_NOZERO,  8
+		"@ending",     5, notype, TIMF_HM | TIMF_NOZERO,  8
 		"@duration",   6, notype, TIMF_HM | TIMF_NOZERO,  8
 	}
 	"@calendar",       7, notype, 0, 10
@@ -5117,11 +5117,11 @@ browser TSESSION north(100), 3, 1, "@{tsession_pl} {%s}", OWNER|GRID, 0
 	"Основной товар",        15, notype, 0, 20
 	"@contractor",           14, notype, 0, 15
 	"@amount",               13, notype, NMBF_NOZERO, 6.2
-	group "Начало" {
+	group "@beginning" {
 		"@date",              5, notype, DATF_DMY, 6
 		"@time",              6, notype, TIMF_HMS, 6
 	}
-	group "Завершение" {
+	group "@ending" {
 		"@date",              7, notype, DATF_DMY, 6
 		"@time",              8, notype, TIMF_HMS, 6
 	}
@@ -5174,11 +5174,11 @@ browser TSUBSESSION north(100), 3, 1, "Технологические субсессии {%s}", OWNER|GR
 	"Основной товар",        15, notype, 0, 20
 	"@contractor",           14, notype, 0, 15
 	"@amount",               13, notype, NMBF_NOZERO, 6.2
-	group "Начало" {
+	group "@beginning" {
 		"@date",              5, notype, DATF_DMY, 6
 		"@time",              6, notype, TIMF_HMS, 6
 	}
-	group "Завершение" {
+	group "@ending" {
 		"@date",              7, notype, DATF_DMY, 6
 		"@time",              8, notype, TIMF_HMS, 6
 	}
@@ -5225,8 +5225,8 @@ browser TSESS_MANUFPLAN north(100), 3, 1, "Производственные планы {%s}", OWNER|G
 	"@number",                1, notype, 0,  6
 	"@status",                2, notype, 0,  5
 	"@processor",             3, notype, 0, 20
-	"Начало",                 5, notype, DATF_DMY, 6
-	"Завершение",             7, notype, DATF_DMY, 6
+	"@beginning",             5, notype, DATF_DMY, 6
+	"@ending",                7, notype, DATF_DMY, 6
 	"@memo",                 16, notype, 0, 40
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM   : kbEnter,  TBBM_EDIT,      "@{edit}\tEnter"
@@ -7445,8 +7445,8 @@ record Person {
 	HTTP               zstring(64)     "WEB-адрес";
 	ComplELink         zstring(256)    "Комплексная строка электронных адресов";
 
-	INN                zstring(48)     "ИНН";
-	KPP                zstring(48)     "КПП";
+	INN                zstring(48)     "@{inn}";
+	KPP                zstring(48)     "@{kpp}";
 	OKONH              zstring(48)     "ОКОНХ";
 	OKPO               zstring(48)     "ОКПО";
 

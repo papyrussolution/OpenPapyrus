@@ -1404,7 +1404,7 @@ static int SLAPI Helper_SetupStringCombo(TDialog * dlg, uint ctlID, const SStrin
 					THROW_SL(p_list->Add(ai.Id, ai.Txt, 0));
 				}
 			}
-			// } @v9.5.0 
+			// } @v9.5.0
 			p_cb->setListWindow(CreateListWindow(p_list, lbtDisposeData|lbtDblClkNotify), initID);
 		}
 	}
@@ -6260,9 +6260,14 @@ int SLAPI ExportDialogs(const char * pFileName)
 	int    ok = 1;
 	uint   res_id = 0;
 	ulong  res_pos = 0;
-	SString line_buf, symb, temp_buf, ctl_text, label_text;
+	SString line_buf;
+	SString symb;
+	SString temp_buf;
+	SString ctl_text;
+	SString label_text;
 	SString text_line_buf; // Буфер вывода строк из диалогов
 	SString cls_name;
+	SString dlg_title_buf;
 	TDialog * dlg = 0;
 	StrAssocArray prop_list;
 	SFile  f_out(pFileName, SFile::mWrite);
@@ -6274,6 +6279,14 @@ int SLAPI ExportDialogs(const char * pFileName)
 		ps.Merge(temp_buf);
 	}
 	SFile f_out_text(temp_buf, SFile::mWrite);
+	{
+		SPathStruc ps;
+		ps.Split(pFileName);
+		ps.Nam.CatChar('-').Cat("manual");
+		ps.Ext = "tex";
+		ps.Merge(temp_buf);
+	}
+	SFile f_out_manual(temp_buf, SFile::mWrite);
 	while(P_SlRez->enumResources(TV_DIALOG, &res_id, &res_pos) > 0) {
 		prop_list.Clear();
 		WINDOWINFO wi;
@@ -6292,16 +6305,16 @@ int SLAPI ExportDialogs(const char * pFileName)
 			else
 				TDialog::GetSymbolBody(symb, dlg_symb_body);
 			// @v9.1.5 SendMessage(dlg->H(), WM_GETTEXT, sizeof(text_buf), (long)text_buf);
-			TView::SGetWindowText(dlg->H(), temp_buf); // @v9.1.5
+			TView::SGetWindowText(dlg->H(), dlg_title_buf); // @v9.1.5
 			{
-				(text_line_buf = 0).Cat(symb).Tab().Cat(temp_buf).CR();
+				(text_line_buf = 0).Cat(symb).Tab().Cat(dlg_title_buf).CR();
 				f_out_text.WriteLine(text_line_buf);
 			}
-			(line_buf = 0).CR().Cat("dialog").Space().Cat(symb).Space().CatQStr(temp_buf);
+			(line_buf = 0).CR().Cat("dialog").Space().Cat(symb).Space().CatQStr(dlg_title_buf);
 			if(GetWindowInfo(dlg->H(), &wi))
 				_RectToLine(wi.rcWindow, line_buf.Space());
 			{
-				HFONT h_f = (HFONT)SendMessage(dlg->H(), WM_GETFONT, 0, 0);
+				HFONT h_f = (HFONT)::SendMessage(dlg->H(), WM_GETFONT, 0, 0);
 				if(h_f) {
 					temp_buf = 0;
 					LOGFONT f;
@@ -6321,6 +6334,19 @@ int SLAPI ExportDialogs(const char * pFileName)
 			DlScope::PropListToLine(prop_list, 1, line_buf).CR();
 			line_buf.CatChar('{').CR();
 			f_out.WriteLine(line_buf);
+			{
+				// %topic(DLG_BILLSTATUS)
+                (line_buf = 0).Cat("%topic").CatParStr(dlg_symb_body).CR();
+                f_out_manual.WriteLine(line_buf);
+                // \ppypict{dlg-billstatus}{Диалог редактирования статуса документов}
+                (temp_buf = dlg_symb_body).ReplaceStr("_", "-", 0).ToLower();
+                (line_buf = 0).CatChar('\\').Cat("ppypict").CatChar('{').Cat(temp_buf).CatChar('}');
+				line_buf.CatChar('{').Cat(dlg_title_buf).CatChar('}').CR();
+				f_out_manual.WriteLine(line_buf);
+				// \begin{description}
+				(line_buf = 0).CatChar('\\').Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
+				f_out_manual.WriteLine(line_buf);
+			}
 			if(EnumChildWindows(dlg->H(), GetChildWindowsList, (LPARAM)&child_list)) {
 				for(uint i = 0; i < child_list.getCount(); i++) {
 					if(!seen_pos_list.lsearch((long)i)) {
@@ -6386,6 +6412,12 @@ int SLAPI ExportDialogs(const char * pFileName)
 											f_out.WriteLine(line_buf);
 											TakeInCountCtrl(h_combo, child_list, seen_pos_list);
 										}
+										{
+											// \item[\dlgcombo{Счетчик}]
+											(line_buf = 0).Tab().CatChar('\\').Cat("item").CatChar('[').CatChar('\\').Cat("dlgcombo").
+												CatChar('{').Cat(ctl_text).CatChar('}').CatChar(']').CR().CR();
+											f_out_manual.WriteLine(line_buf);
+										}
 									}
 									else {
 										if(wi.dwStyle & ES_READONLY) {
@@ -6404,6 +6436,11 @@ int SLAPI ExportDialogs(const char * pFileName)
 										}
 										DlScope::PropListToLine(prop_list, 2, line_buf).Semicol().CR();
 										f_out.WriteLine(line_buf);
+										{
+											// \item[Наименование]
+											(line_buf = 0).Tab().CatChar('\\').Cat("item").CatChar('[').Cat(ctl_text).CatChar(']').CR().CR();
+											f_out_manual.WriteLine(line_buf);
+										}
 									}
 									if(p_label)
 										TakeInCountCtrl(p_label->getHandle(), child_list, seen_pos_list);
@@ -6426,12 +6463,20 @@ int SLAPI ExportDialogs(const char * pFileName)
 									if(p_view && p_view->IsSubSign(TV_SUBSIGN_CLUSTER)) {
 										TCluster * p_clu = (TCluster *)p_view;
 										const char * p_kind = 0;
-										if(p_clu->getKind() == RADIOBUTTONS)
+										if(p_clu->getKind() == RADIOBUTTONS) {
 											p_kind = "radiocluster";
-										else if(p_clu->getKind() == CHECKBOXES)
+											{
+												// \item[\dlgradioc{Сортировать по}]
+												(line_buf = 0).Tab().CatChar('\\').Cat("item").CatChar('[').CatChar('\\').Cat("dlgradioc").
+													CatChar('{').Cat(ctl_text).CatChar('}').CatChar(']').CR().CR();
+												f_out_manual.WriteLine(line_buf);
+											}
+										}
+										else if(p_clu->getKind() == CHECKBOXES) {
 											p_kind = "checkcluster";
+										}
 										if(p_kind) {
-											line_buf.CatChar('\t').Cat(p_kind).Space().Cat(symb).Space().CatQStr(ctl_text);
+											(line_buf = 0).Tab().Cat(p_kind).Space().Cat(symb).Space().CatQStr(ctl_text);
 											_RectToLine(wi.rcWindow, line_buf.Space());
 											line_buf.Space().CatChar('{').CR();
 											f_out.WriteLine(line_buf);
@@ -6451,6 +6496,19 @@ int SLAPI ExportDialogs(const char * pFileName)
 														if(temp_buf.NotEmpty()) {
 															(text_line_buf = 0).Cat(symb).Tab().Cat(temp_buf).CR();
 															f_out_text.WriteLine(text_line_buf);
+															{
+																if(p_clu->getKind() == RADIOBUTTONS) {
+																	// \item[\dlgradioc{Сортировать по}]
+																	(line_buf = 0).Tab(2).CatChar('\\').Cat("item").CatChar('[').CatChar('\\').Cat("dlgradioi").
+																		CatChar('{').Cat(temp_buf).CatChar('}').CatChar(']').CR().CR();
+																	f_out_manual.WriteLine(line_buf);
+																}
+																else if(p_clu->getKind() == CHECKBOXES) {
+																	// \dlgflag{Просмотр}
+																	(line_buf = 0).Tab(2).CatChar('\\').Cat("dlgflag").CatChar('{').Cat(temp_buf).CatChar('}').CR().CR();
+																	f_out_manual.WriteLine(line_buf);
+																}
+															}
 														}
 													}
 												}
@@ -6558,6 +6616,14 @@ int SLAPI ExportDialogs(const char * pFileName)
 			}
 			(line_buf = 0).CatChar('}').CR();
 			f_out.WriteLine(line_buf);
+			{
+				// \end{description}
+				(line_buf = 0).CatChar('\\').Cat("end").CatChar('{').Cat("description").CatChar('}').CR().CR();
+				f_out_manual.WriteLine(line_buf);
+				// %endtopic
+                (line_buf = 0).Cat("%endtopic").CR().CR();
+                f_out_manual.WriteLine(line_buf);
+			}
 		}
 		ZDELETE(dlg);
 	}

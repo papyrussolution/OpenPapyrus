@@ -192,6 +192,7 @@ IMPL_HANDLE_EVENT(CommCfgDialog)
 						dlg->AddClusterAssoc(CTL_CCFGOP_FLAGS, 1, CCFLG_DISABLEACCTURN);
 						dlg->AddClusterAssoc(CTL_CCFGOP_FLAGS, 2, CCFLG_IGNOREORDERSDEBT);
 						dlg->AddClusterAssoc(CTL_CCFGOP_FLAGS, 3, CCFLG_NOADJPRWROFFDRAFT); // @v9.3.4
+						dlg->AddClusterAssoc(CTL_CCFGOP_FLAGS, 4, CCFLG_DONTUNDOOPCNTRONESC); // @v9.5.1
 						dlg->SetClusterData(CTL_CCFGOP_FLAGS, cfg.Flags);
 						if(ExecView(dlg) == cmOK) {
 							dlg->getCtrlData(CTLSEL_CCFGOP_SUPPLSH,   &cfg.SupplAccSheet);

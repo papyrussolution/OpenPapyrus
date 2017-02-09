@@ -5955,16 +5955,17 @@ int SLAPI PPObjBill::ProcessShadowPacket(PPBillPacket * pPack, int update)
 {
 	int    ok = 1, r;
 	uint   pos;
-	PPIDArray old_shadow_bills, orders;
+	PPIDArray old_shadow_bills;
+	PPIDArray orders;
 	PPTransferItem ti;
 	if(pPack->Rec.ID) {
 		for(DateIter di; (r = P_Tbl->EnumLinks(pPack->Rec.ID, &di, BLNK_SHADOW)) > 0;) {
 			const  PPID bill_id = P_Tbl->data.ID;
 			int    rbybill = 0;
-			THROW(old_shadow_bills.add(bill_id));
+			THROW_SL(old_shadow_bills.add(bill_id));
 			while(trfr->EnumItems(bill_id, &rbybill, &ti) > 0)
 				if(ti.Flags & PPTFR_SHADOW && ti.LotID && trfr->Rcpt.Search(ti.LotID) > 0)
-					THROW(orders.addUnique(trfr->Rcpt.data.BillID));
+					THROW_SL(orders.addUnique(trfr->Rcpt.data.BillID));
 		}
 	}
 	if((r = pPack->CreateShadowPacket(0)) > 0) {
@@ -5974,7 +5975,7 @@ int SLAPI PPObjBill::ProcessShadowPacket(PPBillPacket * pPack, int update)
 				update = 0;
 			THROW(update ? UpdatePacket(&shadow, 0) : TurnPacket(&shadow, 0));
 			old_shadow_bills.freeByKey(shadow.Rec.ID, 0);
-			THROW(orders.addUnique(shadow.Rec.Object));
+			THROW_SL(orders.addUnique(shadow.Rec.Object));
 		}
 	}
 	THROW(r);
