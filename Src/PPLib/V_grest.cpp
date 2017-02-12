@@ -180,7 +180,7 @@ int GoodsRestTotal::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	THROW_SL(pCtx->Serialize(dir, DraftRcpt,     rBuf));
 	THROW_SL(pCtx->Serialize(dir, SumDraftCost,  rBuf));
 	THROW_SL(pCtx->Serialize(dir, SumDraftPrice, rBuf));
-	THROW_SL(pCtx->Serialize(dir, &Amounts,       rBuf));
+	THROW_SL(pCtx->Serialize(dir, &Amounts,      rBuf));
 	CATCHZOK
 	return ok;
 }

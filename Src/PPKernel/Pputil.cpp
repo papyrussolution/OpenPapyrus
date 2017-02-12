@@ -202,24 +202,16 @@ int SLAPI PPGetSubStr(uint strID, int idx, char * pBuf, size_t bufLen)
 
 char * SLAPI PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, char * pBuf, size_t bufLen)
 {
-	/* @v9.0.0
-	PPGetSubStr(PPTXT_WORDS, wordId, pBuf, bufLen);
-	if(ansiCoding)
-		SOemToChar(pBuf);
-	*/
-	// @v9.0.0 {
 	SString temp_buf;
 	PPLoadText(wordId, temp_buf);
 	if(ansiCoding)
 		temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 	temp_buf.CopyTo(pBuf, bufLen);
-	// } @v9.0.0
 	return pBuf;
 }
 
 SString & SLAPI PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, SString & rBuf)
 {
-	// @v9.0.0 PPGetSubStr(PPTXT_WORDS, wordId, rBuf);
 	PPLoadText(wordId, rBuf);
 	if(ansiCoding)
 		rBuf.Transf(CTRANSF_INNER_TO_OUTER);

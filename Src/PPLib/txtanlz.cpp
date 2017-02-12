@@ -4061,7 +4061,7 @@ int SLAPI PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SS
 	return ok;
 }
 
-static int Helper_PPAutoTranslSvc_Microsoft_Auth(PPAutoTranslSvc_Microsoft & rAt)
+int Helper_PPAutoTranslSvc_Microsoft_Auth(PPAutoTranslSvc_Microsoft & rAt)
 {
 	int   ok = 1;
 	SString key_buf;

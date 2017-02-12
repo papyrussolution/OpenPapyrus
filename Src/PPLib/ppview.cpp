@@ -1,5 +1,5 @@
 // PPVIEW.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1363,8 +1363,7 @@ int SLAPI PPView::ExecuteServer(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
 			static int Proc(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 			{
 				PPJobSrvReply * p_reply = (PPJobSrvReply *)procExtPtr;
-				if(p_reply)
-					p_reply->SendInformer(pEv->ExtStr);
+				CALLPTRMEMB(p_reply, SendInformer(pEv->ExtStr));
 				return 1;
 			}
 		};

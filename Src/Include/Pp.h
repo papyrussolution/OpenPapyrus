@@ -5756,7 +5756,7 @@ public:
     int    SLAPI GetIfcConfigParam(const char * pParam, SString & rValue) const;
 private:
 	int    SLAPI RegisterAdviseObjects();
-	int    SLAPI OnLogout();
+	void   SLAPI OnLogout();
 
 	struct PtrEntry {
 		void * Ptr;
@@ -10692,7 +10692,7 @@ public:
 	//    0 - ошибка
 	//
 	int    SLAPI GetListOfOrdersByLading(PPID billID, PPIDArray * pOrderBillList);
-	int    SLAPI GetTrnovrBySCard(PPID cardID, const DateRange *, double * pDbt, double * pCrd);
+	int    SLAPI GetTrnovrBySCard(PPID cardID, const DateRange * pPeriod, PPID restrGoodsGrpID, double * pDbt, double * pCrd);
 	int    SLAPI CreateSCardsTurnoverList(const DateRange *, RAssocArray *);
 	int    SLAPI CalcPayment(PPID billID, int byLinks, const DateRange *, PPID curID, double * pPaymentAmount);
 	int    SLAPI CalcPaymentSieve(PPID id, PPID curID, const PPCycleArray * pSieve, RAssocArray * pList, double * pPaym);
@@ -13645,7 +13645,7 @@ public:
 	// Descr: заменяет ссылки на карты destCardID на ссылки на карты srcCardID.
 	//
 	int    SLAPI ReplaceSCard(PPID destCardID, PPID srcCardID, int use_ta);
-	int    SLAPI GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgXXX*/, const DateRange *, double * pDebit, double * pCredit);
+	int    SLAPI GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgXXX*/, const DateRange * pPeriod, PPID restrGoodsGrpID, double * pDebit, double * pCredit);
 	int    SLAPI CreateSCardsTurnoverList(const DateRange *, RAssocArray *);
 	int    SLAPI GetListByCard(PPID cardID, const LDATETIME * pMoment, PPIDArray * pList);
 	int    SLAPI RecalcSCardsTurnover(int use_ta);
@@ -17094,7 +17094,7 @@ extern "C" typedef PPAbstractDevice * (*FN_PPDEVICE_FACTORY)();
 	// пользователя, создавшего чек.
 #define CASHFX_CREATEOBJSONIMP    0x00002000L // @v7.6.8  (async) Создавать объекты при импорте чеков
 #define CASHFX_PASSIVE            0x00004000L // @v7.6.9  Пассивный узел (не отображается в списках)
-#define CASHFX_SEPARATERCPPRN     0x00010000L // @v7.9.7  (async) При экспорте разделять номера принтеров чеков
+#define CASHFX_SEPARATERCPPRN     0x00010000L // @v7.9.7  (async) Загружать номера кассовых аппаратов
 #define CASHFX_INPGUESTCFTBL      0x00020000L // @v8.0.12 (sync) После выбора стола требовать ввода количества гостей
 #define CASHFX_DISABLEZEROSCARD   0x00040000L // @v8.2.3  (sync) Запрет операция без выбора персональной карты
 #define CASHFX_UHTTORDIMPORT      0x00080000L // @v8.2.3  (sync) Импортировать заказа с сервера Universe-HTT
@@ -27601,7 +27601,7 @@ struct AsyncCashGoodsInfo { // @transient
 		// Если флаг CASHFX_APPLYUNITRND не задан или единица измерения имеет Rounding == 0,
 		// то Precision = 0.001.
 	long   GoodsFlags;     // @v7.4.12 Флаги записи товара
-	short  Deleted;        // Признак того, что товар был удален
+	short  Deleted_;       // Признак того, что товар был удален
 	short  NoDis;          // Запрет скидки на товар (> 0 - без скидки, 0 - со скидкой,
 		// -1 - со скидкой (признак "без скидки" был снят)
 	long   DivN;           // Номер отдела
@@ -30911,7 +30911,9 @@ struct PPSCardSerPacket {
 	Ext    Eb; // @v8.7.12
 };
 
-struct SCardSelRule {
+struct SCardChargeRule {
+	SLAPI  SCardChargeRule();
+
 	PPID   SerID;
 	long   Period;
 };
@@ -30944,8 +30946,8 @@ struct PPSCardConfig {         // @persistent @store(PropertyTbl)
 
 class PPObjSCardSeries : public PPObjReference {
 public:
-	static int SLAPI SetSCardsByRule(SCardSelRule * pSelRule);
-	static int SLAPI SelectRule(SCardSelRule * pSelRule);
+	static int SLAPI SetSCardsByRule(SCardChargeRule * pSelRule);
+	static int SLAPI SelectRule(SCardChargeRule * pSelRule);
 	static int SLAPI FetchConfig(PPSCardConfig * pCfg);
 
 	SLAPI  PPObjSCardSeries(void * extraPtr = 0);
@@ -34280,7 +34282,7 @@ private:
 	PPObjLocation LocObj;     //
 	PPObjArticle  ArObj;      //
 	PPObjGoods    GObj;       //
-	PPObjBill    * BObj;      //
+	PPObjBill    * P_BObj;    //
 	TempBillTbl  * P_TempTbl; //
 	TempOrderTbl * P_TempOrd; //
 	PPIDArray OpList;         //
@@ -44650,7 +44652,7 @@ template <class C> C * FASTCALL GetDbLocalCachePtr(PPID objType, int doCreate = 
 class PPApp : public TProgram {
 public:
 	PPApp(HINSTANCE hInst, const char * pAppSymb, const char * pAppName);
-	void   login(int processCmdLine = 1);
+	void   login(int processCmdLine /*= 1*/);
 	int    processCommand(uint);
 	uint   LastCmd;
 private:
@@ -47635,6 +47637,12 @@ public:
 	{
 		return ScObj;
 	}
+	//
+	// Descr: Реализует CalcSCardOpBonusAmount. Вынесена в отдельный блок для использования
+	//   другими модулями.
+	//
+	static double SLAPI Helper_CalcSCardOpBonusAmount(const CCheckLineTbl::Rec & rItem, PPObjGoods & rGObj, PPID bonusGoodsGrpID, double * pNonCrdAmt);
+
 	LongArray CTblList;
 protected:
 	//

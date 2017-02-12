@@ -1867,11 +1867,13 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 			const double qtty = fabs(p_item->Quantity);
 			const double org_p = R2(p_item->Price);
 			const double p    = R2(is_rounding ? p_item->NetPrice() : p_item->Price); // @R2
-			double d = this->RoundDis(((discount - part_dis) / qtty));
+			double d = (discount - part_dis) / qtty;
+			if(!is_rounding) // @v9.5.2
+				d = this->RoundDis(d);
 			if(finish_addendum) {
 				if((p_item->Discount + d) > org_p)  // @v9.0.2 p-->org_p
 					d = org_p;                      // @v9.0.2 p-->org_p
-				p_item->Discount = this->RoundDis(p_item->Discount + d);
+				p_item->Discount = is_rounding ? (p_item->Discount + d) : this->RoundDis(p_item->Discount + d); // @v9.5.2 (is_rounding ? (p_item->Discount + d) :)
 			}
 			else {
 				SETMIN(d, org_p); // Гарантируем то, что скидка не превысит цену // @v9.0.2 p-->org_p
@@ -1890,7 +1892,8 @@ void CPosProcessor::SetupDiscount(int distributeGiftDiscount /*=0*/)
 	CalcTotal(&amt, &dis);
 	double new_amt = (R.AmtRoundPrec != 0.0) ? Round(amt, R.AmtRoundPrec, R.AmtRoundDir) : R2(amt);
 	double diff = R2(amt - new_amt);
-	if(diff != 0.0) {
+	// @v9.5.2 if(diff != 0.0) {
+	if(!feqeps(diff, 0.0, 1E-6)) { // @v9.5.2
 		Helper_SetupDiscount(diff, 0);
 		/*
 		CalcTotal(&amt, &dis);
@@ -2026,14 +2029,15 @@ double CPosProcessor::CalcSCardOpAmount(const CCheckLineTbl::Rec & rItem, PPID c
 	return charge;
 }
 
-double CPosProcessor::CalcSCardOpBonusAmount(const CCheckLineTbl::Rec & rItem, PPID bonusGoodsGrpID, double * pNonCrdAmt)
+// static
+double CPosProcessor::Helper_CalcSCardOpBonusAmount(const CCheckLineTbl::Rec & rItem, PPObjGoods & rGObj, PPID bonusGoodsGrpID, double * pNonCrdAmt)
 {
 	double charge = 0.0;
 	double non_crd_amt = 0.0;
 	const double s  = intmnytodbl(rItem.Price) * rItem.Quantity;
 	const double ds = rItem.Dscnt * rItem.Quantity;
 	if(bonusGoodsGrpID) {
-		if(GObj.BelongToGroup(rItem.GoodsID, bonusGoodsGrpID, 0) > 0)
+		if(rGObj.BelongToGroup(rItem.GoodsID, bonusGoodsGrpID, 0) > 0)
 			charge = -R2(s - ds);
 		else
 			non_crd_amt = R2(s - ds);
@@ -2043,6 +2047,11 @@ double CPosProcessor::CalcSCardOpBonusAmount(const CCheckLineTbl::Rec & rItem, P
 	}
 	ASSIGN_PTR(pNonCrdAmt, non_crd_amt);
 	return charge;
+}
+
+double CPosProcessor::CalcSCardOpBonusAmount(const CCheckLineTbl::Rec & rItem, PPID bonusGoodsGrpID, double * pNonCrdAmt)
+{
+	return Helper_CalcSCardOpBonusAmount(rItem, GObj, bonusGoodsGrpID, pNonCrdAmt);
 }
 
 double CPosProcessor::CalcCreditCharge(const CCheckPacket * pPack, const CCheckPacket * pExtPack,
@@ -2698,7 +2707,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 											if(scs_obj.Fetch(sc_rec.SeriesID, &scs_rec) > 0 && scs_rec.BonusChrgExtRule) {
 												if(scs_rec.Flags & SCRDSF_BONUSER_ONBNK) {
 													if(pPack->AL_Const().Get(CCAMTTYP_BANK) != 0.0) {
-														double _coeff = 1.0 + (((double)scs_rec.BonusChrgExtRule) / (10.0 * 100.0));
+														const double _coeff = 1.0 + (((double)scs_rec.BonusChrgExtRule) / (10.0 * 100.0));
 														finish_bonus_charge_amt *= _coeff;
 													}
 												}

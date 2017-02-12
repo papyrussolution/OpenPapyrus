@@ -632,6 +632,8 @@ int PPALDD_User::InitData(PPFilt & rFilt, long rsrv)
 		if(sec_obj.Fetch(rFilt.ID, &rec) > 0) {
 			H.ID = rec.ID;
 			STRNSCPY(H.Name, rec.Name);
+			STRNSCPY(H.Symb, rec.Symb); // @v9.5.2
+			H.PersonID = rec.PersonID; // @v9.5.2
 			ok = DlRtm::InitData(rFilt, rsrv);
 		}
 	}

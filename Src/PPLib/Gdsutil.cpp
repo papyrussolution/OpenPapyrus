@@ -1,5 +1,5 @@
 // GDSUTIL.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // Утилиты для работы с товарами
 //
@@ -2462,7 +2462,8 @@ SString & FASTCALL PPSupplDeal::Format(SString & rBuf) const
 int SLAPI PPObjGoods::GetSupplDeal(PPID goodsID, const QuotIdent & rQi, PPSupplDeal * pResult, int useCache)
 {
 	int    ok = -1, r;
-	PPID   qk_id = DS.GetConstTLA().SupplDealQuotKindID;
+	const  PPThreadLocalArea & r_tla = DS.GetConstTLA();
+	PPID   qk_id = r_tla.SupplDealQuotKindID;
 	double val = 0.0;
 	QuotIdent qi = rQi;
 	memzero(pResult, sizeof(*pResult));
@@ -2478,13 +2479,13 @@ int SLAPI PPObjGoods::GetSupplDeal(PPID goodsID, const QuotIdent & rQi, PPSupplD
 		ok = r;
 	}
 	if(!pResult->IsDisabled) {
-		qk_id = DS.GetConstTLA().SupplDevUpQuotKindID;
+		qk_id = r_tla.SupplDevUpQuotKindID;
 		if(qk_id) {
 			qi.QuotKindID = qk_id;
 			THROW(GetQuotExt(goodsID, qi, 0, 0, &(val = 0), useCache));
 			pResult->UpDev = val;
 		}
-		qk_id = DS.GetConstTLA().SupplDevDnQuotKindID;
+		qk_id = r_tla.SupplDevDnQuotKindID;
 		if(qk_id) {
 			qi.QuotKindID = qk_id;
 			THROW(GetQuotExt(goodsID, qi, 0, 0, &(val = 0), useCache));
@@ -2501,9 +2502,10 @@ int SLAPI PPObjGoods::SetSupplDeal(PPID goodsID, const QuotIdent & rQi, const PP
 	long   flags = 0;
 	double cost = 0.0;
 	PPID   quot_id = 0;
-	PPID   deal_qk_id = DS.GetConstTLA().SupplDealQuotKindID;
-	PPID   dn_qk_id   = DS.GetConstTLA().SupplDevDnQuotKindID;
-	PPID   up_qk_id   = DS.GetConstTLA().SupplDevUpQuotKindID;
+	const  PPThreadLocalArea & r_tla = DS.GetConstTLA();
+	const  PPID deal_qk_id = r_tla.SupplDealQuotKindID;
+	const  PPID dn_qk_id   = r_tla.SupplDevDnQuotKindID;
+	const  PPID up_qk_id   = r_tla.SupplDevUpQuotKindID;
 	QuotIdent qi;
 	PPQuotArray qary;
 	THROW_PP(pDeal, PPERR_INVPARAM);

@@ -1947,7 +1947,9 @@ void SLAPI SCS_SHTRIHFRF::WriteLogFile(PPID id)
 		int     adv_mode = 0;
 		size_t  pos = 0;
 		char    mode_descr[MAXPATH];
-		SString msg_fmt, msg, err_msg(DS.GetConstTLA().AddedMsgString), oper_name;
+		SString msg_fmt, msg;
+		SString err_msg(DS.GetConstTLA().AddedMsgString);
+		SString oper_name;
 		PPLoadText(PPTXT_LOG_SHTRIH, msg_fmt);
 		P_DrvFRIntrf->GetNameByID(id, oper_name);
 		memzero(mode_descr, sizeof(mode_descr));

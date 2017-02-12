@@ -39,11 +39,11 @@ public:
 	SLAPI  CashiersArray() : SArray(sizeof(CashierEntry))
 	{
 	}
-	CashierEntry & SLAPI at(uint p) const
+	CashierEntry & FASTCALL at(uint p) const
 	{
 		return *(CashierEntry*)SArray::at(p);
 	}
-	int    SLAPI Add(CashierEntry * pEntry)
+	int    FASTCALL Add(CashierEntry * pEntry)
 	{
 		uint   p = 0;
 		return Search(pEntry->TabNum, pEntry->Expiry, &p) ? -1 : Insert(pEntry);
@@ -964,9 +964,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 				*/
 				{
 					uint   ss_pos = 0;
-					if(prev_gds_info.AddedMsgList.get(&ss_pos, ingred))
-						if(prev_gds_info.AddedMsgList.get(&ss_pos, storage))
-							prev_gds_info.AddedMsgList.get(&ss_pos, energy);
+					prev_gds_info.AddedMsgList.get(&ss_pos, ingred) && prev_gds_info.AddedMsgList.get(&ss_pos, storage) && prev_gds_info.AddedMsgList.get(&ss_pos, energy);
 				}
 				// @v9.1.3 (перенесено наверх) p_writer->PutPlugin("precision", prev_gds_info.Precision);
 				if(expiry != ZERODATE) {
@@ -1004,12 +1002,18 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
                     */
 				}
 			}
+			// @v9.5.2 {
+			if(gds_info.GoodsFlags & GF_PASSIV && cn_data.ExtFlags & CASHFX_RMVPASSIVEGOODS && gds_info.Rest <= 0.0) {
+				//<delete-from-cash>true</delete-from-cash>
+				p_writer->PutElement("delete-from-cash", true);
+			}
+			// } @v9.5.2
 			p_writer->EndElement(); // </good>
-			if(prev_gds_info.Deleted || labs(prev_gds_info.NoDis) == 1) {
+			if(prev_gds_info.Deleted_ || labs(prev_gds_info.NoDis) == 1) {
 				_MaxDisEntry dis_entry;
 				STRNSCPY(dis_entry.Barcode, prev_gds_info.PrefBarCode);
 				dis_entry.NoDis = prev_gds_info.NoDis;
-				dis_entry.Deleted = prev_gds_info.Deleted;
+				dis_entry.Deleted = prev_gds_info.Deleted_;
 				max_dis_list.insert(&dis_entry);
 			}
 			barcodes.clear();

@@ -378,7 +378,7 @@ int PPApp::processCommand(uint cmd)
 			PPEditTextFile(0);
 			break;
 		case cmQuit:                 TView::message(this, evCommand, cmQuit); break;
-		case cmInit:                 login();                                 break;
+		case cmInit:                 login(1);                                break;
 		case cmAbout:                PPAbout();                               break;
 		case cmaCalculate:           PPCalculator(0, 0);                      break;
 		case cmEditConfig:           EditMainConfig();                        break;
@@ -946,7 +946,8 @@ enum {
 	cmdlSelfBuild,     // SELFBUILD
 	cmdlSartrTest,     // SARTRTEST
 	cmdlAutoTranslate, // AUTOTRANSLATE
-	cmdlConvertCipher  // CONVERTCIPHER
+	cmdlConvertCipher, // CONVERTCIPHER
+	cmdlPpIniSubst     // PPINISUBST
 };
 
 static int SLAPI GetStartUpOption(int o, SString & rArgBuf)

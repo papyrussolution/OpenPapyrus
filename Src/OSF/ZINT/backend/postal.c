@@ -84,7 +84,7 @@ static const char * JapanTable[19] = {
 /* Handles the PostNet system used for Zip codes in the US */
 int postnet(struct ZintSymbol * symbol, uchar source[], char dest[], int length)
 {
-	uint   i, sum, check_digit;
+	uint   sum, check_digit;
 	int    error_number = 0;
 	if(length > 38) {
 		strcpy(symbol->errtxt, "Input too long (D80)");
@@ -96,21 +96,18 @@ int postnet(struct ZintSymbol * symbol, uchar source[], char dest[], int length)
 		return error_number;
 	}
 	sum = 0;
-
 	/* start character */
 	strcpy(dest, "L");
-
-	for(i = 0; i < length; i++) {
-		lookup(NEON, PNTable, source[i], dest);
-		sum += ctoi(source[i]);
+	{
+		for(int i = 0; i < length; i++) {
+			lookup(NEON, PNTable, source[i], dest);
+			sum += ctoi(source[i]);
+		}
 	}
-
 	check_digit = (10 - (sum % 10)) % 10;
 	strcat(dest, PNTable[check_digit]);
-
 	/* stop character */
 	strcat(dest, "L");
-
 	return error_number;
 }
 
@@ -149,11 +146,8 @@ int post_plot(struct ZintSymbol * symbol, uchar source[], int length)
 /* Handles the PLANET  system used for item tracking in the US */
 int planet(struct ZintSymbol * symbol, uchar source[], char dest[], int length)
 {
-	uint i, sum, check_digit;
-	int error_number;
-
-	error_number = 0;
-
+	uint sum, check_digit;
+	int error_number = 0;
 	if(length > 38) {
 		strcpy(symbol->errtxt, "Input too long (D82)");
 		return ZINT_ERROR_TOO_LONG;
@@ -164,21 +158,18 @@ int planet(struct ZintSymbol * symbol, uchar source[], char dest[], int length)
 		return error_number;
 	}
 	sum = 0;
-
-	/* start character */
+	// start character 
 	strcpy(dest, "L");
-
-	for(i = 0; i < length; i++) {
-		lookup(NEON, PLTable, source[i], dest);
-		sum += ctoi(source[i]);
+	{
+		for(int i = 0; i < length; i++) {
+			lookup(NEON, PLTable, source[i], dest);
+			sum += ctoi(source[i]);
+		}
 	}
-
 	check_digit = (10 - (sum % 10)) % 10;
 	strcat(dest, PLTable[check_digit]);
-
 	/* stop character */
 	strcat(dest, "L");
-
 	return error_number;
 }
 
@@ -294,24 +285,21 @@ int fim(struct ZintSymbol * symbol, uchar source[], int length)
 /* Handles the 4 State barcodes used in the UK by Royal Mail */
 char rm4scc(char source[], uchar dest[], int length)
 {
-	uint i;
-	int top, bottom, row, column, check_digit;
-	char values[3], set_copy[] = KRSET;
-
-	top = 0;
-	bottom = 0;
-
-	/* start character */
+	int    row, column, check_digit;
+	char   values[3], set_copy[] = KRSET;
+	int    top = 0;
+	int    bottom = 0;
+	// start character 
 	strcpy((char*)dest, "1");
-
-	for(i = 0; i < length; i++) {
-		lookup(KRSET, RoyalTable, source[i], (char*)dest);
-		strcpy(values, RoyalValues[posn(KRSET, source[i])]);
-		top += ctoi(values[0]);
-		bottom += ctoi(values[1]);
+	{
+		for(int i = 0; i < length; i++) {
+			lookup(KRSET, RoyalTable, source[i], (char*)dest);
+			strcpy(values, RoyalValues[posn(KRSET, source[i])]);
+			top += ctoi(values[0]);
+			bottom += ctoi(values[1]);
+		}
 	}
-
-	/* Calculate the check digit */
+	// Calculate the check digit 
 	row = (top % 6) - 1;
 	column = (bottom % 6) - 1;
 	if(row == -1) {
@@ -322,10 +310,8 @@ char rm4scc(char source[], uchar dest[], int length)
 	}
 	check_digit = (6 * row) + column;
 	strcat((char*)dest, RoyalTable[check_digit]);
-
-	/* stop character */
+	// stop character 
 	strcat((char*)dest, "0");
-
 	return set_copy[check_digit];
 }
 
@@ -380,13 +366,9 @@ int royal_plot(struct ZintSymbol * symbol, uchar source[], int length)
 int kix_code(struct ZintSymbol * symbol, uchar source[], int length)
 {
 	char height_pattern[75], localstr[20];
-	uint loopey;
-	int writer, i, h;
-	int error_number; /* zeroes; */
+	int writer, i;
+	int error_number = 0; /* zeroes; */
 	strcpy(height_pattern, "");
-
-	error_number = 0;
-
 	if(length > 18) {
 		strcpy(symbol->errtxt, "Input too long (D8A)");
 		return ZINT_ERROR_TOO_LONG;
@@ -397,33 +379,30 @@ int kix_code(struct ZintSymbol * symbol, uchar source[], int length)
 		strcpy(symbol->errtxt, "Invalid characters in data (D8B)");
 		return error_number;
 	}
-
 	strcpy(localstr, (char*)source);
-
-	/* Encode data */
+	// Encode data 
 	for(i = 0; i < length; i++) {
 		lookup(KRSET, RoyalTable, localstr[i], height_pattern);
 	}
-
-	writer = 0;
-	h = strlen(height_pattern);
-	for(loopey = 0; loopey < h; loopey++) {
-		if((height_pattern[loopey] == '1') || (height_pattern[loopey] == '0')) {
-			set_module(symbol, 0, writer);
+	{
+		writer = 0;
+		const size_t h = strlen(height_pattern);
+		for(size_t loopey = 0; loopey < h; loopey++) {
+			if((height_pattern[loopey] == '1') || (height_pattern[loopey] == '0')) {
+				set_module(symbol, 0, writer);
+			}
+			set_module(symbol, 1, writer);
+			if((height_pattern[loopey] == '2') || (height_pattern[loopey] == '0')) {
+				set_module(symbol, 2, writer);
+			}
+			writer += 2;
 		}
-		set_module(symbol, 1, writer);
-		if((height_pattern[loopey] == '2') || (height_pattern[loopey] == '0')) {
-			set_module(symbol, 2, writer);
-		}
-		writer += 2;
 	}
-
 	symbol->row_height[0] = 3;
 	symbol->row_height[1] = 2;
 	symbol->row_height[2] = 3;
 	symbol->rows = 3;
 	symbol->width = writer - 1;
-
 	return error_number;
 }
 

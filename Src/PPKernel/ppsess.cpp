@@ -3303,7 +3303,7 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 // Prototype
 int SLAPI CreateBackupCopy(const char *, int);
 
-int SLAPI PPThreadLocalArea::OnLogout()
+void SLAPI PPThreadLocalArea::OnLogout()
 {
 	State &= ~stAuth; // @v8.6.11
 	SrvViewList.freeAll();
@@ -3325,7 +3325,6 @@ int SLAPI PPThreadLocalArea::OnLogout()
 		SrvSess.Logout();
 		SrvSess.Disconnect();
 	}
-	return 1;
 }
 
 int SLAPI PPSession::Logout()

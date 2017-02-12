@@ -1,5 +1,5 @@
 // DBSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2013, 2015
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2013, 2015, 2017
 //
 #include <db.h>
 #pragma hdrstop
@@ -72,7 +72,7 @@ SLAPI DbThreadLocalArea::~DbThreadLocalArea()
 	delete P_StFileName;
 }
 
-int SLAPI DbThreadLocalArea::Init()
+void SLAPI DbThreadLocalArea::Init()
 {
 	Id = 0;
 	State = 0;
@@ -81,7 +81,6 @@ int SLAPI DbThreadLocalArea::Init()
 	DbTableReg.Init();
 	ZDELETE(P_StFileName);
 	ZDELETE(P_CurDict);
-	return 1;
 }
 
 uint DbThreadLocalArea::GetTabEntriesCount() const
@@ -333,7 +332,7 @@ long SLAPI DbSession::GetFlag(long f) const
 int SLAPI DbSession::GetTaState()
 {
 	const DbThreadLocalArea & r_tla = GetConstTLA();
-	return (r_tla.GetState() & DbThreadLocalArea::stTransaction) ? 1 : 0;
+	return BIN(r_tla.GetState() & DbThreadLocalArea::stTransaction);
 }
 
 int SLAPI DbSession::InitThread()

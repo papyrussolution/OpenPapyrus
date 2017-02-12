@@ -404,10 +404,14 @@ pantyhose%<p/hose%|pntyh%|pntyhs%|panty hose
 paper-mate%<paper mate%|papermate
 parfum%<parfume%|prfum%|prfm%|prfum
 party%<prty
+pickles%<pckles%|pckls
+pickle%<pckle
 pineapple%<p/apple%|p/appl%|pneaple
 powder%<pwdr%|powd%.%|pwd%.%|powdr%.%|pwder
 powdered%<pwdrd
 princess%<prncs%|prncss%|prncess
+rj-45%<rj45%|rj 45
+rj-45m%<rj-45%z(m)
 soft gel%<sftgl%|sftgel%|softgel%|softgels%|soft gels
 stocking%<stckng
 detergent%<detgnt%|detergnt
@@ -438,7 +442,8 @@ liquid%<lqd
 system%<systm
 spearmint%<sprmnt%|sprmint%|spearmnt
 peppermint%<pepermint%|pprmnt%|ppprmnt%|ppprmint%|pprmint%|pepprmnt%|pmint%|peppmint%|ppmint%|peppermt
-semiconductor%<semi conductor%|semi-conductor
+semiconductor%<semi conductor%|semi-conductor%|semi-cond
+semi-sweet%<semi sweet%|semisweet%|semiswt%|smiswt%|smi-swt
 terminal%<terminl%|termnl%|trmnl%|trmnal
 timer%<timr
 vinyl%<vnyl
@@ -647,6 +652,7 @@ total%<totl
 bit drill%<bit dril%|bitdrill
 stickers%<stckrs
 intelligel%<intllgl
+pet food%<petfood%|petfd
 super dry%<superdry%|super-dry
 valve ball%<valv ball%|ball valve%|ball valv
 valve boiler%<valv boilr
@@ -1186,7 +1192,7 @@ art-visage%<art visage%|арт-визаж%|арт визаж
 масло компрессорное%<компрессорное масло
 baby food%<baby fd
 baby diaper%<bdpr
-cat food%<cat fd
+cat food%<cat fd%|catfood
 dog food%<dog fd%|dg fd
 fudge%<fdg%|fdge
 heinz farley's%<farley's%|farleys%|heinz heinz farley's
@@ -1542,7 +1548,7 @@ tea green%<tea grn%|grn tea
 чай принцесса гита%<чай гита%|чай пр%.%zгита%|чай принц%.%zгита
 чай принцесса нури%<чай нури%|чай пр%.%zнури%|чай принц%.%zнури
 чай forsman%<чай форсман
-chocolate%<choclate%|chocolte
+chocolate%<choclate%|chocolte%|chcolate
 chocolate drink%<choc%.%zdrink%|choco drink
 dark chocolate%<dark choc%.%|dark choco%|dk choc%.%|drk choc%.
 milk chocolate%<milk choc%.%|milk choco%|mk choc%.%|mk chocolate%|mk choco%|mlk choc%.

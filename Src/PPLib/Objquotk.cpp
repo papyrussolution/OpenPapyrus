@@ -1,5 +1,5 @@
 // OBJQUOTK.CPP
-// Copyright (c) A.Sobolev 1998-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1998-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1382,9 +1382,10 @@ int FASTCALL PPObjQuotKind::GetSpecialKinds(Special * pRec, int useCache)
 		rec.MtxID = goods_obj.GetConfig().MtxQkID;
 		rec.MtxRestrID = goods_obj.GetConfig().MtxRestrQkID;
 		//
-		rec.SupplDealID = DS.GetConstTLA().SupplDealQuotKindID;
-		rec.SupplDevUpID = DS.GetConstTLA().SupplDevUpQuotKindID;
-		rec.SupplDevDnID = DS.GetConstTLA().SupplDevDnQuotKindID;
+		const  PPThreadLocalArea & r_tla = DS.GetConstTLA();
+		rec.SupplDealID  = r_tla.SupplDealQuotKindID;
+		rec.SupplDevUpID = r_tla.SupplDevUpQuotKindID;
+		rec.SupplDevDnID = r_tla.SupplDevDnQuotKindID;
 		//
 		PPPredictConfig predict_cfg;
 		Predictor::GetPredictCfg(&predict_cfg);

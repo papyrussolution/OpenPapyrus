@@ -253,6 +253,8 @@ data Global {
 data User {
 	key    ID;
 	string Name[32];
+	string Symb[20]; // @v9.5.2
+	link   Person PersonID; // @v9.5.2 ѕерсонали€, на которую ссылаетс€ пользователь
 }
 //
 // «апись системного журнала.

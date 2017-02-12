@@ -1,5 +1,5 @@
 // PPBROW.RC2
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // Part of project Papyrus
 //
 declare command DEFAULT     // kbEnter
@@ -578,7 +578,7 @@ toolbar export LINKBILLS TB_FIRST_TOOLBAR {
 toolbar export LOTS TB_FIRST_TOOLBAR {
 	DETAIL        : kbEnter,  TBBM_LOTSOPER,   "@{view_lotop}\tEnter"
 	EDITGOODS     : kbF2,     TBBM_GOODS,      "@{ware}\tF2"
-	VIEWCOMPLETE  : kbSpace,  TBBM_DIVISION,   "Структура лота\tПробел"
+	VIEWCOMPLETE  : kbSpace,  TBBM_DIVISION,   "@{lotstruc}\tПробел"
 	VIEWCHILDS    : kbF3,     TBBM_NOICON,     "Порожденные лоты\tF3"
 	SYSTEMINFO    : kbCtrlF3, TBBM_SYSTEMINFO, "@{sysinfo}\tCtrl-F3"
 	ADDEDINFO     : kbF4,     TBBM_CHNGQCERT,  "Сертификация\tF4"
@@ -3646,7 +3646,7 @@ browser CCHECKGRP_CASH north(100), 1, 1, "Кассовые чеки по кассам", OWNER|GRID, 
 
 browser CCHECKGRP_CASHNODE north(100), 1, 1, "Кассовые чеки по товарам", OWNER|GRID, 0
 {
-	"Кассовый узел",  3, notype, 0, 30
+	"@posnode",       3, notype, 0, 30
 	"@check_count_s", 4, notype, 0, 6
 	"@qtty",          8, notype, 0, 12.3
 	"@amount",        5, notype, 0, 12.2
@@ -4430,7 +4430,7 @@ browser ASSET north(100), 2, 1, "Объекты основных средств", OWNER|GRID, 0
 	"Амортизация",                9, notype, ALIGN_RIGHT|NMBF_NOZERO, 12.2
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL      : kbEnter, TBBM_LOTSOPER,   "@{view_lotop}\tEnter"
-		VIEWCOMPLETE: kbSpace, TBBM_DIVISION,   "Структура лота\tПробел"
+		VIEWCOMPLETE: kbSpace, TBBM_DIVISION,   "@{lotstruc}\tПробел"
 		EDITGOODS   : kbF2,    TBBM_GOODS,      "@{ware}\tF2"
 		ADDEDINFO   : kbF4,    TBBM_CHNGQCERT,  "Сертификация\tF4"
 		separator
@@ -4463,7 +4463,7 @@ browser ASSETOPER north(100), 4, 1, "Объекты основных средств {%s}", OWNER|GRID,
 		"Амортизация",  9, notype, NMBF_NOZERO, 11.2
 	}
 	toolbar TB_FIRST_TOOLBAR {
-		VIEWCOMPLETE: kbSpace, TBBM_DIVISION,   "Структура лота\tПробел"
+		VIEWCOMPLETE: kbSpace, TBBM_DIVISION,   "@{lotstruc}\tПробел"
 		EDITGOODS   : kbF2,    TBBM_GOODS,      "@{ware}\tF2"
 		DETAIL      : kbF3,    TBBM_LOTSOPER,   "@{view_lotop}\tF3"
 		ADDEDINFO   : kbF4,    TBBM_CHNGQCERT,  "Сертификация\tF4"
@@ -7812,7 +7812,7 @@ record CPosAuth {
 //
 //
 record FiasRawHouseObj {
-	POSTALCODE   zstring(16)  "Почтовый индекс";                      // [6]
+	POSTALCODE   zstring(16)  "@{postzip}";                           // [6]
 	IFNSFL       zstring(16)  "Код ИФНС ФЛ";                          // [4]
 	TERRIFNSFL   zstring(16)  "Код территориального участка ИФНС ФЛ"; // [4]
 	IFNSUL       zstring(16)  "Код ИФНС ЮЛ";                          // [4]
@@ -7838,7 +7838,7 @@ record FiasRawHouseObj {
 //
 //
 record FiasRawHouseIntObj {
-	POSTALCODE   zstring(16)  "Почтовый индекс";                      // [6]
+	POSTALCODE   zstring(16)  "@{postzip}";                           // [6]
 	IFNSFL       zstring(16)  "Код ИФНС ФЛ";                          // [4]
 	TERRIFNSFL   zstring(16)  "Код территориального участка ИФНС ФЛ"; // [4]
 	IFNSUL       zstring(16)  "Код ИФНС ЮЛ";                          // [4]
@@ -7873,7 +7873,7 @@ record FiasRawAddrObj {
 	EXTRCODE     zstring(16)  "Код дополнительного адресообразующего элемента"; // [4]
 	SEXTCODE     zstring(16)  "Код подчиненного дополнительного адресообразующего элемента"; // [3]
 	OFFNAME      zstring(128) "Официальное наименование"; // [120]
-	POSTALCODE   zstring(16)  "Почтовый индекс"; // [6]
+	POSTALCODE   zstring(16)  "@{postzip}"; // [6]
 	IFNSFL       zstring(16)  "Код ИФНС ФЛ";     // [4]
 	TERRIFNSFL   zstring(16)  "Код территориального участка ИФНС ФЛ"; // [4]
 	IFNSUL       zstring(16)  "Код ИФНС ЮЛ"; // [4]

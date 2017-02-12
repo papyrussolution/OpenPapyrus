@@ -2145,7 +2145,7 @@ PPINF_EGAISSHOPRETURNCR    "Создан документ возврата с р
 16   "Вид суммы документа"
 17   "@{posnode}"
 18   "Системное событие"
-20   "Структура штрих-кода"
+20   "@{barcodestruc}"
 21   "@{dbdiv}"
 22   "@{goods_type}"
 23   "Проблемы"
@@ -2200,7 +2200,7 @@ PPINF_EGAISSHOPRETURNCR    "Создан документ возврата с р
 77   "@{account}"
 100  "Динамические объекты"
 101  "Породы древесины"
-1001 "Государство"
+1001 "@{country}"
 1002 "Регион"
 1003 "@{city}"
 1004 "@{person}"
@@ -3006,17 +3006,6 @@ PPTXT_PLISTTOALBATROS                  "Подготовка прайс-лист
 ClientCity;ClientAddr;ClientPhone;ClientMail;ClientBankAcc;OrderAmount;PctDis;\
 AlbatrosOrderItem;GoodsID;GoodsName;GoodsCode;UnitsPerPack;Qtty;Price;Discount;Amount"
 
-150 "OK    Copy: %s"
-151 "ERROR Copy: %s"
-152 "OK    Restore: %s"
-153 "ERROR Restore: %s"
-154 "START Backing up/restoring database: %s"
-155 "END   Backing up/restoring database: %s"
-156 "(дополнительная информация отсутствует)"
-157 "ERROR Call DBBackup::GetFileParams(): %s"
-158 "ERROR Compress: %s"
-159 "ERROR Decompress: %s"
-
 160 "один;одна;два;две;три;четыре;пять;шесть;семь;восемь;девять;десять;\
 одиннадцать;двенадцать;тринадцать;четырнадцать;пятнадцать;шестнадцать;\
 семнадцать;восемнадцать;девятнадцать;двадцать;тридцать;сорок;пятьдесят;\
@@ -3042,7 +3031,7 @@ AlbatrosOrderItem;GoodsID;GoodsName;GoodsCode;UnitsPerPack;Qtty;Price;Discount;A
 176 "Не настроено ни одной операции по товарным заказам;\
 Не настроено ни одной операции по инвентаризации;\
 Не настроено ни одной операции по драфт-документам"
-177 " ;Телефон/адрес;Расчетный счет;@{register}: ;Тег: ;Все адреса;Зависшие адреса;Адреса доставки;Дублируемые адреса доставки;\
+177 " ;@{phone}/адрес;Расчетный счет;@{register}: ;Тег: ;Все адреса;Зависшие адреса;Адреса доставки;Дублируемые адреса доставки;\
 Автономные адреса;Электронная почта"
 178 "Ошибка акцепта счета (%ld %s): %s"
 179 "Сохранение кассовых чеков в базе данных %ld/%ld"
@@ -3088,6 +3077,7 @@ price,Цена единицы;packprice,Цена упаковки;memo,Прим�
 205 "@{altgroup};@{structure};Обобщение"
 
 206 /!/ "filename;codepage;format;bankcode;impexp;header;end;parvaldiv;CliBnkFlags;PaymMethodTransl"
+/* @v9.5.2 (unused)
 207 /!/ "Empty;BillID;Date;Code;Sequence;Purpose;Amount;\
 PayerID;PayerName;PayerINN;PayerBankAcc;PayerBankName;\
 PayerBankCode;PayerBankCorr;\
@@ -3096,36 +3086,6 @@ ReceiverBankCode;ReceiverBankCorr;TaxPayerKPP;\
 TaxReceiverKPP;TaxPayerStatus;TaxClass;OKATO;TaxReason;TaxPeriod;TaxDocNumber;\
 TaxDocDate;TaxPaymType;VatSum;PurposePlusVat;CorrName;CorrBIC;CorrINN;CorrPersonID;\
 PaymMethod"
-
-208 "Доход полученный"
-209 "Доход для налогообложения"
-210 "@{expend}"
-211 "Расход для налогообложения"
-212 "Успешно обработано %ld товаров\n\003Для %ld позиций встречены ошибки"
-213 "Передается сообщение"
-214 "Передача объекта CHARRY"
-215 "ABC анализ"
-216 "Товарный отчет"
-217 "Изменения цен при межскладском перемещении"
-218 "Импорт банков"
-//
-// Начиная с v9.0.0 следующая строка фактически не применяется. Оставляем временно ее здесь
-// для разрешения возможных проблем.
-//
-/*
-219 /!/ "Склад;Штрихкод;Связанное кол-во;Список;Остаток;Итого:;НДС;Корзина по умолчанию;Наценка(%);Примечание;Долг;Количество;\
-Серийный номер;Остаток в ценах;Поступления;Реализации;Позиций;Группа;Дефицит;Остаток-дефицит;Базовая котировка;PLU;Валюта;Цикл;\
-Кол-во товаров в подстановке;Дата;Весь период;Процессор;Основной товар;Статус;Выбор документа;Минимальный запас;Процент скидки;@AUTO;\
-Временная группа;Конфигурация;ОШИБКА;Суперсессия;Статья;Годен до;Товар;Карта;Цена;Сумма;Скидка;Продавец;Стол;Отношение;\
-Кассовый узел;строк;Структура;Суммы штатного расписания;Суммы должностного назначения;Среднее количество строк;Поставщик;\
-Будущие поступления;Аналитическая таблица;Восстановлен;Создатель;Исполнитель;Клиент;Только просмотр;Начисление;Кассир;\
-Заказ;Среднедневные продажи;Исполнитель;Час;Ид;Имя;Код;Артикул;Налог с продаж;Исправлено;Новая задача;Заказчик;Заказано;Заказы;\
-Действителен до;Отсутствует;Недоступен;Остальные;не облагается;Доход;Маржа;Сумма в ценах;Основной;Дополнительный;Разница;Период;\
-Дней;Количество складов;Оборот в ценах;Подарок;Стандарт;Доступно;Сообщение;Стоп;Дополнительный объект;Группа складов;Отдел;Актуальная дата;Продажи;\
-Расчетная дата;Закрыть;Дебет;Кредит;Доплата;Сайт;По умолчанию;Не привязанный расход;Не привязанный приход;Не привязанная передача;Номер документа;\
-Расход;Приход;Передача;Все;Тест;MISCELLANEOUS;Работа;Все склады;Отгружено;Оплачено;Приватная корзина;Лист;Чеки;Операции;\
-Имеются невыполненные задачи;Только открытые;Дефицитный бюджет;Профицитный бюджет;Базовый;План;Факт;Номер устройства;Пусто;\
-Ячейка;Конфигурация экспорта;Часы;Минуты;Входящий остаток;Исходящий остаток;Агент не указан;Серия;Не найдена;Строк;Строк (ср);SKU;SKU (ср)"
 */
 
 // @v9.0.2 PPWORD_WAREHOUSE           "Склад"
@@ -3309,7 +3269,6 @@ $$$DELETEALLCCARDDISCS;$$$ADDCCARDDISCS"
 263 "1,первый;2,второй;3,третий;4,четвертый;5,последний"
 265 "Пакет приема данных отклонен, поскольку требует более позднюю версию (%s)"
 266 "Формирование таблицы продаж"
-267 /!/ "OK    Remove: %s"
 268 "Не определен склад: товар %s, документ %s"
 269 "Товарные остатки на неопределенном складе: товар %s, дата %s"
 270 /!/ "0,;1,X"
@@ -3362,7 +3321,6 @@ $$$DELETEALLCCARDDISCS;$$$ADDCCARDDISCS"
 335 "TCP сервер остановлен"
 336 "1,Кол-во невыполненных задач;2,Выполненные задачи/кол-во задач;3,Процент выписанных накладных;4,Количество задач"
 337 "Пакет приема данных отклонен, поскольку создан версией меньшей чем %s"
-338 /!/ "Backing up database '%s' using coninouos mode"
 339 "Выберите объект"
 340 "Обслуживание таблицы %s"
 341 "Несовместимый вид операции (ошибка синхронизации)"
@@ -3452,7 +3410,6 @@ Adobe Acrobat:*.pdf,Microsoft Excel:*.xls;*.xlsm;*.xlsx,\
 426 "Ошибка акцепта операции по карте (%ld %s): %s"
 427 "тип создаваемого файла"
 428 "Ошибка акцепта кассового чека (%ld %s): %s"
-429 "Ошибка резервного копирования/восстановления: %s"
 430 "Ошибка акцепта регионального объекта"
 431 "подстановки для товаров"
 
@@ -3465,7 +3422,6 @@ Adobe Acrobat:*.pdf,Microsoft Excel:*.xls;*.xlsm;*.xlsx,\
 439 "Введите номер персональной карты"
 // @v9.1.3 obsolete 440 "Товарные группы;Товары;Штрихкоды;Виды котировок;Котировки;Персональные карты;Кассовые сессии;Кассовые чеки;Строки чеков;Оплаты по картам"
 441 "@{discard};Выбор товара по цене;Ввод;@{goodsgroup}...;Группа по умолчанию;Печать этикетки;Выбор товара по наименованию"
-442 /!/ "ERROR Decompress (CRC invalid): %s"
 444 "Последняя строка удалена"
 445 "Не удалось удалить последнюю строку: строка не определена"
 
@@ -4102,20 +4058,35 @@ PPTXT_PSALESTESTMSG_AMT         "неверная сумма @real/@real"
 PPTXT_PSALESTESTMSG_FLAGS       "неверные флаги @hex/@hex"
 PPTXT_PSALESTESTMSG_ABSENCE     "запись отсутствует"
 
-PPTXT_BUILD_SOLUTION             "Сборка проекта: %s"
-PPTXT_BUILD_SLN_SUCCESS          "OK: Компонент '%s' успешно собран"
-PPTXT_BUILD_SLN_TARGETNFOUND     "ERR: Компонент '%s' собран, но результирующий файл '%s' не обнаружен"
-PPTXT_BUILD_SLN_FAIL             "ERR: Ошибка сборки компонента '%s'. Подробности в журнале '%s'"
-PPTXT_BUILD_COMPILERNAME_VS71    "Microsoft Visual Studio 7.1"
-PPTXT_BUILD_DISTRIB              "Сборка дистрибутива: %s"
-PPTXT_BUILD_DISTRIB_SUCCESS      "OK: Дистрибутив '%s' успешно собран"
-PPTXT_BUILD_DISTRIB_TARGETNFOUND "ERR: Дистрибутив '%s' собран, но результирующий файл '%s' не обнаружен"
-PPTXT_BUILD_DISTRIB_FAIL         "ERR: Ошибка сборки дистрибутива '%s'. Подробности в журнале '%s'"
-PPTXT_BUILD_UHTTCOPY_INFO        "Копирование на сервер @{brand_uhtt}"
-PPTXT_BUILD_UHTTCOPY_SUCCESS     "OK: Файл '%s' скопирован на сервер @{brand_uhtt}"
-PPTXT_BUILD_UHTTCOPY_FAIL        "ERR: Ошибка копирования файла '%s' на сервер @{brand_uhtt} (%s)"
-PPTXT_BUILD_LOCALDL600           "Компиляция локального файла DL600: %s"
-PPTXT_BUILD_LOCALDL600_FAIL      "ERR: Ошибка компиляции файла '%s'"
+PPTXT_BACKUPLOG_SUC_COPY          "OK    Copy: %s"
+PPTXT_BACKUPLOG_ERR_COPY          "ERROR Copy: %s"
+PPTXT_BACKUPLOG_SUC_RESTORE       "OK    Restore: %s"
+PPTXT_BACKUPLOG_ERR_RESTORE       "ERROR Restore: %s"
+PPTXT_BACKUPLOG_BEGIN             "START Backing up/restoring database: %s"
+PPTXT_BACKUPLOG_END               "END   Backing up/restoring database: %s"
+PPTXT_BACKUPLOG_INVADVOPT         "(дополнительная информация отсутствует)"
+PPTXT_BACKUPLOG_ERR_GETFILEPARAM  "ERROR Call DBBackup::GetFileParams(): %s"
+PPTXT_BACKUPLOG_ERR_COMPRESS      "ERROR Compress: %s"
+PPTXT_BACKUPLOG_ERR_DECOMPRESS    "ERROR Decompress: %s"
+PPTXT_BACKUPLOG_SUC_REMOVE        /!/ "OK    Remove: %s"
+PPTXT_BACKUPLOG_CONINOUOS_MODE    /!/ "Backing up database '%s' using coninouos mode"
+PPTXT_BACKUPLOG_ERROR             "Ошибка резервного копирования/восстановления: %s"
+PPTXT_BACKUPLOG_ERR_DECOMPRESSCRC /!/ "ERROR Decompress (CRC invalid): %s"
+
+PPTXT_BUILD_SOLUTION              "Сборка проекта: %s"
+PPTXT_BUILD_SLN_SUCCESS           "OK: Компонент '%s' успешно собран"
+PPTXT_BUILD_SLN_TARGETNFOUND      "ERR: Компонент '%s' собран, но результирующий файл '%s' не обнаружен"
+PPTXT_BUILD_SLN_FAIL              "ERR: Ошибка сборки компонента '%s'. Подробности в журнале '%s'"
+PPTXT_BUILD_COMPILERNAME_VS71     "Microsoft Visual Studio 7.1"
+PPTXT_BUILD_DISTRIB               "Сборка дистрибутива: %s"
+PPTXT_BUILD_DISTRIB_SUCCESS       "OK: Дистрибутив '%s' успешно собран"
+PPTXT_BUILD_DISTRIB_TARGETNFOUND  "ERR: Дистрибутив '%s' собран, но результирующий файл '%s' не обнаружен"
+PPTXT_BUILD_DISTRIB_FAIL          "ERR: Ошибка сборки дистрибутива '%s'. Подробности в журнале '%s'"
+PPTXT_BUILD_UHTTCOPY_INFO         "Копирование на сервер @{brand_uhtt}"
+PPTXT_BUILD_UHTTCOPY_SUCCESS      "OK: Файл '%s' скопирован на сервер @{brand_uhtt}"
+PPTXT_BUILD_UHTTCOPY_FAIL         "ERR: Ошибка копирования файла '%s' на сервер @{brand_uhtt} (%s)"
+PPTXT_BUILD_LOCALDL600            "Компиляция локального файла DL600: %s"
+PPTXT_BUILD_LOCALDL600_FAIL       "ERR: Ошибка компиляции файла '%s'"
 
 PPTXT_LOG_UNIDENTOBJ              "Объект {%s} не идентифицирован при приеме данных"
 PPTXT_LOG_OBJSYNC_MISM_COMM       "Конфликт общих идентификаторов синхронизации (старая запись удалена) [%s]"
@@ -4508,6 +4479,18 @@ PPTXT_CALCOPGRPNG              "Расчет группировки операц
 PPTXT_PREPTRANSMOBJ            "Подготовка к передаче данных"
 PPTXT_PUTTINGOBJTOSTRM         "Сохранение данных в пакете передачи"
 PPTXT_RCVREFUNRESOLVED         "Ошибка разрешения ссылки объекта (Type = %ld, ID = %ld)"
+PPTXT_LOG_BILLCHGLINKTOORD     "Изменилась привязка документа '%s' к документам заказа (%s)"
+PPTXT_SMPLLEDGINC                 "Доход полученный"
+PPTXT_SMPLLEDGINCV                "Доход для налогообложения"
+PPTXT_SMPLLEDGEXP                 "@{expend}"
+PPTXT_SMPLLEDGEXPV                "Расход для налогообложения"
+PPTXT_GOODSRMVALL                 "Успешно обработано %ld товаров\n\003Для %ld позиций встречены ошибки"
+PPTXT_SENDMAILWAITMSG             "Передается сообщение"
+PPTXT_SENDCHARRYOBJ               "Передача объекта CHARRY"
+PPTXT_ABCANLZPROCESSING           "ABC анализ"
+PPTXT_GOODSOPRABC                 "Товарный отчет"
+PPTXT_INTRREVABC                  "Изменения цен при межскладском перемещении"
+PPTXT_IMPBANK                     "Импорт банков"
 //
 // LastText
 
@@ -4618,7 +4601,7 @@ MODEL;CODE;SUBCODE;OWNER;CAPTAIN;INVOICEDATE;INVOICENO;DLVRLOCCODE;FGDATE;INN;KP
 PPSSYM_ACCSIDE "0DBT,0DB,0D,0ДБТ,0ДБ,0Д,1CRD,1CR,1KRD,1KR,1C,1K,1КРД,1КР,1К"
 // Опции командной строки
 PPSSYM_CMDLINEOP "?,CASH,EXP,IMP,IN,OUT,BATCH,SYNCPUT,SYNCGET,DB,BACKUP,BILLCASH,PRC,\
-TSESS,GOODSINFO,VERHIST,RECOVERTRANSFER,CONVERTRBCBNK,NOLOGIN,PPOS,EXPORTDIALOGS,SELFBUILD,SARTRTEST,AUTOTRANSLATE,CONVERTCIPHER"
+TSESS,GOODSINFO,VERHIST,RECOVERTRANSFER,CONVERTRBCBNK,NOLOGIN,PPOS,EXPORTDIALOGS,SELFBUILD,SARTRTEST,AUTOTRANSLATE,CONVERTCIPHER,PPINISUBST"
 // Наименования параметров импорта/экспорта
 PPSSYM_IMPEXPPAR "FILENAME,FILE;IMPEXP;FORMAT;ORIENTATION,ORIENT;CODEPAGE;OEMTEXT,OEM;QUOTSTR;\
 FIELDDIV,FLDDIV,DIV;FIXEDFIELDS;FIELDEQVAL,FLDEQVAL;FORMULA;ROOTTAG;RECTAG;FLDNAMEREC;\
@@ -5170,7 +5153,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_objrights         "50,L,@objects;9,L,@flags"                                                                                        // DLG_RTCOMM
 @lbt_psnev_taglist     "20,L,@tag;60,L,@va"                                                                                    // DLG_PSNEVNT
 @lbt_accaggr           "60,L,Группируемые счета;6,L,@flags" // DLG_ACCAGGR
-@lbt_addrbook          "56,L,Имя;20,R,E-mail;16,R,Телефоны" // DLG_ADDRBOOK
+@lbt_addrbook          "56,L,Имя;20,R,E-mail;16,R,@{phone_pl}" // DLG_ADDRBOOK
 @lbt_addrlist          "6,R,@id;24,L,@city;60,L,@address;16,L,@code" // DLG_ADDRLIST
 @lbt_arcodelist        "48,L,@article;16,L,@code;8,R,@qtty" // DLG_ARGCODELIST
 @lbt_araliasesubst     "20,L,@accountalias;38,L,@account" // DLG_ARTICLE2
@@ -5180,7 +5163,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_bucfgselect       "32,L,Сценарий;31,L,@database" // DLG_BUCFG_SELECT
 @lbt_attchfilelist     "68,L,@attachedfile"           // Диалоги заголовков документов
 @lbt_impexpcfglist     "30,L,@appellation;10,L,@{import}/@{export};10,L,@{format};60,L,@file"
-@lbt_jobpool           "40,L,@appellation;20,L,@symbol;45,L,Расписание;40,L,Далее"                                                  // DLG_JOBPOOL
+@lbt_jobpool           "40,L,@appellation;20,L,@symbol;45,L,@jobitem_schedule;40,L,@jobitem_nextjob"     // DLG_JOBPOOL
 @lbt_filtpool          "40,L,@appellation;20,L,@symbol"                                                  // DLG_FILTPOOL
 @lbt_exprreg           "30,L,Тип документа;12,L,@series;32,L,@number" // DLG_EXPIRYREG
 @lbt_scardcheck        "16,L,@date;16,L,@time;12,R,Касса;16,R,@checkno;30,R,@amount;20,R,@discount" // DLG_SCARDVIEW
@@ -5193,8 +5176,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_complexgoodslist  "80,L,@ware;20,R,@qtty;20,R,@price;20,R,Цена в комплексе;20,R,@amount" // DLG_COMPLDIN
 @lbt_complexgoodssubst "80,L,@ware;20,R,@price"                                                                                    // DLG_COMPLDIN
 @lbt_cpselmod          "80,L,@ware;12,R,@qtty;12,R,@price"                                                                    // DLG_CPSELMOD
-@lbt_tblordlist        "5,R,@ftable;26,R,Время заказа;10,L,@card;19,L,@scardowner;14,R,@prepay;18,L,@{datetime};10,L,@checkno"
-@lbt_tblordlist_l      "10,R,@ftable;35,R,Время заказа;20,L,@card;30,L,@scardowner;25,R,@prepay;36,L,@{datetime};20,L,@checkno"
+@lbt_tblordlist        "5,R,@ftable;26,R,Время заказа;10,L,@card;19,L,@scardowner;14,R,@prepay;18,L,@datetime;10,L,@checkno"
+@lbt_tblordlist_l      "10,R,@ftable;35,R,Время заказа;20,L,@card;30,L,@scardowner;25,R,@prepay;36,L,@datetime;20,L,@checkno"
 @lbt_reckon            "9,L,@date;11,L,@number;15,R,@amount;15,R,@debt;30,L,@agent"
 @lbt_seladdrbyphone    "10,L,@object;8,R,@id;30,L,@contact;40,L,@address;20,L,@card"
 @lbt_phnsvcstate       "10,L,Channel;10,L,State;12,L,Phone;30,L,@contact;40,L,@address"
@@ -5212,7 +5195,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_scardrule_dis     "30,R,Диапазон оборотов;10,R,@discount;16,L,@series"
 @lbt_scardrule_ccdis   "30,R,Диапазон суммы чека;10,R,@discount;16,L,@series"
 @lbt_scardrule_bonus   "30,R,Диапазон оборотов;10,R,@bonus;16,L,@series"
-@lbt_uhttstore_sel     "30,L,Атрибут;40,L,@title"
+@lbt_uhttstore_sel     "30,L,@attribute;40,L,@title"
 @lbt_objsynctab        "30,L,Раздел;12,R,Общий ИД;12,R,Собственный ИД;18,L,@modifdate"
 @lbt_tdeficit          "50,L,@warehouse;12,L,@date"
 @lbt_examtlist         "40,L,@amounttype;12,L,@currency;12,R,@amount"
@@ -5277,6 +5260,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @indicator               "Показатель"
 @format                  "Формат"
 @structure               "Структура"
+@attribute               "Атрибут"
 @rank                    "Ранг"
 @series                  "Серия"
 @version                 "Версия"
@@ -5353,6 +5337,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @password          "Пароль"
 @name              "Имя"
 @phone             "Телефон"
+@phone_pl          "Телефоны"
 @email             "Адрес электронной почты"
 @emailacc          "Почтовый аккаунт"
 @emailsubj         "Тема сообщения"
@@ -5463,6 +5448,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lot               "Лот"
 @lots              "Лоты"
 @orderlots         "Лоты заказов"
+@lotstruc          "Структура лота"
 @bylastlot         "По последнему лоту"
 @egaiscode         "Код @{brand_egais}"
 @egaisrefa         "Справка А"
@@ -5521,6 +5507,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @jaddress          "Юридический адрес"
 @paddress          "Фактический адрес"
 @daddress          "Адрес доставки"
+@daddress_pl       "Адреса доставки"
 @haddress          "Зависший адрес"
 @postzip           "Почтовый индекс"
 @inn               "ИНН"
@@ -5641,6 +5628,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @linkobjtype            "Тип связанного объекта"
 @addobjappellation      "Наименование дополнительного объекта"
 @barcode                "Штрихкод"
+@barcodestruc           "Структура штрихкода"
 @description            "Описание"
 @billno                 "Номер документа"
 @billdate               "Дата документа"
@@ -5683,6 +5671,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @printer                "Принтер"
 @barcodeprinter         "Принтер штрихкодов"
 @posnode                "Кассовый узел"
+@posnode_sync           "Синхронный кассовый узел"
+@posnode_async          "Асинхронный кассовый узел"
 @posnodeno              "Номер кассы"
 @scales                 "Весы"
 @quotkind               "Вид котировки"
@@ -6244,7 +6234,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_autocharge                           "Начисление ренты"
 @cmd_balance                              "Балансы"
 @cmd_barcodeprinter                       "Принтеры штрихкодов"
-@cmd_barcodestruc                         "Структура штрих-кодов"
+@cmd_barcodestruc                         "Структуры штрихкодов"
 @cmd_bht                                  "BHT-терминал"
 @cmd_bhtreceive                           "Выгрузка с BHT-терминала"
 @cmd_bhttransmit                          "Загрузка BHT-терминала"
@@ -6374,9 +6364,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_globaluseracc    			          "Глобальные учетные записи"
 @cmd_globaluseracctag 			          "Теги глобальных учетных записей"
 @cmd_goods            			          "@{ware_pl}"
-@cmd_goods2cashnodeassoc 		          "Ассоциации товар-кассовый узел"
-@cmd_goods2locassoc 			          "Ассоциации товар-склад"
-@cmd_goods2supplassoc 			          "Ассоциации товар-поставщик"
+@cmd_goods2cashnodeassoc 		          "Ассоциации @{ware}-@{posnode}"
+@cmd_goods2locassoc 			          "Ассоциации @{ware}-@{warehouse}"
+@cmd_goods2supplassoc 			          "Ассоциации @{ware}-@{supplier}"
 @cmd_goodsbasket 				          "Товарные корзины"
 @cmd_goodsbilllist 				          "Товарные документы"
 @cmd_goodscfg 					          "@{cfg_goods}"
@@ -7030,9 +7020,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cafetable_id                             "@{id}"
 @cafetable_name                           "@{appellation}"
 @cafetable_symb                           "@{symbol}"
-@cashnode_amtroundprec                    "@{roundprec}"
+
 @cashnode_cashf_abovezerosale             "Запрет ввода позиции при нехватке товара"
-@cashnode_cashf_async                     "Асинхронный кассовый узел"
+@cashnode_cashf_async                     "@{posnode_async}"
 @cashnode_cashf_auto_printcopy            "Автоматически печатать копию чека"
 @cashnode_cashf_checkforpresent           "Проверять на выдачу подарка"
 @cashnode_cashf_chkpan                    "Использовать панель ввода чеков"
@@ -7059,10 +7049,13 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cashnode_cashf_usequot                   "Использовать котировки в панели чеков"
 @cashnode_cashf_workwhenlock              "Работа с кассовой панелью при блокировке"
 @cashnode_cashf_nomodalcheckview          "Не показывать чеки за кассовой панелью"
+@cashnode_cashf_selallgoods               "При вводе чеков показывать все товары"
 @cashnode_cashfx_applyunitrnd             "Загружать дробность товаров согласно единице измерения"
 @cashnode_cashfx_createobjsonimp          "Создавать объекты при импорте чеков"
 @cashnode_cashfx_disablezeroscard         "Запрет операций без выбора карты"
 @cashnode_cashfx_explocprnassoc           "Загружать символы ассоциированных локальных принтеров"
+@cashnode_cashfx_glassocprintonly_async   "Только для загрузки (не для списания)"
+@cashnode_cashfx_glassocprintonly_sync    "Только для печати (не для списания)"
 @cashnode_cashfx_forcedivision            "Запрет ввода позиции без номера отдела"
 @cashnode_cashfx_ignlookbackprices        "Игнорировать обратный анализ специальных цен"
 @cashnode_cashfx_keeporgccuser            "Keep original UserID"
@@ -7072,23 +7065,28 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cashnode_cashfx_roundamtdown             "Округление суммы вниз"
 @cashnode_cashfx_roundamtup               "Округление суммы вниз"
 @cashnode_cashfx_selserialbygoods         "Предлагать выбор партии после выбора товара"
-@cashnode_cashfx_separatercpprn           "Разделять номера принтеров чеков"
+@cashnode_cashfx_separatercpprn           "Загружать номера кассовых аппаратов"
+@cashnode_cashfx_inpguestcftbl            "Обязательный ввод количества гостей после выбора стола"
 @cashnode_cashfx_uhttordimport            "Импортировать заказы с сервера Universe-HTT"
 @cashnode_cashfx_extscardsel              "Расширенный режим выбора карты"
 @cashnode_cashfx_unitegrpwroff            "Списывать сессии группой"
 @cashnode_cashtype                        "Тип ККМ"
 @cashnode_curdate                         "Текущая дата"
 @cashnode_cursess                         "ИД текущей сессии"
-@cashnode_disroundprec                    "Точность округления скидки"
+@cashnode_rounding                        "Параметры округления кассовых чеков" // generic
+@cashnode_amtrounding                     "Округление суммы" // generic
+@cashnode_disrounding                     "Округление скидки" // generic
+@cashnode_amtroundprec                    "@{precision}"
+@cashnode_disroundprec                    "@{precision}"
 @cashnode_drvvermajor                     "Версия драйвера"
 @cashnode_drvverminor                     "."
 @cashnode_extquot                         "Дополнительная котировка для дисконтных карт"
 @cashnode_flags                           "@{flags}"
 @cashnode_goodsgrp                        "@{goodsgroup}"
-@cashnode_goodslocassoc                   "Именованная ассоциация товар-склад"
+@cashnode_goodslocassoc                   "Именованная ассоциация @{ware}-@{warehouse}"
 @cashnode_id                              "@{id}"
 @cashnode_loc                             "@{warehouse}"
-@cashnode_lognum                          "Логические номера касс"
+@cashnode_lognum                          "@{cashnode_async_lognumlist}" // unused
 @cashnode_name                            "@{appellation}"
 @cashnode_port                            "@{port}"
 @cashnode_sleeptimeout                    "Время засыпания, сек"
@@ -7096,6 +7094,55 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cashnode_symb                            "@{symbol}"
 @cashnode_tag                             "@{tag}"
 @cashnode_egaismode                       "Работа с сервером @{brand_egais}"
+@cashnode_egaismode_use                   "Использовать"
+@cashnode_egaismode_dontuse               "Не использовать"
+@cashnode_egaismode_testmode              "@{testmode}"
+@cashnode_async_exppaths                  "Пути экспорта"
+@cashnode_async_impfiles                  "Файлы импорта"
+@cashnode_async_lognumlist                "Логические номера касс"
+@cashnode_async_addedmsgsign              "Дополнительные поля для загрузки"
+@cashnode_sync_devices                    "Дополнительные устройства кассового узла" // generic
+@cashnode_sync_extension                  "Расширеные параметры кассового узла" // generic
+@cashnode_sync_devices_sh                 "Устройства" // generic
+@cashnode_sync_downbill                   ""
+@cashnode_sync_touchscreen                "Сенсорный экран"
+@cashnode_sync_extcashnode                "Спаренный кассовый узел"
+@cashnode_sync_papyrusnode                "Узел Papyrus"
+@cashnode_sync_scale                      "@{scales}"
+@cashnode_sync_custdisp                   "Дисплей покупателя" // generic
+@cashnode_sync_custdisptype               ""
+@cashnode_sync_custdispport               ""
+@cashnode_sync_custdispflags              ""
+@cashnode_sync_bnkterm                    "Банковский терминал" // generic
+@cashnode_sync_bnktermtype                ""
+@cashnode_sync_bnktermlognum              ""
+@cashnode_sync_bnktermflags               ""
+@cashnode_sync_bnktermport                ""
+@cashnode_sync_bnktermpath                ""
+@cashnode_sync_clearcdytimeout            ""
+@cashnode_sync_localtouchscr              "Локальный сенсорный экран"
+@cashnode_sync_localtouchscr_prompt       "Локальный экран применяется только для данного компьютера"
+@cashnode_sync_bonusmaxpart               "Максимальная доля бонуса при оплате чека, %"
+@cashnode_sync_phnsvc                     "Телефонный сервис"
+@cashnode_sync_scf                        "Параметры фильтрации отложенных чеков"
+@cashnode_sync_scf_days                   "Период отображение отложенных чеков, дней"
+@cashnode_sync_scf_dlvrt                  "Отображение чеков с доставкой" // generic
+@cashnode_sync_scf_dlvrt_any              "Не зависимо от признака"
+@cashnode_sync_scf_dlvrt_only             "Только с признаком доставки"
+@cashnode_sync_scf_dlvrt_exclude          "Только без признака доставки"
+@cashnode_sync_printerport                "Порт принтера чеков"
+@cashnode_sync_tableselwhatman            "Файл плана зала"
+@cashnode_sync_slipfmtpath                "Файл описания SLIP-отчетов"
+@cashnode_sync_extstring                  ""
+@cashnode_sync_ctbllist                   "Список номеров столов"
+@cashnode_scn_rptprnport                  "Порт принтера отчетов"
+@cashnode_scn_manufserial                 "Заводской номер фискального принтера"
+@cashnode_scn_cashdrawer                  "Денежный ящик" // generic
+@cashnode_scn_cashdrawer_port             "@{port}"
+@cashnode_scn_cashdrawer_cmd              "@{cmd}"
+@cashnode_scn_kitchenbell                 "Кухонный звонок" // generic
+@cashnode_scn_kitchenbell_port            "@{port}"
+@cashnode_scn_kitchenbell_cmd             "@{cmd}"
 
 @ccheck_sysinfo                           "Системная информация по чеку" // generic
 @ccheck_addendum                          "Дополнение к чеку" // generic
@@ -7139,7 +7186,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ccheck_creationdtm                       "Время создания"
 @ccheck_startorddtm                       "Время доставки"
 @ccheck_endorddtm                         ""
-@ccheck_dlvraddr                          "Адрес доставки"
+@ccheck_dlvraddr                          "@{daddress}"
 @ccheck_doattachphonetocard               "Привязать телефон к карте" // command
 
 @cfgalbatros_desadvop                     "Вид операции DESADV"
@@ -8957,6 +9004,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @scardseries_pdis                         "@{discount} (%)"
 @scardseries_personkind                   "@{psnkind}"
 @scardseries_quotkind_s                   "@{quotkind}"
+@scardseries_type                         "Тип карт" // generic
 @scardseries_scrdsf_bonus                 "Бонусные карты"
 @scardseries_scrdsf_bonuser_onbnk         "Изменение базы начисления бонуса при безналичной оплате, %"
 @scardseries_scrdsf_credit                "Кредитные карты"
@@ -9797,7 +9845,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @personeventfilt_sgpe                     "Подстановка"
 
 @personfilt                               "Фильтр по персоналиям"
-@personfilt_attribtype                    "Атрибут"
+@personfilt_attribtype                    "@{attribute}"
 @personfilt_category                      "@{category}"
 @personfilt_city                          "@{city}"
 @personfilt_ea_all                        "Все"
@@ -10302,6 +10350,12 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @printrpt_printer                         "@{printer}"
 @printrpt_emailaddr                       ""
 @printrpt_contextsymb                     ""
+
+@scardchargerule                          "Пересчет скидок и начислений по персональным картам"
+@scardchargerule_series                   "@{scard_series}"
+@scardchargerule_periodkind               "Вид периода для расчета"
+@scardchargerule_periodkind_prev          "Обороты рассчитывать за предыдущий период"
+@scardchargerule_periodkind_cur           "Обороты рассчитывать за текущий период"
 
 @dbmaintain                               "Обслуживание базы данных"
 @dbmaintain_leaverecordsfor               "Сохранить записи за" // generic

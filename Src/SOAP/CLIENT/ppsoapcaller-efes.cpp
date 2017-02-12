@@ -75,8 +75,8 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesOrder> * EfesGetSalesOrder
 	const DateRange * pPeriod, int repeat, const char * pDocNumberList)
 {
 	TSCollection <SapEfesOrder> * p_result = 0;
-	//WS_USCOREEFES_USCOREDDEBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS|/*SOAP_IO_CHUNK|*/SOAP_IO_KEEPALIVE); // @v9.5.0 SOAP_IO_CHUNK|SOAP_IO_KEEPALIVE
-	WS_USCOREEFES_USCOREDDEBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
+	WS_USCOREEFES_USCOREDDEBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS|/*SOAP_IO_CHUNK|*/SOAP_IO_KEEPALIVE); // @v9.5.0 SOAP_IO_CHUNK|SOAP_IO_KEEPALIVE
+	//WS_USCOREEFES_USCOREDDEBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
 	//proxi.recv_timeout = 60; // @v9.5.0
 	TSCollection <InParamString> arg_str_pool;
 	SString temp_buf;
@@ -120,7 +120,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesOrder> * EfesGetSalesOrder
 		THROW(p_result = new TSCollection <SapEfesOrder>);
 		PPSoapRegisterResultPtr(p_result);
 		for(int i = 0; i < resp.__sizeSalesOrder; i++) {
-			const ns2__DDESalesOrderType * p_doc = resp.SalesOrder[0];
+			const ns2__DDESalesOrderType * p_doc = resp.SalesOrder[i];
 			if(p_doc) {
 				SapEfesOrder * p_new_item = p_result->CreateNewItem(0);
 				THROW(p_new_item);

@@ -3539,8 +3539,12 @@ int SLAPI CCheckCore::RecalcSCardsTurnover(int use_ta)
 	return ok;
 }
 
-int SLAPI CCheckCore::GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgXXX*/, const DateRange * pPeriod, double * pDebit, double * pCredit)
+//double CPosProcessor::Helper_CalcSCardOpBonusAmount(const CCheckLineTbl::Rec & rItem, PPObjGoods & rGObj, PPID bonusGoodsGrpID, double * pNonCrdAmt)
+
+int SLAPI CCheckCore::GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgXXX*/, const DateRange * pPeriod, 
+	PPID restrGoodsGrpID, double * pDebit, double * pCredit)
 {
+	PPIDArray cc_list;
 	CCheckTbl::Key4 k, k_;
 	double dbt = 0.0, crd = 0.0;
 	MEMSZERO(k);
@@ -3553,26 +3557,51 @@ int SLAPI CCheckCore::GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgX
 		q.select(this->ID, this->Amount, this->Flags, 0L).where(this->SCardID == cardID && daterange(this->Dt, pPeriod));
 		for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
 			if(!(data.Flags & (CCHKF_JUNK|CCHKF_SKIP))) {
-				double amt = MONEYTOLDBL(data.Amount);
-				if(amt > 0.0) { // Sell
-					if(alg != PPObjSCard::gtalgForBonus) {
-						CCheckExtTbl::Rec ext_rec;
-						if(data.Flags & (CCHKF_ADDPAYM|CCHKF_ADDINCORPCRD) && GetExt(data.ID, &ext_rec) > 0) {
-							//
-							// При доплате по дополнительной карте сумма этой доплаты хранится с минусом.
-							//
-							// @v9.0.4 amt -= (intmnytodbl(ext_rec.AddPaym) - intmnytodbl(ext_rec.AddCrdCardPaym));
-						}
-					}
-					crd += amt;
+				if(restrGoodsGrpID) {
+					cc_list.add(data.ID);
 				}
-				else // Return or charge
-					dbt += amt;
+				else {
+					const double amt = MONEYTOLDBL(data.Amount);
+					if(amt > 0.0) { // Sell
+						if(alg != PPObjSCard::gtalgForBonus) {
+							CCheckExtTbl::Rec ext_rec;
+							if(data.Flags & (CCHKF_ADDPAYM|CCHKF_ADDINCORPCRD) && GetExt(data.ID, &ext_rec) > 0) {
+								//
+								// При доплате по дополнительной карте сумма этой доплаты хранится с минусом.
+								//
+								// @v9.0.4 amt -= (intmnytodbl(ext_rec.AddPaym) - intmnytodbl(ext_rec.AddCrdCardPaym));
+							}
+						}
+						crd += amt;
+					}
+					else // Return or charge
+						dbt += amt; // @fixme Вероятно, здесь должно быть (dbt -= amt)
+				}
+			}
+		}
+		if(restrGoodsGrpID && cc_list.getCount()) {
+			PPObjGoods goods_obj;
+			cc_list.sortAndUndup();
+			CCheckLineArray lines_list;
+			{
+				ObjIdListFilt cc_list_;
+				cc_list_.Set(&cc_list);
+				LoadLinesByList(0, &cc_list_, &lines_list);
+			}
+			for(uint i = 0; i < lines_list.getCount(); i++) {
+				const CCheckLineTbl::Rec & r_line_rec = lines_list.at(i);
+				double non_crd_amt = 0.0;
+				const double amt = CPosProcessor::Helper_CalcSCardOpBonusAmount(r_line_rec, goods_obj, restrGoodsGrpID, &non_crd_amt);
+				if(amt > 0.0)
+					crd += amt;
+				else
+					dbt += amt; // @fixme Вероятно, здесь должно быть (dbt -= amt)
 			}
 		}
 	}
 	// @v9.0.4 {
 	{
+		RAssocArray cc_amt_list;
 		CCheckPaymTbl::Key1 pk1;
 		BExtQuery q(&PaymT, 1);
 		q.selectAll().where(PaymT.SCardID == cardID);
@@ -3580,11 +3609,42 @@ int SLAPI CCheckCore::GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgX
 		pk1.SCardID = cardID;
 		for(q.initIteration(0, &pk1, spGe); q.nextIteration() > 0;) {
 			const long p = PaymT.data.Amount;
-			if(p > 0) {
-				dbt += intmnytodbl(p);
+			const double amt = intmnytodbl(p);
+			if(restrGoodsGrpID) {
+				const PPID cc_id = PaymT.data.CheckID;
+				cc_amt_list.Add(cc_id, amt);
+				cc_list.add(cc_id);
 			}
-			else if(p < 0) {
-				crd -= intmnytodbl(p);
+			else {
+				if(p > 0) {
+					dbt += amt;
+				}
+				else if(p < 0) {
+					crd -= amt;
+				}
+			}
+		}
+		if(restrGoodsGrpID && cc_amt_list.getCount()) {
+			PPObjGoods goods_obj;
+			cc_list.sortAndUndup(); 
+			cc_amt_list.SortByKey(); // in order to use binary searching
+			CCheckLineArray lines_list;
+			{
+				ObjIdListFilt cc_list_;
+				cc_list_.Set(&cc_list);
+				LoadLinesByList(0, &cc_list_, &lines_list);
+			}
+			for(uint i = 0; i < lines_list.getCount(); i++) {
+				const CCheckLineTbl::Rec & r_line_rec = lines_list.at(i);
+				double non_crd_amt = 0.0;
+				const double base_amt = fabs(cc_amt_list.Get(r_line_rec.CheckID, 1 /*binary*/));
+				if(base_amt != 0.0) {
+					const double amt = CPosProcessor::Helper_CalcSCardOpBonusAmount(r_line_rec, goods_obj, restrGoodsGrpID, &non_crd_amt);
+					if(amt > 0.0)
+						crd += (amt / base_amt);
+					else
+						dbt -= (amt / base_amt);
+				}
 			}
 		}
 	}

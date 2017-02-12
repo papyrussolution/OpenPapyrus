@@ -377,16 +377,14 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 				gds_info.QuotList.Add(retail_quot_list.get(i), 0, 1);
 			}
 			while(goods_iter.Next(&gds_info) > 0) {
-				// @v7.4.12 {
 				if(gds_info.GoodsFlags & GF_PASSIV && cn_data.ExtFlags & CASHFX_RMVPASSIVEGOODS && gds_info.Rest <= 0.0) {
 					rmv_goods_list.addUnique(gds_info.ID);
 				}
 				else {
-				// } @v7.4.12
 					size_t bclen;
 	   				if(gds_info.ID != prev_goods_id) {
 						long   level = 0;
-						PPID   dscnt_scheme_id = 0; // @v6.4.0 =ATOL_INNER_SCHEME --> =0
+						PPID   dscnt_scheme_id = 0;
 						if(prev_goods_id) {
 							f_str.Transf(CTRANSF_INNER_TO_OUTER).Semicol().Cat(tail);
 							THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);

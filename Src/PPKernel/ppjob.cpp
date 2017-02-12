@@ -841,8 +841,7 @@ public:
 	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, r = 0;
-		SCardSelRule param;
-		MEMSZERO(param);
+		SCardChargeRule param;
 		const size_t sav_offs = pParam->GetRdOffs();
 		if((r = ReadParam(*pParam, &param, sizeof(param))) != 0) {
 			ok = PPObjSCardSeries::SelectRule(&param);
@@ -858,7 +857,7 @@ public:
 	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
-		SCardSelRule param;
+		SCardChargeRule param;
 		THROW(ReadParam(*pParam, &param, sizeof(param)));
 		THROW(PPObjSCardSeries::SetSCardsByRule(&param));
 		CATCHZOK

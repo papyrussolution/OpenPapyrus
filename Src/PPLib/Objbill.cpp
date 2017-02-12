@@ -3315,7 +3315,7 @@ int SLAPI PPObjBill::CreateMrpTab(const PPIDArray * pList, MrpTabPacket * pMrpPa
 						if(is_draft)
 							THROW_PP(op_pack.P_DraftData && (op_pack.P_DraftData->WrOffOpID || op_pack.P_DraftData->WrOffComplOpID), PPERR_UNDEFWROFFOP);
 						MakeCodeString(&bill_rec, 1, bill_name);
-						msg_buf.Printf(fmt_buf, (const char *)bill_name);
+						msg_buf.Printf(fmt_buf, bill_name.cptr());
 						CALLPTRMEMB(pLogger, Log(msg_buf));
 						PPWaitMsg(msg_buf);
 						THROW(ok = Helper_PutBillToMrpTab(bill_id, pMrpPack, op_pack.P_DraftData, use_ta)); // @v8.6.10 0-->use_ta
@@ -5955,6 +5955,7 @@ int SLAPI PPObjBill::ProcessShadowPacket(PPBillPacket * pPack, int update)
 {
 	int    ok = 1, r;
 	uint   pos;
+	ReceiptTbl::Rec lot_rec;
 	PPIDArray old_shadow_bills;
 	PPIDArray orders;
 	PPTransferItem ti;
@@ -5963,9 +5964,10 @@ int SLAPI PPObjBill::ProcessShadowPacket(PPBillPacket * pPack, int update)
 			const  PPID bill_id = P_Tbl->data.ID;
 			int    rbybill = 0;
 			THROW_SL(old_shadow_bills.add(bill_id));
-			while(trfr->EnumItems(bill_id, &rbybill, &ti) > 0)
-				if(ti.Flags & PPTFR_SHADOW && ti.LotID && trfr->Rcpt.Search(ti.LotID) > 0)
-					THROW_SL(orders.addUnique(trfr->Rcpt.data.BillID));
+			while(trfr->EnumItems(bill_id, &rbybill, &ti) > 0) {
+				if(ti.Flags & PPTFR_SHADOW && ti.LotID && trfr->Rcpt.Search(ti.LotID, &lot_rec) > 0)
+					THROW_SL(orders.addUnique(lot_rec.BillID));
+			}
 		}
 	}
 	if((r = pPack->CreateShadowPacket(0)) > 0) {
@@ -5987,7 +5989,6 @@ int SLAPI PPObjBill::ProcessShadowPacket(PPBillPacket * pPack, int update)
 		int    rbybill = 0;
 		int    closed = 1;
 		while(closed && trfr->EnumItems(order_id, &rbybill, &ti) > 0) {
-			ReceiptTbl::Rec lot_rec;
 			if(ti.Flags & PPTFR_ORDER && ti.LotID && trfr->Rcpt.Search(ti.LotID, &lot_rec) > 0)
 				closed = BIN(lot_rec.Closed);
 		}
@@ -6767,7 +6768,9 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 	TBlock tb_;
 	PPIDArray added_lot_items; // Список позиций товарных строк с признаком
 		// PPTFR_RECEIPT, которые были добавлены. Нобходим для корректной очистки после ошибки.
+	PPIDArray _debug_org_ord_bill_list; // @v9.5.2 @debug Список документов заказов, к которым до изменения был привязан данный документ
 	SString wait_msg, bill_code, clb;
+	SString fmt_buf, msg_buf, temp_buf;
 	DateIter diter;
 	BillTbl::Rec org;
 	PPAccTurn    at, * p_at;
@@ -6792,6 +6795,13 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 		if(pPack->OprType == PPOPT_CORRECTION)
 			GetCorrectionBackChain(pPack->Rec, correction_exp_chain);
 		// } @v9.4.3
+		// @v9.5.2 {
+		if(CConfig.Flags & CCFLG_DEBUG) {
+			if(CheckOpFlags(pPack->Rec.OpID, OPKF_ONORDER)) {
+				P_Tbl->GetListOfOrdersByLading(pPack->Rec.ID, &_debug_org_ord_bill_list);
+			}
+		}
+		// } @v9.5.2 
 	}
 	if(pPack->ProcessFlags & PPBillPacket::pfViewPercentOnTurn)
 		PPLoadText(PPTXT_WAIT_TURNBILLTRFR, wait_msg);
@@ -7000,10 +7010,9 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 						}
 					}
 					if(r == 0) {
-						SString fmt_buf, msg_buf, temp_buf;
-						uint msg_id = (prev_rbb != rbybill) ? PPTXT_LOG_LOADACCTURNFAULT_C : PPTXT_LOG_LOADACCTURNFAULT;
+						const uint msg_id = (prev_rbb != rbybill) ? PPTXT_LOG_LOADACCTURNFAULT_C : PPTXT_LOG_LOADACCTURNFAULT;
 						PPGetMessage(mfError, PPErrCode, 0, 1, temp_buf);
-						PPFormatT(msg_id, &msg_buf, id, (const char *)temp_buf);
+						PPFormatT(msg_id, &msg_buf, id, temp_buf.cptr());
 						PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 						if(prev_rbb != rbybill) {
 							THROW(atobj->P_Tbl->RollbackTurn(id, rbybill, 0));
@@ -7060,20 +7069,54 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 				}
 			}
 		}
-		if(pPack->PaymBillID)
+		if(pPack->PaymBillID) {
 			THROW(P_Tbl->UpdatePool(pPack->Rec.ID, PPASS_PAYMBILLPOOL, pPack->PaymBillID, 0));
+		}
 		{
 			PPIDArray  pool_list;
-			if(P_Tbl->GetPoolOwnerList(pPack->Rec.ID, PPASS_OPBILLPOOL, &pool_list) > 0)
-				for(i = 0; i < pool_list.getCount(); i++)
+			if(P_Tbl->GetPoolOwnerList(pPack->Rec.ID, PPASS_OPBILLPOOL, &pool_list) > 0) {
+				for(i = 0; i < pool_list.getCount(); i++) {
 					THROW(UpdatePool(pool_list.get(i), 0));
+				}
+			}
 		}
 		THROW(UnlockFRR(&frrl_tag, 0, 0));
 		THROW(FinishTFrame(id, tb_)); // @v8.0.3
 		if(pPack->Rec.OpID) { // Проводку теневого документа не регистрируем
 			PPID   h_id = 0;
-			if(TLP(HistBill).IsOpened())
+			if(TLP(HistBill).IsOpened()) {
 				THROW(HistBill->PutPacket(&h_id, &hist_pack, 0, 0));
+			}
+			// @v9.5.2 {
+			if(CConfig.Flags & CCFLG_DEBUG) {
+				if(CheckOpFlags(pPack->Rec.OpID, OPKF_ONORDER)) {
+					PPIDArray _debug_new_ord_bill_list;
+					P_Tbl->GetListOfOrdersByLading(pPack->Rec.ID, &_debug_new_ord_bill_list);
+					_debug_org_ord_bill_list.sortAndUndup();
+					_debug_new_ord_bill_list.sortAndUndup();
+					if(!_debug_org_ord_bill_list.IsEqual(&_debug_new_ord_bill_list)) {
+						PPObjBill::MakeCodeString(&pPack->Rec, PPObjBill::mcsAddOpName, bill_code);
+						PPLoadText(PPTXT_LOG_BILLCHGLINKTOORD, fmt_buf);
+						{
+							uint _i;
+							(temp_buf = 0).CatChar('[');
+							for(_i = 0; _i < _debug_org_ord_bill_list.getCount(); _i++) {
+								const PPID _ord_bill_id = _debug_org_ord_bill_list.get(_i);
+								temp_buf.CatDiv(',', 2, 1).Cat(_ord_bill_id);
+							}
+							temp_buf.CatChar(']').Cat("->").CatChar('[');
+							for(_i = 0; _i < _debug_new_ord_bill_list.getCount(); _i++) {
+								const PPID _ord_bill_id = _debug_new_ord_bill_list.get(_i);
+								temp_buf.CatDiv(',', 2, 1).Cat(_ord_bill_id);
+							}
+							temp_buf.CatChar(']');
+						}
+						msg_buf.Printf(fmt_buf, bill_code.cptr(), temp_buf.cptr());
+						PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_TIME);
+					}
+				}
+			}
+			// } @v9.5.2 
 			DS.LogAction(PPACN_UPDBILL, PPOBJ_BILL, pPack->Rec.ID, h_id, 0);
 		}
 		THROW(PPCommitWork(&ta));

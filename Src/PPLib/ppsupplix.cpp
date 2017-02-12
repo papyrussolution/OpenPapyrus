@@ -4514,7 +4514,7 @@ int SLAPI SapEfes::ReceiveOrders()
 							uint pli = person_list.getCount();
 							if(pli) do {
 								const  PPID _psn_id = person_list.get(--pli);
-								ArObj.P_Tbl->PersonToArticle(psn_rec.ID, op_rec.AccSheetID, &contractor_ar_id);
+								ArObj.P_Tbl->PersonToArticle(_psn_id, op_rec.AccSheetID, &contractor_ar_id);
 							} while(!contractor_ar_id && pli);
 						}
 						if(contractor_by_loc_ar_id) {

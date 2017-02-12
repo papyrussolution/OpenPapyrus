@@ -2747,7 +2747,7 @@ public:
 	//
 	SLAPI  DbThreadLocalArea();
 	SLAPI ~DbThreadLocalArea();
-	int    SLAPI Init();
+	void   SLAPI Init();
 	long   GetState() const
 	{
 		return State;
@@ -3780,9 +3780,9 @@ public:
 	int    SLAPI nextIteration();
 	long   SLAPI countIterations(int reverse, void * pInitKey = 0, int initSpMode = spFirst);
 	int    FASTCALL getRecPosition(DBRowId * pPos);
-	uint   SLAPI getActualCount() const 
-	{ 
-		return ActCount; 
+	uint   SLAPI getActualCount() const
+	{
+		return ActCount;
 	}
 	int    SLAPI CreateSqlExpr(Generator_SQL * pSg, int reverse, const char * pInitKey, int initSpMode) const;
 private:

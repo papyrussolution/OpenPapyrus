@@ -1232,21 +1232,15 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 						}
 					}
 					if(src_len == 34) {
-						if((source[26] == '1') && (source[27] == '1')) {
-							/* (01), (310x) and (11) - metric weight and production date */
-							encoding_method = 7;
-						}
-						if((source[26] == '1') && (source[27] == '3')) {
-							/* (01), (310x) and (13) - metric weight and packaging date */
-							encoding_method = 9;
-						}
-						if((source[26] == '1') && (source[27] == '5')) {
-							/* (01), (310x) and (15) - metric weight and "best before" date */
-							encoding_method = 11;
-						}
-						if((source[26] == '1') && (source[27] == '7')) {
-							/* (01), (310x) and (17) - metric weight and expiration date */
-							encoding_method = 13;
+						if(source[26] == '1') {
+							if(source[27] == '1') // (01), (310x) and (11) - metric weight and production date
+								encoding_method = 7;
+							else if(source[27] == '3') // (01), (310x) and (13) - metric weight and packaging date 
+								encoding_method = 9;
+							else if(source[27] == '5') // (01), (310x) and (15) - metric weight and "best before" date 
+								encoding_method = 11;
+							else if(source[27] == '7') // (01), (310x) and (17) - metric weight and expiration date
+								encoding_method = 13;
 						}
 					}
 				}
@@ -1298,15 +1292,11 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 		}
 
 		if(source[17] == '9') {
-			/* Methods 5 and 6 */
-			if((source[18] == '2') && ((source[19] >= '0') && (source[19] <= '3'))) {
-				/* (01) and (392x) */
+			// Methods 5 and 6 
+			if((source[18] == '2') && ((source[19] >= '0') && (source[19] <= '3'))) // (01) and (392x) 
 				encoding_method = 5;
-			}
-			if((source[18] == '3') && ((source[19] >= '0') && (source[19] <= '3'))) {
-				/* (01) and (393x) */
+			else if((source[18] == '3') && ((source[19] >= '0') && (source[19] <= '3'))) // (01) and (393x) 
 				encoding_method = 6;
-			}
 			if(debug) 
 				printf("Now using method %d\n", encoding_method);
 		}
@@ -1560,67 +1550,69 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 	if(debug) 
 		printf("General field data = %s\n", general_field);
 	latch = 0;
-	for(i = 0; i < strlen(general_field); i++) {
-		/* Table 13 - ISO/IEC 646 encodation */
-		if((general_field[i] < ' ') || (general_field[i] > 'z')) {
-			general_field_type[i] = INVALID_CHAR;
-			latch = 1;
+	{
+		for(i = 0; i < (int)strlen(general_field); i++) {
+			// Table 13 - ISO/IEC 646 encodation 
+			if((general_field[i] < ' ') || (general_field[i] > 'z')) {
+				general_field_type[i] = INVALID_CHAR;
+				latch = 1;
+			}
+			else {
+				general_field_type[i] = ISOIEC;
+			}
+			if(general_field[i] == '#') {
+				general_field_type[i] = INVALID_CHAR;
+				latch = 1;
+			}
+			if(general_field[i] == '$') {
+				general_field_type[i] = INVALID_CHAR;
+				latch = 1;
+			}
+			if(general_field[i] == '@') {
+				general_field_type[i] = INVALID_CHAR;
+				latch = 1;
+			}
+			if(general_field[i] == 92) {
+				general_field_type[i] = INVALID_CHAR;
+				latch = 1;
+			}
+			if(general_field[i] == '^') {
+				general_field_type[i] = INVALID_CHAR;
+				latch = 1;
+			}
+			if(general_field[i] == 96) {
+				general_field_type[i] = INVALID_CHAR;
+				latch = 1;
+			}
+			// Table 12 - Alphanumeric encodation 
+			if((general_field[i] >= 'A') && (general_field[i] <= 'Z')) {
+				general_field_type[i] = ALPHA_OR_ISO;
+			}
+			if(general_field[i] == '*') {
+				general_field_type[i] = ALPHA_OR_ISO;
+			}
+			if(general_field[i] == ',') {
+				general_field_type[i] = ALPHA_OR_ISO;
+			}
+			if(general_field[i] == '-') {
+				general_field_type[i] = ALPHA_OR_ISO;
+			}
+			if(general_field[i] == '.') {
+				general_field_type[i] = ALPHA_OR_ISO;
+			}
+			if(general_field[i] == '/') {
+				general_field_type[i] = ALPHA_OR_ISO;
+			}
+			// Numeric encodation 
+			if((general_field[i] >= '0') && (general_field[i] <= '9')) {
+				general_field_type[i] = ANY_ENC;
+			}
+			if(general_field[i] == '[') {
+				general_field_type[i] = ANY_ENC; // FNC1 can be encoded in any system 
+			}
 		}
-		else {
-			general_field_type[i] = ISOIEC;
-		}
-		if(general_field[i] == '#') {
-			general_field_type[i] = INVALID_CHAR;
-			latch = 1;
-		}
-		if(general_field[i] == '$') {
-			general_field_type[i] = INVALID_CHAR;
-			latch = 1;
-		}
-		if(general_field[i] == '@') {
-			general_field_type[i] = INVALID_CHAR;
-			latch = 1;
-		}
-		if(general_field[i] == 92) {
-			general_field_type[i] = INVALID_CHAR;
-			latch = 1;
-		}
-		if(general_field[i] == '^') {
-			general_field_type[i] = INVALID_CHAR;
-			latch = 1;
-		}
-		if(general_field[i] == 96) {
-			general_field_type[i] = INVALID_CHAR;
-			latch = 1;
-		}
-		// Table 12 - Alphanumeric encodation 
-		if((general_field[i] >= 'A') && (general_field[i] <= 'Z')) {
-			general_field_type[i] = ALPHA_OR_ISO;
-		}
-		if(general_field[i] == '*') {
-			general_field_type[i] = ALPHA_OR_ISO;
-		}
-		if(general_field[i] == ',') {
-			general_field_type[i] = ALPHA_OR_ISO;
-		}
-		if(general_field[i] == '-') {
-			general_field_type[i] = ALPHA_OR_ISO;
-		}
-		if(general_field[i] == '.') {
-			general_field_type[i] = ALPHA_OR_ISO;
-		}
-		if(general_field[i] == '/') {
-			general_field_type[i] = ALPHA_OR_ISO;
-		}
-		// Numeric encodation 
-		if((general_field[i] >= '0') && (general_field[i] <= '9')) {
-			general_field_type[i] = ANY_ENC;
-		}
-		if(general_field[i] == '[') {
-			general_field_type[i] = ANY_ENC; // FNC1 can be encoded in any system 
-		}
+		general_field_type[strlen(general_field)] = '\0';
 	}
-	general_field_type[strlen(general_field)] = '\0';
 	if(debug) 
 		printf("General field type: %s\n", general_field_type);
 	if(latch == 1) {
@@ -1628,12 +1620,12 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 		strcpy(symbol->errtxt, "Invalid characters in input data (C86)");
 		return ZINT_ERROR_INVALID_DATA;
 	}
-	for(i = 0; i < strlen(general_field); i++) {
+	for(i = 0; i < (int)strlen(general_field); i++) {
 		if((general_field_type[i] == ISOIEC) && (general_field[i + 1] == '[')) {
 			general_field_type[i + 1] = ISOIEC;
 		}
 	}
-	for(i = 0; i < strlen(general_field); i++) {
+	for(i = 0; i < (int)strlen(general_field); i++) {
 		if((general_field_type[i] == ALPHA_OR_ISO) && (general_field[i + 1] == '[')) {
 			general_field_type[i + 1] = ALPHA_OR_ISO;
 		}
@@ -1803,7 +1795,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 			    i++;
 			    break;
 		}
-	} while((i + latch) < strlen(general_field));
+	} while((i + latch) < (int)strlen(general_field));
 	if(debug) 
 		printf("Resultant binary = %s\n", binary_string);
 	if(debug) 

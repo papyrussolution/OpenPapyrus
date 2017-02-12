@@ -1,5 +1,5 @@
 // OBJSCARD.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1034,17 +1034,20 @@ int SLAPI PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int 
 	return ok;
 }
 
+SLAPI SCardChargeRule::SCardChargeRule()
+{
+	SerID = 0;
+	Period = 0;
+}
+
 //static
-int SLAPI PPObjSCardSeries::SelectRule(SCardSelRule * pSelRule)
+int SLAPI PPObjSCardSeries::SelectRule(SCardChargeRule * pSelRule)
 {
 	int    ok = -1;
-	SCardSelRule scs_rule;
+	SCardChargeRule scs_rule;
 	TDialog * p_dlg = new TDialog(DLG_SSAUTODIS);
 	THROW_MEM(p_dlg);
-	if(pSelRule)
-		scs_rule = *pSelRule;
-	else
-		MEMSZERO(scs_rule);
+	RVALUEPTR(scs_rule, pSelRule);
 	SetupPPObjCombo(p_dlg, CTLSEL_SSAUTODIS_SSER, PPOBJ_SCARDSERIES, scs_rule.SerID, 0, 0);
 	p_dlg->AddClusterAssoc(CTL_SSAUTODIS_PRD, -1, SCARDSER_AUTODIS_THISPRD);
 	p_dlg->AddClusterAssoc(CTL_SSAUTODIS_PRD,  0, SCARDSER_AUTODIS_PREVPRD);
@@ -1062,17 +1065,16 @@ int SLAPI PPObjSCardSeries::SelectRule(SCardSelRule * pSelRule)
 }
 
 // static
-int SLAPI PPObjSCardSeries::SetSCardsByRule(SCardSelRule * pSelRule)
+int SLAPI PPObjSCardSeries::SetSCardsByRule(SCardChargeRule * pSelRule)
 {
 	int    ok = -1;
 	PPLogger logger;
-	SCardSelRule scs_rule;
+	SCardChargeRule scs_rule;
 	if(pSelRule) {
 		scs_rule = *pSelRule;
 		ok = 1;
 	}
 	else {
-		MEMSZERO(scs_rule);
 		THROW(ok = SelectRule(&scs_rule));
 	}
 	PPWait(1);
@@ -1105,9 +1107,7 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 		}
 		int    setDTS(const PPSCardSerPacket * pData)
 		{
-			if(pData)
-				Data = *pData;
-			else
+			if(!RVALUEPTR(Data, pData))
 				Data.Init();
 
 			long   _type = Data.Rec.GetType();
@@ -2107,6 +2107,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 				THROW_SL(scr_list.insert(&rec));
 			}
 			const uint scrlc = scr_list.getCount();
+			const PPID bonus_charge_grp_id = pack.Rec.BonusChrgGrpID; // @v9.5.2
 			for(uint i = 0; i < scrlc; i++) {
 				const SCardTbl::Rec & r_sc_rec = scr_list.at(i);
 				_SCardTrnovrItem item;
@@ -2574,25 +2575,25 @@ int SLAPI PPObjSCard::GetTurnover(const SCardTbl::Rec & rRec, int alg, const Dat
 		else {
 			period.low = MAX(rPeriod.low, rRec.Dt);
 			period.upp = rPeriod.upp;
-			P_CcTbl->GetTrnovrBySCard(rRec.ID, alg, &period, &dbt, &crd);
+			P_CcTbl->GetTrnovrBySCard(rRec.ID, alg, &period, 0, &dbt, &crd);
 		}
-		p_bobj->P_Tbl->GetTrnovrBySCard(rRec.ID, &rPeriod, &bill_dbt, &bill_crd);
+		p_bobj->P_Tbl->GetTrnovrBySCard(rRec.ID, &rPeriod, 0, &bill_dbt, &bill_crd);
 		crd += (bill_crd - bill_dbt);
 	}
 	else if(alg == gtalgByCheck) {
 		period.low = MAX(rPeriod.low, rRec.Dt);
 		period.upp = rPeriod.upp;
-		P_CcTbl->GetTrnovrBySCard(rRec.ID, alg, &period, &dbt, &crd);
+		P_CcTbl->GetTrnovrBySCard(rRec.ID, alg, &period, 0, &dbt, &crd);
 	}
 	else if(alg == gtalgByBill) {
-		p_bobj->P_Tbl->GetTrnovrBySCard(rRec.ID, &rPeriod, &bill_dbt, &bill_crd);
+		p_bobj->P_Tbl->GetTrnovrBySCard(rRec.ID, &rPeriod, 0, &bill_dbt, &bill_crd);
 		crd += (bill_crd - bill_dbt);
 	}
 	else if(alg == gtalgForBonus) {
 		period.low = MAX(rPeriod.low, rRec.Dt);
 		period.upp = rPeriod.upp;
-		P_CcTbl->GetTrnovrBySCard(rRec.ID, alg, &period, &dbt, &crd);
-		p_bobj->P_Tbl->GetTrnovrBySCard(rRec.ID, &rPeriod, &bill_dbt, &bill_crd);
+		P_CcTbl->GetTrnovrBySCard(rRec.ID, alg, &period, 0, &dbt, &crd);
+		p_bobj->P_Tbl->GetTrnovrBySCard(rRec.ID, &rPeriod, 0, &bill_dbt, &bill_crd);
 		crd += (bill_crd - bill_dbt);
 	}
 	else if(alg == gtalgByOp) {

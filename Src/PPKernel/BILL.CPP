@@ -1027,7 +1027,7 @@ SEnumImp * SLAPI BillCore::EnumByOp(PPID opID, DateRange * pPeriod, int options)
 	return InitEnumByOp(opID, pPeriod, options, &h) ? new PPTblEnum <BillCore>(this, h) : 0;
 }
 
-int SLAPI BillCore::GetTrnovrBySCard(PPID cardID, const DateRange * pPeriod, double * pDbt, double * pCrd)
+int SLAPI BillCore::GetTrnovrBySCard(PPID cardID, const DateRange * pPeriod, PPID restrGoodsGrpID, double * pDbt, double * pCrd)
 {
 	double dbt = 0.0, crd = 0.0;
 	DateIter diter(pPeriod);

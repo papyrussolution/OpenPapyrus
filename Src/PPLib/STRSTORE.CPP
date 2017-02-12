@@ -1,5 +1,5 @@
 // STRSTORE.CPP
-// Copyright (c) A.Sobolev 1996-1999, 2000-2003, 2004, 2008, 2010, 2011, 2015, 2016
+// Copyright (c) A.Sobolev 1996-1999, 2000-2003, 2004, 2008, 2010, 2011, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -620,6 +620,8 @@ int SLAPI StringStore2::TranslationWanted(const uchar * pOrgText) const
     return yes;
 }
 
+int Helper_PPAutoTranslSvc_Microsoft_Auth(PPAutoTranslSvc_Microsoft & rAt);
+
 int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char * pTranslateToLang)
 {
 	EXCEPTVAR(ErrCode);
@@ -805,10 +807,14 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 								if(!p_at && !at_auth_error) {
 									p_at = new PPAutoTranslSvc_Microsoft;
 									if(p_at) {
-										if(!p_at->Auth("papyrus", "JwihuTuWLr6ZLJzyqkqpkr8OLbC2UoRcu+NOBrUxMyQ=")) {
+										if(!Helper_PPAutoTranslSvc_Microsoft_Auth(*p_at)) {
 											ZDELETE(p_at);
 											at_auth_error = 1;
 										}
+										/*if(!p_at->Auth("papyrus", "JwihuTuWLr6ZLJzyqkqpkr8OLbC2UoRcu+NOBrUxMyQ=")) {
+											ZDELETE(p_at);
+											at_auth_error = 1;
+										}*/
 									}
 								}
 								if(p_at && p_at->Request(slangRU, auto_transl_lang, org_text, auto_transl_string) > 0) {

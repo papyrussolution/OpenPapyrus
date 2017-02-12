@@ -1738,7 +1738,7 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 				}
 				if(updated && price_ > 0.0) {
 					uint  i;
-					PPQuotArray  quot_list(grec.ID);
+					PPQuotArray quot_list(grec.ID);
 					if(Algorithm == algUpdBillsVerify && !IterGoodsList.bsearch(grec.ID)) {
 						PPFormat(VerMissMsg, &temp_buf, grec.ID, grec.Name, UpdGoods.bsearch(grec.ID), old_price, price_);
 						PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
@@ -1765,15 +1765,13 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 					Rec.GoodsFlags = grec.Flags; // @v7.4.12
 					if(grec.Flags & GF_NODISCOUNT)
 						Rec.NoDis  = 1;
-					else {
-						if(NoDisToggleGoodsList.bsearch(grec.ID)) {
-							PROFILE_START
-							Rec.NoDis = (SJ.GetLastObjEvent(PPOBJ_GOODS, grec.ID, &acn_goodsnodisrmvd, 0) > 0) ? -1 : 0;
-							PROFILE_END
-						}
-						else
-							Rec.NoDis = 0;
+					else if(NoDisToggleGoodsList.bsearch(grec.ID)) {
+						PROFILE_START
+						Rec.NoDis = (SJ.GetLastObjEvent(PPOBJ_GOODS, grec.ID, &acn_goodsnodisrmvd, 0) > 0) ? -1 : 0;
+						PROFILE_END
 					}
+					else
+						Rec.NoDis = 0;
 					Rec.ExtQuot = rtl_ext_item.ExtPrice;
 					//
 					// Инициализируем номер отдела, ассоциированный с группой товара
@@ -1784,7 +1782,7 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 						long   default_div = 1;
 						int    use_default_div = 1;
 						PPGenCashNode::DivGrpAssc * p_dg_item;
-						for(i = 0; AcnPack.P_DivGrpList->enumItems(&i, (void **)&p_dg_item);)
+						for(i = 0; AcnPack.P_DivGrpList->enumItems(&i, (void **)&p_dg_item);) {
 							if(p_dg_item->GrpID == 0)
 								default_div = p_dg_item->DivN;
 							else if(GObj.BelongToGroup(Rec.ID, p_dg_item->GrpID, 0) > 0) {
@@ -1792,12 +1790,12 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 								use_default_div = 0;
 								break;
 							}
+						}
 						if(use_default_div)
 							Rec.DivN = default_div;
 						PROFILE_END
 					}
 					//
-					// @v7.9.7 {
 					// Инициализируем (если необходимо) кассовый узел, ассоциированный с товаром
 					//
 					if(P_G2DAssoc) {
@@ -1810,7 +1808,7 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 							}
 						}
 					}
-					// } @v7.9.7
+					//
 					PPGoodsTaxEntry gtx;
 					if(GObj.FetchTax(grec.ID, LConfig.OperDate, 0L, &gtx) > 0)
 						Rec.VatRate = gtx.GetVatRate();
@@ -1836,7 +1834,6 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 					}
 					PROFILE_END
 					Rec.P_CodeList = &Codes; // @v9.0.6
-					// @v7.0.0 {
 					if(grec.Flags & GF_EXTPROP) {
 						PPGoodsPacket __pack;
 						THROW(PPRef->GetPropVlrString(PPOBJ_GOODS, grec.ID, GDSPRP_EXTSTRDATA, __pack.ExtString));
@@ -1849,7 +1846,6 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 							}
 						}
 					}
-					// } @v7.0.0
 					if(AcnPack.Flags & CASHF_EXPGOODSREST) {
 						PROFILE_START
 						GoodsRestParam param;
@@ -1925,7 +1921,7 @@ void SLAPI AsyncCashGoodsInfo::Init()
 	Rest = 0.0;
 	Precision = fpow10i(-3);
 	GoodsFlags = 0; // @v7.4.12
-	Deleted = 0;
+	Deleted_ = 0;
 	NoDis = 0;
 	DivN = 0;
 	VatRate = 0;

@@ -709,14 +709,15 @@ int SLAPI SSerializeContext::AddDbtDescr(const char * pName, const BNFieldList *
 
 int SLAPI SSerializeContext::GetDbtDescr(uint id, BNFieldList * pList) const
 {
-	for(uint i = 0; i < P_DbtDescrList->getCount(); i++) {
-		SscDbtItem * p_item = (SscDbtItem *)P_DbtDescrList->at(i);
+	int    ok = 0;
+	for(uint i = 0; !ok && i < P_DbtDescrList->getCount(); i++) {
+		const SscDbtItem * p_item = (const SscDbtItem *)P_DbtDescrList->at(i);
 		if(p_item->DbtID == id) {
 			ASSIGN_PTR(pList, p_item->Fields);
-			return 1;
+			ok = 1;
 		}
 	}
-	return 0;
+	return ok;
 }
 
 int SLAPI SSerializeContext::SerializeFieldList(int dir, BNFieldList * pFldList, SBuffer & rBuf)

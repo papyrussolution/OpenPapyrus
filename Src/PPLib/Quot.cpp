@@ -1186,9 +1186,10 @@ private:
 
 PrcssrQuotTester::PrcssrQuotTester()
 {
-	SupplDealQkID  = DS.GetConstTLA().SupplDealQuotKindID;
-	SupplDevUpQkID = DS.GetConstTLA().SupplDevUpQuotKindID;
-	SupplDevDnQkID = DS.GetConstTLA().SupplDevDnQuotKindID;
+	const PPThreadLocalArea & r_tla = DS.GetConstTLA();
+	SupplDealQkID  = r_tla.SupplDealQuotKindID;
+	SupplDevUpQkID = r_tla.SupplDevUpQuotKindID;
+	SupplDevDnQkID = r_tla.SupplDevDnQuotKindID;
 	MtxQkID        = GObj.GetConfig().MtxQkID;
 	MtxRestrQkID   = GObj.GetConfig().MtxRestrQkID;
 
