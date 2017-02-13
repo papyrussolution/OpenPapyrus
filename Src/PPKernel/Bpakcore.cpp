@@ -1228,9 +1228,11 @@ int SLAPI PPBillPacket::AttachToOrder(const PPBillPacket * pOrdPack)
 int SLAPI PPBillPacket::SetupRow(int itemNo, PPTransferItem * pItem, const PPTransferItem * pOrdItem, double extraQtty)
 {
 	int    ok = 1, j = -2;
-	uint   i, p;
-	if(pItem->Flags & PPTFR_ONORDER)
-		j = SearchShLot(pItem->OrdLotID, &(i = 0)) ? i : -1; // @ordlotid
+	uint   p;
+	if(pItem->Flags & PPTFR_ONORDER) {
+		uint    i = 0;
+		j = SearchShLot(pItem->OrdLotID, &i) ? i : -1; // @ordlotid
+	}
 	if(itemNo == -1) {
 		if(j == -1) {
 			THROW(AddShadowItem(pOrdItem, &p));
@@ -1266,7 +1268,7 @@ int SLAPI PPBillPacket::SetupRow(int itemNo, PPTransferItem * pItem, const PPTra
 		// @v8.0.9 {
 		if(IsIntrExpndOp(Rec.OpID)) {
 			SString clb_number;
-			for(i = 0; i < row_pos_list.getCount(); i++) {
+			for(uint i = 0; i < row_pos_list.getCount(); i++) {
 				const uint row_pos = row_pos_list.at(i);
 				const PPTransferItem & r_item = TI(row_pos);
 				ObjTagList tag_list;
@@ -1643,49 +1645,6 @@ int SLAPI PPBillPacket::UngetCounter()
 			ok = opc_obj.UngetCounter(op_rec.OpCounterID, Counter, Rec.LocID, 1);
 		}
 	}
-	return ok;
-}
-
-int SLAPI PPBillPacket::CreateShadowPacket(PPBillPacket * pShadow)
-{
-	int    ok = -1;
-	PPID   order = 0;
-	PPTransferItem * p_ti, ti;
-	if(P_ShLots) {
-		for(uint i = 0; P_ShLots->enumItems(&i, (void**)&p_ti);) {
-			if(!pShadow) {
-				p_ti->TFlags &= ~PPTransferItem::tfDirty;
-				order = 1;
-			}
-			else if(!(p_ti->TFlags & PPTransferItem::tfDirty) && oneof2(order, 0, p_ti->BillID) && R6(p_ti->Quantity_) != 0.0) {
-			   	if(!order) {
-					ReceiptTbl::Rec ord_lot_rec;
-					THROW(P_BObj->trfr->Rcpt.Search(p_ti->LotID, &ord_lot_rec) > 0);
-				   	THROW(pShadow->CreateBlank(0, Rec.ID, 0, 1));
-					pShadow->Rec.LocID = ord_lot_rec.LocID;
-					pShadow->Rec.Dt = Rec.Dt;
-					order = pShadow->Rec.Object = p_ti->BillID;
-				}
-	   	        ti = *p_ti;
-				ti.BillID = ti.OrdLotID; // @ordlotid (? почему ti.BillID ?)
-				if(pShadow->Rec.ID == 0)
-					pShadow->Rec.ID = ti.BillID;
-				else if(ti.BillID == 0)
-					ti.BillID = pShadow->Rec.ID;
-				else
-					THROW_PP(pShadow->Rec.ID == ti.BillID, PPERR_SHADOWIDFAULT);
-				ti.OrdLotID = 0; // @ordlotid
-				THROW(ti.SetupGoods(-labs(p_ti->GoodsID), 0));
-		   		ti.Quantity_ = -fabs(p_ti->Quantity_);
-				ti.Flags   |= PPTFR_SHADOW;
-				ti.TFlags  &= ~PPTransferItem::tfDirty;
-   		        THROW(pShadow->InsertRow(&ti, 0));
-				p_ti->TFlags |= PPTransferItem::tfDirty;
-			}
-		}
-	}
-	ok = order ? 1 : -1;
-	CATCHZOK
 	return ok;
 }
 

@@ -931,6 +931,7 @@ int SLAPI BillCore::BreakOffLink(PPID linkBillID, PPID baseBillID, int linkKind,
 
 int SLAPI BillCore::_Enum(int idx, PPID id, DateIter * pDI, void * b)
 {
+	int    ok = 1;
 	struct {
 		PPID  id;
 		LDATE date;
@@ -947,9 +948,10 @@ int SLAPI BillCore::_Enum(int idx, PPID id, DateIter * pDI, void * b)
 	}
 	if(search(idx, &k, spGt) && k.id == id && (!pDI || pDI->Advance(k.date, k.n) > 0)) {
 		copyBufTo(b);
-		return 1;
 	}
-	return PPDbSearchError();
+	else
+		ok = PPDbSearchError();
+	return ok;
 }
 
 int SLAPI BillCore::GetListOfOrdersByLading(PPID billID, PPIDArray * pOrderBillList)

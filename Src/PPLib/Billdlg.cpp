@@ -3773,11 +3773,10 @@ void LotInfoDialog::setupLinkedLot(int prev)
 int LotInfoDialog::setDTS(const ReceiptTbl::Rec * pRec)
 {
 	int    s;
-	const  int accs_cost = P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1);
 	Data = *pRec;
 	setCtrlLong(CTLSEL_LOTINFO_LOC, Data.LocID);
 	SetupPPObjCombo(this, CTLSEL_LOTINFO_GOODS, PPOBJ_GOODS, Data.GoodsID, OLW_LOADDEFONOPEN);
-	if(accs_cost) {
+	if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1)) {
 		const PPID temp_id = getCtrlLong(CTLSEL_LOTINFO_SUPPL);
 		if(temp_id != Data.SupplID)
 			setCtrlLong(CTLSEL_LOTINFO_SUPPL, Data.SupplID);
@@ -3791,7 +3790,7 @@ int LotInfoDialog::setDTS(const ReceiptTbl::Rec * pRec)
 	setCtrlReal(CTL_LOTINFO_QTTY,     Data.Quantity);
 	setCtrlReal(CTL_LOTINFO_REST,     Data.Rest);
 	setCtrlReal(CTL_LOTINFO_UPP,      Data.UnitPerPack);
-	setCtrlReal(CTL_LOTINFO_COST,     accs_cost ? Data.Cost : 0.0);
+	setCtrlReal(CTL_LOTINFO_COST,     P_BObj->CheckRights(BILLRT_ACCSCOST) ? Data.Cost : 0.0);
 	setCtrlData(CTL_LOTINFO_PRICE,    &Data.Price);
 	setCtrlDate(CTL_LOTINFO_CLOSEDT, (Data.CloseDate == MAXDATE) ? ZERODATE : Data.CloseDate);
 	setCtrlUInt16(CTL_LOTINFO_CLOSED, BIN(Data.Closed));
@@ -3811,12 +3810,11 @@ int LotInfoDialog::setDTS(const ReceiptTbl::Rec * pRec)
 
 int LotInfoDialog::getDTS(ReceiptTbl::Rec * pRec)
 {
-	const  int accs_cost = P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1);
 	ushort v;
 	LDATE  dt;
 	Data.LocID = getCtrlLong(CTLSEL_LOTINFO_LOC);
 	Data.GoodsID = getCtrlLong(CTLSEL_LOTINFO_GOODS);
-	if(accs_cost)
+	if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1))
 		Data.SupplID = getCtrlLong(CTLSEL_LOTINFO_SUPPL);
 	{
 		QCertCtrlGroup::Rec qc_rec;
@@ -3828,7 +3826,7 @@ int LotInfoDialog::getDTS(ReceiptTbl::Rec * pRec)
 	getCtrlData(CTL_LOTINFO_QTTY,  &Data.Quantity);
 	getCtrlData(CTL_LOTINFO_REST,  &Data.Rest);
 	getCtrlData(CTL_LOTINFO_UPP,   &Data.UnitPerPack);
-	if(accs_cost)
+	if(P_BObj->CheckRights(BILLRT_ACCSCOST))
 		getCtrlData(CTL_LOTINFO_COST, &Data.Cost);
 	getCtrlData(CTL_LOTINFO_PRICE, &Data.Price);
 	getCtrlData(CTL_LOTINFO_CLOSEDT, &dt);

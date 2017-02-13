@@ -29219,7 +29219,7 @@ public:
 		ltfGoodsName = 0x0001,
 		ltfLocName   = 0x0002
 	};
-	int    SLAPI MakeLotText(const ReceiptTbl::Rec * pLotRec, long fmt, SString & rBuf);
+	void   SLAPI MakeLotText(const ReceiptTbl::Rec * pLotRec, long fmt, SString & rBuf);
 	//
 	// Descr: загружает в пакет pack информацию о грузовых
 	//   таможенных деклараци€х, ассоциированных с лотами. ≈сли параметр
@@ -29672,8 +29672,8 @@ public:
 		//   { Amount = 0.0; Payment = 0.0; Part = 1.0; PaymList.clear(); }
 		//
 		void   Reset();
-		int    FASTCALL AddPaym(const BillTbl::Rec & rRec);
-		int    FASTCALL FinishLot(PPID orgLotID);
+		void   FASTCALL AddPaym(const BillTbl::Rec & rRec);
+		void   FASTCALL FinishLot(PPID orgLotID);
 
 		long   Flags;
 		DateRange Period;
@@ -29743,7 +29743,7 @@ public:
 		//
 		SLAPI  SubstParam();
 		SLAPI ~SubstParam();
-		int    SLAPI Init(SubstGrpBill sgb);
+		void   FASTCALL Init(SubstGrpBill sgb);
 		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 
 		SubstGrpBill Sgb;

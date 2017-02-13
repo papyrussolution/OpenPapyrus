@@ -3726,7 +3726,7 @@ int SLAPI PPViewBill::ChangeFlags()
 				THROW(P_BObj->ExtractPacketWithFlags(*pid, &pack, BPLD_SKIPTRFR));
 				sav = pack.Rec.Flags;
 				for(p = 0; p < 32; p++) {
-					ulong t = (1UL << p);
+					const ulong t = (1UL << p);
 					if(set & t)
 						pack.Rec.Flags |= t;
 					if(reset & t)

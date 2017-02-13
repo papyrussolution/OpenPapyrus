@@ -2251,10 +2251,12 @@ DBQuery * SLAPI PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	if(!P_TempTbl && IsTempTblNeeded())
 		THROW(CreateTempTable());
 	THROW(CheckTblPtr(rcp = new ReceiptTbl));
-	if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1))
-		PPDbqFuncPool::InitObjNameFunc(dbe_ar,    PPDbqFuncPool::IdObjNameAr, rcp->SupplID);
-	else
+	if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1) || (Filt.Flags & LotFilt::fOrders)) // @v9.5.3 || (Filt.Flags & LotFilt::fOrders)
+		PPDbqFuncPool::InitObjNameFunc(dbe_ar, PPDbqFuncPool::IdObjNameAr, rcp->SupplID);
+	else {
 		dbe_ar.init();
+		dbe_ar.push((DBFunc)PPDbqFuncPool::IdEmpty); // @v9.5.3
+	}
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc,   PPDbqFuncPool::IdObjNameLoc, rcp->LocID);
 	{
 		dbe_closedate.init();
@@ -2309,7 +2311,7 @@ DBQuery * SLAPI PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 
 		fld_list[c++].e = dbe_loc;        // #03
 		fld_list[c++].e = dbe_goods;      // #04
-		if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1))
+		if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1) || (Filt.Flags & LotFilt::fOrders)) // @v9.5.3 (|| (Filt.Flags & LotFilt::fOrders))
 			fld_list[c++].e = dbe_ar;     // #05
 		else
 			fld_list[c++].c.init((const char *)0); // #05 DBConst
