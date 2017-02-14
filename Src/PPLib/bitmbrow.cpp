@@ -1,5 +1,5 @@
 // BITMBROW.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 // Модуль, отвечающий за броузер строк товарных документов.
@@ -308,7 +308,7 @@ int SLAPI PPObjBill::ViewPckgDetail(PPID pckgID)
 	uint   res_id = (LConfig.Flags & CFGFLG_SHOWPHQTTY) ? BROWSER_ID(GOODSITEMPH_W) : BROWSER_ID(GOODSITEM_W);
 	if(trfr->Rcpt.Search(pckgID) > 0) {
 		PPBillPacket pack;
-		pack.destroy();
+		// @v9.5.3 (excess) pack.destroy();
 		pack.Rec.Dt    = MAXDATE;
 		pack.Rec.LocID = trfr->Rcpt.data.LocID;
 		if(AddPckgToBillPacket(pckgID, &pack)) {
@@ -330,9 +330,9 @@ int SLAPI ViewBillDetails(PPBillPacket * pack, long options, PPObjBill * pBObj)
 	const PPConfig & r_cfg = LConfig;
 	if(pack->Rec.Flags & BILLF_CASH)
 		res_id = BROWSER_ID(CHECKITEM_W);
-	else if(pack->OprType == PPOPT_GOODSORDER)
+	else if(pack->OpTypeID == PPOPT_GOODSORDER)
 		res_id = BROWSER_ID(ORDERITEM_W);
-	else if(pack->OprType == PPOPT_GOODSREVAL)
+	else if(pack->OpTypeID == PPOPT_GOODSREVAL)
 		res_id = BROWSER_ID(GOODSITEM_REVAL_W);
 	else if((r_cfg.Flags & CFGFLG_SHOWPHQTTY) && pack->Rec.CurID)
 		res_id = BROWSER_ID(GOODSITEMPH_CUR_W);
@@ -343,7 +343,7 @@ int SLAPI ViewBillDetails(PPBillPacket * pack, long options, PPObjBill * pBObj)
 	else
 		res_id = BROWSER_ID(GOODSITEM_W);
 	int    r = -1;
-	if(!oneof2(pack->OprType, PPOPT_ACCTURN, PPOPT_PAYMENT)) {
+	if(!oneof2(pack->OpTypeID, PPOPT_ACCTURN, PPOPT_PAYMENT)) {
 		BillItemBrowser * p_brw = new BillItemBrowser(res_id, pBObj, pack, 0, -1, 0, (int)options);
 		if(p_brw == 0)
 			r = (PPError(PPERR_NOMEM, 0), 0);
@@ -696,7 +696,7 @@ long FASTCALL BillItemBrowser::CalcPriceDevItem(long pos)
 int SLAPI BillItemBrowser::UpdatePriceDevList(long pos, int op)
 {
 	int    ok = 1;
-	if(P_Pack && P_Pack->OprType == PPOPT_GOODSRECEIPT) {
+	if(P_Pack && P_Pack->OpTypeID == PPOPT_GOODSRECEIPT) {
 		long   ti_count = P_Pack->GetTCount();
 		if(pos < 0) {
 			PriceDevList.clear();
@@ -813,14 +813,14 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 	}
 	else
 		setSubTitle(PPObjBill::MakeCodeString(&P_Pack->Rec, 0, temp_buf));
-	if(oneof2(P_Pack->OprType, PPOPT_GOODSRETURN, PPOPT_CORRECTION) && P_Pack->Rec.LinkBillID) {
+	if(oneof2(P_Pack->OpTypeID, PPOPT_GOODSRETURN, PPOPT_CORRECTION) && P_Pack->Rec.LinkBillID) {
 		PPTransferItem * p_link_ti;
 		THROW_MEM(P_LinkPack = new PPBillPacket);
 		THROW(P_BObj->ExtractPacket(P_Pack->Rec.LinkBillID, P_LinkPack));
 		State |= stUseLinkSelection;
-		if(P_Pack->OprType == PPOPT_CORRECTION) {
+		if(P_Pack->OpTypeID == PPOPT_CORRECTION) {
 			for(i = 0; P_LinkPack->EnumTItems(&i, &p_link_ti);) {
-				if(P_LinkPack->OprType == PPOPT_GOODSEXPEND) {
+				if(P_LinkPack->OpTypeID == PPOPT_GOODSEXPEND) {
 					uint    _pos = 0;
 					if(P_Pack->SearchTI(p_link_ti->RByBill, &_pos))
 						p_link_ti->Flags |= 0x80000000L;
@@ -836,7 +836,7 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 				}
 			}
 		}
-		else if(P_Pack->OprType == PPOPT_GOODSRETURN) {
+		else if(P_Pack->OpTypeID == PPOPT_GOODSRETURN) {
 			if(P_Pack->Rec.Flags & BILLF_GEXPEND) {
 				State |= stExpndOnReturn;
 				THROW(ConvertSupplRetLink(P_Pack->Rec.LocID));
@@ -854,7 +854,7 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 								//
 								// В случае возврата поставщику цены устанавливаем с учетом переоценки
 								//
-								if(P_LinkPack->OprType == PPOPT_GOODSRECEIPT) {
+								if(P_LinkPack->OpTypeID == PPOPT_GOODSRECEIPT) {
 									THROW(P_T->GetLotPrices(&rr, P_Pack->Rec.Dt));
 									p_link_ti->Cost  = R5(rr.Cost);
 									p_link_ti->Price = R5(rr.Price);
@@ -893,7 +893,7 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 			BillTbl::Rec link_rec;
 			if(P_BObj->Search(P_Pack->Rec.LinkBillID, &link_rec) > 0) {
 				PPID   op_type_id = GetOpType(link_rec.OpID);
-				if(P_Pack->OprType == PPOPT_GOODSACK || oneof2(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT)) {
+				if(P_Pack->OpTypeID == PPOPT_GOODSACK || oneof2(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT)) {
 					THROW_MEM(P_LinkPack = new PPBillPacket);
 					THROW(P_BObj->ExtractPacket(P_Pack->Rec.LinkBillID, P_LinkPack));
 					State |= stShowLinkQtty;
@@ -914,7 +914,7 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 	State &= ~stIsModified;
 	update(pos_top);
 	GetDefScaleData();
-	if(P_Pack /* @v7.6.8 && P_Pack->OprType == PPOPT_GOODSRECEIPT */) {
+	if(P_Pack /* @v7.6.8 && P_Pack->OpTypeID == PPOPT_GOODSRECEIPT */) {
 		THROW(UpdatePriceDevList(-1, 0));
 		SetCellStyleFunc(PriceDevColorFunc, this);
 	}
@@ -981,7 +981,7 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 		MEMSZERO(item);
 		const double sqtty = p_ti->SQtty(p_pack->Rec.OpID);
 		const double qtty  = p_ti->Qtty();
-		const double __q = (p_pack->OprType == PPOPT_GOODSMODIF) ? sqtty : qtty;
+		const double __q = (p_pack->OpTypeID == PPOPT_GOODSMODIF) ? sqtty : qtty;
 		if(p_ti->Flags & PPTFR_INDEPPHQTTY)
 			Total.PhQtty += p_ti->WtQtty;
 		else {
@@ -1084,7 +1084,7 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 		THROW_SL(p_packed_list->insert(&item));
 		lines_count++;
 	}
-	if(p_packed_list && (State & stOrderSelector || P_Pack->OprType == PPOPT_GOODSORDER)) {
+	if(p_packed_list && (State & stOrderSelector || P_Pack->OpTypeID == PPOPT_GOODSORDER)) {
 		BillGoodsBrwItem * p_item;
 		Total.ShippedQtty = 0.0;
 		Total.OrderRest = 0.0;
@@ -1125,7 +1125,7 @@ int SLAPI BillItemBrowser::CalcShippedQtty(BillGoodsBrwItem * pItem, BillGoodsBr
 					real_val = 0.0;
 				pList->SetOrderRest(pItem->Pos, real_val);
 			}
-			else if(P_Pack->OprType == PPOPT_GOODSORDER)
+			else if(P_Pack->OpTypeID == PPOPT_GOODSORDER)
 				if(r_ti.LotID) {
 					double rest = 0.0;
 					P_BObj->trfr->GetRest(r_ti.LotID, MAXDATE, &rest);
@@ -1657,7 +1657,7 @@ int BillItemBrowser::_moveItem2(int srcRowIdx)
 {
 	int    ok = 1;
 	// Признак корректировки расходного документа
-	const  int is_exp_correction = BIN(P_Pack->OprType == PPOPT_CORRECTION && P_LinkPack->OprType == PPOPT_GOODSEXPEND);
+	const  int is_exp_correction = BIN(P_Pack->OpTypeID == PPOPT_CORRECTION && P_LinkPack->OpTypeID == PPOPT_GOODSEXPEND);
 	uint   i = 0;
 	int    s = 0;
 	ReceiptTbl::Rec rr;
@@ -2023,7 +2023,7 @@ void BillItemBrowser::addItem(int fromOrder, TIDlgInitData * pInitData, int sign
 			temp_tidi.GoodsGrpID = NewGoodsGrpID;
 			pInitData = &temp_tidi;
 		}
-		if(P_Pack->OprType == PPOPT_GOODSMODIF && sign == 0) {
+		if(P_Pack->OpTypeID == PPOPT_GOODSMODIF && sign == 0) {
 			RVALUEPTR(temp_tidi, pInitData);
 			sign = temp_tidi.GetTiSign();
 			THROW(r = addModifItem(&sign, &temp_tidi));
@@ -2045,7 +2045,7 @@ void BillItemBrowser::addItem(int fromOrder, TIDlgInitData * pInitData, int sign
 		            p_ti->Flags |= PPTFR_UNITEINTR;
 				P_Pckg->AddItem(0, pos);
 			}
-			if(P_Pack->OprType == PPOPT_GOODSMODIF) {
+			if(P_Pack->OpTypeID == PPOPT_GOODSMODIF) {
 				if(!p_ti->IsRecomplete()) {
 					PPGoodsStruc::Ident gs_ident(p_ti->GoodsID, -1L, GSF_PARTITIAL, P_Pack->Rec.Dt);
 					if(sign > 0)
@@ -2194,7 +2194,7 @@ int BillItemBrowser::getMinMaxQtty(uint itemPos, double * pMinQtty, double * pMa
 {
 	double min_qtty = 0.0, max_qtty = 0.0;
 	const PPTransferItem & r_ti = P_Pack->ConstTI(itemPos);
-	if(P_Pack->OprType == PPOPT_GOODSEXPEND) {
+	if(P_Pack->OpTypeID == PPOPT_GOODSEXPEND) {
 		if(P_Pack->Rec.ID) {
 			DateIter di;
 			BillTbl::Rec bill_rec;
@@ -2202,7 +2202,7 @@ int BillItemBrowser::getMinMaxQtty(uint itemPos, double * pMinQtty, double * pMa
 				P_T->SubtractBillQtty(bill_rec.ID, r_ti.LotID, &min_qtty);
 		}
 	}
-	else if(P_Pack->OprType == PPOPT_GOODSRETURN && P_LinkPack)
+	else if(P_Pack->OpTypeID == PPOPT_GOODSRETURN && P_LinkPack)
 		for(uint i = 0; P_LinkPack->SearchLot(r_ti.LotID, &i); i++)
 			if(!(State & stExpndOnReturn))
 				max_qtty += P_LinkPack->ConstTI(i).Quantity_;
@@ -2239,7 +2239,7 @@ void BillItemBrowser::editItem()
 				//
 				// Проверка на то, чтобы возврат не превышал взятое количество
 				//
-				if(P_Pack->OprType == PPOPT_GOODSRETURN && P_LinkPack) {
+				if(P_Pack->OpTypeID == PPOPT_GOODSRETURN && P_LinkPack) {
 					double expend = 0.0;
 					for(i = 0, p_ti = &P_Pack->TI((uint)c); P_LinkPack->SearchLot(p_ti->LotID, &i); i++)
 						if(State & stExpndOnReturn)
@@ -2259,7 +2259,7 @@ void BillItemBrowser::editItem()
 				}
 				if(valid_data) {
 					State |= stIsModified;
-					if(P_Pack->OprType == PPOPT_GOODSMODIF)
+					if(P_Pack->OpTypeID == PPOPT_GOODSMODIF)
 						P_Pack->CalcModifCost();
 					if(P_Pack->ProcessFlags & PPBillPacket::pfHasExtCost)
 						P_Pack->InitAmounts(0);
@@ -2309,7 +2309,7 @@ void BillItemBrowser::delItem()
 			//
 			PPTransferItem * p_ti = &P_Pack->TI((uint)c);
 			double qtty = fabs(p_ti->Quantity_);
-			if(P_Pack->OprType != PPOPT_GOODSRETURN && P_Pack->Rec.ID && p_ti->LotID) {
+			if(P_Pack->OpTypeID != PPOPT_GOODSRETURN && P_Pack->Rec.ID && p_ti->LotID) {
 				BillTbl::Rec bill_rec;
 				for(DateIter diter; P_BObj->P_Tbl->EnumLinks(P_Pack->Rec.ID, &diter, BLNK_RETURN, &bill_rec) > 0;) {
 					PPBillPacket ret_pack;
@@ -2361,7 +2361,7 @@ void BillItemBrowser::delItem()
 					P_Pack->P_ShLots->at(i).Quantity_ = tmp;
 			}
 			State |= stIsModified;
-			if(P_Pack->OprType == PPOPT_GOODSMODIF)
+			if(P_Pack->OpTypeID == PPOPT_GOODSMODIF)
 				P_Pack->CalcModifCost();
 			if(P_Pack->ProcessFlags & PPBillPacket::pfHasExtCost)
 				P_Pack->InitAmounts(0);
@@ -2660,7 +2660,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 					else if(TVCHR == kbCtrlB) {
 						if(EditMode < 2 && P_Pack) {
 							if(!EventBarrier()) {
-								if(oneof2(P_Pack->OprType, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT) && !GetOpSubType(P_Pack->Rec.OpID)) {
+								if(oneof2(P_Pack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT) && !GetOpSubType(P_Pack->Rec.OpID)) {
 									int    is_mod = BIN(State & stIsModified);
 									if(P_BObj->AutoCalcPrices(P_Pack, 1, &is_mod) > 0)
 										update(0);
@@ -2676,7 +2676,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 						}
 					}
 					else if(TVCHR == kbCtrlA) {
-						if(!(State & stAltView) && P_Pack && IsSellingOp(P_Pack->Rec.OpID) >= 0 && P_Pack->OprType != PPOPT_GOODSORDER) {
+						if(!(State & stAltView) && P_Pack && IsSellingOp(P_Pack->Rec.OpID) >= 0 && P_Pack->OpTypeID != PPOPT_GOODSORDER) {
 							if(!EventBarrier()) {
 								int16  __c = 0;
 								BillItemBrowser * p_brw = new BillItemBrowser(BROWSER_ID(GOODSITEM_ALTVIEW), P_BObj, P_Pack, 0, -1, 0, EditMode);
@@ -2694,7 +2694,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 					}
 					else if(TVCHR == kbCtrlS) {
 						SString temp_buf, templt;
-						if(P_Pack && oneof2(P_Pack->OprType, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT) && CONFIRM(PPCFM_GENSERIALFORBILL)) {
+						if(P_Pack && oneof2(P_Pack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT) && CONFIRM(PPCFM_GENSERIALFORBILL)) {
 							if(!EventBarrier()) {
 								PPTransferItem * p_ti = 0;
 								int    upd = 0;
@@ -2845,7 +2845,7 @@ int BillItemBrowser::selectOrder()
 		flt.Period.upp = P_Pack->Rec.Dt;
 		PPID   op_id = 0;
 		for(PPID id = 0; (r = EnumOperations(PPOPT_GOODSORDER, &id, &op_rec)) > 0;)
-			if(op_rec.AccSheetID == P_Pack->AccSheet)
+			if(op_rec.AccSheetID == P_Pack->AccSheetID)
 				if(op_id == 0)
 					op_id = id;
 				else {
@@ -2873,7 +2873,7 @@ int BillItemBrowser::isAllGoodsInPckg(PPID goodsID)
 	// Проверка на то, чтобы хотя бы один лот товара был не в пакете
 	// Если весь товар в пакетах, то предлагаем выбрать пакет
 	//
-	if(goodsID && (CConfig.Flags & CCFLG_USEGOODSPCKG) && !oneof2(P_Pack->OprType, PPOPT_GOODSORDER, PPOPT_GOODSRECEIPT)) {
+	if(goodsID && (CConfig.Flags & CCFLG_USEGOODSPCKG) && !oneof2(P_Pack->OpTypeID, PPOPT_GOODSORDER, PPOPT_GOODSRECEIPT)) {
 		LotArray lot_list;
 		P_T->Rcpt.GetListOfOpenedLots(1, goodsID, P_Pack->Rec.LocID, P_Pack->Rec.Dt, &lot_list);
 		for(uint i = 0; i < lot_list.getCount(); i++)
@@ -2933,7 +2933,7 @@ void BillItemBrowser::addItemBySerial()
 void BillItemBrowser::addItemExt(int mode)
 {
 	const  PPID op_id = P_Pack->Rec.OpID;
-	const  PPID op_type_id = P_Pack->OprType;
+	const  PPID op_type_id = P_Pack->OpTypeID;
 	int    do_exit = 0;
 	double sel_price = 0.0;
 	SString sub;
@@ -3128,7 +3128,7 @@ void BillItemBrowser::addNewPackage()
 	if(CConfig.Flags & CCFLG_USEGOODSPCKG && !P_Pckg)
 		if(IsExpendOp(P_Pack->Rec.OpID) > 0)
 			selectPckg(0);
-		else if(P_Pack->OprType == PPOPT_GOODSRECEIPT) {
+		else if(P_Pack->OpTypeID == PPOPT_GOODSRECEIPT) {
 			int    r;
 			LPackage pckg;
 			P_BObj->InitPckg(&pckg);

@@ -176,8 +176,8 @@ int SLAPI PPTransferItem::Init(const BillTbl::Rec * pBillRec, int zeroRByBill, i
 
 int SLAPI PPTransferItem::InitAccturnInvoice(const PPBillPacket * pPack)
 {
-	if(oneof2(pPack->OprType, PPOPT_ACCTURN, PPOPT_PAYMENT) || (
-		pPack->OprType == PPOPT_GOODSEXPEND && pPack->Rec.Flags & BILLF_FIXEDAMOUNTS && pPack->GetTCount() == 0)) {
+	if(oneof2(pPack->OpTypeID, PPOPT_ACCTURN, PPOPT_PAYMENT) || (
+		pPack->OpTypeID == PPOPT_GOODSEXPEND && pPack->Rec.Flags & BILLF_FIXEDAMOUNTS && pPack->GetTCount() == 0)) {
 		PPObjGoods gobj;
 		BarcodeTbl::Rec bc_rec;
 		if(gobj.SearchByBarcode(CConfig.PrepayInvoiceGoodsCode, &bc_rec, 0, 0) > 0) {

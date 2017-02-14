@@ -199,7 +199,7 @@ int SLAPI Transfer::LoadItems(PPBillPacket & rPack, const PPIDArray * pGoodsList
 		PPTransferItem info, *p_ti;
 		rPack.ProcessFlags &= ~PPBillPacket::pfErrOnTiLoading;
 		correction_org_bill_rec.ID = 0;
-		if(rPack.OprType == PPOPT_CORRECTION) {
+		if(rPack.OpTypeID == PPOPT_CORRECTION) {
 			BillObj->GetCorrectionBackChain(rPack.Rec.ID, correction_bill_chain);
 		}
 		{

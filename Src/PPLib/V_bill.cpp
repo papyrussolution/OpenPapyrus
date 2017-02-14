@@ -4201,9 +4201,9 @@ int SLAPI PPViewBill::PrintBill(PPID billID, int addCashSummator)
 					ok = -1;
 			}
 		}
-		else if(pack.OprType == PPOPT_PAYMENT && !CheckOpPrnFlags(pack.Rec.OpID, OPKF_PRT_INVOICE))
+		else if(pack.OpTypeID == PPOPT_PAYMENT && !CheckOpPrnFlags(pack.Rec.OpID, OPKF_PRT_INVOICE))
 			PrintCashOrderByGoodsBill(&pack);
-		else if(pack.OprType == PPOPT_POOL) {
+		else if(pack.OpTypeID == PPOPT_POOL) {
 			int    prn_verb = 1; // 1 - reestr, 2 - merged bill
 			PPID   comm_op_id;
 			BillFilt   flt;
@@ -6012,7 +6012,7 @@ int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
 	PPOprKind op_rec;
 	PPBillPacket * p_pack = (PPBillPacket *)Extra[0].Ptr;
 	const  long bill_f = p_pack->Rec.Flags;
-	const  PPID optype = p_pack->OprType;
+	const  PPID optype = p_pack->OpTypeID;
 	PPID   main_org_id = 0;
 	BillTotalData  total_data;
 	PPObjPerson    psn_obj;
@@ -6436,7 +6436,7 @@ int PPALDD_GoodsBillDispose::InitData(PPFilt & rFilt, long rsrv)
 	PPOprKind op_rec;
 	PPBillPacket * p_pack = (PPBillPacket *)p_blk->P_Pack;
 	const  long bill_f = p_pack->Rec.Flags;
-	const  PPID optype = p_pack->OprType;
+	const  PPID optype = p_pack->OpTypeID;
 	PPID   main_org_id = 0;
 	BillTotalData  total_data;
 	PPObjPerson    psn_obj;
@@ -7579,13 +7579,13 @@ int PPALDD_CashOrder::InitData(PPFilt & rFilt, long rsrv)
 		if(SearchObject(PPOBJ_PERSON, main_org_id, &prec) > 0 && prec.Flags & PSNF_NOVATAX)
 			is_vat_exempt = 1;
 	}
-	if(pack->OprType == PPOPT_PAYMENT && pack->Rec.LinkBillID) {
+	if(pack->OpTypeID == PPOPT_PAYMENT && pack->Rec.LinkBillID) {
 		if(p_bobj->ExtractPacket(pack->Rec.LinkBillID, &temp_pack)) {
 			p_tax_pack = &temp_pack;
 			coeff = fdivnz(pack->GetAmount(), temp_pack.GetAmount());
 		}
 	}
-	else if(pack->OprType != PPOPT_ACCTURN)
+	else if(pack->OpTypeID != PPOPT_ACCTURN)
 		p_tax_pack = pack;
 	if(p_tax_pack) {
 		BillTotalData total_data;
@@ -7614,7 +7614,7 @@ int PPALDD_CashOrder::InitData(PPFilt & rFilt, long rsrv)
 		}
 		SETIFZ(H.STaxSum, total_data.STax * coeff);
 	}
-	else if(pack->OprType == PPOPT_ACCTURN) {
+	else if(pack->OpTypeID == PPOPT_ACCTURN) {
 		amtt_obj.GetTaxAmountIDs(&tais, 1);
 		if(tais.VatAmtID[0]) {
 			H.VATSum1 = pack->Amounts.Get(tais.VatAmtID[0], 0L);
@@ -8298,7 +8298,7 @@ int PPALDD_Warrant::InitData(PPFilt & rFilt, long rsrv)
 	H.WarrantDt = p_pack->Rec.Dt;
 	p_pack->GetLastPayDate(&dt);
 	H.ExpiryDt = dt;
-	if(p_pack->Rec.Object && p_pack->AccSheet)
+	if(p_pack->Rec.Object && p_pack->AccSheetID)
 		H.PersonReqID = ObjectToPerson(p_pack->Rec.Object, 0);
 	H.SupplID = p_pack->Rec.Object2;
 	STRNSCPY(H.Memo, p_pack->Rec.Memo);

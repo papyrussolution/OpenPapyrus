@@ -5173,8 +5173,8 @@ static void FillBillRec(const PPBillPacket * pInner, SPpyO_Bill * pOuter)
 #define FLD(f) pOuter->f = pInner->f
 	FLD(OutAmtType);
 	FLD(QuotKindID);
-	FLD(OprType);
-	FLD(AccSheet);
+	pOuter->OprType = pInner->OpTypeID;
+	pOuter->AccSheet = pInner->AccSheetID;
 	FLD(Counter);
 	FLD(PaymBillID);
 	FLD(CSessID);
@@ -5245,8 +5245,10 @@ static void FillBillPacket(const SPpyO_Bill * pInner, PPBillPacket * pOuter, int
 	#define FLD(f) (pInner->f || !fillNotZero) ? pOuter->f = pInner->f : pOuter->f = pOuter->f;
 	FLD(OutAmtType);
 	FLD(QuotKindID);
-	FLD(OprType);
-	FLD(AccSheet);
+	if(pInner->OprType || !fillNotZero) 
+		pOuter->OpTypeID = pInner->OprType;
+	if(pInner->AccSheet || !fillNotZero) 
+		pOuter->AccSheetID = pInner->AccSheet;
 	FLD(Counter);
 	FLD(PaymBillID);
 	FLD(CSessID);

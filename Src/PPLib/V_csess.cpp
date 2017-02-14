@@ -1641,7 +1641,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 						new_doc_by_loc = 0;
 						ok = 1;
 					}
-					b_pack.destroy();
+					// @v9.5.3 (excess) b_pack.destroy();
 					THROW(b_pack.CreateBlank(rule.Rec.OpID, 0, loc_id, 0));
 					b_pack.Rec.LocID   = loc_id;
 					b_pack.Rec.Object  = rule.Rec.ArID;

@@ -1,5 +1,5 @@
 // CPTRANSF.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // @Kernel
 //
@@ -909,7 +909,7 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 		}
 		else {
 			const PPID wroff_op_type_id = GetOpType(blk.P_WrOffParam->WrOffOpID);
-			if(blk.SrcDraftPack.OprType == PPOPT_DRAFTEXPEND) {
+			if(blk.SrcDraftPack.OpTypeID == PPOPT_DRAFTEXPEND) {
 				switch(wroff_op_type_id) {
 					case PPOPT_DRAFTRECEIPT:
 						THROW(r = Helper_WrOffDrft_ExpDrftRcp(blk, 0));
@@ -977,7 +977,7 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 						break;
 				}
 			}
-			else if(blk.SrcDraftPack.OprType == PPOPT_DRAFTRECEIPT) {
+			else if(blk.SrcDraftPack.OpTypeID == PPOPT_DRAFTRECEIPT) {
 				switch(wroff_op_type_id) {
 					case PPOPT_DRAFTRECEIPT:
 						THROW_MEM(p_pack = new PPBillPacket);

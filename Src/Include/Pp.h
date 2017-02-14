@@ -10370,8 +10370,8 @@ public:
 		// Актуально только во время одной сессии редактирования документа.
 	PPID   AgtQuotKindID;      // @transient Вид котировки из соглашения с клиентом
 		// Используется в диалогах товарных строк документов для выбора котировки
-	PPID   OprType;
-	PPID   AccSheet;
+	PPID   OpTypeID;   // @v9.5.3 OprType-->OpTypeID
+	PPID   AccSheetID; // @v9.5.3 AccSheet-->AccSheetID
 	long   Counter;
 	//
 	// P_ShLots - теневые строки, отражающие исполнение заказов.
@@ -42646,6 +42646,8 @@ public:
     // Descr: Дескриптор сервера УТМ
     //
     struct UtmEntry {
+    	SLAPI  UtmEntry();
+
     	enum {
     		fDefault = 0x0001 // Если флаг установлен, то это означает, что
 				// MainOrgID является текущей главной организацией,

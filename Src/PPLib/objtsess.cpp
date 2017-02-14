@@ -1,5 +1,5 @@
 // OBJTSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -3685,7 +3685,7 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 				// Информируем оператора о том, что сессия списана несмотря на дефицит
 				//
 				rLogger.LogString(PPTXT_TSESWROFFDEFICIT, ses_name);
-			if(bill_pack.OprType == PPOPT_GOODSMODIF)
+			if(bill_pack.OpTypeID == PPOPT_GOODSMODIF)
 				bill_pack.CalcModifCost();
 			if(p_link_bill_pack && p_link_bill_pack->IsDraft()) {
 				//

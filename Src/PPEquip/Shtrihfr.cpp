@@ -1,5 +1,5 @@
 // SHTRIHFR.CPP
-// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2015, 2016
+// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2015, 2016, 2017
 // @codepage windows-1251
 // Интерфейс (синхронный) с ККМ Штрих-ФР
 //
@@ -970,7 +970,7 @@ int SLAPI SCS_SHTRIHFRF::GetCheckInfo(PPBillPacket * pPack, BillTaxArray * pAry,
 	}
 	THROW_PP(pPack && pAry, PPERR_INVPARAM);
 	RVALUEPTR(flags, pFlags);
-	if(pPack->OprType == PPOPT_ACCTURN) {
+	if(pPack->OpTypeID == PPOPT_ACCTURN) {
 		long   s_tax = 0;
 		double amt1 = 0.0, amt2 = 0.0;
 		PPObjAmountType amtt_obj;
@@ -994,12 +994,12 @@ int SLAPI SCS_SHTRIHFRF::GetCheckInfo(PPBillPacket * pPack, BillTaxArray * pAry,
 	else {
 		PPTransferItem * ti;
 		PPObjGoods  goods_obj;
-		if(pPack->OprType == PPOPT_GOODSRETURN) {
+		if(pPack->OpTypeID == PPOPT_GOODSRETURN) {
 			PPOprKind op_rec;
 			if(GetOpData(pPack->Rec.OpID, &op_rec) > 0 && IsExpendOp(op_rec.LinkOpID) > 0)
 				flags |= PRNCHK_RETURN;
 		}
-		else if(pPack->OprType == PPOPT_GOODSRECEIPT)
+		else if(pPack->OpTypeID == PPOPT_GOODSRECEIPT)
 			flags |= PRNCHK_RETURN;
 		for(uint i = 0; pPack->EnumTItems(&i, &ti);) {
 			int re;

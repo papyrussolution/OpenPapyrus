@@ -206,6 +206,11 @@ PPEgaisProcessor::QueryBarcode::QueryBarcode()
 	CodeType = 0;
 }
 
+SLAPI PPEgaisProcessor::UtmEntry::UtmEntry()
+{
+	THISZERO();
+}
+
 SLAPI PPEgaisProcessor::SendBillsParam::SendBillsParam()
 {
 	LocID = 0;
@@ -1604,56 +1609,71 @@ int SLAPI PPEgaisProcessor::GetUtmList(PPID locID, TSArray <UtmEntry> & rList)
 {
 	rList.clear();
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	SString fsrar_id;
 	SString url;
 	PPIDArray main_psn_list;
-	{
-		PersonKindTbl * t = &PsnObj.P_Tbl->Kind;
-		PersonKindTbl::Key0 k0;
-		PersonTbl::Rec psn_rec;
-		MEMSZERO(k0);
-		k0.KindID = PPPRK_MAIN;
-		BExtQuery q(t, 0, 128);
-		q.select(t->PersonID, 0).where(t->KindID == PPPRK_MAIN);
-		for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
-			const PPID psn_id = t->data.PersonID;
-			if(PsnObj.Search(psn_id, &psn_rec) > 0)
-				main_psn_list.add(psn_id);
-		}
-		main_psn_list.sortAndUndup();
-	}
-	{
-		Reference * p_ref = PPRef;
-		for(uint i = 0; i < main_psn_list.getCount(); i++) {
-			const PPID psn_id = main_psn_list.get(i);
-			p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_FSRARID, fsrar_id);
-			p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_EGAISSRVURL, url);
-			if(fsrar_id.NotEmptyS() && url.NotEmptyS()) {
-				UtmEntry new_entry;
-				MEMSZERO(new_entry);
-				new_entry.MainOrgID = psn_id;
-				STRNSCPY(new_entry.Url, url);
-				STRNSCPY(new_entry.FSRARID, fsrar_id);
-				THROW_SL(rList.insert(&new_entry));
-				ok = 2;
-			}
-		}
-	}
-	if(!rList.getCount()) {
-		PPID   main_org_id = 0;
-		fsrar_id = 0;
-		url = 0;
-		THROW(GetURL(locID, url));
-		THROW(GetFSRARID(locID, fsrar_id, &main_org_id));
-		{
+	PPID   main_org_id = 0;
+	GetMainOrgID(&main_org_id);
+	// @v9.5.3 {
+	if(locID && main_org_id) {
+		p_ref->Ot.GetTagStr(PPOBJ_LOCATION, locID, PPTAG_LOC_FSRARID, fsrar_id);
+		p_ref->Ot.GetTagStr(PPOBJ_LOCATION, locID, PPTAG_LOC_EGAISSRVURL, url);
+		if(fsrar_id.NotEmptyS() && url.NotEmptyS()) {
 			UtmEntry new_entry;
-			MEMSZERO(new_entry);
 			new_entry.Flags |= UtmEntry::fDefault;
 			new_entry.MainOrgID = main_org_id;
 			STRNSCPY(new_entry.Url, url);
 			STRNSCPY(new_entry.FSRARID, fsrar_id);
 			THROW_SL(rList.insert(&new_entry));
-			ok = 1;
+			ok = 3;
+		}
+	}
+	// } @v9.5.3
+	if(!rList.getCount()) {
+		{
+			PersonKindTbl * t = &PsnObj.P_Tbl->Kind;
+			PersonKindTbl::Key0 k0;
+			PersonTbl::Rec psn_rec;
+			MEMSZERO(k0);
+			k0.KindID = PPPRK_MAIN;
+			BExtQuery q(t, 0, 128);
+			q.select(t->PersonID, 0).where(t->KindID == PPPRK_MAIN);
+			for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+				const PPID psn_id = t->data.PersonID;
+				if(PsnObj.Search(psn_id, &psn_rec) > 0)
+					main_psn_list.add(psn_id);
+			}
+			main_psn_list.sortAndUndup();
+			//
+			for(uint i = 0; i < main_psn_list.getCount(); i++) {
+				const PPID psn_id = main_psn_list.get(i);
+				p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_FSRARID, fsrar_id);
+				p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_EGAISSRVURL, url);
+				if(fsrar_id.NotEmptyS() && url.NotEmptyS()) {
+					UtmEntry new_entry;
+					new_entry.MainOrgID = psn_id;
+					STRNSCPY(new_entry.Url, url);
+					STRNSCPY(new_entry.FSRARID, fsrar_id);
+					THROW_SL(rList.insert(&new_entry));
+					ok = 2;
+				}
+			}
+		}
+		if(!rList.getCount()) {
+			fsrar_id = 0;
+			url = 0;
+			THROW(GetURL(locID, url));
+			THROW(GetFSRARID(locID, fsrar_id, &main_org_id));
+			{
+				UtmEntry new_entry;
+				new_entry.Flags |= UtmEntry::fDefault;
+				new_entry.MainOrgID = main_org_id;
+				STRNSCPY(new_entry.Url, url);
+				STRNSCPY(new_entry.FSRARID, fsrar_id);
+				THROW_SL(rList.insert(&new_entry));
+				ok = 1;
+			}
 		}
 	}
 	CATCHZOK
@@ -1861,7 +1881,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 								shipper_psn_id = main_org_id;
 								shipper_loc_id = p_bp->Rec.LocID;
                         	}
-                        	else if(oneof2(p_bp->OprType, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND)) {
+                        	else if(oneof2(p_bp->OpTypeID, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND)) {
 								wb_type = wbtInvcFromMe;
 								PPID   ar2_main_org_id = 0;
 								if(op_rec.AccSheet2ID && p_bp->Rec.Object2) {
@@ -1895,14 +1915,14 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
                                     }
 								}
                         	}
-                        	else if(oneof2(p_bp->OprType, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) {
+                        	else if(oneof2(p_bp->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) {
                         		wb_type = wbtInvcToMe;
 								consignee_psn_id = main_org_id;
 								consignee_loc_id = p_bp->Rec.LocID;
 								shipper_psn_id = ObjectToPerson(p_bp->Rec.Object, 0);
 								shipper_loc_id = p_bp->P_Freight ? p_bp->P_Freight->DlvrAddrID : 0;
                         	}
-                        	else if(p_bp->OprType == PPOPT_GOODSRETURN) {
+                        	else if(p_bp->OpTypeID == PPOPT_GOODSRETURN) {
 								if(op_rec.LinkOpID) {
 									if(link_op_rec.OpTypeID == PPOPT_GOODSRECEIPT) {
 										wb_type = wbtRetFromMe;

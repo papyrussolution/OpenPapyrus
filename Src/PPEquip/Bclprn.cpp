@@ -1454,7 +1454,7 @@ int SLAPI BarcodeLabelPrinter::PrintLabelByBill(PPBillPacket * pPack, uint pos)
 						lot_id = trfr_rec.LotID;
 				}
 				THROW(p_bobj->GetLabelLotInfo(lot_id, &rgi) > 0);
-				if(pPack->OprType == PPOPT_GOODSREVAL)
+				if(pPack->OpTypeID == PPOPT_GOODSREVAL)
 					rgi.RevalPrice = p_ti->Discount;
 				r = 1;
 			}

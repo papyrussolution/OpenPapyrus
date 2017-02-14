@@ -2534,6 +2534,12 @@ int SLAPI PPObjBHT::PrepareBillData2(PPBhtTerminalPacket * pPack, PPIDArray * pG
 				BillFilt bill_filt;
 				PPViewBill v_bill;
 				bill_filt.SetupBrowseBillsType(r_entry.Bbt);
+				// @debug {
+				/**/
+				if(r_entry.Bbt == bbtDraftBills)
+					bill_filt.Ft_ClosedOrder = 0;
+				/**/
+				// } @debug
 				bill_filt.OpID = r_entry.OpID;
 				if(r_entry.Flags & BHT_BillOpEntry::fUseDueDate) {
 					bill_filt.DuePeriod = r_entry.DuePeriod;
@@ -2581,7 +2587,7 @@ int SLAPI PPObjBHT::PrepareBillData2(PPBhtTerminalPacket * pPack, PPIDArray * pG
 							sdr_brow.Cost = ti.Cost;
 							{
 								PPSupplDeal sd;
-								GObj.GetSupplDeal(ti.GoodsID, suppl_deal_qi, &sd);
+								GObj.GetSupplDeal(ti.GoodsID, suppl_deal_qi, &sd, 1); // @v9.5.3 useCache=1
 								sdr_brow.SuplDeal = sd.Cost;
 								sdr_brow.SuplDLow = (int16)(sd.DnDev * 100);
 								sdr_brow.SuplDUp  = (int16)(sd.UpDev * 100);

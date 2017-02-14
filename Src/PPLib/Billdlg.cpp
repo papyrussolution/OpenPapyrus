@@ -447,7 +447,7 @@ static uint SLAPI GetBillDialogID(PPBillPacket * pack, uint * pPrnForm)
 {
 	PPOprKind op_rec;
 	*pPrnForm = 0;
-	switch(pack->OprType) {
+	switch(pack->OpTypeID) {
 		case PPOPT_ACCTURN:
 			if(pack->Rec.Flags & BILLF_ADVANCEREP)
 				return DLG_ADVANCEREP;
@@ -585,7 +585,7 @@ BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDia
 		SetupAgreementButton();
 	}
 	// @v9.4.3 disableCtrl(CTL_BILL_AMOUNT, BIN(P_Pack->Rec.Flags & BILLF_GOODS || P_Pack->OprType == PPOPT_POOL || P_Pack->IsDraft()));
-	disableCtrl(CTL_BILL_AMOUNT, BIN(P_Pack->IsGoodsDetail() || P_Pack->OprType == PPOPT_POOL)); // @v9.4.3
+	disableCtrl(CTL_BILL_AMOUNT, BIN(P_Pack->IsGoodsDetail() || P_Pack->OpTypeID == PPOPT_POOL)); // @v9.4.3
 	disableCtrl(CTL_BILL_ADV_TOUT, 1);
 	disableCtrl(CTL_BILL_DEBTSUM, 1);
 	setupPosition();
@@ -633,7 +633,7 @@ int BillDialog::EditAgreement()
 
 void BillDialog::SetupDiscountCtrls()
 {
-	if(P_Pack->OprType == PPOPT_GOODSRETURN) {
+	if(P_Pack->OpTypeID == PPOPT_GOODSRETURN) {
 		disableCtrls(1, CTL_BILL_TTLDISCOUNT, CTL_BILL_DISCOUNT, 0);
 	}
 	else {
@@ -643,7 +643,7 @@ void BillDialog::SetupDiscountCtrls()
 			// Если у пользователя нет прав на изменение синхронизированного документа,
 			// то менять скидку на весь документ он не может - это приведет к изменению сумм по строкам.
 			//
-			if(oneof6(P_Pack->OprType, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF,
+			if(oneof6(P_Pack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF,
 				PPOPT_GOODSRETURN, PPOPT_GOODSORDER)) {
 				if(!P_BObj->CheckRights(BILLOPRT_MODTRANSM, 1))
 					rt = 0;
@@ -1612,7 +1612,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 						ep.Flags |= PPObjBill::efCascade;
 						P_BObj->Edit(&id, &ep);
 					}
-					else if(P_Pack->OprType == PPOPT_PAYMENT) {
+					else if(P_Pack->OpTypeID == PPOPT_PAYMENT) {
 						PPOprKind op_rec;
 						if(GetOpData(P_Pack->Rec.OpID, &op_rec) > 0 && op_rec.LinkOpID) {
 							BillFilt bill_filt;
@@ -1631,7 +1631,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 											P_Pack->Rec.Object = bill_rec.Object;
 											// Приходится использовать SetupArCombo поскольку из-за OLW_LOADDEFONOPEN
 											// setCtrlLong не установит значение.
-											SetupArCombo(this, CTLSEL_BILL_OBJECT, P_Pack->Rec.Object, OLW_LOADDEFONOPEN|OLW_CANINSERT, P_Pack->AccSheet);
+											SetupArCombo(this, CTLSEL_BILL_OBJECT, P_Pack->Rec.Object, OLW_LOADDEFONOPEN|OLW_CANINSERT, P_Pack->AccSheetID);
 											ReplyCntragntSelection(1);
 										}
 										const double amt = getCtrlReal(CTL_BILL_AMOUNT);
@@ -1848,9 +1848,9 @@ IMPL_HANDLE_EVENT(BillDialog)
 								SString code;
 								PPID   ar_id = 0;
 								PPID   reg_type_id = P_BObj->Cfg.ClCodeRegTypeID;
-								if(P_Pack->AccSheet && reg_type_id > 0 && BarcodeInputDialog(0, code) > 0) {
+								if(P_Pack->AccSheetID && reg_type_id > 0 && BarcodeInputDialog(0, code) > 0) {
 									ArticleTbl::Rec ar_rec;
-									if(ArObj.SearchByRegCode(P_Pack->AccSheet, reg_type_id, code, &ar_id, &ar_rec) > 0) {
+									if(ArObj.SearchByRegCode(P_Pack->AccSheetID, reg_type_id, code, &ar_id, &ar_rec) > 0) {
 										setCtrlLong(CTLSEL_BILL_OBJECT, ar_rec.ID);
 										ReplyCntragntSelection(0);
 									}
@@ -1883,7 +1883,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 				EditFreight();
 				break;
 			case KB_CTRLENTER:
-				if(P_Pack->OprType != PPOPT_POOL)
+				if(P_Pack->OpTypeID != PPOPT_POOL)
 					editItems();
 				break;
 			default:
@@ -2056,7 +2056,7 @@ void BillDialog::ReplyCntragntSelection(int force)
 			}
 		}
 		if(to_force_update && PaymTerm >= 0) {
-			if(P_Pack->Rec.Flags & BILLF_NEEDPAYMENT || P_Pack->OprType == PPOPT_GOODSORDER) {
+			if(P_Pack->Rec.Flags & BILLF_NEEDPAYMENT || P_Pack->OpTypeID == PPOPT_GOODSORDER) {
 				P_Pack->SetupDefaultPayDate(PaymTerm, PayDateBase);
 				SetupPaymDateCtrls();
 			}
@@ -2098,7 +2098,7 @@ void BillDialog::ReplyCntragntSelection(int force)
 			}
 		}
 		// @v7.4.10 {
-		if(client_id && P_Pack->OprType == PPOPT_GOODSRECEIPT && P_Pack->AccSheet == GetSupplAccSheet() && P_Pack->GetTCount()) {
+		if(client_id && P_Pack->OpTypeID == PPOPT_GOODSRECEIPT && P_Pack->AccSheetID == GetSupplAccSheet() && P_Pack->GetTCount()) {
 			int is_there_force_suppl = 0;
 			uint i;
 			for(i = 0; !is_there_force_suppl && i < P_Pack->GetTCount(); i++) {
@@ -2205,7 +2205,7 @@ void BillDialog::SetupPaymDateCtrls()
 		setCtrlData(CTL_BILL_PAYDATE, &dt);
 		PPOprKind op_rec;
 		GetOpData(P_Pack->Rec.OpID, &op_rec);
-		if(P_Pack->Rec.Flags & BILLF_NEEDPAYMENT || P_Pack->OprType == PPOPT_GOODSORDER || op_rec.SubType == OPSUBT_WARRANT) {
+		if(P_Pack->Rec.Flags & BILLF_NEEDPAYMENT || P_Pack->OpTypeID == PPOPT_GOODSORDER || op_rec.SubType == OPSUBT_WARRANT) {
 			disableCtrls(P_Pack->Pays.getCount() > 1, CTL_BILL_PAYDATE, CTLCAL_BILL_PAYDATE, 0);
 			enableCommand(cmBillPayPlan, 1);
 		}
@@ -2251,7 +2251,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 		Flags &= ~fHasAmtIDList;
 	}
 	enableCommand(cmExAmountList, BIN(Flags & fHasAmtIDList));
-	if(P_Pack->OprType == PPOPT_PAYMENT) {
+	if(P_Pack->OpTypeID == PPOPT_PAYMENT) {
 		if(P_Pack->Rec.LinkBillID == 0) {
 			PPLoadString("but_dolinkbill", temp_buf);
 			setButtonText(cmLinkedBill, temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
@@ -2274,7 +2274,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 		period.Set(P_Pack->Rec.PeriodLow, P_Pack->Rec.PeriodUpp);
 		SetPeriodInput(this, CTL_BILL_PERIOD, &period);
 	}
-	if(oneof4(P_Pack->OprType, PPOPT_ACCTURN, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT)) {
+	if(oneof4(P_Pack->OpTypeID, PPOPT_ACCTURN, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT)) {
 		SetupPPObjCombo(this, CTLSEL_BILL_LOCATION, PPOBJ_LOCATION, P_Pack->Rec.LocID, 0);
 	}
 	else {
@@ -2282,17 +2282,17 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 		showCtrl(CTLSEL_BILL_LOCATION, 0);
 		disableCtrl(CTLSEL_BILL_LOCATION, 1);
 	}
-	if(P_Pack->AccSheet) {
+	if(P_Pack->AccSheetID) {
 		// @v7.1.6 {
-		if(P_Pack->Rec.Flags & BILLF_GEXPEND || oneof2(P_Pack->OprType, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER))
+		if(P_Pack->Rec.Flags & BILLF_GEXPEND || oneof2(P_Pack->OpTypeID, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER))
 			Flags |= fCheckCreditLim;
 		if((op_pack.Rec.OpTypeID == PPOPT_GOODSRETURN && IsExpendOp(P_Pack->Rec.OpID) == 0) ||
 			(op_pack.Rec.OpTypeID == PPOPT_GOODSRECEIPT && op_pack.Rec.ExtFlags & OPKFX_UNLINKRET)) {
 			Flags |= fCheckRetLim;
 		}
 		// } @v7.1.6
-		SetupArCombo(this, CTLSEL_BILL_OBJECT, P_Pack->Rec.Object,  OLW_LOADDEFONOPEN|OLW_CANINSERT, P_Pack->AccSheet);
-		SetupArCombo(this, CTLSEL_BILL_PAYER,  P_Pack->Ext.PayerID, OLW_LOADDEFONOPEN|OLW_CANINSERT, P_Pack->AccSheet);
+		SetupArCombo(this, CTLSEL_BILL_OBJECT, P_Pack->Rec.Object,  OLW_LOADDEFONOPEN|OLW_CANINSERT, P_Pack->AccSheetID);
+		SetupArCombo(this, CTLSEL_BILL_PAYER,  P_Pack->Ext.PayerID, OLW_LOADDEFONOPEN|OLW_CANINSERT, P_Pack->AccSheetID);
 		if(P_Pack->Rec.LinkBillID || (P_Pack->Rec.ID && !P_BObj->CheckRights(BILLOPRT_MODOBJ, 1)))
 			dsbl_object = 1;
 	}
@@ -2312,8 +2312,8 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	showCtrl(CTL_BILL_OBJ2,     !dsbl_object2);
 	showCtrl(CTLSEL_BILL_OBJ2,  !dsbl_object2);
 	showCtrl(CTL_BILL_OBJ2NAME, !dsbl_object2);
-	showCtrl(CTL_BILL_DUEDATE,  !oneof2(P_Pack->OprType, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT));
-	ShowCalCtrl(CTLCAL_BILL_DUEDATE, this, !oneof2(P_Pack->OprType, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT));
+	showCtrl(CTL_BILL_DUEDATE,  !oneof2(P_Pack->OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT));
+	ShowCalCtrl(CTLCAL_BILL_DUEDATE, this, !oneof2(P_Pack->OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT));
 	if(P_Pack->Rec.SCardID) {
 		PPObjSCard sc_obj;
 		SCardTbl::Rec sc_rec;
@@ -2371,13 +2371,13 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	setDiscount(dis, BIN(Flags & fPctDis));
 	setCtrlData(CTL_BILL_TTLDISCOUNT, &v);
 	SetupDiscountCtrls();
-	if(P_Pack->OprType == PPOPT_GOODSRECEIPT) {
+	if(P_Pack->OpTypeID == PPOPT_GOODSRECEIPT) {
 		setCtrlUInt16(CTL_BILL_TOGGLESTAX, BIN(P_Pack->Rec.Flags & BILLF_RMVEXCISE));
 		AddClusterAssoc(CTL_BILL_TOGGLESTAX, 0, BILLF_RMVEXCISE);
 		SetClusterData(CTL_BILL_TOGGLESTAX, P_Pack->Rec.Flags);
 	}
 	SetupPaymDateCtrls();
-	if(P_Pack->OprType == PPOPT_GOODSRETURN)
+	if(P_Pack->OpTypeID == PPOPT_GOODSRETURN)
 		disableCtrls(1, CTLSEL_BILL_OBJECT, CTL_BILL_AMOUNT, CTL_BILL_PAYDATE, CTLCAL_BILL_PAYDATE, 0);
 	if(!(Flags & fEditMode))
 		P_BObj->SubstMemo(P_Pack);
@@ -2392,7 +2392,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 		showCtrl(CTL_BILL_PAYMORD_IND, 0);
 	setupHiddenButton(P_BObj->CheckRights(BILLOPRT_MODFREIGHT, 1) ? OPKF_FREIGHT : 0, cmBillFreight, CTL_BILL_FREIGHTBUTTON);
 	setupHiddenButton(OPKF_ATTACHFILES, cmLinkFiles,   CTL_BILL_LINKFILESBUTTON);
-	if(P_Pack->OprType == PPOPT_GOODSORDER) {
+	if(P_Pack->OpTypeID == PPOPT_GOODSORDER) {
 		AddClusterAssoc(CTL_BILL_CLOSETAG, 0, BILLF_CLOSEDORDER);
 		SetClusterData(CTL_BILL_CLOSETAG, P_Pack->Rec.Flags);
 	}
@@ -2635,9 +2635,9 @@ int BillDialog::getDTS(int onCancel)
 	LDATE  dt;
 	PPObjOprKind op_obj;
 	getCurGroupData();
-	if(P_Pack->OprType == PPOPT_GOODSMODIF)
+	if(P_Pack->OpTypeID == PPOPT_GOODSMODIF)
 		P_Pack->CalcModifCost();
-	else if(P_Pack->OprType == PPOPT_GOODSRECEIPT) {
+	else if(P_Pack->OpTypeID == PPOPT_GOODSRECEIPT) {
 		PPTransferItem * p_ti;
 		GetClusterData(CTL_BILL_TOGGLESTAX, &P_Pack->Rec.Flags);
 		for(uint i = 0; P_Pack->EnumTItems(&i, &p_ti);)
@@ -2654,7 +2654,7 @@ int BillDialog::getDTS(int onCancel)
 		P_Pack->Rec.PeriodLow = (r > 0) ? period.low : ZERODATE;
 		P_Pack->Rec.PeriodUpp = (r > 0) ? period.upp : ZERODATE;
 	}
-	if(oneof4(P_Pack->OprType, PPOPT_ACCTURN, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT))
+	if(oneof4(P_Pack->OpTypeID, PPOPT_ACCTURN, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT))
 		getCtrlData(CTLSEL_BILL_LOCATION, &P_Pack->Rec.LocID);
 	getCtrlData(CTLSEL_BILL_OBJECT, &P_Pack->Rec.Object);
 	getCtrlData(CTLSEL_BILL_OBJ2,   &P_Pack->Rec.Object2);
@@ -2662,7 +2662,7 @@ int BillDialog::getDTS(int onCancel)
 	THROW(calcAmounts(&amt));
 	if(!onCancel)
 		THROW(checkCreditOverflow(amt));
-	if(P_Pack->OprType == PPOPT_GOODSORDER)
+	if(P_Pack->OpTypeID == PPOPT_GOODSORDER)
 		GetClusterData(CTL_BILL_CLOSETAG, &P_Pack->Rec.Flags);
 	if(P_Pack->Pays.getCount() <= 1) {
 		P_Pack->Pays.freeAll();
@@ -2682,7 +2682,7 @@ int BillDialog::getDTS(int onCancel)
 	}
 	if(intr) {
 		PPID   prim_sheet_id    = LConfig.LocAccSheetID;
-		PPID   foreign_sheet_id = P_Pack->AccSheet;
+		PPID   foreign_sheet_id = P_Pack->AccSheetID;
 		THROW_PP(P_Pack->Rec.Object || intr != INTREXPND, PPERR_INTRDESTNEEDED);
 		if(prim_sheet_id && prim_sheet_id == foreign_sheet_id) {
 			const PPID prim_obj_id = PPObjLocation::WarehouseToObj(P_Pack->Rec.LocID);
@@ -2691,7 +2691,7 @@ int BillDialog::getDTS(int onCancel)
 	}
 	P_Pack->SetQuantitySign(-1);
 	// @v9.3.1 /* @v9.2.11 Снимаем запрет на проведение пустых товарных документов
-	if(oneof5(P_Pack->OprType, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND,
+	if(oneof5(P_Pack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND,
 		PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, PPOPT_GOODSORDER) && !PPMaster) {
 		THROW_PP(P_Pack->GetTCount() || P_BObj->CheckRights(BILLOPRT_EMPTY, 1), PPERR_EMPTYGOODSLIST); // @v9.3.1 BILLOPRT_EMPTY
 	}
@@ -2730,7 +2730,7 @@ int BillDialog::editItems()
 {
 	int    r = -1;
 	double tmp = 0.0;
-	if(P_Pack->OprType == PPOPT_ACCTURN) {
+	if(P_Pack->OpTypeID == PPOPT_ACCTURN) {
 		if(CheckOpFlags(P_Pack->Rec.OpID, OPKF_ADVACC)) {
 			ViewAdvBillDetails(P_Pack, P_BObj);
 			calcAmounts(&tmp);
@@ -2742,7 +2742,7 @@ int BillDialog::editItems()
 		calcAmounts(&tmp);
 		getCtrlData(CTLSEL_BILL_OBJECT, &P_Pack->Rec.Object);
 		if(P_Pack->Rec.Object == 0) {
-			if(P_Pack->OprType == PPOPT_GOODSRECEIPT && P_Pack->AccSheet == GetSupplAccSheet() && P_Pack->GetTCount() == 0) {
+			if(P_Pack->OpTypeID == PPOPT_GOODSRECEIPT && P_Pack->AccSheetID == GetSupplAccSheet() && P_Pack->GetTCount() == 0) {
 				if(PPMessage(mfConf|mfYesNo|mfDefaultYes, PPCFM_ZERORCPTOBJ, 0) == cmYes) {
 					messageToCtrl(CTLSEL_BILL_OBJECT, evCommand, cmCBActivate, 0);
 					return 0;
@@ -2965,7 +2965,7 @@ int SLAPI PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 				// @v9.1.10 if(oneof2(P_Pack->OprType, PPOPT_DRAFTRECEIPT, PPOPT_GOODSRECEIPT) && DS.CheckExtFlag(ECF_RCPTDLVRLOCASWAREHOUSE)) { // @v7.5.0 PPOPT_GOODSRECEIPT
 				// @v9.1.10 {
 				int    dlvr_loc_as_warehouse = 0;
-				if(oneof2(P_Pack->OprType, PPOPT_DRAFTRECEIPT, PPOPT_GOODSRECEIPT)) {
+				if(oneof2(P_Pack->OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_GOODSRECEIPT)) {
 					PPOprKind op_rec;
 					if(GetOpData(P_Pack->Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_DLVRLOCASWH)
 						dlvr_loc_as_warehouse = 1;

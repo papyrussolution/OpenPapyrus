@@ -305,7 +305,7 @@ int SLAPI PPAccTurnTempl::GetSubstObjects(ATBillParam * pParam, ATSubstObjects *
 	if(!is_foreign_list_present) {
 		ATSubstObjects::Item item;
 		item.Aid.ar = pParam->P_Pack->Rec.Object;
-		item.AcsID = pParam->P_Pack->AccSheet;
+		item.AcsID = pParam->P_Pack->AccSheetID;
 		pAtso->ForeignList.insert(&item);
 	}
 	{
@@ -643,7 +643,7 @@ int SLAPI PPAccTurnTempl::EnumerateExtLines(const PPBillPacket * pPack, ExtLines
 		pBlk->SubstAr = 0;
 		pBlk->SubstArList.clear();
 		pBlk->P_Pack = pPack;
-		if(pPack->OprType == PPOPT_ACCTURN && GetOpSubType(pPack->Rec.OpID) == OPSUBT_ACCWROFF) {
+		if(pPack->OpTypeID == PPOPT_ACCTURN && GetOpSubType(pPack->Rec.OpID) == OPSUBT_ACCWROFF) {
 			pBlk->AccWrOff = 1;
 			PPOprKind op_rec;
 			if(GetOpData(pPack->Rec.OpID, &op_rec) > 0 && op_rec.AccSheetID) {

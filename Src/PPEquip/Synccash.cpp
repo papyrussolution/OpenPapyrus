@@ -1024,7 +1024,7 @@ int SLAPI SCS_SYNCCASH::GetCheckInfo(PPBillPacket * pPack, Sync_BillTaxArray * p
 	THROW_PP(pPack && pAry, PPERR_INVPARAM);
 	if(pFlags)
 		flags = *pFlags;
-	if(pPack->OprType == PPOPT_ACCTURN) {
+	if(pPack->OpTypeID == PPOPT_ACCTURN) {
 		long   s_tax = 0;
 		double amt1 = 0.0, amt2 = 0.0;
 		PPObjAmountType amtt_obj;
@@ -1048,12 +1048,12 @@ int SLAPI SCS_SYNCCASH::GetCheckInfo(PPBillPacket * pPack, Sync_BillTaxArray * p
 	else {
 		PPTransferItem * ti;
 		PPObjGoods  goods_obj;
-		if(pPack->OprType == PPOPT_GOODSRETURN) {
+		if(pPack->OpTypeID == PPOPT_GOODSRETURN) {
 			PPOprKind op_rec;
 			if(GetOpData(pPack->Rec.OpID, &op_rec) > 0 && IsExpendOp(op_rec.LinkOpID) > 0)
 				flags |= PRNCHK_RETURN;
 		}
-		else if(pPack->OprType == PPOPT_GOODSRECEIPT)
+		else if(pPack->OpTypeID == PPOPT_GOODSRECEIPT)
 			flags |= PRNCHK_RETURN;
 		for(uint i = 0; pPack->EnumTItems(&i, &ti);) {
 			int re;

@@ -1,5 +1,5 @@
 // ADVBILL.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -537,7 +537,7 @@ int AdvBillItemBrowser::editAdvBillItem(PPAdvBillItem * pData)
 	if(GetOpSubType(P_Pack->Rec.OpID) == OPSUBT_WARRANT)
 		dlg = new WarrantItemDialog(DLG_WARRITEM);
 	else if(GetOpSubType(P_Pack->Rec.OpID) == OPSUBT_DEBTINVENT)
-		dlg = new DebtInventItemDialog(P_Pack->AccSheet);
+		dlg = new DebtInventItemDialog(P_Pack->AccSheetID);
 	else
 		dlg = new AdvBillItemDialog(DLG_ADVREPITEM);
 	THROW(CheckDialogPtr(&dlg));
@@ -738,7 +738,7 @@ int SLAPI ViewAdvBillDetails(PPBillPacket * pPack, PPObjBill * pBObj)
 	int    r = -1;
 	uint   res_id;
 	int    (*set_entry)(AdvBillItemEntry * pEntry, const PPAdvBillItem * pItem, PPObjBill *) = 0;
-	if(pPack->OprType == PPOPT_ACCTURN) {
+	if(pPack->OpTypeID == PPOPT_ACCTURN) {
 		if(GetOpSubType(pPack->Rec.OpID) == OPSUBT_WARRANT) {
 			res_id    = BROWSER_WARRANTITEM;
 			set_entry = SetWarrantItemEntry;

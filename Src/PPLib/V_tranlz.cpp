@@ -1067,13 +1067,13 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 		}
 		// @v9.5.0 {
 		else if(ext_val_param > Filt.extvQuotBias) {
-			const QuotIdent qi(pTrfrRec->LocID, ext_val_param-Filt.extvQuotBias, pTrfrRec->CurID, pBillRec->Object);
+			const QuotIdent qi(pTrfrRec->Dt, pTrfrRec->LocID, ext_val_param-Filt.extvQuotBias, pTrfrRec->CurID, pBillRec->Object); // @v9.5.3 pTrfrRec->Dt
 			double _ext_quot = 0.0;
 			if(GObj.GetQuotExt(goods_id, qi, pTrfrRec->Cost, pTrfrRec->Price, &_ext_quot, 1) > 0) {
 				ext_val1 = _ext_quot * qtty * sign;
 			}
 		}
-		// } @v9.5.0 
+		// } @v9.5.0
 	}
 	// } @v9.3.4
 	if(Flags & fAsGoodsCard && Filt.Flags & TrfrAnlzFilt::fGByDate) {
@@ -1217,7 +1217,7 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 			tg_rec.LinkCost  = pExt->LinkCost;
 			tg_rec.LinkPrice = pExt->LinkPrice;
 		}
-		// } @v9.4.10 
+		// } @v9.4.10
 		tg_rec.ExtVal1   = ext_val1; // @v9.3.5
 		tg_rec.ArticleID = _ar_id;
 		tg_rec.GoodsID   = _goods_id;
@@ -1481,7 +1481,7 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 			rec.LinkCost  = pExt->LinkCost;
 			rec.LinkPrice = pExt->LinkPrice;
 		}
-		// } @v9.4.10 
+		// } @v9.4.10
 		rec.ExtVal1 = ext_val1; // @v9.3.5
 		THROW_DB(pBei->insert(&rec));
 	}

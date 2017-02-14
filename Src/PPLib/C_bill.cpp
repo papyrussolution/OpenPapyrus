@@ -165,7 +165,7 @@ int SLAPI PPObjBill::CheckAmounts(PPID id, PPLogger & rLogger)
 	AmtList al;
 	PPBillPacket pack;
 	THROW(ExtractPacketWithFlags(id, &pack, BPLD_SKIPTRFR) > 0);
-	if(pack.Rec.OpID && !oneof3(pack.OprType, PPOPT_ACCTURN, PPOPT_PAYMENT, PPOPT_INVENTORY)) {
+	if(pack.Rec.OpID && !oneof3(pack.OpTypeID, PPOPT_ACCTURN, PPOPT_PAYMENT, PPOPT_INVENTORY)) {
 		SString log_buf, fmt_buf, bill_buf, amt_buf;
 		pack.Rec.Flags |= BILLF_NOLOADTRFR;
 		THROW(pack.SumAmounts(&al, 1));

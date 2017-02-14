@@ -334,37 +334,37 @@ int SLAPI PrintGoodsBill(PPBillPacket * pPack, SArray ** ppAry, int printingNoAs
 		uint rpt_id = (pPack->P_PaymOrder && pPack->P_PaymOrder->Flags & BNKPAYMF_REQ) ? REPORT_BNKPAYMREQ : REPORT_BNKPAYMORDER;
 		ok = PPAlddPrint(rpt_id, &pf, &env);
 	}
-	else if(pPack->OprType == PPOPT_GOODSREVAL) {
+	else if(pPack->OpTypeID == PPOPT_GOODSREVAL) {
 		long   f = (opk.PrnFlags & (OPKF_PRT_BUYING | OPKF_PRT_SELLING));
 		uint   rpt_id = (f == (OPKF_PRT_BUYING | OPKF_PRT_SELLING) || f == 0) ? REPORT_GREVALBILL : REPORT_GREVALBILLP;
 		pf.Ptr = pPack;
 		ok = PPAlddPrint(rpt_id, &pf, &env);
 	}
 	// @v8.6.2 {
-	else if(pPack->OprType == PPOPT_CORRECTION) {
+	else if(pPack->OpTypeID == PPOPT_CORRECTION) {
 		pf.Ptr = pPack;
 		ok = PPAlddPrint(REPORT_INVOICECORR, &pf, &env);
 	}
 	// } @v8.6.2
-	else if(pPack->OprType == PPOPT_INVENTORY) {
+	else if(pPack->OpTypeID == PPOPT_INVENTORY) {
 		PPViewInventory iv;
 		InventoryFilt filt;
 		filt.Setup(pPack->Rec.ID);
 		THROW(iv.Init_(&filt));
 		THROW(iv.Print(0));
 	}
-	else if(pPack->OprType == PPOPT_PAYMENT && opk.PrnFlags & OPKF_PRT_INVOICE) {
+	else if(pPack->OpTypeID == PPOPT_PAYMENT && opk.PrnFlags & OPKF_PRT_INVOICE) {
 		ok = PrintInvoice(pPack, 0);
 	}
-	else if(pPack->OprType == PPOPT_ACCTURN && opk.SubType == OPSUBT_WARRANT) {
+	else if(pPack->OpTypeID == PPOPT_ACCTURN && opk.SubType == OPSUBT_WARRANT) {
 		pf.Ptr = pPack;
 		ok = PPAlddPrint(REPORT_WARRANT, &pf, &env);
 	}
-	else if(pPack->OprType == PPOPT_ACCTURN && opk.SubType == OPSUBT_ADVANCEREP) {
+	else if(pPack->OpTypeID == PPOPT_ACCTURN && opk.SubType == OPSUBT_ADVANCEREP) {
 		pf.Ptr = pPack;
 		ok = PPAlddPrint(REPORT_ADVANCEREP, &pf, &env);
 	}
-	else if(pPack->OprType == PPOPT_ACCTURN && !alt_rpt_id) {
+	else if(pPack->OpTypeID == PPOPT_ACCTURN && !alt_rpt_id) {
 		long   f = (opk.PrnFlags & (OPKF_PRT_CASHORD | OPKF_PRT_INVOICE | OPKF_PRT_PAYPLAN));
 		long   prf = 0;
 		if(f == 0 || f == OPKF_PRT_CASHORD)
@@ -413,7 +413,7 @@ int SLAPI PrintGoodsBill(PPBillPacket * pPack, SArray ** ppAry, int printingNoAs
 			THROW(rpt_ids.insert(&rs));
 			amt_types = 3;
 		}
-		else if(pPack->OprType == PPOPT_GOODSMODIF && !prn_no_ask) {
+		else if(pPack->OpTypeID == PPOPT_GOODSMODIF && !prn_no_ask) {
 			RptSel rs(0, NZOR(alt_rpt_id, REPORT_GOODSBILLMODIF));
 			THROW(rpt_ids.insert(&rs));
 		}
@@ -445,7 +445,7 @@ int SLAPI PrintGoodsBill(PPBillPacket * pPack, SArray ** ppAry, int printingNoAs
 			if(opk.PrnFlags & (OPKF_PRT_EXTFORMFLAGS|OPKF_PRT_SELPRICE)) {
 				int    only_price_changed_flag = 0;
 				LAssocArray sel_ary;
-				THROW(ok = SelectForm(opk.PrnFlags, (opk.PrnFlags & OPKF_PRT_SELPRICE) ? &amt_types : 0, sel_ary, pPack->OprType, &div_copies_flag, &only_price_changed_flag));
+				THROW(ok = SelectForm(opk.PrnFlags, (opk.PrnFlags & OPKF_PRT_SELPRICE) ? &amt_types : 0, sel_ary, pPack->OpTypeID, &div_copies_flag, &only_price_changed_flag));
 				pPack->OutAmtType = amt_types;
 				if(ok > 0) {
 					for(c = 0; c < sel_ary.getCount(); c++) {
@@ -570,10 +570,10 @@ int SLAPI PrintGoodsBill(PPBillPacket * pPack, SArray ** ppAry, int printingNoAs
 int SLAPI PrintCashOrderByGoodsBill(PPBillPacket * pPack, int prnflags)
 {
 	int    ok = 1;
-	double amt = BR2(pPack->Rec.Amount);
+	const  double amt = BR2(pPack->Rec.Amount);
 	if(amt != 0) {
 		int    x;
-		if(pPack->OprType == PPOPT_PAYMENT) {
+		if(pPack->OpTypeID == PPOPT_PAYMENT) {
 			PPOprKind op_rec, link_op_rec;
 			GetOpData(pPack->Rec.OpID, &op_rec);
 			PPID   link_op_type = GetOpType(op_rec.LinkOpID, &link_op_rec);
@@ -583,13 +583,13 @@ int SLAPI PrintCashOrderByGoodsBill(PPBillPacket * pPack, int prnflags)
 				x = BIN(IsExpendOp(op_rec.LinkOpID) > 0 || link_op_type == PPOPT_GOODSORDER);
 			x = (amt > 0) ? x : !x;
 		}
-		else if(pPack->OprType == PPOPT_GOODSORDER)
+		else if(pPack->OpTypeID == PPOPT_GOODSORDER)
 			x = 1;
 		else if(pPack->Rec.Flags & (BILLF_GRECEIPT|BILLF_GEXPEND))
 			x = (IsExpendOp(pPack->Rec.OpID) > 0);
-		else if(pPack->OprType == PPOPT_DRAFTRECEIPT)
+		else if(pPack->OpTypeID == PPOPT_DRAFTRECEIPT)
 			x = 0;
-		else if(pPack->OprType == PPOPT_DRAFTEXPEND)
+		else if(pPack->OpTypeID == PPOPT_DRAFTEXPEND)
 			x = 1;
 		else
 			return -1;

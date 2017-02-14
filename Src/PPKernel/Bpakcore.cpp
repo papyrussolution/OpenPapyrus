@@ -1067,7 +1067,7 @@ int SLAPI PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 					ProcessFlags |= pfSubCostOnSubPartStr;
 			}
 		}
-		if(Rec.Flags & BILLF_GEXPEND || oneof2(OprType, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
+		if(Rec.Flags & BILLF_GEXPEND || oneof2(OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
 			int    is_stopped = -1;
 			SString stop_err_addedmsg = ar_rec.Name;
 			if(rRet.State & rRet.stHasCliAgreement) {
@@ -1142,13 +1142,13 @@ int SLAPI PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 		for(uint i = 0; i < GetTCount(); i++) {
 			const PPTransferItem & r_ti = ConstTI(i);
 			THROW(CheckGoodsForRestrictions((int)i, r_ti.GoodsID, TISIGN_UNDEF, r_ti.Qtty(), cgrfObject, 0));
-			if(oneof2(OprType, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) {
+			if(oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) {
 				PPSupplDeal sd;
 				QuotIdent qi(r_ti.LocID, 0, r_ti.CurID, arID);
 				goods_obj.GetSupplDeal(r_ti.GoodsID, qi, &sd, 1);
 				THROW_PP(!sd.IsDisabled, PPERR_GOODSRCPTDISABLED);
 				if(invp_act == PPSupplAgreement::invpaRestrict &&
-					(OprType == PPOPT_GOODSRECEIPT || (Rec.OpID == r_ccfg.DraftRcptOp && r_ccfg.Flags2 & CCFLG2_USESDONPURCHOP))) {
+					(OpTypeID == PPOPT_GOODSRECEIPT || (Rec.OpID == r_ccfg.DraftRcptOp && r_ccfg.Flags2 & CCFLG2_USESDONPURCHOP))) {
 					THROW_PP_S(sd.CheckCost(r_ti.Cost), PPERR_SUPPLDEALVIOLATION, sd.Format(msg));
 				}
 			}
@@ -1548,6 +1548,8 @@ void SLAPI PPBillPacket::destroy()
 	ProcessFlags = 0;
 	SyncStatus = -2;
 	LoadMoment = ZERODATETIME; // @v8.9.8
+	OpTypeID = 0; // @v9.5.3 @fix
+	AccSheetID = 0; // @v9.5.3 @fix
 }
 
 PPBillPacket & FASTCALL PPBillPacket::operator = (const PPBillPacket & rS)
@@ -1568,8 +1570,8 @@ int FASTCALL PPBillPacket::Copy(const PPBillPacket & rS)
 	_FLD(OutAmtType);
 	_FLD(QuotKindID);
 	_FLD(AgtQuotKindID);
-	_FLD(OprType);
-	_FLD(AccSheet);
+	_FLD(OpTypeID);
+	_FLD(AccSheetID);
 	_FLD(Counter);
 	_FLD(Turns);
 	_FLD(AdvList);
@@ -1624,13 +1626,13 @@ int FASTCALL PPBillPacket::Copy(const PPBillPacket & rS)
 
 int SLAPI PPBillPacket::IsDraft() const
 {
-	const PPID op_type_id = OprType;
+	const PPID op_type_id = OpTypeID;
 	return BIN(oneof3(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT));
 }
 
 int SLAPI PPBillPacket::IsGoodsDetail() const
 {
-	const PPID op_type_id = OprType;
+	const PPID op_type_id = OpTypeID;
 	return BIN(oneof11(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND,
 		PPOPT_GOODSREVAL, PPOPT_CORRECTION, PPOPT_GOODSACK, PPOPT_GOODSMODIF, PPOPT_GOODSRETURN, PPOPT_GOODSORDER));
 }
@@ -1712,7 +1714,7 @@ int SLAPI PPBillPacket::CreateBlankByFilt(PPID opID, const BillFilt * pFilt, int
 		Rec.CurID = pFilt->CurID;
 	Ext.PayerID = pFilt->PayerID;
 	Ext.AgentID = pFilt->AgentID;
-	if(oneof2(OprType, PPOPT_ACCTURN, PPOPT_PAYMENT))
+	if(oneof2(OpTypeID, PPOPT_ACCTURN, PPOPT_PAYMENT))
 		if(pFilt->AmtRange.low == pFilt->AmtRange.upp && pFilt->AmtRange.low > 0)
 			Rec.Amount = pFilt->AmtRange.low;
 	CATCHZOK
@@ -1812,8 +1814,8 @@ int SLAPI PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int
 	}
 	else // “еневой документ
 		op_rec.LinkOpID = 1;
-	OprType  = op_rec.OpTypeID;
-	AccSheet = op_rec.AccSheetID;
+	OpTypeID  = op_rec.OpTypeID;
+	AccSheetID = op_rec.AccSheetID;
 	ErrCause = 0;
 	ErrLine  = 0;
 	TiErrList.freeAll();
@@ -1842,8 +1844,8 @@ int SLAPI PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int
 			Rec.Flags |= BILLF_GEXPEND;
 		else if(r == 0)
 			Rec.Flags |= BILLF_GRECEIPT;
-		if(OprType == PPOPT_GOODSRECEIPT) {
-			if(AccSheet == 0) {
+		if(OpTypeID == PPOPT_GOODSRECEIPT) {
+			if(AccSheetID == 0) {
 				PPObjArticle arobj;
 				THROW(arobj.GetMainOrgAsSuppl(&Rec.Object, 0, use_ta));
 			}
@@ -1851,11 +1853,11 @@ int SLAPI PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int
 	}
 	else // “еневой документ
 		Rec.Flags |= BILLF_GEXPEND;
-	if(oneof2(OprType, PPOPT_GOODSREVAL, PPOPT_CORRECTION))
+	if(oneof2(OpTypeID, PPOPT_GOODSREVAL, PPOPT_CORRECTION))
 		Rec.Flags |= BILLF_GREVAL;
-	else if(OprType == PPOPT_GOODSMODIF)
+	else if(OpTypeID == PPOPT_GOODSMODIF)
 		Rec.Flags |= BILLF_GMODIF;
-	else if(OprType == PPOPT_ACCTURN) {
+	else if(OpTypeID == PPOPT_ACCTURN) {
 		if(op_rec.SubType == OPSUBT_ADVANCEREP) {
 			THROW_MEM(P_AdvRep = new PPAdvanceRep);
 			memzero(P_AdvRep, sizeof(*P_AdvRep));
@@ -1868,7 +1870,7 @@ int SLAPI PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int
 		PPFreight freight;
 		THROW_PP_S(P_BObj->Search(Rec.LinkBillID, &link_rec) > 0, PPERR_LINKBILLNFOUND, (msg_buf = 0).Cat(Rec.LinkBillID));
 		// @v9.4.3 {
-		if(OprType == PPOPT_CORRECTION /* && GetOpType(link_rec.OpID) == PPOPT_GOODSEXPEND */) {
+		if(OpTypeID == PPOPT_CORRECTION /* && GetOpType(link_rec.OpID) == PPOPT_GOODSEXPEND */) {
 			THROW_MEM(SETIFZ(P_LinkPack, new PPBillPacket));
 			P_LinkPack->destroy();
 			THROW(P_BObj->ExtractPacket(Rec.LinkBillID, P_LinkPack) > 0);
@@ -1890,7 +1892,7 @@ int SLAPI PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int
 		// от таблицы, определенной дл€ св€занной операции.
 		//
 		THROW(GetOpData(link_rec.OpID, &op_rec));
-		SETIFZ(AccSheet, op_rec.AccSheetID);
+		SETIFZ(AccSheetID, op_rec.AccSheetID);
 		//
 		// ≈сли таблица св€занного документа совпадает с таблицей
 		// этого документа (AccSheet == 0), тип операции €вл€етс€ оплатой
@@ -1902,7 +1904,7 @@ int SLAPI PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int
 		//
 		// ¬ прочих случа€х объект этого документа нулевой.
 		//
-		if(opID && AccSheet == op_rec.AccSheetID) {
+		if(opID && AccSheetID == op_rec.AccSheetID) {
 			PPID   payer_id = 0;
 			if(link_rec.Flags & BILLF_EXTRA) {
 				PPBillExt ext;
@@ -1910,13 +1912,13 @@ int SLAPI PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int
 				if(r > 0)
 					payer_id = ext.PayerID;
 			}
-			Rec.Object = (OprType == PPOPT_PAYMENT && payer_id) ? payer_id : link_rec.Object;
+			Rec.Object = (OpTypeID == PPOPT_PAYMENT && payer_id) ? payer_id : link_rec.Object;
 		}
 		else
 			Rec.Object = 0;
 		Rec.CurID = link_rec.CurID;
 		// @v8.3.8 {
-		if(OprType == PPOPT_GOODSRETURN && op_rec.Flags & OPKF_FREIGHT && P_BObj->GetConfig().Flags & BCF_RETINHERITFREIGHT) {
+		if(OpTypeID == PPOPT_GOODSRETURN && op_rec.Flags & OPKF_FREIGHT && P_BObj->GetConfig().Flags & BCF_RETINHERITFREIGHT) {
 			if(P_BObj->P_Tbl->GetFreight(link_rec.ID, &freight) > 0) {
 				freight.IssueDate = ZERODATE;
 				freight.ArrivalDate = ZERODATE;
@@ -1934,7 +1936,7 @@ int SLAPI PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int
 		// ƒл€ теневого документа поле Object должно содержать ссылку на
 		// документ заказа. Ёто придетс€ сделать после вызова CreateBlank
 		//
-		if(OprType != PPOPT_GOODSRETURN || Rec.LocID == 0)
+		if(OpTypeID != PPOPT_GOODSRETURN || Rec.LocID == 0)
 			Rec.LocID = link_rec.LocID;
 	}
 	CATCHZOK
@@ -2021,7 +2023,7 @@ int SLAPI PPBillPacket::GetCurTransit(PPCurTransit * pTrans) const
 	pTrans->OpID       = Rec.OpID;
 	pTrans->ObjectID   = Rec.Object;
 	pTrans->Flags      = Rec.Flags;
-	pTrans->AccSheetID = AccSheet;
+	pTrans->AccSheetID = AccSheetID;
 	STRNSCPY(pTrans->BillCode, Rec.Code);
 	STRNSCPY(pTrans->Memo, Rec.Memo);
 	pTrans->TransitCRate = Rec.CRate;
@@ -2334,7 +2336,7 @@ int SLAPI PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int 
 		}
 	}
 	if(ok) {
-		if(OprType == PPOPT_GOODSMODIF) {
+		if(OpTypeID == PPOPT_GOODSMODIF) {
             PPOprKind op_rec;
             if(GetOpData(Rec.OpID, &op_rec) > 0 && (op_rec.ExtFlags & (OPKFX_MCR_GROUP|OPKFX_MCR_SUBSTSTRUC|OPKFX_MCR_EQQTTY))) {
 				TSCollection <ModifGoodsItem> mg_list;
@@ -2735,7 +2737,7 @@ static void FASTCALL set_ti_dis(PPTransferItem * pTi, double d)
 
 void SLAPI PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 {
-	if(!oneof2(OprType, PPOPT_GOODSREVAL, PPOPT_CORRECTION)) {
+	if(!oneof2(OpTypeID, PPOPT_GOODSREVAL, PPOPT_CORRECTION)) {
 		const  PPCommConfig & r_ccfg = CConfig;
 		const  PPBillConfig & cfg = P_BObj->GetConfig();
 		const  int zero = BIN(dis == 0.0 && rmvexcise == 0);
@@ -3029,7 +3031,7 @@ void SLAPI PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 
 int SLAPI PPBillPacket::UsesDistribCost() const
 {
-	return BIN(OprType == PPOPT_GOODSRECEIPT && CConfig.Flags & CCFLG_USEDISTRIBCOST);
+	return BIN(OpTypeID == PPOPT_GOODSRECEIPT && CConfig.Flags & CCFLG_USEDISTRIBCOST);
 }
 
 int SLAPI PPBillPacket::DistributeExtCost()
@@ -3163,7 +3165,7 @@ int SLAPI PPBillPacket::InitAmounts(const AmtList * pList)
 				PPAmountType amtt_rec;
 				if(amtt_obj.Fetch(atyp, &amtt_rec) > 0) {
 					if(amtt_rec.Flags & PPAmountType::fManual)
-						if(!(amtt_rec.Flags & PPAmountType::fTax) || !op_type_list.lsearch(OprType))
+						if(!(amtt_rec.Flags & PPAmountType::fTax) || !op_type_list.lsearch(OpTypeID))
 							continue;
 				}
 				Amounts.atFree(i);
@@ -3236,7 +3238,7 @@ int SLAPI PPBillPacket::SearchShLot(PPID lotID, uint * pPos) const
 int SLAPI PPBillPacket::AdjustLotQtty(PPID lotID, const PPTransferItem * pItem, int pos, double * pQtty) const
 {
 	if(pQtty) {
-		if((Rec.Flags & (BILLF_GEXPEND|BILLF_GRECEIPT)) || (OprType == PPOPT_GOODSMODIF && !(pItem && pItem->IsRecomplete())) || pItem->IsCorrectionExp()) {
+		if((Rec.Flags & (BILLF_GEXPEND|BILLF_GRECEIPT)) || (OpTypeID == PPOPT_GOODSMODIF && !(pItem && pItem->IsRecomplete())) || pItem->IsCorrectionExp()) {
 			P_BObj->trfr->SubtractBillQtty(Rec.ID, lotID, pQtty);
 			for(uint i = 0; SearchLot(lotID, &i); i++) {
 				if((int)i != pos) {
@@ -3465,7 +3467,7 @@ int SLAPI PPBillPacket::SetupVirtualTItems()
 {
 	int    ok = -1;
 	if(!(ProcessFlags & pfHasVirtualTI) && GetTCount() == 0) {
-		if(OprType == PPOPT_CHARGE) {
+		if(OpTypeID == PPOPT_CHARGE) {
 			uint   i = 0;
 			PPBillPacket link_pack;
 			PPTransferItem * p_link_ti;
@@ -4767,7 +4769,7 @@ int SLAPI PPBillPacket::SumAmounts(AmtList * pList, int fromDB)
 		SETFLAG(ProcessFlags, pfHasExtCost, (total_data.Flags & BillTotalData::fExtCost));
 		pList->Put(&total_data.Amounts, 1, 1);
 		if(btb_flags & BTC_CALCSALESTAXES) {
-			if(total_data.CVAT != 0.0 && OprType == PPOPT_GOODSRECEIPT && Rec.Object)
+			if(total_data.CVAT != 0.0 && OpTypeID == PPOPT_GOODSRECEIPT && Rec.Object)
 				if(IsSupplVATFree(Rec.Object) > 0 || PPObjLocation::CheckWarehouseFlags(Rec.LocID, LOCF_VATFREE)) {
 					total_data.CVAT = 0;
 					pList->Put(PPAMT_CVAT, 0L /* @curID */, 0, 1, 1);

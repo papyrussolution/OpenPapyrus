@@ -1,5 +1,5 @@
 // TRFRIDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -60,7 +60,7 @@ private:
 	//
 	int    IsTaggedItem() const
 	{
-		return BIN(oneof3(P_Pack->OprType, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT, PPOPT_GOODSORDER) || isModifPlus());
+		return BIN(oneof3(P_Pack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT, PPOPT_GOODSORDER) || isModifPlus());
 	}
 	int    IsSourceSerialUsed();
 	int    GetGoodsListSuitableForSourceSerial(PPID goodsID, PPIDArray & rList);
@@ -132,7 +132,7 @@ private:
 
 static int SLAPI CanUpdateSuppl(PPBillPacket * p, int itemNo)
 {
-	if(p->OprType == PPOPT_GOODSRECEIPT) {
+	if(p->OpTypeID == PPOPT_GOODSRECEIPT) {
 		if(p->Rec.Object == 0 /*|| (p->AccSheet && p->AccSheet != GetSupplAccSheet())*/)
 			return 1;
 		if(itemNo >= 0 && p->TI(itemNo).Flags & PPTFR_FORCESUPPL)
@@ -212,7 +212,7 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 	PPOprKind op_rec;
 	PPTransferItem pattern, * p_item = 0, * p_ti = 0;
 	TrfrItemDialog * dlg = 0;
-	switch(pPack->OprType) {
+	switch(pPack->OpTypeID) {
 		case PPOPT_GOODSRETURN:
 			GetOpData(op_id, &op_rec);
 			switch(GetOpType(op_rec.LinkOpID)) {
@@ -305,7 +305,7 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 			p_item->OrdLotID = pOrder->LotID; // @ordlotid
 			p_item->Flags   |= PPTFR_ONORDER;
 		}
-		if(pPack->OprType == PPOPT_GOODSRECEIPT || (pPack->OprType == PPOPT_GOODSMODIF && sign > 0))
+		if(pPack->OpTypeID == PPOPT_GOODSRECEIPT || (pPack->OpTypeID == PPOPT_GOODSMODIF && sign > 0))
 			if(CConfig.Flags & CCFLG_COSTWOVATBYDEF)
 				p_item->Flags |= PPTFR_COSTWOVAT;
 	}
@@ -355,7 +355,7 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 		// Если у пользователя нет прав на изменение синхронизированного документа,
 		// то менять скидку на весь документ он не может - это приведет к изменению сумм по строкам.
 		//
-		if(oneof6(pPack->OprType, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF,
+		if(oneof6(pPack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF,
 			PPOPT_GOODSRETURN, PPOPT_GOODSORDER)) {
 			if(!BillObj->CheckRights(BILLOPRT_MODTRANSM, 1))
 				rt_to_modif = 0;
@@ -371,7 +371,7 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 			for(i = 0; valid_data && pPack->EnumTItems(&i, &p_ti);)
 				if((i-1) != (uint)itemNo && p_ti->LotID && p_ti->LotID == p_item->LotID)
 					valid_data = (PPError(PPERR_DUPLOTSINPACKET, 0), 0);
-		if(CConfig.Flags & CCFLG_CHECKSPOILAGE && valid_data && oneof2(pPack->OprType, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND)) {
+		if(CConfig.Flags & CCFLG_CHECKSPOILAGE && valid_data && oneof2(pPack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND)) {
 			SString serial;
 			SETIFZ(p_spc_core, new SpecSeriesCore);
 			if(p_spc_core) {
@@ -1150,7 +1150,7 @@ int TrfrItemDialog::setupGoodsList()
 		SetComboBoxLinkText(this, CTLSEL_LOT_GOODS, goods_rec.Name);
 	else {
 		PPID   grp_id = GoodsGrpID;
-		if(P_Pack->OprType == PPOPT_GOODSORDER && CheckOpFlags(P_Pack->Rec.OpID, OPKF_ORDEXSTONLY))
+		if(P_Pack->OpTypeID == PPOPT_GOODSORDER && CheckOpFlags(P_Pack->Rec.OpID, OPKF_ORDEXSTONLY))
 			grp_id = -GoodsGrpID;
 		else if(!Item.GoodsID && !(Item.Flags & (PPTFR_ACK|PPTFR_DRAFT)) && (Item.Flags & (PPTFR_MINUS | PPTFR_REVAL)))
 			grp_id = -GoodsGrpID;
@@ -1398,12 +1398,12 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 						// (кроме прихода), то проверяем чтобы товар был
 						// оприходован от этого поставщика.
 						//
-						if(OpID == _PPOPK_SUPPLRET || (P_Pack->OprType == PPOPT_GOODSREVAL && P_Pack->Rec.Object))
+						if(OpID == _PPOPK_SUPPLRET || (P_Pack->OpTypeID == PPOPT_GOODSREVAL && P_Pack->Rec.Object))
 							if(lot_rec.SupplID != P_Pack->Rec.Object) {
 								Rest = 0.0;
 								continue;
 							}
-						if(P_Pack->OprType == PPOPT_GOODSREVAL && P_Pack->SearchLot(Item.LotID, 0)) {
+						if(P_Pack->OpTypeID == PPOPT_GOODSREVAL && P_Pack->SearchLot(Item.LotID, 0)) {
 							Rest = 0.0;
 							continue;
 						}
@@ -1480,7 +1480,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 			setCtrlReadOnly(CTL_LOT_CLB, !enbl_lot_ctrl);
 			setCtrlReadOnly(CTL_LOT_SERIAL, !enbl_lot_ctrl);
 		}
-		if(P_Pack->OprType != PPOPT_GOODSRETURN && OpID != _PPOPK_SUPPLRET)
+		if(P_Pack->OpTypeID != PPOPT_GOODSRETURN && OpID != _PPOPK_SUPPLRET)
 			disableCtrl(CTL_LOT_LOT, 0);
 		setupQttyFldPrec();
 		if(LConfig.Flags & CFGFLG_AUTOQUOT)
@@ -1679,7 +1679,7 @@ void TrfrItemDialog::setupVaPct()
 int TrfrItemDialog::isDiscountInSum() const
 {
 	return (Item.LotID && (!Item.IsLotRet() || Item.IsCorrectionExp()) &&
-		((LConfig.Flags & CFGFLG_DISCOUNTBYSUM && !(Item.Flags & PPTFR_RECEIPT) && P_Pack->OprType != PPOPT_DRAFTRECEIPT) ||
+		((LConfig.Flags & CFGFLG_DISCOUNTBYSUM && !(Item.Flags & PPTFR_RECEIPT) && P_Pack->OpTypeID != PPOPT_DRAFTRECEIPT) ||
 		IsIntrExpndOp(OpID)));
 }
 
@@ -1796,7 +1796,7 @@ int TrfrItemDialog::setDTS(PPTransferItem * pItem)
 	}
 	else {
 		// @v9.4.3 {
-		if(P_Pack->OprType == PPOPT_CORRECTION) {
+		if(P_Pack->OpTypeID == PPOPT_CORRECTION) {
 			/*
 			if(P_Pack->P_LinkPack) {
 				uint   _pos = 0;
@@ -2220,7 +2220,7 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	// Это временный код. Попытка исправить проблему с драфтами,
 	// возникшую в предыдущих версиях, когда скидка становилась равной
 	// цене реализации в документах с типом PPOPT_DRAFTRECEIPT.
-	if(P_Pack->OprType == PPOPT_DRAFTRECEIPT)
+	if(P_Pack->OpTypeID == PPOPT_DRAFTRECEIPT)
 		Item.Discount = 0.0;
 	// }
 	getCtrlData(CTLSEL_LOT_QCERT, &Item.QCert);
@@ -2236,7 +2236,7 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 		SETFLAG(Item.Flags, PPTFR_FORCESUPPL, Item.Suppl);
 	}
 	if(IsTaggedItem()) {
-		if(P_Pack->OprType != PPOPT_GOODSORDER) {
+		if(P_Pack->OpTypeID != PPOPT_GOODSORDER) {
 			ushort v = 0;
 			if(getCtrlData(CTL_LOT_NOVAT, &v))
 				SETFLAG(Item.Flags, PPTFR_COSTWOVAT, v);
@@ -2282,7 +2282,7 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 		if(P_BObj->GetSerialNumberByLot(Item.LotID, clb_number, 0) > 0)
 			THROW(P_Pack->SnL.AddNumber(ItemNo, clb_number));
 	}
-	if(P_Pack->OprType == PPOPT_DRAFTEXPEND) {
+	if(P_Pack->OpTypeID == PPOPT_DRAFTEXPEND) {
 		getCtrlString(CTL_LOT_SERIAL, clb_number = 0);
 		THROW(P_Pack->SnL.AddNumber(ItemNo, clb_number));
 		if(P_BObj->GetClbNumberByLot(Item.LotID, 0, clb_number = 0) > 0)
@@ -2910,7 +2910,7 @@ void TrfrItemDialog::selectLot()
 			// Для некоторых операций отбираем только те лоты, которые
 			// поступили от специфицированного поставщика
 			//
-			if(p_lot_rec->SupplID == P_Pack->Rec.Object || (op_id != _PPOPK_SUPPLRET && (P_Pack->OprType != PPOPT_GOODSREVAL || !P_Pack->Rec.Object))) {
+			if(p_lot_rec->SupplID == P_Pack->Rec.Object || (op_id != _PPOPK_SUPPLRET && (P_Pack->OpTypeID != PPOPT_GOODSREVAL || !P_Pack->Rec.Object))) {
 				THROW(addLotEntry(p_ary, p_lot_rec));
 				if(p_lot_rec->ID == Item.LotID) {
 					s = p_ary->getCount() - 1;
@@ -2944,7 +2944,7 @@ void TrfrItemDialog::selectLot()
 				Item.Rest_ = 0.0;
 				Rest = 0.0;
 				Item.Expiry = ZERODATE; // @v7.3.4
-				if(P_Pack->OprType == PPOPT_GOODSREVAL)
+				if(P_Pack->OpTypeID == PPOPT_GOODSREVAL)
 					Item.RevalCost = Item.Discount = 0.0;
 				THROW(setupLot());
 				setupRest();

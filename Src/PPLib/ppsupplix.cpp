@@ -4267,6 +4267,8 @@ public:
 	int    SLAPI SendStocks();
 	int    SLAPI SendInvoices();
 	int    SLAPI SendDebts();
+	int    SLAPI SendSales_ByGoods();
+	int    SLAPI SendSales_ByDlvrLoc();
 
 private:
 	int    SLAPI PreprocessResult(const void * pResult, const PPSoapClientSession & rSess);
@@ -4586,6 +4588,112 @@ int SLAPI SapEfes::ReceiveOrders()
 	DestroyResult((void **)&p_result);
     CATCHZOK
     return ok;
+}
+
+int SLAPI SapEfes::SendSales_ByDlvrLoc()
+{
+	int    ok = 1;
+	const  LDATE _curdate = getcurdate_();
+	TSCollection <SapEfesLogMsg> * p_result = 0;
+	TSCollection <SapEfesGoodsReportEntry> outp_packet;
+	
+	PPSoapClientSession sess;
+	SapEfesCallHeader sech;
+	EFESSETMTDOUTLETSREPORTSYNC_PROC func = 0;
+	THROW(State & stInited);
+	THROW(State & stEpDefined);
+	THROW(P_Lib);
+	THROW_SL(func = (EFESSETMTDOUTLETSREPORTSYNC_PROC)P_Lib->GetProcAddr("EfesSetMTDOutletsReportSync"));
+	sess.Setup(SvcUrl, UserName, Password);
+	InitCallHeader(sech);
+	{
+		SString ar_code;
+		PPViewTrfrAnlz ta_view;
+		TrfrAnlzFilt ta_filt;
+		TrfrAnlzViewItem ta_item;
+		ta_filt.Period.upp = NZOR(P.ExpPeriod.upp, _curdate);
+		ta_filt.Period.low = encodedate(1, ta_filt.Period.upp.month(), ta_filt.Period.upp.year());
+		ta_filt.OpID = Ep.ExpendOp;
+		ta_filt.GoodsGrpID = Ep.GoodsGrpID;
+		ta_filt.LocList = P.LocList;
+		ta_filt.Grp = TrfrAnlzFilt::gCntragent;
+		if(ta_view.Init_(&ta_filt)) {
+			for(ta_view.InitIteration(PPViewTrfrAnlz::OrdByDefault); ta_view.NextIteration(&ta_item) > 0;) {
+				uint   _pos = 0;
+				int    skip_goods = 0;
+				int32  ar_code_pack = 0;
+				if(GObj.P_Tbl->GetArCode(P.SupplID, ta_item.GoodsID, ar_code, &ar_code_pack) > 0) {
+					SapEfesGoodsReportEntry * p_new_item = outp_packet.CreateNewItem(0);
+					THROW_SL(p_new_item);
+					p_new_item->GoodsCode = ar_code;
+					p_new_item->Dt = _curdate;
+					p_new_item->Qtty = fabs(ta_item.PhQtty);
+					p_new_item->UnitType = spaefesUnitLiter;
+				}
+			}
+		}
+	}
+	if(outp_packet.getCount()) {
+		p_result = func(sess, sech, &outp_packet);
+		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
+		LogResultMsgList(p_result);
+	}
+	DestroyResult((void **)&p_result);
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI SapEfes::SendSales_ByGoods()
+{
+	int    ok = 1;
+	const  LDATE _curdate = getcurdate_();
+	TSCollection <SapEfesLogMsg> * p_result = 0;
+	TSCollection <SapEfesGoodsReportEntry> outp_packet;
+	
+	PPSoapClientSession sess;
+	SapEfesCallHeader sech;
+	EFESSETMTDPRODUCTREPORTSYNC_PROC func = 0;
+	THROW(State & stInited);
+	THROW(State & stEpDefined);
+	THROW(P_Lib);
+	THROW_SL(func = (EFESSETMTDPRODUCTREPORTSYNC_PROC)P_Lib->GetProcAddr("EfesSetMTDProductReportSync"));
+	sess.Setup(SvcUrl, UserName, Password);
+	InitCallHeader(sech);
+	{
+		SString ar_code;
+		PPViewTrfrAnlz ta_view;
+		TrfrAnlzFilt ta_filt;
+		TrfrAnlzViewItem ta_item;
+		ta_filt.Period.upp = NZOR(P.ExpPeriod.upp, _curdate);
+		ta_filt.Period.low = encodedate(1, ta_filt.Period.upp.month(), ta_filt.Period.upp.year());
+		ta_filt.OpID = Ep.ExpendOp;
+		ta_filt.GoodsGrpID = Ep.GoodsGrpID;
+		ta_filt.LocList = P.LocList;
+		ta_filt.Grp = TrfrAnlzFilt::gGoods;
+		if(ta_view.Init_(&ta_filt)) {
+			for(ta_view.InitIteration(PPViewTrfrAnlz::OrdByDefault); ta_view.NextIteration(&ta_item) > 0;) {
+				uint   _pos = 0;
+				int    skip_goods = 0;
+				int32  ar_code_pack = 0;
+				if(GObj.P_Tbl->GetArCode(P.SupplID, ta_item.GoodsID, ar_code, &ar_code_pack) > 0) {
+					SapEfesGoodsReportEntry * p_new_item = outp_packet.CreateNewItem(0);
+					THROW_SL(p_new_item);
+					p_new_item->GoodsCode = ar_code;
+					p_new_item->Dt = _curdate;
+					p_new_item->Qtty = fabs(ta_item.PhQtty);
+					p_new_item->UnitType = spaefesUnitLiter;
+				}
+			}
+		}
+	}
+	if(outp_packet.getCount()) {
+		p_result = func(sess, sech, &outp_packet);
+		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
+		LogResultMsgList(p_result);
+	}
+	DestroyResult((void **)&p_result);
+	CATCHZOK
+	return ok;
 }
 
 int SLAPI SapEfes::SendStocks()

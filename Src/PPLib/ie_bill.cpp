@@ -2483,7 +2483,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 						else if(restrict_by_matrix && !goods_obj.BelongToMatrix(r_row.GoodsID, pack.Rec.LocID)) {
 							Logger.LogLastError();
 						}
-						else if(pack.OprType == PPOPT_GOODSEXPEND) {
+						else if(pack.OpTypeID == PPOPT_GOODSEXPEND) {
 							ILTI   ilti;
 							long   ciltif_ = CILTIF_OPTMZLOTS|CILTIF_SUBSTSERIAL|CILTIF_ALLOWZPRICE/*|CILTIF_SYNC*/;
 							int    lot_id_exists = 0;
@@ -2601,7 +2601,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 							}
 							ti.QCert = qcert_id;
 							(temp_buf = r_row.CLB).Strip().Transf(CTRANSF_OUTER_TO_INNER);
-							if(oneof3(pack.OprType, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT, PPOPT_GOODSORDER)) {
+							if(oneof3(pack.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT, PPOPT_GOODSORDER)) {
 								if(serial.NotEmpty()) {
 									P_BObj->AdjustSerialForUniq(ti.GoodsID, ti.LotID, 0, serial);
 								}
@@ -2614,7 +2614,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 								int    new_item_pos = -1;
 								THROW(pack.LoadTItem(&ti, temp_buf, serial));
 								new_item_pos = pack.GetTCount()-1;
-								if(pack.OprType == PPOPT_GOODSRECEIPT) {
+								if(pack.OpTypeID == PPOPT_GOODSRECEIPT) {
 									ObjTagList * p_tag_list = TagC.Get(r_row.LineId);
 									if(p_tag_list && p_tag_list->GetCount())
 										pack.LTagL.Set(new_item_pos, p_tag_list);
@@ -2643,7 +2643,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 								// } @v7.6.8
 								TTN = r_row.TTN;
 								// Запоминамем в теге строки имя производителя/импортера
-								if(pack.OprType == PPOPT_GOODSRECEIPT && mnf_lot_tag_id) {
+								if(pack.OpTypeID == PPOPT_GOODSRECEIPT && mnf_lot_tag_id) {
 									(temp_buf = r_row.LotManuf).Transf(CTRANSF_OUTER_TO_INNER);
 									PPID   manuf_id = 0;
 									if(temp_buf.NotEmptyS()) {
@@ -2664,7 +2664,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 									}
 								}
 								// Запомним код вид товара
-								if(pack.OprType == PPOPT_GOODSRECEIPT && BillParam.ImpExpParamDll.GoodsKindTagID && r_row.GoodKindCode) {
+								if(pack.OpTypeID == PPOPT_GOODSRECEIPT && BillParam.ImpExpParamDll.GoodsKindTagID && r_row.GoodKindCode) {
 									int    new_item_pos = -1;
 									new_item_pos = pack.GetTCount()-1;
 									ObjTagList * p_tag_list = TagC.Get(r_row.LineId);
@@ -2685,8 +2685,8 @@ int SLAPI PPBillImporter::Import(int useTa)
 					else if(is_bad_packet)
 						Logger.LogMsgCode(mfError, PPERR_BILLNOTIMPORTED, bill.ID);
 					else {
-						if(acs_obj.Fetch(pack.AccSheet, &acs_rec) > 0) {
-							if((acs_rec.Flags & ACSHF_USECLIAGT) || pack.AccSheet == GetSellAccSheet()) {
+						if(acs_obj.Fetch(pack.AccSheetID, &acs_rec) > 0) {
+							if((acs_rec.Flags & ACSHF_USECLIAGT) || pack.AccSheetID == GetSellAccSheet()) {
 								PPClientAgreement ca_rec;
 								if(ArObj.GetClientAgreement(pack.Rec.Object, &ca_rec, 1) > 0) {
 									if(!(ca_rec.Flags & AGTF_DEFAULT))
@@ -2696,7 +2696,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 										pack.SetPayDate(plusdate(pack.Rec.Dt, ca_rec.DefPayPeriod), 0);
 								}
 							}
-							else if((acs_rec.Flags & ACSHF_USESUPPLAGT) || pack.AccSheet == GetSupplAccSheet()) {
+							else if((acs_rec.Flags & ACSHF_USESUPPLAGT) || pack.AccSheetID == GetSupplAccSheet()) {
 								PPSupplAgreement sa_rec;
 								if(ArObj.GetSupplAgreement(pack.Rec.Object, &sa_rec, 1) > 0) {
 									if(!(sa_rec.Flags & AGTF_DEFAULT))

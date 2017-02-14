@@ -673,7 +673,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, IntArray * p
 		double adj_intr_price_val = 0.0;
 		AdjustIntrPrice(pPack, ilti->GoodsID, &adj_intr_price_val);
 		//
-		if(oneof4(pPack->OprType, PPOPT_GOODSORDER, PPOPT_GOODSACK, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT)) { // @v7.5.10 PPOPT_DRAFTTRANSIT
+		if(oneof4(pPack->OpTypeID, PPOPT_GOODSORDER, PPOPT_GOODSACK, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT)) { // @v7.5.10 PPOPT_DRAFTTRANSIT
 			MEMSZERO(ti);
 			double lot_price = 0.0;
 			THROW(trfr->Rcpt.GetCurrentGoodsPrice(labs(ilti->GoodsID), pPack->Rec.LocID, GPRET_MOSTRECENT, &lot_price, &lotr));
@@ -715,7 +715,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, IntArray * p
 			ilti->Rest = 0.0;
 			qtty = 0.0;
 		}
-		else if(pPack->OprType == PPOPT_GOODSREVAL) {
+		else if(pPack->OpTypeID == PPOPT_GOODSREVAL) {
 			THROW_PP_S(sync_lot_id, PPERR_CANTACCEPTBILLRVL_SYNCLOT, goods_rec.Name); // @v9.5.0 goods_rec.Name
 			THROW(trfr->Rcpt.Search(sync_lot_id, &lotr) > 0);
 			THROW(ti.Init(&pPack->Rec, 1, -1));
@@ -728,7 +728,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, IntArray * p
 			qtty = 0.0;
 			full_sync = 1;
 		}
-		else if(pPack->OprType == PPOPT_CORRECTION) {
+		else if(pPack->OpTypeID == PPOPT_CORRECTION) {
 			THROW_PP_S(sync_lot_id, PPERR_CANTACCEPTBILLRVL_SYNCLOT, goods_rec.Name); // @v9.5.0 goods_rec.Name
 			THROW(trfr->Rcpt.Search(sync_lot_id, &lotr) > 0);
 			THROW(ti.Init(&pPack->Rec, 1, -1));
@@ -926,7 +926,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, IntArray * p
 			}
 		}
 		else if(qtty > 0.0) {
-			if(ilti->Flags & PPTFR_RECEIPT || oneof2(pPack->OprType, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT)) {
+			if(ilti->Flags & PPTFR_RECEIPT || oneof2(pPack->OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT)) {
 				MEMSZERO(ti);
 				if(ilti->Flags & PPTFR_FORCESUPPL) {
 					ti.Flags |= PPTFR_FORCESUPPL;

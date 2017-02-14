@@ -922,7 +922,7 @@ int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfc
 int SLAPI PPBillPacket::InsertPartitialStruc()
 {
 	int    ok = -1;
-	if(oneof6(OprType, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_GOODSMODIF)) {
+	if(oneof6(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_GOODSMODIF)) {
 		uint   i, j;
 		PPTransferItem * p_ti;
 		RAssocArray psr_array;
@@ -931,7 +931,7 @@ int SLAPI PPBillPacket::InsertPartitialStruc()
 		RAssocArray sum_array;  // В этом массиве собираются суммы по тем компонентам, которые
 			// рассчитываются по правилу "количество - 1, цена - процент" (GSIF_QTTYASPRICE)
 		LongArray positions, local_pos_list;
-		const  int sign = (oneof2(OprType, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) ? 1 : -1;
+		const  int sign = (oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) ? 1 : -1;
 		PPObjGoods goods_obj;
 		for(i = 0; EnumTItems(&i, &p_ti);) {
 			PPGoodsStruc gs;
