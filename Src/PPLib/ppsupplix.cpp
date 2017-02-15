@@ -2352,16 +2352,17 @@ public:
 		setCtrlData(CTL_SUPPLIX_SPCDIS1, &Data.SpcDisPct1);
 		setCtrlData(CTL_SUPPLIX_SPCDIS2, &Data.SpcDisPct2);
 		//
-		AddClusterAssoc(CTL_SUPPLIX_ACTIONS, 0, SupplInterchangeFilt::opExportStocks);
-		AddClusterAssoc(CTL_SUPPLIX_ACTIONS, 1, SupplInterchangeFilt::opExportBills);
-		AddClusterAssoc(CTL_SUPPLIX_ACTIONS, 2, SupplInterchangeFilt::opExportDebts);
-		AddClusterAssoc(CTL_SUPPLIX_ACTIONS, 3, SupplInterchangeFilt::opExportGoodsDebts);
-		AddClusterAssoc(CTL_SUPPLIX_ACTIONS, 4, SupplInterchangeFilt::opExportClients);
-		AddClusterAssoc(CTL_SUPPLIX_ACTIONS, 5, SupplInterchangeFilt::opExportPrices);
-		AddClusterAssoc(CTL_SUPPLIX_ACTIONS, 6, SupplInterchangeFilt::opImportGoods);
-		AddClusterAssoc(CTL_SUPPLIX_ACTIONS, 7, SupplInterchangeFilt::opImportRouts);
-		AddClusterAssoc(CTL_SUPPLIX_ACTIONS, 8, SupplInterchangeFilt::opImportOrders);
-		AddClusterAssoc(CTL_SUPPLIX_ACTIONS, 9, SupplInterchangeFilt::opImportDesadv);
+		AddClusterAssoc(CTL_SUPPLIX_ACTIONS,  0, SupplInterchangeFilt::opExportStocks);
+		AddClusterAssoc(CTL_SUPPLIX_ACTIONS,  1, SupplInterchangeFilt::opExportBills);
+		AddClusterAssoc(CTL_SUPPLIX_ACTIONS,  2, SupplInterchangeFilt::opExportDebts);
+		AddClusterAssoc(CTL_SUPPLIX_ACTIONS,  3, SupplInterchangeFilt::opExportGoodsDebts);
+		AddClusterAssoc(CTL_SUPPLIX_ACTIONS,  4, SupplInterchangeFilt::opExportClients);
+		AddClusterAssoc(CTL_SUPPLIX_ACTIONS,  5, SupplInterchangeFilt::opExportPrices);
+		AddClusterAssoc(CTL_SUPPLIX_ACTIONS,  6, SupplInterchangeFilt::opExportSales); // @v9.5.3
+		AddClusterAssoc(CTL_SUPPLIX_ACTIONS,  7, SupplInterchangeFilt::opImportGoods);
+		AddClusterAssoc(CTL_SUPPLIX_ACTIONS,  8, SupplInterchangeFilt::opImportRouts);
+		AddClusterAssoc(CTL_SUPPLIX_ACTIONS,  9, SupplInterchangeFilt::opImportOrders);
+		AddClusterAssoc(CTL_SUPPLIX_ACTIONS, 10, SupplInterchangeFilt::opImportDesadv);
 		SetClusterData(CTL_SUPPLIX_ACTIONS, Data.Actions);
 
 		AddClusterAssoc(CTL_SUPPLIX_FLAGS, 0, SupplInterchangeFilt::fDeleteRecentBills); // @v9.2.5
@@ -4382,6 +4383,7 @@ void SLAPI SapEfes::InitCallHeader(SapEfesCallHeader & rHdr)
 int SLAPI SapEfes::ReceiveOrders()
 {
     int    ok = -1;
+	Reference * p_ref = PPRef;
 	PPSoapClientSession sess;
 	SString temp_buf;
 	SString added_param;
@@ -4391,6 +4393,7 @@ int SLAPI SapEfes::ReceiveOrders()
 	TSCollection <SapEfesBillStatus> status_list; // Список статусов приема заказов. Это список отправляется серверу в ответ на прием заказов
 	SapEfesCallHeader sech;
 	EFESGETSALESORDERSYNCLIST_PROC func = 0;
+	EFESSETSALESORDERSTATUSSYNC_PROC func_status = 0;
 
 	DateRange period;
 	period = P.ExpPeriod;
@@ -4411,6 +4414,7 @@ int SLAPI SapEfes::ReceiveOrders()
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
 	THROW_SL(func = (EFESGETSALESORDERSYNCLIST_PROC)P_Lib->GetProcAddr("EfesGetSalesOrderSyncList"));
+	THROW_SL(func_status = (EFESSETSALESORDERSTATUSSYNC_PROC)P_Lib->GetProcAddr("EfesSetSalesOrderStatusSync"))
 	sess.Setup(SvcUrl, UserName, Password);
 	InitCallHeader(sech);
 	p_result = func(sess, sech, &period, 0 /*inclProcessedItems*/, added_param);
@@ -4422,61 +4426,19 @@ int SLAPI SapEfes::ReceiveOrders()
 		PPWaitMsg(msg_buf);
 	}
 	if(p_result->getCount()) {
-		SString srcloc_attr_pattern = "ORD_GROUPCODE1";
+		//SString srcloc_attr_pattern = "ORD_GROUPCODE1";
 
 		PPAlbatrosConfig acfg;
 		PPAlbatrosCfgMngr::Get(&acfg);
 		PPOprKind op_rec;
 		if(acfg.Hdr.OpID && GetOpData(acfg.Hdr.OpID, &op_rec) > 0 && oneof2(op_rec.OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
-			//LocationTbl::Rec loc_rec;
 			PPID   loc_id = 0;
 			PPIDArray dlvr_loc_list;
 			PPIDArray person_list;
 			for(uint i = 0; i < p_result->getCount(); i++) {
 				const SapEfesOrder * p_src_pack = p_result->at(i);
 				if(p_src_pack) {
-					/*
-						struct SapEfesOrder {
-							SapEfesOrder()
-							{
-								Date = ZERODATETIME;
-								DueDate = ZERODATE;
-								Amount = 0.0;
-							}
-							LDATETIME Date; // Время создания документа
-							LDATE  DueDate; // Дата поставки
-							double Amount;  // Сумма заказа без НДС
-							SString Code;
-							SString DocType;
-							SString Status;
-							SString PaymTerm;
-							SString ShipCond;
-							SString ShipCondDescr;
-							SString SalesOrg;
-							SString DistrChannel;
-							SString Division;
-							SString Warehouse;
-							SString TerrIdent;
-							SString Currency;
-							SString Memo;
-							SapEfesContractor Buyer;
-							SapEfesContractor DlvrLoc;
-							TSCollection <SapEfesBillItem> Items;
-						};
-						struct SapEfesBillItem {
-							int    PosN;   // Номер позиции
-							int    UnitType;
-							int    BaseUnitType;
-							double Qtty;   // Количество в выбранной единице измерения
-							double QtyN;   // Числитель коэффициента выбранной единицы по отношению к базовой
-							double QtyD;   // Знаменатель коэффициента выбранной единицы по отношению к базовой
-							double Amount; // Сумма без НДС по строке
-							SString PosType;
-							SString GoodsCode;
-							SString Currency;
-						};
-					*/
-					//BillTbl::Rec ex_bill_rec;
+					int    skip = 0;
 					PPID   ex_bill_id = 0;
 					PPID   dlvr_loc_id = 0;
 					PPID   contractor_by_loc_ar_id = 0; // Контрагент идентифицированный по адресу доставки
@@ -4496,7 +4458,7 @@ int SLAPI SapEfes::ReceiveOrders()
 							pack.Rec.DueDate = p_src_pack->DueDate;
 						STRNSCPY(pack.Rec.Code, p_src_pack->Code);
 						if(Ep.Fb.LocCodeTagID && p_src_pack->DlvrLoc.Code.NotEmpty()) {
-							PPRef->Ot.SearchObjectsByStr(PPOBJ_LOCATION, Ep.Fb.LocCodeTagID, p_src_pack->DlvrLoc.Code, &dlvr_loc_list);
+							p_ref->Ot.SearchObjectsByStr(PPOBJ_LOCATION, Ep.Fb.LocCodeTagID, p_src_pack->DlvrLoc.Code, &dlvr_loc_list);
 							uint dli = dlvr_loc_list.getCount();
 							if(dli) do {
 								const PPID _loc_id = dlvr_loc_list.get(--dli);
@@ -4512,7 +4474,7 @@ int SLAPI SapEfes::ReceiveOrders()
 							} while(!contractor_by_loc_ar_id && dli);
 						}
 						if(Ep.Fb.CliCodeTagID && p_src_pack->Buyer.Code.NotEmpty()) {
-							PPRef->Ot.SearchObjectsByStr(PPOBJ_PERSON, Ep.Fb.CliCodeTagID, p_src_pack->Buyer.Code, &person_list);
+							p_ref->Ot.SearchObjectsByStr(PPOBJ_PERSON, Ep.Fb.CliCodeTagID, p_src_pack->Buyer.Code, &person_list);
 							uint pli = person_list.getCount();
 							if(pli) do {
 								const  PPID _psn_id = person_list.get(--pli);
@@ -4525,74 +4487,92 @@ int SLAPI SapEfes::ReceiveOrders()
 							}
 							if(!pack.SetupObject(contractor_by_loc_ar_id, sob)) {
 								R_Logger.LogLastError();
+								skip = 1;
 							}
 						}
 						else if(contractor_ar_id) {
 							if(!pack.SetupObject(contractor_ar_id, sob)) {
 								R_Logger.LogLastError();
+								skip = 1;
 							}
 						}
 						else {
 							R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_CLINCODE, &msg_buf, (const char *)pack.Rec.Code, p_src_pack->Buyer.Code.cptr()));
+							skip = 1;
 						}
-						if(!dlvr_loc_id) {
-							R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_DLVRLOCNCODE, &msg_buf, (const char *)pack.Rec.Code, p_src_pack->DlvrLoc.Code.cptr()));
-						}
-						else if(pack.Rec.Object) {
-							PPFreight freight;
-							freight.DlvrAddrID = dlvr_loc_id;
-							pack.SetFreight(&freight);
-						}
-						STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
-						if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, &ex_bill_id, &ex_bill_rec) > 0) {
-							;
-						}
-						else {
-							for(uint i = 0; i < p_src_pack->Items.getCount(); i++) {
-								const SapEfesBillItem * p_src_item = p_src_pack->Items.at(i);
-								if(p_src_item) {
-									if(GObj.P_Tbl->SearchByArCode(P.SupplID, p_src_item->GoodsCode, 0, &goods_rec) > 0) {
-										PPTransferItem ti;
-										ti.Init(&pack.Rec);
-										ti.GoodsID = goods_rec.ID;
-										ti.Quantity_ = fabs(p_src_item->Qtty);
-										if(ti.Quantity_ != 0.0) {
-                                			double vat_amt = 0.0;
-                                			GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, /*ti.Quantity_*/1.0, p_src_item->Amount, &vat_amt, 1, 0);
-											ti.Price = (p_src_item->Amount + vat_amt) /*/ ti.Quantity_*/;
-											THROW(pack.LoadTItem(&ti, 0, 0));
+						if(!skip) {
+							if(!dlvr_loc_id) {
+								R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_DLVRLOCNCODE, &msg_buf, (const char *)pack.Rec.Code, p_src_pack->DlvrLoc.Code.cptr()));
+							}
+							else if(pack.Rec.Object) {
+								PPFreight freight;
+								freight.DlvrAddrID = dlvr_loc_id;
+								pack.SetFreight(&freight);
+							}
+							STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
+							if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, &ex_bill_id, &ex_bill_rec) > 0) {
+								PPObjBill::MakeCodeString(&ex_bill_rec, PPObjBill::mcsAddOpName, temp_buf).Quot('(', ')');
+								if(PPGetMessage(mfError, PPERR_DOC_ALREADY_EXISTS, temp_buf, 1, msg_buf))
+									R_Logger.Log(msg_buf);
+							}
+							else {
+								for(uint i = 0; i < p_src_pack->Items.getCount(); i++) {
+									const SapEfesBillItem * p_src_item = p_src_pack->Items.at(i);
+									if(p_src_item) {
+										if(GObj.P_Tbl->SearchByArCode(P.SupplID, p_src_item->GoodsCode, 0, &goods_rec) > 0) {
+											PPTransferItem ti;
+											ti.Init(&pack.Rec);
+											ti.GoodsID = goods_rec.ID;
+											ti.Quantity_ = fabs(p_src_item->Qtty);
+											if(ti.Quantity_ != 0.0) {
+                                				double vat_amt = 0.0;
+                                				GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, /*ti.Quantity_*/1.0, p_src_item->Amount, &vat_amt, 1, 0);
+												ti.Price = (p_src_item->Amount + vat_amt) /*/ ti.Quantity_*/;
+												THROW(pack.LoadTItem(&ti, 0, 0));
+											}
+										}
+										else {
+											R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_GOODSNCODE, &msg_buf, (const char *)pack.Rec.Code, p_src_item->GoodsCode.cptr()));
 										}
 									}
-									else {
-										R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_GOODSNCODE, &msg_buf, (const char *)pack.Rec.Code, p_src_item->GoodsCode.cptr()));
-									}
+								}
+								{
+									pack.Rec.EdiOp = PPEDIOP_SALESORDER;
+									pack.BTagL.PutItemStr(PPTAG_BILL_EDICHANNEL, "SAP-EFES");
+									if(p_src_pack->Code.NotEmpty())
+										pack.BTagL.PutItemStr(PPTAG_BILL_EDIIDENT, p_src_pack->Code);
+								}
+								pack.InitAmounts();
+								THROW(P_BObj->TurnPacket(&pack, 1));
+								{
+									SapEfesBillStatus * p_new_status = status_list.CreateNewItem(0);
+									THROW_SL(p_new_status);
+									p_new_status->Code = p_src_pack->Code;
+									p_new_status->NativeCode.Cat(pack.Rec.ID);
+									p_new_status->Status = "E0008";
 								}
 							}
-							{
-								pack.Rec.EdiOp = PPEDIOP_SALESORDER;
-								pack.BTagL.PutItemStr(PPTAG_BILL_EDICHANNEL, "SAP-EFES");
-								if(p_src_pack->Code.NotEmpty()) {
-									pack.BTagL.PutItemStr(PPTAG_BILL_EDIIDENT, p_src_pack->Code);
-								}
-							}
-							pack.InitAmounts();
-							THROW(P_BObj->TurnPacket(&pack, 1));
 						}
 					}
 				}
 			}
 			if(status_list.getCount()) {
+				sess.Setup(SvcUrl, UserName, Password);
+				InitCallHeader(sech);
+				const int status_result = func_status(sess, sech, &status_list);
+				THROW_PP_S(PreprocessResult((const void *)status_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 			}
 		}
 	}
-	DestroyResult((void **)&p_result);
     CATCHZOK
+	DestroyResult((void **)&p_result);
     return ok;
 }
 
 int SLAPI SapEfes::SendSales_ByDlvrLoc()
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	const  LDATE _curdate = getcurdate_();
 	TSCollection <SapEfesLogMsg> * p_result = 0;
 	TSCollection <SapEfesGoodsReportEntry> outp_packet;
@@ -4607,7 +4587,7 @@ int SLAPI SapEfes::SendSales_ByDlvrLoc()
 	sess.Setup(SvcUrl, UserName, Password);
 	InitCallHeader(sech);
 	{
-		SString ar_code;
+		SString cli_code, loc_code;
 		PPViewTrfrAnlz ta_view;
 		TrfrAnlzFilt ta_filt;
 		TrfrAnlzViewItem ta_item;
@@ -4617,15 +4597,20 @@ int SLAPI SapEfes::SendSales_ByDlvrLoc()
 		ta_filt.GoodsGrpID = Ep.GoodsGrpID;
 		ta_filt.LocList = P.LocList;
 		ta_filt.Grp = TrfrAnlzFilt::gCntragent;
+		ta_filt.Flags |= TrfrAnlzFilt::fDiffByDlvrAddr;
 		if(ta_view.Init_(&ta_filt)) {
 			for(ta_view.InitIteration(PPViewTrfrAnlz::OrdByDefault); ta_view.NextIteration(&ta_item) > 0;) {
-				uint   _pos = 0;
-				int    skip_goods = 0;
-				int32  ar_code_pack = 0;
-				if(GObj.P_Tbl->GetArCode(P.SupplID, ta_item.GoodsID, ar_code, &ar_code_pack) > 0) {
+				const PPID cli_psn_id = ObjectToPerson(ta_item.ArticleID, 0);
+				const PPID dlvr_loc_id = ta_item.DlvrLocID;
+				cli_code = 0;
+				loc_code = 0;
+                p_ref->Ot.GetTagStr(PPOBJ_PERSON, cli_psn_id, Ep.Fb.CliCodeTagID, cli_code);
+                if(dlvr_loc_id)
+					p_ref->Ot.GetTagStr(PPOBJ_LOCATION, dlvr_loc_id, Ep.Fb.LocCodeTagID, loc_code);
+				if(cli_code.NotEmpty() || loc_code.NotEmpty()) {
 					SapEfesGoodsReportEntry * p_new_item = outp_packet.CreateNewItem(0);
 					THROW_SL(p_new_item);
-					p_new_item->GoodsCode = ar_code;
+					p_new_item->DlvrLocCode = loc_code;
 					p_new_item->Dt = _curdate;
 					p_new_item->Qtty = fabs(ta_item.PhQtty);
 					p_new_item->UnitType = spaefesUnitLiter;
@@ -4672,8 +4657,6 @@ int SLAPI SapEfes::SendSales_ByGoods()
 		ta_filt.Grp = TrfrAnlzFilt::gGoods;
 		if(ta_view.Init_(&ta_filt)) {
 			for(ta_view.InitIteration(PPViewTrfrAnlz::OrdByDefault); ta_view.NextIteration(&ta_item) > 0;) {
-				uint   _pos = 0;
-				int    skip_goods = 0;
 				int32  ar_code_pack = 0;
 				if(GObj.P_Tbl->GetArCode(P.SupplID, ta_item.GoodsID, ar_code, &ar_code_pack) > 0) {
 					SapEfesGoodsReportEntry * p_new_item = outp_packet.CreateNewItem(0);
@@ -5457,6 +5440,12 @@ int SLAPI PrcssrSupplInterchange::Run()
 		}
 		if(P_Eb->P.Actions & SupplInterchangeFilt::opExportDebts) {
 			if(!cli.SendDebts())
+				logger.LogLastError();
+		}
+		if(P_Eb->P.Actions & SupplInterchangeFilt::opExportSales) {
+			if(!cli.SendSales_ByGoods())
+				logger.LogLastError();
+			if(!cli.SendSales_ByDlvrLoc())
 				logger.LogLastError();
 		}
 	}

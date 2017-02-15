@@ -496,8 +496,8 @@
  */
 
 #if defined(_MSC_VER) && !defined(__POCC__) && !defined(_MT)
-#  undef USE_THREADS_POSIX
-#  undef USE_THREADS_WIN32
+	#undef USE_THREADS_POSIX
+	#undef USE_THREADS_WIN32
 #endif
 
 /*

@@ -3592,10 +3592,10 @@ int SLAPI CCheckCore::GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgX
 				const CCheckLineTbl::Rec & r_line_rec = lines_list.at(i);
 				double non_crd_amt = 0.0;
 				const double amt = CPosProcessor::Helper_CalcSCardOpBonusAmount(r_line_rec, goods_obj, restrGoodsGrpID, &non_crd_amt);
-				if(amt > 0.0)
-					crd += amt;
-				else
-					dbt += amt; // @fixme Вероятно, здесь должно быть (dbt -= amt)
+				if(amt < 0.0)
+					crd += -amt;
+				else if(amt > 0.0)
+					dbt += amt;
 			}
 		}
 	}

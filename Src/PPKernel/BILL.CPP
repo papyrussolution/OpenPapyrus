@@ -1081,14 +1081,15 @@ int SLAPI BillCore::CreateSCardsTurnoverList(const DateRange * pPeriod, RAssocAr
 
 int SLAPI BillCore::EnumByDate(DateIter * pDI, BillTbl::Rec * pRec)
 {
+	int    ok = 1;
 	BillTbl::Key1 k;
 	k.Dt     = pDI ? pDI->dt : ZERODATE;
 	k.BillNo = pDI ? pDI->oprno : 0;
-	if(search(1, &k, spGt) && (!pDI || pDI->Advance(k.Dt, k.BillNo) > 0)) {
+	if(search(1, &k, spGt) && (!pDI || pDI->Advance(k.Dt, k.BillNo) > 0))
 		copyBufTo(pRec);
-		return 1;
-	}
-	return PPDbSearchError();
+	else
+		ok = PPDbSearchError();
+	return ok;
 }
 
 int SLAPI BillCore::SearchAnalog(const BillTbl::Rec * pSample, PPID * pID, BillTbl::Rec * pRec)

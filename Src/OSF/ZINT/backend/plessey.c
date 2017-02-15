@@ -324,8 +324,8 @@ int msi_plessey_mod11(struct ZintSymbol * symbol, uchar source[], const uint src
  * Verified against http://www.bokai.com/BarcodeJSP/applet/BarcodeSampleApplet.htm */
 int msi_plessey_mod1110(struct ZintSymbol * symbol, uchar source[], const uint src_len)
 {
-	/* Weighted using the IBM system */
-	unsigned long i, weight, x, check, wright, dau, pedwar, pump, h;
+	// Weighted using the IBM system 
+	ulong i, weight, x, check, wright, dau, pedwar, pump, h;
 	long si;
 	char un[16], tri[16];
 	char dest[1000];
@@ -336,69 +336,69 @@ int msi_plessey_mod1110(struct ZintSymbol * symbol, uchar source[], const uint s
 		strcpy(symbol->errtxt, "Input too long (C76)");
 		return ZINT_ERROR_TOO_LONG;
 	}
-	/* start character */
-	strcpy(dest, "21");
-	/* draw data section */
-	for(i = 0; i < src_len; i++) {
-		lookup(NEON, MSITable, source[i], dest);
-	}
-	/* calculate first (mod 11) digit */
-	x = 0;
-	weight = 2;
-	for(si = src_len - 1; si >= 0; si--) {
-		x += weight * ctoi(source[si]);
-		weight++;
-		if(weight > 7) {
-			weight = 2;
-		}
-	}
-
-	check = (11 - (x % 11)) % 11;
-	ustrcpy(temp, source);
-	temp_len = src_len;
-	if(check == 10) {
-		lookup(NEON, MSITable, '1', dest);
-		lookup(NEON, MSITable, '0', dest);
-		strcat((char*)temp, "10");
-		temp_len += 2;
-	}
 	else {
-		lookup(NEON, MSITable, itoc(check), dest);
-		temp[temp_len++] = itoc(check);
+		// start character 
+		strcpy(dest, "21");
+		// draw data section 
+		for(i = 0; i < src_len; i++) {
+			lookup(NEON, MSITable, source[i], dest);
+		}
+		// calculate first (mod 11) digit 
+		x = 0;
+		weight = 2;
+		for(si = src_len - 1; si >= 0; si--) {
+			x += weight * ctoi(source[si]);
+			weight++;
+			if(weight > 7) {
+				weight = 2;
+			}
+		}
+		check = (11 - (x % 11)) % 11;
+		ustrcpy(temp, source);
+		temp_len = src_len;
+		if(check == 10) {
+			lookup(NEON, MSITable, '1', dest);
+			lookup(NEON, MSITable, '0', dest);
+			strcat((char*)temp, "10");
+			temp_len += 2;
+		}
+		else {
+			lookup(NEON, MSITable, itoc(check), dest);
+			temp[temp_len++] = itoc(check);
+			temp[temp_len] = '\0';
+		}
+		// calculate second (mod 10) check digit 
+		wright = 0;
+		i = !(temp_len & 1);
+		for(; i < temp_len; i += 2) {
+			un[wright++] = temp[i];
+		}
+		un[wright] = '\0';
+		dau = strtoul(un, NULL, 10);
+		dau *= 2;
+		sprintf(tri, "%ld", dau);
+		pedwar = 0;
+		h = strlen(tri);
+		for(i = 0; i < h; i++) {
+			pedwar += ctoi(tri[i]);
+		}
+		i = temp_len & 1;
+		for(; i < temp_len; i += 2) {
+			pedwar += ctoi(temp[i]);
+		}
+		pump = 10 - pedwar % 10;
+		if(pump == 10) {
+			pump = 0;
+		}
+		// draw check digit 
+		lookup(NEON, MSITable, itoc(pump), dest);
+		// stop character 
+		strcat(dest, "121");
+		expand(symbol, dest);
+		temp[temp_len++] = itoc(pump);
 		temp[temp_len] = '\0';
+		ustrcpy(symbol->text, temp);
 	}
-
-	/* calculate second (mod 10) check digit */
-	wright = 0;
-	i = !(temp_len & 1);
-	for(; i < temp_len; i += 2) {
-		un[wright++] = temp[i];
-	}
-	un[wright] = '\0';
-	dau = strtoul(un, NULL, 10);
-	dau *= 2;
-	sprintf(tri, "%ld", dau);
-	pedwar = 0;
-	h = strlen(tri);
-	for(i = 0; i < h; i++) {
-		pedwar += ctoi(tri[i]);
-	}
-	i = temp_len & 1;
-	for(; i < temp_len; i += 2) {
-		pedwar += ctoi(temp[i]);
-	}
-	pump = 10 - pedwar % 10;
-	if(pump == 10) {
-		pump = 0;
-	}
-	/* draw check digit */
-	lookup(NEON, MSITable, itoc(pump), dest);
-	/* stop character */
-	strcat(dest, "121");
-	expand(symbol, dest);
-	temp[temp_len++] = itoc(pump);
-	temp[temp_len] = '\0';
-	ustrcpy(symbol->text, temp);
 	return error_number;
 }
 

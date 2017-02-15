@@ -213,6 +213,8 @@ extern "C" __declspec(dllexport) int EfesSetSalesOrderStatusSync(PPSoapClientSes
 	TSCollection <ns2__SalesOrderStatusType> arg_status_list;
 	TSCollection <ns2__LogMsgType> arg_msg_list;
 	InitEfecCallParam(param, rH, arg_str_pool);
+	proxi.userid = GetDynamicParamString((temp_buf = rSess.GetUser()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
+	proxi.passwd = GetDynamicParamString((temp_buf = rSess.GetPassword()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 	if(pItems && pItems->getCount()) {
 		for(uint i = 0; i < pItems->getCount(); i++) {
 			const SapEfesBillStatus * p_src_pack = pItems->at(i);
@@ -502,6 +504,8 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetMTDProduc
 		temp_h.Wareh = param.Wareh;
 		InitEfecCallParam(temp_h, rH, arg_str_pool);
 	}
+	proxi.userid = GetDynamicParamString((temp_buf = rSess.GetUser()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
+	proxi.passwd = GetDynamicParamString((temp_buf = rSess.GetPassword()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 	if(pItems && pItems->getCount()) {
 		param.DATA = (ns1__ProductReportRequestType **)PPSoapCreateArray(1, param.__sizeDATA);
 		{
@@ -518,9 +522,9 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetMTDProduc
 			}
 		}
 		{
+			THROW(param.DATA[0] = new ns1__ProductReportRequestType);
 			param.DATA[0]->__sizeRow = (int)arg_entry_list.getCount();
-			param.DATA[0]->Row = (_ns1__ProductReportRequestType_Row *)calloc(arg_entry_list.getCount(), sizeof(*(param.DATA[0]->Row)));
-			THROW(param.DATA[0]->Row);
+			THROW(param.DATA[0]->Row = new _ns1__ProductReportRequestType_Row[arg_entry_list.getCount()]);
 			for(uint i = 0; i < arg_entry_list.getCount(); i++) {
 				param.DATA[0]->Row[i] = *arg_entry_list.at(i);
 			}
@@ -541,7 +545,8 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetMTDProduc
 	CATCH
 		ZFREE(p_result);
 	ENDCATCH
-	ZFREE(param.DATA[0]->Row);
+	delete [] param.DATA[0]->Row;
+	delete param.DATA[0];
 	ZFREE(param.DATA);
 	return p_result;
 }
@@ -564,6 +569,8 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetMTDOutlet
 		temp_h.Wareh = param.Wareh;
 		InitEfecCallParam(temp_h, rH, arg_str_pool);
 	}
+	proxi.userid = GetDynamicParamString((temp_buf = rSess.GetUser()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
+	proxi.passwd = GetDynamicParamString((temp_buf = rSess.GetPassword()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 	if(pItems && pItems->getCount()) {
 		param.DATA = (ns1__OutletReportRequestType **)PPSoapCreateArray(1, param.__sizeDATA);
 		{
@@ -580,9 +587,9 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetMTDOutlet
 			}
 		}
 		{
+			THROW(param.DATA[0] = new ns1__OutletReportRequestType);
 			param.DATA[0]->__sizeRow = (int)arg_entry_list.getCount();
-			param.DATA[0]->Row = (_ns1__OutletReportRequestType_Row *)calloc(arg_entry_list.getCount(), sizeof(*(param.DATA[0]->Row)));
-			THROW(param.DATA[0]->Row);
+			THROW(param.DATA[0]->Row = new _ns1__OutletReportRequestType_Row[arg_entry_list.getCount()]);
 			for(uint i = 0; i < arg_entry_list.getCount(); i++) {
 				param.DATA[0]->Row[i] = *arg_entry_list.at(i);
 			}
@@ -603,7 +610,8 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetMTDOutlet
 	CATCH
 		ZFREE(p_result);
 	ENDCATCH
-	ZFREE(param.DATA[0]->Row);
+	delete [] param.DATA[0]->Row;
+	delete param.DATA[0];
 	ZFREE(param.DATA);
 	return p_result;
 }

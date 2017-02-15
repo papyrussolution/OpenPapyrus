@@ -31169,7 +31169,7 @@ public:
 	int    SLAPI  SetInheritance(const PPSCardSerPacket * pSerRec, SCardTbl::Rec * pRec);
 	int    SLAPI  AutoFill(PPID seriesID, int use_ta);
 	int    SLAPI  UpdateBySeries(PPID seriesID, int use_ta);
-	int    SLAPI  UpdateBySeriesRule(PPID seriesID, int prevTrnovrPrd, PPLogger * pLog, int use_ta);
+	// @v9.5.4 int    SLAPI  UpdateBySeriesRule(PPID seriesID, int prevTrnovrPrd, PPLogger * pLog, int use_ta);
 	int    SLAPI  UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLogger * pLog, int use_ta);
 	int    SLAPI  PutUhttOp(PPID cardID, double amount);
 	//
@@ -31190,8 +31190,8 @@ public:
 		gtalgByOp
 	};
 
-	int    SLAPI  GetTurnover(const SCardTbl::Rec & rRec, int alg, const DateRange & rPeriod, double * pDebit, double * pCredit);
-	int    SLAPI  GetTurnover(PPID cardID, int alg, const DateRange & rPeriod, double * pDebit, double * pCredit);
+	int    SLAPI  GetTurnover(const SCardTbl::Rec & rRec, int alg, const DateRange & rPeriod, PPID restrGoodsGrpID, double * pDebit, double * pCredit);
+	int    SLAPI  GetTurnover(PPID cardID, int alg, const DateRange & rPeriod, PPID restrGoodsGrpID, double * pDebit, double * pCredit);
 	//
 	// Descr: »щет карту по владельцу ownerID из которой можно унаследовать величину процентной скидки.
 	//
@@ -35489,7 +35489,8 @@ public:
 		opImportGoods      = 0x0040,     // IMPGOODS
 		opImportRouts      = 0x0080,     // IMPROUT
 		opImportOrders     = 0x0100,     // IMPORDER
-		opImportDesadv     = 0x0200      //
+		opImportDesadv     = 0x0200,     //
+		opExportSales      = 0x0400      // EXPSALES 
 	};
 	enum {
 		fDeleteRecentBills = 0x0001,

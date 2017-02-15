@@ -977,29 +977,26 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 {
 	const size_t src_len = sstrlen(source);
 	// Handles all data encodation from section 5 of ISO/IEC 24723 
-	int encoding_method, read_posn, d1, d2, value, alpha_pad;
-	int i, j, mask, ai_crop, fnc1_latch;
-	long int group_val;
-	int ai90_mode, latch, remainder, binary_length;
-	char date_str[4];
+	int    d1, d2;
+	int    j, mask;
+	long   group_val;
+	int    latch, remainder, binary_length;
+	char   date_str[4];
 #ifndef _MSC_VER
 	char general_field[src_len + 1], general_field_type[src_len + 1];
 #else
 	char* general_field = (char*)_alloca(src_len + 1);
 	char* general_field_type = (char*)_alloca(src_len + 1);
 #endif
-	int target_bitsize;
-
-	encoding_method = 1;
-	read_posn = 0;
-	ai_crop = 0;
-	fnc1_latch = 0;
-	alpha_pad = 0;
-	ai90_mode = 0;
+	int    target_bitsize = 0;
+	int    encoding_method = 1;
+	int    read_posn = 0;
+	int    ai_crop = 0;
+	int    fnc1_latch = 0;
+	int    alpha_pad = 0;
+	int    ai90_mode = 0;
+	int    value = 0;
 	*ecc = 0;
-	value = 0;
-	target_bitsize = 0;
-
 	if((source[0] == '1') && ((source[1] == '0') || (source[1] == '1') || (source[1] == '7')) && (src_len > 8)) {
 		/* Source starts (10), (11) or (17) */
 		encoding_method = 2;
@@ -1036,12 +1033,7 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 
 			mask = 0x8000;
 			for(j = 0; j < 16; j++) {
-				if((group_val & mask) == 0x00) {
-					strcat(binary_string, "0");
-				}
-				else {
-					strcat(binary_string, "1");
-				}
+				strcat(binary_string, ((group_val & mask) == 0x00) ? "0" : "1");
 				mask = mask >> 1;
 			}
 			if(source[1] == '1') {
@@ -1070,63 +1062,72 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 		char numeric_part[4];
 		int alpha, alphanum, numeric, test1, test2, test3, next_ai_posn;
 		int numeric_value, table3_letter, mask;
-
-		/* "This encodation method may be used if an element string with an AI
-		   90 occurs at the start of the data message, and if the data field
-		   following the two-digit AI 90 starts with an alphanumeric string which
-		   complies with a specific format." (para 5.2.2) */
-
-		i = 0;
-		do {
-			ninety[i] = source[i + 2];
-			i++;
-		} while((src_len > (i + 2)) && ('[' != source[i + 2]));
-		ninety[i] = '\0';
 		//
-		// Find out if the AI 90 data is alphabetic or numeric or both 
+		// "This encodation method may be used if an element string with an AI
+		// 90 occurs at the start of the data message, and if the data field
+		// following the two-digit AI 90 starts with an alphanumeric string which
+		// complies with a specific format." (para 5.2.2) 
 		//
-		alpha = 0;
-		alphanum = 0;
-		numeric = 0;
-		for(i = 0; i < (int)strlen(ninety); i++) {
-			if((ninety[i] >= 'A') && (ninety[i] <= 'Z')) {
-				alpha += 1; // Character is alphabetic 
-			}
-			if((ninety[i] >= '0') && (ninety[i] <= '9')) {
-				numeric += 1; // Character is numeric 
-			}
-			switch(ninety[i]) {
-				case '*':
-				case ',':
-				case '-':
-				case '.':
-				case '/': alphanum += 1;
-				    break;
-			}
-			if(!(((ninety[i] >= '0') && (ninety[i] <= '9')) || ((ninety[i] >= 'A') && (ninety[i] <= 'Z')))) {
-				if((ninety[i] != '*') && (ninety[i] != ',') && (ninety[i] != '-') && (ninety[i] != '.') &&
-				    (ninety[i] != '/')) {
-					/* An Invalid AI 90 character */
-					strcpy(symbol->errtxt, "Invalid AI 90 data (D40)");
-					return ZINT_ERROR_INVALID_DATA;
+		{
+			size_t i = 0;
+			do {
+				ninety[i] = source[i + 2];
+				i++;
+			} while((src_len > (i + 2)) && ('[' != source[i + 2]));
+			ninety[i] = '\0';
+		}
+		{
+			//
+			// Find out if the AI 90 data is alphabetic or numeric or both 
+			//
+			alpha = 0;
+			alphanum = 0;
+			numeric = 0;
+			for(size_t i = 0; i < strlen(ninety); i++) {
+				if((ninety[i] >= 'A') && (ninety[i] <= 'Z')) {
+					alpha += 1; // Character is alphabetic 
+				}
+				if((ninety[i] >= '0') && (ninety[i] <= '9')) {
+					numeric += 1; // Character is numeric 
+				}
+				switch(ninety[i]) {
+					case '*':
+					case ',':
+					case '-':
+					case '.':
+					case '/': alphanum += 1;
+						break;
+				}
+				if(!(((ninety[i] >= '0') && (ninety[i] <= '9')) || ((ninety[i] >= 'A') && (ninety[i] <= 'Z')))) {
+					if((ninety[i] != '*') && (ninety[i] != ',') && (ninety[i] != '-') && (ninety[i] != '.') &&
+						(ninety[i] != '/')) {
+						/* An Invalid AI 90 character */
+						strcpy(symbol->errtxt, "Invalid AI 90 data (D40)");
+						return ZINT_ERROR_INVALID_DATA;
+					}
 				}
 			}
 		}
-
-		/* must start with 0, 1, 2 or 3 digits followed by an uppercase character */
-		test1 = -1;
-		for(i = 3; i >= 0; i--) {
-			if((ninety[i] >= 'A') && (ninety[i] <= 'Z')) {
-				test1 = i;
+		//
+		// must start with 0, 1, 2 or 3 digits followed by an uppercase character 
+		//
+		{
+			test1 = -1;
+			for(int i = 3; i >= 0; i--) {
+				if((ninety[i] >= 'A') && (ninety[i] <= 'Z'))
+					test1 = i;
 			}
 		}
-		test2 = 0;
-		for(i = 0; i < test1; i++) {
-			if(!((ninety[i] >= '0') && (ninety[i] <= '9'))) {
-				test2 = 1;
+		{
+			test2 = 0;
+			for(int i = 0; i < test1; i++) {
+				if(!((ninety[i] >= '0') && (ninety[i] <= '9'))) 
+					test2 = 1;
 			}
 		}
-		/* leading zeros are not permitted */
+		//
+		// leading zeros are not permitted 
+		//
 		test3 = 0;
 		if((test1 >= 1) && (ninety[0] == '0')) {
 			test3 = 1;
@@ -1156,16 +1157,13 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 					ai90_mode = 3;
 				}
 			}
-
 			next_ai_posn = 2 + strlen(ninety);
-
 			if(source[next_ai_posn] == '[') {
 				/* There are more AIs afterwords */
 				if((source[next_ai_posn + 1] == '2') && (source[next_ai_posn + 2] == '1')) {
 					/* AI 21 follows */
 					ai_crop = 1;
 				}
-
 				if((source[next_ai_posn + 1] == '8') && (source[next_ai_posn + 2] == '0') &&
 				    (source[next_ai_posn + 3] == '0') && (source[next_ai_posn + 4] == '4')) {
 					/* AI 8004 follows */
@@ -1181,6 +1179,7 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 				strcpy(numeric_part, "0");
 			}
 			else {
+				int    i;
 				for(i = 0; i < test1; i++) {
 					numeric_part[i] = ninety[i];
 				}
@@ -1349,263 +1348,257 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 		} while((source[read_posn - 1] != '[') && (source[read_posn - 1] != '\0'));
 	}
 	read_posn += (2 * ai_crop);
-	/* The compressed data field has been processed if appropriate - the
-	   rest of the data (if any) goes into a general-purpose data compaction field */
-	j = 0;
-	if(fnc1_latch == 1) {
-		/* Encodation method "10" has been used but it is not followed by
-		   AI 10, so a FNC1 character needs to be added */
-		general_field[j] = '[';
-		j++;
-	}
-	for(i = read_posn; i < (int)src_len; i++) {
-		general_field[j] = source[i];
-		j++;
-	}
-	general_field[j] = '\0';
-	if(strlen(general_field) != 0) {
-		alpha_pad = 0;
-	}
-	latch = 0;
-	for(i = 0; i < (int)strlen(general_field); i++) {
-		/* Table 13 - ISO/IEC 646 encodation */
-		if((general_field[i] < ' ') || (general_field[i] > 'z')) {
-			general_field_type[i] = INVALID_CHAR;
-			latch = 1;
+	//
+	// The compressed data field has been processed if appropriate - the
+	// rest of the data (if any) goes into a general-purpose data compaction field 
+	//
+	{
+		j = 0;
+		if(fnc1_latch == 1) {
+			// Encodation method "10" has been used but it is not followed by
+			// AI 10, so a FNC1 character needs to be added 
+			general_field[j] = '[';
+			j++;
 		}
-		else {
-			general_field_type[i] = ISOIEC;
+		for(size_t i = read_posn; i < src_len; i++) {
+			general_field[j] = source[i];
+			j++;
 		}
-		if(general_field[i] == '#') {
-			general_field_type[i] = INVALID_CHAR;
-			latch = 1;
-		}
-		if(general_field[i] == '$') {
-			general_field_type[i] = INVALID_CHAR;
-			latch = 1;
-		}
-		if(general_field[i] == '@') {
-			general_field_type[i] = INVALID_CHAR;
-			latch = 1;
-		}
-		if(general_field[i] == 92) {
-			general_field_type[i] = INVALID_CHAR;
-			latch = 1;
-		}
-		if(general_field[i] == '^') {
-			general_field_type[i] = INVALID_CHAR;
-			latch = 1;
-		}
-		if(general_field[i] == 96) {
-			general_field_type[i] = INVALID_CHAR;
-			latch = 1;
-		}
-		// Table 12 - Alphanumeric encodation 
-		if((general_field[i] >= 'A') && (general_field[i] <= 'Z')) {
-			general_field_type[i] = ALPHA_OR_ISO;
-		}
-		if(general_field[i] == '*') {
-			general_field_type[i] = ALPHA_OR_ISO;
-		}
-		if(general_field[i] == ',') {
-			general_field_type[i] = ALPHA_OR_ISO;
-		}
-		if(general_field[i] == '-') {
-			general_field_type[i] = ALPHA_OR_ISO;
-		}
-		if(general_field[i] == '.') {
-			general_field_type[i] = ALPHA_OR_ISO;
-		}
-		if(general_field[i] == '/') {
-			general_field_type[i] = ALPHA_OR_ISO;
-		}
-
-		/* Numeric encodation */
-		if((general_field[i] >= '0') && (general_field[i] <= '9')) {
-			general_field_type[i] = ANY_ENC;
-		}
-		if(general_field[i] == '[') {
-			/* FNC1 can be encoded in any system */
-			general_field_type[i] = ANY_ENC;
+		general_field[j] = '\0';
+		if(strlen(general_field) != 0) {
+			alpha_pad = 0;
 		}
 	}
-	general_field_type[strlen(general_field)] = '\0';
-	if(latch == 1) {
-		/* Invalid characters in input data */
-		strcpy(symbol->errtxt, "Invalid characters in input data (D41)");
-		return ZINT_ERROR_INVALID_DATA;
-	}
-	for(i = 0; i < (int)strlen(general_field); i++) {
-		if((general_field_type[i] == ISOIEC) && (general_field[i + 1] == '[')) {
-			general_field_type[i + 1] = ISOIEC;
+	{
+		latch = 0;
+		size_t i;
+		for(i = 0; i < strlen(general_field); i++) {
+			// Table 13 - ISO/IEC 646 encodation 
+			if((general_field[i] < ' ') || (general_field[i] > 'z')) {
+				general_field_type[i] = INVALID_CHAR;
+				latch = 1;
+			}
+			else {
+				general_field_type[i] = ISOIEC;
+			}
+			if(general_field[i] == '#') {
+				general_field_type[i] = INVALID_CHAR;
+				latch = 1;
+			}
+			if(general_field[i] == '$') {
+				general_field_type[i] = INVALID_CHAR;
+				latch = 1;
+			}
+			if(general_field[i] == '@') {
+				general_field_type[i] = INVALID_CHAR;
+				latch = 1;
+			}
+			if(general_field[i] == 92) {
+				general_field_type[i] = INVALID_CHAR;
+				latch = 1;
+			}
+			if(general_field[i] == '^') {
+				general_field_type[i] = INVALID_CHAR;
+				latch = 1;
+			}
+			if(general_field[i] == 96) {
+				general_field_type[i] = INVALID_CHAR;
+				latch = 1;
+			}
+			// Table 12 - Alphanumeric encodation 
+			if((general_field[i] >= 'A') && (general_field[i] <= 'Z')) {
+				general_field_type[i] = ALPHA_OR_ISO;
+			}
+			if(general_field[i] == '*') {
+				general_field_type[i] = ALPHA_OR_ISO;
+			}
+			if(general_field[i] == ',') {
+				general_field_type[i] = ALPHA_OR_ISO;
+			}
+			if(general_field[i] == '-') {
+				general_field_type[i] = ALPHA_OR_ISO;
+			}
+			if(general_field[i] == '.') {
+				general_field_type[i] = ALPHA_OR_ISO;
+			}
+			if(general_field[i] == '/') {
+				general_field_type[i] = ALPHA_OR_ISO;
+			}
+			// Numeric encodation 
+			if((general_field[i] >= '0') && (general_field[i] <= '9')) {
+				general_field_type[i] = ANY_ENC;
+			}
+			if(general_field[i] == '[') {
+				// FNC1 can be encoded in any system 
+				general_field_type[i] = ANY_ENC;
+			}
+		}
+		general_field_type[strlen(general_field)] = '\0';
+		if(latch == 1) {
+			// Invalid characters in input data 
+			strcpy(symbol->errtxt, "Invalid characters in input data (D41)");
+			return ZINT_ERROR_INVALID_DATA;
+		}
+		for(i = 0; i < strlen(general_field); i++) {
+			if((general_field_type[i] == ISOIEC) && (general_field[i + 1] == '[')) {
+				general_field_type[i + 1] = ISOIEC;
+			}
+		}
+		for(i = 0; i < strlen(general_field); i++) {
+			if((general_field_type[i] == ALPHA_OR_ISO) && (general_field[i + 1] == '[')) {
+				general_field_type[i + 1] = ALPHA_OR_ISO;
+			}
 		}
 	}
-	for(i = 0; i < (int)strlen(general_field); i++) {
-		if((general_field_type[i] == ALPHA_OR_ISO) && (general_field[i + 1] == '[')) {
-			general_field_type[i + 1] = ALPHA_OR_ISO;
-		}
+	{
+		latch = general_rules(general_field, general_field_type);
+		size_t i = 0;
+		do {
+			switch(general_field_type[i]) {
+				case NUMERIC:
+					if(i != 0) {
+						if((general_field_type[i - 1] != NUMERIC) && (general_field[i - 1] != '[')) {
+							strcat(binary_string, "000"); /* Numeric latch */
+						}
+					}
+					d1 = (general_field[i] != '[') ? ctoi(general_field[i]) : 10;
+					d2 = (general_field[i + 1] != '[') ? ctoi(general_field[i + 1]) : 10;
+					value = (11 * d1) + d2 + 8;
+					mask = 0x40;
+					for(j = 0; j < 7; j++) {
+						if((value & mask) == 0x00) {
+							strcat(binary_string, "0");
+						}
+						else {
+							strcat(binary_string, "1");
+						}
+						mask = mask >> 1;
+					}
+					i += 2;
+					break;
+				case ALPHA:
+					if(i != 0) {
+						if((general_field_type[i - 1] == NUMERIC) || (general_field[i - 1] == '[')) {
+							strcat(binary_string, "0000"); /* Alphanumeric latch */
+						}
+						if(general_field_type[i - 1] == ISOIEC) {
+							strcat(binary_string, "00100"); /* ISO/IEC 646 latch */
+						}
+					}
+					if((general_field[i] >= '0') && (general_field[i] <= '9')) {
+						value = general_field[i] - 43;
+
+						mask = 0x10;
+						for(j = 0; j < 5; j++) {
+							if((value & mask) == 0x00) {
+								strcat(binary_string, "0");
+							}
+							else {
+								strcat(binary_string, "1");
+							}
+							mask = mask >> 1;
+						}
+					}
+
+					if((general_field[i] >= 'A') && (general_field[i] <= 'Z')) {
+						value = general_field[i] - 33;
+						mask = 0x20;
+						for(j = 0; j < 6; j++) {
+							if((value & mask) == 0x00) {
+								strcat(binary_string, "0");
+							}
+							else {
+								strcat(binary_string, "1");
+							}
+							mask = mask >> 1;
+						}
+					}
+					if(general_field[i] == '[') strcat(binary_string, "01111");  /* FNC1/Numeric latch */
+					if(general_field[i] == '*') strcat(binary_string, "111010");  /* asterisk */
+					if(general_field[i] == ',') strcat(binary_string, "111011");  /* comma */
+					if(general_field[i] == '-') strcat(binary_string, "111100");  /* minus or hyphen */
+					if(general_field[i] == '.') strcat(binary_string, "111101");  /* period or full stop */
+					if(general_field[i] == '/') strcat(binary_string, "111110");  /* slash or solidus */
+
+					i++;
+					break;
+				case ISOIEC:
+					if(i != 0) {
+						if((general_field_type[i - 1] == NUMERIC) || (general_field[i - 1] == '[')) {
+							strcat(binary_string, "0000"); /* Alphanumeric latch */
+							strcat(binary_string, "00100"); /* ISO/IEC 646 latch */
+						}
+						if(general_field_type[i - 1] == ALPHA) {
+							strcat(binary_string, "00100"); /* ISO/IEC 646 latch */
+						}
+					}
+					if((general_field[i] >= '0') && (general_field[i] <= '9')) {
+						value = general_field[i] - 43;
+						mask = 0x10;
+						for(j = 0; j < 5; j++) {
+							if((value & mask) == 0x00) {
+								strcat(binary_string, "0");
+							}
+							else {
+								strcat(binary_string, "1");
+							}
+							mask = mask >> 1;
+						}
+					}
+					if((general_field[i] >= 'A') && (general_field[i] <= 'Z')) {
+						value = general_field[i] - 1;
+						mask = 0x40;
+						for(j = 0; j < 7; j++) {
+							if((value & mask) == 0x00) {
+								strcat(binary_string, "0");
+							}
+							else {
+								strcat(binary_string, "1");
+							}
+							mask = mask >> 1;
+						}
+					}
+					if((general_field[i] >= 'a') && (general_field[i] <= 'z')) {
+						value = general_field[i] - 7;
+						mask = 0x40;
+						for(j = 0; j < 7; j++) {
+							if((value & mask) == 0x00) {
+								strcat(binary_string, "0");
+							}
+							else {
+								strcat(binary_string, "1");
+							}
+							mask = mask >> 1;
+						}
+					}
+					if(general_field[i] == '[') strcat(binary_string, "01111");  /* FNC1/Numeric latch */
+					if(general_field[i] == '!') strcat(binary_string, "11101000");  /* exclamation mark */
+					if(general_field[i] == 34) strcat(binary_string, "11101001");  /* quotation mark */
+					if(general_field[i] == 37) strcat(binary_string, "11101010");  /* percent sign */
+					if(general_field[i] == '&') strcat(binary_string, "11101011");  /* ampersand */
+					if(general_field[i] == 39) strcat(binary_string, "11101100");  /* apostrophe */
+					if(general_field[i] == '(') strcat(binary_string, "11101101");  /* left parenthesis */
+					if(general_field[i] == ')') strcat(binary_string, "11101110");  /* right parenthesis */
+					if(general_field[i] == '*') strcat(binary_string, "11101111");  /* asterisk */
+					if(general_field[i] == '+') strcat(binary_string, "11110000");  /* plus sign */
+					if(general_field[i] == ',') strcat(binary_string, "11110001");  /* comma */
+					if(general_field[i] == '-') strcat(binary_string, "11110010");  /* minus or hyphen */
+					if(general_field[i] == '.') strcat(binary_string, "11110011");  /* period or full stop */
+					if(general_field[i] == '/') strcat(binary_string, "11110100");  /* slash or solidus */
+					if(general_field[i] == ':') strcat(binary_string, "11110101");  /* colon */
+					if(general_field[i] == ';') strcat(binary_string, "11110110");  /* semicolon */
+					if(general_field[i] == '<') strcat(binary_string, "11110111");  /* less-than sign */
+					if(general_field[i] == '=') strcat(binary_string, "11111000");  /* equals sign */
+					if(general_field[i] == '>') strcat(binary_string, "11111001");  /* greater-than sign */
+					if(general_field[i] == '?') strcat(binary_string, "11111010");  /* question mark */
+					if(general_field[i] == '_') strcat(binary_string, "11111011");  /* underline or low line */
+					if(general_field[i] == ' ') strcat(binary_string, "11111100");  /* space */
+
+					i++;
+					break;
+			}
+		} while(i + latch < (int)strlen(general_field));
 	}
-	latch = general_rules(general_field, general_field_type);
-	i = 0;
-	do {
-		switch(general_field_type[i]) {
-			case NUMERIC:
-			    if(i != 0) {
-				    if((general_field_type[i - 1] != NUMERIC) && (general_field[i - 1] != '[')) {
-					    strcat(binary_string, "000"); /* Numeric latch */
-				    }
-			    }
-			    if(general_field[i] != '[') {
-				    d1 = ctoi(general_field[i]);
-			    }
-			    else {
-				    d1 = 10;
-			    }
-			    if(general_field[i + 1] != '[') {
-				    d2 = ctoi(general_field[i + 1]);
-			    }
-			    else {
-				    d2 = 10;
-			    }
-			    value = (11 * d1) + d2 + 8;
-			    mask = 0x40;
-			    for(j = 0; j < 7; j++) {
-				    if((value & mask) == 0x00) {
-					    strcat(binary_string, "0");
-				    }
-				    else {
-					    strcat(binary_string, "1");
-				    }
-				    mask = mask >> 1;
-			    }
-			    i += 2;
-			    break;
-			case ALPHA:
-			    if(i != 0) {
-				    if((general_field_type[i - 1] == NUMERIC) || (general_field[i - 1] == '[')) {
-					    strcat(binary_string, "0000"); /* Alphanumeric latch */
-				    }
-				    if(general_field_type[i - 1] == ISOIEC) {
-					    strcat(binary_string, "00100"); /* ISO/IEC 646 latch */
-				    }
-			    }
-
-			    if((general_field[i] >= '0') && (general_field[i] <= '9')) {
-				    value = general_field[i] - 43;
-
-				    mask = 0x10;
-				    for(j = 0; j < 5; j++) {
-					    if((value & mask) == 0x00) {
-						    strcat(binary_string, "0");
-					    }
-					    else {
-						    strcat(binary_string, "1");
-					    }
-					    mask = mask >> 1;
-				    }
-			    }
-
-			    if((general_field[i] >= 'A') && (general_field[i] <= 'Z')) {
-				    value = general_field[i] - 33;
-
-				    mask = 0x20;
-				    for(j = 0; j < 6; j++) {
-					    if((value & mask) == 0x00) {
-						    strcat(binary_string, "0");
-					    }
-					    else {
-						    strcat(binary_string, "1");
-					    }
-					    mask = mask >> 1;
-				    }
-			    }
-
-			    if(general_field[i] == '[') strcat(binary_string, "01111");  /* FNC1/Numeric latch */
-			    if(general_field[i] == '*') strcat(binary_string, "111010");  /* asterisk */
-			    if(general_field[i] == ',') strcat(binary_string, "111011");  /* comma */
-			    if(general_field[i] == '-') strcat(binary_string, "111100");  /* minus or hyphen */
-			    if(general_field[i] == '.') strcat(binary_string, "111101");  /* period or full stop */
-			    if(general_field[i] == '/') strcat(binary_string, "111110");  /* slash or solidus */
-
-			    i++;
-			    break;
-			case ISOIEC:
-			    if(i != 0) {
-				    if((general_field_type[i - 1] == NUMERIC) || (general_field[i - 1] == '[')) {
-					    strcat(binary_string, "0000"); /* Alphanumeric latch */
-					    strcat(binary_string, "00100"); /* ISO/IEC 646 latch */
-				    }
-				    if(general_field_type[i - 1] == ALPHA) {
-					    strcat(binary_string, "00100"); /* ISO/IEC 646 latch */
-				    }
-			    }
-			    if((general_field[i] >= '0') && (general_field[i] <= '9')) {
-				    value = general_field[i] - 43;
-				    mask = 0x10;
-				    for(j = 0; j < 5; j++) {
-					    if((value & mask) == 0x00) {
-						    strcat(binary_string, "0");
-					    }
-					    else {
-						    strcat(binary_string, "1");
-					    }
-					    mask = mask >> 1;
-				    }
-			    }
-			    if((general_field[i] >= 'A') && (general_field[i] <= 'Z')) {
-				    value = general_field[i] - 1;
-				    mask = 0x40;
-				    for(j = 0; j < 7; j++) {
-					    if((value & mask) == 0x00) {
-						    strcat(binary_string, "0");
-					    }
-					    else {
-						    strcat(binary_string, "1");
-					    }
-					    mask = mask >> 1;
-				    }
-			    }
-			    if((general_field[i] >= 'a') && (general_field[i] <= 'z')) {
-				    value = general_field[i] - 7;
-				    mask = 0x40;
-				    for(j = 0; j < 7; j++) {
-					    if((value & mask) == 0x00) {
-						    strcat(binary_string, "0");
-					    }
-					    else {
-						    strcat(binary_string, "1");
-					    }
-					    mask = mask >> 1;
-				    }
-			    }
-
-			    if(general_field[i] == '[') strcat(binary_string, "01111");  /* FNC1/Numeric latch */
-			    if(general_field[i] == '!') strcat(binary_string, "11101000");  /* exclamation mark */
-			    if(general_field[i] == 34) strcat(binary_string, "11101001");  /* quotation mark */
-			    if(general_field[i] == 37) strcat(binary_string, "11101010");  /* percent sign */
-			    if(general_field[i] == '&') strcat(binary_string, "11101011");  /* ampersand */
-			    if(general_field[i] == 39) strcat(binary_string, "11101100");  /* apostrophe */
-			    if(general_field[i] == '(') strcat(binary_string, "11101101");  /* left parenthesis */
-			    if(general_field[i] == ')') strcat(binary_string, "11101110");  /* right parenthesis */
-			    if(general_field[i] == '*') strcat(binary_string, "11101111");  /* asterisk */
-			    if(general_field[i] == '+') strcat(binary_string, "11110000");  /* plus sign */
-			    if(general_field[i] == ',') strcat(binary_string, "11110001");  /* comma */
-			    if(general_field[i] == '-') strcat(binary_string, "11110010");  /* minus or hyphen */
-			    if(general_field[i] == '.') strcat(binary_string, "11110011");  /* period or full stop */
-			    if(general_field[i] == '/') strcat(binary_string, "11110100");  /* slash or solidus */
-			    if(general_field[i] == ':') strcat(binary_string, "11110101");  /* colon */
-			    if(general_field[i] == ';') strcat(binary_string, "11110110");  /* semicolon */
-			    if(general_field[i] == '<') strcat(binary_string, "11110111");  /* less-than sign */
-			    if(general_field[i] == '=') strcat(binary_string, "11111000");  /* equals sign */
-			    if(general_field[i] == '>') strcat(binary_string, "11111001");  /* greater-than sign */
-			    if(general_field[i] == '?') strcat(binary_string, "11111010");  /* question mark */
-			    if(general_field[i] == '_') strcat(binary_string, "11111011");  /* underline or low line */
-			    if(general_field[i] == ' ') strcat(binary_string, "11111100");  /* space */
-
-			    i++;
-			    break;
-		}
-	} while(i + latch < (int)strlen(general_field));
 	binary_length = strlen(binary_string);
 	switch(cc_mode) {
 		case 1: target_bitsize = calc_padding_cca(binary_length, *(cc_width)); break;
@@ -1618,8 +1611,8 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 	}
 	remainder = target_bitsize - binary_length;
 	if(latch == 1) {
-		i = 0;
-		/* There is still one more numeric digit to encode */
+		size_t i = 0;
+		// There is still one more numeric digit to encode 
 		if((remainder >= 4) && (remainder <= 6)) {
 			d1 = ctoi(general_field[i]);
 			d1++;

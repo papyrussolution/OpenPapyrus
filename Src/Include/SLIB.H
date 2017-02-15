@@ -5466,6 +5466,19 @@ public:
 				ZDELETE(p_new_item);
 			}
 		}
+		else
+			SLS.SetError(SLERR_NOMEM);
+		return p_new_item;
+	}
+	T * FASTCALL CreateNewItem()
+	{
+		T * p_new_item = new T;
+		if(p_new_item) {
+			if(!insert(p_new_item))
+				ZDELETE(p_new_item);
+		}
+		else
+			SLS.SetError(SLERR_NOMEM);
 		return p_new_item;
 	}
 };

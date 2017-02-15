@@ -544,7 +544,7 @@ int SLAPI PPViewSCard::CheckForFilt(const SCardTbl::Rec * pRec, PreprocessScRecB
 		DateRange period = Filt.TrnovrPeriod;
 		if(Filt.Flags & SCardFilt::fSinceLastPDisUpdating)
 			GetPDisUpdateDate(pRec->ID, period.upp, &period.low);
-		SCObj.GetTurnover(*pRec, PPObjSCard::gtalgDefault, period, &in_turnover, &turnover);
+		SCObj.GetTurnover(*pRec, PPObjSCard::gtalgDefault, period, 0, &in_turnover, &turnover);
 	}
 	// @v8.5.3 @fix {
 	else {

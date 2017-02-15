@@ -2839,14 +2839,14 @@ SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long fl
 	}
 	P_BObj = pBObj;
 	setInitPos(pos);
-	if(single_serial.NotEmptyS())
-		setSubTitle(single_serial);
-	else if(single_goods_id) {
+	if(single_goods_id) {
 		SString goods_name;
 		setSubTitle(GetGoodsName(single_goods_id, goods_name));
 	}
-	if(getDef())
-		getDef()->SetUserProc(SelLotBrowser::GetDataForBrowser, this);
+	else if(single_serial.NotEmptyS())
+		setSubTitle(single_serial);
+	BrowserDef * p_def = getDef();
+	CALLPTRMEMB(p_def, SetUserProc(SelLotBrowser::GetDataForBrowser, this));
 }
 
 IMPL_HANDLE_EVENT(SelLotBrowser)

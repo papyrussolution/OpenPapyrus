@@ -7636,6 +7636,7 @@ int SLAPI PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl
 				}
 			}
 			// @v9.5.3 {
+			/* Проблема решена - привязка терялась из-за неинициализированных членов PPBillPacket: OpTypeID AccSheetID (скорее всего, OpTypeID)
 			if(CConfig.Flags & CCFLG_DEBUG) {
 				if(is_there_shadow_bill) {
 					PPLoadText(PPTXT_LOG_BILLHASLORDEMPTYSHL, fmt_buf);
@@ -7644,6 +7645,7 @@ int SLAPI PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl
 					PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_TIME);
 				}
 			}
+			*/
 			// } @v9.5.3
 		}
 	}
@@ -7667,9 +7669,9 @@ int SLAPI PPObjBill::RecalcPayment(PPID id, int use_ta)
 			long   f, f1;
 			const  PPID   cur_id = rec.CurID;
 			const  double bpaym = rec.PaymAmount;
+			const  double amt   = BR2(rec.Amount);
 			double paym = 0.0;
 			double real_paym = 0.0;
-			double amt  = BR2(rec.Amount);
 			DateIter diter;
 			f = f1 = rec.Flags;
 			THROW(P_Tbl->GetAmount(id, PPAMT_PAYMENT, cur_id, &paym));
@@ -7916,14 +7918,13 @@ int SLAPI PPObjBill::UpdatePool(PPID poolID, int use_ta)
 	int    ok = 1;
 	PPBillPacket pack;
 	AmtList amounts;
-	double  main_amount;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(ExtractPacket(poolID, &pack) > 0) {
 			P_Tbl->CalcPoolAmounts(PPASS_OPBILLPOOL, poolID, &amounts);
 			pack.Amounts.copy(amounts);
-			main_amount = amounts.Get(PPAMT_MAIN, 0L /* @curID */);
+			const double main_amount = amounts.Get(PPAMT_MAIN, 0L /* @curID */);
 			pack.Rec.Amount = BR2(main_amount);
 			THROW(FillTurnList(&pack));
 			THROW(UpdatePacket(&pack, 0));
@@ -8279,7 +8280,7 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 							break;
 						case PPSYM_CLIENTADDR:
 							{
-								PPID   psn_id = ObjectToPerson(pk->Rec.Object);
+								const PPID psn_id = ObjectToPerson(pk->Rec.Object);
 								if(psn_id) {
 									PPObjPerson psn_obj;
 									psn_obj.GetAddress(psn_id, subst_buf);
@@ -8371,7 +8372,7 @@ int PPObjBill::ConvertUuid7601()
 		pk1.ObjType = PPOBJ_BILL;
 		pk1.Prop = BILLPRP_GUID;
 		for(int sp = spGe; p_ref->Prop.searchForUpdate(1, &pk1, sp) && p_ref->Prop.data.ObjType == PPOBJ_BILL && p_ref->Prop.data.Prop == BILLPRP_GUID; sp = spNext) {
-			S_GUID uuid = *(S_GUID *)p_ref->Prop.data.Text;
+			const S_GUID uuid = *(S_GUID *)p_ref->Prop.data.Text;
 			const PPID bill_id = p_ref->Prop.data.ObjID;
 			BillTbl::Rec bill_rec;
 			if(Search(bill_id, &bill_rec) > 0) {

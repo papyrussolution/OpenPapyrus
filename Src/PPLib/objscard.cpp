@@ -2115,7 +2115,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 				item.SCardID = r_sc_rec.ID;
 				if(case_flags & _cfBonusRule) {
 					double dbt = 0.0, crd = 0.0;
-					THROW(GetTurnover(r_sc_rec, PPObjSCard::gtalgForBonus, bonus_period, &dbt, &crd));
+					THROW(GetTurnover(r_sc_rec, PPObjSCard::gtalgForBonus, bonus_period, bonus_charge_grp_id, &dbt, &crd));
 					item.BonusDbt = dbt;
 					item.BonusCrd = crd;
 					ufp_factor += 1.0;
@@ -2126,7 +2126,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 					else {
 						double trnovr = 0.0;
 						if(pack.Rule.TrnovrPeriod) {
-							THROW(GetTurnover(r_sc_rec, PPObjSCard::gtalgDefault, dscnt_period, 0, &trnovr));
+							THROW(GetTurnover(r_sc_rec, PPObjSCard::gtalgDefault, dscnt_period, bonus_charge_grp_id, 0, &trnovr));
 							ufp_factor += 1.0;
 						}
 						else
@@ -2307,6 +2307,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 	return ok;
 }
 
+#if 0 // @v9.5.4 {
 int SLAPI PPObjSCard::UpdateBySeriesRule(PPID seriesID, int prevTrnovrPrd, PPLogger * pLog, int use_ta)
 {
 	int    ok = 1;
@@ -2518,7 +2519,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule(PPID seriesID, int prevTrnovrPrd, PPLog
 	CATCHZOK
 	return ok;
 }
-// } AHTOXA
+#endif // } 0 @v9.5.4
 
 // @Muxa @v7.3.9
 SString & SLAPI PPObjSCard::CalcSCardHash(const char * pNumber, SString & rHash)
@@ -2546,7 +2547,7 @@ int SLAPI PPObjSCard::CreateTurnoverList(const DateRange * pPeriod, RAssocArray 
 		BillObj->P_Tbl->CreateSCardsTurnoverList(pPeriod, pList));
 }
 
-int SLAPI PPObjSCard::GetTurnover(const SCardTbl::Rec & rRec, int alg, const DateRange & rPeriod, double * pDebit, double * pCredit)
+int SLAPI PPObjSCard::GetTurnover(const SCardTbl::Rec & rRec, int alg, const DateRange & rPeriod, PPID restrGoodsGrpID, double * pDebit, double * pCredit)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -2575,25 +2576,25 @@ int SLAPI PPObjSCard::GetTurnover(const SCardTbl::Rec & rRec, int alg, const Dat
 		else {
 			period.low = MAX(rPeriod.low, rRec.Dt);
 			period.upp = rPeriod.upp;
-			P_CcTbl->GetTrnovrBySCard(rRec.ID, alg, &period, 0, &dbt, &crd);
+			P_CcTbl->GetTrnovrBySCard(rRec.ID, alg, &period, /*restrGoodsGrpID*/0, &dbt, &crd);
 		}
-		p_bobj->P_Tbl->GetTrnovrBySCard(rRec.ID, &rPeriod, 0, &bill_dbt, &bill_crd);
+		p_bobj->P_Tbl->GetTrnovrBySCard(rRec.ID, &rPeriod, /*restrGoodsGrpID*/0, &bill_dbt, &bill_crd);
 		crd += (bill_crd - bill_dbt);
 	}
 	else if(alg == gtalgByCheck) {
 		period.low = MAX(rPeriod.low, rRec.Dt);
 		period.upp = rPeriod.upp;
-		P_CcTbl->GetTrnovrBySCard(rRec.ID, alg, &period, 0, &dbt, &crd);
+		P_CcTbl->GetTrnovrBySCard(rRec.ID, alg, &period, /*restrGoodsGrpID*/0, &dbt, &crd);
 	}
 	else if(alg == gtalgByBill) {
-		p_bobj->P_Tbl->GetTrnovrBySCard(rRec.ID, &rPeriod, 0, &bill_dbt, &bill_crd);
+		p_bobj->P_Tbl->GetTrnovrBySCard(rRec.ID, &rPeriod, /*restrGoodsGrpID*/0, &bill_dbt, &bill_crd);
 		crd += (bill_crd - bill_dbt);
 	}
 	else if(alg == gtalgForBonus) {
 		period.low = MAX(rPeriod.low, rRec.Dt);
 		period.upp = rPeriod.upp;
-		P_CcTbl->GetTrnovrBySCard(rRec.ID, alg, &period, 0, &dbt, &crd);
-		p_bobj->P_Tbl->GetTrnovrBySCard(rRec.ID, &rPeriod, 0, &bill_dbt, &bill_crd);
+		P_CcTbl->GetTrnovrBySCard(rRec.ID, alg, &period, restrGoodsGrpID, &dbt, &crd);
+		p_bobj->P_Tbl->GetTrnovrBySCard(rRec.ID, &rPeriod, restrGoodsGrpID, &bill_dbt, &bill_crd);
 		crd += (bill_crd - bill_dbt);
 	}
 	else if(alg == gtalgByOp) {
@@ -2613,12 +2614,12 @@ int SLAPI PPObjSCard::GetTurnover(const SCardTbl::Rec & rRec, int alg, const Dat
 	return ok;
 }
 
-int SLAPI PPObjSCard::GetTurnover(PPID cardID, int alg, const DateRange & rPeriod, double * pDebit, double * pCredit)
+int SLAPI PPObjSCard::GetTurnover(PPID cardID, int alg, const DateRange & rPeriod, PPID restrGoodsGrpID, double * pDebit, double * pCredit)
 {
 	int    ok = 1;
 	SCardTbl::Rec rec;
 	if(Search(cardID, &rec) > 0)
-		ok = GetTurnover(rec, alg, rPeriod, pDebit, pCredit);
+		ok = GetTurnover(rec, alg, rPeriod, restrGoodsGrpID, pDebit, pCredit);
 	else {
 		ASSIGN_PTR(pDebit, 0.0);
 		ASSIGN_PTR(pCredit, 0.0);
