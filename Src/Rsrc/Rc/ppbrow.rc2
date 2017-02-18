@@ -343,7 +343,7 @@ toolbar export ACCBILL TB_FIRST_TOOLBAR {
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "Печать чека на POS-принтер\tCtrl-Z"
 	//PRINTZEROCHECK   :  kbAltMinus, TBBM_NOICON,          "Печать нулевого чека\tAlt-Minus"
 	PRINTALLBILLS    :  kbCtrlS,    TBBM_NOICON,          hidden, "Печать всех документов\tCtrl-S"
-	PRINTCHECK       :  kbCtrlF7,   TBBM_NOICON,          hidden, "Печать чека\tCtrl-F7"
+	PRINTCHECK       :  kbCtrlF7,   TBBM_NOICON,          hidden, "@{printcheck}\tCtrl-F7"
 
 	separator
 	TOTAL            :  kbF9,       TBBM_SIGM,            "@{totals}\tF9"
@@ -400,7 +400,7 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "Печать чека на POS-принтер\tCtrl-Z"
 	PRINTZEROCHECK   :  kbAltMinus, TBBM_NOICON,          hidden, "Печать нулевого чека\tAlt-Minus"
 	PRINTALLBILLS    :  kbCtrlS,    TBBM_NOICON,          "Печать всех документов\tCtrl-S"
-	PRINTCHECK       :  kbCtrlF7,   TBBM_NOICON,          hidden, "Печать чека\tCtrl-F7"
+	PRINTCHECK       :  kbCtrlF7,   TBBM_NOICON,          hidden, "@{printcheck}\tCtrl-F7"
 
 	separator
 	TOTAL            :  kbF9,       TBBM_SIGM,            "@{totals}\tF9"
@@ -457,7 +457,7 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "Печать чека на POS-принтер\tCtrl-Z"
 	PRINTZEROCHECK   :  kbAltMinus, TBBM_NOICON,          hidden, "Печать нулевого чека\tAlt-Minus"
 	PRINTALLBILLS    :  kbCtrlS,    TBBM_NOICON,          "Печать всех документов\tCtrl-S"
-	PRINTCHECK       :  kbCtrlF7,   TBBM_NOICON,          hidden, "Печать чека\tCtrl-F7"
+	PRINTCHECK       :  kbCtrlF7,   TBBM_NOICON,          hidden, "@{printcheck}\tCtrl-F7"
 
 	separator
 	TOTAL            :  kbF9,       TBBM_SIGM,            "@{totals}\tF9"
@@ -549,7 +549,7 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "Печать чека на POS-принтер\tCtrl-Z"
 	PRINTZEROCHECK   :  kbAltMinus, TBBM_NOICON,          hidden, "Печать нулевого чека\tAlt-Minus"
 	PRINTALLBILLS    :  kbCtrlS,    TBBM_NOICON,          "Печать всех документов\tCtrl-S"
-	PRINTCHECK       :  kbCtrlF7,   TBBM_NOICON,          "Печать чека\tCtrl-F7"
+	PRINTCHECK       :  kbCtrlF7,   TBBM_NOICON,          "@{printcheck}\tCtrl-F7"
 	separator
 	TOTAL            :  kbF9,       TBBM_SIGM,            "@{totals}\tF9"
 	// @v9.2.10 (объединено с TOTAL) TPIDTOTAL        :  kbCtrlF9,   TBBM_PERCENT,         hidden, "Расчет НДС по выборке\tCtrl-F9"
@@ -4633,7 +4633,7 @@ browser FREIGHT north(100), 2, 1, "Фрахт", OWNER|GRID, 0
 		PRINTBILLLIST     : kbAltF7,   TBBM_PRINTLIST, "Печать выборки документов\tAlt-F7"
 		PRINTBILLINFOLIST : kbShiftF7, TBBM_NOICON,    "Печать информации о выборке документов\tShift-F7"
 		PRINTALLBILLS     : kbCtrlS,   TBBM_NOICON,    "Печать всех документов\tCtrl-S"
-		PRINTCHECK        : kbCtrlF7,  TBBM_NOICON,    "Печать чека\tCtrl-F7"
+		PRINTCHECK        : kbCtrlF7,  TBBM_NOICON,    "@{printcheck}\tCtrl-F7"
 		separator
 		REPLACEMENT       : kbCtrlF9,  TBBM_REPLACE,   "Массовое изменение\tCtrl-F9"
 		DORECOVER         : kbCtrlX,   TBBM_HAMMER,    "@{verificationandrecovery}\tCtrl-X"
@@ -4673,7 +4673,7 @@ browser FREIGHT_LAGG north(100), 2, 1, "Фрахт", OWNER|GRID, 0
 		PRINTBILLLIST     : kbAltF7,   TBBM_PRINTLIST, "Печать выборки документов\tAlt-F7"
 		PRINTBILLINFOLIST : kbShiftF7, TBBM_NOICON,    "Печать информации о выборке документов\tShift-F7"
 		PRINTALLBILLS     : kbCtrlS,   TBBM_NOICON,    "Печать всех документов\tCtrl-S"
-		PRINTCHECK        : kbCtrlF7,  TBBM_NOICON,    "Печать чека\tCtrl-F7"
+		PRINTCHECK        : kbCtrlF7,  TBBM_NOICON,    "@{printcheck}\tCtrl-F7"
 		separator
 		REPLACEMENT       : kbCtrlF9,  TBBM_REPLACE,   "Массовое изменение\tCtrl-F9"
 		DORECOVER         : kbCtrlX,   TBBM_HAMMER,    "@{verificationandrecovery}\tCtrl-X"

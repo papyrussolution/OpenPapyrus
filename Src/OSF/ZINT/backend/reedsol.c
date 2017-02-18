@@ -49,11 +49,13 @@
 // size.
 
 #include "common.h"
-#include "reedsol.h"
-static int logmod; // 2**symsize - 1
-static int rlen;
+#pragma hdrstop
 
-static int * logt = NULL, * alog = NULL, * rspoly = NULL;
+static int logmod; // 2**symsize - 1 // @global
+static int rlen; // @global
+static int * logt = NULL; // @global
+static int * alog = NULL; // @global
+static int * rspoly = NULL; // @global
 
 // rs_init_gf(poly) initialises the parameters for the Galois Field.
 // The symbol size is determined from the highest bit set in poly

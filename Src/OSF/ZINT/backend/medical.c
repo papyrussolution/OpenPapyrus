@@ -29,8 +29,8 @@
     OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
  */
-
 #include "common.h"
+#pragma hdrstop
 
 extern int c39(struct ZintSymbol * symbol, uchar source[], const size_t length);
 /* Codabar table checked against EN 798:1995 */

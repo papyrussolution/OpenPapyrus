@@ -1246,7 +1246,7 @@ int FASTCALL TCanvas2::Draw(const SImageBuffer * pImg)
 				TRect rc((int)floor(x1), (int)floor(y1), (int)ceil(x2), (int)ceil(y2));
 				Scope.Add(rc, SCOMBINE_OR);
 			}
-			cairo_move_to(P_Cr, 0.0, 0.0); // @v7.0.0
+			cairo_move_to(P_Cr, 0.0, 0.0);
 			cairo_set_source_surface(P_Cr, p_img_surf, 0, 0);
 			cairo_paint_with_alpha(P_Cr, 1.0);
 			cairo_surface_destroy(p_img_surf);

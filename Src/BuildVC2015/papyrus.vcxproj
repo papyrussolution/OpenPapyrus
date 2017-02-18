@@ -1943,6 +1943,9 @@
       <Project>{f4087f62-03d8-4649-84d3-7212f505e38e}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="ZBAR.vcxproj">
+      <Project>{64adc8ff-d2ce-4d6e-a2c0-a0c75f5ba7d5}</Project>
+    </ProjectReference>
     <ProjectReference Include="zlib.vcxproj">
       <Project>{c23c2b5b-224b-475d-8ae3-82289a87602c}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>

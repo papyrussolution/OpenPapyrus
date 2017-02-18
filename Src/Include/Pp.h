@@ -7347,10 +7347,14 @@ int    SLAPI CreatePrintableBarcode(const char * pBarcode, int codeType, char * 
 
 class PPBarcode {
 public:
+	struct Entry {
+		int    BcStd;
+		SString Code;
+	};
 	static int SLAPI GetStdName(int bcstd, SString & rBuf);
 	static int SLAPI RecognizeStdName(const char * pText);
 	static int SLAPI CreateImage(const char * pCode, int bcstd, int outpFormat, const char * pOutpFileName);
-	static int SLAPI RecognizeImage(const char * pInpFileName);
+	static int SLAPI RecognizeImage(const char * pInpFileName, TSCollection <PPBarcode::Entry> & rList);
 	//
 	// Descr: Конвертирует штрихкод в формате UPC-E в формат UPC-A
 	// Note: Не проверяет входящий параметр pUpce на корректное представление UPC-E
@@ -47541,10 +47545,10 @@ public:
 		accmJunk            = 3  // Сохранение временной копии чека (с флагами CCHKF_SUSPENDED|CCHKF_JUNK)
 	};
 
-	virtual int AcceptCheck(const CcAmountList * pPl, double cash, int mode);
-	virtual int ClearCheck();
-	virtual int ClearRow();
-	virtual int OnUpdateList(int goBottom);
+	virtual int    AcceptCheck(const CcAmountList * pPl, double cash, int mode);
+	virtual void   ClearCheck();
+	virtual void   ClearRow();
+	virtual int    OnUpdateList(int goBottom);
 	//
 	// Descr: Структура, обрабатываемая функцией CheckPaneDialog::PreprocessGoodsSelection
 	//   и передаваемая в CPosProcessorCPosProcessor::SetupNewRow()
@@ -47936,13 +47940,13 @@ public:
 	//
 	//
 	//
-	virtual int AcceptCheck(const CcAmountList * pPl, double cash, int mode);
-	virtual int ClearCheck();
-	virtual int OnUpdateList(int goBottom);
+	virtual int    AcceptCheck(const CcAmountList * pPl, double cash, int mode);
+	virtual void   ClearCheck();
+	virtual int    OnUpdateList(int goBottom);
 	int    SetupModifier(PPID modGoodsID);
-	int    SetSCard(const char * pStr);
-	int    EnableBeep(int enbl);
-	int    SetInput(const char * pStr);
+	void   SetSCard(const char * pStr);
+	void   EnableBeep(int enbl);
+	void   SetInput(const char * pStr);
 	int    LoadTSession(PPID tsessID);
 	int    LoadChkInP(PPID chkinpID, PPID goodsID, double qtty);
 private:
@@ -47953,7 +47957,7 @@ private:
 	virtual void SetupInfo(const char * pErrMsg);
 	virtual int  Implement_AcceptCheckOnEquipment(const CcAmountList * pPl, AcceptCheckProcessBlock & rB);
 	virtual int  NotifyGift(PPID giftID, SaGiftArray::Gift * pGift);
-	virtual int  ClearRow();
+	virtual void ClearRow();
 	virtual void SetupRowData(int calcRest);
 	virtual void SetPrintedFlag(int set);
 	virtual int  MessageError(int errCode, const char * pAddedMsg, long outputMode);

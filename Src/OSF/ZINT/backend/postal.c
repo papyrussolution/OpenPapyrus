@@ -30,11 +30,8 @@
     OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
  */
-
 #include "common.h"
-#ifdef _MSC_VER
-	#include <malloc.h>
-#endif
+#pragma hdrstop
 
 #define DAFTSET "DAFT"
 #define KRSET "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"

@@ -49,15 +49,51 @@
  */
 
 #include "common.h"
-#include "large.h"
-#include "composite.h"
+#pragma hdrstop
 #include "pdf417.h"
-#include "gs1.h"
-#ifdef _MSC_VER
-	#include <malloc.h>
-#endif
-
-#define UINT unsigned short
+//#include "large.h"
+//#include "gs1.h"
+//#include "composite.h"
+//
+// Tables for UCC.EAN Composite Symbols
+//
+#define NUMERIC		110
+#define ALPHA		97
+#define ISOIEC		105
+#define	INVALID_CHAR	100
+#define	ANY_ENC		120
+#define ALPHA_OR_ISO	121
+//
+// CC-A component coefficients from ISO/IEC 24728:2006 Annex F 
+//
+static const int ccaCoeffs[30] = {
+    522, 568, 723, 809, /* k = 4 */
+    427, 919, 460, 155, 566, /* k = 5 */
+    861, 285, 19, 803, 17, 766, /* k = 6 */
+    76, 925, 537, 597, 784, 691, 437, /* k = 7 */
+    237, 308, 436, 284, 646, 653, 428, 379 /* k = 8 */
+};
+//
+// rows, error codewords, k-offset of valid CC-A sizes from ISO/IEC 24723:2006 Table 9 
+//
+static const int ccaVariants[51] = {
+    5, 6, 7, 8, 9, 10, 12, 4, 5, 6, 7, 8, 3, 4, 5, 6, 7,
+    4, 4, 5, 5, 6, 6, 7, 4, 5, 6, 7, 7, 4, 5, 6, 7, 8,
+    0, 0, 4, 4, 9, 9, 15, 0, 4, 9, 15, 15, 0, 4, 9, 15, 22
+};
+//
+// following is Left RAP, Centre RAP, Right RAP and Start Cluster from ISO/IEC 24723:2006 tables 10 and 11 
+//
+static const int aRAPTable[68] = {
+    39, 1, 32, 8, 14, 43, 20, 11, 1, 5, 15, 21, 40, 43, 46, 34, 29,
+    0, 0, 0, 0, 0, 0, 0, 43, 33, 37, 47, 1, 20, 23, 26, 14, 9,
+    19, 33, 12, 40, 46, 23, 52, 23, 13, 17, 27, 33, 52, 3, 6, 46, 41,
+    6, 0, 3, 3, 3, 0, 3, 3, 0, 3, 6, 6, 0, 0, 0, 0, 3
+};
+//
+// Row Address Patterns are as defined in pdf417.h 
+//
+//#define UINT unsigned short
 
 extern int general_rules(const char field[], char type[]);
 extern int eanx(struct ZintSymbol * symbol, uchar source[], int length);
@@ -66,28 +102,29 @@ extern int rss14(struct ZintSymbol * symbol, uchar source[], int length);
 extern int rsslimited(struct ZintSymbol * symbol, uchar source[], int length);
 extern int rssexpanded(struct ZintSymbol * symbol, uchar source[], int length);
 
-static UINT pwr928[69][7];
+static ushort pwr928[69][7];
 
-int _min(int first, int second)
+static int _min(int first, int second)
 {
 	return (first <= second) ? first : second;
 }
-
-/* gets bit in bitString at bitPos */
-int getBit(UINT * bitStr, int bitPos)
+//
+// gets bit in bitString at bitPos 
+//
+static int getBit(ushort * bitStr, int bitPos)
 {
 	return !!(bitStr[bitPos >> 4] & (0x8000 >> (bitPos & 15)));
 }
-
-/* initialize pwr928 encoding table */
-void init928(void)
+//
+// initialize pwr928 encoding table 
+//
+static void init928(void)
 {
 	int i, j, v;
 	int cw[7];
 	cw[6] = 1L;
 	for(i = 5; i >= 0; i--)
 		cw[i] = 0;
-
 	for(i = 0; i < 7; i++)
 		pwr928[0][i] = cw[i];
 	for(j = 1; j < 69; j++) {
@@ -97,11 +134,11 @@ void init928(void)
 		}
 		pwr928[j][0] = cw[0] = (2 * cw[0]) + (v / 928);
 	}
-	return;
 }
-
-/* converts bit string to base 928 values, codeWords[0] is highest order */
-int encode928(UINT bitString[], UINT codeWords[], int bitLng)
+//
+// converts bit string to base 928 values, codeWords[0] is highest order 
+//
+static int encode928(ushort bitString[], ushort codeWords[], int bitLng)
 {
 	int i, j, b, bitCnt, cwNdx, cwCnt, cwLng;
 	for(cwNdx = cwLng = b = 0; b < bitLng; b += 69, cwNdx += 7) {
@@ -123,31 +160,28 @@ int encode928(UINT bitString[], UINT codeWords[], int bitLng)
 	}
 	return (cwLng);
 }
-
-/* CC-A 2D component */
-int cc_a(struct ZintSymbol * symbol, char source[], int cc_width)
+//
+// CC-A 2D component 
+//
+static int cc_a(struct ZintSymbol * symbol, char source[], int cc_width)
 {
-	int i, strpos, segment, bitlen, cwCnt, variant, rows;
+	int i, strpos, segment, bitlen, cwCnt, rows;
 	int k, offset, j, total, rsCodeWords[8];
 	int LeftRAPStart, RightRAPStart, CentreRAPStart, StartCluster;
 	int LeftRAP, RightRAP, CentreRAP, Cluster, dummy[5];
 	int writer, flip, loop;
-	UINT codeWords[28];
-	UINT bitStr[13];
+	ushort codeWords[28];
+	ushort bitStr[13];
 	char codebarre[100], pattern[580];
 	char local_source[210]; /* A copy of source but with padding zeroes to make 208 bits */
-
-	variant = 0;
-
+	int  variant = 0;
 	for(i = 0; i < 13; i++) {
 		bitStr[i] = 0;
 	}
 	for(i = 0; i < 28; i++) {
 		codeWords[i] = 0;
 	}
-
 	bitlen = strlen(source);
-
 	for(i = 0; i < 208; i++) {
 		local_source[i] = '0';
 	}
@@ -155,7 +189,6 @@ int cc_a(struct ZintSymbol * symbol, char source[], int cc_width)
 		local_source[i] = source[i];
 	}
 	local_source[208] = '\0';
-
 	for(segment = 0; segment < 13; segment++) {
 		strpos = segment * 16;
 		for(i = 0; i < 16; i++) {
@@ -164,66 +197,46 @@ int cc_a(struct ZintSymbol * symbol, char source[], int cc_width)
 			}
 		}
 	}
-
 	init928();
 	/* encode codeWords from bitStr */
 	cwCnt = encode928(bitStr, codeWords, bitlen);
-
 	switch(cc_width) {
 		case 2:
 		    switch(cwCnt) {
-			    case 6: variant = 0;
-				break;
-			    case 8: variant = 1;
-				break;
-			    case 9: variant = 2;
-				break;
-			    case 11: variant = 3;
-				break;
-			    case 12: variant = 4;
-				break;
-			    case 14: variant = 5;
-				break;
-			    case 17: variant = 6;
-				break;
+			    case 6: variant = 0; break;
+			    case 8: variant = 1; break;
+			    case 9: variant = 2; break;
+			    case 11: variant = 3; break;
+			    case 12: variant = 4; break;
+			    case 14: variant = 5; break;
+			    case 17: variant = 6; break;
 		    }
 		    break;
 		case 3:
 		    switch(cwCnt) {
-			    case 8: variant = 7;
-				break;
-			    case 10: variant = 8;
-				break;
-			    case 12: variant = 9;
-				break;
-			    case 14: variant = 10;
-				break;
-			    case 17: variant = 11;
-				break;
+			    case 8: variant = 7; break;
+			    case 10: variant = 8; break;
+			    case 12: variant = 9; break;
+			    case 14: variant = 10; break;
+			    case 17: variant = 11; break;
 		    }
 		    break;
 		case 4:
 		    switch(cwCnt) {
-			    case 8: variant = 12;
-				break;
-			    case 11: variant = 13;
-				break;
-			    case 14: variant = 14;
-				break;
-			    case 17: variant = 15;
-				break;
-			    case 20: variant = 16;
-				break;
+			    case 8: variant = 12; break;
+			    case 11: variant = 13; break;
+			    case 14: variant = 14; break;
+			    case 17: variant = 15; break;
+			    case 20: variant = 16; break;
 		    }
 		    break;
 	}
-
 	rows = ccaVariants[variant];
 	k = ccaVariants[17 + variant];
 	offset = ccaVariants[34 + variant];
-
-	/* Reed-Solomon error correction */
-
+	//
+	// Reed-Solomon error correction 
+	//
 	for(i = 0; i < 8; i++) {
 		rsCodeWords[i] = 0;
 	}
@@ -239,19 +252,16 @@ int cc_a(struct ZintSymbol * symbol, char source[], int cc_width)
 			}
 		}
 	}
-
 	for(j = 0; j < k; j++) {
 		if(rsCodeWords[j] != 0) {
 			rsCodeWords[j] = 929 - rsCodeWords[j];
 		}
 	}
-
 	for(i = k - 1; i >= 0; i--) {
 		codeWords[cwCnt] = rsCodeWords[i];
 		cwCnt++;
 	}
-
-	/* Place data into table */
+	// Place data into table 
 	LeftRAPStart = aRAPTable[variant];
 	CentreRAPStart = aRAPTable[variant + 17];
 	RightRAPStart = aRAPTable[variant + 34];
@@ -405,7 +415,6 @@ static int cc_b(struct ZintSymbol * symbol, const char source[], int cc_width)
 			variant = 7;
 		}
 	}
-
 	if(cc_width == 3) {
 		variant = 23;
 		if(mclength <= 70) {
@@ -436,7 +445,6 @@ static int cc_b(struct ZintSymbol * symbol, const char source[], int cc_width)
 			variant = 14;
 		}
 	}
-
 	if(cc_width == 4) {
 		variant = 34;
 		if(mclength <= 108) {
@@ -624,7 +632,6 @@ static int cc_b(struct ZintSymbol * symbol, const char source[], int cc_width)
 			Cluster = 0;
 		}
 	}
-
 	return 0;
 }
 //
@@ -751,7 +758,7 @@ static int cc_c(struct ZintSymbol * symbol, const char source[], int cc_width, i
 	return 0;
 }
 
-int calc_padding_cca(int binary_length, int cc_width)
+static int calc_padding_cca(int binary_length, int cc_width)
 {
 	int target_bitsize = 0;
 	switch(cc_width) {
@@ -813,11 +820,10 @@ int calc_padding_cca(int binary_length, int cc_width)
 		    }
 		    break;
 	}
-
 	return target_bitsize;
 }
 
-int calc_padding_ccb(int binary_length, int cc_width)
+static int calc_padding_ccb(int binary_length, int cc_width)
 {
 	int target_bitsize = 0;
 	switch(cc_width) {
@@ -916,7 +922,7 @@ int calc_padding_ccb(int binary_length, int cc_width)
 	return target_bitsize;
 }
 
-int calc_padding_ccc(int binary_length, int * cc_width, int lin_width, int * ecc)
+static int calc_padding_ccc(int binary_length, int * cc_width, int lin_width, int * ecc)
 {
 	int target_bitsize = 0;
 	int codewords_used, ecc_level, ecc_codewords, rows;
@@ -1259,7 +1265,6 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 					mask = mask >> 1;
 				}
 			}
-
 			read_posn = test1 + 3;
 		}
 		else {
@@ -1268,7 +1273,6 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 			read_posn = 0;
 		}
 	}
-
 	/* Now encode the rest of the AI 90 data field */
 	if(ai90_mode == 2) {
 		/* Alpha encodation (section 5.2.3) */
@@ -1285,7 +1289,6 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 					mask = mask >> 1;
 				}
 			}
-
 			if((source[read_posn] >= 'A') && (source[read_posn] <= 'Z')) {
 				mask = 0x20;
 				for(j = 0; j < 6; j++) {
@@ -1298,16 +1301,13 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 					mask = mask >> 1;
 				}
 			}
-
 			if(source[read_posn] == '[') {
 				strcat(binary_string, "11111");
 			}
-
 			read_posn++;
 		} while((source[read_posn - 1] != '[') && (source[read_posn - 1] != '\0'));
 		alpha_pad = 1; /* This is overwritten if a general field is encoded */
 	}
-
 	if(ai90_mode == 1) {
 		/* Alphanumeric mode */
 		do {
@@ -1727,7 +1727,7 @@ void add_leading_zeroes(struct ZintSymbol * symbol)
 	symbol->primary[n] = '\0';
 }
 
-int linear_dummy_run(uchar * source, int length)
+static int linear_dummy_run(uchar * source, int length)
 {
 	int error_number;
 	int linear_width;

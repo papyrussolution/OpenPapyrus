@@ -1,4 +1,7 @@
-/* Sed: http://msdn.microsoft.com/library/en-us/shellcc/platform/shell/programmersguide/versions.asp */
+//
+// Sed: http://msdn.microsoft.com/library/en-us/shellcc/platform/shell/programmersguide/versions.asp 
+//
+#pragma hdrstop
 #if defined (_WIN32) && (defined(_USRDLL) || defined(DLL_EXPORT) || defined(PIC))
 #include <windows.h>
 #include <shlwapi.h>

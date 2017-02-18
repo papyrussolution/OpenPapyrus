@@ -29,16 +29,35 @@
     OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
  */
-
 #include "common.h"
-#include "bmp.h"        /* Bitmap header structure */
-#include <math.h>
-#ifdef _MSC_VER
-	#include <io.h>
-	#include <fcntl.h>
-#endif
+#pragma hdrstop
 
 #define SSET    "0123456789ABCDEF"
+
+#pragma pack (1)
+   
+	typedef struct bitmap_file_header {
+		uint16_t header_field;
+		uint32_t file_size;
+		uint32_t reserved;
+		uint32_t data_offset;
+	} bitmap_file_header_t;
+
+	typedef struct bitmap_info_header {
+		uint32_t header_size;
+		int32_t width;
+		int32_t height;
+		uint16_t colour_planes;
+		uint16_t bits_per_pixel;
+		uint32_t compression_method;
+		uint32_t image_size;
+		int32_t horiz_res;
+		int32_t vert_res;
+		uint32_t colours;
+		uint32_t important_colours;
+	} bitmap_info_header_t;
+    
+#pragma pack ()
 
 int bmp_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 {
@@ -61,7 +80,7 @@ int bmp_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 	bggrn = (16 * ctoi(symbol->bgcolour[2])) + ctoi(symbol->bgcolour[3]);
 	bgblu = (16 * ctoi(symbol->bgcolour[4])) + ctoi(symbol->bgcolour[5]);
 
-	/* Pixel Plotting */
+	// Pixel Plotting 
 	i = 0;
 	for(row = 0; row < symbol->bitmap_height; row++) {
 		for(column = 0; column < symbol->bitmap_width; column++) {

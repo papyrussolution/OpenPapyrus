@@ -37,19 +37,213 @@
     OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
  */
-
 #include "common.h"
-#include "reedsol.h"
-#include "dmatrix.h"
-#ifdef _MSC_VER
-	#include <malloc.h>
-	// ceilf (C99) not before MSVC++2013 (C++ 12.0) 
-	/*#if _MSC_VER < 1800
-		#define ceilf ceil
-	#endif*/
+#pragma hdrstop
+//#include "dmatrix.h"
+#ifdef __cplusplus
+	extern "C" {
 #endif
+extern int data_matrix_200(struct ZintSymbol *symbol, const uchar source[], const int length);
+#ifdef __cplusplus
+}
+#endif
+//
+// Handles Data Matrix ECC 200
+//
+// Containes Extended Rectangular Data Matrix (DMRE)
+// See http://www.eurodatacouncil.org for information
+// Contact: harald.oehlmann@eurodatacouncil.org
+//
+#define MAXBARCODE 3116
 
-/* Annex M placement alorithm low level */
+#define DM_NULL         0
+#define DM_ASCII	1
+#define DM_C40		2
+#define DM_TEXT		3
+#define DM_X12		4
+#define DM_EDIFACT	5
+#define DM_BASE256	6
+
+static const int c40_shift[] = {
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
+};
+
+static const int c40_value[] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+    3, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+    15, 16, 17, 18, 19, 20, 21, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+    22, 23, 24, 25, 26, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
+};
+
+static const int text_shift[] = {
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+    2, 2, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3
+};
+
+static const int text_value[] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+    3, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+    15, 16, 17, 18, 19, 20, 21, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+    22, 23, 24, 25, 26, 0, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 27, 28, 29, 30, 31
+};
+
+// Position in option array [symbol option value - 1]
+// The position in the option array is by increasing total data codewords with square first
+
+static const int intsymbol[] = {
+    0, /*  1: 10x10 ,  3*/ 1, /*  2: 12x12 ,  5*/ 3, /*  3: 14x14 ,  8*/ 5, /*  4: 16x16 , 12*/
+    7, /*  5: 18x18 , 18*/ 9, /*  6: 20x20 , 22*/ 12, /*  7: 22x22 , 30*/ 14, /*  8: 24x24 , 36*/
+    16, /*  9: 26x26 , 44*/ 21, /* 10: 32x32 , 62*/ 25, /* 11: 36x36 , 86*/ 28, /* 12: 40x40 ,114*/
+    30, /* 13: 44x44 ,144*/ 31, /* 14: 48x48 ,174*/ 32, /* 15: 52x52 ,204*/ 33, /* 16: 64x64 ,280*/
+    34, /* 17: 72x72 ,368*/ 35, /* 18: 80x80 ,456*/ 36, /* 19: 88x88 ,576*/ 37, /* 20: 96x96 ,696*/
+    38, /* 21:104x104,816*/ 39, /* 22:120x120,1050*/40, /* 23:132x132,1304*/41, /* 24:144x144,1558*/
+    2, /* 25:  8x18 ,  5*/ 4, /* 26:  8x32 , 10*/ 6, /* 27: 12x26 , 16*/ 10, /* 28: 12x36 , 22*/
+    13, /* 29: 16x36 , 32*/ 17, /* 30: 16x48 , 49*/ 8, /* 31:  8x48 , 18*/ 11, /* 32:  8x64 , 24*/
+    15, /* 33: 12x64 , 43*/ 22, /* 34: 16x64 , 62*/ 18, /* 35: 24x32 , 49*/ 20, /* 36: 24x36 , 55*/
+    24, /* 37: 24x48 , 80*/ 27, /* 38: 24x64 ,108*/ 19, /* 39: 26x32 , 52*/ 23, /* 40: 26x40 , 70*/
+    26, /* 41: 26x48 , 90*/ 29, /* 42: 26x64 ,118*/
+    0
+};
+
+#define DMSIZESCOUNT 42 // Number of DM Sizes
+#define INTSYMBOL144 41 // Number of 144x144 for special interlace
+
+// Is the current code a DMRE code ?
+// This is the case, if intsymbol index >= 30
+
+static const int isDMRE[] = {
+    /*0*/ 0, /* 10x10 ,3 */ 0, /* 12x12 ,5 */ 0, /*  8x18 ,5 */ 0, /* 14x14 , 8 */
+    /*4*/ 0, /*  8x32 ,10 */ 0, /* 16x16 ,12 */ 0, /* 12x26 ,16 */ 0, /* 18x18 ,18 */
+    /*8*/ 1, /*  8x48 ,18 */ 0, /* 20x20 ,22 */ 0, /* 12x36 ,22 */ 1, /*  8x64 ,24 */
+    /*12*/ 0, /* 22x22 ,30 */ 0, /* 16x36 ,32 */ 0, /* 24x24 ,36 */ 1, /* 12x64 ,43 */
+    /*16*/ 0, /* 26x26 ,44 */ 0, /* 16x48 ,49 */ 1, /* 24x32 ,49 */ 1, /* 26x32 ,52 */
+    /*20*/ 1, /* 24x36 ,55 */ 0, /* 32x32 ,62 */ 1, /* 16x64 ,62 */ 1, /* 26x40 ,70 */
+    /*24*/ 1, /* 24x48 ,80 */ 0, /* 36x36 ,86 */ 1, /* 26x48 ,90 */ 1, /* 24x64 ,108*/
+    /*28*/ 0, /* 40x40 ,114*/ 1, /* 26x64 ,118*/ 0, /* 44x44 ,144*/ 0, /* 48x48,174 */
+    /*32*/ 0, /* 52x52,204 */ 0, /* 64x64,280 */ 0, /* 72x72,368 */ 0, /* 80x80,456 */
+    /*36*/ 0, /* 88x88,576 */ 0, /* 96x96,696 */ 0, /*104x104,816*/ 0, /*120x120,1050*/
+    /*40*/ 0, /*132x132,1304*/0 /*144x144,1558*/
+};
+
+// Horizontal matrix size
+
+static const int matrixH[] = {
+    /*0*/ 10, /* 10x10 ,3 */ 12, /* 12x12 ,5 */ 8, /*  8x18 ,5 */ 14, /* 14x14 , 8 */
+    /*4*/ 8, /*  8x32 ,10 */ 16, /* 16x16 ,12 */ 12, /* 12x26 ,16 */ 18, /* 18x18 ,18 */
+    /*8*/ 8, /*  8x48 ,18 */ 20, /* 20x20 ,22 */ 12, /* 12x36 ,22 */ 8, /*  8x64 ,24 */
+    /*12*/ 22, /* 22x22 ,30 */ 16, /* 16x36 ,32 */ 24, /* 24x24 ,36 */ 12, /* 12x64 ,43 */
+    /*16*/ 26, /* 26x26 ,44 */ 16, /* 16x48 ,49 */ 24, /* 24x32 ,49 */ 26, /* 26x32 ,52 */
+    /*20*/ 24, /* 24x36 ,55 */ 32, /* 32x32 ,62 */ 16, /* 16x64 ,62 */ 26, /* 26x40 ,70 */
+    /*24*/ 24, /* 24x48 ,80 */ 36, /* 36x36 ,86 */ 26, /* 26x48 ,90 */ 24, /* 24x64 ,108*/
+    /*28*/ 40, /* 40x40 ,114*/ 26, /* 26x64 ,118*/ 44, /* 44x44 ,144*/ 48, /* 48x48,174 */
+    /*32*/ 52, /* 52x52,204 */ 64, /* 64x64,280 */ 72, /* 72x72,368 */ 80, /* 80x80,456 */
+    /*36*/ 88, /* 88x88,576 */ 96, /* 96x96,696 */ 104, /*104x104,816*/ 120, /*120x120,1050*/
+    /*40*/ 132, /*132x132,1304*/144/*144x144,1558*/
+};
+
+// Vertical matrix sizes
+
+static const int matrixW[] = {
+    /*0*/ 10, /* 10x10 */ 12, /* 12x12 */ 18, /*  8x18 */ 14, /* 14x14 */
+    /*4*/ 32, /*  8x32 */ 16, /* 16x16 */ 26, /* 12x26 */ 18, /* 18x18 */
+    /*8*/ 48, /*  8x48 */ 20, /* 20x20 */ 36, /* 12x36 */ 64, /*  8x64 */
+    /*12*/ 22, /* 22x22 */ 36, /* 16x36 */ 24, /* 24x24 */ 64, /* 12x64 */
+    /*16*/ 26, /* 26x26 */ 48, /* 16x48 */ 32, /* 24x32 */ 32, /* 26x32 */
+    /*20*/ 36, /* 24x36 */ 32, /* 32x32 */ 64, /* 16x64 */ 40, /* 26x40 */
+    /*24*/ 48, /* 24x48 */ 36, /* 36x36 */ 48, /* 26x48 */ 64, /* 24x64 */
+    /*28*/ 40, /* 40x40 */ 64, /* 26x64 */ 44, /* 44x44 */ 48, /* 48x48 */
+    /*32*/ 52, /* 52x52 */ 64, /* 64x64 */ 72, /* 72x72 */ 80, /* 80x80 */
+    /*36*/ 88, /* 88x88 */ 96, /* 96x96 */ 104, /*104x104*/ 120, /*120x120*/
+    /*40*/ 132, /*132x132*/ 144 /*144x144*/
+};
+
+// Horizontal submodule size (including subfinder)
+
+static const int matrixFH[] = {
+    /*0*/ 10, /* 10x10 */ 12, /* 12x12 */ 8, /*  8x18 */ 14, /* 14x14 */
+    /*4*/ 8, /*  8x32 */ 16, /* 16x16 */ 12, /* 12x26 */ 18, /* 18x18 */
+    /*8*/ 8, /*  8x48 */ 20, /* 20x20 */ 12, /* 12x36 */ 8, /*  8x64 */
+    /*12*/ 22, /* 22x22 */ 16, /* 16x36 */ 24, /* 24x24 */ 12, /* 12x64 */
+    /*16*/ 26, /* 26x26 */ 16, /* 16x48 */ 24, /* 24x32 */ 26, /* 26x32 */
+    /*20*/ 24, /* 24x36 */ 16, /* 32x32 */ 16, /* 16x64 */ 26, /* 26x40 */
+    /*24*/ 24, /* 24x48 */ 18, /* 36x36 */ 26, /* 26x48 */ 24, /* 24x64 */
+    /*28*/ 20, /* 40x40 */ 26, /* 26x64 */ 22, /* 44x44 */ 24, /* 48x48 */
+    /*32*/ 26, /* 52x52 */ 16, /* 64x64 */ 18, /* 72x72 */ 20, /* 80x80 */
+    /*36*/ 22, /* 88x88 */ 24, /* 96x96 */ 26, /*104x104*/ 20, /*120x120*/
+    /*40*/ 22, /*132x132*/ 24 /*144x144*/
+};
+
+// Vertical submodule size (including subfinder)
+
+static const int matrixFW[] = {
+    /*0*/ 10, /* 10x10 */ 12, /* 12x12 */ 18, /*  8x18 */ 14, /* 14x14 */
+    /*4*/ 16, /*  8x32 */ 16, /* 16x16 */ 26, /* 12x26 */ 18, /* 18x18 */
+    /*8*/ 24, /*  8x48 */ 20, /* 20x20 */ 18, /* 12x36 */ 16, /*  8x64 */
+    /*12*/ 22, /* 22x22 */ 18, /* 16x36 */ 24, /* 24x24 */ 16, /* 12x64 */
+    /*16*/ 26, /* 26x26 */ 24, /* 16x48 */ 16, /* 24x32 */ 16, /* 26x32 */
+    /*20*/ 18, /* 24x36 */ 16, /* 32x32 */ 16, /* 16x64 */ 20, /* 26x40 */
+    /*24*/ 24, /* 24x48 */ 18, /* 36x36 */ 24, /* 26x48 */ 16, /* 24x64 */
+    /*28*/ 20, /* 40x40 */ 16, /* 26x64 */ 22, /* 44x44 */ 24, /* 48x48 */
+    /*32*/ 26, /* 52x52 */ 16, /* 64x64 */ 18, /* 72x72 */ 20, /* 80x80 */
+    /*36*/ 22, /* 88x88 */ 24, /* 96x96 */ 26, /*104x104*/ 20, /*120x120*/
+    /*40*/ 22, /*132x132*/ 24 /*144x144*/
+};
+
+// Total Data Codewords
+
+static const int matrixbytes[] = {
+    /*0*/ 3, /* 10x10 */ 5, /* 12x12 */ 5, /* 8x18 */ 8, /* 14x14 */
+    /*4*/ 10, /* 8x32 */ 12, /* 16x16 */ 16, /* 12x26 */ 18, /* 18x18 */
+    /*8*/ 18, /* 8x48 */ 22, /* 20x20 */ 22, /* 12x36 */ 24, /* 8x64 */
+    /*12*/ 30, /* 22x22 */ 32, /* 16x36 */ 36, /* 24x24 */ 43, /* 12x64 */
+    /*16*/ 44, /* 26x26 */ 49, /* 16x48 */ 49, /* 24x32 */ 52, /* 26x32 */
+    /*20*/ 55, /* 24x36 */ 62, /* 32x32 */ 62, /* 16x64 */ 70, /* 26x40 */
+    /*24*/ 80, /* 24x48 */ 86, /* 36x36 */ 90, /* 26x48 */ 108, /* 24x64 */
+    /*28*/ 114, /* 40x40 */ 118, /* 26x64 */ 144, /* 44x44 */ 174, /* 48x48 */
+    /*32*/ 204, /* 52x52 */ 280, /* 64x64 */ 368, /* 72x72 */ 456, /* 80x80 */
+    /*36*/ 576, /* 88x88 */ 696, /* 96x96 */ 816, /*104x104*/ 1050, /*120x120*/
+    /*40*/ 1304, /*132x132*/ 1558 /*144x144*/
+};
+
+// Data Codewords per RS-Block
+
+static const int matrixdatablock[] = {
+    /*0*/ 3, /* 10x10 */ 5, /* 12x12 */ 5, /* 8x18 */ 8, /* 14x14 */
+    /*4*/ 10, /* 8x32 */ 12, /* 16x16 */ 16, /* 12x26 */ 18, /* 18x18 */
+    /*8*/ 18, /* 8x48 */ 22, /* 20x20 */ 22, /* 12x36 */ 24, /* 8x64 */
+    /*12*/ 30, /* 22x22 */ 32, /* 16x36 */ 36, /* 24x24 */ 43, /* 12x64 */
+    /*16*/ 44, /* 26x26 */ 49, /* 16x48 */ 49, /* 24x32 */ 52, /* 26x32 */
+    /*20*/ 55, /* 24x36 */ 62, /* 32x32 */ 62, /* 16x64 */ 70, /* 26x40 */
+    /*24*/ 80, /* 24x48 */ 86, /* 36x36 */ 90, /* 26x48 */ 108, /* 24x64 */
+    /*28*/ 114, /* 40x40 */ 118, /* 26x64 */ 144, /* 44x44 */ 174, /* 48x48 */
+    /*32*/ 102, /* 52x52 */ 140, /* 64x64 */ 92, /* 72x72 */ 114, /* 80x80 */
+    /*36*/ 144, /* 88x88 */ 174, /* 96x96 */ 136, /*104x104*/ 175, /*120x120*/
+    /*40*/ 163, /*132x132*/ 156 /*144x144*/
+};
+
+// ECC Codewords per RS-Block
+
+static const int matrixrsblock[] = {
+    /*0*/ 5, /* 10x10 */ 7, /* 12x12 */ 7, /*  8x18 */ 10, /* 14x14 */
+    /*4*/ 11, /*  8x32 */ 12, /* 16x16 */ 14, /* 12x26 */ 14, /* 18x18 */
+    /*8*/ 15, /*  8x48 */ 18, /* 20x20 */ 18, /* 12x36 */ 18, /*  8x64 */
+    /*12*/ 20, /* 22x22 */ 24, /* 16x36 */ 24, /* 24x24 */ 27, /* 12x64 */
+    /*16*/ 28, /* 26x26 */ 28, /* 16x48 */ 28, /* 24x32 */ 32, /* 26x32 */
+    /*20*/ 33, /* 24x36 */ 36, /* 32x32 */ 36, /* 16x64 */ 38, /* 26x40 */
+    /*24*/ 41, /* 24x48 */ 42, /* 36x36 */ 42, /* 26x48 */ 46, /* 24x64 */
+    /*28*/ 48, /* 40x40 */ 50, /* 26x64 */ 56, /* 44x44 */ 68, /* 48x48 */
+    /*32*/ 42, /* 52x52 */ 56, /* 64x64 */ 36, /* 72x72 */ 48, /* 80x80 */
+    /*36*/ 56, /* 88x88 */ 68, /* 96x96 */ 56, /*104x104*/ 68, /*120x120*/
+    /*40*/ 62, /*132x132*/ 62 /*144x144*/
+};
+//
+// Annex M placement alorithm low level 
+//
 static void ecc200placementbit(int * array, const int NR, const int NC, int r, int c, const int p, const char b)
 {
 	if(r < 0) {
@@ -85,8 +279,7 @@ static void ecc200placementbit(int * array, const int NR, const int NC, int r, i
 	array[r * NC + c] = (p << 3) + b;
 }
 
-static void ecc200placementblock(int * array, const int NR, const int NC, const int r,
-    const int c, const int p)
+static void ecc200placementblock(int * array, const int NR, const int NC, const int r, const int c, const int p)
 {
 	ecc200placementbit(array, NR, NC, r - 2, c - 2, p, 7);
 	ecc200placementbit(array, NR, NC, r - 2, c - 1, p, 6);
@@ -906,7 +1099,6 @@ static int dm200encode(struct ZintSymbol * symbol, const uchar source[],
 			if(*process_p == 3) {
 				next_mode = look_ahead_test(source, inputlen, sp, current_mode, gs1);
 			}
-
 			if(next_mode != DM_EDIFACT) {
 				process_buffer[*process_p] = 31;
 				(*process_p)++;
@@ -914,11 +1106,9 @@ static int dm200encode(struct ZintSymbol * symbol, const uchar source[],
 			}
 			else {
 				value = source[sp];
-
 				if(source[sp] >= 64) { // '@'
 					value -= 64;
 				}
-
 				process_buffer[*process_p] = value;
 				(*process_p)++;
 				sp++;
@@ -996,13 +1186,10 @@ static int dm200encode(struct ZintSymbol * symbol, const uchar source[],
 		}
 		i++;
 	}
-
 	for(i = 0; i < tp; i++) {
 		if(binary[i] == 'b') {
-			int prn, temp;
-
-			prn = ((149 * (i + 1)) % 255) + 1;
-			temp = target[i] + prn;
+			int prn = ((149 * (i + 1)) % 255) + 1;
+			int temp = target[i] + prn;
 			if(temp <= 255) {
 				target[i] = (uchar)(temp);
 			}
@@ -1143,18 +1330,16 @@ static int dm200encode_remainder(uchar target[],
 		printf("\n\n");
 		for(i = 0; i < target_length; i++)
 			printf("%03d ", target[i]);
-
 		printf("\n");
 	}
-
 	return target_length;
 }
-
-/* add pad bits */
+//
+// add pad bits 
+//
 static void add_tail(uchar target[], int tp, const int tail_length)
 {
 	int i, prn, temp;
-
 	for(i = tail_length; i > 0; i--) {
 		if(i == tail_length) {
 			target[tp] = 129;
@@ -1188,22 +1373,18 @@ int data_matrix_200(struct ZintSymbol * symbol, const uchar source[], const int 
 	int last_mode = DM_ASCII;
 	uchar * grid = 0;
 	int symbols_left;
-
 	/* inputlen may be decremented by 2 if macro character is used */
 	binlen = dm200encode(symbol, source, binary, &last_mode, &inputlen, process_buffer, &process_p);
-
 	if(binlen == 0) {
 		strcpy(symbol->errtxt, "Data too long to fit in symbol (E11)");
 		return ZINT_ERROR_TOO_LONG;
 	}
-
 	if((symbol->option_2 >= 1) && (symbol->option_2 <= DMSIZESCOUNT)) {
 		optionsize = intsymbol[symbol->option_2 - 1];
 	}
 	else {
 		optionsize = -1;
 	}
-
 	calcsize = DMSIZESCOUNT - 1;
 	for(i = DMSIZESCOUNT - 1; i > -1; i--) {
 		if(matrixbytes[i] >= (binlen + process_p)) {
@@ -1234,16 +1415,13 @@ int data_matrix_200(struct ZintSymbol * symbol, const uchar source[], const int 
 			strcpy(symbol->errtxt, "Data does not fit in selected symbol size (E12)");
 		}
 	}
-
 	// Now we know the symbol size we can handle the remaining data in the process buffer.
 	symbols_left = matrixbytes[symbolsize] - binlen;
 	binlen = dm200encode_remainder(binary, binlen, source, inputlen, last_mode, process_buffer, process_p, symbols_left);
-
 	if(binlen > matrixbytes[symbolsize]) {
 		strcpy(symbol->errtxt, "Data too long to fit in symbol (E12A)");
 		return ZINT_ERROR_TOO_LONG;
 	}
-
 	H = matrixH[symbolsize];
 	W = matrixW[symbolsize];
 	FH = matrixFH[symbolsize];
@@ -1251,13 +1429,10 @@ int data_matrix_200(struct ZintSymbol * symbol, const uchar source[], const int 
 	bytes = matrixbytes[symbolsize];
 	datablock = matrixdatablock[symbolsize];
 	rsblock = matrixrsblock[symbolsize];
-
 	taillength = bytes - binlen;
-
 	if(taillength != 0) {
 		add_tail(binary, binlen, taillength);
 	}
-
 	// ecc code
 	if(symbolsize == INTSYMBOL144) {
 		skew = 1;
@@ -1278,29 +1453,32 @@ int data_matrix_200(struct ZintSymbol * symbol, const uchar source[], const int 
 	}
 #endif
 	{ // placement
-		int x, y, NC, NR, * places;
-		NC = W - 2 * (W / FW);
-		NR = H - 2 * (H / FH);
-		places = (int*)malloc(NC * NR * sizeof(int));
+		int y;
+		int NC = W - 2 * (W / FW);
+		int NR = H - 2 * (H / FH);
+		int * places = (int*)malloc(NC * NR * sizeof(int));
 		ecc200placement(places, NR, NC);
 		grid = (uchar*)malloc(W * H);
 		memzero(grid, W * H);
 		for(y = 0; y < H; y += FH) {
+			int x;
 			for(x = 0; x < W; x++)
 				grid[y * W + x] = 1;
 			for(x = 0; x < W; x += 2)
 				grid[(y + FH - 1) * W + x] = 1;
 		}
-		for(x = 0; x < W; x += FW) {
-			for(y = 0; y < H; y++)
-				grid[y * W + x] = 1;
-			for(y = 0; y < H; y += 2)
-				grid[y * W + x + FW - 1] = 1;
+		{
+			for(int x = 0; x < W; x += FW) {
+				for(y = 0; y < H; y++)
+					grid[y * W + x] = 1;
+				for(y = 0; y < H; y += 2)
+					grid[y * W + x + FW - 1] = 1;
+			}
 		}
 #ifdef DEBUG
 		// Print position matrix as in standard
 		for(y = NR - 1; y >= 0; y--) {
-			for(x = 0; x < NC; x++) {
+			for(int x = 0; x < NC; x++) {
 				if(x != 0)
 					fprintf(stderr, "|");
 				int v = places[(NR - y - 1) * NC + x];
@@ -1310,7 +1488,7 @@ int data_matrix_200(struct ZintSymbol * symbol, const uchar source[], const int 
 		}
 #endif
 		for(y = 0; y < NR; y++) {
-			for(x = 0; x < NC; x++) {
+			for(int x = 0; x < NC; x++) {
 				int v = places[(NR - y - 1) * NC + x];
 				//fprintf (stderr, "%4d", v);
 				if(v == 1 || (v > 7 && (binary[(v >> 3) - 1] & (1 << (v & 7)))))
@@ -1319,8 +1497,7 @@ int data_matrix_200(struct ZintSymbol * symbol, const uchar source[], const int 
 			//fprintf (stderr, "\n");
 		}
 		for(y = H - 1; y >= 0; y--) {
-			int x;
-			for(x = 0; x < W; x++) {
+			for(int x = 0; x < W; x++) {
 				if(grid[W * y + x]) {
 					set_module(symbol, (H - y) - 1, x);
 				}
@@ -1330,17 +1507,14 @@ int data_matrix_200(struct ZintSymbol * symbol, const uchar source[], const int 
 		free(grid);
 		free(places);
 	}
-
 	symbol->rows = H;
 	symbol->width = W;
-
 	return error_number;
 }
 
 int dmatrix(struct ZintSymbol * symbol, const uchar source[], const int in_length)
 {
 	int error_number;
-
 	if(symbol->option_1 <= 1) {
 		/* ECC 200 */
 		error_number = data_matrix_200(symbol, source, in_length);
@@ -1350,7 +1524,6 @@ int dmatrix(struct ZintSymbol * symbol, const uchar source[], const int in_lengt
 		strcpy(symbol->errtxt, "Older Data Matrix standards are no longer supported (E13)");
 		error_number = ZINT_ERROR_INVALID_OPTION;
 	}
-
 	return error_number;
 }
 

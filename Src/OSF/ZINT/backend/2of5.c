@@ -29,12 +29,8 @@
     OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
  */
-
 #include "common.h"
-#ifdef _MSC_VER
-	#include <malloc.h>
-	#define inline _inline
-#endif
+#pragma hdrstop
 
 static const char * C25MatrixTable[10] = {
 	"113311", "311131", "131131", "331111", "113131", "313111",

@@ -29,13 +29,8 @@
     OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
  */
-
 #include "common.h"
-#ifdef _MSC_VER
-	#include <fcntl.h>
-	#include <io.h>
-	#include <malloc.h>
-#endif
+#pragma hdrstop
 #ifndef NO_PNG
 #include <libpng/png.h>
 #include <zlib.h>

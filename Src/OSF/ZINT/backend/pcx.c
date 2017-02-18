@@ -29,16 +29,37 @@
     OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
  */
-
 #include "common.h"
-#include "pcx.h"        /* PCX header structure */
-#ifdef _MSC_VER
-	#include <io.h>
-	#include <fcntl.h>
-	#include <malloc.h>
-#endif
+#pragma hdrstop
 
 #define SSET    "0123456789ABCDEF"
+//
+// PCX header structure 
+//
+#pragma pack (1)
+    
+	struct pcx_header_t {
+		uint8  manufacturer;
+		uint8  version;
+		uint8  encoding;
+		uint8  bits_per_pixel;
+		uint16 window_xmin;
+		uint16 window_ymin;
+		uint16 window_xmax;
+		uint16 window_ymax;
+		uint16 horiz_dpi;
+		uint16 vert_dpi;
+		uint8  colourmap[48];
+		uint8  reserved;
+		uint8  number_of_planes;
+		uint16 bytes_per_line;
+		uint16 palette_info;
+		uint16 horiz_screen_size;
+		uint16 vert_screen_size;
+		uint8  filler[54];
+	};
+
+#pragma pack ()
 
 int pcx_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 {

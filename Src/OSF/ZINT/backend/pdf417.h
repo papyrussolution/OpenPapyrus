@@ -34,8 +34,8 @@
 /* this file contains the character table, the pre-calculated coefficients and the
    codeword patterns taken from lines 416 to 454 of pdf417.frm */
 
-#define TRUE 1
-#define FALSE 0
+//#define TRUE 1
+//#define FALSE 0
 #define TEX 900
 #define BYT 901
 #define NUM 902

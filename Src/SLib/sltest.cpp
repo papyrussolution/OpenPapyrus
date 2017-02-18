@@ -306,7 +306,7 @@ int STestCase::_check_eq(LDATE a, LDATE b, const char * pA, const char * pB)
 		return 1;
 }
 
-int STestCase::_check_eq(SString & rVA, SString & rVB, const char * pA, const char * pB)
+int STestCase::_check_eq(const SString & rVA, const SString & rVB, const char * pA, const char * pB)
 {
 	if(rVA != rVB) {
 		SString buf;
@@ -317,7 +317,7 @@ int STestCase::_check_eq(SString & rVA, SString & rVB, const char * pA, const ch
 		return 1;
 }
 
-int STestCase::_check_eq(SString & rVA, const char * pVB, const char * pA, const char * pB)
+int STestCase::_check_eq(const SString & rVA, const char * pVB, const char * pA, const char * pB)
 {
 	if(rVA != pVB) {
 		SString buf;

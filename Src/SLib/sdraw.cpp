@@ -1,5 +1,5 @@
 // SDRAW.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -340,17 +340,13 @@ int SDrawFigure::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 
 void SDrawFigure::SetTransform(LMatrix2D * pMtx)
 {
-	if(pMtx)
-		Tf = *pMtx;
-	else
+	if(!RVALUEPTR(Tf, pMtx))
 		Tf.InitUnit();
 }
 
 void SDrawFigure::SetViewPort(SViewPort * pVp)
 {
-	if(pVp)
-		Vp = *pVp;
-	else {
+	if(!RVALUEPTR(Vp, pVp)) {
 		Vp.a = 0.0f;
 		Vp.b = 0.0f;
 		Vp.Flags |= SViewPort::fEmpty;
@@ -1281,9 +1277,138 @@ uint FASTCALL SImageBuffer::PixF::GetStride(uint width) const
 		return 0;
 }
 
-int SImageBuffer::PixF::SetUniform(const void * pUniform, void * pDest, uint width, SImageBuffer::Palette * pPalette) const
+// static
+uint32 FASTCALL SImageBuffer::PixF::UniformToGrayscale(uint32 u)
 {
-	return 0;
+	const uint32 _r = (u & 0x00ff0000) >> 16;
+	const uint32 _g = (u & 0x0000ff00) >> 8;
+	const uint32 _b = (u & 0x000000ff);
+	return (_r == _g && _r == _b) ? _r : ((_r * 307 + _g * 604 + _b * 113) >> 10);
+}
+
+int SImageBuffer::PixF::SetUniform(const void * pUniformBuf, void * pDest, uint width, SImageBuffer::Palette * pPalette) const
+{
+	int    ok = 0;
+	const  uint bpp = GetBpp();
+	const  uint32 * p_ufb = (const uint32 *)pUniformBuf;
+	const  uint q = width / 4;
+	const  uint r = width % 4;
+	if(oneof5(S, s1Idx, s2Idx, s4Idx, s8Idx, s16Idx)) {
+	}
+	else {
+		switch(bpp) {
+			case 8:
+				{
+					uint8 * p = (uint8 *)pDest;
+					switch(S) {
+						case s8A:
+							break;
+						case s8GrayScale:
+							{
+								const uint dq = width / 8;
+								const uint dr = width % 8;
+								for(uint i = 0; i < dq; ++i) {
+									*p++ = (uint8)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+									*p++ = (uint8)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+									*p++ = (uint8)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+									*p++ = (uint8)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+									*p++ = (uint8)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+									*p++ = (uint8)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+									*p++ = (uint8)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+									*p++ = (uint8)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+								}
+								for(uint i = 0; i < dr; ++i) {
+									*p++ = (uint8)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+								}
+							}
+							ok = 1;
+							break;
+						default:
+							ok = 0;
+							break;
+					}
+
+				}
+				break;
+			case 16:
+				{
+					uint16 * p = (uint16 *)pDest;
+					switch(S) {
+						case s16ARGB1555:
+							break;
+						case s16RGB555:
+							break;
+						case s16RGB565:
+							break;
+						case s16GrayScale:
+							{
+								const uint dq = width / 8;
+								const uint dr = width % 8;
+								for(uint i = 0; i < dq; ++i) {
+									*p++ = (uint16)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+									*p++ = (uint16)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+									*p++ = (uint16)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+									*p++ = (uint16)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+									*p++ = (uint16)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+									*p++ = (uint16)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+									*p++ = (uint16)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+									*p++ = (uint16)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+								}
+								for(uint i = 0; i < dr; ++i) {
+									*p++ = (uint16)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+								}
+							}
+							ok = 1;
+							break;
+						default:
+							ok = 0;
+							break;
+					}
+				}
+				break;
+			case 24:
+				{
+					switch(S) {
+						case s24RGB:
+							break;
+						default:
+							ok = 0;
+							break;
+					}
+
+				}
+				break;
+			case 32:
+				{
+					switch(S) {
+						case s32ARGB:
+							break;
+						case s32PARGB:
+							break;
+						case s32RGB:
+							break;
+						default:
+							ok = 0;
+							break;
+					}
+				}
+				break;
+			case 48:
+				{
+					ok = 0;
+				}
+				break;
+			case 64:
+				{
+					ok = 0;
+				}
+				break;
+			default:
+				ok = 0;
+				break;
+		}
+	}
+	return ok;
 }
 
 int SImageBuffer::PixF::GetUniform(const void * pSrc, void * pUniformBuf, uint width, const SImageBuffer::Palette * pPalette) const
@@ -1863,10 +1988,24 @@ int SImageBuffer::AddLines(const void * pSrc, SImageBuffer::PixF s, uint count, 
 
 int SImageBuffer::Flip()
 {
-	uint   h = (uint)(S.y/2);
-	uint   s = F.GetStride(S.x);
+	const uint h = (uint)(S.y/2);
+	const uint s = F.GetStride(S.x);
 	for(uint i = 0; i < h; ++i)
 		memswap(PTR8(P_Buf)+(i*s), PTR8(P_Buf)+((S.y-i-1)*s), s);
+	return 1;
+}
+
+int SImageBuffer::TransformToGrayscale()
+{
+	uint32 * p = PTR32(P_Buf);
+	if(p) {
+		const size_t s = (size_t)(S.x * S.y);
+		for(uint i = 0; i < s; ++i) {
+			const uint32 gray = SImageBuffer::PixF::UniformToGrayscale(*p);
+			*p = ((gray << 16) | (gray << 8) | gray) | (*p & 0xff000000);
+			p++;
+		}
+	}
 	return 1;
 }
 
@@ -2701,6 +2840,11 @@ int SDrawImage::TransformToBounds(TPoint size, const SViewPort * pVp)
 	int    ok = Buf.TransformToBounds(size, pVp);
 	Size = Buf.GetDimF();
 	return ok;
+}
+
+int SDrawImage::TransformToGrayscale()
+{
+	return Buf.TransformToGrayscale();
 }
 //
 //

@@ -29,10 +29,10 @@
     OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
  */
+#include "common.h"
+#pragma hdrstop
 
 #define SODIUM  "0123456789X"
-
-#include "common.h"
 
 static char * TeleTable[] = {
 	"1111111111111111", "1131313111", "33313111", "1111313131", "3111313111", "11333131", "13133131", "111111313111",

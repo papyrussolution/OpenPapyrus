@@ -130,6 +130,15 @@ cott%(%D02%)%%%%%>cott%1%%
 %(%d%)%zìê%.%>%1ìêì
 %(%d%)%zñì%.%>%1ñì
 %(%d%)%sinch%>%1inch
+%(%d%)%s mbit/s%>%1mbit/s
+%(%d%)%s%zìáèò/ñ%.%>%1mbit/s
+%(%d%)%s%zìáèò/ñåê%.%>%1mbit/s
+%(%d%)%s%zìbit/s%>%1mbit/s
+
+%(%f%)%s gbit/s%>%1gbit/s
+%(%f%)%s%zãáèò/ñ%.%>%1gbit/s
+%(%f%)%s%zãáèò/ñåê%.%>%1gbit/s
+%(%f%)%s%zãbit/s%>%1gbit/s
 
 %^%(%f%)z%_%>%1oz%_
 %(%f%)z%$%>%1oz
@@ -859,7 +868,7 @@ sparkling%<sprklng
 lemonade%<lmnade
 chapstick%<chap stk
 excellence%<exclnce%|excelnc
-toothpaste%<t/paste%|t-past%|t%.pasta%|tthpst%|t.paste
+toothpaste%<t/paste%|t-past%|t%.pasta%|tthpst%|t.paste%|tthpste
 toothbrush%<t/brush%|t-brush%|t%.brush%|tbrush%|tooth brush%|toothbrsh%|toothbsh%|tthbrsh%|tthbrs%|tbrsh
 blood pressure%<blood pr%|blood press%|blood prssr%|blood/p%|blood pres
 blood pressure monitor%<blood pressure mon%|blood p.m.%|blood pressure monit%|blood pressure mnt%|blood pressure mtr

@@ -29,9 +29,9 @@
     OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
  */
-
 #include "common.h"
-#include "large.h"
+#pragma hdrstop
+//#include "large.h"
 
 static const short BCD[40] = {
 	0, 0, 0, 0,

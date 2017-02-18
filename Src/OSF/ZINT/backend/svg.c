@@ -31,10 +31,7 @@
  */
 
 #include "common.h"
-#include <locale.h>
-#ifdef _MSC_VER
-	#include <malloc.h>
-#endif
+#pragma hdrstop
 
 #define SSET    "0123456789ABCDEF"
 

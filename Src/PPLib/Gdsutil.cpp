@@ -3160,96 +3160,139 @@ int SLAPI PPBarcode::CreateImage(const char * pCode, int bcstd, int outpFormat, 
     ZBarcode_Delete(p_zs);
     return ok;
 }
+
+#include <../osf/zbar/include/zbar.h>
+
+struct ZBarToPpBarcStd {
+	ushort ZBarCode;
+	ushort PpCode;
+};
+
+static ZBarToPpBarcStd _ZBarToPpBarcStdTab[] = {
+	{ 0,            BARCSTD_CODE11 },
+	{ ZBAR_I25,     BARCSTD_INTRLVD2OF5 },
+	{ ZBAR_CODE39,  BARCSTD_CODE39 },
+	{ 0,            BARCSTD_CODE49 },
+	{ ZBAR_PDF417,  BARCSTD_PDF417 },
+	{ ZBAR_EAN8,    BARCSTD_EAN8 },
+	{ ZBAR_UPCE,    BARCSTD_UPCE },
+	{ ZBAR_CODE93,  BARCSTD_CODE93 },
+	{ ZBAR_CODE128, BARCSTD_CODE128 },
+	{ ZBAR_EAN13,   BARCSTD_EAN13 },
+	{ 0,            BARCSTD_IND2OF5 },
+	{ 0,            BARCSTD_STD2OF5 },
+	{ ZBAR_CODABAR, BARCSTD_ANSI },
+	{ 0,            BARCSTD_LOGMARS },
+	{ 0,            BARCSTD_MSI },
+	{ 0,            BARCSTD_PLESSEY },
+	{ ZBAR_EAN2,    BARCSTD_UPCEAN2EXT },
+	{ ZBAR_EAN5,    BARCSTD_UPCEAN5EXT },
+	{ ZBAR_UPCA,    BARCSTD_UPCA },
+	{ 0,            BARCSTD_POSTNET },
+	{ ZBAR_QRCODE,  BARCSTD_QR },
+};
+
+static int FASTCALL ZBarStdToPp(zbar_symbol_type_t zbarstd)
+{
+	for(size_t i = 0; i < SIZEOFARRAY(_ZBarToPpBarcStdTab); i++) {
+		if(_ZBarToPpBarcStdTab[i].ZBarCode == (ushort)zbarstd) {
+			return _ZBarToPpBarcStdTab[i].PpCode;
+		}
+	}
+	return 0;
+}
 //
 //
 //static
-int SLAPI PPBarcode::RecognizeImage(const char * pInpFileName)
+int SLAPI PPBarcode::RecognizeImage(const char * pInpFileName, TSCollection <PPBarcode::Entry> & rList)
 {
-#if 0 // {
-static void get_data (const char *name, int *width, int *height, void **raw)
-{
-    FILE * file = fopen(name, "rb");
-    if(!file)
-		exit(2);
-    png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if(!png)
-    exit(3);
-    if(setjmp(png_jmpbuf(png)))
-    exit(4);
-    png_infop info = png_create_info_struct(png);
-    if(!info)
-		exit(5);
-    png_init_io(png, file);
-    png_read_info(png, info);
-    // configure for 8bpp grayscale input
-    int color = png_get_color_type(png, info);
-    int bits = png_get_bit_depth(png, info);
-    if(color & PNG_COLOR_TYPE_PALETTE)
-        png_set_palette_to_rgb(png);
-    if(color == PNG_COLOR_TYPE_GRAY && bits < 8)
-        png_set_expand_gray_1_2_4_to_8(png);
-    if(bits == 16)
-        png_set_strip_16(png);
-    if(color & PNG_COLOR_MASK_ALPHA)
-        png_set_strip_alpha(png);
-    if(color & PNG_COLOR_MASK_COLOR)
-        png_set_rgb_to_gray_fixed(png, 1, -1, -1);
-    // allocate image
-    *width = png_get_image_width(png, info);
-    *height = png_get_image_height(png, info);
-    *raw = malloc(*width * *height);
-    png_bytep rows[*height];
-    for(int i = 0; i < *height; i++)
-        rows[i] = *raw + (*width * i);
-    png_read_image(png, rows);
-}
+	rList.freeAll();
 
-int main(int argc, char **argv)
-{
-    if(argc < 2)
-		return(1);
-    // create a reader
-    scanner = zbar_image_scanner_create();
-    // configure the reader
-    zbar_image_scanner_set_config(scanner, 0, ZBAR_CFG_ENABLE, 1);
-    // obtain image data
-    int width = 0, height = 0;
-    void * raw = NULL;
-    get_data(argv[1], &width, &height, &raw);
-    // wrap image data
-    zbar_image_t * image = zbar_image_create();
-    zbar_image_set_format(image, zbar_fourcc('Y','8','0','0'));
-    zbar_image_set_size(image, width, height);
-    zbar_image_set_data(image, raw, width * height, zbar_image_free_data);
-    // scan the image for barcodes
-    int n = zbar_scan_image(scanner, image);
-    // extract results
-    const zbar_symbol_t * symbol = zbar_image_first_symbol(image);
-    for(; symbol; symbol = zbar_symbol_next(symbol)) {
-        /* do something useful with results */
-        zbar_symbol_type_t typ = zbar_symbol_get_type(symbol);
-        const char *data = zbar_symbol_get_data(symbol);
-        printf("decoded %s symbol \"%s\"\n", zbar_get_symbol_name(typ), data);
-    }
-    // clean up
-    zbar_image_destroy(image);
-    zbar_image_scanner_destroy(scanner);
-    return 0;
-}
-#endif // } 0
-	int    ok = 1;
-	/* @construction
+	int    ok = -1;
+	zbar_image_scanner_t * p_scanner = 0;
+	zbar_image_t * p_zbar_image = 0;
     SImageBuffer ib;
     THROW_SL(ib.Load(pInpFileName));
     {
     	const uint src_width = ib.GetWidth();
     	const uint src_height = ib.GetHeight();
-    	STempBuffer zbar_img_buf(src_height * src_width);
-		pixman_blt(ib.GetData(), (uint32 *)zbar_img_buf,
-			ib.GetFormat().GetStride(src_width) / sizeof(uint32),
-			src_width / sizeof(uint32), ib.GetFormat().GetBpp(), 8, 0, 0, 0, 0, src_width, src_height);
+		uint8 * p_zbar_img_buf = (uint8 *)calloc(src_height * src_width, sizeof(uint8));
+    	THROW_MEM(p_zbar_img_buf);
+    	{
+			const uint32 * p_src_buf = (const uint32 *)ib.GetData();
+			const SImageBuffer::PixF pf(SImageBuffer::PixF::s8GrayScale);
+			for(uint i = 0; i < src_height; i++) {
+				const size_t offs = src_width * i;
+				THROW_SL(pf.SetUniform(p_src_buf + offs, p_zbar_img_buf + offs, src_width, 0));
+			}
+    	}
+    	{
+			p_scanner = zbar_image_scanner_create();
+			zbar_image_scanner_set_config(p_scanner, ZBAR_NONE, ZBAR_CFG_ENABLE, 1);
+			p_zbar_image = zbar_image_create();
+			zbar_image_set_format(p_zbar_image, zbar_fourcc('Y','8','0','0'));
+			zbar_image_set_size(p_zbar_image, src_width, src_height);
+			zbar_image_set_data(p_zbar_image, p_zbar_img_buf, src_width * src_height, zbar_image_free_data);
+			// scan the image for barcodes
+			int n = zbar_scan_image(p_scanner, p_zbar_image);
+			// extract results
+			for(const zbar_symbol_t * p_symbol = zbar_image_first_symbol(p_zbar_image); p_symbol; p_symbol = zbar_symbol_next(p_symbol)) {
+				PPBarcode::Entry * p_new_entry = rList.CreateNewItem(0);
+				THROW_SL(p_new_entry);
+				p_new_entry->BcStd = ZBarStdToPp(zbar_symbol_get_type(p_symbol));
+				p_new_entry->Code = zbar_symbol_get_data(p_symbol);
+				ok = 1;
+			}
+			// clean up
+			zbar_image_destroy(p_zbar_image);
+			zbar_image_scanner_destroy(p_scanner);
+    	}
     }
     CATCHZOK
-	@construction */
     return ok;
 }
+
+#if SLTEST_RUNNING // {
+
+SLTEST_R(BarcodeOutputAndRecognition)
+{
+	SString temp_buf;
+	SString line_buf;
+	SString code_buf;
+	SString input_file_path;
+	SString img_path;
+	(input_file_path = GetSuiteEntry()->InPath).SetLastSlash().Cat("barcode.txt");
+    SFile f_in(input_file_path, SFile::mRead);
+    while(f_in.ReadLine(line_buf)) {
+		line_buf.Chomp().Strip();
+		if(line_buf.Divide(':', temp_buf, code_buf) > 0) {
+			const int std = PPBarcode::RecognizeStdName(temp_buf.Strip());
+			if(std) {
+				code_buf.Strip();
+				(img_path = GetSuiteEntry()->OutPath).SetLastSlash().Cat(code_buf).Dot().Cat("png");
+				temp_buf = code_buf;
+				if(oneof2(std, BARCSTD_EAN13, BARCSTD_EAN8))
+					temp_buf.TrimRight();
+				else if(std == BARCSTD_UPCE) {
+					while(temp_buf.C(0) == '0')
+						temp_buf.ShiftLeft();
+					temp_buf.TrimRight();
+				}
+				if(SLTEST_CHECK_NZ(PPBarcode::CreateImage(temp_buf, std, SFileFormat::Png, img_path))) {
+					TSCollection <PPBarcode::Entry> bc_list;
+					if(SLTEST_CHECK_LT(0L, PPBarcode::RecognizeImage(img_path, bc_list))) {
+                        SLTEST_CHECK_EQ(bc_list.getCount(), 1);
+						if(bc_list.getCount() > 0) {
+                            const PPBarcode::Entry * p_entry = bc_list.at(0);
+                            SLTEST_CHECK_EQ((long)p_entry->BcStd, (long)std);
+                            SLTEST_CHECK_EQ(p_entry->Code, code_buf);
+						}
+					}
+				}
+			}
+		}
+    }
+	return CurrentStatus;
+}
+
+#endif // SLTEST_RUNNING

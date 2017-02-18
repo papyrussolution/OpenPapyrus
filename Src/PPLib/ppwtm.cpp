@@ -1,5 +1,5 @@
 // PPWTM.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -38,6 +38,7 @@ int BaseWtmToolDialog::setDTS(const TWhatmanToolArray::Item * pData)
 	setCtrlData(CTL_WTMTOOL_PICSIZE, &Data.PicSize);
 	AddClusterAssoc(CTL_WTMTOOL_FLAGS, 0, TWhatmanToolArray::Item::fDontEnlarge);
 	AddClusterAssoc(CTL_WTMTOOL_FLAGS, 1, TWhatmanToolArray::Item::fDontKeepRatio);
+	AddClusterAssoc(CTL_WTMTOOL_FLAGS, 2, TWhatmanToolArray::Item::fGrayscale); // @v9.5.4
 	SetClusterData(CTL_WTMTOOL_FLAGS, Data.Flags);
 	{
 		ComboBox * p_combo = (ComboBox *)getCtrlView(CTLSEL_WTMTOOL_WTMOBJ);
@@ -176,6 +177,14 @@ int WhatmanObjectDrawFigure::HandleCommand(int cmd, void * pExt)
 					const SDrawFigure * p_fig = p_item->P_Owner->GetFig(1, p_item->Symb, 0);
 					if(p_fig) {
 						P_Fig = p_fig->Dup();
+						// @construction {
+						if(p_item->Flags & TWhatmanToolArray::Item::fGrayscale) {
+							if(P_Fig->GetKind() == SDrawFigure::kImage) {
+								SDrawImage * p_img = (SDrawImage *)P_Fig;
+								p_img->TransformToGrayscale();
+							}
+						}
+						// } @construction
 						if(p_item->Flags & TWhatmanToolArray::Item::fDontKeepRatio) {
 							SViewPort vp;
 							P_Fig->GetViewPort(&vp);
@@ -2336,11 +2345,19 @@ int SLAPI DoConstructionTest()
 	//TestSuffixTree();
 	//TestFann();
 	//CollectLldFileStat();
+
+	{
+		TSCollection <PPBarcode::Entry> bc_list;
+		//PPBarcode::RecognizeImage("D:/Papyrus/Src/OSF/ZBAR/examples/barcode.png", bc_list);
+		PPBarcode::RecognizeImage("D:/Papyrus/ppy/out/040-69911566-57N00001CPQ0LN0GLBP1O9R30603031000007FB116511C6E341B4AB38FB95E24B46D.png", bc_list);
+		//PPBarcode::RecognizeImage("D:/Papyrus/ppy/out/460622403878.png", bc_list);
+	}
+	/*
 	{
 		//SUnicodeTable ut;
 		//ut.ParseSource("d:/Papyrus/Src/Rsrc/unicodedata");
 		//ParseCpEncodingTables("d:/papyrus/src/rsrc/data/cp", &ut);
-		
+
 		SUnicodeBlock ub;
 		ub.ReadRaw("d:/Papyrus/Src/Rsrc/unicodedata", "d:/papyrus/src/rsrc/data/cp");
 		//ub.Cpmp.Test(&ub.Ut);
@@ -2351,6 +2368,7 @@ int SLAPI DoConstructionTest()
 			ub2.Cpmp.Test(&ub2.Ut);
 		}
 	}
+	*/
 	//TestSArchive();
 	//TestLargeVlrInputOutput();
 	//Test_iSalesPepsi();

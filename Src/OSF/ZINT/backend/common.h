@@ -46,7 +46,13 @@
 #define NEON	"0123456789" // The most commonly used set
 
 #include "zint.h"
-#include <stdlib.h>
+//#include <stdlib.h>
+#include <locale.h>
+#ifdef _MSC_VER
+	#include <malloc.h>
+	#include <fcntl.h>
+	#define inline _inline
+#endif
 
 #define ustrcpy(target,source) strcpy((char*)target,(const char*)source)
 
@@ -73,6 +79,28 @@ extern "C" {
     extern int parunmodd(const uchar llyth);
     extern int utf8toutf16(struct ZintSymbol *symbol, const uchar source[], int vals[], int *length);
     extern void set_minimum_height(struct ZintSymbol *symbol, int min_height);
+	//
+	// Simple Reed-Solomon encoder
+	//
+	extern void rs_init_gf(const int poly);
+	extern void rs_init_code(const int nsym,int index);
+	extern void rs_encode(const int len,const uchar *data, uchar *res);
+	extern void rs_encode_long(const int len,const uint *data, uint *res);
+	extern void rs_free(void);
+	//
+	// Verifies GS1 data
+	//
+    extern int gs1_verify(struct ZintSymbol *symbol, const uchar source[], const size_t src_len, char reduced[]);
+    extern int ugs1_verify(struct ZintSymbol *symbol, const uchar source[], const uint src_len, uchar reduced[]);
+	//
+	// Handles binary manipulation of large numbers
+	//
+	extern void binary_load(short reg[], char data[], const uint src_len);
+	extern void binary_add(short accumulator[], short input_buffer[]);
+	extern void binary_subtract(short accumulator[], short input_buffer[]);
+	extern void shiftdown(short buffer[]);
+	extern void shiftup(short buffer[]);
+	extern short islarger(short accum[], short reg[]);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

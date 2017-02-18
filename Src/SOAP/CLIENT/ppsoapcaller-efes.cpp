@@ -499,10 +499,10 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetMTDProduc
 	TSCollection <ns2__LogMsgType> arg_msg_list;
 	{
 		ns2__DistributorRequestType temp_h;
-		temp_h.SalesOrg = param.SalesOrg;
-		temp_h.SessionID = param.SessionID;
-		temp_h.Wareh = param.Wareh;
 		InitEfecCallParam(temp_h, rH, arg_str_pool);
+		param.SalesOrg = temp_h.SalesOrg;
+		param.SessionID = temp_h.SessionID;
+		param.Wareh = temp_h.Wareh;
 	}
 	proxi.userid = GetDynamicParamString((temp_buf = rSess.GetUser()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 	proxi.passwd = GetDynamicParamString((temp_buf = rSess.GetPassword()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
@@ -564,10 +564,10 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetMTDOutlet
 	TSCollection <ns2__LogMsgType> arg_msg_list;
 	{
 		ns2__DistributorRequestType temp_h;
-		temp_h.SalesOrg = param.SalesOrg;
-		temp_h.SessionID = param.SessionID;
-		temp_h.Wareh = param.Wareh;
 		InitEfecCallParam(temp_h, rH, arg_str_pool);
+		param.SalesOrg = temp_h.SalesOrg;
+		param.SessionID = temp_h.SessionID;
+		param.Wareh = temp_h.Wareh;
 	}
 	proxi.userid = GetDynamicParamString((temp_buf = rSess.GetUser()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 	proxi.passwd = GetDynamicParamString((temp_buf = rSess.GetPassword()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);

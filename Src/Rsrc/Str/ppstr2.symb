@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147488835
+LastSignatureCode=2147488851
 LastAutoCodeList=1,10850;102,10160;103,10071;110,10000;111,11578;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10074;120,10005;1001,10000;121,10000;122,10000;123,10006;1002,10000;1003,10000;1004,10000;1005,10000
 
 [SignatureList]
@@ -383,6 +383,7 @@ munit_ph=2147486785
 munit_tr_sfx_s=2147487945
 munit_ph_sfx_s=2147487946
 qtty=2147483840
+qtty_short=2147488850
 packqtty=2147486817
 plucount=2147488105
 linecount=2147488106
@@ -516,6 +517,7 @@ sorting=2147483885
 sortby=2147486812
 serial=2147483886
 print=2147486632
+printcheck=2147488851
 printer=2147483887
 barcodeprinter=2147487911
 posnode=2147483888
@@ -5041,6 +5043,20 @@ cvtcipher_database=2147488618
 cvtcipher_password=2147488619
 cvtcipher_inisrc=2147488620
 cvtcipher_inidest=2147488621
+wtmtoolitem=2147488836
+wtmtoolitem_id=2147488837
+wtmtoolitem_symb=2147488838
+wtmtoolitem_text=2147488839
+wtmtoolitem_wtmobjsymb=2147488840
+wtmtoolitem_figpath=2147488841
+wtmtoolitem_picpath=2147488842
+wtmtoolitem_figsize=2147488843
+wtmtoolitem_picsize=2147488844
+wtmtoolitem_flags=2147488845
+wtmtoolitem_fdontenlarge=2147488846
+wtmtoolitem_fdontkeepratio=2147488847
+wtmtoolitem_fgrayscale=2147488848
+wtmtoolitem_replacedcolor=2147488849
 
 [GrpSymbList]
 .N.=123

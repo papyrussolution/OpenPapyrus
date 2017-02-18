@@ -37,10 +37,7 @@
  */
 
 #include "common.h"
-#ifdef _MSC_VER
-	#include <malloc.h>
-#endif
-#include <locale.h>
+#pragma hdrstop
 
 #define   GL_CONST  2.8346f
 

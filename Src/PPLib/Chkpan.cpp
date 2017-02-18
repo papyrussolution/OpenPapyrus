@@ -2496,7 +2496,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, double cash, int mode /
 }
 
 //virtual
-int CPosProcessor::ClearCheck()
+void CPosProcessor::ClearCheck()
 {
 	if(SuspCheckID) {
 		if(!CC.RemovePacket(SuspCheckID, 1))
@@ -2516,16 +2516,14 @@ int CPosProcessor::ClearCheck()
 	OnUpdateList(0);
 	SetPrintedFlag(0);
 	//setupRetCheck(0);
-	return 1;
 }
 
 //virtual
-int CPosProcessor::ClearRow()
+void CPosProcessor::ClearRow()
 {
 	P.ClearCur();
 	SetupRowData(0);
 	SetupState(oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF) ? sLISTSEL_EMPTYBUF : (P.getCount() ? sLIST_EMPTYBUF : sEMPTYLIST_EMPTYBUF));
-	return 1;
 }
 
 int CPosProcessor::Helper_SetupSessUuidForCheck(PPID checkID)
@@ -3304,10 +3302,9 @@ int CheckPaneDialog::SetupState(int st)
 	return ok;
 }
 
-int CheckPaneDialog::EnableBeep(int enbl)
+void CheckPaneDialog::EnableBeep(int enbl)
 {
 	SETFLAG(Flags, fDisableBeep, !enbl);
-	return 1;
 }
 
 int FASTCALL CheckPaneDialog::valid(ushort command)
@@ -9634,8 +9631,10 @@ void CheckPaneDialog::AcceptSCard(int fromInput, PPID scardID, int ignoreRights)
 						INVERSEFLAG(Flags, fWaitOnSCard);
 					}
 					SetupInfo(0);
+					/* @v9.5.4
 					if(IsState(sLIST_EMPTYBUF))
 						enableCommand(cmCash, !(Flags & fSCardCredit) || Flags & fWaitOnSCard); // @scard
+					*/
 				}
 			}
 		}
@@ -9791,7 +9790,7 @@ void CheckPaneDialog::ClearInput(int selectOnly)
 	}
 }
 
-int CheckPaneDialog::SetSCard(const char * pStr)
+void CheckPaneDialog::SetSCard(const char * pStr)
 {
 	Flags |= fWaitOnSCard;
 	SString temp_buf = pStr;
@@ -9799,7 +9798,6 @@ int CheckPaneDialog::SetSCard(const char * pStr)
 	UiFlags |= uifAutoInput; // @v7.0.10 @trick AcceptSCard(1, ) может отклонить номер карты из-за отсутствия данного флага.
 	AcceptSCard(1, 0);
 	UiFlags &= ~uifAutoInput; // @trick (see above)
-	return 1;
 }
 
 int CheckPaneDialog::GetInput()
@@ -9818,12 +9816,11 @@ int CheckPaneDialog::GetInput()
 	return Input.NotEmptyS();
 }
 
-int CheckPaneDialog::SetInput(const char * pStr)
+void CheckPaneDialog::SetInput(const char * pStr)
 {
 	Input = pStr;
 	setCtrlString(CTL_CHKPAN_INPUT, Input);
 	ProcessEnter(1);
-	return 1;
 }
 
 // virtual
@@ -10326,11 +10323,10 @@ int CPosProcessor::AcceptRow(PPID giftID)
 }
 
 //virtual
-int CheckPaneDialog::ClearRow()
+void CheckPaneDialog::ClearRow()
 {
 	CPosProcessor::ClearRow();
 	ViewStoragePlaces(0);
-	return 1;
 }
 
 // virtual
@@ -10341,12 +10337,11 @@ void CheckPaneDialog::SetPrintedFlag(int set)
 }
 
 //virtual
-int CheckPaneDialog::ClearCheck()
+void CheckPaneDialog::ClearCheck()
 {
 	CPosProcessor::ClearCheck();
 	ClearRow();
 	setupRetCheck(0);
-	return 1;
 }
 
 int CheckPaneDialog::LoadCheck(const CCheckPacket * pPack, int makeRetCheck, int notShow)

@@ -1,4 +1,4 @@
-/* raster.c - Handles output to raster files */
+﻿/* raster.c - Handles output to raster files */
 
 /*
     libzint - the open source barcode library
@@ -29,19 +29,400 @@
     OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
  */
-
 #include "common.h"
-#ifdef _MSC_VER
-	#include <fcntl.h>
-	#include <io.h>
-#endif
-#ifdef _MSC_VER
-	#include <malloc.h>
-#endif /* _MSC_VER */
-
-#include "font.h" /* Font for human readable text */
+#pragma hdrstop
 
 #define SSET    "0123456789ABCDEF"
+//
+// Font for human readable text 
+//
+static const int ascii_font[] = {
+    // Each character is 7 x 14 pixels 
+    0, 0, 8, 8, 8, 8, 8, 8, 8, 0, 8, 8, 0, 0, /* ! */
+    0, 20, 20, 20, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* " */
+    0, 0, 20, 20, 20, 62, 20, 20, 62, 20, 20, 20, 0, 0, /* # */
+    0, 0, 8, 60, 74, 74, 40, 28, 10, 74, 74, 60, 8, 0, /* $ */
+    0, 0, 50, 74, 76, 56, 8, 16, 28, 50, 82, 76, 0, 0, /* % */
+    0, 0, 24, 36, 36, 36, 24, 50, 74, 68, 76, 50, 0, 0, /* & */
+    0, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* ' */
+    0, 2, 4, 8, 8, 16, 16, 16, 16, 16, 8, 8, 4, 2, /* ( */
+    0, 32, 16, 8, 8, 4, 4, 4, 4, 4, 8, 8, 16, 32, /* ) */
+    0, 0, 0, 0, 8, 42, 28, 8, 28, 42, 8, 0, 0, 0, /* * */
+    0, 0, 0, 0, 8, 8, 8, 62, 8, 8, 8, 0, 0, 0, /* + */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 8, 8, 16, /* , */
+    0, 0, 0, 0, 0, 0, 0, 62, 0, 0, 0, 0, 0, 0, /* - */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 28, 8, 0, /* . */
+    0, 2, 2, 4, 4, 8, 8, 8, 16, 16, 32, 32, 64, 64, /* / */
+    0, 0, 24, 36, 66, 66, 66, 66, 66, 66, 36, 24, 0, 0, /* 0 */
+    0, 0, 8, 24, 40, 8, 8, 8, 8, 8, 8, 62, 0, 0, /* 1 */
+    0, 0, 60, 66, 66, 2, 4, 4, 8, 16, 32, 126, 0, 0, /* 2 */
+    0, 0, 126, 2, 4, 8, 28, 2, 2, 66, 66, 60, 0, 0, /* 3 */
+    0, 0, 4, 12, 20, 20, 36, 36, 68, 126, 4, 4, 0, 0, /* 4 */
+    0, 0, 126, 64, 64, 124, 66, 2, 2, 66, 66, 60, 0, 0, /* 5 */
+    0, 0, 28, 32, 64, 64, 92, 98, 66, 66, 66, 60, 0, 0, /* 6 */
+    0, 0, 126, 2, 4, 4, 8, 8, 16, 16, 32, 32, 0, 0, /* 7 */
+    0, 0, 60, 66, 66, 36, 24, 36, 66, 66, 66, 60, 0, 0, /* 8 */
+    0, 0, 60, 66, 66, 66, 70, 58, 2, 66, 68, 56, 0, 0, /* 9 */
+    0, 0, 0, 0, 8, 28, 8, 0, 0, 8, 28, 8, 0, 0, /* : */
+    0, 0, 0, 0, 0, 24, 24, 0, 0, 24, 8, 8, 16, 0, /* ; */
+    0, 0, 0, 2, 4, 8, 16, 32, 16, 8, 4, 2, 0, 0, /* < */
+    0, 0, 0, 0, 0, 126, 0, 0, 126, 0, 0, 0, 0, 0, /* = */
+    0, 0, 0, 32, 16, 8, 4, 2, 4, 8, 16, 32, 0, 0, /* > */
+    0, 0, 60, 66, 66, 4, 8, 8, 8, 0, 8, 8, 0, 0, /* ? */
+    0, 0, 28, 34, 78, 82, 82, 82, 82, 78, 32, 30, 0, 0, /* @ */
+    0, 0, 24, 36, 66, 66, 66, 126, 66, 66, 66, 66, 0, 0, /* A */
+    0, 0, 120, 68, 66, 68, 120, 68, 66, 66, 68, 120, 0, 0, /* B */
+    0, 0, 60, 66, 66, 64, 64, 64, 64, 66, 66, 60, 0, 0, /* C */
+    0, 0, 120, 68, 66, 66, 66, 66, 66, 66, 68, 120, 0, 0, /* D */
+    0, 0, 126, 64, 64, 64, 120, 64, 64, 64, 64, 126, 0, 0, /* E */
+    0, 0, 126, 64, 64, 64, 120, 64, 64, 64, 64, 64, 0, 0, /* F */
+    0, 0, 60, 66, 66, 64, 64, 78, 66, 66, 70, 58, 0, 0, /* G */
+    0, 0, 66, 66, 66, 66, 126, 66, 66, 66, 66, 66, 0, 0, /* H */
+    0, 0, 62, 8, 8, 8, 8, 8, 8, 8, 8, 62, 0, 0, /* I */
+    0, 0, 14, 4, 4, 4, 4, 4, 4, 68, 68, 56, 0, 0, /* J */
+    0, 0, 66, 68, 72, 80, 96, 80, 72, 68, 66, 66, 0, 0, /* K */
+    0, 0, 64, 64, 64, 64, 64, 64, 64, 64, 64, 126, 0, 0, /* L */
+    0, 0, 66, 102, 102, 90, 90, 66, 66, 66, 66, 66, 0, 0, /* M */
+    0, 0, 66, 66, 98, 98, 82, 74, 70, 70, 66, 66, 0, 0, /* N */
+    0, 0, 60, 66, 66, 66, 66, 66, 66, 66, 66, 60, 0, 0, /* O */
+    0, 0, 124, 66, 66, 66, 66, 124, 64, 64, 64, 64, 0, 0, /* P */
+    0, 0, 60, 66, 66, 66, 66, 66, 114, 74, 70, 60, 4, 2, /* Q */
+    0, 0, 124, 66, 66, 66, 66, 124, 72, 68, 66, 66, 0, 0, /* R */
+    0, 0, 60, 66, 66, 64, 48, 12, 2, 66, 66, 60, 0, 0, /* S */
+    0, 0, 127, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0, 0, /* T */
+    0, 0, 66, 66, 66, 66, 66, 66, 66, 66, 66, 60, 0, 0, /* U */
+    0, 0, 66, 66, 66, 66, 36, 36, 36, 24, 24, 24, 0, 0, /* V */
+    0, 0, 34, 34, 34, 34, 34, 34, 42, 42, 42, 20, 0, 0, /* W */
+    0, 0, 66, 66, 36, 36, 24, 24, 36, 36, 66, 66, 0, 0, /* X */
+    0, 0, 34, 34, 34, 20, 20, 8, 8, 8, 8, 8, 0, 0, /* Y */
+    0, 0, 126, 2, 4, 8, 8, 16, 32, 32, 64, 126, 0, 0, /* Z */
+    0, 30, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 30, /* [ */
+    0, 64, 64, 32, 32, 16, 16, 16, 8, 8, 4, 4, 2, 2, /* \ */
+    0, 60, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 60, /* ] */
+    0, 24, 36, 66, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* ^ */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 126, /* _ */
+    0, 16, 8, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* ` */
+    0, 0, 0, 0, 0, 60, 66, 2, 62, 66, 66, 62, 0, 0, /* a */
+    0, 0, 64, 64, 64, 92, 98, 66, 66, 66, 98, 92, 0, 0, /* b */
+    0, 0, 0, 0, 0, 60, 66, 64, 64, 64, 66, 60, 0, 0, /* c */
+    0, 0, 2, 2, 2, 58, 70, 66, 66, 66, 70, 58, 0, 0, /* d */
+    0, 0, 0, 0, 0, 60, 66, 66, 126, 64, 66, 60, 0, 0, /* e */
+    0, 0, 12, 18, 16, 16, 124, 16, 16, 16, 16, 16, 0, 0, /* f */
+    0, 0, 0, 0, 0, 58, 68, 68, 68, 56, 32, 92, 66, 60, /* g */
+    0, 0, 64, 64, 64, 92, 98, 66, 66, 66, 66, 66, 0, 0, /* h */
+    0, 0, 8, 8, 0, 24, 8, 8, 8, 8, 8, 62, 0, 0, /* i */
+    0, 0, 2, 2, 0, 6, 2, 2, 2, 2, 2, 34, 34, 28, /* j */
+    0, 0, 64, 64, 64, 68, 72, 80, 112, 72, 68, 66, 0, 0, /* k */
+    0, 0, 24, 8, 8, 8, 8, 8, 8, 8, 8, 62, 0, 0, /* l */
+    0, 0, 0, 0, 0, 52, 42, 42, 42, 42, 42, 34, 0, 0, /* m */
+    0, 0, 0, 0, 0, 92, 98, 66, 66, 66, 66, 66, 0, 0, /* n */
+    0, 0, 0, 0, 0, 60, 66, 66, 66, 66, 66, 60, 0, 0, /* o */
+    0, 0, 0, 0, 0, 92, 98, 66, 66, 66, 98, 92, 64, 64, /* p */
+    0, 0, 0, 0, 0, 58, 70, 66, 66, 66, 70, 58, 2, 2, /* q */
+    0, 0, 0, 0, 0, 92, 98, 66, 64, 64, 64, 64, 0, 0, /* r */
+    0, 0, 0, 0, 0, 60, 66, 32, 24, 4, 66, 60, 0, 0, /* s */
+    0, 0, 16, 16, 16, 124, 16, 16, 16, 16, 18, 12, 0, 0, /* t */
+    0, 0, 0, 0, 0, 66, 66, 66, 66, 66, 70, 58, 0, 0, /* u */
+    0, 0, 0, 0, 0, 34, 34, 34, 20, 20, 8, 8, 0, 0, /* v */
+    0, 0, 0, 0, 0, 34, 34, 42, 42, 42, 42, 20, 0, 0, /* w */
+    0, 0, 0, 0, 0, 66, 66, 36, 24, 36, 66, 66, 0, 0, /* x */
+    0, 0, 0, 0, 0, 66, 66, 66, 66, 70, 58, 2, 66, 60, /* y */
+    0, 0, 0, 0, 0, 126, 4, 8, 16, 16, 32, 126, 0, 0, /* z */
+    0, 6, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 6, /* { */
+    0, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, /* | */
+    0, 48, 8, 8, 8, 8, 8, 4, 8, 8, 8, 8, 8, 48, /* } */
+    0, 32, 82, 74, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* ~ */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*  */
+    0, 0, 8, 8, 0, 8, 8, 8, 8, 8, 8, 8, 0, 0, /* ¡ */
+    0, 0, 0, 0, 16, 60, 82, 80, 80, 80, 82, 60, 16, 0, /* ¢ */
+    0, 0, 0, 12, 18, 16, 16, 60, 16, 16, 60, 18, 0, 0, /* £ */
+    0, 0, 0, 0, 66, 60, 36, 36, 60, 66, 0, 0, 0, 0, /* ¤ */
+    0, 0, 34, 20, 20, 8, 62, 8, 62, 8, 8, 8, 0, 0, /* ¥ */
+    0, 0, 8, 8, 8, 8, 0, 0, 8, 8, 8, 8, 0, 0, /* ¦ */
+    0, 60, 66, 32, 24, 36, 66, 36, 24, 4, 66, 60, 0, 0, /* § */
+    0, 36, 36, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* ¨ */
+    0, 60, 66, 90, 102, 98, 98, 98, 102, 90, 66, 60, 0, 0, /* © */
+    0, 28, 34, 30, 34, 38, 26, 0, 62, 0, 0, 0, 0, 0, /* ª */
+    0, 0, 0, 0, 0, 10, 20, 40, 80, 40, 20, 10, 0, 0, /* « */
+    0, 0, 0, 0, 0, 0, 0, 0, 62, 2, 2, 2, 0, 0, /* ¬ */
+    0, 0, 0, 0, 0, 0, 0, 60, 0, 0, 0, 0, 0, 0, /* ­ */
+    0, 60, 66, 122, 102, 102, 122, 102, 102, 102, 66, 60, 0, 0, /* ® */
+    0, 0, 62, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* ¯ */
+    0, 24, 36, 36, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* ° */
+    0, 0, 0, 0, 0, 0, 8, 8, 62, 8, 8, 62, 0, 0, /* ± */
+    0, 24, 36, 4, 8, 16, 32, 60, 0, 0, 0, 0, 0, 0, /* ² */
+    0, 24, 36, 4, 24, 4, 36, 24, 0, 0, 0, 0, 0, 0, /* ³ */
+    0, 4, 8, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* ´ */
+    0, 0, 0, 0, 0, 0, 34, 34, 34, 34, 54, 42, 32, 32, /* µ */
+    0, 0, 30, 42, 42, 42, 42, 26, 10, 10, 10, 10, 10, 14, /* ¶ */
+    0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, /* · */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 16, /* ¸ */
+    0, 8, 24, 8, 8, 8, 8, 28, 0, 0, 0, 0, 0, 0, /* ¹ */
+    0, 0, 24, 36, 36, 24, 0, 60, 0, 0, 0, 0, 0, 0, /* º */
+    0, 0, 0, 0, 0, 80, 40, 20, 10, 20, 40, 80, 0, 0, /* » */
+    0, 0, 32, 98, 36, 36, 40, 18, 22, 42, 78, 66, 0, 0, /* ¼ */
+    0, 0, 32, 98, 36, 36, 40, 20, 26, 34, 68, 78, 0, 0, /* ½ */
+    0, 0, 98, 18, 36, 24, 104, 18, 38, 42, 78, 2, 0, 0, /* ¾ */
+    0, 0, 0, 16, 16, 0, 16, 16, 16, 16, 32, 66, 66, 60, /* ¿ */
+    16, 8, 0, 24, 36, 66, 66, 126, 66, 66, 66, 66, 0, 0, /* À */
+    8, 16, 0, 24, 36, 66, 66, 126, 66, 66, 66, 66, 0, 0, /* Á */
+    24, 36, 0, 24, 36, 66, 66, 126, 66, 66, 66, 66, 0, 0, /* Â */
+    50, 76, 0, 24, 36, 66, 66, 126, 66, 66, 66, 66, 0, 0, /* Ã */
+    0, 36, 0, 24, 36, 66, 66, 126, 66, 66, 66, 66, 0, 0, /* Ä */
+    0, 24, 36, 24, 36, 66, 66, 126, 66, 66, 66, 66, 0, 0, /* Å */
+    0, 0, 30, 40, 72, 72, 126, 72, 72, 72, 72, 78, 0, 0, /* Æ */
+    0, 0, 60, 66, 66, 64, 64, 64, 64, 66, 66, 60, 8, 16, /* Ç */
+    16, 8, 0, 126, 64, 64, 64, 124, 64, 64, 64, 126, 0, 0, /* È */
+    8, 16, 0, 126, 64, 64, 64, 124, 64, 64, 64, 126, 0, 0, /* É */
+    24, 36, 0, 126, 64, 64, 64, 124, 64, 64, 64, 126, 0, 0, /* Ê */
+    0, 36, 0, 126, 64, 64, 64, 124, 64, 64, 64, 126, 0, 0, /* Ë */
+    16, 8, 0, 62, 8, 8, 8, 8, 8, 8, 8, 62, 0, 0, /* Ì */
+    4, 8, 0, 62, 8, 8, 8, 8, 8, 8, 8, 62, 0, 0, /* Í */
+    8, 20, 0, 62, 8, 8, 8, 8, 8, 8, 8, 62, 0, 0, /* Î */
+    0, 20, 0, 62, 8, 8, 8, 8, 8, 8, 8, 62, 0, 0, /* Ï */
+    0, 0, 60, 34, 33, 33, 121, 33, 33, 33, 34, 60, 0, 0, /* Ð */
+    50, 76, 0, 98, 98, 82, 82, 74, 74, 74, 70, 70, 0, 0, /* Ñ */
+    16, 8, 0, 60, 66, 66, 66, 66, 66, 66, 66, 60, 0, 0, /* Ò */
+    8, 16, 0, 60, 66, 66, 66, 66, 66, 66, 66, 60, 0, 0, /* Ó */
+    24, 36, 0, 60, 66, 66, 66, 66, 66, 66, 66, 60, 0, 0, /* Ô */
+    50, 76, 0, 60, 66, 66, 66, 66, 66, 66, 66, 60, 0, 0, /* Õ */
+    0, 36, 0, 60, 66, 66, 66, 66, 66, 66, 66, 60, 0, 0, /* Ö */
+    0, 0, 0, 0, 0, 65, 34, 20, 8, 20, 34, 65, 0, 0, /* × */
+    2, 2, 60, 70, 74, 74, 74, 82, 82, 82, 98, 60, 64, 64, /* Ø */
+    16, 8, 0, 66, 66, 66, 66, 66, 66, 66, 66, 60, 0, 0, /* Ù */
+    8, 16, 0, 66, 66, 66, 66, 66, 66, 66, 66, 60, 0, 0, /* Ú */
+    24, 36, 0, 66, 66, 66, 66, 66, 66, 66, 66, 60, 0, 0, /* Û */
+    0, 36, 0, 66, 66, 66, 66, 66, 66, 66, 66, 60, 0, 0, /* Ü */
+    4, 8, 0, 34, 34, 20, 20, 8, 8, 8, 8, 8, 0, 0, /* Ý */
+    0, 0, 64, 64, 124, 66, 66, 66, 66, 124, 64, 64, 0, 0, /* Þ */
+    0, 0, 24, 36, 36, 36, 56, 36, 34, 34, 34, 124, 0, 0, /* ß */
+    0, 0, 16, 8, 0, 60, 66, 14, 50, 66, 70, 58, 0, 0, /* à */
+    0, 0, 4, 8, 0, 60, 66, 14, 50, 66, 70, 58, 0, 0, /* á */
+    0, 0, 24, 36, 0, 60, 66, 14, 50, 66, 70, 58, 0, 0, /* â */
+    0, 0, 50, 76, 0, 60, 66, 14, 50, 66, 70, 58, 0, 0, /* ã */
+    0, 0, 0, 36, 0, 60, 66, 14, 50, 66, 70, 58, 0, 0, /* ä */
+    0, 24, 36, 24, 0, 60, 66, 14, 50, 66, 70, 58, 0, 0, /* å */
+    0, 0, 0, 0, 0, 62, 73, 25, 47, 72, 73, 62, 0, 0, /* æ */
+    0, 0, 0, 0, 0, 60, 66, 64, 64, 64, 66, 60, 8, 16, /* ç */
+    0, 0, 16, 8, 0, 60, 66, 66, 126, 64, 66, 60, 0, 0, /* è */
+    0, 0, 8, 16, 0, 60, 66, 66, 126, 64, 66, 60, 0, 0, /* é */
+    0, 0, 24, 36, 0, 60, 66, 66, 126, 64, 66, 60, 0, 0, /* ê */
+    0, 0, 0, 36, 0, 60, 66, 66, 126, 64, 66, 60, 0, 0, /* ë */
+    0, 0, 16, 8, 0, 24, 8, 8, 8, 8, 8, 62, 0, 0, /* ì */
+    0, 0, 4, 8, 0, 24, 8, 8, 8, 8, 8, 62, 0, 0, /* í */
+    0, 0, 24, 36, 0, 24, 8, 8, 8, 8, 8, 62, 0, 0, /* î */
+    0, 0, 0, 20, 0, 24, 8, 8, 8, 8, 8, 62, 0, 0, /* ï */
+    0, 20, 8, 20, 2, 30, 34, 34, 34, 34, 34, 28, 0, 0, /* ð */
+    0, 0, 50, 76, 0, 92, 98, 66, 66, 66, 66, 66, 0, 0, /* ñ */
+    0, 0, 16, 8, 0, 60, 66, 66, 66, 66, 66, 60, 0, 0, /* ò */
+    0, 0, 8, 16, 0, 60, 66, 66, 66, 66, 66, 60, 0, 0, /* ó */
+    0, 0, 24, 36, 0, 60, 66, 66, 66, 66, 66, 60, 0, 0, /* ô */
+    0, 0, 50, 76, 0, 60, 66, 66, 66, 66, 66, 60, 0, 0, /* õ */
+    0, 0, 0, 36, 0, 60, 66, 66, 66, 66, 66, 60, 0, 0, /* ö */
+    0, 0, 0, 0, 0, 0, 0, 24, 0, 126, 0, 24, 0, 0, /* ÷ */
+    0, 0, 0, 2, 4, 60, 74, 74, 82, 82, 98, 60, 64, 64, /* ø */
+    0, 0, 16, 8, 0, 66, 66, 66, 66, 66, 70, 58, 0, 0, /* ù */
+    0, 0, 8, 16, 0, 66, 66, 66, 66, 66, 70, 58, 0, 0, /* ú */
+    0, 0, 24, 36, 0, 66, 66, 66, 66, 66, 70, 58, 0, 0, /* û */
+    0, 0, 0, 36, 0, 66, 66, 66, 66, 66, 70, 58, 0, 0, /* ü */
+    0, 0, 8, 16, 0, 66, 66, 34, 36, 20, 28, 8, 72, 48, /* ý */
+    0, 0, 64, 64, 64, 92, 98, 66, 66, 66, 98, 92, 64, 64, /* þ */
+    0, 0, 0, 36, 0, 66, 66, 34, 36, 20, 28, 8, 72, 48, /* ÿ */
+};
+
+static const int small_font[] = {
+    /* Each character is 5 x 9 pixels */
+    0, 2, 2, 2, 2, 0, 2, 0, 0, /* ! */
+    0, 5, 5, 5, 0, 0, 0, 0, 0, /* " */
+    0, 0, 5, 15, 5, 15, 5, 0, 0, /* # */
+    0, 0, 7, 26, 7, 18, 7, 0, 0, /* $ */
+    0, 8, 9, 2, 4, 25, 1, 0, 0, /* % */
+    0, 0, 4, 10, 4, 10, 5, 0, 0, /* & */
+    0, 2, 2, 2, 0, 0, 0, 0, 0, /* ' */
+    0, 2, 4, 4, 4, 4, 2, 0, 0, /* ( */
+    0, 4, 2, 2, 2, 2, 4, 0, 0, /* ) */
+    0, 0, 5, 2, 7, 2, 5, 0, 0, /* * */
+    0, 0, 2, 2, 15, 2, 2, 0, 0, /* + */
+    0, 0, 0, 0, 16, 3, 2, 4, 0, /* , */
+    0, 0, 0, 0, 15, 0, 0, 0, 0, /* - */
+    0, 0, 0, 0, 0, 6, 6, 0, 0, /* . */
+    0, 0, 1, 2, 4, 8, 0, 0, 0, /* / */
+    0, 2, 5, 5, 5, 5, 2, 0, 0, /* 0 */
+    0, 2, 6, 2, 2, 2, 7, 0, 0, /* 1 */
+    0, 6, 9, 1, 2, 4, 15, 0, 0, /* 2 */
+    0, 15, 1, 6, 1, 9, 6, 0, 0, /* 3 */
+    0, 2, 6, 10, 15, 2, 2, 0, 0, /* 4 */
+    0, 15, 8, 14, 1, 9, 6, 0, 0, /* 5 */
+    0, 6, 8, 14, 9, 9, 6, 0, 0, /* 6 */
+    0, 15, 1, 2, 2, 4, 4, 0, 0, /* 7 */
+    0, 6, 9, 6, 9, 9, 6, 0, 0, /* 8 */
+    0, 6, 9, 9, 7, 1, 6, 0, 0, /* 9 */
+    0, 0, 6, 6, 0, 6, 6, 0, 0, /* : */
+    0, 0, 6, 6, 0, 6, 4, 8, 0, /* ; */
+    0, 0, 1, 2, 4, 2, 1, 0, 0, /* < */
+    0, 0, 0, 15, 0, 15, 0, 0, 0, /* = */
+    0, 0, 4, 2, 1, 2, 4, 0, 0, /* > */
+    0, 2, 5, 1, 2, 0, 2, 0, 0, /* ? */
+    0, 6, 9, 11, 11, 8, 6, 0, 0, /* @ */
+    0, 6, 9, 9, 15, 9, 9, 0, 0, /* A */
+    0, 14, 9, 14, 9, 9, 14, 0, 0, /* B */
+    0, 6, 9, 8, 8, 9, 6, 0, 0, /* C */
+    0, 14, 9, 9, 9, 9, 14, 0, 0, /* D */
+    0, 15, 8, 14, 8, 8, 15, 0, 0, /* E */
+    0, 15, 8, 14, 8, 8, 8, 0, 0, /* F */
+    0, 6, 9, 8, 11, 9, 7, 0, 0, /* G */
+    0, 9, 9, 15, 9, 9, 9, 0, 0, /* H */
+    0, 7, 2, 2, 2, 2, 7, 0, 0, /* I */
+    0, 1, 1, 1, 1, 9, 6, 0, 0, /* J */
+    0, 9, 10, 12, 12, 10, 9, 0, 0, /* K */
+    0, 8, 8, 8, 8, 8, 15, 0, 0, /* L */
+    0, 9, 15, 15, 9, 9, 9, 0, 0, /* M */
+    0, 9, 13, 13, 11, 11, 9, 0, 0, /* N */
+    0, 6, 9, 9, 9, 9, 6, 0, 0, /* O */
+    0, 14, 9, 9, 14, 8, 8, 0, 0, /* P */
+    0, 6, 9, 9, 9, 13, 6, 1, 0, /* Q */
+    0, 14, 9, 9, 14, 10, 9, 0, 0, /* R */
+    0, 6, 9, 4, 2, 9, 6, 0, 0, /* S */
+    0, 7, 2, 2, 2, 2, 2, 0, 0, /* T */
+    0, 9, 9, 9, 9, 9, 6, 0, 0, /* U */
+    0, 9, 9, 9, 9, 6, 6, 0, 0, /* V */
+    0, 9, 9, 9, 15, 15, 9, 0, 0, /* W */
+    0, 9, 9, 6, 6, 9, 9, 0, 0, /* X */
+    0, 5, 5, 5, 2, 2, 2, 0, 0, /* Y */
+    0, 15, 1, 2, 4, 8, 15, 0, 0, /* Z */
+    0, 7, 4, 4, 4, 4, 7, 0, 0, /* [ */
+    0, 0, 8, 4, 2, 1, 0, 0, 0, /* \ */
+    0, 7, 1, 1, 1, 1, 7, 0, 0, /* ] */
+    0, 2, 5, 0, 0, 0, 0, 0, 0, /* ^ */
+    0, 0, 0, 0, 0, 0, 15, 0, 0, /* _ */
+    0, 4, 2, 0, 0, 0, 0, 0, 0, /* ` */
+    0, 0, 0, 7, 9, 11, 5, 0, 0, /* a */
+    0, 8, 8, 14, 9, 9, 14, 0, 0, /* b */
+    0, 0, 0, 6, 8, 8, 6, 0, 0, /* c */
+    0, 1, 1, 7, 9, 9, 7, 0, 0, /* d */
+    0, 0, 0, 6, 11, 12, 6, 0, 0, /* e */
+    0, 2, 5, 4, 14, 4, 4, 0, 0, /* f */
+    0, 0, 0, 7, 9, 6, 8, 7, 0, /* g */
+    0, 8, 8, 14, 9, 9, 9, 0, 0, /* h */
+    0, 2, 0, 6, 2, 2, 7, 0, 0, /* i */
+    0, 1, 0, 1, 1, 1, 5, 2, 0, /* j */
+    0, 8, 8, 10, 12, 10, 9, 0, 0, /* k */
+    0, 6, 2, 2, 2, 2, 7, 0, 0, /* l */
+    0, 0, 0, 10, 15, 9, 9, 0, 0, /* m */
+    0, 0, 0, 14, 9, 9, 9, 0, 0, /* n */
+    0, 0, 0, 6, 9, 9, 6, 0, 0, /* o */
+    0, 0, 0, 14, 9, 9, 14, 8, 0, /* p */
+    0, 0, 0, 7, 9, 9, 7, 1, 0, /* q */
+    0, 0, 0, 14, 9, 8, 8, 0, 0, /* r */
+    0, 0, 0, 7, 12, 3, 14, 0, 0, /* s */
+    0, 4, 4, 14, 4, 4, 3, 0, 0, /* t */
+    0, 0, 0, 9, 9, 9, 7, 0, 0, /* u */
+    0, 0, 0, 5, 5, 5, 2, 0, 0, /* v */
+    0, 0, 0, 9, 9, 15, 15, 0, 0, /* w */
+    0, 0, 0, 9, 6, 6, 9, 0, 0, /* x */
+    0, 0, 0, 9, 9, 5, 2, 4, 0, /* y */
+    0, 0, 0, 15, 2, 4, 15, 0, 0, /* z */
+    0, 1, 2, 6, 2, 2, 1, 0, 0, /* { */
+    0, 2, 2, 2, 2, 2, 2, 0, 0, /* | */
+    0, 4, 2, 3, 2, 2, 4, 0, 0, /* } */
+    0, 5, 10, 0, 0, 0, 0, 0, 0, /* ~ */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, /*  */
+    0, 2, 0, 2, 2, 2, 2, 0, 0, /* ¡ */
+    0, 0, 2, 7, 10, 10, 7, 2, 0, /* ¢ */
+    0, 0, 3, 4, 14, 4, 11, 0, 0, /* £ */
+    0, 0, 8, 7, 5, 7, 8, 0, 0, /* ¤ */
+    0, 5, 21, 2, 7, 2, 18, 0, 0, /* ¥ */
+    0, 0, 2, 2, 0, 2, 2, 0, 0, /* ¦ */
+    0, 3, 4, 6, 5, 3, 1, 6, 0, /* § */
+    0, 5, 0, 0, 0, 0, 0, 0, 0, /* ¨ */
+    0, 7, 8, 10, 12, 10, 8, 7, 0, /* © */
+    0, 6, 26, 22, 16, 16, 16, 0, 0, /* ª */
+    0, 0, 0, 4, 9, 4, 0, 0, 0, /* « */
+    0, 0, 0, 16, 15, 17, 0, 0, 0, /* ¬ */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, /* ­ */
+    0, 7, 8, 14, 12, 12, 8, 7, 0, /* ® */
+    0, 15, 16, 16, 16, 16, 16, 0, 0, /* ¯ */
+    0, 2, 5, 2, 0, 0, 0, 0, 0, /* ° */
+    0, 2, 2, 15, 2, 2, 15, 0, 0, /* ± */
+    0, 6, 2, 20, 6, 0, 16, 0, 0, /* ² */
+    0, 6, 6, 2, 6, 0, 0, 0, 0, /* ³ */
+    0, 2, 4, 0, 0, 0, 0, 0, 0, /* ´ */
+    0, 0, 0, 9, 9, 9, 14, 8, 0, /* µ */
+    0, 7, 13, 13, 5, 5, 5, 0, 0, /* ¶ */
+    0, 0, 0, 6, 6, 0, 0, 0, 0, /* · */
+    0, 0, 0, 0, 0, 0, 2, 4, 0, /* ¸ */
+    0, 2, 6, 2, 7, 0, 0, 0, 0, /* ¹ */
+    0, 4, 10, 4, 0, 0, 0, 0, 0, /* º */
+    0, 0, 0, 9, 4, 9, 0, 0, 0, /* » */
+    0, 8, 8, 8, 25, 3, 7, 1, 0, /* ¼ */
+    0, 8, 8, 8, 11, 1, 2, 3, 0, /* ½ */
+    0, 12, 12, 4, 13, 3, 7, 1, 0, /* ¾ */
+    0, 2, 0, 2, 4, 5, 2, 0, 0, /* ¿ */
+    0, 6, 9, 9, 15, 9, 9, 0, 0, /* À */
+    0, 6, 9, 9, 15, 9, 9, 0, 0, /* Á */
+    0, 6, 9, 9, 15, 9, 9, 0, 0, /* Â */
+    0, 6, 9, 9, 15, 9, 9, 0, 0, /* Ã */
+    0, 9, 6, 9, 15, 9, 9, 0, 0, /* Ä */
+    0, 6, 6, 9, 15, 9, 9, 0, 0, /* Å */
+    0, 7, 10, 11, 14, 10, 11, 0, 0, /* Æ */
+    0, 6, 9, 8, 8, 9, 6, 4, 0, /* Ç */
+    0, 15, 8, 14, 8, 8, 15, 0, 0, /* È */
+    0, 15, 8, 14, 8, 8, 15, 0, 0, /* É */
+    0, 15, 8, 14, 8, 8, 15, 0, 0, /* Ê */
+    0, 15, 8, 14, 8, 8, 15, 0, 0, /* Ë */
+    0, 7, 2, 2, 2, 2, 7, 0, 0, /* Ì */
+    0, 7, 2, 2, 2, 2, 7, 0, 0, /* Í */
+    0, 7, 2, 2, 2, 2, 7, 0, 0, /* Î */
+    0, 7, 2, 2, 2, 2, 7, 0, 0, /* Ï */
+    0, 14, 5, 13, 5, 5, 14, 0, 0, /* Ð */
+    0, 11, 9, 13, 11, 11, 9, 0, 0, /* Ñ */
+    0, 6, 9, 9, 9, 9, 6, 0, 0, /* Ò */
+    0, 6, 9, 9, 9, 9, 6, 0, 0, /* Ó */
+    0, 6, 9, 9, 9, 9, 6, 0, 0, /* Ô */
+    0, 6, 9, 9, 9, 9, 6, 0, 0, /* Õ */
+    0, 9, 6, 9, 9, 9, 6, 0, 0, /* Ö */
+    0, 0, 0, 9, 6, 6, 9, 0, 0, /* × */
+    0, 7, 11, 11, 13, 13, 14, 0, 0, /* Ø */
+    0, 9, 9, 9, 9, 9, 6, 0, 0, /* Ù */
+    0, 9, 9, 9, 9, 9, 6, 0, 0, /* Ú */
+    0, 9, 9, 9, 9, 9, 6, 0, 0, /* Û */
+    0, 9, 0, 9, 9, 9, 6, 0, 0, /* Ü */
+    0, 5, 5, 5, 2, 2, 2, 0, 0, /* Ý */
+    0, 8, 14, 9, 14, 8, 8, 0, 0, /* Þ */
+    0, 6, 9, 10, 9, 9, 10, 0, 0, /* ß */
+    0, 4, 2, 7, 9, 11, 5, 0, 0, /* à */
+    0, 2, 4, 7, 9, 11, 5, 0, 0, /* á */
+    0, 2, 5, 7, 9, 11, 5, 0, 0, /* â */
+    0, 5, 10, 7, 9, 11, 5, 0, 0, /* ã */
+    0, 5, 0, 7, 9, 11, 5, 0, 0, /* ä */
+    0, 6, 6, 7, 9, 11, 5, 0, 0, /* å */
+    0, 0, 0, 7, 11, 10, 7, 0, 0, /* æ */
+    0, 0, 0, 3, 4, 4, 3, 2, 0, /* ç */
+    0, 4, 2, 6, 11, 12, 6, 0, 0, /* è */
+    0, 2, 4, 6, 11, 12, 6, 0, 0, /* é */
+    0, 4, 10, 6, 11, 12, 6, 0, 0, /* ê */
+    0, 10, 0, 6, 11, 12, 6, 0, 0, /* ë */
+    0, 4, 2, 6, 2, 2, 7, 0, 0, /* ì */
+    0, 2, 4, 6, 2, 2, 7, 0, 0, /* í */
+    0, 2, 5, 6, 2, 2, 7, 0, 0, /* î */
+    0, 5, 0, 6, 2, 2, 7, 0, 0, /* ï */
+    0, 4, 3, 6, 9, 9, 6, 0, 0, /* ð */
+    0, 5, 10, 14, 9, 9, 9, 0, 0, /* ñ */
+    0, 4, 2, 6, 9, 9, 6, 0, 0, /* ò */
+    0, 2, 4, 6, 9, 9, 6, 0, 0, /* ó */
+    0, 6, 0, 6, 9, 9, 6, 0, 0, /* ô */
+    0, 5, 10, 6, 9, 9, 6, 0, 0, /* õ */
+    0, 5, 0, 6, 9, 9, 6, 0, 0, /* ö */
+    0, 0, 6, 0, 15, 0, 6, 0, 0, /* ÷ */
+    0, 0, 0, 7, 11, 13, 14, 0, 0, /* ø */
+    0, 4, 2, 9, 9, 9, 7, 0, 0, /* ù */
+    0, 2, 4, 9, 9, 9, 7, 0, 0, /* ú */
+    0, 6, 0, 9, 9, 9, 7, 0, 0, /* û */
+    0, 5, 0, 9, 9, 9, 7, 0, 0, /* ü */
+    0, 2, 4, 9, 9, 5, 2, 4, 0, /* ý */
+    0, 0, 8, 14, 9, 9, 14, 8, 0, /* þ */
+    0, 5, 0, 9, 9, 5, 2, 4, 0, /* ÿ */
+};
 
 #ifndef NO_PNG
 extern int png_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf);
@@ -202,15 +583,12 @@ int save_raster_image_to_file(struct ZintSymbol * symbol,
 
 void draw_bar(char * pixelbuf, int xpos, int xlen, int ypos, int ylen, int image_width, int image_height)
 {
-	/* Draw a rectangle */
-	int i, j, png_ypos;
-
-	png_ypos = image_height - ypos - ylen;
-	/* This fudge is needed because EPS measures height from the bottom up but
-	   PNG measures y position from the top down */
-
-	for(i = (xpos); i < (xpos + xlen); i++) {
-		for(j = (png_ypos); j < (png_ypos + ylen); j++) {
+	// Draw a rectangle 
+	const int png_ypos = image_height - ypos - ylen;
+	// This fudge is needed because EPS measures height from the bottom up but
+	// PNG measures y position from the top down 
+	for(int i = (xpos); i < (xpos + xlen); i++) {
+		for(int j = (png_ypos); j < (png_ypos + ylen); j++) {
 			*(pixelbuf + (image_width * j) + i) = '1';
 		}
 	}
@@ -218,14 +596,11 @@ void draw_bar(char * pixelbuf, int xpos, int xlen, int ypos, int ylen, int image
 
 void draw_circle(char * pixelbuf, int image_width, int image_height, int x0, int y0, float radius, char fill)
 {
-	int x, y;
 	int radius_i = (int)radius;
-
-	for(y = -radius_i; y <= radius_i; y++) {
-		for(x = -radius_i; x <= radius_i; x++) {
+	for(int y = -radius_i; y <= radius_i; y++) {
+		for(int x = -radius_i; x <= radius_i; x++) {
 			if((x * x) + (y * y) <= (radius_i * radius_i)) {
-				if((y + y0 >= 0) && (y + y0 < image_height)
-				    && (x + x0 >= 0) && (x + x0 < image_width)) {
+				if((y + y0 >= 0) && (y + y0 < image_height) && (x + x0 >= 0) && (x + x0 < image_width)) {
 					*(pixelbuf + ((y + y0) * image_width) + (x + x0)) = fill;
 				}
 			}
@@ -235,7 +610,7 @@ void draw_circle(char * pixelbuf, int image_width, int image_height, int x0, int
 
 void draw_bullseye(char * pixelbuf, int image_width, int image_height, int xoffset, int yoffset, int scaler)
 {
-	/* Central bullseye in Maxicode symbols */
+	// Central bullseye in Maxicode symbols 
 	draw_circle(pixelbuf, image_width, image_height, (int)(14.5 * scaler) + xoffset, (int)(15 * scaler) + yoffset, (4.571f * scaler) + 1, '1');
 	draw_circle(pixelbuf, image_width, image_height, (int)(14.5 * scaler) + xoffset, (int)(15 * scaler) + yoffset, (3.779f * scaler) + 1, '0');
 	draw_circle(pixelbuf, image_width, image_height, (int)(14.5 * scaler) + xoffset, (int)(15 * scaler) + yoffset, (2.988f * scaler) + 1, '1');
@@ -246,11 +621,9 @@ void draw_bullseye(char * pixelbuf, int image_width, int image_height, int xoffs
 
 void draw_hexagon(char * pixelbuf, int image_width, char * scaled_hexagon, int hexagon_size, int xposn, int yposn)
 {
-	/* Put a hexagon into the pixel buffer */
-	int i, j;
-
-	for(i = 0; i < hexagon_size; i++) {
-		for(j = 0; j < hexagon_size; j++) {
+	// Put a hexagon into the pixel buffer 
+	for(int i = 0; i < hexagon_size; i++) {
+		for(int j = 0; j < hexagon_size; j++) {
 			if(scaled_hexagon[(i * hexagon_size) + j] == '1') {
 				*(pixelbuf + (image_width * i) + (image_width * yposn) + xposn + j) = '1';
 			}
@@ -260,23 +633,18 @@ void draw_hexagon(char * pixelbuf, int image_width, char * scaled_hexagon, int h
 
 void draw_letter(char * pixelbuf, uchar letter, int xposn, int yposn, int textflags, int image_width, int image_height)
 {
-	/* Put a letter into a position */
-	int skip, x, y, glyph_no, max_x, max_y;
-
-	skip = 0;
-
+	// Put a letter into a position 
+	int x, y, glyph_no, max_x, max_y;
+	int skip = 0;
 	if(letter < 33) {
 		skip = 1;
 	}
-
 	if((letter > 127) && (letter < 161)) {
 		skip = 1;
 	}
-
 	if(xposn < 0 || yposn < 0) {
 		skip = 1;
 	}
-
 	if(skip == 0) {
 		if(letter > 128) {
 			glyph_no = letter - 66;
@@ -284,20 +652,16 @@ void draw_letter(char * pixelbuf, uchar letter, int xposn, int yposn, int textfl
 		else {
 			glyph_no = letter - 33;
 		}
-
 		switch(textflags) {
 			case 1: // small font 5x9
 			    max_x = 5;
 			    max_y = 9;
-
 			    if(xposn + max_x >= image_width) {
 				    max_x = image_width - xposn - 1;
 			    }
-
 			    if(yposn + max_y >= image_height) {
 				    max_y = image_height - yposn - 1;
 			    }
-
 			    for(y = 0; y < max_y; y++) {
 				    for(x = 0; x < max_x; x++) {
 					    if(small_font[(glyph_no * 9) + y] & (0x10 >> x)) {
@@ -306,21 +670,17 @@ void draw_letter(char * pixelbuf, uchar letter, int xposn, int yposn, int textfl
 				    }
 			    }
 			    break;
-
 			case 2: // bold font -> twice the regular font
 		    {
 			    char * linePtr;
 			    max_x = 7;
 			    max_y = 14;
-
 			    if(xposn + max_x + 1 >= image_width) {
 				    max_x = image_width - xposn - 2;
 			    }
-
 			    if(yposn + max_y >= image_height) {
 				    max_y = image_height - yposn - 1;
 			    }
-
 			    linePtr = pixelbuf + (yposn * image_width) + xposn + 1;
 			    for(y = 0; y < max_y; y++) {
 				    char * pixelPtr = linePtr;
@@ -334,17 +694,13 @@ void draw_letter(char * pixelbuf, uchar letter, int xposn, int yposn, int textfl
 						    if(extra_dot) {
 							    *pixelPtr = '1';
 						    }
-
 						    extra_dot = 0;
 					    }
-
 					    ++pixelPtr;
 				    }
-
 				    if(extra_dot) {
 					    *pixelPtr = '1';
 				    }
-
 				    linePtr += image_width;
 			    }
 		    }
@@ -353,15 +709,12 @@ void draw_letter(char * pixelbuf, uchar letter, int xposn, int yposn, int textfl
 			default: // regular font 7x15
 			    max_x = 7;
 			    max_y = 14;
-
 			    if(xposn + max_x >= image_width) {
 				    max_x = image_width - xposn - 1;
 			    }
-
 			    if(yposn + max_y >= image_height) {
 				    max_y = image_height - yposn - 1;
 			    }
-
 			    for(y = 0; y < max_y; y++) {
 				    for(x = 0; x < 7; x++) {
 					    if(ascii_font[(glyph_no * 14) + y] & (0x40 >> x)) {
@@ -378,24 +731,19 @@ void draw_letter(char * pixelbuf, uchar letter, int xposn, int yposn, int textfl
 void draw_string(char * pixbuf, char input_string[], int xposn, int yposn, int textflags, int image_width, int image_height)
 {
 	int i, string_length, string_left_hand, letter_width = 7;
-
 	switch(textflags) {
 		case 1: // small font 5x9
 		    letter_width = 5;
 		    break;
-
 		case 2: // bold font -> width of the regular font + 1 extra dot + 1 extra space
 		    letter_width = 9;
 		    break;
-
 		default: // regular font 7x15
 		    letter_width = 7;
 		    break;
 	}
-
 	string_length = strlen(input_string);
 	string_left_hand = xposn - ((letter_width * string_length) / 2);
-
 	for(i = 0; i < string_length; i++) {
 		draw_letter(pixbuf, input_string[i], string_left_hand + (i * letter_width), yposn, textflags, image_width, image_height);
 	}
@@ -403,17 +751,12 @@ void draw_string(char * pixbuf, char input_string[], int xposn, int yposn, int t
 
 void plot_hexline(char * scaled_hexagon, int hexagon_size, float start_x, float start_y, float end_x, float end_y)
 {
-	/* Draw a straight line from start to end */
-	int i;
-	float inc_x, inc_y;
-	float this_x, this_y;
-
-	inc_x = (end_x - start_x) / hexagon_size;
-	inc_y = (end_y - start_y) / hexagon_size;
-
-	for(i = 0; i < hexagon_size; i++) {
-		this_x = start_x + ((float)i * inc_x);
-		this_y = start_y + ((float)i * inc_y);
+	// Draw a straight line from start to end 
+	const float inc_x = (end_x - start_x) / hexagon_size;
+	const float inc_y = (end_y - start_y) / hexagon_size;
+	for(int i = 0; i < hexagon_size; i++) {
+		const float this_x = start_x + ((float)i * inc_x);
+		const float this_y = start_y + ((float)i * inc_y);
 		if(((this_x >= 0) && (this_x < hexagon_size)) && ((this_y >= 0) && (this_y < hexagon_size))) {
 			scaled_hexagon[(hexagon_size * (int)this_y) + (int)this_x] = '1';
 		}
@@ -471,7 +814,6 @@ void plot_hexagon(char * scaled_hexagon, int hexagon_size)
 					ink = '0';
 				}
 			}
-
 			if(ink == '1') {
 				scaled_hexagon[(hexagon_size * line) + i] = ink;
 			}
@@ -596,29 +938,25 @@ void to_latin1(uchar source[], uchar preprocessed[])
 		i++;
 	}
 	preprocessed[j] = '\0';
-
 	return;
 }
 
 int plot_raster_dotty(struct ZintSymbol * symbol, int rotate_angle, int data_type)
 {
-	float  scaler = 2 * symbol->scale;
+	float  scaler = 2.0f * symbol->scale;
 	char * scaled_pixelbuf;
 	int    r, i;
 	int    scale_width, scale_height;
 	int    error_number = 0;
-	int    image_width, image_height;
 	symbol->height = symbol->rows; // This is true because only 2d matrix symbols are processed here
 	int    xoffset = symbol->border_width + symbol->whitespace_width;
 	int    yoffset = symbol->border_width;
-	image_width = symbol->width + xoffset + xoffset;
-	image_height = symbol->height + yoffset + yoffset;
-	if(scaler < 2.0) {
-		scaler = 2.0;
-	}
+	int    image_width = symbol->width + xoffset + xoffset;
+	int    image_height = symbol->height + yoffset + yoffset;
+	SETMAX(scaler, 2.0f);
 	scale_width = (int)((image_width * scaler) + 1);
 	scale_height = (int)((image_height * scaler) + 1);
-	/* Apply scale options by creating another pixel buffer */
+	// Apply scale options by creating another pixel buffer 
 	if(!(scaled_pixelbuf = (char*)malloc(scale_width * scale_height))) {
 		printf("Insufficient memory for pixel buffer (F57)");
 		return ZINT_ERROR_ENCODING_PROBLEM;
@@ -628,8 +966,7 @@ int plot_raster_dotty(struct ZintSymbol * symbol, int rotate_angle, int data_typ
 			*(scaled_pixelbuf + i) = '0';
 		}
 	}
-
-	/* Plot the body of the symbol to the pixel buffer */
+	// Plot the body of the symbol to the pixel buffer 
 	for(r = 0; r < symbol->rows; r++) {
 		for(i = 0; i < symbol->width; i++) {
 			if(module_is_set(symbol, r, i)) {
@@ -640,10 +977,8 @@ int plot_raster_dotty(struct ZintSymbol * symbol, int rotate_angle, int data_typ
 			}
 		}
 	}
-
 	error_number = save_raster_image_to_file(symbol, scale_height, scale_width, scaled_pixelbuf, rotate_angle, data_type);
 	free(scaled_pixelbuf);
-
 	return error_number;
 }
 
@@ -847,7 +1182,7 @@ int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int data_t
 	}
 	xoffset += comp_offset;
 	if((((symbol->Std == BARCODE_EANX) && (symbol->rows == 1)) || (symbol->Std == BARCODE_EANX_CC)) || (symbol->Std == BARCODE_ISBNX)) {
-		/* guard bar extensions and text formatting for EAN8 and EAN13 */
+		// guard bar extensions and text formatting for EAN8 and EAN13 
 		switch(sstrlen(local_text)) {
 			case 8: /* EAN-8 */
 			case 11:
@@ -932,19 +1267,12 @@ int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int data_t
 			do {
 				block_width++;
 			} while(module_is_set(symbol, symbol->rows - 1, i + block_width) == module_is_set(symbol, symbol->rows - 1, i));
-			if(latch == 1) {
-				/* a bar */
-				draw_bar(pixelbuf,
-				    (i + xoffset - comp_offset) * 2,
-				    block_width * 2,
-				    (4 + (int)yoffset) * 2,
-				    5 * 2,
-				    image_width,
-				    image_height);
+			if(latch == 1) { // a bar 
+				draw_bar(pixelbuf, (i + xoffset - comp_offset) * 2,
+				    block_width * 2, (4 + (int)yoffset) * 2, 5 * 2, image_width, image_height);
 				latch = 0;
 			}
-			else {
-				/* a space */
+			else { // a space 
 				latch = 1;
 			}
 			i += block_width;
@@ -958,19 +1286,13 @@ int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int data_t
 			do {
 				block_width++;
 			} while(module_is_set(symbol, symbol->rows - 1, i + block_width) == module_is_set(symbol, symbol->rows - 1, i));
-			if(latch == 1) {
-				/* a bar */
-				draw_bar(pixelbuf,
-				    (i + xoffset - comp_offset) * 2,
-				    block_width * 2,
-				    (4 + (int)yoffset) * 2,
-				    5 * 2,
-				    image_width,
-				    image_height);
+			if(latch == 1) { // a bar 
+				draw_bar(pixelbuf, (i + xoffset - comp_offset) * 2,
+				    block_width * 2, (4 + (int)yoffset) * 2,
+				    5 * 2, image_width, image_height);
 				latch = 0;
 			}
-			else {
-				/* a space */
+			else { // a space 
 				latch = 1;
 			}
 			i += block_width;
@@ -1008,7 +1330,7 @@ int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int data_t
 		}
 	}
 	if(((symbol->Std == BARCODE_UPCE) && (symbol->rows == 1)) || (symbol->Std == BARCODE_UPCE_CC)) {
-		/* guard bar extensions and text formatting for UPCE */
+		// guard bar extensions and text formatting for UPCE 
 		draw_bar(pixelbuf, (0 + xoffset) * 2, 1 * 2, (4 + (int)yoffset) * 2, 5 * 2, image_width, image_height);
 		draw_bar(pixelbuf, (2 + xoffset) * 2, 1 * 2, (4 + (int)yoffset) * 2, 5 * 2, image_width, image_height);
 		draw_bar(pixelbuf, (46 + xoffset) * 2, 1 * 2, (4 + (int)yoffset) * 2, 5 * 2, image_width, image_height);
@@ -1042,9 +1364,9 @@ int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int data_t
 		}
 	}
 	xoffset -= comp_offset;
-	/* Put boundary bars or box around symbol */
+	// Put boundary bars or box around symbol 
 	if((symbol->output_options & BARCODE_BOX) || (symbol->output_options & BARCODE_BIND)) {
-		/* boundary bars */
+		// boundary bars 
 		if(symbol->Std != BARCODE_CODABLOCKF) {
 			draw_bar(pixelbuf, 0, (symbol->width + xoffset + xoffset) * 2,
 			    textoffset * 2, symbol->border_width * 2, image_width, image_height);
@@ -1079,19 +1401,14 @@ int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int data_t
 	}
 
 	if(symbol->output_options & BARCODE_BOX) {
-		/* side bars */
-		draw_bar(pixelbuf,
-		    0,
-		    symbol->border_width * 2,
-		    textoffset * 2,
-		    (symbol->height + (2 * symbol->border_width)) * 2,
-		    image_width,
-		    image_height);
+		// side bars 
+		draw_bar(pixelbuf, 0, symbol->border_width * 2,
+		    textoffset * 2, (symbol->height + (2 * symbol->border_width)) * 2,
+		    image_width, image_height);
 		draw_bar(pixelbuf, (symbol->width + xoffset + xoffset - symbol->border_width) * 2, symbol->border_width * 2, textoffset * 2,
 		    (symbol->height + (2 * symbol->border_width)) * 2, image_width, image_height);
 	}
-
-	/* Put the human readable text at the bottom */
+	// Put the human readable text at the bottom 
 	if((textdone == 0) && (sstrlen(local_text) != 0)) {
 		textpos = (image_width / 2);
 		draw_string(pixelbuf, (char*)local_text, textpos, default_text_posn, textflags, image_width, image_height);
@@ -1101,7 +1418,7 @@ int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int data_t
 	}
 	scale_width = (int)(image_width * scaler);
 	scale_height = (int)(image_height * scaler);
-	/* Apply scale options by creating another pixel buffer */
+	// Apply scale options by creating another pixel buffer 
 	if(!(scaled_pixelbuf = (char*)malloc(scale_width * scale_height))) {
 		free(pixelbuf);
 		printf("Insufficient memory for pixel buffer (F59)");
@@ -1112,14 +1429,11 @@ int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int data_t
 			*(scaled_pixelbuf + i) = '0';
 		}
 	}
-
 	for(vert = 0; vert < scale_height; vert++) {
 		for(horiz = 0; horiz < scale_width; horiz++) {
-			*(scaled_pixelbuf +
-			    (vert * scale_width) + horiz) = *(pixelbuf + ((int)(vert / scaler) * image_width) + (int)(horiz / scaler));
+			*(scaled_pixelbuf + (vert * scale_width) + horiz) = *(pixelbuf + ((int)(vert / scaler) * image_width) + (int)(horiz / scaler));
 		}
 	}
-
 	error_number = save_raster_image_to_file(symbol, scale_height, scale_width, scaled_pixelbuf, rotate_angle, data_type);
 	free(scaled_pixelbuf);
 	free(pixelbuf);
@@ -1133,7 +1447,7 @@ int plot_raster(struct ZintSymbol * symbol, int rotate_angle, int file_type)
 	if(file_type == OUT_PNG_FILE) {
 		return ZINT_ERROR_INVALID_OPTION;
 	}
-#endif /* NO_PNG */
+#endif // NO_PNG 
 	if(symbol->output_options & BARCODE_DOTTY_MODE) {
 		error = plot_raster_dotty(symbol, rotate_angle, file_type);
 	}

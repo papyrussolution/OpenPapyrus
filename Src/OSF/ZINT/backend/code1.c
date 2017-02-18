@@ -29,13 +29,83 @@
     OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
  */
-
 #include "common.h"
-#include "code1.h"
-#include "reedsol.h"
-#include "large.h"
+#pragma hdrstop
+//#include "large.h"
+//#include "code1.h"
 
-void horiz(struct ZintSymbol * symbol, int row_no, int full)
+static const int c40_shift[] = {
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
+};
+
+static const int c40_value[] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+    3, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+    15, 16, 17, 18, 19, 20, 21, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+    22, 23, 24, 25, 26, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
+};
+
+static const int text_shift[] = {
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+    2, 2, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3
+};
+
+static const int text_value[] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+    3, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+    15, 16, 17, 18, 19, 20, 21, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+    22, 23, 24, 25, 26, 0, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 27, 28, 29, 30, 31
+};
+
+static const int c1_height[] = {
+    16, 22, 28, 40, 52, 70, 104, 148
+};
+
+static const int c1_width[] = {
+    18, 22, 32, 42, 54, 76, 98, 134
+};
+
+static const int c1_data_length[] = {
+    10, 19, 44, 91, 182, 370, 732, 1480
+};
+
+static const int c1_ecc_length[] = {
+    10, 16, 26, 44, 70, 140, 280, 560
+};
+
+static const int c1_blocks[] = {
+    1, 1, 1, 1, 1, 2, 4, 8
+};
+
+static const int c1_data_blocks[] = {
+    10, 19, 44, 91, 182, 185, 183, 185
+};
+
+static const int c1_ecc_blocks[] = {
+    10, 16, 26, 44, 70, 70, 70, 70
+};
+
+static const int c1_grid_width[] = {
+    4, 5, 7, 9, 12, 17, 22, 30
+};
+
+static const int c1_grid_height[] = {
+    5, 7, 10, 15, 21, 30, 46, 68
+};
+
+#define C1_ASCII	1
+#define C1_C40		2
+#define C1_DECIMAL	3
+#define C1_TEXT		4
+#define C1_EDI		5
+#define C1_BYTE		6
+
+static void horiz(struct ZintSymbol * symbol, int row_no, int full)
 {
 	if(full) {
 		for(int i = 0; i < symbol->width; i++) {
@@ -49,11 +119,9 @@ void horiz(struct ZintSymbol * symbol, int row_no, int full)
 	}
 }
 
-void central_finder(struct ZintSymbol * symbol, int start_row, int row_count, int full_rows)
+static void central_finder(struct ZintSymbol * symbol, int start_row, int row_count, int full_rows)
 {
-	int i;
-
-	for(i = 0; i < row_count; i++) {
+	for(int i = 0; i < row_count; i++) {
 		if(i < full_rows) {
 			horiz(symbol, start_row + (i * 2), 1);
 		}
@@ -67,7 +135,7 @@ void central_finder(struct ZintSymbol * symbol, int start_row, int row_count, in
 	}
 }
 
-void vert(struct ZintSymbol * symbol, int column, int height, int top)
+static void vert(struct ZintSymbol * symbol, int column, int height, int top)
 {
 	if(top) {
 		for(int i = 0; i < height; i++) {
@@ -81,7 +149,7 @@ void vert(struct ZintSymbol * symbol, int column, int height, int top)
 	}
 }
 
-void spigot(struct ZintSymbol * symbol, int row_no)
+static void spigot(struct ZintSymbol * symbol, int row_no)
 {
 	for(int i = symbol->width - 1; i > 0; i--) {
 		if(module_is_set(symbol, row_no, i - 1)) {
@@ -90,7 +158,7 @@ void spigot(struct ZintSymbol * symbol, int row_no)
 	}
 }
 
-int isedi(uchar input)
+static int isedi(uchar input)
 {
 	int result = 0;
 	if(input == 13) {
@@ -114,7 +182,7 @@ int isedi(uchar input)
 	return result;
 }
 
-int dq4bi(uchar source[], int sourcelen, int position)
+static int dq4bi(uchar source[], int sourcelen, int position)
 {
 	int i;
 	for(i = position; isedi(source[position + i]) && ((position + i) < sourcelen); i++) 
@@ -335,7 +403,7 @@ static int c1_look_ahead_test(uchar source[], int sourcelen, int position, int c
 	return best_scheme;
 }
 
-int c1_encode(struct ZintSymbol * symbol, uchar source[], uint target[], int length)
+static int c1_encode(struct ZintSymbol * symbol, uchar source[], uint target[], int length)
 {
 	int current_mode, next_mode;
 	int gs1, i, j, p;
@@ -599,23 +667,18 @@ int c1_encode(struct ZintSymbol * symbol, uchar source[], uint target[], int len
 					shift_set = 2;
 					value = 27; /* FNC1 */
 				}
-
 				if(shift_set != 0) {
 					c40_buffer[c40_p] = shift_set - 1;
 					c40_p++;
 				}
 				c40_buffer[c40_p] = value;
 				c40_p++;
-
 				if(c40_p >= 3) {
-					int iv;
-
-					iv = (1600 * c40_buffer[0]) + (40 * c40_buffer[1]) + (c40_buffer[2]) + 1;
+					const int iv = (1600 * c40_buffer[0]) + (40 * c40_buffer[1]) + (c40_buffer[2]) + 1;
 					target[tp] = iv / 256;
 					tp++;
 					target[tp] = iv % 256;
 					tp++;
-
 					c40_buffer[0] = c40_buffer[3];
 					c40_buffer[1] = c40_buffer[4];
 					c40_buffer[2] = c40_buffer[5];
@@ -627,37 +690,30 @@ int c1_encode(struct ZintSymbol * symbol, uchar source[], uint target[], int len
 				sp++;
 			}
 		}
-
 		if(current_mode == C1_TEXT) {
 			/* Step D - Text encodation */
 			int shift_set, value, done = 0, latch = 0;
-
 			next_mode = C1_TEXT;
 			if(text_p == 0) {
 				if((length - sp) >= 12) {
 					j = 0;
-
 					for(i = 0; i < 12; i++) {
 						if((source[sp + i] >= '0') && (source[sp + i] <= '9')) {
 							j++;
 						}
 					}
-
 					if(j == 12) {
 						next_mode = C1_ASCII;
 						done = 1;
 					}
 				}
-
 				if((length - sp) >= 8) {
 					j = 0;
-
 					for(i = 0; i < 8; i++) {
 						if((source[sp + i] >= '0') && (source[sp + i] <= '9')) {
 							j++;
 						}
 					}
-
 					if((length - sp) == 8) {
 						latch = 1;
 					}
@@ -669,18 +725,15 @@ int c1_encode(struct ZintSymbol * symbol, uchar source[], uint target[], int len
 							}
 						}
 					}
-
 					if((j == 8) && latch) {
 						next_mode = C1_ASCII;
 						done = 1;
 					}
 				}
-
 				if(!(done)) {
 					next_mode = c1_look_ahead_test(source, length, sp, current_mode, gs1);
 				}
 			}
-
 			if(next_mode != C1_TEXT) {
 				target[tp] = 255;
 				tp++; /* Unlatch */
@@ -710,11 +763,8 @@ int c1_encode(struct ZintSymbol * symbol, uchar source[], uint target[], int len
 				}
 				text_buffer[text_p] = value;
 				text_p++;
-
 				if(text_p >= 3) {
-					int iv;
-
-					iv = (1600 * text_buffer[0]) + (40 * text_buffer[1]) + (text_buffer[2]) + 1;
+					const int iv = (1600 * text_buffer[0]) + (40 * text_buffer[1]) + (text_buffer[2]) + 1;
 					target[tp] = iv / 256;
 					tp++;
 					target[tp] = iv % 256;
@@ -731,7 +781,6 @@ int c1_encode(struct ZintSymbol * symbol, uchar source[], uint target[], int len
 				sp++;
 			}
 		}
-
 		if(current_mode == C1_EDI) {
 			/* Step E - EDI Encodation */
 			int value = 0, latch = 0;
@@ -772,17 +821,14 @@ int c1_encode(struct ZintSymbol * symbol, uchar source[], uint target[], int len
 							}
 						}
 					}
-
 					if((j == 8) && latch) {
 						next_mode = C1_ASCII;
 					}
 				}
-
 				if(!((isedi(source[sp]) && isedi(source[sp + 1])) && isedi(source[sp + 2]))) {
 					next_mode = C1_ASCII;
 				}
 			}
-
 			if(next_mode != C1_EDI) {
 				target[tp] = 255; /* Unlatch */
 				tp++;
@@ -806,14 +852,10 @@ int c1_encode(struct ZintSymbol * symbol, uchar source[], uint target[], int len
 				if((source[sp] >= 'A') && (source[sp] <= 'Z')) {
 					value = source[sp] - 'A' + 14;
 				}
-
 				edi_buffer[edi_p] = value;
 				edi_p++;
-
 				if(edi_p >= 3) {
-					int iv;
-
-					iv = (1600 * edi_buffer[0]) + (40 * edi_buffer[1]) + (edi_buffer[2]) + 1;
+					const int iv = (1600 * edi_buffer[0]) + (40 * edi_buffer[1]) + (edi_buffer[2]) + 1;
 					target[tp] = iv / 256;
 					tp++;
 					target[tp] = iv % 256;
@@ -830,16 +872,12 @@ int c1_encode(struct ZintSymbol * symbol, uchar source[], uint target[], int len
 				sp++;
 			}
 		}
-
 		if(current_mode == C1_DECIMAL) {
 			/* Step F - Decimal encodation */
 			int value, decimal_count, data_left;
-
 			next_mode = C1_DECIMAL;
-
 			data_left = length - sp;
 			decimal_count = 0;
-
 			if(data_left >= 1) {
 				if((source[sp] >= '0') && (source[sp] <= '9')) {
 					decimal_count = 1;
@@ -1037,7 +1075,6 @@ int c1_encode(struct ZintSymbol * symbol, uchar source[], uint target[], int len
 	/* Empty buffers */
 	if(c40_p == 2) {
 		int iv;
-
 		c40_buffer[2] = 1;
 		iv = (1600 * c40_buffer[0]) + (40 * c40_buffer[1]) + (c40_buffer[2]) + 1;
 		target[tp] = iv / 256;
@@ -1049,7 +1086,6 @@ int c1_encode(struct ZintSymbol * symbol, uchar source[], uint target[], int len
 	}
 	if(c40_p == 1) {
 		int iv;
-
 		c40_buffer[1] = 1;
 		c40_buffer[2] = 31; /* Pad */
 		iv = (1600 * c40_buffer[0]) + (40 * c40_buffer[1]) + (c40_buffer[2]) + 1;
@@ -1780,11 +1816,9 @@ int code_one(struct ZintSymbol * symbol, uchar source[], int length)
 		    }
 		    break;
 	}
-
 	for(i = 0; i < symbol->rows; i++) {
 		symbol->row_height[i] = 1;
 	}
-
 	return 0;
 }
 

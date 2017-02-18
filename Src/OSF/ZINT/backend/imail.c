@@ -34,7 +34,8 @@
     is Copyright (C) 2006 United States Postal Service */
 
 #include "common.h"
-#include "large.h"
+#pragma hdrstop
+//#include "large.h"
 
 static const short BCD[40] = {
 	0, 0, 0, 0,

@@ -30,6 +30,7 @@
     SUCH DAMAGE.
  */
 #include "common.h"
+#pragma hdrstop
 
 // Local replacement for strlen() with uchar strings 
 /*size_t ustrlen_(const uchar data[])

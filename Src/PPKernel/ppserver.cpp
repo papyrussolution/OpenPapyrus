@@ -1481,7 +1481,7 @@ public:
 						THROW(P_Prcssr->GetAuthAgentID());
 						if(CmdBlk.U.RowNum == -1) {
 							if(P_Prcssr->CheckRights(CPosProcessor::orfEscCheck))
-								ok = P_Prcssr->ClearCheck();
+								P_Prcssr->ClearCheck();
 						}
 						else { // (Права доступа проверяются в Backend_RemoveRow) if(P_Prcssr->CheckRights(CPosProcessor::orfEscChkLine)) {
 							THROW(P_Prcssr->Backend_RemoveRow(CmdBlk.U.RowNum));

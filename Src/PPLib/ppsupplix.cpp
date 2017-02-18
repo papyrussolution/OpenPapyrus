@@ -4576,7 +4576,7 @@ int SLAPI SapEfes::SendSales_ByDlvrLoc()
 	const  LDATE _curdate = getcurdate_();
 	TSCollection <SapEfesLogMsg> * p_result = 0;
 	TSCollection <SapEfesGoodsReportEntry> outp_packet;
-	
+
 	PPSoapClientSession sess;
 	SapEfesCallHeader sech;
 	EFESSETMTDOUTLETSREPORTSYNC_PROC func = 0;
@@ -4611,7 +4611,7 @@ int SLAPI SapEfes::SendSales_ByDlvrLoc()
 					SapEfesGoodsReportEntry * p_new_item = outp_packet.CreateNewItem(0);
 					THROW_SL(p_new_item);
 					p_new_item->DlvrLocCode = loc_code;
-					p_new_item->Dt = _curdate;
+					p_new_item->Dt = ta_filt.Period.upp;
 					p_new_item->Qtty = fabs(ta_item.PhQtty);
 					p_new_item->UnitType = spaefesUnitLiter;
 				}
@@ -4634,7 +4634,7 @@ int SLAPI SapEfes::SendSales_ByGoods()
 	const  LDATE _curdate = getcurdate_();
 	TSCollection <SapEfesLogMsg> * p_result = 0;
 	TSCollection <SapEfesGoodsReportEntry> outp_packet;
-	
+
 	PPSoapClientSession sess;
 	SapEfesCallHeader sech;
 	EFESSETMTDPRODUCTREPORTSYNC_PROC func = 0;
@@ -4662,7 +4662,7 @@ int SLAPI SapEfes::SendSales_ByGoods()
 					SapEfesGoodsReportEntry * p_new_item = outp_packet.CreateNewItem(0);
 					THROW_SL(p_new_item);
 					p_new_item->GoodsCode = ar_code;
-					p_new_item->Dt = _curdate;
+					p_new_item->Dt = ta_filt.Period.upp;
 					p_new_item->Qtty = fabs(ta_item.PhQtty);
 					p_new_item->UnitType = spaefesUnitLiter;
 				}
@@ -4682,6 +4682,7 @@ int SLAPI SapEfes::SendSales_ByGoods()
 int SLAPI SapEfes::SendStocks()
 {
     int    ok = -1;
+    const  LDATE _curdate = getcurdate_();
 	SString temp_buf;
     TSCollection <SapEfesLogMsg> * p_result = 0;
 	TSCollection <SapEfesGoodsReportEntry> outp_packet;
@@ -4695,14 +4696,13 @@ int SLAPI SapEfes::SendStocks()
 	sess.Setup(SvcUrl, UserName, Password);
 	InitCallHeader(sech);
 	{
-		const LDATE _curdate = getcurdate_();
 		PPViewGoodsRest gr_view;
 		GoodsRestFilt gr_filt;
 		GoodsRestViewItem gr_item;
 		SString ar_code;
 		//LocationTbl::Rec loc_rec;
 
-		gr_filt.Date = ZERODATE;
+		gr_filt.Date = NZOR(P.ExpPeriod.upp, _curdate);
 		gr_filt.GoodsGrpID = Ep.GoodsGrpID;
 		gr_filt.LocList = P.LocList; // @v9.3.0
 		gr_filt.Flags |= GoodsRestFilt::fEachLocation;
@@ -4716,7 +4716,7 @@ int SLAPI SapEfes::SendStocks()
 				SapEfesGoodsReportEntry * p_new_item = outp_packet.CreateNewItem(0);
 				THROW_SL(p_new_item);
 				p_new_item->GoodsCode = ar_code;
-				p_new_item->Dt = _curdate;
+				p_new_item->Dt = gr_filt.Date;
                 p_new_item->Qtty = gr_item.PhRest;
 				p_new_item->UnitType = spaefesUnitLiter;
 			}

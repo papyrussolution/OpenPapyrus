@@ -28,12 +28,9 @@
     OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
  */
-
 #include "common.h"
-#include "gs1.h"
-#ifdef _MSC_VER
-	#include <malloc.h>
-#endif
+#pragma hdrstop
+//#include "gs1.h"
 
 #define TECHNETIUM      "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%"
 
@@ -1064,9 +1061,8 @@ int ZBarcode_Encode(struct ZintSymbol * symbol, const uchar * source, int length
 
 int ZBarcode_Print(struct ZintSymbol * symbol, int rotate_angle)
 {
-	int error_number;
-	char output[4];
-
+	int    error_number;
+	char   output[4];
 	switch(rotate_angle) {
 		case 0:
 		case 90:
@@ -1077,21 +1073,18 @@ int ZBarcode_Print(struct ZintSymbol * symbol, int rotate_angle)
 		    strcpy(symbol->errtxt, "Invalid rotation angle (B23)");
 		    return ZINT_ERROR_INVALID_OPTION;
 	}
-
 	if(symbol->output_options & BARCODE_DOTTY_MODE) {
 		if(!(is_matrix(symbol->Std))) {
 			strcpy(symbol->errtxt, "Selected symbology cannot be rendered as dots (B24)");
 			return ZINT_ERROR_INVALID_OPTION;
 		}
 	}
-
 	if(strlen(symbol->outfile) > 3) {
 		output[0] = symbol->outfile[strlen(symbol->outfile) - 3];
 		output[1] = symbol->outfile[strlen(symbol->outfile) - 2];
 		output[2] = symbol->outfile[strlen(symbol->outfile) - 1];
 		output[3] = '\0';
 		to_upper((uchar*)output);
-
 		if(!(strcmp(output, "PNG"))) {
 			if(symbol->scale < 1.0) {
 				symbol->text[0] = '\0';
@@ -1141,7 +1134,6 @@ int ZBarcode_Print(struct ZintSymbol * symbol, int rotate_angle)
 		/* If libpng is not installed */
 		strcpy(symbol->errtxt, "Unknown output format (B27)");
 	}
-
 	error_tag(symbol->errtxt, error_number);
 	return error_number;
 }

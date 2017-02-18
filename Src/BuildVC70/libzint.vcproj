@@ -31,7 +31,9 @@
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)$(ProjectName).pch"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="3"
@@ -82,7 +84,9 @@
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)$(ProjectName).pch"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="0"
@@ -704,46 +708,39 @@
 						CompileAs="2"/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath="..\Osf\Zint\backend\zint-pch.c">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+						CompileAs="2"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+						CompileAs="2"/>
+				</FileConfiguration>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath="..\Osf\Zint\backend\aztec.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zint\backend\code1.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zint\backend\code49.h">
-			</File>
-			<File
 				RelativePath="..\Osf\Zint\backend\common.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zint\backend\composite.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zint\backend\dmatrix.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zint\backend\font.h">
+				RelativePath="..\Osf\Zint\backend\gb18030.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zint\backend\gb2312.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zint\backend\gridmtx.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zint\backend\gs1.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zint\backend\large.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zint\backend\maxicode.h">
+				RelativePath="..\Osf\Zint\backend\hanxin.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zint\backend\maxipng.h">
@@ -753,15 +750,6 @@
 			</File>
 			<File
 				RelativePath="..\Osf\Zint\backend\pdf417.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zint\backend\qr.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zint\backend\reedsol.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zint\backend\rss.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zint\backend\sjis.h">

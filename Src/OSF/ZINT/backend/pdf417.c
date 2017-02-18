@@ -42,13 +42,11 @@
    number of codeword columns not including row start and end data) */
 
 #include "common.h"
+#pragma hdrstop
 #include "pdf417.h"
-#include "large.h"
+//#include "large.h"
 #ifndef _MSC_VER
 	#include <stdint.h>
-#else
-	#include <malloc.h>
-	#include "ms_stdint.h"
 #endif
 
 /*
@@ -417,11 +415,8 @@ void textprocess(int * chainemc, int * mclength, char chaine[], int start, int l
 	/* Now translate the string chainet into codewords */
 	chainemc[*(mclength)] = 900;
 	*(mclength) = *(mclength) + 1;
-
 	for(j = 0; j < wnet; j += 2) {
-		int cw_number;
-
-		cw_number = (30 * chainet[j]) + chainet[j + 1];
+		const int cw_number = (30 * chainet[j]) + chainet[j + 1];
 		chainemc[*(mclength)] = cw_number;
 		*(mclength) = *(mclength) + 1;
 	}
@@ -454,13 +449,14 @@ void byteprocess(int * chainemc, int * mclength, uchar chaine[], int start, int 
 		/* select the switch for multiple of 6 bytes */
 		if(length % 6 == 0) {
 			chainemc[(*mclength)++] = 924;
-			if(debug) printf("924 ");
+			if(debug) 
+				printf("924 ");
 		}
 		else {
 			chainemc[(*mclength)++] = 901;
-			if(debug) printf("901 ");
+			if(debug) 
+				printf("901 ");
 		}
-
 		while(len < length) {
 			chunkLen = length - len;
 			if(6 <= chunkLen) { /* Take groups of 6 */
@@ -471,7 +467,6 @@ void byteprocess(int * chainemc, int * mclength, uchar chaine[], int start, int 
 #else
 				total = 0ULL;
 #endif
-
 				while(chunkLen--) {
 					mantisa = chaine[start++];
 #if defined(_MSC_VER) && _MSC_VER == 1200
@@ -529,7 +524,7 @@ void numbprocess(int * chainemc, int * mclength, char chaine[], int start, int l
 		chainemod[longueur + 1] = '\0';
 		do {
 			diviseur = 900;
-			/* 877 - gosub Modulo */
+			// 877 - gosub Modulo 
 			strcpy(chainemult, "");
 			nombre = 0;
 			while(strlen(chainemod) != 0) {
@@ -571,23 +566,18 @@ void numbprocess(int * chainemc, int * mclength, char chaine[], int start, int l
 /* 366 */
 int pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 {
-	int i, k, j, indexchaine, indexliste, mode, longueur, loop, mccorrection[520], offset;
-	int total, chainemc[2700], mclength, c1, c2, c3, dummy[35], codeerr;
+	int i, k, j, longueur, loop, mccorrection[520], offset;
+	int total, chainemc[2700], mclength, c1, c2, c3, dummy[35];
 	char codebarre[140], pattern[580];
 	int debug = 0;
-
-	codeerr = 0;
-
+	int codeerr = 0;
 	/* 456 */
-	indexliste = 0;
-	indexchaine = 0;
-
-	mode = quelmode(chaine[indexchaine]);
-
+	int indexliste = 0;
+	int indexchaine = 0;
+	int mode = quelmode(chaine[indexchaine]);
 	for(i = 0; i < 1000; i++) {
 		liste[0][i] = 0;
 	}
-
 	/* 463 */
 	do {
 		liste[1][indexliste] = mode;
@@ -607,14 +597,10 @@ int pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 		for(i = 0; i < indexliste; i++) {
 			printf("Len: %d  Type: ", liste[0][i]);
 			switch(liste[1][i]) {
-				case TEX: printf("Text\n");
-				    break;
-				case BYT: printf("Byte\n");
-				    break;
-				case NUM: printf("Number\n");
-				    break;
-				default: printf("ERROR\n");
-				    break;
+				case TEX: printf("Text\n"); break;
+				case BYT: printf("Byte\n"); break;
+				case NUM: printf("Number\n"); break;
+				default: printf("ERROR\n"); break;
 			}
 		}
 	}
@@ -689,16 +675,13 @@ int pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 		/* stop the symbol from becoming too high */
 		symbol->option_2 = symbol->option_2 + 1;
 	}
-
 	if(longueur + k > 928) {
 		/* Enforce maximum codeword limit */
 		return 2;
 	}
-
 	if(((longueur + k) / symbol->option_2) > 90) {
 		return 4;
 	}
-
 	/* 781 - Padding calculation */
 	longueur = mclength + 1 + k;
 	i = 0;
@@ -725,24 +708,15 @@ int pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 
 	/* 796 - we now take care of the Reed Solomon codes */
 	switch(symbol->option_1) {
-		case 1: offset = 2;
-		    break;
-		case 2: offset = 6;
-		    break;
-		case 3: offset = 14;
-		    break;
-		case 4: offset = 30;
-		    break;
-		case 5: offset = 62;
-		    break;
-		case 6: offset = 126;
-		    break;
-		case 7: offset = 254;
-		    break;
-		case 8: offset = 510;
-		    break;
-		default: offset = 0;
-		    break;
+		case 1: offset = 2; break;
+		case 2: offset = 6; break;
+		case 3: offset = 14; break;
+		case 4: offset = 30; break;
+		case 5: offset = 62; break;
+		case 6: offset = 126; break;
+		case 7: offset = 254; break;
+		case 8: offset = 510; break;
+		default: offset = 0; break;
 	}
 
 	longueur = mclength;
@@ -793,12 +767,9 @@ int pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 			/* truncated - so same as before except knock off the last 5 chars */
 			for(j = 0; j <= symbol->option_2; j++) {
 				switch(i % 3) {
-					case 1: offset = 929;
-					    break;
-					case 2: offset = 1858;
-					    break;
-					default: offset = 0;
-					    break;
+					case 1: offset = 929; break;
+					case 2: offset = 1858; break;
+					default: offset = 0; break;
 				}
 				strcat(codebarre, codagemc[offset + dummy[j]]);
 				strcat(codebarre, "*");
@@ -808,12 +779,9 @@ int pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 			/* normal PDF417 symbol */
 			for(j = 0; j <= symbol->option_2 + 1; j++) {
 				switch(i % 3) {
-					case 1: offset = 929;
-					    /* cluster(3) */ break;
-					case 2: offset = 1858;
-					    /* cluster(6) */ break;
-					default: offset = 0;
-					    /* cluster(0) */ break;
+					case 1: offset = 929; /* cluster(3) */ break;
+					case 2: offset = 1858; /* cluster(6) */ break;
+					default: offset = 0; /* cluster(0) */ break;
 				}
 				strcat(codebarre, codagemc[offset + dummy[j]]);
 				strcat(codebarre, "*");
@@ -844,10 +812,8 @@ int pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 /* 345 */
 int pdf417enc(struct ZintSymbol * symbol, uchar source[], int length)
 {
-	int codeerr, error_number;
-
-	error_number = 0;
-
+	int codeerr;
+	int error_number = 0;
 	if((symbol->option_1 < -1) || (symbol->option_1 > 8)) {
 		strcpy(symbol->errtxt, "Security value out of range (D60)");
 		symbol->option_1 = -1;
@@ -858,10 +824,8 @@ int pdf417enc(struct ZintSymbol * symbol, uchar source[], int length)
 		symbol->option_2 = 0;
 		error_number = ZINT_WARN_INVALID_OPTION;
 	}
-
 	/* 349 */
 	codeerr = pdf417(symbol, source, length);
-
 	/* 352 */
 	if(codeerr != 0) {
 		switch(codeerr) {
@@ -1011,7 +975,6 @@ int micro_pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 			variant = 1;
 		}
 	}
-
 	if(symbol->option_2 == 2) {
 		/* the user specified 2 columns and the data does fit */
 		variant = 13;
@@ -1034,7 +997,6 @@ int micro_pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 			variant = 7;
 		}
 	}
-
 	if(symbol->option_2 == 3) {
 		/* the user specified 3 columns and the data does fit */
 		variant = 23;
@@ -1066,7 +1028,6 @@ int micro_pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 			variant = 14;
 		}
 	}
-
 	if(symbol->option_2 == 4) {
 		/* the user specified 4 columns and the data does fit */
 		variant = 34;
@@ -1101,17 +1062,15 @@ int micro_pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 			variant = 24;
 		}
 	}
-
 	if(variant == 0) {
-		/* Zint can choose automatically from all available variations */
+		// Zint can choose automatically from all available variations 
 		for(i = 27; i >= 0; i--) {
 			if(MicroAutosize[i] >= mclength) {
 				variant = MicroAutosize[i + 28];
 			}
 		}
 	}
-
-	/* Now we have the variant we can load the data */
+	// Now we have the variant we can load the data 
 	variant--;
 	symbol->option_2 = MicroVariants[variant]; /* columns */
 	symbol->rows = MicroVariants[variant + 34]; /* rows */
@@ -1119,22 +1078,19 @@ int micro_pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 	longueur = (symbol->option_2 * symbol->rows) - k; /* number of non-EC CWs */
 	i = longueur - mclength; /* amount of padding required */
 	offset = MicroVariants[variant + 102]; /* coefficient offset */
-
 	if(debug) {
 		printf("\nChoose symbol size:\n");
 		printf("%d columns x %d rows\n", symbol->option_2, symbol->rows);
 		printf("%d data codewords (including %d pads), %d ecc codewords\n", longueur, i, k);
 		printf("\n");
 	}
-
-	/* We add the padding */
+	// We add the padding 
 	while(i > 0) {
 		chainemc[mclength] = 900;
 		mclength++;
 		i--;
 	}
-
-	/* Reed-Solomon error correction */
+	// Reed-Solomon error correction 
 	longueur = mclength;
 	for(loop = 0; loop < 50; loop++) {
 		mccorrection[loop] = 0;
@@ -1151,18 +1107,16 @@ int micro_pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 			}
 		}
 	}
-
 	for(j = 0; j < k; j++) {
 		if(mccorrection[j] != 0) {
 			mccorrection[j] = 929 - mccorrection[j];
 		}
 	}
-	/* we add these codes to the string */
+	// we add these codes to the string 
 	for(i = k - 1; i >= 0; i--) {
 		chainemc[mclength] = mccorrection[i];
 		mclength++;
 	}
-
 	if(debug) {
 		printf("Encoded Data Stream with ECC:\n");
 		for(i = 0; i < mclength; i++) {
@@ -1170,24 +1124,22 @@ int micro_pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 		}
 		printf("\n");
 	}
-
-	/* Now get the RAP (Row Address Pattern) start values */
+	// Now get the RAP (Row Address Pattern) start values 
 	LeftRAPStart = RAPTable[variant];
 	CentreRAPStart = RAPTable[variant + 34];
 	RightRAPStart = RAPTable[variant + 68];
 	StartCluster = RAPTable[variant + 102] / 3;
-
-	/* That's all values loaded, get on with the encoding */
-
+	// That's all values loaded, get on with the encoding 
 	LeftRAP = LeftRAPStart;
 	CentreRAP = CentreRAPStart;
 	RightRAP = RightRAPStart;
 	Cluster = StartCluster;
-	/* Cluster can be 0, 1 or 2 for Cluster(0), Cluster(3) and Cluster(6) */
-
-	if(debug) printf("\nInternal row representation:\n");
+	// Cluster can be 0, 1 or 2 for Cluster(0), Cluster(3) and Cluster(6) 
+	if(debug) 
+		printf("\nInternal row representation:\n");
 	for(i = 0; i < symbol->rows; i++) {
-		if(debug) printf("row %d: ", i);
+		if(debug) 
+			printf("row %d: ", i);
 		strcpy(codebarre, "");
 		offset = 929 * Cluster;
 		for(j = 0; j < 5; j++) {
@@ -1195,10 +1147,10 @@ int micro_pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 		}
 		for(j = 0; j < symbol->option_2; j++) {
 			dummy[j + 1] = chainemc[i * symbol->option_2 + j];
-			if(debug) printf("[%d] ", dummy[j + 1]);
+			if(debug) 
+				printf("[%d] ", dummy[j + 1]);
 		}
-
-		/* Copy the data into codebarre */
+		// Copy the data into codebarre 
 		strcat(codebarre, RAPLR[LeftRAP]);
 		strcat(codebarre, "1");
 		strcat(codebarre, codagemc[offset + dummy[1]]);
@@ -1226,31 +1178,20 @@ int micro_pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 		}
 		strcat(codebarre, RAPLR[RightRAP]);
 		strcat(codebarre, "1"); /* stop */
-		if(debug) printf("%s\n", codebarre);
-
-		/* Now codebarre is a mixture of letters and numbers */
-
+		if(debug) 
+			printf("%s\n", codebarre);
+		// Now codebarre is a mixture of letters and numbers 
 		writer = 0;
 		flip = 1;
 		strcpy(pattern, "");
 		for(loop = 0; loop < strlen(codebarre); loop++) {
 			if((codebarre[loop] >= '0') && (codebarre[loop] <= '9')) {
 				for(k = 0; k < ctoi(codebarre[loop]); k++) {
-					if(flip == 0) {
-						pattern[writer] = '0';
-					}
-					else {
-						pattern[writer] = '1';
-					}
+					pattern[writer] = (flip == 0) ? '0' : '1';
 					writer++;
 				}
 				pattern[writer] = '\0';
-				if(flip == 0) {
-					flip = 1;
-				}
-				else {
-					flip = 0;
-				}
+				flip = (flip == 0) ? 1 : 0;
 			}
 			else {
 				lookup(BRSET, PDFttf, codebarre[loop], pattern);
@@ -1258,21 +1199,18 @@ int micro_pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 			}
 		}
 		symbol->width = writer;
-
-		/* so now pattern[] holds the string of '1's and '0's. - copy this to the symbol */
+		// so now pattern[] holds the string of '1's and '0's. - copy this to the symbol 
 		for(loop = 0; loop < strlen(pattern); loop++) {
 			if(pattern[loop] == '1') {
 				set_module(symbol, i, loop);
 			}
 		}
 		symbol->row_height[i] = 2;
-
-		/* Set up RAPs and Cluster for next row */
+		// Set up RAPs and Cluster for next row 
 		LeftRAP++;
 		CentreRAP++;
 		RightRAP++;
 		Cluster++;
-
 		if(LeftRAP == 53) {
 			LeftRAP = 1;
 		}
@@ -1286,7 +1224,6 @@ int micro_pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 			Cluster = 0;
 		}
 	}
-
 	return codeerr;
 }
 

@@ -33,14 +33,14 @@
 /*
  * Attempts to encode DotCode according to AIMD013 Rev 1.34a, dated Feb 19, 2009
  */
-
 #include "common.h"
-#include "gs1.h"
+#pragma hdrstop
+//#include "gs1.h"
 #ifndef _MSC_VER
 	#include <stdint.h>
 #else
-	#include "ms_stdint.h"
-	#include <malloc.h>
+	//#include "ms_stdint.h"
+	//#include <malloc.h>
 #endif
 
 #define GF 113

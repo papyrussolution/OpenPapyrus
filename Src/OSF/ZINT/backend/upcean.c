@@ -28,8 +28,8 @@
     OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
  */
-
 #include "common.h"
+#pragma hdrstop
 
 #define SODIUM  "0123456789+"
 #define EAN2    102

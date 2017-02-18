@@ -30,17 +30,13 @@
  */
 
 /* This code attempts to implement Han Xin Code according to AIMD-015:2010 (Rev 0.8) */
-
 #include "common.h"
-#include "reedsol.h"
+#pragma hdrstop
 #include "hanxin.h"
 #include "gb18030.h"
-#include "assert.h"
-#ifdef _MSC_VER
-	#include <malloc.h>
-#endif
-
-/* Find which submode to use for a text character */
+//
+// Find which submode to use for a text character 
+//
 int getsubmode(char input)
 {
 	int    submode = 2;

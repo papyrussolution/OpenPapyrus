@@ -29,12 +29,8 @@
     OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
  */
-
 #include "common.h"
-#include "reedsol.h"
-#ifdef _MSC_VER
-	#define inline _inline
-#endif
+#pragma hdrstop
 
 #define GDSET   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz #"
 
@@ -64,9 +60,10 @@ static inline char convert_pattern(char data, int shift)
 {
 	return (data - '0') << shift;
 }
-
-/* Adds Reed-Solomon error correction to auspost */
-void rs_error(char data_pattern[])
+//
+// Adds Reed-Solomon error correction to auspost 
+//
+static void rs_error(char data_pattern[])
 {
 	int reader, triple_writer = 0;
 	char triple[31], inv_triple[31];
@@ -88,8 +85,9 @@ void rs_error(char data_pattern[])
 	}
 	rs_free();
 }
-
-/* Handles Australia Posts's 4 State Codes */
+//
+// Handles Australia Posts's 4 State Codes 
+//
 int australia_post(struct ZintSymbol * symbol, uchar source[], int length)
 {
 	/* Customer Standard Barcode, Barcode 2 or Barcode 3 system determined automatically
@@ -101,21 +99,18 @@ int australia_post(struct ZintSymbol * symbol, uchar source[], int length)
 	   1 = Tracker and Ascender
 	   2 = Tracker and Descender
 	   3 = Tracker only */
-	int error_number, zeroes;
+	int error_number = 0;
+	int zeroes;
 	int writer;
 	uint loopey, reader;
 	size_t h;
-
 	char data_pattern[200];
 	char fcc[3] = {0, 0, 0}, dpid[10];
 	char localstr[30];
-
-	error_number = 0;
 	strcpy(localstr, "");
-
-	/* Do all of the length checking first to avoid stack smashing */
+	// Do all of the length checking first to avoid stack smashing 
 	if(symbol->Std == BARCODE_AUSPOST) {
-		/* Format control code (FCC) */
+		// Format control code (FCC) 
 		switch(length) {
 			case 8: strcpy(fcc, "11"); break;
 			case 13: strcpy(fcc, "59"); break;
@@ -180,7 +175,6 @@ int australia_post(struct ZintSymbol * symbol, uchar source[], int length)
 	for(reader = 0; reader < 8; reader++) {
 		lookup(NEON, AusNTable, dpid[reader], data_pattern);
 	}
-
 	/* Customer Information */
 	if(h > 8) {
 		if(oneof2(h, 13, 18)) {

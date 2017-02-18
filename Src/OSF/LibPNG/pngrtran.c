@@ -933,9 +933,7 @@ void PNGFAPI png_set_rgb_to_gray_fixed(png_structrp png_ptr, int error_action,
 		/* Make this an error in 1.6 because otherwise the application may assume
 		 * that it just worked and get a memory overwrite.
 		 */
-		png_error(png_ptr,
-		    "Cannot do RGB_TO_GRAY without EXPAND_SUPPORTED");
-
+		png_error(png_ptr, "Cannot do RGB_TO_GRAY without EXPAND_SUPPORTED");
 		/* png_ptr->transformations &= ~PNG_RGB_TO_GRAY; */
 	}
 #endif
@@ -958,8 +956,7 @@ void PNGFAPI png_set_rgb_to_gray_fixed(png_structrp png_ptr, int error_action,
 
 		else{
 			if(red >= 0 && green >= 0)
-				png_app_warning(png_ptr,
-				    "ignoring out of range rgb_to_gray coefficients");
+				png_app_warning(png_ptr, "ignoring out of range rgb_to_gray coefficients");
 
 			/* Use the defaults, from the cHRM chunk if set, else the historical
 			 * values which are close to the sRGB/HDTV/ITU-Rec 709 values.  See
@@ -967,8 +964,7 @@ void PNGFAPI png_set_rgb_to_gray_fixed(png_structrp png_ptr, int error_action,
 			 * the coefficients are not marked as 'set' and are not overwritten if
 			 * something has already provided a default.
 			 */
-			if(png_ptr->rgb_to_gray_red_coeff == 0 &&
-			    png_ptr->rgb_to_gray_green_coeff == 0) {
+			if(png_ptr->rgb_to_gray_red_coeff == 0 && png_ptr->rgb_to_gray_green_coeff == 0) {
 				png_ptr->rgb_to_gray_red_coeff   = 6968;
 				png_ptr->rgb_to_gray_green_coeff = 23434;
 				/* png_ptr->rgb_to_gray_blue_coeff  = 2366; */

@@ -33,8 +33,8 @@
 /* Updated to comply with BS EN 12323:2005 */
 
 /* Code 16k can hold up to 77 characters or 154 numbers */
-
 #include "common.h"
+#pragma hdrstop
 
 //#define TRUE 1
 //#define FALSE 0

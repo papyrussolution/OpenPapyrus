@@ -28,13 +28,10 @@
     LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
     OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
- */
-
+*/
 #include "common.h"
-#include "gs1.h"
-#ifdef _MSC_VER
-	#include <malloc.h>
-#endif
+#pragma hdrstop
+//#include "gs1.h"
 
 /* FTab C128 flags - may be added */
 #define CodeA 1

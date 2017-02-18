@@ -29,10 +29,11 @@
     OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
  */
-
-/* In version 0.5 this file was 1,553 lines long! */
-
+//
+// In version 0.5 this file was 1,553 lines long! */
+//
 #include "common.h"
+#pragma hdrstop
 
 #define SODIUM  "0123456789-"
 #define SILVER  "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%abcd"

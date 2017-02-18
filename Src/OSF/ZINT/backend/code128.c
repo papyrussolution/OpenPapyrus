@@ -31,10 +31,8 @@
     SUCH DAMAGE.
  */
 #include "common.h"
-#include "gs1.h"
-#ifdef _MSC_VER
-	#include <malloc.h>
-#endif
+#pragma hdrstop
+//#include "gs1.h"
 
 //#define TRUE 1
 //#define FALSE 0
