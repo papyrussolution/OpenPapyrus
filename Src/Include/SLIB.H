@@ -10714,6 +10714,9 @@ public:
 			s16Idx,       // 16 bits per pixel, indexed. The color table therefore has 256 colors in it.
 			sCount
 		};
+
+		static uint32 FASTCALL UniformToGrayscale(uint32 u);
+
 		PixF(int s = 0);
 		int    IsValid() const;
 		uint   GetBpp() const;
@@ -10767,6 +10770,7 @@ public:
 	int    LoadMime_Base64(const char * pFormatStr, const SString & rS);
 	int    Store(const StoreParam &, SFile & rF);
 	int    TransformToBounds(TPoint size, const SViewPort * pVp);
+	int    TransformToGrayscale();
 private:
 	int    LoadJpeg(SFile & rF, int fileFmt);
 	int    LoadPng(SFile & rF);
@@ -10957,6 +10961,7 @@ public:
 	int    LoadMime_Base64(const char * pFormatStr, const SString & rS);
 	int    Store(SImageBuffer::StoreParam & rP, SFile & rF);
 	int    TransformToBounds(TPoint size, const SViewPort * pVp);
+	int    TransformToGrayscale();
 private:
 	SImageBuffer Buf;
 };
@@ -11581,8 +11586,8 @@ public:
 	int    _check_eq_tolerance(double a, double b, double tol, const char * pA, const char * pB);
 	int    _check_eq_tolerance(float a, float b, float tol, const char * pA, const char * pB);
 	int    _check_eq(LDATE a, LDATE b, const char * pA, const char * pB);
-	int    _check_eq(SString & rVA, SString & rVB, const char * pA, const char * pB);
-	int    _check_eq(SString & rVA, const char * pVB, const char * pA, const char * pB);
+	int    _check_eq(const SString & rVA, const SString & rVB, const char * pA, const char * pB);
+	int    _check_eq(const SString & rVA, const char * pVB, const char * pA, const char * pB);
 	int    _check_le(long a, long b, const char * pA, const char * pB);
 	int    _check_le(ulong a, ulong b, const char * pA, const char * pB);
 	int    _check_le(double a, double b, const char * pA, const char * pB);
