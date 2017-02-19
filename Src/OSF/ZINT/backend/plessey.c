@@ -43,8 +43,9 @@ static const char * MSITable[10] = {
 	"12121212", "12121221", "12122112", "12122121", "12211212", "12211221",
 	"12212112", "12212121", "21121212", "21121221"
 };
-
-/* Not MSI/Plessey but the older Plessey standard */
+//
+// Not MSI/Plessey but the older Plessey standard 
+//
 int plessey(struct ZintSymbol * symbol, uchar source[], int length)
 {
 	static const char grid[9] = {1, 1, 1, 1, 0, 1, 0, 0, 1};
@@ -96,8 +97,9 @@ int plessey(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 	return error_number;
 }
-
-/* Plain MSI Plessey - does not calculate any check character */
+//
+// Plain MSI Plessey - does not calculate any check character 
+//
 int msi_plessey(struct ZintSymbol * symbol, uchar source[], int length)
 {
 	if(length > 55) {
@@ -118,49 +120,52 @@ int msi_plessey(struct ZintSymbol * symbol, uchar source[], int length)
 		return 0;
 	}
 }
-
-/* MSI Plessey with Modulo 10 check digit - algorithm from Barcode Island
- * http://www.barcodeisland.com/ */
+//
+// MSI Plessey with Modulo 10 check digit - algorithm from Barcode Island
+// http://www.barcodeisland.com/
+//
 int msi_plessey_mod10(struct ZintSymbol * symbol, uchar source[], int length)
 {
-	unsigned long i, wright, dau, pedwar, pump/*, n*/;
-	char un[200], tri[32];
-	//int h;
-	int error_number = 0;
+	int    error_number = 0;
 	if(length > 18) {
 		strcpy(symbol->errtxt, "Input too long (C73)");
-		return ZINT_ERROR_TOO_LONG;
+		error_number = ZINT_ERROR_TOO_LONG;
 	}
 	else {
+		ulong  wright, dau, pedwar, pump/*, n*/;
+		char   un[200], tri[32];
 		char dest[1000];
 		// start character 
 		strcpy(dest, "21");
 		// draw data section 
-		for(i = 0; i < length; i++) {
-			lookup(NEON, MSITable, source[i], dest);
-		}
 		{
-			// calculate check digit 
-			wright = 0;
-			const ulong n = !(length & 1);
-			for(i = n; i < length; i += 2) {
-				un[wright++] = source[i];
+			int    i;
+			for(i = 0; i < length; i++) {
+				lookup(NEON, MSITable, source[i], dest);
 			}
-			un[wright] = '\0';
-			dau = strtoul(un, NULL, 10);
-			dau *= 2;
-			sprintf(tri, "%ld", dau);
+			{
+				// calculate check digit 
+				wright = 0;
+				const ulong n = !(length & 1);
+				for(i = n; i < length; i += 2) {
+					un[wright++] = source[i];
+				}
+				un[wright] = '\0';
+				dau = strtoul(un, NULL, 10);
+				dau *= 2;
+				sprintf(tri, "%ld", dau);
+			}
 		}
 		{
 			pedwar = 0;
 			const ulong h = strlen(tri);
-			for(i = 0; i < h; i++) {
+			for(ulong i = 0; i < h; i++) {
 				pedwar += ctoi(tri[i]);
 			}
 		}
 		{
-			const ulong n = length & 1;
-			for(i = n; i < length; i += 2) {
+			const int n = (int)(length & 1);
+			for(int i = n; i < length; i += 2) {
 				pedwar += ctoi(source[i]);
 			}
 		}
@@ -176,90 +181,92 @@ int msi_plessey_mod10(struct ZintSymbol * symbol, uchar source[], int length)
 		ustrcpy(symbol->text, source);
 		symbol->text[length] = itoc(pump);
 		symbol->text[length + 1] = '\0';
-		return error_number;
 	}
+	return error_number;
 }
-
-/* MSI Plessey with two Modulo 10 check digits - algorithm from
- * Barcode Island http://www.barcodeisland.com/ */
+//
+// MSI Plessey with two Modulo 10 check digits - algorithm from
+// Barcode Island http://www.barcodeisland.com/ 
+//
 int msi_plessey_mod1010(struct ZintSymbol * symbol, uchar source[], const uint src_len)
 {
-	unsigned long i, n, wright, dau, pedwar, pump, chwech;
-	char   un[16], tri[32];
-	int    h;
-	char   dest[1000];
 	int    error_number = 0;
-	if(src_len > 18) {
-		/* No Entry Stack Smashers! limit because of str->number conversion*/
+	if(src_len > 18) { // No Entry Stack Smashers! limit because of str->number conversion
 		strcpy(symbol->errtxt, "Input too long (C74)");
-		return ZINT_ERROR_TOO_LONG;
+		error_number = ZINT_ERROR_TOO_LONG;
 	}
-	/* start character */
-	strcpy(dest, "21");
-	/* draw data section */
-	for(i = 0; i < src_len; i++) {
-		lookup(NEON, MSITable, source[i], dest);
-	}
-	/* calculate first check digit */
-	wright = 0;
-	n = !(src_len & 1);
-	for(i = n; i < src_len; i += 2) {
-		un[wright++] = source[i];
-	}
-	un[wright] = '\0';
-	dau = strtoul(un, NULL, 10);
-	dau *= 2;
-	sprintf(tri, "%ld", dau);
-	pedwar = 0;
-	h = strlen(tri);
-	for(i = 0; i < h; i++) {
-		pedwar += ctoi(tri[i]);
-	}
-	n = src_len & 1;
-	for(i = n; i < src_len; i += 2) {
-		pedwar += ctoi(source[i]);
-	}
-	pump = 10 - pedwar % 10;
-	if(pump == 10) {
-		pump = 0;
-	}
-	// calculate second check digit 
-	wright = 0;
-	n = src_len & 1;
-	for(i = n; i < src_len; i += 2) {
-		un[wright++] = source[i];
-	}
-	un[wright++] = itoc(pump);
-	un[wright] = '\0';
+	else {
+		ulong  i, n, wright, dau, pedwar, pump, chwech;
+		char   un[16], tri[32];
+		ulong  h;
+		char   dest[1000];
+		// start character 
+		strcpy(dest, "21");
+		// draw data section 
+		for(i = 0; i < src_len; i++) {
+			lookup(NEON, MSITable, source[i], dest);
+		}
+		// calculate first check digit 
+		wright = 0;
+		n = !(src_len & 1);
+		for(i = n; i < src_len; i += 2) {
+			un[wright++] = source[i];
+		}
+		un[wright] = '\0';
+		dau = strtoul(un, NULL, 10);
+		dau *= 2;
+		sprintf(tri, "%ld", dau);
+		pedwar = 0;
+		h = strlen(tri);
+		for(i = 0; i < h; i++) {
+			pedwar += ctoi(tri[i]);
+		}
+		n = src_len & 1;
+		for(i = n; i < src_len; i += 2) {
+			pedwar += ctoi(source[i]);
+		}
+		pump = 10 - pedwar % 10;
+		if(pump == 10) {
+			pump = 0;
+		}
+		// calculate second check digit 
+		wright = 0;
+		n = src_len & 1;
+		for(i = n; i < src_len; i += 2) {
+			un[wright++] = source[i];
+		}
+		un[wright++] = itoc(pump);
+		un[wright] = '\0';
 
-	dau = strtoul(un, NULL, 10);
-	dau *= 2;
+		dau = strtoul(un, NULL, 10);
+		dau *= 2;
 
-	sprintf(tri, "%ld", dau);
+		sprintf(tri, "%ld", dau);
 
-	pedwar = 0;
-	h = strlen(tri);
-	for(i = 0; i < h; i++) {
-		pedwar += ctoi(tri[i]);
+		pedwar = 0;
+		h = strlen(tri);
+		for(i = 0; i < h; i++) {
+			pedwar += ctoi(tri[i]);
+		}
+		i = !(src_len & 1);
+		for(; i < src_len; i += 2) {
+			pedwar += ctoi(source[i]);
+		}
+		chwech = 10 - pedwar % 10;
+		if(chwech == 10) {
+			chwech = 0;
+		}
+		// Draw check digits 
+		lookup(NEON, MSITable, itoc(pump), dest);
+		lookup(NEON, MSITable, itoc(chwech), dest);
+		// Stop character 
+		strcat(dest, "121");
+		expand(symbol, dest);
+		ustrcpy(symbol->text, source);
+		symbol->text[src_len] = itoc(pump);
+		symbol->text[src_len + 1] = itoc(chwech);
+		symbol->text[src_len + 2] = '\0';
 	}
-	i = !(src_len & 1);
-	for(; i < src_len; i += 2) {
-		pedwar += ctoi(source[i]);
-	}
-	chwech = 10 - pedwar % 10;
-	if(chwech == 10) {
-		chwech = 0;
-	}
-	// Draw check digits 
-	lookup(NEON, MSITable, itoc(pump), dest);
-	lookup(NEON, MSITable, itoc(chwech), dest);
-	// Stop character 
-	strcat(dest, "121");
-	expand(symbol, dest);
-	ustrcpy(symbol->text, source);
-	symbol->text[src_len] = itoc(pump);
-	symbol->text[src_len + 1] = itoc(chwech);
-	symbol->text[src_len + 2] = '\0';
 	return error_number;
 }
 
@@ -274,20 +281,21 @@ int msi_plessey_mod11(struct ZintSymbol * symbol, uchar source[], const uint src
 		return ZINT_ERROR_TOO_LONG;
 	}
 	else {
-		int    i;
 		char   dest[1000];
 		// start character 
 		strcpy(dest, "21");
 		// draw data section 
-		for(i = 0; i < src_len; i++) {
-			lookup(NEON, MSITable, source[i], dest);
+		{
+			for(uint i = 0; i < src_len; i++) {
+				lookup(NEON, MSITable, source[i], dest);
+			}
 		}
 		{
 			// calculate check digit 
 			int    x = 0;
 			{
 				int    weight = 2;
-				for(i = src_len - 1; i >= 0; i--) {
+				for(int i = src_len - 1; i >= 0; i--) {
 					x += weight * ctoi(source[i]);
 					weight++;
 					if(weight > 7)

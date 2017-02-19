@@ -8313,8 +8313,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodsvalrestr_scpshipmop                 "Вид операции отгрузки"
 @goodsvalrestr_scpshipmlimop              "Вид операции ограничения отгрузки"
 @goodsvalrestr_tag                        "@{tag}"
-@goodsvalrestr_lowboundformula            "Формула нижней границы"
-@goodsvalrestr_uppboundformula            "Формула верхней границы"
+@goodsvalrestr_lowboundformula            "Формула нижней границы цены"
+@goodsvalrestr_uppboundformula            "Формула верхней границы цены"
 @goodsvalrestr_scp                        "Параметры управления отгрузкой" // generic
 
 @internetaccount_fftppassive              "Пассивный режим"
