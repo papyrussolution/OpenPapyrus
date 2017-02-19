@@ -53,7 +53,7 @@ empty - пустая база данных для реального испол�
 
 Имя для авторизации в обеих базах данных: master без пароля.
 
-Для обновления релиза запустите OPpyUpdate_9.5.02.21147.exe
+Для обновления релиза запустите OPpyUpdate_x.x.xx.xxxxx.exe
 
 Функциональность полностью аналогична проприетарной версии Papyrus, но базы данных не совместимы
 из-за разных ключей шифрования.
@@ -110,7 +110,7 @@ empty - empty database for actual use
 
 The name for authorization in both databases: 'master' without a password.
 
-To update release run OPpyUpdate_9.5.02.21147.exe
+To update release run OPpyUpdate_x.x.xx.xxxxx.exe
 
 The functionality is similar to a fully proprietary versions Papyrus, but the database is not compatible
 because of different encryption keys.
