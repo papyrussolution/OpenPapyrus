@@ -10,6 +10,7 @@ class  TView;
 class  TGroup;
 class  TWindow;
 class  TDialog;
+class  TButton;
 class  TLabel;
 class  ComboBox;
 class  TBaseBrowserWindow;
@@ -55,7 +56,7 @@ public:
 	//
 	// Descr: Производит поиск текста по id, затем вызывает функциию SetData
 	//
-	void   SetupData(long id); 
+	void   SetupData(long id);
 	int    GetData(long * pId, SString & rBuf);
 
 	enum {
@@ -1431,9 +1432,13 @@ private:
 
 class TView {
 public:
-	static void * message(TView * pReceiver, uint what, uint command);
-	static void * message(TView * pReceiver, uint what, uint command, void * pInfoPtr);
-	static void * message(TView * pReceiver, uint what, uint command, long infoVal);
+	//static void * message(TView * pReceiver, uint what, uint command);
+	//static void * message(TView * pReceiver, uint what, uint command, void * pInfoPtr);
+	// @v9.5.5 static void * message(TView * pReceiver, uint what, uint command, long infoVal);
+	static void * FASTCALL messageCommand(TView * pReceiver, uint command);
+	static void * messageCommand(TView * pReceiver, uint command, void * pInfoPtr);
+	static void * FASTCALL messageBroadcast(TView * pReceiver, uint command);
+	static void * messageBroadcast(TView * pReceiver, uint command, void * pInfoPtr);
 
 	enum phaseType {
 		phFocused,
@@ -1757,7 +1762,7 @@ public:
 	}
 	*/
 	/* @v9.0.4 virtual*/ void  endModal(ushort command);
-	void * SLAPI  messageToCtrl(ushort ctl, ushort, ushort, void *);
+	void * SLAPI  messageToCtrl(ushort ctl, ushort command, void * ptr);
 	TView * FASTCALL getCtrlView(ushort ctl);
 	HWND   SLAPI H() const
 	{
@@ -1851,6 +1856,7 @@ public:
 	ToolbarList Toolbar;
 private:
 	void   FASTCALL Helper_SetTitle(const char *, int setOrgTitle);
+	TButton * FASTCALL SearchButton(uint cmd);
 
 	class LocalMenuPool {
 	public:
@@ -4327,6 +4333,7 @@ public:
 	// Descr: Извлекает текст полностью (512 символов), независимо от ширины колонки в броузере
 	//
 	SString & SLAPI getFullText(long row, int column, SString & rBuf);
+	SString & SLAPI getFullText(const void * pRowData, int column, SString & rBuf);
 	char * SLAPI getMultiLinesText(long, int, char *, uint = 0, uint * = 0);
 	int    SLAPI setText(long, int, const char *);
 	long   SLAPI _topItem() const { return topItem; }

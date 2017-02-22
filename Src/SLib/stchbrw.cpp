@@ -309,7 +309,7 @@ LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wPar
 			p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
 			if(p_view) {
 				APPL->SelectTabItem(p_view);
-				TView::message(p_view, evBroadcast, cmReceivedFocus);
+				TView::messageBroadcast(p_view, cmReceivedFocus);
 				p_view->select();
 			}
 			break;
@@ -318,7 +318,7 @@ LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wPar
 				APPL->NotifyFrame(0);
 			p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
 			if(p_view) {
-				TView::message(p_view, evBroadcast, cmReleasedFocus);
+				TView::messageBroadcast(p_view, cmReleasedFocus);
 				p_view->ResetOwnerCurrent();
 			}
 			break;

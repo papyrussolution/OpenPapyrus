@@ -826,6 +826,7 @@
 	#define PLMPRP_PATH          1L
 	#define PLMPRP_LOCLIST       2L
 	#define PLMPRP_FTPPATH       3L
+	#define PLMPRP_QUOTKINDLIST  4L // @v9.5.5
 #define PPOBJ_ASSTWROFFGRP  44L // $ Группа списания активов
 #define PPOBJ_DRAFTWROFF    45L // $ Конфигурация списания драфт-документов
 	//
@@ -1604,6 +1605,7 @@
 #define STDCTL_SJBUTTON           155 // @v8.4.2  Кнопка "Системные события" (для внутреннего фильтра по сис журналу и для просмотра событий)
 #define STDCTL_PERSONBUTTON       156 // @v8.5.6  Кнопка "Персоналия"
 #define STDCTL_LINKOBJBUTTON      157 // @v8.9.12 Кнопка "Связанный объект"
+#define STDCTL_QKLISTBUTTON       158 // @v9.5.5  Кнопка выбора списка видов котировок
 
 #define cmPPAccSelected          1101 // Сообщение, посылаемое группой
 	// AcctCtrlGroup диалогу-владельцу когда пользователь выбрал новый счет. (AcctCtrlGroup*)InfoPtr
@@ -1668,6 +1670,7 @@
 #define cmSelSerial              1160
 #define cmEMailList              1161
 #define cmLinkObj                1162 // STDCTL_LINKOBJBUTTON @linkobject
+#define cmQuotKindList           1163
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -5371,7 +5374,6 @@
 	#define cmSCardRule                  101
 	#define cmCCheckRule                 102
 	#define cmBonusRule                  103
-	#define cmQuotKindList               104
 	#define CTL_SCARDSER_NAME            (1 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_ID              (2 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_CODETEMPL       (3 + WINDOWS_ID_BIAS)
@@ -5392,7 +5394,7 @@
 	#define CTL_SCARDSER_BONCGRP         (19 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SCARDSER_BONCGRP      (20 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_SYMB            (21 + WINDOWS_ID_BIAS)
-	#define CTL_SCARDSER_QKLIST          (22 + WINDOWS_ID_BIAS)
+	// @v9.5.5 replacedby(STDCTL_QKLISTBUTTON) #define CTL_SCARDSER_QKLIST          (22 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_BONER           (23 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_BONERVAL        (24 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_USAGETM         (25 + WINDOWS_ID_BIAS)
@@ -5479,6 +5481,8 @@
 	#define CTL_PALM_MAXSENTDAYS         (24 + WINDOWS_ID_BIAS)
 	#define CTL_PALM_INHBTAGVAL          (25 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PALM_INHBTAGVAL       (26 + WINDOWS_ID_BIAS)
+	#define CTL_PALM_QUOTKIND            (27 + WINDOWS_ID_BIAS)
+	#define CTLSEL_PALM_QUOTKIND         (28 + WINDOWS_ID_BIAS)
 #define DLG_PALMPANE              535 // PDA Import/Export Panel
 	#define CTL_PALMPANE_PALM            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PALMPANE_PALM         (2 + WINDOWS_ID_BIAS)

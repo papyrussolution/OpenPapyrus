@@ -8290,7 +8290,7 @@ public:
 	int    SLAPI Add(PPID * pID, LocationTbl::Rec *, int use_ta);
 	int    SLAPI SearchRef(PPID locType, PPID objType, PPID objID, PPID *);
 	int    SLAPI SearchPersonRef(PPID locType, PPID personID, PPID *);
-	int    SLAPI GetAddress(PPID, uint flags, SString & rBuf);
+	int    SLAPI GetAddress_(PPID locID, uint flags, SString & rBuf);
 	//
 	//
 	//
@@ -8537,7 +8537,12 @@ public:
 			PPID   SequenceID;     // @v9.4.2 Внутренний счетчик для автоматической нумерации запросов
 			PPID   CliCodeTagID;   // @v9.4.4 Тег персоналии для кода в терминах поставщика
 			PPID   LocCodeTagID;   // @v9.4.4 Тег локации для кода в терминах поставщика
-			uint8  FbReserve[16];  // @reserve @v9.2.4 [32]-->[28] // @v9.4.4 [24]-->[16]
+			PPID   StyloPalmID;    // @v9.5.5 Ссылка на запись группы устройств для получения некоторых атрибутов
+				// Не смотря на то, что обмен с поставщиком не задейтсвует непосредственно устройства StyloAgent,
+				// функцинонально он может обеспечивать аналогичных набор сервисов. Соответственно, логично будет
+				// не дублировать здесь атрибуты аналогичные StyloAgent, но сделать специальную запись StyloAgent
+				// и администрировать такие атрибуты там.
+			uint8  FbReserve[12];  // @reserve @v9.2.4 [32]-->[28] // @v9.4.4 [24]-->[16]
 		} Fb;                      // @anchor
         InetAddr ConnAddr;         // Адрес для соединения с сервером
         ObjIdListFilt DebtDimList; // @v9.1.3 Список долговых размерностей, по которым необходимо отчитываться о долгах контрагентов
@@ -18725,6 +18730,7 @@ public:
 	char * P_Path;
 	char * P_FTPPath;
 	ObjIdListFilt LocList;
+	ObjIdListFilt QkList; // @v9.5.5 Список видов котировок, используемых для передачи цен на устройства
 };
 //
 //
@@ -18908,6 +18914,7 @@ public:
 	int    SLAPI IsPacketEq(const PPStyloPalmPacket & rS1, const PPStyloPalmPacket & rS2, long flags);
 	int    SLAPI GetChildList(PPID id, PPIDArray & rPalmList);
 	int    SLAPI GetLocList(PPID id, ObjIdListFilt & rLocList);
+	int    SLAPI GetQuotKindList(PPID id, ObjIdListFilt & rQuotKindList);
 	int    SLAPI GetPacket(PPID id, PPStyloPalmPacket * pPack);
 	int    SLAPI PutPacket(PPID * pID, PPStyloPalmPacket * pPack, int use_ta);
 	int    SLAPI CheckSignalForInput(const char * pPath);
@@ -21801,6 +21808,12 @@ public:
 	int    SLAPI EditDialog(PPID locTyp, PPLocationPacket * pPack, long flags);
 	int    SLAPI EditDialog(PPID locTyp, LocationTbl::Rec * pRec);
 	int    SLAPI EditAddrStruc(SString & rAddr);
+	//
+	// Descr: Формирует строку адреса локации locID.
+	// Note: Функционально является полным аналогом LocationCore::GetAddress за исключением
+	//   того, что запись по идентификатору locID извлекается через кэш.
+	//
+	int    SLAPI GetAddress(PPID locID, uint flags, SString & rBuf);
 	int    SLAPI GetCountry(PPID locID, PPID * pCountryID, PPCountryBlock * pBlk);
 	int    SLAPI GetCountry(const LocationTbl::Rec * pLocRec, PPID * pCountryID, PPCountryBlock * pBlk);
 	int    SLAPI GetCity(PPID locID, PPID * pCityID, SString * pName, int useCache);
@@ -25779,6 +25792,15 @@ public:
 	//   учетом наследования соответствующих характеристик из групп.
 	//
 	int    SLAPI Fetch(PPID, Goods2Tbl::Rec *);
+	//
+	// Descr: Извлекает через кэш наименование товара goodsID.
+	// Returns:
+	//   >0 - запись с идентификатором goodsID найдена - наименование скопировано в rBuf
+	//   <0 - запись с идентификатором goodsID не найдена - в rBuf скопирована строка id={goodsID}.
+	//        Если goodsID == 0, то буфер rBuf обрезается до нулевой длины.
+	//    0 - ошибка
+	//
+	int    SLAPI FetchNameR(PPID goodsID, SString & rBuf);
 	int    SLAPI FetchTax(PPID goodsID, LDATE, PPID opID, PPGoodsTaxEntry *);
 	int    SLAPI FetchCls(PPID goodsID, Goods2Tbl::Rec * pRec, PPGdsClsPacket * pGcPack);
 	int    SLAPI MultTaxFactor(PPID goodsID, double * pVal);
@@ -27110,7 +27132,7 @@ public:
 	int    SLAPI Export(PPGoodsImpExpParam * pExpCfg);
 	int    SLAPI ExportUhtt();
 	//
-	int    SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle);
+	int    SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int  SLAPI OnExecBrowser(PPViewBrowser *);
@@ -35494,7 +35516,7 @@ public:
 		opImportRouts      = 0x0080,     // IMPROUT
 		opImportOrders     = 0x0100,     // IMPORDER
 		opImportDesadv     = 0x0200,     //
-		opExportSales      = 0x0400      // EXPSALES 
+		opExportSales      = 0x0400      // EXPSALES
 	};
 	enum {
 		fDeleteRecentBills = 0x0001,
@@ -45495,6 +45517,22 @@ public:
 	PosNodeCtrlGroup(uint ctlsel, uint cmEditList);
 	virtual int setData(TDialog *, void *); // (PosNodeCtrlGroup::Rec*)
 	virtual int getData(TDialog *, void *); // (PosNodeCtrlGroup::Rec*)
+private:
+	virtual void handleEvent(TDialog *, TEvent &);
+	Rec    Data;
+	uint   Ctlsel;
+	uint   CmEditList;
+};
+
+class QuotKindCtrlGroup : public CtrlGroup {
+public:
+	struct Rec {
+		SLAPI  Rec(const ObjIdListFilt * pList = 0);
+		ObjIdListFilt List;
+	};
+	QuotKindCtrlGroup(uint ctlsel, uint cmEditList);
+	virtual int setData(TDialog *, void *); // (QuotKindCtrlGroup::Rec*)
+	virtual int getData(TDialog *, void *); // (QuotKindCtrlGroup::Rec*)
 private:
 	virtual void handleEvent(TDialog *, TEvent &);
 	Rec    Data;

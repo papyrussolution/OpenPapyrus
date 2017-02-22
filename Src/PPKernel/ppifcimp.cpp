@@ -4399,8 +4399,13 @@ SString & DL6ICLS_PPObjLocation::GetAddress(int32 locID)
 	PPObjPerson * p_obj = (PPObjPerson *)ExtraPtr;
 	RetStrBuf = 0;
 	AppError = 0;
-	if(p_obj && p_obj->LocObj.P_Tbl)
-		p_obj->LocObj.P_Tbl->GetAddress(locID, 0, RetStrBuf);
+	if(p_obj) {
+		/* @v9.5.5
+		if(p_obj->LocObj.P_Tbl) 
+			p_obj->LocObj.P_Tbl->GetAddress(locID, 0, RetStrBuf);
+		*/
+		p_obj->LocObj.GetAddress(locID, 0, RetStrBuf); // @v9.5.5
+	}
 	return RetStrBuf;
 }
 

@@ -3992,7 +3992,8 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 								}
 							}
 							else if(pLog) {
-								GetGoodsName(sdr_brow.GoodsID, goods_name);
+								// @v9.5.5 GetGoodsName(sdr_brow.GoodsID, goods_name);
+								goods_obj.FetchNameR(sdr_brow.GoodsID, goods_name); // @v9.5.5
 								// @v9.0.2 PPGetWord(PPWORD_GOODS, 0, buf);
 								PPLoadString("ware", buf); // @v9.0.2
 								(add_info = buf).CatChar('[').Cat(goods_name).CatChar(']').CatDiv(',', 2);

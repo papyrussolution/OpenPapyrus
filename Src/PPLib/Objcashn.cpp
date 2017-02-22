@@ -2093,7 +2093,7 @@ int SLAPI PPObjCashNode::Edit(PPID * pID, void * extraPtr)
 			TDialog::handleEvent(event);
 			if(event.isCbSelected(CTLSEL_SELCASHNS_DEVICE)) {
 				if(replyCashTypeSelection() == 0)
-					messageToCtrl(CTLSEL_SELCASHNS_DEVICE, evCommand, cmCBActivate, 0);
+					messageToCtrl(CTLSEL_SELCASHNS_DEVICE, cmCBActivate, 0);
 				clearEvent(event);
 			}
 		}

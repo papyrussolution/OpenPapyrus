@@ -774,7 +774,8 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 					else if(i == bcvsExtE)
 						P_GPack->GetExtStrData(GDSEXSTR_USAGE, temp_str);
 					else if(i == bcvsBrand) {
-						GetGoodsName(P_GPack->Rec.BrandID, temp_str);
+						// @v9.5.5 GetGoodsName(P_GPack->Rec.BrandID, temp_str);
+						goods_obj.FetchNameR(P_GPack->Rec.BrandID, temp_str); // @v9.5.5
 						temp_str.CopyTo(temp, sizeof(temp));
 					}
 					else if(i == bcvsGcDimX) {

@@ -1329,7 +1329,7 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 					if(p_fig) {
 						DragndropEvent ev;
 						ev.Action = DragndropEvent::acnGet;
-						if(TView::message(p_dot_blk->P_SrcWin, evCommand, cmDragndropObj, &ev)) {
+						if(TView::messageCommand(p_dot_blk->P_SrcWin, cmDragndropObj, &ev)) {
 							St.Rsz.P_MovedObjCopy = new WhatmanObjectDrawFigure(p_fig->Dup());
 							(b = p_dot_blk->WtaItem.FigSize).movecenterto(p);
 							b.a = W.TransformScreenToPoint(b.a);
@@ -1355,7 +1355,7 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 				if(SLS.IsThereDragndropObj((void **)&p_dot_blk) == SlSession::ddotLocalWhatmanToolArrayItem) {
 					DragndropEvent ev;
 					ev.Action = DragndropEvent::acnLeave;
-					TView::message(p_dot_blk->P_SrcWin, evCommand, cmDragndropObj, &ev);
+					TView::messageCommand(p_dot_blk->P_SrcWin, cmDragndropObj, &ev);
 				}
 				if(St.Rsz.P_MovedObjCopy) {
 					St.Rsz.Flags |= ResizeState::fDontDrawMovedObj;
@@ -1399,7 +1399,7 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 						//
 						DragndropEvent ev;
 						ev.Action = DragndropEvent::acnAccept;
-						TView::message(p_dot_blk->P_SrcWin, evCommand, cmDragndropObj, &ev);
+						TView::messageCommand(p_dot_blk->P_SrcWin, cmDragndropObj, &ev);
 						//
 						ok = 1;
 					}

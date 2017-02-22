@@ -373,15 +373,15 @@ int PPApp::processCommand(uint cmd)
 {
 	LastCmd = cmd;
 	switch(cmd) {
-		case cmTextBrowserTest:      PPViewTextBrowser(0, 0);                 break;
+		case cmTextBrowserTest:      PPViewTextBrowser(0, 0);             break;
 		case cmOpenTextFile:
 			PPEditTextFile(0);
 			break;
-		case cmQuit:                 TView::message(this, evCommand, cmQuit); break;
-		case cmInit:                 login(1);                                break;
-		case cmAbout:                PPAbout();                               break;
-		case cmaCalculate:           PPCalculator(0, 0);                      break;
-		case cmEditConfig:           EditMainConfig();                        break;
+		case cmQuit:                 TView::messageCommand(this, cmQuit); break;
+		case cmInit:                 login(1);                            break;
+		case cmAbout:                PPAbout();                           break;
+		case cmaCalculate:           PPCalculator(0, 0);                  break;
+		case cmEditConfig:           EditMainConfig();                    break;
 		case cmGroups_n_Users:
 			{
 				PPObjSecur::ExtraParam param;
@@ -1662,7 +1662,7 @@ void PPApp::login(int processCmdLine)
 		DS.SetMenu(MENU_NOLOGIN);
 		if(!InitMenuBar()) {
 			PPError();
-			TView::message(this, evCommand, cmQuit);
+			TView::messageCommand(this, cmQuit);
 		}
 		else {
 			PPIniFile  ini_file;
@@ -1689,12 +1689,12 @@ void PPApp::login(int processCmdLine)
 	else if(GetStartUpOption(cmdlConvertRbcBnk, arg_buf)) {
 		if(!ConvertRbcBnk(arg_buf))
 			PPError();
-		TView::message(this, evCommand, cmQuit);
+		TView::messageCommand(this, cmQuit);
 	}
 	else if(GetStartUpOption(cmdlExportDialogs, arg_buf)) {
 		PPGetFilePath(PPPATH_BIN, "ppdlg.dl6", temp_buf);
 		ExportDialogs(temp_buf);
-		TView::message(this, evCommand, cmQuit);
+		TView::messageCommand(this, cmQuit);
 	}
 	else if(GetStartUpOption(cmdlAutoTranslate, arg_buf)) {
 		SString src_file_path, auto_transl_lang;
@@ -1706,7 +1706,7 @@ void PPApp::login(int processCmdLine)
 			StringStore2 s;
 			s.Compile(src_file_path, flags, auto_transl_lang);
 		}
-		TView::message(this, evCommand, cmQuit);
+		TView::messageCommand(this, cmQuit);
 	}
 	else if(GetStartUpOption(cmdlConvertCipher, arg_buf)) {
 		class CvtCipherDialog : public TDialog {
@@ -1746,7 +1746,7 @@ void PPApp::login(int processCmdLine)
             }
 		}
 		ZDELETE(dlg);
-		TView::message(this, evCommand, cmQuit);
+		TView::messageCommand(this, cmQuit);
 	}
 	else if(GetStartUpOption(cmdlSartrTest, arg_buf)) {
 		SartTest();
@@ -1780,7 +1780,7 @@ void PPApp::login(int processCmdLine)
 			dbentry_id = dbes.GetBySymb(arg_buf, 0);
 			if(dbentry_id <= 0) {
 				PPError();
-				TView::message(this, evCommand, cmQuit);
+				TView::messageCommand(this, cmQuit);
 				return;
 			}
 		}
@@ -1900,11 +1900,11 @@ void PPApp::login(int processCmdLine)
 				//TestAddressRecognition(); // @debug
 				TestLogin();
 				if(is_batch)
-					TView::message(this, evCommand, cmQuit);
+					TView::messageCommand(this, cmQuit);
 			}
 		}
 		else if(!no_login)
-			TView::message(this, evCommand, cmQuit);
+			TView::messageCommand(this, cmQuit);
 	}
 	GetStartUpOption(-1, arg_buf); // @v9.0.2 Очищаем внутренний буфер функции
 }

@@ -1552,8 +1552,10 @@ int SLAPI PPObjPrjTask::SubstDescr(PrjTaskTbl::Rec * pPack)
 					if(pPack->ClientID) {
 						if(!p_psn_obj)
 							THROW_MEM(p_psn_obj = new PPObjPerson);
-						if(pPack->DlvrAddrID)
-							p_psn_obj->LocObj.P_Tbl->GetAddress(pPack->DlvrAddrID, 0, temp_buf);
+						if(pPack->DlvrAddrID) {
+							// @v9.5.5 p_psn_obj->LocObj.P_Tbl->GetAddress(pPack->DlvrAddrID, 0, temp_buf);
+							p_psn_obj->LocObj.GetAddress(pPack->DlvrAddrID, 0, temp_buf); // @v9.5.5
+						}
 						else
 							p_psn_obj->GetAddress(pPack->ClientID, temp_buf);
 						temp_buf.CopyTo(b, sizeof(buf)-len);

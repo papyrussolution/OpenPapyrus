@@ -1484,8 +1484,10 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
 								THROW(GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, temp_buf));
 							}
-							else
-								GetGoodsName(rec.GoodsID, temp_buf);
+							else {
+								// @v9.5.5 GetGoodsName(rec.GoodsID, temp_buf);
+								GdsObj.FetchNameR(rec.GoodsID, temp_buf); // @v9.5.5
+							}
 							break;
 						case CCheckFilt::gGuestCount:
 							temp_buf.CatLongZ(rec.CashID, 3);
@@ -1537,8 +1539,10 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
 								THROW(GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name));
 							}
-							else
-								GetGoodsName(rec.GoodsID, goods_name);
+							else {
+								// @v9.5.5 GetGoodsName(rec.GoodsID, goods_name);
+								GdsObj.FetchNameR(rec.GoodsID, goods_name); // @v9.5.5
+							}
 							temp_buf.CatDiv('-', 1).Cat(goods_name);
 							break;
 						case CCheckFilt::gCashiersNGoods:
@@ -1549,8 +1553,10 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
 								THROW(GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name));
 							}
-							else
-								GetGoodsName(rec.GoodsID, goods_name);
+							else {
+								// @v9.5.5 GetGoodsName(rec.GoodsID, goods_name);
+								GdsObj.FetchNameR(rec.GoodsID, goods_name); // @v9.5.5
+							}
 							temp_buf.CatDiv('-', 1, 1).Cat(goods_name);
 							break;
 						// @v7.7.0 {
@@ -1558,8 +1564,10 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
 								THROW(GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name));
 							}
-							else
-								GetGoodsName(rec.GoodsID, goods_name);
+							else {
+								// @v9.5.5 GetGoodsName(rec.GoodsID, goods_name);
+								GdsObj.FetchNameR(rec.GoodsID, goods_name); // @v9.5.5
+							}
 							temp_buf = goods_name;
 							if(rec.CashID) {
 								PPSCardSeries sc_rec;
@@ -1581,8 +1589,10 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
 								THROW(GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name));
 							}
-							else
-								GetGoodsName(rec.GoodsID, goods_name);
+							else {
+								// @v9.5.5 GetGoodsName(rec.GoodsID, goods_name);
+								GdsObj.FetchNameR(rec.GoodsID, goods_name); // @v9.5.5
+							}
 							temp_buf.CatDiv('-', 1, 1).Cat(goods_name);
 							break;
 						// } @v8.4.8
@@ -2761,8 +2771,10 @@ int SLAPI PPViewCCheck::CreateGoodsCorrTbl()
 					max_at_ary = MAX(max_at_ary, term_count);
 					if(Filt.Sgg)
 						GdsObj.GetSubstText(goods1_id, Filt.Sgg, &Gsl, goods1_name);
-					else
-						GetGoodsName(goods1_id, goods1_name);
+					else {
+						// @v9.5.5 GetGoodsName(goods1_id, goods1_name);
+						GdsObj.FetchNameR(goods1_id, goods1_name); // @v9.5.5
+					}
 					goods_chk_ary.Search(goods1_id, &goods1_chk_count, 0, 1);
 					for(uint pos1 = 0; pos1 < term_count; pos1++) {
 						long  count = p_goods_ary->at(pos1).Val;
@@ -2771,8 +2783,10 @@ int SLAPI PPViewCCheck::CreateGoodsCorrTbl()
 							long goods2_chk_count = 0;
 							if(Filt.Sgg)
 								GdsObj.GetSubstText(goods2_id, Filt.Sgg, &Gsl, goods2_name);
-							else
-								GetGoodsName(goods2_id, goods2_name);
+							else {
+								// @v9.5.5 GetGoodsName(goods2_id, goods2_name);
+								GdsObj.FetchNameR(goods2_id, goods2_name); // @v9.5.5
+							}
 							MEMSZERO(gc_rec);
 							gc_rec.Goods1ID = goods1_id;
 							gc_rec.Goods2ID = goods2_id;

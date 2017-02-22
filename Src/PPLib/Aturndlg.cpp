@@ -315,7 +315,7 @@ void AccTurnDialog::setupCurrencyCombo()
 	getGroupData(GRP_DBT, &dbt_rec);
 	getGroupData(GRP_CRD, &crd_rec);
 	AccObj.GetIntersectCurList(dbt_rec.AcctId.ac, crd_rec.AcctId.ac, &cur_list);
-	TView::message(this, evCommand, cmCurAmtGrpSetupCurrencyCombo, &cur_list);
+	TView::messageCommand(this, cmCurAmtGrpSetupCurrencyCombo, &cur_list);
 }
 
 IMPL_HANDLE_EVENT(AccTurnDialog)

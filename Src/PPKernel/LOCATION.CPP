@@ -41,19 +41,13 @@ LocationFilt & FASTCALL LocationFilt::operator = (const LocationFilt & rS)
 
 int SLAPI LocationFilt::GetExField(int fldId, SString & rBuf) const
 {
-	int    ok = -1;
 	rBuf = 0;
-	if(fldId == exfPhone)
-		ok = PPGetExtStrData(fldId, ExtString, rBuf);
-	return ok;
+	return (fldId == exfPhone) ? PPGetExtStrData(fldId, ExtString, rBuf) : -1;
 }
 
 int SLAPI LocationFilt::SetExField(int fldId, const char * pBuf)
 {
-	int    ok = -1;
-	if(fldId == exfPhone)
-		ok = PPPutExtStrData(fldId, ExtString, pBuf);
-	return ok;
+	return (fldId == exfPhone) ? PPPutExtStrData(fldId, ExtString, pBuf) : -1;
 }
 //
 //
@@ -154,7 +148,7 @@ int SLAPI LocationCore::GetExField(const LocationTbl::Rec * pRec, int fldId, SSt
 	int    ok = -1;
 	rBuf = 0;
 	if(oneof6(fldId, LOCEXSTR_ZIP, LOCEXSTR_SHORTADDR, LOCEXSTR_FULLADDR, LOCEXSTR_EMAIL, LOCEXSTR_PHONE, LOCEXSTR_CONTACT) || fldId > LOCEXSTR_EXTFLDSOFFS) {
-		SString temp_buf = pRec->Tail;
+		const SString temp_buf = pRec->Tail;
 		ok = PPGetExtStrData(fldId, temp_buf, rBuf);
 	}
 	return ok;
@@ -200,9 +194,8 @@ int SLAPI LocationCore::GetListByCode(PPID locTyp, const char * pCode, PPIDArray
 		STRNSCPY(k5.Code, pCode);
 		k5.Counter = -MAXLONG;
 		for(q.initIteration(0, &k5, spGt); q.nextIteration() > 0;)
-			if(stricmp(data.Code, pCode) == 0 && data.Type == locTyp) {
-				if(pIdList)
-					pIdList->addUnique(data.ID);
+			if(data.Type == locTyp && stricmp(data.Code, pCode) == 0) {
+				CALLPTRMEMB(pIdList, addUnique(data.ID));
 				ok = 1;
 			}
 	}
@@ -211,6 +204,7 @@ int SLAPI LocationCore::GetListByCode(PPID locTyp, const char * pCode, PPIDArray
 
 int SLAPI LocationCore::SearchCode(PPID locTyp, const char * pCode, PPID * pID, LocationTbl::Rec * pRec)
 {
+	int    ok = -1;
 	char   code[32];
 	strip(STRNSCPY(code, pCode));
 	if(code[0]) {
@@ -220,21 +214,20 @@ int SLAPI LocationCore::SearchCode(PPID locTyp, const char * pCode, PPID * pID, 
 		MEMSZERO(k5);
 		STRNSCPY(k5.Code, pCode);
 		k5.Counter = -MAXLONG;
-		for(q.initIteration(0, &k5, spGt); q.nextIteration() > 0;)
-			if(stricmp(data.Code, pCode) == 0 && data.Type == locTyp) {
+		for(q.initIteration(0, &k5, spGt); ok < 0 && q.nextIteration() > 0;)
+			if(data.Type == locTyp && stricmp(data.Code, pCode) == 0) {
 				PPSetObjError(PPERR_DUPSYMB, PPOBJ_LOCATION, data.ID);
 				ASSIGN_PTR(pID, data.ID);
 				copyBufTo(pRec);
-				return 1;
+				ok = 1;
 			}
 	}
-	return -1;
+	return ok;
 }
 
 static SString & FormatCode(const char * pPrfx, const char * pSfx, int len, long n, SString & rBuf)
 {
-	rBuf = 0;
-	return rBuf.Cat(pPrfx).CatLongZ(n, len).Cat(pSfx);
+	return (rBuf = 0).Cat(pPrfx).CatLongZ(n, len).Cat(pSfx);
 }
 
 int SLAPI LocationCore::Helper_GetCodeByTempl(const char * pPrfx, const char * pSfx, int len,
@@ -513,7 +506,8 @@ int SLAPI LocationCore::SearchPersonRef(PPID locType, PPID personID, PPID * pID)
 
 int SLAPI LocationCore::SearchRef(PPID locType, PPID objType, PPID objID, PPID * pID)
 {
-	if(objID)
+	int    ok = -1;
+	if(objID) {
 		if(objType == PPOBJ_WORLD) {
 			BExtQuery q(this, 0, 1);
    	    	q.select(ID, 0L);
@@ -522,33 +516,32 @@ int SLAPI LocationCore::SearchRef(PPID locType, PPID objType, PPID objID, PPID *
 			else
 				q.where(Type == locType && CityID == objID);
 			if(q.fetchFirst() > 0) {
-				if(pID)
-					*pID = data.ID;
-				return 1;
+				ASSIGN_PTR(pID, data.ID);
+				ok = 1;
 			}
 		}
 		else if(objType == PPOBJ_PERSON) {
 			if(locType == 0) {
 				if(SearchPersonRef(LOCTYP_WAREHOUSE, objID, pID) > 0)
-					return 1;
+					ok = 1;
 				else if(SearchPersonRef(LOCTYP_ADDRESS, objID, pID) > 0)
-					return 1;
+					ok = 1;
 				else if(SearchPersonRef(LOCTYP_DIVISION, objID, pID) > 0)
-					return 1;
+					ok = 1;
 			}
 			else if(SearchPersonRef(locType, objID, pID) > 0)
-				return 1;
+				ok = 1;
 		}
 		else if(objType == PPOBJ_LOCATION) {
 			BExtQuery q(this, 0, 1);
 			q.select(ID, 0L).where(this->ParentID == objID);
 			if(q.fetchFirst() > 0) {
-				if(pID)
-					*pID = data.ID;
-				return 1;
+				ASSIGN_PTR(pID, data.ID);
+				ok = 1;
 			}
 		}
-	return -1;
+	}
+	return ok;
 }
 
 // static
@@ -574,7 +567,7 @@ int SLAPI LocationCore::GetAddress(const LocationTbl::Rec & rRec, uint, SString 
 	return 1;
 }
 
-int SLAPI LocationCore::GetAddress(PPID id, uint f, SString & rBuf)
+int SLAPI LocationCore::GetAddress_(PPID id, uint f, SString & rBuf)
 {
 	rBuf = 0;
 	return (!id || Search(id) > 0) ? LocationCore::GetAddress(data, f, rBuf) : 0;
@@ -741,10 +734,10 @@ int FASTCALL PPEAddr::Phone::FromStr(const char * pStr)
 		temp_buf.PadLeft(diff, '0');
 	assert(temp_buf.Len() == EADDR_PHONE_MAXCHAR);
 	for(size_t i = 0; i < EADDR_PHONE_MAXCHAR; i+=2) {
-		char c1 = temp_buf.C(i);
-		char c2 = temp_buf.C(i+1);
-		uint8 d1 = isdec(c1) ? (c1 - '0') : ((c1 == '+') ? 0x0A : ((c1 == 't') ? 0x0B : 0x0F));
-		uint8 d2 = isdec(c2) ? (c2 - '0') : ((c2 == '+') ? 0x0A : ((c2 == 't') ? 0x0B : 0x0F));
+		const char c1 = temp_buf.C(i);
+		const char c2 = temp_buf.C(i+1);
+		const uint8 d1 = isdec(c1) ? (c1 - '0') : ((c1 == '+') ? 0x0A : ((c1 == 't') ? 0x0B : 0x0F));
+		const uint8 d2 = isdec(c2) ? (c2 - '0') : ((c2 == '+') ? 0x0A : ((c2 == 't') ? 0x0B : 0x0F));
 		assert(d1 != 0x0F && d2 != 0x0F);
 		A[i/2] = (d1 << 4) | d2;
 	}
@@ -1013,11 +1006,10 @@ int SLAPI EAddrCore::SearchPhone(const char * pPhone, long options, LongArray & 
 	THROW(addr.SetPhone(pPhone));
 	MEMSZERO(k1);
 	memcpy(k1.Addr, &addr, sizeof(addr));
-	if(search(1, &k1, spGe) && *(PPEAddr *)data.Addr == addr)
-		do {
-			THROW_SL(rResult.add(data.ID));
-			ok = 1;
-		} while(search(1, &k1, spNext) && *(PPEAddr *)data.Addr == addr);
+	if(search(1, &k1, spGe) && *(PPEAddr *)data.Addr == addr) do {
+		THROW_SL(rResult.add(data.ID));
+		ok = 1;
+	} while(search(1, &k1, spNext) && *(PPEAddr *)data.Addr == addr);
 	CATCHZOK
 	return ok;
 }

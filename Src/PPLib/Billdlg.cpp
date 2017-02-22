@@ -318,7 +318,7 @@ int SLAPI BillPrelude(const PPIDArray * pOpList, uint opklFlags, PPID linkOpID, 
 		{
 			TDialog::handleEvent(event);
 			if(event.isCmd(cmLBDblClk)) {
-				TView::message(this, evCommand, cmOK);
+				TView::messageCommand(this, cmOK);
 				clearEvent(event);
 			}
 		}
@@ -2744,7 +2744,7 @@ int BillDialog::editItems()
 		if(P_Pack->Rec.Object == 0) {
 			if(P_Pack->OpTypeID == PPOPT_GOODSRECEIPT && P_Pack->AccSheetID == GetSupplAccSheet() && P_Pack->GetTCount() == 0) {
 				if(PPMessage(mfConf|mfYesNo|mfDefaultYes, PPCFM_ZERORCPTOBJ, 0) == cmYes) {
-					messageToCtrl(CTLSEL_BILL_OBJECT, evCommand, cmCBActivate, 0);
+					messageToCtrl(CTLSEL_BILL_OBJECT, cmCBActivate, 0);
 					return 0;
 				}
 			}

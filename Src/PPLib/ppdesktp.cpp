@@ -1650,7 +1650,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 						coord.x = p_cmd->X;
 						coord.y = p_cmd->Y;
 						ZDELETE(p_cmd);
-						TView::message(this, evCommand, cmaDelete, (void*)&coord);
+						TView::messageCommand(this, cmaDelete, (void*)&coord);
 					}
 				}
 				break;
@@ -1659,7 +1659,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 				{
 					POINT coord;
 					MEMSZERO(coord);
-					TView::message(this, evCommand, cmaInsert, (void*)&coord);
+					TView::messageCommand(this, cmaInsert, (void*)&coord);
 				}
 				break;
 			case kbF11:
@@ -1755,7 +1755,7 @@ LRESULT CALLBACK PPDesktop::DesktopWndProc(HWND hWnd, UINT message, WPARAM wPara
 						}
 						int    cmd = menu.Execute(hWnd, TMenuPopup::efRet);
 						if(cmd > 0)
-							TView::message(p_desk, evCommand, cmd, (void *)&coord);
+							TView::messageCommand(p_desk, cmd, (void *)&coord);
 					}
 				}
 			}

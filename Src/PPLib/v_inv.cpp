@@ -1021,7 +1021,7 @@ int InventoryItemDialog::replyGoodsSelection()
 	}
 	else {
 		selectCtrl(CTL_INVITEM_GOODS);
-		messageToCtrl(CTLSEL_INVITEM_GOODS, evCommand, cmCBActivate, 0);
+		messageToCtrl(CTLSEL_INVITEM_GOODS, cmCBActivate, 0);
 	}
 	CATCHZOKPPERR
 	return ok;

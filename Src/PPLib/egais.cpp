@@ -6660,21 +6660,26 @@ int SLAPI PPEgaisProcessor::GetAcceptedBillList(const SendBillsParam & rP, long 
 						suited = 0;
 				}
 			}
-			if(suited && p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_EDIACK, temp_buf) > 0) {
-				if(flags & bilstfRepeal) {
-					if(temp_buf.C(0) != '!')
-						suited = 0;
-					else if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_EDIREPEALACK, temp_buf) > 0) {
+			if(suited) {
+				if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_EDIACK, temp_buf) > 0) {
+					if(flags & bilstfRepeal) {
+						if(temp_buf.C(0) != '!')
+							suited = 0;
+						else if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_EDIREPEALACK, temp_buf) > 0) {
+							//
+							// Запрос на отмену проведения уже отправлен
+							//
+							suited = 0;
+						}
+					}
+					else {
 						//
-						// Запрос на отмену проведения уже отправлен
+						// По документам с установленным тегом PPTAG_BILL_EDIACK уже отправлены подтверждения
 						//
 						suited = 0;
 					}
 				}
-				else {
-					//
-					// По документам с установленным тегом PPTAG_BILL_EDIACK уже отправлены подтверждения
-					//
+				else if(flags & bilstfRepeal) {
 					suited = 0;
 				}
 			}

@@ -45,7 +45,7 @@ void ListWindow::prepareForSearching(int firstLetter)
 void ListWindow::executeNM(HWND parent)
 {
 	HWND   hwnd_parent = (parent) ? parent : APPL->H_MainWnd;
-	TView::message(owner, evCommand, cmLBLoadDef, this);
+	TView::messageCommand(owner, cmLBLoadDef, this);
 	Id = (isTreeList()) ? DLGW_TREELBX : DLGW_LBX;
 	HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)DialogProc, (LPARAM)this);
 	TView::SetWindowProp(H(), GWL_STYLE, WS_CHILD);
@@ -115,7 +115,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 		int    lw_dlg_id = (DlgFlags & fLarge) ? DLGW_LBX_L : DLGW_LBX;
 		ComboBox * p_combo = P_Lb ? P_Lb->combo : 0;
 		HWND   hwnd_parent = p_combo ? p_combo->link()->Parent : APPL->H_MainWnd;
-		TView::message(owner, evCommand, cmLBLoadDef, this);
+		TView::messageCommand(owner, cmLBLoadDef, this);
 		Id = isTreeList() ? DLGW_TREELBX : ((def && def->Options & lbtOwnerDraw) ? DLGW_OWNDRAWLBX : lw_dlg_id);
 		HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)DialogProc, (LPARAM)this);
 		if(oneof2(Id, DLGW_LBX, DLGW_TREELBX)) {
@@ -214,7 +214,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 				int    cmd = menu.Execute(H(), TMenuPopup::efRet);
 				if(cmd > 0) {
 					// @v8.1.3 event.message.command = cmd;
-					TView::message(this, evCommand, cmd); // @v8.1.3
+					TView::messageCommand(this, cmd); // @v8.1.3
 				}
 				else
 					return;
@@ -222,16 +222,16 @@ IMPL_HANDLE_EVENT(ListWindow)
 			else if(TVCMD == cmDrawItem) {
 				HWND parent = GetParent(H());
 				TDialog * p_dlg = (TDialog*)TView::GetWindowUserData(parent);
-				TView::message(p_dlg, evCommand, cmDrawItem, TVINFOPTR);
+				TView::messageCommand(p_dlg, cmDrawItem, TVINFOPTR);
 			}
 		}
 		else if(TVKEYDOWN) {
 			if(TVKEY == kbEsc)
-				TView::message(this, evCommand, cmCancel);
+				TView::messageCommand(this, cmCancel);
 			else if(TVKEY == kbGrayPlus)
-				TView::message(this, evCommand, cmaLevelDown);
+				TView::messageCommand(this, cmaLevelDown);
 			else if(TVKEY == kbGrayMinus)
-				TView::message(this, evCommand, cmaLevelUp);
+				TView::messageCommand(this, cmaLevelUp);
 			else
 				return;
 			clearEvent(event);
@@ -414,7 +414,7 @@ void WordSel_ExtraBlock::SetData(long id, const char * pText)
  				p_lbx->search(&id, 0, lbSrchByID);
  				p_lbx->selectItem(id);
  			}
-			TView::message(p_dlg, evCommand, cmWSSelected, p_v); // @v7.7.12
+			TView::messageCommand(p_dlg, cmWSSelected, p_v); // @v7.7.12
 		}
 	}
 }
@@ -556,7 +556,7 @@ int WordSelector::Refresh(const char * pText)
 		}
 		if(r <= 0 && CheckVisible() == 1) {
 			::SetFocus(H());
-			TView::message(this, evCommand, cmCancel);
+			TView::messageCommand(this, cmCancel);
 			IsVisible = 0;
 		}
 	}
@@ -569,7 +569,7 @@ IMPL_HANDLE_EVENT(WordSelector)
 		ushort last_cmd = 0;
 		int    lw_dlg_id = DLGW_LBXFLAT;
 		HWND   hwnd_parent = P_Blk->H_InputDlg;
-		TView::message(owner, evCommand, cmLBLoadDef, this);
+		TView::messageCommand(owner, cmLBLoadDef, this);
 		Id = lw_dlg_id;
 		HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)DialogProc, (LPARAM)this);
 		APPL->SetWindowViewByKind(H(), TProgram::wndtypListDialog);

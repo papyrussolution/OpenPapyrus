@@ -793,7 +793,6 @@ int SLAPI GenerateGoodsBills()
 	long int k1 = 0;  //генерируемое число для случайного выбора типа операции
 	double k2 = 0;    //генерируемое число для случайного выбора номера строки
 	ulong iter = 0; //кол-во итераций
-	char msg[64]; //сообщение
 	//для определения временного периода
 	DateRange period;
 	//для определения типа и вида операции
@@ -809,6 +808,7 @@ int SLAPI GenerateGoodsBills()
 	int mu = 100;     //переменная для генератора по показательному з-ну
 	//для введения кол-ва документов
 	SString title, inp_title;
+	SString msg_buf;
 	double bills_count = 0;
 	//для фильтра "Группировка операций"
 	OpGroupingFilt op_flt;
@@ -932,10 +932,10 @@ int SLAPI GenerateGoodsBills()
 						// заполнение созданного бланка документа товарными строками
 						//
 						for(i = 0; i < billrows_count; i++) {
-							PPID goods_id = 0;
+							PPID   goods_id = 0;
 							PPTransferItem ti;
-							ILTI ilti;
-							int sign = 0;
+							ILTI   ilti;
+							int    sign = 0;
 							ReceiptTbl::Rec rcpt_rec;
 							GoodsRestParam rest_param;
 							Transfer trnsf;
@@ -982,8 +982,8 @@ int SLAPI GenerateGoodsBills()
 						op_id = 0;
 						op_type = 0;
 						//сообщение ожидания
-						CharToOem("Генерация товарных документов", msg); // @unicodeproblem
-						PPWaitPercent(++iter, (ulong)bills_count, msg);
+						(msg_buf = "Генерация товарных документов").Transf(CTRANSF_OUTER_TO_INNER);
+						PPWaitPercent(++iter, (ulong)bills_count, msg_buf);
 					}
 					THROW(tra.Commit());
 				}

@@ -351,8 +351,51 @@ char * SLAPI BrowserDef::getText(long row, int column, char * pBuf)
 	return pBuf;
 }
 
+SString & SLAPI BrowserDef::getFullText(const void * pRowData, int column, SString & rBuf)
+{
+	rBuf = 0;
+	if(pRowData && column >= 0 && column < (int)getCount()) {
+		const  BroColumn & r_c = at(column);
+		int    r = 1;
+		char   dest_data[1024];
+		DpB.ExtraPtr  = ExtraPtr;
+		DpB.ColumnN   = r_c.Offs;
+		DpB.TypeID    = r_c.T;
+		DpB.P_SrcData = pRowData;
+		DpB.Color     = 0;
+		DpB.P_DestData = dest_data;
+		{
+			const uint8 * p_bin_data = 0;
+			if(r_c.Options & BCO_USERPROC) {
+				if(UserProc)
+					r = UserProc(&DpB);
+				else if(r_c.UserProc)
+					r = r_c.UserProc(&DpB);
+				else
+					r = 0;
+				p_bin_data = PTR8(DpB.P_DestData);
+			}
+			else {
+				//DpB.P_DestData = p_src_data + c.Offs;
+				p_bin_data = PTR8(pRowData) + r_c.Offs;
+			}
+			if(r) {
+				char   dest_text[1024];
+				dest_text[0] = 0;
+				long   fmt = r_c.format;
+				SETSFMTLEN(fmt, 0);
+				sttostr(r_c.T, p_bin_data, fmt, dest_text);
+				rBuf = dest_text;
+			}
+		}
+	}
+	return rBuf;
+}
+
 SString & SLAPI BrowserDef::getFullText(long row, int column, SString & rBuf)
 {
+	return getFullText(getRow(row), column, rBuf); // @v9.5.5
+	/* @v9.5.5
 	rBuf = 0;
 	const char * p_src_data = (const char *)getRow(row);
 	if(p_src_data && column >= 0 && column < (int)getCount()) {
@@ -391,6 +434,7 @@ SString & SLAPI BrowserDef::getFullText(long row, int column, SString & rBuf)
 		}
 	}
 	return rBuf;
+	*/
 }
 
 // AHTOXA {

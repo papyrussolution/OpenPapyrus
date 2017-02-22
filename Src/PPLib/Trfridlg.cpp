@@ -816,7 +816,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 			replyGoodsGroupSelection();
 		}
 		else if(GoodsGrpID == 0)
-			messageToCtrl(CTLSEL_LOT_GOODSGRP, evCommand, cmCBActivate, 0);
+			messageToCtrl(CTLSEL_LOT_GOODSGRP, cmCBActivate, 0);
 		else if(Item.Flags & PPTFR_ONORDER && Item.LotID == 0)
 			replyGoodsSelection();
 		// Далее управление передается базовому классу
@@ -1134,7 +1134,7 @@ int TrfrItemDialog::setupGoodsListByPrice()
 		p_lw = CreateListWindow(p_ary, lbtDblClkNotify | lbtFocNotify | lbtDisposeData);
 		THROW_MEM(p_lw);
 		((ComboBox*)getCtrlView(CTLSEL_LOT_GOODS))->setListWindow(p_lw);
-		messageToCtrl(CTLSEL_LOT_GOODS, evCommand, cmCBActivate, 0);
+		messageToCtrl(CTLSEL_LOT_GOODS, cmCBActivate, 0);
 	}
 	else
 		Item.Price = tmp;
@@ -1168,7 +1168,7 @@ void TrfrItemDialog::replyGoodsGroupSelection()
 	disableCtrl(CTLSEL_LOT_QCERT, 1);
 	setupGoodsList();
 	selectCtrl(CTL_LOT_GOODS);
-	messageToCtrl(CTLSEL_LOT_GOODS, evCommand, cmCBActivate, 0);
+	messageToCtrl(CTLSEL_LOT_GOODS, cmCBActivate, 0);
 }
 
 void TrfrItemDialog::calcOrderRest()
@@ -1550,7 +1550,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 		setCtrlLong(CTLSEL_LOT_GOODS, Item.GoodsID = 0);
 		if(again && !(Item.Flags & PPTFR_ONORDER)) {
 			// Этот вызов приводит к рекурсивному входу в текущую функцию.
-			messageToCtrl(CTLSEL_LOT_GOODS, evCommand, cmCBActivate, 0);
+			messageToCtrl(CTLSEL_LOT_GOODS, cmCBActivate, 0);
 		}
 	ENDCATCH
 	return 1;

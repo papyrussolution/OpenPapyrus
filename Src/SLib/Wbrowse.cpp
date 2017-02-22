@@ -1106,7 +1106,7 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 		return;
 	clearEvent(event);
 	if(cmd)
-		TView::message(this, evCommand, cmd);
+		TView::messageCommand(this, cmd);
 }
 
 void BrowserWindow::CalcRight()
@@ -2476,7 +2476,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 				SetFontEvent sfe;
 				sfe.FontHandle = wParam;
 				sfe.DoRedraw = LOWORD(lParam);
-				TView::message(p_view, evCommand, cmSetFont, &sfe);
+				TView::messageCommand(p_view, cmSetFont, &sfe);
 			}
 			return 0;
 		case BRO_GETCURREC:
@@ -2519,7 +2519,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 				HWND hw = p_view->P_Toolbar ? p_view->P_Toolbar->H() : 0;
 				if(IsWindowVisible(hw)) {
 					MoveWindow(hw, 0, 0, LOWORD(lParam), p_view->ToolBarWidth, 0);
-					TView::message(p_view, evCommand, cmResize);
+					TView::messageCommand(p_view, cmResize);
 				}
 			}
 			break;
@@ -2549,7 +2549,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 			break;
 		case WM_MOUSEHOVER:
 			tp.setwparam(lParam);
-			TView::message(p_view, evBroadcast, cmMouseHover, (void *)&tp);
+			TView::messageBroadcast(p_view, cmMouseHover, (void *)&tp);
 			break;
 		case WM_SETFOCUS:
 			if(!(TView::GetWindowStyle(hWnd) & WS_CAPTION)) {
@@ -2558,7 +2558,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 			}
 			if(p_view) {
 				APPL->SelectTabItem(p_view);
-				TView::message(p_view, evBroadcast, cmReceivedFocus);
+				TView::messageBroadcast(p_view, cmReceivedFocus);
 				p_view->select();
 			}
 			break;
@@ -2566,7 +2566,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 			if(!(TView::GetWindowStyle(hWnd) & WS_CAPTION))
 				APPL->NotifyFrame(0);
 			if(p_view) {
-				TView::message(p_view, evBroadcast, cmReleasedFocus);
+				TView::messageBroadcast(p_view, cmReleasedFocus);
 				p_view->ResetOwnerCurrent();
 			}
 			break;
@@ -2618,7 +2618,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 			return 0;
 		case WM_LBUTTONDBLCLK:
 			SendMessage(GetParent(hWnd), BRO_LDBLCLKNOTIFY, (WPARAM)hWnd, lParam);
-			TView::message(p_view, evCommand, cmaEdit);
+			TView::messageCommand(p_view, cmaEdit);
 			return 0;
 		case WM_RBUTTONDBLCLK:
 			SendMessage(GetParent(hWnd), BRO_RDBLCLKNOTIFY, (WPARAM) hWnd, lParam);
@@ -2787,7 +2787,7 @@ void BrowserWindow::search(char * pFirstLetter, int srchMode)
 			SearchPattern = pFirstLetter;
 		if(UiSearchTextBlock::ExecDialog(H(), Id, SearchPattern, BIN(pFirstLetter), 0, 0) == cmOK) {
 			SearchPattern.CopyTo(srch_buf, sizeof(srch_buf));
-			if(!TView::message(this, evCommand, cmBrwsSrchPreprocess, srch_buf))
+			if(!TView::messageCommand(this, cmBrwsSrchPreprocess, srch_buf))
 				r = search(srch_buf, SrchFunc, (SearchPattern.C(0) == '*') ? srchNext : srchFirst);
 		}
 	}

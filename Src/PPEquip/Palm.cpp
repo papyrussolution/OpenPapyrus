@@ -246,6 +246,7 @@ void SLAPI PPStyloPalmPacket::destroy()
 	ZDELETE(P_Path);
 	ZDELETE(P_FTPPath);
 	LocList.Set(0);
+	QkList.Set(0);
 }
 
 PPStyloPalmPacket & FASTCALL PPStyloPalmPacket::operator = (const PPStyloPalmPacket & s)
@@ -258,6 +259,7 @@ PPStyloPalmPacket & FASTCALL PPStyloPalmPacket::operator = (const PPStyloPalmPac
 	if(s.P_FTPPath)
 		P_FTPPath = newStr(s.P_FTPPath);
 	LocList = s.LocList;
+	QkList = s.QkList; // @v9.5.5
 	return *this;
 }
 
@@ -528,7 +530,8 @@ static int SLAPI EditGeoTrackingMode(PPGeoTrackingMode * pData)
 // необходимо запретить редактирование наследуемых параметров, а также предусмотреть
 // изменение наследуемых параметров при изменении принадлежности к группе.
 //
-#define GRP_LOC 1
+#define GRP_LOC      1
+#define GRP_QUOTKIND 2
 
 class StyloPalmDialog : public TDialog {
 public:
@@ -537,6 +540,7 @@ public:
 		PPObjStyloPalm::ReadConfig(&SpCfg); // @v9.2.11
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_PALM_PATH, CTL_PALM_PATH, 1, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
 		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_PALM_LOC, 0, 0, cmLocList, 0, 0, 0));
+		addGroup(GRP_QUOTKIND, new QuotKindCtrlGroup(CTLSEL_PALM_QUOTKIND, cmQuotKindList)); // @v9.5.5
 	}
 	int    setDTS(const PPStyloPalmPacket *);
 	int    getDTS(PPStyloPalmPacket *);
@@ -623,6 +627,12 @@ int StyloPalmDialog::setDTS(const PPStyloPalmPacket * pData)
 		LocationCtrlGroup::Rec l_rec(&Data.LocList);
 		setGroupData(GRP_LOC, &l_rec);
 	}
+	// @v9.5.5 {
+	{
+		QuotKindCtrlGroup::Rec qk_rec(&Data.QkList);
+		setGroupData(GRP_QUOTKIND, &qk_rec);
+	}
+	// } @v9.5.5
 	SetupPPObjCombo(this, CTLSEL_PALM_GGRP, PPOBJ_GOODSGROUP, Data.Rec.GoodsGrpID, OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN); // @v8.4.6 OLW_LOADDEFONOPEN
 	SetupPPObjCombo(this, CTLSEL_PALM_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.Rec.FTPAcctID, 0, (void *)INETACCT_ONLYFTP);
 	PPIDArray op_type_list;
@@ -657,7 +667,7 @@ int StyloPalmDialog::setDTS(const PPStyloPalmPacket * pData)
 	if(!(Data.Rec.Flags & PLMF_GENERIC)) {
 		AddClusterAssoc(CTL_PALM_FLAGS, 8, PLMF_BLOCKED);
 	}
-	// } @v9.4.7 
+	// } @v9.4.7
 	SetClusterData(CTL_PALM_FLAGS, Data.Rec.Flags);
 	{
 		temp_buf = 0;
@@ -709,6 +719,13 @@ int StyloPalmDialog::getDTS(PPStyloPalmPacket * pData)
 		getGroupData(GRP_LOC, &l_rec);
 		Data.LocList = l_rec.LocList;
 	}
+	// @v9.5.5 {
+	{
+		QuotKindCtrlGroup::Rec qk_rec;
+		getGroupData(GRP_QUOTKIND, &qk_rec);
+		Data.QkList = qk_rec.List;
+	}
+	// } @v9.5.5
 	getCtrlData(CTLSEL_PALM_GGRP,  &Data.Rec.GoodsGrpID);
 	getCtrlData(CTLSEL_PALM_OP,    &Data.Rec.OrderOpID);
 	// @v9.2.11 {
@@ -826,6 +843,7 @@ int SLAPI PPObjStyloPalm::PutPacket(PPID * pID, PPStyloPalmPacket * pPack, int u
 			THROW(ref->PutPropVlrString(Obj, *pID, PLMPRP_PATH, pPack ? pPack->P_Path : 0));
 			THROW(ref->PutPropVlrString(Obj, *pID, PLMPRP_FTPPATH, pPack ? pPack->P_FTPPath : 0));
 			THROW(ref->PutPropArray(Obj, *pID, PLMPRP_LOCLIST, pPack ? &pPack->LocList.Get() : 0, 0));
+			THROW(ref->PutPropArray(Obj, *pID, PLMPRP_QUOTKINDLIST, pPack ? &pPack->QkList.Get() : 0, 0)); // @v9.5.5
 		}
 		THROW(tra.Commit());
 	}
@@ -841,6 +859,14 @@ int SLAPI PPObjStyloPalm::GetLocList(PPID id, ObjIdListFilt & rLocList)
 	return ok;
 }
 
+int SLAPI PPObjStyloPalm::GetQuotKindList(PPID id, ObjIdListFilt & rQuotKindList)
+{
+	PPIDArray list;
+	int    ok = ref->GetPropArray(Obj, id, PLMPRP_QUOTKINDLIST, &list);
+	rQuotKindList.Set((ok > 0) ? &list : 0);
+	return ok;
+}
+
 int SLAPI PPObjStyloPalm::Helper_GetPacket(PPID id, PPStyloPalmPacket * pPack, PPIDArray * pStack)
 {
 	int    ok = -1;
@@ -852,6 +878,7 @@ int SLAPI PPObjStyloPalm::Helper_GetPacket(PPID id, PPStyloPalmPacket * pPack, P
 		SString path;
 		THROW(ref->GetPropVlrString(Obj, id, PLMPRP_PATH, path));
 		THROW(GetLocList(id, pPack->LocList));
+		THROW(GetQuotKindList(id, pPack->QkList)); // @v9.5.5
 		THROW_MEM(pPack->P_Path = newStr(path));
 		THROW(ref->GetPropVlrString(Obj, id, PLMPRP_FTPPATH, path));
 		THROW_MEM(pPack->P_FTPPath = newStr(path));
@@ -1661,7 +1688,7 @@ int SLAPI PPObjStyloPalm::ReadInput(PPID id, PalmInputParam * pParam, long flags
 			}
 			if(pParam->P_BillQueue) {
 				THROW(ReadInputBill(&palm_pack.Rec, path, pParam, flags, pLogger, pOrdCount));
-				if(!(palm_pack.Rec.Flags & PLMF_BLOCKED)) { // @v9.4.7 
+				if(!(palm_pack.Rec.Flags & PLMF_BLOCKED)) { // @v9.4.7
 					THROW(ReadInputInv(&palm_pack.Rec, path, pParam, flags, pLogger));
 				}
 			}
@@ -2321,6 +2348,8 @@ int SLAPI PPObjStyloPalm::IsPacketEq(const PPStyloPalmPacket & rS1, const PPStyl
 #undef CMP_MEMBS
 #undef CMP_MEMB
 	if(!rS1.LocList.IsEqual(rS2.LocList))
+		return 0;
+	else if(!rS1.QkList.IsEqual(rS2.QkList)) // @v9.5.5
 		return 0;
 	else {
 		SString temp_buf1, temp_buf2;
@@ -3660,11 +3689,13 @@ int SLAPI PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock 
 					dlvr_loc_list.clear();
 					THROW(rBlk.P_PsnObj->GetDlvrLocList(ar_item.ObjID, &dlvr_loc_list));
 					for(i = 0; i < dlvr_loc_list.getCount(); i++) {
-						rBlk.P_LocObj->P_Tbl->GetAddress(dlvr_loc_list.at(i), 0, addr);
+						const PPID dlvr_loc_id = dlvr_loc_list.at(i);
+						// @v9.5.5 rBlk.P_LocObj->P_Tbl->GetAddress(dlvr_loc_id, 0, addr);
+						rBlk.P_LocObj->GetAddress(dlvr_loc_id, 0, addr); // @v9.5.5
 						if(addr.NotEmptyS()) {
 							DbfRecord drec_addr(p_addr_tbl);
 							drec_addr.empty();
-							drec_addr.put(1, dlvr_loc_list.at(i));
+							drec_addr.put(1, dlvr_loc_id);
 							drec_addr.put(2, ar_item.ID);
 							drec_addr.put(3, addr);
 							PPSetAddedMsgString(p_addr_tbl->getName());

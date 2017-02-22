@@ -1171,34 +1171,81 @@ static int FASTCALL HasImages(const void * pData)
 
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
-	PPViewGoods * p_view = (PPViewGoods *)extraPtr;
-	return p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle) : -1;
+	int    ok = -1;
+	PPViewBrowser * p_brw = (PPViewBrowser *)extraPtr; // @v9.5.5
+	if(p_brw) {
+		// @v9.5.5 PPViewGoods * p_view = (PPViewGoods *)extraPtr;
+		PPViewGoods * p_view = (PPViewGoods *)p_brw->P_View; // @v9.5.5
+		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
+	}
+	return ok;
 }
 
-int SLAPI PPViewGoods::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle)
+int SLAPI PPViewGoods::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
 {
 	struct Goods_ {
 		long   ID;
 		long   Flags;
 	};
 	int    ok = -1;
-	if(pData && pCellStyle && col >= 0) {
-		if(col == 0) {
-			if(((Goods_ *)pData)->Flags & GF_HASIMAGES) {
-				pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
-				pCellStyle->Color = GetColorRef(SClrGreen);
-				ok = 1;
-			}
-		}
-		else if(col == 1) {
-			const TagFilt & r_tag_filt = GObj.GetConfig().TagIndFilt;
-			if(!r_tag_filt.IsEmpty()) {
-				SColor clr;
-				if(r_tag_filt.SelectIndicator(((Goods_ *)pData)->ID, clr) > 0) {
-					pCellStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
-					pCellStyle->Color2 = (COLORREF)clr;
+	if(pBrw && pData && pCellStyle && col >= 0) {
+		BrowserDef * p_def = pBrw->getDef();
+		if(col >= 0 && col < (long)p_def->getCount()) {
+			const BroColumn & r_col = p_def->at(col);
+			if(col == 0) {
+				if(((Goods_ *)pData)->Flags & GF_HASIMAGES) {
+					pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
+					pCellStyle->Color = GetColorRef(SClrGreen);
 					ok = 1;
 				}
+			}
+			else if(col == 1) {
+				const TagFilt & r_tag_filt = GObj.GetConfig().TagIndFilt;
+				if(!r_tag_filt.IsEmpty()) {
+					SColor clr;
+					if(r_tag_filt.SelectIndicator(((Goods_ *)pData)->ID, clr) > 0) {
+						pCellStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
+						pCellStyle->Color2 = (COLORREF)clr;
+						ok = 1;
+					}
+				}
+			}
+			else if(r_col.OrgOffs == 7) { // barcode
+				PROFILE_START
+				SString barcode;
+				p_def->getFullText(pData, col, barcode);
+				if(barcode.NotEmptyS()) {
+					if(barcode.Len() == 3) {
+						pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
+						pCellStyle->Color = GetColorRef(SClrOrange);
+						ok = 1;
+					}
+					else if(barcode.Len() == 19) {
+						pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
+						pCellStyle->Color = GetColorRef(SClrLightblue);
+						ok = 1;
+					}
+					else {
+						int    diag = 0, std = 0;
+						int    r = PPObjGoods::DiagBarcode(barcode, &diag, &std, 0);
+						if(r > 0) {
+							//pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
+							//pCellStyle->Color = GetColorRef(SClrGreen);
+							//ok = 1;
+						}
+						else if(r < 0) {
+							pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
+							pCellStyle->Color = GetColorRef(SClrYellow);
+							ok = 1;
+						}
+						else {
+							pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
+							pCellStyle->Color = GetColorRef(SClrRed);
+							ok = 1;
+						}
+					}
+				}
+				PROFILE_END
 			}
 		}
 	}
@@ -1231,7 +1278,7 @@ int SLAPI PPViewGoods::PreprocessBrowser(PPViewBrowser * pBrw)
 		pBrw->InsColumn(-1, "@article", 8, 0, 0, 0); // @v9.0.2
 		pBrw->InsColumn(-1, "@code", 9, 0, 0, 0); // @v9.0.2
 	}
-	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, this));
+	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, /*this*/pBrw)); // @v9.5.5 this-->pBrw
 	return ok;
 }
 
@@ -1954,7 +2001,7 @@ int SLAPI PPViewGoods::RemoveAll()
 				getCtrlData(sel = CTLSEL_REMOVEALL_GRP, &Data.DestGrpID);
 				THROW_PP(Data.DestGrpID, PPERR_TAXGROUPNEEDED);
 			}
-			// } @v9.5.0 
+			// } @v9.5.0
 			else if(Data.Action == GoodsMoveParam::aChgMinStock) {
 				LocationCtrlGroup::Rec loc_rec;
 				getGroupData(GRP_LOC, &loc_rec);
@@ -2031,7 +2078,7 @@ int SLAPI PPViewGoods::RemoveAll()
 					PPLoadString("taxgroup", combo_label_buf);
 					SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_GOODSTAX, Data.DestGrpID, 0, 0);
 				}
-				// } @v9.5.0 
+				// } @v9.5.0
 				else {
 					//disableCtrl(CTLSEL_REMOVEALL_GRP, 1);
 				}
@@ -2655,94 +2702,120 @@ int SLAPI PPViewGoods::Repair(PPID /*id*/)
 	GoodsViewItem item;
 	GoodsRecoverParam param;
 	SString temp_buf;
+	SString valid_code;
+	SString fmt_buf, msg_buf;
 	MEMSZERO(param);
 	if(EditGoodsRecoverParam(&param) > 0) {
 		if(param.Flags & param.fCheckAlcoAttribs) {
 			THROW_MEM(p_eg_prc = new PPEgaisProcessor(0, &logger));
 		}
 		PPWait(1);
+		PPID   prev_id = 0;
 		for(InitIteration(); NextIteration(&item) > 0;) {
-			PPGoodsPacket pack;
-			int    err = 0;
-			int    to_turn_packet = 0;
-			if(GObj.GetPacket(item.ID, &pack, 0) > 0) {
-				int    is_cls = BIN(pack.Rec.GdsClsID && gc_obj.GetPacket(pack.Rec.GdsClsID, &gc_pack) > 0);
-				if(!RecoverGoodsExtPropRef(pack.Rec.ID, &pack.ExtRec.KindID, is_cls, gc_pack.PropKind, &logger))
-					err = 1;
-				if(!RecoverGoodsExtPropRef(pack.Rec.ID, &pack.ExtRec.GradeID, is_cls, gc_pack.PropGrade, &logger))
-					err = 1;
-				if(!RecoverGoodsExtPropRef(pack.Rec.ID, &pack.ExtRec.AddObjID, is_cls, gc_pack.PropAdd, &logger))
-					err = 1;
-				if(!RecoverGoodsExtPropRef(pack.Rec.ID, &pack.ExtRec.AddObj2ID, is_cls, gc_pack.PropAdd2, &logger))
-					err = 1;
-				//
-				if(is_cls > 0) {
-					THROW(gc_pack.CompleteGoodsPacket(&pack));
-					to_turn_packet = 1;
-				}
-				else if(!pack.Stock.IsEmpty()) {
-					to_turn_packet = 1;
-				}
-				{ // Проверка на флаги
-					long f = (pack.Rec.Flags & GF_DB_FLAGS_GOODS);
-					if(f != pack.Rec.Flags) {
-						pack.Rec.Flags = f;
-						logger.LogString(PPTXT_LOG_GOODSFLAGSMISSMATCH, pack.Rec.Name);
+			if(item.ID != prev_id) {
+				PPGoodsPacket pack;
+				int    err = 0;
+				int    to_turn_packet = 0;
+				if(GObj.GetPacket(item.ID, &pack, 0) > 0) {
+					int    is_cls = BIN(pack.Rec.GdsClsID && gc_obj.GetPacket(pack.Rec.GdsClsID, &gc_pack) > 0);
+					if(!RecoverGoodsExtPropRef(pack.Rec.ID, &pack.ExtRec.KindID, is_cls, gc_pack.PropKind, &logger))
 						err = 1;
+					if(!RecoverGoodsExtPropRef(pack.Rec.ID, &pack.ExtRec.GradeID, is_cls, gc_pack.PropGrade, &logger))
+						err = 1;
+					if(!RecoverGoodsExtPropRef(pack.Rec.ID, &pack.ExtRec.AddObjID, is_cls, gc_pack.PropAdd, &logger))
+						err = 1;
+					if(!RecoverGoodsExtPropRef(pack.Rec.ID, &pack.ExtRec.AddObj2ID, is_cls, gc_pack.PropAdd2, &logger))
+						err = 1;
+					//
+					if(is_cls > 0) {
+						THROW(gc_pack.CompleteGoodsPacket(&pack));
+						to_turn_packet = 1;
 					}
-				}
-				{ // Проверка на обнуление зарезервированного пространства
-					for(size_t i = 0; i < sizeof(pack.Rec.Reserve); i++)
-						if(pack.Rec.Reserve[i] != 0) {
-							pack.Rec.Reserve[i] = 0;
-							to_turn_packet = 1;
-							break;
+					else if(!pack.Stock.IsEmpty()) {
+						to_turn_packet = 1;
+					}
+					{ // Проверка на флаги
+						const long f = (pack.Rec.Flags & GF_DB_FLAGS_GOODS);
+						if(f != pack.Rec.Flags) {
+							pack.Rec.Flags = f;
+							logger.LogString(PPTXT_LOG_GOODSFLAGSMISSMATCH, pack.Rec.Name);
+							err = 1;
 						}
-				}
-				{
-					if(pack.Rec.WrOffGrpID && SearchObject(PPOBJ_ASSTWROFFGRP, pack.Rec.WrOffGrpID, 0) <= 0) {
-						pack.Rec.WrOffGrpID = 0;
-						logger.LogString(PPTXT_LOG_GOODSHANGWROFFGRP, pack.Rec.Name);
-						err = 1;
 					}
-				}
-				if(pack.Rec.Flags & GF_VOLUMEVAL && pack.Stock.IsEmpty()) {
-					pack.Rec.Flags &= ~GF_VOLUMEVAL;
-					to_turn_packet = 1;
-				}
-				if(p_eg_prc) {
-					const int agr = p_eg_prc->IsAlcGoods(pack.Rec.ID);
-					// 402
-					if(agr > 0) {
-						PPEgaisProcessor::GoodsItem agi;
-						const int pgir = p_eg_prc->PreprocessGoodsItem(pack.Rec.ID, 0, 0, PPEgaisProcessor::pgifForceUsingInnerDb, agi);
-						if(!pgir) {
-							StringSet msg_ss('\t', agi.MsgPool);
-							for(uint ssp = 0; msg_ss.get(&ssp, temp_buf);) {
-								logger.Log(temp_buf);
+					{ // Проверка на обнуление зарезервированного пространства
+						for(size_t i = 0; i < sizeof(pack.Rec.Reserve); i++)
+							if(pack.Rec.Reserve[i] != 0) {
+								pack.Rec.Reserve[i] = 0;
+								to_turn_packet = 1;
+								break;
+							}
+					}
+					{
+						if(pack.Rec.WrOffGrpID && SearchObject(PPOBJ_ASSTWROFFGRP, pack.Rec.WrOffGrpID, 0) <= 0) {
+							pack.Rec.WrOffGrpID = 0;
+							logger.LogString(PPTXT_LOG_GOODSHANGWROFFGRP, pack.Rec.Name);
+							err = 1;
+						}
+					}
+					if(pack.Rec.Flags & GF_VOLUMEVAL && pack.Stock.IsEmpty()) {
+						pack.Rec.Flags &= ~GF_VOLUMEVAL;
+						to_turn_packet = 1;
+					}
+					// @v9.5.5 {
+					{
+						for(uint i = 0; i < pack.Codes.getCount(); i++) {
+							temp_buf = pack.Codes.at(i).Code;
+							if(temp_buf.NotEmptyS()) {
+								if(!oneof2(temp_buf.Len(), 3, 19)) {
+									int    diag = 0, std = 0;
+									int    r = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &valid_code);
+									if(r == 0) {
+										PPObjGoods::GetBarcodeDiagText(diag, fmt_buf);
+										PPBarcode::GetStdName(std, temp_buf);
+										(msg_buf = pack.Rec.Name).CatDiv(':', 2).Cat(temp_buf).
+											Cat(pack.Codes.at(i).Code)./*CatChar('/').Cat(valid_code).*/CatDiv('-', 1).Cat(fmt_buf);
+										logger.Log(msg_buf);
+									}
+								}
 							}
 						}
-						if(agi.StatusFlags & agi.stEgaisCodeByGoods) {
-						}
-						if(agi.CategoryCode.Empty()) {
-                            //PPTXT_LOG_ALCGOODSHASNTCAT      "Для алкогольного товара '%s' не определен вид алкогольной продукции"
-                            logger.LogString(PPTXT_LOG_ALCGOODSHASNTCAT, pack.Rec.Name);
-						}
-						if(agi.Proof <= 0.0) {
-							//PPTXT_LOG_ALCGOODSHASNTPROOF    "Для алкогольного товара '%s' не определено содержание спирта"
-							logger.LogString(PPTXT_LOG_ALCGOODSHASNTPROOF, pack.Rec.Name);
-						}
-						if(agi.Volume <= 0.0) {
-							//PPTXT_LOG_ALCGOODSHASNTVOL      "Для алкогольного товара '%s' не определен объем"
-							logger.LogString(PPTXT_LOG_ALCGOODSHASNTVOL, pack.Rec.Name);
+					}
+					// } @v9.5.5 
+					if(p_eg_prc) {
+						const int agr = p_eg_prc->IsAlcGoods(pack.Rec.ID);
+						// 402
+						if(agr > 0) {
+							PPEgaisProcessor::GoodsItem agi;
+							const int pgir = p_eg_prc->PreprocessGoodsItem(pack.Rec.ID, 0, 0, PPEgaisProcessor::pgifForceUsingInnerDb, agi);
+							if(!pgir) {
+								StringSet msg_ss('\t', agi.MsgPool);
+								for(uint ssp = 0; msg_ss.get(&ssp, temp_buf);) {
+									logger.Log(temp_buf);
+								}
+							}
+							if(agi.StatusFlags & agi.stEgaisCodeByGoods) {
+							}
+							if(agi.CategoryCode.Empty()) {
+								//PPTXT_LOG_ALCGOODSHASNTCAT      "Для алкогольного товара '%s' не определен вид алкогольной продукции"
+								logger.LogString(PPTXT_LOG_ALCGOODSHASNTCAT, pack.Rec.Name);
+							}
+							if(agi.Proof <= 0.0) {
+								//PPTXT_LOG_ALCGOODSHASNTPROOF    "Для алкогольного товара '%s' не определено содержание спирта"
+								logger.LogString(PPTXT_LOG_ALCGOODSHASNTPROOF, pack.Rec.Name);
+							}
+							if(agi.Volume <= 0.0) {
+								//PPTXT_LOG_ALCGOODSHASNTVOL      "Для алкогольного товара '%s' не определен объем"
+								logger.LogString(PPTXT_LOG_ALCGOODSHASNTVOL, pack.Rec.Name);
+							}
 						}
 					}
-				}
-				if(err || to_turn_packet) {
-					if(param.Flags & GoodsRecoverParam::fCorrect)
-						THROW(GObj.PutPacket(&item.ID, &pack, 1));
+					if(err || to_turn_packet) {
+						if(param.Flags & GoodsRecoverParam::fCorrect)
+							THROW(GObj.PutPacket(&item.ID, &pack, 1));
+					}
 				}
 			}
+			prev_id = item.ID;
 			PPWaitPercent(GetCounter());
 		}
 		PPWait(0);

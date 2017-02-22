@@ -339,8 +339,8 @@ TView * FASTCALL TWindow::getCtrlView(ushort ctlID)
 
 HWND FASTCALL TWindow::getCtrlHandle(ushort ctlID)
 	{ return GetDlgItem(HW, ctlID); }
-void * SLAPI TWindow::messageToCtrl(ushort ctlID, ushort what, ushort cmd, void *ptr)
-	{ return TView::message(getCtrlView(ctlID), what, cmd, ptr); }
+void * SLAPI TWindow::messageToCtrl(ushort ctlID, ushort cmd, void *ptr)
+	{ return TView::messageCommand(getCtrlView(ctlID), cmd, ptr); }
 
 int SLAPI TWindow::setSmartListBoxOption(uint ctlID, uint option)
 {
@@ -409,10 +409,16 @@ void FASTCALL TWindow::selectCtrl(ushort ctlID)
 	}
 }
 
+TButton * FASTCALL TWindow::SearchButton(uint cmd)
+{
+	TView * p_view = (TView *)TView::messageBroadcast(this, cmSearchButton, (void *)cmd);
+	return (p_view && p_view->IsSubSign(TV_SUBSIGN_BUTTON)) ? (TButton *)p_view : 0;
+}
+
 int SLAPI TWindow::selectButton(ushort cmd)
 {
 	int    ok = 1;
-	TView * p_view = (TView *)TView::message(this, evBroadcast, cmSearchButton, (long)cmd);
+	TButton * p_view = SearchButton(cmd);
 	if(p_view)
 		setCurrent(p_view, forceSelect);
 	else
@@ -422,14 +428,14 @@ int SLAPI TWindow::selectButton(ushort cmd)
 
 void SLAPI TWindow::showButton(uint cmd, int s)
 {
-	TView * p_view = (TView *)TView::message(this, evBroadcast, cmSearchButton, (long)cmd);
+	TButton * p_view = SearchButton(cmd);
 	CALLPTRMEMB(p_view, Show(s));
 }
 
 int SLAPI TWindow::setButtonText(uint cmd, const char * pText)
 {
 	int    ok = 1;
-	TButton * p_ctl = (TButton *)TView::message(this, evBroadcast, cmSearchButton, (long)cmd);
+	TButton * p_ctl = SearchButton(cmd);
 	const uint ctl_id = p_ctl ? p_ctl->GetId() : 0;
 	if(ctl_id) {
 		p_ctl->Title = pText;
@@ -443,7 +449,7 @@ int SLAPI TWindow::setButtonText(uint cmd, const char * pText)
 
 int SLAPI TWindow::setButtonBitmap(uint cmd, uint bmpID)
 {
-	TButton * p_ctl = (TButton *)TView::message(this, evBroadcast, cmSearchButton, (long)cmd);
+	TButton * p_ctl = SearchButton(cmd);
 	return p_ctl ? p_ctl->SetBitmap(bmpID) : 0;
 }
 
@@ -777,7 +783,7 @@ IMPL_HANDLE_EVENT(TWindow)
 	if(event.isCmd(cmClose)) {
 		if(!TVINFOPTR || TVINFOPTR == this)
 			if(IsInState(sfModal))
-				TView::message(this, evCommand, cmCancel, this);
+				TView::messageCommand(this, cmCancel, this);
 			else
 				close();
 		else
@@ -1442,7 +1448,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 					he.ContextId = p_hi->dwContextId;
 					he.Mouse = p_hi->MousePos;
 				}
-				TView::message(p_view, evCommand, cmHelp, &he);
+				TView::messageCommand(p_view, cmHelp, &he);
 			}
 			break;
 		case WM_CREATE:
@@ -1485,7 +1491,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 					p_view->size.Set(p_init_data->cx, p_init_data->cy);
 					//p_view->RegisterMouseTracking(1);
 					TView::SetWindowUserData(hWnd, p_view);
-					TView::message(p_view, evCommand, cmInit, &cr_blk);
+					TView::messageCommand(p_view, cmInit, &cr_blk);
 					return 0;
 				}
 				else
@@ -1509,7 +1515,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 				SetFontEvent sfe;
 				sfe.FontHandle = wParam;
 				sfe.DoRedraw = LOWORD(lParam);
-				if(TView::message(p_view, evCommand, cmSetFont, &sfe))
+				if(TView::messageCommand(p_view, cmSetFont, &sfe))
 					return 0;
 			}
 			break;
@@ -1526,14 +1532,14 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 				}
 				se.PrevSize = p_view->size;
 				p_view->size = se.NewSize.setwparam(lParam);
-				if(TView::message(p_view, evCommand, cmSize, &se))
+				if(TView::messageCommand(p_view, cmSize, &se))
 					return 0;
 			}
 			break;
 		case WM_MOVE:
 			{
 				p_view->origin.setwparam(lParam);
-				if(TView::message(p_view, evCommand, cmMove))
+				if(TView::messageCommand(p_view, cmMove))
 					return 0;
 			}
 			break;
@@ -1563,7 +1569,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 				}
 				else
 					pe.H_DeviceContext = (long)ps.hdc;
-				void * p_ret = TView::message(p_view, evCommand, cmPaint, &pe);
+				void * p_ret = TView::messageCommand(p_view, cmPaint, &pe);
 				if(use_draw_buf) {
 					BitBlt(ps.hdc, 0, 0, cr.right - cr.left, cr.bottom - cr.top, h_dc_mem, 0, 0, SRCCOPY);
 					SelectObject(h_dc_mem, h_old_bmp);
@@ -1582,7 +1588,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 				pe.PaintType = PaintEvent::tNcPaint;
 				HDC hdc = GetDCEx(hWnd, (HRGN)wParam, DCX_WINDOW|DCX_INTERSECTRGN);
 				pe.H_DeviceContext = (long)hdc;
-				void * p_ret = TView::message(p_view, evCommand, cmPaint, &pe);
+				void * p_ret = TView::messageCommand(p_view, cmPaint, &pe);
 				ReleaseDC(hWnd, hdc);
 				if(p_ret)
 					return 0;
@@ -1595,7 +1601,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 				pe.PaintType = PaintEvent::tEraseBackground;
 				pe.H_DeviceContext = (long)wParam;
 				pe.Rect = p_view->getClientRect();
-				void * p_ret = TView::message(p_view, evCommand, cmPaint, &pe);
+				void * p_ret = TView::messageCommand(p_view, cmPaint, &pe);
 				//
 				// Если получатель очистил фон, он должен акцептировть сообщение.
 				// Windows ожидает получить в этом случае !0.
@@ -1630,7 +1636,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 						se.TrackPos = HiWord(wParam);
 						break;
 				}
-				TView::message(p_view, evCommand, cmScroll, &se);
+				TView::messageCommand(p_view, cmScroll, &se);
 			}
 			break;
 		case WM_LBUTTONDOWN:
@@ -1651,7 +1657,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 			if(p_view) {
 				MouseEvent me;
 				p_view->MakeMouseEvent(message, wParam, lParam, me);
-				if(TView::message(p_view, evCommand, cmMouse, &me))
+				if(TView::messageCommand(p_view, cmMouse, &me))
 					return 0;
 			}
 			break;

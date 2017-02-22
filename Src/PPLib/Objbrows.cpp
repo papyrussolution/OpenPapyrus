@@ -366,7 +366,7 @@ IMPL_HANDLE_EVENT(PPListDialog)
 					}
 					if(event.isCtlEvent(ctlList)) {
 						if(cur_id && Options & oOnDblClkOk) {
-							TView::message(this, evCommand, cmOK);
+							TView::messageCommand(this, cmOK);
 						}
 						else if(edit && getCurItem(&p, &i) && editItem(p, i) > 0) {
 							long id = is_tree_list ? i : p;
@@ -396,7 +396,7 @@ IMPL_HANDLE_EVENT(PPListDialog)
 							menu.AddSubstr(temp_buf, 3, cmaSendByMail); // Послать по эл. почте
 						int    cmd = menu.Execute(H(), TMenuPopup::efRet);
 						if(cmd > 0)
-							TView::message(this, evCommand, cmd);
+							TView::messageCommand(this, cmd);
 					}
 				}
 				break;
@@ -426,7 +426,7 @@ IMPL_HANDLE_EVENT(PPListDialog)
 				}
 			}
 			else
-				TView::message(this, evCommand, cmaMore, this);
+				TView::messageCommand(this, cmaMore, this);
 		}
 		else
 			return;

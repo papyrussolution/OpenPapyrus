@@ -278,7 +278,7 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 			if(p_view) {
 				::SetFocus(p_view->HwndSci);
 				APPL->SelectTabItem(p_view);
-				TView::message(p_view, evBroadcast, cmReceivedFocus);
+				TView::messageBroadcast(p_view, cmReceivedFocus);
 				p_view->select();
 			}
 			break;
@@ -287,7 +287,7 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 				APPL->NotifyFrame(0);
 			p_view = (STextBrowser *)TView::GetWindowUserData(hWnd);
 			if(p_view) {
-				TView::message(p_view, evBroadcast, cmReleasedFocus);
+				TView::messageBroadcast(p_view, cmReleasedFocus);
 				p_view->ResetOwnerCurrent();
 			}
 			break;
@@ -313,7 +313,7 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 				HWND hw = p_view->P_Toolbar ? p_view->P_Toolbar->H() : 0;
 				if(IsWindowVisible(hw)) {
 					MoveWindow(hw, 0, 0, LOWORD(lParam), p_view->ToolBarWidth, 0);
-					TView::message(p_view, evCommand, cmResize);
+					TView::messageCommand(p_view, cmResize);
 				}
 				p_view->Resize();
 			}

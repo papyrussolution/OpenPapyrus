@@ -20,7 +20,7 @@ void FASTCALL ZDeleteWinGdiObject(void * pHandle)
 //
 //
 // static
-void * TView::message(TView * pReceiver, uint what, uint command)
+/* @v9.5.5 void * TView::message(TView * pReceiver, uint what, uint command)
 {
 	void * p_ret = 0;
 	if(pReceiver) {
@@ -32,10 +32,10 @@ void * TView::message(TView * pReceiver, uint what, uint command)
 			p_ret = event.message.infoPtr;
 	}
 	return p_ret;
-}
+}*/
 
 // static
-void * TView::message(TView * pReceiver, uint what, uint command, void * pInfoPtr)
+/* @v9.5.5 void * TView::message(TView * pReceiver, uint what, uint command, void * pInfoPtr)
 {
 	void * p_ret = 0;
 	if(pReceiver) {
@@ -48,10 +48,10 @@ void * TView::message(TView * pReceiver, uint what, uint command, void * pInfoPt
 			p_ret = event.message.infoPtr;
 	}
 	return p_ret;
-}
+}*/
 
 // static
-void * TView::message(TView * pReceiver, uint what, uint command, long infoVal)
+/* @v9.5.5 void * TView::message(TView * pReceiver, uint what, uint command, long infoVal)
 {
 	void * p_ret = 0;
 	if(pReceiver) {
@@ -59,6 +59,68 @@ void * TView::message(TView * pReceiver, uint what, uint command, long infoVal)
 		event.what = what;
 		event.message.command = command;
 		event.message.infoLong = infoVal;
+		pReceiver->handleEvent(event);
+		if(event.what == evNothing)
+			p_ret = event.message.infoPtr;
+	}
+	return p_ret;
+}*/
+
+//static 
+void * FASTCALL TView::messageCommand(TView * pReceiver, uint command)
+{
+	void * p_ret = 0;
+	if(pReceiver) {
+		TEvent event;
+		event.what = evCommand;
+		event.message.command = command;
+		pReceiver->handleEvent(event);
+		if(event.what == evNothing)
+			p_ret = event.message.infoPtr;
+	}
+	return p_ret;
+}
+
+//static 
+void * TView::messageCommand(TView * pReceiver, uint command, void * pInfoPtr)
+{
+	void * p_ret = 0;
+	if(pReceiver) {
+		TEvent event;
+		event.what = evCommand;
+		event.message.command = command;
+		event.message.infoPtr = pInfoPtr;
+		pReceiver->handleEvent(event);
+		if(event.what == evNothing)
+			p_ret = event.message.infoPtr;
+	}
+	return p_ret;
+}
+
+//static 
+void * FASTCALL TView::messageBroadcast(TView * pReceiver, uint command)
+{
+	void * p_ret = 0;
+	if(pReceiver) {
+		TEvent event;
+		event.what = evBroadcast;
+		event.message.command = command;
+		pReceiver->handleEvent(event);
+		if(event.what == evNothing)
+			p_ret = event.message.infoPtr;
+	}
+	return p_ret;
+}
+
+//static 
+void * TView::messageBroadcast(TView * pReceiver, uint command, void * pInfoPtr)
+{
+	void * p_ret = 0;
+	if(pReceiver) {
+		TEvent event;
+		event.what = evBroadcast;
+		event.message.command = command;
+		event.message.infoPtr = pInfoPtr;
 		pReceiver->handleEvent(event);
 		if(event.what == evNothing)
 			p_ret = event.message.infoPtr;
@@ -642,7 +704,7 @@ void FASTCALL TView::enableCommands(const TCommandSet & cmds, int isEnable)
 			}
 		P_CmdSet->enableCmd(cmds, isEnable);
 		if(Sf & sfCmdSetChanged) {
-			TView::message(this, evBroadcast, cmCommandSetChanged);
+			TView::messageBroadcast(this, cmCommandSetChanged);
 			Sf &= ~sfCmdSetChanged;
 		}
 	}
@@ -664,7 +726,7 @@ void FASTCALL TView::enableCommand(ushort cmd, int isEnable)
 			}
 		P_CmdSet->enableCmd(cmd, isEnable);
 		if(Sf & sfCmdSetChanged) {
-			TView::message(this, evBroadcast, cmCommandSetChanged);
+			TView::messageBroadcast(this, cmCommandSetChanged);
 			Sf &= ~sfCmdSetChanged;
 		}
 	}
@@ -745,7 +807,7 @@ int FASTCALL TView::IsInState(uint s) const
 uint TView::getHelpCtx()
 {
 	uint   ctx = 0;
-	TView::message(this, evCommand, cmGetHelpContext, &ctx);
+	TView::messageCommand(this, cmGetHelpContext, &ctx);
 	return ctx;
 }
 
@@ -784,14 +846,14 @@ void TView::setState(uint aState, bool enable)
 			switch(aState) {
 				case sfVisible:
 					{
-						TView * p_label = (TView *)TView::message(owner, evBroadcast, cmSearchLabel, this);
+						TView * p_label = (TView *)TView::messageBroadcast(owner, cmSearchLabel, this);
 						CALLPTRMEMB(p_label, setState(aState, enable));
 						Show(enable);
 					}
 					break;
 				case sfSelected:
 				case sfFocused:
-					TView::message(owner, evBroadcast, enable ? cmReceivedFocus : cmReleasedFocus, this);
+					TView::messageBroadcast(owner, enable ? cmReceivedFocus : cmReleasedFocus, this);
 					break;
 			}
 		}
@@ -820,7 +882,7 @@ void TView::changeBounds(const TRect & rBounds)
 		ENTER_CRITICAL_SECTION
 		if(!_lock) {
 			_lock = 1;
-			TView::message(this, evCommand, cmSetBounds, &new_bounds);
+			TView::messageCommand(this, cmSetBounds, &new_bounds);
 			_lock = 0;
 		}
 		LEAVE_CRITICAL_SECTION
@@ -1628,7 +1690,7 @@ void TGroup::setCurrent(TView * p, selectMode mode)
 		}
 		if(!(MsgLockFlags & TGroup::fLockMsgChangedFocus)) {
 			MsgLockFlags |= TGroup::fLockMsgChangedFocus;
-			TView::message(this, evBroadcast, cmChangedFocus, p_save_current);
+			TView::messageBroadcast(this, cmChangedFocus, p_save_current);
 			MsgLockFlags &= ~TGroup::fLockMsgChangedFocus;
 		}
 	}

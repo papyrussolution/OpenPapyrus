@@ -683,7 +683,7 @@ int PPCalculator(uint32 parentWnd, const char * pInitData)
 	if(pInitData)
 		STRNSCPY(ct, pInitData);
 	else
-		TView::message(APPL->P_DeskTop, evCommand, cmGetFocusedNumber, &c);
+		TView::messageCommand(APPL->P_DeskTop, cmGetFocusedNumber, &c);
 	CalcDialog * dlg = new CalcDialog;
 	if(CheckDialogPtr(&dlg, 1)) {
 		if(c != 0) {

@@ -1,5 +1,5 @@
 // V_FRGHT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -312,7 +312,8 @@ int SLAPI PPViewFreight::FillTempTableRec(const BillTbl::Rec * pBillRec, TempFre
 			if(pRec->PortID && WObj.Fetch(pRec->PortID, &city_rec) > 0)
 				STRNSCPY(pRec->PortName, city_rec.Name);
 			if(pRec->DlvrAddrID) {
-				LocObj.P_Tbl->GetAddress(pRec->DlvrAddrID, 0, temp_buf);
+				// @v9.5.5 LocObj.P_Tbl->GetAddress(pRec->DlvrAddrID, 0, temp_buf);
+				LocObj.GetAddress(pRec->DlvrAddrID, 0, temp_buf); // @v9.5.5
 				temp_buf.CopyTo(pRec->DlvrAddr, sizeof(pRec->DlvrAddr));
 			}
 			if(pack.Rec.ID) {

@@ -530,7 +530,7 @@ void numbprocess(int * chainemc, int * mclength, char chaine[], int start, int l
 			while(strlen(chainemod) != 0) {
 				nombre *= 10;
 				nombre += ctoi(chainemod[0]);
-				for(loop = 0; loop < strlen(chainemod); loop++) {
+				for(loop = 0; loop < (int)strlen(chainemod); loop++) {
 					chainemod[loop] = chainemod[loop + 1];
 				}
 				if(nombre < diviseur) {
@@ -776,12 +776,12 @@ int pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 			}
 		}
 		else {
-			/* normal PDF417 symbol */
+			// normal PDF417 symbol 
 			for(j = 0; j <= symbol->option_2 + 1; j++) {
 				switch(i % 3) {
-					case 1: offset = 929; /* cluster(3) */ break;
-					case 2: offset = 1858; /* cluster(6) */ break;
-					default: offset = 0; /* cluster(0) */ break;
+					case 1: offset = 929; break; // cluster(3) 
+					case 2: offset = 1858; break; // cluster(6) 
+					default: offset = 0; break; // cluster(0) 
 				}
 				strcat(codebarre, codagemc[offset + dummy[j]]);
 				strcat(codebarre, "*");
@@ -790,10 +790,10 @@ int pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 		}
 
 		strcpy(pattern, "");
-		for(loop = 0; loop < strlen(codebarre); loop++) {
+		for(loop = 0; loop < (int)strlen(codebarre); loop++) {
 			lookup(BRSET, PDFttf, codebarre[loop], pattern);
 		}
-		for(loop = 0; loop < strlen(pattern); loop++) {
+		for(loop = 0; loop < (int)strlen(pattern); loop++) {
 			if(pattern[loop] == '1') {
 				set_module(symbol, i, loop);
 			}
@@ -1184,7 +1184,7 @@ int micro_pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 		writer = 0;
 		flip = 1;
 		strcpy(pattern, "");
-		for(loop = 0; loop < strlen(codebarre); loop++) {
+		for(loop = 0; loop < (int)strlen(codebarre); loop++) {
 			if((codebarre[loop] >= '0') && (codebarre[loop] <= '9')) {
 				for(k = 0; k < ctoi(codebarre[loop]); k++) {
 					pattern[writer] = (flip == 0) ? '0' : '1';
@@ -1200,7 +1200,7 @@ int micro_pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 		}
 		symbol->width = writer;
 		// so now pattern[] holds the string of '1's and '0's. - copy this to the symbol 
-		for(loop = 0; loop < strlen(pattern); loop++) {
+		for(loop = 0; loop < (int)strlen(pattern); loop++) {
 			if(pattern[loop] == '1') {
 				set_module(symbol, i, loop);
 			}

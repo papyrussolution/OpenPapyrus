@@ -124,7 +124,7 @@ void PrcTechCtrlGroup::selTechByGoods(TDialog * pDlg)
 					else
 						SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, 0, (void *)Data.PrcID);
 					setupGoodsName(pDlg);
-					TView::message(pDlg, evCommand, cmCBSelected, pDlg->getCtrlView(CtlselTech));
+					TView::messageCommand(pDlg, cmCBSelected, pDlg->getCtrlView(CtlselTech));
 				}
 			delete dlg;
 		}
@@ -174,7 +174,7 @@ void PrcTechCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 				SelGoodsID = goods_id;
 				PPObjTech::SetupCombo(pDlg, CtlselTech, 0, 0, Data.PrcID, SelGoodsID);
 				setupGoodsName(pDlg);
-				TView::message(pDlg, evCommand, cmCBSelected, pDlg->getCtrlView(CtlselTech));
+				TView::messageCommand(pDlg, cmCBSelected, pDlg->getCtrlView(CtlselTech));
 			}
 		}
 	}

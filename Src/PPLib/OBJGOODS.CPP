@@ -480,6 +480,22 @@ const char * SLAPI PPObjGoods::GetNamePtr()
 	return P_Tbl->data.Name;
 }
 
+int SLAPI PPObjGoods::FetchNameR(PPID goodsID, SString & rBuf)
+{
+	int    ok = -1;
+	rBuf = 0;
+	if(goodsID) {
+		Goods2Tbl::Rec goods_rec;
+		if(Fetch(goodsID, &goods_rec) > 0) {
+			rBuf = goods_rec.Name;
+			ok = 1;
+		}
+		else
+			ideqvalstr(goodsID, rBuf);
+	}
+	return ok;
+}
+
 int SLAPI PPObjGoods::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 {
 	return (Kind == PPGDSK_GOODS) ?
@@ -2062,7 +2078,8 @@ int SLAPI PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstL
 	}
 	// } @v8.6.1
 	else if(oneof4(sgg, sggNone, sggGeneric, sggGroup, sggBrand) || sgg >= sggGroupSecondLvl || !(id & GOODSSUBSTMASK)) {
-		GetGoodsName(id, rBuf);
+		// @v9.5.5 GetGoodsName(id, rBuf);
+		FetchNameR(id, rBuf); // @v9.5.5
 	}
 	else if(sgg == sggBrandOwner) {
 		GetPersonName(id & ~GOODSSUBSTMASK, rBuf);

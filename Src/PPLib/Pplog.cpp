@@ -240,7 +240,7 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 			if(p_view) {
 				::SetFocus(p_view->HwndSci);
 				APPL->SelectTabItem(p_view);
-				TView::message(p_view, evBroadcast, cmReceivedFocus);
+				TView::messageBroadcast(p_view, cmReceivedFocus);
 				p_view->select();
 			}
 			break;
@@ -249,7 +249,7 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 				APPL->NotifyFrame(0);
 			p_view = (LogListWindowSCI *)TView::GetWindowUserData(hWnd);
 			if(p_view) {
-				TView::message(p_view, evBroadcast, cmReleasedFocus);
+				TView::messageBroadcast(p_view, cmReleasedFocus);
 				if(p_view->owner && p_view->owner->current == p_view)
 					p_view->owner->setCurrent(0, TGroup::normalSelect);
 			}
@@ -283,7 +283,7 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 				}
 				if(IsWindowVisible(hw)) {
 					MoveWindow(hw, 0, 0, LOWORD(lParam), toolbar_height, 0);
-					TView::message(p_view, evCommand, cmResize);
+					TView::messageCommand(p_view, cmResize);
 				}
 				p_view->Resize();
 			}

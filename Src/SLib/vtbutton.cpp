@@ -339,8 +339,8 @@ void InputLineCalc::ProcessCommand(uint cmd)
 				Command = ILC_NO_COMMAND;
 			if(cmd == CTL_INLNCALC_EQV) {
 				if(P_Il && P_ParentDlg)
-					TView::message(P_ParentDlg, evBroadcast, cmCommitInput, P_Il);
-				TView::message(this, evCommand, cmOK);
+					TView::messageBroadcast(P_ParentDlg, cmCommitInput, P_Il);
+				TView::messageCommand(this, cmOK);
 			}
 			break;
 	}
@@ -382,8 +382,8 @@ IMPL_HANDLE_EVENT(InputLineCalc)
 				}
 				else {
 					if(P_Il && P_ParentDlg)
-						TView::message(P_ParentDlg, evBroadcast, cmCommitInput, P_Il);
-					TView::message(this, evCommand, cmOK);
+						TView::messageBroadcast(P_ParentDlg, cmCommitInput, P_Il);
+					TView::messageCommand(this, cmOK);
 				}
 			}
 			break;

@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147488851
+LastSignatureCode=2147488857
 LastAutoCodeList=1,10850;102,10160;103,10071;110,10000;111,11578;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10074;120,10005;1001,10000;121,10000;122,10000;123,10006;1002,10000;1003,10000;1004,10000;1005,10000
 
 [SignatureList]
@@ -3601,6 +3601,7 @@ quotkind_quotkf_nodis=2147486030
 quotkind_quotkf_notforbill=2147486031
 quotkind_quotkf_retailed=2147486032
 quotkind_rank=2147486033
+quotkind_rank_prompt=2147488857
 quotkind_serialterm=2147486490
 quotkind_symb=2147486034
 quotkind_tag=2147486035
@@ -5057,6 +5058,11 @@ wtmtoolitem_fdontenlarge=2147488846
 wtmtoolitem_fdontkeepratio=2147488847
 wtmtoolitem_fgrayscale=2147488848
 wtmtoolitem_replacedcolor=2147488849
+goodsrecoverparam=2147488852
+goodsrecoverparam_flags=2147488853
+goodsrecoverparam_fcorrect=2147488854
+goodsrecoverparam_fcheckalcoattribs=2147488855
+goodsrecoverparam_logfilename=2147488856
 
 [GrpSymbList]
 .N.=123

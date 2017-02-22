@@ -1985,7 +1985,7 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 		if(InputCtlId) {
 			SCharToOem(file_name);
 			pDlg->setCtrlData(InputCtlId, file_name);
-			TView::message(pDlg, evBroadcast, cmCommitInput, pDlg->getCtrlView(InputCtlId));
+			TView::messageBroadcast(pDlg, cmCommitInput, pDlg->getCtrlView(InputCtlId));
 			SOemToChar(file_name);
 		}
 	}
@@ -3631,7 +3631,7 @@ int PersonCtrlGroup::SelectByCode(TDialog * pDlg)
 				if(psn_obj.GetListByRegNumber(reg_type_id, 0, (const char*)code, psn_list) > 0)
 					if(psn_list.getCount()) {
 						pDlg->setCtrlData(Ctlsel, &psn_list.at(0));
-						TView::message(pDlg, evCommand, cmCBSelected, p_combo);
+						TView::messageCommand(pDlg, cmCBSelected, p_combo);
 						ok = 1;
 					}
 			}
@@ -3802,7 +3802,7 @@ int PersonListCtrlGroup::selectByCode(TDialog * pDlg)
 				if(psn_obj.GetListByRegNumber(reg_type_id, 0, (const char*)code, psn_list) > 0)
 					if(psn_list.getCount()) {
 						pDlg->setCtrlData(Ctlsel, &psn_list.at(0));
-						TView::message(pDlg, evCommand, cmCBSelected, p_combo);
+						TView::messageCommand(pDlg, cmCBSelected, p_combo);
 						ok = 1;
 					}
 			}
@@ -3934,7 +3934,7 @@ int PersonListCtrlGroup::SelectByCode(TDialog * pDlg)
 				if(psn_obj.GetListByRegNumber(reg_type_id, 0, (const char*)code, psn_list) > 0)
 					if(psn_list.getCount()) {
 						pDlg->setCtrlData(Ctlsel, &psn_list.at(0));
-						TView::message(pDlg, evCommand, cmCBSelected, p_combo);
+						TView::messageCommand(pDlg, cmCBSelected, p_combo);
 						ok = 1;
 					}
 			}
@@ -4270,6 +4270,75 @@ int PosNodeCtrlGroup::getData(TDialog * pDlg, void * pData)
 //
 //
 //
+SLAPI QuotKindCtrlGroup::Rec::Rec(const ObjIdListFilt * pList)
+{
+	RVALUEPTR(List, pList);
+}
+
+QuotKindCtrlGroup::QuotKindCtrlGroup(uint ctlsel, uint cmEditList)
+{
+	Ctlsel     = ctlsel;
+	CmEditList = cmEditList;
+}
+
+void QuotKindCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
+{
+	if(TVCOMMAND && TVCMD == CmEditList) {
+		//EditQuotKindList(pDlg, Ctlsel, &Data.List);
+		//static int SLAPI EditQuotKindList(TDialog * pDlg, uint ctlID, ObjIdListFilt * pList)
+		{
+			PPIDArray ary;
+			if(Data.List.IsExists())
+				ary = Data.List.Get();
+			if(!ary.getCount())
+				ary.setSingleNZ(pDlg->getCtrlLong(Ctlsel));
+			ListToListData lst(PPOBJ_QUOTKIND, 0, &ary);
+			lst.TitleStrID = 0; // PPTXT_XXX;
+			if(ListToListDialog(&lst) > 0) {
+				Data.List.Set(&ary);
+				if(Data.List.GetCount() > 1) {
+					SetComboBoxListText(pDlg, Ctlsel);
+					pDlg->disableCtrl(Ctlsel, 1);
+				}
+				else {
+					pDlg->setCtrlLong(Ctlsel, Data.List.GetSingle());
+					pDlg->disableCtrl(Ctlsel, 0);
+				}
+			}
+		}
+		pDlg->clearEvent(event);
+	}
+}
+
+int QuotKindCtrlGroup::setData(TDialog * pDlg, void * pData)
+{
+	Data = *(Rec*)pData;
+	SetupPPObjCombo(pDlg, Ctlsel, PPOBJ_QUOTKIND, Data.List.GetSingle(), 0, 0);
+	if(Data.List.GetCount() > 1) {
+		SetComboBoxListText(pDlg, Ctlsel);
+		pDlg->disableCtrl(Ctlsel, 1);
+	}
+	else {
+		pDlg->setCtrlLong(Ctlsel, Data.List.GetSingle());
+		pDlg->disableCtrl(Ctlsel, 0);
+	}
+	return 1;
+}
+
+int QuotKindCtrlGroup::getData(TDialog * pDlg, void * pData)
+{
+	Rec * p_rec = (Rec*)pData;
+	if(Data.List.GetCount() <= 1) {
+		const PPID temp_id = pDlg->getCtrlLong(Ctlsel);
+		Data.List.FreeAll();
+		Data.List.Add(temp_id, 1);
+	}
+	*p_rec = Data;
+	return 1;
+}
+//
+//
+//
 SLAPI StaffCalCtrlGroup::Rec::Rec(const ObjIdListFilt * pList)
 {
 	RVALUEPTR(List, pList);
@@ -4281,6 +4350,7 @@ StaffCalCtrlGroup::StaffCalCtrlGroup(uint ctlsel, uint cmEditList)
 	CmEditList = cmEditList;
 }
 
+/* @v9.5.5 (inlined)
 static int SLAPI EditStaffCalList(TDialog * pDlg, uint ctlID, ObjIdListFilt * pList)
 {
 	int    ok = -1;
@@ -4308,12 +4378,33 @@ static int SLAPI EditStaffCalList(TDialog * pDlg, uint ctlID, ObjIdListFilt * pL
 	else
 		ok = 0;
 	return ok;
-}
+}*/
 
 void StaffCalCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
 	if(TVCOMMAND && TVCMD == CmEditList) {
-		EditStaffCalList(pDlg, Ctlsel, &Data.List);
+		//EditStaffCalList(pDlg, Ctlsel, &Data.List);
+		//static int SLAPI EditStaffCalList(TDialog * pDlg, uint ctlID, ObjIdListFilt * pList)
+		{
+			PPIDArray ary;
+			if(Data.List.IsExists())
+				ary = Data.List.Get();
+			if(!ary.getCount())
+				ary.setSingleNZ(pDlg->getCtrlLong(Ctlsel));
+			ListToListData lst(PPOBJ_STAFFCAL, 0, &ary);
+			lst.TitleStrID = 0; // PPTXT_XXX;
+			if(ListToListDialog(&lst) > 0) {
+				Data.List.Set(&ary);
+				if(Data.List.GetCount() > 1) {
+					SetComboBoxListText(pDlg, Ctlsel);
+					pDlg->disableCtrl(Ctlsel, 1);
+				}
+				else {
+					pDlg->setCtrlLong(Ctlsel, Data.List.GetSingle());
+					pDlg->disableCtrl(Ctlsel, 0);
+				}
+			}
+		}
 		pDlg->clearEvent(event);
 	}
 }
@@ -4339,8 +4430,7 @@ int StaffCalCtrlGroup::getData(TDialog * pDlg, void * pData)
 	if(Data.List.GetCount() <= 1) {
 		const PPID temp_id = pDlg->getCtrlLong(Ctlsel);
 		Data.List.FreeAll();
-        if(temp_id)
-			Data.List.Add(temp_id);
+		Data.List.Add(temp_id, 1);
 	}
 	*p_rec = Data;
 	return 1;

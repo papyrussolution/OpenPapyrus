@@ -1362,8 +1362,10 @@ int SLAPI PPObjPerson::AdjustLocationOwner(LocationTbl::Rec & rLocRec)
 
 int SLAPI PPObjPerson::GetAddress(PPID id, SString & rBuf)
 {
-	if(id && Search(id) > 0 && P_Tbl->data.MainLoc)
-		return LocObj.P_Tbl->GetAddress(P_Tbl->data.MainLoc, 0, rBuf);
+	if(id && Search(id) > 0 && P_Tbl->data.MainLoc) {
+		// @v9.5.5 return LocObj.P_Tbl->GetAddress(P_Tbl->data.MainLoc, 0, rBuf);
+		return LocObj.GetAddress(P_Tbl->data.MainLoc, 0, rBuf); // @v9.5.5
+	}
 	else {
 		rBuf = 0;
 		return -1;
@@ -3329,7 +3331,8 @@ int SLAPI PPObjPerson::GetSubstText(PPID id, PPID dlvrLocID, SubstParam * pParam
 			if(Fetch(id, &psn_rec) > 0)
 				rBuf = psn_rec.Name;
 			if(dlvrLocID) {
-				LocObj.P_Tbl->GetAddress(dlvrLocID, 0, addr_buf);
+				// @v9.5.5 LocObj.P_Tbl->GetAddress(dlvrLocID, 0, addr_buf);
+				LocObj.GetAddress(dlvrLocID, 0, addr_buf); // @v9.5.5
 				rBuf.CatDiv(';', 2, 1).Cat(addr_buf);
 			}
 		}

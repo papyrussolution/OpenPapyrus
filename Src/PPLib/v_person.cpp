@@ -1,5 +1,5 @@
 // V_PERSON.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -938,11 +938,13 @@ int SLAPI PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnA
 			phone_list.CopyTo(item.Phone, sizeof(item.Phone));
 		}
 		if(pPsnRec->MainLoc) {
-			PsnObj.LocObj.P_Tbl->GetAddress(pPsnRec->MainLoc, 0, temp_buf);
+			// @v9.5.5 PsnObj.LocObj.P_Tbl->GetAddress(pPsnRec->MainLoc, 0, temp_buf);
+			PsnObj.LocObj.GetAddress(pPsnRec->MainLoc, 0, temp_buf); // @v9.5.5
 			temp_buf.CopyTo(item.Address, sizeof(item.Address));
 		}
 		if(pPsnRec->RLoc) {
-			PsnObj.LocObj.P_Tbl->GetAddress(pPsnRec->RLoc, 0, temp_buf);
+			// @v9.5.5 PsnObj.LocObj.P_Tbl->GetAddress(pPsnRec->RLoc, 0, temp_buf);
+			PsnObj.LocObj.GetAddress(pPsnRec->RLoc, 0, temp_buf); // @v9.5.5
 			temp_buf.CopyTo(item.RAddress, sizeof(item.RAddress));
 		}
 		if(item.Phone[0] == 0 && item.Address[0] == 0 && item.RAddress[0] == 0) {

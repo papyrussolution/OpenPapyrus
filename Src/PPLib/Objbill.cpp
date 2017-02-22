@@ -3159,7 +3159,8 @@ void SLAPI PPObjBill::MakeLotText(const ReceiptTbl::Rec * pLotRec, long fmt, SSt
 	temp_buf.CatDiv(':', 1).Cat(pLotRec->OprNo);
 	rBuf.Space().Cat(temp_buf);
 	if(fmt & PPObjBill::ltfGoodsName) {
-		GetGoodsName(pLotRec->GoodsID, temp_buf);
+		// @v9.5.5 GetGoodsName(pLotRec->GoodsID, temp_buf);
+		GObj.FetchNameR(pLotRec->GoodsID, temp_buf); // @v9.5.5
 		rBuf.CatDiv(':', 1).Cat(temp_buf);
 	}
 	if(fmt & PPObjBill::ltfLocName) {
@@ -3767,7 +3768,8 @@ int PPObjBill::AutoCalcPrices(PPBillPacket * pPack, int interactive, int * pIsMo
 					double diff = new_price-old_price;
 					if(new_price > 0.0) {
 						ss.clear(1);
-						GetGoodsName(p_item->GoodsID, sub);
+						// @v9.5.5 GetGoodsName(p_item->GoodsID, sub);
+						goods_obj.FetchNameR(p_item->GoodsID, sub); // @v9.5.5
 						ss.add(sub);
 						ss.add((sub = 0).Cat(old_price, SFMT_MONEY));
 						ss.add((sub = 0).Cat(new_price, SFMT_MONEY));
@@ -3896,7 +3898,7 @@ int SLAPI PPObjBill::SelectQuotKind(PPBillPacket * pPack, const PPTransferItem *
 		{
 			TDialog::handleEvent(event);
 			if(event.isCmd(cmLBDblClk)) {
-				TView::message(this, evCommand, cmOK);
+				TView::messageCommand(this, cmOK);
 				clearEvent(event);
 			}
 		}
@@ -5480,7 +5482,7 @@ int SLAPI PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 						GetTagListByLot(p_ti->LotID, 1, &tag_list);
 						pPack->LTagL.Set(row_idx, tag_list.GetCount() ? &tag_list : 0);
 					}
-					if(!is_intrexpnd) {
+					/* @v9.5.5 if(!is_intrexpnd) */ { // @v9.5.5 Уже не вспомнить зачем это ограничение вводилось
 						GetClbNumberByLot(p_ti->LotID, 0, b);
 						THROW(pPack->ClbL.AddNumber(row_idx, b));
 					}
@@ -5671,6 +5673,7 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 	Reference * p_ref = PPRef;
 	PPObjTag * p_tag_obj = 0;
 	const  int is_intrexpnd = IsIntrExpndOp(pPack->Rec.OpID);
+	const  int do_force_unmirr = BIN(strstr(pPack->Rec.Memo, "#MIRROR-REFAB")); // @v9.5.5
 	SString img_path;
 	SString img_tag_addendum;
 	SString fname;
@@ -5708,7 +5711,7 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 								if(j) do {
                                     const ObjTagItem * p_item = mirror_tag_list.GetItemByPos(--j);
                                     THROW_MEM(SETIFZ(p_tag_obj, new PPObjTag));
-                                    if(p_item && !p_tag_obj->IsUnmirrored(p_item->TagID)) {
+                                    if(p_item && (!p_tag_obj->IsUnmirrored(p_item->TagID) || do_force_unmirr)) {
 										mirror_tag_list.PutItem(p_item->TagID, 0);
                                     }
 								} while(j);
@@ -5719,7 +5722,7 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 								for(uint j = 0; j < p_tag_list->GetCount(); j++) {
                                     const ObjTagItem * p_item = p_tag_list->GetItemByPos(j);
                                     THROW_MEM(SETIFZ(p_tag_obj, new PPObjTag));
-                                    if(p_item && !p_tag_obj->IsUnmirrored(p_item->TagID)) {
+                                    if(p_item && (!p_tag_obj->IsUnmirrored(p_item->TagID) || do_force_unmirr)) {
                                     	// @v9.4.12 {
 										if(p_item->TagDataType == OTTYP_IMAGE) {
 											ObjTagItem tag_item = *p_item;

@@ -1417,7 +1417,7 @@ int FASTCALL SString::Alloc(size_t sz)
 				P_Buf[L-1] = 0;
 			else
 				P_Buf[0] = 0;
-			// } @v9.4.9 
+			// } @v9.4.9
 		}
 		else
 			ok = (SLibError = SLERR_NOMEM, 0);
@@ -3391,7 +3391,7 @@ int FASTCALL SStringU::Alloc(size_t sz)
 				P_Buf[L-1] = 0;
 			else
 				P_Buf[0] = 0;
-			// } @v9.4.9 
+			// } @v9.4.9
 		}
 		else
 			ok = (SLibError = SLERR_NOMEM, 0);

@@ -3265,7 +3265,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 	}
 	else
 		selectCtrl((Flags & fNoEdit) ? CTL_CHKPAN_LIST : CTL_CHKPAN_INPUT);
-	TView::message(this, evCommand, cmSetupTooltip);
+	TView::messageCommand(this, cmSetupTooltip);
 	if(CnSpeciality == PPCashNode::spCafe) {
 		setButtonBitmap(cmChkPanF2, IDB_GUESTS);
 		setButtonBitmap(cmChkPanF1, IDB_TABLE_ORDERS);
@@ -3369,7 +3369,7 @@ int CheckPaneDialog::AcceptCheck(const CcAmountList * pPl, double cash, int mode
 		else
 			CDispCommand(cdispcmdText, cdisptxtOpened, 0.0, 0.0);
 		if(ok > 0 && UiFlags & uifOnce)
-			TView::message(this, evCommand, cmCancel);
+			TView::messageCommand(this, cmCancel);
 	}
 	return ok;
 }
@@ -5649,7 +5649,8 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 									STRNSCPY(ap_item.Contact, psn_rec.Name);
 									ap_item.AddrID = addr_id;
 									if(addr_id) {
-										PsnObj.LocObj.P_Tbl->GetAddress(addr_id, 0, temp_buf);
+										// @v9.5.5 PsnObj.LocObj.P_Tbl->GetAddress(addr_id, 0, temp_buf);
+										PsnObj.LocObj.GetAddress(addr_id, 0, temp_buf); // @v9.5.5
 										temp_buf.CopyTo(ap_item.Addr, sizeof(ap_item.Addr));
 									}
 									AddrByPhoneList.insert(&ap_item);
@@ -10929,7 +10930,7 @@ int CheckPaneDialog::PrintCashReports()
 				int    cmd = menu.Execute(H(), TMenuPopup::efRet);
 				/*
 				if(cmd > 0)
-					::message(this, evCommand, cmd, 0);
+					TView::messageCommand(this, cmd, 0);
 				*/
 			}
 #endif // } 0 @construction
@@ -11241,7 +11242,7 @@ public:
 			}
 			UpdateGList(-1);
 			if(set_tool_tips)
-				TView::message(this, evCommand, cmSetupTooltip);
+				TView::messageCommand(this, cmSetupTooltip);
 			enableCommand(cmaAltSelect, AltGoodsGrpID ? 1 : 0);
 			DlgFlags |= fLarge;
 		}

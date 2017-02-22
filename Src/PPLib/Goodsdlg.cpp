@@ -2561,11 +2561,11 @@ void GoodsCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 			if(Flags & enableInsertGoods)
 				fl |= OLW_CANINSERT;
 			SetupPPObjCombo(dlg, CtlselGoods, PPOBJ_GOODS, 0, fl, (void *)grp);
-			TView::message(dlg, evCommand, cmCBSelected, dlg->getCtrlView(CtlselGoods));
+			TView::messageCommand(dlg, cmCBSelected, dlg->getCtrlView(CtlselGoods));
 			if(Flags & activateGoodsListOnGroupSelection) {
 				setupCtrls(dlg);
 				dlg->selectCtrl(CtlGoods);
-				dlg->messageToCtrl(CtlselGoods, evCommand, cmCBActivate, 0);
+				dlg->messageToCtrl(CtlselGoods, cmCBActivate, 0);
 			}
 			dlg->clearEvent(event);
 		}
@@ -2580,7 +2580,7 @@ void GoodsCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 					{
 						ComboBox * p_combo = (ComboBox *)dlg->getCtrlView(CtlselGrp);
 						if(p_combo) {
-							TView::message(p_combo->getListWindow(), evCommand, cmLBLoadDef);
+							TView::messageCommand(p_combo->getListWindow(), cmLBLoadDef);
 							dlg->setCtrlLong(CtlselGrp, rec.ParentID);
 						}
 					}
@@ -2588,7 +2588,7 @@ void GoodsCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 					if(Flags & enableInsertGoods)
 						fl |= OLW_CANINSERT;
 					SetupPPObjCombo(dlg, CtlselGoods, PPOBJ_GOODS, rec.ID, fl, (void *)rec.ParentID);
-					TView::message(dlg, evCommand, cmCBSelected, dlg->getCtrlView(CtlselGoods));
+					TView::messageCommand(dlg, cmCBSelected, dlg->getCtrlView(CtlselGoods));
 				}
 				else if(rec.Kind == PPGDSK_GROUP) {
 					PPID prev_grp_id = dlg->getCtrlLong(CtlselGrp);
@@ -2598,7 +2598,7 @@ void GoodsCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 						if(Flags & enableInsertGoods)
 							fl |= OLW_CANINSERT;
 						SetupPPObjCombo(dlg, CtlselGoods, PPOBJ_GOODS, 0, fl, (void *)rec.ID);
-						TView::message(dlg, evCommand, cmCBSelected, dlg->getCtrlView(CtlselGoods));
+						TView::messageCommand(dlg, cmCBSelected, dlg->getCtrlView(CtlselGoods));
 					}
 				}
 			}

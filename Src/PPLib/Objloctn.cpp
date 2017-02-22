@@ -482,6 +482,13 @@ int SLAPI PPObjLocation::ReqAutoName(PPID id)
 	return ok;
 }
 
+int SLAPI PPObjLocation::GetAddress(PPID locID, uint flags, SString & rBuf)
+{
+	rBuf = 0;
+	LocationTbl::Rec loc_rec;
+	return (!locID || Fetch(locID, &loc_rec) > 0) ? LocationCore::GetAddress(loc_rec, flags, rBuf) : 0;
+}
+
 int SLAPI PPObjLocation::GetCountry(const LocationTbl::Rec * pLocRec, PPID * pCountryID, PPCountryBlock * pBlk)
 {
 	int    ok = -1;
@@ -2609,7 +2616,7 @@ void DivisionCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 		SetupPPObjCombo(dlg, CtlselDiv, PPOBJ_LOCATION, Data.DivID, 0, &DivF);
 		if(CtlselStaff) {
 			SetupStaffListCombo(dlg, CtlselStaff, Data.StaffID, OLW_CANINSERT, Data.OrgID, Data.DivID);
-			TView::message(dlg, evCommand, cmCBSelected, dlg->getCtrlView(CtlselStaff));
+			TView::messageCommand(dlg, cmCBSelected, dlg->getCtrlView(CtlselStaff));
 		}
 	}
 	else if(event.isCbSelected(CtlselDiv)) {
@@ -2617,7 +2624,7 @@ void DivisionCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 		Data.StaffID = 0;
 		if(CtlselStaff) {
 			SetupStaffListCombo(dlg, CtlselStaff, Data.StaffID, OLW_CANINSERT, Data.OrgID, Data.DivID);
-			TView::message(dlg, evCommand, cmCBSelected, dlg->getCtrlView(CtlselStaff));
+			TView::messageCommand(dlg, cmCBSelected, dlg->getCtrlView(CtlselStaff));
 		}
 	}
 	else if(event.isCbSelected(CtlselStaff)) {
@@ -2627,7 +2634,7 @@ void DivisionCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 			Data.DivID = dlg->getCtrlLong(CtlselDiv);
 			Data.PostID = 0;
 			PPObjStaffList::SetupPostCombo(dlg, CtlselPost, Data.PostID, 0, Data.OrgID, Data.DivID, Data.StaffID);
-			TView::message(dlg, evCommand, cmCBSelected, dlg->getCtrlView(CtlselPost));
+			TView::messageCommand(dlg, cmCBSelected, dlg->getCtrlView(CtlselPost));
 		}
 	}
 	else
@@ -4189,7 +4196,7 @@ int SLAPI PPLocAddrStruc::DetectCityName(DetectBlock & rDb)
 	if(!ok) {
 		if(BillObj) { // Проверка на случай, если сеанс не авторизован в базе данных
 			PPID   city_id = 0;
-			(temp_buf = rDb.OrgText).Strip().ToOem();
+			(temp_buf = rDb.OrgText).Strip().Transf(CTRANSF_OUTER_TO_INNER);
 			PPObjLocation loc_obj;
 			int    r = loc_obj.GetCityByName(temp_buf, &city_id);
 			if(r > 0) {
@@ -4322,7 +4329,7 @@ int SLAPI PPLocAddrStruc::GetTok(AddrTok & rTok)
 			if(temp_buf.NotEmptyS()) {
 				LongArray dl;
 				SString term;
-				(term = temp_buf).ToOem().ToLower().Transf(CTRANSF_INNER_TO_OUTER);
+				(term = temp_buf).Transf(CTRANSF_OUTER_TO_INNER).ToLower().Transf(CTRANSF_INNER_TO_OUTER);
 				for(uint i = 0; i < SIZEOFARRAY(Aidl); i++) {
 					if(term.CmpNC(Aidl[i].P_Descr) == 0) {
 						dl.add(i);
@@ -4922,8 +4929,8 @@ int SLAPI PPLocAddrStruc::Recognize(const char * pText)
 								if(p1->T == tStreet && p2->T == tCity) {
 									for(uint sp = 0; sp < p1->FiasCandidList.getCount(); sp++) {
 										for(uint cp = 0; cp < p2->FiasCandidList.getCount(); cp++) {
-                                            PPID sobj = p1->FiasCandidList.at(sp);
-                                            PPID cobj = p2->FiasCandidList.at(cp);
+                                            const PPID sobj = p1->FiasCandidList.at(sp);
+                                            const PPID cobj = p2->FiasCandidList.at(cp);
                                             if(P_Fr->Match(sobj, cobj, -1) > 0) {
 												if(!p_mentry_reverse) {
 													THROW_MEM(p_mentry_reverse = new _MatchEntry(p1->P, p2->P, 1));
@@ -4943,8 +4950,8 @@ int SLAPI PPLocAddrStruc::Recognize(const char * pText)
 								else if(p1->T == tCity && p2->T == tStreet) {
 									for(uint sp = 0; sp < p2->FiasCandidList.getCount(); sp++) {
 										for(uint cp = 0; cp < p1->FiasCandidList.getCount(); cp++) {
-                                            PPID sobj = p2->FiasCandidList.at(sp);
-                                            PPID cobj = p1->FiasCandidList.at(cp);
+                                            const PPID sobj = p2->FiasCandidList.at(sp);
+                                            const PPID cobj = p1->FiasCandidList.at(cp);
                                             if(P_Fr->Match(sobj, cobj, -1) > 0) {
 												if(!p_mentry) {
 													THROW_MEM(p_mentry = new _MatchEntry(p1->P, p2->P, 0));
@@ -5308,9 +5315,7 @@ public:
 	}
 	int    setDTS(const SString * pStr)
 	{
-		if(pStr)
-			SrcLine = *pStr;
-		else
+		if(!RVALUEPTR(SrcLine, pStr))
 			SrcLine = 0;
 		setCtrlString(CTL_ADDRSTRUC_SRC, SrcLine);
 		Setup();
@@ -5343,55 +5348,55 @@ private:
 		Las.Recognize(text);
 
 		Las.Get(Las.tCountry, text = 0);
-		setCtrlString(CTL_ADDRSTRUC_COUNTRY, text.ToOem());
+		setCtrlString(CTL_ADDRSTRUC_COUNTRY, text.Transf(CTRANSF_OUTER_TO_INNER));
 
 		Las.Get(Las.tCity, text = 0);
-		setCtrlString(CTL_ADDRSTRUC_CITY, text.ToOem());
+		setCtrlString(CTL_ADDRSTRUC_CITY, text.Transf(CTRANSF_OUTER_TO_INNER));
 		text = 0;
 		if(Las.Get(Las.tCityKind, text) || OrgLabels.Get(Las.tCityKind, text))
-			setLabelText(CTL_ADDRSTRUC_CITY, text.ToOem());
+			setLabelText(CTL_ADDRSTRUC_CITY, text.Transf(CTRANSF_OUTER_TO_INNER));
 
 		Las.Get(Las.tLocalArea, text = 0);
-		setCtrlString(CTL_ADDRSTRUC_LOCALAREA, text.ToOem());
+		setCtrlString(CTL_ADDRSTRUC_LOCALAREA, text.Transf(CTRANSF_OUTER_TO_INNER));
 		text = 0;
 		if(Las.Get(Las.tLocalAreaKind, text) || OrgLabels.Get(Las.tLocalAreaKind, text))
-			setLabelText(CTL_ADDRSTRUC_LOCALAREA, text.ToOem());
+			setLabelText(CTL_ADDRSTRUC_LOCALAREA, text.Transf(CTRANSF_OUTER_TO_INNER));
 
 		Las.Get(Las.tZip, text = 0);
-		setCtrlString(CTL_ADDRSTRUC_ZIP, text.ToOem());
+		setCtrlString(CTL_ADDRSTRUC_ZIP, text.Transf(CTRANSF_OUTER_TO_INNER));
 
 		Las.Get(Las.tStreet, text = 0);
-		setCtrlString(CTL_ADDRSTRUC_STREET, text.ToOem());
+		setCtrlString(CTL_ADDRSTRUC_STREET, text.Transf(CTRANSF_OUTER_TO_INNER));
 		text = 0;
 		if(Las.Get(Las.tStreetKind, text) || OrgLabels.Get(Las.tStreetKind, text))
-			setLabelText(CTL_ADDRSTRUC_STREET, text.ToOem());
+			setLabelText(CTL_ADDRSTRUC_STREET, text.Transf(CTRANSF_OUTER_TO_INNER));
 
 		Las.Get(Las.tHouse, text = 0);
-		setCtrlString(CTL_ADDRSTRUC_HOUSE, text.ToOem());
+		setCtrlString(CTL_ADDRSTRUC_HOUSE, text.Transf(CTRANSF_OUTER_TO_INNER));
 		text = 0;
 		if(Las.Get(Las.tHouseKind, text) || OrgLabels.Get(Las.tHouseKind, text))
-			setLabelText(CTL_ADDRSTRUC_HOUSE, text.ToOem());
+			setLabelText(CTL_ADDRSTRUC_HOUSE, text.Transf(CTRANSF_OUTER_TO_INNER));
 
 		Las.Get(Las.tHouseAddendum, text = 0);
-		setCtrlString(CTL_ADDRSTRUC_HOUSEADD, text.ToOem());
+		setCtrlString(CTL_ADDRSTRUC_HOUSEADD, text.Transf(CTRANSF_OUTER_TO_INNER));
 		text = 0;
 		if(Las.Get(Las.tHouseAddendumKind, text) || OrgLabels.Get(Las.tHouseAddendumKind, text))
-			setLabelText(CTL_ADDRSTRUC_HOUSEADD, text.ToOem());
+			setLabelText(CTL_ADDRSTRUC_HOUSEADD, text.Transf(CTRANSF_OUTER_TO_INNER));
 
 		Las.Get(Las.tApart, text = 0);
-		setCtrlString(CTL_ADDRSTRUC_APART, text.ToOem());
+		setCtrlString(CTL_ADDRSTRUC_APART, text.Transf(CTRANSF_OUTER_TO_INNER));
 		text = 0;
 		if(Las.Get(Las.tApartKind, text) || OrgLabels.Get(Las.tApartKind, text))
-			setLabelText(CTL_ADDRSTRUC_APART, text.ToOem());
+			setLabelText(CTL_ADDRSTRUC_APART, text.Transf(CTRANSF_OUTER_TO_INNER));
 
 		Las.Get(Las.tFloor, text = 0);
-		setCtrlString(CTL_ADDRSTRUC_FLOOR, text.ToOem());
+		setCtrlString(CTL_ADDRSTRUC_FLOOR, text.Transf(CTRANSF_OUTER_TO_INNER));
 
 		Las.Get(Las.tPostBox, text = 0);
-		setCtrlString(CTL_ADDRSTRUC_POSTBOX, text.ToOem());
+		setCtrlString(CTL_ADDRSTRUC_POSTBOX, text.Transf(CTRANSF_OUTER_TO_INNER));
 
 		Las.Get(Las.tAddendum, text = 0);
-		setCtrlString(CTL_ADDRSTRUC_ADDENDUM, text.ToOem());
+		setCtrlString(CTL_ADDRSTRUC_ADDENDUM, text.Transf(CTRANSF_OUTER_TO_INNER));
 		{
 			text = 0;
 			kind_text = 0;
@@ -5416,7 +5421,7 @@ private:
 			}
 			setCtrlString(CTL_ADDRSTRUC_FIASID, text);
 			if(kind_text.NotEmptyS())
-				setLabelText(CTL_ADDRSTRUC_FIASID, kind_text.ToOem());
+				setLabelText(CTL_ADDRSTRUC_FIASID, kind_text.Transf(CTRANSF_OUTER_TO_INNER));
 			//
 			text = 0;
 			if(Las.FiasHouseID) {
@@ -5787,7 +5792,7 @@ int PPFiasReference::IdentifyShortDescription(const char * pText, int * pLevel, 
 			if(temp_buf.CmpNC(r_entry.P_Abbr) == 0 && (!level || level == r_entry.Level)) {
                 level = r_entry.Level;
                 if(pFullText) {
-					(temp_buf = r_entry.P_Text).ToOem();
+					(temp_buf = r_entry.P_Text).Transf(CTRANSF_OUTER_TO_INNER);
 					*pFullText = temp_buf;
                 }
 				ok = 1;

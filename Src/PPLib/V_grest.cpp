@@ -2680,7 +2680,9 @@ int SLAPI PPViewGoodsRest::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl
 			else if(ord == OrdByBarCode)
 				sprintf(ord_rec.Name, "%-63s", p_t->data.BarCode);
 			else if(ord == OrdByGrp_Price || ord == OrdByGrp_BarCode) {
-				GetGoodsName(p_t->data.GoodsGrp, grp_name).Trim(48);
+				// @v9.5.5 GetGoodsName(p_t->data.GoodsGrp, grp_name);
+				GObj.FetchNameR(p_t->data.GoodsGrp, grp_name); // @v9.5.5
+				grp_name.Trim(48);
 				if(ord == OrdByGrp_Price)
 					sprintf(ord_rec.Name, "%-48s%010.5lf", (const char *)grp_name, p_t->data.Price);
 				else if(ord == OrdByGrp_BarCode)
@@ -2872,7 +2874,8 @@ int SLAPI PPViewGoodsRest::NextIteration(GoodsRestViewItem * pItem)
 				}
 				if(InitAppBuff(&P_Tbl->data, pItem) > 0) {
 					if(IterIdx > 3 || IterIdx == 0) { // @v7.0.11 (|| IterIdx == 0)
-						GetGoodsName(P_Tbl->data.GoodsGrp, IterGrpName);
+						// @v9.5.5 GetGoodsName(P_Tbl->data.GoodsGrp, IterGrpName);
+						GObj.FetchNameR(P_Tbl->data.GoodsGrp, IterGrpName); // @v9.5.5
 						// @v8.3.0 {
 						if(pItem)
 							IterGrpName.CopyTo(pItem->GoodsGrpName, sizeof(pItem->GoodsGrpName));

@@ -258,7 +258,7 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				TView::SetWindowUserData(hwndDlg, (void *)lParam);
 				p_dlg = (TDialog *)lParam;
 				p_dlg->HW = hwndDlg;
-				TView::message(p_dlg, evCommand, cmInit);
+				TView::messageCommand(p_dlg, cmInit);
 				SetupCtrlTextProc(p_dlg->H(), 0);
 				RemoveUnusedControls(p_dlg);
 				if((v = p_dlg->P_Last) != 0) {
@@ -295,10 +295,10 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				if((v = p_dlg->P_Last) != 0)
 					do {
 						if(v->TestId(prev_id)) {
-							TView::message(p_dlg, evBroadcast, cmReleasedFocus, v);
+							TView::messageBroadcast(p_dlg, cmReleasedFocus, v);
 		 					if(!(p_dlg->MsgLockFlags & TGroup::fLockMsgChangedFocus)) {
 								p_dlg->MsgLockFlags |= TGroup::fLockMsgChangedFocus;
-								TView::message(p_dlg, evBroadcast, cmChangedFocus, v);
+								TView::messageBroadcast(p_dlg, cmChangedFocus, v);
 								p_dlg->MsgLockFlags &= ~TGroup::fLockMsgChangedFocus;
 							}
 							break;
@@ -314,7 +314,7 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					if((v = p_dlg->P_Last) != 0)
 						do {
 							if(v->TestId(prev_id)) {
-								TView::message(p_dlg, evBroadcast, cmReceivedFocus, v);
+								TView::messageBroadcast(p_dlg, cmReceivedFocus, v);
 								v->setState(sfSelected, true);
 								p_dlg->P_Current = v;
 								break;
@@ -343,7 +343,7 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					return 0;
 				else if(p_dlg) {
 					if(hiw == 0 && low == IDCANCEL) {
-						TView::message(p_dlg, evCommand, cmCancel, p_dlg);
+						TView::messageCommand(p_dlg, cmCancel, p_dlg);
 						return 0;
 					}
 					else {
@@ -542,7 +542,7 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				di.ItemRect   = p_dis->rcItem;
 				di.P_View   = p_dlg->getCtrlView(LOWORD(di.CtlID));
 				di.ItemData = p_dis->itemData;
-				TView::message(p_dlg, evCommand, cmDrawItem, &di);
+				TView::messageCommand(p_dlg, cmDrawItem, &di);
 				if(APPL->DrawControl(hwndDlg, uMsg, wParam, lParam) > 0)
 					di.ItemAction = p_dis->itemAction;
 				if(di.ItemAction == 0)
@@ -571,13 +571,13 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				dc.H_Ctl = (HWND)lParam;
 				dc.H_DC  = (HDC)wParam;
 				dc.H_Br  = 0;
-				if(TView::message(p_dlg, evCommand, cmCtlColor, &dc))
+				if(TView::messageCommand(p_dlg, cmCtlColor, &dc))
 					return (BOOL)dc.H_Br;
 			}
 			// no break: ret FALSE by default
 		case WM_PAINT:
 			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
-			if(TView::message(p_dlg, evCommand, cmPaint))
+			if(TView::messageCommand(p_dlg, cmPaint))
 				return (BOOL)0;
 		default:
 			return FALSE;
@@ -604,7 +604,7 @@ BOOL CALLBACK PropertySheetDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LP
 				return 1;
 			}
 		case WM_NOTIFY_MAIN_DIALOG:
-			TView::message((TDialog *)lParam, evCommand, wParam, (TDialog *)lParam);
+			TView::messageCommand((TDialog *)lParam, wParam, (TDialog *)lParam);
 			break;
 		case WM_NOTIFY:
 			switch(((NMHDR FAR *)lParam)->code) {

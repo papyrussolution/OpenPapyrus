@@ -313,56 +313,57 @@ LRESULT CALLBACK TToolbar::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARA
 		case WM_MOVING:
 			ok = pTbWnd->OnMoving(wParam, lParam);
 			break;
-		case WM_PAINT: {
-			PAINTSTRUCT ps;
-			RECT rc;
-			GetClientRect(hWnd, &rc);
-			HDC  hdc = BeginPaint(hWnd, &ps);
-			HPEN hPen = CreatePen(PS_SOLID, 1, RGB(0x70,0x70,0x70));
-			HPEN oldPen = (HPEN)SelectObject(hdc, hPen);
-			switch(pTbWnd->CurrPos) {
-				case TOOLBAR_ON_BOTTOM:
-				case TOOLBAR_ON_TOP:
-				case TOOLBAR_ON_FREE:
-					MoveToEx(hdc, 4, 2, 0);
-					LineTo(hdc, 4, rc.bottom-3);
-					MoveToEx(hdc, 8, 2, 0);
-					LineTo(hdc, 8, rc.bottom-3);
-					break;
-				case TOOLBAR_ON_RIGHT:
-				case TOOLBAR_ON_LEFT:
-					MoveToEx(hdc, 2, 4, 0);
-					LineTo(hdc, rc.right-3, 4);
-					MoveToEx(hdc, 2, 8, 0);
-					LineTo(hdc, rc.right-3, 8);
-					break;
+		case WM_PAINT:
+			{
+				PAINTSTRUCT ps;
+				RECT rc;
+				GetClientRect(hWnd, &rc);
+				HDC  hdc = BeginPaint(hWnd, &ps);
+				HPEN hPen = CreatePen(PS_SOLID, 1, RGB(0x70,0x70,0x70));
+				HPEN oldPen = (HPEN)SelectObject(hdc, hPen);
+				switch(pTbWnd->CurrPos) {
+					case TOOLBAR_ON_BOTTOM:
+					case TOOLBAR_ON_TOP:
+					case TOOLBAR_ON_FREE:
+						MoveToEx(hdc, 4, 2, 0);
+						LineTo(hdc, 4, rc.bottom-3);
+						MoveToEx(hdc, 8, 2, 0);
+						LineTo(hdc, 8, rc.bottom-3);
+						break;
+					case TOOLBAR_ON_RIGHT:
+					case TOOLBAR_ON_LEFT:
+						MoveToEx(hdc, 2, 4, 0);
+						LineTo(hdc, rc.right-3, 4);
+						MoveToEx(hdc, 2, 8, 0);
+						LineTo(hdc, rc.right-3, 8);
+						break;
+				}
+				SelectObject(hdc, oldPen);
+				ZDeleteWinGdiObject(&hPen);
+				hPen = CreatePen(PS_SOLID, 2, RGB(0xF0,0xF0,0xF0));
+				SelectObject(hdc, hPen);
+				switch(pTbWnd->CurrPos) {
+					case TOOLBAR_ON_BOTTOM:
+					case TOOLBAR_ON_TOP:
+					case TOOLBAR_ON_FREE:
+						MoveToEx(hdc, 2, 3, 0);
+						LineTo(hdc, 2, rc.bottom-2);
+						MoveToEx(hdc, 6, 3, 0);
+						LineTo(hdc, 6, rc.bottom-2);
+						break;
+					case TOOLBAR_ON_RIGHT:
+					case TOOLBAR_ON_LEFT:
+						MoveToEx(hdc, 3, 2, 0);
+						LineTo(hdc, rc.right-2, 2);
+						MoveToEx(hdc, 3, 6, 0);
+						LineTo(hdc, rc.right-2, 6);
+						break;
+				}
+				SelectObject(hdc, oldPen);
+				ZDeleteWinGdiObject(&hPen);
+				EndPaint(hWnd, &ps);
+				ok = 0;
 			}
-			SelectObject(hdc, oldPen);
-			ZDeleteWinGdiObject(&hPen);
-			hPen = CreatePen(PS_SOLID, 2, RGB(0xF0,0xF0,0xF0));
-			SelectObject(hdc, hPen);
-			switch(pTbWnd->CurrPos) {
-				case TOOLBAR_ON_BOTTOM:
-				case TOOLBAR_ON_TOP:
-				case TOOLBAR_ON_FREE:
-					MoveToEx(hdc, 2, 3, 0);
-					LineTo(hdc, 2, rc.bottom-2);
-					MoveToEx(hdc, 6, 3, 0);
-					LineTo(hdc, 6, rc.bottom-2);
-					break;
-				case TOOLBAR_ON_RIGHT:
-				case TOOLBAR_ON_LEFT:
-					MoveToEx(hdc, 3, 2, 0);
-					LineTo(hdc, rc.right-2, 2);
-					MoveToEx(hdc, 3, 6, 0);
-					LineTo(hdc, rc.right-2, 6);
-					break;
-			}
-			SelectObject(hdc, oldPen);
-			ZDeleteWinGdiObject(&hPen);
-			EndPaint(hWnd, &ps);
-			ok = 0;
-		}
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
@@ -423,8 +424,8 @@ HICON BitmapToIcon(HBITMAP hBitmap)
 	//
 	BITMAP bm;
 	::GetObject(hBitmap, sizeof(BITMAP), &bm);
-	HBITMAP hAndMaskBitmap  = ::CreateCompatibleBitmap(hDC,bm.bmWidth,bm.bmHeight);
-	HBITMAP hXorMaskBitmap  = ::CreateCompatibleBitmap(hDC,bm.bmWidth,bm.bmHeight);
+	HBITMAP hAndMaskBitmap  = ::CreateCompatibleBitmap(hDC, bm.bmWidth, bm.bmHeight);
+	HBITMAP hXorMaskBitmap  = ::CreateCompatibleBitmap(hDC, bm.bmWidth, bm.bmHeight);
 
 	//Select the bitmaps to DC
 
@@ -473,11 +474,19 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 	Style = style;
 	VisibleCount = 0;
 	uint   i;
-	HIMAGELIST himl = (HIMAGELIST)SendMessage(H_Toolbar, TB_GETIMAGELIST, 0, 0);
+	HIMAGELIST himl = (HIMAGELIST)::SendMessage(H_Toolbar, TB_GETIMAGELIST, 0, 0);
 	{
+		/* @v9.5.5
 		long count = SendMessage(H_Toolbar, TB_BUTTONCOUNT, 0, 0);
 		for(long idx = count - 1; idx >= 0; idx--)
-			SendMessage(H_Toolbar, TB_DELETEBUTTON, idx, 0);
+			::SendMessage(H_Toolbar, TB_DELETEBUTTON, idx, 0);
+		*/
+		// @v9.5.5 {
+		long _c = ::SendMessage(H_Toolbar, TB_BUTTONCOUNT, 0, 0);
+		if(_c) do {
+			::SendMessage(H_Toolbar, TB_DELETEBUTTON, --_c, 0);
+		} while(_c);
+		// } @v9.5.5 
 		if(himl) {
 			ImageList_RemoveAll(himl);
 			ImageList_Destroy(himl);
@@ -858,7 +867,7 @@ static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 	}
 	return TRUE;
 }
-// } @v9.4.5 
+// } @v9.4.5
 
 BOOL CALLBACK TToolbar::TuneToolsDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {

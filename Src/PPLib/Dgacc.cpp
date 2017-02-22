@@ -110,7 +110,7 @@ void AcctCtrlGroup::setup(TDialog * dlg, Acct * pAcct, int sheetChanged, int acc
 			}
 		}
 	}
-	TView::message(dlg, evCommand, cmPPAccSelected, this);
+	TView::messageCommand(dlg, cmPPAccSelected, this);
 }
 
 int AcctCtrlGroup::processAccInput(TDialog * dlg)
@@ -178,7 +178,7 @@ void AcctCtrlGroup::processArtCombo(TDialog * dlg)
 				ltoa(ppobj->P_Tbl->Art.data.Article, b, 10);
 			dlg->setCtrlData(ctl_art, b);
 			AcctId.ar = ar;
-			TView::message(dlg, evCommand, cmPPArSelected, this);
+			TView::messageCommand(dlg, cmPPArSelected, this);
 		}
 	}
 }
@@ -206,13 +206,13 @@ int AcctCtrlGroup::processArtInput(TDialog * dlg)
 		if(p_combo) {
 			ListWindow * p_listwin = p_combo->getListWindow();
 			if(p_listwin) {
-				TView::message(p_listwin, evCommand, cmLBLoadDef);
+				TView::messageCommand(p_listwin, cmLBLoadDef);
 				dlg->setCtrlLong(ctlsel_artname, AcctId.ar);
 			}
 		}
 	}
 	if(prev_ar != AcctId.ar)
-		TView::message(dlg, evCommand, cmPPArSelected, this);
+		TView::messageCommand(dlg, cmPPArSelected, this);
 	return 1;
 }
 
@@ -238,7 +238,7 @@ void AcctCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 			rcv = ctlsel_artname;
 		else
 			return;
-		dlg->messageToCtrl(rcv, evCommand, cmCBActivate, 0);
+		dlg->messageToCtrl(rcv, cmCBActivate, 0);
 	}
 	else
 		return;
@@ -367,9 +367,9 @@ int ArticleCtrlGroup::selectByCode(TDialog * pDlg)
 					if(p_combo) {
 						ListWindow * p_listwin = p_combo->getListWindow();
 						if(p_listwin) {
-							TView::message(p_listwin, evCommand, cmLBLoadDef);
+							TView::messageCommand(p_listwin, cmLBLoadDef);
 							pDlg->setCtrlLong(CtlselAr, ar_id);
-							TView::message(pDlg, evCommand, cmCBSelected, p_combo);
+							TView::messageCommand(pDlg, cmCBSelected, p_combo);
 						}
 					}
 					ok = 1;

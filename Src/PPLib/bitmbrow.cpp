@@ -3414,7 +3414,9 @@ SArray * CompleteBrowser::MakeList()
 		entry.LotID   = p_item->LotID;
 		entry.Dt      = p_item->Dt;
 		entry.Expiry  = p_item->Expiry;
-		STRNSCPY(entry.GoodsName, GetGoodsName(p_item->GoodsID, temp_buf));
+		// @v9.5.5 STRNSCPY(entry.GoodsName, GetGoodsName(p_item->GoodsID, temp_buf));
+		goods_obj.FetchNameR(p_item->GoodsID, temp_buf); // @v9.5.5
+		STRNSCPY(entry.GoodsName, temp_buf); // @v9.5.5
 		GetArticleName(p_item->ArID, temp_buf);
 		STRNSCPY(entry.ArName, temp_buf);
 		STRNSCPY(entry.Serial, p_item->Serial);
@@ -3453,7 +3455,8 @@ int SLAPI PPObjBill::ViewLotComplete(PPID lotID, PPID * pSelectedLotID)
 				ReceiptTbl::Rec lot_rec;
 				SString title_buf;
 				if(trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
-					GetGoodsName(lot_rec.GoodsID, title_buf);
+					// @v9.5.5 GetGoodsName(lot_rec.GoodsID, title_buf);
+					GObj.FetchNameR(lot_rec.GoodsID, title_buf); // @v9.5.5
 					GetObjectName(PPOBJ_LOCATION, lot_rec.LocID, title_buf.CatDiv(':', 1, 1), 1);
 					title_buf.CatDiv(':', 1, 1).Cat(lot_rec.Dt);
 				}

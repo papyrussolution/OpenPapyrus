@@ -1651,7 +1651,7 @@ int SLAPI EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 			else {
 				PPError();
 				setCtrlData(CTLSEL_POVERB_VERB, &(data.VerbID = 0));
-				messageToCtrl(CTLSEL_POVERB_VERB, evCommand, cmCBActivate, 0);
+				messageToCtrl(CTLSEL_POVERB_VERB, cmCBActivate, 0);
 			}
 			return ok;
 		}

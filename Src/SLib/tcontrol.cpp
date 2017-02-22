@@ -288,7 +288,8 @@ IMPL_HANDLE_EVENT(TButton)
 					}
 					break;
 				case cmSearchButton:
-					if(command && event.message.infoWord == command)
+					// @v9.5.5 if(command && event.message.infoWord == command)
+					if(command && event.message.infoPtr == (void *)command) // @v9.5.5
 						clearEvent(event);
 					break;
 			}
@@ -300,9 +301,9 @@ int TButton::makeDefault(int enable, int sendMsg)
 {
 	if(sendMsg) {
 		if(!(flags & bfDefault))
-			TView::message(owner, evBroadcast, enable ? cmGrabDefault : cmReleaseDefault, this);
+			TView::messageBroadcast(owner, enable ? cmGrabDefault : cmReleaseDefault, this);
 		if(enable)
-			SendMessage(Parent, DM_SETDEFID, (WPARAM)Id, 0);
+			::SendMessage(Parent, DM_SETDEFID, (WPARAM)Id, 0);
 	}
 	SETFLAG(flags, bfDefault, enable);
 	return 1;
@@ -332,8 +333,15 @@ int TButton::TransmitData(int dir, void * pData)
 
 void TButton::press(ushort item)
 {
-	if(!IsInState(sfDisabled))
-		TView::message(owner, (flags & bfBroadcast) ? evBroadcast : evCommand, command, this);
+	if(!IsInState(sfDisabled)) {
+		// @v9.5.5 TView::message(owner, (flags & bfBroadcast) ? evBroadcast : evCommand, command, this);
+		// @v9.5.5 {
+		if(flags & bfBroadcast)
+			TView::messageBroadcast(owner, command, this);
+		else
+			TView::messageCommand(owner, command, this);
+		// } @v9.5.5 
+	}
 }
 //
 // TInputLine
@@ -413,7 +421,7 @@ LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 			break;
 		case WM_LBUTTONDBLCLK:
 			if(p_view)
-				TView::message(p_view->owner, evCommand, cmInputDblClk, p_view);
+				TView::messageCommand(p_view->owner, cmInputDblClk, p_view);
 			break;
 		case WM_MBUTTONDOWN:
 			if(p_view->GetCombo() || p_view->hasWordSelector()) {
@@ -697,7 +705,7 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			return -2;
 		case WM_KEYUP:
 			Implement_GetText();
-			TView::message(owner, evCommand, cmInputUpdatedByBtn, this);
+			TView::messageCommand(owner, cmInputUpdatedByBtn, this);
 			return 0;
 		case WM_CHAR:
 			if(combo)
@@ -728,7 +736,7 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					if(Data.Len() == 0)
 						InlSt &= ~stPaste;
 				}
-				TView::message(owner, evCommand, cmInputUpdated, this);
+				TView::messageCommand(owner, cmInputUpdated, this);
 			}
 			break;
 	 }
@@ -1284,9 +1292,9 @@ bool TCluster::mark(int item)
 
 void TCluster::press(ushort item)
 {
-	short citem = BUTTON_ID(item)-1;
+	const short citem = BUTTON_ID(item)-1;
 	Value = (Kind == RADIOBUTTONS) ? citem : Value ^ (1 << citem);
-	TView::message(owner, evCommand, cmClusterClk, this);
+	TView::messageCommand(owner, cmClusterClk, this);
 }
 
 int TCluster::isEnabled(ushort item) const
@@ -1659,7 +1667,7 @@ int ComboBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_USER_COMBO_CLEAR:
 			if(Flags & cbxAllowEmpty) {
 				TransmitData(+1, 0);
-				TView::message(owner, evCommand, cmCBSelected, this);
+				TView::messageCommand(owner, cmCBSelected, this);
 			}
 			break;
 		case WM_USER_COMBO_ACTIVATEBYCHAR:
@@ -1692,7 +1700,7 @@ int ComboBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					TransmitData(+1, (v > 0) ? &v : 0);
 					State &= ~stExecSemaphore;
 					if(res == cmOK)
-						TView::message(owner, evCommand, cmCBSelected, this);
+						TView::messageCommand(owner, cmCBSelected, this);
 				}
 			}
 			break;
@@ -1845,7 +1853,7 @@ IMPL_HANDLE_EVENT(ComboBox)
 
 void ComboBox::selectItem(long)
 {
-	TView::message(owner, evCommand, cmLBItemSelected, this);
+	TView::messageCommand(owner, cmLBItemSelected, this);
 }
 
 void ComboBox::setRange(long aRange)

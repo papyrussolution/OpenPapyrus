@@ -1957,7 +1957,7 @@ int SLAPI AddGoodsToBasket(PPID goodsID, PPID defLocID, double qtty, double pric
 			item.Quantity = qtty;
 		else if(uir_result && uis.Flags & UserInterfaceSettings::fAddToBasketItemCurBrwItemAsQtty) {
 			double c = 0.0;
-			if(TView::message(APPL->P_DeskTop, evCommand, cmGetFocusedNumber, &c))
+			if(TView::messageCommand(APPL->P_DeskTop, cmGetFocusedNumber, &c))
 				item.Quantity = (c > 0.0) ? c : 1.0;
 		}
 		else

@@ -291,7 +291,7 @@ int TreeWindow::OnCommand(WPARAM wParam, LPARAM lParam)
 {
 	int    r = 1;
 	if(P_CurLw && P_CurLw->listBox()) {
-		TView::message(P_CurLw->listBox()->owner, evCommand, wParam, this);
+		TView::messageCommand(P_CurLw->listBox()->owner, wParam, this);
 		r = 0;
 	}
 	return r;

@@ -507,7 +507,7 @@ void SLAPI TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc,
 		// Операция по сохранению текущего окна необходима из-за того, что при создании
 		// диалога указатель APPL->P_DeskTop->P_Current обнуляется. Это, как правило не страшно,
 		// но делает неработоспособными некоторые функции (например, не срабатывает функция //
-		// TView::message(APPL->P_DeskTop, evCommand, cmGetFocusedNumber, &c); в калькуляторе).
+		// TView::messageCommand(APPL->P_DeskTop, cmGetFocusedNumber, &c); в калькуляторе).
 		//
 		TView * preserve_current = APPL->P_DeskTop->P_Current;
 		HW = APPL->CreateDlg(resourceID, APPL->H_TopOfStack, (DLGPROC)DialogProc, (LPARAM)this);
@@ -618,7 +618,7 @@ IMPL_HANDLE_EVENT(TDialog)
 			if(APPL->PushModalWindow(this, H())) {
 				setupPosition();
 				InitRect = getRect();
-				TView::message(this, evCommand, cmSetupResizeParams);
+				TView::messageCommand(this, cmSetupResizeParams);
 				APPL->SetWindowViewByKind(H(), TProgram::wndtypDialog);
 				ShowWindow(H(), SW_SHOW);
 				SetForegroundWindow(H()); // @v8.2.6
@@ -763,7 +763,7 @@ int TDialog::TransmitData(int dir, void * pData)
 TLabel * SLAPI TDialog::getCtlLabel(uint ctlID)
 {
 	TView  * v = getCtrlView(ctlID);
-	return v ? (TLabel *)TView::message(this, evBroadcast, cmSearchLabel, v) : 0;
+	return v ? (TLabel *)TView::messageBroadcast(this, cmSearchLabel, v) : 0;
 }
 
 int SLAPI TDialog::getLabelText(uint ctlID, SString & rText)
@@ -781,7 +781,7 @@ int SLAPI TDialog::setLabelText(uint ctlID, const char * pText)
 long TDialog::getVirtButtonID(uint ctlID)
 {
 	TView * v = getCtrlView(ctlID);
-	return v ? (long)TView::message(this, evBroadcast, cmSearchVirtButton, v) : 0;
+	return v ? (long)TView::messageBroadcast(this, cmSearchVirtButton, v) : 0;
 }
 
 int FASTCALL TDialog::AddClusterAssoc(uint ctlID, long pos, long val)
@@ -1499,7 +1499,7 @@ int TDialog::Helper_ToResizeDlg(const RECT * pNewDlgRect)
 		if(ToolTipsWnd) {
 			::DestroyWindow(ToolTipsWnd);
 			ToolTipsWnd = 0;
-			TView::message(this, evCommand, cmSetupTooltip);
+			TView::messageCommand(this, cmSetupTooltip);
 		}
 	}
 	return ok;

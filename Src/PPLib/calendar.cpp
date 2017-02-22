@@ -59,7 +59,7 @@ public:
 			int r = APPL->DlgBoxParam(IsLarge ? DLGW_CALENDAR_L : DLGW_CALENDAR,
 				NZOR(hParent, parent_hWnd), TDateCalendar::CalendarDlgProc, (long)this);
 			if(r > 0 && P_Dlg)
-				TView::message(P_Dlg, evBroadcast, cmCommitInput, P_Dlg->getCtrlView(DateCtlID));
+				TView::messageBroadcast(P_Dlg, cmCommitInput, P_Dlg->getCtrlView(DateCtlID));
 		}
 	}
 	void   CloseCalendar();

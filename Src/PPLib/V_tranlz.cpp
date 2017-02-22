@@ -1418,7 +1418,9 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 		if(pBillRec->Dt != pTrfrRec->Dt) {
 			SString msg_buf, fmt_buf, bill_buf;
 			PPObjBill::MakeCodeString(pBillRec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_buf);
-			(msg_buf = bill_buf).CatDiv('-', 1).Cat(GetGoodsName(pTrfrRec->GoodsID, fmt_buf));
+			// @v9.5.5 GetGoodsName(pTrfrRec->GoodsID, fmt_buf);
+			GObj.FetchNameR(pTrfrRec->GoodsID, fmt_buf); // @v9.5.5
+			(msg_buf = bill_buf).CatDiv('-', 1).Cat(fmt_buf);
 			bill_buf = msg_buf;
 			msg_buf.Printf(PPLoadTextS(PPTXT_LOG_UNEQTRFRBILLDATE, fmt_buf), bill_buf.cptr());
 			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);
@@ -1569,7 +1571,7 @@ int SLAPI PPViewTrfrAnlz::AddAbsentSaldo()
 int SLAPI PPViewTrfrAnlz::InitDateText(LDATE dt, PPID billID, SString & rBuf)
 {
 	FormatSubstDate(Filt.Sgd, dt, rBuf, (P_TrGrpngTbl && Filt.CtKind == TrfrAnlzFilt::ctDate) ? DATF_YMD|DATF_CENTURY : 0);
-	if(billID && !(Filt.Grp == TrfrAnlzFilt::gDateCntragentAgentGoods)) {
+	if(billID && Filt.Grp != TrfrAnlzFilt::gDateCntragentAgentGoods) {
 		BillTbl::Rec bill_rec;
 		if(P_BObj->Fetch(billID, &bill_rec) > 0 && bill_rec.Code[0])
 			rBuf.Space().Space().Cat(bill_rec.Code);
@@ -1586,10 +1588,13 @@ int SLAPI PPViewTrfrAnlz::InitGrpngNames()
 		counter.Init(P_TrGrpngTbl);
 		PPLoadText(PPTXT_TRFRANLZINITGRPNGTEXT, msg_buf);
 		PPObjWorld w_obj;
-		for(PPID id = 0; P_TrGrpngTbl->search(0, &id, spGt);) {
+		PROFILE_START
+		//for(PPID id = 0; P_TrGrpngTbl->search(0, &id, spGt);) {
+		PPID   id = 0;
+		if(P_TrGrpngTbl->search(0, &id, spFirst)) do {
 			TempTrfrGrpngTbl::Rec rec;
 			P_TrGrpngTbl->copyBufTo(&rec);
-			GObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, temp_buf);
+			PROFILE(GObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, temp_buf));
 			STRNSCPY(rec.GoodsText, temp_buf);
 			PsnObj.GetSubstText(rec.PersonID, (Filt.Flags & TrfrAnlzFilt::fDiffByDlvrAddr) ? rec.DlvrLocID : 0, &Psp, temp_buf);
 			STRNSCPY(rec.PersonText, temp_buf);
@@ -1597,7 +1602,8 @@ int SLAPI PPViewTrfrAnlz::InitGrpngNames()
 			STRNSCPY(rec.DtText, temp_buf);
 			THROW_DB(P_TrGrpngTbl->updateRecBuf(&rec));
 			PPWaitPercent(counter.Increment(), msg_buf);
-		}
+		} while(P_TrGrpngTbl->search(0, &id, spNext));
+		PROFILE_END
 	}
 	CATCHZOK
 	return ok;
@@ -1679,7 +1685,10 @@ int SLAPI PPViewTrfrAnlz::CreateOrderTable(IterOrder ord)
 					id = P_TrAnlzTbl->data.ArticleID;
 				if(id != prev_id) {
 					switch(obj_type) {
-						case PPOBJ_GOODS:   GetGoodsName(id, temp_buf); break;
+						case PPOBJ_GOODS:   
+							// @v9.5.5 GetGoodsName(id, temp_buf); 
+							GObj.FetchNameR(id, temp_buf); // @v9.5.5
+							break;
 						case PPOBJ_ARTICLE: GetArticleName(id, temp_buf); break;
 						case PPOBJ_PERSON:  GetPersonName(id, temp_buf); break;
 						default: temp_buf = 0; break;

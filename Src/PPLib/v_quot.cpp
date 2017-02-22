@@ -537,12 +537,10 @@ int SLAPI PPViewQuot::Init_(const PPBaseFilt * pFilt)
 							e_ar = BIN(p_quot->ArID == Filt.ArID);
 							sum++;
 						}
-						// @v7.1.12 {
 						else if(Filt.Flags & QuotFilt::fZeroArOnly) {
 							e_ar = BIN(p_quot->ArID == 0L);
 							sum++;
 						}
-						// } @v7.1.12
 						if((e_qk + e_loc + e_cur + e_ar) == sum)
 							exists = 1;
 					}

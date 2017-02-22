@@ -503,35 +503,58 @@ void * SLAPI PPObjTag::CreateObjListWin(uint flags, void * extraPtr)
 		{
 			int    update = 0;
 			PPID   id = 0;
-			PPObjListWindow::handleEvent(event);
-			if(P_Obj) {
-				getResult(&id);
-				if(TVCOMMAND) {
-					switch(TVCMD) {
-						case cmaMore:
-							if(id) {
-								PPObjTagPacket pack;
-								if(((PPObjTag*)P_Obj)->GetPacket(id, &pack) > 0 && pack.Rec.TagDataType == OTTYP_ENUM) {
-									if(pack.Rec.TagEnumID) {
-										ShowObjects(pack.Rec.TagEnumID, 0);
+			// @v9.5.5 { Переопределяет код из PPObjListWindow::handleEvent для предустановки типа объекта в создаваемом теге
+			PPID   preserve_focus_id = 0; 
+			if(TVCOMMAND && TVCMD == cmaInsert && P_Obj && Flags & OLW_CANINSERT && !(Flags & OWL_OUTERLIST)) {
+				PPID   obj_type_id = 0;
+				if(getResult(&id) > 0 && !ObjTagFilt::ObjTypeRootIdentToObjType(id, &obj_type_id)) {
+					PPObjectTag tag_rec;
+					if(((PPObjTag *)P_Obj)->Search(id, &tag_rec) > 0)
+						obj_type_id = tag_rec.ObjTypeID;
+				}
+				ObjTagFilt filt;
+				filt.ObjTypeID = obj_type_id;
+				filt.Flags |= ObjTagFilt::fAnyObjects;
+				id = 0;
+				if(P_Obj->Edit(&id, &filt) == cmOK) {
+					preserve_focus_id = id;
+					update = 2;
+				}
+				else
+					::SetFocus(H());
+				PostProcessHandleEvent(update, preserve_focus_id);
+			}
+			else { // } @v9.5.5 
+				PPObjListWindow::handleEvent(event);
+				if(P_Obj) {
+					getResult(&id);
+					if(TVCOMMAND) {
+						switch(TVCMD) {
+							case cmaMore:
+								if(id) {
+									PPObjTagPacket pack;
+									if(((PPObjTag*)P_Obj)->GetPacket(id, &pack) > 0 && pack.Rec.TagDataType == OTTYP_ENUM) {
+										if(pack.Rec.TagEnumID) {
+											ShowObjects(pack.Rec.TagEnumID, 0);
+										}
 									}
 								}
-							}
-							break;
-						case cmTransmitCharry:
-							{
-								PPIDArray id_list;
-								ReferenceTbl::Rec rec;
-								for(PPID item_id = 0; ((PPObjReference *)P_Obj)->EnumItems(&item_id, &rec) > 0;)
-									id_list.add(rec.ObjID);
-								if(!SendCharryObject(PPDS_CRROBJTAG, id_list))
-									PPError();
-								clearEvent(event);
-							}
-							break;
+								break;
+							case cmTransmitCharry:
+								{
+									PPIDArray id_list;
+									ReferenceTbl::Rec rec;
+									for(PPID item_id = 0; ((PPObjReference *)P_Obj)->EnumItems(&item_id, &rec) > 0;)
+										id_list.add(rec.ObjID);
+									if(!SendCharryObject(PPDS_CRROBJTAG, id_list))
+										PPError();
+									clearEvent(event);
+								}
+								break;
+						}
 					}
+					PostProcessHandleEvent(update, id);
 				}
-				PostProcessHandleEvent(update, id);
 			}
 		}
 		ObjTagFilt Filt;
@@ -811,7 +834,7 @@ static int SLAPI SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTa
 				P_ObjTypeList = 0;
 			*/
 			// @v9.3.10 {
-			LinkObjTypeList.addzlist(PPOBJ_QCERT, PPOBJ_PERSON, 0);
+			LinkObjTypeList.addzlist(PPOBJ_QCERT, PPOBJ_PERSON, PPOBJ_QUOTKIND, 0); // @v9.5.5 PPOBJ_QUOTKIND
 			P_ObjTypeList = &LinkObjTypeList;
 			// } @v9.3.10
 			DisableClusterItem(CTL_OBJTAG_TYPE, 7, BIN(!P_ObjTypeList));

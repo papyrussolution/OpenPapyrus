@@ -1655,7 +1655,9 @@ int SLAPI PPViewLot::InsertTempRecsByIter(BExtInsert * pBei, long * pCounter, Ui
 				rec.OrgDt   = item.OrgLotDt;
 				rec.OprNo   = item.OprNo;
 				rec.GoodsID = item.GoodsID;
-				STRNSCPY(rec.GoodsName, GetGoodsName(item.GoodsID, temp_buf));
+				// @v9.5.5 GetGoodsName(item.GoodsID, temp_buf);
+				GObj.FetchNameR(item.GoodsID, temp_buf); // @v9.5.5
+				STRNSCPY(rec.GoodsName, temp_buf);
 				STRNSCPY(rec.Serial, item.Serial);
 				rec.BegRest   = item.BegRest;
 				rec.EndRest   = item.EndRest;

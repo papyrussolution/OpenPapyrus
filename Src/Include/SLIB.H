@@ -6729,25 +6729,6 @@ public:
 	uint32 * P_Data;
 };
 //
-// Descr: Пул строк. Главное назначение класса - предоставлять клиентам экземпляры SString
-//   с уже распределенным пространством под буферы. Это значительно ускоряет работу для //
-//   модулей, которые постоянно используют короткоживущие строки (экономия достигается за
-//   счет того, что однажды распределеннаый буфер строки SString не сокращается, следовательно
-//   не расходуется время на динамическое выделение памяти).
-//
-class SStringPool : public TSCollection <SString> {
-public:
-	SStringPool();
-	~SStringPool();
-	SString * FASTCALL Alloc(uint * pPos);
-	int    FASTCALL Free(uint pos);
-	int    FASTCALL Free(const SString *);
-	int    FASTCALL Free(const BitArray &);
-	const  BitArray & GetMap() const;
-private:
-	BitArray BusyList;
-};
-//
 // Descr: Класс для разбора сложных текстов.
 //   Для простых случаев следует использовать SString::Tokenize и SStrScan
 //   Принцип использования:
@@ -10065,6 +10046,25 @@ private:
 	int    Dw; // Number of delayed writers
 	Sem    Sr; // Семафор для приостановки читателей
 	Sem    Sw; // Семафор для приостановки писателей
+};
+//
+// Descr: Пул строк. Главное назначение класса - предоставлять клиентам экземпляры SString
+//   с уже распределенным пространством под буферы. Это значительно ускоряет работу для //
+//   модулей, которые постоянно используют короткоживущие строки (экономия достигается за
+//   счет того, что однажды распределеннаый буфер строки SString не сокращается, следовательно
+//   не расходуется время на динамическое выделение памяти).
+//
+class SStringPool : public TSCollection <SString> {
+public:
+	SStringPool();
+	~SStringPool();
+	SString * FASTCALL Alloc(uint * pPos);
+	int    FASTCALL Free(uint pos);
+	int    FASTCALL Free(const SString *);
+	int    FASTCALL Free(const BitArray &);
+	const  BitArray & GetMap() const;
+private:
+	BitArray BusyList;
 };
 //
 //

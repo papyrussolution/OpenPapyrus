@@ -2320,7 +2320,8 @@ int SLAPI PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int 
 			if(r_item.Val > 0) {
 				if(!goods_obj.BelongToGroup(goodsID, grp_id)) {
 					(msg_buf = 0).Cat(goods_rec.Name).Space().Cat(">>").Space();
-					GetGoodsName(grp_id, temp_buf);
+					// @v9.5.5 GetGoodsName(grp_id, temp_buf);
+					goods_obj.FetchNameR(grp_id, temp_buf); // @v9.5.5
 					msg_buf.Cat(temp_buf);
 					ok = PPSetError(PPERR_BILLGOODSRESTRICT, msg_buf);
 				}
@@ -2328,7 +2329,8 @@ int SLAPI PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int 
 			else if(r_item.Val < 0) {
 				if(goods_obj.BelongToGroup(goodsID, grp_id)) {
 					(msg_buf = 0).Cat(goods_rec.Name).Space().Cat(">>").Space();
-					GetGoodsName(grp_id, temp_buf);
+					// @v9.5.5 GetGoodsName(grp_id, temp_buf);
+					goods_obj.FetchNameR(grp_id, temp_buf); // @v9.5.5
 					msg_buf.Cat(temp_buf);
 					ok = PPSetError(PPERR_BILLGOODSRESTRICTNEG, msg_buf);
 				}

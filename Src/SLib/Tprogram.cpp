@@ -30,7 +30,7 @@ BOOL CALLBACK StatusWinDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 				POINT  coord;
 				coord.x = LOWORD(lParam);
 				coord.y = HIWORD(lParam);
-				TView::message(p_view, evCommand, cmaEdit, (void*)&coord);
+				TView::messageCommand(p_view, cmaEdit, (void*)&coord);
 			}
 			return 0;
 		default:
@@ -152,7 +152,7 @@ IMPL_HANDLE_EVENT(TStatusWin)
 		if(APPL->P_DeskTop) {
 			uint cmd = GetCmdByCoord(*(POINT*)event.message.infoPtr);
 			if(cmd)
-				TView::message(APPL, evCommand, cmd);
+				TView::messageCommand(APPL, cmd);
 		}
 		clearEvent(event);
 	}
@@ -928,7 +928,7 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 			APPL->idle();
 			break;
 		case WM_TIMECHANGE:
-			TView::message((TProgram *)TView::GetWindowUserData(hWnd), evCommand, cmTimeChange);
+			TView::messageCommand((TProgram *)TView::GetWindowUserData(hWnd), cmTimeChange);
 			break;
 		case WM_DESTROY:
 			p_pgm = (TProgram *)TView::GetWindowUserData(hWnd);
@@ -979,7 +979,7 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 		*/
 		case WM_SYSCOMMAND:
 			if(wParam == SC_CLOSE) {
-				TView::message((TProgram *)TView::GetWindowUserData(hWnd), evCommand, cmQuit, &lParam);
+				TView::messageCommand((TProgram *)TView::GetWindowUserData(hWnd), cmQuit, &lParam);
 				break;
 			}
 		default:
@@ -993,15 +993,15 @@ void TProgram::NotifyFrame(int post)
 	HWND   h_frame = GetFrameWindow();
 	if(IsWindow(h_frame))
 		if(post)
-			PostMessage(h_frame, WM_USER_NOTIFYBRWFRAME, 0, 0);
+			::PostMessage(h_frame, WM_USER_NOTIFYBRWFRAME, 0, 0);
 		else
-			SendMessage(h_frame, WM_USER_NOTIFYBRWFRAME, 0, 0);
+			::SendMessage(h_frame, WM_USER_NOTIFYBRWFRAME, 0, 0);
 }
 
 void TProgram::idle()
 {
-	TView::message(P_DeskTop, evBroadcast, cmIdle);
-	TView::message(this, evBroadcast, cmIdle);
+	TView::messageBroadcast(P_DeskTop, cmIdle);
+	TView::messageBroadcast(this, cmIdle);
 }
 
 // Public variables
@@ -1107,8 +1107,8 @@ void TProgram::run()
 
 TRect SLAPI TProgram::MakeCenterRect(int width, int height) const
 {
-	int dx = (P_DeskTop->size.x - width) / 2;
-	int dy = (P_DeskTop->size.y - height) / 2;
+	const int dx = (P_DeskTop->size.x - width) / 2;
+	const int dy = (P_DeskTop->size.y - height) / 2;
 	TRect r(dx, dy, width + dx, height + dy);
 	return r;
 }
