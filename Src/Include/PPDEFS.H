@@ -1417,6 +1417,8 @@
 #define PPEDIOP_EGAIS_ACTCHARGEON_V2         56 // @v9.3.12
 #define PPEDIOP_EGAIS_ACTWRITEOFF_V2         57 // @v9.3.12
 #define PPEDIOP_EGAIS_ACTWRITEOFFSHOP        58 // @v9.4.0
+#define PPEDIOP_EGAIS_WAYBILL_V2             59 // @v9.5.5
+#define PPEDIOP_EGAIS_TTNINFORMF2REG         60 // @v9.5.5 version 2 of PPEDIOP_EGAIS_TTNINFORMBREG
 //
 // Descr: Статусы ответа (RECADV) на уведомление об отгрузке (DESADV)
 //
@@ -8019,6 +8021,8 @@
 	#define CTL_SUPLEXCHCFG_TADDR      (16 + WINDOWS_ID_BIAS)
 	#define CTL_SUPLEXCHCFG_TNAME      (17 + WINDOWS_ID_BIAS)
 	#define CTL_SUPLEXCHCFG_TPW        (18 + WINDOWS_ID_BIAS)
+	#define CTL_SUPLEXCHCFG_STYLO      (19 + WINDOWS_ID_BIAS)
+	#define CTLSEL_SUPLEXCHCFG_STYLO   (20 + WINDOWS_ID_BIAS)
 #define DLG_SCARDCFG              961 // CF_SCARD Конфигурация дисконтных карт
 	#define CTL_SCARDCFG_PSNKND        (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SCARDCFG_PSNKND     (2 + WINDOWS_ID_BIAS)

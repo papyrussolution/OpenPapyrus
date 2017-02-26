@@ -164,7 +164,7 @@ int __db_free __P((DBC*, PAGE*, uint32));
 #ifdef HAVE_FTRUNCATE
 void __db_freelist_pos __P((db_pgno_t, db_pgno_t*, uint32, uint32 *));
 #endif
-void __db_freelist_sort __P((db_pglist_t*, uint32));
+void __db_freelist_sort(db_pglist_t*, uint32);
 #ifdef HAVE_FTRUNCATE
 int __db_pg_truncate __P((DBC*, DB_TXN*, db_pglist_t*, DB_COMPACT*, uint32*, db_pgno_t, db_pgno_t*, DB_LSN*, int));
 #endif

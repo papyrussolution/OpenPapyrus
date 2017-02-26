@@ -279,7 +279,11 @@ Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 !else	
 	OutFile "setup.exe"
 !endif
-InstallDir "C:\PPY"
+!ifdef OPENSOURCE
+	InstallDir "C:\OPPY"
+!else
+	InstallDir "C:\PPY"
+!endif
 InstallDirRegKey HKCU "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
@@ -297,6 +301,7 @@ Section "Файлы приложения" SEC01
 	File "${SRC_TARGET}\PPSoapUhtt.dll"       ; @v7.3.0
 	!ifndef OPENSOURCE
 		File "${SRC_TARGET}\PPSoapPepsi.dll"      ; @v9.2.3
+		File "${SRC_TARGET}\PPSoapEfes.dll"       ; @v9.5.5
 	!endif
 	File "${SRC_TARGET}\ppraw.res"
 	; @v8.9.8 File "${SRC_TARGET}\pprpt.res"

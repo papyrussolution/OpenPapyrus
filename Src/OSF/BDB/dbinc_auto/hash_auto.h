@@ -3,7 +3,7 @@
 #ifndef	__ham_AUTO_H
 #define	__ham_AUTO_H
 #ifdef HAVE_HASH
-#include "dbinc/log.h"
+// @v9.5.5 #include "dbinc/log.h"
 #define	DB___ham_insdel	21
 typedef struct ___ham_insdel_args {
 	uint32 type;

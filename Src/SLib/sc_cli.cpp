@@ -88,20 +88,20 @@ int SCDBObjClient::LoadAddrList()
 
 SCDBObjClient::PalmRec * SCDBObjClient::AllocPalmRec(uint addrCount, size_t * pBufLen)
 {
-	PalmRec * p_buf = 0;
-	size_t  buf_len = sizeof(PalmRec) + addrCount * sizeof(ClientAddr);
-	p_buf = (PalmRec *)calloc(1, buf_len);
-	p_buf->AddrCount = addrCount;
+	const size_t buf_len = sizeof(PalmRec) + addrCount * sizeof(ClientAddr);
+	PalmRec * p_buf = (PalmRec *)calloc(1, buf_len);
+	if(p_buf)
+		p_buf->AddrCount = addrCount;
 	ASSIGN_PTR(pBufLen, buf_len);
 	return p_buf;
 }
 
 SCDBObjClient::PalmRec700 * SCDBObjClient::AllocPalmRec700(uint addrCount, size_t * pBufLen)
 {
-	PalmRec700 * p_buf = 0;
-	size_t  buf_len = sizeof(PalmRec700) + addrCount * sizeof(ClientAddr);
-	p_buf = (PalmRec700 *)calloc(1, buf_len);
-	p_buf->AddrCount = addrCount;
+	const size_t buf_len = sizeof(PalmRec700) + addrCount * sizeof(ClientAddr);
+	PalmRec700 * p_buf = (PalmRec700 *)calloc(1, buf_len);
+	if(p_buf)
+		p_buf->AddrCount = addrCount;
 	ASSIGN_PTR(pBufLen, buf_len);
 	return p_buf;
 }
@@ -568,13 +568,15 @@ SCDBObjSell::PalmRec * SCDBObjSell::AllocPalmRec(const TSArray <TempRec> * pPool
 	if(pPool->getCount()) {
 		buf_len = sizeof(PalmRec) + pPool->getCount() * sizeof(SalesItem);
 		p_buf = (PalmRec *)calloc(1, buf_len);
-		p_buf->ItemsCount = SyncHostToHHWord(pPool->getCount());
-		p_buf->ClientID = SyncHostToHHDWord(pPool->at(0).ClientID);
-		p_buf->ClientAddrID = SyncHostToHHDWord(pPool->at(0).ClientAddrID);
-		p_buf->GoodsID = SyncHostToHHDWord(pPool->at(0).GoodsID);
-		for(uint i = 0; i < pPool->getCount(); i++) {
-			((SalesItem *)(p_buf+1))[i].Date = SyncHostToHHWord(pPool->at(i).Date);
-			((SalesItem *)(p_buf+1))[i].Qtty = pPool->at(i).Qtty;
+		if(p_buf) {
+			p_buf->ItemsCount = SyncHostToHHWord(pPool->getCount());
+			p_buf->ClientID = SyncHostToHHDWord(pPool->at(0).ClientID);
+			p_buf->ClientAddrID = SyncHostToHHDWord(pPool->at(0).ClientAddrID);
+			p_buf->GoodsID = SyncHostToHHDWord(pPool->at(0).GoodsID);
+			for(uint i = 0; i < pPool->getCount(); i++) {
+				((SalesItem *)(p_buf+1))[i].Date = SyncHostToHHWord(pPool->at(i).Date);
+				((SalesItem *)(p_buf+1))[i].Qtty = pPool->at(i).Qtty;
+			}
 		}
 	}
 	ASSIGN_PTR(pBufLen, buf_len);

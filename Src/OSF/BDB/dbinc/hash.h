@@ -169,5 +169,5 @@ typedef enum {
 
 #include "dbinc_auto/hash_auto.h"
 #include "dbinc_auto/hash_ext.h"
-#include "dbinc/db_am.h"
+// @v9.5.5 #include "dbinc/db_am.h"
 #endif /* !_DB_HASH_H_ */

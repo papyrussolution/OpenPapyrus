@@ -7,24 +7,24 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-#include "dbinc/db_page.h"
-#include "dbinc/lock.h"
-#include "dbinc/mp.h"
-#include "dbinc/crypto.h"
-#include "dbinc/btree.h"
-#include "dbinc/hash.h"
+// @v9.5.5 #include "dbinc/db_page.h"
+// @v9.5.5 #include "dbinc/lock.h"
+// @v9.5.5 #include "dbinc/mp.h"
+// @v9.5.5 #include "dbinc/crypto.h"
+// @v9.5.5 #include "dbinc/btree.h"
+// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-#include "dbinc/db_am.h"
-#include "dbinc/fop.h"
-#include "dbinc/txn.h"
+// @v9.5.5 #include "dbinc/db_am.h"
+// @v9.5.5 #include "dbinc/fop.h"
+// @v9.5.5 #include "dbinc/txn.h"
 
-static int __fop_set_pgsize __P((DB*, DB_FH*, const char *));
-static int __fop_inmem_create __P((DB*, const char *, DB_TXN*, uint32));
-static int __fop_inmem_dummy __P((DB*, DB_TXN*, const char *, uint8 *));
-static int __fop_inmem_read_meta __P((DB*, DB_TXN*, const char *, uint32));
-static int __fop_inmem_swap __P((DB*, DB*, DB_TXN*, const char *, const char *, const char *, DB_LOCKER *));
-static int __fop_ondisk_dummy __P((DB*, DB_TXN*, const char *, uint8 *));
-static int __fop_ondisk_swap __P((DB*, DB*, DB_TXN*, const char *, const char *, const char *, DB_LOCKER *));
+static int __fop_set_pgsize(DB*, DB_FH*, const char *);
+static int __fop_inmem_create(DB*, const char *, DB_TXN*, uint32);
+static int __fop_inmem_dummy(DB*, DB_TXN*, const char *, uint8 *);
+static int __fop_inmem_read_meta(DB*, DB_TXN*, const char *, uint32);
+static int __fop_inmem_swap(DB*, DB*, DB_TXN*, const char *, const char *, const char *, DB_LOCKER *);
+static int __fop_ondisk_dummy(DB*, DB_TXN*, const char *, uint8 *);
+static int __fop_ondisk_swap(DB*, DB*, DB_TXN*, const char *, const char *, const char *, DB_LOCKER *);
 
 /*
  * Acquire the environment meta-data lock.  The parameters are the

@@ -218,7 +218,7 @@ struct __db_foreign_info {
  * primary keys that are used in secondary lookups (for example, with the
  * DB_GET_BOTH flag on a secondary get).
  */
-#include "dbinc/db_swap.h"
+// @v9.5.5 #include "dbinc/db_swap.h"
 
 #define	SWAP_IF_NEEDED(sdbp, pkey)					\
 	do {								\
@@ -269,7 +269,7 @@ struct __db_foreign_info {
 }
 #endif
 
-#include "dbinc/db_dispatch.h"
+// @v9.5.5 #include "dbinc/db_dispatch.h"
 #include "dbinc_auto/db_auto.h"
 #include "dbinc_auto/crdel_auto.h"
 #include "dbinc_auto/db_ext.h"

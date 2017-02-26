@@ -2930,7 +2930,7 @@ const char * SLAPI getboolsign(int link, int set);
 //   последующие символы воспринимаются как те, которые заменять не следует.
 //   Символ '&' в списке исключений игнорируется (он присутствует в представлении сущностей, потому не может не замещаться).
 //
-int  FASTCALL XMLReplaceSpecSymb(SString & rBuf, const char * pProcessSymb);
+void FASTCALL XMLReplaceSpecSymb(SString & rBuf, const char * pProcessSymb);
 //int  FASTCALL XMLReplaceSpecSymb(char * pBuf, int onlyStandart = 0);
 //int  FASTCALL XMLReplaceSpecSymb(SString & rBuf, int onlyStandart = 0);
 int  SLAPI XMLWriteSpecSymbEntities(FILE * pStream);

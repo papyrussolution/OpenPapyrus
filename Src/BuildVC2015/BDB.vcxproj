@@ -695,16 +695,9 @@
     <ClCompile Include="..\Osf\Bdb\crdel_rec.c" />
     <ClCompile Include="..\Osf\Bdb\crypto\aes_method.c" />
     <ClCompile Include="..\Osf\Bdb\crypto\crypto.c" />
-    <ClCompile Include="..\Osf\Bdb\crypto\mersenne\mt19937db.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
-      </PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
-      </PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\Osf\Bdb\crypto\rijndael\rijndael-alg-fst.c" />
-    <ClCompile Include="..\Osf\Bdb\crypto\rijndael\rijndael-api-fst.c" />
+    <ClCompile Include="..\OSF\BDB\crypto\mt19937db.c" />
+    <ClCompile Include="..\OSF\BDB\crypto\rijndael-alg-fst.c" />
+    <ClCompile Include="..\OSF\BDB\crypto\rijndael-api-fst.c" />
     <ClCompile Include="..\Osf\Bdb\db.c" />
     <ClCompile Include="..\Osf\Bdb\dbreg.c" />
     <ClCompile Include="..\Osf\Bdb\dbreg_auto.c" />
@@ -840,13 +833,7 @@
     <ClCompile Include="..\Osf\Bdb\mut_tas.c" />
     <ClCompile Include="..\Osf\Bdb\mut_win32.c" />
     <ClCompile Include="..\Osf\Bdb\openflags.c" />
-    <ClCompile Include="..\OSF\BDB\os\os_addrinfo.c" />
-    <ClCompile Include="..\Osf\Bdb\os\os_alloc.c" />
-    <ClCompile Include="..\Osf\Bdb\os\os_ctime.c" />
-    <ClCompile Include="..\Osf\Bdb\os\os_root.c" />
-    <ClCompile Include="..\Osf\Bdb\os\os_rpath.c" />
-    <ClCompile Include="..\Osf\Bdb\os\os_tmpdir.c" />
-    <ClCompile Include="..\Osf\Bdb\os\os_uid.c" />
+    <ClCompile Include="..\OSF\BDB\os\bdb_os.c" />
     <ClCompile Include="..\Osf\Bdb\os_method.c" />
     <ClCompile Include="..\Osf\Bdb\os_windows\bdb_os_win.c" />
     <ClCompile Include="..\Osf\Bdb\os_windows\os_rename.c" />

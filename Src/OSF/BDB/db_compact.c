@@ -7,15 +7,15 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-#include "dbinc/db_page.h"
-#include "dbinc/lock.h"
-#include "dbinc/mp.h"
-#include "dbinc/crypto.h"
-#include "dbinc/btree.h"
-#include "dbinc/hash.h"
+// @v9.5.5 #include "dbinc/db_page.h"
+// @v9.5.5 #include "dbinc/lock.h"
+// @v9.5.5 #include "dbinc/mp.h"
+// @v9.5.5 #include "dbinc/crypto.h"
+// @v9.5.5 #include "dbinc/btree.h"
+// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-#include "dbinc/txn.h"
-#include "dbinc/fop.h"
+// @v9.5.5 #include "dbinc/txn.h"
+// @v9.5.5 #include "dbinc/fop.h"
 #ifdef HAVE_FTRUNCATE
 static int __db_free_freelist __P((DB*, DB_THREAD_INFO*, DB_TXN *));
 static int __db_setup_freelist __P((DB*, db_pglist_t*, uint32));

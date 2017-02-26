@@ -2,7 +2,7 @@
 
 #ifndef	__bam_AUTO_H
 #define	__bam_AUTO_H
-#include "dbinc/log.h"
+// @v9.5.5 #include "dbinc/log.h"
 #define	DB___bam_split	62
 typedef struct ___bam_split_args {
 	uint32 type;

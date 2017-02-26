@@ -253,6 +253,7 @@ dr%.%s%(%w%)%>dr.%1
 xo%<x.o.
 %^н.г.%>нг%_
 вак уп%<в/у||в/уп%.%|вакуп%|вак%.%zупак%.%|вак%.%zуп.%|в/упак%.%|вак/уп%.%|в вакуумной упак%.%|в вакуум%.%zупаковке%|вакуумная упаковка%|в вакуумной упаковке%|(вак уп)
+полуботинки%<п/ботинки%|п/бот%.%|пботинки
 бут%<бут.
 стбут%<ст/бут%|ст%.%zбут
 полусладк%<п/сл%.%|п/слад%.%|п/сладкое%|псл%|полусладкое
@@ -1419,7 +1420,7 @@ furnace air filter%<filter furn%|furn filt%|filter air furnc
 inc%<inc.
 pasta%<psta
 brush%<brsh
-shower%<shwr
+shower%<shwr%|showr
 shower gel%<showergel%|douchegel%|douche gel%|shwr gl%|shwr gel%|shower gl
 sugar free%<sgrfree%|sgrfr%|sgrfre%|sgr free%|sgr fr%|sugrfr
 lynx shower gel%<lynx s/gel

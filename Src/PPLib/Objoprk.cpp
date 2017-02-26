@@ -85,7 +85,7 @@ int SLAPI PPReckonOpEx::Serialize(int dir, SBuffer & rBuf, SSerializeContext * p
 	return ok;
 }
 
-int SLAPI PPReckonOpEx::PeriodToStr(char * pBuf, size_t bufLen) const
+int SLAPI PPReckonOpEx::PeriodToStr(SString & rBuf) const
 {
 	char   temp[64];
 	char * p = temp;
@@ -115,7 +115,7 @@ int SLAPI PPReckonOpEx::PeriodToStr(char * pBuf, size_t bufLen) const
 			*p = 0;
 		}
 	}
-	strnzcpy(pBuf, temp, bufLen);
+	rBuf = temp;
 	return 1;
 }
 
@@ -2291,10 +2291,10 @@ void OprKindDialog::editPaymList()
 		}
 		int    setDTS(const PPReckonOpEx * pData)
 		{
-			char   temp[64];
+			SString temp_buf;
 			data = *pData;
-			data.PeriodToStr(temp, sizeof(temp));
-			setCtrlData(CTL_OPRPOP_PERIOD, temp);
+			data.PeriodToStr(temp_buf);
+			setCtrlString(CTL_OPRPOP_PERIOD, temp_buf);
 			AddClusterAssoc(CTL_OPRPOP_FLAGS, 0, ROXF_AUTOPAYM);
 			AddClusterAssoc(CTL_OPRPOP_FLAGS, 1, ROXF_CFM_PAYM);
 			AddClusterAssoc(CTL_OPRPOP_FLAGS, 2, ROXF_AUTODEBT);

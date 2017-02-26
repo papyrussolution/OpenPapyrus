@@ -3,7 +3,7 @@
 #ifndef	__qam_AUTO_H
 #define	__qam_AUTO_H
 #ifdef HAVE_QUEUE
-#include "dbinc/log.h"
+// @v9.5.5 #include "dbinc/log.h"
 #define	DB___qam_incfirst	84
 typedef struct ___qam_incfirst_args {
 	uint32 type;

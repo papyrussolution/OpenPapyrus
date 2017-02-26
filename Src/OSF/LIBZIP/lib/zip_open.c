@@ -608,10 +608,10 @@ static zip_cdir_t * _zip_read_eocd64(zip_source_t * src, zip_buffer_t * buffer, 
 	uint64 offset;
 	uint8 eocd[EOCD64LEN];
 	uint64 eocd_offset;
-	uint64 size, nentry, i, eocdloc_offset;
+	uint64 size, nentry, i;
 	bool free_buffer;
 	uint32 num_disks, num_disks64, eocd_disk, eocd_disk64;
-	eocdloc_offset = _zip_buffer_offset(buffer);
+	uint64 eocdloc_offset = _zip_buffer_offset(buffer);
 	_zip_buffer_get(buffer, 4); /* magic already verified */
 	num_disks = _zip_buffer_get_16(buffer);
 	eocd_disk = _zip_buffer_get_16(buffer);

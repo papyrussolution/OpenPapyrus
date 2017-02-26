@@ -1071,6 +1071,24 @@ struct SapEfesDebtReportEntry {
 	SString Memo;
 };
 
+struct SapEfesDebtDetailReportEntry {
+	SapEfesDebtDetailReportEntry()
+	{
+		NativeArID = 0;
+		BillDate = ZERODATE;
+		PaymDate = ZERODATE;
+		Amount = 0.0;
+		Debt = 0.0;
+	}
+	long   NativeArID; // @anchor(strictly the first member) @v9.5.2 Ид статьи в нашей базе данных
+	LDATE  BillDate;
+	LDATE  PaymDate;
+	double Amount;
+	double Debt;
+	SString BuyerCode;
+	SString NativeBillCode;
+};
+
 typedef TSCollection <SapEfesOrder> * (*EFESGETSALESORDERSYNCLIST_PROC)(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const DateRange * pPeriod, int repeat, const char * pDocNumberList);
 typedef int (*EFESSETSALESORDERSTATUSSYNC_PROC)(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const TSCollection <SapEfesBillStatus> * pItems);
 typedef TSCollection <SapEfesBillStatus> * (*EFESSETDELIVERYNOTESYNC_PROC)(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const TSCollection <SapEfesBillPacket> * pItems);
@@ -1078,3 +1096,4 @@ typedef TSCollection <SapEfesLogMsg> * (*EFESSETDAILYSTOCKREPORTSYNC_PROC)(PPSoa
 typedef TSCollection <SapEfesLogMsg> * (*EFESSETMTDPRODUCTREPORTSYNC_PROC)(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const TSCollection <SapEfesGoodsReportEntry> * pItems);
 typedef TSCollection <SapEfesLogMsg> * (*EFESSETMTDOUTLETSREPORTSYNC_PROC)(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const TSCollection <SapEfesGoodsReportEntry> * pItems);
 typedef TSCollection <SapEfesLogMsg> * (*EFESSETDEBTSYNC_PROC)(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const TSCollection <SapEfesDebtReportEntry> * pItems);
+typedef TSCollection <SapEfesLogMsg> * (*EFESSETDEBTDETAILSYNC_PROC)(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const TSCollection <SapEfesDebtDetailReportEntry> * pItems);

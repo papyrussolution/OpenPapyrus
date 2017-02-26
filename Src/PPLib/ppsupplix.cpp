@@ -3475,11 +3475,34 @@ int SLAPI iSalesPepsi::SendPrices()
 	if(ss_outer_cli_code.getCount()) {
 		int    result = 0;
 		int    do_send = 0;
+        PPIDArray plq_list;
+        if(Ep.Fb.StyloPalmID) {
+			PPObjStyloPalm sp_obj;
+			PPStyloPalmPacket sp_pack;
+			if(sp_obj.GetPacket(Ep.Fb.StyloPalmID, &sp_pack) > 0) {
+                if(sp_pack.QkList.GetCount()) {
+                    for(uint i = 0; i < sp_pack.QkList.GetCount(); i++) {
+						const PPID qk_id = sp_pack.QkList.Get(i);
+                        plq_list.addnz(qk_id);
+                    }
+                }
+			}
+        }
+        plq_list.add(0L);
+        plq_list.sortAndUndup();
 		TSCollection <iSalesPriceListPacket> pl_list;
-		{
-			iSalesPriceListPacket * p_new_pl = pl_list.CreateNewItem(0);
+		for(uint plq_idx = 0; plq_idx < plq_list.getCount(); plq_idx++) {
+			const PPID plq_id = plq_list.get(plq_idx);
+			int   is_pl_empty = 1;
+			uint  new_pl_pos = 0;
+			iSalesPriceListPacket * p_new_pl = pl_list.CreateNewItem(&new_pl_pos);
 			THROW_SL(p_new_pl);
-			p_new_pl->PriceListID = 1;
+			if(plq_id == 0)
+				p_new_pl->PriceListID = 1;
+			else if(plq_id == 1)
+				p_new_pl->PriceListID = 100;
+			else
+				p_new_pl->PriceListID = plq_id;
 			p_new_pl->OuterCliCodeList = ss_outer_cli_code;
 			GoodsFilt gfilt;
 			if(Ep.GoodsGrpID)
@@ -3500,15 +3523,25 @@ int SLAPI iSalesPepsi::SendPrices()
 					}
 				}
 				if(!skip_goods) {
-					if(Ep.PriceQuotID) {
-						QuotIdent qi(0, Ep.PriceQuotID, 0, 0);
-						GObj.GetQuotExt(goods_rec.ID, qi, 0.0, 0.0, &price, 0);
+					ReceiptTbl::Rec lot_rec;
+					double lot_cost = 0.0;
+					double lot_price = 0.0;
+					if(P_BObj->trfr->Rcpt.GetLastLot(goods_rec.ID, 0, MAXDATE, &lot_rec) > 0) {
+						lot_cost = lot_rec.Cost;
+						lot_price = lot_rec.Price;
 					}
-					if(price == 0.0) {
-						//GetLastLot(PPID goodsID, PPID locID, LDATE date, ReceiptTbl::Rec * pLotRec);
-						ReceiptTbl::Rec lot_rec;
-						if(P_BObj->trfr->Rcpt.GetLastLot(goods_rec.ID, 0, MAXDATE, &lot_rec) > 0) {
-							price = lot_rec.Price;
+					if(plq_id) {
+						const QuotIdent qi(0, plq_id, 0, 0);
+						GObj.GetQuotExt(goods_rec.ID, qi, lot_cost, lot_price, &price, 0);
+					}
+					else {
+						if(Ep.PriceQuotID) {
+							const QuotIdent qi(0, Ep.PriceQuotID, 0, 0);
+							GObj.GetQuotExt(goods_rec.ID, qi, lot_cost, lot_price, &price, 0);
+						}
+						if(price == 0.0) {
+							//GetLastLot(PPID goodsID, PPID locID, LDATE date, ReceiptTbl::Rec * pLotRec);
+							price = lot_price;
 						}
 					}
 					if(price > 0.0) {
@@ -3516,10 +3549,15 @@ int SLAPI iSalesPepsi::SendPrices()
 						THROW_SL(p_new_pl_item);
                         p_new_pl_item->OuterCode = temp_buf;
                         p_new_pl_item->Price = price;
+                        is_pl_empty = 0;
                         do_send = 1;
 					}
 				}
 			}
+			if(is_pl_empty)
+				pl_list.atFree(new_pl_pos);
+			else
+				do_send = 1;
 		}
 		if(do_send) {
 			ISALESPUTPRICES_PROC func = 0;
@@ -3730,7 +3768,21 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 			PPBillPacket order_pack;
 			cli_face_code = 0;
 			cli_addr_code = 0;
-			PPID   psn_id = ObjectToPerson(pack.Rec.Object, 0);
+			const  PPID psn_id = ObjectToPerson(pack.Rec.Object, 0);
+			// @v9.5.5 {
+			PPID   special_qk_id = 0;
+			{
+				PPObjTag tag_obj;
+				PPObjectTag tag_rec;
+				for(uint tagidx = 0; !special_qk_id && tagidx < pack.BTagL.GetCount(); tagidx++) {
+                    const ObjTagItem * p_tag_item = pack.BTagL.GetItemByPos(tagidx);
+                    if(p_tag_item && p_tag_item->TagDataType == OTTYP_OBJLINK) {
+						if(tag_obj.Fetch(p_tag_item->TagID, &tag_rec) > 0 && tag_rec.TagEnumID == PPOBJ_QUOTKIND)
+							special_qk_id = p_tag_item->Val.IntVal;
+                    }
+				}
+			}
+			// } @v9.5.5
 			// @v9.2.8 'W' {
 			if(oneof2(outerDocType, 1, 5))
 				cli_face_code.CatChar('W');
@@ -3885,16 +3937,25 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 						const iSalesGoodsPacket * p_goods_entry = SearchGoodsMappingEntry(temp_buf);
 						double ord_part_dis = 0.0;
 						double net_price = ti.NetPrice();
+						double special_net_price = 0.0; // @v9.5.5
 						if(feqeps(net_price, 0.0, 1E-3)) {
 							ord_part_dis = 1.0;
 							net_price = ti.Price;
 						}
 						else {
-							if(outerDocType != 6 && Ep.PriceQuotID) {
-								double quot = 0.0;
-								const QuotIdent qi(ti.LocID, Ep.PriceQuotID, 0, pack.Rec.Object); // @v9.4.12 0-->pack.Rec.Object
-								if(GObj.GetQuotExt(ti.GoodsID, qi, 0.0, 0.0, &quot, 0) > 0 && quot > 0.0)
-									net_price = quot;
+							if(outerDocType != 6) {
+								if(special_qk_id) {
+									double quot = 0.0;
+									const QuotIdent qi(ti.LocID, special_qk_id, 0, pack.Rec.Object); // @v9.4.12 0-->pack.Rec.Object
+									if(GObj.GetQuotExt(ti.GoodsID, qi, 0.0, 0.0, &quot, 0) > 0 && quot > 0.0)
+										special_net_price = quot;
+								}
+								if(Ep.PriceQuotID && special_net_price == 0.0) {
+									double quot = 0.0;
+									const QuotIdent qi(ti.LocID, Ep.PriceQuotID, 0, pack.Rec.Object); // @v9.4.12 0-->pack.Rec.Object
+									if(GObj.GetQuotExt(ti.GoodsID, qi, 0.0, 0.0, &quot, 0) > 0 && quot > 0.0)
+										net_price = quot;
+								}
 							}
 							if(is_own_order) {
 								double ord_price = 0.0;
@@ -3954,8 +4015,24 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 							double vat_sum_in_nominal_price = 0.0;
 							double vat_sum_in_full_price = 0.0;
 							double vat_sum_in_discount = 0.0;
-							const double full_price = (outerDocType == 6) ? ti.Cost : ((ord_part_dis >= 1.0) ? 0.0 : net_price);
-							const double nominal_price = (outerDocType == 6) ? ti.Cost : ((ord_part_dis >= 1.0) ? net_price : (net_price / (1.0 - ord_part_dis)));
+							// @v9.5.5 const double full_price = (outerDocType == 6) ? ti.Cost : ((ord_part_dis >= 1.0) ? 0.0 : net_price);
+							// @v9.5.5 const double nominal_price = (outerDocType == 6) ? ti.Cost : ((ord_part_dis >= 1.0) ? net_price : (net_price / (1.0 - ord_part_dis)));
+							// @v9.5.5 {
+							double full_price = 0.0;
+							double nominal_price = 0.0;
+							if(outerDocType == 6) {
+								full_price = ti.Cost;
+								nominal_price = ti.Cost;
+							}
+							else if(special_net_price > 0.0) {
+								full_price = (ord_part_dis >= 1.0) ? 0.0 : (special_net_price * (1.0 - ord_part_dis));
+								nominal_price = special_net_price;
+							}
+							else {
+								full_price = ((ord_part_dis >= 1.0) ? 0.0 : net_price);
+								nominal_price = ((ord_part_dis >= 1.0) ? net_price : (net_price / (1.0 - ord_part_dis)));
+							}
+							// } @v9.5.5
 							const double discount = nominal_price - full_price;
 							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, full_price,    &vat_sum_in_full_price, 0, 0);
 							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, nominal_price, &vat_sum_in_nominal_price, 0, 0);
@@ -4277,6 +4354,9 @@ private:
 	void   SLAPI InitCallHeader(SapEfesCallHeader & rHdr);
 	int    SLAPI Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & rList);
 	int    SLAPI LogResultMsgList(const TSCollection <SapEfesLogMsg> * pMsgList);
+	int    SLAPI PrepareDebtsData(TSCollection <SapEfesDebtReportEntry> & rList, TSCollection <SapEfesDebtDetailReportEntry> & rDetailList);
+	int    SLAPI Helper_SendDebts(TSCollection <SapEfesDebtReportEntry> & rList);
+	int    SLAPI Helper_SendDebtsDetail(TSCollection <SapEfesDebtDetailReportEntry> & rList);
 
 	enum {
 		stInited             = 0x0001,
@@ -4334,10 +4414,12 @@ SLAPI SapEfes::~SapEfes()
 
 int SLAPI SapEfes::Init()
 {
+	Reference * p_ref = PPRef;
 	State = 0;
 	SvcUrl = 0;
 	UserName = 0;
 	Password = 0;
+	Wareh = 0;
 	int    ok = 1;
 	{
         Ep.GetExtStrData(Ep.extssRemoveAddr, SvcUrl);
@@ -4345,10 +4427,24 @@ int SLAPI SapEfes::Init()
         Ep.GetExtStrData(Ep.extssAccsPassw, Password);
 
 		Ep.GetExtStrData(Ep.extssClientCode, SalesOrg);
-		Wareh = "DDJ0"; // "D1D0";
+
 
 		State |= stEpDefined;
 	}
+	// @v9.5.5 {
+	if(Ep.Fb.LocCodeTagID) {
+		SString loc_code;
+		for(uint i = 0; i < P.LocList.GetCount(); i++) {
+			const PPID loc_id = P.LocList.Get(i);
+			if(loc_id && p_ref->Ot.GetTagStr(PPOBJ_LOCATION, loc_id, Ep.Fb.LocCodeTagID, loc_code) > 0) {
+				Wareh = loc_code;
+				break;
+			}
+		}
+	}
+	// } @v9.5.5
+	if(Wareh.Empty())
+		Wareh = "DDJ0"; // "D1D0";
 	InitGoodsList(iglfWithArCodesOnly); // @v9.5.1
 	State |= stInited;
 	return ok;
@@ -4806,10 +4902,7 @@ int SLAPI SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacke
 						p_new_item->Date = pack.Rec.Dt;
 						p_new_item->DocType = SapEfesBillPacket::tRetail;
 						BillCore::GetCode(p_new_item->NativeCode = pack.Rec.Code);
-						if(is_own_order && ord_rec.DueDate)
-							p_new_item->DueDate = ord_rec.DueDate;
-						else
-							p_new_item->DueDate = pack.Rec.Dt;
+						p_new_item->DueDate = (is_own_order && ord_rec.DueDate) ? ord_rec.DueDate : pack.Rec.Dt;
 						p_new_item->BuyerCode = cli_code;
 						p_new_item->DlvrLocCode = loc_code;
 						if(is_own_order) {
@@ -4938,21 +5031,22 @@ int SLAPI SapEfes::LogResultMsgList(const TSCollection <SapEfesLogMsg> * pMsgLis
 	return ok;
 }
 
-int SLAPI SapEfes::SendDebts()
+int SLAPI SapEfes::PrepareDebtsData(TSCollection <SapEfesDebtReportEntry> & rList, TSCollection <SapEfesDebtDetailReportEntry> & rDetailList)
 {
-    int    ok = -1;
-	SString temp_buf;
-	TSCollection <SapEfesDebtReportEntry> outp_list;
-	TSCollection <SapEfesLogMsg> * p_result = 0;
-	PPSoapClientSession sess;
-	SapEfesCallHeader sech;
-	EFESSETDEBTSYNC_PROC func = 0;
-	THROW(State & stInited);
-	THROW(State & stEpDefined);
-	THROW(P_Lib);
-	THROW_SL(func = (EFESSETDEBTSYNC_PROC)P_Lib->GetProcAddr("EfesSetDebtSync"));
-	sess.Setup(SvcUrl, UserName, Password);
-	InitCallHeader(sech);
+    int    ok = 1;
+	//SString temp_buf;
+	//TSCollection <SapEfesDebtReportEntry> outp_list;
+	//TSCollection <SapEfesDebtDetailReportEntry> outp_detail_list;
+	//TSCollection <SapEfesLogMsg> * p_result = 0;
+	//PPSoapClientSession sess;
+	//SapEfesCallHeader sech;
+	//EFESSETDEBTSYNC_PROC func = 0;
+	//THROW(State & stInited);
+	//THROW(State & stEpDefined);
+	//THROW(P_Lib);
+	//THROW_SL(func = (EFESSETDEBTSYNC_PROC)P_Lib->GetProcAddr("EfesSetDebtSync"));
+	//sess.Setup(SvcUrl, UserName, Password);
+	//InitCallHeader(sech);
 	{
 		const int use_omt_paym_amt = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
 		PPViewBill bill_view;
@@ -4985,22 +5079,37 @@ int SLAPI SapEfes::SendDebts()
 						if(!cli_code.NotEmpty()) {
 							; // @todo message
 						}
-						else if(outp_list.lsearch(&ar_id, &ex_pos, CMPF_LONG)) {
-							SapEfesDebtReportEntry * p_ex_entry = outp_list.at(ex_pos);
+						else if(rList.lsearch(&ar_id, &ex_pos, CMPF_LONG)) {
+							SapEfesDebtReportEntry * p_ex_entry = rList.at(ex_pos);
 							p_ex_entry->Debt += pack.Rec.Amount - paym;
 						}
 						else {
-							SapEfesDebtReportEntry * p_new_entry = outp_list.CreateNewItem(0);
-							THROW_SL(p_new_entry);
-							p_new_entry->NativeArID = ar_id;
-							p_new_entry->BuyerCode = cli_code;
-							p_new_entry->Debt = pack.Rec.Amount - paym;
 							{
-								PPClientAgreement cli_agt;
-								if(ArObj.GetClientAgreement(ar_id, &cli_agt, 1) > 0) {
-									p_new_entry->CreditLimit = cli_agt.GetCreditLimit(0);
-									p_new_entry->PayPeriod = cli_agt.DefPayPeriod;
+								SapEfesDebtReportEntry * p_new_entry = rList.CreateNewItem(0);
+								THROW_SL(p_new_entry);
+								p_new_entry->NativeArID = ar_id;
+								p_new_entry->BuyerCode = cli_code;
+								p_new_entry->Debt = pack.Rec.Amount - paym;
+								{
+									PPClientAgreement cli_agt;
+									if(ArObj.GetClientAgreement(ar_id, &cli_agt, 1) > 0) {
+										p_new_entry->CreditLimit = cli_agt.GetCreditLimit(0);
+										p_new_entry->PayPeriod = cli_agt.DefPayPeriod;
+									}
 								}
+							}
+							{
+								LDATE   paym_date = ZERODATE;
+								SapEfesDebtDetailReportEntry * p_new_detail_entry = rDetailList.CreateNewItem(0);
+								THROW_SL(p_new_detail_entry);
+								pack.GetLastPayDate(&paym_date);
+								p_new_detail_entry->NativeArID = ar_id;
+								p_new_detail_entry->BuyerCode = cli_code;
+								p_new_detail_entry->NativeBillCode = pack.Rec.Code;
+								p_new_detail_entry->BillDate = pack.Rec.Dt;
+								p_new_detail_entry->PaymDate = paym_date;
+								p_new_detail_entry->Amount = pack.Rec.Amount;
+								p_new_detail_entry->Debt = pack.Rec.Amount - paym;
 							}
 						}
 					}
@@ -5008,12 +5117,75 @@ int SLAPI SapEfes::SendDebts()
             }
         }
 	}
-	if(outp_list.getCount()) {
-		p_result = func(sess, sech, &outp_list);
-		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
-		LogResultMsgList(p_result);
-		DestroyResult((void **)&p_result);
+	rList.sort(CMPF_LONG);
+	rDetailList.sort(CMPF_LONG);
+    CATCHZOK
+    return ok;
+}
+
+int SLAPI SapEfes::Helper_SendDebts(TSCollection <SapEfesDebtReportEntry> & rList)
+{
+    int    ok = -1;
+	if(rList.getCount()) {
+		SString temp_buf;
+		//TSCollection <SapEfesDebtReportEntry> outp_list;
+		//TSCollection <SapEfesDebtDetailReportEntry> outp_detail_list;
+		TSCollection <SapEfesLogMsg> * p_result = 0;
+		PPSoapClientSession sess;
+		SapEfesCallHeader sech;
+		EFESSETDEBTSYNC_PROC func = 0;
+		THROW(State & stInited);
+		THROW(State & stEpDefined);
+		THROW(P_Lib);
+		THROW_SL(func = (EFESSETDEBTSYNC_PROC)P_Lib->GetProcAddr("EfesSetDebtSync"));
+		sess.Setup(SvcUrl, UserName, Password);
+		InitCallHeader(sech);
+		{
+			p_result = func(sess, sech, &rList);
+			THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
+			LogResultMsgList(p_result);
+			DestroyResult((void **)&p_result);
+		}
 	}
+    CATCHZOK
+    return ok;
+}
+
+int SLAPI SapEfes::Helper_SendDebtsDetail(TSCollection <SapEfesDebtDetailReportEntry> & rList)
+{
+    int    ok = -1;
+	if(rList.getCount()) {
+		SString temp_buf;
+		TSCollection <SapEfesLogMsg> * p_result = 0;
+		PPSoapClientSession sess;
+		SapEfesCallHeader sech;
+		EFESSETDEBTDETAILSYNC_PROC func = 0;
+		THROW(State & stInited);
+		THROW(State & stEpDefined);
+		THROW(P_Lib);
+		THROW_SL(func = (EFESSETDEBTDETAILSYNC_PROC)P_Lib->GetProcAddr("EfesSetDebtDetailSync"));
+		sess.Setup(SvcUrl, UserName, Password);
+		InitCallHeader(sech);
+		{
+			p_result = func(sess, sech, &rList);
+			THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
+			LogResultMsgList(p_result);
+			DestroyResult((void **)&p_result);
+		}
+	}
+    CATCHZOK
+    return ok;
+}
+
+int SLAPI SapEfes::SendDebts()
+{
+    int    ok = -1;
+	TSCollection <SapEfesDebtReportEntry> outp_list;
+	TSCollection <SapEfesDebtDetailReportEntry> outp_detail_list;
+	TSCollection <SapEfesLogMsg> * p_result = 0;
+	THROW(PrepareDebtsData(outp_list, outp_detail_list));
+	THROW(Helper_SendDebts(outp_list));
+	THROW(Helper_SendDebtsDetail(outp_detail_list));
     CATCHZOK
     return ok;
 }

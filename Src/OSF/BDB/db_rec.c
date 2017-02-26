@@ -7,15 +7,15 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-#include "dbinc/db_page.h"
-#include "dbinc/lock.h"
-#include "dbinc/mp.h"
-#include "dbinc/crypto.h"
-#include "dbinc/btree.h"
-#include "dbinc/hash.h"
+// @v9.5.5 #include "dbinc/db_page.h"
+// @v9.5.5 #include "dbinc/lock.h"
+// @v9.5.5 #include "dbinc/mp.h"
+// @v9.5.5 #include "dbinc/crypto.h"
+// @v9.5.5 #include "dbinc/btree.h"
+// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-#include "dbinc/log.h"
-#include "dbinc/fop.h"
+// @v9.5.5 #include "dbinc/log.h"
+// @v9.5.5 #include "dbinc/fop.h"
 
 static int __db_pg_free_recover_int(ENV*, DB_THREAD_INFO*, __db_pg_freedata_args*, DB*, DB_LSN*, DB_MPOOLFILE*, db_recops, int);
 static int __db_pg_free_recover_42_int(ENV*, DB_THREAD_INFO*, __db_pg_freedata_42_args*, DB*, DB_LSN*, DB_MPOOLFILE*, db_recops, int);
@@ -30,44 +30,34 @@ static int __db_pg_free_recover_42_int(ENV*, DB_THREAD_INFO*, __db_pg_freedata_4
 int __db_addrem_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
 	__db_addrem_args * argp;
-	DB_THREAD_INFO * ip;
 	DB * file_dbp;
 	DBC * dbc;
 	DB_MPOOLFILE * mpf;
-	PAGE * pagep;
 	int cmp_n, cmp_p, modified, ret;
 	uint32 opcode;
-
-	ip = ((DB_TXNHEAD *)info)->thread_info;
-	pagep = NULL;
+	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	PAGE * pagep = NULL;
 	REC_PRINT(__db_addrem_print);
 	REC_INTRO(__db_addrem_read, ip, 1);
-
 	REC_FGET(mpf, ip, argp->pgno, &pagep, done);
 	modified = 0;
-
 	opcode = OP_MODE_GET(argp->opcode);
 	cmp_n = LOG_COMPARE(lsnp, &LSN(pagep));
 	cmp_p = LOG_COMPARE(&LSN(pagep), &argp->pagelsn);
 	CHECK_LSN(env, op, cmp_p, &LSN(pagep), &argp->pagelsn);
 	CHECK_ABORT(env, op, cmp_n, &LSN(pagep), lsnp);
-	if((cmp_p == 0 && DB_REDO(op) && opcode == DB_ADD_DUP) ||
-	   (cmp_n == 0 && DB_UNDO(op) && opcode == DB_REM_DUP)) {
+	if((cmp_p == 0 && DB_REDO(op) && opcode == DB_ADD_DUP) || (cmp_n == 0 && DB_UNDO(op) && opcode == DB_REM_DUP)) {
 		/* Need to redo an add, or undo a delete. */
 		REC_DIRTY(mpf, ip, dbc->priority, &pagep);
-		if((ret = __db_pitem(dbc, pagep, argp->indx, argp->nbytes,
-			    argp->hdr.size == 0 ? NULL : &argp->hdr,
-			    argp->dbt.size == 0 ? NULL : &argp->dbt)) != 0)
+		if((ret = __db_pitem(dbc, pagep, argp->indx, argp->nbytes, argp->hdr.size == 0 ? NULL : &argp->hdr, argp->dbt.size == 0 ? NULL : &argp->dbt)) != 0)
 			goto out;
 		modified = 1;
 
 	}
-	else if((cmp_n == 0 && DB_UNDO(op) && opcode == DB_ADD_DUP) ||
-	        (cmp_p == 0 && DB_REDO(op) && opcode == DB_REM_DUP)) {
+	else if((cmp_n == 0 && DB_UNDO(op) && opcode == DB_ADD_DUP) || (cmp_p == 0 && DB_REDO(op) && opcode == DB_REM_DUP)) {
 		/* Need to undo an add, or redo a delete. */
 		REC_DIRTY(mpf, ip, dbc->priority, &pagep);
-		if((ret = __db_ditem(dbc,
-			    pagep, argp->indx, argp->nbytes)) != 0)
+		if((ret = __db_ditem(dbc, pagep, argp->indx, argp->nbytes)) != 0)
 			goto out;
 		modified = 1;
 	}
@@ -98,42 +88,31 @@ out:
 int __db_addrem_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
 	__db_addrem_42_args * argp;
-	DB_THREAD_INFO * ip;
 	DB * file_dbp;
 	DBC * dbc;
 	DB_MPOOLFILE * mpf;
-	PAGE * pagep;
 	int cmp_n, cmp_p, modified, ret;
-
-	ip = ((DB_TXNHEAD *)info)->thread_info;
-	pagep = NULL;
+	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	PAGE * pagep = NULL;
 	REC_PRINT(__db_addrem_print);
 	REC_INTRO(__db_addrem_42_read, ip, 1);
-
 	REC_FGET(mpf, ip, argp->pgno, &pagep, done);
 	modified = 0;
-
 	cmp_n = LOG_COMPARE(lsnp, &LSN(pagep));
 	cmp_p = LOG_COMPARE(&LSN(pagep), &argp->pagelsn);
 	CHECK_LSN(env, op, cmp_p, &LSN(pagep), &argp->pagelsn);
 	CHECK_ABORT(env, op, cmp_n, &LSN(pagep), lsnp);
-	if((cmp_p == 0 && DB_REDO(op) && argp->opcode == DB_ADD_DUP) ||
-	   (cmp_n == 0 && DB_UNDO(op) && argp->opcode == DB_REM_DUP)) {
+	if((cmp_p == 0 && DB_REDO(op) && argp->opcode == DB_ADD_DUP) || (cmp_n == 0 && DB_UNDO(op) && argp->opcode == DB_REM_DUP)) {
 		/* Need to redo an add, or undo a delete. */
 		REC_DIRTY(mpf, ip, dbc->priority, &pagep);
-		if((ret = __db_pitem(dbc, pagep, argp->indx, argp->nbytes,
-			    argp->hdr.size == 0 ? NULL : &argp->hdr,
-			    argp->dbt.size == 0 ? NULL : &argp->dbt)) != 0)
+		if((ret = __db_pitem(dbc, pagep, argp->indx, argp->nbytes, argp->hdr.size == 0 ? NULL : &argp->hdr, argp->dbt.size == 0 ? NULL : &argp->dbt)) != 0)
 			goto out;
 		modified = 1;
-
 	}
-	else if((cmp_n == 0 && DB_UNDO(op) && argp->opcode == DB_ADD_DUP) ||
-	        (cmp_p == 0 && DB_REDO(op) && argp->opcode == DB_REM_DUP)) {
+	else if((cmp_n == 0 && DB_UNDO(op) && argp->opcode == DB_ADD_DUP) || (cmp_p == 0 && DB_REDO(op) && argp->opcode == DB_REM_DUP)) {
 		/* Need to undo an add, or redo a delete. */
 		REC_DIRTY(mpf, ip, dbc->priority, &pagep);
-		if((ret = __db_ditem(dbc,
-			    pagep, argp->indx, argp->nbytes)) != 0)
+		if((ret = __db_ditem(dbc, pagep, argp->indx, argp->nbytes)) != 0)
 			goto out;
 		modified = 1;
 	}
@@ -161,23 +140,18 @@ out:
 int __db_big_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
 	__db_big_args * argp;
-	DB_THREAD_INFO * ip;
 	DB * file_dbp;
 	DBC * dbc;
 	DB_MPOOLFILE * mpf;
-	PAGE * pagep;
 	int cmp_n, cmp_p, modified, ret;
 	uint32 opcode;
-
-	ip = ((DB_TXNHEAD *)info)->thread_info;
-	pagep = NULL;
+	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	PAGE * pagep = NULL;
 	REC_PRINT(__db_big_print);
 	REC_INTRO(__db_big_read, ip, 0);
-
 	opcode = OP_MODE_GET(argp->opcode);
 	REC_FGET(mpf, ip, argp->pgno, &pagep, ppage);
 	modified = 0;
-
 	/*
 	 * There are three pages we need to check.  The one on which we are
 	 * adding data, the previous one whose next_pointer may have
@@ -2315,20 +2289,16 @@ int __db_pgno_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 {
 	BINTERNAL * bi;
 	__db_pgno_args * argp;
-	DB_THREAD_INFO * ip;
 	DB * file_dbp;
 	DBC * dbc;
 	DB_MPOOLFILE * mpf;
 	PAGE * pagep, * npagep;
 	db_pgno_t pgno, * pgnop;
 	int cmp_n, cmp_p, ret;
-
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
 	REC_PRINT(__db_pgno_print);
 	REC_INTRO(__db_pgno_read, ip, 0);
-
 	REC_FGET(mpf, ip, argp->pgno, &pagep, done);
-
 	cmp_n = LOG_COMPARE(lsnp, &LSN(pagep));
 	cmp_p = LOG_COMPARE(&LSN(pagep), &argp->lsn);
 	CHECK_LSN(file_dbp->env, op, cmp_p, &LSN(pagep), &argp->lsn);

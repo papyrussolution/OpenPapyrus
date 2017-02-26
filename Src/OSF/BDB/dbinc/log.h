@@ -9,7 +9,7 @@
 #ifndef _DB_LOG_H_
 #define	_DB_LOG_H_
 
-#include "dbinc/db_swap.h"
+// @v9.5.5 #include "dbinc/db_swap.h"
 
 #if defined(__cplusplus)
 extern "C" {

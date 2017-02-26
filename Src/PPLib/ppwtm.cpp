@@ -2347,12 +2347,11 @@ int SLAPI DoConstructionTest()
 	//CollectLldFileStat();
 
 	{
-		TSCollection <PPBarcode::Entry> bc_list;
+		//TSCollection <PPBarcode::Entry> bc_list;
 		//PPBarcode::RecognizeImage("D:/Papyrus/Src/OSF/ZBAR/examples/barcode.png", bc_list);
-		PPBarcode::RecognizeImage("D:/Papyrus/ppy/out/040-69911566-57N00001CPQ0LN0GLBP1O9R30603031000007FB116511C6E341B4AB38FB95E24B46D.png", bc_list);
+		//PPBarcode::RecognizeImage("D:/Papyrus/ppy/out/040-69911566-57N00001CPQ0LN0GLBP1O9R30603031000007FB116511C6E341B4AB38FB95E24B46D.png", bc_list);
 		//PPBarcode::RecognizeImage("D:/Papyrus/ppy/out/460622403878.png", bc_list);
 	}
-	/*
 	{
 		//SUnicodeTable ut;
 		//ut.ParseSource("d:/Papyrus/Src/Rsrc/unicodedata");
@@ -2368,7 +2367,6 @@ int SLAPI DoConstructionTest()
 			ub2.Cpmp.Test(&ub2.Ut);
 		}
 	}
-	*/
 	//TestSArchive();
 	//TestLargeVlrInputOutput();
 	//Test_iSalesPepsi();

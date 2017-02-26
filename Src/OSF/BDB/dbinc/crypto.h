@@ -59,7 +59,8 @@ struct __db_cipher {
 
 #ifdef HAVE_CRYPTO
 
-#include "crypto/rijndael/rijndael-api-fst.h"
+// @v9.5.5 #include "crypto/rijndael/rijndael-api-fst.h"
+#include "crypto/rijndael-api-fst.h" // @v9.5.5
 
 /*
  * Shared ciphering structure

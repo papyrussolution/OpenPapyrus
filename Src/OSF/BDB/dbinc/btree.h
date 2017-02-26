@@ -514,5 +514,5 @@ typedef enum {
 
 #include "dbinc_auto/btree_auto.h"
 #include "dbinc_auto/btree_ext.h"
-#include "dbinc/db_am.h"
+// @v9.5.5 #include "dbinc/db_am.h"
 #endif /* !_DB_BTREE_H_ */

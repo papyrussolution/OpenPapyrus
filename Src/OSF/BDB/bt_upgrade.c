@@ -7,12 +7,12 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-#include "dbinc/db_page.h"
-#include "dbinc/lock.h"
-#include "dbinc/mp.h"
-#include "dbinc/crypto.h"
-#include "dbinc/btree.h"
-#include "dbinc/hash.h"
+// @v9.5.5 #include "dbinc/db_page.h"
+// @v9.5.5 #include "dbinc/lock.h"
+// @v9.5.5 #include "dbinc/mp.h"
+// @v9.5.5 #include "dbinc/crypto.h"
+// @v9.5.5 #include "dbinc/btree.h"
+// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 #include "dbinc/db_upgrade.h"
 /*
@@ -72,8 +72,7 @@ int __bam_31_btreemeta(DB * dbp, char * real_name, uint32 flags, DB_FH * fhp, PA
 	newmeta->re_len = oldmeta->re_len;
 	newmeta->minkey = oldmeta->minkey;
 	newmeta->maxkey = oldmeta->maxkey;
-	memmove(newmeta->dbmeta.uid,
-		oldmeta->dbmeta.uid, sizeof(oldmeta->dbmeta.uid));
+	memmove(newmeta->dbmeta.uid, oldmeta->dbmeta.uid, sizeof(oldmeta->dbmeta.uid));
 	newmeta->dbmeta.flags = oldmeta->dbmeta.flags;
 	newmeta->dbmeta.record_count = 0;
 	newmeta->dbmeta.key_count = 0;
@@ -98,9 +97,8 @@ int __bam_31_lbtree(DB * dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE 
 {
 	BKEYDATA * bk;
 	db_pgno_t pgno;
-	db_indx_t indx;
 	int ret = 0;
-	for(indx = O_INDX; indx < NUM_ENT(h); indx += P_INDX) {
+	for(db_indx_t indx = O_INDX; indx < NUM_ENT(h); indx += P_INDX) {
 		bk = GET_BKEYDATA(dbp, h, indx);
 		if(B_TYPE(bk->type) == B_DUPLICATE) {
 			pgno = GET_BOVERFLOW(dbp, h, indx)->pgno;

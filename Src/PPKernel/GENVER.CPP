@@ -281,9 +281,9 @@ static int SLAPI CreateVerRcFile2(const char * pInFileName, const char * pRcFile
         line_buf.Cat("#else").CR();
         line_buf.Tab().Cat("FILEFLAGS").Space().Cat("0x0L").CR();
         line_buf.Cat("#endif").CR();
-        line_buf.Cat("FILEOS").Space().Cat("VOS__WINDOWS32").CR(); // @v9.4.8 0x40004L-->VOS__WINDOWS32
-        line_buf.Cat("FILETYPE").Space().Cat("VFT_APP").CR(); // @v9.4.8 0x1L-->VFT_APP
-        line_buf.Cat("FILESUBTYPE").Space().Cat("VFT2_UNKNOWN").CR(); // @v9.4.8 0x0L-->VFT2_UNKNOWN
+        line_buf.Cat("FILEOS").Space().Cat(/*"VOS__WINDOWS32"*/"0x40004L").CR(); // @v9.4.8 0x40004L-->VOS__WINDOWS32
+        line_buf.Cat("FILETYPE").Space().Cat(/*"VFT_APP"*/"0x1L").CR(); // @v9.4.8 0x1L-->VFT_APP
+        line_buf.Cat("FILESUBTYPE").Space().Cat(/*"VFT2_UNKNOWN"*/"0x0L").CR(); // @v9.4.8 0x0L-->VFT2_UNKNOWN
         line_buf.Cat("BEGIN").CR();
 			line_buf.Tab().Cat("BLOCK").Space().CatQStr("StringFileInfo").CR();
 			line_buf.Tab().Cat("BEGIN").CR();

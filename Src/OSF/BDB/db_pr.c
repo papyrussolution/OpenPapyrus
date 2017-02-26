@@ -7,28 +7,28 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-#include "dbinc/db_page.h"
-#include "dbinc/lock.h"
-#include "dbinc/mp.h"
-#include "dbinc/crypto.h"
-#include "dbinc/btree.h"
-#include "dbinc/hash.h"
+// @v9.5.5 #include "dbinc/db_page.h"
+// @v9.5.5 #include "dbinc/lock.h"
+// @v9.5.5 #include "dbinc/mp.h"
+// @v9.5.5 #include "dbinc/crypto.h"
+// @v9.5.5 #include "dbinc/btree.h"
+// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-#include "dbinc/heap.h"
-#include "dbinc/partition.h"
-#include "dbinc/qam.h"
-#include "dbinc/db_verify.h"
+// @v9.5.5 #include "dbinc/heap.h"
+// @v9.5.5 #include "dbinc/partition.h"
+// @v9.5.5 #include "dbinc/qam.h"
+// @v9.5.5 #include "dbinc/db_verify.h"
 
-static int __db_bmeta __P((ENV*, DB*, BTMETA*, uint32));
-static int __db_heapmeta __P((ENV*, DB*, HEAPMETA*, uint32));
-static int __db_heapint __P((DB*, HEAPPG*, uint32));
-static int __db_hmeta __P((ENV*, DB*, HMETA*, uint32));
-static void __db_meta __P((ENV*, DB*, DBMETA*, FN const *, uint32));
-static void __db_proff __P((ENV*, DB_MSGBUF*, void *));
-static int __db_qmeta __P((ENV*, DB*, QMETA*, uint32));
+static int __db_bmeta(ENV*, DB*, BTMETA*, uint32);
+static int __db_heapmeta(ENV*, DB*, HEAPMETA*, uint32);
+static int __db_heapint(DB*, HEAPPG*, uint32);
+static int __db_hmeta(ENV*, DB*, HMETA*, uint32);
+static void __db_meta(ENV*, DB*, DBMETA*, FN const *, uint32);
+static void __db_proff(ENV*, DB_MSGBUF*, void *);
+static int __db_qmeta(ENV*, DB*, QMETA*, uint32);
 #ifdef HAVE_STATISTICS
-static void __db_prdb __P((DB*, uint32));
-static int __db_prtree __P((DB*, DB_TXN*, uint32, db_pgno_t, db_pgno_t));
+static void __db_prdb(DB*, uint32);
+static int __db_prtree(DB*, DB_TXN*, uint32, db_pgno_t, db_pgno_t);
 #endif
 
 /*
@@ -58,16 +58,10 @@ int __db_dumptree(DB * dbp, DB_TXN * txn, char * op, char * name, db_pgno_t firs
 	ENV * env = dbp->env;
 	for(flags = 0; *op != '\0'; ++op)
 		switch(*op) {
-		    case 'a':
-			LF_SET(DB_PR_PAGE);
-			break;
-		    case 'h':
-			break;
-		    case 'r':
-			LF_SET(DB_PR_RECOVERYTEST);
-			break;
-		    default:
-			return EINVAL;
+		    case 'a': LF_SET(DB_PR_PAGE); break;
+		    case 'h': break;
+		    case 'r': LF_SET(DB_PR_RECOVERYTEST); break;
+		    default: return EINVAL;
 		}
 	if(name != NULL) {
 		if((fp = fopen(name, "w")) == NULL)
@@ -1501,16 +1495,11 @@ int __db_pr_callback(void * handle, const void * str_arg)
 const char * __db_dbtype_to_string(DBTYPE type)
 {
 	switch(type) {
-	    case DB_BTREE:
-		return "btree";
-	    case DB_HASH:
-		return "hash";
-	    case DB_RECNO:
-		return "recno";
-	    case DB_QUEUE:
-		return "queue";
-	    case DB_HEAP:
-		return "heap";
+	    case DB_BTREE: return "btree";
+	    case DB_HASH: return "hash";
+	    case DB_RECNO: return "recno";
+	    case DB_QUEUE: return "queue";
+	    case DB_HEAP: return "heap";
 	    case DB_UNKNOWN:
 	    default:
 		break;

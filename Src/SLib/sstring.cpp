@@ -1517,6 +1517,28 @@ int  SLAPI SString::GetIdxBySub(const char * pSubStr, int div)
 char * FASTCALL SString::CopyTo(char * pS, size_t bufLen) const
 {
 	return strnzcpy(pS, P_Buf, bufLen);
+	/* @construction @todo (такой вариант предпочтительнее поскольку функция критична по быстродействию, но нужен тест)
+	{
+		if(pS) {
+			const size_t src_len = Len();
+			if(src_len) {
+				if(bufLen) {
+					if(src_len < bufLen)
+						memcpy(pS, P_Buf, src_len+1);
+					else {
+						memcpy(pS, P_Buf, bufLen-1);
+						pS[bufLen-1] = 0;
+					}
+				}
+				else
+					strcpy(pS, P_Buf);
+			}
+			else
+				pS[0] = 0;
+		}
+		return pS;
+	}
+	*/
 }
 
 BSTR FASTCALL SString::CopyToOleStr(BSTR * pBuf) const

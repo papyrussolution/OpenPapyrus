@@ -15891,7 +15891,7 @@ struct PPReckonOpEx {
 	PPReckonOpEx & FASTCALL operator = (const PPReckonOpEx &);
 	int    SLAPI GetReckonPeriod(LDATE debtDate, DateRange *) const;
 	int    SLAPI GetDebtPeriod(LDATE paymDate, DateRange *) const;
-	int    SLAPI PeriodToStr(char * pBuf, size_t bufLen) const;
+	int    SLAPI PeriodToStr(SString & rBuf) const;
 	int    SLAPI StrToPeriod(const char *);
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 
@@ -42613,6 +42613,7 @@ public:
 
 		long   P;
 		char   Ident[24];
+		LDATE  BottlingDate; // @v9.5.5
 	};
 
 	struct InformB {
@@ -44118,7 +44119,10 @@ public:
 		friend class SCodepageMapPool;
 
 		SLAPI  TranslIndex();
+		SLAPI  TranslIndex(const TranslIndex & rS);
 		SLAPI ~TranslIndex();
+		int    FASTCALL Copy(const TranslIndex & rS);
+		TranslIndex & FASTCALL operator = (const TranslIndex & rS);
 		const  uint8 * FASTCALL Search(const uint8 * pSrc) const;
 	private:
 		void   SLAPI Reset();

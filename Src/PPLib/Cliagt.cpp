@@ -984,6 +984,7 @@ int FASTCALL PPSupplAgreement::ExchangeParam::IsEqual(const ExchangeParam & rS) 
 	CMP_FLD(Fb.CliCodeTagID); // @v9.4.4
 	CMP_FLD(Fb.LocCodeTagID); // @v9.4.4
 	CMP_FLD(Fb.SequenceID); // @v9.4.2
+	CMP_FLD(Fb.StyloPalmID); // @v9.5.5
 #undef CMP_FLD
 	if(!DebtDimList.IsEqual(rS.DebtDimList)) return 0; // @v9.1.3
 	return 1;
@@ -1629,8 +1630,12 @@ int SupplAgtDialog::setupCtrls(long flags)
 static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 {
 	class SupplExpOpListDialog : public PPListDialog {
+	private:
+		ObjTagFilt PsnTagFlt;
+		ObjTagFilt LocTagFlt;
 	public:
-		SupplExpOpListDialog() : PPListDialog(DLG_SUPPLEOPS, CTL_SUPPLEOPS_DBTDIM)
+		SupplExpOpListDialog() : PPListDialog(DLG_SUPPLEOPS, CTL_SUPPLEOPS_DBTDIM),
+			PsnTagFlt(PPOBJ_PERSON), LocTagFlt(PPOBJ_LOCATION)
 		{
 		}
 		int    setDTS(const PPSupplAgreement::ExchangeParam * pData)
@@ -1685,14 +1690,8 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_MOVIN, Data.MovInOp, 0, &op_list, OPKLF_OPLIST);
 			}
 			SetupPPObjCombo(this, CTLSEL_SUPPLEOPS_UNIT, PPOBJ_UNIT, Data.Fb.DefUnitID, OLW_CANINSERT, 0); // @v9.2.4
-			{
-				ObjTagFilt tag_flt(PPOBJ_PERSON);
-				SetupPPObjCombo(this, CTLSEL_SUPPLEOPS_CLICTAG, PPOBJ_TAG, Data.Fb.CliCodeTagID, OLW_CANINSERT, &tag_flt); // @v9.4.4
-			}
-			{
-				ObjTagFilt tag_flt(PPOBJ_LOCATION);
-				SetupPPObjCombo(this, CTLSEL_SUPPLEOPS_LOCCTAG, PPOBJ_TAG, Data.Fb.LocCodeTagID, OLW_CANINSERT, &tag_flt); // @v9.4.4
-			}
+			SetupPPObjCombo(this, CTLSEL_SUPPLEOPS_CLICTAG, PPOBJ_TAG, Data.Fb.CliCodeTagID, OLW_CANINSERT, &PsnTagFlt); // @v9.4.4
+			SetupPPObjCombo(this, CTLSEL_SUPPLEOPS_LOCCTAG, PPOBJ_TAG, Data.Fb.LocCodeTagID, OLW_CANINSERT, &LocTagFlt); // @v9.4.4
 			updateList(-1);
 			return 1;
 		}
@@ -1777,7 +1776,8 @@ int SupplAgtDialog::EditExchangeCfg()
 			PPIDArray op_list;
 			if(!RVALUEPTR(Data, pData))
 				Data.Clear();
-			SetupPPObjCombo(this, CTLSEL_SUPLEXCHCFG_GGRP, PPOBJ_GOODSGROUP, Data.GoodsGrpID, OLW_CANSELUPLEVEL, 0);
+			SetupPPObjCombo(this, CTLSEL_SUPLEXCHCFG_GGRP,  PPOBJ_GOODSGROUP, Data.GoodsGrpID, OLW_CANSELUPLEVEL, 0);
+			SetupPPObjCombo(this, CTLSEL_SUPLEXCHCFG_STYLO, PPOBJ_STYLOPALM,  Data.Fb.StyloPalmID, OLW_CANSELUPLEVEL, 0); // @v9.5.5
 			MEMSZERO(op_kind);
 			for(PPID op_id = 0; EnumOperations(0, &op_id, &op_kind) > 0;)
 				if(oneof2(op_kind.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GENERIC))
@@ -1834,6 +1834,7 @@ int SupplAgtDialog::EditExchangeCfg()
 			uint   sel = 0;
 			SString  temp_buf;
 			getCtrlData(sel = CTLSEL_SUPLEXCHCFG_GGRP, &Data.GoodsGrpID);
+			getCtrlData(sel = CTLSEL_SUPLEXCHCFG_STYLO, &Data.Fb.StyloPalmID); // @v9.5.5
 			{
 				getCtrlString(CTL_SUPLEXCHCFG_PRVDR, temp_buf = 0);
 				Data.PutExtStrData(PPSupplAgreement::ExchangeParam::extssEDIPrvdrSymb, temp_buf);

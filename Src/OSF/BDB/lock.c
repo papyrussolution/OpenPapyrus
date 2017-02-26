@@ -7,27 +7,27 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-#include "dbinc/db_page.h"
-#include "dbinc/lock.h"
-#include "dbinc/mp.h"
-#include "dbinc/crypto.h"
-#include "dbinc/btree.h"
-#include "dbinc/hash.h"
+// @v9.5.5 #include "dbinc/db_page.h"
+// @v9.5.5 #include "dbinc/lock.h"
+// @v9.5.5 #include "dbinc/mp.h"
+// @v9.5.5 #include "dbinc/crypto.h"
+// @v9.5.5 #include "dbinc/btree.h"
+// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-#include "dbinc/log.h"
+// @v9.5.5 #include "dbinc/log.h"
 
-static int __lock_allocobj __P((DB_LOCKTAB*, uint32));
-static int __lock_alloclock __P((DB_LOCKTAB*, uint32));
-static int __lock_freelock __P((DB_LOCKTAB*, struct __db_lock *, DB_LOCKER*, uint32));
-static int __lock_getobj __P((DB_LOCKTAB*, const DBT*, uint32, int, DB_LOCKOBJ**));
-static int __lock_get_api __P((ENV*, uint32, uint32, const DBT*, db_lockmode_t, DB_LOCK *));
-static int __lock_inherit_locks __P((DB_LOCKTAB*, DB_LOCKER*, uint32));
-static int __lock_same_family __P((DB_LOCKTAB*, DB_LOCKER*, DB_LOCKER *));
-static int __lock_put_internal __P((DB_LOCKTAB*, struct __db_lock *, uint32,  uint32));
-static int __lock_put_nolock __P((ENV*, DB_LOCK*, int *, uint32));
-static int __lock_remove_waiter __P((DB_LOCKTAB*, DB_LOCKOBJ*, struct __db_lock *, db_status_t));
-static int __lock_trade __P((ENV*, DB_LOCK*, DB_LOCKER *));
-static int __lock_vec_api __P((ENV*, uint32, uint32,  DB_LOCKREQ*, int, DB_LOCKREQ**));
+static int __lock_allocobj(DB_LOCKTAB*, uint32);
+static int __lock_alloclock(DB_LOCKTAB*, uint32);
+static int __lock_freelock(DB_LOCKTAB*, struct __db_lock *, DB_LOCKER*, uint32);
+static int __lock_getobj(DB_LOCKTAB*, const DBT*, uint32, int, DB_LOCKOBJ**);
+static int __lock_get_api(ENV*, uint32, uint32, const DBT*, db_lockmode_t, DB_LOCK *);
+static int __lock_inherit_locks(DB_LOCKTAB*, DB_LOCKER*, uint32);
+static int __lock_same_family(DB_LOCKTAB*, DB_LOCKER*, DB_LOCKER *);
+static int __lock_put_internal(DB_LOCKTAB*, struct __db_lock *, uint32,  uint32);
+static int __lock_put_nolock(ENV*, DB_LOCK*, int *, uint32);
+static int __lock_remove_waiter(DB_LOCKTAB*, DB_LOCKOBJ*, struct __db_lock *, db_status_t);
+static int __lock_trade(ENV*, DB_LOCK*, DB_LOCKER *);
+static int __lock_vec_api(ENV*, uint32, uint32,  DB_LOCKREQ*, int, DB_LOCKREQ**);
 
 static const char __db_lock_invalid[] = "%s: Lock is no longer valid";
 static const char __db_locker_invalid[] = "Locker is not valid";

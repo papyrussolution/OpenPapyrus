@@ -1025,11 +1025,13 @@ void part_free(part_t * part)
 
 attachments_t * attachments_new()               /* should be used internally */
 {
-	attachments_t * attachments = (attachments_t *)malloc(sizeof(attachments_t));
-	attachments->parts = NULL;
-	attachments->last = NULL;
-	attachments->root_part = NULL;
-	return attachments;
+	attachments_t * p_attachments = (attachments_t *)malloc(sizeof(attachments_t));
+	if(p_attachments) {
+		p_attachments->parts = NULL;
+		p_attachments->last = NULL;
+		p_attachments->root_part = NULL;
+	}
+	return p_attachments;
 }
 
 void attachments_add_part(attachments_t * attachments, part_t * part)

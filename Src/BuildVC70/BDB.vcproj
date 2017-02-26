@@ -419,6 +419,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\Osf\Bdb\os\bdb_os.c">
+			</File>
+			<File
 				RelativePath="..\Osf\Bdb\os_windows\bdb_os_win.c">
 			</File>
 			<File
@@ -875,7 +878,7 @@
 				RelativePath="..\Osf\Bdb\mp_trickle.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Bdb\crypto\mersenne\mt19937db.c">
+				RelativePath="..\Osf\Bdb\crypto\mt19937db.c">
 			</File>
 			<File
 				RelativePath="..\Osf\Bdb\mut_alloc.c">
@@ -902,31 +905,10 @@
 				RelativePath="..\Osf\Bdb\openflags.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Bdb\os\os_addrinfo.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\os\os_alloc.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\os\os_ctime.c">
-			</File>
-			<File
 				RelativePath="..\Osf\Bdb\os_method.c">
 			</File>
 			<File
 				RelativePath="..\Osf\Bdb\os_windows\os_rename.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\os\os_root.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\os\os_rpath.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\os\os_tmpdir.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\os\os_uid.c">
 			</File>
 			<File
 				RelativePath="..\Osf\Bdb\partition.c">
@@ -1031,10 +1013,10 @@
 				RelativePath="..\Osf\Bdb\repmgr_windows.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Bdb\crypto\rijndael\rijndael-alg-fst.c">
+				RelativePath="..\Osf\Bdb\crypto\rijndael-alg-fst.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Bdb\crypto\rijndael\rijndael-api-fst.c">
+				RelativePath="..\Osf\Bdb\crypto\rijndael-api-fst.c">
 			</File>
 			<File
 				RelativePath="..\Osf\Bdb\seq_stat.c">

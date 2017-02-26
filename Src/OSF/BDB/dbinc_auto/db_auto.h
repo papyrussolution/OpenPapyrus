@@ -2,7 +2,7 @@
 
 #ifndef	__db_AUTO_H
 #define	__db_AUTO_H
-#include "dbinc/log.h"
+// @v9.5.5 #include "dbinc/log.h"
 #define	DB___db_addrem	41
 typedef struct ___db_addrem_args {
 	uint32 type;

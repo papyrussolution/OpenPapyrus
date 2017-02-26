@@ -2,7 +2,7 @@
 
 #ifndef	__fop_AUTO_H
 #define	__fop_AUTO_H
-#include "dbinc/log.h"
+// @v9.5.5 #include "dbinc/log.h"
 #define	DB___fop_create_42	143
 typedef struct ___fop_create_42_args {
 	uint32 type;

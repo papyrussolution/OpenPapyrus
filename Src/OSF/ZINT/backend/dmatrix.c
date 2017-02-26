@@ -1515,12 +1515,10 @@ int data_matrix_200(struct ZintSymbol * symbol, const uchar source[], const int 
 int dmatrix(struct ZintSymbol * symbol, const uchar source[], const int in_length)
 {
 	int error_number;
-	if(symbol->option_1 <= 1) {
-		/* ECC 200 */
+	if(symbol->option_1 <= 1) { /* ECC 200 */
 		error_number = data_matrix_200(symbol, source, in_length);
 	}
-	else {
-		/* ECC 000 - 140 */
+	else { /* ECC 000 - 140 */
 		strcpy(symbol->errtxt, "Older Data Matrix standards are no longer supported (E13)");
 		error_number = ZINT_ERROR_INVALID_OPTION;
 	}

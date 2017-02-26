@@ -7,12 +7,12 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-#include "dbinc/db_page.h"
-#include "dbinc/lock.h"
-#include "dbinc/mp.h"
-#include "dbinc/crypto.h"
-#include "dbinc/btree.h"
-#include "dbinc/hash.h"
+// @v9.5.5 #include "dbinc/db_page.h"
+// @v9.5.5 #include "dbinc/lock.h"
+// @v9.5.5 #include "dbinc/mp.h"
+// @v9.5.5 #include "dbinc/crypto.h"
+// @v9.5.5 #include "dbinc/btree.h"
+// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 /*
  * __dbt_usercopy --
@@ -22,19 +22,20 @@
  */
 int __dbt_usercopy(ENV * env, DBT * dbt)
 {
-	void * buf;
 	int ret;
-	if(dbt == NULL || !F_ISSET(dbt, DB_DBT_USERCOPY) || dbt->size == 0 || dbt->data != NULL)
+	if(!dbt || !F_ISSET(dbt, DB_DBT_USERCOPY) || dbt->size == 0 || dbt->data != NULL)
 		return 0;
-	buf = NULL;
-	if((ret = __os_umalloc(env, dbt->size, &buf)) != 0 || (ret = env->dbt_usercopy(dbt, 0, buf, dbt->size, DB_USERCOPY_GETDATA)) != 0)
-		goto err;
-	dbt->data = buf;
-	return 0;
+	else {
+		void * buf = NULL;
+		if((ret = __os_umalloc(env, dbt->size, &buf)) != 0 || (ret = env->dbt_usercopy(dbt, 0, buf, dbt->size, DB_USERCOPY_GETDATA)) != 0)
+			goto err;
+		dbt->data = buf;
+		return 0;
 err:
-	if(buf != NULL) {
-		__os_ufree(env, buf);
-		dbt->data = NULL;
+		if(buf != NULL) {
+			__os_ufree(env, buf);
+			dbt->data = NULL;
+		}
 	}
 	return ret;
 }

@@ -912,15 +912,32 @@ typedef struct __dbpginfo {
 #include "dbinc/clock.h"
 #include "dbinc/debug.h"
 #include "dbinc/region.h"
+#include "dbinc/log.h" // @v9.5.5
 #include "dbinc_auto/env_ext.h"
 #include "dbinc/mutex.h"
 #ifdef HAVE_REPLICATION_THREADS
-#include "dbinc/repmgr.h"
+	#include "dbinc/repmgr.h"
 #endif
 #include "dbinc/rep.h"
 #include "dbinc/os.h"
 #include "dbinc_auto/clib_ext.h"
 #include "dbinc_auto/common_ext.h"
+#include "dbinc/db_page.h" // @v9.5.5
+#include "dbinc/lock.h" // @v9.5.5
+#include "dbinc/mp.h" // @v9.5.5
+#include "dbinc/crypto.h" // @v9.5.5
+#include "dbinc/btree.h" // @v9.5.5
+#include "dbinc/hash.h" // @v9.5.5
+#include "dbinc/heap.h" // @v9.5.5
+#include "dbinc/partition.h" // @v9.5.5
+#include "dbinc/db_swap.h" // @v9.5.5
+#include "dbinc/hmac.h" // @v9.5.5
+#include "dbinc/fop.h" // @v9.5.5
+#include "dbinc/qam.h" // @v9.5.5
+#include "dbinc/db_dispatch.h" // @v9.5.5
+#include "dbinc/db_am.h" // @v9.5.5
+#include "dbinc/txn.h" // @v9.5.5
+#include "dbinc/db_verify.h" // @v9.5.5
 
 /*******************************************************
  * Remaining Log.

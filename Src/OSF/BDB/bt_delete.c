@@ -42,12 +42,12 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-#include "dbinc/db_page.h"
-#include "dbinc/lock.h"
-#include "dbinc/mp.h"
-#include "dbinc/crypto.h"
-#include "dbinc/btree.h"
-#include "dbinc/hash.h"
+// @v9.5.5 #include "dbinc/db_page.h"
+// @v9.5.5 #include "dbinc/lock.h"
+// @v9.5.5 #include "dbinc/mp.h"
+// @v9.5.5 #include "dbinc/crypto.h"
+// @v9.5.5 #include "dbinc/btree.h"
+// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 /*
  * __bam_ditem --
@@ -443,33 +443,32 @@ stop:
  */
 int __bam_pupdate(DBC*dbc, PAGE * lpg)
 {
-	BTREE_CURSOR * cp;
-	ENV * env;
-	EPG * epg;
-	int ret;
-	env = dbc->env;
-	cp = (BTREE_CURSOR *)dbc->internal;
-	ret = 0;
+	int ret = 0;
+	ENV * env = dbc->env;
+	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
 	/*
 	 * Update the parents up the tree.  __bam_pinsert only looks at the
 	 * left child if is a leaf page, so we don't need to change it.  We
 	 * just do a delete and insert; a replace is possible but reusing
 	 * pinsert is better.
 	 */
-	for(epg = &cp->csp[-1]; epg >= cp->sp; epg--) {
+	for(EPG * epg = &cp->csp[-1]; epg >= cp->sp; epg--) {
 		if((ret = __memp_dirty(dbc->dbp->mpf, &epg->page, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
 			return ret;
-		epg->indx--;
-		if((ret = __bam_pinsert(dbc, epg, 0, lpg, epg[1].page, BPI_NORECNUM|BPI_REPLACE)) != 0) {
-			if(ret == DB_NEEDSPLIT) {
-				/* This should not happen. */
-				__db_errx(env, DB_STR_A("1020", "Not enough room in parent: %s: page %lu", "%s %lu"), dbc->dbp->fname, (ulong)PGNO(epg->page));
-				ret = __env_panic(env, EINVAL);
+		else {
+			epg->indx--;
+			if((ret = __bam_pinsert(dbc, epg, 0, lpg, epg[1].page, BPI_NORECNUM|BPI_REPLACE)) != 0) {
+				if(ret == DB_NEEDSPLIT) {
+					/* This should not happen. */
+					__db_errx(env, DB_STR_A("1020", "Not enough room in parent: %s: page %lu", "%s %lu"), dbc->dbp->fname, (ulong)PGNO(epg->page));
+					ret = __env_panic(env, EINVAL);
+				}
+				epg->indx++;
+				return ret;
 			}
-			epg->indx++;
-			return ret;
+			else
+				epg->indx++;
 		}
-		epg->indx++;
 	}
 	return ret;
 }

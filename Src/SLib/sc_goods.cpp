@@ -195,11 +195,13 @@ int SCDBObjGoods::LoadQuotKindList()
 
 SCDBObjGoods::PalmRec * SCDBObjGoods::AllocPalmRec(const TSArray <Quot> * pQuotList, size_t * pBufLen)
 {
-	size_t  buf_len = sizeof(PalmRec) + pQuotList->getCount() * sizeof(Quot);
+	const size_t buf_len = sizeof(PalmRec) + pQuotList->getCount() * sizeof(Quot);
 	PalmRec * p_buf = (PalmRec *)calloc(1, buf_len);
-	p_buf->QuotCount = SyncHostToHHWord(pQuotList->getCount());
-	for(uint i = 0; i < pQuotList->getCount(); i++) {
-		((Quot *)(p_buf+1))[i] = pQuotList->at(i);
+	if(p_buf) {
+		p_buf->QuotCount = SyncHostToHHWord(pQuotList->getCount());
+		for(uint i = 0; i < pQuotList->getCount(); i++) {
+			((Quot *)(p_buf+1))[i] = pQuotList->at(i);
+		}
 	}
 	ASSIGN_PTR(pBufLen, buf_len);
 	return p_buf;
@@ -207,11 +209,13 @@ SCDBObjGoods::PalmRec * SCDBObjGoods::AllocPalmRec(const TSArray <Quot> * pQuotL
 
 SCDBObjGoods::PalmRec156 * SCDBObjGoods::AllocPalmRec156(const TSArray <Quot> * pQuotList, size_t * pBufLen)
 {
-	size_t  buf_len = sizeof(PalmRec156) + pQuotList->getCount() * sizeof(Quot);
+	const size_t buf_len = sizeof(PalmRec156) + pQuotList->getCount() * sizeof(Quot);
 	PalmRec156 * p_buf = (PalmRec156 *)calloc(1, buf_len);
-	p_buf->QuotCount = SyncHostToHHWord(pQuotList->getCount());
-	for(uint i = 0; i < pQuotList->getCount(); i++) {
-		((Quot *)(p_buf+1))[i] = pQuotList->at(i);
+	if(p_buf) {
+		p_buf->QuotCount = SyncHostToHHWord(pQuotList->getCount());
+		for(uint i = 0; i < pQuotList->getCount(); i++) {
+			((Quot *)(p_buf+1))[i] = pQuotList->at(i);
+		}
 	}
 	ASSIGN_PTR(pBufLen, buf_len);
 	return p_buf;
@@ -219,11 +223,13 @@ SCDBObjGoods::PalmRec156 * SCDBObjGoods::AllocPalmRec156(const TSArray <Quot> * 
 
 SCDBObjGoods::PalmRec500 * SCDBObjGoods::AllocPalmRec500(const TSArray <Quot> * pQuotList, size_t * pBufLen)
 {
-	size_t  buf_len = sizeof(PalmRec500) + pQuotList->getCount() * sizeof(Quot);
+	const size_t buf_len = sizeof(PalmRec500) + pQuotList->getCount() * sizeof(Quot);
 	PalmRec500 * p_buf = (PalmRec500 *)calloc(1, buf_len);
-	p_buf->QuotCount = SyncHostToHHWord(pQuotList->getCount());
-	for(uint i = 0; i < pQuotList->getCount(); i++) {
-		((Quot *)(p_buf+1))[i] = pQuotList->at(i);
+	if(p_buf) {
+		p_buf->QuotCount = SyncHostToHHWord(pQuotList->getCount());
+		for(uint i = 0; i < pQuotList->getCount(); i++) {
+			((Quot *)(p_buf+1))[i] = pQuotList->at(i);
+		}
 	}
 	ASSIGN_PTR(pBufLen, buf_len);
 	return p_buf;

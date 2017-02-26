@@ -1,5 +1,5 @@
 // DL600R.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
 // Run-time DL600 modules
 //
 #pragma hdrstop
@@ -857,17 +857,23 @@ static int FASTCALL __FillRecBuf(const DlScope * pScope, char * pRecBuf)
 	int    ok = 1;
 	size_t offset = sizeof(long);
 	SdbField fld;
+	SString temp_buf;
 	const DlScope * p_scope = 0;
-	for(uint j = 0; pScope->EnumInheritance(&j, &p_scope);)
+	for(uint j = 0; pScope->EnumInheritance(&j, &p_scope);) {
 		for(uint i = 0; p_scope->EnumFields(&i, &fld);) {
 			const size_t sz = fld.T.GetBinSize();
 			memcpy(pRecBuf+offset, p_scope->GetDataC(i-1), sz);
 			if(fld.T.IsZStr(0)) {
-				pRecBuf[offset+sz] = 0;
-				SOemToChar(pRecBuf+offset);
+				// @v9.5.5 pRecBuf[offset+sz] = 0;
+				// @v9.5.5 SOemToChar(pRecBuf+offset);
+				// @v9.5.5 {
+				(temp_buf = pRecBuf+offset).Transf(CTRANSF_INNER_TO_OUTER);
+				strnzcpy(pRecBuf+offset, temp_buf, sz);
+				// } @v9.5.5 
 			}
 			offset += sz;
 		}
+	}
 	return ok;
 }
 //
@@ -1026,7 +1032,7 @@ int SLAPI DlRtm::Export(ExportParam & rParam)
 int SLAPI DlRtm::FillXmlBuf(const DlScope * pScope, xmlTextWriterPtr pWriter, StringSet * pDtd, SCodepageIdent cp) const
 {
 	SFormatParam fp;
-	fp.FReal  = MKSFMTD(0, 4, 0);
+	fp.FReal  = MKSFMTD(0, 5, NMBF_NOTRAILZ); // @v9.5.5 MKSFMTD(0, 4, 0)-->MKSFMTD(0, 5, NMBF_NOTRAILZ)
 	fp.FDate  = DATF_DMY|DATF_CENTURY;
 	fp.Flags |= SFormatParam::fFloatSize;
 	SString buf;
@@ -1354,7 +1360,7 @@ int SLAPI DlRtm::Helper_PutScopeToJson(const DlScope * pScope, json_t * pJsonObj
 	SString buf;
 	SdbField fld;
 	SFormatParam fp;
-	fp.FReal  = MKSFMTD(0, 4, 0);
+	fp.FReal  = MKSFMTD(0, 5, NMBF_NOTRAILZ); // @v9.5.5 MKSFMTD(0, 4, 0)-->MKSFMTD(0, 5, NMBF_NOTRAILZ)
 	fp.FDate  = DATF_DMY|DATF_CENTURY;
 	fp.Flags |= SFormatParam::fFloatSize;
 	THROW(pJsonObj);

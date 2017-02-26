@@ -1,5 +1,5 @@
 // SXML.CPP
-// Copyright (c) A.Sobolev, 2002, 2007, 2010, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev, 2002, 2007, 2010, 2012, 2013, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -33,7 +33,7 @@ SpcSymbEntry SpcSymbTab[] = {
 	{ '\x5d', 0, "rsq"    }   // ]
 };
 
-int FASTCALL XMLReplaceSpecSymb(SString & rBuf, const char * pProcessSymb)
+void FASTCALL XMLReplaceSpecSymb(SString & rBuf, const char * pProcessSymb)
 {
 	SString temp_buf = rBuf;
 	const char * p_include = 0;
@@ -62,7 +62,6 @@ int FASTCALL XMLReplaceSpecSymb(SString & rBuf, const char * pProcessSymb)
 		}
 	}
 	rBuf = temp_buf;
-	return 1;
 }
 
 #if 0 // @v7.8.0 {

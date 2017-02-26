@@ -5450,9 +5450,41 @@ SLAPI SCodepageMapPool::TranslIndex::TranslIndex()
 	Reset();
 }
 
+SLAPI SCodepageMapPool::TranslIndex::TranslIndex(const SCodepageMapPool::TranslIndex & rS)
+{
+	Copy(rS);
+}
+
 SLAPI SCodepageMapPool::TranslIndex::~TranslIndex()
 {
 	Reset();
+}
+
+int FASTCALL SCodepageMapPool::TranslIndex::Copy(const SCodepageMapPool::TranslIndex & rS)
+{
+	int    ok = 1;
+	Reset();
+	SL = rS.SL;
+	DL = rS.DL;
+	IdenticalCount = rS.IdenticalCount;
+	Flags = rS.Flags;
+	Count = rS.Count;
+	const size_t entry_size = GetEntrySize();
+	P_Tab = malloc(Count * entry_size);
+	if(P_Tab) {
+		memcpy(P_Tab, rS.P_Tab, Count * entry_size);
+	}
+	else {
+		Reset();
+		ok = 0;
+	}
+	return ok;
+}
+
+SCodepageMapPool::TranslIndex & FASTCALL SCodepageMapPool::TranslIndex::operator = (const SCodepageMapPool::TranslIndex & rS)
+{
+	Copy(rS);
+	return *this;
 }
 
 void SLAPI SCodepageMapPool::TranslIndex::Reset()
@@ -5889,6 +5921,43 @@ uint SLAPI SCodepageMapPool::Compare(const CpMap & rS1, const CpMap & rS2) const
     return result;
 }
 
+static int Test_TranslateFile(const char * pSrcFileName, const char * pDestFileName, const SCodepageMapPool::TranslIndex & rIdx)
+{
+	int    ok = 1;
+	SString line_buf;
+	SString dest_line_buf;
+	SFile  f_in(pSrcFileName, SFile::mRead);
+	SFile  f_out(pDestFileName, SFile::mWrite);
+	THROW_SL(f_in.IsValid());
+	THROW_SL(f_out.IsValid());
+	while(f_in.ReadLine(line_buf)) {
+		dest_line_buf = 0;
+		for(uint i = 0; i < line_buf.Len(); i++) {
+			union {
+				uint8  Inp[4];
+				uint32 InpDw;
+			} u;
+			u.InpDw = 0;
+			u.Inp[0] = line_buf.C(i);
+			const uint8 * p_outp = rIdx.Search(u.Inp);
+			if(p_outp)
+				dest_line_buf.CatChar(p_outp[0]);
+			else
+				dest_line_buf.CatChar(u.Inp[0]);
+		}
+		THROW_SL(f_out.WriteLine(dest_line_buf));
+	}
+	CATCHZOK
+	return ok;
+}
+
+struct _TestTranslIndexEntry {
+	uint   SrcCpIdx;
+	uint   DestCpIdx;
+	SString ResultFileName;
+	SCodepageMapPool::TranslIndex Ti;
+};
+
 int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt)
 {
 	int    ok = 1;
@@ -5905,6 +5974,7 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt)
 		SFile  f_out_transl(temp_buf, SFile::mWrite);
 		uint   out_line_no = 0;
 		CMapTranslIndexTest cmt_list;
+		TSCollection <_TestTranslIndexEntry> test_tidx_list;
 		for(uint cpidx = 0; cpidx < GetCount(); cpidx++) {
 			CpMap map;
 			if(GetByPos(cpidx, &map)) {
@@ -6048,7 +6118,15 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt)
 										}
 									}
 								}
+								//static int Test_TranslateFile(const char * pSrcFileName, const char * pDestFileName, const SCodepageMapPool::TranslIndex & rIdx)
 								if((oneof2(map.Id, cp1251, cp866) || (map.Code == "KOI8_R")) && (oneof2(map2.Id, cp1251, cp866) || (map2.Code == "KOI8_R"))) {
+									{
+										_TestTranslIndexEntry * p_new_tti = test_tidx_list.CreateNewItem(0);
+										THROW_SL(p_new_tti);
+										p_new_tti->SrcCpIdx = cpidx;
+										p_new_tti->DestCpIdx = cpj;
+										p_new_tti->Ti = final_ctm_idx;
+									}
 									const uint ml = MAX(cmt_list.MaxSLen, cmt_list.MaxDLen);
 									if(/*map.Id == cp1251 && map2.Id == cp866*/0) {
 										uint8 _sb[4];
@@ -6214,6 +6292,52 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt)
                     }
 				}
 				*/
+			}
+		}
+		{
+			const SString test_src_1251_file_name = "D:/Papyrus/Src/PPTEST/DATA/rustext.txt";
+			SString test_dest_file_name;
+			{
+				for(uint i = 0; i < test_tidx_list.getCount(); i++) {
+					_TestTranslIndexEntry * p_tti = test_tidx_list.at(i);
+					CpMap src_map;
+					CpMap dest_map;
+					assert(GetByPos(p_tti->SrcCpIdx, &src_map));
+					assert(GetByPos(p_tti->DestCpIdx, &dest_map));
+					if(src_map.Id == 1251) {
+						test_dest_file_name = 0;
+						SPathStruc ps;
+						ps.Split(test_src_1251_file_name);
+						ps.Nam.CatChar('-').Cat(dest_map.Name);
+						ps.Merge(test_dest_file_name);
+						Test_TranslateFile(test_src_1251_file_name, test_dest_file_name, p_tti->Ti);
+						p_tti->ResultFileName = test_dest_file_name;
+					}
+				}
+			}
+			{
+				for(uint i = 0; i < test_tidx_list.getCount(); i++) {
+					_TestTranslIndexEntry * p_tti = test_tidx_list.at(i);
+					if(p_tti->ResultFileName.Empty()) {
+						CpMap src_map;
+						CpMap dest_map;
+						assert(GetByPos(p_tti->SrcCpIdx, &src_map));
+						assert(GetByPos(p_tti->DestCpIdx, &dest_map));
+						for(uint j = 0; j < test_tidx_list.getCount(); j++) {
+							const _TestTranslIndexEntry * p_tti2 = test_tidx_list.at(j);
+							if(p_tti2->DestCpIdx == p_tti->SrcCpIdx && p_tti2->ResultFileName.NotEmpty()) {
+								test_dest_file_name = 0;
+								SPathStruc ps;
+								ps.Split(p_tti2->ResultFileName);
+								ps.Nam.CatChar('-').Cat(dest_map.Name);
+								ps.Merge(test_dest_file_name);
+								Test_TranslateFile(p_tti2->ResultFileName, test_dest_file_name, p_tti->Ti);
+								p_tti->ResultFileName = test_dest_file_name;
+								break;
+							}
+						}
+					}
+				}
 			}
 		}
 	}

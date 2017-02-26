@@ -237,6 +237,7 @@ PPEgaisProcessor::Packet::Packet(int docType)
 			P_Data = new Ticket;
 			break;
 		case PPEDIOP_EGAIS_TTNINFORMBREG:
+		case PPEDIOP_EGAIS_TTNINFORMF2REG: // @v9.5.5
 			P_Data = new InformB;
 			break;
 		case PPEDIOP_EGAIS_REPLYCLIENT:
@@ -250,6 +251,7 @@ PPEgaisProcessor::Packet::Packet(int docType)
 			memzero(P_Data, sizeof(EgaisRefATbl::Rec));
 			break;
 		case PPEDIOP_EGAIS_WAYBILL:
+		case PPEDIOP_EGAIS_WAYBILL_V2: // @v9.5.5
 		case PPEDIOP_EGAIS_WAYBILLACT:
 		case PPEDIOP_EGAIS_ACTCHARGEON:
 		case PPEDIOP_EGAIS_ACTCHARGEON_V2: // @v9.3.12
@@ -295,6 +297,7 @@ PPEgaisProcessor::Packet::~Packet()
 			delete ((Ticket *)P_Data);
 			break;
 		case PPEDIOP_EGAIS_TTNINFORMBREG:
+		case PPEDIOP_EGAIS_TTNINFORMF2REG: // @v9.5.5
 			delete ((InformB *)P_Data);
 			break;
 		case PPEDIOP_EGAIS_REPLYCLIENT:
@@ -307,6 +310,7 @@ PPEgaisProcessor::Packet::~Packet()
 			delete ((EgaisRefATbl::Rec *)P_Data);
 			break;
 		case PPEDIOP_EGAIS_WAYBILL:
+		case PPEDIOP_EGAIS_WAYBILL_V2: // @v9.5.5
 		case PPEDIOP_EGAIS_WAYBILLACT:
 		case PPEDIOP_EGAIS_ACTCHARGEON:
 		case PPEDIOP_EGAIS_ACTCHARGEON_V2: // @v9.3.12
@@ -1077,44 +1081,46 @@ struct EgaisDocTypeEntry {
 };
 
 static const EgaisDocTypeEntry _EgaisDocTypes[] = {
-	{ PPEDIOP_EGAIS_TICKET,          "Ticket" },
-	{ PPEDIOP_EGAIS_WAYBILLACT,      "WayBillAct" },
-	{ PPEDIOP_EGAIS_WAYBILL,         "WayBill" },
-	{ PPEDIOP_EGAIS_CONFIRMTICKET,   "ConfirmTicket" },
-	{ PPEDIOP_EGAIS_TTNINFORMBREG,   "TTNInformBReg" },
-	{ PPEDIOP_EGAIS_ACTREJECT,       "ActReject" },
-	{ PPEDIOP_EGAIS_ACTUSING,        "ActUsing" },
+	{ PPEDIOP_EGAIS_TICKET,           "Ticket" },
+	{ PPEDIOP_EGAIS_WAYBILLACT,       "WayBillAct" },
+	{ PPEDIOP_EGAIS_WAYBILL,          "WayBill" },
+	{ PPEDIOP_EGAIS_CONFIRMTICKET,    "ConfirmTicket" },
+	{ PPEDIOP_EGAIS_TTNINFORMBREG,    "TTNInformBReg" },
+	{ PPEDIOP_EGAIS_ACTREJECT,        "ActReject" },
+	{ PPEDIOP_EGAIS_ACTUSING,         "ActUsing" },
 	{ PPEDIOP_EGAIS_ACTINVENTORYPARTIAL,    "ActInventoryPartial" },
 	{ PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG, "ActInventoryInformBReg" },
-	{ PPEDIOP_EGAIS_ACTINVENTORY,    "ActInventory" },
-	{ PPEDIOP_EGAIS_QUERYAP,         "QueryAP" },
-	{ PPEDIOP_EGAIS_QUERYSSP,        "QuerySSP" },
-	{ PPEDIOP_EGAIS_QUERYSP,         "QuerySP" },
-	{ PPEDIOP_EGAIS_QUERYCLIENTS,    "QueryClients" },
-	{ PPEDIOP_EGAIS_QUERYRESTS,      "QueryRests" },
-	{ PPEDIOP_EGAIS_QUERYRESTSSHOP,  "QueryRestsShop_v2" },
-	{ PPEDIOP_EGAIS_QUERYFORMA,      "QueryFormA" },
-	{ PPEDIOP_EGAIS_QUERYFORMB,      "QueryFormB" },
-	{ PPEDIOP_EGAIS_REPLYSSP,        "ReplySSP" },
-	{ PPEDIOP_EGAIS_REPLYSPIRIT,     "ReplySpirit" },
-	{ PPEDIOP_EGAIS_REPLYCLIENT,     "ReplyClient" },
-	{ PPEDIOP_EGAIS_REPLYAP,         "ReplyAP" },
-	{ PPEDIOP_EGAIS_REPLYRESTS,      "ReplyRests" },
-	{ PPEDIOP_EGAIS_REPLYRESTSSHOP,  "ReplyRestsShop_v2" },
-	{ PPEDIOP_EGAIS_REPLYFORMA,      "ReplyFormA" },
-	{ PPEDIOP_EGAIS_REPLYFORMB,      "ReplyFormB" },
-	{ PPEDIOP_EGAIS_ACTCHARGEON,     "ActChargeOn" },
-	{ PPEDIOP_EGAIS_ACTCHARGEON_V2,  "ActChargeOn_v2" }, // @v9.3.12
-	{ PPEDIOP_EGAIS_ACTWRITEOFF,     "ActWriteOff" },
-	{ PPEDIOP_EGAIS_ACTWRITEOFF_V2,  "ActWriteOff_v2" }, // @v9.3.12
-	{ PPEDIOP_EGAIS_REQUESTREPEALWB, "RequestRepealWB" }, // @v9.2.8
-	{ PPEDIOP_EGAIS_CONFIRMREPEALWB, "ConfirmRepealWB" }, // @v9.2.8
-	{ PPEDIOP_EGAIS_QUERYBARCODE,    "QueryBarcode" },    // @v9.2.8
-	{ PPEDIOP_EGAIS_REPLYBARCODE,    "ReplyBarcode" },    // @v9.2.8
-	{ PPEDIOP_EGAIS_TRANSFERTOSHOP,  "TransferToShop" },  // @v9.2.11
+	{ PPEDIOP_EGAIS_ACTINVENTORY,     "ActInventory" },
+	{ PPEDIOP_EGAIS_QUERYAP,          "QueryAP" },
+	{ PPEDIOP_EGAIS_QUERYSSP,         "QuerySSP" },
+	{ PPEDIOP_EGAIS_QUERYSP,          "QuerySP" },
+	{ PPEDIOP_EGAIS_QUERYCLIENTS,     "QueryClients" },
+	{ PPEDIOP_EGAIS_QUERYRESTS,       "QueryRests" },
+	{ PPEDIOP_EGAIS_QUERYRESTSSHOP,   "QueryRestsShop_v2" },
+	{ PPEDIOP_EGAIS_QUERYFORMA,       "QueryFormA" },
+	{ PPEDIOP_EGAIS_QUERYFORMB,       "QueryFormB" },
+	{ PPEDIOP_EGAIS_REPLYSSP,         "ReplySSP" },
+	{ PPEDIOP_EGAIS_REPLYSPIRIT,      "ReplySpirit" },
+	{ PPEDIOP_EGAIS_REPLYCLIENT,      "ReplyClient" },
+	{ PPEDIOP_EGAIS_REPLYAP,          "ReplyAP" },
+	{ PPEDIOP_EGAIS_REPLYRESTS,       "ReplyRests" },
+	{ PPEDIOP_EGAIS_REPLYRESTSSHOP,   "ReplyRestsShop_v2" },
+	{ PPEDIOP_EGAIS_REPLYFORMA,       "ReplyFormA" },
+	{ PPEDIOP_EGAIS_REPLYFORMB,       "ReplyFormB" },
+	{ PPEDIOP_EGAIS_ACTCHARGEON,      "ActChargeOn" },
+	{ PPEDIOP_EGAIS_ACTCHARGEON_V2,   "ActChargeOn_v2" }, // @v9.3.12
+	{ PPEDIOP_EGAIS_ACTWRITEOFF,      "ActWriteOff" },
+	{ PPEDIOP_EGAIS_ACTWRITEOFF_V2,   "ActWriteOff_v2" }, // @v9.3.12
+	{ PPEDIOP_EGAIS_REQUESTREPEALWB,  "RequestRepealWB" }, // @v9.2.8
+	{ PPEDIOP_EGAIS_CONFIRMREPEALWB,  "ConfirmRepealWB" }, // @v9.2.8
+	{ PPEDIOP_EGAIS_QUERYBARCODE,     "QueryBarcode" },    // @v9.2.8
+	{ PPEDIOP_EGAIS_REPLYBARCODE,     "ReplyBarcode" },    // @v9.2.8
+	{ PPEDIOP_EGAIS_TRANSFERTOSHOP,   "TransferToShop" },  // @v9.2.11
 	{ PPEDIOP_EGAIS_TRANSFERFROMSHOP, "TransferFromShop" }, // @v9.3.10
 	{ PPEDIOP_EGAIS_ACTCHARGEONSHOP,  "ActChargeOnShop_v2" }, // @v9.2.11
-	{ PPEDIOP_EGAIS_ACTWRITEOFFSHOP, "ActWriteOffShop_v2" } // @v9.4.0
+	{ PPEDIOP_EGAIS_ACTWRITEOFFSHOP,  "ActWriteOffShop_v2" }, // @v9.4.0
+	{ PPEDIOP_EGAIS_WAYBILL_V2,       "WayBill_v2" }, // @v9.5.5
+	{ PPEDIOP_EGAIS_TTNINFORMF2REG,   "TTNInformF2Reg" }, // @v9.5.5
 };
 
 const char * FASTCALL PPEgaisProcessor::GetDocTypeTag(int docType)
@@ -1130,6 +1136,7 @@ const char * FASTCALL PPEgaisProcessor::GetDocTypeTag(int docType)
 // static
 int FASTCALL PPEgaisProcessor::RecognizeDocTypeTag(const char * pTag)
 {
+	int    doc_type = 0;
 	if(!isempty(pTag)) {
 		SString ns, ntag;
 		SString tag;
@@ -1137,14 +1144,30 @@ int FASTCALL PPEgaisProcessor::RecognizeDocTypeTag(const char * pTag)
 			tag = ntag;
 		}
 		if(tag.NotEmptyS()) {
-			for(uint i = 0; i < SIZEOFARRAY(_EgaisDocTypes); i++) {
+			for(uint i = 0; !doc_type && i < SIZEOFARRAY(_EgaisDocTypes); i++) {
 				const EgaisDocTypeEntry & r_entry = _EgaisDocTypes[i];
 				if(tag.CmpNC(r_entry.P_Tag) == 0)
-					return r_entry.DocType;
+					doc_type = r_entry.DocType;
 			}
+			// @v9.5.5 {
+			if(!doc_type) {
+				if(tag.CmpNC("FORMBREGINFO") == 0)
+					doc_type = PPEDIOP_EGAIS_TTNINFORMBREG;
+				else if(tag.CmpNC("FORM2REGINFO") == 0)
+					doc_type = PPEDIOP_EGAIS_TTNINFORMF2REG;
+				else if(tag.CmpNC("ReplyPartner") == 0)
+					doc_type = PPEDIOP_EGAIS_REPLYCLIENT;
+				else if(tag.CmpNC("ReplyAP") == 0)
+					doc_type = PPEDIOP_EGAIS_REPLYAP;
+				else if(tag.CmpNC("INVENTORYREGINFO") == 0)
+					doc_type = PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG;
+				else if(tag.CmpNC("WayBillTicket") == 0)
+					doc_type = PPEDIOP_EGAIS_CONFIRMTICKET;
+			}
+			// } @v9.5.5
 		}
 	}
-    return 0;
+    return doc_type;
 }
 //
 //
@@ -3524,11 +3547,13 @@ int SLAPI PPEgaisProcessor::Read_Ticket(xmlNode * pFirstNode, Packet * pPack)
 				p_ticket->RegIdent = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 			else if(SXml::GetContentByName(p_n, "DocType", temp_buf)) {
 				p_ticket->DocType = PPEgaisProcessor::RecognizeDocTypeTag(temp_buf);
+				/* @v9.5.5
 				if(!p_ticket->DocType) {
 					if(temp_buf.CmpNC("WayBillTicket") == 0) {
 						p_ticket->DocType = PPEDIOP_EGAIS_CONFIRMTICKET;
 					}
 				}
+				*/
 			}
 			else if(SXml::IsName(p_n, "Result"))
 				Read_TicketResult(p_n->children, 1, p_ticket->R);
@@ -3623,6 +3648,11 @@ int SLAPI PPEgaisProcessor::Read_TTNIformBReg(xmlNode * pFirstNode, Packet * pPa
 							}
 							else if(SXml::GetContentByName(p_pos, "InformBRegId", temp_buf))
                                 STRNSCPY(item.Ident, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+							else if(SXml::GetContentByName(p_pos, "InformF2RegId", temp_buf)) // @v9.5.5 PPEDIOP_EGAIS_TTNINFORMF2REG
+								STRNSCPY(item.Ident, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+							else if(SXml::GetContentByName(p_pos, "BottlingDate", temp_buf)) { // @v9.5.5
+								strtodate(temp_buf, DATF_ISO8601, &item.BottlingDate);
+							}
 						}
 						p_data->Items.insert(&item);
 					}
@@ -4107,7 +4137,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 							}
 							else if(SXml::GetContentByName(p_pos, "Party", serial))
 								serial.Strip().Transf(CTRANSF_UTF8_TO_INNER);
-							else if(SXml::IsName(p_pos, "InformA")) {
+							else if(SXml::IsName(p_pos, "InformA") || SXml::IsName(p_pos, "InformF1")) {
 								for(xmlNode * p_inf = p_pos->children; p_inf; p_inf = p_inf->next) {
 									if(SXml::GetContentByName(p_inf, "RegId", alc_ext.InformA)) {
 										alc_ext.InformA.Strip().Transf(CTRANSF_UTF8_TO_INNER);
@@ -4115,11 +4145,11 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 									}
 								}
 							}
-							else if(SXml::IsName(p_pos, "InformB")) {
+							else if(SXml::IsName(p_pos, "InformB") || SXml::IsName(p_pos, "InformF2")) {
 								for(xmlNode * p_inf = p_pos->children; p_inf; p_inf = p_inf->next) {
-									if(SXml::IsName(p_inf, "InformBItem")) {
+									if(SXml::IsName(p_inf, "InformBItem") || SXml::IsName(p_inf, "InformF2Item")) {
 										for(xmlNode * p_inf_item = p_inf->children; p_inf_item; p_inf_item = p_inf_item->next) {
-											if(SXml::GetContentByName(p_inf_item, "BRegId", alc_ext.InformB))
+											if(SXml::GetContentByName(p_inf_item, "BRegId", alc_ext.InformB) || SXml::GetContentByName(p_inf_item, "F2RegId", alc_ext.InformB))
 												alc_ext.InformB.Strip().Transf(CTRANSF_UTF8_TO_INNER);
 										}
 									}
@@ -5211,7 +5241,7 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 				for(xmlNode * p_nd = p_n->children; p_nd; p_nd = p_nd->next) {
 					const int doc_type = p_nd ? RecognizeDocTypeTag((const char *)p_nd->name) : 0;
 					int    rs = 0;
-					if(doc_type == PPEDIOP_EGAIS_WAYBILL) {
+					if(oneof2(doc_type, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2)) {
 						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
 						THROW(rs = Read_WayBill(p_nd->children, locID, pPeriod, p_new_pack, pRefC));
 						if(rs > 0) {
@@ -5243,7 +5273,7 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 							ok = 1;
 						}
 					}
-					else if(doc_type == PPEDIOP_EGAIS_TTNINFORMBREG) {
+					else if(oneof2(doc_type, PPEDIOP_EGAIS_TTNINFORMBREG, PPEDIOP_EGAIS_TTNINFORMF2REG)) {
 						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
 						THROW(rs = Read_TTNIformBReg(p_nd->children, p_new_pack));
 						if(rs > 0) {
@@ -5746,9 +5776,12 @@ int SLAPI PPEgaisProcessor::Helper_CollectRefs(void * pCtx, TSCollection <PPEgai
 		for(uint sp = 0; !doc_type && ss_url_tok.get(&sp, temp_buf);) {
 			if(temp_buf.NotEmptyS()) {
 				doc_type = PPEgaisProcessor::RecognizeDocTypeTag(temp_buf);
+				/* @v9.5.5
 				if(!doc_type) {
 					if(temp_buf.CmpNC("FORMBREGINFO") == 0)
 						doc_type = PPEDIOP_EGAIS_TTNINFORMBREG;
+					else if(temp_buf.CmpNC("FORM2REGINFO") == 0)
+						doc_type = PPEDIOP_EGAIS_TTNINFORMF2REG;
 					else if(temp_buf.CmpNC("ReplyPartner") == 0)
 						doc_type = PPEDIOP_EGAIS_REPLYCLIENT;
 					else if(temp_buf.CmpNC("ReplyAP") == 0)
@@ -5758,10 +5791,11 @@ int SLAPI PPEgaisProcessor::Helper_CollectRefs(void * pCtx, TSCollection <PPEgai
 					else if(temp_buf.CmpNC("WayBillTicket") == 0)
 						doc_type = PPEDIOP_EGAIS_CONFIRMTICKET;
 				}
+				*/
 			}
 		}
-		if(oneof5(doc_type, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_REPLYCLIENT, PPEDIOP_EGAIS_REPLYRESTS,
-			PPEDIOP_EGAIS_REPLYRESTSSHOP, PPEDIOP_EGAIS_REPLYAP)) {
+		if(oneof6(doc_type, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_REPLYCLIENT, 
+			PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTSSHOP, PPEDIOP_EGAIS_REPLYAP)) {
 			int    adr = 1; // AcceptDoc result
 			if(!(p_reply->Status & Reply::stOffline)) {
 				THROW(MakeOutputFileName(p_reply, temp_path, temp_buf));
@@ -5870,8 +5904,8 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 	const uint reply_count = reply_list.getCount();
 	if(reply_count) {
 		LongArray ediop_list;
-		ediop_list.addzlist(PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_TTNINFORMBREG, PPEDIOP_EGAIS_TICKET,
-			PPEDIOP_EGAIS_REPLYCLIENT, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTSSHOP,
+		ediop_list.addzlist(PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_TTNINFORMBREG, PPEDIOP_EGAIS_TTNINFORMF2REG, 
+			PPEDIOP_EGAIS_TICKET, PPEDIOP_EGAIS_REPLYCLIENT, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTSSHOP,
 			PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_REPLYAP,
 			PPEDIOP_EGAIS_REPLYFORMA, PPEDIOP_EGAIS_REPLYRESTSSHOP, PPEDIOP_EGAIS_REPLYBARCODE, 0);
 		ediop_list.sortAndUndup();
@@ -5888,9 +5922,12 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 			for(uint sp = 0; !doc_type && ss_url_tok.get(&sp, temp_buf);) {
 				if(temp_buf.NotEmptyS()) {
 					doc_type = PPEgaisProcessor::RecognizeDocTypeTag(temp_buf);
+					/* @v9.5.5
 					if(!doc_type) {
 						if(temp_buf.CmpNC("FORMBREGINFO") == 0)
 							doc_type = PPEDIOP_EGAIS_TTNINFORMBREG;
+						else if(temp_buf.CmpNC("FORM2REGINFO") == 0)
+							doc_type = PPEDIOP_EGAIS_TTNINFORMF2REG;
 						else if(temp_buf.CmpNC("ReplyPartner") == 0)
 							doc_type = PPEDIOP_EGAIS_REPLYCLIENT;
 						else if(temp_buf.CmpNC("ReplyAP") == 0)
@@ -5900,6 +5937,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 						else if(temp_buf.CmpNC("WayBillTicket") == 0)
 							doc_type = PPEDIOP_EGAIS_CONFIRMTICKET;
 					}
+					*/
 				}
 			}
 			if(ediop_list.bsearch(doc_type)) {
@@ -5995,11 +6033,11 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 							}
 						}
 					}
-					else if(p_pack->DocType == PPEDIOP_EGAIS_WAYBILL) {
+					else if(oneof2(p_pack->DocType, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2)) {
 						if(!Helper_AcceptBillPacket(p_pack, &pack_list, packidx))
 							LogLastError();
 					}
-					else if(p_pack->DocType == PPEDIOP_EGAIS_TTNINFORMBREG) {
+					else if(oneof2(p_pack->DocType, PPEDIOP_EGAIS_TTNINFORMBREG, PPEDIOP_EGAIS_TTNINFORMF2REG)) {
 						const InformB * p_inf = (const InformB *)p_pack->P_Data;
 						//
 						// ѕытаемс€ избежать повторного разбора двух и более PPEDIOP_EGAIS_TTNINFORMBREG

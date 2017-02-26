@@ -673,3 +673,115 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetDebtSync(
 	delete [] param.OutletDebts;
 	return p_result;
 }
+
+extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetDebtDetailSync(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const TSCollection <SapEfesDebtDetailReportEntry> * pItems)
+{
+	TSCollection <SapEfesLogMsg> * p_result = 0;
+	WS_USCOREEFES_USCOREDDEBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
+	TSCollection <InParamString> arg_str_pool;
+	SString temp_buf;
+	gSoapClientInit(&proxi, 0, 0);
+	/*
+		class SOAP_CMAC _ns2__SetDebtsDetailedRequestType_Data_Row 
+			char *PRTDocNum;
+			char *DelvDate;
+			char *PaymDate;
+			char *DocAmnt;
+			char *DebtAmnt;
+	*/
+	ns2__SetDebtsDetailedRequestType param;
+	ns2__SetDebtsDetailedResponseType resp;
+	//ns2__LogMsgType resp;
+	//TSCollection <_ns2__SetDebtsRequestType_OutletDebts> arg_row_list;
+	//
+	TSCollection <ns2__LogMsgType> arg_msg_list;
+	{
+		ns2__DistributorRequestType temp_h;
+		InitEfecCallParam(temp_h, rH, arg_str_pool);
+		param.SalesOrg = temp_h.SalesOrg;
+		param.SessionID = temp_h.SessionID;
+		param.Wareh = temp_h.Wareh;
+	}
+	proxi.userid = GetDynamicParamString((temp_buf = rSess.GetUser()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
+	proxi.passwd = GetDynamicParamString((temp_buf = rSess.GetPassword()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
+
+	if(pItems && pItems->getCount()) {
+		param.Data = 0;
+		param.__sizeData = 0;
+		LongArray cli_id_list;
+		{
+			for(uint i = 0; i < pItems->getCount(); i++) {
+				const SapEfesDebtDetailReportEntry * p_src_pack = pItems->at(i);
+				if(p_src_pack->BuyerCode.NotEmpty())
+					cli_id_list.addnz(p_src_pack->NativeArID);
+			}
+			cli_id_list.sortAndUndup();
+		}
+		{
+			SString cli_code;
+			THROW(param.Data = new _ns2__SetDebtsDetailedRequestType_Data[cli_id_list.getCount()]);
+			param.__sizeData = (int)cli_id_list.getCount();
+			for(uint i = 0; i < cli_id_list.getCount(); i++) {
+				const long native_ar_id = cli_id_list.get(i);
+				_ns2__SetDebtsDetailedRequestType_Data & r_outer_item = param.Data[i];
+				uint  items_count = 0;
+				cli_code = 0;
+				{
+					for(uint j = 0; j < pItems->getCount(); j++) {
+						const SapEfesDebtDetailReportEntry * p_src_pack = pItems->at(j);
+						if(p_src_pack->NativeArID == native_ar_id) {
+							if(cli_code.Empty())
+								cli_code = p_src_pack->BuyerCode;
+							items_count++;
+						}
+						else if(p_src_pack->NativeArID > native_ar_id) 
+							break;
+					}
+				}
+				r_outer_item.Row = new _ns2__SetDebtsDetailedRequestType_Data_Row[items_count];
+				r_outer_item.__sizeRow = (int)items_count;
+				r_outer_item.EFRSoldTo = GetDynamicParamString(cli_code, arg_str_pool);
+				{
+					uint   item_no = 0;
+					for(uint j = 0; j < pItems->getCount(); j++) {
+						const SapEfesDebtDetailReportEntry * p_src_pack = pItems->at(j);
+						if(p_src_pack->NativeArID == native_ar_id) {
+							_ns2__SetDebtsDetailedRequestType_Data_Row & r_row = r_outer_item.Row[item_no];
+							r_row.DebtAmnt = GetDynamicParamString_(p_src_pack->Debt, MKSFMTD(0, 2, 0), arg_str_pool);
+							r_row.DocAmnt = GetDynamicParamString_(p_src_pack->Amount, MKSFMTD(0, 2, 0), arg_str_pool);
+							r_row.PRTDocNum = GetDynamicParamString((temp_buf = p_src_pack->NativeBillCode).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
+							r_row.DelvDate = GetDynamicParamString(p_src_pack->BillDate, DATF_ISO8601|DATF_CENTURY, arg_str_pool);
+							r_row.PaymDate = GetDynamicParamString(p_src_pack->PaymDate, DATF_ISO8601|DATF_CENTURY, arg_str_pool);
+							item_no++;
+						}
+						else if(p_src_pack->NativeArID > native_ar_id) 
+							break;
+					}
+				}
+			}
+		}
+		THROW(PreprocessCall(proxi, rSess, proxi.SetDebtsDetailedSync(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
+		if(resp.__sizeLogMsg > 0 && resp.LogMsg) {
+			p_result = new TSCollection <SapEfesLogMsg>();
+			THROW(p_result);
+			PPSoapRegisterResultPtr(p_result);
+			for(int li = 0; li < resp.__sizeLogMsg; li++) {
+				THROW(CreateLogMsgItem(*p_result, resp.LogMsg[li]));
+			}
+		}
+	}
+	CATCH
+		ZFREE(p_result);
+	ENDCATCH
+	{
+		for(int di = 0; di < param.__sizeData; di++) {
+			_ns2__SetDebtsDetailedRequestType_Data & r_outer_item = param.Data[di];
+			delete [] r_outer_item.Row;
+			r_outer_item.Row = 0;
+			r_outer_item.__sizeRow = 0;
+		}
+		delete [] param.Data;
+		param.Data = 0;
+	}
+	return p_result;
+}
