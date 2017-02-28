@@ -1,5 +1,5 @@
 // TCONTROL.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -340,7 +340,7 @@ void TButton::press(ushort item)
 			TView::messageBroadcast(owner, command, this);
 		else
 			TView::messageCommand(owner, command, this);
-		// } @v9.5.5 
+		// } @v9.5.5
 	}
 }
 //
@@ -392,7 +392,7 @@ LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 			break;
 		case WM_CHAR:
 			if(p_view->GetCombo() || p_view->hasWordSelector()) {
-				if(!oneof2(wParam, VK_ESCAPE, VK_RETURN)) { 
+				if(!oneof2(wParam, VK_ESCAPE, VK_RETURN)) {
 					if(!oneof2(wParam, '+', '-'))
 						p_view->SendToParent(hWnd, uMsg, wParam, (long)hWnd);
 					return 0;
@@ -1643,7 +1643,7 @@ int ComboBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					setRange(P_Def->getRecsCount());
 				}
 				// @v9.1.11 SetWindowLong(hcb, GWL_USERDATA, (long)this);
-				TView::SetWindowProp(hcb, GWL_USERDATA, this); // @v9.1.11 
+				TView::SetWindowProp(hcb, GWL_USERDATA, this); // @v9.1.11
 				// @v9.1.11 PrevWindowProc = (WNDPROC)SetWindowLong(hcb, GWL_WNDPROC, (long)ComboBox::DlgProc);
 				PrevWindowProc = (WNDPROC)TView::SetWindowProp(hcb, GWL_WNDPROC, ComboBox::DlgProc); // @v9.1.11
 				{
@@ -1890,7 +1890,7 @@ int ComboBox::removeItem(long pos)
 
 int ComboBox::freeAll()
 {
-	int r = -1;
+	int    r = -1;
 	if(P_Def && (r = P_Def->freeAll()) > 0)
 		setRange(P_Def->getRecsCount());
 	return r;
@@ -1941,10 +1941,9 @@ int TImageView::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	if(uMsg == WM_INITDIALOG) {
 		draw();
 		HWND   h_wnd = getHandle();
-		// @v9.1.11 SetWindowLong(h_wnd, GWL_USERDATA, (long)this);
-		TView::SetWindowProp(h_wnd, GWL_USERDATA, this); // @v9.1.11
-		// @v9.1.11 PrevWindowProc = (WNDPROC)SetWindowLong(h_wnd, GWL_WNDPROC, (long)TImageView::DlgProc);
-		PrevWindowProc = (WNDPROC)TView::SetWindowProp(h_wnd, GWL_WNDPROC, TImageView::DlgProc); // @v9.1.11
+		// @v9.5.6 TView::SetWindowProp(h_wnd, GWL_USERDATA, this);
+		TView::SetWindowUserData(h_wnd, (void *)lParam); // @v9.5.6
+		PrevWindowProc = (WNDPROC)TView::SetWindowProp(h_wnd, GWL_WNDPROC, TImageView::DlgProc);
 	 }
 	 return 1;
 }
@@ -1952,7 +1951,7 @@ int TImageView::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 TImageView::TImageView(const TRect & bounds) : TView(bounds)
 {
 	SubSign = TV_SUBSIGN_IMAGEVIEW; // @v8.3.11
-	P_Image = new SImage;
+	P_Image = new SImage; 
 	((SImage*)P_Image)->Init();
 }
 
@@ -1974,16 +1973,15 @@ void TImageView::draw()
 int TImageView::TransmitData(int dir, void * pData)
 {
 	int    s = 0;
-	if(dir > 0)
-		loadImage((const char*)pData);
+	if(dir > 0) {
+		const char * p_path = (const char *)pData;
+		{
+			((SImage*)P_Image)->LoadImage(p_path);
+			draw();
+			UpdateWindow(getHandle());
+		}
+	}
 	return s;
-}
-
-void TImageView::loadImage(const char * pPath)
-{
-	((SImage*)P_Image)->LoadImage(pPath);
-	draw();
-	UpdateWindow(getHandle());
 }
 //
 //

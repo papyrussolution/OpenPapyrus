@@ -10534,7 +10534,7 @@ public:
 	int    IsValid() const;
 	int    LoadImage(const char * pPicPath);
 	int    LoadThumbnailImage(const char * pPicPath, int width, int height);
-	int    Draw(HWND, const char * pPicPath, RECT *, int clear = 1, int use2Koeff = 0);
+	int    Draw(HWND hWnd, const char * pPicPath, RECT *, int clear = 1, int use2Koeff = 0);
 	int    Draw(HWND hWnd, RECT * pRect, int clear = 1, int use2Koeff = 0);
 	int    Draw(HDC hdc,   RECT * pRect, int clear = 1, int use2Koeff = 0);
 	int    DrawPart(HDC hdc, const RECT * pCliRect, const RECT * pDestRect, const RECT * pImgPart);
@@ -10795,6 +10795,16 @@ public:
 	friend class SDrawGroup;
 
 	static int CheckKind(int kind);
+	//
+	// Descr: Создает экземпляр фигуры из файла pFileName.
+	//   Допускаются следующие форматы файлов: svg, jpeg, bmp, png, ico, cur, gif.
+	// ARG(pFileName IN): Путь к файлу-источнику
+	// ARG(pSid IN): Опциональный символ загружаемой фигуры.
+	// Returns:
+	//   0 - error
+	//   !0 - указатель на созданный экземпляр фигуры. После использования экземпляр
+	//     должен быть разрушен оператором delete.
+	//
 	static SDrawFigure * CreateFromFile(const char * pFileName, const char * pSid);
 	//
 	// Descr: Создает экземпляр объекта, возможно, порожденого от SDrawFigure

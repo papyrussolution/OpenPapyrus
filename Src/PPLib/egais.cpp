@@ -7335,18 +7335,30 @@ int SLAPI PPEgaisProcessor::EditQueryParam(PPEgaisProcessor::QueryParam * pData)
 				getCtrlData(CTLSEL_EGAISQ_LOC, &loc_id);
 				{
 					PPID   preserve_main_org_id = 0;
+					TSArray <UtmEntry> utm_list;
 					GetMainOrgID(&preserve_main_org_id);
 					if(main_org_id)
 						DS.SetMainOrgID(main_org_id, 0);
-					if(P_Prc->GetFSRARID(loc_id, temp_buf = 0, 0))
-						StartUpInfo.Cat(temp_buf);
-					else
-						StartUpInfo.Cat("fasrarid-undef");
-					StartUpInfo.Space();
-					if(P_Prc->GetURL(loc_id, url = 0))
-						StartUpInfo.Cat(url);
-					else
-						StartUpInfo.Cat("url-undef");
+					{
+						P_Prc->GetUtmList(loc_id, utm_list);
+						if(utm_list.getCount()) {
+							const UtmEntry & r_utm_entry = utm_list.at(0);
+							StartUpInfo.Cat(r_utm_entry.FSRARID).Space().Cat(r_utm_entry.Url);
+							if(utm_list.getCount() > 1)
+								StartUpInfo.Space().Cat("multi");
+						}
+						else {
+							if(P_Prc->GetFSRARID(loc_id, temp_buf = 0, 0))
+								StartUpInfo.Cat(temp_buf);
+							else
+								StartUpInfo.Cat("fasrarid-undef");
+							StartUpInfo.Space();
+							if(P_Prc->GetURL(loc_id, url = 0))
+								StartUpInfo.Cat(url);
+							else
+								StartUpInfo.Cat("url-undef");
+						}
+					}
 					DS.SetMainOrgID(preserve_main_org_id, 0);
 				}
 			}
@@ -7518,10 +7530,19 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 	int    do_report_error = 0;
 	SString mark_buf;
 	SString temp_buf;
-	PPID preserve_main_org_id = 0;
+	PPID   preserve_main_org_id = 0;
 	GetMainOrgID(&preserve_main_org_id);
 	if(rParam.MainOrgID)
 		DS.SetMainOrgID(rParam.MainOrgID, 0);
+
+	{
+		TSArray <UtmEntry> utm_list;
+		GetUtmList(rParam.LocID, utm_list);
+		if(utm_list.getCount()) {
+			const UtmEntry & r_utm_entry = utm_list.at(0);
+			SetUtmEntry(rParam.LocID, &r_utm_entry, 0);
+		}
+	}
 	//
 	if(PrcssrAlcReport::IsEgaisMark(rParam.ParamString, &mark_buf)) {
 		PrcssrAlcReport::EgaisMarkBlock emb;
@@ -7825,6 +7846,7 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 	if(do_report_error) {
 		PPGetMessage(mfError, PPErrCode, 0, 1, temp_buf);
 		rParam.InfoText = temp_buf;
+		LogLastError(); // @v9.5.6
 	}
 	else if(query_sended) {
 

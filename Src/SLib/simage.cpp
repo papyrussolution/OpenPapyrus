@@ -36,7 +36,7 @@ SImage::SImage()
 
 SImage::~SImage()
 {
-	delete (Image*)P_Image;
+	delete (Gdiplus::Image*)P_Image;
 }
 
 int SImage::Init()
@@ -51,35 +51,35 @@ void SImage::SetClearColor(COLORREF color)
 
 int SImage::IsValid() const
 {
-	return (P_Image) ? 1 : 0;
+	return BIN(P_Image);
 }
 
 double SImage::GetWidth()
 {
-	return (P_Image) ? ((Image*)P_Image)->GetWidth() : 0.0;
+	return P_Image ? ((Gdiplus::Image*)P_Image)->GetWidth() : 0.0;
 }
 
 double SImage::GetHeight()
 {
-	return (P_Image) ? ((Image*)P_Image)->GetHeight() : 0.0;
+	return P_Image ? ((Gdiplus::Image*)P_Image)->GetHeight() : 0.0;
 }
 
 double SImage::GetHRes()
 {
-	return (P_Image) ? ((Image*)P_Image)->GetHorizontalResolution() : 0.0;
+	return P_Image ? ((Gdiplus::Image*)P_Image)->GetHorizontalResolution() : 0.0;
 }
 
 double SImage::GetVRes()
 {
-	return (P_Image) ? ((Image*)P_Image)->GetVerticalResolution() : 0.0;
+	return P_Image ? ((Gdiplus::Image*)P_Image)->GetVerticalResolution() : 0.0;
 }
 
 int SImage::DrawPartUnchanged(HDC hdc, int offsX, int offsY, const RECT * pImgPart)
 {
 	int    ok = 1;
-	Image * p_image = (Image*)P_Image;
+	Gdiplus::Image * p_image = (Gdiplus::Image *)P_Image;
 	if(p_image && pImgPart) {
-		Graphics graph(hdc);
+		Gdiplus::Graphics graph(hdc);
 		Gdiplus::REAL w = (Gdiplus::REAL)p_image->GetWidth(), h = (Gdiplus::REAL)p_image->GetHeight();
 		if(w && h) {
 			RectF rect;
@@ -97,9 +97,9 @@ int SImage::DrawPartUnchanged(HDC hdc, int offsX, int offsY, const RECT * pImgPa
 int SImage::DrawPart(HDC hdc, const RECT * pCliRect, const RECT * pDestRect, const RECT * pImgPart)
 {
 	int    ok = 1;
-	Image * p_image = (Image*)P_Image;
+	Gdiplus::Image * p_image = (Gdiplus::Image *)P_Image;
  	if(p_image && pCliRect && pDestRect && pImgPart) {
-		Graphics graph(hdc);
+		Gdiplus::Graphics graph(hdc);
 		Gdiplus::REAL w = (Gdiplus::REAL)p_image->GetWidth(), h = (Gdiplus::REAL)p_image->GetHeight();
 		if(w && h) {
 			RectF rect, img_part;
@@ -137,19 +137,19 @@ int SImage::DrawPart(HDC hdc, const RECT * pCliRect, const RECT * pDestRect, con
 int SImage::Draw(HDC hdc, RECT * pRect, int clear, int use2Koeff)
 {
 	int    ok = 1;
-	Image * p_image = (Image *)P_Image;
+	Gdiplus::Image * p_image = (Gdiplus::Image *)P_Image;
 	RECT   cl_rect;
-	RectF  rect;
-	Color  c(255, 255, 255, 255);
-	Pen    pen(c, 2);
-	Graphics graph(hdc);
+	Gdiplus::RectF  rect;
+	Gdiplus::Color  c(255, 255, 255, 255);
+	Gdiplus::Pen    pen(c, 2);
+	Gdiplus::Graphics graph(hdc);
 	cl_rect = *pRect;
 	rect.X      = (Gdiplus::REAL)cl_rect.left;
 	rect.Y      = (Gdiplus::REAL)cl_rect.top;
 	rect.Width  = (Gdiplus::REAL)cl_rect.right;
 	rect.Height = (Gdiplus::REAL)cl_rect.bottom;
 	if(clear) {
-		Color c2(255, GetRValue(ClearColor), GetGValue(ClearColor), GetBValue(ClearColor));
+		Gdiplus::Color c2(255, GetRValue(ClearColor), GetGValue(ClearColor), GetBValue(ClearColor));
 		graph.Clear(c2);
 	}
 	graph.DrawRectangle(&pen, rect);
@@ -184,9 +184,7 @@ int SImage::Draw(HWND hWnd, RECT * pRect, int clear, int use2Koeff)
 	int    ok = 1;
 	RECT   r;
 	HDC    hdc = GetDC(hWnd);
-	if(pRect)
-		r = *pRect;
-	else
+	if(!RVALUEPTR(r, pRect))
 		GetClientRect(hWnd, &r);
 	ok = Draw(hdc, &r, clear, use2Koeff);
 	ReleaseDC(hWnd, hdc);
@@ -222,14 +220,14 @@ int SImage::LoadImage(const char * pPicPath)
 int SImage::LoadThumbnailImage(const char * pPicPath, int width, int height)
 {
 	int    ok = 0;
-	delete (Image*)P_Image;
+	delete (Gdiplus::Image *)P_Image;
 	P_Image = 0;
 	FileName = 0;
 	if(pPicPath && fileExists(pPicPath)) {
-		Image * p_img = 0;
+		Gdiplus::Image * p_img = 0;
 		OLECHAR wstr[MAXPATH];
 		MultiByteToWideChar(1251, MB_PRECOMPOSED, (const char*)pPicPath, -1, wstr, SIZEOFARRAY(wstr) - 1);
-		p_img = new Image(wstr);
+		p_img = new Gdiplus::Image(wstr);
 		P_Image = p_img->GetThumbnailImage(width, height, NULL, NULL);
 		ZDELETE(p_img);
 		FileName.CopyFrom(pPicPath);
@@ -250,7 +248,7 @@ int SImage::InsertBitmap(HWND hwnd, const char * pPath, COLORREF bkgnd)
 	LoadImage(pPath);
 	if(P_Image) {
 		UINT new_width = 0, new_height = 0;
-		Image * p_image = (Image*)P_Image;
+		Gdiplus::Image * p_image = (Gdiplus::Image *)P_Image;
 		UINT height   = p_image->GetHeight();
 		UINT width    = p_image->GetWidth();
 		RECT cli_rect;
@@ -266,14 +264,14 @@ int SImage::InsertBitmap(HWND hwnd, const char * pPath, COLORREF bkgnd)
 		new_width  = (UINT)((double)width * k);
 		{
 			HBITMAP hbmp = 0;
-			Bitmap * p_sized_img = ((Bitmap*)p_image)->Clone(0, 0, new_width, new_height, p_image->GetPixelFormat());
+			Gdiplus::Bitmap * p_sized_img = ((Gdiplus::Bitmap *)p_image)->Clone(0, 0, new_width, new_height, p_image->GetPixelFormat());
 			ARGB argb = Color::MakeARGB(0, GetRValue(bkgnd), GetGValue(bkgnd), GetBValue(bkgnd));
-			Color color(argb);
+			Gdiplus::Color color(argb);
 
-			((Bitmap*)p_sized_img)->GetHBITMAP(color, &hbmp);
-			delete (Image*)P_Image;
+			((Gdiplus::Bitmap *)p_sized_img)->GetHBITMAP(color, &hbmp);
+			delete (Gdiplus::Image *)P_Image;
 			P_Image = p_sized_img;
-			SendMessage(hwnd, BM_SETIMAGE, IMAGE_BITMAP,(LPARAM)hbmp);
+			::SendMessage(hwnd, BM_SETIMAGE, IMAGE_BITMAP,(LPARAM)hbmp);
 		}
 		ok = 1;
 	}
@@ -285,10 +283,10 @@ int FASTCALL GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 	int   idx = -1;
 	uint  num = 0;          // number of image encoders
 	uint  size = 0;         // size of the image encoder array in bytes
-	ImageCodecInfo * p_img_codec_info = 0;
+	Gdiplus::ImageCodecInfo * p_img_codec_info = 0;
 	GetImageEncodersSize(&num, &size);
 	THROW(size);
-	THROW_S(p_img_codec_info = (ImageCodecInfo *)malloc(size), SLERR_NOMEM);
+	THROW_S(p_img_codec_info = (Gdiplus::ImageCodecInfo *)malloc(size), SLERR_NOMEM);
 	GetImageEncoders(num, size, p_img_codec_info);
 	for(uint j = 0; idx < 0 && j < num; ++j) {
 		if(wcscmp(p_img_codec_info[j].MimeType, format) == 0) {
@@ -305,24 +303,22 @@ int FASTCALL GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 
 int CopyPaste(HWND hWnd, int copy, const char * pPath)
 {
-	Bitmap * p_bmp = 0;
+	Gdiplus::Bitmap * p_bmp = 0;
 	OLECHAR wstr[MAXPATH];
 	HBITMAP h_bmp = 0;
 	if(OpenClipboard(hWnd)) {
 		if(copy) {
 			EmptyClipboard();
 			MultiByteToWideChar(1251, MB_PRECOMPOSED, (const char*)pPath, -1, wstr, SIZEOFARRAY(wstr) - 1);
-			p_bmp = new Bitmap(wstr);
+			p_bmp = new Gdiplus::Bitmap(wstr);
 			p_bmp->GetHBITMAP(0, &h_bmp);
 			SetClipboardData(CF_BITMAP, h_bmp);
 			CloseClipboard();
 		}
 		else if(IsClipboardFormatAvailable(CF_DIB)) {
 			h_bmp = (HBITMAP)GetClipboardData(CF_BITMAP);
-			p_bmp = new Bitmap(h_bmp, NULL);
-
+			p_bmp = new Gdiplus::Bitmap(h_bmp, NULL);
 			CloseClipboard();
-
 			CLSID enc_clsid;
 			GetEncoderClsid(L"image/jpeg", &enc_clsid);
 			MultiByteToWideChar(1251, MB_PRECOMPOSED, pPath, -1, wstr, SIZEOFARRAY(wstr) - 1);

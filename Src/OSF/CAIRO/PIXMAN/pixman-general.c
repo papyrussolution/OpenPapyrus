@@ -97,7 +97,9 @@ static void general_composite_rect(pixman_implementation_t * imp, pixman_composi
 	uint8_t stack_scanline_buffer[3 * SCANLINE_BUFFER_LENGTH];
 	uint8_t * scanline_buffer = (uint8_t*)stack_scanline_buffer;
 	uint8_t * src_buffer, * mask_buffer, * dest_buffer;
-	pixman_iter_t src_iter, mask_iter, dest_iter;
+	pixman_iter_t src_iter;
+	pixman_iter_t mask_iter;
+	pixman_iter_t dest_iter; // !
 	pixman_combine_32_func_t compose;
 	pixman_bool_t component_alpha;
 	iter_flags_t width_flag, src_iter_flags;
@@ -133,19 +135,13 @@ static void general_composite_rect(pixman_implementation_t * imp, pixman_composi
 		memzero(mask_buffer, width * Bpp);
 		memzero(dest_buffer, width * Bpp);
 	}
-
-	/* src iter */
+	// src iter 
 	src_iter_flags = (iter_flags_t)(width_flag | op_flags[op].src | ITER_SRC);
 	_pixman_implementation_iter_init(imp->toplevel, &src_iter, src_image,
-	    src_x, src_y, width, height,
-	    src_buffer, src_iter_flags,
-	    info->src_flags);
-	/* mask iter */
-	if((src_iter_flags & (ITER_IGNORE_ALPHA | ITER_IGNORE_RGB)) ==
-	    (ITER_IGNORE_ALPHA | ITER_IGNORE_RGB)) {
-		/* If it doesn't matter what the source is, then it doesn't matter
-		 * what the mask is
-		 */
+	    src_x, src_y, width, height, src_buffer, src_iter_flags, info->src_flags);
+	// mask iter 
+	if((src_iter_flags & (ITER_IGNORE_ALPHA | ITER_IGNORE_RGB)) == (ITER_IGNORE_ALPHA | ITER_IGNORE_RGB)) {
+		// If it doesn't matter what the source is, then it doesn't matter what the mask is
 		mask_image = NULL;
 	}
 	component_alpha = mask_image && mask_image->common.type == BITS && 
@@ -154,16 +150,14 @@ static void general_composite_rect(pixman_implementation_t * imp, pixman_composi
 	    mask_image, mask_x, mask_y, width, height, mask_buffer,
 	    (iter_flags_t)(ITER_SRC | width_flag | (component_alpha ? 0 : ITER_IGNORE_RGB)),
 	    info->mask_flags);
-
-	/* dest iter */
+	// dest iter 
 	_pixman_implementation_iter_init(imp->toplevel, &dest_iter, dest_image, dest_x, dest_y, width, height,
 	    dest_buffer, (iter_flags_t)(ITER_DEST | width_flag | op_flags[op].dst), info->dest_flags);
 	compose = _pixman_implementation_lookup_combiner(imp->toplevel, op, component_alpha, width_flag != ITER_WIDE);
 	for(i = 0; i < height; ++i) {
-		uint32_t * s, * m, * d;
-		m = mask_iter.get_scanline(&mask_iter, NULL);
-		s = src_iter.get_scanline(&src_iter, m);
-		d = dest_iter.get_scanline(&dest_iter, NULL);
+		const uint32_t * m = mask_iter.get_scanline(&mask_iter, NULL);
+		const uint32_t * s = src_iter.get_scanline(&src_iter, m);
+		uint32_t * d = dest_iter.get_scanline(&dest_iter, NULL);
 		compose(imp->toplevel, op, d, s, m, width);
 		dest_iter.write_back(&dest_iter);
 	}

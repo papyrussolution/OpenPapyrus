@@ -47,19 +47,11 @@
 
 /* high-level compositor interface */
 
-static cairo_int_status_t _cairo_fallback_compositor_paint(const cairo_compositor_t      * _compositor,
-    cairo_composite_rectangles_t  * extents)
+static cairo_int_status_t _cairo_fallback_compositor_paint(const cairo_compositor_t * _compositor, cairo_composite_rectangles_t * extents)
 {
-	cairo_image_surface_t * image;
-	cairo_int_status_t status;
 	TRACE((stderr, "%s\n", __FUNCTION__));
-	image = _cairo_surface_map_to_image(extents->surface, &extents->unbounded);
-	status = _cairo_surface_offset_paint(&image->base,
-	    extents->unbounded.x,
-	    extents->unbounded.y,
-	    extents->op,
-	    &extents->source_pattern.base,
-	    extents->clip);
+	cairo_image_surface_t * image = _cairo_surface_map_to_image(extents->surface, &extents->unbounded);
+	cairo_int_status_t status = _cairo_surface_offset_paint(&image->base, extents->unbounded.x, extents->unbounded.y, extents->op, &extents->source_pattern.base, extents->clip);
 	return _cairo_surface_unmap_image(extents->surface, image);
 }
 

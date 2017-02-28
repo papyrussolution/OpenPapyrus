@@ -340,7 +340,7 @@ private:
 	int    SLAPI GetBarcode(int serial, char ** ppLine);
 	int    SLAPI SubstVar(char ** ppSrc, char ** ppDest);
 	int    SLAPI WrapText(const char * pText, uint maxLen, SString & rHead, SString & rTail);
-	int    SLAPI UpdateText(uint entryPos, const SString & rText);
+	void   SLAPI UpdateText(uint entryPos, const SString & rText);
 
 	StringSet StrBuf;
 	BarcodeLabelParam BLP;
@@ -502,7 +502,7 @@ int SLAPI BarcodeLabel::AddEntry(BarcodeLabelEntry * pEntry)
 	return insert(pEntry) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI BarcodeLabel::UpdateText(uint entryPos, const SString & rText)
+void SLAPI BarcodeLabel::UpdateText(uint entryPos, const SString & rText)
 {
 	BarcodeLabelEntry * p_entry = (BarcodeLabelEntry *)at(entryPos);
 	if(rText.NotEmpty()) {
@@ -512,7 +512,6 @@ int SLAPI BarcodeLabel::UpdateText(uint entryPos, const SString & rText)
 	}
 	else
 		p_entry->TextIdx = 0;
-	return 1;
 }
 
 BarcodeFormatToken SLAPI BarcodeLabel::NextToken(char ** ppLine, char * pBuf, size_t buflen)

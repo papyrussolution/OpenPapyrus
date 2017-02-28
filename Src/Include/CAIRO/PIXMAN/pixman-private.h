@@ -217,23 +217,22 @@ typedef enum {
 } iter_flags_t;
 
 struct pixman_iter_t {
-	/* These are initialized by _pixman_implementation_{src,dest}_init */
-	pixman_image_t *            image;
-	uint32_t *                  buffer;
-	int x, y;
+	// These are initialized by _pixman_implementation_{src,dest}_init 
+	pixman_image_t * image;
+	uint32_t * buffer;
+	int x;
+	int y;
 	int width;
 	int height;
 	iter_flags_t iter_flags;
 	uint32_t image_flags;
-
-	/* These function pointers are initialized by the implementation */
+	// These function pointers are initialized by the implementation 
 	pixman_iter_get_scanline_t get_scanline;
 	pixman_iter_write_back_t write_back;
 	pixman_iter_fini_t fini;
-
-	/* These fields are scratch data that implementations can use */
-	void *                      data;
-	uint8_t *                   bits;
+	// These fields are scratch data that implementations can use 
+	void * data;
+	uint8_t * bits;
 	int stride;
 };
 

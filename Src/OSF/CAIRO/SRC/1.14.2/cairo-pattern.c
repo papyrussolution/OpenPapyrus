@@ -1843,28 +1843,21 @@ cairo_extend_t cairo_pattern_get_extend(cairo_pattern_t * pattern)
 
 slim_hidden_def(cairo_pattern_get_extend);
 
-void _cairo_pattern_pretransform(cairo_pattern_t    * pattern,
-    const cairo_matrix_t  * ctm)
+void _cairo_pattern_pretransform(cairo_pattern_t * pattern, const cairo_matrix_t  * ctm)
 {
-	if(pattern->status)
-		return;
-
-	cairo_matrix_multiply(&pattern->matrix, &pattern->matrix, ctm);
+	if(!pattern->status)
+		cairo_matrix_multiply(&pattern->matrix, &pattern->matrix, ctm);
 }
 
-void _cairo_pattern_transform(cairo_pattern_t       * pattern,
-    const cairo_matrix_t  * ctm_inverse)
+void _cairo_pattern_transform(cairo_pattern_t * pattern, const cairo_matrix_t  * ctm_inverse)
 {
-	if(pattern->status)
-		return;
-
-	cairo_matrix_multiply(&pattern->matrix, ctm_inverse, &pattern->matrix);
+	if(!pattern->status)
+		cairo_matrix_multiply(&pattern->matrix, ctm_inverse, &pattern->matrix);
 }
 
 static cairo_bool_t _linear_pattern_is_degenerate(const cairo_linear_pattern_t * linear)
 {
-	return fabs(linear->pd1.x - linear->pd2.x) < DBL_EPSILON &&
-	       fabs(linear->pd1.y - linear->pd2.y) < DBL_EPSILON;
+	return fabs(linear->pd1.x - linear->pd2.x) < DBL_EPSILON && fabs(linear->pd1.y - linear->pd2.y) < DBL_EPSILON;
 }
 
 static cairo_bool_t _radial_pattern_is_degenerate(const cairo_radial_pattern_t * radial)
@@ -1956,7 +1949,6 @@ static cairo_bool_t _extend_range(double range[2], double value, cairo_bool_t va
 		range[0] = value;
 	else if(value > range[1])
 		range[1] = value;
-
 	return TRUE;
 }
 
@@ -1976,15 +1968,12 @@ static cairo_bool_t _extend_range(double range[2], double value, cairo_bool_t va
  */
 cairo_bool_t _cairo_radial_pattern_focus_is_inside(const cairo_radial_pattern_t * radial)
 {
-	double cx, cy, cr, dx, dy, dr;
-
-	cx = radial->cd1.center.x;
-	cy = radial->cd1.center.y;
-	cr = radial->cd1.radius;
-	dx = radial->cd2.center.x - cx;
-	dy = radial->cd2.center.y - cy;
-	dr = radial->cd2.radius   - cr;
-
+	const double cx = radial->cd1.center.x;
+	const double cy = radial->cd1.center.y;
+	const double cr = radial->cd1.radius;
+	const double dx = radial->cd2.center.x - cx;
+	const double dy = radial->cd2.center.y - cy;
+	const double dr = radial->cd2.radius   - cr;
 	return dx*dx + dy*dy < dr*dr;
 }
 
@@ -1998,38 +1987,30 @@ static void _cairo_radial_pattern_box_to_parameter(const cairo_radial_pattern_t 
 	double a, x_focus, y_focus;
 	double mindr, minx, miny, maxx, maxy;
 	cairo_bool_t valid;
-
 	assert(!_radial_pattern_is_degenerate(radial));
 	assert(x0 < x1);
 	assert(y0 < y1);
-
 	tolerance = MAX(tolerance, DBL_EPSILON);
-
 	range[0] = range[1] = 0;
 	valid = FALSE;
-
 	x_focus = y_focus = 0; /* silence gcc */
-
 	cx = radial->cd1.center.x;
 	cy = radial->cd1.center.y;
 	cr = radial->cd1.radius;
 	dx = radial->cd2.center.x - cx;
 	dy = radial->cd2.center.y - cy;
 	dr = radial->cd2.radius   - cr;
-
 	/* translate by -(cx, cy) to simplify computations */
 	x0 -= cx;
 	y0 -= cy;
 	x1 -= cx;
 	y1 -= cy;
-
-	/* enlarge boundaries slightly to avoid rounding problems in the
-	 * parameter range computation */
+	// enlarge boundaries slightly to avoid rounding problems in the
+	// parameter range computation 
 	x0 -= DBL_EPSILON;
 	y0 -= DBL_EPSILON;
 	x1 += DBL_EPSILON;
 	y1 += DBL_EPSILON;
-
 	/* enlarge boundaries even more to avoid rounding problems when
 	 * testing if a point belongs to the box */
 	minx = x0 - DBL_EPSILON;
@@ -2062,17 +2043,13 @@ static void _cairo_radial_pattern_box_to_parameter(const cairo_radial_pattern_t 
 	 * gradient represents a cylinder instead of a cone).
 	 */
 	if(fabs(dr) >= DBL_EPSILON) {
-		double t_focus;
-
-		t_focus = -cr / dr;
+		double t_focus = -cr / dr;
 		x_focus = t_focus * dx;
 		y_focus = t_focus * dy;
-		if(minx <= x_focus && x_focus <= maxx &&
-		    miny <= y_focus && y_focus <= maxy) {
+		if(minx <= x_focus && x_focus <= maxx && miny <= y_focus && y_focus <= maxy) {
 			valid = _extend_range(range, t_focus, valid);
 		}
 	}
-
 	/*
 	 * Circles externally tangent to box edges.
 	 *

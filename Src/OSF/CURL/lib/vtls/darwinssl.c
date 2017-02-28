@@ -933,9 +933,7 @@ static OSStatus CopyIdentityWithLabel(char * label,
 	return status;
 }
 
-static OSStatus CopyIdentityFromPKCS12File(const char * cPath,
-    const char * cPassword,
-    SecIdentityRef * out_cert_and_key)
+static OSStatus CopyIdentityFromPKCS12File(const char * cPath, const char * cPassword, SecIdentityRef * out_cert_and_key)
 {
 	OSStatus status = errSecItemNotFound;
 	CFURLRef pkcs_url = CFURLCreateFromFileSystemRepresentation(NULL,

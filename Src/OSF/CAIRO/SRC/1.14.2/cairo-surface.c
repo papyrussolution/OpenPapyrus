@@ -573,7 +573,7 @@ cairo_image_surface_t * _cairo_surface_map_to_image(cairo_surface_t  * surface, 
 {
 	cairo_image_surface_t * image = NULL;
 	assert(extents != NULL);
-	/* TODO: require map_to_image != NULL */
+	// TODO: require map_to_image != NULL 
 	if(surface->backend->map_to_image)
 		image = surface->backend->map_to_image(surface, extents);
 	SETIFZ(image, _cairo_image_surface_clone_subimage(surface, extents));
@@ -1759,39 +1759,30 @@ static cairo_bool_t nothing_to_do(cairo_surface_t * surface, cairo_operator_t op
 	return FALSE;
 }
 
-cairo_status_t _cairo_surface_paint(cairo_surface_t           * surface,
-    cairo_operator_t op,
-    const cairo_pattern_t     * source,
-    const cairo_clip_t        * clip)
+cairo_status_t _cairo_surface_paint(cairo_surface_t * surface, cairo_operator_t op, 
+	const cairo_pattern_t * source, const cairo_clip_t * clip)
 {
 	cairo_int_status_t status;
-
 	TRACE((stderr, "%s\n", __FUNCTION__));
 	if(unlikely(surface->status))
 		return surface->status;
 	if(unlikely(surface->finished))
 		return _cairo_surface_set_error(surface, _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
-
 	if(_cairo_clip_is_all_clipped(clip))
 		return CAIRO_STATUS_SUCCESS;
-
 	status = _pattern_has_error(source);
 	if(unlikely(status))
 		return status;
-
 	if(nothing_to_do(surface, op, source))
 		return CAIRO_STATUS_SUCCESS;
-
 	status = _cairo_surface_begin_modification(surface);
 	if(unlikely(status))
 		return status;
-
 	status = surface->backend->paint(surface, op, source, clip);
 	if(status != CAIRO_INT_STATUS_NOTHING_TO_DO) {
 		surface->is_clear = op == CAIRO_OPERATOR_CLEAR && clip == NULL;
 		surface->serial++;
 	}
-
 	return _cairo_surface_set_error(surface, status);
 }
 
@@ -1804,13 +1795,10 @@ cairo_status_t _cairo_surface_mask(cairo_surface_t * surface,
 		return surface->status;
 	if(unlikely(surface->finished))
 		return _cairo_surface_set_error(surface, _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
-
 	if(_cairo_clip_is_all_clipped(clip))
 		return CAIRO_STATUS_SUCCESS;
-
 	/* If the mask is blank, this is just an expensive no-op */
-	if(_cairo_pattern_is_clear(mask) &&
-	    _cairo_operator_bounded_by_mask(op)) {
+	if(_cairo_pattern_is_clear(mask) && _cairo_operator_bounded_by_mask(op)) {
 		return CAIRO_STATUS_SUCCESS;
 	}
 	status = _pattern_has_error(source);
@@ -1855,65 +1843,43 @@ cairo_status_t _cairo_surface_fill_stroke(cairo_surface_t         * surface,
 		return surface->status;
 	if(unlikely(surface->finished))
 		return _cairo_surface_set_error(surface, _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
-
 	if(_cairo_clip_is_all_clipped(clip))
 		return CAIRO_STATUS_SUCCESS;
-
-	if(surface->is_clear &&
-	    fill_op == CAIRO_OPERATOR_CLEAR &&
-	    stroke_op == CAIRO_OPERATOR_CLEAR) {
+	if(surface->is_clear && fill_op == CAIRO_OPERATOR_CLEAR && stroke_op == CAIRO_OPERATOR_CLEAR) {
 		return CAIRO_STATUS_SUCCESS;
 	}
-
 	status = _pattern_has_error(fill_source);
 	if(unlikely(status))
 		return status;
-
 	status = _pattern_has_error(stroke_source);
 	if(unlikely(status))
 		return status;
-
 	status = _cairo_surface_begin_modification(surface);
 	if(unlikely(status))
 		return status;
-
 	if(surface->backend->fill_stroke) {
 		cairo_matrix_t dev_ctm = *stroke_ctm;
 		cairo_matrix_t dev_ctm_inverse = *stroke_ctm_inverse;
-
-		status = surface->backend->fill_stroke(surface,
-		    fill_op, fill_source, fill_rule,
-		    fill_tolerance, fill_antialias,
-		    path,
-		    stroke_op, stroke_source,
-		    stroke_style,
-		    &dev_ctm, &dev_ctm_inverse,
-		    stroke_tolerance, stroke_antialias,
-		    clip);
-
+		status = surface->backend->fill_stroke(surface, fill_op, fill_source, fill_rule,
+		    fill_tolerance, fill_antialias, path, stroke_op, stroke_source, stroke_style,
+		    &dev_ctm, &dev_ctm_inverse, stroke_tolerance, stroke_antialias, clip);
 		if(status != CAIRO_INT_STATUS_UNSUPPORTED)
 			goto FINISH;
 	}
-
 	status = _cairo_surface_fill(surface, fill_op, fill_source, path,
-	    fill_rule, fill_tolerance, fill_antialias,
-	    clip);
+	    fill_rule, fill_tolerance, fill_antialias, clip);
 	if(unlikely(status))
 		goto FINISH;
-
 	status = _cairo_surface_stroke(surface, stroke_op, stroke_source, path,
 	    stroke_style, stroke_ctm, stroke_ctm_inverse,
-	    stroke_tolerance, stroke_antialias,
-	    clip);
+	    stroke_tolerance, stroke_antialias, clip);
 	if(unlikely(status))
 		goto FINISH;
-
 FINISH:
 	if(status != CAIRO_INT_STATUS_NOTHING_TO_DO) {
 		surface->is_clear = FALSE;
 		surface->serial++;
 	}
-
 	return _cairo_surface_set_error(surface, status);
 }
 

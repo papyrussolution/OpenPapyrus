@@ -2964,11 +2964,12 @@ public:
 	~TImageView();
 	virtual void draw();
 	virtual int  TransmitData(int dir, void * pData);
-	void   loadImage(const char *);
+	//void   loadImage(const char *);
 private:
 	static LRESULT CALLBACK DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual int  handleWindowsMessage(UINT, WPARAM, LPARAM);
 	void * P_Image;
+	//SDrawFigure * P_Fig;
 };
 
 class TButton : public TView {
@@ -4196,8 +4197,10 @@ public:
 	int    Paint();
 	int    Move();
 	int    DoCommand(TPoint p);
-	void * GetImage() {return P_Image;}
-
+	void * GetImage() 
+	{
+		return P_Image;
+	}
 	COLORREF Color;
 	HBRUSH   Brush;
 	WNDPROC PrevImgProc;

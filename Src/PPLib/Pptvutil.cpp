@@ -5620,20 +5620,17 @@ void TimePickerDialog::DrawMinutsRect(TCanvas * pCanv)
 {
 	if(TmRects.Minuts.getCount()) {
 		TRect  draw_rect;
-		long   x1 = 0, x2 = 0, y1 = 0, y2 = 0;
-		TRect  m1_rect = TmRects.Minuts.at(0);
-		TRect  m2_rect = TmRects.Minuts.at(TmRects.Minuts.getCount() - 1);
-
+		const TRect  m1_rect = TmRects.Minuts.at(0);
+		const TRect  m2_rect = TmRects.Minuts.at(TmRects.Minuts.getCount() - 1);
+		const long x1 = m1_rect.a.x - 3;
+		const long y1 = m1_rect.a.y - 4;
+		const long x2 = m2_rect.b.x + 2;
+		const long y2 = m2_rect.b.y + 3;
 		pCanv->SelectObjectAndPush((HPEN)Ptb.Get(penBlue));
 		pCanv->SelectObjectAndPush((HBRUSH)Ptb.Get(brWhiteRect));
-		x1 = m1_rect.a.x - 3;
-		y1 = m1_rect.a.y - 4;
-		x2 = m2_rect.b.x + 2;
-		y2 = m2_rect.b.y + 3;
 		draw_rect.set(x1, y1, x2, y2);
 		pCanv->Rectangle(draw_rect);
-		pCanv->PopObject();
-		pCanv->PopObject();
+		pCanv->PopObjectN(2);
 
 		pCanv->SelectObjectAndPush((HPEN)Ptb.Get(penBlack));
 		pCanv->LineHorz(x1 + 1, x2 - 1, y1 + 1);
@@ -5667,11 +5664,11 @@ void TimePickerDialog::DrawMinutText(TCanvas * pCanv)
 // virtual
 void TimePickerDialog::draw()
 {
-	int    h = Data.hour(), m = Data.minut();
+	const int h = Data.hour();
+	const int m = Data.minut();
 	RECT   rect, btn_rect;
 	SString temp_buf;
 	PAINTSTRUCT ps;
-
 	::BeginPaint(H(), (LPPAINTSTRUCT)&ps);
 	GetClientRect(H(), &rect);
 	GetWindowRect(GetDlgItem(H(), STDCTL_OKBUTTON), &btn_rect);
