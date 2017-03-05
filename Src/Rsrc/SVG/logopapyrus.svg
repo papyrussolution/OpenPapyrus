@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.0"
+   width="120px"
+   height="135px"
+   viewBox="0 0 1200 1350"
+   preserveAspectRatio="xMidYMid meet"
+   id="svg4136"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="logopapyrus.svg"
+   inkscape:export-filename="D:\Papyrus\Src\Rsrc\SVG\logo-papyrus-256.png"
+   inkscape:export-xdpi="170.66415"
+   inkscape:export-ydpi="170.66415">
+  <metadata
+     id="metadata4194">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs4192" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     pageopacity="0"
+     bordercolor="#666666"
+     borderopacity="0"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1680"
+     inkscape:window-height="987"
+     id="namedview4190"
+     showgrid="false"
+     inkscape:zoom="5.6568542"
+     inkscape:cx="28.018496"
+     inkscape:cy="67.5"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg4136" />
+  <g
+     id="layer5"
+     fill="#804000"
+     stroke="none" />
+  <g
+     id="layer9"
+     fill="#800000"
+     stroke="none"
+     style="fill:#800000;fill-opacity:1">
+    <path
+       d="m 30,1344 c 0,-20 27,-46 74,-73 30,-17 71,-45 92,-63 56,-50 123,-200 188,-423 30,-104 69,-230 86,-279 16,-50 30,-96 30,-104 0,-11 -14,-13 -77,-7 -62,5 -82,3 -98,-9 -30,-22 -11,-33 80,-45 69,-10 81,-9 91,4 14,19 24,19 24,1 0,-7 15,-63 33,-123 L 586,113 553,92 C 535,80 511,70 500,70 477,70 462,44 476,30 c 14,-14 226,10 247,28 24,21 22,33 -19,141 -19,51 -32,96 -29,99 6,7 255,-24 263,-32 3,-3 6,-23 7,-43 1,-31 5,-38 21,-36 10,1 57,4 104,6 74,4 85,7 89,23 2,10 8,25 13,32 7,8 7,16 1,25 -15,18 -20,42 -58,267 -56,323 -73,398 -111,467 -21,37 -47,70 -68,82 -44,27 -118,27 -205,0 -75,-24 -237,-96 -264,-118 -20,-17 -19,-19 -42,44 -67,185 -151,271 -316,324 -38,12 -79,15 -79,5 z m 130,-64 c 0,-5 -13.53553,14.7487 -13.53553,14.7487 C 142.13434,1292.2487 140,1275 140,1280 c 6.12269,15.2206 20,0 20,0 z M 550,953 c 0,-16 10,-18 102,-15 101,3 104,3 136,-25 27,-23 37,-46 61,-133 16,-58 39,-168 51,-245 12,-77 24,-148 27,-159 5,-18 0,-18 -118,-11 -67,4 -132,10 -143,14 -15,6 -30,40 -62,142 -23,74 -62,192 -88,262 -25,71 -44,133 -41,138 4,5 17,9 31,9 17,0 24,5 24,20 0,11 6.76777,4.0901 11.76777,4.0901 6,0 8.23223,7.9099 8.23223,-1.0901 z"
+       id="path4177"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="sccccsccccssccsscccscccccccccccccscsccsccssccccccssss"
+       style="fill:#800000;fill-opacity:1" />
+    <path
+       d="M359 250 l-24 -20 24 -20 c17 -15 38 -20 81 -20 43 0 64 5 81 20 l24 20 -24 20 c-17 15 -38 20 -81 20 -43 0 -64 -5 -81 -20z"
+       id="path4181"
+       style="fill:#800000;fill-opacity:1" />
+    <path
+       d="M470 165 c-21 -25 0 -50 40 -50 36 0 62 27 44 45 -19 19 -69 23 -84 5z"
+       id="path4183"
+       style="fill:#800000;fill-opacity:1" />
+  </g>
+  <g
+     id="layer10"
+     stroke="none"
+     style="opacity:0;fill-opacity:0">
+    <path
+       d="M0 675 l0 -675 229 0 229 0 31 48 c36 57 40 82 11 82 -12 0 -20 7 -20 16 0 13 7 15 34 10 28 -5 36 -3 50 19 16 24 15 29 -2 88 -22 71 -38 83 -122 92 -101 12 -110 25 -12 18 l92 -6 0 25 c0 13 -14 64 -30 114 -17 49 -56 175 -86 279 -70 241 -130 372 -201 436 -28 25 -72 56 -97 70 -25 13 -49 32 -52 42 -3 10 -15 17 -30 17 l-24 0 0 -675z m510 -435 c25 -16 -7 -30 -70 -30 -63 0 -95 14 -70 30 8 5 40 10 70 10 30 0 62 -5 70 -10z"
+       id="path4186"
+       style="fill:#ffffff;fill-opacity:0" />
+    <path
+       d="M86 1335 c10 -8 24 -15 29 -15 23 -1 119 -52 159 -85 23 -19 55 -57 70 -85 54 -100 167 -395 241 -632 24 -75 46 -142 50 -148 12 -20 62 -11 79 15 9 13 57 67 107 119 l90 95 -10 53 c-5 29 -21 94 -35 143 -22 78 -32 95 -67 128 -42 37 -42 37 -128 36 -47 0 -112 -4 -143 -8 -74 -9 -64 3 49 55 171 81 291 104 352 68 42 -25 86 -116 110 -229 12 -54 24 -101 26 -104 5 -4 68 12 113 30 l22 9 0 285 0 285 -567 0 c-501 0 -565 -2 -547 -15z"
+       id="path4188"
+       style="fill:#ffffff;fill-opacity:0" />
+  </g>
+</svg>
