@@ -2366,7 +2366,7 @@ int SImageBuffer::LoadIco(SFile & rF, uint pageIdx)
 	return ok;
 }
 
-#define USE_JPEG_TURBO
+//#define USE_JPEG_TURBO
 
 #ifdef USE_JPEG_TURBO
 	#include <../osf/libjpeg-turbo/cdjpeg.h>
