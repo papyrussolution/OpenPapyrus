@@ -2,6 +2,7 @@
  * wrgif.c
  *
  * Copyright (C) 1991-1997, Thomas G. Lane.
+ * Modified 2015 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -208,7 +209,7 @@ put_3bytes(gif_dest_ptr dinfo, int val)
 LOCAL(void)
 emit_header(gif_dest_ptr dinfo, int num_colors, JSAMPARRAY colormap)
 /* Output the GIF file header, including color map */
-/* If colormap==NULL, synthesize a gray-scale colormap */
+/* If colormap==NULL, synthesize a grayscale colormap */
 {
 	int BitsPerPixel, ColorMapSize, InitCodeSize, FlagByte;
 	int cshift = dinfo->cinfo->data_precision - 8;
@@ -262,7 +263,7 @@ emit_header(gif_dest_ptr dinfo, int num_colors, JSAMPARRAY colormap)
 				}
 			}
 			else {
-				/* Create a gray-scale map of num_colors values, range 0..255 */
+				/* Create a grayscale map of num_colors values, range 0..255 */
 				put_3bytes(dinfo, (i * 255 + (num_colors-1)/2) / (num_colors-1));
 			}
 		}
@@ -290,8 +291,7 @@ emit_header(gif_dest_ptr dinfo, int num_colors, JSAMPARRAY colormap)
  * Startup: write the file header.
  */
 
-METHODDEF(void)
-start_output_gif(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
+METHODDEF(void) start_output_gif(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 {
 	gif_dest_ptr dest = (gif_dest_ptr)dinfo;
 
@@ -306,8 +306,7 @@ start_output_gif(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
  * In this module rows_supplied will always be 1.
  */
 
-METHODDEF(void)
-put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
+METHODDEF(void) put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
     JDIMENSION rows_supplied)
 {
 	gif_dest_ptr dest = (gif_dest_ptr)dinfo;
@@ -324,8 +323,7 @@ put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
  * Finish up at the end of the file.
  */
 
-METHODDEF(void)
-finish_output_gif(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
+METHODDEF(void) finish_output_gif(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 {
 	gif_dest_ptr dest = (gif_dest_ptr)dinfo;
 
@@ -344,25 +342,17 @@ finish_output_gif(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 /*
  * The module selection routine for GIF format output.
  */
-
-GLOBAL(djpeg_dest_ptr)
-jinit_write_gif(j_decompress_ptr cinfo)
+GLOBAL(djpeg_dest_ptr) jinit_write_gif(j_decompress_ptr cinfo)
 {
-	gif_dest_ptr dest;
-
 	/* Create module interface object, fill in method pointers */
-	dest = (gif_dest_ptr)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    SIZEOF(gif_dest_struct));
+	gif_dest_ptr dest = (gif_dest_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(gif_dest_struct));
 	dest->cinfo = cinfo;    /* make back link for subroutines */
 	dest->pub.start_output = start_output_gif;
 	dest->pub.put_pixel_rows = put_pixel_rows;
 	dest->pub.finish_output = finish_output_gif;
 
-	if(cinfo->out_color_space != JCS_GRAYSCALE &&
-	    cinfo->out_color_space != JCS_RGB)
+	if(cinfo->out_color_space != JCS_GRAYSCALE && cinfo->out_color_space != JCS_RGB)
 		ERREXIT(cinfo, JERR_GIF_COLORSPACE);
-
 	/* Force quantization if color or if > 8 bits input */
 	if(cinfo->out_color_space != JCS_GRAYSCALE || cinfo->data_precision > 8) {
 		/* Force quantization to at most 256 colors */
@@ -370,10 +360,8 @@ jinit_write_gif(j_decompress_ptr cinfo)
 		if(cinfo->desired_number_of_colors > 256)
 			cinfo->desired_number_of_colors = 256;
 	}
-
 	/* Calculate output image dimensions so we can allocate space */
 	jpeg_calc_output_dimensions(cinfo);
-
 	if(cinfo->output_components != 1) /* safety check: just one component? */
 		ERREXIT(cinfo, JERR_GIF_BUG);
 
@@ -382,7 +370,7 @@ jinit_write_gif(j_decompress_ptr cinfo)
 		    ((j_common_ptr)cinfo, JPOOL_IMAGE, cinfo->output_width, (JDIMENSION)1);
 	dest->pub.buffer_height = 1;
 
-	return (djpeg_dest_ptr)dest;
+	return &dest->pub;
 }
 
 #endif /* GIF_SUPPORTED */

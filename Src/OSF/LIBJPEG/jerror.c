@@ -2,7 +2,7 @@
  * jerror.c
  *
  * Copyright (C) 1991-1998, Thomas G. Lane.
- * Modified 2012 by Guido Vollbeding.
+ * Modified 2012-2015 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -22,14 +22,20 @@
 #include "cdjpeg.h"
 #pragma hdrstop
 
-#include "jversion.h"
 #ifdef USE_WINDOWS_MESSAGEBOX
-	#include <windows.h>
+#include <windows.h>
 #endif
 
+/* this is not a core library module, so it doesn't define JPEG_INTERNALS */
+//#include "jinclude.h"
+//#include "jpeglib.h"
+#include "jversion.h"
+//#include "jerror.h"
+
 #ifndef EXIT_FAILURE            /* define exit() codes if not provided */
-	#define EXIT_FAILURE  1
+#define EXIT_FAILURE  1
 #endif
+
 /*
  * Create the message string table.
  * We do this from the master message list in jerror.h by re-reading
@@ -61,16 +67,12 @@ const char * const jpeg_std_message_table[] = {
  * You should make sure that the JPEG object is cleaned up (with jpeg_abort
  * or jpeg_destroy) at some point.
  */
-
-METHODDEF(noreturn_t)
-error_exit(j_common_ptr cinfo)
+METHODDEF(noreturn_t) error_exit(j_common_ptr cinfo)
 {
 	/* Always display the message */
 	(*cinfo->err->output_message)(cinfo);
-
 	/* Let the memory manager delete any temp files before we die */
 	jpeg_destroy(cinfo);
-
 	exit(EXIT_FAILURE);
 }
 
@@ -92,11 +94,14 @@ error_exit(j_common_ptr cinfo)
 METHODDEF(void) output_message(j_common_ptr cinfo)
 {
 	char buffer[JMSG_LENGTH_MAX];
+
 	/* Create the message */
 	(*cinfo->err->format_message)(cinfo, buffer);
+
 #ifdef USE_WINDOWS_MESSAGEBOX
 	/* Display it in a message dialog box */
-	MessageBox(GetActiveWindow(), buffer, "JPEG Library Error", MB_OK | MB_ICONERROR);
+	MessageBox(GetActiveWindow(), buffer, "JPEG Library Error",
+	    MB_OK | MB_ICONERROR);
 #else
 	/* Send it to stderr, adding a newline */
 	fprintf(stderr, "%s\n", buffer);
@@ -114,8 +119,7 @@ METHODDEF(void) output_message(j_common_ptr cinfo)
  * or change the policy about which messages to display.
  */
 
-METHODDEF(void)
-emit_message(j_common_ptr cinfo, int msg_level)
+METHODDEF(void) emit_message(j_common_ptr cinfo, int msg_level)
 {
 	struct jpeg_error_mgr * err = cinfo->err;
 
@@ -143,8 +147,7 @@ emit_message(j_common_ptr cinfo, int msg_level)
  * Few applications should need to override this method.
  */
 
-METHODDEF(void)
-format_message(j_common_ptr cinfo, char * buffer)
+METHODDEF(void) format_message(j_common_ptr cinfo, char * buffer)
 {
 	struct jpeg_error_mgr * err = cinfo->err;
 	int msg_code = err->msg_code;
@@ -198,8 +201,7 @@ format_message(j_common_ptr cinfo, char * buffer)
  * this method if it has additional error processing state.
  */
 
-METHODDEF(void)
-reset_error_mgr(j_common_ptr cinfo)
+METHODDEF(void) reset_error_mgr(j_common_ptr cinfo)
 {
 	cinfo->err->num_warnings = 0;
 	/* trace_level is not reset since it is an application-supplied parameter */

@@ -443,8 +443,7 @@ create_odither_tables(j_decompress_ptr cinfo)
  * Map some rows of pixels to the output colormapped representation.
  */
 
-METHODDEF(void)
-color_quantize(j_decompress_ptr cinfo, JSAMPARRAY input_buf,
+METHODDEF(void) color_quantize(j_decompress_ptr cinfo, JSAMPARRAY input_buf,
     JSAMPARRAY output_buf, int num_rows)
 /* General case, no dithering */
 {
@@ -470,8 +469,7 @@ color_quantize(j_decompress_ptr cinfo, JSAMPARRAY input_buf,
 	}
 }
 
-METHODDEF(void)
-color_quantize3(j_decompress_ptr cinfo, JSAMPARRAY input_buf,
+METHODDEF(void) color_quantize3(j_decompress_ptr cinfo, JSAMPARRAY input_buf,
     JSAMPARRAY output_buf, int num_rows)
 /* Fast path for out_color_components==3, no dithering */
 {
@@ -497,8 +495,7 @@ color_quantize3(j_decompress_ptr cinfo, JSAMPARRAY input_buf,
 	}
 }
 
-METHODDEF(void)
-quantize_ord_dither(j_decompress_ptr cinfo, JSAMPARRAY input_buf,
+METHODDEF(void) quantize_ord_dither(j_decompress_ptr cinfo, JSAMPARRAY input_buf,
     JSAMPARRAY output_buf, int num_rows)
 /* General case, with ordered dithering */
 {
@@ -546,8 +543,7 @@ quantize_ord_dither(j_decompress_ptr cinfo, JSAMPARRAY input_buf,
 	}
 }
 
-METHODDEF(void)
-quantize3_ord_dither(j_decompress_ptr cinfo, JSAMPARRAY input_buf,
+METHODDEF(void) quantize3_ord_dither(j_decompress_ptr cinfo, JSAMPARRAY input_buf,
     JSAMPARRAY output_buf, int num_rows)
 /* Fast path for out_color_components==3, with ordered dithering */
 {
@@ -590,8 +586,7 @@ quantize3_ord_dither(j_decompress_ptr cinfo, JSAMPARRAY input_buf,
 	}
 }
 
-METHODDEF(void)
-quantize_fs_dither(j_decompress_ptr cinfo, JSAMPARRAY input_buf,
+METHODDEF(void) quantize_fs_dither(j_decompress_ptr cinfo, JSAMPARRAY input_buf,
     JSAMPARRAY output_buf, int num_rows)
 /* General case, with Floyd-Steinberg dithering */
 {
@@ -720,8 +715,7 @@ alloc_fs_workspace(j_decompress_ptr cinfo)
  * Initialize for one-pass color quantization.
  */
 
-METHODDEF(void)
-start_pass_1_quant(j_decompress_ptr cinfo, boolean is_pre_scan)
+METHODDEF(void) start_pass_1_quant(j_decompress_ptr cinfo, boolean is_pre_scan)
 {
 	my_cquantize_ptr cquantize = (my_cquantize_ptr)cinfo->cquantize;
 	size_t arraysize;
@@ -776,8 +770,7 @@ start_pass_1_quant(j_decompress_ptr cinfo, boolean is_pre_scan)
  * Finish up at the end of the pass.
  */
 
-METHODDEF(void)
-finish_pass_1_quant(j_decompress_ptr cinfo)
+METHODDEF(void) finish_pass_1_quant(j_decompress_ptr cinfo)
 {
 	/* no work in 1-pass case */
 }
@@ -786,9 +779,7 @@ finish_pass_1_quant(j_decompress_ptr cinfo)
  * Switch to a new external colormap between output passes.
  * Shouldn't get to this module!
  */
-
-METHODDEF(void)
-new_color_map_1_quant(j_decompress_ptr cinfo)
+METHODDEF(void) new_color_map_1_quant(j_decompress_ptr cinfo)
 {
 	ERREXIT(cinfo, JERR_MODE_CHANGE);
 }
@@ -796,15 +787,9 @@ new_color_map_1_quant(j_decompress_ptr cinfo)
 /*
  * Module initialization routine for 1-pass color quantization.
  */
-
-GLOBAL(void)
-jinit_1pass_quantizer(j_decompress_ptr cinfo)
+GLOBAL(void) jinit_1pass_quantizer(j_decompress_ptr cinfo)
 {
-	my_cquantize_ptr cquantize;
-
-	cquantize = (my_cquantize_ptr)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    SIZEOF(my_cquantizer));
+	my_cquantize_ptr cquantize = (my_cquantize_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(my_cquantizer));
 	cinfo->cquantize = (struct jpeg_color_quantizer*)cquantize;
 	cquantize->pub.start_pass = start_pass_1_quant;
 	cquantize->pub.finish_pass = finish_pass_1_quant;

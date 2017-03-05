@@ -145,12 +145,7 @@ update_cache:
 	}
 }
 
-static void dummy_combine(pixman_implementation_t * imp,
-    pixman_op_t op,
-    uint32_t *               pd,
-    const uint32_t *         ps,
-    const uint32_t *         pm,
-    int w)
+static void dummy_combine(pixman_implementation_t * imp, pixman_op_t op, uint32_t * pd, const uint32_t * ps, const uint32_t * pm, int w)
 {
 }
 
@@ -259,19 +254,14 @@ pixman_bool_t _pixman_disabled(const char * name)
 	const char * env;
 	if((env = getenv("PIXMAN_DISABLE"))) {
 		do {
-			const char * end;
-			int len;
-			if((end = strchr(env, ' ')))
-				len = end - env;
-			else
-				len = strlen(env);
+			const char * end = strchr(env, ' ');
+			const int len = end ? (end - env) : strlen(env);
 			if(strlen(name) == len && strncmp(name, env, len) == 0) {
 				printf("pixman: Disabled %s implementation\n", name);
 				return TRUE;
 			}
 			env += len;
-		}
-		while(*env++);
+		} while(*env++);
 	}
 	return FALSE;
 }

@@ -4588,4 +4588,5 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_CATEGORYFAW02           103
 #define PPDV_GUESTCOUNT01            104
 #define PPDV_DELIVERY01              105
+#define PPDV_LOGOPAPYRUS             106
 

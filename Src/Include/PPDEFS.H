@@ -1682,6 +1682,7 @@
 	#define CTLSEL_LOGIN_DB              (5 + WINDOWS_ID_BIAS)
 	#define CTL_LOGIN_PROTECT            (6 + WINDOWS_ID_BIAS)
 	#define CTL_LOGIN_NEWPASSWORD        (7 + WINDOWS_ID_BIAS)
+	#define CTL_LOGIN_LOGO               (8 + WINDOWS_ID_BIAS)
 #define DLG_CFGOPTIONS              2
 #define DLG_MAINCFG                 4
 	#define CTL_CFGOPTIONS_ACCESS        (1 + WINDOWS_ID_BIAS)
@@ -11860,7 +11861,7 @@
 #define PPTXT_SUBSTPSNEVLIST              433 // Строки подстановки для персональных операций
 #define PPTXT_ACTIVESESSION               434 // Активная сесси
 #define PPTXT_LOCRECRESTORED              435 // Склад [%s] восстановлен
-#define PPTXT_PICFILESEXTS                436 // Расширения файлов изображений
+// @v9.5.6 #define PPTXT_PICFILESEXTS                436 // Расширения файлов изображений
 #define PPTXT_PICFILESDIR                 437 // Подпапка для хранения картинок
 #define PPTXT_SCARDINFO                   438 // Карта: %s, Владелец: %s, Скидка: %lf
 #define PPTXT_INPSCARDNUMBER              439 // Введите номер дисконтной карты

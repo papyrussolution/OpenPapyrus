@@ -569,8 +569,8 @@ int EditWorldDialog::GetGeoCoord()
 	if(getCtrlString(sel = CTL_WORLD_COORD, temp_buf)) {
 		SGeoPosLL pos;
 		if(pos.FromStr(temp_buf)) {
-			Data.Rec.Latitude = pos.Latitude;
-			Data.Rec.Longitude = pos.Longitude;
+			Data.Rec.Latitude = pos.Lat;
+			Data.Rec.Longitude = pos.Lon;
 			ok = 1;
 		}
 		else

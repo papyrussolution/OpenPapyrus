@@ -2217,7 +2217,7 @@ ImageBrowseCtrlGroup::Rec::Rec(SString * pBuf)
 		Path = 0;
 }
 
-ImageBrowseCtrlGroup::ImageBrowseCtrlGroup(uint patternsID, uint ctlImage,
+ImageBrowseCtrlGroup::ImageBrowseCtrlGroup(/* @v9.5.6 uint patternsID,*/ uint ctlImage,
 	uint cmChgImage, uint cmDeleteImage, int allowChangeImage /*=1*/, long flags /*=0*/)
 {
 	SString buf, name, ext;
@@ -2226,7 +2226,8 @@ ImageBrowseCtrlGroup::ImageBrowseCtrlGroup(uint patternsID, uint ctlImage,
 	CmDelImage       = cmDeleteImage;
 	AllowChangeImage = allowChangeImage;
 	Flags            = flags;
-	PPLoadTextWin(patternsID, buf);
+	uint patterns_id = PPTXT_PICFILESEXTS; // can be PPTXT_FILPAT_PICT
+	PPLoadTextWin(/*patternsID*/patterns_id, buf);
 	StringSet ss(',', buf);
 	for(uint i = 0; ss.get(&i, buf) > 0;) {
 		if(buf.Divide(':', name, ext) > 0) {

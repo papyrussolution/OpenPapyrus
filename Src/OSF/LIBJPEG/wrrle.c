@@ -51,7 +51,6 @@ Sorry, this code only copes with 8-bit JSAMPLEs.   /* deliberate syntax err */
 
 typedef struct {
 	struct djpeg_dest_struct pub; /* public fields */
-
 	jvirt_sarray_ptr image; /* virtual array to store the output image */
 	rle_map * colormap;     /* RLE-style color map, or NULL if none */
 	rle_pixel ** rle_row;   /* To pass rows to rle_putrow() */
@@ -60,8 +59,7 @@ typedef struct {
 typedef rle_dest_struct * rle_dest_ptr;
 
 /* Forward declarations */
-METHODDEF(void) rle_put_pixel_rows JPP((j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
-	    JDIMENSION rows_supplied));
+METHODDEF(void) rle_put_pixel_rows JPP((j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied));
 
 /*
  * Write the file header.
@@ -69,8 +67,7 @@ METHODDEF(void) rle_put_pixel_rows JPP((j_decompress_ptr cinfo, djpeg_dest_ptr d
  * In this module it's easier to wait till finish_output to write anything.
  */
 
-METHODDEF(void)
-start_output_rle(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
+METHODDEF(void) start_output_rle(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 {
 	rle_dest_ptr dest = (rle_dest_ptr)dinfo;
 	size_t cmapsize;
@@ -144,8 +141,7 @@ start_output_rle(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
  * This routine just saves the data away in a virtual array.
  */
 
-METHODDEF(void)
-rle_put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
+METHODDEF(void) rle_put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
     JDIMENSION rows_supplied)
 {
 	rle_dest_ptr dest = (rle_dest_ptr)dinfo;
@@ -163,8 +159,7 @@ rle_put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
  * Here is where we really output the RLE file.
  */
 
-METHODDEF(void)
-finish_output_rle(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
+METHODDEF(void) finish_output_rle(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 {
 	rle_dest_ptr dest = (rle_dest_ptr)dinfo;
 	rle_hdr header;         /* Output file information */
@@ -256,7 +251,6 @@ finish_output_rle(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 	if(progress != NULL)
 		progress->completed_extra_passes++;
 #endif
-
 	/* Emit file trailer */
 	rle_puteof(&header);
 	fflush(dest->pub.output_file);
@@ -267,33 +261,19 @@ finish_output_rle(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 /*
  * The module selection routine for RLE format output.
  */
-
-GLOBAL(djpeg_dest_ptr)
-jinit_write_rle(j_decompress_ptr cinfo)
+GLOBAL(djpeg_dest_ptr) jinit_write_rle(j_decompress_ptr cinfo)
 {
-	rle_dest_ptr dest;
-
 	/* Create module interface object, fill in method pointers */
-	dest = (rle_dest_ptr)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    SIZEOF(rle_dest_struct));
+	rle_dest_ptr dest = (rle_dest_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(rle_dest_struct));
 	dest->pub.start_output = start_output_rle;
 	dest->pub.finish_output = finish_output_rle;
-
 	/* Calculate output image dimensions so we can allocate space */
 	jpeg_calc_output_dimensions(cinfo);
-
 	/* Allocate a work array for output to the RLE library. */
-	dest->rle_row = (*cinfo->mem->alloc_sarray)
-		    ((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    cinfo->output_width, (JDIMENSION)cinfo->output_components);
-
+	dest->rle_row = (*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, cinfo->output_width, (JDIMENSION)cinfo->output_components);
 	/* Allocate a virtual array to hold the image. */
-	dest->image = (*cinfo->mem->request_virt_sarray)
-		    ((j_common_ptr)cinfo, JPOOL_IMAGE, FALSE,
-	    (JDIMENSION)(cinfo->output_width * cinfo->output_components),
+	dest->image = (*cinfo->mem->request_virt_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, FALSE, (JDIMENSION)(cinfo->output_width * cinfo->output_components),
 	    cinfo->output_height, (JDIMENSION)1);
-
 	return (djpeg_dest_ptr)dest;
 }
 

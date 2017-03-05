@@ -1201,17 +1201,15 @@ GoodsDialog::GoodsDialog(uint rezID) : TDialog(rezID)
 	Ptb.SetBrush(brushPriorBarcode, SPaintObj::bsSolid, GetColorRef(SClrGreen), 0);
 	enableCommand(cmGoodsExt, use_gdscls);
 	enableCommand(cmArGoodsCodeList, (CConfig.Flags & CCFLG_USEARGOODSCODE));
-	// @v7.4.1 {
 	{
 		PPObjGoodsStruc gs_obj;
 		enableCommand(cmGoodsStruc, gs_obj.CheckRights(PPR_READ));
 	}
-	// } @v7.4.1
 	disableCtrl(CTLSEL_GOODS_CLS, !use_gdscls);
 	St = 0;
 	if(GObj.GetConfig().Flags & GCF_DISABLEWOTAXFLAG)
 		St |= stWoTaxFlagDisabled;
-	addGroup(GRP_IBG, new ImageBrowseCtrlGroup(PPTXT_PICFILESEXTS, CTL_GOODS_IMAGE,
+	addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_GOODS_IMAGE,
 		cmAddImage, cmDelImage, GObj.CheckRights(GOODSRT_UPDIMAGE)));
 }
 
@@ -1274,15 +1272,13 @@ int GoodsDialog::setDTS(const PPGoodsPacket * pPack)
 	int    ok = 1;
 	PPID   prev_grp_level = 0;
 	Data = *pPack;
-	showButton(cmSearchUHTT, Data.Rec.ID == 0); // @v7.3.2
+	showButton(cmSearchUHTT, Data.Rec.ID == 0);
 	gpk  = Data.GetPacketKind();
-	// @v7.2.7 {
 	if(gpk == gpkndGoods && GObj.ValidateGoodsParent(Data.Rec.ParentID) <= 0) {
 		if(GObj.ValidateGoodsParent(GObj.GetConfig().DefGroupID) > 0) {
 			Data.Rec.ParentID = GObj.GetConfig().DefGroupID;
 		}
 	}
-	// } @v7.2.7
 	if(Data.Rec.ParentID) {
 		Goods2Tbl::Rec grp_rec;
 		if(GObj.Fetch(Data.Rec.ParentID, &grp_rec) > 0)

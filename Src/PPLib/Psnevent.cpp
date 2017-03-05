@@ -1480,7 +1480,7 @@ PsnEventDialog::PsnEventDialog(Param * pParam, PPObjPersonEvent * pPeObj) : PPLi
 	P = *pParam;
 	setTitle(P.DlgTitle);
 	SetupCalDate(CTLCAL_PSNEVNT_DATE, CTL_PSNEVNT_DATE);
-	addGroup(GRP_IBG, new ImageBrowseCtrlGroup(PPTXT_PICFILESEXTS, CTL_PSNEVNT_IMAGE,
+	addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_PSNEVNT_IMAGE,
 		cmAddImage, cmDelImage, P_PeObj->CheckRights(PSNRT_UPDIMAGE)));
 	addGroup(GRP_PERSON_PRMR, new PersonCtrlGroup(CTLSEL_PSNEVNT_PRMR, CTL_PSNEVNT_PRMRSCARD, 0, PersonCtrlGroup::fCanInsert/*|PersonCtrlGroup::fLoadDefOnOpen*/));
 	addGroup(GRP_PERSON_SCND, new PersonCtrlGroup(CTLSEL_PSNEVNT_SCND, CTL_PSNEVNT_SCNDSCARD, 0, PersonCtrlGroup::fCanInsert/*|PersonCtrlGroup::fLoadDefOnOpen*/));

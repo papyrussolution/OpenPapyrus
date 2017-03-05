@@ -1,0 +1,1063 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="libjpeg-turbo"
+	ProjectGUID="{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}"
+	RootNamespace="turbojpeg-static"
+	Keyword="Win32Proj">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				InlineFunctionExpansion="0"
+				AdditionalIncludeDirectories="..\OSF\libjpeg-turbo;..\Include"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;WITH_SIMD;CMAKE_INTDIR=\&quot;Debug\&quot;"
+				StringPooling="TRUE"
+				ExceptionHandling="FALSE"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="1"
+				StructMemberAlignment="1"
+				BufferSecurityCheck="FALSE"
+				TreatWChar_tAsBuiltInType="TRUE"
+				AssemblerListingLocation="Debug/"
+				ObjectFile="$(IntDir)\"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+				CompileAs="2"
+				DisableSpecificWarnings="4996"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLibrarianTool"
+				AdditionalOptions=" /machine:X86"
+				OutputFile="$(OutDir)/$(ProjectName).lib"/>
+			<Tool
+				Name="VCMIDLTool"
+				AdditionalIncludeDirectories="D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;"
+				MkTypLibCompatible="FALSE"
+				TargetEnvironment="1"
+				GenerateStublessProxies="TRUE"
+				TypeLibraryName="$(InputName).tlb"
+				OutputDirectory="$(IntDir)"
+				HeaderFileName="$(InputName).h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="$(InputName)_i.c"
+				ProxyFileName="$(InputName)_p.c"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;WITH_SIMD;CMAKE_INTDIR=\&quot;Debug\&quot;"
+				AdditionalIncludeDirectories="D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="2"
+				AdditionalIncludeDirectories="..\OSF\libjpeg-turbo;..\Include"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;WITH_SIMD;CMAKE_INTDIR=\&quot;Release\&quot;"
+				StringPooling="TRUE"
+				ExceptionHandling="FALSE"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="0"
+				StructMemberAlignment="1"
+				BufferSecurityCheck="FALSE"
+				TreatWChar_tAsBuiltInType="TRUE"
+				AssemblerListingLocation="Release/"
+				ObjectFile="$(IntDir)\"
+				WarningLevel="3"
+				CompileAs="2"
+				DisableSpecificWarnings="4996"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLibrarianTool"
+				AdditionalOptions=" /machine:X86"
+				OutputFile="$(OutDir)/$(ProjectName).lib"/>
+			<Tool
+				Name="VCMIDLTool"
+				AdditionalIncludeDirectories="D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;"
+				MkTypLibCompatible="FALSE"
+				TargetEnvironment="1"
+				GenerateStublessProxies="TRUE"
+				TypeLibraryName="$(InputName).tlb"
+				OutputDirectory="$(IntDir)"
+				HeaderFileName="$(InputName).h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="$(InputName)_i.c"
+				ProxyFileName="$(InputName)_p.c"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;WITH_SIMD;CMAKE_INTDIR=\&quot;Release\&quot;"
+				AdditionalIncludeDirectories="D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Source Files"
+			Filter="">
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jaricom.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jcapimin.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jcapistd.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jcarith.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jccoefct.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jccolor.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jcdctmgr.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jchuff.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jcinit.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jcmainct.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jcmarker.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jcmaster.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jcomapi.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jcparam.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jcphuff.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jcprepct.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jcsample.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jctrans.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jdapimin.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jdapistd.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jdarith.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jdatadst-tj.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jdatadst.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jdatasrc-tj.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jdatasrc.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jdcoefct.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jdcolor.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jddctmgr.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jdhuff.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jdinput.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jdmainct.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jdmarker.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jdmaster.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jdmerge.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jdphuff.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jdpostct.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jdsample.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jdtrans.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jerror.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jfdctflt.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jfdctfst.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jfdctint.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jidctflt.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jidctfst.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jidctint.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jidctred.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jmemmgr.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jmemnobs.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jquant1.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jquant2.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\simd\jsimd_i386.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\jutils.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\transupp.c">
+			</File>
+			<File
+				RelativePath="..\OSF\libjpeg-turbo\turbojpeg.c">
+			</File>
+			<Filter
+				Name="ASM"
+				Filter="">
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jccolor-mmx.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jccolor-sse2.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jcgray-mmx.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jcgray-sse2.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jchuff-sse2.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jcsample-mmx.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jcsample-sse2.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jdcolor-mmx.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jdcolor-sse2.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jdmerge-mmx.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jdmerge-sse2.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jdsample-mmx.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jdsample-sse2.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jfdctflt-3dn.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jfdctflt-sse.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jfdctfst-mmx.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jfdctfst-sse2.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jfdctint-mmx.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jfdctint-sse2.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jidctflt-3dn.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jidctflt-sse.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jidctflt-sse2.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jidctfst-mmx.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jidctfst-sse2.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jidctint-mmx.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jidctint-sse2.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jidctred-mmx.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jidctred-sse2.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jquant-3dn.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jquant-mmx.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jquant-sse.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jquantf-sse2.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jquanti-sse2.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\libjpeg-turbo\simd\jsimdcpu.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="nams $(InputPath)"
+							CommandLine="..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ $(InputPath) -o$(IntDir)/$(InputName).obj
+"
+							Outputs="$(IntDir)/$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="Header Files"
+			Filter="">
+			<File
+				RelativePath="..\Osf\libjpeg-turbo\bmp.h">
+			</File>
+			<File
+				RelativePath="..\Osf\libjpeg-turbo\cderror.h">
+			</File>
+			<File
+				RelativePath="..\Osf\libjpeg-turbo\cdjpeg.h">
+			</File>
+			<File
+				RelativePath="..\Osf\libjpeg-turbo\jchuff.h">
+			</File>
+			<File
+				RelativePath="..\Osf\libjpeg-turbo\jconfig.h">
+			</File>
+			<File
+				RelativePath="..\Osf\libjpeg-turbo\jconfigint.h">
+			</File>
+			<File
+				RelativePath="..\Osf\libjpeg-turbo\jdcoefct.h">
+			</File>
+			<File
+				RelativePath="..\Osf\libjpeg-turbo\jdct.h">
+			</File>
+			<File
+				RelativePath="..\Osf\libjpeg-turbo\jdhuff.h">
+			</File>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>

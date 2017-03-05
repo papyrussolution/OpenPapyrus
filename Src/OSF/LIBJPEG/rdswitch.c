@@ -2,6 +2,7 @@
  * rdswitch.c
  *
  * Copyright (C) 1991-1996, Thomas G. Lane.
+ * Modified 2003-2015 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -16,7 +17,7 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
-#include <ctype.h>              /* to declare isdigit(), isspace() */
+//#include <ctype.h>		/* to declare isdigit(), isspace() */
 
 LOCAL(int) text_getc(FILE * file)
 /* Read next char, skipping over any comments (# to end of line) */
@@ -31,14 +32,12 @@ LOCAL(int) text_getc(FILE * file)
 	return ch;
 }
 
-LOCAL(boolean)
-read_text_integer(FILE * file, long * result, int * termchar)
+LOCAL(boolean) read_text_integer(FILE * file, long * result, int * termchar)
 /* Read an unsigned decimal integer from a file, store it in result */
 /* Reads one trailing character after the integer; returns it in termchar */
 {
 	register int ch;
 	register long val;
-
 	/* Skip any leading whitespace, detect EOF */
 	do {
 		ch = text_getc(file);
@@ -47,12 +46,10 @@ read_text_integer(FILE * file, long * result, int * termchar)
 			return FALSE;
 		}
 	} while(isspace(ch));
-
 	if(!isdigit(ch)) {
 		*termchar = ch;
 		return FALSE;
 	}
-
 	val = ch - '0';
 	while((ch = text_getc(file)) != EOF) {
 		if(!isdigit(ch))
@@ -65,8 +62,7 @@ read_text_integer(FILE * file, long * result, int * termchar)
 	return TRUE;
 }
 
-GLOBAL(boolean)
-read_quant_tables(j_compress_ptr cinfo, char * filename, boolean force_baseline)
+GLOBAL(boolean) read_quant_tables(j_compress_ptr cinfo, char * filename, boolean force_baseline)
 /* Read a set of quantization tables from the specified file.
  * The file is plain ASCII text: decimal numbers with whitespace between.
  * Comments preceded by '#' may be included in the file.
@@ -149,8 +145,7 @@ read_scan_integer(FILE * file, long * result, int * termchar)
 	return TRUE;
 }
 
-GLOBAL(boolean)
-read_scan_script(j_compress_ptr cinfo, char * filename)
+GLOBAL(boolean) read_scan_script(j_compress_ptr cinfo, char * filename)
 /* Read a scan script from the specified text file.
  * Each entry in the file defines one scan to be emitted.
  * Entries are separated by semicolons ';'.
@@ -257,8 +252,7 @@ bogus:
 
 #endif /* C_MULTISCAN_FILES_SUPPORTED */
 
-GLOBAL(boolean)
-set_quality_ratings(j_compress_ptr cinfo, char * arg, boolean force_baseline)
+GLOBAL(boolean) set_quality_ratings(j_compress_ptr cinfo, char * arg, boolean force_baseline)
 /* Process a quality-ratings parameter string, of the form
  *     N[,N,...]
  * If there are more q-table slots than parameters, the last value is replicated.
@@ -289,8 +283,7 @@ set_quality_ratings(j_compress_ptr cinfo, char * arg, boolean force_baseline)
 	return TRUE;
 }
 
-GLOBAL(boolean)
-set_quant_slots(j_compress_ptr cinfo, char * arg)
+GLOBAL(boolean) set_quant_slots(j_compress_ptr cinfo, char * arg)
 /* Process a quantization-table-selectors parameter string, of the form
  *     N[,N,...]
  * If there are more components than parameters, the last value is replicated.
@@ -324,8 +317,7 @@ set_quant_slots(j_compress_ptr cinfo, char * arg)
 	return TRUE;
 }
 
-GLOBAL(boolean)
-set_sample_factors(j_compress_ptr cinfo, char * arg)
+GLOBAL(boolean) set_sample_factors(j_compress_ptr cinfo, char * arg)
 /* Process a sample-factors parameter string, of the form
  *     HxV[,HxV,...]
  * If there are more components than parameters, "1x1" is assumed for the rest.
@@ -341,8 +333,9 @@ set_sample_factors(j_compress_ptr cinfo, char * arg)
 				return FALSE;
 			if((ch1 != 'x' && ch1 != 'X') || ch2 != ',') /* syntax check */
 				return FALSE;
-			if(val1 <= 0 || val1 > 4 || val2 <= 0 || val2 > 4) {
-				fprintf(stderr, "JPEG sampling factors must be 1..4\n");
+			if(val1 <= 0 || val1 > MAX_SAMP_FACTOR ||
+			    val2 <= 0 || val2 > MAX_SAMP_FACTOR) {
+				fprintf(stderr, "JPEG sampling factors must be 1..%d\n", MAX_SAMP_FACTOR);
 				return FALSE;
 			}
 			cinfo->comp_info[ci].h_samp_factor = val1;

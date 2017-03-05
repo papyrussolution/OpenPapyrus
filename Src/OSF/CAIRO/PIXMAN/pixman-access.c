@@ -275,15 +275,12 @@ static force_inline uint32_t convert_pixel(pixman_format_code_t from, pixman_for
 	return a | r | g | b;
 }
 
-static force_inline uint32_t convert_pixel_to_a8r8g8b8(bits_image_t * image,
-    pixman_format_code_t format,
-    uint32_t pixel)
+static force_inline uint32_t convert_pixel_to_a8r8g8b8(bits_image_t * image, pixman_format_code_t format, uint32_t pixel)
 {
-	if(PIXMAN_FORMAT_TYPE(format) == PIXMAN_TYPE_GRAY         ||
-	    PIXMAN_FORMAT_TYPE(format) == PIXMAN_TYPE_COLOR) {
+	if(PIXMAN_FORMAT_TYPE(format) == PIXMAN_TYPE_GRAY || PIXMAN_FORMAT_TYPE(format) == PIXMAN_TYPE_COLOR) {
 		return image->indexed->rgba[pixel];
 	}
-	else{
+	else {
 		return convert_pixel(format, PIXMAN_a8r8g8b8, pixel);
 	}
 }
@@ -304,8 +301,7 @@ static force_inline uint32_t convert_pixel_from_a8r8g8b8(pixman_image_t * image,
 	}
 }
 
-static force_inline uint32_t fetch_and_convert_pixel(bits_image_t *         image,
-    const uint8_t *        bits, int offset, pixman_format_code_t format)
+static force_inline uint32_t fetch_and_convert_pixel(bits_image_t * image, const uint8_t * bits, int offset, pixman_format_code_t format)
 {
 	uint32_t pixel;
 	switch(PIXMAN_FORMAT_BPP(format)) {
@@ -363,39 +359,23 @@ static force_inline void convert_and_store_pixel(bits_image_t * image, uint8_t *
 }
 
 #define MAKE_ACCESSORS(format)						\
-	static void							    \
-	fetch_scanline_ ## format(bits_image_t *image,			   \
-	    int x,			 \
-	    int y,			 \
-	    int width,			 \
-	    uint32_t *      buffer,		     \
-	    const uint32_t *mask)		     \
+	static void	fetch_scanline_ ## format(bits_image_t *image, int x, int y, int width, uint32_t * buffer, const uint32_t *mask) \
 	{								    \
 		uint8_t * bits = (uint8_t*)(image->bits + y * image->rowstride);	       \
-		int i;								\
-		for(i = 0; i < width; ++i) { \
+		for(int i = 0; i < width; ++i) { \
 			*buffer++ = fetch_and_convert_pixel(image, bits, x + i, PIXMAN_ ## format); \
 		}								\
 	}								    \
 									\
-	static void							    \
-	    store_scanline_ ## format(bits_image_t *  image,		       \
-	    int x,			 \
-	    int y,			 \
-	    int width,			 \
-	    const uint32_t *values)		     \
+	static void store_scanline_ ## format(bits_image_t * image, int x, int y, int width, const uint32_t *values) \
 	{								    \
 		uint8_t * dest = (uint8_t*)(image->bits + y * image->rowstride);	       \
-		int i;								\
-		for(i = 0; i < width; ++i) { \
+		for(int i = 0; i < width; ++i) { \
 			convert_and_store_pixel(image, dest, i + x, PIXMAN_ ## format, values[i]);	    \
 		}								\
 	}								    \
 									\
-	static uint32_t							    \
-	    fetch_pixel_ ## format(bits_image_t *image,			       \
-	    int offset,				\
-	    int line)				\
+	static uint32_t fetch_pixel_ ## format(bits_image_t *image, int offset, int line) \
 	{								    \
 		uint8_t * bits = (uint8_t*)(image->bits + line * image->rowstride);	       \
 		return fetch_and_convert_pixel(image, bits, offset, PIXMAN_ ## format);			\
@@ -513,8 +493,7 @@ static uint8_t to_srgb(float f)
 		return low;
 }
 
-static void fetch_scanline_a8r8g8b8_sRGB_float(bits_image_t *  image,
-    int x, int y, int width, uint32_t * b, const uint32_t * mask)
+static void fetch_scanline_a8r8g8b8_sRGB_float(bits_image_t *  image, int x, int y, int width, uint32_t * b, const uint32_t * mask)
 {
 	const uint32_t * bits = image->bits + y * image->rowstride;
 	const uint32_t * pixel = bits + x;
@@ -622,8 +601,7 @@ static void fetch_scanline_x2b10g10r10_float(bits_image_t * image,
 static void fetch_scanline_yuy2(bits_image_t * image, int x, int line, int width, uint32_t * buffer, const uint32_t * mask)
 {
 	const uint32_t * bits = image->bits + image->rowstride * line;
-	int i;
-	for(i = 0; i < width; i++) {
+	for(int i = 0; i < width; i++) {
 		int16_t y = ((uint8_t*)bits)[(x + i) << 1] - 16;
 		int16_t u = ((uint8_t*)bits)[(((x + i) << 1) & - 4) + 1] - 128;
 		int16_t v = ((uint8_t*)bits)[(((x + i) << 1) & - 4) + 3] - 128;
@@ -646,8 +624,7 @@ static void fetch_scanline_yv12(bits_image_t * image, int x, int line, int width
 	uint8_t * y_line = YV12_Y(line);
 	uint8_t * u_line = YV12_U(line);
 	uint8_t * v_line = YV12_V(line);
-	int i;
-	for(i = 0; i < width; i++) {
+	for(int i = 0; i < width; i++) {
 		int16_t y = y_line[x + i] - 16;
 		int16_t u = u_line[(x + i) >> 1] - 128;
 		int16_t v = v_line[(x + i) >> 1] - 128;

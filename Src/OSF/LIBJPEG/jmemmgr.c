@@ -27,11 +27,16 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
+
+//#define JPEG_INTERNALS
+#define AM_MEMORY_MANAGER       /* we define jvirt_Xarray_control structs */
+//#include "jinclude.h"
+//#include "jpeglib.h"
 #include "jmemsys.h"            /* import the system-dependent declarations */
 
 #ifndef NO_GETENV
 	#ifndef HAVE_STDLIB_H           /* <stdlib.h> should declare getenv() */
-		extern char * getenv JPP((const char* name));
+extern char * getenv JPP((const char* name));
 	#endif
 #endif
 
@@ -245,8 +250,7 @@ static const size_t extra_pool_slop[JPOOL_NUMPOOLS] =
 
 #define MIN_SLOP  50            /* greater than 0 to avoid futile looping */
 
-METHODDEF(void *)
-alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobject)
+METHODDEF(void *) alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobject)
 /* Allocate a "small" object */
 {
 	my_mem_ptr mem = (my_mem_ptr)cinfo->mem;
@@ -329,8 +333,7 @@ alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobject)
  * deliberately bunch rows together to ensure a large request size.
  */
 
-METHODDEF(void FAR *)
-alloc_large(j_common_ptr cinfo, int pool_id, size_t sizeofobject)
+METHODDEF(void FAR *) alloc_large(j_common_ptr cinfo, int pool_id, size_t sizeofobject)
 /* Allocate a "large" object */
 {
 	my_mem_ptr mem = (my_mem_ptr)cinfo->mem;
@@ -381,9 +384,7 @@ alloc_large(j_common_ptr cinfo, int pool_id, size_t sizeofobject)
  * a virtual array.
  */
 
-METHODDEF(JSAMPARRAY)
-alloc_sarray(j_common_ptr cinfo, int pool_id,
-    JDIMENSION samplesperrow, JDIMENSION numrows)
+METHODDEF(JSAMPARRAY) alloc_sarray(j_common_ptr cinfo, int pool_id, JDIMENSION samplesperrow, JDIMENSION numrows)
 /* Allocate a 2-D sample array */
 {
 	my_mem_ptr mem = (my_mem_ptr)cinfo->mem;
@@ -427,10 +428,7 @@ alloc_sarray(j_common_ptr cinfo, int pool_id,
  * Creation of 2-D coefficient-block arrays.
  * This is essentially the same as the code for sample arrays, above.
  */
-
-METHODDEF(JBLOCKARRAY)
-alloc_barray(j_common_ptr cinfo, int pool_id,
-    JDIMENSION blocksperrow, JDIMENSION numrows)
+METHODDEF(JBLOCKARRAY) alloc_barray(j_common_ptr cinfo, int pool_id, JDIMENSION blocksperrow, JDIMENSION numrows)
 /* Allocate a 2-D coefficient-block array */
 {
 	my_mem_ptr mem = (my_mem_ptr)cinfo->mem;
@@ -505,11 +503,8 @@ alloc_barray(j_common_ptr cinfo, int pool_id,
  * boundaries.  The code will still work with overlapping access requests,
  * but it doesn't handle bufferload overlaps very efficiently.
  */
-
-METHODDEF(jvirt_sarray_ptr)
-request_virt_sarray(j_common_ptr cinfo, int pool_id, boolean pre_zero,
-    JDIMENSION samplesperrow, JDIMENSION numrows,
-    JDIMENSION maxaccess)
+METHODDEF(jvirt_sarray_ptr) request_virt_sarray(j_common_ptr cinfo, int pool_id, boolean pre_zero,
+    JDIMENSION samplesperrow, JDIMENSION numrows, JDIMENSION maxaccess)
 /* Request a virtual 2-D sample array */
 {
 	my_mem_ptr mem = (my_mem_ptr)cinfo->mem;
@@ -535,10 +530,8 @@ request_virt_sarray(j_common_ptr cinfo, int pool_id, boolean pre_zero,
 	return result;
 }
 
-METHODDEF(jvirt_barray_ptr)
-request_virt_barray(j_common_ptr cinfo, int pool_id, boolean pre_zero,
-    JDIMENSION blocksperrow, JDIMENSION numrows,
-    JDIMENSION maxaccess)
+METHODDEF(jvirt_barray_ptr) request_virt_barray(j_common_ptr cinfo, int pool_id, boolean pre_zero,
+    JDIMENSION blocksperrow, JDIMENSION numrows, JDIMENSION maxaccess)
 /* Request a virtual 2-D coefficient-block array */
 {
 	my_mem_ptr mem = (my_mem_ptr)cinfo->mem;
@@ -564,8 +557,7 @@ request_virt_barray(j_common_ptr cinfo, int pool_id, boolean pre_zero,
 	return result;
 }
 
-METHODDEF(void)
-realize_virt_arrays(j_common_ptr cinfo)
+METHODDEF(void) realize_virt_arrays(j_common_ptr cinfo)
 /* Allocate the in-memory buffers for any unrealized virtual arrays */
 {
 	my_mem_ptr mem = (my_mem_ptr)cinfo->mem;
@@ -736,10 +728,8 @@ do_barray_io(j_common_ptr cinfo, jvirt_barray_ptr ptr, boolean writing)
 	}
 }
 
-METHODDEF(JSAMPARRAY)
-access_virt_sarray(j_common_ptr cinfo, jvirt_sarray_ptr ptr,
-    JDIMENSION start_row, JDIMENSION num_rows,
-    boolean writable)
+METHODDEF(JSAMPARRAY) access_virt_sarray(j_common_ptr cinfo, jvirt_sarray_ptr ptr,
+    JDIMENSION start_row, JDIMENSION num_rows, boolean writable)
 /* Access the part of a virtual sample array starting at start_row */
 /* and extending for num_rows rows.  writable is true if  */
 /* caller intends to modify the accessed area. */
@@ -823,10 +813,8 @@ access_virt_sarray(j_common_ptr cinfo, jvirt_sarray_ptr ptr,
 	return ptr->mem_buffer + (start_row - ptr->cur_start_row);
 }
 
-METHODDEF(JBLOCKARRAY)
-access_virt_barray(j_common_ptr cinfo, jvirt_barray_ptr ptr,
-    JDIMENSION start_row, JDIMENSION num_rows,
-    boolean writable)
+METHODDEF(JBLOCKARRAY) access_virt_barray(j_common_ptr cinfo, jvirt_barray_ptr ptr,
+    JDIMENSION start_row, JDIMENSION num_rows, boolean writable)
 /* Access the part of a virtual block array starting at start_row */
 /* and extending for num_rows rows.  writable is true if  */
 /* caller intends to modify the accessed area. */
@@ -914,8 +902,7 @@ access_virt_barray(j_common_ptr cinfo, jvirt_barray_ptr ptr,
  * Release all objects belonging to a specified pool.
  */
 
-METHODDEF(void)
-free_pool(j_common_ptr cinfo, int pool_id)
+METHODDEF(void) free_pool(j_common_ptr cinfo, int pool_id)
 {
 	my_mem_ptr mem = (my_mem_ptr)cinfo->mem;
 	small_pool_ptr shdr_ptr;
@@ -985,8 +972,7 @@ free_pool(j_common_ptr cinfo, int pool_id)
  * Note that this cannot be called unless cinfo->mem is non-NULL.
  */
 
-METHODDEF(void)
-self_destruct(j_common_ptr cinfo)
+METHODDEF(void) self_destruct(j_common_ptr cinfo)
 {
 	int pool;
 
@@ -1004,22 +990,17 @@ self_destruct(j_common_ptr cinfo)
 
 	jpeg_mem_term(cinfo);   /* system-dependent cleanup */
 }
-
 /*
  * Memory manager initialization.
  * When this is called, only the error manager pointer is valid in cinfo!
  */
-
-GLOBAL(void)
-jinit_memory_mgr(j_common_ptr cinfo)
+GLOBAL(void) jinit_memory_mgr(j_common_ptr cinfo)
 {
 	my_mem_ptr mem;
 	long max_to_use;
 	int pool;
 	size_t test_mac;
-
 	cinfo->mem = NULL;      /* for safety if init fails */
-
 	/* Check for configuration errors.
 	 * SIZEOF(ALIGN_TYPE) should be a power of 2; otherwise, it probably
 	 * doesn't reflect any real hardware alignment requirement.

@@ -116,16 +116,14 @@ const int jpeg_natural_order2[2*2+16] = {
  * Arithmetic utilities
  */
 
-GLOBAL(long)
-jdiv_round_up(long a, long b)
+GLOBAL(long) jdiv_round_up(long a, long b)
 /* Compute a/b rounded up to next integer, ie, ceil(a/b) */
 /* Assumes a >= 0, b > 0 */
 {
 	return (a + b - 1L) / b;
 }
 
-GLOBAL(long)
-jround_up(long a, long b)
+GLOBAL(long) jround_up(long a, long b)
 /* Compute a rounded up to next multiple of b, ie, ceil(a/b)*b */
 /* Assumes a >= 0, b > 0 */
 {
@@ -151,8 +149,7 @@ jround_up(long a, long b)
 /* This function is for use by the FMEMZERO macro defined in jpegint.h.
  * Do not call this function directly, use the FMEMZERO macro instead.
  */
-GLOBAL(void)
-jzero_far(void FAR * target, size_t bytestozero)
+GLOBAL(void) jzero_far(void FAR * target, size_t bytestozero)
 /* Zero out a chunk of FAR memory. */
 /* This might be sample-array data, block-array data, or alloc_large data. */
 {
@@ -166,10 +163,8 @@ jzero_far(void FAR * target, size_t bytestozero)
 #endif
 #endif
 
-GLOBAL(void)
-jcopy_sample_rows(JSAMPARRAY input_array, int source_row,
-    JSAMPARRAY output_array, int dest_row,
-    int num_rows, JDIMENSION num_cols)
+GLOBAL(void) jcopy_sample_rows(JSAMPARRAY input_array, int source_row,
+    JSAMPARRAY output_array, int dest_row, int num_rows, JDIMENSION num_cols)
 /* Copy some rows of samples from one place to another.
  * num_rows rows are copied from input_array[source_row++]
  * to output_array[dest_row++]; these areas may overlap for duplication.
@@ -199,19 +194,16 @@ jcopy_sample_rows(JSAMPARRAY input_array, int source_row,
 	}
 }
 
-GLOBAL(void)
-jcopy_block_row(JBLOCKROW input_row, JBLOCKROW output_row,
+GLOBAL(void) jcopy_block_row(JBLOCKROW input_row, JBLOCKROW output_row,
     JDIMENSION num_blocks)
 /* Copy a row of coefficient blocks from one place to another. */
 {
 #ifdef FMEMCOPY
 	FMEMCOPY(output_row, input_row, num_blocks * (DCTSIZE2 * SIZEOF(JCOEF)));
 #else
-	register JCOEFPTR inptr, outptr;
 	register long count;
-
-	inptr = (JCOEFPTR)input_row;
-	outptr = (JCOEFPTR)output_row;
+	register JCOEFPTR inptr = (JCOEFPTR)input_row;
+	register JCOEFPTR outptr = (JCOEFPTR)output_row;
 	for(count = (long)num_blocks * DCTSIZE2; count > 0; count--) {
 		*outptr++ = *inptr++;
 	}

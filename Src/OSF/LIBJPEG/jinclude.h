@@ -64,7 +64,8 @@
 #else /* not BSD, assume ANSI/SysV string lib */
 
 #include <string.h>
-#define MEMZERO(target,size)	memset((void *)(target), 0, (size_t)(size))
+// @sobolev #define MEMZERO(target,size)	memset((void *)(target), 0, (size_t)(size))
+#define MEMZERO(target,size)	memzero((void *)(target), (size_t)(size)) // @sobolev
 #define MEMCOPY(dest,src,size)	memcpy((void *)(dest), (const void *)(src), (size_t)(size))
 
 #endif

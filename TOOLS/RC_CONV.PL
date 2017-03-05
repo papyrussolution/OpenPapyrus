@@ -219,18 +219,28 @@ item:  while (<>) {
 				last SWITCH;
 			};
 			/^TV_STATIC/ && do {
-				$par=~/\s*(\d*),\s*(\d*),\s*(\d*),\s*(\d*),\s*(.*),\s*(\".*\"),\s*(\".*\"),\s*(\".*\")/;
-				$ax=$1;$ay=$2;$bx=$3;$by=$4;$id=$5;$text=$7;
-				$ax*=4;$bx*=4;$ay*=8;$by*=8;
-				if ($id>=$dummy_id) {
+				$par=~/\s*(\d*),\s*(\d*),\s*(\d*),\s*(\d*),\s*(.*),\s*(\".*\"),\s*(\".*\"),\s*(\".*\"),\s*(\".*\")/;
+				$ax=$1;
+				$ay=$2;
+				$bx=$3;
+				$by=$4;
+				$id=$5;
+				$text=$7;
+				$subtype=$8;
+				$resource=$9;
+				$ax*=4;
+				$bx*=4;
+				$ay*=8;
+				$by*=8;
+				if($id>=$dummy_id) {
 					$id=$did++;
 				}
-				if ($text=~/^\"\x3([\x20-\xff]*)[\x3\"].*/) {
+				if($text=~/^\"\x3([\x20-\xff]*)[\x3\"].*/) {
 					$text='"'.$1.'"';
 				}
-				if ($text=~/^\"\x3([\x20-\xff]*).*/) {
+				if($text=~/^\"\x3([\x20-\xff]*).*/) {
 					$text='"'.$1.'"';
-				}
+				}				
 				push @print_lines,['LTEXT ',$ax,$ay,$bx-$ax,$by-$ay,$id,$text];
 				last SWITCH;
 			};

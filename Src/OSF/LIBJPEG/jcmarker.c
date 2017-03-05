@@ -2,7 +2,7 @@
  * jcmarker.c
  *
  * Copyright (C) 1991-1998, Thomas G. Lane.
- * Modified 2003-2012 by Guido Vollbeding.
+ * Modified 2003-2013 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -468,8 +468,7 @@ emit_adobe_app14(j_compress_ptr cinfo)
  * Counting the parameter bytes properly is the caller's responsibility.
  */
 
-METHODDEF(void)
-write_marker_header(j_compress_ptr cinfo, int marker, unsigned int datalen)
+METHODDEF(void) write_marker_header(j_compress_ptr cinfo, int marker, unsigned int datalen)
 /* Emit an arbitrary marker header */
 {
 	if(datalen > (unsigned int)65533)       /* safety check */
@@ -480,8 +479,7 @@ write_marker_header(j_compress_ptr cinfo, int marker, unsigned int datalen)
 	emit_2bytes(cinfo, (int)(datalen + 2)); /* total length */
 }
 
-METHODDEF(void)
-write_marker_byte(j_compress_ptr cinfo, int val)
+METHODDEF(void) write_marker_byte(j_compress_ptr cinfo, int val)
 /* Emit one byte of marker parameters following write_marker_header */
 {
 	emit_byte(cinfo, val);
@@ -491,15 +489,14 @@ write_marker_byte(j_compress_ptr cinfo, int val)
  * Write datastream header.
  * This consists of an SOI and optional APPn markers.
  * We recommend use of the JFIF marker, but not the Adobe marker,
- * when using YCbCr or grayscale data.  The JFIF marker should NOT
- * be used for any other JPEG colorspace.  The Adobe marker is helpful
+ * when using YCbCr or grayscale data.  The JFIF marker is also used
+ * for other standard JPEG colorspaces.  The Adobe marker is helpful
  * to distinguish RGB, CMYK, and YCCK colorspaces.
  * Note that an application can write additional header markers after
  * jpeg_start_compress returns.
  */
 
-METHODDEF(void)
-write_file_header(j_compress_ptr cinfo)
+METHODDEF(void) write_file_header(j_compress_ptr cinfo)
 {
 	my_marker_ptr marker = (my_marker_ptr)cinfo->marker;
 
@@ -523,8 +520,7 @@ write_file_header(j_compress_ptr cinfo)
  * try to error-check the quant table numbers as soon as they see the SOF.
  */
 
-METHODDEF(void)
-write_frame_header(j_compress_ptr cinfo)
+METHODDEF(void) write_frame_header(j_compress_ptr cinfo)
 {
 	int ci, prec;
 	boolean is_baseline;
@@ -592,8 +588,7 @@ write_frame_header(j_compress_ptr cinfo)
  * Compressed data will be written following the SOS.
  */
 
-METHODDEF(void)
-write_scan_header(j_compress_ptr cinfo)
+METHODDEF(void) write_scan_header(j_compress_ptr cinfo)
 {
 	my_marker_ptr marker = (my_marker_ptr)cinfo->marker;
 	int i;
@@ -636,8 +631,7 @@ write_scan_header(j_compress_ptr cinfo)
  * Write datastream trailer.
  */
 
-METHODDEF(void)
-write_file_trailer(j_compress_ptr cinfo)
+METHODDEF(void) write_file_trailer(j_compress_ptr cinfo)
 {
 	emit_marker(cinfo, M_EOI);
 }
@@ -649,8 +643,7 @@ write_file_trailer(j_compress_ptr cinfo)
  * emitted.  Note that all tables will be marked sent_table = TRUE at exit.
  */
 
-METHODDEF(void)
-write_tables_only(j_compress_ptr cinfo)
+METHODDEF(void) write_tables_only(j_compress_ptr cinfo)
 {
 	int i;
 
@@ -677,8 +670,7 @@ write_tables_only(j_compress_ptr cinfo)
  * Initialize the marker writer module.
  */
 
-GLOBAL(void)
-jinit_marker_writer(j_compress_ptr cinfo)
+GLOBAL(void) jinit_marker_writer(j_compress_ptr cinfo)
 {
 	my_marker_ptr marker;
 

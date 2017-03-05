@@ -9,6 +9,8 @@
  * cjpeg and djpeg.  It is NOT used by the core JPEG library.
  */
 
+#include <slib.h> // @sobolev
+
 #define JPEG_CJPEG_DJPEG        /* define proper options in jconfig.h */
 #define JPEG_INTERNAL_OPTIONS   /* cjpeg.c,djpeg.c need to see xxx_SUPPORTED */
 #include "jinclude.h"
@@ -136,9 +138,9 @@ EXTERN(void) end_progress_monitor JPP((j_common_ptr cinfo));
 EXTERN(boolean) keymatch JPP((char * arg, const char * keyword, int minchars));
 EXTERN(FILE *) read_stdin JPP((void));
 EXTERN(FILE *) write_stdout JPP((void));
-/* 
-	miscellaneous useful macros 
-*/
+
+/* miscellaneous useful macros */
+
 #ifdef DONT_USE_B_MODE          /* define mode parameters for fopen() */
 	#define READ_BINARY     "r"
 	#define WRITE_BINARY    "w"

@@ -2,7 +2,7 @@
  * jcparam.c
  *
  * Copyright (C) 1991-1998, Thomas G. Lane.
- * Modified 2003-2012 by Guido Vollbeding.
+ * Modified 2003-2013 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -17,8 +17,7 @@
  * Quantization table setup routines
  */
 
-GLOBAL(void)
-jpeg_add_quant_table(j_compress_ptr cinfo, int which_tbl,
+GLOBAL(void) jpeg_add_quant_table(j_compress_ptr cinfo, int which_tbl,
     const unsigned int * basic_table,
     int scale_factor, boolean force_baseline)
 /* Define a quantization table equal to the basic_table times
@@ -82,8 +81,7 @@ static const unsigned int std_chrominance_quant_tbl[DCTSIZE2] = {
 	99,  99,  99,  99,  99,  99,  99,  99
 };
 
-GLOBAL(void)
-jpeg_default_qtables(j_compress_ptr cinfo, boolean force_baseline)
+GLOBAL(void) jpeg_default_qtables(j_compress_ptr cinfo, boolean force_baseline)
 /* Set or change the 'quality' (quantization) setting, using default tables
  * and straight percentage-scaling quality scales.
  * This entry point allows different scalings for luminance and chrominance.
@@ -96,9 +94,7 @@ jpeg_default_qtables(j_compress_ptr cinfo, boolean force_baseline)
 	    cinfo->q_scale_factor[1], force_baseline);
 }
 
-GLOBAL(void)
-jpeg_set_linear_quality(j_compress_ptr cinfo, int scale_factor,
-    boolean force_baseline)
+GLOBAL(void) jpeg_set_linear_quality(j_compress_ptr cinfo, int scale_factor, boolean force_baseline)
 /* Set or change the 'quality' (quantization) setting, using default tables
  * and a straight percentage-scaling quality scale.  In most cases it's better
  * to use jpeg_set_quality (below); this entry point is provided for
@@ -112,8 +108,7 @@ jpeg_set_linear_quality(j_compress_ptr cinfo, int scale_factor,
 	    scale_factor, force_baseline);
 }
 
-GLOBAL(int)
-jpeg_quality_scaling(int quality)
+GLOBAL(int) jpeg_quality_scaling(int quality)
 /* Convert a user-specified quality rating to a percentage scaling factor
  * for an underlying quantization table, using our recommended scaling curve.
  * The input 'quality' factor should be 0 (terrible) to 100 (very good).
@@ -137,8 +132,7 @@ jpeg_quality_scaling(int quality)
 	return quality;
 }
 
-GLOBAL(void)
-jpeg_set_quality(j_compress_ptr cinfo, int quality, boolean force_baseline)
+GLOBAL(void) jpeg_set_quality(j_compress_ptr cinfo, int quality, boolean force_baseline)
 /* Set or change the 'quality' (quantization) setting, using default tables.
  * This is the standard quality-adjusting entry point for typical user
  * interfaces; only those who want detailed control over quantization tables
@@ -270,8 +264,7 @@ std_huff_tables(j_compress_ptr cinfo)
  * your code will still work (they'll be set to reasonable defaults).
  */
 
-GLOBAL(void)
-jpeg_set_defaults(j_compress_ptr cinfo)
+GLOBAL(void) jpeg_set_defaults(j_compress_ptr cinfo)
 {
 	int i;
 
@@ -312,18 +305,17 @@ jpeg_set_defaults(j_compress_ptr cinfo)
 	/* Expect normal source image, not raw downsampled data */
 	cinfo->raw_data_in = FALSE;
 
-	/* Use Huffman coding, not arithmetic coding, by default */
-	cinfo->arith_code = FALSE;
+	/* The standard Huffman tables are only valid for 8-bit data precision.
+	 * If the precision is higher, use arithmetic coding.
+	 * (Alternatively, using Huffman coding would be possible with forcing
+	 * optimization on so that usable tables will be computed, or by
+	 * supplying default tables that are valid for the desired precision.)
+	 * Otherwise, use Huffman coding by default.
+	 */
+	cinfo->arith_code = cinfo->data_precision > 8 ? TRUE : FALSE;
 
 	/* By default, don't do extra passes to optimize entropy coding */
 	cinfo->optimize_coding = FALSE;
-	/* The standard Huffman tables are only valid for 8-bit data precision.
-	 * If the precision is higher, force optimization on so that usable
-	 * tables will be computed.  This test can be removed if default tables
-	 * are supplied that are valid for the desired precision.
-	 */
-	if(cinfo->data_precision > 8)
-		cinfo->optimize_coding = TRUE;
 
 	/* By default, use the simpler non-cosited sampling alignment */
 	cinfo->CCIR601_sampling = FALSE;
@@ -349,6 +341,9 @@ jpeg_set_defaults(j_compress_ptr cinfo)
 	 * JFIF_minor_version to 2.  We could probably get away with just defaulting
 	 * to 1.02, but there may still be some decoders in use that will complain
 	 * about that; saying 1.01 should minimize compatibility problems.
+	 *
+	 * For wide gamut colorspaces (BG_RGB and BG_YCC), the major version will be
+	 * overridden by jpeg_set_colorspace and set to 2.
 	 */
 	cinfo->JFIF_major_version = 1; /* Default JFIF version = 1.01 */
 	cinfo->JFIF_minor_version = 1;
@@ -368,10 +363,12 @@ jpeg_set_defaults(j_compress_ptr cinfo)
  * Select an appropriate JPEG colorspace for in_color_space.
  */
 
-GLOBAL(void)
-jpeg_default_colorspace(j_compress_ptr cinfo)
+GLOBAL(void) jpeg_default_colorspace(j_compress_ptr cinfo)
 {
 	switch(cinfo->in_color_space) {
+		case JCS_UNKNOWN:
+		    jpeg_set_colorspace(cinfo, JCS_UNKNOWN);
+		    break;
 		case JCS_GRAYSCALE:
 		    jpeg_set_colorspace(cinfo, JCS_GRAYSCALE);
 		    break;
@@ -387,8 +384,12 @@ jpeg_default_colorspace(j_compress_ptr cinfo)
 		case JCS_YCCK:
 		    jpeg_set_colorspace(cinfo, JCS_YCCK);
 		    break;
-		case JCS_UNKNOWN:
-		    jpeg_set_colorspace(cinfo, JCS_UNKNOWN);
+		case JCS_BG_RGB:
+		    /* No translation for now -- conversion to BG_YCC not yet supportet */
+		    jpeg_set_colorspace(cinfo, JCS_BG_RGB);
+		    break;
+		case JCS_BG_YCC:
+		    jpeg_set_colorspace(cinfo, JCS_BG_YCC);
 		    break;
 		default:
 		    ERREXIT(cinfo, JERR_BAD_IN_COLORSPACE);
@@ -399,8 +400,7 @@ jpeg_default_colorspace(j_compress_ptr cinfo)
  * Set the JPEG colorspace, and choose colorspace-dependent default values.
  */
 
-GLOBAL(void)
-jpeg_set_colorspace(j_compress_ptr cinfo, J_COLOR_SPACE colorspace)
+GLOBAL(void) jpeg_set_colorspace(j_compress_ptr cinfo, J_COLOR_SPACE colorspace)
 {
 	jpeg_component_info * compptr;
 	int ci;
@@ -428,29 +428,40 @@ jpeg_set_colorspace(j_compress_ptr cinfo, J_COLOR_SPACE colorspace)
 	cinfo->write_Adobe_marker = FALSE; /* write no Adobe marker by default */
 
 	switch(colorspace) {
+		case JCS_UNKNOWN:
+		    cinfo->num_components = cinfo->input_components;
+		    if(cinfo->num_components < 1 || cinfo->num_components > MAX_COMPONENTS)
+			    ERREXIT2(cinfo, JERR_COMPONENT_COUNT, cinfo->num_components,
+			    MAX_COMPONENTS);
+		    for(ci = 0; ci < cinfo->num_components; ci++) {
+			    SET_COMP(ci, ci, 1, 1, 0, 0, 0);
+		    }
+		    break;
 		case JCS_GRAYSCALE:
 		    cinfo->write_JFIF_header = TRUE; /* Write a JFIF marker */
 		    cinfo->num_components = 1;
 		    /* JFIF specifies component ID 1 */
-		    SET_COMP(0, 1, 1, 1, 0, 0, 0);
+		    SET_COMP(0, 0x01, 1, 1, 0, 0, 0);
 		    break;
 		case JCS_RGB:
 		    cinfo->write_Adobe_marker = TRUE; /* write Adobe marker to flag RGB */
 		    cinfo->num_components = 3;
-		    SET_COMP(0, 0x52 /* 'R' */, 1, 1, 0, 0, 0);
-		    SET_COMP(1, 0x47 /* 'G' */, 1, 1, 0,
+		    SET_COMP(0, 0x52 /* 'R' */, 1, 1, 0,
 		    cinfo->color_transform == JCT_SUBTRACT_GREEN ? 1 : 0,
 		    cinfo->color_transform == JCT_SUBTRACT_GREEN ? 1 : 0);
-		    SET_COMP(2, 0x42 /* 'B' */, 1, 1, 0, 0, 0);
+		    SET_COMP(1, 0x47 /* 'G' */, 1, 1, 0, 0, 0);
+		    SET_COMP(2, 0x42 /* 'B' */, 1, 1, 0,
+		    cinfo->color_transform == JCT_SUBTRACT_GREEN ? 1 : 0,
+		    cinfo->color_transform == JCT_SUBTRACT_GREEN ? 1 : 0);
 		    break;
 		case JCS_YCbCr:
 		    cinfo->write_JFIF_header = TRUE; /* Write a JFIF marker */
 		    cinfo->num_components = 3;
 		    /* JFIF specifies component IDs 1,2,3 */
 		    /* We default to 2x2 subsamples of chrominance */
-		    SET_COMP(0, 1, 2, 2, 0, 0, 0);
-		    SET_COMP(1, 2, 1, 1, 1, 1, 1);
-		    SET_COMP(2, 3, 1, 1, 1, 1, 1);
+		    SET_COMP(0, 0x01, 2, 2, 0, 0, 0);
+		    SET_COMP(1, 0x02, 1, 1, 1, 1, 1);
+		    SET_COMP(2, 0x03, 1, 1, 1, 1, 1);
 		    break;
 		case JCS_CMYK:
 		    cinfo->write_Adobe_marker = TRUE; /* write Adobe marker to flag CMYK */
@@ -463,19 +474,33 @@ jpeg_set_colorspace(j_compress_ptr cinfo, J_COLOR_SPACE colorspace)
 		case JCS_YCCK:
 		    cinfo->write_Adobe_marker = TRUE; /* write Adobe marker to flag YCCK */
 		    cinfo->num_components = 4;
-		    SET_COMP(0, 1, 2, 2, 0, 0, 0);
-		    SET_COMP(1, 2, 1, 1, 1, 1, 1);
-		    SET_COMP(2, 3, 1, 1, 1, 1, 1);
-		    SET_COMP(3, 4, 2, 2, 0, 0, 0);
+		    SET_COMP(0, 0x01, 2, 2, 0, 0, 0);
+		    SET_COMP(1, 0x02, 1, 1, 1, 1, 1);
+		    SET_COMP(2, 0x03, 1, 1, 1, 1, 1);
+		    SET_COMP(3, 0x04, 2, 2, 0, 0, 0);
 		    break;
-		case JCS_UNKNOWN:
-		    cinfo->num_components = cinfo->input_components;
-		    if(cinfo->num_components < 1 || cinfo->num_components > MAX_COMPONENTS)
-			    ERREXIT2(cinfo, JERR_COMPONENT_COUNT, cinfo->num_components,
-			    MAX_COMPONENTS);
-		    for(ci = 0; ci < cinfo->num_components; ci++) {
-			    SET_COMP(ci, ci, 1, 1, 0, 0, 0);
-		    }
+		case JCS_BG_RGB:
+		    cinfo->write_JFIF_header = TRUE; /* Write a JFIF marker */
+		    cinfo->JFIF_major_version = 2; /* Set JFIF major version = 2 */
+		    cinfo->num_components = 3;
+		    /* Add offset 0x20 to the normal R/G/B component IDs */
+		    SET_COMP(0, 0x72 /* 'r' */, 1, 1, 0,
+		    cinfo->color_transform == JCT_SUBTRACT_GREEN ? 1 : 0,
+		    cinfo->color_transform == JCT_SUBTRACT_GREEN ? 1 : 0);
+		    SET_COMP(1, 0x67 /* 'g' */, 1, 1, 0, 0, 0);
+		    SET_COMP(2, 0x62 /* 'b' */, 1, 1, 0,
+		    cinfo->color_transform == JCT_SUBTRACT_GREEN ? 1 : 0,
+		    cinfo->color_transform == JCT_SUBTRACT_GREEN ? 1 : 0);
+		    break;
+		case JCS_BG_YCC:
+		    cinfo->write_JFIF_header = TRUE; /* Write a JFIF marker */
+		    cinfo->JFIF_major_version = 2; /* Set JFIF major version = 2 */
+		    cinfo->num_components = 3;
+		    /* Add offset 0x20 to the normal Cb/Cr component IDs */
+		    /* We default to 2x2 subsamples of chrominance */
+		    SET_COMP(0, 0x01, 2, 2, 0, 0, 0);
+		    SET_COMP(1, 0x22, 1, 1, 1, 1, 1);
+		    SET_COMP(2, 0x23, 1, 1, 1, 1, 1);
 		    break;
 		default:
 		    ERREXIT(cinfo, JERR_BAD_J_COLORSPACE);
@@ -546,8 +571,7 @@ fill_dc_scans(jpeg_scan_info * scanptr, int ncomps, int Ah, int Al)
  * cinfo->num_components and cinfo->jpeg_color_space must be correct.
  */
 
-GLOBAL(void)
-jpeg_simple_progression(j_compress_ptr cinfo)
+GLOBAL(void) jpeg_simple_progression(j_compress_ptr cinfo)
 {
 	int ncomps = cinfo->num_components;
 	int nscans;
@@ -558,8 +582,10 @@ jpeg_simple_progression(j_compress_ptr cinfo)
 		ERREXIT1(cinfo, JERR_BAD_STATE, cinfo->global_state);
 
 	/* Figure space needed for script.  Calculation must match code below! */
-	if(ncomps == 3 && cinfo->jpeg_color_space == JCS_YCbCr) {
-		/* Custom script for YCbCr color images. */
+	if(ncomps == 3 &&
+	    (cinfo->jpeg_color_space == JCS_YCbCr ||
+		    cinfo->jpeg_color_space == JCS_BG_YCC)) {
+		/* Custom script for YCC color images. */
 		nscans = 10;
 	}
 	else {
@@ -575,7 +601,7 @@ jpeg_simple_progression(j_compress_ptr cinfo)
 	 * multiple compressions without changing the settings.  To avoid a memory
 	 * leak if jpeg_simple_progression is called repeatedly for the same JPEG
 	 * object, we try to re-use previously allocated space, and we allocate
-	 * enough space to handle YCbCr even if initially asked for grayscale.
+	 * enough space to handle YCC even if initially asked for grayscale.
 	 */
 	if(cinfo->script_space == NULL || cinfo->script_space_size < nscans) {
 		cinfo->script_space_size = MAX(nscans, 10);
@@ -587,8 +613,10 @@ jpeg_simple_progression(j_compress_ptr cinfo)
 	cinfo->scan_info = scanptr;
 	cinfo->num_scans = nscans;
 
-	if(ncomps == 3 && cinfo->jpeg_color_space == JCS_YCbCr) {
-		/* Custom script for YCbCr color images. */
+	if(ncomps == 3 &&
+	    (cinfo->jpeg_color_space == JCS_YCbCr ||
+		    cinfo->jpeg_color_space == JCS_BG_YCC)) {
+		/* Custom script for YCC color images. */
 		/* Initial DC scan */
 		scanptr = fill_dc_scans(scanptr, ncomps, 0, 1);
 		/* Initial AC scan: get some luma data out in a hurry */

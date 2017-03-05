@@ -22,8 +22,7 @@
  * responsibility.
  */
 
-GLOBAL(void)
-jpeg_abort(j_common_ptr cinfo)
+GLOBAL(void) jpeg_abort(j_common_ptr cinfo)
 {
 	int pool;
 
@@ -62,8 +61,7 @@ jpeg_abort(j_common_ptr cinfo)
  * responsibility.
  */
 
-GLOBAL(void)
-jpeg_destroy(j_common_ptr cinfo)
+GLOBAL(void) jpeg_destroy(j_common_ptr cinfo)
 {
 	/* We need only tell the memory manager to release everything. */
 	/* NB: mem pointer is NULL if memory mgr failed to initialize. */
@@ -72,30 +70,20 @@ jpeg_destroy(j_common_ptr cinfo)
 	cinfo->mem = NULL;      /* be safe if jpeg_destroy is called twice */
 	cinfo->global_state = 0; /* mark it destroyed */
 }
-
 /*
  * Convenience routines for allocating quantization and Huffman tables.
  * (Would jutils.c be a more reasonable place to put these?)
  */
-
-GLOBAL(JQUANT_TBL *)
-jpeg_alloc_quant_table(j_common_ptr cinfo)
+GLOBAL(JQUANT_TBL *) jpeg_alloc_quant_table(j_common_ptr cinfo)
 {
-	JQUANT_TBL * tbl;
-
-	tbl = (JQUANT_TBL*)
-	    (*cinfo->mem->alloc_small)(cinfo, JPOOL_PERMANENT, SIZEOF(JQUANT_TBL));
+	JQUANT_TBL * tbl = (JQUANT_TBL*)(*cinfo->mem->alloc_small)(cinfo, JPOOL_PERMANENT, SIZEOF(JQUANT_TBL));
 	tbl->sent_table = FALSE; /* make sure this is false in any new table */
 	return tbl;
 }
 
-GLOBAL(JHUFF_TBL *)
-jpeg_alloc_huff_table(j_common_ptr cinfo)
+GLOBAL(JHUFF_TBL *) jpeg_alloc_huff_table(j_common_ptr cinfo)
 {
-	JHUFF_TBL * tbl;
-
-	tbl = (JHUFF_TBL*)
-	    (*cinfo->mem->alloc_small)(cinfo, JPOOL_PERMANENT, SIZEOF(JHUFF_TBL));
+	JHUFF_TBL * tbl = (JHUFF_TBL*)(*cinfo->mem->alloc_small)(cinfo, JPOOL_PERMANENT, SIZEOF(JHUFF_TBL));
 	tbl->sent_table = FALSE; /* make sure this is false in any new table */
 	return tbl;
 }

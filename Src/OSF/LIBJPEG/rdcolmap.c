@@ -214,22 +214,16 @@ read_ppm_map(j_decompress_ptr cinfo, FILE * infile)
 		    break;
 	}
 }
-
 /*
  * Main entry point from djpeg.c.
  *  Input: opened input file (from file name argument on command line).
  *  Output: colormap and actual_number_of_colors fields are set in cinfo.
  */
-
-GLOBAL(void)
-read_color_map(j_decompress_ptr cinfo, FILE * infile)
+GLOBAL(void) read_color_map(j_decompress_ptr cinfo, FILE * infile)
 {
 	/* Allocate space for a color map of maximum supported size. */
-	cinfo->colormap = (*cinfo->mem->alloc_sarray)
-		    ((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (JDIMENSION)(MAXJSAMPLE+1), (JDIMENSION)3);
+	cinfo->colormap = (*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, (JDIMENSION)(MAXJSAMPLE+1), (JDIMENSION)3);
 	cinfo->actual_number_of_colors = 0; /* initialize map to empty */
-
 	/* Read first byte to determine file format */
 	switch(getc(infile)) {
 		case 'G':

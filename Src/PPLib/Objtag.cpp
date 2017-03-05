@@ -504,7 +504,7 @@ void * SLAPI PPObjTag::CreateObjListWin(uint flags, void * extraPtr)
 			int    update = 0;
 			PPID   id = 0;
 			// @v9.5.5 { Переопределяет код из PPObjListWindow::handleEvent для предустановки типа объекта в создаваемом теге
-			PPID   preserve_focus_id = 0; 
+			PPID   preserve_focus_id = 0;
 			if(TVCOMMAND && TVCMD == cmaInsert && P_Obj && Flags & OLW_CANINSERT && !(Flags & OWL_OUTERLIST)) {
 				PPID   obj_type_id = 0;
 				if(getResult(&id) > 0 && !ObjTagFilt::ObjTypeRootIdentToObjType(id, &obj_type_id)) {
@@ -524,7 +524,7 @@ void * SLAPI PPObjTag::CreateObjListWin(uint flags, void * extraPtr)
 					::SetFocus(H());
 				PostProcessHandleEvent(update, preserve_focus_id);
 			}
-			else { // } @v9.5.5 
+			else { // } @v9.5.5
 				PPObjListWindow::handleEvent(event);
 				if(P_Obj) {
 					getResult(&id);
@@ -2342,7 +2342,7 @@ int SLAPI TagDlgParam::SetDlgData(TDialog * dlg, const ObjTagItem * pItem)
 		SString path(pItem->Val.PStr);
 		ImageBrowseCtrlGroup::Rec grp_rec(&path);
 		if(dlg->getGroup(GRP_IMG) == 0)
-			dlg->addGroup(GRP_IMG, new ImageBrowseCtrlGroup(PPTXT_FILPAT_PICT, ValImgCtl, cmAddImage, cmDelImage));
+			dlg->addGroup(GRP_IMG, new ImageBrowseCtrlGroup(/*PPTXT_FILPAT_PICT,*/ValImgCtl, cmAddImage, cmDelImage));
 		dlg->setGroupData(GRP_IMG, &grp_rec);
 	}
 	CATCHZOK

@@ -2165,7 +2165,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						THROW_PP_S(edi_ident.NotEmptyS(), PPERR_EGAIS_BILLHASNEDIIDENTTAG, bill_text);
 						if(P_BObj->CheckStatusFlag(p_bp->Rec.StatusID, BILSTF_READYFOREDIACK))
 							is_status_suited = 1;
-						if(p_bp->Rec.EdiOp == PPEDIOP_EGAIS_WAYBILL) {
+						if(oneof2(p_bp->Rec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2)) { // @v9.5.6
 							int    cmp_result = 0; // 0 - accepted, -1 - rejected,
 								// & 0x01 - есть отличия в меньшую сторону по количеству
 								// & 0x02 - есть отличия в большую сторону по количеству
@@ -4342,7 +4342,7 @@ int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, TSCollection
 			if(pPackList) {
 				for(uint pi = packIdx+1; pi < pPackList->getCount(); pi++) {
                     const Packet * p_pack = pPackList->at(pi);
-                    if(p_pack && p_pack->P_Data && p_pack->DocType == PPEDIOP_EGAIS_WAYBILL && !(p_pack->Flags & Packet::fFaultObj)) {
+                    if(p_pack && p_pack->P_Data && oneof2(p_pack->DocType, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2) && !(p_pack->Flags & Packet::fFaultObj)) {
 						PPBillPacket * p_other_bp = (PPBillPacket *)p_pack->P_Data;
 						if((!use_dt_in_bill_analog || p_other_bp->Rec.Dt == p_bp->Rec.Dt) && sstreq(p_other_bp->Rec.Code, p_bp->Rec.Code)) {
                             if(p_other_bp->BTagL.GetItemStr(PPTAG_BILL_OUTERCODE, temp_buf) > 0 && temp_buf == bill_ident) {
@@ -5572,7 +5572,8 @@ int SLAPI PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, 
 					}
 				}
 				// @v8.9.5 {
-				if((rRec.EdiOp != PPEDIOP_EGAIS_WAYBILL && !selfreject_ticket) && (rRec.EdiOp || pT->DocType == PPEDIOP_EGAIS_WAYBILL)) {
+				if((!oneof2(rRec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2) && !selfreject_ticket) &&
+					(rRec.EdiOp || oneof2(pT->DocType, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2))) {
 					if(pT->RegIdent.NotEmpty()) {
 						SString ex_edi_ident;
                         if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIIDENT, ex_edi_ident) > 0) {
@@ -5648,9 +5649,9 @@ int SLAPI PPEgaisProcessor::FinishBillProcessingByTicket(const PPEgaisProcessor:
 				}
 			}
 		}
-		else if(oneof9(pT->DocType, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_ACTCHARGEON, PPEDIOP_EGAIS_ACTCHARGEON_V2,
+		else if(oneof10(pT->DocType, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_ACTCHARGEON, PPEDIOP_EGAIS_ACTCHARGEON_V2,
 			PPEDIOP_EGAIS_ACTWRITEOFF, PPEDIOP_EGAIS_TRANSFERTOSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP, PPEDIOP_EGAIS_ACTCHARGEONSHOP,
-			PPEDIOP_EGAIS_ACTWRITEOFFSHOP)) {
+			PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_WAYBILL_V2)) {
 			int    selfreject_ticket = 0;
 			SString guid;
 			if(!pT->TranspUUID.IsZero())
@@ -5794,7 +5795,7 @@ int SLAPI PPEgaisProcessor::Helper_CollectRefs(void * pCtx, TSCollection <PPEgai
 				*/
 			}
 		}
-		if(oneof6(doc_type, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_REPLYCLIENT, 
+		if(oneof6(doc_type, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_REPLYCLIENT,
 			PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTSSHOP, PPEDIOP_EGAIS_REPLYAP)) {
 			int    adr = 1; // AcceptDoc result
 			if(!(p_reply->Status & Reply::stOffline)) {
@@ -5904,7 +5905,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 	const uint reply_count = reply_list.getCount();
 	if(reply_count) {
 		LongArray ediop_list;
-		ediop_list.addzlist(PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_TTNINFORMBREG, PPEDIOP_EGAIS_TTNINFORMF2REG, 
+		ediop_list.addzlist(PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_TTNINFORMBREG, PPEDIOP_EGAIS_TTNINFORMF2REG,
 			PPEDIOP_EGAIS_TICKET, PPEDIOP_EGAIS_REPLYCLIENT, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTSSHOP,
 			PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_REPLYAP,
 			PPEDIOP_EGAIS_REPLYFORMA, PPEDIOP_EGAIS_REPLYRESTSSHOP, PPEDIOP_EGAIS_REPLYBARCODE, 0);
@@ -6654,7 +6655,7 @@ int SLAPI PPEgaisProcessor::GetAcceptedBillList(const SendBillsParam & rP, long 
 				for(uint j = 0; j < rP.IdList.getCount(); j++) {
 					const PPID bill_id = rP.IdList.get(j);
                     if(P_BObj->Search(bill_id, &bill_rec) > 0 && bill_rec.OpID == op_id) {
-						if(bill_rec.EdiOp == PPEDIOP_EGAIS_WAYBILL && (!rP.LocID || bill_rec.LocID == rP.LocID)) {
+						if(oneof2(bill_rec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2) && (!rP.LocID || bill_rec.LocID == rP.LocID)) {
 							if(!(flags & bilstfWritedOff) || (bill_rec.Flags & BILLF_WRITEDOFF)) {
 								if(CheckBillForMainOrgID(bill_rec, op_rec)) {
 									temp_bill_list.add(bill_rec.ID);
@@ -6666,7 +6667,7 @@ int SLAPI PPEgaisProcessor::GetAcceptedBillList(const SendBillsParam & rP, long 
 			}
 			else {
 				for(DateIter di(&rP.Period); P_BObj->P_Tbl->EnumByOpr(op_id, &di, &bill_rec) > 0;) {
-					if(bill_rec.EdiOp == PPEDIOP_EGAIS_WAYBILL && (!rP.LocID || bill_rec.LocID == rP.LocID)) {
+					if(oneof2(bill_rec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2) && (!rP.LocID || bill_rec.LocID == rP.LocID)) {
 						if(!(flags & bilstfWritedOff) || (bill_rec.Flags & BILLF_WRITEDOFF)) {
 							if(CheckBillForMainOrgID(bill_rec, op_rec)) {
 								temp_bill_list.add(bill_rec.ID);

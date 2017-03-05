@@ -1151,7 +1151,7 @@ struct Entry {
 BOOL CALLBACK EnumCtrls(HWND hWnd, LPARAM lParam)
 {
 	BOOL   r = true;
-	Entry * p_e = (Entry*)lParam;
+	Entry * p_e = (Entry *)lParam;
 	if(p_e && p_e->FirstChild != hWnd) {
 		char cls_name[64];
 		long style    = TView::GetWindowStyle(hWnd);
@@ -1288,13 +1288,15 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 				}
 			}
 			TView::SetWindowProp(hWnd, GWL_EXSTYLE, ex_style);
-			while(EnumChildWindows(hWnd, EnumCtrls, (long)&e) != 0);
+			while(EnumChildWindows(hWnd, EnumCtrls, (long)&e) != 0)
+				;
 		}
 		else if(oneof2(APPL->UICfg.WindowViewStyle, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {
 			HDC dc = GetDC(hWnd);
 			SetBkColor(dc, RGB(0xDD, 0xDD, 0xF1));
 			ReleaseDC(hWnd, dc);
-			while(EnumChildWindows(hWnd, EnumCtrls, (long)&e) != 0);
+			while(EnumChildWindows(hWnd, EnumCtrls, (long)&e) != 0)
+				;
 		}
 	}
 	return ok;
@@ -1832,6 +1834,12 @@ int TProgram::GetDialogTextLayout(const SString & rText, int fontId, int penId, 
 	return ok;
 }
 
+/*int TProgram::DrawCtrlImage(HWND hwnd, DRAWITEMSTRUCT * pDi)
+{
+	int   ok = 1;
+	return ok;
+}*/
+
 int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 {
 	MemLeakTracer mlt; // @debug
@@ -2181,6 +2189,12 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		}
 	}
 	return ok;
+}
+
+const SDrawFigure * TProgram::LoadDrawFigureBySymb(const char * pSymb, TWhatmanToolArray::Item * pInfo) const
+{
+	const SDrawFigure * p_fig = DvToolList.GetFig(1, pSymb, pInfo);
+	return p_fig;
 }
 
 int TProgram::DrawInputLine3(HWND hwnd, DRAWITEMSTRUCT * pDi)

@@ -2,7 +2,7 @@
  * jdapimin.c
  *
  * Copyright (C) 1994-1998, Thomas G. Lane.
- * Modified 2009 by Guido Vollbeding.
+ * Modified 2009-2013 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -19,25 +19,19 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
-
 /*
  * Initialization of a JPEG decompression object.
  * The error manager must already be set up (in case memory manager fails).
  */
-
-GLOBAL(void)
-jpeg_CreateDecompress(j_decompress_ptr cinfo, int version, size_t structsize)
+GLOBAL(void) jpeg_CreateDecompress(j_decompress_ptr cinfo, int version, size_t structsize)
 {
 	int i;
-
 	/* Guard against version mismatches between library and caller. */
 	cinfo->mem = NULL;      /* so jpeg_destroy knows mem mgr not called */
 	if(version != JPEG_LIB_VERSION)
 		ERREXIT2(cinfo, JERR_BAD_LIB_VERSION, JPEG_LIB_VERSION, version);
 	if(structsize != SIZEOF(struct jpeg_decompress_struct))
-		ERREXIT2(cinfo, JERR_BAD_STRUCT_SIZE,
-		    (int)SIZEOF(struct jpeg_decompress_struct), (int)structsize);
-
+		ERREXIT2(cinfo, JERR_BAD_STRUCT_SIZE, (int)SIZEOF(struct jpeg_decompress_struct), (int)structsize);
 	/* For debugging purposes, we zero the whole master structure.
 	 * But the application has already set the err pointer, and may have set
 	 * client_data, so we have to save and restore those fields.
@@ -48,27 +42,21 @@ jpeg_CreateDecompress(j_decompress_ptr cinfo, int version, size_t structsize)
 		struct jpeg_error_mgr * err = cinfo->err;
 		void * client_data = cinfo->client_data; /* ignore Purify complaint here */
 		MEMZERO(cinfo, SIZEOF(struct jpeg_decompress_struct));
-
 		cinfo->err = err;
 		cinfo->client_data = client_data;
 	}
 	cinfo->is_decompressor = TRUE;
-
 	/* Initialize a memory manager instance for this object */
 	jinit_memory_mgr((j_common_ptr)cinfo);
-
 	/* Zero out pointers to permanent structures. */
 	cinfo->progress = NULL;
 	cinfo->src = NULL;
-
 	for(i = 0; i < NUM_QUANT_TBLS; i++)
 		cinfo->quant_tbl_ptrs[i] = NULL;
-
 	for(i = 0; i < NUM_HUFF_TBLS; i++) {
 		cinfo->dc_huff_tbl_ptrs[i] = NULL;
 		cinfo->ac_huff_tbl_ptrs[i] = NULL;
 	}
-
 	/* Initialize marker processor so application can override methods
 	 * for COM, APPn markers before calling jpeg_read_header.
 	 */
@@ -81,13 +69,10 @@ jpeg_CreateDecompress(j_decompress_ptr cinfo, int version, size_t structsize)
 	/* OK, I'm ready */
 	cinfo->global_state = DSTATE_START;
 }
-
 /*
  * Destruction of a JPEG decompression object
  */
-
-GLOBAL(void)
-jpeg_destroy_decompress(j_decompress_ptr cinfo)
+GLOBAL(void) jpeg_destroy_decompress(j_decompress_ptr cinfo)
 {
 	jpeg_destroy((j_common_ptr)cinfo); /* use common routine */
 }
@@ -96,33 +81,38 @@ jpeg_destroy_decompress(j_decompress_ptr cinfo)
  * Abort processing of a JPEG decompression operation,
  * but don't destroy the object itself.
  */
-
-GLOBAL(void)
-jpeg_abort_decompress(j_decompress_ptr cinfo)
+GLOBAL(void) jpeg_abort_decompress(j_decompress_ptr cinfo)
 {
 	jpeg_abort((j_common_ptr)cinfo); /* use common routine */
 }
-
 /*
  * Set default decompression parameters.
  */
-
-LOCAL(void)
-default_decompress_parms(j_decompress_ptr cinfo)
+LOCAL(void) default_decompress_parms(j_decompress_ptr cinfo)
 {
+	int cid0, cid1, cid2;
 	/* Guess the input colorspace, and set output colorspace accordingly. */
-	/* (Wish JPEG committee had provided a real way to specify this...) */
 	/* Note application may override our guesses. */
 	switch(cinfo->num_components) {
 		case 1:
 		    cinfo->jpeg_color_space = JCS_GRAYSCALE;
 		    cinfo->out_color_space = JCS_GRAYSCALE;
 		    break;
-
 		case 3:
-		    if(cinfo->saw_JFIF_marker) {
-			    cinfo->jpeg_color_space = JCS_YCbCr; /* JFIF implies YCbCr */
-		    }
+		    cid0 = cinfo->comp_info[0].component_id;
+		    cid1 = cinfo->comp_info[1].component_id;
+		    cid2 = cinfo->comp_info[2].component_id;
+		    /* First try to guess from the component IDs */
+		    if(cid0 == 0x01 && cid1 == 0x02 && cid2 == 0x03)
+			    cinfo->jpeg_color_space = JCS_YCbCr;
+		    else if(cid0 == 0x01 && cid1 == 0x22 && cid2 == 0x23)
+			    cinfo->jpeg_color_space = JCS_BG_YCC;
+		    else if(cid0 == 0x52 && cid1 == 0x47 && cid2 == 0x42)
+			    cinfo->jpeg_color_space = JCS_RGB;  /* ASCII 'R', 'G', 'B' */
+		    else if(cid0 == 0x72 && cid1 == 0x67 && cid2 == 0x62)
+			    cinfo->jpeg_color_space = JCS_BG_RGB;  /* ASCII 'r', 'g', 'b' */
+		    else if(cinfo->saw_JFIF_marker)
+			    cinfo->jpeg_color_space = JCS_YCbCr;  /* assume it's YCbCr */
 		    else if(cinfo->saw_Adobe_marker) {
 			    switch(cinfo->Adobe_transform) {
 				    case 0:
@@ -138,24 +128,12 @@ default_decompress_parms(j_decompress_ptr cinfo)
 			    }
 		    }
 		    else {
-			    /* Saw no special markers, try to guess from the component IDs */
-			    int cid0 = cinfo->comp_info[0].component_id;
-			    int cid1 = cinfo->comp_info[1].component_id;
-			    int cid2 = cinfo->comp_info[2].component_id;
-
-			    if(cid0 == 1 && cid1 == 2 && cid2 == 3)
-				    cinfo->jpeg_color_space = JCS_YCbCr;  /* assume JFIF w/out marker */
-			    else if(cid0 == 82 && cid1 == 71 && cid2 == 66)
-				    cinfo->jpeg_color_space = JCS_RGB;  /* ASCII 'R', 'G', 'B' */
-			    else {
-				    TRACEMS3(cinfo, 1, JTRC_UNKNOWN_IDS, cid0, cid1, cid2);
-				    cinfo->jpeg_color_space = JCS_YCbCr; /* assume it's YCbCr */
-			    }
+			    TRACEMS3(cinfo, 1, JTRC_UNKNOWN_IDS, cid0, cid1, cid2);
+			    cinfo->jpeg_color_space = JCS_YCbCr; /* assume it's YCbCr */
 		    }
 		    /* Always guess RGB is proper output colorspace. */
 		    cinfo->out_color_space = JCS_RGB;
 		    break;
-
 		case 4:
 		    if(cinfo->saw_Adobe_marker) {
 			    switch(cinfo->Adobe_transform) {
@@ -183,7 +161,6 @@ default_decompress_parms(j_decompress_ptr cinfo)
 		    cinfo->out_color_space = JCS_UNKNOWN;
 		    break;
 	}
-
 	/* Set defaults for other decompression parameters. */
 	cinfo->scale_num = cinfo->block_size;   /* 1:1 scaling */
 	cinfo->scale_denom = cinfo->block_size;
@@ -208,7 +185,6 @@ default_decompress_parms(j_decompress_ptr cinfo)
 	cinfo->enable_external_quant = FALSE;
 	cinfo->enable_2pass_quant = FALSE;
 }
-
 /*
  * Decompression startup: read start of JPEG datastream to see what's there.
  * Need only initialize JPEG object and supply a data source before calling.
@@ -235,18 +211,12 @@ default_decompress_parms(j_decompress_ptr cinfo)
  * This routine is now just a front end to jpeg_consume_input, with some
  * extra error checking.
  */
-
-GLOBAL(int)
-jpeg_read_header(j_decompress_ptr cinfo, boolean require_image)
+GLOBAL(int) jpeg_read_header(j_decompress_ptr cinfo, boolean require_image)
 {
 	int retcode;
-
-	if(cinfo->global_state != DSTATE_START &&
-	    cinfo->global_state != DSTATE_INHEADER)
+	if(cinfo->global_state != DSTATE_START && cinfo->global_state != DSTATE_INHEADER)
 		ERREXIT1(cinfo, JERR_BAD_STATE, cinfo->global_state);
-
 	retcode = jpeg_consume_input(cinfo);
-
 	switch(retcode) {
 		case JPEG_REACHED_SOS:
 		    retcode = JPEG_HEADER_OK;
@@ -265,10 +235,8 @@ jpeg_read_header(j_decompress_ptr cinfo, boolean require_image)
 		    /* no work */
 		    break;
 	}
-
 	return retcode;
 }
-
 /*
  * Consume data in advance of what the decompressor requires.
  * This can be called at any time once the decompressor object has
@@ -280,12 +248,9 @@ jpeg_read_header(j_decompress_ptr cinfo, boolean require_image)
  * All the actual input is done via the input controller's consume_input
  * method.
  */
-
-GLOBAL(int)
-jpeg_consume_input(j_decompress_ptr cinfo)
+GLOBAL(int) jpeg_consume_input(j_decompress_ptr cinfo)
 {
 	int retcode = JPEG_SUSPENDED;
-
 	/* NB: every possible DSTATE value should be listed in this switch */
 	switch(cinfo->global_state) {
 		case DSTATE_START:
@@ -322,35 +287,26 @@ jpeg_consume_input(j_decompress_ptr cinfo)
 	}
 	return retcode;
 }
-
 /*
  * Have we finished reading the input file?
  */
-
-GLOBAL(boolean)
-jpeg_input_complete(j_decompress_ptr cinfo)
+GLOBAL(boolean) jpeg_input_complete(j_decompress_ptr cinfo)
 {
 	/* Check for valid jpeg object */
-	if(cinfo->global_state < DSTATE_START ||
-	    cinfo->global_state > DSTATE_STOPPING)
+	if(cinfo->global_state < DSTATE_START || cinfo->global_state > DSTATE_STOPPING)
 		ERREXIT1(cinfo, JERR_BAD_STATE, cinfo->global_state);
 	return cinfo->inputctl->eoi_reached;
 }
-
 /*
  * Is there more than one scan?
  */
-
-GLOBAL(boolean)
-jpeg_has_multiple_scans(j_decompress_ptr cinfo)
+GLOBAL(boolean) jpeg_has_multiple_scans(j_decompress_ptr cinfo)
 {
 	/* Only valid after jpeg_read_header completes */
-	if(cinfo->global_state < DSTATE_READY ||
-	    cinfo->global_state > DSTATE_STOPPING)
+	if(cinfo->global_state < DSTATE_READY || cinfo->global_state > DSTATE_STOPPING)
 		ERREXIT1(cinfo, JERR_BAD_STATE, cinfo->global_state);
 	return cinfo->inputctl->has_multiple_scans;
 }
-
 /*
  * Finish JPEG decompression.
  *
@@ -359,12 +315,9 @@ jpeg_has_multiple_scans(j_decompress_ptr cinfo)
  * Returns FALSE if suspended.  The return value need be inspected only if
  * a suspending data source is used.
  */
-
-GLOBAL(boolean)
-jpeg_finish_decompress(j_decompress_ptr cinfo)
+GLOBAL(boolean) jpeg_finish_decompress(j_decompress_ptr cinfo)
 {
-	if((cinfo->global_state == DSTATE_SCANNING ||
-		    cinfo->global_state == DSTATE_RAW_OK) && !cinfo->buffered_image) {
+	if((cinfo->global_state == DSTATE_SCANNING || cinfo->global_state == DSTATE_RAW_OK) && !cinfo->buffered_image) {
 		/* Terminate final pass of non-buffered mode */
 		if(cinfo->output_scanline < cinfo->output_height)
 			ERREXIT(cinfo, JERR_TOO_LITTLE_DATA);

@@ -5160,4 +5160,580 @@ int SLAPI FiasImporter::Run(FiasImporter::Param & rP)
 //
 //
 //
+//
+//
+//
+class PPOsm : public SStrGroup {
+public:
+	enum {
+		fInvisible = 0x0001
+	};
+    struct Node {
+    	Node()
+    	{
+    		ID = 0;
+    		Flags = 0;
+    	};
+    	int64  ID;
+		long   Flags;
+		SGeoPosLL_Int C;
+    };
+    struct Way {
+    	Way()
+    	{
+    		ID = 0;
+    		Flags = 0;
+    	}
+		int64  ID;
+		long   Flags;
+		Int64Array NodeRefList;
+    };
+	struct RelMember {
+		RelMember()
+		{
+			RefID = 0;
+			TypeSymbID = 0;
+			RoleSymbID = 0;
+		}
+		int64  RefID;
+		uint   TypeSymbID;
+		uint   RoleSymbID;
+	};
+    struct Relation {
+    	Relation()
+    	{
+    		ID = 0;
+    		Flags = 0;
+    	}
+		int64  ID;
+		long   Flags;
+		TSArray <RelMember> MembList;
+    };
+    struct Tag {
+    	Tag()
+    	{
+    		KeySymbID = 0;
+    		ValID = 0;
+    	}
+        uint   KeySymbID; // Идентификатор символа
+        uint64 ValID;     // Идентификатор значения (в варианте теста все значения хранятся в таблице символов)
+    };
 
+	PPOsm();
+	~PPOsm();
+	uint   FASTCALL SearchSymb(const char * pSymb) const;
+	uint   FASTCALL CreateSymb(const char * pSymb);
+	int    SLAPI GetSymbByID(uint id, SString & rSymb) const;
+	int    SLAPI BuildHashAssoc()
+	{
+		return Ht.BuildAssoc();
+	}
+private:
+	uint   LastSymbID;
+	SymbHashTable Ht;
+};
+
+PPOsm::PPOsm() : Ht(1024*1024, 0)
+{
+	LastSymbID = 0;
+}
+
+PPOsm::~PPOsm()
+{
+}
+
+uint FASTCALL PPOsm::SearchSymb(const char * pSymb) const
+{
+	uint   val = 0;
+	uint   pos = 0;
+	return Ht.Search(pSymb, &val, &pos) ? val : 0;
+}
+
+uint FASTCALL PPOsm::CreateSymb(const char * pSymb)
+{
+	uint   val = 0;
+	uint   pos = 0;
+	if(!Ht.Search(pSymb, &val, &pos)) {
+        val = ++LastSymbID;
+        if(!Ht.Add(pSymb, val))
+			val = 0;
+	}
+	return val;
+}
+
+int SLAPI PPOsm::GetSymbByID(uint id, SString & rSymb) const
+{
+	return Ht.GetByAssoc(id, rSymb);
+}
+
+class OsmImporter {
+public:
+	struct Param {
+		SLAPI  Param()
+		{
+			Flags = 0;
+		}
+		long   Flags;
+		SString FileName;
+	};
+	SLAPI  OsmImporter();
+	SLAPI ~OsmImporter();
+	int    SLAPI Run(OsmImporter::Param & rP);
+	void   SLAPI Reset();
+private:
+	enum {
+		tUnkn = 1,
+		tOsm = 2,
+		tBounds,
+		tNode,
+		tWay,
+		tRelation,
+		tNd,
+		tTag,
+		tMember
+	};
+	struct CommonAttrSet {
+		CommonAttrSet()
+		{
+			Reset();
+		}
+		void Reset()
+		{
+            ID = 0;
+            Lat = 0.0;
+            Lon = 0.0;
+            T = ZERODATETIME;
+            Ver = 0;
+            Visible = 1;
+            ChangeSet = 0;
+            UserID = 0;
+			TypeSymbID = 0;
+			RoleSymbID = 0;
+			RefID = 0;
+            User = 0;
+		}
+		int64  ID;
+		double Lat;
+		double Lon;
+        LDATETIME T;
+        int    Ver;
+        int    Visible;
+        int64  ChangeSet;
+        int64  UserID;
+		uint   TypeSymbID;
+		uint   RoleSymbID;
+		int64  RefID;
+        SString User;
+	};
+	static void Scb_StartDocument(void * ptr);
+	static void Scb_EndDocument(void * ptr);
+	static void Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList);
+	static void Scb_EndElement(void * ptr, const xmlChar * pName);
+
+	int    StartDocument();
+	int    EndDocument();
+	int    StartElement(const char * pName, const char ** ppAttrList);
+	int    EndElement(const char * pName);
+	int    SaxParseFile(xmlSAXHandlerPtr sax, const char * pFileName);
+	int    SaxStop();
+
+	int    ReadCommonAttrSet(const char ** ppAttrList, CommonAttrSet & rSet);
+	//
+	enum {
+		stError = 0x0001
+	};
+	long   State;
+	xmlParserCtxtPtr SaxCtx;
+	TSStack <int> TokPath;
+	PPOsm  O;
+	CommonAttrSet TempCaSet;
+	TSArray <PPOsm::Tag> CurrentTagList;
+	PPOsm::Node LastNode;
+	PPOsm::Way  LastWay;
+	PPOsm::Relation LastRel;
+	//
+	int64  NodeCount;
+	uint   WayCount;
+	uint   RelationCount;
+	LongArray TempTagKeyList;
+	LongArray TagKeyList; // Отладочный список ключевых символов тегов.
+};
+
+void SLAPI OsmImporter::Reset()
+{
+	State = 0;
+	TokPath.clear();
+	TempCaSet.Reset();
+	CurrentTagList.clear();
+	TokPath.clear();
+
+	NodeCount = 0;
+	WayCount = 0;
+	RelationCount = 0;
+	TempTagKeyList.clear();
+	TagKeyList.clear();
+}
+
+SLAPI OsmImporter::OsmImporter()
+{
+	SaxCtx = 0;
+	State = 0;
+	Reset();
+}
+
+SLAPI OsmImporter::~OsmImporter()
+{
+}
+
+int OsmImporter::SaxParseFile(xmlSAXHandlerPtr sax, const char * pFileName)
+{
+	int    ret = 0;
+	xmlFreeParserCtxt(SaxCtx);
+	//SaxCtx = xmlCreateFileParserCtxt(pFileName);
+	SaxCtx = xmlCreateURLParserCtxt(pFileName, 0);
+	if(!SaxCtx)
+		ret = -1;
+	else {
+		if(SaxCtx->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
+			free(SaxCtx->sax);
+		SaxCtx->sax = sax;
+		xmlDetectSAX2(SaxCtx);
+		SaxCtx->userData = this;
+		xmlParseDocument(SaxCtx);
+		ret = SaxCtx->wellFormed ? 0 : NZOR(SaxCtx->errNo, -1);
+		if(sax)
+			SaxCtx->sax = 0;
+		if(SaxCtx->myDoc) {
+			xmlFreeDoc(SaxCtx->myDoc);
+			SaxCtx->myDoc = NULL;
+		}
+		xmlFreeParserCtxt(SaxCtx);
+		SaxCtx = 0;
+	}
+	return ret;
+}
+
+int OsmImporter::SaxStop()
+{
+	xmlStopParser(SaxCtx);
+	return 1;
+}
+
+int OsmImporter::StartDocument()
+{
+	int    ok = -1;
+	/*
+	int    rec_id = 0;
+	SString debug_file_name;
+	if(InputObject == inpAddrObj) {
+		rec_id = PPREC_FIASRAWADDROBJ;
+		debug_file_name = "debug-addrobj";
+		ok = 1;
+	}
+	else if(InputObject == inpHouse) {
+		rec_id = PPREC_FIASRAWHOUSEOBJ;
+		debug_file_name = "debug-houseobj";
+		ok = 1;
+	}
+	if(ok > 0) {
+		RawRecN = 0;
+		ZDELETE(P_Sdr);
+		THROW_MEM(P_Sdr = new SdRecord);
+		THROW(LoadSdRecord(rec_id, P_Sdr));
+		P_Sdr->AllocDataBuf();
+		if(P.Flags & fDoDebugOutput) {
+			if(CurPsPos >= 0) {
+				const ProcessState::Item & r_state = Ps.L.at(CurPsPos);
+				if(r_state.Phase == phaseCount) {
+					SString debug_output_fname;
+					(debug_output_fname = P.Path).SetLastSlash().Cat(debug_file_name).CatChar('.').Cat("txt");
+					P_DebugOutput = new SFile(debug_output_fname, SFile::mWrite);
+				}
+			}
+		}
+	}
+	CATCH
+		SaxStop();
+		ok = 0;
+	ENDCATCH
+	*/
+	return ok;
+}
+
+int OsmImporter::EndDocument()
+{
+	int    ok = 1;
+	//if(InputObject == inpAddrObj) {
+	/*
+		ZDELETE(P_Sdr);
+		ZDELETE(P_DebugOutput);
+	*/
+	//}
+	return ok;
+}
+
+int OsmImporter::ReadCommonAttrSet(const char ** ppAttrList, CommonAttrSet & rSet)
+{
+	int    result = 1;
+	rSet.Reset();
+	SString temp_buf;
+	for(uint i = 0; ppAttrList[i] != 0; i += 2) {
+		temp_buf = ppAttrList[i+1];
+		if(temp_buf.NotEmptyS()) {
+			if(sstreqi_ascii(ppAttrList[i], "id")) {
+				rSet.ID = temp_buf.ToInt64();
+			}
+			else if(sstreqi_ascii(ppAttrList[i], "lat")) {
+				rSet.Lat = temp_buf.ToReal();
+			}
+			else if(sstreqi_ascii(ppAttrList[i], "lon")) {
+				rSet.Lon = temp_buf.ToReal();
+			}
+			else if(sstreqi_ascii(ppAttrList[i], "version")) {
+				rSet.Ver = temp_buf.ToLong();
+			}
+			else if(sstreqi_ascii(ppAttrList[i], "timestamp")) {
+				rSet.T.Set(temp_buf, DATF_ISO8601, 0);
+			}
+			else if(sstreqi_ascii(ppAttrList[i], "changeset")) {
+				rSet.ChangeSet = temp_buf.ToInt64();
+			}
+			else if(sstreqi_ascii(ppAttrList[i], "visible")) {
+				if(temp_buf == "true")
+					rSet.Visible = 1;
+				else if(temp_buf == "false")
+					rSet.Visible = 0;
+			}
+			else if(sstreqi_ascii(ppAttrList[i], "user")) {
+				rSet.User = temp_buf;
+			}
+			else if(sstreqi_ascii(ppAttrList[i], "uid")) {
+				rSet.UserID = temp_buf.ToInt64();
+			}
+			else if(sstreqi_ascii(ppAttrList[i], "type")) {
+				if(temp_buf.NotEmptyS())
+					rSet.TypeSymbID = O.CreateSymb(temp_buf);
+			}
+			else if(sstreqi_ascii(ppAttrList[i], "ref")) {
+				rSet.RefID = temp_buf.ToInt64();
+			}
+			else if(sstreqi_ascii(ppAttrList[i], "role")) {
+				if(temp_buf.NotEmptyS())
+					rSet.RoleSymbID = O.CreateSymb(temp_buf);
+			}
+		}
+	}
+	return result;
+}
+
+int OsmImporter::StartElement(const char * pName, const char ** ppAttrList)
+{
+	int    ok = 1;
+	int    tok = tUnkn;
+	SString line_buf;
+	//SString temp_buf;
+	if(sstreqi_ascii(pName, "osm")) {
+		tok = tOsm;
+		CurrentTagList.clear();
+	}
+	else if(sstreqi_ascii(pName, "bounds")) {
+		tok = tBounds;
+		CurrentTagList.clear();
+	}
+	else if(sstreqi_ascii(pName, "node")) { // osm/node
+		tok = tNode;
+		NodeCount++;
+        PPOsm::Node new_node;
+        ReadCommonAttrSet(ppAttrList, TempCaSet);
+        new_node.ID = TempCaSet.ID;
+        new_node.C.Set(TempCaSet.Lat, TempCaSet.Lon);
+        if(!TempCaSet.Visible)
+			new_node.Flags |= PPOsm::fInvisible;
+        LastNode = new_node;
+        CurrentTagList.clear();
+	}
+	else if(sstreqi_ascii(pName, "way")) { // osm/way
+		tok = tWay;
+		WayCount++;
+		PPOsm::Way new_way;
+		ReadCommonAttrSet(ppAttrList, TempCaSet);
+		new_way.ID = TempCaSet.ID;
+        if(!TempCaSet.Visible)
+			new_way.Flags |= PPOsm::fInvisible;
+		LastWay = new_way;
+		CurrentTagList.clear();
+	}
+	else if(sstreqi_ascii(pName, "nd")) { // osm/way/nd
+		tok = tNd;
+		const int upper_tok = TokPath.peek();
+		if(upper_tok == tWay) {
+			ReadCommonAttrSet(ppAttrList, TempCaSet);
+			if(TempCaSet.RefID)
+				LastWay.NodeRefList.add(TempCaSet.RefID);
+		}
+		else {
+			; // @error
+		}
+	}
+	else if(sstreqi_ascii(pName, "relation")) { // osm/relation
+		tok = tRelation;
+		RelationCount++;
+		PPOsm::Relation new_rel;
+		ReadCommonAttrSet(ppAttrList, TempCaSet);
+		new_rel.ID = TempCaSet.ID;
+		if(!TempCaSet.Visible)
+			new_rel.Flags |= PPOsm::fInvisible;
+		LastRel = new_rel;
+		CurrentTagList.clear();
+	}
+	else if(sstreqi_ascii(pName, "member")) { // osm/relation/member
+		tok = tMember;
+		const int upper_tok = TokPath.peek();
+        if(upper_tok == tRelation) {
+			PPOsm::RelMember new_memb;
+			ReadCommonAttrSet(ppAttrList, TempCaSet);
+			new_memb.RefID = TempCaSet.RefID;
+			new_memb.RoleSymbID = TempCaSet.RoleSymbID;
+			new_memb.TypeSymbID = TempCaSet.TypeSymbID;
+			THROW_SL(LastRel.MembList.insert(&new_memb));
+        }
+        else {
+			; // @error
+        }
+	}
+	else if(sstreqi_ascii(pName, "tag")) { // osm/node/tag || osm/relation/tag
+		tok = tTag;
+		SString key, val;
+		int    tag_err = 0;
+		for(uint i = 0; ppAttrList[i] != 0; i += 2) {
+			const char * p_text_data = ppAttrList[i+1];
+			if(p_text_data != 0) {
+				if(sstreqi_ascii(ppAttrList[i], "k")) {
+					if(key.Empty())
+						(key = p_text_data).Strip();
+					else
+						tag_err = 1;
+				}
+				else if(sstreqi_ascii(ppAttrList[i], "v")) {
+					if(val.Empty())
+						(val = p_text_data).Strip();
+					else
+						tag_err = 2;
+				}
+			}
+		}
+		if(key.Empty())
+			tag_err = 3;
+		else if(!tag_err) {
+			PPOsm::Tag new_tag;
+			new_tag.KeySymbID = O.CreateSymb(key);
+			TempTagKeyList.add((long)new_tag.KeySymbID);
+			if(TempTagKeyList.getCount() >= 1000) {
+				TempTagKeyList.sortAndUndup();
+				TagKeyList.add(&TempTagKeyList);
+				TagKeyList.sortAndUndup();
+				TempTagKeyList.clear();
+			}
+			if(val.NotEmpty()) {
+				new_tag.ValID = O.CreateSymb(val);
+			}
+			else
+				new_tag.ValID = 0;
+			CurrentTagList.insert(&new_tag);
+		}
+	}
+	else
+		tok = tUnkn;
+	TokPath.push(tok);
+	CATCH
+		SaxStop();
+		State |= stError;
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
+int OsmImporter::EndElement(const char * pName)
+{
+	int    tok = 0;
+	int    ok = TokPath.pop(tok);
+	return ok;
+}
+
+//static
+void OsmImporter::Scb_StartDocument(void * ptr)
+{
+	CALLTYPEPTRMEMB(OsmImporter, ptr, StartDocument());
+}
+
+//static
+void OsmImporter::Scb_EndDocument(void * ptr)
+{
+	CALLTYPEPTRMEMB(OsmImporter, ptr, EndDocument());
+}
+
+//static
+void OsmImporter::Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList)
+{
+	CALLTYPEPTRMEMB(OsmImporter, ptr, StartElement((const char *)pName, (const char **)ppAttrList));
+}
+
+//static
+void OsmImporter::Scb_EndElement(void * ptr, const xmlChar * pName)
+{
+	CALLTYPEPTRMEMB(OsmImporter, ptr, EndElement((const char *)pName));
+}
+
+int SLAPI OsmImporter::Run(OsmImporter::Param & rP)
+{
+	int    ok = 1;
+	{
+		xmlSAXHandler saxh_addr_obj;
+		MEMSZERO(saxh_addr_obj);
+		saxh_addr_obj.startDocument = Scb_StartDocument;
+		saxh_addr_obj.endDocument = Scb_EndDocument;
+		saxh_addr_obj.startElement = Scb_StartElement;
+		saxh_addr_obj.endElement = Scb_EndElement;
+		{
+			SString file_name = rP.FileName;
+			SString log_file_name;
+			{
+				SPathStruc ps;
+				ps.Split(file_name);
+				ps.Ext = "log";
+				ps.Merge(log_file_name);
+			}
+			PROFILE(SaxParseFile(&saxh_addr_obj, file_name));
+			{
+				TempTagKeyList.sortAndUndup();
+				TagKeyList.add(&TempTagKeyList);
+				TagKeyList.sortAndUndup();
+				TempTagKeyList.clear();
+				//
+				O.BuildHashAssoc();
+				{
+					SFile f_log(log_file_name, SFile::mWrite);
+					SString line_buf;
+					(line_buf = 0).CatEq("NodeCount", NodeCount).CatDiv(';', 2).
+						CatEq("WayCount", WayCount).CatDiv(';', 2).CatEq("RelationCount", RelationCount).CR();
+					f_log.WriteLine(line_buf);
+					for(uint i = 0; i < TagKeyList.getCount(); i++) {
+						const long tag_symb_id = TagKeyList.get(i);
+						if(O.GetSymbByID(tag_symb_id, line_buf)) {
+							f_log.WriteLine(line_buf.CR());
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+int SLAPI __Construct_OsmImporter(const char * pFileName)
+{
+	OsmImporter prcssr;
+	OsmImporter::Param param;
+	param.FileName = pFileName ? pFileName : "D:/Papyrus/Universe-HTT/DATA/OpenStreetMap/russia-latest.osm";
+	return prcssr.Run(param);
+}

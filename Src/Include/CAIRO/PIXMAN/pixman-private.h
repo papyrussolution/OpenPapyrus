@@ -53,26 +53,10 @@ struct argb_t {
 	float b;
 };
 
-typedef void (*fetch_scanline_t)(bits_image_t   * image,
-    int x,
-    int y,
-    int width,
-    uint32_t       * buffer,
-    const uint32_t * mask);
-
-typedef uint32_t (*fetch_pixel_32_t)(bits_image_t * image,
-    int x,
-    int y);
-
-typedef argb_t (*fetch_pixel_float_t)(bits_image_t * image,
-    int x,
-    int y);
-
-typedef void (*store_scanline_t)(bits_image_t *  image,
-    int x,
-    int y,
-    int width,
-    const uint32_t * values);
+typedef void (*fetch_scanline_t)(bits_image_t   * image, int x, int y, int width, uint32_t * buffer, const uint32_t * mask);
+typedef uint32_t (*fetch_pixel_32_t)(bits_image_t * image, int x, int y);
+typedef argb_t (*fetch_pixel_float_t)(bits_image_t * image, int x, int y);
+typedef void (*store_scanline_t)(bits_image_t *  image, int x, int y, int width, const uint32_t * values);
 
 typedef enum {
 	BITS,
@@ -93,12 +77,12 @@ struct image_common {
 	pixman_bool_t client_clip;                  /* Whether the source clip was set by a client */
 	pixman_bool_t clip_sources;                 /* Whether the clip applies when the image is used as a source */
 	pixman_bool_t dirty;
-	pixman_transform_t *        transform;
+	pixman_transform_t * transform;
 	pixman_repeat_t repeat;
 	pixman_filter_t filter;
-	pixman_fixed_t *            filter_params;
+	pixman_fixed_t * filter_params;
 	int n_filter_params;
-	bits_image_t *              alpha_map;
+	bits_image_t * alpha_map;
 	int alpha_origin_x;
 	int alpha_origin_y;
 	pixman_bool_t component_alpha;
@@ -255,23 +239,12 @@ void _pixman_linear_gradient_iter_init(pixman_image_t * image, pixman_iter_t  * 
 void _pixman_radial_gradient_iter_init(pixman_image_t * image, pixman_iter_t * iter);
 void _pixman_conical_gradient_iter_init(pixman_image_t * image, pixman_iter_t * iter);
 void _pixman_image_init(pixman_image_t * image);
-
-pixman_bool_t _pixman_bits_image_init(pixman_image_t * image,
-    pixman_format_code_t format,
-    int width,
-    int height,
-    uint32_t *           bits,
-    int rowstride,
-    pixman_bool_t clear);
+pixman_bool_t _pixman_bits_image_init(pixman_image_t * image, pixman_format_code_t format,
+    int width, int height, uint32_t * bits, int rowstride, pixman_bool_t clear);
 pixman_bool_t _pixman_image_fini(pixman_image_t * image);
-
 pixman_image_t * _pixman_image_allocate(void);
-
-pixman_bool_t _pixman_init_gradient(gradient_t *                  gradient,
-    const pixman_gradient_stop_t * stops,
-    int n_stops);
+pixman_bool_t _pixman_init_gradient(gradient_t * gradient, const pixman_gradient_stop_t * stops, int n_stops);
 void _pixman_image_reset_clip_region(pixman_image_t * image);
-
 void _pixman_image_validate(pixman_image_t * image);
 
 #define PIXMAN_IMAGE_GET_LINE(image, x, y, type, out_stride, line, mul)	\
@@ -650,7 +623,7 @@ static force_inline void pixman_list_move_to_front(pixman_list_t * list, pixman_
 }
 
 /* Misc macros */
-
+/* @sobolev
 #ifndef FALSE
 	#define FALSE 0
 #endif
@@ -663,7 +636,7 @@ static force_inline void pixman_list_move_to_front(pixman_list_t * list, pixman_
 #ifndef MAX
 	#define MAX(a, b) ((a > b) ? a : b)
 #endif
-
+*/
 /* Integer division that rounds towards -infinity */
 #define DIV(a, b) ((((a) < 0) == ((b) < 0)) ? (a) / (b) : ((a) - (b) + 1 - (((b) < 0) << 1)) / (b))
 /* Modulus that produces the remainder wrt. DIV */
@@ -745,16 +718,12 @@ static force_inline uint32_t unorm_to_unorm(uint32_t val, int from_bits, int to_
 	 * into a few shifts.
 	 */
 #define REPLICATE()							\
-	do								    \
-	{								    \
-		if(from_bits < to_bits)					       \
-		{								\
+	do { \
+		if(from_bits < to_bits) { \
 			result |= result >> from_bits;				    \
-									\
 			from_bits *= 2;						    \
 		}								\
-	}								    \
-	while(0)
+	} while(0)
 
 	REPLICATE();
 	REPLICATE();
@@ -801,8 +770,7 @@ void _pixman_log_error(const char * function, const char * message);
 			_pixman_log_error(FUNC, "The expression " # expr " was false");	\
 			return;							    \
 		}								\
-	}								    \
-	while(0)
+	} while(0)
 
 #define return_val_if_fail(expr, retval)				\
 	do { \
@@ -810,15 +778,13 @@ void _pixman_log_error(const char * function, const char * message);
 			_pixman_log_error(FUNC, "The expression " # expr " was false");	\
 			return (retval);					    \
 		}								\
-	}								    \
-	while(0)
+	} while(0)
 
 #define critical_if_fail(expr)						\
 	do { \
 		if(unlikely(!(expr)))					      \
 			_pixman_log_error(FUNC, "The expression " # expr " was false");	\
-	}								    \
-	while(0)
+	} while(0)
 
 /*
  * Matrix

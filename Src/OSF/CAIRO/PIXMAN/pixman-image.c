@@ -255,8 +255,7 @@ static void compute_image_info(pixman_image_t * image)
 		    }
 		    else if(
 		    /* affine and integer translation components in matrix ... */
-		    ((flags & FAST_PATH_AFFINE_TRANSFORM) &&
-			    !pixman_fixed_frac(image->common.transform->matrix[0][2] |
+		    ((flags & FAST_PATH_AFFINE_TRANSFORM) && !pixman_fixed_frac(image->common.transform->matrix[0][2] |
 				    image->common.transform->matrix[1][2])) &&
 		    (
 		            /* ... combined with a simple rotation */
@@ -283,22 +282,17 @@ static void compute_image_info(pixman_image_t * image)
 			    }
 		    }
 		    break;
-
 		case PIXMAN_FILTER_CONVOLUTION:
 		    break;
-
 		case PIXMAN_FILTER_SEPARABLE_CONVOLUTION:
 		    flags |= FAST_PATH_SEPARABLE_CONVOLUTION_FILTER;
 		    break;
-
 		default:
 		    flags |= FAST_PATH_NO_CONVOLUTION_FILTER;
 		    break;
 	}
-
 	/* Repeat mode */
-	switch(image->common.repeat)
-	{
+	switch(image->common.repeat) {
 		case PIXMAN_REPEAT_NONE:
 		    flags |=
 		    FAST_PATH_NO_REFLECT_REPEAT         |
@@ -333,12 +327,9 @@ static void compute_image_info(pixman_image_t * image)
 		flags |= FAST_PATH_COMPONENT_ALPHA;
 	else
 		flags |= FAST_PATH_UNIFIED_ALPHA;
-
 	flags |= (FAST_PATH_NO_ACCESSORS | FAST_PATH_NARROW_FORMAT);
-
 	/* Type specific checks */
-	switch(image->type)
-	{
+	switch(image->type) {
 		case SOLID:
 		    code = PIXMAN_solid;
 		    if(image->solid.color.alpha == 0xffff)
@@ -485,8 +476,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_image_set_transform(pixman_image_t * image, c
 		result = TRUE;
 		goto out;
 	}
-	if(common->transform &&
-	    memcmp(common->transform, transform, sizeof(pixman_transform_t)) == 0) {
+	if(common->transform && memcmp(common->transform, transform, sizeof(pixman_transform_t)) == 0) {
 		return TRUE;
 	}
 	if(common->transform == NULL)

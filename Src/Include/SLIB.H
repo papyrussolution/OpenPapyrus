@@ -6479,12 +6479,26 @@ public:
 	//
 	int    Search(const char * pSymb, uint * pVal, uint * pPos) const;
 	int    InitIteration(Iter * pI) const;
-	int    NextIteration(Iter *, uint * pVal, SString * pStr) const;
+	int    NextIteration(Iter *, uint * pVal, uint * pPos, SString * pStr) const;
 	//
 	// Descr: Возвращает максимальное значение идентификатора Val из всех,
 	//   хранящихся в таблице.
 	//
 	uint   GetMaxVal() const;
+	//
+	// Descr: Удаляет ассоцииации идентификаторов символов с позициями.
+	//   После вызова функции хэш теряет статус useAssoc.
+	//
+	int    ResetAssoc();
+	//
+	// Descr: Перестраивает ассоцииации идентификаторов символов с позициями.
+	//   После вызова функции хэш получает статус useAssoc.
+	// Note: Функция может быть полезна в случае, если необходимо создать большой
+	//   хэш без задержек на установку ассоциаций. При необходимости же использовать
+	//   в дальнейшем ассоциации можно вызвать эту функцию.
+	//
+	int    BuildAssoc();
+
 	int    Test_Cmp(const SymbHashTable & rPat) const;
 private:
 	enum {
@@ -11219,20 +11233,43 @@ extern long   SAry_SortExtraData;
 
 #endif // } _WIN32_WCE
 //
-// Descr: Структура географических координат, выраженных широтой и долготой.
+// Descr: Структура географических координат, выраженных широтой и долготой (double).
 //
 struct SGeoPosLL { // @persistent
 	SGeoPosLL();
-	SGeoPosLL(double lat, double lng);
-	int    operator == (const SGeoPosLL &) const;
-	int    operator != (const SGeoPosLL &) const;
-	int    Cmp(const SGeoPosLL & s) const;
+	SGeoPosLL(double lat, double lon);
+	int    FASTCALL operator == (const SGeoPosLL & rS) const;
+	int    FASTCALL operator != (const SGeoPosLL & rS) const;
+	int    FASTCALL Cmp(const SGeoPosLL & rS) const;
 	int    Valid() const;
-	SString & ToStr(SString & rBuf) const;
-	int    FromStr(const char * pStr);
+	SString & FASTCALL ToStr(SString & rBuf) const;
+	int    FASTCALL FromStr(const char * pStr);
 
-	double Latitude;
-	double Longitude;
+	double Lat;
+	double Lon;
+};
+
+class SGeoPosLL_Int { // @persistent
+public:
+	SGeoPosLL_Int();
+	SGeoPosLL_Int(const SGeoPosLL_Int & rS);
+	SGeoPosLL_Int(const SGeoPosLL & rS);
+	SGeoPosLL_Int(double lat, double lon);
+	double GetLat() const;
+	double GetLon() const;
+	int    FASTCALL operator == (const SGeoPosLL_Int & rS) const;
+	int    FASTCALL operator != (const SGeoPosLL_Int & rS) const;
+	int    FASTCALL operator == (const SGeoPosLL & rS) const;
+	int    FASTCALL operator != (const SGeoPosLL & rS) const;
+	int    FASTCALL Cmp(const SGeoPosLL_Int & rS) const;
+	int    FASTCALL Cmp(const SGeoPosLL & rS) const;
+	int    Set(double lat, double lon);
+	int    Valid() const;
+	SString & FASTCALL ToStr(SString & rBuf) const;
+	int    FASTCALL FromStr(const char * pStr);
+private:
+	long   Lat;
+	long   Lon;
 };
 //
 //

@@ -88,29 +88,20 @@ static force_inline __m128i unpack_565_to_8888(__m128i lo)
 	return _mm_or_si128(rb, g);
 }
 
-static force_inline void unpack_565_128_4x128(__m128i data,
-    __m128i* data0,
-    __m128i* data1,
-    __m128i* data2,
-    __m128i* data3)
+static force_inline void unpack_565_128_4x128(__m128i data, __m128i* data0, __m128i* data1, __m128i* data2, __m128i* data3)
 {
 	__m128i lo, hi;
-
 	lo = _mm_unpacklo_epi16(data, _mm_setzero_si128());
 	hi = _mm_unpackhi_epi16(data, _mm_setzero_si128());
-
 	lo = unpack_565_to_8888(lo);
 	hi = unpack_565_to_8888(hi);
-
 	unpack_128_2x128(lo, data0, data1);
 	unpack_128_2x128(hi, data2, data3);
 }
 
 static force_inline uint16_t pack_565_32_16(uint32_t pixel)
 {
-	return (uint16_t)(((pixel >> 8) & 0xf800) |
-	    ((pixel >> 5) & 0x07e0) |
-	    ((pixel >> 3) & 0x001f));
+	return (uint16_t)(((pixel >> 8) & 0xf800) | ((pixel >> 5) & 0x07e0) | ((pixel >> 3) & 0x001f));
 }
 
 static force_inline __m128i pack_2x128_128(__m128i lo, __m128i hi)
@@ -5866,7 +5857,6 @@ static uint32_t * sse2_fetch_x8r8g8b8(pixman_iter_t * iter, const uint32_t * mas
 		*dst++ = (*src++) | 0xff000000;
 		w--;
 	}
-
 	return iter->buffer;
 }
 
@@ -5876,39 +5866,28 @@ static uint32_t * sse2_fetch_r5g6b5(pixman_iter_t * iter, const uint32_t * mask)
 	uint32_t * dst = iter->buffer;
 	uint16_t * src = (uint16_t*)iter->bits;
 	__m128i ff000000 = mask_ff000000;
-
 	iter->bits += iter->stride;
-
 	while(w && ((uintptr_t)dst) & 0x0f) {
 		uint16_t s = *src++;
-
 		*dst++ = convert_0565_to_8888(s);
 		w--;
 	}
-
 	while(w >= 8) {
 		__m128i lo, hi, s;
-
 		s = _mm_loadu_si128((__m128i*)src);
-
 		lo = unpack_565_to_8888(_mm_unpacklo_epi16(s, _mm_setzero_si128()));
 		hi = unpack_565_to_8888(_mm_unpackhi_epi16(s, _mm_setzero_si128()));
-
 		save_128_aligned((__m128i*)(dst + 0), _mm_or_si128(lo, ff000000));
 		save_128_aligned((__m128i*)(dst + 4), _mm_or_si128(hi, ff000000));
-
 		dst += 8;
 		src += 8;
 		w -= 8;
 	}
-
 	while(w) {
 		uint16_t s = *src++;
-
 		*dst++ = convert_0565_to_8888(s);
 		w--;
 	}
-
 	return iter->buffer;
 }
 
@@ -5918,39 +5897,31 @@ static uint32_t * sse2_fetch_a8(pixman_iter_t * iter, const uint32_t * mask)
 	uint32_t * dst = iter->buffer;
 	uint8_t * src = iter->bits;
 	__m128i xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6;
-
 	iter->bits += iter->stride;
-
 	while(w && (((uintptr_t)dst) & 15)) {
 		*dst++ = *(src++) << 24;
 		w--;
 	}
-
 	while(w >= 16) {
 		xmm0 = _mm_loadu_si128((__m128i*)src);
-
 		xmm1 = _mm_unpacklo_epi8(_mm_setzero_si128(), xmm0);
 		xmm2 = _mm_unpackhi_epi8(_mm_setzero_si128(), xmm0);
 		xmm3 = _mm_unpacklo_epi16(_mm_setzero_si128(), xmm1);
 		xmm4 = _mm_unpackhi_epi16(_mm_setzero_si128(), xmm1);
 		xmm5 = _mm_unpacklo_epi16(_mm_setzero_si128(), xmm2);
 		xmm6 = _mm_unpackhi_epi16(_mm_setzero_si128(), xmm2);
-
 		_mm_store_si128(((__m128i*)(dst +  0)), xmm3);
 		_mm_store_si128(((__m128i*)(dst +  4)), xmm4);
 		_mm_store_si128(((__m128i*)(dst +  8)), xmm5);
 		_mm_store_si128(((__m128i*)(dst + 12)), xmm6);
-
 		dst += 16;
 		src += 16;
 		w -= 16;
 	}
-
 	while(w) {
 		*dst++ = *(src++) << 24;
 		w--;
 	}
-
 	return iter->buffer;
 }
 

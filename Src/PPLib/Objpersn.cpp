@@ -3477,7 +3477,7 @@ public:
 		PPObjSecur obj_secur(PPOBJ_USR, 0);
 		if(!obj_secur.CheckRights(PPR_READ))
 			enableCommand(cmCashierRights, 0);
-		addGroup(GRP_IBG, new ImageBrowseCtrlGroup(PPTXT_PICFILESEXTS, CTL_PERSON_IMAGE,
+		addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_PERSON_IMAGE,
 			cmAddImage, cmDelImage, PsnObj.CheckRights(PSNRT_UPDIMAGE), ImageBrowseCtrlGroup::fUseExtOpenDlg));
 	}
 	int    setDTS(const PPPersonPacket * pData)

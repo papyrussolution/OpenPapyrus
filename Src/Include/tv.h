@@ -2960,16 +2960,17 @@ private:
 
 class TImageView : public TView {
 public:
-	TImageView(const TRect & bounds);
+	TImageView(const TRect & rBounds, const char * pFigSymb);
 	~TImageView();
-	virtual void draw();
+	//virtual void draw();
 	virtual int  TransmitData(int dir, void * pData);
 	//void   loadImage(const char *);
 private:
 	static LRESULT CALLBACK DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual int  handleWindowsMessage(UINT, WPARAM, LPARAM);
 	void * P_Image;
-	//SDrawFigure * P_Fig;
+	SDrawFigure * P_Fig;
+	SString FigSymb; // @v9.5.6 Символ векторной фигуры для отображения //
 };
 
 class TButton : public TView {
@@ -4069,6 +4070,7 @@ public:
 	{
 		return UiToolBox;
 	}
+	const SDrawFigure * LoadDrawFigureBySymb(const char * pSymb, TWhatmanToolArray::Item * pInfo) const;
 
 	static TProgram * application;   // @global
 
@@ -4197,7 +4199,7 @@ public:
 	int    Paint();
 	int    Move();
 	int    DoCommand(TPoint p);
-	void * GetImage() 
+	void * GetImage()
 	{
 		return P_Image;
 	}

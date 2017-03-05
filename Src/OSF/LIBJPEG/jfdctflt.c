@@ -2,7 +2,7 @@
  * jfdctflt.c
  *
  * Copyright (C) 1994-1996, Thomas G. Lane.
- * Modified 2003-2009 by Guido Vollbeding.
+ * Modified 2003-2015 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -37,6 +37,9 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
+//#define JPEG_INTERNALS
+//#include "jinclude.h"
+//#include "jpeglib.h"
 #include "jdct.h"               /* Private declarations for DCT subsystem */
 
 #ifdef DCT_FLOAT_SUPPORTED
@@ -51,10 +54,11 @@ Sorry, this code only copes with 8x8 DCTs.   /* deliberate syntax err */
 
 /*
  * Perform the forward DCT on one block of samples.
+ *
+ * cK represents cos(K*pi/16).
  */
 
-GLOBAL(void)
-jpeg_fdct_float(FAST_FLOAT * data, JSAMPARRAY sample_data, JDIMENSION start_col)
+GLOBAL(void) jpeg_fdct_float(FAST_FLOAT * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
 	FAST_FLOAT tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
 	FAST_FLOAT tmp10, tmp11, tmp12, tmp13;
@@ -86,7 +90,7 @@ jpeg_fdct_float(FAST_FLOAT * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 		tmp11 = tmp1 + tmp2;
 		tmp12 = tmp1 - tmp2;
 
-		/* Apply unsigned->signed conversion */
+		/* Apply unsigned->signed conversion. */
 		dataptr[0] = tmp10 + tmp11 - 8 * CENTERJSAMPLE; /* phase 3 */
 		dataptr[4] = tmp10 - tmp11;
 

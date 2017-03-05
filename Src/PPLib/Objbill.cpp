@@ -5644,10 +5644,12 @@ int SLAPI PPObjBill::AdjustSerialForUniq(PPID goodsID, PPID lotID, int checkOnly
 			long   c = 0;
 			int    found = 0;
 			adjusted_serial = rSerial;
+			PPIDArray lot_list;
 			do {
-				PPIDArray lot_list;
 				ReceiptTbl::Rec lot_rec;
-				SearchLotsBySerial(adjusted_serial, &lot_list);
+				lot_list.clear();
+				// @v9.5.6 SearchLotsBySerial(adjusted_serial, &lot_list);
+				SearchLotsBySerialExactly(adjusted_serial, &lot_list); // @v9.5.6 
 				found = 0;
 				for(uint i = 0; !found && i < lot_list.getCount(); i++) {
 					const PPID lot_id = lot_list.get(i);

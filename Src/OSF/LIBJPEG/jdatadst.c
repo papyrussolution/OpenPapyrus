@@ -17,6 +17,10 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
+/* this is not a core library module, so it doesn't define JPEG_INTERNALS */
+//#include "jinclude.h"
+//#include "jpeglib.h"
+//#include "jerror.h"
 
 #ifndef HAVE_STDLIB_H           /* <stdlib.h> should declare malloc(),free() */
 extern void * malloc JPP((size_t size));
@@ -27,6 +31,7 @@ extern void free JPP((void* ptr));
 
 typedef struct {
 	struct jpeg_destination_mgr pub; /* public fields */
+
 	FILE * outfile;         /* target stream */
 	JOCTET * buffer;        /* start of buffer */
 } my_destination_mgr;
@@ -57,6 +62,7 @@ typedef my_mem_destination_mgr * my_mem_dest_ptr;
 METHODDEF(void) init_destination(j_compress_ptr cinfo)
 {
 	my_dest_ptr dest = (my_dest_ptr)cinfo->dest;
+
 	/* Allocate the output buffer --- it will be released when done with image */
 	dest->buffer = (JOCTET*)
 	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
@@ -94,8 +100,7 @@ METHODDEF(void) init_mem_destination(j_compress_ptr cinfo)
  * write it out when emptying the buffer externally.
  */
 
-METHODDEF(boolean)
-empty_output_buffer(j_compress_ptr cinfo)
+METHODDEF(boolean) empty_output_buffer(j_compress_ptr cinfo)
 {
 	my_dest_ptr dest = (my_dest_ptr)cinfo->dest;
 
@@ -109,8 +114,7 @@ empty_output_buffer(j_compress_ptr cinfo)
 	return TRUE;
 }
 
-METHODDEF(boolean)
-empty_mem_output_buffer(j_compress_ptr cinfo)
+METHODDEF(boolean) empty_mem_output_buffer(j_compress_ptr cinfo)
 {
 	size_t nextsize;
 	JOCTET * nextbuffer;
@@ -148,8 +152,7 @@ empty_mem_output_buffer(j_compress_ptr cinfo)
  * for error exit.
  */
 
-METHODDEF(void)
-term_destination(j_compress_ptr cinfo)
+METHODDEF(void) term_destination(j_compress_ptr cinfo)
 {
 	my_dest_ptr dest = (my_dest_ptr)cinfo->dest;
 	size_t datacount = OUTPUT_BUF_SIZE - dest->pub.free_in_buffer;
@@ -165,10 +168,10 @@ term_destination(j_compress_ptr cinfo)
 		ERREXIT(cinfo, JERR_FILE_WRITE);
 }
 
-METHODDEF(void)
-term_mem_destination(j_compress_ptr cinfo)
+METHODDEF(void) term_mem_destination(j_compress_ptr cinfo)
 {
 	my_mem_dest_ptr dest = (my_mem_dest_ptr)cinfo->dest;
+
 	*dest->outbuffer = dest->buffer;
 	*dest->outsize = dest->bufsize - dest->pub.free_in_buffer;
 }
@@ -179,8 +182,7 @@ term_mem_destination(j_compress_ptr cinfo)
  * for closing it after finishing compression.
  */
 
-GLOBAL(void)
-jpeg_stdio_dest(j_compress_ptr cinfo, FILE * outfile)
+GLOBAL(void) jpeg_stdio_dest(j_compress_ptr cinfo, FILE * outfile)
 {
 	my_dest_ptr dest;
 
@@ -217,8 +219,7 @@ jpeg_stdio_dest(j_compress_ptr cinfo, FILE * outfile)
  * when allocating a larger buffer.
  */
 
-GLOBAL(void)
-jpeg_mem_dest(j_compress_ptr cinfo,
+GLOBAL(void) jpeg_mem_dest(j_compress_ptr cinfo,
     unsigned char ** outbuffer, unsigned long * outsize)
 {
 	my_mem_dest_ptr dest;

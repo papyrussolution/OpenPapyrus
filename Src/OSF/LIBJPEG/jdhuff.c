@@ -2,7 +2,7 @@
  * jdhuff.c
  *
  * Copyright (C) 1991-1997, Thomas G. Lane.
- * Modified 2006-2012 by Guido Vollbeding.
+ * Modified 2006-2013 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -618,6 +618,20 @@ jpeg_huff_decode(bitread_working_state * state,
 }
 
 /*
+ * Finish up at the end of a Huffman-compressed scan.
+ */
+
+METHODDEF(void) finish_pass_huff(j_decompress_ptr cinfo)
+{
+	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
+
+	/* Throw away any unused bits remaining in bit buffer; */
+	/* include any full bytes in next_marker's count of discarded bytes */
+	cinfo->marker->discarded_bytes += entropy->bitstate.bits_left / 8;
+	entropy->bitstate.bits_left = 0;
+}
+
+/*
  * Check for a restart marker & resynchronize decoder.
  * Returns FALSE if must suspend.
  */
@@ -628,10 +642,7 @@ process_restart(j_decompress_ptr cinfo)
 	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
 	int ci;
 
-	/* Throw away any unused bits remaining in bit buffer; */
-	/* include any full bytes in next_marker's count of discarded bytes */
-	cinfo->marker->discarded_bytes += entropy->bitstate.bits_left / 8;
-	entropy->bitstate.bits_left = 0;
+	finish_pass_huff(cinfo);
 
 	/* Advance past the RSTn marker */
 	if(!(*cinfo->marker->read_restart_marker)(cinfo))
@@ -680,8 +691,7 @@ process_restart(j_decompress_ptr cinfo)
  * or first pass of successive approximation).
  */
 
-METHODDEF(boolean)
-decode_mcu_DC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
+METHODDEF(boolean) decode_mcu_DC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
 	int Al = cinfo->Al;
@@ -749,8 +759,7 @@ decode_mcu_DC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
  * or first pass of successive approximation).
  */
 
-METHODDEF(boolean)
-decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
+METHODDEF(boolean) decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
 	register int s, k, r;
@@ -832,17 +841,14 @@ decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 
 /*
  * MCU decoding for DC successive approximation refinement scan.
- * Note: we assume such scans can be multi-component, although the spec
- * is not very clear on the point.
+ * Note: we assume such scans can be multi-component,
+ * although the spec is not very clear on the point.
  */
 
-METHODDEF(boolean)
-decode_mcu_DC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
+METHODDEF(boolean) decode_mcu_DC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
-	int p1 = 1 << cinfo->Al; /* 1 in the bit position being coded */
-	int blkn;
-	JBLOCKROW block;
+	int p1, blkn;
 	BITREAD_STATE_VARS;
 
 	/* Process restart marker if needed; may have to suspend */
@@ -859,15 +865,15 @@ decode_mcu_DC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 	/* Load up working state */
 	BITREAD_LOAD_STATE(cinfo, entropy->bitstate);
 
+	p1 = 1 << cinfo->Al;    /* 1 in the bit position being coded */
+
 	/* Outer loop handles each block in the MCU */
 
 	for(blkn = 0; blkn < cinfo->blocks_in_MCU; blkn++) {
-		block = MCU_data[blkn];
-
 		/* Encoded data is simply the next bit of the two's-complement DC value */
 		CHECK_BIT_BUFFER(br_state, 1, return FALSE);
 		if(GET_BITS(1))
-			(*block)[0] |= p1;
+			MCU_data[blkn][0][0] |= p1;
 		/* Note: since we use |=, repeating the assignment later is safe */
 	}
 
@@ -884,8 +890,7 @@ decode_mcu_DC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
  * MCU decoding for AC successive approximation refinement scan.
  */
 
-METHODDEF(boolean)
-decode_mcu_AC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
+METHODDEF(boolean) decode_mcu_AC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
 	register int s, k, r;
@@ -1041,8 +1046,7 @@ undoit:
  * partial blocks.
  */
 
-METHODDEF(boolean)
-decode_mcu_sub(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
+METHODDEF(boolean) decode_mcu_sub(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
 	const int * natural_order;
@@ -1170,8 +1174,7 @@ EndOfBlock:;
  * full-size blocks.
  */
 
-METHODDEF(boolean)
-decode_mcu(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
+METHODDEF(boolean) decode_mcu(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
 	int blkn;
@@ -1294,8 +1297,7 @@ EndOfBlock:;
  * Initialize for a Huffman-compressed scan.
  */
 
-METHODDEF(void)
-start_pass_huff_decoder(j_decompress_ptr cinfo)
+METHODDEF(void) start_pass_huff_decoder(j_decompress_ptr cinfo)
 {
 	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
 	int ci, blkn, tbl, i;
@@ -1497,8 +1499,7 @@ bad:
  * Module initialization routine for Huffman entropy decoding.
  */
 
-GLOBAL(void)
-jinit_huff_decoder(j_decompress_ptr cinfo)
+GLOBAL(void) jinit_huff_decoder(j_decompress_ptr cinfo)
 {
 	huff_entropy_ptr entropy;
 	int i;
@@ -1508,6 +1509,7 @@ jinit_huff_decoder(j_decompress_ptr cinfo)
 	    SIZEOF(huff_entropy_decoder));
 	cinfo->entropy = &entropy->pub;
 	entropy->pub.start_pass = start_pass_huff_decoder;
+	entropy->pub.finish_pass = finish_pass_huff;
 
 	if(cinfo->progressive_mode) {
 		/* Create progression status table */

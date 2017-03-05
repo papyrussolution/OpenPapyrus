@@ -8552,7 +8552,7 @@ public:
 			LocalState |= stAsSelector;
 		SCardID = 0;
 		OwnerID = 0;
-		addGroup(GRP_IBG, new ImageBrowseCtrlGroup(PPTXT_PICFILESEXTS, CTL_SCARDVIEW_IMAGE, cmAddImage, cmDelImage,
+		addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_SCARDVIEW_IMAGE, cmAddImage, cmDelImage,
 			PsnObj.CheckRights(PSNRT_UPDIMAGE), ImageBrowseCtrlGroup::fUseExtOpenDlg));
 		selectCtrl(CTL_SCARDVIEW_INPUT);
 		Ptb.SetColor(clrRed,   GetColorRef(SClrRed));

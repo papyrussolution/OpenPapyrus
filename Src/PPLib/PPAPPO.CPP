@@ -45,6 +45,7 @@ PPApp::PPApp(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle) : T
 	LocalState = 0;
 	SPrinter::HandlePrintError = PPHandlePrintError;
 	STextBrowser::RegisterClass(hInst); // @v9.1.3
+	InitUiToolBox(); // @v9.5.6
 	InitDeskTop();
 	TEvent event;
 	event.setCmd(cmInit, 0);

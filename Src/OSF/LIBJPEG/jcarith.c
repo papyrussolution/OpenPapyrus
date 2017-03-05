@@ -1,7 +1,7 @@
 /*
  * jcarith.c
  *
- * Developed 1997-2012 by Guido Vollbeding.
+ * Developed 1997-2013 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -20,6 +20,7 @@
 
 typedef struct {
 	struct jpeg_entropy_encoder pub; /* public fields */
+
 	INT32 c; /* C register, base of coding interval, layout as in sec. D.1.3 */
 	INT32 a;         /* A register, normalized size of coding interval */
 	INT32 sc;  /* counter for stacked 0xFF values which might overflow */
@@ -124,8 +125,7 @@ emit_byte(int val, j_compress_ptr cinfo)
  * Finish up at the end of an arithmetic-compressed scan.
  */
 
-METHODDEF(void)
-finish_pass(j_compress_ptr cinfo)
+METHODDEF(void) finish_pass(j_compress_ptr cinfo)
 {
 	arith_entropy_ptr e = (arith_entropy_ptr)cinfo->entropy;
 	INT32 temp;
@@ -223,8 +223,8 @@ arith_encode(j_compress_ptr cinfo, unsigned char * st, int val)
 	 */
 	sv = *st;
 	qe = jpeg_aritab[sv & 0x7F]; /* => Qe_Value */
-	nl = (unsigned char)(qe & 0xFF); qe >>= 8; /* Next_Index_LPS + Switch_MPS */
-	nm = (unsigned char)(qe & 0xFF); qe >>= 8; /* Next_Index_MPS */
+	nl = qe & 0xFF; qe >>= 8; /* Next_Index_LPS + Switch_MPS */
+	nm = qe & 0xFF; qe >>= 8; /* Next_Index_MPS */
 
 	/* Encode & estimation procedures per sections D.1.4 & D.1.5 */
 	e->a -= qe;
@@ -354,11 +354,9 @@ emit_restart(j_compress_ptr cinfo, int restart_num)
  * or first pass of successive approximation).
  */
 
-METHODDEF(boolean)
-encode_mcu_DC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
+METHODDEF(boolean) encode_mcu_DC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
-	JBLOCKROW block;
 	unsigned char * st;
 	int blkn, ci, tbl;
 	int v, v2, m;
@@ -377,14 +375,13 @@ encode_mcu_DC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 
 	/* Encode the MCU data blocks */
 	for(blkn = 0; blkn < cinfo->blocks_in_MCU; blkn++) {
-		block = MCU_data[blkn];
 		ci = cinfo->MCU_membership[blkn];
 		tbl = cinfo->cur_comp_info[ci]->dc_tbl_no;
 
 		/* Compute the DC value after the required point transform by Al.
 		 * This is simply an arithmetic right shift.
 		 */
-		m = IRIGHT_SHIFT((int)((*block)[0]), cinfo->Al);
+		m = IRIGHT_SHIFT((int)(MCU_data[blkn][0][0]), cinfo->Al);
 
 		/* Sections F.1.4.1 & F.1.4.4.1: Encoding of DC coefficients */
 
@@ -446,15 +443,14 @@ encode_mcu_DC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
  * or first pass of successive approximation).
  */
 
-METHODDEF(boolean)
-encode_mcu_AC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
+METHODDEF(boolean) encode_mcu_AC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
+	const int * natural_order;
 	JBLOCKROW block;
 	unsigned char * st;
 	int tbl, k, ke;
 	int v, v2, m;
-	const int * natural_order;
 
 	/* Emit restart marker if needed */
 	if(cinfo->restart_interval) {
@@ -550,10 +546,11 @@ encode_mcu_AC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 
 /*
  * MCU encoding for DC successive approximation refinement scan.
+ * Note: we assume such scans can be multi-component,
+ * although the spec is not very clear on the point.
  */
 
-METHODDEF(boolean)
-encode_mcu_DC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
+METHODDEF(boolean) encode_mcu_DC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
 	unsigned char * st;
@@ -586,15 +583,14 @@ encode_mcu_DC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
  * MCU encoding for AC successive approximation refinement scan.
  */
 
-METHODDEF(boolean)
-encode_mcu_AC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
+METHODDEF(boolean) encode_mcu_AC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
+	const int * natural_order;
 	JBLOCKROW block;
 	unsigned char * st;
 	int tbl, k, ke, kex;
 	int v;
-	const int * natural_order;
 
 	/* Emit restart marker if needed */
 	if(cinfo->restart_interval) {
@@ -687,16 +683,16 @@ encode_mcu_AC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
  * Encode and output one MCU's worth of arithmetic-compressed coefficients.
  */
 
-METHODDEF(boolean)
-encode_mcu(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
+METHODDEF(boolean) encode_mcu(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
-	jpeg_component_info * compptr;
+	const int * natural_order;
 	JBLOCKROW block;
 	unsigned char * st;
-	int blkn, ci, tbl, k, ke;
+	int tbl, k, ke;
 	int v, v2, m;
-	const int * natural_order;
+	int blkn, ci;
+	jpeg_component_info * compptr;
 
 	/* Emit restart marker if needed */
 	if(cinfo->restart_interval) {
@@ -837,8 +833,7 @@ encode_mcu(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
  * Initialize for an arithmetic-compressed scan.
  */
 
-METHODDEF(void)
-start_pass(j_compress_ptr cinfo, boolean gather_statistics)
+METHODDEF(void) start_pass(j_compress_ptr cinfo, boolean gather_statistics)
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
 	int ci, tbl;
@@ -921,8 +916,7 @@ start_pass(j_compress_ptr cinfo, boolean gather_statistics)
  * Module initialization routine for arithmetic entropy encoding.
  */
 
-GLOBAL(void)
-jinit_arith_encoder(j_compress_ptr cinfo)
+GLOBAL(void) jinit_arith_encoder(j_compress_ptr cinfo)
 {
 	arith_entropy_ptr entropy;
 	int i;

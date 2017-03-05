@@ -64,8 +64,7 @@ LOCAL(void) write_colormap JPP((j_decompress_ptr cinfo, bmp_dest_ptr dest,
  * In this module rows_supplied will always be 1.
  */
 
-METHODDEF(void)
-put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
+METHODDEF(void) put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
     JDIMENSION rows_supplied)
 /* This version is for writing 24-bit pixels */
 {
@@ -74,13 +73,9 @@ put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
 	register JSAMPROW inptr, outptr;
 	register JDIMENSION col;
 	int pad;
-
 	/* Access next row in virtual array */
-	image_ptr = (*cinfo->mem->access_virt_sarray)
-		    ((j_common_ptr)cinfo, dest->whole_image,
-	    dest->cur_output_row, (JDIMENSION)1, TRUE);
+	image_ptr = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, dest->whole_image, dest->cur_output_row, (JDIMENSION)1, TRUE);
 	dest->cur_output_row++;
-
 	/* Transfer data.  Note destination values must be in BGR order
 	 * (even though Microsoft's own documents say the opposite).
 	 */
@@ -92,16 +87,13 @@ put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
 		outptr[0] = *inptr++;
 		outptr += 3;
 	}
-
 	/* Zero out the pad bytes. */
 	pad = dest->pad_bytes;
 	while(--pad >= 0)
 		*outptr++ = 0;
 }
 
-METHODDEF(void)
-put_gray_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
-    JDIMENSION rows_supplied)
+METHODDEF(void) put_gray_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
 /* This version is for grayscale OR quantized color output */
 {
 	bmp_dest_ptr dest = (bmp_dest_ptr)dinfo;
@@ -109,33 +101,25 @@ put_gray_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
 	register JSAMPROW inptr, outptr;
 	register JDIMENSION col;
 	int pad;
-
 	/* Access next row in virtual array */
-	image_ptr = (*cinfo->mem->access_virt_sarray)
-		    ((j_common_ptr)cinfo, dest->whole_image,
-	    dest->cur_output_row, (JDIMENSION)1, TRUE);
+	image_ptr = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, dest->whole_image, dest->cur_output_row, (JDIMENSION)1, TRUE);
 	dest->cur_output_row++;
-
 	/* Transfer data. */
 	inptr = dest->pub.buffer[0];
 	outptr = image_ptr[0];
 	for(col = cinfo->output_width; col > 0; col--) {
 		*outptr++ = *inptr++; /* can omit GETJSAMPLE() safely */
 	}
-
 	/* Zero out the pad bytes. */
 	pad = dest->pad_bytes;
 	while(--pad >= 0)
 		*outptr++ = 0;
 }
-
 /*
  * Startup: normally writes the file header.
  * In this module we may as well postpone everything until finish_output.
  */
-
-METHODDEF(void)
-start_output_bmp(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
+METHODDEF(void) start_output_bmp(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 {
 	/* no work here */
 }
@@ -147,9 +131,7 @@ start_output_bmp(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
  *
  * First, routines to write the Windows and OS/2 variants of the file header.
  */
-
-LOCAL(void)
-write_bmp_header(j_decompress_ptr cinfo, bmp_dest_ptr dest)
+LOCAL(void) write_bmp_header(j_decompress_ptr cinfo, bmp_dest_ptr dest)
 /* Write a Windows-style BMP file header, including colormap if needed */
 {
 	char bmpfileheader[14];
@@ -338,8 +320,7 @@ write_colormap(j_decompress_ptr cinfo, bmp_dest_ptr dest,
 	}
 }
 
-METHODDEF(void)
-finish_output_bmp(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
+METHODDEF(void) finish_output_bmp(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 {
 	bmp_dest_ptr dest = (bmp_dest_ptr)dinfo;
 	register FILE * outfile = dest->pub.output_file;
@@ -378,17 +359,13 @@ finish_output_bmp(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 	if(ferror(outfile))
 		ERREXIT(cinfo, JERR_FILE_WRITE);
 }
-
 /*
  * The module selection routine for BMP format output.
  */
-
-GLOBAL(djpeg_dest_ptr)
-jinit_write_bmp(j_decompress_ptr cinfo, boolean is_os2)
+GLOBAL(djpeg_dest_ptr) jinit_write_bmp(j_decompress_ptr cinfo, boolean is_os2)
 {
 	bmp_dest_ptr dest;
 	JDIMENSION row_width;
-
 	/* Create module interface object, fill in method pointers */
 	dest = (bmp_dest_ptr)
 	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,

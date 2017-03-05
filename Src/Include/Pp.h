@@ -19432,8 +19432,8 @@ public:
 //
 #define	SENDSMEXTSTR_TEXT	1	// Текст сообщения //
 
-struct PPSendSms {
-	SLAPI  PPSendSms();
+struct PPSendSmsParam {
+	SLAPI  PPSendSmsParam();
 	void   SLAPI Init();
 	int    SLAPI NotEmpty();
 
@@ -19450,8 +19450,8 @@ public:
 	SLAPI  PPObjSendSms(void * extraPtr = 0);
 	//virtual int SLAPI Edit(PPID *, long);
 	//virtual int SLAPI Browse(long extra);
-	int    SLAPI Get(PPID, PPSendSms *);
-	int    SLAPI Put(PPID *, PPSendSms *, int use_ta);
+	int    SLAPI Get(PPID id, PPSendSmsParam *);
+	int    SLAPI Put(PPID * pID, PPSendSmsParam *, int use_ta);
 };
 //
 // @v7.6.1 @Muxa {
@@ -45869,7 +45869,7 @@ public:
 		SString Path;
 	};
 	// Формат строки расширений: Имя:*.ext;*.ext2;*.ext3,Имя:*.ext4;*.ext5;*.ext6, ...
-	ImageBrowseCtrlGroup(uint patternsID, uint ctlImage, uint cmChgImage, uint cmDeleteImage, int allowChangeImage = 1, long flags = 0);
+	ImageBrowseCtrlGroup(/* @v9.5.6 uint patternsID,*/uint ctlImage, uint cmChgImage, uint cmDeleteImage, int allowChangeImage = 1, long flags = 0);
 	virtual int setData(TDialog *, void *);
 	virtual int getData(TDialog *, void *);
 private:

@@ -2,6 +2,7 @@
  * wrtarga.c
  *
  * Copyright (C) 1991-1996, Thomas G. Lane.
+ * Modified 2015 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -18,12 +19,10 @@
 #pragma hdrstop
 
 #ifdef TARGA_SUPPORTED
-
 /*
  * To support 12-bit JPEG data, we'd have to scale output down to 8 bits.
  * This is not yet implemented.
  */
-
 #if BITS_IN_JSAMPLE != 8
 Sorry, this code only copes with 8-bit JSAMPLEs.   /* deliberate syntax err */
 #endif
@@ -48,30 +47,25 @@ typedef struct {
 
 typedef tga_dest_struct * tga_dest_ptr;
 
-LOCAL(void)
-write_header(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, int num_colors)
+LOCAL(void) write_header(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, int num_colors)
 /* Create and write a Targa header */
 {
 	char targaheader[18];
-
 	/* Set unused fields of header to 0 */
 	MEMZERO(targaheader, SIZEOF(targaheader));
-
 	if(num_colors > 0) {
 		targaheader[1] = 1; /* color map type 1 */
 		targaheader[5] = (char)(num_colors & 0xFF);
 		targaheader[6] = (char)(num_colors >> 8);
 		targaheader[7] = 24; /* 24 bits per cmap entry */
 	}
-
 	targaheader[12] = (char)(cinfo->output_width & 0xFF);
 	targaheader[13] = (char)(cinfo->output_width >> 8);
 	targaheader[14] = (char)(cinfo->output_height & 0xFF);
 	targaheader[15] = (char)(cinfo->output_height >> 8);
 	targaheader[17] = 0x20; /* Top-down, non-interlaced */
-
 	if(cinfo->out_color_space == JCS_GRAYSCALE) {
-		targaheader[2] = 3; /* image type = uncompressed gray-scale */
+		targaheader[2] = 3; /* image type = uncompressed grayscale */
 		targaheader[16] = 8; /* bits per pixel */
 	}
 	else {                  /* must be RGB */
@@ -94,8 +88,7 @@ write_header(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, int num_colors)
  * In this module rows_supplied will always be 1.
  */
 
-METHODDEF(void)
-put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
+METHODDEF(void) put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
     JDIMENSION rows_supplied)
 /* used for unquantized full-color output */
 {
@@ -115,8 +108,7 @@ put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
 	(void)JFWRITE(dest->pub.output_file, dest->iobuffer, dest->buffer_width);
 }
 
-METHODDEF(void)
-put_gray_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
+METHODDEF(void) put_gray_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
     JDIMENSION rows_supplied)
 /* used for grayscale OR quantized color output */
 {
@@ -138,8 +130,7 @@ put_gray_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
  * For Targa, this is only applied to grayscale data.
  */
 
-METHODDEF(void)
-put_demapped_gray(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
+METHODDEF(void) put_demapped_gray(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
     JDIMENSION rows_supplied)
 {
 	tga_dest_ptr dest = (tga_dest_ptr)dinfo;
@@ -159,14 +150,11 @@ put_demapped_gray(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
 /*
  * Startup: write the file header.
  */
-
-METHODDEF(void)
-start_output_tga(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
+METHODDEF(void) start_output_tga(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 {
 	tga_dest_ptr dest = (tga_dest_ptr)dinfo;
 	int num_colors, i;
 	FILE * outfile;
-
 	if(cinfo->out_color_space == JCS_GRAYSCALE) {
 		/* Targa doesn't have a mapped grayscale format, so we will */
 		/* demap quantized gray output.  Never emit a colormap. */
@@ -201,33 +189,23 @@ start_output_tga(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 		ERREXIT(cinfo, JERR_TGA_COLORSPACE);
 	}
 }
-
 /*
  * Finish up at the end of the file.
  */
-
-METHODDEF(void)
-finish_output_tga(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
+METHODDEF(void) finish_output_tga(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 {
 	/* Make sure we wrote the output file OK */
 	fflush(dinfo->output_file);
 	if(ferror(dinfo->output_file))
 		ERREXIT(cinfo, JERR_FILE_WRITE);
 }
-
 /*
  * The module selection routine for Targa format output.
  */
-
-GLOBAL(djpeg_dest_ptr)
-jinit_write_targa(j_decompress_ptr cinfo)
+GLOBAL(djpeg_dest_ptr) jinit_write_targa(j_decompress_ptr cinfo)
 {
-	tga_dest_ptr dest;
-
 	/* Create module interface object, fill in method pointers */
-	dest = (tga_dest_ptr)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    SIZEOF(tga_dest_struct));
+	tga_dest_ptr dest = (tga_dest_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(tga_dest_struct));
 	dest->pub.start_output = start_output_tga;
 	dest->pub.finish_output = finish_output_tga;
 
@@ -245,7 +223,7 @@ jinit_write_targa(j_decompress_ptr cinfo)
 		    ((j_common_ptr)cinfo, JPOOL_IMAGE, dest->buffer_width, (JDIMENSION)1);
 	dest->pub.buffer_height = 1;
 
-	return (djpeg_dest_ptr)dest;
+	return &dest->pub;
 }
 
 #endif /* TARGA_SUPPORTED */

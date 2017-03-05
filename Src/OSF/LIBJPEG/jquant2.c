@@ -214,8 +214,7 @@ typedef my_cquantizer * my_cquantize_ptr;
  * NULL pointer).
  */
 
-METHODDEF(void)
-prescan_quantize(j_decompress_ptr cinfo, JSAMPARRAY input_buf,
+METHODDEF(void) prescan_quantize(j_decompress_ptr cinfo, JSAMPARRAY input_buf,
     JSAMPARRAY output_buf, int num_rows)
 {
 	my_cquantize_ptr cquantize = (my_cquantize_ptr)cinfo->cquantize;
@@ -910,8 +909,7 @@ fill_inverse_cmap(j_decompress_ptr cinfo, int c0, int c1, int c2)
  * Map some rows of pixels to the output colormapped representation.
  */
 
-METHODDEF(void)
-pass2_no_dither(j_decompress_ptr cinfo,
+METHODDEF(void) pass2_no_dither(j_decompress_ptr cinfo,
     JSAMPARRAY input_buf, JSAMPARRAY output_buf, int num_rows)
 /* This version performs no dithering */
 {
@@ -943,8 +941,7 @@ pass2_no_dither(j_decompress_ptr cinfo,
 	}
 }
 
-METHODDEF(void)
-pass2_fs_dither(j_decompress_ptr cinfo,
+METHODDEF(void) pass2_fs_dither(j_decompress_ptr cinfo,
     JSAMPARRAY input_buf, JSAMPARRAY output_buf, int num_rows)
 /* This version performs Floyd-Steinberg dithering */
 {
@@ -1135,8 +1132,7 @@ init_error_limit(j_decompress_ptr cinfo)
  * Finish up at the end of each pass.
  */
 
-METHODDEF(void)
-finish_pass1(j_decompress_ptr cinfo)
+METHODDEF(void) finish_pass1(j_decompress_ptr cinfo)
 {
 	my_cquantize_ptr cquantize = (my_cquantize_ptr)cinfo->cquantize;
 
@@ -1147,8 +1143,7 @@ finish_pass1(j_decompress_ptr cinfo)
 	cquantize->needs_zeroed = TRUE;
 }
 
-METHODDEF(void)
-finish_pass2(j_decompress_ptr cinfo)
+METHODDEF(void) finish_pass2(j_decompress_ptr cinfo)
 {
 	/* no work */
 }
@@ -1157,8 +1152,7 @@ finish_pass2(j_decompress_ptr cinfo)
  * Initialize for each processing pass.
  */
 
-METHODDEF(void)
-start_pass_2_quant(j_decompress_ptr cinfo, boolean is_pre_scan)
+METHODDEF(void) start_pass_2_quant(j_decompress_ptr cinfo, boolean is_pre_scan)
 {
 	my_cquantize_ptr cquantize = (my_cquantize_ptr)cinfo->cquantize;
 	hist3d histogram = cquantize->histogram;
@@ -1218,29 +1212,19 @@ start_pass_2_quant(j_decompress_ptr cinfo, boolean is_pre_scan)
 /*
  * Switch to a new external colormap between output passes.
  */
-
-METHODDEF(void)
-new_color_map_2_quant(j_decompress_ptr cinfo)
+METHODDEF(void) new_color_map_2_quant(j_decompress_ptr cinfo)
 {
 	my_cquantize_ptr cquantize = (my_cquantize_ptr)cinfo->cquantize;
-
 	/* Reset the inverse color map */
 	cquantize->needs_zeroed = TRUE;
 }
-
 /*
  * Module initialization routine for 2-pass color quantization.
  */
-
-GLOBAL(void)
-jinit_2pass_quantizer(j_decompress_ptr cinfo)
+GLOBAL(void) jinit_2pass_quantizer(j_decompress_ptr cinfo)
 {
-	my_cquantize_ptr cquantize;
 	int i;
-
-	cquantize = (my_cquantize_ptr)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    SIZEOF(my_cquantizer));
+	my_cquantize_ptr cquantize = (my_cquantize_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(my_cquantizer));
 	cinfo->cquantize = (struct jpeg_color_quantizer*)cquantize;
 	cquantize->pub.start_pass = start_pass_2_quant;
 	cquantize->pub.new_color_map = new_color_map_2_quant;

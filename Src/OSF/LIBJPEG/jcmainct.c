@@ -59,8 +59,7 @@ METHODDEF(void) process_data_buffer_main JPP((j_compress_ptr cinfo, JSAMPARRAY i
  * Initialize for a processing pass.
  */
 
-METHODDEF(void)
-start_pass_main(j_compress_ptr cinfo, J_BUF_MODE pass_mode)
+METHODDEF(void) start_pass_main(j_compress_ptr cinfo, J_BUF_MODE pass_mode)
 {
 	my_main_ptr mainp = (my_main_ptr)cinfo->main;
 
@@ -102,8 +101,7 @@ start_pass_main(j_compress_ptr cinfo, J_BUF_MODE pass_mode)
  * where we have only a strip buffer.
  */
 
-METHODDEF(void)
-process_data_simple_main(j_compress_ptr cinfo,
+METHODDEF(void) process_data_simple_main(j_compress_ptr cinfo,
     JSAMPARRAY input_buf, JDIMENSION *in_row_ctr,
     JDIMENSION in_rows_avail)
 {
@@ -157,8 +155,7 @@ process_data_simple_main(j_compress_ptr cinfo,
  * This routine handles all of the modes that use a full-size buffer.
  */
 
-METHODDEF(void)
-process_data_buffer_main(j_compress_ptr cinfo,
+METHODDEF(void) process_data_buffer_main(j_compress_ptr cinfo,
     JSAMPARRAY input_buf, JDIMENSION *in_row_ctr,
     JDIMENSION in_rows_avail)
 {
@@ -234,8 +231,7 @@ process_data_buffer_main(j_compress_ptr cinfo,
  * Initialize main buffer controller.
  */
 
-GLOBAL(void)
-jinit_c_main_controller(j_compress_ptr cinfo, boolean need_full_buffer)
+GLOBAL(void) jinit_c_main_controller(j_compress_ptr cinfo, boolean need_full_buffer)
 {
 	my_main_ptr mainp;
 	int ci;

@@ -2,7 +2,7 @@
  * jdmarker.c
  *
  * Copyright (C) 1991-1998, Thomas G. Lane.
- * Modified 2009-2012 by Guido Vollbeding.
+ * Modified 2009-2013 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -189,19 +189,14 @@ typedef my_marker_reader * my_marker_ptr;
  * require more care.
  */
 
-LOCAL(boolean)
-get_soi(j_decompress_ptr cinfo)
+LOCAL(boolean) get_soi(j_decompress_ptr cinfo)
 /* Process an SOI marker */
 {
 	int i;
-
 	TRACEMS(cinfo, 1, JTRC_SOI);
-
 	if(cinfo->marker->saw_SOI)
 		ERREXIT(cinfo, JERR_SOI_DUPLICATE);
-
 	/* Reset all parameters that are defined to be reset by SOI */
-
 	for(i = 0; i < NUM_ARITH_TBLS; i++) {
 		cinfo->arith_dc_L[i] = 0;
 		cinfo->arith_dc_U[i] = 1;
@@ -262,8 +257,8 @@ get_sof(j_decompress_ptr cinfo, boolean is_baseline, boolean is_prog,
 	/* We don't support files in which the image height is initially specified */
 	/* as 0 and is later redefined by DNL.  As long as we have to check that,  */
 	/* might as well have a general sanity check. */
-	if(cinfo->image_height <= 0 || cinfo->image_width <= 0
-	    || cinfo->num_components <= 0)
+	if(cinfo->image_height <= 0 || cinfo->image_width <= 0 ||
+	    cinfo->num_components <= 0)
 		ERREXIT(cinfo, JERR_EMPTY_IMAGE);
 
 	if(length != (cinfo->num_components * 3))
@@ -342,6 +337,9 @@ get_sos(j_decompress_ptr cinfo)
 
 		/* Detect the case where component id's are not unique, and, if so, */
 		/* create a fake component id using the same logic as in get_sof.   */
+		/* Note:  This also ensures that all of the SOF components are      */
+		/* referenced in the single scan case, which prevents access to     */
+		/* uninitialized memory in later decoding stages. */
 		for(ci = 0; ci < i; ci++) {
 			if(c == cinfo->cur_comp_info[ci]->component_id) {
 				c = cinfo->cur_comp_info[0]->component_id;
@@ -483,6 +481,8 @@ get_dht(j_decompress_ptr cinfo)
 		 */
 		if(count > 256 || ((INT32)count) > length)
 			ERREXIT(cinfo, JERR_BAD_HUFF_TABLE);
+
+		MEMZERO(huffval, SIZEOF(huffval)); /* pre-zero array for later copy */
 
 		for(i = 0; i < count; i++)
 			INPUT_BYTE(cinfo, huffval[i], return FALSE);
@@ -725,12 +725,13 @@ examine_app0(j_decompress_ptr cinfo, JOCTET FAR * data,
 		cinfo->X_density = (GETJOCTET(data[8]) << 8) + GETJOCTET(data[9]);
 		cinfo->Y_density = (GETJOCTET(data[10]) << 8) + GETJOCTET(data[11]);
 		/* Check version.
-		 * Major version must be 1, anything else signals an incompatible change.
+		 * Major version must be 1 or 2, anything else signals an incompatible
+		 * change.
 		 * (We used to treat this as an error, but now it's a nonfatal warning,
 		 * because some bozo at Hijaak couldn't read the spec.)
 		 * Minor version should be 0..2, but process anyway if newer.
 		 */
-		if(cinfo->JFIF_major_version != 1)
+		if(cinfo->JFIF_major_version != 1 && cinfo->JFIF_major_version != 2)
 			WARNMS2(cinfo, JWRN_JFIF_MAJOR,
 			    cinfo->JFIF_major_version, cinfo->JFIF_minor_version);
 		/* Generate trace messages */
@@ -809,8 +810,7 @@ examine_app14(j_decompress_ptr cinfo, JOCTET FAR * data,
 	}
 }
 
-METHODDEF(boolean)
-get_interesting_appn(j_decompress_ptr cinfo)
+METHODDEF(boolean) get_interesting_appn(j_decompress_ptr cinfo)
 /* Process an APP0 or APP14 marker without saving it */
 {
 	INT32 length;
@@ -856,8 +856,7 @@ get_interesting_appn(j_decompress_ptr cinfo)
 
 #ifdef SAVE_MARKERS_SUPPORTED
 
-METHODDEF(boolean)
-save_marker(j_decompress_ptr cinfo)
+METHODDEF(boolean) save_marker(j_decompress_ptr cinfo)
 /* Save an APPn or COM marker into the marker list */
 {
 	my_marker_ptr marker = (my_marker_ptr)cinfo->marker;
@@ -965,8 +964,7 @@ save_marker(j_decompress_ptr cinfo)
 
 #endif /* SAVE_MARKERS_SUPPORTED */
 
-METHODDEF(boolean)
-skip_variable(j_decompress_ptr cinfo)
+METHODDEF(boolean) skip_variable(j_decompress_ptr cinfo)
 /* Skip over an unknown or uninteresting variable-length marker */
 {
 	INT32 length;
@@ -1073,9 +1071,7 @@ first_marker(j_decompress_ptr cinfo)
  * consume_input itself should filter out (skip) the pseudo marker
  * after processing for the caller.
  */
-
-METHODDEF(int)
-read_markers(j_decompress_ptr cinfo)
+METHODDEF(int) read_markers(j_decompress_ptr cinfo)
 {
 	/* Outer loop repeats once for each marker. */
 	for(;; ) {
@@ -1191,11 +1187,9 @@ read_markers(j_decompress_ptr cinfo)
 			case M_APP13:
 			case M_APP14:
 			case M_APP15:
-			    if(!(*((my_marker_ptr)cinfo->marker)->process_APPn[
-					    cinfo->unread_marker - (int)M_APP0])(cinfo))
+			    if(!(*((my_marker_ptr)cinfo->marker)->process_APPn[cinfo->unread_marker - (int)M_APP0])(cinfo))
 				    return JPEG_SUSPENDED;
 			    break;
-
 			case M_COM:
 			    if(!(*((my_marker_ptr)cinfo->marker)->process_COM)(cinfo))
 				    return JPEG_SUSPENDED;
@@ -1244,8 +1238,7 @@ read_markers(j_decompress_ptr cinfo)
  * it holds a marker which the decoder will be unable to read past.
  */
 
-METHODDEF(boolean)
-read_restart_marker(j_decompress_ptr cinfo)
+METHODDEF(boolean) read_restart_marker(j_decompress_ptr cinfo)
 {
 	/* Obtain a marker unless we already did. */
 	/* Note that next_marker will complain if it skips any data. */
@@ -1253,9 +1246,7 @@ read_restart_marker(j_decompress_ptr cinfo)
 		if(!next_marker(cinfo))
 			return FALSE;
 	}
-
-	if(cinfo->unread_marker ==
-	    ((int)M_RST0 + cinfo->marker->next_restart_num)) {
+	if(cinfo->unread_marker == ((int)M_RST0 + cinfo->marker->next_restart_num)) {
 		/* Normal case --- swallow the marker and let entropy decoder continue */
 		TRACEMS1(cinfo, 3, JTRC_RST, cinfo->marker->next_restart_num);
 		cinfo->unread_marker = 0;
@@ -1263,14 +1254,11 @@ read_restart_marker(j_decompress_ptr cinfo)
 	else {
 		/* Uh-oh, the restart markers have been messed up. */
 		/* Let the data source manager determine how to resync. */
-		if(!(*cinfo->src->resync_to_restart)(cinfo,
-			    cinfo->marker->next_restart_num))
+		if(!(*cinfo->src->resync_to_restart)(cinfo, cinfo->marker->next_restart_num))
 			return FALSE;
 	}
-
 	/* Update next-restart state */
 	cinfo->marker->next_restart_num = (cinfo->marker->next_restart_num + 1) & 7;
-
 	return TRUE;
 }
 
@@ -1322,16 +1310,12 @@ read_restart_marker(j_decompress_ptr cinfo)
  * files might find it better to apply #2 for markers other than EOI, since
  * any other marker would have to be bogus data in that case.
  */
-
-GLOBAL(boolean)
-jpeg_resync_to_restart(j_decompress_ptr cinfo, int desired)
+GLOBAL(boolean) jpeg_resync_to_restart(j_decompress_ptr cinfo, int desired)
 {
 	int marker = cinfo->unread_marker;
 	int action = 1;
-
 	/* Always put up a warning. */
 	WARNMS2(cinfo, JWRN_MUST_RESYNC, marker, desired);
-
 	/* Outer loop handles repeated decision after scanning forward. */
 	for(;; ) {
 		if(marker < (int)M_SOF0)
@@ -1367,16 +1351,12 @@ jpeg_resync_to_restart(j_decompress_ptr cinfo, int desired)
 		}
 	} /* end loop */
 }
-
 /*
  * Reset marker processing state to begin a fresh datastream.
  */
-
-METHODDEF(void)
-reset_marker_reader(j_decompress_ptr cinfo)
+METHODDEF(void) reset_marker_reader(j_decompress_ptr cinfo)
 {
 	my_marker_ptr marker = (my_marker_ptr)cinfo->marker;
-
 	cinfo->comp_info = NULL;        /* until allocated by get_sof */
 	cinfo->input_scan_number = 0;   /* no SOS seen yet */
 	cinfo->unread_marker = 0;       /* no pending marker */
@@ -1390,17 +1370,12 @@ reset_marker_reader(j_decompress_ptr cinfo)
  * Initialize the marker reader module.
  * This is called only once, when the decompression object is created.
  */
-
-GLOBAL(void)
-jinit_marker_reader(j_decompress_ptr cinfo)
+GLOBAL(void) jinit_marker_reader(j_decompress_ptr cinfo)
 {
 	my_marker_ptr marker;
 	int i;
-
 	/* Create subobject in permanent pool */
-	marker = (my_marker_ptr)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_PERMANENT,
-	    SIZEOF(my_marker_reader));
+	marker = (my_marker_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_PERMANENT, SIZEOF(my_marker_reader));
 	cinfo->marker = &marker->pub;
 	/* Initialize public method pointers */
 	marker->pub.reset_marker_reader = reset_marker_reader;
@@ -1421,29 +1396,22 @@ jinit_marker_reader(j_decompress_ptr cinfo)
 	/* Reset marker processing state */
 	reset_marker_reader(cinfo);
 }
-
 /*
  * Control saving of COM and APPn markers into marker_list.
  */
-
 #ifdef SAVE_MARKERS_SUPPORTED
 
-GLOBAL(void)
-jpeg_save_markers(j_decompress_ptr cinfo, int marker_code,
-    unsigned int length_limit)
+GLOBAL(void) jpeg_save_markers(j_decompress_ptr cinfo, int marker_code, unsigned int length_limit)
 {
 	my_marker_ptr marker = (my_marker_ptr)cinfo->marker;
 	long maxlength;
 	jpeg_marker_parser_method processor;
-
 	/* Length limit mustn't be larger than what we can allocate
 	 * (should only be a concern in a 16-bit environment).
 	 */
 	maxlength = cinfo->mem->max_alloc_chunk - SIZEOF(struct jpeg_marker_struct);
-
 	if(((long)length_limit) > maxlength)
 		length_limit = (unsigned int)maxlength;
-
 	/* Choose processor routine to use.
 	 * APP0/APP14 have special requirements.
 	 */
@@ -1461,7 +1429,6 @@ jpeg_save_markers(j_decompress_ptr cinfo, int marker_code,
 		if(marker_code == (int)M_APP0 || marker_code == (int)M_APP14)
 			processor = get_interesting_appn;
 	}
-
 	if(marker_code == (int)M_COM) {
 		marker->process_COM = processor;
 		marker->length_limit_COM = length_limit;
@@ -1480,12 +1447,9 @@ jpeg_save_markers(j_decompress_ptr cinfo, int marker_code,
  * Install a special processing method for COM or APPn markers.
  */
 
-GLOBAL(void)
-jpeg_set_marker_processor(j_decompress_ptr cinfo, int marker_code,
-    jpeg_marker_parser_method routine)
+GLOBAL(void) jpeg_set_marker_processor(j_decompress_ptr cinfo, int marker_code, jpeg_marker_parser_method routine)
 {
 	my_marker_ptr marker = (my_marker_ptr)cinfo->marker;
-
 	if(marker_code == (int)M_COM)
 		marker->process_COM = routine;
 	else if(marker_code >= (int)M_APP0 && marker_code <= (int)M_APP15)

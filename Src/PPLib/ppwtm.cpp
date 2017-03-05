@@ -2327,13 +2327,12 @@ int TestFrameWindow::Run()
 //
 //
 int SLAPI TestSuffixTree(); //
-int SLAPI TestAutoTransl();
 int TestFann();
 int SLAPI CollectLldFileStat();
 int SLAPI ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt);
 void SLAPI TestSArchive();
 int  SLAPI TestLargeVlrInputOutput();
-int  SLAPI Test_iSalesPepsi();
+int  SLAPI __Construct_OsmImporter(const char * pFileName);
 
 int SLAPI DoConstructionTest()
 {
@@ -2341,11 +2340,10 @@ int SLAPI DoConstructionTest()
 	//PPWhatmanWindow::Launch("D:/PAPYRUS/Src/PPTEST/DATA/test04.wtm");
 	//PPWhatmanWindow::Edit("D:/PAPYRUS/Src/PPTEST/DATA/test04.wtm", "D:/PAPYRUS/Src/PPTEST/DATA/test02.wta");
 	//TestFrameWindow::Run();
-	//TestAutoTransl();
 	//TestSuffixTree();
 	//TestFann();
 	//CollectLldFileStat();
-
+	__Construct_OsmImporter(0);
 	{
 		//TSCollection <PPBarcode::Entry> bc_list;
 		//PPBarcode::RecognizeImage("D:/Papyrus/Src/OSF/ZBAR/examples/barcode.png", bc_list);
@@ -2356,7 +2354,7 @@ int SLAPI DoConstructionTest()
 		//SUnicodeTable ut;
 		//ut.ParseSource("d:/Papyrus/Src/Rsrc/unicodedata");
 		//ParseCpEncodingTables("d:/papyrus/src/rsrc/data/cp", &ut);
-
+		/*
 		SUnicodeBlock ub;
 		ub.ReadRaw("d:/Papyrus/Src/Rsrc/unicodedata", "d:/papyrus/src/rsrc/data/cp");
 		//ub.Cpmp.Test(&ub.Ut);
@@ -2366,10 +2364,10 @@ int SLAPI DoConstructionTest()
 			ub2.Read("d:/papyrus/__temp__/ub.bin");
 			ub2.Cpmp.Test(&ub2.Ut);
 		}
+		*/
 	}
 	//TestSArchive();
 	//TestLargeVlrInputOutput();
-	//Test_iSalesPepsi();
 	return ok;
 }
 

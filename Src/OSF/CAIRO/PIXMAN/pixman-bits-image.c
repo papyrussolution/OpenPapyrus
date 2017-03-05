@@ -348,7 +348,6 @@ static uint32_t * bits_image_fetch_general(pixman_iter_t  * iter, const uint32_t
 	int line   = iter->y++;
 	int width  = iter->width;
 	uint32_t * buffer = iter->buffer;
-
 	pixman_fixed_t x, y, w;
 	pixman_fixed_t ux, uy, uw;
 	pixman_vector_t v;
@@ -394,10 +393,8 @@ static uint32_t * bits_image_fetch_general(pixman_iter_t  * iter, const uint32_t
 
 static void replicate_pixel_32(bits_image_t * bits, int x, int y, int width, uint32_t * buffer)
 {
-	uint32_t color;
-	uint32_t * end;
-	color = bits->fetch_pixel_32(bits, x, y);
-	end = buffer + width;
+	uint32_t color = bits->fetch_pixel_32(bits, x, y);
+	uint32_t * end = buffer + width;
 	while(buffer < end)
 		*(buffer++) = color;
 }
@@ -494,7 +491,7 @@ static uint32_t * bits_image_fetch_untransformed_float(pixman_iter_t * iter, con
 	int x      = iter->x;
 	int y      = iter->y;
 	int width  = iter->width;
-	uint32_t *      buffer = iter->buffer;
+	uint32_t * buffer = iter->buffer;
 	if(image->common.repeat == PIXMAN_REPEAT_NONE) {
 		bits_image_fetch_untransformed_repeat_none(&image->bits, TRUE, x, y, width, buffer);
 	}
@@ -514,26 +511,16 @@ typedef struct {
 
 static const fetcher_info_t fetcher_info[] =
 {
-	{ PIXMAN_any,
-	  (FAST_PATH_NO_ALPHA_MAP                   |
-		    FAST_PATH_ID_TRANSFORM                   |
-		    FAST_PATH_NO_CONVOLUTION_FILTER          |
-		    FAST_PATH_NO_PAD_REPEAT                  |
-		    FAST_PATH_NO_REFLECT_REPEAT),
-	  bits_image_fetch_untransformed_32,
-	  bits_image_fetch_untransformed_float},
+	{ PIXMAN_any, (FAST_PATH_NO_ALPHA_MAP | FAST_PATH_ID_TRANSFORM | FAST_PATH_NO_CONVOLUTION_FILTER | FAST_PATH_NO_PAD_REPEAT | FAST_PATH_NO_REFLECT_REPEAT),
+	  bits_image_fetch_untransformed_32, bits_image_fetch_untransformed_float},
 
 	/* Affine, no alpha */
-	{ PIXMAN_any,
-	  (FAST_PATH_NO_ALPHA_MAP | FAST_PATH_HAS_TRANSFORM | FAST_PATH_AFFINE_TRANSFORM),
-	  bits_image_fetch_affine_no_alpha,
-	  _pixman_image_get_scanline_generic_float},
+	{ PIXMAN_any, (FAST_PATH_NO_ALPHA_MAP | FAST_PATH_HAS_TRANSFORM | FAST_PATH_AFFINE_TRANSFORM),
+	  bits_image_fetch_affine_no_alpha, _pixman_image_get_scanline_generic_float},
 
 	/* General */
-	{ PIXMAN_any,
-	  0,
-	  bits_image_fetch_general,
-	  _pixman_image_get_scanline_generic_float},
+	{ PIXMAN_any, 0,
+	  bits_image_fetch_general, _pixman_image_get_scanline_generic_float},
 
 	{ PIXMAN_null },
 };
@@ -549,8 +536,7 @@ void _pixman_bits_image_src_iter_init(pixman_image_t * image, pixman_iter_t * it
 	uint32_t flags = image->common.flags;
 	const fetcher_info_t * info;
 	for(info = fetcher_info; info->format != PIXMAN_null; ++info) {
-		if((info->format == format || info->format == PIXMAN_any)      &&
-		    (info->flags & flags) == info->flags) {
+		if((info->format == format || info->format == PIXMAN_any) && (info->flags & flags) == info->flags) {
 			if(iter->iter_flags & ITER_NARROW) {
 				iter->get_scanline = info->get_scanline_32;
 			}
@@ -601,11 +587,10 @@ static uint32_t * dest_get_scanline_wide(pixman_iter_t * iter, const uint32_t * 
 	if(image->common.alpha_map) {
 		argb_t * alpha;
 		if((alpha = (argb_t *)malloc(width * sizeof(argb_t)))) {
-			int i;
 			x -= image->common.alpha_origin_x;
 			y -= image->common.alpha_origin_y;
 			image->common.alpha_map->fetch_scanline_float(image->common.alpha_map, x, y, width, (uint32_t*)alpha, mask);
-			for(i = 0; i < width; ++i)
+			for(int i = 0; i < width; ++i)
 				buffer[i].a = alpha[i].a;
 			free(alpha);
 		}
@@ -636,31 +621,24 @@ static void dest_write_back_wide(pixman_iter_t * iter)
 	int y      = iter->y;
 	int width  = iter->width;
 	const uint32_t * buffer = iter->buffer;
-
 	image->store_scanline_float(image, x, y, width, buffer);
-
 	if(image->common.alpha_map) {
 		x -= image->common.alpha_origin_x;
 		y -= image->common.alpha_origin_y;
-
-		image->common.alpha_map->store_scanline_float(
-		    image->common.alpha_map, x, y, width, buffer);
+		image->common.alpha_map->store_scanline_float(image->common.alpha_map, x, y, width, buffer);
 	}
-
 	iter->y++;
 }
 
 void _pixman_bits_image_dest_iter_init(pixman_image_t * image, pixman_iter_t * iter)
 {
 	if(iter->iter_flags & ITER_NARROW) {
-		if((iter->iter_flags & (ITER_IGNORE_RGB | ITER_IGNORE_ALPHA)) ==
-		    (ITER_IGNORE_RGB | ITER_IGNORE_ALPHA)) {
+		if((iter->iter_flags & (ITER_IGNORE_RGB | ITER_IGNORE_ALPHA)) == (ITER_IGNORE_RGB | ITER_IGNORE_ALPHA)) {
 			iter->get_scanline = _pixman_iter_get_scanline_noop;
 		}
 		else {
 			iter->get_scanline = dest_get_scanline_narrow;
 		}
-
 		iter->write_back = dest_write_back_narrow;
 	}
 	else {

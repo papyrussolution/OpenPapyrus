@@ -9,17 +9,16 @@
  * programs (cjpeg, djpeg, jpegtran).
  */
 #define JPEG_INTERNALS
-#include "cdjpeg.h" /* Common decls for cjpeg/djpeg applications */
+#include "cdjpeg.h"
 #pragma hdrstop
-
-#include <ctype.h>  /* to declare isupper(), tolower() */
+//#include <ctype.h>		/* to declare isupper(), tolower() */
 #ifdef NEED_SIGNAL_CATCHER
-#include <signal.h>             /* to declare signal() */
+	#include <signal.h>             /* to declare signal() */
 #endif
 #ifdef USE_SETMODE
-#include <fcntl.h>              /* to declare setmode()'s parameter macros */
+	#include <fcntl.h>              /* to declare setmode()'s parameter macros */
 /* If you have setmode() but not <io.h>, just delete this line: */
-#include <io.h>                 /* to declare setmode() */
+//#include <io.h>			/* to declare setmode() */
 #endif
 
 /*
@@ -32,8 +31,7 @@
 
 static j_common_ptr sig_cinfo;
 
-/* must be global for Manx C */
-void signal_catcher(int signum)
+void signal_catcher(int signum) /* must be global for Manx C */
 {
 	if(sig_cinfo != NULL) {
 		if(sig_cinfo->err != NULL) /* turn off trace output */
@@ -67,7 +65,6 @@ METHODDEF(void) progress_monitor(j_common_ptr cinfo)
 	cd_progress_ptr prog = (cd_progress_ptr)cinfo->progress;
 	int total_passes = prog->pub.total_passes + prog->total_extra_passes;
 	int percent_done = (int)(prog->pub.pass_counter*100L/prog->pub.pass_limit);
-
 	if(percent_done != prog->percent_done) {
 		prog->percent_done = percent_done;
 		if(total_passes > 1) {
@@ -110,12 +107,10 @@ GLOBAL(void) end_progress_monitor(j_common_ptr cinfo)
  * keyword is the constant keyword (must be lower case already),
  * minchars is length of minimum legal abbreviation.
  */
-
 GLOBAL(boolean) keymatch(char * arg, const char * keyword, int minchars)
 {
 	register int ca, ck;
 	register int nmatched = 0;
-
 	while((ca = *arg++) != '\0') {
 		if((ck = *keyword++) == '\0')
 			return FALSE;  /* arg longer than keyword, no good */
@@ -135,11 +130,9 @@ GLOBAL(boolean) keymatch(char * arg, const char * keyword, int minchars)
  * Routines to establish binary I/O mode for stdin and stdout.
  * Non-Unix systems often require some hacking to get out of text mode.
  */
-
 GLOBAL(FILE *) read_stdin(void)
 {
 	FILE * input_file = stdin;
-
 #ifdef USE_SETMODE              /* need to hack file mode? */
 	setmode(fileno(stdin), O_BINARY);
 #endif
@@ -155,7 +148,6 @@ GLOBAL(FILE *) read_stdin(void)
 GLOBAL(FILE *) write_stdout(void)
 {
 	FILE * output_file = stdout;
-
 #ifdef USE_SETMODE              /* need to hack file mode? */
 	setmode(fileno(stdout), O_BINARY);
 #endif

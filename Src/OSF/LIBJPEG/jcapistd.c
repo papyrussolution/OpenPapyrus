@@ -2,6 +2,7 @@
  * jcapistd.c
  *
  * Copyright (C) 1994-1996, Thomas G. Lane.
+ * Modified 2013 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -16,6 +17,10 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
+//#define JPEG_INTERNALS
+//#include "jinclude.h"
+//#include "jpeglib.h"
+
 /*
  * Compression initialization.
  * Before calling this, all parameters and a data destination must be set up.
@@ -31,8 +36,7 @@
  * wrong thing.
  */
 
-GLOBAL(void)
-jpeg_start_compress(j_compress_ptr cinfo, boolean write_all_tables)
+GLOBAL(void) jpeg_start_compress(j_compress_ptr cinfo, boolean write_all_tables)
 {
 	if(cinfo->global_state != CSTATE_START)
 		ERREXIT1(cinfo, JERR_BAD_STATE, cinfo->global_state);
@@ -68,18 +72,13 @@ jpeg_start_compress(j_compress_ptr cinfo, boolean write_all_tables)
  * so that the application need not adjust num_lines for end-of-image
  * when using a multiple-scanline buffer.
  */
-
-GLOBAL(JDIMENSION)
-jpeg_write_scanlines(j_compress_ptr cinfo, JSAMPARRAY scanlines,
-    JDIMENSION num_lines)
+GLOBAL(JDIMENSION) jpeg_write_scanlines(j_compress_ptr cinfo, JSAMPARRAY scanlines, JDIMENSION num_lines)
 {
 	JDIMENSION row_ctr, rows_left;
-
 	if(cinfo->global_state != CSTATE_SCANNING)
 		ERREXIT1(cinfo, JERR_BAD_STATE, cinfo->global_state);
 	if(cinfo->next_scanline >= cinfo->image_height)
 		WARNMS(cinfo, JWRN_TOO_MUCH_DATA);
-
 	/* Call progress monitor hook if present */
 	if(cinfo->progress != NULL) {
 		cinfo->progress->pass_counter = (long)cinfo->next_scanline;
@@ -105,25 +104,19 @@ jpeg_write_scanlines(j_compress_ptr cinfo, JSAMPARRAY scanlines,
 	cinfo->next_scanline += row_ctr;
 	return row_ctr;
 }
-
 /*
  * Alternate entry point to write raw data.
  * Processes exactly one iMCU row per call, unless suspended.
  */
-
-GLOBAL(JDIMENSION)
-jpeg_write_raw_data(j_compress_ptr cinfo, JSAMPIMAGE data,
-    JDIMENSION num_lines)
+GLOBAL(JDIMENSION) jpeg_write_raw_data(j_compress_ptr cinfo, JSAMPIMAGE data, JDIMENSION num_lines)
 {
 	JDIMENSION lines_per_iMCU_row;
-
 	if(cinfo->global_state != CSTATE_RAW_OK)
 		ERREXIT1(cinfo, JERR_BAD_STATE, cinfo->global_state);
 	if(cinfo->next_scanline >= cinfo->image_height) {
 		WARNMS(cinfo, JWRN_TOO_MUCH_DATA);
 		return 0;
 	}
-
 	/* Call progress monitor hook if present */
 	if(cinfo->progress != NULL) {
 		cinfo->progress->pass_counter = (long)cinfo->next_scanline;
@@ -140,7 +133,7 @@ jpeg_write_raw_data(j_compress_ptr cinfo, JSAMPIMAGE data,
 		(*cinfo->master->pass_startup)(cinfo);
 
 	/* Verify that at least one iMCU row has been passed. */
-	lines_per_iMCU_row = cinfo->max_v_samp_factor * DCTSIZE;
+	lines_per_iMCU_row = cinfo->max_v_samp_factor * cinfo->min_DCT_v_scaled_size;
 	if(num_lines < lines_per_iMCU_row)
 		ERREXIT(cinfo, JERR_BUFFER_SIZE);
 

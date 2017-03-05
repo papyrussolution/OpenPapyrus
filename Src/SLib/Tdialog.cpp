@@ -390,8 +390,10 @@ int SLAPI TDialog::LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long fl
 						rez->getString(symb, 0);
 						rez->getString(buf);
                 		rez->getString(columns_buf);
-						if(stricmp(columns_buf, "IMAGEVIEW") == 0)
-							p_ctl = new TImageView(r);
+						rez->getString(temp_buf = 0, 0); // image_symbol
+						if(stricmp(columns_buf, "IMAGEVIEW") == 0) {
+							p_ctl = new TImageView(r, temp_buf);
+						}
 						else
 							p_ctl = new TStaticText(r, buf);
 					}

@@ -50,7 +50,7 @@
 #include "cairo-tristrip-private.h"
 #include "cairo-pixman-private.h"
 
-static pixman_image_t * to_pixman_image(cairo_surface_t * s)
+static pixman_image_t * FASTCALL to_pixman_image(cairo_surface_t * s)
 {
 	return ((cairo_image_surface_t*)s)->pixman_image;
 }
@@ -152,7 +152,7 @@ static inline cairo_bool_t color_to_pixel(const cairo_color_t * color, pixman_fo
 	return TRUE;
 }
 
-static pixman_op_t _pixman_operator(cairo_operator_t op)
+static pixman_op_t FASTCALL _pixman_operator(cairo_operator_t op)
 {
 	switch((int)op) {
 		case CAIRO_OPERATOR_CLEAR:
@@ -167,7 +167,6 @@ static pixman_op_t _pixman_operator(cairo_operator_t op)
 		    return PIXMAN_OP_OUT;
 		case CAIRO_OPERATOR_ATOP:
 		    return PIXMAN_OP_ATOP;
-
 		case CAIRO_OPERATOR_DEST:
 		    return PIXMAN_OP_DST;
 		case CAIRO_OPERATOR_DEST_OVER:
@@ -178,14 +177,12 @@ static pixman_op_t _pixman_operator(cairo_operator_t op)
 		    return PIXMAN_OP_OUT_REVERSE;
 		case CAIRO_OPERATOR_DEST_ATOP:
 		    return PIXMAN_OP_ATOP_REVERSE;
-
 		case CAIRO_OPERATOR_XOR:
 		    return PIXMAN_OP_XOR;
 		case CAIRO_OPERATOR_ADD:
 		    return PIXMAN_OP_ADD;
 		case CAIRO_OPERATOR_SATURATE:
 		    return PIXMAN_OP_SATURATE;
-
 		case CAIRO_OPERATOR_MULTIPLY:
 		    return PIXMAN_OP_MULTIPLY;
 		case CAIRO_OPERATOR_SCREEN:
@@ -216,16 +213,13 @@ static pixman_op_t _pixman_operator(cairo_operator_t op)
 		    return PIXMAN_OP_HSL_COLOR;
 		case CAIRO_OPERATOR_HSL_LUMINOSITY:
 		    return PIXMAN_OP_HSL_LUMINOSITY;
-
 		default:
 		    ASSERT_NOT_REACHED;
 		    return PIXMAN_OP_OVER;
 	}
 }
 
-static cairo_bool_t __fill_reduces_to_source(cairo_operator_t op,
-    const cairo_color_t * color,
-    const cairo_image_surface_t * dst)
+static cairo_bool_t __fill_reduces_to_source(cairo_operator_t op, const cairo_color_t * color, const cairo_image_surface_t * dst)
 {
 	if(op == CAIRO_OPERATOR_SOURCE || op == CAIRO_OPERATOR_CLEAR)
 		return TRUE;
@@ -233,19 +227,15 @@ static cairo_bool_t __fill_reduces_to_source(cairo_operator_t op,
 		return TRUE;
 	if(dst->base.is_clear)
 		return op == CAIRO_OPERATOR_OVER || op == CAIRO_OPERATOR_ADD;
-
 	return FALSE;
 }
 
 static cairo_bool_t fill_reduces_to_source(cairo_operator_t op,
-    const cairo_color_t * color,
-    const cairo_image_surface_t * dst,
-    uint32_t * pixel)
+    const cairo_color_t * color, const cairo_image_surface_t * dst, uint32_t * pixel)
 {
 	if(__fill_reduces_to_source(op, color, dst)) {
 		return color_to_pixel(color, dst->pixman_format, pixel);
 	}
-
 	return FALSE;
 }
 
@@ -340,20 +330,13 @@ static cairo_int_status_t composite(void * _dst, cairo_operator_t op,
 	if(mask) {
 		pixman_image_composite32(_pixman_operator(op),
 		    src->pixman_image, mask->pixman_image, to_pixman_image((cairo_surface_t *)_dst),
-		    src_x, src_y,
-		    mask_x, mask_y,
-		    dst_x, dst_y,
-		    width, height);
+		    src_x, src_y, mask_x, mask_y, dst_x, dst_y, width, height);
 	}
 	else {
 		pixman_image_composite32(_pixman_operator(op),
 		    src->pixman_image, NULL, to_pixman_image((cairo_surface_t *)_dst),
-		    src_x, src_y,
-		    0, 0,
-		    dst_x, dst_y,
-		    width, height);
+		    src_x, src_y, 0, 0, dst_x, dst_y, width, height);
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -486,55 +469,37 @@ static cairo_int_status_t composite_boxes(void * _dst,
 #define CAIRO_FIXED_16_16_MIN _cairo_fixed_from_int(-32768)
 #define CAIRO_FIXED_16_16_MAX _cairo_fixed_from_int(32767)
 
-static cairo_bool_t line_exceeds_16_16(const cairo_line_t * line)
+static cairo_bool_t FASTCALL line_exceeds_16_16(const cairo_line_t * line)
 {
-	return
-		line->p1.x <= CAIRO_FIXED_16_16_MIN ||
-		line->p1.x >= CAIRO_FIXED_16_16_MAX ||
-
-		line->p2.x <= CAIRO_FIXED_16_16_MIN ||
-		line->p2.x >= CAIRO_FIXED_16_16_MAX ||
-
-		line->p1.y <= CAIRO_FIXED_16_16_MIN ||
-		line->p1.y >= CAIRO_FIXED_16_16_MAX ||
-
-		line->p2.y <= CAIRO_FIXED_16_16_MIN ||
-		line->p2.y >= CAIRO_FIXED_16_16_MAX;
+	return (line->p1.x <= CAIRO_FIXED_16_16_MIN || line->p1.x >= CAIRO_FIXED_16_16_MAX ||
+		line->p2.x <= CAIRO_FIXED_16_16_MIN || line->p2.x >= CAIRO_FIXED_16_16_MAX ||
+		line->p1.y <= CAIRO_FIXED_16_16_MIN || line->p1.y >= CAIRO_FIXED_16_16_MAX ||
+		line->p2.y <= CAIRO_FIXED_16_16_MIN || line->p2.y >= CAIRO_FIXED_16_16_MAX);
 }
 
-static void project_line_x_onto_16_16(const cairo_line_t * line,
-    cairo_fixed_t top,
-    cairo_fixed_t bottom,
-    pixman_line_fixed_t * out)
+static void project_line_x_onto_16_16(const cairo_line_t * line, cairo_fixed_t top, cairo_fixed_t bottom, pixman_line_fixed_t * out)
 {
 	/* XXX use fixed-point arithmetic? */
 	cairo_point_double_t p1, p2;
 	double m;
-
 	p1.x = _cairo_fixed_to_double(line->p1.x);
 	p1.y = _cairo_fixed_to_double(line->p1.y);
-
 	p2.x = _cairo_fixed_to_double(line->p2.x);
 	p2.y = _cairo_fixed_to_double(line->p2.y);
-
 	m = (p2.x - p1.x) / (p2.y - p1.y);
 	out->p1.x = _cairo_fixed_16_16_from_double(p1.x + m * _cairo_fixed_to_double(top - line->p1.y));
 	out->p2.x = _cairo_fixed_16_16_from_double(p1.x + m * _cairo_fixed_to_double(bottom - line->p1.y));
 }
 
-void _pixman_image_add_traps(pixman_image_t * image,
-    int dst_x, int dst_y,
-    cairo_traps_t * traps)
+void _pixman_image_add_traps(pixman_image_t * image, int dst_x, int dst_y, cairo_traps_t * traps)
 {
 	cairo_trapezoid_t * t = traps->traps;
 	int num_traps = traps->num_traps;
 	while(num_traps--) {
 		pixman_trapezoid_t trap;
-
 		/* top/bottom will be clamped to surface bounds */
 		trap.top = _cairo_fixed_to_16_16(t->top);
 		trap.bottom = _cairo_fixed_to_16_16(t->bottom);
-
 		/* However, all the other coordinates will have been left untouched so
 		 * as not to introduce numerical error. Recompute them if they
 		 * exceed the 16.16 limits.
@@ -550,7 +515,6 @@ void _pixman_image_add_traps(pixman_image_t * image,
 			trap.left.p2.x = _cairo_fixed_to_16_16(t->left.p2.x);
 			trap.left.p2.y = _cairo_fixed_to_16_16(t->left.p2.y);
 		}
-
 		if(unlikely(line_exceeds_16_16(&t->right))) {
 			project_line_x_onto_16_16(&t->right, t->top, t->bottom, &trap.right);
 			trap.right.p1.y = trap.top;
@@ -562,37 +526,25 @@ void _pixman_image_add_traps(pixman_image_t * image,
 			trap.right.p2.x = _cairo_fixed_to_16_16(t->right.p2.x);
 			trap.right.p2.y = _cairo_fixed_to_16_16(t->right.p2.y);
 		}
-
 		pixman_rasterize_trapezoid(image, &trap, -dst_x, -dst_y);
 		t++;
 	}
 }
 
-static cairo_int_status_t composite_traps(void * _dst,
-    cairo_operator_t op,
-    cairo_surface_t        * abstract_src,
-    int src_x,
-    int src_y,
-    int dst_x,
-    int dst_y,
-    const CairoIRect * extents,
-    cairo_antialias_t antialias,
-    cairo_traps_t          * traps)
+static cairo_int_status_t composite_traps(void * _dst, cairo_operator_t op,
+    cairo_surface_t * abstract_src, int src_x, int src_y, int dst_x, int dst_y,
+    const CairoIRect * extents, cairo_antialias_t antialias, cairo_traps_t * traps)
 {
 	cairo_image_surface_t * dst = (cairo_image_surface_t*)_dst;
 	cairo_image_source_t * src = (cairo_image_source_t*)abstract_src;
 	cairo_int_status_t status;
 	pixman_image_t * mask;
 	pixman_format_code_t format;
-
 	TRACE((stderr, "%s\n", __FUNCTION__));
-
 	/* pixman doesn't eliminate self-intersecting trapezoids/edges */
-	status = _cairo_bentley_ottmann_tessellate_traps(traps,
-	    CAIRO_FILL_RULE_WINDING);
+	status = _cairo_bentley_ottmann_tessellate_traps(traps, CAIRO_FILL_RULE_WINDING);
 	if(status != CAIRO_INT_STATUS_SUCCESS)
 		return status;
-
 	/* Special case adding trapezoids onto a mask surface; we want to avoid
 	 * creating an intermediate temporary mask unnecessarily.
 	 *
@@ -601,34 +553,23 @@ static cairo_int_status_t composite_traps(void * _dst,
 	 * the Cairo core code passes bounds based on the trapezoid extents.
 	 */
 	format = antialias == CAIRO_ANTIALIAS_NONE ? PIXMAN_a1 : PIXMAN_a8;
-	if(dst->pixman_format == format &&
-	    (abstract_src == NULL ||
-		    (op == CAIRO_OPERATOR_ADD && src->is_opaque_solid))) {
+	if(dst->pixman_format == format && (abstract_src == NULL || (op == CAIRO_OPERATOR_ADD && src->is_opaque_solid))) {
 		_pixman_image_add_traps(dst->pixman_image, dst_x, dst_y, traps);
 		return CAIRO_STATUS_SUCCESS;
 	}
-
-	mask = pixman_image_create_bits(format,
-	    extents->width, extents->height,
-	    NULL, 0);
+	mask = pixman_image_create_bits(format, extents->width, extents->height, NULL, 0);
 	if(unlikely(mask == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	_pixman_image_add_traps(mask, extents->x, extents->y, traps);
-	pixman_image_composite32(_pixman_operator(op),
-	    src->pixman_image, mask, dst->pixman_image,
-	    extents->x + src_x, extents->y + src_y,
-	    0, 0,
-	    extents->x - dst_x, extents->y - dst_y,
-	    extents->width, extents->height);
-
+	pixman_image_composite32(_pixman_operator(op), src->pixman_image, mask, dst->pixman_image, extents->x + src_x, extents->y + src_y,
+	    0, 0, extents->x - dst_x, extents->y - dst_y, extents->width, extents->height);
 	pixman_image_unref(mask);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
 #if PIXMAN_VERSION >= PIXMAN_VERSION_ENCODE(0, 22, 0)
-static void set_point(pixman_point_fixed_t * p, cairo_point_t * c)
+
+static void FASTCALL set_point(pixman_point_fixed_t * p, cairo_point_t * c)
 {
 	p->x = _cairo_fixed_to_16_16(c->x);
 	p->y = _cairo_fixed_to_16_16(c->y);
@@ -664,51 +605,34 @@ static cairo_int_status_t composite_tristrip(void * _dst,
 	cairo_image_source_t * src = (cairo_image_source_t*)abstract_src;
 	pixman_image_t * mask;
 	pixman_format_code_t format;
-
 	TRACE((stderr, "%s\n", __FUNCTION__));
-
 	if(strip->num_points < 3)
 		return CAIRO_STATUS_SUCCESS;
-
 	if(1) { /* pixman doesn't eliminate self-intersecting triangles/edges */
 		cairo_int_status_t status;
 		cairo_traps_t traps;
 		int n;
-
 		_cairo_traps_init(&traps);
 		for(n = 0; n < strip->num_points; n++) {
 			cairo_point_t p[4];
-
 			p[0] = strip->points[0];
 			p[1] = strip->points[1];
 			p[2] = strip->points[2];
 			p[3] = strip->points[0];
-
 			_cairo_traps_tessellate_convex_quad(&traps, p);
 		}
-		status = composite_traps(_dst, op, abstract_src,
-		    src_x, src_y,
-		    dst_x, dst_y,
-		    extents, antialias, &traps);
+		status = composite_traps(_dst, op, abstract_src, src_x, src_y, dst_x, dst_y, extents, antialias, &traps);
 		_cairo_traps_fini(&traps);
-
 		return status;
 	}
-
 	format = antialias == CAIRO_ANTIALIAS_NONE ? PIXMAN_a1 : PIXMAN_a8;
-	if(dst->pixman_format == format &&
-	    (abstract_src == NULL ||
-		    (op == CAIRO_OPERATOR_ADD && src->is_opaque_solid))) {
+	if(dst->pixman_format == format && (abstract_src == NULL || (op == CAIRO_OPERATOR_ADD && src->is_opaque_solid))) {
 		_pixman_image_add_tristrip(dst->pixman_image, dst_x, dst_y, strip);
 		return CAIRO_STATUS_SUCCESS;
 	}
-
-	mask = pixman_image_create_bits(format,
-	    extents->width, extents->height,
-	    NULL, 0);
+	mask = pixman_image_create_bits(format, extents->width, extents->height, NULL, 0);
 	if(unlikely(mask == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	_pixman_image_add_tristrip(mask, extents->x, extents->y, strip);
 	pixman_image_composite32(_pixman_operator(op),
 	    src->pixman_image, mask, dst->pixman_image,
@@ -725,9 +649,7 @@ static cairo_int_status_t composite_tristrip(void * _dst,
 #endif
 
 static cairo_int_status_t check_composite_glyphs(const cairo_composite_rectangles_t * extents,
-    cairo_scaled_font_t * scaled_font,
-    cairo_glyph_t * glyphs,
-    int * num_glyphs)
+    cairo_scaled_font_t * scaled_font, cairo_glyph_t * glyphs, int * num_glyphs)
 {
 	return CAIRO_STATUS_SUCCESS;
 }
@@ -824,12 +746,8 @@ static cairo_int_status_t composite_glyphs(void * _dst,
 		pg->glyph = glyph;
 		pg++;
 	}
-
 	if(info->use_mask) {
-		pixman_format_code_t mask_format;
-
-		mask_format = pixman_glyph_get_mask_format(glyph_cache, pg - pglyphs, pglyphs);
-
+		pixman_format_code_t mask_format = pixman_glyph_get_mask_format(glyph_cache, pg - pglyphs, pglyphs);
 		pixman_composite_glyphs(_pixman_operator(op),
 		    ((cairo_image_source_t*)_src)->pixman_image,
 		    to_pixman_image(_dst),
@@ -861,8 +779,7 @@ out_unlock:
 }
 
 #else
-void _cairo_image_scaled_glyph_fini(cairo_scaled_font_t * scaled_font,
-    cairo_scaled_glyph_t * scaled_glyph)
+void _cairo_image_scaled_glyph_fini(cairo_scaled_font_t * scaled_font, cairo_scaled_glyph_t * scaled_glyph)
 {
 }
 
@@ -1375,19 +1292,14 @@ static cairo_int_status_t span_renderer_init(cairo_abstract_span_renderer_t     
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static void span_renderer_fini(cairo_abstract_span_renderer_t * _r,
-    cairo_int_status_t status)
+static void span_renderer_fini(cairo_abstract_span_renderer_t * _r, cairo_int_status_t status)
 {
 	cairo_image_span_renderer_t * r = (cairo_image_span_renderer_t*)_r;
-
 	TRACE((stderr, "%s\n", __FUNCTION__));
-
 	if(status == CAIRO_INT_STATUS_SUCCESS && r->base.finish)
 		r->base.finish(r);
-
 	if(r->compositor)
 		pixman_image_compositor_destroy(r->compositor);
-
 	if(r->src)
 		pixman_image_unref(r->src);
 	if(r->mask)

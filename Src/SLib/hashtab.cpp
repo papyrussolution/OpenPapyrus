@@ -1,5 +1,5 @@
 // HASHTAB.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -10,13 +10,12 @@ uint32 FASTCALL DJBHash(const void * pData, size_t len);     // @prototype
 HashTableBase::HashTableBase(size_t sz)
 {
 	size_t i = NZOR(sz, 1024);
-	if(i)
-		do {
-			if(IsPrime(i)) {
-				sz = i;
-				break;
-			}
-		} while(--i);
+	if(i) do {
+		if(IsPrime(i)) {
+			sz = i;
+			break;
+		}
+	} while(--i);
 	Size = sz;
 	P_Tab = 0;
 }
@@ -204,6 +203,7 @@ SymbHashTable::SymbHashTable(size_t sz, int useAssoc) : HashTableBase(sz)
 	AddCount = 0;
 	CollCount = 0;
 	MaxTail = 0;
+	Flags = 0; // @v9.5.6 @fix
 	NamePool.add("$");
 	SETFLAG(Flags, fUseAssoc, useAssoc);
 }
@@ -287,23 +287,26 @@ int SymbHashTable::InitIteration(Iter * pI) const
 		return 0;
 }
 
-int SymbHashTable::NextIteration(Iter * pI, uint * pVal, SString * pStr) const
+int SymbHashTable::NextIteration(Iter * pI, uint * pVal, uint * pPos, SString * pStr) const
 {
-	if(pI && P_Tab)
-		while(pI->P < Size)
+	if(pI && P_Tab) {
+		while(pI->P < Size) {
 			if(pI->E < P_Tab[pI->P].Count) {
+				uint   pos = 0;
 				if(pI->E == 0) {
 					ASSIGN_PTR(pVal, P_Tab[pI->P].Val.Val);
-					if(pStr) {
-						uint pos = P_Tab[pI->P].Val.Key;
-						NamePool.get(&pos, *pStr);
+					if(pPos || pStr) {
+						pos = P_Tab[pI->P].Val.Key;
+						if(pStr)
+							NamePool.get(&pos, *pStr);
 					}
 				}
 				else {
 					ASSIGN_PTR(pVal, P_Tab[pI->P].P_Ext[pI->E-1].Val);
-					if(pStr) {
-						uint pos = P_Tab[pI->P].P_Ext[pI->E-1].Key;
-						NamePool.get(&pos, *pStr);
+					if(pPos || pStr) {
+						pos = P_Tab[pI->P].P_Ext[pI->E-1].Key;
+						if(pStr)
+							NamePool.get(&pos, *pStr);
 					}
 				}
 				if(pI->E == P_Tab[pI->P].Count) {
@@ -312,13 +315,39 @@ int SymbHashTable::NextIteration(Iter * pI, uint * pVal, SString * pStr) const
 				}
 				else
 					pI->E++;
+				ASSIGN_PTR(pPos, pos);
 				return 1;
 			}
 			else {
 				pI->P++;
 				pI->E = 0;
 			}
+		}
+	}
 	return 0;
+}
+
+int SymbHashTable::ResetAssoc()
+{
+	Assoc.clear();
+	Flags &= ~fUseAssoc;
+	return 1;
+}
+
+int SymbHashTable::BuildAssoc()
+{
+	int    ok = 1;
+	Iter   i;
+	uint   val = 0;
+	uint   pos = 0;
+	Assoc.clear();
+	for(InitIteration(&i); NextIteration(&i, &val, &pos, 0);) {
+		THROW(Assoc.Add((long)val, (long)pos, 0, 0 /*not binary*/));
+	}
+	Assoc.Sort();
+	Flags |= fUseAssoc;
+	CATCHZOK
+	return ok;
 }
 
 uint SymbHashTable::GetMaxVal() const
@@ -326,7 +355,7 @@ uint SymbHashTable::GetMaxVal() const
 	Iter i;
 	uint   val = 0;
 	uint   max_val = 0;
-	for(InitIteration(&i); NextIteration(&i, &val, 0);) {
+	for(InitIteration(&i); NextIteration(&i, &val, 0, 0);) {
 		SETMAX(max_val, val);
 	}
 	return max_val;
@@ -450,7 +479,7 @@ int SymbHashTable::Test_Cmp(const SymbHashTable & rPat) const
 	uint   val = 0, val_;
 	SString symb, symb_;
 	THROW((Flags & fUseAssoc) == (rPat.Flags & fUseAssoc));
-	for(InitIteration(&iter); NextIteration(&iter, &val, &symb) > 0;) {
+	for(InitIteration(&iter); NextIteration(&iter, &val, 0, &symb) > 0;) {
 		if(Flags & fUseAssoc) {
 			THROW(rPat.GetByAssoc(val, symb_) && symb.Cmp(symb_, 0) == 0);
 		}
@@ -458,7 +487,7 @@ int SymbHashTable::Test_Cmp(const SymbHashTable & rPat) const
 		THROW(val == val_);
 	}
 
-	for(rPat.InitIteration(&iter); rPat.NextIteration(&iter, &val, &symb) > 0;) {
+	for(rPat.InitIteration(&iter); rPat.NextIteration(&iter, &val, 0, &symb) > 0;) {
 		if(Flags & fUseAssoc) {
 			THROW(GetByAssoc(val, symb_) && symb.Cmp(symb_, 0) == 0);
 		}

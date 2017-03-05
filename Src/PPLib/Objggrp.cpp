@@ -159,7 +159,7 @@ int SLAPI PPObjGoodsGroup::DeleteObj(PPID id)
 			THROW_PP(cfg.DefGroupID != id, PPERR_GGRPHASREFINGCFG);
 		}
 	}
-	// } @v9.4.9 
+	// } @v9.4.9
 	while(ok > 0 && (r = P_Tbl->SearchAnyRef(PPOBJ_GOODSGROUP, id, &branch_id)) > 0) {
 		if(Search(branch_id, &rec) > 0) {
 			//
@@ -2072,7 +2072,7 @@ int SLAPI PPObjBrand::Edit(PPID * pID, void * extraPtr)
 		pack.Init();
 	dlg->setCtrlLong(CTL_GOODS_ID, pack.Rec.ID); // @v8.2.9
 	dlg->setCtrlData(CTL_GOODS_NAME, pack.Rec.Name);
-	dlg->addGroup(GRP_IBG, new ImageBrowseCtrlGroup(PPTXT_PICFILESEXTS, CTL_GOODS_IMAGE,
+	dlg->addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_GOODS_IMAGE,
 		cmAddImage, cmDelImage, 1, ImageBrowseCtrlGroup::fUseExtOpenDlg));
 	{
 		ImageBrowseCtrlGroup::Rec rec;

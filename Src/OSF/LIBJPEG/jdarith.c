@@ -1,7 +1,7 @@
 /*
  * jdarith.c
  *
- * Developed 1997-2012 by Guido Vollbeding.
+ * Developed 1997-2015 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -90,7 +90,7 @@ get_byte(j_decompress_ptr cinfo)
  * (instead of fixed) with the bit shift counter CT.
  * Thus, we also need only one (variable instead of
  * fixed size) shift for the LPS/MPS decision, and
- * we can get away with any renormalization update
+ * we can do away with any renormalization update
  * of C (except for new data insertion, of course).
  *
  * I've also introduced a new scheme for accessing
@@ -146,8 +146,8 @@ arith_decode(j_decompress_ptr cinfo, unsigned char * st)
 	 */
 	sv = *st;
 	qe = jpeg_aritab[sv & 0x7F]; /* => Qe_Value */
-	nl = (unsigned char)(qe & 0xFF); qe >>= 8; /* Next_Index_LPS + Switch_MPS */
-	nm = (unsigned char)(qe & 0xFF); qe >>= 8; /* Next_Index_MPS */
+	nl = qe & 0xFF; qe >>= 8; /* Next_Index_LPS + Switch_MPS */
+	nm = qe & 0xFF; qe >>= 8; /* Next_Index_MPS */
 
 	/* Decode & estimation procedures per sections D.2.4 & D.2.5 */
 	temp = e->a - qe;
@@ -235,8 +235,7 @@ process_restart(j_decompress_ptr cinfo)
  * or first pass of successive approximation).
  */
 
-METHODDEF(boolean)
-decode_mcu_DC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
+METHODDEF(boolean) decode_mcu_DC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
 	JBLOCKROW block;
@@ -313,8 +312,7 @@ decode_mcu_DC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
  * or first pass of successive approximation).
  */
 
-METHODDEF(boolean)
-decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
+METHODDEF(boolean) decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
 	JBLOCKROW block;
@@ -390,10 +388,11 @@ decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 
 /*
  * MCU decoding for DC successive approximation refinement scan.
+ * Note: we assume such scans can be multi-component,
+ * although the spec is not very clear on the point.
  */
 
-METHODDEF(boolean)
-decode_mcu_DC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
+METHODDEF(boolean) decode_mcu_DC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
 	unsigned char * st;
@@ -424,8 +423,7 @@ decode_mcu_DC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
  * MCU decoding for AC successive approximation refinement scan.
  */
 
-METHODDEF(boolean)
-decode_mcu_AC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
+METHODDEF(boolean) decode_mcu_AC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
 	JBLOCKROW block;
@@ -498,8 +496,7 @@ decode_mcu_AC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
  * Decode one MCU's worth of arithmetic-compressed coefficients.
  */
 
-METHODDEF(boolean)
-decode_mcu(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
+METHODDEF(boolean) decode_mcu(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
 	jpeg_component_info * compptr;
@@ -629,8 +626,7 @@ decode_mcu(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
  * Initialize for an arithmetic-compressed scan.
  */
 
-METHODDEF(void)
-start_pass(j_decompress_ptr cinfo)
+METHODDEF(void) start_pass(j_decompress_ptr cinfo)
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
 	int ci, tbl;
@@ -738,11 +734,19 @@ bad:
 }
 
 /*
+ * Finish up at the end of an arithmetic-compressed scan.
+ */
+
+METHODDEF(void) finish_pass(j_decompress_ptr cinfo)
+{
+	/* no work necessary here */
+}
+
+/*
  * Module initialization routine for arithmetic entropy decoding.
  */
 
-GLOBAL(void)
-jinit_arith_decoder(j_decompress_ptr cinfo)
+GLOBAL(void) jinit_arith_decoder(j_decompress_ptr cinfo)
 {
 	arith_entropy_ptr entropy;
 	int i;
@@ -752,6 +756,7 @@ jinit_arith_decoder(j_decompress_ptr cinfo)
 	    SIZEOF(arith_entropy_decoder));
 	cinfo->entropy = &entropy->pub;
 	entropy->pub.start_pass = start_pass;
+	entropy->pub.finish_pass = finish_pass;
 
 	/* Mark tables unallocated */
 	for(i = 0; i < NUM_ARITH_TBLS; i++) {

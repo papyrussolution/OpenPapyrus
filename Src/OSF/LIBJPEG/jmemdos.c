@@ -168,8 +168,7 @@ jpeg_get_small (j_common_ptr cinfo, size_t sizeofobject)
   return (void *) malloc(sizeofobject);
 }
 
-GLOBAL(void)
-jpeg_free_small (j_common_ptr cinfo, void * object, size_t sizeofobject)
+GLOBAL(void) jpeg_free_small (j_common_ptr cinfo, void * object, size_t sizeofobject)
 {
   free(object);
 }
@@ -185,8 +184,7 @@ jpeg_get_large (j_common_ptr cinfo, size_t sizeofobject)
   return (void FAR *) far_malloc(sizeofobject);
 }
 
-GLOBAL(void)
-jpeg_free_large (j_common_ptr cinfo, void FAR * object, size_t sizeofobject)
+GLOBAL(void) jpeg_free_large (j_common_ptr cinfo, void FAR * object, size_t sizeofobject)
 {
   far_free(object);
 }
@@ -239,8 +237,7 @@ jpeg_mem_available (j_common_ptr cinfo, long min_bytes_needed,
  */
 
 
-METHODDEF(void)
-read_file_store (j_common_ptr cinfo, backing_store_ptr info,
+METHODDEF(void) read_file_store (j_common_ptr cinfo, backing_store_ptr info,
 		 void FAR * buffer_address,
 		 long file_offset, long byte_count)
 {
@@ -255,8 +252,7 @@ read_file_store (j_common_ptr cinfo, backing_store_ptr info,
 }
 
 
-METHODDEF(void)
-write_file_store (j_common_ptr cinfo, backing_store_ptr info,
+METHODDEF(void) write_file_store (j_common_ptr cinfo, backing_store_ptr info,
 		  void FAR * buffer_address,
 		  long file_offset, long byte_count)
 {
@@ -271,8 +267,7 @@ write_file_store (j_common_ptr cinfo, backing_store_ptr info,
 }
 
 
-METHODDEF(void)
-close_file_store (j_common_ptr cinfo, backing_store_ptr info)
+METHODDEF(void) close_file_store (j_common_ptr cinfo, backing_store_ptr info)
 {
   jdos_close(info->handle.file_handle);	/* close the file */
   remove(info->temp_name);	/* delete the file */
@@ -329,8 +324,7 @@ typedef struct {		/* XMS move specification structure */
 #define ODD(X)	(((X) & 1L) != 0)
 
 
-METHODDEF(void)
-read_xms_store (j_common_ptr cinfo, backing_store_ptr info,
+METHODDEF(void) read_xms_store (j_common_ptr cinfo, backing_store_ptr info,
 		void FAR * buffer_address,
 		long file_offset, long byte_count)
 {
@@ -362,8 +356,7 @@ read_xms_store (j_common_ptr cinfo, backing_store_ptr info,
 }
 
 
-METHODDEF(void)
-write_xms_store (j_common_ptr cinfo, backing_store_ptr info,
+METHODDEF(void) write_xms_store (j_common_ptr cinfo, backing_store_ptr info,
 		 void FAR * buffer_address,
 		 long file_offset, long byte_count)
 {
@@ -397,8 +390,7 @@ write_xms_store (j_common_ptr cinfo, backing_store_ptr info,
 }
 
 
-METHODDEF(void)
-close_xms_store (j_common_ptr cinfo, backing_store_ptr info)
+METHODDEF(void) close_xms_store (j_common_ptr cinfo, backing_store_ptr info)
 {
   XMScontext ctx;
 
@@ -487,8 +479,7 @@ typedef union {			/* EMS move specification structure */
 #define LOBYTE(W)  ((W) & 0xFF)
 
 
-METHODDEF(void)
-read_ems_store (j_common_ptr cinfo, backing_store_ptr info,
+METHODDEF(void) read_ems_store (j_common_ptr cinfo, backing_store_ptr info,
 		void FAR * buffer_address,
 		long file_offset, long byte_count)
 {
@@ -512,8 +503,7 @@ read_ems_store (j_common_ptr cinfo, backing_store_ptr info,
 }
 
 
-METHODDEF(void)
-write_ems_store (j_common_ptr cinfo, backing_store_ptr info,
+METHODDEF(void) write_ems_store (j_common_ptr cinfo, backing_store_ptr info,
 		 void FAR * buffer_address,
 		 long file_offset, long byte_count)
 {
@@ -537,8 +527,7 @@ write_ems_store (j_common_ptr cinfo, backing_store_ptr info,
 }
 
 
-METHODDEF(void)
-close_ems_store (j_common_ptr cinfo, backing_store_ptr info)
+METHODDEF(void) close_ems_store (j_common_ptr cinfo, backing_store_ptr info)
 {
   EMScontext ctx;
 
@@ -595,8 +584,7 @@ open_ems_store (j_common_ptr cinfo, backing_store_ptr info,
  * Initial opening of a backing-store object.
  */
 
-GLOBAL(void)
-jpeg_open_backing_store (j_common_ptr cinfo, backing_store_ptr info,
+GLOBAL(void) jpeg_open_backing_store (j_common_ptr cinfo, backing_store_ptr info,
 			 long total_bytes_needed)
 {
   /* Try extended memory, then expanded memory, then regular file. */
@@ -626,8 +614,7 @@ jpeg_mem_init (j_common_ptr cinfo)
   return DEFAULT_MAX_MEM;	/* default for max_memory_to_use */
 }
 
-GLOBAL(void)
-jpeg_mem_term (j_common_ptr cinfo)
+GLOBAL(void) jpeg_mem_term (j_common_ptr cinfo)
 {
   /* Microsoft C, at least in v6.00A, will not successfully reclaim freed
    * blocks of size > 32Kbytes unless we give it a kick in the rear, like so:

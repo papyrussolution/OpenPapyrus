@@ -1533,8 +1533,8 @@ int LocationDialog::GetGeoCoord()
 	if(getCtrlString(sel = CTL_LOCATION_COORD, temp_buf)) {
 		SGeoPosLL pos;
 		if(pos.FromStr(temp_buf)) {
-			Data.Latitude = pos.Latitude;
-			Data.Longitude = pos.Longitude;
+			Data.Latitude = pos.Lat;
+			Data.Longitude = pos.Lon;
 			ok = 1;
 		}
 		else

@@ -2,7 +2,7 @@
  * jdatasrc.c
  *
  * Copyright (C) 1994-1996, Thomas G. Lane.
- * Modified 2009-2011 by Guido Vollbeding.
+ * Modified 2009-2015 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -17,11 +17,17 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
-/* 
-	Expanded data source object for stdio input 
-*/
+
+/* this is not a core library module, so it doesn't define JPEG_INTERNALS */
+//#include "jinclude.h"
+//#include "jpeglib.h"
+//#include "jerror.h"
+
+/* Expanded data source object for stdio input */
+
 typedef struct {
 	struct jpeg_source_mgr pub; /* public fields */
+
 	FILE * infile;          /* source stream */
 	JOCTET * buffer;        /* start of buffer */
 	boolean start_of_file;  /* have we gotten any data yet? */
@@ -36,8 +42,7 @@ typedef my_source_mgr * my_src_ptr;
  * before any data is actually read.
  */
 
-METHODDEF(void)
-init_source(j_decompress_ptr cinfo)
+METHODDEF(void) init_source(j_decompress_ptr cinfo)
 {
 	my_src_ptr src = (my_src_ptr)cinfo->src;
 
@@ -48,8 +53,7 @@ init_source(j_decompress_ptr cinfo)
 	src->start_of_file = TRUE;
 }
 
-METHODDEF(void)
-init_mem_source(j_decompress_ptr cinfo)
+METHODDEF(void) init_mem_source(j_decompress_ptr cinfo)
 {
 	/* no work necessary here */
 }
@@ -87,8 +91,7 @@ init_mem_source(j_decompress_ptr cinfo)
  * the front of the buffer rather than discarding it.
  */
 
-METHODDEF(boolean)
-fill_input_buffer(j_decompress_ptr cinfo)
+METHODDEF(boolean) fill_input_buffer(j_decompress_ptr cinfo)
 {
 	my_src_ptr src = (my_src_ptr)cinfo->src;
 	size_t nbytes;
@@ -112,8 +115,7 @@ fill_input_buffer(j_decompress_ptr cinfo)
 	return TRUE;
 }
 
-METHODDEF(boolean)
-fill_mem_input_buffer(j_decompress_ptr cinfo)
+METHODDEF(boolean) fill_mem_input_buffer(j_decompress_ptr cinfo)
 {
 	static const JOCTET mybuffer[4] = {
 		(JOCTET)0xFF, (JOCTET)JPEG_EOI, 0, 0
@@ -145,8 +147,7 @@ fill_mem_input_buffer(j_decompress_ptr cinfo)
  * buffer is the application writer's problem.
  */
 
-METHODDEF(void)
-skip_input_data(j_decompress_ptr cinfo, long num_bytes)
+METHODDEF(void) skip_input_data(j_decompress_ptr cinfo, long num_bytes)
 {
 	struct jpeg_source_mgr * src = cinfo->src;
 
@@ -184,8 +185,7 @@ skip_input_data(j_decompress_ptr cinfo, long num_bytes)
  * for error exit.
  */
 
-METHODDEF(void)
-term_source(j_decompress_ptr cinfo)
+METHODDEF(void) term_source(j_decompress_ptr cinfo)
 {
 	/* no work necessary here */
 }
@@ -196,8 +196,7 @@ term_source(j_decompress_ptr cinfo)
  * for closing it after finishing decompression.
  */
 
-GLOBAL(void)
-jpeg_stdio_src(j_decompress_ptr cinfo, FILE * infile)
+GLOBAL(void) jpeg_stdio_src(j_decompress_ptr cinfo, FILE * infile)
 {
 	my_src_ptr src;
 
@@ -234,9 +233,8 @@ jpeg_stdio_src(j_decompress_ptr cinfo, FILE * infile)
  * The buffer must contain the whole JPEG data.
  */
 
-GLOBAL(void)
-jpeg_mem_src(j_decompress_ptr cinfo,
-    unsigned char * inbuffer, unsigned long insize)
+GLOBAL(void) jpeg_mem_src(j_decompress_ptr cinfo,
+    const unsigned char * inbuffer, unsigned long insize)
 {
 	struct jpeg_source_mgr * src;
 
@@ -260,5 +258,5 @@ jpeg_mem_src(j_decompress_ptr cinfo,
 	src->resync_to_restart = jpeg_resync_to_restart; /* use default method */
 	src->term_source = term_source;
 	src->bytes_in_buffer = (size_t)insize;
-	src->next_input_byte = (JOCTET*)inbuffer;
+	src->next_input_byte = (const JOCTET*)inbuffer;
 }

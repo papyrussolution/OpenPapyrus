@@ -285,8 +285,8 @@ public:
 	};
 	SmsClient();
 	~SmsClient();
-	bool   CanSend() const;
-	bool   IsConnected() const;
+	int    CanSend() const;
+	int    IsConnected() const;
 	int    Connect(const StConfig & config);
     int    Disconnect();
 	//
@@ -342,13 +342,11 @@ private:
 	StSMResults SMResults;
 	StSubmitSMParam SMParams;
 	//
-	// ћассив с информацией об ошибочных запросах посылки смс. —руктура записи:
-	//		номер_получател€;описание_ошибки
+	// ћассив с информацией об ошибочных запросах посылки смс. —руктура записи: номер_получател€;описание_ошибки
 	//
 	StrAssocArray ErrorSubmitArr;
 	//
-	// ћассив структур состо€ний сообщений, в том числе и ошибочных. —руктура записи:
-	//		номер_получател€;состо€ние_сообщени€
+	// ћассив структур состо€ний сообщений, в том числе и ошибочных. —руктура записи: номер_получател€;состо€ние_сообщени€
 	//
 	StrAssocArray StatusCodesArr;
 	int    ConnectionState;

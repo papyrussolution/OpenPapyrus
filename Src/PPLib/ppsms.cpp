@@ -306,18 +306,21 @@ int PPAutoSmsConfig::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx
 	return ok;
 }
 
-SLAPI PPSendSms::PPSendSms()
+SLAPI PPSendSmsParam::PPSendSmsParam()
 {
-	memzero(this, offsetof(PPSendSms, ExtStr)-0);
+	Init();
 }
 
-void SLAPI PPSendSms::Init()
+void SLAPI PPSendSmsParam::Init()
 {
+	Tag = 0;
+	ID = 0;
+	SymbolCount = 0;
+	SmsCount = 0;
 	ExtStr = 0;
-	memzero(this, offsetof(PPSendSms, ExtStr)-0);
 }
 
-int PPSendSms::NotEmpty()
+int PPSendSmsParam::NotEmpty()
 {
 	int    ok = 1;
 	SString msg;
@@ -332,32 +335,35 @@ int PPSendSms::NotEmpty()
 class SendSmsDialog : public TDialog {
 public:
 	// @v8.5.4 static void FormatText(SString & rSrcMsg, SString & rDestMsg, PPID PersoneId);
-
-	// Инициирует рассылку смс через диалог (AutoSms = 0)
+	//
+	// Descr: Инициирует рассылку смс через диалог (AutoSms = 0)
+	//
 	SendSmsDialog(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr);
-	// Инициирует рассылку смс через tddo (то есть автоматическая рассылка, AutoSms = 1)
+	//
+	// Descr: Инициирует рассылку смс через tddo (то есть автоматическая рассылка, AutoSms = 1)
+	//
 	SendSmsDialog(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr, PPID objTypeId, StrAssocArray & rObjIdArr);
-	int    getDTS(PPSendSms * pData);
+	int    getDTS(PPSendSmsParam * pData);
 	int    GetSmsCount(const char * pMsg);
 	int    AutoSmsSending();
 	int    CheckSchedule();
-protected:
-	DECL_HANDLE_EVENT;
-
-	PPSendSms Data;
-	PPID AccID;
-	PPID ObjTypeId;
-	StrAssocArray PrsnIdArr;
-	StrAssocArray PhoneArr;
-	StrAssocArray ObjIdArr;
-	uint SplitMsg;
-	uint AutoSms;
 private:
+	DECL_HANDLE_EVENT;
 	// @v8.5.4 static void SubstVar(SString & src, SString & rDest, PPID personeId);
 	// void   GetStrVar(size_t pos, SString & rVar);
 	int    DrawList();
 	int    SendSmsText();
 	int    GetAutoSmsText(PPID prsn_id, PPID objId, SString & rText);
+	void   CalcText();
+
+	PPSendSmsParam Data;
+	PPID   AccID;
+	PPID   ObjTypeId;
+	StrAssocArray PrsnIdArr;
+	StrAssocArray PhoneArr;
+	StrAssocArray ObjIdArr;
+	uint   SplitMsg;
+	uint   AutoSms;
 };
 
 SendSmsDialog::SendSmsDialog(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr) : TDialog(DLG_SENDSMS)
@@ -395,57 +401,91 @@ SendSmsDialog::SendSmsDialog(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArr
 			SplitMsg = 1;
 }
 
+void SendSmsDialog::CalcText()
+{
+	PPSendSmsParam send_sms;
+	SString src_msg, dest_msg, prsn_id_str;
+	SString text;
+	long   msg_len = 0, sms_count = 0;
+	//char   temp_buf[256];
+	getCtrlString(CTL_SENDSMS_TEXT, text);
+	text.Strip();
+	msg_len = text.Len();
+	sms_count = GetSmsCount(text);
+	setCtrlLong(CTL_SENDSMS_SYMBCOUNT, msg_len);
+	setCtrlLong(CTL_SENDSMS_SMSCOUNT,  sms_count);
+	getDTS(&send_sms);
+	(src_msg = 0).Cat(send_sms.ExtStr.Excise(0, 3));
+	PrsnIdArr.Get(0, prsn_id_str);
+	{
+		// @v8.5.4 {
+		PPSmsSender::FormatMessageBlock fmb;
+		fmb.PersonID = prsn_id_str.ToLong();
+		PPSmsSender::FormatMessage(src_msg, dest_msg, &fmb);
+		// } @v8.5.4
+		// @v8.5.4 FormatText(src_msg, dest_msg = 0, prsn_id);
+	}
+	setCtrlString(CTL_SENDSMS_PREVTEXT, dest_msg);
+	msg_len = dest_msg.Len();
+	sms_count = GetSmsCount(dest_msg);
+	setCtrlData(CTL_SENDSMS_SYMBCOUNT2, &msg_len);
+	setCtrlData(CTL_SENDSMS_SMSCOUNT2, &sms_count);
+}
+
 IMPL_HANDLE_EVENT(SendSmsDialog)
 {
 	TDialog::handleEvent(event);
-	if(event.isCtlEvent(CTL_SENDSMS_INSERT) && event.isCmd(cmLBDblClk)) {
-		SmartListBox * p_list = (SmartListBox *)getCtrlView(CTL_SENDSMS_INSERT);
-		if(p_list) {
-			SString var, text;
-			long   c = 0;
-			p_list->getCurID(&c);
-			if(PPSmsSender::GetSubstVar(c, var)) {
-				getCtrlString(CTL_SENDSMS_TEXT, text);
-				text.Cat(var);
-				setCtrlString(CTL_SENDSMS_TEXT, text);
+	if(TVCOMMAND) {
+		if(event.isCmd(cmSendSms)) {
+			SendSmsText();
+		}
+		else if(event.isCmd(cmLBDblClk) && event.isCtlEvent(CTL_SENDSMS_INSERT)) {
+			SmartListBox * p_list = (SmartListBox *)getCtrlView(CTL_SENDSMS_INSERT);
+			if(p_list) {
+				SString var;
+				SString text;
+				long   c = 0;
+				p_list->getCurID(&c);
+				if(PPSmsSender::GetSubstVar(c, var)) {
+					TInputLine * p_il = (TInputLine *)getCtrlView(CTL_SENDSMS_TEXT);
+					if(p_il) {
+						var.Strip();
+						if(var.Len()) {
+							const size_t caret_pos = p_il->getCaret();
+							getCtrlString(CTL_SENDSMS_TEXT, text);
+							if(caret_pos <= text.Len()) {
+								if(caret_pos == 0 || text.C(caret_pos-1) == ' ') {
+									var.Space();
+									text.Insert(caret_pos, var);
+								}
+								else {
+									var.Insert(0, " ").Space();
+									text.Insert(caret_pos, var);
+								}
+							}
+							else if(text.Len() == 0 || text.Last() == ' ')
+								text.Cat(var);
+							else
+								text.Space().Cat(var);
+							setCtrlString(CTL_SENDSMS_TEXT, text);
+							CalcText();
+						}
+					}
+				}
 			}
 		}
-	}
-	if(event.isCtlEvent(CTL_SENDSMS_TEXT)) {
-		PPSendSms send_sms;
-		SString src_msg, dest_msg, prsn_id_str;
-		long   msg_len = 0, sms_count = 0;
-		char   temp_buf[256];
-		getCtrlData(CTL_SENDSMS_TEXT, &temp_buf);
-		if(*strip(temp_buf))
-			msg_len = strlen(temp_buf);
-		sms_count = GetSmsCount(temp_buf);
-		setCtrlLong(CTL_SENDSMS_SYMBCOUNT, msg_len);
-		setCtrlLong(CTL_SENDSMS_SMSCOUNT,  sms_count);
-		getDTS(&send_sms);
-		(src_msg = 0).Cat(send_sms.ExtStr.Excise(0, 3));
-		PrsnIdArr.Get(0, prsn_id_str);
-		{
-			// @v8.5.4 {
-			PPSmsSender::FormatMessageBlock fmb;
-			fmb.PersonID = prsn_id_str.ToLong();
-			PPSmsSender::FormatMessage(src_msg, dest_msg, &fmb);
-			// } @v8.5.4
-			// @v8.5.4 FormatText(src_msg, dest_msg = 0, prsn_id);
+		else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_SENDSMS_TEXT)) {
+			CalcText();
 		}
-		setCtrlString(CTL_SENDSMS_PREVTEXT, dest_msg);
-		msg_len = dest_msg.Len();
-		sms_count = GetSmsCount(dest_msg);
-		setCtrlData(CTL_SENDSMS_SYMBCOUNT2, &msg_len);
-		setCtrlData(CTL_SENDSMS_SMSCOUNT2, &sms_count);
+		else
+			return;
 	}
-	if(event.isCmd(cmSendSms)) {
-		SendSmsText();
-	}
+	else
+		return;
 	clearEvent(event);
 }
 
-int SendSmsDialog::getDTS(PPSendSms * pData)
+int SendSmsDialog::getDTS(PPSendSmsParam * pData)
 {
 	int    ok = 1;
 	uint   selctl = 0;
@@ -467,9 +507,9 @@ int SendSmsDialog::getDTS(PPSendSms * pData)
 
 int SendSmsDialog::GetSmsCount(const char * pMsg)
 {
-	size_t max_msg_len = 0, msg_len = 0;
-	SString msg_str(pMsg);
-
+	size_t max_msg_len = 0;
+	size_t msg_len = 0;
+	SString msg_str = pMsg;
 	// Если длинное сообщение разбиваем на короткие, то длина каждого сообщения для латиницы 160 символов, для криллицы - 70.
 	if(SplitMsg) {
 		if(PPObjSmsAccount::VerifyString(msg_str, 0))
@@ -511,8 +551,8 @@ int SendSmsDialog::DrawList()
 			PPGetSubStr(params, i, text);
 			THROW_SL(p_list->addItem(i, text));
 		}
+		p_list->draw();
 	}
-	p_list->draw();
 	CATCHZOK;
 	return ok;
 }
@@ -566,8 +606,7 @@ int SendSmsDialog::GetAutoSmsText(PPID prsn_id, PPID objId, SString & rText)
 			}
 			break;
 		default:
-			PPSetError(PPERR_OBJNFOUND);
-			ok = 0;
+			ok = PPSetError(PPERR_OBJNFOUND);
 			break;
 	}
 	CATCHZOK;
@@ -578,12 +617,12 @@ int SendSmsDialog::SendSmsText()
 {
 	int    ok = 1;
 	SmsClient client;
-	PPSendSms send_sms;
+	PPSendSmsParam send_sms;
 	PPPersonPacket pack;
 	PPObjPerson person_obj;
 	SString src_msg, dest_msg, phone, prsn_id_str, obj_id_str, str;
 	size_t max_sms_len = 0;
-	PPID prsn_id = 0, obj_id = 0;
+	PPID   prsn_id = 0, obj_id = 0;
 	//PPLogger logger;
 
 	getDTS(&send_sms);
@@ -1566,6 +1605,8 @@ int SmsClient::SubmitSM(const StSubmitSMParam & rParam, const char * pMessage, b
 	sbmt_pdu_body.ReplaceIfPresent = rParam.ReplaceIfPresentFlag;
 	sbmt_pdu_body.DataCoding = rParam.DataCoding;
 	sbmt_pdu_body.SmDefaultMsgId = rParam.SmDefaultMsgId;
+	//
+	const size_t org_msg_size = sstrlen(pMessage)+1;
 	if(!payloadMessage) { // Длинное сообщение было разбито на короткие
 		if(rParam.DataCoding == UCS2) {
  			SString str;
@@ -1577,7 +1618,7 @@ int SmsClient::SubmitSM(const StSubmitSMParam & rParam, const char * pMessage, b
 		}
 		else {
 			// Длина сообщения (в байтах)
-			sbmt_pdu_body.MessageLen = (strlen(pMessage) + 1) > MAX_SUBMIT_MESSAGE_LEN ? (uchar)MAX_SUBMIT_MESSAGE_LEN : (uchar)(strlen(pMessage) + 1); // Длина сообщени
+			sbmt_pdu_body.MessageLen = (org_msg_size > MAX_SUBMIT_MESSAGE_LEN) ? (uchar)MAX_SUBMIT_MESSAGE_LEN : (uchar)org_msg_size; // Длина сообщени
 			// Сообщение
 			sbmt_pdu_body.ShortMessage.CopyFromN(pMessage, sbmt_pdu_body.MessageLen - 1);
 		}
@@ -1599,7 +1640,7 @@ int SmsClient::SubmitSM(const StSubmitSMParam & rParam, const char * pMessage, b
 		}
 		else {
 			// Длина сообщенния (в байтах)
-			message_len = (strlen(pMessage) + 1) > MAX_MESSAGE_7BIT_LONG ? (uint)MAX_MESSAGE_7BIT_LONG : (uint)(strlen(pMessage) + 1);
+			message_len = (org_msg_size > MAX_MESSAGE_7BIT_LONG) ? (uint)MAX_MESSAGE_7BIT_LONG : (uint)org_msg_size;
 			sbmt_extra.PayloadLen = _byteswap_ushort(message_len);
 			// Сообщение
 			sbmt_extra.PayloadValue.CopyFromN(pMessage, message_len - 1);
@@ -1790,12 +1831,12 @@ int SmsClient::SendEnquireLinkResp(int sequenceNumber)
 	return Send(protocol_buf, 1);
 }
 
-bool SmsClient::CanSend() const
+int SmsClient::CanSend() const
 {
 	return ((ConnectionState == SMPP_BINDED) /*&& (UndeliverableMessages <= UNDELIVERABLE_MESSAGES)*/) ? true : false; // @replace поставлен комментарий
 }
 
-bool SmsClient::IsConnected() const
+int SmsClient::IsConnected() const
 {
 	return ((ConnectionState == SMPP_BINDED) ? true : false);
 }
@@ -1859,8 +1900,8 @@ int SmsClient::SendSms(const char * pTo, const char * pText, SString & rStatus)
 	SString dest_num, status_text;
 	THROW_PP(!isempty(pTo), PPERR_SMS_NOTRECIEVENUMBERS);
 	THROW_PP(!isempty(pText), PPERR_SMS_SMSTEXTEMPTY);
-	THROW_PP(strlen(Config.From) < MAX_ADDR_LEN, PPERR_SMS_SENDERADDRERRLEN);
-	THROW_PP(strlen(pTo) < MAX_ADDR_LEN, PPERR_SMS_RECVRADDRERRLEN);
+	THROW_PP(Config.From.Len() < MAX_ADDR_LEN, PPERR_SMS_SENDERADDRERRLEN);
+	THROW_PP(sstrlen(pTo) < MAX_ADDR_LEN, PPERR_SMS_RECVRADDRERRLEN);
 	if(CanSend())
 		ok = SendSms_(Config.From, pTo, pText);
 	GetRestOfReceives();
@@ -1892,7 +1933,7 @@ int SmsClient::SendSms(const char * pTo, const char * pText, SString & rStatus)
 int BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr)
 {
 	int    ok = 1;
-	PPSendSms send_sms;
+	PPSendSmsParam send_sms;
 	SendSmsDialog * dlg = new SendSmsDialog(accID, rPrsnIdArr, rPhoneArr);
 	if(CheckDialogPtr(&dlg, 1)) {
 		if(ExecView(dlg) == cmOK)
@@ -1909,14 +1950,14 @@ int BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhone
 int BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr, PPID objTypeId, StrAssocArray & rObjIdArr)
 {
 	int    ok = 1;
-	PPSendSms send_sms;
+	PPSendSmsParam send_sms;
 	SendSmsDialog * dlg = new SendSmsDialog(accID, rPrsnIdArr, rPhoneArr, objTypeId, rObjIdArr);
-	//if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtr(&dlg, 1)) {
 		dlg->AutoSmsSending();
 		delete dlg;
-	//}
-	//else
-	//	ok = 0;
+	}
+	else
+		ok = 0;
 	return ok;
 }
 
@@ -1985,8 +2026,11 @@ int SendingSms(SmsClient & rCli, PPID personID, const char * pPhone, const char 
 					long  diff_sec = diffdatetimesec(cdtm, moment);
 					if(diff_sec <= psn_cfg.SendSmsSamePersonTimeout) {
 						if(pLogger) {
+							/* @v9.5.6
 							PPLoadText(PPTXT_SMSNOTSENDED_TIMEOUT, temp_buf);
 							PPFormat(temp_buf, &msg_buf, personID, psn_cfg.SendSmsSamePersonTimeout);
+							*/
+							PPFormatT(PPTXT_SMSNOTSENDED_TIMEOUT, &msg_buf, personID, psn_cfg.SendSmsSamePersonTimeout); // @v9.5.6
 							pLogger->Log(msg_buf);
 						}
 						ok = -1;
@@ -1997,25 +2041,27 @@ int SendingSms(SmsClient & rCli, PPID personID, const char * pPhone, const char 
 		}
 		// } @v8.0.6
 		if(!skip) {
+			const SString org_phone = pPhone;
 			int    connected = 0;
 			Tddo   t;
 			SBuffer buf;
 			StringSet ext_param_list;
 			SPathStruc path_struct;
-			SString old_phone(pPhone), new_phone;
-			PPSendSms send_sms;
-
+			SString new_phone;
+			PPSendSmsParam send_sms;
+			//
 			// Отправляем смс
+			//
 			THROW(rCli.IsConnected());
-			if(FormatPhone(old_phone, new_phone, msg_buf = 0)) {
+			if(FormatPhone(org_phone, new_phone, msg_buf = 0)) {
 				THROW(rCli.SendSms(new_phone, pText, result = 0));
-				(msg_buf = 0).Cat(old_phone).Space().Cat(result);
-				if(pLogger)
-					pLogger->Log(msg_buf);
+				(msg_buf = 0).Cat(org_phone).Space().Cat(result);
+				CALLPTRMEMB(pLogger, Log(msg_buf));
 				DS.LogAction(PPACN_SMSSENDED, PPOBJ_PERSON, personID, 0, 1); // @v8.0.0
 			}
-			else if(pLogger)
-				pLogger->Log(msg_buf);
+			else {
+				CALLPTRMEMB(pLogger, Log(msg_buf));
+			}
 		}
 	}
 	CATCHZOK

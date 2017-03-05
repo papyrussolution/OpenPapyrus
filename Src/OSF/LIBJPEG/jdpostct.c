@@ -18,11 +18,12 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
-/* 
-	Private buffer controller object 
-*/
+
+/* Private buffer controller object */
+
 typedef struct {
 	struct jpeg_d_post_controller pub; /* public fields */
+
 	/* Color quantization source buffer: this holds output data from
 	 * the upsample/color conversion step to be passed to the quantizer.
 	 * For two-pass color quantization, we need a full-image buffer;
@@ -61,8 +62,7 @@ METHODDEF(void) post_process_2pass JPP((j_decompress_ptr cinfo,
  * Initialize for a processing pass.
  */
 
-METHODDEF(void)
-start_pass_dpost(j_decompress_ptr cinfo, J_BUF_MODE pass_mode)
+METHODDEF(void) start_pass_dpost(j_decompress_ptr cinfo, J_BUF_MODE pass_mode)
 {
 	my_post_ptr post = (my_post_ptr)cinfo->post;
 
@@ -114,8 +114,7 @@ start_pass_dpost(j_decompress_ptr cinfo, J_BUF_MODE pass_mode)
  * This is used for color precision reduction as well as one-pass quantization.
  */
 
-METHODDEF(void)
-post_process_1pass(j_decompress_ptr cinfo,
+METHODDEF(void) post_process_1pass(j_decompress_ptr cinfo,
     JSAMPIMAGE input_buf, JDIMENSION *in_row_group_ctr,
     JDIMENSION in_row_groups_avail,
     JSAMPARRAY output_buf, JDIMENSION *out_row_ctr,
@@ -145,8 +144,7 @@ post_process_1pass(j_decompress_ptr cinfo,
  * Process some data in the first pass of 2-pass quantization.
  */
 
-METHODDEF(void)
-post_process_prepass(j_decompress_ptr cinfo,
+METHODDEF(void) post_process_prepass(j_decompress_ptr cinfo,
     JSAMPIMAGE input_buf, JDIMENSION *in_row_group_ctr,
     JDIMENSION in_row_groups_avail,
     JSAMPARRAY output_buf, JDIMENSION *out_row_ctr,
@@ -188,8 +186,7 @@ post_process_prepass(j_decompress_ptr cinfo,
  * Process some data in the second pass of 2-pass quantization.
  */
 
-METHODDEF(void)
-post_process_2pass(j_decompress_ptr cinfo,
+METHODDEF(void) post_process_2pass(j_decompress_ptr cinfo,
     JSAMPIMAGE input_buf, JDIMENSION *in_row_group_ctr,
     JDIMENSION in_row_groups_avail,
     JSAMPARRAY output_buf, JDIMENSION *out_row_ctr,
@@ -230,19 +227,12 @@ post_process_2pass(j_decompress_ptr cinfo,
 }
 
 #endif /* QUANT_2PASS_SUPPORTED */
-
 /*
  * Initialize postprocessing controller.
  */
-
-GLOBAL(void)
-jinit_d_post_controller(j_decompress_ptr cinfo, boolean need_full_buffer)
+GLOBAL(void) jinit_d_post_controller(j_decompress_ptr cinfo, boolean need_full_buffer)
 {
-	my_post_ptr post;
-
-	post = (my_post_ptr)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    SIZEOF(my_post_controller));
+	my_post_ptr post = (my_post_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(my_post_controller));
 	cinfo->post = (struct jpeg_d_post_controller*)post;
 	post->pub.start_pass = start_pass_dpost;
 	post->whole_image = NULL; /* flag for no virtual arrays */

@@ -701,6 +701,19 @@
     <ClCompile Include="..\Osf\Zlib\uncompr.c" />
     <ClCompile Include="..\Osf\Zlib\zutil.c" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Include\ZLIB\crc32.h" />
+    <ClInclude Include="..\Include\ZLIB\deflate.h" />
+    <ClInclude Include="..\Include\ZLIB\gzguts.h" />
+    <ClInclude Include="..\Include\ZLIB\inffast.h" />
+    <ClInclude Include="..\Include\ZLIB\inffixed.h" />
+    <ClInclude Include="..\Include\ZLIB\inflate.h" />
+    <ClInclude Include="..\Include\ZLIB\inftrees.h" />
+    <ClInclude Include="..\Include\ZLIB\trees.h" />
+    <ClInclude Include="..\Include\ZLIB\zconf.h" />
+    <ClInclude Include="..\Include\ZLIB\zlib.h" />
+    <ClInclude Include="..\Include\ZLIB\zutil.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

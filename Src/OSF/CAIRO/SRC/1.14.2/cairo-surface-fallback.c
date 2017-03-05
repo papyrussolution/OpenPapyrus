@@ -43,19 +43,13 @@
 #include "cairo-compositor-private.h"
 #include "cairo-surface-fallback-private.h"
 
-cairo_int_status_t _cairo_surface_fallback_paint(void * surface,
-    cairo_operator_t op,
-    const cairo_pattern_t    * source,
-    const cairo_clip_t       * clip)
+cairo_int_status_t _cairo_surface_fallback_paint(void * surface, cairo_operator_t op, const cairo_pattern_t * source, const cairo_clip_t * clip)
 {
 	return _cairo_compositor_paint(&_cairo_fallback_compositor, (cairo_surface_t *)surface, op, source, clip);
 }
 
 cairo_int_status_t _cairo_surface_fallback_mask(void * surface,
-    cairo_operator_t op,
-    const cairo_pattern_t     * source,
-    const cairo_pattern_t     * mask,
-    const cairo_clip_t        * clip)
+    cairo_operator_t op, const cairo_pattern_t * source, const cairo_pattern_t * mask, const cairo_clip_t * clip)
 {
 	return _cairo_compositor_mask(&_cairo_fallback_compositor, (cairo_surface_t *)surface, op, source, mask, clip);
 }
@@ -97,7 +91,6 @@ cairo_int_status_t _cairo_surface_fallback_glyphs(void * surface,
     cairo_scaled_font_t     * scaled_font,
     const cairo_clip_t      * clip)
 {
-	return _cairo_compositor_glyphs(&_cairo_fallback_compositor,
-	    (cairo_surface_t *)surface, op, source, glyphs, num_glyphs, scaled_font, clip);
+	return _cairo_compositor_glyphs(&_cairo_fallback_compositor, (cairo_surface_t *)surface, op, source, glyphs, num_glyphs, scaled_font, clip);
 }
 

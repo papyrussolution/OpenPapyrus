@@ -2,7 +2,7 @@
  * jdinput.c
  *
  * Copyright (C) 1991-1997, Thomas G. Lane.
- * Modified 2002-2009 by Guido Vollbeding.
+ * Modified 2002-2013 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -14,11 +14,12 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
-/* 
-	Private state 
-*/
+
+/* Private state */
+
 typedef struct {
 	struct jpeg_input_controller pub; /* public fields */
+
 	int inheaders;          /* Nonzero until first SOS is reached */
 } my_input_controller;
 
@@ -37,8 +38,7 @@ METHODDEF(int) consume_markers JPP((j_decompress_ptr cinfo));
  * Hence it mustn't do anything that can't be done twice.
  */
 
-GLOBAL(void)
-jpeg_core_output_dimensions(j_decompress_ptr cinfo)
+GLOBAL(void) jpeg_core_output_dimensions(j_decompress_ptr cinfo)
 /* Do computations that are needed before master selection phase.
  * This function is used for transcoding and full decompression.
  */
@@ -205,7 +205,7 @@ jpeg_core_output_dimensions(j_decompress_ptr cinfo)
 	/* Hardwire it to "no scaling" */
 	cinfo->output_width = cinfo->image_width;
 	cinfo->output_height = cinfo->image_height;
-	/* jdinput.c has already initialized DCT_scaled_size,
+	/* initial_setup has already initialized DCT_scaled_size,
 	 * and has computed unscaled downsampled_width and downsampled_height.
 	 */
 
@@ -224,8 +224,8 @@ initial_setup(j_decompress_ptr cinfo)
 	    (long)cinfo->image_width > (long)JPEG_MAX_DIMENSION)
 		ERREXIT1(cinfo, JERR_IMAGE_TOO_BIG, (unsigned int)JPEG_MAX_DIMENSION);
 
-	/* For now, precision must match compiled-in value... */
-	if(cinfo->data_precision != BITS_IN_JSAMPLE)
+	/* Only 8 to 12 bits data precision are supported for DCT based JPEG */
+	if(cinfo->data_precision < 8 || cinfo->data_precision > 12)
 		ERREXIT1(cinfo, JERR_BAD_PRECISION, cinfo->data_precision);
 
 	/* Check that number of components won't exceed internal array sizes */
@@ -520,8 +520,7 @@ latch_quant_tables(j_decompress_ptr cinfo)
  * Subsequent calls come from consume_markers, below.
  */
 
-METHODDEF(void)
-start_input_pass(j_decompress_ptr cinfo)
+METHODDEF(void) start_input_pass(j_decompress_ptr cinfo)
 {
 	per_scan_setup(cinfo);
 	latch_quant_tables(cinfo);
@@ -536,9 +535,9 @@ start_input_pass(j_decompress_ptr cinfo)
  * the expected data of the scan.
  */
 
-METHODDEF(void)
-finish_input_pass(j_decompress_ptr cinfo)
+METHODDEF(void) finish_input_pass(j_decompress_ptr cinfo)
 {
+	(*cinfo->entropy->finish_pass)(cinfo);
 	cinfo->inputctl->consume_input = consume_markers;
 }
 
@@ -555,16 +554,12 @@ finish_input_pass(j_decompress_ptr cinfo)
  * component number) to the caller.  A pseudo marker received by
  * read_markers is processed and then skipped for other markers.
  */
-
-METHODDEF(int)
-consume_markers(j_decompress_ptr cinfo)
+METHODDEF(int) consume_markers(j_decompress_ptr cinfo)
 {
 	my_inputctl_ptr inputctl = (my_inputctl_ptr)cinfo->inputctl;
 	int val;
-
 	if(inputctl->pub.eoi_reached) /* After hitting EOI, read no further */
 		return JPEG_REACHED_EOI;
-
 	for(;; ) {              /* Loop to pass pseudo SOS marker */
 		val = (*cinfo->marker->read_markers)(cinfo);
 
@@ -617,8 +612,7 @@ consume_markers(j_decompress_ptr cinfo)
  * Reset state to begin a fresh datastream.
  */
 
-METHODDEF(void)
-reset_input_controller(j_decompress_ptr cinfo)
+METHODDEF(void) reset_input_controller(j_decompress_ptr cinfo)
 {
 	my_inputctl_ptr inputctl = (my_inputctl_ptr)cinfo->inputctl;
 
@@ -638,8 +632,7 @@ reset_input_controller(j_decompress_ptr cinfo)
  * This is called only once, when the decompression object is created.
  */
 
-GLOBAL(void)
-jinit_input_controller(j_decompress_ptr cinfo)
+GLOBAL(void) jinit_input_controller(j_decompress_ptr cinfo)
 {
 	my_inputctl_ptr inputctl;
 
@@ -647,7 +640,7 @@ jinit_input_controller(j_decompress_ptr cinfo)
 	inputctl = (my_inputctl_ptr)
 	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_PERMANENT,
 	    SIZEOF(my_input_controller));
-	cinfo->inputctl = (struct jpeg_input_controller*)inputctl;
+	cinfo->inputctl = &inputctl->pub;
 	/* Initialize method pointers */
 	inputctl->pub.consume_input = consume_markers;
 	inputctl->pub.reset_input_controller = reset_input_controller;

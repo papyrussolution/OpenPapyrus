@@ -84,23 +84,16 @@ typedef ppm_dest_struct * ppm_dest_ptr;
  * output buffer is physically the same as the fwrite buffer.
  */
 
-METHODDEF(void)
-put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
-    JDIMENSION rows_supplied)
+METHODDEF(void) put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
 {
 	ppm_dest_ptr dest = (ppm_dest_ptr)dinfo;
-
 	(void)JFWRITE(dest->pub.output_file, dest->iobuffer, dest->buffer_width);
 }
-
 /*
  * This code is used when we have to copy the data and apply a pixel
  * format translation.  Typically this only happens in 12-bit mode.
  */
-
-METHODDEF(void)
-copy_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
-    JDIMENSION rows_supplied)
+METHODDEF(void) copy_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
 {
 	ppm_dest_ptr dest = (ppm_dest_ptr)dinfo;
 	register char * bufferptr;
@@ -120,8 +113,7 @@ copy_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
  * We have to demap the color index values to straight data.
  */
 
-METHODDEF(void)
-put_demapped_rgb(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
+METHODDEF(void) put_demapped_rgb(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
     JDIMENSION rows_supplied)
 {
 	ppm_dest_ptr dest = (ppm_dest_ptr)dinfo;
@@ -144,8 +136,7 @@ put_demapped_rgb(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
 	(void)JFWRITE(dest->pub.output_file, dest->iobuffer, dest->buffer_width);
 }
 
-METHODDEF(void)
-put_demapped_gray(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
+METHODDEF(void) put_demapped_gray(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
     JDIMENSION rows_supplied)
 {
 	ppm_dest_ptr dest = (ppm_dest_ptr)dinfo;
@@ -166,8 +157,7 @@ put_demapped_gray(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
  * Startup: write the file header.
  */
 
-METHODDEF(void)
-start_output_ppm(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
+METHODDEF(void) start_output_ppm(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 {
 	ppm_dest_ptr dest = (ppm_dest_ptr)dinfo;
 
@@ -194,8 +184,7 @@ start_output_ppm(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
  * Finish up at the end of the file.
  */
 
-METHODDEF(void)
-finish_output_ppm(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
+METHODDEF(void) finish_output_ppm(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 {
 	/* Make sure we wrote the output file OK */
 	fflush(dinfo->output_file);
@@ -206,16 +195,10 @@ finish_output_ppm(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 /*
  * The module selection routine for PPM format output.
  */
-
-GLOBAL(djpeg_dest_ptr)
-jinit_write_ppm(j_decompress_ptr cinfo)
+GLOBAL(djpeg_dest_ptr) jinit_write_ppm(j_decompress_ptr cinfo)
 {
-	ppm_dest_ptr dest;
-
 	/* Create module interface object, fill in method pointers */
-	dest = (ppm_dest_ptr)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    SIZEOF(ppm_dest_struct));
+	ppm_dest_ptr dest = (ppm_dest_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(ppm_dest_struct));
 	dest->pub.start_output = start_output_ppm;
 	dest->pub.finish_output = finish_output_ppm;
 

@@ -75,8 +75,7 @@ typedef struct _rle_source_struct {
  * Read the file header; return image size and component count.
  */
 
-METHODDEF(void)
-start_input_rle(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+METHODDEF(void) start_input_rle(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 {
 	rle_source_ptr source = (rle_source_ptr)sinfo;
 	JDIMENSION width, height;
@@ -186,11 +185,9 @@ start_input_rle(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
  * Used for GRAYSCALE, MAPPEDGRAY, TRUECOLOR, and DIRECTCOLOR images.
  */
 
-METHODDEF(JDIMENSION)
-get_rle_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+METHODDEF(JDIMENSION) get_rle_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 {
 	rle_source_ptr source = (rle_source_ptr)sinfo;
-
 	source->row--;
 	source->pub.buffer = (*cinfo->mem->access_virt_sarray)
 		    ((j_common_ptr)cinfo, source->image, source->row, (JDIMENSION)1, FALSE);
@@ -204,8 +201,7 @@ get_rle_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
  * Used for PSEUDOCOLOR images.
  */
 
-METHODDEF(JDIMENSION)
-get_pseudocolor_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+METHODDEF(JDIMENSION) get_pseudocolor_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 {
 	rle_source_ptr source = (rle_source_ptr)sinfo;
 	JSAMPROW src_row, dest_row;
@@ -239,8 +235,7 @@ get_pseudocolor_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
  * the appropriate row-reading routine.
  */
 
-METHODDEF(JDIMENSION)
-load_image(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+METHODDEF(JDIMENSION) load_image(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 {
 	rle_source_ptr source = (rle_source_ptr)sinfo;
 	JDIMENSION row, col;
@@ -352,30 +347,20 @@ load_image(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	/* And fetch the topmost (bottommost) row */
 	return (*source->pub.get_pixel_rows)(cinfo, sinfo);
 }
-
 /*
  * Finish up at the end of the file.
  */
-
-METHODDEF(void)
-finish_input_rle(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+METHODDEF(void) finish_input_rle(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 {
 	/* no work */
 }
-
 /*
  * The module selection routine for RLE format input.
  */
-
-GLOBAL(cjpeg_source_ptr)
-jinit_read_rle(j_compress_ptr cinfo)
+GLOBAL(cjpeg_source_ptr) jinit_read_rle(j_compress_ptr cinfo)
 {
-	rle_source_ptr source;
-
 	/* Create module interface object */
-	source = (rle_source_ptr)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    SIZEOF(rle_source_struct));
+	rle_source_ptr source = (rle_source_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(rle_source_struct));
 	/* Fill in method ptrs */
 	source->pub.start_input = start_input_rle;
 	source->pub.finish_input = finish_input_rle;

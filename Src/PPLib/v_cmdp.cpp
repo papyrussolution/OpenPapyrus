@@ -657,7 +657,7 @@ int SLAPI EditName(SString & rName)
 			org_name = name;
 		}
 	}
-	// } @v9.2.8 
+	// } @v9.2.8
 	if(InputStringDialog(&isd_param, name) > 0 && name.Len()) {
 		if(name != org_name) {
 			rName = name;
@@ -682,7 +682,7 @@ public:
 			showCtrl(CTL_MENULIST_EDMBTN, 0);
 			title_id = PPTXT_EDITDESKTOP;
 			setSmartListBoxOption(CTL_MENULIST_LIST, lbtSelNotify);
-			addGroup(GRP_IMG,   new ImageBrowseCtrlGroup(PPTXT_PICFILESEXTS, CTL_MENULIST_IMAGE, cmAddImage, cmDelImage, 1));
+			addGroup(GRP_IMG,   new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_MENULIST_IMAGE, cmAddImage, cmDelImage, 1));
 			addGroup(GRP_BKGND, new ColorCtrlGroup(CTL_MENULIST_BKGND, CTLSEL_MENULIST_BKGND, cmSelBkgnd, CTL_MENULIST_SELBKGND));
 			disableCtrls(!IsMaster && ObjRts.CheckDesktopID(0, PPR_INS) == 0, CTL_MENULIST_EDASSCBTN, CTL_MENULIST_EDASSCCBTN, 0L);
 		}
@@ -1123,7 +1123,7 @@ void SLAPI ReadMenu(HMENU hm, PPID parentID, PPCommandFolder * pMenu, StrAssocAr
 						if(PPLoadString(name.ShiftLeft(), temp_buf) > 0)
 							name = temp_buf;
 					}
-					// } @v9.2.8 
+					// } @v9.2.8
 					name.Transf(CTRANSF_INNER_TO_OUTER);
 					name.CopyTo(name_buf, sizeof(name_buf));
 					if(p_item->Kind == PPCommandItem::kFolder) {

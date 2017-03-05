@@ -398,9 +398,7 @@ int SDrawFigure::TransformToImage(const SViewPort * pVp, SImageBuffer & rImg)
 		SPaintToolBox * p_tb = GetToolBox();
 		TCanvas2 canv(*NZOR(p_tb, &tb), rImg);
 		SViewPort vp;
-		if(pVp)
-			vp = *pVp;
-		else
+		if(!RVALUEPTR(vp, pVp))
 			GetViewPort(&vp);
 		FRect rc(size.X, size.Y);
 		canv.SetTransform(vp.GetMatrix(rc, mtx));
@@ -1739,8 +1737,7 @@ int SImageBuffer::TransformToBounds(TPoint size, const SViewPort * pVp)
 	cairo_t * p_cr = 0;
 	cairo_surface_t * p_surf = 0;
 	SViewPort vp;
-	if(pVp)
-		vp = *pVp;
+	RVALUEPTR(vp, pVp);
 	vp.a.SetZero();
 	vp.b = GetDim();
 	if(GetDim().x > 0 && GetDim().y > 0 && size.x > 0 && size.y > 0) {
@@ -1972,11 +1969,12 @@ int SImageBuffer::AddLines(const void * pSrc, SImageBuffer::PixF s, uint count, 
 		uint   new_h = S.y + count;
 		//assert(F == PixF::s32ARGB);
 		THROW(S.x);
-		uint   stride = F.GetStride(S.x);
+		const uint src_stride = s.GetStride(S.x);
+		const uint stride = F.GetStride(S.x);
 		THROW(stride);
 		THROW(Alloc(stride * new_h));
 		for(uint j = 0; j < count; j++) {
-			THROW(s.GetUniform(pSrc, PTR32(P_Buf)+((S.y+j)*S.x), S.x, pPalette));
+			THROW(s.GetUniform(PTR8(pSrc) + j * src_stride, PTR32(P_Buf)+((S.y+j)*S.x), S.x, pPalette));
 		}
 		S.y = new_h;
 	}
@@ -2368,9 +2366,15 @@ int SImageBuffer::LoadIco(SFile & rF, uint pageIdx)
 	return ok;
 }
 
-#include <../osf/libjpeg/cdjpeg.h>
-//#include <../osf/libjpeg/jpeglib.h>
-#include <../osf/libjpeg/jerror.h>
+#define USE_JPEG_TURBO
+
+#ifdef USE_JPEG_TURBO
+	#include <../osf/libjpeg-turbo/cdjpeg.h>
+	#include <../osf/libjpeg-turbo/jerror.h>
+#else
+	#include <../osf/libjpeg/cdjpeg.h>
+	#include <../osf/libjpeg/jerror.h>
+#endif
 
 int SImageBuffer::LoadJpeg(SFile & rF, int fileFmt)
 {
@@ -2427,18 +2431,37 @@ int SImageBuffer::LoadJpeg(SFile & rF, int fileFmt)
 					fmt = PixF::s24RGB;
 				else if(di.output_components == 4)
 					fmt = PixF::s32ARGB;
-				p_row_buf = (uint8 *)malloc(di.output_width*di.output_components);
-				if(p_row_buf) {
-					while(ok && di.output_scanline < di.output_height) {
-						JSAMPROW row_ptr[1];
-						row_ptr[0] = p_row_buf;
-						jpeg_read_scanlines(&di, row_ptr, 1);
-						if(!AddLines(p_row_buf, fmt, 1, 0))
-							ok = 0;
+				{
+					const uint max_lines = 1;
+					const size_t line_size = di.output_width * di.output_components;
+					p_row_buf = (uint8 *)malloc(line_size * max_lines);
+					if(p_row_buf) {
+						// @v9.5.6 {
+						{
+							const uint _stride = F.GetStride(S.x);
+							THROW(_stride);
+							THROW(Alloc(_stride * di.output_height));
+						}
+						// } @v9.5.6 
+						while(ok && di.output_scanline < di.output_height) {
+							JSAMPROW row_ptr[max_lines];
+							uint    step_count = 1;
+							if(max_lines == 1) {
+								row_ptr[0] = p_row_buf;
+							}
+							else {
+								step_count = MIN(max_lines, (di.output_height - di.output_scanline));
+								for(uint ln = 0; ln < step_count; ln++) {
+									row_ptr[ln] = p_row_buf + line_size * ln;
+								}
+							}
+							const uint lines_done = jpeg_read_scanlines(&di, row_ptr, step_count);
+							ok = AddLines(p_row_buf, fmt, lines_done, 0);
+						}
 					}
+					else
+						ok = SLS.SetError(SLERR_NOMEM);
 				}
-				else
-					ok = SLS.SetError(SLERR_NOMEM);
 			}
 			else
 				ok = 0;
@@ -2494,8 +2517,8 @@ struct PngSupport {
 	{
 		for(uint i = 0; i < row_info->rowbytes; i += 4) {
 			uint8 * b = &data[i];
-			uint32 pix = *PTR32(b);
-			uint8 alpha = (uint8)((pix&0xff000000)>>24);
+			const uint32 pix = *PTR32(b);
+			const uint8  alpha = (uint8)((pix&0xff000000)>>24);
 			if(alpha == 0) {
 				PTR32(b)[0] = 0;
 			}
@@ -2577,6 +2600,13 @@ int SImageBuffer::LoadPng(SFile & rF)
 			int  i = pass_count;
 			if(i > 0) {
 				uint j;
+				// @v9.5.6 {
+				{
+					const uint _stride = F.GetStride(S.x);
+					THROW(_stride);
+					THROW(Alloc(_stride * height));
+				}
+				// } @v9.5.6 
 				for(j = 0; j < height; j++) {
 					png_read_rows(p_png, &p_row_buf, 0, 1);
 					THROW(AddLines(p_row_buf, fmt, 1, 0));

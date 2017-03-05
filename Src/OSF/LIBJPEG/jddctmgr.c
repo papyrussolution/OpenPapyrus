@@ -2,7 +2,7 @@
  * jddctmgr.c
  *
  * Copyright (C) 1994-1996, Thomas G. Lane.
- * Modified 2002-2010 by Guido Vollbeding.
+ * Modified 2002-2013 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -18,7 +18,11 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
-#include "jdct.h" /* Private declarations for DCT subsystem */
+
+//#define JPEG_INTERNALS
+//#include "jinclude.h"
+//#include "jpeglib.h"
+#include "jdct.h"               /* Private declarations for DCT subsystem */
 
 /*
  * The decompressor input side (jdinput.c) saves away the appropriate
@@ -80,8 +84,7 @@ typedef union {
  * a matching multiplier table.
  */
 
-METHODDEF(void)
-start_pass(j_decompress_ptr cinfo)
+METHODDEF(void) start_pass(j_decompress_ptr cinfo)
 {
 	my_idct_ptr idct = (my_idct_ptr)cinfo->idct;
 	int ci, i;
@@ -351,8 +354,7 @@ start_pass(j_decompress_ptr cinfo)
  * Initialize IDCT manager.
  */
 
-GLOBAL(void)
-jinit_inverse_dct(j_decompress_ptr cinfo)
+GLOBAL(void) jinit_inverse_dct(j_decompress_ptr cinfo)
 {
 	my_idct_ptr idct;
 	int ci;
@@ -361,7 +363,7 @@ jinit_inverse_dct(j_decompress_ptr cinfo)
 	idct = (my_idct_ptr)
 	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
 	    SIZEOF(my_idct_controller));
-	cinfo->idct = (struct jpeg_inverse_dct*)idct;
+	cinfo->idct = &idct->pub;
 	idct->pub.start_pass = start_pass;
 
 	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components;

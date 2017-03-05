@@ -4308,27 +4308,6 @@ int SLAPI iSalesPepsi::SendInvoices()
     CATCHZOK
 	return ok;
 }
-
-int SLAPI Test_iSalesPepsi()
-{
-	int    ok = 1;
-	SupplInterchangeFilt filt;
-	PrcssrSupplInterchange prc;
-	THROW(prc.EditParam(&filt));
-	/*
-	iSalesPepsi cli;
-	TSCollection <iSalesRoutePacket> routs;
-	THROW(cli.Init(13743)); // ООО "ПепсиКо Холдингс"
-	THROW(cli.ReceiveOrders());
-	//THROW(cli.SendInvoices());
-	//THROW(cli.SendStocks());
-	//THROW(cli.SendPrices());
-	//THROW(cli.ReceiveRouts(routs));
-	//THROW(cli.ReceiveGoods());
-	*/
-	CATCHZOKPPERR
-	return ok;
-}
 //
 //
 //

@@ -1,5 +1,5 @@
 // SCP2RC.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000-2002, 2005, 2007, 2011, 2013, 2016
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000-2002, 2005, 2007, 2011, 2013, 2016, 2017
 //
 #include <stdlib.h>
 #include <stdio.h>
@@ -58,7 +58,7 @@ static void error(const char * s)
 
 #define fldoff(k,f)  offsetof(k##Spec, f)
 
-static char * tv_names[] = {
+static char * P_TvNames[] = {
 	"TV_DIALOG",
 	"TV_BUTTON",
 	"TV_STATIC",
@@ -85,6 +85,8 @@ public:
 	{
 		char   str[256];
 		char   orgID[32];
+		SString line_buf;
+		SString temp_buf;
 		int    kind;
 		int    ctlNo = 1;
 		int    vb_no = 1;
@@ -123,7 +125,7 @@ public:
 							if(f_log)
 								fprintf(f_log, "%s\n", Fix.fieldName);
 							Ctrl.Dlg.get(*this);
-							fprintf(R_Out, "%s %s\nBEGIN\n", Fix.fieldName, tv_names[kind]);
+							fprintf(R_Out, "%s %s\nBEGIN\n", Fix.fieldName, P_TvNames[kind]);
 							fprintf(R_Out, "\t%u, %u, %u, %u, \"%s\\0\", \"%s\\0\"\n",
 								Fix.x, Fix.y, Fix.x1, Fix.y1, Ctrl.Dlg.title, symb);
 						}
@@ -145,7 +147,14 @@ public:
 					case __Static:
 						Ctrl.Static.get(*this);
 						WriteHeader(kind);
-						fprintf(R_Out, ", \"%s\\0\", \"%s\\0\"\n", Ctrl.Static.text, strip(Fix.extra[2]));
+						// @v9.5.6 {
+						(line_buf = 0).CatDiv(',', 2);
+						line_buf.CatQStr((temp_buf = Ctrl.Static.text).Cat("\\0")).CatDiv(',', 2);
+						line_buf.CatQStr((temp_buf = Fix.extra[2]).Strip().Cat("\\0")).CatDiv(',', 2);
+						line_buf.CatQStr((temp_buf = Fix.extra[3]).Strip().Cat("\\0")).CR();
+						fprintf(R_Out, line_buf.cptr());
+						// } @v9.5.6
+						// @v9.5.6 fprintf(R_Out, ", \"%s\\0\", \"%s\\0\", \"%s\\0\"\n", Ctrl.Static.text, strip(Fix.extra[2]), strip(Fix.extra[3]));
 						break;
 					case __ColoredText:
 						Ctrl.Static.get(*this);
@@ -647,7 +656,7 @@ public:
 		STRNSCPY(symb, Fix.id);
 		if(atol(symb) != 0)
 			symb[0] = 0;
-		fprintf(R_Out, "\t%-18s %2u, %2u, %2u, %2u, %s, \"%s\\0\"", tv_names[kind], Fix.x, Fix.y, Fix.x1, Fix.y1, Fix.id, symb);
+		fprintf(R_Out, "\t%-18s %2u, %2u, %2u, %2u, %s, \"%s\\0\"", P_TvNames[kind], Fix.x, Fix.y, Fix.x1, Fix.y1, Fix.id, symb);
 	}
 };
 

@@ -257,6 +257,18 @@ extern "C" __declspec(dllexport) int EfesSetSalesOrderStatusSync(PPSoapClientSes
 					p_new_item->LogMsg[j-start_msg_list_pos] = arg_msg_list.at(j);
 			}
 		}
+		{
+			ns2__DistributorRequestType temp_h;
+			InitEfecCallParam(temp_h, rH, arg_str_pool);
+			param.SalesOrg = temp_h.SalesOrg;
+			param.SessionID = temp_h.SessionID;
+			param.Wareh = temp_h.Wareh;
+		}
+		param.SalesOrderStatus = (ns2__SalesOrderStatusType **)PPSoapCreateArray(arg_status_list.getCount(), param.__sizeSalesOrderStatus);
+		THROW(param.SalesOrderStatus);
+		for(j = 0; j < arg_status_list.getCount(); j++) {
+			param.SalesOrderStatus[j] = arg_status_list.at(j);
+		}
 		THROW(PreprocessCall(proxi, rSess, proxi.SetSalesOrderStatusSync(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
 	}
 	CATCH
@@ -268,6 +280,7 @@ extern "C" __declspec(dllexport) int EfesSetSalesOrderStatusSync(PPSoapClientSes
 			ZFREE(p_item->LogMsg);
 		}
 	}
+	ZFREE(param.SalesOrderStatus);
 	return result;
 }
 

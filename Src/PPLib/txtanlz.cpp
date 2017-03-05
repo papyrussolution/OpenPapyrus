@@ -4086,23 +4086,6 @@ int SLAPI PPAutoTranslateText(int srcLang, int destLang, const SString & rSrcUtf
 	CATCHZOK
 	return ok;
 }
-
-int SLAPI TestAutoTransl()
-{
-	int    ok = 1;
-#ifndef NDEBUG // {
-	SString src_text;
-	SString result_text;
-	PPAutoTranslSvc_Microsoft at;
-	THROW(Helper_PPAutoTranslSvc_Microsoft_Auth(at));
-	(src_text = "Теория большого взрыва").ToUtf8();
-	THROW(at.Request(slangRU, slangEN, src_text, result_text));
-	CATCH
-		ok = PPErrorZ();
-	ENDCATCH
-#endif // } !NDEBUG
-	return ok;
-}
 //
 //
 //
@@ -5661,7 +5644,7 @@ const uint8 * FASTCALL SCodepageMapPool::TranslIndex::Search(const uint8 * pSrc)
 			}
 			else {
 				assert(SL > 1);
-				const size_t cs = MIN(src_len, SL); 
+				const size_t cs = MIN(src_len, SL);
 				const size_t entry_size = GetEntrySize();
 				const uint8 * p_org = (const uint8 *)P_Tab;
 				if(0) {
@@ -5716,14 +5699,14 @@ const uint8 * FASTCALL SCodepageMapPool::TranslIndex::Search(const uint8 * pSrc)
 					switch(cs) {
 						case 1:
 							cmp = CMPSIGN(p[0], pSrc[0]);
-							if(cmp == 0 && SL > src_len && p[1]) 
+							if(cmp == 0 && SL > src_len && p[1])
 								cmp = +1;
 							break;
 						case 2:
 							cmp = CMPSIGN(p[0], pSrc[0]);
 							if(cmp == 0) {
 								cmp = CMPSIGN(p[1], pSrc[1]);
-								if(cmp == 0 && SL > src_len && p[2]) 
+								if(cmp == 0 && SL > src_len && p[2])
 									cmp = +1;
 							}
 							break;

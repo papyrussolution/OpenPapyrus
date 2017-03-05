@@ -879,13 +879,13 @@ size_t TInputLine::getCaret()
 {
 	POINT p;
 	GetCaretPos(&p);
-	DWORD c = SendMessage(getHandle(), EM_CHARFROMPOS, 0, MAKELPARAM(p.x, p.y));
+	DWORD c = ::SendMessage(getHandle(), EM_CHARFROMPOS, 0, MAKELPARAM(p.x, p.y));
 	return LoWord(c);
 }
 
 void TInputLine::setCaret(size_t pos)
 {
-	DWORD c = SendMessage(getHandle(), EM_POSFROMCHAR, pos, pos /**/);
+	DWORD c = ::SendMessage(getHandle(), EM_POSFROMCHAR, pos, pos /**/);
 	SetCaretPos(LoWord(c), HiWord(c));
 }
 
@@ -1908,23 +1908,58 @@ void ComboBox::SetLink(TInputLine * pLink)
 //
 //
 //
+#define TIMAGEVIEW_USE_FIG // @v9.5.6
+
 // static
 LRESULT CALLBACK TImageView::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	TImageView * p_view = (TImageView *)TView::GetWindowUserData(hWnd);
 	switch(uMsg) {
 		case WM_DESTROY:
-			p_view->OnDestroy(hWnd);
+			if(p_view && p_view->IsSubSign(TV_SUBSIGN_IMAGEVIEW)) {
+				p_view->OnDestroy(hWnd);
+			}
 			return 0;
 		case WM_COMMAND:
 			if(HIWORD(wParam) == 1)
 				SendMessage(APPL->H_TopOfStack, uMsg, wParam, lParam);
 			break;
 		case WM_PAINT:
-			{
+			if(p_view && p_view->IsSubSign(TV_SUBSIGN_IMAGEVIEW)) {
 				PAINTSTRUCT ps;
 				BeginPaint(hWnd, (LPPAINTSTRUCT)&ps);
-				p_view->draw();
+				//p_view->draw();
+				if(p_view->P_Fig) {
+					RECT rc;
+					::GetClientRect(hWnd, &rc);
+					const  TRect rect_elem_i = rc;
+					const  FRect rect_elem = rc;
+					FRect pic_bounds = rect_elem;
+					SPaintToolBox tb;
+					TCanvas2 canv(tb, ps.hdc);
+					LMatrix2D mtx;
+					SViewPort vp;
+					canv.PushTransform();
+					p_view->P_Fig->GetViewPort(&vp);
+					{
+                        pic_bounds.a.X = 0.0f;
+                        pic_bounds.a.Y = 0.0f;
+						if(vp.GetSize().X <= rect_elem.Width() && vp.GetSize().Y <= rect_elem.Height()) {
+							pic_bounds.b.X = vp.GetSize().X;
+							pic_bounds.b.Y = vp.GetSize().Y;
+							pic_bounds.MoveCenterTo(rect_elem.GetCenter());
+						}
+						else {
+
+						}
+					}
+					canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
+					canv.Draw(p_view->P_Fig);
+					canv.PopTransform();
+				}
+				else if(p_view->P_Image) {
+					((SImage*)p_view->P_Image)->Draw(hWnd, 0);
+				}
 				EndPaint(hWnd, (LPPAINTSTRUCT)&ps);
 			}
 			return 0;
@@ -1939,35 +1974,44 @@ LRESULT CALLBACK TImageView::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 int TImageView::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if(uMsg == WM_INITDIALOG) {
-		draw();
+		//draw();
 		HWND   h_wnd = getHandle();
 		// @v9.5.6 TView::SetWindowProp(h_wnd, GWL_USERDATA, this);
-		TView::SetWindowUserData(h_wnd, (void *)lParam); // @v9.5.6
+		TView::SetWindowUserData(h_wnd, this); // @v9.5.6
 		PrevWindowProc = (WNDPROC)TView::SetWindowProp(h_wnd, GWL_WNDPROC, TImageView::DlgProc);
 	 }
 	 return 1;
 }
 
-TImageView::TImageView(const TRect & bounds) : TView(bounds)
+TImageView::TImageView(const TRect & rBounds, const char * pFigSymb) : TView(rBounds)
 {
 	SubSign = TV_SUBSIGN_IMAGEVIEW; // @v8.3.11
-	P_Image = new SImage; 
-	((SImage*)P_Image)->Init();
+	P_Fig = 0;
+	P_Image = 0;
+	FigSymb = pFigSymb; // @v9.5.6
+	if(FigSymb.NotEmpty()) {
+		TWhatmanToolArray::Item tool_item;
+		const SDrawFigure * p_fig = APPL->LoadDrawFigureBySymb(FigSymb, &tool_item);
+		if(p_fig) {
+			P_Fig = p_fig->Dup();
+		}
+	}
+	else {
+#ifndef TIMAGEVIEW_USE_FIG
+		P_Image = new SImage;
+		((SImage*)P_Image)->Init();
+#endif
+	}
 }
 
 TImageView::~TImageView()
 {
+	delete P_Fig;
 	if(P_Image) {
 		delete (SImage *)P_Image;
 		P_Image = 0;
 	}
 	RestoreOnDestruction();
-}
-
-void TImageView::draw()
-{
-	((SImage*)P_Image)->Draw(getHandle(), 0);
-	TView::draw();
 }
 
 int TImageView::TransmitData(int dir, void * pData)
@@ -1976,13 +2020,28 @@ int TImageView::TransmitData(int dir, void * pData)
 	if(dir > 0) {
 		const char * p_path = (const char *)pData;
 		{
+			HWND hw = getHandle();
+#ifdef TIMAGEVIEW_USE_FIG
+			delete P_Fig;
+			P_Fig = SDrawFigure::CreateFromFile(p_path, 0);
+#else
 			((SImage*)P_Image)->LoadImage(p_path);
-			draw();
-			UpdateWindow(getHandle());
+#endif
+			::InvalidateRect(hw, 0, /*erase=*/TRUE);
+			::UpdateWindow(hw);
 		}
 	}
 	return s;
 }
+
+/*void TImageView::draw()
+{
+#ifdef TIMAGEVIEW_USE_FIG
+#else
+	((SImage*)P_Image)->Draw(getHandle(), 0);
+#endif
+	TView::draw();
+}*/
 //
 //
 //

@@ -3416,7 +3416,6 @@ Adobe Acrobat:*.pdf,Microsoft Excel:*.xls;*.xlsm;*.xlsx,\
 433 "1,@{op};2,@{person};3,@{contractor}"
 434 "Активная сессия"
 435 "Склад '%s' восстановлен"
-436 "Файлы изображений:*.jpg;*.jpeg;*.bmp;*.gif;*.png,*.jpg:*.jpg;*.jpeg,*.bmp:*.bmp,*.gif:*.gif,*.png:*.png"
 437 /!/ "PICTURES"
 438 "@{card}: %s, @{owner}: %s, @{discount}: %0.2lf%%"
 439 "Введите номер персональной карты"
@@ -3505,7 +3504,7 @@ eq$&#61;.gt$&#62;.ques$&#63;.lsq$&#91;.bksl$&#92;.rsq$&#93;"
 549 "Недопустимая конвертируемая запись пропущена (%s)"
 550 "Конфигурация импорта прайс-листа"
 551 "Конфигурация экспорта прайс-листа"
-552 "Неизвестный товар @{id}=[%ld], Имя=[%s], @{barcode}=[%s]"
+552 "Неизвестный товар @{id}=[%ld], @{name}=[%s], @{barcode}=[%s]"
 553 "Файлы прикрепляемых документов"
 554 "Ошибка загрузки бух проводки по документу '@bill': @zstr"
 555 "Ошибка загрузки бух проводки по документу '@bill': @zstr: попытка удаления строки"
@@ -3559,7 +3558,7 @@ prThisYear,С начала этого года"
 647 "Не определен подписываемый документ или не указан владелец подписи"
 648 "Файл %s подписан. Подпись сохранена/добавлена в файл %s"
 649 "Телефонный номер преобразован: %s"
-650 "Имя;Расширенное имя;Название главной организации;Телефон главной организации;Адрес главной организации"
+650 "@{name};Расширенное имя;Название главной организации;Телефон главной организации;Адрес главной организации"
 653 /!/ "PPObjBill::TurnPacket"
 654 /!/ "-1;-2;-3;-4;-5;-6;-7;-8"
 656 /!/ "Flags;CSessTag;CCheckTag;CCLineTag;CCPaymTag"
@@ -3797,6 +3796,7 @@ PPTXT_VCAL_STATUSLIST        /!/ "NEEDS-ACTION;ACCEPTED;SENT;TENTATIVE;CONFIRMED
 PPTXT_VCAL_PROPERTIES        /!/ "BEGIN:VCALENDAR;BEGIN:VTODO;END:VCALENDAR;END:VTODO;DCREATED;COMPLETED;DTSTART;DTEND;DUE;SEQUENCE;STATUS;CATEGORIES;CLASS;PRIORITY;ATTENDEE;SUMMARY;LOCATION;DESCRIPTION;CONTACT;ATTENDEE"
 PPTXT_VCAL_CLASSIFICATION    /!/ "PUBLIC;PRIVATE;CONFIDENTIAL"
 PPTXT_VCAL_PROPATTRIBUTE     /!/ "ROLE=OWNER;ENCODING=QUOTED-PRINTABLE;QUOTED-PRINTABLE"
+PPTXT_PICFILESEXTS           "Файлы изображений:*.jpg;*.jpeg;*.bmp;*.gif;*.png;*.svg,*.jpg:*.jpg;*.jpeg,*.bmp:*.bmp,*.gif:*.gif,*.png:*.png,*.svg:*.svg"
 PPTXT_FILPAT_VCALENDAR       /!/ "vCalendar/iCalendar:*.vcs;*.ics"
 PPTXT_FILPAT_ALL             "Все файлы:*.*"
 PPTXT_FILPAT_VCARD           /!/ "vCard:*.vcf"
@@ -4312,7 +4312,7 @@ PPTXT_LAB_SELECTGSTRUC       "Выберите структуру товара"
 PPTXT_MOVSCARDREST           "Перенос остатков с карт"
 
 PPTXT_EDIOP                   /!/ "1,ORDER;2,ORDERRSP;3,APERAK;4,DESADV;5,RECADV;6,DECLINEORDER;7,ALCODESADV;\
-	8,SALESORDER;21,EGAIS-WAYBILL;22,EGAIS-TICKET;23,EGAIS-WAYBILLACT;42,EGAIS-REPLYRESTS;50,EGAIS-REPLYRESTSSHOP"
+	8,SALESORDER;21,EGAIS-WAYBILL;22,EGAIS-TICKET;23,EGAIS-WAYBILLACT;42,EGAIS-REPLYRESTS;50,EGAIS-REPLYRESTSSHOP;59,PPEDIOP_EGAIS_WAYBILL_V2"
 PPTXT_EDIEXPCMD               "1,ORDER,@{booking};2,RECADV,Уведомление о приходе"
 PPTXT_EDIIMPCMD               "1,APERAK,Получение статуса;2,ORDRSP,Подтверждение заказа;3,DESADV,Уведомление об отгрузке;4,ALCODESADV,Атрибуты алкогольной продукции"
 PPTXT_WAITFORWRSHRFILENOTIFY  "Ожидание завершения записи в файл '%zstr' продлилось %int ms"
@@ -5155,7 +5155,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_objrights         "50,L,@objects;9,L,@flags"                                                                                        // DLG_RTCOMM
 @lbt_psnev_taglist     "20,L,@tag;60,L,@va"                                                                                    // DLG_PSNEVNT
 @lbt_accaggr           "60,L,Группируемые счета;6,L,@flags" // DLG_ACCAGGR
-@lbt_addrbook          "56,L,Имя;20,R,E-mail;16,R,@{phone_pl}" // DLG_ADDRBOOK
+@lbt_addrbook          "56,L,@name;20,R,E-mail;16,R,@{phone_pl}" // DLG_ADDRBOOK
 @lbt_addrlist          "6,R,@id;24,L,@city;60,L,@address;16,L,@code" // DLG_ADDRLIST
 @lbt_arcodelist        "48,L,@article;16,L,@code;8,R,@qtty" // DLG_ARGCODELIST
 @lbt_araliasesubst     "20,L,@accountalias;38,L,@account" // DLG_ARTICLE2
@@ -10433,6 +10433,14 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodsrecoverparam_fcorrect               "@{docorrecterrors}"
 @goodsrecoverparam_fcheckalcoattribs      "Проверять атрибуты алкогольной продукции"
 @goodsrecoverparam_logfilename            "@{logfilename}"
+
+@smssendparam                             "Рассылка SMS-сообщений"
+@smssendparam_text                        "Текст шаблона сообщения"
+@smssendparam_symbolcount                 "Длина сообщения"
+@smssendparam_smscount                    "Количество сообщений"
+@smssendparam_notlessthan                 "не менее" // generic
+@smssendparam_fieldselection              "Поле для вставки"
+@smssendparam_dosend                      "Отправить"
 
 [121]
 1   "Вход"

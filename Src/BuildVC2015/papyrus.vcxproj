@@ -1903,6 +1903,9 @@
       <Project>{da6f56b4-06a4-441d-ad70-ac5a7d51fadb}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="libjpeg-turbo.vcxproj">
+      <Project>{49c08919-0a8b-48fa-a4cd-5f616de2d8df}</Project>
+    </ProjectReference>
     <ProjectReference Include="libjpeg.vcxproj">
       <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>

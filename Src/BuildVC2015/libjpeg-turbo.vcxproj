@@ -1,0 +1,574 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}</ProjectGuid>
+    <RootNamespace>turbojpeg-static</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.24720.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(Configuration)\</IntDir>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(Configuration)\</IntDir>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;..\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;WITH_SIMD;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <DllDataFileName />
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;WITH_SIMD;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>..\OSF\libjpeg-turbo;..\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;WITH_SIMD;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <DllDataFileName />
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;WITH_SIMD;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\VC70-libjpeg-turbo;..\OSF\libjpeg-turbo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\libjpeg-turbo\jaricom.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jcapimin.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jcapistd.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jcarith.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jccoefct.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jccolor.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jcdctmgr.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jchuff.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jcinit.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jcmainct.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jcmarker.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jcmaster.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jcomapi.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jcparam.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jcphuff.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jcprepct.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jcsample.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jctrans.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jdapimin.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jdapistd.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jdarith.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jdatadst-tj.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jdatadst.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jdatasrc-tj.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jdatasrc.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jdcoefct.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jdcolor.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jddctmgr.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jdhuff.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jdinput.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jdmainct.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jdmarker.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jdmaster.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jdmerge.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jdphuff.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jdpostct.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jdsample.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jdtrans.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jerror.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jfdctflt.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jfdctfst.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jfdctint.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jidctflt.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jidctfst.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jidctint.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jidctred.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jmemmgr.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jmemnobs.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jquant1.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jquant2.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\jutils.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\simd\jsimd_i386.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\transupp.c" />
+    <ClCompile Include="..\OSF\libjpeg-turbo\turbojpeg.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jccolor-mmx.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jccolor-sse2.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jcgray-mmx.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jcgray-sse2.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jchuff-sse2.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jcsample-mmx.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jcsample-sse2.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jdcolor-mmx.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jdcolor-sse2.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jdmerge-mmx.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jdmerge-sse2.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jdsample-mmx.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jdsample-sse2.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jfdctflt-3dn.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jfdctflt-sse.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jfdctfst-mmx.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jfdctfst-sse2.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jfdctint-mmx.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jfdctint-sse2.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jidctflt-3dn.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jidctflt-sse.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jidctflt-sse2.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jidctfst-mmx.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jidctfst-sse2.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jidctint-mmx.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jidctint-sse2.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jidctred-mmx.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jidctred-sse2.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jquant-3dn.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jquant-mmx.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jquant-sse.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jquantf-sse2.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jquanti-sse2.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Osf\libjpeg-turbo\simd\jsimdcpu.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nams %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm.exe -fwin32 -DWIN32 -I../OSF/libjpeg-turbo/win/ -I../OSF/libjpeg-turbo/simd/ %(FullPath) -o$(IntDir)%(Filename).obj
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Osf\libjpeg-turbo\bmp.h" />
+    <ClInclude Include="..\Osf\libjpeg-turbo\cderror.h" />
+    <ClInclude Include="..\Osf\libjpeg-turbo\cdjpeg.h" />
+    <ClInclude Include="..\Osf\libjpeg-turbo\jchuff.h" />
+    <ClInclude Include="..\Osf\libjpeg-turbo\jconfig.h" />
+    <ClInclude Include="..\Osf\libjpeg-turbo\jconfigint.h" />
+    <ClInclude Include="..\Osf\libjpeg-turbo\jdcoefct.h" />
+    <ClInclude Include="..\Osf\libjpeg-turbo\jdct.h" />
+    <ClInclude Include="..\Osf\libjpeg-turbo\jdhuff.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\jdmainct.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\jdmaster.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\jdsample.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\jerror.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\jinclude.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\jmemsys.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\jmorecfg.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\jpegcomp.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\jpegint.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\jpeglib.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\jpeg_nbits_table.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\jsimd.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\jsimddct.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\jversion.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\simd\jcsample.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\simd\jsimd.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\simd\jsimdcfg.inc.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\simd\jsimd_altivec.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\simd\jsimd_mips_dspr2_asm.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\tjutil.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\transupp.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\turbojpeg.h" />
+    <ClInclude Include="..\OSF\libjpeg-turbo\wrppm.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

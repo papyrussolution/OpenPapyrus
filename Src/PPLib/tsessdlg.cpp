@@ -669,7 +669,7 @@ class TSessMoreDialog : public PPListDialog {
 public:
 	TSessMoreDialog() : PPListDialog(DLG_TSESSEXT, CTL_TSESSEXT_PLACELIST)
 	{
-		addGroup(GRP_IBG, new ImageBrowseCtrlGroup(PPTXT_PICFILESEXTS, CTL_TSESSEXT_IMAGE,
+		addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_TSESSEXT_IMAGE,
 			cmAddImage, cmDelImage, 1));
 	}
 	int    setDTS(const TSessionPacket * pData)

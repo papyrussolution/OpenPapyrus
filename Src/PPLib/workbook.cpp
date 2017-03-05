@@ -558,7 +558,7 @@ int SLAPI PPObjWorkbook::SelectKeywordReverse(SString & rKeyword)
 			SymbHashTable::Iter iter;
 			uint   _id = 0;
 			StrAssocArray temp_list;
-			for(hash.InitIteration(&iter); hash.NextIteration(&iter, &_id, &temp_buf) > 0;) {
+			for(hash.InitIteration(&iter); hash.NextIteration(&iter, &_id, 0, &temp_buf) > 0;) {
 				temp_list.AddFast(_id, temp_buf);
 			}
 			temp_list.SortByText();
@@ -617,7 +617,7 @@ public:
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_WORKBOOK_FILE, CTL_WORKBOOK_FILE, 1, 0, 0,
 			FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfSaveLastPath);
 		if(getCtrlView(CTL_WORKBOOK_IMAGE)) {
-			addGroup(GRP_IBG, new ImageBrowseCtrlGroup(PPTXT_PICFILESEXTS, CTL_WORKBOOK_IMAGE, cmAddImage, cmDelImage, 1));
+			addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_WORKBOOK_IMAGE, cmAddImage, cmDelImage, 1));
 		}
 		SetupCalDate(CTLCAL_WORKBOOK_DT, CTL_WORKBOOK_DT);
 		SetupTimePicker(this, CTL_WORKBOOK_TM, CTLTM_WORKBOOK_TM);
