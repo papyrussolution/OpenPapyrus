@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:ns="http://fsrar.ru/WEGAIS/ActInventoryInformF2Reg"
+           targetNamespace="http://fsrar.ru/WEGAIS/ActInventoryInformF2Reg"
+           
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+
+           xmlns:pref="http://fsrar.ru/WEGAIS/ProductRef_v2"
+           xmlns:c="http://fsrar.ru/WEGAIS/Common"
+>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ProductRef_v2" schemaLocation="ProductRef_v2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+  
+  <xs:complexType name="ActInventoryInformF2Reg">
+    <xs:annotation>
+      <xs:documentation>Квитанция о регистрации по акту инвентаризации</xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="Header">
+        <xs:complexType>
+          <xs:all>
+            <xs:element name="Identity" type="c:IdentityType" nillable="false" minOccurs="0" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Идентификатор документа(клиентский)</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="ActRegId" type="c:NoEmptyString50" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>ИД акта в системе</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="Number" type="c:NoEmptyString50" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Номер акта</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:all>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Content">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Position" type="ns:InformInvPositionType" minOccurs="1" maxOccurs="unbounded">
+              <xs:annotation>
+                <xs:documentation>Содержимое должно содержать 1 и более позиций</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+        <xs:unique name="PosUnB">
+          <xs:selector xpath="ns:Position"/>
+          <xs:field xpath="ns:Identity"/>
+        </xs:unique>
+      </xs:element>
+
+    </xs:all>
+  </xs:complexType>
+  
+  <xs:complexType name="InformInvPositionType">
+    <xs:all>
+      <xs:element name="Identity" type="c:IdentityType" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Идентификатор позиции внутри акта</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="InformF1RegId" type="c:NoEmptyString50" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Регистрационный номер справки А</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+ 
+      <xs:element name="InformF2">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="InformF2Item" type="ns:InformInvF2RegItem" nillable="false" minOccurs="1" maxOccurs="unbounded">
+          <xs:annotation>
+            <xs:documentation>Справка Б</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+        <xs:unique name="PosUnBreg">
+          <xs:selector xpath="ns:InformF2Item"/>
+          <xs:field xpath="ns:Identity"/>
+        </xs:unique>
+  </xs:element>     
+      
+    </xs:all>
+  </xs:complexType>
+  
+  <xs:complexType name="InformInvF2RegItem">
+    <xs:all>
+      <xs:element name="Identity" type="c:IdentityType" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Идентификатор позиции форм Б</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="F2RegId" type="c:NoEmptyString50" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Регистрационный номер раздела справки Б</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MarkInfo" type="pref:MarkInfoType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Информация о марках</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+
+  
+</xs:schema>

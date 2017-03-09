@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ns="http://fsrar.ru/WEGAIS/ReplyRests_v2"
+           targetNamespace="http://fsrar.ru/WEGAIS/ReplyRests_v2"
+           xmlns:c="http://fsrar.ru/WEGAIS/Common"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           xmlns:pref="http://fsrar.ru/WEGAIS/ProductRef_v2"
+>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ProductRef_v2" schemaLocation="ProductRef_v2.xsd"/>
+
+  <xs:complexType name="ReplyRests_v2">
+    <xs:annotation>
+      <xs:documentation>Ответ на запрос об остатках по складу</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="RestsDate" type="c:DateWTime" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Остатки на эту дату</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Products"  minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="StockPosition" type="ns:StockPositionType" minOccurs="0" maxOccurs="unbounded">
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:complexType name="StockPositionType">
+    <xs:annotation>
+      <xs:documentation>Позиция</xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="Product" type="pref:ProductInfoReply_v2" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Информация о продукции</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="Quantity" type="xs:decimal" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Количество</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="InformF1RegId" type="c:NoEmptyString50" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Справка 1</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="InformF2RegId" type="c:NoEmptyString50" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Справка 2</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      
+      <xs:element name="alcPercent" type="c:AlcPercentType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Содержание этилового спирта, %</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="alcPercentMin" type="c:AlcPercentType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Минимальное содержание этилового спирта, %</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="alcPercentMax" type="c:AlcPercentType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Максимальное содержание этилового спирта, %</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+    </xs:all>
+  </xs:complexType>
+
+ </xs:schema>

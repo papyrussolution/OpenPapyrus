@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ns="http://fsrar.ru/WEGAIS/QueryRejectRepProduced"
+           targetNamespace="http://fsrar.ru/WEGAIS/QueryRejectRepProduced"
+           xmlns:c="http://fsrar.ru/WEGAIS/Common"
+
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+  <xs:complexType name="QueryRejectRepProduced">
+    <xs:annotation>
+      <xs:documentation>Запрос на распроводку отчета о производстве</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="RegId" type="c:NoEmptyString50" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Регистрационный номер отчета о производстве</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

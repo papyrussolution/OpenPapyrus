@@ -527,7 +527,11 @@ int PPAbstractDevice::Helper_RunCmd(SString & rCmd, SString & rArg, StrAssocArra
 	}
 	do {
 		memzero(output, output.GetSize());
-		r = Ib.Func(rCmd, rArg, output, output.GetSize());
+		{
+			const char * p_cmd = rCmd.cptr();
+			const char * p_arg = rArg.cptr();
+			r = Ib.Func(p_cmd, p_arg, output, output.GetSize());
+		}
 		if(r == 0) {
 			if(output.IsValid()) {
 				(s_arr = 0).Cat(output);

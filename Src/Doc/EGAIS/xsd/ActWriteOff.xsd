@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:ns="http://fsrar.ru/WEGAIS/ActWriteOff"
+           targetNamespace="http://fsrar.ru/WEGAIS/ActWriteOff"
+           
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           xmlns:c="http://fsrar.ru/WEGAIS/Common"
+           xmlns:pref="http://fsrar.ru/WEGAIS/ProductRef"
+>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ProductRef" schemaLocation="ProductRef.xsd"/>
+
+  <xs:complexType name="ActWriteOffType">
+    <xs:annotation>
+      <xs:documentation>Акт списания</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Identity" type="c:IdentityType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Идентификатор документа (клиентский)</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Header">
+        <xs:complexType>
+          <xs:all>
+            <xs:element name="ActNumber" type="c:NoEmptyString50" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Номер документа</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="ActDate" type="c:DateNoTime" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Дата составления</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+
+            <xs:element name="TypeWriteOff" type="ns:TypeWriteOff" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Причина списания</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+
+            <xs:element name="Note" minOccurs="0" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Примечание</xs:documentation>
+              </xs:annotation>
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:maxLength value="500"/>
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:element>
+          </xs:all>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Content">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Position" type="ns:ActWriteOffPositionType" minOccurs="1" maxOccurs="unbounded">
+              <xs:annotation>
+                <xs:documentation>Содержимое акта должно содержать 1 и более позиций</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+        <xs:unique name="PosUn">
+          <xs:selector xpath="ns:Position"/>
+          <xs:field xpath="ns:Identity"/>
+        </xs:unique>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ActWriteOffPositionType">
+    <xs:annotation>
+      <xs:documentation>Позиция</xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="Identity" type="c:IdentityType" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Идентификатор позиции внутри акта</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Quantity" type="c:PositiveDecimalType" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Количество</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="InformB" type="pref:InformBTypeItem" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Информация о форме Б зачисления продукции на склад (последняя)</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+
+  <xs:simpleType name="TypeWriteOff">
+    <xs:annotation>
+      <xs:documentation>Основания списания</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Пересортица">
+        <xs:annotation>
+          <xs:documentation>Недостача пересортица</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Недостача">
+        <xs:annotation>
+          <xs:documentation>Недостача (хищение, злоупотребление материально ответственных лиц, ошибки учета, естественная убыль,...)</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Уценка">
+        <xs:annotation>
+          <xs:documentation>Уценка (списание) в результате порчи</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Порча">
+        <xs:annotation>
+          <xs:documentation>Списание объема продукции, не подлежащей дальнейшей реализации (бой, срок годности, порча)</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Потери">
+        <xs:annotation>
+          <xs:documentation>Потери при транспортировке</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Проверки">
+        <xs:annotation>
+          <xs:documentation>Списание объема продукции, израсходованной на лабораторные нужды для прохождения добровольной проверки качества, рекламные образцы</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Арест">
+        <xs:annotation>
+          <xs:documentation>Списание арестованной продукции, изъятой из оборота продукции, конфискованной продукции по решению суда</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

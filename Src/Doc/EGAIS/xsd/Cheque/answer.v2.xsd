@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema id="Answer" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="sign">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:maxLength value = "256"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+  <xs:element name="A">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="url" type="xs:string"/>
+        <xs:element ref="sign"/>
+        <xs:element name="ver" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

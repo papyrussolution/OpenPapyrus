@@ -983,6 +983,7 @@ int FASTCALL PPSupplAgreement::ExchangeParam::IsEqual(const ExchangeParam & rS) 
 	CMP_FLD(Fb.DefUnitID); // @v9.2.4
 	CMP_FLD(Fb.CliCodeTagID); // @v9.4.4
 	CMP_FLD(Fb.LocCodeTagID); // @v9.4.4
+	CMP_FLD(Fb.BillAckTagID); // @v9.5.7
 	CMP_FLD(Fb.SequenceID); // @v9.4.2
 	CMP_FLD(Fb.StyloPalmID); // @v9.5.5
 #undef CMP_FLD
@@ -1633,9 +1634,10 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 	private:
 		ObjTagFilt PsnTagFlt;
 		ObjTagFilt LocTagFlt;
+		ObjTagFilt BillTagFlt;
 	public:
 		SupplExpOpListDialog() : PPListDialog(DLG_SUPPLEOPS, CTL_SUPPLEOPS_DBTDIM),
-			PsnTagFlt(PPOBJ_PERSON), LocTagFlt(PPOBJ_LOCATION)
+			PsnTagFlt(PPOBJ_PERSON), LocTagFlt(PPOBJ_LOCATION), BillTagFlt(PPOBJ_BILL)
 		{
 		}
 		int    setDTS(const PPSupplAgreement::ExchangeParam * pData)
@@ -1692,6 +1694,8 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 			SetupPPObjCombo(this, CTLSEL_SUPPLEOPS_UNIT, PPOBJ_UNIT, Data.Fb.DefUnitID, OLW_CANINSERT, 0); // @v9.2.4
 			SetupPPObjCombo(this, CTLSEL_SUPPLEOPS_CLICTAG, PPOBJ_TAG, Data.Fb.CliCodeTagID, OLW_CANINSERT, &PsnTagFlt); // @v9.4.4
 			SetupPPObjCombo(this, CTLSEL_SUPPLEOPS_LOCCTAG, PPOBJ_TAG, Data.Fb.LocCodeTagID, OLW_CANINSERT, &LocTagFlt); // @v9.4.4
+			SetupPPObjCombo(this, CTLSEL_SUPPLEOPS_BACKTAG, PPOBJ_TAG, Data.Fb.BillAckTagID, OLW_CANINSERT, &BillTagFlt); // @v9.5.7
+
 			updateList(-1);
 			return 1;
 		}
@@ -1709,6 +1713,7 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 			getCtrlData(CTLSEL_SUPPLEOPS_UNIT,      &Data.Fb.DefUnitID); // @v9.2.4
 			getCtrlData(CTLSEL_SUPPLEOPS_CLICTAG,   &Data.Fb.CliCodeTagID); // @v9.4.4
 			getCtrlData(CTLSEL_SUPPLEOPS_LOCCTAG,   &Data.Fb.LocCodeTagID); // @v9.4.4
+			getCtrlData(CTLSEL_SUPPLEOPS_BACKTAG,   &Data.Fb.BillAckTagID); // @v9.5.7
 			ASSIGN_PTR(pData, Data);
 			/* @v9.1.3
 			CATCH

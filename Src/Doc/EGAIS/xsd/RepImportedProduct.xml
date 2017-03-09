@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:ns="http://fsrar.ru/WEGAIS/RepImportedProduct"
+           targetNamespace="http://fsrar.ru/WEGAIS/RepImportedProduct"
+           
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           
+           xmlns:c="http://fsrar.ru/WEGAIS/Common"
+           xmlns:oref="http://fsrar.ru/WEGAIS/ClientRef_v2"
+           xmlns:pref="http://fsrar.ru/WEGAIS/ProductRef_v2"
+>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ClientRef_v2" schemaLocation="ClientRef_v2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ProductRef_v2" schemaLocation="ProductRef_v2.xsd"/>
+
+  <xs:complexType name="RepImportedType">
+    <xs:annotation>
+      <xs:documentation>Отчет об импорте продукции</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Identity" type="c:IdentityType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Идентификатор отчета (клиентский, к заполнению необязательный)</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Header">
+        <xs:complexType>
+          <xs:all>
+
+            <xs:element name="NUMBER" type="c:NoEmptyString50" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Номер документа</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+
+            <xs:element name="Date" type="c:DateNoTime" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Дата составления</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="ImportedDate" type="c:DateNoTime" nillable="false" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Дата ввоза</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+
+            <xs:element name="Importer" type="oref:OrgInfoRus_v2" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Импортрер</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            
+            <xs:element name="Supplier" type="oref:OrgInfoForeign_v2" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Поставщик</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+
+            <xs:element name="GTDNUMBER" type="c:NoEmptyString50" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Номер ГТД</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+
+            <xs:element name="GTDDate" type="c:DateNoTime" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Дата ГТД</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+
+            <xs:element name="ContractNUMBER" type="c:NoEmptyString50" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Номер контракта</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+
+            <xs:element name="ContractDate" type="c:DateNoTime" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Дата контракта</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+
+            <xs:element name="Country" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Страна, из которой производится импорт продукции</xs:documentation>
+              </xs:annotation>
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:pattern value="[0-9][0-9][0-9]"/>
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:element>
+
+            <xs:element name="Note" minOccurs="0" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Примечание к документу о импорте</xs:documentation>
+              </xs:annotation>
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:maxLength value="200"/>
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:element>
+
+          </xs:all>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Content">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Position" type="ns:PositionType" minOccurs="1" maxOccurs="unbounded">
+              <xs:annotation>
+                <xs:documentation>Содержимое отчета о импорте должно содержать 1 и более позиций</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+
+        <xs:unique name="PosUn">
+          <xs:selector xpath="ns:Position"/>
+          <xs:field xpath="ns:Identity"/>
+        </xs:unique>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PositionType">
+    <xs:annotation>
+      <xs:documentation>Позиция</xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="ProductCode" type="c:NoEmptyString50" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Регистрационный код о продукции</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="Quantity" type="c:PositiveDecimalType" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Количество</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="alcPercent" type="c:AlcPercentType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Содержание этилового спирта, %</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="alcPercentMin" type="c:AlcPercentType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Минимальное содержание этилового спирта, %</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="alcPercentMax" type="c:AlcPercentType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Максимальное содержание этилового спирта, %</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="Party" type="c:NoEmptyString50" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Номер партии</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="Identity" type="c:IdentityType" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Идентификатор позиции внутри отчета по импорту</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="Comment1" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Коментарий №1 к позиции по импорту</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="200"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="Comment2" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Коментарий №2 к позиции по импорту</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="200"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="Comment3" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Коментарий №3 к позиции по импорту</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="200"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+
+      <xs:element name="MarkInfo" type="pref:MarkInfoType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Нанесённые диапазоны марок</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+    </xs:all>
+  </xs:complexType>
+
+</xs:schema>

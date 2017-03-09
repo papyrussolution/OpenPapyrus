@@ -1131,13 +1131,11 @@ int FASTCALL PPSession::ThreadCollection::GetInfoList(TSCollection <PPThread::In
 	RwL.ReadLock();
 	const  uint c = getCount();
 	for(uint i = 0; i < c; i++) {
-		PPThread * p = at(i);
+		const PPThread * p = at(i);
 		if(p && p->IsConsistent()) {
-			PPThread::Info * p_info = new PPThread::Info;
-			if(p_info) {
+			PPThread::Info * p_info = rList.CreateNewItem(0);
+			if(p_info)
 				p->GetInfo(*p_info);
-				rList.insert(p_info);
-			}
 		}
 	}
 	RwL.Unlock();

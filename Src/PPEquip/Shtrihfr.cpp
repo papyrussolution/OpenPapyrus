@@ -220,7 +220,7 @@ public:
 	SLAPI  SCS_SHTRIHFRF(PPID n, char * name, char * port);
 	SLAPI ~SCS_SHTRIHFRF();
 	virtual int SLAPI PrintCheck(CCheckPacket *, uint flags);
-	virtual int SLAPI PrintCheckByBill(PPBillPacket * pPack, double multiplier);
+	virtual int SLAPI PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
 	virtual int SLAPI PrintCheckCopy(CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int SLAPI PrintSlipDoc(CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int SLAPI GetSummator(double * val);
@@ -243,7 +243,7 @@ private:
 	int  SLAPI CheckForEKLZOrFMOverflow();
 	int  SLAPI PrintReport(int withCleaning);
 	int	 SLAPI PrintDiscountInfo(CCheckPacket * pPack, uint flags);
-	int  SLAPI GetCheckInfo(PPBillPacket * pPack, BillTaxArray * pAry, long * pFlags, SString &rName);
+	int  SLAPI GetCheckInfo(const PPBillPacket * pPack, BillTaxArray * pAry, long * pFlags, SString &rName);
 	int  SLAPI InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry, int * pPrintTaxAction);
 	int  SLAPI SetFR(PPID id, int    iVal);
 	int  SLAPI SetFR(PPID id, long   lVal);
@@ -957,7 +957,7 @@ int SLAPI SCS_SHTRIHFRF::OpenBox()
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::GetCheckInfo(PPBillPacket * pPack, BillTaxArray * pAry, long * pFlags, SString &rName)
+int SLAPI SCS_SHTRIHFRF::GetCheckInfo(const PPBillPacket * pPack, BillTaxArray * pAry, long * pFlags, SString &rName)
 {
 	int    ok = 1, wovatax = 0;
 	long   flags = 0;
@@ -1093,7 +1093,7 @@ int SLAPI SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(PPBillPacket * pPack, double multiplier)
+int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN)
 {
 	int     ok = 1, print_tax = 0;
 	uint    pos;
@@ -1129,6 +1129,11 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(PPBillPacket * pPack, double multiplie
 		THROW(SetFR(Price, price));
 		// Количество
 		THROW(SetFR(Quantity, 1L));
+		// @v9.5.7 {
+		if(departN > 0 && departN <= 16) {
+			THROW(SetFR(Department, departN));
+		}
+		// } @v9.5.7 
 		// Налоги
 		if(print_tax) {
 			if(bte.SalesTax) {
@@ -1818,8 +1823,13 @@ int SLAPI SCS_SHTRIHFRF::ConnectFR()
 		}
 	}
 	else {
-		int     baud_rate, model_type = 0, major_prot_ver = 0, minor_prot_ver = 0, not_use_wght_sensor = 0;
-		long    def_baud_rate = DEF_BAUD_RATE, def_timeout = -1;
+		int    baud_rate;
+		int    model_type = 0;
+		int    major_prot_ver = 0;
+		int    minor_prot_ver = 0;
+		int    not_use_wght_sensor = 0;
+		long   def_baud_rate = DEF_BAUD_RATE;
+		int    def_timeout = -1;
 		SString buf, buf1;
 		PPIniFile ini_file;
 		THROW_PP(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_SHTRIHFRPASSWORD, buf) > 0, PPERR_SHTRIHFRADMPASSW);

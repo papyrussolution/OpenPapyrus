@@ -65,9 +65,9 @@ const char * const jpeg_std_message_table[] = {
 
 METHODDEF(void) error_exit(j_common_ptr cinfo)
 {
-	/* Always display the message */
+	// Always display the message 
 	(*cinfo->err->output_message)(cinfo);
-	/* Let the memory manager delete any temp files before we die */
+	// Let the memory manager delete any temp files before we die 
 	jpeg_destroy(cinfo);
 	exit(EXIT_FAILURE);
 }

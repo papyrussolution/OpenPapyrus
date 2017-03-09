@@ -5137,6 +5137,7 @@ DVCPARAM_TYPE           "TYPE"
 DVCPARAM_WIDTH          "WIDTH"
 DVCPARAM_HEIGHT         "HEIGHT"
 DVCPARAM_LABEL          "LABEL"
+DVCPARAM_CODE           "CODE"
 
 [120]
 IMPEXPCMD_ORDRSP        "ORDRSP"
@@ -7752,6 +7753,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgsupplixcfg_defunit                    "@{munit}"
 @cfgsupplixcfg_clicodetag                 "Тег кода персоналий"
 @cfgsupplixcfg_loccodetag                 "Тег кода локаций"
+@cfgsupplixcfg_billacktag                 "Тег подтверждения передачи документа"
 @cfgsupplixcfg_addendum                   "Дополнительные опции обмена с поставщиком"
 @cfgsupplixcfg_stylopalm                  "Группа устройств Stylo"
 
@@ -10171,6 +10173,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @supplixfilt_acn_imporder                 "Импорт заказов"
 @supplixfilt_acn_impdesadv                "Импорт DESADV"
 @supplixfilt_fdeleterecentbills           "Удалить документы за день"
+@supplixfilt_frepeatprocessing            "Повторный процессинг обработанных данных"
 @supplixfilt_param                        "Дополнительный параметр"
 
 @debttrovrfilt                            "Долговая ведомость"
@@ -10441,6 +10444,17 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @smssendparam_notlessthan                 "не менее" // generic
 @smssendparam_fieldselection              "Поле для вставки"
 @smssendparam_dosend                      "Отправить"
+
+@calcofchange                             "Расчет сдачи"
+@calcofchange_topaym                      "К оплате"
+@calcofchange_cash                        "Наличными"
+@calcofchange_change                      "Сдача"
+
+@ccbybill                                 "Печать чека по документу"
+@ccbybill_paymtype                        "Способ оплаты"
+@ccbybill_paymtype_cash                   "Наличными"
+@ccbybill_paymtype_bank                   "Безналично"
+@ccbybill_paymtype_division               "Номер отдела"
 
 [121]
 1   "Вход"

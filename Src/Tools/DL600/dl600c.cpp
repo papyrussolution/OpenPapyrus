@@ -3744,7 +3744,7 @@ int SLAPI DlContext::Write_Code()
 	SString symb;
 	THROW(outf.Write(&hdr, sizeof(hdr)));
 	//
-	for(Tab.InitIteration(&hti); Tab.NextIteration(&hti, &symb_id, &symb) > 0;) {
+	for(Tab.InitIteration(&hti); Tab.NextIteration(&hti, &symb_id, 0, &symb) > 0;) {
 		THROW(buf.Write(&symb_id, sizeof(symb_id)));
 		THROW(buf.Write(symb));
 	}

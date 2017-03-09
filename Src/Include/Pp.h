@@ -8538,11 +8538,15 @@ public:
 			PPID   CliCodeTagID;   // @v9.4.4 Тег персоналии для кода в терминах поставщика
 			PPID   LocCodeTagID;   // @v9.4.4 Тег локации для кода в терминах поставщика
 			PPID   StyloPalmID;    // @v9.5.5 Ссылка на запись группы устройств для получения некоторых атрибутов
-				// Не смотря на то, что обмен с поставщиком не задейтсвует непосредственно устройства StyloAgent,
+				// Не смотря на то, что обмен с поставщиком не задействует непосредственно устройства StyloAgent,
 				// функцинонально он может обеспечивать аналогичных набор сервисов. Соответственно, логично будет
 				// не дублировать здесь атрибуты аналогичные StyloAgent, но сделать специальную запись StyloAgent
 				// и администрировать такие атрибуты там.
-			uint8  FbReserve[12];  // @reserve @v9.2.4 [32]-->[28] // @v9.4.4 [24]-->[16]
+			PPID   BillAckTagID;   // @v9.5.7 Тег документа, свидетельствующий о том, что он был передан поставщику.
+				// Имеется в виду, как правило, документ продажи покупателю (возврата от покупателя) подукции
+				// этого поставщика. Тип этого тега - строка или GUID. В качестве значения - какой-либо идентификатор,
+				// присвоенный системой поставщика документу.
+			uint8  FbReserve[8];   // @reserve @v9.2.4 [32]-->[28] // @v9.4.4 [24]-->[16]
 		} Fb;                      // @anchor
         InetAddr ConnAddr;         // Адрес для соединения с сервером
         ObjIdListFilt DebtDimList; // @v9.1.3 Список долговых размерностей, по которым необходимо отчитываться о долгах контрагентов
@@ -17497,7 +17501,7 @@ public:
 	int    SLAPI SyncGetSummator(double *);
 	int    SLAPI SyncAddSummator(double);
 	int    SLAPI SyncPrintCheck(CCheckPacket *, int addSummator);
-	int    SLAPI SyncPrintCheckByBill(PPBillPacket * pPack, double multiplier);
+	int    SLAPI SyncPrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
 	int    SLAPI SyncPrintCheckCopy(CCheckPacket * pPack, const char * pFormatName);
 	int    SLAPI SyncPrintSlipDocument(CCheckPacket * pPack, const char * pFormatName);
 	int    SLAPI SyncPrintXReport();
@@ -18186,8 +18190,8 @@ protected:
 // PPSlipFormatter
 //
 struct SlipLineParam {
-	SlipLineParam();
-	SlipLineParam & Init();
+	SLAPI  SlipLineParam();
+	void   SLAPI Init();
 	//
 	// Descr: Флаги
 	//
@@ -18223,6 +18227,8 @@ struct SlipLineParam {
 	TRect  PictCoord;     // Координаты изображения
 	SString FontName;     // Наименование гарнитуры шрифта (для обычного принтера)
 	SString PictPath;     // Путь к файлу изображения
+	SString Text;         // @v9.5.7 
+	SString Code;         // @v9.5.7  
 };
 
 struct SlipDocCommonParam {
@@ -18299,7 +18305,10 @@ public:
 	//   обновляет счетчики ККМ. Если pPack == 0, то выводится пустой чек.
 	//
 	virtual int SLAPI PrintCheck(CCheckPacket * pPack, uint flags) { return -1; }
-	virtual int SLAPI PrintCheckByBill(PPBillPacket *, double multiplier) { return -1; }
+	virtual int SLAPI PrintCheckByBill(const PPBillPacket *, double multiplier, int departN) 
+	{ 
+		return -1; 
+	}
 	virtual int SLAPI PrintCheckCopy(CCheckPacket * pPack, const char * pFormatName, uint flags) { return -1; }
 	virtual int SLAPI PrintSlipDoc(CCheckPacket * pPack, const char * pFormatName, uint flags) { return -1; }
 	virtual int SLAPI PrintXReport(const CSessInfo *) { return -1; }
@@ -35519,8 +35528,9 @@ public:
 		opExportSales      = 0x0400      // EXPSALES
 	};
 	enum {
-		fDeleteRecentBills = 0x0001,
-		fFlatStruc         = 0x0002
+		fDeleteRecentBills = 0x0001, // BALTIKA only
+		fFlatStruc         = 0x0002,
+		fRepeatProcessing  = 0x0004  // @v9.5.7 Флаг повторного процессинга уже обработанных данных (применение зависит от операции и провайдера)
 	};
     uint8  ReserveStart[24]; // @anchor
     float  SpcDisPct1; // Специальная скидка 1, %

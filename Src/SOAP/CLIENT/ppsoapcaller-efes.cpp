@@ -302,6 +302,50 @@ static int CreateLogMsgItem(TSCollection <SapEfesLogMsg> & rList, const ns2__Log
 	return ok;
 }
 
+extern "C" __declspec(dllexport) TSCollection <SapEfesBillStatus> * EfesCancelDeliveryNoteSync(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const TSCollection <SString> * pItems)
+{
+	TSCollection <SapEfesBillStatus> * p_result = 0;
+	WS_USCOREEFES_USCOREDDEBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
+	TSCollection <InParamString> arg_str_pool;
+	SString temp_buf;
+	ns2__CancelDeliveryNoteRequestType param;
+	ns2__CancelDeliveryNoteResponseType resp;
+
+	gSoapClientInit(&proxi, 0, 0);
+	InitEfecCallParam(param, rH, arg_str_pool);
+	proxi.userid = GetDynamicParamString((temp_buf = rSess.GetUser()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
+	proxi.passwd = GetDynamicParamString((temp_buf = rSess.GetPassword()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
+	if(pItems && pItems->getCount()) {
+		param.DeliveryList.PRTDocNum = (char **)PPSoapCreateArray(pItems->getCount(), param.DeliveryList.__sizePRTDocNum);
+		for(uint i = 0; i < pItems->getCount(); i++) {
+			param.DeliveryList.PRTDocNum[i] = GetDynamicParamString((temp_buf = *pItems->at(i)).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
+		}
+		THROW(PreprocessCall(proxi, rSess, proxi.CancelDeliveryNoteSync(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
+		if(resp.DeliveryNoteStatus && resp.__sizeDeliveryNoteStatus > 0) {
+			THROW(p_result = new TSCollection <SapEfesBillStatus>);
+			PPSoapRegisterResultPtr(p_result);
+			for(int i = 0; i < resp.__sizeDeliveryNoteStatus; i++) {
+				const ns2__DeliveryNoteStatusType * p_src_status = resp.DeliveryNoteStatus[i];
+				SapEfesBillStatus * p_new_status = p_result->CreateNewItem(0);
+				THROW(p_new_status);
+				p_new_status->NativeCode = p_src_status->PRTDocNum;
+				p_new_status->Code = p_src_status->EFRDelvNum;
+				p_new_status->Status = p_src_status->EFRStatus;
+				if(p_src_status->LogMsg && p_src_status->__sizeLogMsg) {
+					for(int j = 0; j < p_src_status->__sizeLogMsg; j++) {
+						THROW(CreateLogMsgItem(p_new_status->MsgList, p_src_status->LogMsg[j]));
+					}
+				}
+			}
+		}
+	}
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
+	free(param.DeliveryList.PRTDocNum);
+	return p_result;
+}
+
 extern "C" __declspec(dllexport) TSCollection <SapEfesBillStatus> * EfesSetDeliveryNoteSync(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const TSCollection <SapEfesBillPacket> * pItems)
 {
 	TSCollection <SapEfesBillStatus> * p_result = 0;

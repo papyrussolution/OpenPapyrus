@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ns="http://fsrar.ru/Trace/Common"
+           targetNamespace="http://fsrar.ru/Trace/Common"
+
+>
+  <xs:simpleType name="TraceDateWTime">
+    <xs:annotation>
+      <xs:documentation>Дата со временем</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:dateTime">
+      <xs:pattern value="((000[1-9])|(00[1-9][0-9])|(0[1-9][0-9]{2})|([1-9][0-9]{3}))-((0[1-9])|(1[012]))-((0[1-9])|([12][0-9])|(3[01]))T(([01][0-9])|(2[0-3]))(:[0-5][0-9]){2}(\.[0-9]+)?" />
+      <xs:maxInclusive value="2100-12-31T23:59:59.997" />
+      <xs:minInclusive value="2000-01-01T00:00:00.000" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TraceDateNoTime">
+    <xs:annotation>
+      <xs:documentation>Дата без времени</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:date">
+      <xs:pattern value="((000[1-9])|(00[1-9][0-9])|(0[1-9][0-9]{2})|([1-9][0-9]{3}))-((0[1-9])|(1[012]))-((0[1-9])|([12][0-9])|(3[01]))" />
+      <xs:maxInclusive value="2100-12-31" />
+      <xs:minInclusive value="2000-01-01" />
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="TraceNoEmptyString">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1" fixed="true"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

@@ -1,0 +1,298 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema  version="1.0"
+            xmlns:ns=       "http://fsrar.ru/WEGAIS/ClientRef" 
+            targetNamespace="http://fsrar.ru/WEGAIS/ClientRef" 
+            xmlns:xs=       "http://www.w3.org/2001/XMLSchema" 
+            xmlns:c=       "http://fsrar.ru/WEGAIS/Common" 
+            elementFormDefault="qualified" 
+            attributeFormDefault="unqualified" 
+            >
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+  <xs:complexType name="OrganizationsType">
+    <xs:annotation>
+      <xs:documentation>Организации</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Organization" type="ns:OrgInfo" maxOccurs="unbounded">
+        </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name ="OrgInfo">
+    <xs:all>
+      <xs:element name="Identity" type="c:IdentityType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Идентификатор внутри файла</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ClientRegId" type="c:NoEmptyString50" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Код организации</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FullName"  nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Наименование организации полное</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="255"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="ShortName"  nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Наименование организации краткое</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="64"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="INN" type="ns:INNType" minOccurs="0" maxOccurs="1" nillable="true">
+        <xs:annotation>
+          <xs:documentation>ИНН</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="KPP" type="ns:KPPType" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>КПП</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="UNP" type="xs:string" minOccurs="0" maxOccurs="1" nillable="true">
+        <xs:annotation>
+          <xs:documentation>УНП для респ.Беларусь</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="RNN" type="xs:string" minOccurs="0" maxOccurs="1" nillable="true">
+        <xs:annotation>
+          <xs:documentation>РНН(БИН/ИИН) для респ.Казахстан</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="address" type="ns:OrgAddressType" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Фактический адрес</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name ="OrgInfoEx">
+    <xs:all>
+      <xs:element name="Identity" type="c:IdentityType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Идентификатор внутри файла</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ClientRegId" type="c:NoEmptyString50" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Код организации</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FullName" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Наименование организации полное</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="255"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="ShortName" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Наименование организации краткое</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="64"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="INN" type="ns:INNType" minOccurs="0" maxOccurs="1" nillable="true">
+        <xs:annotation>
+          <xs:documentation>ИНН</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="KPP" type="ns:KPPType" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>КПП</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="UNP" type="xs:string" minOccurs="0" maxOccurs="1" nillable="true">
+        <xs:annotation>
+          <xs:documentation>УНП для респ.Беларусь</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="RNN" type="xs:string" minOccurs="0" maxOccurs="1" nillable="true">
+        <xs:annotation>
+          <xs:documentation>РНН(БИН/ИИН) для респ.Казахстан</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="address" type="ns:OrgAddressType" minOccurs="1" maxOccurs="1">
+      </xs:element>
+      
+      <xs:element name="addresslist" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Список фактических адресов ИП</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="address" type="ns:OrgAddressType" minOccurs="1" maxOccurs="unbounded">
+            </xs:element>
+          </xs:sequence>
+       </xs:complexType>
+      </xs:element>
+      <xs:element name="State" type="xs:string" minOccurs="0" maxOccurs="1" nillable="true">
+        <xs:annotation>
+          <xs:documentation>Статус: действующая или удалена</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+
+
+
+  <xs:complexType name="OrgItemType">
+    <xs:annotation>
+      <xs:documentation>Ссылка на организацию</xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="ID" type="c:NoEmptyString50"/>
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="OrgAddressType">
+    <xs:annotation>
+      <xs:documentation>Адрес организации</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Country" minOccurs="1" maxOccurs="1">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:pattern value="[0-9][0-9][0-9]" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="Index" type="c:NoEmptyString50"  minOccurs="0" maxOccurs="1">
+      </xs:element>
+      <xs:element name="RegionCode" minOccurs="0" maxOccurs="1">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:pattern value="[0-9][0-9]" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+
+      <xs:element name="area" type="c:NoEmptyString50" minOccurs="0" maxOccurs="1">
+        
+      </xs:element>
+      <xs:element name="city" type="c:NoEmptyString50" minOccurs="0" maxOccurs="1">
+        
+      </xs:element>
+      <xs:element name="place" type="c:NoEmptyString50" minOccurs="0" maxOccurs="1">
+        
+      </xs:element>
+      <xs:element name="street" type="c:NoEmptyString50" minOccurs="0" maxOccurs="1">
+        
+      </xs:element>
+      <xs:element name="house" type="c:NoEmptyString50" minOccurs="0" maxOccurs="1">
+        
+      </xs:element>
+      <xs:element name="building" type="c:NoEmptyString50" minOccurs="0" maxOccurs="1">
+        
+      </xs:element>
+      <xs:element name="liter" type="c:NoEmptyString50" minOccurs="0" maxOccurs="1">
+        
+      </xs:element>
+      
+      <xs:element name="description" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Фактический адрес произвольной формы</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="2000"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+
+    </xs:sequence>
+  </xs:complexType>
+
+
+  <xs:simpleType name="INNType">
+    <xs:annotation>
+      <xs:documentation>Идентификационный номер налогоплательщика</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(\d{10}|\d{12})" />
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="INN10Type">
+    <xs:annotation>
+      <xs:documentation>Идентификационный номер налогоплательщика - юридического лица</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:length value="10" />
+      <xs:pattern value="[0-9]{10}" />
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="KPPType">
+    <xs:annotation>
+      <xs:documentation>Код причины постановки на учет</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:length value="9" />
+      <xs:pattern value="[0-9]{9}" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="INN12Type">
+    <xs:annotation>
+      <xs:documentation>Идентификационный номер налогоплательщика - физического лица</xs:documentation>
+    </xs:annotation>
+    <xs:restriction>
+      <xs:simpleType>
+        <xs:restriction base="xs:string" />
+      </xs:simpleType>
+      <xs:length value="12" />
+      <xs:pattern value="[0-9]{12}" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="OrgLicenseType">
+    <xs:annotation>
+      <xs:documentation>Лицензия организации</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="number" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="datefrom" type="c:DateNoTime"  minOccurs="1" maxOccurs="1"/>
+      <xs:element name="dateto" type="c:DateNoTime" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="orgdistribute" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ProductContractType">
+    <xs:annotation>
+      <xs:documentation>Сведения о контракте на поставку продукции</xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="number" type="c:NoEmptyString50" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="date" type="c:DateNoTime"  minOccurs="1" maxOccurs="1"/>
+      <xs:element name="Supplier" type="ns:OrgInfo" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Организация</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Contragent" type="ns:OrgInfo" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Контрагент</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+</xs:schema>

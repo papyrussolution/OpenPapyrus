@@ -2366,6 +2366,7 @@ public:
 		SetClusterData(CTL_SUPPLIX_ACTIONS, Data.Actions);
 
 		AddClusterAssoc(CTL_SUPPLIX_FLAGS, 0, SupplInterchangeFilt::fDeleteRecentBills); // @v9.2.5
+		AddClusterAssoc(CTL_SUPPLIX_FLAGS, 1, SupplInterchangeFilt::fRepeatProcessing); // @v9.5.7
 		SetClusterData(CTL_SUPPLIX_FLAGS, Data.Flags); // @v9.2.5
 
 		SetPeriodInput(this, CTL_SUPPLIX_EXPPRD, &Data.ExpPeriod);
@@ -3725,6 +3726,7 @@ void SLAPI iSalesPepsi::Helper_Parse_iSalesIdent(const SString & rIdent, SString
 int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollection <iSalesBillPacket> & rList)
 {
 	int    ok = 1;
+	const  PPID bill_ack_tag_id = NZOR(Ep.Fb.BillAckTagID, PPTAG_BILL_EDIACK);
 	int    do_cancel = BIN(outerDocType < 0);
 	outerDocType = labs(outerDocType);
 	PPBillPacket pack;
@@ -3742,7 +3744,8 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 		SysJournal * p_sj = DS.GetTLA().P_SysJ;
 		Ep.GetExtStrData(Ep.extssClientCode, own_code);
 		if(do_cancel) {
-			pack.BTagL.GetItemStr(PPTAG_BILL_EDIACK, cancel_code);
+			if(bill_ack_tag_id) // @v9.5.7
+				pack.BTagL.GetItemStr(bill_ack_tag_id, cancel_code);
 			if(cancel_code.Empty())
 				do_cancel = 0;
 		}
@@ -4105,6 +4108,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, TSCollection <iSalesBillPacket> & rList)
 {
 	int    ok = -1;
+	const  PPID bill_ack_tag_id = NZOR(Ep.Fb.BillAckTagID, PPTAG_BILL_EDIACK);
 	if(opID && outerDocType >= 0) {
 		SString temp_buf;
 		SString isales_code;
@@ -4136,8 +4140,9 @@ int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 				// Дабы отличить документ isales от ЕГАИС попытаемся преобразовать значение
 				// тега в GUID. Если не получилось - значит не ЕГАИС.
 				// Метод очень плохой, но пока оставим так.
+				// @v9.5.7 В конфигурацию обмена данными добавлен спец тег для этого.
 				//
-				if(PPRef->Ot.GetTagStr(PPOBJ_BILL, upd_bill_id, PPTAG_BILL_EDIACK, temp_buf) > 0 && !test_uuid.FromStr(temp_buf)) {
+				if(PPRef->Ot.GetTagStr(PPOBJ_BILL, upd_bill_id, bill_ack_tag_id, temp_buf) > 0 && !test_uuid.FromStr(temp_buf)) {
                     if(P_BObj->Search(upd_bill_id, &bill_rec) > 0) {
 						if(IsOpBelongTo(bill_rec.OpID, b_filt.OpID)) {
 							Helper_Make_iSalesIdent(bill_rec, outerDocType, isales_code);
@@ -4206,6 +4211,7 @@ int SLAPI iSalesPepsi::SendInvoices()
 		Возврат по акту (5) – это документ, c привязкой к расходной накладной, в тегах REFS в этом случае должны быть данные с номером расходной накладной, датой накладной, и тип документа расх. накладная = 1 (<DOC_TP> = 5)
 	*/
 	int    ok = -1;
+	const  PPID bill_ack_tag_id = NZOR(Ep.Fb.BillAckTagID, PPTAG_BILL_EDIACK);
 	PPSoapClientSession sess;
 	SString temp_buf;
 	SString msg_buf;
@@ -4288,10 +4294,12 @@ int SLAPI iSalesPepsi::SendInvoices()
 								(temp_buf = p_item->Code).Transf(CTRANSF_UTF8_TO_INNER);
 								if(temp_buf.CmpNC(p_result_item->ItemDescr) == 0) {
 									if(p_item->NativeID && p_item->iSalesId.NotEmpty() && P_BObj->Search(p_item->NativeID, &bill_rec) > 0) {
-										ObjTagItem tag_item;
-										(temp_buf = p_item->iSalesId).Transf(CTRANSF_UTF8_TO_INNER);
-										if(tag_item.SetStr(PPTAG_BILL_EDIACK, temp_buf))
-											THROW(PPRef->Ot.PutTag(PPOBJ_BILL, p_item->NativeID, &tag_item, 1));
+										if(bill_ack_tag_id) { // @v9.5.7
+											ObjTagItem tag_item;
+											(temp_buf = p_item->iSalesId).Transf(CTRANSF_UTF8_TO_INNER);
+											if(tag_item.SetStr(bill_ack_tag_id, temp_buf))
+												THROW(PPRef->Ot.PutTag(PPOBJ_BILL, p_item->NativeID, &tag_item, 1));
+										}
 									}
 									found = 1;
 								}
@@ -4331,7 +4339,7 @@ private:
 	int    SLAPI PreprocessResult(const void * pResult, const PPSoapClientSession & rSess);
 	void   FASTCALL DestroyResult(void ** ppResult);
 	void   SLAPI InitCallHeader(SapEfesCallHeader & rHdr);
-	int    SLAPI Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & rList);
+	int    SLAPI Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & rList, PPIDArray & rToCancelBillList);
 	int    SLAPI LogResultMsgList(const TSCollection <SapEfesLogMsg> * pMsgList);
 	int    SLAPI PrepareDebtsData(TSCollection <SapEfesDebtReportEntry> & rList, TSCollection <SapEfesDebtDetailReportEntry> & rDetailList);
 	int    SLAPI Helper_SendDebts(TSCollection <SapEfesDebtReportEntry> & rList);
@@ -4492,7 +4500,10 @@ int SLAPI SapEfes::ReceiveOrders()
 	THROW_SL(func_status = (EFESSETSALESORDERSTATUSSYNC_PROC)P_Lib->GetProcAddr("EfesSetSalesOrderStatusSync"))
 	sess.Setup(SvcUrl, UserName, Password);
 	InitCallHeader(sech);
-	p_result = func(sess, sech, &period, 0 /*inclProcessedItems*/, added_param);
+	{
+		const int do_incl_processed_items = BIN(P.Flags & P.fRepeatProcessing);
+		p_result = func(sess, sech, &period, do_incl_processed_items, added_param);
+	}
 	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 	{
 		//PPTXT_LOG_SUPPLIX_IMPORD_E    "Импортировано @int заказов @zstr"
@@ -4807,10 +4818,12 @@ int SLAPI SapEfes::SendStocks()
     return ok;
 }
 
-int SLAPI SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & rList)
+int SLAPI SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & rList, PPIDArray & rToCancelBillList)
 {
+	rToCancelBillList.clear();
 	int    ok = -1;
 	Reference * p_ref = PPRef;
+	const  PPID bill_ack_tag_id = Ep.Fb.BillAckTagID;
 	THROW_PP_S(Ep.Fb.CliCodeTagID, PPERR_SUPPLIX_UNDEFCLICTAG, ArName);
 	THROW_PP_S(Ep.Fb.LocCodeTagID, PPERR_SUPPLIX_UNDEFLOCCTAG, ArName);
 	if(opID) {
@@ -4819,7 +4832,7 @@ int SLAPI SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacke
 		SString loc_code;
 		SString isales_code;
 		PPViewBill b_view;
-		PPIDArray force_bill_list; // Список документов которые надо послать снова
+		//PPIDArray to_cancel_bill_list; // Список документов, по которым следует отослать отмену поставок
 		PPIDArray order_id_list;
 		BillFilt b_filt;
 		BillViewItem view_item;
@@ -4828,11 +4841,45 @@ int SLAPI SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacke
 		b_filt.OpID = opID;
 		b_filt.Period = P.ExpPeriod; //BillExportPeriod;
 		SETIFZ(b_filt.Period.low, encodedate(1, 9, 2016));
-		//force_bill_list.sortAndUndup();
+		if(bill_ack_tag_id) {
+			BillTbl::Rec bill_rec;
+			PPIDArray acn_list;
+			acn_list.add(PPACN_UPDBILL);
+			LDATETIME since;
+			since.Set(b_filt.Period.low, ZEROTIME);
+			PPIDArray upd_bill_list;
+			p_sj->GetObjListByEventSince(PPOBJ_BILL, &acn_list, since, upd_bill_list);
+			for(uint i = 0; i < upd_bill_list.getCount(); i++) {
+				const PPID upd_bill_id = upd_bill_list.get(i);
+				if(p_ref->Ot.GetTagStr(PPOBJ_BILL, upd_bill_id, bill_ack_tag_id, temp_buf) > 0) {
+                    if(P_BObj->Search(upd_bill_id, &bill_rec) > 0) {
+						if(IsOpBelongTo(bill_rec.OpID, b_filt.OpID)) {
+							if(P_BObj->ExtractPacket(upd_bill_id, &pack) > 0) {
+								long   tiiterpos = 0;
+								int    is_t_goods = 0;
+								for(uint tiidx = 0; !is_t_goods && tiidx < pack.GetTCount(); tiidx++) {
+									const PPID goods_id = labs(pack.ConstTI(tiidx).GoodsID);
+									if(GObj.BelongToGroup(goods_id, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, goods_id, temp_buf = 0, 0) > 0)
+										is_t_goods = 1;
+								}
+								if(!is_t_goods) {
+									//
+									// Если в документе не осталось ни одной строки нашего товара, то - в список на удаление
+									//
+									rToCancelBillList.add(upd_bill_id);
+								}
+							}
+						}
+                    }
+				}
+			}
+		}
+		rToCancelBillList.sortAndUndup();
+		//
 		THROW(b_view.Init_(&b_filt));
 		for(b_view.InitIteration(PPViewBill::OrdByDefault); b_view.NextIteration(&view_item) > 0;) {
 			const PPID bill_id = view_item.ID;
-			if(!force_bill_list.bsearch(bill_id)) {
+			if(!rToCancelBillList.bsearch(bill_id)) {
 				PPBillPacket pack;
 				PPFreight freight;
 				if(P_BObj->ExtractPacket(bill_id, &pack) > 0) {
@@ -4906,7 +4953,7 @@ int SLAPI SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacke
                                     p_new_row->Qtty = fabs(ti.Quantity_);
                                     p_new_row->UnitType = sapefesUnitItem;
                                     {
-                                        double _amt = fabs(ti.Quantity_ * ti.NetPrice());
+                                        const double _amt = fabs(ti.Quantity_ * ti.NetPrice());
                                         double _vat_sum = 0.0;
 										GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, _amt, &_vat_sum, 0, 0);
 										p_new_row->Amount = _amt - _vat_sum;
@@ -4927,10 +4974,13 @@ int SLAPI SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacke
 int SLAPI SapEfes::SendInvoices()
 {
     int    ok = -1;
+	Reference * p_ref = PPRef;
+    const  PPID bill_ack_tag_id = Ep.Fb.BillAckTagID;
+	PPIDArray to_cancel_bill_list;
 	SString temp_buf;
+	BillTbl::Rec bill_rec;
 	PPSoapClientSession sess;
 	SapEfesCallHeader sech;
-	EFESSETDELIVERYNOTESYNC_PROC func = 0;
 
 	TSCollection <SapEfesBillStatus> * p_result = 0;
 	TSCollection <SapEfesBillPacket> outp_packet;
@@ -4938,39 +4988,32 @@ int SLAPI SapEfes::SendInvoices()
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
-
-	//BillExportPeriod.Set(encodedate(1, 6, 2016), encodedate(30, 6, 2016));
-	//THROW(Helper_MakeBillList(Ep.RetOp, 5, outp_packet));
-
-	THROW_SL(func = (EFESSETDELIVERYNOTESYNC_PROC)P_Lib->GetProcAddr("EfesSetDeliveryNoteSync"));
-	sess.Setup(SvcUrl, UserName, Password);
-	InitCallHeader(sech);
-	THROW(Helper_MakeBillList(Ep.ExpendOp, outp_packet));
+	THROW(Helper_MakeBillList(Ep.ExpendOp, outp_packet, to_cancel_bill_list));
 	if(outp_packet.getCount()) {
-		BillTbl::Rec bill_rec;
+		EFESSETDELIVERYNOTESYNC_PROC func = 0;
+		//BillExportPeriod.Set(encodedate(1, 6, 2016), encodedate(30, 6, 2016));
+		//THROW(Helper_MakeBillList(Ep.RetOp, 5, outp_packet));
+
+		THROW_SL(func = (EFESSETDELIVERYNOTESYNC_PROC)P_Lib->GetProcAddr("EfesSetDeliveryNoteSync"));
+		sess.Setup(SvcUrl, UserName, Password);
+		InitCallHeader(sech);
 		p_result = func(sess, sech, &outp_packet);
 		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 		for(uint i = 0; i < p_result->getCount(); i++) {
 			const SapEfesBillStatus * p_status = p_result->at(i);
 			if(p_status) {
-				/*
-					struct SapEfesBillStatus {
-						SString NativeCode;
-						SString Code;
-						SString Status;
-						TSCollection <SapEfesLogMsg> MsgList;
-					};
-				*/
 				if(p_status->Code.NotEmpty()) {
 					int    found = 0;
 					for(uint j = 0; !found && j < outp_packet.getCount(); j++) {
 						const SapEfesBillPacket * p_out_item = outp_packet.at(j);
 						if(p_out_item) {
 							if(p_out_item->NativeCode.CmpNC(p_status->NativeCode) == 0 && P_BObj->Search(p_out_item->NativeID, &bill_rec) > 0) {
-								ObjTagItem tag_item;
-								(temp_buf = p_status->Code).Transf(CTRANSF_UTF8_TO_INNER);
-								if(tag_item.SetStr(PPTAG_BILL_EDIACK, temp_buf)) {
-									THROW(PPRef->Ot.PutTag(PPOBJ_BILL, bill_rec.ID, &tag_item, 1));
+								if(bill_ack_tag_id) {
+									ObjTagItem tag_item;
+									(temp_buf = p_status->Code).Transf(CTRANSF_UTF8_TO_INNER);
+									if(tag_item.SetStr(bill_ack_tag_id, temp_buf)) {
+										THROW(p_ref->Ot.PutTag(PPOBJ_BILL, bill_rec.ID, &tag_item, 1));
+									}
 								}
 								found = 1;
 							}
@@ -4980,8 +5023,38 @@ int SLAPI SapEfes::SendInvoices()
 				LogResultMsgList(&p_status->MsgList);
 			}
 		}
+		DestroyResult((void **)&p_result);
+		p_result = 0;
 	}
-	DestroyResult((void **)&p_result);
+	if(to_cancel_bill_list.getCount()) {
+		TSCollection <SString> to_cancel_code_list;
+		EFESCANCELDELIVERYNOTESYNC_PROC func = 0;
+		THROW_SL(func = (EFESCANCELDELIVERYNOTESYNC_PROC)P_Lib->GetProcAddr("EfesCancelDeliveryNoteSync"));
+		{
+			for(uint i = 0; i < to_cancel_bill_list.getCount(); i++) {
+				const PPID to_cancel_bill_id = to_cancel_bill_list.get(i);
+				if(P_BObj->Search(to_cancel_bill_id, &bill_rec) > 0) {
+					SString * p_new_code = to_cancel_code_list.CreateNewItem();
+					THROW_SL(p_new_code);
+					*p_new_code = bill_rec.Code;
+					BillCore::GetCode(*p_new_code);
+				}
+			}
+		}
+		if(to_cancel_code_list.getCount()) {
+			sess.Setup(SvcUrl, UserName, Password);
+			InitCallHeader(sech);
+			p_result = func(sess, sech, &to_cancel_code_list);
+			THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
+			for(uint i = 0; i < p_result->getCount(); i++) {
+				const SapEfesBillStatus * p_status = p_result->at(i);
+				if(p_status) {
+					LogResultMsgList(&p_status->MsgList);
+				}
+			}
+			DestroyResult((void **)&p_result);
+		}
+	}
     CATCHZOK
     return ok;
 }

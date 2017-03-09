@@ -616,9 +616,7 @@ class PredictionParamDialog : public TDialog {
 public:
 	PredictionParamDialog(PPPredictConfig * pCfg, PredictSalesCore * pSalesTbl) : TDialog(DLG_FILLSALESTBL)
 	{
-		if(pCfg)
-			Cfg = *pCfg;
-		else
+		if(!RVALUEPTR(Cfg, pCfg))
 			MEMSZERO(Cfg);
 		P_SalesTbl = pSalesTbl;
 		PrevContinueMode = BIN(Cfg.Flags & PPPredictConfig::fContinueBuilding);
@@ -629,7 +627,7 @@ public:
 	int    getDTS(PrcssrPrediction::Param *);
 private:
 	DECL_HANDLE_EVENT;
-	int    DisableRecalcBegDt();
+	void   DisableRecalcBegDt();
 
 	PrcssrPrediction::Param Data;
 	PPPredictConfig Cfg;
@@ -661,12 +659,11 @@ IMPL_HANDLE_EVENT(PredictionParamDialog)
 	clearEvent(event);
 }
 
-int PredictionParamDialog::DisableRecalcBegDt()
+void PredictionParamDialog::DisableRecalcBegDt()
 {
 	if(Data.Replace != PrcssrPrediction::Param::rsUpdateOnly)
 		setCtrlDate(CTL_FILLSALESTBL_RCALBDT, ZERODATE);
 	disableCtrl(CTL_FILLSALESTBL_RCALBDT, Data.Replace != PrcssrPrediction::Param::rsUpdateOnly);
-	return 1;
 }
 
 int PredictionParamDialog::setDTS(const PrcssrPrediction::Param * pData)
@@ -674,9 +671,7 @@ int PredictionParamDialog::setDTS(const PrcssrPrediction::Param * pData)
 	int    ok = 1;
 	SString op_name;
 	LDATE last_dt = ZERODATE;
-    if(pData)
-		Data = *pData;
-	else
+	if(!RVALUEPTR(Data, pData))
 		MEMSZERO(Data);
 	DateRange period = Data.GetPeriod();
 	THROW(GetOpName(Cfg.OpID, op_name) > 0);

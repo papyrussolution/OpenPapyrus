@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ns="http://fsrar.ru/WEGAIS/Ticket"
+           targetNamespace="http://fsrar.ru/WEGAIS/Ticket"
+           xmlns:c="http://fsrar.ru/WEGAIS/Common"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/> 
+  <xs:complexType name="TicketType">
+    <xs:annotation>
+      <xs:documentation>Квитанция</xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="TicketDate" type="c:DateWTime" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Дата квитанции</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Identity" type="xs:string" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Идентификатор документа(исходного, клиентский из содержимого XML(может не быть))</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DocId" type="xs:string" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Ид задачи из файловой базы</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TransportId" type="xs:string" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Транспортный ид из файловой базы</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="RegID" type="xs:string" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Присвоенный документу номер</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DocHash" type="xs:string" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Хэш документа</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DocType" type="xs:string" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Тип исходного документа</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Result" type="ns:TicketResultType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Результат фиксации</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OperationResult" type="ns:OperationResultType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Результат фиксации</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="OperationResultType">
+    <xs:all>
+      <xs:element name="OperationName" type="xs:string" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Операция</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OperationResult" type="ns:ConclusionType" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Результат выполнения</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OperationComment" type="xs:string" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Сообщение</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OperationDate" type="c:DateWTime" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Дата операции</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+    </xs:all>
+  </xs:complexType>
+  
+  <xs:complexType name="TicketResultType">
+    <xs:all>
+      <xs:element name="Conclusion" type="ns:ConclusionType" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Результат фиксации</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ConclusionDate" type="c:DateWTime" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Дата фиксации</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Comments" type="xs:string" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Описание результата фиксации, описание ошибки фиксации</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+    </xs:all>
+  </xs:complexType>
+
+  <xs:simpleType name="ConclusionType">
+    <xs:annotation>
+      <xs:documentation>Вид результата фиксации</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Accepted"/>
+      <xs:enumeration value="Rejected"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

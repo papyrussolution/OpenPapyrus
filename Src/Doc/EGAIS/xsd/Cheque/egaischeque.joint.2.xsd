@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="Cheque" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <!--
+Совместная схема для чека на алокгольную продукцию
+и чека на пиво.
+Схема не изменяет требования к алкогольному чеку, сформулированные прежде.
+На сервере нужно дополнительно читать файл, чтобы понять пиво в нем либо алкоголь.
+
+09.07.2015
+-->
+  <xs:simpleType name="IN">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(\d{10}|\d{12})" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="KP">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(\d{9}|)" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DT">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-3][0-9][0-1][0-9][0-9]{2}[0-2][0-9][0-5][0-9]" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="BK">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d\dN\w{20}\d[0-1]\d[0-3]\d{10}\w{31}" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="EAN">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(\d{8}|\d{13}|\d{12}|\d{14})" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PRICE">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[-]?\d+\.\d{0,2}" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="VOLUME">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(\d+\.?\d{0,4}|)" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ADDRESS">
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="128" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="NAME">
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="128" />
+    </xs:restriction>
+  </xs:simpleType>
+  <!-- Количество, для пива, >0-->
+  <xs:simpleType name="COUNT">
+    <xs:restriction base="xs:integer">
+      <xs:pattern value="[1-9][0-9]{0,5}" />
+    </xs:restriction>
+  </xs:simpleType>
+
+
+  <!--Алокогольный раздел, не изменился-->
+  <xs:element name="Bottle">
+    <xs:complexType>
+      <xs:attribute name="price" type="PRICE" use="required" />
+      <xs:attribute name="barcode" type="BK" use="required" />
+      <xs:attribute name="ean" type="EAN" use="required" />
+      <xs:attribute name="volume" type="VOLUME" />
+    </xs:complexType>
+  </xs:element>
+  <!--Пивной раздел-->
+  <xs:element name="nopdf">
+    <xs:complexType>
+      <xs:attribute name="price" type="PRICE" use="required"/>
+      <xs:attribute name="pinn" type="IN" use="required" />
+      <xs:attribute name="pkpp" type="KP" use="required" />
+      <xs:attribute name="bname" type="NAME" use="required" />
+      <xs:attribute name="alc" type="VOLUME" use="required" />
+      <xs:attribute name="volume" type="VOLUME" use="required" />
+      <xs:attribute name="ean" type="EAN" use="required" />
+      <xs:attribute name="count" type="COUNT" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="Cheque">
+    <xs:complexType>
+      <xs:sequence>
+        <!--Choice обеспечивает обязательное наличие либо пива либо алкоголя-->
+        <xs:choice>
+          <xs:element ref="Bottle" maxOccurs="unbounded" />
+          <xs:element ref="nopdf" maxOccurs="unbounded" />
+        </xs:choice>
+      </xs:sequence>
+      <!--Изголовье чека одинаково у пива и алкоголя-->
+      <xs:attribute name="inn" type="IN" use="required" />
+      <xs:attribute name="kpp" type="KP" />
+      <xs:attribute name="address" type="ADDRESS" use="required"  />
+      <xs:attribute name="name" type="xs:string" use="required" />
+      <xs:attribute name="kassa" type="xs:string" use="required" />
+      <xs:attribute name="shift" type="xs:int" use="required" />
+      <xs:attribute name="number" type="xs:int" use="required" />
+      <xs:attribute name="datetime" type="DT" use="required" />
+    </xs:complexType>
+    <xs:unique name="bottleBarcode">
+      <!--Баркод у алкоголя уникален внутри чека, как и ранее-->
+      <xs:selector xpath="Bottle" />
+      <xs:field xpath="@barcode" />
+    </xs:unique>
+  </xs:element>
+
+</xs:schema>

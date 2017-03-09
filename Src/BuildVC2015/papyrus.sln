@@ -75,8 +75,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PPSoapEfes", "PPSoapEfes.vc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZBAR", "ZBAR.vcxproj", "{64ADC8FF-D2CE-4D6E-A2C0-A0C75F5BA7D5}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libjpeg-turbo", "libjpeg-turbo.vcxproj", "{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -946,44 +944,6 @@ Global
 		{64ADC8FF-D2CE-4D6E-A2C0-A0C75F5BA7D5}.Universe-HTT|x64.Build.0 = Release|Win32
 		{64ADC8FF-D2CE-4D6E-A2C0-A0C75F5BA7D5}.Universe-HTT|x86.ActiveCfg = Release|Win32
 		{64ADC8FF-D2CE-4D6E-A2C0-A0C75F5BA7D5}.Universe-HTT|x86.Build.0 = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Debug|x64.ActiveCfg = Debug|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Debug|x86.ActiveCfg = Debug|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Debug|x86.Build.0 = Debug|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.MtDllDebug|Any CPU.ActiveCfg = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.MtDllDebug|Any CPU.Build.0 = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.MtDllDebug|x64.ActiveCfg = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.MtDllDebug|x64.Build.0 = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.MtDllDebug|x86.ActiveCfg = Debug|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.MtDllDebug|x86.Build.0 = Debug|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.MtDllRelease|Any CPU.ActiveCfg = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.MtDllRelease|Any CPU.Build.0 = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.MtDllRelease|x64.ActiveCfg = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.MtDllRelease|x64.Build.0 = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.MtDllRelease|x86.ActiveCfg = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.MtDllRelease|x86.Build.0 = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Release|Any CPU.ActiveCfg = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Release|x64.ActiveCfg = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Release|x86.ActiveCfg = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Release|x86.Build.0 = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerDebug|Any CPU.ActiveCfg = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerDebug|Any CPU.Build.0 = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerDebug|x64.ActiveCfg = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerDebug|x64.Build.0 = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerDebug|x86.ActiveCfg = Debug|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerDebug|x86.Build.0 = Debug|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerRelease|Any CPU.ActiveCfg = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerRelease|Any CPU.Build.0 = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerRelease|x64.ActiveCfg = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerRelease|x64.Build.0 = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerRelease|x86.ActiveCfg = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerRelease|x86.Build.0 = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Universe-HTT|Any CPU.ActiveCfg = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Universe-HTT|Any CPU.Build.0 = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Universe-HTT|x64.ActiveCfg = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Universe-HTT|x64.Build.0 = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Universe-HTT|x86.ActiveCfg = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Universe-HTT|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

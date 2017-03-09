@@ -1,0 +1,186 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:ns="http://fsrar.ru/WEGAIS/ActInventoryPartialSingle"
+           targetNamespace="http://fsrar.ru/WEGAIS/ActInventoryPartialSingle"
+
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           xmlns:c="http://fsrar.ru/WEGAIS/Common"
+           xmlns:oref="http://fsrar.ru/WEGAIS/ClientRef"
+           xmlns:pref="http://fsrar.ru/WEGAIS/ProductRef"
+           xmlns:ain="http://fsrar.ru/WEGAIS/ActInventorySingle"
+>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ClientRef" schemaLocation="ClientRef.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ProductRef" schemaLocation="ProductRef.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ActInventorySingle" schemaLocation="ActInventorySingle.xsd"/>
+
+  <xs:complexType name="ActInventoryPartialType">
+    <xs:annotation>
+      <xs:documentation>Акт инвентаризации</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Identity" type="xs:string" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Идентификатор документа(клиентский)</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Header">
+        <xs:complexType>
+          <xs:all>
+            <xs:element name="Number" type="xs:string" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Номер документа</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="DocType" type="ain:InventoryType" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Тип документа - пересортица или инвентаризация</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="DivisionName" type="xs:string" minOccurs="0" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Подразделение</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="InventoryBasis" type="xs:string" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Основание проведения инвентаризации</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="InventoryBasisNumber" type="xs:string" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Номер основания проведения инвентаризации</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="InventoryBasisDate" type="c:DateNoTime" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Дата основания проведения инвентаризации</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="InventoryDateBegin" type="c:DateNoTime" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Дата начала инвентеризации</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="InventoryDateEnd" type="c:DateNoTime" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Дата окончания инвентеризации</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="Note" type="xs:string" minOccurs="0" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Примечание</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:all>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Content">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Position" type="ns:ActInventoryPartialPositionType" minOccurs="1" maxOccurs="unbounded">
+              <xs:annotation>
+                <xs:documentation>Содержимое акта должно содержать 1 и более позиций</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+        <xs:unique name="PosUn">
+          <xs:selector xpath="ns:Position"/>
+          <xs:field xpath="ns:Identity"/>
+        </xs:unique>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:complexType name="ActInventoryPartialPositionType">
+    <xs:annotation>
+      <xs:documentation>Позиция</xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="Identity" type="xs:string" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Идентификатор позиции</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Product" type="pref:ProductInfo" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Информация о продукции</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Quantity" type="xs:decimal" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Количество</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <!--<xs:element name="QuantityAccounting" type="xs:decimal" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Количество по бухгалтерскому учету</xs:documentation>
+        </xs:annotation>
+      </xs:element>-->
+      <xs:element name="InformAB" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Справки А и Б</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:choice>
+            <xs:element name="InformABKey" type="ns:InformABKeyType" nillable="false" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Справки А и Б ссылочного типа</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="InformABReg" type="ns:InformABRegType" nillable="false" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Справка А и цепочка справок Б</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:choice>
+        </xs:complexType>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+  
+  <xs:complexType name="InformABKeyType">
+    <xs:annotation>
+      <xs:documentation>Справки А и Б ссылки</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="FormA" type="xs:string" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Идентификатор справки А</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LastFormB" type="xs:string" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Идентификатор последней справки Б</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:complexType name="InformABRegType">
+    <xs:annotation>
+      <xs:documentation>Справки А и Б документы</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="InformA" type="ain:InformARegType"  nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Cправка А</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="InformB">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="InformBItem" type="ain:InformBTypeRegItem" nillable="false" minOccurs="1" maxOccurs="unbounded">
+              <xs:annotation>
+                <xs:documentation>Справка Б</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

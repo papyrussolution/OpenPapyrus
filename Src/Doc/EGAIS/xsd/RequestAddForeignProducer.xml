@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:ns="http://fsrar.ru/WEGAIS/RequestAddFProducer"
+           targetNamespace="http://fsrar.ru/WEGAIS/RequestAddFProducer"
+           xmlns:c="http://fsrar.ru/WEGAIS/Common"           
+           xmlns:cn="http://fsrar.ru/WEGAIS/CommonEnum"           
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:pref="http://fsrar.ru/WEGAIS/ClientRef_v2"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/CommonEnum" schemaLocation="EGCommonEnum.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ClientRef_v2" schemaLocation="ClientRef_v2.xsd"/>
+
+  <xs:complexType name="RequestAddFProducer">
+    <xs:annotation>
+      <xs:documentation>Запрос на добавление в справочник продукции</xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="ClientId" type="c:NoEmptyString50" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Код клиента</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="RequestNumber" type="c:NoEmptyString50" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Номер запроса на добавление в справочник иностранного производителя</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="RequestDate" type="xs:date" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Дата/время запроса на добавление в иностранного производителя</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Content"  type="ns:OrgInfoForeignAddType" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Содержимое запроса должно содержать 1 позицию</xs:documentation>
+              </xs:annotation>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+ 
+  <xs:complexType name ="OrgInfoForeignAddType">
+    <xs:annotation>
+      <xs:documentation>Иностранные организации</xs:documentation>
+    </xs:annotation>
+    <xs:choice>
+      <xs:element name="FO" type="ns:AddFOType" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Иностранец (исключая таможенный союз)</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TS" type="ns:AddTSType" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Таможенный союз</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="AddFOType">
+    <xs:annotation>
+      <xs:documentation>Иностраная организация</xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="LocalClientCode" type="c:NoEmptyString50" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Код организации по локальному справочнику заявителя</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FullName"  nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Наименование организации полное</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="255"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="ShortName"  nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Наименование организации краткое</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="64"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="address" type="pref:OrgAddressTypeFOTS" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Фактический адрес</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="AddTSType">
+    <xs:annotation>
+      <xs:documentation>Организация из таможенного союза</xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="LocalClientCode" type="c:NoEmptyString50" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Код организации по локальному справочнику заявителя</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FullName"  nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Наименование организации полное</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="255"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="ShortName"  nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Наименование организации краткое</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="64"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="TSNUM" type="c:NoEmptyString50" minOccurs="0" maxOccurs="1" nillable="true">
+        <xs:annotation>
+          <xs:documentation>ИНН</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="address" type="pref:OrgAddressTypeFOTS" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Фактический адрес</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+
+</xs:schema>

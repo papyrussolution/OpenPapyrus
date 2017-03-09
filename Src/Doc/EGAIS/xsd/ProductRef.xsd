@@ -1,0 +1,252 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ns="http://fsrar.ru/WEGAIS/ProductRef"
+           targetNamespace="http://fsrar.ru/WEGAIS/ProductRef"
+           xmlns:oref="http://fsrar.ru/WEGAIS/ClientRef"
+           xmlns:c="http://fsrar.ru/WEGAIS/Common"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+            >
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ClientRef" schemaLocation="ClientRef.xsd"/>
+  
+  <xs:complexType name="ProductsType">
+    <xs:annotation>
+      <xs:documentation>Продукция</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Product" type="ns:ProductInfo" maxOccurs="unbounded" >
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ProductInfo">
+    <xs:all>
+      <xs:element name="Identity" type="c:IdentityType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Идентификатор внутри файла</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element type="ns:ProductType" name="Type" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Тип продукции (АП | ССП | ССНП | Спирт) Если не указано, то АП</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      
+      <xs:element name="FullName" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Наименование продукции полное</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="255"/>
+          </xs:restriction>
+        </xs:simpleType>
+        </xs:element>
+      
+      <xs:element name="ShortName" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Наименование продукции краткое</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="64"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="AlcCode" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Код продукции согласно ЕГАИС</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="c:NoEmptyString">
+            <xs:maxLength value="64"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+
+      <xs:element name="Capacity" type="c:PositiveDecimalType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Емкость упаковки продукции согласно ЕГАИС</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="AlcVolume" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Содержание этилового спирта, %</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:decimal">
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="100"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+
+      <xs:element name="Producer" type="oref:OrgInfo" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Производитель</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="Importer" type="oref:OrgInfo" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Импортер</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ProductVCode" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Код вида продукции</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="c:NoEmptyString">
+            <xs:maxLength value="5"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+  <xs:simpleType name="WbUnitType">
+    <xs:annotation>
+      <xs:documentation>Типы продукции: упакованная, неупакованная</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Packed"/>
+      <xs:enumeration value="Unpacked"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="ProductType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="АП"/>
+      <xs:enumeration value="ССП"/>
+      <xs:enumeration value="ССНП"/>
+      <xs:enumeration value="Спирт"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+
+  <xs:complexType name="InformAType">
+    <xs:annotation>
+      <xs:documentation>Справка А к ТТН</xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="RegId" type="c:NoEmptyString50" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Регистрационный номер справки А</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:all> 
+  </xs:complexType>
+
+  <xs:complexType name="InformBType">
+    <xs:annotation>
+      <xs:documentation>Справка Б к ТТН</xs:documentation>
+    </xs:annotation>
+         <xs:sequence>
+           <xs:element name="InformBItem" type="ns:InformBTypeItem" nillable="false" minOccurs="1" maxOccurs="1">
+             <xs:annotation>
+               <xs:documentation>Информация о предыдущих отгрузках</xs:documentation>
+             </xs:annotation>
+           </xs:element>
+        </xs:sequence>
+  </xs:complexType>
+  
+  <xs:complexType name="InformBTypeItem">
+    <xs:annotation>
+      <xs:documentation>Запись в справке Б к ТТН, Информация о предыдущих отгрузках</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+    <xs:element name="BRegId" type="c:NoEmptyString50" nillable="false" minOccurs="1" maxOccurs="1">
+      <xs:annotation>
+        <xs:documentation>Регистрационный номер раздела справки Б</xs:documentation>
+      </xs:annotation>
+    </xs:element>
+    <xs:element name="MarkInfo" type="ns:MarkInfoType" nillable="false" minOccurs="0" maxOccurs="1">
+      <xs:annotation>
+        <xs:documentation>Информация о марках</xs:documentation>
+      </xs:annotation>
+    </xs:element>
+   </xs:sequence>
+  </xs:complexType>
+  
+  <xs:complexType name="MarkInfoType">
+    <xs:annotation>
+      <xs:documentation>Информация о марках</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Type" type="c:NoEmptyString50" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Тип марки</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Ranges" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Диапазоны марок</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Range" minOccurs="1" maxOccurs="unbounded">
+              <xs:annotation>
+                <xs:documentation>Диапазоны марок</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="Identity" type="xs:string" nillable="false" minOccurs="0" maxOccurs="1">
+                    <xs:annotation>
+                      <xs:documentation>Идентификатор диапазона в списке</xs:documentation>
+                    </xs:annotation>
+                  </xs:element>
+                  <xs:element name="Rank" type="ns:RankType" minOccurs="1" maxOccurs="1">
+                    <xs:annotation>
+                      <xs:documentation>Серия</xs:documentation>
+                    </xs:annotation>
+                  </xs:element>
+                  <xs:element name="Start" type="ns:MarkNumberType" minOccurs="1" maxOccurs="1">
+                    <xs:annotation>
+                      <xs:documentation>Начальный номер</xs:documentation>
+                    </xs:annotation>
+                  </xs:element>
+                  <xs:element name="Last" type="ns:MarkNumberType" minOccurs="1" maxOccurs="1">
+                    <xs:annotation>
+                      <xs:documentation>Конечный номер</xs:documentation>
+                    </xs:annotation>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="RankType">
+    <xs:annotation>
+      <xs:documentation>Серия марки</xs:documentation>
+    </xs:annotation>
+    <xs:restriction>
+      <xs:simpleType>
+        <xs:restriction base="xs:string" />
+      </xs:simpleType>
+      <xs:length value="3" />
+      <xs:pattern value="[0-9]{3}" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="MarkNumberType">
+    <xs:annotation>
+      <xs:documentation>Серия марки</xs:documentation>
+    </xs:annotation>
+    <xs:restriction>
+      <xs:simpleType>
+        <xs:restriction base="xs:string" />
+      </xs:simpleType>
+      <xs:maxLength value="9" />
+      <xs:minLength value="1" />
+      <xs:pattern value="([0-9])*" />
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

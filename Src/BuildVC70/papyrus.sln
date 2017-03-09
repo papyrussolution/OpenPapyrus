@@ -128,10 +128,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZBAR", "ZBAR.vcproj", "{64A
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "turbojpeg-static", "libjpeg-turbo.vcproj", "{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -459,20 +455,6 @@ Global
 		{64ADC8FF-D2CE-4D6E-A2C0-A0C75F5BA7D5}.ServerRelease.Build.0 = Release|Win32
 		{64ADC8FF-D2CE-4D6E-A2C0-A0C75F5BA7D5}.Universe-HTT.ActiveCfg = Release|Win32
 		{64ADC8FF-D2CE-4D6E-A2C0-A0C75F5BA7D5}.Universe-HTT.Build.0 = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Debug.ActiveCfg = Debug|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Debug.Build.0 = Debug|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.MtDllDebug.ActiveCfg = Debug|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.MtDllDebug.Build.0 = Debug|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.MtDllRelease.ActiveCfg = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.MtDllRelease.Build.0 = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Release.ActiveCfg = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Release.Build.0 = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerDebug.ActiveCfg = Debug|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerDebug.Build.0 = Debug|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerRelease.ActiveCfg = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerRelease.Build.0 = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Universe-HTT.ActiveCfg = Release|Win32
-		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Universe-HTT.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 		optimization.txt = optimization.txt

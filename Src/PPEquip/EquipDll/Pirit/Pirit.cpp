@@ -168,6 +168,7 @@ struct CheckStruct {
 	int    Department;
 	int    Tax;
 	SString Text;
+	SString Code; // @v9.5.7
 	double PaymCash;
 	double PaymCard;
 	double IncassAmt;
@@ -218,6 +219,7 @@ private:
 	int    PrintLogo(int print);
 	int    GetDateTime(SYSTEMTIME sysDtTm, SString & rDateTime, int dt); // dt = 0 - возвращает форматировнную дату, dt = 1 - время //
 	void   GetLastCmdName(SString & rName); // new
+	void   SetLastItems(const char * pCmd, const char * pParam);
 };
 
 static PiritEquip * P_Pirit = 0;
@@ -318,17 +320,23 @@ EXPORT int /*STDAPICALLTYPE*/ RunCommand(const char * pCmd, const char * pInputD
 	return ok;
 }
 
+void PiritEquip::SetLastItems(const char * pCmd, const char * pParam)
+{
+	LastCmd = pCmd;
+	LastParams = pParam;
+}
+
 int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize)
 {
 	int    ok = 0, val = 0;
-	uint   disc_count = 0;
-	uint   tax_count = 0;
-	uint   paym_count = 0;
-	uint   depart_count = 0;
-	uint   is_tax = 0;
-	uint   is_disc = 0;
-	uint   is_paym = 0;
-	uint   is_depart = 0;
+	//uint   disc_count = 0;
+	//uint   tax_count = 0;
+	//uint   paym_count = 0;
+	//uint   depart_count = 0;
+	//uint   is_tax = 0;
+	//uint   is_disc = 0;
+	//uint   is_paym = 0;
+	//uint   is_depart = 0;
 	SString s_pair;
 	SString s_param;
 	SString param_val;
@@ -339,15 +347,15 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 	SString params;
 	if(sstreqi_ascii(pCmd, "CONTINUEPRINT")) {
 		if((LastCmd.CmpNC("PRINTFISCAL") != 0) && (LastCmd.CmpNC("PRINTTEXT") != 0)) { // new
-			(cmd = 0).CopyFrom(LastCmd);
-			(params = 0).CopyFrom(LastParams);
+			cmd = LastCmd;
+			params = LastParams;
 			LastCmd = 0;
 			LastParams = 0;
 		}
 	}
 	else {
-		(cmd = 0).CopyFrom(pCmd);
-		(params = 0).CopyFrom(pInputData);
+		cmd = pCmd;
+		params = pInputData;
 	}
 	StringSet pairs(';', params);
 	if(LastError == PIRIT_NOTENOUGHMEM) {
@@ -356,8 +364,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 	}
 	else { // if(LastError != NOTENOUGHMEM)
 		if(sstreqi_ascii(cmd, "CONNECT")){
-			LastCmd = 0;
-			LastParams = 0;
+			SetLastItems(0, 0);
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;){
 				s_pair.Divide('=', s_param, param_val);
 				if(s_param.CmpNC("PORT") == 0)
@@ -365,7 +372,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				else if(s_param.CmpNC("BAUDRATE") == 0)
 					Cfg.BaudRate = param_val.ToLong();
 			}
-			int flag = 0;
+			int    flag = 0;
 			THROWERR(SetConnection(), PIRIT_NOTCONNECTED);
 			THROW(GetCurFlags(2, flag));
 			THROWERR(!(flag & 0x10), PIRIT_ECRARCHOPENED); // Архив ЭКЛЗ закрыт
@@ -374,20 +381,17 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			THROWERR(!(flag & 0x100), PIRIT_SESSOPENEDTRYAGAIN); // Не было завершено закрытие смены, необходимо повторить операцию
 		}
 		else if(sstreqi_ascii(cmd, "CHECKSESSOVER")){
-			(LastCmd = 0).CopyFrom(cmd);
-			(LastParams = 0).CopyFrom(pInputData);
-			int flag = 0;
+			SetLastItems(cmd, pInputData);
+			int    flag = 0;
 			THROW(GetCurFlags(2, flag));
 			strcpy(pOutputData, (flag & 0x8) ? "1" : "0");
 		}
 		else if(sstreqi_ascii(cmd, "DISCONNECT")) {
-			LastCmd = 0;
-			LastParams = 0;
+			SetLastItems(0, 0);
 			THROW(CloseConnection())
 		}
 		else if(sstreqi_ascii(cmd, "SETCONFIG")) {
-			LastCmd = 0;
-			LastParams = 0;
+			SetLastItems(0, 0);
 			THROW(StartWork());
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;){
 				s_pair.Divide('=', s_param, param_val);
@@ -403,8 +407,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			THROW(SetCfg());
 		}
 		else if(sstreqi_ascii(cmd, "SETLOGOTYPE")) {
-			LastCmd = 0;
-			LastParams = 0;
+			SetLastItems(0, 0);
 			THROW(StartWork());
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;){
 				s_pair.Divide('=', s_param, param_val);
@@ -420,10 +423,8 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			THROW(SetLogotype(Cfg.Logo.Path, Cfg.Logo.Size, Cfg.Logo.Height, Cfg.Logo.Width));
 		}
 		else if(sstreqi_ascii(cmd, "GETCONFIG")) {
-			LastCmd = 0;
-			LastParams = 0;
-			str = "CHECKSTRLEN";
-			str.CatChar('=').Cat("130"); // @v9.1.8 44-->130
+			SetLastItems(0, 0);
+			(str = 0).CatEq("CHECKSTRLEN", "130"); // @v9.1.8 44-->130
 			if(outSize < str.BufSize()){
 				NotEnoughBuf(str);
 				memcpy(pOutputData, str, outSize);
@@ -433,11 +434,10 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				memcpy(pOutputData, str, str.BufSize());
 		}
 		else if(sstreqi_ascii(cmd, "ZREPORT")) {
-			(LastCmd = 0).CopyFrom(cmd);
-			(LastParams = 0).CopyFrom(pInputData);
+			SetLastItems(cmd, pInputData);
 			THROW(StartWork());
 			CreateStr(CshrName, str);
-			int flag = 0;
+			int    flag = 0;
 			THROW(GetCurFlags(2, flag));
 			THROWERR(!(flag & 0x40), PIRIT_NOTENOUGHTMEMFORSESSCLOSE); // Нет памяти для закрытия смены в ФП
 			THROWERR(PutData("21", str), PIRIT_NOTSENT);
@@ -449,16 +449,14 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				ok = 0;
 		}
 		else if(sstreqi_ascii(cmd, "XREPORT")) {
-			(LastCmd = 0).CopyFrom(cmd);
-			(LastParams = 0).CopyFrom(pInputData);
+			SetLastItems(cmd, pInputData);
 			THROW(StartWork());
 			CreateStr(CshrName, str);
 			THROWERR(PutData("20", str), PIRIT_NOTSENT);
 			THROW(GetWhile(out_data, r_error));
 		}
 		else if(sstreqi_ascii(cmd, "OPENCHECK")) {
-			(LastCmd = 0).CopyFrom(cmd);
-			(LastParams = 0).CopyFrom(pInputData);
+			SetLastItems(cmd, pInputData);
 			THROW(StartWork());
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;) {
 				s_pair.Divide('=', s_param, param_val);
@@ -479,8 +477,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			THROW(RunCheck(0));
 		}
 		else if(sstreqi_ascii(cmd, "CLOSECHECK")) {
-			(LastCmd = 0).CopyFrom(cmd);
-			(LastParams = 0).CopyFrom(pInputData);
+			SetLastItems(cmd, pInputData);
 			THROW(StartWork());
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;) {
 				s_pair.Divide('=', s_param, param_val);
@@ -492,27 +489,34 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			THROW(RunCheck(1));
 		}
 		else if(sstreqi_ascii(cmd, "PRINTFISCAL")) {
-			(LastCmd = 0).CopyFrom(cmd); // new
-			//(LastParams = 0).CopyFrom(pInputData);
+			SetLastItems(cmd, 0);
+			//LastParams = pInputData;
 			//LastCmd = 0;
-			LastParams = 0;
 			THROW(StartWork());
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;) {
 				s_pair.Divide('=', s_param, param_val);
-				if(s_param.CmpNC("QUANTITY") == 0)
+				s_param.ToUpper();
+				if(s_param == "QUANTITY")
 					Check.Quantity = param_val.ToReal();
-				else if(s_param.CmpNC("PRICE") == 0)
+				else if(s_param == "PRICE")
 					Check.Price = param_val.ToReal();
-				else if(s_param.CmpNC("DEPARTMENT") == 0)
+				else if(s_param == "DEPARTMENT")
 					Check.Department = param_val.ToLong();
+				// @v9.5.7 {
+				else if(s_param == "TEXT") 
+					Check.Text = param_val;
+				else if(s_param == "CODE")
+					Check.Code = param_val;
+				/*else if(s_param == "TAX")
+					Check.Tax = param_val.ToLong();*/
+				// } @v9.5.7 
 			}
 			THROW(RunCheck(2));
 		}
 		else if(sstreqi_ascii(cmd, "PRINTTEXT")) {
-			(LastCmd = 0).CopyFrom(cmd); // new
-			//(LastParams = 0).CopyFrom(pInputData);
+			SetLastItems(cmd, 0);
+			//LastParams = pInputData;
 			//LastCmd = 0;
-			LastParams = 0;
 			THROW(StartWork());
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;) {
 				s_pair.Divide('=', s_param, param_val);
@@ -597,8 +601,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			}
 		}
 		else if(sstreqi_ascii(cmd, "GETCHECKPARAM")) {
-			LastCmd = 0;
-			LastParams = 0;
+			SetLastItems(0, 0);
 			str = 0;
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;){
 				s_pair.Divide('=', s_param, param_val);
@@ -614,14 +617,12 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			ok = ReturnCheckParam(str, pOutputData, outSize); // Здесь может быть переполнение буфера
 		}
 		else if(sstreqi_ascii(cmd, "ANNULATE")) {
-			(LastCmd = 0).CopyFrom(cmd);
-			(LastParams = 0).CopyFrom(pInputData);
+			SetLastItems(cmd, pInputData);
 			THROW(StartWork());
 			THROW(RunCheck(4));
 		}
 		else if(sstreqi_ascii(cmd, "INCASHMENT")) {
-			(LastCmd = 0).CopyFrom(cmd);
-			(LastParams = 0).CopyFrom(pInputData);
+			SetLastItems(cmd, pInputData);
 			THROW(StartWork());
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;){
 				s_pair.Divide('=', s_param, param_val);
@@ -631,8 +632,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			THROW(RunCheck(5));
 		}
 		else if(sstreqi_ascii(cmd, "OPENBOX")) {
-			LastCmd = 0;
-			LastParams = 0;
+			SetLastItems(0, 0);
 			THROW(OpenBox());
 		}
 		else if(sstreqi_ascii(cmd, "GETECRSTATUS")) {
@@ -656,8 +656,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				str.CopyTo(pOutputData, outSize);
 		}
 		else if(sstreqi_ascii(cmd, "CLEARSLIPBUF") || sstreqi_ascii(cmd, "FILLSLIPBUF") || sstreqi_ascii(cmd, "PRINTSLIPDOC") /*|| sstreqi_ascii(cmd, "CONTINUEPRINT")*/) {
-			LastCmd = 0;
-			LastParams = 0;
+			SetLastItems(0, 0);
 			ok = 0;
 		}
 		else if(cmd.Empty())
@@ -756,7 +755,10 @@ int PiritEquip::SetConnection()
 	int    r = 0;
 	int    is_ready = 0;
 	CommPortParams port_params;
-	SString in_data, out_data, r_error, log_str;
+	SString in_data;
+	SString out_data;
+	SString r_error;
+	SString log_str;
 	SFile LogFile;
 
 	//LogFile.Open("H:\\PPY\\PiritLogFile.log", SFile::mAppend);
@@ -787,7 +789,7 @@ int PiritEquip::SetConnection()
 	/*(log_str = 0).Cat("CommPort.InitPort(Cfg.Port)").CR();
 	LogFile.WriteLine(log_str);*/
 
-	delay(200);
+	// @v9.5.7 delay(200);
 	CommPort.PutChr(ENQ); // Проверка связи с ККМ
 	r = CommPort.GetChr();
 	/*(log_str = 0).Cat("r = ").Cat(r).CR();
@@ -800,7 +802,6 @@ int PiritEquip::SetConnection()
 		THROWERR(PutData("93", in_data), PIRIT_NOTSENT); // Устанавливаем скорость ПУ 115200 бит/c
 		/*(log_str = 0).Cat("PutData(93, in_data)").CR();
 		LogFile.WriteLine(log_str);*/
-
 		THROW(GetWhile(out_data, r_error));
 		/*(log_str = 0).Cat("GetWhile(out_data, r_error)").CR();
 		LogFile.WriteLine(log_str);*/
@@ -814,7 +815,7 @@ int PiritEquip::SetConnection()
 		THROW(CommPort.InitPort(Cfg.Port));
 		/*(log_str = 0).Cat("CommPort.InitPort(Cfg.Port)").CR();
 		LogFile.WriteLine(log_str);*/
-		delay(200);
+		// @v9.5.7 delay(200);
 		CommPort.PutChr(ENQ); // Проверка связи с ККМ
 		r = CommPort.GetChr();
 		/*(log_str = 0).Cat("r = ").Cat(r).CR();
@@ -917,22 +918,25 @@ int PiritEquip::StartWork()
 
 int PiritEquip::GetCurFlags(int numFlags, int & rFlags)
 {
+	const  uint max_tries = 10;
 	int    ok = 1;
 	SString out_data, r_error, s_flags;
 	uint count = 0;
 	rFlags = 0;
 	THROWERR(PutData("00", 0), PIRIT_NOTSENT); // Запрос флагов статуса
-	while(out_data.Empty() && (count < 10)) {
+	while(out_data.Empty() && count < max_tries) {
 		if(numFlags == 1) // Если запрашиваем флаги фатального состояния, дабы не зациклиться
 			GetData(out_data, r_error);
-		else
+		else {
 			THROW(GetWhile(out_data, r_error));
+		}
 		count++;
 	}
 	{
 		StringSet fl_pack(FS, out_data);
-		for(uint j = 1, i = 0; j < (uint)numFlags+1; j++)
+		for(uint j = 1, i = 0; j < (uint)numFlags+1; j++) {
 			THROW(fl_pack.get(&i, s_flags));
+		}
 	}
 	rFlags = s_flags.ToLong();
 	CATCHZOK
@@ -946,7 +950,10 @@ int PiritEquip::RunCheck(int opertype)
 	int    halfbyte = 0;
 	int    text_attr = 0;
 	uint   count = 0;
-	SString in_data, out_data, r_error, str;
+	SString in_data;
+	SString out_data;
+	SString r_error;
+	SString str;
 	switch(opertype) {
 		case 0: // Открыть документ
 			in_data = 0;
@@ -963,7 +970,7 @@ int PiritEquip::RunCheck(int opertype)
 			if((flag >> 4) != 0) {
 				if((((halfbyte = flag & 0x0F) == 2) || ((halfbyte = flag & 0x0F) == 3)) && ((halfbyte = flag & 0xF0) != 0x40)) { // Если открыт чек и не была произведена оплата, то операция оплаты
 					in_data = 0;
-					if(Check.PaymCard != 0.0){
+					if(Check.PaymCard != 0.0) {
 						CreateStr(1, in_data); // Тип оплаты
 						FormatPaym(Check.PaymCard, str);
 						CreateStr(str, in_data);
@@ -972,7 +979,7 @@ int PiritEquip::RunCheck(int opertype)
 						THROW(GetWhile(out_data, r_error));
 					}
 					in_data = 0;
-					if(Check.PaymCash != 0.0){
+					if(Check.PaymCash != 0.0) {
 						CreateStr(0, in_data); // Тип оплаты
 						FormatPaym(Check.PaymCash, str);
 						CreateStr(str, in_data);
@@ -997,16 +1004,21 @@ int PiritEquip::RunCheck(int opertype)
 		case 2: // Печать фискальной строки
 			in_data = 0;
 			THROW(GetCurFlags(3, flag));
-			CreateStr("", in_data); // Название товара
-			CreateStr("", in_data); // Артикул или штрихкод
+			CreateStr(Check.Text, in_data); // Название товара      // @v9.5.7 ""-->Check.Text 
+			CreateStr(Check.Code, in_data); // Артикул или штрихкод // @v9.5.7 ""-->Check.Code
 			CreateStr(Check.Quantity, in_data);
 			// @vmiller comment
 			/*FormatPaym(Check.Price, str);
 			CreateStr(str, in_data);*/
 			CreateStr(Check.Price, in_data); // @vmiller
+			CreateStr((int)0, in_data); // @v9.5.7 Номер налоговой ставки
+			CreateStr((int)0, in_data); // @v9.5.7 Номер товарной позиции
+			CreateStr(Check.Department, in_data); // @v9.5.7 Номер секции
 			Check.Clear();
 			THROWERR(PutData("42", in_data), PIRIT_NOTSENT);
-			THROW(GetWhile(out_data, r_error));
+			out_data = 0; // @debug
+			r_error = "00"; // @debug
+			// @debug THROW(GetWhile(out_data, r_error));
 			Check.Clear();
 			break;
 		case 3: // Печать текстовой строки
@@ -1028,7 +1040,9 @@ int PiritEquip::RunCheck(int opertype)
 					CreateStr(text_attr, in_data);
 				Check.Clear();
 				THROWERR(PutData("40", in_data), PIRIT_NOTSENT);
-				THROW(GetWhile(out_data, r_error));
+				out_data = 0; // @debug
+				r_error = "00"; // @debug
+				// @debug THROW(GetWhile(out_data, r_error));
 			}
 			else if(((halfbyte = flag & 0x0F) == 2) || ((halfbyte = flag & 0x0F) == 3)) { // Текстовая строка для чека
 				in_data = 0;
@@ -1051,7 +1065,9 @@ int PiritEquip::RunCheck(int opertype)
 				CreateStr("", in_data);
 				CreateStr("", in_data);
                 THROWERR(PutData("49", in_data), PIRIT_NOTSENT);
-				THROW(GetWhile(out_data, r_error));
+				out_data = 0; // @debug
+				r_error = "00"; // @debug
+				// @debug THROW(GetWhile(out_data, r_error));
 			}
 			// new {
 			else
@@ -1175,29 +1191,37 @@ void PiritEquip::GetGlobalErrCode()
 
 int PiritEquip::GetWhile(SString & rOutData, SString & rError)
 {
-	int ok = 1;
-	uint count = 0;
+	const  uint max_tries = 10;
+	int    ok = 1;
+	uint   count = 0;
 	rError = 0;
-	while(rError.Empty() && (count < 10)) {
-		GetData(rOutData, rError);
-		if(rError.NotEmpty()) {
-			THROWERR(rError.CmpNC("0C"), PIRIT_DATELSLASTOP); // Системная дата меньше даты последней фискальной операции, зарегистрированной в ККМ
-			THROWERR(rError.CmpNC("20"), PIRIT_FATALERROR); // Фатальная ошибка ККМ
-			THROWERR(rError.CmpNC("21"), PIRIT_FMOVERFLOW); // Нет свободного места в фискальной памяти ККМ
-			THROWERR(rError.CmpNC("41"), PIRIT_ECRRFORMAT); // Некорректный формат или параметр команды ЭКЛЗ
-			THROWERR(rError.CmpNC("42"), PIRIT_ECRERRORSTATUS); // Некорректное состояние ЭКЛЗ
-			THROWERR(rError.CmpNC("43"), PIRIT_ECRACCIDENT); // Авария ЭКЛЗ
-			THROWERR(rError.CmpNC("44"), PIRIT_KCACCIDENT); // Авария КС (криптографического сопроцессора)в составе ЭКЛЗ
-			THROWERR(rError.CmpNC("45"), PIRIT_ECRTIMEOUT); // Исчерпан временной ресурс использования ЭКЛЗ
-			THROWERR(rError.CmpNC("46"), PIRIT_ECROVERFLOW); // ЭКЛЗ переполнена
-			THROWERR(rError.CmpNC("47"), PIRIT_ECRERRORDATETIME); // Неверные дата или время
-			THROWERR(rError.CmpNC("48"), PIRIT_ECRNODATA); // Нет запрошенных данных
-			THROWERR(rError.CmpNC("49"), PIRIT_ECRTOOMUCH); // Переполнение (отрицательный итог документа, слишком много отделов для клиента)
-			THROWERR(rError.CmpNC("4A"), PIRIT_NOANSWER); // Нет ответа от ЭКЛЗ
-			THROWERR(rError.CmpNC("4B"), PIRIT_ECRERREXCHANGE); // Ошибка при обмене данными с ЭКЛЗ
-			THROWERR((rError.CmpNC("00") == 0) || (rError.CmpNC("0B") == 0) || (rError.CmpNC("09") == 0), rError.ToLong());
+	while(rError.Empty() && count < max_tries) {
+		if(GetData(rOutData, rError) < 0) {
+			//rError = "00";
+			//ok = -1;
 		}
-		count++;
+		else {
+			if(rError.NotEmpty()) {
+				if(rError != "00" && rError != "0B" && rError != "09") {
+					THROWERR(rError.CmpNC("0C"), PIRIT_DATELSLASTOP); // Системная дата меньше даты последней фискальной операции, зарегистрированной в ККМ
+					THROWERR(rError.CmpNC("20"), PIRIT_FATALERROR); // Фатальная ошибка ККМ
+					THROWERR(rError.CmpNC("21"), PIRIT_FMOVERFLOW); // Нет свободного места в фискальной памяти ККМ
+					THROWERR(rError.CmpNC("41"), PIRIT_ECRRFORMAT); // Некорректный формат или параметр команды ЭКЛЗ
+					THROWERR(rError.CmpNC("42"), PIRIT_ECRERRORSTATUS); // Некорректное состояние ЭКЛЗ
+					THROWERR(rError.CmpNC("43"), PIRIT_ECRACCIDENT); // Авария ЭКЛЗ
+					THROWERR(rError.CmpNC("44"), PIRIT_KCACCIDENT); // Авария КС (криптографического сопроцессора)в составе ЭКЛЗ
+					THROWERR(rError.CmpNC("45"), PIRIT_ECRTIMEOUT); // Исчерпан временной ресурс использования ЭКЛЗ
+					THROWERR(rError.CmpNC("46"), PIRIT_ECROVERFLOW); // ЭКЛЗ переполнена
+					THROWERR(rError.CmpNC("47"), PIRIT_ECRERRORDATETIME); // Неверные дата или время
+					THROWERR(rError.CmpNC("48"), PIRIT_ECRNODATA); // Нет запрошенных данных
+					THROWERR(rError.CmpNC("49"), PIRIT_ECRTOOMUCH); // Переполнение (отрицательный итог документа, слишком много отделов для клиента)
+					THROWERR(rError.CmpNC("4A"), PIRIT_NOANSWER); // Нет ответа от ЭКЛЗ
+					THROWERR(rError.CmpNC("4B"), PIRIT_ECRERREXCHANGE); // Ошибка при обмене данными с ЭКЛЗ
+					THROWERR(0, rError.ToLong());
+				}
+			}
+			count++;
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -1205,37 +1229,49 @@ int PiritEquip::GetWhile(SString & rOutData, SString & rError)
 
 int PiritEquip::GetData(SString & rData, SString & rError)
 {
+	rData = 0;
+	rError = 0;
 	int    ok = 1;
 	int    c = 0;
-	int    crc = 0;
-	char   str_crc2[2];
-	SString buf, str_crc1;
-	size_t p = 0;
-	uint   i;
+	//
 	// Получаем пакет ответа
-	while((c = CommPort.GetChr()) != ETX && c != 0){
-		buf.CatChar(c);
+	//
+	if(CommPort.GetChr(&c)) {
+		SString buf;
+		do {
+			buf.CatChar(c);
+			c = CommPort.GetChr();
+		} while(c != ETX && c != 0);
+		{
+			int    crc = 0;
+			char   str_crc2[2];
+			size_t p = 0;
+			uint   i;
+			SString str_crc1;
+			buf.CatChar(c); // Добавили байт конца пакета
+			c = CommPort.GetChr(); // Получили 1-й байт контрольной суммы
+			buf.CatChar(c);
+			c = CommPort.GetChr(); // Получили 2-й байт контрольной суммы
+			buf.CatChar(c);
+			THROW(buf.C(0) == STX);
+			// Выделяем байты с информацией об ошибке
+			buf.Sub(4, 2, rError);
+			//
+			// Считываем данные
+			//
+			for(i = 6; buf.C(i) != ETX; i++)
+				rData.CatChar(buf.C(i));
+			// Считаем контрольную сумму
+			for(i = 1; i < buf.Len()-2; i++)
+				crc ^= ((uchar)buf.C(i));
+			buf.Sub((buf.Len()-2),2,str_crc1);
+			_itoa(crc, str_crc2, 16);
+			// Сверяем полученную и посчитанную контрольные суммы
+			THROW(str_crc1.Cmp(str_crc2,1) == 0);
+		}
 	}
-	buf.CatChar(c); // Добавили байт конца пакета
-	c = CommPort.GetChr(); // Получили 1-й байт контрольной суммы
-	buf.CatChar(c);
-	c = CommPort.GetChr(); // Получили 2-й байт контрольной суммы
-	buf.CatChar(c);
-	THROW(buf.C(0) == STX);
-	// Выделяем байты с информацией об ошибке
-	buf.Sub(4, 2, rError);
-	// Считываем данные
-	if(rData.NotEmpty())
-		rData = 0;
-	for(i = 6; buf.C(i) != ETX; i++)
-		rData.CatChar(buf.C(i));
-	// Считаем контрольную сумму
-	for(i = 1; i < buf.Len()-2; i++)
-		crc ^= ((uchar)buf.C(i));
-	buf.Sub((buf.Len()-2),2,str_crc1);
-	_itoa(crc, str_crc2, 16);
-	// Сверяем полученную и посчитанную контрольные суммы
-	THROW(str_crc1.Cmp(str_crc2,1) == 0);
+	else
+		ok = -1;
 	CATCHZOK
 	return ok;
 }
@@ -1251,12 +1287,9 @@ int PiritEquip::PutData(const char * pCommand, const char * pData)
 	// Формируем пакет (без байтов начала и конца пакета)
 	// Пароль связи (4 байта)
 	pack.Cat(Cfg.ConnPass);
-	// ИД пакета
-	pack.CatChar(id_pack);
-	// Код команды (2 байта)
-	pack.Cat(pCommand);
-	// Данные
-	pack.Cat(pData);
+	pack.CatChar(id_pack); // ИД пакета
+	pack.Cat(pCommand); // Код команды (2 байта)
+	pack.Cat(pData); // Данные
 	// Считаем контрольную сумму пакета
 	for(p = 0; p < pack.Len(); p++) {// STX в контрольную сумму не входит
 		crc ^= ((uchar)pack.C(p));

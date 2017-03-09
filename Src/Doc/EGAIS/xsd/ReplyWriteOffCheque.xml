@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ns="http://fsrar.ru/WEGAIS/ReplyWriteOffCheque"
+           targetNamespace="http://fsrar.ru/WEGAIS/ReplyWriteOffCheque"
+
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+            xmlns:c="http://fsrar.ru/WEGAIS/Common"
+           >
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+
+  <xs:complexType name="ReplyWOCheque">
+    <xs:annotation>
+      <xs:documentation>Ответ на запрос о количестве списаний по чекам</xs:documentation>
+    </xs:annotation>
+
+    <xs:all>
+      <xs:element name="ReplyDate" type="c:DateWTime" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Дата составления отчета</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="monthReport" type="c:MonthType" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Отчетный месяц</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="yearReport" type="c:YearType" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Отчетный год</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AlcCode" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Код продукции согласно ЕГАИС</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="c:NoEmptyString">
+            <xs:maxLength value="64"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+
+      <xs:element name="WriteOffCh" type ="xs:integer" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Списано в отчетном месяце</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ReturnCh" type ="xs:integer" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Возврат в отчетном месяце</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+    </xs:all>
+  </xs:complexType>
+
+                  
+</xs:schema>

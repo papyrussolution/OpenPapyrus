@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ns="http://fsrar.ru/WEGAIS/ReplySpirit"
+           targetNamespace="http://fsrar.ru/WEGAIS/ReplySpirit"
+
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+            xmlns:pref="http://fsrar.ru/WEGAIS/ProductRef"
+>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ProductRef" schemaLocation="ProductRef.xsd"/>
+
+  <xs:complexType name="ReplySpirit">
+    <xs:annotation>
+      <xs:documentation>Ответ на запрос о спиртах</xs:documentation>
+    </xs:annotation>
+
+    <xs:sequence>
+      <xs:element name="Products"  minOccurs="1" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Product" type="pref:ProductInfo" minOccurs="0" maxOccurs="unbounded">
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

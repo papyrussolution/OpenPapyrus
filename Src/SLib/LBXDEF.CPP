@@ -148,7 +148,8 @@ int SLAPI ListBoxDef::getCurData(void * b)
 		memcpy(b, p, stsize(Type));
 		return 1;
 	}
-	return 0;
+	else
+		return 0;
 }
 
 int SLAPI ListBoxDef::search(const void *, CompFunc, int srchMode)

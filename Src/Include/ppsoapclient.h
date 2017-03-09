@@ -1092,6 +1092,7 @@ struct SapEfesDebtDetailReportEntry {
 typedef TSCollection <SapEfesOrder> * (*EFESGETSALESORDERSYNCLIST_PROC)(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const DateRange * pPeriod, int repeat, const char * pDocNumberList);
 typedef int (*EFESSETSALESORDERSTATUSSYNC_PROC)(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const TSCollection <SapEfesBillStatus> * pItems);
 typedef TSCollection <SapEfesBillStatus> * (*EFESSETDELIVERYNOTESYNC_PROC)(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const TSCollection <SapEfesBillPacket> * pItems);
+typedef TSCollection <SapEfesBillStatus> * (*EFESCANCELDELIVERYNOTESYNC_PROC)(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const TSCollection <SString> * pItems);
 typedef TSCollection <SapEfesLogMsg> * (*EFESSETDAILYSTOCKREPORTSYNC_PROC)(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const TSCollection <SapEfesGoodsReportEntry> * pItems);
 typedef TSCollection <SapEfesLogMsg> * (*EFESSETMTDPRODUCTREPORTSYNC_PROC)(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const TSCollection <SapEfesGoodsReportEntry> * pItems);
 typedef TSCollection <SapEfesLogMsg> * (*EFESSETMTDOUTLETSREPORTSYNC_PROC)(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const TSCollection <SapEfesGoodsReportEntry> * pItems);

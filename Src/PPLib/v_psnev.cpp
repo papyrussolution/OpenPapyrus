@@ -1,5 +1,5 @@
 // V_PSNEV.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev, A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @ModuleDef(PPViewPersonEvent)
 //
 #include <pp.h>
@@ -737,6 +737,8 @@ int PPALDD_PersonEventBase::InitData(PPFilt & rFilt, long rsrv)
 			CPY_FLD(Extra);
 			CPY_FLD(Flags);
 			CPY_FLD(EstDuration);
+			CPY_FLD(PrmrSCardID); // @v9.5.7
+			CPY_FLD(ScndSCardID); // @v9.5.7
 			#undef CPY_FLD
 			STRNSCPY(H.Memo, rec.Memo);
 			ok = DlRtm::InitData(rFilt, rsrv);

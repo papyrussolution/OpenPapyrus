@@ -23,7 +23,7 @@ public:
 	SLAPI  SCS_SYNCSYM(PPID n, char * name, char * port);
 	SLAPI ~SCS_SYNCSYM();
 	virtual int SLAPI PrintCheck(CCheckPacket *, uint flags);
-	virtual int SLAPI PrintCheckByBill(PPBillPacket * pPack, double multiplier);
+	virtual int SLAPI PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
 	virtual int SLAPI PrintCheckCopy(CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int SLAPI PrintXReport(const CSessInfo *);
 	virtual int SLAPI PrintZReportCopy(const CSessInfo *);
@@ -376,7 +376,7 @@ int SLAPI SCS_SYNCSYM::PrintCheck(CCheckPacket * pPack, uint flags)
 }
 
 // virtual
-int SLAPI SCS_SYNCSYM::PrintCheckByBill(PPBillPacket * pPack, double multiplier)
+int SLAPI SCS_SYNCSYM::PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN)
 {
 	int     ok = 1;
 	if(PrinterPort.Len()) {
@@ -385,7 +385,8 @@ int SLAPI SCS_SYNCSYM::PrintCheckByBill(PPBillPacket * pPack, double multiplier)
 		THROW_PP(pPack, PPERR_INVPARAM);
 		if(P_SlipFmt) {
 			int      r = 0;
-			SString  line_buf, format_name = (multiplier) ? "CCheckRet" : "CCheck";
+			SString  line_buf;
+			const SString  format_name = (multiplier) ? "CCheckRet" : "CCheck";
 			SlipLineParam sl_param;
 			THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 			if(r > 0) {

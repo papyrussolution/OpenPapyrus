@@ -1055,7 +1055,7 @@ int SLAPI PPCashMachine::SyncCheckForSessionOver()
 	return ok;
 }
 
-int SLAPI PPCashMachine::SyncPrintCheckByBill(PPBillPacket * pPack, double multiplier)
+int SLAPI PPCashMachine::SyncPrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN)
 {
 	int    ok = 1;
 	SyncPrintErrCode = 0;
@@ -1066,7 +1066,7 @@ int SLAPI PPCashMachine::SyncPrintCheckByBill(PPBillPacket * pPack, double multi
 		THROW(cml);
 		NodeRec.Flags |= CASHF_LASTCHKCANCELLED;
 		THROW(UpdateNode(1));
-		ok = SyncSetPrintErrCode(P_SyncIntrf->PrintCheckByBill(pPack, multiplier), 1);
+		ok = SyncSetPrintErrCode(P_SyncIntrf->PrintCheckByBill(pPack, multiplier, departN), 1);
 	}
 	CATCHZOK
 	return ok;

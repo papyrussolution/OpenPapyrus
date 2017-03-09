@@ -1,8 +1,8 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147488882
-LastAutoCodeList=1,10850;102,10160;103,10071;110,10000;111,11579;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10074;120,10005;1001,10000;121,10000;122,10000;123,10006;1002,10000;1003,10000;1004,10000;1005,10000
+LastSignatureCode=2147488893
+LastAutoCodeList=1,10850;102,10160;103,10071;110,10000;111,11579;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10075;120,10005;1001,10000;121,10000;122,10000;123,10006;1002,10000;1003,10000;1004,10000;1005,10000
 
 [SignatureList]
 testsign1=2147484450
@@ -2509,6 +2509,7 @@ cfgsupplixcfg_techsymbol=2147487735
 cfgsupplixcfg_defunit=2147487736
 cfgsupplixcfg_clicodetag=2147488563
 cfgsupplixcfg_loccodetag=2147488564
+cfgsupplixcfg_billacktag=2147488883
 cfgsupplixcfg_addendum=2147488565
 cfgsupplixcfg_stylopalm=2147488858
 cfgtechsess_statuscolors=2147487671
@@ -4834,6 +4835,7 @@ supplixfilt_acn_improut=2147487664
 supplixfilt_acn_imporder=2147487665
 supplixfilt_acn_impdesadv=2147487666
 supplixfilt_fdeleterecentbills=2147487871
+supplixfilt_frepeatprocessing=2147488884
 supplixfilt_param=2147488671
 debttrovrfilt=2147488672
 debttrovrfilt_flags=2147487672
@@ -5088,6 +5090,15 @@ smssendparam_smscount=2147488879
 smssendparam_notlessthan=2147488880
 smssendparam_fieldselection=2147488881
 smssendparam_dosend=2147488882
+calcofchange=2147488885
+calcofchange_topaym=2147488886
+calcofchange_cash=2147488887
+calcofchange_change=2147488888
+ccbybill=2147488889
+ccbybill_paymtype=2147488890
+ccbybill_paymtype_cash=2147488891
+ccbybill_paymtype_bank=2147488892
+ccbybill_paymtype_division=2147488893
 
 [GrpSymbList]
 .N.=123
@@ -7679,6 +7690,7 @@ DVCPARAM_TYPE=7743319
 DVCPARAM_WIDTH=7743320
 DVCPARAM_HEIGHT=7743321
 DVCPARAM_LABEL=7743322
+DVCPARAM_CODE=7743323
 IMPEXPCMD_ORDRSP=7874321
 IMPEXPCMD_APERAK=7874322
 IMPEXPCMD_DESADV=7874323

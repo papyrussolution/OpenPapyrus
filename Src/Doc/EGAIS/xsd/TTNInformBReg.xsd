@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:ns="http://fsrar.ru/WEGAIS/TTNInformBReg"
+           targetNamespace="http://fsrar.ru/WEGAIS/TTNInformBReg"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:c=       "http://fsrar.ru/WEGAIS/Common" 
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+
+           xmlns:oref="http://fsrar.ru/WEGAIS/ClientRef"
+           xmlns:pref="http://fsrar.ru/WEGAIS/ProductRef"
+>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>  
+<xs:import namespace="http://fsrar.ru/WEGAIS/ClientRef" schemaLocation="ClientRef.xsd"/>
+
+  <xs:complexType name="WayBillInformBRegType">
+    <xs:annotation>
+      <xs:documentation>Квитанция о регистрации справок Б для Товарно-Транспортной Накладной</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Header">
+        <xs:complexType>
+          <xs:all>
+
+            <xs:element name="Identity" type="c:IdentityType" nillable="false" minOccurs="0" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>ИД накладной(клиентский, исходной накладной, если заполнялся)</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="WBRegId" type="c:NoEmptyString50" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>ИД накладной в системе (присвоенный)</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+
+            <xs:element name="EGAISFixNumber" type="c:NoEmptyString50" minOccurs="0" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Номер фиксации накладной(отгрузки) в ЕГАИС</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="EGAISFixDate" type="c:DateNoTime" minOccurs="0" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Дата фиксации накладной(отгрузки) в ЕГАИС</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+
+            <xs:element name="WBNUMBER" type="c:NoEmptyString50" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Номер накладной</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="WBDate" type="c:DateNoTime" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Дата составления накладной</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            
+            <xs:element name="Shipper" type="oref:OrgInfo" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Грузоотправитель</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+
+            <xs:element name="Consignee" type="oref:OrgInfo" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Грузополучатель</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+
+            <xs:element name="Supplier" type="oref:OrgInfo" minOccurs="0" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Поставщик</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+  
+          </xs:all>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Content">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Position" type="ns:InformBPositionType" minOccurs="1" maxOccurs="unbounded">
+              <xs:annotation>
+                <xs:documentation>Содержимое должно содержать 1 и более позиций</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+        <xs:unique name="PosUnB">
+          <xs:selector xpath="ns:Position"/>
+          <xs:field xpath="ns:Identity"/>
+        </xs:unique>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="InformBPositionType">
+    <xs:all>
+      <xs:element name="Identity" type="c:IdentityType" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Идентификатор позиции внутри накладной</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="InformBRegId" type="c:NoEmptyString50" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Регистрационный номер записи справки Б</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:all>
+  </xs:complexType> 
+</xs:schema>

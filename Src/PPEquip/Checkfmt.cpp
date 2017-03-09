@@ -1,15 +1,15 @@
 // CHECKFMT.CPP
-// Copyright (c) V.Nasonov 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) V.Nasonov 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
 
-SlipLineParam::SlipLineParam()
+SLAPI SlipLineParam::SlipLineParam()
 {
 	Init();
 }
 
-SlipLineParam & SlipLineParam::Init()
+void SLAPI SlipLineParam::Init()
 {
 	Font = 0;
 	Kind = 0;
@@ -24,7 +24,8 @@ SlipLineParam & SlipLineParam::Init()
 	BarcodeStd = 0;
 	BarcodeWd = 0;
 	BarcodeHt = 0;
-	return *this;
+	Text = 0; // @v9.5.7
+	Code = 0; // @v9.5.7
 }
 
 class PPSlipFormatZone;
@@ -146,7 +147,10 @@ public:
 			// сумма к оплате, для кассовой сессии - общая сумма выручки (с учетом возвратов).
 		int16  DivID;         // Для строки чека (документа) - ИД отдела, в остальных случаях - 0
 		uint16 Reserve;       // @alignment
-		char   PictPath[256];
+		long   GoodsID;       // @v9.5.7
+		// @v9.5.7 char   PictPath[256];
+		char   Text[256];     // @v9.5.7
+		char   Code[32];      // @v9.5.7 
 		RECT   PictCoord;
 
 		const  PPSlipFormatZone  * P_Zone;
@@ -1377,8 +1381,10 @@ int PPSlipFormat::CheckCondition(const Iter * pIter, const SString & rText, int 
 int SLAPI PPSlipFormat::WrapText(const char * pText, uint maxLen, SString & rHead, SString & rTail, int * pWrapPos)
 {
 	int    ok = 1;
+	rHead = 0;
+	rTail = 0;
 	if(pText) {
-		size_t len = strlen(pText);
+		const size_t len = sstrlen(pText);
 		size_t p = maxLen;
 		if(p > 0 && p < len) {
 			size_t temp_pos = p;
@@ -1406,14 +1412,11 @@ int SLAPI PPSlipFormat::WrapText(const char * pText, uint maxLen, SString & rHea
 		}
 		else {
 			rHead = pText;
-			rTail = 0;
 			ASSIGN_PTR(pWrapPos, -1);
 			ok = -1;
 		}
 	}
 	else {
-		rHead = 0;
-		rTail = 0;
 		ASSIGN_PTR(pWrapPos, -1);
 		ok = 0;
 	}
@@ -1436,7 +1439,9 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 	int    ok = -1;
 	SString result;
 	rBuf = 0;
-	if(pIter && pIter->P_Zone)
+	if(pIter && pIter->P_Zone) {
+		SString temp_buf;
+		Goods2Tbl::Rec goods_rec;
 		do {
 			pIter->DivID = 0;
 			pIter->Qtty = pIter->Price = 0.0;
@@ -1448,20 +1453,36 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 					PPTransferItem ti;
 					if(Src == srcCCheck) {
 						if(GetCurCheckItem(pIter, &cc_item)) {
-							double s  = intmnytodbl(cc_item.Price) * cc_item.Quantity;
-							double ds = cc_item.Dscnt * cc_item.Quantity;
+							const double s  = intmnytodbl(cc_item.Price) * cc_item.Quantity;
+							const double ds = cc_item.Dscnt * cc_item.Quantity;
 							const double prev_rt = RunningTotal;
 							RunningTotal = R2(RunningTotal + s - ds);
-							double is = RunningTotal - prev_rt;
+							const double is = RunningTotal - prev_rt;
 							pIter->Qtty  = fabs(cc_item.Quantity);
 							pIter->Price = is / pIter->Qtty;
 							pIter->DivID = (cc_item.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? (cc_item.DivID - CHECK_LINE_IS_PRINTED_BIAS) : cc_item.DivID;
+							// @v9.5.7 {
+							pIter->GoodsID = cc_item.GoodsID; 
+							if(P_Od && P_Od->GObj.Fetch(pIter->GoodsID, &goods_rec) > 0) {
+								STRNSCPY(pIter->Text, goods_rec.Name);
+								P_Od->GObj.GetSingleBarcode(pIter->GoodsID, temp_buf);
+								STRNSCPY(pIter->Code, temp_buf);
+							}
+							// } @v9.5.7
 						}
 					}
 					else if(Src == srcGoodsBill) {
 						if(GetCurBillItem(pIter, &ti)) {
 							pIter->Qtty  = R3(fabs(ti.Quantity_));
 							pIter->Price = R2(fabs(ti.NetPrice()));
+							// @v9.5.7 {
+							pIter->GoodsID = labs(ti.GoodsID); 
+							if(P_Od && P_Od->GObj.Fetch(pIter->GoodsID, &goods_rec) > 0) {
+								STRNSCPY(pIter->Text, goods_rec.Name);
+								P_Od->GObj.GetSingleBarcode(pIter->GoodsID, temp_buf);
+								STRNSCPY(pIter->Code, temp_buf);
+							}
+							// } @v9.5.7
 						}
 					}
 				}
@@ -1508,7 +1529,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 					ResolveString(pIter, p_entry->Text, result, &split_pos, &split_chr);
 					if(p_entry->Flags & PPSlipFormatEntry::fWrap) {
 						int    wrap_pos = -1;
-						SString buf(result), temp_buf;
+						SString buf = result;
 						if(IsWrap) {
 							if(WrapText(buf, p_entry->Condition, temp_buf, result, &wrap_pos) > 0) {
 								IsWrap = 0;
@@ -1593,6 +1614,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 				ok = NextIteration(pIter, rBuf); // @recursion
 			}
 		} while(ok < 0 && NextOuterIter(pIter) > 0);
+	}
 	return ok;
 }
 
@@ -2243,6 +2265,8 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 				sl_param.Kind = sl_param.lkBarcode;
 			else if(flags & PPSlipFormatEntry::fSignBarcode)
 				sl_param.Kind = sl_param.lkSignBarcode;
+			sl_param.Text = CurIter.Text; // @v9.5.7
+			sl_param.Code = CurIter.Code; // @v9.5.7
 			{
 				long   font_id = sl_param.Font;
 				uint   font_pos = 0;

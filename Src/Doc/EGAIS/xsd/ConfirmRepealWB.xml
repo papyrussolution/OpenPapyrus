@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ns="http://fsrar.ru/WEGAIS/ConfirmRepealWB"
+           targetNamespace="http://fsrar.ru/WEGAIS/ConfirmRepealWB"
+           xmlns:c="http://fsrar.ru/WEGAIS/Common"
+
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+  <xs:complexType name="ConfirmRepealWB">
+    <xs:annotation>
+      <xs:documentation>Подтверждение акта грузоотправителем отмены проведения Товарно-Транспортной Накладной</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Identity" type="c:IdentityType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Идентификатор документа (клиентский, к заполнению необязательный)</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Header">
+        <xs:complexType>
+          <xs:all>
+            <xs:element name="IsConfirm" type="ns:ConclusionType" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Подтвержден/не подтвержден</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="ConfirmNumber" type="c:NoEmptyString50" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Номер подтверждения</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="ConfirmDate" type="c:DateNoTime" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Дата составления подтверждения</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="WBRegId" type="c:NoEmptyString50" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>ИД накладной в системе</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="Note" minOccurs="0" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Примечание</xs:documentation>
+              </xs:annotation>
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:maxLength value="500"/>
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:element>
+          </xs:all>
+        </xs:complexType>
+      </xs:element>
+     </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="ConclusionType">
+    <xs:annotation>
+      <xs:documentation>Вид результата фиксации</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Accepted"/>
+      <xs:enumeration value="Rejected"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

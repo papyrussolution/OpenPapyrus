@@ -5166,6 +5166,12 @@ int SLAPI FiasImporter::Run(FiasImporter::Param & rP)
 class PPOsm : public SStrGroup {
 public:
 	enum {
+		otUnkn = 0,
+		otNode,
+		otWay,
+		otRelation
+	};
+	enum {
 		fInvisible = 0x0001
 	};
     struct Node {
@@ -5338,6 +5344,10 @@ private:
 	int    SaxStop();
 
 	int    ReadCommonAttrSet(const char ** ppAttrList, CommonAttrSet & rSet);
+
+	int    LogCoord(const SGeoPosLL_Int & rC);
+	int    LogTag(int osmObjType, const PPOsm::Tag & rTag);
+
 	//
 	enum {
 		stError = 0x0001
@@ -5353,8 +5363,10 @@ private:
 	PPOsm::Relation LastRel;
 	//
 	int64  NodeCount;
-	uint   WayCount;
-	uint   RelationCount;
+	int64  NakedNodeCount; // Количество узлов без тегов
+	int64  WayCount;
+	int64  RelationCount;
+
 	LongArray TempTagKeyList;
 	LongArray TagKeyList; // Отладочный список ключевых символов тегов.
 };
@@ -5368,8 +5380,10 @@ void SLAPI OsmImporter::Reset()
 	TokPath.clear();
 
 	NodeCount = 0;
+	NakedNodeCount = 0;
 	WayCount = 0;
 	RelationCount = 0;
+
 	TempTagKeyList.clear();
 	TagKeyList.clear();
 }

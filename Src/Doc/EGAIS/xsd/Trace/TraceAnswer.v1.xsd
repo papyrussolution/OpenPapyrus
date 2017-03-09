@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="TraceAnswer" 
+ xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+ xmlns:c="http://fsrar.ru/Trace/Common"
+>
+  <xs:import namespace="http://fsrar.ru/Trace/Common" schemaLocation="TraceCommon.xsd"/>
+  <xs:complexType name="Message">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="date" type="c:TraceDateWTime"></xs:attribute>
+        <xs:attribute name="type" type="xs:string"></xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:element name="TraceAnswer">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Initiator" minOccurs="1" maxOccurs="1"></xs:element>
+        <xs:element name="InitiatorDate" type="c:TraceDateWTime" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="Messages" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Message" type="Message" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="createdate" type="c:TraceDateWTime" use="required" />
+    </xs:complexType>
+  </xs:element>
+  
+</xs:schema>

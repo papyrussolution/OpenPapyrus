@@ -1,0 +1,836 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ns="http://fsrar.ru/WEGAIS/CommonEnum"
+           xmlns:c="http://fsrar.ru/WEGAIS/Common"
+           targetNamespace="http://fsrar.ru/WEGAIS/CommonEnum"
+
+>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+
+  <xs:simpleType name="Digits3">
+  <xs:annotation>
+    <xs:documentation>Только три цифры</xs:documentation>
+  </xs:annotation>
+  <xs:restriction base="xs:string">
+    <xs:pattern value="\d{3}"/>
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="PlaceEnum">
+    <xs:annotation>
+      <xs:documentation>Справочник идентификаторов мест размещения счетчиков</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="c:FSRARIDType">
+      <xs:enumeration value="1186240">
+        <xs:annotation>
+          <xs:documentation>Производственный цех</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="1186244">
+        <xs:annotation>
+          <xs:documentation>Приемное отделение</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="1186245">
+        <xs:annotation>
+          <xs:documentation>Отпускное отделение</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="1710969">
+        <xs:annotation>
+          <xs:documentation>Приемно-отпускное отделение</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ModeEnum">
+    <xs:annotation>
+      <xs:documentation>Справочник идентификаторов режимов работы средств измерения</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="ns:Digits3">
+      <xs:enumeration value="001">
+        <xs:annotation>
+          <xs:documentation>Промывка АСИиУ (линии)</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="002">
+        <xs:annotation>
+          <xs:documentation>Калибровка АСИиУ</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="003">
+        <xs:annotation>
+          <xs:documentation>Технологический прогон</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="004">
+        <xs:annotation>
+          <xs:documentation>Производство продукции</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="005">
+        <xs:annotation>
+          <xs:documentation>Остановка (выключение) АСИиУ</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="006">
+        <xs:annotation>
+          <xs:documentation>Прием (возврат)</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="007">
+        <xs:annotation>
+          <xs:documentation>Прием (закупка)</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="008">
+        <xs:annotation>
+          <xs:documentation>Внутренний расход</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="009">
+        <xs:annotation>
+          <xs:documentation>Отгрузка (покупателю)</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="010">
+        <xs:annotation>
+          <xs:documentation>Отгрузка (возврат)</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TypeEnum">
+    <xs:annotation>
+      <xs:documentation>Список кодов типов ФСМ/АМ</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="ns:Digits3">
+      <xs:enumeration value="001">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Алкогольная продукция свыше 9 до 25%</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="002">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Алкогольная продукция свыше 25%. До 0.1 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="003">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Алкогольная продукция свыше 25%. До 0.25 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="004">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Алкогольная продукция свыше 25%. До 0.5 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="005">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Алкогольная продукция свыше 25%. До 0.75 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="006">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Алкогольная продукция свыше 25%. До 1 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="007">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Алкогольная продукция свыше 25%. Свыше 1 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="008">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="009">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина шампанские и игристые</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="010">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина натуральные</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="020">
+        <xs:annotation>
+          <xs:documentation>АМ. Алкогольная продукция свыше 9 до 25%</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="021">
+        <xs:annotation>
+          <xs:documentation>АМ. Алкогольная продукция свыше 25%. До 0.1 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="022">
+        <xs:annotation>
+          <xs:documentation>АМ. Алкогольная продукция свыше 25%. До 0.25 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="023">
+        <xs:annotation>
+          <xs:documentation>АМ. Алкогольная продукция свыше 25%. До 0.5 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="024">
+        <xs:annotation>
+          <xs:documentation>АМ. Алкогольная продукция свыше 25%. До 0.75 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="025">
+        <xs:annotation>
+          <xs:documentation>АМ. Алкогольная продукция свыше 25%. До 1 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="026">
+        <xs:annotation>
+          <xs:documentation>АМ. Алкогольная продукция свыше 25%. Свыше 1 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="027">
+        <xs:annotation>
+          <xs:documentation>АМ. Вина</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="028">
+        <xs:annotation>
+          <xs:documentation>АМ. Вина шампанские и игристые</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="029">
+        <xs:annotation>
+          <xs:documentation>АМ. Вина натуральные</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="031">
+        <xs:annotation>
+          <xs:documentation>АМ. Алкогольная продукция до 9 % включительно</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="101">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Спиртные напитки до 9 %</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="102">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Спиртные напитки свыше 9 до 25 %</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="103">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Крепкие спиртные напитки до 0,5 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="104">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Крепкие спиртные напитки до 0,75 л </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="105">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Крепкие спиртные напитки до 1 л </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="106">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Крепкие спиртные напитки свыше 1 л </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="107">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Водка до 0,5 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="108">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Водка до 0,75 л </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="109">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Водка до 1 л </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="110">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Водка свыше 1 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="111">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина игристые(шампанские) до 0,375 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="112">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина игристые(шампанские) до 0,75 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="113">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина игристые(шампанские) до 1,5 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="114">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина игристые(шампанские) свыше 1,5 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="115">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина виноградные до 0,375 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="116">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина виноградные до 0,75 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="117">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина виноградные до 1,5 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="118">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина виноградные свыше 1,5 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="119">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина ликерные до 0,375 л. </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="120">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина ликерные до 0,75 л. </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="121">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина ликерные до 1,5 л. </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="122">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина ликерные свыше 1,5 л. </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="123">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина фруктовые до 0,375 л. </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="124">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина фруктовые до 0,75 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="125">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина фруктовые до 1,5 л. </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="126">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина фруктовые свыше 1,5 л. </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="127">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Винные напитки до 0,375 л. </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="128">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Винные напитки до 0,75 л. </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="129">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Винные напитки до 1,5 л. </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="130">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Винные напитки свыше 1,5 л. </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="131">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Крепкие спиртные напитки до 0,1 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="132">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Крепкие спиртные напитки 0,25 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="133">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Водка до 0,1 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="134">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Водка 0,25 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="135">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Водка 0,375 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="136">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Водка 0,5 л </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="137">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Винные напитки (без этилового спирта) до 0,375 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="138">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Винные напитки (без этилового спирта) до 0,75 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="139">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Винные напитки (без этилового спирта) до 1,5 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="140">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Винные напитки (без этилового спирта) свыше 1,5 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="141">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Винные напитки (с этиловым спиртом) до 0,375 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="142">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Винные напитки (с этиловым спиртом) до 0,75 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="143">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Винные напитки (с этиловым спиртом) до 1,5 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="144">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Винные напитки (с этиловым спиртом) свыше 1,5 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="145">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Коньяк. До 0,1 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="146">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Коньяк. 0,25 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="147">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Коньяк. До 0,5 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="148">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Коньяк. До 0,75 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="149">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Коньяк. До 1 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="150">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Коньяк. Свыше 1 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="151">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Коньяк (особый). До 0,1 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="152">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Коньяк (особый). 0,25 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="153">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Коньяк (особый). До 0,5 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="154">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Коньяк (особый). До 0,75 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="155">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Коньяк (особый). До 1 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="156">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Коньяк (особый). Свыше 1 л</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="157">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина виноградные (особые). До 1 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="158">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина виноградные (особые). Свыше 1 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="159">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина ликерные (особые). До 1 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="160">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина ликерные (особые). Свыше 1 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="161">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина игристые (особые). До 0,375 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="162">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина игристые (особые). До 1 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="163">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Вина игристые (особые). Свыше 1 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="164">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Спиртные напитки (особые). До 0,1 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="165">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Спиртные напитки (особые). 0,25 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="166">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Спиртные напитки (особые). До 0,5 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="167">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Спиртные напитки (особые). До 0,75 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="168">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Спиртные напитки (особые). До 1 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="169">
+        <xs:annotation>
+          <xs:documentation>ФСМ. Спиртные напитки (особые). Свыше 1 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="202">
+        <xs:annotation>
+          <xs:documentation>АМ. Спиртные напитки свыше 9 до 25 %</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="203">
+        <xs:annotation>
+          <xs:documentation>АМ. Крепкие спиртные напитки до 0,5 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="204">
+        <xs:annotation>
+          <xs:documentation>АМ. Крепкие спиртные напитки до 0,75 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="205">
+        <xs:annotation>
+          <xs:documentation>АМ. Крепкие спиртные напитки до 1 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="206">
+        <xs:annotation>
+          <xs:documentation>АМ. Крепкие спиртные напитки свыше 1 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="207">
+        <xs:annotation>
+          <xs:documentation>АМ. Водка до 0,5 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="208">
+        <xs:annotation>
+          <xs:documentation>АМ. Водка до 0,75 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="209">
+        <xs:annotation>
+          <xs:documentation>АМ. Водка до 1 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="210">
+        <xs:annotation>
+          <xs:documentation>АМ. Водка свыше 1 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="211">
+        <xs:annotation>
+          <xs:documentation>АМ. Вина игристые (шампанские) до 0,375 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="212">
+        <xs:annotation>
+          <xs:documentation>АМ. Вина игристые (шампанские) до 0,75 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="213">
+        <xs:annotation>
+          <xs:documentation>АМ. Вина игристые (шампанские) до 1,5 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="214">
+        <xs:annotation>
+          <xs:documentation>АМ. Вина игристые (шампанские) свыше 1,5 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="215">
+        <xs:annotation>
+          <xs:documentation>АМ. Вина виноградные до 0,375 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="216">
+        <xs:annotation>
+          <xs:documentation>АМ. Вина виноградные до 0,75 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="217">
+        <xs:annotation>
+          <xs:documentation>АМ. Вина виноградные до 1,5 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="218">
+        <xs:annotation>
+          <xs:documentation>АМ. Вина виноградные свыше 1,5 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="219">
+        <xs:annotation>
+          <xs:documentation>АМ. Вина ликерные до 0,375 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="220">
+        <xs:annotation>
+          <xs:documentation>АМ. Вина ликерные до 0,75 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="221">
+        <xs:annotation>
+          <xs:documentation>АМ. Вина ликерные до 1,5 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="222">
+        <xs:annotation>
+          <xs:documentation>АМ. Вина ликерные свыше 1,5 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="223">
+        <xs:annotation>
+          <xs:documentation>АМ. Вина фруктовые до 0,375 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="224">
+        <xs:annotation>
+          <xs:documentation>АМ. Вина фруктовые до 0,75 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="225">
+        <xs:annotation>
+          <xs:documentation>АМ. Вина фруктовые до 1,5 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="226">
+        <xs:annotation>
+          <xs:documentation>АМ. Вина фруктовые свыше 1,5 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="227">
+        <xs:annotation>
+          <xs:documentation>АМ. Винные напитки до 0,375 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="228">
+        <xs:annotation>
+          <xs:documentation>АМ. Винные напитки до 0,75 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="229">
+        <xs:annotation>
+          <xs:documentation>АМ. Винные напитки до 1,5 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="230">
+        <xs:annotation>
+          <xs:documentation>АМ. Винные напитки свыше 1,5 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="231">
+        <xs:annotation>
+          <xs:documentation>АМ. Спиртные напитки до 9 %</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="232">
+        <xs:annotation>
+          <xs:documentation>АМ. Крепкие спиртные напитки до 0,1 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="233">
+        <xs:annotation>
+          <xs:documentation>АМ. Крепкие спиртные напитки до 0,25 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="234">
+        <xs:annotation>
+          <xs:documentation>АМ. Водка до 0,1 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="235">
+        <xs:annotation>
+          <xs:documentation>АМ. Водка до 0,25 л.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Digits9">
+    <xs:annotation>
+      <xs:documentation>Цифры от одной до девяти</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d{1,9}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TypeWriteOff">
+    <xs:annotation>
+      <xs:documentation>Основания списания</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Пересортица">
+        <xs:annotation>
+          <xs:documentation>Недостача пересортица</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Недостача">
+        <xs:annotation>
+          <xs:documentation>Недостача (хищение, злоупотребление материально ответственных лиц, ошибки учета, естественная убыль,...)</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Уценка">
+        <xs:annotation>
+          <xs:documentation>Уценка (списание) в результате порчи</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Порча">
+        <xs:annotation>
+          <xs:documentation>Списание объема продукции, не подлежащей дальнейшей реализации (бой, срок годности, порча)</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Потери">
+        <xs:annotation>
+          <xs:documentation>Потери при транспортировке</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Проверки">
+        <xs:annotation>
+          <xs:documentation>
+            Списание объема продукции, израсходованной на лабораторные нужды для прохождения добровольной проверки качества, рекламные образцы.
+            Требуется указание штрихкодов.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Арест">
+        <xs:annotation>
+          <xs:documentation>
+            Списание арестованной продукции, изъятой из оборота продукции, конфискованной продукции по решению суда.
+            Требуется указание штрихкодов.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Иные цели">
+        <xs:annotation>
+          <xs:documentation>Списание продукции, когда ФСМ/АМ не возможно считать</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Реализация">
+        <xs:annotation>
+          <xs:documentation>Розничная реализация продукции, не подлежащей фиксации в ЕГАИС</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="MarkCodeInfoType">
+    <xs:annotation>
+      <xs:documentation>Список считанных кодов марок</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="MarkCode" type="c:PDF417String" nillable="false" minOccurs="1" maxOccurs="unbounded" >
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="TypeChargeOn">
+    <xs:annotation>
+      <xs:documentation>Основания списания</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Пересортица">
+        <xs:annotation>
+          <xs:documentation>Излишки пересортица.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Излишки">
+        <xs:annotation>
+          <xs:documentation>Излишки продукции. В случае обнаружения излишков продукции организация предоставляет в ЕГАИС акт постановки на баланс с указанием основания «Излишки».</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Продукция, полученная до 01.01.2016">
+        <xs:annotation>
+          <xs:documentation>Продукция, полученная до 01.01.2016</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+
+</xs:schema>
