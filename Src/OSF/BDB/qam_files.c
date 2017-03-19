@@ -29,32 +29,25 @@
  */
 int __qam_fprobe(DBC*dbc, db_pgno_t pgno, void * addrp, qam_probe_mode mode, DB_CACHE_PRIORITY priority, uint32 flags)
 {
-	DB * dbp;
 	DB_MPOOLFILE * mpf;
-	ENV * env;
 	MPFARRAY * array;
-	QUEUE * qp;
 	uint8 fid[DB_FILE_ID_LEN];
 	uint32 i, extid, maxext, numext, lflags, offset, oldext, openflags;
 	char buf[DB_MAXPATHLEN];
-	int ftype, less, ret, t_ret;
-
-	dbp = dbc->dbp;
-	env = dbp->env;
-	qp = (QUEUE *)dbp->q_internal;
-	ret = 0;
+	int ftype, less, t_ret;
+	DB * dbp = dbc->dbp;
+	ENV * env = dbp->env;
+	QUEUE * qp = (QUEUE *)dbp->q_internal;
+	int ret = 0;
 	if(qp->page_ext == 0) {
 		mpf = dbp->mpf;
 		switch(mode) {
 		    case QAM_PROBE_GET:
-			return __memp_fget(mpf, &pgno,
-				dbc->thread_info, dbc->txn, flags, addrp);
+			return __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, flags, addrp);
 		    case QAM_PROBE_PUT:
-			return __memp_fput(mpf,
-				dbc->thread_info, addrp, priority);
+			return __memp_fput(mpf, dbc->thread_info, addrp, priority);
 		    case QAM_PROBE_DIRTY:
-			return __memp_dirty(mpf, addrp,
-				dbc->thread_info, dbc->txn, priority, flags);
+			return __memp_dirty(mpf, addrp, dbc->thread_info, dbc->txn, priority, flags);
 		    case QAM_PROBE_MPF:
 			*(DB_MPOOLFILE **)addrp = mpf;
 			return 0;

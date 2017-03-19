@@ -216,7 +216,6 @@ static int __memp_reset_lru(ENV * env, REGINFO * infop)
 {
 	BH * bhp, * tbhp;
 	DB_MPOOL_HASH * hp;
-	MPOOL * c_mp;
 	uint32 bucket;
 	int reset;
 	/*
@@ -224,7 +223,7 @@ static int __memp_reset_lru(ENV * env, REGINFO * infop)
 	 * bottom. Lock this cache region to ensure that exactly one thread
 	 * will reset this cache's buffers.
 	 */
-	c_mp = (MPOOL *)infop->primary;
+	MPOOL * c_mp = (MPOOL *)infop->primary;
 	MPOOL_REGION_LOCK(env, infop);
 	reset = c_mp->lru_priority >= MPOOL_LRU_DECREMENT;
 	if(reset) {

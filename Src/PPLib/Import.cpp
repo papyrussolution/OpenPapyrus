@@ -5708,8 +5708,8 @@ void PrcssrOsm::Scb_EndElement(void * ptr, const xmlChar * pName)
 
 IMPL_CMPCFUNC(STRINT64, p1, p2)
 {
-	int64 v1 = atoll((const char *)p1);
-	int64 v2 = atoll((const char *)p2);
+	int64 v1 = _atoi64((const char *)p1);
+	int64 v2 = _atoi64((const char *)p2);
 	return CMPSIGN(v1, v2);
 }
 

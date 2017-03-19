@@ -15,12 +15,11 @@
 // @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
-static int __ham_set_h_ffactor __P((DB*, uint32));
-static int __ham_get_h_hash __P((DB*, uint32 (* *)(DB*, const void *, uint32)));
-static int __ham_set_h_hash __P((DB*, uint32 (*)(DB *, const void *, uint32)));
-static int __ham_set_h_nelem __P((DB*, uint32));
-
-static int __ham_get_h_compare __P((DB*, int (* *)(DB*, const DBT*, const DBT *)));
+static int __ham_set_h_ffactor(DB*, uint32);
+static int __ham_get_h_hash(DB*, uint32 (* *)(DB*, const void *, uint32));
+static int __ham_set_h_hash(DB*, uint32 (*)(DB *, const void *, uint32));
+static int __ham_set_h_nelem(DB*, uint32);
+static int __ham_get_h_compare(DB*, int (* *)(DB*, const DBT*, const DBT *));
 
 /*
  * __ham_db_create --

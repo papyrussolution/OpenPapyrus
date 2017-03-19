@@ -634,14 +634,10 @@ static int __rep_page_sendpages(ENV * env, DB_THREAD_INFO * ip, int eid, __rep_c
 			FLD_SET(msgfp->finfo_flags, REPINFO_PG_LITTLEENDIAN);
 		else
 			FLD_CLR(msgfp->finfo_flags, REPINFO_PG_LITTLEENDIAN);
-		RPRINT(env, (env, DB_VERB_REP_SYNC,
-			     "sendpages: %lu, page lsn [%lu][%lu]", (ulong)p,
-			     (ulong)pagep->lsn.file, (ulong)pagep->lsn.offset));
-		ret = __rep_fileinfo_marshal(env, rp->rep_version,
-			msgfp, buf, msgsz, &len);
+		RPRINT(env, (env, DB_VERB_REP_SYNC, "sendpages: %lu, page lsn [%lu][%lu]", (ulong)p, (ulong)pagep->lsn.file, (ulong)pagep->lsn.offset));
+		ret = __rep_fileinfo_marshal(env, rp->rep_version, msgfp, buf, msgsz, &len);
 		if(msgfp->type != (uint32)DB_QUEUE || p == 0)
-			t_ret = __memp_fput(mpf,
-				ip, pagep, DB_PRIORITY_UNCHANGED);
+			t_ret = __memp_fput(mpf, ip, pagep, DB_PRIORITY_UNCHANGED);
 #ifdef HAVE_QUEUE
 		else
 			/*

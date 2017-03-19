@@ -1794,17 +1794,14 @@ next_page:
 				goto err;
 			next_pagep = NULL;
 		}
-		if(last_pagep != first_pagep && (ret = __memp_fput(mpf,
-							 dbc->thread_info, last_pagep, dbc->priority)) != 0)
+		if(last_pagep != first_pagep && (ret = __memp_fput(mpf, dbc->thread_info, last_pagep, dbc->priority)) != 0)
 			goto err;
 		last_pagep = NULL;
-		if((ret = __memp_fput(mpf,
-			    dbc->thread_info, first_pagep, dbc->priority)) != 0)
+		if((ret = __memp_fput(mpf, dbc->thread_info, first_pagep, dbc->priority)) != 0)
 			goto err;
 		first_pagep = NULL;
 	}
-	else if(last_pagep != NULL && (ret = __memp_fput(mpf,
-					       dbc->thread_info, last_pagep, dbc->priority)) != 0)
+	else if(last_pagep != NULL && (ret = __memp_fput(mpf, dbc->thread_info, last_pagep, dbc->priority)) != 0)
 		goto err;
 	if(from_pagep == NULL) {
 		from_pagep = first_pagep;
@@ -1812,8 +1809,7 @@ next_page:
 	}
 	if(from_pgno != PGNO_INVALID)
 		goto next_page;
-	if(prev_pagep != NULL && (ret = __memp_fput(mpf,
-					  dbc->thread_info, prev_pagep, dbc->priority)) != 0)
+	if(prev_pagep != NULL && (ret = __memp_fput(mpf, dbc->thread_info, prev_pagep, dbc->priority)) != 0)
 		goto err;
 	ret = __memp_fput(mpf, dbc->thread_info, to_pagep, dbc->priority);
 	return ret;
@@ -2087,24 +2083,19 @@ err:
 int __ham_add_el(DBC * dbc, const DBT * key, const DBT * val, uint32 type)
 {
 	const DBT * pkey, * pdata;
-	DB * dbp;
 	DBT key_dbt, data_dbt;
 	DB_LSN new_lsn;
-	DB_MPOOLFILE * mpf;
-	HASH_CURSOR * hcp;
 	HOFFPAGE doff, koff;
 	PAGE * new_pagep;
-	db_pgno_t next_pgno, pgno;
+	db_pgno_t next_pgno;
 	uint32 data_size, data_type, key_size, key_type;
 	uint32 pages, pagespace, pairsize;
-	int do_expand, is_keybig, is_databig, match, ret;
-
-	dbp = dbc->dbp;
-	mpf = dbp->mpf;
-	hcp = (HASH_CURSOR *)dbc->internal;
-	do_expand = 0;
-
-	pgno = hcp->seek_found_page != PGNO_INVALID ? hcp->seek_found_page : hcp->pgno;
+	int is_keybig, is_databig, match, ret;
+	DB * dbp = dbc->dbp;
+	DB_MPOOLFILE * mpf = dbp->mpf;
+	HASH_CURSOR * hcp = (HASH_CURSOR *)dbc->internal;
+	int do_expand = 0;
+	db_pgno_t pgno = hcp->seek_found_page != PGNO_INVALID ? hcp->seek_found_page : hcp->pgno;
 	if(hcp->page == NULL && (ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, DB_MPOOL_CREATE, &hcp->page)) != 0)
 		return ret;
 	key_size = HKEYDATA_PSIZE(key->size);
@@ -2116,7 +2107,6 @@ int __ham_add_el(DBC * dbc, const DBT * key, const DBT * val, uint32 type)
 	if(is_databig)
 		data_size = HOFFPAGE_PSIZE;
 	pairsize = key_size+data_size;
-
 	/* Advance to first page in chain with room for item. */
 	while(H_NUMPAIRS(hcp->page) && NEXT_PGNO(hcp->page) != PGNO_INVALID) {
 		/*
@@ -2162,8 +2152,7 @@ int __ham_add_el(DBC * dbc, const DBT * key, const DBT * val, uint32 type)
 				return __db_space_err(dbp);
 		}
 	}
-	if((ret = __memp_dirty(mpf,
-		    &hcp->page, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
+	if((ret = __memp_dirty(mpf, &hcp->page, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
 		return ret;
 	/*
 	 * Update cursor.
@@ -2287,17 +2276,14 @@ int __ham_add_el(DBC * dbc, const DBT * key, const DBT * val, uint32 type)
  */
 int __ham_copypair(DBC * dbc, PAGE * src_page, uint32 src_ndx, PAGE * dest_page, db_indx_t * dest_indx, int log)
 {
-	DB * dbp;
 	DBT tkey, tdata;
 	db_indx_t kindx, dindx, dest;
 	uint32 ktype, dtype;
-	int match, ret;
-
-	dbp = dbc->dbp;
-	ret = 0;
+	int match;
+	DB * dbp = dbc->dbp;
+	int ret = 0;
 	memzero(&tkey, sizeof(tkey));
 	memzero(&tdata, sizeof(tdata));
-
 	ktype = HPAGE_TYPE(dbp, src_page, H_KEYINDEX(src_ndx));
 	dtype = HPAGE_TYPE(dbp, src_page, H_DATAINDEX(src_ndx));
 	kindx = H_KEYINDEX(src_ndx);
@@ -2505,7 +2491,7 @@ int __ham_lock_bucket(DBC * dbc, db_lockmode_t mode)
  */
 void __ham_dpair(DB * dbp, PAGE * p, uint32 indx)
 {
-	db_indx_t delta, n;
+	db_indx_t n;
 	uint8 * dest, * src;
 	db_indx_t * inp = P_INP(dbp, p);
 	/*
@@ -2513,7 +2499,7 @@ void __ham_dpair(DB * dbp, PAGE * p, uint32 indx)
 	 * offsets.  To find the delta, we just need to calculate
 	 * the size of the pair of elements we are removing.
 	 */
-	delta = H_PAIRSIZE(dbp, p, dbp->pgsize, indx);
+	db_indx_t delta = H_PAIRSIZE(dbp, p, dbp->pgsize, indx);
 	/*
 	 * The hard case: we want to remove something other than
 	 * the last item on the page.  We need to shift data and
@@ -2636,15 +2622,13 @@ static int __hamc_delpg_setorder(DBC * cp, DBC * my_dbc, uint32 * foundp, db_pgn
  */
 static int __hamc_delpg(DBC * dbc, db_pgno_t old_pgno, db_pgno_t new_pgno, uint32 num_ent, db_ham_mode op, uint32 * orderp)
 {
-	DB * dbp;
 	DB_LSN lsn;
-	db_indx_t indx;
 	int ret;
 	uint32 found;
 	struct __hamc_delpg_setorder_args args;
 	/* Which is the worrisome index? */
-	indx = (op == DB_HAM_DELLASTPG) ? num_ent : 0;
-	dbp = dbc->dbp;
+	db_indx_t indx = (op == DB_HAM_DELLASTPG) ? num_ent : 0;
+	DB * dbp = dbc->dbp;
 	/*
 	 * Find the highest order of any cursor our movement
 	 * may collide with.
