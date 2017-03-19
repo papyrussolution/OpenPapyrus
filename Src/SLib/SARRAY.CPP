@@ -1614,11 +1614,17 @@ int FASTCALL SV_Uint32::Read(SBuffer & rBuf)
 //
 SLAPI StrAssocArray::StrAssocArray() : SStrGroup()
 {
+	TextCmpProc = 0; // @v9.5.9
 }
 
 SLAPI StrAssocArray::StrAssocArray(const StrAssocArray & rS) : SStrGroup()
 {
 	Copy(rS);
+}
+
+void FASTCALL StrAssocArray::SetTextCmpProc(CompFunc fcmp)
+{
+	TextCmpProc = fcmp;
 }
 
 StrAssocArray & FASTCALL StrAssocArray::operator = (const StrAssocArray & rS)
@@ -1630,6 +1636,7 @@ StrAssocArray & FASTCALL StrAssocArray::operator = (const StrAssocArray & rS)
 int FASTCALL StrAssocArray::Copy(const StrAssocArray & rS)
 {
 	SStrGroup::CopyS(rS);
+	TextCmpProc = rS.TextCmpProc; // @v9.5.9
 	Assoc = rS.Assoc;
 	ParentList = rS.ParentList;
 	return 1;
@@ -1968,7 +1975,9 @@ int SLAPI StrAssocArray::GetTextByPos(uint textPos, SString & rBuf) const
 StrAssocArray::Item FASTCALL StrAssocArray::at(uint pos) const
 {
 	Item   item;
-	MEMSZERO(item);
+	item.Id = 0;
+	item.ParentId = 0;
+	item.Txt = 0;
 	if(pos < Assoc.getCount()) {
 		const LAssoc & r_assc = Assoc.at(pos);
 		item.Id = r_assc.Key;
@@ -1983,7 +1992,9 @@ StrAssocArray::Item FASTCALL StrAssocArray::at(uint pos) const
 StrAssocArray::Item FASTCALL StrAssocArray::at_WithoutParent(uint pos) const
 {
 	Item   item;
-	MEMSZERO(item);
+	item.Id = 0;
+	item.ParentId = 0;
+	item.Txt = 0;
 	if(pos < Assoc.getCount()) {
 		const LAssoc & r_assc = Assoc.at(pos);
 		item.Id = r_assc.Key;
@@ -2132,8 +2143,8 @@ IMPL_CMPFUNC(StrAssoc_ByLength_Descend, i1, i2)
 	return cmp_ulong(strlen(p_str2), strlen(p_str1));
 }
 
-int SLAPI Helper_CmpFunc_StrAssocByText(const LAssoc * p1, const LAssoc * p2,
-	StrAssocArray * pArray, LAssocArray * pRecurTracer)
+// static
+int SLAPI StrAssocArray::Helper_CmpFunc_StrAssocByText(const LAssoc * p1, const LAssoc * p2, StrAssocArray * pArray, LAssocArray * pRecurTracer)
 {
 	long   id[2], par[2];
 	id[0] = p1->Key;
@@ -2149,7 +2160,7 @@ int SLAPI Helper_CmpFunc_StrAssocByText(const LAssoc * p1, const LAssoc * p2,
 		size_t ss_data_len = pArray->Pool.getDataLen();
 		const char * p_str1 = (pos1 == 0 || pos1 >= ss_data_len) ? stub : (pArray->Pool.getBuf() + pos1);
 		const char * p_str2 = (pos2 == 0 || pos2 >= ss_data_len) ? stub : (pArray->Pool.getBuf() + pos2);
-		return stricmp866(p_str1, p_str2);
+		return pArray->TextCmpProc ? pArray->TextCmpProc(p_str1, p_str2, 0) : stricmp866(p_str1, p_str2);
 	}
 	else {
 		LAssocArray recur_tracer;
@@ -2174,14 +2185,14 @@ int SLAPI Helper_CmpFunc_StrAssocByText(const LAssoc * p1, const LAssoc * p2,
 		}
 		else {
 			pRecurTracer->Add(pi[0].Key, pi[1].Key, 0);
-			return Helper_CmpFunc_StrAssocByText(&pi[0], &pi[1], pArray, pRecurTracer); // @recursion
+			return StrAssocArray::Helper_CmpFunc_StrAssocByText(&pi[0], &pi[1], pArray, pRecurTracer); // @recursion
 		}
 	}
 }
 
 IMPL_CMPFUNC(StrAssoc_ByText, i1, i2)
 {
-	return Helper_CmpFunc_StrAssocByText((LAssoc *)i1, (LAssoc *)i2, (StrAssocArray *)pExtraData, 0);
+	return StrAssocArray::Helper_CmpFunc_StrAssocByText((LAssoc *)i1, (LAssoc *)i2, (StrAssocArray *)pExtraData, 0);
 }
 
 int SLAPI Helper_CmpFunc_StrAssocByID(long id1, long id2, StrAssocArray * pArray, LAssocArray * pRecurTracer)

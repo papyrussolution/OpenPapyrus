@@ -1114,7 +1114,7 @@ int SLAPI DL2_Score::ScanArgList(const char * pStr, size_t * pOffs)
 		uint   arg_no = 0;
 		for(uint p = 0; arg_list.get(&p, temp_buf); arg_no++) {
 			if(arg_no == 0) {
-				THROW_SL(getperiod(temp_buf.Strip(), &Period));
+				THROW_SL(strtoperiod(temp_buf.Strip(), &Period, 0));
 			}
 			else if(arg_no == 1) {
 				if(oneof5(Kind, kBill, kPaym, kPersonEvent, kDebt, kBizScore)) {

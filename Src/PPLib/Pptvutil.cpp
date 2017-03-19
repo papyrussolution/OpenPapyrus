@@ -234,13 +234,13 @@ int FASTCALL SetPeriodInput(TDialog * dlg, uint fldID, const DateRange * rng)
 	return 1;
 }
 
-int FASTCALL GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod)
+static int SLAPI Helper_GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod, long strtoperiodFlags)
 {
 	int    ok = -1;
 	char   b[64];
 	b[0] = 0;
 	if(dlg && dlg->getCtrlData(fldID, b)) {
-		if(getperiod(b, pPeriod)) {
+		if(strtoperiod(b, pPeriod, strtoperiodFlags)) {
 			if(checkdate(pPeriod->low, 1) && checkdate(pPeriod->upp, 1)) {
 				LDATE a_low = pPeriod->low.getactual(ZERODATE);
 				LDATE a_upp = pPeriod->upp.getactual(ZERODATE);
@@ -257,6 +257,16 @@ int FASTCALL GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod)
 		}
 	}
 	return ok;
+}
+
+int FASTCALL GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod)
+{
+	return Helper_GetPeriodInput(dlg, fldID, pPeriod, 0);
+}
+
+int SLAPI GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod, long strtoperiodFlags)
+{
+	return Helper_GetPeriodInput(dlg, fldID, pPeriod, strtoperiodFlags);
 }
 
 int SLAPI SetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, const TimeRange * pTimePeriod)

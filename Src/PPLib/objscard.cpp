@@ -84,15 +84,16 @@ int SLAPI PPObjSCard::ReadConfig(PPSCardConfig * pCfg)
 int SLAPI PPObjSCard::WriteConfig(const PPSCardConfig * pCfg, int use_ta)
 {
 	int    ok = 1, r;
+	Reference * p_ref = PPRef;
 	int    is_new = 0;
 	PPSCardConfig ex_cfg;
 	THROW(CheckCfgRights(PPCFGOBJ_SCARD, PPR_MOD, 0));
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_SCARDCFG, &ex_cfg, sizeof(ex_cfg)));
+		THROW(r = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_SCARDCFG, &ex_cfg, sizeof(ex_cfg)));
 		is_new = (r > 0) ? 0 : 1;
-		THROW(PPRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_SCARDCFG, pCfg, 0));
+		THROW(p_ref->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_SCARDCFG, pCfg, 0));
 		DS.LogAction((is_new < 0) ? PPACN_CONFIGCREATED : PPACN_CONFIGUPDATED, PPCFGOBJ_SCARD, 0, 0, 0);
 		THROW(tra.Commit());
 	}
@@ -857,6 +858,7 @@ int SLAPI PPObjSCardSeries::Search(PPID id, void * b)
 int SLAPI PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 {
 	int    ok = -1, r = -1;
+	Reference * p_ref = PPRef;
 	PropPPIDArray * p_rec = 0;
 	Storage_SCardRule * p_strg = 0;
 	PPSCardSerPacket pack;
@@ -866,21 +868,21 @@ int SLAPI PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 		// Правила для чеков
 		//
 		THROW_MEM(p_strg = new (&pack.CcAmtDisRule, 128, SCARDSERIES_CCHECKRULE) Storage_SCardRule);
-		if(PPRef->GetProp(Obj, id, SCARDSERIES_CCHECKRULE, p_strg, p_strg->GetSize()) > 0)
+		if(p_ref->GetProp(Obj, id, SCARDSERIES_CCHECKRULE, p_strg, p_strg->GetSize()) > 0)
 			THROW(p_strg->CopyTo(&pack.CcAmtDisRule));
 		ZDELETE(p_strg);
 		//
 		// Правила для расчета бонусов
 		//
 		THROW_MEM(p_strg = new (&pack.CcAmtDisRule, 128, SCARDSERIES_BONUSRULE) Storage_SCardRule);
-		if(PPRef->GetProp(Obj, id, SCARDSERIES_BONUSRULE, p_strg, p_strg->GetSize()) > 0)
+		if(p_ref->GetProp(Obj, id, SCARDSERIES_BONUSRULE, p_strg, p_strg->GetSize()) > 0)
 			THROW(p_strg->CopyTo(&pack.BonusRule));
 		ZDELETE(p_strg);
 		//
 		//
 		//
 		THROW_MEM(p_strg = new (&pack.Rule, 128, SCARDSERIES_RULE2) Storage_SCardRule);
-		if((r = PPRef->GetProp(Obj, id, SCARDSERIES_RULE2, p_strg, p_strg->GetSize())) > 0) {
+		if((r = p_ref->GetProp(Obj, id, SCARDSERIES_RULE2, p_strg, p_strg->GetSize())) > 0) {
 			THROW(p_strg->CopyTo(&pack.Rule));
 		}
 		else {
@@ -892,12 +894,12 @@ int SLAPI PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 			size_t sz = sizeof(long) + sizeof(PropPPIDArray) + init_count * sizeof(Item_);
 			THROW_MEM(p_rec = (PropPPIDArray*)calloc(1, sz));
 			pack.Rule.freeAll();
-			if((r = PPRef->GetProp(Obj, id, SCARDSERIES_RULE, p_rec, sz)) > 0) {
+			if((r = p_ref->GetProp(Obj, id, SCARDSERIES_RULE, p_rec, sz)) > 0) {
 				if(p_rec->Count > (long)init_count) {
 					sz = sizeof(long) + sizeof(PropPPIDArray) + (size_t)p_rec->Count * sizeof(Item_);
 					free(p_rec);
 					THROW_MEM(p_rec = (PropPPIDArray *)calloc(1, sz));
-					THROW(PPRef->GetProp(Obj, id, SCARDSERIES_RULE, p_rec, sz) > 0);
+					THROW(p_ref->GetProp(Obj, id, SCARDSERIES_RULE, p_rec, sz) > 0);
 				}
 				memcpy(&pack.Rule.TrnovrPeriod, PTR8(p_rec + 1), sizeof(long));
 				for(uint i = 0; i < (uint)p_rec->Count; i++) {
@@ -916,12 +918,12 @@ int SLAPI PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 		//
 		// Список видов котировок
 		//
-		THROW(PPRef->GetPropArray(Obj, pack.Rec.ID, SCARDSERIES_QKLIST, &pack.QuotKindList_)); // @v7.4.0
+		THROW(p_ref->GetPropArray(Obj, pack.Rec.ID, SCARDSERIES_QKLIST, &pack.QuotKindList_)); // @v7.4.0
 		{
 			// Блок расширения
 			Storage_SCardSerExt se;
 			int    se_r = 0;
-			THROW(se_r = PPRef->GetProp(Obj, pack.Rec.ID, SCARDSERIES_EXT, &se, sizeof(se))); // @v8.7.12
+			THROW(se_r = p_ref->GetProp(Obj, pack.Rec.ID, SCARDSERIES_EXT, &se, sizeof(se))); // @v8.7.12
 			if(se_r > 0)
 				se.Get(pack.Eb);
 		}
@@ -939,6 +941,7 @@ int SLAPI PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 int SLAPI PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int use_ta)
 {
 	int    ok = -1, eq = 0;
+	Reference * p_ref = PPRef;
 	int    rec_updated = 0;
 	PPID   acn_id = 0;
 	Storage_SCardRule * p_strg = 0;
@@ -958,7 +961,7 @@ int SLAPI PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int 
 					eq = 1;
 				else {
 					THROW(rec_updated = EditItem(Obj, *pID ? pPack->Rec.ID : 0, &pPack->Rec, 0));
-					THROW(PPRef->PutProp(Obj, pPack->Rec.ID, SCARDSERIES_RULE, 0, 0)); // Удаляем старую версию правил пересчета карт записи
+					THROW(p_ref->PutProp(Obj, pPack->Rec.ID, SCARDSERIES_RULE, 0, 0)); // Удаляем старую версию правил пересчета карт записи
 					if(pattern.Rec.ID && (pPack->Rec.PDis != pattern.Rec.PDis ||
 						pPack->Rec.MaxCredit != pattern.Rec.MaxCredit || pPack->Rec.Expiry != pattern.Rec.Expiry)) {
 						THROW(P_ScObj->UpdateBySeries(pattern.Rec.ID, 0));
@@ -971,29 +974,29 @@ int SLAPI PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int 
 			}
 			if(!eq) {
 				THROW_MEM(p_strg = new (&pPack->Rule, 0, SCARDSERIES_RULE2) Storage_SCardRule);
-				THROW(PPRef->PutProp(Obj, pPack->Rec.ID, SCARDSERIES_RULE2, p_strg, p_strg->GetSize()));
+				THROW(p_ref->PutProp(Obj, pPack->Rec.ID, SCARDSERIES_RULE2, p_strg, p_strg->GetSize()));
 				//
 				// Правила для скидок по чекам
 				//
 				ZDELETE(p_strg);
 				THROW_MEM(p_strg = new (&pPack->CcAmtDisRule, 0, SCARDSERIES_CCHECKRULE) Storage_SCardRule);
-				THROW(PPRef->PutProp(Obj, pPack->Rec.ID, SCARDSERIES_CCHECKRULE, p_strg, p_strg->GetSize()));
+				THROW(p_ref->PutProp(Obj, pPack->Rec.ID, SCARDSERIES_CCHECKRULE, p_strg, p_strg->GetSize()));
 				//
 				// Правило расчета бонусов
 				//
 				if(!*pID || !(pPack->UpdFlags & PPSCardSerPacket::ufDontChgBonusRule)) {
 					ZDELETE(p_strg);
 					THROW_MEM(p_strg = new (&pPack->BonusRule, 0, SCARDSERIES_BONUSRULE) Storage_SCardRule);
-					THROW(PPRef->PutProp(Obj, pPack->Rec.ID, SCARDSERIES_BONUSRULE, p_strg, p_strg->GetSize()));
+					THROW(p_ref->PutProp(Obj, pPack->Rec.ID, SCARDSERIES_BONUSRULE, p_strg, p_strg->GetSize()));
 				}
 				//
 				if(!*pID || !(pPack->UpdFlags & PPSCardSerPacket::ufDontChgQkList)) {
-					THROW(PPRef->PutPropArray(Obj, pPack->Rec.ID, SCARDSERIES_QKLIST, &pPack->QuotKindList_, 0)); // @v7.4.0
+					THROW(p_ref->PutPropArray(Obj, pPack->Rec.ID, SCARDSERIES_QKLIST, &pPack->QuotKindList_, 0)); // @v7.4.0
 				}
 				// @v8.7.12 {
 				if(!*pID || !(pPack->UpdFlags & PPSCardSerPacket::ufDontChgExt)) {
 					Storage_SCardSerExt se(pPack->Eb);
-					THROW(PPRef->PutProp(Obj, pPack->Rec.ID, SCARDSERIES_EXT, (pPack->Eb.IsEmpty() ? 0 : &se), sizeof(se), 0));
+					THROW(p_ref->PutProp(Obj, pPack->Rec.ID, SCARDSERIES_EXT, (pPack->Eb.IsEmpty() ? 0 : &se), sizeof(se), 0));
 				}
 				// } @v8.7.12
 				ASSIGN_PTR(pID, pPack->Rec.ID);
@@ -1012,19 +1015,17 @@ int SLAPI PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int 
 		}
 		else if(*pID) {
 			THROW(CheckRights(PPR_DEL)); // @v7.9.5
-			THROW(PPRef->RemoveProp(Obj, *pID, SCARDSERIES_RULE, 0));
-			THROW(PPRef->RemoveProp(Obj, *pID, SCARDSERIES_CCHECKRULE, 0));
-			THROW(PPRef->RemoveProp(Obj, *pID, SCARDSERIES_BONUSRULE, 0));
-			THROW(PPRef->RemoveProp(Obj, *pID, SCARDSERIES_QKLIST, 0)); // @v7.4.0
-			THROW(PPRef->RemoveProp(Obj, *pID, SCARDSERIES_EXT, 0)); // @v8.7.12
+			THROW(p_ref->RemoveProp(Obj, *pID, SCARDSERIES_RULE, 0));
+			THROW(p_ref->RemoveProp(Obj, *pID, SCARDSERIES_CCHECKRULE, 0));
+			THROW(p_ref->RemoveProp(Obj, *pID, SCARDSERIES_BONUSRULE, 0));
+			THROW(p_ref->RemoveProp(Obj, *pID, SCARDSERIES_QKLIST, 0)); // @v7.4.0
+			THROW(p_ref->RemoveProp(Obj, *pID, SCARDSERIES_EXT, 0)); // @v8.7.12
 			THROW(RemoveObjV(*pID, 0, 0, 0));
 			acn_id = PPACN_OBJRMV;
 			ok = 1;
 		}
-		// @v7.3.11 {
 		if(acn_id)
 			DS.LogAction(acn_id, Obj, *pID, 0, 0);
-		// } @v7.3.11
 		THROW(tra.Commit());
 		if(ok > 0)
 			Dirty(*pID);
@@ -3405,6 +3406,7 @@ int SLAPI PPObjSCard::GetPacket(PPID id, PPSCardPacket * pPack)
 int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 {
 	int    ok = 1, r;
+	Reference * p_ref = PPRef;
 	int    do_dirty = 0;
 	const  int do_index_phones = BIN(CConfig.Flags2 & CCFLG2_INDEXEADDR);
 	SString temp_buf;
@@ -3460,7 +3462,7 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 					THROW_PP(r < 0 || same_code_rec.ID == *pID, PPERR_DUPLSCARDFOUND);
 					THROW(UpdateByID(P_Tbl, Obj, *pID, &pPack->Rec, 0));
 					(ext_buffer = pPack->GetBuffer()).Strip();
-					THROW(PPRef->UtrC.SetText(TextRefIdent(Obj, *pID, PPTRPROP_SCARDEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+					THROW(p_ref->UtrC.SetText(TextRefIdent(Obj, *pID, PPTRPROP_SCARDEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 					// @v9.4.7 {
 					if(do_index_phones) {
 						pPack->GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
@@ -3491,7 +3493,7 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 			THROW_PP(r < 0, PPERR_DUPLSCARDFOUND);
 			THROW(AddObjRecByID(P_Tbl, Obj, pID, &pPack->Rec, 0));
 			(ext_buffer = pPack->GetBuffer()).Strip();
-			THROW(PPRef->UtrC.SetText(TextRefIdent(Obj, *pID, PPTRPROP_SCARDEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetText(TextRefIdent(Obj, *pID, PPTRPROP_SCARDEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 			// @v9.4.7 {
 			if(do_index_phones) {
 				pPack->GetExtStrData(PPSCardPacket::extssPhone, temp_buf);

@@ -274,10 +274,11 @@ SString & SLAPI PPObject::GetAcceptMsg(PPID objType, PPID objID, int upd, SStrin
 int SLAPI PPObject::Helper_PutConfig(PPID cfgPropID, PPID cfgObjType, int isNew, void * pData, size_t sz, int use_ta)
 {
 	int    ok = 1;
-	if(PPRef) {
+	Reference * p_ref = PPRef;
+	if(p_ref) {
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(PPRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, cfgPropID, pData, sz, 0));
+		THROW(p_ref->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, cfgPropID, pData, sz, 0));
 		if(cfgObjType)
 			DS.LogAction(isNew ? PPACN_CONFIGCREATED : PPACN_CONFIGUPDATED, cfgObjType, 0, 0, 0);
 		THROW(tra.Commit());
@@ -1350,13 +1351,14 @@ PPID SLAPI GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 int SLAPI PPObject::Identify(const char * pObjType, const char * pObjIdent, PPObjID * pIdent)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	PPObjID ident;
 	ident.Set(0, 0);
 	long   obj_type_ext = 0;
 	long   int_type_id = atol(pObjType);
 	if(!SETIFZ(ident.Obj, NZOR(int_type_id, GetObjectTypeBySymb(pObjType, &obj_type_ext)))) {
 		PPSaveErrContext();
-		if(PPRef->SearchSymb(PPOBJ_DYNAMICOBJS, &int_type_id, pObjType, offsetof(ReferenceTbl::Rec, Symb)) > 0)
+		if(p_ref->SearchSymb(PPOBJ_DYNAMICOBJS, &int_type_id, pObjType, offsetof(ReferenceTbl::Rec, Symb)) > 0)
 			ident.Obj = int_type_id;
 		PPRestoreErrContext();
 	}
@@ -1379,7 +1381,7 @@ int SLAPI PPObject::Identify(const char * pObjType, const char * pObjIdent, PPOb
 			case PPOBJ_QUOTKIND:
 			case PPOBJ_CURRENCY:
 			case PPOBJ_CURRATETYPE:
-				ok = PPRef->SearchSymb(ident.Obj, &ident.Id, pObjIdent, offsetof(ReferenceTbl::Rec, Symb));
+				ok = p_ref->SearchSymb(ident.Obj, &ident.Id, pObjIdent, offsetof(ReferenceTbl::Rec, Symb));
 				break;
 			case PPOBJ_LOCATION:
 				if(stricmp(pObjIdent, "_undef") == 0) {
@@ -1392,7 +1394,7 @@ int SLAPI PPObject::Identify(const char * pObjType, const char * pObjIdent, PPOb
 				break;
 			default:
 				if(IS_DYN_OBJTYPE(ident.Obj)) {
-					ok = PPRef->SearchSymb(ident.Obj, &ident.Id, pObjIdent, offsetof(ReferenceTbl::Rec, Symb));
+					ok = p_ref->SearchSymb(ident.Obj, &ident.Id, pObjIdent, offsetof(ReferenceTbl::Rec, Symb));
 				}
 				else {
 					SString msg_buf;

@@ -28,8 +28,8 @@
 #endif /* DB_WINCE */
 
 #include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
+//#include <stdio.h>
+//#include <stdlib.h>
 #include <tchar.h>
 #include <time.h>
 

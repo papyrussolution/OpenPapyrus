@@ -24,7 +24,7 @@
 #ifndef __NO_SYSTEM_INCLUDES
 	#include <sys/types.h>
 	#include <stddef.h>
-	#include <stdio.h>
+	//#include <stdio.h>
 #endif
 /*
  * Turn off inappropriate compiler warnings

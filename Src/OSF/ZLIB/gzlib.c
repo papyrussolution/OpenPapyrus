@@ -6,18 +6,18 @@
 #include "gzguts.h"
 
 #if defined(_WIN32) && !defined(__BORLANDC__) && !defined(__MINGW32__)
-#  define LSEEK _lseeki64
+	#define LSEEK _lseeki64
 #else
 #if defined(_LARGEFILE64_SOURCE) && _LFS64_LARGEFILE-0
-#  define LSEEK lseek64
+	#define LSEEK lseek64
 #else
-#  define LSEEK lseek
+	#define LSEEK lseek
 #endif
 #endif
 
 /* Local functions */
-local void gz_reset OF((gz_statep));
-local gzFile gz_open OF((const void *, int, const char *));
+static void gz_reset OF((gz_statep));
+static gzFile gz_open OF((const void *, int, const char *));
 
 #if defined UNDER_CE
 
@@ -33,37 +33,26 @@ local gzFile gz_open OF((const void *, int, const char *));
 char ZLIB_INTERNAL * gz_strwinerror(DWORD error)
 {
 	static char buf[1024];
-
 	wchar_t * msgbuf;
 	DWORD lasterr = GetLastError();
-	DWORD chars = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM
-	    | FORMAT_MESSAGE_ALLOCATE_BUFFER,
-	    NULL,
-	    error,
-	    0, /* Default language */
-	    (LPVOID)&msgbuf,
-	    0,
-	    NULL);
+	DWORD chars = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER,
+	    NULL, error, 0/* Default language */, (LPVOID)&msgbuf, 0, NULL);
 	if(chars != 0) {
 		/* If there is an \r\n appended, zap it.  */
-		if(chars >= 2
-		    && msgbuf[chars - 2] == '\r' && msgbuf[chars - 1] == '\n') {
+		if(chars >= 2 && msgbuf[chars - 2] == '\r' && msgbuf[chars - 1] == '\n') {
 			chars -= 2;
 			msgbuf[chars] = 0;
 		}
-
 		if(chars > sizeof(buf) - 1) {
 			chars = sizeof(buf) - 1;
 			msgbuf[chars] = 0;
 		}
-
 		wcstombs(buf, msgbuf, chars + 1);
 		LocalFree(msgbuf);
 	}
 	else {
 		sprintf(buf, "unknown win32 error (%ld)", error);
 	}
-
 	SetLastError(lasterr);
 	return buf;
 }
@@ -71,7 +60,7 @@ char ZLIB_INTERNAL * gz_strwinerror(DWORD error)
 #endif /* UNDER_CE */
 
 /* Reset gzip file state */
-local void gz_reset(gz_statep state)
+static void gz_reset(gz_statep state)
 {
 	state->x.have = 0;          /* no output data available */
 	if(state->mode == GZ_READ) { /* for reading ... */
@@ -86,7 +75,7 @@ local void gz_reset(gz_statep state)
 }
 
 /* Open a gzip file either by name or file descriptor. */
-local gzFile gz_open(const void * path, int fd, const char * mode)
+static gzFile gz_open(const void * path, int fd, const char * mode)
 {
 	gz_statep state;
 	z_size_t len;
@@ -451,14 +440,12 @@ z_off64_t ZEXPORT gzoffset64(gzFile file)
 {
 	z_off64_t offset;
 	gz_statep state;
-
 	/* get internal structure and check integrity */
 	if(file == NULL)
 		return -1;
 	state = (gz_statep)file;
 	if(state->mode != GZ_READ && state->mode != GZ_WRITE)
 		return -1;
-
 	/* compute and return effective offset in file */
 	offset = LSEEK(state->fd, 0, SEEK_CUR);
 	if(offset == -1)
@@ -485,7 +472,6 @@ int ZEXPORT gzeof(gzFile file)
 	state = (gz_statep)file;
 	if(state->mode != GZ_READ && state->mode != GZ_WRITE)
 		return 0;
-
 	/* return end-of-file state */
 	return state->mode == GZ_READ ? state->past : 0;
 }
@@ -500,12 +486,10 @@ const char * ZEXPORT gzerror(gzFile file, int * errnum)
 	state = (gz_statep)file;
 	if(state->mode != GZ_READ && state->mode != GZ_WRITE)
 		return NULL;
-
 	/* return error information */
 	if(errnum != NULL)
 		*errnum = state->err;
-	return state->err == Z_MEM_ERROR ? "out of memory" :
-	       (state->msg == NULL ? "" : state->msg);
+	return state->err == Z_MEM_ERROR ? "out of memory" : (state->msg == NULL ? "" : state->msg);
 }
 
 /* -- see zlib.h -- */

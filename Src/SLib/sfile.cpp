@@ -1,5 +1,5 @@
 // SFILE.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -666,35 +666,67 @@ int SLAPI SFile::Seek(long offs, int origin)
 		else
 			ok = 0;
 	}
+	BufR.Clear(); // @v9.5.9
 	return ok;
 }
 
 int SLAPI SFile::Seek64(int64 offs, int origin)
 {
 	assert(InvariantC(0));
-	return (T == tFile) ? BIN(IH >= 0 && _lseeki64(IH, offs, origin) >= 0) : Seek((long)offs, origin);
+	int   ok = (T == tFile) ? BIN(IH >= 0 && _lseeki64(IH, offs, origin) >= 0) : Seek((long)offs, origin);
+	BufR.Clear(); // @v9.5.9
+	return ok;
 }
 
 long SLAPI SFile::Tell()
 {
 	assert(InvariantC(0));
+	long   t = 0;
 	if(T == tSBuffer) {
-		return (long)P_Sb->GetRdOffs();
+		t = (long)P_Sb->GetRdOffs();
 	}
 	else {
 		if(F)
-			return ftell(F);
-		else if(IH >= 0)
-			return tell(IH);
+			t = ftell(F);
+		else if(IH >= 0) {
+			t = tell(IH);
+			if(t >= 0) {
+				const size_t bo = BufR.GetWrOffs();
+				assert((int64)bo <= t);
+				if(bo <= t)
+					t -= (int64)bo;
+			}
+		}
 		else
-			return (SLibError = SLERR_FILENOTOPENED, 0);
+			t = (SLibError = SLERR_FILENOTOPENED, 0);
 	}
+	return t;
 }
 
 int64 SLAPI SFile::Tell64()
 {
 	assert(InvariantC(0));
-	return (T == tFile) ? ((IH >= 0) ? _telli64(IH) : 0) : (int64)Tell();
+	//return (T == tFile) ? ((IH >= 0) ? _telli64(IH) : 0) : (int64)Tell();
+	int64 t = 0;
+	if(T == tSBuffer) {
+		t = (int64)P_Sb->GetRdOffs();
+	}
+	else {
+		if(F)
+			t = ftell(F);
+		else if(IH >= 0) {
+			t = _telli64(IH);
+			if(t >= 0) {
+				const size_t bo = BufR.GetWrOffs();
+				assert((int64)bo <= t);
+				if(bo <= t)
+					t -= (int64)bo;
+			}
+		}
+		else
+			t = (SLibError = SLERR_FILENOTOPENED, 0);
+	}
+	return t;
 }
 
 int SLAPI SFile::Flush()
@@ -704,7 +736,7 @@ int SLAPI SFile::Flush()
 		if(F)
 			ok = (fflush(F) == 0) ? 1 : 0;
 	}
-	return -1;
+	return ok;
 }
 
 int SLAPI SFile::Write(const void * pBuf, size_t size)
@@ -748,14 +780,14 @@ int SLAPI SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
 	assert(InvariantC(0));
 	int    ok = 1;
 	int    act_size = 0;
-	if(T == tNullOutput)
-		ok = SLS.SetError(SLERR_SFILRDNULLOUTP, 0);
-	else if(T == tSBuffer) {
+	THROW_S(T != tNullOutput, SLERR_SFILRDNULLOUTP);
+	if(T == tSBuffer) {
 		act_size = P_Sb->Read(pBuf, size);
 	}
 	else {
+		THROW_S_S(F || (IH >= 0), SLERR_FILENOTOPENED, Name);
 		if(F) {
-			int64  offs = Tell64();
+			const int64 offs = Tell64();
 			if(fread(pBuf, size, 1, F) == 1)
 				act_size = (int)size;
 			else {
@@ -764,22 +796,59 @@ int SLAPI SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
 				//
 				Seek64(offs, SEEK_SET);
 				act_size = (int)fread(pBuf, 1, size, F);
-				if(act_size <= 0)
-					ok = SLS.SetError(SLERR_READFAULT, Name);
+				THROW_S_S(act_size > 0, SLERR_READFAULT, Name);
 			}
 		}
 		else if(IH >= 0) {
-			act_size = read(IH, pBuf, size);
-			if(act_size < 0) {
-				act_size = 0;
-				ok = SLS.SetError(SLERR_READFAULT, Name);
+			size_t size_to_do = size;
+			int    is_eof = 0;
+			while(ok > 0 && size_to_do) {
+				const size_t br_size = BufR.GetAvailableSize();
+				if(br_size) {
+					const size_t local_size_to_read = MIN(size_to_do, br_size);
+					const size_t local_act_size = BufR.Read(pBuf, local_size_to_read);
+					THROW_S_S(local_act_size == local_size_to_read, SLERR_READFAULT, Name);
+					act_size += local_act_size;
+					size_to_do -= local_act_size;
+				}
+				if(size_to_do) {
+					if(is_eof)
+						ok = -1;
+					else if(Mode & SFile::mBuffRd) {
+						//
+						const size_t SFile_MaxRdBuf_Size = 1024 * 1024;
+						//
+						assert(!is_eof); // Флаг должен был быть установлен на предыдущей итерации. Если мы сюда попали с этим флагом, значит что-то не так!
+						assert(SFile_MaxRdBuf_Size > BufR.GetAvailableSize());
+						STempBuffer temp_buf(SFile_MaxRdBuf_Size - BufR.GetAvailableSize());
+						THROW(temp_buf.IsValid());
+						const int local_act_size = read(IH, temp_buf, temp_buf.GetSize());
+						THROW_S_S(local_act_size >= 0, SLERR_READFAULT, Name);
+						THROW(BufR.Write(temp_buf, local_act_size));
+						if(local_act_size < (int)temp_buf.GetSize()) {
+							is_eof = 1;
+							if(local_act_size == 0)
+								ok = -1;
+						}
+					}
+					else {
+						const int local_act_size = read(IH, pBuf, size_to_do);
+						THROW_S_S(local_act_size >= 0, SLERR_READFAULT, Name);
+						act_size += local_act_size;
+						if(local_act_size < (int)size_to_do) {
+							is_eof = 1;
+							ok = -1;
+						}
+						size_to_do -= local_act_size;
+					}
+				}
 			}
-			else if(act_size < (int)size)
-				ok = -1;
 		}
-		else
-			ok = (SLibError = SLERR_FILENOTOPENED, 0);
 	}
+	CATCH
+		act_size = 0;
+		ok = 0;
+	ENDCATCH
 	ASSIGN_PTR(pActualSize, (size_t)act_size);
 	return ok;
 }
@@ -848,7 +917,23 @@ int SLAPI SFile::ReadLine(SString & rBuf)
 	}
 	else if(T == tSBuffer || T == tFile) {
 		THROW_S(T != tFile || IH >= 0, SLERR_FILENOTOPENED);
-		{
+		if(IH >= 0 && Mode & SFile::mBuffRd) {
+			int   rr = 0;
+			int   _done = 0;
+            do {
+            	int8  rd_buf[16];
+				size_t act_size = 0;
+				THROW(rr = Read(rd_buf, 1, &act_size));
+				if(act_size) {
+					if(rd_buf[act_size-1] == '\n' || (rd_buf[act_size-1] == '\xA' && rBuf.Last() == '\xD'))
+                        _done = 1;
+					rBuf.CatN((const char *)rd_buf, act_size);
+				}
+            } while(rr > 0 && !_done);
+            THROW_S_S(rBuf.Len(), SLERR_READFAULT, Name);
+		}
+		else {
+			int64  last_pos = Tell64();
 			char * p = 0;
 			STempBuffer temp_buf(1024+2);
 			THROW(temp_buf.IsValid());
@@ -856,17 +941,22 @@ int SLAPI SFile::ReadLine(SString & rBuf)
 			temp_buf[temp_buf.GetSize()-2] = 0;
 			while(Read(temp_buf, temp_buf.GetSize()-2, &act_size) && act_size) {
 				p = (char *)memchr(temp_buf, '\n', act_size);
-				if(p)
+				if(p) {
 					p[1] = 0;
+				}
 				else {
 					p = (char *)memchr(temp_buf, 0x0D, act_size);
-					if(p && p[1] == 0x0A)
+					if(p && p[1] == 0x0A) {
 						p[2] = 0;
-					else
+					}
+					else {
 						p = 0;
+					}
 				}
 				if(p) {
-					rBuf.Cat(temp_buf);
+					const size_t _len = sstrlen((char *)temp_buf);
+					rBuf.CatN(temp_buf, _len);
+					Seek64(last_pos + _len); // @v9.5.9
 					break;
 				}
 				else {
@@ -875,6 +965,7 @@ int SLAPI SFile::ReadLine(SString & rBuf)
 					if(act_size < (temp_buf.GetSize()-2))
 						break;
 				}
+				last_pos = Tell64();
 			}
 			THROW_S_S(rBuf.Len() || p, SLERR_READFAULT, Name);
 		}
@@ -1842,7 +1933,9 @@ int SLAPI SLldAlphabetAnalyzer::CollectFileData(const char * pFileName)
     CATCHZOK
 	return ok;
 }
-
+//
+//
+//
 #if SLTEST_RUNNING // {
 
 SLTEST_R(SFile)
@@ -1878,6 +1971,7 @@ SLTEST_R(SFile)
 		// поскольку для этого надо создавать отдельный асинхронный поток.
 		//
 	}
+	//SFile::Sort(0, 0, 0, 0, 0); // @v9.5.9 Вызов вставлен только для линковки модуля sfsort.cpp
 	CATCHZOK;
 	return ok;
 }

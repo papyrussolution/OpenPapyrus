@@ -1,5 +1,5 @@
 // V_SELL.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016
+// Copyright (c) A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -16,12 +16,11 @@ IMPLEMENT_PPFILT_FACTORY(PredictSales); SLAPI PredictSalesFilt::PredictSalesFilt
 	Init(1, 0);
 }
 
-int SLAPI PredictSalesFilt::SetGoodsList(const PPIDArray * pList, const char * pSubstText)
+void SLAPI PredictSalesFilt::SetGoodsList(const PPIDArray * pList, const char * pSubstText)
 {
 	GoodsIdList.Set(pList);
 	GoodsID = 0;
 	SubstName = pSubstText;
-	return 1;
 }
 //
 // PPViewPredictSales
@@ -163,13 +162,13 @@ int SLAPI PPViewPredictSales::NextIteration(PredictSalesViewItem *pItem)
 	return -1;
 }
 
-int SLAPI PPViewPredictSales::FormatCycle(LDATE dt, char * pBuf, size_t bufLen) const
+void SLAPI PPViewPredictSales::FormatCycle(LDATE dt, char * pBuf, size_t bufLen) const
 {
+	// @todo use PPView::Helper_FormatCycle 
 	if(Filt.Cycle)
 		CycleList.formatCycle(dt, pBuf, bufLen);
 	else
 		ASSIGN_PTR(pBuf, 0);
-	return 1;
 }
 
 int SLAPI PPViewPredictSales::CalcTotal(PredictSalesTotal * pTotal)
@@ -268,7 +267,7 @@ int SLAPI PPViewPredictSales::ViewGraph(PPViewBrowser * pBrw)
 	}
 	if(data_list.getCount()) {
 		LDATE low_date = ((PlotDataEntry *)data_list.at(0))->Dt;
-		int   dow = dayofweek(&low_date, 1);
+		const int dow = dayofweek(&low_date, 1);
 		if(dow != 1)
 			low_date = plusdate(low_date, -(dow-1));
 		param.Flags |= Generator_GnuPlot::PlotParam::fLines;
@@ -455,7 +454,7 @@ int SLAPI PPViewPredictSales::ConvertHdr(const void * pHdr, BrwHdr * pOut) const
 		pOut->LocID = Filt.LocList.GetSingle();
 		pOut->Dt = pHdr ? *(LDATE *)pHdr : ZERODATE;
 	}
-	return pHdr ? 1 : 0;
+	return BIN(pHdr);
 }
 
 int SLAPI PPViewPredictSales::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
@@ -486,7 +485,7 @@ int SLAPI PPViewPredictSales::ProcessCommand(uint ppvCmd, const void * pHdr, PPV
 				break;
 			case PPVCMD_REBUILD:
 				ok = -1;
-				if(hdr.GoodsID && RecalcGoods(&hdr) > 0) // @v7.7.2 hdr.Dt-->hdr.GoodsID
+				if(hdr.GoodsID && RecalcGoods(&hdr) > 0)
 					ok = 1;
 				break;
 			case PPVCMD_TEST:
@@ -503,7 +502,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 {
 	int    ok = -1;
 	if(pData && pStyle && paintAction == BrowserWindow::paintNormal) {
-		long   flags = *(long *)(PTR8(pData)+sizeof(LDATE));
+		const long flags = *(long *)(PTR8(pData)+sizeof(LDATE));
 		if(flags & 0x0001) {
 			pStyle->Color = GetGrayColorRef(0.9f);
 			pStyle->Flags = 0;

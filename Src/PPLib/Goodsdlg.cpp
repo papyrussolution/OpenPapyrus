@@ -709,7 +709,7 @@ IMPL_HANDLE_EVENT(ArGoodsCodeDialog)
 	else if(event.isCbSelected(CTLSEL_ARGOODSCODE_ACS)) {
 		if(!Data.ArID) {
 			AcsID = getCtrlLong(CTLSEL_ARGOODSCODE_ACS);
-			SetupArCombo(this, CTLSEL_ARGOODSCODE_AR, 0L, OLW_LOADDEFONOPEN, AcsID, sacfDisableIfZeroSheet);
+			SetupArCombo(this, CTLSEL_ARGOODSCODE_AR, 0L, OLW_LOADDEFONOPEN, AcsID, sacfDisableIfZeroSheet|sacfNonGeneric);
 		}
 		else if(AcsID != getCtrlLong(CTLSEL_ARGOODSCODE_ACS))
 			setCtrlLong(CTLSEL_ARGOODSCODE_ACS, AcsID);
@@ -741,7 +741,7 @@ int ArGoodsCodeDialog::setDTS(const ArGoodsCodeTbl::Rec * pData)
 	else
 		AcsID = GetSupplAccSheet();
 	SetupPPObjCombo(this, CTLSEL_ARGOODSCODE_ACS, PPOBJ_ACCSHEET, AcsID, 0, 0);
-	SetupArCombo(this, CTLSEL_ARGOODSCODE_AR, Data.ArID, OLW_CANINSERT|OLW_LOADDEFONOPEN, AcsID, sacfDisableIfZeroSheet);
+	SetupArCombo(this, CTLSEL_ARGOODSCODE_AR, Data.ArID, OLW_CANINSERT|OLW_LOADDEFONOPEN, AcsID, sacfDisableIfZeroSheet|sacfNonGeneric);
 	setCtrlData(CTL_ARGOODSCODE_CODE, Data.Code);
 	setCtrlReal(CTL_ARGOODSCODE_UPP,  fdiv1000i(Data.Pack));
 	uint   sel = 0;
@@ -2309,7 +2309,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 				if(Data.Rec.ID) {
 					OpGroupingFilt filt;
 					filt.GoodsID = Data.Rec.ID;
-                    getperiod("^2..", &filt.Period);
+                    strtoperiod("^2..", &filt.Period, 0);
                     filt.Flags |= OpGroupingFilt::fCalcRest;
                     PPView::Execute(PPVIEW_OPGROUPING, &filt, 0, 0);
 				}

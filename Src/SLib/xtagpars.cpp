@@ -1,9 +1,6 @@
 // XTAGPARS.CPP
-// Copyright (c) A.Starodub 2002, 2015
+// Copyright (c) A.Starodub 2002, 2015, 2016
 //
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <slib.h>
 
 SLAPI XTagParser::XTagParser()

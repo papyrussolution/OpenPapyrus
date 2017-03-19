@@ -1,5 +1,5 @@
 // RANGE.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -347,7 +347,29 @@ int SLAPI DateRange::IsZero() const
 
 int FASTCALL DateRange::CheckDate(LDATE dt) const
 {
-	return BIN(dt >= low && (!upp || dt <= upp));
+	int r = BIN(dt >= low && (!upp || dt <= upp));
+	if(!r) {
+		const int lf = low.hasanycomponent();
+		const int uf = upp.hasanycomponent();
+		if(lf || uf) {
+			LDATE temp_low = low;
+			LDATE temp_upp = upp;
+			if(lf & 0x01)
+				temp_low.setyear(dt.year());
+			if(lf & 0x02)
+				temp_low.setmonth(dt.month());
+			if(lf & 0x04)
+				temp_low.setday(dt.day());
+			if(uf & 0x01)
+				temp_upp.setyear(dt.year());
+			if(uf & 0x02)
+				temp_upp.setmonth(dt.month());
+			if(uf & 0x04)
+				temp_upp.setday(dt.day());
+			r = BIN(dt >= temp_low && (!temp_upp || dt <= temp_upp));
+		}
+	}
+	return r;
 }
 
 DateRange & SLAPI DateRange::Set(LDATE lo, LDATE up)
@@ -481,6 +503,13 @@ DateRange & FASTCALL DateRange::Actualize(LDATE rel)
 {
 	low = low.getactual(rel);
 	upp = upp.getactual(rel);
+	return *this;
+}
+
+DateRange & SLAPI DateRange::ActualizeCmp(LDATE rel, LDATE cmp)
+{
+	low = low.getactualcmp(rel, cmp);
+	upp = upp.getactualcmp(rel, cmp);
 	return *this;
 }
 //

@@ -803,6 +803,9 @@
 				RelativePath="..\SLib\sformat.cpp">
 			</File>
 			<File
+				RelativePath="..\SLib\sfsort.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\sfxtree2.cpp">
 			</File>
 			<File

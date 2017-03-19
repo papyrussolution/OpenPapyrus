@@ -1,5 +1,5 @@
 // INVENTRY.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 // Инвентаризация //
@@ -52,7 +52,7 @@ InventoryDialog::InventoryDialog(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 	setCtrlData(CTL_BILL_DOC,    P_Data->Rec.Code);
 	setCtrlData(CTL_BILL_DATE,   &P_Data->Rec.Dt);
 	setCtrlData(CTL_BILL_DUEDATE, &P_Data->Rec.DueDate);
-	SetupArCombo(this, CTLSEL_BILL_PERSON, P_Data->Rec.Object, OLW_LOADDEFONOPEN, op_pack.Rec.AccSheetID, sacfDisableIfZeroSheet);
+	SetupArCombo(this, CTLSEL_BILL_OBJECT, P_Data->Rec.Object, OLW_LOADDEFONOPEN, op_pack.Rec.AccSheetID, sacfDisableIfZeroSheet);
 	{
 		if(op_pack.Rec.AccSheet2ID) {
 			PPClientAgreement ca_rec;
@@ -119,7 +119,7 @@ int InventoryDialog::getDTS(PPBillPacket * /*_data*/)
 	getCtrlData(CTL_BILL_DATE, &P_Data->Rec.Dt);
 	getCtrlData(CTL_BILL_DUEDATE, &P_Data->Rec.DueDate);
 	getCtrlData(CTL_BILL_AMOUNT, &P_Data->Rec.Amount);
-	getCtrlData(CTLSEL_BILL_PERSON, &P_Data->Rec.Object);
+	getCtrlData(CTLSEL_BILL_OBJECT, &P_Data->Rec.Object);
 	getCtrlData(CTLSEL_BILL_OBJ2,   &P_Data->Rec.Object2); // @v8.6.12
 	// @v8.8.5 {
 	{
@@ -443,9 +443,9 @@ int SLAPI PPObjBill::GetInventoryStockRest(InvBlock & rBlk, InvItem * pItem, Goo
 	}
 	else {
 		pRestParam->GoodsID = pItem->GoodsID;
-		pRestParam->Flags   = 0;
-		pRestParam->Date    = _dt;    // @v7.6.2 (rBlk.Flags & InvBlock::fUseCurrent) ? ZERODATE : rBlk.BillRec.Dt;
-		pRestParam->OprNo   = _oprno; // @v7.6.2
+		pRestParam->Flags_  = 0;
+		pRestParam->Date    = _dt;
+		pRestParam->OprNo   = _oprno;
 		pRestParam->LocID   = rBlk.BillRec.LocID;
 		pRestParam->DiffParam |= GoodsRestParam::_diffSerial;
 		THROW(trfr->GetRest(pRestParam));

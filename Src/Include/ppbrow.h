@@ -1417,6 +1417,7 @@
 #define PPCMD_SUPPLINTERCHANGE            1323
 #define PPCMD_WORKBOOKINTERCHANGE         1324
 #define PPCMD_ALCREPORTCFG                1325
+#define PPCMD_PROCESSOSM                  1326
 //
 // PPJOB definitions
 //
@@ -1767,6 +1768,7 @@
 	#define PPFILT_OPRKIND                     1091
 	#define PPVIEWITEM_OPRKIND                     1092
 #define PPFILT_GCT                         1101
+#define PPFILT_PRCSSROSMPARAM              1111
 //
 // RECORD definitions
 //

@@ -1,5 +1,5 @@
 // SBUFFER.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -160,9 +160,9 @@ int FASTCALL SBuffer::Write(const void * pBuf, size_t size)
 	if(size) {
 		if(RdOffs && Flags & fMovable) {
 			const size_t rd_offs = RdOffs;
-			memmove(Ptr(0), Ptr(rd_offs), Size-rd_offs); // @v6.1.1 RdOffs-->Size-RdOffs (BUG)
+			memmove(Ptr(0), Ptr(rd_offs), Size-rd_offs); // @v6.1.1 @fix RdOffs-->Size-RdOffs 
 			RdOffs -= rd_offs;
-			WrOffs -= rd_offs; // @v7.8.0 Была ошибка: из WrOffs вычитался уже уменьшенный до нуля размер RdOffs
+			WrOffs -= rd_offs; // @v7.8.0 @fix из WrOffs вычитался уже уменьшенный до нуля размер RdOffs
 		}
 		const size_t new_size = (WrOffs + size);
 		if((new_size <= Size) || Alloc(new_size)) { // @v9.4.1 (new_size <= Size) с целью ускорения

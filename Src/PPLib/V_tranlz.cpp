@@ -43,8 +43,8 @@ IMPLEMENT_PPFILT_FACTORY(TrfrAnlz); SLAPI TrfrAnlzFilt::TrfrAnlzFilt() : PPBaseF
 	SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, RcptBillList));
 	SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, LocList));
 	SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, CtValList));
-	SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, ArList));      // @v7.9.11
-	SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, AgentList));   // @v7.9.11
+	SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, ArList));
+	SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, AgentList));
 	Init(1, 0);
 }
 
@@ -155,10 +155,8 @@ int SLAPI TrfrAnlzFilt::IsEqualExcept(const TrfrAnlzFilt & rS, long flags) const
 		return 0;
 	if(NEQ_FLD(AgentID_))
 		return 0;
-	// @v7.0.11 {
 	if(NEQ_FLD(SupplAgentID))
 		return 0;
-	// } @v7.0.11
 	if(NEQ_FLD(PsnCatID))
 		return 0;
 	if(NEQ_FLD(CityID))
@@ -183,12 +181,10 @@ int SLAPI TrfrAnlzFilt::IsEqualExcept(const TrfrAnlzFilt & rS, long flags) const
 		return 0;
 	if(!LocList.IsEqual(rS.LocList))
 		return 0;
-	// @v7.9.11 {
 	if(!ArList.IsEqual(rS.ArList))
 		return 0;
 	if(!AgentList.IsEqual(rS.AgentList))
 		return 0;
-	// } @v7.9.11
 	if(!(flags & eqxCrosstab)) {
 		if(NEQ_FLD(CtKind))
 			return 0;
@@ -211,8 +207,6 @@ int SLAPI TrfrAnlzFilt::Describe(long flags, SString & rBuf) const
 
 	PutObjMembToBuf(PPOBJ_OPRKIND,      OpID,        STRINGIZING(OpID),      rBuf);
 	PutObjMembToBuf(PPOBJ_ARTICLE,      SupplID,    STRINGIZING(SupplID),    rBuf);
-	// @v7.9.11 PutObjMembToBuf(PPOBJ_ARTICLE,      ArID,       STRINGIZING(ArID),       rBuf);
-	// @v7.9.11 PutObjMembToBuf(PPOBJ_ARTICLE,      AgentID,    STRINGIZING(AgentID),    rBuf);
 	PutObjMembToBuf(PPOBJ_GOODS,        GoodsID,    STRINGIZING(GoodsID),    rBuf);
 	PutObjMembToBuf(PPOBJ_GOODSGROUP,   GoodsGrpID, STRINGIZING(GoodsGrpID), rBuf);
 	PutObjMembToBuf(PPOBJ_WORLD,        CityID,     STRINGIZING(CityID),     rBuf);
@@ -284,8 +278,8 @@ int SLAPI TrfrAnlzFilt::Describe(long flags, SString & rBuf) const
 	PutObjMembListToBuf(PPOBJ_BILL,     &BillList,     STRINGIZING(BillList),     rBuf);
 	PutObjMembListToBuf(PPOBJ_BILL,     &RcptBillList, STRINGIZING(RcptBillList), rBuf);
 	PutObjMembListToBuf(PPOBJ_LOCATION, &LocList,      STRINGIZING(LocList),      rBuf);
-	PutObjMembListToBuf(PPOBJ_LOCATION, &ArList,       STRINGIZING(ArList),       rBuf); // @v7.9.11
-	PutObjMembListToBuf(PPOBJ_LOCATION, &AgentList,    STRINGIZING(AgentList),    rBuf); // @v7.9.11
+	PutObjMembListToBuf(PPOBJ_LOCATION, &ArList,       STRINGIZING(ArList),       rBuf);
+	PutObjMembListToBuf(PPOBJ_LOCATION, &AgentList,    STRINGIZING(AgentList),    rBuf);
 	return 1;
 }
 //
@@ -649,8 +643,8 @@ int SLAPI PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 			gct_filt.LotsPeriod = Filt.LotsPeriod;
 			gct_filt.LocList.Set(&LocList);
 			gct_filt.BillList = Filt.BillList;
-			gct_filt.ArList   = Filt.ArList;     // @v7.9.11
-			gct_filt.AgentList = Filt.AgentList; // @v7.9.11
+			gct_filt.ArList   = Filt.ArList;
+			gct_filt.AgentList = Filt.AgentList;
 			gct_filt.OpID    = Filt.OpID;
 			gct_filt.SupplID = Filt.SupplID;
 			gct_filt.ArID_   = Filt.ArID_;
@@ -659,16 +653,16 @@ int SLAPI PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 			gct_filt.GoodsGrpID = Filt.GoodsGrpID;
 			gct_filt.GoodsID    = Filt.GoodsID;
 			gct_filt.BrandID    = Filt.BrandID;
-			gct_filt.SupplAgentID = Filt.SupplAgentID; // @v7.0.11
+			gct_filt.SupplAgentID = Filt.SupplAgentID;
 			SETFLAG(gct_filt.Flags, OPG_LABELONLY,   Filt.Flags & TrfrAnlzFilt::fLabelOnly);
 			SETFLAG(gct_filt.Flags, OPG_BYZEROAGENT, Filt.Flags & TrfrAnlzFilt::fByZeroAgent);
 			SETFLAG(gct_filt.Flags, OPG_FORCEBILLCACHE, 1);
-			SETFLAG(gct_filt.Flags, OPG_BYZERODLVRADDR, Filt.Flags & TrfrAnlzFilt::fByZeroDlvrAddr); // @v7.1.5
+			SETFLAG(gct_filt.Flags, OPG_BYZERODLVRADDR, Filt.Flags & TrfrAnlzFilt::fByZeroDlvrAddr);
 			SETFLAG(gct_filt.Flags, OPG_SKIPNOUPDLOTREST, 1); // @v8.9.0
 			SETFLAG(gct_filt.Flags, OPG_STOREDAYLYRESTS, Filt.Flags & TrfrAnlzFilt::fCalcRest); // @v9.1.3
 			// @v9.4.10 {
 			if(GCTIterator::AnalyzeOp(Filt.OpID, 0) & GCTIterator::aorfThereAreDrafts) {
-				SETFLAG(gct_filt.Flags, OPG_COMPAREWROFF, Filt.Flags & TrfrAnlzFilt::fCompareWrOff);
+				SETFLAG(gct_filt.Flags, OPG_COMPAREWROFF, Filt.Flags & TrfrAnlzFilt::fCmpWrOff);
 			}
 			// } @v9.4.10
 			if(Filt.Flags & TrfrAnlzFilt::fShowAllArticles)
@@ -1043,449 +1037,458 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 	double price;
 	double discount;
 	double pvat = 0.0;
-	// @v9.3.4 {
-	double ext_val1 = 0.0;
-	{
-		const long ext_val_param = Filt.ExtValueParam[0];
-		if(ext_val_param == Filt.extvLinkOrderDiscount) {
-			PPID   ord_lot_id = 0;
-			if(P_BObj->GetOrderLotForTransfer(*pTrfrRec, &ord_lot_id) > 0) {
-				assert(ord_lot_id);
-				DateIter di;
-				TransferTbl::Rec ord_rec;
-				if(P_BObj->trfr->EnumByLot(ord_lot_id, &di, &ord_rec) > 0) {
-					if(TESTMULTFLAG(ord_rec.Flags, (PPTFR_ORDER|PPTFR_RECEIPT)) && ord_rec.Discount != 0.0) {
-						const double ord_qtty = fabs(ord_rec.Quantity);
-						const double ord_price = fabs(ord_rec.Price) * ord_qtty;
-						const double ord_dis   = ord_rec.Discount * ord_qtty;
-						double ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R4(ord_dis / ord_price) : 0.0;
-						if(ord_pct_dis > 0.0)
-							ext_val1 = (pTrfrRec->Price - pTrfrRec->Discount) * ord_pct_dis * qtty / (1.0 - ord_pct_dis);
-					}
-				}
-			}
-		}
-		// @v9.5.0 {
-		else if(ext_val_param > Filt.extvQuotBias) {
-			const QuotIdent qi(pTrfrRec->Dt, pTrfrRec->LocID, ext_val_param-Filt.extvQuotBias, pTrfrRec->CurID, pBillRec->Object); // @v9.5.3 pTrfrRec->Dt
-			double _ext_quot = 0.0;
-			if(GObj.GetQuotExt(goods_id, qi, pTrfrRec->Cost, pTrfrRec->Price, &_ext_quot, 1) > 0) {
-				ext_val1 = _ext_quot * qtty * sign;
-			}
-		}
-		// } @v9.5.0
+	// @v9.5.8 {
+	int    skip = 0;
+	if(Filt.Flags & TrfrAnlzFilt::fCmpWrOff && Filt.Flags & TrfrAnlzFilt::fCmpWrOff_DiffOnly && pExt) {
+		if(feqeps(fabs(pExt->LinkQtty), fabs(qtty), 1.0E-7))
+			skip = 1;
 	}
-	// } @v9.3.4
-	if(Flags & fAsGoodsCard && Filt.Flags & TrfrAnlzFilt::fGByDate) {
-		//
-		// В случае расчета карточки товара с группировкой по дате price представляет
-		// среднюю цену расхода (в ценах реализации).
-		// При этом количество расхода установлено в поле pBillRec->CRate
-		//
-		price = TR5(pTrfrRec->Price) * fabs(pBillRec->CRate);
-		discount = 0.0;
-	}
-	else {
-		price = TR5(pTrfrRec->Price) * qtty;
-		discount = TR5(pTrfrRec->Discount) * qtty;
-	}
-	//
-	// Рассчитываем налоги либо поправляем цены, в случае, если они указаны без налогов
-	//
-	if((Filt.Flags & (TrfrAnlzFilt::fCalcVat|TrfrAnlzFilt::fCWoVat) || (pTrfrRec->Flags & (PPTFR_COSTWOVAT | PPTFR_PRICEWOTAXES)))) {
-		Goods2Tbl::Rec grec;
-		if(GObj.Fetch(goods_id, &grec) > 0) {
-			double tax_factor = qtty;
-			GObj.MultTaxFactor(goods_id, &tax_factor);
-			if(((Filt.Flags & TrfrAnlzFilt::fCWoVat) || (pTrfrRec->Flags & PPTFR_COSTWOVAT)) && (Flags & fAccsCost)) {
-				LDATE  lot_date = ZERODATE;
-				PPID   in_tax_grp_id = 0;
-				int    vat_free = 0;
-				ReceiptTbl::Rec org_lot_rec;
-				if(pTrfrRec->LotID) {
-					if(P_BObj->trfr->Rcpt.SearchOrigin(pTrfrRec->LotID, 0, 0, &org_lot_rec) > 0) {
-						lot_date = org_lot_rec.Dt;
-						in_tax_grp_id = org_lot_rec.InTaxGrpID;
-						vat_free = IsLotVATFree(org_lot_rec);
-					}
-				}
-				if(pTrfrRec->Flags & PPTFR_COSTWOVAT)
-					GObj.AdjCostToVat(in_tax_grp_id, grec.TaxGrpID, lot_date, tax_factor, &cost, 1, vat_free);
-				if(Filt.Flags & TrfrAnlzFilt::fCWoVat) {
-					//
-					// Расчет цены поступления без НДС
-					//
-					if(GObj.GTxObj.Fetch(NZOR(in_tax_grp_id, grec.TaxGrpID), pTrfrRec->Dt, 0, &gtx) > 0) {
-						GTaxVect vect;
-						vect.Calc_(&gtx, cost, tax_factor, ~GTAXVF_SALESTAX, (vat_free ? GTAXVF_VAT : 0));
-						cost -= vect.GetValue(GTAXVF_VAT);
-					}
-				}
-			}
-			if(Filt.Flags & (TrfrAnlzFilt::fCalcVat|TrfrAnlzFilt::fCWoVat) || pTrfrRec->Flags & PPTFR_PRICEWOTAXES) {
-				if(GObj.GTxObj.Fetch(grec.TaxGrpID, pTrfrRec->Dt, pBillRec->OpID, &gtx) > 0) {
-					if(pTrfrRec->Flags & PPTFR_PRICEWOTAXES) {
-						price = price - discount;
-						discount = 0.0;
-						GObj.AdjPriceToTaxes(gtx.TaxGrpID, tax_factor, &price, 1);
-					}
-					if(Filt.Flags & (TrfrAnlzFilt::fCalcVat|TrfrAnlzFilt::fCWoVat)) {
-						const long amt_fl = (CConfig.Flags & CCFLG_PRICEWOEXCISE) ? ~GTAXVF_SALESTAX : GTAXVF_BEFORETAXES;
-						GTaxVect vect;
-						vect.Calc_(&gtx, fabs(price - discount), tax_factor, amt_fl, 0);
-						if(Filt.Flags & TrfrAnlzFilt::fCalcVat) {
-							pvat = vect.GetValue(GTAXVF_VAT);
-						}
-						if(Filt.Flags & TrfrAnlzFilt::fCWoVat) {
-							//
-							// Расчет цены реализации без НДС
-							//
-							price = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE);
-							discount = 0.0;
-						}
-					}
-				}
-			}
-		}
-	}
-	cost     *= sign;
-	price    *= sign;
-	discount *= sign;
-	pvat     *= sign;
-	{
-		PPObjGoods::SubstBlock sgg_blk; // @v8.3.3
-		sgg_blk.ExclParentID = Filt.GoodsGrpID;
-		sgg_blk.LocID = pTrfrRec->LocID;
-		sgg_blk.LotID = pTrfrRec->LotID; // @v8.3.4
-		/* @v8.3.4
-		if(Filt.Sgg == sggSuppl) {
-			ReceiptTbl::Rec lot_rec;
-			if(P_BObj->trfr->Rcpt.Search(pTrfrRec->LotID, &lot_rec) > 0)
-				sgg_blk.SupplID = lot_rec.SupplID;
-		}
-		else if(Filt.Sgg == sggSupplAgent)
-			sgg_blk.SupplID = P_BObj->GetSupplAgent(pTrfrRec->LotID);
-		*/
-		THROW(GObj.SubstGoods(goods_id, &_goods_id, Filt.Sgg, &sgg_blk, &Gsl));
-	}
-	if(Filt.Flags & TrfrAnlzFilt::fInitLocCount && dlvr_loc_id < 0) {
-		if(Filt.Flags & (TrfrAnlzFilt::fDiffByDlvrAddr|TrfrAnlzFilt::fSubstDlvrAddr))
-			GetDlvrLocID(pBillRec, &dlvr_loc_id);
-		if(dlvr_loc_id <= 0 && PsnObj.Fetch(psn_id, &psn_rec) > 0) {
-			if(Filt.Flags & (TrfrAnlzFilt::fSubstPersonRAddr|TrfrAnlzFilt::fSubstDlvrAddr))
-				dlvr_loc_id = psn_rec.RLoc;
-			if(dlvr_loc_id <= 0)
-				dlvr_loc_id = psn_rec.MainLoc;
-		}
-	}
-	//
-	// Если условия фильтра предполагают детализацию (Контрагент-Адрес доставки), то подстановка персоналии невозможна.
-	//
-	if(Filt.Sgp && !(Filt.Flags & TrfrAnlzFilt::fDiffByDlvrAddr)) {
-		if(Filt.Flags & TrfrAnlzFilt::fSubstDlvrAddr && dlvr_loc_id < 0)
-			GetDlvrLocID(pBillRec, &dlvr_loc_id);
-		PsnObj.Subst(ar_id ? (ar_id | sgpArticleMask) : psn_id, dlvr_loc_id, &Psp, PSNSUBSTF_LASTRELINHIERARH, &_psn_id);
-		if(_psn_id && psn_id != _psn_id && ar_id) {
-			ArticleTbl::Rec ar_rec;
-			if(ArObj.Fetch(ar_id, &ar_rec) > 0 && ar_rec.AccSheetID) {
-				PPID   ar2_id = 0;
-				if(ArObj.P_Tbl->PersonToArticle(_psn_id, ar_rec.AccSheetID, &ar2_id) > 0)
-					_ar_id = ar2_id;
-			}
-		}
-	}
-	else
-		_psn_id = NZOR(psn_id, (ar_id | sgpArticleMask));
-	if(ShrinkSubstDate(Filt.Sgd, _dt, &_dt) > 0)
-		_oprno = ++(*pOprNo);
-	if(Filt.Grp) {
-		TempTrfrGrpngTbl::Key1 k;
-		TempTrfrGrpngTbl::Rec tg_rec;
-		MEMSZERO(tg_rec);
-		double rest = 0.0;
-		tg_rec.Qtty      = pTrfrRec->Quantity;
-		if(GObj.GetPhUPerU(goods_id, 0, &phuperu) > 0)
-			tg_rec.PhQtty = tg_rec.Qtty * phuperu;
-		tg_rec.Cost      = cost;
-		tg_rec.Price     = price;
-		tg_rec.Discount  = discount;
-		tg_rec.Price    -= tg_rec.Discount;
-		tg_rec.PVat      = pvat;
-		// @v9.4.10 {
-		if(pExt) {
-			tg_rec.LinkQtty  = pExt->LinkQtty;
-			tg_rec.LinkCost  = pExt->LinkCost;
-			tg_rec.LinkPrice = pExt->LinkPrice;
-		}
-		// } @v9.4.10
-		tg_rec.ExtVal1   = ext_val1; // @v9.3.5
-		tg_rec.ArticleID = _ar_id;
-		tg_rec.GoodsID   = _goods_id;
-		tg_rec.PersonID  = _psn_id;
-		tg_rec.Dt        = _dt;
-		MEMSZERO(k);
-		if(Filt.Grp == TrfrAnlzFilt::gGoods) {
-			k.GoodsID = _goods_id;
-			tg_rec.PersonID = 0;
-			tg_rec.Dt = ZERODATE;
-		}
-		else if(Filt.Grp == TrfrAnlzFilt::gGoodsDate) {
-			k.GoodsID = _goods_id;
-			k.Dt      = _dt;
-			tg_rec.PersonID = 0;
-		}
-		else if(Filt.Grp == TrfrAnlzFilt::gCntragent) {
-			k.PersonID = _psn_id;
-			tg_rec.GoodsID = 0;
-			tg_rec.Dt = ZERODATE;
-			InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
-			k.DlvrLocID = tg_rec.DlvrLocID;
-		}
-		else if(Filt.Grp == TrfrAnlzFilt::gCntragentDate) {
-			k.PersonID = _psn_id;
-			tg_rec.GoodsID = 0;
-			k.Dt = _dt;
-			InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
-			k.DlvrLocID = tg_rec.DlvrLocID;
-		}
-		else if(Filt.Grp == TrfrAnlzFilt::gGoodsCntragent) {
-			k.GoodsID  = _goods_id;
-			k.PersonID = _psn_id;
-			tg_rec.Dt = ZERODATE;
-			InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
-			k.DlvrLocID = tg_rec.DlvrLocID;
-		}
-		else if(Filt.Grp == TrfrAnlzFilt::gGoodsCntragentDate) {
-			k.GoodsID  = _goods_id;
-			k.PersonID = _psn_id;
-			k.Dt = _dt;
-			InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
-			k.DlvrLocID = tg_rec.DlvrLocID;
-		}
-		else if(Filt.Grp == TrfrAnlzFilt::gGoodsBill) {
-			tg_rec.BillID = pBillRec->ID;
-			k.GoodsID = _goods_id;
-			k.PersonID = _psn_id;
-			k.Dt = _dt;
-			k.BillID = pBillRec->ID;
-		}
-		else if(Filt.Grp == TrfrAnlzFilt::gDateCntragentAgentGoods) {
-			InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
-			if(tg_rec.DlvrLocID == 0 && psn_id && PsnObj.Fetch(psn_id, &psn_rec) > 0)
-				tg_rec.DlvrLocID = NZOR(psn_rec.RLoc, psn_rec.MainLoc);
-			tg_rec.BillID = bill_agent_id;
-			k.GoodsID  = _goods_id;
-			k.PersonID = _psn_id;
-			k.Dt       = _dt;
-			k.BillID   = tg_rec.BillID;
-			k.DlvrLocID = tg_rec.DlvrLocID;
-		}
-		else if(Filt.Grp == TrfrAnlzFilt::gBillCntragent) {
-			k.PersonID = _psn_id;
-			k.BillID   = pBillRec->ID;
-			k.Dt       = pBillRec->Dt;
-			InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
-			k.DlvrLocID = tg_rec.DlvrLocID;
-			tg_rec.BillID  = pBillRec->ID;
-			tg_rec.GoodsID = 0;
-			tg_rec.Dt      = pBillRec->Dt;
-		}
+	if(!skip) {
+	// } @v9.5.8 
+		// @v9.3.4 {
+		double ext_val1 = 0.0;
 		{
-			TagrCacheItem ctest, citem;
-			uint   pos = 0;
-			int    r = 0;
-			ctest.Dt = tg_rec.Dt;
-			ctest.GoodsID = tg_rec.GoodsID;
-			ctest.PersonID = tg_rec.PersonID;
-			ctest.BillID = tg_rec.BillID;
-			ctest.DlvrLocID = tg_rec.DlvrLocID;
-			if(Cache.bsearch(&ctest, &pos, Cf)) {
-				r = 1;
-			}
-			else if(P_TrGrpngTbl->search(1, &k, spEq)) {
-#define CPY(f) citem.f = P_TrGrpngTbl->data.f
-				CPY(ID__);
-				CPY(Dt);
-				CPY(GoodsID);
-				CPY(PersonID);
-				CPY(ArticleID);
-				CPY(BillID);
-				CPY(DlvrLocID);
-				CPY(LocCount);
-				CPY(Qtty);
-				CPY(PhQtty);
-				CPY(Cost);
-				CPY(Price);
-				CPY(Discount);
-				CPY(Income);
-				CPY(SaldoQtty);
-				CPY(SaldoAmt);
-				CPY(PVat);
-				CPY(Brutto);    // @v8.7.7
-				CPY(LinkQtty);  // @v9.4.10
-				CPY(LinkCost);  // @v9.4.10
-				CPY(LinkPrice); // @v9.4.10
-				CPY(ExtVal1);   // @v9.3.5
-#undef CPY
-				citem.Counter = 0;
-				P_TrGrpngTbl->getPosition(&citem.DbPos);
-				if(Cache.getCount() >= MaxCacheItems)
-					THROW(FlashCacheItems(CacheDelta));
-				THROW_SL(Cache.ordInsert(&citem, &pos, Cf));
-				r = 1;
-			}
-			if(r > 0) {
-				TagrCacheItem & r_citem = GetCacheItem(pos);
-				r_citem.Qtty    += tg_rec.Qtty;
-				r_citem.PhQtty  += tg_rec.PhQtty;
-				r_citem.Cost    += tg_rec.Cost;
-				r_citem.Price   += tg_rec.Price;
-				r_citem.PVat    += tg_rec.PVat;
-				r_citem.Brutto  += tg_rec.Brutto; // @v8.7.7
-				r_citem.LinkQtty  += tg_rec.LinkQtty;  // @v9.4.10
-				r_citem.LinkCost  += tg_rec.LinkCost;  // @v9.4.10
-				r_citem.LinkPrice += tg_rec.LinkPrice; // @v9.4.10
-				r_citem.ExtVal1 += tg_rec.ExtVal1; // @v9.3.5
-				if(Filt.Flags & TrfrAnlzFilt::fInitLocCount)
-					if(!LocCountList.SearchPair(r_citem.ID__, dlvr_loc_id, 0)) {
-						LocCountList.Add(r_citem.ID__, dlvr_loc_id, 0);
-						r_citem.LocCount++;
+			const long ext_val_param = Filt.ExtValueParam[0];
+			if(ext_val_param == Filt.extvLinkOrderDiscount) {
+				PPID   ord_lot_id = 0;
+				if(P_BObj->GetOrderLotForTransfer(*pTrfrRec, &ord_lot_id) > 0) {
+					assert(ord_lot_id);
+					DateIter di;
+					TransferTbl::Rec ord_rec;
+					if(P_BObj->trfr->EnumByLot(ord_lot_id, &di, &ord_rec) > 0) {
+						if(TESTMULTFLAG(ord_rec.Flags, (PPTFR_ORDER|PPTFR_RECEIPT)) && ord_rec.Discount != 0.0) {
+							const double ord_qtty = fabs(ord_rec.Quantity);
+							const double ord_price = fabs(ord_rec.Price) * ord_qtty;
+							const double ord_dis   = ord_rec.Discount * ord_qtty;
+							double ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R4(ord_dis / ord_price) : 0.0;
+							if(ord_pct_dis > 0.0)
+								ext_val1 = (pTrfrRec->Price - pTrfrRec->Discount) * ord_pct_dis * qtty / (1.0 - ord_pct_dis);
+						}
 					}
-				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctMargin) > 0)
-					r_citem.Income = r_citem.Price ? (100.0 * (r_citem.Price - r_citem.Cost)) / r_citem.Price : 0.0;
-				else if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctIncome) > 0)
-					r_citem.Income = r_citem.Cost ? (100.0 * (r_citem.Price - r_citem.Cost)) / r_citem.Cost : 0.0;
-				else
-					r_citem.Income = r_citem.Price - r_citem.Cost;
-				r_citem.Discount += tg_rec.Discount;
-				if(!(Flags & fShowSaldo))
-					r_citem.SaldoQtty = rest;
-				r_citem.Counter = ++LastCacheTouch;
-			}
-			else {
-				long __id = 0;
-				if(Flags & fShowSaldo) {
-					THROW(ok = GetSaldo(goods_id, pBillRec->Object, tg_rec.DlvrLocID, NZOR(Filt.Period.upp, getcurdate_()), &tg_rec.SaldoQtty, &tg_rec.SaldoAmt));
 				}
-				else
-					tg_rec.SaldoQtty = rest;
-				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctMargin))
-					tg_rec.Income = tg_rec.Price ? (100.0 * (tg_rec.Price - tg_rec.Cost)) / tg_rec.Price : 0.0;
-				else if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctIncome))
-					tg_rec.Income = tg_rec.Cost ? (100.0 * (tg_rec.Price - tg_rec.Cost)) / tg_rec.Cost : 0.0;
-				else
-					tg_rec.Income = tg_rec.Price - tg_rec.Cost;
-				tg_rec.LocCount = 1;
-				MEMSZERO(citem);
-				citem.ID__ = ++GrpIdCounter;
-#define CPY(f) citem.f = tg_rec.f
-				CPY(Dt);
-				CPY(GoodsID);
-				CPY(PersonID);
-				CPY(ArticleID);
-				CPY(BillID);
-				CPY(DlvrLocID);
-				CPY(LocCount);
-				CPY(Qtty);
-				CPY(PhQtty);
-				CPY(Cost);
-				CPY(Price);
-				CPY(Discount);
-				CPY(Income);
-				CPY(SaldoQtty);
-				CPY(SaldoAmt);
-				CPY(PVat);
-				CPY(Brutto);     // @v8.7.7
-				CPY(LinkQtty);  // @v9.4.10
-				CPY(LinkCost);  // @v9.4.10
-				CPY(LinkPrice); // @v9.4.10
-				CPY(ExtVal1);   // @v9.3.5
-#undef CPY
-				citem.Counter = ++LastCacheTouch;
-				if(Cache.getCount() >= MaxCacheItems)
-					THROW(FlashCacheItems(CacheDelta));
-				THROW_SL(Cache.ordInsert(&citem, &pos, Cf));
-				if(Filt.Flags & TrfrAnlzFilt::fInitLocCount)
-					LocCountList.Add(citem.ID__, dlvr_loc_id, 0);
 			}
-		}
-	}
-	else {
-		TempTrfrAnlzTbl::Rec rec;
-		MEMSZERO(rec);
-		memcpy(rec.BillCode, pBillRec->Code, sizeof(rec.BillCode));
-		// @debug {
-		if(pBillRec->Dt != pTrfrRec->Dt) {
-			SString msg_buf, fmt_buf, bill_buf;
-			PPObjBill::MakeCodeString(pBillRec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_buf);
-			// @v9.5.5 GetGoodsName(pTrfrRec->GoodsID, fmt_buf);
-			GObj.FetchNameR(pTrfrRec->GoodsID, fmt_buf); // @v9.5.5
-			(msg_buf = bill_buf).CatDiv('-', 1).Cat(fmt_buf);
-			bill_buf = msg_buf;
-			msg_buf.Printf(PPLoadTextS(PPTXT_LOG_UNEQTRFRBILLDATE, fmt_buf), bill_buf.cptr());
-			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);
-		}
-		// } @debug
-		rec.Dt        = _dt;
-		rec.OprNo     = _oprno;
-		rec.BillID    = pBillRec->ID;
-		rec.OpID      = pBillRec->OpID;
-		rec.ArticleID = pBillRec->Object;
-		rec.GoodsID   = _goods_id;
-		rec.LotID     = pTrfrRec->LotID;
-		rec.LocID     = pTrfrRec->LocID;
-		rec.Qtty      = pTrfrRec->Quantity;
-		// @v8.3.0 {
-		if(Filt.Flags & TrfrAnlzFilt::fForceInitDlvrAddr) {
-			GetDlvrLocID(pBillRec, &dlvr_loc_id);
-			rec.DlvrLocID = dlvr_loc_id;
-		}
-		// } @v8.3.0
-		if(Flags & fAsGoodsCard) {
-			if(!(pTrfrRec->Flags & (PPTFR_UNLIM | PPTFR_ACK)) || Filt.ArList.GetSingle())
-				InRest = faddwsign(InRest, pTrfrRec->Quantity, (Filt.Flags & TrfrAnlzFilt::fLabelOnly) ? -1 : +1);
-			if(Filt.Flags & TrfrAnlzFilt::fGByDate) {
-				InRest -= pBillRec->CRate;
-				// as sales
-				rec.Discount = pBillRec->CRate;
-				rec.Cost = cost;
-				rec.Price = price;
-			}
-			else {
-				if(qtty == 0.0) {
-					rec.Cost  = 0.0;
-					rec.Price = 0.0;
+			// @v9.5.0 {
+			else if(ext_val_param > Filt.extvQuotBias) {
+				const QuotIdent qi(pTrfrRec->Dt, pTrfrRec->LocID, ext_val_param-Filt.extvQuotBias, pTrfrRec->CurID, pBillRec->Object); // @v9.5.3 pTrfrRec->Dt
+				double _ext_quot = 0.0;
+				if(GObj.GetQuotExt(goods_id, qi, pTrfrRec->Cost, pTrfrRec->Price, &_ext_quot, 1) > 0) {
+					ext_val1 = _ext_quot * qtty * sign;
 				}
-				else {
-					rec.Cost  = R2(cost / (qtty * sign));
-					rec.Price = R2((price - discount) / (qtty * sign));
-				}
-				// as amount
-				rec.Discount = (pTrfrRec->Flags & PPTFR_SELLING) ? rec.Price : rec.Cost;
 			}
-			// as rest after operation
-			rec.PhQtty   = InRest;
+			// } @v9.5.0
+		}
+		// } @v9.3.4
+		if(Flags & fAsGoodsCard && Filt.Flags & TrfrAnlzFilt::fGByDate) {
+			//
+			// В случае расчета карточки товара с группировкой по дате price представляет
+			// среднюю цену расхода (в ценах реализации).
+			// При этом количество расхода установлено в поле pBillRec->CRate
+			//
+			price = TR5(pTrfrRec->Price) * fabs(pBillRec->CRate);
+			discount = 0.0;
 		}
 		else {
-			if(Filt.Flags & TrfrAnlzFilt::fGetRest)
-				rec.PhQtty = pTrfrRec->Rest; // As Rest
-			else if(GObj.GetPhUPerU(pTrfrRec->GoodsID, 0, &phuperu) > 0)
-				rec.PhQtty = pTrfrRec->Quantity * phuperu;
-			rec.Cost     = cost;
-			rec.Price    = price;
-			rec.Discount = discount;
-			rec.Price   -= rec.Discount;
+			price = TR5(pTrfrRec->Price) * qtty;
+			discount = TR5(pTrfrRec->Discount) * qtty;
 		}
-		rec.PVat = pvat;
-		// @v9.4.10 {
-		if(pExt) {
-			rec.LinkQtty  = pExt->LinkQtty;
-			rec.LinkCost  = pExt->LinkCost;
-			rec.LinkPrice = pExt->LinkPrice;
+		//
+		// Рассчитываем налоги либо поправляем цены, в случае, если они указаны без налогов
+		//
+		if((Filt.Flags & (TrfrAnlzFilt::fCalcVat|TrfrAnlzFilt::fCWoVat) || (pTrfrRec->Flags & (PPTFR_COSTWOVAT|PPTFR_PRICEWOTAXES)))) {
+			Goods2Tbl::Rec grec;
+			if(GObj.Fetch(goods_id, &grec) > 0) {
+				double tax_factor = qtty;
+				GObj.MultTaxFactor(goods_id, &tax_factor);
+				if(((Filt.Flags & TrfrAnlzFilt::fCWoVat) || (pTrfrRec->Flags & PPTFR_COSTWOVAT)) && (Flags & fAccsCost)) {
+					LDATE  lot_date = ZERODATE;
+					PPID   in_tax_grp_id = 0;
+					int    vat_free = 0;
+					ReceiptTbl::Rec org_lot_rec;
+					if(pTrfrRec->LotID) {
+						if(P_BObj->trfr->Rcpt.SearchOrigin(pTrfrRec->LotID, 0, 0, &org_lot_rec) > 0) {
+							lot_date = org_lot_rec.Dt;
+							in_tax_grp_id = org_lot_rec.InTaxGrpID;
+							vat_free = IsLotVATFree(org_lot_rec);
+						}
+					}
+					if(pTrfrRec->Flags & PPTFR_COSTWOVAT)
+						GObj.AdjCostToVat(in_tax_grp_id, grec.TaxGrpID, lot_date, tax_factor, &cost, 1, vat_free);
+					if(Filt.Flags & TrfrAnlzFilt::fCWoVat) {
+						//
+						// Расчет цены поступления без НДС
+						//
+						if(GObj.GTxObj.Fetch(NZOR(in_tax_grp_id, grec.TaxGrpID), pTrfrRec->Dt, 0, &gtx) > 0) {
+							GTaxVect vect;
+							vect.Calc_(&gtx, cost, tax_factor, ~GTAXVF_SALESTAX, (vat_free ? GTAXVF_VAT : 0));
+							cost -= vect.GetValue(GTAXVF_VAT);
+						}
+					}
+				}
+				if(Filt.Flags & (TrfrAnlzFilt::fCalcVat|TrfrAnlzFilt::fCWoVat) || pTrfrRec->Flags & PPTFR_PRICEWOTAXES) {
+					if(GObj.GTxObj.Fetch(grec.TaxGrpID, pTrfrRec->Dt, pBillRec->OpID, &gtx) > 0) {
+						if(pTrfrRec->Flags & PPTFR_PRICEWOTAXES) {
+							price = price - discount;
+							discount = 0.0;
+							GObj.AdjPriceToTaxes(gtx.TaxGrpID, tax_factor, &price, 1);
+						}
+						if(Filt.Flags & (TrfrAnlzFilt::fCalcVat|TrfrAnlzFilt::fCWoVat)) {
+							const long amt_fl = (CConfig.Flags & CCFLG_PRICEWOEXCISE) ? ~GTAXVF_SALESTAX : GTAXVF_BEFORETAXES;
+							GTaxVect vect;
+							vect.Calc_(&gtx, fabs(price - discount), tax_factor, amt_fl, 0);
+							if(Filt.Flags & TrfrAnlzFilt::fCalcVat) {
+								pvat = vect.GetValue(GTAXVF_VAT);
+							}
+							if(Filt.Flags & TrfrAnlzFilt::fCWoVat) {
+								//
+								// Расчет цены реализации без НДС
+								//
+								price = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE);
+								discount = 0.0;
+							}
+						}
+					}
+				}
+			}
 		}
-		// } @v9.4.10
-		rec.ExtVal1 = ext_val1; // @v9.3.5
-		THROW_DB(pBei->insert(&rec));
+		cost     *= sign;
+		price    *= sign;
+		discount *= sign;
+		pvat     *= sign;
+		{
+			PPObjGoods::SubstBlock sgg_blk; // @v8.3.3
+			sgg_blk.ExclParentID = Filt.GoodsGrpID;
+			sgg_blk.LocID = pTrfrRec->LocID;
+			sgg_blk.LotID = pTrfrRec->LotID; // @v8.3.4
+			/* @v8.3.4
+			if(Filt.Sgg == sggSuppl) {
+				ReceiptTbl::Rec lot_rec;
+				if(P_BObj->trfr->Rcpt.Search(pTrfrRec->LotID, &lot_rec) > 0)
+					sgg_blk.SupplID = lot_rec.SupplID;
+			}
+			else if(Filt.Sgg == sggSupplAgent)
+				sgg_blk.SupplID = P_BObj->GetSupplAgent(pTrfrRec->LotID);
+			*/
+			THROW(GObj.SubstGoods(goods_id, &_goods_id, Filt.Sgg, &sgg_blk, &Gsl));
+		}
+		if(Filt.Flags & TrfrAnlzFilt::fInitLocCount && dlvr_loc_id < 0) {
+			if(Filt.Flags & (TrfrAnlzFilt::fDiffByDlvrAddr|TrfrAnlzFilt::fSubstDlvrAddr))
+				GetDlvrLocID(pBillRec, &dlvr_loc_id);
+			if(dlvr_loc_id <= 0 && PsnObj.Fetch(psn_id, &psn_rec) > 0) {
+				if(Filt.Flags & (TrfrAnlzFilt::fSubstPersonRAddr|TrfrAnlzFilt::fSubstDlvrAddr))
+					dlvr_loc_id = psn_rec.RLoc;
+				if(dlvr_loc_id <= 0)
+					dlvr_loc_id = psn_rec.MainLoc;
+			}
+		}
+		//
+		// Если условия фильтра предполагают детализацию (Контрагент-Адрес доставки), то подстановка персоналии невозможна.
+		//
+		if(Filt.Sgp && !(Filt.Flags & TrfrAnlzFilt::fDiffByDlvrAddr)) {
+			if(Filt.Flags & TrfrAnlzFilt::fSubstDlvrAddr && dlvr_loc_id < 0)
+				GetDlvrLocID(pBillRec, &dlvr_loc_id);
+			PsnObj.Subst(ar_id ? (ar_id | sgpArticleMask) : psn_id, dlvr_loc_id, &Psp, PSNSUBSTF_LASTRELINHIERARH, &_psn_id);
+			if(_psn_id && psn_id != _psn_id && ar_id) {
+				ArticleTbl::Rec ar_rec;
+				if(ArObj.Fetch(ar_id, &ar_rec) > 0 && ar_rec.AccSheetID) {
+					PPID   ar2_id = 0;
+					if(ArObj.P_Tbl->PersonToArticle(_psn_id, ar_rec.AccSheetID, &ar2_id) > 0)
+						_ar_id = ar2_id;
+				}
+			}
+		}
+		else
+			_psn_id = NZOR(psn_id, (ar_id | sgpArticleMask));
+		if(ShrinkSubstDate(Filt.Sgd, _dt, &_dt) > 0)
+			_oprno = ++(*pOprNo);
+		if(Filt.Grp) {
+			TempTrfrGrpngTbl::Key1 k;
+			TempTrfrGrpngTbl::Rec tg_rec;
+			MEMSZERO(tg_rec);
+			double rest = 0.0;
+			tg_rec.Qtty      = pTrfrRec->Quantity;
+			if(GObj.GetPhUPerU(goods_id, 0, &phuperu) > 0)
+				tg_rec.PhQtty = tg_rec.Qtty * phuperu;
+			tg_rec.Cost      = cost;
+			tg_rec.Price     = price;
+			tg_rec.Discount  = discount;
+			tg_rec.Price    -= tg_rec.Discount;
+			tg_rec.PVat      = pvat;
+			// @v9.4.10 {
+			if(pExt) {
+				tg_rec.LinkQtty  = pExt->LinkQtty;
+				tg_rec.LinkCost  = pExt->LinkCost;
+				tg_rec.LinkPrice = pExt->LinkPrice;
+			}
+			// } @v9.4.10
+			tg_rec.ExtVal1   = ext_val1; // @v9.3.5
+			tg_rec.ArticleID = _ar_id;
+			tg_rec.GoodsID   = _goods_id;
+			tg_rec.PersonID  = _psn_id;
+			tg_rec.Dt        = _dt;
+			MEMSZERO(k);
+			if(Filt.Grp == TrfrAnlzFilt::gGoods) {
+				k.GoodsID = _goods_id;
+				tg_rec.PersonID = 0;
+				tg_rec.Dt = ZERODATE;
+			}
+			else if(Filt.Grp == TrfrAnlzFilt::gGoodsDate) {
+				k.GoodsID = _goods_id;
+				k.Dt      = _dt;
+				tg_rec.PersonID = 0;
+			}
+			else if(Filt.Grp == TrfrAnlzFilt::gCntragent) {
+				k.PersonID = _psn_id;
+				tg_rec.GoodsID = 0;
+				tg_rec.Dt = ZERODATE;
+				InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
+				k.DlvrLocID = tg_rec.DlvrLocID;
+			}
+			else if(Filt.Grp == TrfrAnlzFilt::gCntragentDate) {
+				k.PersonID = _psn_id;
+				tg_rec.GoodsID = 0;
+				k.Dt = _dt;
+				InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
+				k.DlvrLocID = tg_rec.DlvrLocID;
+			}
+			else if(Filt.Grp == TrfrAnlzFilt::gGoodsCntragent) {
+				k.GoodsID  = _goods_id;
+				k.PersonID = _psn_id;
+				tg_rec.Dt = ZERODATE;
+				InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
+				k.DlvrLocID = tg_rec.DlvrLocID;
+			}
+			else if(Filt.Grp == TrfrAnlzFilt::gGoodsCntragentDate) {
+				k.GoodsID  = _goods_id;
+				k.PersonID = _psn_id;
+				k.Dt = _dt;
+				InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
+				k.DlvrLocID = tg_rec.DlvrLocID;
+			}
+			else if(Filt.Grp == TrfrAnlzFilt::gGoodsBill) {
+				tg_rec.BillID = pBillRec->ID;
+				k.GoodsID = _goods_id;
+				k.PersonID = _psn_id;
+				k.Dt = _dt;
+				k.BillID = pBillRec->ID;
+			}
+			else if(Filt.Grp == TrfrAnlzFilt::gDateCntragentAgentGoods) {
+				InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
+				if(tg_rec.DlvrLocID == 0 && psn_id && PsnObj.Fetch(psn_id, &psn_rec) > 0)
+					tg_rec.DlvrLocID = NZOR(psn_rec.RLoc, psn_rec.MainLoc);
+				tg_rec.BillID = bill_agent_id;
+				k.GoodsID  = _goods_id;
+				k.PersonID = _psn_id;
+				k.Dt       = _dt;
+				k.BillID   = tg_rec.BillID;
+				k.DlvrLocID = tg_rec.DlvrLocID;
+			}
+			else if(Filt.Grp == TrfrAnlzFilt::gBillCntragent) {
+				k.PersonID = _psn_id;
+				k.BillID   = pBillRec->ID;
+				k.Dt       = pBillRec->Dt;
+				InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
+				k.DlvrLocID = tg_rec.DlvrLocID;
+				tg_rec.BillID  = pBillRec->ID;
+				tg_rec.GoodsID = 0;
+				tg_rec.Dt      = pBillRec->Dt;
+			}
+			{
+				TagrCacheItem ctest, citem;
+				uint   pos = 0;
+				int    r = 0;
+				ctest.Dt = tg_rec.Dt;
+				ctest.GoodsID = tg_rec.GoodsID;
+				ctest.PersonID = tg_rec.PersonID;
+				ctest.BillID = tg_rec.BillID;
+				ctest.DlvrLocID = tg_rec.DlvrLocID;
+				if(Cache.bsearch(&ctest, &pos, Cf)) {
+					r = 1;
+				}
+				else if(P_TrGrpngTbl->search(1, &k, spEq)) {
+	#define CPY(f) citem.f = P_TrGrpngTbl->data.f
+					CPY(ID__);
+					CPY(Dt);
+					CPY(GoodsID);
+					CPY(PersonID);
+					CPY(ArticleID);
+					CPY(BillID);
+					CPY(DlvrLocID);
+					CPY(LocCount);
+					CPY(Qtty);
+					CPY(PhQtty);
+					CPY(Cost);
+					CPY(Price);
+					CPY(Discount);
+					CPY(Income);
+					CPY(SaldoQtty);
+					CPY(SaldoAmt);
+					CPY(PVat);
+					CPY(Brutto);    // @v8.7.7
+					CPY(LinkQtty);  // @v9.4.10
+					CPY(LinkCost);  // @v9.4.10
+					CPY(LinkPrice); // @v9.4.10
+					CPY(ExtVal1);   // @v9.3.5
+	#undef CPY
+					citem.Counter = 0;
+					P_TrGrpngTbl->getPosition(&citem.DbPos);
+					if(Cache.getCount() >= MaxCacheItems)
+						THROW(FlashCacheItems(CacheDelta));
+					THROW_SL(Cache.ordInsert(&citem, &pos, Cf));
+					r = 1;
+				}
+				if(r > 0) {
+					TagrCacheItem & r_citem = GetCacheItem(pos);
+					r_citem.Qtty    += tg_rec.Qtty;
+					r_citem.PhQtty  += tg_rec.PhQtty;
+					r_citem.Cost    += tg_rec.Cost;
+					r_citem.Price   += tg_rec.Price;
+					r_citem.PVat    += tg_rec.PVat;
+					r_citem.Brutto  += tg_rec.Brutto; // @v8.7.7
+					r_citem.LinkQtty  += tg_rec.LinkQtty;  // @v9.4.10
+					r_citem.LinkCost  += tg_rec.LinkCost;  // @v9.4.10
+					r_citem.LinkPrice += tg_rec.LinkPrice; // @v9.4.10
+					r_citem.ExtVal1 += tg_rec.ExtVal1; // @v9.3.5
+					if(Filt.Flags & TrfrAnlzFilt::fInitLocCount)
+						if(!LocCountList.SearchPair(r_citem.ID__, dlvr_loc_id, 0)) {
+							LocCountList.Add(r_citem.ID__, dlvr_loc_id, 0);
+							r_citem.LocCount++;
+						}
+					if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctMargin) > 0)
+						r_citem.Income = r_citem.Price ? (100.0 * (r_citem.Price - r_citem.Cost)) / r_citem.Price : 0.0;
+					else if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctIncome) > 0)
+						r_citem.Income = r_citem.Cost ? (100.0 * (r_citem.Price - r_citem.Cost)) / r_citem.Cost : 0.0;
+					else
+						r_citem.Income = r_citem.Price - r_citem.Cost;
+					r_citem.Discount += tg_rec.Discount;
+					if(!(Flags & fShowSaldo))
+						r_citem.SaldoQtty = rest;
+					r_citem.Counter = ++LastCacheTouch;
+				}
+				else {
+					long __id = 0;
+					if(Flags & fShowSaldo) {
+						THROW(ok = GetSaldo(goods_id, pBillRec->Object, tg_rec.DlvrLocID, NZOR(Filt.Period.upp, getcurdate_()), &tg_rec.SaldoQtty, &tg_rec.SaldoAmt));
+					}
+					else
+						tg_rec.SaldoQtty = rest;
+					if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctMargin))
+						tg_rec.Income = tg_rec.Price ? (100.0 * (tg_rec.Price - tg_rec.Cost)) / tg_rec.Price : 0.0;
+					else if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctIncome))
+						tg_rec.Income = tg_rec.Cost ? (100.0 * (tg_rec.Price - tg_rec.Cost)) / tg_rec.Cost : 0.0;
+					else
+						tg_rec.Income = tg_rec.Price - tg_rec.Cost;
+					tg_rec.LocCount = 1;
+					MEMSZERO(citem);
+					citem.ID__ = ++GrpIdCounter;
+	#define CPY(f) citem.f = tg_rec.f
+					CPY(Dt);
+					CPY(GoodsID);
+					CPY(PersonID);
+					CPY(ArticleID);
+					CPY(BillID);
+					CPY(DlvrLocID);
+					CPY(LocCount);
+					CPY(Qtty);
+					CPY(PhQtty);
+					CPY(Cost);
+					CPY(Price);
+					CPY(Discount);
+					CPY(Income);
+					CPY(SaldoQtty);
+					CPY(SaldoAmt);
+					CPY(PVat);
+					CPY(Brutto);     // @v8.7.7
+					CPY(LinkQtty);  // @v9.4.10
+					CPY(LinkCost);  // @v9.4.10
+					CPY(LinkPrice); // @v9.4.10
+					CPY(ExtVal1);   // @v9.3.5
+	#undef CPY
+					citem.Counter = ++LastCacheTouch;
+					if(Cache.getCount() >= MaxCacheItems)
+						THROW(FlashCacheItems(CacheDelta));
+					THROW_SL(Cache.ordInsert(&citem, &pos, Cf));
+					if(Filt.Flags & TrfrAnlzFilt::fInitLocCount)
+						LocCountList.Add(citem.ID__, dlvr_loc_id, 0);
+				}
+			}
+		}
+		else {
+			TempTrfrAnlzTbl::Rec rec;
+			MEMSZERO(rec);
+			memcpy(rec.BillCode, pBillRec->Code, sizeof(rec.BillCode));
+			// @debug {
+			if(pBillRec->Dt != pTrfrRec->Dt) {
+				SString msg_buf, fmt_buf, bill_buf;
+				PPObjBill::MakeCodeString(pBillRec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_buf);
+				// @v9.5.5 GetGoodsName(pTrfrRec->GoodsID, fmt_buf);
+				GObj.FetchNameR(pTrfrRec->GoodsID, fmt_buf); // @v9.5.5
+				(msg_buf = bill_buf).CatDiv('-', 1).Cat(fmt_buf);
+				bill_buf = msg_buf;
+				msg_buf.Printf(PPLoadTextS(PPTXT_LOG_UNEQTRFRBILLDATE, fmt_buf), bill_buf.cptr());
+				PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);
+			}
+			// } @debug
+			rec.Dt        = _dt;
+			rec.OprNo     = _oprno;
+			rec.BillID    = pBillRec->ID;
+			rec.OpID      = pBillRec->OpID;
+			rec.ArticleID = pBillRec->Object;
+			rec.GoodsID   = _goods_id;
+			rec.LotID     = pTrfrRec->LotID;
+			rec.LocID     = pTrfrRec->LocID;
+			rec.Qtty      = pTrfrRec->Quantity;
+			// @v8.3.0 {
+			if(Filt.Flags & TrfrAnlzFilt::fForceInitDlvrAddr) {
+				GetDlvrLocID(pBillRec, &dlvr_loc_id);
+				rec.DlvrLocID = dlvr_loc_id;
+			}
+			// } @v8.3.0
+			if(Flags & fAsGoodsCard) {
+				if(!(pTrfrRec->Flags & (PPTFR_UNLIM | PPTFR_ACK)) || Filt.ArList.GetSingle())
+					InRest = faddwsign(InRest, pTrfrRec->Quantity, (Filt.Flags & TrfrAnlzFilt::fLabelOnly) ? -1 : +1);
+				if(Filt.Flags & TrfrAnlzFilt::fGByDate) {
+					InRest -= pBillRec->CRate;
+					// as sales
+					rec.Discount = pBillRec->CRate;
+					rec.Cost = cost;
+					rec.Price = price;
+				}
+				else {
+					if(qtty == 0.0) {
+						rec.Cost  = 0.0;
+						rec.Price = 0.0;
+					}
+					else {
+						rec.Cost  = R2(cost / (qtty * sign));
+						rec.Price = R2((price - discount) / (qtty * sign));
+					}
+					// as amount
+					rec.Discount = (pTrfrRec->Flags & PPTFR_SELLING) ? rec.Price : rec.Cost;
+				}
+				// as rest after operation
+				rec.PhQtty   = InRest;
+			}
+			else {
+				if(Filt.Flags & TrfrAnlzFilt::fGetRest)
+					rec.PhQtty = pTrfrRec->Rest; // As Rest
+				else if(GObj.GetPhUPerU(pTrfrRec->GoodsID, 0, &phuperu) > 0)
+					rec.PhQtty = pTrfrRec->Quantity * phuperu;
+				rec.Cost     = cost;
+				rec.Price    = price;
+				rec.Discount = discount;
+				rec.Price   -= rec.Discount;
+			}
+			rec.PVat = pvat;
+			// @v9.4.10 {
+			if(pExt) {
+				rec.LinkQtty  = pExt->LinkQtty;
+				rec.LinkCost  = pExt->LinkCost;
+				rec.LinkPrice = pExt->LinkPrice;
+			}
+			// } @v9.4.10
+			rec.ExtVal1 = ext_val1; // @v9.3.5
+			THROW_DB(pBei->insert(&rec));
+		}
 	}
 	PROFILE_END
 	CATCHZOK
@@ -2423,7 +2426,7 @@ int SLAPI PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 				}
 				// } @v8.4.11
 				// @v9.4.10 {
-				if(Filt.Flags & Filt.fCompareWrOff) {
+				if(Filt.Flags & Filt.fCmpWrOff) {
 					uint pos = 0;
 					if(p_q) {
 						if(p_q->getFieldPosByName("LinkQtty", &pos))
@@ -2645,7 +2648,7 @@ int SLAPI PPViewTrfrAnlz::Detail(const void * pHdr, PPViewBrowser * pBrw)
 			}
 			if(ok > 0) {
 				flt.Flags = (flt.Flags & (TrfrAnlzFilt::fCalcVat|TrfrAnlzFilt::fByZeroDlvrAddr|
-					TrfrAnlzFilt::fSubstDlvrAddr|TrfrAnlzFilt::fSubstPersonRAddr|TrfrAnlzFilt::fCompareWrOff));
+					TrfrAnlzFilt::fSubstDlvrAddr|TrfrAnlzFilt::fSubstPersonRAddr|TrfrAnlzFilt::fCmpWrOff));
 				flt.Grp = TrfrAnlzFilt::gNone;
 				flt.Sgd = sgdNone;
 				flt.Sgg = sggNone;
@@ -2841,8 +2844,10 @@ void TrfrAnlzFiltDialog::SetupCtrls()
 	disableCtrl(CTL_GTO_ORDER, v);
 	// @v9.4.10 {
 	const PPID  op_id = getCtrlLong(CTLSEL_GTO_OPR);
-	DisableClusterItem(CTL_GTO_FLAGS, 4, !(op_id && (GCTIterator::AnalyzeOp(op_id, 0) & GCTIterator::aorfThereAreDrafts)));
+	const int enable_cmp_wroff = BIN(op_id && (GCTIterator::AnalyzeOp(op_id, 0) & GCTIterator::aorfThereAreDrafts));
+	DisableClusterItem(CTL_GTO_FLAGS, 4, !enable_cmp_wroff);
 	// } @v9.4.10
+	DisableClusterItem(CTL_GTO_FLAGS, 5, (!enable_cmp_wroff || !(Data.Flags & TrfrAnlzFilt::fCmpWrOff))); // @v9.5.8
 	if(v) {
 		setCtrlUInt16(CTL_GTO_ORDER, 0);
 		Data.Grp = TrfrAnlzFilt::gNone;
@@ -2941,7 +2946,8 @@ int TrfrAnlzFiltDialog::setDTS(const TrfrAnlzFilt * pData)
 	AddClusterAssoc(CTL_GTO_FLAGS, 1, TrfrAnlzFilt::fCWoVat);
 	AddClusterAssoc(CTL_GTO_FLAGS, 2, TrfrAnlzFilt::fShowGoodsCode);
 	AddClusterAssoc(CTL_GTO_FLAGS, 3, TrfrAnlzFilt::fShowSerial);
-	AddClusterAssoc(CTL_GTO_FLAGS, 4, TrfrAnlzFilt::fCompareWrOff); // @v9.4.10
+	AddClusterAssoc(CTL_GTO_FLAGS, 4, TrfrAnlzFilt::fCmpWrOff); // @v9.4.10
+	AddClusterAssoc(CTL_GTO_FLAGS, 5, TrfrAnlzFilt::fCmpWrOff_DiffOnly); // @v9.5.8
 	SetClusterData(CTL_GTO_FLAGS, Data.Flags);
 	SetupCtrls();
 	SetSaldoInfo();
@@ -3294,6 +3300,12 @@ IMPL_HANDLE_EVENT(TrfrAnlzFiltDialog)
 	}
 	else if(event.isClusterClk(CTL_GTO_SHOWALL))
 		SetupCtrls();
+	// @v9.5.8 {
+	else if(event.isClusterClk(CTL_GTO_FLAGS)) {
+		GetClusterData(CTL_GTO_FLAGS, &Data.Flags);
+		SetupCtrls();
+	}
+	// } @v9.5.8 
 	else
 		return;
 	clearEvent(event);

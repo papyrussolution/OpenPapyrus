@@ -205,6 +205,7 @@ int CRevalDialog::setupList()
 int CRevalDialog::setupCRateList(PPID accID, int * pIsCurAcc)
 {
 	int    ok = 1;
+	PPObjBill * p_bobj = BillObj;
 	uint   i;
 	double crate;
 	PPIDArray cur_list;
@@ -212,7 +213,7 @@ int CRevalDialog::setupCRateList(PPID accID, int * pIsCurAcc)
 	if(!accID) {
 		AmtEntry * p_entry;
 		for(i = 0; Data.CRateList.enumItems(&i, (void **)&p_entry);) {
-			BillObj->GetCurRate(p_entry->CurID, &Data.Dt, &(crate = 0.0));
+			p_bobj->GetCurRate(p_entry->CurID, &Data.Dt, &(crate = 0.0));
 			p_entry->Amt = crate;
 		}
 	}
@@ -222,7 +223,7 @@ int CRevalDialog::setupCRateList(PPID accID, int * pIsCurAcc)
 	   	    if(*p_cur_id) {
 				is_cur_acc = 1;
 				if(Data.CRateList.Search(PPAMT_CRATE, *p_cur_id, 0) <= 0) {
-					BillObj->GetCurRate(*p_cur_id, &Data.Dt, &(crate = 0.0));
+					p_bobj->GetCurRate(*p_cur_id, &Data.Dt, &(crate = 0.0));
 					Data.CRateList.Add(PPAMT_CRATE, *p_cur_id, crate, 0);
    	        	}
 			}

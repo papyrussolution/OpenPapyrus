@@ -626,13 +626,13 @@ int _GetIdParentList(const PPCommandItem * pItem, long parentID, void * extraPtr
 		if(p_list) {
 			if(!only_folders || pItem->Kind == PPCommandItem::kFolder) {
 				// @v9.2.8 {
-				SString cmd_buf = pItem->Name; 
+				SString cmd_buf = pItem->Name;
 				if(cmd_buf.C(0) == '@') {
 					SString temp_buf;
 					if(PPLoadString(cmd_buf.ShiftLeft(), temp_buf) > 0)
 						cmd_buf = temp_buf;
 				}
-				// } @v9.2.8 
+				// } @v9.2.8
 				p_list->Add(pItem->ID, parentID, cmd_buf.Strip(), 0);
 			}
 			ok = 1;
@@ -2757,7 +2757,7 @@ public:
 				while(expr.Find(&scan) > 0) {
 					DateRange period;
 					scan.Get(temp_buf = 0);
-					if(getperiod(temp_buf, &period)) {
+					if(strtoperiod(temp_buf, &period, 0)) {
 						if(checkdate(period.low, 1)) {
 							LDATE dt_ = ZERODATE;
 							dt_ = period.low.getactual(ZERODATE);
@@ -3560,3 +3560,48 @@ public:
 };
 
 IMPLEMENT_CMD_HDL_FACTORY(SUPPLINTERCHANGE);
+//
+//
+//
+class CMD_HDL_CLS(PROCESSOSM) : public PPCommandHandler {
+public:
+	SLAPI  CMD_HDL_CLS(PROCESSOSM)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	{
+	}
+	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	{
+		int    ok = -1;
+		if(pParam) {
+			PrcssrOsm prc;
+			PrcssrOsmFilt filt;
+			if(!filt.Read(*pParam, 0))
+				prc.InitParam(&filt);
+			if(prc.EditParam(&filt) > 0) {
+				pParam->Clear();
+				if(filt.Write(*pParam, 0)) {
+					ok = 1;
+				}
+			}
+		}
+		return ok;
+	}
+	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	{
+		int    ok = -1;
+		if(pParam) {
+			PrcssrOsmFilt filt;
+			if(filt.Read(*pParam, 0)) {
+				PrcssrOsm prc;
+				if(!prc.Init(&filt) || !prc.Run())
+					ok = PPErrorZ();
+			}
+			else
+				ok = DoProcessOsm(0);
+		}
+		else
+			ok = DoProcessOsm(0);
+		return ok;
+	}
+};
+
+IMPLEMENT_CMD_HDL_FACTORY(PROCESSOSM);

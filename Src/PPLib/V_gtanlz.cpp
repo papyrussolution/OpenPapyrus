@@ -238,13 +238,9 @@ int SLAPI PPViewGoodsTaxAnalyze::MakeTaxStr(GoodsGrpngEntry * pGGE, char * pBuf,
 	return 1;
 }
 
-int SLAPI PPViewGoodsTaxAnalyze::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
+void SLAPI PPViewGoodsTaxAnalyze::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 {
-	if(Filt.Cycl.Cycle)
-		CycleList.formatCycle(dt, pBuf, bufLen);
-	else
-		ASSIGN_PTR(pBuf, 0);
-	return 1;
+	Helper_FormatCycle(Filt.Cycl, CycleList, dt, pBuf, bufLen);
 }
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempGoodsTaxAnlz);

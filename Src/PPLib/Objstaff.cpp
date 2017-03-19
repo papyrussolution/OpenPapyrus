@@ -433,7 +433,7 @@ int SLAPI PPObjStaffList::GetPostPacket(PPID postID, PPPsnPostPacket * pPack)
 	int    ok = -1;
 	PPPsnPostPacket pack;
 	if(SearchByID(P_PostTbl, PPOBJ_PERSONPOST, postID, &pack.Rec) > 0) {
-		ok = PPRef->GetPropArray(PPOBJ_PERSONPOST, postID, PSNPPPRP_AMTLIST, &pack.Amounts) ? 1 : 0;
+		ok = ref->GetPropArray(PPOBJ_PERSONPOST, postID, PSNPPPRP_AMTLIST, &pack.Amounts) ? 1 : 0;
 		ASSIGN_PTR(pPack, pack);
 	}
 	return ok;
@@ -488,10 +488,10 @@ int SLAPI PPObjStaffList::PutPostPacket(PPID * pID, PPPsnPostPacket * pPack, int
 				}
 				{
 					StaffAmtList org_list;
-					THROW(PPRef->GetPropArray(PPOBJ_PERSONPOST, *pID, PSNPPPRP_AMTLIST, &org_list));
+					THROW(ref->GetPropArray(PPOBJ_PERSONPOST, *pID, PSNPPPRP_AMTLIST, &org_list));
 					if(!org_list.IsEqual(pPack->Amounts)) {
 						was_updated = was_list_updated = 1;
-						THROW(PPRef->PutPropArray(PPOBJ_PERSONPOST, *pID, SLPPRP_AMTLIST, &pPack->Amounts, 0));
+						THROW(ref->PutPropArray(PPOBJ_PERSONPOST, *pID, SLPPRP_AMTLIST, &pPack->Amounts, 0));
 					}
 				}
 				if(was_updated)
@@ -514,7 +514,7 @@ int SLAPI PPObjStaffList::PutPostPacket(PPID * pID, PPPsnPostPacket * pPack, int
 					THROW_PP(sal_list.getCount() == 0, PPERR_RMVPPOSTHASSALARY);
 				}
 				THROW(RemoveByID(P_PostTbl, *pID, 0));
-				THROW(PPRef->PutPropArray(Obj, *pID, SLPPRP_AMTLIST, 0, 0));
+				THROW(ref->PutPropArray(Obj, *pID, SLPPRP_AMTLIST, 0, 0));
 				//
 				// Уменьшаем (с проверкой корректности) количество занятых вакансий
 				//
@@ -541,7 +541,7 @@ int SLAPI PPObjStaffList::PutPostPacket(PPID * pID, PPPsnPostPacket * pPack, int
 			(msg_buf = 0).Cat(psn_rec.Name).CatDiv('-', 1).Cat(sl_rec.Name);
 			THROW_PP_S(r < 0, PPERR_DUPPERSONPOST, msg_buf);
 			THROW(AddObjRecByID(P_PostTbl, PPOBJ_PERSONPOST, pID, &pPack->Rec, 0));
-			THROW(PPRef->PutPropArray(PPOBJ_PERSONPOST, *pID, PSNPPPRP_AMTLIST, &pPack->Amounts, 0));
+			THROW(ref->PutPropArray(PPOBJ_PERSONPOST, *pID, PSNPPPRP_AMTLIST, &pPack->Amounts, 0));
 			//
 			// Увеличиваем (с проверкой корректности) количество занятых вакансий
 			//
@@ -804,7 +804,7 @@ int SLAPI PPObjStaffList::GetPacket(PPID id, PPStaffPacket * pPack)
 {
 	int    ok = -1;
 	if(Search(id, &pPack->Rec) > 0) {
-		ok = PPRef->GetPropArray(Obj, id, SLPPRP_AMTLIST, &pPack->Amounts) ? 1 : 0;
+		ok = ref->GetPropArray(Obj, id, SLPPRP_AMTLIST, &pPack->Amounts) ? 1 : 0;
 	}
 	return ok;
 }
@@ -830,7 +830,7 @@ int SLAPI PPObjStaffList::PutPacket(PPID * pID, PPStaffPacket * pPack, int use_t
 					}
 				}
 				THROW(UpdateItem(*pID, &pPack->Rec, 0));
-				THROW(PPRef->PutPropArray(Obj, *pID, SLPPRP_AMTLIST, &pPack->Amounts, 0));
+				THROW(ref->PutPropArray(Obj, *pID, SLPPRP_AMTLIST, &pPack->Amounts, 0));
 				DS.LogAction(PPACN_OBJUPD, Obj, *pID, 0, 0);
 			}
 			else {
@@ -853,7 +853,7 @@ int SLAPI PPObjStaffList::PutPacket(PPID * pID, PPStaffPacket * pPack, int use_t
 				}
 			}
 			THROW(AddItem(pID, &pPack->Rec, 0));
-			THROW(PPRef->PutPropArray(Obj, *pID, SLPPRP_AMTLIST, &pPack->Amounts, 0));
+			THROW(ref->PutPropArray(Obj, *pID, SLPPRP_AMTLIST, &pPack->Amounts, 0));
 			DS.LogAction(PPACN_OBJADD, Obj, *pID, 0, 0);
 		}
 		THROW(tra.Commit());

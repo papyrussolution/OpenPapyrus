@@ -653,7 +653,7 @@ int SLAPI PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 			setCtrlData(CTL_CLIAGT_DSCNT,     &data.Dscnt);
 			setCtrlData(CTL_CLIAGT_PAYPERIOD, &data.DefPayPeriod);
 			SetupPaymDateBaseCombo(this, CTLSEL_CLIAGT_PAYMDTBASE, data.PaymDateBase); // @v8.4.2
-			SetupArCombo(this, CTLSEL_CLIAGT_AGENT, data.DefAgentID, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet);
+			SetupArCombo(this, CTLSEL_CLIAGT_AGENT, data.DefAgentID, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet|sacfNonGeneric);
 			SetupPPObjCombo(this, CTLSEL_CLIAGT_QUOTKIND, PPOBJ_QUOTKIND, data.DefQuotKindID, 0, 0);
 			if(data.ClientID) {
 				PPClientAgreement agt;
@@ -662,7 +662,7 @@ int SLAPI PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 				// @v9.1.4 PPGetWord(PPWORD_EXTOBJECT, 0, ext_obj);
 				PPLoadString("bill_object2", ext_obj); // @v9.1.4
 				setLabelText(CTL_CLIAGT_EXTOBJECT, ext_obj);
-				SetupArCombo(this, CTLSEL_CLIAGT_EXTOBJECT, data.ExtObjectID, OLW_LOADDEFONOPEN|OLW_CANINSERT, acs_id, sacfDisableIfZeroSheet);
+				SetupArCombo(this, CTLSEL_CLIAGT_EXTOBJECT, data.ExtObjectID, OLW_LOADDEFONOPEN|OLW_CANINSERT, acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
 				AddClusterAssoc(CTL_CLIAGT_FLAGS, 0, AGTF_DONTCALCDEBTINBILL);
 				AddClusterAssoc(CTL_CLIAGT_FLAGS, 1, AGTF_USEMARKEDGOODSONLY);
 				AddClusterAssoc(CTL_CLIAGT_FLAGS, 2, AGTF_DONTUSEMINSHIPMQTTY); // @v8.4.4
@@ -1932,7 +1932,7 @@ int SupplAgtDialog::setDTS(const PPSupplAgreement * pAgt)
 	setCtrlData(CTL_SUPPLAGT_DELIVERY,  &Data.DefDlvrTerm);
 	setCtrlData(CTL_SUPPLAGT_MAXRETURN, &Data.PctRet);
 
-	SetupArCombo(this, CTLSEL_SUPPLAGT_AGENT, Data.DefAgentID, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet);
+	SetupArCombo(this, CTLSEL_SUPPLAGT_AGENT, Data.DefAgentID, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet|sacfNonGeneric);
 	SetupPPObjCombo(this, CTLSEL_SUPPLAGT_OPRKIND,  PPOBJ_OPRKIND,  Data.PurchaseOpID,    0, (void *)PPOPT_DRAFTRECEIPT);
 	SetupPPObjCombo(this, CTLSEL_SUPPLAGT_QUOTCOST, PPOBJ_QUOTKIND, Data.CostQuotKindID,  0, (void *)QuotKindFilt::fAll);
 	SetupPPObjCombo(this, CTLSEL_SUPPLAGT_QUOTUP,   PPOBJ_QUOTKIND, Data.DevUpQuotKindID, 0, (void *)QuotKindFilt::fAll);

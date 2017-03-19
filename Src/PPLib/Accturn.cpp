@@ -1,5 +1,5 @@
 // ACCTURN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // @Kernel
 //
@@ -57,6 +57,7 @@ int SLAPI AccTurnCore::GetExtentAccListByGen(PPID genAccID, ObjRestrictArray * p
 	ObjRestrictItem * p_item;
 	PPAccountPacket pack;
 	PPAccount acc_rec;
+	PPIDArray temp_acc_list;
 	THROW(AccObj.GetPacket(genAccID, &pack) > 0);
 	THROW_PP(pack.Rec.Type == ACY_AGGR, PPERR_ACCNGEN);
 	for(uint i = 0; pack.GenList.enumItems(&i, (void**)&p_item);) {
@@ -69,17 +70,17 @@ int SLAPI AccTurnCore::GetExtentAccListByGen(PPID genAccID, ObjRestrictArray * p
 		}
 		else if(AccObj.Search(p_item->ObjID, &acc_rec) > 0) {
 			if(aco == ACO_1) {
-				uint   j;
-				PPIDArray temp_acc_list;
-				int16  sb = NZOR(acc_rec.A.Sb, -1);
+				const int16 sb = NZOR(acc_rec.A.Sb, -1);
+				temp_acc_list.clear();
 				THROW(AccObj.GetSubacctList(acc_rec.A.Ac, sb, 0L, &temp_acc_list));
-				for(j = 0; j < temp_acc_list.getCount(); j++) {
-					PPID   acc_id = temp_acc_list.at(j);
+				for(uint j = 0; j < temp_acc_list.getCount(); j++) {
+					const PPID acc_id = temp_acc_list.at(j);
 					THROW(UpdateItemInExtGenAccList(acc_id, (f|ACGF_ACO2GRP), acc_id, pAccList, pCurList));
 				}
 			}
-			else if(aco == ACO_2)
+			else if(aco == ACO_2) {
 				THROW(UpdateItemInExtGenAccList(p_item->ObjID, (f|ACGF_ACO2GRP), p_item->ObjID, pAccList, pCurList));
+			}
 		}
 	}
 	CATCHZOK

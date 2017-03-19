@@ -737,7 +737,7 @@ TRIO_PUBLIC int trio_fpclassify TRIO_ARGS1((number), double number)
  *  VMS  : /DEFINE=(STANDALONE)
  */
 #if defined(STANDALONE)
-# include <stdio.h>
+#include <stdio.h>
 
 static TRIO_CONST char * getClassification TRIO_ARGS1((type), int type)
 {

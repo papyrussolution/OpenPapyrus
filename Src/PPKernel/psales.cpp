@@ -174,7 +174,6 @@ SLAPI PredictSalesCore::PredictSalesCore() : PredictSalesTbl()
 {
 	IsLocTabUpdated = 0;
 	IsHldTabUpdated = 0;
-	P_LocTab = 0;
 	P_HldTab = 0;
 	P_SaveHldTab = 0;
 	ReadLocTab();
@@ -183,7 +182,6 @@ SLAPI PredictSalesCore::PredictSalesCore() : PredictSalesTbl()
 
 SLAPI PredictSalesCore::~PredictSalesCore()
 {
-	delete P_LocTab;
 	delete P_HldTab;
 	delete P_SaveHldTab;
 }
@@ -517,23 +515,28 @@ int SLAPI PredictSalesCore::ReadHolidays()
 
 int SLAPI PredictSalesCore::AddLocEntry(PPID locID, int16 * pLocIdx)
 {
-	LocTabEntry * p_entry, entry;
+	int    result = 0;
+	PROFILE_START
 	int16  max_idx = 0;
-	SETIFZ(P_LocTab, new SArray(sizeof(LocTabEntry)));
-	for(uint i = 0; P_LocTab->enumItems(&i, (void **)&p_entry);) {
-		if(p_entry->LocIdx > max_idx)
-			max_idx = p_entry->LocIdx;
-		if(p_entry->LocID == locID) {
-			ASSIGN_PTR(pLocIdx, p_entry->LocIdx);
-			return 2;
+	for(uint i = 0; !result && i < LocTab.getCount(); i++) {
+		const LocTabEntry & r_entry = LocTab.at(i);
+		SETMAX(max_idx, r_entry.LocIdx);
+		if(r_entry.LocID == locID) {
+			ASSIGN_PTR(pLocIdx, r_entry.LocIdx);
+			result = 2;
 		}
 	}
-	entry.LocID = locID;
-	entry.LocIdx = max_idx+1;
-	P_LocTab->insert(&entry);
-	IsLocTabUpdated = 1;
-	ASSIGN_PTR(pLocIdx, entry.LocIdx);
-	return 1;
+	if(!result) {
+		LocTabEntry entry;
+		entry.LocID = locID;
+		entry.LocIdx = max_idx+1;
+		LocTab.insert(&entry);
+		IsLocTabUpdated = 1;
+		ASSIGN_PTR(pLocIdx, entry.LocIdx);
+		result = 1;
+	}
+	PROFILE_END
+	return result;
 }
 
 int SLAPI PredictSalesCore::WriteLocTab(int use_ta)
@@ -548,14 +551,16 @@ int SLAPI PredictSalesCore::WriteLocTab(int use_ta)
 		if(search(0, &k0, spGe) && k0.RType == PSRECTYPE_LOCTAB) do {
 			THROW_DB(deleteRec());
 		} while(search(0, &k0, spNext) && k0.RType == PSRECTYPE_LOCTAB);
-		if(P_LocTab) {
-			LocTabEntry * p_entry;
-			for(uint i = 0; P_LocTab->enumItems(&i, (void **)&p_entry);) {
+		{
+			//LocTabEntry * p_entry;
+			//for(uint i = 0; P_LocTab->enumItems(&i, (void **)&p_entry);) {
+			for(uint i = 0; i < LocTab.getCount(); i++) {
+				const LocTabEntry & r_entry = LocTab.at(i);
 				PredictSalesTbl::Rec rec;
 				MEMSZERO(rec);
 				rec.RType = PSRECTYPE_LOCTAB;
-				rec.GoodsID = p_entry->LocID;
-				rec.Loc = p_entry->LocIdx;
+				rec.GoodsID = r_entry.LocID;
+				rec.Loc = r_entry.LocIdx;
 				THROW_DB(insertRecBuf(&rec));
 			}
 		}
@@ -568,18 +573,17 @@ int SLAPI PredictSalesCore::WriteLocTab(int use_ta)
 int SLAPI PredictSalesCore::ReadLocTab()
 {
 	int    ok = 1;
-	ZDELETE(P_LocTab);
+	LocTab.clear();
 	PredictSalesTbl::Key0 k0;
 	MEMSZERO(k0);
 	k0.RType = PSRECTYPE_LOCTAB;
 	BExtQuery q(this, 0, 128);
 	q.select(this->Loc, this->GoodsID, 0L).where(this->RType == (long)PSRECTYPE_LOCTAB);
-	THROW_MEM(P_LocTab = new SArray(sizeof(LocTabEntry)));
 	for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
 		LocTabEntry entry;
 		entry.LocID  = data.GoodsID;
 		entry.LocIdx = data.Loc;
-		THROW_SL(P_LocTab->insert(&entry));
+		THROW_SL(LocTab.insert(&entry));
 	}
 	{
 		PPObjLocation loc_obj;
@@ -593,37 +597,34 @@ int SLAPI PredictSalesCore::ReadLocTab()
 	return ok;
 }
 
-int SLAPI PredictSalesCore::GetLocList(PPIDArray * pList) const
+void FASTCALL PredictSalesCore::GetLocList(PPIDArray & rList) const
 {
-	LocTabEntry * p_entry;
-	for(uint i = 0; P_LocTab->enumItems(&i, (void **)&p_entry);)
-		pList->add(p_entry->LocID);
-	return 1;
+	for(uint i = 0; i < LocTab.getCount(); i++)
+		rList.add(LocTab.at(i).LocID);
 }
 
 int FASTCALL PredictSalesCore::ShrinkLoc(PPID locID, int16 * pLocIdx) const
 {
-	if(P_LocTab) {
-		uint   pos = 0;
-		if(P_LocTab->lsearch(&locID, &pos, CMPF_LONG)) {
-			ASSIGN_PTR(pLocIdx, ((LocTabEntry *)P_LocTab->at(pos))->LocIdx);
-			return 1;
-		}
+	uint   pos = 0;
+	if(LocTab.lsearch(&locID, &pos, CMPF_LONG)) {
+		ASSIGN_PTR(pLocIdx, LocTab.at(pos).LocIdx);
+		return 1;
 	}
-	ASSIGN_PTR(pLocIdx, 0);
-	return 0;
+	else {
+		ASSIGN_PTR(pLocIdx, 0);
+		return 0;
+	}
 }
 
 int FASTCALL PredictSalesCore::ExpandLoc(int16 locIdx, PPID * pLocID)
 {
-	LocTabEntry * p_entry;
-	if(P_LocTab)
-		for(uint i = 0; P_LocTab->enumItems(&i, (void **)&p_entry);) {
-			if(p_entry->LocIdx == locIdx) {
-				ASSIGN_PTR(pLocID, p_entry->LocID);
-				return 1;
-			}
+	for(uint i = 0; i < LocTab.getCount(); i++) {
+		const LocTabEntry & r_entry = LocTab.at(i);
+		if(r_entry.LocIdx == locIdx) {
+			ASSIGN_PTR(pLocID, r_entry.LocID);
+			return 1;
 		}
+	}
 	ASSIGN_PTR(pLocID, 0);
 	return 0;
 }
@@ -735,11 +736,11 @@ int SLAPI PredictSalesCore::RemovePeriod(PPID locID, PPID goodsID, const DateRan
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(locID < 0) {
-			LocTabEntry * p_entry;
-			if(P_LocTab)
-				for(uint i = 0; P_LocTab->enumItems(&i, (void **)&p_entry);)
-					if(p_entry->LocID >= 0)
-						THROW(RemovePeriod(p_entry->LocID, goodsID, pPeriod, 0)); // @recursion
+			for(uint i = 0; i < LocTab.getCount(); i++) {
+				const LocTabEntry & r_entry = LocTab.at(i);
+				if(r_entry.LocID >= 0)
+					THROW(RemovePeriod(r_entry.LocID, goodsID, pPeriod, 0)); // @recursion
+			}
 		}
 		else {
 			int16  loc_idx = 0, lowdt = 0, maxdt = MAXSHORT;
@@ -794,7 +795,7 @@ int SLAPI PredictSalesCore::GetPeriod(const ObjIdListFilt * pLocList, PPID goods
 	DateRange p;
 	PPIDArray loc_list;
 	if(pLocList == 0 || !pLocList->IsExists())
-		GetLocList(&loc_list);
+		GetLocList(loc_list);
 	else
 		loc_list = pLocList->Get();
 	p.SetZero();
@@ -925,24 +926,25 @@ int SLAPI PredictSalesCore::Enumerate(PPID goodsID, const ObjIdListFilt & rLocLi
 		else
 			loc_list.add(-1);
 		if(loc_list.getSingle() == -1 || loc_list.getCount() > 1) {
-			LocTabEntry * p_entry;
-			if(P_LocTab)
-				if(loc_list.getSingle() == -1) {
-					for(uint i = 0; P_LocTab->enumItems(&i, (void **)&p_entry);)
-						if(p_entry->LocID >= 0) {
-							int r = Helper_Enumerate(goodsID, p_entry->LocID, pPeriod, maxItems, proc, extraData);
-							if(r <= 0)
-								return r;
-						}
+			if(loc_list.getSingle() == -1) {
+				for(uint i = 0; i < LocTab.getCount(); i++) {
+					const PPID loc_id = LocTab.at(i).LocID;
+					if(loc_id >= 0) {
+						const int r = Helper_Enumerate(goodsID, loc_id, pPeriod, maxItems, proc, extraData);
+						if(r <= 0)
+							return r;
+					}
 				}
-				else {
-					for(uint i = 0; i < loc_list.getCount(); i++)
-						if(loc_list.at(i) > 0) {
-							int r = Helper_Enumerate(goodsID, loc_list.at(i), pPeriod, maxItems, proc, extraData);
-							if(r <= 0)
-								return r;
-						}
+			}
+			else {
+				for(uint i = 0; i < loc_list.getCount(); i++) {
+					if(loc_list.at(i) > 0) {
+						const int r = Helper_Enumerate(goodsID, loc_list.at(i), pPeriod, maxItems, proc, extraData);
+						if(r <= 0)
+							return r;
+					}
 				}
+			}
 		}
 	}
 	return 1;

@@ -303,6 +303,9 @@ int SLAPI VCalendar::GetTodo(VCalendar::Todo * pData)
 				case prpDescr:
 					todo_rec.Descr.Cat(val);
 					break;
+				case prpContact: // @v9.5.9
+					todo_rec.Contact.Cat(val); 
+					break;
 			}
 		}
 		if(ok > 0)

@@ -2265,14 +2265,14 @@ int SLAPI PPObjGoodsStruc::HandleMsg(int msg, PPID _obj, PPID _id, void * extraP
 	if(msg == DBMSG_OBJDELETE)
 		if(_obj == PPOBJ_GOODS) {
 			ObjAssocTbl::Rec assc_rec;
-			for(SEnum en = PPRef->Assc.Enum(PPASS_GOODSSTRUC, _id, 1); en.Next(&assc_rec) > 0;) {
+			for(SEnum en = ref->Assc.Enum(PPASS_GOODSSTRUC, _id, 1); en.Next(&assc_rec) > 0;) {
 				ok = RetRefsExistsErr(Obj, assc_rec.PrmrObjID);
 				break;
 			}
 		}
 	if(msg == DBMSG_OBJREPLACE)
 		if(_obj == PPOBJ_GOODS) {
-			ObjAssocTbl * t = &PPRef->Assc;
+			ObjAssocTbl * t = &ref->Assc;
 			if(!updateFor(t, 0, (t->AsscType == PPASS_GOODSSTRUC && t->ScndObjID == _id),
 				set(t->ScndObjID, dbconst((long)extraPtr)))) {
 				ok = PPSetErrorDB();

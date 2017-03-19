@@ -191,7 +191,8 @@ static const PPUserProfileFuncEntry PPUserProfileFuncTab[] = {
 	{ PPUPRF_VIEW_DEBT,         0, 1, 0, 0 },
 	{ PPUPRF_GETOPENEDLOTS,     0, 2, PPUserProfileFuncEntry::fAccumulate, 10000 },
 	{ PPUPRF_BHTPREPBILL,       0, 1, 0, 0 }, // @v9.4.11
-	{ PPUPRF_BHTPREPGOODS,      0, 1, 0, 0 } // @v9.4.11
+	{ PPUPRF_BHTPREPGOODS,      0, 1, 0, 0 }, // @v9.4.11
+	{ PPUPRF_OSMXMLPARSETAG,    0, 1, PPUserProfileFuncEntry::fAccumulate, 1000000 }  // @v9.5.8
 };
 
 static const PPUserProfileFuncEntry * FASTCALL _GetUserProfileFuncEntry(int funcId)
@@ -576,10 +577,17 @@ uint FASTCALL Profile::StartUserProfileFunc(int funcId)
 	return handle;
 }
 
+int FASTCALL Profile::GetUserProfileFuncID(uint handle) const
+{
+	assert(handle > 0 && handle <= UserProfileStack.getCount());
+	const UserProfileEntry * p_profile_entry = (const UserProfileEntry *)UserProfileStack.at(handle-1);
+	return p_profile_entry->Fe.FuncId;
+}
+
 double SLAPI Profile::GetUserProfileFactor(uint handle, uint factorN) const
 {
 	assert(handle > 0 && handle <= UserProfileStack.getCount());
-	const UserProfileEntry * p_profile_entry = (UserProfileEntry *)UserProfileStack.at(handle-1);
+	const UserProfileEntry * p_profile_entry = (const UserProfileEntry *)UserProfileStack.at(handle-1);
 	assert(factorN < p_profile_entry->Fe.FactorCount);
 	return p_profile_entry->Factors[factorN];
 }
@@ -768,6 +776,24 @@ int SLAPI PPUserFuncProfiler::Commit()
 	if(H) {
 		ok = DS.GetTLA().Prf.FinishUserProfileFunc(H);
 		H = 0;
+	}
+	return ok;
+}
+
+int SLAPI PPUserFuncProfiler::CommitAndRestart()
+{
+	int    ok = -1;
+	if(H) {
+		//int FASTCALL Profile::GetUserProfileFuncID(uint handle) const
+		Profile & r_prf = DS.GetTLA().Prf;
+		const int func_id = r_prf.GetUserProfileFuncID(H);
+		ok = r_prf.FinishUserProfileFunc(H);
+		if(ok) {
+			H = func_id ? r_prf.StartUserProfileFunc(func_id) : 0;
+			ok = BIN(H);
+		}
+		else
+			H = 0;
 	}
 	return ok;
 }

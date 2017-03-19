@@ -25,6 +25,10 @@ int SLAPI SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID _acc
 	}
 	if(sacf & sacfNonEmptyExchageParam)
 		filt.Flags |= ArticleFilt::fWithIxParamOnly;
+	// @v9.5.9 {
+	if(sacf & sacfNonGeneric)
+		filt.Flags |= ArticleFilt::fNonGenericOnly;
+	// } @v9.5.9
 	if(/*disableIfZeroSheet*/sacf & sacfDisableIfZeroSheet)
 		dlg->disableCtrl(ctlID, _accSheetID == 0);
 	if(_accSheetID) {
@@ -807,6 +811,7 @@ int SLAPI PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 		ListToListData  Data;
 	};
 	int    ok = -1, valid = 0;
+	Reference * p_ref = PPRef;
 	uint   i;
 	GrpArticleDialog * dlg = 0;
 	ArticleTbl::Rec    ar_rec;
@@ -837,7 +842,7 @@ int SLAPI PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 		THROW(tra);
 		if(*pID) {
 			THROW(UpdateByID(P_Tbl, Obj, *pID, &ar_rec, 0));
-			THROW(PPRef->Assc.Remove(PPASS_GROUPARTICLE, ar_rec.ID, 0, 0));
+			THROW(p_ref->Assc.Remove(PPASS_GROUPARTICLE, ar_rec.ID, 0, 0));
 		}
 		else {
 			THROW(AddObjRecByID(P_Tbl, Obj, pID, &ar_rec, 0));
@@ -848,8 +853,8 @@ int SLAPI PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 			oa_rec.AsscType  = PPASS_GROUPARTICLE;
 			oa_rec.PrmrObjID = ar_rec.ID;
 			oa_rec.ScndObjID = oa_ary.at(i);
-			THROW(PPRef->Assc.SearchFreeNum(PPASS_GROUPARTICLE, ar_rec.ID, &oa_rec.InnerNum));
-			THROW(PPRef->Assc.Add(&(id = 0), &oa_rec, 0));
+			THROW(p_ref->Assc.SearchFreeNum(PPASS_GROUPARTICLE, ar_rec.ID, &oa_rec.InnerNum));
+			THROW(p_ref->Assc.Add(&(id = 0), &oa_rec, 0));
 		}
 		THROW(tra.Commit());
 		ok = 1;
@@ -1353,7 +1358,7 @@ StrAssocArray * SLAPI PPObjArticle::MakeStrAssocList(void * extraPtr /*accSheetI
 #ifdef DO_GET_NAME_FROM_CACHE
 	q.select(P_Tbl->ID, P_Tbl->ObjID, 0L);
 #else
-	q.select(P_Tbl->ID, P_Tbl->Name, P_Tbl->ObjID, 0L);
+	q.select(P_Tbl->ID, P_Tbl->Name, P_Tbl->ObjID, P_Tbl->Flags, 0L); // @v9.5.9 P_Tbl->Flags
 #endif // DO_GET_NAME_FROM_CACHE
 	if(acs_id)
 		dbq = & (P_Tbl->AccSheetID == acs_id);
@@ -1368,11 +1373,13 @@ StrAssocArray * SLAPI PPObjArticle::MakeStrAssocList(void * extraPtr /*accSheetI
 	for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
 		const PPID ar_id = P_Tbl->data.ID;
 		P_Tbl->copyBufTo(&ar_rec);
-		int   do_skip = 1;
-		if(p_filt && p_filt->Flags & ArticleFilt::fWithIxParamOnly)
-			do_skip = (GetSupplAgreement(ar_rec.ID, &suppl_agt, 0) > 0 && !suppl_agt.Ep.IsEmpty()) ? 0 : 1;
-		else
-			do_skip = 0;
+		int   do_skip = 0;
+		if(p_filt) {
+			if(p_filt->Flags & ArticleFilt::fNonGenericOnly && ar_rec.Flags & ARTRF_GROUP)
+				do_skip = 1;
+			else if(p_filt->Flags & ArticleFilt::fWithIxParamOnly)
+				do_skip = (GetSupplAgreement(ar_rec.ID, &suppl_agt, 0) > 0 && !suppl_agt.Ep.IsEmpty()) ? 0 : 1;
+		}
 		if(!do_skip) {
 #ifdef DO_GET_NAME_FROM_CACHE
 			if(Fetch(ar_id, &ar_rec) > 0) {

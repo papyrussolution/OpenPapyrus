@@ -1619,6 +1619,7 @@ int FastEditRightsDlg::getDTS(SecurCollection * pData)
 int LoadGrpUsrRights(SecurCollection * pRights)
 {
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	PPObjSecur grp_obj(PPOBJ_USRGRP, 0);
 	PPObjSecur usr_obj(PPOBJ_USR, 0);
 	StrAssocArray * p_usr_list = 0;
@@ -1628,10 +1629,10 @@ int LoadGrpUsrRights(SecurCollection * pRights)
 		PPSecurPacket * p_pack = new PPSecurPacket;
 		PPID   id = p_usr_list->at(i).Id;
 		if(id & PPObjSecur::maskUserGroup) {
-			THROW(PPRef->LoadSecur(PPOBJ_USRGRP, (id & ~PPObjSecur::maskUserGroup), p_pack));
+			THROW(p_ref->LoadSecur(PPOBJ_USRGRP, (id & ~PPObjSecur::maskUserGroup), p_pack));
 		}
 		else {
-			THROW(PPRef->LoadSecur(PPOBJ_USR, id, p_pack));
+			THROW(p_ref->LoadSecur(PPOBJ_USR, id, p_pack));
 			p_pack->Secur.ID += USERID_OFFSET;
 		}
 		pRights->insert(p_pack);

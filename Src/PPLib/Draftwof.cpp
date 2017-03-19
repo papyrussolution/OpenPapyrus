@@ -222,7 +222,7 @@ int DraftWrOffDialog::setupDfctSelectors(PPID arID)
 			ok = 1;
 		}
 		else if(GetOpData(op_id, &op_rec) > 0) {
-			SetupArCombo(this, CTLSEL_DRAFTWROFF_DFCTAR, arID, OLW_LOADDEFONOPEN|OLW_CANINSERT, op_rec.AccSheetID, sacfDisableIfZeroSheet);
+			SetupArCombo(this, CTLSEL_DRAFTWROFF_DFCTAR, arID, OLW_LOADDEFONOPEN|OLW_CANINSERT, op_rec.AccSheetID, sacfDisableIfZeroSheet|sacfNonGeneric);
 			ok = 1;
 		}
 	if(ok <= 0) {

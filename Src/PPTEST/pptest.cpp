@@ -300,7 +300,7 @@ int Test_Hash_And_Search(const char * pInputFileName)
 				SFile out_file(fn, SFile::mWrite);
 				if(out_file.IsValid()) {
 					SymbHashTable::Iter iter;
-					for(tab.InitIteration(&iter); tab.NextIteration(&iter, &i, &word_buf);) {
+					for(tab.InitIteration(&iter); tab.NextIteration(&iter, &i, 0, &word_buf);) {
 						out_file.WriteLine(word_buf.CR());
 					}
 				}

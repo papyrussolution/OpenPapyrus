@@ -1,5 +1,5 @@
 // PERSON.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // @Kernel
 //
@@ -1205,10 +1205,11 @@ int SLAPI PersonCore::GetVATFreePersonList(PPIDArray * list)
 int SLAPI PersonCore::PutRelList(PPID id, const LAssocArray * pList, int use_ta)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(PPRef->Assc.Remove(PPASS_PERSONREL, id, 0, 0));
+		THROW(p_ref->Assc.Remove(PPASS_PERSONREL, id, 0, 0));
 		if(pList) {
 			LAssoc * p_item = 0;
 			LAssocArray list = *pList;
@@ -1232,8 +1233,8 @@ int SLAPI PersonCore::PutRelList(PPID id, const LAssocArray * pList, int use_ta)
 					c = 0;
 				}
 				rel_rec.RelTypeID = p_item->Val;
-				PPRef->Assc.SearchFreeNum(rel_rec.AsscType, rel_rec.PrmrObjID, &rel_rec.InnerNum, 0);
-				THROW(PPRef->Assc.Add(&assc_id, (ObjAssocTbl::Rec *)&rel_rec, 0));
+				p_ref->Assc.SearchFreeNum(rel_rec.AsscType, rel_rec.PrmrObjID, &rel_rec.InnerNum, 0);
+				THROW(p_ref->Assc.Add(&assc_id, (ObjAssocTbl::Rec *)&rel_rec, 0));
 				prev_scnd = p_item->Key;
 			}
 		}
@@ -1246,11 +1247,12 @@ int SLAPI PersonCore::PutRelList(PPID id, const LAssocArray * pList, int use_ta)
 int SLAPI PersonCore::GetRelList(PPID id, LAssocArray * pList, int reverse)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	RelationRecord rel_rec;
 	assert(sizeof(rel_rec) == sizeof(ObjAssocTbl::Rec));
 	pList->clear(); // @v8.7.12 freeAll()-->clear()
 	if(!reverse) {
-		for(PPID next_id = 0; PPRef->Assc.EnumByPrmr(PPASS_PERSONREL, id, &next_id, (ObjAssocTbl::Rec *)&rel_rec) > 0;) {
+		for(PPID next_id = 0; p_ref->Assc.EnumByPrmr(PPASS_PERSONREL, id, &next_id, (ObjAssocTbl::Rec *)&rel_rec) > 0;) {
 			PPID   scnd_id = (rel_rec.ScndObjID & ~0xff000000);
 			if(!pList->SearchPair(scnd_id, rel_rec.RelTypeID, 0))
 				pList->Add(scnd_id, rel_rec.RelTypeID, 0, 0);
@@ -1259,7 +1261,7 @@ int SLAPI PersonCore::GetRelList(PPID id, LAssocArray * pList, int reverse)
 	else {
 		for(uint i = 0; i < MAXSAMEPSNREL; i++) {
 			const PPID scnd_id = id | (i << 24);
-			for(SEnum en = PPRef->Assc.Enum(PPASS_PERSONREL, scnd_id, 1); en.Next(&rel_rec) > 0;) {
+			for(SEnum en = p_ref->Assc.Enum(PPASS_PERSONREL, scnd_id, 1); en.Next(&rel_rec) > 0;) {
 				if(!pList->SearchPair(rel_rec.PrmrObjID, rel_rec.RelTypeID, 0))
 					pList->Add(rel_rec.PrmrObjID, rel_rec.RelTypeID, 0, 0);
 			}
@@ -1292,17 +1294,18 @@ int SLAPI PersonCore::Helper_GetELinksFromPropRec(const PropertyTbl::Rec * pRec,
 int SLAPI PersonCore::GetELinks(PPID id, PPELinkArray * ary)
 {
 	int    ok = 1, r;
+	Reference * p_ref = PPRef;
 	size_t sz = 4096; // @v8.8.1 2048-->4096
 	PropertyTbl::Rec * buf = 0;
 	ary->clear();
 	THROW_MEM(buf = (PropertyTbl::Rec *)malloc(sz));
-	THROW(r = PPRef->GetProp(PPOBJ_PERSON, id, PSNPRP_ELINK, buf, sz));
+	THROW(r = p_ref->GetProp(PPOBJ_PERSON, id, PSNPRP_ELINK, buf, sz));
 	if(r > 0) {
 		size_t i = sz;
 		sz = (size_t)buf->Val2 + PROPRECFIXSIZE;
 		if(i < sz) {
 			THROW_MEM(buf = (PropertyTbl::Rec *)realloc(buf, sz));
-			THROW(PPRef->GetProp(PPOBJ_PERSON, id, PSNPRP_ELINK, buf, sz) > 0);
+			THROW(p_ref->GetProp(PPOBJ_PERSON, id, PSNPRP_ELINK, buf, sz) > 0);
 		}
 		THROW(Helper_GetELinksFromPropRec(buf, sz, ary));
 	}

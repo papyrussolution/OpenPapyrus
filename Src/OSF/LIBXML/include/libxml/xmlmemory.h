@@ -12,7 +12,7 @@
 #ifndef __DEBUG_MEMORY_ALLOC__
 #define __DEBUG_MEMORY_ALLOC__
 
-#include <stdio.h>
+//#include <stdio.h>
 #include <libxml/xmlversion.h>
 
 /**

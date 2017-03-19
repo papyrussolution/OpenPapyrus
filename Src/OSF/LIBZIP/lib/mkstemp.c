@@ -33,19 +33,18 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
 #ifdef _WIN32
-#include <io.h>
+	#include <io.h>
 #endif
-#include <stdio.h>
-#include <stdlib.h>
+//#include <stdio.h>
+//#include <stdlib.h>
 
 #ifndef O_BINARY
-#define O_BINARY 0
+	#define O_BINARY 0
 #endif
 
 int _zip_mkstemp(char * path)

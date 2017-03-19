@@ -2663,6 +2663,7 @@ int SLAPI CCheckCore::TurnCheck(CCheckPacket * pPack, int use_ta)
 int SLAPI CCheckCore::RemovePacket(PPID id, int use_ta)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	int    r = 0;
 	CCheckPacket pack;
 	if(DoCCheckTextLog())
@@ -2685,7 +2686,7 @@ int SLAPI CCheckCore::RemovePacket(PPID id, int use_ta)
 		if(P_LnExt) {
 			THROW_DB(deleteFrom(P_LnExt, 0, P_LnExt->CheckID == id));
 		}
-		THROW(PPRef->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), (const wchar_t *)0, 0)); // @v9.0.9
+		THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), (const wchar_t *)0, 0)); // @v9.0.9
 		THROW(Cards.RemoveOpByCheck(id, 0));
 		if(SearchByID_ForUpdate(this, PPOBJ_CCHECK, id, 0) > 0) {
 			if(data.Flags & CCHKF_JUNK)
@@ -2700,7 +2701,7 @@ int SLAPI CCheckCore::RemovePacket(PPID id, int use_ta)
 		THROW_DB(deleteFrom(&PaymT, 0, PaymT.CheckID == id)); // @v8.0.0
 		// @v8.2.11 {
 		if(do_remove_tags) {
-			PPRef->Ot.RemoveTag(PPOBJ_CCHECK, id, 0, 0);
+			p_ref->Ot.RemoveTag(PPOBJ_CCHECK, id, 0, 0);
 		}
 		// } @v8.2.11
 		if(DoCCheckTextLog()) {
@@ -3338,6 +3339,7 @@ int SLAPI CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCh
 		int16  DtOffs;
 	};
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	uint   i;
 	LDATE  curdt = getcurdate_();
 	SArray chk_list(sizeof(ChkItem), 32, O_ARRAY);
@@ -3384,7 +3386,7 @@ int SLAPI CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCh
 				const PPID cc_id = Lines.data.CheckID;
 				if(chk_list.bsearch(&cc_id, &pos, CMPF_LONG)) {
 					if(cc_id != prev_cc_id) {
-						THROW(PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, cc_id, PPTRPROP_CC_LNEXT), temp_buf));
+						THROW(p_ref->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, cc_id, PPTRPROP_CC_LNEXT), temp_buf));
 						// (Использовать будем в виде utf8-строк) temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
                         CCheckPacket::Helper_UnpackLineTextExt(temp_buf, cc_ln_text_ext);
 					}
@@ -3394,14 +3396,14 @@ int SLAPI CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCh
 					if(CCheckPacket::Helper_GetLineTextExt(Lines.data.RByCheck, CCheckPacket::lnextSerial, cc_ln_text_ext, temp_buf) > 0) {
 						if(temp_buf.NotEmptyS()) {
 							temp_buf_u.CopyFromUtf8(temp_buf);
-							THROW(PPRef->TrT.GetSelfRefText(temp_buf_u, &serial_id, 0));
+							THROW(p_ref->TrT.GetSelfRefText(temp_buf_u, &serial_id, 0));
 						}
 					}
 					// } @v9.0.11
 					/* @v9.0.11
 					if(use_ccl_ext && GetLineExt(cc_id, Lines.data.RByCheck, &lnext_rec) > 0) {
 						if(strip(lnext_rec.Serial)[0] != 0)
-							THROW(PPRef->Ot.CreateUniqueStr(PPOBJ_SERIAL, PPTAG_FLOAT_SERIAL, &serial_id, lnext_rec.Serial, 0));
+							THROW(p_ref->Ot.CreateUniqueStr(PPOBJ_SERIAL, PPTAG_FLOAT_SERIAL, &serial_id, lnext_rec.Serial, 0));
 					}
 					*/
 					THROW(pCgList->Add(plusdate(curdt, dt_offs), &Lines.data, serial_id));

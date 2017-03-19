@@ -1404,22 +1404,22 @@ int SLAPI PPObjGoods::AdjPriceToTaxes(PPID taxGrpID, double taxFactor, double * 
 int SLAPI PPObjGoods::AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID,
 	LDATE lotDate, double qtty, double * pCost /* In, Out */, int withOrWithout, int vatFreeSuppl)
 {
-	return Helper_AdjCostToVat(lotTaxGrpID, goodsTaxGrpID, lotDate, qtty, pCost, 0, withOrWithout, vatFreeSuppl);
+	return Helper_AdjCostToVat(lotTaxGrpID, goodsTaxGrpID, lotDate, qtty, pCost, 0, withOrWithout, vatFreeSuppl, 2);
 }
 
 int SLAPI PPObjGoods::CalcCostVat(PPID lotTaxGrpID, PPID goodsTaxGrpID,
-	LDATE lotDate, double qtty, double cost, double * pSum, int withOrWithout, int vatFreeSuppl)
+	LDATE lotDate, double qtty, double cost, double * pSum, int withOrWithout, int vatFreeSuppl, int roundPrec)
 {
-	return Helper_AdjCostToVat(lotTaxGrpID, goodsTaxGrpID, lotDate, qtty, &cost, pSum, withOrWithout, vatFreeSuppl);
+	return Helper_AdjCostToVat(lotTaxGrpID, goodsTaxGrpID, lotDate, qtty, &cost, pSum, withOrWithout, vatFreeSuppl, roundPrec);
 }
 
 int SLAPI PPObjGoods::Helper_AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID,
-	LDATE lotDate, double qtty, double * pCost /* In, Out */, double * pVatSum, int withOrWithout, int vatFreeSuppl)
+	LDATE lotDate, double qtty, double * pCost /* In, Out */, double * pVatSum, int withOrWithout, int vatFreeSuppl, int roundPrec)
 {
 	double c = *pCost;
 	double vat_sum = 0.0;
 	const  PPID tax_grp_id = NZOR(lotTaxGrpID, goodsTaxGrpID);
-	GTaxVect vect;
+	GTaxVect vect((roundPrec >= 0 && roundPrec <= 20) ? roundPrec : 2);
 	PPGoodsTaxEntry gt;
 	if(GTxObj.Fetch(tax_grp_id, lotDate, 0L, &gt) > 0) {
 		long   amt_fl = 0;
@@ -4355,7 +4355,7 @@ int SLAPI PPObjGoodsInfo::GetPacket(PPID id, PPGoodsInfo * pPack)
 {
 	int    ok = 1;
 	PPGoodsInfo pack;
-	THROW((ok = PPRef->GetItem(PPOBJ_GOODSINFO, id, &pack)));
+	THROW((ok = ref->GetItem(PPOBJ_GOODSINFO, id, &pack)));
 	ASSIGN_PTR(pPack, pack);
 	CATCHZOK
 	return ok;
@@ -4376,19 +4376,19 @@ int SLAPI PPObjGoodsInfo::PutPacket(PPID * pID, PPGoodsInfo * pPack, int use_ta)
 			if(pPack) {
 				THROW(CheckRights(PPR_MOD));
 				pPack->ObjID = *pID;
-				THROW(PPRef->UpdateItem(PPOBJ_GOODSINFO, *pID, pPack, 1, 0));
+				THROW(ref->UpdateItem(PPOBJ_GOODSINFO, *pID, pPack, 1, 0));
 				action = PPACN_OBJUPD;
 			}
 			else {
 				THROW(CheckRights(PPR_DEL));
-				THROW(PPRef->RemoveItem(PPOBJ_GOODSINFO, *pID, 0));
+				THROW(ref->RemoveItem(PPOBJ_GOODSINFO, *pID, 0));
 				action = PPACN_OBJRMV;
 			}
 			id = *pID;
 		}
 		else if(pPack) {
 			THROW(CheckRights(PPR_INS));
-			THROW(PPRef->AddItem(PPOBJ_GOODSINFO, &id, pPack, 0));
+			THROW(ref->AddItem(PPOBJ_GOODSINFO, &id, pPack, 0));
 			action = PPACN_OBJADD;
 			ASSIGN_PTR(pID, id);
 		}

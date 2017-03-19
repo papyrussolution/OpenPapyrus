@@ -4037,9 +4037,11 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 							}
 							// } @v9.5.5
 							const double discount = nominal_price - full_price;
-							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, full_price,    &vat_sum_in_full_price, 0, 0);
-							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, nominal_price, &vat_sum_in_nominal_price, 0, 0);
-							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, discount,      &vat_sum_in_discount, 0, 0);
+							// @v9.5.9 (Установлена точность округления 6) {
+							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, full_price,    &vat_sum_in_full_price, 0, 0, 6);
+							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, nominal_price, &vat_sum_in_nominal_price, 0, 0, 6);
+							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, discount,      &vat_sum_in_discount, 0, 0, 6);
+							// } @v9.5.9
 							{
 								iSalesBillAmountEntry * p_amt_entry = p_new_item->Amounts.CreateNewItem(0);
 								THROW_SL(p_amt_entry);
@@ -4619,23 +4621,26 @@ int SLAPI SapEfes::ReceiveOrders()
 										}
 										else {
 											R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_GOODSNCODE, &msg_buf, (const char *)pack.Rec.Code, p_src_item->GoodsCode.cptr()));
+											skip = 1;
 										}
 									}
 								}
-								{
-									pack.Rec.EdiOp = PPEDIOP_SALESORDER;
-									pack.BTagL.PutItemStr(PPTAG_BILL_EDICHANNEL, "SAP-EFES");
-									if(p_src_pack->Code.NotEmpty())
-										pack.BTagL.PutItemStr(PPTAG_BILL_EDIIDENT, p_src_pack->Code);
-								}
-								pack.InitAmounts();
-								THROW(P_BObj->TurnPacket(&pack, 1));
-								{
-									SapEfesBillStatus * p_new_status = status_list.CreateNewItem(0);
-									THROW_SL(p_new_status);
-									p_new_status->Code = p_src_pack->Code;
-									p_new_status->NativeCode.Cat(pack.Rec.ID);
-									p_new_status->Status = "E0008";
+								if(!skip) {
+									{
+										pack.Rec.EdiOp = PPEDIOP_SALESORDER;
+										pack.BTagL.PutItemStr(PPTAG_BILL_EDICHANNEL, "SAP-EFES");
+										if(p_src_pack->Code.NotEmpty())
+											pack.BTagL.PutItemStr(PPTAG_BILL_EDIIDENT, p_src_pack->Code);
+									}
+									pack.InitAmounts();
+									THROW(P_BObj->TurnPacket(&pack, 1));
+									{
+										SapEfesBillStatus * p_new_status = status_list.CreateNewItem(0);
+										THROW_SL(p_new_status);
+										p_new_status->Code = p_src_pack->Code;
+										p_new_status->NativeCode.Cat(pack.Rec.ID);
+										p_new_status->Status = "E0008";
+									}
 								}
 							}
 						}

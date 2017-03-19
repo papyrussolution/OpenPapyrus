@@ -147,7 +147,7 @@ unsigned bch15_5_encode(unsigned _x)
 }
 
 #if 0
-#include <stdio.h>
+//#include <stdio.h>
 
 static unsigned codes[32];
 

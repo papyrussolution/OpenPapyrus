@@ -1107,7 +1107,7 @@ int SLAPI GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt * pFilt, const Adj
 					if(gp.AgentID && pAgg)
 						gp.P_SupplAgentBillList = &pAgg->SupplAgentBillList;
 					if(filt.Flags & OPG_SETCOSTWOTAXES)
-						gp.Flags |= GoodsRestParam::fCWoVat;
+						gp.Flags_ |= GoodsRestParam::fCWoVat;
 					if(filt.Flags & OPG_CALCINREST) {
 						gp.Date = plusdate(filt.Period.low, -1);
 						op_rec.ID  = -1;

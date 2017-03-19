@@ -1,5 +1,5 @@
 // RENT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -312,6 +312,7 @@ int SLAPI PPObjBill::AutoCharge(PPID id)
 int SLAPI PPObjBill::AutoCharge()
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	PPID   parent_op = 0;
 	PPID   charge_op = 0;
 	PPLogger logger;
@@ -320,16 +321,16 @@ int SLAPI PPObjBill::AutoCharge()
 	MEMSZERO(filt);
 	if(RentChrgDialog(&filt) <= 0)
 		return -1;
-	BExtQuery q(&PPRef->Prop, 0);
-	q.select(PPRef->Prop.ObjID, PPRef->Prop.Text, 0L).
-		where(PPRef->Prop.ObjType == PPOBJ_BILL && PPRef->Prop.Prop == BILLPRP_RENT);
+	BExtQuery q(&p_ref->Prop, 0);
+	q.select(p_ref->Prop.ObjID, p_ref->Prop.Text, 0L).
+		where(p_ref->Prop.ObjType == PPOBJ_BILL && p_ref->Prop.Prop == BILLPRP_RENT);
 	k.ObjType = PPOBJ_BILL;
 	k.ObjID   = 0;
 	k.Prop    = 0;
 	for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
 		PPRentCondition rc;
-		memcpy(&rc, PPRef->Prop.data.Text, sizeof(PPRentCondition));
-		PPID   id = PPRef->Prop.data.ObjID;
+		memcpy(&rc, p_ref->Prop.data.Text, sizeof(PPRentCondition));
+		PPID   id = p_ref->Prop.data.ObjID;
 		if(rc.Cycle && !(rc.Flags & RENTF_CLOSED) && Search(id) > 0 && (!filt.CntrgntID || P_Tbl->data.Object == filt.CntrgntID)) {
 			const PPID op = P_Tbl->data.OpID;
 			if(op) {
@@ -371,7 +372,7 @@ int RentChrgDlg::setDTS(const RentChrgFilt * pFilt)
 {
 	Data = *pFilt;
 	SetPeriodInput(this, CTL_RENTCHARGE_PERIOD, &Data.Period);
-	SetupArCombo(this, CTLSEL_RENTCHARGE_OBJECT, Data.CntrgntID, OLW_LOADDEFONOPEN, GetSellAccSheet());
+	SetupArCombo(this, CTLSEL_RENTCHARGE_OBJECT, Data.CntrgntID, OLW_LOADDEFONOPEN, GetSellAccSheet(), sacfNonGeneric);
 	return 1;
 }
 

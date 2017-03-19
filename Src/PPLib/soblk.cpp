@@ -1,5 +1,5 @@
 // SOBLK.CPP
-// Copyright (c) A.Sobolev 2015, 2016
+// Copyright (c) A.Sobolev 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -2501,7 +2501,6 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				P_QF->Flags |= QuotFilt::fListOnly;
 				THROW(qview.Init_(P_QF));
 				const PPQuotItemArray * p_qlist = qview.GetQList();
-				// @v7.6.0 {
 				if(p_qlist && (!Page.IsZero() || P_QF->GoodsSubText.NotEmpty() || (P_QF->LocalFlags & P_QF->lfNonZeroDraftRestOnly))) {
 					//
 					// @todo Здесь следует скопировать в temp_list только необходимые элементы.
@@ -2522,7 +2521,6 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						} while(c);
 						c = temp_list.getCount();
 					}
-					// @v7.9.2 {
 					if(P_QF->LocalFlags & P_QF->lfNonZeroDraftRestOnly) {
 						if(c) {
 							PPOprKind op_rec;
@@ -2541,7 +2539,6 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						}
 						c = temp_list.getCount();
 					}
-					// } @v7.9.2
 					if(!Page.IsZero()) {
 						uint   start_pos = 0;
 						uint   end_pos = c;
@@ -2573,7 +2570,6 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					}
 					p_qlist = &temp_list;
 				}
-				// } @v7.6.0
 				if(OutFormat == fmtBinary) {
 					THROW_SL(rResult.Write(p_qlist));
 				}
@@ -4792,7 +4788,7 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 					SETIFZ(P_BillF, new BillFilt);
 					switch(criterion) {
 						case cPeriod:
-							THROW(getperiod(rArg, &P_BillF->Period));
+							THROW(strtoperiod(rArg, &P_BillF->Period, 0));
 							break;
 						case cDate:
 							{
@@ -5710,7 +5706,7 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 				switch(criterion) {
 					case cCurrency: THROW(ResolveCrit_Cur(subcriterion, rArg, &P_CurRateF->CurID)); break;
 					case cActual: P_CurRateF->Flags |= CurRateFilt::fActualOnly; break;
-					case cPeriod: THROW(getperiod(rArg, &P_CurRateF->Period)); break;
+					case cPeriod: THROW(strtoperiod(rArg, &P_CurRateF->Period, 0)); break;
 					case cType: THROW(ResolveCrit_CurRateType(subcriterion, rArg, &P_CurRateF->RateTypeID)); break;
 					case cPage: THROW(ResolveCrit_Page(rArg)); break;
 					default: CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION); break;
@@ -5730,7 +5726,7 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 				switch(criterion) {
 					case cCode: P_SpecSerF->Serial = rArg; break;
 					case cGoods: THROW(ResolveCrit_Goods(subcriterion, rArg, &P_SpecSerF->GoodsID)); break;
-					case cPeriod: THROW(getperiod(rArg, &P_SpecSerF->Period)); break;
+					case cPeriod: THROW(strtoperiod(rArg, &P_SpecSerF->Period, 0)); break;
 					case cPage: THROW(ResolveCrit_Page(rArg)); break;
 					default: CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION); break;
 				}
@@ -6037,7 +6033,6 @@ STYLOPALM
 							THROW(P_ScObj->Search(P_SetBlk->U.SC.ID, &sc_rec) > 0);
 							break;
 						case cCode:
-							// @Muxa @v7.4.2 {
 							{
 								THROW_PP(!rArg.Empty(), PPERR_INVSCARDNUM);
 								THROW_PP_S(P_SetBlk->U.SC.ID == 0, PPERR_CMDSEL_ONLYONECRITOBJENABLED, rArg);
@@ -6061,7 +6056,6 @@ STYLOPALM
 								}
 								THROW_PP_S(P_SetBlk->U.SC.ID > 0, PPERR_SCARDNOTFOUND, rArg);
 							}
-							// } @Muxa @v.7.4.2
 							break;
 						case cAmount:
 							P_SetBlk->U.SC.Amount = rArg.ToReal();
@@ -6073,19 +6067,16 @@ STYLOPALM
 					}
 				}
 				break;
-			// @Muxa @v7.4.8 {
 			case PPOBJ_UHTTSCARDOP:
 				if(Operator == oSelect) {
 					SETIFZ(P_UhttSCardOpF, new UhttSCardOpFilt());
 					switch(criterion) {
-						case cPeriod: THROW(getperiod(rArg, &P_UhttSCardOpF->Period)); break;
+						case cPeriod: THROW(strtoperiod(rArg, &P_UhttSCardOpF->Period, 0)); break;
 						case cGrouping: P_UhttSCardOpF->Grp = rArg.ToLong(); break;
 						default: CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION); break;
 					}
 				}
 				break;
-			// } @Muxa @v7.4.8
-			// @v7.6.1 @Muxa {
 			case PPOBJ_UHTTSTORE:
 				if(Operator == oSelect) {
 					SETIFZ(P_UhttStorF, new LocalUhttStoreFilt);
@@ -6098,8 +6089,6 @@ STYLOPALM
 					}
 				}
 				break;
-			// } @v7.6.1 @Muxa
-			// @v7.6.7 @Muxa {
 			case PPOBJ_OPRKIND:
 				if(Operator == oSelect) {
 					switch(criterion) {
@@ -6110,7 +6099,6 @@ STYLOPALM
 					}
 				}
 				break;
-			// } @v7.6.7 @Muxa
 			case PPOBJ_GTA:
 				if(Operator == oGtaCheckIn) {
 					SETIFZ(P_SetBlk, new SetBlock);

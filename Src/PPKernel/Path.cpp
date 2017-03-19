@@ -305,6 +305,7 @@ int SLAPI PPPaths::Get(PPID obj, PPID id, PPID pathID, SString & rBuf)
 int SLAPI PPPaths::Get(PPID securType, PPID securID)
 {
 	int    ok = 1, r;
+	Reference * p_ref = PPRef;
 	size_t sz = 2048; // @v6.1.12 1024-->2048
 	uint   s;
 	//
@@ -318,11 +319,11 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 	GetPath(PPPATH_PACK, 0, pack_path); // @v7.8.2
 	PathItem * p = 0;
 	THROW(Resize(sz));
-	THROW(r = PPRef->GetConfig(securType, securID, PPPRP_PATHS, P, sz));
+	THROW(r = p_ref->GetConfig(securType, securID, PPPRP_PATHS, P, sz));
 	if(r > 0) {
 		if(Size() > sz) {
 			THROW(Resize(sz = Size()));
-			THROW(PPRef->GetConfig(securType, securID, PPPRP_PATHS, P, sz) > 0);
+			THROW(p_ref->GetConfig(securType, securID, PPPRP_PATHS, P, sz) > 0);
 		}
 		if(P->SecurObj < securType) {
 			P->Flags |= PATHF_INHERITED;
@@ -338,8 +339,8 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 			//
 			PPPaths temp;
 			PPID   prev_type = (securType == PPOBJ_USRGRP) ? PPOBJ_CONFIG : PPOBJ_USRGRP;
-			THROW(PPRef->GetItem(securType, securID) > 0);
-			THROW(temp.Get(prev_type, ((PPSecur*)&PPRef->data)->ParentID)); // @recursion
+			THROW(p_ref->GetItem(securType, securID) > 0);
+			THROW(temp.Get(prev_type, ((PPSecur*)&p_ref->data)->ParentID)); // @recursion
 			uint prev_s = UINT_MAX;
 			for(s = 0; s < temp.P->TailSize; s += p->Size) {
 				//

@@ -305,6 +305,7 @@ struct DesktopAssocCmdPool_Strg {
 int PPDesktopAssocCmdPool::WriteToProp(int use_ta)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	DesktopAssocCmdPool_Strg * p_strg = 0;
 	SSerializeContext sctx;
 	PPID   desktop_id = DesktopID;
@@ -333,8 +334,8 @@ int PPDesktopAssocCmdPool::WriteToProp(int use_ta)
 		{
 			PPTransaction tra(use_ta);
 			THROW(tra);
-			THROW(PPRef->PutProp(PPOBJ_DESKTOP, desktop_id, PPPRP_DESKCMDASSOC, p_strg, sz, 0));
-			THROW(PPRef->PutProp(PPOBJ_CONFIG,  desktop_id, PPPRP_DESKCMDASSOC, 0, sz, 0)); // Удаляем старую версию свойств
+			THROW(p_ref->PutProp(PPOBJ_DESKTOP, desktop_id, PPPRP_DESKCMDASSOC, p_strg, sz, 0));
+			THROW(p_ref->PutProp(PPOBJ_CONFIG,  desktop_id, PPPRP_DESKCMDASSOC, 0, sz, 0)); // Удаляем старую версию свойств
 			THROW(tra.Commit());
 		}
 	}
@@ -352,14 +353,15 @@ struct PPDesktopAsscCmd_Pre781 {
 int PPDesktopAssocCmdPool::ReadFromProp(PPID desktopId)
 {
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	size_t sz = 0;
 	DesktopAssocCmdPool_Strg * p_strg = 0;
 	PPID   desktop_id = (desktopId >= 0) ? desktopId : DesktopID;
 	THROW_PP(desktop_id >= 0, PPERR_UNDEFDESKTID_READ);
 	SETIFZ(desktop_id, COMMON_DESKCMDASSOC);
-	if(PPRef->GetPropActualSize(PPOBJ_DESKTOP, desktop_id, PPPRP_DESKCMDASSOC, &sz) > 0) {
+	if(p_ref->GetPropActualSize(PPOBJ_DESKTOP, desktop_id, PPPRP_DESKCMDASSOC, &sz) > 0) {
 		p_strg = (DesktopAssocCmdPool_Strg *)malloc(sz);
-		THROW(PPRef->GetProp(PPOBJ_DESKTOP, desktop_id, PPPRP_DESKCMDASSOC, p_strg, sz) > 0);
+		THROW(p_ref->GetProp(PPOBJ_DESKTOP, desktop_id, PPPRP_DESKCMDASSOC, p_strg, sz) > 0);
 		{
 			SSerializeContext sctx;
 			SBuffer tail_buf;
@@ -370,9 +372,9 @@ int PPDesktopAssocCmdPool::ReadFromProp(PPID desktopId)
 			ok = 1;
 		}
 	}
-	else if(PPRef->GetPropActualSize(PPOBJ_CONFIG, desktop_id, PPPRP_DESKCMDASSOC, &sz) > 0) {
+	else if(p_ref->GetPropActualSize(PPOBJ_CONFIG, desktop_id, PPPRP_DESKCMDASSOC, &sz) > 0) {
 		TSArray <PPDesktopAsscCmd_Pre781> list_pre781;
-		PPRef->GetPropArray(PPOBJ_CONFIG, desktop_id, PPPRP_DESKCMDASSOC, &list_pre781);
+		p_ref->GetPropArray(PPOBJ_CONFIG, desktop_id, PPPRP_DESKCMDASSOC, &list_pre781);
 		if(list_pre781.getCount()) {
 			PPDesktopAssocCmd item;
 			for(uint i = 0; i < list_pre781.getCount(); i++) {

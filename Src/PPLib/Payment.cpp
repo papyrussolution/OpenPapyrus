@@ -1595,7 +1595,7 @@ static int SLAPI SelectAltObject(PPID * pArID)
 			TDialog::handleEvent(event);
 			if(event.isCbSelected(CTLSEL_REQALTOBJ_SHEET)) {
 				const PPID acs_id = getCtrlLong(CTLSEL_REQALTOBJ_SHEET);
-				SetupArCombo(this, CTLSEL_REQALTOBJ_CLIENT, 0L, OLW_LOADDEFONOPEN, acs_id, sacfDisableIfZeroSheet);
+				SetupArCombo(this, CTLSEL_REQALTOBJ_CLIENT, 0L, OLW_LOADDEFONOPEN, acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
 				clearEvent(event);
 			}
 		}
@@ -1607,7 +1607,7 @@ static int SLAPI SelectAltObject(PPID * pArID)
 		PPID   acs_id = 0;
 		GetArticleSheetID(ar_id, &acs_id);
 		SetupPPObjCombo(dlg, CTLSEL_REQALTOBJ_SHEET, PPOBJ_ACCSHEET, acs_id, 0, 0);
-		SetupArCombo(dlg, CTLSEL_REQALTOBJ_CLIENT, ar_id, OLW_LOADDEFONOPEN, acs_id, sacfDisableIfZeroSheet);
+		SetupArCombo(dlg, CTLSEL_REQALTOBJ_CLIENT, ar_id, OLW_LOADDEFONOPEN, acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			dlg->getCtrlData(CTLSEL_REQALTOBJ_CLIENT, &ar_id);
 			if(ar_id) {

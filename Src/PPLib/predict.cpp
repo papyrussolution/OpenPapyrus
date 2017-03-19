@@ -185,13 +185,15 @@ int SLAPI Predictor::Predict_(const EvalParam & rParam, double * pVal, PredictSa
 	DateRange period, model_period;
 	PredictSalesStat pss(0, 0);
 	//
-	PPIDArray temp_loc_list;
 	ObjIdListFilt inner_loc_list;
-	if(rParam.P_LocList == 0 || !rParam.P_LocList->IsExists())
-		T.GetLocList(&temp_loc_list);
-	else
-		temp_loc_list = rParam.P_LocList->Get();
-	inner_loc_list.Set(&temp_loc_list);
+	{
+		PPIDArray temp_loc_list;
+		if(rParam.P_LocList == 0 || !rParam.P_LocList->IsExists())
+			T.GetLocList(temp_loc_list);
+		else
+			temp_loc_list = rParam.P_LocList->Get();
+		inner_loc_list.Set(&temp_loc_list);
+	}
 	//
 	THROW_PP(rParam.Period.low && rParam.Period.upp, PPERR_INVPARAM);
 	period = rParam.Period;
@@ -1125,7 +1127,7 @@ int SLAPI PrcssrPrediction::Run()
 			PPWaitMsg(msg_buf);
 			{
 				PPIDArray loc_list;
-				T.GetLocList(&loc_list);
+				T.GetLocList(loc_list);
 				Stat.LocCount = loc_list.getCount();
 				Stat.DayCount = diffdate(P.GetNormPeriod().upp, P.GetNormPeriod().low);
 				Stat.AvgTimeG = fdivnz(Stat.Time, Stat.GoodsCount);
@@ -1177,7 +1179,7 @@ int SLAPI PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, L
 	//
 	PPIDArray loc_list;
 	PROFILE_START
-	THROW(T.GetLocList(&loc_list));
+	T.GetLocList(loc_list);
 	const uint loc_count = loc_list.getCount();
 	const uint goods_count = rGoodsList.getCount();
 	const uint c = loc_count * goods_count;
@@ -1643,37 +1645,38 @@ int SLAPI PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _Mass
 		if(_gctr > 0) {
 			do {
 				PROFILE_START
-				const PPID loc_id   = trfr_rec.LocID;
-				const PPID goods_id = trfr_rec.GoodsID;
-				if(!loc_id) {
-					PPLoadText(PPTXT_LOG_PSALES_UNDEFLOC, msg_fmt);
-					PPObjBill::MakeCodeString(&bill_rec, 1, temp_buf);
-					msg.Printf(msg_fmt, GetGoodsName(goods_id, goods_name).cptr(), temp_buf.cptr());
-					PPLogMessage(PPFILNAM_ERR_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER);
-				}
-				else {
-					LocValList * p_lvl = 0;
-					if(last_goods_id && goods_id == last_goods_id) {
-						p_lvl = &lvl_list.at(last_goods_pos)->Lvl;
+				if(!(trfr_rec.Flags & (PPTFR_UNLIM|PPTFR_ACK))) { // @v9.5.8 @fix не учитываемые в остатке операции надо пропускать
+					const PPID loc_id   = trfr_rec.LocID;
+					const PPID goods_id = trfr_rec.GoodsID;
+					if(!loc_id) {
+						PPLoadText(PPTXT_LOG_PSALES_UNDEFLOC, msg_fmt);
+						PPObjBill::MakeCodeString(&bill_rec, 1, temp_buf);
+						msg.Printf(msg_fmt, GetGoodsName(goods_id, goods_name).cptr(), temp_buf.cptr());
+						PPLogMessage(PPFILNAM_ERR_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER);
 					}
-					else if(lvl_list.bsearch(&goods_id, &(j = 0), CMPF_LONG)) {
-						last_goods_id = goods_id;
-						last_goods_pos = j;
-						p_lvl = &lvl_list.at(last_goods_pos)->Lvl;
-					}
-					if(p_lvl) {
-						LocValEntry & r_entry = *p_lvl->GetEntry(loc_id);
-						double qtty = trfr_rec.Quantity;
-						// @v7.7.2 if(trfr_rec.Dt != r_entry.LastOpDate && !r_entry.IsFirstIter())
-						if(trfr_rec.Dt != r_entry.LastOpDate && r_entry.LastOpDate) // @v7.7.2
-							THROW(SetupGoodsSaleByLoc(r_entry, goods_id, trfr_rec.Dt, ha, p_vect));
-						if(qtty < 0.0 && OpList.lsearch(bill_rec.OpID)) {
-							r_entry.Sell += fabs(qtty);
-							r_entry.SellAmt += fabs(qtty * (TR5(trfr_rec.Price)-TR5(trfr_rec.Discount)));
+					else {
+						LocValList * p_lvl = 0;
+						if(last_goods_id && goods_id == last_goods_id) {
+							p_lvl = &lvl_list.at(last_goods_pos)->Lvl;
 						}
-						r_entry.LastOpDate = trfr_rec.Dt;
-						r_entry.Rest      += qtty;
-						r_entry.FirstIterTag = 1; // 0 - первая итерация, 1 - НЕ первая итерация //
+						else if(lvl_list.bsearch(&goods_id, &(j = 0), CMPF_LONG)) {
+							last_goods_id = goods_id;
+							last_goods_pos = j;
+							p_lvl = &lvl_list.at(last_goods_pos)->Lvl;
+						}
+						if(p_lvl) {
+							LocValEntry & r_entry = *p_lvl->GetEntry(loc_id);
+							const double qtty = trfr_rec.Quantity;
+							if(trfr_rec.Dt != r_entry.LastOpDate && r_entry.LastOpDate)
+								THROW(SetupGoodsSaleByLoc(r_entry, goods_id, trfr_rec.Dt, ha, p_vect));
+							if(qtty < 0.0 && OpList.lsearch(bill_rec.OpID)) {
+								r_entry.Sell += fabs(qtty);
+								r_entry.SellAmt += fabs(qtty * (TR5(trfr_rec.Price)-TR5(trfr_rec.Discount)));
+							}
+							r_entry.LastOpDate = trfr_rec.Dt;
+							r_entry.Rest      += qtty;
+							r_entry.FirstIterTag = 1; // 0 - первая итерация, 1 - НЕ первая итерация //
+						}
 					}
 				}
 				++MainIterCount;
@@ -1863,17 +1866,16 @@ int SLAPI PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _Mass
 	return ok;
 }
 
-int SLAPI PrcssrPrediction::SetupGoodsSaleByLoc(LocValEntry & rLvEntry, PPID goodsID, LDATE date,
-	__HolidayArray & rHa, SArray * pVect)
+int SLAPI PrcssrPrediction::SetupGoodsSaleByLoc(LocValEntry & rLvEntry, PPID goodsID, LDATE date, __HolidayArray & rHa, SArray * pVect)
 {
 	int    ok = 1;
 	LDATE  last_date = rLvEntry.LastOpDate;
 	if(last_date) {
 		const  PPID loc_id = rLvEntry.LocID;
 		int16  loc_idx = 0;
-		double rest = rLvEntry.Rest;
-		double sell = rLvEntry.Sell;
-		double amt  = rLvEntry.SellAmt;
+		const double rest = rLvEntry.Rest;
+		const double sell = rLvEntry.Sell;
+		const double amt  = rLvEntry.SellAmt;
 		PredictSalesTbl::Rec rec;
 		T.AddLocEntry(loc_id, &loc_idx);
 		//
@@ -1882,7 +1884,6 @@ int SLAPI PrcssrPrediction::SetupGoodsSaleByLoc(LocValEntry & rLvEntry, PPID goo
 		// итерации основного цикла в функции ProcessSales.
 		//
 		if(sell > 0.0 || rest > 0.0) {
-			//if(!T.IsHoliday(loc_id, last_date)) {
 			if(!rHa.Is(loc_idx, last_date)) {
 				int16  dt_idx = 0;
 				MEMSZERO(rec);
@@ -1903,7 +1904,6 @@ int SLAPI PrcssrPrediction::SetupGoodsSaleByLoc(LocValEntry & rLvEntry, PPID goo
 		//
 		if(rest > 0.0) {
 			for(LDATE dt = plusdate(last_date, 1); dt < date; dt = plusdate(dt, 1)) {
-				//if(!T.IsHoliday(loc_id, dt)) {
 				if(!rHa.Is(loc_idx, dt)) {
 					int16  dt_idx = 0;
 					MEMSZERO(rec);

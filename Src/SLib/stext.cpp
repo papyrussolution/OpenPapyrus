@@ -1874,7 +1874,7 @@ int FASTCALL sstreqi_ascii(const char * pS1, const char * pS2)
         const size_t len = sstrlen(pS1);
         if(len != sstrlen(pS2))
 			return 0;
-		else {
+		else if(len) {
             for(size_t i = 0; i < len; i++) {
 				char c1 = pS1[i];
 				char c2 = pS2[i];
@@ -1909,6 +1909,16 @@ char * SLAPI wstrcpy(char * pDest, char * pSrc, size_t maxlen)
 	ASSIGN_PTR(c, 0);
 	strncpy(pDest, pSrc, maxlen)[maxlen] = 0;
 	return pDest;
+}
+
+char * FASTCALL sstrcpy(char * pDest, const char * pSrc)
+{
+	return strcpy(pDest, pSrc);
+}
+
+wchar_t * FASTCALL sstrcpy(wchar_t * pDest, const wchar_t * pSrc)
+{
+	return wcscpy(pDest, pSrc);
 }
 
 char * FASTCALL strnzcpy(char * dest, const uchar * src, size_t maxlen)

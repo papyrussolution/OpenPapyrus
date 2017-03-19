@@ -358,12 +358,13 @@ int SLAPI PPObjPerson::WriteConfig(const PPPersonConfig * pCfg, int use_ta)
 	const  long cfg_obj_type = PPCFGOBJ_PERSON;
 
 	int    ok = 1, is_new = 0, r;
+	Reference * p_ref = PPRef;
 	size_t sz = sizeof(Storage_PPPersonConfig);
 	Storage_PPPersonConfig * p_cfg = 0;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, 0, 0));
+		THROW(r = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, 0, 0));
 		is_new = (r > 0) ? 0 : 1;
 		if(pCfg) {
 			size_t ext_size = 0;
@@ -405,8 +406,8 @@ int SLAPI PPObjPerson::WriteConfig(const PPPersonConfig * pCfg, int use_ta)
 			}
 		}
 		THROW(PPObject::Helper_PutConfig(prop_cfg_id, cfg_obj_type, is_new, p_cfg, sz, 0));
-		THROW(PPRef->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONCFGEXTFLDLIST, (pCfg ? &pCfg->DlvrAddrExtFldList : 0), 0));
-		THROW(PPRef->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONDETECTIONLIST, (pCfg ? &pCfg->NewClientDetectionList : 0), 0)); // @vmiller
+		THROW(p_ref->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONCFGEXTFLDLIST, (pCfg ? &pCfg->DlvrAddrExtFldList : 0), 0));
+		THROW(p_ref->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONDETECTIONLIST, (pCfg ? &pCfg->NewClientDetectionList : 0), 0)); // @vmiller
 		THROW(tra.Commit());
 	}
 	CATCHZOK
@@ -420,15 +421,16 @@ int SLAPI PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
 	const  long prop_cfg_id = PPPRP_PERSONCFG;
 
 	int    ok = -1, r;
+	Reference * p_ref = PPRef;
 	size_t sz = sizeof(Storage_PPPersonConfig) + 256;
 	Storage_PPPersonConfig * p_cfg = (Storage_PPPersonConfig *)malloc(sz);
 	THROW_MEM(p_cfg);
-	THROW(r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, p_cfg, sz));
+	THROW(r = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, p_cfg, sz));
 	if(r > 0 && p_cfg->GetSize() > sz) {
 		sz = p_cfg->GetSize();
 		p_cfg = (Storage_PPPersonConfig *)realloc(p_cfg, sz);
 		THROW_MEM(p_cfg);
-		THROW(r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, p_cfg, sz));
+		THROW(r = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, p_cfg, sz));
 	}
 	if(r > 0) {
 		pCfg->Flags             = p_cfg->Flags;
@@ -474,8 +476,8 @@ int SLAPI PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
 		pCfg->Flags |= PPPersonConfig::fSyncByName;
 		ok = -1;
 	}
-	THROW(PPRef->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONCFGEXTFLDLIST, &pCfg->DlvrAddrExtFldList));
-	THROW(PPRef->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONDETECTIONLIST, &pCfg->NewClientDetectionList)); // @vmiller
+	THROW(p_ref->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONCFGEXTFLDLIST, &pCfg->DlvrAddrExtFldList));
+	THROW(p_ref->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONDETECTIONLIST, &pCfg->NewClientDetectionList)); // @vmiller
 	CATCHZOK
 	free(p_cfg);
 	return ok;
@@ -1846,8 +1848,9 @@ int SLAPI PPObjPerson::GetActualTradeLic(PPID id, LDATE dt, RegisterTbl::Rec * r
 int SLAPI PPObjPerson::AddToAddrBook(PPID personID, PPID userID, int use_ta)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	PPID   usr_id = (userID >= 0) ? userID : LConfig.User;
-	if(PPRef->Assc.Search(PPASS_ADDRESSBOOK, usr_id, personID) > 0)
+	if(p_ref->Assc.Search(PPASS_ADDRESSBOOK, usr_id, personID) > 0)
 		ok = -1;
 	else {
 		PPID   id = 0;
@@ -1860,9 +1863,9 @@ int SLAPI PPObjPerson::AddToAddrBook(PPID personID, PPID userID, int use_ta)
 			rec.AsscType = PPASS_ADDRESSBOOK;
 			rec.PrmrObjID = usr_id;
 			rec.ScndObjID = personID;
-			THROW(PPRef->Assc.SearchFreeNum(PPASS_ADDRESSBOOK, usr_id, &free_num, 0));
+			THROW(p_ref->Assc.SearchFreeNum(PPASS_ADDRESSBOOK, usr_id, &free_num, 0));
 			rec.InnerNum = free_num;
-			THROW(PPRef->Assc.Add(&id, &rec, 0));
+			THROW(p_ref->Assc.Add(&id, &rec, 0));
 			THROW(tra.Commit());
 		}
 	}
@@ -1873,10 +1876,11 @@ int SLAPI PPObjPerson::AddToAddrBook(PPID personID, PPID userID, int use_ta)
 int SLAPI PPObjPerson::RemoveFromAddrBook(PPID personID, PPID userID, int use_ta)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	PPID   usr_id = (userID >= 0) ? userID : LConfig.User;
 	ObjAssocTbl::Rec rec;
-	if(PPRef->Assc.Search(PPASS_ADDRESSBOOK, usr_id, personID, &rec) > 0) {
-		if(!PPRef->Assc.Remove(rec.ID, use_ta))
+	if(p_ref->Assc.Search(PPASS_ADDRESSBOOK, usr_id, personID, &rec) > 0) {
+		if(!p_ref->Assc.Remove(rec.ID, use_ta))
 			ok = 0;
 	}
 	else
@@ -2600,15 +2604,16 @@ int SLAPI PPObjPerson::PutStaffAmtList(PPID id, StaffAmtList * pList)
 int SLAPI PPObjPerson::GetPersonListByDlvrLoc(PPID dlvrLocID, PPIDArray * pList)
 {
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	LongArray temp_list;
 	PropertyTbl::Key1 k1;
 	MEMSZERO(k1);
 	k1.ObjType = PPOBJ_PERSON;
 	k1.Prop = PSNPRP_DLVRLOCLIST;
-	while(PPRef->Prop.search(1, &k1, spGt) && k1.ObjType == PPOBJ_PERSON && k1.Prop == PSNPRP_DLVRLOCLIST) {
-		const PPID person_id = PPRef->Prop.data.ObjID;
+	while(p_ref->Prop.search(1, &k1, spGt) && k1.ObjType == PPOBJ_PERSON && k1.Prop == PSNPRP_DLVRLOCLIST) {
+		const PPID person_id = p_ref->Prop.data.ObjID;
 		temp_list.clear();
-		THROW(PPRef->GetPropArrayFromRecBuf(&temp_list));
+		THROW(p_ref->GetPropArrayFromRecBuf(&temp_list));
 		if(temp_list.lsearch(dlvrLocID)) {
 			ok = 1;
 			if(pList) {
@@ -2641,6 +2646,7 @@ int SLAPI PPObjPerson::GetDlvrLocList(PPID personID, PPIDArray * pList)
 int SLAPI PPObjPerson::GetPacket(PPID id, PPPersonPacket * pPack, uint flags)
 {
 	int    ok = 1, r;
+	Reference * p_ref = PPRef;
 	uint   i;
 	PPIDArray dlvr_loc_list;
 	if(id) {
@@ -2667,7 +2673,7 @@ int SLAPI PPObjPerson::GetPacket(PPID id, PPPersonPacket * pPack, uint flags)
 		}
 		THROW(GetDlvrLocList(id, &dlvr_loc_list));
 		THROW(GetStaffAmtList(id, &pPack->Amounts));
-		THROW(r = PPRef->GetProp(Obj, id, PSNPRP_CASHIERINFO, &cshr_prop, sizeof(cshr_prop)));
+		THROW(r = p_ref->GetProp(Obj, id, PSNPRP_CASHIERINFO, &cshr_prop, sizeof(cshr_prop)));
 		if(r > 0) {
 			pPack->CshrInfo.Flags = CIF_CASHIER;
 			STRNSCPY(pPack->CshrInfo.Password, (char *)cshr_prop.Text);
@@ -2682,7 +2688,7 @@ int SLAPI PPObjPerson::GetPacket(PPID id, PPPersonPacket * pPack, uint flags)
 		THROW(GetExtName(id, ext_str_buf));
 		pPack->SetExtName(ext_str_buf);
 		// @v9.0.4 THROW(BaObj.FetchList(id, &pPack->BAA));
-		THROW(PPRef->Ot.GetList(Obj, id, &pPack->TagL));
+		THROW(p_ref->Ot.GetList(Obj, id, &pPack->TagL));
 	}
 	else
 		ok = -1;
@@ -5570,6 +5576,7 @@ int SLAPI PPObjPerson::RemoveRelation(PPID prmrID, PPID scndID, PPID relTypeID)
 int SLAPI PPObjPerson::SearchEmail(const char * pEmail, long flags, PPIDArray * pPsnList, PPIDArray * pLocList)
 {
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	PPIDArray result_psn_list;
 	PPIDArray result_loc_list;
 	SString email = pEmail;
@@ -5589,10 +5596,10 @@ int SLAPI PPObjPerson::SearchEmail(const char * pEmail, long flags, PPIDArray * 
 			//
 			// Сначала получим список персоналий, имеющих записи электронных адресов...
 			//
-			if(PPRef->Prop.search(1, &k1, spGe) && PPRef->Prop.data.ObjType == PPOBJ_PERSON && PPRef->Prop.data.Prop == PSNPRP_ELINK) do {
-				if(PPRef->Prop.data.Val2)
-					psn_id_list.addUnique(PPRef->Prop.data.ObjID);
-			} while(PPRef->Prop.search(1, &k1, spNext) && PPRef->Prop.data.ObjType == PPOBJ_PERSON && PPRef->Prop.data.Prop == PSNPRP_ELINK);
+			if(p_ref->Prop.search(1, &k1, spGe) && p_ref->Prop.data.ObjType == PPOBJ_PERSON && p_ref->Prop.data.Prop == PSNPRP_ELINK) do {
+				if(p_ref->Prop.data.Val2)
+					psn_id_list.addUnique(p_ref->Prop.data.ObjID);
+			} while(p_ref->Prop.search(1, &k1, spNext) && p_ref->Prop.data.ObjType == PPOBJ_PERSON && p_ref->Prop.data.Prop == PSNPRP_ELINK);
 			for(uint j = 0; j < psn_id_list.getCount(); j++) {
 				const PPID psn_id = psn_id_list.get(j);
 				PersonTbl::Rec psn_rec;
@@ -5642,6 +5649,7 @@ int SLAPI PPObjPerson::SearchEmail(const char * pEmail, long flags, PPIDArray * 
 int SLAPI PPObjPerson::IndexPhones(int use_ta)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	SString phone, main_city_prefix, city_prefix, temp_buf;
 	PropertyTbl::Key1 k1;
 	MEMSZERO(k1);
@@ -5663,10 +5671,10 @@ int SLAPI PPObjPerson::IndexPhones(int use_ta)
 		//
 		// Сначала получим список персоналий, имеющих записи электронных адресов...
 		//
-		if(PPRef->Prop.search(1, &k1, spGe) && PPRef->Prop.data.ObjType == PPOBJ_PERSON && PPRef->Prop.data.Prop == PSNPRP_ELINK)
+		if(p_ref->Prop.search(1, &k1, spGe) && p_ref->Prop.data.ObjType == PPOBJ_PERSON && p_ref->Prop.data.Prop == PSNPRP_ELINK)
 			do {
-				psn_id_list.addUnique(PPRef->Prop.data.ObjID);
-			} while(PPRef->Prop.search(1, &k1, spNext) && PPRef->Prop.data.ObjType == PPOBJ_PERSON && PPRef->Prop.data.Prop == PSNPRP_ELINK);
+				psn_id_list.addUnique(p_ref->Prop.data.ObjID);
+			} while(p_ref->Prop.search(1, &k1, spNext) && p_ref->Prop.data.ObjType == PPOBJ_PERSON && p_ref->Prop.data.Prop == PSNPRP_ELINK);
 		//
 		// ...а уже потом по этому списку проиндексируем телефоны.
 		//

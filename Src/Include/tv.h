@@ -1180,20 +1180,20 @@ public:
 	// Primitives
 	//
 	FPoint GetCurPoint();
-	int    FASTCALL MoveTo(FPoint to);
-	int    FASTCALL Line(FPoint to);
-	int    FASTCALL LineV(float yTo);
-	int    FASTCALL LineH(float xTo);
-	int    FASTCALL Rect(const FRect & rRect);
-	int    FASTCALL Rect(const TRect & rRect);
-	int    SLAPI    RoundRect(const FRect &, float radius);
+	void   FASTCALL MoveTo(FPoint to);
+	void   FASTCALL Line(FPoint to);
+	void   FASTCALL LineV(float yTo);
+	void   FASTCALL LineH(float xTo);
+	void   FASTCALL Rect(const FRect & rRect);
+	void   FASTCALL Rect(const TRect & rRect);
+	void   SLAPI    RoundRect(const FRect &, float radius);
 	int    FASTCALL Ellipse(const FRect & rRect);
-	int    SLAPI Arc(FPoint center, float radius, float startAngleRad, float endAngleRad);
-	int    SLAPI Bezier(FPoint middle1, FPoint middle2, FPoint end);
+	void   SLAPI Arc(FPoint center, float radius, float startAngleRad, float endAngleRad);
+	void   SLAPI Bezier(FPoint middle1, FPoint middle2, FPoint end);
 	int    SLAPI Text(const char * pText, int identFont);
-	int    SLAPI ClosePath();
-	int    SLAPI SubPath();
-	int    FASTCALL GetClipExtents(FRect & rR);
+	void   SLAPI ClosePath();
+	void   SLAPI SubPath();
+	void   FASTCALL GetClipExtents(FRect & rR);
 	//
 	//
 	//
@@ -1205,12 +1205,12 @@ public:
 	//
 	// Descr: ”станавливает матрицу преобразовани€ равной rMtx.
 	//
-	int    FASTCALL SetTransform(const LMatrix2D & rMtx);
+	void   FASTCALL SetTransform(const LMatrix2D & rMtx);
 	//
 	// Descr: ƒобавл€ет к существующей матрице преобразовани€ матрицу rMtx.
 	//
-	int    FASTCALL AddTransform(const LMatrix2D & rMtx);
-	int    FASTCALL GetTransform(LMatrix2D & rMtx) const;
+	void   FASTCALL AddTransform(const LMatrix2D & rMtx);
+	void   FASTCALL GetTransform(LMatrix2D & rMtx) const;
 	//
 	// Descr: ѕодготавливает запись области отрисовки.
 	//
@@ -1228,7 +1228,7 @@ public:
 	//
 	// Descr: —охран€ет во внутреннем стеке текущую матрицу преобразовани€.
 	//
-	int    SLAPI PushTransform();
+	void   SLAPI PushTransform();
 	//
 	// Descr: ¬осстанавливает из внутреннего стека матрицу преобразовани€,
 	//   котора€ до этого была там сохранена вызовом PushTransform().
@@ -1237,16 +1237,16 @@ public:
 	//
 	//
 	//
-	int    SLAPI LineVert(int x, int yFrom, int yTo);
-	int    SLAPI LineHorz(int xFrom, int xTo, int y);
-	int    SLAPI Rect(const TRect & rRect, int penIdent, int brushIdent);
-	int    SLAPI Rect(const FRect & rRect, int penIdent, int brushIdent);
-	int    SLAPI RoundRect(const FRect &, float radius, int penIdent, int brushIdent);
+	void   SLAPI LineVert(int x, int yFrom, int yTo);
+	void   SLAPI LineHorz(int xFrom, int xTo, int y);
+	void   SLAPI Rect(const TRect & rRect, int penIdent, int brushIdent);
+	void   SLAPI Rect(const FRect & rRect, int penIdent, int brushIdent);
+	void   SLAPI RoundRect(const FRect &, float radius, int penIdent, int brushIdent);
 	// @construction int    SLAPI RoundRect(const TRect & rRect, int penIdent, int brushIdent);
 	int    SLAPI PatBlt(const TRect & rR, int brushId, int opr);
 	int    FASTCALL SetBkColor(COLORREF);
 	int    FASTCALL SetTextColor(COLORREF);
-	int    SLAPI SetBkTranparent();
+	void   SLAPI SetBkTranparent();
 
 	TPoint SLAPI GetTextSize(const char * pStr);
 		// @>>BOOL GetTextExtentPoint32(HDC hdc, LPCTSTR lpString, int cbString, LPSIZE lpSize);
@@ -1372,7 +1372,7 @@ public:
 	SLAPI ~TCanvas();
 	operator HDC() const;
 
-	int    FASTCALL SetBounds(const TRect &);
+	void   FASTCALL SetBounds(const TRect &);
 	//const  TRect & GetBounds() const { return Bounds; }
 
 	int    FASTCALL SelectObjectAndPush(HGDIOBJ);
@@ -1380,9 +1380,9 @@ public:
 	int    FASTCALL PopObjectN(uint c);
 	int    FASTCALL MoveTo(TPoint);
 	int    FASTCALL Line(TPoint);
-	int    SLAPI LineVert(int x, int yFrom, int yTo);
-	int    SLAPI LineHorz(int xFrom, int xTo, int y);
-	int    SLAPI SetBkTranparent();
+	void   SLAPI LineVert(int x, int yFrom, int yTo);
+	void   SLAPI LineHorz(int xFrom, int xTo, int y);
+	void   SLAPI SetBkTranparent();
 	int    FASTCALL SetBkColor(COLORREF);
 	int    FASTCALL SetTextColor(COLORREF);
 	int    FASTCALL Rectangle(const TRect &);

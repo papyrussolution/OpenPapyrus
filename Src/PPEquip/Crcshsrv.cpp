@@ -2738,7 +2738,7 @@ int SLAPI ACS_CRCSHSRV::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 			SetPeriodInput(dlg, CTL_DATERNG_PERIOD, &ChkRepPeriod);
 			PPWait(0);
 			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
-				if(dlg->getCtrlString(CTL_DATERNG_PERIOD, dt_buf) && getperiod(dt_buf, &ChkRepPeriod) && !ChkRepPeriod.IsZero()) {
+				if(dlg->getCtrlString(CTL_DATERNG_PERIOD, dt_buf) && strtoperiod(dt_buf, &ChkRepPeriod, 0) && !ChkRepPeriod.IsZero()) {
 					SETIFZ(ChkRepPeriod.upp, plusdate(LConfig.OperDate, 2));
 					if(diffdate(ChkRepPeriod.upp, ChkRepPeriod.low) >= 0)
 						ok = valid_data = 1;

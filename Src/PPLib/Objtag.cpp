@@ -194,7 +194,7 @@ int SLAPI TagFilt::SelectIndicator(PPID objID, SColor & rClr) const
 			}
 			else if(item.TagDataType == OTTYP_DATE) {
 				DateRange period;
-				getperiod(restrict, &period);
+				strtoperiod(restrict, &period, 0);
 				period.Actualize(item.Val.DtVal);
 				select_ok = BIN(period.CheckDate(item.Val.DtVal) > 0);
 			}
@@ -217,11 +217,12 @@ int SLAPI TagFilt::Helper_CheckTagItemForRestrict_EnumID(const ObjTagItem * pIte
 			PPObjectTag tag_rec;
 			if(tag_obj.Fetch(pItem->TagID, &tag_rec) > 0 && tag_rec.Flags & OTF_HIERENUM) {
 				assert(tag_rec.TagEnumID == pItem->TagEnumID);
+				Reference * p_ref = PPRef;
 				ReferenceTbl::Rec rec;
 				PPIDArray recur_list;
-				if(PPRef->GetItem(tag_rec.TagEnumID, item_id, &rec) > 0 && rec.Val2) {
+				if(p_ref->GetItem(tag_rec.TagEnumID, item_id, &rec) > 0 && rec.Val2) {
 					recur_list.add(item_id);
-					for(item_id = rec.Val2; !check_ok && item_id && PPRef->GetItem(tag_rec.TagEnumID, item_id, &rec) > 0; item_id = rec.Val2) {
+					for(item_id = rec.Val2; !check_ok && item_id && p_ref->GetItem(tag_rec.TagEnumID, item_id, &rec) > 0; item_id = rec.Val2) {
 						if(recur_list.addUnique(item_id) > 0) {
 							if(restrictVal == item_id) {
 								check_ok = 1;
@@ -288,8 +289,8 @@ int SLAPI TagFilt::CheckTagItemForRestrict(const ObjTagItem * pItem, const SStri
 			}
 			else if(pItem->TagDataType == OTTYP_DATE) {
 				DateRange period;
-				getperiod(rRestrict, &period);
-				period.Actualize(pItem->Val.DtVal);
+				strtoperiod(rRestrict, &period, strtoprdfEnableAnySign);
+				period.ActualizeCmp(/*pItem->Val.DtVal*/ZERODATE, pItem->Val.DtVal);
 				check_ok = BIN(period.CheckDate(pItem->Val.DtVal) > 0);
 			}
 		}
@@ -400,15 +401,16 @@ int SLAPI PPTagEnumList::PutItem(PPID * pID, const char * pName, PPID parentID)
 int SLAPI PPTagEnumList::Read(PPID enumID)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	Clear();
 	if(enumID)
 		SetEnumID(enumID);
 	else
 		enumID = EnumID;
 	ReferenceTbl::Rec rec, hdr_rec;
-	if(PPRef->GetItem(PPOBJ_DYNAMICOBJS, enumID, &hdr_rec) > 0) {
+	if(p_ref->GetItem(PPOBJ_DYNAMICOBJS, enumID, &hdr_rec) > 0) {
 		SETFLAGBYSAMPLE(Flags, PPCommObjEntry::fHierarchical, hdr_rec.Val1);
-		for(SEnum en = PPRef->Enum(enumID, 0); en.Next(&rec) > 0;) {
+		for(SEnum en = p_ref->Enum(enumID, 0); en.Next(&rec) > 0;) {
 			THROW(PutItem(&rec.ObjID, rec.ObjName, rec.Val2));
 		}
 	}
@@ -419,6 +421,7 @@ int SLAPI PPTagEnumList::Read(PPID enumID)
 int SLAPI PPTagEnumList::Write(int use_ta)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	uint   i;
 	PPID   item_id;
 	SString name;
@@ -427,18 +430,18 @@ int SLAPI PPTagEnumList::Write(int use_ta)
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		if(EnumID == 0 || PPRef->GetItem(PPOBJ_DYNAMICOBJS, EnumID, &hdr_rec) < 0) {
-			THROW(PPRef->AllocDynamicObj(&EnumID, 0, Flags, 0));
+		if(EnumID == 0 || p_ref->GetItem(PPOBJ_DYNAMICOBJS, EnumID, &hdr_rec) < 0) {
+			THROW(p_ref->AllocDynamicObj(&EnumID, 0, Flags, 0));
 		}
 		else {
 			// @v8.2.5 {
 			if((hdr_rec.Val1 & PPCommObjEntry::fHierarchical) != (Flags & PPCommObjEntry::fHierarchical)) {
 				SETFLAGBYSAMPLE(hdr_rec.Val1, PPCommObjEntry::fHierarchical, Flags);
-				THROW(PPRef->UpdateItem(PPOBJ_DYNAMICOBJS, EnumID, &hdr_rec, 1, 0));
+				THROW(p_ref->UpdateItem(PPOBJ_DYNAMICOBJS, EnumID, &hdr_rec, 1, 0));
 			}
 			// } @v8.2.5
 		}
-		for(item_id = 0; PPRef->EnumItems(EnumID, &item_id, &rec) > 0;) {
+		for(item_id = 0; p_ref->EnumItems(EnumID, &item_id, &rec) > 0;) {
 			uint  _pos = 0;
 			if(Search(item_id, &_pos)) {
 				StrAssocArray::Item _item = at(_pos);
@@ -446,12 +449,12 @@ int SLAPI PPTagEnumList::Write(int use_ta)
 				if(name.Cmp(strip(rec.ObjName), 0) != 0 || _item.ParentId != rec.Val2) {
 					name.CopyTo(rec.ObjName, sizeof(rec.ObjName));
 					rec.Val2 = _item.ParentId;
-					THROW(PPRef->UpdateItem(EnumID, item_id, &rec, 1, 0));
+					THROW(p_ref->UpdateItem(EnumID, item_id, &rec, 1, 0));
 				}
 				THROW(processed_items.add(item_id));
 			}
 			else {
-				THROW(PPRef->deleteRec());
+				THROW(p_ref->deleteRec());
 			}
 		}
 		processed_items.sort();
@@ -461,7 +464,7 @@ int SLAPI PPTagEnumList::Write(int use_ta)
 				MEMSZERO(rec);
 				STRNSCPY(rec.ObjName, item.Txt);
 				rec.Val2 = item.ParentId;
-				THROW(PPRef->AddItem(EnumID, &item.Id, &rec, 0));
+				THROW(p_ref->AddItem(EnumID, &item.Id, &rec, 0));
 			}
 		}
 		THROW(tra.Commit());
@@ -919,12 +922,13 @@ SLAPI ObjTagFilt::ObjTagFilt(PPID objTypeID, long flags, PPID parentID)
 PPID SLAPI PPObjTag::Helper_GetTag(PPID objType, PPID objID, const char * pTagSymb)
 {
 	long   sur_id = 0;
-	if(PPRef) {
+	Reference * p_ref = PPRef;
+	if(p_ref) {
 		PPObjTag tag_obj;
 		PPID   tag_id = 0;
 		if(tag_obj.SearchBySymb(pTagSymb, &tag_id, 0) > 0) {
 			ObjTagTbl::Rec tag_rec;
-			if(PPRef->Ot.GetTagRec(objType, objID, tag_id, &tag_rec) > 0)
+			if(p_ref->Ot.GetTagRec(objType, objID, tag_id, &tag_rec) > 0)
 				DS.GetTLA().SurIdList.Add(&sur_id, &tag_rec, sizeof(tag_rec));
 		}
 	}
@@ -936,10 +940,11 @@ PPID SLAPI PPObjTag::Helper_GetTagByID(PPID objType, PPID objID, PPID tagID)
 {
 	long   sur_id = 0;
 	if(tagID) {
-		if(PPRef) {
+		Reference * p_ref = PPRef;
+		if(p_ref) {
 			PPObjTag tag_obj;
 			ObjTagTbl::Rec tag_rec;
-			if(PPRef->Ot.GetTagRec(objType, objID, tagID, &tag_rec) > 0)
+			if(p_ref->Ot.GetTagRec(objType, objID, tagID, &tag_rec) > 0)
 				DS.GetTLA().SurIdList.Add(&sur_id, &tag_rec, sizeof(tag_rec));
 		}
 	}
@@ -1401,7 +1406,7 @@ int SLAPI PPObjTag::GetObjListByFilt(PPID objType, const TagFilt * pFilt, UintHa
 			for(i = 0; i < pFilt->TagsRestrict.getCount(); i++) {
 				StrAssocArray::Item item = pFilt->TagsRestrict.at(i);
 				UintHashTable local_list;
-				if(PPRef->Ot.GetObjectList(objType, item.Id, local_list) > 0) {
+				if(ref->Ot.GetObjectList(objType, item.Id, local_list) > 0) {
 					exclude_list.Add(local_list);
 				}
 			}
@@ -1413,7 +1418,7 @@ int SLAPI PPObjTag::GetObjListByFilt(PPID objType, const TagFilt * pFilt, UintHa
 				TagFilt::GetRestriction(item.Txt, restrict);
 				UintHashTable local_list;
 				if(restrict.CmpNC(P_EmptyTagValRestrict) == 0) {
-					if(PPRef->Ot.GetObjectList(objType, item.Id, local_list) > 0) {
+					if(ref->Ot.GetObjectList(objType, item.Id, local_list) > 0) {
 						for(ulong v = 0; local_list.Enum(&v);) {
 							ObjTagItem tag_item;
 							if(FetchTag((PPID)v, item.Id, &tag_item) > 0 && !tag_item.IsZeroVal())
@@ -1422,7 +1427,7 @@ int SLAPI PPObjTag::GetObjListByFilt(PPID objType, const TagFilt * pFilt, UintHa
 					}
 				}
 				else {
-					if(PPRef->Ot.GetObjectList(objType, item.Id, local_list) > 0) {
+					if(ref->Ot.GetObjectList(objType, item.Id, local_list) > 0) {
 						if(restrict.CmpNC(P_ExistTagValRestrict) == 0) {
 							if(intersect_list_inited)
 								intersect_list.Intersect(local_list);
@@ -1514,7 +1519,7 @@ int SLAPI PPObjTag::NormalizeTextCritirion(PPID tagID, const char * pCrit, SStri
 				case OTTYP_ENUM:
 					{
 						PPID   _id = 0;
-						if(PPRef->SearchName(tag_rec.TagEnumID, &_id, rNormCrit, 0) > 0) {
+						if(ref->SearchName(tag_rec.TagEnumID, &_id, rNormCrit, 0) > 0) {
 							(rNormCrit = 0).Cat(_id);
 						}
 						else {
@@ -1636,10 +1641,11 @@ int SLAPI PPObjTag::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replac
 int SLAPI PPObjTag::RecoverLostUnifiedLinks()
 {
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	PPLogger logger;
 	StrAssocArray * p_tags_list = 0;
 	SysJournal * p_sj = DS.GetTLA().P_SysJ;
-	if(p_sj) {
+	if(p_sj && p_ref) {
 		SString msg_buf, fmt_buf, temp_buf;
 		PPObjTag tag_obj;
 		ObjTagFilt ot_filt(0, ObjTagFilt::fOnlyTags|ObjTagFilt::fAnyObjects);
@@ -1657,23 +1663,23 @@ int SLAPI PPObjTag::RecoverLostUnifiedLinks()
 					ObjTagTbl::Key1 k1;
 					k1.TagID = tag_id;
 					k1.ObjID = 0;
-					if(PPRef->Ot.search(1, &k1, spGe)) {
+					if(p_ref->Ot.search(1, &k1, spGe)) {
 						do {
 							ObjTagTbl::Rec rec;
-							PPRef->Ot.copyBufTo(&rec);
+							p_ref->Ot.copyBufTo(&rec);
 							if(rec.IntVal) {
 								if(tag.TagDataType == OTTYP_ENUM) {
 									ReferenceTbl::Rec ref_rec;
-									int r = PPRef->GetItem(tag.TagEnumID, rec.IntVal, &ref_rec);
+									int r = p_ref->GetItem(tag.TagEnumID, rec.IntVal, &ref_rec);
 									THROW(r);
 									if(r < 0) {
 										// PPTXT_TAGHANGEDLINK         "ќбнаружена вис€ча€ ссылка в теге '@tag' на объект {'@objtitle', @int}"
 										PPFormatT(PPTXT_TAGHANGEDLINK, &msg_buf, tag_id, tag.TagEnumID, rec.IntVal);
 										PPID   subst_id = 0;
 										if(p_sj->GetLastObjUnifyEvent(tag.TagEnumID, rec.IntVal, &subst_id, 0) > 0) {
-											THROW_DB(PPRef->Ot.rereadForUpdate(1, &k1));
-											PPRef->Ot.data.IntVal = subst_id;
-											THROW_DB(PPRef->Ot.updateRec());
+											THROW_DB(p_ref->Ot.rereadForUpdate(1, &k1));
+											p_ref->Ot.data.IntVal = subst_id;
+											THROW_DB(p_ref->Ot.updateRec());
 											PPLoadString("corrected", temp_buf);
 											msg_buf.CatDiv(':', 2).Cat(temp_buf);
 										}
@@ -1694,9 +1700,9 @@ int SLAPI PPObjTag::RecoverLostUnifiedLinks()
 											PPFormatT(PPTXT_TAGHANGEDLINK, &msg_buf, tag_id, tag.TagEnumID, rec.IntVal);
 											PPID   subst_id = 0;
 											if(p_sj->GetLastObjUnifyEvent(tag.TagEnumID, rec.IntVal, &subst_id, 0) > 0) {
-												THROW_DB(PPRef->Ot.rereadForUpdate(1, &k1));
-												PPRef->Ot.data.IntVal = subst_id;
-												THROW_DB(PPRef->Ot.updateRec());
+												THROW_DB(p_ref->Ot.rereadForUpdate(1, &k1));
+												p_ref->Ot.data.IntVal = subst_id;
+												THROW_DB(p_ref->Ot.updateRec());
 												PPLoadString("corrected", temp_buf);
 												msg_buf.CatDiv(':', 2).Cat(temp_buf);
 											}
@@ -1709,7 +1715,7 @@ int SLAPI PPObjTag::RecoverLostUnifiedLinks()
 									}
 								}
 							}
-						} while(PPRef->Ot.search(1, &k1, spNext) && PPRef->Ot.data.TagID == tag_id);
+						} while(p_ref->Ot.search(1, &k1, spNext) && p_ref->Ot.data.TagID == tag_id);
 					}
 				}
 			}
@@ -1756,7 +1762,7 @@ int SLAPI PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 							ObjTagTbl::Key2 k2;
 							k2.TagID = tag_id;
 							k2.IntVal = _id;
-							if(PPRef->Ot.search(2, &k2, spEq)) {
+							if(ref->Ot.search(2, &k2, spEq)) {
 								ok = RetRefsExistsErr(Obj, tag_id);
 							}
 						}
@@ -1815,18 +1821,18 @@ int SLAPI PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 							ObjTagTbl::Key2 k2;
 							k2.TagID = tag_id;
 							k2.IntVal = _id;
-							if(PPRef->Ot.search(2, &k2, spEq)) {
+							if(ref->Ot.search(2, &k2, spEq)) {
 								do {
-									if(!PPRef->Ot.rereadForUpdate(2, &k2)) {
+									if(!ref->Ot.rereadForUpdate(2, &k2)) {
 										ok = PPSetErrorDB();
 									}
 									else {
-										PPRef->Ot.data.IntVal = (long)extraPtr;
-										if(!PPRef->Ot.updateRec()) {
+										ref->Ot.data.IntVal = (long)extraPtr;
+										if(!ref->Ot.updateRec()) {
 											ok = PPSetErrorDB();
 										}
 									}
-								} while(ok == DBRPL_OK && PPRef->Ot.search(2, &k2, spNext) && PPRef->Ot.data.TagID == tag_id && PPRef->Ot.data.IntVal == _id);
+								} while(ok == DBRPL_OK && ref->Ot.search(2, &k2, spNext) && ref->Ot.data.TagID == tag_id && ref->Ot.data.IntVal == _id);
 							}
 						}
 					}
@@ -2006,7 +2012,7 @@ public:
 					}
 					else if(tag.TagDataType == OTTYP_DATE) {
 						DateRange period;
-						THROW(GetPeriodInput(this, CTL_SELTAG_RESTRICT, &period));
+						THROW(GetPeriodInput(this, CTL_SELTAG_RESTRICT, &period, strtoprdfEnableAnySign));
 						getCtrlString(CTL_SELTAG_RESTRICT, restrict_buf);
 					}
 				}
@@ -2817,12 +2823,13 @@ int SLAPI EditObjTagValUpdateList(ObjTagList * pList, const PPIDArray * pAllowed
 int SLAPI EditObjTagValList(PPID objType, PPID objID, const PPIDArray * pAllowedTags)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	ObjTagList list;
-	THROW(PPRef->Ot.GetList(objType, objID, &list));
+	THROW(p_ref->Ot.GetList(objType, objID, &list));
 	list.ObjType = objType;
-	list.ObjID = objID; // @v7.7.0
+	list.ObjID = objID;
 	if(EditObjTagValList(&list, pAllowedTags) > 0)
-		THROW(PPRef->Ot.PutList(objType, objID, &list, 1));
+		THROW(p_ref->Ot.PutList(objType, objID, &list, 1));
 	CATCHZOKPPERR
 	return ok;
 }
@@ -3432,10 +3439,13 @@ int PPObjTag::FetchTag(PPID objID, PPID tagID, ObjTagItem * pItem)
 	TagCache * p_cache = GetDbLocalCachePtr <TagCache> (PPOBJ_TAG);
 	if(p_cache)
 		ok = p_cache->FetchTag(objID, tagID, pItem);
-	else if(PPRef) {
-		PPObjectTag tag_rec;
-		if(Fetch(tagID, &tag_rec) > 0)
-			ok = PPRef->Ot.GetTag(tag_rec.ObjTypeID, objID, tagID, pItem);
+	else {
+		Reference * p_ref = PPRef;
+		if(p_ref) {
+			PPObjectTag tag_rec;
+			if(Fetch(tagID, &tag_rec) > 0)
+				ok = p_ref->Ot.GetTag(tag_rec.ObjTypeID, objID, tagID, pItem);
+		}
 	}
 	return ok;
 }

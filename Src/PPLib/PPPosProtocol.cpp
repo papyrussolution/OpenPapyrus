@@ -1861,7 +1861,7 @@ int PPPosProtocol::EndElement(const char * pName)
 			assert(sstreqi_ascii(pName, "period"));
 			{
 				DateRange period;
-				if(getperiod(RdB.TagValue, &period)) {
+				if(strtoperiod(RdB.TagValue, &period, 0)) {
 					ref_pos = RdB.RefPosStack.peek();
 					p_item = RdB.GetItem(ref_pos, &type);
 					if(type == obQuotKind) {

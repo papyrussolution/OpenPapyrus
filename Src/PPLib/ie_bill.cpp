@@ -3530,7 +3530,7 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 			STRNSCPY(brow.BillID, bill.ID);
 			brow.LineNo = i; // @v8.1.2 // @v8.1.12 @fix (i+1)-->i
 			brow.GoodsID = goods_id;
-			brow.LotID = p_ti->LotID; // @v7.4.11
+			brow.LotID = p_ti->LotID;
 			if(GObj.Fetch(goods_id, &goods_rec) <= 0)
 				MEMSZERO(goods_rec);
 			(temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.GoodsName, sizeof(brow.GoodsName));

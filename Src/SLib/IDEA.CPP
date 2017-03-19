@@ -64,7 +64,7 @@
 #include <idea.h>
 #if defined(TEST) || defined(TEST2)
 	#include <process.h>
-	#include <stdio.h>
+	//#include <stdio.h>
 #endif
 #define low16(x) (x)
 

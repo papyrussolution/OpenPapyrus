@@ -32,18 +32,15 @@
  */
 
 #ifdef HAVE_STDDEF_H
-#include <stddef.h>
+	#include <stddef.h>
 #endif
-
 #ifdef HAVE_STDLIB_H
-#include <stdlib.h>
+	#include <stdlib.h>
 #endif
-
 #ifdef NEED_SYS_TYPES_H
-#include <sys/types.h>
+	#include <sys/types.h>
 #endif
-
-#include <stdio.h>
+//#include <stdio.h>
 
 /*
  * We need memory copying and zeroing functions, plus strncpy().

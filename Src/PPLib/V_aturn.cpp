@@ -530,13 +530,12 @@ int SLAPI PPViewAccturn::NextIteration(AccturnViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
+void SLAPI PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 {
-	if(Filt.Cycl.Cycle && Filt.GrpAco)
-		CycleList.formatCycle(dt, pBuf, bufLen);
+	if(Filt.GrpAco)
+		Helper_FormatCycle(Filt.Cycl, CycleList, dt, pBuf, bufLen);
 	else
 		ASSIGN_PTR(pBuf, 0);
-	return 1;
 }
 //
 //

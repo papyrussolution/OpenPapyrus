@@ -2314,7 +2314,7 @@ int SLAPI PPObjStyloPalm::Helper_GetChildList(PPID id, PPIDArray & rPalmList, PP
 		}
 		else {
 			PPStyloPalm child_rec;
-			for(SEnum en = PPRef->Enum(Obj, 0); en.Next(&child_rec) > 0;)
+			for(SEnum en = ref->Enum(Obj, 0); en.Next(&child_rec) > 0;)
 				if(child_rec.GroupID == id)
 					Helper_GetChildList(child_rec.ID, rPalmList, pStack); // @recursion
 		}

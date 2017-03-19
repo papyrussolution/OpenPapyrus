@@ -1278,7 +1278,7 @@ SDateRange DL6ICLS_PPUtil::StrToDateRange(SString & str)
 	int    ok = 0;
 	SDateRange outer_period;
 	DateRange period;
-	if(getperiod(str, &period)) {
+	if(strtoperiod(str, &period, 0)) {
 		period.Actualize(ZERODATE);
 		if(checkdate(period.low, 1) && checkdate(period.upp, 1) && (!period.upp || diffdate(period.upp, period.low) >= 0)) {
 			outer_period.Low = (OleDate)period.low;
@@ -6462,7 +6462,7 @@ int32 DL6ICLS_PPObjBill::CalcGoodsRest(SPpyGoodsRestBlock* pBlk)
 	if(p_e && p_e->P_BObj) {
 		GoodsRestParam gp;
 		gp.CalcMethod = pBlk->CalcMethod;
-		gp.Flags = pBlk->Flags;
+		gp.Flags_ = pBlk->Flags;
         gp.DiffParam = GoodsRestParam::_diffNone;
         gp.Date = pBlk->Date;
         gp.OprNo = pBlk->OprNo;
@@ -6470,12 +6470,13 @@ int32 DL6ICLS_PPObjBill::CalcGoodsRest(SPpyGoodsRestBlock* pBlk)
         gp.GoodsID = pBlk->GoodsID;
         gp.SupplID = pBlk->SupplID;
         gp.AgentID = pBlk->AgentID;
+		gp.Flags_ &= ~GoodsRestParam::fCostByQuot; // @v9.5.8
         if(pBlk->QuotKindID) {
-			gp.Flags |= GoodsRestParam::fPriceByQuot;
+			gp.Flags_ |= GoodsRestParam::fPriceByQuot;
 			gp.QuotKindID = pBlk->QuotKindID;
         }
         else {
-			gp.Flags &= ~GoodsRestParam::fPriceByQuot;
+			gp.Flags_ &= ~GoodsRestParam::fPriceByQuot;
         }
         ok = p_e->P_BObj->trfr->GetRest(&gp);
 		pBlk->Count = gp.Total.Count;
@@ -8441,8 +8442,18 @@ PpyVGoodsRestFlags DL6ICLS_PPFiltGoodsRest::get_Flags()                       { 
 void  DL6ICLS_PPFiltGoodsRest::put_Flags(PpyVGoodsRestFlags value)            { IMPL_PPIFC_PUTPROP(GoodsRestFilt, Flags); }
 int32 DL6ICLS_PPFiltGoodsRest::get_AmtType()             		              { IMPL_PPIFC_GETPROP(GoodsRestFilt, AmtType); }
 void  DL6ICLS_PPFiltGoodsRest::put_AmtType(int32 value)                       { IMPL_PPIFC_PUTPROP(GoodsRestFilt, AmtType); }
-int32 DL6ICLS_PPFiltGoodsRest::get_CalcPrognosis()                            { IMPL_PPIFC_GETPROP(GoodsRestFilt, CalcPrognosis); }
-void  DL6ICLS_PPFiltGoodsRest::put_CalcPrognosis(int32 value)                 { IMPL_PPIFC_PUTPROP(GoodsRestFilt, CalcPrognosis); }
+
+int32 DL6ICLS_PPFiltGoodsRest::get_CalcPrognosis()                            
+{ 
+	// @v9.5.8 IMPL_PPIFC_GETPROP(GoodsRestFilt, CalcPrognosis); 
+	return BIN(((GoodsRestFilt *)ExtraPtr)->Flags2 & GoodsRestFilt::f2CalcPrognosis); // @v9.5.8
+}
+void  DL6ICLS_PPFiltGoodsRest::put_CalcPrognosis(int32 value)                 
+{ 
+	// @v9.5.8 IMPL_PPIFC_PUTPROP(GoodsRestFilt, CalcPrognosis); 
+	SETFLAG(((GoodsRestFilt *)ExtraPtr)->Flags2, GoodsRestFilt::f2CalcPrognosis, value); // @v9.5.8
+}
+
 LDATE DL6ICLS_PPFiltGoodsRest::get_Date()                                     { IMPL_PPIFC_GETPROP(GoodsRestFilt, Date); }
 void  DL6ICLS_PPFiltGoodsRest::put_Date(LDATE value)                          { IMPL_PPIFC_PUTPROP(GoodsRestFilt, Date); }
 int32 DL6ICLS_PPFiltGoodsRest::get_SupplID()                                  { IMPL_PPIFC_GETPROP(GoodsRestFilt, SupplID); }
@@ -10649,10 +10660,7 @@ static void FillCCheckRec(const CCheckPacket * pInner, SPpyO_CCheck * pOuter)
 	if(pInner->Rec.SessID) {
 		PPObjCSession cs_obj;
 		CSessionTbl::Rec cs_rec;
-		if(cs_obj.Fetch(pInner->Rec.SessID, &cs_rec) > 0)
-			pOuter->PosNodeID = cs_rec.CashNodeID;
-		else
-			pOuter->PosNodeID = 0;
+		pOuter->PosNodeID = (cs_obj.Fetch(pInner->Rec.SessID, &cs_rec) > 0) ? cs_rec.CashNodeID : 0;
 	}
 	else
 		pOuter->PosNodeID = pInner->Rec.CashID;

@@ -1435,8 +1435,15 @@ struct LDATE {
 	//   Если дата не содержит относительных факторов, то возвращает ее как есть.
 	//
 	LDATE  FASTCALL getactual(LDATE rel) const;
+	LDATE  SLAPI getactualcmp(LDATE rel, LDATE cmp) const;
+	//
+	// Descr: Возвращает !0 если день, месяц или год содержат шаблонизированный ANY-признак.
+	//
+	int    SLAPI hasanycomponent() const;
 
 	ulong  v;
+private:
+	LDATE  SLAPI Helper_GetActual(LDATE rel, LDATE cmp) const;
 };
 //
 // Descr: Календарный день. Применяется для хранения регулярных дат.
@@ -2682,6 +2689,7 @@ struct DateRange { // @persistent @size=8
 	//   относительно даты rel. Если rel == ZERODATE, то rel считается равной getcurdate_()
 	//
 	DateRange & FASTCALL Actualize(LDATE rel);
+	DateRange & SLAPI ActualizeCmp(LDATE rel, LDATE cmp);
 	LDATE  low, upp;
 };
 
@@ -3520,6 +3528,7 @@ public:
 	// Descr: Возвращает размер данных в буфере.
 	//
 	size_t SLAPI getDataLen() const;
+	size_t SLAPI getSize() const;
 	//
 	// Descr: Записывает в буфер rBuf состояние экземпляра.
 	//   Запись идет в бинарном формате по следующему порядку:
@@ -3659,6 +3668,8 @@ char * FASTCALL strnzcpy(char * pDest, const uchar * pSrc, size_t maxlen);
 char * FASTCALL strnzcpy(char * pDest, const SString & rSrc, size_t maxlen);
 wchar_t * FASTCALL strnzcpy(wchar_t * pDest, const wchar_t * pSrc, size_t maxlen);
 char * SLAPI    wstrcpy(char * pDest, const char * pSrc, size_t maxlen);
+char * FASTCALL sstrcpy(char * pDest, const char * pSrc);
+wchar_t * FASTCALL sstrcpy(wchar_t * pDest, const wchar_t * pSrc);
 char * FASTCALL trimleft(char * pStr);
 char * FASTCALL trimright(char * pStr);
 int    FASTCALL isempty(const char * pStr); // BIN(pStr || pStr[0])
@@ -3833,15 +3844,31 @@ int    FASTCALL checktime(LTIME tm);
 // @v9.4.8 char * SLAPI getMonthText(int mon, long fmt, char * pBuf);
 SString & SLAPI SGetMonthText(int mon, long fmt, SString & rBuf); // @v9.4.8
 //
-// Smart getting period from string
+// Descr: Флаги функции strtoperiod
 //
-int   SLAPI getperiod(const char * pStr, DateRange * pPeriod);
+enum {
+	strtoprdfEnableAnySign = 0x0001 // Допускается использование символа '?'
+};
+//
+// Descr: Преобразует строку pStr в период *pPeriod.
+//   Период в строке может быть определен со специальными шаблонами.
+// Returns:
+//   >0 - строка преобразована успешно
+//   0  - ошибка
+//
+int   SLAPI strtoperiod(const char * pStr, DateRange * pPeriod, long flags);
 //
 // Current date getting
 //
 int   FASTCALL getcurdate(LDATE *);
 int   FASTCALL getcurtime(LTIME *);
+//
+// Descr: Возвращает текущую системную дату
+//
 LDATE SLAPI    getcurdate_();
+//
+// Descr: Возвращает текущее системное время //
+//
 LTIME SLAPI    getcurtime_();
 int   FASTCALL getcurdatetime(LDATETIME *);
 int   FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm);
@@ -3981,8 +4008,18 @@ enum {
 	strtodatefRelMon   = 0x0020, // Месяц задан в относительной форме
 	strtodatefRelYear  = 0x0040, // Год задан в относительной форме
 	strtodatefThrsMDay = 0x0080, // Дата задана как начало месяца с порогом в виде дня. Если текущий день менее порога, то - начало предыдущего месяца, иначе - текущего.
+	strtodatefAnyDay   = 0x0100, // @v9.5.9
+	strtodatefAnyMon   = 0x0200, // @v9.5.9
+	strtodatefAnyYear  = 0x0400, // @v9.5.9
 	strtodatefRelAny   = (strtodatefRel|strtodatefRelDay|strtodatefRelMon|strtodatefRelYear|strtodatefThrsMDay) // Маска
 };
+
+#define REL_DATE_MASK      0x80000000
+#define THRSMDAY_DATE_MASK 0x20000000
+#define ANY_DATE_VALUE     0x7d0a7d7d
+#define ANY_DAYITEM_VALUE  0x7d
+#define ANY_MONITEM_VALUE  0x7d
+#define ANY_YEARITEM_VALUE 0x7d0a
 //
 // Descr: конвертирует строку в дату. Из строки извлекается //
 //   дата в формате, определенном вторым параметром. В качестве разделителя //
@@ -5940,6 +5977,8 @@ class SStrGroup {
 public:
 	SLAPI  SStrGroup();
 	SStrGroup & FASTCALL operator = (const SStrGroup & rS);
+	size_t SLAPI GetPoolDataLen() const;
+	size_t SLAPI GetPoolSize() const;
 	//
 	// Descr: Очищает содержимое пула строк не освобождая память.
 	//   Полезно применять при ожидаемом повторном использовании объекта.
@@ -6001,6 +6040,7 @@ public:
 	SLAPI  StrAssocArray(const StrAssocArray & rS);
 	StrAssocArray & FASTCALL operator = (const StrAssocArray & rS);
 	int    FASTCALL Copy(const StrAssocArray & rS);
+	void   FASTCALL SetTextCmpProc(CompFunc fcmp);
 	//
 	// Descr: Сравнивает экземпляр this с экземпляром src.
 	//   Сравнение осуществляется по-элементно. Если this->getCount() != src.getCount(), то
@@ -6124,7 +6164,9 @@ public:
 #endif // } _WIN32_WCE
 
 	int    SLAPI Test_Cmp(const TaggedStringArray &, int * pNEqPos) const;
+	static int SLAPI Helper_CmpFunc_StrAssocByText(const LAssoc * p1, const LAssoc * p2, StrAssocArray * pArray, LAssocArray * pRecurTracer); // @reallyprivate
 protected:
+	CompFunc TextCmpProc; // @v9.5.9
 	LAssocArray Assoc;
 	LAssocArray ParentList;
 private:
@@ -7033,6 +7075,7 @@ public:
 	static int SLAPI Remove(const char * pFileName);
 	static int SLAPI Rename(const char * pFileName, const char * pNewFileName);
 	static int SLAPI Compare(const char * pFileName1, const char * pFileName2, long flags);
+	static int SLAPI Sort(const char * pSrcFileName, const char * pOutFileName, CompFunc fcmp, size_t maxChunkSize, uint maxChunkCount);
 	//
 	// Descr: возвращает меточные даты файла с именем pFileName
 	// ARG(pFileName    IN): полное имя файла
@@ -7086,8 +7129,9 @@ public:
 
 		mNoStd     = 0x0800, // Файл открывается в низкоуровневом (небуферизованном) режиме (open).
 			// Если размер файла может превышать 2G, то обязательно использовать этот флаг.
-		mNullWrite = 0x1000  // @v8.2.5 Файл открывается в режиме нулевого вывода - то есть запись в него ничего не делает,
+		mNullWrite = 0x1000, // @v8.2.5 Файл открывается в режиме нулевого вывода - то есть запись в него ничего не делает,
 			// а чтение возвращает ошибку
+		mBuffRd    = 0x2000  // @v9.5.9 При установленном mNoStd чтение из файла буферизуется.
 	};
 	SLAPI  SFile();
 	SLAPI  SFile(const char * pName, long mode);
@@ -7116,11 +7160,16 @@ public:
 	int    SLAPI Open(SBuffer & rBuf, long mode);
 	int    SLAPI OpenNullOutput();
 	int    SLAPI Close();
+	//
+	// Descr: Устанавливает 32-битное значение текущей позиции в файле.
+	// Note: При буферизованном чтении вызов функции сбрасывает буфер.
+	//
 	int    SLAPI Seek(long offs, int origin = SEEK_SET);
 	//
 	// Descr: Устанавливает 64-битное значение текущей позиции в файле.
 	// Attention: Если файл открыт в стандартном режиме (без флага fNoStd) то
 	//   фактически применяется 32-битное значение позиции (младшие четыре байта offs).
+	// Note: При буферизованном чтении вызов функции сбрасывает буфер.
 	//
 	int    SLAPI Seek64(int64 offs, int origin = SEEK_SET);
 	//
@@ -7149,8 +7198,21 @@ public:
 	int    SLAPI ReadV(void * pBuf, size_t size);
 	int    SLAPI WriteLine(const char *);
 	int    SLAPI ReadLine(SString &);
-
+	//
+	// Descr: Высокоуровневая функция записи буфера rBuf в поток.
+	//   Сначала записывает размер буфера, затем - данные.
+	// Returns:
+	//   >0 - буфер записан успешно
+	//   0  - ошибка
+	//
 	int    SLAPI Write(const SBuffer & rBuf);
+	//
+	// Descr: Высокоуровневая функция чтения буфера rBuf из потока.
+	//   Сначала считывает размер буфера, распределяет необходимый размер в буфере и считывает данные.
+	// Returns:
+	//   >0 - буфер считан успешно
+	//   0  - ошибка
+	//
 	int    SLAPI Read(SBuffer & rBuf);
 	//
 	// Descr: Устанавливает либо снимает блокировку участка файла размером size со смещением offs.
@@ -7231,6 +7293,7 @@ private:
 	};
 	int    IH;
 	SString Name;
+	SBuffer BufR; // Буфер чтения ((Mode&mNoStd)&&(Mode&mBuffRd))
 	//
 	// Таблица дескрипторов блокировок. Таблица в течении жизни объекта никогда не уменьшается в размере.
 	// Дескриптором блокировки является индекс позиции блока LckChunk в массиве, увеличенный на 1.
@@ -11257,6 +11320,8 @@ public:
 	SGeoPosLL_Int(double lat, double lon);
 	double GetLat() const;
 	double GetLon() const;
+	long   GetIntLat() const;
+	long   GetIntLon() const;
 	int    FASTCALL operator == (const SGeoPosLL_Int & rS) const;
 	int    FASTCALL operator != (const SGeoPosLL_Int & rS) const;
 	int    FASTCALL operator == (const SGeoPosLL & rS) const;

@@ -822,6 +822,9 @@ static int SLAPI RecoverLotsDialog(LotRecoverParam & rParam)
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_CORLOTS);
 	if(CheckDialogPtr(&dlg)) {
+		SString temp_buf;
+		PPLoadString("lotrecoverparam_minuscompensop_hint", temp_buf);
+		dlg->setStaticText(CTL_CORLOTS_MCOP_HINT, temp_buf);
 		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CORLOTS_LOG, CTL_CORLOTS_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 		// @v8.0.9 {
 		PPIDArray op_type_list;

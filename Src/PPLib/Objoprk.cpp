@@ -135,7 +135,7 @@ int SLAPI PPReckonOpEx::StrToPeriod(const char * pBuf)
 		temp[strlen(temp)-1] = 0;
 	}
 	period.SetZero();
-	getperiod(temp, &period);
+	strtoperiod(temp, &period, 0);
 	Beg = period.low;
 	End = period.upp;
 	SETFLAG(Flags, ROXF_BEGISBILLDT, !period.low && at_beg);
@@ -759,7 +759,7 @@ int SLAPI PPObjOprKind::GetPaymentOpList(PPID linkOpID, PPIDArray * pList)
 	PROFILE_START
 	if(pList) {
 		PPOprKind op_rec;
-		for(SEnum en = PPRef->Enum(PPOBJ_OPRKIND, 0); ok && en.Next(&op_rec) > 0;) {
+		for(SEnum en = ref->Enum(PPOBJ_OPRKIND, 0); ok && en.Next(&op_rec) > 0;) {
 			if(op_rec.OpTypeID == PPOPT_PAYMENT && (!linkOpID || op_rec.LinkOpID == linkOpID)) {
 				if(!pList->add(op_rec.ID))
 					ok = PPSetErrorSLib();
@@ -1411,7 +1411,7 @@ void OprKindDialog::setupAccSheet(uint opSelCtl, uint objSelCtl, PPID arID)
 {
 	PPOprKind op_rec;
 	GetOpData(getCtrlLong(opSelCtl), &op_rec);
-	SetupArCombo(this, objSelCtl, arID, OLW_LOADDEFONOPEN, op_rec.AccSheetID, sacfDisableIfZeroSheet);
+	SetupArCombo(this, objSelCtl, arID, OLW_LOADDEFONOPEN, op_rec.AccSheetID, sacfDisableIfZeroSheet|sacfNonGeneric);
 }
 
 void OprKindDialog::addTempl()
@@ -3040,15 +3040,16 @@ int SLAPI OpCache::FetchReckonOpList()
 {
 	int    ok = 1;
 	if(!(State & stReckonListInited)) {
+		Reference * p_ref = PPRef;
 		PPIDArray temp_list;
 		PropertyTbl::Key0 k;
-		BExtQuery q(&PPRef->Prop, 0);
-		q.select(PPRef->Prop.ObjType, PPRef->Prop.ObjID, PPRef->Prop.Prop, 0L).
-			where(PPRef->Prop.ObjType == PPOBJ_OPRKIND && PPRef->Prop.Prop == (long)OPKPRP_PAYMOPLIST);
+		BExtQuery q(&p_ref->Prop, 0);
+		q.select(p_ref->Prop.ObjType, p_ref->Prop.ObjID, p_ref->Prop.Prop, 0L).
+			where(p_ref->Prop.ObjType == PPOBJ_OPRKIND && p_ref->Prop.Prop == (long)OPKPRP_PAYMOPLIST);
 		MEMSZERO(k);
 		k.ObjType = PPOBJ_OPRKIND;
 		for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;)
-			THROW(temp_list.addUnique(PPRef->Prop.data.ObjID));
+			THROW(temp_list.addUnique(p_ref->Prop.data.ObjID));
 		if(temp_list.getCount()) {
 			if(P_ReckonOpList == 0)
 				THROW_MEM(P_ReckonOpList = new PPIDArray);

@@ -167,7 +167,7 @@ int CurTransBillDialog::setDTS(PPBillPacket * pPack)
 	enableCommand(cmExAmountList, HasAmtIDList);
 	setCtrlData(CTL_BILL_DOC,  Data.BillCode);
 	setCtrlData(CTL_BILL_DATE, &Data.Date);
-	SetupArCombo(this, CTLSEL_BILL_OBJECT, Data.ObjectID, OLW_LOADDEFONOPEN|OLW_CANINSERT, Data.AccSheetID, sacfDisableIfZeroSheet);
+	SetupArCombo(this, CTLSEL_BILL_OBJECT, Data.ObjectID, OLW_LOADDEFONOPEN|OLW_CANINSERT, Data.AccSheetID, sacfDisableIfZeroSheet|sacfNonGeneric);
 	setCurGroupData(GRP_INCURAMT);
 	setCurGroupData(GRP_OUTCURAMT);
 	setCtrlData(CTL_BILL_CTRATE, &Data.TransitCRate);

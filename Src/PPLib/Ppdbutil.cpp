@@ -2765,6 +2765,7 @@ int SLAPI TestLargeVlrInputOutput()
 	const  long test_prop_id = 1;
 
     int    ok = 1;
+	Reference * p_ref = PPRef;
 	SBuffer src_buf, dest_buf;
 	PropertyTbl::Rec rec;
 	{
@@ -2786,10 +2787,10 @@ int SLAPI TestLargeVlrInputOutput()
 					THROW_SL(src_buf.Write(value));
 				}
 			}
-			THROW(PPRef->PutPropSBuffer(test_obj_type, test_obj_id, test_prop_id, src_buf, 0));
+			THROW(p_ref->PutPropSBuffer(test_obj_type, test_obj_id, test_prop_id, src_buf, 0));
 			//
 			dest_buf.Clear();
-			THROW(PPRef->GetPropSBuffer(test_obj_type, test_obj_id, test_prop_id, dest_buf) > 0);
+			THROW(p_ref->GetPropSBuffer(test_obj_type, test_obj_id, test_prop_id, dest_buf) > 0);
 			THROW(dest_buf.IsEqual(src_buf));
 		}
 		{
@@ -2808,10 +2809,10 @@ int SLAPI TestLargeVlrInputOutput()
 					THROW_SL(src_buf.Write(value));
 				}
 			}
-			THROW(PPRef->PutPropSBuffer(test_obj_type, test_obj_id, test_prop_id, src_buf, 0));
+			THROW(p_ref->PutPropSBuffer(test_obj_type, test_obj_id, test_prop_id, src_buf, 0));
 			//
 			dest_buf.Clear();
-			THROW(PPRef->GetPropSBuffer(test_obj_type, test_obj_id, test_prop_id, dest_buf) > 0);
+			THROW(p_ref->GetPropSBuffer(test_obj_type, test_obj_id, test_prop_id, dest_buf) > 0);
 			THROW(dest_buf.IsEqual(src_buf));
 		}
 		{
@@ -2830,10 +2831,10 @@ int SLAPI TestLargeVlrInputOutput()
 					THROW_SL(src_buf.Write(value));
 				}
 			}
-			THROW(PPRef->PutPropSBuffer(test_obj_type, test_obj_id, test_prop_id, src_buf, 0));
+			THROW(p_ref->PutPropSBuffer(test_obj_type, test_obj_id, test_prop_id, src_buf, 0));
 			//
 			dest_buf.Clear();
-			THROW(PPRef->GetPropSBuffer(test_obj_type, test_obj_id, test_prop_id, dest_buf) > 0);
+			THROW(p_ref->GetPropSBuffer(test_obj_type, test_obj_id, test_prop_id, dest_buf) > 0);
 			THROW(dest_buf.IsEqual(src_buf));
 		}
 		{
@@ -2852,10 +2853,10 @@ int SLAPI TestLargeVlrInputOutput()
 					THROW_SL(src_buf.Write(value));
 				}
 			}
-			THROW(PPRef->PutPropSBuffer(test_obj_type, test_obj_id, test_prop_id, src_buf, 0));
+			THROW(p_ref->PutPropSBuffer(test_obj_type, test_obj_id, test_prop_id, src_buf, 0));
 			//
 			dest_buf.Clear();
-			THROW(PPRef->GetPropSBuffer(test_obj_type, test_obj_id, test_prop_id, dest_buf) > 0);
+			THROW(p_ref->GetPropSBuffer(test_obj_type, test_obj_id, test_prop_id, dest_buf) > 0);
 			THROW(dest_buf.IsEqual(src_buf));
 		}
 		{
@@ -2863,10 +2864,10 @@ int SLAPI TestLargeVlrInputOutput()
 			// Удаление записи (заносим пустой буфер)
 			//
 			src_buf.Clear();
-			THROW(PPRef->PutPropSBuffer(test_obj_type, test_obj_id, test_prop_id, src_buf, 0));
+			THROW(p_ref->PutPropSBuffer(test_obj_type, test_obj_id, test_prop_id, src_buf, 0));
 			//
 			dest_buf.Clear();
-			THROW(PPRef->GetPropSBuffer(test_obj_type, test_obj_id, test_prop_id, dest_buf) < 0);
+			THROW(p_ref->GetPropSBuffer(test_obj_type, test_obj_id, test_prop_id, dest_buf) < 0);
 			THROW(dest_buf.IsEqual(src_buf));
 		}
 		//

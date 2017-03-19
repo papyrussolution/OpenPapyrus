@@ -1934,6 +1934,7 @@ int SLAPI PPObjLocation::GetPacket(PPID id, PPLocationPacket * pPack)
 int SLAPI PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use_ta)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	const  int do_index_phones = BIN(CConfig.Flags2 & CCFLG2_INDEXEADDR);
 	SString temp_buf;
 	{
@@ -1958,7 +1959,7 @@ int SLAPI PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use
 							objid.Set(PPOBJ_LOCATION, *pID);
 							THROW(P_Tbl->IndexPhone(temp_buf, &objid, 1, 0));
 						}
-						THROW(PPRef->Ot.PutList(Obj, *pID, 0, 0));
+						THROW(p_ref->Ot.PutList(Obj, *pID, 0, 0));
 						THROW(RegObj.P_Tbl->PutByLocation(*pID, 0, 0));
 						THROW(RemoveByID(P_Tbl, *pID, 0));
 						DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
@@ -1974,7 +1975,7 @@ int SLAPI PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use
 							THROW(P_Tbl->IndexPhone(temp_buf, &objid, 0, 0));
 						}
 						THROW(UpdateByID(P_Tbl, Obj, *pID, pPack, 0));
-						THROW(PPRef->Ot.PutList(Obj, *pID, &pPack->TagL, 0));
+						THROW(p_ref->Ot.PutList(Obj, *pID, &pPack->TagL, 0));
 						THROW(RegObj.P_Tbl->PutByLocation(*pID, &pPack->Regs, 0));
 						DS.LogAction(PPACN_OBJUPD, Obj, *pID, 0, 0);
 					}
@@ -1989,7 +1990,7 @@ int SLAPI PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use
 					objid.Set(PPOBJ_LOCATION, *pID);
 					THROW(P_Tbl->IndexPhone(temp_buf, &objid, 1, 0));
 				}
-				THROW(PPRef->Ot.PutList(Obj, *pID, 0, 0));
+				THROW(p_ref->Ot.PutList(Obj, *pID, 0, 0));
 				THROW(RegObj.P_Tbl->PutByLocation(*pID, 0, 0));
 				THROW(RemoveByID(P_Tbl, *pID, 0));
 				THROW(RemoveSync(*pID));
@@ -2005,7 +2006,7 @@ int SLAPI PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use
 				// Функция LocationCore::Add уже содержит поддержку индексации телефонов (IndexPhone)
 				//
 				THROW(P_Tbl->Add(&temp_id, pPack, 0));
-				THROW(PPRef->Ot.PutList(Obj, temp_id, &pPack->TagL, 0));
+				THROW(p_ref->Ot.PutList(Obj, temp_id, &pPack->TagL, 0));
 				THROW(RegObj.P_Tbl->PutByLocation(temp_id, &pPack->Regs, 0));
 				if(pPack->Type == LOCTYP_WAREHOUSE)
 					THROW(SendObjMessage(DBMSG_WAREHOUSEADDED, PPOBJ_ARTICLE, Obj, temp_id) == DBRPL_OK);
@@ -6114,6 +6115,7 @@ int SLAPI PPFiasReference::SearchObjByTextRefList(const TSArray <TextRefIdent> &
 int SLAPI PPFiasReference::SearchObjByText(const char * pText, long flags, PPID upperID, PPIDArray & rList)
 {
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	int    do_post_process = 0;
     SStringU pattern;
     SString temp_buf;
@@ -6125,7 +6127,7 @@ int SLAPI PPFiasReference::SearchObjByText(const char * pText, long flags, PPID 
 	TSArray <TextRefIdent> text_ref_list;
 	int   sr = 0;
 	if(flags & stfPrefix)
-		sr = PPRef->TrT.SearchSelfRefTextByPrefix(pattern, &text_ref_list);
+		sr = p_ref->TrT.SearchSelfRefTextByPrefix(pattern, &text_ref_list);
 	else {
 		if(!(flags & stfDontUseCache)) {
 			FiasAddrCache * p_cache = GetDbLocalCachePtr <FiasAddrCache> (PPOBJ_FIAS);
@@ -6142,7 +6144,7 @@ int SLAPI PPFiasReference::SearchObjByText(const char * pText, long flags, PPID 
 		}
 		else {
 			PPID   _id = 0;
-			sr = PPRef->TrT.SearchSelfRefText(pattern, &_id);
+			sr = p_ref->TrT.SearchSelfRefText(pattern, &_id);
 			if(sr > 0) {
 				TextRefIdent tri(PPOBJ_SELFREFTEXT, _id, PPTRPROP_DEFAULT);
 				text_ref_list.insert(&tri);

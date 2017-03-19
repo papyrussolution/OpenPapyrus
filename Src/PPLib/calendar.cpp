@@ -41,17 +41,45 @@ public:
 	int    RowCount;
 	int    c_i, c_j, c_minfirst, c_maxlast, c_maxrow,
 		   y_tw, y_bl, y_br, y_bw, y_th, y_t, y_w;
-	char   C[7][7][12];
+	_TCHAR C[7][7][12];
 	TDialog * P_Dlg;
 	uint   DateCtlID;
 	int    IsLarge;
 };
 
+static const _TCHAR __Days[7][3] = {_T("Ïí"), _T("Âò"), _T("Ñð"), _T("×ò"), _T("Ïò"), _T("Ñá"), _T("Âñ") };
+
 class TDateCalendar : public TCalendar {
 public:
 	static BOOL CALLBACK CalendarDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	TDateCalendar(TDialog *, uint);
+	TDateCalendar(TDialog * pDlg, uint pDateCtlID)
+	{
+		LDATE d;
+		PeriodSelect = 0;
+		P_Dlg = pDlg;
+		parent_hWnd = P_Dlg ? P_Dlg->H() : 0;
+		DateCtlID = pDateCtlID;
+		IsLarge = BIN(P_Dlg && P_Dlg->CheckFlag(TDialog::fLarge));
+		Top  = IsLarge ? 144 : 80;
+		Left = 10;
+		RetCmd = 0;
+		if(DateCtlID == -1 || !P_Dlg || !P_Dlg->getCtrlData(DateCtlID, &D)) {
+			D = getcurdate_();
+			Validate();
+		}
+		else if(P_Dlg && P_Dlg->getCtrlData(DateCtlID, &D)) {
+			d = getcurdate_();
+			if(D.year() < 1800 || D.year() > 5000)
+				D.setyear(d.year());
+			if(D.month() < 1 || D.month() > 12)
+				D.setmonth(d.month());
+			if(D.day() < 1 || D.day() > 31)
+				D.setday(d.day());
+			Validate();
+		}
+		SetupCalendar();
+	}
 	void   ShowCalendar(HWND hParent)
 	{
 		TView * p_ctl = P_Dlg ? P_Dlg->getCtrlView(DateCtlID) : 0;
@@ -168,36 +196,6 @@ public:
 #define SEL_YEARS    3
 #define SEL_WEEKS    4
 
-const char days[7][3] = {"Ïí", "Âò", "Ñð", "×ò", "Ïò", "Ñá", "Âñ"};
-
-TDateCalendar::TDateCalendar(TDialog * pDlg, uint pDateCtlID)
-{
-	LDATE d;
-	PeriodSelect = 0;
-	P_Dlg = pDlg;
-	parent_hWnd = P_Dlg ? P_Dlg->H() : 0;
-	DateCtlID = pDateCtlID;
-	IsLarge = BIN(P_Dlg && P_Dlg->CheckFlag(TDialog::fLarge));
-	Top  = IsLarge ? 144 : 80;
-	Left = 10;
-	RetCmd = 0;
-	if(DateCtlID == -1 || !P_Dlg || !P_Dlg->getCtrlData(DateCtlID, &D)) {
-		D = getcurdate_();
-		Validate();
-	}
-	else if(P_Dlg && P_Dlg->getCtrlData(DateCtlID, &D)) {
-		d = getcurdate_();
-		if(D.year() < 1800 || D.year() > 5000)
-			D.setyear(d.year());
-		if(D.month() < 1 || D.month() > 12)
-			D.setmonth(d.month());
-		if(D.day() < 1 || D.day() > 31)
-			D.setday(d.day());
-		Validate();
-	}
-	SetupCalendar();
-}
-
 void TCalendar::Validate()
 {
 	NDays = D.dayspermonth();
@@ -210,13 +208,13 @@ void TCalendar::SetupCalendar()
 {
 	RowCount = 2;
 	int    i, j, count = 1;
-	char s[3], t[3];
+	_TCHAR s[3], t[3];
 	for(j = 0; j <= 6; j++)
-		strcpy(C[0][j], days[j]);
+		sstrcpy(C[0][j], __Days[j]);
 	for(i = 1; i <= 6; i++) {
 		for(j = 0; j <= 6; j++) {
 			if((i == 1 && FirstMonthDow > j) || count > NDays)
-				strcpy(C[i][j], "  ");
+				sstrcpy(C[i][j], _T("  "));
 			else {
 				if(count == 1)
 					c_minfirst = j;
@@ -225,11 +223,11 @@ void TCalendar::SetupCalendar()
 					c_maxrow = i;
 				}
 				if(count < 10)
-					strcpy(s, " ");
+					sstrcpy(s, _T(" "));
 				else
 					s[0] = 0;
 				strcat(s, _itoa(count, t, 10));
-				strcpy(C[i][j], s);
+				sstrcpy(C[i][j], s);
 				if((int)count == D.day()) {
 					c_j = j;
 					c_i = i;
@@ -404,8 +402,8 @@ void TDateCalendar::DrawDayOfWeekHeader(HDC hdc)
 //
 void TDateCalendar::DrawMonthGrid(HDC hdc)
 {
-	int  c_cell_w = (y_br - y_bl + 1) / 7;
-	int  c_cell_h = C_CELLH * y_th / 13;
+	const int  c_cell_w = (y_br - y_bl + 1) / 7;
+	const int  c_cell_h = C_CELLH * y_th / 13;
 	TCanvas canv(hdc);
 	for(int i = 0; i <= 6; i++)
 		for(int j = 0; j <= 6; j++)
@@ -1539,8 +1537,8 @@ void TPeriodCalendar::UpdatePeriod()
 {
 	DateRange range;
 	char   period_buf[128];
-	getperiod(Period, &range);
-	LDATE cur_dt = getcurdate_();
+	strtoperiod(Period, &range, 0);
+	const  LDATE cur_dt = getcurdate_();
 	D1 = checkdate(range.low, 0) ? range.low : cur_dt;
 	D2 = checkdate(range.upp, 0) ? range.upp : cur_dt;
 	range.Set(D1, D2);

@@ -501,5 +501,6 @@
 #define cmImportPosRefs                606 // @v9.0.8 Импорт POS-справочников
 #define cmBuildLocalDL600              607 // @v9.1.7 Компиляция локальных структур DL600
 #define cmWorkbookInterchange          608 // @v9.3.10 Синхронизация рабочих книг с серверо Universe-HTT
+#define cmProcessOsm                   609 // @v9.5.9 Процессинг данных OpenStreetMap
 
 #endif /* __PPMENU_H */

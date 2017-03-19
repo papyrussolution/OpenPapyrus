@@ -27,10 +27,10 @@
 /// Scanner C++ wrapper
 
 #ifndef _ZBAR_H_
-# error "include zbar.h in your application, **not** zbar/Scanner.h"
+	#error "include zbar.h in your application, **not** zbar/Scanner.h"
 #endif
 
-#include <stdio.h>
+//#include <stdio.h>
 
 //namespace zbar {
 

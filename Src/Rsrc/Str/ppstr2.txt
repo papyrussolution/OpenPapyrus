@@ -3816,6 +3816,7 @@ PPTXT_FILPAT_WTM             "Файлы графических полотен:*
 PPTXT_FILPAT_FMT             "Файлы описания форматов:*.fmt"
 PPTXT_FILPAT_PPYTEXT         "Текстовые файлы Papyrus (txt,ini,fmt,lbl,log,dl6,dl2):*.txt;*.ini;*.fmt;*.lbl;*.log;*.dl6;*.dl2"
 PPTXT_FILPAT_SARTRRULE       "Файлы правил обработки текстовых объектов (sr):*.sr"
+PPTXT_FILPAT_OSM             "Файлы @{brand_openstreetmap} (osm):*.osm"
 PPTXT_FILPAT_WORKBOOKATTACH  "Содержание рабочих книг:*.html;*.txt;*.vm;*.jpg;*.png;*.gif"
 PPTXT_FILPAT_LATEX           "Файлы TeX:*.tex"
 PPTXT_FILPAT_MAILACC         "Почтовые учетные записи (*.acc):*.acc"
@@ -5596,6 +5597,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @grouping               "Группировка"
 @opgrouping             "Группировка операций"
 @article                "Статья"
+@article_pl             "Статьи"
+@groupingarticle        "Группирующая статья"
 @addarticle             "Дополнительная статья"
 @codebyar               "Код по статье"
 @codebyar_pl            "Коды по статьям"
@@ -6217,6 +6220,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @filter_billtransmitparam                 "Параметры передачи документов"
 @filter_supplinterchange                  "Параметры обмена данными с поставщиком"
 @filter_gct                               "Фильтр перебора операций"
+@filter_prcssrosm                         "Параметры обработки файла @{brand_openstreetmap}"
 //
 // Команды и popup-меню
 //
@@ -6710,6 +6714,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @brand_uhtt       /!/                     "Universe-HTT"
 @brand_styloagent /!/                     "Stylo Agent"
 @brand_egais                              "ЕГАИС"
+@brand_openstreetmap /!/                  "OpenStreetMap"
 //
 // Далее следует блок из каталога объектов Papyrus
 //
@@ -8466,6 +8471,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lotrecoverparam_frepairwotaxflags        "Корректировать признак 'Цены реализации без налогов'"
 @lotrecoverparam_fsetalccodetogoods       "Переносить @{brand_egais}-код в товар"
 @lotrecoverparam_minuscompensop           "Вид операции компенсации отрицательных остатков"
+@lotrecoverparam_minuscompensop_hint      "Действует только если в фильтре установлен склад"
 @lotrecoverparam_logfile                  "@{logfilename}"
 
 @mrptab_dt                                "@{date}"
@@ -9753,6 +9759,15 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodsrestfilt_fcalccvat                  "Рассчитывать суммы НДС"
 @goodsrestfilt_fcalcpvat                  "Рассчитывать суммы НДС"
 @goodsrestfilt_fforcenullrest             ""
+@goodsrestfilt_flags2                     "Дополнительные флаги"
+@goodsrestfilt_f2calcprognosis            "Рассчитывать прогноз продаж"
+@goodsrestfilt_f2costbyquot               "Котировку трактовать как цены поступления"
+
+@goodsrestfilt_quotusage                  "Использование котировки" // generic
+@goodsrestfilt_quotusage_no               "@{no}" // generic
+@goodsrestfilt_quotusage_asprice          "Вместо цены реализации" // generic
+@goodsrestfilt_quotusage_ascost           "Вместо цены поступления" // generic
+
 @goodsrestfilt_amttype                    ""
 @goodsrestfilt_date                       "Дата расчета остатков"
 @goodsrestfilt_deficitdate                "Дата начала расчета дефицита"
@@ -10277,6 +10292,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @trfranlzfilt_fshowserial                 "Показывать серийные номера"
 @trfranlzfilt_fcalcavgrest                ""
 @trfranlzfilt_fcomparewroff               "Сравнивать с документами списания"
+@trfranlzfilt_fcomparewroff_diffonly      "Показывать только отличия от документов списания"
 @trfranlzfilt_initord                     "@{sorting}"
 @trfranlzfilt_crosstab                    "Параметры кросстабуляции анализа товарных операций" // Обобщающее понятие
 @trfranlzfilt_ctkind                      "@{crosstab_sh}" // Вид кросстабулированного отчета
@@ -10456,6 +10472,14 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ccbybill_paymtype_bank                   "Безналично"
 @ccbybill_paymtype_division               "Номер отдела"
 
+@prcssrosm                                "Процессинг данных @{brand_openstreetmap}"
+@prcssrosm_srcfilename                    "@{filename}"
+@prcssrosm_flags                          "@{flags}"
+@prcssrosm_fpreprocess                    "Препроцессинг"
+@prcssrosm_fsortpreprcresults             "Сортировка результатов"
+@prcssrosm_fanlzpreprcresults             "Анализ результатов препроцессинга"
+@prcssrosm_fimport                        "@{import}"
+
 [121]
 1   "Вход"
 2	"@{session}"
@@ -10511,6 +10535,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 69  "Получение списка открытых лотов по товару"
 70  "Подготовка данных для BHT (документы)"
 71  "Подготовка данных для BHT (товары)"
+72  "Разбор xml файла @{brand_openstreetmap}"
 
 [122]
 1   "@{err_curl}: не поддерживаемый протокол"

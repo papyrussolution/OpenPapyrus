@@ -949,8 +949,9 @@
 	#define PPUPRF_GETOPENEDLOTS     69
 	#define PPUPRF_BHTPREPBILL       70 // @v9.4.11
 	#define PPUPRF_BHTPREPGOODS      71 // @v9.4.11
+	#define PPUPRF_OSMXMLPARSETAG    72 // @v9.5.8
 
-	#define PPUPRF_LAST              72
+	#define PPUPRF_LAST              73
 #define PPOBJ_EDIPROVIDER	74L // Провайдеры EDI-обмена
 	#define EDIPRVPRP_EXTSTRING  1L // Текстовые данные пакета
 #define PPOBJ_USREXCLRIGHTS 75L // Исключения для пользовательских прав доступа при некоторых действиях
@@ -1419,6 +1420,7 @@
 #define PPEDIOP_EGAIS_ACTWRITEOFFSHOP        58 // @v9.4.0
 #define PPEDIOP_EGAIS_WAYBILL_V2             59 // @v9.5.5
 #define PPEDIOP_EGAIS_TTNINFORMF2REG         60 // @v9.5.5 version 2 of PPEDIOP_EGAIS_TTNINFORMBREG
+#define PPEDIOP_EGAIS_WAYBILLACT_V2          61 // @v9.5.8 version 2 of PPEDIOP_EGAIS_WAYBILLACT
 //
 // Descr: Статусы ответа (RECADV) на уведомление об отгрузке (DESADV)
 //
@@ -2682,6 +2684,7 @@
 	#define CTLSEL_GOODSREST_BRAND      (20 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSREST_DRAFTPRD      (21 + WINDOWS_ID_BIAS)
 	#define CTLCAL_GOODSREST_DRAFTPRD   (22 + WINDOWS_ID_BIAS)
+	#define CTL_GOODSREST_BYQUOT2       (23 + WINDOWS_ID_BIAS)
 #define DLG_PRNCASH               136 // Выбор формы кассового ордера
 	#define CTL_PRNCASH_FORM             (1 + WINDOWS_ID_BIAS)
 #define DLG_ATFLT                 137 // Фильтр описи бух. проводок
@@ -3849,6 +3852,7 @@
 	#define CTLBRW_CORLOTS_LOG           (3 + WINDOWS_ID_BIAS)
 	#define CTL_CORLOTS_MCOP             (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CORLOTS_MCOP          (5 + WINDOWS_ID_BIAS)
+	#define CTL_CORLOTS_MCOP_HINT        (6 + WINDOWS_ID_BIAS)
 #define DLG_SCALE                 307 // Параметры электронных весов
 	#define cmScaleSys                   2001
 	#define CTL_SCALE_NAME               (1 + WINDOWS_ID_BIAS)
@@ -10110,6 +10114,10 @@
 	#define CTL_CCBYBILL_PAYMTYPE     (3 + WINDOWS_ID_BIAS)
 	#define CTL_CCBYBILL_DIVISION     (4 + WINDOWS_ID_BIAS)
 	#define CTL_CCBYBILL_ST_INFO      (5 + WINDOWS_ID_BIAS)
+#define DLG_PRCROSM               1314
+	#define CTL_PRCROSM_PATH          (1 + WINDOWS_ID_BIAS)
+	#define CTLBRW_PRCROSM_PATH       (2 + WINDOWS_ID_BIAS)
+	#define CTL_PRCROSM_FLAGS         (3 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

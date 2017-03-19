@@ -774,7 +774,7 @@ int SLAPI PPViewSStat::CreateTempTable(int use_ta)
 			if(Filt.LocList.IsExists())
 				Filt.LocList.CopyTo(&loc_list);
 			else
-				PsT.GetLocList(&loc_list);
+				PsT.GetLocList(loc_list);
 			for(g_iter.Init(Filt.GoodsGrpID, 0); g_iter.Next(&goods_rec) > 0;) {
 				PPID   subst_id = 0;
 				THROW(PPCheckUserBreak());

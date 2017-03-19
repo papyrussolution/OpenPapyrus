@@ -1850,7 +1850,7 @@ int TrfrItemDialog::setDTS(PPTransferItem * pItem)
 		setGroupData(GRP_QCERT, &qc_rec);
 	}
 	if(St & stAllowSupplSel)
-		SetupArCombo(this, CTLSEL_LOT_SUPPL, Item.Suppl, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetSupplAccSheet());
+		SetupArCombo(this, CTLSEL_LOT_SUPPL, Item.Suppl, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetSupplAccSheet(), sacfNonGeneric);
 	else {
 		showCtrl(CTL_LOT_SUPPL, 0);
 		showCtrl(CTLSEL_LOT_SUPPL, 0);

@@ -12,8 +12,8 @@
 #ifndef __XML_TREE_H__
 #define __XML_TREE_H__
 
-#include <stdio.h>
-#include <limits.h>
+//#include <stdio.h>
+//#include <limits.h>
 #include <libxml/xmlversion.h>
 #include <libxml/xmlstring.h>
 

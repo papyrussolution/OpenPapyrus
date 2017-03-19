@@ -10,7 +10,7 @@
 #ifndef __XML_IO_H__
 #define __XML_IO_H__
 
-#include <stdio.h>
+//#include <stdio.h>
 #include <libxml/xmlversion.h>
 
 #ifdef __cplusplus

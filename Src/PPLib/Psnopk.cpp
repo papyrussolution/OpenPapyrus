@@ -1,5 +1,5 @@
 // PSNOPK.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
 //
 // Виды персональных операций
 //
@@ -767,9 +767,9 @@ int SLAPI PPObjPsnOpKind::GetPacket(PPID id, PPPsnOpKindPacket * pack)
 	pack->destroy();
 	if((r = Search(id, &pack->Rec)) > 0) {
 		size_t extra_sz = 0;
-		if(PPRef->GetPropActualSize(Obj, id, POKPRP_EXTRA, &extra_sz) > 0) {
+		if(ref->GetPropActualSize(Obj, id, POKPRP_EXTRA, &extra_sz) > 0) {
 			p_ex = (_POKExtra *)malloc(extra_sz);
-			THROW(PPRef->GetProp(Obj, id, POKPRP_EXTRA, p_ex, extra_sz) > 0);
+			THROW(ref->GetProp(Obj, id, POKPRP_EXTRA, p_ex, extra_sz) > 0);
 			if(extra_sz >= sizeof(_POKExtra)) {
 				pack->PCPrmr.PersonKindID = p_ex->PrmrKindID;
 				pack->PCScnd.PersonKindID = p_ex->ScndKindID;
@@ -805,7 +805,7 @@ int SLAPI PPObjPsnOpKind::GetPacket(PPID id, PPPsnOpKindPacket * pack)
 		STempBuffer prop_buf(2048);
 		if(!allowed_tags_processed) {
 			PPIDArray tags_list;
-			THROW(PPRef->GetPropArray(Obj, id, POKPRP_ALLOWEDTAGS, &tags_list));
+			THROW(ref->GetPropArray(Obj, id, POKPRP_ALLOWEDTAGS, &tags_list));
 			pack->AllowedTags.Set(&tags_list);
 		}
 		if(pack->Rec.ExValGrp == POKEVG_TAG) {
@@ -935,7 +935,7 @@ int SLAPI PPObjPsnOpKind::PutPacket(PPID * pID, PPPsnOpKindPacket * pPack, int u
 			/* @v7.8.9 {
 			if(pPack->AllowedTags.IsExists())
 				tags_list = pPack->AllowedTags.Get();
-			THROW(PPRef->PutPropArray(Obj, *pID, POKPRP_ALLOWEDTAGS, &tags_list, 0));
+			THROW(ref->PutPropArray(Obj, *pID, POKPRP_ALLOWEDTAGS, &tags_list, 0));
 			*/
 		}
 		else if(*pID) {

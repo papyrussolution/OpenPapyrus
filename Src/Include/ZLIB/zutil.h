@@ -30,17 +30,17 @@
 #ifdef Z_SOLO
 	typedef long ptrdiff_t;     /* guess -- will be caught if guess is wrong */
 #endif
-#ifndef local
+/* @sobolev #ifndef local
 	#define local static
-#endif
+#endif */
 /* since "static" is used to mean two completely different things in C, we
    define "local" for the non-static meaning of "static", for readability
    (compile with -Dlocal if your debugger can't find static symbols) */
 
 typedef unsigned char uch;
-typedef uch FAR uchf;
+typedef uch uchf;
 typedef unsigned short ush;
-typedef ush FAR ushf;
+typedef ush ushf;
 typedef unsigned long ulg;
 
 extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */

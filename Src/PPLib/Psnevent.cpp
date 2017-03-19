@@ -694,6 +694,7 @@ int ExecuteGenericDeviceCommand(PPID dvcID, const char * pCmd, long options)
 int SLAPI PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKind * pPok, const PoClause_ * pClause, int action, int use_ta)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	PPID   psn_id = 0;
 	PPID   sc_id = 0;
 	if(pClause->Subj == POCOBJ_PRIMARY) {
@@ -726,19 +727,19 @@ int SLAPI PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKi
 					if(dir_obj && oneof2(action, PPACN_OBJADD, PPACN_OBJUPD)) {
 						const ObjTagItem * p_tag_item = pPack->TagL.GetItem(dir_obj);
 						if(p_tag_item)
-							ok = PPRef->Ot.PutTag(PPOBJ_PERSON, psn_id, p_tag_item, 0);
+							ok = p_ref->Ot.PutTag(PPOBJ_PERSON, psn_id, p_tag_item, 0);
 					}
 					break;
 				case POVERB_REMOVETAG:
 					ok = (dir_obj && oneof2(action, PPACN_OBJADD, PPACN_OBJUPD)) ?
-						(PPRef->Ot.RemoveTag(PPOBJ_PERSON, psn_id, dir_obj, 0) ? 1 : 0) : -1;
+						(p_ref->Ot.RemoveTag(PPOBJ_PERSON, psn_id, dir_obj, 0) ? 1 : 0) : -1;
 					break;
 				case POVERB_INCTAG:
 				case POVERB_DECTAG:
 					ok = -1;
 					if(dir_obj && oneof2(action, PPACN_OBJADD, PPACN_OBJRMV)) {
 						ObjTagItem tag_item;
-						ok = PPRef->Ot.GetTag(PPOBJ_PERSON, psn_id, dir_obj, &tag_item);
+						ok = p_ref->Ot.GetTag(PPOBJ_PERSON, psn_id, dir_obj, &tag_item);
 						if(ok) {
 							if(ok < 0)
 								tag_item.Init(dir_obj);
@@ -756,7 +757,7 @@ int SLAPI PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKi
 									inc_tag = +1.0;
 							}
 							if(inc_tag != 0.0 && tag_item.AddReal(inc_tag) > 0)
-								ok = PPRef->Ot.PutTag(PPOBJ_PERSON, psn_id, &tag_item, 0);
+								ok = p_ref->Ot.PutTag(PPOBJ_PERSON, psn_id, &tag_item, 0);
 							else
 								ok = -1;
 						}
@@ -1128,11 +1129,9 @@ int SLAPI PPObjPersonEvent::Helper_PutPacket(PPID evID, int action, PPPsnEventPa
 					CALLEXCEPT();
 				}
 			}
-			// @v7.0.0 {
 			else if(r > 0) {
 				pPokPack->Rec.Flags |= PSNEVF_CLOSE;
 			}
-			// } @v7.0.0
 		}
 		if(*strip(pPack->Reg.Num)) {
 			RegisterArray regary;

@@ -444,7 +444,7 @@ IMPL_HANDLE_EVENT(AbsBillDialog)
 			PPID   acc_sheet_id = 0, acc_sheet2_id = 0;
 			getCtrlData(CTLSEL_ABSBILL_OP, &Data.OpID);
 			GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, &acc_sheet2_id);
-			SetupArCombo(this, CTLSEL_ABSBILL_OBJECT, Data.ObjectID, 0, acc_sheet_id, sacfDisableIfZeroSheet);
+			SetupArCombo(this, CTLSEL_ABSBILL_OBJECT, Data.ObjectID, 0, acc_sheet_id, sacfDisableIfZeroSheet|sacfNonGeneric);
 		}
 	}
 	else if(event.isCmd(cmViewAccturns))
@@ -508,7 +508,7 @@ int AbsBillDialog::setDTS(const RecoverAbsBillData * pData)
 		SETIFZ(Data.OpID, op_list.getSingle());
 		SetupOprKindCombo(this, CTLSEL_ABSBILL_OP, Data.OpID, 0, &op_list, OPKLF_OPLIST);
 	}
-	SetupArCombo(this, CTLSEL_ABSBILL_OBJECT, Data.ObjectID, 0, 0, 0);
+	SetupArCombo(this, CTLSEL_ABSBILL_OBJECT, Data.ObjectID, 0, 0, sacfNonGeneric);
 	return 1;
 }
 

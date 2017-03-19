@@ -642,24 +642,24 @@ int SLAPI PPExprParser::GetToken()
 			} while(isalnum(Cur) || oneof2(Cur, '_', '.'));
 			*p = 0;
 			Func = 0;
-			if(stricmp(buf, "abs") == 0)        { Func = funcAbs; }
-			else if(stricmp(buf, "sqrt") == 0)  { Func = funcSqrt; }
-			else if(stricmp(buf, "sin") == 0)   { Func = funcSin; }
-			else if(stricmp(buf, "cos") == 0)   { Func = funcCos; }
-			else if(stricmp(buf, "tan") == 0)   { Func = funcTan; }
-			else if(stricmp(buf, "round") == 0) { Func = funcRound; }
-			else if(stricmp(buf, "roundup") == 0) { Func = funcRoundUp; }
-			else if(stricmp(buf, "rounddown") == 0) { Func = funcRoundDown; }
-			else if(stricmp(buf, "rounddn") == 0) { Func = funcRoundDown; }
-			else if(stricmp(buf, "oid") == 0)   { Func = funcOid; }
-			else if(stricmp(buf, "pow") == 0)   { Func = funcPow; }
-			else if(stricmp(buf, "min") == 0)   { Func = funcMin; }
-			else if(stricmp(buf, "minz") == 0)  { Func = funcMinZ; }
-			else if(stricmp(buf, "max") == 0)   { Func = funcMax; }
-			else if(stricmp(buf, "?") == 0)     { Func = funcQuest; }
-			else if(stricmp(buf, "eq") == 0)    { Func = funcEq; }  // @v7.3.8
-			else if(stricmp(buf, "neq") == 0)   { Func = funcNEq; } // @v7.3.8
-			else if(stricmp(buf, "sieve") == 0) {
+			if(sstreqi_ascii(buf, "abs"))        { Func = funcAbs; }
+			else if(sstreqi_ascii(buf, "sqrt"))  { Func = funcSqrt; }
+			else if(sstreqi_ascii(buf, "sin"))   { Func = funcSin; }
+			else if(sstreqi_ascii(buf, "cos"))   { Func = funcCos; }
+			else if(sstreqi_ascii(buf, "tan"))   { Func = funcTan; }
+			else if(sstreqi_ascii(buf, "round")) { Func = funcRound; }
+			else if(sstreqi_ascii(buf, "roundup")) { Func = funcRoundUp; }
+			else if(sstreqi_ascii(buf, "rounddown")) { Func = funcRoundDown; }
+			else if(sstreqi_ascii(buf, "rounddn")) { Func = funcRoundDown; }
+			else if(sstreqi_ascii(buf, "oid"))   { Func = funcOid; }
+			else if(sstreqi_ascii(buf, "pow"))   { Func = funcPow; }
+			else if(sstreqi_ascii(buf, "min"))   { Func = funcMin; }
+			else if(sstreqi_ascii(buf, "minz"))  { Func = funcMinZ; }
+			else if(sstreqi_ascii(buf, "max"))   { Func = funcMax; }
+			else if(sstreqi_ascii(buf, "?"))     { Func = funcQuest; }
+			else if(sstreqi_ascii(buf, "eq"))    { Func = funcEq; }
+			else if(sstreqi_ascii(buf, "neq"))   { Func = funcNEq; }
+			else if(sstreqi_ascii(buf, "sieve")) {
 				Func = funcSieve;
 				THROW(GetSieve());
 			}

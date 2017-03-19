@@ -1,14 +1,15 @@
 // NANOHTTP.CPP
 //
+#include <slib.h>
 #ifdef HAVE_CONFIG_H
- #include <config.h>
+	#include <config.h>
 #endif
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-#include <ctype.h>
-#include <errno.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string.h>
+//#include <stdarg.h>
+//#include <ctype.h>
+//#include <errno.h>
 //#ifdef HAVE_PROCESS_H
 #include <process.h>
 //#endif

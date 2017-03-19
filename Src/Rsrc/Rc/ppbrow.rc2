@@ -926,13 +926,13 @@ toolbar export LIST_TAG TB_FIRST_TOOLBAR {
 }
 
 toolbar export LIST_ACCSHEET TB_FIRST_TOOLBAR {
-	cmaEdit,           "@{edit}\tEnter",     TBBM_EDIT
-	cmaInsert,         "@{add}\tInsert",         TBBM_INSERT
+	cmaEdit,           "@{edit}\tEnter",             TBBM_EDIT
+	cmaInsert,         "@{add}\tInsert",             TBBM_INSERT
 	cmaDelete,         "@{delete}\tDelete",          TBBM_DELETE
 	separator
-	cmaMore,           "Статьи",                   TBBM_NOICON
+	cmaMore,           "@{article_pl}",              TBBM_NOICON
 	separator
-	cmTransmit,        "@{dotransmit_short}",      TBBM_SENDOBJ
+	cmTransmit,        "@{dotransmit_short}",        TBBM_SENDOBJ
 	separator
 	cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J", TBBM_SYSJ
 }
@@ -6446,6 +6446,7 @@ cmd BuildLocalDL600       { "@{cmd_buildlocaldl600}"                       none 
 cmd SupplInterchange      { "@{cmd_supplinterchange}"                      none                   none cmSupplInterchange } // @v9.2.1
 cmd WorkbookInterchange   { "@{cmd_workbookinterchange}"                   none                   none cmWorkbookInterchange } // @v9.3.10
 cmd AlcReportCfg          { "@{cmd_alcreportcfg}"                          none                   none cmAlcReportCfg } // @v9.4.5
+cmd ProcessOsm            { "@{prcssrosm}"                                 none                   none cmProcessOsm }   // @v9.5.9
 //
 // -------------- Описания серверных задач
 //
@@ -6610,6 +6611,7 @@ view   LotExtCode              { "@{view_lotextcode}"} // @v8.8.2
 filter SupplInterchange        { "@{filter_supplinterchange}" } // @v9.2.1
 view   OprKind                 { "@{view_oprkind}" } // @v9.3.6
 filter GCT                     { "@{filter_gct}"   } // @v9.3.6
+filter PrcssrOsmParam          { "@{filter_prcssrosm}" } // @v9.5.9
 //
 // lastviewfilter ATTENTION: New view && filt befor this line!
 //

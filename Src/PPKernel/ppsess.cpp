@@ -1597,6 +1597,7 @@ void InitTest()
 	assert(sizeof(PPUhttStore) == sizeof(Reference2Tbl::Rec)); // @v7.6.1
 
 	assert(sizeof(PPGeoTrackingMode) == 8); // @v8.6.8
+	assert(sizeof(PPCycleFilt) == 4); // @v9.5.8
 	// @v9.0.11 {
 	//
 	// Гарантируем, что функции семейства PPSetError всегда возвращают 0

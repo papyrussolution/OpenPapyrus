@@ -1,5 +1,5 @@
 // PROJECT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -152,7 +152,7 @@ int SLAPI PPObjProject::EditConfig()
 				clearEvent(event);
 			}
 		}
-		int    setupCtrls()
+		void   setupCtrls()
 		{
 			long   flags = 0;
 			GetClusterData(CTL_PRJCFG_FLAGS, &flags);
@@ -161,7 +161,6 @@ int SLAPI PPObjProject::EditConfig()
 				Data.Cfg.RemindPrd.low = Data.Cfg.RemindPrd.upp = 0;
 				SetIntRangeInput(this, CTL_PRJCFG_REMINDPRD, &Data.Cfg.RemindPrd);
 			}
-			return 1;
 		}
 		Rec    Data;
 	};
@@ -299,28 +298,29 @@ int SLAPI PPObjProject::InitPacket(ProjectTbl::Rec * pRec, int kind, PPID parent
 
 int SLAPI PPObjProject::PutPacket(PPID * pID, ProjectTbl::Rec * pRec, int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
     PPID   acn_id = 0;
-	THROW(PPStartTransaction(&ta, use_ta));
-	if(pRec)
-		if(*pID) {
-			THROW(UpdateByID(P_Tbl, Obj, *pID, pRec, 0));
-			acn_id = PPACN_OBJUPD;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(pRec) {
+			if(*pID) {
+				THROW(UpdateByID(P_Tbl, Obj, *pID, pRec, 0));
+				acn_id = PPACN_OBJUPD;
+			}
+			else {
+				THROW(AddObjRecByID(P_Tbl, Obj, pID, pRec, 0));
+				acn_id = PPACN_OBJADD;
+			}
 		}
-		else {
-			THROW(AddObjRecByID(P_Tbl, Obj, pID, pRec, 0));
-			acn_id = PPACN_OBJADD;
+		else if(*pID) {
+			THROW(RemoveByID(P_Tbl, *pID, 0));
+			acn_id = PPACN_OBJRMV;
 		}
-	else if(*pID) {
-		THROW(RemoveByID(P_Tbl, *pID, 0));
-		acn_id = PPACN_OBJRMV;
+		DS.LogAction(acn_id, Obj, *pID, 0, 0);
+		THROW(tra.Commit());
 	}
-	DS.LogAction(acn_id, Obj, *pID, 0, 0);
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -879,22 +879,22 @@ int SLAPI PrjTaskCore::Update(PPID id, PrjTaskTbl::Rec * pRec, int use_ta)
 
 int SLAPI PrjTaskCore::UpdateStatus(PPID id, int newStatus, int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	PrjTaskTbl::Rec rec;
 	THROW(PrjTaskCore::IsValidStatus(newStatus));
-	THROW(PPStartTransaction(&ta, use_ta));
-	THROW(Search(id, &rec) > 0);
-	if(rec.Status != newStatus) {
-		rec.Status = newStatus;
-		THROW(Update(id, &rec, 0));
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		THROW(Search(id, &rec) > 0);
+		if(rec.Status != newStatus) {
+			rec.Status = newStatus;
+			THROW(Update(id, &rec, 0));
+		}
+		else
+			ok = -1;
+		THROW(tra.Commit());
 	}
-	else
-		ok = -1;
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -1176,10 +1176,10 @@ int VCalImportParamDlg::getDTS(Param * pData)
 // Static
 int SLAPI PPObjPrjTask::ImportFromVCal()
 {
-	int ok = -1, ta = 0, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	VCalImportParamDlg::Param param;
 	VCalImportParamDlg * p_dlg = new VCalImportParamDlg;
-
 	THROW(CheckDialogPtr(&p_dlg, 0));
 	p_dlg->setDTS(&param);
 	while(!valid_data && ExecView(p_dlg) == cmOK) {
@@ -1188,56 +1188,68 @@ int SLAPI PPObjPrjTask::ImportFromVCal()
 		else
 			PPError();
 	}
-	PPWait(1);
 	if(ok > 0) {
 		VCalendar vcal;
+		PPWait(1);
 		if(vcal.Open(param.FilePath, 0) > 0) {
 			VCalendar::Todo vcal_rec;
-			PPObjPrjTask    obj_todo;
-			PPObjPerson     obj_psn;
-			THROW(PPStartTransaction(&ta, 1));
-			while(vcal.GetTodo(&vcal_rec) > 0) {
-				if(vcal_rec.Descr.Len() > 0) {
-					PPID id = 0;
-					PrjTaskTbl::Rec todo_rec;
-					MEMSZERO(todo_rec);
-					THROW(obj_todo.InitPacket(&todo_rec, TODOKIND_TASK, 0, 0, 0, 0));
-					todo_rec.ClientID  = param.DefClientID;
-					todo_rec.CreatorID = param.DefCreatorID;
-					obj_psn.P_Tbl->SearchByName(vcal_rec.Owner, &todo_rec.EmployerID);
-					todo_rec.EmployerID = (todo_rec.EmployerID) ? todo_rec.EmployerID : param.DefEmployerID;
-					vcal_rec.Descr.CopyTo(todo_rec.Descr, sizeof(todo_rec.Descr));
+			PPObjPrjTask todo_obj;
+			PPObjPerson  psn_obj;
+			PersonTbl::Rec psn_rec;
+			const PPID cli_pk_id = PPPRK_CLIENT;
+			PPIDArray cli_kind_list;
+			cli_kind_list.add(cli_pk_id);
+			{
+				PPTransaction tra(1);
+				THROW(tra);
+				while(vcal.GetTodo(&vcal_rec) > 0) {
+					if(vcal_rec.Descr.Len() > 0) {
+						PPID   id = 0;
+						PrjTaskTbl::Rec todo_rec;
+						THROW(todo_obj.InitPacket(&todo_rec, TODOKIND_TASK, 0, 0, 0, 0));
+						psn_obj.P_Tbl->SearchByName(vcal_rec.Owner, &todo_rec.EmployerID);
+						todo_rec.EmployerID = (todo_rec.EmployerID) ? todo_rec.EmployerID : param.DefEmployerID;
+						vcal_rec.Descr.CopyTo(todo_rec.Descr, sizeof(todo_rec.Descr));
 
-					todo_rec.Dt          = vcal_rec.CreatedDtm.d;
-					todo_rec.Tm          = vcal_rec.CreatedDtm.t;
-					todo_rec.StartDt     = vcal_rec.StartDtm.d;
-					todo_rec.StartTm     = vcal_rec.StartDtm.t;
-					todo_rec.FinishDt    = vcal_rec.CompletedDtm.d;
-					todo_rec.FinishTm    = vcal_rec.CompletedDtm.t;
-					todo_rec.EstFinishDt = vcal_rec.DueDtm.d;
-					todo_rec.EstFinishTm = vcal_rec.DueDtm.t;
-					todo_rec.OpenCount   = (int32)vcal_rec.Sequence;
-					todo_rec.Priority    = vcal_rec.Priority;
-					if(vcal_rec.Status == VCalendar::stAccepted)
-						todo_rec.Status = TODOSTTS_NEW;
-					else if(vcal_rec.Status == VCalendar::stDeclined)
-						todo_rec.Status = TODOSTTS_REJECTED;
-					else if(vcal_rec.Status == VCalendar::stConfirmed)
-						todo_rec.Status = TODOSTTS_INPROGRESS;
-					else if(vcal_rec.Status == VCalendar::stNeedsAction)
-						todo_rec.Status = TODOSTTS_ONHOLD;
-					else if(vcal_rec.Status == VCalendar::stCompleted)
-						todo_rec.Status = TODOSTTS_COMPLETED;
-					THROW(obj_todo.PutPacket(&id, &todo_rec, 0));
+						todo_rec.Dt          = vcal_rec.CreatedDtm.d;
+						todo_rec.Tm          = vcal_rec.CreatedDtm.t;
+						todo_rec.StartDt     = vcal_rec.StartDtm.d;
+						todo_rec.StartTm     = vcal_rec.StartDtm.t;
+						todo_rec.FinishDt    = vcal_rec.CompletedDtm.d;
+						todo_rec.FinishTm    = vcal_rec.CompletedDtm.t;
+						todo_rec.EstFinishDt = vcal_rec.DueDtm.d;
+						todo_rec.EstFinishTm = vcal_rec.DueDtm.t;
+						todo_rec.OpenCount   = (int32)vcal_rec.Sequence;
+						todo_rec.Priority    = vcal_rec.Priority;
+						if(vcal_rec.Status == VCalendar::stAccepted)
+							todo_rec.Status = TODOSTTS_NEW;
+						else if(vcal_rec.Status == VCalendar::stDeclined)
+							todo_rec.Status = TODOSTTS_REJECTED;
+						else if(vcal_rec.Status == VCalendar::stConfirmed)
+							todo_rec.Status = TODOSTTS_INPROGRESS;
+						else if(vcal_rec.Status == VCalendar::stNeedsAction)
+							todo_rec.Status = TODOSTTS_ONHOLD;
+						else if(vcal_rec.Status == VCalendar::stCompleted)
+							todo_rec.Status = TODOSTTS_COMPLETED;
+						// @v9.5.9 {
+						if(vcal_rec.Contact.NotEmptyS()) {
+							if(psn_obj.SearchFirstByName(vcal_rec.Contact, &cli_kind_list, 0, &psn_rec) > 0) {
+								todo_rec.ClientID = psn_rec.ID;
+							}
+						}
+						SETIFZ(todo_rec.ClientID, param.DefClientID);
+						SETIFZ(todo_rec.CreatorID, param.DefCreatorID);
+						// } @v9.5.9 
+						THROW(todo_obj.PutPacket(&id, &todo_rec, 0));
+					}
 				}
+				THROW(tra.Commit());
 			}
-			THROW(PPCommitWork(&ta));
 		}
-	}
-	PPWait(0);
-	CATCH
 		PPWait(0);
-		ok = (PPRollbackWork(&ta), PPErrorZ());
+	}
+	CATCH
+		ok = PPErrorZ();
 	ENDCATCH
 	delete p_dlg;
 	return ok;
@@ -1386,14 +1398,15 @@ int SLAPI PPObjPrjTask::DetermineNewStatus(const PPProjectConfig * pCfg, const P
 
 int SLAPI PPObjPrjTask::Maintain()
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	long   look_count = 0, upd_count = 0;
 	PPProjectConfig prj_cfg;
 	if(PPObjProject::ReadConfig(&prj_cfg) > 0) {
-		LDATE  cur = getcurdate_();
+		const LDATE  cur = getcurdate_();
 		IterCounter cntr;
 		SString wait_msg;
-		THROW(PPStartTransaction(&ta, 1));
+		PPTransaction tra(1);
+		THROW(tra);
 		if((prj_cfg.NewTaskTerm || prj_cfg.RejTaskTerm) && CheckRights(PPR_MOD)) {
 			PPLoadText(PPTXT_WAIT_CHNGTODOSTATUS, wait_msg);
 			BExtQuery q(P_Tbl, 0);
@@ -1441,12 +1454,9 @@ int SLAPI PPObjPrjTask::Maintain()
 			}
 		}
 		DS.LogAction(PPACN_MAINTAINPRJTASK, Obj, 0, upd_count, 0);
-		THROW(PPCommitWork(&ta));
+		THROW(tra.Commit());
 	}
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -1493,31 +1503,31 @@ int SLAPI PPObjPrjTask::InitPacket(PrjTaskTbl::Rec * pRec, int kind, PPID prjID,
 
 int SLAPI PPObjPrjTask::PutPacket(PPID * pID, PrjTaskTbl::Rec * pRec, int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	PPID   acn_id = 0;
-	THROW(PPStartTransaction(&ta, use_ta));
-	if(*pID) {
-		if(pRec) {
-			int    acn_viewed = BIN(pRec->Flags & TODOF_ACTIONVIEWED);
-			pRec->Flags &= ~TODOF_ACTIONVIEWED;
-			THROW(P_Tbl->Update(*pID, pRec, 0));
-			acn_id = acn_viewed ? PPACN_OBJVIEWED : PPACN_OBJUPD;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(*pID) {
+			if(pRec) {
+				const int acn_viewed = BIN(pRec->Flags & TODOF_ACTIONVIEWED);
+				pRec->Flags &= ~TODOF_ACTIONVIEWED;
+				THROW(P_Tbl->Update(*pID, pRec, 0));
+				acn_id = acn_viewed ? PPACN_OBJVIEWED : PPACN_OBJUPD;
+			}
+			else {
+				THROW(P_Tbl->Remove(*pID, 0));
+				acn_id = PPACN_OBJRMV;
+			}
 		}
-		else {
-			THROW(P_Tbl->Remove(*pID, 0));
-			acn_id = PPACN_OBJRMV;
+		else if(pRec) {
+			THROW(P_Tbl->Add(pID, pRec, 0));
+			acn_id = PPACN_OBJADD;
 		}
+		DS.LogAction(acn_id, Obj, *pID, 0, 0);
+		THROW(tra.Commit());
 	}
-	else if(pRec) {
-		THROW(P_Tbl->Add(pID, pRec, 0));
-		acn_id = PPACN_OBJADD;
-	}
-	DS.LogAction(acn_id, Obj, *pID, 0, 0);
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -1535,14 +1545,13 @@ int SLAPI PPObjPrjTask::SubstDescr(PrjTaskTbl::Rec * pPack)
 	PPObjPerson * p_psn_obj = 0;
 	PersonTbl::Rec psn_rec;
 	PPSymbTranslator st;
-	for(char * p = pPack->Descr; *p;)
+	for(char * p = pPack->Descr; *p;) {
 		if(*p == '@') {
 			uint   next = 1;
 			long   sym  = st.Translate(p, &next);
 			switch(sym) {
 				case PPSYM_CLIENT:
-					if(!p_psn_obj)
-						THROW_MEM(p_psn_obj = new PPObjPerson);
+					THROW_MEM(SETIFZ(p_psn_obj, new PPObjPerson));
 					if(p_psn_obj->Search(pPack->ClientID, &psn_rec) > 0)
 						strnzcpy(b, psn_rec.Name, sizeof(buf)-len);
 					else
@@ -1550,8 +1559,7 @@ int SLAPI PPObjPrjTask::SubstDescr(PrjTaskTbl::Rec * pPack)
 					break;
 				case PPSYM_CLIENTADDR:
 					if(pPack->ClientID) {
-						if(!p_psn_obj)
-							THROW_MEM(p_psn_obj = new PPObjPerson);
+						THROW_MEM(SETIFZ(p_psn_obj, new PPObjPerson));
 						if(pPack->DlvrAddrID) {
 							// @v9.5.5 p_psn_obj->LocObj.P_Tbl->GetAddress(pPack->DlvrAddrID, 0, temp_buf);
 							p_psn_obj->LocObj.GetAddress(pPack->DlvrAddrID, 0, temp_buf); // @v9.5.5
@@ -1575,6 +1583,7 @@ int SLAPI PPObjPrjTask::SubstDescr(PrjTaskTbl::Rec * pPack)
 			*b++ = *p++;
 			len++;
 		}
+	}
 	*b = 0;
 	STRNSCPY(pPack->Descr, buf);
 	CATCHZOK
@@ -1602,43 +1611,42 @@ int SLAPI PPObjPrjTask::InitPacketByTemplate(const PrjTaskTbl::Rec * pTemplRec, 
 
 int SLAPI PPObjPrjTask::CreateByTemplate(PPID templID, const DateRange * pPeriod, PPIDArray * pIdList, int use_ta)
 {
-	int    ok = -1, ta = 0;
+	int    ok = -1;
 	PrjTaskTbl::Rec templ_rec;
-	THROW(PPStartTransaction(&ta, use_ta));
-	if(Search(templID, &templ_rec) > 0 && templ_rec.Kind == TODOKIND_TEMPLATE &&
-		templ_rec.Status != TODOSTTS_REJECTED && templ_rec.DrPrd && templ_rec.DrPrd != PRD_REPEATAFTERPRD) {
-		DateRange period;
-		if(pPeriod) {
-			period = *pPeriod;
-			SETIFZ(period.upp, getcurdate_());
-		}
-		else {
-			period.low = ZERODATE;
-			period.upp = getcurdate_();
-		}
-		DateRepeating rept = *(DateRepeating *)&templ_rec.DrPrd;
-		DateRepIterator dr_iter(rept, templ_rec.Dt, period.upp);
-		for(LDATE dt = dr_iter.Next(); dt; dt = dr_iter.Next()) {
-			if(period.CheckDate(dt)) {
-				int    r = P_Tbl->SearchByTemplate(templID, dt, 0);
-				PPID   id = 0;
-				THROW(r);
-				if(r < 0) {
-					PrjTaskTbl::Rec rec;
-					THROW(InitPacketByTemplate(&templ_rec, dt, &rec, 0));
-					THROW(PutPacket(&id, &rec, 0));
-					if(pIdList)
-						pIdList->add(id);
-					ok = 1;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(Search(templID, &templ_rec) > 0 && templ_rec.Kind == TODOKIND_TEMPLATE &&
+			templ_rec.Status != TODOSTTS_REJECTED && templ_rec.DrPrd && templ_rec.DrPrd != PRD_REPEATAFTERPRD) {
+			DateRange period;
+			if(pPeriod) {
+				period = *pPeriod;
+				SETIFZ(period.upp, getcurdate_());
+			}
+			else {
+				period.low = ZERODATE;
+				period.upp = getcurdate_();
+			}
+			const DateRepeating rept = *(DateRepeating *)&templ_rec.DrPrd;
+			DateRepIterator dr_iter(rept, templ_rec.Dt, period.upp);
+			for(LDATE dt = dr_iter.Next(); dt; dt = dr_iter.Next()) {
+				if(period.CheckDate(dt)) {
+					const int r = P_Tbl->SearchByTemplate(templID, dt, 0);
+					PPID   id = 0;
+					THROW(r);
+					if(r < 0) {
+						PrjTaskTbl::Rec rec;
+						THROW(InitPacketByTemplate(&templ_rec, dt, &rec, 0));
+						THROW(PutPacket(&id, &rec, 0));
+						CALLPTRMEMB(pIdList, add(id));
+						ok = 1;
+					}
 				}
 			}
 		}
+		THROW(tra.Commit());
 	}
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 //
@@ -2142,15 +2150,15 @@ IMPL_HANDLE_EVENT(RestoreLostPrjTPersonDlg)
 {
 	PPListDialog::handleEvent(event);
 	if(TVCOMMAND) {
-		if(TVCMD == cmViewTasksByCreator || TVCMD == cmViewTasksByEmployer || TVCMD == cmViewTasksByClient)
+		if(oneof3(TVCMD, cmViewTasksByCreator, cmViewTasksByEmployer, cmViewTasksByClient))
 			ViewTasks(TVCMD, GetCurItem());
-		else if(TVCMD == cmResolveCreator || TVCMD == cmResolveEmployer || TVCMD == cmResolveClient) {
+		else if(oneof3(TVCMD, cmResolveCreator, cmResolveEmployer, cmResolveClient)) {
 			LostPrjTPersonItem * p_item = GetCurItem();
 			if(p_item) {
 				PPID psn_id = 0;
-				int creator  = BIN(TVCMD == cmResolveCreator);
-				int employer = BIN(TVCMD == cmResolveEmployer);
-				int client   = BIN(TVCMD == cmResolveClient);
+				const int creator  = BIN(TVCMD == cmResolveCreator);
+				const int employer = BIN(TVCMD == cmResolveEmployer);
+				const int client   = BIN(TVCMD == cmResolveClient);
 				if(ListBoxSelDialog(PPOBJ_PERSON, &psn_id, (void *)((creator || employer) ? PPPRK_EMPL : PPPRK_CLIENT)) > 0) {
 					if(creator)
 						p_item->ResolveCreatorID = psn_id;
@@ -2201,7 +2209,7 @@ LostPrjTPersonItem * RestoreLostPrjTPersonDlg::GetCurItem()
 
 int RestoreLostPrjTPersonDlg::GetText(PPID id, SString & rWord, SString & rBuf, int cat)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(cat) {
 		SString buf, msg, word_notf;
 		word_notf.CopyFrom("[ID=%ld] не найден; ").ToOem();
@@ -2216,22 +2224,23 @@ int RestoreLostPrjTPersonDlg::GetText(PPID id, SString & rWord, SString & rBuf, 
 // virtual
 int RestoreLostPrjTPersonDlg::setupList()
 {
-	int ok = 1;
+	int    ok = 1;
+	SString temp_buf;
 	SString creator_word, employer_word, client_word;
 	PPGetWord(PPWORD_CREATOR,  0, creator_word);
 	PPGetWord(PPWORD_EMPLOYER, 0, employer_word);
 	PPLoadString("client", client_word);
 	for(uint i = 0; i < Data.getCount(); i++) {
 		LostPrjTPersonItem * p_item = &Data.at(i);
-		int resolve_creator  = (p_item->CreatorID  && !p_item->ResolveCreatorID)  ? 1 : 0;
-		int resolve_employer = (p_item->EmployerID && !p_item->ResolveEmployerID) ? 1 : 0;
-		int resolve_client   = (p_item->ClientID   && !p_item->ResolveClientID)   ? 1 : 0;
+		const int resolve_creator  = BIN(p_item->CreatorID  && !p_item->ResolveCreatorID);
+		const int resolve_employer = BIN(p_item->EmployerID && !p_item->ResolveEmployerID);
+		const int resolve_client   = BIN(p_item->ClientID   && !p_item->ResolveClientID);
 		if(resolve_creator || resolve_employer || resolve_client) {
-			SString buf;
-			GetText(p_item->CreatorID,  creator_word,  buf,  resolve_creator);
-			GetText(p_item->EmployerID, employer_word, buf, resolve_employer);
-			GetText(p_item->ClientID,   client_word,   buf, resolve_client);
-			THROW(addStringToList(i, (const char*)buf));
+			temp_buf = 0;
+			GetText(p_item->CreatorID,  creator_word,  temp_buf, resolve_creator);
+			GetText(p_item->EmployerID, employer_word, temp_buf, resolve_employer);
+			GetText(p_item->ClientID,   client_word,   temp_buf, resolve_client);
+			THROW(addStringToList(i, temp_buf));
 		}
 	}
 	CATCHZOKPPERR
@@ -2302,8 +2311,7 @@ int RestoreLostPrjTPersonDlg::setDTS(const LostPrjTPersonArray * pData)
 
 int RestoreLostPrjTPersonDlg::getDTS(LostPrjTPersonArray * pData)
 {
-	if(pData)
-		pData->copy(Data);
+	CALLPTRMEMB(pData, copy(Data));
 	return 1;
 }
 
@@ -2349,7 +2357,7 @@ int SLAPI PPObjPrjTask::ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int
 // static
 int SLAPI PPObjPrjTask::RecoverAbsencePerson()
 {
-	int ok = 1, ta = 0;
+	int    ok = 1;
 	LostPrjTPersonArray list;
 	PrjTaskTbl::Key0 k0;
 	PPObjPrjTask obj_prjt;
@@ -2385,18 +2393,20 @@ int SLAPI PPObjPrjTask::RecoverAbsencePerson()
 		if(ExecView(p_dlg) == cmOK) {
 			p_dlg->getDTS(&list);
 			PPWait(1);
-			THROW(PPStartTransaction(&ta, 1));
-			for(uint i = 0; i < list.getCount(); i++) {
-		  		THROW(obj_prjt.ResolveAbsencePersonHelper_(list.at(i).ResolveCreatorID,  list.at(i).CreatorID,  TODOPSN_CREATOR));
-				THROW(obj_prjt.ResolveAbsencePersonHelper_(list.at(i).ResolveEmployerID, list.at(i).EmployerID, TODOPSN_EMPLOYER));
-				THROW(obj_prjt.ResolveAbsencePersonHelper_(list.at(i).ResolveClientID,   list.at(i).ClientID,   TODOPSN_CLIENT));
-				PPWaitPercent(i + 1, list.getCount());
+			{
+				PPTransaction tra(1);
+				THROW(tra);
+				for(uint i = 0; i < list.getCount(); i++) {
+		  			THROW(obj_prjt.ResolveAbsencePersonHelper_(list.at(i).ResolveCreatorID,  list.at(i).CreatorID,  TODOPSN_CREATOR));
+					THROW(obj_prjt.ResolveAbsencePersonHelper_(list.at(i).ResolveEmployerID, list.at(i).EmployerID, TODOPSN_EMPLOYER));
+					THROW(obj_prjt.ResolveAbsencePersonHelper_(list.at(i).ResolveClientID,   list.at(i).ClientID,   TODOPSN_CLIENT));
+					PPWaitPercent(i + 1, list.getCount());
+				}
+				THROW(tra.Commit());
 			}
-			THROW(PPCommitWork(&ta));
 		}
 	}
 	CATCH
-		PPRollbackWork(&ta);
 		ok = PPErrorZ();
 	ENDCATCH
 	delete p_dlg;

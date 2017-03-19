@@ -394,13 +394,9 @@ int SLAPI PPViewPaymPlan::NextIteration(PaymPlanViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewPaymPlan::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
+void SLAPI PPViewPaymPlan::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 {
-	if(Filt.Cycl.Cycle)
-		CycleList.formatCycle(dt, pBuf, bufLen);
-	else
-		ASSIGN_PTR(pBuf, 0);
-	return 1;
+	Helper_FormatCycle(Filt.Cycl, CycleList, dt, pBuf, bufLen);
 }
 
 int SLAPI PPViewPaymPlan::GetTabTitle(long tabID, SString & rBuf) const

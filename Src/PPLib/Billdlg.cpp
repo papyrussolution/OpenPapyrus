@@ -5,7 +5,7 @@
 #include <pp.h>
 #pragma hdrstop
 #include <process.h>
-#include <stdio.h>
+//#include <stdio.h>
 #include <shlwapi.h>
 #include <comdisp.h>
 
@@ -179,8 +179,8 @@ int SLAPI BillExtraDialog(PPBillExt * pData, ObjTagList * pTagList, int asFilt)
 	BillExtDialog * dlg = new BillExtDialog(dlg_id, pTagList);
 	if(CheckDialogPtr(&dlg, 1)) {
 		ushort v;
-		SetupArCombo(dlg, CTLSEL_BILLEXT_PAYER, pData->PayerID, OLW_CANINSERT|OLW_LOADDEFONOPEN, payer_acs_id, sacfDisableIfZeroSheet);
-		SetupArCombo(dlg, CTLSEL_BILLEXT_AGENT, pData->AgentID, OLW_CANINSERT|OLW_LOADDEFONOPEN, agent_acs_id, sacfDisableIfZeroSheet);
+		SetupArCombo(dlg, CTLSEL_BILLEXT_PAYER, pData->PayerID, OLW_CANINSERT|OLW_LOADDEFONOPEN, payer_acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
+		SetupArCombo(dlg, CTLSEL_BILLEXT_AGENT, pData->AgentID, OLW_CANINSERT|OLW_LOADDEFONOPEN, agent_acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
 		if(asFilt == 0) {
 			SetupPPObjCombo(dlg, CTLSEL_BILLEXT_EXTPQUOT, PPOBJ_QUOTKIND, pData->ExtPriceQuotKindID, 0);
 			dlg->SetupCalDate(CTLCAL_BILLEXT_INVCDATE, CTL_BILLEXT_INVCDATE);
@@ -1631,7 +1631,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 											P_Pack->Rec.Object = bill_rec.Object;
 											// Приходится использовать SetupArCombo поскольку из-за OLW_LOADDEFONOPEN
 											// setCtrlLong не установит значение.
-											SetupArCombo(this, CTLSEL_BILL_OBJECT, P_Pack->Rec.Object, OLW_LOADDEFONOPEN|OLW_CANINSERT, P_Pack->AccSheetID);
+											SetupArCombo(this, CTLSEL_BILL_OBJECT, P_Pack->Rec.Object, OLW_LOADDEFONOPEN|OLW_CANINSERT, P_Pack->AccSheetID, sacfNonGeneric);
 											ReplyCntragntSelection(1);
 										}
 										const double amt = getCtrlReal(CTL_BILL_AMOUNT);
@@ -2283,16 +2283,14 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 		disableCtrl(CTLSEL_BILL_LOCATION, 1);
 	}
 	if(P_Pack->AccSheetID) {
-		// @v7.1.6 {
 		if(P_Pack->Rec.Flags & BILLF_GEXPEND || oneof2(P_Pack->OpTypeID, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER))
 			Flags |= fCheckCreditLim;
 		if((op_pack.Rec.OpTypeID == PPOPT_GOODSRETURN && IsExpendOp(P_Pack->Rec.OpID) == 0) ||
 			(op_pack.Rec.OpTypeID == PPOPT_GOODSRECEIPT && op_pack.Rec.ExtFlags & OPKFX_UNLINKRET)) {
 			Flags |= fCheckRetLim;
 		}
-		// } @v7.1.6
-		SetupArCombo(this, CTLSEL_BILL_OBJECT, P_Pack->Rec.Object,  OLW_LOADDEFONOPEN|OLW_CANINSERT, P_Pack->AccSheetID);
-		SetupArCombo(this, CTLSEL_BILL_PAYER,  P_Pack->Ext.PayerID, OLW_LOADDEFONOPEN|OLW_CANINSERT, P_Pack->AccSheetID);
+		SetupArCombo(this, CTLSEL_BILL_OBJECT, P_Pack->Rec.Object,  OLW_LOADDEFONOPEN|OLW_CANINSERT, P_Pack->AccSheetID, sacfNonGeneric);
+		SetupArCombo(this, CTLSEL_BILL_PAYER,  P_Pack->Ext.PayerID, OLW_LOADDEFONOPEN|OLW_CANINSERT, P_Pack->AccSheetID, sacfNonGeneric);
 		if(P_Pack->Rec.LinkBillID || (P_Pack->Rec.ID && !P_BObj->CheckRights(BILLOPRT_MODOBJ, 1)))
 			dsbl_object = 1;
 	}
@@ -2302,7 +2300,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	if(op_pack.Rec.AccSheet2ID) {
 		PPClientAgreement ca_rec;
 		SETFLAG(Flags, fSetupObj2ByCliAgt, ArObj.GetClientAgreement(0, &ca_rec) > 0 && ca_rec.ExtObjectID == op_pack.Rec.AccSheet2ID);
-		SetupArCombo(this, CTLSEL_BILL_OBJ2, P_Pack->Rec.Object2, /*OLW_LOADDEFONOPEN|*/OLW_CANINSERT, op_pack.Rec.AccSheet2ID);
+		SetupArCombo(this, CTLSEL_BILL_OBJ2, P_Pack->Rec.Object2, /*OLW_LOADDEFONOPEN|*/OLW_CANINSERT, op_pack.Rec.AccSheet2ID, sacfNonGeneric);
 		op_pack.GetExtStrData(OPKEXSTR_OBJ2NAME, temp_buf);
 		setStaticText(CTL_BILL_OBJ2NAME, temp_buf);
 	}
@@ -3530,8 +3528,8 @@ int SLAPI PPObjBill::EditBillExtData(PPID billID)
 			dlg->setCtrlData(CTL_BILLEXT_PAYDATE, &last_pay_date);
 		else
 			dlg->disableCtrls(1, CTL_BILLEXT_PAYDATE, CTLCAL_BILLEXT_PAYDATE, 0);
-		SetupArCombo(dlg, CTLSEL_BILLEXT_PAYER, ext_data.PayerID, OLW_CANINSERT|OLW_LOADDEFONOPEN, payer_acs_id, sacfDisableIfZeroSheet);
-		SetupArCombo(dlg, CTLSEL_BILLEXT_AGENT, ext_data.AgentID, OLW_CANINSERT|OLW_LOADDEFONOPEN, agent_acs_id, sacfDisableIfZeroSheet);
+		SetupArCombo(dlg, CTLSEL_BILLEXT_PAYER, ext_data.PayerID, OLW_CANINSERT|OLW_LOADDEFONOPEN, payer_acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
+		SetupArCombo(dlg, CTLSEL_BILLEXT_AGENT, ext_data.AgentID, OLW_CANINSERT|OLW_LOADDEFONOPEN, agent_acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
 		SetupPPObjCombo(dlg, CTLSEL_BILLEXT_EXTPQUOT, PPOBJ_QUOTKIND, ext_data.ExtPriceQuotKindID, 0);
 		dlg->SetupCalDate(CTLCAL_BILLEXT_INVCDATE, CTL_BILLEXT_INVCDATE);
 		dlg->setCtrlData(CTL_BILLEXT_INVCCODE, ext_data.InvoiceCode);
@@ -3726,7 +3724,7 @@ public:
 		CanEdit = _canEdit;
 		SetupPPObjCombo(this, CTLSEL_LOTINFO_LOC, PPOBJ_LOCATION, 0, 0);
 		if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1))
-			SetupArCombo(this, CTLSEL_LOTINFO_SUPPL, pRec->SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);
+			SetupArCombo(this, CTLSEL_LOTINFO_SUPPL, pRec->SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet|sacfNonGeneric);
 		SetupPPObjCombo(this, CTLSEL_LOTINFO_INTAXGRP, PPOBJ_GOODSTAX, 0, 0);
 		addGroup(GRP_QCERT, new QCertCtrlGroup(CTL_LOTINFO_QCERT));
 		Chain.add(pRec->ID);

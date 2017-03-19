@@ -1501,6 +1501,14 @@ int SLAPI PPView::Detail(const void *, PPViewBrowser * pBrw)
 int SLAPI PPView::ViewTotal()
 	{ return -1; }
 
+void SLAPI PPView::Helper_FormatCycle(const PPCycleFilt & rCf, const PPCycleArray & rCa, LDATE dt, char * pBuf, size_t bufLen)
+{
+	if(rCf.Cycle)
+		rCa.formatCycle(dt, pBuf, bufLen);
+	else
+		ASSIGN_PTR(pBuf, 0);
+}
+
 int SLAPI PPView::Print(const void *)
 {
 	return DefReportId ? Helper_Print(DefReportId, 0) : -1;

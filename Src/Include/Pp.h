@@ -292,6 +292,7 @@ class  SCardTransmitPacket;
 class  PPWorkbookExporter;
 class  PPEgaisProcessor;
 struct AddrItemDescr;
+class  GoodsRestFilt;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -1259,6 +1260,10 @@ public:
 	int    SLAPI InitUserProfile(const char * pUserName);
 	int    SLAPI SetUserProfileFactor(uint handle, uint factorN, double value);
 	double SLAPI GetUserProfileFactor(uint handle, uint factorN) const;
+	//
+	// Descr: Возвращает идентификатор функции профилирования, с которой ассоциирован хандлер handle.
+	//
+	int    FASTCALL GetUserProfileFuncID(uint handle) const;
 	uint   FASTCALL StartUserProfileFunc(int funcId);
 	int    FASTCALL FinishUserProfileFunc(uint handle);
 	int    SLAPI FlashUserProfileAccumEntries();
@@ -1358,6 +1363,7 @@ public:
 	// Descr: Завершает процесс профилирования установленной до этого функции.
 	//
 	int    SLAPI Commit();
+	int    SLAPI CommitAndRestart();
 	int    SLAPI SetFactor(uint factorN, double value);
 	double SLAPI GetFactor(uint factorN) const;
 private:
@@ -11115,10 +11121,11 @@ class GoodsRestParam : public TSArray <GoodsRestVal> {
 public:
 	SLAPI  GoodsRestParam();
 	GoodsRestParam & FASTCALL operator = (const GoodsRestParam &);
-	int    SLAPI InitVal();
-	PPID   DiffByTag() const
+	void   SLAPI Init();
+	void   SLAPI InitVal();
+	void   SLAPI Set(const GoodsRestFilt & rF);
+	PPID   SLAPI DiffByTag() const
 	{
-		// @v8.1.0 return (Flags & fDiffByLotTag && DiffLotTagID) ? DiffLotTagID : 0;
 		return (DiffParam == _diffLotTag && DiffLotTagID) ? DiffLotTagID : 0;
 	}
 	int    FASTCALL CanMerge(const GoodsRestVal *, const GoodsRestVal *) const;
@@ -11136,15 +11143,11 @@ public:
 		pcmMostRecent = 5  // По самому последнему лоту (не смотря на остаток)
 	};
 	enum { // flags (Опции)
-		//diffByPack            = 0x00000008, // Разбивать по лотам с различными упаковками
-		//diffByCost            = 0x00000010, // Разбивать по учетным ценам поступления //
-		//diffByPrice           = 0x00000020, // Разбивать по учетным ценам реализации
-		//fDiffBySerial         = 0x00000040, // Разбивать по серийным номерам
-		fPriceByQuot          = 0x00000080, // Цены по котировкам
-		//diffByLoc             = 0x00002000, // eq GoodsRestFilt::fEachLocation
-		fCWoVat		          = 0x00004000, // Цены поступления без НДС
-		//fDiffByLotTag         = 0x00008000, // @v7.2.8 Дифференцировать по значениям тега лотов DiffLotTagID
-		fZeroAgent            = 0x00010000  // @v7.5.11 Только с нулевым агентом поставщика
+		fLabelOnly    = 0x00000040, // Только лоты, созданные помеченными документами
+		fPriceByQuot  = 0x00000080, // Цены по котировке
+		fCostByQuot   = 0x00000100, // @v9.5.8 Цены поступления по котировке
+		fCWoVat		  = 0x00004000, // Цены поступления без НДС
+		fZeroAgent    = 0x00010000  // @v7.5.11 Только с нулевым агентом поставщика
 	};
 	enum {
 		_diffNone   = 0,
@@ -11157,7 +11160,7 @@ public:
 		_diffLotID  = 0x0040
 	};
 	uint   CalcMethod;
-	uint   Flags;
+	uint   Flags_;
 	uint32 DiffParam;      // @v8.1.0 Флаги дифференциации записей (GoodsRestParam::_diffXXX)
 	LDATE  Date;
 	long   OprNo;          // @v7.6.2 Если Dt != 0 и OprNo > 0, то остаток по лотам брать до {Date, OprNo}
@@ -12634,7 +12637,7 @@ public:
 	//   callback-процедуре proc.
 	//
 	int    SLAPI Enumerate(PPID goodsID, const ObjIdListFilt & rLocList, const DateRange * pPeriod, int maxItems, EnumPredictSalesProc proc, long extraParam);
-	int    SLAPI GetLocList(PPIDArray *) const;
+	void   FASTCALL GetLocList(PPIDArray & rList) const;
 	//
 	// Descr: Удаляет все записи по складу locID и товару goodsID за период pPeriod.
 	//   Если locID < 0, то удаляются записи по всем складам, зарегистрированным в таблице P_LocTab.
@@ -12713,7 +12716,7 @@ private:
 	int    SLAPI SearchStat(PPID goodsID, const ObjIdListFilt & rLocList, GoodsStatTbl::Rec * pRec);
 	int    SLAPI Helper_Enumerate(PPID goodsID, PPID locID, const DateRange * pPeriod, int maxItems, EnumPredictSalesProc proc, long extraData);
 
-	SArray * P_LocTab;
+	TSArray <LocTabEntry> LocTab;
 	int    IsLocTabUpdated;
 	//
 	// Descr: Таблица P_HldTab содержит записи выходных дней по каждому складу.
@@ -14071,6 +14074,7 @@ protected:
 	//
 	int    SLAPI UpdateTimeBrowser(const STimeChunkGrid * pGrid, const char * pTitle, int destroy);
 	int    SLAPI GetLastUpdatedObjects(long extId, LongArray & rList) const;
+	void   SLAPI Helper_FormatCycle(const PPCycleFilt & rCf, const PPCycleArray & rCa, LDATE dt, char * pBuf, size_t bufLen);
 
 	IterCounter Counter;
 	BExtQuery * P_IterQuery;
@@ -18227,8 +18231,8 @@ struct SlipLineParam {
 	TRect  PictCoord;     // Координаты изображения
 	SString FontName;     // Наименование гарнитуры шрифта (для обычного принтера)
 	SString PictPath;     // Путь к файлу изображения
-	SString Text;         // @v9.5.7 
-	SString Code;         // @v9.5.7  
+	SString Text;         // @v9.5.7
+	SString Code;         // @v9.5.7
 };
 
 struct SlipDocCommonParam {
@@ -18305,9 +18309,9 @@ public:
 	//   обновляет счетчики ККМ. Если pPack == 0, то выводится пустой чек.
 	//
 	virtual int SLAPI PrintCheck(CCheckPacket * pPack, uint flags) { return -1; }
-	virtual int SLAPI PrintCheckByBill(const PPBillPacket *, double multiplier, int departN) 
-	{ 
-		return -1; 
+	virtual int SLAPI PrintCheckByBill(const PPBillPacket *, double multiplier, int departN)
+	{
+		return -1;
 	}
 	virtual int SLAPI PrintCheckCopy(CCheckPacket * pPack, const char * pFormatName, uint flags) { return -1; }
 	virtual int SLAPI PrintSlipDoc(CCheckPacket * pPack, const char * pFormatName, uint flags) { return -1; }
@@ -24221,7 +24225,8 @@ public:
 		fShowAddedLimit  = 0x0004, // @v8.2.4 Показывать дополнительный кредитный лимит, рассчитанный для специального периода
 			// Опция действует только если fShowAgreement и в конфигурации рейтингов дебиторов установлены значения //
 			// периода расчета кредитного лимита и периода дополнетельного кредитного лимита
-		fWithIxParamOnly = 0x0008  // @v9.2.1 Только статьи с не пустыми параметрами обмена в соглашении
+		fWithIxParamOnly = 0x0008, // @v9.2.1 Только статьи с не пустыми параметрами обмена в соглашении
+		fNonGenericOnly  = 0x0010  // @v9.5.9 Исключить группирующие статьи
 	};
 	char   ReserveStart[28]; // @anchor
 	int32  LimitAddedTerm; // @v8.2.4 Период в днях для отображения дополнительного кредитного лимита
@@ -25835,7 +25840,7 @@ public:
 	int    SLAPI AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID, LDATE lotDate,
 		double qtty, double * pCost /* In, Out */, int withOrWithout, int vatFreeSuppl = -1);
 	int    SLAPI CalcCostVat(PPID lotTaxGrpID, PPID goodsTaxGrpID, LDATE lotDate,
-		double qtty, double cost, double * pVatSum, int withOrWithout, int vatFreeSuppl = -1);
+		double qtty, double cost, double * pVatSum, int withOrWithout, int vatFreeSuppl = -1, int roundPrec = 2);
 	int    SLAPI AdjPriceToTaxes(PPID taxGrpID, double taxFactor, double * pPrice, int exclSTax);
 	//
 	// Descr: определяет является ли товар id1 совместимым с товаром id2 по единицам измерения.
@@ -25973,7 +25978,7 @@ private:
 	int    SLAPI Helper_ImportHier(PPIniFile *, DbfTable *, PPID defUnitID, HierArray * pHierList);
 		// @<<PPObjGoods::Import
 	int    SLAPI Helper_AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID, LDATE lotDate,
-		double qtty, double * pCost /* In, Out */, double * pVatSum, int withOrWithout, int vatFreeSuppl);
+		double qtty, double * pCost /* In, Out */, double * pVatSum, int withOrWithout, int vatFreeSuppl, int roundPrec);
 	int    SLAPI Unite(PPID destID, PPID srcID); // @<<PPObjGoods::HandleMsg
 	int    SLAPI Helper_EditGoodsStruc(PPID goodsID, int isDynGen); // @<<PPObjGoods::EditGoodsStruc
 	int    SLAPI AddDefaultBarcode(PPGoodsPacket * pPack);
@@ -34607,7 +34612,7 @@ public:
 	int    SLAPI EditItem(PPID billID);
 	int    SLAPI DeleteItem(PPID billID);
 	int    SLAPI CalcTotal(AccturnTotal *);
-	int    SLAPI FormatCycle(LDATE dt, char * pBuf, size_t bufLen);
+	void   SLAPI FormatCycle(LDATE dt, char * pBuf, size_t bufLen);
 	int    SLAPI ConvertGenAccturnToExtAccBill();
 private:
 	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
@@ -35362,7 +35367,7 @@ int SLAPI GetEstimatedSales(const ObjIdListFilt * pLocList, PPID goodsID, const 
 //
 struct PredictSalesFilt : public PPBaseFilt {
 	SLAPI  PredictSalesFilt();
-	int    SLAPI SetGoodsList(const PPIDArray *, const char * pSubstName);
+	void   SLAPI SetGoodsList(const PPIDArray *, const char * pSubstName);
 	enum {
 		fShowNoData = 0x0001 // Показывать дни, в которых не было остатка
 	};
@@ -35423,7 +35428,7 @@ public:
 	int    SLAPI InitIteration(int aOrder = 0);
 	int    SLAPI NextIteration(PredictSalesViewItem *);
 	int    SLAPI CalcTotal(PredictSalesTotal *);
-	int    SLAPI FormatCycle(LDATE dt, char * pBuf, size_t bufLen) const;
+	void   SLAPI FormatCycle(LDATE dt, char * pBuf, size_t bufLen) const;
 private:
 	struct TestParam {
 		enum {
@@ -35609,44 +35614,73 @@ public:
 	};
 	int    SLAPI IsEqualExcept(const GoodsRestFilt & rS, long flags) const;
 	virtual int SLAPI Describe(long flags, SString & rBuf) const;
+	//
+	// Descr: Устанавливает признак использования котировки QuotKindID.
+	// ARG(v IN):
+	//   0 - не использовать (!(Flags & fPriceByQuot) && !(Flags2 & f2CostByQuot))
+	//   1 - использовать как дополнение к цене реализации (Flags & fPriceByQuot)
+	//   2 - использовать в качестве замещения цены поступления (!(Flags & fPriceByQuot) && (Flags2 & f2CostByQuot))
+	//   все остальные значения трактуются как ошибочные и не изменяют состояния фильтра.
+	// Returns:
+	//   >0 - состояние трактовки котировок установлено
+	//   <0 - состояние трактовки котировок не изменилось
+	//   0 -  ошибочный параметр (состояние трактовки котировок не изменилось)
+	//
+	int    SLAPI SetQuotUsage(int v);
+	//
+	// Descr: Возвращает статус трактовки котировки QuotKindID
+	// Returns:
+	//   0 - котировка не используется (!(Flags & fPriceByQuot) && !(Flags2 & f2CostByQuot))
+	//   1 - котировка используется как дополнение к цене реализации (Flags & fPriceByQuot)
+	//   2 - котировка используется в качестве замещения цены поступления (!(Flags & fPriceByQuot) && (Flags2 & f2CostByQuot))
+	//
+	int    SLAPI GetQuotUsage() const;
+
 	enum {
-		fBarCode          =     0x0001, // Остатки со штрих-кодами
-		fNullRest         =     0x0002, // Выводить нулевые остатки
-		fCalcOrder        =     0x0004, // Расчитывать заказанное количество
+		fBarCode                = 0x00000001, // Остатки со штрих-кодами
+		fNullRest               = 0x00000002, // Выводить нулевые остатки
+		fCalcOrder              = 0x00000004, // Расчитывать заказанное количество
 		//                      0x0008  // Occupied by GoodsRestParam
 		//                      0x0010  // Occupied by GoodsRestParam
 		//                      0x0020  // Occupied by GoodsRestParam
-		fPriceByQuot      =     0x0040, // Формировать цены по котировкам
-		fUnderMinStock    =     0x0080, // Показывать только те позиции, остаток по которым ниже установленного минимума
-		fDisplayWoPacks   =     0x0100, // Показывать остатки без упаковок
-		fNullRestsOnly    =     0x0200, // Только нулевые остатки
-		fLabelOnly        =     0x0400, // WL-only
-		fNoZeroOrderOnly  =     0x0800, // Только с ненулевыми заказами
-		fCalcTotalOnly    =     0x1000, // Расчитать только итоги
-		fEachLocation     =     0x2000, // Рассчитывать остатки по каждому из складов
-		fComplPackQtty    =     0x4000, // Показывать количество в упаковках
-		fCWoVat           =     0x8000, // Показывать цены без НДС
-		fCalcDeficit      = 0x00010000, // Рассчитывать дефицит
-		fWoSupplier       = 0x00020000, // Рассчитывать остатки без учета поставщика
-		fShowMinStock     = 0x00040000, // Показывать минимальные остатки
-		fShowDraftReceipt = 0x00080000, // Показывать остатки учитывая будущие драфт приходы
-		fCalcSStatSales   = 0x00100000, // Заполнять поле среднедневных продаж из статистики продаж
-		fOuterGsl         = 0x00200000, // PPViewGoodsRest::Gsl инициализирован вне функции PPViewGoodsRest::Init_
-		fUseGoodsMatrix   = 0x00400000, // Применять товарную матрицу при выборе товаров для отчета
+		fPriceByQuot            = 0x00000040, // Формировать цены по котировкам
+		fUnderMinStock          = 0x00000080, // Показывать только те позиции, остаток по которым ниже установленного минимума
+		fDisplayWoPacks         = 0x00000100, // Показывать остатки без упаковок
+		fNullRestsOnly          = 0x00000200, // Только нулевые остатки
+		fLabelOnly              = 0x00000400, // WL-only
+		fNoZeroOrderOnly        = 0x00000800, // Только с ненулевыми заказами
+		fCalcTotalOnly          = 0x00001000, // Расчитать только итоги
+		fEachLocation           = 0x00002000, // Рассчитывать остатки по каждому из складов
+		fComplPackQtty          = 0x00004000, // Показывать количество в упаковках
+		fCWoVat                 = 0x00008000, // Показывать цены без НДС
+		fCalcDeficit            = 0x00010000, // Рассчитывать дефицит
+		fWoSupplier             = 0x00020000, // Рассчитывать остатки без учета поставщика
+		fShowMinStock           = 0x00040000, // Показывать минимальные остатки
+		fShowDraftReceipt       = 0x00080000, // Показывать остатки учитывая будущие драфт приходы
+		fCalcSStatSales         = 0x00100000, // Заполнять поле среднедневных продаж из статистики продаж
+		fOuterGsl               = 0x00200000, // PPViewGoodsRest::Gsl инициализирован вне функции PPViewGoodsRest::Init_
+		fUseGoodsMatrix         = 0x00400000, // Применять товарную матрицу при выборе товаров для отчета
 
-		fExtByArCode      = 0x00800000, // Выборка товаров, по которым строится отчет ДОПОЛНЯЕТСЯ //
+		fExtByArCode            = 0x00800000, // Выборка товаров, по которым строится отчет ДОПОЛНЯЕТСЯ //
 			// теми товарами, которые имеют связанные с поставщиком SupplID коды (ArCodes).
-		fRestrictByArCode = 0x01000000, // Выборка товаров, по которым строится отчет ОГРАНИЧИВАЕТСЯ //
+		fRestrictByArCode       = 0x01000000, // Выборка товаров, по которым строится отчет ОГРАНИЧИВАЕТСЯ //
 			// теми товарами, которые имеют связанные с поставщиком SupplID коды (ArCodes).
 			// Если SupplID == 0, то перебираются только те товары, которые имеют собственные коды.
 		// @#{fExtByArCode^fRestrictByArCode}
-		fCrosstab         = 0x02000000, // Кросстаб, если включена опция fEachLocation
+		fCrosstab               = 0x02000000, // Кросстаб, если включена опция fEachLocation
 		fShowGoodsMatrixBelongs = 0x04000000, // Отображать принадлежность товарной матрице
-		fCalcUncompleteSess  = 0x08000000,    // Рассчитывать с учетом незавершенных сессий
-		fZeroSupplAgent      = 0x10000000,    // @v7.5.11 Только с нулевым агентом поставщика
-		fCalcCVat            = 0x20000000,    // @v8.3.4 Рассчитывать валовую сумму НДС в ценах поступления //
-		fCalcPVat            = 0x40000000,    // @v8.3.4 Рассчитывать валовую сумму НДС в ценах реализации //
-		fForceNullRest       = 0x80000000     // @v8.6.6 Предписывает показывать товар с нулевым остатком даже если не было ни одного лота
+		fCalcUncompleteSess     = 0x08000000,    // Рассчитывать с учетом незавершенных сессий
+		fZeroSupplAgent         = 0x10000000,    // @v7.5.11 Только с нулевым агентом поставщика
+		fCalcCVat               = 0x20000000,    // @v8.3.4 Рассчитывать валовую сумму НДС в ценах поступления //
+		fCalcPVat               = 0x40000000,    // @v8.3.4 Рассчитывать валовую сумму НДС в ценах реализации //
+		fForceNullRest          = 0x80000000     // @v8.6.6 Предписывает показывать товар с нулевым остатком даже если не было ни одного лота
+	};
+	//
+	// Descr: Значения флагов, хранящихся в поле Flags2
+	//
+	enum {
+		f2CalcPrognosis         = 0x00000001, // Рассчитывать прогноз продаж (специальная форма диалога фильтра и отчета)
+		f2CostByQuot            = 0x00000002  // Котировку трактовать как цены поступления
 	};
 	//
 	// Descr: Опции экспорта Universe-HTT
@@ -35674,7 +35708,8 @@ public:
 	uint   CalcMethod;       // GoodsRestParam::pcmXXX
 	long   Flags;            //
 	int    AmtType;          // 0 - в обеих ценах, 1 - поступления, 2 - реализации
-	int    CalcPrognosis;    // если 1, то вычисляем прогноз иначе - нет
+	// @v9.5.8 (заменено на Flags2 с соблюдением бинарной совместимости) int    CalcPrognosis;    // если 1, то вычисляем прогноз иначе - нет
+	long   Flags2;           // @v9.5.8 GoodsRestFilt::f2XXX
 	DateRange PrgnPeriod;    // период прогноза
 	LDATE  Date;             //
 	PPID   SupplID;          //
@@ -36293,7 +36328,7 @@ public:
 	virtual int  SLAPI Init_(const PPBaseFilt *);
 	int    SLAPI InitIteration(IterOrder = OrdByDefault);
 	int    SLAPI NextIteration(GoodsTaxAnalyzeViewItem *);
-	int    SLAPI FormatCycle(LDATE, char * pBuf, size_t bufLen);
+	void   SLAPI FormatCycle(LDATE, char * pBuf, size_t bufLen);
 	int    SLAPI PrintTotal(const GoodsTaxAnalyzeTotal * pTotal);
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
@@ -37569,7 +37604,7 @@ public:
 	int    SLAPI NextIteration(AccAnlzViewItem *);
 	int    SLAPI GetTotal(AccAnlzTotal *) const;
 
-	int    SLAPI FormatCycle(LDATE, char * pBuf, size_t bufLen);
+	void   SLAPI FormatCycle(LDATE, char * pBuf, size_t bufLen);
 	int    SLAPI GetBrwHdr(const void * pRow, BrwHdr * pHdr) const;
 
 	LDATE  ExpiryDate; //
@@ -37591,6 +37626,7 @@ private:
 	AccAnlzFilt Filt;
 	int    IsGenAcc;                // @*Init_()
 	int    IsRegister;              // @*Init_()
+	int    IsGenAr;                 // @*Init_()
 	ObjRestrictArray ExtGenAccList; // @*Init_()
 	PPCycleArray  CycleList;        // @*Init_()
 	AccAnlzTotal  Total;
@@ -37824,7 +37860,7 @@ public:
 	virtual int  SLAPI Init_(const PPBaseFilt *);
 	int    SLAPI InitIteration();
 	int    SLAPI NextIteration(OpGroupingViewItem *);
-	int    SLAPI FormatCycle(LDATE dt, char * pBuf, size_t bufLen);
+	void   SLAPI FormatCycle(LDATE dt, char * pBuf, size_t bufLen);
 	int    SLAPI GetGdsOpTotal(OpGroupingViewItem *);
 	int    SLAPI InitBillList(PPID opID);
 	int    SLAPI EnumBillList(uint * pos, OpGroupingViewItem * pItem);
@@ -38710,8 +38746,10 @@ public:
 		fShowGoodsCode      = 0x00040000,   // @v8.4.11 Показывать код (single) товара
 		fShowSerial         = 0x00080000,   // @v8.4.11 Показывать серийный номер лота
 		fCalcAvgRest        = 0x00100000,   // @v9.1.3 Рассчитывать среднедневные остатки (предполагает наличие флага fCalcRest)
-		fCompareWrOff       = 0x00200000    // @v9.4.10 Если отчет строится по драфт-документам, то выводить результаты
+		fCmpWrOff           = 0x00200000,   // @v9.4.10 Если отчет строится по драфт-документам, то выводить результаты
 			// сравнения с документами списания.
+		fCmpWrOff_DiffOnly  = 0x00400000    // @v9.5.8 Если отчет строится со сравнением драфт-документов и документов
+			// списания, то отображать только различающиеся позиции.
 	};
 	enum {
 		ctNone       = 0,  // Без кросстаба
@@ -39871,7 +39909,7 @@ public:
 	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    SLAPI NextIteration(PaymPlanViewItem *);
-	int    SLAPI FormatCycle(LDATE, char * pBuf, size_t bufLen);
+	void   SLAPI FormatCycle(LDATE, char * pBuf, size_t bufLen);
 	int    SLAPI GetTabTitle(long tabID, SString & rBuf) const;
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
@@ -44662,6 +44700,179 @@ private:
 	xmlParserCtxt * P_XpCtx;
 };
 //
+//
+//
+class PPOsm : public SStrGroup {
+public:
+	enum {
+		otUnkn = 0,
+		otNode,
+		otWay,
+		otRelation
+	};
+    struct Node {
+    	SLAPI  Node();
+		void   SLAPI SetInvisible();
+
+    	int64  ID;
+		uint32 Tile;
+		SGeoPosLL_Int C;
+    };
+    struct Way {
+    	SLAPI  Way();
+		void   SLAPI SetInvisible();
+		int64  ID;
+		uint32 Tile;
+		Int64Array NodeRefList;
+    };
+	struct RelMember {
+		SLAPI  RelMember();
+		int64  RefID;
+		uint   TypeSymbID;
+		uint   RoleSymbID;
+	};
+    struct Relation {
+    	SLAPI  Relation();
+		void   SLAPI SetInvisible();
+		int64  ID;
+		uint32 Tile;
+		TSArray <RelMember> MembList;
+    };
+    struct Tag {
+    	SLAPI  Tag();
+        uint   KeySymbID; // Идентификатор символа
+        uint64 ValID;     // Идентификатор значения (в варианте теста все значения хранятся в таблице символов)
+    };
+
+	SLAPI  PPOsm();
+	SLAPI ~PPOsm();
+	uint   FASTCALL SearchSymb(const char * pSymb) const;
+	uint   FASTCALL CreateSymb(const char * pSymb);
+	int    SLAPI GetSymbByID(uint id, SString & rSymb) const;
+	int    SLAPI BuildHashAssoc();
+private:
+	uint   LastSymbID;
+	SymbHashTable Ht;
+};
+
+class PrcssrOsmFilt : public PPBaseFilt { // @persistent
+public:
+	SLAPI  PrcssrOsmFilt();
+	PrcssrOsmFilt & FASTCALL operator = (const PrcssrOsmFilt & rS);
+	int    SLAPI IsEmpty() const;
+
+	enum {
+		fPreprocess        = 0x0001,
+		fSortPreprcResults = 0x0002,
+		fAnlzPreprcResults = 0x0004,
+		fImport            = 0x0008
+	};
+	uint8  ReserveStart[32]; // @ancor
+	long   Flags;
+	uint8  ReserveEnd[32];
+	SString SrcFileName;     // @anchor
+};
+
+class PrcssrOsm {
+public:
+	SLAPI  PrcssrOsm();
+	SLAPI ~PrcssrOsm();
+	int    SLAPI InitParam(PPBaseFilt * pBaseFilt);
+	int    SLAPI EditParam(PPBaseFilt * pBaseFilt);
+	int    SLAPI Init(const PPBaseFilt * pBaseFilt);
+	int    SLAPI Run();
+	void   SLAPI Reset();
+private:
+	enum {
+		tUnkn = 1,
+		tOsm = 2,
+		tBounds,
+		tNode,
+		tWay,
+		tRelation,
+		tNd,
+		tTag,
+		tMember
+	};
+	struct CommonAttrSet {
+		SLAPI  CommonAttrSet();
+		void   SLAPI Reset();
+
+		int64  ID;
+		double Lat;
+		double Lon;
+        LDATETIME T;
+        int    Ver;
+        int    Visible;
+        int64  ChangeSet;
+        int64  UserID;
+		uint   TypeSymbID;
+		uint   RoleSymbID;
+		int64  RefID;
+        SString User;
+	};
+	static void Scb_StartDocument(void * ptr);
+	static void Scb_EndDocument(void * ptr);
+	static void Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList);
+	static void Scb_EndElement(void * ptr, const xmlChar * pName);
+
+	int    StartDocument();
+	int    EndDocument();
+	int    StartElement(const char * pName, const char ** ppAttrList);
+	int    EndElement(const char * pName);
+	int    SaxParseFile(xmlSAXHandlerPtr sax, const char * pFileName);
+	int    SaxStop();
+
+	int    ReadCommonAttrSet(const char ** ppAttrList, CommonAttrSet & rSet);
+
+	int    LogCoord(const SGeoPosLL_Int & rC);
+	int    LogTag(int osmObjType, const PPOsm::Tag & rTag);
+
+	//
+	enum {
+		stError = 0x0001
+	};
+	long   State;
+	PrcssrOsmFilt P;
+
+	xmlParserCtxtPtr SaxCtx;
+	TSStack <int> TokPath;
+	PPOsm  O;
+	CommonAttrSet TempCaSet;
+	TSArray <PPOsm::Tag> CurrentTagList;
+	PPOsm::Node LastNode;
+	PPOsm::Way  LastWay;
+	PPOsm::Relation LastRel;
+	//
+	int64  NodeCount;
+	int64  NakedNodeCount; // Количество узлов без тегов
+	int64  WayCount;
+	int64  RelationCount;
+
+	LongArray LatAccum;
+	LongArray LonAccum;
+
+	SFile * P_LatOutF;
+	SFile * P_LonOutF;
+	SFile * P_TagOutF;
+	SFile * P_TagNodeOutF;
+	SFile * P_TagWayOutF;
+	SFile * P_TagRelOutF;
+
+	PPUserFuncProfiler * P_Ufp;
+
+	struct ProcessBlock {
+		SString TempBuf;
+		SString LineBuf;
+		SString TagKeyBuf; // Временный буфер для хранения ключа тега
+		SString TagValBuf; // Временный буфер для хранения значения тега
+	};
+
+	ProcessBlock Pb;
+	LongArray TempTagKeyList;
+	LongArray TagKeyList; // Отладочный список ключевых символов тегов.
+};
+//
 // Descr: Шаблон функции получения указателя на объектный кэш, локальный по отношению к базе данных
 //   Используется при обращении объекта PPObject к кэшу.
 // Example:
@@ -46695,7 +46906,8 @@ int    SLAPI    SetupObjListCombo(TDialog *, uint, PPID, const PPIDArray * pIncl
 //
 enum {
 	sacfDisableIfZeroSheet   = 0x0001, // Заблокировать комбо-бокс если таблица статей не определена
-	sacfNonEmptyExchageParam = 0x0002  // Показывать только статьи с не пустой конфигурацией обмена в соглашении
+	sacfNonEmptyExchageParam = 0x0002, // Показывать только статьи с не пустой конфигурацией обмена в соглашении
+	sacfNonGeneric           = 0x0004  // @v9.5.9 Исключить выбор группирующих статей
 };
 
 int    SLAPI SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID accSheetID, long /*disableIfZeroSheet*/sacf = 0);
@@ -46940,9 +47152,10 @@ int     SLAPI BillFilterDialog(uint rezID, BillFilt *, const char * addText = 0)
 int     SLAPI BillFilterDialog(uint rezID, BillFilt *, TDialog ** d, const char * addText = 0);
 int     SLAPI ViewStatus();
 int     SLAPI ViewPredictSales(PredictSalesFilt *);
-int     SLAPI ViewPrognosis();
+// @v9.5.9 int     SLAPI ViewPrognosis();
 int     FASTCALL SetPeriodInput(TDialog *, uint fldID, const DateRange *);
 int     FASTCALL GetPeriodInput(TDialog *, uint fldID, DateRange *);
+int     SLAPI GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod, long strtoperiodFlags);
 int     SLAPI SetTimeRangeInput(TDialog *, uint ctl, long fmt, const TimeRange * pTimePeriod);
 int     SLAPI SetTimeRangeInput(TDialog *, uint ctl, long fmt, const LTIME * pLow, const LTIME * pUpp);
 int     SLAPI GetTimeRangeInput(TDialog *, uint ctl, long fmt, TimeRange * pTimePeriod);
@@ -48786,6 +48999,7 @@ int SLAPI DoChargeSalary();
 int SLAPI DoDebtRate();
 int SLAPI DoBizScore(PPID bzsID);
 int SLAPI DoProcessObjText(PrcssrObjTextFilt * pFilt);
+int SLAPI DoProcessOsm(PrcssrOsmFilt * pFilt);
 int SLAPI DoConstructionTest();
 
 template <typename Dlg, typename D> int PPDialogProcBodyID(uint dlgID, D * pData)

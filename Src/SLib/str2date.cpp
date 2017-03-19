@@ -1,5 +1,5 @@
 // STR2DATE.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2008, 2010, 2013, 2015, 2016
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2008, 2010, 2013, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -113,7 +113,7 @@ int SLAPI _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int *
 					// Если и префикс и суффикс строки может быть трактован как год, то
 					// считаем годом то, что ближе к текущей дате.
 					//
-					LDATE cdate = getcurdate_();
+					const LDATE cdate = getcurdate_();
 					const int  _cy = cdate.year();
 					if(abs(_cy - year_end) < abs(_cy - year_end))
 						ord = 2;
@@ -150,6 +150,14 @@ int SLAPI _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int *
 						}
 						*p_cur_pos = -1;
 					}
+					// @v9.5.9 {
+					else if(*c == '?') {
+						c++;
+						*p_cur_pos = ANY_DATE_VALUE;
+						if(p_cur_pos == &y)
+							not_empty_year = 1;
+					}
+					// } @v9.5.9
 					else {
 						for(i = 0; isdec(*c);)
 							tmp[i++] = *c++;
@@ -177,13 +185,22 @@ int SLAPI _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int *
 						y = MakeLong(plus_y, 0x8000);
 						ret_flags |= strtodatefRelYear;
 					}
+					else if(y == ANY_DATE_VALUE) {
+						ret_flags |= strtodatefAnyYear;
+					}
 					if(m == -1) {
 						m = MakeLong(plus_m, 0x8000);
 						ret_flags |= strtodatefRelMon;
 					}
+					else if(m == ANY_DATE_VALUE) {
+						ret_flags |= strtodatefAnyMon;
+					}
 					if(d == -1) {
 						d = MakeLong(plus_d, 0x8000);
 						ret_flags |= strtodatefRelDay;
+					}
+					else if(d == ANY_DATE_VALUE) {
+						ret_flags |= strtodatefAnyDay;
 					}
 				}
 				if(!y) {
@@ -195,7 +212,7 @@ int SLAPI _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int *
 					else {
 						y = 2000;
 					}
-					// } @v8.7.2 
+					// } @v8.7.2
 				}
 				if(!m) {
 					m = DefaultMonth;
@@ -203,11 +220,12 @@ int SLAPI _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int *
 				}
 				if(!d)
 					d = 1;
-				if(y > 0 && y < 100)
+				if(y > 0 && y < 100) {
 					if(y >= 50)
 						y += 1900;
 					else
 						y += 2000;
+				}
 				else if(y >= 200 && y <= 299)
 					y = 2000 + (y - 200);
 			}
@@ -314,67 +332,84 @@ struct TempVar {
 	int    Y;
 };
 
-static int gettoken(const char ** b, long * pNumber, TempVar * pV)
+static int gettoken(const char ** b, long * pNumber, TempVar * pV, long flags)
 {
-	static const char * quarters[4] = { "I", "II", "III", "IV" };
-
-	int    i, l;
+	//static const char * quarters[4] = { "I", "II", "III", "IV" };
+	int    result = TOK_UNKNOWN;
+	//int    i;
 	char   buf[64];
 	char * t = buf;
 	while(**b == ' ' || **b == '\t')
 		(*b)++;
 	long   ret_flags = 0;
 	int    offs = _strtodate(*b, DATF_DMY, &pV->D, &pV->M, &pV->Y, &ret_flags);
-	if(offs > 0 && ret_flags & strtodatefRelAny) {
-		(*b) += offs;
-		return TOK_DATE;
+	if(ret_flags & (strtodatefAnyYear|strtodatefAnyMon|strtodatefAnyDay) && !(flags & strtoprdfEnableAnySign)) {
+		result = TOK_UNKNOWN;
 	}
-	else {
+	else if(offs > 0 && (ret_flags & (strtodatefRelAny|strtodatefAnyYear|strtodatefAnyMon|strtodatefAnyDay))) {
+		(*b) += offs;
+		result = TOK_DATE;
+	}
+	else if(**b == '.') {
+		(*b)++;
 		if(**b == '.') {
 			(*b)++;
-			if(**b == '.') {
-				(*b)++;
-				return TOK_DBLDOT;
-			}
-			else
-				return TOK_DELIM;
+			result = TOK_DBLDOT;
 		}
-		else if(**b == ',') {
-			(*b)++;
-			if(**b == ',') {
-				(*b)++;
-				return TOK_DBLDOT;
-			}
-			else
-				return TOK_UNKNOWN;
-		}
-		else if(**b == '\0')
-			return TOK_EOL;
-		else if(**b == '/' || **b == '-') {
-			(*b)++;
-			return TOK_DELIM;
-		}
-		else if(isdec(**b)) {
-			do {
-				*t++ = *(*b)++;
-			} while(isdec(**b));
-			*t = 0;
-			ASSIGN_PTR(pNumber, atol(buf));
-			return TOK_NUMBER;
-		}
-		for(i = 3; i >= 0; i--) {
-			if(strnicmp(*b, quarters[i], l = strlen(quarters[i])) == 0) {
-				ASSIGN_PTR(pNumber, i);
-				(*b) += l;
-				return TOK_QUARTER;
-			}
-		}
-		(*b)++;
-		return TOK_UNKNOWN;
+		else
+			result = TOK_DELIM;
 	}
+	else if(**b == ',') {
+		(*b)++;
+		if(**b == ',') {
+			(*b)++;
+			result = TOK_DBLDOT;
+		}
+		else
+			result = TOK_UNKNOWN;
+	}
+	else if(**b == '\0')
+		result = TOK_EOL;
+	else if(**b == '/' || **b == '-') {
+		(*b)++;
+		result = TOK_DELIM;
+	}
+	else if(isdec(**b)) {
+		do {
+			*t++ = *(*b)++;
+		} while(isdec(**b));
+		*t = 0;
+		ASSIGN_PTR(pNumber, atol(buf));
+		result = TOK_NUMBER;
+	}
+	else if(strnicmp(*b, "IV", 2) == 0) {
+		ASSIGN_PTR(pNumber, 3);
+		(*b) += 2;
+		result = TOK_QUARTER;
+	}
+	else if(strnicmp(*b, "III", 3) == 0) {
+		ASSIGN_PTR(pNumber, 2);
+		(*b) += 3;
+		result = TOK_QUARTER;
+	}
+	else if(strnicmp(*b, "II", 2) == 0) {
+		ASSIGN_PTR(pNumber, 1);
+		(*b) += 2;
+		result = TOK_QUARTER;
+	}
+	else if(strnicmp(*b, "I", 1) == 0) {
+		ASSIGN_PTR(pNumber, 0);
+		(*b) += 1;
+		result = TOK_QUARTER;
+	}
+	else {
+		(*b)++;
+		result = TOK_UNKNOWN;
+	}
+	return result;
 }
 
-int SLAPI getperiod(const char * pStr, DateRange * pRange)
+int SLAPI strtoperiod(const char * pStr, DateRange * pRange, long flags)
 {
 	const  int _defyear  = DefaultYear;
 	const  int _defmonth = DefaultMonth;
@@ -390,7 +425,7 @@ int SLAPI getperiod(const char * pStr, DateRange * pRange)
 	long   number = 0;
     pRange->SetZero();
 	while(1) {
-		switch(gettoken(&p, &number, &temp_dt)) {
+		switch(gettoken(&p, &number, &temp_dt, flags)) {
 			case TOK_DATE:
 				d = temp_dt.D;
 				m = temp_dt.M;
@@ -402,16 +437,17 @@ int SLAPI getperiod(const char * pStr, DateRange * pRange)
 				else if(m == 0 && number > 0 && number <= 12)
 					m = number;
 				else if(y == 0) {
-					y = number ? number : 2000;
+					y = NZOR(number, 2000);
 					if(y > 31 && m == 0 && d) {
 						m = d;
 						d = 0;
 					}
-					if(y < 100)
+					if(y < 100) {
 						if(y >= 50)
 							y += 1900;
 						else
 							y += 2000;
+					}
 					else if(y >= 200 && y <= 299)
 						y = 2000 + (y - 200);
 				}

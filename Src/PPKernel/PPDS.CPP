@@ -225,7 +225,7 @@ int SLAPI PPDeclStruc::TransferData(char * pData, size_t dataBufLen, Tfd dir, SS
 		*pData = 0;
 	}
 	else
-		ok = (PPErrCode = PPERR_INVPARAM, 0);
+		ok = PPSetError(PPERR_INVPARAM);
 	return ok;
 }
 
@@ -238,9 +238,9 @@ int SLAPI PPDeclStruc::TransferData(DateRange * pData, Tfd dir, SString & rBuf, 
 		(rBuf = 0).Cat(*pData);
 	}
 	else if(dir == tfdBufToData)
-		getperiod(rBuf, pData);
+		strtoperiod(rBuf, pData, 0);
 	else
-		ok = (PPErrCode = PPERR_INVPARAM, 0);
+		ok = PPSetError(PPERR_INVPARAM);
 	return ok;
 }
 

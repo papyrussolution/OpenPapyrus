@@ -1,5 +1,5 @@
 // STRSET.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -552,12 +552,27 @@ size_t SLAPI StringSet::getDataLen() const
 {
 	return DataLen;
 }
+
+size_t SLAPI StringSet::getSize() const
+{
+	return Size;
+}
 //
 //
 //
 SLAPI SStrGroup::SStrGroup()
 {
 	Pool.add("$", 0); // zero index - is empty string
+}
+
+size_t SLAPI SStrGroup::GetPoolDataLen() const
+{
+	return Pool.getDataLen();
+}
+
+size_t SLAPI SStrGroup::GetPoolSize() const
+{
+	return Pool.getSize();
 }
 
 SStrGroup & FASTCALL SStrGroup::operator = (const SStrGroup & rS)

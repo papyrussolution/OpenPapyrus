@@ -2860,15 +2860,15 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 	MEMSZERO(lot_rec);
 	PROFILE_START
 	THROW_PP(pItem, PPERR_INVPARAM);
-	pItem->QuotKindUsedForPrice = 0; // @v7.0.10
-	pItem->QuotKindUsedForExtPrice = 0; // @v7.4.0
-	pItem->ManufDtm.SetZero(); // @v7.5.1
+	pItem->QuotKindUsedForPrice = 0;
+	pItem->QuotKindUsedForExtPrice = 0;
+	pItem->ManufDtm.SetZero();
 	if(LocID == 0)
 		gp_flags |= GPRET_OTHERLOC;
 	assert(P_GObj);
 	if(P_GObj->CheckFlag(goodsID, GF_UNLIM)) {
 		QuotIdent qi(LocID, PPQUOTK_BASE, 0, ArID);
-		qi.Qtty_ = qtty; // @v7.8.5
+		qi.Qtty_ = qtty;
 		THROW(r = P_GObj->GetQuotExt(goodsID, qi, 0, 0, &price, use_quot_cache));
 		if(r > 0) {
 			pItem->QuotKindUsedForPrice = PPQUOTK_BASE;
@@ -2889,8 +2889,8 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 			price = pItem->OuterPrice;
 		}
 		// } @v8.0.12
-		base_price = price; // @v7.1.0
-		assert(!lot_rec.GoodsID || labs(lot_rec.GoodsID) == goodsID); // @v6.4.0 @debug
+		base_price = price;
+		assert(!lot_rec.GoodsID || labs(lot_rec.GoodsID) == goodsID);
 		if(lot_rec.ID) {
 			ObjTagItem tag;
 			LDATETIME dtm;
@@ -2903,7 +2903,7 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 			if(P_GObj->GetQuotExt(goodsID, qi, lot_rec.Cost, price, &q_price, use_quot_cache) > 0) {
 				pItem->QuotKindUsedForPrice = PPQUOTK_BASE;
 				price = q_price;
-				base_price = price; // @v7.1.0
+				base_price = price;
 				used_quot_list.addUnique(PPQUOTK_BASE);
 			}
 		}

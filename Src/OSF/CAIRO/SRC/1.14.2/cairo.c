@@ -170,7 +170,7 @@ COMPILE_TIME_ASSERT(ARRAY_LENGTH(_cairo_nil) == CAIRO_STATUS_LAST_STATUS - 1);
  * breakpoint in _cairo_error() to generate a stack trace for when the
  * user causes cairo to detect an error.
  **/
-static void _cairo_set_error(cairo_t * cr, cairo_status_t status)
+static void FASTCALL _cairo_set_error(cairo_t * cr, cairo_status_t status)
 {
 	/* Don't overwrite an existing error. This preserves the first
 	 * error, which is the most significant. */
@@ -2395,16 +2395,14 @@ cairo_rectangle_list_t * cairo_copy_clip_rectangle_list(cairo_t * cr)
  **/
 void cairo_select_font_face(cairo_t * cr, const char * family, cairo_font_slant_t slant, cairo_font_weight_t weight)
 {
-	cairo_font_face_t * font_face;
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
-	font_face = cairo_toy_font_face_create(family, slant, weight);
+	cairo_font_face_t * font_face = cairo_toy_font_face_create(family, slant, weight);
 	if(unlikely(font_face->status)) {
 		_cairo_set_error(cr, font_face->status);
 		return;
 	}
-	status = cr->backend->set_font_face(cr, font_face);
+	cairo_status_t status = cr->backend->set_font_face(cr, font_face);
 	cairo_font_face_destroy(font_face);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);

@@ -1,5 +1,5 @@
 // V_SYSJ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -333,7 +333,6 @@ int SLAPI PPViewSysJournal::InitIteration()
 	int    ok = 1;
 	int    idx = 0;
 	DBQ  * dbq = 0;
-	ReferenceTbl * arf = PPRef;
 	union {
 		SysJournalTbl::Key0 k0;
 		SysJournalTbl::Key1 k1;
@@ -1150,7 +1149,6 @@ int SLAPI PPViewGtaJournal::InitIteration()
 	int    ok = 1;
 	int    idx = 0;
 	DBQ  * dbq = 0;
-	ReferenceTbl * arf = PPRef;
 	union {
 		GtaJournalTbl::Key0 k0;
 		GtaJournalTbl::Key3 k3;

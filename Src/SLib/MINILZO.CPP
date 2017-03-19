@@ -487,7 +487,7 @@ lzo_uint32 lzo_adler32(lzo_uint32 adler, const lzo_byte*buf, lzo_uint len)
 	return (s2<<16)|s1;
 }
 
-#include <stdio.h>
+// #include <stdio.h>
 
 #define IS_SIGNED(type)       (((type)(-1)) < ((type)0))
 #define IS_UNSIGNED(type)     (((type)(-1)) > ((type)0))

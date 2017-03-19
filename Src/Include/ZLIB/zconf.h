@@ -372,46 +372,43 @@ typedef unsigned long z_size_t;
 #    endif
 #  endif
 #endif
-
 #ifndef ZEXTERN
-#  define ZEXTERN extern
+	#define ZEXTERN extern
 #endif
 #ifndef ZEXPORT
-#  define ZEXPORT
+	#define ZEXPORT
 #endif
 #ifndef ZEXPORTVA
-#  define ZEXPORTVA
+	#define ZEXPORTVA
 #endif
-
 #ifndef FAR
-#  define FAR
+	#define FAR
 #endif
-
 #if !defined(__MACTYPES__)
-typedef unsigned char Byte;   /* 8 bits */
+	typedef unsigned char Byte;   /* 8 bits */
 #endif
 typedef unsigned int uInt;    /* 16 bits or more */
 typedef unsigned long uLong;  /* 32 bits or more */
 
 #ifdef SMALL_MEDIUM
-/* Borland C/C++ and some old MSC versions ignore FAR inside typedef */
-#  define Bytef Byte FAR
+	/* Borland C/C++ and some old MSC versions ignore FAR inside typedef */
+	#define Bytef Byte FAR
 #else
-typedef Byte FAR Bytef;
+typedef Byte Bytef;
 #endif
-typedef char FAR charf;
-typedef int FAR intf;
-typedef uInt FAR uIntf;
-typedef uLong FAR uLongf;
+typedef char charf;
+typedef int intf;
+typedef uInt uIntf;
+typedef uLong uLongf;
 
 #ifdef STDC
-typedef void const * voidpc;
-typedef void FAR   * voidpf;
-typedef void       * voidp;
+	typedef void const * voidpc;
+	typedef void       * voidpf;
+	typedef void       * voidp;
 #else
-typedef Byte const * voidpc;
-typedef Byte FAR   * voidpf;
-typedef Byte       * voidp;
+	typedef Byte const * voidpc;
+	typedef Byte       * voidpf;
+	typedef Byte       * voidp;
 #endif
 
 #if !defined(Z_U4) && !defined(Z_SOLO) && defined(STDC)

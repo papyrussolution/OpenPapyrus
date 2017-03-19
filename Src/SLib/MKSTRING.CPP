@@ -7,9 +7,9 @@
 
 #ifdef SL_STRSTORE // {
 
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
+//#include <stdio.h>
+//#include <string.h>
+//#include <ctype.h>
 #include <strstore.h>
 
 int    line = 1;

@@ -328,13 +328,9 @@ int SLAPI PPViewOpGrouping::CalcStat(BillStatArray * pList)
 	return ok;
 }
 
-int SLAPI PPViewOpGrouping::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
+void SLAPI PPViewOpGrouping::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 {
-	if(Filt.Cycl.Cycle)
-		CycleList.formatCycle(dt, pBuf, bufLen);
-	else
-		ASSIGN_PTR(pBuf, 0);
-	return 1;
+	Helper_FormatCycle(Filt.Cycl, CycleList, dt, pBuf, bufLen);
 }
 
 int SLAPI PPViewOpGrouping::GetRecSign(const TempOpGrpngTbl::Rec * pRec, int * pSign) const

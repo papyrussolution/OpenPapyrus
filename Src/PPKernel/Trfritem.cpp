@@ -99,7 +99,7 @@ int SLAPI PPTransferItem::PreprocessCorrectionExp()
 int SLAPI PPTransferItem::Init(const BillTbl::Rec * pBillRec, int zeroRByBill, int forceSign)
 {
 	int    ok = 1;
-	int    intr = 0, noupdlotrest = 0;
+	int    intr = 0;
 	const  int force_no_rcpt = BIN(TFlags & tfForceNoRcpt);
 	TFlags = 0;
 	if(pBillRec) {
@@ -112,8 +112,7 @@ int SLAPI PPTransferItem::Init(const BillTbl::Rec * pBillRec, int zeroRByBill, i
 		BillID   = pBillRec->ID;
 		LocID    = pBillRec->LocID;
 		CurID    = (int16)pBillRec->CurID;
-		if(CheckOpFlags(op_id, OPKF_NOUPDLOTREST) && CConfig.Flags & CCFLG_USENOUPDRESTOPFLAG)
-			noupdlotrest = 1;
+		const int noupdlotrest = BIN(CheckOpFlags(op_id, OPKF_NOUPDLOTREST) && CConfig.Flags & CCFLG_USENOUPDRESTOPFLAG);
 		SETFLAG(Flags, PPTFR_SELLING, IsSellingOp(op_id) > 0);
 		SETFLAG(Flags, PPTFR_RECEIPT, (oneof2(op_type_id, PPOPT_GOODSORDER, PPOPT_GOODSRECEIPT) ||
 			(Flags & PPTFR_PCKG && Flags & PPTFR_MODIF)) && !noupdlotrest && !force_no_rcpt);

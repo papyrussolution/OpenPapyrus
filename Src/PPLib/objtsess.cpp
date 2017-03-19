@@ -2843,14 +2843,14 @@ int SLAPI PPObjTSession::EditNewIdleSession(PPID prcID, PPID curSessID, PPID * p
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_TSESSIDLE)), 0));
 	{
 		if(GetConfig().IdleAccSheetID)
-			SetupArCombo(dlg, CTLSEL_TSESS_OBJ2, rec.Ar2ID, OLW_CANINSERT, GetConfig().IdleAccSheetID, sacfDisableIfZeroSheet);
+			SetupArCombo(dlg, CTLSEL_TSESS_OBJ2, rec.Ar2ID, OLW_CANINSERT, GetConfig().IdleAccSheetID, sacfDisableIfZeroSheet|sacfNonGeneric);
 		else {
 			ProcessorTbl::Rec prc_rec;
 			if(PrcObj.GetRecWithInheritance(labs(prcID), &prc_rec) > 0) {
 				PPOprKind op_rec;
 				MEMSZERO(op_rec);
 				GetOpData(prc_rec.WrOffOpID, &op_rec);
-				SetupArCombo(dlg, CTLSEL_TSESS_OBJ2, rec.Ar2ID, OLW_CANINSERT, op_rec.AccSheet2ID, sacfDisableIfZeroSheet);
+				SetupArCombo(dlg, CTLSEL_TSESS_OBJ2, rec.Ar2ID, OLW_CANINSERT, op_rec.AccSheet2ID, sacfDisableIfZeroSheet|sacfNonGeneric);
 			}
 		}
 		dlg->setCtrlData(CTL_TSESS_MEMO, rec.Memo);

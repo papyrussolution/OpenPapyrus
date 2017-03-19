@@ -11,7 +11,7 @@
 #ifndef __HTML_TREE_H__
 #define __HTML_TREE_H__
 
-#include <stdio.h>
+//#include <stdio.h>
 #include <libxml/xmlversion.h>
 #include <libxml/tree.h>
 #include <libxml/HTMLparser.h>

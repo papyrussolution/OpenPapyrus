@@ -9,9 +9,6 @@
 	#define USE_DF_CLARION
 #endif
 
-#define REL_DATE_MASK      0x80000000
-#define THRSMDAY_DATE_MASK 0x20000000
-
 const LDATE ZERODATE = {0L};
 const LDATE MAXDATE  = {MAXLONG};
 const LDATE MAXDATEVALID = {0x0bb80101}; // 01/01/3000
@@ -605,11 +602,11 @@ long FASTCALL diffdate(LDATE d, LDATE s)
 int SLAPI _checkdate(int day, int mon, int year)
 {
 	int    err = SLERR_SUCCESS;
-	if(!(year & REL_DATE_MASK) && (year < 1801 || year > 2099))
+	if(!(year & REL_DATE_MASK) && (year != ANY_DATE_VALUE) && (year < 1801 || year > 2099))
 		err = SLERR_INVYEAR;
-	else if(!(mon & REL_DATE_MASK) && (mon < 1 || mon > 12))
+	else if(!(mon & REL_DATE_MASK) && (mon != ANY_DATE_VALUE) && (mon < 1 || mon > 12))
 		err = SLERR_INVMONTH;
-	else if(!(day & (REL_DATE_MASK|THRSMDAY_DATE_MASK))) {
+	else if(!(day & (REL_DATE_MASK|THRSMDAY_DATE_MASK)) && (day != ANY_DATE_VALUE)) {
 		if(day < 1)
 			err = SLERR_INVDAY;
 		else if(mon & REL_DATE_MASK) {
@@ -618,6 +615,10 @@ int SLAPI _checkdate(int day, int mon, int year)
 		}
 		else if(year & REL_DATE_MASK) {
 			if(day > dayspermonth(mon, 2000)) // any leap year
+				err = SLERR_INVDAY;
+		}
+		else if(oneof2(mon, ANY_MONITEM_VALUE, ANY_DATE_VALUE)) {
+			if(day > 31)
 				err = SLERR_INVDAY;
 		}
 		else if(day > dayspermonth(mon, year))
@@ -1284,7 +1285,7 @@ int LDATE::weekno() const
 
 int FASTCALL LDATE::setday(uint d)
 {
-	if(d > 0 && d <= 31) {
+	if((d > 0 && d <= 31) || d == ANY_DAYITEM_VALUE) {
 		(v &= ~0xff) |= d;
 		return 1;
 	}
@@ -1294,7 +1295,7 @@ int FASTCALL LDATE::setday(uint d)
 
 int FASTCALL LDATE::setmonth(uint m)
 {
-	if(m > 0 && m <= 12) {
+	if((m > 0 && m <= 12) || m == ANY_MONITEM_VALUE) {
 		(v &= ~0x0000ff00) |= (m << 8);
 		return 1;
 	}
@@ -1304,7 +1305,7 @@ int FASTCALL LDATE::setmonth(uint m)
 
 int FASTCALL LDATE::setyear(uint y)
 {
-	if(y > 0 && y < 6000) {
+	if((y > 0 && y < 6000) || y == ANY_YEARITEM_VALUE) {
 		(v &= ~0xffff0000) |= (y << 16);
 		return 1;
 	}
@@ -1329,7 +1330,10 @@ int LDATE::encode(int d, int m, int y)
 	int    shift;
 	int    x;
 	int    d_ = 0, m_ = 0, y_ = 0;
-	if(d & REL_DATE_MASK) {
+	if(d == ANY_DATE_VALUE) {
+		d_ = ANY_DAYITEM_VALUE;
+	}
+	else if(d & REL_DATE_MASK) {
 		shift = (int)(int16)LoWord(d);
 		if(m == -1 && y == -1) {
 			v = MakeLong(shift, 0x8000);
@@ -1358,7 +1362,10 @@ int LDATE::encode(int d, int m, int y)
 	}
 	else
 		d_ = d;
-	if(m & REL_DATE_MASK) {
+	if(m == ANY_DATE_VALUE) {
+		m_ = ANY_MONITEM_VALUE;
+	}
+	else if(m & REL_DATE_MASK) {
 		shift = (int)(int16)LoWord(m);
 		if(shift < 0)
 			x = (shift <= -24) ? (0x40 | 24) : (0x40 | (-shift));
@@ -1370,7 +1377,10 @@ int LDATE::encode(int d, int m, int y)
 	}
 	else
 		m_ = m;
-	if(y & REL_DATE_MASK) {
+	if(y == ANY_DATE_VALUE) {
+		y_ = ANY_YEARITEM_VALUE;
+	}
+	else if(y & REL_DATE_MASK) {
 		shift = (int)(int16)LoWord(y);
 		if(shift < 0)
 			x = (shift <= -255) ? (0x0400 | 255) : (0x0400 | (-shift));
@@ -1411,15 +1421,21 @@ int LDATE::decode(int * pD, int * pM, int * pY) const
 		else {
 			d = day();
 			m = month();
-			if(m & 0x80) {
+			if(m == ANY_MONITEM_VALUE)
+				m = ANY_DATE_VALUE;
+			else if(m & 0x80) {
 				const int plus = (m & 0x40) ? -(m & ~0xc0) : (m & ~0xc0);
 				m = MakeLong(plus, 0x8000);
 			}
-			if(d & 0x80) {
+			if(d == ANY_DAYITEM_VALUE)
+				d = ANY_DATE_VALUE;
+			else if(d & 0x80) {
 				const int plus = (d & 0x40) ? -(d & ~0xc0) : (d & ~0xc0);
 				d = MakeLong(plus, 0x8000);
 			}
-			if(y & 0x4000) {
+			if(y == ANY_YEARITEM_VALUE)
+				y = ANY_DATE_VALUE;
+			else if(y & 0x4000) {
 				const int plus = (y & 0x0400) ? -(y & 0xff) : (y & 0xff);
 				y = MakeLong(plus, 0x8000);
 			}
@@ -1431,7 +1447,22 @@ int LDATE::decode(int * pD, int * pM, int * pY) const
 	return ok;
 }
 
-LDATE FASTCALL LDATE::getactual(LDATE rel) const
+int SLAPI LDATE::hasanycomponent() const
+{
+	const int _d = (int)(v & 0x00ff);
+	const int _m = (int)((v & 0xff00) >> 8);
+	const int _y = (int)(v >> 16);
+	int   result = 0;
+	if(_y == ANY_YEARITEM_VALUE)
+		result |= 0x01;
+	if(_m == ANY_MONITEM_VALUE)
+		result |= 0x02;
+	if(_d == ANY_DAYITEM_VALUE)
+		result |= 0x04;
+	return result;
+}
+
+LDATE SLAPI LDATE::Helper_GetActual(LDATE rel, LDATE cmp) const
 {
 	LDATE  result;
 	if(v == 0)
@@ -1471,24 +1502,36 @@ LDATE FASTCALL LDATE::getactual(LDATE rel) const
 			int    plus_y = 0;
 			int    plus_m = 0;
 			int    plus_d = 0;
-			if(m & 0x80) {
+			if(m == ANY_MONITEM_VALUE) {
+				if(cmp)
+					m = cmp.month();
+			}
+			else if(m & 0x80) {
 				SETIFZ(rel, getcurdate_());
 				plus_m = (m & 0x40) ? -(m & ~0xc0) : (m & ~0xc0);
 				m = rel.month();
 			}
-			if(d & 0x80) {
+			if(d == ANY_DAYITEM_VALUE) {
+				if(cmp)
+					d = cmp.day();
+			}
+			else if(d & 0x80) {
 				SETIFZ(rel, getcurdate_());
 				plus_d = (d & 0x40) ? -(d & ~0xc0) : (d & ~0xc0);
 				d = rel.day();
 			}
-			if(y & 0x4000) {
+			if(y == ANY_YEARITEM_VALUE) {
+				if(cmp)
+					y = cmp.year();
+			}
+			else if(y & 0x4000) {
 				SETIFZ(rel, getcurdate_());
 				plus_y = (y & 0x0400) ? -(y & 0xff) : (y & 0xff);
 				y = rel.year();
 			}
 			result.setyear(y);
 			result.setmonth(m);
-			if(d > daysPerMonth[m-1])
+			if(d != ANY_DAYITEM_VALUE && d > daysPerMonth[m-1])
 				d = ((y % 4) == 0 && m == 2 && d >= 29) ? 29 : daysPerMonth[m-1];
 			result.setday(d);
 			if(plus_y)
@@ -1500,6 +1543,16 @@ LDATE FASTCALL LDATE::getactual(LDATE rel) const
 		}
 	}
 	return result;
+}
+
+LDATE SLAPI LDATE::getactualcmp(LDATE rel, LDATE cmp) const
+{
+	return Helper_GetActual(rel, cmp);
+}
+
+LDATE FASTCALL LDATE::getactual(LDATE rel) const
+{
+	return Helper_GetActual(rel, ZERODATE);
 }
 //
 //
@@ -2059,7 +2112,7 @@ SString & SLAPI DateRepeating::Format(int fmt, SString & rBuf) const
 					}
 				}
 				// @v9.4.9 rBuf.TrimRight().ToOem().CatDiv(';', 2);
-				rBuf.TrimRight().Transf(CTRANSF_OUTER_TO_INNER).CatDiv(';', 2); // @v9.4.9 
+				rBuf.TrimRight().Transf(CTRANSF_OUTER_TO_INNER).CatDiv(';', 2); // @v9.4.9
 			}
 			break;
 		case PRD_MONTH:
@@ -2082,7 +2135,7 @@ SString & SLAPI DateRepeating::Format(int fmt, SString & rBuf) const
 				if(num_prd)
 					rBuf.CatDiv('-', 1).Cat(num_prd).CatDiv(';', 2);
 				// @v9.4.9 rBuf.Cat(buf).ToOem().CatDiv(';', 2);
-				rBuf.Cat(buf).Transf(CTRANSF_OUTER_TO_INNER).CatDiv(';', 2); // @v9.4.9 
+				rBuf.Cat(buf).Transf(CTRANSF_OUTER_TO_INNER).CatDiv(';', 2); // @v9.4.9
 			}
 			break;
 		case PRD_ANNUAL:

@@ -23,9 +23,9 @@
 ******************************************************************/
 
 #include <slib.h>
-#include <string.h>
-#include <errno.h>
-#include <stdarg.h>
+//#include <string.h>
+//#include <errno.h>
+//#include <stdarg.h>
 #ifdef WIN32
 	#define snprintf(buffer, num, s1, s2) sprintf(buffer, s1, s2)
 	#define USE_XMLSTRING
@@ -33,7 +33,7 @@
 #ifdef USE_XMLSTRING
  #include <libxml/xmlstring.h>
 #endif
-#include <stdio.h>
+//#include <stdio.h>
 #include <nanohttp.h>
 #include <csoap.h>
 

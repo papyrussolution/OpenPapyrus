@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#include <stdarg.h>
-#include <stdio.h> /* needed for FILE */
+//#include <stdarg.h>
+//#include <stdio.h> /* needed for FILE */
 
 #include "curl.h"
 

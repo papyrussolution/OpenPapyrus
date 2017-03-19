@@ -3,6 +3,29 @@
 #pragma hdrstop
 #include <slib.h>
 
+BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
+{
+	switch(dwReason) {
+		case DLL_PROCESS_ATTACH:
+			{
+				SString product_name = "Papyrus-Drv-Pirit";
+				SLS.Init(product_name, (HINSTANCE)hModule);
+			}
+			break;
+#ifdef _MT
+		case DLL_THREAD_ATTACH:
+			SLS.InitThread();
+			break;
+		case DLL_THREAD_DETACH:
+			SLS.ReleaseThread();
+			break;
+#endif
+		case DLL_PROCESS_DETACH:
+			break;
+	}
+	return TRUE;
+}
+
 #define EXPORT	extern "C" __declspec (dllexport)
 #define THROWERR(expr,val)     {if(!(expr)){SetError(val);goto __scatch;}}
 
@@ -176,8 +199,32 @@ struct CheckStruct {
 
 class PiritEquip {
 public:
-	SLAPI  PiritEquip();
-	SLAPI ~PiritEquip();
+	SLAPI  PiritEquip()
+	{
+		SessID = 0;
+		LastError = 0;
+		FatalFlags = 0;
+		OrgAddr = 0;
+		CshrName = 0;
+		CashDateTime = 0;
+		LastCmd = 0;
+		LastParams = 0;
+		LastStatus = 0;
+		Check.Clear();
+		{
+			SString exe_file_name = SLS.GetExePath();
+			if(exe_file_name.NotEmptyS()) {
+				SPathStruc ps;
+				ps.Split(exe_file_name);
+				ps.Nam = "pirit";
+				ps.Ext = "log";
+				ps.Merge(LogFileName);
+			}
+		}
+	}
+	SLAPI ~PiritEquip()
+	{
+	}
 	int    RunOneCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize);
 	int    SetConnection();
 	int    CloseConnection();
@@ -214,12 +261,43 @@ public:
 	Config Cfg;
 	CheckStruct Check;
 private:
+	class  OpLogBlock {
+	public:
+		OpLogBlock(const char * pLogFileName, const char * pOp, const char * pExtMsg) : StartClk(clock())
+		{
+			LogFileName = pLogFileName;
+			Op = pOp;
+			ExtMsg = pExtMsg;
+			if(LogFileName.NotEmpty() && Op.NotEmpty()) {
+				SString line_buf;
+				line_buf.Cat(getcurdatetime_(), DATF_DMY|DATF_CENTURY, TIMF_HMS).Tab().Cat(Op).Tab().Cat("start");
+				if(ExtMsg.NotEmpty())
+					line_buf.Tab().Cat(ExtMsg);
+				SLS.LogMessage(LogFileName, line_buf, 8192);
+			}
+		}
+		~OpLogBlock()
+		{
+			if(LogFileName.NotEmpty() && Op.NotEmpty()) {
+				const long end_clk = clock();
+				SString line_buf;
+				line_buf.Cat(getcurdatetime_(), DATF_DMY|DATF_CENTURY, TIMF_HMS).Tab().Cat(Op).Tab().Cat("finish").Tab().Cat(end_clk-StartClk);
+				SLS.LogMessage(LogFileName, line_buf, 8192);
+			}
+		}
+		const long StartClk;
+		SString LogFileName;
+		SString Op;
+		SString ExtMsg;
+	};
 	int    FormatPaym(double paym, SString & rStr);
 	int    SetLogotype(SString & rPath, size_t size, uint height, uint width);
 	int    PrintLogo(int print);
 	int    GetDateTime(SYSTEMTIME sysDtTm, SString & rDateTime, int dt); // dt = 0 - возвращает форматировнную дату, dt = 1 - время //
 	void   GetLastCmdName(SString & rName); // new
 	void   SetLastItems(const char * pCmd, const char * pParam);
+
+	SString LogFileName;
 };
 
 static PiritEquip * P_Pirit = 0;
@@ -266,8 +344,18 @@ ErrMessage ErrMsg[] = {
 
 int	FASTCALL SetError(int errCode);
 int	FASTCALL SetError(char * pErrCode);
-int FASTCALL SetError(int errCode) { ErrorCode = errCode; return 1; }
-int FASTCALL SetError(SString & rErrCode) { ErrorCode = rErrCode.ToLong(); return 1; }
+int FASTCALL SetError(int errCode) 
+{ 
+	ErrorCode = errCode; 
+	return 1; 
+}
+
+int FASTCALL SetError(SString & rErrCode) 
+{ 
+	ErrorCode = rErrCode.ToLong(); 
+	return 1; 
+}
+
 static int Init();
 int Release();
 
@@ -291,11 +379,6 @@ void CreateStr(int64 value, SString & dst)
 void CreateStr(double value, SString & dst)
 {
 	dst.Cat(value).Cat(FS_STR);
-}
-
-BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
-{
-    return true;
 }
 
 EXPORT int /*STDAPICALLTYPE*/ RunCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize)
@@ -440,8 +523,11 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			int    flag = 0;
 			THROW(GetCurFlags(2, flag));
 			THROWERR(!(flag & 0x40), PIRIT_NOTENOUGHTMEMFORSESSCLOSE); // Нет памяти для закрытия смены в ФП
-			THROWERR(PutData("21", str), PIRIT_NOTSENT);
-			THROW(GetWhile(out_data, r_error));
+			{
+				OpLogBlock __oplb(LogFileName, "21", 0);
+				THROWERR(PutData("21", str), PIRIT_NOTSENT);
+				THROW(GetWhile(out_data, r_error));
+			}
 			// Ставлю проверку в двух местах, ибо не знаю, в какой момент этот флаг устанавливается
 			THROW(GetCurFlags(2, flag));
 			THROWERR(!(flag & 0x40), PIRIT_NOTENOUGHTMEMFORSESSCLOSE); // Нет памяти для закрытия смены в ФП
@@ -452,8 +538,11 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			SetLastItems(cmd, pInputData);
 			THROW(StartWork());
 			CreateStr(CshrName, str);
-			THROWERR(PutData("20", str), PIRIT_NOTSENT);
-			THROW(GetWhile(out_data, r_error));
+			{
+				OpLogBlock __oplb(LogFileName, "20", 0);
+				THROWERR(PutData("20", str), PIRIT_NOTSENT);
+				THROW(GetWhile(out_data, r_error));
+			}
 		}
 		else if(sstreqi_ascii(cmd, "OPENCHECK")) {
 			SetLastItems(cmd, pInputData);
@@ -596,8 +685,11 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				CreateStr(bc_entry.Std, in_data);
 				CreateStr(bc_entry.Code, in_data);
 				//
-				THROWERR(PutData("41", in_data), PIRIT_NOTSENT);
-				THROW(GetWhile(out_data, r_error));
+				{
+					OpLogBlock __oplb(LogFileName, "41", 0);
+					THROWERR(PutData("41", in_data), PIRIT_NOTSENT);
+					THROW(GetWhile(out_data, r_error));
+				}
 			}
 		}
 		else if(sstreqi_ascii(cmd, "GETCHECKPARAM")) {
@@ -687,24 +779,6 @@ int Release()
 	return 1;
 }
 
-PiritEquip::PiritEquip()
-{
-	SessID = 0;
-	LastError = 0;
-	FatalFlags = 0;
-	OrgAddr = 0;
-	CshrName = 0;
-	CashDateTime = 0;
-	LastCmd = 0;
-	LastParams = 0;
-	LastStatus = 0;
-	Check.Clear();
-}
-
-PiritEquip::~PiritEquip()
-{
-}
-
 SString & PiritEquip::LastErrorText(SString & rMsg)
 {
 	rMsg = 0;
@@ -741,10 +815,9 @@ SString & PiritEquip::LastErrorText(SString & rMsg)
 
 int PiritEquip::NotEnoughBuf(SString & rStr)
 {
-	int size = 0;
 	ErrorCode = PIRIT_NOTENOUGHMEM;
 	LastStr = rStr;
-	size = rStr.BufSize();
+	const int size = rStr.BufSize();
 	(rStr = 0).Cat(size);
 	return 1;
 }
@@ -759,9 +832,7 @@ int PiritEquip::SetConnection()
 	SString out_data;
 	SString r_error;
 	SString log_str;
-	SFile LogFile;
 
-	//LogFile.Open("H:\\PPY\\PiritLogFile.log", SFile::mAppend);
 	CommPort.GetParams(&port_params);
 	port_params.ByteSize = 8;
 	port_params.Parity = NOPARITY;
@@ -780,46 +851,32 @@ int PiritEquip::SetConnection()
 		case 10: port_params.Cbr = cbr256000; break;
 	}
 	THROW(CommPort.SetParams(&port_params));
-	//(log_str = 0).Cat("BaudRate ").Cat(Cfg.BaudRate).CR();
-	//LogFile.WriteLine(log_str);
-	//(log_str = 0).Cat("CommPort.SetParams(&port_params)").CR();
-	//LogFile.WriteLine(log_str);
 
 	THROW(CommPort.InitPort(Cfg.Port));
-	/*(log_str = 0).Cat("CommPort.InitPort(Cfg.Port)").CR();
-	LogFile.WriteLine(log_str);*/
 
 	// @v9.5.7 delay(200);
 	CommPort.PutChr(ENQ); // Проверка связи с ККМ
 	r = CommPort.GetChr();
-	/*(log_str = 0).Cat("r = ").Cat(r).CR();
-	LogFile.WriteLine(log_str);*/
 
 	THROW(r == ACK);
 
 	if(Cfg.BaudRate < 8) {
 		CreateStr(5, in_data);
-		THROWERR(PutData("93", in_data), PIRIT_NOTSENT); // Устанавливаем скорость ПУ 115200 бит/c
-		/*(log_str = 0).Cat("PutData(93, in_data)").CR();
-		LogFile.WriteLine(log_str);*/
-		THROW(GetWhile(out_data, r_error));
-		/*(log_str = 0).Cat("GetWhile(out_data, r_error)").CR();
-		LogFile.WriteLine(log_str);*/
-
+		{
+			OpLogBlock __oplb(LogFileName, "93", 0);
+			THROWERR(PutData("93", in_data), PIRIT_NOTSENT); // Устанавливаем скорость ПУ 115200 бит/c
+			THROW(GetWhile(out_data, r_error));
+		}
+		//
 		// Устанавливаем параметры COM-порта, соответствующие новой скорости ПУ
+		//
 		port_params.Cbr = cbr115200;
 		THROW(CommPort.SetParams(&port_params));
-		/*(log_str = 0).Cat("CommPort.SetParams(&port_params)").CR();
-		LogFile.WriteLine(log_str);*/
 
 		THROW(CommPort.InitPort(Cfg.Port));
-		/*(log_str = 0).Cat("CommPort.InitPort(Cfg.Port)").CR();
-		LogFile.WriteLine(log_str);*/
 		// @v9.5.7 delay(200);
 		CommPort.PutChr(ENQ); // Проверка связи с ККМ
 		r = CommPort.GetChr();
-		/*(log_str = 0).Cat("r = ").Cat(r).CR();
-		LogFile.WriteLine(log_str);*/
 		THROW(r == ACK);
 	}
 	if((Cfg.ReadCycleCount > 0) || (Cfg.ReadCycleDelay > 0))
@@ -844,26 +901,38 @@ int PiritEquip::SetCfg()
 	CreateStr(10, in_data);
 	CreateStr(0, in_data);
 	CreateStr((int)Cfg.LogNum, in_data);
-	THROWERR(PutData("12", in_data), PIRIT_NOTSENT);
-	THROW(GetWhile(out_data, r_error));
+	{
+		OpLogBlock __oplb(LogFileName, "12", 0);
+		THROWERR(PutData("12", in_data), PIRIT_NOTSENT);
+		THROW(GetWhile(out_data, r_error));
+	}
 	in_data = 0;
 	// Нумерация чеков ККМ
 	CreateStr(2, in_data);
 	CreateStr(0, in_data);
-	THROWERR(PutData("11", in_data), PIRIT_NOTSENT); // Получаем параметры чека
-	THROW(GetWhile(out_data, r_error));
+	{
+		OpLogBlock __oplb(LogFileName, "11", 0);
+		THROWERR(PutData("11", in_data), PIRIT_NOTSENT); // Получаем параметры чека
+		THROW(GetWhile(out_data, r_error));
+	}
 	flag = out_data.ToLong();
 	flag &= ~128; // Устанавливаем бит нумерации чеков ККМ
 	in_data = 0;
 	CreateStr(2, in_data);
 	CreateStr(0, in_data);
 	CreateStr(flag, in_data);
-	THROWERR(PutData("12", in_data), PIRIT_NOTSENT);
-	THROW(GetWhile(out_data, r_error));
+	{
+		OpLogBlock __oplb(LogFileName, "12", 0);
+		THROWERR(PutData("12", in_data), PIRIT_NOTSENT);
+		THROW(GetWhile(out_data, r_error));
+	}
 	// Получаем номер текущей сессии
 	CreateStr(1, in_data);
-	THROWERR(PutData("01", in_data), PIRIT_NOTSENT); // Запрос номера текущей сессии(смены)
-	THROW(GetWhile(out_data, r_error));
+	{
+		OpLogBlock __oplb(LogFileName, "01", 0);
+		THROWERR(PutData("01", in_data), PIRIT_NOTSENT); // Запрос номера текущей сессии(смены)
+		THROW(GetWhile(out_data, r_error));
+	}
 	{
 		StringSet delim_out(FS, out_data);
 		delim_out.get(&i, out); // В out считан номер запроса
@@ -888,8 +957,11 @@ int PiritEquip::StartWork()
 	if(flag & 0x1) {
 		in_data = 0;
 		SString date, time;
-		THROWERR(PutData("13", in_data), PIRIT_NOTSENT); // Смотрим текщую дату/время на ККМ
-		THROW(GetWhile(out_data, r_error));
+		{
+			OpLogBlock __oplb(LogFileName, "13", 0);
+			THROWERR(PutData("13", in_data), PIRIT_NOTSENT); // Смотрим текщую дату/время на ККМ
+			THROW(GetWhile(out_data, r_error));
+		}
 		out_data.Divide(FS, date, time);
 		(CashDateTime = 0).Cat("Текущая дата на ККМ: ").Cat(date).Cat(" Текущее время на ККМ: ").Cat(time);
 		in_data = 0;
@@ -898,8 +970,11 @@ int PiritEquip::StartWork()
 		CreateStr(datetime, in_data);
 		GetDateTime(sys_dt_tm, datetime, 1);
 		CreateStr(datetime, in_data);
-		THROWERR(PutData("10", in_data), PIRIT_NOTSENT);
-		THROW(GetWhile(out_data, r_error));
+		{
+			OpLogBlock __oplb(LogFileName, "10", 0);
+			THROWERR(PutData("10", in_data), PIRIT_NOTSENT);
+			THROW(GetWhile(out_data, r_error));
+		}
 		THROW(GetCurFlags(2, flag));
 		if(!(flag & 0x4) && (r_error.CmpNC("0B") == 0)) {  // Проверяем что смена закрыта и код ошибки "дата и время отличаются от текущих даты и времени ККМ более чем на 8 минут"
 			in_data = 0;
@@ -908,8 +983,11 @@ int PiritEquip::StartWork()
 			CreateStr(datetime, in_data);
 			GetDateTime(sys_dt_tm, datetime, 1);
 			CreateStr(datetime, in_data);
-			THROWERR(PutData("14", in_data), PIRIT_NOTSENT); // Устанавливаем системные дату и время в ККМ
-			THROW(GetWhile(out_data, r_error));
+			{
+				OpLogBlock __oplb(LogFileName, "14", 0);
+				THROWERR(PutData("14", in_data), PIRIT_NOTSENT); // Устанавливаем системные дату и время в ККМ
+				THROW(GetWhile(out_data, r_error));
+			}
 		}
 	}
 	CATCHZOK
@@ -923,19 +1001,22 @@ int PiritEquip::GetCurFlags(int numFlags, int & rFlags)
 	SString out_data, r_error, s_flags;
 	uint count = 0;
 	rFlags = 0;
-	THROWERR(PutData("00", 0), PIRIT_NOTSENT); // Запрос флагов статуса
-	while(out_data.Empty() && count < max_tries) {
-		if(numFlags == 1) // Если запрашиваем флаги фатального состояния, дабы не зациклиться
-			GetData(out_data, r_error);
-		else {
-			THROW(GetWhile(out_data, r_error));
-		}
-		count++;
-	}
 	{
-		StringSet fl_pack(FS, out_data);
-		for(uint j = 1, i = 0; j < (uint)numFlags+1; j++) {
-			THROW(fl_pack.get(&i, s_flags));
+		OpLogBlock __oplb(LogFileName, "00", 0);
+		THROWERR(PutData("00", 0), PIRIT_NOTSENT); // Запрос флагов статуса
+		while(out_data.Empty() && count < max_tries) {
+			if(numFlags == 1) // Если запрашиваем флаги фатального состояния, дабы не зациклиться
+				GetData(out_data, r_error);
+			else {
+				THROW(GetWhile(out_data, r_error));
+			}
+			count++;
+		}
+		{
+			StringSet fl_pack(FS, out_data);
+			for(uint j = 1, i = 0; j < (uint)numFlags+1; j++) {
+				THROW(fl_pack.get(&i, s_flags));
+			}
 		}
 	}
 	rFlags = s_flags.ToLong();
@@ -961,8 +1042,11 @@ int PiritEquip::RunCheck(int opertype)
 			CreateStr(Check.Department, in_data);
 			CreateStr(CshrName, in_data);
 			CreateStr("", in_data);
-			THROWERR(PutData("30", in_data), PIRIT_NOTSENT);
-			THROW(GetWhile(out_data, r_error));
+			{
+				OpLogBlock __oplb(LogFileName, "30", 0);
+				THROWERR(PutData("30", in_data), PIRIT_NOTSENT);
+				THROW(GetWhile(out_data, r_error));
+			}
 			break;
 		case 1: // Закрыть документ
 			// Проверяем наличие открытого документа
@@ -975,8 +1059,11 @@ int PiritEquip::RunCheck(int opertype)
 						FormatPaym(Check.PaymCard, str);
 						CreateStr(str, in_data);
 						CreateStr("", in_data);
-						THROWERR(PutData("47", in_data), PIRIT_NOTSENT);
-						THROW(GetWhile(out_data, r_error));
+						{
+							OpLogBlock __oplb(LogFileName, "47", 0);
+							THROWERR(PutData("47", in_data), PIRIT_NOTSENT);
+							THROW(GetWhile(out_data, r_error));
+						}
 					}
 					in_data = 0;
 					if(Check.PaymCash != 0.0) {
@@ -984,8 +1071,11 @@ int PiritEquip::RunCheck(int opertype)
 						FormatPaym(Check.PaymCash, str);
 						CreateStr(str, in_data);
 						CreateStr("", in_data);
-						THROWERR(PutData("47", in_data), PIRIT_NOTSENT);
-						THROW(GetWhile(out_data, r_error));
+						{
+							OpLogBlock __oplb(LogFileName, "47", 0);
+							THROWERR(PutData("47", in_data), PIRIT_NOTSENT);
+							THROW(GetWhile(out_data, r_error));
+						}
 					}
 				}
 				in_data = 0;
@@ -993,8 +1083,11 @@ int PiritEquip::RunCheck(int opertype)
 					CreateStr(1, in_data); // Чек не отрезаем (только для сервисных документов)
 				else
 					CreateStr(0, in_data); // Чек отрезаем
-				THROWERR(PutData("31", in_data), PIRIT_NOTSENT);
-				THROW(GetWhile(out_data, r_error));
+				{
+					OpLogBlock __oplb(LogFileName, "31", 0);
+					THROWERR(PutData("31", in_data), PIRIT_NOTSENT);
+					THROW(GetWhile(out_data, r_error));
+				}
 			}
 			// new {
 			else
@@ -1004,8 +1097,10 @@ int PiritEquip::RunCheck(int opertype)
 		case 2: // Печать фискальной строки
 			in_data = 0;
 			THROW(GetCurFlags(3, flag));
-			CreateStr(Check.Text, in_data); // Название товара      // @v9.5.7 ""-->Check.Text 
-			CreateStr(Check.Code, in_data); // Артикул или штрихкод // @v9.5.7 ""-->Check.Code
+			(str = Check.Text).Trim(220); // [0..224]
+			CreateStr(str, in_data); // Название товара      // @v9.5.7 ""-->Check.Text 
+			(str = Check.Code).Trim(16); // [0..18]
+			CreateStr(str, in_data); // Артикул или штрихкод // @v9.5.7 ""-->Check.Code
 			CreateStr(Check.Quantity, in_data);
 			// @vmiller comment
 			/*FormatPaym(Check.Price, str);
@@ -1015,10 +1110,20 @@ int PiritEquip::RunCheck(int opertype)
 			CreateStr((int)0, in_data); // @v9.5.7 Номер товарной позиции
 			CreateStr(Check.Department, in_data); // @v9.5.7 Номер секции
 			Check.Clear();
-			THROWERR(PutData("42", in_data), PIRIT_NOTSENT);
-			out_data = 0; // @debug
-			r_error = "00"; // @debug
-			// @debug THROW(GetWhile(out_data, r_error));
+			{
+				OpLogBlock __oplb(LogFileName, "42", 0);
+				THROWERR(PutData("42", in_data), PIRIT_NOTSENT);
+				{
+					const int do_check_ret = 0;
+					if(do_check_ret) {
+						THROW(GetWhile(out_data, r_error));
+					}
+					else {
+						out_data = 0;
+						r_error = "00";
+					}
+				}
+			}
 			Check.Clear();
 			break;
 		case 3: // Печать текстовой строки
@@ -1039,10 +1144,20 @@ int PiritEquip::RunCheck(int opertype)
 				if(text_attr != 0)
 					CreateStr(text_attr, in_data);
 				Check.Clear();
-				THROWERR(PutData("40", in_data), PIRIT_NOTSENT);
-				out_data = 0; // @debug
-				r_error = "00"; // @debug
-				// @debug THROW(GetWhile(out_data, r_error));
+				{
+					OpLogBlock __oplb(LogFileName, "40", 0);
+					THROWERR(PutData("40", in_data), PIRIT_NOTSENT);
+					{
+						const int do_check_ret = 0;
+						if(do_check_ret) {
+							THROW(GetWhile(out_data, r_error));
+						}
+						else {
+							out_data = 0;
+							r_error = "00";
+						}
+					}
+				}
 			}
 			else if(((halfbyte = flag & 0x0F) == 2) || ((halfbyte = flag & 0x0F) == 3)) { // Текстовая строка для чека
 				in_data = 0;
@@ -1064,32 +1179,51 @@ int PiritEquip::RunCheck(int opertype)
 				CreateStr("", in_data);
 				CreateStr("", in_data);
 				CreateStr("", in_data);
-                THROWERR(PutData("49", in_data), PIRIT_NOTSENT);
-				out_data = 0; // @debug
-				r_error = "00"; // @debug
-				// @debug THROW(GetWhile(out_data, r_error));
+				{
+					OpLogBlock __oplb(LogFileName, "49", 0);
+					THROWERR(PutData("49", in_data), PIRIT_NOTSENT);
+					{
+						const int do_check_ret = 0;
+						if(do_check_ret) {
+							THROW(GetWhile(out_data, r_error));
+						}
+						else {
+							out_data = 0;
+							r_error = "00";
+						}
+					}
+				}
 			}
 			// new {
-			else
+			else {
 				THROWERR(0, PIRIT_ERRSTATUSFORFUNC);
+			}
 			// } new
 			break;
 		case 4: // Аннулировать чек
 			// Проверяем наличие открытого документа
 			THROW(GetCurFlags(3, flag));
 			if((flag >> 4) != 0) {
-				THROWERR(PutData("32", 0), PIRIT_NOTSENT);
-				THROW(GetWhile(out_data, r_error));
+				{
+					OpLogBlock __oplb(LogFileName, "32", 0);
+					THROWERR(PutData("32", 0), PIRIT_NOTSENT);
+					THROW(GetWhile(out_data, r_error));
+				}
 			}
 			break;
 		case 5: // Внесение/изъятие наличности
-			SString str, b_point, a_point;
-			in_data = 0;
-			CreateStr("", in_data);
-			FormatPaym(Check.IncassAmt, str);
-			CreateStr(str, in_data);
-			THROWERR(PutData("48", in_data), PIRIT_NOTSENT);
-			THROW(GetWhile(out_data, r_error));
+			{
+				SString str, b_point, a_point;
+				in_data = 0;
+				CreateStr("", in_data);
+				FormatPaym(Check.IncassAmt, str);
+				CreateStr(str, in_data);
+				{
+					OpLogBlock __oplb(LogFileName, "48", 0);
+					THROWERR(PutData("48", in_data), PIRIT_NOTSENT);
+					THROW(GetWhile(out_data, r_error));
+				}
+			}
 			break;
 	}
 	CATCHZOK
@@ -1107,8 +1241,11 @@ int PiritEquip::ReturnCheckParam(SString & rInput, char * pOutput, size_t size)
 		out_data = 0;
 		if(buf.CmpNC("AMOUNT") == 0) {
 			CreateStr(1, in_data);
-			THROWERR(PutData("03", in_data), PIRIT_NOTSENT);
-			THROW(GetWhile(out_data, r_error));
+			{
+				OpLogBlock __oplb(LogFileName, "03", 0);
+				THROWERR(PutData("03", in_data), PIRIT_NOTSENT);
+				THROW(GetWhile(out_data, r_error));
+			}
 			{
 				StringSet dataset(FS, out_data);
 				uint k = 0;
@@ -1119,8 +1256,11 @@ int PiritEquip::ReturnCheckParam(SString & rInput, char * pOutput, size_t size)
 		}
 		else if(buf.CmpNC("CHECKNUM") == 0) {
 			CreateStr(2, in_data);
-			THROWERR(PutData("03", in_data), PIRIT_NOTSENT);
-			THROW(GetWhile(out_data, r_error));
+			{
+				OpLogBlock __oplb(LogFileName, "03", 0);
+				THROWERR(PutData("03", in_data), PIRIT_NOTSENT);
+				THROW(GetWhile(out_data, r_error));
+			}
 			{
 				StringSet dataset(FS, out_data);
 				uint k = 0;
@@ -1132,8 +1272,11 @@ int PiritEquip::ReturnCheckParam(SString & rInput, char * pOutput, size_t size)
 		}
 		else if(buf.CmpNC("CASHAMOUNT") == 0) {
 			CreateStr(7, in_data);
-			THROWERR(PutData("02", in_data), PIRIT_NOTSENT);
-			THROW(GetWhile(out_data, r_error));
+			{
+				OpLogBlock __oplb(LogFileName, "02", 0);
+				THROWERR(PutData("02", in_data), PIRIT_NOTSENT);
+				THROW(GetWhile(out_data, r_error));
+			}
 			{
 				StringSet dataset(FS, out_data);
 				uint k = 0;
@@ -1160,11 +1303,17 @@ int PiritEquip::OpenBox()
 {
 	int    ok = 1;
 	SString out_data, r_error;
-	THROWERR(PutData("81", 0), PIRIT_NOTSENT);
-	THROW(GetWhile(out_data, r_error));
-	if(out_data.ToLong() == 0){
-		THROWERR(PutData("80", 0), PIRIT_NOTSENT);
+	{
+		OpLogBlock __oplb(LogFileName, "81", 0);
+		THROWERR(PutData("81", 0), PIRIT_NOTSENT);
 		THROW(GetWhile(out_data, r_error));
+	}
+	if(out_data.ToLong() == 0){
+		{
+			OpLogBlock __oplb(LogFileName, "80", 0);
+			THROWERR(PutData("80", 0), PIRIT_NOTSENT);
+			THROW(GetWhile(out_data, r_error));
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -1318,8 +1467,11 @@ int PiritEquip::GetStatus(SString & rStatus)
 	int    flag = 0;
 	SString in_data, out_data, r_error;
 	in_data = 0;
-	THROWERR(PutData("04", in_data), PIRIT_NOTSENT);
-	THROW(GetWhile(out_data, r_error));
+	{
+		OpLogBlock __oplb(LogFileName, "04", 0);
+		THROWERR(PutData("04", in_data), PIRIT_NOTSENT);
+		THROW(GetWhile(out_data, r_error));
+	}
 	flag = out_data.ToLong();
 	if(flag & 2) { // В принтере нет бумаги
 		status |= NOPAPER;
@@ -1382,22 +1534,32 @@ int PiritEquip::SetLogotype(SString & rPath, size_t size, uint height, uint widt
 	FILE * file = 0;
 
 	THROWERR((height == 126) && (width <= 576), PIRIT_ERRLOGOSIZE);
-	THROWERR(PutData("16", in_data), PIRIT_NOTSENT); // Удаляем старый логотип
-	Sleep(10000);
-	THROW(GetWhile(out_data, r_error));
+	{
+		OpLogBlock __oplb(LogFileName, "16", 0);
+		THROWERR(PutData("16", in_data), PIRIT_NOTSENT); // Удаляем старый логотип
+		Sleep(10000);
+		THROW(GetWhile(out_data, r_error));
+	}
 	file = fopen(rPath, "rb");
 	THROW(file);
 	CreateStr(((int)size + 1), in_data);
-	THROWERR(PutData("15", in_data), PIRIT_NOTSENT);
-	while(r != ACK)
-		r = CommPort.GetChr();
-	n = 0x1B;
-	THROW(CommPort.PutChr(n));
-	for(uint i = 1; i < (size + 1); i++) {
-		fread(&n, sizeof(char), 1, file);
-		THROW(CommPort.PutChr(n));
+	{
+		OpLogBlock __oplb(LogFileName, "15", 0);
+		THROWERR(PutData("15", in_data), PIRIT_NOTSENT);
+		do {
+			r = CommPort.GetChr();
+		} while(r && r != ACK); // @v9.5.7 (r &&)
 	}
- 	THROW(GetWhile(out_data, r_error));
+	{
+		OpLogBlock __oplb(LogFileName, "1B", 0);
+		n = 0x1B;
+		THROW(CommPort.PutChr(n));
+		for(uint i = 1; i < (size + 1); i++) {
+			fread(&n, sizeof(char), 1, file);
+			THROW(CommPort.PutChr(n));
+		}
+ 		THROW(GetWhile(out_data, r_error));
+	}
 	CATCHZOK
 	SFile::ZClose(&file);
 	return ok;
@@ -1409,17 +1571,23 @@ int PiritEquip::PrintLogo(int print)
 	SString in_data, out_data, r_error;
 	CreateStr(1, in_data);
 	CreateStr(0, in_data);
-	THROWERR(PutData("11", in_data), PIRIT_NOTSENT);
-	out_data.Destroy();
-	THROW(GetWhile(out_data, r_error));
+	{
+		OpLogBlock __oplb(LogFileName, "11", 0);
+		THROWERR(PutData("11", in_data), PIRIT_NOTSENT);
+		out_data.Destroy();
+		THROW(GetWhile(out_data, r_error));
+	}
 	flag = out_data.ToLong();
 	SETFLAG(flag, 0x04, print);
 	in_data.Destroy();
 	CreateStr(1, in_data);
 	CreateStr(0, in_data);
 	CreateStr(flag, in_data);
-	THROWERR(PutData("12", in_data), PIRIT_NOTSENT);
-	THROW(GetWhile(out_data, r_error));
+	{
+		OpLogBlock __oplb(LogFileName, "12", 0);
+		THROWERR(PutData("12", in_data), PIRIT_NOTSENT);
+		THROW(GetWhile(out_data, r_error));
+	}
 	THROW(StartWork());
 	CATCHZOK
 	return ok;

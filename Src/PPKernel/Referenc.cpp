@@ -1184,14 +1184,15 @@ struct ObjRights_Pre855 { // @persistent
 int SLAPI PPRights::ReadRights(PPID securType, PPID securID, int ignoreCheckSum)
 {
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	int    r = 0;
 	size_t sz = 2048; // @v8.9.1 1024-->2048
 	THROW(Resize(sz));
-	THROW(r = PPRef->GetConfig(securType, securID, PPPRP_RTCOMM, P_Rt, sz));
+	THROW(r = p_ref->GetConfig(securType, securID, PPPRP_RTCOMM, P_Rt, sz));
 	if(r > 0) {
 		if(Size() > sz) {
 			THROW(Resize(sz = Size()));
-			THROW(PPRef->GetConfig(securType, securID, PPPRP_RTCOMM, P_Rt, sz) > 0);
+			THROW(p_ref->GetConfig(securType, securID, PPPRP_RTCOMM, P_Rt, sz) > 0);
 		}
 		if(!ignoreCheckSum)
 			THROW_PP(CheckSum() == P_Rt->CheckSum, PPERR_INVRTCHKSUM);
@@ -1338,6 +1339,7 @@ int SLAPI PPRights::Put(PPID securType, PPID securID)
 {
 	int    ok = 1;
 	if(!IsEmpty()) {
+		Reference * p_ref = PPRef;
 		P_Rt->OprFlags &= ~(PPORF_DEFAULT | PPORF_INHERITED);
 		P_Rt->SecurObj  = securType;
 		P_Rt->SecurID   = securID;
@@ -1374,13 +1376,13 @@ int SLAPI PPRights::Put(PPID securType, PPID securID)
 			P_Rt->ChkSumAccList = _checksum__((char*)P_AccList->dataPtr(), P_AccList->getCount() * P_AccList->getItemSize());
 		else
 			P_Rt->ChkSumAccList = _checksum__(0, 0);
-		THROW(PPRef->SetConfig(securType, securID, PPPRP_RTCOMM, P_Rt, Size()));
-		THROW(PPRef->PutPropArray(securType, securID, PPPRP_RT_OPLIST, P_OpList, 0));
-		THROW(PPRef->PutPropArray(securType, securID, PPPRP_RT_LOCLIST, P_LocList, 0));
-		THROW(PPRef->PutPropArray(securType, securID, PPPRP_RT_CFG, P_CfgList, 0));
-		THROW(PPRef->PutPropArray(securType, securID, PPPRP_RT_ACCLIST, P_AccList, 0));
-		THROW(PPRef->PutPropArray(securType, securID, PPPRP_RT_POSLIST, P_PosList, 0)); // @v8.9.1
-		THROW(PPRef->PutPropArray(securType, securID, PPPRP_RT_QKLIST,  P_QkList, 0));  // @v8.9.1
+		THROW(p_ref->SetConfig(securType, securID, PPPRP_RTCOMM, P_Rt, Size()));
+		THROW(p_ref->PutPropArray(securType, securID, PPPRP_RT_OPLIST, P_OpList, 0));
+		THROW(p_ref->PutPropArray(securType, securID, PPPRP_RT_LOCLIST, P_LocList, 0));
+		THROW(p_ref->PutPropArray(securType, securID, PPPRP_RT_CFG, P_CfgList, 0));
+		THROW(p_ref->PutPropArray(securType, securID, PPPRP_RT_ACCLIST, P_AccList, 0));
+		THROW(p_ref->PutPropArray(securType, securID, PPPRP_RT_POSLIST, P_PosList, 0)); // @v8.9.1
+		THROW(p_ref->PutPropArray(securType, securID, PPPRP_RT_QKLIST,  P_QkList, 0));  // @v8.9.1
 	}
 	CATCHZOK
 	return ok;
@@ -1890,8 +1892,7 @@ int SLAPI PPGetPrinterCfg(PPID obj, PPID id, PPPrinterCfg * pCfg)
 	}
 	if(pCfg) {
 		SETFLAG(pCfg->Flags, PPPrinterCfg::fUseDuplexPrinting, use_duplex_printing);
-		if(pCfg->PrnCmdSet == 0)
-			pCfg->PrnCmdSet = SPCMDSET_EPSON;
+		SETIFZ(pCfg->PrnCmdSet, SPCMDSET_EPSON);
 	}
 	return ok;
 }

@@ -5,9 +5,9 @@
 #define __DB_H
 
 #include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <stdarg.h>
 #include <slib.h>
 //#include <libxml\xmlwriter.h>
 //#include <libxml\xmlreader.h>
