@@ -1,5 +1,5 @@
 // STHREAD.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -106,7 +106,7 @@ int SLAPI SLAPI BlockingCounter::WaitUntilDirty()
 // Non-blocking increment
 int SLAPI BlockingCounter::Increment()
 {
-	int ok = ExclusiveAccess.Wait();
+	int    ok = ExclusiveAccess.Wait();
 	if(ok) {
 		int mustSignal = IsClear();
 		// This is the actual increment
@@ -245,9 +245,20 @@ int SLAPI Evnt::Reset()
 //
 //
 //
+SLAPI Sem::Sem(const char * pName, int mode, int initVal)
+{
+	assert(!isempty(pName));
+	if(mode == modeCreate) {
+		H = ::CreateSemaphore(0, initVal, MAXLONG, pName);
+	}
+	else {
+		H = ::OpenSemaphore(EVENT_ALL_ACCESS, 0, pName);
+	}
+}
+
 SLAPI Sem::Sem(int initVal) : SWaitableObject()
 {
-	H = CreateSemaphore(0, initVal, MAXLONG, 0);
+	H = ::CreateSemaphore(0, initVal, MAXLONG, 0);
 }
 
 int SLAPI Sem::Release(int count)
@@ -419,8 +430,7 @@ int SLAPI ReadWriteLock::Unlock()
 		assert(Dw >= 0);
 		assert(ActiveCount >= -1);
 	}
-	if(p_sem)
-		p_sem->Release(c);
+	CALLPTRMEMB(p_sem, Release(c));
 	return ok;
 }
 //

@@ -2287,6 +2287,14 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											// } @v9.5.8
 											n_h.PutInner("wa:IsAccept", EncText(temp_buf));
 										}
+										// @v9.5.10 {
+										else if(cmp_result & 0x01) {
+											if(doc_type == PPEDIOP_EGAIS_WAYBILLACT_V2) {
+												temp_buf = "Differences";
+												n_h.PutInner("wa:IsAccept", EncText(temp_buf));
+											}
+										}
+										// } @v9.5.10
 										(temp_buf = bill_code).CatChar('-').Cat("ACT");
 										n_h.PutInner("wa:ACTNUMBER", EncText(temp_buf));
 										n_h.PutInner("wa:ActDate", (temp_buf = 0).Cat(getcurdate_(), DATF_ISO8601|DATF_CENTURY));

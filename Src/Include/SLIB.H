@@ -10018,6 +10018,11 @@ public:
 //
 class Sem : public SWaitableObject {
 public:
+	enum {
+		modeCreate = 1,
+		modeOpen   = 3
+	};
+	SLAPI  Sem(const char * pName, int mode = modeCreate, int initVal = 0);
 	SLAPI  Sem(int initVal = 0);
 	int    SLAPI Release(int count = 1);
 };

@@ -279,7 +279,7 @@ int FASTCALL PPObjBill::GetEdiUserStatus(const BillTbl::Rec & rRec)
 	int    status = 0;
 	int    recadv_status = PPEDI_RECADV_STATUS_UNDEF;
 	int    recadv_conf_status = PPEDI_RECADVCONF_STATUS_UNDEF;
-    if(oneof2(rRec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_DESADV)) {
+    if(oneof3(rRec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_DESADV)) {
         recadv_status = BillCore::GetRecadvStatus(rRec);
         if(recadv_status == PPEDI_RECADV_STATUS_ACCEPT)
 			status = BEDIUS_DESADV_IN_RECADV_ACC;
