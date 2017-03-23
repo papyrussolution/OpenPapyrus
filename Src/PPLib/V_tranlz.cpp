@@ -1044,7 +1044,7 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 			skip = 1;
 	}
 	if(!skip) {
-	// } @v9.5.8 
+	// } @v9.5.8
 		// @v9.3.4 {
 		double ext_val1 = 0.0;
 		{
@@ -1688,8 +1688,8 @@ int SLAPI PPViewTrfrAnlz::CreateOrderTable(IterOrder ord)
 					id = P_TrAnlzTbl->data.ArticleID;
 				if(id != prev_id) {
 					switch(obj_type) {
-						case PPOBJ_GOODS:   
-							// @v9.5.5 GetGoodsName(id, temp_buf); 
+						case PPOBJ_GOODS:
+							// @v9.5.5 GetGoodsName(id, temp_buf);
 							GObj.FetchNameR(id, temp_buf); // @v9.5.5
 							break;
 						case PPOBJ_ARTICLE: GetArticleName(id, temp_buf); break;
@@ -3305,7 +3305,7 @@ IMPL_HANDLE_EVENT(TrfrAnlzFiltDialog)
 		GetClusterData(CTL_GTO_FLAGS, &Data.Flags);
 		SetupCtrls();
 	}
-	// } @v9.5.8 
+	// } @v9.5.8
 	else
 		return;
 	clearEvent(event);
@@ -3752,6 +3752,7 @@ PrcssrAlcReport::GoodsItem & PrcssrAlcReport::GoodsItem::Clear()
 	Proof = 0.0;
 	BottlingDate = ZERODATE;
 	CountryCode = 0;
+	OuterUnpackedTag = 0; // @v9.5.10
 	UnpackedVolume = 0.0;
 	CategoryCodePos = 0;
 	CategoryCode = 0;

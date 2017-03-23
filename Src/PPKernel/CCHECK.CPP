@@ -531,10 +531,10 @@ int CCheckItem::GetRec(CCheckLineExtTbl::Rec & rRec) const
 	MEMSZERO(rRec);
 	if(Queue > 0 || (Flags & (cifGrouped|cifModifier|cifPartOfComplex|cifQuotedByGift|cifFixedPrice)) || Serial[0]) {
 		rRec.Queue = Queue;
-		SETFLAG(rRec.Flags, CCheckPacket::LineExt::fGroup,         Flags & cifGrouped);       // @v7.1.5
-		SETFLAG(rRec.Flags, CCheckPacket::LineExt::fModifier,      Flags & cifModifier);      // @v7.2.0
-		SETFLAG(rRec.Flags, CCheckPacket::LineExt::fPartOfComplex, Flags & cifPartOfComplex); // @v7.4.5
-		SETFLAG(rRec.Flags, CCheckPacket::LineExt::fQuotedByGift,  Flags & cifQuotedByGift);  // @v7.4.10
+		SETFLAG(rRec.Flags, CCheckPacket::LineExt::fGroup,         Flags & cifGrouped);
+		SETFLAG(rRec.Flags, CCheckPacket::LineExt::fModifier,      Flags & cifModifier);
+		SETFLAG(rRec.Flags, CCheckPacket::LineExt::fPartOfComplex, Flags & cifPartOfComplex);
+		SETFLAG(rRec.Flags, CCheckPacket::LineExt::fQuotedByGift,  Flags & cifQuotedByGift);
 		SETFLAG(rRec.Flags, CCheckPacket::LineExt::fFixedPrice,    Flags & cifFixedPrice);    // @v8.6.12
 		STRNSCPY(rRec.Serial, Serial);
 		strip(rRec.Serial);
@@ -3543,7 +3543,7 @@ int SLAPI CCheckCore::RecalcSCardsTurnover(int use_ta)
 
 //double CPosProcessor::Helper_CalcSCardOpBonusAmount(const CCheckLineTbl::Rec & rItem, PPObjGoods & rGObj, PPID bonusGoodsGrpID, double * pNonCrdAmt)
 
-int SLAPI CCheckCore::GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgXXX*/, const DateRange * pPeriod, 
+int SLAPI CCheckCore::GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgXXX*/, const DateRange * pPeriod,
 	PPID restrGoodsGrpID, double * pDebit, double * pCredit)
 {
 	PPIDArray cc_list;
@@ -3628,7 +3628,7 @@ int SLAPI CCheckCore::GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgX
 		}
 		if(restrGoodsGrpID && cc_amt_list.getCount()) {
 			PPObjGoods goods_obj;
-			cc_list.sortAndUndup(); 
+			cc_list.sortAndUndup();
 			cc_amt_list.SortByKey(); // in order to use binary searching
 			CCheckLineArray lines_list;
 			{

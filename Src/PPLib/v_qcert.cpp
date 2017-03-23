@@ -1,5 +1,5 @@
 // V_QCERT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -208,22 +208,22 @@ int SLAPI PPViewQCert::Transmit()
 
 int SLAPI PPViewQCert::SetPassiveTag(int set)
 {
-	int    ok = -1, ta = 0, r;
+	int    ok = -1, r;
 	QCertViewItem item;
 	if(CONFIRM(PPCFM_QCSETPASSIVETAG)) {
 		PPWait(1);
-		THROW(PPStartTransaction(&ta, 1));
+		PPTransaction tra(1);
+		THROW(tra);
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			THROW(r = QcObj.SetPassiveTag(item.ID, set, 0));
 			if(r > 0)
 				ok = 1;
 			PPWaitPercent(GetCounter());
 		}
-		THROW(PPCommitWork(&ta));
+		THROW(tra.Commit());
 		PPWait(0);
 	}
 	CATCH
-		PPRollbackWork(&ta);
 		ok = PPErrorZ();
 	ENDCATCH
 	return ok;

@@ -61,7 +61,7 @@ int SLAPI Transfer::SearchByBill(PPID billID, int reverse, short rByBill, Transf
 	k0.RByBill = rByBill;
 	int    r = SearchByKey(this, 0, &k0, pRec);
 	if(r < 0)
-		PPErrCode = PPERR_TRFRBYBILLNFOUND;
+		PPSetError(PPERR_TRFRBYBILLNFOUND);
 	return r;
 }
 
@@ -86,7 +86,7 @@ int SLAPI Transfer::RecByBill(PPID billID, short * rByBill)
 		if(rbb == 0)
 			*rByBill = 1;
 		else
-			ok = (PPErrCode = PPERR_TRFRBYBILLNFOUND, 0);
+			ok = PPSetError(PPERR_TRFRBYBILLNFOUND);
 	}
 	else
 		ok = PPSetErrorDB();
@@ -216,11 +216,61 @@ int SLAPI Transfer::SearchReval(PPID lotID, LDATE date, long oprno, TransferTbl:
 	return r ? -1 : 0;
 }
 
+int SLAPI Transfer::UpdateFwRevalCostAndPrice2(PPID lotID, LDATE dt, long oprno, double cost, double price, uint * pUF)
+{
+	int    ok = 1;
+	uint   uf = 0;
+	int    fw_reval_found = 0;
+	if(dt) {
+		int    r = 0;
+		TransferTbl::Rec next_rec;
+		for(DateIter di(dt, oprno); (r = EnumByLot(lotID, &di, &next_rec)) > 0;) {
+			if(next_rec.Flags & PPTFR_REVAL) {
+				SETFLAG(uf, TRUCLF_UPDCOST,  dbl_cmp(next_rec.Cost, cost));
+				SETFLAG(uf, TRUCLF_UPDPRICE, dbl_cmp(next_rec.Price, price));
+				if(uf & TRUCLF_UPDCP) {
+					next_rec.Cost  = TR5(cost);
+					next_rec.Price = TR5(price);
+					THROW_DB(updateRecBuf(&next_rec));
+				}
+				fw_reval_found = 1;
+				break;
+			}
+			else {
+				next_rec.Cost  = TR5(cost);
+
+				const double p0 = TR5(next_rec.Price);
+				const double d0 = TR5(next_rec.Discount);
+				next_rec.Price = TR5(price);
+				next_rec.Discount = TR5(price - p0 + d0);
+
+				THROW_DB(updateRecBuf(&next_rec));
+			}
+		}
+		THROW(r);
+	}
+	if(!fw_reval_found) {
+		ReceiptTbl::Rec lot_rec;
+		THROW(Rcpt.Search(lotID, &lot_rec) > 0);
+		SETFLAG(uf, TRUCLF_UPDCOST,  dbl_cmp(lot_rec.Cost,  cost));
+		SETFLAG(uf, TRUCLF_UPDPRICE, dbl_cmp(lot_rec.Price, price));
+		if(uf & TRUCLF_UPDCP) {
+			lot_rec.Cost  = R5(cost);
+			lot_rec.Price = R5(price);
+			THROW_DB(Rcpt.updateRecBuf(&lot_rec));
+		}
+	}
+	ASSIGN_PTR(pUF, uf);
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI Transfer::UpdateFwRevalCostAndPrice(PPID lotID, LDATE dt, long oprno, double cost, double price, uint * pUF)
 {
 	int    ok = 1, r;
 	uint   uf = 0;
-	THROW(r = SearchReval(lotID, dt, oprno));
+	TransferTbl::Rec next_reval_rec;
+	THROW(r = SearchReval(lotID, dt, oprno, &next_reval_rec));
 	if(r > 0) {
 		SETFLAG(uf, TRUCLF_UPDCOST,  dbl_cmp(data.Cost, cost));
 		SETFLAG(uf, TRUCLF_UPDPRICE, dbl_cmp(data.Price, price));
@@ -627,7 +677,7 @@ int SLAPI GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotR
 					}
 				}
 				if(!is_asset && gobj.GTxObj.FetchByID(GoodsTaxGrpID, &gt) > 0) {
-					amt_fl = (CCFLG_PRICEWOEXCISE & CConfig.Flags) ? ~GTAXVF_SALESTAX : GTAXVF_BEFORETAXES;
+					amt_fl = (CConfig.Flags & CCFLG_PRICEWOEXCISE) ? ~GTAXVF_SALESTAX : GTAXVF_BEFORETAXES;
 					vect.Calc_(&gt, add.Price, tax_factor, amt_fl, 0);
 					add.Price = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE);
 				}
@@ -651,7 +701,6 @@ int SLAPI GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotR
 			}
 			// } @v8.1.12
 		}
-		// @v7.2.8 {
 		PPID   diff_tag_id = DiffByTag();
 		if(diff_tag_id) {
 			SString tag_buf;
@@ -663,7 +712,6 @@ int SLAPI GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotR
 			   tag_buf.CopyTo(add.LotTagText, sizeof(add.LotTagText));
 			}
 		}
-		// } @v7.2.8
 		for(i = 0, merge = -1; merge == -1 && enumItems(&i, (void**)&p_val);) {
 			if(CanMerge(p_val, &add))
 				merge = i-1;
@@ -922,7 +970,7 @@ int SLAPI Transfer::GetRest(GoodsRestParam * pGrParam)
 			BExtQuery q(&Rcpt, idx);
 			q.select(Rcpt.ID, Rcpt.BillID, Rcpt.LocID, Rcpt.SupplID, Rcpt.PrevLotID, Rcpt.Dt, Rcpt.OprNo,
 				Rcpt.UnitPerPack, Rcpt.Cost, Rcpt.Price, Rcpt.Flags, Rcpt.InTaxGrpID, 0L).where(*dbq);
-			const long _oprno = (pGrParam->OprNo > 0) ? (pGrParam->OprNo-1) : MAXLONG; // @v7.6.2 (-1) потому, что GetRest берет остаток по условию spLe
+			const long _oprno = (pGrParam->OprNo > 0) ? (pGrParam->OprNo-1) : MAXLONG; // (-1) потому, что GetRest берет остаток по условию spLe
 			for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
 				ReceiptTbl::Rec lot_rec;
 				Rcpt.copyBufTo(&lot_rec);
@@ -1367,7 +1415,7 @@ int SLAPI Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 			LDATE  dt = plusdate(ti->Date, 1);
 			if(!ti->IsRecomplete())
 				THROW_PP((ti->Flags & (PPTFR_ASSETEXPL|PPTFR_CORRECTION) || ti->Price != ti->Discount || ti->Cost != ti->RevalCost), PPERR_ZEROREVAL);
-			THROW(UpdateFwRevalCostAndPrice(ti->LotID, dt, 0, ti->Cost, ti->Price, 0));
+			THROW(UpdateFwRevalCostAndPrice2(ti->LotID, dt, 0, ti->Cost, ti->Price, 0)); // @v9.5.10 UpdateFwRevalCostAndPrice-->UpdateFwRevalCostAndPrice2
 			if(ti->Flags & PPTFR_CORRECTION) {
 				THROW(Rcpt.Search(ti->LotID, &lot_rec) > 0); // @v8.9.0 @fix (перенесено снизу вверх)
 				THROW_PP(ti->Cost != ti->RevalCost || ti->Quantity_ != lot_rec.Quantity, PPERR_ZEROTICORRECTION);
@@ -2118,7 +2166,7 @@ int SLAPI Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int revers
 				uint   uf = 0;
 				THROW_PP(ti->Date == rec.Dt, PPERR_REVALDTUPD);
 				THROW_PP(ti->Flags & (PPTFR_ASSETEXPL|PPTFR_CORRECTION) || ti->Price != ti->Discount || ti->Cost != ti->RevalCost, PPERR_ZEROREVAL);
-				THROW(UpdateFwRevalCostAndPrice(rec.LotID, plusdate(rec.Dt, 1), 0, ti->Cost, ti->Price, &uf));
+				THROW(UpdateFwRevalCostAndPrice2(rec.LotID, plusdate(rec.Dt, 1), 0, ti->Cost, ti->Price, &uf)); // @v9.5.10 UpdateFwRevalCostAndPrice-->UpdateFwRevalCostAndPrice2
 				if(ti->Flags & PPTFR_INDEPPHQTTY && ti->IsRecomplete()) {
 					//
 					// При рекомплектации количество измениться не может, однако может измениться //
@@ -2336,7 +2384,7 @@ int SLAPI Transfer::RemoveItem(PPID bill, int reverse, short rByBill, int force,
 		else if(rec.Flags & PPTFR_REVAL) {
 			if(!force) {
 				uint uf = 0;
-				THROW(UpdateFwRevalCostAndPrice(rec.LotID, rec.Dt, rec.OprNo, TR5(rec.Cost), TR5(rec.Price), &uf));
+				THROW(UpdateFwRevalCostAndPrice2(rec.LotID, rec.Dt, rec.OprNo, TR5(rec.Cost), TR5(rec.Price), &uf)); // @v9.5.10 UpdateFwRevalCostAndPrice-->UpdateFwRevalCostAndPrice2
 			}
 		}
 		if(!force) {

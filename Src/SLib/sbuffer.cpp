@@ -160,9 +160,9 @@ int FASTCALL SBuffer::Write(const void * pBuf, size_t size)
 	if(size) {
 		if(RdOffs && Flags & fMovable) {
 			const size_t rd_offs = RdOffs;
-			memmove(Ptr(0), Ptr(rd_offs), Size-rd_offs); // @v6.1.1 @fix RdOffs-->Size-RdOffs 
+			memmove(Ptr(0), Ptr(rd_offs), Size-rd_offs);
 			RdOffs -= rd_offs;
-			WrOffs -= rd_offs; // @v7.8.0 @fix из WrOffs вычитался уже уменьшенный до нуля размер RdOffs
+			WrOffs -= rd_offs;
 		}
 		const size_t new_size = (WrOffs + size);
 		if((new_size <= Size) || Alloc(new_size)) { // @v9.4.1 (new_size <= Size) с целью ускорения
@@ -275,7 +275,7 @@ size_t SLAPI SBuffer::ReadTerm(const char * pTerm, void * pBuf, size_t bufLen)
 	if(pBuf) {
 		size_t pos = 0;
 		if(Search(pTerm, &pos)) {
-			const size_t avl_size = pos + strlen(pTerm) - RdOffs; // @v6.1.1 -RdOffs
+			const size_t avl_size = pos + strlen(pTerm) - RdOffs;
 			sz = bufLen ? MIN(avl_size, bufLen) : avl_size;
 			if(sz) {
 				memcpy(pBuf, Ptr(RdOffs), sz);

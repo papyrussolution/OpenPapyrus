@@ -2158,8 +2158,9 @@ int SLAPI StrAssocArray::Helper_CmpFunc_StrAssocByText(const LAssoc * p1, const 
 		char   stub[8];
 		stub[0] = 0;
 		size_t ss_data_len = pArray->Pool.getDataLen();
-		const char * p_str1 = (pos1 == 0 || pos1 >= ss_data_len) ? stub : (pArray->Pool.getBuf() + pos1);
-		const char * p_str2 = (pos2 == 0 || pos2 >= ss_data_len) ? stub : (pArray->Pool.getBuf() + pos2);
+		const char * p_buf = pArray->Pool.getBuf();
+		const char * p_str1 = (pos1 == 0 || pos1 >= ss_data_len) ? stub : (p_buf + pos1);
+		const char * p_str2 = (pos2 == 0 || pos2 >= ss_data_len) ? stub : (p_buf + pos2);
 		return pArray->TextCmpProc ? pArray->TextCmpProc(p_str1, p_str2, 0) : stricmp866(p_str1, p_str2);
 	}
 	else {
@@ -2920,21 +2921,19 @@ uint SLAPI STimeChunkArray::GetIntersectionOrder(LAssocArray * pOrderList, long 
 	uint   order = 0;
 	STimeChunk sect;
 	LongArray level;
-	if(pOrderList)
-		pOrderList->freeAll();
+	CALLPTRMEMB(pOrderList, freeAll());
 	for(i = 0; i < getCount(); i++)
 		level.add((long)i);
 	for(uint c = level.getCount(); c != 0; c = level.getCount()) {
 		LongArray temp_level;
 		for(i = 0; i < c; i++) {
 			const uint k = (uint)level.get(i);
-			if(pOrderList)
-				pOrderList->Update((long)(k+1), order, 1);
+			CALLPTRMEMB(pOrderList, Update((long)(k+1), order, 1));
 			const STimeChunk * p_item_k = (const STimeChunk *)at(k);
 			for(uint j = i+1; j < c; j++) {
 				const uint m = (uint)level.get(j);
 				if(p_item_k->Intersect(*(const STimeChunk *)at(m), &sect)) {
-					if(tolerance <= 0 || sect.GetDurationMs() > tolerance) // @v6.8.1
+					if(tolerance <= 0 || sect.GetDurationMs() > tolerance)
 						temp_level.addUnique(m);
 				}
 			}

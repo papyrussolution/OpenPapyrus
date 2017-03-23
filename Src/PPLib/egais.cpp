@@ -2857,6 +2857,7 @@ int SLAPI PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket
 	PPID   manuf_psn_kind_id = PPPRK_MANUF;
 	int    manuf_refc_pos = -1;
 	int    imp_refc_pos = -1;
+	int    is_unpacked = 0;
 	PPPersonPacket psn_manuf;
 	PPPersonPacket psn_imp;
 	// @v9.3.5 {
@@ -2875,6 +2876,13 @@ int SLAPI PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket
 			;
 		else if(SXml::IsName(p_n, "Type"))
 			; // Не используем - здесь всегда "АП"
+		// @v9.5.10 {
+		else if(SXml::GetContentByName(p_n, "UnitType", temp_buf)) {
+			if(temp_buf.CmpNC("Unpacked") == 0) {
+				is_unpacked = 1;
+			}
+		}
+		// } @v9.5.10
 		else if(SXml::GetContentByName(p_n, "FullName", full_name))
 			full_name.Utf8ToChar();
 		else if(SXml::GetContentByName(p_n, "ShortName", short_name))
@@ -2941,6 +2949,7 @@ int SLAPI PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket
 			pExt->Proof = pi.Proof;
 			pExt->Volume = pi.Volume;
 			pExt->CountryCode = country_code;
+			pExt->OuterUnpackedTag = is_unpacked; // @v9.5.10
 		}
 		if(pPack) {
 			pPack->destroy();
@@ -4134,6 +4143,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 					if(SXml::IsName(p_c, "Position")) {
 						GoodsItem alc_ext;
 						int    product_refc_pos = -1;
+						int    local_unpacket_tag = 0;
 						double _src_qtty = 0.0;
 						double _src_cost = 0.0;
 						for(xmlNode * p_pos = p_c->children; p_pos; p_pos = p_pos->next) {
@@ -4148,6 +4158,10 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 								PPGoodsPacket goods_pack;
 								// pRefC-->0: Считанные из накладной данные о товаре не вносим во внутреннюю БД (они могут быть не достоверны)
 								THROW(rs = Read_ProductInfo(p_pos->children, p_bp ? &goods_pack : 0, &alc_ext, /*pRefC*/0, 0));
+								// @v9.5.10 {
+								if(alc_ext.OuterUnpackedTag)
+									local_unpacket_tag = 1;
+								// } @v9.5.10
 								if(pRefC && pRefC->LastProductP > 0) {
                                     product_refc_pos = pRefC->LastProductP;
 								}
@@ -4204,7 +4218,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 							}
 						}
 						if(is_pack_inited && ti.GoodsID && _src_qtty != 0.0) {
-							if(unpacked) {
+							if(unpacked || local_unpacket_tag) { // @v9.5.10 (|| local_unpacket_tag)
 								GoodsItem _agi;
 								PreprocessGoodsItem(ti.GoodsID, 0, 0, 0, _agi);
 								if(_agi.UnpackedVolume > 0.0) {

@@ -227,7 +227,7 @@ int STimeChunkBrowser::RegisterClass(HINSTANCE hInst)
 void STimeChunkBrowser::RegisterMouseTracking()
 {
 	if(!(Flags & stMouseTrackRegistered)) {
-		TWindow::RegisterMouseTracking(1, /*-1*/ 250); // @v6.7.11 -1 --> 250
+		TWindow::RegisterMouseTracking(1, /*-1*/ 250);
 		Flags |= stMouseTrackRegistered;
 	}
 }

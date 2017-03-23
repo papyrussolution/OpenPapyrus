@@ -706,7 +706,6 @@ private:
 	LAssocArray IdAsscList; // Список соответствий {ID задачи в приложении; RecID задачи на Palm'е}
 };
 
-// @v6.1.x AHTOXA {
 class SCDBObjProgram : public SCDBObject {
 public:
 	SCDBObjProgram(SpiiExchgContext * pCtx);
@@ -722,9 +721,6 @@ private:
 	SFile ProgramFile;
 	SFile DllFile;
 };
-// } @v6.1.x AHTOXA
-
-// @v5.1.2 AHTOXA {
 
 int SpiiCmd(TcpSocket * pSo, const SpiiCmdBuf * pInBuf, const void * pInParam, SpiiCmdBuf * pOutBuf, void * pOutParam);
 
@@ -768,6 +764,5 @@ private:
 };
 
 int SpiiExchange(PalmTcpExchange *, PROGRESSFN pFn, CSyncProperties * pProps);
-// } @v5.1.2 AHTOXA
 
 #endif

@@ -60,11 +60,9 @@ SLAPI SlThreadLocalArea::SlThreadLocalArea()
 		DefaultYear_  = c.year();
 		DefaultMonth_ = c.month();
 	}
-	CurrentCp = cpUndef; // @v7.8.5
+	CurrentCp = cpUndef;
 	UiFlags = 0;
 	UiLanguageId = -1; // @v8.9.10
-	// @v7.8.5 DefaultChrCodePage = 0; // @v6.6.4
-	// @v7.8.5 DefaultOemCodePage = 0; // @v6.6.4
 	memzero(OneCStrBuf, sizeof(OneCStrBuf));
 	SAry_OrgFCMP = 0;
 	SAry_PtrContainer = 0;

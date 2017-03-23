@@ -275,18 +275,18 @@
 //
 #define cmDrawItem           61 // evCommand Сообщение посылается экземпляру TDialog в ответ на системное
 	// сообщение WM_DRAWITEM. С дополнительным параметром посылается указатель на структуру TDrawItemData
-#define cmWinKeyDown         62 // @v5.4.7 AHTOXA передается сообщение, альтернативное TVKEYDOWN, но с WIN кодами кнопок
-#define cmCtlColor           63 // @v5.5.8 evCommand Сообщение посылается экземпляру TDialog в ответ на системное
+#define cmWinKeyDown         62 // передается сообщение, альтернативное TVKEYDOWN, но с WIN кодами кнопок
+#define cmCtlColor           63 // evCommand Сообщение посылается экземпляру TDialog в ответ на системное
 	// сообщение WM_CTLCOLORSTATIC, WM_CTLCOLOREDIT, WM_CTLCOLORSCROLLBAR. С дополнительным параметром посылается указатель на
 	// структуру TDrawCtrlData
 #define cmSearchButton       64 // evBroadcast Сообщение посылается диалогу для поиска кнопки, генерирующей команду
 	// event.message.infoWord. Кнопка, которая генерирует такую команду должна вызвать clearEvent в ответ на сообщение.
-#define cmLocalMenu          65 // evCommand @v5.7.8 Показать прикладное локальное меню управляющего элемента
-#define cmSetupTooltip       66 // evCommand @v5.6.7 Посылается окну, для того, чтобы оно смогло инициализировать
+#define cmLocalMenu          65 // evCommand Показать прикладное локальное меню управляющего элемента
+#define cmSetupTooltip       66 // evCommand Посылается окну, для того, чтобы оно смогло инициализировать
 	// подсказки (tooltip) //
-#define cmSetupResizeParams  67 // evCommand @v5.6.7 Посылается окну, для того, чтобы оно установило параметры
+#define cmSetupResizeParams  67 // evCommand Посылается окну, для того, чтобы оно установило параметры
 	// изменения размеров для управляющих элементов
-#define cmMouseHover         68 // evBroadcast @v6.0.2 Посылается окну, когда курсор мыши задерживается на определенное время.
+#define cmMouseHover         68 // evBroadcast Посылается окну, когда курсор мыши задерживается на определенное время.
 	// В infoPtr содержатся координаты курсора мыши (TPoint).
 #define cmTimeChange         69 // evCommand Посылается классу TProgram,
 	// когда какое-либо приложение изменило системное время //
@@ -349,14 +349,14 @@
 #define cmFileInit         1004   // Used by TFileDialog internally
 #define cmChangeDir        1005   // Used by TChDirDialog internally
 #define cmRevert           1006   // Used by TChDirDialog internally
-#define cmFileSave         1007   // @v6.6.1
-#define cmFileSaveAs       1008   // @v6.6.1
-#define cmBringToFront     1009   // @v6.6.12 Переместить объект на передний план
-#define cmSendToBack       1010   // @v6.6.12 Переместить объект на задний план
-#define cmProperties       1011   // @v6.7.1  Свойства
-#define cmUp               1012   // @v6.7.1
-#define cmDown             1013   // @v6.7.1
-#define cmGrouping         1014   // @v6.7.1
+#define cmFileSave         1007   // 
+#define cmFileSaveAs       1008   // 
+#define cmBringToFront     1009   // Переместить объект на передний план
+#define cmSendToBack       1010   // Переместить объект на задний план
+#define cmProperties       1011   // Свойства
+#define cmUp               1012   // 
+#define cmDown             1013   // 
+#define cmGrouping         1014   // 
 //
 // SBrowser command & messages
 //
@@ -393,11 +393,11 @@
 #define sfDisabled        0x00000100
 #define sfModal           0x00000200
 #define sfReadOnly        0x00001000 // Work for TInputLine only
-#define sfCmdSetChanged   0x00002000 // @v6.6.8
-#define sfMsgToParent     0x00004000 // @v6.6.8 // Если установлен, то Win-сообщение отправляется хозяину, иначе - в handleWindowsMessage
-#define sfEventBarrier    0x00008000 // @v7.7.7 Объект TView находится в состянии блокировки функции handleEvent.
+#define sfCmdSetChanged   0x00002000 // 
+#define sfMsgToParent     0x00004000 // Если установлен, то Win-сообщение отправляется хозяину, иначе - в handleWindowsMessage
+#define sfEventBarrier    0x00008000 // Объект TView находится в состянии блокировки функции handleEvent.
 	// Такая блокировка необходима для исключения реентера handleEvent в пределах одного 'кземпляра объекта.
-#define sfOnDestroy       0x00010000 // @v7.7.7 Объект находится в состоянии разрушения. Флаг устанавливается оконной процедурой
+#define sfOnDestroy       0x00010000 // Объект находится в состоянии разрушения. Флаг устанавливается оконной процедурой
 	// при обработке сообщения WM_DESTROY и необходим для предотвращения зацикливания при попытке оконной процедуры разрушить
 	// объект TView чтобы деструктор TView не пытался в свою очередь разрушить окно.
 //

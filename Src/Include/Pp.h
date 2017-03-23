@@ -10028,8 +10028,13 @@ public:
 	int    SLAPI CreateBlankByFilt(PPID opID, const BillFilt *, int use_ta);
 	//
 	struct SetupObjectBlock {
-		void   Clear();
+		SLAPI  SetupObjectBlock();
+		void   SLAPI Clear();
 
+		enum {
+			fEnableStop = 0x0001 // @v9.5.10 Допускается устанавливать контрагента с признаком STOP
+		};
+		long   Flags; // @v9.5.10 [IN] Флаги вызова функции PPBillPacket::SetupObject
 		enum {
 			stHasCliAgreement   = 0x0001,
 			stHasSupplAgreement = 0x0002
@@ -11963,6 +11968,7 @@ private:
 	int    SLAPI ProcessLotFault(PPLotFaultArray *, int fault, double act, double valid);
 	int    SLAPI UpdateFwRevalCostAndPrice(PPID lotID, LDATE dt, long oprno,
 		double cost, double price, uint * pUF /* TRUCLF_UPDCOST || TRUCLF_UPDPRICE */);
+	int    SLAPI UpdateFwRevalCostAndPrice2(PPID lotID, LDATE dt, long oprno, double cost, double price, uint * pUF);
 	int    SLAPI Search(PPID lot, LDATE, long oprno, int spMode);
 	int    SLAPI GetLotOprNo(LDATE, long * oprno);
 	int    SLAPI UpdateForward(const TransferTbl::Rec &, double addendum, double phAdd);
@@ -13428,6 +13434,7 @@ private:
 #define CCHKF_IMPORTED     0x00000100L // @v8.4.8 Обозначает синхронный чек, импортированный из внешней системы
 #define CCHKF_FIXEDPRICE   0x00000200L // @v8.7.7 Цены по строкам чека зафиксированы. Если этот флаг не установлен,
 	// то строка чека все равно может иметь зафиксированную цену, если в ней установлен флаг CCheckPacket::LineExt::fFixedPrice
+#define CCHKF_ABSTRACTSALE 0x00000400L // @v9.5.10 Абстрактный товар (продажа по цене)
 #define CCHKF_NOTICE       0x00001000L // @v9.0.1 Специальный вид чека, используемый только для пометки некоторого события с одним или
 	// несколькими товарами. Чек с таким флагом автоматически получает флаги CCHKF_SKIP, CCHKF_SUSPENDED
 #define CCHKF_SYNC         0x00010000L // Чек сформирован синхронной сессией
@@ -17116,6 +17123,8 @@ extern "C" typedef PPAbstractDevice * (*FN_PPDEVICE_FACTORY)();
 #define CASHFX_DISABLEZEROSCARD   0x00040000L // @v8.2.3  (sync) Запрет операция без выбора персональной карты
 #define CASHFX_UHTTORDIMPORT      0x00080000L // @v8.2.3  (sync) Импортировать заказа с сервера Universe-HTT
 #define CASHFX_IGNLOOKBACKPRICES  0x00100000L // @v8.9.10 (async) Игноририровать обратный анализ доступных цены на специальные товары
+#define CASHFX_ABSTRGOODSALLOWED  0x00200000L // @v9.5.10 (sync) Допускается прожажа абстрактного товара по цене (в конфигурации товаров
+	// должен быть указан DefGoodsID).
 //
 // Идентификаторы строковых свойств кассоых узлов.
 // Attention: Ни в коем случае не менять значения идентификаторов - @persistent
@@ -26947,16 +26956,18 @@ public:
     	long   StatusFlags;
     	PPID   GoodsID;
     	PPID   LotID;
-    	PPID   MnfOrImpPsnID; // @v8.8.0 ИД персоналии производителя или импортера (для импортного товара)
+    	PPID   MnfOrImpPsnID;   // @v8.8.0 ИД персоналии производителя или импортера (для импортного товара)
     	double Volume;
     	double Brutto;
-    	double Proof;  // @v8.7.12 Крепость в объемных процентах
+    	double Proof;           // @v8.7.12 Крепость в объемных процентах
     	uint   CategoryCodePos; // @v8.4.4 Позиция (1..) кода категории в PrcssrAlcReport::CategoryNameList
     	double UnpackedVolume;  // @v8.9.0 Если товар имеет единицу измерения, производную от литра (PPUNIT_LITER),
 			// то считается не неупакованным и измеряется в литрах. В этом случае это поле содержит
 			// количество литров в одное торговой единице (PPUnit::BaseRatio). В противном случае это поле 0.0
 		LDATE  BottlingDate;    // @v9.0.3 Дата розлива
 		int    CountryCode;     // @v9.0.3 Код страны-производителя
+		int    OuterUnpackedTag; // @v9.5.10 При извлечении данных о товаре из внешнего источника
+			// был детектирован признак Unpacked (не упакованная алкогольная продукция)
     	SString CategoryCode;
     	SString CategoryName;
     	SString MsgPool;   // Список сообщений, разделенных символом '\t'
@@ -33388,12 +33399,12 @@ public:
 		uint8  CryptMethod;     // Метод шифровки пакета. Устанавливается и проверяется в PackTransmitFile()
 		uint32 NameListOffs;    // Смещение до списка наименований объектов (StrAssocArray)
 		uint32 CRC_;            // Контрольная сумма
-		uint32 SCtxStOffs;      // @v6.2.2 Смещение до сохраненного состояния контекста сериализации
-		int32  UserID;          // @v6.2.2 ИД пользователя, создавшего пакет
+		uint32 SCtxStOffs;      // Смещение до сохраненного состояния контекста сериализации
+		int32  UserID;          // ИД пользователя, создавшего пакет
 		uint8  Reserve[8];      //
-		S_GUID SrcDivUuid;      // @v6.2.2 GUID раздела-отправителя //
-		S_GUID DestDivUuid;     // @v6.2.2 GUID раздела-получателя  //
-		uint8  Reserve2[32];    // @v6.2.2
+		S_GUID SrcDivUuid;      // GUID раздела-отправителя //
+		S_GUID DestDivUuid;     // GUID раздела-получателя  //
+		uint8  Reserve2[32];    // @reserve
 	};
 	struct IndexItem {     // @persistent @size=48 (before v5.6.8 - 32)
 		int32  ObjType;
@@ -34086,8 +34097,8 @@ public:
 	};
 	char   ReserveStart[32]; // @anchor
 	long   Tag;            // @#0 reserved
-	DateRange DuePeriod;   // @v6.4.8 Период исполнения //
-	uint32 Count;          // @v7.5.5 Максимальное количество документов в выборке
+	DateRange DuePeriod;   // Период исполнения //
+	uint32 Count;          // Максимальное количество документов в выборке
 	int16  Ft_Declined;    // @v8.3.3 Признак BILLF2_DECLINED: (0) ignored, (< 0) off, (> 0) on
 	int16  Ft_Reserve;     // @v8.8.6 @reserved
 	PPID   StorageLocID;   // @v8.8.6 Место хранение, ассоциированное с фрахтом документа
@@ -34788,8 +34799,8 @@ struct LotTotal {
 	double Rest;             // Общий текущий остаток по лотам (в торговых единицах)
 	double Cost;             // Сумма остатка в ценах поступления //
 	double Price;            // Сумма остатка в ценах реализации  //
-	double OpRestBeg;        // @v6.6.3 Остаток на начало операционного периода
-	double OpRestEnd;        // @v6.6.3 Остаток на конец операционного периода
+	double OpRestBeg;        // Остаток на начало операционного периода
+	double OpRestEnd;        // Остаток на конец операционного периода
 	//
 	// Extended fields
 	//
@@ -35045,13 +35056,13 @@ public:
 		fFillLaggageFields = 0x0002, // Заполнять багажные поля (Brutto, PckgCount, Volume)
 			// Расчет этих полей требует дополнительного времени вычисления.
 		fUseCargoParam     = 0x0004, // Документы с установленным флагом "Грузовые параметры" // AHTOXA
-		fStrictPort        = 0x0008, // @v6.6.10 Фильтрация по PortID и PortOfLoading - строго по
+		fStrictPort        = 0x0008, // Фильтрация по PortID и PortOfLoading - строго по
 			// пункту назначения (не принимать во внимание адрес доставки и дочерние географические объекты)
-		fShippedOnly       = 0x0010  // @v6.9.2 Только отгруженные
+		fShippedOnly       = 0x0010  // Только отгруженные
 	};
 	char   ReserveStart[24]; // @anchor // @v8.8.5 [28]-->[24]
 	PPID   StorageLocID;     // @v8.8.5 Место хранения
-	PPID   PortOfLoading;    // @v6.6.3 Пункт погрузки
+	PPID   PortOfLoading;    // Пункт погрузки
 	DateRange BillPeriod;
 	DateRange ShipmPeriod;
 	DateRange ArrvlPeriod;
@@ -35071,7 +35082,7 @@ struct FreightViewItem {
 	LDATE  BillDate;      // = Bill.ID.Dt
 	char   Code[24];      // = Bill.ID.Code
 	PPID   ObjectID;      // = Bill.ID.ObjectID
-	PPID   AgentID;       // @v6.9.2 Ид агента по документу
+	PPID   AgentID;       // Ид агента по документу
 	double Amount;        // = Bill.ID.Amount
 	double Brutto;        // Масса брутто
 	double PackCount;     // Количество упаковок
@@ -35151,7 +35162,7 @@ struct PPPredictConfig {   // @persistent @store(PropertyTbl)
 			// страховочный размер запаса товара).
 		fContinueBuilding   = 0x0080, // Процесс построения таблицы был прерван.
 			// При следующем запуске следует продолжить.
-		fMinStockAsMinOrder = 0x0100  // @v6.2.4 Минимальный остаток по товару трактовать как минимальный заказ.
+		fMinStockAsMinOrder = 0x0100  // Минимальный остаток по товару трактовать как минимальный заказ.
 			// В этом случае формула расчета заказа выглядит так: Order = (Predict > MinStock) ? (Predict-MinStock) : (MinStock-Predict)
 	};
 	enum {
@@ -35891,8 +35902,6 @@ public:
 		double Deficit;       //
 		double DraftRcpt;     //
 		uint32 Counter;
-		//int16  Counter;       // Количество обращений к записи в кэше
-		//int16  Pad;           // @alignment
 		uint   SerialP;       // @v8.1.0 Позиция серийного номера в пуле строк
 		DBRowId  DBPos;
 	};
@@ -36239,9 +36248,9 @@ struct GoodsTaxAnalyzeFilt : public PPBaseFilt {
 		fDiffAll          = 0x0080, //
 		fDiffByInVAT      = 0x0100, //
 		fDiffByOutVAT     = 0x0200, //
-		fOldStyleLedger   = 0x0400, // @v6.4.12 Книга учета частного предпринимателя без
+		fOldStyleLedger   = 0x0400, // Книга учета частного предпринимателя без
 			// масштабирования отгрузок по оплатам поставщику.
-		fLedgerByLots     = 0x0800  // @v6.6.2 Книга учета частного предпринимателя по приходам
+		fLedgerByLots     = 0x0800  // Книга учета частного предпринимателя по приходам
 	};
 	uint8  ReserveStart[32]; // @anchor
 	DateRange Period;
@@ -36260,7 +36269,7 @@ struct GoodsTaxAnalyzeFilt : public PPBaseFilt {
 
 struct GoodsTaxAnalyzeViewItem {
 	LDATE  Dt;
-	char   BillNo[24];     // @v6.6.4
+	char   BillNo[24];     // Номер документа
 	PPID   GoodsID;
 	PPID   GoodsGrpID;
 	char   Name[128];      // @v6.6.2 [64]-->[128]
@@ -36298,9 +36307,9 @@ struct GoodsTaxAnalyzeTotal {
 	//
 	// Три поля итогов для тетради частного предпринимателя по приходам
 	//
-	double PilRcptSum;     // @v6.6.4 Сумма оплаченных приходов
-	double PilExpSum;      // @v6.6.4 Сумма оплаченных расходов
-	double PilRestSum;     // @v6.6.4 Сумма неоплаченного остатка
+	double PilRcptSum;     // Сумма оплаченных приходов
+	double PilExpSum;      // Сумма оплаченных расходов
+	double PilRestSum;     // Сумма неоплаченного остатка
 };
 
 //
@@ -37214,9 +37223,6 @@ protected:
 	virtual int SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int SLAPI Print(const void * pHdr);
-	int    SLAPI AddGoodsData(int kind, const BillTbl::Rec *, PPID goodsID, double qtty, double price);
-	int    SLAPI GatherShipmentByOrder(PPID orderID, const BillTbl::Rec *, int use_ta);
-	int    SLAPI GatherAckByShipment(PPID shipmID, const BillTbl::Rec *, int use_ta);
 
 	ShipmAnalyzeFilt Filt;
 	PPObjBill   * BObj;
@@ -37272,9 +37278,6 @@ public:
 	int    SLAPI InitIteration();
 	int    SLAPI NextIteration(AccountViewItem *);
 	int    FASTCALL CheckForFilt(const PPAccount & rItem) const;
-	int    SLAPI AddItem();
-	int    SLAPI EditItem(PPID);
-	int    SLAPI DeleteItem(PPID);
 	int    SLAPI ViewArticles(PPID);
 	int    SLAPI ViewAccAnalyze(PPID);
 	//
@@ -37288,7 +37291,6 @@ private:
 	static  void FASTCALL MakeListEntry(const PPAccount & rSrc, PPViewAccount::BrwEntry & rEntry);
 
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	//virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual SArray  * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void * SLAPI GetEditExtraParam();
 	virtual int    SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
@@ -37309,12 +37311,9 @@ private:
 struct CurRateFilt : public PPBaseFilt {
 	SLAPI  CurRateFilt();
 
-	// @v.7.4.7 @Muxa {
 	enum {
 		fActualOnly = 0x0001   // Показывать актуальные курсы
 	};
-	// } @v.7.4.7 @Muxa
-
 	char   ReserveStart[32]; // @anchor
 	DateRange Period;
 	PPID   CurID;
@@ -37353,14 +37352,14 @@ private:
 //
 // @ModuleDecl(PPViewBalance)
 //
-#define BALFORM_IGNOREZEROTURNOVER 0x00000200L
-#define BALFORM_IGNOREZEROREST     0x00000400L
+#define BALFORM_IGNOREZEROTURNOVER 0x00000200L //
+#define BALFORM_IGNOREZEROREST     0x00000400L //
 #define BALFORM_THOUSAND           0x00000800L // Баланс в тысячах
 #define BALFORM_ACO1GROUPING       0x00001000L // Группировать по счетам 1-го порядка
-#define BALFORM_IGNOREZERO         0x00002000L
-#define BALFORM_ALLCUR             0x00004000L // @v3.0.6 Все валюты
-#define BALFORM_SPREADBYSUBACC     0x00008000L // @v3.11.12 Разворачивать сальдо по субсчетам
-#define BALFORM_SPREADBYARTICLE    0x00010000L // @v3.11.12 Разворачивать сальдо по субконто
+#define BALFORM_IGNOREZERO         0x00002000L //
+#define BALFORM_ALLCUR             0x00004000L // Все валюты
+#define BALFORM_SPREADBYSUBACC     0x00008000L // Разворачивать сальдо по субсчетам
+#define BALFORM_SPREADBYARTICLE    0x00010000L // Разворачивать сальдо по субконто
 #define BALFORM_SPREAD             (BALFORM_SPREADBYSUBACC|BALFORM_SPREADBYARTICLE)
 
 struct BalanceFilt : public PPBaseFilt {
@@ -37488,8 +37487,8 @@ public:
 	char * SLAPI GetAccText(char * pBuf, size_t bufLen) const;
 
 	char   ReserveStart[12]; // @anchor
-	PPID   Object2ID;      // @v7.4.2 Дополнительный объект по документу
-	PPID   SubstRelTypeID; // @v7.1.2 Подстановка статьи по персональному отношению
+	PPID   Object2ID;      // Дополнительный объект по документу
+	PPID   SubstRelTypeID; // Подстановка статьи по персональному отношению
 	PPID   AgentID;        // ->Article.ID Агент по документу
 	DateRange Period;      //
 	long   Aco;            // Порядок ведущего счета ACO_XXX
@@ -37499,7 +37498,7 @@ public:
 	Acct   CorAcc;         // Корр счет
 	PPCycleFilt Cycl;      // Цикл анализа (If CorAco == 0 then ignored)
 	long   InitOrder;      // PPViewAccAnlz::IterOrder
-	long   Flags;          // Опции (AccAnlzFilt::fXXX) @v4.7.2 uint->long
+	long   Flags;          // Опции (AccAnlzFilt::fXXX)
 	AcctID AcctId;         //
 	PPID   AccSheetID;     //
 	//
@@ -37599,7 +37598,6 @@ public:
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
 	virtual int SLAPI Browse(int modeless);
 
-	int    SLAPI InitFilt(AccAnlzKind, AccAnlzFilt *);
 	int    SLAPI InitIteration();
 	int    SLAPI NextIteration(AccAnlzViewItem *);
 	int    SLAPI GetTotal(AccAnlzTotal *) const;
@@ -37618,7 +37616,6 @@ private:
 
 	int    SLAPI EditSupplTrnovrFilt(AccAnlzFilt *);
 	int    SLAPI EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzViewEnumProc, long);
-	int    SLAPI ProcessFiltAcc(PPIDArray * accList);
 	int    SLAPI GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRec, int use_ta);
 	int    SLAPI CalcTotalAccTrnovr(AccAnlzTotal *);
 	int    SLAPI ViewGraph(PPViewBrowser * pBrw);
@@ -39061,8 +39058,8 @@ struct GoodsOpAnalyzeFilt : public PPBaseFilt {
 	virtual int Describe(long flags, SString & rBuff) const;
 	SString & FASTCALL GetOpName(SString & rName) const;
 	int    FASTCALL IsValidABCGroup(short abcGroup) const;
-	int    ZeroCompareItems();
-	int    AddTradePlanBillID(PPID);
+	void   ZeroCompareItems();
+	void   FASTCALL AddTradePlanBillID(PPID);
 
 	enum { // OpGrp
 		ogSelected          = 0,      // На выбор (opr)
@@ -39209,7 +39206,7 @@ struct GoodsOpAnalyzeViewItem {
 
 struct GoodsOpAnalyzeTotal {
 	SLAPI  GoodsOpAnalyzeTotal();
-	int    SLAPI Init();
+	void   SLAPI Init();
 	GoodsOpAnalyzeTotal & FASTCALL operator = (const GoodsOpAnalyzeTotal &);
 
 	long   Count;
@@ -39272,7 +39269,7 @@ public:
 	int    SLAPI ViewDetail(PPID locID, PPID goodsID, short abcGroup, int viewAllLots = 0);
 	int    SLAPI ConvertLinesToBasket();
 	int    SLAPI ABCGrpToAltGrp(short abcGroup);
-	int    SLAPI GetTempTableName(SString & rBuf) const;
+	void   SLAPI GetTempTableName(SString & rBuf) const;
 	int    SLAPI GetByID(PPID id, TempGoodsOprTbl::Rec * pRec);
 	int    SLAPI InitUniq(const SArray * pUniq);
 	int    SLAPI CopyUniq(SArray * pUniq);
@@ -47544,7 +47541,6 @@ int     SLAPI ImportCurrencyList();
 //
 int     FASTCALL PPOpenBrowser(BrowserWindow *, int modeless);
 int     FASTCALL PPCloseBrowser(TBaseBrowserWindow *);
-void    SLAPI PPCloseAllBrowsers();
 BrowserWindow * SLAPI PPFindLastBrowser();
 STimeChunkBrowser * SLAPI PPFindLastTimeChunkBrowser();
 PPPaintCloth * SLAPI PPFindLastPaintCloth();
@@ -47819,10 +47815,11 @@ public:
 	//   и передаваемая в CPosProcessorCPosProcessor::SetupNewRow()
 	//
 	struct PgsBlock {
-		PgsBlock(double qtty);
+		SLAPI  PgsBlock(double qtty);
 
 		double Qtty;
 		double PriceBySerial;
+		double AbstractPrice; // @v9.5.10
 		SString Serial;
 		SString EgaisMark;
 	};
@@ -48030,12 +48027,12 @@ protected:
 		uint16 GuestCount;       // Количество гостей за столом
 		uint16 Reserve;          // @alignment
 		PPID   OrderCheckID;     // Чек заказа, к которому привязан данный чек
-		PPID   OrgUserID;        // @v7.5.6 Пользователь, создавший оригинальный чек (до первого отложения/восстановления)
-		LAssocArray GiftAssoc;   // @v7.0.4  Список ассоциаций {gift_pos; used_by_gift_pos}
+		PPID   OrgUserID;        // Пользователь, создавший оригинальный чек (до первого отложения/восстановления)
+		LAssocArray GiftAssoc;   // Список ассоциаций {gift_pos; used_by_gift_pos}
 			// Этот список нужен для распределения фиксированной подарочной скидки между
 			// строками, по которым этот подарок был предоставлен.
-		ExtCcData Eccd;          // @v7.0.8
-		SaModif CurModifList;    // @v7.2.0 Список выбранных модификаторов для текущей позиции
+		ExtCcData Eccd;          //
+		SaModif CurModifList;    // Список выбранных модификаторов для текущей позиции
 		CcAmountList AmL;        // @v8.0.0 Список оплат по чеку
 	};
 	struct RetBlock {
@@ -48112,10 +48109,10 @@ protected:
 		fDisableBeep        = 0x00100000, // Запрет на звуковой сигнал при сообщении об ошибке
 		fNotUseScale        = 0x00200000, // Не использовать прием с весов
 		fForceDivision      = 0x00400000, // Не разрешать проводить строку без номера отдела
-		fSCardCredit        = 0x01000000, // @v6.1.2 Чек оплачивается корпоративной кредитной картой
-		fUsedRighsByAgent   = 0x04000000, // @v6.6.12 Применены права доступа по агенту.
-		fPrinted            = 0x08000000, // @v6.7.1  По чеку распечатан счет (called CheckPaneDialog::Print(x, 0))
-		fSelModifier        = 0x20000000, // @v7.2.0 Режим выбора модификатора
+		fSCardCredit        = 0x01000000, // Чек оплачивается корпоративной кредитной картой
+		fUsedRighsByAgent   = 0x04000000, // Применены права доступа по агенту.
+		fPrinted            = 0x08000000, // По чеку распечатан счет (called CheckPaneDialog::Print(x, 0))
+		fSelModifier        = 0x20000000, // Режим выбора модификатора
 		fSCardBonusReal     = 0x40000000  // @v8.0.6 Карта, ассоциированная с чеком, является бонусной. Практически
 			// дублирует флаг fSCardBonus с небольшим нюансом. Если остаток на карте нулевой, то fSCardBonus не выставляется,
 			// а fSCardBonusReal - устанавливается. Такое раздвоение необходимо что бы разным образом обрабатывать начисление
@@ -48158,6 +48155,8 @@ protected:
 	PPID   CheckID;
 	PPID   SuspCheckID;      // Загружен отложенный чек с указанным идентификатором
 	PPID   AuthAgentID;      // @v8.6.10 Агент, который изначально авторизовался в сессии (для поддержки мобильного официанта)
+	PPID   AbstractGoodsID;  // @v9.5.10 Абстрактный товар для проведения строк по свободной цене.
+		// Если (CnExtFlags & CASHFX_ABSTRGOODSALLOWED), то равно PPGoodsConfig::DefGoodsID, в противном случае - 0.
 	PPObjID OuterOi;         // Внешний объект, к которому привязывается чек.
 	LDATETIME LastGrpListUpdTime;     // Время последнего обновления списка групп товаров
 	PPGenCashNode::RoundParam R;      // Параметры округления //
@@ -48236,7 +48235,8 @@ private:
 		sgmByPrice,
 		sgmModifier,
 		sgmRandom,
-		sgmInnerGoodsList
+		sgmInnerGoodsList,
+		cgmAbstractSale // @v9.5.10
 	};
 	void   SelectGoods__(int mode);
 	void   AddFromBasket();
@@ -48293,7 +48293,7 @@ private:
 	int    ConfirmPosPaymBank(double amount);
 
 	ExtGoodsSelDialog * P_EGSDlg;
-	long   AutoInputTolerance; // @v7.0.10 Минимальное среднее время (ms) между вводом символом, ниже которого
+	long   AutoInputTolerance; // Минимальное среднее время (ms) между вводом символом, ниже которого
 		// считается, что данные были введены автоматическим средством ввода (напр. сканером штрихкодов)
 	long   BarrierViolationCounter; // @debug
 	PPID   AltGoodsGrpID;    //

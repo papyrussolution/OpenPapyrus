@@ -4677,6 +4677,7 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 			PPTransaction tra(use_ta);
 			THROW(tra);
 			if(P_IE->OpenFileForReading(0)) {
+				PPSCardPacket sc_pack;
 				long   numrecs = 0;
 				P_IE->GetNumRecs(&numrecs);
 				cntr.SetTotal(numrecs);
@@ -4684,10 +4685,9 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 					PPID   scs_id = 0;
 					PPID   sc_id = 0;
 					PPID   temp_id = 0;
-					//SCardTbl::Rec sc_rec;
-					PPSCardPacket sc_pack;
 					Sdr_SCard sdr_rec;
 					MEMSZERO(sdr_rec);
+					sc_pack.Clear();
 					THROW(P_IE->ReadRecord(&sdr_rec, sizeof(sdr_rec)));
 					P_IE->GetParam().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);
 					if(sdr_rec.SeriesSymb[0] && ScsObj.SearchBySymb(sdr_rec.SeriesSymb, &temp_id, 0) > 0) {
@@ -4732,7 +4732,7 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 							THROW(ScObj.PutPacket(&sc_id, &sc_pack, 0));
 						}
 						else {
-							STRNSCPY(sc_pack.Rec.Code, sc_pack.Rec.Code);
+							STRNSCPY(sc_pack.Rec.Code, sdr_rec.Code); // @v9.5.10 @fix
 							if(scs_id)
 								sc_pack.Rec.SeriesID = scs_id;
 							else {

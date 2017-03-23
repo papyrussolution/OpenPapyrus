@@ -2455,7 +2455,7 @@ int SLAPI PPViewGoods::RemoveAll()
 
 int SLAPI PPViewGoods::AddGoodsFromBasket()
 {
-	int    ok = -1, ta = 0;
+	int    ok = -1;
 	if(IsAltFltGroup()) {
 		PPID   gb_id = 0;
 		if(ListBoxSelDialog(PPOBJ_GOODSBASKET, &gb_id, 0) > 0 && gb_id > 0) {
@@ -2467,12 +2467,13 @@ int SLAPI PPViewGoods::AddGoodsFromBasket()
 				uint   count = pack.Lots.getCount();
 				ILTI * p_item = 0;
 				PPWait(1);
-				THROW(PPStartTransaction(&ta, 1));
+				PPTransaction tra(1);
+				THROW(tra);
 				for(uint i = 0; pack.Lots.enumItems(&i, (void**)&p_item) > 0;) {
 					THROW(GObj.AssignGoodsToAltGrp(p_item->GoodsID, Filt.GrpID, 0, 0));
 					PPWaitPercent(i-1, count);
 				}
-				THROW(PPCommitWork(&ta));
+				THROW(tra.Commit());
 				ok = 1;
 			}
 		}
@@ -2488,18 +2489,18 @@ int SLAPI PPViewGoods::AddGoodsFromBasket()
 				uint   count = pack.Lots.getCount();
 				ILTI * p_item = 0;
 				PPWait(1);
-				THROW(PPStartTransaction(&ta, 1));
+				PPTransaction tra(1);
+				THROW(tra);
 				for(uint i = 0; pack.Lots.enumItems(&i, (void**)&p_item) > 0;) {
 					THROW(GObj.AssignGoodsToGen(p_item->GoodsID, Filt.GrpID, 0, 0));
 					PPWaitPercent(i-1, count);
 				}
-				THROW(PPCommitWork(&ta));
+				THROW(tra.Commit());
 				ok = 1;
 			}
 		}
 	}
 	CATCH
-		PPRollbackWork(&ta);
 		ok = PPErrorZ();
 	ENDCATCH
 	PPWait(0);
@@ -2564,9 +2565,9 @@ int SLAPI PPViewGoods::AddItem(GoodsListDialog ** ppDlgPtr, PPViewBrowser * pBrw
 									ok = 1;
 								}
 								else {
-									int err_code = PPErrCode;
+									const int err_code = PPErrCode;
 									THROW(PPRollbackWork(&ta));
-									ok = (PPErrCode = err_code, 0);
+									ok = PPSetError(err_code);
 								}
 							}
 							else
@@ -2828,11 +2829,12 @@ int SLAPI PPViewGoods::Repair(PPID /*id*/)
 
 int SLAPI PPViewGoods::AddBarcodeCheckDigit()
 {
-	int    ok = -1, ta = 0;
+	int    ok = -1;
 	GoodsViewItem item;
 	if(PPMaster) {
 		PPWait(1);
-		THROW(PPStartTransaction(&ta, 1));
+		PPTransaction tra(1);
+		THROW(tra);
 		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
 			int    r = 0;
 			uint   i;
@@ -2840,8 +2842,8 @@ int SLAPI PPViewGoods::AddBarcodeCheckDigit()
 			BarcodeTbl::Rec * p_bc;
 			THROW(GObj.ReadBarcodes(item.ID, bc_list));
 			for(i = 0; bc_list.enumItems(&i, (void **)&p_bc);) {
-				size_t bc_len = strlen(p_bc->Code);
-				if(bc_len == 11 || bc_len == 12 || bc_len == 7) {
+				const size_t bc_len = strlen(p_bc->Code);
+				if(oneof3(bc_len, 11, 12, 7)) {
 					::AddBarcodeCheckDigit(p_bc->Code);
 					r = 1;
 				}
@@ -2851,11 +2853,10 @@ int SLAPI PPViewGoods::AddBarcodeCheckDigit()
 				ok = 1;
 			}
 		}
-		THROW(PPCommitWork(&ta));
+		THROW(tra.Commit());
 		PPWait(0);
 	}
 	CATCH
-		PPRollbackWork(&ta);
 		ok = PPErrorZ();
 	ENDCATCH
 	return ok;
@@ -3008,7 +3009,7 @@ int SLAPI PPViewGoods::ReplaceNames()
 
 int SLAPI PPViewGoods::UpdateFlags()
 {
-	int    ok = -1, ta = 0;
+	int    ok = -1;
 	long   setf = 0, resetf = 0;
 	TDialog * dlg = 0;
 	THROW(GObj.CheckRights(PPR_MOD) && GObj.CheckRights(GOODSRT_MULTUPD));
@@ -3028,7 +3029,8 @@ int SLAPI PPViewGoods::UpdateFlags()
 		if(setf || resetf) {
 			GoodsViewItem item;
 			PPWait(1);
-			THROW(PPStartTransaction(&ta, 1));
+			PPTransaction tra(1);
+			THROW(tra);
 			for(InitIteration(); NextIteration(&item) > 0;) {
 				int    r;
 				THROW(r = GObj.UpdateFlags(item.ID, setf, resetf, 0));
@@ -3036,12 +3038,11 @@ int SLAPI PPViewGoods::UpdateFlags()
 					ok = 1;
 				PPWaitPercent(GetCounter());
 			}
-			THROW(PPCommitWork(&ta));
+			THROW(tra.Commit());
 			PPWait(0);
 		}
 	}
 	CATCH
-		PPRollbackWork(&ta);
 		ok = PPErrorZ();
 	ENDCATCH
 	delete dlg;

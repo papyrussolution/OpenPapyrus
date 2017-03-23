@@ -691,10 +691,10 @@ long SLAPI SFile::Tell()
 		else if(IH >= 0) {
 			t = tell(IH);
 			if(t >= 0) {
-				const size_t bo = BufR.GetWrOffs();
-				assert((int64)bo <= t);
+				const long bo = (long)BufR.GetWrOffs();
+				assert(bo <= t);
 				if(bo <= t)
-					t -= (int64)bo;
+					t -= bo;
 			}
 		}
 		else
@@ -745,17 +745,14 @@ int SLAPI SFile::Write(const void * pBuf, size_t size)
 	int    ok = 1;
 	if(T == tNullOutput)
 		ok = 1;
-	else if(T == tSBuffer) {
+	else if(T == tSBuffer)
 		ok = P_Sb->Write(pBuf, size);
-	}
-	else {
-		if(F)
-			ok = (fwrite(pBuf, size, 1, F) == 1) ? 1 : SLS.SetError(SLERR_WRITEFAULT, Name);
-		else if(IH >= 0)
-			ok = (write(IH, pBuf, size) == size) ? 1 : SLS.SetError(SLERR_WRITEFAULT, Name);
-		else
-			ok = (SLibError = SLERR_FILENOTOPENED, 0);
-	}
+	else if(F)
+		ok = (fwrite(pBuf, size, 1, F) == 1) ? 1 : SLS.SetError(SLERR_WRITEFAULT, Name);
+	else if(IH >= 0)
+		ok = (write(IH, pBuf, size) == size) ? 1 : SLS.SetError(SLERR_WRITEFAULT, Name);
+	else
+		ok = (SLibError = SLERR_FILENOTOPENED, 0);
 	return ok;
 }
 
@@ -792,7 +789,7 @@ int SLAPI SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
 				act_size = (int)size;
 			else {
 				//
-				// @v6.1.x AHTOXA Для того чтобы функция считала последний блок из файла, если он не равен size
+				// Для того чтобы функция считала последний блок из файла, если он не равен size
 				//
 				Seek64(offs, SEEK_SET);
 				act_size = (int)fread(pBuf, 1, size, F);
@@ -862,29 +859,34 @@ int SLAPI SFile::WriteLine(const char * pBuf)
 	}
 	else {
 		char   temp_buf[16];
-		if(pBuf == 0) {
+		size_t size_to_write = 0;
+		if(pBuf) {
+			size_to_write = strlen(pBuf);
+		}
+		else {
 			if(Mode & mBinary) {
 				temp_buf[0] = '\x0D';
 				temp_buf[1] = '\x0A';
 				temp_buf[2] = 0;
+				size_to_write = 2;
 			}
 			else {
 				temp_buf[0] = '\n';
 				temp_buf[1] = 0;
+				size_to_write = 1;
 			}
 			pBuf = temp_buf;
 		}
-		if(T == tSBuffer) {
-			ok = P_Sb->Write(pBuf, strlen(pBuf));
+		if(T == tSBuffer)
+			ok = P_Sb->Write(pBuf, size_to_write);
+		else if(F)
+			ok = (fputs(pBuf, F) >= 0) ? 1 : SLS.SetError(SLERR_WRITEFAULT, Name);
+		else if(IH >= 0) {
+			// @v9.5.10 ok = Write(pBuf, size_to_write);
+			ok = (write(IH, pBuf, size_to_write) == size_to_write) ? 1 : SLS.SetError(SLERR_WRITEFAULT, Name); // @v9.5.10
 		}
-		else {
-			if(F)
-				ok = (fputs(pBuf, F) >= 0) ? 1 : SLS.SetError(SLERR_WRITEFAULT, Name);
-			else if(IH >= 0)
-				ok = Write(pBuf, strlen(pBuf));
-			else
-				ok = (SLibError = SLERR_FILENOTOPENED, 0);
-		}
+		else
+			ok = (SLibError = SLERR_FILENOTOPENED, 0);
 	}
 	return ok;
 }

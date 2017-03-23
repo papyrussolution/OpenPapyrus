@@ -1,5 +1,5 @@
 // V_QUOT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1871,29 +1871,9 @@ int SLAPI PPViewQuot::Transmit(const BrwHdr * /*pHdr*/)
 	return ok;
 }
 
-#if 0 // @v7.8.8 {
-static void __CheckQuotList(PPQuotArray & rList, PPLogger & rLogger)
-{
-	SString msg_buf, fmt_buf;
-	const uint c = rList.getCount();
-	for(uint i = 0; i < c; i++) {
-		const PPQuot & r_i = rList.at(i);
-		for(uint j = 0; j < i; j++) {
-			const PPQuot & r_j = rList.at(j);
-			if(r_j.IsEqual(r_i, PPQuot::cmpNoID|PPQuot::cmpNoVal)) {
-				// ƒублируемое значение котировки [@int '@quotkind' '@goods' @hex @real] - [@int @hex @real]
-				PPLoadText(PPTXT_INVQUOTDUP, fmt_buf);
-				PPFormat(fmt_buf, &msg_buf, r_i.ID, r_i.Kind, r_i.GoodsID, r_i.Flags, r_i.Quot, r_j.ID, r_j.Flags, r_j.Quot);
-				rLogger.Log(msg_buf);
-			}
-		}
-	}
-}
-#endif // } 0 @v7.8.8
-
 int SLAPI PPViewQuot::Recover()
 {
-	int    ok = -1, ta = 0;
+	int    ok = -1;
 	IterCounter cntr;
 	SString msg_buf, fmt_buf;
 	PPLogger logger;
@@ -1906,64 +1886,65 @@ int SLAPI PPViewQuot::Recover()
 		PPWait(1);
 		cntr.Init(P_Qc);
 		PPObjQuotKind::GetSpecialKinds(&spc_qk, 0);
-		THROW(PPStartTransaction(&ta, 1));
-		MEMSZERO(k2);
-		if(P_Qc->search(2, &k2, spFirst)) {
-			PPQuotArray quot_list(0);
-			do {
-				QuotationTbl::Rec rec;
-				P_Qc->copyBufTo(&rec);
+		{
+			PPTransaction tra(1);
+			THROW(tra);
+			MEMSZERO(k2);
+			if(P_Qc->search(2, &k2, spFirst)) {
+				PPQuotArray quot_list(0);
+				do {
+					QuotationTbl::Rec rec;
+					P_Qc->copyBufTo(&rec);
 
-				DBRowId dbpos;
-				THROW_DB(P_Qc->getPosition(&dbpos)); // @v8.0.0
-				PPWaitPercent(cntr.Increment());
-				if(rec.Actual) {
-					PPQuot quot(rec);
-					if(rec.GoodsID != quot_list.GoodsID) {
-						if(quot_list.GoodsID) {
-							if(quot_list.Correct721(&logger) > 0) {
-								THROW(P_Qc->SetCurrList(quot_list, 0, 0, 0));
+					DBRowId dbpos;
+					THROW_DB(P_Qc->getPosition(&dbpos)); // @v8.0.0
+					PPWaitPercent(cntr.Increment());
+					if(rec.Actual) {
+						PPQuot quot(rec);
+						if(rec.GoodsID != quot_list.GoodsID) {
+							if(quot_list.GoodsID) {
+								if(quot_list.Correct721(&logger) > 0) {
+									THROW(P_Qc->SetCurrList(quot_list, 0, 0, 0));
+								}
 							}
+							quot_list.clear();
+							quot_list.GoodsID = rec.GoodsID;
 						}
-						quot_list.clear();
-						quot_list.GoodsID = rec.GoodsID;
-					}
-					quot_list.insert(&quot);
-					//
-					double q = fabs(rec.Quot);
-					if(quot.IsEmpty()) {
-						// Ќулевое значение котировки [@int '@quotkind' '@goods' @hex @real]
-						PPFormatT(PPTXT_INVQUOTZEROVAL, &msg_buf, rec.ID, rec.Kind, rec.GoodsID, rec.Flags, rec.Quot);
-						logger.Log(msg_buf);
-					}
-					else if(q > 1000000.0 || (q < 0.0000001 && q > 0.0)) {
-						// Ќедопустимое значение котировки [@int '@quotkind' '@goods' @hex @real] - котировка будет удалена
-						PPFormatT(PPTXT_INVQUOTVAL, &msg_buf, rec.ID, rec.Kind, rec.GoodsID, rec.Flags, rec.Quot);
-						logger.Log(msg_buf);
-						THROW_DB(deleteFrom(P_Qc, 0, (P_Qc->ID == rec.ID))); // @v7.1.2
-						// @v7.1.2 THROW_DB(QC.deleteRec());
-					}
-					else if(rec.Kind && rec.Kind == spc_qk.MtxID) {
-						if(rec.Quot != -1.0 && rec.Quot != 1.0 && rec.Quot != 0.0) {
-							// Ќедопустимое значение матричной котировки [@int '@quotkind' '@goods' @hex @real]
-							PPFormatT(PPTXT_INVQUOTMTXVAL, &msg_buf, rec.ID, rec.Kind, rec.GoodsID, rec.Flags, rec.Quot);
+						quot_list.insert(&quot);
+						//
+						double q = fabs(rec.Quot);
+						if(quot.IsEmpty()) {
+							// Ќулевое значение котировки [@int '@quotkind' '@goods' @hex @real]
+							PPFormatT(PPTXT_INVQUOTZEROVAL, &msg_buf, rec.ID, rec.Kind, rec.GoodsID, rec.Flags, rec.Quot);
 							logger.Log(msg_buf);
 						}
+						else if(q > 1000000.0 || (q < 0.0000001 && q > 0.0)) {
+							// Ќедопустимое значение котировки [@int '@quotkind' '@goods' @hex @real] - котировка будет удалена
+							PPFormatT(PPTXT_INVQUOTVAL, &msg_buf, rec.ID, rec.Kind, rec.GoodsID, rec.Flags, rec.Quot);
+							logger.Log(msg_buf);
+							THROW_DB(deleteFrom(P_Qc, 0, (P_Qc->ID == rec.ID)));
+						}
+						else if(rec.Kind && rec.Kind == spc_qk.MtxID) {
+							if(rec.Quot != -1.0 && rec.Quot != 1.0 && rec.Quot != 0.0) {
+								// Ќедопустимое значение матричной котировки [@int '@quotkind' '@goods' @hex @real]
+								PPFormatT(PPTXT_INVQUOTMTXVAL, &msg_buf, rec.ID, rec.Kind, rec.GoodsID, rec.Flags, rec.Quot);
+								logger.Log(msg_buf);
+							}
+						}
+					}
+					THROW_DB(P_Qc->getDirect(2, &k2, dbpos)); // @v8.0.0
+				} while(P_Qc->search(2, &k2, spNext));
+				if(quot_list.GoodsID) {
+					if(quot_list.Correct721(&logger) > 0) {
+						THROW(P_Qc->SetCurrList(quot_list, 0, 0, 0));
 					}
 				}
-				THROW_DB(P_Qc->getDirect(2, &k2, dbpos)); // @v8.0.0
-			} while(P_Qc->search(2, &k2, spNext));
-			if(quot_list.GoodsID) {
-				if(quot_list.Correct721(&logger) > 0) {
-					THROW(P_Qc->SetCurrList(quot_list, 0, 0, 0));
-				}
 			}
+			THROW(tra.Commit());
 		}
-		THROW(PPCommitWork(&ta));
 		PPWait(0);
 	}
 	CATCH
-		PPRollbackWork(&ta);
 		logger.LogLastError();
 	ENDCATCH
 	logger.Save(PPFILNAM_ERR_LOG, 0);

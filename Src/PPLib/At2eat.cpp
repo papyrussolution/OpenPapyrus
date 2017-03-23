@@ -1,62 +1,60 @@
 // AT2EAT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2006, 2007, 2016
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2006, 2007, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
 
 int SLAPI PPObjBill::ConvertGenAccturnToExtAccBill(PPID srcID, PPID * pDestID, CvtAt2Ab_Param * pParam, int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	double amt;
 	PPOprKind op_rec;
 	PPBillPacket src_pack;
 	PPBillPacket dest_pack;
 	PPAccTurn * p_at = 0;
-
-	THROW(PPStartTransaction(&ta, use_ta));
-	THROW(ExtractPacket(srcID, &src_pack) > 0);
-
-	THROW_PP(src_pack.Turns.getCount(), PPERR_UNABLECVTBILL2BILL);
-	THROW(GetOpData(src_pack.Rec.OpID, &op_rec) > 0);
-	THROW_PP(op_rec.OpTypeID == PPOPT_ACCTURN /*&&!(op_rec.Flags & OPKF_EXTACCTURN)*/, PPERR_UNABLECVTBILL2BILL);
-	THROW(GetOpData(pParam->OpID, &op_rec) > 0);
-	p_at = & src_pack.Turns.at(0);
-	THROW(dest_pack.CreateBlank(pParam->OpID, 0, pParam->LocID ? pParam->LocID : src_pack.Rec.LocID, use_ta));
-	dest_pack.Rec.Object  = pParam->ObjID;
-	dest_pack.Rec.Object2 = pParam->ExtObjID;
-	if(p_at->DbtSheet) {
-		if(p_at->DbtSheet == op_rec.AccSheetID) {
-			SETIFZ(dest_pack.Rec.Object, p_at->DbtID.ar);
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		THROW(ExtractPacket(srcID, &src_pack) > 0);
+		THROW_PP(src_pack.Turns.getCount(), PPERR_UNABLECVTBILL2BILL);
+		THROW(GetOpData(src_pack.Rec.OpID, &op_rec) > 0);
+		THROW_PP(op_rec.OpTypeID == PPOPT_ACCTURN /*&&!(op_rec.Flags & OPKF_EXTACCTURN)*/, PPERR_UNABLECVTBILL2BILL);
+		THROW(GetOpData(pParam->OpID, &op_rec) > 0);
+		p_at = & src_pack.Turns.at(0);
+		THROW(dest_pack.CreateBlank(pParam->OpID, 0, pParam->LocID ? pParam->LocID : src_pack.Rec.LocID, use_ta));
+		dest_pack.Rec.Object  = pParam->ObjID;
+		dest_pack.Rec.Object2 = pParam->ExtObjID;
+		if(p_at->DbtSheet) {
+			if(p_at->DbtSheet == op_rec.AccSheetID) {
+				SETIFZ(dest_pack.Rec.Object, p_at->DbtID.ar);
+			}
+			else if(p_at->DbtSheet == op_rec.AccSheet2ID) {
+				SETIFZ(dest_pack.Rec.Object2, p_at->DbtID.ar);
+			}
 		}
-		else if(p_at->DbtSheet == op_rec.AccSheet2ID) {
-			SETIFZ(dest_pack.Rec.Object2, p_at->DbtID.ar);
+		if(p_at->CrdSheet) {
+			if(p_at->CrdSheet == op_rec.AccSheetID) {
+				SETIFZ(dest_pack.Rec.Object, p_at->CrdID.ar);
+			}
+			else if(p_at->CrdSheet == op_rec.AccSheet2ID) {
+				SETIFZ(dest_pack.Rec.Object2, p_at->CrdID.ar);
+			}
 		}
+		dest_pack.Rec.Dt = src_pack.Rec.Dt;
+		STRNSCPY(dest_pack.Rec.Code, src_pack.Rec.Code);
+		dest_pack.Rec.LocID = pParam->LocID ? pParam->LocID : src_pack.Rec.LocID;
+		STRNSCPY(dest_pack.Rec.Memo, src_pack.Rec.Memo);
+		amt = (pParam->Flags & CvtAt2Ab_Param::fNegAmount) ? -p_at->Amount : p_at->Amount;
+		dest_pack.Rec.Amount = BR2(amt);
+		dest_pack.Amounts.Put(PPAMT_MAIN, 0L, amt, 0, 1);
+		//dest_pack.InitAmounts();
+		THROW(FillTurnList(&dest_pack));
+		THROW(TurnPacket(&dest_pack, 0));
+		ASSIGN_PTR(pDestID, dest_pack.Rec.ID);
+		THROW(RemovePacket(srcID, 0));
+		THROW(tra.Commit());
 	}
-	if(p_at->CrdSheet) {
-		if(p_at->CrdSheet == op_rec.AccSheetID) {
-			SETIFZ(dest_pack.Rec.Object, p_at->CrdID.ar);
-		}
-		else if(p_at->CrdSheet == op_rec.AccSheet2ID) {
-			SETIFZ(dest_pack.Rec.Object2, p_at->CrdID.ar);
-		}
-	}
-	dest_pack.Rec.Dt = src_pack.Rec.Dt;
-	STRNSCPY(dest_pack.Rec.Code, src_pack.Rec.Code);
-	dest_pack.Rec.LocID = pParam->LocID ? pParam->LocID : src_pack.Rec.LocID;
-	STRNSCPY(dest_pack.Rec.Memo, src_pack.Rec.Memo);
-	amt = (pParam->Flags & CvtAt2Ab_Param::fNegAmount) ? -p_at->Amount : p_at->Amount;
-	dest_pack.Rec.Amount = BR2(amt);
-	dest_pack.Amounts.Put(PPAMT_MAIN, 0L, amt, 0, 1);
-	//dest_pack.InitAmounts();
-	THROW(FillTurnList(&dest_pack));
-	THROW(TurnPacket(&dest_pack, 0));
-	ASSIGN_PTR(pDestID, dest_pack.Rec.ID);
-	THROW(RemovePacket(srcID, 0));
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -147,61 +145,65 @@ IMPL_HANDLE_EVENT(CvtAt2Ab_Dialog)
 //
 int SLAPI PPViewAccturn::ConvertGenAccturnToExtAccBill()
 {
-	int    ok = -1, ta = 0, frrl_tag = 0;
+	int    ok = -1, frrl_tag = 0;
 	uint   i;
 	PPID   op_id;
 	CvtAt2Ab_Dialog * dlg = 0;
 	AccturnViewItem item;
-	if((Filt.Aco == ACO_2 || Filt.Aco == ACO_3) && Filt.DbtAcct.ac && Filt.CrdAcct.ac) {
+	if(oneof2(Filt.Aco, ACO_2, ACO_3) && Filt.DbtAcct.ac && Filt.CrdAcct.ac) {
 		PPOprKind op_rec;
 		PPIDArray op_list;
+		int    skip = 0;
 		if(IsGenericOp(Filt.OpID) > 0) {
 			GetGenericOpList(Filt.OpID, &op_list);
-			for(i = 0; i < op_list.getCount(); i++)
+			for(i = 0; !skip && i < op_list.getCount(); i++)
 				if(GetOpType(op_list.at(i), &op_rec) != PPOPT_ACCTURN)
-					return -1;
+					skip = 1;
 		}
 		else if(GetOpType(Filt.OpID, &op_rec) != PPOPT_ACCTURN)
-			return -1;
-		op_list.freeAll();
-		for(op_id = 0; EnumOperations(PPOPT_ACCTURN, &op_id, &op_rec) > 0;) {
-			if(op_rec.Flags & OPKF_EXTACCTURN)
-				op_list.add(op_id);
-		}
-		{
-			int    valid_data = 0;
-			CvtAt2Ab_Param param;
-			MEMSZERO(param);
-			param.P_OpList = &op_list;
-			THROW(CheckDialogPtr(&(dlg = new CvtAt2Ab_Dialog()), 0));
-			dlg->setDTS(&param);
-			while(!valid_data && ExecView(dlg) == cmOK) {
-				if(dlg->getDTS(&param)) {
-					PPIDArray bill_id_list;
-					valid_data = 1;
-					delete dlg;
-					dlg = 0;
-					PPWait(1);
-					THROW(PPStartTransaction(&ta, 1));
-					THROW(P_ATC->LockingFRR(1, &frrl_tag, 0));
-					for(InitIteration(); NextIteration(&item) > 0;)
-						if(P_BObj->Search(item.BillID) > 0)
-							bill_id_list.addUnique(item.BillID);
-					for(i = 0; i < bill_id_list.getCount(); i++) {
-						THROW(P_BObj->ConvertGenAccturnToExtAccBill(bill_id_list.at(i), 0, &param, 0));
-						PPWaitPercent(i+1, bill_id_list.getCount());
+			skip = 1;
+		if(!skip) {
+			op_list.freeAll();
+			for(op_id = 0; EnumOperations(PPOPT_ACCTURN, &op_id, &op_rec) > 0;) {
+				if(op_rec.Flags & OPKF_EXTACCTURN)
+					op_list.add(op_id);
+			}
+			{
+				int    valid_data = 0;
+				CvtAt2Ab_Param param;
+				MEMSZERO(param);
+				param.P_OpList = &op_list;
+				THROW(CheckDialogPtr(&(dlg = new CvtAt2Ab_Dialog()), 0));
+				dlg->setDTS(&param);
+				while(!valid_data && ExecView(dlg) == cmOK) {
+					if(dlg->getDTS(&param)) {
+						PPIDArray bill_id_list;
+						valid_data = 1;
+						ZDELETE(dlg);
+						PPWait(1);
+						{
+							PPTransaction tra(1);
+							THROW(tra);
+							THROW(P_ATC->LockingFRR(1, &frrl_tag, 0));
+							for(InitIteration(); NextIteration(&item) > 0;)
+								if(P_BObj->Search(item.BillID) > 0)
+									bill_id_list.addUnique(item.BillID);
+							for(i = 0; i < bill_id_list.getCount(); i++) {
+								THROW(P_BObj->ConvertGenAccturnToExtAccBill(bill_id_list.at(i), 0, &param, 0));
+								PPWaitPercent(i+1, bill_id_list.getCount());
+							}
+							THROW(P_ATC->LockingFRR(0, &frrl_tag, 0));
+							THROW(tra.Commit());
+						}
+						PPWait(0);
+						ok = 1;
 					}
-					THROW(P_ATC->LockingFRR(0, &frrl_tag, 0));
-					THROW(PPCommitWork(&ta));
-					PPWait(0);
-					ok = 1;
 				}
 			}
 		}
 	}
 	CATCH
 		P_ATC->LockingFRR(-1, &frrl_tag, 0);
-		PPRollbackWork(&ta);
 		ok = PPErrorZ();
 	ENDCATCH
 	delete dlg;

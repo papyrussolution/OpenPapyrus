@@ -7094,7 +7094,7 @@ record EmailAccount {
 }
 
 record SupplPrice {
-	WareId       zstring(24)         "Код товара";
+	WareId       zstring(24)         "@{goodscode}";
 	UnitId       zstring(24)         "@{munit}";
 	PriceTypeId  zstring(24)         "Тип цены";
 	Price        double format(10.2) "@{price}";
@@ -7108,7 +7108,7 @@ record SupplRest {
 }
 
 record SupplRestLine {
-	WareId         zstring(24)         "Код товара";
+	WareId         zstring(24)         "@{goodscode}";
 	UnitId         zstring(24)         "@{munit}";
 	Quantity       double format(10.2) "@{qtty}";
 };
@@ -7121,7 +7121,7 @@ record SupplBill {
 
 record SupplBillLine {
 	CompanyId         zstring(24)         "Код организации";
-	AddressId         zstring(24)         "Код клиента";
+	AddressId         zstring(24)         "@{clientcode}";
 	AddressRegionType zstring(64)         "Регион";
 	SaleChannel       zstring(8)          "Канал поставки";
 	CRMOrderNumber    zstring(16)         "Номер заказа";
@@ -7132,14 +7132,14 @@ record SupplBillLine {
     SrcCRMDbId        zstring(36)         "Ид базы данных-источника";
 	PayDate           date                "Дата оплаты";
 	WareHouseId       zstring(24)         "@{warehouse}";
-	WareId            zstring(24)         "Код товара";
+	WareId            zstring(24)         "@{goodscode}";
 	Price             double format(10.2) "@{price}";
 	Quantity          double format(10.2) "@{qtty}";
 	ActionDate        date                "Дата реальной отгрузки клиенту"; // @v9.4.12
 };
 
 record SupplGoods {
-	WareId          zstring(24)         "Код товара";
+	WareId          zstring(24)         "@{goodscode}";
 	WareName        zstring(64)         "@{goodsname}";
 	UnitId          zstring(24)         "Код единицы измерения";
 	UnitName        zstring(48)         "Наименование единицы измерения";
@@ -7315,7 +7315,7 @@ record QuotVal {
     QuotKindID   long format(10)  "ИД вида котировки";
     QuotKindSymb zstring(20)      "Символ вида котировки";
 	GoodsID      long  format(10) "@{goodsid}";
-	GoodsCode    zstring(32)      "Код товара";
+	GoodsCode    zstring(32)      "@{goodscode}";
 	LocID        long  format(10) "ИД склада";
 	LocCode      zstring(20)      "Символ склада";
 	CurrencyID   long  format(10) "ИД валюты";
@@ -7371,6 +7371,7 @@ record Goods2 {
 	PckgLength     long                "Длина упаковки поставки, мм";
 	PckgWidth      long                "Ширина упаковки поставки, мм";
 	PckgHeight     long                "Высота упаковки поставки, мм";
+	MinStock       double              "Минимальный остаток на складе"; // @v9.5.10 В контексте склада
 	MinShippmQtty  double              "Минимальное отгружаемое количество"; // @v7.5.5
 	MultMinShippm  long                "MinShippmQtty одновременно определяет кратность отгужаемого количества"; // @v8.6.4
 	ManufID        long                "ИД производителя";
@@ -7382,7 +7383,7 @@ record Goods2 {
 	ExtD           zstring(4096)       "Доп инфо по товару D";  // @v8.0.12 (512)-->(4096)
 	ExtE           zstring(4096)       "Доп инфо по товару E";  // @v8.0.12 (512)-->(4096)
 	ExtLongNameTo  zstring(4)          "Символ доп поля для сохраннения длинного наименования"; // @v8.0.12
-	ArCode         zstring(32)         "Код по статье";
+	ArCode         zstring(32)         "@{codebyar}";
 	AltGrpCode     zstring(32)         "Код альтернативной группы";
 	AltGrpPLU      long                "PLU для альтернативной группы";
 	HierObjCode    zstring(32)         "Код иерархического объекта";
@@ -7404,7 +7405,7 @@ record Goods2 {
 	GoodsID        long                "Идентификатор товара";
 	ExpiryFromCurDt long               "Срок годности в днях от текущей даты";
 	ForceReplace   zstring(12)         "Необходимо заменить товар в БД на импортируемый";
-	EgaisCode      zstring(24)         "Код товара в ЕГАИС";
+	EgaisCode      zstring(24)         "@{egaiscode}";
 }
 
 record Person {
@@ -7670,7 +7671,7 @@ record Workbook {
 record BaltikaSaldoWare {
 	Date          date                "Дата обмена";
 	CompanyId     zstring(24)         "Код компании";
-	AddressId     zstring(24)         "Код клиента";
+	AddressId     zstring(24)         "@{clientcode}";
 	WareId        zstring(24)         "Код тары";
 	FACode        zstring(32)         "Инвентарный номер оборудования";
 	Quantity      double format(10.2) "@{qtty}";
@@ -7680,8 +7681,8 @@ record BaltikaSaldoWare {
 record BaltikaSaldoAggregate {
 	SaldoDate            date                "Дата, за которую экспортируются данные"; // @v9.1.4
 	CompanyId            zstring(24)         "Код компании";
-	AddressId            zstring(24)         "Код клиента";
-	ProductId            zstring(24)         "Код продукта";
+	AddressId            zstring(24)         "@{clientcode}";
+	ProductId            zstring(24)         "@{goodscode}";
 	ProductName          zstring(128)        "Название продукта";
 	mCreditLimit         double format(10.2) "Кредитный лимит";
 	mCustInvoice         double format(10.2) "mCustInvoice";
@@ -7700,8 +7701,8 @@ record BaltikaSaldoAggregate {
 
 record BaltikaSaldoDoc {
 	CompanyId        zstring(24)         "Код компании";
-	AddressId        zstring(24)         "Код клиента";
-	ProductId        zstring(24)         "Код продукта";
+	AddressId        zstring(24)         "@{clientcode}";
+	ProductId        zstring(24)         "@{goodscode}";
 	ProductName      zstring(128)        "Название продукта";
 	DocumentNumber   zstring(32)         "@{billno}";
 	DocumentDate     date                "@{billdate}";
@@ -7717,7 +7718,7 @@ record BaltikaBillItemAttrs {
 	DocumentDate      date                "@{billdate}";
 	DocumentNumber    zstring(16)         "@{billno}";
 	DocumentTypeId    zstring(32)         "Тип документа";
-	WareId            zstring(24)         "Код товара";
+	WareId            zstring(24)         "@{goodscode}";
 	PartNumber        zstring(64)         "Номер партии";
     ProductionDate    date                "Дата изготовления";
     ExpirationDate    date                "Срок годности";
@@ -7796,7 +7797,7 @@ record Baltika_RestPartLine {
 	PartNumber      zstring(64)         "@{series}";
     ProductionDate  date                "Дата изготовления";
     ExpirationDate  date                "Срок годности";
-	WareId          zstring(24)         "Код товара";
+	WareId          zstring(24)         "@{goodscode}";
 	UnitId          zstring(24)         "@{munit}";
 	Quantity        double format(10.2) "@{qtty}";
 }

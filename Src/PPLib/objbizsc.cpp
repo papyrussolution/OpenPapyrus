@@ -2147,7 +2147,7 @@ int SLAPI GlobalBizScoreCore::GetLastList(PPID globalUserID, GlobalBizScoreArray
 
 int SLAPI GlobalBizScoreCore::SetList(const GlobalBizScoreArray & rList, int use_ta)
 {
-	int    ok = -1, ta = 0;
+	int    ok = -1;
 	long   counter = 0;
 	SysJournal * p_sj = DS.GetTLA().P_SysJ;
 	LDATETIME since;
@@ -2157,72 +2157,72 @@ int SLAPI GlobalBizScoreCore::SetList(const GlobalBizScoreArray & rList, int use
 		counter = sj_rec.Extra+1;
 	else
 		counter = 1;
-	THROW(PPStartTransaction(&ta, use_ta));
-	for(uint i = 0; i < rList.getCount(); i++) {
-		THROW(SetItem(counter, *rList.at(i), 0));
-		ok = 1;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		for(uint i = 0; i < rList.getCount(); i++) {
+			THROW(SetItem(counter, *rList.at(i), 0));
+			ok = 1;
+		}
+		if(ok > 0) {
+			DS.LogAction(PPACN_GLOBBIZSCOREUPD, 0, 0, counter, 0);
+		}
+		THROW(tra.Commit());
 	}
-	if(ok > 0) {
-		DS.LogAction(PPACN_GLOBBIZSCOREUPD, 0, 0, counter, 0);
-	}
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
 int SLAPI GlobalBizScoreCore::SetItem(long counter, const GlobalBizScoreVal & rVal, int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	PPObjGlobalUserAcc gua_obj;
 	PPID   gua_id = 0;
-	THROW(PPStartTransaction(&ta, use_ta));
-	if(gua_obj.SearchByLocalID(rVal.LocalDbUuid, rVal.LocalUserID, &gua_id, 0) > 0) {
-		GlobalBizScoreTbl::Key0 k0;
-		GlobalBizScoreTbl::Rec rec;
-		k0.ActualDate = rVal.ActualDate;
-		k0.GlobalUserID = gua_id;
-		k0.LocalScoreID = rVal.LocalScoreID;
-		if(SearchByKey(this, 0, &k0, &rec) > 0) {
-			if(cmp(rVal.Dtm, rec.Dt, rec.Tm) > 0) {
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(gua_obj.SearchByLocalID(rVal.LocalDbUuid, rVal.LocalUserID, &gua_id, 0) > 0) {
+			GlobalBizScoreTbl::Key0 k0;
+			GlobalBizScoreTbl::Rec rec;
+			k0.ActualDate = rVal.ActualDate;
+			k0.GlobalUserID = gua_id;
+			k0.LocalScoreID = rVal.LocalScoreID;
+			if(SearchByKey(this, 0, &k0, &rec) > 0) {
+				if(cmp(rVal.Dtm, rec.Dt, rec.Tm) > 0) {
+					rec.UpdCounter = counter;
+					rec.Dt = rVal.Dtm.d;
+					rec.Tm = rVal.Dtm.t;
+					rec.Val = rVal.Val;
+					rec.Flags = rVal.Flags;
+					rVal.LocalScoreName.CopyTo(rec.ScoreName, sizeof(rec.ScoreName));
+					rVal.LocalScoreDescr.CopyTo(rec.ScoreDescr, sizeof(rec.ScoreDescr));
+					rVal.StrVal.CopyTo(rec.Str, sizeof(rec.Str));
+					THROW_DB(updateRecBuf(&rec));
+				}
+				else if(counter > rec.UpdCounter) {
+					rec.UpdCounter = counter;
+					THROW_DB(updateRecBuf(&rec));
+				}
+			}
+			else {
+				MEMSZERO(rec);
 				rec.UpdCounter = counter;
+				rec.ActualDate = rVal.ActualDate;
 				rec.Dt = rVal.Dtm.d;
 				rec.Tm = rVal.Dtm.t;
+				rec.GlobalUserID = gua_id;
+				rec.LocalScoreID = rVal.LocalScoreID;
 				rec.Val = rVal.Val;
 				rec.Flags = rVal.Flags;
 				rVal.LocalScoreName.CopyTo(rec.ScoreName, sizeof(rec.ScoreName));
 				rVal.LocalScoreDescr.CopyTo(rec.ScoreDescr, sizeof(rec.ScoreDescr));
 				rVal.StrVal.CopyTo(rec.Str, sizeof(rec.Str));
-				THROW_DB(updateRecBuf(&rec));
-			}
-			else if(counter > rec.UpdCounter) {
-				rec.UpdCounter = counter;
-				THROW_DB(updateRecBuf(&rec));
+				THROW_DB(insertRecBuf(&rec));
 			}
 		}
-		else {
-			MEMSZERO(rec);
-			rec.UpdCounter = counter;
-			rec.ActualDate = rVal.ActualDate;
-			rec.Dt = rVal.Dtm.d;
-			rec.Tm = rVal.Dtm.t;
-			rec.GlobalUserID = gua_id;
-			rec.LocalScoreID = rVal.LocalScoreID;
-			rec.Val = rVal.Val;
-			rec.Flags = rVal.Flags;
-			rVal.LocalScoreName.CopyTo(rec.ScoreName, sizeof(rec.ScoreName));
-			rVal.LocalScoreDescr.CopyTo(rec.ScoreDescr, sizeof(rec.ScoreDescr));
-			rVal.StrVal.CopyTo(rec.Str, sizeof(rec.Str));
-			THROW_DB(insertRecBuf(&rec));
-		}
+		THROW(tra.Commit());
 	}
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 //

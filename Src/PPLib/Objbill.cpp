@@ -2198,7 +2198,7 @@ int SLAPI PPObjBill::GetSnByTemplate(const char * pBillCode, PPID goodsID,
 	const  long sGS  = 0x00534740L; // "@GS" Штрихкод товара
 	const  long sBN  = 0x004E4240L; // "@BN" Номер документа
 
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	size_t x_len = 0, r_len = 0;
 	double low = 0.0, upp = 0.0;
 	char   pfx[48], t[48];
@@ -2213,111 +2213,111 @@ int SLAPI PPObjBill::GetSnByTemplate(const char * pBillCode, PPID goodsID,
 
 	PPObjOpCounter opc_obj;
 	PPOpCounterPacket opc_pack;
-	THROW(PPStartTransaction(&ta, 1));
 	{
-		//
-		// Обратная совместимость с версиями, меньшими, чем @v5.0.0
-		//
-		if(Cfg.SnCntrID == 0) {
-			STRNSCPY(opc_pack.Head.CodeTemplate, Cfg.SnTemplt);
-			opc_pack.Init(0, 0);
-			opc_pack.Head.Counter = Cfg.SnrCounter;
-			THROW(PPObjBill_WriteConfig(&Cfg, &opc_pack, 0));
+		PPTransaction tra(1);
+		THROW(tra);
+		{
+			//
+			// Обратная совместимость с версиями, меньшими, чем @v5.0.0
+			//
+			if(Cfg.SnCntrID == 0) {
+				STRNSCPY(opc_pack.Head.CodeTemplate, Cfg.SnTemplt);
+				opc_pack.Init(0, 0);
+				opc_pack.Head.Counter = Cfg.SnrCounter;
+				THROW(PPObjBill_WriteConfig(&Cfg, &opc_pack, 0));
+			}
 		}
-	}
-	THROW(opc_obj.GetPacket(Cfg.SnCntrID, &opc_pack) > 0);
-	{
-		STRNSCPY(templ, pTempl);
-		if(*strip(templ) == 0) {
-			STRNSCPY(templ, opc_pack.Head.CodeTemplate);
-			strip(templ);
+		THROW(opc_obj.GetPacket(Cfg.SnCntrID, &opc_pack) > 0);
+		{
+			STRNSCPY(templ, pTempl);
+			if(*strip(templ) == 0) {
+				STRNSCPY(templ, opc_pack.Head.CodeTemplate);
+				strip(templ);
+			}
+			p = templ;
 		}
-		p = templ;
-	}
-	if(*p) {
-		memzero(pfx, sizeof(pfx));
-		while(*p) {
-			if(isdigit(*p))
-				*c++ = *p++;
-			else if(strnicmp(p, (char*)&sGR, 3) == 0) {
-				if(GObj.Fetch(goodsID, &goods_rec) > 0) {
-					if(GObj.GetSingleBarcode(goods_rec.ParentID, code) > 0) {
-						code.ShiftLeftChr('@').Strip();
-						c += strlen(strcpy(c, code));
+		if(*p) {
+			memzero(pfx, sizeof(pfx));
+			while(*p) {
+				if(isdigit(*p))
+					*c++ = *p++;
+				else if(strnicmp(p, (char*)&sGR, 3) == 0) {
+					if(GObj.Fetch(goodsID, &goods_rec) > 0) {
+						if(GObj.GetSingleBarcode(goods_rec.ParentID, code) > 0) {
+							code.ShiftLeftChr('@').Strip();
+							c += strlen(strcpy(c, code));
+						}
+						p += 3;
 					}
+				}
+				else if(strnicmp(p, (char*)&sGS, 3) == 0) {
+					if(GObj.GetSingleBarcode(goodsID, code) > 0)
+						c += strlen(strcpy(c, code.Strip()));
 					p += 3;
 				}
-			}
-			else if(strnicmp(p, (char*)&sGS, 3) == 0) {
-				if(GObj.GetSingleBarcode(goodsID, code) > 0)
-					c += strlen(strcpy(c, code.Strip()));
-				p += 3;
-			}
-			else if(strnicmp(p, (char*)&sBN, 3) == 0) {
-				c += strlen(strcpy(c, (code = pBillCode).Strip()));
-				p += 3;
-			}
-			else if(*p == '%') {
-				x_len = strlen(pfx);
-				for(++p, x = t; isdigit(*p);)
-					*x++ = *p++;
-				*x = 0;
-				r_len = atoi(t);
-				if(*p == '[') {
-					for(++p, x = t; *p && *p != ']';)
+				else if(strnicmp(p, (char*)&sBN, 3) == 0) {
+					c += strlen(strcpy(c, (code = pBillCode).Strip()));
+					p += 3;
+				}
+				else if(*p == '%') {
+					x_len = strlen(pfx);
+					for(++p, x = t; isdigit(*p);)
 						*x++ = *p++;
 					*x = 0;
-					strtorrng(t, &low, &upp);
-				}
-				if(low <= 0)
-					low = 1;
-				if(upp <= 0 || upp > (fpow10i((int)r_len) - 1))
-					upp = fpow10i((int)r_len) - 1;
-				{
-					long   counter = 0;
-					char   pttrn[48];
-					int    f = 0;
-					opc_pack.GetCounter(0, &counter);
-					low = (low >= (double)(counter % (long)upp)) ? low : (double)(counter % (long)upp); // AHTOXA
-					for(long n = (long)low; !f && n <= (long)upp; n++) {
-						memzero(pttrn, sizeof(pttrn));
-						sprintf(pttrn, "%s%0*ld", pfx, (int)r_len, n);
-						if(pExclList && pExclList->SearchNumber(pttrn, 0) > 0)
-							continue;
+					r_len = atoi(t);
+					if(*p == '[') {
+						for(++p, x = t; *p && *p != ']';)
+							*x++ = *p++;
+						*x = 0;
+						strtorrng(t, &low, &upp);
+					}
+					if(low <= 0)
+						low = 1;
+					if(upp <= 0 || upp > (fpow10i((int)r_len) - 1))
+						upp = fpow10i((int)r_len) - 1;
+					{
+						long   counter = 0;
+						char   pttrn[48];
+						int    f = 0;
+						opc_pack.GetCounter(0, &counter);
+						low = (low >= (double)(counter % (long)upp)) ? low : (double)(counter % (long)upp); // AHTOXA
+						for(long n = (long)low; !f && n <= (long)upp; n++) {
+							memzero(pttrn, sizeof(pttrn));
+							sprintf(pttrn, "%s%0*ld", pfx, (int)r_len, n);
+							if(pExclList && pExclList->SearchNumber(pttrn, 0) > 0)
+								continue;
+							else {
+								f = 1;
+								counter += (n - counter % (long)upp + 1); // AHTOXA
+							}
+						}
+						if(f) {
+							strcpy(pfx, pttrn);
+							counter = (counter <= 0) ? 1 : counter; // AHTOXA
+							THROW(opc_pack.CounterIncr(0, 0));
+							opc_pack.Flags |= PPOpCounterPacket::fDontLogUpdAction;
+							THROW(opc_obj.PutPacket(&Cfg.SnCntrID, &opc_pack, 0));
+						}
 						else {
-							f = 1;
-							counter += (n - counter % (long)upp + 1); // AHTOXA
+							memset(pttrn, '0', x_len + r_len);
+							pttrn[x_len + r_len] = 0;
+							rBuf = pttrn;
+							ok = 0;
 						}
 					}
-					if(f) {
-						strcpy(pfx, pttrn);
-						counter = (counter <= 0) ? 1 : counter; // AHTOXA
-						THROW(opc_pack.CounterIncr(0, 0));
-						opc_pack.Flags |= PPOpCounterPacket::fDontLogUpdAction;
-						THROW(opc_obj.PutPacket(&Cfg.SnCntrID, &opc_pack, 0));
-					}
-					else {
-						memset(pttrn, '0', x_len + r_len);
-						pttrn[x_len + r_len] = 0;
-						rBuf = pttrn;
-						ok = 0;
-					}
+					break;
 				}
-				break;
+				else
+					*c++ = *p++;
 			}
-			else
-				*c++ = *p++;
+			if(ok > 0)
+				rBuf = pfx;
 		}
-		if(ok > 0)
-			rBuf = pfx;
+		else
+			ok = -1;
+		THROW(tra.Commit());
 	}
-	else
-		ok = -1;
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 

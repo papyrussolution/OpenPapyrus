@@ -2304,12 +2304,10 @@ LDATE DateRepIterator::Next()
 					result = temp_dt;
 				}
 				break;
-			// @v6.4.15 AHTOXA {
 			case PRD_REPEATAFTERPRD:
 				plusperiod(&temp_dt, Dr.RepeatKind, Dr.Dtl.RA.NumPrd, 0);
 				result = temp_dt;
 				break;
-			// } @v6.4.15 AHTOXA {
 		}
 		Count++;
 		Cur = (!checkdate(result, 0) || (MaxCount && Count > MaxCount) || (End && result > End)) ? ZERODATE : result;

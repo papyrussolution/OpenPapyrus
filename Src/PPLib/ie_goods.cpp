@@ -813,12 +813,13 @@ int EditGoodsImpExpParams()
 int SLAPI SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
 {
 	int    ok = -1, valid_data = 0;
+	TDialog * dlg = 0;
 	uint   p = 0;
 	long   id = 0;
+	PPID   loc_id = 0;
 	SString ini_file_name;
 	StrAssocArray list;
 	PPGoodsImpExpParam param;
-	TDialog * p_dlg = 0;
 	THROW_PP(pParam, PPERR_INVPARAM);
 	pParam->Direction = BIN(import);
 	THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_GOODS2, &param, &list, import ? 2 : 1));
@@ -827,7 +828,7 @@ int SLAPI SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
 	{
 		PPIniFile ini_file(ini_file_name, 0, 1, 1);
 		SString sect;
-		//В режиме тестирования - начало
+		// В режиме тестирования - начало {
 		#if SLTEST_RUNNING
 			for(int i = 1; i < (int)list.getCount(); i++) {
 				list.Get(i, sect = 0);
@@ -839,7 +840,28 @@ int SLAPI SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
 				}
 			}
 		#endif
-		// конец
+		// } конец
+		// @v9.5.10 {
+		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_IEGOODS)), 1));
+		SetupStrAssocCombo(dlg, CTLSEL_IEGOODS_CFG, &list, id, 0, 0, 0);
+		SetupPPObjCombo(dlg, CTLSEL_IEGOODS_LOC, PPOBJ_LOCATION, loc_id, 0, 0);
+		while(ok < 0 && ExecView(dlg) == cmOK) {
+			id = dlg->getCtrlLong(CTLSEL_IEGOODS_CFG);
+			if(id) {
+				list.Get(id, sect = 0);
+				pParam->ProcessName(1, sect);
+				pParam->ReadIni(&ini_file, sect, 0);
+				loc_id = dlg->getCtrlLong(CTLSEL_IEGOODS_LOC);
+				if(loc_id) {
+					pParam->LocID = loc_id;
+				}
+				ok = 1;
+			}
+			else
+				PPError(PPERR_INVGOODSIMPEXPCFG);
+		}
+		// } @v9.5.10
+		/* @v9.5.10
 		while(!valid_data && ListBoxSelDialog(&list, import ? PPTXT_TITLE_GOODSIMPCFG : PPTXT_TITLE_GOODSEXPCFG, &id, 0) > 0) {
 			if(id) {
 				list.Get(id, sect = 0);
@@ -850,9 +872,10 @@ int SLAPI SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
 			else
 				PPError(PPERR_INVGOODSIMPEXPCFG);
 		}
+		*/
 	}
 	CATCHZOK
-	delete p_dlg;
+	delete dlg;
 	return ok;
 }
 //
@@ -2115,8 +2138,9 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 				}
 			}
 		}
-		else if(SelectGoodsImportCfgs(&Param, 1) > 0)
+		else if(SelectGoodsImportCfgs(&Param, 1) > 0) {
 			r = 1;
+		}
 		if(r == 1) {
 			TextFieldAnalyzer txt_anlzr;
 			THROW_MEM(P_IE = new PPImpExp(&Param, 0));
@@ -2628,6 +2652,12 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 									}
 								}
 								// } @v8.8.12
+								// @v9.5.10 {
+								if(sdr_rec.MinStock > 0.0) {
+									pack.Stock.SetMinStock(Param.LocID, sdr_rec.MinStock);
+									do_update = 1;
+								}
+								// } @v9.5.10
 								if(do_update) {
 									if(!GObj.PutPacket(&goods_id, &pack, 0)) {
 										PPGetMessage(mfError|mfOK, PPErrCode, 0, 1, err_msg_buf);
@@ -2655,6 +2685,10 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 									logger.Log(msg_buf);
 								}
 								else {
+									// @v9.5.10 {
+									if(sdr_rec.MinStock > 0.0)
+										pack.Stock.SetMinStock(Param.LocID, sdr_rec.MinStock);
+									// } @v9.5.10
 									if(GObj.PutPacket(&goods_id, &pack, 0)) {
 										if(ar_code.NotEmpty()) {
 											//

@@ -1032,48 +1032,48 @@ void SLAPI PPObjTSession::Helper_SetupDiscount(SArray & rList, int pct, double d
 
 int SLAPI PPObjTSession::SetupDiscount(PPID sessID, int pct, double discount, int use_ta)
 {
-	int    ok = -1, ta = 0;
+	int    ok = -1;
 	if(sessID && (GetConfig().Flags & PPTSessConfig::fUsePricing)) {
 		TSessionTbl::Rec sess_rec;
 		TSessLineTbl::Rec line_rec;
 		double amount = 0.0;
 		SArray ln_list(sizeof(DscntEntry));
 		DscntEntry * p_entry;
-		THROW(PPStartTransaction(&ta, use_ta));
-		THROW(Search(sessID, &sess_rec) > 0);
-		THROW_PP(sess_rec.Incomplete || (GetConfig().Flags & PPTSessConfig::fAllowLinesInWrOffSessions), PPERR_UPDLNCOMPLTSESS);
 		{
-			for(SEnum en = P_Tbl->EnumLines(sessID); en.Next(&line_rec) > 0;) {
-				DscntEntry entry;
-				MEMSZERO(entry);
-				entry.OprNo   = line_rec.OprNo;
-				entry.GoodsID = line_rec.GoodsID;
-				entry.Qtty    = fabs(line_rec.Qtty);
-				entry.Price   = fabs(line_rec.Price);
-				entry.Sum     = entry.Qtty * entry.Price;
-				ln_list.insert(&entry);
+			PPTransaction tra(use_ta);
+			THROW(tra);
+			THROW(Search(sessID, &sess_rec) > 0);
+			THROW_PP(sess_rec.Incomplete || (GetConfig().Flags & PPTSessConfig::fAllowLinesInWrOffSessions), PPERR_UPDLNCOMPLTSESS);
+			{
+				for(SEnum en = P_Tbl->EnumLines(sessID); en.Next(&line_rec) > 0;) {
+					DscntEntry entry;
+					MEMSZERO(entry);
+					entry.OprNo   = line_rec.OprNo;
+					entry.GoodsID = line_rec.GoodsID;
+					entry.Qtty    = fabs(line_rec.Qtty);
+					entry.Price   = fabs(line_rec.Price);
+					entry.Sum     = entry.Qtty * entry.Price;
+					ln_list.insert(&entry);
+				}
 			}
-		}
-		Helper_SetupDiscount(ln_list, pct, discount);
-		for(uint i = 0; ln_list.enumItems(&i, (void **)&p_entry);) {
-			THROW(P_Tbl->SearchLine(sessID, p_entry->OprNo, &line_rec) > 0);
-			amount = faddwsign(amount, R2(p_entry->Qtty * (p_entry->Price - p_entry->Dscnt)), line_rec.Sign);
-			if(line_rec.Discount != p_entry->Dscnt) {
-				line_rec.Discount = p_entry->Dscnt;
-				THROW_DB(P_Tbl->Lines.updateRecBuf(&line_rec));
-				ok = 1;
+			Helper_SetupDiscount(ln_list, pct, discount);
+			for(uint i = 0; ln_list.enumItems(&i, (void **)&p_entry);) {
+				THROW(P_Tbl->SearchLine(sessID, p_entry->OprNo, &line_rec) > 0);
+				amount = faddwsign(amount, R2(p_entry->Qtty * (p_entry->Price - p_entry->Dscnt)), line_rec.Sign);
+				if(line_rec.Discount != p_entry->Dscnt) {
+					line_rec.Discount = p_entry->Dscnt;
+					THROW_DB(P_Tbl->Lines.updateRecBuf(&line_rec));
+					ok = 1;
+				}
 			}
+			if(ok > 0) {
+				sess_rec.Amount = fabs(amount);
+				THROW(UpdateByID(P_Tbl, PPOBJ_TSESSION, sessID, &sess_rec, 0));
+			}
+			THROW(tra.Commit());
 		}
-		if(ok > 0) {
-			sess_rec.Amount = fabs(amount);
-			THROW(UpdateByID(P_Tbl, PPOBJ_TSESSION, sessID, &sess_rec, 0));
-		}
-		THROW(PPCommitWork(&ta));
 	}
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 

@@ -4414,10 +4414,7 @@ int SLAPI SapEfes::Init()
         Ep.GetExtStrData(Ep.extssRemoveAddr, SvcUrl);
         Ep.GetExtStrData(Ep.extssAccsName, UserName);
         Ep.GetExtStrData(Ep.extssAccsPassw, Password);
-
 		Ep.GetExtStrData(Ep.extssClientCode, SalesOrg);
-
-
 		State |= stEpDefined;
 	}
 	// @v9.5.5 {
@@ -4433,7 +4430,7 @@ int SLAPI SapEfes::Init()
 	}
 	// } @v9.5.5
 	if(Wareh.Empty())
-		Wareh = "DDJ0"; // "D1D0";
+		Wareh = "DDJ0";
 	InitGoodsList(iglfWithArCodesOnly); // @v9.5.1
 	State |= stInited;
 	return ok;
@@ -4579,6 +4576,7 @@ int SLAPI SapEfes::ReceiveOrders()
 							}
 						}
 						else if(contractor_ar_id) {
+							sob.Flags |= PPBillPacket::SetupObjectBlock::fEnableStop; // @v9.5.10
 							if(!pack.SetupObject(contractor_ar_id, sob)) {
 								R_Logger.LogLastError();
 								skip = 1;
@@ -5654,6 +5652,7 @@ int SLAPI PrcssrSupplInterchange::Run()
 	}
 	else if(temp_buf.CmpNC("SAP-EFES") == 0) {
 		SapEfes cli(*P_Eb, logger);
+		PPWait(1);
 		THROW(cli.Init());
 		if(P_Eb->P.Actions & SupplInterchangeFilt::opImportOrders) {
 			if(!cli.ReceiveOrders())
@@ -5677,6 +5676,8 @@ int SLAPI PrcssrSupplInterchange::Run()
 			if(!cli.SendSales_ByDlvrLoc())
 				logger.LogLastError();
 		}
+		cli.GetLogFileName(log_file_name);
+		PPWait(0);
 	}
 	else {
 		; //

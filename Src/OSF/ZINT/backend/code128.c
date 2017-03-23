@@ -297,35 +297,30 @@ void c128_set_c(uchar source_a, uchar source_b, char dest[], int values[], int *
 /* Handle Code 128 and NVE-18 */
 int code_128(struct ZintSymbol * symbol, uchar source[], int length)
 {
-	int i, j, k, values[170] = {0}, bar_characters, read, total_sum;
-	int error_number, indexchaine, indexliste, sourcelen, f_state;
-	char set[170] = {' '}, fset[170] = {' '}, mode, last_set, current_set = ' ';
-	float glyph_count;
-	char dest[1000];
-
-	error_number = 0;
+	int    i, k, values[170] = {0};
+	int    read, total_sum;
+	int    indexchaine, indexliste;
+	char   set[170] = {' '}, fset[170] = {' '}, mode, last_set, current_set = ' ';
+	float  glyph_count;
+	char   dest[1000];
+	int    error_number = 0;
+	int    sourcelen = length;
+	int    j = 0;
+	int    bar_characters = 0;
+	int    f_state = 0;
 	strcpy(dest, "");
-
-	sourcelen = length;
-
-	j = 0;
-	bar_characters = 0;
-	f_state = 0;
-
 	if(sourcelen > 160) {
 		/* This only blocks rediculously long input - the actual length of the
 		   resulting barcode depends on the type of data, so this is trapped later */
 		strcpy(symbol->errtxt, "Input too long (C40)");
 		return ZINT_ERROR_TOO_LONG;
 	}
-
 	/* Detect extended ASCII characters */
 	for(i = 0; i < sourcelen; i++) {
 		if(source[i] >= 128)
 			fset[i] = 'f';
 	}
 	fset[i] = '\0';
-
 	/* Decide when to latch to extended mode - Annex E note 3 */
 	j = 0;
 	for(i = 0; i < sourcelen; i++) {
@@ -335,7 +330,6 @@ int code_128(struct ZintSymbol * symbol, uchar source[], int length)
 		else {
 			j = 0;
 		}
-
 		if(j >= 5) {
 			for(k = i; k > (i - 5); k--) {
 				fset[k] = 'F';
@@ -367,7 +361,6 @@ int code_128(struct ZintSymbol * symbol, uchar source[], int length)
 	/* Decide on mode using same system as PDF417 and rules of ISO 15417 Annex E */
 	indexliste = 0;
 	indexchaine = 0;
-
 	mode = parunmodd(source[indexchaine]);
 	if((symbol->Std == BARCODE_CODE128B) && (mode == ABORC)) {
 		mode = AORB;

@@ -73,10 +73,10 @@
 //
 // Стороны прямоугольной области
 //
-#define SIDE_LEFT             SOW_WEST  // @v6.5.4 1-->SOW_WEST
-#define SIDE_TOP              SOW_NORD  // @v6.5.4 2-->SOW_NORD
-#define SIDE_RIGHT            SOW_EAST  // @v6.5.4 3-->SOW_EAST
-#define SIDE_BOTTOM           SOW_SOUTH // @v6.5.4 4-->SOW_SOUTH
+#define SIDE_LEFT             SOW_WEST
+#define SIDE_TOP              SOW_NORD
+#define SIDE_RIGHT            SOW_EAST
+#define SIDE_BOTTOM           SOW_SOUTH
 #define SIDE_CENTER           100
 //
 // Направления //
@@ -2189,9 +2189,9 @@ typedef int32 TYPEID;
 #define S_CLOB          28      // CLOB (для SQL-таблиц)
 #define S_RAW           29      // RAW-data бинарное поле с произвольным содержимым
 #define S_ROWID         30      // ROWID (для SQL-таблиц)
-#define S_IPOINT2       31      // @v6.6.1 Целочисленная двумерная точка (x, y)
-#define S_FPOINT2       32      // @v6.6.1 Вещественная двумерная точка (x, y)
-#define S_WZSTRING      33      // @v7.2.8 Unicode-zstring
+#define S_IPOINT2       31      // Целочисленная двумерная точка (x, y)
+#define S_FPOINT2       32      // Вещественная двумерная точка (x, y)
+#define S_WZSTRING      33      // Unicode-zstring
 #define S_UUID_         34      // @v8.0.9 (Суффиксное подчеркивание необходимо для отличия от class S_GUID)
 //
 #define S_FIRSTUSERTYPE 50
@@ -2228,9 +2228,9 @@ typedef int32 TYPEID;
 	#define T_ARRAY            MKSTYPE(S_ARRAY,0)
 	#define T_STRUCT           MKSTYPE(S_STRUCT,0)
 	#define T_VARIANT          MKSTYPE(S_VARIANT, sizeof(VARIANT))
-	#define T_ROWID            MKSTYPE(S_ROWID, sizeof(DBRowId))   // @v6.1.6
-	#define T_IPOINT2          MKSTYPE(S_IPOINT2, 4)               // @v6.9.4
-	#define T_FPOINT2          MKSTYPE(S_FPOINT2, 8)               // @v6.9.4
+	#define T_ROWID            MKSTYPE(S_ROWID, sizeof(DBRowId))
+	#define T_IPOINT2          MKSTYPE(S_IPOINT2, 4)
+	#define T_FPOINT2          MKSTYPE(S_FPOINT2, 8)
 	#define T_BOOL             MKSTYPE(S_BOOL, 4)                  // @v8.1.2
 	#define T_GUID             MKSTYPE(S_UUID_, 16)                // @v8.6.2
 #endif
@@ -2387,7 +2387,7 @@ int SLAPI RegisterSType(TYPEID, DataType *);
 #define ALIGN_LEFT     0x2000  // Выравнивать строку влево
 #define ALIGN_CENTER   0x3000  // Центрировать строку
 #define COMF_FILLOVF   0x4000  // Если результирующая строка не помещается в указанную длину, то заполнять символами '#'
-#define COMF_SQL       0x8000  // @v6.1.0 Форматировать значения в пригодном для SQL виде
+#define COMF_SQL       0x8000  // Форматировать значения в пригодном для SQL виде
 	// Этот флаг передается в функции форматирования различных типов для того, чтобы они смогли
 	// правильно сформировать строковое представление данных.
 //
@@ -2434,7 +2434,7 @@ int SLAPI RegisterSType(TYPEID, DataType *);
 #define DATF_ISO8601       14  // yyyy-mm-dd
 #define DATF_CENTURY   0x0010  // Century flag
 #define DATF_NOZERO    0x0020  // Не отображать нулевое значение
-#define DATF_NODIV     0x0040  // @v6.8.0 день, месяц и год следуют друг за другом без разделителей.
+#define DATF_NODIV     0x0040  // день, месяц и год следуют друг за другом без разделителей.
 	// Порядок следования определяется младшими битами (DATF_AMERICAN..DATF_YMD). Если установлен
 	// флаг DATF_CENTURY, то год должен быть полным (2011), в противном случае - только последние две
 	// цифры года (11).
@@ -8406,7 +8406,7 @@ public:
 	double SLAPI GetStdDev() const;
 	double SLAPI GetTestGamma() const;
 	double SLAPI GetTestGaussian() const;
-	int    SLAPI GetValue(long idx, double * pVal) const; // @v6.x.x AHTOXA
+	int    SLAPI GetValue(long idx, double * pVal) const;
 	int    SLAPI GetGammaParams(double * pAlpha, double * pBeta) const;
 protected:
 	long   Flags;
@@ -10388,8 +10388,6 @@ public:
 	long   TxtDateFmt_;     // @v8.6.7 int-->long
 	int    DefaultYear_;
 	int    DefaultMonth_;
-	// @v7.8.5 int    DefaultChrCodePage; // @v6.6.4
-	// @v7.8.5 int    DefaultOemCodePage; // @v6.6.4
 	int    UiLanguageId;
 	long   UiFlags;            // @v9.1.1 sluifXXX
 	SCodepageIdent CurrentCp;  // @v7.8.5

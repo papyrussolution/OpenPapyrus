@@ -10118,6 +10118,11 @@
 	#define CTL_PRCROSM_PATH          (1 + WINDOWS_ID_BIAS)
 	#define CTLBRW_PRCROSM_PATH       (2 + WINDOWS_ID_BIAS)
 	#define CTL_PRCROSM_FLAGS         (3 + WINDOWS_ID_BIAS)
+#define DLG_IEGOODS               1315
+	#define CTL_IEGOODS_CFG           (1 + WINDOWS_ID_BIAS)
+	#define CTLSEL_IEGOODS_CFG        (2 + WINDOWS_ID_BIAS)
+	#define CTL_IEGOODS_LOC           (3 + WINDOWS_ID_BIAS)
+	#define CTLSEL_IEGOODS_LOC        (4 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

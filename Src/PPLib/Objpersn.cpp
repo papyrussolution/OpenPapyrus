@@ -2762,7 +2762,7 @@ int SLAPI PPObjPerson::GetBankData(PPID id, PPBank * pData)
 
 int SLAPI PPObjPerson::AddBankSimple(PPID * pID, const PPBank * pData, int use_ta)
 {
-	int    ok = 1, ta = 0, r;
+	int    ok = 1, r;
 	PPID   id = 0;
 	PPObjWorld w_obj;
 	PPPersonPacket pack;
@@ -2775,19 +2775,21 @@ int SLAPI PPObjPerson::AddBankSimple(PPID * pID, const PPBank * pData, int use_t
 			pack.AddRegister(PPREGT_BIC, pData->BIC, 0);
 		if(pData->CorrAcc[0])
 			pack.AddRegister(PPREGT_BNKCORRACC, pData->CorrAcc, 0);
-		THROW(PPStartTransaction(&ta, use_ta));
-		THROW(r = SearchMaxLike(&pack, &id, 0, PPREGT_BIC));
-		if(r < 0) {
-			if(pData->City[0])
-				THROW(w_obj.AddSimple(&pack.Loc.CityID, WORLDOBJ_CITY, pData->City, 0, 0));
-			THROW(PutPacket(&(id = 0), &pack, 0));
+		{
+			PPTransaction tra(use_ta);
+			THROW(tra);
+			THROW(r = SearchMaxLike(&pack, &id, 0, PPREGT_BIC));
+			if(r < 0) {
+				if(pData->City[0])
+					THROW(w_obj.AddSimple(&pack.Loc.CityID, WORLDOBJ_CITY, pData->City, 0, 0));
+				THROW(PutPacket(&(id = 0), &pack, 0));
+			}
+			THROW(tra.Commit());
 		}
-		THROW(PPCommitWork(&ta));
 	}
 	else
 		ok = -1;
 	CATCH
-		PPRollbackWork(&ta);
 		ok = 0;
 		id = 0;
 	ENDCATCH
@@ -3067,7 +3069,6 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 			THROW(p_ref->PutPropArray(Obj, id, PSNPRP_DLVRLOCLIST, 0, 0));
 			// }
 			THROW(RegObj.P_Tbl->PutByPerson(id, 0, 0));
-			// @v7.3.2 {
 			if(do_index_phones) {
 				PPELinkArray ela;
 				THROW(P_Tbl->GetELinks(id, &ela));
@@ -3079,7 +3080,6 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 					THROW(LocObj.P_Tbl->IndexPhone(temp_buf, &objid, 1, 0));
 				}
 			}
-			// } @v7.3.2
 			THROW(P_Tbl->PutELinks(id, 0, 0));
 			THROW(p_ref->PutPropVlrString(Obj, id, PSNPRP_EXTSTRDATA, 0));
 			// @v9.0.4 THROW(BaObj.P_Tbl->RemoveList(id, 0));
@@ -3092,7 +3092,7 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 	}
 	THROW(PPCommitWork(&ta));
 	if(dirty_id)
-		Dirty(id);
+		Dirty(dirty_id); // @v9.5.10 @fix id-->dirty_id
 	CATCH
 		{
 			int do_recover_loc_owners = BIN(BTROKORNFOUND && pPack && *pID && is_in_db_mism_owner_loc);

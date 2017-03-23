@@ -1,5 +1,5 @@
 // OBJSALAR.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Starodub, A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1582,33 +1582,33 @@ int SLAPI PPObjStaffCal::PutItems(PPID id, PPStaffCalPacket * pPack, int logActi
 
 int SLAPI PPObjStaffCal::PutPacket(PPID * pID, PPStaffCalPacket * pPack, int useTa)
 {
-	int    ok = 1, ta = 0;
-	THROW(PPStartTransaction(&ta, useTa));
-	if(pPack) {
-		THROW(ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Name, offsetof(PPStaffCal, Name)));
-		THROW(ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Symb, offsetof(PPStaffCal, Symb)));
-	}
-	if(*pID) {
+	int    ok = 1;
+	{
+		PPTransaction tra(useTa);
+		THROW(tra);
 		if(pPack) {
-			int    r;
-			THROW(r = ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
-			THROW(PutItems(*pID, (pPack->Rec.Flags & PPStaffCal::fInherited) ? 0 : pPack, r < 0));
+			THROW(ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Name, offsetof(PPStaffCal, Name)));
+			THROW(ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Symb, offsetof(PPStaffCal, Symb)));
+		}
+		if(*pID) {
+			if(pPack) {
+				int    r;
+				THROW(r = ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+				THROW(PutItems(*pID, (pPack->Rec.Flags & PPStaffCal::fInherited) ? 0 : pPack, r < 0));
+			}
+			else {
+				THROW(ref->RemoveItem(Obj, *pID, 0));
+				THROW(PutItems(*pID, 0, 1));
+			}
 		}
 		else {
-			THROW(ref->RemoveItem(Obj, *pID, 0));
-			THROW(PutItems(*pID, 0, 1));
+			*pID = pPack->Rec.ID;
+			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
+			THROW(PutItems(*pID, (pPack->Rec.Flags & PPStaffCal::fInherited) ? 0 : pPack, 0));
 		}
+		THROW(tra.Commit());
 	}
-	else {
-		*pID = pPack->Rec.ID;
-		THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
-		THROW(PutItems(*pID, (pPack->Rec.Flags & PPStaffCal::fInherited) ? 0 : pPack, 0));
-	}
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -1695,44 +1695,43 @@ int SLAPI PPObjStaffCal::RemoveEntriesByPsnEvent(PPID psnEvID, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::SetEntriesByDutySched(PPID baseCalID, PPDutySchedPacket * pDsPack,
-	const DateRange & rPeriod, int use_ta)
+int SLAPI PPObjStaffCal::SetEntriesByDutySched(PPID baseCalID, PPDutySchedPacket * pDsPack, const DateRange & rPeriod, int use_ta)
 {
-	int    ok = -1, ta = 0;
+	int    ok = -1;
 	THROW_PP(pDsPack, PPERR_INVPARAM);
 	if(pDsPack->Rec.ObjType == PPOBJ_PERSON) {
 		PPDutySchedPacket::EnumParam ep;
 		STimeChunk bounds;
 		bounds.Start.Set(rPeriod.low, ZEROTIME);
 		bounds.Finish.Set(rPeriod.upp, ZEROTIME);
-		THROW(PPStartTransaction(&ta, use_ta));
-		THROW(pDsPack->InitIteration(&ep, bounds));
-		while(pDsPack->NextIteration(&ep) > 0) {
-			StaffCalendarTbl::Rec entry;
-			PPID   cal_id = 0;
-			CALDATE cdt;
-			LTIME   tm;
-			PPObjID oi;
-			THROW(CreateChild(&cal_id, baseCalID, oi.Set(PPOBJ_PERSON, ep.ObjID), 0) > 0);
-			MEMSZERO(entry);
-			entry.CalID  = cal_id;
-			entry.ObjID  = pDsPack->Rec.ID;
-			entry.Flags |= STCALEF_BYDUTYSCHED;
-			THROW_SL(cdt.SetDate(ep.Dtm.d));
-			entry.DtVal = cdt;
-			tm = ep.Dtm.t;
-			entry.TmStart = tm;
-			entry.TmEnd   = tm.addhs(ep.Duration * 100);
-			entry.TmVal   = ep.Duration;
-			THROW(SetEntry(entry, 0));
-			ok = 1;
+		{
+			PPTransaction tra(use_ta);
+			THROW(tra);
+			THROW(pDsPack->InitIteration(&ep, bounds));
+			while(pDsPack->NextIteration(&ep) > 0) {
+				StaffCalendarTbl::Rec entry;
+				PPID   cal_id = 0;
+				CALDATE cdt;
+				LTIME   tm;
+				PPObjID oi;
+				THROW(CreateChild(&cal_id, baseCalID, oi.Set(PPOBJ_PERSON, ep.ObjID), 0) > 0);
+				MEMSZERO(entry);
+				entry.CalID  = cal_id;
+				entry.ObjID  = pDsPack->Rec.ID;
+				entry.Flags |= STCALEF_BYDUTYSCHED;
+				THROW_SL(cdt.SetDate(ep.Dtm.d));
+				entry.DtVal = cdt;
+				tm = ep.Dtm.t;
+				entry.TmStart = tm;
+				entry.TmEnd   = tm.addhs(ep.Duration * 100);
+				entry.TmVal   = ep.Duration;
+				THROW(SetEntry(entry, 0));
+				ok = 1;
+			}
+			THROW(tra.Commit());
 		}
-		THROW(PPCommitWork(&ta));
 	}
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 

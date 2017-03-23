@@ -1508,8 +1508,6 @@ int SyncCashNodeCfgDialog::setDTS(const PPSyncCashNode * pData)
 	SetClusterData(CTL_CASHN_NOA_PRINTONLY, Data.ExtFlags);
 	DisableClusterItem(CTL_CASHN_NOA_PRINTONLY, 0, !Data.GoodsLocAssocID);
 
-	// @v6.6.4 double accm = MONEYTOLDBL(Data.Accum);
-	// @v6.6.4 setCtrlData(CTL_CASHN_ACCUM, &accm);
 	AddClusterAssoc(CTL_CASHN_FLAGS,  0, CASHF_CHKPAN);
 	AddClusterAssoc(CTL_CASHN_FLAGS,  1, CASHF_NAFCL);
 	AddClusterAssoc(CTL_CASHN_FLAGS,  2, CASHF_OPENBOX);
@@ -1527,16 +1525,17 @@ int SyncCashNodeCfgDialog::setDTS(const PPSyncCashNode * pData)
 	AddClusterAssoc(CTL_CASHN_FLAGS, 14, CASHF_CHECKFORPRESENT);
 	SetClusterData(CTL_CASHN_FLAGS, Data.Flags);
 	{
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS, 0, 0x0001);
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS, 1, 0x0002);
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS, 2, 0x0004);
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS, 3, 0x0008);
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS, 4, 0x0010);
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS, 5, 0x0020);
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS, 6, 0x0040);
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS, 7, 0x0080);
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS, 8, 0x0100);
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS, 9, 0x0200);
+		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  0, 0x0001);
+		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  1, 0x0002);
+		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  2, 0x0004);
+		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  3, 0x0008);
+		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  4, 0x0010);
+		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  5, 0x0020);
+		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  6, 0x0040);
+		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  7, 0x0080);
+		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  8, 0x0100);
+		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  9, 0x0200);
+		AddClusterAssoc(CTL_CASHN_EXTFLAGS, 10, 0x0400); // @v9.5.10
 
 		long   ef = 0;
 		SETFLAG(ef, 0x0001, Data.Flags & CASHF_UNIFYGDSATCHECK);
@@ -1549,6 +1548,7 @@ int SyncCashNodeCfgDialog::setDTS(const PPSyncCashNode * pData)
 		SETFLAG(ef, 0x0080, Data.ExtFlags & CASHFX_KEEPORGCCUSER);
 		SETFLAG(ef, 0x0100, Data.ExtFlags & CASHFX_DISABLEZEROSCARD); // @v8.3.2
 		SETFLAG(ef, 0x0200, Data.ExtFlags & CASHFX_UHTTORDIMPORT); // @v8.3.2
+		SETFLAG(ef, 0x0400, Data.ExtFlags & CASHFX_ABSTRGOODSALLOWED); // @v9.5.10
 		SetClusterData(CTL_CASHN_EXTFLAGS, ef);
 		{
 			PPAlbatrosConfig acfg;
@@ -1556,10 +1556,8 @@ int SyncCashNodeCfgDialog::setDTS(const PPSyncCashNode * pData)
 			DisableClusterItem(CTL_CASHN_EXTFLAGS, 9, acfg.UhttAccount.Empty());
 		}
 	}
-	// @v7.6.9 {
 	AddClusterAssoc(CTL_CASHN_PASSIVE, 0, CASHFX_PASSIVE);
 	SetClusterData(CTL_CASHN_PASSIVE, Data.ExtFlags);
-	// } @v7.6.9
 	//disableCtrl(CTL_CASHN_OVRFLW, 1);
 	setCtrlData(CTL_CASHN_SLEEPTIMEOUT, &Data.SleepTimeout);
 	if(!Data.TableSelWhatman.NotEmptyS()) {
@@ -1617,16 +1615,17 @@ int SyncCashNodeCfgDialog::getDTS(PPSyncCashNode * pData)
 	GetClusterData(CTL_CASHN_FLAGS, &Data.Flags);
 	{
 		const long ef = GetClusterData(CTL_CASHN_EXTFLAGS);
-		SETFLAG(Data.Flags,    CASHF_UNIFYGDSATCHECK,   ef & 0x0001);
-		SETFLAG(Data.Flags,    CASHF_UNIFYGDSTOPRINT,   ef & 0x0002);
-		SETFLAG(Data.Flags,    CASHF_NOTUSECHECKCUTTER, ef & 0x0004);
-		SETFLAG(Data.ExtFlags, CASHFX_SELSERIALBYGOODS, ef & 0x0008);
-		SETFLAG(Data.ExtFlags, CASHFX_FORCEDIVISION,    ef & 0x0010);
-		SETFLAG(Data.Flags,    CASHF_ABOVEZEROSALE,     ef & 0x0020);
-		SETFLAG(Data.ExtFlags, CASHFX_EXTSCARDSEL,      ef & 0x0040);
-		SETFLAG(Data.ExtFlags, CASHFX_KEEPORGCCUSER,    ef & 0x0080);
-		SETFLAG(Data.ExtFlags, CASHFX_DISABLEZEROSCARD, ef & 0x0100); // @v8.3.2
-		SETFLAG(Data.ExtFlags, CASHFX_UHTTORDIMPORT,    ef & 0x0200); // @v8.3.2
+		SETFLAG(Data.Flags,    CASHF_UNIFYGDSATCHECK,    ef & 0x0001);
+		SETFLAG(Data.Flags,    CASHF_UNIFYGDSTOPRINT,    ef & 0x0002);
+		SETFLAG(Data.Flags,    CASHF_NOTUSECHECKCUTTER,  ef & 0x0004);
+		SETFLAG(Data.ExtFlags, CASHFX_SELSERIALBYGOODS,  ef & 0x0008);
+		SETFLAG(Data.ExtFlags, CASHFX_FORCEDIVISION,     ef & 0x0010);
+		SETFLAG(Data.Flags,    CASHF_ABOVEZEROSALE,      ef & 0x0020);
+		SETFLAG(Data.ExtFlags, CASHFX_EXTSCARDSEL,       ef & 0x0040);
+		SETFLAG(Data.ExtFlags, CASHFX_KEEPORGCCUSER,     ef & 0x0080);
+		SETFLAG(Data.ExtFlags, CASHFX_DISABLEZEROSCARD,  ef & 0x0100); // @v8.3.2
+		SETFLAG(Data.ExtFlags, CASHFX_UHTTORDIMPORT,     ef & 0x0200); // @v8.3.2
+		SETFLAG(Data.ExtFlags, CASHFX_ABSTRGOODSALLOWED, ef & 0x0400); // @v9.5.10
 	}
 	GetClusterData(CTL_CASHN_PASSIVE, &Data.ExtFlags); // @v7.6.9
 	getCtrlData(CTL_CASHN_SLEEPTIMEOUT, &Data.SleepTimeout);

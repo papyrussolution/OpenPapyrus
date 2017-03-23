@@ -835,8 +835,14 @@ int SLAPI PPBankingOrder::TaxMarkers::IsEmpty() const
 //
 //
 //
-void PPBillPacket::SetupObjectBlock::Clear()
+SLAPI PPBillPacket::SetupObjectBlock::SetupObjectBlock()
 {
+    Clear();
+}
+
+void SLAPI PPBillPacket::SetupObjectBlock::Clear()
+{
+	Flags = 0;
 	State = 0;
 	PsnID = 0;
 	Name = 0;
@@ -1074,7 +1080,7 @@ int SLAPI PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 				PPID   debt_dim_id = 0;
 				GetDebtDim(&debt_dim_id);
 				is_stopped = rRet.CliAgt.IsStopped(debt_dim_id);
-				if(is_stopped > 0) {
+				if(is_stopped > 0 && !(rRet.Flags & SetupObjectBlock::fEnableStop)) { // @v9.5.10 !(rRet.Flags & SetupObjectBlock::fEnableStop)
 					SString debt_dim_name;
 					GetObjectName(PPOBJ_DEBTDIM, debt_dim_id, debt_dim_name, 0);
 					stop_err_addedmsg.CatChar(':').Cat(debt_dim_name);
@@ -1082,7 +1088,7 @@ int SLAPI PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 			}
 			if(is_stopped < 0)
 				is_stopped = BIN(ar_rec.Flags & ARTRF_STOPBILL);
-			THROW_PP_S(!is_stopped, PPERR_DENYSTOPPEDAR, stop_err_addedmsg);
+			THROW_PP_S(!is_stopped || (rRet.Flags & SetupObjectBlock::fEnableStop), PPERR_DENYSTOPPEDAR, stop_err_addedmsg); // @v9.5.10 SetupObjectBlock::fEnableStop
 			if(rRet.PsnID) {
 				PPID   restrict_psn_kind = 0;
 				PPAccSheet acs_rec;

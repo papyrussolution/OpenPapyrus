@@ -1,5 +1,5 @@
 // GOODS.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // @Kernel
 //
@@ -618,11 +618,12 @@ struct __GoodsStockExt {  // @persistent @store(PropertyTbl)
 	long    Prop;         // const GDSPRP_STOCKDATA
 	long    Brutto;       // Масса брутто, г (Если Package != 0, то масса упаковки)
 	PPDimention PckgDim;  // Габаритные размеры упаковки поставки
-	double  MinStock;     // Минимальный запас товара
+	// @v9.5.10 double  MinStock;     // Минимальный запас товара
+	uint32  Reserve3[2];  // @v9.5.10
 	double  Package;      // Емкость упаковки при поставке (торговых единиц)
 	int16   ExpiryPeriod;
-	int16   GseFlags;     // @v7.4.5 Reserve-->GseFlags
-	double  MinShippmQtty; // @v7.2.7
+	int16   GseFlags;     //
+	double  MinShippmQtty; //
 	char    Reserve2[12];
 	PalletList PltList;   // @last
 };
@@ -645,11 +646,11 @@ int SLAPI GoodsCore::PutStockExt(PPID id, const GoodsStockExt * pData, int use_t
 		p_strg->Prop     = GDSPRP_STOCKDATA;
 		p_strg->Brutto   = pData->Brutto;
 		p_strg->PckgDim  = pData->PckgDim;
-		p_strg->MinStock = 0; // @v6.1.11 AHTOXA больше не используется, храниться в массиве MinStockList с Ид склада = 0
+		// @v9.5.10 p_strg->MinStock = 0; // @v6.1.11 AHTOXA больше не используется, храниться в массиве MinStockList с Ид склада = 0
 		p_strg->Package  = pData->Package;
 		p_strg->ExpiryPeriod = pData->ExpiryPeriod;
-		p_strg->GseFlags = pData->GseFlags;           // @v7.4.5
-		p_strg->MinShippmQtty = pData->MinShippmQtty; // @v7.2.7
+		p_strg->GseFlags = pData->GseFlags;
+		p_strg->MinShippmQtty = pData->MinShippmQtty;
 		p_strg->PltList.Count = plt_c;
 		for(uint i = 0; i < plt_c; i++) {
 			p_strg->PltList.Item[i] = pData->PltList.at(i);
@@ -696,8 +697,8 @@ int SLAPI GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*
 			pData->PckgDim  = p_strg->PckgDim;
 			pData->Package  = (IsValidIEEE(p_strg->Package) && p_strg->Package > 0) ? R6(p_strg->Package) : 0;
 			pData->ExpiryPeriod = p_strg->ExpiryPeriod;
-			pData->GseFlags      = p_strg->GseFlags;      // @v7.4.5
-			pData->MinShippmQtty = p_strg->MinShippmQtty; // @v7.2.7
+			pData->GseFlags      = p_strg->GseFlags;
+			pData->MinShippmQtty = p_strg->MinShippmQtty;
 			for(uint i = 0; i < p_strg->PltList.Count; i++) {
 				THROW_SL(pData->PltList.insert(&p_strg->PltList.Item[i]));
 			}
@@ -708,9 +709,11 @@ int SLAPI GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*
 					pData->MinStockList.at(i).Val = (IsValidIEEE(min_stock) && min_stock > 0) ? R6(min_stock) : 0;
 				}
 			}
+			/* @v9.5.10
 			double zero_loc_min_stock = (IsValidIEEE(p_strg->MinStock) && p_strg->MinStock > 0) ? R6(p_strg->MinStock) : 0;
 			if(zero_loc_min_stock)
 				pData->SetMinStock(0, zero_loc_min_stock);
+			*/
 		}
 	}
 	CATCHZOK
@@ -3119,7 +3122,7 @@ int SLAPI GoodsCore::SearchByExt(const GoodsExtTbl::Rec * pExtRec, PPID * pGoods
 		else {
 			// @v9.4.9 PPObject::SetLastErrObj(PPOBJ_GOODS, goods_id);
 			// @v9.4.9 ok = PPSetError(PPERR_BL_EXT2GOODS);
-			ok = PPSetObjError(PPERR_BL_EXT2GOODS, PPOBJ_GOODS, goods_id); // @v9.4.9 
+			ok = PPSetObjError(PPERR_BL_EXT2GOODS, PPOBJ_GOODS, goods_id); // @v9.4.9
 		}
 	}
 	else

@@ -3150,40 +3150,41 @@ struct Sdr_QuotVal {
 	#define PPFLD_GOODS2_PCKGLENGTH                    38
 	#define PPFLD_GOODS2_PCKGWIDTH                     39
 	#define PPFLD_GOODS2_PCKGHEIGHT                    40
-	#define PPFLD_GOODS2_MINSHIPPMQTTY                 41
-	#define PPFLD_GOODS2_MULTMINSHIPPM                 42
-	#define PPFLD_GOODS2_MANUFID                       43
-	#define PPFLD_GOODS2_MANUFNAME                     44
-	#define PPFLD_GOODS2_BRAND                         45
-	#define PPFLD_GOODS2_EXTA                          46
-	#define PPFLD_GOODS2_EXTB                          47
-	#define PPFLD_GOODS2_EXTC                          48
-	#define PPFLD_GOODS2_EXTD                          49
-	#define PPFLD_GOODS2_EXTE                          50
-	#define PPFLD_GOODS2_EXTLONGNAMETO                 51
-	#define PPFLD_GOODS2_ARCODE                        52
-	#define PPFLD_GOODS2_ALTGRPCODE                    53
-	#define PPFLD_GOODS2_ALTGRPPLU                     54
-	#define PPFLD_GOODS2_HIEROBJCODE                   55
-	#define PPFLD_GOODS2_HIERPARENTCODE                56
-	#define PPFLD_GOODS2_BILLSUPPLID                   57
-	#define PPFLD_GOODS2_BILLSUPPLCODE                 58
-	#define PPFLD_GOODS2_BILLCODE                      59
-	#define PPFLD_GOODS2_BILLDATE                      60
-	#define PPFLD_GOODS2_CLSCODE                       61
-	#define PPFLD_GOODS2_DIMX                          62
-	#define PPFLD_GOODS2_DIMY                          63
-	#define PPFLD_GOODS2_DIMZ                          64
-	#define PPFLD_GOODS2_DIMW                          65
-	#define PPFLD_GOODS2_PROPKINDNAME                  66
-	#define PPFLD_GOODS2_PROPGRADENAME                 67
-	#define PPFLD_GOODS2_PROPADDNAME                   68
-	#define PPFLD_GOODS2_PROPADD2NAME                  69
-	#define PPFLD_GOODS2_WEIGHTPREFIX                  70
-	#define PPFLD_GOODS2_GOODSID                       71
-	#define PPFLD_GOODS2_EXPIRYFROMCURDT               72
-	#define PPFLD_GOODS2_FORCEREPLACE                  73
-	#define PPFLD_GOODS2_EGAISCODE                     74
+	#define PPFLD_GOODS2_MINSTOCK                      41
+	#define PPFLD_GOODS2_MINSHIPPMQTTY                 42
+	#define PPFLD_GOODS2_MULTMINSHIPPM                 43
+	#define PPFLD_GOODS2_MANUFID                       44
+	#define PPFLD_GOODS2_MANUFNAME                     45
+	#define PPFLD_GOODS2_BRAND                         46
+	#define PPFLD_GOODS2_EXTA                          47
+	#define PPFLD_GOODS2_EXTB                          48
+	#define PPFLD_GOODS2_EXTC                          49
+	#define PPFLD_GOODS2_EXTD                          50
+	#define PPFLD_GOODS2_EXTE                          51
+	#define PPFLD_GOODS2_EXTLONGNAMETO                 52
+	#define PPFLD_GOODS2_ARCODE                        53
+	#define PPFLD_GOODS2_ALTGRPCODE                    54
+	#define PPFLD_GOODS2_ALTGRPPLU                     55
+	#define PPFLD_GOODS2_HIEROBJCODE                   56
+	#define PPFLD_GOODS2_HIERPARENTCODE                57
+	#define PPFLD_GOODS2_BILLSUPPLID                   58
+	#define PPFLD_GOODS2_BILLSUPPLCODE                 59
+	#define PPFLD_GOODS2_BILLCODE                      60
+	#define PPFLD_GOODS2_BILLDATE                      61
+	#define PPFLD_GOODS2_CLSCODE                       62
+	#define PPFLD_GOODS2_DIMX                          63
+	#define PPFLD_GOODS2_DIMY                          64
+	#define PPFLD_GOODS2_DIMZ                          65
+	#define PPFLD_GOODS2_DIMW                          66
+	#define PPFLD_GOODS2_PROPKINDNAME                  67
+	#define PPFLD_GOODS2_PROPGRADENAME                 68
+	#define PPFLD_GOODS2_PROPADDNAME                   69
+	#define PPFLD_GOODS2_PROPADD2NAME                  70
+	#define PPFLD_GOODS2_WEIGHTPREFIX                  71
+	#define PPFLD_GOODS2_GOODSID                       72
+	#define PPFLD_GOODS2_EXPIRYFROMCURDT               73
+	#define PPFLD_GOODS2_FORCEREPLACE                  74
+	#define PPFLD_GOODS2_EGAISCODE                     75
 
 struct Sdr_Goods2 {
 	char   Code[32];
@@ -3226,6 +3227,7 @@ struct Sdr_Goods2 {
 	int32  PckgLength;
 	int32  PckgWidth;
 	int32  PckgHeight;
+	double MinStock;
 	double MinShippmQtty;
 	int32  MultMinShippm;
 	int32  ManufID;

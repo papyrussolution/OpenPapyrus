@@ -1099,7 +1099,7 @@ int PiritEquip::RunCheck(int opertype)
 			THROW(GetCurFlags(3, flag));
 			(str = Check.Text).Trim(220); // [0..224]
 			CreateStr(str, in_data); // Название товара      // @v9.5.7 ""-->Check.Text 
-			(str = Check.Code).Trim(16); // [0..18]
+			(str = Check.Code).Trim(13); // [0..18]
 			CreateStr(str, in_data); // Артикул или штрихкод // @v9.5.7 ""-->Check.Code
 			CreateStr(Check.Quantity, in_data);
 			// @vmiller comment

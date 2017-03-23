@@ -480,10 +480,11 @@ int CPosProcessor::Packet::NextIteration(CCheckItem * pItem)
 //
 //
 //
-CPosProcessor::PgsBlock::PgsBlock(double qtty)
+SLAPI CPosProcessor::PgsBlock::PgsBlock(double qtty)
 {
 	Qtty = (qtty != 0.0) ? qtty : 1.0;
 	PriceBySerial = 0.0;
+	AbstractPrice = 0.0;
 }
 //
 //
@@ -1003,6 +1004,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 	SuspCheckID = 0;
 	CheckID     = checkID;
 	AuthAgentID = 0; // @v8.6.10
+	AbstractGoodsID = 0; // @v9.5.10
 	P_CM     = 0;
 	P_CM_EXT = 0;
 	P_GTOA   = 0;
@@ -1053,6 +1055,14 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 	SETFLAG(Flags, fAsSelector, (P_ChkPack && !CashNodeID && !CheckID));
 	SETFLAG(Flags, fTouchScreen, isTouchScreen);
 	SETFLAG(Flags, fCashNodeIsLocked, CnObj.IsLocked(CashNodeID) > 0);
+	// @v9.5.10 {
+	if(CnExtFlags & CASHFX_ABSTRGOODSALLOWED) {
+		const PPID def_goods_id = GObj.GetConfig().DefGoodsID;
+		Goods2Tbl::Rec goods_rec;
+		if(def_goods_id && GObj.Fetch(def_goods_id, &goods_rec) > 0)
+			AbstractGoodsID = def_goods_id;
+	}
+	// } @v9.5.10
 	//
 	PPObjLocPrinter lp_obj;
 	SETFLAG(Flags, fLocPrinters, lp_obj.IsPrinter());
@@ -6453,10 +6463,13 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 						}
 					}
 					else if(Flags & fTouchScreen) {
-						UpdateGList(-2, 0);
+						if(AbstractGoodsID)
+							SelectGoods__(cgmAbstractSale);
+						else
+							UpdateGList(-2, 0);
 					}
 					else {
-						SelectGoods__(sgmByPrice);
+						SelectGoods__(AbstractGoodsID ? cgmAbstractSale : sgmByPrice);
 					}
 					Barrier(1);
 				}
@@ -6543,7 +6556,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					P_CM->SyncOpenBox();
 				break;
 			case kbF4:
-				BARRIER(SelectGoods__(sgmByPrice));
+				BARRIER(SelectGoods__(AbstractGoodsID ? cgmAbstractSale : sgmByPrice));
 				break;
 			case kbF5:
 				BARRIER(SetupRowByScale());
@@ -7032,7 +7045,10 @@ void CheckPaneDialog::setupHint()
 		case sEMPTYLIST_EMPTYBUF:
 			hint_list[hint_count++] =  1;
 			hint_list[hint_count++] =  2;
-			hint_list[hint_count++] =  3;
+			if(AbstractGoodsID)
+				hint_list[hint_count++] =  14;
+			else
+				hint_list[hint_count++] =  3;
 			hint_list[hint_count++] =  4;
 			hint_list[hint_count++] = 11;
 			hint_list[hint_count++] =  5;
@@ -7041,7 +7057,10 @@ void CheckPaneDialog::setupHint()
 		case sEMPTYLIST_BUF:
 			hint_list[hint_count++] =  1;
 			hint_list[hint_count++] =  2;
-			hint_list[hint_count++] =  3;
+			if(AbstractGoodsID)
+				hint_list[hint_count++] =  14;
+			else
+				hint_list[hint_count++] =  3;
 			hint_list[hint_count++] =  6;
 			hint_list[hint_count++] = 11;
 			hint_list[hint_count++] =  7;
@@ -7050,7 +7069,10 @@ void CheckPaneDialog::setupHint()
 		case sLIST_EMPTYBUF:
 			hint_list[hint_count++] =  1;
 			hint_list[hint_count++] =  2;
-			hint_list[hint_count++] =  3;
+			if(AbstractGoodsID)
+				hint_list[hint_count++] =  14;
+			else
+				hint_list[hint_count++] =  3;
 			hint_list[hint_count++] = 11;
 			hint_list[hint_count++] =  9;
 			hint_list[hint_count++] = 10;
@@ -7059,7 +7081,10 @@ void CheckPaneDialog::setupHint()
 		case sLIST_BUF:
 			hint_list[hint_count++] =  1;
 			hint_list[hint_count++] =  2;
-			hint_list[hint_count++] =  3;
+			if(AbstractGoodsID)
+				hint_list[hint_count++] =  14;
+			else
+				hint_list[hint_count++] =  3;
 			hint_list[hint_count++] =  6;
 			hint_list[hint_count++] = 11;
 			hint_list[hint_count++] =  7;
@@ -7088,10 +7113,39 @@ void CheckPaneDialog::setupHint()
 		enableCommand(cmChkPanPrint,   BIN((oneof2(_state, sEMPTYLIST_EMPTYBUF, sLIST_EMPTYBUF) || (Flags & fNoEdit)) && (OperRightsFlags & orfPreCheck)));
 		enableCommand(cmToLocPrinters, BIN(oneof2(_state, sEMPTYLIST_EMPTYBUF, sLIST_EMPTYBUF) && (Flags & fLocPrinters)));
 	}
+	static const uint hint_text_list[] = {
+		PPTXT_CHKPAN_HINT01,
+		PPTXT_CHKPAN_HINT02,
+		PPTXT_CHKPAN_HINT03,
+		PPTXT_CHKPAN_HINT04,
+		PPTXT_CHKPAN_HINT05,
+		PPTXT_CHKPAN_HINT06,
+		PPTXT_CHKPAN_HINT07,
+		PPTXT_CHKPAN_HINT08,
+		PPTXT_CHKPAN_HINT09,
+		PPTXT_CHKPAN_HINT10,
+		PPTXT_CHKPAN_HINT11,
+		PPTXT_CHKPAN_HINT12,
+		PPTXT_CHKPAN_HINT13,
+		PPTXT_CHKPAN_HINT14
+	};
 	if(getCtrlView(CTL_CHKPAN_BIGHINT)) {
 		SString temp_buf, hint, keyb, hint_buf, hint_kb_buf;
 		for(uint i = 0; i < CTL_CHKPAN_NUMHINTS; i++) {
-			uint   idx = hint_list[i];
+			const uint idx = hint_list[i];
+			// @v9.5.10 {
+			if(i < hint_count && idx > 0 && idx <= SIZEOFARRAY(hint_text_list) && PPLoadText(hint_text_list[idx-1], temp_buf) > 0) {
+				if(temp_buf.Strip().Divide('=', hint, keyb) > 0) {
+					hint_buf.Space().Cat(hint.Strip()).CR();
+					hint_kb_buf.Space().Cat(keyb.Strip());
+				}
+				else {
+					hint_buf.Space().Cat(hint.Strip()).CR();
+				}
+				hint_kb_buf.CR();
+			}
+			// } @v9.5.10
+			/* @v9.5.10
 			if(i < hint_count && PPLoadText(PPTXT_CHKPAN_HINT01 - 1 + idx, temp_buf) > 0) {
 				if(temp_buf.Strip().Divide('=', hint, keyb) > 0) {
 					hint_buf.Space().Cat(hint.Strip()).CR();
@@ -7102,6 +7156,7 @@ void CheckPaneDialog::setupHint()
 					hint_kb_buf.CR();
 				}
 			}
+			*/
 		}
 		setStaticText(CTL_CHKPAN_BIGHINT, hint_buf);
 		setStaticText(CTL_CHKPAN_BIGHINT_KB, hint_kb_buf);
@@ -7109,7 +7164,20 @@ void CheckPaneDialog::setupHint()
 	if(!(Flags & fTouchScreen)) {
 		SString temp_buf, hint, keyb;
 		for(uint i = 0; i < CTL_CHKPAN_NUMHINTS; i++) {
-			uint   idx = hint_list[i];
+			const uint idx = hint_list[i];
+			// @v9.5.10 {
+			if(i < hint_count && idx > 0 && idx <= SIZEOFARRAY(hint_text_list) && PPLoadText(hint_text_list[idx-1], temp_buf) > 0) {
+				if(temp_buf.Divide('=', hint, keyb) > 0)
+					setStaticText(CTL_CHKPAN_HINT1 + i + CTL_CHKPAN_KBHINTBIAS, keyb);
+				setStaticText(CTL_CHKPAN_HINT1 + i, hint);
+			}
+			else {
+				temp_buf = 0;
+				setStaticText(CTL_CHKPAN_HINT1 + i, temp_buf);
+				setStaticText(CTL_CHKPAN_HINT1 + i + CTL_CHKPAN_KBHINTBIAS, temp_buf);
+			}
+			// } @v9.5.10
+			/* @v9.5.10
 			if(i < hint_count && PPLoadText(PPTXT_CHKPAN_HINT01 - 1 + idx, temp_buf) > 0) {
 				if(temp_buf.Divide('=', hint, keyb) > 0)
 					setStaticText(CTL_CHKPAN_HINT1 + i + CTL_CHKPAN_KBHINTBIAS, keyb);
@@ -7120,6 +7188,7 @@ void CheckPaneDialog::setupHint()
 				setStaticText(CTL_CHKPAN_HINT1 + i, temp_buf);
 				setStaticText(CTL_CHKPAN_HINT1 + i + CTL_CHKPAN_KBHINTBIAS, temp_buf);
 			}
+			*/
 		}
 	}
 }
@@ -8178,6 +8247,16 @@ void CheckPaneDialog::SelectGoods__(int mode)
 				r = SetupNewRow(goods_id, pgsb);
 			ClearInput(0);
 		}
+	}
+	else if(mode == cgmAbstractSale) {
+        if(AbstractGoodsID && GetInput()) {
+			PgsBlock pgsb(1.0);
+			pgsb.AbstractPrice = R2(Input.ToReal());
+			if(pgsb.AbstractPrice > 0.0) {
+				r = SetupNewRow(AbstractGoodsID, pgsb);
+			}
+			ClearInput(0);
+        }
 	}
 	else if(mode == sgmModifier) {
 		if(P.HasCur() && !(P.GetCur().Flags & cifModifier)) {
@@ -9690,6 +9769,7 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 		if(AcceptRow(giftID)) {
 			RetailGoodsInfo rgi;
 			long   ext_rgi_flags = 0;
+			int    is_abstract = 0;
 			if(gift_money)
 				ext_rgi_flags |= PPObjGoods::rgifAllowUnlimWoQuot;
 			else if(rBlk.PriceBySerial > 0.0) {
@@ -9697,7 +9777,12 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 				rgi.OuterPrice = rBlk.PriceBySerial;
 			}
 			r = GetRgi(goodsID, rBlk.Qtty, ext_rgi_flags, rgi);
-			if(goodsID == GetChargeGoodsID(CSt.GetID())) {
+			if(goodsID == AbstractGoodsID && rBlk.AbstractPrice > 0.0) {
+                rgi.Price = rBlk.AbstractPrice;
+                is_abstract = 1;
+                r = 1;
+			}
+			else if(goodsID == GetChargeGoodsID(CSt.GetID())) {
 				//
 				// Начисление на кредитную карту
 				//
@@ -9742,6 +9827,11 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 						r_item.Quantity = R6(F(fRetCheck) ? -fabs(rBlk.Qtty) : fabs(rBlk.Qtty));
 						r_item.Price    = price;
 						r_item.Discount = 0.0;
+						// @v9.5.10 {
+						if(is_abstract) {
+							r_item.Flags |= cifFixedPrice;
+						}
+						// } @v9.5.10
 						SETFLAG(r_item.Flags, cifPriceBySerial, serial_price_tag);
 						STRNSCPY(r_item.Serial, rBlk.Serial);
 						STRNSCPY(r_item.EgaisMark, rBlk.EgaisMark); // @v9.0.9

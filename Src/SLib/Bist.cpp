@@ -272,12 +272,12 @@ int SLAPI RegisterBIST()
 	RegisterSType(S_AUTOINC,  &SAutoinc());
 	RegisterSType(S_NOTE,     &SNote());
 	RegisterSType(S_LSTRING,  &SLString());
-	RegisterSType(S_VARIANT,  &SVariant());  // @v5.4.5
-	RegisterSType(S_WCHAR,    &SWcString()); // @v5.4.7
+	RegisterSType(S_VARIANT,  &SVariant());
+	RegisterSType(S_WCHAR,    &SWcString());
 	RegisterSType(S_WZSTRING, &SWcString()); // @v8.6.2
-	RegisterSType(S_RAW,      &SRaw());      // @v5.8.2
-	RegisterSType(S_IPOINT2,  &SIPoint2());  // @v6.6.1
-	RegisterSType(S_FPOINT2,  &SFPoint2());  // @v6.6.1
+	RegisterSType(S_RAW,      &SRaw());
+	RegisterSType(S_IPOINT2,  &SIPoint2());
+	RegisterSType(S_FPOINT2,  &SFPoint2());
 	RegisterSType(S_UUID_,    &SGuid());     // @v8.0.10
 	return 1;
 }
