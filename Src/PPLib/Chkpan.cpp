@@ -2465,6 +2465,14 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, double cash, int mode /
 					epb.ExtPack.Rec.Code = org_ext_code;
 			}
 			// } @v9.1.10
+			// @v9.5.10 {
+			// По непонятным причинам Viki Print перестал возвращать ненулевой номер чека прежним образом.
+			// Пока, до решения проблемы, будем замещать нулевой номер нашим собственным.
+			SETIFZ(epb.Pack.Rec.Code, org_code);
+			if(epb.IsExtPack) {
+				SETIFZ(epb.ExtPack.Rec.Code, org_ext_code);
+			}
+			// } @v9.5.10
 			if(was_turned_before_printing) { // @v9.1.0 turn_check_before_printing-->was_turned_before_printing
 				//
 				// При проведении чека перед печатью может возникнуть ситуация, когда

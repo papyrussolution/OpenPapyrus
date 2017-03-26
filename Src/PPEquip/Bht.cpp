@@ -3823,7 +3823,7 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 											// Принятый с ТСД документ '@zstr' должен списать драфт-документ образца '@bill', но образец уже списан
 											PPLoadText(PPTXT_BHT_DRAFTWROFF, add_info);
 											PPObjBill::MakeCodeString(&pack.Rec, 0, temp_buf);
-											PPFormat(add_info, &buf, (const char *)temp_buf, sample_bill_rec.ID);
+											PPFormat(add_info, &buf, temp_buf.cptr(), sample_bill_rec.ID);
 											pLog->Log(buf);
 										}
 									}
@@ -3996,12 +3996,12 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 								goods_obj.FetchNameR(sdr_brow.GoodsID, goods_name); // @v9.5.5
 								// @v9.0.2 PPGetWord(PPWORD_GOODS, 0, buf);
 								PPLoadString("ware", buf); // @v9.0.2
-								(add_info = buf).CatChar('[').Cat(goods_name).CatChar(']').CatDiv(',', 2);
+								(add_info = buf).CatBrackStr(goods_name).CatDiv(',', 2);
 								PPLoadString("date", buf);
 								add_info.Cat(buf).CatChar('[').Cat(bill_rec.Dt).CatChar(']').CatDiv(',', 2);
 								// @v9.3.10 PPGetWord(PPWORD_BILLCODE, 0, buf = 0);
 								PPLoadString("billno", buf); // @v9.3.10
-								add_info.Cat(buf).CatChar('[').Cat(bill_code).CatChar(']');
+								add_info.Cat(buf).CatBrackStr(bill_code);
 								PPGetMessage(mfError, PPERR_ZEROQTTY, add_info, DS.CheckExtFlag(ECF_SYSSERVICE), buf = 0);
 								buf.ShiftLeft();
 								pLog->Log(buf);

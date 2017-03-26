@@ -2836,7 +2836,7 @@ public:
 
 	int    SLAPI GetTaState();
 	int    SLAPI InitThread();
-	int    SLAPI ReleaseThread();
+	void   SLAPI ReleaseThread();
 	DbThreadLocalArea & SLAPI GetTLA(); // { return *(DbThreadLocalArea *)TlsGetValue(TlsIdx); }
 	const DbThreadLocalArea & SLAPI GetConstTLA() const; // { return *(PPThreadLocalArea *)TlsGetValue(TlsIdx); }
 	//

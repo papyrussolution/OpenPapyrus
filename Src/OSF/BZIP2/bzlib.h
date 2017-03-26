@@ -46,16 +46,16 @@ extern "C" {
 
 typedef struct {
 	char * next_in;
-	unsigned int avail_in;
-	unsigned int total_in_lo32;
-	unsigned int total_in_hi32;
+	uint   avail_in;
+	uint   total_in_lo32;
+	uint   total_in_hi32;
 	char * next_out;
-	unsigned int avail_out;
-	unsigned int total_out_lo32;
-	unsigned int total_out_hi32;
+	uint   avail_out;
+	uint   total_out_lo32;
+	uint   total_out_hi32;
 	void * state;
-	void *(*bzalloc)(void *, int, int);
-	void (*bzfree)(void *, void *);
+	void * (*bzalloc)(void *, size_t, size_t);
+	void   (*bzfree)(void *, void *);
 	void * opaque;
 } bz_stream;
 
@@ -140,16 +140,16 @@ BZ_EXTERN BZFILE* BZ_API(BZ2_bzWriteOpen) (
     );
 
 BZ_EXTERN void BZ_API(BZ2_bzWrite)(int * bzerror, BZFILE* b, void*   buf, int len);
-BZ_EXTERN void BZ_API(BZ2_bzWriteClose)(int * bzerror, BZFILE * b, int abandon, unsigned int* nbytes_in, unsigned int* nbytes_out);
+BZ_EXTERN void BZ_API(BZ2_bzWriteClose)(int * bzerror, BZFILE * b, int abandon, uint* nbytes_in, uint* nbytes_out);
 
 BZ_EXTERN void BZ_API(BZ2_bzWriteClose64) (
     int*          bzerror,
     BZFILE*       b,
     int abandon,
-    unsigned int* nbytes_in_lo32,
-    unsigned int* nbytes_in_hi32,
-    unsigned int* nbytes_out_lo32,
-    unsigned int* nbytes_out_hi32
+    uint* nbytes_in_lo32,
+    uint* nbytes_in_hi32,
+    uint* nbytes_out_lo32,
+    uint* nbytes_out_hi32
     );
 #endif
 
@@ -157,9 +157,9 @@ BZ_EXTERN void BZ_API(BZ2_bzWriteClose64) (
 
 BZ_EXTERN int BZ_API(BZ2_bzBuffToBuffCompress) (
     char*         dest,
-    unsigned int* destLen,
+    uint* destLen,
     char*         source,
-    unsigned int sourceLen,
+    uint sourceLen,
     int blockSize100k,
     int verbosity,
     int workFactor
@@ -167,9 +167,9 @@ BZ_EXTERN int BZ_API(BZ2_bzBuffToBuffCompress) (
 
 BZ_EXTERN int BZ_API(BZ2_bzBuffToBuffDecompress) (
     char*         dest,
-    unsigned int* destLen,
+    uint* destLen,
     char*         source,
-    unsigned int sourceLen,
+    uint sourceLen,
     int small,
     int verbosity
     );

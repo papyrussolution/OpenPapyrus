@@ -303,12 +303,12 @@ int SLAPI MakeDatabase()
 				pn.SetIfEmpty(n);
 				if(pn.NotEmptyS())
 					if(pn.CmpNC(dbname) == 0) {
-						PPMessage(mfCancel | mfInfo, PPINF_BDEXISTNAME, 0);
+						PPMessage(mfInfo|mfCancel, PPINF_BDEXISTNAME, 0);
 						i = -1;
 						break;
 					}
 					else if(n.CmpNC(dbentry) == 0) {
-						PPMessage(mfCancel | mfInfo, PPINF_BDSYMBOLEXIST, 0);
+						PPMessage(mfInfo|mfCancel, PPINF_BDSYMBOLEXIST, 0);
 						i = -1;
 						break;
 					}

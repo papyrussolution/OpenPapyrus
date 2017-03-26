@@ -155,11 +155,11 @@ public:
 	}
 	uint   ChunkNo;
 	//
-	// »з-за того, что в файле отрезка может быть более 4G элементов 
-	// следующие 2 пол€ 64-битные 
+	// »з-за того, что в файле отрезка может быть более 4G элементов
+	// следующие 2 пол€ 64-битные
 	// (элементы хран€тс€ только в файле, потому переполнени€ пам€ти не будет)
 	//
-	uint64 LineCount_;       
+	uint64 LineCount_;
 	uint64 CurrentFlushIdx_;
 	//
 	SString First;
@@ -182,20 +182,18 @@ IMPL_CMPCFUNC(SFSortChunkInfo, i1, i2)
 
 class SFSortChunkInfoList : public TSCollection <SFSortChunkInfo> {
 public:
-	SFSortChunkInfoList(const char * pSrcFileName, uint maxChunkCount, CompFunc fcmp) :
+	SFSortChunkInfoList(const char * pSrcFileName, uint maxChunkCount, CompFunc fcmp, SFile::SortParam * pSp) :
 		TSCollection <SFSortChunkInfo>(), MaxFlashAccumBufLen(1024*1024),
 		SrcFileName(pSrcFileName), MaxChunkCount(maxChunkCount), FCmp(fcmp)
 	{
 		assert(MaxChunkCount > 1);
-		LastChunkN = 0;
 		P_Parent = 0;
+		RVALUEPTR(Sp, pSp);
 	}
 	~SFSortChunkInfoList()
 	{
 		freeAll();
-		if(P_Parent) {
-			delete P_Parent; // @recursion
-		}
+		delete P_Parent; // @recursion
 	}
 	void Destroy()
 	{
@@ -204,7 +202,7 @@ public:
 	}
 	SFSortChunkInfoList * CreateChild()
 	{
-		SFSortChunkInfoList * p_child = new SFSortChunkInfoList(SrcFileName, MaxChunkCount, FCmp);
+		SFSortChunkInfoList * p_child = new SFSortChunkInfoList(SrcFileName, MaxChunkCount, FCmp, &Sp);
 		THROW_S(p_child, SLERR_NOMEM);
 		p_child->P_Parent = this;
 		CATCH
@@ -293,7 +291,7 @@ public:
 		CATCHZOK
 		return ok;
 	}
-	int    Merge(uint firstIdx, uint lastIdx, SFSortChunkInfoList & rDest)
+	int    Merge(uint firstIdx, uint lastIdx, SFSortChunkInfoList & rDest, SFileSortProgressData * pCbInfo)
 	{
 		int    ok = 1;
 		assert(firstIdx <= lastIdx);
@@ -304,6 +302,12 @@ public:
 			SFSortChunkInfo * p_item = at(firstIdx);
 			atPut(firstIdx, 0);
 			THROW(rDest.insert(p_item));
+			atFree(firstIdx);
+			if(pCbInfo) {
+                pCbInfo->MergeChunkLeft = getCount();
+                if(Sp.ProgressCbProc)
+					Sp.ProgressCbProc(pCbInfo);
+			}
 		}
 		else if((lastIdx-firstIdx) < MaxChunkCount) {
 			THROW(ChargeForMerging(firstIdx, lastIdx));
@@ -334,29 +338,21 @@ public:
 							atFree(lastIdx-i);
 						}
 					}
+					if(pCbInfo) {
+						pCbInfo->MergeChunkLeft = getCount();
+						if(Sp.ProgressCbProc)
+							Sp.ProgressCbProc(pCbInfo);
+					}
 				}
 			}
 		}
 		else {
-			uint   rest = (lastIdx - firstIdx) + 1;
-			while(rest > 0) {
+			for(uint rest = (lastIdx - firstIdx) + 1; rest > 0;) {
 				const uint local_count = MIN(MaxChunkCount, rest);
-				THROW(Merge(lastIdx-local_count+1, lastIdx, rDest)); // @recursion
-				rest -= local_count;
+				THROW(Merge(lastIdx-local_count+1, lastIdx, rDest, pCbInfo)); // @recursion
 				lastIdx -= local_count;
+				rest -= local_count;
 			}
-			/*
-			const uint middle_idx = (lastIdx + firstIdx) / 2;
-			//
-			// ¬ажно: начинаем с верхних индексов, поскольку они будут замещены единственным блоком
-			//   и позиции блоков по нижним индексам при этом не измен€тьс€.
-			//
-			THROW(Merge(middle_idx+1, lastIdx, rDest)); // @recursion
-			THROW(Merge(firstIdx, middle_idx, rDest)); // @recursion
-			{
-				THROW(Merge(firstIdx, firstIdx+1)); // @recursion
-			}
-			*/
 		}
 		CATCHZOK
 		return ok;
@@ -366,6 +362,7 @@ private:
 	const SString SrcFileName;
 	const uint   MaxChunkCount;
 	CompFunc FCmp;
+	SFile::SortParam Sp;
 
 	ACount LastChunkN;
 	SString LineBuf; // temporary
@@ -406,24 +403,28 @@ int SLAPI SfSortStringPool::Sort()
 }
 
 // static
-int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, CompFunc fcmp, size_t maxChunkSize, uint maxChunkCount)
+int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, CompFunc fcmp, SFile::SortParam * pExtraParam)
 {
 	int    ok = 1;
-	const  int use_mt = 1;
-	const  uint max_chunk_size = (maxChunkSize >= (512*1024) && maxChunkSize <= 64*1024*1024) ? maxChunkSize : (8*1024*1024);
-	const  uint max_chunk_count = (maxChunkCount >= 2 && maxChunkCount <= 64) ? maxChunkCount : 8;
+	const  uint max_chunk_size = (pExtraParam && pExtraParam->MaxChunkSize >= (512*1024) && pExtraParam->MaxChunkSize <= 64*1024*1024) ? pExtraParam->MaxChunkSize : (8*1024*1024);
+	const  uint max_chunk_count = (pExtraParam && pExtraParam->MaxChunkCount >= 2 && pExtraParam->MaxChunkCount <= 64) ? pExtraParam->MaxChunkCount : 8;
+	const  uint max_thread = (pExtraParam && pExtraParam->MaxThread >= 1 && pExtraParam->MaxThread <= 128) ? pExtraParam->MaxThread : 4;
+	//const  int use_mt = BIN(max_thread > 1);
 	Evnt * p_ev_finish = 0;
 	uint64 line_count = 0;
 	const  SString src_file_name = pSrcFileName_;
 	SString line_buf;
 	SString temp_buf;
 	SPathStruc ps;
-	SFSortChunkInfoList * p_header_list = new SFSortChunkInfoList(src_file_name, max_chunk_count, fcmp);
+	SFSortChunkInfoList * p_header_list = new SFSortChunkInfoList(src_file_name, max_chunk_count, fcmp, pExtraParam);
 	SFSortChunkInfoList * p_current_list = 0;
 	THROW(p_header_list);
 	THROW(!isempty(src_file_name) && !isempty(pOutFileName));
 	THROW(fileExists(src_file_name));
 	{
+		SFileSortProgressData cb_info; // ƒанные возвращаемые callback-процедуре (если така€ задана)
+		cb_info.P_SrcFileName = src_file_name;
+		cb_info.ExtraPtr = pExtraParam ? pExtraParam->ProgressCbExtraPtr : 0;
 		{
 			//
 			// Splitting
@@ -480,22 +481,36 @@ int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, Com
 				private:
 					InitBlock B;
 				};
-				if(!use_mt) {
-					p_chunk_ = &chunk_;
+				if(max_thread > 1) {
+					THROW_S(p_chunk_ = new SfSortStringPool(fcmp), SLERR_NOMEM);
+					THROW_S(p_ev_finish = new Evnt(_SfSortMakeFinishEvntName(src_file_name, temp_buf), Evnt::modeCreateAutoReset), SLERR_NOMEM);
 				}
 				else {
-					THROW_S(p_chunk_ = new SfSortStringPool(fcmp), SLERR_NOMEM);
-					THROW_S(p_ev_finish = new Evnt(_SfSortMakeFinishEvntName(src_file_name, temp_buf), Evnt::modeCreate), SLERR_NOMEM);
+					p_chunk_ = &chunk_;
 				}
+				cb_info.Phase = 1; // splitting
 				ACount thread_counter;
+				uint64 total_line_count = 0;
+				f_src.CalcSize(&cb_info.TotalFileSize);
 				volatile int thread_result = 1;
 				thread_counter.Incr();
 				while(f_src.ReadLine(line_buf)) {
 					line_buf.Chomp();
+					total_line_count++;
 					if(chunk_.GetPoolDataLen() >= max_chunk_size) {
 						SFSortChunkInfo * p_new_ci = p_header_list->CreateItem(0);
 						THROW(p_new_ci);
-						if(use_mt) {
+						if(max_thread > 1) {
+							//
+							// ≈сли количество потоков превысило предел, то придетс€ ждать завершени€ всех (у нас сейчас нет
+							// механизма межпоточного ожидани€ по значению счетчика).
+							// Ќе забываем, что мы искусственно увеличиваем на 1 количество потоков.
+							//
+							if(thread_counter > max_thread) {
+								thread_counter.Decr();
+								p_ev_finish->Wait(-1);
+								thread_counter.Incr();
+							}
 							*p_chunk_ = chunk_;
 							SfSortSplitThread::InitBlock ib(src_file_name, p_chunk_, p_new_ci, &thread_result, &thread_counter);
 							SfSortSplitThread * p_thread = new SfSortSplitThread(&ib);
@@ -511,11 +526,18 @@ int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, Com
 						chunk_.Clear();
 					}
 					chunk_.Add(line_buf);
+                    if((total_line_count % 1000000) == 0) {
+                        if(pExtraParam && pExtraParam->ProgressCbProc) {
+                            cb_info.SplitBytesRead = f_src.Tell64();
+                            cb_info.SplitThreadCount = (thread_counter - 1);
+							pExtraParam->ProgressCbProc(&cb_info);
+                        }
+                    }
 				}
 				if(chunk_.getCount()) {
 					SFSortChunkInfo * p_new_ci = p_header_list->CreateItem(0);
 					THROW(p_new_ci);
-					if(use_mt) {
+					if(max_thread > 1) {
 						*p_chunk_ = chunk_;
 						SfSortSplitThread::InitBlock ib(src_file_name, p_chunk_, p_new_ci, &thread_result, &thread_counter);
 						SfSortSplitThread * p_thread = new SfSortSplitThread(&ib);
@@ -527,7 +549,7 @@ int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, Com
 					}
 					chunk_line_no = 0;
 				}
-				if(use_mt) {
+				if(max_thread > 1) {
 					if(thread_counter.Decr() > 0)
 						p_ev_finish->Wait(-1);
 				}
@@ -539,12 +561,14 @@ int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, Com
 			//
 			// Merging
 			//
+			cb_info.Phase = 2; // merging
+			cb_info.MergeChunkCount = p_header_list->getCount();
 			p_current_list = p_header_list;
 			while(p_current_list->getCount() > 1) {
 				SFSortChunkInfoList * p_child_list = p_current_list->CreateChild();
 				THROW(p_child_list);
 				p_current_list->Sort();
-				if(p_current_list->Merge(0, p_current_list->getCount()-1, *p_child_list)) {
+				if(p_current_list->Merge(0, p_current_list->getCount()-1, *p_child_list, &cb_info)) {
 					assert(p_current_list->getCount() == 0);
 					p_current_list->Destroy();
 					p_current_list = p_child_list;
@@ -591,37 +615,60 @@ SLTEST_R(FileSort)
 	SString temp_buf;
 	SString line_buf;
 	uint64 src_file_size = 0;
+	LongArray test_list;
 	{
+		LongArray temp_test_list;
 		SFile f_test(test_file_name, SFile::mWrite|SFile::mNoStd);
 		line_buf = 0;
 		while(src_file_size < max_src_file_size) {
-			const uint rn = SLS.GetTLA().Rg.GetUniformInt(3000000000UL);
+			const uint rn = SLS.GetTLA().Rg.GetUniformInt(2000000000UL);
+			temp_test_list.add((long)rn);
 			line_buf.Cat(rn).CR();
 			if(line_buf.Len() > (1024*1024)) {
-				THROW(f_test.WriteLine(line_buf));
+				THROW(SLTEST_CHECK_NZ(f_test.WriteLine(line_buf)));
 				src_file_size += line_buf.Len();
 				line_buf = 0;
 			}
+			if(temp_test_list.getCount() >= 1024) {
+                THROW(SLTEST_CHECK_NZ(test_list.add(&temp_test_list)));
+                temp_test_list.clear();
+			}
 		}
 		if(line_buf.NotEmpty()) {
-			THROW(f_test.WriteLine(line_buf));
+			THROW(SLTEST_CHECK_NZ(f_test.WriteLine(line_buf)));
 			src_file_size += line_buf.Len();
 			line_buf = 0;
 		}
+		THROW(SLTEST_CHECK_NZ(test_list.add(&temp_test_list)));
+		test_list.sort();
 	}
 	{
 		SString dest_file_name;
+		SFile::SortParam sp;
+		sp.MaxChunkCount = 7;
+		sp.MaxChunkSize = 1024 * 1024;
+		sp.MaxThread = 2;
 		{
 			SPathStruc ps;
 			ps.Split(test_file_name);
 			ps.Nam.CatChar('-').Cat("sorted");
 			ps.Merge(dest_file_name);
 		}
-		THROW(SFile::Sort(test_file_name, dest_file_name, /*PTR_CMPCFUNC(STRINT64_test)*/0, 1024*1024, 7));
+		THROW(SLTEST_CHECK_NZ(SFile::Sort(test_file_name, dest_file_name, PTR_CMPCFUNC(STRINT64_test), &sp)));
+		{
+            SFile f_result(dest_file_name, SFile::mRead|SFile::mNoStd|SFile::mBinary|SFile::mBuffRd);
+            uint   test_count = 0;
+            while(f_result.ReadLine(line_buf)) {
+				line_buf.Chomp();
+				const long value = line_buf.ToLong();
+				THROW(SLTEST_CHECK_LT((long)test_count, (long)test_list.getCount()));
+				THROW(SLTEST_CHECK_EQ(value, test_list.get(test_count)));
+				test_count++;
+            }
+			THROW(SLTEST_CHECK_EQ(test_count, test_list.getCount()));
+		}
 	}
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 

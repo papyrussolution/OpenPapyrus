@@ -1090,7 +1090,7 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 	}
 	// }
 	CATCHZOK
-	pFile->SetFlag(SIniFile::fWinCoding, preserve_win_coding); // @v7.0.3
+	pFile->SetFlag(SIniFile::fWinCoding, preserve_win_coding);
 	return ok;
 }
 
@@ -1143,7 +1143,7 @@ int PPImpExpParam::ParseFormula(int hdr, SString & rPar, SString & rVal)
 int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList)
 {
 	int    ok = 1;
-	const  int preserve_win_coding = BIN(pFile->GetFlags() & SIniFile::fWinCoding); // @v7.0.3
+	const  int preserve_win_coding = BIN(pFile->GetFlags() & SIniFile::fWinCoding);
 	SString ini_param, par, val, fld_div, msg_buf, footer_line;
 	StringSet param_list;
 	SStrScan scan;
@@ -1152,7 +1152,7 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 	Name = pSect;
 	memzero(&ImpExpParamDll, sizeof(ImpExpParamDllStruct));
 	FtpAccID = 0; // @v9.3.7.
-	pFile->SetFlag(SIniFile::fWinCoding, 0); // @v7.0.3
+	pFile->SetFlag(SIniFile::fWinCoding, 0);
 	pFile->GetEntries(Name, &param_list, 1);
 	for(uint pos = 0; param_list.get(&pos, ini_param);) {
 		uint   idx = 0;
@@ -1628,11 +1628,11 @@ PPImpExp::PPImpExp(const PPImpExpParam * pParam, const void * extraPtr)
 			if(CConfig.Flags & CCFLG_DEBUG) {
 				SString fmt_buf, msg_buf;
 				if(mefn_r == 100) {
-					PPFormatT(PPTXT_LOG_EXPFILENAME_TMPL, &msg_buf, (const char *)result_file_name, (const char *)preserve_file_name);
+					PPFormatT(PPTXT_LOG_EXPFILENAME_TMPL, &msg_buf, result_file_name.cptr(), preserve_file_name.cptr());
 					PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);
 				}
 				else {
-					PPFormatT(PPTXT_LOG_EXPFILENAME, &msg_buf, (const char *)result_file_name);
+					PPFormatT(PPTXT_LOG_EXPFILENAME, &msg_buf, result_file_name.cptr());
 					PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);
 				}
 			}

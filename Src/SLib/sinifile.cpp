@@ -318,7 +318,7 @@ int SLAPI SIniFile::FlashIniBuf()
 		THROW(Create(FileName));
 		Flags &= ~fIniBufInited;
 		for(uint i = 0; P_IniBuf->EnumSections(&i, &p_sect) > 0;) {
-			(temp_buf = 0).CR().CatChar('[').Cat(p_sect->Name).CatChar(']').CR();
+			(temp_buf = 0).CR().CatBrackStr(p_sect->Name).CR();
 			if(Flags & fWinCoding)
 				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 			THROW(File.WriteLine(temp_buf));
@@ -629,7 +629,7 @@ int SLAPI SIniFile::SetParam(const char * pSect, const char * pParam, const char
 		}
 		if(!param_added && pParam && pVal) {
 			if(!is_sect_founded)
-				THROW(out_file.WriteLine((temp_buf = 0).CR().CatChar('[').Cat(sect).CatChar(']').CR()));
+				THROW(out_file.WriteLine((temp_buf = 0).CR().CatBrackStr(sect).CR()));
 			THROW(out_file.WriteLine((temp_buf = 0).CatEq(param, pVal).CR()));
 		}
 		Close();

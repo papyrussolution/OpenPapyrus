@@ -558,7 +558,7 @@ int SLAPI PPViewSpecSeries::ExportUhtt()
 			logger.Log(PPFormatT(PPTXT_LOG_UHTT_SPECSERIESEXP, &msg_buf, (const char *)item.Serial));
 		}
 		else {
-			logger.Log(PPFormatT(PPTXT_LOG_UHTT_SPECSERIESEXPFAULT, &msg_buf, (const char *)item.Serial, (const char *)uc.GetLastMessage()));
+			logger.Log(PPFormatT(PPTXT_LOG_UHTT_SPECSERIESEXPFAULT, &msg_buf, (const char *)item.Serial, uc.GetLastMessage().cptr()));
 		}
 		PPWaitPercent(GetCounter());
 	}

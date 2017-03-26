@@ -347,7 +347,7 @@ int SLAPI SlSession::InitThread()
 	return 1;
 }
 
-int SLAPI SlSession::ReleaseThread()
+void SLAPI SlSession::ReleaseThread()
 {
 #ifdef _MT
 	SlThreadLocalArea * p_tla = (SlThreadLocalArea *)TlsGetValue(TlsIdx);
@@ -358,7 +358,6 @@ int SLAPI SlSession::ReleaseThread()
 #else
 	Tla.Destroy();
 #endif
-	return 1;
 }
 
 void * FASTCALL SGetTls(const long idx)

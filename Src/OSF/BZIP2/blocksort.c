@@ -51,8 +51,7 @@ static __inline__ void fallbackSimpleSort(uint32* fmap, uint32* eclass, int32 lo
 }
 
 /*---------------------------------------------*/
-#define fswap(zz1, zz2)	\
-	{ int32 zztmp = zz1; zz1 = zz2; zz2 = zztmp; }
+#define fswap(zz1, zz2)	{ int32 zztmp = zz1; zz1 = zz2; zz2 = zztmp; }
 
 #define fvswap(zzp1, zzp2, zzn)	      \
 	{				      \
@@ -65,45 +64,30 @@ static __inline__ void fallbackSimpleSort(uint32* fmap, uint32* eclass, int32 lo
 		}				   \
 	}
 
-#define fmin(a, b) ((a) < (b)) ? (a) : (b)
-
-#define fpush(lz, hz) { stackLo[sp] = lz; \
-			stackHi[sp] = hz; \
-			sp++; }
-
-#define fpop(lz, hz) { sp--;		  \
-		       lz = stackLo[sp];  \
-		       hz = stackHi[sp]; }
+// @sobolev (replaced by MIN) #define fmin(a, b) ((a) < (b)) ? (a) : (b)
+#define fpush(lz, hz) { stackLo[sp] = lz; stackHi[sp] = hz; sp++; }
+#define fpop(lz, hz) { sp--; lz = stackLo[sp]; hz = stackHi[sp]; }
 
 #define FALLBACK_QSORT_SMALL_THRESH 10
 #define FALLBACK_QSORT_STACK_SIZE   100
 
-static
-void fallbackQSort3(uint32* fmap,
-    uint32* eclass,
-    int32 loSt,
-    int32 hiSt)
+static void fallbackQSort3(uint32* fmap, uint32* eclass, int32 loSt, int32 hiSt)
 {
-	int32 unLo, unHi, ltLo, gtHi, n, m;
-	int32 sp, lo, hi;
-	uint32 med, r, r3;
-	int32 stackLo[FALLBACK_QSORT_STACK_SIZE];
-	int32 stackHi[FALLBACK_QSORT_STACK_SIZE];
-
-	r = 0;
-
-	sp = 0;
+	int32  unLo, unHi, ltLo, gtHi, n, m;
+	int32  lo, hi;
+	uint32 med, r3;
+	int32  stackLo[FALLBACK_QSORT_STACK_SIZE];
+	int32  stackHi[FALLBACK_QSORT_STACK_SIZE];
+	uint32 r = 0;
+	int32  sp = 0;
 	fpush(loSt, hiSt);
-
 	while(sp > 0) {
 		AssertH(sp < FALLBACK_QSORT_STACK_SIZE - 1, 1004);
-
 		fpop(lo, hi);
-		if(hi - lo < FALLBACK_QSORT_SMALL_THRESH) {
+		if((hi - lo) < FALLBACK_QSORT_SMALL_THRESH) {
 			fallbackSimpleSort(fmap, eclass, lo, hi);
 			continue;
 		}
-
 		/* Random partitioning.  Median of 3 sometimes fails to
 		   avoid bad cases.  Median of 9 seems to help but
 		   looks rather expensive.  This too seems to work but
@@ -115,49 +99,50 @@ void fallbackQSort3(uint32* fmap,
 		r3 = r % 3;
 		if(r3 == 0) med = eclass[fmap[lo]]; else if(r3 == 1) med = eclass[fmap[(lo+hi)>>1]]; else
 			med = eclass[fmap[hi]];
-
 		unLo = ltLo = lo;
 		unHi = gtHi = hi;
-
 		while(1) {
 			while(1) {
-				if(unLo > unHi) break;
+				if(unLo > unHi) 
+					break;
 				n = (int32)eclass[fmap[unLo]] - (int32)med;
 				if(n == 0) {
 					fswap(fmap[unLo], fmap[ltLo]);
 					ltLo++; unLo++;
 					continue;
 				}
-				;
-				if(n > 0) break;
+				if(n > 0) 
+					break;
 				unLo++;
 			}
 			while(1) {
-				if(unLo > unHi) break;
+				if(unLo > unHi) 
+					break;
 				n = (int32)eclass[fmap[unHi]] - (int32)med;
 				if(n == 0) {
 					fswap(fmap[unHi], fmap[gtHi]);
 					gtHi--; unHi--;
 					continue;
 				}
-				;
-				if(n < 0) break;
+				if(n < 0) 
+					break;
 				unHi--;
 			}
-			if(unLo > unHi) break;
-			fswap(fmap[unLo], fmap[unHi]); unLo++; unHi--;
+			if(unLo > unHi) 
+				break;
+			fswap(fmap[unLo], fmap[unHi]); 
+			unLo++; 
+			unHi--;
 		}
-
 		AssertD(unHi == unLo-1, "fallbackQSort3(2)");
-
-		if(gtHi < ltLo) continue;
-
-		n = fmin(ltLo-lo, unLo-ltLo); fvswap(lo, unLo-n, n);
-		m = fmin(hi-gtHi, gtHi-unHi); fvswap(unLo, hi-m+1, m);
-
+		if(gtHi < ltLo) 
+			continue;
+		n = MIN(ltLo-lo, unLo-ltLo); 
+		fvswap(lo, unLo-n, n);
+		m = MIN(hi-gtHi, gtHi-unHi); 
+		fvswap(unLo, hi-m+1, m);
 		n = lo + unLo - ltLo - 1;
 		m = hi - (gtHi - unHi) + 1;
-
 		if(n - lo > hi - m) {
 			fpush(lo, n);
 			fpush(m, hi);
@@ -169,7 +154,7 @@ void fallbackQSort3(uint32* fmap,
 	}
 }
 
-#undef fmin
+// @sobolev (replaced by MIN) #undef fmin
 #undef fpush
 #undef fpop
 #undef fswap
@@ -197,12 +182,7 @@ void fallbackQSort3(uint32* fmap,
 #define      WORD_BH(zz)  bhtab[(zz) >> 5]
 #define UNALIGNED_BH(zz)  ((zz) & 0x01f)
 
-static
-void fallbackSort(uint32* fmap,
-    uint32* eclass,
-    uint32* bhtab,
-    int32 nblock,
-    int32 verb)
+static void fallbackSort(uint32* fmap, uint32* eclass, uint32* bhtab, int32 nblock, int32 verb)
 {
 	int32 ftab[257];
 	int32 ftabCopy[256];
@@ -210,29 +190,31 @@ void fallbackSort(uint32* fmap,
 	int32 nNotDone;
 	int32 nBhtab;
 	uchar* eclass8 = (uchar*)eclass;
-
 	/*--
 	   Initial 1-char radix sort to generate
 	   initial fmap and initial BH bits.
 	   --*/
 	if(verb >= 4)
 		VPrintf0("        bucket sorting ...\n");
-	for(i = 0; i < 257; i++) ftab[i] = 0;
-	for(i = 0; i < nblock; i++) ftab[eclass8[i]]++;
-	for(i = 0; i < 256; i++) ftabCopy[i] = ftab[i];
-	for(i = 1; i < 257; i++) ftab[i] += ftab[i-1];
-
+	for(i = 0; i < 257; i++) 
+		ftab[i] = 0;
+	for(i = 0; i < nblock; i++) 
+		ftab[eclass8[i]]++;
+	for(i = 0; i < 256; i++) 
+		ftabCopy[i] = ftab[i];
+	for(i = 1; i < 257; i++) 
+		ftab[i] += ftab[i-1];
 	for(i = 0; i < nblock; i++) {
 		j = eclass8[i];
 		k = ftab[j] - 1;
 		ftab[j] = k;
 		fmap[k] = i;
 	}
-
 	nBhtab = 2 + (nblock / 32);
-	for(i = 0; i < nBhtab; i++) bhtab[i] = 0;
-	for(i = 0; i < 256; i++) SET_BH(ftab[i]);
-
+	for(i = 0; i < nBhtab; i++) 
+		bhtab[i] = 0;
+	for(i = 0; i < 256; i++) 
+		SET_BH(ftab[i]);
 	/*--
 	   Inductively refine the buckets.  Kind-of an
 	   "exponential radix sort" (!), inspired by the
@@ -263,21 +245,28 @@ void fallbackSort(uint32* fmap,
 		while(1) {
 			/*-- find the next non-singleton bucket --*/
 			k = r + 1;
-			while(ISSET_BH(k) && UNALIGNED_BH(k)) k++;
+			while(ISSET_BH(k) && UNALIGNED_BH(k)) 
+				k++;
 			if(ISSET_BH(k)) {
-				while(WORD_BH(k) == 0xffffffff) k += 32;
-				while(ISSET_BH(k)) k++;
+				while(WORD_BH(k) == 0xffffffff) 
+					k += 32;
+				while(ISSET_BH(k)) 
+					k++;
 			}
 			l = k - 1;
-			if(l >= nblock) break;
-			while(!ISSET_BH(k) && UNALIGNED_BH(k)) k++;
+			if(l >= nblock) 
+				break;
+			while(!ISSET_BH(k) && UNALIGNED_BH(k)) 
+				k++;
 			if(!ISSET_BH(k)) {
-				while(WORD_BH(k) == 0x00000000) k += 32;
-				while(!ISSET_BH(k)) k++;
+				while(WORD_BH(k) == 0x00000000) 
+					k += 32;
+				while(!ISSET_BH(k)) 
+					k++;
 			}
 			r = k - 1;
-			if(r >= nblock) break;
-
+			if(r >= nblock) 
+				break;
 			/*-- now [l, r] bracket current bucket --*/
 			if(r > l) {
 				nNotDone += (r - l + 1);
@@ -331,14 +320,7 @@ void fallbackSort(uint32* fmap,
 /*---------------------------------------------*/
 
 /*---------------------------------------------*/
-static
-__inline__
-bool mainGtU(uint32 i1,
-    uint32 i2,
-    uchar*  block,
-    uint16* quadrant,
-    uint32 nblock,
-    int32*  budget)
+static __inline__ bool mainGtU(uint32 i1, uint32 i2, uchar*  block, uint16* quadrant, uint32 nblock, int32*  budget)
 {
 	int32 k;
 	uchar c1, c2;
@@ -451,9 +433,7 @@ bool mainGtU(uint32 i1,
 
 		k -= 8;
 		(*budget)--;
-	}
-	while(k >= 0);
-
+	} while(k >= 0);
 	return false;
 }
 
@@ -464,66 +444,54 @@ bool mainGtU(uint32 i1,
    because the number of elems to sort is
    usually small, typically <= 20.
    --*/
-static
-int32 incs[14] = { 1, 4, 13, 40, 121, 364, 1093, 3280,
-		   9841, 29524, 88573, 265720,
-		   797161, 2391484 };
+static int32 incs[14] = { 1, 4, 13, 40, 121, 364, 1093, 3280, 9841, 29524, 88573, 265720, 797161, 2391484 };
 
-static
-void mainSimpleSort(uint32* ptr,
-    uchar*  block,
-    uint16* quadrant,
-    int32 nblock,
-    int32 lo,
-    int32 hi,
-    int32 d,
-    int32*  budget)
+static void mainSimpleSort(uint32* ptr, uchar*  block, uint16* quadrant, int32 nblock,
+    int32 lo, int32 hi, int32 d, int32*  budget)
 {
-	int32 i, j, h, bigN, hp;
+	int32 i, j, h, hp;
 	uint32 v;
-
-	bigN = hi - lo + 1;
-	if(bigN < 2) return;
-
+	int32 bigN = hi - lo + 1;
+	if(bigN < 2) 
+		return;
 	hp = 0;
-	while(incs[hp] < bigN) hp++;
+	while(incs[hp] < bigN) 
+		hp++;
 	hp--;
-
 	for(; hp >= 0; hp--) {
 		h = incs[hp];
-
 		i = lo + h;
 		while(true) {
 			/*-- copy 1 --*/
-			if(i > hi) break;
+			if(i > hi) 
+				break;
 			v = ptr[i];
 			j = i;
-			while(mainGtU(
-				    ptr[j-h]+d, v+d, block, quadrant, nblock, budget
-				    ) ) {
+			while(mainGtU(ptr[j-h]+d, v+d, block, quadrant, nblock, budget)) {
 				ptr[j] = ptr[j-h];
 				j = j - h;
-				if(j <= (lo + h - 1)) break;
+				if(j <= (lo + h - 1)) 
+					break;
 			}
 			ptr[j] = v;
 			i++;
-
 			/*-- copy 2 --*/
-			if(i > hi) break;
+			if(i > hi) 
+				break;
 			v = ptr[i];
 			j = i;
-			while(mainGtU(
-				    ptr[j-h]+d, v+d, block, quadrant, nblock, budget
-				    ) ) {
+			while(mainGtU(ptr[j-h]+d, v+d, block, quadrant, nblock, budget)) {
 				ptr[j] = ptr[j-h];
 				j = j - h;
-				if(j <= (lo + h - 1)) break;
+				if(j <= (lo + h - 1)) 
+					break;
 			}
 			ptr[j] = v;
 			i++;
 
 			/*-- copy 3 --*/
-			if(i > hi) break;
+			if(i > hi) 
+				break;
 			v = ptr[i];
 			j = i;
 			while(mainGtU(
@@ -564,34 +532,25 @@ void mainSimpleSort(uint32* ptr,
 		}				   \
 	}
 
-static
-__inline__
-uchar mmed3(uchar a, uchar b, uchar c)
+static __inline__ uchar mmed3(uchar a, uchar b, uchar c)
 {
 	uchar t;
 	if(a > b) {
-		t = a; a = b; b = t;
+		t = a; 
+		a = b; 
+		b = t;
 	}
-	;
 	if(b > c) {
 		b = c;
-		if(a > b) b = a;
+		if(a > b) 
+			b = a;
 	}
 	return b;
 }
 
-#define mmin(a, b) ((a) < (b)) ? (a) : (b)
-
-#define mpush(lz, hz, dz) { stackLo[sp] = lz; \
-			    stackHi[sp] = hz; \
-			    stackD [sp] = dz; \
-			    sp++; }
-
-#define mpop(lz, hz, dz) { sp--;	     \
-			   lz = stackLo[sp]; \
-			   hz = stackHi[sp]; \
-			   dz = stackD [sp]; }
-
+// @sobolev (replaced by MIN) #define mmin(a, b) ((a) < (b)) ? (a) : (b)
+#define mpush(lz, hz, dz) { stackLo[sp] = lz; stackHi[sp] = hz; stackD [sp] = dz; sp++; }
+#define mpop(lz, hz, dz) { sp--; lz = stackLo[sp]; hz = stackHi[sp]; dz = stackD [sp]; }
 #define mnextsize(az) (nextHi[az]-nextLo[az])
 
 #define mnextswap(az, bz)					 \
@@ -620,18 +579,13 @@ static void mainQSort3(uint32* ptr, uchar*  block, uint16* quadrant, int32 nbloc
 	while(sp > 0) {
 		AssertH(sp < MAIN_QSORT_STACK_SIZE - 2, 1001);
 		mpop(lo, hi, d);
-		if(hi - lo < MAIN_QSORT_SMALL_THRESH ||
-		    d > MAIN_QSORT_DEPTH_THRESH) {
+		if(hi - lo < MAIN_QSORT_SMALL_THRESH || d > MAIN_QSORT_DEPTH_THRESH) {
 			mainSimpleSort(ptr, block, quadrant, nblock, lo, hi, d, budget);
-			if(*budget < 0) return;
+			if(*budget < 0) 
+				return;
 			continue;
 		}
-
-		med = (int32)
-		    mmed3(block[ptr[ lo         ]+d],
-		    block[ptr[ hi         ]+d],
-		    block[ptr[ (lo+hi)>>1 ]+d]);
-
+		med = (int32)mmed3(block[ptr[lo]+d], block[ptr[hi]+d], block[ptr[(lo+hi)>>1]+d]);
 		unLo = ltLo = lo;
 		unHi = gtHi = hi;
 
@@ -669,8 +623,10 @@ static void mainQSort3(uint32* ptr, uchar*  block, uint16* quadrant, int32 nbloc
 			continue;
 		}
 
-		n = mmin(ltLo-lo, unLo-ltLo); mvswap(lo, unLo-n, n);
-		m = mmin(hi-gtHi, gtHi-unHi); mvswap(unLo, hi-m+1, m);
+		n = MIN(ltLo-lo, unLo-ltLo); 
+		mvswap(lo, unLo-n, n);
+		m = MIN(hi-gtHi, gtHi-unHi); 
+		mvswap(unLo, hi-m+1, m);
 
 		n = lo + unLo - ltLo - 1;
 		m = hi - (gtHi - unHi) + 1;
@@ -696,7 +652,7 @@ static void mainQSort3(uint32* ptr, uchar*  block, uint16* quadrant, int32 nbloc
 #undef mvswap
 #undef mpush
 #undef mpop
-#undef mmin
+// @sobolev (replaced by MIN) #undef mmin
 #undef mnextsize
 #undef mnextswap
 #undef MAIN_QSORT_SMALL_THRESH
@@ -970,10 +926,8 @@ zero:
 			AssertH( ((bbSize-1) >> shifts) <= 65535, 1002);
 		}
 	}
-
 	if(verb >= 4)
-		VPrintf3("        %d pointers, %d sorted, %d scanned\n",
-		    nblock, numQSorted, nblock - numQSorted);
+		VPrintf3("        %d pointers, %d sorted, %d scanned\n", nblock, numQSorted, nblock - numQSorted);
 }
 
 #undef BIGFREQ
@@ -1005,7 +959,6 @@ void BZ2_blockSort(EState* s)
 	int32 budget;
 	int32 budgetInit;
 	int32 i;
-
 	if(nblock < 10000) {
 		fallbackSort(s->arr1, s->arr2, ftab, nblock, verb);
 	}
@@ -1032,8 +985,7 @@ void BZ2_blockSort(EState* s)
 		budget = budgetInit;
 		mainSort(ptr, block, quadrant, ftab, nblock, verb, &budget);
 		if(verb >= 3)
-			VPrintf3("      %d work, %d block, ratio %5.2f\n", budgetInit - budget, nblock,
-			    (float)(budgetInit - budget) / (float)(nblock==0 ? 1 : nblock) );
+			VPrintf3("      %d work, %d block, ratio %5.2f\n", budgetInit - budget, nblock, (float)(budgetInit - budget) / (float)(nblock==0 ? 1 : nblock) );
 		if(budget < 0) {
 			if(verb >= 2)
 				VPrintf0("    too repetitive; using fallback sorting algorithm\n");
@@ -1043,12 +995,8 @@ void BZ2_blockSort(EState* s)
 	s->origPtr = -1;
 	for(i = 0; i < s->nblock; i++)
 		if(ptr[i] == 0) {
-			s->origPtr = i; break;
+			s->origPtr = i; 
+			break;
 		}
-	;
 	AssertH(s->origPtr != -1, 1003);
 }
-
-/*-------------------------------------------------------------*/
-/*--- end                                       blocksort.c ---*/
-/*-------------------------------------------------------------*/

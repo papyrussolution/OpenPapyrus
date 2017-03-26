@@ -394,7 +394,7 @@ int SLAPI PPViewPalm::ExportUhtt()
 						// Ошибка экспорта адреса на сервер Universe-HTT
 						(temp_buf = uhtt_cli.GetLastMessage()).ToOem();
 						PPLoadText(PPTXT_UHTTEXPSTYLO_EEXPORT, fmt_buf);
-						PPFormat(fmt_buf, &msg_buf, (const char *)rec.Name, (const char *)temp_buf);
+						PPFormat(fmt_buf, &msg_buf, (const char *)rec.Name, temp_buf.cptr());
 						logger.Log(msg_buf);
 					}
 				}

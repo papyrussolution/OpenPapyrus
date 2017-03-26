@@ -542,7 +542,7 @@ int SLAPI PPOutputMessage(const char * pMsg, uint options)
 		return messageBox(pMsg, options);
 	}
 	else {
-		if((options & mfConf) != mfConf) // @v7.7.9 !(options & mfConf) --> ((options & mfConf) != mfConf)
+		if((options & mfConf) != mfConf)
 			PPLogMessage((options & mfError) ? PPFILNAM_ERR_LOG : PPFILNAM_INFO_LOG, pMsg, LOGMSGF_TIME);
 		return 1;
 	}
@@ -555,8 +555,7 @@ int SLAPI PPTooltipMessage(const char * pMsg, const char * pImgPath, HWND parent
 		if(pMsg || pImgPath) {
 			SMessageWindow * p_win = new SMessageWindow;
 			if(p_win) {
-				SString buf;
-				buf = pMsg;
+				SString buf = pMsg;
 				buf.ReplaceChar('\003', ' ').Strip();
 				ok = p_win->Open(buf, pImgPath, parent, 0, timer, color, flags, 0);
 			}

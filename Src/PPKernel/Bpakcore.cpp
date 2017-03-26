@@ -837,12 +837,13 @@ int SLAPI PPBankingOrder::TaxMarkers::IsEmpty() const
 //
 SLAPI PPBillPacket::SetupObjectBlock::SetupObjectBlock()
 {
-    Clear();
+    Clear_();
+	Flags = 0;
 }
 
-void SLAPI PPBillPacket::SetupObjectBlock::Clear()
+void SLAPI PPBillPacket::SetupObjectBlock::Clear_()
 {
-	Flags = 0;
+	// Flags = 0;
 	State = 0;
 	PsnID = 0;
 	Name = 0;
@@ -1044,7 +1045,7 @@ int SLAPI PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 {
 	int    ok = 1;
 	const  PPID preserve_ar_id = Rec.Object;
-	rRet.Clear();
+	rRet.Clear_();
 	ProcessFlags &= ~(pfRestrictByArCodes | pfSubCostOnSubPartStr);
 	LAssocArray rglist;
 	if(arID) {

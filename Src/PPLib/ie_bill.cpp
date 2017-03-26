@@ -2916,7 +2916,7 @@ int SLAPI PPBillImporter::GetDocImpStatus(Sdr_Bill * pBill, Sdr_DllImpObjStatus 
 	if(pBill) {
 		SString msg_buf, temp_buf;
 		PPLoadText(PPTXT_EDIBILLRCVD, msg_buf);
-		msg_buf.Space().CatChar('[').Cat(pBill->EdiOpSymb).CatChar(']');
+		msg_buf.Space().CatBrackStr(pBill->EdiOpSymb);
 		msg_buf.CatDiv(':', 2).CatEq("CODE", (temp_buf = pBill->Code).Transf(CTRANSF_OUTER_TO_INNER)).CatDiv(',', 2).CatEq("DATE", pBill->Date);
 		if(pBill->EdiOp == PPEDIOP_ALCODESADV) {
 			PPBillPacket pack;

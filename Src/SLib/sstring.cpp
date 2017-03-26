@@ -2879,6 +2879,11 @@ SString & FASTCALL SString::CatParStr(long val)
 	return CatChar('(').Cat(val).CatChar(')');
 }
 
+SString & FASTCALL SString::CatBrackStr(const char * pStr)
+{
+	return CatChar('[').Cat(pStr).CatChar(']');
+}
+
 SString & FASTCALL SString::CatDiv(int c, int addSpaces, int ifNotEmpty)
 {
 	if(!ifNotEmpty || Strip().NotEmpty()) {
@@ -3458,6 +3463,20 @@ int FASTCALL SStringU::IsEqual(const wchar_t * pS) const
 	}
 	else
 		return 0;
+}
+
+int FASTCALL SStringU::Cmp(const SStringU & rS) const
+{
+	if(P_Buf == 0 || P_Buf[0] == 0) {
+		if(rS.P_Buf == 0 || rS.P_Buf[0] == 0)
+			return 0;
+		else
+			return -1;
+	}
+	else if(rS.P_Buf == 0 || rS.P_Buf[0] == 0)
+		return 1;
+	else
+		return wcscmp(P_Buf, rS.P_Buf);
 }
 
 SStringU & FASTCALL SStringU::operator = (const SStringU & s)
@@ -5556,10 +5575,10 @@ static int FASTCALL u_bsearch(wchar_t code, const CaseFoldingItem * pTbl, uint *
 //
 static int FASTCALL u_get_char_case(wchar_t code, const CaseFoldingItem ** pItem)
 {
-	int r = 0;
-	uint idx = 0;
+	int    r = 0;
+	uint   idx = 0;
 	// »щем код по заглавным
-	int cmp = u_bsearch(code, u_case_folding_tbl, &idx);
+	int    cmp = u_bsearch(code, u_case_folding_tbl, &idx);
 	if(cmp == 0) {
 		ASSIGN_PTR(pItem, &u_case_folding_tbl[idx]);
 		r = 2;

@@ -147,26 +147,6 @@ struct KeyDownCommand { // @size=4
 	uint16 State;
 	uint16 Code;
 };
-
-/*
-struct CharScanType {
-	uchar  charCode;
-	uchar  scanCode;
-};
-*/
-
-/*struct KeyDownEvent {
-	struct Scan {
-		uchar  charCode;
-		uchar  scanCode;
-	};
-	union {
-		ushort keyCode;
-		//CharScanType
-		Scan charScan;
-	};
-	KeyDownCommand K;
-};*/
 //
 // Descr: Структура, передаваемая с сообщением cmSetFont
 //
@@ -303,7 +283,7 @@ struct TEvent {
 		};
 		union {
 			ushort keyCode;
-			/*CharScanType*/Scan charScan;
+			Scan   charScan;
 		};
 		KeyDownCommand K;
 	};
@@ -323,9 +303,9 @@ struct TEvent {
 	};
 	uint   what;
 	union {
-		/*MouseEventType*/Mouse mouse;
-		/*KeyDownEvent*/KeyDown keyDown;
-		/*MessageEvent*/Message message;
+		Mouse mouse;
+		KeyDown keyDown;
+		Message message;
 	};
 
 	TEvent();
@@ -2810,10 +2790,8 @@ private:
 	// ARG(recalcParam IN):          параметр пересчета: 1 - сдвинуть к 1-ой координате, 2 - сдвинуть к 2-ой координате,
 	//   3 - разместить в той же пропорции от краев диапазона, 4 - растянуть на весь диапазон
 	//
-	void   RecalcCtrlCoords(long firstCoord, long secondCoord, long * pFirstCtrlCoord, long * pSecondCtrlCoord,
-		long ctrlSize, int recalcParam);
-	int    Helper_ToRecalcCtrlSet(const RECT * pNewDlgRect, ResizeParamEntry * pCtrlParam,
-		TSArray <ResizeParamEntry> * pCoordAry, LongArray * pCalcedCtrlAry, int isXDim);
+	void   RecalcCtrlCoords(long firstCoord, long secondCoord, long * pFirstCtrlCoord, long * pSecondCtrlCoord, long ctrlSize, int recalcParam);
+	int    Helper_ToRecalcCtrlSet(const RECT * pNewDlgRect, ResizeParamEntry * pCtrlParam, TSArray <ResizeParamEntry> * pCoordAry, LongArray * pCalcedCtrlAry, int isXDim);
 	int    Helper_ToResizeDlg(const RECT * pNewDlgRect);
 	//
 	// Descr: Вспомогательная функция, испольуемая при формировании диалога из ресурсов
@@ -2912,8 +2890,8 @@ protected:
 	enum {
 		stValidStr      = 0x0001,
 		stDisableDelSel = 0x0002,
-		stPaste         = 0x0004, // @v7.0.10 Текущий текст в поле включает в себя данные, введенные копированием из буфера
-		stSerialized    = 0x0008  // @v7.0.10 Текущий текст был введен "символ-за-символом"
+		stPaste         = 0x0004, // Текущий текст в поле включает в себя данные, введенные копированием из буфера
+		stSerialized    = 0x0008  // Текущий текст был введен "символ-за-символом"
 	};
 	long   InlSt;
 	//
@@ -2962,9 +2940,7 @@ class TImageView : public TView {
 public:
 	TImageView(const TRect & rBounds, const char * pFigSymb);
 	~TImageView();
-	//virtual void draw();
 	virtual int  TransmitData(int dir, void * pData);
-	//void   loadImage(const char *);
 private:
 	static LRESULT CALLBACK DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual int  handleWindowsMessage(UINT, WPARAM, LPARAM);
@@ -2992,8 +2968,6 @@ public:
 	SString Title;
 private:
 	DECL_HANDLE_EVENT;
-	void   pressButton(TEvent&);
-	TRect  getActiveRect();
 
 	ushort command;
 	ushort flags;
@@ -3085,7 +3059,6 @@ protected:
 //
 ushort messageBox(const char *msg, ushort aOptions);
 // @v9.3.4 ushort messageBox(ushort aOptions, const char *msg, ...);
-ushort messageBoxRect(const TRect &r, const char *msg, ushort aOptions);
 // @v9.3.4 ushort messageBoxRect(const TRect &r, ushort aOptions, const char *msg, ...);
 // @v9.3.4 ushort inputBox(const char *Title, const char *aLabel, char *s, uchar limit);
 // @v9.3.4 ushort inputBoxRect(const TRect &bounds, const char *title, const char *aLabel, char *s, uchar limit);
@@ -4182,7 +4155,8 @@ public:
 		fChildWindow       = 0x00000800,
 		fTopmost           = 0x00001000,
 		fPreserveFocus     = 0x00002000,
-		fLargeText         = 0x00004000 // Крупный текст (default * 2)
+		fLargeText         = 0x00004000, // Крупный текст (default * 2)
+		fMaxImgSize        = 0x00008000  // @v9.5.10 Максимальный размер окна для подробного отображения картинки
 	};
 
 	//
@@ -5178,7 +5152,7 @@ private:
 
 extern int (SLAPI * getUserControl)(TVRez *, TDialog*);
 
-HMENU  SLAPI LoadMenu(TVRez *, uint menuID);
+// @v9.5.10 HMENU  SLAPI LoadMenu(TVRez *, uint menuID);
 int    SLAPI LoadToolbar(TVRez *, uint tbType, uint tbID, ToolbarList *);
 
 #endif // } _TURBOVISION

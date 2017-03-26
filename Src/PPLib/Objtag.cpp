@@ -1015,7 +1015,7 @@ int SLAPI PPObjTag::MakeReserved(long flags)
 		if(do_make_doc) {
 			line_buf = 0;
 			(temp_buf = pack.Rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
-			line_buf.Tab().CatChar('\\').Cat("item").CatChar('[').Cat(temp_buf).CatChar(']').CR();
+			line_buf.Tab().CatChar('\\').Cat("item").CatBrackStr(temp_buf).CR();
 			line_buf.CR();
 			PPLoadString("id", temp_buf);
 			line_buf.Tab(2).CatEq(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), id).CR();
@@ -2113,7 +2113,7 @@ private:
 				else if(oneof2(tag.TagDataType, OTTYP_NUMBER, OTTYP_DATE))
 					(msg = 0).CatChar('[').Cat(type_str).Space().CatCharN('.', 2).Space().Cat(type_str).CatChar(']');
 				else if(oneof3(tag.TagDataType, OTTYP_STRING, OTTYP_ENUM, OTTYP_OBJLINK))
-					(msg = 0).CatChar('[').Cat(type_str).CatChar(']');
+					(msg = 0).CatBrackStr(type_str);
 				p_text->setText(msg);
 			}
 			enableCommand(cmSelEnum, oneof2(tag.TagDataType, OTTYP_ENUM, OTTYP_OBJLINK) && CheckRestrict);

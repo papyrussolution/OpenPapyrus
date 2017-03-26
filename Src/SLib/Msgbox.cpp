@@ -103,46 +103,6 @@ BOOL CALLBACK MessageBoxDialogFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 	return ret;
 }
 
-ushort messageBoxRect(const TRect & r, const char * msg, ushort aOptions)
-{
-	ushort ret = cmCancel;
-	//char   buf[1024];
-	uint   msg_flags = 0;
-	SString title_buf;
-	SString temp_buf;
-	HWND   hw_parent = APPL->H_TopOfStack;
-	if(!(aOptions & mfAll) && ((aOptions & 0xf) == mfInfo)) {
-		msg_flags |= (MB_OK | MB_ICONINFORMATION | MB_TASKMODAL);
-		SLS.LoadString(P_Titles[2], title_buf);
-		MessageBox(hw_parent, ConvertMsgString(msg, temp_buf), title_buf.Transf(CTRANSF_INNER_TO_OUTER), msg_flags);
-		SetForegroundWindow(hw_parent);
-		ret = cmOK;
-	}
-	else if((aOptions & (mfConf | mfLargeBox)) == mfConf) {
-		// аналогично else if((aOptions & mfConf) == mfConf && !(aOptions & mfLargeBox)) {
-		msg_flags = (MB_ICONEXCLAMATION | MB_TASKMODAL);
-		if((aOptions & mfYesNoCancel) == mfYesNoCancel)
-			msg_flags |= MB_YESNOCANCEL;
-		else
-			msg_flags |= MB_YESNO;
-		if(aOptions & mfDefaultYes)
-			msg_flags |= MB_DEFBUTTON1;
-		else
-			msg_flags |= MB_DEFBUTTON2;
-		SLS.LoadString(P_Titles[3], title_buf);
-		int    ok = MessageBox(hw_parent, ConvertMsgString(msg, temp_buf), title_buf.Transf(CTRANSF_INNER_TO_OUTER), msg_flags);
-		SetForegroundWindow(hw_parent);
-		ret = (ok == IDYES) ? cmYes : ((ok == IDCANCEL) ? cmCancel : cmNo);
-	}
-	else {
-		MsgBoxDlgFuncParam msg_param;
-		msg_param.P_Msg = msg;
-		msg_param.Options = aOptions;
-		ret = APPL->DlgBoxParam((aOptions & mfLargeBox) ? DLGW_MSGBOX_L : DLGW_MSGBOX, hw_parent, (DLGPROC)MessageBoxDialogFunc, (long)&msg_param);
-	}
-	return ret;
-}
-
 /* @v9.3.4 ushort messageBoxRect(const TRect & r, ushort aOptions, const char *fmt, ...)
 {
 	va_list argptr;
@@ -161,8 +121,41 @@ ushort messageBoxRect(const TRect & r, const char * msg, ushort aOptions)
 	return messageBoxRect(APPL->MakeCenterRect(60, 10), msg, aOptions);
 }*/
 
-ushort messageBox(const char *msg, ushort aOptions)
+ushort messageBox(const char * pMsg, ushort aOptions)
 {
-	return messageBoxRect(APPL->MakeCenterRect(60, 10), msg, aOptions);
+	ushort ret = cmCancel;
+	uint   msg_flags = 0;
+	SString title_buf;
+	SString temp_buf;
+	HWND   hw_parent = APPL->H_TopOfStack;
+	if(!(aOptions & mfAll) && ((aOptions & 0xf) == mfInfo)) {
+		msg_flags |= (MB_OK | MB_ICONINFORMATION | MB_TASKMODAL);
+		SLS.LoadString(P_Titles[2], title_buf);
+		::MessageBox(hw_parent, ConvertMsgString(pMsg, temp_buf), title_buf.Transf(CTRANSF_INNER_TO_OUTER), msg_flags);
+		SetForegroundWindow(hw_parent);
+		ret = cmOK;
+	}
+	else if((aOptions & (mfConf | mfLargeBox)) == mfConf) {
+		// аналогично else if((aOptions & mfConf) == mfConf && !(aOptions & mfLargeBox)) {
+		msg_flags = (MB_ICONEXCLAMATION | MB_TASKMODAL);
+		if((aOptions & mfYesNoCancel) == mfYesNoCancel)
+			msg_flags |= MB_YESNOCANCEL;
+		else
+			msg_flags |= MB_YESNO;
+		if(aOptions & mfDefaultYes)
+			msg_flags |= MB_DEFBUTTON1;
+		else
+			msg_flags |= MB_DEFBUTTON2;
+		SLS.LoadString(P_Titles[3], title_buf);
+		int    ok = ::MessageBox(hw_parent, ConvertMsgString(pMsg, temp_buf), title_buf.Transf(CTRANSF_INNER_TO_OUTER), msg_flags);
+		::SetForegroundWindow(hw_parent);
+		ret = (ok == IDYES) ? cmYes : ((ok == IDCANCEL) ? cmCancel : cmNo);
+	}
+	else {
+		MsgBoxDlgFuncParam msg_param;
+		msg_param.P_Msg = pMsg;
+		msg_param.Options = aOptions;
+		ret = APPL->DlgBoxParam((aOptions & mfLargeBox) ? DLGW_MSGBOX_L : DLGW_MSGBOX, hw_parent, (DLGPROC)MessageBoxDialogFunc, (long)&msg_param);
+	}
+	return ret;
 }
-

@@ -562,7 +562,7 @@ int PPTex2HtmlPrcssr::Helper_Debug_OutputTextBlock(const PPTex2HtmlPrcssr::TextB
 		if(pBlk->P_ArgBrk) {
 			for(TextBlock * p_arg = pBlk->P_ArgBrk; p_arg; p_arg = p_arg->P_Next) {
 				if(p_arg->Text.Len() <= 80) {
-					WriteText(rF, (line_buf = 0).CatChar('[').Cat(p_arg->Text).CatChar(']').CR());
+					WriteText(rF, (line_buf = 0).CatBrackStr(p_arg->Text).CR());
 				}
 				else {
 					WriteText(rF, (line_buf = 0).CatChar('[').CR());

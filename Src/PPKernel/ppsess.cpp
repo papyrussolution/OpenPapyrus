@@ -1857,7 +1857,7 @@ int SLAPI PPSession::InitThread(const PPThread * pThread)
 	return 1;
 }
 
-int SLAPI PPSession::ReleaseThread()
+void SLAPI PPSession::ReleaseThread()
 {
 	PPThreadLocalArea * p_tla = (PPThreadLocalArea *)TlsGetValue(TlsIdx);
 	if(p_tla) {
@@ -1868,7 +1868,6 @@ int SLAPI PPSession::ReleaseThread()
 	else {
 		assert(0);
 	}
-	return 1;
 }
 //
 // См. примечание к определению функций PP.H
@@ -1956,8 +1955,7 @@ int SLAPI PPSession::LogAction(PPID action, PPID obj, PPID id, long extData, int
 GtaJournalCore * SLAPI PPSession::GetGtaJ()
 {
 	PPThreadLocalArea & r_tla = GetTLA();
-	if(!r_tla.P_GtaJ)
-		r_tla.P_GtaJ = new GtaJournalCore;
+	SETIFZ(r_tla.P_GtaJ, new GtaJournalCore);
 	return r_tla.P_GtaJ;
 }
 //
@@ -2072,7 +2070,7 @@ int SLAPI PPSession::CheckLicense(MACAddr * pMachineID, int * pIsDemo)
 			const PPSyncItem & r_item = sync_array.at(i);
 			const ulong  term_sess_id = r_item.TerminalSessID;
 			const MACAddr ma = r_item.MchnID;
-			if(r_item.ObjID != 1) // @v7.1.0 Серверные сессии не учитываем при подсчете занятых лицензий
+			if(r_item.ObjID != 1) // Серверные сессии не учитываем при подсчете занятых лицензий
 				ma_list.addUnique(ma);
 			if(ma.Cmp(machine_id) == 0 && (cur_term_sess_id == 0 || cur_term_sess_id == term_sess_id))
 				this_machine_logged = 1;
@@ -2121,9 +2119,6 @@ int SLAPI PPSession::GetUsedLicCount(int32 * pUsedLicCount)
 	ASSIGN_PTR(pUsedLicCount, used_lic_count);
 	return ok;
 }
-
-// Prototype
-int SLAPI __BTest();
 
 static int _dbOpenException(const char * pFileName, int btrErr)
 {
@@ -2711,18 +2706,12 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 						}
 						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIH_USEGOODSLOCASSOC, &(iv = 0)) > 0 && iv != 0)
 							SetExtFlag(ECF_CHKPAN_USEGDSLOCASSOC, 1);
-						// @v7.3.11 {
 						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DEBUG_MTX_DIRTY, &(iv = 0)) > 0 && iv != 0)
 							SetExtFlag(ECF_DEBUGDIRTYMTX, 1);
-						// } @v7.3.11
-						// @v7.4.8 {
 						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_USE_CDB, &(iv = 0)) > 0 && iv != 0)
 							SetExtFlag(ECF_USECDB, 1);
-						// } @v7.4.8
-						// @v7.5.9 {
 						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_RCPTDLVRLOCASWAREHOUSE, &(iv = 0)) > 0 && iv != 0)
 							SetExtFlag(ECF_RCPTDLVRLOCASWAREHOUSE, 1);
-						// } @v7.5.9
 						// @v8.2.5 {
 						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_USESJLOGINEVENT, &(iv = 0)) > 0 && iv != 0)
 							SetExtFlag(ECF_USESJLOGINEVENT, 1);
@@ -2798,13 +2787,11 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 					if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SCARD_PATTERNS, sv) && sv.NotEmptyS())
 						r_tla.SCardPatterns.CopyFrom(sv);
 				}
-				// @v7.8.0 {
 				{
 					r_tla.DL600XMLEntityParam = 0;
 					if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_DL600XMLENTITY, sv) && sv.NotEmptyS())
 						r_tla.DL600XMLEntityParam = sv;
 				}
-				// } @v7.8.0
 				// @v9.4.6 {
 				{
 					r_tla.DL600XmlCp = cpANSI; // Правильно было бы UTF-8, но для обратной совместимости придется по умолчанию использовать ANSI
@@ -2812,12 +2799,10 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 						r_tla.DL600XmlCp.FromStr(sv);
 				}
 				// } @v9.4.6
-				// @v7.9.6 {
 				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ADJCPANCCLINETRANS, &(iv = 0)) > 0 && iv != 0)
 					r_cc.Flags2 |= CCFLG2_ADJCPANCCLINETRANS;
 				else
 					r_cc.Flags2 &= ~CCFLG2_ADJCPANCCLINETRANS; // @paranoic
-				// } @v7.9.6
 				// @v8.1.9 {
 				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DONTUSE3TIERGMTX, &(iv = 0)) > 0 && iv != 0)
 					r_cc.Flags2 |= CCFLG2_DONTUSE3TIERGMTX;
@@ -3172,7 +3157,7 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 						PPACN_OBJEXTMEMOUPD,
 						PPACN_UPDBILLEXT,
 						PPACN_MTXGOODSADD,
-						PPACN_QUOTUPD2,      // @v7.3.3
+						PPACN_QUOTUPD2,
 						PPACN_UPDBILLWLABEL, // @v8.1.8
 						PPACN_BILLWROFF,     // @v8.8.3
 						PPACN_BILLWROFFUNDO, // @v8.8.3
@@ -3377,42 +3362,40 @@ PPSync & SLAPI PPSession::GetSync()
 
 int SLAPI PPSession::SetLocation(PPID locID)
 {
+	int    ok = 1;
 	LocationTbl::Rec rec;
 	if(SearchObject(PPOBJ_LOCATION, locID, &rec) > 0) {
 		GetTLA().Lc.Location = locID;
 		SETFLAG(GetTLA().Lc.State, CFGST_WAREHOUSE, rec.Type == LOCTYP_WAREHOUSE);
-		return 1;
 	}
-	else
+	else {
 		GetTLA().Lc.Location = 0;
+		ok = 0;
+	}
 	StatusWinChange(); // @UI
-	return 0;
+	return ok;
 }
 
-int SLAPI PPSession::SetOperDate(LDATE date)
+void SLAPI PPSession::SetOperDate(LDATE date)
 {
 	int    d;
 	GetTLA().Lc.OperDate = date;
 	decodedate(&d, &DefaultMonth, &DefaultYear, &date);
-	return 1;
 }
 
-int SLAPI PPSession::SetCurCashNodeID(PPID cashNodeID)
+void SLAPI PPSession::SetCurCashNodeID(PPID cashNodeID)
 {
 	GetTLA().Lc.Cash = cashNodeID;
-	return 1;
 }
 
-int SLAPI PPSession::SetDefBillCashID(PPID billCashID)
+void SLAPI PPSession::SetDefBillCashID(PPID billCashID)
 {
 	GetTLA().Lc.DefBillCashID = billCashID;
-	return 1;
 }
 
-int SLAPI PPSession::SetMenu(short menuId)
+void SLAPI PPSession::SetMenu(short menuId)
 {
 	GetTLA().Lc.Menu = menuId;
-	return 1;
 }
 
 int SLAPI PPSession::SetDemoMode(int s)
@@ -3540,10 +3523,9 @@ long SLAPI PPSession::SetExtFlag(long f, int set)
 	return prev;
 }
 
-int SLAPI PPSession::SetStateFlag(long f, int set)
+void SLAPI PPSession::SetStateFlag(long f, int set)
 {
 	SETFLAG(GetTLA().Lc.State, f, set);
-	return 1;
 }
 
 int SLAPI PPSession::CheckStateFlag(long f) const
@@ -3678,7 +3660,6 @@ int SLAPI PPSession::GetPath(PPID pathID, SString & rBuf)
 
 // PPRFILE_XXX PP_RCDECLRFILE { "Symb\0", "file_name", PPPATH_XXX(1), PPPATH_XXX(2), flags, "Descript\0" }
 */
-
 
 #define PPRFILE_SIGN 0xfeedbac5U
 
@@ -3824,8 +3805,7 @@ DlContext * SLAPI PPSession::Helper_GetInterfaceContext(DlContext ** ppCtx, uint
 		if(is_allocated)
 			ZDELETE(*ppCtx);
 	ENDCATCH
-	if(p_csd)
-		p_csd->Leave();
+	CALLPTRMEMB(p_csd, Leave());
 	return *ppCtx;
 }
 
@@ -3894,7 +3874,7 @@ int SLAPI PPAdviseList::Advise(long * pCookie, const PPAdviseBlock * pBlk)
 	int    ok = -1;
 	RwL.WriteLock();
 	if(pBlk) {
-		long   cookie = ++LastCookie;
+		const long cookie = ++LastCookie;
 		PPAdviseBlock blk = *pBlk;
 		blk.Cookie = cookie;
 		ok = insert(&blk) ? 1 : PPSetErrorSLib();
@@ -3952,8 +3932,8 @@ PPSession::ObjIdentBlock::ObjIdentBlock() : SymbList(256, 1)
 	}
 	{
 		SymbList.Add("UNIT",           PPOBJ_UNIT);
-		SymbList.Add("QUOTKIND",       PPOBJ_QUOTKIND); // @v7.2.2
-		SymbList.Add("LOCATION",       PPOBJ_LOCATION); // @v7.2.2
+		SymbList.Add("QUOTKIND",       PPOBJ_QUOTKIND);
+		SymbList.Add("LOCATION",       PPOBJ_LOCATION);
 		SymbList.Add("GOODS",          PPOBJ_GOODS);
 		SymbList.Add("GOODSGROUP",     PPOBJ_GOODSGROUP);
 		SymbList.Add("BRAND",          PPOBJ_BRAND);
@@ -3972,15 +3952,15 @@ PPSession::ObjIdentBlock::ObjIdentBlock() : SymbList(256, 1)
 		SymbList.Add("QUOT",           PPOBJ_QUOT2);
 		SymbList.Add("CURRENCY",       PPOBJ_CURRENCY);
 		SymbList.Add("CURRATETYPE",    PPOBJ_CURRATETYPE);
-		SymbList.Add("SPECSERIES",     PPOBJ_SPECSERIES);   // @v7.3.2
+		SymbList.Add("SPECSERIES",     PPOBJ_SPECSERIES);
 		SymbList.Add("SCARD",          PPOBJ_SCARD);
-		SymbList.Add("POSNODE",        PPOBJ_CASHNODE);     // @v7.3.7
-		SymbList.Add("CURRATEIDENT",   PPOBJ_CURRATEIDENT); // @v7.4.6
+		SymbList.Add("POSNODE",        PPOBJ_CASHNODE);
+		SymbList.Add("CURRATEIDENT",   PPOBJ_CURRATEIDENT);
 		SymbList.Add("UHTTSCARDOP",    PPOBJ_UHTTSCARDOP);
-		SymbList.Add("LOT",            PPOBJ_LOT);          // @v7.4.11
-		SymbList.Add("BILL",           PPOBJ_BILL);         // @v7.5.5
-		SymbList.Add("UHTTSTORE",      PPOBJ_UHTTSTORE);    // @v7.6.1 @Muxa
-		SymbList.Add("OPRKIND",        PPOBJ_OPRKIND);      // @v7.6.6 @Muxa
+		SymbList.Add("LOT",            PPOBJ_LOT);
+		SymbList.Add("BILL",           PPOBJ_BILL);
+		SymbList.Add("UHTTSTORE",      PPOBJ_UHTTSTORE);
+		SymbList.Add("OPRKIND",        PPOBJ_OPRKIND);
 		SymbList.Add("WORKBOOK",       PPOBJ_WORKBOOK);
 		SymbList.Add("CCHECK",         PPOBJ_CCHECK);       // @v8.2.11
 		SymbList.Add("PROCESSOR",      PPOBJ_PROCESSOR);    // @v8.7.0
@@ -4070,10 +4050,9 @@ int SLAPI PPSession::GetObjectTitle(PPID objType, SString & rBuf)
 	return ok;
 }
 
-int SLAPI PPSession::SetTempLogFileName(const char * pFileName)
+void SLAPI PPSession::SetTempLogFileName(const char * pFileName)
 {
 	GetTLA().TempLogFile = pFileName;
-	return 1;
 }
 
 int SLAPI PPSession::SetPrivateBasket(PPBasketPacket * pPack, int use_ta)

@@ -672,7 +672,7 @@ void SLAPI PPObjBill::DiagGoodsTurnError(const PPBillPacket * pPack)
 			atobj->P_Tbl->ConvertAcctID(&acctid, &acct, 0, 0);
 			acct.ToStr(ACCF_DEFAULT, acc_buf);
 		}
-		PPFormatS(PPMSG_INFORMATION, PPINF_BILLADVLINE, &msg_buf, ln+1, (const char *)advbillkind_buf, r_item.Amount, (const char *)acc_buf);
+		PPFormatS(PPMSG_INFORMATION, PPINF_BILLADVLINE, &msg_buf, ln+1, advbillkind_buf.cptr(), r_item.Amount, acc_buf.cptr());
 		PPOutputMessage(msg_buf, mfInfo|mfOK);
 	}
 }
@@ -7611,7 +7611,7 @@ int SLAPI PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl
 	if(!r) {
 		if(CcFlags & CCFLG_DEBUG) {
 			PPGetMessage(mfError, PPErrCode, 0, 1, temp_buf);
-			PPFormatT(PPTXT_LOG_LOADACCTURNFAULT, &msg_buf, id, (const char *)temp_buf);
+			PPFormatT(PPTXT_LOG_LOADACCTURNFAULT, &msg_buf, id, temp_buf.cptr());
 			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 		}
 		else

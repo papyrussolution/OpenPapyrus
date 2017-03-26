@@ -1119,7 +1119,7 @@ int SLAPI PPViewTSession::ExportUhtt()
 				if(item.PrcID && TSesObj.GetPrc(item.PrcID, &prc_rec, 0, 0) > 0) {
 					UhttProcessorPacket uhtt_prc_pack;
 					if(prc_rec.Code[0] == 0) {
-						logger.Log(PPFormatT(PPTXT_UHTTEXPTSES_NOPRCCODE, &msg_buf, (const char *)tsess_text));
+						logger.Log(PPFormatT(PPTXT_UHTTEXPTSES_NOPRCCODE, &msg_buf, tsess_text.cptr()));
 					}
 					else if(uhtt_cli.GetProcessorByCode(prc_rec.Code, uhtt_prc_pack) > 0) {
 						const long uhtt_prc_id = uhtt_prc_pack.ID;
@@ -1229,22 +1229,22 @@ int SLAPI PPViewTSession::ExportUhtt()
 								}
 							}
 							if(uhtt_cli.CreateTSession(&uhtt_tses_id, uhtt_pack) > 0) {
-								logger.Log(PPFormatT(PPTXT_UHTTEXPTSES_EXPORTED, &msg_buf, (const char *)tsess_text));
+								logger.Log(PPFormatT(PPTXT_UHTTEXPTSES_EXPORTED, &msg_buf, tsess_text.cptr()));
 								if(uhtt_tses_id && pack.Rec.Flags & TSESF_HASIMAGES) {
 									lf.Load(pack.Rec.ID, 0L);
 									lf.At(0, img_path = 0);
 									if(img_path.NotEmptyS()) {
 										if(uhtt_cli.SetObjImage("TSESSION", uhtt_tses_id, img_path)) {
-											logger.Log(PPFormatT(PPTXT_LOG_UHTT_TSESSSETIMG, &msg_buf, (const char *)tsess_text));
+											logger.Log(PPFormatT(PPTXT_LOG_UHTT_TSESSSETIMG, &msg_buf, tsess_text.cptr()));
 										}
 										else {
-											logger.Log(PPFormatT(PPTXT_LOG_UHTT_TSESSSETIMGFAULT, &msg_buf, (const char *)tsess_text, (const char *)uhtt_cli.GetLastMessage()));
+											logger.Log(PPFormatT(PPTXT_LOG_UHTT_TSESSSETIMGFAULT, &msg_buf, tsess_text.cptr(), uhtt_cli.GetLastMessage().cptr()));
 										}
 									}
 								}
 							}
 							else {
-								logger.Log(PPFormatT(PPTXT_UHTTEXPTSES_EEXPORT, &msg_buf, (const char *)tsess_text, (const char *)uhtt_cli.GetLastMessage()));
+								logger.Log(PPFormatT(PPTXT_UHTTEXPTSES_EEXPORT, &msg_buf, tsess_text.cptr(), uhtt_cli.GetLastMessage().cptr()));
 							}
 						}
 					}

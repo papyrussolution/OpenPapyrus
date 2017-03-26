@@ -134,22 +134,9 @@ extern int32 BZ2_rNums[512];
 
 extern uint32 BZ2_crc32Table[256];
 
-#define BZ_INITIALISE_CRC(crcVar)	       \
-	{					       \
-		crcVar = 0xffffffffL;			    \
-	}
-
-#define BZ_FINALISE_CRC(crcVar)		       \
-	{					       \
-		crcVar = ~(crcVar);			    \
-	}
-
-#define BZ_UPDATE_CRC(crcVar, cha)		\
-	{					       \
-		crcVar = (crcVar << 8) ^		    \
-		    BZ2_crc32Table[(crcVar >> 24) ^    \
-		    ((uchar)cha)];	\
-	}
+#define BZ_INITIALISE_CRC(crcVar) { crcVar = 0xffffffffL; }
+#define BZ_FINALISE_CRC(crcVar) { crcVar = ~(crcVar); }
+#define BZ_UPDATE_CRC(crcVar, cha) { crcVar = (crcVar << 8) ^ BZ2_crc32Table[(crcVar >> 24) ^ ((uchar)cha)]; }
 
 /*-- States and modes for compression. --*/
 
@@ -388,9 +375,7 @@ typedef struct {
 	int32*   save_gLimit;
 	int32*   save_gBase;
 	int32*   save_gPerm;
-}
-
-DState;
+} DState;
 
 /*-- Macros for decompression. --*/
 
@@ -414,33 +399,26 @@ DState;
 		  s->ll4[(i) >> 1] = (s->ll4[(i) >> 1] & 0x0f) | ((n) << 4);  \
 	}
 
-#define GET_LL4(i)			       \
-	((((uint32)(s->ll4[(i) >> 1])) >> (((i) << 2) & 0x4)) & 0xF)
+#define GET_LL4(i) ((((uint32)(s->ll4[(i) >> 1])) >> (((i) << 2) & 0x4)) & 0xF)
 
 #define SET_LL(i, n)			      \
 	{ s->ll16[i] = (uint16)(n & 0x0000ffff);  \
 	  SET_LL4(i, n >> 16);			  \
 	}
 
-#define GET_LL(i) \
-	(((uint32)s->ll16[i]) | (GET_LL4(i) << 16))
+#define GET_LL(i) (((uint32)s->ll16[i]) | (GET_LL4(i) << 16))
 
 #define BZ_GET_SMALL(cccc)			      \
-        /* c_tPos is unsigned, hence test < 0 is pointless. */ \
+        /* c_tPos is unsigned, hence test < 0 is pointless */ \
 	if(s->tPos >= (uint32)100000 * (uint32)s->blockSize100k) return true; \
 	cccc = BZ2_indexIntoF(s->tPos, s->cftab);    \
 	s->tPos = GET_LL(s->tPos);
 
 /*-- externs for decompression. --*/
 
-extern int32
-BZ2_indexIntoF(int32, int32*);
-
+extern int32 BZ2_indexIntoF(int32, int32*);
 extern int32 BZ2_decompress(DState*);
-
-extern void
-BZ2_hbCreateDecodeTables(int32*, int32*, int32*, uchar*,
-    int32,  int32, int32);
+extern void BZ2_hbCreateDecodeTables(int32*, int32*, int32*, uchar*, int32,  int32, int32);
 
 #endif
 

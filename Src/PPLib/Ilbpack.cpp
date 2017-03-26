@@ -1769,7 +1769,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 				warn = 2;
 		}
 		if(Rec.Flags & BILLF_RMVEXCISE) {
-			long   sav_cconf_flags = DS.SetLCfgFlags(CConfig.Flags | CCFLG_TGGLEXCSNPRICE);
+			const long sav_cconf_flags = DS.SetLCfgFlags(CConfig.Flags | CCFLG_TGGLEXCSNPRICE);
 			rPack.Rec.Flags |= (BILLF_TGGLEXCSNPRICE | BILLF_TOTALDISCOUNT);
 			rPack.SetTotalDiscount(0.0, 0, 1);
 			DS.SetLCfgFlags(sav_cconf_flags);

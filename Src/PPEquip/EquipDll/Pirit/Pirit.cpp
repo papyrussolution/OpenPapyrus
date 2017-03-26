@@ -1263,11 +1263,37 @@ int PiritEquip::ReturnCheckParam(SString & rInput, char * pOutput, size_t size)
 			}
 			{
 				StringSet dataset(FS, out_data);
-				uint k = 0;
-				for(uint count = 0; dataset.get(&k, str) > 0 && count < 3;){ // Еще номер запроса, беру номер /*документа*/ чека
-					count++;
+				uint   k = 0;
+				// Возвращаемые значения (в порядке следования в буфере ответа) {
+				int    cc_type = 0; // Тип чека
+				char   current_op_counter[64]; // Текущий операционный счетчик
+				int    cc_number = 0; // Номер чека
+				int    doc_number = 0; // Номер документа
+				double cc_amount = 0.0; // Сумма чека
+				double cc_discount = 0.0; // Сумма скидки по чеку
+				double cc_markup = 0.0; // Сумма неценки по чеку
+				char   _kpk[64]; // Строка КПК (?)
+				// }
+				for(uint count = 0; dataset.get(&k, str)/* && count < 3*/; count++) { // Еще номер запроса, беру номер /*документа*/ чека
+					//count++;
+					if(count == 0)
+						cc_type = str.ToLong();
+					else if(count == 1)
+						STRNSCPY(current_op_counter, str);
+					else if(count == 2)
+						cc_number = str.ToLong();
+					else if(count == 3)
+						doc_number = str.ToLong();
+					else if(count == 4)
+						cc_amount = str.ToReal();
+					else if(count == 5)
+						cc_discount = str.ToReal();
+					else if(count == 6)
+						cc_markup = str.ToReal();
+					else if(count == 7)
+						STRNSCPY(_kpk, str);
 				}
-				s_output.Cat("CHECKNUM").CatChar('=').Cat(str).Semicol();
+				s_output.Cat("CHECKNUM").CatChar('=').Cat(/*str*/cc_number).Semicol();
 			}
 		}
 		else if(buf.CmpNC("CASHAMOUNT") == 0) {

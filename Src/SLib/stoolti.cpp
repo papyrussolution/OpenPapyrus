@@ -183,19 +183,20 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 	ImgPath = pImgPath;
 	Cmd     = cmd;
 	Extra   = extra;
-	SMessageWindow::DestroyByParent(hwnd_parent); // @v6.6.2
-	// @v6.6.2 EnumWindows(CloseTooltipWnd, (LPARAM)APPL->H_MainWnd);
+	SMessageWindow::DestroyByParent(hwnd_parent);
 	HWnd = APPL->CreateDlg(1013/*DLG_TOOLTIP*/, hwnd_parent, (DLGPROC)SMessageWindow::Proc, (LPARAM)this);
-	GetCursorPos(&PrevMouseCoord);
+	::GetCursorPos(&PrevMouseCoord);
 	if(HWnd) {
 		HWND   h_ctl = GetDlgItem(HWnd, 1201/*CTL_TOOLTIP_TEXT*/);
 		HWND   h_img = GetDlgItem(HWnd, 1202/*CTL_TOOLTIP_IMAGE*/);
+		double img_height = 0.0;
+		double img_width = 0.0;
 		if(Text.Len() == 0) {
-			DestroyWindow(h_ctl);
+			::DestroyWindow(h_ctl);
 			h_ctl = 0;
 		}
 		if(ImgPath.Len() == 0) {
-			DestroyWindow(h_img);
+			::DestroyWindow(h_img);
 			h_img = 0;
 		}
 		else {
@@ -203,55 +204,70 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 			P_Image = p_img;
 			p_img->Init();
 			p_img->LoadImage(ImgPath);
+			img_height = p_img->GetHeight(); // @v9.5.10 
+			img_width = p_img->GetWidth(); // @v9.5.10
 			p_img->SetClearColor(Color);
 			// @v9.1.11 SetWindowLong(h_img, GWL_USERDATA, (long)this);
 			TView::SetWindowProp(h_img, GWL_USERDATA, this); // @v9.1.11
 			// @v9.1.11 PrevImgProc = (WNDPROC)SetWindowLong(h_img, GWL_WNDPROC, (long)ImgProc);
 			PrevImgProc = (WNDPROC)TView::SetWindowProp(h_img, GWL_WNDPROC, ImgProc);
+			// @v9.5.10 @construction {
+			if(flags & SMessageWindow::fMaxImgSize && img_height > 0.0 && img_width > 0.0) {
+				const double rel = img_width / img_height;
+				RECT   _pr;
+				::GetWindowRect(hwnd_parent, &_pr);
+				if(rel > 1.0) {
+				}
+				else {
+				}
+			}
+			// } @v9.5.10 @construction 
 		}
 		if(h_ctl) {
 			if(Flags & SMessageWindow::fTextAlignLeft) {
-				RECT ctl_rect, parent_rect, img_rect;
-				long style = TView::GetWindowStyle(h_ctl);
-				GetWindowRect(h_ctl, &ctl_rect);
+				RECT   ctl_rect;
+				RECT   img_rect;
+				RECT   parent_rect;
+				long   style = TView::GetWindowStyle(h_ctl);
+				::GetWindowRect(h_ctl, &ctl_rect);
 				if(h_img)
-					GetWindowRect(h_img, &img_rect);
+					::GetWindowRect(h_img, &img_rect);
 				else
 					MEMSZERO(img_rect);
-				GetWindowRect(HWnd, &parent_rect);
+				::GetWindowRect(HWnd, &parent_rect);
 				ctl_rect.bottom -= ctl_rect.top;
 				ctl_rect.right  -= ctl_rect.left;
 				ctl_rect.left   -= parent_rect.left;
 				ctl_rect.top    -= (parent_rect.top + img_rect.top);
 				DestroyWindow(h_ctl);
 				style &= ~SS_CENTER;
-				h_ctl = CreateWindow(_T("STATIC"), "", style|SS_LEFT, ctl_rect.left, ctl_rect.top, ctl_rect.right, ctl_rect.bottom, HWnd, 0, TProgram::GetInst(), 0);
+				h_ctl = ::CreateWindow(_T("STATIC"), _T(""), style|SS_LEFT, ctl_rect.left, ctl_rect.top, ctl_rect.right, ctl_rect.bottom, HWnd, 0, TProgram::GetInst(), 0);
 				if(h_ctl) {
 					SetFont(h_ctl);
-					SetWindowLong(h_ctl, GWL_ID, 1201/*CTL_TOOLTIP_TEXT*/);
+					::SetWindowLong(h_ctl, GWL_ID, 1201/*CTL_TOOLTIP_TEXT*/);
 					font_init = 1;
 				}
 			}
 		}
 		if(!font_init)
 			SetFont(h_ctl);
-		Color = (Color) ? Color : RGB(0xFF, 0xF7, 0x94);
+		SETIFZ(Color, RGB(0xFF, 0xF7, 0x94));
 		if(!(Flags & SMessageWindow::fOpaque))
 			SetWindowTransparent(HWnd, 75);
 		if(Flags & SMessageWindow::fChildWindow) {
 			long   win_flags = TView::GetWindowStyle(HWnd);
 			win_flags &= ~WS_POPUP;
 			win_flags |= WS_CHILD;
-			SetWindowLong(HWnd, GWL_STYLE, win_flags);
-			SetWindowLong(HWnd, GWL_EXSTYLE, (LONG)0);
-			SetParent(HWnd, hwnd_parent);
+			::SetWindowLong(HWnd, GWL_STYLE, win_flags);
+			::SetWindowLong(HWnd, GWL_EXSTYLE, (LONG)0);
+			::SetParent(HWnd, hwnd_parent);
 		}
-		Brush = CreateSolidBrush(Color);
+		Brush = ::CreateSolidBrush(Color);
 		Text.ReplaceChar('\003', ' ').Strip().Transf(CTRANSF_INNER_TO_OUTER);
 		Move();
-		ShowWindow(HWnd, SW_SHOWNORMAL);
-		UpdateWindow(HWnd);
-		SetTimer(HWnd, MSGWND_CLOSETIMER,  ((timer > 0) ? timer : 60000), (TIMERPROC) NULL);
+		::ShowWindow(HWnd, SW_SHOWNORMAL);
+		::UpdateWindow(HWnd);
+		::SetTimer(HWnd, MSGWND_CLOSETIMER,  ((timer > 0) ? timer : 60000), (TIMERPROC) NULL);
 		// SetCapture(HWnd);
 		ok = 1;
 	}
@@ -287,11 +303,11 @@ int SMessageWindow::Move()
 		HWND   h_ctl = GetDlgItem(HWnd, 1201/*CTL_TOOLTIP_TEXT*/);
 		HWND   h_img = GetDlgItem(HWnd, 1202/*CTL_TOOLTIP_IMAGE*/);
 
-		GetWindowRect(HWnd, &toolt_rect);
-		GetWindowRect(GetParent(HWnd), &parent_rect);
-		GetWindowRect(h_img, &img_rect);
+		::GetWindowRect(HWnd, &toolt_rect);
+		::GetWindowRect(GetParent(HWnd), &parent_rect);
+		::GetWindowRect(h_img, &img_rect);
 
-		int top_delta = (h_img) ? img_rect.bottom - img_rect.top : 0;
+		int top_delta = h_img ? (img_rect.bottom - img_rect.top) : 0;
 
 		toolt_h = toolt_rect.bottom - toolt_rect.top;
 		toolt_w = toolt_rect.right  - toolt_rect.left;
@@ -299,7 +315,9 @@ int SMessageWindow::Move()
 			toolt_h = 100;
 			toolt_w = 100;
 			if(Flags & SMessageWindow::fSizeByText) {
-				int    w = 0, h = 0, max_w = (parent_rect.right - parent_rect.left) / 5;
+				int    w = 0;
+				int    h = 0;
+				int    max_w = (parent_rect.right - parent_rect.left) / 5;
 				HDC    hdc = GetDC(h_ctl);
 				RECT   ctl_rect;
 				SString buf, buf2;
@@ -337,8 +355,8 @@ int SMessageWindow::Move()
 				ctl_rect.top  = 5 + top_delta;
 				ctl_rect.right  = toolt_w - 10;
 				ctl_rect.bottom = toolt_h - 10;
-				MoveWindow(h_ctl, ctl_rect.left, ctl_rect.top, ctl_rect.right, ctl_rect.bottom, FALSE);
-				ReleaseDC(h_ctl, hdc);
+				::MoveWindow(h_ctl, ctl_rect.left, ctl_rect.top, ctl_rect.right, ctl_rect.bottom, FALSE);
+				::ReleaseDC(h_ctl, hdc);
 			}
 			else {
 				RECT ctl_rect;
@@ -348,7 +366,7 @@ int SMessageWindow::Move()
 				ctl_rect.left   = 5;
 				ctl_rect.bottom = toolt_h - 10;
 				ctl_rect.right  = toolt_w - 10;
-				MoveWindow(h_ctl, ctl_rect.left, ctl_rect.top, ctl_rect.right, ctl_rect.bottom, FALSE);
+				::MoveWindow(h_ctl, ctl_rect.left, ctl_rect.top, ctl_rect.right, ctl_rect.bottom, FALSE);
 			}
 		}
 		else if(h_ctl == 0)
@@ -368,8 +386,8 @@ int SMessageWindow::Move()
 			toolt_rect.top  = (toolt_rect.top + toolt_h  > parent_rect.bottom) ? (parent_rect.bottom - toolt_h - 1) : toolt_rect.top;
 			toolt_rect.left = (toolt_rect.left + toolt_w > parent_rect.right)  ? (parent_rect.right - toolt_w + 2) : toolt_rect.left;
 
-			toolt_rect.top += 5;   // @v7.0.6
-			toolt_rect.left -= 5;  // @v7.0.6
+			toolt_rect.top  += 5;
+			toolt_rect.left -= 5;
 		}
 		else {
 			toolt_rect.top  = parent_rect.bottom - toolt_h - 5;

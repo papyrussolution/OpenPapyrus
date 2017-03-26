@@ -3437,7 +3437,7 @@ int SLAPI PPViewGoods::ExportUhtt()
 									long   new_goods_id = 0;
 									if(uc.CreateGoods(&new_goods_id, new_pack) > 0) {
 										// PPTXT_LOG_UHTT_GOODSCR "Товар '@goods' со штрихкодом @zstr создан"
-										logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSCR, &msg_buf, goods_id, (const char *)barcode));
+										logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSCR, &msg_buf, goods_id, barcode.cptr()));
 										uc.GetGoodsByCode(bc_list.at(m).Code, uhtt_goods_list);
 										if(uhtt_goods_list.getCount() == 1) {
 											uhtt_goods_id = uhtt_goods_list.at(0)->ID;
@@ -3448,7 +3448,7 @@ int SLAPI PPViewGoods::ExportUhtt()
 									}
 									else {
 										// PPTXT_LOG_UHTT_GOODSCRFAULT "Ошибка создания товара '@goods' со штрихкодом @zstr: @zstr"
-										logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSCRFAULT, &msg_buf, goods_id, (const char *)barcode, (const char *)uc.GetLastMessage()));
+										logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSCRFAULT, &msg_buf, goods_id, barcode.cptr(), uc.GetLastMessage().cptr()));
 									}
 									if(one_iter)
 										break;
@@ -3466,7 +3466,7 @@ int SLAPI PPViewGoods::ExportUhtt()
 									}
 									else {
 										// PPTXT_LOG_UHTT_GOODSSETIMGFAULT "Ошибка экспорта изображения для товара @goods: @zstr"
-										logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSSETIMGFAULT, &msg_buf, goods_id, (const char *)uc.GetLastMessage()));
+										logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSSETIMGFAULT, &msg_buf, goods_id, uc.GetLastMessage().cptr()));
 									}
 								}
 							}

@@ -2194,12 +2194,12 @@ int SLAPI PPViewProcessor::ExportUhtt()
 						}
 						else {
 							(temp_buf = uhtt_cli.GetLastMessage()).ToOem();
-							logger.Log(PPFormatT(PPTXT_UHTTEXPPRC_EEXPORT, &msg_buf, (const char *)pack.Rec.Name, (const char *)temp_buf));
+							logger.Log(PPFormatT(PPTXT_UHTTEXPPRC_EEXPORT, &msg_buf, (const char *)pack.Rec.Name, temp_buf.cptr()));
 						}
 					}
 				}
 				else {
-					logger.Log(PPFormatT(PPTXT_UHTTEXPPRC_NOSYMB, &msg_buf, (const char *)pack.Rec.Name, (const char *)temp_buf));
+					logger.Log(PPFormatT(PPTXT_UHTTEXPPRC_NOSYMB, &msg_buf, (const char *)pack.Rec.Name, temp_buf.cptr()));
 				}
 			}
 		}

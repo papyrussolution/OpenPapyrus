@@ -924,7 +924,6 @@ public:
 		int    ok = 1;
 		SString temp_buf;
 		Data = *pData;
-		// @v7.8.10 {
 		{
 			PersonCtrlGroup::Rec rec;
 			rec.PersonID = Data.GetPerson();
@@ -933,8 +932,6 @@ public:
 			SETFLAG(rec.Flags, rec.fAnonym, Data.IsAnonym());
 			setGroupData(GRP_CHKINP_PERSON, &rec);
 		}
-		// } @v7.8.10
-		// @v7.8.10 SetupPPObjCombo(this, CTLSEL_CHKINP_PERSON, PPOBJ_PERSON, Data.PersonID, OLW_CANINSERT|OLW_LOADDEFONOPEN, Cfg.PersonKindID);
 		SetupPerson();
 		long   status = Data.GetStatus();
 		AddClusterAssoc(CTL_CHKINP_STATUS, 0, PPCheckInPersonItem::statusRegistered);
@@ -967,14 +964,13 @@ public:
 				CCheckCore::MakeCodeString(&cc_rec, temp_buf);
 		}
 		setStaticText(CTL_CHKINP_ST_CCINFO, temp_buf);
-		setCtrlString(CTL_CHKINP_MEMO, R_MemoBuf); // @v7.8.10
+		setCtrlString(CTL_CHKINP_MEMO, R_MemoBuf);
 		return ok;
 	}
 	int    getDTS(PPCheckInPersonItem * pData)
 	{
 		int    ok = 1;
 		long   status = 1;
-		// @v7.8.10 {
 		{
 			PersonCtrlGroup::Rec rec;
 			getGroupData(GRP_CHKINP_PERSON, &rec);
@@ -984,8 +980,6 @@ public:
 				Data.SetPerson(rec.PersonID);
 			Data.SCardID = rec.SCardID;
 		}
-		// } @v7.8.10
-		// @v7.8.10 getCtrlData(CTLSEL_CHKINP_PERSON, &Data.PersonID);
 		GetClusterData(CTL_CHKINP_STATUS, &status);
 		Data.SetStatus(status);
 		getCtrlData(CTL_CHKINP_PLACE, Data.PlaceCode); // @v8.7.0
@@ -995,7 +989,7 @@ public:
 		getCtrlData(CTL_CHKINP_CITM,  &Data.CiDtm.t);
 		getCtrlData(CTL_CHKINP_REGCOUNT, &Data.RegCount);
 		getCtrlData(CTL_CHKINP_CICOUNT,  &Data.CiCount);
-		getCtrlString(CTL_CHKINP_MEMO, R_MemoBuf); // @v7.8.10
+		getCtrlString(CTL_CHKINP_MEMO, R_MemoBuf);
 		ASSIGN_PTR(pData, Data);
 		return ok;
 	}

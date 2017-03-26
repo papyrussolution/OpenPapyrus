@@ -1,6 +1,6 @@
 // TDIALOG.CPP  TurboVision 1.0
 // Copyright (c) 1991 by Borland International
-// Modified by A.Sobolev 1994, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016
+// Modified by A.Sobolev 1994, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017
 // Release for WIN32
 //
 #include <slib.h>
@@ -98,17 +98,11 @@ SString & TProgram::MakeModalStackDebugText(SString & rBuf) const
 		HWND _hs = *(HWND *)ModalStack.at(i);
 		if(i)
 			rBuf.Cat(" >> ");
-		rBuf.CatHex((long)_hs).Space().CatChar('[');
-		if(::IsWindow(_hs)) {
-			//char   text_buf[256];
-			//::GetWindowText(_hs, text_buf, sizeof(text_buf));
-			TView::SGetWindowText(_hs, temp_buf); // @v9.1.5
-			rBuf.Cat(temp_buf);
-		}
-		else {
-			rBuf.Cat("non window");
-		}
-		rBuf.CatChar(']');
+		if(::IsWindow(_hs))
+			TView::SGetWindowText(_hs, temp_buf);
+		else
+			temp_buf = "non window";
+		rBuf.CatHex((long)_hs).Space().CatBrackStr(temp_buf);
 	}
 	return rBuf;
 }

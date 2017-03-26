@@ -351,7 +351,7 @@ int SLAPI DbSession::InitThread()
 	return 1;
 }
 
-int SLAPI DbSession::ReleaseThread()
+void SLAPI DbSession::ReleaseThread()
 {
 #ifdef _MT
 	DbThreadLocalArea * p_tla = (DbThreadLocalArea *)TlsGetValue(TlsIdx);
@@ -362,7 +362,6 @@ int SLAPI DbSession::ReleaseThread()
 #else
 	Tla.Init();
 #endif
-	return 1;
 }
 //
 // См. примечание к определению функций DB.H

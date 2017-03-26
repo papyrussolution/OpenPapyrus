@@ -3285,6 +3285,7 @@ public:
 	//
 	SString & FASTCALL CatParStr(const char * pStr);
 	SString & FASTCALL CatParStr(long val);
+	SString & FASTCALL CatBrackStr(const char * pStr);
 	SString & FASTCALL CatChar(int chr);
 	SString & SLAPI    Space();   // @>>CatChar(' ')
 	SString & FASTCALL Tab(uint c = 1); // @>>CatChar('\t')
@@ -3414,6 +3415,7 @@ public:
 	SStringU & FASTCALL operator = (const wchar_t *);
 	int    FASTCALL IsEqual(const SStringU & rS) const;
 	int    FASTCALL IsEqual(const wchar_t * pS) const;
+	int    FASTCALL Cmp(const SStringU & rS) const;
 	//
 	// Descr: Возвращает символ, находящийся в позиции n (n = 0..)
 	//   Если n больше длины строки, то возвращает 0.
@@ -3695,6 +3697,15 @@ int    FASTCALL sstreq(const char * pS1, const char * pS2);
 //   0  - строки не эквивалентны
 //
 int    FASTCALL sstreqi_ascii(const char * pS1, const char * pS2);
+//
+// Descr: Определяет все ли len символов строки pS находятся в диапазоне [0..0x7f].
+// Note: Функция может быть использована для быстрой идентификации необходимости 
+//   трансляции строки в UNICODE или для иных специализированных задач.
+// Returns:
+//   !0  - все len символов в pS находятся в диапазоне [0..0x7f]
+//    0  - как минимум один символ в pS - не ascii (вне диапазона [0..0x7f])
+//
+size_t FASTCALL sisascii(const char * pS, size_t len);
 char * FASTCALL strip(char * pStr);
 char * SLAPI chomp(char * pStr);
 const  char * SLAPI skipws(const char * pStr, size_t * pPos);
@@ -7068,6 +7079,23 @@ public:
 //
 //
 //
+struct SFileSortProgressData {
+	SFileSortProgressData()
+	{
+		THISZERO();
+	}
+	const  char * P_SrcFileName;
+	int64  TotalFileSize;
+	int    Phase; // 1 - splitting, 2 - merging
+	int64  SplitBytesRead; // Количество байт считанных на фазе сплиттинга
+	int    SplitThreadCount; // Количество потоков, осуществляющих сплиттинг
+	uint   MergeChunkCount; // Начальное количество блоков для слияния
+	uint   MergeChunkLeft;  // Оставшее число не слитых блоков
+	const void * ExtraPtr;
+};
+
+typedef int (*SFileSortProgressCbProc)(const SFileSortProgressData *);
+
 class SFile {
 public:
 	DECL_INVARIANT_C();
@@ -7075,7 +7103,26 @@ public:
 	static int SLAPI Remove(const char * pFileName);
 	static int SLAPI Rename(const char * pFileName, const char * pNewFileName);
 	static int SLAPI Compare(const char * pFileName1, const char * pFileName2, long flags);
-	static int SLAPI Sort(const char * pSrcFileName, const char * pOutFileName, CompFunc fcmp, size_t maxChunkSize, uint maxChunkCount);
+	//
+	// Descr: Структура дополнительных параметров сортировки файла
+	//
+	struct SortParam {
+		SortParam()
+		{
+			MaxChunkSize =(8*1024*1024);
+			MaxChunkCount = 8;
+			MaxThread = 0;
+			ProgressCbProc = 0;
+			ProgressCbExtraPtr = 0;
+		}
+        size_t MaxChunkSize;
+        uint   MaxChunkCount;
+		uint   MaxThread;
+        SFileSortProgressCbProc ProgressCbProc;
+		const void * ProgressCbExtraPtr;
+	};
+
+	static int SLAPI Sort(const char * pSrcFileName, const char * pOutFileName, CompFunc fcmp, SortParam * pExtraParam);
 	//
 	// Descr: возвращает меточные даты файла с именем pFileName
 	// ARG(pFileName    IN): полное имя файла
@@ -10427,7 +10474,7 @@ public:
 	int    SLAPI InitWSA(); // @>>::WSAStartup
 	int    SLAPI InitSSL();
 	int    SLAPI InitThread();
-	int    SLAPI ReleaseThread();
+	void   SLAPI ReleaseThread();
 	SlThreadLocalArea & SLAPI GetTLA();
 	const  SlThreadLocalArea & SLAPI GetConstTLA() const;
 	const SString & SLAPI GetExePath() const;

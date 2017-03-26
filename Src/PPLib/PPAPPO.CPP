@@ -787,8 +787,8 @@ int PPApp::processCommand(uint cmd)
 		case cmRegisterComServer:     RegisterComServer();             break;
 		case cmCreateGlobalUserAcc:   CreateBizScGlblUserAcct();       break;
 		case cmKeyboardWKeyCfg:       EditDueToKeyboardRights();       break;
-		case cmGenerateGoodsBills:    GenerateGoodsBills();            break; // @v5.3.1 turistti
-		case cmGenerateCliBnkImport:  GenerateCliBnkImpData();         break; // @v6.0.9
+		case cmGenerateGoodsBills:    GenerateGoodsBills();            break;
+		case cmGenerateCliBnkImport:  GenerateCliBnkImpData();         break;
 		case cmCorrectTransfer:       RecoverTransfer();               break;
 		case cmDebtRate:              DoDebtRate();                    break;
 		case cmUpdatePpIni:
@@ -799,10 +799,10 @@ int PPApp::processCommand(uint cmd)
 				int    r = ini_file.UpdateFromFile(src_file_name);
 				if(r > 0) {
 					ini_file.FlashIniBuf();
-					PPMessage(mfInfo | mfOK, PPINF_PPINIUPDATED, 0);
+					PPMessage(mfInfo|mfOK, PPINF_PPINIUPDATED, 0);
 				}
 				else if(r < 0)
-					PPMessage(mfInfo | mfOK, PPINF_PPININOTUPDATED, src_file_name);
+					PPMessage(mfInfo|mfOK, PPINF_PPININOTUPDATED, src_file_name);
 				else
 					PPError();
 			}
@@ -1394,7 +1394,7 @@ int PPApp::SetDatetimeByServer(PPIniFile * pIniFile, int force)
 				int r = SGetTimeFromRemoteServer(server_name, &dtm);
 				if(r == 0) {
 					PPSetErrorSLib();
-					PPFormatT(PPTXT_LOG_TIMESERVERERR, &msg_buf, (const char *)server_name, PPErrCode);
+					PPFormatT(PPTXT_LOG_TIMESERVERERR, &msg_buf, server_name.cptr(), PPErrCode);
 					PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_COMP);
 					ok = 0;
 				}
@@ -1404,13 +1404,13 @@ int PPApp::SetDatetimeByServer(PPIniFile * pIniFile, int force)
 					if(labs(diff) >= 2) {
 						LocalState |= lsLockSettingTimeByServer;
 						if(setcurdatetime(dtm)) {
-							PPFormatT(PPTXT_LOG_TIMESERVERSET, &msg_buf, (const char *)server_name, diff);
+							PPFormatT(PPTXT_LOG_TIMESERVERSET, &msg_buf, server_name.cptr(), diff);
 							PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_COMP);
 							ok = 1;
 						}
 						else {
 							PPSetErrorSLib();
-							PPFormatT(PPTXT_LOG_TIMESERVERSETERR, &msg_buf, (const char *)server_name, PPErrCode);
+							PPFormatT(PPTXT_LOG_TIMESERVERSETERR, &msg_buf, server_name.cptr(), PPErrCode);
 							PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_COMP);
 							ok = 0;
 						}

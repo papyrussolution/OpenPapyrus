@@ -6525,7 +6525,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 										_RectToLine(wi.rcWindow, line_buf.Space());
 										GetBinaryTypeString(p_il->getType(), 1, temp_buf, "", 0);
 										if(temp_buf.Cmp("unknown", 0) == 0) {
-											(temp_buf = "string").CatChar('[').Cat(48).CatChar(']');
+											(temp_buf = "string").CatBrackStr("48");
 										}
 										line_buf.Space().Cat(temp_buf);
 										if(p_label) {
@@ -6536,7 +6536,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 										f_out.WriteLine(line_buf);
 										{
 											// \item[Наименование]
-											(line_buf = 0).Tab().CatChar('\\').Cat("item").CatChar('[').Cat(ctl_text).CatChar(']').CR().CR();
+											(line_buf = 0).Tab().CatChar('\\').Cat("item").CatBrackStr(ctl_text).CR().CR();
 											f_out_manual.WriteLine(line_buf);
 										}
 									}

@@ -1982,47 +1982,47 @@ browser SELECTLOT north(43), 1, 0, "Приходы товара {%s}", OWNER|GRID, 0
 	"@serial",          5, zstring(32), 0, 20, BCO_USERPROC
 	"@termcost",        6, double, NMBF_NOZERO, 8.2, BCO_USERPROC
 	"@termprice",       7, double, NMBF_NOZERO, 8.2, BCO_USERPROC
-	"Срок годности",    8, date, DATF_DMY, 8, BCO_USERPROC
+	"@expirationdate",  8, date, DATF_DMY, 8, BCO_USERPROC
 	toolbar LOTS
 }
 
 browser GOODSLOT north(43), 1, 0, "Приходы товара {%s}", OWNER|GRID, 0
 {
-	"@date",            0, date, DATF_DMY, 8
-	"@supplier",        4, zstring(128), 0, 20
-	"@rest",          132, double, NMBF_NOTRAILZ, 7.3
-	"Ед изм",         140, zstring(48), 0, 6
-	"@serial",        188, zstring(32), 0, 20
-	"@termcost",      220, double, NMBF_NOZERO, 8.2
-	"@termprice",     228, double, NMBF_NOZERO, 8.2
-	"Срок годности",  376, date, DATF_DMY, 8
+	"@date",             0, date, DATF_DMY, 8
+	"@supplier",         4, zstring(128), 0, 20
+	"@rest",           132, double, NMBF_NOTRAILZ, 7.3
+	"Ед изм",          140, zstring(48), 0, 6
+	"@serial",         188, zstring(32), 0, 20
+	"@termcost",       220, double, NMBF_NOZERO, 8.2
+	"@termprice",      228, double, NMBF_NOZERO, 8.2
+	"@expirationdate", 376, date, DATF_DMY, 8
 	toolbar LOTS
 }
 
 browser GOODSLOT_SERIAL north(43), 1, 0, "Приходы товаров по серии '%s'", OWNER|GRID, 0
 {
-	"@date",            0, date, DATF_DMY, 8
-	"@supplier",        4, zstring(128), 0, 20
-	"@ware",          248, zstring(128), 0, 40
-	"@rest",          132, double, NMBF_NOTRAILZ, 7.3
-	"Ед изм",         140, zstring(48), 0, 6
-	"@serial",        188, zstring(32), 0, 20
-	"@termcost",      220, double, NMBF_NOZERO, 8.2
-	"@termprice",     228, double, NMBF_NOZERO, 8.2
-	"Срок годности",  376, date, DATF_DMY, 8
+	"@date",             0, date, DATF_DMY, 8
+	"@supplier",         4, zstring(128), 0, 20
+	"@ware",           248, zstring(128), 0, 40
+	"@rest",           132, double, NMBF_NOTRAILZ, 7.3
+	"Ед изм",          140, zstring(48), 0, 6
+	"@serial",         188, zstring(32), 0, 20
+	"@termcost",       220, double, NMBF_NOZERO, 8.2
+	"@termprice",      228, double, NMBF_NOZERO, 8.2
+	"@expirationdate", 376, date, DATF_DMY, 8
 	toolbar LOTS
 }
 
 browser PICKLOT north(43), 1, 0, "Приходы товаров {%s}", OWNER|GRID, 0
 {
-	"@barcode",       160, zstring(32), 0, 20
-	"@ware",           32, zstring(128), 0, 40
-	"@serial",        192, zstring(32), 0, 20
+	"@barcode",        160, zstring(32), 0, 20
+	"@ware",            32, zstring(128), 0, 40
+	"@serial",         192, zstring(32), 0, 20
 	//"@supplier",        4, zstring(128), 0, 20
-	"@rest",           12, double, NMBF_NOTRAILZ, 7.3
-	"@price",          20, double, NMBF_NOZERO, 8.2
-	"@date",            4, date, DATF_DMY, 8
-	//"Срок годности",  28, date, DATF_DMY, 8
+	"@rest",            12, double, NMBF_NOTRAILZ, 7.3
+	"@price",           20, double, NMBF_NOZERO, 8.2
+	"@date",             4, date, DATF_DMY, 8
+	//"@expirationdate",  28, date, DATF_DMY, 8
 	toolbar LOTS
 }
 
@@ -4935,15 +4935,15 @@ browser OPRKIND north(100), 1, 1, "Виды операций", OWNER|GRID, 0
 
 browser COMPLETE south(56), 1, 0, "Состав изделия {%s}", OWNER|GRID, 0
 {
-	"@date",           8, date, DATF_DMY, 8
-	"@component",     -1, zstring(128), 0, 48
-	"@serial",        -1, zstring(24), 0, 20
-	"@qtty",          -1, double, NMBF_NOTRAILZ, 10.6
-	"@termcost",      -1, double, 0, 10.2
-	"@termprice",     -1, double, 0, 10.2
-	"Срок годности",  -1, date, DATF_DMY, 8
-	"@contractor",    -1, zstring(48), 0, 20
-	"@memo",          -1, zstring(128), 0, 64
+	"@date",            8, date, DATF_DMY, 8
+	"@component",      -1, zstring(128), 0, 48
+	"@serial",         -1, zstring(24), 0, 20
+	"@qtty",           -1, double, NMBF_NOTRAILZ, 10.6
+	"@termcost",       -1, double, 0, 10.2
+	"@termprice",      -1, double, 0, 10.2
+	"@expirationdate", -1, date, DATF_DMY, 8
+	"@contractor",     -1, zstring(48), 0, 20
+	"@memo",           -1, zstring(128), 0, 64
 	toolbar TB_FIRST_TOOLBAR {
 		kbEnter, "Редактировать документ\tEnter", TBBM_EDIT
 		kbIns,   "Создать документ\tInsert",      TBBM_INSERT
@@ -5949,7 +5949,7 @@ browser STOCKOPT_ITEMS north(100), 2, 1, "Оптимизация товарных запасов", OWNER|G
 	"Среднедневные продажи", 4, double, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3, BCO_USERPROC
 	"@unitperpack",          5, double, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3, BCO_USERPROC
 	"Минимальный запас",     6, double, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3, BCO_USERPROC
-	"Срок годности",         7, long,   NMBF_NOZERO,     6, BCO_USERPROC
+	"@expirationdate",       7, long,   NMBF_NOZERO,     6, BCO_USERPROC
 	"@inrest",               8, double, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
 		ADDITEM     : kbIns,   TBBM_INSERT,  "@{add}\tInsert"
@@ -7213,7 +7213,7 @@ record PriceList {
 	MinShippmQtty double format(10.3) "Минимальное количество для отгрузки";
 	ShippmMult    double format(10.3) "Кратность отгружаемого количества";
 	Rest          double format(10.3) "@{rest}";
-	Expiry        date                "Срок годности";
+	Expiry        date                "@{expirationdate}";
 	VatRate       double format(6.1)  "@{vatrate}";
 	Barcode       zstring(32)         "@{barcode}";
 	GoodsName     zstring(128)        "@{goodsname}";
@@ -7305,7 +7305,7 @@ record SBIIBillRow {
 	StorageP long                  "@{storageplace}";
 	Number   long                  "Номер";
 	Serial   zstring(16)           "Серийный номер/штрихкод";
-	Expiry   date                  "Срок годности";
+	Expiry   date                  "@{expirationdate}";
 	Time     zstring(6)            "Время создания";
 	Qtty     double format(10.4)   "@{qtty}";
 	Cost     double format(10.2)   "@{price}";
@@ -7536,7 +7536,7 @@ record PalmGoods {
 	Price        double       format(13.2) "@{price}";
 	Rest         double       format(13.2) "@{rest}";
 	ParentID     long         format(10)   "Родительская группа";
-	Expiry       date         "Срок годности";
+	Expiry       date         "@{expirationdate}";
 	BrandID      long         format(10)   "@{brand}";
 	BrandOwnerID long         format(10)   "Владелец бренда";
 	MinOrd       double       format(13.2) "Минимальный заказ";
@@ -7721,7 +7721,7 @@ record BaltikaBillItemAttrs {
 	WareId            zstring(24)         "@{goodscode}";
 	PartNumber        zstring(64)         "Номер партии";
     ProductionDate    date                "Дата изготовления";
-    ExpirationDate    date                "Срок годности";
+    ExpirationDate    date                "@{expirationdate}";
 	Quantity          double format(10.2) "@{qtty}";
 }
 
@@ -7796,7 +7796,7 @@ record Baltika_RestPartLine {
 	DocumentDate    date                "@{date}";
 	PartNumber      zstring(64)         "@{series}";
     ProductionDate  date                "Дата изготовления";
-    ExpirationDate  date                "Срок годности";
+    ExpirationDate  date                "@{expirationdate}";
 	WareId          zstring(24)         "@{goodscode}";
 	UnitId          zstring(24)         "@{munit}";
 	Quantity        double format(10.2) "@{qtty}";

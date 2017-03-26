@@ -1,5 +1,5 @@
 // SARTR.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -3477,7 +3477,6 @@ int SrDatabase::WordInfoToStr(const SrWordInfo & rWi, SString & rBuf)
 	}
 	rBuf.CatChar('\'');
 	rBuf.Space();
-	rBuf.CatChar('[');
 	if(rWi.FormID || rWi.BaseFormID) {
 		SrWordForm base_wf, var_wf, wf;
 		if(rWi.BaseFormID)
@@ -3486,9 +3485,10 @@ int SrDatabase::WordInfoToStr(const SrWordInfo & rWi, SString & rBuf)
 			P_GrT->Search(rWi.FormID, &var_wf);
 		wf.Merge(base_wf, var_wf);
 		wf.ToStr(temp_buf);
-		rBuf.Cat(temp_buf);
 	}
-	rBuf.CatChar(']');
+	else
+		temp_buf = 0;
+	rBuf.CatBrackStr(temp_buf);
 	//
 	temp_buf = 0;
 	if(rWi.WaID) {
@@ -5377,7 +5377,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 					SFile inf(in_file_name, SFile::mRead);
 					THROW(inf.IsValid());
 
-					(out_buf = 0).CR().CatChar('[').Cat(temp_buf).CatChar(']').CatChar('{').CR();
+					(out_buf = 0).CR().CatBrackStr(temp_buf).CatChar('{').CR();
 					outf.WriteLine(out_buf);
 
 					while(inf.ReadLine(line_buf)) {
@@ -5584,7 +5584,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 									}
 									if(is_ascii) {
 										dest_ubuf.CopyToUtf8(temp_buf = 0, 1);
-										(out_buf = 0).CatChar('[').Cat("en").CatChar(']').Cat(temp_buf).Cat("=:").Cat("geoloc").CatChar('_').Cat(r_entry.ID).CR();
+										(out_buf = 0).CatBrackStr("en").Cat(temp_buf).Cat("=:").Cat("geoloc").CatChar('_').Cat(r_entry.ID).CR();
 										outf.WriteLine(out_buf);
 									}
 								}

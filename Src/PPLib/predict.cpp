@@ -1,5 +1,5 @@
 // PREDICT.CPP
-// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1756,27 +1756,26 @@ int SLAPI PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _Mass
 					msg = 0;
 					if(err_flags & errAbsence) {
 						PPLoadText(PPTXT_PSALESTESTMSG_ABSENCE, temp_buf);
-						PPFormat(msg_fmt, &msg, p_rec->GoodsID, loc_id, dt, (const char *)temp_buf);
+						PPFormat(msg_fmt, &msg, p_rec->GoodsID, loc_id, dt, temp_buf.cptr());
 					}
 					if(err_flags & errQtty) {
 						PPLoadText(PPTXT_PSALESTESTMSG_QTTY, temp_buf);
 						PPFormat(temp_buf, &added_msg_buf, p_rec->Quantity, T.data.Quantity);
-						PPFormat(msg_fmt, &msg, p_rec->GoodsID, loc_id, dt, (const char *)added_msg_buf);
+						PPFormat(msg_fmt, &msg, p_rec->GoodsID, loc_id, dt, added_msg_buf.cptr());
 					}
 					if(err_flags & errAmt) {
 						PPLoadText(PPTXT_PSALESTESTMSG_AMT, temp_buf);
 						PPFormat(temp_buf, &added_msg_buf, p_rec->Amount, T.data.Amount);
-						PPFormat(msg_fmt, &msg, p_rec->GoodsID, loc_id, dt, (const char *)added_msg_buf);
+						PPFormat(msg_fmt, &msg, p_rec->GoodsID, loc_id, dt, added_msg_buf.cptr());
 					}
 					if(err_flags & errFlags) {
 						PPLoadText(PPTXT_PSALESTESTMSG_FLAGS, temp_buf);
 						PPFormat(temp_buf, &added_msg_buf, (long)p_rec->Flags, (long)T.data.Flags);
-						PPFormat(msg_fmt, &msg, p_rec->GoodsID, loc_id, dt, (const char *)added_msg_buf);
+						PPFormat(msg_fmt, &msg, p_rec->GoodsID, loc_id, dt, added_msg_buf.cptr());
 					}
 					if(msg.NotEmpty()) {
 						SETIFZ(p_logger, new PPLogger);
-						if(p_logger)
-							p_logger->Log(msg);
+						CALLPTRMEMB(p_logger, Log(msg));
 					}
 				}
 			}

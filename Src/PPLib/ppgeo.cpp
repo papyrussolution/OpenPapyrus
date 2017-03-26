@@ -488,7 +488,7 @@ int SLAPI PPViewGeoTracking::Export()
 						{
 							GetObjectTitle(oid.Obj, out_buf = 0);
 							GetObjectName(oid.Obj, oid.Id, temp_buf);
-							out_buf.Space().CatChar('[').Cat(temp_buf).CatChar(']').Transf(CTRANSF_INNER_TO_UTF8);
+							out_buf.Space().CatBrackStr(temp_buf).Transf(CTRANSF_INNER_TO_UTF8);
 							p_n_trk->PutInner("name", out_buf);
 						}
 						ZDELETE(p_n_trkseg);

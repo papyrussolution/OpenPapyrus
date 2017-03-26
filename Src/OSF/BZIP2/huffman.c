@@ -25,14 +25,12 @@
 #define DEPTHOF(zz1)   ((zz1) & 0x000000ff)
 #define MYMAX(zz2, zz3) ((zz2) > (zz3) ? (zz2) : (zz3))
 
-#define ADDWEIGHTS(zw1, zw2)			       \
-	(WEIGHTOF(zw1)+WEIGHTOF(zw2)) |			   \
-	(1 + MYMAX(DEPTHOF(zw1), DEPTHOF(zw2)))
+#define ADDWEIGHTS(zw1, zw2) (WEIGHTOF(zw1)+WEIGHTOF(zw2)) | (1 + MYMAX(DEPTHOF(zw1), DEPTHOF(zw2)))
 
 #define UPHEAP(z)				      \
 	{						      \
-		int32 zz, tmp;					   \
-		zz = z; tmp = heap[zz];				   \
+		int32 zz = z; \
+		int32 tmp = heap[zz];				   \
 		while(weight[tmp] < weight[heap[zz >> 1]]) {	  \
 			heap[zz] = heap[zz >> 1];			\
 			zz >>= 1;					\
@@ -42,13 +40,12 @@
 
 #define DOWNHEAP(z)				      \
 	{						      \
-		int32 zz, yy, tmp;				   \
-		zz = z; tmp = heap[zz];				   \
+		int32 zz = z; \
+		int32 tmp = heap[zz];				   \
 		while(true) {					  \
-			yy = zz << 1;					\
+			int32 yy = zz << 1;					\
 			if(yy > nHeap) break;			       \
-			if(yy < nHeap &&			       \
-			    weight[heap[yy+1]] < weight[heap[yy]])	\
+			if(yy < nHeap && weight[heap[yy+1]] < weight[heap[yy]])	\
 				yy++;					     \
 			if(weight[tmp] < weight[heap[yy]]) break;      \
 			heap[zz] = heap[yy];				\
@@ -139,48 +136,38 @@ void BZ2_hbMakeCodeLengths(uchar * len, int32 * freq, int32 alphaSize, int32 max
 	}
 }
 
-/*---------------------------------------------------*/
-void BZ2_hbAssignCodes(int32 * code,
-    uchar * length,
-    int32 minLen,
-    int32 maxLen,
-    int32 alphaSize)
+void BZ2_hbAssignCodes(int32 * code, uchar * length, int32 minLen, int32 maxLen, int32 alphaSize)
 {
-	int32 n, vec, i;
-
-	vec = 0;
-	for(n = minLen; n <= maxLen; n++) {
-		for(i = 0; i < alphaSize; i++)
+	int32 vec = 0;
+	for(int32 n = minLen; n <= maxLen; n++) {
+		for(int32 i = 0; i < alphaSize; i++)
 			if(length[i] == n) {
-				code[i] = vec; vec++;
+				code[i] = vec; 
+				vec++;
 			}
-		;
 		vec <<= 1;
 	}
 }
 
-/*---------------------------------------------------*/
-void BZ2_hbCreateDecodeTables(int32 * limit,
-    int32 * base,
-    int32 * perm,
-    uchar * length,
-    int32 minLen,
-    int32 maxLen,
-    int32 alphaSize)
+void BZ2_hbCreateDecodeTables(int32 * limit, int32 * base, int32 * perm, uchar * length, int32 minLen, int32 maxLen, int32 alphaSize)
 {
-	int32 pp, i, j, vec;
-
-	pp = 0;
+	int32 i, j, vec;
+	int32 pp = 0;
 	for(i = minLen; i <= maxLen; i++) {
 		for(j = 0; j < alphaSize; j++)
 			if(length[j] == i) {
-				perm[pp] = j; pp++;
+				perm[pp] = j; 
+				pp++;
 			}
 	}
-	for(i = 0; i < BZ_MAX_CODE_LEN; i++) base[i] = 0;
-	for(i = 0; i < alphaSize; i++) base[length[i]+1]++;
-	for(i = 1; i < BZ_MAX_CODE_LEN; i++) base[i] += base[i-1];
-	for(i = 0; i < BZ_MAX_CODE_LEN; i++) limit[i] = 0;
+	for(i = 0; i < BZ_MAX_CODE_LEN; i++) 
+		base[i] = 0;
+	for(i = 0; i < alphaSize; i++) 
+		base[length[i]+1]++;
+	for(i = 1; i < BZ_MAX_CODE_LEN; i++) 
+		base[i] += base[i-1];
+	for(i = 0; i < BZ_MAX_CODE_LEN; i++) 
+		limit[i] = 0;
 	vec = 0;
 	for(i = minLen; i <= maxLen; i++) {
 		vec += (base[i+1] - base[i]);
@@ -191,6 +178,3 @@ void BZ2_hbCreateDecodeTables(int32 * limit,
 		base[i] = ((limit[i-1] + 1) << 1) - base[i];
 }
 
-/*-------------------------------------------------------------*/
-/*--- end                                         huffman.c ---*/
-/*-------------------------------------------------------------*/

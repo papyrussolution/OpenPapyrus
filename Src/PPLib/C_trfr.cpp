@@ -936,19 +936,15 @@ SString & SLAPI PPLotFaultArray::Message(uint p, SString & rBuf)
 				case PPLotFault::LcrDb:
 					rBuf.Printf(b, lot_str.cptr());
 					break;
-				// @v7.3.0 {
 				case PPLotFault::NonUniqSerial:
 					BillObj->GetSerialNumberByLot(LotID, temp_buf, 1);
-					lot_str.Space().CatChar('[').Cat(temp_buf).CatChar(']');
+					lot_str.Space().CatBrackStr(temp_buf);
 					rBuf.Printf(b, lot_str.cptr());
 					break;
-				// } @v7.3.0
-				// @v7.5.3 {
 				case PPLotFault::OrdOpOnSimpleLot:
 					temp_buf = 0;
 					rBuf.Printf(b, lot_str.cptr(), temp_buf.cptr());
 					break;
-				// } @v7.5.3
 				case PPLotFault::InadqLotWoTaxFlagOn:
 					rBuf.Printf(b, lot_str.cptr());
 					break;
@@ -2071,8 +2067,8 @@ static int SLAPI CheckLotList(PPIDArray & rLotList, PPIDArray & rAbsLotList, PPL
 			int    r = r_rc.Search(lot_id);
 			if(r == 0) {
 				PPGetMessage(mfError, PPErrCode, 0, 1, added_msg);
-				PPFormatT(PPTXT_SEARCHLOTFAULT, &msg_buf, lot_id, (const char *)added_msg);
-				rLogger.Log(PPFormat(fmt_buf, &msg_buf, lot_id, (const char *)added_msg));
+				PPFormatT(PPTXT_SEARCHLOTFAULT, &msg_buf, lot_id, added_msg.cptr());
+				rLogger.Log(PPFormat(fmt_buf, &msg_buf, lot_id, added_msg.cptr()));
 				ok = -1;
 			}
 			else if(r < 0) {

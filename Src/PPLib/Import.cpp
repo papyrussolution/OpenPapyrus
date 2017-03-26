@@ -2214,7 +2214,7 @@ int SLAPI PrcssrPhoneListImport::Run()
 										if(f_addr.CmpNC(address) == 0 && f_cont.CmpNC(contact) == 0) {
 											found = 1;
 											// PPTXT_IMPPHONE_ANALOGFOUND "Найден аналог для телефона: @zstr; @zstr; @zstr"
-											PPFormatT(PPTXT_IMPPHONE_ANALOGFOUND, &log_msg, (const char *)phone, (const char *)address, (const char *)contact);
+											PPFormatT(PPTXT_IMPPHONE_ANALOGFOUND, &log_msg, phone.cptr(), address.cptr(), contact.cptr());
 											logger.Log(log_msg);
 										}
 									}
@@ -2235,15 +2235,13 @@ int SLAPI PrcssrPhoneListImport::Run()
 							loc_rec.CityID = def_city_id;
 							THROW(LocObj.P_Tbl->Add(&loc_id, &loc_rec, 0));
 							// PPTXT_IMPPHONE_CREATED "Создана запись автономного адреса: @zstr; @zstr; @zstr"
-							PPFormatT(PPTXT_IMPPHONE_CREATED, &log_msg, (const char *)phone, (const char *)address, (const char *)contact);
-							logger.Log(log_msg);
+							logger.Log(PPFormatT(PPTXT_IMPPHONE_CREATED, &log_msg, phone.cptr(), address.cptr(), contact.cptr()));
 						}
 					}
 				}
 				else {
 					// PPTXT_IMPPHONE_INVPHONE "Минимальная длина телефона должна быть 5 цифр: @zstr; @zstr; @zstr"
-					PPFormatT(PPTXT_IMPPHONE_INVPHONE, &log_msg, (const char *)phone, (const char *)address, (const char *)contact);
-					logger.Log(log_msg);
+					logger.Log(PPFormatT(PPTXT_IMPPHONE_INVPHONE, &log_msg, phone.cptr(), address.cptr(), contact.cptr()));
 				}
 				MEMSZERO(rec);
 				PPWaitPercent(cntr.Increment());
@@ -5713,6 +5711,446 @@ IMPL_CMPCFUNC(STRINT64, p1, p2)
 	return CMPSIGN(v1, v2);
 }
 
+IMPL_CMPCFUNC(STRUTF8NOCASE, p1, p2)
+{
+	int   si = -1;
+	const size_t len1 = sstrlen((const char *)p1);
+	const size_t len2 = sstrlen((const char *)p2);
+	if(len1 == len2) {
+		//
+		// Простые случая без перевода строк в unicode
+		//
+		if(len1 == 0)
+			si = 0;
+		else if(memcmp(p1, p2, len1) == 0)
+			si = 0;
+	}
+	if(si != 0) {
+		const int a1 = sisascii((const char *)p1, len1);
+		const int a2 = sisascii((const char *)p2, len2);
+		if(a1 && a2) {
+			si = strcmp((const char *)p1, (const char *)p2);
+		}
+		else {
+			SStringU s1;
+			SStringU s2;
+			s1.CopyFromUtf8((const char *)p1, len1);
+			s2.CopyFromUtf8((const char *)p2, len2);
+			//s1.ToLower();
+			//s2.ToLower();
+			si = s1.Cmp(s2);
+		}
+	}
+	return si;
+}
+
+SLAPI SGeoGridTab::SGeoGridTab(uint dim)
+{
+	assert(dim >= 4 && dim <= 32);
+	Dim = dim;
+	SrcCountLat = 0;
+	SrcCountLon = 0;
+}
+
+int FASTCALL SGeoGridTab::IsEqual(const SGeoGridTab & rS) const
+{
+	//
+	// При сравнении SrcCountLat и SrcCountLon не учитываем поскольку
+	// эти поля не влияют на результат использования таблицы (важны только при построении
+	// и для справочных целей.
+	//
+	int    yes = 1;
+    if(Dim != rS.Dim)
+		yes = 0;
+	else if(LatIdx != rS.LatIdx)
+		yes = 0;
+	else if(LonIdx != rS.LonIdx)
+		yes = 0;
+	return yes;
+}
+
+int FASTCALL SGeoGridTab::operator == (const SGeoGridTab & rS) const
+{
+	return IsEqual(rS);
+}
+
+int FASTCALL SGeoGridTab::operator != (const SGeoGridTab & rS) const
+{
+	return !IsEqual(rS);
+}
+
+void SLAPI SGeoGridTab::SetSrcCountLat(uint64 c)
+{
+	SrcCountLat = c;
+}
+
+void SLAPI SGeoGridTab::SetSrcCountLon(uint64 c)
+{
+	SrcCountLon = c;
+}
+
+uint SLAPI SGeoGridTab::GetDim() const
+{
+	return Dim;
+}
+
+uint SLAPI SGeoGridTab::GetDensityLat() const
+{
+	return (uint)(SrcCountLat / (1ULL << Dim));
+}
+
+uint SLAPI SGeoGridTab::GetDensityLon() const
+{
+	return (uint)(SrcCountLon / (1ULL << Dim));
+}
+
+int FASTCALL SGeoGridTab::AddThresholdLat(long coord)
+{
+	assert(LatIdx.getCount() < (1UL << Dim));
+	assert(coord >= -900000000 && coord <= +900000000);
+	return LatIdx.add(coord) ? 1 : PPSetErrorSLib();
+}
+
+int FASTCALL SGeoGridTab::AddThresholdLon(long coord)
+{
+	assert(LonIdx.getCount() < (1UL << Dim));
+	assert(coord >= -1800000000 && coord <= +1800000000);
+	return LonIdx.add(coord) ? 1 : PPSetErrorSLib();
+}
+
+uint SLAPI SGeoGridTab::GetCountLat() const
+{
+	return LatIdx.getCount();
+}
+
+uint SLAPI SGeoGridTab::GetCountLon() const
+{
+	return LonIdx.getCount();
+}
+
+int SLAPI SGeoGridTab::Save(const char * pFileName)
+{
+    int   ok = 1;
+    SString line_buf;
+    SFile f_out(pFileName, SFile::mWrite);
+    THROW_SL(f_out.IsValid());
+    THROW_SL(f_out.WriteLine((line_buf = 0).CatBrackStr("pgcg-header").CR()));
+	THROW_SL(f_out.WriteLine((line_buf = 0).CatEq("dim", Dim).CR()));
+	THROW_SL(f_out.WriteLine((line_buf = 0).CatEq("srccount-lat", (int64)SrcCountLat).CR()));
+	THROW_SL(f_out.WriteLine((line_buf = 0).CatEq("srccount-lon", (int64)SrcCountLon).CR()));
+	THROW_SL(f_out.WriteLine((line_buf = 0).CatEq("gridcount-lat", LatIdx.getCount()).CR()));
+	THROW_SL(f_out.WriteLine((line_buf = 0).CatEq("gridcount-lon", LonIdx.getCount()).CR()));
+	THROW_SL(f_out.WriteLine((line_buf = 0).CR()));
+	{
+		THROW_SL(f_out.WriteLine((line_buf = 0).CatBrackStr("pgcg-lat").CR()));
+		for(uint i = 0; i < LatIdx.getCount(); i++) {
+			THROW_SL(f_out.WriteLine((line_buf = 0).Cat(LatIdx.get(i)).CR()));
+		}
+		THROW_SL(f_out.WriteLine((line_buf = 0).CR()));
+	}
+	{
+		THROW_SL(f_out.WriteLine((line_buf = 0).CatBrackStr("pgcg-lon").CR()));
+		for(uint i = 0; i < LonIdx.getCount(); i++) {
+			THROW_SL(f_out.WriteLine((line_buf = 0).Cat(LonIdx.get(i)).CR()));
+		}
+		THROW_SL(f_out.WriteLine((line_buf = 0).CR()));
+	}
+    CATCHZOK
+    return ok;
+}
+
+int SLAPI SGeoGridTab::Load(const char * pFileName)
+{
+    Dim = 0;
+    SrcCountLat = 0;
+    SrcCountLon = 0;
+    LatIdx.clear();
+    LonIdx.clear();
+
+	int    ok = 1;
+	int    zone = 0; // 1 - header, 2 - latitude, 3 - longitude
+    SString line_buf;
+    SString temp_buf;
+    SString left_buf, right_buf;
+    uint   hdr_count_lat = 0;
+    uint   hdr_count_lon = 0;
+    SFile f_in(pFileName, SFile::mRead);
+	while(f_in.ReadLine(line_buf)) {
+        line_buf.Chomp();
+        if(line_buf.NotEmptyS()) {
+            if(line_buf.C(0) == '[') {
+				uint rb_pos = 0;
+                THROW(line_buf.StrChr(']', &rb_pos)); // Ошибка в формате файла geogridtag
+				assert(rb_pos > 0);
+				line_buf.Sub(1, rb_pos-1, temp_buf);
+				if(temp_buf.CmpNC("pgcg-header") == 0) {
+					THROW(zone == 0);
+					zone = 1;
+				}
+				else if(temp_buf.CmpNC("pgcg-lat") == 0) {
+					THROW(zone != 2);
+					zone = 2;
+				}
+				else if(temp_buf.CmpNC("pgcg-lon") == 0) {
+					THROW(zone != 3);
+					zone = 3;
+				}
+				else {
+					CALLEXCEPT(); // Не известная зона в файле geogridtab
+				}
+            }
+            else {
+				THROW(oneof3(zone, 1, 2, 3)); // Не верный формат файла geogridtab
+                if(zone == 1) {
+					if(line_buf.Divide('=', left_buf, right_buf) > 0) {
+                        left_buf.Strip();
+                        right_buf.Strip();
+                        if(left_buf.CmpNC("dim") == 0) {
+							Dim = (uint)right_buf.ToLong();
+                            THROW(Dim >= 4 && Dim <= 32);
+                        }
+                        else if(left_buf.CmpNC("srccount-lat") == 0) {
+                            SrcCountLat = right_buf.ToInt64();
+                            THROW(SrcCountLat > 0 && SrcCountLat < 20000000000LL);
+                        }
+                        else if(left_buf.CmpNC("srccount-lon") == 0) {
+                            SrcCountLon = right_buf.ToInt64();
+                            THROW(SrcCountLon > 0 && SrcCountLon < 20000000000LL);
+                        }
+                        else if(left_buf.CmpNC("gridcount-lat") == 0) {
+							hdr_count_lat = (uint)right_buf.ToLong();
+                        }
+                        else if(left_buf.CmpNC("gridcount-lon") == 0) {
+							hdr_count_lon = (uint)right_buf.ToLong();
+                        }
+					}
+                }
+                else if(oneof2(zone, 2, 3)) {
+                    const long threshold = line_buf.ToLong();
+                    if(zone == 2) {
+						THROW(threshold >= -900000000L && threshold <= 900000000L);
+						THROW_SL(LatIdx.add(threshold));
+                    }
+                    else if(zone == 3) {
+						THROW(threshold >= -1800000000L && threshold <= 1800000000L);
+						THROW_SL(LonIdx.add(threshold));
+                    }
+                }
+            }
+        }
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, uint uppDim, TSCollection <SGeoGridTab> & rGridList)
+{
+	rGridList.freeAll();
+
+	int    ok = -1;
+	uint * p_last_count = 0;
+	long * p_last_coord = 0;
+	SString lat_file_name;
+	SString lon_file_name;
+	{
+		SPathStruc ps;
+		{
+			ps.Split(pSrcFileName);
+			{
+				ps.Split(pSrcFileName);
+				ps.Nam.CatChar('-').Cat("lat").CatChar('-').Cat("sorted");
+				ps.Ext = "txt";
+				ps.Merge(lat_file_name);
+			}
+			{
+				ps.Split(pSrcFileName);
+				ps.Nam.CatChar('-').Cat("lon").CatChar('-').Cat("sorted");
+				ps.Ext = "txt";
+				ps.Merge(lon_file_name);
+			}
+		}
+	}
+	if(fileExists(lat_file_name) && fileExists(lon_file_name)) {
+		SString line_buf;
+        uint64 lat_count = 0;
+        uint64 lon_count = 0;
+        SFile f_lat(lat_file_name, SFile::mRead|SFile::mBinary|SFile::mNoStd|SFile::mBuffRd);
+        SFile f_lon(lat_file_name, SFile::mRead|SFile::mBinary|SFile::mNoStd|SFile::mBuffRd);
+        THROW_SL(f_lat.IsValid());
+        THROW_SL(f_lon.IsValid());
+        {
+			while(f_lat.ReadLine(line_buf)) {
+				line_buf.Chomp().Strip();
+				const char firstc = line_buf.C(0);
+				if(firstc == '-' || (firstc >= '0' && firstc <= '9'))
+					lat_count++;
+			}
+			f_lat.Seek64(0);
+        }
+        {
+			while(f_lon.ReadLine(line_buf)) {
+				line_buf.Chomp().Strip();
+				const char firstc = line_buf.C(0);
+				if(firstc == '-' || (firstc >= '0' && firstc <= '9'))
+					lon_count++;
+			}
+			f_lon.Seek64(0);
+        }
+        const uint grid_count = (uppDim - lowDim) + 1;
+        {
+			for(uint i = lowDim; i <= uppDim; i++) {
+				SGeoGridTab * p_new_grid = new SGeoGridTab(i);
+				THROW_MEM(p_new_grid);
+				p_new_grid->SetSrcCountLat(lat_count);
+				p_new_grid->SetSrcCountLon(lon_count);
+				THROW_SL(rGridList.insert(p_new_grid));
+			}
+        }
+        assert(rGridList.getCount() == grid_count);
+        THROW_MEM(p_last_count = new uint[grid_count]);
+        THROW_MEM(p_last_coord = new long[grid_count]);
+        {
+        	memzero(p_last_count, sizeof(p_last_count[0]) * grid_count);
+			memzero(p_last_coord, sizeof(p_last_coord[0]) * grid_count);
+			while(f_lat.ReadLine(line_buf)) {
+				line_buf.Chomp().Strip();
+				const char firstc = line_buf.C(0);
+				if(firstc == '-' || (firstc >= '0' && firstc <= '9')) {
+                    const long c = line_buf.ToLong();
+                    for(uint i = 0; i < grid_count; i++) {
+						SGeoGridTab * p_grid = rGridList.at(i);
+						assert(p_grid);
+                        if(p_last_count[i] >= p_grid->GetDensityLat() && p_last_coord[i] != c) {
+                            THROW(p_grid->AddThresholdLat(p_last_coord[i]));
+                            p_last_count[i] = 0;
+                        }
+                        p_last_count[i]++;
+						p_last_coord[i] = c;
+                    }
+				}
+			}
+			{
+				//
+				// Финишная вставка последнего порога
+				//
+				for(uint i = 0; i < grid_count; i++) {
+					SGeoGridTab * p_grid = rGridList.at(i);
+					assert(p_grid);
+					THROW(p_grid->AddThresholdLat(p_last_coord[i]));
+					// Финишная проверка правильности
+					assert(p_grid->GetCountLat() == (1UL << p_grid->GetDim()));
+				}
+			}
+			f_lat.Seek64(0);
+        }
+        {
+        	memzero(p_last_count, sizeof(p_last_count[0]) * grid_count);
+			memzero(p_last_coord, sizeof(p_last_coord[0]) * grid_count);
+			while(f_lon.ReadLine(line_buf)) {
+				line_buf.Chomp().Strip();
+				const char firstc = line_buf.C(0);
+				if(firstc == '-' || (firstc >= '0' && firstc <= '9')) {
+                    const long c = line_buf.ToLong();
+                    for(uint i = 0; i < grid_count; i++) {
+						SGeoGridTab * p_grid = rGridList.at(i);
+						assert(p_grid);
+                        if(p_last_count[i] >= p_grid->GetDensityLon() && p_last_coord[i] != c) {
+                            THROW(p_grid->AddThresholdLon(p_last_coord[i]));
+                            p_last_count[i] = 0;
+                        }
+                        p_last_count[i]++;
+						p_last_coord[i] = c;
+                    }
+				}
+			}
+			{
+				//
+				// Финишная вставка последнего порога
+				//
+				for(uint i = 0; i < grid_count; i++) {
+					SGeoGridTab * p_grid = rGridList.at(i);
+					assert(p_grid);
+					THROW(p_grid->AddThresholdLon(p_last_coord[i]));
+					// Финишная проверка правильности
+					assert(p_grid->GetCountLon() == (1UL << p_grid->GetDim()));
+				}
+			}
+			f_lat.Seek64(0);
+        }
+	}
+	CATCHZOK
+	delete [] p_last_count;
+	delete [] p_last_coord;
+	return ok;
+}
+
+//static
+int PrcssrOsm::SortCbProc(const SFileSortProgressData * pInfo)
+{
+	if(pInfo) {
+		SString msg_buf;
+		const PrcssrOsm * p_prcr = (const PrcssrOsm *)pInfo->ExtraPtr;
+		if(p_prcr) {
+			SString file_name;
+			SPathStruc ps;
+			ps.Split(pInfo->P_SrcFileName);
+			ps.Drv = 0;
+			ps.Dir = 0;
+			ps.Merge(file_name);
+			if(pInfo->Phase == 1) {
+				msg_buf.Printf(p_prcr->FmtMsg_SortSplit, file_name.cptr());
+				msg_buf.Space().CatParStr(pInfo->SplitThreadCount);
+				PPWaitPercent((ulong)(100LL * pInfo->SplitBytesRead / pInfo->TotalFileSize), msg_buf);
+			}
+			else if(pInfo->Phase == 2) {
+				msg_buf.Printf(p_prcr->FmtMsg_SortMerge, file_name.cptr());
+				PPWaitMsg(msg_buf);
+			}
+		}
+	}
+	return 1;
+}
+
+int SLAPI PrcssrOsm::SortFile(const char * pSrcFileName, const char * pSuffix, CompFunc fcmp)
+{
+
+	int    ok = -1;
+	//const size_t sort_max_chunk = 32 * 1024 * 1024;
+	//const uint sort_max_chunk_count = 16;
+	SFile::SortParam sp;
+	sp.MaxChunkSize = 32 * 1024 * 1024;
+	sp.MaxChunkCount = 16;
+	sp.MaxThread = 6;
+	sp.ProgressCbProc = PrcssrOsm::SortCbProc;
+	sp.ProgressCbExtraPtr = this;
+
+	SString in_file_name;
+	SString out_file_name;
+	SPathStruc ps;
+	{
+		ps.Split(pSrcFileName);
+		ps.Nam.CatChar('-').Cat(pSuffix);
+		ps.Ext = "txt";
+		ps.Merge(in_file_name);
+	}
+	if(fileExists(in_file_name)) {
+		{
+			ps.Split(pSrcFileName);
+			ps.Nam.CatChar('-').Cat(pSuffix).CatChar('-').Cat("sorted");
+			ps.Ext = "txt";
+			ps.Merge(out_file_name);
+		}
+		if(!fileExists(out_file_name)) {
+			PROFILE_START
+			THROW_SL(SFile::Sort(in_file_name, out_file_name, fcmp, &sp/*sort_max_chunk, sort_max_chunk_count*/));
+			PROFILE_END
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI PrcssrOsm::Run()
 {
 	int    ok = 1;
@@ -5722,6 +6160,7 @@ int SLAPI PrcssrOsm::Run()
 	SString out_file_name;
 	SString temp_buf;
 	SPathStruc ps;
+	PPWait(1);
 	if(P.Flags & PrcssrOsmFilt::fPreprocess) {
 		xmlSAXHandler saxh_addr_obj;
 		MEMSZERO(saxh_addr_obj);
@@ -5819,43 +6258,49 @@ int SLAPI PrcssrOsm::Run()
 		}
 	}
 	if(P.Flags & PrcssrOsmFilt::fSortPreprcResults) {
-		const size_t sort_max_chunk = 32 * 1024 * 1024;
-		const uint sort_max_chunk_count = 16;
-		{
-			{
-				ps.Split(file_name);
-				ps.Nam.CatChar('-').Cat("lat");
-				ps.Ext = "txt";
-				ps.Merge(in_file_name);
+        PPLoadText(PPTXT_SORTSPLIT, FmtMsg_SortSplit);
+		PPLoadText(PPTXT_SORTMERGE, FmtMsg_SortMerge);
+		THROW(SortFile(file_name, "lat", PTR_CMPCFUNC(STRINT64)));
+		THROW(SortFile(file_name, "lon", PTR_CMPCFUNC(STRINT64)));
+		THROW(SortFile(file_name, "tagrel", PTR_CMPCFUNC(STRUTF8NOCASE)));
+		THROW(SortFile(file_name, "tagway", PTR_CMPCFUNC(STRUTF8NOCASE)));
+		THROW(SortFile(file_name, "tagnode", PTR_CMPCFUNC(STRUTF8NOCASE)));
+		THROW(SortFile(file_name, "tag", PTR_CMPCFUNC(STRUTF8NOCASE)));
+	}
+	if(P.Flags & PrcssrOsmFilt::fAnlzPreprcResults) {
+		int   test_result = 1;
+		TSCollection <SGeoGridTab> grid_list;
+		THROW(CreateGeoGridTab(file_name, 8, 16, grid_list));
+		for(uint i = 0; i < grid_list.getCount(); i++) {
+			SGeoGridTab * p_grid = grid_list.at(i);
+			if(p_grid) {
+				{
+					ps.Split(file_name);
+					ps.Nam.CatChar('-').Cat("grid").CatChar('-').Cat(p_grid->GetDim());
+					ps.Ext = "txt";
+					ps.Merge(out_file_name);
+				}
+                p_grid->Save(out_file_name);
+				{
+					SGeoGridTab test_tab(16);
+					int lr = test_tab.Load(out_file_name);
+					if(!lr)
+						test_result = 0;
+					else {
+						int cr = test_tab.IsEqual(*p_grid);
+						if(!cr)
+							test_result = 0;
+						else {
+							//PPTXT_GEOGRIDTABWRRDSUCC          "Тест записи/чтения таблицы пропорциональное гео-решетки '@zstr' прошел успешно"
+							PPFormatT(PPTXT_GEOGRIDTABWRRDSUCC, &temp_buf, out_file_name.cptr());
+							PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
+						}
+					}
+				}
 			}
-			{
-				ps.Split(file_name);
-				ps.Nam.CatChar('-').Cat("lat").CatChar('-').Cat("sorted");
-				ps.Ext = "txt";
-				ps.Merge(out_file_name);
-			}
-			PROFILE_START
-			THROW_SL(SFile::Sort(in_file_name, out_file_name, PTR_CMPCFUNC(STRINT64), sort_max_chunk, sort_max_chunk_count));
-			PROFILE_END
-		}
-		{
-			{
-				ps.Split(file_name);
-				ps.Nam.CatChar('-').Cat("lon");
-				ps.Ext = "txt";
-				ps.Merge(in_file_name);
-			}
-			{
-				ps.Split(file_name);
-				ps.Nam.CatChar('-').Cat("lon").CatChar('-').Cat("sorted");
-				ps.Ext = "txt";
-				ps.Merge(out_file_name);
-			}
-			PROFILE_START
-			THROW_SL(SFile::Sort(in_file_name, out_file_name, PTR_CMPCFUNC(STRINT64), sort_max_chunk, sort_max_chunk_count));
-			PROFILE_END
 		}
 	}
+	PPWait(0);
 	CATCHZOK
 	return ok;
 }

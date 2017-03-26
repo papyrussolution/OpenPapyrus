@@ -2310,7 +2310,7 @@ int SLAPI PPViewPerson::Recover()
 						}
 						{
 							if(PPLoadText(str_id, fmt_buf)) {
-								PPFormat(fmt_buf, &msg_buf, (const char *)addr_buf, psn_id);
+								PPFormat(fmt_buf, &msg_buf, addr_buf.cptr(), psn_id);
 								logger.Log(msg_buf);
 							}
 						}
@@ -2334,7 +2334,7 @@ int SLAPI PPViewPerson::Recover()
 						loc_pack.OwnerID = valid_owner_id;
 						THROW(PsnObj.LocObj.PutPacket(&addr_id, &loc_pack, 0));
 						if(PPLoadText(PPTXT_LOG_DLVRADDINVOWNER, fmt_buf)) {
-							PPFormat(fmt_buf, &msg_buf, (const char *)addr_buf, inv_owner_id, valid_owner_id);
+							PPFormat(fmt_buf, &msg_buf, addr_buf.cptr(), inv_owner_id, valid_owner_id);
 							logger.Log(msg_buf);
 						}
 					}
@@ -2342,7 +2342,7 @@ int SLAPI PPViewPerson::Recover()
 				else {
 					// PPTXT_LOG_DLVRADDINVOWNER_NC    "Адрес доставки '@zstr' ссылается не на того владельца (@person), которому принадлежит (@person): исправление невозможно из-за конфликта между владельцами"
 					if(PPLoadText(PPTXT_LOG_DLVRADDINVOWNER_NC, fmt_buf)) {
-						PPFormat(fmt_buf, &msg_buf, (const char *)addr_buf, inv_owner_id, valid_owner_id);
+						PPFormat(fmt_buf, &msg_buf, addr_buf.cptr(), inv_owner_id, valid_owner_id);
 						logger.Log(msg_buf);
 					}
 				}
@@ -2486,7 +2486,7 @@ int SLAPI PPViewPerson::ExportUhtt()
 						uhtt_loc_id = ret_loc_pack.ID;
 						//
 						PPLoadText(PPTXT_UHTTEXPLOC_FOUND, fmt_buf);
-						PPFormat(fmt_buf, &msg_buf, (const char *)loc_text_buf);
+						PPFormat(fmt_buf, &msg_buf, loc_text_buf.cptr());
 						logger.Log(msg_buf);
 					}
 					else {
@@ -2509,7 +2509,7 @@ int SLAPI PPViewPerson::ExportUhtt()
 						int    cr = uhtt_cli.CreateStandaloneLocation(&uhtt_loc_id, uhtt_loc_pack);
 						if(cr) {
 							PPLoadText(PPTXT_UHTTEXPLOC_EXPORTED, fmt_buf);
-							PPFormat(fmt_buf, &msg_buf, (const char *)loc_text_buf);
+							PPFormat(fmt_buf, &msg_buf, loc_text_buf.cptr());
 							logger.Log(msg_buf);
 							//
 							if(uhtt_cli.GetLocationByID(uhtt_loc_id, ret_loc_pack) > 0) {
@@ -2517,14 +2517,14 @@ int SLAPI PPViewPerson::ExportUhtt()
 								THROW(PsnObj.LocObj.PutRecord(&loc_id, &loc_rec, 1));
 								//
 								PPLoadText(PPTXT_UHTTEXPLOC_CODEASSGN, fmt_buf);
-								PPFormat(fmt_buf, &msg_buf, (const char *)loc_text_buf);
+								PPFormat(fmt_buf, &msg_buf, loc_text_buf.cptr());
 								logger.Log(msg_buf);
 							}
 							else {
 								// Ошибка обратного получения адреса по идентификатору Universe-HTT
 								temp_buf = uhtt_cli.GetLastMessage();
 								PPLoadText(PPTXT_UHTTEXPLOC_CODEASSGN, fmt_buf);
-								PPFormat(fmt_buf, &msg_buf, (const char *)loc_text_buf, (const char *)temp_buf);
+								PPFormat(fmt_buf, &msg_buf, loc_text_buf.cptr(), temp_buf.cptr());
 								logger.Log(msg_buf);
 							}
 						}
@@ -2532,7 +2532,7 @@ int SLAPI PPViewPerson::ExportUhtt()
 							// Ошибка экспорта адреса на сервер Universe-HTT
 							temp_buf = uhtt_cli.GetLastMessage();
 							PPLoadText(PPTXT_UHTTEXPLOC_EEXPORT, fmt_buf);
-							PPFormat(fmt_buf, &msg_buf, (const char *)loc_text_buf, (const char *)temp_buf);
+							PPFormat(fmt_buf, &msg_buf, loc_text_buf.cptr(), temp_buf.cptr());
 							logger.Log(msg_buf);
 						}
 					}

@@ -185,7 +185,7 @@ int SImage::Draw(HWND hWnd, RECT * pRect, int clear, int use2Koeff)
 	RECT   r;
 	HDC    hdc = GetDC(hWnd);
 	if(!RVALUEPTR(r, pRect))
-		GetClientRect(hWnd, &r);
+		::GetClientRect(hWnd, &r);
 	ok = Draw(hdc, &r, clear, use2Koeff);
 	ReleaseDC(hWnd, hdc);
 	return ok;
@@ -254,7 +254,7 @@ int SImage::InsertBitmap(HWND hwnd, const char * pPath, COLORREF bkgnd)
 		RECT cli_rect;
 		Gdiplus::REAL k = 0, k2 = 0;
 
-		GetClientRect(hwnd, &cli_rect);
+		::GetClientRect(hwnd, &cli_rect);
 		new_width  = cli_rect.right  - cli_rect.left;
 		new_height = cli_rect.bottom - cli_rect.top;
 		k  = (Gdiplus::REAL)((double)new_width  / (double)width);

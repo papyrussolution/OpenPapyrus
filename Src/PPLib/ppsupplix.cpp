@@ -4570,6 +4570,7 @@ int SLAPI SapEfes::ReceiveOrders()
 							if(contractor_ar_id && contractor_ar_id != contractor_by_loc_ar_id) {
 								// message
 							}
+							sob.Flags |= PPBillPacket::SetupObjectBlock::fEnableStop; // @v9.5.10
 							if(!pack.SetupObject(contractor_by_loc_ar_id, sob)) {
 								R_Logger.LogLastError();
 								skip = 1;

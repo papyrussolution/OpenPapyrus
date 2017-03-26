@@ -102,7 +102,7 @@ int SPrinting::PrintImage(const char * pImgPath)
 	if(PrinterDc && !isempty(pImgPath)) {
 		long   height = 0;
 		Graphics graphics(PrinterDc);
-		RECT coord;
+		RECT   coord;
 		SImage img;
 		MEMSZERO(coord);
 		//SetMapMode(PrinterDc, MM_LOMETRIC);
@@ -110,10 +110,10 @@ int SPrinting::PrintImage(const char * pImgPath)
 		int scale_x = 0, scale_y = 0;
 		img.LoadImage(pImgPath);
 		{
-			w = GetDeviceCaps(PrinterDc, HORZRES);
-			h = GetDeviceCaps(PrinterDc, VERTRES);
-			scale_x = GetDeviceCaps(PrinterDc, LOGPIXELSX) / ScreenDpiX;
-			scale_y = GetDeviceCaps(PrinterDc, LOGPIXELSY) / ScreenDpiY;
+			w = ::GetDeviceCaps(PrinterDc, HORZRES);
+			h = ::GetDeviceCaps(PrinterDc, VERTRES);
+			scale_x = ::GetDeviceCaps(PrinterDc, LOGPIXELSX) / ScreenDpiX;
+			scale_y = ::GetDeviceCaps(PrinterDc, LOGPIXELSY) / ScreenDpiY;
 			w /= scale_x;
 			h /= scale_y;
 		}
@@ -121,12 +121,10 @@ int SPrinting::PrintImage(const char * pImgPath)
 		SETIFZ(coord.bottom, (long)img.GetHeight());
 		SETIFZ(coord.left, 2);
 		SETIFZ(coord.top,  2);
-		if(coord.left + coord.right > w)
-			coord.right = w - coord.left;
-		if(coord.top + coord.bottom > h)
-			coord.bottom = h - coord.top;
+		SETMIN(coord.right, (w - coord.left));
+		SETMIN(coord.bottom, (h - coord.top));
 		height = coord.bottom;
-		if(!PageStarted || (Top + labs(height)) > h - 4) {
+		if(!PageStarted || (Top + labs(height)) > (h - 4)) {
 			StartDocument();
 			if(PageStarted)
 				EndPage(PrinterDc);

@@ -528,18 +528,19 @@ int32 BZ2_decompress(DState* s)
 				SET_LL(j, i);
 				i = j;
 				j = tmp;
-			}
-			while(i != s->origPtr);
-
+			} while(i != s->origPtr);
 			s->tPos = s->origPtr;
 			s->nblock_used = 0;
 			if(s->blockRandomised) {
 				BZ_RAND_INIT_MASK;
-				BZ_GET_SMALL(s->k0); s->nblock_used++;
-				BZ_RAND_UPD_MASK; s->k0 ^= BZ_RAND_MASK;
+				BZ_GET_SMALL(s->k0); 
+				s->nblock_used++;
+				BZ_RAND_UPD_MASK; 
+				s->k0 ^= BZ_RAND_MASK;
 			}
 			else {
-				BZ_GET_SMALL(s->k0); s->nblock_used++;
+				BZ_GET_SMALL(s->k0); 
+				s->nblock_used++;
 			}
 		}
 		else {
@@ -624,7 +625,3 @@ save_state_and_return:
 
 	return retVal;
 }
-
-/*-------------------------------------------------------------*/
-/*--- end                                      decompress.c ---*/
-/*-------------------------------------------------------------*/

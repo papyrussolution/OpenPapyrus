@@ -1908,7 +1908,7 @@ int SLAPI PPObjectTransmit::AcceptDependedNonObject(PPObjID foreignObjId, PPID p
 				PPSetErrorDB();
 			}
 			PPGetMessage(mfError, -1, 0, 1, err_msg);
-			msg_buf.Space().CatChar('[').Cat(err_msg).CatChar(']');
+			msg_buf.Space().CatBrackStr(err_msg);
 			//
 			Ctx.OutReceivingMsg(msg_buf);
 		}

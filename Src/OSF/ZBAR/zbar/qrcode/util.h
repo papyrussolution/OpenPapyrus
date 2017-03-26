@@ -44,7 +44,7 @@
 
 /*Multiplies 32-bit numbers _a and _b, adds (possibly 64-bit) number _r, and
    takes bits [_s,_s+31] of the result.*/
-#define QR_FIXMUL(_a,_b,_r,_s) ((int)((_a)*(long long)(_b)+(_r)>>(_s)))
+#define QR_FIXMUL(_a,_b,_r,_s) ((int)((_a) * (long long)((_b)+(_r)) >> (_s)))
 /*Multiplies 32-bit numbers _a and _b, adds (possibly 64-bit) number _r, and
    gives all 64 bits of the result.*/
 #define QR_EXTMUL(_a,_b,_r)    ((_a)*(long long)(_b)+(_r))

@@ -6503,7 +6503,7 @@ public:
 	SLAPI ~PPSession();
 	int    SLAPI Init(long flags /* PPSession::fInitXXX */, HINSTANCE hInst = NULL);
 	int    SLAPI InitThread(const PPThread * pThread);
-	int    SLAPI ReleaseThread();
+	void   SLAPI ReleaseThread();
 	PPThreadLocalArea & SLAPI GetTLA(); // { return *(PPThreadLocalArea *)TlsGetValue(TlsIdx); }
 	const PPThreadLocalArea & SLAPI GetConstTLA() const; // { return *(PPThreadLocalArea *)TlsGetValue(TlsIdx); }
 
@@ -6579,10 +6579,10 @@ public:
 	SEnumImp * EnumRFileInfo();
 
 	int    SLAPI SetLocation(PPID locID);
-	int    SLAPI SetOperDate(LDATE);
-	int    SLAPI SetCurCashNodeID(PPID);
-	int    SLAPI SetDefBillCashID(PPID);
-	int    SLAPI SetMenu(short);
+	void   SLAPI SetOperDate(LDATE);
+	void   SLAPI SetCurCashNodeID(PPID);
+	void   SLAPI SetDefBillCashID(PPID);
+	void   SLAPI SetMenu(short);
 	int    SLAPI SetDemoMode(int);
 	long   SLAPI SetLCfgFlags(long);
 	short  SLAPI SetRealizeOrder(short);
@@ -6601,7 +6601,7 @@ public:
 	//
 	long   SLAPI SetExtFlag(long f, int set);
 	int    FASTCALL CheckExtFlag(long);
-	int    SLAPI SetStateFlag(long, int set);
+	void   SLAPI SetStateFlag(long, int set);
 	int    SLAPI CheckStateFlag(long) const;
 	ObjCache * FASTCALL GetDbLocalObjCache(PPID objType);
 	int    SLAPI SetDbLocalObjCache(ObjCache * pCache);
@@ -6648,7 +6648,7 @@ public:
 	//   этой функции, все вызовы PPLogMessage() будут дублировать сообщения в этот файл.
 	//   Вызов с параметром pFileName = 0 останавливает дублирование записи.
 	//
-	int    SLAPI SetTempLogFileName(const char * pFileName);
+	void   SLAPI SetTempLogFileName(const char * pFileName);
 	int    SLAPI SetPrivateBasket(PPBasketPacket * pPack, int use_ta);
 	PPBasketPacket * SLAPI GetPrivateBasket();
 	PPJobSrvClient * SLAPI GetClientSession(int dontReconnect);
@@ -10029,7 +10029,7 @@ public:
 	//
 	struct SetupObjectBlock {
 		SLAPI  SetupObjectBlock();
-		void   SLAPI Clear();
+		void   SLAPI Clear_();
 
 		enum {
 			fEnableStop = 0x0001 // @v9.5.10 Допускается устанавливать контрагента с признаком STOP
@@ -44699,6 +44699,32 @@ private:
 //
 //
 //
+class SGeoGridTab {
+public:
+	SLAPI  SGeoGridTab(uint dim);
+	int    FASTCALL IsEqual(const SGeoGridTab & rS) const;
+	int    FASTCALL operator == (const SGeoGridTab & rS) const;
+	int    FASTCALL operator != (const SGeoGridTab & rS) const;
+	void   SLAPI SetSrcCountLat(uint64 c);
+	void   SLAPI SetSrcCountLon(uint64 c);
+	uint   SLAPI GetDim() const;
+    uint   SLAPI GetDensityLat() const;
+    uint   SLAPI GetDensityLon() const;
+    int    FASTCALL AddThresholdLat(long coord);
+    int    FASTCALL AddThresholdLon(long coord);
+    uint   SLAPI GetCountLat() const;
+    uint   SLAPI GetCountLon() const;
+	//
+	int    SLAPI Save(const char * pFileName);
+	int    SLAPI Load(const char * pFileName);
+private:
+    uint   Dim; // Размерность решетки (бит)
+    uint64 SrcCountLat;
+    uint64 SrcCountLon;
+	LongArray LatIdx;
+	LongArray LonIdx;
+};
+
 class PPOsm : public SStrGroup {
 public:
 	enum {
@@ -44812,6 +44838,7 @@ private:
 	static void Scb_EndDocument(void * ptr);
 	static void Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList);
 	static void Scb_EndElement(void * ptr, const xmlChar * pName);
+	static int  SortCbProc(const SFileSortProgressData * pInfo);
 
 	int    StartDocument();
 	int    EndDocument();
@@ -44824,7 +44851,8 @@ private:
 
 	int    LogCoord(const SGeoPosLL_Int & rC);
 	int    LogTag(int osmObjType, const PPOsm::Tag & rTag);
-
+	int    SLAPI SortFile(const char * pSrcFileName, const char * pSuffix, CompFunc fcmp);
+	int    SLAPI CreateGeoGridTab(const char * pSrcFileName, uint lowDim, uint uppDim, TSCollection <SGeoGridTab> & rGridList);
 	//
 	enum {
 		stError = 0x0001
@@ -44848,6 +44876,8 @@ private:
 
 	LongArray LatAccum;
 	LongArray LonAccum;
+	SString FmtMsg_SortSplit;
+	SString FmtMsg_SortMerge;
 
 	SFile * P_LatOutF;
 	SFile * P_LonOutF;

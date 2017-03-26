@@ -621,7 +621,7 @@ static int SLAPI _SetQuot(PPQuotArray * pList, const QuotIdent & rQi, double v, 
             // "Добавлено новое значение котировки"
             const PPQuot & r_new_q = pList->at(ret-1);
             PPQuot::PutValToStr(r_new_q.Quot, r_new_q.Flags, r_new_q.Period, r_new_q.MinQtty, new_q_buf);
-            PPFormatT(PPTXT_LOG_QUOTUPD_QINSERTED, &log_msg_buf, pList->GoodsID, (const char *)new_q_buf);
+            PPFormatT(PPTXT_LOG_QUOTUPD_QINSERTED, &log_msg_buf, pList->GoodsID, new_q_buf.cptr());
         }
         else {
 			// "Изменено значение котировки"
@@ -629,7 +629,7 @@ static int SLAPI _SetQuot(PPQuotArray * pList, const QuotIdent & rQi, double v, 
             const PPQuot & r_prev_q = preserve_list.at(ret-1);
             PPQuot::PutValToStr(r_prev_q.Quot, r_prev_q.Flags, r_prev_q.Period, r_prev_q.MinQtty, prev_q_buf);
             PPQuot::PutValToStr(r_new_q.Quot, r_new_q.Flags, r_new_q.Period, r_new_q.MinQtty, new_q_buf);
-			PPFormatT(PPTXT_LOG_QUOTUPD_QUPDATED, &log_msg_buf, pList->GoodsID, (const char *)prev_q_buf, (const char *)new_q_buf);
+			PPFormatT(PPTXT_LOG_QUOTUPD_QUPDATED, &log_msg_buf, pList->GoodsID, prev_q_buf.cptr(), new_q_buf.cptr());
         }
 		PPLogMessage(PPFILNAM_QUOTUPD_LOG, log_msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER);
     }
@@ -1091,7 +1091,7 @@ int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
 						}
 						else
 							ev_msg_buf = "error";
-						PPFormatT(PPTXT_LOG_QUOTUPD_GLISTBYEV, &log_msg_buf, (const char *)ev_msg_buf);
+						PPFormatT(PPTXT_LOG_QUOTUPD_GLISTBYEV, &log_msg_buf, ev_msg_buf.cptr());
 						PPLogMessage(PPFILNAM_QUOTUPD_LOG, log_msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER);
 					}
 					GoodsIterator::GetListByFilt(&g_filt, &goods_list, 0);
