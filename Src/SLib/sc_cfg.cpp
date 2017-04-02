@@ -1,5 +1,5 @@
 // SC_CFG.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2008, 2010, 2013, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2008, 2010, 2013, 2016, 2017
 // Part of StyloConduit project
 // Экспорт/Импорт конфигурации
 //
@@ -39,9 +39,7 @@ int SCDBObjConfig::Init(const char * pExpPath, const char * pImpPath)
 		THROW(stbl_cfg.ReadRecByIdx(0, &rec_id, &PalmData, &rec_size) || stbl_cfg.GetLastErr() == SYNCERR_NOT_FOUND);
 	}
 	PalmToHost(&PalmData);
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	P_Ctx->PalmCfg = PalmData;
 	P_Ctx->HostCfg = HostData;
 	return ok;
@@ -162,8 +160,6 @@ int SCDBObjConfig::Export(PROGRESSFN pFn, CSyncProperties *)
 	}
 	else
 		THROW(stbl_cfg.UpdateRec(rec_id, &palm_buf, sizeof(palm_buf)));
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }

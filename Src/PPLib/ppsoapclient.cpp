@@ -1135,3 +1135,72 @@ iSalesRoutePacket & FASTCALL iSalesRoutePacket::operator = (const iSalesRoutePac
 {
 	return Copy(rS);
 }
+
+iSalesBillItem::iSalesBillItem()
+{
+	LineN = 0;
+	UnitCode = 0;
+	Qtty = 0.0;
+}
+
+iSalesBillAmountEntry::iSalesBillAmountEntry()
+{
+	THISZERO();
+}
+
+iSalesBillPacket::iSalesBillPacket()
+{
+	NativeID = 0;
+	DocType = 0;
+	ExtDocType = 0;
+	Status = 0;
+	Dtm.SetZero();
+	IncDtm.SetZero();
+	ExtDtm.SetZero();
+	CreationDtm.SetZero();
+	LastUpdDtm.SetZero();
+	DueDate = ZERODATE;
+}
+//
+//
+//
+SapEfesCallHeader::SapEfesCallHeader()
+{
+	P_SalesOrg = 0;
+	P_Wareh = 0;
+	SessionID = 0;
+}
+
+SapEfesOrder::SapEfesOrder()
+{
+	Date = ZERODATETIME;
+	DueDate = ZERODATE;
+	Amount = 0.0;
+}
+
+SapEfesBillPacket::SapEfesBillPacket()
+{
+	NativeID = 0;
+	Flags = 0;
+	DocType = 0;
+	Date = ZERODATE;
+	DueDate = ZERODATE;
+}
+
+SapEfesDebtReportEntry::SapEfesDebtReportEntry()
+{
+	NativeArID = 0;
+	Debt = 0.0;
+	CreditLimit = 0.0;
+	PayPeriod = 0;
+	DebtDelayDays = 0;
+}
+
+SapEfesDebtDetailReportEntry::SapEfesDebtDetailReportEntry()
+{
+	NativeArID = 0;
+	BillDate = ZERODATE;
+	PaymDate = ZERODATE;
+	Amount = 0.0;
+	Debt = 0.0;
+}

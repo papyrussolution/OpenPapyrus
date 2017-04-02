@@ -162,12 +162,12 @@ int zbar_symbol_get_quality(const zbar_symbol_t * sym)
 	return(sym->quality);
 }
 
-unsigned zbar_symbol_get_loc_size(const zbar_symbol_t * sym)
+uint zbar_symbol_get_loc_size(const zbar_symbol_t * sym)
 {
 	return(sym->npts);
 }
 
-int zbar_symbol_get_loc_x(const zbar_symbol_t * sym, unsigned idx)
+int zbar_symbol_get_loc_x(const zbar_symbol_t * sym, uint idx)
 {
 	if(idx < sym->npts)
 		return(sym->pts[idx].x);
@@ -175,7 +175,7 @@ int zbar_symbol_get_loc_x(const zbar_symbol_t * sym, unsigned idx)
 		return -1;
 }
 
-int zbar_symbol_get_loc_y(const zbar_symbol_t * sym, unsigned idx)
+int zbar_symbol_get_loc_y(const zbar_symbol_t * sym, uint idx)
 {
 	if(idx < sym->npts)
 		return(sym->pts[idx].y);
@@ -203,7 +203,7 @@ const zbar_symbol_t * zbar_symbol_first_component(const zbar_symbol_t * sym)
 	return((sym && sym->syms) ? sym->syms->head : NULL);
 }
 
-unsigned base64_encode(char * dst, const char * src, unsigned srclen)
+uint base64_encode(char * dst, const char * src, uint srclen)
 {
 	static const char alphabet[] =
 	    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -269,7 +269,7 @@ static void cdecl TmplFmt(const char * pFormat, char * pBuf, int & rN, uint maxL
 	assert(rN <= (int)maxLen);
 }
 
-char * zbar_symbol_xml(const zbar_symbol_t * sym, char ** buf, unsigned * len)
+char * zbar_symbol_xml(const zbar_symbol_t * sym, char ** buf, uint * len)
 {
 	uint datalen, maxlen;
 	int    n = 0;

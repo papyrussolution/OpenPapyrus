@@ -1031,7 +1031,6 @@ int dotcode(struct ZintSymbol * symbol, const uchar source[], int length)
 	size_t dot_stream_length;
 	int high_score, best_mask;
 	int debug = 0;
-
 #ifndef _MSC_VER
 	uchar codeword_array[length * 3];
 	uchar masked_codeword_array[length * 3];
@@ -1133,9 +1132,7 @@ int dotcode(struct ZintSymbol * symbol, const uchar source[], int length)
 					}
 					break;
 			}
-
 			rsencode(data_length + 1, ecc_length, masked_codeword_array);
-
 			dot_stream_length = make_dotstream(masked_codeword_array, (data_length + ecc_length + 1), dot_stream);
 			// Add pad bits 
 			for(jc = dot_stream_length; jc < n_dots; jc++) {
@@ -1155,7 +1152,6 @@ int dotcode(struct ZintSymbol * symbol, const uchar source[], int length)
 				best_mask = i;
 			}
 		}
-
 		if(best_mask != 3) {
 			/* Reprocess to get symbol with best mask */
 			switch(best_mask) {
@@ -1182,7 +1178,6 @@ int dotcode(struct ZintSymbol * symbol, const uchar source[], int length)
 					}
 					break;
 			}
-
 			rsencode(data_length + 1, ecc_length, masked_codeword_array);
 			dot_stream_length = make_dotstream(masked_codeword_array, (data_length + ecc_length + 1), dot_stream);
 			// Add pad bits 
@@ -1211,10 +1206,8 @@ int dotcode(struct ZintSymbol * symbol, const uchar source[], int length)
 		}
 		symbol->row_height[k] = 1;
 	}
-
 	if(!(symbol->output_options & BARCODE_DOTTY_MODE)) {
 		symbol->output_options += BARCODE_DOTTY_MODE;
 	}
-
 	return 0;
 }

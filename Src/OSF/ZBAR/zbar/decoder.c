@@ -98,7 +98,7 @@ void zbar_decoder_destroy(zbar_decoder_t * dcode)
 
 void zbar_decoder_reset(zbar_decoder_t * dcode)
 {
-	memset(dcode, 0, (long)&dcode->buf_alloc - (long)dcode);
+	memzero(dcode, (long)&dcode->buf_alloc - (long)dcode);
 #ifdef ENABLE_EAN
 	ean_reset(&dcode->ean);
 #endif
@@ -212,7 +212,7 @@ uint zbar_decoder_get_modifiers(const zbar_decoder_t * dcode)
 	return(dcode->modifiers);
 }
 
-zbar_symbol_type_t zbar_decode_width(zbar_decoder_t * dcode, unsigned w)
+zbar_symbol_type_t zbar_decode_width(zbar_decoder_t * dcode, uint w)
 {
 	zbar_symbol_type_t tmp;
 	zbar_symbol_type_t sym = ZBAR_NONE;
@@ -316,13 +316,13 @@ static inline const uint* decoder_get_configp(const zbar_decoder_t * dcode, zbar
 
 uint zbar_decoder_get_configs(const zbar_decoder_t * dcode, zbar_symbol_type_t sym)
 {
-	const unsigned * config = decoder_get_configp(dcode, sym);
+	const uint * config = decoder_get_configp(dcode, sym);
 	return config ? *config : 0;
 }
 
 static inline int decoder_set_config_bool(zbar_decoder_t * dcode, zbar_symbol_type_t sym, zbar_config_t cfg, int val)
 {
-	unsigned * config = (unsigned *)decoder_get_configp(dcode, sym);
+	uint * config = (uint *)decoder_get_configp(dcode, sym);
 	if(!config || cfg >= ZBAR_CFG_NUM)
 		return 1;
 	if(!val)
@@ -401,7 +401,7 @@ int zbar_decoder_set_config(zbar_decoder_t * dcode, zbar_symbol_type_t sym, zbar
 const char * _zbar_decoder_buf_dump(uchar * buf, uint buflen)
 {
 	static char * decoder_dump = NULL;
-	static unsigned decoder_dumplen = 0;
+	static uint decoder_dumplen = 0;
 	const uint dumplen = (buflen * 3) + 12;
 	char * p;
 	if(!decoder_dump || dumplen > decoder_dumplen) {

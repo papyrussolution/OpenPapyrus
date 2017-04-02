@@ -2238,3 +2238,58 @@ extern "C" __declspec(dllexport) UhttStatus * UhttCreateTSession(PPSoapClientSes
 	}
 	return p_result;
 }
+
+extern "C" __declspec(dllexport) TSCollection <UhttStatus> * UhttSendSms(PPSoapClientSession & rSess, const char * pToken, const TSCollection <UhttSmsPacket> & rPack)
+{
+	TSCollection <UhttStatus> * p_result = 0;
+#if 1 // @construction {
+	TSCollection <InParamString> arg_str_pool;
+	SString temp_buf;
+	WSInterfaceImplServiceSoapBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
+	gSoapClientInit(&proxi, 0, 0);
+	ns1__sendSMS param;
+	ns1__sendSMSResponse resp;
+	TSCollection <ns1__smsMessage> msg_list;
+	{
+		{
+			for(uint i = 0; i < rPack.getCount(); i++) {
+				const UhttSmsPacket * p_src_item = rPack.at(i);
+				if(p_src_item) {
+					ns1__smsMessage * p_new_item = msg_list.CreateNewItem(0);
+					THROW(p_new_item);
+					p_new_item->From = GetDynamicParamString((temp_buf = p_src_item->From).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
+					p_new_item->To = GetDynamicParamString((temp_buf = p_src_item->To).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
+					p_new_item->Text = GetDynamicParamString((temp_buf = p_src_item->Text).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
+				}
+			}
+		}
+		{
+			param.message = (ns1__smsMessage **)PPSoapCreateArray(msg_list.getCount(), param.__sizemessage);
+			THROW(param.message);
+			for(uint i = 0; i < msg_list.getCount(); i++) {
+				param.message[i] = msg_list.at(i);
+			}
+		}
+		param.token = GetDynamicParamString(pToken, arg_str_pool);
+		if(PreprocessCall(proxi, rSess, proxi.sendSMS(rSess.GetUrl(), 0 /* soap_action */, &param, &resp))) {
+			if(resp.__sizestatus > 0) {
+				THROW(p_result = new TSCollection <UhttStatus>);
+				PPSoapRegisterResultPtr(p_result);
+				for(uint i = 0; i < (uint)resp.__sizestatus; i++) {
+					const ns1__statusExt * p_status_item = resp.status[i];
+					if(p_status_item) {
+						UhttStatus * p_new_item = CreateResultStatus(p_status_item);
+						THROW(p_new_item);
+						p_result->insert(p_new_item);
+					}
+				}
+			}
+		}
+	}
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
+	free(param.message);
+#endif // } 0 @construction
+	return p_result;
+}

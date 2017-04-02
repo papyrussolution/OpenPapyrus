@@ -95,6 +95,8 @@ static SString & catval(long v, const char * pV, SString & rBuf)
 	{ return rBuf.CatChar('(').CatEq(pV, v).CatChar(')'); }
 static SString & catval(ulong v, const char * pV, SString & rBuf)
 	{ return rBuf.CatChar('(').Cat(pV).Eq().Cat(v).CatChar(')'); }
+static SString & catval(int64 v, const char * pV, SString & rBuf)
+	{ return rBuf.CatChar('(').Cat(pV).Eq().Cat(v).CatChar(')'); }
 static SString & catval(double v, const char * pV, SString & rBuf)
 	{ return rBuf.CatChar('(').CatEq(pV, v, MKSFMTD(0, 15, NMBF_NOTRAILZ)).CatChar(')'); }
 static SString & catval(LDATE v, const char * pV, SString & rBuf)
@@ -209,6 +211,8 @@ int STestCase::_check_math_result(SMathResult & r, double val, double tol, const
 
 int STestCase::_check_eq(uint8 a, uint8 b, const char * pA, const char * pB)
 {
+	return Implement_check_eq((ulong)a, (ulong)b, pA, pB);
+	/*
 	if(a != b) {
 		SString buf;
 		SetInfo(catval((ulong)b, pB, catval((ulong)a, pA, buf).Cat("!=")), 0);
@@ -216,10 +220,13 @@ int STestCase::_check_eq(uint8 a, uint8 b, const char * pA, const char * pB)
 	}
 	else
 		return 1;
+	*/
 }
 
 int STestCase::_check_eq(uint a, uint b, const char * pA, const char * pB)
 {
+	return Implement_check_eq((ulong)a, (ulong)b, pA, pB);
+	/*
 	if(a != b) {
 		SString buf;
 		SetInfo(catval((ulong)b, pB, catval((ulong)a, pA, buf).Cat("!=")), 0);
@@ -227,10 +234,13 @@ int STestCase::_check_eq(uint a, uint b, const char * pA, const char * pB)
 	}
 	else
 		return 1;
+	*/
 }
 
 int STestCase::_check_eq(long a, long b, const char * pA, const char * pB)
 {
+	return Implement_check_eq(a, b, pA, pB);
+	/*
 	if(a != b) {
 		SString buf;
 		SetInfo(catval(b, pB, catval(a, pA, buf).Cat("!=")), 0);
@@ -238,10 +248,13 @@ int STestCase::_check_eq(long a, long b, const char * pA, const char * pB)
 	}
 	else
 		return 1;
+	*/
 }
 
 int STestCase::_check_eq(ulong a, ulong b, const char * pA, const char * pB)
 {
+	return Implement_check_eq(a, b, pA, pB);
+	/*
 	if(a != b) {
 		SString buf;
 		SetInfo(catval(b, pB, catval(a, pA, buf).Cat("!=")), 0);
@@ -249,10 +262,27 @@ int STestCase::_check_eq(ulong a, ulong b, const char * pA, const char * pB)
 	}
 	else
 		return 1;
+	*/
+}
+
+int STestCase::_check_eq(int64 a, int64 b, const char * pA, const char * pB)
+{
+	return Implement_check_eq(a, b, pA, pB);
+	/*
+	if(a != b) {
+		SString buf;
+		SetInfo(catval(b, pB, catval(a, pA, buf).Cat("!=")), 0);
+		return 0;
+	}
+	else
+		return 1;
+	*/
 }
 
 int STestCase::_check_eq(double a, double b, const char * pA, const char * pB)
 {
+	return Implement_check_eq(a, b, pA, pB);
+	/*
 	if(a != b) {
 		SString buf;
 		SetInfo(catval(b, pB, catval(a, pA, buf).Cat("!=")), 0);
@@ -260,10 +290,13 @@ int STestCase::_check_eq(double a, double b, const char * pA, const char * pB)
 	}
 	else
 		return 1;
+	*/
 }
 
 int STestCase::_check_eq(float a, float b, const char * pA, const char * pB)
 {
+	return Implement_check_eq(a, b, pA, pB);
+	/*
 	if(a != b) {
 		SString buf;
 		SetInfo(catval(b, pB, catval(a, pA, buf).Cat("!=")), 0);
@@ -271,6 +304,7 @@ int STestCase::_check_eq(float a, float b, const char * pA, const char * pB)
 	}
 	else
 		return 1;
+	*/
 }
 
 int STestCase::_check_eq_tolerance(double a, double b, double tol, const char * pA, const char * pB)
@@ -297,6 +331,8 @@ int STestCase::_check_eq_tolerance(float a, float b, float tol, const char * pA,
 
 int STestCase::_check_eq(LDATE a, LDATE b, const char * pA, const char * pB)
 {
+	return Implement_check_eq(a, b, pA, pB);
+	/*
 	if(a != b) {
 		SString buf;
 		SetInfo(catval(b, pB, catval(a, pA, buf).Cat("!=")), 0);
@@ -304,10 +340,13 @@ int STestCase::_check_eq(LDATE a, LDATE b, const char * pA, const char * pB)
 	}
 	else
 		return 1;
+	*/
 }
 
 int STestCase::_check_eq(const SString & rVA, const SString & rVB, const char * pA, const char * pB)
 {
+	return Implement_check_eq(rVA, rVB, pA, pB);
+	/*
 	if(rVA != rVB) {
 		SString buf;
 		SetInfo(catval(rVB, pB, catval(rVA, pA, buf).Cat("!=")), 0);
@@ -315,6 +354,7 @@ int STestCase::_check_eq(const SString & rVA, const SString & rVB, const char * 
 	}
 	else
 		return 1;
+	*/
 }
 
 int STestCase::_check_eq(const SString & rVA, const char * pVB, const char * pA, const char * pB)

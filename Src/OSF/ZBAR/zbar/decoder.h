@@ -57,14 +57,14 @@ static inline char get_color(const zbar_decoder_t * dcode)
 //
 // retrieve i-th previous element width 
 //
-static inline unsigned get_width(const zbar_decoder_t * dcode, uchar offset)
+static inline uint get_width(const zbar_decoder_t * dcode, uchar offset)
 {
 	return (dcode->w[(dcode->idx - offset) & (DECODE_WINDOW - 1)]);
 }
 //
 // retrieve bar+space pair width starting at offset i 
 //
-static inline unsigned pair_width(const zbar_decoder_t * dcode, uchar offset)
+static inline uint pair_width(const zbar_decoder_t * dcode, uchar offset)
 {
 	return (get_width(dcode, offset) + get_width(dcode, offset + 1));
 }
@@ -73,10 +73,10 @@ static inline unsigned pair_width(const zbar_decoder_t * dcode, uchar offset)
  *     (<= DECODE_WINDOW - n)
  *   - size of character is n elements
  */
-static inline unsigned calc_s(const zbar_decoder_t * dcode, uchar offset, uchar n)
+static inline uint calc_s(const zbar_decoder_t * dcode, uchar offset, uchar n)
 {
 	/* FIXME check that this gets unrolled for constant n */
-	unsigned s = 0;
+	uint s = 0;
 	while(n--)
 		s += get_width(dcode, offset++);
 	return(s);
@@ -92,7 +92,7 @@ static inline unsigned calc_s(const zbar_decoder_t * dcode, uchar offset, uchar 
  *     => using like-edge measurements avoids these issues
  *   - n should be > 3
  */
-static inline int decode_e(unsigned e, unsigned s, unsigned n)
+static inline int decode_e(uint e, uint s, uint n)
 {
 	/* result is encoded number of units - 2
 	 * (for use as zero based index)
@@ -104,11 +104,11 @@ static inline int decode_e(unsigned e, unsigned s, unsigned n)
 
 /* sort three like-colored elements and return ordering
  */
-static inline unsigned decode_sort3(zbar_decoder_t * dcode, int i0)
+static inline uint decode_sort3(zbar_decoder_t * dcode, int i0)
 {
-	const unsigned w0 = get_width(dcode, i0);
-	const unsigned w2 = get_width(dcode, i0 + 2);
-	const unsigned w4 = get_width(dcode, i0 + 4);
+	const uint w0 = get_width(dcode, i0);
+	const uint w2 = get_width(dcode, i0 + 2);
+	const uint w4 = get_width(dcode, i0 + 4);
 	if(w0 < w2) {
 		if(w2 < w4)
 			return((i0 << 8) | ((i0 + 2) << 4) | (i0 + 4));
@@ -127,15 +127,15 @@ static inline unsigned decode_sort3(zbar_decoder_t * dcode, int i0)
 //
 // sort N like-colored elements and return ordering
 //
-static inline unsigned decode_sortn(zbar_decoder_t * dcode, int n, int i0)
+static inline uint decode_sortn(zbar_decoder_t * dcode, int n, int i0)
 {
-	unsigned mask = 0, sort = 0;
+	uint mask = 0, sort = 0;
 	for(int i = n - 1; i >= 0; i--) {
-		unsigned wmin = UINT_MAX;
+		uint wmin = UINT_MAX;
 		int jmin = -1, j;
 		for(j = n - 1; j >= 0; j--) {
 			if(((mask >> j) & 1) == 0) {
-				const unsigned w = get_width(dcode, i0 + j * 2);
+				const uint w = get_width(dcode, i0 + j * 2);
 				if(wmin >= w) {
 					wmin = w;
 					jmin = j;
@@ -177,7 +177,7 @@ static inline char release_lock(zbar_decoder_t * dcode, zbar_symbol_type_t req)
 //
 // ensure output buffer has sufficient allocation for request 
 //
-static inline char size_buf(zbar_decoder_t * dcode, unsigned len)
+static inline char size_buf(zbar_decoder_t * dcode, uint len)
 {
 	if(len <= BUFFER_MIN)
 		return 0;

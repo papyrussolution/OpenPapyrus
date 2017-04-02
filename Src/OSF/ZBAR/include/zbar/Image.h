@@ -95,7 +95,7 @@ private:
 	*/
 	/// constructor.
 	/// create a new Image with the specified parameters
-	Image (unsigned width = 0, unsigned height = 0, const std::string& format = "",
+	Image (uint width = 0, uint height = 0, const std::string& format = "",
 	    const void * data = NULL, ulong length = 0) : _img(zbar_image_create())
 	{
 		zbar_image_set_userdata(_img, this);
@@ -151,7 +151,7 @@ private:
 	/// image.
 	/// see zbar_image_get_sequence()
 	/// @since 0.6
-	unsigned get_sequence() const
+	uint get_sequence() const
 	{
 		return(zbar_image_get_sequence(_img));
 	}
@@ -159,45 +159,45 @@ private:
 	/// associate a "sequence" (page/frame) number with this image.
 	/// see zbar_image_set_sequence()
 	/// @since 0.6
-	void set_sequence(unsigned sequence_num)
+	void set_sequence(uint sequence_num)
 	{
 		zbar_image_set_sequence(_img, sequence_num);
 	}
 
 	/// retrieve the width of the image.
 	/// see zbar_image_get_width()
-	unsigned get_width() const
+	uint get_width() const
 	{
 		return(zbar_image_get_width(_img));
 	}
 	/// retrieve the height of the image.
 	/// see zbar_image_get_height()
-	unsigned get_height() const
+	uint get_height() const
 	{
 		return(zbar_image_get_height(_img));
 	}
 	/// retrieve both dimensions of the image.
 	/// see zbar_image_get_size()
 	/// @since 0.11
-	void get_size(unsigned &width, unsigned &height) const
+	void get_size(uint &width, uint &height) const
 	{
 		zbar_image_get_size(_img, &width, &height);
 	}
 	/// specify the pixel size of the image.
 	/// see zbar_image_set_size()
-	void set_size(unsigned width, unsigned height)
+	void set_size(uint width, uint height)
 	{
 		zbar_image_set_size(_img, width, height);
 	}
 	/// retrieve the scan crop rectangle.
 	/// see zbar_image_get_crop()
-	void get_crop(unsigned &x, unsigned &y, unsigned &width, unsigned &height) const
+	void get_crop(uint &x, uint &y, uint &width, uint &height) const
 	{
 		zbar_image_get_crop(_img, &x, &y, &width, &height);
 	}
 	/// set the scan crop rectangle.
 	/// see zbar_image_set_crop()
-	void set_crop(unsigned x, unsigned y, unsigned width, unsigned height)
+	void set_crop(uint x, uint y, uint width, uint height)
 	{
 		zbar_image_set_crop(_img, x, y, width, height);
 	}
@@ -242,7 +242,7 @@ private:
 	/// image format conversion with crop/pad.
 	/// see zbar_image_convert_resize()
 	/// @since 0.4
-	Image convert(ulong format, unsigned width, unsigned height) const
+	Image convert(ulong format, uint width, uint height) const
 	{
 		zbar_image_t * img = zbar_image_convert_resize(_img, format, width, height);
 		return img ? Image(img) : FormatError();

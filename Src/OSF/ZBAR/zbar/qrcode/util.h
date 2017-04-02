@@ -40,7 +40,7 @@
 #define QR_ILOG3(_v) (((_v)&0xFF00)?8+QR_ILOG2((_v)>>8):QR_ILOG2(_v))
 #define QR_ILOG4(_v) (((_v)&0xFFFF0000)?16+QR_ILOG3((_v)>>16):QR_ILOG3(_v))
 /*Computes the integer logarithm of a (positive, 32-bit) constant.*/
-#define QR_ILOG(_v) ((int)QR_ILOG4((unsigned)(_v)))
+#define QR_ILOG(_v) ((int)QR_ILOG4((uint)(_v)))
 
 /*Multiplies 32-bit numbers _a and _b, adds (possibly 64-bit) number _r, and
    takes bits [_s,_s+31] of the result.*/
@@ -49,8 +49,8 @@
    gives all 64 bits of the result.*/
 #define QR_EXTMUL(_a,_b,_r)    ((_a)*(long long)(_b)+(_r))
 
-unsigned qr_isqrt(unsigned _val);
-unsigned qr_ihypot(int _x,int _y);
-int qr_ilog(unsigned _val);
+uint qr_isqrt(uint _val);
+uint qr_ihypot(int _x,int _y);
+int qr_ilog(uint _val);
 
 #endif

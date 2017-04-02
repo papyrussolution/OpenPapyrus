@@ -428,8 +428,8 @@ int zbar_processor_set_config(zbar_processor_t * proc,
 }
 
 int zbar_processor_request_size(zbar_processor_t * proc,
-    unsigned width,
-    unsigned height)
+    uint width,
+    uint height)
 {
 	proc_enter(proc);
 	proc->req_width = width;

@@ -79,17 +79,21 @@ int FASTCALL CalcBarcodeCheckDigit(const char * pBarcode)
 
 char * SLAPI AddBarcodeCheckDigit(char * pBarcode)
 {
-	int    cdig = CalcBarcodeCheckDigit(pBarcode);
-	size_t len = strlen(pBarcode);
-	pBarcode[len++] = '0' + cdig;
-	pBarcode[len] = 0;
+	size_t len = sstrlen(pBarcode);
+	if(len) {
+		int    cdig = CalcBarcodeCheckDigitL(pBarcode, len);
+		pBarcode[len++] = '0' + cdig;
+		pBarcode[len] = 0;
+	}
 	return pBarcode;
 }
 
 SString & SLAPI AddBarcodeCheckDigit(SString & rBarcode)
 {
-	int    cdig = CalcBarcodeCheckDigit(rBarcode);
-	rBarcode.CatChar('0' + cdig);
+	if(rBarcode.Len()) {
+		int    cdig = CalcBarcodeCheckDigitL(rBarcode, rBarcode.Len());
+		rBarcode.CatChar('0' + cdig);
+	}
 	return rBarcode;
 }
 
@@ -113,7 +117,7 @@ static char * SLAPI EncodeEAN8(const char * pCode, char * pBuf)
 
 static char * SLAPI EncodeUPCE(const char * pCode, char * pBuf)
 {
-	char tab[10][5] = {
+	static const char tab[10][5] = {
 		{1, 1, 0, 0, 0}, // 0 0x18
 		{1, 0, 1, 0, 0}, // 1 0x14
 		{1, 0, 0, 1, 0}, // 2 0x12
@@ -125,49 +129,51 @@ static char * SLAPI EncodeUPCE(const char * pCode, char * pBuf)
 		{0, 1, 0, 0, 1}, // 8 0x09
 		{0, 0, 1, 0, 1}  // 9 0x05
 	};
-	size_t len = strlen(pCode);
+	const size_t len = sstrlen(pCode);
 	if(len != 8)
 		return 0;
-	size_t i, p = 0;
-	int  row;
-	int  chk_dig = pCode[7]-'0';
-	int  leading = pCode[0]-'0';
-	char pc[64];
-	pc[p++] = 'K' + leading; // digit only
-	pc[p++] = 'x'; // left-hand guard bar (101)
-	for(i = 1; i < len-1; i++) {
-		int c = pCode[i];
-		if(i == 1) {
-			row = (leading != 0) ? 0 : 1;
-			if(row == 0)    // Row A
-				pc[p++] = c;
-			else            // Row B
-				pc[p++] = 'A' + (c-'0');
+	else {
+		size_t i, p = 0;
+		int  row;
+		int  chk_dig = pCode[7]-'0';
+		int  leading = pCode[0]-'0';
+		char pc[64];
+		pc[p++] = 'K' + leading; // digit only
+		pc[p++] = 'x'; // left-hand guard bar (101)
+		for(i = 1; i < len-1; i++) {
+			int c = pCode[i];
+			if(i == 1) {
+				row = (leading != 0) ? 0 : 1;
+				if(row == 0)    // Row A
+					pc[p++] = c;
+				else            // Row B
+					pc[p++] = 'A' + (c-'0');
+			}
+			else if(i >= 2 && i <= 6) {
+				row = tab[chk_dig][i-2];
+				if(leading != 0)
+					row = (row == 1) ? 0 : 1;
+				if(row == 0)    // Row A
+					pc[p++] = c;
+				else            // Row B
+					pc[p++] = 'A' + (c-'0');
+			}
 		}
-		else if(i >= 2 && i <= 6) {
-			row = tab[chk_dig][i-2];
-			if(leading != 0)
-				row = (row == 1) ? 0 : 1;
-			if(row == 0)    // Row A
-				pc[p++] = c;
-			else            // Row B
-				pc[p++] = 'A' + (c-'0');
-		}
+		pc[p++] = 'X'; // center-guard bar (01010)
+		// Здесь нужно вставить терминальный guard bar (1), но я не нашел
+		// в этих шрифтах такого знака.
+		pc[p++] = 'K' + chk_dig; // digit only
+		for(i = 0; i < p; i++)
+			pBuf[i] = pc[i];
+		pBuf[p] = 0;
+		return pBuf;
 	}
-	pc[p++] = 'X'; // center-guard bar (01010)
-	// Здесь нужно вставить терминальный guard bar (1), но я не нашел
-	// в этих шрифтах такого знака.
-	pc[p++] = 'K' + chk_dig; // digit only
-	for(i = 0; i < p; i++)
-		pBuf[i] = pc[i];
-	pBuf[p] = 0;
-	return pBuf;
 }
 
 static char * SLAPI EncodeEAN13(int upca, const char * pCode, char * pBuf)
 {
 	// 0 - A, 1 - B
-	char tab[9][5] = {
+	static const char tab[9][5] = {
 		{0, 1, 0, 1, 1},
 		{0, 1, 1, 0, 1},
 		{0, 1, 1, 1, 0},
@@ -189,38 +195,40 @@ static char * SLAPI EncodeEAN13(int upca, const char * pCode, char * pBuf)
 	//  tab = leading == 0 ? A : (tab[leading][i-6] ? B : A)
 	//  leadig = pCode[0] - '0'
 	//
-	size_t len = strlen(pCode);
+	const size_t len = sstrlen(pCode);
 	if(len != 13)
 		return 0;
-	size_t i, p = 0;
-	int  leading = pCode[0]-'0';
-	char pc[64];
-	pc[p++] = 'x';
-	for(i = 0; i < len; i++) {
-		if(i == 6)
-			pc[p++] = 'X';
-		if(i == len-1)
-			pc[p++] = 'x';
-		int c = pCode[len-i-1];
-		if(i < 6)           // Row C
-			pc[p++] = 'a' + (c-'0');
-		else if(i >= 6 && i <= 10) {
-			int row = (leading == 0) ? 0 : tab[leading-1][10-i];
-			if(row == 0)    // Row A
+	else {
+		size_t i, p = 0;
+		int  leading = pCode[0]-'0';
+		char pc[64];
+		pc[p++] = 'x';
+		for(i = 0; i < len; i++) {
+			if(i == 6)
+				pc[p++] = 'X';
+			if(i == len-1)
+				pc[p++] = 'x';
+			int c = pCode[len-i-1];
+			if(i < 6)           // Row C
+				pc[p++] = 'a' + (c-'0');
+			else if(i >= 6 && i <= 10) {
+				int row = (leading == 0) ? 0 : tab[leading-1][10-i];
+				if(row == 0)    // Row A
+					pc[p++] = c;
+				else            // Row B
+					pc[p++] = 'A' + (c-'0');
+			}
+			else if(i == 11)    // Row A
 				pc[p++] = c;
-			else            // Row B
-				pc[p++] = 'A' + (c-'0');
+			else                // No bar (digit only)
+				if(!upca)
+					pc[p++] = 'K' + (c-'0');
 		}
-		else if(i == 11)    // Row A
-			pc[p++] = c;
-		else                // No bar (digit only)
-			if(!upca)
-				pc[p++] = 'K' + (c-'0');
+		for(i = 0; i < p; i++)
+			pBuf[i] = pc[p-i-1];
+		pBuf[p] = 0;
+		return pBuf;
 	}
-	for(i = 0; i < p; i++)
-		pBuf[i] = pc[p-i-1];
-	pBuf[p] = 0;
-	return pBuf;
 }
 
 int SLAPI CreatePrintableBarcode(const char * pBarcode, int codeType, char * pBuf, size_t bufLen)
@@ -2690,10 +2698,8 @@ int SLAPI PPObjGoods::UpdateFlags(PPID goodsID, long setF, long resetF, int use_
 			if(resetF & GF_PASSIV) rec.Flags &= ~GF_PASSIV;
 			if(setF & GF_PRICEWOTAXES) rec.Flags |= GF_PRICEWOTAXES;
 			if(resetF & GF_PRICEWOTAXES) rec.Flags &= ~GF_PRICEWOTAXES;
-			// @v7.3.0 {
 			if(setF & GF_HASIMAGES) rec.Flags |= GF_HASIMAGES;
 			if(resetF & GF_HASIMAGES) rec.Flags &= ~GF_HASIMAGES;
-			// } @v7.3.0
 			if(old_f != rec.Flags) {
 				THROW_DB(P_Tbl->updateRecBuf(&rec));
 				DS.LogAction(PPACN_OBJUPD, Obj, goodsID, 0, 0);
@@ -2873,7 +2879,7 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 		if(r > 0) {
 			pItem->QuotKindUsedForPrice = PPQUOTK_BASE;
 			used_quot_list.addUnique(PPQUOTK_BASE);
-			SETFLAG(pItem->Flags, pItem->fDisabledQuot, r == 2); // @v7.8.1
+			SETFLAG(pItem->Flags, pItem->fDisabledQuot, r == 2);
 		}
 		MEMSZERO(lot_rec);
 		ok = GPRET_PRESENT;

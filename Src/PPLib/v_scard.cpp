@@ -2118,7 +2118,7 @@ int SLAPI PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 		// @v9.4.5 {
 		if(!Filt.PersonID && Filt.LocID)
 			param.LocID = Filt.LocID;
-		// } @v9.4.5 
+		// } @v9.4.5
 		ok = (SCObj.Edit(&id, param) == cmOK) ? 1 : -1;
 		if(ok > 0 && ImplementFlags & implOnAddSetupPos && pBrw) {
 			pBrw->Update();
@@ -2276,8 +2276,14 @@ SLAPI PPViewSCardOp::PPViewSCardOp() : PPView(0, &Filt, PPVIEW_SCARDOP)
 
 int SLAPI PPViewSCardOp::Init_(const PPBaseFilt * pFilt)
 {
+	int    ok = 1;
 	Counter.Init(0UL);
-	return Helper_InitBaseFilt(pFilt);
+	if(Helper_InitBaseFilt(pFilt)) {
+        Filt.Period.Actualize(ZERODATE); // @v9.5.11
+	}
+	else
+		ok = 0;
+	return ok;
 }
 
 PPBaseFilt * SLAPI PPViewSCardOp::CreateFilt(void * extraPtr) const
@@ -3197,7 +3203,7 @@ SLAPI PPViewUhttSCardOp::~PPViewUhttSCardOp()
 
 int SLAPI PPViewUhttSCardOp::Init_(const PPBaseFilt * pFilt)
 {
-	int ok = 1;
+	int    ok = 1;
 	List.freeAll();
 	THROW(Helper_InitBaseFilt(pFilt));
 	{

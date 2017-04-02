@@ -2935,13 +2935,7 @@ int SLAPI PPUhttClient::GetLocationListByPhone(const char * pPhone, TSCollection
 			sess.Setup(UrlBase);
 			TSCollection <UhttLocationPacket> * p_result = func(sess, Token, pPhone);
 			if(PreprocessResult(p_result, sess)) {
-				for(uint i = 0; i < p_result->getCount(); i++) {
-					if(p_result->at(i)) {
-						UhttLocationPacket * p_pack = new UhttLocationPacket;
-						*p_pack = *p_result->at(i);
-						rResult.insert(p_pack);
-					}
-				}
+				TSCollection_Copy(rResult, *p_result);
 				DestroyResult((void **)&p_result);
 				ok = 1;
 			}
@@ -2964,13 +2958,7 @@ int SLAPI PPUhttClient::GetBrandByName(const char * pName, TSCollection <UhttBra
 			(temp_buf = pName).Transf(CTRANSF_INNER_TO_UTF8);
 			TSCollection <UhttBrandPacket> * p_result = func(sess, Token, temp_buf);
 			if(PreprocessResult(p_result, sess)) {
-				for(uint i = 0; i < p_result->getCount(); i++) {
-					if(p_result->at(i)) {
-						UhttBrandPacket * p_pack = new UhttBrandPacket;
-						*p_pack = *p_result->at(i);
-						rResult.insert(p_pack);
-					}
-				}
+				TSCollection_Copy(rResult, *p_result);
 				DestroyResult((void **)&p_result);
 				ok = 1;
 			}
@@ -2983,8 +2971,7 @@ int SLAPI PPUhttClient::GetBrandByName(const char * pName, TSCollection <UhttBra
 
 int SLAPI PPUhttClient::GetUhttGoodsRefList(LAssocArray & rList, StrAssocArray * pByCodeList)
 {
-	if(pByCodeList)
-		pByCodeList->Clear();
+	CALLPTRMEMB(pByCodeList, Clear());
 
 	int    ok = -1;
 	SString temp_buf;
@@ -3021,9 +3008,7 @@ int SLAPI PPUhttClient::GetUhttGoodsRefList(LAssocArray & rList, StrAssocArray *
 								uint su_pos = 0;
 								if(rList.Search(r_ref_item.PrivateID, &su_id, &su_pos)) {
 									rList.at(su_pos).Val = r_ref_item.UhttID;
-									if(pByCodeList) {
-										pByCodeList->Add(r_ref_item.UhttID, r_ref_item.Code, 0 /* dont replace dup */);
-									}
+									CALLPTRMEMB(pByCodeList, Add(r_ref_item.UhttID, r_ref_item.Code, 0 /* dont replace dup */));
 									ok = 1;
 								}
 							}
@@ -3055,10 +3040,9 @@ int SLAPI PPUhttClient::GetUhttGoodsList(PPID goodsID, long flags, TSCollection 
 		TSCollection <UhttGoodsPacket> uhtt_goods_list;
 		if(GetGoodsByCode(bc_list.at(i).Code, uhtt_goods_list)) {
 			if(uhtt_goods_list.getCount() == 1) {
-				UhttGoodsPacket * p_new_pack = new UhttGoodsPacket;
-				THROW_MEM(p_new_pack);
+				UhttGoodsPacket * p_new_pack = rResult.CreateNewItem();
+				THROW_SL(p_new_pack);
 				*p_new_pack = *uhtt_goods_list.at(0);
-				THROW_SL(rResult.insert(p_new_pack));
 			}
 			else if(uhtt_goods_list.getCount() == 0) {
 				; // @logwarn
@@ -3175,13 +3159,7 @@ int SLAPI PPUhttClient::GetPersonByName(const char * pName, TSCollection <UhttPe
 			(temp_buf = pName).Transf(CTRANSF_INNER_TO_UTF8);
 			TSCollection <UhttPersonPacket> * p_result = func(sess, Token, temp_buf);
 			if(PreprocessResult(p_result, sess)) {
-				for(uint i = 0; i < p_result->getCount(); i++) {
-					if(p_result->at(i)) {
-						UhttPersonPacket * p_pack = new UhttPersonPacket;
-						*p_pack = *p_result->at(i);
-						rResult.insert(p_pack);
-					}
-				}
+				TSCollection_Copy(rResult, *p_result);
 				DestroyResult((void **)&p_result);
 				ok = 1;
 			}
@@ -3220,13 +3198,7 @@ int SLAPI PPUhttClient::GetGoodsByCode(const char * pCode, TSCollection <UhttGoo
 			sess.Setup(UrlBase);
 			TSCollection <UhttGoodsPacket> * p_result = func(sess, Token, pCode);
 			if(PreprocessResult(p_result, sess)) {
-				for(uint i = 0; i < p_result->getCount(); i++) {
-					if(p_result->at(i)) {
-						UhttGoodsPacket * p_pack = new UhttGoodsPacket;
-						*p_pack = *p_result->at(i);
-						rResult.insert(p_pack);
-					}
-				}
+				TSCollection_Copy(rResult, *p_result);
 				DestroyResult((void **)&p_result);
 				ok = 1;
 			}
@@ -3249,13 +3221,7 @@ int SLAPI PPUhttClient::GetGoodsByName(const char * pName, TSCollection <UhttGoo
 			(temp_buf = pName).Transf(CTRANSF_INNER_TO_UTF8);
 			TSCollection <UhttGoodsPacket> * p_result = func(sess, Token, temp_buf);
 			if(PreprocessResult(p_result, sess)) {
-				for(uint i = 0; i < p_result->getCount(); i++) {
-					if(p_result->at(i)) {
-						UhttGoodsPacket * p_pack = new UhttGoodsPacket;
-						*p_pack = *p_result->at(i);
-						rResult.insert(p_pack);
-					}
-				}
+				TSCollection_Copy(rResult, *p_result);
 				DestroyResult((void **)&p_result);
 				ok = 1;
 			}
@@ -3405,13 +3371,7 @@ int SLAPI PPUhttClient::GetSpecSeriesByPeriod(const char * pPeriod, TSCollection
 			(temp_buf = pPeriod).Transf(CTRANSF_INNER_TO_UTF8);
 			TSCollection <UhttSpecSeriesPacket> * p_result = func(sess, Token, temp_buf);
 			if(PreprocessResult(p_result, sess)) {
-				for(uint i = 0; i < p_result->getCount(); i++) {
-					if(p_result->at(i)) {
-						UhttSpecSeriesPacket * p_pack = new UhttSpecSeriesPacket;
-						*p_pack = *p_result->at(i);
-						rResult.insert(p_pack);
-					}
-				}
+				TSCollection_Copy(rResult, *p_result);
 				DestroyResult((void **)&p_result);
 				ok = 1;
 			}
@@ -3505,13 +3465,7 @@ int SLAPI PPUhttClient::GetBill(const UhttBillFilter & rFilt, TSCollection <Uhtt
 			sess.Setup(UrlBase);
 			TSCollection <UhttBillPacket> * p_result = func(sess, Token, rFilt);
 			if(PreprocessResult(p_result, sess)) {
-				for(uint i = 0; i < p_result->getCount(); i++) {
-					if(p_result->at(i)) {
-						UhttBillPacket * p_pack = new UhttBillPacket;
-						*p_pack = *p_result->at(i);
-						rResult.insert(p_pack);
-					}
-				}
+				TSCollection_Copy(rResult, *p_result);
 				DestroyResult((void **)&p_result);
 				ok = 1;
 			}
@@ -3533,13 +3487,7 @@ int SLAPI PPUhttClient::GetQuot(const UhttQuotFilter & rFilt, TSCollection <Uhtt
 			sess.Setup(UrlBase);
 			TSCollection <UhttQuotPacket> * p_result = func(sess, Token, rFilt);
 			if(PreprocessResult(p_result, sess)) {
-				for(uint i = 0; i < p_result->getCount(); i++) {
-					if(p_result->at(i)) {
-						UhttQuotPacket * p_pack = new UhttQuotPacket;
-						*p_pack = *p_result->at(i);
-						rResult.insert(p_pack);
-					}
-				}
+				TSCollection_Copy(rResult, *p_result);
 				DestroyResult((void **)&p_result);
 				ok = 1;
 			}
@@ -3580,11 +3528,7 @@ int SLAPI PPUhttClient::SetQuotList(const TSCollection <UhttQuotPacket> & rList,
 			sess.Setup(UrlBase);
 			TSCollection <UhttStatus> * p_result = func(sess, Token, rList);
 			if(PreprocessResult(p_result, sess)) {
-				for(uint i = 0; i < p_result->getCount(); i++) {
-					UhttStatus * p_new_item = new UhttStatus;
-					*p_new_item = *p_result->at(i);
-					rResult.insert(p_new_item);
-				}
+				TSCollection_Copy(rResult, *p_result);
 				DestroyResult((void **)&p_result);
 				ok = 1;
 			}
@@ -4419,27 +4363,29 @@ int SLAPI TestCURL()
     return ok;
 }
 
-// @vmiller
-//int SLAPI PPUhttClient::SendSms(TSCollection <UhttSmsPacket> & smsPackArr)
-//{
-//	int    ok = 0;
-//	PPID   id = 0;
-//	if(State & stAuth && P_Lib) {
-//		PPSoapClientSession sess;
-//		UHTTCREATEBILL_PROC func = (UHTTCREATEBILL_PROC)P_Lib->GetProcAddr("UhttSendSms");
-//		if(func) {
-//			sess.Setup(UrlBase);
-//			int result = func(sess, Token, smsPackArr);
-//			if(result)
-//				ok = 1;
-//			else {
-//				PPSetError(PPERR_UHTTSVCFAULT, (LastMsg = sess.ErrMsg).Transf(CTRANSF_UTF8_TO_INNER)); // @v8.0.6
-//				// @v8.0.6 LastMsg = sess.ErrMsg;
-//			}
-//		}
-//	}
-//	return ok;
-//}
+int SLAPI PPUhttClient::SendSms(const TSCollection <UhttSmsPacket> & rList, TSCollection <UhttStatus> & rResult)
+{
+	rResult.freeAll();
+	int    ok = 0;
+	PPID   id = 0;
+	if(State & stAuth && P_Lib) {
+		PPSoapClientSession sess;
+		UHTTSENDSMS_PROC func = (UHTTSENDSMS_PROC)P_Lib->GetProcAddr("UhttSendSms");
+		if(func) {
+			sess.Setup(UrlBase);
+			TSCollection <UhttStatus> * p_result = func(sess, Token, rList);
+			if(PreprocessResult(p_result, sess)) {
+				TSCollection_Copy(rResult, *p_result);
+				DestroyResult((void **)&p_result);
+				ok = 1;
+			}
+			else {
+				PPSetError(PPERR_UHTTSVCFAULT, LastMsg.Transf(CTRANSF_UTF8_TO_INNER));
+			}
+		}
+	}
+	return ok;
+}
 //
 // Papyrus PlugIn
 //

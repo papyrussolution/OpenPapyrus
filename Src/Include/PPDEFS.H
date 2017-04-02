@@ -1209,6 +1209,7 @@
 #define PPTAG_PERSON_UUID           57L // @v9.3.10 UUID персоналии
 #define PPTAG_LOC_UUID              58L // @v9.3.10 UUID локации
 #define PPTAG_BILL_FORMALREASON     59L // @v9.4.7 ‘ормальное основание документа (перечисление)
+#define PPTAG_BILL_EDIREPEALREQ     60L // @v9.5.12 «апрос на отмену проведени€ документа EDI
 //
 // «арезервированные идентификаторы глобальных учетных записей
 //
@@ -1675,6 +1676,8 @@
 #define cmEMailList              1161
 #define cmLinkObj                1162 // STDCTL_LINKOBJBUTTON @linkobject
 #define cmQuotKindList           1163
+#define cmSendSms                1164
+#define cmVerify                 1165
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -9404,7 +9407,6 @@
 	#define CTL_SENDSMS_INSERT			(5 + WINDOWS_ID_BIAS)
 	#define CTL_SENDSMS_SYMBCOUNT2		(6 + WINDOWS_ID_BIAS)
 	#define CTL_SENDSMS_SMSCOUNT2		(7 + WINDOWS_ID_BIAS)
-	#define cmSendSms					101
 #define DLG_IMPEXPSCARD           1198
 	#define CTL_IMPEXPSCARD_SERSYMB     (1 + IMPEXP_CTL_BIAS)
 	#define CTL_IMPEXPSCARD_REGCODE     (2 + IMPEXP_CTL_BIAS)
@@ -10123,6 +10125,10 @@
 	#define CTLSEL_IEGOODS_CFG        (2 + WINDOWS_ID_BIAS)
 	#define CTL_IEGOODS_LOC           (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_IEGOODS_LOC        (4 + WINDOWS_ID_BIAS)
+#define DLG_VERIFMPHN             1316
+	#define CTL_VERIFMPHN_PHONE       (1 + WINDOWS_ID_BIAS)
+	#define CTL_VERIFMPHN_CCODE       (2 + WINDOWS_ID_BIAS)
+	#define CTL_VERIFMPHN_ST_INFO     (3 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

@@ -402,7 +402,7 @@ int SLAPI DbSession::GetDbPathID(const char * pPath, long * pID)
 	long   id = 0;
 	uint   pos = 0;
 	ENTER_CRITICAL_SECTION
-	if(DbPathList.lsearch((const char *)unc_path, &pos, PTR_CMPFUNC(PcharNoCase))) {
+	if(DbPathList.lsearch(unc_path.cptr(), &pos, PTR_CMPFUNC(PcharNoCase))) {
 		id = (long)(pos + 1);
 	}
 	else {

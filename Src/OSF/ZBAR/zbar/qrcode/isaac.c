@@ -9,13 +9,13 @@
 
 static void isaac_update(isaac_ctx * _ctx)
 {
-	unsigned x;
-	unsigned y;
+	uint x;
+	uint y;
 	int i;
-	unsigned * m = _ctx->m;
-	unsigned * r = _ctx->r;
-	unsigned a = _ctx->a;
-	unsigned b = _ctx->b+(++_ctx->c)&ISAAC_MASK;
+	uint * m = _ctx->m;
+	uint * r = _ctx->r;
+	uint a = _ctx->a;
+	uint b = _ctx->b+(++_ctx->c)&ISAAC_MASK;
 	for(i = 0; i<ISAAC_SZ/2; i++) {
 		x = m[i];
 		a = (a^a<<13)+m[i+ISAAC_SZ/2]&ISAAC_MASK;
@@ -57,7 +57,7 @@ static void isaac_update(isaac_ctx * _ctx)
 	_ctx->n = ISAAC_SZ;
 }
 
-static void isaac_mix(unsigned _x[8])
+static void isaac_mix(uint _x[8])
 {
 	static const uchar SHIFT[8] = {11, 2, 8, 16, 10, 4, 8, 9};
 	for(int i = 0; i<8; i++) {
@@ -74,9 +74,9 @@ static void isaac_mix(unsigned _x[8])
 void isaac_init(isaac_ctx * _ctx, const void * _seed, int _nseed)
 {
 	const uchar * seed;
-	unsigned * m;
-	unsigned * r;
-	unsigned x[8];
+	uint * m;
+	uint * r;
+	uint x[8];
 	int i;
 	int j;
 	_ctx->a = _ctx->b = _ctx->c = 0;
@@ -113,7 +113,7 @@ void isaac_init(isaac_ctx * _ctx, const void * _seed, int _nseed)
 	isaac_update(_ctx);
 }
 
-unsigned isaac_next_uint32(isaac_ctx * _ctx)
+uint isaac_next_uint32(isaac_ctx * _ctx)
 {
 	if(!_ctx->n) 
 		isaac_update(_ctx);
@@ -125,12 +125,12 @@ unsigned isaac_next_uint32(isaac_ctx * _ctx)
       This must be strictly less than 2**32.
    Return: An integer uniformly distributed between 0 (inclusive) and _n
            (exclusive).*/
-unsigned isaac_next_uint(isaac_ctx * _ctx, unsigned _n)
+uint isaac_next_uint(isaac_ctx * _ctx, uint _n)
 {
-	unsigned v;
-	unsigned d;
+	uint v;
+	uint d;
 	do {
-		const unsigned r = isaac_next_uint32(_ctx);
+		const uint r = isaac_next_uint32(_ctx);
 		v = r%_n;
 		d = r-v;
 	} while((d+_n-1&ISAAC_MASK)<d);

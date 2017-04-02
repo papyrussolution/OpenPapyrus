@@ -1003,7 +1003,7 @@
   <xs:complexType name="sendSMS">
     <xs:sequence>
       <xs:element minOccurs="0" name="token" type="xs:string"/>
-      <xs:element minOccurs="0" name="message" type="tns:smsMessage"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="message" type="tns:smsMessage"/>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="smsMessage">
@@ -1015,7 +1015,7 @@
   </xs:complexType>
   <xs:complexType name="sendSMSResponse">
     <xs:sequence>
-      <xs:element minOccurs="0" name="status" type="tns:status"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="status" type="tns:statusExt"/>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="getLocationByCode">
@@ -3829,7 +3829,7 @@
   </wsdl:binding>
   <wsdl:service name="WSInterfaceImplService">
     <wsdl:port binding="tns:WSInterfaceImplServiceSoapBinding" name="WSInterfaceImplPort">
-      <soap:address location="http://uhtt.ru/dispatcher/ws/iface"/>
+      <soap:address location="http://www.uhtt.ru/dispatcher/ws/iface"/>
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

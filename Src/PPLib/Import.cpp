@@ -5160,22 +5160,11 @@ int SLAPI FiasImporter::Run(FiasImporter::Param & rP)
 SLAPI PPOsm::Node::Node()
 {
 	ID = 0;
-	Tile = 0x01000000;
 };
-
-void SLAPI PPOsm::Node::SetInvisible()
-{
-	Tile &= ~0xff000000U;
-}
 
 SLAPI PPOsm::Way::Way()
 {
 	ID = 0;
-	Tile = 0x01000000;
-}
-void SLAPI PPOsm::Way::SetInvisible()
-{
-	Tile &= ~0xff000000U;
 }
 
 SLAPI PPOsm::RelMember::RelMember()
@@ -5188,12 +5177,6 @@ SLAPI PPOsm::RelMember::RelMember()
 SLAPI PPOsm::Relation::Relation()
 {
 	ID = 0;
-	Tile = 0x01000000;
-}
-
-void SLAPI PPOsm::Relation::SetInvisible()
-{
-	Tile &= ~0xff000000U;
 }
 
 SLAPI PPOsm::Tag::Tag()
@@ -5516,7 +5499,7 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
         new_node.ID = TempCaSet.ID;
         new_node.C.Set(TempCaSet.Lat, TempCaSet.Lon);
         if(!TempCaSet.Visible)
-			new_node.SetInvisible();
+			new_node.T.SetInvisible();
         LastNode = new_node;
         LatAccum.add(new_node.C.GetIntLat());
         LonAccum.add(new_node.C.GetIntLon());
@@ -5529,7 +5512,7 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 		ReadCommonAttrSet(ppAttrList, TempCaSet);
 		new_way.ID = TempCaSet.ID;
         if(!TempCaSet.Visible)
-			new_way.SetInvisible();
+			new_way.T.SetInvisible();
 		LastWay = new_way;
 		CurrentTagList.clear();
 	}
@@ -5552,7 +5535,7 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 		ReadCommonAttrSet(ppAttrList, TempCaSet);
 		new_rel.ID = TempCaSet.ID;
 		if(!TempCaSet.Visible)
-			new_rel.SetInvisible();
+			new_rel.T.SetInvisible();
 		LastRel = new_rel;
 		CurrentTagList.clear();
 	}
@@ -5744,205 +5727,6 @@ IMPL_CMPCFUNC(STRUTF8NOCASE, p1, p2)
 	return si;
 }
 
-SLAPI SGeoGridTab::SGeoGridTab(uint dim)
-{
-	assert(dim >= 4 && dim <= 32);
-	Dim = dim;
-	SrcCountLat = 0;
-	SrcCountLon = 0;
-}
-
-int FASTCALL SGeoGridTab::IsEqual(const SGeoGridTab & rS) const
-{
-	//
-	// При сравнении SrcCountLat и SrcCountLon не учитываем поскольку
-	// эти поля не влияют на результат использования таблицы (важны только при построении
-	// и для справочных целей.
-	//
-	int    yes = 1;
-    if(Dim != rS.Dim)
-		yes = 0;
-	else if(LatIdx != rS.LatIdx)
-		yes = 0;
-	else if(LonIdx != rS.LonIdx)
-		yes = 0;
-	return yes;
-}
-
-int FASTCALL SGeoGridTab::operator == (const SGeoGridTab & rS) const
-{
-	return IsEqual(rS);
-}
-
-int FASTCALL SGeoGridTab::operator != (const SGeoGridTab & rS) const
-{
-	return !IsEqual(rS);
-}
-
-void SLAPI SGeoGridTab::SetSrcCountLat(uint64 c)
-{
-	SrcCountLat = c;
-}
-
-void SLAPI SGeoGridTab::SetSrcCountLon(uint64 c)
-{
-	SrcCountLon = c;
-}
-
-uint SLAPI SGeoGridTab::GetDim() const
-{
-	return Dim;
-}
-
-uint SLAPI SGeoGridTab::GetDensityLat() const
-{
-	return (uint)(SrcCountLat / (1ULL << Dim));
-}
-
-uint SLAPI SGeoGridTab::GetDensityLon() const
-{
-	return (uint)(SrcCountLon / (1ULL << Dim));
-}
-
-int FASTCALL SGeoGridTab::AddThresholdLat(long coord)
-{
-	assert(LatIdx.getCount() < (1UL << Dim));
-	assert(coord >= -900000000 && coord <= +900000000);
-	return LatIdx.add(coord) ? 1 : PPSetErrorSLib();
-}
-
-int FASTCALL SGeoGridTab::AddThresholdLon(long coord)
-{
-	assert(LonIdx.getCount() < (1UL << Dim));
-	assert(coord >= -1800000000 && coord <= +1800000000);
-	return LonIdx.add(coord) ? 1 : PPSetErrorSLib();
-}
-
-uint SLAPI SGeoGridTab::GetCountLat() const
-{
-	return LatIdx.getCount();
-}
-
-uint SLAPI SGeoGridTab::GetCountLon() const
-{
-	return LonIdx.getCount();
-}
-
-int SLAPI SGeoGridTab::Save(const char * pFileName)
-{
-    int   ok = 1;
-    SString line_buf;
-    SFile f_out(pFileName, SFile::mWrite);
-    THROW_SL(f_out.IsValid());
-    THROW_SL(f_out.WriteLine((line_buf = 0).CatBrackStr("pgcg-header").CR()));
-	THROW_SL(f_out.WriteLine((line_buf = 0).CatEq("dim", Dim).CR()));
-	THROW_SL(f_out.WriteLine((line_buf = 0).CatEq("srccount-lat", (int64)SrcCountLat).CR()));
-	THROW_SL(f_out.WriteLine((line_buf = 0).CatEq("srccount-lon", (int64)SrcCountLon).CR()));
-	THROW_SL(f_out.WriteLine((line_buf = 0).CatEq("gridcount-lat", LatIdx.getCount()).CR()));
-	THROW_SL(f_out.WriteLine((line_buf = 0).CatEq("gridcount-lon", LonIdx.getCount()).CR()));
-	THROW_SL(f_out.WriteLine((line_buf = 0).CR()));
-	{
-		THROW_SL(f_out.WriteLine((line_buf = 0).CatBrackStr("pgcg-lat").CR()));
-		for(uint i = 0; i < LatIdx.getCount(); i++) {
-			THROW_SL(f_out.WriteLine((line_buf = 0).Cat(LatIdx.get(i)).CR()));
-		}
-		THROW_SL(f_out.WriteLine((line_buf = 0).CR()));
-	}
-	{
-		THROW_SL(f_out.WriteLine((line_buf = 0).CatBrackStr("pgcg-lon").CR()));
-		for(uint i = 0; i < LonIdx.getCount(); i++) {
-			THROW_SL(f_out.WriteLine((line_buf = 0).Cat(LonIdx.get(i)).CR()));
-		}
-		THROW_SL(f_out.WriteLine((line_buf = 0).CR()));
-	}
-    CATCHZOK
-    return ok;
-}
-
-int SLAPI SGeoGridTab::Load(const char * pFileName)
-{
-    Dim = 0;
-    SrcCountLat = 0;
-    SrcCountLon = 0;
-    LatIdx.clear();
-    LonIdx.clear();
-
-	int    ok = 1;
-	int    zone = 0; // 1 - header, 2 - latitude, 3 - longitude
-    SString line_buf;
-    SString temp_buf;
-    SString left_buf, right_buf;
-    uint   hdr_count_lat = 0;
-    uint   hdr_count_lon = 0;
-    SFile f_in(pFileName, SFile::mRead);
-	while(f_in.ReadLine(line_buf)) {
-        line_buf.Chomp();
-        if(line_buf.NotEmptyS()) {
-            if(line_buf.C(0) == '[') {
-				uint rb_pos = 0;
-                THROW(line_buf.StrChr(']', &rb_pos)); // Ошибка в формате файла geogridtag
-				assert(rb_pos > 0);
-				line_buf.Sub(1, rb_pos-1, temp_buf);
-				if(temp_buf.CmpNC("pgcg-header") == 0) {
-					THROW(zone == 0);
-					zone = 1;
-				}
-				else if(temp_buf.CmpNC("pgcg-lat") == 0) {
-					THROW(zone != 2);
-					zone = 2;
-				}
-				else if(temp_buf.CmpNC("pgcg-lon") == 0) {
-					THROW(zone != 3);
-					zone = 3;
-				}
-				else {
-					CALLEXCEPT(); // Не известная зона в файле geogridtab
-				}
-            }
-            else {
-				THROW(oneof3(zone, 1, 2, 3)); // Не верный формат файла geogridtab
-                if(zone == 1) {
-					if(line_buf.Divide('=', left_buf, right_buf) > 0) {
-                        left_buf.Strip();
-                        right_buf.Strip();
-                        if(left_buf.CmpNC("dim") == 0) {
-							Dim = (uint)right_buf.ToLong();
-                            THROW(Dim >= 4 && Dim <= 32);
-                        }
-                        else if(left_buf.CmpNC("srccount-lat") == 0) {
-                            SrcCountLat = right_buf.ToInt64();
-                            THROW(SrcCountLat > 0 && SrcCountLat < 20000000000LL);
-                        }
-                        else if(left_buf.CmpNC("srccount-lon") == 0) {
-                            SrcCountLon = right_buf.ToInt64();
-                            THROW(SrcCountLon > 0 && SrcCountLon < 20000000000LL);
-                        }
-                        else if(left_buf.CmpNC("gridcount-lat") == 0) {
-							hdr_count_lat = (uint)right_buf.ToLong();
-                        }
-                        else if(left_buf.CmpNC("gridcount-lon") == 0) {
-							hdr_count_lon = (uint)right_buf.ToLong();
-                        }
-					}
-                }
-                else if(oneof2(zone, 2, 3)) {
-                    const long threshold = line_buf.ToLong();
-                    if(zone == 2) {
-						THROW(threshold >= -900000000L && threshold <= 900000000L);
-						THROW_SL(LatIdx.add(threshold));
-                    }
-                    else if(zone == 3) {
-						THROW(threshold >= -1800000000L && threshold <= 1800000000L);
-						THROW_SL(LonIdx.add(threshold));
-                    }
-                }
-            }
-        }
-	}
-	CATCHZOK
-	return ok;
-}
-
 int SLAPI PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, uint uppDim, TSCollection <SGeoGridTab> & rGridList)
 {
 	rGridList.freeAll();
@@ -5971,30 +5755,55 @@ int SLAPI PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, ui
 		}
 	}
 	if(fileExists(lat_file_name) && fileExists(lon_file_name)) {
+		SString fmt_buf, msg_buf;
 		SString line_buf;
         uint64 lat_count = 0;
         uint64 lon_count = 0;
+        int64  f_size_lat = 0;
+        int64  f_size_lon = 0;
+        uint64 line_count_lat = 0;
+        uint64 line_count_lon = 0;
         SFile f_lat(lat_file_name, SFile::mRead|SFile::mBinary|SFile::mNoStd|SFile::mBuffRd);
-        SFile f_lon(lat_file_name, SFile::mRead|SFile::mBinary|SFile::mNoStd|SFile::mBuffRd);
+        SFile f_lon(lon_file_name, SFile::mRead|SFile::mBinary|SFile::mNoStd|SFile::mBuffRd);
         THROW_SL(f_lat.IsValid());
         THROW_SL(f_lon.IsValid());
+		f_lat.CalcSize(&f_size_lat);
+		f_lon.CalcSize(&f_size_lon);
+		//PPTXT_FILELINECOUNTING            "Подсчет количества записей в файле '%s'"
+		PPLoadText(PPTXT_FILELINECOUNTING, fmt_buf);
         {
+        	msg_buf.Printf(fmt_buf, "lat");
 			while(f_lat.ReadLine(line_buf)) {
 				line_buf.Chomp().Strip();
 				const char firstc = line_buf.C(0);
 				if(firstc == '-' || (firstc >= '0' && firstc <= '9'))
 					lat_count++;
+				line_count_lat++;
+				if((line_count_lat % 1000000) == 0) {
+					const int64 fpos = f_lat.Tell64();
+                    PPWaitPercent((ulong)(100 * fpos / f_size_lat), msg_buf);
+				}
 			}
 			f_lat.Seek64(0);
         }
         {
+        	msg_buf.Printf(fmt_buf, "lon");
 			while(f_lon.ReadLine(line_buf)) {
 				line_buf.Chomp().Strip();
 				const char firstc = line_buf.C(0);
 				if(firstc == '-' || (firstc >= '0' && firstc <= '9'))
 					lon_count++;
+				line_count_lon++;
+				if((line_count_lon % 1000000) == 0) {
+					const int64 fpos = f_lon.Tell64();
+                    PPWaitPercent((ulong)(100 * fpos / f_size_lon), msg_buf);
+				}
 			}
 			f_lon.Seek64(0);
+        }
+        {
+        	//PPTXT_BUILDINGGEOGRID             "Построение пропорциональной гео-координатной решетки '%s'"
+        	PPLoadText(PPTXT_BUILDINGGEOGRID, fmt_buf);
         }
         const uint grid_count = (uppDim - lowDim) + 1;
         {
@@ -6010,6 +5819,9 @@ int SLAPI PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, ui
         THROW_MEM(p_last_count = new uint[grid_count]);
         THROW_MEM(p_last_coord = new long[grid_count]);
         {
+        	uint64 line_no = 0;
+			msg_buf.Printf(fmt_buf, "lat");
+			//
         	memzero(p_last_count, sizeof(p_last_count[0]) * grid_count);
 			memzero(p_last_coord, sizeof(p_last_coord[0]) * grid_count);
 			while(f_lat.ReadLine(line_buf)) {
@@ -6021,12 +5833,16 @@ int SLAPI PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, ui
 						SGeoGridTab * p_grid = rGridList.at(i);
 						assert(p_grid);
                         if(p_last_count[i] >= p_grid->GetDensityLat() && p_last_coord[i] != c) {
-                            THROW(p_grid->AddThresholdLat(p_last_coord[i]));
+                            THROW_SL(p_grid->AddThresholdLat(p_last_coord[i]));
                             p_last_count[i] = 0;
                         }
                         p_last_count[i]++;
 						p_last_coord[i] = c;
                     }
+				}
+				line_no++;
+				if((line_no % 1000000) == 0) {
+					PPWaitPercent((ulong)(100 * line_no / line_count_lat), msg_buf);
 				}
 			}
 			{
@@ -6036,7 +5852,7 @@ int SLAPI PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, ui
 				for(uint i = 0; i < grid_count; i++) {
 					SGeoGridTab * p_grid = rGridList.at(i);
 					assert(p_grid);
-					THROW(p_grid->AddThresholdLat(p_last_coord[i]));
+					THROW_SL(p_grid->AddThresholdLat(p_last_coord[i]));
 					// Финишная проверка правильности
 					assert(p_grid->GetCountLat() == (1UL << p_grid->GetDim()));
 				}
@@ -6044,23 +5860,56 @@ int SLAPI PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, ui
 			f_lat.Seek64(0);
         }
         {
+        	uint64 line_no = 0;
+			msg_buf.Printf(fmt_buf, "lon");
+			//
         	memzero(p_last_count, sizeof(p_last_count[0]) * grid_count);
 			memzero(p_last_coord, sizeof(p_last_coord[0]) * grid_count);
+			const long m180val = -1800000000;
+			const long p180val =  1800000000;
+            uint minus_180_count = 0;
 			while(f_lon.ReadLine(line_buf)) {
 				line_buf.Chomp().Strip();
 				const char firstc = line_buf.C(0);
 				if(firstc == '-' || (firstc >= '0' && firstc <= '9')) {
                     const long c = line_buf.ToLong();
-                    for(uint i = 0; i < grid_count; i++) {
+                    if(c == m180val) {
+						minus_180_count++;
+                    }
+                    else {
+						for(uint i = 0; i < grid_count; i++) {
+							SGeoGridTab * p_grid = rGridList.at(i);
+							assert(p_grid);
+							if(p_last_count[i] >= p_grid->GetDensityLon() && p_last_coord[i] != c) {
+								THROW_SL(p_grid->AddThresholdLon(p_last_coord[i]));
+								p_last_count[i] = 0;
+							}
+							p_last_count[i]++;
+							p_last_coord[i] = c;
+						}
+                    }
+				}
+				line_no++;
+				if((line_no % 1000000) == 0) {
+					PPWaitPercent((ulong)(100 * line_no / line_count_lon), msg_buf);
+				}
+			}
+			{
+				//
+				// Перенос долготы -180deg в конец списка как 180deg
+				//
+				for(uint m180idx = 0; m180idx < minus_180_count; m180idx++) {
+					const long c = p180val;
+					for(uint i = 0; i < grid_count; i++) {
 						SGeoGridTab * p_grid = rGridList.at(i);
 						assert(p_grid);
-                        if(p_last_count[i] >= p_grid->GetDensityLon() && p_last_coord[i] != c) {
-                            THROW(p_grid->AddThresholdLon(p_last_coord[i]));
-                            p_last_count[i] = 0;
-                        }
-                        p_last_count[i]++;
+						if(p_last_count[i] >= p_grid->GetDensityLon() && p_last_coord[i] != c) {
+							THROW_SL(p_grid->AddThresholdLon(p_last_coord[i]));
+							p_last_count[i] = 0;
+						}
+						p_last_count[i]++;
 						p_last_coord[i] = c;
-                    }
+					}
 				}
 			}
 			{
@@ -6070,7 +5919,7 @@ int SLAPI PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, ui
 				for(uint i = 0; i < grid_count; i++) {
 					SGeoGridTab * p_grid = rGridList.at(i);
 					assert(p_grid);
-					THROW(p_grid->AddThresholdLon(p_last_coord[i]));
+					THROW_SL(p_grid->AddThresholdLon(p_last_coord[i]));
 					// Финишная проверка правильности
 					assert(p_grid->GetCountLon() == (1UL << p_grid->GetDim()));
 				}

@@ -3418,7 +3418,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 					}
 				}
 				else {
-					PPSetError(PPERR_SLIB);
+					PPSetErrorSLib();
 					SLS.SetError(SLERR_FILENOTFOUND, path);
 					{
 						PPGetMessage(mfError, PPErrCode, 0, DS.CheckExtFlag(ECF_SYSSERVICE), temp_buf = 0);
@@ -3493,47 +3493,66 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 			break;
 		case PPSCMD_SENDSMS:
 			{
-				SString result, old_phone, new_phone, err_msg, from, message;
-				PPLogger logger;
-				PPSmsAccPacket	  r_pack;
-				PPObjSmsAccount   acc_obj;
-				PPAlbatrosConfig  albtr_cfg;
-				SmsClient client;
-				StConfig  config;
-				PPGetExtStrData(1, pEv->Params, old_phone);
-				PPGetExtStrData(2, pEv->Params, from);
-				PPGetExtStrData(3, pEv->Params, message);
-				// @todo Error message
-				THROW(!old_phone.Empty());
-				THROW(!message.Empty());
-				THROW(!from.Empty());
-				THROW(PPAlbatrosCfgMngr::Get(&albtr_cfg));
+				const  PPThreadLocalArea & r_tla_c = DS.GetConstTLA();
+				PPGta  gta_blk;
+				PPObjBill * p_bobj = BillObj;
+				if(r_tla_c.GlobAccID && r_tla_c.State & PPThreadLocalArea::stExpTariffTa) {
+					gta_blk.GlobalUserID = r_tla_c.GlobAccID;
+					gta_blk.Op = GTAOP_SMSSEND;
+					if(p_bobj) {
+						p_bobj->InitGta(gta_blk);
+						if(gta_blk.Quot != 0.0) {
+							// Для рассылки SMS кредит не применяется!
+							THROW_PP((gta_blk.SCardRest/*+ gta_blk.SCardMaxCredit*/) > 0.0, PPERR_GTAOVERDRAFT);
+						}
+					}
+				}
 				{
-					size_t bin_size = 0;
-					STempBuffer buf(message.Len() * 2);
-					THROW(buf.IsValid());
-					THROW(message.DecodeMime64(buf, buf.GetSize(), &bin_size));
-					buf[bin_size] = 0;
-					(message = 0).Cat((const char *)buf).Transf(CTRANSF_UTF8_TO_INNER);
+					SString result;
+					SString old_phone;
+					SString new_phone;
+					SString err_msg;
+					SString from;
+					SString message;
+					PPLogger logger;
+					PPAlbatrosConfig  albtr_cfg;
+					SmsClient client(&logger);
+
+					PPGetExtStrData(1, pEv->Params, old_phone);
+					PPGetExtStrData(2, pEv->Params, from);
+					PPGetExtStrData(3, pEv->Params, message);
+					// @todo Error message
+					THROW(!old_phone.Empty());
+					THROW(!message.Empty());
+					THROW(!from.Empty());
+					THROW(PPAlbatrosCfgMngr::Get(&albtr_cfg));
+					{
+						size_t bin_size = 0;
+						STempBuffer buf(message.Len() * 2);
+						THROW(buf.IsValid());
+						THROW(message.DecodeMime64(buf, buf.GetSize(), &bin_size));
+						buf[bin_size] = 0;
+						(message = 0).Cat((const char *)buf).Transf(CTRANSF_UTF8_TO_INNER);
+					}
+					THROW(client.SmsInit_(albtr_cfg.Hdr.SmsAccID, from));
+					// @v8.5.4 client.SetRecvTimeout(0);
+					if(FormatPhone(old_phone, new_phone, err_msg)) {
+						THROW(client.SendSms(new_phone, message, (result = 0)));
+						(temp_buf = 0).Cat(new_phone).Space().Cat(result);
+						logger.Log(temp_buf);
+					}
+					client.SmsRelease_();
+					rReply.SetAck();
+					ok = cmdretOK;
 				}
-				THROW(acc_obj.GetPacket(albtr_cfg.Hdr.SmsAccID, &r_pack));
-				THROW(r_pack.Verify(0));
-				THROW(GetSmsConfig(r_pack, config));
-				config.From = from;
-				// @v8.5.4 client.SetRecvTimeout(0);
-				THROW(client.Connect(config));
-				if(FormatPhone(old_phone, new_phone, err_msg)) {
-					THROW(client.SendSms(new_phone, message, (result = 0)));
-					(temp_buf = 0).Cat(new_phone).Space().Cat(result);
-					logger.Log(temp_buf);
+				if(gta_blk.GlobalUserID) {
+					gta_blk.Count = 1;
+					gta_blk.Duration = ZEROTIME;
+					gta_blk.Dtm = getcurdatetime_();
+					GtaJournalCore * p_gtaj = DS.GetGtaJ();
+					if(p_gtaj)
+						THROW(p_gtaj->CheckInOp(gta_blk, 1));
 				}
-				if(client.IsConnected()) {
-					client.Disconnect();
-					PPLoadText(PPTXT_SMS_ENDSENDING, (temp_buf = 0));
-					logger.Log(temp_buf);
-				}
-				rReply.SetAck();
-				ok = cmdretOK;
 			}
 			break;
 		case PPSCMD_GETDISPLAYINFO:
@@ -4308,7 +4327,7 @@ void SLAPI PPServerSession::Run()
 			else {
 				int    wsa_err = WSAGetLastError();
 				SLS.SetError(SLERR_SOCK_WINSOCK, 0);
-				PPSetError(PPERR_SLIB);
+				PPSetErrorSLib();
 				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_LASTERR|LOGMSGF_THREADINFO);
 			}
 			ResetEvent(sock_event);

@@ -141,9 +141,9 @@ void zbar_video_destroy(zbar_video_t * vdo)
 	if(vdo->intf != VIDEO_INVALID)
 		zbar_video_open(vdo, NULL);
 	if(vdo->images) {
-		for(int i = 0; i < ZBAR_VIDEO_IMAGES_MAX; i++)
-			if(vdo->images[i])
-				_zbar_image_free(vdo->images[i]);
+		for(int i = 0; i < ZBAR_VIDEO_IMAGES_MAX; i++) {
+			_zbar_image_free(vdo->images[i]);
+		}
 		free(vdo->images);
 	}
 	while(vdo->shadow_image) {
@@ -209,7 +209,7 @@ int zbar_video_get_fd(const zbar_video_t * vdo)
 	return(vdo->fd);
 }
 
-int zbar_video_request_size(zbar_video_t * vdo, unsigned width, unsigned height)
+int zbar_video_request_size(zbar_video_t * vdo, uint width, uint height)
 {
 	if(vdo->initialized)
 		/* FIXME re-init different format? */
@@ -363,7 +363,7 @@ int zbar_video_enable(zbar_video_t * vdo,
 
 zbar_image_t * zbar_video_next_image(zbar_video_t * vdo)
 {
-	unsigned frame;
+	uint frame;
 	zbar_image_t * img;
 	if(video_lock(vdo))
 		return(NULL);

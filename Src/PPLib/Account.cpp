@@ -582,7 +582,7 @@ int SLAPI AcctRel::SearchAcctID(const AcctID * pAcctId, AcctRelTbl::Rec * pRec)
 	return SearchByKey(this, 1, &k1, pRec);
 }
 
-int SLAPI AcctRel::SearchNum(int closed, Acct * pAcct, PPID curID, void * b)
+int SLAPI AcctRel::SearchNum(int closed, Acct * pAcct, PPID curID, AcctRelTbl::Rec * pRec)
 {
 	int    sp;
 	AcctRelTbl::Key3 k3;
@@ -599,8 +599,9 @@ int SLAPI AcctRel::SearchNum(int closed, Acct * pAcct, PPID curID, void * b)
 		sp = spLe;
 	}
 	if(search(3, &k3, sp) && (closed >= 0 || (k3.Ac == pAcct->ac && k3.Sb == pAcct->sb && k3.Ar == pAcct->ar && k3.CurID == curID)))
-		return (copyBufTo(b), 1);
-	return PPDbSearchError();
+		return (copyBufTo(pRec), 1);
+	else
+		return PPDbSearchError();
 }
 
 int SLAPI AcctRel::OpenAcct(PPID * pID, Acct * pAcct, PPID curID, AcctID * pAcctId, int accKind, int accsLevel)

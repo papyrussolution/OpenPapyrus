@@ -45,7 +45,7 @@ qr_finder_line * _zbar_decoder_get_qr_finder_line(zbar_decoder_t * dcode)
 zbar_symbol_type_t _zbar_find_qr(zbar_decoder_t * dcode)
 {
 	qr_finder_t * qrf = &dcode->qrf;
-	unsigned s, qz, w;
+	uint s, qz, w;
 	int ei;
 
 	/* update latest finder pattern width */

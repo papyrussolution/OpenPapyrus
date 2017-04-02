@@ -2058,10 +2058,11 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 {
 	int     ok = 1;
 	Reference * p_ref = PPRef;
-	int     done = 0; // Признак того, что результирующий список сформирован
-	int     use_filt = 0;
-	PPGta   gta_blk;
-	PPID    temp_id = 0;
+	PPObjBill * p_bobj = BillObj;
+	int    done = 0; // Признак того, что результирующий список сформирован
+	int    use_filt = 0;
+	PPGta  gta_blk;
+	PPID   temp_id = 0;
 	SString temp_buf, o_buf, txt_buf;
 	ResultList.Clear();
 	ResultText = 0;
@@ -2089,8 +2090,8 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 			case oSCardRest:     gta_blk.Op = GTAOP_OBJGET; break;
 			case oBillFinish:    gta_blk.Op = GTAOP_BILLCREATE; break;
 		}
-		if(BillObj) {
-			BillObj->InitGta(gta_blk);
+		if(p_bobj) {
+			p_bobj->InitGta(gta_blk);
 			if(gta_blk.Quot != 0.0) {
 				THROW_PP((gta_blk.SCardRest + gta_blk.SCardMaxCredit) > 0.0, PPERR_GTAOVERDRAFT);
 			}
@@ -2202,7 +2203,6 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 			break;
 		case PPOBJ_BILL:
 			{
-				PPObjBill * p_bobj = BillObj;
 				if(Operator == oSelect) {
 					int32 _c = 0;
 					if(IdList.getCount()) {
@@ -2522,7 +2522,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						c = temp_list.getCount();
 					}
 					if(P_QF->LocalFlags & P_QF->lfNonZeroDraftRestOnly) {
-						if(c) {
+						if(c && p_bobj) {
 							PPOprKind op_rec;
 							const PPID rest_op_id = (GetOpBySymb("GOODSREST", &op_rec) > 0) ? op_rec.ID : 0;
 							const PPID order_op_id = (GetOpBySymb("DRAFTORDER", &op_rec) > 0) ? op_rec.ID : 0;
@@ -2530,7 +2530,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 								do {
 									PPQuotItem_ & r_item = temp_list.at(--c);
 									double rest = 0.0;
-									BillObj->CalcDraftTransitRest(rest_op_id, order_op_id, r_item.GoodsID, r_item.LocID, 0 /* flags */, &rest, 0);
+									p_bobj->CalcDraftTransitRest(rest_op_id, order_op_id, r_item.GoodsID, r_item.LocID, 0 /* flags */, &rest, 0);
 									if(rest <= 0.0) {
 										temp_list.atFree(c);
 									}

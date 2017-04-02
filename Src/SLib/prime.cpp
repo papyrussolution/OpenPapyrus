@@ -145,7 +145,7 @@ static ushort FirstPrimeNumbers[] = {
    7841,  7853,  7867,  7873,  7877,  7879,  7883,  7901,  7907,  7919
 };
 
-int FASTCALL Helper_IsPrime(ulong val, int test)
+static int FASTCALL Helper_IsPrime(ulong val, int test)
 {
 	static const ushort last_tabbed_value = FirstPrimeNumbers[SIZEOFARRAY(FirstPrimeNumbers)-1];
 	int    yes = 1;

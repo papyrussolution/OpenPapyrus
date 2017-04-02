@@ -99,8 +99,8 @@ struct zbar_image_scanner_s {
 	zbar_symbol_t * cache;  /* inter-image result cache entries */
 
 	/* configuration settings */
-	unsigned config;        /* config flags */
-	unsigned ean_config;
+	uint config;        /* config flags */
+	uint ean_config;
 	int configs[NUM_SCN_CFGS]; /* int valued configurations */
 	int sym_configs[1][NUM_SYMS]; /* per-symbology configurations */
 
@@ -329,7 +329,7 @@ extern qr_finder_line * _zbar_decoder_get_qr_finder_line(zbar_decoder_t*);
 
 static inline void qr_handler(zbar_image_scanner_t * iscn)
 {
-	unsigned u;
+	uint u;
 	int vert;
 	qr_finder_line * line = _zbar_decoder_get_qr_finder_line(iscn->dcode);
 	assert(line);
@@ -359,7 +359,7 @@ static void symbol_handler(zbar_decoder_t * dcode)
 	zbar_symbol_type_t type = zbar_decoder_get_type(dcode);
 	int x = 0, y = 0, dir;
 	const char * data;
-	unsigned datalen;
+	uint datalen;
 	zbar_symbol_t * sym;
 #ifdef ENABLE_QRCODE
 	if(type == ZBAR_QRCODE) {
@@ -587,7 +587,7 @@ int zbar_scan_image(zbar_image_scanner_t * iscn, zbar_image_t * img)
 	zbar_symbol_set_t * syms;
 	const uint8 * data;
 	zbar_scanner_t * scn = iscn->scn;
-	unsigned w, h, cx1, cy1;
+	uint w, h, cx1, cy1;
 	int density;
 	// timestamp image
 	// FIXME prefer video timestamp

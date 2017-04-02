@@ -787,9 +787,14 @@ int SLAPI PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long
 }
 
 int SLAPI PPCashMachine::SyncGetSummator(double * pSum)
-	{ return (GetSyncIntrf() && P_SyncIntrf->GetSummator(pSum)); }
+{ 
+	return (GetSyncIntrf() && P_SyncIntrf->GetSummator(pSum)); 
+}
+
 int SLAPI PPCashMachine::SyncAddSummator(double add)
-	{ return (GetSyncIntrf() && P_SyncIntrf->AddSummator(add)); }
+{ 
+	return (GetSyncIntrf() && P_SyncIntrf->AddSummator(add)); 
+}
 
 int SLAPI PPCashMachine::SyncSetPrintErrCode(int retCode, int updateNode)
 {

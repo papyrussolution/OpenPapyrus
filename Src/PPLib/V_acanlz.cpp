@@ -48,7 +48,7 @@ char * SLAPI AccAnlzFilt::GetAccText(char * pBuf, size_t bufLen) const
 	SString buf, name;
 	PPObjAccount acc_obj;
 	PPAccount acc_rec;
-	if(acc_obj.Fetch(AcctId.ac, &acc_rec) > 0) { // @v7.1.2 Search-->Fetch
+	if(acc_obj.Fetch(AcctId.ac, &acc_rec) > 0) {
 		ArticleTbl::Rec ar_rec;
 		Acct acc;
 		acc.ac = acc_rec.A.Ac;
@@ -357,8 +357,7 @@ private:
 	{
 		if(trnovr) {
 			setCtrlUInt16(CTL_ACCANLZ_ACCGRP,    2); // By ACO_2
-			setCtrlLong(CTLSEL_ACCANLZ_SUBST,    0); // @v7.1.1 No grouping by CorrAcc
-			// @v7.1.1 setCtrlUInt16(CTL_ACCANLZ_CORACCGRP, 0); // No grouping by CorrAcc
+			setCtrlLong(CTLSEL_ACCANLZ_SUBST,    0); // No grouping by CorrAcc
 			setCtrlUInt16(CTL_ACCANLZ_ORDER,     0);
 		}
 		disableCtrls(trnovr, CTL_ACCANLZ_ACCGRP, CTLSEL_ACCANLZ_SUBST, CTL_ACCANLZ_CORACCGRP, 0);
@@ -646,7 +645,7 @@ int SLAPI PPViewAccAnlz::FetchBill(PPID billID, BillEntry * pEntry)
 			pEntry->ID = rec.ID;
 			pEntry->LocID = rec.LocID;
 			pEntry->OpID = rec.OpID;
-			pEntry->Object2ID = rec.Object2; // @v7.4.2
+			pEntry->Object2ID = rec.Object2;
 			pEntry->Flags = rec.Flags;
 			pEntry->AgentID = 0;
 			if(Filt.AgentID || Filt.CorAco == AccAnlzFilt::aafgByAgent) {
@@ -778,12 +777,10 @@ int SLAPI PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzV
 					if(Filt.CorAcc.ar && (FetchBill(rec.Bill, &bill_entry) <= 0 || Filt.CorAcc.ar != bill_entry.LocID))
 						continue;
 					break;
-				// @v7.4.2 {
 				case AccAnlzFilt::aafgByExtObj:
 					if(Filt.CorAcc.ar && (FetchBill(rec.Bill, &bill_entry) <= 0 || Filt.CorAcc.ar != bill_entry.Object2ID))
 						continue;
 					break;
-				// } @v7.4.2
 				case AccAnlzFilt::aafgByAgent:
 					if(Filt.CorAcc.ar && (FetchBill(rec.Bill, &bill_entry) <= 0 || Filt.CorAcc.ar != bill_entry.AgentID))
 						continue;
@@ -798,10 +795,8 @@ int SLAPI PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzV
 			if(FetchBill(rec.Bill, &bill_entry) > 0) {
 				if(Filt.AgentID && bill_entry.AgentID != Filt.AgentID)
 					continue;
-				// @v7.4.2 {
 				if(Filt.Object2ID && bill_entry.Object2ID != Filt.Object2ID)
 					continue;
-				// } @v7.4.2
 				if(Filt.Flags & AccAnlzFilt::fLabelOnly && !(bill_entry.Flags & BILLF_WHITELABEL))
 					continue;
 				if(Filt.LocID && bill_entry.LocID != Filt.LocID && loc_obj.IsMemberOfGroup(bill_entry.LocID, Filt.LocID) <= 0)
@@ -867,7 +862,7 @@ int IterProc_CrtTmpAATbl(AccTurnTbl::Rec * pRec, long param)
 	trec.Reverse = pRec->Reverse;
 	trec.ThisAccRelID = pRec->Acc;
 	trec.Acc     = pRec->CorrAcc;
-	if(p.P_ATC->AccRel.Fetch(pRec->CorrAcc, &arel_rec) > 0) { // @v7.1.2 Search-->Fetch
+	if(p.P_ATC->AccRel.Fetch(pRec->CorrAcc, &arel_rec) > 0) {
 		if(ObjRts.CheckAccID(arel_rec.AccID, PPR_READ)) {
 			trec.Ac  = arel_rec.Ac;
 			trec.Sb  = arel_rec.Sb;
@@ -953,7 +948,6 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, long param)
 			temp_buf.CopyTo(trec.Name, sizeof(trec.Name));
 		}
 	}
-	// @v7.4.2 {
 	else if(p.Filt->CorAco == AccAnlzFilt::aafgByExtObj) {
 		if(p.P_BObj->Fetch(pRec->Bill, &bill_rec) > 0) {
 			trec.Ar       = bill_rec.Object2;
@@ -962,7 +956,6 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, long param)
 			temp_buf.CopyTo(trec.Name, sizeof(trec.Name));
 		}
 	}
-	// } @v7.4.2
 	else if(p.Filt->CorAco == AccAnlzFilt::aafgByAgent) {
 		PPBillExt bext_rec;
 		PPID   agent_id = 0;
@@ -1240,7 +1233,7 @@ int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 				Total.DbtTrnovr.Add(&total.DbtTrnovr);
 				Total.CrdTrnovr.Add(&total.CrdTrnovr);
 				MEMSZERO(rec);
-				if(r_acr_rec.ArticleID && ArObj.Fetch(r_acr_rec.ArticleID, &ar_rec) > 0) { // @v7.1.2 Search-->Fetch
+				if(r_acr_rec.ArticleID && ArObj.Fetch(r_acr_rec.ArticleID, &ar_rec) > 0) {
 					STRNSCPY(rec.Name, ar_rec.Name);
 					if(is_person_rel)
 						rel_person_id = ar_rec.ObjID;
@@ -1498,7 +1491,7 @@ int SLAPI PPViewAccAnlz::InitIteration()
 	if(Filt.Flags & AccAnlzFilt::fTotalOnly)
 		ok = -1;
 	else {
-		if(IsRegister && !(Filt.Flags & AccAnlzFilt::fTrnovrBySheet)) { // @v7.0.12 (&& !(Filt.Flags & AccAnlzFilt::fTrnovrBySheet))
+		if(IsRegister && !(Filt.Flags & AccAnlzFilt::fTrnovrBySheet)) {
 			int    idx = 0;
 			DBQ  * dbq = 0;
 			void * p_key = 0;
@@ -1550,7 +1543,7 @@ int SLAPI PPViewAccAnlz::NextIteration(AccAnlzViewItem * pItem)
 		if(P_IterQuery->nextIteration() > 0) {
 			AccAnlzViewItem item;
 			MEMSZERO(item);
-			if(IsRegister && !(Filt.Flags & AccAnlzFilt::fTrnovrBySheet)) { // @v7.0.12 (&& !(Filt.Flags & AccAnlzFilt::fTrnovrBySheet))
+			if(IsRegister && !(Filt.Flags & AccAnlzFilt::fTrnovrBySheet)) {
 				AccTurnTbl::Rec rec;
 				P_ATC->copyBufTo(&rec);
 				item.Dt      = rec.Dt;
@@ -1853,10 +1846,22 @@ int SLAPI PPViewAccAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 								else
 									ok = 0;
 							}
+							/*
+							else if(IsGenAr) {
+								flt.Aco = ACO_3;
+							}
+							*/
 							else {
 								flt.Aco = ACO_3;
-								if(P_ATC->AccRel.SearchNum(0, &hdr.A, hdr.CurID) > 0)
-									flt.AccID = P_ATC->AccRel.data.ID;
+								AcctRelTbl::Rec acr_rec;
+								if(P_ATC->AccRel.SearchNum(0, &hdr.A, hdr.CurID, &acr_rec) > 0) {
+									flt.AccID = acr_rec.ID;
+									// @v9.5.11 (Если Filt.AcctId.ar группирующая статья, то это - необходимо) {
+									flt.AcctId.ac = acr_rec.AccID;
+									flt.AcctId.ar = acr_rec.ArticleID;
+									flt.SingleArID = acr_rec.ArticleID; 
+									// } @v9.5.11
+								}
 								else
 									ok = 0;
 							}

@@ -1088,11 +1088,10 @@ int SLAPI PPAsyncCashSession::GetNodeData(PPAsyncCashNode * pData)
 	return r;
 }
 
-int FASTCALL PPAsyncCashSession::AdjustSCardCode(char * pCode)
+void FASTCALL PPAsyncCashSession::AdjustSCardCode(char * pCode)
 {
-	if(CheckCnFlag(CASHF_EXPCHECKD) && strlen(pCode) == 12)
+	if(CheckCnFlag(CASHF_EXPCHECKD) && sstrlen(pCode) == 12)
 		AddBarcodeCheckDigit(pCode);
-	return 1;
 }
 
 int FASTCALL PPAsyncCashSession::AddCheckDigToBarcode(char * pCode)

@@ -113,7 +113,7 @@ public:
 
     /// resize the image window.
     /// zbar_window_resize()
-    void resize (unsigned width, unsigned height)
+    void resize (uint width, uint height)
     {
         if(zbar_window_resize(_window, width, height) < 0)
             throw_exception(_window);

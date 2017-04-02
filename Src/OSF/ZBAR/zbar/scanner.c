@@ -40,27 +40,27 @@
 #ifndef ZBAR_SCANNER_THRESH_INIT_WEIGHT
 	#define ZBAR_SCANNER_THRESH_INIT_WEIGHT .44
 #endif
-#define THRESH_INIT ((unsigned)((ZBAR_SCANNER_THRESH_INIT_WEIGHT * (1 << (ZBAR_FIXED + 1)) + 1) / 2))
+#define THRESH_INIT ((uint)((ZBAR_SCANNER_THRESH_INIT_WEIGHT * (1 << (ZBAR_FIXED + 1)) + 1) / 2))
 #ifndef ZBAR_SCANNER_THRESH_FADE
 	#define ZBAR_SCANNER_THRESH_FADE 8
 #endif
 #ifndef ZBAR_SCANNER_EWMA_WEIGHT
 	#define ZBAR_SCANNER_EWMA_WEIGHT .78
 #endif
-#define EWMA_WEIGHT ((unsigned)((ZBAR_SCANNER_EWMA_WEIGHT * (1 << (ZBAR_FIXED + 1)) + 1) / 2))
+#define EWMA_WEIGHT ((uint)((ZBAR_SCANNER_EWMA_WEIGHT * (1 << (ZBAR_FIXED + 1)) + 1) / 2))
 //
 // scanner state 
 //
 struct zbar_scanner_s {
 	zbar_decoder_t * decoder; /* associated bar width decoder */
-	unsigned y1_min_thresh; /* minimum threshold */
-	unsigned x;         /* relative scan position of next sample */
+	uint y1_min_thresh; /* minimum threshold */
+	uint x;         /* relative scan position of next sample */
 	int y0[4];          /* short circular buffer of average intensities */
 	int y1_sign;        /* slope at last crossing */
-	unsigned y1_thresh; /* current slope threshold */
-	unsigned cur_edge;  /* interpolated position of tracking edge */
-	unsigned last_edge; /* interpolated position of last located edge */
-	unsigned width;     /* last element width */
+	uint y1_thresh; /* current slope threshold */
+	uint cur_edge;  /* interpolated position of tracking edge */
+	uint last_edge; /* interpolated position of last located edge */
+	uint width;     /* last element width */
 };
 
 zbar_scanner_t * zbar_scanner_create(zbar_decoder_t * dcode)
@@ -86,14 +86,14 @@ zbar_symbol_type_t zbar_scanner_reset(zbar_scanner_t * scn)
 	return(ZBAR_NONE);
 }
 
-unsigned zbar_scanner_get_width(const zbar_scanner_t * scn)
+uint zbar_scanner_get_width(const zbar_scanner_t * scn)
 {
 	return(scn->width);
 }
 
-unsigned zbar_scanner_get_edge(const zbar_scanner_t * scn, unsigned offset, int prec)
+uint zbar_scanner_get_edge(const zbar_scanner_t * scn, uint offset, int prec)
 {
-	unsigned edge = scn->last_edge - offset - (1 << ZBAR_FIXED) - ROUND;
+	uint edge = scn->last_edge - offset - (1 << ZBAR_FIXED) - ROUND;
 	prec = ZBAR_FIXED - prec;
 	if(prec > 0)
 		return(edge >> prec);
@@ -108,10 +108,10 @@ zbar_color_t zbar_scanner_get_color(const zbar_scanner_t * scn)
 	return((scn->y1_sign <= 0) ? ZBAR_SPACE : ZBAR_BAR);
 }
 
-static unsigned FASTCALL calc_thresh(zbar_scanner_t * scn)
+static uint FASTCALL calc_thresh(zbar_scanner_t * scn)
 {
 	// threshold 1st to improve noise rejection 
-	unsigned dx, thresh = scn->y1_thresh;
+	uint dx, thresh = scn->y1_thresh;
 	ulong t;
 	if((thresh <= scn->y1_min_thresh) || !scn->width) {
 		dbprintf(1, " tmin=%d", scn->y1_min_thresh);
@@ -156,7 +156,7 @@ zbar_symbol_type_t zbar_scanner_flush(zbar_scanner_t * scn)
 	if(!scn->y1_sign)
 		return ZBAR_NONE;
 	else {
-		const unsigned x = (scn->x << ZBAR_FIXED) + ROUND;
+		const uint x = (scn->x << ZBAR_FIXED) + ROUND;
 		if(scn->cur_edge != x || scn->y1_sign > 0) {
 			zbar_symbol_type_t edge = process_edge(scn, -scn->y1_sign);
 			dbprintf(1, "flush0:");
@@ -251,7 +251,7 @@ zbar_symbol_type_t zbar_scan_y(zbar_scanner_t * scn, int y)
 //
 // undocumented API for drawing cutesy debug graphics 
 //
-void zbar_scanner_get_state(const zbar_scanner_t * scn, unsigned * x, unsigned * cur_edge, unsigned * last_edge,
+void zbar_scanner_get_state(const zbar_scanner_t * scn, uint * x, uint * cur_edge, uint * last_edge,
     int * y0, int * y1, int * y2, int * y1_thresh)
 {
 	int    y0_0 = scn->y0[(scn->x - 1) & 3];

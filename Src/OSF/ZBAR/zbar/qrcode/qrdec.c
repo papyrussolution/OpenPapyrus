@@ -33,7 +33,7 @@ typedef struct qr_pack_buf qr_pack_buf;
 
 /*The number of bits in an int.
    Note the cast to (int): this prevents this value from "promoting" whole
-   expressions to an (unsigned) size_t.*/
+   expressions to an (uint) size_t.*/
 #define QR_INT_BITS    ((int)sizeof(int)*CHAR_BIT)
 #define QR_INT_LOGBITS (QR_ILOG(QR_INT_BITS))
 
@@ -126,19 +126,16 @@ struct qr_finder_edge_pt {
    clusters of horizontal finder lines with one or more clusters of vertical
    finder lines.*/
 struct qr_finder_center {
-	/*The estimated location of the finder center.*/
-	qr_point pos;
-	/*The list of edge points from the crossing lines.*/
-	qr_finder_edge_pt * edge_pts;
-	/*The number of edge points from the crossing lines.*/
-	int nedge_pts;
+	qr_point pos; // The estimated location of the finder center.
+	qr_finder_edge_pt * edge_pts; // The list of edge points from the crossing lines.
+	int    nedge_pts; // The number of edge points from the crossing lines.
 };
 
 static int qr_finder_vline_cmp(const void * _a, const void * _b)
 {
 	const qr_finder_line * a = (const qr_finder_line*)_a;
 	const qr_finder_line * b = (const qr_finder_line*)_b;
-	return ((a->pos[0] > b->pos[0]) - (a->pos[0] < b->pos[0])<<1) + (a->pos[1]>b->pos[1])-(a->pos[1]<b->pos[1]);
+	return ((a->pos[0] > b->pos[0]) - (a->pos[0] < b->pos[0])<<1) + (a->pos[1] > b->pos[1]) - (a->pos[1] < b->pos[1]);
 }
 
 /*Clusters adjacent lines into groups that are large enough to be crossing a
@@ -156,15 +153,12 @@ static int qr_finder_vline_cmp(const void * _a, const void * _b)
 static int qr_finder_cluster_lines(qr_finder_cluster * _clusters,
     qr_finder_line ** _neighbors, qr_finder_line * _lines, int _nlines, int _v)
 {
-	qr_finder_line ** neighbors;
 	int nneighbors;
-	int nclusters;
-	int i;
 	// TODO: Kalman filters!
 	uchar * mark = (uchar*)calloc(_nlines, sizeof(*mark));
-	neighbors = _neighbors;
-	nclusters = 0;
-	for(i = 0; i<_nlines-1; i++) {
+	qr_finder_line ** neighbors = _neighbors;
+	int nclusters = 0;
+	for(int i = 0; i<_nlines-1; i++) {
 		if(!mark[i]) {
 			int j;
 			nneighbors = 1;
@@ -257,9 +251,8 @@ static int qr_finder_center_cmp(const void * _a, const void * _b)
 {
 	const qr_finder_center * a = (const qr_finder_center*)_a;
 	const qr_finder_center * b = (const qr_finder_center*)_b;
-	return ((b->nedge_pts>a->nedge_pts)-(b->nedge_pts<a->nedge_pts)<<2)+
-	       ((a->pos[1]>b->pos[1])-(a->pos[1]<b->pos[1])<<1)+
-	       (a->pos[0]>b->pos[0])-(a->pos[0]<b->pos[0]);
+	return ((b->nedge_pts > a->nedge_pts) - (b->nedge_pts < a->nedge_pts) << 2) + 
+		((a->pos[1] > b->pos[1]) - (a->pos[1] < b->pos[1]) << 1) + (a->pos[0] > b->pos[0]) - (a->pos[0] < b->pos[0]);
 }
 
 /*Determine if a horizontal line crosses a vertical line.
@@ -444,7 +437,7 @@ static void qr_point_translate(qr_point _point, int _dx, int _dy)
 	_point[1] += _dy;
 }
 
-static unsigned qr_point_distance2(const qr_point _p1, const qr_point _p2)
+static uint qr_point_distance2(const qr_point _p1, const qr_point _p2)
 {
 	return (_p1[0]-_p2[0])*(_p1[0]-_p2[0])+(_p1[1]-_p2[1])*(_p1[1]-_p2[1]);
 }
@@ -658,58 +651,41 @@ struct qr_hom {
 static void qr_hom_init(qr_hom * _hom, int _x0, int _y0,
     int _x1, int _y1, int _x2, int _y2, int _x3, int _y3, int _res)
 {
-	int dx10;
-	int dx20;
-	int dx30;
-	int dx31;
-	int dx32;
-	int dy10;
-	int dy20;
-	int dy30;
-	int dy31;
-	int dy32;
-	int a20;
-	int a21;
-	int a22;
-	int b0;
-	int b1;
-	int b2;
-	int s1;
-	int s2;
-	int r1;
-	int r2;
-	dx10 = _x1-_x0;
-	dx20 = _x2-_x0;
-	dx30 = _x3-_x0;
-	dx31 = _x3-_x1;
-	dx32 = _x3-_x2;
-	dy10 = _y1-_y0;
-	dy20 = _y2-_y0;
-	dy30 = _y3-_y0;
-	dy31 = _y3-_y1;
-	dy32 = _y3-_y2;
-	a20 = dx32*dy10-dx10*dy32;
-	a21 = dx20*dy31-dx31*dy20;
-	a22 = dx32*dy31-dx31*dy32;
-	/*Figure out if we need to downscale anything.*/
-	b0 = qr_ilog(QR_MAXI(abs(dx10), abs(dy10)))+qr_ilog(abs(a20+a22));
-	b1 = qr_ilog(QR_MAXI(abs(dx20), abs(dy20)))+qr_ilog(abs(a21+a22));
-	b2 = qr_ilog(QR_MAXI(QR_MAXI(abs(a20), abs(a21)), abs(a22)));
-	s1 = QR_MAXI(0, _res+QR_MAXI(QR_MAXI(b0, b1), b2)-(QR_INT_BITS-2));
-	r1 = (1<<s1)>>1;
-	/*Compute the final coefficients of the forward transform.
-	   The 32x32->64 bit multiplies are really needed for accuracy with large
-	   versions.*/
+	int    s2;
+	int    r2;
+	int    dx10 = _x1-_x0;
+	int    dx20 = _x2-_x0;
+	int    dx30 = _x3-_x0;
+	int    dx31 = _x3-_x1;
+	int    dx32 = _x3-_x2;
+	int    dy10 = _y1-_y0;
+	int    dy20 = _y2-_y0;
+	int    dy30 = _y3-_y0;
+	int    dy31 = _y3-_y1;
+	int    dy32 = _y3-_y2;
+	int    a20 = dx32*dy10-dx10*dy32;
+	int    a21 = dx20*dy31-dx31*dy20;
+	int    a22 = dx32*dy31-dx31*dy32;
+	// Figure out if we need to downscale anything.
+	int    b0 = qr_ilog(QR_MAXI(abs(dx10), abs(dy10)))+qr_ilog(abs(a20+a22));
+	int    b1 = qr_ilog(QR_MAXI(abs(dx20), abs(dy20)))+qr_ilog(abs(a21+a22));
+	int    b2 = qr_ilog(QR_MAXI(QR_MAXI(abs(a20), abs(a21)), abs(a22)));
+	int    s1 = QR_MAXI(0, _res+QR_MAXI(QR_MAXI(b0, b1), b2)-(QR_INT_BITS-2));
+	int    r1 = (1<<s1)>>1;
+	//
+	// Compute the final coefficients of the forward transform.
+	// The 32x32->64 bit multiplies are really needed for accuracy with large versions.
+	//
 	_hom->fwd[0][0] = QR_FIXMUL(dx10, a20+a22, r1, s1);
 	_hom->fwd[0][1] = QR_FIXMUL(dx20, a21+a22, r1, s1);
 	_hom->x0 = _x0;
 	_hom->fwd[1][0] = QR_FIXMUL(dy10, a20+a22, r1, s1);
 	_hom->fwd[1][1] = QR_FIXMUL(dy20, a21+a22, r1, s1);
 	_hom->y0 = _y0;
-	_hom->fwd[2][0] = a20+r1>>s1;
-	_hom->fwd[2][1] = a21+r1>>s1;
-	_hom->fwd22 = s1>_res ? a22+(r1>>_res)>>s1-_res : a22<<_res-s1;
-	/*Now compute the inverse transform.*/
+	_hom->fwd[2][0] = (a20+r1) >> s1;
+	_hom->fwd[2][1] = (a21+r1) >> s1;
+	_hom->fwd22 = (s1 > _res) ? ((a22 + (r1>>_res)) >> (s1-_res)) : (a22 << (_res-s1)); // @! (operator prec)
+	// Now compute the inverse transform.
 	b0 = qr_ilog(QR_MAXI(QR_MAXI(abs(dx10), abs(dx20)), abs(dx30))) + qr_ilog(QR_MAXI(abs(_hom->fwd[0][0]), abs(_hom->fwd[1][0])));
 	b1 = qr_ilog(QR_MAXI(QR_MAXI(abs(dy10), abs(dy20)), abs(dy30))) + qr_ilog(QR_MAXI(abs(_hom->fwd[0][1]), abs(_hom->fwd[1][1])));
 	b2 = qr_ilog(abs(a22))-s1;
@@ -717,8 +693,7 @@ static void qr_hom_init(qr_hom * _hom, int _x0, int _y0,
 	r2 = (1<<s2)>>1;
 	s1 += s2;
 	r1 <<= s2;
-	/*The 32x32->64 bit multiplies are really needed for accuracy with large
-	   versions.*/
+	// The 32x32->64 bit multiplies are really needed for accuracy with large versions.
 	_hom->inv[0][0] = QR_FIXMUL(_hom->fwd[1][1], a22, r1, s1);
 	_hom->inv[0][1] = QR_FIXMUL(-_hom->fwd[0][1], a22, r1, s1);
 	_hom->inv[1][0] = QR_FIXMUL(-_hom->fwd[1][0], a22, r1, s1);
@@ -1159,12 +1134,13 @@ static int qr_finder_quick_crossing_check(const uchar * _img,
 	   we return a negative value, indicating the region should be considered
 	   empty.
 	   Otherwise, we return a positive value to indicate it is non-empty.*/
-	if(_x0<0||_x0>=_width||_y0<0||_y0>=_height||
-	    _x1<0||_x1>=_width||_y1<0||_y1>=_height) {
+	if(_x0<0 || _x0 >= _width || _y0 < 0 || _y0 >= _height || _x1 < 0 || _x1 >= _width || _y1 < 0 || _y1 >= _height) {
 		return -1;
 	}
-	if(!_img[_y0*_width+_x0]!=_v||!_img[_y1*_width+_x1]!=_v) return 1;
-	if(!_img[(_y0+_y1>>1)*_width+(_x0+_x1>>1)]==_v) return -1;
+	if(!_img[_y0*_width+_x0] != _v || !_img[_y1*_width+_x1] != _v) 
+		return 1;
+	if(!_img[(_y0+_y1>>1)*_width+(_x0+_x1>>1)]==_v) 
+		return -1;
 	return 0;
 }
 
@@ -1199,14 +1175,16 @@ static int qr_finder_locate_crossing(const uchar * _img,
 	/*Find the first crossing from !_v to _v.*/
 	for(;; ) {
 		/*If we make it all the way to the other side, there's no crossing.*/
-		if(x0[steep]==x1[steep]) return -1;
+		if(x0[steep]==x1[steep]) 
+			return -1;
 		x0[steep] += step[steep];
 		err += derr;
 		if(err<<1>dx[steep]) {
 			x0[1-steep] += step[1-steep];
 			err -= dx[steep];
 		}
-		if(!_img[x0[1]*_width+x0[0]]!=_v) break;
+		if(!_img[x0[1]*_width+x0[0]]!=_v) 
+			break;
 	}
 	/*Find the last crossing from _v to !_v.*/
 	err = 0;
@@ -1233,10 +1211,8 @@ static int qr_aff_line_step(const qr_aff * _aff, qr_line _l, int _v, int _du, in
 	int shift;
 	int round;
 	int dv;
-	int n;
-	int d;
-	n = _aff->fwd[0][_v]*_l[0]+_aff->fwd[1][_v]*_l[1];
-	d = _aff->fwd[0][1-_v]*_l[0]+_aff->fwd[1][1-_v]*_l[1];
+	int n = _aff->fwd[0][_v]*_l[0]+_aff->fwd[1][_v]*_l[1];
+	int d = _aff->fwd[0][1-_v]*_l[0]+_aff->fwd[1][1-_v]*_l[1];
 	if(d<0) {
 		n = -n;
 		d = -d;
@@ -1249,10 +1225,12 @@ static int qr_aff_line_step(const qr_aff * _aff, qr_line _l, int _v, int _du, in
 	   TODO: We impose this restriction to help ensure the loop below terminates,
 	   but it should not technically be required.
 	   It also, however, ensures we avoid division by zero.*/
-	if(abs(n)>=d) return -1;
+	if(abs(n)>=d) 
+		return -1;
 	n = -_du*n;
 	dv = QR_DIVROUND(n, d);
-	if(abs(dv)>=_du) return -1;
+	if(abs(dv)>=_du) 
+		return -1;
 	*_dv = dv;
 	return 0;
 }
@@ -1260,12 +1238,12 @@ static int qr_aff_line_step(const qr_aff * _aff, qr_line _l, int _v, int _du, in
 /*Computes the Hamming distance between two bit patterns (the number of bits
    that differ).
    May stop counting after _maxdiff differences.*/
-static int qr_hamming_dist(unsigned _y1, unsigned _y2, int _maxdiff)
+static int qr_hamming_dist(uint _y1, uint _y2, int _maxdiff)
 {
-	unsigned y;
 	int ret;
-	y = _y1^_y2;
-	for(ret = 0; ret<_maxdiff&&y; ret++) y &= y-1;
+	uint y = _y1^_y2;
+	for(ret = 0; ret < _maxdiff && y; ret++) 
+		y &= (y-1);
 	return ret;
 }
 
@@ -1286,7 +1264,7 @@ static void qr_finder_dump_aff_undistorted(qr_finder * _ul, qr_finder * _ur,
     qr_finder * _dl, qr_aff * _aff, const uchar * _img, int _width, int _height)
 {
 	uchar * gimg;
-	FILE          * fout;
+	FILE * fout = 0;
 	int lpsz;
 	int pixel_size;
 	int dim;
@@ -1300,7 +1278,8 @@ static void qr_finder_dump_aff_undistorted(qr_finder * _ul, qr_finder * _ur,
 	pixel_size = 1<<lpsz;
 	dim = (1<<_aff->res-lpsz)+128;
 	gimg = (uchar*)malloc(dim*dim*sizeof(*gimg));
-	for(i = 0; i<dim; i++) for(j = 0; j<dim; j++) {
+	for(i = 0; i<dim; i++) 
+		for(j = 0; j<dim; j++) {
 			qr_point p;
 			qr_aff_project(p, _aff, (j-64)<<lpsz, (i-64)<<lpsz);
 			gimg[i*dim+j] = _img[
@@ -1309,13 +1288,17 @@ static void qr_finder_dump_aff_undistorted(qr_finder * _ul, qr_finder * _ur,
 		}
 	{
 		min = (_ur->o[0]-7*_ur->size[0]>>lpsz)+64;
-		if(min<0) min = 0;
+		if(min < 0) 
+			min = 0;
 		max = (_ur->o[0]+7*_ur->size[0]>>lpsz)+64;
-		if(max>dim) max = dim;
+		if(max > dim) 
+			max = dim;
 		for(y = -7; y<=7; y++) {
 			i = (_ur->o[1]+y*_ur->size[1]>>lpsz)+64;
-			if(i<0||i>=dim) continue;
-			for(j = min; j<max; j++) gimg[i*dim+j] = 0x7F;
+			if(i<0||i>=dim) 
+				continue;
+			for(j = min; j<max; j++) 
+				gimg[i*dim+j] = 0x7F;
 		}
 		min = (_ur->o[1]-7*_ur->size[1]>>lpsz)+64;
 		if(min<0) min = 0;
@@ -1570,11 +1553,9 @@ static void qr_hom_cell_init(qr_hom_cell * _cell, int _u0, int _v0,
 	_cell->fwd[0][1] = (i01 ? QR_DIVROUND(a00, i01) : 0)+(i11 ? QR_DIVROUND(a01, i11) : 0);
 	_cell->fwd[1][0] = (i00 ? QR_DIVROUND(a10, i00) : 0)+(i10 ? QR_DIVROUND(a11, i10) : 0);
 	_cell->fwd[1][1] = (i01 ? QR_DIVROUND(a10, i01) : 0)+(i11 ? QR_DIVROUND(a11, i11) : 0);
-	_cell->fwd[2][0] = (i00 ? QR_DIVROUND(a20, i00) : 0)+(i10 ? QR_DIVROUND(a21, i10) : 0)
-	    +(i20 ? QR_DIVROUND(a22, i20) : 0)+round>>shift;
-	_cell->fwd[2][1] = (i01 ? QR_DIVROUND(a20, i01) : 0)+(i11 ? QR_DIVROUND(a21, i11) : 0)
-	    +(i21 ? QR_DIVROUND(a22, i21) : 0)+round>>shift;
-	_cell->fwd[2][2] = a22+round>>shift;
+	_cell->fwd[2][0] = (i00 ? QR_DIVROUND(a20, i00) : 0)+(i10 ? QR_DIVROUND(a21, i10) : 0) + (i20 ? QR_DIVROUND(a22, i20) : 0) + round >> shift;
+	_cell->fwd[2][1] = (i01 ? QR_DIVROUND(a20, i01) : 0)+(i11 ? QR_DIVROUND(a21, i11) : 0) + (i21 ? QR_DIVROUND(a22, i21) : 0) + round >> shift;
+	_cell->fwd[2][2] = (a22 + round) >> shift;
 	/*Mathematically, a02 and a12 are exactly zero.
 	   However, that concentrates all of the rounding error in the (_u3,_v3)
 	   corner; we compute offsets which distribute it over the whole range.*/
@@ -1623,8 +1604,7 @@ static void qr_hom_cell_fproject(qr_point _p, const qr_hom_cell * _cell,
 	}
 }
 
-static void qr_hom_cell_project(qr_point _p, const qr_hom_cell * _cell,
-    int _u, int _v, int _res)
+static void qr_hom_cell_project(qr_point _p, const qr_hom_cell * _cell, int _u, int _v, int _res)
 {
 	_u -= _cell->u0<<_res;
 	_v -= _cell->v0<<_res;
@@ -1636,19 +1616,17 @@ static void qr_hom_cell_project(qr_point _p, const qr_hom_cell * _cell,
 
 /*Retrieves the bits corresponding to the alignment pattern template centered
    at the given location in the original image (at subpel precision).*/
-static unsigned qr_alignment_pattern_fetch(qr_point _p[5][5], int _x0, int _y0,
+static uint qr_alignment_pattern_fetch(qr_point _p[5][5], int _x0, int _y0,
     const uchar * _img, int _width, int _height)
 {
-	unsigned v;
 	int i;
 	int j;
 	int k;
-	int dx;
-	int dy;
-	dx = _x0-_p[2][2][0];
-	dy = _y0-_p[2][2][1];
-	v = 0;
-	for(k = i = 0; i<5; i++) for(j = 0; j<5; j++, k++) {
+	int    dx = _x0-_p[2][2][0];
+	int    dy = _y0-_p[2][2][1];
+	uint   v = 0;
+	for(k = i = 0; i<5; i++) 
+		for(j = 0; j<5; j++, k++) {
 			v |= qr_img_get_bit(_img, _width, _height, _p[i][j][0]+dx, _p[i][j][1]+dy)<<k;
 		}
 	return v;
@@ -1662,11 +1640,11 @@ static int qr_alignment_pattern_search(qr_point _p, const qr_hom_cell * _cell,
 	int nc[4];
 	qr_point p[5][5];
 	qr_point pc;
-	unsigned best_match;
+	uint best_match;
 	int best_dist;
 	int bestx;
 	int besty;
-	unsigned match;
+	uint match;
 	int dist;
 	int u;
 	int v;
@@ -1760,9 +1738,11 @@ static int qr_alignment_pattern_search(qr_point _p, const qr_hom_cell * _cell,
 					y -= _cell->fwd[1][dir];
 					w -= _cell->fwd[2][dir];
 				}
-				if(!best_dist) break;
+				if(!best_dist) 
+					break;
 			}
-			if(!best_dist) break;
+			if(!best_dist) 
+				break;
 		}
 	}
 	/*If the best result we got was sufficiently bad, reject the match.
@@ -1774,19 +1754,19 @@ static int qr_alignment_pattern_search(qr_point _p, const qr_hom_cell * _cell,
 		_p[1] = p[2][2][1];
 		return -1;
 	}
-	/*Now try to get a more accurate location of the pattern center.*/
+	// Now try to get a more accurate location of the pattern center.
 	dx = bestx-p[2][2][0];
 	dy = besty-p[2][2][1];
-	memset(nc, 0, sizeof(nc));
-	memset(c, 0, sizeof(c));
-	/*We consider 8 lines across the finder pattern in turn.
-	   If we actually found a symmetric pattern along that line, search for its
-	   exact center in the image.
-	   There are plenty more lines we could use if these don't work, but if we've
-	   found anything remotely close to an alignment pattern, we should be able
-	   to use most of these.*/
+	memzero(nc, sizeof(nc));
+	memzero(c, sizeof(c));
+	//
+	// We consider 8 lines across the finder pattern in turn.
+	// If we actually found a symmetric pattern along that line, search for its exact center in the image.
+	// There are plenty more lines we could use if these don't work, but if we've
+	// found anything remotely close to an alignment pattern, we should be able to use most of these.
+	//
 	for(i = 0; i<8; i++) {
-		static const unsigned MASK_TESTS[8][2] = {
+		static const uint MASK_TESTS[8][2] = {
 			{0x1040041, 0x1000001}, {0x0041040, 0x0001000},
 			{0x0110110, 0x0100010}, {0x0011100, 0x0001000},
 			{0x0420084, 0x0400004}, {0x0021080, 0x0001000},
@@ -1796,21 +1776,17 @@ static int qr_alignment_pattern_search(qr_point _p, const qr_hom_cell * _cell,
 			{0, 0}, {1, 1}, {4, 0}, {3, 1}, {2, 0}, {2, 1}, {0, 2}, {1, 2}
 		};
 		if((best_match&MASK_TESTS[i][0])==MASK_TESTS[i][1]) {
-			int x0;
-			int y0;
-			int x1;
-			int y1;
-			x0 = p[MASK_COORDS[i][1]][MASK_COORDS[i][0]][0]+dx>>QR_FINDER_SUBPREC;
-			if(x0<0||x0>=_width) 
+			const int x0 = (p[MASK_COORDS[i][1]][MASK_COORDS[i][0]][0]+dx) >> QR_FINDER_SUBPREC;
+			if(x0 < 0 || x0 >= _width) 
 				continue;
-			y0 = p[MASK_COORDS[i][1]][MASK_COORDS[i][0]][1]+dy>>QR_FINDER_SUBPREC;
-			if(y0<0||y0>=_height) 
+			const int y0 = (p[MASK_COORDS[i][1]][MASK_COORDS[i][0]][1]+dy) >> QR_FINDER_SUBPREC;
+			if(y0 < 0 || y0 >= _height) 
 				continue;
-			x1 = p[4-MASK_COORDS[i][1]][4-MASK_COORDS[i][0]][0]+dx>>QR_FINDER_SUBPREC;
-			if(x1<0 || x1>=_width) 
+			const int x1 = (p[4-MASK_COORDS[i][1]][4-MASK_COORDS[i][0]][0]+dx) >> QR_FINDER_SUBPREC;
+			if(x1 < 0 || x1 >= _width) 
 				continue;
-			y1 = p[4-MASK_COORDS[i][1]][4-MASK_COORDS[i][0]][1]+dy>>QR_FINDER_SUBPREC;
-			if(y1<0 || y1>=_height) 
+			const int y1 = (p[4-MASK_COORDS[i][1]][4-MASK_COORDS[i][0]][1]+dy) >> QR_FINDER_SUBPREC;
+			if(y1 < 0 || y1 >= _height) 
 				continue;
 			if(!qr_finder_locate_crossing(_img, _width, _height, x0, y0, x1, y1, i&1, pc)) {
 				int w;
@@ -1830,12 +1806,10 @@ static int qr_alignment_pattern_search(qr_point _p, const qr_hom_cell * _cell,
 			}
 		}
 	}
-	/*Sum offsets from lines in orthogonal directions.*/
+	// Sum offsets from lines in orthogonal directions.
 	for(i = 0; i<2; i++) {
-		int a;
-		int b;
-		a = nc[i<<1];
-		b = nc[i<<1|1];
+		int a = nc[i<<1];
+		int b = nc[i<<1|1];
 		if(a&&b) {
 			const int w = QR_MAXI(a, b);
 			c[i<<1][0] = QR_DIVROUND(w*(b*c[i<<1][0]+a*c[i<<1|1][0]), a*b);
@@ -2027,10 +2001,10 @@ static int qr_hom_fit(qr_hom * _hom, qr_finder * _ul, qr_finder * _ur,
 		rdone = rv >= QR_MINI(bv, (_dl->o[1]+bv) >> 1) || nrempty > 14;
 		bdone = bu >= QR_MINI(ru, (_ur->o[0]+ru) >> 1) || nbempty > 14;
 		if(!rdone&&(bdone||rv<bu)) {
-			x0 = rx+drxj>>_aff->res+QR_FINDER_SUBPREC;
-			y0 = ry+dryj>>_aff->res+QR_FINDER_SUBPREC;
-			x1 = rx-drxj>>_aff->res+QR_FINDER_SUBPREC;
-			y1 = ry-dryj>>_aff->res+QR_FINDER_SUBPREC;
+			x0 = (rx+drxj) >> (_aff->res+QR_FINDER_SUBPREC);
+			y0 = (ry+dryj) >> (_aff->res+QR_FINDER_SUBPREC);
+			x1 = (rx-drxj) >> (_aff->res+QR_FINDER_SUBPREC);
+			y1 = (ry-dryj) >> (_aff->res+QR_FINDER_SUBPREC);
 			if(nr>=cr) {
 				cr = cr<<1|1;
 				r = (qr_point*)realloc(r, cr*sizeof(*r));
@@ -2074,10 +2048,10 @@ static int qr_hom_fit(qr_hom * _hom, qr_finder * _ul, qr_finder * _ur,
 			ry += dryi;
 		}
 		else if(!bdone) {
-			x0 = bx+dbxj>>_aff->res+QR_FINDER_SUBPREC;
-			y0 = by+dbyj>>_aff->res+QR_FINDER_SUBPREC;
-			x1 = bx-dbxj>>_aff->res+QR_FINDER_SUBPREC;
-			y1 = by-dbyj>>_aff->res+QR_FINDER_SUBPREC;
+			x0 = (bx+dbxj) >> (_aff->res+QR_FINDER_SUBPREC);
+			y0 = (by+dbyj) >> (_aff->res+QR_FINDER_SUBPREC);
+			x1 = (bx-dbxj) >> (_aff->res+QR_FINDER_SUBPREC);
+			y1 = (by-dbyj) >> (_aff->res+QR_FINDER_SUBPREC);
 			if(nb>=cb) {
 				cb = cb<<1|1;
 				b = (qr_point*)realloc(b, cb*sizeof(*b));
@@ -2092,8 +2066,9 @@ static int qr_hom_fit(qr_hom * _hom, qr_finder * _ul, qr_finder * _ur,
 					/*Move the current point halfway towards the crossing.
 					   We don't move the whole way to give us some robustness to noise.*/
 					/*But ensure that bu monotonically increases.*/
-					if(q[0]+dbu>bu) bu = bu+q[0]>>1;
-					bv = bv+q[1]>>1;
+					if((q[0]+dbu) > bu) 
+						bu = (bu+q[0]) >> 1;
+					bv = (bv+q[1]) >> 1;
 					bx = _aff->fwd[0][0]*bu+_aff->fwd[0][1]*bv+ox;
 					by = _aff->fwd[1][0]*bu+_aff->fwd[1][1]*bv+oy;
 					nb++;
@@ -2131,10 +2106,10 @@ static int qr_hom_fit(qr_hom * _hom, qr_finder * _ul, qr_finder * _ur,
 		qr_line_fit_points(l[1], r, nr, _aff->res);
 	else {
 		qr_aff_project(p, _aff, _ur->o[0]+3*_ur->size[0], _ur->o[1]);
-		shift = QR_MAXI(0, qr_ilog(QR_MAXI(abs(_aff->fwd[0][1]), abs(_aff->fwd[1][1]))) - (_aff->res+1>>1));
+		shift = QR_MAXI(0, qr_ilog(QR_MAXI(abs(_aff->fwd[0][1]), abs(_aff->fwd[1][1]))) - ((_aff->res+1) >> 1));
 		round = (1<<shift)>>1;
-		l[1][0] = _aff->fwd[1][1]+round>>shift;
-		l[1][1] = -_aff->fwd[0][1]+round>>shift;
+		l[1][0] = (_aff->fwd[1][1]+round) >> shift;
+		l[1][1] = (-_aff->fwd[0][1]+round) >> shift;
 		l[1][2] = -(l[1][0]*p[0]+l[1][1]*p[1]);
 	}
 	free(r);
@@ -2142,7 +2117,7 @@ static int qr_hom_fit(qr_hom * _hom, qr_finder * _ul, qr_finder * _ur,
 		qr_line_fit_points(l[3], b, nb, _aff->res);
 	else{
 		qr_aff_project(p, _aff, _dl->o[0], _dl->o[1]+3*_dl->size[1]);
-		shift = QR_MAXI(0, qr_ilog(QR_MAXI(abs(_aff->fwd[0][1]), abs(_aff->fwd[1][1])))-(_aff->res+1>>1));
+		shift = QR_MAXI(0, qr_ilog(QR_MAXI(abs(_aff->fwd[0][1]), abs(_aff->fwd[1][1])))-((_aff->res+1) >> 1));
 		round = (1<<shift)>>1;
 		l[3][0] = (_aff->fwd[1][0] + round) >> shift;
 		l[3][1] = (-_aff->fwd[0][0] + round) >> shift;
@@ -2221,7 +2196,7 @@ static int qr_hom_fit(qr_hom * _hom, qr_finder * _ul, qr_finder * _ur,
 
 /*The BCH(18,6,3) codes are only used for version information, which must lie
    between 7 and 40 (inclusive).*/
-static const unsigned BCH18_6_CODES[34] = {
+static const uint BCH18_6_CODES[34] = {
 	0x07C94,
 	0x085BC, 0x09A99, 0x0A4D3, 0x0BBF6, 0x0C762, 0x0D847, 0x0E60D, 0x0F928,
 	0x10B78, 0x1145D, 0x12A17, 0x13532, 0x149A6, 0x15683, 0x168C9, 0x177EC,
@@ -2236,11 +2211,11 @@ static const unsigned BCH18_6_CODES[34] = {
    Return: The number of errors.
           If more than 3 errors are detected, returns a negative value and
            performs no correction.*/
-static int bch18_6_correct(unsigned * _y)
+static int bch18_6_correct(uint * _y)
 {
-	unsigned y = *_y;
+	uint y = *_y;
 	// Check the easy case first: see if the data bits were uncorrupted
-	unsigned x = y>>12;
+	uint x = y>>12;
 	if(x>=7&&x<=40) {
 		const int nerrs = qr_hamming_dist(y, BCH18_6_CODES[x-7], 4);
 		if(nerrs<4) {
@@ -2261,7 +2236,7 @@ static int bch18_6_correct(unsigned * _y)
 }
 
 #if 0
-static unsigned bch18_6_encode(unsigned _x)
+static uint bch18_6_encode(uint _x)
 {
 	return (-(_x&1)&0x01F25)^(-(_x>>1&1)&0x0216F)^(-(_x>>2&1)&0x042DE)^
 	       (-(_x>>3&1)&0x085BC)^(-(_x>>4&1)&0x10B78)^(-(_x>>5&1)&0x209D5);
@@ -2274,7 +2249,7 @@ static int qr_finder_version_decode(qr_finder * _f, const qr_hom * _hom,
     const uchar * _img, int _width, int _height, int _dir)
 {
 	qr_point q;
-	unsigned v;
+	uint v;
 	int x0;
 	int y0;
 	int w0;
@@ -2349,8 +2324,8 @@ static int qr_finder_fmt_info_decode(qr_finder * _ul, qr_finder * _ur,
     qr_finder * _dl, const qr_hom * _hom, const uchar * _img, int _width, int _height)
 {
 	qr_point p;
-	unsigned lo[2];
-	unsigned hi[2];
+	uint lo[2];
+	uint hi[2];
 	int u;
 	int v;
 	int x;
@@ -2448,7 +2423,7 @@ static int qr_finder_fmt_info_decode(qr_finder * _ul, qr_finder * _ur,
 	nfmt_info = 0;
 	for(i = 0; i<imax; i += di) {
 		int j;
-		unsigned v = (lo[i&1]|hi[i>>1])^0x5412;
+		uint v = (lo[i&1]|hi[i>>1])^0x5412;
 		int ret = bch15_5_correct(&v);
 		v >>= 10;
 		if(ret < 0) 
@@ -2488,7 +2463,7 @@ static int qr_finder_fmt_info_decode(qr_finder * _ul, qr_finder * _ur,
    during decode.*/
 struct qr_sampling_grid {
 	qr_hom_cell    * cells[6];
-	unsigned       * fpmask;
+	uint       * fpmask;
 	int cell_limits[6];
 	int ncells;
 };
@@ -2496,7 +2471,7 @@ struct qr_sampling_grid {
 /*Mark a given region as belonging to the function pattern.*/
 static void qr_sampling_grid_fp_mask_rect(qr_sampling_grid * _grid, int _dim, int _u, int _v, int _w, int _h)
 {
-	const int stride = _dim+QR_INT_BITS-1>>QR_INT_LOGBITS;
+	const int stride = (_dim+QR_INT_BITS-1) >> QR_INT_LOGBITS;
 	// Note that we store bits column-wise, since that's how they're read out of the grid
 	for(int j = _u; j < (_u+_w); j++) 
 		for(int i = _v; i< (_v+_h); i++) {
@@ -2561,8 +2536,7 @@ static void qr_sampling_grid_init(qr_sampling_grid * _grid, int _version,
 	    (nalign-1)*(nalign-1)*sizeof(*_grid->cells[0]));
 	for(i = 1; i<_grid->ncells; i++) _grid->cells[i] = _grid->cells[i-1]+_grid->ncells;
 	/*Initialize the function pattern mask.*/
-	_grid->fpmask = (unsigned*)calloc(dim,
-	    (dim+QR_INT_BITS-1>>QR_INT_LOGBITS)*sizeof(*_grid->fpmask));
+	_grid->fpmask = (uint*)calloc(dim, ((dim + QR_INT_BITS - 1) >> QR_INT_LOGBITS) * sizeof(*_grid->fpmask));
 	/*Mask out the finder patterns (and separators and format info bits).*/
 	qr_sampling_grid_fp_mask_rect(_grid, dim, 0, 0, 9, 9);
 	qr_sampling_grid_fp_mask_rect(_grid, dim, 0, dim-8, 9, 8);
@@ -2577,13 +2551,16 @@ static void qr_sampling_grid_init(qr_sampling_grid * _grid, int _version,
 	qr_sampling_grid_fp_mask_rect(_grid, dim, 6, 9, 1, dim-17);
 	/*If we have no alignment patterns (e.g., this is a version 1 code), just use
 	   the base cell and hope it's good enough.*/
-	if(_version<2) memcpy(_grid->cells[0], &base_cell, sizeof(base_cell));
+	if(_version<2) 
+		memcpy(_grid->cells[0], &base_cell, sizeof(base_cell));
 	else{
 		int j;
 		int k;
 		qr_point * q = (qr_point*)malloc(nalign*nalign*sizeof(*q));
 		qr_point * p = (qr_point*)malloc(nalign*nalign*sizeof(*p));
-		/*Initialize the alignment pattern position list.*/
+		//
+		// Initialize the alignment pattern position list.
+		//
 		align_pos[0] = 6;
 		align_pos[nalign-1] = dim-7;
 		if(_version>6) {
@@ -2591,8 +2568,9 @@ static void qr_sampling_grid_init(qr_sampling_grid * _grid, int _version,
 			for(i = nalign-1; i-->1; ) 
 				align_pos[i] = align_pos[i+1]-d;
 		}
-		/*Three of the corners use a finder pattern instead of a separate
-		   alignment pattern.*/
+		//
+		// Three of the corners use a finder pattern instead of a separate alignment pattern.
+		//
 		q[0][0] = 3;
 		q[0][1] = 3;
 		p[0][0] = _ul_pos[0];
@@ -2607,10 +2585,8 @@ static void qr_sampling_grid_init(qr_sampling_grid * _grid, int _version,
 		p[(nalign-1)*nalign][1] = _dl_pos[1];
 		/*Scan for alignment patterns using a diagonal sweep.*/
 		for(k = 1; k<2*nalign-1; k++) {
-			int jmin;
-			int jmax;
-			jmax = QR_MINI(k, nalign-1)-(k==nalign-1);
-			jmin = QR_MAXI(0, k-(nalign-1))+(k==nalign-1);
+			int jmax = QR_MINI(k, nalign-1) - (k == (nalign-1));
+			int jmin = QR_MAXI(0, k-(nalign-1)) + (k == (nalign-1));
 			for(j = jmin; j<=jmax; j++) {
 				qr_hom_cell * cell;
 				int u;
@@ -2754,8 +2730,8 @@ static void qr_sampling_grid_dump(qr_sampling_grid * _grid, int _version,
 	for(v = 0; v<17+(_version<<2); v++) {
 		for(u = 0; u<17+(_version<<2); u++) {
 			if(qr_sampling_grid_is_in_fp(_grid, 17+(_version<<2), u, v)) {
-				int j = u+4<<QR_ALIGN_SUBPREC;
-				int i = v+4<<QR_ALIGN_SUBPREC;
+				const int j = u+4<<QR_ALIGN_SUBPREC;
+				const int i = v+4<<QR_ALIGN_SUBPREC;
 				gimg[(i-1)*dim+j-1] = 0x7F;
 				gimg[(i-1)*dim+j] = 0x7F;
 				gimg[(i-1)*dim+j+1] = 0x7F;
@@ -2778,11 +2754,11 @@ static void qr_sampling_grid_dump(qr_sampling_grid * _grid, int _version,
 #endif
 
 /*Generate the data mask corresponding to the given mask pattern.*/
-static void qr_data_mask_fill(unsigned * _mask, int _dim, int _pattern)
+static void qr_data_mask_fill(uint * _mask, int _dim, int _pattern)
 {
 	int i;
 	int j;
-	int stride = _dim+QR_INT_BITS-1>>QR_INT_LOGBITS;
+	int stride = (_dim+QR_INT_BITS-1) >> QR_INT_LOGBITS;
 	/*Note that we store bits column-wise, since that's how they're read out of
 	   the grid.*/
 	switch(_pattern) {
@@ -2809,7 +2785,7 @@ static void qr_data_mask_fill(unsigned * _mask, int _dim, int _pattern)
 		   10010010
 		   10010010*/
 		case 2: {
-		    unsigned m = 0xFF;
+		    uint m = 0xFF;
 		    for(j = 0; j<_dim; j++) {
 			    memset(_mask+j*stride, m&0xFF, stride*sizeof(*_mask));
 			    m = m<<8|m>>16;
@@ -2820,8 +2796,8 @@ static void qr_data_mask_fill(unsigned * _mask, int _dim, int _pattern)
 		   01001001
 		   10010010*/
 		case 3: {
-		    unsigned mi;
-		    unsigned mj = 0;
+		    uint mi;
+		    uint mj = 0;
 		    for(i = 0; i<(QR_INT_BITS+2)/3; i++) 
 				mj |= 1<<3*i;
 		    for(j = 0; j<_dim; j++) {
@@ -2838,7 +2814,7 @@ static void qr_data_mask_fill(unsigned * _mask, int _dim, int _pattern)
 		   00011100
 		   00011100*/
 		case 4: {
-		    unsigned m = 7;
+		    uint m = 7;
 		    for(j = 0; j<_dim; j++) {
 			    memset(_mask+j*stride, (0xCC^ -(m&1))&0xFF, stride*sizeof(*_mask));
 			    m = m>>1|m<<5;
@@ -2850,7 +2826,7 @@ static void qr_data_mask_fill(unsigned * _mask, int _dim, int _pattern)
 		   10101010*/
 		case 5: {
 		    for(j = 0; j<_dim; j++) {
-			    unsigned m = 0;
+			    uint m = 0;
 			    for(i = 0; i<6; i++) m |= !((i*j)%6)<<i;
 			    for(i = 6; i<QR_INT_BITS; i <<= 1) m |= m<<i;
 			    for(i = 0; i<stride; i++) {
@@ -2865,14 +2841,14 @@ static void qr_data_mask_fill(unsigned * _mask, int _dim, int _pattern)
 		   10101010*/
 		case 6: {
 		    for(j = 0; j<_dim; j++) {
-			    unsigned m = 0;
+			    uint m = 0;
 			    for(i = 0; i<6; i++) 
 					m |= ((i*j)%3+i*j+1&1)<<i;
 			    for(i = 6; i<QR_INT_BITS; i <<= 1) 
 					m |= m<<i;
 			    for(i = 0; i<stride; i++) {
 				    _mask[j*stride+i] = m;
-				    m = m>>QR_INT_BITS%6|m<<6-QR_INT_BITS%6;
+				    m = (m >> (QR_INT_BITS%6)) | (m << (6 - QR_INT_BITS%6));
 			    }
 		    }
 	    } break;
@@ -2882,14 +2858,14 @@ static void qr_data_mask_fill(unsigned * _mask, int _dim, int _pattern)
 		   01010101*/
 		default: {
 		    for(j = 0; j<_dim; j++) {
-			    unsigned m = 0;
+			    uint m = 0;
 			    for(i = 0; i<6; i++) 
 					m |= ((i*j)%3+i+j+1&1)<<i;
 			    for(i = 6; i<QR_INT_BITS; i <<= 1) 
 					m |= m<<i;
 			    for(i = 0; i<stride; i++) {
 				    _mask[j*stride+i] = m;
-				    m = m>>QR_INT_BITS%6|m<<6-QR_INT_BITS%6;
+				    m = (m >> (QR_INT_BITS%6)) | (m << (6 - QR_INT_BITS%6));
 			    }
 		    }
 	    } 
@@ -2898,7 +2874,7 @@ static void qr_data_mask_fill(unsigned * _mask, int _dim, int _pattern)
 }
 
 static void qr_sampling_grid_sample(const qr_sampling_grid * _grid,
-    unsigned * _data_bits, int _dim, int _fmt_info,
+    uint * _data_bits, int _dim, int _fmt_info,
     const uchar * _img, int _width, int _height)
 {
 	int stride;
@@ -2969,10 +2945,10 @@ static void qr_sampling_grid_sample(const qr_sampling_grid * _grid,
    groups those bytes into Reed-Solomon blocks.
    The individual block pointers are destroyed by this routine.*/
 static void qr_samples_unpack(uchar ** _blocks, int _nblocks,
-    int _nshort_data, int _nshort_blocks, const unsigned * _data_bits,
-    const unsigned * _fp_mask, int _dim)
+    int _nshort_data, int _nshort_blocks, const uint * _data_bits,
+    const uint * _fp_mask, int _dim)
 {
-	unsigned bits;
+	uint bits;
 	int biti;
 	int blocki;
 	int blockj;
@@ -2985,10 +2961,10 @@ static void qr_samples_unpack(uchar ** _blocks, int _nblocks,
 	/*Scan columns in pairs from right to left.*/
 	bits = 0;
 	for(blocki = blockj = biti = 0, j = _dim-1; j>0; j -= 2) {
-		unsigned data1;
-		unsigned data2;
-		unsigned fp_mask1;
-		unsigned fp_mask2;
+		uint data1;
+		uint data2;
+		uint fp_mask1;
+		uint fp_mask2;
 		/*Scan up a pair of columns.*/
 		int nbits = (_dim-1&QR_INT_BITS-1)+1;
 		int l = j*stride;
@@ -3085,7 +3061,7 @@ static void qr_pack_buf_init(qr_pack_buf * _b, const uchar * _data, int _ndata)
 static int qr_pack_buf_read(qr_pack_buf * _b, int _bits)
 {
 	const uchar * p;
-	unsigned ret;
+	uint ret;
 	int m = 16-_bits;
 	_bits += _b->endbit;
 	int d = _b->storage-_b->endbyte;
@@ -3130,7 +3106,7 @@ static const uchar QR_ALNUM_TABLE[45] = {
 static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar * _data, int _ndata)
 {
 	qr_pack_buf qpb;
-	unsigned self_parity;
+	uint self_parity;
 	int centries;
 	int len_bits_idx;
 	/*Entries are stored directly in the struct during parsing.
@@ -3170,8 +3146,8 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 		switch(mode) {
 			case QR_MODE_NUM: {
 			    uchar * buf;
-			    unsigned bits;
-			    unsigned c;
+			    uint bits;
+			    uint c;
 			    int count;
 			    int rem;
 			    const int len = qr_pack_buf_read(&qpb, LEN_BITS[len_bits_idx][0]);
@@ -3224,8 +3200,8 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 		    } break;
 			case QR_MODE_ALNUM: {
 			    uchar * buf;
-			    unsigned bits;
-			    unsigned c;
+			    uint bits;
+			    uint c;
 			    int count;
 			    int rem;
 			    int len = qr_pack_buf_read(&qpb, LEN_BITS[len_bits_idx][1]);
@@ -3280,7 +3256,7 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 		    } break;
 			case QR_MODE_BYTE: {
 			    uchar * buf;
-			    unsigned c;
+			    uint c;
 			    int len = qr_pack_buf_read(&qpb, LEN_BITS[len_bits_idx][2]);
 			    if(len<0) 
 					return -1;
@@ -3300,7 +3276,7 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 			case QR_MODE_FNC1_1ST: break;
 			/*Extended Channel Interpretation data.*/
 			case QR_MODE_ECI: {
-			    unsigned val;
+			    uint val;
 			    /*ECI uses a variable-width encoding similar to UTF-8*/
 			    int bits = qr_pack_buf_read(&qpb, 8);
 			    if(bits<0) 
@@ -3334,7 +3310,7 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 		    } break;
 			case QR_MODE_KANJI: {
 			    uchar * buf;
-			    unsigned bits;
+			    uint bits;
 			    int len = qr_pack_buf_read(&qpb, LEN_BITS[len_bits_idx][3]);
 			    if(len<0) 
 					return -1;
@@ -3434,7 +3410,7 @@ static const ushort QR_NCODEWORDS[40] = {
 #endif
 
 /*The total number of codewords in a QR code.*/
-static int qr_code_ncodewords(unsigned _version)
+static int qr_code_ncodewords(uint _version)
 {
 	/*This is 24-27 instructions on ARM in thumb mode, or a 26-32 byte savings
 	   over just using a table (not counting the instructions that would be
@@ -3442,7 +3418,7 @@ static int qr_code_ncodewords(unsigned _version)
 	if(_version==1) 
 		return 26;
 	else {
-		unsigned nalign = (_version/7)+2;
+		uint nalign = (_version/7)+2;
 		return (_version<<4)*(_version+8) - (5*nalign)*(5*nalign-2)+36*(_version<7)+83>>3;
 	}
 }
@@ -3517,7 +3493,7 @@ static int qr_code_decode(qr_code_data * _qrdata, const rs_gf256 * _gf,
     const uchar * _img, int _width, int _height)
 {
 	qr_sampling_grid grid;
-	unsigned          * data_bits;
+	uint          * data_bits;
 	uchar    ** blocks;
 	uchar     * block_data;
 	int nblocks;
@@ -3536,7 +3512,7 @@ static int qr_code_decode(qr_code_data * _qrdata, const rs_gf256 * _gf,
 	qr_sampling_grid_dump(&grid, _version, _img, _width, _height);
 #endif
 	dim = 17+(_version<<2);
-	data_bits = (unsigned*)malloc(dim*((dim+QR_INT_BITS-1)>>QR_INT_LOGBITS)*sizeof(*data_bits));
+	data_bits = (uint*)malloc(dim*((dim+QR_INT_BITS-1)>>QR_INT_LOGBITS)*sizeof(*data_bits));
 	qr_sampling_grid_sample(&grid, data_bits, dim, _fmt_info, _img, _width, _height);
 	/*Group those bits into Reed-Solomon codewords.*/
 	ecc_level = (_fmt_info>>3)^1;
@@ -3602,7 +3578,7 @@ static int qr_reader_try_configuration(qr_reader * _reader,
     qr_finder_center * _c[3])
 {
 	int ci[7];
-	unsigned maxd;
+	uint maxd;
 	int ccw;
 	int i0;
 	int i;
@@ -3619,7 +3595,7 @@ static int qr_reader_try_configuration(qr_reader * _reader,
 	maxd = qr_point_distance2(_c[1]->pos, _c[2]->pos);
 	i0 = 0;
 	for(i = 1; i<3; i++) {
-		unsigned d = qr_point_distance2(_c[ci[i+1]]->pos, _c[ci[i+2]]->pos);
+		uint d = qr_point_distance2(_c[ci[i+1]]->pos, _c[ci[i+2]]->pos);
 		if(d>maxd) {
 			i0 = i;
 			maxd = d;

@@ -2817,6 +2817,8 @@ int SLAPI PPObjSCard::AutoFill(PPID seriesID, int use_ta)
 	return ok;
 }
 
+int SLAPI VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, uint * pCheckCode); // @prototype
+
 #define GRP_SPCDVCINP 1
 #define GRP_LOC       2
 
@@ -2854,6 +2856,28 @@ private:
 			PPID   series_id = getCtrlLong(CTLSEL_SCARD_SERIES);
 			Data.Rec.AutoGoodsID = getCtrlLong(CTLSEL_SCARD_AUTOGOODS);
 			SetupSeries(series_id, person_id);
+		}
+		else if(event.isCmd(cmInputUpdated)) {
+			if(event.isCtlEvent(CTL_SCARD_PHONE)) {
+				SString phone;
+				getCtrlString(CTL_SCARD_PHONE, phone);
+				enableCommand(cmVerify, phone.NotEmptyS());
+			}
+			else
+				return;
+		}
+		else if(event.isCmd(cmVerify)) {
+			SString phone, scard_code;
+			getCtrlString(CTL_SCARD_PHONE, phone);
+			getCtrlString(CTL_SCARD_CODE, scard_code);
+			if(phone.NotEmptyS() && scard_code.NotEmptyS()) {
+				uint   check_code = 0;
+				if(VerifyPhoneNumberBySms(phone, scard_code, &check_code) > 0) {
+					if(check_code) {
+                        ; // @todo Какую-то отметку сделать
+					}
+				}
+			}
 		}
 		else
 			return;
@@ -3015,6 +3039,7 @@ int SCardDialog::setDTS(const PPSCardPacket * pData, const PPSCardSerPacket * pS
 	{
 		Data.GetExtStrData(Data.extssPhone, temp_buf);
 		setCtrlString(CTL_SCARD_PHONE, temp_buf);
+		enableCommand(cmVerify, temp_buf.NotEmptyS()); // @v9.5.12
 	}
 	// } @v9.4.6
 	AddClusterAssoc(CTL_SCARD_FLAGS, 0, SCRDF_INHERITED);

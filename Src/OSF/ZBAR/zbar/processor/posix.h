@@ -59,31 +59,25 @@ static inline int alloc_polls (volatile poll_desc_t *p)
     return 0;
 }
 
-static inline int add_poll (zbar_processor_t *proc,
-                            int fd,
-                            poll_handler_t *handler)
+static inline int add_poll (zbar_processor_t *proc, int fd, poll_handler_t *handler)
 {
     processor_state_t *state = proc->state;
-
     _zbar_mutex_lock(&proc->mutex);
-
     poll_desc_t *polling = &state->polling;
-    unsigned i = polling->num++;
+    uint i = polling->num++;
     zprintf(5, "[%d] fd=%d handler=%p\n", i, fd, handler);
     if(!alloc_polls(polling)) {
-        memset(&polling->fds[i], 0, sizeof(struct pollfd));
+        memzero(&polling->fds[i], sizeof(struct pollfd));
         polling->fds[i].fd = fd;
         polling->fds[i].events = POLLIN;
         polling->handlers[i] = handler;
     }
     else
         i = -1;
-
     _zbar_mutex_unlock(&proc->mutex);
-
     if(proc->input_thread.started) {
         assert(state->kick_fds[1] >= 0);
-        if(write(state->kick_fds[1], &i /* unused */, sizeof(unsigned)) < 0)
+        if(write(state->kick_fds[1], &i /* unused */, sizeof(uint)) < 0)
             return -1;
     }
     else if(!proc->threaded) {
@@ -94,36 +88,28 @@ static inline int add_poll (zbar_processor_t *proc,
     return(i);
 }
 
-static inline int remove_poll (zbar_processor_t *proc,
-                               int fd)
+static inline int remove_poll (zbar_processor_t *proc, int fd)
 {
     processor_state_t *state = proc->state;
-
     _zbar_mutex_lock(&proc->mutex);
-
     poll_desc_t *polling = &state->polling;
     int i;
     for(i = polling->num - 1; i >= 0; i--)
         if(polling->fds[i].fd == fd)
             break;
     zprintf(5, "[%d] fd=%d n=%d\n", i, fd, polling->num);
-
     if(i >= 0) {
         if(i + 1 < polling->num) {
             int n = polling->num - i - 1;
-            memmove(&polling->fds[i], &polling->fds[i + 1],
-                    n * sizeof(struct pollfd));
-            memmove(&polling->handlers[i], &polling->handlers[i + 1],
-                    n * sizeof(poll_handler_t));
+            memmove(&polling->fds[i], &polling->fds[i + 1], n * sizeof(struct pollfd));
+            memmove(&polling->handlers[i], &polling->handlers[i + 1], n * sizeof(poll_handler_t));
         }
         polling->num--;
         i = alloc_polls(polling);
     }
-
     _zbar_mutex_unlock(&proc->mutex);
-
     if(proc->input_thread.started) {
-        if(write(state->kick_fds[1], &i /* unused */, sizeof(unsigned)) < 0)
+        if(write(state->kick_fds[1], &i /* unused */, sizeof(uint)) < 0)
             return -1;
     }
     else if(!proc->threaded) {

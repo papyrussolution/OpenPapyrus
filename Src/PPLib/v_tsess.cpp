@@ -1275,7 +1275,7 @@ int SLAPI PPViewTSession::SendAutoSms()
  	StrAssocArray psn_list;
  	StrAssocArray phone_list;
 	StrAssocArray tsess_list;
-
+	//
 	// Ќо перед этим должна быть проверка на разрешенный период отправки сообщений
 	//
  	if(PPAlbatrosCfgMngr::Get(&albtr_cfg) > 0) {

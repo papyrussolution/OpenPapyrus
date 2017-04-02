@@ -102,7 +102,7 @@ struct qr_code_data_entry {
 		} data;
 
 		/*Decoded "Extended Channel Interpretation" data.*/
-		unsigned eci;
+		uint eci;
 		/*Decoded "Application Indicator" for FNC1 in 2nd position.*/
 		int ai;
 		/*Structured-append header data.*/

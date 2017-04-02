@@ -88,28 +88,28 @@ ulong zbar_image_get_format(const zbar_image_t * img)
 	return img->Format;
 }
 
-unsigned zbar_image_get_sequence(const zbar_image_t * img)
+uint zbar_image_get_sequence(const zbar_image_t * img)
 {
 	return img->seq;
 }
 
-unsigned zbar_image_get_width(const zbar_image_t * img)
+uint zbar_image_get_width(const zbar_image_t * img)
 {
 	return img->width;
 }
 
-unsigned zbar_image_get_height(const zbar_image_t * img)
+uint zbar_image_get_height(const zbar_image_t * img)
 {
 	return img->height;
 }
 
-void zbar_image_get_size(const zbar_image_t * img, unsigned * w, unsigned * h)
+void zbar_image_get_size(const zbar_image_t * img, uint * w, uint * h)
 {
 	ASSIGN_PTR(w, img->width);
 	ASSIGN_PTR(h, img->height);
 }
 
-void zbar_image_get_crop(const zbar_image_t * img, unsigned * x, unsigned * y, unsigned * w, unsigned * h)
+void zbar_image_get_crop(const zbar_image_t * img, uint * x, uint * y, uint * w, uint * h)
 {
 	ASSIGN_PTR(x, img->crop_x);
 	ASSIGN_PTR(y, img->crop_y);
@@ -132,27 +132,27 @@ void zbar_image_set_format(zbar_image_t * img, ulong fmt)
 	img->Format = fmt;
 }
 
-void zbar_image_set_sequence(zbar_image_t * img, unsigned seq)
+void zbar_image_set_sequence(zbar_image_t * img, uint seq)
 {
 	img->seq = seq;
 }
 
-void zbar_image_set_size(zbar_image_t * img, unsigned w, unsigned h)
+void zbar_image_set_size(zbar_image_t * img, uint w, uint h)
 {
 	img->crop_x = img->crop_y = 0;
 	img->width = img->crop_w = w;
 	img->height = img->crop_h = h;
 }
 
-void zbar_image_set_crop(zbar_image_t * img, unsigned x, unsigned y, unsigned w, unsigned h)
+void zbar_image_set_crop(zbar_image_t * img, uint x, uint y, uint w, uint h)
 {
-	unsigned img_w = img->width;
+	uint img_w = img->width;
 	SETMIN(x, img_w);
 	if((x + w) > img_w) 
 		w = (img_w - x);
 	img->crop_x = x;
 	img->crop_w = w;
-	unsigned img_h = img->height;
+	uint img_h = img->height;
 	SETMIN(y, img_h);
 	if((y + h) > img_h) 
 		h = (img_h - y);

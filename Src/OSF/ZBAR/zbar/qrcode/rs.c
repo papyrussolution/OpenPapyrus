@@ -26,9 +26,9 @@
 
 /*Galois Field arithmetic in GF(2**8).*/
 
-void rs_gf256_init(rs_gf256 * _gf, unsigned _ppoly)
+void rs_gf256_init(rs_gf256 * _gf, uint _ppoly)
 {
-	unsigned p;
+	uint p;
 	int i;
 	/*Initialize the table of powers of a primtive root, alpha=0x02.*/
 	p = 1;
@@ -44,32 +44,32 @@ void rs_gf256_init(rs_gf256 * _gf, unsigned _ppoly)
 }
 
 /*Multiplication in GF(2**8) using logarithms.*/
-static unsigned rs_gmul(const rs_gf256 * _gf, unsigned _a, unsigned _b)
+static uint rs_gmul(const rs_gf256 * _gf, uint _a, uint _b)
 {
 	return _a==0||_b==0 ? 0 : _gf->exp[_gf->log[_a]+_gf->log[_b]];
 }
 
 /*Division in GF(2**8) using logarithms.
    The result of division by zero is undefined.*/
-static unsigned rs_gdiv(const rs_gf256 * _gf, unsigned _a, unsigned _b)
+static uint rs_gdiv(const rs_gf256 * _gf, uint _a, uint _b)
 {
 	return _a==0 ? 0 : _gf->exp[_gf->log[_a]+255-_gf->log[_b]];
 }
 
 /*Multiplication in GF(2**8) when one of the numbers is known to be non-zero
    (proven by representing it by its logarithm).*/
-static unsigned rs_hgmul(const rs_gf256 * _gf, unsigned _a, unsigned _logb)
+static uint rs_hgmul(const rs_gf256 * _gf, uint _a, uint _logb)
 {
 	return (_a==0) ? 0 : _gf->exp[_gf->log[_a]+_logb];
 }
 
 /*Square root in GF(2**8) using logarithms.*/
-static unsigned rs_gsqrt(const rs_gf256 * _gf, unsigned _a)
+static uint rs_gsqrt(const rs_gf256 * _gf, uint _a)
 {
 	if(!_a) 
 		return 0;
 	else {
-		unsigned loga = _gf->log[_a];
+		uint loga = _gf->log[_a];
 		return _gf->exp[loga+(255& -(loga&1))>>1];
 	}
 }
@@ -92,26 +92,26 @@ static unsigned rs_gsqrt(const rs_gf256 * _gf, unsigned _a)
     month=Jan,
     year=1999
    }*/
-static int rs_quadratic_solve(const rs_gf256 * _gf, unsigned _b, unsigned _c, uchar _x[2])
+static int rs_quadratic_solve(const rs_gf256 * _gf, uint _b, uint _c, uchar _x[2])
 {
-	unsigned b;
-	unsigned logb;
-	unsigned logb2;
-	unsigned logb4;
-	unsigned logb8;
-	unsigned logb12;
-	unsigned logb14;
-	unsigned logc;
-	unsigned logc2;
-	unsigned logc4;
-	unsigned c8;
-	unsigned g3;
-	unsigned z3;
-	unsigned l3;
-	unsigned c0;
-	unsigned g2;
-	unsigned l2;
-	unsigned z2;
+	uint b;
+	uint logb;
+	uint logb2;
+	uint logb4;
+	uint logb8;
+	uint logb12;
+	uint logb14;
+	uint logc;
+	uint logc2;
+	uint logc4;
+	uint c8;
+	uint g3;
+	uint z3;
+	uint l3;
+	uint c0;
+	uint g2;
+	uint l2;
+	uint z2;
 	int inc;
 	/*If _b is zero, all we need is a square root.*/
 	if(!_b) {
@@ -170,13 +170,13 @@ static int rs_quadratic_solve(const rs_gf256 * _gf, unsigned _b, unsigned _c, uc
 /*Solve a cubic equation x**3 + _a*x**2 + _b*x + _c in GF(2**8).
    Returns the number of distinct roots.*/
 static int rs_cubic_solve(const rs_gf256 * _gf,
-    unsigned _a, unsigned _b, unsigned _c, uchar _x[3])
+    uint _a, uint _b, uint _c, uchar _x[3])
 {
-	unsigned k;
-	unsigned logd;
-	unsigned d2;
-	unsigned logd2;
-	unsigned logw;
+	uint k;
+	uint logd;
+	uint d2;
+	uint logd2;
+	uint logw;
 	int nroots;
 	/*If _c is zero, factor out the 0 root.*/
 	if(!_c) {
@@ -258,12 +258,12 @@ static int rs_cubic_solve(const rs_gf256 * _gf,
     year=1972
    }*/
 static int rs_quartic_solve(const rs_gf256 * _gf,
-    unsigned _a, unsigned _b, unsigned _c, unsigned _d, uchar _x[3])
+    uint _a, uint _b, uint _c, uint _d, uchar _x[3])
 {
-	unsigned r;
-	unsigned s;
-	unsigned t;
-	unsigned b;
+	uint r;
+	uint s;
+	uint t;
+	uint b;
 	int nroots;
 	int i;
 	/*If _d is zero, factor out the 0 root.*/
@@ -273,14 +273,14 @@ static int rs_quartic_solve(const rs_gf256 * _gf,
 		return nroots;
 	}
 	if(_a) {
-		unsigned loga;
+		uint loga;
 		/*Substitute x=(1/y) + sqrt(_c/_a) to eliminate the cubic term.*/
 		loga = _gf->log[_a];
 		r = rs_hgmul(_gf, _c, 255-loga);
 		s = rs_gsqrt(_gf, r);
 		t = _d^rs_gmul(_gf, _b, r)^rs_gmul(_gf, r, r);
 		if(t) {
-			unsigned logti;
+			uint logti;
 			logti = 255-_gf->log[t];
 			/*The result is still quartic, but with no cubic term.*/
 			nroots = rs_quartic_solve(_gf, 0, rs_hgmul(_gf, _b^rs_hgmul(_gf, s, loga), logti),
@@ -323,7 +323,8 @@ static int rs_quartic_solve(const rs_gf256 * _gf,
 	/*Now solve for s and t.*/
 	b = rs_gdiv(_gf, _c, r);
 	nroots = rs_quadratic_solve(_gf, b, _d, _x);
-	if(nroots<2) return 0;
+	if(nroots<2) 
+		return 0;
 	s = _x[0];
 	t = _x[1];
 	/*_c=r*(s^t) was non-zero, so s and t must be distinct.
@@ -333,12 +334,12 @@ static int rs_quartic_solve(const rs_gf256 * _gf,
 	nroots = rs_quadratic_solve(_gf, r, s, _x);
 	return nroots+rs_quadratic_solve(_gf, r, t, _x+nroots);
 }
-
-/*Polynomial arithmetic with coefficients in GF(2**8).*/
-
+//
+// Polynomial arithmetic with coefficients in GF(2**8).
+//
 static void rs_poly_zero(uchar * _p, int _dp1)
 {
-	memset(_p, 0, _dp1*sizeof(*_p));
+	memzero(_p, _dp1*sizeof(*_p));
 }
 
 static void rs_poly_copy(uchar * _p, const uchar * _q, int _dp1)
@@ -372,7 +373,7 @@ static void rs_poly_mult(const rs_gf256 * _gf, uchar * _p, int _dp1,
 	rs_poly_zero(_p, _dp1);
 	m = _ep1<_dp1 ? _ep1 : _dp1;
 	for(i = 0; i<m; i++) if(_q[i]!=0) {
-			unsigned logqi;
+			uint logqi;
 			int n;
 			int j;
 			n = _dp1-i<_fp1 ? _dp1-i : _fp1;
@@ -390,8 +391,8 @@ static void rs_calc_syndrome(const rs_gf256 * _gf, int _m0,
 	int i;
 	int j;
 	for(j = 0; j<_npar; j++) {
-		unsigned alphaj;
-		unsigned sj;
+		uint alphaj;
+		uint sj;
 		sj = 0;
 		alphaj = _gf->log[_gf->exp[j+_m0]];
 		for(i = 0; i<_ndata; i++) sj = _data[i]^rs_hgmul(_gf, sj, alphaj);
@@ -450,17 +451,17 @@ static int rs_modified_berlekamp_massey(const rs_gf256 * _gf,
 	l = _nerasures;
 	k = 0;
 	for(n = _nerasures+1; n<=_npar; n++) {
-		unsigned d;
+		uint d;
 		rs_poly_mul_x(tt, tt, n-k+1);
 		d = 0;
 		for(i = 0; i<=l; i++) d ^= rs_gmul(_gf, _lambda[i], _s[n-1-i]);
 		if(d!=0) {
-			unsigned logd;
+			uint logd;
 			logd = _gf->log[d];
 			if(l<n-k) {
 				int t;
 				for(i = 0; i<=n-k; i++) {
-					unsigned tti;
+					uint tti;
 					tti = tt[i];
 					tt[i] = rs_hgmul(_gf, _lambda[i], 255-logd);
 					_lambda[i] = _lambda[i]^rs_hgmul(_gf, tti, logd);
@@ -483,7 +484,7 @@ static int rs_modified_berlekamp_massey(const rs_gf256 * _gf,
 static int rs_find_roots(const rs_gf256 * _gf, uchar * _epos,
     const uchar * _lambda, int _nerrors, int _ndata)
 {
-	unsigned alpha;
+	uint alpha;
 	int nroots;
 	int i;
 	nroots = 0;
@@ -504,8 +505,8 @@ static int rs_find_roots(const rs_gf256 * _gf, uchar * _epos,
 		return nroots;
 	}
 	else for(alpha = 0; (int)alpha<_ndata; alpha++) {
-			unsigned alphai;
-			unsigned sum;
+			uint alphai;
+			uint sum;
 			sum = 0;
 			alphai = 0;
 			for(i = 0; i<=_nerrors; i++) {
@@ -556,12 +557,12 @@ int rs_correct(const rs_gf256 * _gf, int _m0, uchar * _data, int _ndata,
 			if(rs_find_roots(_gf, epos, lambda, nerrors, _ndata)<nerrors) return -1;
 			/*Now compute the error magnitudes.*/
 			for(i = 0; i<nerrors; i++) {
-				unsigned a;
-				unsigned b;
-				unsigned alpha;
-				unsigned alphan1;
-				unsigned alphan2;
-				unsigned alphanj;
+				uint a;
+				uint b;
+				uint alpha;
+				uint alphan1;
+				uint alphan2;
+				uint alphanj;
 				alpha = epos[i];
 				/*Evaluate omega at alpha**-1.*/
 				a = 0;
@@ -601,7 +602,7 @@ void rs_compute_genpoly(const rs_gf256 * _gf, int _m0,
 	_genpoly[0] = 1;
 	/*Multiply by (x+alpha^i) for i = 1 ... _ndata.*/
 	for(i = 0; i<_npar; i++) {
-		unsigned alphai;
+		uint alphai;
 		int n;
 		int j;
 		n = i+1<_npar-1 ? i+1 : _npar-1;
@@ -617,7 +618,7 @@ void rs_encode(const rs_gf256 * _gf, uchar * _data, int _ndata,
     const uchar * _genpoly, int _npar)
 {
 	uchar * lfsr;
-	unsigned d;
+	uint d;
 	int i;
 	int j;
 	if(_npar<=0) return;
@@ -626,7 +627,7 @@ void rs_encode(const rs_gf256 * _gf, uchar * _data, int _ndata,
 	for(i = 0; i<_ndata-_npar; i++) {
 		d = _data[i]^lfsr[0];
 		if(d) {
-			unsigned logd;
+			uint logd;
 			logd = _gf->log[d];
 			for(j = 0; j<_npar-1; j++) {
 				lfsr[j] = lfsr[j+1]^rs_hgmul(_gf, _genpoly[_npar-1-j], logd);
@@ -777,8 +778,8 @@ int main(void)
 	for(a = 0; a<256; a++) for(b = 0; b<256; b++) for(c = 0; c<256; c++) for(d = 0; d<256; d++) {
 					uchar x[4];
 					uchar r[4];
-					unsigned x2;
-					unsigned e[5];
+					uint x2;
+					uint e[5];
 					int nroots;
 					int mroots;
 					int i;

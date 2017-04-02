@@ -32,7 +32,7 @@
 
 int SLAPI PKZip(const char * pSrcPath, const char * pDestPath, const char * pZipDir)
 {
-	int ok = 1;
+	int    ok = 1;
 	SString cmd;
 	SString src_path, dest_path, zip_path, file_name;
 	file_name = "7z.exe";
@@ -60,10 +60,13 @@ int SLAPI ExecVDos(ExecVDosParam & rParam)
 	SString exe_filename;
 	SString autoexec_filename;
 	SString config_filename;
-
-	char curdir[1024];
-	::GetCurrentDirectory(sizeof(curdir), curdir);
-
+	SString curdir;
+	{
+		wchar_t curdir_u[1024];
+		::GetCurrentDirectoryW(sizeof(curdir_u), curdir_u);
+		curdir.CopyUtf8FromUnicode(curdir_u, sstrlen(curdir_u), 0);
+		curdir.Transf(CTRANSF_UTF8_TO_OUTER);
+	}
 	if(startup_path.NotEmptyS()) {
 		startup_path.RmvLastSlash();
 		if(::fileExists(startup_path)) {
@@ -134,10 +137,11 @@ int SLAPI ExecVDos(ExecVDosParam & rParam)
 		MEMSZERO(si);
 		si.cb = sizeof(si);
 		MEMSZERO(pi);
-
-		STempBuffer cmd_line(exe_filename.Len()*2);
-		strnzcpy(cmd_line, exe_filename, cmd_line.GetSize());
-		r = ::CreateProcess(0, cmd_line, 0, 0, FALSE, 0, 0, vdos_path.cptr(), &si, &pi);
+		{
+			STempBuffer cmd_line(exe_filename.Len()*2);
+			strnzcpy(cmd_line, exe_filename, cmd_line.GetSize());
+			r = ::CreateProcess(0, cmd_line, 0, 0, FALSE, 0, 0, vdos_path.cptr(), &si, &pi);
+		}
 		if(!r) {
 			SLS.SetOsError(0);
 			CALLEXCEPT();

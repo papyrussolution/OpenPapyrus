@@ -41,9 +41,9 @@ public:
         QImage::Format fmt = qimg.format();
         if(fmt != QImage::Format_RGB32 && fmt != QImage::Format_ARGB32 && fmt != QImage::Format_ARGB32_Premultiplied)
             throw FormatError();
-        unsigned bpl = qimg.bytesPerLine();
-        unsigned width = bpl / 4;
-        unsigned height = qimg.height();
+        uint bpl = qimg.bytesPerLine();
+        uint width = bpl / 4;
+        uint height = qimg.height();
         set_size(width, height);
         set_format(zbar_fourcc('B','G','R','4'));
         ulong datalen = qimg.numBytes();

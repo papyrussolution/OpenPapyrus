@@ -38,7 +38,7 @@ void i25_reset(i25_decoder_t * i25)
 	i25->s10 = 0;
 }
 
-static inline uchar i25_decode1(uchar enc, unsigned e, unsigned s)
+static inline uchar i25_decode1(uchar enc, uint e, uint s)
 {
 	uchar E = decode_e(e, s, 45);
 	if(E > 7)
@@ -111,7 +111,7 @@ static inline int8 i25_decode_start(zbar_decoder_t * dcode)
 	 * we require 5.25n for w=2n to 6.75n for w=3n
 	 * (FIXME should really factor in w:n ratio)
 	 */
-	unsigned quiet = get_width(dcode, i);
+	uint quiet = get_width(dcode, i);
 	if(quiet && quiet < dcode25->s10 * 3 / 8) {
 		dbprintf(3, "      i25: s=%d enc=%x q=%d [invalid qz]\n", dcode25->s10, enc, quiet);
 		return(ZBAR_NONE);
@@ -141,7 +141,7 @@ static inline int8 i25_decode_end(zbar_decoder_t * dcode)
 {
 	i25_decoder_t * dcode25 = &dcode->i25;
 	/* check trailing quiet zone */
-	unsigned quiet = get_width(dcode, 0);
+	uint quiet = get_width(dcode, 0);
 	if((quiet && quiet < dcode25->width * 3 / 8) || decode_e(get_width(dcode, 1), dcode25->width, 45) > 2 || decode_e(get_width(dcode, 2), dcode25->width, 45) > 2) {
 		dbprintf(3, "      i25: s=%d q=%d [invalid qz]\n", dcode25->width, quiet);
 		return(ZBAR_NONE);
@@ -157,7 +157,7 @@ static inline int8 i25_decode_end(zbar_decoder_t * dcode)
 		/* reverse buffer */
 		dbprintf(2, " (rev)");
 		for(int i = 0; i < dcode25->character / 2; i++) {
-			const unsigned j = dcode25->character - 1 - i;
+			const uint j = dcode25->character - 1 - i;
 			const char c = dcode->buf[i];
 			dcode->buf[i] = dcode->buf[j];
 			dcode->buf[j] = c;

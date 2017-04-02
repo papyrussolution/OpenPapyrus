@@ -20,7 +20,7 @@ static const int8 gf16_log[16] = {
 //
 // Multiplication in GF(2**4) using logarithms.
 //
-static unsigned gf16_mul(unsigned _a, unsigned _b)
+static uint gf16_mul(uint _a, uint _b)
 {
 	return (_a==0||_b==0) ? 0 : (gf16_exp[gf16_log[_a]+gf16_log[_b]]);
 }
@@ -28,7 +28,7 @@ static unsigned gf16_mul(unsigned _a, unsigned _b)
 // Division in GF(2**4) using logarithms.
 // The result when dividing by zero is undefined.
 //
-static unsigned gf16_div(unsigned _a, unsigned _b)
+static uint gf16_div(uint _a, uint _b)
 {
 	return _a ? (gf16_exp[gf16_log[_a]+15-gf16_log[_b]]) : 0;
 }
@@ -36,7 +36,7 @@ static unsigned gf16_div(unsigned _a, unsigned _b)
 // Multiplication in GF(2**4) when the second argument is known to be non-zero
 // (proven by representing it by its logarithm).
 //
-static unsigned gf16_hmul(unsigned _a, unsigned _logb)
+static uint gf16_hmul(uint _a, uint _logb)
 {
 	return _a ? gf16_exp[gf16_log[_a]+_logb] : 0;
 }
@@ -45,11 +45,11 @@ static unsigned gf16_hmul(unsigned _a, unsigned _logb)
    We only calculate and store the odd ones in _s, since S_2=S_1**2 and
    S_4=S_2**2.
    Returns zero iff all the syndrome values are zero.*/
-static int bch15_5_calc_syndrome(unsigned _s[3], unsigned _y)
+static int bch15_5_calc_syndrome(uint _s[3], uint _y)
 {
 	int i;
 	int j;
-	unsigned p = 0;
+	uint p = 0;
 	for(i = 0; i<15; i++) 
 		if(_y & (1 << i)) 
 			p ^= gf16_exp[i];
@@ -72,12 +72,12 @@ static int bch15_5_calc_syndrome(unsigned _s[3], unsigned _y)
 // Compute the coefficients of the error-locator polynomial.
 // Returns the number of errors (the degree of the polynomial).
 //
-static int bch15_5_calc_omega(unsigned _o[3], unsigned _s[3])
+static int bch15_5_calc_omega(uint _o[3], uint _s[3])
 {
 	_o[0] = _s[0];
-	unsigned s02 = gf16_mul(_s[0], _s[0]);
-	unsigned dd = _s[1]^gf16_mul(_s[0], s02);
-	unsigned tt = _s[2]^gf16_mul(s02, _s[1]);
+	uint s02 = gf16_mul(_s[0], _s[0]);
+	uint dd = _s[1]^gf16_mul(_s[0], s02);
+	uint tt = _s[2]^gf16_mul(s02, _s[1]);
 	_o[1] = dd ? gf16_div(tt, dd) : 0;
 	_o[2] = (dd ^ gf16_mul(_s[0], _o[1]));
 	{
@@ -91,9 +91,9 @@ static int bch15_5_calc_omega(unsigned _o[3], unsigned _s[3])
 /*Find the roots of the error polynomial.
    Returns the number of roots found, or a negative value if the polynomial did
    not have enough roots, indicating a decoding error.*/
-static int bch15_5_calc_epos(unsigned _epos[3], unsigned _s[3])
+static int bch15_5_calc_epos(uint _epos[3], uint _s[3])
 {
-	unsigned o[3];
+	uint o[3];
 	int d = bch15_5_calc_omega(o, _s);
 	int nerrors = 0;
 	if(d==1) 
@@ -111,11 +111,11 @@ static int bch15_5_calc_epos(unsigned _epos[3], unsigned _s[3])
 	return nerrors;
 }
 
-int bch15_5_correct(unsigned * _y)
+int bch15_5_correct(uint * _y)
 {
-	unsigned s[3];
-	unsigned epos[3];
-	unsigned y;
+	uint s[3];
+	uint epos[3];
+	uint y;
 	int nerrors;
 	int i;
 	y = *_y;
@@ -141,7 +141,7 @@ int bch15_5_correct(unsigned * _y)
 	return -1;
 }
 
-unsigned bch15_5_encode(unsigned _x)
+uint bch15_5_encode(uint _x)
 {
 	return (-(_x&1)&0x0537)^(-(_x>>1&1)&0x0A6E)^(-(_x>>2&1)&0x11EB)^(-(_x>>3&1)&0x23D6)^(-(_x>>4&1)&0x429B);
 }
@@ -149,7 +149,7 @@ unsigned bch15_5_encode(unsigned _x)
 #if 0
 //#include <stdio.h>
 
-static unsigned codes[32];
+static uint codes[32];
 
 static int hamming(int _a, int _b)
 {
@@ -186,8 +186,8 @@ int main(void)
 	for(i = 0; i<32; i++) printf("0x%04X%s", codes[i], i+1<32 ? "  " : "\n");
 	/*Try to decode all receivable (possibly corrupt) codewords.*/
 	for(i = 0; i<0x8000; i++) {
-		unsigned y;
-		unsigned z;
+		uint y;
+		uint z;
 		int nerrors;
 		int j;
 		y = i;

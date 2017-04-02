@@ -45,7 +45,7 @@ static short FASTCALL pdf417_decode8(const zbar_decoder_t * dcode)
 {
 	// build edge signature of character
 	// from similar edge measurements
-	unsigned s = dcode->pdf417.s8;
+	uint s = dcode->pdf417.s8;
 	dbprintf(2, " s=%d ", s);
 	if(s < 8)
 		return -1;
@@ -96,7 +96,7 @@ static short FASTCALL pdf417_decode8(const zbar_decoder_t * dcode)
 
 static int8 FASTCALL pdf417_decode_start(zbar_decoder_t * dcode)
 {
-	const unsigned s = dcode->pdf417.s8;
+	const uint s = dcode->pdf417.s8;
 	if(s < 8)
 		return 0;
 	else {

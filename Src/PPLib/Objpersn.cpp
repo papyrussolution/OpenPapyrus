@@ -2152,7 +2152,7 @@ int SLAPI PPObjPerson::SerializePacket(int dir, PPPersonPacket * pPack, SBuffer 
 	if(dir > 0) {
 		pPack->GetExtName(ext_name);
 		PPLocationPacket addr;
-		for(i = 0; pPack->EnumDlvrLoc(&i, &addr) > 0;)
+		for(i = 0; pPack->EnumDlvrLoc(&i, &addr);)
 			addr_id_list.add(addr.ID);
 		rel_list = pPack->GetRelList();
 	}
@@ -2239,7 +2239,7 @@ int SLAPI PPObjPerson::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransm
 				LocObj.GetPacket(p_pack->Rec.MainLoc, &p_pack->Loc);
 			if(p_pack->Rec.RLoc && p_pack->RLoc.IsEmptyAddress())
 				LocObj.GetPacket(p_pack->Rec.RLoc, &p_pack->RLoc);
-			for(uint i = 0; p_pack->EnumDlvrLoc(&i, &addr) > 0;) {
+			for(uint i = 0; p_pack->EnumDlvrLoc(&i, &addr);) {
 				if(LocObj.GetPacket(addr.ID, &addr) > 0)
 					p_pack->PutDlvrLoc(i-1, &addr);
 				else {
@@ -3430,11 +3430,8 @@ int AddrListDialog::editAddr(uint pos)
 		if(loc_pack.ID == 0)
 			loc_obj.InitCode(&loc_pack);
 	}
-	else {
-		uint   p = pos-1;
-		if(Data.EnumDlvrLoc(&p, &loc_pack) <= 0)
-			ok = 0;
-	}
+	else if(!Data.GetDlvrLocByPos(pos-1, &loc_pack))
+		ok = 0;
 	if(ok && loc_obj.EditDialog(LOCTYP_ADDRESS, &loc_pack, 0) == cmOK)
 		ok = (pos == 0) ? Data.AddDlvrLoc(loc_pack) : Data.PutDlvrLoc(pos-1, &loc_pack);
 	return ok;
@@ -6630,7 +6627,7 @@ int PPALDD_UhttPerson::InitData(PPFilt & rFilt, long rsrv)
 		H.ID = r_blk.Pack.Rec.ID;
 		H.PsnID = H.ID; // @v7.1.9
 		STRNSCPY(H.Name, r_blk.Pack.Rec.Name);
-		STRNSCPY(H.Memo, r_blk.Pack.Rec.Memo); // @v7.1.9
+		STRNSCPY(H.Memo, r_blk.Pack.Rec.Memo);
 		H.CategoryID = r_blk.Pack.Rec.CatID;
 		H.StatusID = r_blk.Pack.Rec.Status;
 		r_blk.Pack.GetSrchRegNumber(0, temp_buf);
@@ -6772,9 +6769,8 @@ int PPALDD_UhttPerson::NextIteration(long iterId, long rsrv)
 				}
 			}
 			else {
-				temp_pos -= 2;
 				PPLocationPacket loc_pack;
-				if(r_blk.Pack.EnumDlvrLoc(&temp_pos, &loc_pack) > 0) {
+				if(r_blk.Pack.GetDlvrLocByPos(temp_pos-2, &loc_pack)) {
 					I_AddrList.LocID = loc_pack.ID;
 					I_AddrList.CityID = loc_pack.CityID;
 					STRNSCPY(I_AddrList.LocCode, loc_pack.Code);

@@ -1,5 +1,5 @@
 // FUTIL.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -15,10 +15,10 @@ int FASTCALL fileExists(const char * pFileName)
 
 #ifdef __WIN32__
 
-int getdisk()
+static int getdisk()
 {
 	wchar_t buf[MAXPATH];
-	::GetCurrentDirectoryW(MAXPATH, buf);
+	::GetCurrentDirectoryW(SIZEOFARRAY(buf), buf);
 	return *buf-L'A';
 }
 
@@ -41,7 +41,7 @@ int SLAPI pathToUNC(const char * pPath, SString & rUncPath)
 	return ok;
 }
 
-int Win_IsFileExists(const char * pFileName)
+static int Win_IsFileExists(const char * pFileName)
 {
 	HANDLE handle = ::CreateFile(pFileName, 0 /* query access only */,
 		FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE /* share mode */,
@@ -59,7 +59,7 @@ int Win_IsFileExists(const char * pFileName)
 
 char * SLAPI replacePath(char * fileName, const char * newPath, int force)
 {
-	char drv[MAXDRIVE], dir[MAXPATH], nam[MAXFILE], ext[MAXEXT];
+	char   drv[MAXDRIVE], dir[MAXPATH], nam[MAXFILE], ext[MAXEXT];
 	fnsplit(fileName, drv, dir, nam, ext);
 	if(force || (*drv == 0 && *dir == 0))
 		strcat(strcat(setLastSlash(strcpy(fileName, newPath)), nam), ext);
@@ -80,73 +80,6 @@ char * SLAPI replaceExt(char * fileName, const char * newExt, int force)
 		fnmerge(fileName, drv, dir, nam, ext);
 	}
 	return fileName;
-}
-
-/* fexpand:    reimplementation of pascal's FExpand routine.
-Takes a relative DOS path and makes an absolute path of the form
-drive:\[subdir\ ...]filename.ext
-
-works with '/' or '\' as the subdir separator on input; changes all '/'
-to '\' on output. */
-
-char * SLAPI squeeze(char * path)
-{
-	char * dest = path;
-	char * src = path;
-	while(*src)
-		if(*src != '.')
-			*dest++ = *src++;       // just copy it...
-		else if(*++src == '.') {	// have a '..'
-			src += 2;       // skip the following '\'
-			dest--; // back up to the previous '\'
-			while(*--dest != '\\'); // back up to the previous '\'
-			dest++; // move to the next position
-		}
-		else {
-			src++;  // skip the following '\'
-			dest += 2;
-		}
-	*dest = 0;	      // zero terminator
-	return path;
-}
-
-char * SLAPI fexpand(char * rpath)
-{
-#ifdef __WIN32__
-	char *fn,buf[MAXPATH];
-	GetFullPathName(rpath,MAXPATH,buf,&fn);
-	return strcpy(rpath,buf);
-#else
-	char path[MAXPATH];
-	char drive[MAXDRIVE];
-	char dir[MAXDIR];
-	char file[MAXFILE];
-	char ext[MAXEXT];
-	char curdir[MAXDIR];
-	Pchar p = dir;
-	int flags = fnsplit(rpath, drive, dir, file, ext);
-	if((flags & FNF_DRIVE) == 0) {
-		drive[0] = getdisk() + 'A';
-		drive[1] = ':';
-		drive[2] = '\0';
-	}
-	else
-		drive[0] = toupper(drive[0]);
-	if((flags & FNF_DIRECTORY) == 0 || (dir[0] != '\\' && dir[0] != '/')) {
-		getcurdir(drive[0] - 'A' + 1, curdir);
-		strcat(curdir, dir);
-		if(*curdir != '\\' && *curdir != '/') {
-			*dir = '\\';
-			strcpy(dir + 1, curdir);
-		}
-		else
-			strcpy(dir, curdir);
-	}
-	while((p = strchr(p, '/')) != 0)
-		*p = '\\';
-	fnmerge(path, drive, squeeze(dir), file, ext);
-	return strcpy(rpath, strupr(path));
-#endif
 }
 
 char * SLAPI setLastSlash(char * p)
@@ -190,7 +123,7 @@ int SLAPI driveValid(const char * pPath)
 	if(t != DRIVE_UNKNOWN && t != DRIVE_NO_ROOT_DIR)
 		ok = 1;
 	else if(pPath[0] == '\\' && pPath[1] == '\\') {
-		char buf[MAXPATH], *p;
+		char   buf[MAXPATH], *p;
 		fnsplit(pPath, 0, buf, 0, 0);
 		p = ((p = strchr(buf+2, '\\')) ? strchr(p+1, '\\') : 0);
 		if(p) {
@@ -206,20 +139,93 @@ int SLAPI driveValid(const char * pPath)
 
 int SLAPI isDir(const char * pStr)
 {
-#ifdef __WIN32__
 	int    yes = 0;
-	WIN32_FIND_DATA fd;
-	MEMSZERO(fd);
-	HANDLE h = FindFirstFile(pStr, &fd);
-	if(h != INVALID_HANDLE_VALUE) {
-		if(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-			yes = 1;
-		FindClose(h);
+	if(!isempty(pStr)) {
+#ifdef __WIN32__
+		WIN32_FIND_DATA fd;
+		MEMSZERO(fd);
+		HANDLE h = FindFirstFile(pStr, &fd);
+		if(h != INVALID_HANDLE_VALUE) {
+			if(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+				yes = 1;
+			FindClose(h);
+		}
+#else
+		struct ffblk ff;
+		yes = BIN(findfirst(pStr, &ff, FA_DIREC) == 0 && (ff.ff_attrib & FA_DIREC));
+#endif
 	}
 	return yes;
+}
+//
+// fexpand:    reimplementation of pascal's FExpand routine.
+// Takes a relative DOS path and makes an absolute path of the form
+// drive:\[subdir\ ...]filename.ext
+// 
+// works with '/' or '\' as the subdir separator on input; changes all '/'
+// to '\' on output. 
+//
+#ifndef __WIN32__ // {
+static char * SLAPI squeeze(char * path)
+{
+	char * dest = path;
+	char * src = path;
+	while(*src) {
+		if(*src != '.')
+			*dest++ = *src++;       // just copy it...
+		else if(*++src == '.') {	// have a '..'
+			src += 2;       // skip the following '\'
+			dest--; // back up to the previous '\'
+			while(*--dest != '\\'); // back up to the previous '\'
+			dest++; // move to the next position
+		}
+		else {
+			src++;  // skip the following '\'
+			dest += 2;
+		}
+	}
+	*dest = 0;	      // zero terminator
+	return path;
+}
+#endif // } __WIN32__
+
+static char * SLAPI fexpand(char * rpath)
+{
+#ifdef __WIN32__
+	char * fn = 0;
+	char   buf[MAXPATH];
+	::GetFullPathName(rpath, MAXPATH, buf, &fn);
+	return strcpy(rpath, buf);
 #else
-	struct ffblk ff;
-	return (findfirst(pStr, &ff, FA_DIREC) == 0 && (ff.ff_attrib & FA_DIREC)) ? 1 : 0;
+	char path[MAXPATH];
+	char drive[MAXDRIVE];
+	char dir[MAXDIR];
+	char file[MAXFILE];
+	char ext[MAXEXT];
+	char curdir[MAXDIR];
+	Pchar p = dir;
+	int flags = fnsplit(rpath, drive, dir, file, ext);
+	if((flags & FNF_DRIVE) == 0) {
+		drive[0] = getdisk() + 'A';
+		drive[1] = ':';
+		drive[2] = '\0';
+	}
+	else
+		drive[0] = toupper(drive[0]);
+	if((flags & FNF_DIRECTORY) == 0 || (dir[0] != '\\' && dir[0] != '/')) {
+		getcurdir(drive[0] - 'A' + 1, curdir);
+		strcat(curdir, dir);
+		if(*curdir != '\\' && *curdir != '/') {
+			*dir = '\\';
+			strcpy(dir + 1, curdir);
+		}
+		else
+			strcpy(dir, curdir);
+	}
+	while((p = strchr(p, '/')) != 0)
+		*p = '\\';
+	fnmerge(path, drive, squeeze(dir), file, ext);
+	return strcpy(rpath, strupr(path));
 #endif
 }
 
@@ -267,11 +273,6 @@ SString & SLAPI MakeTempFileName(const char * pDir, const char * pPrefix, const 
 	}
 	ASSIGN_PTR(pStart, start);
 	return rBuf;
-}
-
-void SLAPI getCurDir(Pchar dir)
-{
-	GetCurrentDirectory(MAXPATH, dir);
 }
 
 #if 0 // @v8.6.5 {
@@ -330,8 +331,8 @@ int SLAPI createDir(const char * pPath)
 					}
 					else
 						ok = 1;
+				}
 			}
-		}
 		path.CatChar(*p);
 	} while(ok && *p++ != 0);
 	return ok;
@@ -732,6 +733,7 @@ SLTEST_R(Directory)
 {
 	int    ok = 1;
 	SString path = GetSuiteEntry()->InPath;
+	SString out_path = GetSuiteEntry()->OutPath;
 	SString test_dir, test_dir_with_files;
 	SString temp_buf;
 	uint   files_count = 0;
@@ -780,6 +782,26 @@ SLTEST_R(Directory)
 					Win_IsFileExists(file_list.at(i));
 				}
 			}
+		}
+	}
+	{
+		const int64 test_file_size = 1024 * 1024;
+		(temp_buf = out_path).SetLastSlash().Cat("עוסעמגûי פאיכ ס םו ansi-סטלגמכאלט.txt");
+		{
+			SFile f_out(temp_buf, SFile::mWrite|SFile::mBinary);
+			THROW(SLTEST_CHECK_NZ(f_out.IsValid()));
+			{
+				uint8 bin_buf[256];
+				for(uint i = 0; i < test_file_size/sizeof(bin_buf); i++) {
+					SLS.GetTLA().Rg.ObfuscateBuffer(bin_buf, sizeof(bin_buf));
+					THROW(SLTEST_CHECK_NZ(f_out.Write(bin_buf, sizeof(bin_buf))));
+				}
+			}
+		}
+		{
+			SFileUtil::Stat stat;
+			THROW(SLTEST_CHECK_NZ(SFileUtil::GetStat(temp_buf, &stat)));
+			SLTEST_CHECK_EQ(stat.Size, test_file_size);
 		}
 	}
 	CATCHZOK

@@ -2813,9 +2813,8 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
  							if(phone_list.getCount() != 0) {
 								if(what > 0)
 									SendMail(albtr_cfg.Hdr.MailAccID, &phone_list, &logger);
-								else
-									if(!BeginDelivery(albtr_cfg.Hdr.SmsAccID, psn_list, phone_list))
- 										PPError();
+								else if(!BeginDelivery(albtr_cfg.Hdr.SmsAccID, psn_list, phone_list))
+									PPError();
  							}
  							else {
 								if(what == 0)

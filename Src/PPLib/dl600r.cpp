@@ -897,12 +897,9 @@ int SLAPI DlRtm::Export(ExportParam & rParam)
 	const  DlScope * p_data = GetData();
 	StringSet out_file_set;
 	DBTable * p_tbl = 0;
-	// @v7.8.3 PPIniFile ini_file;
 	SString path, data_name;
 	BDictionary * p_dict = 0;
-	// @v7.8.3 ini_file.Get(PPINISECT_PATH, PPINIPARAM_TEMP, path);
-	// @v7.8.3 THROW_PP(path.NotEmptyS(), PPERR_UNDEFTEMPPATH);
-	PPGetPath(PPPATH_TEMP, path); // @v7.8.3
+	PPGetPath(PPPATH_TEMP, path); 
 	THROW_PP_S(::access(path.RmvLastSlash(), 0) == 0, PPERR_NEXISTPATH, path);
 	path.SetLastSlash();
 	path.CatLongZ(NZOR(DS.GetConstTLA().PrnDirId, LConfig.SessionID), 8);
@@ -912,8 +909,7 @@ int SLAPI DlRtm::Export(ExportParam & rParam)
 	}
 	if(use_ddf) {
 		SString packpath;
-		// @v7.8.3 ini_file.Get(PPINISECT_PATH, PPINIPARAM_PACK, packpath);
-		PPGetPath(PPPATH_PACK, packpath); // @v7.8.3
+		PPGetPath(PPPATH_PACK, packpath);
 		THROW_PP(packpath.NotEmptyS(), PPERR_UNDEFPACKPATH);
 		THROW_PP_S(::access(packpath.RmvLastSlash(), 0) == 0, PPERR_NEXISTPATH, packpath);
 		THROW(__CopyFileByPath(packpath, path, BDictionary::DdfTableFileName));

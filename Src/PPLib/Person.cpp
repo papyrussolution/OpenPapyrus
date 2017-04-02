@@ -905,6 +905,16 @@ int SLAPI PPPersonPacket::EnumDlvrLoc(uint * pPos, PPLocationPacket * pItem) con
 	*/
 }
 
+int SLAPI PPPersonPacket::GetDlvrLocByPos(uint pos, PPLocationPacket * pItem) const
+{
+	if(pos < DlvrLocList.getCount()) {
+		ASSIGN_PTR(pItem, *DlvrLocList.at(pos));
+		return 1;
+	}
+	else
+		return 0;
+}
+
 int SLAPI PPPersonPacket::AddDlvrLoc(const PPLocationPacket & rItem)
 {
 	PPLocationPacket * p_new_pack = new PPLocationPacket(rItem);

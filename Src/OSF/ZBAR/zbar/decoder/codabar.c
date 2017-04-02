@@ -49,9 +49,9 @@ static const uchar codabar_hi[8] = {
 
 static const uchar codabar_characters[/*20*/] = "0123456789-$:/.+ABCD";
 
-static int FASTCALL check_width(unsigned ref, unsigned w)
+static int FASTCALL check_width(uint ref, uint w)
 {
-	const unsigned dref = ref;
+	const uint dref = ref;
 	ref *= 4;
 	w *= 4;
 	return ((ref - dref) <= w && w <= (ref + dref));
@@ -60,7 +60,7 @@ static int FASTCALL check_width(unsigned ref, unsigned w)
 static int8 FASTCALL codabar_decode7(zbar_decoder_t * dcode)
 {
 	codabar_decoder_t * codabar = &dcode->codabar;
-	unsigned s = codabar->s7;
+	uint s = codabar->s7;
 	dbprintf(2, " s=%d", s);
 	if(s < 7)
 		return -1;
@@ -70,17 +70,17 @@ static int8 FASTCALL codabar_decode7(zbar_decoder_t * dcode)
 	}
 	else {
 		// extract min/max bar 
-		unsigned ibar = decode_sortn(dcode, 4, 1);
+		uint ibar = decode_sortn(dcode, 4, 1);
 		dbprintf(2, " bar=%04x", ibar);
-		unsigned wbmax = get_width(dcode, ibar & 0xf);
-		unsigned wbmin = get_width(dcode, ibar >> 12);
+		uint wbmax = get_width(dcode, ibar & 0xf);
+		uint wbmin = get_width(dcode, ibar >> 12);
 		if((8 * wbmin) < wbmax || (3 * wbmin) > (2 * wbmax)) {
 			dbprintf(2, " [bar outer ratio]");
 			return -1;
 		}
 		else {
-			const unsigned wb1 = get_width(dcode, (ibar >> 8) & 0xf);
-			const unsigned wb2 = get_width(dcode, (ibar >> 4) & 0xf);
+			const uint wb1 = get_width(dcode, (ibar >> 8) & 0xf);
+			const uint wb2 = get_width(dcode, (ibar >> 4) & 0xf);
 			const ulong b0b3 = wbmin * wbmax;
 			const ulong b1b2 = wb1 * wb2;
 			if((b1b2 + b1b2 / 8) < b0b3) {
@@ -103,11 +103,11 @@ static int8 FASTCALL codabar_decode7(zbar_decoder_t * dcode)
 				dbprintf(2, " [bar inner ratios]");
 				return -1;
 			}
-			unsigned ispc = decode_sort3(dcode, 2);
+			uint ispc = decode_sort3(dcode, 2);
 			dbprintf(2, "(%x) spc=%03x", ibar, ispc);
-			const unsigned wsmax = get_width(dcode, ispc & 0xf);
-			const unsigned wsmid = get_width(dcode, (ispc >> 4) & 0xf);
-			const unsigned wsmin = get_width(dcode, (ispc >> 8) & 0xf);
+			const uint wsmax = get_width(dcode, ispc & 0xf);
+			const uint wsmid = get_width(dcode, (ispc >> 4) & 0xf);
+			const uint wsmin = get_width(dcode, (ispc >> 8) & 0xf);
 			if(ibar >> 2) {
 				if((8 * wsmin) < wsmax || (8 * wsmin) < (5 * wsmid) || (8 * wsmid) < (5 * wsmax)) { // verify no wide spaces 
 					dbprintf(2, " [0space inner ratios]");
@@ -136,7 +136,7 @@ static int8 FASTCALL codabar_decode7(zbar_decoder_t * dcode)
 					}
 					else {
 						ispc = ((ispc & 0xf) >> 1) - 1;
-						unsigned ic = (ispc << 2) | ibar;
+						uint ic = (ispc << 2) | ibar;
 						if(codabar->direction)
 							ic = 11 - ic;
 						const int c = codabar_lo[ic];
@@ -157,7 +157,7 @@ static int8 FASTCALL codabar_decode7(zbar_decoder_t * dcode)
 					else {
 						ispc >>= 10;
 						dbprintf(2, "(%d)", ispc);
-						unsigned ic = ispc * 4 + ibar;
+						uint ic = ispc * 4 + ibar;
 						//zassert(ic < 8, -1, "ic=%d ispc=%d ibar=%d", ic, ispc, ibar);
 						assert(ic < 8);
 						uchar c = codabar_hi[ic];
@@ -184,27 +184,27 @@ static int8 FASTCALL codabar_decode7(zbar_decoder_t * dcode)
 static inline int8 codabar_decode_start(zbar_decoder_t * dcode)
 {
 	codabar_decoder_t * codabar = &dcode->codabar;
-	const unsigned s = codabar->s7;
+	const uint s = codabar->s7;
 	if(s < 8)
 		return ZBAR_NONE;
 	dbprintf(2, "      codabar: s=%d", s);
 	// check leading quiet zone - spec is 10x 
-	unsigned qz = get_width(dcode, 8);
+	uint qz = get_width(dcode, 8);
 	if((qz && (qz * 2) < s) || (4 * get_width(dcode, 0)) > (3 * s)) {
 		dbprintf(2, " [invalid qz/ics]\n");
 		return ZBAR_NONE;
 	}
 	// check space ratios first
-	unsigned ispc = decode_sort3(dcode, 2);
+	uint ispc = decode_sort3(dcode, 2);
 	dbprintf(2, " spc=%03x", ispc);
 	if((ispc >> 8) == 4) {
 		dbprintf(2, " [space comb]\n");
 		return(ZBAR_NONE);
 	}
 	// require 2 wide and 1 narrow spaces 
-	unsigned wsmax = get_width(dcode, ispc & 0xf);
-	unsigned wsmin = get_width(dcode, ispc >> 8);
-	unsigned wsmid = get_width(dcode, (ispc >> 4) & 0xf);
+	uint wsmax = get_width(dcode, ispc & 0xf);
+	uint wsmin = get_width(dcode, ispc >> 8);
+	uint wsmid = get_width(dcode, (ispc >> 4) & 0xf);
 	if((8 * wsmin) < wsmax || (3 * wsmin) > (2 * wsmax) || (4 * wsmin) > (3 * wsmid) || (8 * wsmid) < (5 * wsmax) || (wsmid * wsmid) <= (wsmax * wsmin)) {
 		dbprintf(2, " [space ratio]\n");
 		return(ZBAR_NONE);
@@ -212,17 +212,17 @@ static inline int8 codabar_decode_start(zbar_decoder_t * dcode)
 	ispc >>= 10;
 	dbprintf(2, "(%d)", ispc);
 	// check bar ratios 
-	unsigned ibar = decode_sortn(dcode, 4, 1);
+	uint ibar = decode_sortn(dcode, 4, 1);
 	dbprintf(2, " bar=%04x", ibar);
-	const unsigned wbmax = get_width(dcode, ibar & 0xf);
-	const unsigned wbmin = get_width(dcode, ibar >> 12);
+	const uint wbmax = get_width(dcode, ibar & 0xf);
+	const uint wbmin = get_width(dcode, ibar >> 12);
 	if((8 * wbmin) < wbmax || (3 * wbmin) > (2 * wbmax)) {
 		dbprintf(2, " [bar outer ratio]\n");
 		return(ZBAR_NONE);
 	}
 	// require 1 wide & 3 narrow bars 
-	const unsigned wb1 = get_width(dcode, (ibar >> 8) & 0xf);
-	const unsigned wb2 = get_width(dcode, (ibar >> 4) & 0xf);
+	const uint wb1 = get_width(dcode, (ibar >> 8) & 0xf);
+	const uint wb2 = get_width(dcode, (ibar >> 4) & 0xf);
 	if((8 * wbmin) < (5 * wb1) || (8 * wb1) < (5 * wb2) || (4 * wb2) > (3 * wbmax) || (wb1 * wb2) >= (wbmin * wbmax) || (wb2 * wb2) >= (wb1 * wbmax)) {
 		dbprintf(2, " [bar inner ratios]\n");
 		return(ZBAR_NONE);
@@ -244,9 +244,9 @@ static inline int8 codabar_decode_start(zbar_decoder_t * dcode)
 	return(ZBAR_PARTIAL);
 }
 
-static inline int codabar_checksum(zbar_decoder_t * dcode, unsigned n)
+static inline int codabar_checksum(zbar_decoder_t * dcode, uint n)
 {
-	unsigned chk = 0;
+	uint chk = 0;
 	uchar * buf = dcode->buf;
 	while(n--)
 		chk += *(buf++);
@@ -264,7 +264,7 @@ static inline zbar_symbol_type_t codabar_postprocess(zbar_decoder_t * dcode)
 	if(dir)
 		/* reverse buffer */
 		for(i = 0; i < n / 2; i++) {
-			unsigned j = n - 1 - i;
+			uint j = n - 1 - i;
 			char code = dcode->buf[i];
 			dcode->buf[i] = dcode->buf[j];
 			dcode->buf[j] = code;
@@ -280,7 +280,7 @@ static inline zbar_symbol_type_t codabar_postprocess(zbar_decoder_t * dcode)
 		}
 	}
 	for(i = 0; i < n; i++) {
-		unsigned c = dcode->buf[i];
+		uint c = dcode->buf[i];
 		dcode->buf[i] = ((c < 0x14) ? codabar_characters[c] : '?');
 	}
 	dcode->buflen = i;
@@ -332,14 +332,14 @@ zbar_symbol_type_t _zbar_decode_codabar(zbar_decoder_t * dcode)
 			return ZBAR_PARTIAL;
 		}
 		else {
-			unsigned s = codabar->s7;
+			uint s = codabar->s7;
 			if(c & 0x10) {
-				unsigned qz = get_width(dcode, 0);
+				uint qz = get_width(dcode, 0);
 				if(qz && qz * 2 < s) {
 					dbprintf(2, " [invalid qz]\n");
 					goto reset;
 				}
-				unsigned n = codabar->character;
+				uint n = codabar->character;
 				if((int)n < CFG(*codabar, ZBAR_CFG_MIN_LEN) || (CFG(*codabar, ZBAR_CFG_MAX_LEN) > 0 && (int)n > CFG(*codabar, ZBAR_CFG_MAX_LEN))) {
 					dbprintf(2, " [invalid len]\n");
 					goto reset;

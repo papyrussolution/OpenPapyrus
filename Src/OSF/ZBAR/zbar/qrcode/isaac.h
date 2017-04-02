@@ -19,17 +19,17 @@
 //   The expected cycle length is 2**8295 values.
 // 
 struct isaac_ctx {
-	unsigned n;
-	unsigned r[ISAAC_SZ];
-	unsigned m[ISAAC_SZ];
-	unsigned a;
-	unsigned b;
-	unsigned c;
+	uint n;
+	uint r[ISAAC_SZ];
+	uint m[ISAAC_SZ];
+	uint a;
+	uint b;
+	uint c;
 };
 
 void isaac_init(isaac_ctx * _ctx, const void * _seed, int _nseed);
 
-unsigned isaac_next_uint32(isaac_ctx * _ctx);
-unsigned isaac_next_uint(isaac_ctx * _ctx, unsigned _n);
+uint isaac_next_uint32(isaac_ctx * _ctx);
+uint isaac_next_uint(isaac_ctx * _ctx, uint _n);
 
 #endif

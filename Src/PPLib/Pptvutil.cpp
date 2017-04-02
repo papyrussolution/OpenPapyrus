@@ -1953,7 +1953,7 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 	file_name[0] = 0;
 	pDlg->getCtrlData(InputCtlId, file_name);
 	SOemToChar(file_name);
-	if(!file_name[0] || !fileExists(file_name)) // @v7.4.8 InitFile.NotEmpty()-->!file_name[0] || !fileExists(file_name)
+	if(!file_name[0] || !fileExists(file_name))
 		InitFile.CopyTo(file_name, sizeof(file_name));
 
 	memzero(&sofn, sizeof(sofn));
@@ -1967,7 +1967,7 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 	if(!(Flags & fbcgfAllowNExists))
 		sofn.Flags |= OFN_FILEMUSTEXIST;
 	if(Flags & fbcgfPath)
-		sofn.Flags  |= (OFN_NOVALIDATE|OFN_PATHMUSTEXIST); // @v7.4.8 OFN_PATHMUSTEXIST
+		sofn.Flags  |= (OFN_NOVALIDATE|OFN_PATHMUSTEXIST);
 	if(!InitDir.NotEmptyS()) {
 		if(Flags & fbcgfSaveLastPath) {
 			WinRegKey reg_key(HKEY_CURRENT_USER, WrSubKey_Dialog, 1);
@@ -1977,7 +1977,7 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 			setInitPath(file_name);
 	}
 	sofn.lpstrInitialDir = InitDir; // @unicodeproblem
-	if((ok = GetOpenFileName((LPOPENFILENAME) &sofn)) != 0) { // @unicodeproblem
+	if((ok = ::GetOpenFileName((LPOPENFILENAME)&sofn)) != 0) { // @unicodeproblem
 		SPathStruc ps;
 		ps.Split(file_name);
 		ps.Nam = 0;

@@ -46,7 +46,7 @@ typedef struct proc_waiter_s {
     struct proc_waiter_s *next;
     zbar_event_t notify;
     zbar_thread_id_t requester;
-    unsigned events;
+    uint events;
 } proc_waiter_t;
 
 /* high-level API events */
@@ -65,7 +65,7 @@ struct zbar_processor_s {
 
     zbar_image_data_handler_t *handler; /* application data handler */
 
-    unsigned req_width, req_height;     /* application requested video size */
+    uint req_width, req_height;     /* application requested video size */
     int req_intf, req_iomode;           /* application requested interface */
     uint32 force_input;               /* force input format (debug) */
     uint32 force_output;              /* force format conversion (debug) */
@@ -100,8 +100,8 @@ struct zbar_processor_s {
 /* processor lock API */
 extern int _zbar_processor_lock(zbar_processor_t*);
 extern int _zbar_processor_unlock(zbar_processor_t*, int);
-extern void _zbar_processor_notify(zbar_processor_t*, unsigned);
-extern int _zbar_processor_wait(zbar_processor_t*, unsigned, zbar_timer_t*);
+extern void _zbar_processor_notify(zbar_processor_t*, uint);
+extern int _zbar_processor_wait(zbar_processor_t*, uint, zbar_timer_t*);
 
 /* platform API */
 extern int _zbar_processor_init(zbar_processor_t*);
@@ -113,10 +113,10 @@ extern int _zbar_process_image(zbar_processor_t*, zbar_image_t*);
 extern int _zbar_processor_handle_input(zbar_processor_t*, int);
 
 /* windowing platform API */
-extern int _zbar_processor_open(zbar_processor_t*, char*, unsigned, unsigned);
+extern int _zbar_processor_open(zbar_processor_t*, char*, uint, uint);
 extern int _zbar_processor_close(zbar_processor_t*);
 extern int _zbar_processor_set_visible(zbar_processor_t*, int);
-extern int _zbar_processor_set_size(zbar_processor_t*, unsigned, unsigned);
+extern int _zbar_processor_set_size(zbar_processor_t*, uint, uint);
 extern int _zbar_processor_invalidate(zbar_processor_t*);
 
 #endif

@@ -131,7 +131,7 @@ static const char39_t code39_encodings[NUM_CHARS] = {
 
 static const uchar code39_characters[/*NUM_CHARS*/] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%*";
 
-static inline uchar code39_decode1(uchar enc, unsigned e, unsigned s)
+static inline uchar code39_decode1(uchar enc, uint e, uint s)
 {
 	uchar E = decode_e(e, s, 72);
 	if(E > 18)
@@ -199,7 +199,7 @@ static inline int8 code39_decode_start(zbar_decoder_t * dcode)
 	dcode39->direction ^= (c == 0x19);
 
 	/* check leading quiet zone - spec is 10x */
-	unsigned quiet = get_width(dcode, 9);
+	uint quiet = get_width(dcode, 9);
 	if(quiet && quiet < dcode39->s9 / 2) {
 		dbprintf(2, " [invalid quiet]\n");
 		return(ZBAR_NONE);
@@ -219,14 +219,14 @@ static inline int code39_postprocess(zbar_decoder_t * dcode)
 		/* reverse buffer */
 		dbprintf(2, " (rev)");
 		for(i = 0; i < dcode39->character / 2; i++) {
-			unsigned j = dcode39->character - 1 - i;
+			uint j = dcode39->character - 1 - i;
 			char code = dcode->buf[i];
 			dcode->buf[i] = dcode->buf[j];
 			dcode->buf[j] = code;
 		}
 	}
 	for(i = 0; i < dcode39->character; i++)
-		dcode->buf[i] = ((dcode->buf[i] < 0x2b) ? code39_characters[(unsigned)dcode->buf[i]] : '?');
+		dcode->buf[i] = ((dcode->buf[i] < 0x2b) ? code39_characters[(uint)dcode->buf[i]] : '?');
 	//zassert(i < dcode->buf_alloc, -1, "i=%02x %s\n", i, _zbar_decoder_buf_dump(dcode->buf, dcode39->character));
 	assert(i < (int)dcode->buf_alloc);
 	dcode->buflen = i;
@@ -235,9 +235,9 @@ static inline int code39_postprocess(zbar_decoder_t * dcode)
 	return 0;
 }
 
-static inline int check_width(unsigned ref, unsigned w)
+static inline int check_width(uint ref, uint w)
 {
-	unsigned dref = ref;
+	uint dref = ref;
 	ref *= 4;
 	w *= 4;
 	return (ref - dref <= w && w <= ref + dref);
@@ -261,7 +261,7 @@ zbar_symbol_type_t _zbar_decode_code39(zbar_decoder_t * dcode)
 		return(ZBAR_NONE);
 	dbprintf(2, "      code39[%c%02d+%x]", (dcode39->direction) ? '<' : '>', dcode39->character, dcode39->element);
 	if(dcode39->element == 10) {
-		unsigned space = get_width(dcode, 0);
+		uint space = get_width(dcode, 0);
 		if(dcode39->character && dcode->buf[dcode39->character - 1] == 0x2b) { /* STOP */
 			/* trim STOP character */
 			dcode39->character--;

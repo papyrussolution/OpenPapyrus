@@ -5,6 +5,84 @@
 #include <tv.h>
 #pragma hdrstop
 
+//static
+uint32 FASTCALL SZIndex2::Combine(uint16 x, uint16 y)
+{
+	const uint32 xdw = (uint32)x;
+	const uint32 ydw = (uint32)y;
+	const uint32 result =
+	((xdw & 0x0001))       | ((ydw & 0x0001) <<  1) |
+	((xdw & 0x0002) <<  1) | ((ydw & 0x0002) <<  2) |
+	((xdw & 0x0004) <<  2) | ((ydw & 0x0004) <<  3) |
+	((xdw & 0x0008) <<  3) | ((ydw & 0x0008) <<  4) |
+
+	((xdw & 0x0010) <<  4) | ((ydw & 0x0010) <<  5) |
+	((xdw & 0x0020) <<  5) | ((ydw & 0x0020) <<  6) |
+	((xdw & 0x0040) <<  6) | ((ydw & 0x0040) <<  7) |
+	((xdw & 0x0080) <<  7) | ((ydw & 0x0080) <<  8) |
+
+	((xdw & 0x0100) <<  8) | ((ydw & 0x0100) <<  9) |
+	((xdw & 0x0200) <<  9) | ((ydw & 0x0200) << 10) |
+	((xdw & 0x0400) << 10) | ((ydw & 0x0400) << 11) |
+	((xdw & 0x0800) << 11) | ((ydw & 0x0800) << 12) |
+
+	((xdw & 0x1000) << 12) | ((ydw & 0x1000) << 13) |
+	((xdw & 0x2000) << 13) | ((ydw & 0x2000) << 14) |
+	((xdw & 0x4000) << 14) | ((ydw & 0x4000) << 15) |
+	((xdw & 0x8000) << 15) | ((ydw & 0x8000) << 16);
+	return result;
+}
+
+//static
+uint64 FASTCALL SZIndex2::Combine(uint32 x, uint32 y)
+{
+	const uint64 dw_lo =
+	((x & 0x0001))       | ((y & 0x0001) <<  1) |
+	((x & 0x0002) <<  1) | ((y & 0x0002) <<  2) |
+	((x & 0x0004) <<  2) | ((y & 0x0004) <<  3) |
+	((x & 0x0008) <<  3) | ((y & 0x0008) <<  4) |
+
+	((x & 0x0010) <<  4) | ((y & 0x0010) <<  5) |
+	((x & 0x0020) <<  5) | ((y & 0x0020) <<  6) |
+	((x & 0x0040) <<  6) | ((y & 0x0040) <<  7) |
+	((x & 0x0080) <<  7) | ((y & 0x0080) <<  8) |
+
+	((x & 0x0100) <<  8) | ((y & 0x0100) <<  9) |
+	((x & 0x0200) <<  9) | ((y & 0x0200) << 10) |
+	((x & 0x0400) << 10) | ((y & 0x0400) << 11) |
+	((x & 0x0800) << 11) | ((y & 0x0800) << 12) |
+
+	((x & 0x1000) << 12) | ((y & 0x1000) << 13) |
+	((x & 0x2000) << 13) | ((y & 0x2000) << 14) |
+	((x & 0x4000) << 14) | ((y & 0x4000) << 15) |
+	((x & 0x8000) << 15) | ((y & 0x8000) << 16);
+
+	const uint32 xh = (x >> 16);
+	const uint32 yh = (y >> 16);
+	const uint64 dw_hi =
+	((xh & 0x0001))       | ((yh & 0x0001) <<  1) |
+	((xh & 0x0002) <<  1) | ((yh & 0x0002) <<  2) |
+	((xh & 0x0004) <<  2) | ((yh & 0x0004) <<  3) |
+	((xh & 0x0008) <<  3) | ((yh & 0x0008) <<  4) |
+
+	((xh & 0x0010) <<  4) | ((yh & 0x0010) <<  5) |
+	((xh & 0x0020) <<  5) | ((yh & 0x0020) <<  6) |
+	((xh & 0x0040) <<  6) | ((yh & 0x0040) <<  7) |
+	((xh & 0x0080) <<  7) | ((yh & 0x0080) <<  8) |
+
+	((xh & 0x0100) <<  8) | ((yh & 0x0100) <<  9) |
+	((xh & 0x0200) <<  9) | ((yh & 0x0200) << 10) |
+	((xh & 0x0400) << 10) | ((yh & 0x0400) << 11) |
+	((xh & 0x0800) << 11) | ((yh & 0x0800) << 12) |
+
+	((xh & 0x1000) << 12) | ((yh & 0x1000) << 13) |
+	((xh & 0x2000) << 13) | ((yh & 0x2000) << 14) |
+	((xh & 0x4000) << 14) | ((yh & 0x4000) << 15) |
+	((xh & 0x8000) << 15) | ((yh & 0x8000) << 16);
+
+	return ((dw_hi << 32) | dw_lo);
+}
+
 #define GIS_EPSILON 0.000001
 
 static int IsGeoPosValid(double lat, double lon)
@@ -242,7 +320,208 @@ int FASTCALL SGeoPosLL_Int::FromStr(const char * pStr)
 	return ok;
 }
 //
-// 
+//
+//
+SLAPI SGeoGridTab::SGeoGridTab(uint dim)
+{
+	assert(dim >= 4 && dim <= 32);
+	Dim = dim;
+	SrcCountLat = 0;
+	SrcCountLon = 0;
+}
+
+int FASTCALL SGeoGridTab::IsEqual(const SGeoGridTab & rS) const
+{
+	//
+	// При сравнении SrcCountLat и SrcCountLon не учитываем поскольку
+	// эти поля не влияют на результат использования таблицы (важны только при построении
+	// и для справочных целей.
+	//
+	int    yes = 1;
+    if(Dim != rS.Dim)
+		yes = 0;
+	else if(LatIdx != rS.LatIdx)
+		yes = 0;
+	else if(LonIdx != rS.LonIdx)
+		yes = 0;
+	return yes;
+}
+
+int FASTCALL SGeoGridTab::operator == (const SGeoGridTab & rS) const
+{
+	return IsEqual(rS);
+}
+
+int FASTCALL SGeoGridTab::operator != (const SGeoGridTab & rS) const
+{
+	return !IsEqual(rS);
+}
+
+void SLAPI SGeoGridTab::SetSrcCountLat(uint64 c)
+{
+	SrcCountLat = c;
+}
+
+void SLAPI SGeoGridTab::SetSrcCountLon(uint64 c)
+{
+	SrcCountLon = c;
+}
+
+uint SLAPI SGeoGridTab::GetDim() const
+{
+	return Dim;
+}
+
+uint SLAPI SGeoGridTab::GetDensityLat() const
+{
+	return (uint)(SrcCountLat / (1ULL << Dim));
+}
+
+uint SLAPI SGeoGridTab::GetDensityLon() const
+{
+	return (uint)(SrcCountLon / (1ULL << Dim));
+}
+
+int FASTCALL SGeoGridTab::AddThresholdLat(long coord)
+{
+	assert(LatIdx.getCount() < (1UL << Dim));
+	assert(coord >= -900000000 && coord <= +900000000);
+	return LatIdx.add(coord);
+}
+
+int FASTCALL SGeoGridTab::AddThresholdLon(long coord)
+{
+	assert(LonIdx.getCount() < (1UL << Dim));
+	assert(coord >= -1800000000 && coord <= +1800000000);
+	return LonIdx.add(coord);
+}
+
+uint SLAPI SGeoGridTab::GetCountLat() const
+{
+	return LatIdx.getCount();
+}
+
+uint SLAPI SGeoGridTab::GetCountLon() const
+{
+	return LonIdx.getCount();
+}
+
+int SLAPI SGeoGridTab::Save(const char * pFileName)
+{
+    int   ok = 1;
+    SString line_buf;
+    SFile f_out(pFileName, SFile::mWrite);
+    THROW(f_out.IsValid());
+    THROW(f_out.WriteLine((line_buf = 0).CatBrackStr("pgcg-header").CR()));
+	THROW(f_out.WriteLine((line_buf = 0).CatEq("dim", Dim).CR()));
+	THROW(f_out.WriteLine((line_buf = 0).CatEq("srccount-lat", (int64)SrcCountLat).CR()));
+	THROW(f_out.WriteLine((line_buf = 0).CatEq("srccount-lon", (int64)SrcCountLon).CR()));
+	THROW(f_out.WriteLine((line_buf = 0).CatEq("gridcount-lat", LatIdx.getCount()).CR()));
+	THROW(f_out.WriteLine((line_buf = 0).CatEq("gridcount-lon", LonIdx.getCount()).CR()));
+	THROW(f_out.WriteLine((line_buf = 0).CR()));
+	{
+		THROW(f_out.WriteLine((line_buf = 0).CatBrackStr("pgcg-lat").CR()));
+		for(uint i = 0; i < LatIdx.getCount(); i++) {
+			THROW(f_out.WriteLine((line_buf = 0).Cat(LatIdx.get(i)).CR()));
+		}
+		THROW(f_out.WriteLine((line_buf = 0).CR()));
+	}
+	{
+		THROW(f_out.WriteLine((line_buf = 0).CatBrackStr("pgcg-lon").CR()));
+		for(uint i = 0; i < LonIdx.getCount(); i++) {
+			THROW(f_out.WriteLine((line_buf = 0).Cat(LonIdx.get(i)).CR()));
+		}
+		THROW(f_out.WriteLine((line_buf = 0).CR()));
+	}
+    CATCHZOK
+    return ok;
+}
+
+int SLAPI SGeoGridTab::Load(const char * pFileName)
+{
+    Dim = 0;
+    SrcCountLat = 0;
+    SrcCountLon = 0;
+    LatIdx.clear();
+    LonIdx.clear();
+
+	int    ok = 1;
+	int    zone = 0; // 1 - header, 2 - latitude, 3 - longitude
+    SString line_buf;
+    SString temp_buf;
+    SString left_buf, right_buf;
+    uint   hdr_count_lat = 0;
+    uint   hdr_count_lon = 0;
+    SFile f_in(pFileName, SFile::mRead);
+	while(f_in.ReadLine(line_buf)) {
+        line_buf.Chomp();
+        if(line_buf.NotEmptyS()) {
+            if(line_buf.C(0) == '[') {
+				uint rb_pos = 0;
+                THROW(line_buf.StrChr(']', &rb_pos)); // Ошибка в формате файла geogridtag
+				assert(rb_pos > 0);
+				line_buf.Sub(1, rb_pos-1, temp_buf);
+				if(temp_buf.CmpNC("pgcg-header") == 0) {
+					THROW(zone == 0);
+					zone = 1;
+				}
+				else if(temp_buf.CmpNC("pgcg-lat") == 0) {
+					THROW(zone != 2);
+					zone = 2;
+				}
+				else if(temp_buf.CmpNC("pgcg-lon") == 0) {
+					THROW(zone != 3);
+					zone = 3;
+				}
+				else {
+					CALLEXCEPT(); // Не известная зона в файле geogridtab
+				}
+            }
+            else {
+				THROW(oneof3(zone, 1, 2, 3)); // Не верный формат файла geogridtab
+                if(zone == 1) {
+					if(line_buf.Divide('=', left_buf, right_buf) > 0) {
+                        left_buf.Strip();
+                        right_buf.Strip();
+                        if(left_buf.CmpNC("dim") == 0) {
+							Dim = (uint)right_buf.ToLong();
+                            THROW(Dim >= 4 && Dim <= 32);
+                        }
+                        else if(left_buf.CmpNC("srccount-lat") == 0) {
+                            SrcCountLat = right_buf.ToInt64();
+                            THROW(SrcCountLat > 0 && SrcCountLat < 20000000000LL);
+                        }
+                        else if(left_buf.CmpNC("srccount-lon") == 0) {
+                            SrcCountLon = right_buf.ToInt64();
+                            THROW(SrcCountLon > 0 && SrcCountLon < 20000000000LL);
+                        }
+                        else if(left_buf.CmpNC("gridcount-lat") == 0) {
+							hdr_count_lat = (uint)right_buf.ToLong();
+                        }
+                        else if(left_buf.CmpNC("gridcount-lon") == 0) {
+							hdr_count_lon = (uint)right_buf.ToLong();
+                        }
+					}
+                }
+                else if(oneof2(zone, 2, 3)) {
+                    const long threshold = line_buf.ToLong();
+                    if(zone == 2) {
+						THROW(threshold >= -900000000L && threshold <= 900000000L);
+						THROW(LatIdx.add(threshold));
+                    }
+                    else if(zone == 3) {
+						THROW(threshold >= -1800000000L && threshold <= 1800000000L);
+						THROW(LonIdx.add(threshold));
+                    }
+                }
+            }
+        }
+	}
+	CATCHZOK
+	return ok;
+}
+//
+//
 //
 #if 0 // @construction {
 #if !defined(GEOGRAPHICLIB_GEODESICEXACT_ORDER)
@@ -259,9 +538,9 @@ private:
 	//
 	// Max depth required for sncndn.  Probably 5 is enough.
 	//
-	enum { 
-		num_ = 13 
-	}; 
+	enum {
+		num_ = 13
+	};
 	double _k2;
 	double _kp2;
 	double _alpha2;
@@ -276,24 +555,24 @@ private:
 public:
 	EllipticFunction(double k2 = 0, double alpha2 = 0)
 	{
-		Reset(k2, alpha2); 
+		Reset(k2, alpha2);
 	}
 	EllipticFunction(double k2, double alpha2, double kp2, double alphap2)
 	{
-		Reset(k2, alpha2, kp2, alphap2); 
+		Reset(k2, alpha2, kp2, alphap2);
 	}
 	void Reset(double k2 = 0, double alpha2 = 0)
-	{ 
-		Reset(k2, alpha2, 1 - k2, 1 - alpha2); 
+	{
+		Reset(k2, alpha2, 1 - k2, 1 - alpha2);
 	}
 	void Reset(double k2, double alpha2, double kp2, double alphap2);
-	double k2() const 
-	{ 
-		return _k2; 
+	double k2() const
+	{
+		return _k2;
 	}
-	double kp2() const 
-	{ 
-		return _kp2; 
+	double kp2() const
+	{
+		return _kp2;
 	}
 	double alpha2() const { return _alpha2; }
 	double alphap2() const { return _alphap2; }
@@ -326,7 +605,7 @@ public:
 	double deltaG(double sn, double cn, double dn) const;
 	double deltaH(double sn, double cn, double dn) const;
 	void sncndn(double x, double & sn, double & cn, double & dn) const;
-	double Delta(double sn, double cn) const 
+	double Delta(double sn, double cn) const
 	{
 		return sqrt((_k2 < 0) ? (1 - _k2 * sn*sn) : (_kp2 + _k2 * cn*cn));
 	}
@@ -386,7 +665,7 @@ private:
 		double & salp1, double & calp1, double & salp2, double & calp2, double & m12, double & M12, double & M21, double & S12) const;
 	void C4coeff();
 	void C4f(double k2, double c[]) const;
-	static double reale(long long hi, long long lo) 
+	static double reale(long long hi, long long lo)
 	{
 		return ldexp(double(hi), 52) + lo;
 	}
@@ -407,109 +686,109 @@ public:
 	GeodesicExact(double a, double f);
 	double Direct(double lat1, double lon1, double azi1, double s12,
 	double & lat2, double & lon2, double & azi2,
-	double & m12, double & M12, double & M21, double & S12) const 
+	double & m12, double & M12, double & M21, double & S12) const
 	{
 		double t;
 		return GenDirect(lat1, lon1, azi1, false, s12, LATITUDE | LONGITUDE | AZIMUTH | REDUCEDLENGTH | GEODESICSCALE | AREA, lat2, lon2, azi2, t, m12, M12, M21, S12);
 	}
-	double Direct(double lat1, double lon1, double azi1, double s12, double & lat2, double & lon2) const 
+	double Direct(double lat1, double lon1, double azi1, double s12, double & lat2, double & lon2) const
 	{
 		double t;
 		return GenDirect(lat1, lon1, azi1, false, s12, LATITUDE | LONGITUDE, lat2, lon2, t, t, t, t, t, t);
 	}
 	double Direct(double lat1, double lon1, double azi1, double s12,
-	double & lat2, double & lon2, double & azi2) const 
+	double & lat2, double & lon2, double & azi2) const
 	{
 		double t;
 		return GenDirect(lat1, lon1, azi1, false, s12, LATITUDE | LONGITUDE | AZIMUTH, lat2, lon2, azi2, t, t, t, t, t);
 	}
-	double Direct(double lat1, double lon1, double azi1, double s12, double & lat2, double & lon2, double & azi2, double & m12) const 
+	double Direct(double lat1, double lon1, double azi1, double s12, double & lat2, double & lon2, double & azi2, double & m12) const
 	{
 		double t;
 		return GenDirect(lat1, lon1, azi1, false, s12, LATITUDE | LONGITUDE | AZIMUTH | REDUCEDLENGTH, lat2, lon2, azi2, t, m12, t, t, t);
 	}
-	double Direct(double lat1, double lon1, double azi1, double s12, double & lat2, double & lon2, double & azi2, double & M12, double & M21) const 
+	double Direct(double lat1, double lon1, double azi1, double s12, double & lat2, double & lon2, double & azi2, double & M12, double & M21) const
 	{
 		double t;
 		return GenDirect(lat1, lon1, azi1, false, s12, LATITUDE | LONGITUDE | AZIMUTH | GEODESICSCALE, lat2, lon2, azi2, t, t, M12, M21, t);
 	}
-	double Direct(double lat1, double lon1, double azi1, double s12, double & lat2, double & lon2, double & azi2, double & m12, double & M12, double & M21) const 
+	double Direct(double lat1, double lon1, double azi1, double s12, double & lat2, double & lon2, double & azi2, double & m12, double & M12, double & M21) const
 	{
 		double t;
 		return GenDirect(lat1, lon1, azi1, false, s12, LATITUDE|LONGITUDE|AZIMUTH|REDUCEDLENGTH|GEODESICSCALE, lat2, lon2, azi2, t, m12, M12, M21, t);
 	}
 	void ArcDirect(double lat1, double lon1, double azi1, double a12, double & lat2, double & lon2, double & azi2, double & s12,
-		double & m12, double & M12, double & M21, double & S12) const 
+		double & m12, double & M12, double & M21, double & S12) const
 	{
 		GenDirect(lat1, lon1, azi1, true, a12, LATITUDE|LONGITUDE|AZIMUTH|DISTANCE|REDUCEDLENGTH|GEODESICSCALE|AREA, lat2, lon2, azi2, s12, m12, M12, M21, S12);
 	}
-	void ArcDirect(double lat1, double lon1, double azi1, double a12, double & lat2, double & lon2) const 
+	void ArcDirect(double lat1, double lon1, double azi1, double a12, double & lat2, double & lon2) const
 	{
 		double t;
 		GenDirect(lat1, lon1, azi1, true, a12, LATITUDE|LONGITUDE, lat2, lon2, t, t, t, t, t, t);
 	}
-	void ArcDirect(double lat1, double lon1, double azi1, double a12, double & lat2, double & lon2, double & azi2) const 
+	void ArcDirect(double lat1, double lon1, double azi1, double a12, double & lat2, double & lon2, double & azi2) const
 	{
 		double t;
 		GenDirect(lat1, lon1, azi1, true, a12, LATITUDE|LONGITUDE|AZIMUTH, lat2, lon2, azi2, t, t, t, t, t);
 	}
-	void ArcDirect(double lat1, double lon1, double azi1, double a12, double & lat2, double & lon2, double & azi2, double & s12) const 
+	void ArcDirect(double lat1, double lon1, double azi1, double a12, double & lat2, double & lon2, double & azi2, double & s12) const
 	{
 		double t;
 		GenDirect(lat1, lon1, azi1, true, a12, LATITUDE|LONGITUDE|AZIMUTH|DISTANCE, lat2, lon2, azi2, s12, t, t, t, t);
 	}
-	void ArcDirect(double lat1, double lon1, double azi1, double a12, double & lat2, double & lon2, double & azi2, double & s12, double & m12) const 
+	void ArcDirect(double lat1, double lon1, double azi1, double a12, double & lat2, double & lon2, double & azi2, double & s12, double & m12) const
 	{
 		double t;
 		GenDirect(lat1, lon1, azi1, true, a12, LATITUDE|LONGITUDE|AZIMUTH|DISTANCE|REDUCEDLENGTH, lat2, lon2, azi2, s12, m12, t, t, t);
 	}
 	void ArcDirect(double lat1, double lon1, double azi1, double a12,
-		double & lat2, double & lon2, double & azi2, double & s12, double & M12, double & M21) const 
+		double & lat2, double & lon2, double & azi2, double & s12, double & M12, double & M21) const
 	{
 		double t;
 		GenDirect(lat1, lon1, azi1, true, a12, LATITUDE | LONGITUDE | AZIMUTH | DISTANCE | GEODESICSCALE, lat2, lon2, azi2, s12, t, M12, M21, t);
 	}
-	void ArcDirect(double lat1, double lon1, double azi1, double a12, double & lat2, double & lon2, double & azi2, double & s12, double & m12, double & M12, double & M21) const 
+	void ArcDirect(double lat1, double lon1, double azi1, double a12, double & lat2, double & lon2, double & azi2, double & s12, double & m12, double & M12, double & M21) const
 	{
 		double t;
 		GenDirect(lat1, lon1, azi1, true, a12, LATITUDE | LONGITUDE | AZIMUTH | DISTANCE | REDUCEDLENGTH | GEODESICSCALE, lat2, lon2, azi2, s12, m12, M12, M21, t);
 	}
-	double GeodesicExact::GenDirect(double lat1, double lon1, double azi1, bool arcmode, double s12_a12, uint outmask, 
+	double GeodesicExact::GenDirect(double lat1, double lon1, double azi1, bool arcmode, double s12_a12, uint outmask,
 		double & rLat2, double & rLon2, double & rAzi2, double & r_s12, double & r_m12, double & r_M12, double & r_M21, double & r_S12) const;
 	double Inverse(double lat1, double lon1, double lat2, double lon2,
-		double & s12, double & azi1, double & azi2, double & m12, double & M12, double & M21, double & S12) const 
+		double & s12, double & azi1, double & azi2, double & m12, double & M12, double & M21, double & S12) const
 	{
 		return GenInverse(lat1, lon1, lat2, lon2, DISTANCE | AZIMUTH | REDUCEDLENGTH | GEODESICSCALE | AREA, s12, azi1, azi2, m12, M12, M21, S12);
 	}
-	double Inverse(double lat1, double lon1, double lat2, double lon2, double & s12) const 
+	double Inverse(double lat1, double lon1, double lat2, double lon2, double & s12) const
 	{
 		double t;
 		return GenInverse(lat1, lon1, lat2, lon2, DISTANCE, s12, t, t, t, t, t, t);
 	}
-	double Inverse(double lat1, double lon1, double lat2, double lon2, double & azi1, double & azi2) const 
+	double Inverse(double lat1, double lon1, double lat2, double lon2, double & azi1, double & azi2) const
 	{
 		double t;
 		return GenInverse(lat1, lon1, lat2, lon2, AZIMUTH, t, azi1, azi2, t, t, t, t);
 	}
-	double Inverse(double lat1, double lon1, double lat2, double lon2, double & s12, double & azi1, double & azi2) const 
+	double Inverse(double lat1, double lon1, double lat2, double lon2, double & s12, double & azi1, double & azi2) const
 	{
 		double t;
 		return GenInverse(lat1, lon1, lat2, lon2, DISTANCE | AZIMUTH, s12, azi1, azi2, t, t, t, t);
 	}
 	double Inverse(double lat1, double lon1, double lat2, double lon2,
-		double & s12, double & azi1, double & azi2, double & m12) const 
+		double & s12, double & azi1, double & azi2, double & m12) const
 	{
 		double t;
 		return GenInverse(lat1, lon1, lat2, lon2, DISTANCE | AZIMUTH | REDUCEDLENGTH, s12, azi1, azi2, m12, t, t, t);
 	}
 	double Inverse(double lat1, double lon1, double lat2, double lon2,
-		double & s12, double & azi1, double & azi2, double & M12, double & M21) const 
+		double & s12, double & azi1, double & azi2, double & M12, double & M21) const
 	{
 		double t;
 		return GenInverse(lat1, lon1, lat2, lon2, DISTANCE | AZIMUTH | GEODESICSCALE, s12, azi1, azi2, t, M12, M21, t);
 	}
 	double Inverse(double lat1, double lon1, double lat2, double lon2,
-	double & s12, double & azi1, double & azi2, double & m12, double & M12, double & M21) const 
+	double & s12, double & azi1, double & azi2, double & m12, double & M12, double & M21) const
 	{
 		double t;
 		return GenInverse(lat1, lon1, lat2, lon2, DISTANCE | AZIMUTH | REDUCEDLENGTH | GEODESICSCALE, s12, azi1, azi2, m12, M12, M21, t);
@@ -521,17 +800,17 @@ public:
 	GeodesicLineExact DirectLine(double lat1, double lon1, double azi1, double s12, unsigned caps = ALL) const;
 	GeodesicLineExact ArcDirectLine(double lat1, double lon1, double azi1, double a12, unsigned caps = ALL) const;
 	GeodesicLineExact GenDirectLine(double lat1, double lon1, double azi1, bool arcmode, double s12_a12, unsigned caps = ALL) const;
-	double MajorRadius() const 
-	{ 
-		return _a; 
+	double MajorRadius() const
+	{
+		return _a;
 	}
-	double Flattening() const 
-	{ 
-		return _f; 
+	double Flattening() const
+	{
+		return _f;
 	}
 	double EllipsoidArea() const
-	{ 
-		return 4 * SMathConst::Pi * _c2; 
+	{
+		return 4 * SMathConst::Pi * _c2;
 	}
 	static const GeodesicExact& WGS84();
 };
@@ -607,71 +886,71 @@ public:
 		ALL           = GeodesicExact::ALL,
 	};
 	GeodesicLineExact(const GeodesicExact& g, double lat1, double lon1, double azi1, unsigned caps = ALL);
-	GeodesicLineExact() : _caps(0U) 
+	GeodesicLineExact() : _caps(0U)
 	{
 	}
-	double Position(double s12, double & lat2, double & lon2, double & azi2, double & m12, double & M12, double & M21, double & S12) const 
+	double Position(double s12, double & lat2, double & lon2, double & azi2, double & m12, double & M12, double & M21, double & S12) const
 	{
 		double t;
 		return GenPosition(false, s12, LATITUDE | LONGITUDE | AZIMUTH | REDUCEDLENGTH | GEODESICSCALE | AREA, lat2, lon2, azi2, t, m12, M12, M21, S12);
 	}
-	double Position(double s12, double & lat2, double & lon2) const 
+	double Position(double s12, double & lat2, double & lon2) const
 	{
 		double t;
 		return GenPosition(false, s12, LATITUDE | LONGITUDE, lat2, lon2, t, t, t, t, t, t);
 	}
-	double Position(double s12, double & lat2, double & lon2, double & azi2) const 
+	double Position(double s12, double & lat2, double & lon2, double & azi2) const
 	{
 		double t;
 		return GenPosition(false, s12, LATITUDE | LONGITUDE | AZIMUTH, lat2, lon2, azi2, t, t, t, t, t);
 	}
-	double Position(double s12, double & lat2, double & lon2, double & azi2, double & m12) const 
+	double Position(double s12, double & lat2, double & lon2, double & azi2, double & m12) const
 	{
 		double t;
 		return GenPosition(false, s12, LATITUDE | LONGITUDE | AZIMUTH | REDUCEDLENGTH,
 		lat2, lon2, azi2, t, m12, t, t, t);
 	}
-	double Position(double s12, double & lat2, double & lon2, double & azi2, double & M12, double & M21) const 
+	double Position(double s12, double & lat2, double & lon2, double & azi2, double & M12, double & M21) const
 	{
 		double t;
 		return GenPosition(false, s12, LATITUDE | LONGITUDE | AZIMUTH | GEODESICSCALE, lat2, lon2, azi2, t, t, M12, M21, t);
 	}
-	double Position(double s12, double & lat2, double & lon2, double & azi2, double & m12, double & M12, double & M21) const 
+	double Position(double s12, double & lat2, double & lon2, double & azi2, double & m12, double & M12, double & M21) const
 	{
 		double t;
 		return GenPosition(false, s12, LATITUDE | LONGITUDE | AZIMUTH | REDUCEDLENGTH | GEODESICSCALE, lat2, lon2, azi2, t, m12, M12, M21, t);
 	}
-	void ArcPosition(double a12, double & lat2, double & lon2, double & azi2, double & s12, double & m12, double & M12, double & M21, double & S12) const 
+	void ArcPosition(double a12, double & lat2, double & lon2, double & azi2, double & s12, double & m12, double & M12, double & M21, double & S12) const
 	{
 		GenPosition(true, a12, LATITUDE | LONGITUDE | AZIMUTH | DISTANCE | REDUCEDLENGTH | GEODESICSCALE | AREA, lat2, lon2, azi2, s12, m12, M12, M21, S12);
 	}
-	void ArcPosition(double a12, double & lat2, double & lon2)	const 
+	void ArcPosition(double a12, double & lat2, double & lon2)	const
 	{
 		double t;
 		GenPosition(true, a12, LATITUDE | LONGITUDE, lat2, lon2, t, t, t, t, t, t);
 	}
-	void ArcPosition(double a12, double & lat2, double & lon2, double & azi2) const 
+	void ArcPosition(double a12, double & lat2, double & lon2, double & azi2) const
 	{
 		double t;
 		GenPosition(true, a12, LATITUDE | LONGITUDE | AZIMUTH, lat2, lon2, azi2, t, t, t, t, t);
 	}
-	void ArcPosition(double a12, double & lat2, double & lon2, double & azi2, double & s12) const 
+	void ArcPosition(double a12, double & lat2, double & lon2, double & azi2, double & s12) const
 	{
 		double t;
 		GenPosition(true, a12, LATITUDE | LONGITUDE | AZIMUTH | DISTANCE, lat2, lon2, azi2, s12, t, t, t, t);
 	}
-	void ArcPosition(double a12, double & lat2, double & lon2, double & azi2, double & s12, double & m12) const 
+	void ArcPosition(double a12, double & lat2, double & lon2, double & azi2, double & s12, double & m12) const
 	{
 		double t;
 		GenPosition(true, a12, LATITUDE | LONGITUDE | AZIMUTH | DISTANCE | REDUCEDLENGTH, lat2, lon2, azi2, s12, m12, t, t, t);
 	}
-	void ArcPosition(double a12, double & lat2, double & lon2, double & azi2, double & s12, double & M12, double & M21) const 
+	void ArcPosition(double a12, double & lat2, double & lon2, double & azi2, double & s12, double & M12, double & M21) const
 	{
 		double t;
 		GenPosition(true, a12, LATITUDE | LONGITUDE | AZIMUTH | DISTANCE | GEODESICSCALE, lat2, lon2, azi2, s12, t, M12, M21, t);
 	}
 	void ArcPosition(double a12, double & lat2, double & lon2, double & azi2,
-		double & s12, double & m12, double & M12, double & M21) const 
+		double & s12, double & m12, double & M12, double & M21) const
 	{
 		double t;
 		GenPosition(true, a12, LATITUDE | LONGITUDE | AZIMUTH | DISTANCE | REDUCEDLENGTH | GEODESICSCALE, lat2, lon2, azi2, s12, m12, M12, M21, t);
@@ -683,59 +962,59 @@ public:
 	void SetDistance(double s13);
 	void SetArc(double a13);
 	void GenSetDistance(bool arcmode, double s13_a13);
-	bool Init() const 
-	{ 
-		return _caps != 0U; 
+	bool Init() const
+	{
+		return _caps != 0U;
 	}
 	double Latitude() const
-	{ 
-		return Init() ? _lat1 : fgetnan(); 
+	{
+		return Init() ? _lat1 : fgetnan();
 	}
 	double Longitude() const
-	{ 
-		return Init() ? _lon1 : fgetnan(); 
+	{
+		return Init() ? _lon1 : fgetnan();
 	}
 	double Azimuth() const
-	{ 
-		return Init() ? _azi1 : fgetnan(); 
+	{
+		return Init() ? _azi1 : fgetnan();
 	}
 	void Azimuth(double & sazi1, double & cazi1) const
-	{ 
-		if(Init()) { 
-			sazi1 = _salp1; cazi1 = _calp1; 
-		} 
+	{
+		if(Init()) {
+			sazi1 = _salp1; cazi1 = _calp1;
+		}
 	}
 	double EquatorialAzimuth() const;
 	void   EquatorialAzimuth(double & sazi0, double & cazi0) const
-	{ 
-		if(Init()) { 
-			sazi0 = _salp0; cazi0 = _calp0; 
+	{
+		if(Init()) {
+			sazi0 = _salp0; cazi0 = _calp0;
 		}
 	}
-	double EquatorialArc() const 
+	double EquatorialArc() const
 	{
 		return Init() ? atan2(_ssig1, _csig1) / SMathConst::PiDiv180 : fgetnan();
 	}
 	double MajorRadius() const
-	{ 
-		return Init() ? _a : fgetnan(); 
+	{
+		return Init() ? _a : fgetnan();
 	}
 	double Flattening() const
-	{ 
-		return Init() ? _f : fgetnan(); 
+	{
+		return Init() ? _f : fgetnan();
 	}
-	unsigned Capabilities() const 
-	{ 
-		return _caps; 
+	unsigned Capabilities() const
+	{
+		return _caps;
 	}
-	bool Capabilities(unsigned testcaps) const 
+	bool Capabilities(unsigned testcaps) const
 	{
 		testcaps &= OUT_ALL;
 		return (_caps & testcaps) == testcaps;
 	}
 	double GenDistance(bool arcmode) const
 	{
-		return Init() ? (arcmode ? _a13 : _s13) : fgetnan(); 
+		return Init() ? (arcmode ? _a13 : _s13) : fgetnan();
 	}
 	double Distance() const { return GenDistance(false); }
 	double Arc() const { return GenDistance(true); }
@@ -746,22 +1025,22 @@ public:
 	//
 	// Evaluate the atan2 function with the result in degrees
 	//
-	static double atan2d(double y, double x) 
+	static double atan2d(double y, double x)
 	{
 		// In order to minimize round-off errors, this function rearranges the
 		// arguments so that result of atan2 is in the range [-pi/4, pi/4] before
 		// converting it to degrees and mapping the result to the correct
 		// quadrant.
-		//using std::atan2; 
+		//using std::atan2;
 		//using std::abs;
 		int q = 0;
-		if(fabs(y) > fabs(x)) { 
+		if(fabs(y) > fabs(x)) {
 			Exchange(&x, &y);
-			q = 2; 
+			q = 2;
 		}
-		if(x < 0.0) { 
-			x = -x; 
-			++q; 
+		if(x < 0.0) {
+			x = -x;
+			++q;
 		}
 		// here x >= 0 and x >= abs(y), so angle is in [-pi/4, pi/4]
 		double ang = atan2(y, x) / SMathConst::PiDiv180;
@@ -781,12 +1060,12 @@ public:
 	//
 	// ARG(x IN): Угол в градусах
 	//
-    static void SinCosD(double x, double & rSinx, double & rCosx) 
+    static void SinCosD(double x, double & rSinx, double & rCosx)
 	{
 		// In order to minimize round-off errors, this function exactly reduces
 		// the argument to the range [-45, 45] before converting it to radians.
 		//using std::sin; using std::cos;
-		double r; 
+		double r;
 		int    q;
 #if GEOGRAPHICLIB_CXX11_MATH && GEOGRAPHICLIB_PRECISION <= 3 && !defined(__GNUC__)
 		// Disable for gcc because of bug in glibc version < 2.22, see
@@ -798,7 +1077,7 @@ public:
 		//using std::remquo;
 		r = remquo(x, T(90), &q);
 #else
-		//using std::fmod; 
+		//using std::fmod;
 		//using std::floor;
 		r = fmod(x, 360.0);
 		q = int(floor(r / 90.0 + 0.5));
@@ -814,31 +1093,31 @@ public:
 		// with -0.0.  Specifically
 		//   VC 10,11,12 and 32-bit compile: fmod(-0.0, 360.0) -> +0.0
 		//   VC 12       and 64-bit compile:  sin(-0.0)        -> +0.0
-		if(x == 0.0) 
+		if(x == 0.0)
 			s = x;
 #endif
 		switch(unsigned(q) & 3U) {
-			case 0U: 
-				rSinx =  s; 
-				rCosx =  c; 
+			case 0U:
+				rSinx =  s;
+				rCosx =  c;
 				break;
-			case 1U: 
-				rSinx =  c; 
-				rCosx = -s; 
+			case 1U:
+				rSinx =  c;
+				rCosx = -s;
 				break;
-			case 2U: 
-				rSinx = -s; 
-				rCosx = -c; 
+			case 2U:
+				rSinx = -s;
+				rCosx = -c;
 				break;
-			default: 
-				rSinx = -c; 
-				rCosx =  s; 
+			default:
+				rSinx = -c;
+				rCosx =  s;
 				break; // case 3U
 		}
 		// Set sign of 0 results.  -0 only produced for sin(-0)
-		if(x) { 
-			rSinx += 0.0; 
-			rCosx += 0.0; 
+		if(x) {
+			rSinx += 0.0;
+			rCosx += 0.0;
 		}
     }
 	static double AngleNormalize(double degAngle)
@@ -848,16 +1127,16 @@ public:
 		// Before version 14 (2015), Visual Studio had problems dealing
 		// with -0.0.  Specifically
 		//   VC 10,11,12 and 32-bit compile: fmod(-0.0, 360.0) -> +0.0
-		if(x == 0.0) 
+		if(x == 0.0)
 			y = x;
 #endif
 		return (y <= -180.0) ? (y + 360.0) : ((y <= 180.0) ? y : (y - 360.0));
 	}
-    static double AngleRound(double x) 
+    static double AngleRound(double x)
 	{
 		//using std::abs;
 		static const double z = 1.0/16.0;
-		if(x == 0.0) 
+		if(x == 0.0)
 			return 0;
 		else {
 			volatile double y = fabs(x);
@@ -868,11 +1147,11 @@ public:
 	}
 };
 
-double GeodesicExact::GenDirect(double lat1, double lon1, double azi1, bool arcmode, double s12_a12, uint outmask, 
-	double & rLat2, double & rLon2, double & rAzi2, double & r_s12, double & r_m12, double & r_M12, double & r_M21, double & r_S12) const 
+double GeodesicExact::GenDirect(double lat1, double lon1, double azi1, bool arcmode, double s12_a12, uint outmask,
+	double & rLat2, double & rLon2, double & rAzi2, double & r_s12, double & r_m12, double & r_M12, double & r_M21, double & r_S12) const
 {
 	// Automatically supply DISTANCE_IN if necessary
-	if(!arcmode) 
+	if(!arcmode)
 		outmask |= GeodesicExact::DISTANCE_IN;
 	return GeodesicLineExact(*this, lat1, lon1, azi1, outmask).GenPosition(arcmode, s12_a12, outmask, rLat2, rLon2, rAzi2, r_s12, r_m12, r_M12, r_M21, r_S12);
 }
@@ -887,7 +1166,7 @@ GeodesicLineExact::GeodesicLineExact(const GeodesicExact& g, double lat1, double
 }
 
 double GeodesicLineExact::EquatorialAzimuth() const
-{ 
-	return Init() ? SGeodesic::atan2d(_salp0, _calp0) : fgetnan(); 
+{
+	return Init() ? SGeodesic::atan2d(_salp0, _calp0) : fgetnan();
 }
 #endif // } 0 @construction

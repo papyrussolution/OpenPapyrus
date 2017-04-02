@@ -29,7 +29,7 @@ int SLAPI PPNaturalTokenArray::Add(uint32 tok, float prob)
 	PPNaturalToken item;
 	item.ID = tok;
 	item.Prob = prob;
-	return insert(&item) ? 1 : PPSetError(PPERR_SLIB);
+	return insert(&item) ? 1 : PPSetErrorSLib();
 }
 
 SLAPI PPTokenRecognizer::PPTokenRecognizer() : SRegExpSet()

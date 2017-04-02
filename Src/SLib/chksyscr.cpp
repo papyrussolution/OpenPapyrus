@@ -266,7 +266,7 @@ static BOOL WINAPI SSPLogonUser(LPTSTR szDomain, LPTSTR szUser, LPTSTR szPasswor
 	// Initialize auth identity structure
 	ZeroMemory(&ai, sizeof(ai));
 #if defined(UNICODE) || defined(_UNICODE)
-	ai.Domain = szDomain; 
+	ai.Domain = szDomain;
 	ai.DomainLength = lstrlen(szDomain);
 	ai.User = szUser;
 	ai.UserLength = lstrlen(szUser);
@@ -374,7 +374,7 @@ int SLAPI SGetComputerName(SString & rName)
 	rName = 0;
 #ifdef UNICODE
 	wchar_t buf[MAX_COMPUTERNAME_LENGTH + 1];
-	uint32 sz = sizeof(buf) / sizeof(buf[0]);
+	uint32 sz = SIZEOFARRAY(buf);
 	if(::GetComputerName(buf, &sz)) {
 		rName.CopyUtf8FromUnicode(buf, sz, 0);
 		rName.Transf(CTRANSF_UTF8_TO_OUTER);
@@ -384,7 +384,7 @@ int SLAPI SGetComputerName(SString & rName)
 	}
 #else
 	char   buf[MAX_COMPUTERNAME_LENGTH + 1];
-	uint32 sz = sizeof(buf) / sizeof(buf[0]);
+	uint32 sz = SIZEOFARRAY(buf);
 	if(::GetComputerName(buf, &sz)) {
 		rName = buf;
 	}

@@ -810,10 +810,12 @@ int SLAPI SCS_SYNCCASH::ExchangeParams()
 	int     ok = 1;
 	long    cshr_pssw = 0L;
 	SString cshr_name, cshr_str, input, buf, param_name, param_val;
+	//
 	// Получаем пароль кассира
+	//
 	Arr_In.Clear();
 	THROW(ExecPrintOper(DVCCMD_GETCONFIG, Arr_In, Arr_Out));
-	if(Arr_Out.getCount())
+	if(Arr_Out.getCount()) {
 		for(uint i = 0; Arr_Out.Get(i, buf) > 0; i++) {
 			DestrStr(buf, param_name, param_val);
 			if(strcmpi(param_name, "CASHPASS") == 0)
@@ -821,6 +823,7 @@ int SLAPI SCS_SYNCCASH::ExchangeParams()
 			else if(strcmpi(param_name, "CHECKSTRLEN") == 0)
 				CheckStrLen = param_val.ToLong();
 		}
+	}
 	// Проверяем на наличие незакрытого чека
 	THROW(AnnulateCheck());
 
@@ -833,7 +836,6 @@ int SLAPI SCS_SYNCCASH::ExchangeParams()
 	Arr_In.Clear();
 	if(!IsSetLogo)
 		THROW(SetLogotype());
-
 	CATCHZOK
 	CashierPassword = cshr_pssw;
 	return ok;

@@ -93,7 +93,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 			// Step 0: Collect the other QR codes belonging to this S-A group
 			//
 			if(qrdata[i].sa_size) {
-				unsigned sa_parity;
+				uint sa_parity;
 				sa_size = qrdata[i].sa_size;
 				sa_parity = qrdata[i].sa_parity;
 				for(j = 0; j<sa_size; j++) sa[j] = -1;
@@ -353,7 +353,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 						case QR_MODE_ECI: {
 						    const char * enc;
 						    char buf[16];
-						    unsigned cur_eci;
+						    uint cur_eci;
 						    cur_eci = entry->payload.eci;
 						    if(cur_eci<=QR_ECI_ISO8859_16&&cur_eci!=14) {
 							    if(cur_eci!=QR_ECI_GLI0&&cur_eci!=QR_ECI_CP437) {

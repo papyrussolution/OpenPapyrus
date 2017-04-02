@@ -149,7 +149,7 @@ public:
 			if(sym)
 				sym->ref(1);
 			if(!sym ||
-			    (unsigned)_index >= zbar_symbol_get_loc_size(*_sym))
+			    (uint)_index >= zbar_symbol_get_loc_size(*_sym))
 				_index = -1;
 		}
 
@@ -245,15 +245,12 @@ private:
 	{
 		ref();
 	}
-
 	/// destructor.
-	~Symbol ()
+	~Symbol()
 	{
-		if(_xmlbuf)
-			free(_xmlbuf);
+		free(_xmlbuf);
 		ref(-1);
 	}
-
 	/// assignment.
 	Symbol& operator=(const Symbol& sym)
 	{
@@ -264,7 +261,6 @@ private:
 		_data = sym._data;
 		return(*this);
 	}
-
 	Symbol& operator=(const zbar_symbol_t * sym)
 	{
 		if(sym)
@@ -273,13 +269,11 @@ private:
 		init(sym);
 		return(*this);
 	}
-
 	/// truth testing.
 	bool operator!() const
 	{
 		return(!_sym);
 	}
-
 	void ref(int delta = 1) const
 	{
 		if(_sym)
@@ -330,7 +324,7 @@ private:
 	}
 
 	/// retrieve length of binary data
-	unsigned get_data_length() const
+	uint get_data_length() const
 	{
 		return((_sym) ? zbar_symbol_get_data_length(_sym) : 0);
 	}
@@ -373,12 +367,12 @@ private:
 		return((_sym) ? zbar_symbol_get_loc_size(_sym) : 0);
 	}
 	/// see zbar_symbol_get_loc_x().
-	int get_location_x(unsigned index) const
+	int get_location_x(uint index) const
 	{
 		return((_sym) ? zbar_symbol_get_loc_x(_sym, index) : -1);
 	}
 	/// see zbar_symbol_get_loc_y().
-	int get_location_y(unsigned index) const
+	int get_location_y(uint index) const
 	{
 		return((_sym) ? zbar_symbol_get_loc_y(_sym, index) : -1);
 	}
@@ -393,7 +387,7 @@ private:
 	{
 		if(!_sym)
 			return("");
-		return(zbar_symbol_xml(_sym, (char**)&_xmlbuf, (unsigned*)&_xmllen));
+		return(zbar_symbol_xml(_sym, (char**)&_xmlbuf, (uint*)&_xmllen));
 	}
 protected:
 	/// (re)initialize Symbol from C symbol object.
@@ -415,7 +409,7 @@ private:
 	zbar_symbol_type_t _type;
 	std::string _data;
 	char * _xmlbuf;
-	unsigned _xmllen;
+	uint _xmllen;
 };
 
 /// iteration over Symbol result objects in a scanned Image or SymbolSet.

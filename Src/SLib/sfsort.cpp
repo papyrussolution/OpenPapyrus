@@ -210,9 +210,9 @@ public:
 		ENDCATCH
 		return p_child;
 	}
-	SFSortChunkInfo * CreateItem(int dontInsert)
+	SFSortChunkInfo * CreateItem()
 	{
-		SFSortChunkInfo * p_new_item = dontInsert ? (new SFSortChunkInfo) : CreateNewItem(0);
+		SFSortChunkInfo * p_new_item = CreateNewItem(0);
 		if(p_new_item) {
 			long   n = 0;
 			SFSortChunkInfoList * p_head = this;
@@ -312,7 +312,7 @@ public:
 		else if((lastIdx-firstIdx) < MaxChunkCount) {
 			THROW(ChargeForMerging(firstIdx, lastIdx));
 			{
-				SFSortChunkInfo * p_result_chunk = rDest.CreateItem(0);
+				SFSortChunkInfo * p_result_chunk = rDest.CreateItem();
 				THROW(p_result_chunk);
 				{
 					SPathStruc ps;
@@ -498,7 +498,7 @@ int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, Com
 					line_buf.Chomp();
 					total_line_count++;
 					if(chunk_.GetPoolDataLen() >= max_chunk_size) {
-						SFSortChunkInfo * p_new_ci = p_header_list->CreateItem(0);
+						SFSortChunkInfo * p_new_ci = p_header_list->CreateItem();
 						THROW(p_new_ci);
 						if(max_thread > 1) {
 							//
@@ -535,7 +535,7 @@ int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, Com
                     }
 				}
 				if(chunk_.getCount()) {
-					SFSortChunkInfo * p_new_ci = p_header_list->CreateItem(0);
+					SFSortChunkInfo * p_new_ci = p_header_list->CreateItem();
 					THROW(p_new_ci);
 					if(max_thread > 1) {
 						*p_chunk_ = chunk_;

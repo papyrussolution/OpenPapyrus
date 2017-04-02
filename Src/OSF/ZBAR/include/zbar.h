@@ -511,7 +511,7 @@ typedef int zbar_mutex_t[0];
  * @param minor set to the running minor version (unless NULL)
  * @returns 0
  */
-extern int zbar_version(unsigned * major, unsigned * minor);
+extern int zbar_version(uint * major, uint * minor);
 /** set global library debug level.
  * @param verbosity desired debug level.  higher values create more spew
  */
@@ -678,20 +678,20 @@ extern int zbar_symbol_get_count(const zbar_symbol_t * symbol);
  * @note this is currently not a polygon, but the scan locations
  * where the symbol was decoded
  */
-extern unsigned zbar_symbol_get_loc_size(const zbar_symbol_t * symbol);
+extern uint zbar_symbol_get_loc_size(const zbar_symbol_t * symbol);
 
 /** retrieve location polygon x-coordinates.
  * points are specified by 0-based index.
  * @returns the x-coordinate for a point in the location polygon.
  * @returns -1 if index is out of range
  */
-extern int zbar_symbol_get_loc_x(const zbar_symbol_t * symbol, unsigned index);
+extern int zbar_symbol_get_loc_x(const zbar_symbol_t * symbol, uint index);
 /** retrieve location polygon y-coordinates.
  * points are specified by 0-based index.
  * @returns the y-coordinate for a point in the location polygon.
  * @returns -1 if index is out of range
  */
-extern int zbar_symbol_get_loc_y(const zbar_symbol_t * symbol, unsigned index);
+extern int zbar_symbol_get_loc_y(const zbar_symbol_t * symbol, uint index);
 /** retrieve general orientation of decoded symbol.
  * @returns a coarse, axis-aligned indication of symbol orientation or
  * ::ZBAR_ORIENT_UNKNOWN if unknown
@@ -727,7 +727,7 @@ extern const zbar_symbol_t* zbar_symbol_first_component(const zbar_symbol_t * sy
  * @returns the buffer pointer
  * @since 0.6
  */
-extern char * zbar_symbol_xml(const zbar_symbol_t * symbol, char ** buffer, unsigned * buflen);
+extern char * zbar_symbol_xml(const zbar_symbol_t * symbol, char ** buffer, uint * buflen);
 
 /*@}*/
 
@@ -792,18 +792,18 @@ typedef struct video_state_s video_state_t;
 struct zbar_video_t {
 	errinfo_t err;          /* error reporting */
 	int fd;                 /* open camera device */
-	unsigned width, height; /* video frame size */
+	uint width, height; /* video frame size */
 	video_interface_t intf; /* input interface type */
 	video_iomode_t iomode;  /* video data transfer mode */
-	unsigned initialized : 1; /* format selected and images mapped */
-	unsigned active      : 1; /* current streaming state */
+	uint initialized : 1; /* format selected and images mapped */
+	uint active      : 1; /* current streaming state */
 	uint32 format;        /* selected fourcc */
-	unsigned palette;       /* v4l1 format index corresponding to format */
+	uint palette;       /* v4l1 format index corresponding to format */
 	uint32 * formats;     /* 0 terminated list of supported formats */
 	ulong datalen;  /* size of image data for selected format */
 	ulong buflen;   /* total size of image data buffer */
 	void * buf;             /* image data buffer */
-	unsigned frame;         /* frame count */
+	uint frame;         /* frame count */
 	zbar_mutex_t qlock;     /* lock image queue */
 	int num_images;         /* number of allocated images */
 	zbar_image_t ** images; /* indexed list of images */
@@ -871,20 +871,20 @@ typedef void (*zbar_image_cleanup_handler_t)(zbar_image_t * image);
 
 struct zbar_image_t {
 	uint32 Format;          // fourcc image format code
-	unsigned width, height; // image size
+	uint width, height; // image size
 	const void * P_Data;    // image sample data
 	ulong datalen;          // allocated/mapped size of data
-	unsigned crop_x;        // crop rectangle
-	unsigned crop_y;
-	unsigned crop_w;
-	unsigned crop_h;
+	uint crop_x;        // crop rectangle
+	uint crop_y;
+	uint crop_w;
+	uint crop_h;
 	void * userdata;        /* user specified data associated w/image */
 	zbar_image_cleanup_handler_t cleanup; // cleanup handler
 	refcnt_t refcnt;        /* reference count */
 	zbar_video_t * src;     /* originator */
 	int srcidx;             /* index used by originator */
 	zbar_image_t * next;    /* internal image lists */
-	unsigned seq;           /* page/frame sequence number */
+	uint seq;           /* page/frame sequence number */
 	zbar_symbol_set_t * syms; /* decoded result set */
 };
 //
@@ -981,7 +981,7 @@ extern zbar_image_t * zbar_image_convert(const zbar_image_t * image, ulong forma
  * @see zbar_image_convert()
  * @since 0.4
  */
-extern zbar_image_t * zbar_image_convert_resize(const zbar_image_t * image, ulong format, unsigned width, unsigned height);
+extern zbar_image_t * zbar_image_convert_resize(const zbar_image_t * image, ulong format, uint width, uint height);
 /** retrieve the image format.
  * @returns the fourcc describing the format of the image sample data
  */
@@ -989,28 +989,28 @@ extern ulong zbar_image_get_format(const zbar_image_t * image);
 /** retrieve a "sequence" (page/frame) number associated with this image.
  * @since 0.6
  */
-extern unsigned zbar_image_get_sequence(const zbar_image_t * image);
+extern uint zbar_image_get_sequence(const zbar_image_t * image);
 /** retrieve the width of the image.
  * @returns the width in sample columns
  */
-extern unsigned zbar_image_get_width(const zbar_image_t * image);
+extern uint zbar_image_get_width(const zbar_image_t * image);
 
 /** retrieve the height of the image.
  * @returns the height in sample rows
  */
-extern unsigned zbar_image_get_height(const zbar_image_t * image);
+extern uint zbar_image_get_height(const zbar_image_t * image);
 
 /** retrieve both dimensions of the image.
  * fills in the width and height in samples
  */
-extern void zbar_image_get_size(const zbar_image_t * image, unsigned * width, unsigned * height);
+extern void zbar_image_get_size(const zbar_image_t * image, uint * width, uint * height);
 /** retrieve the crop rectangle.
  * fills in the image coordinates of the upper left corner and size
  * of an axis-aligned rectangular area of the image that will be scanned.
  * defaults to the full image
  * @since 0.11
  */
-extern void zbar_image_get_crop(const zbar_image_t * image, unsigned * x, unsigned * y, unsigned * width, unsigned * height);
+extern void zbar_image_get_crop(const zbar_image_t * image, uint * x, uint * y, uint * width, uint * height);
 /** return the image sample data.  the returned data buffer is only
  * valid until zbar_image_destroy() is called
  */
@@ -1050,20 +1050,20 @@ extern void zbar_image_set_format(zbar_image_t * image, ulong format);
 /** associate a "sequence" (page/frame) number with this image.
  * @since 0.6
  */
-extern void zbar_image_set_sequence(zbar_image_t * image, unsigned sequence_num);
+extern void zbar_image_set_sequence(zbar_image_t * image, uint sequence_num);
 
 /** specify the pixel size of the image.
  * @note this also resets the crop rectangle to the full image
  * (0, 0, width, height)
  * @note this does not affect the data!
  */
-extern void zbar_image_set_size(zbar_image_t * image, unsigned width, unsigned height);
+extern void zbar_image_set_size(zbar_image_t * image, uint width, uint height);
 
 /** specify a rectangular region of the image to scan.
  * the rectangle will be clipped to the image boundaries.
  * defaults to the full image specified by zbar_image_set_size()
  */
-extern void zbar_image_set_crop(zbar_image_t * image, unsigned x, unsigned y, unsigned width, unsigned height);
+extern void zbar_image_set_crop(zbar_image_t * image, uint x, uint y, uint width, uint height);
 
 /** specify image sample data.  when image data is no longer needed by
  * the library the specific data cleanup handler will be called
@@ -1152,7 +1152,7 @@ extern int zbar_processor_init(zbar_processor_t * processor, const char * video_
  * @note must be called before zbar_processor_init()
  * @since 0.6
  */
-extern int zbar_processor_request_size(zbar_processor_t * processor, unsigned width, unsigned height);
+extern int zbar_processor_request_size(zbar_processor_t * processor, uint width, uint height);
 /** request a preferred video driver interface version for
  * debug/testing.
  * @note must be called before zbar_processor_init()
@@ -1333,8 +1333,8 @@ extern int zbar_video_get_fd(const zbar_video_t * video);
  * @since 0.6
  */
 extern int zbar_video_request_size(zbar_video_t * video,
-    unsigned width,
-    unsigned height);
+    uint width,
+    uint height);
 
 /** request a preferred driver interface version for debug/testing.
  * @note must be called before zbar_video_open()
@@ -1466,7 +1466,7 @@ extern int zbar_window_redraw(zbar_window_t * window);
  * this does @em not update the contents of the window
  * @since 0.3, changed in 0.4 to not redraw window
  */
-extern int zbar_window_resize(zbar_window_t * window, unsigned width, unsigned height);
+extern int zbar_window_resize(zbar_window_t * window, uint width, uint height);
 
 /** display detail for last window error to stderr.
  * @returns a non-zero value suitable for passing to exit()
@@ -1607,14 +1607,14 @@ extern int zbar_scan_image(zbar_image_scanner_t * scanner, zbar_image_t * image)
 // Codabar specific decode state
 //
 struct codabar_decoder_t {
-    unsigned direction : 1;     /* scan direction: 0=fwd, 1=rev */
-    unsigned element : 4;       /* element offset 0-7 */
+    uint direction : 1;     /* scan direction: 0=fwd, 1=rev */
+    uint element : 4;       /* element offset 0-7 */
     int character : 12;         /* character position in symbol */
-    unsigned s7;                /* current character width */
-    unsigned width;             /* last character width */
+    uint s7;                /* current character width */
+    uint width;             /* last character width */
     uchar buf[6];       /* initial scan buffer */
 
-    unsigned config;
+    uint config;
     int configs[NUM_CFGS];      /* int valued configurations */
 };
 //
@@ -1625,7 +1625,7 @@ typedef struct ean_pass_s {
 #define STATE_REV   0x80        /*   scan direction reversed */
 #define STATE_ADDON 0x40        /*   scanning add-on */
 #define STATE_IDX   0x3f        /*   element offset into symbol */
-    unsigned width;             /* width of last character */
+    uint width;             /* width of last character */
     uchar raw[7];       /* decode in process */
 } ean_pass_t;
 //
@@ -1636,57 +1636,57 @@ struct ean_decoder_t {
     zbar_symbol_type_t left;    /* current holding buffer contents */
     zbar_symbol_type_t right;
     int direction;              /* scan direction */
-    unsigned s4, width;         /* character width */
+    uint s4, width;         /* character width */
     int8 buf[18];        /* holding buffer */
 
     int8 enable;
-    unsigned ean13_config;
-    unsigned ean8_config;
-    unsigned upca_config;
-    unsigned upce_config;
-    unsigned isbn10_config;
-    unsigned isbn13_config;
-    unsigned ean5_config;
-    unsigned ean2_config;
+    uint ean13_config;
+    uint ean8_config;
+    uint upca_config;
+    uint upce_config;
+    uint isbn10_config;
+    uint isbn13_config;
+    uint ean5_config;
+    uint ean2_config;
 };
 //
 // Code 128 specific decode state
 //
 struct code128_decoder_t {
-    unsigned direction : 1;     /* scan direction: 0=fwd/space, 1=rev/bar */
-    unsigned element : 3;       /* element offset 0-5 */
+    uint direction : 1;     /* scan direction: 0=fwd/space, 1=rev/bar */
+    uint element : 3;       /* element offset 0-5 */
     int character : 12;         /* character position in symbol */
     uchar start;        /* start character */
-    unsigned s6;                /* character width */
-    unsigned width;             /* last character width */
+    uint s6;                /* character width */
+    uint width;             /* last character width */
 
-    unsigned config;
+    uint config;
     int configs[NUM_CFGS];      /* int valued configurations */
 };
 //
 // Code 39 specific decode state
 //
 typedef struct code39_decoder_s {
-	unsigned direction : 1; /* scan direction: 0=fwd, 1=rev */
-	unsigned element : 4;   /* element offset 0-8 */
+	uint direction : 1; /* scan direction: 0=fwd, 1=rev */
+	uint element : 4;   /* element offset 0-8 */
 	int character : 12;     /* character position in symbol */
-	unsigned s9;            /* current character width */
-	unsigned width;         /* last character width */
+	uint s9;            /* current character width */
+	uint width;         /* last character width */
 
-	unsigned config;
+	uint config;
 	int configs[NUM_CFGS];  /* int valued configurations */
 } code39_decoder_t;
 //
 // Code 93 specific decode state
 //
 typedef struct code93_decoder_s {
-	unsigned direction : 1; /* scan direction: 0=fwd/space, 1=rev/bar */
-	unsigned element : 3;   /* element offset 0-5 */
+	uint direction : 1; /* scan direction: 0=fwd/space, 1=rev/bar */
+	uint element : 3;   /* element offset 0-5 */
 	int character : 12;     /* character position in symbol */
-	unsigned width;         /* last character width */
+	uint width;         /* last character width */
 	uchar buf;      /* first character */
 
-	unsigned config;
+	uint config;
 	int configs[NUM_CFGS];  /* int valued configurations */
 } code93_decoder_t;
 #define DATABAR_MAX_SEGMENTS 32
@@ -1695,14 +1695,14 @@ typedef struct code93_decoder_s {
 //
 typedef struct databar_segment_s {
 	signed finder : 5;      /* finder pattern */
-	unsigned exp : 1;       /* DataBar expanded finder */
-	unsigned color : 1;     /* finder coloring */
-	unsigned side : 1;      /* data character side of finder */
+	uint exp : 1;       /* DataBar expanded finder */
+	uint color : 1;     /* finder coloring */
+	uint side : 1;      /* data character side of finder */
 
-	unsigned partial : 1;   /* unpaired partial segment */
-	unsigned count : 7;     /* times encountered */
-	unsigned epoch : 8;     /* age, in characters scanned */
-	unsigned check : 8;     /* bar checksum */
+	uint partial : 1;   /* unpaired partial segment */
+	uint count : 7;     /* times encountered */
+	uint epoch : 8;     /* age, in characters scanned */
+	uint check : 8;     /* bar checksum */
 	signed short data;      /* decoded character data */
 	ushort width;   /* measured width of finder (14 modules) */
 } databar_segment_t;
@@ -1710,11 +1710,11 @@ typedef struct databar_segment_s {
 // DataBar specific decode state
 //
 typedef struct databar_decoder_s {
-	unsigned config;        /* decoder configuration flags */
-	unsigned config_exp;
+	uint config;        /* decoder configuration flags */
+	uint config_exp;
 
-	unsigned csegs : 8;     /* allocated segments */
-	unsigned epoch : 8;     /* current scan */
+	uint csegs : 8;     /* allocated segments */
+	uint epoch : 8;     /* current scan */
 
 	databar_segment_t * segs; /* active segment list */
 	int8 chars[16];  /* outstanding character indices */
@@ -1723,26 +1723,26 @@ typedef struct databar_decoder_s {
 // interleaved 2 of 5 specific decode state
 //
 typedef struct i25_decoder_s {
-	unsigned direction : 1; /* scan direction: 0=fwd/space, 1=rev/bar */
-	unsigned element : 4;   /* element offset 0-8 */
+	uint direction : 1; /* scan direction: 0=fwd/space, 1=rev/bar */
+	uint element : 4;   /* element offset 0-8 */
 	int character : 12;     /* character position in symbol */
-	unsigned s10;           /* current character width */
-	unsigned width;         /* last character width */
+	uint s10;           /* current character width */
+	uint width;         /* last character width */
 	uchar buf[4];   /* initial scan buffer */
 
-	unsigned config;
+	uint config;
 	int configs[NUM_CFGS];  /* int valued configurations */
 } i25_decoder_t;
 //
 // PDF417 specific decode state
 //
 typedef struct pdf417_decoder_s {
-	unsigned direction : 1; /* scan direction: 0=fwd/space, 1=rev/bar */
-	unsigned element : 3;   /* element offset 0-7 */
+	uint direction : 1; /* scan direction: 0=fwd/space, 1=rev/bar */
+	uint element : 3;   /* element offset 0-7 */
 	int character : 12;     /* character position in symbol */
-	unsigned s8;            /* character width */
+	uint s8;            /* character width */
 
-	unsigned config;
+	uint config;
 	int configs[NUM_CFGS];  /* int valued configurations */
 } pdf417_decoder_t;
 //
@@ -1800,9 +1800,9 @@ int _zbar_qr_decode(qr_reader * reader, zbar_image_scanner_t * iscn, zbar_image_
 // QR Code symbol finder state
 //
 typedef struct qr_finder_s {
-	unsigned s5;            /* finder pattern width */
+	uint s5;            /* finder pattern width */
 	qr_finder_line line;    /* position info needed by decoder */
-	unsigned config;
+	uint config;
 } qr_finder_t;
 //
 // decoder data handler callback function.
@@ -1814,16 +1814,16 @@ typedef void (*zbar_decoder_handler_t)(zbar_decoder_t * decoder);
 //
 struct zbar_decoder_t {
     uchar idx;                  /* current width index */
-    unsigned w[DECODE_WINDOW];          /* window of last N bar widths */
+    uint w[DECODE_WINDOW];          /* window of last N bar widths */
     zbar_symbol_type_t type;            /* type of last decoded data */
     zbar_symbol_type_t lock;            /* buffer lock */
-    unsigned modifiers;                 /* symbology modifier */
+    uint modifiers;                 /* symbology modifier */
     int direction;                      /* direction of last decoded data */
-    unsigned s6;                        /* 6-element character width */
+    uint s6;                        /* 6-element character width */
 
     /* everything above here is automatically reset */
-    unsigned buf_alloc;                 /* dynamic buffer allocation */
-    unsigned buflen;                    /* binary data length */
+    uint buf_alloc;                 /* dynamic buffer allocation */
+    uint buflen;                    /* binary data length */
     uchar *buf;                 /* decoded characters */
     void *userdata;                     /* application data */
     zbar_decoder_handler_t handler;     /* application callback */
@@ -1925,7 +1925,7 @@ void ean_new_scan(ean_decoder_t * ean);
 // reset all EAN/UPC state
 //
 void ean_reset(ean_decoder_t * ean);
-unsigned ean_get_config(ean_decoder_t * ean, zbar_symbol_type_t sym);
+uint ean_get_config(ean_decoder_t * ean, zbar_symbol_type_t sym);
 // decode EAN/UPC symbols
 zbar_symbol_type_t _zbar_decode_ean(zbar_decoder_t * dcode);
 //
@@ -2001,7 +2001,7 @@ extern void zbar_decoder_new_scan(zbar_decoder_t * decoder);
  * @returns ::ZBAR_PARTIAL as a hint if part of a symbol was decoded
  * @returns ::ZBAR_NONE (0) if no new symbol data is available
  */
-extern zbar_symbol_type_t zbar_decode_width(zbar_decoder_t * decoder, unsigned width);
+extern zbar_symbol_type_t zbar_decode_width(zbar_decoder_t * decoder, uint width);
 
 /** retrieve color of @em next element passed to
  * zbar_decode_width(). */
@@ -2118,11 +2118,11 @@ static inline zbar_symbol_type_t zbar_scan_rgb24(zbar_scanner_t * scanner, uchar
 }
 
 /** retrieve last scanned width. */
-extern unsigned zbar_scanner_get_width(const zbar_scanner_t * scanner);
+extern uint zbar_scanner_get_width(const zbar_scanner_t * scanner);
 /** retrieve sample position of last edge.
  * @since 0.10
  */
-extern unsigned zbar_scanner_get_edge(const zbar_scanner_t * scn, unsigned offset, int prec);
+extern uint zbar_scanner_get_edge(const zbar_scanner_t * scn, uint offset, int prec);
 /** retrieve last scanned color. */
 extern zbar_color_t zbar_scanner_get_color(const zbar_scanner_t * scanner);
 //

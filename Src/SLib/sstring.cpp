@@ -3575,6 +3575,16 @@ wchar_t * FASTCALL SStringU::CopyTo(wchar_t * pS, size_t bufLen)
 	return strnzcpy(pS, P_Buf, bufLen);
 }
 
+SStringU & FASTCALL SStringU::CopyFromMb_OUTER(const char * pS, size_t srcLen)
+{
+	return CopyFromMb(cpANSI, pS, srcLen);
+}
+
+SStringU & FASTCALL SStringU::CopyFromMb_INNER(const char * pS, size_t srcLen)
+{
+	return CopyFromMb(cpOEM, pS, srcLen);
+}
+
 SStringU & FASTCALL SStringU::CopyFromMb(int cp, const char * pS, size_t srcLen)
 {
 	Trim(0);
@@ -3709,6 +3719,38 @@ uint FASTCALL SUnicode::Utf32ToUtf16(uint32 u32, wchar_t * pU16Buf)
 		pU16Buf[1] = static_cast<wchar_t>((u32 & 0x3ff) + UNI_SUR_LOW_START);
 		return 2;
 	}
+}
+
+int SString::IsLegalUtf8() const
+{
+	int    ok = 1;
+	const  size_t _len = Len();
+	for(uint idx = 0; ok && idx < _len;) {
+		const uint8 * p = (const uint8 *)P_Buf[idx];
+		const size_t extra = SUtfConst::TrailingBytesForUTF8[*p];
+		if(extra == 0)
+			idx++;
+		else if(extra == 1) {
+			if(p[1] != 0 && SUnicode::IsLegalUtf8(p, 2))
+				idx += 2;
+			else
+				ok = 0;
+		}
+		else if(extra == 2) {
+			if(p[1] != 0 && p[2] != 0 && SUnicode::IsLegalUtf8(p, 3))
+				idx += 3;
+			else
+				ok = 0;
+		}
+		else {
+			const size_t tail = (_len - idx);
+			if((extra+1) <= tail && SUnicode::IsLegalUtf8(p, extra+1))
+				idx += (1+extra);
+			else
+				ok = 0;
+		}
+	}
+	return ok;
 }
 //
 //
@@ -5629,14 +5671,13 @@ wchar_t FASTCALL UToLowerCase(wchar_t code)
 {
 	return u_to_case(code, 2);
 }
-
 #undef UCHR_STATUS_C
 #undef UCHR_STATUS_F
 #undef UCHR_STATUS_S
 #undef UCHR_STATUS_T
 //
 // } @Muxa
-
+//
 #if SLTEST_RUNNING // {
 
 SLTEST_R(SString)

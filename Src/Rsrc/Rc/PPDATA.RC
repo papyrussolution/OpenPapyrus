@@ -994,7 +994,7 @@ ROD_QUOTKIND PP_RCDATA {
 // {ID, Name, Symb, ObjType, DataType}
 //
 ROD_TAG PP_RCDATA {
-	50,
+	51,
 	 4, "@{rtag_posrights}\0",                "POSRIGHTS\0",         "PERSON\0",     "STRING\0"
 	 5, "@{rtag_dob}\0",                      "DOB\0",               "PERSON\0",     "DATE\0"
 	10, "@{rtag_goodsrights}\0",              "GOODSRIGHTS\0",       "GLOBALUSER\0", "STRING\0"
@@ -1046,6 +1046,7 @@ ROD_TAG PP_RCDATA {
 	57, "@{rtag_personuuid}\0",               "PERSONUUID\0",        "PERSON\0",     "UUID\0"
 	58, "@{rtag_locuuid}\0",                  "LOCUUID\0",           "LOCATION\0",   "UUID\0"
 	59, "@{rtag_billformalreason}\0",         "FORMALREASON\0",      "BILL\0",       "ENUM\0"
+	60, "@{rtag_edibillrepealreq}\0",         "EDIREPEALREQ\0",      "BILL\0",       "STRING\0"
 }
 //
 // Зарезервированные записи объекта PPOBJ_OPCOUNTER

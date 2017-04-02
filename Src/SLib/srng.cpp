@@ -31,21 +31,18 @@ ulong SRng::GetMax() const
 // value.  Note that range is typically O(2^32) so the addition of 1
 // is negligible in most usage.
 //
-ulong SRng::GetUniformInt(ulong n)
+ulong FASTCALL SRng::GetUniformInt(ulong n)
 {
-	ulong  offset = RandMin;
-	ulong  range  = RandMax - offset;
-	ulong  k;
-	if(n > range || n == 0) {
-		return 0; // GSL_ERROR_VAL ("invalid n, either 0 or exceeds maximum value of generator", GSL_EINVAL, 0) ;
-	}
-	else {
-		ulong  scale = range / n;
+	const  ulong  offset = RandMin;
+	const  ulong  range  = RandMax - offset;
+	ulong  k = 0;
+	if(n && n <= range) { // GSL_ERROR_VAL ("invalid n, either 0 or exceeds maximum value of generator", GSL_EINVAL, 0) ;
+		const ulong scale = range / n;
 		do {
 			k = (Get() - offset) / scale;
 		} while(k >= n);
-		return k;
 	}
+	return k;
 }
 
 double SRng::GetUniformPos()
@@ -999,9 +996,8 @@ TryAgain:
 			/* If ix is far from the mean m: k=ABS(ix-m) large */
 			var = log(v);
 			if(k < npq / 2 - 1) {
-				/* "Squeeze" using upper and lower bounds on
-				* log(f(x)) The squeeze condition was derived
-				* under the condition k < npq/2-1 */
+				// "Squeeze" using upper and lower bounds on log(f(x)) The squeeze condition was derived
+				// under the condition k < npq/2-1
 				double amaxp = k / npq * ((k * (k / 3.0 + 0.625) + (1.0 / 6.0)) / npq + 0.5);
 				double ynorm = -(k * k / (2.0 * npq));
 				if(var < ynorm - amaxp)

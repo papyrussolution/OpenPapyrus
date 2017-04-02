@@ -39,17 +39,17 @@ typedef struct window_state_s window_state_t;
 struct zbar_window_s {
 	errinfo_t err;          /* error reporting */
 	zbar_image_t * image;   /* last displayed image NB image access must be locked! */
-	unsigned overlay;       /* user set overlay level */
+	uint overlay;       /* user set overlay level */
 	uint32 format;        /* output format */
-	unsigned width, height; /* current output size */
-	unsigned max_width, max_height;
+	uint width, height; /* current output size */
+	uint max_width, max_height;
 	uint32 src_format;    /* current input format */
-	unsigned src_width;     /* last displayed image size */
-	unsigned src_height;
-	unsigned dst_width;     /* conversion target */
-	unsigned dst_height;
-	unsigned scale_num;     /* output scaling */
-	unsigned scale_den;
+	uint src_width;     /* last displayed image size */
+	uint src_height;
+	uint dst_width;     /* conversion target */
+	uint dst_height;
+	uint scale_num;     /* output scaling */
+	uint scale_den;
 	point_t scaled_offset;  /* output position and size */
 	point_t scaled_size;
 	uint32 * formats;     /* supported formats (zero terminated) */

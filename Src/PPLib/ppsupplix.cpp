@@ -3077,7 +3077,10 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 	THROW(P_Lib);
 	THROW_SL(func = (ISALESGETORDERLIST_PROC)P_Lib->GetProcAddr("iSalesGetOrderList"));
 	sess.Setup(SvcUrl);
-	p_result = func(sess, UserName, Password, &period, 0 /*inclProcessedItems*/);
+	{
+		const int do_incl_processed_items = BIN(P.Flags & P.fRepeatProcessing);
+		p_result = func(sess, UserName, Password, &period, do_incl_processed_items);
+	}
 	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 	{
 		//PPTXT_LOG_SUPPLIX_IMPORD_E    "Импортировано @int заказов @zstr"
@@ -3812,6 +3815,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 			//
 			BillCore::GetCode(p_new_pack->Code = pack.Rec.Code);
 			p_new_pack->Code.Transf(CTRANSF_INNER_TO_UTF8);
+			Debug_TestUtfText(p_new_pack->Code, "makebillentry-1", R_Logger); // @v9.5.11
 			p_new_pack->Dtm.Set(pack.Rec.Dt, ZEROTIME);
 			// @v9.4.3 {
 			if(outerDocType == 6 && pack.Rec.LinkBillID) {
@@ -3819,6 +3823,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 				if(P_BObj->Search(pack.Rec.LinkBillID, &link_bill_rec) > 0 && GetOpType(link_bill_rec.OpID) == PPOPT_DRAFTRECEIPT) {
 					BillCore::GetCode(p_new_pack->Code = link_bill_rec.Code);
 					p_new_pack->Code.Transf(CTRANSF_INNER_TO_UTF8);
+					Debug_TestUtfText(p_new_pack->Code, "makebillentry-2", R_Logger); // @v9.5.11
 					p_new_pack->Dtm.Set(link_bill_rec.Dt, ZEROTIME);
 				}
 			}
@@ -3831,6 +3836,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 					Helper_Parse_iSalesIdent(cancel_code, temp_buf, &prev_date);
 					if(temp_buf.NotEmptyS() && checkdate(prev_date, 0)) {
 						(p_new_pack->Code = temp_buf).Transf(CTRANSF_INNER_TO_UTF8);
+						Debug_TestUtfText(p_new_pack->Code, "makebillentry-3", R_Logger); // @v9.5.11
 						p_new_pack->Dtm.Set(prev_date, ZEROTIME);
 					}
 					// } @v9.3.10
@@ -3839,6 +3845,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 					Helper_Make_iSalesIdent(pack.Rec, outerDocType, p_new_pack->iSalesId);
 				}
 				p_new_pack->iSalesId.Transf(CTRANSF_INNER_TO_UTF8);
+				Debug_TestUtfText(p_new_pack->iSalesId, "makebillentry-7", R_Logger); // @v9.5.11
 			}
 			p_new_pack->IncDtm.SetZero();
 			pack.Pays.GetLast(&p_new_pack->DueDate, 0, 0);
@@ -3852,7 +3859,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 				p_new_pack->ShipTo = own_code;
 				p_new_pack->DestLocCode.Cat(pack.Rec.LocID);
 				if(pack.BTagL.GetItemStr(PPTAG_BILL_EDIIDENT, temp_buf) > 0) {
-					p_new_pack->iSalesId = temp_buf;
+					(p_new_pack->iSalesId = temp_buf).Transf(CTRANSF_INNER_TO_UTF8); // @v9.5.11 Transf(CTRANSF_INNER_TO_UTF8)
 				}
 				{
 					iSalesBillRef * p_new_ref = p_new_pack->Refs.CreateNewItem(0);
@@ -3860,6 +3867,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 					p_new_ref->DocType = 13;
 					BillCore::GetCode((p_new_ref->Code = 0).CatChar('O').Cat(p_new_pack->Code));
 					p_new_ref->Code.Transf(CTRANSF_INNER_TO_UTF8);
+					Debug_TestUtfText(p_new_ref->Code, "makebillentry-4", R_Logger); // @v9.5.11
 					p_new_ref->Dtm.SetZero();
 				}
 			}
@@ -3879,6 +3887,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 					p_new_ref->DocType = 1;
 					BillCore::GetCode(p_new_ref->Code = sell_rec.Code);
 					p_new_ref->Code.Transf(CTRANSF_INNER_TO_UTF8);
+					Debug_TestUtfText(p_new_ref->Code, "makebillentry-5", R_Logger); // @v9.5.11
 					p_new_ref->Dtm.Set(sell_rec.Dt, ZEROTIME);
 				}
 				else {
@@ -3907,6 +3916,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 								p_new_ref->DocType = 13;
 								BillCore::GetCode(p_new_ref->Code = ord_rec.Code);
 								p_new_ref->Code.Transf(CTRANSF_INNER_TO_UTF8);
+								Debug_TestUtfText(p_new_ref->Code, "makebillentry-6", R_Logger); // @v9.5.11
 								p_new_ref->Dtm.SetZero();
 							}
 						}
@@ -4038,9 +4048,10 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 							// } @v9.5.5
 							const double discount = nominal_price - full_price;
 							// @v9.5.9 (Установлена точность округления 6) {
-							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, full_price,    &vat_sum_in_full_price, 0, 0, 6);
-							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, nominal_price, &vat_sum_in_nominal_price, 0, 0, 6);
-							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, discount,      &vat_sum_in_discount, 0, 0, 6);
+							// @v9.5.11 (Установлена точность округления 12) {
+							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, full_price,    &vat_sum_in_full_price, 0, 0, 12);
+							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, nominal_price, &vat_sum_in_nominal_price, 0, 0, 12);
+							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, discount,      &vat_sum_in_discount, 0, 0, 12);
 							// } @v9.5.9
 							{
 								iSalesBillAmountEntry * p_amt_entry = p_new_item->Amounts.CreateNewItem(0);
@@ -4134,6 +4145,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 			since.Set(b_filt.Period.low, ZEROTIME);
 			PPIDArray upd_bill_list;
 			p_sj->GetObjListByEventSince(PPOBJ_BILL, &acn_list, since, upd_bill_list);
+			upd_bill_list.sortAndUndup();
 			for(uint i = 0; i < upd_bill_list.getCount(); i++) {
 				const PPID upd_bill_id = upd_bill_list.get(i);
 				S_GUID test_uuid;
@@ -4298,6 +4310,7 @@ int SLAPI iSalesPepsi::SendInvoices()
 									if(p_item->NativeID && p_item->iSalesId.NotEmpty() && P_BObj->Search(p_item->NativeID, &bill_rec) > 0) {
 										if(bill_ack_tag_id) { // @v9.5.7
 											ObjTagItem tag_item;
+											Debug_TestUtfText(p_item->iSalesId, "sendinvoices-1", R_Logger); // @v9.5.11
 											(temp_buf = p_item->iSalesId).Transf(CTRANSF_UTF8_TO_INNER);
 											if(tag_item.SetStr(bill_ack_tag_id, temp_buf))
 												THROW(PPRef->Ot.PutTag(PPOBJ_BILL, p_item->NativeID, &tag_item, 1));
@@ -4466,6 +4479,7 @@ int SLAPI SapEfes::ReceiveOrders()
 {
     int    ok = -1;
 	Reference * p_ref = PPRef;
+	const PPID agent_acs_id = GetAgentAccSheet();
 	PPSoapClientSession sess;
 	SString temp_buf;
 	SString added_param;
@@ -4596,6 +4610,23 @@ int SLAPI SapEfes::ReceiveOrders()
 								freight.DlvrAddrID = dlvr_loc_id;
 								pack.SetFreight(&freight);
 							}
+							// @v9.5.11 {
+							if(Ep.Fb.CliCodeTagID && agent_acs_id && p_src_pack->TerrIdent.NotEmpty()) {
+								p_ref->Ot.SearchObjectsByStr(PPOBJ_PERSON, Ep.Fb.CliCodeTagID, p_src_pack->TerrIdent, &person_list);
+								uint pli = person_list.getCount();
+								PPID   agent_ar_id = 0;
+								if(pli) do {
+									const  PPID _psn_id = person_list.get(--pli);
+									ArObj.P_Tbl->PersonToArticle(_psn_id, agent_acs_id, &agent_ar_id);
+								} while(!agent_ar_id && pli);
+								if(agent_ar_id) {
+                                    pack.Ext.AgentID = agent_ar_id;
+								}
+								else {
+									R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_AGENTNCODE, &msg_buf, (const char *)pack.Rec.Code, p_src_pack->TerrIdent.cptr()));
+								}
+							}
+							// } @v9.5.11
 							STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
 							if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, &ex_bill_id, &ex_bill_rec) > 0) {
 								PPObjBill::MakeCodeString(&ex_bill_rec, PPObjBill::mcsAddOpName, temp_buf).Quot('(', ')');
@@ -5320,6 +5351,29 @@ SLAPI PrcssrSupplInterchange::ExecuteBlock::ExecuteBlock(const ExecuteBlock & rS
 	SeqID = Ep.Fb.SequenceID;
 	BaseState = rS.BaseState;
 	GoodsList = rS.GoodsList;
+}
+
+int SLAPI PrcssrSupplInterchange::ExecuteBlock::Debug_TestUtfText(const SString & rText, const char * pAddendum, PPLogger & rLogger)
+{
+	int    ok = 1;
+	SString msg_buf, fmt_buf;
+	if(!rText.IsLegalUtf8()) {
+		PPLoadText(PPTXT_TXTHASILLUTF8, fmt_buf);
+		msg_buf.Printf(fmt_buf, rText.cptr());
+		if(pAddendum)
+			msg_buf.CatDiv(':', 2).Cat(pAddendum);
+        rLogger.Log(msg_buf);
+		ok = 0;
+	}
+	else if(rText.StrChr('?', 0)) {
+		PPLoadText(PPTXT_TXTHASSUSPCHR, fmt_buf);
+		msg_buf.Printf(fmt_buf, rText.cptr());
+		if(pAddendum)
+			msg_buf.CatDiv(':', 2).Cat(pAddendum);
+        rLogger.Log(msg_buf);
+		ok = 0;
+	}
+	return ok;
 }
 
 int SLAPI PrcssrSupplInterchange::ExecuteBlock::InitGoodsList(long flags)

@@ -244,7 +244,7 @@ static inline ATOM win_register_class(HINSTANCE hmod)
 	return(RegisterClassEx(&wc));
 }
 
-int _zbar_processor_open(zbar_processor_t * proc, char * title, unsigned width, unsigned height)
+int _zbar_processor_open(zbar_processor_t * proc, char * title, uint width, uint height)
 {
 	HMODULE hmod = NULL;
 	if(!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
@@ -285,7 +285,7 @@ int _zbar_processor_set_visible(zbar_processor_t * proc, int visible)
 	return 0;
 }
 
-int _zbar_processor_set_size(zbar_processor_t * proc, unsigned width, unsigned height)
+int _zbar_processor_set_size(zbar_processor_t * proc, uint width, uint height)
 {
 	RECT r = { 0, 0, (LONG)width, (LONG)height };
 	AdjustWindowRectEx(&r, GetWindowLong((HWND)proc->display, GWL_STYLE), 0, GetWindowLong((HWND)proc->display, GWL_EXSTYLE));

@@ -41,7 +41,7 @@ struct rs_gf256 {
 
 /*Initialize discrete logarithm tables for GF(2**8) using a given primitive
    irreducible polynomial.*/
-void rs_gf256_init(rs_gf256 * _gf, unsigned _ppoly);
+void rs_gf256_init(rs_gf256 * _gf, uint _ppoly);
 
 /*Corrects a codeword with _ndata<256 bytes, of which the last _npar are parity
    bytes.

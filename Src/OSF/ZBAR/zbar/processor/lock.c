@@ -139,7 +139,7 @@ int _zbar_processor_unlock (zbar_processor_t *proc,
 }
 
 void _zbar_processor_notify (zbar_processor_t *proc,
-                             unsigned events)
+                             uint events)
 {
     proc->wait_next = NULL;
     proc_waiter_t *waiter;
@@ -187,7 +187,7 @@ static inline int proc_wait_unthreaded (zbar_processor_t *proc,
 }
 
 int _zbar_processor_wait (zbar_processor_t *proc,
-                          unsigned events,
+                          uint events,
                           zbar_timer_t *timeout)
 {
     _zbar_mutex_lock(&proc->mutex);

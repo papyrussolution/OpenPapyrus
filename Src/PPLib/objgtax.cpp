@@ -220,7 +220,7 @@ int SLAPI GTaxVect::CalcForward(int n, double amount)
 int SLAPI GTaxVect::CalcBackward(int n, double amount)
 {
 	Amount = round(amount, RoundPrec);
-	double prev_sum = 0;
+	double prev_sum = 0.0;
 	for(int i = n; i <= N; i++) {
 		double base_amt = amount + prev_sum;
 		for(int j = i; j > 0 && (UnionVect & (1 << j)); j--)
@@ -388,7 +388,7 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem * pTI, PPID opID, int tiamt, lon
 				amt_flags = GTAXVF_AFTERTAXES;
 			if(pTI->Flags & PPTFR_COSTWOVAT && is_asset)
 				amt_flags &= ~GTAXVF_VAT;
-			int    re = BIN(pTI->Flags & PPTFR_RMVEXCISE);
+			const int  re = BIN(pTI->Flags & PPTFR_RMVEXCISE);
 			if((r_ccfg.Flags & CCFLG_PRICEWOEXCISE) ? !re : re)
 				exclFlags |= GTAXVF_SALESTAX;
 			MEMSZERO(gtx);

@@ -217,7 +217,7 @@ void _zbar_convert_jpeg_to_y(zbar_image_t * dst, const zbar_format_def_t * dstfm
 		assert(datalen <= dst->datalen);
 	if(!dst->P_Data) 
 		return;
-	unsigned bpl = dst->width * cinfo->output_components;
+	uint bpl = dst->width * cinfo->output_components;
 	JSAMPROW buf = (JSAMPROW)dst->P_Data;
 	JSAMPARRAY line = &buf;
 	for(; cinfo->output_scanline < cinfo->output_height; buf += bpl) {

@@ -27,14 +27,14 @@
 
 /* Codabar specific decode state */
 struct codabar_decoder_t {
-    unsigned direction : 1;     /* scan direction: 0=fwd, 1=rev */
-    unsigned element : 4;       /* element offset 0-7 */
+    uint direction : 1;     /* scan direction: 0=fwd, 1=rev */
+    uint element : 4;       /* element offset 0-7 */
     int character : 12;         /* character position in symbol */
-    unsigned s7;                /* current character width */
-    unsigned width;             /* last character width */
+    uint s7;                /* current character width */
+    uint width;             /* last character width */
     uchar buf[6];       /* initial scan buffer */
 
-    unsigned config;
+    uint config;
     int configs[NUM_CFGS];      /* int valued configurations */
 };
 

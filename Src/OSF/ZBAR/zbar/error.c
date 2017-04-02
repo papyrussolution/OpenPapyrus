@@ -54,7 +54,7 @@ static const char * const err_str[] = {
 };
 #define ERR_MAX (strlen(err_str[ZBAR_ERR_CLOSED]))
 
-int zbar_version(unsigned * major, unsigned * minor)
+int zbar_version(uint * major, uint * minor)
 {
 	if(major)
 		*major = ZBAR_VERSION_MAJOR;

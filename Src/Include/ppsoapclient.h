@@ -615,6 +615,13 @@ public:
 	TSCollection <UhttPrcPlaceDescription> Places;
 	TSCollection <UhttTagItem> TagList;
 };
+
+class UhttSmsPacket {
+public:
+	SString From;
+	SString To;
+	SString Text;
+};
 //
 // Descr: Инициализирует параметры openssl
 //
@@ -679,6 +686,8 @@ typedef UhttTSessionPacket * (*UHTTGETTSESSIONBYID_PROC)(PPSoapClientSession & r
 typedef UhttTSessionPacket * (*UHTTGETTSESSIONBYUUID_PROC)(PPSoapClientSession & rSess, const char * pToken, const S_GUID & id);
 typedef TSCollection <UhttTSessionPacket> * (*UHTTGETTSESSIONBYPRC_PROC)(PPSoapClientSession & rSess, const char * pToken, int prcID, const UhttTimestamp * pSince);
 typedef UhttStatus * (*UHTTCREATETSESSION_PROC)(PPSoapClientSession & rSess, const char * pToken, const UhttTSessionPacket & rPack);
+
+typedef TSCollection <UhttStatus> * (*UHTTSENDSMS_PROC)(PPSoapClientSession & rSess, const char * pToken, const TSCollection <UhttSmsPacket> & rPack);
 //
 // iSales PEPSI SOAP CLIENT
 //
@@ -795,10 +804,8 @@ struct iSalesPriceListPacket {
 };
 
 struct iSalesBillAmountEntry {
-	iSalesBillAmountEntry()
-	{
-		THISZERO();
-	}
+	iSalesBillAmountEntry();
+
 	int    SetType;       // 0 - Значения, рассчитанные на основе базовых цен, 1 - Значения, которые д.б. в реальности, 2 - Значения, которые будут печататься в документах
 	double NetPrice;
 	double GrossPrice;
@@ -811,12 +818,8 @@ struct iSalesBillAmountEntry {
 };
 
 struct iSalesBillItem {
-	iSalesBillItem()
-	{
-		LineN = 0;
-		UnitCode = 0;
-		Qtty = 0.0;
-	}
+	iSalesBillItem();
+
 	int    LineN; // Номер строки
 	SString OuterGoodsCode;  // Outer-код товара
 	SString NativeGoodsCode; // Native-код товара
@@ -845,19 +848,8 @@ struct iSalesExtAttr {
 };
 
 struct iSalesBillPacket {
-	iSalesBillPacket()
-	{
-		NativeID = 0;
-		DocType = 0;
-		ExtDocType = 0;
-		Status = 0;
-		Dtm.SetZero();
-		IncDtm.SetZero();
-		ExtDtm.SetZero();
-		CreationDtm.SetZero();
-		LastUpdDtm.SetZero();
-		DueDate = ZERODATE;
-	}
+	iSalesBillPacket();
+
 	long   NativeID;
 	SString iSalesId;
 	int    DocType; // 0 - отгрузка, 1 - документ реализации, 2 - счет на оплату, 3 - возврат от покупателя,
@@ -928,12 +920,8 @@ typedef SString * (*ISALESPUTDEBTSETTLEMENT_PROC)(PPSoapClientSession & rSess, c
 //
 //
 struct SapEfesCallHeader {
-	SapEfesCallHeader()
-	{
-		P_SalesOrg = 0;
-		P_Wareh = 0;
-		SessionID = 0;
-	}
+	SapEfesCallHeader();
+
 	const char * P_SalesOrg;
 	const char * P_Wareh;
 	long   SessionID;
@@ -969,12 +957,8 @@ struct SapEfesContractor {
 };
 
 struct SapEfesOrder {
-	SapEfesOrder()
-	{
-		Date = ZERODATETIME;
-		DueDate = ZERODATE;
-		Amount = 0.0;
-	}
+	SapEfesOrder();
+
 	LDATETIME Date; // Время создания документа
 	LDATE  DueDate; // Дата поставки
 	double Amount;  // Сумма заказа без НДС
@@ -1014,14 +998,8 @@ struct SapEfesBillStatus {
 };
 
 struct SapEfesBillPacket {
-	SapEfesBillPacket()
-	{
-		NativeID = 0;
-		Flags = 0;
-		DocType = 0;
-		Date = ZERODATE;
-		DueDate = ZERODATE;
-	}
+	SapEfesBillPacket();
+
 	enum {
 		fHasOrderRef = 0x0001,
 		fReturn      = 0x0002
@@ -1054,14 +1032,8 @@ struct SapEfesGoodsReportEntry {
 };
 
 struct SapEfesDebtReportEntry {
-	SapEfesDebtReportEntry()
-	{
-		NativeArID = 0;
-		Debt = 0.0;
-		CreditLimit = 0.0;
-		PayPeriod = 0;
-		DebtDelayDays = 0;
-	}
+	SapEfesDebtReportEntry();
+
 	long   NativeArID; // @anchor(strictly the first member) @v9.5.2 Ид статьи в нашей базе данных
 	double Debt;
 	double CreditLimit;
@@ -1072,14 +1044,8 @@ struct SapEfesDebtReportEntry {
 };
 
 struct SapEfesDebtDetailReportEntry {
-	SapEfesDebtDetailReportEntry()
-	{
-		NativeArID = 0;
-		BillDate = ZERODATE;
-		PaymDate = ZERODATE;
-		Amount = 0.0;
-		Debt = 0.0;
-	}
+	SapEfesDebtDetailReportEntry();
+
 	long   NativeArID; // @anchor(strictly the first member) @v9.5.2 Ид статьи в нашей базе данных
 	LDATE  BillDate;
 	LDATE  PaymDate;

@@ -293,6 +293,7 @@ class  PPWorkbookExporter;
 class  PPEgaisProcessor;
 struct AddrItemDescr;
 class  GoodsRestFilt;
+class  SmsProtocolBuf;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -5582,7 +5583,7 @@ public:
 	int    SLAPI FileVersionAdd(const char * pFileName, const char * pKey,
 		const char * pVersionLabel, const char * pVersionMemo, SCopyFileProgressProc pp, void * pExtra);
 	int    SLAPI GetVersionList(const char * pKey, TSCollection <UhttDCFileVersionInfo> & rResult, SVerT * pMinVer);
-	int    SLAPI SendSms(TSCollection <UhttSmsPacket> & smsPackArr); // @vmiller
+	int    SLAPI SendSms(const TSCollection <UhttSmsPacket> & rList, TSCollection <UhttStatus> & rResult);
 
 	int    SLAPI GetWorkbookItemByID(int id, UhttWorkbookItemPacket & rPack);
 	int    SLAPI GetWorkbookItemByCode(const char * pCode, UhttWorkbookItemPacket & rPack);
@@ -8351,7 +8352,10 @@ struct PPEAddr { // @persistent size=16
 		uint8 Upp[6];
 	};
 	struct Phone {
-		static SString & NormalizeStr(const char * pOrgPhone, SString & rResult);
+		static SString & FASTCALL NormalizeStr(const char * pOrgPhone, SString & rResult);
+		static uint FASTCALL GenerateCheckNumber(const char * pOrgPhone, const char * pAddedumCode);
+		static int  SLAPI VerifyCheckNumber(const char * pOrgPhone, const char * pAddedumCode, uint checkedNumber);
+
 		DECL_INVARIANT_C();
 		SString & FASTCALL ToStr(long fmt, SString & rBuf) const;
 		int    FASTCALL FromStr(const char * pStr);
@@ -18013,7 +18017,7 @@ public:
 	// Descr: Если параметр closed == -1, то ищет последний закрытый счет с
 	//   номером acct. Иначе ищет точное соответствие { closed, acct }
 	//
-	int    SLAPI SearchNum(int closed, Acct *, PPID curID, void * = 0);
+	int    SLAPI SearchNum(int closed, Acct * pAcct, PPID curID, AcctRelTbl::Rec * pRec = 0);
 	//
 	// Так как операции модификации этой таблицы, кроме CloseAcct,
 	// не используются самостоятельно, то транзакции здесь не применяются //
@@ -18488,7 +18492,7 @@ protected:
 	int    FASTCALL CheckCnFlag(long);
 	int    FASTCALL CheckCnExtFlag(long);
 	int    SLAPI GetNodeData(PPAsyncCashNode *);
-	int    FASTCALL AdjustSCardCode(char * pCode);
+	void   FASTCALL AdjustSCardCode(char * pCode);
 	//
 	// Descr: Добавляет контрольную цифру в конец штрихкода при следующих условиях:
 	// 1. В кассовом узле установлен флаг CASHF_EXPCHECKD
@@ -19323,10 +19327,146 @@ public:
 	int    SLAPI Put(PPID * pID, PPInternetAccount * pPack, int use_ta);
 };
 //
+//
+//
+struct StConfig {
+	StConfig();
+	void   Clear();
+	/* @v9.5.12 (emitted)
+	int    SetConfig_(const char * pHost, uint port, const char * pSystemId, const char * pLogin,
+		const char * pPassword, const char * pSystemType, uint sourceAddressTon, uint sourceAddressNpi,
+		uint destAddressTon, uint destAddressNpi, uint dataCoding, const char * pFrom, uint splitLongMsg);
+	*/
+	SString Host;
+	uint   Port;
+	SString SystemId; // Идентификатор клиента в системе
+	SString Login;
+	SString Password;
+	SString SystemType; // Тип системы
+	SString AddressRange; // Фильтр адресов отправителя
+	uint   SourceAddressTon; // Тип номера отправителя
+	uint   SourceAddressNpi; //Цифровой индикатор плана отправителя
+	uint   DestAddressTon; // Тип номера получателя
+	uint   DestAddressNpi; // Цифровой индикатор плана получателя
+	uint   DataCoding; // Схема кодирования сообщения
+	uint   EsmClass; // Тип сообщения и режим отправки сообщения
+	SString From; // Имя или номер отправителя
+	uint   SplitLongMsg; // Разбивать или нет длинные сообщения
+	uint16 ResponseTimeout;
+	uint16 ResendMsgQueueTimeout;
+	uint16 ResendTriesNum;
+	uint16 ReconnectTimeout;
+	uint16 ReconnectTriesNum;
+};
+
+class SmsClient {
+public:
+	SLAPI  SmsClient(PPLogger * pLogger);
+	SLAPI ~SmsClient();
+	//int    SLAPI IsConnected() const;
+	int    SLAPI SendSms(const char * pTo, const char * pText, SString & rStatus);
+	int    SLAPI SmsInit_(PPID accID, const char * pFrom);
+	int    SLAPI SendingSms_(PPID personId, const char * pPhone, const char * pText);
+	int    SLAPI SmsRelease_();
+	//
+	// @v8.5.4 void   SetRecvTimeout(int timeout) { RecvTimeout = timeout; }
+private:
+	struct StSubmitSMParam { // Структура параметров запроса submit_sm
+		StSubmitSMParam();
+		void   Clear();
+
+		uchar  SourceAddressTon;
+		uchar  SourceAddressNpi;
+		uchar  DestinationAddressTon;
+		uchar  DestinationAddressNpi;
+		uchar  EsmClass;
+		uchar  ProtocolId;
+		uchar  PriorityFlag;
+		uchar  ReplaceIfPresentFlag;
+		uchar  DataCoding;
+		uchar  SmDefaultMsgId;
+		uint8  Reserve[2]; // @alignment
+		SString SourceAddress;
+		SString DestinationAddress;
+		SString SheduleDeliveryTime;
+		SString ValidityPeriod;
+	};
+	struct StSMResults {
+		StSMResults();
+		int    GetResult(int kindOfResult);
+
+		int    BindResult;
+		int    UnbindResult;
+		int    SubmitResult;
+		int    DataResult;
+		int    EnquireLinkResult;
+		int    GenericNackResult;
+	};
+	// @v9.5.11 (emitted) int    CanSend() const;
+	//
+	// Descr: Считывает из массива ErrorSubmitArr номер абонента и описание ошибки отправленного сообщения
+	//
+	// @v9.5.11 (emitted) int    GetErrorSubmit(SString & rDestNum, SString & rErrText, size_t pos) const;
+	//
+	// Descr: Считывает номер абонента и описание состояния сообщения из массива состояний StatusCodesArr
+	//
+	// @v9.5.11 (emitted) int    GetStatusCode(SString & rDestNum, SString & rStatus, size_t pos) const;
+	//
+	// Descr: Добавляет информацию об ошибочных командах посылки смс в массив ErrorSubmitArr
+	//
+	void   AddErrorSubmit(const char * pDestNum, int errCode);
+	void   DecodeDeliverSm(int sequenceNumber, void * pPduBody, size_t bodyLength);
+	void   DisconnectSocket();
+	//
+	// Descr: Добавляет статус смс в массив StatusCodesArr
+	//
+	void   AddStatusCode(const char * pDestNum, int statusCode, const char * pError);
+	int    SendSms_(const char * pFrom, const char * pTo, const char * pText);
+	//int    Send_(const void * data, size_t bufLen);
+	int    Send(const SmsProtocolBuf & rBuf, int tryReconnect);
+	int    Bind();
+	int    Unbind();
+	int    SubmitSM(const StSubmitSMParam & rParam, const char * pMessage, bool payloadMessage);
+	int    ConnectToSMSC();
+	int    TryToReconnect(uint & rRecconectionCount);
+	// @v9.5.12 (emitted) int    SendEnquireLink(int sequenceNumber);
+	// @v9.5.12 (emitted) int    SendEnquireLinkResp(int sequenceNnumber);
+	int    SendGenericNack(int sequenceNumber, int commandStatus);
+	// @v9.5.12 (emitted) int    SendDeliverSmResp(int sequenceNumber);
+	int    Receive(uint timeout);
+	//
+	// Descr: Если USE_ENQUIRELINK = true, то посылает команду на проверку связи через каждый промежуток времени ENQUIRE_LINK_TIMEOUT
+	//
+	int    ReceiveToTimer();
+
+	PPUhttClient * P_UhttCli;
+	TcpSocket ClientSocket;
+	LDATETIME StartTime;
+	StConfig Config;
+	StSMResults SMResults;
+	StSubmitSMParam SMParams;
+	//
+	// Массив с информацией об ошибочных запросах посылки смс. Сруктура записи: номер_получателя;описание_ошибки
+	//
+	StrAssocArray ErrorSubmitArr;
+	//
+	// Массив структур состояний сообщений, в том числе и ошибочных. Сруктура записи: номер_получателя;состояние_сообщения
+	//
+	StrAssocArray StatusCodesArr;
+	int    ConnectionState;
+	uint   ResendErrLenMsg; // Счетчик попыток переотправить сообщение при неверной его длине
+	uint   ReSendQueueMsgTryNums; // Счетчик попыток переотправить смс, которые не были отправлены из-за переполнения очереди
+	uint   MessageCount; // Счетчик успешных запросов отправки сообщения (submit_sm)
+	uint   SequenceNumber; // Номер пакета
+	uint   AddStatusCodeNum; // Счетчик элементов массива StatusCodesArr
+	uint   AddErrorSubmitNum; // Счетчик эелементов массива ErrorSubmitArr
+	uint   UndeliverableMessages; // Счетчик недоставляемых сообщений
+	// @v8.5.4 int    RecvTimeout;  // Таймаут получение данных
+	PPLogger * P_Logger;
+};
+//
 // @ModuleDecl(PPObjSmsPrvAccount)
 //
-#include <ppsms.h>
-
 #define	SMEXTSTR_HOST          1 // Интрефейс, через который работает клиент
 #define	SMEXTSTR_PORT_OBSOLETE 2 // @v8.5.4 SMEXTSTR_PORT-->SMEXTSTR_PORT_OBSOLETE
 #define	SMEXTSTR_SYSTEMID      3 // Идентификатор клиента в системе
@@ -19427,9 +19567,6 @@ public:
 };
 
 int    GetSmsConfig(PPSmsAccPacket & rPack, StConfig & rConfig);
-int    SmsInit(SmsClient & rCli, PPID accID, PPLogger * pLogger);
-int    SendingSms(SmsClient & rCli, PPID personId, const char * pPhone, const char * pText, PPLogger * pLogger);
-int    SmsRelease(SmsClient & rCli, PPLogger * pLogger);
 int    BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr);
 int    BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr, PPID objTypeId, StrAssocArray & rObjIdArr);
 int    FormatPhone(const char * pOldPhone, SString & rNewPhone, SString & rMsg);
@@ -22291,8 +22428,20 @@ public:
 	int    SLAPI SetExtName(const char * pName);
 	int    SLAPI GetExtName(SString & rBuf) const;
 	int    SLAPI AddRegister(PPID regTypeID, const char * pNumber, int checkUnique = 1);
-
-	int    SLAPI EnumDlvrLoc(uint * pPos, PPLocationPacket *) const;
+	//
+	// Descr: Возвращает информацию об адересе доставки из внутреннего списка по индексу *pPos
+	//   и, в случае успеха, увеличивает значение индекса *pPos на единицу.
+	//   !0 - адрес успешно присвоен по указателю pPack. Индекс по указателю pPos увеличен на 1.
+	//    0 - позиция pos выходит за пределы [0..GetDlvrLocCount()]
+	//
+	int    SLAPI EnumDlvrLoc(uint * pPos, PPLocationPacket * pPack) const;
+	//
+	// Descr: Возвращает информацию об адересе доставки из внутреннего списка по индексу pos.
+	// Returns:
+	//   !0 - адрес успешно присвоен по указателю pPack
+	//    0 - позиция pos выходит за пределы [0..GetDlvrLocCount()]
+	//
+	int    SLAPI GetDlvrLocByPos(uint pos, PPLocationPacket * pPack) const;
 	uint   SLAPI GetDlvrLocCount() const;
 	int    SLAPI AddDlvrLoc(const PPLocationPacket & rAddr);
 	int    SLAPI PutDlvrLoc(uint pos, const PPLocationPacket * pAddr);
@@ -35581,6 +35730,7 @@ public:
         int    SLAPI InitGoodsList(long flags);
         int    FASTCALL IsGoodsUsed(PPID goodsID) const;
         const  PPIDArray * GetGoodsList() const;
+        int    SLAPI Debug_TestUtfText(const SString & rText, const char * pAddendum, PPLogger & rLogger);
 
 		enum {
 			bstGoodsListInited = 0x0001, // Список товаров GoodsList инициализирован
@@ -42698,7 +42848,9 @@ public:
     	RepealWb();
 
         PPID   BillID;
+        LDATETIME ReqTime; // @v9.5.12
         int    Confirm; // Только для подтверждения отмены проведения. 1 - подтверждаем, 0 - отклоняем
+        SString ContragentCode; // @v9.5.12
         SString TTNCode;
         SString ReqNumber;
         SString Memo;
@@ -42843,7 +42995,8 @@ public:
 		bilstfTransferToShop   = 0x0200, // @v9.2.11 Документы передачи в торговый зал (Регистр 2)
 		bilstfChargeOnShop     = 0x0400, // @v9.2.11 Документы постановки на баланс начальных остатков в торговом зале (Регистр 2)
 		bilstfTransferFromShop = 0x0800, // @v9.3.10 Документы возврата из торговый зал (Регистр 2) на склад
-		bilstfWriteOffShop     = 0x1000  // @v9.4.0  Документы списания с баланса торгового зала (Регистр 2)
+		bilstfWriteOffShop     = 0x1000, // @v9.4.0  Документы списания с баланса торгового зала (Регистр 2)
+		bilstfWbRepealConf     = 0x2000  // @v9.5.12 Документы, для которых получен и ожидает подтверждения запрос на отмету проведения
 	};
 
 	struct SendBillsParam {
@@ -44699,32 +44852,6 @@ private:
 //
 //
 //
-class SGeoGridTab {
-public:
-	SLAPI  SGeoGridTab(uint dim);
-	int    FASTCALL IsEqual(const SGeoGridTab & rS) const;
-	int    FASTCALL operator == (const SGeoGridTab & rS) const;
-	int    FASTCALL operator != (const SGeoGridTab & rS) const;
-	void   SLAPI SetSrcCountLat(uint64 c);
-	void   SLAPI SetSrcCountLon(uint64 c);
-	uint   SLAPI GetDim() const;
-    uint   SLAPI GetDensityLat() const;
-    uint   SLAPI GetDensityLon() const;
-    int    FASTCALL AddThresholdLat(long coord);
-    int    FASTCALL AddThresholdLon(long coord);
-    uint   SLAPI GetCountLat() const;
-    uint   SLAPI GetCountLon() const;
-	//
-	int    SLAPI Save(const char * pFileName);
-	int    SLAPI Load(const char * pFileName);
-private:
-    uint   Dim; // Размерность решетки (бит)
-    uint64 SrcCountLat;
-    uint64 SrcCountLon;
-	LongArray LatIdx;
-	LongArray LonIdx;
-};
-
 class PPOsm : public SStrGroup {
 public:
 	enum {
@@ -44733,19 +44860,62 @@ public:
 		otWay,
 		otRelation
 	};
+	struct Tile { // @persistent
+		SLAPI  Tile()
+		{
+			V = 0;
+		}
+		void   SLAPI SetInvisible()
+		{
+			V |= 0xff000000;
+		}
+		void   FASTCALL SetLevel(uint8 level)
+		{
+			V = ((V & 0x00ffffff) | (((uint32)level) << 24));
+		}
+		uint8  SLAPI GetLevel() const
+		{
+			return (uint8)((V & 0xff000000) >> 24);
+		}
+
+		uint32 V;
+	};
     struct Node {
     	SLAPI  Node();
-		void   SLAPI SetInvisible();
 
     	int64  ID;
-		uint32 Tile;
+		Tile   T;
 		SGeoPosLL_Int C;
     };
+	class NodePack : public SBaseBuffer {
+	public:
+		SLAPI  NodePack()
+		{
+			SBaseBuffer::Init();
+		}
+		SLAPI ~NodePack()
+		{
+			SBaseBuffer::Destroy();
+		}
+		int    FASTCALL Set(const TSArray <Node> * pList);
+		int    FASTCALL Get(TSArray <Node> & rList) const;
+	private:
+		enum {
+			indfId32        = 0x0001, // Идентификатор точки представлен 32-битным значением
+			indfFlwCoordInc = 0x0002, // Координаты точек, следующих за заглавной представлены инкрементом
+				// относительно предыдущей точки в 16-битном варажении
+			indfCountMask   = (0x0004 | 0x0008), // Маска битов, представляющих количество точек в пакете.
+				// 0: 1, 1: 4, 2: 8, 3: 16
+		};
+		//
+		// [indicator] [id] [coord] [[dot]..[dot]]
+		//
+		void * P_Data;
+	};
     struct Way {
     	SLAPI  Way();
-		void   SLAPI SetInvisible();
 		int64  ID;
-		uint32 Tile;
+		Tile   T;
 		Int64Array NodeRefList;
     };
 	struct RelMember {
@@ -44756,9 +44926,8 @@ public:
 	};
     struct Relation {
     	SLAPI  Relation();
-		void   SLAPI SetInvisible();
 		int64  ID;
-		uint32 Tile;
+		Tile   T;
 		TSArray <RelMember> MembList;
     };
     struct Tag {
@@ -45392,8 +45561,8 @@ private:
 	void   SetupAnonym(TDialog * pDlg, int a);
 
 	uint   Ctlsel;
-	uint   CtlSCardCode; // @v7.7.12
-	uint   CtlAnonym;    // @v7.9.1
+	uint   CtlSCardCode; //
+	uint   CtlAnonym;    //
 	long   Flags;
 	Rec    Data;
 

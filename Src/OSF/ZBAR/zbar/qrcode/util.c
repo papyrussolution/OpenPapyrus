@@ -21,7 +21,7 @@ void cdecl dbprintf(int level, const char * pFormat, ...)
 //
 // Computes floor(sqrt(_val)) exactly
 //
-unsigned qr_isqrt(unsigned _val)
+uint qr_isqrt(uint _val)
 {
 	//
 	// Uses the second method from
@@ -29,10 +29,10 @@ unsigned qr_isqrt(unsigned _val)
 	// The main idea is to search for the largest binary digit b such that
 	// (g+b)*(g+b) <= _val, and add it to the solution g.
 	//
-	unsigned g = 0;
-	unsigned b = 0x8000;
+	uint g = 0;
+	uint b = 0x8000;
 	for(int bshift = 16; bshift-- > 0; ) {
-		const unsigned t = ((g<<1) + b) << bshift;
+		const uint t = ((g<<1) + b) << bshift;
 		if(t <= _val) {
 			g += b;
 			_val -= t;
@@ -52,21 +52,21 @@ unsigned qr_isqrt(unsigned _val)
    All Pythagorean triples with a hypotenuse of less than ((1<<27)-1) evaluate
    correctly, and the total bias over all Pythagorean triples is -0.04579, with
    a relative RMS error of 7.2864E-10 and a relative peak error of 7.4387E-9.*/
-unsigned qr_ihypot(int _x, int _y)
+uint qr_ihypot(int _x, int _y)
 {
 	int shift;
 	int u;
 	int v;
 	int i;
-	unsigned x = _x = abs(_x);
-	unsigned y = _y = abs(_y);
+	uint x = _x = abs(_x);
+	uint y = _y = abs(_y);
 	int mask = -(x>y)&(_x^_y);
 	x ^= mask;
 	y ^= mask;
 	_y ^= mask;
 	shift = 31-qr_ilog(y);
 	shift = QR_MAXI(shift, 0);
-	x = (unsigned)((x<<shift)*0x9B74EDAAULL>>32);
+	x = (uint)((x<<shift)*0x9B74EDAAULL>>32);
 	_y = (int)((_y<<shift)*0x9B74EDA9LL>>32);
 	u = x;
 	mask = -(_y<0);
@@ -94,7 +94,7 @@ unsigned qr_ihypot(int _x, int _y)
 # if __GNUC_PREREQ(3, 4)
 #  include <limits.h>
 #  if INT_MAX>=2147483647
-#   define QR_CLZ0 sizeof(unsigned)*CHAR_BIT
+#   define QR_CLZ0 sizeof(uint)*CHAR_BIT
 #   define QR_CLZ(_x) (__builtin_clz(_x))
 #  elif LONG_MAX>=2147483647L
 #   define QR_CLZ0 sizeof(ulong)*CHAR_BIT
@@ -103,7 +103,7 @@ unsigned qr_ihypot(int _x, int _y)
 # endif
 #endif
 
-int qr_ilog(unsigned _v)
+int qr_ilog(uint _v)
 {
 #if defined(QR_CLZ)
 /*Note that __builtin_clz is not defined when _x==0, according to the gcc
@@ -137,11 +137,11 @@ int qr_ilog(unsigned _v)
 /*Exhaustively test the integer square root function.*/
 int main(void)
 {
-	unsigned u;
+	uint u;
 	u = 0;
 	do {
-		unsigned r;
-		unsigned s;
+		uint r;
+		uint s;
 		r = qr_isqrt(u);
 		s = (int)sqrt(u);
 		if(r!=s) printf("%u: %u!=%u\n", u, r, s);

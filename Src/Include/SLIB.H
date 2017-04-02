@@ -3249,6 +3249,7 @@ public:
 	SString & FASTCALL CopyFrom(const SString &);
 	SString & FASTCALL CopyFrom(const char *);
 	SString & FASTCALL SetIfEmpty(const char *);
+	int    SLAPI IsLegalUtf8() const;
 	int    SLAPI CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, int strictConversion);
 	//
 	// Descr: Копирует в нашу строку не более maxLen символов из строки pSrc.
@@ -3427,6 +3428,14 @@ public:
 	SStringU & FASTCALL CopyFrom(const wchar_t * pS);
 	SStringU & FASTCALL CopyFromN(const wchar_t * pS, size_t maxLen);
 	SStringU & FASTCALL CopyFromMb(int cp, const char * pS, size_t srcLen);
+	//
+	// Descr: Копирует мультибайт-строку pS в this предполагая, OUTER-кодировку pS.
+	//
+	SStringU & FASTCALL CopyFromMb_OUTER(const char * pS, size_t srcLen);
+	//
+	// Descr: Копирует мультибайт-строку pS в this предполагая, INNER-кодировку pS.
+	//
+	SStringU & FASTCALL CopyFromMb_INNER(const char * pS, size_t srcLen);
 	wchar_t *  FASTCALL CopyTo(wchar_t * pS, size_t maxLen);
 	SStringU & SLAPI Sub(size_t startPos, size_t len, SStringU & rBuf) const;
 	int    FASTCALL CopyFromUtf8(const char * pSrc, size_t srcSize);
@@ -3699,7 +3708,7 @@ int    FASTCALL sstreq(const char * pS1, const char * pS2);
 int    FASTCALL sstreqi_ascii(const char * pS1, const char * pS2);
 //
 // Descr: Определяет все ли len символов строки pS находятся в диапазоне [0..0x7f].
-// Note: Функция может быть использована для быстрой идентификации необходимости 
+// Note: Функция может быть использована для быстрой идентификации необходимости
 //   трансляции строки в UNICODE или для иных специализированных задач.
 // Returns:
 //   !0  - все len символов в pS находятся в диапазоне [0..0x7f]
@@ -4157,8 +4166,6 @@ public:
 int	   SLAPI pathToUNC(const char * pPath, SString & rUncPath);
 char * SLAPI replacePath(char * fileName, const char * newPath, int force);
 char * SLAPI replaceExt(char * fileName, const char * newExt, int force);
-char * SLAPI squeeze(char * path);
-char * SLAPI fexpand(char * rpath);
 char * SLAPI setLastSlash(char *);
 char * SLAPI rmvLastSlash(char *);
 //
@@ -4184,7 +4191,6 @@ int    SLAPI validFileName(const char * pFileName);
 //
 SString & SLAPI makeExecPathFileName(const char * pName, const char * pExt, SString & rPath);
 int    SLAPI isWild(const char * pFileName);
-void   SLAPI getCurDir(char * pDir);
 int    SLAPI createDir(const char * pPath);
 int    SLAPI copyFileByName(const char * pSrcFileName, const char * pDestFileName);
 //
@@ -5541,17 +5547,13 @@ template <class T> int TSCollection_Copy(TSCollection <T> & rDest, const TSColle
 	rDest.freeAll();
 	for(uint i = 0; i < rSrc.getCount(); i++) {
 		const T * p_src_item = rSrc.at(i);
-		T * p_new_item = 0;
 		if(p_src_item) {
-			p_new_item = new T;
-			if(p_new_item) {
+			T * p_new_item = rDest.CreateNewItem();
+			if(p_new_item)
 				*p_new_item = *p_src_item;
-			}
 			else
-				return SLS.SetError(SLERR_NOMEM);
+				return 0;
 		}
-		if(!rDest.insert(p_new_item))
-			return 0;
 	}
 	return 1;
 }
@@ -8626,7 +8628,7 @@ public:
 	virtual void   Set(ulong seed) = 0;
 	virtual ulong  Get() = 0;
 	virtual double GetReal() = 0;
-	ulong  GetUniformInt(ulong n);
+	ulong  FASTCALL GetUniformInt(ulong n);
 	double GetUniformPos();
 	ulong  GetMin() const;
 	ulong  GetMax() const;
@@ -8665,7 +8667,7 @@ public:
 	//
 	// Descr: Возвращает случайное не отрицательное целое число СТРОГО МЕНЬШЕ чем n.
 	//
-	ulong  GetUniformInt(ulong n);
+	ulong  FASTCALL GetUniformInt(ulong n);
 	double GetUniformPos();
 	ulong  GetMin() const;
 	ulong  GetMax() const;
@@ -11387,6 +11389,54 @@ private:
 	long   Lon;
 };
 //
+// Descr: Механизмы расчета, обратного преобразования и иных операций над Z-index'ом
+//
+class SZIndex2 {
+public:
+	struct P16 {
+        uint16 X;
+        uint16 Y;
+	};
+	struct R16 {
+		P16    LU;
+		P16    RL;
+	};
+    static uint32 FASTCALL Combine(uint16 x, uint16 y);
+    static uint32 FASTCALL Combine(const P16 & rP)
+    {
+    	return Combine(rP.X, rP.Y);
+    }
+    static uint64 FASTCALL Combine(uint32 x, uint32 y);
+};
+//
+//
+//
+class SGeoGridTab {
+public:
+	SLAPI  SGeoGridTab(uint dim);
+	int    FASTCALL IsEqual(const SGeoGridTab & rS) const;
+	int    FASTCALL operator == (const SGeoGridTab & rS) const;
+	int    FASTCALL operator != (const SGeoGridTab & rS) const;
+	void   SLAPI SetSrcCountLat(uint64 c);
+	void   SLAPI SetSrcCountLon(uint64 c);
+	uint   SLAPI GetDim() const;
+    uint   SLAPI GetDensityLat() const;
+    uint   SLAPI GetDensityLon() const;
+    int    FASTCALL AddThresholdLat(long coord);
+    int    FASTCALL AddThresholdLon(long coord);
+    uint   SLAPI GetCountLat() const;
+    uint   SLAPI GetCountLon() const;
+	//
+	int    SLAPI Save(const char * pFileName);
+	int    SLAPI Load(const char * pFileName);
+private:
+    uint   Dim; // Размерность решетки (бит)
+    uint64 SrcCountLat;
+    uint64 SrcCountLon;
+	LongArray LatIdx;
+	LongArray LonIdx;
+};
+//
 //
 //
 class SRawInputInitArray : private SArray {
@@ -11743,6 +11793,7 @@ public:
 	int    _check_eq(uint a, uint b, const char * pA, const char * pB);
 	int    _check_eq(long a, long b, const char * pA, const char * pB);
 	int    _check_eq(ulong a, ulong b, const char * pA, const char * pB);
+	int    _check_eq(int64 a, int64 b, const char * pA, const char * pB);
 	int    _check_eq(double a, double b, const char * pA, const char * pB);
 	int    _check_eq(float a, float b, const char * pA, const char * pB);
 	int    _check_eq_tolerance(double a, double b, double tol, const char * pA, const char * pB);
@@ -11789,6 +11840,17 @@ protected:
 	const char * GetTestName() const;
 	int    CurrentStatus;
 private:
+	template <class T> int Implement_check_eq(const T a, const T b, const char * pA, const char * pB)
+	{
+		if(a != b) {
+			SString buf;
+			SetInfo(catval(b, pB, catval(a, pA, buf).Cat("!=")), 0);
+			return 0;
+		}
+		else
+			return 1;
+	}
+
 	STestSuite * P_Suite;
 	SString TempBuf;
 

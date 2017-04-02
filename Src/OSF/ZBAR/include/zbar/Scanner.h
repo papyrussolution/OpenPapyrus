@@ -122,7 +122,7 @@ class Scanner {
 
     /// retrieve last scanned width.
     /// see zbar_scanner_get_width()
-    unsigned get_width () const
+    uint get_width () const
     {
         return(zbar_scanner_get_width(_scanner));
     }

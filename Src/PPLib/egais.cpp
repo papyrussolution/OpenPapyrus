@@ -197,6 +197,7 @@ PPEgaisProcessor::ActInform::ActInform()
 PPEgaisProcessor::RepealWb::RepealWb()
 {
 	BillID = 0;
+	ReqTime = ZERODATETIME;
 	Confirm = 0;
 }
 
@@ -1857,7 +1858,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						case  6: skip = BIN(doc_type == PPEDIOP_EGAIS_REQUESTREPEALWB); break;
 						case  8: skip = BIN(doc_type == PPEDIOP_EGAIS_WAYBILLACT_V2); break; // "wa"
 						case 10: skip = BIN(doc_type == PPEDIOP_EGAIS_ACTCHARGEON_V2); break; // "iab"
-						case 12: skip = BIN(doc_type != PPEDIOP_EGAIS_CONFIRMREPEALWB); break;
+						case 11: skip = BIN(doc_type == PPEDIOP_EGAIS_CONFIRMREPEALWB); break; // "wt"
+						case 12: skip = BIN(doc_type != PPEDIOP_EGAIS_CONFIRMREPEALWB); break; // "wt"
 						case 13: skip = BIN(oneof2(doc_type, PPEDIOP_EGAIS_CONFIRMREPEALWB, PPEDIOP_EGAIS_ACTWRITEOFFSHOP)); break; // "awr"
 						case 17: skip = BIN(!oneof5(doc_type, PPEDIOP_EGAIS_TRANSFERTOSHOP, PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP, PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTWRITEOFFSHOP)); break; // "pref" "ProductRef_v2"
 						case 19: skip = BIN(doc_type == PPEDIOP_EGAIS_ACTCHARGEON_V2); break; // "ainp"
@@ -3283,7 +3285,7 @@ int SLAPI PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID
 				pack_extracted = 1;
 				rarid_assigned = 1;
 				if(loc_id) {
-					for(uint dlp = 0; pPack->EnumDlvrLoc(&dlp, &loc_pack) > 0;) {
+					for(uint dlp = 0; pPack->EnumDlvrLoc(&dlp, &loc_pack);) {
 						if(loc_pack.ID == loc_id) {
 							pPack->SelectedLocPos = dlp;
 							break;
@@ -3451,9 +3453,8 @@ int SLAPI PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID
 				AssignManufTypeToPersonPacket(*pPack, roleFlag);
 				// @v8.9.0 {
 				if(pPack->SelectedLocPos > 0) {
-					uint   dlp = pPack->SelectedLocPos-1;
 					PPLocationPacket loc_pack;
-					if(pPack->EnumDlvrLoc(&dlp, &loc_pack) > 0) {
+					if(pPack->GetDlvrLocByPos(pPack->SelectedLocPos-1, &loc_pack)) {
 						const ObjTagItem * p_tag_item = loc_pack.TagL.GetItem(PPTAG_LOC_FSRARID);
 						if(!p_tag_item || (p_tag_item->GetStr(temp_buf) <= 0 || temp_buf.Empty())) {
 							loc_pack.TagL.PutItemStr(PPTAG_LOC_FSRARID, rar_ident);
@@ -4007,6 +4008,8 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 		else if(was_header_accepted && !is_pack_inited) {
 			PPID   ar_id = 0;
 			PPID   dlvr_loc_id = 0;
+			PPOprKind op_rec;
+			PPBillPacket::SetupObjectBlock sob;
 			if(!pPack) {
 				; // @skip next block
 			}
@@ -4047,8 +4050,6 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 			if(wb_type == wbtInvcFromMe) { // От поставщика ко мне
 				if(p_bp) {
 					const PPID op_id = ACfg.Hdr.EgaisRcptOpID;
-					PPOprKind op_rec;
-					PPBillPacket::SetupObjectBlock sob;
 					THROW_PP(op_id, PPERR_EGAIS_RCPTOPUNDEF);
 					GetOpData(op_id, &op_rec);
 					THROW(p_bp->CreateBlank_WithoutCode(op_id, 0, loc_id, 1));
@@ -4058,12 +4059,18 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 						STRNSCPY(p_bp->Rec.Memo, memo_note);
 					else if(memo_base.NotEmptyS())
 						STRNSCPY(p_bp->Rec.Memo, memo_base);
-					if(psn_suppl.Rec.ID) {
-						ArObj.P_Tbl->PersonToArticle(psn_suppl.Rec.ID, op_rec.AccSheetID, &ar_id);
-					}
-					else if(psn_shipper.Rec.ID) {
+					//
+					// @v9.5.11 Изменен приоритет применения контрагента в качестве поставщика.
+					// Ранее у psn_suppl был приоритет, однако выяснилось что некоторые поставщики
+					// гонят в этом теге бредовые значения (типа собственного поставщика).
+					// {
+					if(psn_shipper.Rec.ID) {
 						ArObj.P_Tbl->PersonToArticle(psn_shipper.Rec.ID, op_rec.AccSheetID, &ar_id);
 					}
+					else if(psn_suppl.Rec.ID) {
+						ArObj.P_Tbl->PersonToArticle(psn_suppl.Rec.ID, op_rec.AccSheetID, &ar_id);
+					}
+					// } @v9.5.11
 					if(ar_id)
 						p_bp->SetupObject(ar_id, sob);
 					if(op_rec.AccSheet2ID && P_UtmEntry && P_UtmEntry->MainOrgID) {
@@ -4080,8 +4087,6 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 			else if(wb_type == wbtRetFromMe) { // Возврат от покупателя ко мне
 				if(p_bp && ACfg.Hdr.EgaisRetOpID) {
 					const PPID op_id = ACfg.Hdr.EgaisRetOpID;
-					PPOprKind op_rec;
-					PPBillPacket::SetupObjectBlock sob;
 					THROW_PP(op_id, PPERR_EGAIS_RCPTOPUNDEF);
 					GetOpData(op_id, &op_rec);
 					THROW(p_bp->CreateBlank_WithoutCode(op_id, 0, loc_id, 1));
@@ -4098,16 +4103,14 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 					if(psn_shipper.Rec.ID) {
 						ArObj.P_Tbl->PersonToArticle(psn_shipper.Rec.ID, op_rec.AccSheetID, &ar_id);
 						if(ar_id && psn_shipper.SelectedLocPos > 0) {
-							uint   dlp = psn_shipper.SelectedLocPos-1;
-							if(psn_shipper.EnumDlvrLoc(&dlp, &loc_pack) > 0)
+							if(psn_shipper.GetDlvrLocByPos(psn_shipper.SelectedLocPos-1, &loc_pack) > 0)
 								dlvr_loc_id = loc_pack.ID;
 						}
 					}
 					else if(psn_suppl.Rec.ID) {
 						ArObj.P_Tbl->PersonToArticle(psn_suppl.Rec.ID, op_rec.AccSheetID, &ar_id);
 						if(ar_id && psn_suppl.SelectedLocPos > 0) {
-							uint   dlp = psn_suppl.SelectedLocPos-1;
-							if(psn_suppl.EnumDlvrLoc(&dlp, &loc_pack) > 0)
+							if(psn_suppl.GetDlvrLocByPos(psn_suppl.SelectedLocPos-1, &loc_pack) > 0)
 								dlvr_loc_id = loc_pack.ID;
 						}
 					}
@@ -5303,6 +5306,33 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 							ok = 1;
 						}
 					}
+					// @v9.5.12 {
+					else if(doc_type == PPEDIOP_EGAIS_REQUESTREPEALWB) {
+						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
+						{
+							RepealWb * p_rwb = (RepealWb *)p_new_pack->P_Data;
+							for(xmlNode * p_n = p_nd->children; p_n; p_n = p_n->next) {
+								if(SXml::GetContentByName(p_n, "ClientId", temp_buf) > 0) {
+									p_rwb->ContragentCode = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+								}
+								else if(SXml::GetContentByName(p_n, "RequestNumber", temp_buf) > 0) {
+									p_rwb->ReqNumber = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+								}
+								else if(SXml::GetContentByName(p_n, "RequestDate", temp_buf) > 0) {
+									strtodatetime(temp_buf, &p_rwb->ReqTime, DATF_ISO8601, TIMF_HMS);
+								}
+								else if(SXml::GetContentByName(p_n, "WBRegId", temp_buf) > 0) {
+									p_rwb->TTNCode = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+								}
+							}
+							rs = 1;
+						}
+						if(rs > 0) {
+							THROW(Helper_FinalizeNewPack(&p_new_pack, srcReplyPos, pPackList));
+							ok = 1;
+						}
+					}
+					// } @v9.5.12
 					else if(oneof2(doc_type, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTSSHOP)) {
 						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
 						THROW(rs = Read_Rests(p_nd->children, locID, pPeriod, p_new_pack, pRefC));
@@ -5954,7 +5984,8 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 		ediop_list.addzlist(PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_TTNINFORMBREG, PPEDIOP_EGAIS_TTNINFORMF2REG,
 			PPEDIOP_EGAIS_TICKET, PPEDIOP_EGAIS_REPLYCLIENT, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTSSHOP,
 			PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_REPLYAP,
-			PPEDIOP_EGAIS_REPLYFORMA, PPEDIOP_EGAIS_REPLYRESTSSHOP, PPEDIOP_EGAIS_REPLYBARCODE, PPEDIOP_EGAIS_WAYBILLACT_V2, 0);
+			PPEDIOP_EGAIS_REPLYFORMA, PPEDIOP_EGAIS_REPLYRESTSSHOP, PPEDIOP_EGAIS_REPLYBARCODE, PPEDIOP_EGAIS_WAYBILLACT_V2,
+			PPEDIOP_EGAIS_REQUESTREPEALWB, 0);
 		ediop_list.sortAndUndup();
 		THROW_MEM(SETIFZ(P_RefC, new RefCollection));
 		for(uint i = 0; i < reply_count; i++) {
@@ -6084,6 +6115,60 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 						if(!Helper_AcceptBillPacket(p_pack, &pack_list, packidx))
 							LogLastError();
 					}
+					else if(p_pack->DocType == PPEDIOP_EGAIS_REQUESTREPEALWB) {
+                        const RepealWb * p_rwb = (const RepealWb *)p_pack->P_Data;
+						p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, p_rwb->TTNCode, &bill_id_list);
+						PPIDArray candid_bill_list;
+						BillTbl::Rec bill_rec;
+						for(uint i = 0; i < bill_id_list.getCount(); i++) {
+							const PPID bill_id = bill_id_list.get(i);
+							PPOprKind op_rec;
+							PPFreight freight;
+							if(P_BObj->Search(bill_id, &bill_rec) > 0) {
+                                if(bill_rec.Object && GetOpData(bill_rec.OpID, &op_rec) > 0) {
+                                    const PPID psn_id = ObjectToPerson(bill_rec.Object, 0);
+									if(psn_id) {
+										if(p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_FSRARID, temp_buf) > 0 && temp_buf.CmpNC(p_rwb->ContragentCode) == 0) {
+											candid_bill_list.add(bill_id);
+										}
+										else if(P_BObj->FetchFreight(bill_id, &freight) > 0 && freight.DlvrAddrID) {
+											if(p_ref->Ot.GetTagStr(PPOBJ_LOCATION, freight.DlvrAddrID, PPTAG_LOC_FSRARID, temp_buf) > 0 && temp_buf.CmpNC(p_rwb->ContragentCode) == 0)
+												candid_bill_list.add(bill_id);
+										}
+									}
+                                }
+							}
+						}
+						if(candid_bill_list.getCount() == 1) {
+							const PPID bill_id = candid_bill_list.get(0);
+							THROW(P_BObj->Search(bill_id, &bill_rec) > 0);
+							if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIREPEALREQ, temp_buf) > 0) {
+								;
+							}
+							else {
+								ObjTagItem tag_item;
+								if(tag_item.SetStr(PPTAG_BILL_EDIREPEALREQ, p_rwb->ReqNumber)) {
+									if(p_ref->Ot.PutTag(PPOBJ_BILL, bill_id, &tag_item, 1)) {
+										PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
+										LogTextWithAddendum(PPTXT_EGAIS_WBRPLREQACCEPTED, bill_text);
+									}
+									else
+										LogLastError();
+								}
+								else
+									LogLastError();
+							}
+						}
+						else if(candid_bill_list.getCount() > 1) {
+							(temp_buf = 0).Cat(p_rwb->TTNCode).CatDiv('-', 1).Cat(p_rwb->ReqNumber);
+							LogTextWithAddendum(PPTXT_EGAIS_WBRPLREQMANYDOCS, temp_buf);
+						}
+						else {
+							// Запрос на отмену проведения через ЕГАИС '%s' не может быть акцептирован поскольку ему не соответствует ни одного документа в БД
+							(temp_buf = 0).Cat(p_rwb->TTNCode).CatDiv('-', 1).Cat(p_rwb->ReqNumber);
+							LogTextWithAddendum(PPTXT_EGAIS_WBRPLREQNODOCS, temp_buf);
+						}
+					}
 					else if(oneof2(p_pack->DocType, PPEDIOP_EGAIS_TTNINFORMBREG, PPEDIOP_EGAIS_TTNINFORMF2REG)) {
 						const InformB * p_inf = (const InformB *)p_pack->P_Data;
 						//
@@ -6136,9 +6221,8 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 											BillCore::GetCode(temp_buf = ex_bill_rec.Code);
 											if(temp_buf.NotEmptyS() && temp_buf.CmpNC(p_inf->OuterCode) == 0) {
 												long    _dd = diffdate(p_inf->FixDate, ex_bill_rec.Dt);
-												if(_dd >= 0 && _dd <= 30) { // @v8.9.5 7-->30
+												if(_dd >= 0 && _dd <= 30) // @v8.9.5 7-->30
 													bill_id_list.add(id_32);
-												}
 											}
 										}
 									}
@@ -6874,10 +6958,16 @@ int SLAPI PPEgaisProcessor::GetBillListForTransmission(const SendBillsParam & rP
 			base_op_list.add(Cfg.SupplRetOpID);
 		if(flags & bilstfLosses)
 			base_op_list.add(Cfg.ExpndEtcOpID);
+		// @v9.5.12 {
+		if(flags & bilstfWbRepealConf) {
+			base_op_list.add(Cfg.ExpndOpID);
+			base_op_list.add(Cfg.SupplRetOpID);
+		}
+		// } @v9.5.12
 		ExpandBaseOpList(base_op_list, op_list);
 	}
 	// @v9.0.10 GoodsIterator::GetListByGroup(Cfg.AlcGoodsGrpID, &alc_goods_list);
-    for(i = 0; i < op_list.getCount(); i++) {
+	for(i = 0; i < op_list.getCount(); i++) {
 		const PPID op_id = op_list.get(i);
 		PPOprKind op_rec;
 		GetOpData(op_id, &op_rec);
@@ -6906,7 +6996,7 @@ int SLAPI PPEgaisProcessor::GetBillListForTransmission(const SendBillsParam & rP
 				}
 			}
 		}
-    }
+	}
 	temp_bill_list.sortAndUndup();
 	for(uint k = 0; k < temp_bill_list.getCount(); k++) {
 		const PPID bill_id = temp_bill_list.get(k);
@@ -7092,25 +7182,80 @@ int SLAPI PPEgaisProcessor::Helper_SendBills(PPID billID, int ediOp, PPID locID,
 int SLAPI PPEgaisProcessor::Helper_SendBillsByPattern(const SendBillsParam & rP, const PPEgaisProcessor::BillTransmissionPattern & rPattern)
 {
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	SString file_name;
 	SString temp_buf;
 	PPIDArray totransm_bill_list;
-	GetBillListForTransmission(rP, rPattern.Flags, totransm_bill_list, 0);
-	if(totransm_bill_list.getCount()) {
-		if(rPattern.EdiOp == PPEDIOP_EGAIS_ACTCHARGEON) {
-			ExclChrgOnMarks.clear();
-			PPGetFilePath(PPPATH_IN, "egais-exclude-chargeon-marks.txt", file_name);
-			if(fileExists(file_name)) {
-				SFile f_in(file_name, SFile::mRead);
-				while(f_in.ReadLine(temp_buf)) {
-					if(PrcssrAlcReport::IsEgaisMark(temp_buf.Chomp(), 0))
-						ExclChrgOnMarks.add(temp_buf);
+	if(rPattern.EdiOp == PPEDIOP_EGAIS_CONFIRMREPEALWB) {
+		PPOprKind op_rec;
+		SString edi_ident;
+		SString repeal_tag;
+		StrAssocArray repealreq_bill_list;
+		BillTbl::Rec bill_rec;
+		p_ref->Ot.GetObjTextList(PPOBJ_BILL, PPTAG_BILL_EDIREPEALREQ, repealreq_bill_list);
+		for(uint i = 0; i < repealreq_bill_list.getCount(); i++) {
+            StrAssocArray::Item item = repealreq_bill_list.at_WithoutParent(i);
+			(repeal_tag = item.Txt).Strip();
+            if(repeal_tag.NotEmpty() && oneof2(repeal_tag.C(0), '!', '-')) {
+				const PPID bill_id = item.Id;
+                if(P_BObj->Search(bill_id, &bill_rec) > 0 && p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIIDENT, edi_ident) > 0) {
+					GetOpData(bill_rec.OpID, &op_rec);
+					if((!rP.LocID || bill_rec.LocID == rP.LocID) && CheckBillForMainOrgID(bill_rec, op_rec)) {
+						PPEgaisProcessor::Packet pack(rPattern.EdiOp);
+						RepealWb * p_rwb = (RepealWb *)pack.P_Data;
+						if(p_rwb) {
+							p_rwb->BillID = bill_id;
+							if(repeal_tag.C(0) == '!')
+								p_rwb->Confirm = 1;
+							else if(repeal_tag.C(0) == '-')
+								p_rwb->Confirm = 0;
+							else
+								p_rwb->Confirm = -1;
+							if(oneof2(p_rwb->Confirm, 0, 1)) {
+								p_rwb->TTNCode = edi_ident;
+								p_rwb->ReqTime = getcurdatetime_();
+								p_rwb->ReqNumber = item.Txt+1;
+								//
+								{
+									Ack ack;
+									const int r = PutQuery(pack, rP.LocID, rPattern.P_UrlSuffix, ack);
+									if(r > 0) {
+										ObjTagItem tag_item;
+										repeal_tag.ShiftLeft();
+										repeal_tag.Insert(0, "*");
+										if(tag_item.SetStr(PPTAG_BILL_EDIREPEALREQ, repeal_tag) && p_ref->Ot.PutTag(PPOBJ_BILL, bill_id, &tag_item, 1))
+											ok = 1;
+										else
+											LogLastError();
+									}
+									else if(r == 0)
+										LogLastError();
+								}
+							}
+						}
+					}
+                }
+            }
+		}
+	}
+	else {
+		GetBillListForTransmission(rP, rPattern.Flags, totransm_bill_list, 0);
+		if(totransm_bill_list.getCount()) {
+			if(rPattern.EdiOp == PPEDIOP_EGAIS_ACTCHARGEON) {
+				ExclChrgOnMarks.clear();
+				PPGetFilePath(PPPATH_IN, "egais-exclude-chargeon-marks.txt", file_name);
+				if(fileExists(file_name)) {
+					SFile f_in(file_name, SFile::mRead);
+					while(f_in.ReadLine(temp_buf)) {
+						if(PrcssrAlcReport::IsEgaisMark(temp_buf.Chomp(), 0))
+							ExclChrgOnMarks.add(temp_buf);
+					}
 				}
 			}
-		}
-		for(uint i = 0; i < totransm_bill_list.getCount(); i++) {
-			if(Helper_SendBills(totransm_bill_list.get(i), rPattern.EdiOp, rP.LocID, rPattern.P_UrlSuffix) > 0)
-				ok = 1;
+			for(uint i = 0; i < totransm_bill_list.getCount(); i++) {
+				if(Helper_SendBills(totransm_bill_list.get(i), rPattern.EdiOp, rP.LocID, rPattern.P_UrlSuffix) > 0)
+					ok = 1;
+			}
 		}
 	}
 	return ok;
@@ -7130,7 +7275,8 @@ int SLAPI PPEgaisProcessor::SendBills(const SendBillsParam & rP)
 			{ bilstfReadyForAck|bilstfWriteOffShop,     PPEDIOP_EGAIS_ACTWRITEOFFSHOP,   "ActWriteOffShop_v2" },
 			{ bilstfReadyForAck|bilstfTransferToShop,   PPEDIOP_EGAIS_TRANSFERTOSHOP,    "TransferToShop" },
 			{ bilstfReadyForAck|bilstfTransferFromShop, PPEDIOP_EGAIS_TRANSFERFROMSHOP,  "TransferFromShop" },
-			{ bilstfReadyForAck|bilstfLosses,           PPEDIOP_EGAIS_ACTWRITEOFF,       "ActWriteOff" }
+			{ bilstfReadyForAck|bilstfLosses,           PPEDIOP_EGAIS_ACTWRITEOFF,       "ActWriteOff" },
+			{ bilstfReadyForAck|bilstfWbRepealConf,     PPEDIOP_EGAIS_CONFIRMREPEALWB,   "ConfirmRepealWB" } // @v9.5.12
 		};
 		for(uint i = 0; i < SIZEOFARRAY(_BillTransmPatterns); i++) {
 			if(Helper_SendBillsByPattern(rP, _BillTransmPatterns[i]) > 0)

@@ -79,13 +79,13 @@ public:
 	}
 	/// process next bar/space width from input stream.
 	/// see zbar_decode_width()
-	zbar_symbol_type_t decode_width(unsigned width)
+	zbar_symbol_type_t decode_width(uint width)
 	{
 		return zbar_decode_width(_decoder, width);
 	}
 	/// process next bar/space width from input stream.
 	/// see zbar_decode_width()
-	Decoder& operator<<(unsigned width)
+	Decoder& operator<<(uint width)
 	{
 		zbar_decode_width(_decoder, width);
 		return(*this);

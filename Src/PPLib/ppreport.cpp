@@ -2420,7 +2420,7 @@ static int SLAPI __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRepor
 							MEMSZERO(si);
 							si.cb = sizeof(si);
 							MEMSZERO(pi);
-							int    r = CreateProcess(0, cmd_line, 0, 0, FALSE, 0, 0, 0, &si, &pi);
+							int    r = ::CreateProcess(0, cmd_line, 0, 0, FALSE, 0, 0, 0, &si, &pi);
 							if(!r) {
 								SLS.SetOsError(0);
 								PPSetErrorSLib();

@@ -668,11 +668,12 @@ int SLAPI PPObjBill::CheckInGta(const PPGta & rGta, int use_ta)
 int SLAPI GtaJournalCore::CheckInOp(PPGta & rGta, int use_ta)
 {
 	int    ok = 1;
+	PPObjBill * p_bobj = BillObj;
 	{
 		GtaJournalTbl::Rec rec;
 		GtaJournalTbl::Key1 k1;
-		if(BillObj)
-			BillObj->InitGtaBlock();
+		if(p_bobj)
+			p_bobj->InitGtaBlock();
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		MEMSZERO(rec);
@@ -714,8 +715,8 @@ int SLAPI GtaJournalCore::CheckInOp(PPGta & rGta, int use_ta)
 			}
 		}
 		THROW_DB(insertRecBuf(&rec));
-		if(BillObj) {
-			THROW(BillObj->CheckInGta(rGta, 0));
+		if(p_bobj) {
+			THROW(p_bobj->CheckInGta(rGta, 0));
 		}
 		THROW(tra.Commit());
 	}

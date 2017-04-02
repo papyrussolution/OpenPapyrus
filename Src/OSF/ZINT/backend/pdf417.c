@@ -231,12 +231,9 @@ void pdfsmooth(int * indexliste)
 /* 547 */
 void textprocess(int * chainemc, int * mclength, char chaine[], int start, int length, int block)
 {
-	int j, indexlistet, curtable, listet[2][5000], chainet[5000], wnet;
-	char codeascii;
-
-	codeascii = 0;
-	wnet = 0;
-
+	int j, indexlistet, curtable, listet[2][5000], chainet[5000];
+	char codeascii = 0;
+	int wnet = 0;
 	for(j = 0; j < 1000; j++) {
 		listet[0][j] = 0;
 	}
@@ -244,16 +241,20 @@ void textprocess(int * chainemc, int * mclength, char chaine[], int start, int l
 	for(indexlistet = 0; indexlistet < length; indexlistet++) {
 		codeascii = chaine[start + indexlistet];
 		switch(codeascii) {
-			case '\t': listet[0][indexlistet] = 12;
+			case '\t': 
+				listet[0][indexlistet] = 12;
 			    listet[1][indexlistet] = 12;
 			    break;
-			case '\n': listet[0][indexlistet] = 8;
+			case '\n': 
+				listet[0][indexlistet] = 8;
 			    listet[1][indexlistet] = 15;
 			    break;
-			case 13: listet[0][indexlistet] = 12;
+			case 13: 
+				listet[0][indexlistet] = 12;
 			    listet[1][indexlistet] = 11;
 			    break;
-			default: listet[0][indexlistet] = asciix[codeascii - 32];
+			default: 
+				listet[0][indexlistet] = asciix[codeascii - 32];
 			    listet[1][indexlistet] = asciiy[codeascii - 32];
 			    break;
 		}
@@ -278,7 +279,6 @@ void textprocess(int * chainemc, int * mclength, char chaine[], int start, int l
 					flag = TRUE;
 				}
 			}
-
 			if(flag) {
 				/* we change only one character - look for temporary switch */
 				if((listet[0][j] & 1) && (curtable == 2)) { /* T_UPP */
@@ -296,11 +296,9 @@ void textprocess(int * chainemc, int * mclength, char chaine[], int start, int l
 					flag = FALSE;
 				}
 			}
-
 			/* 599 */
 			if(!(flag)) {
 				int newtable;
-
 				if(j == (length - 1)) {
 					newtable = listet[0][j];
 				}
@@ -312,7 +310,6 @@ void textprocess(int * chainemc, int * mclength, char chaine[], int start, int l
 						newtable = listet[0][j] & listet[0][j + 1];
 					}
 				}
-
 				/* Maintain the first if several tables are possible */
 				switch(newtable) {
 					case 3:
@@ -321,81 +318,40 @@ void textprocess(int * chainemc, int * mclength, char chaine[], int start, int l
 					case 9:
 					case 11:
 					case 13:
-					case 15:
-					    newtable = 1;
-					    break;
+					case 15: newtable = 1; break;
 					case 6:
 					case 10:
-					case 14:
-					    newtable = 2;
-					    break;
-					case 12:
-					    newtable = 4;
-					    break;
+					case 14: newtable = 2; break;
+					case 12: newtable = 4; break;
 				}
-
 				/* 619 - select the switch */
 				switch(curtable) {
 					case 1:
 					    switch(newtable) {
-						    case 2: chainet[wnet] = 27;
-							wnet++;
-							break;
-						    case 4: chainet[wnet] = 28;
-							wnet++;
-							break;
-						    case 8: chainet[wnet] = 28;
-							wnet++;
-							chainet[wnet] = 25;
-							wnet++;
-							break;
+						    case 2: chainet[wnet++] = 27; break;
+						    case 4: chainet[wnet++] = 28; break;
+						    case 8: chainet[wnet++] = 28; chainet[wnet++] = 25; break;
 					    }
 					    break;
 					case 2:
 					    switch(newtable) {
-						    case 1: chainet[wnet] = 28;
-							wnet++;
-							chainet[wnet] = 28;
-							wnet++;
-							break;
-						    case 4: chainet[wnet] = 28;
-							wnet++;
-							break;
-						    case 8: chainet[wnet] = 28;
-							wnet++;
-							chainet[wnet] = 25;
-							wnet++;
-							break;
+						    case 1: chainet[wnet++] = 28; chainet[wnet++] = 28; break;
+						    case 4: chainet[wnet++] = 28; break;
+							case 8: chainet[wnet++] = 28; chainet[wnet++] = 25; break;
 					    }
 					    break;
 					case 4:
 					    switch(newtable) {
-						    case 1: chainet[wnet] = 28;
-							wnet++;
-							break;
-						    case 2: chainet[wnet] = 27;
-							wnet++;
-							break;
-						    case 8: chainet[wnet] = 25;
-							wnet++;
-							break;
+						    case 1: chainet[wnet++] = 28; break;
+						    case 2: chainet[wnet++] = 27; break;
+						    case 8: chainet[wnet++] = 25; break;
 					    }
 					    break;
 					case 8:
 					    switch(newtable) {
-						    case 1: chainet[wnet] = 29;
-							wnet++;
-							break;
-						    case 2: chainet[wnet] = 29;
-							wnet++;
-							chainet[wnet] = 27;
-							wnet++;
-							break;
-						    case 4: chainet[wnet] = 29;
-							wnet++;
-							chainet[wnet] = 28;
-							wnet++;
-							break;
+						    case 1: chainet[wnet++] = 29; break;
+						    case 2: chainet[wnet++] = 29; chainet[wnet++] = 27; break;
+						    case 4: chainet[wnet++] = 29; chainet[wnet++] = 28; break;
 					    }
 					    break;
 				}
@@ -406,7 +362,6 @@ void textprocess(int * chainemc, int * mclength, char chaine[], int start, int l
 			}
 		}
 	}
-
 	/* 663 */
 	if(wnet & 1) {
 		chainet[wnet] = 29;
@@ -435,9 +390,8 @@ void byteprocess(int * chainemc, int * mclength, uchar chaine[], int start, int 
 	uint64_t mantisa = 0ULL;
 	uint64_t total = 0ULL;
 #endif
-
-	if(debug) printf("\nEntering byte mode at position %d\n", start);
-
+	if(debug) 
+		printf("\nEntering byte mode at position %d\n", start);
 	if(length == 1) {
 		chainemc[(*mclength)++] = 913;
 		chainemc[(*mclength)++] = chaine[start];
@@ -502,7 +456,12 @@ void byteprocess(int * chainemc, int * mclength, uchar chaine[], int start, int 
 /* 712 */
 void numbprocess(int * chainemc, int * mclength, char chaine[], int start, int length, int block)
 {
-	int    loop, longueur, dummy[100], dumlength, diviseur, nombre;
+	int    loop;
+	int    longueur;
+	int    dummy[100];
+	int    dumlength;
+	int    diviseur;
+	int    nombre;
 	char   chainemod[50], chainemult[100], temp;
 	strcpy(chainemod, "");
 	for(loop = 0; loop <= 50; loop++) {
@@ -547,7 +506,6 @@ void numbprocess(int * chainemc, int * mclength, char chaine[], int start, int l
 			}
 			diviseur = nombre;
 			/* return to 723 */
-
 			for(loop = dumlength; loop > 0; loop--) {
 				dummy[loop] = dummy[loop - 1];
 			}

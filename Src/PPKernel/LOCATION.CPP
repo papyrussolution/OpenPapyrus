@@ -698,8 +698,59 @@ SString & FASTCALL PPEAddr::Phone::ToStr(long fmt, SString & rBuf) const
 	return rBuf;
 }
 
+static uint SLAPI Helper_GeneratePhoneCheckNumber(const char * pOrgPhone, const char * pAddedumCode, uint checkResult)
+{
+	// Несколько вариантов простого делителя с количеством знаков, равным разрядности требуемого значения (5)
+	static const uint32 prime_div_variants[] = { 98387, 86017, 87359, 79823, 75337 };
+	const  uint addendum = 54167; // Фиксированное слагаемое для контрольной суммы, если она меньше 10000
+    uint   result = 0;
+	SString line_buf;
+	PPEAddr::Phone::NormalizeStr(pOrgPhone, line_buf);
+    line_buf.Cat(pAddedumCode);
+    uint   p = 0;
+    while(line_buf.StrChr(' ', &p)) {
+        line_buf.Excise(p, 1);
+    }
+    while(line_buf.StrChr('\t', &p)) {
+        line_buf.Excise(p, 1);
+    }
+    {
+		CRC32  c;
+		uint32 crc = c.Calc(0, line_buf.ucptr(), line_buf.Len());
+		if(crc < 10000)
+			crc += addendum;
+		if(checkResult) {
+			for(uint i = 0; !result && i < SIZEOFARRAY(prime_div_variants); i++) {
+				if(checkResult == (crc % prime_div_variants[i]))
+                    result = checkResult;
+			}
+		}
+		else {
+			const uint pdv_pos = SLS.GetTLA().Rg.GetUniformInt(SIZEOFARRAY(prime_div_variants));
+			assert(pdv_pos < SIZEOFARRAY(prime_div_variants));
+			if(pdv_pos < SIZEOFARRAY(prime_div_variants)) {
+				result = (crc % prime_div_variants[pdv_pos]);
+			}
+		}
+    }
+    return result;
+}
+
 //static
-SString & PPEAddr::Phone::NormalizeStr(const char * pOrgPhone, SString & rResult)
+uint FASTCALL PPEAddr::Phone::GenerateCheckNumber(const char * pOrgPhone, const char * pAddedumCode)
+{
+	return Helper_GeneratePhoneCheckNumber(pOrgPhone, pAddedumCode, 0);
+}
+
+//static
+int SLAPI PPEAddr::Phone::VerifyCheckNumber(const char * pOrgPhone, const char * pAddedumCode, uint checkedNumber)
+{
+	uint r = Helper_GeneratePhoneCheckNumber(pOrgPhone, pAddedumCode, checkedNumber);
+	return BIN(r == checkedNumber);
+}
+
+//static
+SString & FASTCALL PPEAddr::Phone::NormalizeStr(const char * pOrgPhone, SString & rResult)
 {
 	rResult = 0;
 	for(const uchar * p = (const uchar *)pOrgPhone; *p != 0; p++) {

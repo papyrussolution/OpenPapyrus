@@ -2821,7 +2821,7 @@ file:
 	access=1;
 }
 //
-// @todo Все индексы сделать не уникальными
+//
 //
 table GtaJournal {
 	date   Dt;
