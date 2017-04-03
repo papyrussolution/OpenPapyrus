@@ -5157,72 +5157,6 @@ int SLAPI FiasImporter::Run(FiasImporter::Param & rP)
 //
 //
 //
-SLAPI PPOsm::Node::Node()
-{
-	ID = 0;
-};
-
-SLAPI PPOsm::Way::Way()
-{
-	ID = 0;
-}
-
-SLAPI PPOsm::RelMember::RelMember()
-{
-	RefID = 0;
-	TypeSymbID = 0;
-	RoleSymbID = 0;
-}
-
-SLAPI PPOsm::Relation::Relation()
-{
-	ID = 0;
-}
-
-SLAPI PPOsm::Tag::Tag()
-{
-	KeySymbID = 0;
-	ValID = 0;
-}
-
-SLAPI PPOsm::PPOsm() : Ht(1024*1024, 0)
-{
-	LastSymbID = 0;
-}
-
-SLAPI PPOsm::~PPOsm()
-{
-}
-
-int SLAPI PPOsm::BuildHashAssoc()
-{
-	return Ht.BuildAssoc();
-}
-
-uint FASTCALL PPOsm::SearchSymb(const char * pSymb) const
-{
-	uint   val = 0;
-	uint   pos = 0;
-	return Ht.Search(pSymb, &val, &pos) ? val : 0;
-}
-
-uint FASTCALL PPOsm::CreateSymb(const char * pSymb)
-{
-	uint   val = 0;
-	uint   pos = 0;
-	if(!Ht.Search(pSymb, &val, &pos)) {
-        val = ++LastSymbID;
-        if(!Ht.Add(pSymb, val))
-			val = 0;
-	}
-	return val;
-}
-
-int SLAPI PPOsm::GetSymbByID(uint id, SString & rSymb) const
-{
-	return Ht.GetByAssoc(id, rSymb);
-}
-
 IMPLEMENT_PPFILT_FACTORY(PrcssrOsm); SLAPI PrcssrOsmFilt::PrcssrOsmFilt() : PPBaseFilt(PPFILT_PRCSSROSMPARAM, 0, 0)
 {
 	SetFlatChunk(offsetof(PrcssrOsmFilt, ReserveStart),
@@ -5960,6 +5894,15 @@ int PrcssrOsm::SortCbProc(const SFileSortProgressData * pInfo)
 	return 1;
 }
 
+static SString & MakeSuffixedTxtFileName(const SString & rSrcFileName, const char * pSuffix, SPathStruc & rPs, SString & rResult)
+{
+	rPs.Split(rSrcFileName);
+	rPs.Nam.CatChar('-').Cat(pSuffix);
+	rPs.Ext = "txt";
+	rPs.Merge(rResult);
+	return rResult;
+}
+
 int SLAPI PrcssrOsm::SortFile(const char * pSrcFileName, const char * pSuffix, CompFunc fcmp)
 {
 
@@ -6024,54 +5967,23 @@ int SLAPI PrcssrOsm::Run()
 				ps.Merge(log_file_name);
 			}
 			{
-				{
-					ps.Split(file_name);
-					ps.Nam.CatChar('-').Cat("lat");
-					ps.Ext = "txt";
-					ps.Merge(out_file_name);
-                    THROW_MEM(P_LatOutF = new SFile(out_file_name, SFile::mWrite));
-					THROW_SL(P_LatOutF->IsValid());
-				}
-				{
-					ps.Split(file_name);
-					ps.Nam.CatChar('-').Cat("lon");
-					ps.Ext = "txt";
-					ps.Merge(out_file_name);
-                    THROW_MEM(P_LonOutF = new SFile(out_file_name, SFile::mWrite));
-					THROW_SL(P_LonOutF->IsValid());
-				}
-				{
-					ps.Split(file_name);
-					ps.Nam.CatChar('-').Cat("tag");
-					ps.Ext = "txt";
-					ps.Merge(out_file_name);
-                    THROW_MEM(P_TagOutF = new SFile(out_file_name, SFile::mWrite));
-					THROW_SL(P_TagOutF->IsValid());
-				}
-				{
-					ps.Split(file_name);
-					ps.Nam.CatChar('-').Cat("tagnode");
-					ps.Ext = "txt";
-					ps.Merge(out_file_name);
-                    THROW_MEM(P_TagNodeOutF = new SFile(out_file_name, SFile::mWrite));
-					THROW_SL(P_TagNodeOutF->IsValid());
-				}
-				{
-					ps.Split(file_name);
-					ps.Nam.CatChar('-').Cat("tagway");
-					ps.Ext = "txt";
-					ps.Merge(out_file_name);
-                    THROW_MEM(P_TagWayOutF = new SFile(out_file_name, SFile::mWrite));
-					THROW_SL(P_TagWayOutF->IsValid());
-				}
-				{
-					ps.Split(file_name);
-					ps.Nam.CatChar('-').Cat("tagrel");
-					ps.Ext = "txt";
-					ps.Merge(out_file_name);
-                    THROW_MEM(P_TagRelOutF = new SFile(out_file_name, SFile::mWrite));
-					THROW_SL(P_TagRelOutF->IsValid());
-				}
+				THROW_MEM(P_LatOutF = new SFile(MakeSuffixedTxtFileName(file_name, "lat", ps, out_file_name), SFile::mWrite));
+				THROW_SL(P_LatOutF->IsValid());
+				//
+				THROW_MEM(P_LonOutF = new SFile(MakeSuffixedTxtFileName(file_name, "lon", ps, out_file_name), SFile::mWrite));
+				THROW_SL(P_LonOutF->IsValid());
+				//
+				THROW_MEM(P_TagOutF = new SFile(MakeSuffixedTxtFileName(file_name, "tag", ps, out_file_name), SFile::mWrite));
+				THROW_SL(P_TagOutF->IsValid());
+				//
+				THROW_MEM(P_TagNodeOutF = new SFile(MakeSuffixedTxtFileName(file_name, "tagnode", ps, out_file_name), SFile::mWrite));
+				THROW_SL(P_TagNodeOutF->IsValid());
+				//
+				THROW_MEM(P_TagWayOutF = new SFile(MakeSuffixedTxtFileName(file_name, "tagway", ps, out_file_name), SFile::mWrite));
+				THROW_SL(P_TagWayOutF->IsValid());
+				//
+				THROW_MEM(P_TagRelOutF = new SFile(MakeSuffixedTxtFileName(file_name, "tagrel", ps, out_file_name), SFile::mWrite));
+				THROW_SL(P_TagRelOutF->IsValid());
 			}
 			THROW_MEM(P_Ufp = new PPUserFuncProfiler(PPUPRF_OSMXMLPARSETAG));
 			PROFILE_START
@@ -6173,20 +6085,5 @@ int SLAPI DoProcessOsm(PrcssrOsmFilt * pFilt)
 			else
 				ok = PPErrorZ();
 	}
-	return ok;
-}
-//
-//
-//
-int SLAPI __Construct_OsmImporter(const char * pFileName)
-{
-	int    ok = 1;
-	PrcssrOsm prcssr;
-	PrcssrOsmFilt param;
-	param.SrcFileName = pFileName ? pFileName : "D:/Papyrus/Universe-HTT/DATA/OpenStreetMap/russia-latest.osm";
-	param.Flags |= PrcssrOsmFilt::fPreprocess;
-	THROW(prcssr.Init(&param));
-	THROW(prcssr.Run());
-	CATCHZOK
 	return ok;
 }

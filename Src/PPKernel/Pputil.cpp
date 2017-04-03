@@ -350,32 +350,32 @@ int SLAPI PPDimention::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pC
 //
 // Transaction managment
 //
-int FASTCALL PPStartTransaction(int * ta, int use_ta)
+int FASTCALL PPStartTransaction(int * pTa, int use_ta)
 {
-	*ta = 0;
-	// @v7.9.11 {
+	pTa = 0;
+	int    ok = 1;
 	if(use_ta < 0) {
 		use_ta = (DBS.GetTaState() == 1) ? 0 : 1;
 	}
-	// } @v7.9.11
 	if(use_ta) {
 		if(DBS.GetTLA().StartTransaction())
-			*ta = 1;
+			*pTa = 1;
 		else
-			return PPSetErrorDB();
+			ok = PPSetErrorDB();
 	}
-	return 1;
+	return ok;
 }
 
-int FASTCALL PPCommitWork(int * ta)
+int FASTCALL PPCommitWork(int * pTa)
 {
-	if(*ta) {
+	int    ok = 1;
+	if(*pTa) {
 		if(DBS.GetTLA().CommitWork())
-			*ta = 0;
+			*pTa = 0;
 		else
-			return PPSetErrorDB();
+			ok = PPSetErrorDB();
 	}
-	return 1;
+	return ok;
 }
 
 int FASTCALL PPRollbackWork(int * ta)

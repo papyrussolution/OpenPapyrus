@@ -886,6 +886,7 @@ class SCardFiltDialog : public TDialog {
 public:
 	SCardFiltDialog() : TDialog(DLG_SCARDFLT)
 	{
+		LastFlagsState = 0;
 		SetupCalPeriod(CTLCAL_SCARDFLT_TRNOVRPRD, CTL_SCARDFLT_TRNOVRPRD);
 		SetupCalPeriod(CTLCAL_SCARDFLT_ISSUE, CTL_SCARDFLT_ISSUE);
 		SetupCalPeriod(CTLCAL_SCARDFLT_EXPIRY, CTL_SCARDFLT_EXPIRY);
@@ -894,9 +895,10 @@ public:
 	int    getDTS(SCardFilt *);
 private:
 	DECL_HANDLE_EVENT;
-	int    SetupPerson(PPID series);
+	void   SetupPerson(PPID series);
 	void   SetupCtrls();
 
+	long   LastFlagsState;
 	SCardFilt Data;
 	PPObjSCardSeries ObjSCardSer;
 };
@@ -919,13 +921,17 @@ int SCardFiltDialog::setDTS(const SCardFilt * pData)
 		long   _f = 0;
 		if(Data.Ft_Closed < 0)
 			_f |= 0x01;
-		SETFLAG(_f, 0x02, (Data.Flags & SCardFilt::fShowOwnerAddrDetail));
-		SETFLAG(_f, 0x04, (Data.Flags & SCardFilt::fWithAddressOnly));
+		else if(Data.Ft_Closed > 0)
+			_f |= 0x02;
+		SETFLAG(_f, 0x04, (Data.Flags & SCardFilt::fShowOwnerAddrDetail));
+		SETFLAG(_f, 0x08, (Data.Flags & SCardFilt::fWithAddressOnly));
 		AddClusterAssoc(CTL_SCARDFLT_FLAGS, 0, 0x01);
 		AddClusterAssoc(CTL_SCARDFLT_FLAGS, 1, 0x02);
 		AddClusterAssoc(CTL_SCARDFLT_FLAGS, 2, 0x04);
+		AddClusterAssoc(CTL_SCARDFLT_FLAGS, 3, 0x08);
 		SetClusterData(CTL_SCARDFLT_FLAGS, _f);
-		DisableClusterItem(CTL_SCARDFLT_FLAGS, 2, !(_f & 0x02));
+		DisableClusterItem(CTL_SCARDFLT_FLAGS, 3, !(_f & 0x04));
+		LastFlagsState = _f;
 	}
 	SetRealRangeInput(this, CTL_SCARDFLT_PDISRANGE,   min_dis, max_dis);
 	SetRealRangeInput(this, CTL_SCARDFLT_TRNOVRRANGE, Data.MinTurnover, Data.MaxTurnover);
@@ -964,9 +970,14 @@ int SCardFiltDialog::getDTS(SCardFilt * pData)
 	{
 		long   _f = 0;
 		GetClusterData(CTL_SCARDFLT_FLAGS, &_f);
-		Data.Ft_Closed = (_f & 0x01) ? -1 : 0;
-		SETFLAG(Data.Flags, SCardFilt::fShowOwnerAddrDetail, (_f & 0x02));
-		SETFLAG(Data.Flags, SCardFilt::fWithAddressOnly,     (_f & 0x04));
+		if(_f & 0x01)
+			Data.Ft_Closed = -1;
+		else if(_f & 0x02)
+			Data.Ft_Closed = 1;
+		else
+			Data.Ft_Closed = 0;
+		SETFLAG(Data.Flags, SCardFilt::fShowOwnerAddrDetail, (_f & 0x04));
+		SETFLAG(Data.Flags, SCardFilt::fWithAddressOnly,     (_f & 0x08));
 	}
 	GetClusterData(CTL_SCARDFLT_ORD, &Data.Order);
 	getCtrlString(CTL_SCARDFLT_NUMBER, Data.Number);
@@ -987,7 +998,21 @@ IMPL_HANDLE_EVENT(SCardFiltDialog)
 	else if(event.isCmd(cmClusterClk) && event.isCtlEvent(CTL_SCARDFLT_FLAGS)) {
 		long   _f = 0;
 		GetClusterData(CTL_SCARDFLT_FLAGS, &_f);
-		DisableClusterItem(CTL_SCARDFLT_FLAGS, 2, !(_f & 0x02));
+		if(_f != LastFlagsState) {
+			const long preserve__f = _f;
+			if((_f & 0x01) != (LastFlagsState & 0x01)) {
+				if(_f & 0x01)
+					_f &= ~0x02;
+			}
+			else if((_f & 0x02) != (LastFlagsState & 0x02)) {
+				if(_f & 0x02)
+					_f &= ~0x01;
+			}
+			LastFlagsState = _f;
+			if(_f != preserve__f)
+				SetClusterData(CTL_SCARDFLT_FLAGS, _f);
+			DisableClusterItem(CTL_SCARDFLT_FLAGS, 3, !(_f & 0x04));
+		}
 	}
 	else if(event.isCmd(cmSysjFilt2)) {
 		SysJournalFilt sj_filt;
@@ -1040,7 +1065,7 @@ void SCardFiltDialog::SetupCtrls()
 	disableCtrl(CTL_SCARDFLT_ORD, BIN(Data.Flags & SCardFilt::fInnerFilter)); // @v8.4.3
 }
 
-int SCardFiltDialog::SetupPerson(PPID series)
+void SCardFiltDialog::SetupPerson(PPID series)
 {
 	PPID   psn_kind_id = 0;
 	PPSCardSerPacket pack;
@@ -1048,7 +1073,6 @@ int SCardFiltDialog::SetupPerson(PPID series)
 		psn_kind_id = pack.Rec.PersonKindID;
 	SETIFZ(psn_kind_id, PPPRK_CLIENT);
 	SetupPersonCombo(this, CTLSEL_SCARDFLT_PERSON, Data.PersonID, OLW_CANINSERT|OLW_LOADDEFONOPEN, psn_kind_id, 0);
-	return 1;
 }
 
 int SLAPI Helper_EditSCardFilt(SCardFilt * pFilt, int cascade)

@@ -1,9 +1,107 @@
 // PPGEO.CPP
-// Copyright (c) A.Sobolev 2015, 2016
+// Copyright (c) A.Sobolev 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
+//
+//
+//
+PPOsm::NodeTbl::NodeTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("geomap.db->node", BDbTable::idxtypHash, 0), pDb)
+{
+}
 
+PPOsm::NodeTbl::~NodeTbl()
+{
+}
+//
+//
+//
+SLAPI PPOsm::Node::Node()
+{
+	ID = 0;
+};
+
+SLAPI PPOsm::Way::Way()
+{
+	ID = 0;
+}
+
+SLAPI PPOsm::RelMember::RelMember()
+{
+	RefID = 0;
+	TypeSymbID = 0;
+	RoleSymbID = 0;
+}
+
+SLAPI PPOsm::Relation::Relation()
+{
+	ID = 0;
+}
+
+SLAPI PPOsm::Tag::Tag()
+{
+	KeySymbID = 0;
+	ValID = 0;
+}
+
+SLAPI PPOsm::PPOsm() : Ht(1024*1024, 0), Grid(12)
+{
+	LastSymbID = 0;
+}
+
+SLAPI PPOsm::~PPOsm()
+{
+}
+
+int SLAPI PPOsm::LoadGeoGrid()
+{
+    int    ok = -1;
+    SString path, filename;
+    PPGetPath(PPPATH_DD, path);
+    path.SetLastSlash();
+    (filename = path).Cat("planet-*-grid-12.txt");
+    SDirEntry de;
+    for(SDirec dir(filename, 0); dir.Next(&de) > 0;) {
+		if(de.IsFile()) {
+			(filename = path).Cat(de.FileName);
+			THROW_SL(Grid.Load(filename));
+		}
+    }
+    CATCHZOK
+    return ok;
+}
+
+int SLAPI PPOsm::BuildHashAssoc()
+{
+	return Ht.BuildAssoc();
+}
+
+uint FASTCALL PPOsm::SearchSymb(const char * pSymb) const
+{
+	uint   val = 0;
+	uint   pos = 0;
+	return Ht.Search(pSymb, &val, &pos) ? val : 0;
+}
+
+uint FASTCALL PPOsm::CreateSymb(const char * pSymb)
+{
+	uint   val = 0;
+	uint   pos = 0;
+	if(!Ht.Search(pSymb, &val, &pos)) {
+        val = ++LastSymbID;
+        if(!Ht.Add(pSymb, val))
+			val = 0;
+	}
+	return val;
+}
+
+int SLAPI PPOsm::GetSymbByID(uint id, SString & rSymb) const
+{
+	return Ht.GetByAssoc(id, rSymb);
+}
+//
+//
+//
 SLAPI PPGeoTrackItem::PPGeoTrackItem()
 {
 	THISZERO();
@@ -130,9 +228,6 @@ int SLAPI GeoTrackCore::PutChunk(const TSArray <PPGeoTrackItem> & rList, int use
 	CATCHZOK
 	return ok;
 }
-//
-//
-//
 //
 //
 //
@@ -534,3 +629,4 @@ int SLAPI PPViewGeoTracking::ProcessCommand(uint ppvCmd, const void * pHdr, PPVi
 	}
 	return (update > 0) ? ok : ((ok <= 0) ? ok : -1);
 }
+

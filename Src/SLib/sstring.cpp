@@ -3726,7 +3726,7 @@ int SString::IsLegalUtf8() const
 	int    ok = 1;
 	const  size_t _len = Len();
 	for(uint idx = 0; ok && idx < _len;) {
-		const uint8 * p = (const uint8 *)P_Buf[idx];
+		const uint8 * p = (const uint8 *)(P_Buf+idx);
 		const size_t extra = SUtfConst::TrailingBytesForUTF8[*p];
 		if(extra == 0)
 			idx++;
@@ -5837,6 +5837,13 @@ SLTEST_R(SString)
 					SLTEST_CHECK_Z(sstreqi_ascii(str, out_buf));
 				}
 			}
+		}
+		{
+			const char * p_test_string_1251 = "Захавай еще этих тупых французских булок";
+            str = p_test_string_1251;
+            SLTEST_CHECK_Z(str.IsLegalUtf8());
+            str.Transf(CTRANSF_OUTER_TO_UTF8);
+            SLTEST_CHECK_NZ(str.IsLegalUtf8());
 		}
 	}
 	CATCH

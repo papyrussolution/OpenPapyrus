@@ -2332,7 +2332,6 @@ int SLAPI CollectLldFileStat();
 int SLAPI ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt);
 void SLAPI TestSArchive();
 int  SLAPI TestLargeVlrInputOutput();
-int  SLAPI __Construct_OsmImporter(const char * pFileName);
 
 int SLAPI DoConstructionTest()
 {
@@ -2343,7 +2342,6 @@ int SLAPI DoConstructionTest()
 	//TestSuffixTree();
 	//TestFann();
 	//CollectLldFileStat();
-	__Construct_OsmImporter(0);
 	{
 		//TSCollection <PPBarcode::Entry> bc_list;
 		//PPBarcode::RecognizeImage("D:/Papyrus/Src/OSF/ZBAR/examples/barcode.png", bc_list);

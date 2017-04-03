@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147488933
+LastSignatureCode=2147488934
 LastAutoCodeList=1,10897;102,10160;103,10071;110,10000;111,11593;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10075;120,10005;1001,10000;121,10000;122,10000;123,10006;1002,10000;1003,10000;1004,10000;1005,10000
 
 [SignatureList]
@@ -4769,6 +4769,7 @@ scardfilt_trnovrperiod=2147487508
 scardfilt_pctdisrange=2147488413
 scardfilt_turnoverrange=2147488414
 scardfilt_ft_openonly=2147488415
+scardfilt_ft_closedonly=2147488934
 scardfilt_exclownerfilt=2147488416
 staffpostfilt_div=2147487358
 staffpostfilt_fclosedonly=2147487359

@@ -579,6 +579,7 @@ int SLAPI PPBaseFilt::PutSggMembToBuf(SubstGrpGoods sgg, const char * pMembName,
 		__ITEM(sggClsKind_Grade),
 		__ITEM(sggSuppl),
 		__ITEM(sggBrand),
+		__ITEM(sggType), // @v9.6.0
 		__ITEM(sggClsKind_Grade_AddObj),
 		__ITEM(sggClsKind_AddObj_Grade),
 		__ITEM(sggSupplAgent),

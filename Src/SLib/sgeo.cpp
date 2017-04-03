@@ -322,6 +322,81 @@ int FASTCALL SGeoPosLL_Int::FromStr(const char * pStr)
 //
 //
 //
+SLAPI  SGeoGridTab::Finder::Finder(const SGeoGridTab & rTab) : R_Tab(rTab)
+{
+	LastPosLat = 0;
+	LastPosLon = 0;
+}
+
+uint FASTCALL SGeoGridTab::Finder::GetIdxLat(long c)
+{
+	uint   idx = 0;
+	const long last_b = R_Tab.LatIdx.get(LastPosLat);
+	if(last_b >= c && (LastPosLat == 0 || R_Tab.LatIdx.get(LastPosLat-1) < c)) {
+		idx = LastPosLat;
+	}
+	else {
+		//
+		// @todo ћожно еще больше оптимизировать поиск - мы знаем некую граничную точку LastPosLat
+		// и результат ее сравнени€ с заданной координатой c. —ледовательно можно искать только
+		// слева или справа от LastPosLat.
+		//
+		if(!R_Tab.LatIdx.bsearch(c, &idx)) {
+			const long b = R_Tab.LatIdx.get(idx);
+			if(b < c)
+				idx++;
+		}
+		LastPosLat = idx;
+	}
+	return idx; 
+}
+
+uint FASTCALL SGeoGridTab::Finder::GetIdxLon(long c)
+{
+	uint   idx = 0;
+	const long last_b = R_Tab.LonIdx.get(LastPosLon);
+	if(last_b >= c && (LastPosLon == 0 || R_Tab.LatIdx.get(LastPosLon-1) < c)) {
+		idx = LastPosLon;
+	}
+	else {
+		//
+		// @todo ћожно еще больше оптимизировать поиск - мы знаем некую граничную точку LastPosLon
+		// и результат ее сравнени€ с заданной координатой c. —ледовательно можно искать только
+		// слева или справа от LastPosLon.
+		//
+		if(!R_Tab.LonIdx.bsearch(c, &idx)) {
+			const long b = R_Tab.LonIdx.get(idx);
+			if(b < c)
+				idx++;
+		}
+		LastPosLon = idx;
+	}
+	return idx; 
+}
+
+int SLAPI SGeoGridTab::Finder::GetIdx(const SGeoPosLL_Int & rC, uint & rIdxLat, uint & rIdxLon)
+{
+	rIdxLat = GetIdxLat(rC.GetIntLat());
+	rIdxLon = GetIdxLon(rC.GetIntLon());
+	return 1;
+}
+
+uint32 FASTCALL SGeoGridTab::Finder::GetZIdx32(const SGeoPosLL_Int & rC)
+{
+	uint idx_lat = 0;
+	uint idx_lon = 0;
+	GetIdx(rC, idx_lat, idx_lon);
+	return SZIndex2::Combine((uint16)(idx_lat & 0x0000ffff), (uint16)(idx_lon & 0x0000ffff));
+}
+
+uint64 FASTCALL SGeoGridTab::Finder::GetZIdx64(const SGeoPosLL_Int & rC)
+{
+	uint idx_lat = 0;
+	uint idx_lon = 0;
+	GetIdx(rC, idx_lat, idx_lon);
+	return SZIndex2::Combine((uint32)idx_lat, (uint32)idx_lon);
+}
+//
 SLAPI SGeoGridTab::SGeoGridTab(uint dim)
 {
 	assert(dim >= 4 && dim <= 32);

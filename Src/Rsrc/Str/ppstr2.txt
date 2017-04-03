@@ -4187,7 +4187,7 @@ PPTXT_SUBSTGOODSLIST              "1,Обобщение;2,@{group};3,@{manufactu
 	6,@{goodsclass_fusedimz};7,Вид;8,Сортность;9,@{classifier};10,Вид/Сортность;\
 	11,@{supplier};12,@{brand};13,Вид/Сортность/@{classifier};14,Вид/@{classifier}/Сортность;\
 	15,@{supplagent};16,@{warehouse};17,Владелец торговой марки;18,@{vatrate};19,Ставка НДС в ценах поступления;20,Категория алкогольной продукции;\
-	21,@{goodsclass_fusedimw};22,Место хранения, ассоциированное с товаром"
+	21,@{goodsclass_fusedimw};22,Место хранения, ассоциированное с товаром;23,@{goods_type}"
 PPTXT_SUBSTPERSONLIST             "1,@{city};2,@{region};3,@{country};4,@{category};5,Агент по документу;6,@{freightagent};7,Таблица статей"
 PPTXT_SUBSTDATELIST               "1,@{week};2,@{month};3,Квартал;4,@{year}"
 PPTXT_SUBSTSCARDLIST              "1,@{series};2,@{owner}"
@@ -10168,6 +10168,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @scardfilt_pctdisrange                    "Диапазон процента скидки"
 @scardfilt_turnoverrange                  "Диапазон суммы оборотов"
 @scardfilt_ft_openonly                    "Только открытые"
+@scardfilt_ft_closedonly                  "Только закрытые"
 @scardfilt_exclownerfilt                  "Исключить владельцев карт по фильтру"
 
 @staffpostfilt_div                        "@{division}"

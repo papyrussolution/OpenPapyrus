@@ -1933,6 +1933,11 @@ int SLAPI PPObjGoods::SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, 
 					goods_id = temp_grec.ParentID;
 			}
 		}
+		// @v9.6.0 {
+		else if(sgg == sggType) {
+			goods_id = (goods_rec.GoodsTypeID | GOODSSUBSTMASK);
+		}
+		// } @v9.6.0
 		else if(sgg == sggBrand)
 			goods_id = goods_rec.BrandID;
 		else if(sgg == sggBrandOwner) {
@@ -2067,20 +2072,26 @@ int SLAPI PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstL
 	}
 	// @v8.4.4 {
 	else if(sgg == sggAlcoCategory) {
-		if(pGsl)
-			pGsl->GetAlcoCategoryText(id, rBuf);
+		CALLPTRMEMB(pGsl, GetAlcoCategoryText(id, rBuf));
 	}
 	// } @v8.4.4
 	// @v8.6.1 {
 	else if(sgg == sggLocAssoc) {
-		if(pGsl)
-			pGsl->GetLocAssocText(id, rBuf);
+		CALLPTRMEMB(pGsl, GetLocAssocText(id, rBuf));
 	}
 	// } @v8.6.1
 	else if(oneof4(sgg, sggNone, sggGeneric, sggGroup, sggBrand) || sgg >= sggGroupSecondLvl || !(id & GOODSSUBSTMASK)) {
 		// @v9.5.5 GetGoodsName(id, rBuf);
 		FetchNameR(id, rBuf); // @v9.5.5
 	}
+	// @v9.6.0 {
+	else if(sgg == sggType) {
+		PPObjGoodsType gt_obj;
+		PPGoodsType gt_rec;
+		if(gt_obj.Fetch(id & ~GOODSSUBSTMASK, &gt_rec) > 0)
+			rBuf = gt_rec.Name;
+	}
+	// } @v9.6.0
 	else if(sgg == sggBrandOwner) {
 		GetPersonName(id & ~GOODSSUBSTMASK, rBuf);
 	}
@@ -2201,9 +2212,9 @@ int SLAPI PPObjGoods::GetPhUPerU(const Goods2Tbl::Rec * pRec, PPID * pPhUnitID, 
 {
 	int    ok = -1;
 	PPID   ph_unit_id = 0;
-	double phuperu = 0;
+	double phuperu = 0.0;
 	PPUnit unit_rec;
-	if(pRec)
+	if(pRec) {
 		if(pRec->PhUnitID && pRec->PhUPerU > 0) {
 			ph_unit_id = pRec->PhUnitID;
 			phuperu    = pRec->PhUPerU;
@@ -2211,9 +2222,10 @@ int SLAPI PPObjGoods::GetPhUPerU(const Goods2Tbl::Rec * pRec, PPID * pPhUnitID, 
 		}
 		else if(FetchUnit(pRec->UnitID, &unit_rec) > 0) {
 			ph_unit_id = pRec->UnitID;
-			phuperu = 1;
+			phuperu = 1.0;
 			ok = 1;
 		}
+	}
 	ASSIGN_PTR(pPhUnitID, ph_unit_id);
 	ASSIGN_PTR(pPhUPerU, phuperu);
 	return ok;

@@ -2379,6 +2379,7 @@ enum SubstGrpGoods { // @persistent
 		// Доступно только в случае, если правильно определенаконфигруация алкогольной декларации
 	sggDimW,               // @v8.6.1 Размерность W
 	sggLocAssoc,           // @v8.6.1 Ассоциированное с товаром место хранения //
+	sggType,               // @v9.6.0 Тип товара
 	sggGroupSecondLvl = 100,   // PPObjGoodsGroup Группа уровня 2 и далее идут группы уровня 2 и т.д.
 	sggTagBias        = 100000 // @v7.5.4 Смещение для группировки по тегам товаров.
 };
@@ -44935,6 +44936,21 @@ public:
         uint   KeySymbID; // Идентификатор символа
         uint64 ValID;     // Идентификатор значения (в варианте теста все значения хранятся в таблице символов)
     };
+	class NodeTbl : public BDbTable {
+	public:
+		NodeTbl(BDbDatabase * pDb);
+		~NodeTbl();
+	};
+	class WayTbl : public BDbTable {
+	public:
+		WayTbl(BDbDatabase * pDb);
+		~WayTbl();
+	};
+	class RelTbl : public BDbTable {
+	public:
+		RelTbl(BDbDatabase * pDb);
+		~RelTbl();
+	};
 
 	SLAPI  PPOsm();
 	SLAPI ~PPOsm();
@@ -44942,9 +44958,11 @@ public:
 	uint   FASTCALL CreateSymb(const char * pSymb);
 	int    SLAPI GetSymbByID(uint id, SString & rSymb) const;
 	int    SLAPI BuildHashAssoc();
+	int    SLAPI LoadGeoGrid();
 private:
 	uint   LastSymbID;
 	SymbHashTable Ht;
+	SGeoGridTab Grid;
 };
 
 class PrcssrOsmFilt : public PPBaseFilt { // @persistent

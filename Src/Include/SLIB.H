@@ -11413,6 +11413,29 @@ public:
 //
 class SGeoGridTab {
 public:
+	//
+	// Descr: ѕодкласс Finder необходим дл€ обеспечени€ константности экземпл€ра
+	//   SGeoGridTab при поиске значений решетки.
+	// Note: Ўтатный поиск осуществл€етс€ бинарным методом, однако, мы воспользуемс€
+	//   высокой локальностью запрашиваемых точек и прежде всего будем искать требуемое
+	//   значение в той €чейке, котора€ была запрошена предыдущим вызовом.
+	//
+	class Finder {
+	public:
+		SLAPI  Finder(const SGeoGridTab & rTab);
+        uint   FASTCALL GetIdxLat(long lat);
+        uint   FASTCALL GetIdxLon(long lon);
+        int    SLAPI GetIdx(const SGeoPosLL_Int & rC, uint & rIdxLat, uint & rIdxLon);
+        uint32 FASTCALL GetZIdx32(const SGeoPosLL_Int & rC);
+        uint64 FASTCALL GetZIdx64(const SGeoPosLL_Int & rC);
+	private:
+		const SGeoGridTab & R_Tab;
+        uint   LastPosLat;
+        uint   LastPosLon;
+	};
+
+	friend class SGeoGridTab::Finder;
+
 	SLAPI  SGeoGridTab(uint dim);
 	int    FASTCALL IsEqual(const SGeoGridTab & rS) const;
 	int    FASTCALL operator == (const SGeoGridTab & rS) const;
