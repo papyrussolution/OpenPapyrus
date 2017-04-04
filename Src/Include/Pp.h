@@ -35696,7 +35696,8 @@ public:
 	enum {
 		fDeleteRecentBills = 0x0001, // BALTIKA only
 		fFlatStruc         = 0x0002,
-		fRepeatProcessing  = 0x0004  // @v9.5.7 Флаг повторного процессинга уже обработанных данных (применение зависит от операции и провайдера)
+		fRepeatProcessing  = 0x0004, // @v9.5.7 Флаг повторного процессинга уже обработанных данных (применение зависит от операции и провайдера)
+		fTestMode          = 0x0008  // @v9.6.0 Тестовый режим
 	};
     uint8  ReserveStart[24]; // @anchor
     float  SpcDisPct1; // Специальная скидка 1, %
@@ -44878,56 +44879,90 @@ public:
 		{
 			return (uint8)((V & 0xff000000) >> 24);
 		}
+		uint32 SLAPI GetZValue() const
+		{
+            return (V & 0x00ffffff);
+		}
 
 		uint32 V;
 	};
     struct Node {
     	SLAPI  Node();
 
-    	int64  ID;
+    	uint64 ID;
 		Tile   T;
 		SGeoPosLL_Int C;
     };
-	class NodePack : public SBaseBuffer {
+	class NodeCluster : public SBaseBuffer {
 	public:
-		SLAPI  NodePack()
-		{
-			SBaseBuffer::Init();
-		}
-		SLAPI ~NodePack()
-		{
-			SBaseBuffer::Destroy();
-		}
+		/*
+			// Заголовок определяющий заголовочную точку и параметры всего кластера
+			Indicator : byte
+			ID        : uint32 || uint64
+			Tile      : uint32
+			Lat       : int32
+			Lon       : int32
+			// Последующие точки
+			[
+				{
+					InferiorIndicator : byte
+					Lat               : int8 || int16 || int32
+					Lon               : int8 || int16 || int32
+					TileLevel         : byte || 0
+				}
+			]
+			// Связанные с точками объекты
+			[
+
+				{
+					LinkIndicator : byte
+					NodePos       : byte
+                    ID            : int32 || int64
+				}
+			]
+		*/
+		SLAPI  NodeCluster();
+		SLAPI ~NodeCluster();
+        static uint FASTCALL GetPossiblePackCount(const Node * pN, size_t count);
+        int    SLAPI Put(const Node * pN, size_t count, size_t * pActualCount);
 		int    FASTCALL Set(const TSArray <Node> * pList);
 		int    FASTCALL Get(TSArray <Node> & rList) const;
 	private:
 		enum {
-			indfId32        = 0x0001, // Идентификатор точки представлен 32-битным значением
-			indfFlwCoordInc = 0x0002, // Координаты точек, следующих за заглавной представлены инкрементом
-				// относительно предыдущей точки в 16-битном варажении
-			indfCountMask   = (0x0004 | 0x0008), // Маска битов, представляющих количество точек в пакете.
-				// 0: 1, 1: 4, 2: 8, 3: 16
+			indfCountMask   = (0x01 | 0x02 | 0x04), // Маска битов, представляющих количество точек в пакете.
+				// 0: 1, 1: 2, 2: 4, 3: 8, 4: 16, 5: 32, 6: 64, 7: 128
+			indfId32        = 0x08, // Идентификатор точки представлен 32-битным значением
 		};
-		//
-		// [indicator] [id] [coord] [[dot]..[dot]]
-		//
-		void * P_Data;
+		enum {
+			infindfEmpty         = 0x01, // Точка отсутствует (пропуск идентификатора). Все остальные флаги в этом случае незначимы.
+			infindfPrevLatIncr8  = 0x02, // Широта представлена int8-инкрементом относительно предыдущей точки
+			infindfPrevLatIncr16 = 0x04, // Широта представлена int16-инкрементом относительно предыдущей точки
+			infindfPrevLonIncr8  = 0x08, // Долгота представлена int8-инкрементом относительно предыдущей точки
+			infindfPrevLonIncr16 = 0x10, // Долгота представлена int16-инкрементом относительно предыдущей точки
+			infindfHasTags       = 0x20, // Точка имеет теги
+			infindfHasLinks      = 0x40, // Точка имеет связанные с ней иные объекты (Way or Relation)
+			infindfDiffTileLevel = 0x80  // Точка имеет отличный от заголовочной уровень тайла
+		};
+		enum {
+			linkindfLinkKindMask = (0x01 | 0x02 | 0x04),
+			linkindfId32         = 0x10
+		};
 	};
     struct Way {
     	SLAPI  Way();
-		int64  ID;
+		uint64 ID;
 		Tile   T;
 		Int64Array NodeRefList;
     };
 	struct RelMember {
 		SLAPI  RelMember();
-		int64  RefID;
+		uint64 RefID;
 		uint   TypeSymbID;
 		uint   RoleSymbID;
 	};
     struct Relation {
     	SLAPI  Relation();
-		int64  ID;
+		uint64 ID;
 		Tile   T;
 		TSArray <RelMember> MembList;
     };
@@ -44938,8 +44973,11 @@ public:
     };
 	class NodeTbl : public BDbTable {
 	public:
-		NodeTbl(BDbDatabase * pDb);
-		~NodeTbl();
+		SLAPI  NodeTbl(BDbDatabase * pDb);
+		SLAPI ~NodeTbl();
+        int    SLAPI Add(const NodeCluster & rNc);
+        int    SLAPI Get(Tile tl, TSArray <Node> & rList);
+        int    SLAPI Get(Tile tlLow, Tile tlUpp, TSArray <Node> & rList);
 	};
 	class WayTbl : public BDbTable {
 	public:

@@ -585,6 +585,110 @@ void SLAPI SBaseBuffer::Set(void * pBuf, size_t size)
 	P_Buf = (char *)pBuf;
 	Size = size;
 }
+
+int SLAPI SBaseBuffer::Put(size_t offs, const void * pSrc, size_t size)
+{
+	assert(pSrc);
+	int    ok = 1;
+    size_t new_size = offs + size;
+    if(new_size <= Size || Alloc(new_size)) {
+        memcpy(PTR8(P_Buf)+offs, pSrc, size);
+    }
+    else
+		ok = 0;
+	return ok;
+}
+
+int SLAPI SBaseBuffer::Put(size_t offs, uint8 v)
+{
+    return Put(offs, &v, sizeof(v));
+}
+
+int SLAPI SBaseBuffer::Put(size_t offs, uint16 v)
+{
+	return Put(offs, &v, sizeof(v));
+}
+
+int SLAPI SBaseBuffer::Put(size_t offs, uint32 v)
+{
+	return Put(offs, &v, sizeof(v));
+}
+
+int SLAPI SBaseBuffer::Put(size_t offs, uint64 v)
+{
+	return Put(offs, &v, sizeof(v));
+}
+
+int SLAPI SBaseBuffer::Put(size_t offs, int8 v)
+{
+	return Put(offs, &v, sizeof(v));
+}
+
+int SLAPI SBaseBuffer::Put(size_t offs, int16 v)
+{
+	return Put(offs, &v, sizeof(v));
+}
+
+int SLAPI SBaseBuffer::Put(size_t offs, int32 v)
+{
+	return Put(offs, &v, sizeof(v));
+}
+
+int SLAPI SBaseBuffer::Put(size_t offs, int64 v)
+{
+	return Put(offs, &v, sizeof(v));
+}
+
+int SLAPI SBaseBuffer::Get(size_t offs, void * pDest, size_t size) const
+{
+	int    ok = 1;
+    if((offs + size) <= Size) {
+        memcpy(pDest, PTR8(P_Buf)+offs, size);
+    }
+    else
+		ok = SLS.SetError(SLERR_BUFTOOSMALL);
+	return ok;
+}
+
+int SLAPI SBaseBuffer::Get(size_t offs, uint8 & rV) const
+{
+	return Get(offs, &rV, sizeof(rV));
+}
+
+int SLAPI SBaseBuffer::Get(size_t offs, uint16 & rV) const
+{
+	return Get(offs, &rV, sizeof(rV));
+}
+
+int SLAPI SBaseBuffer::Get(size_t offs, uint32 & rV) const
+{
+	return Get(offs, &rV, sizeof(rV));
+}
+
+int SLAPI SBaseBuffer::Get(size_t offs, uint64 & rV) const
+{
+	return Get(offs, &rV, sizeof(rV));
+}
+
+int SLAPI SBaseBuffer::Get(size_t offs, int8 & rV) const
+{
+	return Get(offs, &rV, sizeof(rV));
+}
+
+int SLAPI SBaseBuffer::Get(size_t offs, int16 & rV) const
+{
+	return Get(offs, &rV, sizeof(rV));
+}
+
+int SLAPI SBaseBuffer::Get(size_t offs, int32 & rV) const
+{
+	return Get(offs, &rV, sizeof(rV));
+}
+
+int SLAPI SBaseBuffer::Get(size_t offs, int64 & rV) const
+{
+	return Get(offs, &rV, sizeof(rV));
+}
 //
 //
 //

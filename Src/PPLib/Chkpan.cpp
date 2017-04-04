@@ -3291,6 +3291,13 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 	else if(CnSpeciality == PPCashNode::spDelivery) {
 		setButtonBitmap(cmChkPanF1, IDB_DELIVERY);
 	}
+	// @v9.6.0 {
+	else if(oneof2(CnSpeciality, PPCashNode::spApteka, PPCashNode::spShop)) {
+		showButton(cmSelTable, 0);
+		showButton(cmChkPanPrint, 0);
+		showButton(cmToLocPrinters, 0);
+	}
+	// } @v9.6.0 
 	LastCtrlID = 0;
 }
 

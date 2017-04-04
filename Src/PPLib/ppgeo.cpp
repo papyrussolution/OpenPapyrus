@@ -6,6 +6,104 @@
 //
 //
 //
+/*
+	// Заголовок определяющий заголовочную точку и параметры всего кластера
+	Indicator
+	ID
+	Tile
+	Lat
+	Lon
+	// Последующие точки
+	[
+		{
+			InferiorIndicator : byte
+			Lat               : int8 || int16 || int32
+			Lon               : int8 || int16 || int32
+			TileLevel         : byte || 0
+		}
+	]
+	// Связанные с точками объекты
+	[
+
+		{
+			LinkIndicator : byte
+			NodePos       : byte
+			ID            : int32 || int64
+		}
+	]
+*/
+SLAPI PPOsm::NodeCluster::NodeCluster()
+{
+	SBaseBuffer::Init();
+}
+
+SLAPI PPOsm::NodeCluster::~NodeCluster()
+{
+	SBaseBuffer::Destroy();
+}
+
+//static
+uint FASTCALL PPOsm::NodeCluster::GetPossiblePackCount(const Node * pN, size_t count)
+{
+	uint   possible_count = 0;
+	const  int64 id = pN->ID;
+	static const uint __row[] = { 128, 64, 32, 16, 8, 4, 2, 1 };
+	for(size_t i = 0; i < SIZEOFARRAY(__row); i++) {
+		const uint r = __row[i];
+		if((id & (r-1)) == id && count >= r) {
+			possible_count = 1;
+			if(r > 1) {
+				uint prev_zvalue = pN[0].T.GetZValue();
+				for(uint j = 1; j < r; j++) {
+					const uint zval = pN[j].T.GetZValue();
+					if(zval != prev_zvalue) {
+						for(size_t k = i; k > 0; k--) {
+							if(j >= __row[k]) {
+								possible_count = __row[k];
+								break;
+							}
+						}
+						break;
+					}
+					else
+						prev_zvalue = zval;
+				}
+			}
+			break;
+		}
+	}
+	return possible_count;
+}
+
+int SLAPI PPOsm::NodeCluster::Put(const Node * pN, size_t count, size_t * pActualCount)
+{
+	int    ok = 1;
+	const  uint possible_count = GetPossiblePackCount(pN, count);
+    {
+    	uint8 indicator = 0;
+        switch(possible_count) {
+        	case 128: indicator = 7; break;
+        	case 64: indicator = 6; break;
+        	case 32: indicator = 5; break;
+        	case 16: indicator = 4; break;
+        	case 8: indicator = 3; break;
+        	case 4: indicator = 2; break;
+        	case 2: indicator = 1; break;
+        	case 1: indicator = 0; break;
+        	default:
+				CALLEXCEPT(); // invalid count
+        }
+        if(pN[0].ID <= ULONG_MAX) {
+			indicator |= indfId32;
+        }
+        //Put()
+    }
+    CATCHZOK
+	return ok;
+}
+//
+//
+//
 PPOsm::NodeTbl::NodeTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("geomap.db->node", BDbTable::idxtypHash, 0), pDb)
 {
 }

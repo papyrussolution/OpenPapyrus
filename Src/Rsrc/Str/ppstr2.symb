@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147488934
+LastSignatureCode=2147488935
 LastAutoCodeList=1,10897;102,10160;103,10071;110,10000;111,11593;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10075;120,10005;1001,10000;121,10000;122,10000;123,10006;1002,10000;1003,10000;1004,10000;1005,10000
 
 [SignatureList]
@@ -4857,6 +4857,7 @@ supplixfilt_acn_imporder=2147487665
 supplixfilt_acn_impdesadv=2147487666
 supplixfilt_fdeleterecentbills=2147487871
 supplixfilt_frepeatprocessing=2147488884
+supplixfilt_ftestmode=2147488935
 supplixfilt_param=2147488671
 debttrovrfilt=2147488672
 debttrovrfilt_flags=2147487672

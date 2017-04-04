@@ -4780,7 +4780,9 @@ int SLAPI InputStringDialog(PPInputStringDialogParam * pParam, SString & rBuf)
 			if(pParam->InputTitle.NotEmpty())
 				dlg->setLabelText(CTL_INPUT_STR, pParam->InputTitle);
 		}
-		dlg->setCtrlString(CTL_INPUT_STR, rBuf);
+		{
+			dlg->setCtrlString(CTL_INPUT_STR, rBuf);
+		}
 		if(pParam) {
 			if(pParam->Flags & pParam->fDisableSelection) {
 				TInputLine * il = (TInputLine*)dlg->getCtrlView(CTL_INPUT_STR);

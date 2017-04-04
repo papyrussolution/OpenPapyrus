@@ -4459,6 +4459,27 @@ struct SBaseBuffer {
 	void   SLAPI Zero();
 	void   SLAPI Set(void * pBuf, size_t size);
 	int    FASTCALL Alloc(size_t sz);
+	//
+	int    SLAPI Put(size_t offs, const void * pSrc, size_t size);
+    int    SLAPI Put(size_t offs, uint8 v);
+    int    SLAPI Put(size_t offs, uint16 v);
+    int    SLAPI Put(size_t offs, uint32 v);
+    int    SLAPI Put(size_t offs, uint64 v);
+    int    SLAPI Put(size_t offs, int8 v);
+    int    SLAPI Put(size_t offs, int16 v);
+    int    SLAPI Put(size_t offs, int32 v);
+    int    SLAPI Put(size_t offs, int64 v);
+
+    int    SLAPI Get(size_t offs, void * pDest, size_t size) const;
+    int    SLAPI Get(size_t offs, uint8 & rV) const;
+    int    SLAPI Get(size_t offs, uint16 & rV) const;
+    int    SLAPI Get(size_t offs, uint32 & rV) const;
+    int    SLAPI Get(size_t offs, uint64 & rV) const;
+    int    SLAPI Get(size_t offs, int8 & rV) const;
+    int    SLAPI Get(size_t offs, int16 & rV) const;
+    int    SLAPI Get(size_t offs, int32 & rV) const;
+    int    SLAPI Get(size_t offs, int64 & rV) const;
+	//
 	size_t Size;
 	char * P_Buf;
 };

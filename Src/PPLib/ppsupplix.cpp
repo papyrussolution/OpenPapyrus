@@ -2367,6 +2367,7 @@ public:
 
 		AddClusterAssoc(CTL_SUPPLIX_FLAGS, 0, SupplInterchangeFilt::fDeleteRecentBills); // @v9.2.5
 		AddClusterAssoc(CTL_SUPPLIX_FLAGS, 1, SupplInterchangeFilt::fRepeatProcessing); // @v9.5.7
+		AddClusterAssoc(CTL_SUPPLIX_FLAGS, 2, SupplInterchangeFilt::fTestMode); // @v9.6.0
 		SetClusterData(CTL_SUPPLIX_FLAGS, Data.Flags); // @v9.2.5
 
 		SetPeriodInput(this, CTL_SUPPLIX_EXPPRD, &Data.ExpPeriod);
@@ -3831,11 +3832,14 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 			{
 				if(cancel_code.NotEmpty()) {
 					p_new_pack->iSalesId = cancel_code;
+					p_new_pack->iSalesId.Transf(CTRANSF_INNER_TO_UTF8);
+					Debug_TestUtfText(p_new_pack->iSalesId, "makebillentry-7", R_Logger); // @v9.5.11
 					// @v9.3.10 {
 					LDATE   prev_date;
 					Helper_Parse_iSalesIdent(cancel_code, temp_buf, &prev_date);
 					if(temp_buf.NotEmptyS() && checkdate(prev_date, 0)) {
-						(p_new_pack->Code = temp_buf).Transf(CTRANSF_INNER_TO_UTF8);
+						p_new_pack->Code = temp_buf;
+						p_new_pack->Code.Transf(CTRANSF_INNER_TO_UTF8);
 						Debug_TestUtfText(p_new_pack->Code, "makebillentry-3", R_Logger); // @v9.5.11
 						p_new_pack->Dtm.Set(prev_date, ZEROTIME);
 					}
@@ -3843,9 +3847,9 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 				}
 				else {
 					Helper_Make_iSalesIdent(pack.Rec, outerDocType, p_new_pack->iSalesId);
+					p_new_pack->iSalesId.Transf(CTRANSF_INNER_TO_UTF8);
+					Debug_TestUtfText(p_new_pack->iSalesId, "makebillentry-7/2", R_Logger); // @v9.5.11
 				}
-				p_new_pack->iSalesId.Transf(CTRANSF_INNER_TO_UTF8);
-				Debug_TestUtfText(p_new_pack->iSalesId, "makebillentry-7", R_Logger); // @v9.5.11
 			}
 			p_new_pack->IncDtm.SetZero();
 			pack.Pays.GetLast(&p_new_pack->DueDate, 0, 0);
@@ -4253,7 +4257,53 @@ int SLAPI iSalesPepsi::SendInvoices()
             }
 		}
     }
-	if(outp_packet.getCount()) {
+	if(LogFileName.NotEmpty()) {
+		SString dump_file_name;
+		SPathStruc ps;
+		ps.Split(LogFileName);
+		ps.Nam.CatChar('-').Cat("dumb").CatChar('-').Cat("invoices");
+		ps.Merge(dump_file_name);
+		SFile f_out_log(dump_file_name, SFile::mAppend);
+		if(f_out_log.IsValid()) {
+			f_out_log.WriteLine(0);
+			for(uint i = 0; i < outp_packet.getCount(); i++) {
+				const iSalesBillPacket * p_pack = outp_packet.at(i);
+				if(p_pack) {
+					(msg_buf = 0).
+						CatEq("NativeID", p_pack->NativeID).CatDiv(';').
+						CatEq("iSalesId", p_pack->iSalesId).CatDiv(';').
+						CatEq("DocType", (long)p_pack->DocType).CatDiv(';').
+						CatEq("ExtDocType", (long)p_pack->ExtDocType).CatDiv(';').
+						CatEq("Status", (long)p_pack->Status).CatDiv(';').
+						CatEq("Code", p_pack->Code).CatDiv(';').
+						CatEq("ExtCode", p_pack->ExtCode).CatDiv(';').
+						CatEq("Dtm", p_pack->Dtm.d, DATF_DMY|DATF_CENTURY).CatDiv(';').
+						CatEq("IncDtm", p_pack->IncDtm.d, DATF_DMY|DATF_CENTURY).CatDiv(';').
+						CatEq("ExtDtm", p_pack->ExtDtm.d, DATF_DMY|DATF_CENTURY).CatDiv(';').
+						CatEq("CreationDtm", p_pack->CreationDtm.d, DATF_DMY|DATF_CENTURY).CatDiv(';').
+						CatEq("LastUpdDtm", p_pack->LastUpdDtm.d, DATF_DMY|DATF_CENTURY).CatDiv(';').
+						CatEq("DueDate", p_pack->DueDate, DATF_DMY|DATF_CENTURY).CatDiv(';').
+						CatEq("ShipFrom", p_pack->ShipFrom).CatDiv(';').
+						CatEq("ShipTo", p_pack->ShipTo).CatDiv(';').
+						CatEq("SellerCode", p_pack->SellerCode).CatDiv(';').
+						CatEq("PayerCode", p_pack->PayerCode).CatDiv(';').
+						CatEq("Memo", p_pack->Memo).CatDiv(';').
+						CatEq("SrcLocCode", p_pack->SrcLocCode).CatDiv(';').
+						CatEq("DestLocCode", p_pack->DestLocCode).CatDiv(';').
+						CatEq("AgentCode", p_pack->AgentCode).CatDiv(';').
+						CatEq("AuthId", p_pack->AuthId).CatDiv(';').
+						CatEq("EditId", p_pack->EditId).CatDiv(';').
+						CatEq("ErrMsg", p_pack->ErrMsg).CatDiv(';');
+					//PPLogMessage(LogFileName, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+					f_out_log.WriteLine(msg_buf.CR());
+				}
+			}
+		}
+	}
+	if(P.Flags & P.fTestMode) {
+
+	}
+	else if(outp_packet.getCount()) {
 		SString tech_buf;
 		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
 		{
@@ -5362,7 +5412,8 @@ int SLAPI PrcssrSupplInterchange::ExecuteBlock::Debug_TestUtfText(const SString 
 		msg_buf.Printf(fmt_buf, rText.cptr());
 		if(pAddendum)
 			msg_buf.CatDiv(':', 2).Cat(pAddendum);
-        rLogger.Log(msg_buf);
+        //rLogger.Log(msg_buf);
+        PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 		ok = 0;
 	}
 	else if(rText.StrChr('?', 0)) {
@@ -5370,7 +5421,8 @@ int SLAPI PrcssrSupplInterchange::ExecuteBlock::Debug_TestUtfText(const SString 
 		msg_buf.Printf(fmt_buf, rText.cptr());
 		if(pAddendum)
 			msg_buf.CatDiv(':', 2).Cat(pAddendum);
-        rLogger.Log(msg_buf);
+        //rLogger.Log(msg_buf);
+        PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 		ok = 0;
 	}
 	return ok;

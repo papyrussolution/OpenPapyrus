@@ -352,7 +352,7 @@ int SLAPI PPDimention::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pC
 //
 int FASTCALL PPStartTransaction(int * pTa, int use_ta)
 {
-	pTa = 0;
+	*pTa = 0;
 	int    ok = 1;
 	if(use_ta < 0) {
 		use_ta = (DBS.GetTaState() == 1) ? 0 : 1;
@@ -378,10 +378,10 @@ int FASTCALL PPCommitWork(int * pTa)
 	return ok;
 }
 
-int FASTCALL PPRollbackWork(int * ta)
+int FASTCALL PPRollbackWork(int * pTa)
 {
-	if(*ta) {
-		*ta = 0;
+	if(*pTa) {
+		*pTa = 0;
 		if(!DBS.GetTLA().RollbackWork())
 			return PPSetErrorDB();
 	}
