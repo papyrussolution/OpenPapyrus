@@ -317,6 +317,8 @@ size_t SLAPI SBuffer::ReadTermStr(const char * pTerm, SString & rBuf)
 
 int FASTCALL SBuffer::WriteByte(char r)          { return Write(&r, sizeof(r)); }
 int FASTCALL SBuffer::Read(char & r)             { return ReadV(&r, sizeof(r)); }
+int FASTCALL SBuffer::Write(const int8 & v)      { return Write(&v, sizeof(v)); }
+int FASTCALL SBuffer::Read(int8 & v)             { return ReadV(&v, sizeof(v)); }
 int FASTCALL SBuffer::Write(const uint8 & v)     { return Write(&v, sizeof(v)); }
 int FASTCALL SBuffer::Read(uint8 & v)            { return ReadV(&v, sizeof(v)); }
 int FASTCALL SBuffer::Write(const uint16 & v)    { return Write(&v, sizeof(v)); }
@@ -325,6 +327,8 @@ int FASTCALL SBuffer::Write(const int16 & v)     { return Write(&v, sizeof(v)); 
 int FASTCALL SBuffer::Read(int16 & v)            { return ReadV(&v, sizeof(v)); }
 int FASTCALL SBuffer::Write(const int64 & v)     { return Write(&v, sizeof(v)); }
 int FASTCALL SBuffer::Read(int64 & v)            { return ReadV(&v, sizeof(v)); }
+int FASTCALL SBuffer::Write(const uint64 & v)    { return Write(&v, sizeof(v)); }
+int FASTCALL SBuffer::Read(uint64 & v)           { return ReadV(&v, sizeof(v)); }
 int FASTCALL SBuffer::Write(const long & v)      { return Write(&v, sizeof(v)); }
 int FASTCALL SBuffer::Read(long & v)             { return ReadV(&v, sizeof(v)); }
 int FASTCALL SBuffer::Write(const ulong & v)     { return Write(&v, sizeof(v)); }

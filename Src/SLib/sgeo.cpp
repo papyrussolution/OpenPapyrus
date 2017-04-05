@@ -301,6 +301,13 @@ int SGeoPosLL_Int::Set(double lat, double lon)
 	return Valid();
 }
 
+int SGeoPosLL_Int::SetInt(long lat, long lon)
+{
+	Lat = lat;
+	Lon = lon;
+	return Valid();
+}
+
 int SGeoPosLL_Int::Valid() const
 {
 	return IsGeoPosValid(GetLat(), GetLon());

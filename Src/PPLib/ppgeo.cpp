@@ -6,6 +6,105 @@
 //
 //
 //
+SLAPI PPOsm::NodeCluster::NodeCluster() : SBuffer(32)
+{
+}
+
+SLAPI PPOsm::NodeCluster::~NodeCluster()
+{
+}
+
+//static
+uint SLAPI PPOsm::NodeCluster::GetPossiblePackCount(const Node * pN, size_t count, uint * pPossibleCountLogic)
+{
+	static const uint __row[] = { 128, 64, 32, 16, 8, 4, 2, 1 };
+	uint   possible_count = 0;
+	uint   possible_count_logic = 0;
+	if(count == 0)
+		possible_count = 0;
+	else {
+		if(count == 1) {
+			possible_count = 1;
+		}
+		else {
+			uint count_logic = 1; //  оличество логических точек в отрезке
+			uint count_hole = 0;  //  оличество дырок в отрезке (разрывов между последовательными идентификаторами)
+			{
+				uint64 prev_id = pN[0].ID;
+				for(size_t i = 1; i < __row[0] && i < count; i++) {
+					const uint64 id = pN[i].ID;
+					THROW(id > prev_id);
+					count_logic += (uint)(id - prev_id);
+					count_hole += (uint)(id - prev_id - 1);
+					prev_id = id;
+				}
+			}
+			{
+				const  int64 head_id = pN->ID;
+				for(size_t i = 0; i < SIZEOFARRAY(__row); i++) {
+					const uint r = __row[i];
+					if((head_id & (r-1)) == head_id && count_logic >= r) {
+						possible_count_logic = 1;
+						possible_count = 1;
+						if(r > 1) {
+							uint   possible_count_logic_bounded = 1;
+							uint   possible_count_bounded = 1;
+							uint   prev_zvalue = pN[0].T.GetZValue();
+							uint64 prev_id = pN[0].ID;
+							for(uint j = 1, idx = 1; j < r; j++) {
+								if(pN[idx].ID == (prev_id+1)) {
+									const uint zval = pN[idx].T.GetZValue();
+									if(zval == prev_zvalue) {
+										possible_count_logic++;
+										possible_count++;
+										idx++;
+									}
+									else {
+										break;
+									}
+								}
+								else
+									possible_count_logic++;
+								//
+								// ‘иксируем допустимые значени€, ограниченные решеткой __row[]
+								//
+								for(uint n = 0; n < SIZEOFARRAY(__row); n++) {
+									if(possible_count_logic == __row[n]) {
+										possible_count_logic_bounded = possible_count_logic;
+										possible_count_bounded = possible_count;
+										break;
+									}
+								}
+								prev_id++;
+							}
+							possible_count_logic = possible_count_logic_bounded;
+							possible_count = possible_count_bounded;
+						}
+						break;
+					}
+				}
+			}
+		}
+		//
+		// —пециальный случай: нет смысла тратитьс€ на логический кластер
+		// если фактически в нем только 1 элемент - проще сохранить единичный элемент.
+		//
+		if(possible_count_logic > 1 && possible_count == 1) {
+			possible_count_logic = 1;
+		}
+		assert(possible_count >= 1 && possible_count <= count);
+		assert(possible_count_logic >= 1);
+		assert(oneof8(possible_count_logic, 1, 2, 4, 8, 16, 32, 64, 128));
+	}
+	CATCH
+		possible_count = 0;
+		possible_count_logic = 0;
+	ENDCATCH
+	ASSIGN_PTR(pPossibleCountLogic, possible_count_logic);
+	assert(possible_count <= possible_count_logic);
+	return possible_count;
+}
+
 /*
 	// «аголовок определ€ющий заголовочную точку и параметры всего кластера
 	Indicator
@@ -32,56 +131,21 @@
 		}
 	]
 */
-SLAPI PPOsm::NodeCluster::NodeCluster()
-{
-	SBaseBuffer::Init();
-}
-
-SLAPI PPOsm::NodeCluster::~NodeCluster()
-{
-	SBaseBuffer::Destroy();
-}
-
-//static
-uint FASTCALL PPOsm::NodeCluster::GetPossiblePackCount(const Node * pN, size_t count)
-{
-	uint   possible_count = 0;
-	const  int64 id = pN->ID;
-	static const uint __row[] = { 128, 64, 32, 16, 8, 4, 2, 1 };
-	for(size_t i = 0; i < SIZEOFARRAY(__row); i++) {
-		const uint r = __row[i];
-		if((id & (r-1)) == id && count >= r) {
-			possible_count = 1;
-			if(r > 1) {
-				uint prev_zvalue = pN[0].T.GetZValue();
-				for(uint j = 1; j < r; j++) {
-					const uint zval = pN[j].T.GetZValue();
-					if(zval != prev_zvalue) {
-						for(size_t k = i; k > 0; k--) {
-							if(j >= __row[k]) {
-								possible_count = __row[k];
-								break;
-							}
-						}
-						break;
-					}
-					else
-						prev_zvalue = zval;
-				}
-			}
-			break;
-		}
-	}
-	return possible_count;
-}
 
 int SLAPI PPOsm::NodeCluster::Put(const Node * pN, size_t count, size_t * pActualCount)
 {
 	int    ok = 1;
-	const  uint possible_count = GetPossiblePackCount(pN, count);
+	uint   actual_count = 0;
+	uint   possible_count_logic = 0;
+	const  uint possible_count = GetPossiblePackCount(pN, count, &possible_count_logic);
+	THROW(possible_count);
+	Clear();
     {
+    	const Node & r_head = pN[0];
+		const int32 head_lat = r_head.C.GetIntLat();
+		const int32 head_lon = r_head.C.GetIntLon();
     	uint8 indicator = 0;
-        switch(possible_count) {
+		switch(possible_count_logic) {
         	case 128: indicator = 7; break;
         	case 64: indicator = 6; break;
         	case 32: indicator = 5; break;
@@ -93,12 +157,181 @@ int SLAPI PPOsm::NodeCluster::Put(const Node * pN, size_t count, size_t * pActua
         	default:
 				CALLEXCEPT(); // invalid count
         }
-        if(pN[0].ID <= ULONG_MAX) {
+        if(r_head.ID <= ULONG_MAX) {
 			indicator |= indfId32;
         }
-        //Put()
+		THROW_SL(Write(indicator));
+		if(indicator & indfId32) {
+			const uint32 id32 = (uint32)r_head.ID;
+			THROW_SL(Write(id32));
+		}
+		else {
+			THROW_SL(Write(r_head.ID));
+		}
+		THROW_SL(Write(r_head.T.V));
+		THROW_SL(Write(head_lat));
+		THROW_SL(Write(head_lon));
+		actual_count++;
+		if(possible_count_logic > 1) {
+			const uint8 head_level = r_head.T.GetLevel();
+			uint64 prev_id = r_head.ID;
+			int32  prev_lat = head_lat;
+			int32  prev_lon = head_lon;
+			for(uint i = 1, idx = 1; i < possible_count_logic; i++) {
+				assert(pN[idx].ID > prev_id);
+				assert(pN[idx].T.GetZValue() == r_head.T.GetZValue());
+				uint8 inf_indicator = 0;
+				if(pN[idx].ID == (prev_id+1)) {
+					const uint8 _tile_level = pN[idx].T.GetLevel();
+					const int32 _lat = pN[idx].C.GetIntLat();
+					const int32 _lon = pN[idx].C.GetIntLon();
+					const int32 _lat_diff = (_lat - prev_lat);
+					const int32 _lon_diff = (_lon - prev_lon);
+					if(_lat_diff >= SCHAR_MIN && _lat_diff <= SCHAR_MAX)
+						inf_indicator |= infindfPrevLatIncr8;
+					else if(_lat_diff >= SHRT_MIN && _lat_diff <= SHRT_MAX)
+						inf_indicator |= infindfPrevLatIncr16;
+					if(_lon_diff >= SCHAR_MIN && _lon_diff <= SCHAR_MAX)
+						inf_indicator |= infindfPrevLonIncr8;
+					else if(_lon_diff >= SHRT_MIN && _lon_diff <= SHRT_MAX)
+						inf_indicator |= infindfPrevLonIncr16;
+					if(_tile_level != head_level)
+						inf_indicator |= infindfDiffTileLevel;
+					THROW_SL(Write(inf_indicator));
+                    if(inf_indicator & infindfPrevLatIncr8) {
+						const int8 _diff = (int8)_lat_diff;
+						THROW_SL(Write(_diff));
+                    }
+                    else if(inf_indicator & infindfPrevLatIncr16) {
+						const int16 _diff = (int16)_lat_diff;
+						THROW_SL(Write(_diff));
+                    }
+                    else {
+						THROW_SL(Write(_lat));
+                    }
+                    if(inf_indicator & infindfPrevLonIncr8) {
+						const int8 _diff = (int8)_lon_diff;
+						THROW_SL(Write(_diff));
+                    }
+                    else if(inf_indicator & infindfPrevLonIncr16) {
+						const int16 _diff = (int16)_lon_diff;
+						THROW_SL(Write(_diff));
+                    }
+                    else {
+						THROW_SL(Write(_lon));
+                    }
+					if(inf_indicator & infindfDiffTileLevel)
+						THROW_SL(Write(_tile_level));
+				
+					prev_lat = _lat;
+					prev_lon = _lon;
+					idx++;
+					actual_count++;
+				}
+				else {
+					inf_indicator |= infindfEmpty;
+					THROW_SL(Write(inf_indicator));
+				}
+				prev_id++;
+			}
+		}
     }
     CATCHZOK
+	ASSIGN_PTR(pActualCount, actual_count);
+	return ok;
+}
+
+int SLAPI PPOsm::NodeCluster::Get(TSArray <Node> & rList)
+{
+	int    ok = 1;
+	uint   count_logic = 0;
+	uint8  indicator = 0;
+	Node   head;
+	int32  head_lat = 0;
+	int32  head_lon = 0;
+	THROW_SL(Read(indicator));
+	switch(indicator & indfCountMask) {
+		case 0: count_logic =   1; break;
+		case 1: count_logic =   2; break;
+		case 2: count_logic =   4; break;
+		case 3: count_logic =   8; break;
+		case 4: count_logic =  16; break;
+		case 5: count_logic =  32; break;
+		case 6: count_logic =  64; break; 
+		case 7: count_logic = 128; break;
+       	default: CALLEXCEPT(); // invalid count
+	}
+	if(indicator & indfId32) {
+		const uint32 id32 = 0;
+		THROW_SL(Read(id32));
+		head.ID = id32;
+	}
+	else {
+		THROW_SL(Read(head.ID));
+	}
+	THROW_SL(Read(head.T.V));
+	THROW_SL(Read(head_lat));
+	THROW_SL(Read(head_lon));
+	head.C.SetInt(head_lat, head_lon);
+	THROW_SL(rList.insert(&head));
+	if(count_logic > 1) {
+		const uint8 head_level = head.T.GetLevel();
+		uint64 prev_id = head.ID;
+		int32  prev_lat = head_lat;
+		int32  prev_lon = head_lon;
+		for(uint i = 1; i < count_logic; i++) {
+			uint8 inf_indicator = 0;
+			THROW_SL(Read(inf_indicator));
+			if(!(inf_indicator & infindfEmpty)) {
+				uint8 _tile_level = 0;
+				int32 _lat = 0;
+				int32 _lon = 0;
+				int32 _lat_diff = 0;
+				int32 _lon_diff = 0;
+				Node   node;
+				if(inf_indicator & infindfPrevLatIncr8) {
+					const int8 _diff = 0;
+					THROW_SL(Read(_diff));
+					_lat = prev_lat + (int32)_diff;
+				}
+				else if(inf_indicator & infindfPrevLatIncr16) {
+					const int16 _diff = 0;
+					THROW_SL(Read(_diff));
+					_lat = prev_lat + (int32)_diff;
+				}
+				else {
+					THROW_SL(Read(_lat));
+				}
+				if(inf_indicator & infindfPrevLonIncr8) {
+					const int8 _diff = 0;
+					THROW_SL(Read(_diff));
+					_lon = prev_lon + (int32)_diff;
+				}
+				else if(inf_indicator & infindfPrevLonIncr16) {
+					const int16 _diff = 0;
+					THROW_SL(Read(_diff));
+					_lon = prev_lat + (int32)_diff;
+				}
+				else {
+					THROW_SL(Read(_lon));
+				}
+				if(inf_indicator & infindfDiffTileLevel) {
+					THROW_SL(Read(_tile_level));
+				}
+				else 
+					_tile_level = head_level;
+				node.C.SetInt(_lat, _lon);
+				node.ID = prev_id++;
+				node.T = head.T;
+				node.T.SetLevel(_tile_level);
+				THROW_SL(rList.insert(&node));
+				prev_lat = _lat;
+				prev_lon = _lon;
+			}
+			prev_id++;
+		}
+	}
+	CATCHZOK
 	return ok;
 }
 //
@@ -727,4 +960,25 @@ int SLAPI PPViewGeoTracking::ProcessCommand(uint ppvCmd, const void * pHdr, PPVi
 	}
 	return (update > 0) ? ok : ((ok <= 0) ? ok : -1);
 }
+//
+//
+//
+#if SLTEST_RUNNING // {
+
+SLTEST_R(PPGeo)
+{
+	int    ok = 1;
+	/*
+	{
+		PPOsm::Node node_list_solid = {
+
+		};
+		//uint FASTCALL PPOsm::NodeCluster::GetPossiblePackCount(const Node * pN, size_t count)
+	}
+	*/
+	//CATCHZOK
+	return ok;
+}
+
+#endif // } SLTEST_RUNNING
 

@@ -4261,9 +4261,9 @@ int SLAPI iSalesPepsi::SendInvoices()
 		SString dump_file_name;
 		SPathStruc ps;
 		ps.Split(LogFileName);
-		ps.Nam.CatChar('-').Cat("dumb").CatChar('-').Cat("invoices");
+		ps.Nam.CatChar('-').Cat("dump").CatChar('-').Cat("invoices");
 		ps.Merge(dump_file_name);
-		SFile f_out_log(dump_file_name, SFile::mAppend);
+		SFile f_out_log(dump_file_name, SFile::mWrite);
 		if(f_out_log.IsValid()) {
 			f_out_log.WriteLine(0);
 			for(uint i = 0; i < outp_packet.getCount(); i++) {

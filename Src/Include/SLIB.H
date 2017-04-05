@@ -4601,6 +4601,8 @@ public:
 	size_t SLAPI ReadTermStr(const char * pTerm, SString & rBuf);
 	int    FASTCALL WriteByte(char);
 	int    FASTCALL Read(char &);
+	int    FASTCALL Write(const int8 & v);
+	int    FASTCALL Read(int8 & v);
 	int    FASTCALL Write(const uint8 & v);
 	int    FASTCALL Read(uint8 & v);
 	int    FASTCALL Write(const SString &);
@@ -4613,6 +4615,8 @@ public:
 	int    FASTCALL Read(uint16 & v);
 	int    FASTCALL Write(const int64 & v);
 	int    FASTCALL Read(int64 & v);
+	int    FASTCALL Write(const uint64 & v);
+	int    FASTCALL Read(uint64 & v);
 	int    FASTCALL Write(const int16 & v);
 	int    FASTCALL Read(int16 & v);
 	int    FASTCALL Write(const double & v);
@@ -11402,6 +11406,7 @@ public:
 	int    FASTCALL Cmp(const SGeoPosLL_Int & rS) const;
 	int    FASTCALL Cmp(const SGeoPosLL & rS) const;
 	int    Set(double lat, double lon);
+	int    SetInt(long lat, long lon);
 	int    Valid() const;
 	SString & FASTCALL ToStr(SString & rBuf) const;
 	int    FASTCALL FromStr(const char * pStr);

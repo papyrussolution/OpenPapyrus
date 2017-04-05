@@ -44893,7 +44893,7 @@ public:
 		Tile   T;
 		SGeoPosLL_Int C;
     };
-	class NodeCluster : public SBaseBuffer {
+	class NodeCluster : private SBuffer {
 	public:
 		/*
 			// Заголовок определяющий заголовочную точку и параметры всего кластера
@@ -44923,10 +44923,9 @@ public:
 		*/
 		SLAPI  NodeCluster();
 		SLAPI ~NodeCluster();
-        static uint FASTCALL GetPossiblePackCount(const Node * pN, size_t count);
+        static uint SLAPI GetPossiblePackCount(const Node * pN, size_t count, uint * pPossibleCountLogic);
         int    SLAPI Put(const Node * pN, size_t count, size_t * pActualCount);
-		int    FASTCALL Set(const TSArray <Node> * pList);
-		int    FASTCALL Get(TSArray <Node> & rList) const;
+		int    SLAPI Get(TSArray <Node> & rList);
 	private:
 		enum {
 			indfCountMask   = (0x01 | 0x02 | 0x04), // Маска битов, представляющих количество точек в пакете.
