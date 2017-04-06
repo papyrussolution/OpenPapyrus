@@ -2995,11 +2995,11 @@ public:
 		THROW_PP(pParam, PPERR_INVPARAM);
 		sav_offs = pParam->GetRdOffs();
 		if(pParam->GetAvailableSize() != 0)
-			pParam->Read(&dev_list);
+			pParam->Read(&dev_list, 0);
 		if(ListToListDialog(&l2_data) > 0) {
 			ok = 1;
 			pParam->Clear();
-			THROW(pParam->Write(&dev_list));
+			THROW(pParam->Write(&dev_list, 0));
 		}
 		else
 			pParam->SetRdOffs(sav_offs);
@@ -3016,7 +3016,7 @@ public:
 		PPIDArray idlist;
 		PPObjRFIDDevice rfid_obj;
 		RFIDDevPrcssr prcssr;
-		THROW(pParam->Read(&idlist));
+		THROW(pParam->Read(&idlist, 0));
 		for(uint i = 0; i < idlist.getCount(); i++) {
 			PPRFIDDevice rfid_rec;
 			if(rfid_obj.Search(idlist.at(i), &rfid_rec) > 0) {

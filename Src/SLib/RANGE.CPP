@@ -41,6 +41,7 @@ int FASTCALL strtorrng(const char * pBuf, RealRange & rRng)
 	return strtorrng(pBuf, &rRng.low, &rRng.upp);
 }
 
+/* @v9.6.0
 int SLAPI strtoirng(const char * pBuf, long * pLow, long * pUpp)
 {
 	// @todo Очень слабая реализация //
@@ -50,6 +51,7 @@ int SLAPI strtoirng(const char * pBuf, long * pLow, long * pUpp)
 	*pUpp = (long)rupp;
 	return 1;
 }
+*/
 //
 //
 //

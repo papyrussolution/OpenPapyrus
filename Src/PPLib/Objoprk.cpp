@@ -59,7 +59,7 @@ int SLAPI PPReckonOpEx::Serialize(int dir, SBuffer & rBuf, SSerializeContext * p
 			srd.Flags = Flags;
 			srd.PersonRelTypeID = PersonRelTypeID;
 			THROW_SL(rBuf.Write(&srd, sizeof(srd)));
-			THROW_SL(rBuf.Write(&OpList));
+			THROW_SL(rBuf.Write(&OpList, 0));
 		}
 	}
 	else if(dir < 0) {
@@ -78,7 +78,7 @@ int SLAPI PPReckonOpEx::Serialize(int dir, SBuffer & rBuf, SSerializeContext * p
 			}
 			else
 				rBuf.SetRdOffs(rBuf.GetRdOffs()+sz);
-			THROW_SL(rBuf.Read(&OpList));
+			THROW_SL(rBuf.Read(&OpList, 0));
 		}
 	}
 	CATCHZOK

@@ -5202,7 +5202,7 @@ void SLAPI PrcssrOsm::CommonAttrSet::Reset()
 	User = 0;
 }
 
-SLAPI PrcssrOsm::PrcssrOsm()
+SLAPI PrcssrOsm::PrcssrOsm() : O(), GgtFinder(O.GetGrid())
 {
 	SaxCtx = 0;
 	State = 0;
@@ -5212,6 +5212,8 @@ SLAPI PrcssrOsm::PrcssrOsm()
 	P_TagNodeOutF = 0;
 	P_TagWayOutF = 0;
 	P_TagRelOutF = 0;
+	P_TestNodeBinF = 0;
+	P_TestNodeF = 0;
 	P_Ufp = 0;
 	Reset();
 }
@@ -5286,6 +5288,7 @@ int SLAPI PrcssrOsm::Init(const PPBaseFilt * pBaseFilt)
 void SLAPI PrcssrOsm::Reset()
 {
 	State = 0;
+	Phase = phaseUnkn;
 	TokPath.clear();
 	TempCaSet.Reset();
 	CurrentTagList.clear();
@@ -5299,12 +5302,18 @@ void SLAPI PrcssrOsm::Reset()
 	TempTagKeyList.clear();
 	TagKeyList.clear();
 
+	LatAccum.clear();
+	LonAccum.clear();
+	NodeAccum.clear();
+
 	ZDELETE(P_LatOutF);
 	ZDELETE(P_LonOutF);
 	ZDELETE(P_TagOutF);
 	ZDELETE(P_TagNodeOutF);
 	ZDELETE(P_TagWayOutF);
 	ZDELETE(P_TagRelOutF);
+	ZDELETE(P_TestNodeBinF);
+	ZDELETE(P_TestNodeF);
 	ZDELETE(P_Ufp);
 }
 
@@ -5435,11 +5444,18 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
         if(!TempCaSet.Visible)
 			new_node.T.SetInvisible();
         LastNode = new_node;
-        LatAccum.add(new_node.C.GetIntLat());
-        LonAccum.add(new_node.C.GetIntLon());
+        if(Phase == phasePreprocess) {
+			LatAccum.add(new_node.C.GetIntLat());
+			LonAccum.add(new_node.C.GetIntLon());
+        }
+        else if(Phase == phaseImport) {
+            new_node.T.V = GgtFinder.GetZIdx32(new_node.C);
+			THROW_SL(NodeAccum.insert(&new_node));
+        }
         CurrentTagList.clear();
 	}
 	else if(sstreqi_ascii(pName, "way")) { // osm/way
+		FlashNodeAccum(1);
 		tok = tWay;
 		WayCount++;
 		PPOsm::Way new_way;
@@ -5463,6 +5479,7 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 		}
 	}
 	else if(sstreqi_ascii(pName, "relation")) { // osm/relation
+		FlashNodeAccum(1);
 		tok = tRelation;
 		RelationCount++;
 		PPOsm::Relation new_rel;
@@ -5557,6 +5574,82 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 	return ok;
 }
 
+int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
+{
+	int    ok = 1;
+	if(Phase == phasePreprocess) {
+		static const uint pt_accum_limit = 8192;
+		{
+			const uint _count = LatAccum.getCount();
+			if(_count && (force || _count >= pt_accum_limit)) {
+				if(P_LatOutF) {
+					LatAccum.sort();
+					Pb.LineBuf = 0;
+					for(uint i = 0; i < _count; i++) {
+						Pb.LineBuf.Cat(LatAccum.get(i)).CR();
+					}
+					P_LatOutF->WriteLine(Pb.LineBuf);
+				}
+				if(force)
+					LatAccum.freeAll();
+				else
+					LatAccum.clear();
+			}
+		}
+		{
+			const uint _count = LonAccum.getCount();
+			if(_count && (force || _count >= pt_accum_limit)) {
+				if(P_LonOutF) {
+					LonAccum.sort();
+					Pb.LineBuf = 0;
+					for(uint i = 0; i < _count; i++) {
+						Pb.LineBuf.Cat(LonAccum.get(i)).CR();
+					}
+					P_LonOutF->WriteLine(Pb.LineBuf);
+				}
+				if(force)
+					LonAccum.freeAll();
+				else
+					LonAccum.clear();
+			}
+		}
+	}
+	else if(Phase == phaseImport) {
+		static const uint node_accum_limit = 1024*1024;
+		{
+			const uint _count = NodeAccum.getCount();
+			if(_count && (force || _count >= node_accum_limit)) {
+				const PPOsm::Node & r_last_node = NodeAccum.at(_count-1);
+				if(force || (r_last_node.ID & 0x7f) == 0x7f) {
+					PPOsm::NodeCluster cluster;
+					TSArray <PPOsm::Node> test_list;
+					size_t offs = 0;
+					while(offs < _count) {
+						size_t actual_count = 0;
+						cluster.Put(&NodeAccum.at(offs), _count - offs, &actual_count);
+						// @debug {
+						{
+							test_list.clear();
+							cluster.Get(test_list);
+							for(uint i = 0; i < test_list.getCount(); i++) {
+								assert(test_list.at(i) == NodeAccum.at(offs+i));
+							}
+						}
+						// } @debug 
+						offs += actual_count;
+					}
+					assert(offs == _count);
+					if(force)
+						NodeAccum.freeAll();
+					else
+						NodeAccum.clear();
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int PrcssrOsm::EndElement(const char * pName)
 {
 	int    tok = 0;
@@ -5565,31 +5658,7 @@ int PrcssrOsm::EndElement(const char * pName)
 		if(CurrentTagList.getCount() == 0)
 			NakedNodeCount++;
 	}
-	{
-		const uint accum_limit = 8192;
-		if(tok == tOsm || LatAccum.getCount() >= accum_limit) {
-			if(P_LatOutF) {
-				LatAccum.sort();
-				Pb.LineBuf = 0;
-				for(uint i = 0; i < LatAccum.getCount(); i++) {
-					Pb.LineBuf.Cat(LatAccum.get(i)).CR();
-				}
-				P_LatOutF->WriteLine(Pb.LineBuf);
-			}
-			LatAccum.clear();
-		}
-		if(tok == tOsm || LonAccum.getCount() >= accum_limit) {
-			if(P_LonOutF) {
-				LonAccum.sort();
-				Pb.LineBuf = 0;
-				for(uint i = 0; i < LonAccum.getCount(); i++) {
-					Pb.LineBuf.Cat(LonAccum.get(i)).CR();
-				}
-				P_LonOutF->WriteLine(Pb.LineBuf);
-			}
-			LonAccum.clear();
-		}
-	}
+	FlashNodeAccum(BIN(tok == tOsm));
 	if(oneof3(tok, tNode, tWay, tRelation)) {
 		//PPUPRF_OSMXMLPARSETAG
         CALLPTRMEMB(P_Ufp, CommitAndRestart());
@@ -5953,7 +6022,14 @@ int SLAPI PrcssrOsm::Run()
 	SString temp_buf;
 	SPathStruc ps;
 	PPWait(1);
+	{
+		ps.Split(file_name);
+		ps.Ext = "log";
+		ps.Merge(log_file_name);
+	}
+    O.LoadGeoGrid();
 	if(P.Flags & PrcssrOsmFilt::fPreprocess) {
+		Phase = phasePreprocess;
 		xmlSAXHandler saxh_addr_obj;
 		MEMSZERO(saxh_addr_obj);
 		saxh_addr_obj.startDocument = Scb_StartDocument;
@@ -5961,11 +6037,6 @@ int SLAPI PrcssrOsm::Run()
 		saxh_addr_obj.startElement = Scb_StartElement;
 		saxh_addr_obj.endElement = Scb_EndElement;
 		{
-			{
-				ps.Split(file_name);
-				ps.Ext = "log";
-				ps.Merge(log_file_name);
-			}
 			{
 				THROW_MEM(P_LatOutF = new SFile(MakeSuffixedTxtFileName(file_name, "lat", ps, out_file_name), SFile::mWrite));
 				THROW_SL(P_LatOutF->IsValid());
@@ -5985,10 +6056,18 @@ int SLAPI PrcssrOsm::Run()
 				THROW_MEM(P_TagRelOutF = new SFile(MakeSuffixedTxtFileName(file_name, "tagrel", ps, out_file_name), SFile::mWrite));
 				THROW_SL(P_TagRelOutF->IsValid());
 			}
-			THROW_MEM(P_Ufp = new PPUserFuncProfiler(PPUPRF_OSMXMLPARSETAG));
+			THROW_MEM(SETIFZ(P_Ufp, new PPUserFuncProfiler(PPUPRF_OSMXMLPARSETAG)));
 			PROFILE_START
 			THROW(SaxParseFile(&saxh_addr_obj, file_name) == 0);
 			PROFILE_END
+			{
+				ZDELETE(P_LatOutF);
+				ZDELETE(P_LonOutF);
+				ZDELETE(P_TagOutF);
+				ZDELETE(P_TagNodeOutF);
+				ZDELETE(P_TagWayOutF);
+				ZDELETE(P_TagRelOutF);
+			}
 			{
 				if(0) {
 					TempTagKeyList.sortAndUndup();
@@ -6019,6 +6098,7 @@ int SLAPI PrcssrOsm::Run()
 		}
 	}
 	if(P.Flags & PrcssrOsmFilt::fSortPreprcResults) {
+		Phase = phaseSortPreprcResults;
         PPLoadText(PPTXT_SORTSPLIT, FmtMsg_SortSplit);
 		PPLoadText(PPTXT_SORTMERGE, FmtMsg_SortMerge);
 		THROW(SortFile(file_name, "lat", PTR_CMPCFUNC(STRINT64)));
@@ -6031,6 +6111,7 @@ int SLAPI PrcssrOsm::Run()
 	if(P.Flags & PrcssrOsmFilt::fAnlzPreprcResults) {
 		int   test_result = 1;
 		TSCollection <SGeoGridTab> grid_list;
+		Phase = phaseAnlzPreprcResults;
 		THROW(CreateGeoGridTab(file_name, 8, 16, grid_list));
 		for(uint i = 0; i < grid_list.getCount(); i++) {
 			SGeoGridTab * p_grid = grid_list.at(i);
@@ -6061,8 +6142,33 @@ int SLAPI PrcssrOsm::Run()
 			}
 		}
 	}
+	if(P.Flags & PrcssrOsmFilt::fImport) {
+		Phase = phaseImport;
+		if(O.CheckStatus(O.stGridLoaded)) {
+			xmlSAXHandler saxh_addr_obj;
+			MEMSZERO(saxh_addr_obj);
+			saxh_addr_obj.startDocument = Scb_StartDocument;
+			saxh_addr_obj.endDocument = Scb_EndDocument;
+			saxh_addr_obj.startElement = Scb_StartElement;
+			saxh_addr_obj.endElement = Scb_EndElement;
+			//
+			THROW_MEM(SETIFZ(P_Ufp, new PPUserFuncProfiler(PPUPRF_OSMXMLPARSETAG)));
+			PROFILE_START
+			THROW(SaxParseFile(&saxh_addr_obj, file_name) == 0);
+			PROFILE_END
+		}
+	}
 	PPWait(0);
 	CATCHZOK
+	{
+		ZDELETE(P_LatOutF);
+		ZDELETE(P_LonOutF);
+		ZDELETE(P_TagOutF);
+		ZDELETE(P_TagNodeOutF);
+		ZDELETE(P_TagWayOutF);
+		ZDELETE(P_TagRelOutF);
+	}
+	Phase = phaseUnkn;
 	return ok;
 }
 

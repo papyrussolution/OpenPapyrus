@@ -265,10 +265,10 @@ int SLAPI ACS_CRUKM::ExportData(int updOnly)
 			export_section = 1;
 	}
 	THROW(GetNodeData(&cn_data) > 0);
-	cn_data.GetLogNumList(&log_num_list);
+	cn_data.GetLogNumList(log_num_list);
 	if(log_num_list.getCount() == 0)
 		log_num_list.add(1);
-	check_dig = (GetGoodsCfg().Flags & GCF_BCCHKDIG) ? 1 : 0;
+	check_dig = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
 	{
 		StringSet ss;
 		uint pos = 0;
@@ -520,7 +520,7 @@ int SLAPI ACS_CRUKM::GetSessionData(int * pSessCount, int * pIsForwardSess, Date
 	Cr_ZReportTbl::Key0 k0;
 
 	THROW(GetNodeData(&cn_data) > 0);
-	cn_data.GetLogNumList(&log_num_list);
+	cn_data.GetLogNumList(log_num_list);
 	THROW_PP(cn_data.ImpFiles.NotEmpty(), PPERR_INVFILESET);
 	(imp_path = cn_data.ImpFiles).SetLastSlash();
 	//

@@ -504,7 +504,7 @@ int SLAPI ACS_SHTRIHMFRK::GetSessionData(int * pSessCount, int * pIsForwardSess,
 	if(ok > 0) {
 		PPAsyncCashNode acn;
 		THROW(GetNodeData(&acn) > 0);
-		acn.GetLogNumList(&LogNumList);
+		acn.GetLogNumList(LogNumList);
 		{
 			SString  alt_imp_params;
 			PPIniFile  ini_file;

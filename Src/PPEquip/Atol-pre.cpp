@@ -750,7 +750,7 @@ int SLAPI ACS_ATOL::GetSessionData(int * pSessCount, int * pIsForwardSess, DateR
 	if(ok > 0) {
 		PPAsyncCashNode acn;
 		THROW(GetNodeData(&acn) > 0);
-		acn.GetLogNumList(&LogNumList);
+		acn.GetLogNumList(LogNumList);
 		{
 			SString  alt_imp_params;
 			PPIniFile  ini_file;

@@ -17258,7 +17258,7 @@ public:
 class PPAsyncCashNode : public PPGenCashNode {
 public:
 	SLAPI  PPAsyncCashNode();
-	int    SLAPI GetLogNumList(PPIDArray * pList) const;
+	int    FASTCALL GetLogNumList(PPIDArray & rList) const;
 
 	SString ExpPaths;
 	SString ImpFiles;
@@ -44888,6 +44888,9 @@ public:
 	};
     struct Node {
     	SLAPI  Node();
+		int    FASTCALL IsEqual(const Node & rS) const;
+		int    FASTCALL operator == (const Node & rS) const;
+		int    FASTCALL operator != (const Node & rS) const;
 
     	uint64 ID;
 		Tile   T;
@@ -44988,15 +44991,24 @@ public:
 		RelTbl(BDbDatabase * pDb);
 		~RelTbl();
 	};
+	enum {
+		stGridLoaded = 0x0001
+	};
 
 	SLAPI  PPOsm();
 	SLAPI ~PPOsm();
+	long   FASTCALL CheckStatus(long) const;
 	uint   FASTCALL SearchSymb(const char * pSymb) const;
 	uint   FASTCALL CreateSymb(const char * pSymb);
 	int    SLAPI GetSymbByID(uint id, SString & rSymb) const;
 	int    SLAPI BuildHashAssoc();
 	int    SLAPI LoadGeoGrid();
+	const  SGeoGridTab & SLAPI GetGrid() const
+	{
+		return Grid;
+	}
 private:
+	long   Status;
 	uint   LastSymbID;
 	SymbHashTable Ht;
 	SGeoGridTab Grid;
@@ -45071,7 +45083,8 @@ private:
 	int    SaxParseFile(xmlSAXHandlerPtr sax, const char * pFileName);
 	int    SaxStop();
 
-	int    ReadCommonAttrSet(const char ** ppAttrList, CommonAttrSet & rSet);
+	int    SLAPI ReadCommonAttrSet(const char ** ppAttrList, CommonAttrSet & rSet);
+	int    FASTCALL FlashNodeAccum(int force);
 
 	int    LogCoord(const SGeoPosLL_Int & rC);
 	int    LogTag(int osmObjType, const PPOsm::Tag & rTag);
@@ -45082,6 +45095,14 @@ private:
 		stError = 0x0001
 	};
 	long   State;
+	enum {
+		phaseUnkn              = 0,
+		phasePreprocess        = 1,
+		phaseSortPreprcResults = 2,
+		phaseAnlzPreprcResults = 3,
+		phaseImport            = 4
+	};
+	long   Phase;
 	PrcssrOsmFilt P;
 
 	xmlParserCtxtPtr SaxCtx;
@@ -45100,6 +45121,8 @@ private:
 
 	LongArray LatAccum;
 	LongArray LonAccum;
+	TSArray <PPOsm::Node> NodeAccum;
+	SGeoGridTab::Finder GgtFinder;
 	SString FmtMsg_SortSplit;
 	SString FmtMsg_SortMerge;
 
@@ -45109,6 +45132,9 @@ private:
 	SFile * P_TagNodeOutF;
 	SFile * P_TagWayOutF;
 	SFile * P_TagRelOutF;
+
+	SFile * P_TestNodeBinF;
+	SFile * P_TestNodeF;
 
 	PPUserFuncProfiler * P_Ufp;
 

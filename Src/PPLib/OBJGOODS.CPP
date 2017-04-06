@@ -753,18 +753,16 @@ int SLAPI PPObjGoods::SerializePacket_(int toBuf, PPGoodsPacket * pPack, SBuffer
 		pBuf->Write(data_size); // Нулевое значение. В предыдущих версиях инициализировалось, но без необходимости.
 		pBuf->Write(pack_ver);
 		pBuf->Write(&pPack->Rec, sizeof(pPack->Rec));
-		pBuf->Write(&pPack->Codes);
-		pBuf->Write(&pPack->ArCodes);
+		pBuf->Write(&pPack->Codes, 0);
+		pBuf->Write(&pPack->ArCodes, 0);
 		pBuf->Write(&pPack->ExtRec, sizeof(pPack->ExtRec));
 		pBuf->Write(&pPack->Stock, offsetof(GoodsStockExt, MinStockList));
-		pBuf->Write(&pPack->Stock.MinStockList);
-		// @v7.2.0 {
-		pBuf->Write(&pPack->Stock.PltList);
+		pBuf->Write(&pPack->Stock.MinStockList, 0);
+		pBuf->Write(&pPack->Stock.PltList, 0);
 		pPack->TagL.Write__(*pBuf);
-		// } @v7.2.0
 		pBuf->Write(pPack->ExtString);
 		pBuf->Write(pPack->ExTitles);
-		pPack->GenericList.Write(*pBuf); // @v7.7.12
+		pPack->GenericList.Write(*pBuf);
 		{
 			//
 			// CRC рассчитываем начиная со смещения sizeof(long) из-за того, что
@@ -799,7 +797,7 @@ int SLAPI PPObjGoods::SerializePacket_(int toBuf, PPGoodsPacket * pPack, SBuffer
 			uint16 len_extstr = 0;
 			uint16 len_extitles = 0;
 
-			pBuf->Read(&pPack->Codes);
+			pBuf->Read(&pPack->Codes, 0);
 			pBuf->Read(&pPack->Rec,    sizeof(pPack->Rec));
 			pBuf->Read(&pPack->ExtRec, sizeof(pPack->ExtRec));
 			pBuf->Read(&pPack->Stock,  offsetof(GoodsStockExt, MinStockList));
@@ -822,14 +820,14 @@ int SLAPI PPObjGoods::SerializePacket_(int toBuf, PPGoodsPacket * pPack, SBuffer
 			ulong crc = 0, crc2;
 			crc = c.Calc(0, ((const uint8 *)(char *)b)+sizeof(long), data_len-sizeof(crc)-sizeof(long));
 			pBuf->Read(&pPack->Rec, sizeof(pPack->Rec));
-			pBuf->Read(&pPack->Codes);
-			pBuf->Read(&pPack->ArCodes);
+			pBuf->Read(&pPack->Codes, 0);
+			pBuf->Read(&pPack->ArCodes, 0);
 			pBuf->Read(&pPack->ExtRec, sizeof(pPack->ExtRec));
 			pBuf->Read(&pPack->Stock, offsetof(GoodsStockExt, MinStockList));
-			pBuf->Read(&pPack->Stock.MinStockList);
+			pBuf->Read(&pPack->Stock.MinStockList, 0);
 			// @v7.2.0 {
 			if(pack_ver >= 2) {
-				pBuf->Read(&pPack->Stock.PltList);
+				pBuf->Read(&pPack->Stock.PltList, 0);
 				pPack->TagL.Read__(*pBuf);
 			}
 			// } @v7.2.0

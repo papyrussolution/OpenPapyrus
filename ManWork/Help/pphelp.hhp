@@ -15,6 +15,7 @@ Main="Справочная информация по системе Papyrus",,,"Intro.html","Intro.html",,,,,
 
 
 [FILES]
+..\pict\png\dlg-f-scard.png
 ..\pict\png\dlg-034.png
 HELP_DLG_QUOTFLT.HTML
 ..\pict\png\dlg-016.png

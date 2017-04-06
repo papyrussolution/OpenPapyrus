@@ -392,7 +392,8 @@ int SLAPI GetIntRangeInput(TDialog * dlg, uint ctl, IntRange * pR)
 {
 	SString temp_buf;
 	if(dlg->getCtrlString(ctl, temp_buf)) {
-		strtoirng(temp_buf, (long *)&pR->low, (long *)&pR->upp);
+		// @v9.6.0 strtoirng(temp_buf, (long *)&pR->low, (long *)&pR->upp);
+		temp_buf.ToIntRange(*pR, SString::torfAny); // @v9.6.0
 		return 1;
 	}
 	else

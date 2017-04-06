@@ -2408,7 +2408,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 								}
 							}
 							if(OutFormat == fmtBinary) {
-								THROW_SL(rResult.Write(&r_list));
+								THROW_SL(rResult.Write(&r_list, 0));
 							}
 							else if(OutFormat == fmtTddo) {
 								THROW(Helper_ProcessTddo(0, (void *)&r_list, "UhttDraftTransitGoodsRestList", OutTemplate, rResult));
@@ -2571,7 +2571,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					p_qlist = &temp_list;
 				}
 				if(OutFormat == fmtBinary) {
-					THROW_SL(rResult.Write(p_qlist));
+					THROW_SL(rResult.Write(p_qlist, 0));
 				}
 				else if(OutFormat == fmtTddo) {
 					THROW(Helper_ProcessTddo(0, (void *)p_qlist, "QuotArray", OutTemplate, rResult));
@@ -2593,7 +2593,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				PPIDArray mtx_list;
 				GObj.P_Tbl->GetMatrix(P_QF->LocList, 0, &mtx_list);
 				if(OutFormat == fmtBinary) {
-					THROW_SL(rResult.Write(&mtx_list));
+					THROW_SL(rResult.Write(&mtx_list, 0));
 				}
 				else if(OutFormat == fmtTddo) {
 					THROW(Helper_ProcessTddo(0, (void *)&mtx_list, "IntArray", OutTemplate, rResult));
@@ -3398,7 +3398,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						THROW_SL(list.insert(&cri));
 				}
 				if(OutFormat == fmtBinary) {
-					THROW_SL(rResult.Write(&list));
+					THROW_SL(rResult.Write(&list, 0));
 				}
 				else if(OutFormat == fmtTddo) {
 					THROW(Helper_ProcessTddo(0, &list, "UhttCurRateArray", OutTemplate, rResult));
@@ -3579,7 +3579,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				view.InitIteration();
 				const TSArray <UhttSCardOpViewItem> * p_list = view.GetList();
 				if(OutFormat == fmtBinary) {
-					THROW_SL(rResult.Write(p_list));
+					THROW_SL(rResult.Write(p_list, 0));
 				}
 				else if(OutFormat == fmtTddo) {
 					THROW(Helper_ProcessTddo(0, (void *)p_list, "UhttSCardOpArray", OutTemplate, rResult));

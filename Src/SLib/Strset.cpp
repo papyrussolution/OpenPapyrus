@@ -206,7 +206,7 @@ int SLAPI StringSet::setBuf(const void * b, size_t len)
 	clear(1);
 	if(len) {
 		assert(b);
-		assert(PTR8(b)[len-1] == 0); // @v7.8.5
+		assert(PTR8(b)[len-1] == 0);
 		if(Alloc(len)) {
 			memcpy(P_Buf, b, len);
 			DataLen = len;

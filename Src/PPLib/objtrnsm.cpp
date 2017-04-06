@@ -253,7 +253,7 @@ int SLAPI ObjTransmitParam::Read(SBuffer & rBuf, long)
 	int    ok = -1;
 	if(rBuf.GetAvailableSize()) {
 		PPIDArray dbdiv_list, obj_list;
-		if(rBuf.Read(&dbdiv_list) && rBuf.Read(&obj_list) && rBuf.Read(Since_) &&
+		if(rBuf.Read(&dbdiv_list, 0) && rBuf.Read(&obj_list, 0) && rBuf.Read(Since_) &&
 			rBuf.Read((void*)&UpdProtocol, sizeof(UpdProtocol)) && rBuf.Read(Flags) && rBuf.Read(TrnsmFlags)) {
 			DestDBDivList.Set(&dbdiv_list);
 			ObjList.Set(&obj_list);
@@ -269,7 +269,7 @@ int SLAPI ObjTransmitParam::Write(SBuffer & rBuf, long) const
 {
 	const SArray * p_dbdiv_list = (const SArray*)&DestDBDivList.Get();
 	const SArray * p_obj_list = (const SArray*)&ObjList.Get();
-	if(rBuf.Write(p_dbdiv_list) && rBuf.Write(p_obj_list) && rBuf.Write(Since_) &&
+	if(rBuf.Write(p_dbdiv_list, 0) && rBuf.Write(p_obj_list, 0) && rBuf.Write(Since_) &&
 		rBuf.Write((void*)&UpdProtocol, sizeof(UpdProtocol)) && rBuf.Write(Flags) && rBuf.Write(TrnsmFlags))
 		return 1;
 	else
@@ -298,14 +298,14 @@ int SLAPI ObjReceiveParam::CheckDbDivID(PPID id) const
 
 int SLAPI ObjReceiveParam::Write(SBuffer & rBuf, long) const
 {
-	return (rBuf.Write(Flags) && rBuf.Write(&SenderDbDivList)) ? 1 : PPSetErrorSLib();
+	return (rBuf.Write(Flags) && rBuf.Write(&SenderDbDivList, 0)) ? 1 : PPSetErrorSLib();
 }
 
 int SLAPI ObjReceiveParam::Read(SBuffer & rBuf, long)
 {
 	int    ok = -1;
 	if(rBuf.GetAvailableSize())
-		if(rBuf.Read(Flags) && rBuf.Read(&SenderDbDivList))
+		if(rBuf.Read(Flags) && rBuf.Read(&SenderDbDivList, 0))
 			ok = 1;
 		else
 			ok = PPSetErrorSLib();

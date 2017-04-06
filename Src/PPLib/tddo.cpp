@@ -1041,7 +1041,7 @@ int SLAPI Tddo::Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta
 					case tElse:
 						{
 							int    ir = 0;
-							THROW_PP(if_stack.getPointer(), PPERR_TOOD_MISSPLACEDELSE);
+							THROW_PP(if_stack.getPointer(), PPERR_TDDO_MISSPLACEDELSE);
 							if_stack.pop(ir);
 							if(!ir)
 								skip--;
@@ -1054,7 +1054,7 @@ int SLAPI Tddo::Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta
 					case tElif:
 						{
 							int    ir = 0;
-							THROW_PP(if_stack.peek(), PPERR_TOOD_MISSPLACEDELIF);
+							THROW_PP(if_stack.peek(), PPERR_TDDO_MISSPLACEDELIF);
 							if_stack.pop(ir);
 							if(!ir)
 								skip--;

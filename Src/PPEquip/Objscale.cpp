@@ -894,7 +894,7 @@ int SLAPI CommLP15::SendPLU_16(const ScalePLU * pPLU)
 	}
 	// PRICE
 	{
-		long price = R0i(pPLU->Price * 100L);
+		const long price = R0i(pPLU->Price * 100L);
 		*(int32 *)(data_buf+p) = price;
 		p += 4;
 	}
@@ -1452,7 +1452,6 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 	longfmtz(pPLU->Barcode, 6, buf, sizeof(buf));
 	barcode = buf;
 	if(barcode.CmpPrefix(WghtPrefix1, 1) == 0) {
-		// @v7.8.0 {
 		//
 		// DIRECT MESSAGE
 		//
@@ -1476,7 +1475,6 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 			if(msg_pos)
 				direct_message[msg_pos++] = 0;
 		}
-		// } @v7.8.0
 		barcode.ShiftLeft();
 		memzero(data_buf, sizeof(data_buf));
 		data_buf[p++] = 'W';            // Write
@@ -1599,12 +1597,10 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 		// SALE MESSAGE NUMBER
 		*((uint8*)(data_buf + p)) = 0;
 		p += sizeof(uint8);
-		// @v7.8.0 {
 		if(msg_pos) {
 			memcpy(data_buf+p, direct_message, msg_pos);
 			p += msg_pos;
 		}
-		// } @v7.8.0
 		//
 		// BARCODE
 		//
@@ -2037,13 +2033,13 @@ int SLAPI COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 		SETIFZ(wght_prefix, 20 + pScalePLU->Barcode / 100000);
 		getcurdate(&cur_dt);
 		expiry_minutes = (expiry > cur_dt) ? diffdate(expiry, cur_dt) : 0; // * 24 * 60;
-		ss.setBuf(pScalePLU->AddMsgBuf, strlen(pScalePLU->AddMsgBuf));
+		ss.setBuf(pScalePLU->AddMsgBuf, strlen(pScalePLU->AddMsgBuf)+1); // @v9.6.0 @fix (+1)
 
 		if(P_DbfTbl) {
 			DbfRecord dbf_rec(P_DbfTbl);
 
 			dbf_rec.put(1, pScalePLU->GoodsID);              // PRD_ID
-			dbf_rec.put(2, (const char*)goods_name.Transf(CTRANSF_INNER_TO_OUTER)); // PRD_NAME // @v7.5.2 ToChar()
+			dbf_rec.put(2, (const char*)goods_name.Transf(CTRANSF_INNER_TO_OUTER)); // PRD_NAME
 			dbf_rec.put(3, "0");                             // FLG_CNTR
 			dbf_rec.put(4, pScalePLU->Barcode);              // PRD_CODE
 			dbf_rec.put(5, pScalePLU->GoodsNo);              // PRD_PLU
@@ -2057,7 +2053,7 @@ int SLAPI COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 			dbf_rec.put(13, "");                             // PRD_CERT
 
 			for(uint p = 0, j = 0; ss.get(&p, (temp_buf = 0)) > 0 && j < 2; j++)
-				dbf_rec.put(14 + j, (const char*)temp_buf.Transf(CTRANSF_INNER_TO_OUTER));  // PRD_CMP1, PRD_CMP2 // @v7.5.2 ToChar()
+				dbf_rec.put(14 + j, (const char*)temp_buf.Transf(CTRANSF_INNER_TO_OUTER));  // PRD_CMP1, PRD_CMP2
 			dbf_rec.put(16, "0");                            // PRD_TARE
 			dbf_rec.put(17, expiry_minutes);                 // PRD_LIFE
 			dbf_rec.put(18, "");                             // PRD_DATE
@@ -2191,17 +2187,17 @@ int SLAPI COMMassaKVer1::SetParam(const char * pStrVal)
 
 int SLAPI COMMassaKVer1::GetMKProp(PPID id, int & rVal)
 {
-	return (P_DrvMassaK && P_DrvMassaK->GetProperty(id, &rVal) > 0) ? 1 : 0;
+	return BIN(P_DrvMassaK && P_DrvMassaK->GetProperty(id, &rVal) > 0);
 }
 
 int SLAPI COMMassaKVer1::GetMKProp(PPID id, double & rVal)
 {
-	return (P_DrvMassaK && P_DrvMassaK->GetProperty(id, &rVal) > 0) ? 1 : 0;
+	return BIN(P_DrvMassaK && P_DrvMassaK->GetProperty(id, &rVal) > 0);
 }
 
 int SLAPI COMMassaKVer1::ExecMKOper(PPID id)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(P_DrvMassaK) {
 		ok = P_DrvMassaK->CallMethod(id);
 		//if(!ok) {
@@ -2246,21 +2242,17 @@ int SLAPI COMMassaKVer1::CloseConnection_()
 
 int SLAPI COMMassaKVer1::GetData(int * pGdsNo, double * pWeight)
 {
-	int ok = 1;
-	int division = 0, stable = 0;
+	int    ok = 1;
+	int    division = 0, stable = 0;
 	double weight = 0.0;
-	char ip[16];
-
+	char   ip[16];
 	THROW(SetConnection());
-
 	THROW(PPObjScale::DecodeIP(Data.Port, ip));
 	THROW(SetMKProp(Connection, ip));
 	THROW(ExecMKOper(ReadWeight));
-
 	THROW(GetMKProp(Weight, weight)); //
 	THROW(GetMKProp(Division, division)); // 0 - мг, 1 - г, 2 - кг
 	THROW(GetMKProp(Stable, stable)); // 0 - не стабилен, 1 - стабилен
-
 	if(division == 0) {
 		ASSIGN_PTR(pWeight, weight / 1000000);
 	}
@@ -2270,7 +2262,6 @@ int SLAPI COMMassaKVer1::GetData(int * pGdsNo, double * pWeight)
 	else {
 		ASSIGN_PTR(pWeight, weight);
 	}
-
 	CATCHZOK;
 	return ok;
 }
@@ -3318,7 +3309,7 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 		// В записи PLU присутствует название товара,
 		// ингредиенты и спец. сообщения, Разделы ссылок и питательности отсутствуют
 		// @v7.9.2 out_rec[len++] = 0x20;                           // #12 PLU статус 2
-		out_rec[len++] = ext_text_buf.NotEmpty() ? (0x80|0x20) : (0x20); // #12 PLU статус 2 @v7.9.2
+		out_rec[len++] = ext_text_buf.NotEmpty() ? (0x80|0x20) : (0x20); // #12 PLU статус 2
 		/* Наличие полей в структуре (0-нет; 1-есть)
 		Бит  0:	Поле «Срок продажи в днях»
 		Бит  1:	Поле «Срок продажи в часах и минутах»
@@ -3347,13 +3338,11 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 		for(j = 0; j < goods_name.Len(); j++) {
 			out_rec[len++] = ((const char*)goods_name)[j]; // #29 + goods_name.Len()
 		}
-		// @v7.9.2 {
 		if(ext_text_buf.NotEmpty()) {
 			for(j = 0; j < ext_text_buf.Len(); j++) {
 				out_rec[len++] = ((const char*)ext_text_buf)[j]; // #29 + goods_name.Len() + ext_text_buf.Len()
 			}
 		}
-		// } @v7.9.2
 		out_rec[len++] = 0x00; // контрольная сумма (должна быть 0x00) // #29 + goods_name.Len() + ext_text_buf.Len() + 1
 		//
 		// Теперь, точно зная размер записи, заносим его в буфер по смещению size_offs
@@ -3821,15 +3810,15 @@ private:
 		MessageNumber,
 		PictureNumber,
 		ROSTEST,
-		ExpiryDate,               // @v7.4.1
-		GoodsType,                // @v7.4.1
-		StringsCountInMessage,    // @v7.4.1
-		StringNumber,             // @v7.4.1
-		MessageString,            // @v7.4.1
+		ExpiryDate,               //
+		GoodsType,                //
+		StringsCountInMessage,    //
+		StringNumber,             //
+		MessageString,            //
 		SetPLUData,               // Функция загрузки информации о товара
-		SetPLUDataEx,             // @v7.4.1 Функция расширенной загрузки информации о товара
-		GetStringsCountInMessage, // @v7.4.1 Функция получения количества строк в сообщении
-		SetMessageData            // @v7.4.1 Функция записи сообщений к товару
+		SetPLUDataEx,             // Функция расширенной загрузки информации о товара
+		GetStringsCountInMessage, // Функция получения количества строк в сообщении
+		SetMessageData            // Функция записи сообщений к товару
 	};
 	ComDispInterface * SLAPI InitDriver();
 	int    SLAPI GetSPProp(PPID id, long & rVal);
@@ -3880,15 +3869,15 @@ ComDispInterface * SLAPI ShtrihPrint::InitDriver()
 	THROW(ASSIGN_ID_BY_NAME(p_drv, MessageNumber) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_drv, PictureNumber) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_drv, ROSTEST) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ExpiryDate) > 0);               // @v7.4.1
-	THROW(ASSIGN_ID_BY_NAME(p_drv, GoodsType) > 0);                // @v7.4.1
-	THROW(ASSIGN_ID_BY_NAME(p_drv, StringsCountInMessage) > 0);    // @v7.4.1
-	THROW(ASSIGN_ID_BY_NAME(p_drv, StringNumber) > 0);             // @v7.4.1
-	THROW(ASSIGN_ID_BY_NAME(p_drv, MessageString) > 0);            // @v7.4.1
+	THROW(ASSIGN_ID_BY_NAME(p_drv, ExpiryDate) > 0);
+	THROW(ASSIGN_ID_BY_NAME(p_drv, GoodsType) > 0);
+	THROW(ASSIGN_ID_BY_NAME(p_drv, StringsCountInMessage) > 0);
+	THROW(ASSIGN_ID_BY_NAME(p_drv, StringNumber) > 0);
+	THROW(ASSIGN_ID_BY_NAME(p_drv, MessageString) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_drv, SetPLUData) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, SetPLUDataEx) > 0);             // @v7.4.1
-	THROW(ASSIGN_ID_BY_NAME(p_drv, GetStringsCountInMessage) > 0); // @v7.4.1
-	THROW(ASSIGN_ID_BY_NAME(p_drv, SetMessageData) > 0);           // @v7.4.1
+	THROW(ASSIGN_ID_BY_NAME(p_drv, SetPLUDataEx) > 0);
+	THROW(ASSIGN_ID_BY_NAME(p_drv, GetStringsCountInMessage) > 0);
+	THROW(ASSIGN_ID_BY_NAME(p_drv, SetMessageData) > 0);
 	CATCH
 		ZDELETE(p_drv);
 	ENDCATCH
@@ -3963,12 +3952,6 @@ int SLAPI ShtrihPrint::SetConnection()
 		THROW(SetSPProp(TimeOut,    time_out));
 	}
 	THROW(ExecSPOper(Connect));
-	/* @v7.4.7
-	{
-		THROW(SetSPProp(PrefixBCType, 1L)); // Префикс штрихкода - из группового кода товара
-		THROW(ExecSPOper(SetPrefixBCType));
-	}
-	*/
 	{
 		long   sc = 0;
 		if(ExecSPOper(GetStringsCountInMessage) && GetSPProp(StringsCountInMessage, sc))
@@ -3991,7 +3974,7 @@ int SLAPI ShtrihPrint::SendPLU(const ScalePLU * pScalePLU)
 		THROW(SetSPProp(Tare, 0L));
 		THROW(SetSPProp(ItemCode, pScalePLU->Barcode % 100000));
 		{
-			char  goods_name[128]; // @v6.7.11 [64]-->[128]
+			char  goods_name[128];
 			char  name_part_1[128], name_part_2[128];
 			SplitStrItem name_items[2];
 
@@ -4320,8 +4303,6 @@ int ScaleDialog::editSysData()
 {
 	int    ok = -1;
 	PPID   scale_type_id = getCtrlLong(CTLSEL_SCALE_TYPE);
-	if(scale_type_id == 0)
-		return -1;
 	if(scale_type_id == PPSCLT_EXPORTTOFILE) {
 		SString scale_name;
 		getCtrlString(CTL_SCALE_NAME, scale_name);
@@ -4335,7 +4316,7 @@ int ScaleDialog::editSysData()
 				ok = PPErrorZ();
 		}
 	}
-	else {
+	else if(scale_type_id != 0) {
 		TDialog * dlg = new TDialog(DLG_SCALESYS);
 		if(CheckDialogPtr(&dlg, 1)) {
 			if(!(Data.Flags & SCALF_SYSPINITED)) {
@@ -4595,8 +4576,8 @@ int SLAPI PPObjScale::Edit(PPID * pID, void * extraPtr)
 		MEMSZERO(scale);
 		for(int i = 1; i <= 32; i++) {
 			// @v9.4.9 sprintf(scale.Name, "Scale #%d", i);
-			(temp_buf = "Scale").Space().CatChar('#').Cat(i); // @v9.4.9 
-			STRNSCPY(scale.Name, temp_buf); // @v9.4.9 
+			(temp_buf = "Scale").Space().CatChar('#').Cat(i); // @v9.4.9
+			STRNSCPY(scale.Name, temp_buf); // @v9.4.9
 			if(CheckDupName(*pID, scale.Name))
 				break;
 			else
@@ -4835,7 +4816,7 @@ int SLAPI PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 							strcpy(barcode, barcode + bclen - 6);
 						plu.Barcode = (long)atof(barcode);
 						const double price_ = (eq_cfg.Flags & eq_cfg.fUncondAsyncBasePrice) ? rtl_ext_item.BasePrice : rtl_ext_item.Price;
-						plu.Price  = R2(rtl_ext_item.ExtPrice ? rtl_ext_item.ExtPrice : price_); // @v7.1.1 rtl_ext_item.Price-->rtl_ext_item.BasePrice
+						plu.Price  = R2(rtl_ext_item.ExtPrice ? rtl_ext_item.ExtPrice : price_);
 						plu.Expiry = rtl_ext_item.Expiry;
 						plu.GoodsName = gr_item.GoodsName;
 						plu.GoodsName.ReplaceChar('\t', ' ');
@@ -4945,7 +4926,7 @@ int SLAPI PPObjScale::SendPlu(PPScale * pScaleData, const char * pFileName, int 
 								case 3: p_plu->Barcode = fld_buf.ToLong(); break;
 								case 4: p_plu->Price   = fld_buf.ToReal(); break;
 								case 5: p_plu->Expiry.v = strtoul(fld_buf.Strip(), 0, 10); break;
-								case 6: p_plu->Flags = fld_buf.ToLong(); break; // @v7.1.11
+								case 6: p_plu->Flags = fld_buf.ToLong(); break;
 								case 7: p_plu->GoodsName = fld_buf.Strip(); break;
 								case 8: p_plu->AddMsgBuf = fld_buf.Strip(); break;
 							}
@@ -4976,7 +4957,7 @@ int SLAPI PPObjScale::SendPlu(PPScale * pScaleData, const char * pFileName, int 
 			const ScalePLU * p_item = load_list.at(i);
 			ok = 0;
 			uint   collision = 0;
-			for(uint j = 0; !ok && j < 10; j++)
+			for(uint j = 0; !ok && j < 10; j++) {
 				if(p_comm->SendPLU(p_item)) {
 					ok = 1;
 				}
@@ -4984,6 +4965,7 @@ int SLAPI PPObjScale::SendPlu(PPScale * pScaleData, const char * pFileName, int 
 					collision++;
 					delay(100);
 				}
+			}
 			if(collision) {
 				StatBuf.NumSendPluColl++;
 				if(StatBuf.MaxSendPluCollIters < collision)
@@ -5146,7 +5128,7 @@ PPScaleDevice * SLAPI GetScaleDevice(PPScale * pScaleData)
 		if(pScaleData->ScaleTypeID == PPSCLT_CAS)
 			p_comm = new CommLP15(port, pScaleData);
 		else if(pScaleData->ScaleTypeID == PPSCLT_MASSAK) {
-			if(pScaleData->ProtocolVer == 10)
+			if(oneof2(pScaleData->ProtocolVer, 10, 11))
 				p_comm = new COMMassaKVPN(port, pScaleData);
 			else if(pScaleData->LogNum)
 				p_comm = new COMMassaK(port, pScaleData);

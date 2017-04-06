@@ -7749,12 +7749,12 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 	SString mark_buf;
 	SString temp_buf;
 	PPID   preserve_main_org_id = 0;
+	TSArray <UtmEntry> utm_list;
 	GetMainOrgID(&preserve_main_org_id);
 	if(rParam.MainOrgID)
 		DS.SetMainOrgID(rParam.MainOrgID, 0);
 
 	{
-		TSArray <UtmEntry> utm_list;
 		GetUtmList(rParam.LocID, utm_list);
 		if(utm_list.getCount()) {
 			const UtmEntry & r_utm_entry = utm_list.at(0);
@@ -7947,7 +7947,6 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 	}
 	else if(rParam.DocType == (PPEDIOP_EGAIS_QUERYCLIENTS+3000)) {
 		const int rmv_debug_mode = (rParam.ParamString.CmpNC("yes") == 0) ? 0 : 1;
-		TSArray <PPEgaisProcessor::UtmEntry> utm_list;
 		THROW(GetUtmList(rParam.LocID, utm_list));
 		PPWait(1);
 		for(uint i = 0; i < utm_list.getCount(); i++) {
@@ -8077,14 +8076,17 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 int SLAPI PPEgaisProcessor::InteractiveQuery()
 {
 	int    ok = -1;
+	const  long  preserve_state = State; // @v9.6.0
 	QueryParam _param;
 	SETFLAGBYSAMPLE(_param.Flags, stTestSendingMode, State);
 	_param.LocID = LConfig.Location;
 	while(EditQueryParam(&_param) > 0) {
+		SETFLAGBYSAMPLE(State, stTestSendingMode, _param.Flags); // @v9.6.0
 		THROW(ImplementQuery(_param));
 		ok = 1;
 	}
 	CATCHZOKPPERR
+	State = preserve_state; // @v9.6.0
 	return ok;
 }
 

@@ -2286,8 +2286,8 @@ int SLAPI StrAssocArray::Test_Cmp(const TaggedStringArray & rTsa, int * pNEqPos)
 int FASTCALL StrAssocArray::Write(SBuffer & rBuf, long o) const
 {
 	int    ok = 1;
-	THROW(rBuf.Write(&Assoc));
-	THROW(rBuf.Write(&ParentList));
+	THROW(rBuf.Write(&Assoc, 0));
+	THROW(rBuf.Write(&ParentList, 0));
 	THROW(Pool.Write(rBuf));
 	CATCHZOK
 	return ok;
@@ -2296,8 +2296,8 @@ int FASTCALL StrAssocArray::Write(SBuffer & rBuf, long o) const
 int FASTCALL StrAssocArray::Read(SBuffer & rBuf, long o)
 {
 	int    ok = 1;
-	THROW(rBuf.Read(&Assoc));
-	THROW(rBuf.Read(&ParentList));
+	THROW(rBuf.Read(&Assoc, 0));
+	THROW(rBuf.Read(&ParentList, 0));
 	THROW(Pool.Read(rBuf));
 	CATCHZOK
 	return ok;

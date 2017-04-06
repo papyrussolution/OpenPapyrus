@@ -549,7 +549,7 @@ int SLAPI ObjIdListFilt::Write(SBuffer & rBuf) const
 	long   is_exists = IsExists();
 	THROW_SL(rBuf.Write(is_exists));
 	if(is_exists)
-		THROW_SL(rBuf.Write(P_List));
+		THROW_SL(rBuf.Write(P_List, 0));
 	CATCHZOK
 	return ok;
 }
@@ -561,7 +561,7 @@ int SLAPI ObjIdListFilt::Read(SBuffer & rBuf)
 	THROW_SL(rBuf.Read(is_exists));
 	if(is_exists) {
 		THROW(InitEmpty());
-		THROW_SL(rBuf.Read(P_List));
+		THROW_SL(rBuf.Read(P_List, 0));
 	}
 	else
 		Set(0);

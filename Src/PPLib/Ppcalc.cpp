@@ -640,7 +640,7 @@ int PPCalculator(uint32 parentWnd, const char * pInitData)
 			SString input;
 			getCtrlString(CTL_CALC_INPUT, input);
 			if(input.NotEmptyS()) {
-				// @v9.5.6 input.ReplaceChar(',', '.');
+				/* @v9.6.0 // @v9.5.6*/ input.ReplaceChar(',', '.');
 				Err = !PPCalcExpression(input, &Result, &CFL);
 			}
 			else {

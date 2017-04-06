@@ -1,5 +1,5 @@
 // V_SYNC.CPP
-// Copyright (c) A.Sobolev 2001-2003, 2006, 2007, 2008, 2009, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2001-2003, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -22,12 +22,12 @@ int SLAPI ObjSyncFilt::Init(int fullyDestroy, long extraData)
 
 int SLAPI ObjSyncFilt::Write(SBuffer & rBuf, long f) const
 {
-	return (PPBaseFilt::Write(rBuf, f) && rBuf.Write(&ObjIDList) && rBuf.Write(&CommIDList)) ? 1 : 0;
+	return (PPBaseFilt::Write(rBuf, f) && rBuf.Write(&ObjIDList, 0) && rBuf.Write(&CommIDList, 0)) ? 1 : 0;
 }
 
 int SLAPI ObjSyncFilt::Read(SBuffer & rBuf, long f)
 {
-	return (PPBaseFilt::Read(rBuf, f) && rBuf.Read(&ObjIDList) && rBuf.Read(&CommIDList)) ? 1 : 0;
+	return (PPBaseFilt::Read(rBuf, f) && rBuf.Read(&ObjIDList, 0) && rBuf.Read(&CommIDList, 0)) ? 1 : 0;
 }
 
 int SLAPI ObjSyncFilt::Copy(const PPBaseFilt * pS, int deep)

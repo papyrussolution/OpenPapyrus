@@ -544,7 +544,7 @@ int SLAPI QuotUpdFilt::Read_Pre720(SBuffer & rBuf, long)
 		rBuf.Read(Flags) &&
 		rBuf.Read(QuotFlags) &&
 		rBuf.Read(QuotVal) &&
-		rBuf.Read((SArray*)&loc_list)) {
+		rBuf.Read((SArray*)&loc_list, 0)) {
 		LocList.Set(&loc_list);
 		return 1;
 	}

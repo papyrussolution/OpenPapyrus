@@ -2443,9 +2443,9 @@ PPERR_TDDO_DL6SYMBEXPECTED "TDDO: name of DL600 structure"
 	//#org TDDO: ошибка в выражении '%s'
 PPERR_TDDO_EXPR "TDDO: error in the expression '%s'"
 	//#org TDDO: встретился #else без соответствующего #if
-PPERR_TOOD_MISSPLACEDELSE "TDDO: met #else without the corresponding #if"
+PPERR_TDDO_MISSPLACEDELSE "TDDO: met #else without the corresponding #if"
 	//#org TDDO: встретился #elif без соответствующего #if
-PPERR_TOOD_MISSPLACEDELIF "TDDO: met #elif without the corresponding #if"
+PPERR_TDDO_MISSPLACEDELIF "TDDO: met #elif without the corresponding #if"
 	//#org Не допустимая кодовая страница %s
 PPERR_INVCODEPAGE "Not valid code page%s"
 
@@ -4291,7 +4291,7 @@ PPINF_EGAISSHOPRETURNCR "Created document register 2 check-in @{brand_egais}% :s
 9 "The document%s, page%d Item%s (%.2lf units). Fix?"
 	//#org На упаковке
 13 "On the package"
-	//#org Сумма включает скидку 
+	//#org Сумма включает скидку
 16 "The amount includes rebate "
 	//#org по операции
 19 "on the operation"
@@ -4311,7 +4311,7 @@ PPINF_EGAISSHOPRETURNCR "Created document register 2 check-in @{brand_egais}% :s
 32 "Strings% :s Sold% :s%s Surplus Amount of surplus% :s"
 	//#org Фильтр по товарным документам;Фильтр по товарным заказам;Фильтр по бухгалтерским документам;Фильтр по документам инвентаризации;Фильтр по пулам документов;Фильтр по драфт-документам;Фильтр по складским документам
 33 "Filter by product documents; trademark orders; on accounting documents; documents; inventory pools filter documents;-draft documents filter; filter by warehouse documents"
-	//#org ПО МЕЖСКЛАДСКОЙ ОПЕРАЦИИ 
+	//#org ПО МЕЖСКЛАДСКОЙ ОПЕРАЦИИ
 34 "FOR MEZHSKLADSKOJ OPERATIONS "
 	//#org Учтены только те оплаты, которые сделаны за заданный период
 35 "Include only those payments, which are made for a specified period"
@@ -4334,15 +4334,15 @@ PPINF_EGAISSHOPRETURNCR "Created document register 2 check-in @{brand_egais}% :s
 63 "The amount includes sales tax, and sales tax"
 	//#org @{typboolean};@{typstring};@{typnumeric};@{typenumeration};Целое число;Ссылка на объект;@{date};GUID;@{typimage};@{typtimestamp}
 64 "@{typboolean} @{typstring} @{typnumeric} @{typenumeration}; integer; a reference to the object @{date}; GUID; @{typimage} @{typtimestamp}"
-	//#org *** Файл передачи: %s *** Раздел: %s *** 
+	//#org *** Файл передачи: %s *** Раздел: %s ***
 65 "File transfer% :s * Section% :s * "
-	//#org Документ %s: Переданная сумма=%.2lf;Принятая сумма=%.2lf 
+	//#org Документ %s: Переданная сумма=%.2lf;Принятая сумма=%.2lf
 66 "Document%s: Transmitted amount =%.2lf; Adopted sum =%.2lf "
-	//#org Товар [id=@int] @goods дефицит=@real цп=@real цр=@real поставщик=@article 
+	//#org Товар [id=@int] @goods дефицит=@real цп=@real цр=@real поставщик=@article
 67 "Item [id = @int] = CPU @real deficit @goods = @real CR = provider = @real @article "
-	//#org Документ не проведен 
+	//#org Документ не проведен
 68 "Document not held "
-	//#org Итог проблемных товаров по файлу: 
+	//#org Итог проблемных товаров по файлу:
 69 "A total of distressed goods on a file: "
 	//#org Waiting on database locking ...
 73 "Waiting on database locking."
@@ -4354,7 +4354,7 @@ PPINF_EGAISSHOPRETURNCR "Created document register 2 check-in @{brand_egais}% :s
 76 "ON ACCOUNT OF SUB-ACCOUNT SUBKONTO;"
 	//#org Сохранение баланса;Восстановление баланса;Усечение товарных строк;Усечение документов
 81 "Maintaining the balance; balance Recovery; commodity Truncation the truncation of strings instruments"
-	//#org @{novat};Комплект;  Заказ: 
+	//#org @{novat};Комплект;  Заказ:
 83 "@{novat}; set;  Order: "
 	//#org 1,ОКА-500.1;2,Електроника-92-Аквариус-Ф;3,АМС-100Ф;4,ЭКР-4110Ф;5,СуперМаг УКМ;6,Эмулятор (синхронный);7,Петрович (Ладога-Ф, Електроника-92, ЭКР-3102Ф);8,АМС-200Ф;9,Кристалл УКМ;10,Кассовый сервер Кристалл;11,Штрих-ФР;12,Атол;13,Unused;14,Papyrus;15,Атол без АТОЛ-CARD;16,Штрих-М-ФР-К;17,Фронтол;18,Универсальный драйвер АТОЛ;19,Группа кассовых узлов;20,Unused;21,Распределенный кассовый узел;22,Set Start
 98 "1, Oka-500.1; 2, Electronics-92-Aquarius-f; 3, AMC-cash; 4, SCR-4110F; 5, SuperMag UQÀM; 6, emulator (synchronous); 7, PETROVIĆ (Ladoga-s, Electronics-92, SCR-3102F); 8, AMC-200F; 9, Crystal UQÀM; 10, Cash Server Crystal; 11, Barcode-FR; 12, ATOL; 13, Unused; 14, Papyrus; 15, ATOL no ATOL-CARD; 16, Barcode-RF-to; 17, Frontol; 18, universal driver ATOL; 19, Group cash nodes; 20, Unused; 21, committed cash node; 22, Set Start"
@@ -4445,7 +4445,7 @@ PPTXT_PLISTTOALBATROS "Preparing to publish a price list"
 167 "Filling the gaps"
 	//#org Измените, если это нужно, ИНН клиента в БД
 168 "Modify, if necessary, DB client'S INN"
-	//#org В принимаемом заказе, указан клиент, который уже ;существует в текущей базе данных. Кнопка OK - ;принять изменения и принять заказ, кнопка Отмена - не ;принимать изменения и не принимать заказ.;В текущей базе данных, уже существует клиент с таким же;ИНН, как и у клиента в принимаемом заказе. Кнопка ОК - 
+	//#org В принимаемом заказе, указан клиент, который уже ;существует в текущей базе данных. Кнопка OK - ;принять изменения и принять заказ, кнопка Отмена - не ;принимать изменения и не принимать заказ.;В текущей базе данных, уже существует клиент с таким же;ИНН, как и у клиента в принимаемом заказе. Кнопка ОК -
 169 "In the adopted order, specify a client that already; exist in the current database. OK button-; accept the changes and take the order, cancel button-not; accept changes and not to accept the order. In the current database already exists with the same client; the Inn, as the customer in the order taken. Ok Button- "
 	//#org Принять изменения персоналии?
 170 "Accept changes personalities?"
@@ -4922,7 +4922,7 @@ PPWORD_AVGSKUCOUNT "SKU (Wed)"
 	//#org Выход из состояния ввода срока годности = Escape
 357 "The output from the input status expiration date = Escape"
 
-	//#org Продолжительность простоя: 
+	//#org Продолжительность простоя:
 369 "Downtime: "
 
 	//#org Шаблон номеров карт
@@ -5150,7 +5150,7 @@ PPWORD_AVGSKUCOUNT "SKU (Wed)"
 523 "SysJournal write error (%s)"
 	//#org Прием строк инвентаризации
 524 "Reception lines inventory"
-	//#org @{mainorg}: %s Лицензия: %s @{user}: %s Путь к БД: %s Путь к отчету: %s Структура данных: %s 
+	//#org @{mainorg}: %s Лицензия: %s @{user}: %s Путь к БД: %s Путь к отчету: %s Структура данных: %s
 534 "@{mainorg}% :s%s License @{user}% :s database Path% :s report path% :s data structure% :s "
 	//#org Дата и время:
 535 "Date and time:"

@@ -3170,7 +3170,7 @@ int SLAPI SString::IsDigit() const
 
 ulong SLAPI SString::ToULong() const
 {
-	if(L) {
+	if(L > 0) {
 		const char * p = P_Buf;
 		while(*p == ' ' || *p == '\t')
 			p++;
@@ -3191,7 +3191,7 @@ long SLAPI SString::ToLong() const
 
 int64 SLAPI SString::ToInt64() const
 {
-	if(L) {
+	if(L > 0) {
 		const char * p = P_Buf;
 		while(*p == ' ' || *p == '\t')
 			p++;
@@ -3204,16 +3204,94 @@ int64 SLAPI SString::ToInt64() const
 double SLAPI SString::ToReal() const
 {
 	double v = 0.0;
-	if(L)
+	if(L > 0)
 		strtodoub(P_Buf, &v);
 	return v;
+}
+
+int SLAPI SString::ToIntRange(IntRange & rRange, long flags) const
+{
+	int    result = 0;
+	if(L > 0) {
+		long   lo = 0;
+		long   up = 0;
+		size_t src_pos = 0;
+		while(P_Buf[src_pos] == ' ' || P_Buf[src_pos] == '\t')
+			src_pos++;
+		//
+		int    is_neg = 0;
+		if(P_Buf[src_pos] == '-') {
+			src_pos++;
+			is_neg = 1;
+		}
+		else if(P_Buf[src_pos] == '+')
+			src_pos++;
+		if(isdec(P_Buf[src_pos])) {
+			do {
+				lo = lo * 10 + (P_Buf[src_pos] - '0');
+				src_pos++;
+			} while(isdec(P_Buf[src_pos]));
+			if(is_neg)
+				lo = -lo;
+			//
+			const size_t preserve_upp_src_pos = src_pos;
+			int   upp_is_done = 0;
+			while(P_Buf[src_pos] == ' ' || P_Buf[src_pos] == '\t')
+				src_pos++;
+
+			uint do_next = 0;
+			{
+				if(P_Buf[src_pos] == ':' && (flags & torfColon))
+					do_next = 1;
+				else if(P_Buf[src_pos] == '-' && (flags & torfHyphen))
+					do_next = 1;
+				else if(P_Buf[src_pos] == '.' && P_Buf[src_pos+1] == '.' && (flags & torfDoubleDot))
+					do_next = 2;
+				else if(P_Buf[src_pos] == ',' && P_Buf[src_pos+1] == ',' && (flags & torfDoubleComma))
+					do_next = 2;
+			}
+			if(do_next) {
+				src_pos += do_next;
+				while(P_Buf[src_pos] == ' ' || P_Buf[src_pos] == '\t')
+					src_pos++;
+				is_neg = 0;
+				if(P_Buf[src_pos] == '-') {
+					src_pos++;
+					is_neg = 1;
+				}
+				else if(P_Buf[src_pos] == '+')
+					src_pos++;
+				if(isdec(P_Buf[src_pos])) {
+					do {
+						up = up * 10 + (P_Buf[src_pos] - '0');
+						src_pos++;
+					} while(isdec(P_Buf[src_pos]));
+					if(is_neg)
+						up = -up;
+					upp_is_done = 1;
+				}
+			}
+			if(upp_is_done) {
+				rRange.low = lo;
+				rRange.upp = up;
+				result = src_pos;
+			}
+			else {
+				rRange.low = lo;
+				rRange.upp = lo;
+				result = preserve_upp_src_pos;
+			}
+		}
+		assert(src_pos <= Len());
+	}
+	return result;
 }
 
 SString & SLAPI SString::Sub(size_t startPos, size_t len, SString & rBuf) const
 {
 	rBuf = 0;
 	if(startPos < Len()) {
-		size_t len2 = MIN(len, Len()-startPos);
+		const size_t len2 = MIN(len, Len()-startPos);
 		rBuf.CopyFromN(P_Buf+startPos, len2);
 	}
 	return rBuf;
@@ -5844,6 +5922,67 @@ SLTEST_R(SString)
             SLTEST_CHECK_Z(str.IsLegalUtf8());
             str.Transf(CTRANSF_OUTER_TO_UTF8);
             SLTEST_CHECK_NZ(str.IsLegalUtf8());
+		}
+		{
+			IntRange ir;
+			int    r;
+			{
+				r = (str = 0).ToIntRange(ir, SString::torfDoubleDot);
+				SLTEST_CHECK_Z(r);
+			}
+			{
+				r = (str = "12..987").ToIntRange(ir, SString::torfDoubleDot);
+				SLTEST_CHECK_NZ(r);
+				SLTEST_CHECK_EQ(r, (long)str.Len());
+				SLTEST_CHECK_EQ(ir.low, 12);
+				SLTEST_CHECK_EQ(ir.upp, 987);
+			}
+			{
+				// «десь .. не будет распознано как разделитель границ (SString::torfHyphen)
+				r = (str = "12..987").ToIntRange(ir, SString::torfHyphen);
+				SLTEST_CHECK_NZ(r);
+				SLTEST_CHECK_EQ(r, (long)2);
+				SLTEST_CHECK_EQ(ir.low, 12);
+				SLTEST_CHECK_EQ(ir.upp, 12);
+			}
+			{
+				r = (str = " -12 : 987q").ToIntRange(ir, SString::torfAny);
+				SLTEST_CHECK_NZ(r);
+				SLTEST_CHECK_EQ(r, (long)(str.Len()-1));
+				SLTEST_CHECK_EQ(ir.low, -12);
+				SLTEST_CHECK_EQ(ir.upp, 987);
+			}
+			{
+				r = (str = " -12,,-987 z").ToIntRange(ir, SString::torfAny);
+				SLTEST_CHECK_NZ(r);
+				SLTEST_CHECK_EQ(r, (long)(str.Len()-2));
+				SLTEST_CHECK_EQ(ir.low, -12);
+				SLTEST_CHECK_EQ(ir.upp, -987);
+			}
+			{
+				r = (str = " -12000 --987 z").ToIntRange(ir, SString::torfAny);
+				SLTEST_CHECK_NZ((long)r);
+				SLTEST_CHECK_EQ(r, (long)(str.Len()-2));
+				SLTEST_CHECK_EQ(ir.low, -12000);
+				SLTEST_CHECK_EQ(ir.upp, -987);
+			}
+			{
+				SLTEST_CHECK_Z((str = " &12").ToIntRange(ir, SString::torfAny));
+			}
+			{
+				r = (str = " +19 ").ToIntRange(ir, SString::torfAny);
+				SLTEST_CHECK_NZ(r);
+				SLTEST_CHECK_EQ(r, (long)(str.Len()-1));
+				SLTEST_CHECK_EQ(ir.low, 19);
+				SLTEST_CHECK_EQ(ir.upp, 19);
+			}
+			{
+				r = (str = " -1234567890 ").ToIntRange(ir, SString::torfAny);
+				SLTEST_CHECK_NZ(r);
+				SLTEST_CHECK_EQ(r, (long)(str.Len()-1));
+				SLTEST_CHECK_EQ(ir.low, -1234567890);
+				SLTEST_CHECK_EQ(ir.upp, -1234567890);
+			}
 		}
 	}
 	CATCH

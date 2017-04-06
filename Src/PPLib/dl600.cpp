@@ -146,16 +146,16 @@ DlFuncPool::DlFuncPool() : Items(sizeof(F)), ArgList(sizeof(Arg))
 
 int DlFuncPool::Write(SBuffer & rBuf) const
 {
-	rBuf.Write(&Items);
-	rBuf.Write(&ArgList);
+	rBuf.Write(&Items, 0);
+	rBuf.Write(&ArgList, 0);
 	NamePool.Write(rBuf);
 	return 1;
 }
 
 int DlFuncPool::Read(SBuffer & rBuf)
 {
-	rBuf.Read(&Items);
-	rBuf.Read(&ArgList);
+	rBuf.Read(&Items, 0);
+	rBuf.Read(&ArgList, 0);
 	NamePool.Read(rBuf);
 	return 1;
 }
@@ -2802,8 +2802,8 @@ int SLAPI DlContext::Read_Code()
 			}
 		} while(!eot);
 		THROW(ConstList.Read(&buf));
-		THROW(buf.Read(&TypeList));
-		THROW(buf.Read(&UuidList));
+		THROW(buf.Read(&TypeList, 0));
+		THROW(buf.Read(&UuidList, 0));
 		THROW(Sc.Read(buf));
 		THROW(Sc.InitInheritance(&Sc));
 	}

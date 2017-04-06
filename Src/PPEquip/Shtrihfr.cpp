@@ -1147,7 +1147,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double mul
 			if(departN > 0 && departN <= 16) {
 				THROW(SetFR(Department, departN));
 			}
-			// } @v9.5.7 
+			// } @v9.5.7
 			// Налоги
 			if(print_tax) {
 				if(bte.SalesTax) {
@@ -1182,7 +1182,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double mul
 		THROW(Cut(1));
 		ErrCode = SYNCPRN_NO_ERROR;
 	}
-	else 
+	else
 		ok = -1;
 	CATCH
 		if(Flags & sfCancelled) {
@@ -1911,12 +1911,14 @@ int SLAPI SCS_SHTRIHFRF::ConnectFR()
 		}
 		THROW_PP(PortType == COM_PORT, PPERR_SYNCCASH_INVPORT);
 		// @v9.5.12 {
+		/* @v9.6.0
 		if(SGetComputerName(buf)) {
 			THROW(SetFR(ComputerName, buf));
 		}
 		THROW(SetFR(ProtocolType, 0)); // стандартный
 		THROW(SetFR(ConnectionType, 0)); // локально
-		// } @v9.5.12 
+		*/
+		// } @v9.5.12
 		THROW(SetFR(ComNumber, Handle));
 		if(_timeout >= 0 && _timeout <= 105000) {
 			THROW(SetFR(Timeout, GetShtrihFrTimeoutValue(_timeout)));

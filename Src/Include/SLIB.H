@@ -3159,6 +3159,38 @@ public:
 	ulong  SLAPI ToULong() const;
 	int64  SLAPI ToInt64() const;
 	double SLAPI ToReal() const;
+	//
+	// Descr: ‘лаги функции ToIntRange
+	//
+	enum {
+		torfDoubleDot   = 0x0001, // ƒопускаетс€ разделитель ..
+		torfDoubleComma = 0x0002, // ƒопускаетс€ разделитель ,,
+		torfColon       = 0x0004, // ƒопускаетс€ разделитель :
+		torfHyphen      = 0x0008, // ƒопускаетс€ разделитель -
+		torfAny         = (torfDoubleDot|torfDoubleComma|torfColon|torfHyphen)
+	};
+	//
+	// Descr: ѕреобразует строку this к целочисленному диапазону.
+	//   ƒиапазон может быть представлен в следующих видах:
+	//   ѕросто число: 19
+	//   ƒва числа, разделенные двум€ последовательными точками: 19..37
+	//   ƒва числа, разделенные знаком тире '-': 19-37 (обратите внимание, что -19--12 будет восприн€то как [-19:-12],
+	//      а -19-12 как [-19:12].
+	//   ƒва числа, разделенные знаком двоеточи€ ':': 19:37
+	//   ƒва числа, разделенные двум€ последовательными зап€тыми: 19,,37
+	//   ѕробелы и табул€ции перед диапазоном, до разделител€ и после разделител€ игнорируютс€.
+	//     например: " -19  ..  38" будет восприн€то как валидный диапазон.
+	// Note: ‘ункци€ не обращает внимание на упор€доченность нижней и верхней границ. “о есть,
+	//   строка "125..98" вернет диапазон [125:98] не мен€€ границы местами.
+	//   ƒл€ гарантированной упор€доченности границ можно использовать вызов ExchangeToOrder(&range.low, &range.upp).
+	//    роме того, функци€ не провер€ет значени€ чисел на переполнение.
+	// ARG(rRange OUT): ÷елочисленный диапазон, полученный в результате разбора строки
+	// ARG(flags  IN): ‘лаги, регулирующие возможные форматы. See SString::torfXXX
+	// Returns:
+	//   0  - не удалось извлечь диапазон из строки. ¬ этом случае значение rRange не измен€етс€.
+	//   >0 - смещение от начала строки, на котором закончилс€ успешный разбор диапазона.
+	//
+	int    SLAPI ToIntRange(IntRange & rRange, long flags) const;
 	SString & SLAPI Sub(size_t startPos, size_t len, SString & rBuf) const;
 
 	SString & SLAPI TrimRight();
@@ -4012,7 +4044,7 @@ int    SLAPI periodfmtex(const DateRange *, char *, size_t bufLen);
 
 char * SLAPI strfmt(const char * str, long fmt, char * buf);
 //char * SLAPI numbertotext(double nmb, long fmt, char * pBuf);
-int   SLAPI strtoirng(const char * pBuf, long * pLow, long * pUpp);
+// @v9.6.0 int   SLAPI strtoirng(const char * pBuf, long * pLow, long * pUpp);
 int   SLAPI strtorrng(const char * pBuf, double * pLow, double * pUpp);
 int   FASTCALL strtorrng(const char * pBuf, RealRange & rRng);
 int   SLAPI strtodoub(const char * pBuf, double *);
@@ -4629,8 +4661,8 @@ public:
 	int    FASTCALL Read(LTIME & v);
 	int    FASTCALL Write(const LDATETIME & v);
 	int    FASTCALL Read(LDATETIME & v);
-	int    FASTCALL Write(const SArray * pAry, long options = 0);
-	int    FASTCALL Read(SArray * pAry, long options = 0);
+	int    FASTCALL Write(const SArray * pAry, long options /*= 0*/);
+	int    FASTCALL Read(SArray * pAry, long options /* = 0*/);
 	int    FASTCALL Write(const SBuffer & v);
 	int    FASTCALL Read(SBuffer & v);
 	//

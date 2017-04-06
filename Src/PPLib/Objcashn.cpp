@@ -22,7 +22,7 @@ SLAPI PPGenCashNode::PPGenCashNode()
 	ExtFlags = 0;
 	GoodsLocAssocID = 0;
 	ParentID = 0;
-	GoodsGrpID = 0; // @v7.2.12
+	GoodsGrpID = 0;
 	P_DivGrpList = 0;
 }
 
@@ -108,24 +108,53 @@ SLAPI PPAsyncCashNode::PPAsyncCashNode() : PPGenCashNode()
 {
 }
 
-int SLAPI PPAsyncCashNode::GetLogNumList(PPIDArray * pList) const
+int SLAPI PPAsyncCashNode::GetLogNumList(PPIDArray & rList) const
 {
-	if(!pList)
-		return PPSetError(PPERR_INVPARAM);
-	pList->freeAll();
-	SString log_num_list = LogNumList;
+	int    ok = 1;
+	rList.clear();
+	// @v9.6.0 {
+	StringSet ss;
+	SString temp_buf;
+	LogNumList.Tokenize(",", ss);
+	for(uint sp = 0; ss.get(&sp, temp_buf);) {
+		temp_buf.Strip();
+		IntRange range;
+        int r = temp_buf.ToIntRange(range, SString::torfDoubleDot|SString::torfHyphen);
+        THROW_PP_S(r == temp_buf.Len(), PPERR_INVPOSNUMBERITEM, temp_buf);
+		{
+            SETMAX(range.low, 0);
+            SETMAX(range.upp, 0);
+            ExchangeToOrder(&range.low, &range.upp);
+            for(long v = range.low; v <= range.upp; v++) {
+                rList.add(v);
+				THROW_PP_S(rList.getCount() <= 2000, PPERR_TOOLARGERANGE, temp_buf);
+            }
+        }
+	}
+	rList.sortAndUndup();
+	// } @v9.6.0
+	/*
+	//SString log_num_list = LogNumList;
 	if(log_num_list.NotEmptyS()) {
-		char   tempbuf[128];
+		//121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,143,144,145,146,147,148,149,150,151,152,153,154,155,141,142
+		char   tempbuf[512]; // @v9.6.0 @fix [128]-->[512]
 		char * p;
 		long   n, sDELIM = 0x0000202CL; // ", "
 		STRNSCPY(tempbuf, log_num_list);
-		if((p = strtok(tempbuf, (char*)&sDELIM)) != 0)
+		if((p = strtok(tempbuf, (char*)&sDELIM)) != 0) {
 			do {
 				if((n = atol(p)) > 0)
-					pList->add(n);
+					rList.add(n);
 			} while((p = strtok(0, (char*)&sDELIM)) != 0);
+		}
 	}
-	return pList->getCount() ? 1 : -1;
+	*/
+	ok = rList.getCount() ? 1 : -1;
+	CATCH
+		rList.clear();
+		ok = 0;
+	ENDCATCH
+	return ok;
 }
 
 struct __PPExtDevices {     // @persistent
@@ -142,7 +171,7 @@ struct __PPExtDevices {     // @persistent
 	PPID   ScaleID;         // ИД весов
 	int16  ClearCDYTimeout; // Таймаут очистки дисплея покупателя после печати чека
 	int16  EgaisMode;       // @v9.0.9 Режим работы с УТМ ЕГАИС. 0 - не использовать, 1 - использовать, 2 - тестовый режим
-	PPID   PhnSvcID;        // @v7.3.3
+	PPID   PhnSvcID;        // 
 
 	long   BnkTermType;		// Тип банковского терминала
 	uint16 BnkTermLogNum;	// Логический номер банковского терминала
@@ -161,7 +190,7 @@ struct __PosNodeExt {       // @persistent
 	uint8  Reserve[60];     // @reserve
 	uint16 ScfDaysPeriod;       // Параметр фильтрации отложенных чеков
 	int16  ScfDlvrItemsShowTag; // Параметр фильтрации отложенных чеков
-	uint16 BonusMaxPart;    // @v7.5.12
+	uint16 BonusMaxPart;    // 
 	uint16 Reserve3;        // @alignment
 	int32  Reserve2;        // @reserve
 };
@@ -414,7 +443,7 @@ PPID SLAPI PPObjCashNode::Select(PPID locID, int syncGroup, int * pIsSingle, int
 	f.LocID = locID;
 	f.SyncGroup = syncGroup;
 	f.OnlyGroups = -1;
-	f.Flags |= SelFilt::fSkipPassive; // @v7.6.9
+	f.Flags |= SelFilt::fSkipPassive;
 	ASSIGN_PTR(pIsSingle, 0);
 	PPObjCashNode cn_obj;
 	THROW(p_ary = cn_obj.MakeStrAssocList(&f));
@@ -581,7 +610,7 @@ int SLAPI PPObjCashNode::Get(PPID id, PPGenCashNode * pGCN, PPCashNode * pCN)
 		STRNSCPY(pGCN->Name, cn_rec.Name);
 		STRNSCPY(pGCN->Symb, cn_rec.Symb);
 		pGCN->ParentID = cn_rec.ParentID;
-		pGCN->GoodsGrpID = cn_rec.GoodsGrpID; // @v7.2.12
+		pGCN->GoodsGrpID = cn_rec.GoodsGrpID;
 		//
 		ZDELETE(pGCN->P_DivGrpList);
 		SArray temp_list(sizeof(PPGenCashNode::DivGrpAssc));
@@ -631,7 +660,7 @@ int SLAPI PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 				pSCN->BnkTermLogNum = p_ed->BnkTermLogNum;
 				STRNSCPY(pSCN->BnkTermPort, p_ed->BnkTermPort);
 				pSCN->BnkTermFlags = p_ed->BnkTermFlags;
-				pSCN->PhnSvcID  = p_ed->PhnSvcID; // @v7.3.3
+				pSCN->PhnSvcID  = p_ed->PhnSvcID;
 				pSCN->ExtString = p_ed->ExtStrBuf;
 				pSCN->GetPropString(SCN_PRINTERPORT,        pSCN->PrinterPort);
 				pSCN->GetPropString(SCN_CAFETABLE_DGR_PATH, pSCN->TableSelWhatman);
@@ -656,29 +685,27 @@ int SLAPI PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 			pSCN->EgaisMode       = 0; // @v9.0.9
 			pSCN->PrinterPort     = 0;
 			pSCN->TableSelWhatman = 0;
-			pSCN->BnkTermPath     = 0; // @v7.4.1
-			pSCN->SlipFmtPath     = 0; // @v7.4.1
-			pSCN->PhnSvcID        = 0; // @v7.3.3
-			pSCN->ExtString       = 0; // @v7.8.1
+			pSCN->BnkTermPath     = 0;
+			pSCN->SlipFmtPath     = 0;
+			pSCN->PhnSvcID        = 0;
+			pSCN->ExtString       = 0;
 		}
-		// @v7.3.5 {
 		{
 			__PosNodeExt pnext;
 			MEMSZERO(pnext);
 			if(ref->GetProp(Obj, id, CNPRP_EXTRA, &pnext, sizeof(pnext)) > 0) {
 				pSCN->Scf.DaysPeriod = pnext.ScfDaysPeriod;
 				pSCN->Scf.DlvrItemsShowTag = pnext.ScfDlvrItemsShowTag;
-				pSCN->BonusMaxPart = pnext.BonusMaxPart; // @v7.5.12
+				pSCN->BonusMaxPart = pnext.BonusMaxPart;
 			}
 			else {
 				pSCN->Scf.DaysPeriod = 0;
 				pSCN->Scf.DlvrItemsShowTag = 0;
-				pSCN->BonusMaxPart = 0; // @v7.5.12
+				pSCN->BonusMaxPart = 0;
 			}
 		}
-		// } @v7.3.5
-		pSCN->CTblList.clear(); // @v7.6.4
-		ref->GetPropArray(Obj, id, CNPRP_CTBLLIST, &pSCN->CTblList); // @v7.6.4
+		pSCN->CTblList.clear();
+		ref->GetPropArray(Obj, id, CNPRP_CTBLLIST, &pSCN->CTblList);
 		pSCN->LocalTouchScrID = 0;
 		{
 			WinRegKey reg_key(HKEY_LOCAL_MACHINE, PPRegKeys::PrefSettings, 1); // @v9.2.0 readonly 0-->1
@@ -725,7 +752,7 @@ int SLAPI PPObjCashNode::GetAsync(PPID id, PPAsyncCashNode * pACN)
 			PPGetExtStrData(ACN_EXTSTR_FLD_IMPFILES, temp_buf, pACN->ImpFiles);
 			PPGetExtStrData(ACN_EXTSTR_FLD_EXPPATHS, temp_buf, pACN->ExpPaths);
 			PPGetExtStrData(ACN_EXTSTR_FLD_LOGNUMS,  temp_buf, pACN->LogNumList);
-			PPGetExtStrData(ACN_EXTSTR_FLD_ADDEDMSGSIGN, temp_buf, pACN->AddedMsgSign); // @v7.0.0
+			PPGetExtStrData(ACN_EXTSTR_FLD_ADDEDMSGSIGN, temp_buf, pACN->AddedMsgSign);
 		}
 	}
 	else
@@ -845,7 +872,7 @@ int SLAPI PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 		rec.DisRoundPrec = pCN->DisRoundPrec;
 		rec.AmtRoundPrec = pCN->AmtRoundPrec;
 		rec.ParentID     = pCN->ParentID;
-		rec.GoodsGrpID   = pCN->GoodsGrpID; // @v7.2.12
+		rec.GoodsGrpID   = pCN->GoodsGrpID;
 		if(f & CASHF_SYNC) {
 			p_scn = (PPSyncCashNode *)pCN;
 			rec.SleepTimeout = p_scn->SleepTimeout;
@@ -883,7 +910,7 @@ int SLAPI PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 					p_ed->BnkTermType   = p_scn->BnkTermType;
 					p_ed->BnkTermLogNum = p_scn->BnkTermLogNum;
 					p_ed->BnkTermFlags = p_scn->BnkTermFlags;
-					p_ed->PhnSvcID     = p_scn->PhnSvcID; // @v7.3.3
+					p_ed->PhnSvcID     = p_scn->PhnSvcID;
 					STRNSCPY(p_ed->BnkTermPort, p_scn->BnkTermPort);
 					p_scn->ExtString.CopyTo(p_ed->ExtStrBuf, 0); // Размер буфера p_ed точно отмерен для того, чтобы вместить p_scn->ExtString: см. выше
 					if(p_ed->TouchScreenID || p_ed->ExtCashNodeID || p_ed->CustDispType || p_ed->BnkTermType ||
@@ -894,22 +921,20 @@ int SLAPI PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 						THROW(ref->PutProp(Obj, *pID, CNPRP_EXTDEVICES, 0, ed_size, 0));
 					}
 				}
-				// @v7.3.5 {
 				{
 					__PosNodeExt pnext;
 					if(!p_scn->Scf.IsEmpty() || p_scn->BonusMaxPart) {
 						MEMSZERO(pnext);
 						pnext.ScfDaysPeriod = p_scn->Scf.DaysPeriod;
 						pnext.ScfDlvrItemsShowTag = p_scn->Scf.DlvrItemsShowTag;
-						pnext.BonusMaxPart = p_scn->BonusMaxPart; // @v7.5.12
+						pnext.BonusMaxPart = p_scn->BonusMaxPart;
 						THROW(ref->PutProp(Obj, *pID, CNPRP_EXTRA, &pnext, sizeof(pnext)));
 					}
 					else {
 						THROW(ref->PutProp(Obj, *pID, CNPRP_EXTRA, 0, sizeof(pnext)));
 					}
 				}
-				// } @v7.3.5
-				THROW(ref->PutPropArray(Obj, *pID, CNPRP_CTBLLIST, &p_scn->CTblList, 0)); // @v7.6.4
+				THROW(ref->PutPropArray(Obj, *pID, CNPRP_CTBLLIST, &p_scn->CTblList, 0));
 				{
 					WinRegKey reg_key(HKEY_LOCAL_MACHINE, PPRegKeys::PrefSettings, 0);
 					SString param_buf;
@@ -930,7 +955,7 @@ int SLAPI PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 				PPPutExtStrData(ACN_EXTSTR_FLD_IMPFILES, temp_buf, p_acn->ImpFiles);
 				PPPutExtStrData(ACN_EXTSTR_FLD_EXPPATHS, temp_buf, p_acn->ExpPaths);
 				PPPutExtStrData(ACN_EXTSTR_FLD_LOGNUMS,  temp_buf, p_acn->LogNumList);
-				PPPutExtStrData(ACN_EXTSTR_FLD_ADDEDMSGSIGN, temp_buf, p_acn->AddedMsgSign); // @v7.0.0
+				PPPutExtStrData(ACN_EXTSTR_FLD_ADDEDMSGSIGN, temp_buf, p_acn->AddedMsgSign);
 				THROW(ref->PutPropVlrString(Obj, *pID, CNPRP_EXTSTR, temp_buf));
 			}
 		}
@@ -1047,7 +1072,7 @@ int DivGrpAsscListDialog::setupList()
 			sub[0] = '0';
 			sub[1] = 0;
 		}
-		else if(gg_obj.Fetch(p_item->GrpID, &gg_rec) > 0) // @v7.8.0 Search-->Fetch
+		else if(gg_obj.Fetch(p_item->GrpID, &gg_rec) > 0)
 			STRNSCPY(sub, gg_rec.Name);
 		else {
 			if(p_item->GrpID != 0)
@@ -1091,8 +1116,7 @@ int DivGrpAsscListDialog::delItem(long pos, long /*id*/)
 	return P_Data->atFree((uint)pos) ? 1 : -1;
 }
 //
-//   @v5.5.6 VADIM {
-//   ExtDevicesDialog
+// ExtDevicesDialog
 //
 int SLAPI SelectPrinterFromWinPool(SString & rPrinter)
 {
@@ -1123,7 +1147,7 @@ int SLAPI SelectPrinterFromWinPool(SString & rPrinter)
 		p_list->Add(j+1, temp_buf);
 	}
 	{
-		int valid_data = 0;
+		int    valid_data = 0;
 		SString title;
 		THROW(p_lw = new ListWindow(new StrAssocListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify), 0, 0));
 		THROW(PPLoadText(PPTXT_SELECTPRINTER, title));
@@ -1161,7 +1185,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_CASHNODE,  PPOBJ_CASHNODE, Data.ExtCashNodeID, 0, 0);
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_PAPYRUS,   PPOBJ_CASHNODE, Data.PapyrusNodeID, 0, 0);
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_SCALE,     PPOBJ_SCALE, Data.ScaleID, 0, 0);
-			SetupPPObjCombo(this, CTLSEL_EXTDEV_PHNSVC,    PPOBJ_PHONESERVICE, Data.PhnSvcID, 0, 0); // @v7.3.3
+			SetupPPObjCombo(this, CTLSEL_EXTDEV_PHNSVC,    PPOBJ_PHONESERVICE, Data.PhnSvcID, 0, 0);
 			setCtrlString(CTL_EXTDEV_PRINTER, Data.PrinterPort);
 			// @v8.8.3 {
 			Data.GetPropString(SCN_RPTPRNPORT, temp_buf);
@@ -1201,7 +1225,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			getCtrlData(CTLSEL_EXTDEV_CASHNODE,  &Data.ExtCashNodeID);
 			getCtrlData(CTLSEL_EXTDEV_PAPYRUS,   &Data.PapyrusNodeID);
 			getCtrlData(CTLSEL_EXTDEV_SCALE,     &Data.ScaleID);
-			getCtrlData(CTLSEL_EXTDEV_PHNSVC,    &Data.PhnSvcID); // @v7.3.3
+			getCtrlData(CTLSEL_EXTDEV_PHNSVC,    &Data.PhnSvcID);
 			getCtrlString(CTL_EXTDEV_PRINTER, Data.PrinterPort);
 			// @v8.8.3 {
 			getCtrlString(CTL_EXTDEV_RPTPRNPORT, temp_buf);
@@ -1449,8 +1473,8 @@ int SyncCashNodeCfgDialog::editExt()
 		dlg->AddClusterAssoc(CTL_CASHNSEXT_SCF_DLVRT, 1, +1);
 		dlg->AddClusterAssoc(CTL_CASHNSEXT_SCF_DLVRT, 2, -1);
 		dlg->SetClusterData(CTL_CASHNSEXT_SCF_DLVRT, dlvr_items_show_tag);
-		dlg->setCtrlReal(CTL_CASHNSEXT_BONUSMAX, (double)Data.BonusMaxPart / 10.0); // @v7.5.12
-		dlg->setCtrlString(CTL_CASHNSEXT_CTBLLIST, Data.CTblListToString(ctbl_list_buf)); // @v7.6.4
+		dlg->setCtrlReal(CTL_CASHNSEXT_BONUSMAX, (double)Data.BonusMaxPart / 10.0);
+		dlg->setCtrlString(CTL_CASHNSEXT_CTBLLIST, Data.CTblListToString(ctbl_list_buf));
 
 		dlg->AddClusterAssoc(CTL_CASHNSEXT_FLAGS, 0, CASHFX_INPGUESTCFTBL); // @v8.0.12
 		dlg->SetClusterData(CTL_CASHNSEXT_FLAGS, Data.ExtFlags); // @v8.0.12
@@ -1461,17 +1485,14 @@ int SyncCashNodeCfgDialog::editExt()
 				PPErrorByDialog(dlg, CTL_CASHNSEXT_SCF_DAYS, PPERR_USERINPUT);
 			}
 			else {
-				// @v7.6.4 {
 				dlg->getCtrlString(CTL_CASHNSEXT_CTBLLIST, ctbl_list_buf);
 				if(!Data.CTblListFromString(ctbl_list_buf)) {
 					PPErrorByDialog(dlg, CTL_CASHNSEXT_CTBLLIST, -1);
 				}
-				else { // } @v7.6.4
-					// @v7.5.12 {
+				else {
 					Data.BonusMaxPart = (uint16)(dlg->getCtrlReal(CTL_CASHNSEXT_BONUSMAX) * 10.0);
 					if(Data.BonusMaxPart < 0 || Data.BonusMaxPart > 1000)
 						Data.BonusMaxPart = 0;
-					// } @v7.5.12
 					Data.Scf.DaysPeriod = (uint16)days_period;
 					Data.Scf.DlvrItemsShowTag = (int16)dlg->GetClusterData(CTL_CASHNSEXT_SCF_DLVRT);
 					dlg->GetClusterData(CTL_CASHNSEXT_FLAGS, &Data.ExtFlags); // @v8.0.12
@@ -1569,7 +1590,7 @@ int SyncCashNodeCfgDialog::setDTS(const PPSyncCashNode * pData)
 		}
 	}
 	setCtrlString(CTL_CASHN_TBLDGMPATH,  Data.TableSelWhatman);
-	setCtrlString(CTL_CASHN_SLIPFMTPATH, Data.SlipFmtPath); // @v7.4.1
+	setCtrlString(CTL_CASHN_SLIPFMTPATH, Data.SlipFmtPath);
 	{
 		PPObjCashNode::SelFilt f;
 		f.OnlyGroups = 1;
@@ -1627,10 +1648,10 @@ int SyncCashNodeCfgDialog::getDTS(PPSyncCashNode * pData)
 		SETFLAG(Data.ExtFlags, CASHFX_UHTTORDIMPORT,     ef & 0x0200); // @v8.3.2
 		SETFLAG(Data.ExtFlags, CASHFX_ABSTRGOODSALLOWED, ef & 0x0400); // @v9.5.10
 	}
-	GetClusterData(CTL_CASHN_PASSIVE, &Data.ExtFlags); // @v7.6.9
+	GetClusterData(CTL_CASHN_PASSIVE, &Data.ExtFlags);
 	getCtrlData(CTL_CASHN_SLEEPTIMEOUT, &Data.SleepTimeout);
 	getCtrlString(CTL_CASHN_TBLDGMPATH,  Data.TableSelWhatman);
-	getCtrlString(CTL_CASHN_SLIPFMTPATH, Data.SlipFmtPath); // @v7.4.1
+	getCtrlString(CTL_CASHN_SLIPFMTPATH, Data.SlipFmtPath);
 	getCtrlData(CTLSEL_CASHN_GROUP, &Data.ParentID);
 	{
 		PPObjCashNode cn_obj;
@@ -1928,6 +1949,7 @@ int SLAPI PPObjCashNode::Validate(PPGenCashNode * pRec, long)
 int SLAPI PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 {
 	int    ok = -1, r = cmCancel, valid_data = 0;
+	PPIDArray test_log_num_list;
 	SString temp_buf;
 	PPObjLocation loc_obj;
 	AsyncCashNodeDialog * dlg = 0;
@@ -1942,7 +1964,7 @@ int SLAPI PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 	dlg->setCtrlString(CTL_CASHN_IMPFILES, pACN->ImpFiles);
 	dlg->setCtrlString(CTL_CASHN_EXPPATHS, pACN->ExpPaths);
 	dlg->setCtrlString(CTL_CASHN_LOGNUMS,  pACN->LogNumList);
-	dlg->setCtrlString(CTL_CASHN_ADDEDMSGSIGN, pACN->AddedMsgSign); // @v7.0.0
+	dlg->setCtrlString(CTL_CASHN_ADDEDMSGSIGN, pACN->AddedMsgSign);
 	SETIFZ(pACN->LocID, loc_obj.GetSingleWarehouse());
 	SetupPPObjCombo(dlg, CTLSEL_CASHN_LOC, PPOBJ_LOCATION, pACN->LocID, 0, 0);
 	SetupPPObjCombo(dlg, CTLSEL_CASHN_NOA, PPOBJ_NAMEDOBJASSOC, pACN->GoodsLocAssocID, OLW_CANINSERT, 0);
@@ -1961,25 +1983,23 @@ int SLAPI PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 	dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  5, CASHFX_EXPLOCPRNASSOC);
 	dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  6, CASHFX_APPLYUNITRND);
 	dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  7, CASHFX_RESTRUSERGGRP);
-	dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  8, CASHFX_RMVPASSIVEGOODS); // @v7.4.12
-	dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  9, CASHFX_CREATEOBJSONIMP); // @v7.6.8
-	dlg->AddClusterAssoc(CTL_CASHN_FLAGS, 10, CASHFX_SEPARATERCPPRN);  // @v7.9.7
+	dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  8, CASHFX_RMVPASSIVEGOODS);
+	dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  9, CASHFX_CREATEOBJSONIMP);
+	dlg->AddClusterAssoc(CTL_CASHN_FLAGS, 10, CASHFX_SEPARATERCPPRN);
 	dlg->AddClusterAssoc(CTL_CASHN_FLAGS, 11, CASHFX_IGNLOOKBACKPRICES); // @v8.9.10
 	dlg->SetClusterData(CTL_CASHN_FLAGS, temp_flags);
 	dlg->enableCommand(cmDivGrpAssc, BIN(pACN->Flags & CASHF_EXPDIVN));
 
 	dlg->AddClusterAssoc(CTL_CASHN_NOA_PRINTONLY, 0, CASHFX_GLASSOCPRINTONLY);
 	dlg->SetClusterData(CTL_CASHN_NOA_PRINTONLY, pACN->ExtFlags);
-	// @v7.6.9 {
 	dlg->AddClusterAssoc(CTL_CASHN_PASSIVE, 0, CASHFX_PASSIVE);
 	dlg->SetClusterData(CTL_CASHN_PASSIVE, pACN->ExtFlags);
-	// } @v7.6.9
 	{
 		PPObjCashNode::SelFilt f;
 		f.OnlyGroups = 1;
 		SetupPPObjCombo(dlg, CTLSEL_CASHN_GROUP, PPOBJ_CASHNODE, pACN->ParentID, 0, &f);
 	}
-	SetupPPObjCombo(dlg, CTLSEL_CASHN_GOODSGRP, PPOBJ_GOODSGROUP, pACN->GoodsGrpID, OLW_CANSELUPLEVEL); // @v7.2.12
+	SetupPPObjCombo(dlg, CTLSEL_CASHN_GOODSGRP, PPOBJ_GOODSGROUP, pACN->GoodsGrpID, OLW_CANSELUPLEVEL);
 	{
 		temp_buf = 0;
 		if(pACN->CurRestBillID) {
@@ -2003,51 +2023,56 @@ int SLAPI PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 		dlg->getCtrlString(CTL_CASHN_IMPFILES, pACN->ImpFiles);
 		dlg->getCtrlString(CTL_CASHN_EXPPATHS, pACN->ExpPaths);
 		dlg->getCtrlString(CTL_CASHN_LOGNUMS, pACN->LogNumList);
-		dlg->getCtrlString(CTL_CASHN_ADDEDMSGSIGN, pACN->AddedMsgSign); // @v7.0.0
-		if(pACN->AddedMsgSign.NotEmptyS() && !PPGoodsPacket::ValidateAddedMsgSign(pACN->AddedMsgSign, 0))
-			PPErrorByDialog(dlg, CTL_CASHN_ADDEDMSGSIGN, PPERR_INVPOSADDEDMSGSIGN);
+		if(!pACN->GetLogNumList(test_log_num_list)) {
+			PPErrorByDialog(dlg, CTL_CASHN_LOGNUMS, -1);
+		}
 		else {
-			dlg->getCtrlData(CTL_CASHN_GROUP, &pACN->ParentID);
-			dlg->getCtrlData(CTLSEL_CASHN_GOODSGRP, &pACN->GoodsGrpID); // @v7.2.12
-			if(*strip(pACN->Name) == 0)
-				PPErrorByDialog(dlg, CTL_CASHN_NAME, PPERR_NAMENEEDED);
-			else if(pACN->CashType == 0)
-				PPErrorByDialog(dlg, CTL_CASHN_DEVICE, PPERR_CMTNEEDED);
-			else if(!PPCashMachine::IsAsyncCMT(pACN->CashType))
-				PPErrorByDialog(dlg, CTL_CASHN_DEVICE, PPERR_CMSYNCNOTSUPP);
-			else if(pACN->LocID == 0)
-				PPErrorByDialog(dlg, CTL_CASHN_LOC, PPERR_LOCNEEDED);
+			dlg->getCtrlString(CTL_CASHN_ADDEDMSGSIGN, pACN->AddedMsgSign);
+			if(pACN->AddedMsgSign.NotEmptyS() && !PPGoodsPacket::ValidateAddedMsgSign(pACN->AddedMsgSign, 0))
+				PPErrorByDialog(dlg, CTL_CASHN_ADDEDMSGSIGN, PPERR_INVPOSADDEDMSGSIGN);
 			else {
-				int    r2 = 1;
-				if(pACN->GoodsLocAssocID) {
-					PPNamedObjAssoc noa_rec;
-					if(SearchObject(PPOBJ_NAMEDOBJASSOC, pACN->GoodsLocAssocID, &noa_rec) <= 0)
-						r2 = PPErrorByDialog(dlg, CTLSEL_CASHN_NOA, -1);
-					else if(!(noa_rec.PrmrObjType == PPOBJ_GOODS && noa_rec.ScndObjType == PPOBJ_LOCATION &&
-						oneof2(noa_rec.ScndObjGrp, 0, LOCTYP_WAREHOUSE))) {
-						PPSetAddedMsgString(noa_rec.Name);
-						r2 = PPErrorByDialog(dlg, CTLSEL_CASHN_NOA, PPERR_INVPOSGOODSLOCASSOC);
+				dlg->getCtrlData(CTL_CASHN_GROUP, &pACN->ParentID);
+				dlg->getCtrlData(CTLSEL_CASHN_GOODSGRP, &pACN->GoodsGrpID);
+				if(*strip(pACN->Name) == 0)
+					PPErrorByDialog(dlg, CTL_CASHN_NAME, PPERR_NAMENEEDED);
+				else if(pACN->CashType == 0)
+					PPErrorByDialog(dlg, CTL_CASHN_DEVICE, PPERR_CMTNEEDED);
+				else if(!PPCashMachine::IsAsyncCMT(pACN->CashType))
+					PPErrorByDialog(dlg, CTL_CASHN_DEVICE, PPERR_CMSYNCNOTSUPP);
+				else if(pACN->LocID == 0)
+					PPErrorByDialog(dlg, CTL_CASHN_LOC, PPERR_LOCNEEDED);
+				else {
+					int    r2 = 1;
+					if(pACN->GoodsLocAssocID) {
+						PPNamedObjAssoc noa_rec;
+						if(SearchObject(PPOBJ_NAMEDOBJASSOC, pACN->GoodsLocAssocID, &noa_rec) <= 0)
+							r2 = PPErrorByDialog(dlg, CTLSEL_CASHN_NOA, -1);
+						else if(!(noa_rec.PrmrObjType == PPOBJ_GOODS && noa_rec.ScndObjType == PPOBJ_LOCATION &&
+							oneof2(noa_rec.ScndObjGrp, 0, LOCTYP_WAREHOUSE))) {
+							PPSetAddedMsgString(noa_rec.Name);
+							r2 = PPErrorByDialog(dlg, CTLSEL_CASHN_NOA, PPERR_INVPOSGOODSLOCASSOC);
+						}
+						dlg->GetClusterData(CTL_CASHN_NOA_PRINTONLY, &pACN->ExtFlags);
 					}
-					dlg->GetClusterData(CTL_CASHN_NOA_PRINTONLY, &pACN->ExtFlags);
-				}
-				else
-					pACN->ExtFlags &= ~CASHFX_GLASSOCPRINTONLY;
-				if(r2) {
-					if(!Validate(pACN, 0))
-						PPError();
-					else {
-						dlg->GetClusterData(CTL_CASHN_FLAGS, &temp_flags);
-						pACN->Flags = (temp_flags & ~(CASHFX_EXPLOCPRNASSOC|CASHFX_APPLYUNITRND|CASHFX_RESTRUSERGGRP|CASHFX_RMVPASSIVEGOODS|CASHFX_CREATEOBJSONIMP|CASHFX_SEPARATERCPPRN));
-						pACN->Flags |= CASHF_ASYNC;
-						SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_EXPLOCPRNASSOC,  temp_flags);
-						SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_APPLYUNITRND,    temp_flags);
-						SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_RESTRUSERGGRP,   temp_flags);
-						SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_RMVPASSIVEGOODS, temp_flags);
-						SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_CREATEOBJSONIMP, temp_flags);
-						SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_SEPARATERCPPRN,  temp_flags);
-						SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_IGNLOOKBACKPRICES, temp_flags); // @v8.9.10
-						dlg->GetClusterData(CTL_CASHN_PASSIVE, &pACN->ExtFlags); // @v7.6.9
-						ok = valid_data = 1;
+					else
+						pACN->ExtFlags &= ~CASHFX_GLASSOCPRINTONLY;
+					if(r2) {
+						if(!Validate(pACN, 0))
+							PPError();
+						else {
+							dlg->GetClusterData(CTL_CASHN_FLAGS, &temp_flags);
+							pACN->Flags = (temp_flags & ~(CASHFX_EXPLOCPRNASSOC|CASHFX_APPLYUNITRND|CASHFX_RESTRUSERGGRP|CASHFX_RMVPASSIVEGOODS|CASHFX_CREATEOBJSONIMP|CASHFX_SEPARATERCPPRN));
+							pACN->Flags |= CASHF_ASYNC;
+							SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_EXPLOCPRNASSOC,  temp_flags);
+							SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_APPLYUNITRND,    temp_flags);
+							SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_RESTRUSERGGRP,   temp_flags);
+							SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_RMVPASSIVEGOODS, temp_flags);
+							SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_CREATEOBJSONIMP, temp_flags);
+							SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_SEPARATERCPPRN,  temp_flags);
+							SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_IGNLOOKBACKPRICES, temp_flags); // @v8.9.10
+							dlg->GetClusterData(CTL_CASHN_PASSIVE, &pACN->ExtFlags);
+							ok = valid_data = 1;
+						}
 					}
 				}
 			}
@@ -2146,11 +2171,9 @@ int SLAPI PPObjCashNode::Edit(PPID * pID, void * extraPtr)
 		}
 		else {
 			p_cn->CashType = cn_rec.CashType;
-			// @v7.6.1 {
 			if(s == 1) {
 				p_cn->Flags |= (CASHF_CHKPAN|CASHF_NOMODALCHECKVIEW);
 			}
-			// } @v7.6.1
 		}
 		SETFLAG(p_cn->Flags, CASHF_SYNC,  s == 1);
 		SETFLAG(p_cn->Flags, CASHF_ASYNC, s == 2);
@@ -2246,13 +2269,10 @@ int SLAPI CashNodeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		CPY_FLD(Flags);
 		CPY_FLD(ExtFlags);
 #undef CPY_FLD
-		// @v7.9.7 {
 		MultTextBlock b;
 		b.Add(rec.Name);
 		b.Add(rec.Symb);
 		ok = PutTextBlock(b, p_cache_rec);
-		// } @v7.9.7
-		// @v7.9.7 ok = PutName(rec.Name, p_cache_rec);
 	}
 	else
 		ok = -1;
@@ -2274,12 +2294,9 @@ int SLAPI CashNodeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 	CPY_FLD(Flags);
 	CPY_FLD(ExtFlags);
 #undef CPY_FLD
-	// @v7.9.7 {
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
-	// } @v7.9.7
-	// @v7.9.7 GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
 	return 1;
 }
 
@@ -2381,17 +2398,15 @@ int EquipConfigDlg::setDTS(const PPEquipConfig * pData)
 	AddClusterAssoc(CTL_EQCFG_FLAGS, 10, PPEquipConfig::fUnifiedPaymentCfmBank); // @v8.6.6
 	AddClusterAssoc(CTL_EQCFG_FLAGS, 11, PPEquipConfig::fIgnoreNoDisGoodsTag);
 	AddClusterAssoc(CTL_EQCFG_FLAGS, 12, PPEquipConfig::fRestrictQttyByUnitRnd);
-	AddClusterAssoc(CTL_EQCFG_FLAGS, 13, PPEquipConfig::fDisableManualSCardInput); // @v7.0.10
+	AddClusterAssoc(CTL_EQCFG_FLAGS, 13, PPEquipConfig::fDisableManualSCardInput);
 	AddClusterAssoc(CTL_EQCFG_FLAGS, 14, PPEquipConfig::fDisableAdjWrOffAmount); // @v8.6.6
 
 	SetClusterData(CTL_EQCFG_FLAGS, Data.Flags);
-	// @v7.1.3 {
 	AddClusterAssoc(CTL_EQCFG_FLAGS2, 0, PPEquipConfig::fUseQuotAsPrice);
 	AddClusterAssoc(CTL_EQCFG_FLAGS2, 1, PPEquipConfig::fUncondAsyncBasePrice);
 	AddClusterAssoc(CTL_EQCFG_FLAGS2, 2, PPEquipConfig::fAutosaveSyncChecks); // @v8.7.7
 
 	SetClusterData(CTL_EQCFG_FLAGS2, Data.Flags);
-	// } @v7.1.3
 	{
 		RealRange subst_range;
 		SetRealRangeInput(this, CTL_EQCFG_DFCTCOSTRNG, &(subst_range = Data.DeficitSubstPriceDevRange).Scale(0.1), 1);
@@ -2462,7 +2477,7 @@ int EquipConfigDlg::getDTS(PPEquipConfig * pData)
 	}
 	else {
 		GetClusterData(CTL_EQCFG_FLAGS,  &Data.Flags);
-		GetClusterData(CTL_EQCFG_FLAGS2, &Data.Flags); // @v7.1.3
+		GetClusterData(CTL_EQCFG_FLAGS2, &Data.Flags);
 		ASSIGN_PTR(pData, Data);
 	}
 	CATCH
@@ -2906,7 +2921,6 @@ int SLAPI PPObjLocPrinter::Browse(void * extraPtr)
 		ok = PPErrorZ();
 	return ok;
 }
-// } @v6.1.10 AHTOXA
 
 int SLAPI PPObjLocPrinter::GetPrinterByLocation(PPID locID, SString & rPrnPort, PPLocPrinter * pRec)
 {

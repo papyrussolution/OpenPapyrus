@@ -4853,10 +4853,11 @@
 	#define CTL_CSESSTOTAL_CHKCOUNT      (12 + WINDOWS_ID_BIAS)
 #define DLG_RTOPLIST              461 // Список доступных операций
 	#define CTL_RTOPLIST_LIST            (1 + WINDOWS_ID_BIAS)
-#define DLG_RTOPLI                462 // Доступная операци
+#define DLG_RTOPLI                462 // Доступная операция //
 	#define CTL_RTOPLI_OPRKIND           (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_RTOPLI_OPRKIND        (2 + WINDOWS_ID_BIAS)
 	#define CTL_RTOPLI_FLAGS             (3 + WINDOWS_ID_BIAS)
+	#define CTL_RTOPLI_COMMRT            (4 + WINDOWS_ID_BIAS)
 #define DLG_RTLOCLIST             463 // Список доступных складов
 	#define CTL_RTLOCLIST_LIST           (1 + WINDOWS_ID_BIAS)
 #define DLG_RTLOCLI               464 // Доступный склад
@@ -10635,7 +10636,6 @@
 #define PPERR_REPLZEROOBJ         316 // Нельзя заменять пустые или несуществующие объекты
 #define PPERR_INVTAGDATATYPE      317 // Недопустимый тип данных тега
 #define PPERR_COSTREVALPCTNEEDED  318 // Необходимо указать процент переоценки цены поступления //
-#define PPERR_OPRKINDNEEDED       319 // Необходимо указать вид операции
 #define PPERR_CANTMOVREVALOP      320 // Невозможно перенести переоценку на другой лот
 #define PPERR_CANTMOVRCPTOP       321 // Невозможно перенести образующую операцию лота
 #define PPERR_INCOMPATLOTS        322 // Несовместимые лоты для переноса операций

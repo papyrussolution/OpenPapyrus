@@ -2756,7 +2756,7 @@ int SLAPI ACS_CRCSHSRV::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 	if(ok > 0) {
 		PPAsyncCashNode acn;
 		THROW(GetNodeData(&acn) > 0);
-		acn.GetLogNumList(&LogNumList);
+		acn.GetLogNumList(LogNumList);
 		THROW_PP(acn.ImpFiles.NotEmpty(), PPERR_INVFILESET);
 		THROW(PrepareImpFileName(filTypZRep,     PPFILNAM_CS_ZREP_DBF,     acn.ImpFiles, 18));
 		THROW(PrepareImpFileName(filTypChkHeads, PPFILNAM_CS_CHKHEADS_DBF, acn.ImpFiles, 6));

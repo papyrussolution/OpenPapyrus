@@ -1,5 +1,5 @@
 // FRONTOL.CPP
-// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу "Атол"
 //
@@ -841,8 +841,7 @@ int SLAPI ACS_FRONTOL::GetSessionData(int * pSessCount, int * pIsForwardSess, Da
 	}
 	if(ok > 0) {
 		THROW(GetNodeData(&Acn) > 0);
-		Acn.GetLogNumList(&LogNumList);
-		// @v5.9.9 VADIM {
+		Acn.GetLogNumList(LogNumList);
 		{
 			SString  alt_imp_params;
 			PPIniFile  ini_file;

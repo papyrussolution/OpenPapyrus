@@ -24,6 +24,7 @@ uint SLAPI PPOsm::NodeCluster::GetPossiblePackCount(const Node * pN, size_t coun
 		possible_count = 0;
 	else {
 		if(count == 1) {
+			possible_count_logic = 1;
 			possible_count = 1;
 		}
 		else {
@@ -34,18 +35,24 @@ uint SLAPI PPOsm::NodeCluster::GetPossiblePackCount(const Node * pN, size_t coun
 				for(size_t i = 1; i < __row[0] && i < count; i++) {
 					const uint64 id = pN[i].ID;
 					THROW(id > prev_id);
-					count_logic += (uint)(id - prev_id);
-					count_hole += (uint)(id - prev_id - 1);
-					prev_id = id;
+					const uint64 _diff = (id - prev_id);
+					if((count_logic + _diff) > __row[0]) {
+						break;
+					}
+					else {
+						count_logic += (uint)_diff;
+						count_hole += (uint)(_diff - 1);
+						prev_id = id;
+					}
 				}
 			}
-			{
+			possible_count_logic = 1;
+			possible_count = 1;
+			if(count_logic > 1) {
 				const  int64 head_id = pN->ID;
 				for(size_t i = 0; i < SIZEOFARRAY(__row); i++) {
 					const uint r = __row[i];
-					if((head_id & (r-1)) == head_id && count_logic >= r) {
-						possible_count_logic = 1;
-						possible_count = 1;
+					if((head_id & (r-1)) == 0 && count_logic >= r) {
 						if(r > 1) {
 							uint   possible_count_logic_bounded = 1;
 							uint   possible_count_bounded = 1;
@@ -177,7 +184,7 @@ int SLAPI PPOsm::NodeCluster::Put(const Node * pN, size_t count, size_t * pActua
 			uint64 prev_id = r_head.ID;
 			int32  prev_lat = head_lat;
 			int32  prev_lon = head_lon;
-			for(uint i = 1, idx = 1; i < possible_count_logic; i++) {
+			for(uint i = 1, idx = 1; i < possible_count_logic && idx < possible_count; i++) {
 				assert(pN[idx].ID > prev_id);
 				assert(pN[idx].T.GetZValue() == r_head.T.GetZValue());
 				uint8 inf_indicator = 0;
@@ -222,7 +229,7 @@ int SLAPI PPOsm::NodeCluster::Put(const Node * pN, size_t count, size_t * pActua
                     }
 					if(inf_indicator & infindfDiffTileLevel)
 						THROW_SL(Write(_tile_level));
-				
+
 					prev_lat = _lat;
 					prev_lon = _lon;
 					idx++;
@@ -257,12 +264,12 @@ int SLAPI PPOsm::NodeCluster::Get(TSArray <Node> & rList)
 		case 3: count_logic =   8; break;
 		case 4: count_logic =  16; break;
 		case 5: count_logic =  32; break;
-		case 6: count_logic =  64; break; 
+		case 6: count_logic =  64; break;
 		case 7: count_logic = 128; break;
        	default: CALLEXCEPT(); // invalid count
 	}
 	if(indicator & indfId32) {
-		const uint32 id32 = 0;
+		uint32   id32 = 0;
 		THROW_SL(Read(id32));
 		head.ID = id32;
 	}
@@ -290,12 +297,12 @@ int SLAPI PPOsm::NodeCluster::Get(TSArray <Node> & rList)
 				int32 _lon_diff = 0;
 				Node   node;
 				if(inf_indicator & infindfPrevLatIncr8) {
-					const int8 _diff = 0;
+					int8   _diff = 0;
 					THROW_SL(Read(_diff));
 					_lat = prev_lat + (int32)_diff;
 				}
 				else if(inf_indicator & infindfPrevLatIncr16) {
-					const int16 _diff = 0;
+					int16  _diff = 0;
 					THROW_SL(Read(_diff));
 					_lat = prev_lat + (int32)_diff;
 				}
@@ -303,14 +310,14 @@ int SLAPI PPOsm::NodeCluster::Get(TSArray <Node> & rList)
 					THROW_SL(Read(_lat));
 				}
 				if(inf_indicator & infindfPrevLonIncr8) {
-					const int8 _diff = 0;
+					int8   _diff = 0;
 					THROW_SL(Read(_diff));
 					_lon = prev_lon + (int32)_diff;
 				}
 				else if(inf_indicator & infindfPrevLonIncr16) {
-					const int16 _diff = 0;
+					int16  _diff = 0;
 					THROW_SL(Read(_diff));
-					_lon = prev_lat + (int32)_diff;
+					_lon = prev_lon + (int32)_diff;
 				}
 				else {
 					THROW_SL(Read(_lon));
@@ -318,10 +325,10 @@ int SLAPI PPOsm::NodeCluster::Get(TSArray <Node> & rList)
 				if(inf_indicator & infindfDiffTileLevel) {
 					THROW_SL(Read(_tile_level));
 				}
-				else 
+				else
 					_tile_level = head_level;
 				node.C.SetInt(_lat, _lon);
-				node.ID = prev_id++;
+				node.ID = (prev_id+1);
 				node.T = head.T;
 				node.T.SetLevel(_tile_level);
 				THROW_SL(rList.insert(&node));
@@ -344,6 +351,12 @@ PPOsm::NodeTbl::NodeTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("geomap.d
 PPOsm::NodeTbl::~NodeTbl()
 {
 }
+
+int SLAPI PPOsm::NodeTbl::Add(const NodeCluster & rNc)
+{
+	int    ok = 0;
+	return ok;
+}
 //
 //
 //
@@ -351,6 +364,21 @@ SLAPI PPOsm::Node::Node()
 {
 	ID = 0;
 };
+
+int FASTCALL PPOsm::Node::IsEqual(const Node & rS) const
+{
+	return BIN(ID == rS.ID && T.V == rS.T.V && C == rS.C);
+}
+
+int FASTCALL PPOsm::Node::operator == (const Node & rS) const
+{
+	return IsEqual(rS);
+}
+
+int FASTCALL PPOsm::Node::operator != (const Node & rS) const
+{
+	return BIN(!IsEqual(rS));
+}
 
 SLAPI PPOsm::Way::Way()
 {
@@ -378,6 +406,7 @@ SLAPI PPOsm::Tag::Tag()
 SLAPI PPOsm::PPOsm() : Ht(1024*1024, 0), Grid(12)
 {
 	LastSymbID = 0;
+	Status = 0;
 }
 
 SLAPI PPOsm::~PPOsm()
@@ -387,15 +416,18 @@ SLAPI PPOsm::~PPOsm()
 int SLAPI PPOsm::LoadGeoGrid()
 {
     int    ok = -1;
-    SString path, filename;
-    PPGetPath(PPPATH_DD, path);
-    path.SetLastSlash();
-    (filename = path).Cat("planet-*-grid-12.txt");
-    SDirEntry de;
-    for(SDirec dir(filename, 0); dir.Next(&de) > 0;) {
-		if(de.IsFile()) {
-			(filename = path).Cat(de.FileName);
-			THROW_SL(Grid.Load(filename));
+    if(!(Status & stGridLoaded)) {
+		SString path, filename;
+		PPGetPath(PPPATH_DD, path);
+		path.SetLastSlash();
+		(filename = path).Cat("planet-*-grid-12.txt");
+		SDirEntry de;
+		for(SDirec dir(filename, 0); dir.Next(&de) > 0;) {
+			if(de.IsFile()) {
+				(filename = path).Cat(de.FileName);
+				THROW_SL(Grid.Load(filename));
+				Status |= stGridLoaded;
+			}
 		}
     }
     CATCHZOK
@@ -405,6 +437,11 @@ int SLAPI PPOsm::LoadGeoGrid()
 int SLAPI PPOsm::BuildHashAssoc()
 {
 	return Ht.BuildAssoc();
+}
+
+long FASTCALL PPOsm::CheckStatus(long f) const
+{
+	return BIN((Status & f) == f);
 }
 
 uint FASTCALL PPOsm::SearchSymb(const char * pSymb) const

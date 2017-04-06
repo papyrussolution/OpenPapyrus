@@ -147,10 +147,10 @@ int SLAPI DlScope::Write(SBuffer & rBuf) const
 	THROW(rBuf.Write(&BaseId,  sizeof(BaseId)));
 	THROW(rBuf.Write(&ParentId, sizeof(ParentId)));
 	THROW(rBuf.Write(&Version, sizeof(Version)));
-	THROW(rBuf.Write(P_IfaceBaseList));
-	THROW(rBuf.Write(&CList));
-	THROW(rBuf.Write(&CfList));
-	THROW(rBuf.Write(P_DbIdxSegFlags));
+	THROW(rBuf.Write(P_IfaceBaseList, 0));
+	THROW(rBuf.Write(&CList, 0));
+	THROW(rBuf.Write(&CfList, 0));
+	THROW(rBuf.Write(P_DbIdxSegFlags, 0));
 	THROW(FuncPool.Write(rBuf));
 	c = ChildList.getCount();
 	rBuf.Write(&c, sizeof(c));
@@ -174,16 +174,16 @@ int SLAPI DlScope::Read(SBuffer & rBuf)
 	THROW(rBuf.Read(&Version, sizeof(Version)));
 	{
 		SArray temp_list(sizeof(IfaceBase));
-		THROW(rBuf.Read(&temp_list));
+		THROW(rBuf.Read(&temp_list, 0));
 		ZDELETE(P_IfaceBaseList);
 		if(temp_list.getCount())
 			P_IfaceBaseList = new SArray(temp_list);
 	}
-	THROW(rBuf.Read(&CList));
-	THROW(rBuf.Read(&CfList));
+	THROW(rBuf.Read(&CList, 0));
+	THROW(rBuf.Read(&CfList, 0));
 	{
 		LongArray temp_list;
-		THROW(rBuf.Read(&temp_list));
+		THROW(rBuf.Read(&temp_list, 0));
 		ZDELETE(P_DbIdxSegFlags);
 		if(temp_list.getCount())
 			P_DbIdxSegFlags = new LongArray(temp_list);

@@ -496,7 +496,7 @@ public:
 	{
 		PPAsyncCashNode acn;
 		if(GetNodeData(&acn) > 0) {
-			acn.GetLogNumList(&LogNumList);
+			acn.GetLogNumList(LogNumList);
 			ExpPath = acn.ExpPaths;
 			ImpPath = acn.ImpFiles;
 		}

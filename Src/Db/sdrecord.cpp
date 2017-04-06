@@ -1,5 +1,5 @@
 // SDRECORD.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017
 //
 #include <db.h>
 #pragma hdrstop
@@ -456,7 +456,7 @@ int FASTCALL SdRecord::Write_(SBuffer & rBuf) const
 	THROW(rBuf.Write(Name));
 	THROW(rBuf.Write(&Flags, sizeof(Flags)));
 	THROW(rBuf.Write(&DescrPos, sizeof(DescrPos)));
-	THROW(rBuf.Write(&Items));
+	THROW(rBuf.Write(&Items, 0));
 	THROW(StringPool.Write(rBuf));
 	CATCHZOK
 	return ok;
@@ -469,7 +469,7 @@ int FASTCALL SdRecord::Read_(SBuffer & rBuf)
 	THROW(rBuf.Read(Name));
 	THROW(rBuf.Read(&Flags, sizeof(Flags)));
 	THROW(rBuf.Read(&DescrPos, sizeof(DescrPos)));
-	THROW(rBuf.Read(&Items));
+	THROW(rBuf.Read(&Items, 0));
 	THROW(StringPool.Read(rBuf));
 	SetupOffsets();
 	CATCHZOK

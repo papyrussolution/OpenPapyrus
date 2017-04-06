@@ -1,5 +1,5 @@
 // PPRIGHTS.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017
 // @codepage windows-1251
 //
 // Права доступа
@@ -285,20 +285,83 @@ int RtOpListDialog::getDTS(ObjRestrictArray * pData)
 
 int RtOpListDialog::editItemDialog(ObjRestrictItem * pItem)
 {
+	class RtOpItemDialog : public TDialog {
+	public:
+		RtOpItemDialog(const ObjRestrictArray * pList) : TDialog(DLG_RTOPLI)
+		{
+			P_List = pList;
+		}
+		int setDTS(const ObjRestrictItem * pData)
+		{
+			Data = *pData;
+			PPID   op_id = 0;
+			PPIDArray op_list;
+			while(EnumOperations(0L, &op_id) > 0) {
+				if(op_id == Data.ObjID || !P_List || !P_List->SearchItemByID(op_id, 0))
+					op_list.add(op_id);
+			}
+			SetupOprKindCombo(this, CTLSEL_RTOPLI_OPRKIND, Data.ObjID, 0, &op_list, 1);
+			//
+			{
+				long   comm = (Data.Flags & 0x80000000) ? 0 : 1;
+				{
+					AddClusterAssoc(CTL_RTOPLI_COMMRT, 0, 1);
+					SetClusterData(CTL_RTOPLI_COMMRT, comm);
+				}
+				AddClusterAssoc(CTL_RTOPLI_FLAGS, 0, PPR_READ);
+				AddClusterAssoc(CTL_RTOPLI_FLAGS, 1, PPR_INS);
+				AddClusterAssoc(CTL_RTOPLI_FLAGS, 2, PPR_MOD);
+				AddClusterAssoc(CTL_RTOPLI_FLAGS, 3, PPR_DEL);
+				SetClusterData(CTL_RTOPLI_FLAGS, Data.Flags);
+				disableCtrl(CTL_RTOPLI_FLAGS, comm);
+			}
+			return 1;
+		}
+		int getDTS(ObjRestrictItem * pData)
+		{
+			int    ok = 1;
+			uint   sel = 0;
+			getCtrlData(sel = CTLSEL_RTOPLI_OPRKIND, &Data.ObjID);
+			THROW_PP(Data.ObjID, PPERR_OPRKINDNEEDED);
+			{
+				long   comm = GetClusterData(CTL_RTOPLI_COMMRT);
+				if(!comm) {
+					Data.Flags |= 0x80000000;
+					GetClusterData(CTL_RTOPLI_FLAGS, &Data.Flags);
+				}
+				else {
+					Data.Flags = 0;
+				}
+				ASSIGN_PTR(pData, Data);
+			}
+			CATCH
+				ok = PPErrorByDialog(this, sel, -1);
+			ENDCATCH
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isClusterClk(CTL_RTOPLI_COMMRT)) {
+				long comm = GetClusterData(CTL_RTOPLI_COMMRT);
+				disableCtrl(CTL_RTOPLI_FLAGS, comm);
+			}
+			else
+				return;
+			clearEvent(event);
+		}
+		ObjRestrictItem Data;
+		const ObjRestrictArray * P_List;
+	};
 	int    ok = -1, valid_data = 0;
-	TDialog * dlg = new TDialog(DLG_RTOPLI);
+	RtOpItemDialog * dlg = new RtOpItemDialog(&Data);
 	if(CheckDialogPtr(&dlg, 1)) {
-		PPID   op_id = 0;
-		PPIDArray op_list;
-		while(EnumOperations(0L, &op_id) > 0)
-			if(!Data.SearchItemByID(op_id, 0) || op_id == pItem->ObjID)
-				op_list.add(op_id);
-		SetupOprKindCombo(dlg, CTLSEL_RTOPLI_OPRKIND, pItem->ObjID, 0, &op_list, 1);
-		while(!valid_data && ExecView(dlg) == cmOK) {
-			dlg->getCtrlData(CTLSEL_RTOPLI_OPRKIND, &pItem->ObjID);
-			pItem->Flags = 0;
-			if(pItem->ObjID)
-				ok = valid_data = 1;
+		dlg->setDTS(pItem);
+		while(ok < 0 && ExecView(dlg) == cmOK) {
+			if(dlg->getDTS(pItem)) {
+				ok = 1;
+			}
 		}
 	}
 	else

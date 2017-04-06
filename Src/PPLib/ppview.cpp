@@ -838,7 +838,7 @@ int SLAPI PPBaseFilt::Write(SBuffer & rBuf, long) const
 		}
 		else if(p_b->Type == Branch::tSArray) {
 			const SArray * p_ary = (const SArray *)(((const uint8 *)this) + p_b->Offs);
-			THROW_SL(rBuf.Write(p_ary));
+			THROW_SL(rBuf.Write(p_ary, 0));
 		}
 		else if(p_b->Type == Branch::tObjIdListFilt) {
 			const ObjIdListFilt * p_list = (const ObjIdListFilt *)(((const uint8 *)this) + p_b->Offs);
@@ -924,7 +924,7 @@ int SLAPI PPBaseFilt::Read(SBuffer & rBuf, long extraParam)
 					}
 					else if(p_b->Type == Branch::tSArray) {
 						SArray * p_ary = (SArray *)(((const uint8 *)this) + p_b->Offs);
-						THROW_SL(rBuf.Read(p_ary));
+						THROW_SL(rBuf.Read(p_ary, 0));
 					}
 					else if(p_b->Type == Branch::tObjIdListFilt) {
 						ObjIdListFilt * p_list = (ObjIdListFilt *)(((const uint8 *)this) + p_b->Offs);

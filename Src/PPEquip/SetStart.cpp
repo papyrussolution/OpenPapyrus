@@ -933,7 +933,7 @@ int SLAPI ACS_SETSTART::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 	}
 	if(ok > 0) {
 		THROW(GetNodeData(&Acn) > 0);
-		Acn.GetLogNumList(&LogNumList);
+		Acn.GetLogNumList(LogNumList);
 		{
 			SString  alt_imp_params;
 			PPIniFile  ini_file;
