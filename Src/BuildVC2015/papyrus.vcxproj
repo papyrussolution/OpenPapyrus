@@ -409,7 +409,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <OmitDefaultLibName>false</OmitDefaultLibName>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
-      <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
+      <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
       <OpenMPSupport>false</OpenMPSupport>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>

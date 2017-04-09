@@ -303,7 +303,7 @@ int AccTurnDialog::getDTS(PPAccTurn * pData)
 	}
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }

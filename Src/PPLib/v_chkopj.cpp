@@ -152,16 +152,17 @@ int CheckOpJFiltDialog::setDTS(const CheckOpJrnlFilt * pFilt)
 
 int CheckOpJFiltDialog::getDTS(CheckOpJrnlFilt * pFilt)
 {
+	int    ok = 1;
 	if(!GetPeriodInput(this, CTL_CHKOPJFILT_PERIOD, &Filt.Period))
-		return PPErrorByDialog(this, CTL_CHKOPJFILT_PERIOD, -1);
+		ok = PPErrorByDialog(this, CTL_CHKOPJFILT_PERIOD);
 	else {
 		getCtrlData(CTLSEL_CHKOPJFILT_USER, &Filt.UserID);
 		if(!Filt.ActionIDList.isList())
 			Filt.ActionIDList.setSingleNZ(getCtrlLong(CTLSEL_CHKOPJFILT_ACTION));
 		getCtrlData(CTLSEL_CHKOPJFILT_AGENT, &Filt.AgentID); // @vmiller
 		*pFilt = Filt;
-		return 1;
 	}
+	return ok;
 }
 //
 //

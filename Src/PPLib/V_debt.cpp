@@ -1638,7 +1638,7 @@ public:
 		//
 		ASSIGN_PTR(pData, Data);
 		CATCH
-			ok = PPErrorByDialog(this, sel, -1);
+			ok = PPErrorByDialog(this, sel);
 		ENDCATCH
 		return ok;
 	}
@@ -1664,7 +1664,7 @@ private:
 			if(!GetPeriodInput(this, sel = CTL_SLLTOFLT_PERIOD, &Data.Period) ||
 				!GetPeriodInput(this, sel = CTL_SLLTOFLT_PAYMPERIOD, &Data.PaymPeriod) ||
 				!GetPeriodInput(this, sel = CTL_SLLTOFLT_EXPIRYPRD,  &Data.ExpiryPeriod)) {
-				PPErrorByDialog(this, sel, -1);
+				PPErrorByDialog(this, sel);
 			}
 			else if(editCycles() > 0) {
 				SetPeriodInput(this, CTL_SLLTOFLT_PERIOD,     &Data.Period);
@@ -1922,7 +1922,7 @@ int DebtTrnovrCycleDialog::getDTS(DebtTrnovrFilt * pData)
 	CALLPTRMEMB(P_ChildDlg, TransmitData(-1, &Data.Cf));
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -2725,7 +2725,7 @@ int SLAPI PPDebtorStatConfig::Edit()
 										ok = 1;
 									}
 									else
-										PPErrorByDialog(dlg, sel, -1);
+										PPErrorByDialog(dlg, sel);
 								}
 							}
 						}

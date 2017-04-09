@@ -514,9 +514,9 @@ IMPL_HANDLE_EVENT(LotFiltDialog)
 			while(ok < 0 && ExecView(dlg) == cmOK)
 				if(!(temp_data.Flags & LotFilt::fOrders)) {
 					if(!GetPeriodInput(dlg, CTL_FLTLOT_EXPIRY, &temp_data.ExpiryPrd))
-						PPErrorByDialog(dlg, CTL_FLTLOT_EXPIRY, -1);
+						PPErrorByDialog(dlg, CTL_FLTLOT_EXPIRY);
 					else if(!GetPeriodInput(dlg, CTL_FLTLOT_QCEXPIRY, &temp_data.QcExpiryPrd))
-						PPErrorByDialog(dlg, CTL_FLTLOT_QCEXPIRY, -1);
+						PPErrorByDialog(dlg, CTL_FLTLOT_QCEXPIRY);
 					else {
 						GetRealRangeInput(dlg, CTL_FLTLOT_COST,  &temp_data.CostRange);
 						GetRealRangeInput(dlg, CTL_FLTLOT_PRICE, &temp_data.PriceRange);
@@ -3057,7 +3057,7 @@ int LotImpExpDialog::getDTS(PPLotImpExpParam * pData)
 	Data.UhttGoodsCodeArID = getCtrlLong(CTLSEL_IMPEXPLOT_AR);
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -3298,11 +3298,11 @@ int SLAPI EditLotExtCode(LotExtCodeTbl::Rec & rRec, char firstChar)
 			PPErrorByDialog(dlg, sel, PPERR_CODENEEDED);
 		else if(temp_buf.Len() >= sizeof(rRec.Code)) {
 			PPSetError(PPERR_CODETOOLONG, (long)(sizeof(rRec.Code)-1));
-			PPErrorByDialog(dlg, sel, -1);
+			PPErrorByDialog(dlg, sel);
 		}
 		else if(!PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf)) {
 			PPSetError(PPERR_TEXTISNTEGAISMARK, temp_buf);
-			PPErrorByDialog(dlg, sel, -1);
+			PPErrorByDialog(dlg, sel);
 		}
 		else {
 			STRNSCPY(rRec.Code, mark_buf);

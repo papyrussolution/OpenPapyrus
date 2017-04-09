@@ -34,30 +34,23 @@
 
 /* #define GEN_TREES_H */
 
+#define ZLIB_INTERNAL
+#include "zlib.h"
+#pragma hdrstop
 #include "deflate.h"
-
 #ifdef ZLIB_DEBUG
-#  include <ctype.h>
+	#include <ctype.h>
 #endif
 
 /* ===========================================================================
  * Constants
  */
 
-#define MAX_BL_BITS 7
-/* Bit length codes must not exceed MAX_BL_BITS bits */
-
-#define END_BLOCK 256
-/* end of block literal code */
-
-#define REP_3_6      16
-/* repeat previous bit length 3-6 times (2 bits of repeat count) */
-
-#define REPZ_3_10    17
-/* repeat a zero length 3-10 times  (3 bits of repeat count) */
-
-#define REPZ_11_138  18
-/* repeat a zero length 11-138 times  (7 bits of repeat count) */
+#define MAX_BL_BITS 7 /* Bit length codes must not exceed MAX_BL_BITS bits */
+#define END_BLOCK 256 /* end of block literal code */
+#define REP_3_6      16 /* repeat previous bit length 3-6 times (2 bits of repeat count) */
+#define REPZ_3_10    17 /* repeat a zero length 3-10 times  (3 bits of repeat count) */
+#define REPZ_11_138  18 /* repeat a zero length 11-138 times  (7 bits of repeat count) */
 
 static const int extra_lbits[LENGTH_CODES] /* extra bits for each length code */
 	= {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0};
@@ -98,14 +91,9 @@ uch _dist_code[DIST_CODE_LEN];
  * the 15 bit distances.
  */
 
-uch _length_code[MAX_MATCH-MIN_MATCH+1];
-/* length code for each normalized match length (0 == MIN_MATCH) */
-
-static int base_length[LENGTH_CODES];
-/* First normalized length for each code (0 = MIN_MATCH) */
-
-static int base_dist[D_CODES];
-/* First normalized distance for each code (0 = distance of 1) */
+uch _length_code[MAX_MATCH-MIN_MATCH+1]; /* length code for each normalized match length (0 == MIN_MATCH) */
+static int base_length[LENGTH_CODES]; /* First normalized length for each code (0 = MIN_MATCH) */
+static int base_dist[D_CODES]; /* First normalized distance for each code (0 = distance of 1) */
 
 #else
 	#include "trees.h"

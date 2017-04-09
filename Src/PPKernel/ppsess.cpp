@@ -2885,7 +2885,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 								//PPTXT_LOG_DISPTHRCROK        "Диспетчерский поток сервера успешно создан"
 								//PPTXT_LOG_DISPTHRCRERR       "Ошибка создания диспетчерского потока сервера"
 								PPLoadText(PPTXT_LOG_DISPTHRCRERR, msg_buf);
-								PPGetMessage(mfError, PPErrCode, 0, 1, temp_buf);
+								PPGetLastErrorMessage(1, temp_buf);
 								msg_buf.Space().CatQStr(DbSymb).CatDiv(':', 2).Cat(temp_buf);
 								PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME);
 							}

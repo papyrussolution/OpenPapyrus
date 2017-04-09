@@ -373,11 +373,10 @@ static void ShowTags_(PPID objType)
 int PPApp::processCommand(uint cmd)
 {
 	LastCmd = cmd;
+	PPObjBill * p_bobj = BillObj;
 	switch(cmd) {
 		case cmTextBrowserTest:      PPViewTextBrowser(0, 0);             break;
-		case cmOpenTextFile:
-			PPEditTextFile(0);
-			break;
+		case cmOpenTextFile:         PPEditTextFile(0);                   break;
 		case cmQuit:                 TView::messageCommand(this, cmQuit); break;
 		case cmInit:                 login(1);                            break;
 		case cmAbout:                PPAbout();                           break;
@@ -461,13 +460,13 @@ int PPApp::processCommand(uint cmd)
 		case cmPallet:               ShowObjects(PPOBJ_PALLET, 0);            break;
 		case cmRFIDDevice:           ShowObjects(PPOBJ_RFIDDEVICE, 0);        break;
 		case cmDebtDim:              ShowObjects(PPOBJ_DEBTDIM, 0);           break;
-		case cmEventToken:           ShowObjects(PPOBJ_EVENTTOKEN, 0);        break; // @v7.2.1
-		case cmPhoneService:         ShowObjects(PPOBJ_PHONESERVICE, 0);      break; // @v7.3.1
-		case cmGenericDevice:        ShowObjects(PPOBJ_GENERICDEVICE, 0);     break; // @v7.8.0
+		case cmEventToken:           ShowObjects(PPOBJ_EVENTTOKEN, 0);        break;
+		case cmPhoneService:         ShowObjects(PPOBJ_PHONESERVICE, 0);      break;
+		case cmGenericDevice:        ShowObjects(PPOBJ_GENERICDEVICE, 0);     break;
 		case cmCafeTable:            ShowObjects(PPOBJ_CAFETABLE, 0);         break; // @v8.4.1
 		case cmEdiProvider:          ShowObjects(PPOBJ_EDIPROVIDER, 0);       break; // @v8.5.5
-		case cmAccArticle:           ViewArticle(0);                          break;
-		case cmPerson:               ViewPerson(0);                           break;
+		// @v9.6.1 case cmAccArticle:           ViewArticle(0);                          break;
+		// @v9.6.1 case cmPerson:               ViewPerson(0);                           break;
 		case cmObjTag:               ShowTags_(PPOBJ_PERSON);                 break;
 		case cmLotTag:               ShowTags_(PPOBJ_LOT);                    break;
 		case cmBillTag:              ShowTags_(PPOBJ_BILL);                   break;
@@ -476,6 +475,8 @@ int PPApp::processCommand(uint cmd)
 		case cmGlobalUserAccTag:     ShowTags_(PPOBJ_GLOBALUSERACC);          break;
 		case cmUhttStoreTag:         ShowTags_(PPOBJ_UHTTSTORE);              break;
 		case cmObjTagAllObj:         ShowTags_(0);                            break; // @v8.5.3
+		case cmAccArticle:           PPView::Execute(PPVIEW_ARTICLE,         0, PPView::exefModeless, 0); break; // @v9.6.1 
+		case cmPerson:               PPView::Execute(PPVIEW_PERSON,          0, PPView::exefModeless, 0); break; // @v9.6.1
 		case cmPersonRel:            PPView::Execute(PPVIEW_PERSONREL,       0, PPView::exefModeless, 0); break;
 		case cmStaff:                PPView::Execute(PPVIEW_STAFFPOST,       0, PPView::exefModeless, 0); break;
 		case cmViewSalary:           PPView::Execute(PPVIEW_SALARY,          0, PPView::exefModeless, 0); break;
@@ -509,14 +510,14 @@ int PPApp::processCommand(uint cmd)
 		case cmRegisterType:         PPView::Execute(PPVIEW_REGISTERTYPE,    0, PPView::exefModeless, 0); break;
 		case cmStockOpt:             PPView::Execute(PPVIEW_STOCKOPT,        0, PPView::exefModeless, 0); break;
 		case cmViewLogsMon:          PPView::Execute(PPVIEW_LOGSMONITOR,     0, PPView::exefModeless, 0); break;
-		case cmBudgeting:            PPView::Execute(PPVIEW_BUDGET,          0, PPView::exefModeless, 0); break; // @v6.5.14
-		case cmViewBizScTempl:       PPView::Execute(PPVIEW_BIZSCTEMPL,      0, PPView::exefModeless, 0); break; // @v6.6.8
-		case cmBizScValByTempl:      PPView::Execute(PPVIEW_BIZSCVALBYTEMPL, 0, PPView::exefModeless, 0); break; // @v6.6.8
+		case cmBudgeting:            PPView::Execute(PPVIEW_BUDGET,          0, PPView::exefModeless, 0); break;
+		case cmViewBizScTempl:       PPView::Execute(PPVIEW_BIZSCTEMPL,      0, PPView::exefModeless, 0); break;
+		case cmBizScValByTempl:      PPView::Execute(PPVIEW_BIZSCVALBYTEMPL, 0, PPView::exefModeless, 0); break;
 		case cmViewDLStat:	 	     PPView::Execute(PPVIEW_DVCLOADINGSTAT,  0, PPView::exefModeless, 0); break;
 		case cmSpecSeries:           PPView::Execute(PPVIEW_SPECSERIES,      0, PPView::exefModeless, 0); break;
-		case cmGtaJournal:           PPView::Execute(PPVIEW_GTAJOURNAL,      0, PPView::exefModeless, 0); break; // @v7.3.9
-		case cmSCardOp:              PPView::Execute(PPVIEW_SCARDOP,         0, PPView::exefModeless, 0); break; // @v7.3.9
-		case cmSuprWare:             PPView::Execute(PPVIEW_SUPRWARE,        0, PPView::exefModeless, 0); break; // @vmiller
+		case cmGtaJournal:           PPView::Execute(PPVIEW_GTAJOURNAL,      0, PPView::exefModeless, 0); break;
+		case cmSCardOp:              PPView::Execute(PPVIEW_SCARDOP,         0, PPView::exefModeless, 0); break;
+		case cmSuprWare:             PPView::Execute(PPVIEW_SUPRWARE,        0, PPView::exefModeless, 0); break;
 		case cmUserProfile:		     PPView::Execute(PPVIEW_USERPROFILE,     0, PPView::exefModeless, 0); break;
 		case cmAccTurnList:          PPView::Execute(PPVIEW_ACCTURN,         0, PPView::exefModeless, 0); break;
 		case cmBalance:              PPView::Execute(PPVIEW_BALANCE,         0, PPView::exefModeless, 0); break;
@@ -526,18 +527,9 @@ int PPApp::processCommand(uint cmd)
 		case cmJobPool:              PPView::Execute(PPVIEW_JOB,             0, PPView::exefModeless, 0); break;
 		case cmGlobalUserAcc:        PPView::Execute(PPVIEW_GLOBALUSERACC,   0, PPView::exefModeless, 0); break;
 		case cmViewGeoTracking:      PPView::Execute(PPVIEW_GEOTRACKING,     0, PPView::exefModeless, 0); break; // @v8.6.11
-		case cmCashNode:
-			{
-				CashNodeFilt filt;
-				PPView::Execute(PPVIEW_CASHNODE, &filt, PPView::exefModeless, 0);
-			}
-			break;
-		case cmScale:
-			{
-				ScaleFilt filt;
-				PPView::Execute(PPVIEW_SCALE, &filt, PPView::exefModeless, 0);
-			}
-			break;
+		case cmCashNode:             PPView::Execute(PPVIEW_CASHNODE,        0, PPView::exefModeless, 0); break;
+		case cmScale:                PPView::Execute(PPVIEW_SCALE,           0, PPView::exefModeless, 0); break;
+		case cmDBDiv:                PPView::Execute(PPVIEW_DBDIV,           0, PPView::exefModeless, 0); break;
 		case cmCTblOrdTimeGraph:
 			{
 				CTableOrder::Param param;
@@ -546,12 +538,6 @@ int PPApp::processCommand(uint cmd)
 				if(cto.EditParam(&param) > 0) {
 					CTableOrder::ShowTimeGraph(param.PosNodeID, 1);
 				}
-			}
-			break;
-		case cmDBDiv:
-			{
-				DBDivFilt filt;
-				PPView::Execute(PPVIEW_DBDIV, &filt, PPView::exefModeless, 0);
 			}
 			break;
 		case cmCreateDraftBySupplOrder: PPViewSStat::CreateDraftBySupplOrders(0); break;
@@ -579,17 +565,17 @@ int PPApp::processCommand(uint cmd)
 		case cmInventory:            BrowseBills(bbtInventoryBills);      break;
 		case cmPoolBillList:         BrowseBills(bbtPoolBills);           break;
 		case cmDraftBillList:        BrowseBills(bbtDraftBills);          break;
-		case cmWmsBillList:          BrowseBills(bbtWmsBills);            break; // @v6.1.1
-		case cmAutoCharge:           BillObj->AutoCharge();               break;
-		case cmCorrectBillPaym:      BillObj->GatherPayments();           break;
-		case cmPaymWOLinkBill:       BillObj->SearchPaymWOLinkBill();     break;
-		case cmCorrectTrfrRvrs:      BillObj->trfr->CorrectReverse();     break;
-		case cmCorrectLotTaxGrp:     BillObj->trfr->CorrectLotTaxGrp();   break;
-		case cmRecalcLotCurRest:     BillObj->trfr->RecalcLcr();          break;
-		case cmCorrectTrfrIntrUnite: BillObj->trfr->CorrectIntrUnite();   break; // @v7.4.10
-		case cmCorrectPckgCloseTags: BillObj->CorrectPckgCloseTag();      break;
-		case cmCorrectBalance:       BillObj->atobj->CorrectBalance();    break;
-		case cmCorrectAccrelArRefs:  BillObj->atobj->CorrectRelsArRefs(); break;
+		case cmWmsBillList:          BrowseBills(bbtWmsBills);            break;
+		case cmAutoCharge:           p_bobj->AutoCharge();               break;
+		case cmCorrectBillPaym:      p_bobj->GatherPayments();           break;
+		case cmPaymWOLinkBill:       p_bobj->SearchPaymWOLinkBill();     break;
+		case cmCorrectTrfrRvrs:      p_bobj->trfr->CorrectReverse();     break;
+		case cmCorrectLotTaxGrp:     p_bobj->trfr->CorrectLotTaxGrp();   break;
+		case cmRecalcLotCurRest:     p_bobj->trfr->RecalcLcr();          break;
+		case cmCorrectTrfrIntrUnite: p_bobj->trfr->CorrectIntrUnite();   break;
+		case cmCorrectPckgCloseTags: p_bobj->CorrectPckgCloseTag();      break;
+		case cmCorrectBalance:       p_bobj->atobj->CorrectBalance();    break;
+		case cmCorrectAccrelArRefs:  p_bobj->atobj->CorrectRelsArRefs(); break;
 		case cmCorrectGoodsGroups:   RecoverGoodsGroups(0);               break;
 		case cmCorrectGoodsGroupsNIA: RecoverGoodsGroupsNIA();            break; // @v8.3.6
 		case cmCheckGStrucRecursion: PPObjGoodsStruc::CheckRecursion();   break;
@@ -643,7 +629,7 @@ int PPApp::processCommand(uint cmd)
 		case cmReplacePersonCat:     PPObject::ReplaceObjInteractive(PPOBJ_PRSNCATEGORY, 0); break;
 		case cmReplaceLikeWorld:     PPObjWorld::UniteMaxLike();        break;
 		case cmReplaceDynamicObj:    PPObject::ReplaceObjInteractive(PPOBJ_DYNAMICOBJS, 0);   break;
-		case cmReplaceBrand:         PPObject::ReplaceObjInteractive(PPOBJ_BRAND, 0); break; // @v7.2.4
+		case cmReplaceBrand:         PPObject::ReplaceObjInteractive(PPOBJ_BRAND, 0); break;
 		case cmPrinterCfg:           EditDefaultPrinterCfg();           break;
 		case cmGoodsCfg:             PPObjGoods::EditConfig();          break;
 		case cmPersonCfg:            PPObjPerson::EditConfig();         break;
@@ -663,10 +649,10 @@ int PPApp::processCommand(uint cmd)
 		case cmSimpleLedgerCfg:      PPObjVATBook::EditConfig(PPVTB_SIMPLELEDGER, 0);  break;
 		case cmInetConnCfg:          PpyInetDataPrcssr::EditCfg();      break;
 		case cmEquipCfg:             EditEquipConfig();                 break;
-		case cmDebtorStatCfg:        PPDebtorStatConfig::Edit();        break; // @v6.0.1
-		case cmLocationCfg:          PPObjLocation::EditConfig();       break; // @v6.1.0
-		case cmStockOptCfg:          PPStockOpt::EditConfig();          break; // @v6.8.11
-		case cmGlobalAccCfg:         PPObjGlobalUserAcc::EditConfig();  break; // @v7.4.7
+		case cmDebtorStatCfg:        PPDebtorStatConfig::Edit();        break;
+		case cmLocationCfg:          PPObjLocation::EditConfig();       break;
+		case cmStockOptCfg:          PPStockOpt::EditConfig();          break;
+		case cmGlobalAccCfg:         PPObjGlobalUserAcc::EditConfig();  break;
 		case cmWorkbookCfg:          PPObjWorkbook::EditConfig();       break; // @v8.1.7
 		case cmAlcReportCfg:         PrcssrAlcReport::EditConfig();     break; // @v8.4.4
 		case cmResetOpCounters:      PPObjOpCounter::ResetAll();        break;
@@ -675,7 +661,7 @@ int PPApp::processCommand(uint cmd)
 		case cmCreateReservedObjs:   PPObject::CreateReservedObjects(0);  break;
 		case cmCheckPane:            CCheckPane(0, 0);                    break;
 		case cmViewCCheck:           ViewCCheck(0, PPView::exefModeless); break;
-		case cmSCardPane:            ViewSCardInfo(0, 0);               break; // @v6.4.5
+		case cmSCardPane:            ViewSCardInfo(0, 0);               break;
 		case cmScalePrepareData:     PPObjScale::PrepareData(0);        break;
 		case cmScaleTransmitData:    PPObjScale::TransmitData(0);       break;
 		case cmUpdatePassword:       UpdatePassword();                  break;
@@ -771,7 +757,7 @@ int PPApp::processCommand(uint cmd)
 			break;
 		case cmEditMenus:             EditMenus(0, 0, 0);              break;
 		case cmEditMenusFromFile:     EditMenusFromFile();             break;
-		case cmEditWhatman:           PPWhatmanWindow::Edit(0, 0);     break; // @v6.6.12
+		case cmEditWhatman:           PPWhatmanWindow::Edit(0, 0);     break;
 		case cmBillExpImpParams:      EditBillImpExpParams(1);         break;
 		case cmBRowExpImpParams:      EditBillImpExpParams(0);         break;
 		case cmPriceListExpImpParams: EditPriceListImpExpParams();     break;
@@ -780,7 +766,7 @@ int PPApp::processCommand(uint cmd)
 			break;
 		case cmExpImpParamsInventory: EditInventoryImpExpParams();     break;
 		case cmGoodsExpImpParams:     EditGoodsImpExpParams();         break;
-		case cmImpExpListConfig:      EditImpExpConfigs();             break; // @v6.3.0 AHTOXA
+		case cmImpExpListConfig:      EditImpExpConfigs();             break;
 		case cmImportBills:           ImportBills(0, 0, 0, 0);         break;
 		case cmImportEmailAccts:      ImportEmailAccts();              break;
 		case cmLoadFonts:             BarcodeLabelPrinter::LoadFonts(0, 0);  break;
@@ -831,7 +817,7 @@ int PPApp::processCommand(uint cmd)
 			}
 			break;
 		case cmFiltPool: ViewFiltPool(); break; // @paul pentaho
-		case cmIndexPhones: PPObject::IndexPhones(); break; // @v7.3.3
+		case cmIndexPhones: PPObject::IndexPhones(); break;
 		case cmIndexTextObjects: // @v7.8.0 @construction
 			{
 				MemLeakTracer mlt;
@@ -845,51 +831,27 @@ int PPApp::processCommand(uint cmd)
 				wb_obj.InterchangeUhtt();
 			}
 			break;
-		case cmProcessObjText: // @v7.9.2
-			DoProcessObjText(0);
-			break;
-		case cmGenerateKeywordSeq: // @v8.2.10
-			Test_KeywordListGenerator();
-			break;
-		case cmLotPacking:  ReceiptPacking();        break;
-		case cmCvtQCert:
-			ConvertLandQCertToLotTag();
-			break;
+		case cmProcessObjText:     DoProcessObjText(0); break;
+		case cmGenerateKeywordSeq: Test_KeywordListGenerator(); break; // @v8.2.10
+		case cmLotPacking:         ReceiptPacking();        break;
+		case cmCvtQCert:           ConvertLandQCertToLotTag(); break;
 		case cmCorrectCCheckLine01:
 			{
 				CCheckCore cc;
 				cc.CorrectCCLineProblem01();
 			}
 			break;
-		case cmRecoverLostUnifiedLinks:
-			PPObjTag::RecoverLostUnifiedLinks();
-			break;
-		case cmBuildLocalDL600:
-			BuildLocalDL600();
-			break;
-		case cmConstructionTest:
-			DoConstructionTest();
-			break;
-		case cmTestUhttGetLocByPhone: // @v8.3.2
-			PPUhttClient::TestUi_GetLocationListByPhone();
-			break;
-		case cmTestUhttGetQuotByLoc: // @v8.3.6
-			PPUhttClient::TestUi_GetQuotByLoc();
-			break;
-		case cmTestFias: // @v8.6.10
-			TestFias();
-			break;
-		case cmTestCURL: // @v8.8.0
-			TestCURL();
-			break;
-		case cmTestEGAIS: // @v8.8.0
-			TestEGAIS(0);
-			break;
-		case cmTestSearchEmail: // @v8.8.9
-			PPObjPerson::TestSearchEmail();
-			break;
-		case cmConvertLatexToHtml:   PPTex2Html(); break; // @v8.1.12
-		case cmConvertVersionToHtml: PPVer2Html(); break; // @v8.3.12 // @construction
+		case cmRecoverLostUnifiedLinks: PPObjTag::RecoverLostUnifiedLinks(); break;
+		case cmBuildLocalDL600:         BuildLocalDL600(); break;
+		case cmConstructionTest:        DoConstructionTest(); break;
+		case cmTestUhttGetLocByPhone:   PPUhttClient::TestUi_GetLocationListByPhone(); break; // @v8.3.2
+		case cmTestUhttGetQuotByLoc:    PPUhttClient::TestUi_GetQuotByLoc(); break; // @v8.3.6
+		case cmTestFias:                TestFias(); break; // @v8.6.10
+		case cmTestCURL:                TestCURL(); break; // @v8.8.0
+		case cmTestEGAIS:               TestEGAIS(0); break; // @v8.8.0
+		case cmTestSearchEmail:         PPObjPerson::TestSearchEmail(); break; // @v8.8.9
+		case cmConvertLatexToHtml:      PPTex2Html(); break; // @v8.1.12
+		case cmConvertVersionToHtml:    PPVer2Html(); break; // @v8.3.12 // @construction
 		// @underconstruction case cmGenerateGoodsBills:   GenerateGoodsBills(); break;
 		// @v3.7.2 case cmConvert229:           Convert229();         break;
 		// @v3.7.2 case cmConvert253:           Convert253();         break;
@@ -907,8 +869,8 @@ int PPApp::processCommand(uint cmd)
 		case cmConvert4805:          Convert4805();                   break;
 		case cmConvertQuot720:       ConvertQuot720();                break;
 		case cmConvertBillUUID7601:
-			if(BillObj) {
-				BillObj->ConvertUuid7601();
+			if(p_bobj) {
+				p_bobj->ConvertUuid7601();
 			}
 			break;
 		case cmConvertWorkbook813:   ConvertWorkbook813();            break;
@@ -1542,7 +1504,7 @@ int SLAPI PreprocessCmdLine()
 			if(r == -1)
 				msg_buf.Cat("Usage").CatDiv(':', 2).Cat("ppw.exe /verhist:dbsymb");
 			else
-				PPGetMessage(mfError, PPErrCode, DS.GetTLA().AddedMsgString, 0, msg_buf);
+				PPGetLastErrorMessage(0, msg_buf);
 			puts(msg_buf);
 		}
 		ok = -1;
@@ -1935,7 +1897,7 @@ int PPApp::InitMenuBar()
 				}
 			}
 			if(!m)
-				return (PPErrCode = PPERR_MENULOADFAULT, 0);
+				return PPSetError(PPERR_MENULOADFAULT);
 		}
 		DestroyMenu(GetMenu(H_MainWnd));
 		SetMenu(H_MainWnd, m);

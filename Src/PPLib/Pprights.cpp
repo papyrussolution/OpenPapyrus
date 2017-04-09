@@ -244,8 +244,19 @@ public:
 	RtOpListDialog() : ObjRestrictListDialog(DLG_RTOPLIST, CTL_RTOPLIST_LIST)
 	{
 	}
-	int    setDTS(const ObjRestrictArray *);
-	int    getDTS(ObjRestrictArray *);
+	int    setDTS(const ObjRestrictArray * pData)
+	{
+		if(!RVALUEPTR(Data, pData))
+			Data.freeAll();
+		setParams(PPOBJ_OPRKIND, &Data);
+		updateList(-1);
+		return 1;
+	}
+	int    getDTS(ObjRestrictArray * pData)
+	{
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 	virtual int TransmitData(int dir, void * pData)
 	{
 		int    s = 0;
@@ -263,25 +274,27 @@ private:
 		GetOpName(objID, rBuf);
 		return 1;
 	}
-	virtual int editItemDialog(ObjRestrictItem *);
-
+	virtual void   getExtText(PPID objID, long objFlags, SString & rBuf)
+	{
+		const long comm = (objFlags & 0x80000000) ? 0 : 1;
+		if(comm) {
+			PPLoadString("rt_inherited", rBuf);
+		}
+		else {
+			rBuf = 0;
+			rBuf.CatChar((objFlags & PPR_READ) ? 'R' : ' ');
+			rBuf.CatChar((objFlags & PPR_INS)  ? 'C' : ' ');
+			rBuf.CatChar((objFlags & PPR_MOD)  ? 'M' : ' ');
+			rBuf.CatChar((objFlags & PPR_DEL)  ? 'D' : ' ');
+			rBuf.CatChar((objFlags & PPR_ADM)  ? 'A' : ' ');
+			if(rBuf.Empty()) {
+				PPLoadString("none", rBuf);
+			}
+		}
+	}
+	virtual int    editItemDialog(ObjRestrictItem *);
 	ObjRestrictArray Data;
 };
-
-int RtOpListDialog::setDTS(const ObjRestrictArray * pData)
-{
-	if(!RVALUEPTR(Data, pData))
-		Data.freeAll();
-	setParams(PPOBJ_OPRKIND, &Data);
-	updateList(-1);
-	return 1;
-}
-
-int RtOpListDialog::getDTS(ObjRestrictArray * pData)
-{
-	ASSIGN_PTR(pData, Data);
-	return 1;
-}
 
 int RtOpListDialog::editItemDialog(ObjRestrictItem * pItem)
 {
@@ -335,7 +348,7 @@ int RtOpListDialog::editItemDialog(ObjRestrictItem * pItem)
 				ASSIGN_PTR(pData, Data);
 			}
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}
@@ -344,7 +357,7 @@ int RtOpListDialog::editItemDialog(ObjRestrictItem * pItem)
 		{
 			TDialog::handleEvent(event);
 			if(event.isClusterClk(CTL_RTOPLI_COMMRT)) {
-				long comm = GetClusterData(CTL_RTOPLI_COMMRT);
+				const long comm = GetClusterData(CTL_RTOPLI_COMMRT);
 				disableCtrl(CTL_RTOPLI_FLAGS, comm);
 			}
 			else
@@ -375,7 +388,7 @@ void RightsDialog::editOpList()
 	RtOpListDialog * dlg = new RtOpListDialog;
 	if(CheckDialogPtr(&dlg, 1)) {
 		ObjRestrictArray temp_list;
-		ObjRestrictArray * p_list = Data.P_OpList ? Data.P_OpList : &temp_list;
+		ObjRestrictArray * p_list = NZOR(Data.P_OpList, &temp_list);
 		dlg->setDTS(p_list);
 		if(ExecView(dlg) == cmOK) {
 			dlg->getDTS(p_list);

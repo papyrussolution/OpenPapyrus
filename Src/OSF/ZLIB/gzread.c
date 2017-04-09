@@ -2,7 +2,9 @@
  * Copyright (C) 2004, 2005, 2010, 2011, 2012, 2013, 2016 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
-
+#define ZLIB_INTERNAL
+#include "zlib.h"
+#pragma hdrstop
 #include "gzguts.h"
 
 /* Local functions */
@@ -21,7 +23,8 @@ static z_size_t gz_read OF((gz_statep, voidp, z_size_t));
 static int gz_load(gz_statep state, unsigned char * buf, unsigned len, unsigned * have)
 {
 	int ret;
-	unsigned get, max = ((unsigned)-1 >> 2) + 1;
+	unsigned get;
+	unsigned max = ((unsigned)-1 >> 2) + 1;
 	*have = 0;
 	do {
 		get = len - *have;

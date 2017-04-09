@@ -134,9 +134,9 @@ ZEXTERN z_off64_t ZEXPORT gzoffset64 OF((gzFile));
 
 /* default memLevel */
 #if MAX_MEM_LEVEL >= 8
-#  define DEF_MEM_LEVEL 8
+	#define DEF_MEM_LEVEL 8
 #else
-#  define DEF_MEM_LEVEL  MAX_MEM_LEVEL
+	#define DEF_MEM_LEVEL  MAX_MEM_LEVEL
 #endif
 
 /* default i/o buffer size -- double this for output when reading (this and
@@ -188,7 +188,8 @@ typedef struct {
 	/* zlib inflate or deflate stream */
 	z_stream strm;      /* stream structure in-place (not a pointer) */
 } gz_state;
-typedef gz_state  * gz_statep;
+
+typedef gz_state * gz_statep;
 
 /* shared functions */
 void ZLIB_INTERNAL gz_error OF((gz_statep, int, const char *));

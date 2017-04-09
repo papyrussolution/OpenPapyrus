@@ -2279,7 +2279,6 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 				p_q->addField(p_ext->TableNo);      // #14 // @v7.2.8 #+1
 				p_q->addField(p_ext->GuestCount);   // #15 // @v8.1.11
 				p_q->addField(*p_add_paym);         // #16 // @v7.2.8 #+1 // @v8.1.11 #+1
-				// @v7.0.11 {
 				p_q->addField(p_ext->Memo);    // #17 // @v7.2.8 #+1 // @v8.1.11 #+1
 				if(Filt.Flags & CCheckFilt::fDlvrOnly) {
 					{
@@ -2288,16 +2287,22 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 						dbe_addr_city.push((DBFunc)PPDbqFuncPool::IdAddrCityName);
 					}
 					{
+						/* @v9.6.1
 						dbe_addr_phone.init();
 						dbe_addr_phone.push(p_ext->AddrID);
 						dbe_addr_phone.push(dbconst((long)LOCEXSTR_PHONE));
 						dbe_addr_phone.push((DBFunc)PPDbqFuncPool::IdAddrExField);
+						*/
+						PPDbqFuncPool::InitFunc2Arg(dbe_addr_phone, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_PHONE)); // @v9.6.1
 					}
 					{
+						/* @v9.6.1
 						dbe_addr.init();
 						dbe_addr.push(p_ext->AddrID);
 						dbe_addr.push(dbconst((long)LOCEXSTR_SHORTADDR));
 						dbe_addr.push((DBFunc)PPDbqFuncPool::IdAddrExField);
+						*/
+						PPDbqFuncPool::InitFunc2Arg(dbe_addr, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_SHORTADDR)); // @v9.6.1
 					}
 					p_q->addField(p_ext->StartOrdDtm); // #18 // @v7.2.8 #+1 // @v8.1.11 #+1
 					p_q->addField(dbe_addr_phone);     // #19 // @v7.2.8 #+1 // @v8.1.11 #+1
@@ -2308,7 +2313,6 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 					p_q->addField(p_ext->StartOrdDtm); // #18 // @v7.2.8 #+1 // @v8.1.11 #+1
 					p_q->addField(p_ext->EndOrdDtm);   // #19 // @v7.2.8 #+1 // @v8.1.11 #+1
 				}
-				// } @v7.0.11
 				dbq = & (*dbq && (p_ext->CheckID += cq->ID));
 				p_q->from(cq, p_ext, 0L);
 			}
@@ -2351,16 +2355,22 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 						dbe_addr_city.push((DBFunc)PPDbqFuncPool::IdAddrCityName);
 					}
 					{
+						/* @v9.6.1
 						dbe_addr_phone.init();
 						dbe_addr_phone.push(p_ext->AddrID);
 						dbe_addr_phone.push(dbconst((long)LOCEXSTR_PHONE));
 						dbe_addr_phone.push((DBFunc)PPDbqFuncPool::IdAddrExField);
+						*/
+						PPDbqFuncPool::InitFunc2Arg(dbe_addr_phone, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_PHONE)); // @v9.6.1
 					}
 					{
+						/* @v9.6.1
 						dbe_addr.init();
 						dbe_addr.push(p_ext->AddrID);
 						dbe_addr.push(dbconst((long)LOCEXSTR_SHORTADDR));
 						dbe_addr.push((DBFunc)PPDbqFuncPool::IdAddrExField);
+						*/
+						PPDbqFuncPool::InitFunc2Arg(dbe_addr, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_SHORTADDR)); // @v9.6.1
 					}
 					p_q->addField(p_ext->StartOrdDtm); // #16 @v7.0.8 // @v7.2.8 #+1 // @v8.1.11 #+1
 					p_q->addField(dbe_addr_phone);     // #17 @v7.0.8 // @v7.2.8 #+1 // @v8.1.11 #+1
@@ -3250,7 +3260,7 @@ int SLAPI PPViewCCheck::CalcTotal(CCheckTotal * pTotal)
 		PPWait(0);
 	}
 	else
-		ok = (PPErrCode = PPERR_INVPARAM, 0);
+		ok = PPSetError(PPERR_INVPARAM);
 	return ok;
 }
 
@@ -3501,7 +3511,7 @@ public:
 					card_id = sc_rec.ID;
 				else {
 					ok = PPSetError(PPERR_SCARDNOTFOUND, scard_no);
-					PPErrorByDialog(this, CTL_CCHECKINFO_CARDNO, -1);
+					PPErrorByDialog(this, CTL_CCHECKINFO_CARDNO);
 				}
 			}
 			else

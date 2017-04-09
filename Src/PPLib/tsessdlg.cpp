@@ -714,7 +714,7 @@ public:
 		Data.Ext.PutExtStrData(PRCEXSTR_DETAILDESCR, temp_buf);
 		ASSIGN_PTR(pData, Data);
 		CATCH
-			ok = PPErrorByDialog(this, ctl_sel, -1);
+			ok = PPErrorByDialog(this, ctl_sel);
 		ENDCATCH
 		return ok;
 	}
@@ -1503,7 +1503,7 @@ int TSessionDialog::getDTS(TSessionPacket * pData)
 	if(ok)
 		ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -1797,7 +1797,7 @@ int TSessLineDialog::getDTS(TSessLineTbl::Rec * pData)
 	getCtrlData(CTL_TSESSLN_SERIAL, Data.Serial);
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }

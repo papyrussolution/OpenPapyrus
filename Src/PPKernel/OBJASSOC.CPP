@@ -146,7 +146,7 @@ int SLAPI ObjAssoc::Count(PPID asscTyp, PPID prmrID, long * pCount)
 int SLAPI ObjAssoc::GetItemsListByPrmr(PPID asscTyp, PPID prmrID, SArray * pList)
 {
 	return (pList && pList->getItemSize() == sizeof(ObjAssocTbl::Rec)) ?
-		GetByPrmr_Helper(asscTyp, prmrID, 0, 0, pList) : (PPErrCode = PPERR_INVPARAM, 0);
+		GetByPrmr_Helper(asscTyp, prmrID, 0, 0, pList) : PPSetError(PPERR_INVPARAM);
 }
 
 int SLAPI ObjAssoc::EnumByPrmr(PPID asscTyp, PPID prmrID, PPID * pScndID, ObjAssocTbl::Rec * b)

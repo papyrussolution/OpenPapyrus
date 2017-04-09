@@ -27,7 +27,7 @@ SLAPI PPDeclStrucProcessor::~PPDeclStrucProcessor()
 int SLAPI PPDeclStrucProcessor::MakeErrMsgString(char * pBuf, size_t bufLen)
 {
 	SString file_msg, msg;
-	PPGetMessage(mfError, PPErrCode, 0, 1, msg);
+	PPGetLastErrorMessage(1, msg);
 	if(P_FileName) {
 		file_msg.Cat("File").Space().Cat(P_FileName).CatDiv(',', 2).
 			Cat("Line").Space().Cat(Line).CatDiv(':', 2).Cat(msg);
@@ -390,7 +390,7 @@ int SLAPI PPDeclStrucProcessor::GetTypeByName(const char * pName, long * pTypeID
 		for(uint i = 0; P_NameTab->enumItems(&i, (void**)&p_item);)
 			if(stricmp(p_item->Name, pName) == 0) {
 				ASSIGN_PTR(pTypeID, p_item->ID);
-				PPErrCode = PPERR_DS_TYPENAMEEXISTS;
+				PPSetError(PPERR_DS_TYPENAMEEXISTS);
 				return 1;
 			}
 	ASSIGN_PTR(pTypeID, 0);

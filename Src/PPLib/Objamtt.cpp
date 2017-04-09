@@ -357,7 +357,7 @@ int AmtTypeDialog::getDTS(PPAmountTypePacket * pData)
 		Data.Formula = 0;
 	*pData = Data;
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }

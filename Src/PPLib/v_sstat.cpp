@@ -193,7 +193,7 @@ public:
 		}
 		ASSIGN_PTR(pData, Data);
 		CATCH
-			ok = PPErrorByDialog(this, sel_id, -1);
+			ok = PPErrorByDialog(this, sel_id);
 		ENDCATCH
 		return ok;
 	}
@@ -258,7 +258,7 @@ private:
 			GetClusterData(CTL_SSTATFLT_CFLAGS, &Data._CFlags);
 			ASSIGN_PTR(pData, Data);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}
@@ -365,7 +365,7 @@ int SLAPI PPViewSStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		SetRealRangeInput(dlg, CTL_SSTATFLT_QTTYVAR, &p_filt->QttyVarRange, 2);
 		while(!valid_data && ExecView(dlg) == cmOK)
 			if(!GetPeriodInput(dlg, CTL_SSTATFLT_PERIOD, &p_filt->Period))
-				PPErrorByDialog(dlg, CTL_SSTATFLT_PERIOD, -1);
+				PPErrorByDialog(dlg, CTL_SSTATFLT_PERIOD);
 			else {
 				dlg->getGroupData(GRP_CYCLE, &cycle_rec);
 				p_filt->Cycl = cycle_rec.C;

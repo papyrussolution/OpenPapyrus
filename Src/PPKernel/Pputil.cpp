@@ -796,7 +796,7 @@ int FASTCALL CheckQueryPtr(DBQuery * q)
 	if(q == 0)
 		return PPSetErrorNoMem();
 	else if(q->error)
-		return (PPErrCode = PPERR_DBQUERY, 0);
+		return PPSetError(PPERR_DBQUERY);
 	else
 		return 1;
 }
@@ -1262,7 +1262,7 @@ int SLAPI PPSymbTranslator::Retranslate(long sym, char * s, size_t bufLen) const
 			return 1;
 		}
 	} while((p = strchr(p, ';'))++ != 0);
-	return (PPErrCode = PPERR_UNDEFSYMB, 0);
+	return PPSetError(PPERR_UNDEFSYMB);
 }
 
 int SLAPI PPSymbTranslator::Retranslate(long sym, SString & rBuf) const
@@ -1279,7 +1279,7 @@ int SLAPI PPSymbTranslator::Retranslate(long sym, SString & rBuf) const
 			return 1;
 		}
 	} while((p = strchr(p, ';'))++ != 0);
-	return (PPErrCode = PPERR_UNDEFSYMB, 0);
+	return PPSetError(PPERR_UNDEFSYMB);
 }
 //
 // DateIter
@@ -2718,12 +2718,12 @@ extern "C" __declspec(dllexport) int cdecl UnixToDos(const char * pWildcard, lon
 		}
 		else {
 			PPSetErrorSLib();
-			PPGetMessage(mfError, PPErrCode, 0, 1, msg_buf);
+			PPGetLastErrorMessage(1, msg_buf);
 			fprintf(stderr, msg_buf);
 		}
 	}
 	CATCH
-		PPGetMessage(mfError, PPErrCode, 0, 1, msg_buf);
+		PPGetLastErrorMessage(1, msg_buf);
 		fprintf(stderr, msg_buf);
 		ok = 0;
 	ENDCATCH

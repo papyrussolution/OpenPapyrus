@@ -61,7 +61,7 @@ int SLAPI PPObjWorldObjStatus::Edit(PPID * pID, void * extraPtr)
 		if(strip(rec.Name)[0] == 0)
 			PPErrorByDialog(dlg, CTL_WOBJSTATUS_NAME, PPERR_NAMENEEDED);
 		else if(!CheckName(*pID, rec.Name, 1))
-			PPErrorByDialog(dlg, CTL_WOBJSTATUS_NAME, -1);
+			PPErrorByDialog(dlg, CTL_WOBJSTATUS_NAME);
 		else {
 			dlg->getCtrlData(CTL_WOBJSTATUS_ABBR, rec.Abbr);
 			dlg->getCtrlData(CTL_WOBJSTATUS_CODE, &rec.Code);
@@ -259,7 +259,7 @@ int SLAPI PPObjWorld::GetNativeCountry(PPID * pID)
 		}
 	}
 	if(ok < 0) {
-		PPErrCode = PPERR_NONATIVECOUNTRY;
+		PPSetError(PPERR_NONATIVECOUNTRY);
 	}
 	ASSIGN_PTR(pID, country_id);
 	return ok;
@@ -651,7 +651,7 @@ int EditWorldDialog::getDTS(PPWorldPacket * pData)
 		THROW_PP(Data.Rec.ParentID, PPERR_CITYNEEDED);
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }

@@ -200,7 +200,7 @@ public:
 		THROW_PP(Data.FileName.NotEmptyS(), PPERR_FILENAMENEEDED);
 		ASSIGN_PTR(pData, Data);
 		CATCH
-			ok = PPErrorByDialog(this, sel, -1);
+			ok = PPErrorByDialog(this, sel);
 		ENDCATCH
 		return ok;
 	}
@@ -235,7 +235,7 @@ int SLAPI PPDbTableXmlExportParam_TrfrBill::Edit(PPDbTableXmlExportParam_TrfrBil
 			uint   sel = 0;
 			if(dlg->getDTS(pData)) {
 				if(!GetPeriodInput(dlg, sel = CTL_DBTEXP_PERIOD, &pData->Period)) {
-					PPErrorByDialog(dlg, sel, -1);
+					PPErrorByDialog(dlg, sel);
 				}
 				else {
 					ok = 1;

@@ -674,6 +674,13 @@ int FASTCALL PPErrorByDialog(TDialog * dlg, uint ctlID, int err)
 	return 0;
 }
 
+int FASTCALL PPErrorByDialog(TDialog * dlg, uint ctlID)
+{
+	PPError(-1, 0);
+	CALLPTRMEMB(dlg, selectCtrl(ctlID));
+	return 0;
+}
+
 int SLAPI PasswordDialog(uint dlgID, char * pBuf, size_t pwSize, size_t minLen, int withoutEncrypt)
 {
 	int    ok = -1, valid_data = 0;
@@ -4877,7 +4884,7 @@ int RemoveAllDialog::getDTS(RemoveAllParam * pData)
 		resourceID == DLG_GOODSRMVALL ? PPERR_GOODSGROUPNEEDED : PPERR_SCARDSERIESNEEDED);
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -5037,7 +5044,7 @@ int ResolveGoodsDialog::getDTS(ResolveGoodsItemList * pData)
 	if(Flags & RESOLVEGF_RESOLVEALLGOODS) {
 		ResolveGoodsItem * p_item = 0;
 		for(uint i = 0; ok && Data.enumItems(&i, (void**)&p_item) > 0;)
-			ok = p_item->ResolvedGoodsID ? 1 : (PPErrCode = PPERR_EXISTUNRESOLVDEDGOODS, 0);
+			ok = p_item->ResolvedGoodsID ? 1 : PPSetError(PPERR_EXISTUNRESOLVDEDGOODS);
 	}
 	return (ok > 0) ? (pData->copy(Data), 1) : ok;
 }

@@ -293,7 +293,7 @@ int SLAPI Transfer::LoadItems(PPBillPacket & rPack, const PPIDArray * pGoodsList
 						SString fmt_buf, msg_buf, bill_buf, err_buf, goods_name;
 						GetGoodsName(p_ti->GoodsID, goods_name);
 						PPObjBill::MakeCodeString(&rPack.Rec, 1, bill_buf).CatDiv(';', 2).Cat(i).CatDiv(';', 2).Cat(goods_name);
-						PPGetMessage(mfError, PPErrCode, 0, 1, err_buf);
+						PPGetLastErrorMessage(1, err_buf);
 						msg_buf.Printf(PPLoadTextS(PPTXT_TRFRLOADINGFAULT, fmt_buf), bill_buf.cptr(), err_buf.cptr());
 						PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 					}

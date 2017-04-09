@@ -248,7 +248,7 @@ int SLAPI PPArticlePacket::EnumAliasSubst(uint * pPos, PPID * pAliasID, PPID * p
 int SLAPI PPArticlePacket::AddAliasSubst(PPID accAliasID, PPID accID)
 {
 	SETIFZ(P_AliasSubst, new LAssocArray);
-	return P_AliasSubst->AddUnique(accAliasID, accID, 0) ? 1 : (PPErrCode = PPERR_DUPSUBSTALIASONARTICLE, 0);
+	return P_AliasSubst->AddUnique(accAliasID, accID, 0) ? 1 : PPSetError(PPERR_DUPSUBSTALIASONARTICLE);
 }
 
 int SLAPI PPArticlePacket::UpdateAliasSubst(PPID accAliasID, PPID accID)
@@ -259,7 +259,7 @@ int SLAPI PPArticlePacket::UpdateAliasSubst(PPID accAliasID, PPID accID)
 			if(P_AliasSubst->at(i).Key == accAliasID)
 				cnt++;
 		if(cnt > 1)
-			return (PPErrCode = PPERR_DUPSUBSTALIASONARTICLE, 0);
+			return PPSetError(PPERR_DUPSUBSTALIASONARTICLE);
 		else {
 			P_AliasSubst->Update(accAliasID, accID);
 			return 1;
@@ -381,7 +381,7 @@ int ArticleAutoAddDialog::fetch(int sp)
 	if(P_Query->fetch(1, P_Buf, sp))
 		while((r = extractFromQuery()) < 0 && P_Query->fetch(1, P_Buf, spNext));
 	if(P_Query->error)
-		r = (PPErrCode = PPERR_DBQUERY, 0);
+		r = PPSetError(PPERR_DBQUERY);
 	if(r <= 0 && sp == spNext)
 		endModal(r ? cmOK : cmError);
 	return r;
@@ -507,7 +507,7 @@ static int SLAPI EditAliasSubst(const PPArticlePacket * pPack, LAssoc * pData)
 			THROW_PP(Data.Val, PPERR_ACCNEEDED);
 			ASSIGN_PTR(pData, Data);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}
@@ -927,7 +927,7 @@ int SLAPI PPObjArticle::EditDialog(ArticleDlgData * pData)
 				GetObjectName(acs_rec.Assoc, pData->Rec.ObjID, obj_name);
 				obj_name.CopyTo(pData->Rec.Name, sizeof(pData->Rec.Name));
 				if(!CheckObject(&pData->Rec, 0))
-					PPErrorByDialog(dlg, CTL_ARTICLE_LINKOBJ, -1);
+					PPErrorByDialog(dlg, CTL_ARTICLE_LINKOBJ);
 				else
 					valid_data = 1;
 			}
@@ -1979,7 +1979,7 @@ int SLAPI PPObjArticle::CheckObject(const ArticleTbl::Rec * pRec, SString * pMsg
 	if(ok == 0) {
 		if(pMsgBuf) {
 			*pMsgBuf = 0;
-			PPGetMessage(mfError, PPErrCode, 0, 1, *pMsgBuf);
+			PPGetLastErrorMessage(1, *pMsgBuf);
 		}
 	}
 	return ok;

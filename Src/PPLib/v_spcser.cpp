@@ -329,7 +329,7 @@ int SpecSerDlg::getDTS(SpecSeries2Tbl::Rec * pData)
 	Data.InfoKind = SPCSERIK_SPOILAGE;
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -498,7 +498,7 @@ int SLAPI PPViewSpecSeries::ImportUhtt()
 							(temp_buf = 0).Cat(rec.InfoDate).cptr(), p_pack->GoodsName.cptr(), (const char *)rec.Barcode));
 					}
 					else {
-						PPGetMessage(mfError, PPErrCode, 0, 0, temp_buf);
+						PPGetLastErrorMessage(0, temp_buf);
 						logger.Log(PPFormatT(PPTXT_LOG_UHTT_SPECSERIESIMPFAULT, &msg_buf, (const char *)rec.Serial, temp_buf.cptr()));
 					}
 				}

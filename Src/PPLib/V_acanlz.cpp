@@ -220,7 +220,7 @@ public:
 			else
 				ar_rec.ID = 0;
 		}
-		// } @v9.5.9 
+		// } @v9.5.9
 		Filt.SubstRelTypeID = 0;
 		if(acc_rec.AccSheetID) {
 			GetClusterData(CTL_ACCANLZ_TRNOVR, &Filt.Flags);
@@ -439,7 +439,7 @@ int SLAPI PPViewAccAnlz::EditSupplTrnovrFilt(AccAnlzFilt * pFilt)
 	SetupPPObjCombo(dlg, CTLSEL_SPLTOFLT_LOC, PPOBJ_LOCATION, pFilt->LocID, 0, 0);
 	while(!valid_data && ExecView(dlg) == cmOK)
 		if(!GetPeriodInput(dlg, CTL_SPLTOFLT_PERIOD, &pFilt->Period))
-			PPErrorByDialog(dlg, CTL_SPLTOFLT_PERIOD, -1);
+			PPErrorByDialog(dlg, CTL_SPLTOFLT_PERIOD);
 		else {
 			dlg->getCtrlData(CTLSEL_SPLTOFLT_LOC, &pFilt->LocID);
 			dlg->getCtrlData(CTLSEL_SPLTOFLT_SUPPL, &pFilt->SingleArID);
@@ -918,6 +918,7 @@ int IterProc_CrtTmpAATbl(AccTurnTbl::Rec * pRec, long param)
 int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, long param)
 {
 	int    ok = 1;
+	const PPRights & r_orts = ObjRts;
 	uint   cycle_pos = 0;
 	SString temp_buf;
 	IterProcParam_CrtTmpTbl & p = *(IterProcParam_CrtTmpTbl*)param;
@@ -933,7 +934,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, long param)
 	else
 		return 1;
 	if(p.Filt->CorAco == AccAnlzFilt::aafgByOp) {
-		if(p.P_BObj->Fetch(pRec->Bill, &bill_rec) > 0 && ObjRts.CheckOpID(bill_rec.OpID, 0)) {
+		if(p.P_BObj->Fetch(pRec->Bill, &bill_rec) > 0 && r_orts.CheckOpID(bill_rec.OpID, PPR_READ)) {
 			trec.Ar       = bill_rec.OpID;
 			trec.AccRelID = bill_rec.OpID;
 			GetOpName(bill_rec.OpID, temp_buf);
@@ -941,7 +942,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, long param)
 		}
 	}
 	else if(p.Filt->CorAco == AccAnlzFilt::aafgByLoc) {
-		if(p.P_BObj->Fetch(pRec->Bill, &bill_rec) > 0 && ObjRts.CheckLocID(bill_rec.LocID, 0)) {
+		if(p.P_BObj->Fetch(pRec->Bill, &bill_rec) > 0 && r_orts.CheckLocID(bill_rec.LocID, 0)) {
 			trec.Ar       = bill_rec.LocID;
 			trec.AccRelID = bill_rec.LocID;
 			GetLocationName(bill_rec.LocID, temp_buf);
@@ -970,7 +971,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, long param)
 		trec.AccRelID = pRec->CorrAcc;
 		if(p.P_ATC->AccRel.Fetch(pRec->CorrAcc, &arel_rec) > 0) {
 			trec.CurID = arel_rec.CurID;
-			if(ObjRts.CheckAccID(arel_rec.AccID, PPR_READ)) {
+			if(r_orts.CheckAccID(arel_rec.AccID, PPR_READ)) {
 				if(p.Filt->CorAco) {
 					trec.Ac = arel_rec.Ac;
 					trec.Sb = arel_rec.Sb;
@@ -1095,7 +1096,7 @@ int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 		IsGenAr = 1;
 		ArObj.P_Tbl->GetListByGroup(Filt.AcctId.ar, &gen_ar_list);
 	}
-	// } @v9.5.9 
+	// } @v9.5.9
 	Filt.CurID = (Filt.Flags & AccAnlzFilt::fAllCurrencies) ? -1 : Filt.CurID;
 	if(Filt.Flags & AccAnlzFilt::fLabelOnly || Filt.LocID) {
 		Total.InRest.freeAll();
@@ -1190,7 +1191,7 @@ int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 					}
 				}
 			}
-			// } @v9.5.9 
+			// } @v9.5.9
 			else if(Filt.SingleArID) {
 				if(GetAcctRel(Filt.AccID, Filt.SingleArID, &acr_rec, 1) > 0)
 					THROW_SL(acr_list.insert(&acr_rec));
@@ -1380,7 +1381,7 @@ int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 					}
 				}
 			}
-			// } @v9.5.9 
+			// } @v9.5.9
 			else {
 				aco_list.Add(Filt.AccID, Filt.Aco, 0);
 			}
@@ -1651,7 +1652,10 @@ DBQuery * SLAPI PPViewAccAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	SString sub_title;
 	DBQuery * q  = 0;
 	DBQ  * dbq = 0;
-	DBE    dbe_cur, dbe_ar, dbe_bill_memo, dbe_bill_code;
+	DBE    dbe_cur;
+	DBE    dbe_ar;
+	DBE    dbe_bill_memo;
+	DBE    dbe_bill_code;
 	TempAccAnlzTbl   * att = 0;
 	TempAccTrnovrTbl * ttt = 0;
 	AccTurnTbl * rat = 0;
@@ -1724,10 +1728,13 @@ DBQuery * SLAPI PPViewAccAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 			THROW(CheckTblPtr(rat = new AccTurnTbl));
 			THROW(CheckTblPtr(rt = new AcctRelTbl));
 			{
+				/* @v9.6.1 
 				dbe_ar.init();
 				dbe_ar.push(rt->ArticleID);
 				dbe_ar.push(rt->AccID);
 				dbe_ar.push((DBFunc)PPDbqFuncPool::IdObjNameArByAcc);
+				*/
+				PPDbqFuncPool::InitFunc2Arg(dbe_ar, PPDbqFuncPool::IdObjNameArByAcc, rt->ArticleID, rt->AccID); // @v9.6.1
 			}
 			dbe_crd = & (rat->Amount * -1);
 			PPDbqFuncPool::InitObjNameFunc(dbe_bill_code, PPDbqFuncPool::IdObjCodeBill, rat->Bill);
@@ -1757,10 +1764,13 @@ DBQuery * SLAPI PPViewAccAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 			THROW(CheckTblPtr(att = new TempAccAnlzTbl(P_TmpAATbl->fileName)));
 			THROW(CheckTblPtr(rt = new AcctRelTbl));
 			{
+				/* @v9.6.1 
 				dbe_ar.init();
 				dbe_ar.push(rt->ArticleID);
 				dbe_ar.push(rt->AccID);
 				dbe_ar.push((DBFunc)PPDbqFuncPool::IdObjNameArByAcc);
+				*/
+				PPDbqFuncPool::InitFunc2Arg(dbe_ar, PPDbqFuncPool::IdObjNameArByAcc, rt->ArticleID, rt->AccID); // @v9.6.1
 			}
 			PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, att->CurID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_bill_code, PPDbqFuncPool::IdObjCodeBill, att->BillID);
@@ -1859,7 +1869,7 @@ int SLAPI PPViewAccAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 									// @v9.5.11 (Если Filt.AcctId.ar группирующая статья, то это - необходимо) {
 									flt.AcctId.ac = acr_rec.AccID;
 									flt.AcctId.ar = acr_rec.ArticleID;
-									flt.SingleArID = acr_rec.ArticleID; 
+									flt.SingleArID = acr_rec.ArticleID;
 									// } @v9.5.11
 								}
 								else

@@ -381,7 +381,7 @@ int BillHdrImpExpDialog::getDTS(PPBillImpExpParam * pData)
 	getCtrlString(CTL_IMPEXPBILH_SRCHCODE2, Data.Object2SrchCode);
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, 0, -1);
+		ok = PPErrorByDialog(this, 0);
 	ENDCATCH
 	return ok;
 }

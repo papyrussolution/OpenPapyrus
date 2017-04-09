@@ -1005,7 +1005,7 @@ int SLAPI PPAccTurnTempl::AccTemplFromStr(int side, const char * pBuf)
 		SETFLAG(Flags, ATTF_CARTFIX, ar_fixed);
 	}
 	else
-		ok = (PPErrCode = PPERR_INVPARAM, 0);
+		ok = PPSetError(PPERR_INVPARAM);
 	return ok;
 }
 //

@@ -917,7 +917,7 @@ int SLAPI PPObjSmsAccount::Edit(PPID * pID, void * extraPtr)
 			THROW(Data.Verify(Data.vfEditingOnly));
 			ASSIGN_PTR(pData, Data);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}
@@ -2758,7 +2758,7 @@ int SLAPI VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, u
 			client.SmsRelease_();
 			Data.SendSmsStatus = 1;
 			CATCH
-                PPGetMessage(mfError, PPErrCode, 0, 1, result);
+                PPGetLastErrorMessage(1, result);
                 Data.SendSmsStatus = 0;
                 ok = 0;
 			ENDCATCH

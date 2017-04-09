@@ -8061,7 +8061,7 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 
 	}
 	if(do_report_error) {
-		PPGetMessage(mfError, PPErrCode, 0, 1, temp_buf);
+		PPGetLastErrorMessage(1, temp_buf);
 		rParam.InfoText = temp_buf;
 		LogLastError(); // @v9.5.6
 	}
@@ -8189,7 +8189,7 @@ int SLAPI PPEgaisProcessor::InputMark(PrcssrAlcReport::GoodsItem * pAgi, SString
 		}
 		else {
 			PPSetError(PPERR_TEXTISNTEGAISMARK, temp_buf);
-			PPErrorByDialog(dlg, CTL_EGAISMARK_INPUT, -1);
+			PPErrorByDialog(dlg, CTL_EGAISMARK_INPUT);
 			TInputLine * p_il = (TInputLine *)dlg->getCtrlView(CTL_EGAISMARK_INPUT);
 			CALLPTRMEMB(p_il, selectAll(1));
 			rMark = 0;

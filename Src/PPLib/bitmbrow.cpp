@@ -735,7 +735,7 @@ int SLAPI BillItemBrowser::CheckRows()
 	for(uint idx = 0; P_Pack->EnumTItems(&idx, &p_ti) > 0;) {
 		ReceiptTbl::Rec lot_rec;
 		if(p_ti->LotID && P_T->Rcpt.Search(p_ti->LotID, &lot_rec) <= 0) {
-			PPGetMessage(mfError, PPErrCode, 0, DS.CheckExtFlag(ECF_SYSSERVICE), buf);
+			PPGetLastErrorMessage(DS.CheckExtFlag(ECF_SYSSERVICE), buf);
 			ProblemsList.Add(idx - 1, 0, buf);
 		}
 		{

@@ -393,19 +393,24 @@ SLAPI PPObjLocation::PPObjLocation(void * extraPtr) : PPObject(PPOBJ_LOCATION)
 {
 	TLP_OPEN(P_Tbl);
 	ImplementFlags |= /*implStrAssocMakeList;*/ (implStrAssocMakeList | implTreeSelector);
+	P_CurrFilt = 0;
 	P_WObj = 0;
 	// Extra = extraParam ? extraParam : LOCTYP_WAREHOUSE;
 	ExtraPtr = extraPtr;
-	if(ExtraPtr)
-		CurrFilt = *(LocationFilt*)ExtraPtr;
-	else
-		CurrFilt.LocType = LOCTYP_WAREHOUSE;
+	if(ExtraPtr) {
+		// @v9.6.1 CurrFilt = *(LocationFilt*)ExtraPtr;
+		P_CurrFilt = new LocationFilt(*(LocationFilt*)ExtraPtr); // @v9.6.1
+	}
+	else {
+		// @v9.6.1 CurrFilt.LocType = LOCTYP_WAREHOUSE;
+	}
 	IsCityCacheInited = 0;
 }
 
 SLAPI PPObjLocation::~PPObjLocation()
 {
 	delete P_WObj;
+	delete P_CurrFilt;
 	TLP_CLOSE(P_Tbl);
 }
 
@@ -768,11 +773,20 @@ int SLAPI PPObjLocation::MakeListByType(PPID locType, PPID parentID, long zeroPa
 StrAssocArray * PPObjLocation::MakeList_(const LocationFilt * pLocFilt, long zeroParentId)
 {
 	StrAssocArray * p_list = new StrAssocArray;
-	const  LocationFilt * p_filt = NZOR(pLocFilt, &CurrFilt);
 	LocationTbl::Rec loc_rec;
 	SString temp_buf;
 	int    f = 0;
-	PPID   parent_id = (p_filt->Parent || !p_filt->Owner) ? p_filt->Parent : p_filt->Owner;
+	const  LocationFilt * p_filt = 0; // NZOR(pLocFilt, &CurrFilt);
+	if(pLocFilt)
+		p_filt = pLocFilt;
+	else {
+		if(!P_CurrFilt) {
+			THROW_MEM(P_CurrFilt = new LocationFilt);
+			P_CurrFilt->LocType = LOCTYP_WAREHOUSE;
+		}
+		p_filt = P_CurrFilt;
+	}
+	const PPID parent_id = (p_filt->Parent || !p_filt->Owner) ? p_filt->Parent : p_filt->Owner;
 	if(oneof2(p_filt->LocType, LOCTYP_WAREHOUSE, LOCTYP_WAREHOUSEGROUP) || (p_filt->LocType == LOCTYP_WHZONE && !parent_id))
 		f |= LocationCore::eoIgnoreParent;
 	else if(p_filt->Owner)

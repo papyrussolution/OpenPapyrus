@@ -1530,10 +1530,10 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 					sjk0.Tm = moment.t;
 					BExtQuery q(&SJ, 0);
 					q.selectAll().where(SJ.Dt >= moment.d && SJ.ObjType == PPOBJ_GOODS);
-					for(q.initIteration(0, &sjk0, spGe); q.nextIteration() > 0;) { // @v7.7.8 spGt-->spGe
+					for(q.initIteration(0, &sjk0, spGe); q.nextIteration() > 0;) {
 						if(cmp(moment, SJ.data.Dt, SJ.data.Tm) < 0) {
 							const long a = SJ.data.Action;
-							if(oneof5(a, PPACN_OBJADD, PPACN_OBJUPD, PPACN_OBJUNIFY, PPACN_GOODSQUOTUPD, PPACN_QUOTUPD2)) { // @v7.3.3 PPACN_QUOTUPD2
+							if(oneof5(a, PPACN_OBJADD, PPACN_OBJUPD, PPACN_OBJUNIFY, PPACN_GOODSQUOTUPD, PPACN_QUOTUPD2)) {
 								THROW(UpdGoods.add(SJ.data.ObjID)); // @v8.0.10 addUnique-->add
 							}
 						}

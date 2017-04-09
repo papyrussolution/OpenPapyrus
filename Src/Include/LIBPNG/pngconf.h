@@ -68,12 +68,12 @@
  * built into the library the macro implementation is forced on.
  */
 #ifndef PNG_READ_INT_FUNCTIONS_SUPPORTED
-#  define PNG_USE_READ_MACROS
+	#define PNG_USE_READ_MACROS
 #endif
 #if !defined(PNG_NO_USE_READ_MACROS) && !defined(PNG_USE_READ_MACROS)
-#  if PNG_DEFAULT_READ_MACROS
-#    define PNG_USE_READ_MACROS
-#  endif
+	#if PNG_DEFAULT_READ_MACROS
+		#define PNG_USE_READ_MACROS
+	#endif
 #endif
 
 /* COMPILER SPECIFIC OPTIONS.
@@ -89,7 +89,7 @@
  * prototypes.  It is not required for modern C compilers.
  */
 #ifndef PNGARG
-#  define PNGARG(arglist) arglist
+	#define PNGARG(arglist) arglist
 #endif
 
 /* Function calling conventions.

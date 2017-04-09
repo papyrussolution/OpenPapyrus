@@ -464,7 +464,7 @@ int SLAPI Reference::InitEnumByIdxVal(PPID objType, int valN, long val, long * p
 		ok = EnumList.RegisterIterHandler(q, pHandle);
 	}
 	else
-		ok = (PPErrCode = PPERR_INVPARAM, 0);
+		ok = PPSetError(PPERR_INVPARAM);
 	return ok;
 }
 
@@ -495,7 +495,7 @@ int SLAPI Reference::LoadItems(PPID objType, SArray * pList)
 	int    ok = -1;
 	ReferenceTbl::Rec rec;
 	for(SEnum en = Enum(objType, 0); en.Next(&rec);)
-		ok = (pList && !pList->insert(&rec)) ? (PPErrCode = PPERR_NOMEM, 0) : 1;
+		ok = (pList && !pList->insert(&rec)) ? PPSetError(PPERR_NOMEM) : 1;
 	return ok;
 }
 
@@ -1608,14 +1608,14 @@ int SLAPI PPRights::CheckBillDate(LDATE dt, int forRead) const
 		GetAccessRestriction(accsr);
 		if(forRead) {
 			accsr.GetRBillPeriod(&bill_period);
-			ok = bill_period.CheckDate(dt) ? 1 : (PPErrCode = PPERR_BILLDATERANGE, 0);
+			ok = bill_period.CheckDate(dt) ? 1 : PPSetError(PPERR_BILLDATERANGE);
 		}
 		else {
 			accsr.GetWBillPeriod(&bill_period);
 			if(!AdjustBillPeriod(bill_period, 1))
 				ok = 0;
 			else if(dt < bill_period.low || (bill_period.upp && dt > bill_period.upp))
-				ok = (PPErrCode = PPERR_BILLDATERANGE, 0);
+				ok = PPSetError(PPERR_BILLDATERANGE);
 		}
 	}
 	return ok;
@@ -1642,7 +1642,7 @@ int SLAPI PPRights::AdjustBillPeriod(DateRange & rPeriod, int checkOnly) const
 				e = MIN(e, r_bill_period.upp);
 			else
 				e = r_bill_period.upp;
-		ok = (b <= e || e == 0) ? 1 : (PPErrCode = PPERR_NORTPERIOD, 0);
+		ok = (b <= e || e == 0) ? 1 : PPSetError(PPERR_NORTPERIOD);
 		if(!checkOnly)
 			rPeriod.Set(b, e);
 	}
@@ -1671,7 +1671,7 @@ int SLAPI PPRights::AdjustCSessPeriod(DateRange & rPeriod, int checkOnly) const
 					e = MIN(e, r_bill_period.upp);
 				else
 					e = r_bill_period.upp;
-			ok = (b <= e || e == 0) ? 1 : (PPErrCode = PPERR_NORTPERIOD, 0);
+			ok = (b <= e || e == 0) ? 1 : PPSetError(PPERR_NORTPERIOD);
 			if(!checkOnly)
 				rPeriod.Set(b, e);
 		}
@@ -1693,18 +1693,20 @@ int SLAPI PPRights::MaskOpRightsByOps(PPIDArray * pOpList, PPIDArray * pResultOp
 {
 	if(IsOpRights()) {
 		ObjRestrictItem * p_item;
-		for(uint i = 0; P_OpList->enumItems(&i, (void**)&p_item);)
+		for(uint i = 0; P_OpList->enumItems(&i, (void**)&p_item);) {
 			if(!pOpList || pOpList->lsearch(p_item->ObjID))
 				if(!pResultOpList->add(p_item->ObjID))
 					return 0;
+		}
 		return 1;
 	}
 	if(pOpList)
 		pResultOpList->copy(*pOpList);
-	else
+	else {
 		for(PPID op_id; EnumOperations(0, &op_id) > 0;)
 			if(!pResultOpList->add(op_id))
 				return 1;
+	}
 	return -1;
 }
 
@@ -1754,13 +1756,43 @@ int SLAPI PPRights::ExtentOpRights()
 	return 1;
 }
 
-int SLAPI PPRights::CheckOpID(PPID opID, long) const
+int SLAPI PPRights::CheckOpID(PPID opID, long rtflags) const
 {
 	int    ok = 1;
-	if(IsOpRights() && !P_OpList->SearchItemByID(opID, 0)) {
-		SString added_msg;
-		GetOpName(opID, added_msg);
-		ok = PPSetError(PPERR_OPNOTACCESSIBLE, added_msg);
+	if(IsOpRights()) {
+		uint   pos = 0;
+		if(!P_OpList->SearchItemByID(opID, &pos)) {
+			SString added_msg;
+			GetOpName(opID, added_msg);
+			ok = PPSetError(PPERR_OPNOTACCESSIBLE, added_msg);
+		}
+		else if(rtflags) {
+			const ObjRestrictItem & r_item = P_OpList->at(pos);
+			if(r_item.Flags & 0x80000000) {
+				if((r_item.Flags & rtflags) != rtflags) {
+					SString added_msg, temp_buf;
+					GetOpName(opID, added_msg);
+					added_msg.CatDiv('-', 1);
+					if(rtflags & PPR_READ && !(r_item.Flags & PPR_READ)) {
+						PPLoadString("rt_view", temp_buf);
+						added_msg.CatBrackStr(temp_buf);
+					}
+					if(rtflags & PPR_INS && !(r_item.Flags & PPR_INS)) {
+						PPLoadString("rt_create", temp_buf);
+						added_msg.CatBrackStr(temp_buf);
+					}
+					if(rtflags & PPR_MOD && !(r_item.Flags & PPR_MOD)) {
+						PPLoadString("rt_modif", temp_buf);
+						added_msg.CatBrackStr(temp_buf);
+					}
+					if(rtflags & PPR_DEL && !(r_item.Flags & PPR_DEL)) {
+						PPLoadString("rt_delete", temp_buf);
+						added_msg.CatBrackStr(temp_buf);
+					}
+					ok = PPSetError(PPERR_ISNTPRVLGFOROP, added_msg);
+				}
+			}
+		}
 	}
 	return ok;
 }

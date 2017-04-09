@@ -44,7 +44,7 @@ private:
 		if(cmd == cmOK) {
 			TransmitData(-1, 0);
 			if(Data.Dtl.D.NumPrd <= 0 || Data.Dtl.D.NumPrd > 366)
-				return (PPErrCode = PPERR_USERINPUT, 0);
+				return PPSetError(PPERR_USERINPUT);
 		}
 		return 1;
 	}
@@ -95,9 +95,9 @@ private:
 		if(cmd == cmOK) {
 			TransmitData(-1, 0);
 			if(Data.Dtl.W.NumPrd <= 0 || Data.Dtl.W.NumPrd > 100)
-				return (PPErrCode = PPERR_USERINPUT, 0);
-			if((Data.Dtl.W.Weekdays & 0x7f) == 0)
-				return (PPErrCode = PPERR_NOWEEKDAYS, 0);
+				return PPSetError(PPERR_USERINPUT);
+			else if((Data.Dtl.W.Weekdays & 0x7f) == 0)
+				return PPSetError(PPERR_NOWEEKDAYS);
 		}
 		return 1;
 	}
@@ -386,7 +386,7 @@ int FASTCALL RepAnnDialog::valid(ushort cmd)
 		}
 	}
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -442,7 +442,7 @@ int FASTCALL RepAfterPrdDialog::valid(ushort cmd)
 		TransmitData(-1, 0);
 		if(Data.Dtl.RA.NumPrd == 0) {
 			selectCtrl(CTL_REPEATING_NUMPRD);
-			return (PPErrCode = PPERR_USERINPUT, 0);
+			return PPSetError(PPERR_USERINPUT);
 		}
 	}
 	return 1;

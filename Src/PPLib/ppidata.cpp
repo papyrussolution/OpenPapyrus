@@ -465,7 +465,7 @@ int WinInetFTP::SafeGet(const char * pLocalPath, const char * pFTPPath, int chec
 			pLogger->LogMsgCode(mfError, PPERR_NOSRCFILE, buf);
 		else if(r == 0) {
 			SString add_buf;
-			PPGetMessage(mfError, PPErrCode, 0, 1, buf);
+			PPGetLastErrorMessage(1, buf);
 			// @v9.4.12 PPGetWord(PPWORD_ERROR, 0, add_buf);
 			PPLoadString("error", add_buf); // @v9.4.12
 			buf = add_buf.Space().Cat(buf);
@@ -498,7 +498,7 @@ int WinInetFTP::SafePut(const char * pLocalPath, const char * pFTPPath, int chec
 			pLogger->LogMsgCode(mfError, PPERR_NOSRCFILE, buf);
 		else if(r == 0) {
 			SString add_buf;
-			PPGetMessage(mfError, PPErrCode, 0, 1, buf);
+			PPGetLastErrorMessage(1, buf);
 			// @v9.4.12 PPGetWord(PPWORD_ERROR, 0, add_buf);
 			PPLoadString("error", add_buf); // @v9.4.12
 			buf = add_buf.Space().Cat(buf);
@@ -575,12 +575,12 @@ int WinInetFTP::SafeGetFileList(const char * pDir, StrAssocArray * pFileList, co
 
 int WinInetFTP::Get(const char * pLocalPath, const char * pFTPPath, int checkDtTm, PercentFunc pf)
 {
-	return pLocalPath && pFTPPath ? TransferFile(pLocalPath, pFTPPath, 0, checkDtTm, pf) : (PPErrCode == PPERR_INVPARAM, 0);
+	return pLocalPath && pFTPPath ? TransferFile(pLocalPath, pFTPPath, 0, checkDtTm, pf) : PPSetError(PPERR_INVPARAM);
 }
 
 int WinInetFTP::Put(const char * pLocalPath, const char * pFTPPath, int checkDtTm, PercentFunc pf)
 {
-	return pLocalPath && pFTPPath ? TransferFile(pLocalPath, pFTPPath, 1, checkDtTm, pf) : (PPErrCode == PPERR_INVPARAM, 0);
+	return pLocalPath && pFTPPath ? TransferFile(pLocalPath, pFTPPath, 1, checkDtTm, pf) : PPSetError(PPERR_INVPARAM);
 }
 
 int WinInetFTP::TransferFile(const char * pLocalPath, const char * pFTPPath, int send, int checkDtTm, PercentFunc pf)
@@ -707,7 +707,7 @@ int WinInetFTP::ReadResponse()
 		PPSetAddedMsgString(buf);
 	}
 	else {
-		PPErrCode = PPERR_RCVFROMINET;
+		PPSetError(PPERR_RCVFROMINET);
 		SetInetError((HMODULE)WinInetDLLHandle);
 	}
 	return 0;

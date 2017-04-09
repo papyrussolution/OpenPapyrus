@@ -590,7 +590,7 @@ int32 DL6ICLS_PPObjSalCharge::SearchByName(SString & text, int32 kind, int32 ext
 		else if(kind == 1)
 			ok = p_obj->ref->SearchSymb(p_obj->Obj, &id, text, offsetof(PPSalCharge, Symb));
 		else
-			ok = (PPErrCode = PPERR_INVPARAM, 0);
+			ok = PPSetError(PPERR_INVPARAM);
 		if(ok > 0)
 			if(p_obj->GetPacket(id, &pack) > 0)
 				FillSalChargeRec(&pack, (SPpyO_SalCharge *)rec);
@@ -1468,7 +1468,7 @@ int StaffCalDayDialog::getDTS(StaffCalendarTbl::Rec * pData)
 	THROW(PPStaffCalPacket::SetupEntry(&Data));
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }

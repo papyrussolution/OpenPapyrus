@@ -378,13 +378,12 @@ int RentChrgDlg::setDTS(const RentChrgFilt * pFilt)
 
 int RentChrgDlg::getDTS(RentChrgFilt * pFilt)
 {
-	int    ok = 0;
+	int    ok = 1;
 	if(!GetPeriodInput(this, CTL_RENTCHARGE_PERIOD, &Data.Period))
-		PPErrorByDialog(this, CTL_RENTCHARGE_PERIOD, -1);
+		ok = PPErrorByDialog(this, CTL_RENTCHARGE_PERIOD);
 	else {
 		getCtrlData(CTLSEL_RENTCHARGE_OBJECT, &Data.CntrgntID);
 		*pFilt = Data;
-		ok = 1;
 	}
 	return ok;
 }

@@ -496,7 +496,7 @@ public:
 		setCtrlData(CTL_DBTLIMITEM_LIMIT, &Data.Limit);
 		AddClusterAssoc(CTL_DBTLIMITEM_FLAGS, 0, PPClientAgreement::DebtLimit::fStop);
 		SetClusterData(CTL_DBTLIMITEM_FLAGS, Data.Flags);
-		setCtrlDate(CTL_DBTLIMITEM_LOCKPRCB, Data.LockPrcBefore); // @v7.1.5
+		setCtrlDate(CTL_DBTLIMITEM_LOCKPRCB, Data.LockPrcBefore);
 		return 1;
 	}
 	int    getDTS(PPClientAgreement::DebtLimit * pData)
@@ -507,11 +507,11 @@ public:
 		THROW_PP(Data.DebtDimID, PPERR_USERINPUT);
 		getCtrlData(CTL_DBTLIMITEM_LIMIT, &Data.Limit);
 		GetClusterData(CTL_DBTLIMITEM_FLAGS, &Data.Flags);
-		Data.LockPrcBefore = getCtrlDate(sel = CTL_DBTLIMITEM_LOCKPRCB); // @v7.1.5
-		THROW_SL(checkdate(Data.LockPrcBefore, 1)); // @v7.1.5
+		Data.LockPrcBefore = getCtrlDate(sel = CTL_DBTLIMITEM_LOCKPRCB);
+		THROW_SL(checkdate(Data.LockPrcBefore, 1));
 		ASSIGN_PTR(pData, Data);
 		CATCH
-			ok = PPErrorByDialog(this, sel, -1);
+			ok = PPErrorByDialog(this, sel);
 		ENDCATCH
 		return ok;
 	}
@@ -720,7 +720,6 @@ int SLAPI PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 			getCtrlData(CTLSEL_CLIAGT_QUOTKIND, &data.DefQuotKindID);
 			getCtrlData(CTLSEL_CLIAGT_EXTOBJECT, &data.ExtObjectID);
 			GetClusterData(CTL_CLIAGT_FLAGS, &data.Flags);
-			// @v7.1.5 {
 			data.RetLimPrd = (int16)getCtrlLong(CTLSEL_CLIAGT_RETLIMPRD);
 			if(data.RetLimPrd) {
 				double retlim = getCtrlReal(CTL_CLIAGT_RETLIM);
@@ -728,10 +727,9 @@ int SLAPI PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 			}
 			else
 				data.RetLimPart = 0;
-			// } @v7.1.5
 			ASSIGN_PTR(pAgt, data);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}
@@ -1889,7 +1887,7 @@ int SupplAgtDialog::EditExchangeCfg()
 			getCtrlData(CTL_SUPLEXCHCFG_VER,     &Data.ProtVer);
 			ASSIGN_PTR(pData, Data);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}
@@ -1990,7 +1988,7 @@ int SupplAgtDialog::getDTS(PPSupplAgreement * pAgt)
 	}
 	ASSIGN_PTR(pAgt, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }

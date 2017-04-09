@@ -1,5 +1,5 @@
 // PPDELTMP.CPP
-// Copyright (c) A.Osolotkin, A.Sobolev 2001-2003, 2005, 2007, 2013, 2015, 2016
+// Copyright (c) A.Osolotkin, A.Sobolev 2001-2003, 2005, 2007, 2013, 2015, 2016, 2017
 // Удаление временных файлов
 //
 #include <pp.h>
@@ -213,7 +213,7 @@ int SLAPI DeleteTmpFilesDlg(DeleteTmpFilesParam * pParam)
 			if(v) {
 				getCtrlData(CTL_DELTMP_INDAYS, &Data.InDays);
 				if(Data.InDays < 0)
-					r = (PPErrCode = PPERR_USERINPUT, 0);
+					r = PPSetError(PPERR_USERINPUT);
 			}
 			else
 				Data.InDays = 0;
@@ -222,7 +222,7 @@ int SLAPI DeleteTmpFilesDlg(DeleteTmpFilesParam * pParam)
 			if(v) {
 				getCtrlData(CTL_DELTMP_OUTDAYS, &Data.OutDays);
 				if(Data.OutDays < 0)
-					r = (PPErrCode = PPERR_USERINPUT, 0);
+					r = PPSetError(PPERR_USERINPUT);
 			}
 			else
 				Data.OutDays = 0;

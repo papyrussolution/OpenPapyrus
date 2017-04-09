@@ -56,17 +56,13 @@ int ZEXPORT compress2(Bytef * dest, uLongf * destLen, const Bytef * source, uLon
 	return err == Z_STREAM_END ? Z_OK : err;
 }
 
-/* ===========================================================================
- */
 int ZEXPORT compress(Bytef * dest, uLongf * destLen, const Bytef * source, uLong sourceLen)
 {
 	return compress2(dest, destLen, source, sourceLen, Z_DEFAULT_COMPRESSION);
 }
-
-/* ===========================================================================
-     If the default memLevel or windowBits for deflateInit() is changed, then
-   this function needs to be updated.
- */
+//
+// If the default memLevel or windowBits for deflateInit() is changed, then this function needs to be updated.
+//
 uLong ZEXPORT compressBound(uLong sourceLen)
 {
 	return sourceLen + (sourceLen >> 12) + (sourceLen >> 14) + (sourceLen >> 25) + 13;

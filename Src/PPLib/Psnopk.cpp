@@ -1547,11 +1547,11 @@ int SLAPI EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 					THROW_PP(data.DirObj, PPERR_STYLOPALMNEEDED);
 					break;
 			}
-			getCtrlString(CTL_POVERB_CMDTXT, data.CmdText); // @v7.8.0
-			GetClusterData(CTL_POVERB_FLAGS, &data.Flags);  // @v7.9.0
+			getCtrlString(CTL_POVERB_CMDTXT, data.CmdText);
+			GetClusterData(CTL_POVERB_FLAGS, &data.Flags);
 			ASSIGN_PTR(pClause, data);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}
@@ -1576,7 +1576,7 @@ int SLAPI EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 					break;
 				case POVERB_SETTAG:
 					if(PokPack->Rec.ExValGrp != POKEVG_TAG)
-						ok = (PPErrCode = PPERR_INADMISSPOVERB, 0);
+						ok = PPSetError(PPERR_INADMISSPOVERB);
 					else {
 						disableCtrl(CTLSEL_POVERB_LINK, 0);
 						SetupStrAssocCombo(this, CTLSEL_POVERB_LINK, &TagList, data.DirObj, 0);
@@ -1595,7 +1595,7 @@ int SLAPI EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 				case POVERB_ASSIGNPOST:
 					disableCtrl(CTLSEL_POVERB_LINK, 1);
 					if(PokPack->Rec.ExValGrp != POKEVG_POST)
-						ok = (PPErrCode = PPERR_INADMISSPOVERB, 0);
+						ok = PPSetError(PPERR_INADMISSPOVERB);
 					break;
 				case POVERB_ADDRELATION:
 				case POVERB_REVOKERELATION:
@@ -1625,7 +1625,7 @@ int SLAPI EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 						SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_STAFFCAL, data.DirObj, 0, 0);
 					}
 					else
-						ok = (PPErrCode = PPERR_INADMISSPOVERB, 0);
+						ok = PPSetError(PPERR_INADMISSPOVERB);
 					break;
 				case POVERB_INCSCARDOP:
 				case POVERB_DECSCARDOP:

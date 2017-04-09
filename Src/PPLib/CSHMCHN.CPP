@@ -135,7 +135,7 @@ int SLAPI PPCashMachine::GetRegEntry(PPID cmtID, uint * pPos)
 				return 1;
 			}
 	ASSIGN_PTR(pPos, 0);
-	return (PPErrCode = PPERR_INVCMT, 0);
+	return PPSetError(PPERR_INVCMT);
 }
 
 // static
@@ -1232,7 +1232,7 @@ int SLAPI PPCashMachine::SyncPrintBnkTermReport(long pinpad, const char * pZChec
 //
 int SLAPI PPCashMachine::AsyncUpdateSession()
 {
-	return (PPErrCode = PPERR_CASHFUNCNSUPP, 0);
+	return PPSetError(PPERR_CASHFUNCNSUPP);
 }
 
 int SLAPI PPCashMachine::AsyncBrowseCheckList()

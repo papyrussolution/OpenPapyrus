@@ -14,7 +14,7 @@ IMPLEMENT_PPFILT_FACTORY(Scale); SLAPI ScaleFilt::ScaleFilt() : PPBaseFilt(PPFIL
 	Init(1, 0);
 }
 
-ScaleFilt & ScaleFilt::operator=(const ScaleFilt & s)
+ScaleFilt & FASTCALL ScaleFilt::operator = (const ScaleFilt & s)
 {
 	Copy(&s, 1);
 	return *this;
@@ -22,6 +22,7 @@ ScaleFilt & ScaleFilt::operator=(const ScaleFilt & s)
 
 PPViewScale::PPViewScale() : PPView(&ObjScale, &Filt, PPVIEW_SCALE)
 {
+	ImplementFlags |= PPView::implDontEditNullFilter;
 	P_TempTbl = 0;
 	PPLoadText(PPTXT_SCLT, ScaleTypeNames);
 }
@@ -94,15 +95,15 @@ int SLAPI PPViewScale::EditBaseFilt(PPBaseFilt * pFilt)
 	p_dlg->AddClusterAssoc(CTL_SCALEFLT_PROT,  1, ScaleFilt::protTcpIp);
 	p_dlg->AddClusterAssoc(CTL_SCALEFLT_PROT,  2, ScaleFilt::protCom);
 	p_dlg->SetClusterData(CTL_SCALEFLT_PROT, filt.Protocol);
-	p_dlg->AddClusterAssoc(CTL_SCALEFLT_FLAGS, 0, SCALF_PASSIVE);  // @v6.x.x. AHTOXA
-	p_dlg->SetClusterData(CTL_SCALEFLT_FLAGS, filt.Flags);         // @v6.x.x. AHTOXA
+	p_dlg->AddClusterAssoc(CTL_SCALEFLT_FLAGS, 0, SCALF_PASSIVE);
+	p_dlg->SetClusterData(CTL_SCALEFLT_FLAGS, filt.Flags);
 	if(ExecView(p_dlg) == cmOK) {
 		filt.LocID         = p_dlg->getCtrlLong(CTLSEL_SCALEFLT_LOC);
 		filt.ScaleTypeID   = p_dlg->getCtrlLong(CTLSEL_SCALEFLT_TYPE);
 		filt.AltGoodsGrpID = p_dlg->getCtrlLong(CTLSEL_SCALEFLT_ALTGRP);
-		filt.GroupID       = p_dlg->getCtrlLong(CTLSEL_SCALEFLT_GROUP); // @v6.x.x AHTOXA
+		filt.GroupID       = p_dlg->getCtrlLong(CTLSEL_SCALEFLT_GROUP);
 		p_dlg->GetClusterData(CTL_SCALEFLT_PROT, &filt.Protocol);
-		p_dlg->GetClusterData(CTL_SCALEFLT_FLAGS, &filt.Flags); // @v6.x.x. AHTOXA
+		p_dlg->GetClusterData(CTL_SCALEFLT_FLAGS, &filt.Flags);
 		if(pFilt)
 			pFilt->Copy(&filt, 0);
 		ok = 1;

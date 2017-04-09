@@ -1258,7 +1258,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			Data.EgaisMode = (int16)GetClusterData(CTL_EXTDEV_EGAISMODE); // @v9.0.9
 			ASSIGN_PTR(pData, Data);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}
@@ -1323,7 +1323,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 					}
 					ASSIGN_PTR(pData, Data);
 					CATCH
-						ok = PPErrorByDialog(this, sel, -1);
+						ok = PPErrorByDialog(this, sel);
 					ENDCATCH
 					return ok;
 				}
@@ -1487,7 +1487,7 @@ int SyncCashNodeCfgDialog::editExt()
 			else {
 				dlg->getCtrlString(CTL_CASHNSEXT_CTBLLIST, ctbl_list_buf);
 				if(!Data.CTblListFromString(ctbl_list_buf)) {
-					PPErrorByDialog(dlg, CTL_CASHNSEXT_CTBLLIST, -1);
+					PPErrorByDialog(dlg, CTL_CASHNSEXT_CTBLLIST);
 				}
 				else {
 					Data.BonusMaxPart = (uint16)(dlg->getCtrlReal(CTL_CASHNSEXT_BONUSMAX) * 10.0);
@@ -1659,7 +1659,7 @@ int SyncCashNodeCfgDialog::getDTS(PPSyncCashNode * pData)
 	}
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -1775,7 +1775,7 @@ int SLAPI PPObjCashNode::EditGroup(PPGenCashNode * pGroup)
 			}
 			ASSIGN_PTR(pData, Data);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}
@@ -1815,7 +1815,7 @@ int SLAPI PPObjCashNode::EditDistrib(PPGenCashNode * pData)
 			}
 			ASSIGN_PTR(pData, Data);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}
@@ -2024,7 +2024,7 @@ int SLAPI PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 		dlg->getCtrlString(CTL_CASHN_EXPPATHS, pACN->ExpPaths);
 		dlg->getCtrlString(CTL_CASHN_LOGNUMS, pACN->LogNumList);
 		if(!pACN->GetLogNumList(test_log_num_list)) {
-			PPErrorByDialog(dlg, CTL_CASHN_LOGNUMS, -1);
+			PPErrorByDialog(dlg, CTL_CASHN_LOGNUMS);
 		}
 		else {
 			dlg->getCtrlString(CTL_CASHN_ADDEDMSGSIGN, pACN->AddedMsgSign);
@@ -2046,7 +2046,7 @@ int SLAPI PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 					if(pACN->GoodsLocAssocID) {
 						PPNamedObjAssoc noa_rec;
 						if(SearchObject(PPOBJ_NAMEDOBJASSOC, pACN->GoodsLocAssocID, &noa_rec) <= 0)
-							r2 = PPErrorByDialog(dlg, CTLSEL_CASHN_NOA, -1);
+							r2 = PPErrorByDialog(dlg, CTLSEL_CASHN_NOA);
 						else if(!(noa_rec.PrmrObjType == PPOBJ_GOODS && noa_rec.ScndObjType == PPOBJ_LOCATION &&
 							oneof2(noa_rec.ScndObjGrp, 0, LOCTYP_WAREHOUSE))) {
 							PPSetAddedMsgString(noa_rec.Name);

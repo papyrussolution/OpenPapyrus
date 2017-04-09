@@ -1944,6 +1944,7 @@ int SImageBuffer::Init(uint w, uint h, SImageBuffer::PixF f)
 	int    ok = 0;
 	uint   stride = f.GetStride(w);
 	if(stride && Alloc(stride * h)) {
+		memzero(P_Buf, Size); // @v9.6.1
 		F = f;
 		S.Set((int)w, (int)h);
 		ok = 1;

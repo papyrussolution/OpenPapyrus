@@ -4076,7 +4076,7 @@ DBTable * SLAPI PPCvtSpecSeries6109::CreateTableInstance(int * pNeedConversion)
 {
 	DBTable * tbl = new SpecSeriesTbl;
 	if(!tbl)
-		PPErrCode = PPERR_NOMEM;
+		PPSetError(PPERR_NOMEM);
 	else if(pNeedConversion) {
 		RECORDSIZE recsz = 0;
 		if(tbl->getRecSize(&recsz)) {

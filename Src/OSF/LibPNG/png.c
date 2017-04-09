@@ -47,19 +47,14 @@ void PNGAPI png_set_sig_bytes(png_structrp png_ptr, int num_bytes)
 int PNGAPI png_sig_cmp(png_const_bytep sig, png_size_t start, png_size_t num_to_check)
 {
 	png_byte png_signature[8] = {137, 80, 78, 71, 13, 10, 26, 10};
-
 	if(num_to_check > 8)
 		num_to_check = 8;
-
 	else if(num_to_check < 1)
 		return (-1);
-
 	if(start > 7)
 		return (-1);
-
 	if(start + num_to_check > 8)
 		num_to_check = 8 - start;
-
 	return ((int)(memcmp(&sig[start], &png_signature[start], num_to_check)));
 }
 
@@ -67,20 +62,15 @@ int PNGAPI png_sig_cmp(png_const_bytep sig, png_size_t start, png_size_t num_to_
 
 #if defined(PNG_READ_SUPPORTED) || defined(PNG_WRITE_SUPPORTED)
 /* Function to allocate memory for zlib */
-PNG_FUNCTION(voidpf /* PRIVATE */,
-    png_zalloc, (voidpf png_ptr, uInt items, uInt size), PNG_ALLOCATED)
+PNG_FUNCTION(voidpf /* PRIVATE */, png_zalloc, (voidpf png_ptr, uInt items, uInt size), PNG_ALLOCATED)
 {
 	png_alloc_size_t num_bytes = size;
-
 	if(png_ptr == NULL)
 		return NULL;
-
 	if(items >= (~(png_alloc_size_t)0)/size) {
-		png_warning(png_voidcast(png_structrp, png_ptr),
-		    "Potential overflow in png_zalloc()");
+		png_warning(png_voidcast(png_structrp, png_ptr), "Potential overflow in png_zalloc()");
 		return NULL;
 	}
-
 	num_bytes *= items;
 	return png_malloc_warn(png_voidcast(png_structrp, png_ptr), num_bytes);
 }
@@ -4295,16 +4285,14 @@ void PNGAPI png_image_free(png_imagep image)
 	 * (if not inside an error handling context).  Otherwise assume
 	 * png_safe_execute will call this API after the return.
 	 */
-	if(image != NULL && image->opaque != NULL &&
-	    image->opaque->error_buf == NULL) {
+	if(image != NULL && image->opaque != NULL && image->opaque->error_buf == NULL) {
 		/* Ignore errors here: */
 		(void)png_safe_execute(image, png_image_free_function, image);
 		image->opaque = NULL;
 	}
 }
 
-int /* PRIVATE */
-png_image_error(png_imagep image, png_const_charp error_message)
+int /* PRIVATE */ png_image_error(png_imagep image, png_const_charp error_message)
 {
 	/* Utility to log an error. */
 	png_safecat(image->message, (sizeof image->message), 0, error_message);

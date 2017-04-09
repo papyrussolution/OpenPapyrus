@@ -1612,15 +1612,15 @@ int SLAPI PPViewSCard::PreprocessBrowser(PPViewBrowser * pBrw)
 	int    ok = -1;
 	if(pBrw) {
 		if(Filt.Flags & SCardFilt::fShowOwnerAddrDetail && P_TmpTbl) {
-			pBrw->InsColumn(-1, "@phone",     12, 0L, 0, 0);
-			pBrw->InsColumn(-1, "@address",   13, 0L, 0, 0);
-			pBrw->InsColumn(-1, "@postzip",   14, 0L, 0, 0);
-			pBrw->InsColumn(-1, "@region",    15, 0L, 0, 0);
-			pBrw->InsColumn(-1, "@city",      16, 0L, 0, 0);
-			pBrw->InsColumn(-1, "@street",    17, 0L, 0, 0);
-			pBrw->InsColumn(-1, "@house",     18, 0L, 0, 0);
-			pBrw->InsColumn(-1, "@apartment", 19, 0L, 0, 0);
-			pBrw->InsColumn(-1, "@addendum",  20, 0L, 0, 0);
+			pBrw->InsColumn(-1, "@phone",     14, 0L, 0, 0); // @v9.6.1 #12-->#14
+			pBrw->InsColumn(-1, "@address",   15, 0L, 0, 0); // @v9.6.1 #13-->#15
+			pBrw->InsColumn(-1, "@postzip",   16, 0L, 0, 0); // @v9.6.1 #14-->#16
+			pBrw->InsColumn(-1, "@region",    17, 0L, 0, 0); // @v9.6.1 #15-->#17
+			pBrw->InsColumn(-1, "@city",      18, 0L, 0, 0); // @v9.6.1 #16-->#18
+			pBrw->InsColumn(-1, "@street",    19, 0L, 0, 0); // @v9.6.1 #17-->#19
+			pBrw->InsColumn(-1, "@house",     20, 0L, 0, 0); // @v9.6.1 #18-->#20
+			pBrw->InsColumn(-1, "@apartment", 21, 0L, 0, 0); // @v9.6.1 #19-->#21
+			pBrw->InsColumn(-1, "@addendum",  22, 0L, 0, 0); // @v9.6.1 #20-->#22
 			ok = 1;
 		}
 		pBrw->SetCellStyleFunc(CellStyleFunc, this);
@@ -1639,6 +1639,8 @@ DBQuery * SLAPI PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	DBE    dbe_psn;
 	DBE    dbe_ser;
 	DBE    dbe_autogoods;
+	DBE    dbe_phone; // @v9.6.1
+	DBE    dbe_memo;  // @v9.6.1
 	SCardTbl * p_c = 0;
 	TempSCardTbl * p_t = 0;
 	TempOrderTbl * p_ot = 0;
@@ -1663,8 +1665,12 @@ DBQuery * SLAPI PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	if(P_TmpTbl) {
 		THROW(CheckTblPtr(p_t = new TempSCardTbl(P_TmpTbl->fileName)));
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn, PPDbqFuncPool::IdObjNamePerson,   p_t->PersonID);
-		PPDbqFuncPool::InitObjNameFunc(dbe_ser, PPDbqFuncPool::IdObjNameSCardSer, p_t->SeriesID); // @v6.6.9
-		PPDbqFuncPool::InitObjNameFunc(dbe_autogoods, PPDbqFuncPool::IdObjNameGoods, p_t->AutoGoodsID); // @v7.7.0
+		PPDbqFuncPool::InitObjNameFunc(dbe_ser, PPDbqFuncPool::IdObjNameSCardSer, p_t->SeriesID);
+		PPDbqFuncPool::InitObjNameFunc(dbe_autogoods, PPDbqFuncPool::IdObjNameGoods, p_t->AutoGoodsID);
+		// @v9.6.1 {
+		PPDbqFuncPool::InitFunc2Arg(dbe_phone, PPDbqFuncPool::IdSCardExtString, p_t->ID, dbconst((long)PPSCardPacket::extssPhone));
+		PPDbqFuncPool::InitFunc2Arg(dbe_memo, PPDbqFuncPool::IdSCardExtString, p_t->ID, dbconst((long)PPSCardPacket::extssMemo));
+		// } @v9.6.1
 		dbe_dis = & (p_t->PDis / 100);
 		q = & select(
 			p_t->ID,        // #0
@@ -1679,17 +1685,19 @@ DBQuery * SLAPI PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 			p_t->Dt,        // #9
 			dbe_ser,        // #10
 			dbe_autogoods,  // #11 @v7.7.0
+			dbe_phone,      // #12 @v9.6.1
+			dbe_memo,       // #13 @v9.6.1
 			0L);
 		if(Filt.Flags & SCardFilt::fShowOwnerAddrDetail) {
-			q->addField(p_t->Phone);      // #12
-			q->addField(p_t->Address);    // #13
-			q->addField(p_t->ZIP);        // #14
-			q->addField(p_t->LocalArea);  // #15
-			q->addField(p_t->City);       // #16
-			q->addField(p_t->Street);     // #17
-			q->addField(p_t->House);      // #18
-			q->addField(p_t->Apart);      // #19
-			q->addField(p_t->AddrAddend); // #20
+			q->addField(p_t->Phone);      // #14 @v9.6.1 #12-->#14
+			q->addField(p_t->Address);    // #15 @v9.6.1 #13-->#15
+			q->addField(p_t->ZIP);        // #16 @v9.6.1 #14-->#16
+			q->addField(p_t->LocalArea);  // #17 @v9.6.1 #15-->#17
+			q->addField(p_t->City);       // #18 @v9.6.1 #16-->#18
+			q->addField(p_t->Street);     // #19 @v9.6.1 #17-->#19
+			q->addField(p_t->House);      // #20 @v9.6.1 #18-->#20
+			q->addField(p_t->Apart);      // #21 @v9.6.1 #19-->#21
+			q->addField(p_t->AddrAddend); // #22 @v9.6.1 #20-->#22
 		}
 		if(p_ot)
 			q->from(p_ot, p_t, 0L);
@@ -1710,8 +1718,12 @@ DBQuery * SLAPI PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	else {
 		THROW(CheckTblPtr(p_c = new SCardTbl));
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn, PPDbqFuncPool::IdObjNamePerson, p_c->PersonID);
-		PPDbqFuncPool::InitObjNameFunc(dbe_ser, PPDbqFuncPool::IdObjNameSCardSer, p_c->SeriesID); // @v6.6.9
-		PPDbqFuncPool::InitObjNameFunc(dbe_autogoods, PPDbqFuncPool::IdObjNameGoods, p_c->AutoGoodsID); // @v7.7.0
+		PPDbqFuncPool::InitObjNameFunc(dbe_ser, PPDbqFuncPool::IdObjNameSCardSer, p_c->SeriesID);
+		PPDbqFuncPool::InitObjNameFunc(dbe_autogoods, PPDbqFuncPool::IdObjNameGoods, p_c->AutoGoodsID);
+		// @v9.6.1 {
+		PPDbqFuncPool::InitFunc2Arg(dbe_phone, PPDbqFuncPool::IdSCardExtString, p_c->ID, dbconst((long)PPSCardPacket::extssPhone));
+		PPDbqFuncPool::InitFunc2Arg(dbe_memo, PPDbqFuncPool::IdSCardExtString, p_c->ID, dbconst((long)PPSCardPacket::extssMemo));
+		// } @v9.6.1
 		dbe_dis = & (p_c->PDis / 100);
 		q = & select(
 			p_c->ID,        // #0
@@ -1725,7 +1737,9 @@ DBQuery * SLAPI PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 			p_c->Rest,      // #8
 			p_c->Dt,        // #9
 			dbe_ser,        // #10
-			dbe_autogoods,  // #11 @v7.7.0
+			dbe_autogoods,  // #11
+			dbe_phone,      // #12 @v9.6.1
+			dbe_memo,       // #13 @v9.6.1
 			0L);
 		if(p_ot)
 			q->from(p_ot, p_c, 0L);
@@ -1874,6 +1888,9 @@ int SCardSelPrcssrDlg::setDTS(const SCardSelPrcssrParam * pData)
 	AddClusterAssoc(CTL_FLTSCARDCHNG_FS, 3, SCRDF_NOGIFT);
 	AddClusterAssoc(CTL_FLTSCARDCHNG_FS, 4, SCRDF_NEEDACTIVATION);
 	AddClusterAssoc(CTL_FLTSCARDCHNG_FS, 5, SCRDF_AUTOACTIVATION);
+	AddClusterAssoc(CTL_FLTSCARDCHNG_FS, 6, SCRDF_NOTIFYDISCOUNT);
+	AddClusterAssoc(CTL_FLTSCARDCHNG_FS, 7, SCRDF_NOTIFYWITHDRAW);
+	AddClusterAssoc(CTL_FLTSCARDCHNG_FS, 8, SCRDF_NOTIFYDRAW);
 	SetClusterData(CTL_FLTSCARDCHNG_FS, Data.FlagsSet);
 
 	AddClusterAssoc(CTL_FLTSCARDCHNG_FR, 0, SCRDF_INHERITED);
@@ -1882,6 +1899,9 @@ int SCardSelPrcssrDlg::setDTS(const SCardSelPrcssrParam * pData)
 	AddClusterAssoc(CTL_FLTSCARDCHNG_FR, 3, SCRDF_NOGIFT);
 	AddClusterAssoc(CTL_FLTSCARDCHNG_FR, 4, SCRDF_NEEDACTIVATION);
 	AddClusterAssoc(CTL_FLTSCARDCHNG_FR, 5, SCRDF_AUTOACTIVATION);
+	AddClusterAssoc(CTL_FLTSCARDCHNG_FR, 6, SCRDF_NOTIFYDISCOUNT);
+	AddClusterAssoc(CTL_FLTSCARDCHNG_FR, 7, SCRDF_NOTIFYWITHDRAW);
+	AddClusterAssoc(CTL_FLTSCARDCHNG_FR, 8, SCRDF_NOTIFYDRAW);
 	SetClusterData(CTL_FLTSCARDCHNG_FR, Data.FlagsReset);
 
 	setCtrlData(CTL_FLTSCARDCHNG_DTEND, &Data.DtEnd);
@@ -2008,12 +2028,10 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 					// ѕрежде всего нормализуем наследуемую запись
 					//
 					THROW(SCObj.SetInheritance(&org_scs_pack, &rec));
-					// @v7.7.0 {
 					if(param.AutoGoodsID && rec.AutoGoodsID != param.AutoGoodsID) {
 						rec.AutoGoodsID = param.AutoGoodsID;
 						upd = 1;
 					}
-					// } @v7.7.0
 					if(fset || freset) {
 						for(uint p = 0; p < 32; p++) {
 							const long t = (1L << p);
@@ -2090,7 +2108,7 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 						else {
 							PPLoadText(PPTXT_LOG_INVSCARDSER, fmt_buf);
 							ideqvalstr(param.NewSerID, temp_buf = 0);
-							PPGetMessage(mfError, PPErrCode, 0, 1, temp_buf2);
+							PPGetLastErrorMessage(1, temp_buf2);
 							msg_buf.Printf(fmt_buf, temp_buf.cptr(), scard_name.cptr(), temp_buf2.cptr());
 							if(pLog)
 								pLog->Log(msg_buf);
@@ -2510,7 +2528,7 @@ static int SLAPI EditSCardOp(SCardCore::OpBlock & rBlk)
 			}
 			ASSIGN_PTR(pData, D);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}

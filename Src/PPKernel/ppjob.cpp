@@ -1575,7 +1575,7 @@ int LaunchAppDialog::getDTS(LaunchAppParam * pData)
 	Data.UserPassword.EncodeMime64(pw_buf, sizeof(pw_buf));
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -2310,7 +2310,7 @@ public:
 		Data.ExpCfg = sect;
 		ASSIGN_PTR(pData, Data);
 		CATCH
-			ok = PPErrorByDialog(this, sel, -1);
+			ok = PPErrorByDialog(this, sel);
 		ENDCATCH
 		return ok;
 	}
@@ -2498,7 +2498,7 @@ public:
 		}
 		ASSIGN_PTR(pData, Data);
 		CATCH
-			ok = PPErrorByDialog(this, ctl_id, -1);
+			ok = PPErrorByDialog(this, ctl_id);
 		ENDCATCH
 		return ok;
 	}

@@ -49,10 +49,14 @@
 
 /* @(#) $Id$ */
 
+//#include "deflate.h"
+#define ZLIB_INTERNAL
+#include "zlib.h"
+#pragma hdrstop
+
 #include "deflate.h"
 
-const char deflate_copyright[] =
-    " deflate 1.2.11 Copyright 1995-2017 Jean-loup Gailly and Mark Adler ";
+const char deflate_copyright[] = " deflate 1.2.11 Copyright 1995-2017 Jean-loup Gailly and Mark Adler ";
 /*
    If you use the zlib library in a product, an acknowledgment is welcome
    in the documentation of your product. If for some reason you cannot
@@ -287,7 +291,7 @@ int ZEXPORT deflateInit2_(z_streamp strm, int level, int method,
 		return Z_STREAM_ERROR;
 	}
 	if(windowBits == 8) windowBits = 9;  /* until 256-byte window bug fixed */
-	s = (deflate_state*)ZALLOC(strm, 1, sizeof(deflate_state));
+	s = (deflate_state*)ZLIB_ALLOC(strm, 1, sizeof(deflate_state));
 	if(s == Z_NULL) return Z_MEM_ERROR;
 	strm->state = (struct internal_state *)s;
 	s->strm = strm;
@@ -304,15 +308,15 @@ int ZEXPORT deflateInit2_(z_streamp strm, int level, int method,
 	s->hash_mask = s->hash_size - 1;
 	s->hash_shift =  ((s->hash_bits+MIN_MATCH-1)/MIN_MATCH);
 
-	s->window = (Bytef*)ZALLOC(strm, s->w_size, 2*sizeof(Byte));
-	s->prev   = (Posf*)ZALLOC(strm, s->w_size, sizeof(Pos));
-	s->head   = (Posf*)ZALLOC(strm, s->hash_size, sizeof(Pos));
+	s->window = (Bytef*)ZLIB_ALLOC(strm, s->w_size, 2*sizeof(Byte));
+	s->prev   = (Posf*)ZLIB_ALLOC(strm, s->w_size, sizeof(Pos));
+	s->head   = (Posf*)ZLIB_ALLOC(strm, s->hash_size, sizeof(Pos));
 
 	s->high_water = 0;  /* nothing written to s->window yet */
 
 	s->lit_bufsize = 1 << (memLevel + 6); /* 16K elements by default */
 
-	overlay = (ushf*)ZALLOC(strm, s->lit_bufsize, sizeof(ush)+2);
+	overlay = (ushf*)ZLIB_ALLOC(strm, s->lit_bufsize, sizeof(ush)+2);
 	s->pending_buf = (uchf*)overlay;
 	s->pending_buf_size = (ulg)s->lit_bufsize * (sizeof(ush)+2L);
 
@@ -1008,29 +1012,27 @@ int ZEXPORT deflate(z_streamp strm, int flush)
 	return s->pending != 0 ? Z_OK : Z_STREAM_END;
 }
 
-/* ========================================================================= */
 int ZEXPORT deflateEnd(z_streamp strm)
 {
-	int status;
-	if(deflateStateCheck(strm)) return Z_STREAM_ERROR;
-	status = strm->state->status;
-	/* Deallocate in reverse order of allocations: */
-	TRY_FREE(strm, strm->state->pending_buf);
-	TRY_FREE(strm, strm->state->head);
-	TRY_FREE(strm, strm->state->prev);
-	TRY_FREE(strm, strm->state->window);
-
-	ZFREE(strm, strm->state);
-	strm->state = Z_NULL;
-
-	return status == BUSY_STATE ? Z_DATA_ERROR : Z_OK;
+	if(deflateStateCheck(strm)) 
+		return Z_STREAM_ERROR;
+	else {
+		int status = strm->state->status;
+		/* Deallocate in reverse order of allocations: */
+		TRY_FREE(strm, strm->state->pending_buf);
+		TRY_FREE(strm, strm->state->head);
+		TRY_FREE(strm, strm->state->prev);
+		TRY_FREE(strm, strm->state->window);
+		ZLIB_FREE(strm, strm->state);
+		strm->state = Z_NULL;
+		return (status == BUSY_STATE) ? Z_DATA_ERROR : Z_OK;
+	}
 }
-
-/* =========================================================================
- * Copy the source state to the destination state.
- * To simplify the source, this is not supported for 16-bit MSDOS (which
- * doesn't have enough memory anyway to duplicate compression states).
- */
+//
+// Copy the source state to the destination state.
+// To simplify the source, this is not supported for 16-bit MSDOS (which
+// doesn't have enough memory anyway to duplicate compression states).
+//
 int ZEXPORT deflateCopy(z_streamp dest, z_streamp source)
 {
 #ifdef MAXSEG_64K
@@ -1039,27 +1041,22 @@ int ZEXPORT deflateCopy(z_streamp dest, z_streamp source)
 	deflate_state * ds;
 	deflate_state * ss;
 	ushf * overlay;
-
 	if(deflateStateCheck(source) || dest == Z_NULL) {
 		return Z_STREAM_ERROR;
 	}
-
 	ss = source->state;
-
 	zmemcpy((voidpf)dest, (voidpf)source, sizeof(z_stream));
-
-	ds = (deflate_state*)ZALLOC(dest, 1, sizeof(deflate_state));
+	ds = (deflate_state*)ZLIB_ALLOC(dest, 1, sizeof(deflate_state));
 	if(ds == Z_NULL) return Z_MEM_ERROR;
 	dest->state = (struct internal_state *)ds;
 	zmemcpy((voidpf)ds, (voidpf)ss, sizeof(deflate_state));
 	ds->strm = dest;
 
-	ds->window = (Bytef*)ZALLOC(dest, ds->w_size, 2*sizeof(Byte));
-	ds->prev   = (Posf*)ZALLOC(dest, ds->w_size, sizeof(Pos));
-	ds->head   = (Posf*)ZALLOC(dest, ds->hash_size, sizeof(Pos));
-	overlay = (ushf*)ZALLOC(dest, ds->lit_bufsize, sizeof(ush)+2);
+	ds->window = (Bytef*)ZLIB_ALLOC(dest, ds->w_size, 2*sizeof(Byte));
+	ds->prev   = (Posf*)ZLIB_ALLOC(dest, ds->w_size, sizeof(Pos));
+	ds->head   = (Posf*)ZLIB_ALLOC(dest, ds->hash_size, sizeof(Pos));
+	overlay = (ushf*)ZLIB_ALLOC(dest, ds->lit_bufsize, sizeof(ush)+2);
 	ds->pending_buf = (uchf*)overlay;
-
 	if(ds->window == Z_NULL || ds->prev == Z_NULL || ds->head == Z_NULL ||
 	    ds->pending_buf == Z_NULL) {
 		deflateEnd(dest);
@@ -1500,9 +1497,7 @@ static void fill_window(deflate_state * s)
 			s->high_water += init;
 		}
 	}
-
-	Assert((ulg)s->strstart <= s->window_size - MIN_LOOKAHEAD,
-	    "not enough room for search");
+	Assert((ulg)s->strstart <= s->window_size - MIN_LOOKAHEAD, "not enough room for search");
 }
 
 /* ===========================================================================
@@ -1510,27 +1505,21 @@ static void fill_window(deflate_state * s)
  * IN assertion: strstart is set to the end of the current match.
  */
 #define FLUSH_BLOCK_ONLY(s, last) { \
-		_tr_flush_block(s, (s->block_start >= 0L ? \
-			    (charf*)&s->window[(unsigned)s->block_start] : \
-			    (charf*)Z_NULL), \
-		    (ulg)((long)s->strstart - s->block_start), \
-		    (last)); \
+		_tr_flush_block(s, (s->block_start >= 0L ? (charf*)&s->window[(unsigned)s->block_start] : (charf*)Z_NULL), \
+		    (ulg)((long)s->strstart - s->block_start), (last)); \
 		s->block_start = s->strstart; \
 		flush_pending(s->strm);	\
 		Tracev((stderr, "[FLUSH]")); \
 }
 
 /* Same but force premature exit if necessary. */
-#define FLUSH_BLOCK(s, last) { \
-		FLUSH_BLOCK_ONLY(s, last); \
-		if(s->strm->avail_out == 0) return (last) ? finish_started : need_more;	\
-}
+#define FLUSH_BLOCK(s, last) { FLUSH_BLOCK_ONLY(s, last); if(s->strm->avail_out == 0) return (last) ? finish_started : need_more; }
 
 /* Maximum stored block length in deflate format (not including header). */
 #define MAX_STORED 65535
 
 /* Minimum of a and b. */
-#define MIN(a, b) ((a) > (b) ? (b) : (a))
+// @sobolev #define MIN(a, b) ((a) > (b) ? (b) : (a))
 
 /* ===========================================================================
  * Copy without compression as much as possible from the input stream, return

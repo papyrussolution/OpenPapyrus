@@ -1944,7 +1944,7 @@ int SLAPI PPEmailAcctsImporter::Init(const PPImpExpParam * pImpExpParam)
 {
 	int    ok = 1;
 	if(!RVALUEPTR(ImpExpParam, pImpExpParam))
-		ok = (PPErrCode = PPERR_INVPARAM, 0);
+		ok = PPSetError(PPERR_INVPARAM);
 	return ok;
 }
 

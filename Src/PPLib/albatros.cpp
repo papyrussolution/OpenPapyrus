@@ -619,7 +619,7 @@ int ClientAddDialog::getDTS(PPPersonPacket * pPacket)
 			}
 		}
 		else
-			ok = (PPErrCode = PPERR_USERINPUT, 0);
+			ok = PPSetError(PPERR_USERINPUT);
 	}
 	if(ok == 0)
 		selectCtrl(CTL_CLINFO_CLBASETPID);

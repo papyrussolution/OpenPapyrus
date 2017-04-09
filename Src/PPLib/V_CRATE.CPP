@@ -1,5 +1,5 @@
 // V_CRATE.CPP
-// Copyright (c) A.Sobolev 2000, 2003, 2004, 2005, 2006, 2007, 2008, 2015, 2016
+// Copyright (c) A.Sobolev 2000, 2003, 2004, 2005, 2006, 2007, 2008, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -23,10 +23,11 @@ PPBaseFilt * SLAPI PPViewCurRate::CreateFilt(void * extraPtr) const
 {
 	PPBaseFilt * p_base_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_CURRATE, &p_base_filt)) {
+		const PPConfig & r_cfg = LConfig;
 		((CurRateFilt *)p_base_filt)->CurID = (long)extraPtr;
-		((CurRateFilt *)p_base_filt)->Period.upp = LConfig.OperDate;
-		((CurRateFilt *)p_base_filt)->BaseCurID  = LConfig.BaseCurID;
-		((CurRateFilt *)p_base_filt)->RateTypeID = LConfig.BaseRateTypeID;
+		((CurRateFilt *)p_base_filt)->Period.upp = r_cfg.OperDate;
+		((CurRateFilt *)p_base_filt)->BaseCurID  = r_cfg.BaseCurID;
+		((CurRateFilt *)p_base_filt)->RateTypeID = r_cfg.BaseRateTypeID;
 	}
 	return p_base_filt;
 }
@@ -111,7 +112,7 @@ int SLAPI PPViewCurRate::NextIteration(CurRateViewItem * pItem)
 		}
 		return -1;
 	}
-	return (PPErrCode = PPERR_ITERNOTINITED, 0);
+	return PPSetError(PPERR_ITERNOTINITED);
 }
 
 int SLAPI PPViewCurRate::GetRate(const CurRateIdent * pIdent, double * pRate)

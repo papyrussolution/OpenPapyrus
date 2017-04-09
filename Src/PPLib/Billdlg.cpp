@@ -57,7 +57,7 @@ int SLAPI EditRentCondition(PPRentCondition * pRc)
 			THROW_PP(Data.ChargeDayOffs >= -30 && Data.ChargeDayOffs <= 30, PPERR_USERINPUT);
 			ASSIGN_PTR(pData, Data);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}
@@ -287,7 +287,7 @@ int SLAPI BillExtraDialog(PPBillExt * pData, ObjTagList * pTagList, int asFilt)
 				// } @v9.1.6
 				dlg->getCtrlData(CTLSEL_BILLEXT_CREATOR, &pData->CreatorID);
 				if(!GetPeriodInput(dlg, CTL_BILLEXT_DUEPERIOD, &pData->DuePeriod)) {
-					PPErrorByDialog(dlg, CTL_BILLEXT_DUEPERIOD, -1);
+					PPErrorByDialog(dlg, CTL_BILLEXT_DUEPERIOD);
 					valid_data = 0;
 				}
 			}
@@ -462,7 +462,7 @@ static uint SLAPI GetBillDialogID(PPBillPacket * pack, uint * pPrnForm)
 		case PPOPT_PAYMENT: return DLG_PAYMENT;
 		case PPOPT_CHARGE : return /*DLG_CHARGE*/DLG_PAYMENT;
 		case PPOPT_DRAFTRECEIPT:
-		case PPOPT_DRAFTTRANSIT: // @v7.4.12
+		case PPOPT_DRAFTTRANSIT:
 		case PPOPT_GOODSRECEIPT:
 			return (IsIntrOp(pack->Rec.OpID) == INTRRCPT) ? DLG_INTRRCPT : DLG_RCPTBILL;
 		case PPOPT_DRAFTEXPEND:
@@ -474,7 +474,7 @@ static uint SLAPI GetBillDialogID(PPBillPacket * pack, uint * pPrnForm)
 				return op_rec.AccSheetID ? DLG_SELLBILL : DLG_RETAILBILL;
 			}
 		case PPOPT_GOODSRETURN:
-		case PPOPT_CORRECTION: // @v7.8.10
+		case PPOPT_CORRECTION:
 			if(GetOpData(pack->Rec.OpID, &op_rec) > 0 && op_rec.LinkOpID && GetOpData(op_rec.LinkOpID, &op_rec))
 				if(op_rec.OpTypeID == PPOPT_GOODSRECEIPT)
 					return DLG_RCPTRETBILL;
@@ -504,7 +504,7 @@ int SLAPI EditGoodsBill(PPBillPacket * pPack, long egbFlags)
 	uint   prn_form = 0;
 	BillDialog * dlg = 0;
 	uint   dlg_id = 0;
-	THROW(ObjRts.CheckOpID(pPack->Rec.OpID, 0));
+	THROW(ObjRts.CheckOpID(pPack->Rec.OpID, PPR_READ));
 	if(CheckOpFlags(pPack->Rec.OpID, OPKF_CURTRANSIT)) {
 		THROW(r = EditCurTransitBill(pPack));
 	}
@@ -517,7 +517,7 @@ int SLAPI EditGoodsBill(PPBillPacket * pPack, long egbFlags)
 			dlg->Flags |= BillDialog::fModified;
 		// @v8.6.1 {
 		if(egbFlags & PPObjBill::efEdit/*options >= 1*/) {
-			if(!BillObj->CheckRights(PPR_MOD) || !ObjRts.CheckBillDate(pPack->Rec.Dt)) {
+			if(!BillObj->CheckRights(PPR_MOD) || !ObjRts.CheckBillDate(pPack->Rec.Dt) || !ObjRts.CheckOpID(pPack->Rec.OpID, PPR_MOD)) {
 				dlg->enableCommand(cmOK, 0);
 				//options = 3;
 				egbFlags |= PPObjBill::efNoUpdNotif;
@@ -3045,12 +3045,12 @@ int SLAPI PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 			THROW_SL(checkdate(Data.ArrivalDate, 1));
 			getCtrlData(CTL_FREIGHT_NMBORIGSBSL, &Data.NmbOrigsBsL);
 			if(!P_Pack->Rec.ID || BillObj->CheckRights(PPR_MOD))
-				Data.Cost = getCtrlReal(CTL_FREIGHT_COST); // @v6.4.7
+				Data.Cost = getCtrlReal(CTL_FREIGHT_COST);
 			getCtrlData(CTLSEL_FREIGHT_DLVRLOC,  &Data.DlvrAddrID);
 			GetClusterData(CTL_FREIGHT_SHIPPED,  &P_Pack->Rec.Flags);
 			*pData = Data;
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return 1;
 		}

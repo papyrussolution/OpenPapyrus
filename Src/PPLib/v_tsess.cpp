@@ -1188,7 +1188,7 @@ int SLAPI PPViewTSession::ExportUhtt()
 										THROW_SL(uhtt_pack.Places.insert(p_new_item));
 									}
 									else {
-										PPGetMessage(mfError, PPErrCode, 0, 1, msg_buf);
+										PPGetLastErrorMessage(1, msg_buf);
 										logger.Log(msg_buf);
 									}
 								}

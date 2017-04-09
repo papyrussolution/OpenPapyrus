@@ -2160,7 +2160,7 @@ int32 DL6ICLS_PPSession::LoginDialog(PPYHWND pParent, SString * pDbName, SString
 		if(editOnly == 0) {
 			if((ok = Login(db_name, param.UserName, param.Password)) <= 0) {
 				SString buf;
-				if(PPGetMessage(mfError|mfOK, PPErrCode, 0, DS.CheckExtFlag(ECF_SYSSERVICE), buf)) {
+				if(PPGetLastErrorMessage(DS.CheckExtFlag(ECF_SYSSERVICE), buf)) {
 					::MessageBox(parent, (const char*)buf.Transf(CTRANSF_INNER_TO_OUTER), "", MB_OK|MB_ICONERROR); // @unicodeproblem
 					AppError = 0;
 				}

@@ -412,7 +412,7 @@ int AdvBillItemDialog::getDTS(PPAdvBillItem * pData)
 	Data.ArID  = acc_rec.AcctId.ar;
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }

@@ -294,7 +294,7 @@ int FASTCALL PPObject::ReadBlk(void * pBlk, size_t blkSize, void * stream)
 {
 	int    ok = 0;
 	if(stream)
-		ok = (fread(pBlk, blkSize, 1, (FILE*)stream) == 1) ? 1 : (PPErrCode = PPERR_PPOSREADFAULT, 0);
+		ok = (fread(pBlk, blkSize, 1, (FILE*)stream) == 1) ? 1 : PPSetError(PPERR_PPOSREADFAULT);
 	return ok;
 }
 
@@ -303,7 +303,7 @@ int FASTCALL PPObject::WriteBlk(const void * pBlk, size_t blkSize, void * stream
 {
 	int    ok = 0;
 	if(stream)
-		ok = (fwrite(pBlk, blkSize, 1, (FILE*)stream) == 1) ? 1 : (PPErrCode = PPERR_PPOSWRITEFAULT, 0);
+		ok = (fwrite(pBlk, blkSize, 1, (FILE*)stream) == 1) ? 1 : PPSetError(PPERR_PPOSWRITEFAULT);
 	return ok;
 }
 
@@ -860,7 +860,7 @@ int FASTCALL PPObject::CheckRights(long rt)
 
 int SLAPI PPObject::CheckRightsModByID(const PPID * pID)
 {
-	return pID ? CheckRights(*pID ? PPR_MOD : PPR_INS) : (PPErrCode = PPERR_INVPARAM, 0);
+	return pID ? CheckRights(*pID ? PPR_MOD : PPR_INS) : PPSetError(PPERR_INVPARAM);
 }
 
 int SLAPI GenericObjRightsDialog(PPID obj, ObjRights * rt, EmbedDialog * pDlg)
@@ -1140,7 +1140,7 @@ int SLAPI PPGetObjTypeList(PPIDArray * pList, long flags)
 		pList->sortAndUndup();
 	}
 	else
-		ok = (PPErrCode = PPERR_INVPARAM, 0);
+		ok = PPSetError(PPERR_INVPARAM);
 	return ok;
 }
 //

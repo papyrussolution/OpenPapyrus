@@ -15,7 +15,7 @@
  * this permanently in zconf.h using "./configure --zprefix".
  */
 #ifdef Z_PREFIX     /* may be set to #if 1 by ./configure */
-#  define Z_PREFIX_SET
+	#define Z_PREFIX_SET
 
 /* all linked symbols and init macros */
 #  define _dist_code            z__dist_code
@@ -125,15 +125,15 @@
 #  define inflate_copyright     z_inflate_copyright
 #  define inflate_fast          z_inflate_fast
 #  define inflate_table         z_inflate_table
-#  ifndef Z_SOLO
-#    define uncompress            z_uncompress
-#    define uncompress2           z_uncompress2
-#  endif
-#  define zError                z_zError
-#  ifndef Z_SOLO
-#    define zcalloc               z_zcalloc
-#    define zcfree                z_zcfree
-#  endif
+	#ifndef Z_SOLO
+		#define uncompress            z_uncompress
+		#define uncompress2           z_uncompress2
+	#endif
+	#define zError                z_zError
+	#ifndef Z_SOLO
+		#define zcalloc               z_zcalloc
+		#define zcfree                z_zcfree
+	#endif
 #  define zlibCompileFlags      z_zlibCompileFlags
 #  define zlibVersion           z_zlibVersion
 
@@ -143,9 +143,9 @@
 #  define alloc_func            z_alloc_func
 #  define charf                 z_charf
 #  define free_func             z_free_func
-#  ifndef Z_SOLO
-#    define gzFile                z_gzFile
-#  endif
+	#ifndef Z_SOLO
+		#define gzFile                z_gzFile
+	#endif
 #  define gz_header             z_gz_header
 #  define gz_headerp            z_gz_headerp
 #  define in_func               z_in_func
@@ -158,98 +158,89 @@
 #  define voidp                 z_voidp
 #  define voidpc                z_voidpc
 #  define voidpf                z_voidpf
-
 /* all zlib structs in zlib.h and zconf.h */
-#  define gz_header_s           z_gz_header_s
-#  define internal_state        z_internal_state
-
+	#define gz_header_s           z_gz_header_s
+	#define internal_state        z_internal_state
 #endif
-
 #if defined(__MSDOS__) && !defined(MSDOS)
-#  define MSDOS
+	#define MSDOS
 #endif
 #if (defined(OS_2) || defined(__OS2__)) && !defined(OS2)
-#  define OS2
+	#define OS2
 #endif
 #if defined(_WINDOWS) && !defined(WINDOWS)
-#  define WINDOWS
+	#define WINDOWS
 #endif
 #if defined(_WIN32) || defined(_WIN32_WCE) || defined(__WIN32__)
-#  ifndef WIN32
-#    define WIN32
-#  endif
+	#ifndef WIN32
+		#define WIN32
+	#endif
 #endif
 #if (defined(MSDOS) || defined(OS2) || defined(WINDOWS)) && !defined(WIN32)
 #  if !defined(__GNUC__) && !defined(__FLAT__) && !defined(__386__)
 #    ifndef SYS16BIT
-#      define SYS16BIT
+		#define SYS16BIT
 #    endif
 #  endif
 #endif
-
 /*
  * Compile with -DMAXSEG_64K if the alloc function cannot allocate more
  * than 64k bytes at a time (needed on systems with 16-bit int).
  */
 #ifdef SYS16BIT
-#  define MAXSEG_64K
+	#define MAXSEG_64K
 #endif
 #ifdef MSDOS
-#  define UNALIGNED_OK
+	#define UNALIGNED_OK
 #endif
-
 #ifdef __STDC_VERSION__
-#  ifndef STDC
-#    define STDC
-#  endif
-#  if __STDC_VERSION__ >= 199901L
-#    ifndef STDC99
-#      define STDC99
-#    endif
-#  endif
+	#ifndef STDC
+		#define STDC
+	#endif
+	#if __STDC_VERSION__ >= 199901L
+		#ifndef STDC99
+			#define STDC99
+		#endif
+	#endif
 #endif
 #if !defined(STDC) && (defined(__STDC__) || defined(__cplusplus))
-#  define STDC
+	#define STDC
 #endif
 #if !defined(STDC) && (defined(__GNUC__) || defined(__BORLANDC__))
-#  define STDC
+	#define STDC
 #endif
 #if !defined(STDC) && (defined(MSDOS) || defined(WINDOWS) || defined(WIN32))
-#  define STDC
+	#define STDC
 #endif
 #if !defined(STDC) && (defined(OS2) || defined(__HOS_AIX__))
-#  define STDC
+	#define STDC
 #endif
-
 #if defined(__OS400__) && !defined(STDC)    /* iSeries (formerly AS/400). */
-#  define STDC
+	#define STDC
 #endif
-
 #ifndef STDC
-#  ifndef const /* cannot use !defined(STDC) && !defined(const) on Mac */
-#    define const       /* note: need a more gentle solution here */
-#  endif
+	#ifndef const /* cannot use !defined(STDC) && !defined(const) on Mac */
+		#define const       /* note: need a more gentle solution here */
+	#endif
 #endif
-
 #if defined(ZLIB_CONST) && !defined(z_const)
-#  define z_const const
+	#define z_const const
 #else
-#  define z_const
+	#define z_const
 #endif
-
 #ifdef Z_SOLO
-typedef unsigned long z_size_t;
+	typedef unsigned long z_size_t;
 #else
-#  define z_longlong long long
-#  if defined(NO_SIZE_T)
-typedef unsigned NO_SIZE_T z_size_t;
-#  elif defined(STDC)
-#    include <stddef.h>
-typedef size_t z_size_t;
-#  else
-typedef unsigned long z_size_t;
-#  endif
-#  undef z_longlong
+	#define z_longlong long long
+	#if defined(NO_SIZE_T)
+		typedef unsigned NO_SIZE_T z_size_t;
+	#elif defined(STDC)
+		#include <stddef.h>
+		typedef size_t z_size_t;
+	#else
+		typedef unsigned long z_size_t;
+	#endif
+	#undef z_longlong
 #endif
 
 /* Maximum value for memLevel in deflateInit2 */
@@ -267,9 +258,8 @@ typedef unsigned long z_size_t;
  * gzip.)
  */
 #ifndef MAX_WBITS
-#  define MAX_WBITS   15 /* 32K LZ77 window */
+	#define MAX_WBITS   15 /* 32K LZ77 window */
 #endif
-
 /* The memory requirements for deflate are (in bytes):
             (1 << (windowBits+2)) +  (1 << (memLevel+9))
    that is: 128K for windowBits=15  +  128K for memLevel = 8  (default values)
@@ -286,19 +276,18 @@ typedef unsigned long z_size_t;
 /* Type declarations */
 
 #ifndef OF /* function prototypes */
-#  ifdef STDC
-#    define OF(args)  args
-#  else
-#    define OF(args)  ()
-#  endif
+	#ifdef STDC
+		#define OF(args)  args
+	#else
+		#define OF(args)  ()
+	#endif
 #endif
-
 #ifndef Z_ARG /* function prototypes for stdarg */
-#  if defined(STDC) || defined(Z_HAVE_STDARG_H)
-#    define Z_ARG(args)  args
-#  else
-#    define Z_ARG(args)  ()
-#  endif
+	#if defined(STDC) || defined(Z_HAVE_STDARG_H)
+		#define Z_ARG(args)  args
+	#else
+		#define Z_ARG(args)  ()
+	#endif
 #endif
 
 /* The following definitions for FAR are needed only for MSDOS mixed
@@ -421,39 +410,32 @@ typedef uLong uLongf;
 #    define Z_U4 unsigned short
 #  endif
 #endif
-
 #ifdef Z_U4
-typedef Z_U4 z_crc_t;
+	typedef Z_U4 z_crc_t;
 #else
-typedef unsigned long z_crc_t;
+	typedef unsigned long z_crc_t;
 #endif
-
 #ifdef HAVE_UNISTD_H    /* may be set to #if 1 by ./configure */
-#  define Z_HAVE_UNISTD_H
+	#define Z_HAVE_UNISTD_H
 #endif
-
 #ifdef HAVE_STDARG_H    /* may be set to #if 1 by ./configure */
-#  define Z_HAVE_STDARG_H
+	#define Z_HAVE_STDARG_H
 #endif
-
 #ifdef STDC
-#  ifndef Z_SOLO
-#    include <sys/types.h>      /* for off_t */
-#  endif
+	#ifndef Z_SOLO
+		#include <sys/types.h>      /* for off_t */
+	#endif
 #endif
-
 #if defined(STDC) || defined(Z_HAVE_STDARG_H)
-#  ifndef Z_SOLO
-#    include <stdarg.h>         /* for va_list */
-#  endif
+	#ifndef Z_SOLO
+		#include <stdarg.h>         /* for va_list */
+	#endif
 #endif
-
 #ifdef _WIN32
-#  ifndef Z_SOLO
-#    include <stddef.h>         /* for wchar_t */
-#  endif
+	#ifndef Z_SOLO
+		#include <stddef.h>         /* for wchar_t */
+	#endif
 #endif
-
 /* a little trick to accommodate both "#define _LARGEFILE64_SOURCE" and
  * "#define _LARGEFILE64_SOURCE 1" as requesting 64-bit operations, (even
  * though the former does not conform to the LFS document), but considering
@@ -461,54 +443,47 @@ typedef unsigned long z_crc_t;
  * equivalently requesting no 64-bit operations
  */
 #if defined(_LARGEFILE64_SOURCE) && -_LARGEFILE64_SOURCE - -1 == 1
-#  undef _LARGEFILE64_SOURCE
+	#undef _LARGEFILE64_SOURCE
 #endif
-
 #if defined(__WATCOMC__) && !defined(Z_HAVE_UNISTD_H)
-#  define Z_HAVE_UNISTD_H
+	#define Z_HAVE_UNISTD_H
 #endif
 #ifndef Z_SOLO
-#  if defined(Z_HAVE_UNISTD_H) || defined(_LARGEFILE64_SOURCE)
-#    include <unistd.h>         /* for SEEK_*, off_t, and _LFS64_LARGEFILE */
-#    ifdef VMS
-#      include <unixio.h>       /* for off_t */
-#    endif
-#    ifndef z_off_t
-#      define z_off_t off_t
-#    endif
-#  endif
+	#if defined(Z_HAVE_UNISTD_H) || defined(_LARGEFILE64_SOURCE)
+		#include <unistd.h>         /* for SEEK_*, off_t, and _LFS64_LARGEFILE */
+		#ifdef VMS
+			#include <unixio.h>       /* for off_t */
+		#endif
+		#ifndef z_off_t
+			#define z_off_t off_t
+		#endif
+	#endif
 #endif
-
 #if defined(_LFS64_LARGEFILE) && _LFS64_LARGEFILE-0
-#  define Z_LFS64
+	#define Z_LFS64
 #endif
-
 #if defined(_LARGEFILE64_SOURCE) && defined(Z_LFS64)
-#  define Z_LARGE64
+	#define Z_LARGE64
 #endif
-
 #if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS-0 == 64 && defined(Z_LFS64)
-#  define Z_WANT64
+	#define Z_WANT64
 #endif
-
 #if !defined(SEEK_SET) && !defined(Z_SOLO)
-#  define SEEK_SET        0       /* Seek from beginning of file.  */
-#  define SEEK_CUR        1       /* Seek from current position.  */
-#  define SEEK_END        2       /* Set file pointer to EOF plus "offset" */
+	#define SEEK_SET        0       /* Seek from beginning of file.  */
+	#define SEEK_CUR        1       /* Seek from current position.  */
+	#define SEEK_END        2       /* Set file pointer to EOF plus "offset" */
 #endif
-
 #ifndef z_off_t
-#  define z_off_t long
+	#define z_off_t long
 #endif
-
 #if !defined(_WIN32) && defined(Z_LARGE64)
-#  define z_off64_t off64_t
+	#define z_off64_t off64_t
 #else
-#  if defined(_WIN32) && !defined(__GNUC__) && !defined(Z_SOLO)
-#    define z_off64_t __int64
-#  else
-#    define z_off64_t z_off_t
-#  endif
+	#if defined(_WIN32) && !defined(__GNUC__) && !defined(Z_SOLO)
+		#define z_off64_t __int64
+	#else
+		#define z_off64_t z_off_t
+	#endif
 #endif
 
 /* MVS linker does not support external names larger than 8 bytes */

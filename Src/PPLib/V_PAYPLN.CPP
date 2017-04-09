@@ -329,7 +329,7 @@ int SLAPI PPViewPaymPlan::InitIteration()
 	ZDELETE(P_IterQuery);
 	int    ok = 1;
 	if(!P_TempTbl)
-		ok = (PPErrCode = PPERR_PPVIEWNOTINITED, 0);
+		ok = PPSetError(PPERR_PPVIEWNOTINITED);
 	else {
 		TempPaymPlanTbl::Key1 k1;
 		P_IterQuery = new BExtQuery(P_TempTbl, 1);
@@ -371,27 +371,31 @@ int SLAPI PPViewPaymPlan::NextInnerIteration(PaymPlanViewItem * pItem)
 
 int SLAPI PPViewPaymPlan::NextIteration(PaymPlanViewItem * pItem)
 {
-	int    r = 1;
+	int    ok = 1;
 	if(P_IterQuery == 0)
-		return (PPErrCode = PPERR_ITERNOTINITED, 0);
-	if(Counter == 0 || InnerCounter >= InnerCounter.GetTotal()) {
-		r = P_IterQuery->nextIteration();
-		Counter.Increment();
+		ok = PPSetError(PPERR_ITERNOTINITED);
+	else {
+		int    r = 1;
+		if(Counter == 0 || InnerCounter >= InnerCounter.GetTotal()) {
+			r = P_IterQuery->nextIteration();
+			Counter.Increment();
+		}
+		if(r > 0) {
+			PaymPlanViewItem item;
+			item.Dt     = P_TempTbl->data.Dt;
+			item.BillID = P_TempTbl->data.BillID;
+			item.ObjID  = P_TempTbl->data.ObjID;
+			STRNSCPY(item.Name, P_TempTbl->data.Name);
+			item.Amount = P_TempTbl->data.Amount;
+			item.Paym   = P_TempTbl->data.Paym;
+			item.Debt   = P_TempTbl->data.Debt;
+			NextInnerIteration(&item);
+			ASSIGN_PTR(pItem, item);
+		}
+		else
+			ok = -1;
 	}
-	if(r > 0) {
-		PaymPlanViewItem item;
-		item.Dt     = P_TempTbl->data.Dt;
-		item.BillID = P_TempTbl->data.BillID;
-		item.ObjID  = P_TempTbl->data.ObjID;
-		STRNSCPY(item.Name, P_TempTbl->data.Name);
-		item.Amount = P_TempTbl->data.Amount;
-		item.Paym   = P_TempTbl->data.Paym;
-		item.Debt   = P_TempTbl->data.Debt;
-		NextInnerIteration(&item);
-		ASSIGN_PTR(pItem, item);
-		return 1;
-	}
-	return -1;
+	return ok;
 }
 
 void SLAPI PPViewPaymPlan::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
@@ -516,7 +520,7 @@ int PaymPlanFiltDialog::getDTS(PaymPlanFilt * pData)
 	SETFLAG(Data.Flags, PaymPlanFilt::fLabelOnly, getWL());
 	*pData = Data;
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }

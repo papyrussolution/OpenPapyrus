@@ -81,7 +81,7 @@ typedef ComDispInterface  FR_INTRF;
 #define COM_PORT                   2
 #define DEF_BAUD_RATE              2   // Для Штрих-ФР скорость обмена по умолчанию 9600 бод
 #define MAX_BAUD_RATE              6   // Для Штрих-ФР max скорость обмена 115200 бод
-//#define MAX_TIMEOUT              255   // Для Штрих-ФР max таймаут 255 мсек
+#define MAX_TIMEOUT              255   // Для Штрих-ФР max таймаут 255 мсек
 #define CASH_AMOUNT_REG          241   // Денежный регистр, содержащий наличность в кассе за смену
 #define CHECK_NUMBER_REG         152   // Операционный регистр, содержащий текущий номер чека
 #define DEF_STRLEN                36   // Для Штрих-ФР длина строки
@@ -237,7 +237,6 @@ private:
 	virtual int SLAPI InitChannel();
 	FR_INTRF  * SLAPI InitDriver();
 	int  SLAPI ConnectFR();
-	int  SLAPI DisconnectFR();
 	int  SLAPI SetupTables();
 	int  SLAPI AnnulateCheck();
 	int  SLAPI CheckForCash(double sum);
@@ -254,7 +253,7 @@ private:
 	int  SLAPI GetFR(PPID id, long   * pBuf);
 	int  SLAPI GetFR(PPID id, double * pBuf);
 	int  SLAPI GetFR(PPID id, char   * pBuf, size_t bufLen);
-	int  SLAPI ExecFR(PPID id, long password = -1);
+	int  SLAPI ExecFR(PPID id);
 	int  SLAPI ExecFRPrintOper(PPID id);
 	int  SLAPI AllowPrintOper(PPID id);
 	void SLAPI SetErrorMessage();
@@ -375,10 +374,7 @@ private:
 		// @v9.1.7 BarcodeParameter5,                      // @v9.1.5
 		// @v9.1.7 BarcodeAlignment,                       // @v9.1.5
 		FirstLineNumber,                        // @v9.1.5
-		LineNumber,                             // @v9.1.5
-		ComputerName,                           // @v9.5.12
-		ProtocolType,                           // @v9.5.12 0 - стандартный, 1 - ККТ 2.0
-		ConnectionType,                         // @v9.5.12 0 - локально, 1 - сервер ККТ TCP, 2 - сервер ККТ DCOM, 3 - ESCAPE
+		LineNumber                              // @v9.1.5
 	};
 	//
 	// Descr: Методы вывода штрихкодов
@@ -398,14 +394,13 @@ private:
 		devtypeLight
 	};
 	enum ShtrihFlags {
-		sfConnected         = 0x0001, // установлена связь с Штрих-ФР, COM-порт занят
-		sfOpenCheck         = 0x0002, // чек открыт
-		sfCancelled         = 0x0004, // операция печати чека прервана пользователем
-		sfOldShtrih         = 0x0008, // старая версия драйвера Штрих-ФР
-		sfPrintSlip         = 0x0010, // печать подкладного документа
-		sfNotUseCutter      = 0x0020, // не использовать отрезчик чеков
-		sfUseWghtSensor     = 0x0040, // использовать весовой датчик
-		sfInnerTablesInited = 0x0080  // @v9.5.12 Внутренние таблицы устройства инициализированы
+		sfConnected = 0x0001,     // установлена связь с Штрих-ФР, COM-порт занят
+		sfOpenCheck = 0x0002,     // чек открыт
+		sfCancelled = 0x0004,     // операция печати чека прервана пользователем
+		sfOldShtrih = 0x0008,     // старая версия драйвера Штрих-ФР
+		sfPrintSlip = 0x0010,     // печать подкладного документа
+		sfNotUseCutter  = 0x0020, // не использовать отрезчик чеков
+		sfUseWghtSensor = 0x0040  // использовать весовой датчик
 	};
 	static FR_INTRF * P_DrvFRIntrf;
 	static int RefToIntrf;
@@ -414,8 +409,6 @@ private:
 	int    ResCode;            //
 	int    ErrCode;            //
 	int    DeviceType;         //
-	int    VerifiedBaudRate;   // @v9.5.12
-	int    VerifiedTimeout;    // @v9.5.12
 	long   CheckStrLen;        //
 	long   Flags;              //
 	uint   RibbonParam;        //
@@ -452,8 +445,6 @@ SLAPI SCS_SHTRIHFRF::SCS_SHTRIHFRF(PPID n, char * name, char * port) : PPSyncCas
 	ResCode         = RESCODE_NO_ERROR;
 	ErrCode         = SYNCPRN_NO_ERROR;
 	DeviceType      = devtypeUndef;
-	VerifiedBaudRate = -1;
-	VerifiedTimeout  = -1;
 	CheckStrLen     = DEF_STRLEN;
 	Flags           = 0;
 	RibbonParam     = 0;
@@ -502,7 +493,6 @@ int SLAPI SCS_SHTRIHFRF::CheckForSessionOver()
 	if(is_24_hours_over)
 		ok = 1;
 	CATCHZOK
-	DisconnectFR(); // @v9.5.12
 	return ok;
 }
 
@@ -713,9 +703,8 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 		double fiscal = 0.0, nonfiscal = 0.0;
 		pPack->HasNonFiscalAmount(&fiscal, &nonfiscal);
 		THROW(ConnectFR());
-		if(flags & PRNCHK_LASTCHKANNUL) {
+		if(flags & PRNCHK_LASTCHKANNUL)
 			THROW(AnnulateCheck());
-		}
 		if(flags & PRNCHK_RETURN && !(flags & PRNCHK_BANKING)) {
 			int    is_cash;
 			THROW(is_cash = CheckForCash(amt));
@@ -823,7 +812,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 						}
 					}
 				}
-				else if(running_total != amt) {
+				else if(running_total != amt) { // @v7.6.3 (>)-->(!=)
 					SString fmt_buf, msg_buf, added_buf;
 					PPLoadText(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf);
 					const char * p_sign = (running_total > amt) ? " > " : ((running_total < amt) ? " < " : " ?==? ");
@@ -933,7 +922,6 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			ok = 0;
 		}
 	ENDCATCH
-	DisconnectFR(); // @v9.5.12
 	return ok;
 }
 
@@ -966,7 +954,6 @@ int SLAPI SCS_SHTRIHFRF::OpenBox()
 			ok = 0;
 		}
 	ENDCATCH
-	DisconnectFR(); // @v9.5.12
 	return ok;
 }
 
@@ -1036,8 +1023,7 @@ int SLAPI SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry
 {
 	int    ok = 1, print_tax_action = 0;
 	uint   pos;
-	//const  long  preserve_cshr_pssw = CashierPassword;
-	long   s_tax = 0;
+	long   cshr_pssw = CashierPassword, s_tax = 0;
 	pVatAry->freeAll();
 	for(pos = 0; pos < pBTaxAry->getCount(); pos++) {
 		BillTaxEntry & bte = pBTaxAry->at(pos);
@@ -1047,25 +1033,23 @@ int SLAPI SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry
 			THROW_SL(pVatAry->ordInsert(bte.VAT, 0));
 	}
 	// Выбор режима печати налогов
-	// @v9.5.12 CashierPassword = AdmPassword;
+	CashierPassword = AdmPassword;
 	THROW(SetFR(TableNumber, FRCASHMODE_TBL));
 	THROW(SetFR(RowNumber,   FRCASHMODE_ROW));
 	THROW(SetFR(FieldNumber, oneof2(DeviceType, devtypeCombo, devtypeMini) ? COMBOCASHMODE_TAXALLCHK : FRCASHMODE_TAXALLCHK));
-	THROW(ExecFR(GetFieldStruct, AdmPassword));
-	THROW(ExecFR(ReadTable, AdmPassword));
+	THROW(ExecFR(GetFieldStruct));
+	THROW(ExecFR(ReadTable));
 	THROW(GetFR(ValueOfFieldInteger, &print_tax_action));
-	//
 	// Начисление налогов на весь чек мы не используем,
 	// а для Штрих-Комбо  и Штрих_Мини нельзя настраивать таблицу налоговых ставок при открытой смене
-	//
 	if(print_tax_action || DeviceType == devtypeCombo || DeviceType == devtypeMini)
 		print_tax_action = 0;
 	else {
 		THROW(SetFR(TableNumber, FRCASHMODE_TBL));
 		THROW(SetFR(RowNumber,   FRCASHMODE_ROW));
 		THROW(SetFR(FieldNumber, FRCASHMODE_TAXPRINT));
-		THROW(ExecFR(GetFieldStruct, AdmPassword));
-		THROW(ExecFR(ReadTable, AdmPassword));
+		THROW(ExecFR(GetFieldStruct));
+		THROW(ExecFR(ReadTable));
 		THROW(GetFR(ValueOfFieldInteger, &print_tax_action));
 	}
 	if(print_tax_action) {
@@ -1081,30 +1065,30 @@ int SLAPI SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry
 		if(s_tax) {
 			THROW(SetFR(RowNumber,   FRTAX_SALESTAX_ROW));
 			THROW(SetFR(FieldNumber, FRTAX_FIELD_TAXAMT));
-			THROW(ExecFR(GetFieldStruct, AdmPassword));
+			THROW(ExecFR(GetFieldStruct));
 			THROW(SetFR(ValueOfFieldInteger, s_tax));
-			THROW(ExecFR(WriteTable, AdmPassword));
+			THROW(ExecFR(WriteTable));
 			THROW(SetFR(FieldNumber, FRTAX_FIELD_TAXNAME));
-			THROW(ExecFR(GetFieldStruct, AdmPassword));
+			THROW(ExecFR(GetFieldStruct));
 			THROW(SetFR(ValueOfFieldString, "НАЛОГ С ПРОДАЖ")); // @cstr #5
-			THROW(ExecFR(WriteTable, AdmPassword));
+			THROW(ExecFR(WriteTable));
 		}
 		// Ставки НДС
 		for(pos = 0; pos < pVatAry->getCount(); pos++) {
 			THROW(SetFR(RowNumber, (long)(FRTAX_SALESTAX_ROW + pos + 1)));
 			THROW(SetFR(FieldNumber, FRTAX_FIELD_TAXAMT));
-			THROW(ExecFR(GetFieldStruct, AdmPassword));
+			THROW(ExecFR(GetFieldStruct));
 			THROW(SetFR(ValueOfFieldInteger, pVatAry->at(pos)));
-			THROW(ExecFR(WriteTable, AdmPassword));
+			THROW(ExecFR(WriteTable));
 			THROW(SetFR(FieldNumber, FRTAX_FIELD_TAXNAME));
-			THROW(ExecFR(GetFieldStruct, AdmPassword));
+			THROW(ExecFR(GetFieldStruct));
 			(vat_str = prefix_vat).Cat(fdiv100i(pVatAry->at(pos)), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%');
 			THROW(SetFR(ValueOfFieldString, vat_str));
-			THROW(ExecFR(WriteTable, AdmPassword));
+			THROW(ExecFR(WriteTable));
 		}
 	}
 	CATCHZOK
-	//CashierPassword = preserve_cshr_pssw;
+	CashierPassword = cshr_pssw;
 	ASSIGN_PTR(pPrintTaxAction, print_tax_action);
 	return ok;
 }
@@ -1122,68 +1106,67 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double mul
 	ErrCode = SYNCPRN_ERROR;
 	THROW_PP(pPack, PPERR_INVPARAM);
 	THROW(GetCheckInfo(pPack, &bt_ary, &flags, name));
-	if(bt_ary.getCount()) {
-		THROW(ConnectFR());
-		THROW(AnnulateCheck());
-		if(multiplier < 0)
-			flags |= PRNCHK_RETURN;
-		if(flags & PRNCHK_RETURN) {
-			int    is_cash;
-			THROW(is_cash = CheckForCash(fabs(BR2(pPack->Rec.Amount) * multiplier)));
-			THROW_PP(is_cash > 0, PPERR_SYNCCASH_NO_CASH);
-		}
-		THROW(InitTaxTbl(&bt_ary, &vat_ary, &print_tax));
-		for(pos = 0; pos < bt_ary.getCount(); pos++) {
-			int  tax_no = Tax1;
-			uint vat_pos;
-			BillTaxEntry & bte = bt_ary.at(pos);
-			// Цена
-			price = R2(fabs(bte.Amount * multiplier));
-			sum += price;
-			THROW(SetFR(Price, price));
-			// Количество
-			THROW(SetFR(Quantity, 1L));
-			// @v9.5.7 {
-			if(departN > 0 && departN <= 16) {
-				THROW(SetFR(Department, departN));
-			}
-			// } @v9.5.7
-			// Налоги
-			if(print_tax) {
-				if(bte.SalesTax) {
-					THROW(SetFR(tax_no++, 1L));
-				}
-				if(bte.VAT && vat_ary.bsearch(bte.VAT, &vat_pos)) {
-					THROW(SetFR(tax_no++, (long)(vat_pos + 2)));
-				}
-			}
-			THROW(SetFR(tax_no, 0L));
-			(prn_str = "СУММА ПО СТАВКЕ НДС").Space().Cat(fdiv100i(bte.VAT), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%'); // @cstr #6
-			if(bte.SalesTax)
-				prn_str.Space().Cat("НСП").Space().Cat(fdiv100i(bte.SalesTax), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%'); // @cstr #7
-			THROW(SetFR(StringForPrinting, prn_str));
-			THROW(ExecFRPrintOper((flags & PRNCHK_RETURN) ? ReturnSale : Sale));
-			Flags |= sfOpenCheck;
-		}
-		if(name.NotEmptyS()) {
-			(prn_str = "ПОЛУЧАТЕЛЬ").Space().Cat(name.Transf(CTRANSF_INNER_TO_OUTER)); // @cstr #8
-			CutLongTail(prn_str);
-			THROW(SetFR(StringForPrinting, prn_str));
-			THROW(ExecFRPrintOper(PrintString));
-		}
-		THROW(SetFR(Summ1, sum));
-		THROW(SetFR(Summ2, 0L));
-		THROW(SetFR(Summ3, 0L));
-		THROW(SetFR(Tax1,  0L));
-		THROW(SetFR(StringForPrinting, (prn_str = 0).CatCharN('=', CheckStrLen)));
-		THROW(ExecFRPrintOper(CloseCheck));
-		Flags &= ~sfOpenCheck;
-		ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
-		THROW(Cut(1));
-		ErrCode = SYNCPRN_NO_ERROR;
+	if(bt_ary.getCount() == 0)
+		return -1;
+	THROW(ConnectFR());
+	THROW(AnnulateCheck());
+	// @v5.6.0 THROW(CheckForEKLZOrFMOverflow());
+	if(multiplier < 0)
+		flags |= PRNCHK_RETURN;
+	if(flags & PRNCHK_RETURN) {
+		int    is_cash;
+		THROW(is_cash = CheckForCash(fabs(BR2(pPack->Rec.Amount) * multiplier)));
+		THROW_PP(is_cash > 0, PPERR_SYNCCASH_NO_CASH);
 	}
-	else
-		ok = -1;
+	THROW(InitTaxTbl(&bt_ary, &vat_ary, &print_tax));
+	for(pos = 0; pos < bt_ary.getCount(); pos++) {
+		int  tax_no = Tax1;
+		uint vat_pos;
+		BillTaxEntry & bte = bt_ary.at(pos);
+		// Цена
+		price = R2(fabs(bte.Amount * multiplier));
+		sum += price;
+		THROW(SetFR(Price, price));
+		// Количество
+		THROW(SetFR(Quantity, 1L));
+		// @v9.5.7 {
+		if(departN > 0 && departN <= 16) {
+			THROW(SetFR(Department, departN));
+		}
+		// } @v9.5.7 
+		// Налоги
+		if(print_tax) {
+			if(bte.SalesTax) {
+				THROW(SetFR(tax_no++, 1L));
+			}
+			if(bte.VAT && vat_ary.bsearch(bte.VAT, &vat_pos)) {
+				THROW(SetFR(tax_no++, (long)(vat_pos + 2)));
+			}
+		}
+		THROW(SetFR(tax_no, 0L));
+		(prn_str = "СУММА ПО СТАВКЕ НДС").Space().Cat(fdiv100i(bte.VAT), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%'); // @cstr #6
+		if(bte.SalesTax)
+			prn_str.Space().Cat("НСП").Space().Cat(fdiv100i(bte.SalesTax), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%'); // @cstr #7
+		THROW(SetFR(StringForPrinting, prn_str));
+		THROW(ExecFRPrintOper((flags & PRNCHK_RETURN) ? ReturnSale : Sale));
+		Flags |= sfOpenCheck;
+	}
+	if(name.NotEmptyS()) {
+		(prn_str = "ПОЛУЧАТЕЛЬ").Space().Cat(name.Transf(CTRANSF_INNER_TO_OUTER)); // @cstr #8
+		CutLongTail(prn_str);
+		THROW(SetFR(StringForPrinting, prn_str));
+		THROW(ExecFRPrintOper(PrintString));
+	}
+	THROW(SetFR(Summ1, sum));
+	THROW(SetFR(Summ2, 0L));
+	THROW(SetFR(Summ3, 0L));
+	THROW(SetFR(Tax1,  0L));
+	THROW(SetFR(StringForPrinting, (prn_str = 0).CatCharN('=', CheckStrLen)));
+	THROW(ExecFRPrintOper(CloseCheck));
+	Flags &= ~sfOpenCheck;
+	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
+	THROW(Cut(1));
+	ErrCode = SYNCPRN_NO_ERROR;
 	CATCH
 		if(Flags & sfCancelled) {
 			Flags &= ~sfCancelled;
@@ -1200,7 +1183,6 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double mul
 			ok = 0;
 		}
 	ENDCATCH
-	DisconnectFR(); // @v9.5.12
 	return ok;
 }
 
@@ -1280,7 +1262,6 @@ int SLAPI SCS_SHTRIHFRF::PrintSlipDoc(CCheckPacket * pPack, const char * pFormat
 			ok = (ExecFR(Beep), 0);
 		}
 	ENDCATCH
-	DisconnectFR(); // @v9.5.12
 	Flags &= ~sfPrintSlip;
 	return ok;
 }
@@ -1362,20 +1343,17 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckCopy(CCheckPacket * pPack, const char * pForm
 			ok = (ExecFR(Beep), 0);
 		}
 	ENDCATCH
-	DisconnectFR(); // @v9.5.12
 	return ok;
 }
 
 int SLAPI SCS_SHTRIHFRF::PrintReport(int withCleaning)
 {
 	int    ok = 1, mode = 0;
-	long   preserve_cshr_pssw = -1;
+	long   cshr_pssw = 0;
 	ResCode = RESCODE_NO_ERROR;
 	THROW(ConnectFR());
-	//
 	// Закрыть сессию можно только под паролем администратора
-	//
-	preserve_cshr_pssw = CashierPassword;
+	cshr_pssw = CashierPassword;
 	CashierPassword = AdmPassword;
 	//
 	Flags |= sfOpenCheck;
@@ -1399,10 +1377,10 @@ int SLAPI SCS_SHTRIHFRF::PrintReport(int withCleaning)
 			ok = (ExecFR(Beep), 0);
 		}
 	ENDCATCH
-	DisconnectFR(); // @v9.5.12
-	Flags &= ~sfOpenCheck;
-	if(preserve_cshr_pssw >= 0)
-		CashierPassword = preserve_cshr_pssw;
+	if(Flags & sfOpenCheck) {
+		Flags &= ~sfOpenCheck;
+		CashierPassword = cshr_pssw;
+	}
 	return ok;
 }
 
@@ -1457,7 +1435,6 @@ int SLAPI SCS_SHTRIHFRF::PrintZReportCopy(const CSessInfo * pInfo)
 			ok = (ExecFR(Beep), 0);
 		}
 	ENDCATCH
-	DisconnectFR(); // @v9.5.12
 	return ok;
 }
 
@@ -1490,7 +1467,6 @@ int SLAPI SCS_SHTRIHFRF::PrintIncasso(double sum, int isIncome)
 			ok = (ExecFR(Beep), 0);
 		}
 	ENDCATCH
-	DisconnectFR(); // @v9.5.12
 	Flags &= ~sfOpenCheck;
 	return ok;
 }
@@ -1512,7 +1488,6 @@ int SLAPI SCS_SHTRIHFRF::GetSummator(double * val)
 	CATCH
 		ok = (SetErrorMessage(), 0);
 	ENDCATCH
-	DisconnectFR(); // @v9.5.12
 	ASSIGN_PTR(val, cash_amt);
 	return ok;
 }
@@ -1635,9 +1610,6 @@ FR_INTRF * SLAPI SCS_SHTRIHFRF::InitDriver()
 	// @v9.1.7 THROW(ASSIGN_ID_BY_NAME(p_drv, BarcodeAlignment) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_drv, FirstLineNumber) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_drv, LineNumber) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ComputerName) > 0); // @v9.5.12
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ProtocolType) > 0); // @v9.5.12
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ConnectionType) > 0); // @v9.5.12
 	CATCH
 		ZDELETE(p_drv);
 	ENDCATCH
@@ -1706,8 +1678,8 @@ int SLAPI SCS_SHTRIHFRF::ReadValueFromTbl(int tblNum, int rowNum, int fldNum, lo
 	THROW(SetFR(TableNumber, tblNum));
 	THROW(SetFR(RowNumber,   rowNum));
 	THROW(SetFR(FieldNumber, fldNum));
-	THROW(ExecFR(GetFieldStruct, AdmPassword));
-	THROW(ExecFR(ReadTable, AdmPassword));
+	THROW(ExecFR(GetFieldStruct));
+	THROW(ExecFR(ReadTable));
 	THROW(GetFR(ValueOfFieldInteger, &val));
 	CATCHZOK
 	ASSIGN_PTR(pValue, val);
@@ -1730,9 +1702,9 @@ int SLAPI SCS_SHTRIHFRF::WriteStringToTbl(int tblNum, int rowNum, int fldNum, co
 	THROW(SetFR(TableNumber, tblNum));
 	THROW(SetFR(RowNumber,   rowNum));
 	THROW(SetFR(FieldNumber, fldNum));
-	THROW(ExecFR(GetFieldStruct, AdmPassword));
+	THROW(ExecFR(GetFieldStruct));
 	THROW(SetFR(ValueOfFieldString, pStr));
-	THROW(ExecFR(WriteTable, AdmPassword));
+	THROW(ExecFR(WriteTable));
 	CATCH
 		ok = (WriteLogFileToWriteTblErr(tblNum, rowNum, fldNum, pStr), 0);
 	ENDCATCH
@@ -1746,9 +1718,9 @@ int SLAPI SCS_SHTRIHFRF::WriteValueToTbl(int tblNum, int rowNum, int fldNum, lon
 	THROW(SetFR(TableNumber, tblNum));
 	THROW(SetFR(RowNumber,   rowNum));
 	THROW(SetFR(FieldNumber, fldNum));
-	THROW(ExecFR(GetFieldStruct, AdmPassword));
+	THROW(ExecFR(GetFieldStruct));
 	THROW(SetFR(ValueOfFieldInteger, value));
-	THROW(ExecFR(WriteTable, AdmPassword));
+	THROW(ExecFR(WriteTable));
 	CATCH
 		ok = (WriteLogFileToWriteTblErr(tblNum, rowNum, fldNum, str_val.Cat(value)), 0);
 	ENDCATCH
@@ -1758,7 +1730,7 @@ int SLAPI SCS_SHTRIHFRF::WriteValueToTbl(int tblNum, int rowNum, int fldNum, lon
 int SLAPI SCS_SHTRIHFRF::SetupTables()
 {
 	int     ok = 1;
-	long    cshr_pssw = 0;
+	long    cshr_pssw;
 	SString cshr_name, cshr_str;
 	if(GetCurUserPerson(0, &cshr_name) == -1) {
 		PPObjSecur sec_obj(PPOBJ_USR, 0);
@@ -1771,19 +1743,16 @@ int SLAPI SCS_SHTRIHFRF::SetupTables()
 	cshr_str.Space().Cat(cshr_name).Transf(CTRANSF_INNER_TO_OUTER);
 	// Получаем пароль кассира
 	THROW(ReadValueFromTbl(FRCASHIER_TBL, FRCASHIER_ROW, FRCASHIER_FIELD_PSSW, &cshr_pssw));
-	//
 	// Приходится проверять незакрытый чек, иначе не удастся записать имя кассира
-	//
-	// @v9.5.12 CashierPassword = cshr_pssw;
+	CashierPassword = cshr_pssw;
 	THROW(AnnulateCheck());
-	//
 	// Записываем в таблицы настройки (только под паролем администратора)
-	//
-	// @v9.5.12 CashierPassword = AdmPassword;
+	CashierPassword = AdmPassword;
 	// Имя кассира
 	THROW(WriteStringToTbl(FRCASHIER_TBL, FRCASHIER_ROW, FRCASHIER_FIELD_NAME, cshr_str));
 	// Имя администратора
-	THROW(WriteStringToTbl(FRCASHIER_TBL, FRCASHIER_ADMINROW, FRCASHIER_FIELD_NAME, AdmName.NotEmpty() ? AdmName : cshr_str));
+	THROW(WriteStringToTbl(FRCASHIER_TBL, FRCASHIER_ADMINROW, FRCASHIER_FIELD_NAME,
+		AdmName.NotEmpty() ? AdmName : cshr_str));
 	// Настройки режима работы кассы
 	//    Установить автоматическое обнуление наличности
 	THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, FRCASHMODE_AUTOCASHNULL, 1));
@@ -1791,14 +1760,17 @@ int SLAPI SCS_SHTRIHFRF::SetupTables()
 	//THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, (DeviceType == devtypeCombo ||
 	//	DeviceType == devtypeMini) ? COMBOCASHMODE_OPENDRAWER : FRCASHMODE_OPENDRAWER, 1);
 	//    Нет автоматической отрезки чека
-	THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, oneof2(DeviceType, devtypeCombo, devtypeMini) ? COMBOCASHMODE_CUTTING : FRCASHMODE_CUTTING, 0));
+	THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW,
+		(DeviceType == devtypeCombo || DeviceType == devtypeMini) ? COMBOCASHMODE_CUTTING : FRCASHMODE_CUTTING, 0));
 	//    Установить использование весовых датчиков
-	THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, oneof2(DeviceType, devtypeCombo, devtypeMini) ? COMBOCASHMODE_USEWGHTSENSOR : FRCASHMODE_USEWGHTSENSOR, BIN(Flags & sfUseWghtSensor)));
+	THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, (DeviceType == devtypeCombo ||
+		DeviceType == devtypeMini) ? COMBOCASHMODE_USEWGHTSENSOR : FRCASHMODE_USEWGHTSENSOR, BIN(Flags & sfUseWghtSensor)));
 	//    Установить автоматический перевод времени
 	//THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, (DeviceType == devtypeCombo ||
 	//	DeviceType == devtypeMini) ? COMBOCASHMODE_AUTOTIMING : FRCASHMODE_AUTOTIMING, 1));
 	//    Не сохранять строки в буфере чека
-	THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, oneof2(DeviceType, devtypeCombo, devtypeMini) ? COMBOCASHMODE_SAVESTRING : FRCASHMODE_SAVESTRING, 0));
+	THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, (DeviceType == devtypeCombo ||
+		DeviceType == devtypeMini) ? COMBOCASHMODE_SAVESTRING : FRCASHMODE_SAVESTRING, 0));
 	/*    Современные версии Штриха запрещают редактирование таблицы перевода времени
 	THROW(ReadValueFromTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, (DeviceType == devtypeCombo ||
 		DeviceType == devtypeMini) ? COMBOCASHMODE_AUTOTIMING : FRCASHMODE_AUTOTIMING, &auto_timing));
@@ -1835,41 +1807,8 @@ int SLAPI SCS_SHTRIHFRF::SetupTables()
 		THROW(ReadValueFromTbl(FRFORMAT_TBL, FRFORMAT_ROW, FRFORMAT_FIELD_SIZE, &CheckStrLen));
 	}
 	CATCHZOK
-	//CashierPassword = cshr_pssw;
+	CashierPassword = cshr_pssw;
 	return ok;
-}
-
-int SLAPI SCS_SHTRIHFRF::DisconnectFR()
-{
-	int   ok = 1;
-	if(Flags & sfConnected) {
-		ExecFR(Disconnect);
-		Flags &= ~sfConnected;
-	}
-	else
-		ok = -1;
-	return ok;
-}
-
-static int GetShtrihFrTimeoutValue(int ms)
-{
-	int    result = 0;
-	if(ms >= 0 && ms <= 150)
-		result = ms;
-	else if(ms > 150 && ms < 300)
-		result = 150;
-	else if(ms >= 300 && ms <= 15000) {
-		result = 149 + (ms / 150);
-	}
-	else if(ms > 15000 && ms < 30000) {
-		result = 249;
-	}
-	else if(ms >= 30000 && ms <= 105000) {
-		result = 248 + (ms / 15000);
-	}
-	else
-		result = 0;
-	return result;
 }
 
 int SLAPI SCS_SHTRIHFRF::ConnectFR()
@@ -1884,66 +1823,38 @@ int SLAPI SCS_SHTRIHFRF::ConnectFR()
 		}
 	}
 	else {
-		int    baud_rate = VerifiedBaudRate;
+		int    baud_rate;
 		int    model_type = 0;
 		int    major_prot_ver = 0;
 		int    minor_prot_ver = 0;
+		int    not_use_wght_sensor = 0;
 		long   def_baud_rate = DEF_BAUD_RATE;
-		int    _timeout = (VerifiedTimeout >= 0) ? VerifiedTimeout : 100;
+		int    def_timeout = -1;
 		SString buf, buf1;
-		if(!CashierPassword || VerifiedTimeout < 0 || VerifiedBaudRate < 0) {
-			int    not_use_wght_sensor = 0;
-			PPIniFile ini_file;
-			THROW_PP(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_SHTRIHFRPASSWORD, buf) > 0, PPERR_SHTRIHFRADMPASSW);
-			buf.Divide(',', buf1, AdmName);
-			CashierPassword = AdmPassword = buf1.ToLong();
-			AdmName.Strip().Transf(CTRANSF_INNER_TO_OUTER);
-			if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRCONNECTPARAM, buf) > 0) {
-				SString  buf2;
-				if(buf.Divide(',', buf1, buf2) > 0)
-					_timeout = buf2.ToLong();
-				def_baud_rate = buf1.ToLong();
-				if(def_baud_rate > MAX_BAUD_RATE)
-					def_baud_rate = DEF_BAUD_RATE;
-			}
-			ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRNOTUSEWEIGHTSENSOR, &not_use_wght_sensor);
-			SETFLAG(Flags, sfUseWghtSensor, !not_use_wght_sensor);
+		PPIniFile ini_file;
+		THROW_PP(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_SHTRIHFRPASSWORD, buf) > 0, PPERR_SHTRIHFRADMPASSW);
+		buf.Divide(',', buf1, AdmName);
+		CashierPassword = AdmPassword = buf1.ToLong();
+		AdmName.Strip().Transf(CTRANSF_INNER_TO_OUTER);
+		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRCONNECTPARAM, buf) > 0) {
+			SString  buf2;
+			if(buf.Divide(',', buf1, buf2) > 0)
+				def_timeout = buf2.ToLong();
+			def_baud_rate = buf1.ToLong();
+			if(def_baud_rate > MAX_BAUD_RATE)
+				def_baud_rate = DEF_BAUD_RATE;
 		}
 		THROW_PP(PortType == COM_PORT, PPERR_SYNCCASH_INVPORT);
-		// @v9.5.12 {
-		/* @v9.6.0
-		if(SGetComputerName(buf)) {
-			THROW(SetFR(ComputerName, buf));
-		}
-		THROW(SetFR(ProtocolType, 0)); // стандартный
-		THROW(SetFR(ConnectionType, 0)); // локально
-		*/
-		// } @v9.5.12
 		THROW(SetFR(ComNumber, Handle));
-		if(_timeout >= 0 && _timeout <= 105000) {
-			THROW(SetFR(Timeout, GetShtrihFrTimeoutValue(_timeout)));
-		}
-		if(VerifiedBaudRate >= 0) {
-			THROW(SetFR(BaudRate, VerifiedBaudRate));
+		if(def_timeout >= 0 && def_timeout < MAX_TIMEOUT)
+			THROW(SetFR(Timeout, def_timeout));
+		THROW((ok = ExecFR(Connect)) > 0 || ResCode == RESCODE_NO_CONNECTION);
+		for(baud_rate = 0; !ok && baud_rate <= MAX_BAUD_RATE; baud_rate++) {
+			THROW(SetFR(BaudRate, baud_rate));
 			THROW((ok = ExecFR(Connect)) > 0 || ResCode == RESCODE_NO_CONNECTION);
 		}
-		else {
-			THROW(SetFR(BaudRate, def_baud_rate));
-			ok = ExecFR(Connect);
-			THROW(ok > 0 || ResCode == RESCODE_NO_CONNECTION);
-			for(baud_rate = MAX_BAUD_RATE; !ok && baud_rate >= 0; baud_rate--) {
-				if(baud_rate != def_baud_rate) { // Это мы уже пробовали выше
-					THROW(SetFR(BaudRate, baud_rate));
-					ok = ExecFR(Connect);
-					THROW(ok > 0 || ResCode == RESCODE_NO_CONNECTION);
-				}
-			}
-		}
 		THROW(ok > 0);
-		VerifiedBaudRate = baud_rate;
-		VerifiedTimeout = _timeout;
 		Flags |= sfConnected;
-		/* @v9.5.12
 		THROW(GetFR(BaudRate, &baud_rate));
 		if(baud_rate != def_baud_rate) {
 			THROW(SetFR(BaudRate, def_baud_rate));
@@ -1951,7 +1862,6 @@ int SLAPI SCS_SHTRIHFRF::ConnectFR()
 			THROW(ExecFR(Disconnect));
 			THROW(ExecFR(Connect));
 		}
-		*/
 		THROW(ExecFR(GetDeviceMetrics) > 0);
 		THROW(GetFR(UModel, &model_type));
 		THROW(GetFR(UMajorProtocolVersion, &major_prot_ver));
@@ -1971,90 +1881,9 @@ int SLAPI SCS_SHTRIHFRF::ConnectFR()
 		// } @v7.2.2
 #endif // } 0 @construction
 		SETFLAG(Flags, sfOldShtrih, (DeviceType == devtypeShtrih) && major_prot_ver < 2 && minor_prot_ver < 2);
-		//THROW(SetupTables());
-		//int SLAPI SCS_SHTRIHFRF::SetupTables()
-		if(!(Flags & sfInnerTablesInited)) {
-			long    cshr_pssw = 0;
-			SString cshr_name, cshr_str;
-			if(GetCurUserPerson(0, &cshr_name) == -1) {
-				PPObjSecur sec_obj(PPOBJ_USR, 0);
-				PPSecur sec_rec;
-				if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)
-					cshr_name = sec_rec.Name;
-			}
-			// @v9.2.1 PPGetWord(PPWORD_CASHIER, 0, cshr_str);
-			PPLoadString("cashier", cshr_str); // @v9.2.1
-			cshr_str.Space().Cat(cshr_name).Transf(CTRANSF_INNER_TO_OUTER);
-			// Получаем пароль кассира
-			THROW(ReadValueFromTbl(FRCASHIER_TBL, FRCASHIER_ROW, FRCASHIER_FIELD_PSSW, &cshr_pssw));
-			//
-			// Приходится проверять незакрытый чек, иначе не удастся записать имя кассира
-			//
-			// @v9.5.12 CashierPassword = cshr_pssw;
-			THROW(AnnulateCheck());
-			//
-			// Записываем в таблицы настройки (только под паролем администратора)
-			//
-			// @v9.5.12 CashierPassword = AdmPassword;
-			// Имя кассира
-			THROW(WriteStringToTbl(FRCASHIER_TBL, FRCASHIER_ROW, FRCASHIER_FIELD_NAME, cshr_str));
-			// Имя администратора
-			THROW(WriteStringToTbl(FRCASHIER_TBL, FRCASHIER_ADMINROW, FRCASHIER_FIELD_NAME, AdmName.NotEmpty() ? AdmName : cshr_str));
-			// Настройки режима работы кассы
-			//    Установить автоматическое обнуление наличности
-			THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, FRCASHMODE_AUTOCASHNULL, 1));
-			//    Установить открывание денежного ящика
-			//THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, (DeviceType == devtypeCombo ||
-			//	DeviceType == devtypeMini) ? COMBOCASHMODE_OPENDRAWER : FRCASHMODE_OPENDRAWER, 1);
-			//    Нет автоматической отрезки чека
-			THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, oneof2(DeviceType, devtypeCombo, devtypeMini) ? COMBOCASHMODE_CUTTING : FRCASHMODE_CUTTING, 0));
-			//    Установить использование весовых датчиков
-			THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, oneof2(DeviceType, devtypeCombo, devtypeMini) ? COMBOCASHMODE_USEWGHTSENSOR : FRCASHMODE_USEWGHTSENSOR, BIN(Flags & sfUseWghtSensor)));
-			//    Установить автоматический перевод времени
-			//THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, (DeviceType == devtypeCombo ||
-			//	DeviceType == devtypeMini) ? COMBOCASHMODE_AUTOTIMING : FRCASHMODE_AUTOTIMING, 1));
-			//    Не сохранять строки в буфере чека
-			THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, oneof2(DeviceType, devtypeCombo, devtypeMini) ? COMBOCASHMODE_SAVESTRING : FRCASHMODE_SAVESTRING, 0));
-			/*    Современные версии Штриха запрещают редактирование таблицы перевода времени
-			THROW(ReadValueFromTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, (DeviceType == devtypeCombo ||
-				DeviceType == devtypeMini) ? COMBOCASHMODE_AUTOTIMING : FRCASHMODE_AUTOTIMING, &auto_timing));
-			// Установка автоматического перевода времени
-			if(!auto_timing) {
-				int    i, k, d, m, y;
-				SString str_year;
-				LDATE  cur_dt = getcurdate_();
-				decodedate(&d, &m, &y, &cur_dt);
-				for(i = 1; i <= FRTIMESWITCH_MAXROW; i++) {
-					long    td, tm, ty;
-					THROW(ReadStringFromTbl(FRTIMESWITCH_TBL, i, FRTIMESWITCH_SEASON, str_year));
-					ty = str_year.ToLong();
-					if(ty >= y) {
-						THROW(ReadValueFromTbl(FRTIMESWITCH_TBL, i, FRTIMESWITCH_DAY, &td));
-						THROW(ReadValueFromTbl(FRTIMESWITCH_TBL, i, FRTIMESWITCH_MONTH, &tm));
-						if(diffdate(encodedate(td, tm, ty), cur_dt) >= 0)
-							break;
-					}
-				}
-				for(k = 1; k < i; k++) {
-					THROW(WriteValueToTbl(FRTIMESWITCH_TBL, k, FRTIMESWITCH_ALLOW, 0));
-				}
-				THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, (DeviceType == devtypeCombo ||
-					DeviceType == devtypeMini) ? COMBOCASHMODE_AUTOTIMING : FRCASHMODE_AUTOTIMING, 1));
-			}
-			*/
-			// Наименования типов оплат
-			THROW(WriteStringToTbl(FRPAYMTYPE_TBL, 2, FRPAYMTYPE_NAME, "БЕЗНАЛИЧНАЯ ОПЛАТА")); // @cstr #13
-			THROW(WriteStringToTbl(FRPAYMTYPE_TBL, 3, FRPAYMTYPE_NAME, ""));
-			THROW(WriteStringToTbl(FRPAYMTYPE_TBL, 4, FRPAYMTYPE_NAME, ""));
-			// Формат чека
-			if(!(Flags & sfOldShtrih)) {
-				THROW(ReadValueFromTbl(FRFORMAT_TBL, FRFORMAT_ROW, FRFORMAT_FIELD_SIZE, &CheckStrLen));
-			}
-			Flags |= sfInnerTablesInited;
-			//CATCHZOK
-			//CashierPassword = cshr_pssw;
-			//return ok;
-		}
+		THROW(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRNOTUSEWEIGHTSENSOR, &not_use_wght_sensor));
+		SETFLAG(Flags, sfUseWghtSensor, !not_use_wght_sensor);
+		THROW(SetupTables());
 	}
 	CATCH
 		if(Flags & sfConnected) {
@@ -2089,11 +1918,11 @@ int SLAPI SCS_SHTRIHFRF::GetFR(PPID id, double * pBuf)
 int SLAPI SCS_SHTRIHFRF::GetFR(PPID id, char * pBuf, size_t bufLen)
 	{ return BIN(P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf, bufLen) > 0); }
 
-int SLAPI SCS_SHTRIHFRF::ExecFR(PPID id, long password /*=-1*/)
+int SLAPI SCS_SHTRIHFRF::ExecFR(PPID id)
 {
 	int    ok = 1;
 	THROW(P_DrvFRIntrf);
-	THROW(P_DrvFRIntrf->SetProperty(Password, ((password >= 0) ? password : CashierPassword)) > 0);
+	THROW(P_DrvFRIntrf->SetProperty(Password, CashierPassword) > 0);
 	THROW(P_DrvFRIntrf->CallMethod(id) > 0);
 	THROW(P_DrvFRIntrf->GetProperty(ResultCode, &ResCode) > 0);
 	THROW(ResCode == RESCODE_NO_ERROR);

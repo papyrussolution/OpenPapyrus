@@ -21,14 +21,16 @@
    DYNAMIC_CRC_TABLE and MAKECRCH can be #defined to write out crc32.h.
  */
 
+//#include "zutil.h"      /* for STDC and FAR definitions */
+#define ZLIB_INTERNAL
+#include "zlib.h"
+
 #ifdef MAKECRCH
 	#include <stdio.h>
 	#ifndef DYNAMIC_CRC_TABLE
 		#define DYNAMIC_CRC_TABLE
 	#endif /* !DYNAMIC_CRC_TABLE */
-#endif /* MAKECRCH */
-
-#include "zutil.h"      /* for STDC and FAR definitions */
+#endif
 
 /* Definitions for doing the crc four data bytes at a time. */
 #if !defined(NOBYFOUR) && defined(Z_U4)

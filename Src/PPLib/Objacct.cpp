@@ -825,7 +825,7 @@ int AccountDialog::validate()
 	}
 	if(!err && AccPack.Rec.ID == 0) {
 		if((r = accobj.SearchNum(AccPack.Rec.A.Ac, AccPack.Rec.A.Sb, 0)) > 0) {
-			PPErrCode = PPERR_DUPACCOUNTNUM;
+			PPSetError(PPERR_DUPACCOUNTNUM);
 			sel = CTL_ACCOUNT_NUMBER;
 			err = 1;
 		}
@@ -833,7 +833,7 @@ int AccountDialog::validate()
 			err = r ? 0 : 1;
 	}
 	if(!err) {
-		err = (PPObjAccount::CheckRecursion(AccPack.Rec.ID, AccPack.Rec.ParentID) == 0) ? 1 : 0;
+		err = BIN(PPObjAccount::CheckRecursion(AccPack.Rec.ID, AccPack.Rec.ParentID) == 0);
 	}
 	if(err)
 		PPErrorByDialog(this, sel);

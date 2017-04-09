@@ -247,7 +247,7 @@ int SLAPI PPHistBillPacket::Init(PPBillPacket * pPack)
 		}
 	}
 	else
-		ok = (PPErrCode = PPERR_INVPARAM, 0);
+		ok = PPSetError(PPERR_INVPARAM);
 	CATCHZOK
 	return ok;
 }

@@ -43,9 +43,9 @@ int SLAPI PPViewQCert::EditBaseFilt(PPBaseFilt * pFilt)
 	dlg->SetClusterData(CTL_QCERTFLT_FLAGS, f.Flags);
 	while(!valid_data && ExecView(dlg) == cmOK) {
 		if(!GetPeriodInput(dlg, CTL_QCERTFLT_EXPIRY, &f.ExpiryPeriod))
-			PPErrorByDialog(dlg, CTL_QCERTFLT_EXPIRY, -1);
+			PPErrorByDialog(dlg, CTL_QCERTFLT_EXPIRY);
 		else if(!GetPeriodInput(dlg, CTL_QCERTFLT_INITDATE, &f.InitPeriod))
-			PPErrorByDialog(dlg, CTL_QCERTFLT_INITDATE, -1);
+			PPErrorByDialog(dlg, CTL_QCERTFLT_INITDATE);
 		else {
 			dlg->getCtrlData(CTLSEL_QCERTFLT_ORGAN, &f.RegOrgan);
 			dlg->getCtrlData(CTL_QCERTFLT_CODESTR,  f.CodeStr);

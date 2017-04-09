@@ -1119,7 +1119,7 @@ int GoodsCfgDialog::getDTS(PPGoodsConfig * pData, SString & rGoodsExTitles, PPOp
 	getCtrlData(CTL_GDSCFG_OWNACTMPL, rOwnAcCntr.Head.CodeTemplate);
 	getCtrlData(CTL_GDSCFG_OWNACCNTR, &rOwnAcCntr.Head.Counter);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }

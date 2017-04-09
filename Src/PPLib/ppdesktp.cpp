@@ -1447,12 +1447,14 @@ int PPDesktop::WaitCommand()
 
 IMPL_HANDLE_EVENT(PPDesktop)
 {
+	const PPRights & r_orts = ObjRts;
+	const int is_master = PPMaster;
 	TWindow::handleEvent(event);
 	if(TVCOMMAND) {
 		switch(TVCMD) {
 			case cmaInsert:
 				{
-					if(PPMaster || ObjRts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
+					if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
 						TPoint coord;
 						coord = *(POINT*)event.message.infoPtr;
 						PPCommand cmd;
@@ -1488,7 +1490,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 				break;
 			case cmaEdit: // Редактирование иконки
 				{
-					if(PPMaster || ObjRts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
+					if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
 						uint   pos = 0;
 						TPoint coord;
 						coord = *(POINT*)event.message.infoPtr;
@@ -1509,7 +1511,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 				break;
 			case cmaDelete:
 				{
-					if(PPMaster || ObjRts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
+					if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
 						uint   pos = 0;
 						TPoint coord;
 						coord = *(POINT*)event.message.infoPtr;
@@ -1557,7 +1559,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 			case cmSelDesktop:
 				{
 					long id = P_ActiveDesktop->ID;
-					if((PPMaster || ObjRts.CheckDesktopID(P_ActiveDesktop->ID, PPR_INS)) && SelectMenu(&id, 0, SELTYPE_DESKTOP, 0) > 0 && id != P_ActiveDesktop->ID)
+					if((is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_INS)) && SelectMenu(&id, 0, SELTYPE_DESKTOP, 0) > 0 && id != P_ActiveDesktop->ID)
 						PPDesktop::Open(id);
 				}
 				break;
@@ -1579,7 +1581,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 		switch(TVKEY) {
 			case kbF2:
 				if(Selected) {
-					if(PPMaster || ObjRts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
+					if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
 						TRect ir;
 						EditIconName(Selected);
 						P_ActiveDesktop->GetIconRect(Selected, *this, &ir);

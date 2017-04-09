@@ -1438,7 +1438,7 @@ int SLAPI GoodsCore::SearchByBarcode(const char * pBarcode, BarcodeTbl::Rec * pB
 	if(ok > 0) {
 		int    r = Search(bc_rec.GoodsID, pGoodsRec);
 		if(r < 0)
-			ok = (PPErrCode = PPERR_BL_BARCODE2GOODS, 0);
+			ok = PPSetError(PPERR_BL_BARCODE2GOODS);
 		else if(r == 0)
 			ok = 0;
 		else {
@@ -2136,7 +2136,7 @@ int SLAPI GoodsCore::BelongToGen(PPID goodsID, PPID * pGenID, ObjAssocTbl::Rec *
 			ok = BelongToDynGen(goodsID, pGenID, 0);
 	}
 	else
-		ok = (PPErrCode = PPERR_INVPARAM, 0);
+		ok = PPSetError(PPERR_INVPARAM);
 	return ok;
 }
 

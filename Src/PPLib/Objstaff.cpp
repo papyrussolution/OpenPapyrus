@@ -1,5 +1,5 @@
 // OBJSTAFF.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017
 // @codepage windows-1251
 // Штатное расписание
 //
@@ -118,7 +118,7 @@ int SLAPI StaffAmtList::CheckDup(int pos, const StaffAmtEntry * pEntry) const
 	for(uint i = 0; enumItems(&i, (void **)&p_entry);)
 		if(pos != (int)(i-1) && p_entry->AmtTypeID == pEntry->AmtTypeID && p_entry->CurID == pEntry->CurID &&
 			p_entry->Period.IsIntersect(pEntry->Period)) {
-			return (PPErrCode = PPERR_STAFFAMTINTERSECT, 0);
+			return PPSetError(PPERR_STAFFAMTINTERSECT);
 		}
 	return 1;
 }
@@ -615,7 +615,7 @@ int SLAPI PPObjStaffList::GetPersonPostList(PPID staffID, PPID personID, SArray 
 {
 	int    ok = -1;
 	if(pList == 0 || pList->getItemSize() != sizeof(PersonPostTbl::Rec))
-		ok = (PPErrCode = PPERR_INVPARAM, 0);
+		ok = PPSetError(PPERR_INVPARAM);
 	else {
 		PersonPostTbl::Key1 k1;
 		k1.StaffID  = staffID;
@@ -755,9 +755,7 @@ private:
 
 int StaffDialog::setDTS(const PPStaffPacket * pData)
 {
-	if(pData)
-		Data = *pData;
-	else
+	if(!RVALUEPTR(Data, pData))
 		Data.Init();
 	{
 		DivisionCtrlGroup::Rec grp_rec(Data.Rec.OrgID, Data.Rec.DivisionID);

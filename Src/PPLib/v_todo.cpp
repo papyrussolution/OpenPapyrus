@@ -738,7 +738,7 @@ int SLAPI CrosstabProcessor::ProcessRec(PrjTaskTbl::Rec * pRec)
 				THROW(AddRec(tab_id, tab_param_val, 1, pRec));
 				break;
 			default:
-				ok = (PPErrCode = PPERR_INVPARAM, 0);
+				ok = PPSetError(PPERR_INVPARAM);
 				break;
 		}
 	}
@@ -1206,7 +1206,7 @@ int PrjTaskFiltDialog::getDTS(PrjTaskFilt * pData)
 			Data.ExcludeStatus(i);
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }

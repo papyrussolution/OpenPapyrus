@@ -8,8 +8,7 @@
 
 #define MAXBITS 15
 
-const char inflate_copyright[] =
-    " inflate 1.2.11 Copyright 1995-2017 Mark Adler ";
+const char inflate_copyright[] = " inflate 1.2.11 Copyright 1995-2017 Mark Adler ";
 /*
    If you use the zlib library in a product, an acknowledgment is welcome
    in the documentation of your product. If for some reason you cannot
@@ -204,8 +203,7 @@ int ZLIB_INTERNAL inflate_table(codetype type, unsigned short  * lens, unsigned 
 	mask = used - 1;        /* mask for comparing low */
 
 	/* check available table space */
-	if((type == LENS && used > ENOUGH_LENS) ||
-	    (type == DISTS && used > ENOUGH_DISTS))
+	if((type == LENS && used > ENOUGH_LENS) || (type == DISTS && used > ENOUGH_DISTS))
 		return 1;
 
 	/* process all codes and make table entries */
@@ -273,8 +271,7 @@ int ZLIB_INTERNAL inflate_table(codetype type, unsigned short  * lens, unsigned 
 
 			/* check for enough space */
 			used += 1U << curr;
-			if((type == LENS && used > ENOUGH_LENS) ||
-			    (type == DISTS && used > ENOUGH_DISTS))
+			if((type == LENS && used > ENOUGH_LENS) || (type == DISTS && used > ENOUGH_DISTS))
 				return 1;
 
 			/* point entry in root table to sub-table */

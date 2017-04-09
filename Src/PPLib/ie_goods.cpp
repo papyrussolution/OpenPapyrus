@@ -165,7 +165,7 @@ int QuotImpExpDialog::getDTS(PPQuotImpExpParam * pData)
 	}
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -710,7 +710,7 @@ int GoodsImpExpDialog::getDTS(PPGoodsImpExpParam * pData)
 	GetClusterData(CTL_IMPEXPGOODS_FLAGS,  &Data.Flags); // @v8.4.2
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -2660,7 +2660,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 								// } @v9.5.10
 								if(do_update) {
 									if(!GObj.PutPacket(&goods_id, &pack, 0)) {
-										PPGetMessage(mfError|mfOK, PPErrCode, 0, 1, err_msg_buf);
+										PPGetLastErrorMessage(1, err_msg_buf);
 										PPLoadText(PPTXT_ERRACCEPTGOODS, fmt_buf);
 										logger.Log(msg_buf.Printf(fmt_buf, PPOBJ_GOODS, pack.Rec.Name, (const char *)err_msg_buf));
 									}
@@ -2668,7 +2668,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 								if(do_add) {
 									goods_id = 0;
 									if(!GObj.PutPacket(&goods_id, &pack2, 0)) {
-										PPGetMessage(mfError|mfOK, PPErrCode, 0, 1, err_msg_buf);
+										PPGetLastErrorMessage(1, err_msg_buf);
 										PPLoadText(PPTXT_ERRACCEPTGOODS, fmt_buf);
 										logger.Log(msg_buf.Printf(fmt_buf, PPOBJ_GOODS, pack2.Rec.Name, (const char *)err_msg_buf));
 									}
@@ -2706,7 +2706,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 											ar_code.CopyTo(ar_code_rec.Code, sizeof(ar_code_rec.Code));
 											arcode_list.insert(&ar_code_rec);
 											if(!GObj.P_Tbl->UpdateArCodes(goods_id, &arcode_list, 0)) {
-												PPGetMessage(mfError|mfOK, PPErrCode, 0, 1, err_msg_buf);
+												PPGetLastErrorMessage(1, err_msg_buf);
 												logger.Log(err_msg_buf);
 											}
 										}
@@ -2719,7 +2719,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 												ok_2 = 1;
 										}
 										if(!ok_2) {
-											PPGetMessage(mfError|mfOK, PPErrCode, 0, 1, err_msg_buf);
+											PPGetLastErrorMessage(1, err_msg_buf);
 											PPLoadText(PPTXT_ERRACCEPTGOODS, fmt_buf);
 											msg_buf.Printf(fmt_buf, PPOBJ_GOODS, pack.Rec.Name, (const char *)err_msg_buf);
 											logger.Log(msg_buf);

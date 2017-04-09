@@ -4239,6 +4239,7 @@ toolbar export SCARD TB_FIRST_TOOLBAR {
 
 browser SCARD north(100), 1, 1, "@{scard_pl} {%s}", OWNER|GRID, 0
 {
+	"@id",                 0, notype, 0, 5
 	"@code",               1, notype, 0, 20
 	"@series",            10, notype, 0, 10
 	"@releasedate",        9, notype, 0, 5
@@ -4246,13 +4247,16 @@ browser SCARD north(100), 1, 1, "@{scard_pl} {%s}", OWNER|GRID, 0
 	"@{discount}, %",      3, notype, NMBF_NOZERO, 8.2
 	"Макс кредит",         4, notype, NMBF_NOZERO, 10.2
 	"@turnover",           5, notype, NMBF_NOZERO, 10.2
+	"@phone",             12, notype, 0, 10 // @v9.6.1
 	"@owner",              7, notype, 0, 30
-	"Товар автосписания", 11, notype, 0, 30
+	"Товар автосписания", 11, notype, 0, 20
+	"@memo",              13, notype, 0, 30 // @v9.6.1
 	toolbar SCARD
 }
 
 browser SCARDCRD north(100), 1, 1, "Кредитные карты {%s}", OWNER|GRID, 0
 {
+	"@id",                 0, notype, 0, 5
 	"@code",               1, notype, 0, 20
 	"@series",            10, notype, 0, 10
 	"@releasedate",        9, notype, 0, 5
@@ -4260,13 +4264,16 @@ browser SCARDCRD north(100), 1, 1, "Кредитные карты {%s}", OWNER|GRID, 0
 	"@{discount}, %",      3, notype, NMBF_NOZERO, 8.2
 	"Макс кредит",         4, notype, NMBF_NOZERO, 10.2
 	"@rest",               8, notype, NMBF_NOZERO, 10.2
+	"@phone",             12, notype, 0, 10 // @v9.6.1
 	"@owner",              7, notype, 0, 30
-	"Товар автосписания", 11, notype, 0, 30
+	"Товар автосписания", 11, notype, 0, 20
+	"@memo",              13, notype, 0, 30 // @v9.6.1
 	toolbar SCARD
 }
 
 browser SCARDCRD_TRNOVR north(100), 1, 1, "Кредитные карты {%s}", OWNER|GRID, 0
 {
+	"@id",                 0, notype, 0, 5
 	"@code",               1, notype, 0, 20
 	"@series",            10, notype, 0, 10
 	"@releasedate",        9, notype, 0, 5
@@ -4276,8 +4283,10 @@ browser SCARDCRD_TRNOVR north(100), 1, 1, "Кредитные карты {%s}", OWNER|GRID, 0
 	"@debit",              6, notype, NMBF_NOZERO, 10.2
 	"@credit",             5, notype, NMBF_NOZERO, 10.2
 	"@rest",               8, notype, NMBF_NOZERO, 10.2
+	"@phone",             12, notype, 0, 10 // @v9.6.1
 	"@owner",              7, notype, 0, 30
-	"Товар автосписания", 11, notype, 0, 30
+	"Товар автосписания", 11, notype, 0, 20
+	"@memo",              13, notype, 0, 30 // @v9.6.1
 	toolbar SCARD
 }
 

@@ -479,7 +479,7 @@ int SLAPI PPViewStaffPost::EditBaseFilt(PPBaseFilt * pBaseFilt)
 				ok = valid_data = 1;
 			}
 			if(!local_ok)
-				PPErrorByDialog(dlg, sel, -1);
+				PPErrorByDialog(dlg, sel);
 		}
 	}
 	CATCHZOKPPERR

@@ -904,8 +904,8 @@ int EditMenusDlg::editItem(long pos, long id)
 
 int EditMenusDlg::delItem(long pos, long id)
 {
-	int ok = -1;
-	uint ipos = 0;
+	int    ok = -1;
+	uint   ipos = 0;
 	if(IsMaster || ObjRts.CheckDesktopID(id, PPR_MOD)) {
 		const PPCommandItem * p_item = Data.SearchByID(id, &ipos);
 		if(p_item) {

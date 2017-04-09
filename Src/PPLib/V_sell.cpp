@@ -414,7 +414,7 @@ int SLAPI PPViewPredictSales::EditBaseFilt(PPBaseFilt * pBaseFilt /*PredictSales
 			PredictSalesFilt filt;
 			filt =*p_filt;
 			if(!GetPeriodInput(dlg, CTL_PSALESFLT_PERIOD, &filt.Period))
-				PPErrorByDialog(dlg, CTL_PSALESFLT_PERIOD, -1);
+				PPErrorByDialog(dlg, CTL_PSALESFLT_PERIOD);
 			else if(dlg->getGroupData(GRP_GOODS, &rec) > 0) {
 				if(!p_filt->GoodsIdList.IsExists()) {
 					filt.GoodsGrpID = rec.GrpID;
@@ -439,7 +439,7 @@ int SLAPI PPViewPredictSales::EditBaseFilt(PPBaseFilt * pBaseFilt /*PredictSales
 				}
 			}
 			else
-				PPErrorByDialog(dlg, CTL_PSALESFLT_GOODS, -1);
+				PPErrorByDialog(dlg, CTL_PSALESFLT_GOODS);
 		}
 	}
 	CATCHZOKPPERR

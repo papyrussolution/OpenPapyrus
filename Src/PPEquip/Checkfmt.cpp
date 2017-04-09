@@ -2197,7 +2197,7 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 	CATCH
 		{
 			SString msg_buf, temp_buf;
-			PPGetMessage(mfError, PPErrCode, 0, 0, msg_buf);
+			PPGetLastErrorMessage(0, msg_buf);
 			(temp_buf = pFileName).CatChar('(').Cat(LineNo).CatChar(')').CatDiv(':').Cat(msg_buf);
 			PPSetError(PPERR_SLIPFMT_PARSE, temp_buf);
 		}
@@ -2401,7 +2401,7 @@ SLTEST_R(PPSlipFormatLexer)
 	CATCH
 		{
 			SString msg_buf;
-			PPGetMessage(mfError, PPErrCode, 0, 1, msg_buf);
+			PPGetLastErrorMessage(1, msg_buf);
 			SetInfo(msg_buf.Transf(CTRANSF_INNER_TO_OUTER), 0);
 		}
 		ok = 0;

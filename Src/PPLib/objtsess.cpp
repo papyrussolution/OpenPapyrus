@@ -4753,8 +4753,7 @@ int SLAPI PrcssrTSessMaintenance::EditParam(PrcssrTSessMaintenance::Param * pP)
 		int    setDTS(const PrcssrTSessMaintenance::Param * pData)
 		{
 			int    ok = 1;
-			if(pData)
-				Data = *pData;
+			RVALUEPTR(Data, pData);
 			SetPeriodInput(this, CTL_TSESMNT_PERIOD, &Data.Period);
 			AddClusterAssoc(CTL_TSESMNT_ACTION, 0, PrcssrTSessMaintenance::Param::fCancelCip);
 			SetClusterData(CTL_TSESMNT_ACTION, Data.Flags);
@@ -4768,7 +4767,7 @@ int SLAPI PrcssrTSessMaintenance::EditParam(PrcssrTSessMaintenance::Param * pP)
 			GetClusterData(CTL_TSESMNT_ACTION, &Data.Flags);
 			ASSIGN_PTR(pData, Data);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}

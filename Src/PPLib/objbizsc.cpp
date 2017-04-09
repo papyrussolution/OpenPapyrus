@@ -600,7 +600,7 @@ public:
 		GetRealRangeInput(this, CTL_BIZSCORE_BOUNDS, &Data.Rec.Bounds);
 		ASSIGN_PTR(pData, Data);
 		CATCH
-			ok = PPErrorByDialog(this, sel, -1);
+			ok = PPErrorByDialog(this, sel);
 		ENDCATCH
 		return ok;
 	}
@@ -1367,7 +1367,7 @@ int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSo
 			SString buf2;
 			buf.Cat((long)0).CRB();
 			THROW(pSock->Send(buf, buf.Len(), 0));
-			PPGetMessage(mfError, PPErrCode, 0, DS.CheckExtFlag(ECF_SYSSERVICE), buf);
+			PPGetLastErrorMessage(DS.CheckExtFlag(ECF_SYSSERVICE), buf);
 			buf.Transf(CTRANSF_INNER_TO_OUTER);
 			pSock->Send(buf, buf.Len(), 0);
 		}
@@ -1441,7 +1441,7 @@ int SLAPI PPViewBizScoreVal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			getCtrlData(CTLSEL_BIZSCVFILT_BSC,  &Filt.BizScoreID);
 			ASSIGN_PTR(pFilt, Filt);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}
@@ -1854,7 +1854,7 @@ int SLAPI PrcssrBizScore::EditParam(Param * pParam)
 			SetupPPObjCombo(dlg, CTLSEL_BIZSCPRC_FTPACC, PPOBJ_INTERNETACCOUNT, data.FtpAcctID, 0, (void *)INETACCT_ONLYFTP);
 			while(ok < 0 && ExecView(dlg) == cmOK) {
 				if(!GetPeriodInput(dlg, CTL_BIZSCPRC_PERIOD, &data.Period))
-					PPErrorByDialog(dlg, CTL_BIZSCPRC_PERIOD, -1);
+					PPErrorByDialog(dlg, CTL_BIZSCPRC_PERIOD);
 				else if(!data.Period.IsZero() && (!data.Period.low || !data.Period.upp))
 					PPErrorByDialog(dlg, CTL_BIZSCPRC_PERIOD, PPERR_UNCLOSEDPERIOD);
 				else {

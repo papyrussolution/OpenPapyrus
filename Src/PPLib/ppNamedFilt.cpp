@@ -507,7 +507,7 @@ int FiltItemDialog::getDTS(PPNamedFilt * pData)
 	ASSIGN_PTR(pData, Data);
 	CATCH
 		// Вывести сообщение о ошибке и активировать породивший его управляющий элемент
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }

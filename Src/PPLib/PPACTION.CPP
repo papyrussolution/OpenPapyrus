@@ -58,7 +58,7 @@ int SLAPI SysJournal::LogEvent(PPID action, PPID obj, PPID id, long extData, int
 				}
 				{
 					//SString msg_buf, added_buf, temp_buf;
-					PPGetMessage(mfError, PPErrCode, 0, 1, MsgBuf = 0);
+					PPGetLastErrorMessage(1, MsgBuf = 0);
 					(AddedBuf = 0).Cat(data.Action).Semicol().Cat(obj).Semicol().Cat(id).Semicol().Cat(extData).Semicol().Cat(MsgBuf);
 					TempBuf = 0;
 					if(rsrv_ok < 0)
@@ -436,7 +436,7 @@ int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 					if(!r) {
 						PPSetError(PPERR_DBENGINE);
 						PPLoadText(PPTXT_ERR_SYSJRECOVERING, fmt_buf);
-						PPGetMessage(mfError, PPErrCode, 0, 1, msg_buf);
+						PPGetLastErrorMessage(1, msg_buf);
 						(added_buf = 0).Cat(rsrv_rec.Action).Semicol().Cat(rsrv_rec.ObjType).Semicol().Cat(rsrv_rec.ObjID).
 							Semicol().Cat(rsrv_rec.Extra).Semicol().Cat(msg_buf);
 						(msg_buf = 0).Printf(fmt_buf, (const char *)added_buf);
@@ -452,7 +452,7 @@ int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 					else {
 						PPSetError(PPERR_DBENGINE);
 						PPLoadText(PPTXT_ERR_SYSJRECOVERING, fmt_buf);
-						PPGetMessage(mfError, PPErrCode, 0, 1, msg_buf);
+						PPGetLastErrorMessage(1, msg_buf);
 						(added_buf = 0).Cat(rsrv_rec.Action).Semicol().Cat(rsrv_rec.ObjType).Semicol().Cat(rsrv_rec.ObjID).
 							Semicol().Cat(rsrv_rec.Extra).Semicol().Cat(msg_buf);
 						(msg_buf = 0).Printf(fmt_buf, (const char *)added_buf);

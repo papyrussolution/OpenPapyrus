@@ -111,7 +111,7 @@ public:
 		GetClusterData(CTL_DFRULESEL_FLAGS2, &Data.Flags);
 		ASSIGN_PTR(pData, Data);
 		CATCH
-			ok = PPErrorByDialog(this, sel, -1);
+			ok = PPErrorByDialog(this, sel);
 		ENDCATCH
 		return ok;
 	}
@@ -247,7 +247,7 @@ int SLAPI PPViewCSess::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			getCtrlData(CTL_CSESSFILT_CASHN, &Filt.CashNumber);
 			ASSIGN_PTR(pFilt, Filt);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}

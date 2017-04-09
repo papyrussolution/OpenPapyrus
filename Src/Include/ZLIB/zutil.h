@@ -47,9 +47,7 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
 /* (size given to avoid silly warnings with Visual C++) */
 
 #define ERR_MSG(err) z_errmsg[Z_NEED_DICT-(err)]
-
-#define ERR_RETURN(strm, err) \
-	return (strm->msg = ERR_MSG(err), (err))
+#define ERR_RETURN(strm, err) return (strm->msg = ERR_MSG(err), (err))
 /* To be used only when the state is known to be valid */
 
 /* common constants */
@@ -209,39 +207,40 @@ ZEXTERN uLong ZEXPORT crc32_combine64 OF((uLong, uLong, z_off_t));
 		#define zmemzero(dest, len) memset(dest, 0, len)
 	#endif
 #else
-void ZLIB_INTERNAL zmemcpy OF((Bytef* dest, const Bytef* source, uInt len));
-int ZLIB_INTERNAL zmemcmp OF((const Bytef* s1, const Bytef* s2, uInt len));
-void ZLIB_INTERNAL zmemzero OF((Bytef* dest, uInt len));
+	void ZLIB_INTERNAL zmemcpy OF((Bytef* dest, const Bytef* source, uInt len));
+	int ZLIB_INTERNAL zmemcmp OF((const Bytef* s1, const Bytef* s2, uInt len));
+	void ZLIB_INTERNAL zmemzero OF((Bytef* dest, uInt len));
 #endif
-
-/* Diagnostic functions */
+//
+// Diagnostic functions 
+//
 #ifdef ZLIB_DEBUG
-#  include <stdio.h>
-extern int ZLIB_INTERNAL z_verbose;
-extern void ZLIB_INTERNAL z_error OF((char* m));
-#  define Assert(cond, msg) {if(!(cond)) z_error(msg); }
-#  define Trace(x) {if(z_verbose>=0) fprintf x; }
-#  define Tracev(x) {if(z_verbose>0) fprintf x; }
-#  define Tracevv(x) {if(z_verbose>1) fprintf x; }
-#  define Tracec(c, x) {if(z_verbose>0 && (c)) fprintf x; }
-#  define Tracecv(c, x) {if(z_verbose>1 && (c)) fprintf x; }
+	#include <stdio.h>
+	extern int ZLIB_INTERNAL z_verbose;
+	extern void ZLIB_INTERNAL z_error OF((char* m));
+	#define Assert(cond, msg) {if(!(cond)) z_error(msg); }
+	#define Trace(x) {if(z_verbose>=0) fprintf x; }
+	#define Tracev(x) {if(z_verbose>0) fprintf x; }
+	#define Tracevv(x) {if(z_verbose>1) fprintf x; }
+	#define Tracec(c, x) {if(z_verbose>0 && (c)) fprintf x; }
+	#define Tracecv(c, x) {if(z_verbose>1 && (c)) fprintf x; }
 #else
-#  define Assert(cond, msg)
-#  define Trace(x)
-#  define Tracev(x)
-#  define Tracevv(x)
-#  define Tracec(c, x)
-#  define Tracecv(c, x)
+	#define Assert(cond, msg)
+	#define Trace(x)
+	#define Tracev(x)
+	#define Tracevv(x)
+	#define Tracec(c, x)
+	#define Tracecv(c, x)
 #endif
 
 #ifndef Z_SOLO
-voidpf ZLIB_INTERNAL zcalloc OF((voidpf opaque, unsigned items, unsigned size));
-void ZLIB_INTERNAL zcfree OF((voidpf opaque, voidpf ptr));
+	voidpf ZLIB_INTERNAL zcalloc OF((voidpf opaque, unsigned items, unsigned size));
+	void ZLIB_INTERNAL zcfree OF((voidpf opaque, voidpf ptr));
 #endif
 
-#define ZALLOC(strm, items, size) (*((strm)->zalloc))((strm)->opaque, (items), (size))
-#define ZFREE(strm, addr)  (*((strm)->zfree))((strm)->opaque, (voidpf)(addr))
-#define TRY_FREE(s, p) {if(p) ZFREE(s, p); }
+#define ZLIB_ALLOC(strm, items, size) (*((strm)->zalloc))((strm)->opaque, (items), (size))
+#define ZLIB_FREE(strm, addr)  (*((strm)->zfree))((strm)->opaque, (voidpf)(addr))
+#define TRY_FREE(s, p) { if(p) ZLIB_FREE(s, p); }
 
 /* Reverse the bytes in a 32-bit value */
 #define ZSWAP32(q) ((((q) >> 24) & 0xff) + (((q) >> 8) & 0xff00) + (((q) & 0xff00) << 8) + (((q) & 0xff) << 24))

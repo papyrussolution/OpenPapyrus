@@ -5259,7 +5259,7 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 	THROW_PP(ChkList.getCount() || (State & stSelectFormat), PPERR_CHECKNOTFOUND);
 	getCurItem(0, &sel_chk.CheckID);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	ASSIGN_PTR(pSelCheck, sel_chk);
 	return ok;
@@ -8421,8 +8421,23 @@ void CheckPaneDialog::SelectGoods__(int mode)
 					StrAssocArray goods_list;
 					if(temp_buf.Len() >= INSTVSRCH_THRESHOLD && temp_buf.C(0) != '!')
 						temp_buf.Insert(0, "!");
+					/* @v9.6.1
 					if(GObj.P_Tbl->GetListBySubstring(temp_buf, &goods_list, -1, 1))
 						P_EGSDlg->setSelectionByGoodsList(&goods_list);
+					*/
+					// @v9.6.1 {
+					{
+						GoodsFilt gf;
+						gf.PutExtssData(GoodsFilt::extssNameText, temp_buf);
+						if(!(CnFlags & CASHF_SELALLGOODS)) {
+							gf.Flags |= GoodsFilt::fActualOnly;
+							gf.LocList.Add(CnLocID);
+						}
+						GoodsIterator::GetListByFilt(&gf, &goods_list, 1);
+						if(goods_list.getCount())
+							P_EGSDlg->setSelectionByGoodsList(&goods_list);
+					}
+					// } @v9.6.1 
 				}
 				ClearInput(0);
 			}
@@ -11660,7 +11675,7 @@ int InfoKioskDialog::ProcessGoodsSelection()
 	setCtrlReal(CTL_INFKIOSK_DSCNTPRICE, 0.0);
 	setStaticText(CTL_INFKIOSK_INFO, buf);
 	if(!SetupGoods(goods_id, 0.0)) {
-		PPGetMessage(mfError, PPErrCode, DS.GetTLA().AddedMsgString, 0, buf);
+		PPGetLastErrorMessage(0, buf);
 		setStaticText(CTL_INFKIOSK_INFO, buf);
 		ok = 0;
 	}
@@ -11823,7 +11838,7 @@ int InfoKioskDialog::SelectSCard()
 		Flags |= fWaitOnSCard;
 	}
 	CATCH
-		PPGetMessage(mfError, PPErrCode, DS.GetTLA().AddedMsgString, 0, buf);
+		PPGetLastErrorMessage(0, buf);
 		ok = (setStaticText(CTL_INFKIOSK_INFO, buf), 0);
 	ENDCATCH
 	setCtrlReal(CTL_INFKIOSK_DSCNTPRICE, dscnt_price);
@@ -11878,7 +11893,7 @@ int InfoKioskDialog::SelectGoods(SearchParam srch)
 	SelGoodsGrpID = ggrp_id;
 	THROW(ok = SetupGoods(goods_id, qtty));
 	CATCH
-		PPGetMessage(mfError, PPErrCode, DS.GetTLA().AddedMsgString, 0, buf);
+		PPGetLastErrorMessage(0, buf);
 		ok = (setStaticText(CTL_INFKIOSK_INFO, buf), 0);
 		SetupGoods(0, 0.0);
 	ENDCATCH

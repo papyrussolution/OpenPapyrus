@@ -2848,7 +2848,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 			rReply.SetString((temp_buf = 0).Cat(DS.GetTLA().GetId()));
 			break;
 		case PPSCMD_GETLASTERRMSG:
-			PPGetMessage(mfError, PPErrCode, 0, 1, temp_buf);
+			PPGetLastErrorMessage(1, temp_buf);
 			rReply.SetString(temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
 			break;
 		case PPSCMD_SETTXTCMDTERM:
@@ -3421,7 +3421,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 					PPSetErrorSLib();
 					SLS.SetError(SLERR_FILENOTFOUND, path);
 					{
-						PPGetMessage(mfError, PPErrCode, 0, DS.CheckExtFlag(ECF_SYSSERVICE), temp_buf = 0);
+						PPGetLastErrorMessage(DS.CheckExtFlag(ECF_SYSSERVICE), temp_buf = 0);
 						SyncTable::LogMessage(log_path, (msg_buf = "SPII FAIL: ").Cat(temp_buf));
 					}
 					CALLEXCEPT();
@@ -3982,7 +3982,7 @@ int SLAPI PPJobSrvReply::SetError()
 	H.Flags |= hfRepError;
 	Clear();
 	THROW_SL(Write(&H, sizeof(H)));
-	PPGetMessage(mfError, PPErrCode, 0, 1, text);
+	PPGetLastErrorMessage(1, text);
 	THROW_SL(Write(text, text.Len()));
 	State |= stStructured;
 	State &= ~stReading;
@@ -4795,7 +4795,7 @@ int SLAPI run_client()
 							}
 						}
 						else {
-							PPGetMessage(mfError, PPErrCode, 0, 1, msg_buf);
+							PPGetLastErrorMessage(1, msg_buf);
 							(reply_str = 0).Cat("Error").CatDiv(':', 2).Cat(msg_buf);
 						}
 						printf((const char *)reply_str);
@@ -4831,7 +4831,7 @@ int SLAPI run_client()
 							}
 						}
 						else {
-							PPGetMessage(mfError, PPErrCode, 0, 1, msg_buf);
+							PPGetLastErrorMessage(1, msg_buf);
 							(reply_str = 0).Cat("Error").CatDiv(':', 2).Cat(msg_buf);
 						}
 						printf((const char *)reply_str);
@@ -4843,7 +4843,7 @@ int SLAPI run_client()
 		}
 	}
 	else {
-		PPGetMessage(mfError, PPErrCode, 0, 1, msg_buf);
+		PPGetLastErrorMessage(1, msg_buf);
 		(reply_str = 0).Cat("Error").CatDiv(':', 2).Cat(msg_buf).CR();
 		printf((const char *)reply_str);
 		err = -1;

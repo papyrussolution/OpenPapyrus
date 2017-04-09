@@ -156,7 +156,7 @@ int GoodsTaxAnalyzeFiltDialog::getDTS(GoodsTaxAnalyzeFilt * pData)
 	getCtrlData(CTLSEL_GDSGRPRLZ_GSUBST, &Data.Sgg);
 	*pData = Data;
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }

@@ -356,9 +356,9 @@ int SLAPI PPSync::LockDB()
 {
 	PPSetAddedMsgString(DataPath);
 	if(IsDBInUse())
-		return (PPErrCode = PPERR_SYNCDBINUSE, 0);
+		return PPSetError(PPERR_SYNCDBINUSE);
 	//PPLogMessage(PPFILNAM_INFO_LOG, "BASE IS BLOCK", LOGMSGF_TIME|LOGMSGF_USER); // @debug turistti @v5.3.4
-	return Lock(0, 0) ? 1 : (PPErrCode = PPERR_SYNCMUTEXBUSY, 0);
+	return Lock(0, 0) ? 1 : PPSetError(PPERR_SYNCMUTEXBUSY);
 }
 
 int SLAPI PPSync::UnlockDB()

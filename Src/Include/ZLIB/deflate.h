@@ -20,40 +20,24 @@
    the crc code when it is not needed.  For shared libraries, gzip encoding
    should be left enabled. */
 #ifndef NO_GZIP
-#  define GZIP
+	#define GZIP
 #endif
 
 /* ===========================================================================
  * Internal compression state.
  */
 
-#define LENGTH_CODES 29
-/* number of length codes, not counting the special END_BLOCK code */
-
-#define LITERALS  256
-/* number of literal bytes 0..255 */
-
-#define L_CODES (LITERALS+1+LENGTH_CODES)
-/* number of Literal or Length codes, including the END_BLOCK code */
-
-#define D_CODES   30
-/* number of distance codes */
-
-#define BL_CODES  19
-/* number of codes used to transfer the bit lengths */
-
-#define HEAP_SIZE (2*L_CODES+1)
-/* maximum heap size */
-
-#define MAX_BITS 15
-/* All codes must not exceed MAX_BITS bits */
-
-#define Buf_size 16
-/* size of bit buffer in bi_buf */
-
+#define LENGTH_CODES 29 /* number of length codes, not counting the special END_BLOCK code */
+#define LITERALS  256 /* number of literal bytes 0..255 */
+#define L_CODES (LITERALS+1+LENGTH_CODES) /* number of Literal or Length codes, including the END_BLOCK code */
+#define D_CODES   30 /* number of distance codes */
+#define BL_CODES  19 /* number of codes used to transfer the bit lengths */
+#define HEAP_SIZE (2*L_CODES+1) /* maximum heap size */
+#define MAX_BITS 15 /* All codes must not exceed MAX_BITS bits */
+#define Buf_size 16 /* size of bit buffer in bi_buf */
 #define INIT_STATE    42    /* zlib header -> BUSY_STATE */
 #ifdef GZIP
-#  define GZIP_STATE  57    /* gzip header -> BUSY_STATE | EXTRA_STATE */
+	#define GZIP_STATE  57    /* gzip header -> BUSY_STATE | EXTRA_STATE */
 #endif
 #define EXTRA_STATE   69    /* gzip extra block -> NAME_STATE */
 #define NAME_STATE    73    /* gzip file name -> COMMENT_STATE */
@@ -187,24 +171,16 @@ typedef struct internal_state {
 
 	int level; /* compression level (1..9) */
 	int strategy; /* favor or force Huffman coding*/
-
-	uInt good_match;
-	/* Use a faster search when the previous match is longer than this */
-
+	uInt good_match; /* Use a faster search when the previous match is longer than this */
 	int nice_match; /* Stop searching when current match exceeds this */
 
 	/* used by trees.c: */
 	/* Didn't use ct_data typedef below to suppress compiler warning */
 	struct ct_data_s dyn_ltree[HEAP_SIZE]; /* literal and length tree */
-
 	struct ct_data_s dyn_dtree[2*D_CODES+1]; /* distance tree */
-
 	struct ct_data_s bl_tree[2*BL_CODES+1]; /* Huffman tree for bit lengths */
-
 	struct tree_desc_s l_desc;           /* desc. for literal tree */
-
 	struct tree_desc_s d_desc;           /* desc. for distance tree */
-
 	struct tree_desc_s bl_desc;          /* desc. for bit length tree */
 
 	ush bl_count[MAX_BITS+1];

@@ -1235,7 +1235,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 							}
 							if(do_update) {
 								if(!PutPacket(&goods_id, &pack, 0)) {
-									PPGetMessage(mfError|mfOK, PPErrCode, 0, 1, err_msg_buf);
+									PPGetLastErrorMessage(1, err_msg_buf);
 									PPLoadText(PPTXT_ERRACCEPTGOODS, fmt_buf);
 									msg_buf.Printf(fmt_buf, PPOBJ_GOODS, pack.Rec.Name, (const char *)err_msg_buf);
 									logger.Log(msg_buf);
@@ -1369,7 +1369,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 									ar_code.CopyTo(ar_code_rec.Code, sizeof(ar_code_rec.Code));
 									arcode_list.insert(&ar_code_rec);
 									if(!P_Tbl->UpdateArCodes(goods_id, &arcode_list, 0)) {
-										PPGetMessage(mfError|mfOK, PPErrCode, 0, 1, err_msg_buf);
+										PPGetLastErrorMessage(1, err_msg_buf);
 										logger.Log(err_msg_buf);
 									}
 								}
@@ -1382,7 +1382,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 										ok_2 = 1;
 								}
 								if(!ok_2) {
-									PPGetMessage(mfError|mfOK, PPErrCode, 0, 1, err_msg_buf);
+									PPGetLastErrorMessage(1, err_msg_buf);
 									PPLoadText(PPTXT_ERRACCEPTGOODS, fmt_buf);
 									msg_buf.Printf(fmt_buf, PPOBJ_GOODS, pack.Rec.Name, (const char *)err_msg_buf);
 									logger.Log(msg_buf);
@@ -2004,7 +2004,7 @@ int PhoneListImpExpDialog::getDTS(PPPhoneListImpExpParam * pData)
 	getCtrlString(sel = CTL_IMPEXPPHONE_DEFPFX, Data.DefCityPhonePrefix);
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -2033,7 +2033,7 @@ int SLAPI EditPhoneListParam(const char * pIniSection)
    						ini_file.RemoveSection(pIniSection);
    					else
    						ini_file.ClearSection(pIniSection);
-   				PPErrCode = PPERR_DUPOBJNAME;
+   				PPSetError(PPERR_DUPOBJNAME);
    				if((!is_new || ini_file.IsSectExists(param.Name) == 0) && param.WriteIni(&ini_file, param.Name) && ini_file.FlashIniBuf())
    					ok = 1;
    				else
@@ -2132,7 +2132,7 @@ int PhoneListImportDialog::getDTS(PrcssrPhoneListImport::Param * pData)
 	Data.DefCityID = getCtrlLong(sel = CTLSEL_IEPHONE_DEFCITY);
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -3126,7 +3126,7 @@ int PersonImpExpDialog::getDTS(PPPersonImpExpParam * pData)
 	}
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -3198,7 +3198,7 @@ int PersonImportDialog::setDTS(const PrcssrPersonImport::Param * pData)
 	if(CfgList.getCount() == 1)
 		cfg_id = CfgList.at(0).Id;
 	SetupStrAssocCombo(this, CTLSEL_IEPERSON_CFG, &CfgList, cfg_id, 0, 0, 0);
-	SetupPPObjCombo(this, CTLSEL_IEPERSON_CAT, PPOBJ_PRSNCATEGORY, Data.CategoryID, OLW_CANINSERT, 0); // @v7.6.2
+	SetupPPObjCombo(this, CTLSEL_IEPERSON_CAT, PPOBJ_PRSNCATEGORY, Data.CategoryID, OLW_CANINSERT, 0);
 	return ok;
 }
 
@@ -3210,10 +3210,10 @@ int PersonImportDialog::getDTS(PrcssrPersonImport::Param * pData)
 	SString temp_buf;
 	THROW_PP(cfg_id, PPERR_CFGNEEDED);
 	THROW_PP(CfgList.Get(cfg_id, Data.CfgName) > 0, PPERR_CFGNEEDED);
-	getCtrlData(CTLSEL_IEPERSON_CAT, &Data.CategoryID); // @v7.6.2
+	getCtrlData(CTLSEL_IEPERSON_CAT, &Data.CategoryID);
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -5120,7 +5120,7 @@ int FiasImporter::EditParam(Param & rP)
 			GetClusterData(CTL_FIASIMP_FLAGS, &Data.Flags);
 			ASSIGN_PTR(pData, Data);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}

@@ -827,7 +827,7 @@ int SLAPI PPObjGoodsClass::Edit(PPID * pID, void * extraPtr)
 			if(!CheckName(*pID, strip(pack.Rec.Name), 0))
 				dlg->selectCtrl(CTL_PALLET_NAME);
 			else if(*strip(pack.Rec.Symb) && !ref->CheckUniqueSymb(Obj, pack.Rec.ID, pack.Rec.Symb, offsetof(PPGdsCls, Symb)))
-				PPErrorByDialog(dlg, CTL_PALLET_SYMB, -1);
+				PPErrorByDialog(dlg, CTL_PALLET_SYMB);
 			else {
 				valid_data = 1;
 				LAssocArray bad_ref_list;

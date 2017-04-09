@@ -83,7 +83,7 @@ int SLAPI PPObjRegister::CheckUnique(PPID regTypeID, const RegisterArray * pAry)
 	if(rt_obj.Search(regTypeID, &rt) > 0 && rt.Flags & REGTF_UNIQUE)
 		for(uint i = 0; i < pAry->getCount(); i++)
 			if(pAry->at(i).RegTypeID == regTypeID)
-				return (PPErrCode = PPERR_DUPREGISTER, 0);
+				return PPSetError(PPERR_DUPREGISTER);
 	return 1;
 }
 
@@ -106,7 +106,7 @@ int SLAPI PPObjRegister::CheckUniqueNumber(const RegisterTbl::Rec * pRec, const 
 					return 1;
 				else
 					PPSetAddedMsgObjName(out_rec.ObjType, out_rec.ObjID);
-			return (PPErrCode = PPERR_DUPREGNUMBER, 0);
+			return PPSetError(PPERR_DUPREGNUMBER);
 		}
 	}
 	return 1;

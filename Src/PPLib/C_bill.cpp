@@ -215,7 +215,7 @@ static int SLAPI RecalcBillDialog(uint rezID, BillRecalcParam * pFilt)
 		dlg->SetClusterData(CTL_BILLFLT_FLAGS, pFilt->Flags);
 		while(r == -1 && (r = ExecView(dlg)) == cmOK) {
 			if(!GetPeriodInput(dlg, CTL_BILLFLT_PERIOD, &pFilt->Period)) {
-				PPErrorByDialog(dlg, CTL_BILLFLT_PERIOD, -1);
+				PPErrorByDialog(dlg, CTL_BILLFLT_PERIOD);
 				r = -1;
 			}
 			else {

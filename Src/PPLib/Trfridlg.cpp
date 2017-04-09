@@ -198,6 +198,7 @@ int TrfrItemDialog::ProcessRevalOnAllLots(const PPTransferItem * pItem)
 //
 int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pInitData, const PPTransferItem * pOrder, int sign)
 {
+	const PPConfig & r_cfg = LConfig;
 	const int    allow_suppl_sel = BIN(CanUpdateSuppl(pPack, itemNo) && BillObj->CheckRights(BILLOPRT_ACCSSUPPL, 1));
 	const int    goods_fixed     = BIN(itemNo >= 0 || (pInitData && pInitData->GoodsID));
 	const PPID   op_id = pPack->Rec.OpID;
@@ -218,7 +219,7 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 			switch(GetOpType(op_rec.LinkOpID)) {
 				case PPOPT_GOODSRECEIPT: dlg_id = DLG_LOTITEM; break;
 				case PPOPT_GOODSEXPEND:
-					if(LConfig.Flags & CFGFLG_SELGOODSBYPRICE && !goods_fixed)
+					if(r_cfg.Flags & CFGFLG_SELGOODSBYPRICE && !goods_fixed)
 						dlg_id = ((goods_by_price = 1), DLG_PSELLITEM);
 					else
 						dlg_id = DLG_SELLITEM;
@@ -231,13 +232,13 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 		case PPOPT_GOODSEXPEND:
 			if(IsIntrOp(op_id))
 				dlg_id = DLG_INTRITEM;
-			else if(LConfig.Flags & CFGFLG_SELGOODSBYPRICE && !goods_fixed)
+			else if(r_cfg.Flags & CFGFLG_SELGOODSBYPRICE && !goods_fixed)
 				dlg_id = ((goods_by_price = 1), DLG_PSELLITEM);
 			else
 				dlg_id = DLG_SELLITEM;
 			break;
 		case PPOPT_DRAFTRECEIPT:
-		case PPOPT_DRAFTTRANSIT: // @v7.4.12
+		case PPOPT_DRAFTTRANSIT:
 			dlg_id = /*allow_suppl_sel ? DLG_SLOTITEM :*/ DLG_LOTITEM;
 			break;
 		case PPOPT_GOODSRECEIPT:
@@ -329,8 +330,8 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 
 	THROW(dlg->setDTS(p_item));
 	if(itemNo < 0 && pInitData && pInitData->Quantity >= 0.0 && dlg->Item.Quantity_ == 0.0) {
-		uint ctl_set = (LConfig.Flags & CFGFLG_USEPACKAGE && (pInitData->Quantity == 0.0 || pInitData->Flags & TIDIF_PACKS)) ? CTL_LOT_PACKS : CTL_LOT_QUANTITY;
-		uint ctl_select = (!(LConfig.Flags & CFGFLG_USEPACKAGE) || (pInitData->Quantity && !(pInitData->Flags & TIDIF_PACKS))) ? CTL_LOT_QUANTITY : CTL_LOT_PACKS;
+		uint ctl_set = (r_cfg.Flags & CFGFLG_USEPACKAGE && (pInitData->Quantity == 0.0 || pInitData->Flags & TIDIF_PACKS)) ? CTL_LOT_PACKS : CTL_LOT_QUANTITY;
+		uint ctl_select = (!(r_cfg.Flags & CFGFLG_USEPACKAGE) || (pInitData->Quantity && !(pInitData->Flags & TIDIF_PACKS))) ? CTL_LOT_QUANTITY : CTL_LOT_PACKS;
 		dlg->setCtrlData(ctl_set, &pInitData->Quantity);
 		if(!(dlg->St & TrfrItemDialog::stGoodsByPrice) || pInitData->GoodsID)
 			dlg->selectCtrl(ctl_select);
@@ -349,7 +350,6 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 			}
 		}
 	}
-	// @v7.0.0 {
 	if(pPack->GetSyncStatus() > 0) {
 		//
 		// Если у пользователя нет прав на изменение синхронизированного документа,
@@ -363,11 +363,10 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 	}
 	if(!rt_to_modif)
 		dlg->enableCommand(cmOK, 0);
-	// } @v7.0.0
 	while(!valid_data && (skip_dlg || (r = ExecView(dlg)) == cmOK)) {
 		double extra_qtty = 0.0;
 		valid_data = dlg->getDTS(p_item, &extra_qtty);
-		if(valid_data && LConfig.Flags & CFGFLG_UNIQUELOT)
+		if(valid_data && r_cfg.Flags & CFGFLG_UNIQUELOT)
 			for(i = 0; valid_data && pPack->EnumTItems(&i, &p_ti);)
 				if((i-1) != (uint)itemNo && p_ti->LotID && p_ti->LotID == p_item->LotID)
 					valid_data = (PPError(PPERR_DUPLOTSINPACKET, 0), 0);
@@ -471,9 +470,10 @@ int TrfrItemDialog::isModifPlus() const
 
 void TrfrItemDialog::setupCtrls() // Called from TrfrItemDialog::setDTS
 {
+	const PPConfig & r_cfg = LConfig;
 	int    disable_goods = 0;
 	disableCtrls(1, CTL_LOT_OLDCOST, CTL_LOT_OLDPRICE, CTL_LOT_ASSETEXPL, 0);
-	if(!(LConfig.Flags & CFGFLG_USEPACKAGE))
+	if(!(r_cfg.Flags & CFGFLG_USEPACKAGE))
 		disableCtrls(1, CTL_LOT_UNITPERPACK, CTL_LOT_PACKS, 0);
 	else if(!(Item.Flags & PPTFR_RECEIPT) && OpTypeID != PPOPT_DRAFTRECEIPT)
 		disableCtrl(CTL_LOT_UNITPERPACK, 1);
@@ -494,7 +494,7 @@ void TrfrItemDialog::setupCtrls() // Called from TrfrItemDialog::setDTS
 			// Флаг конфигурации CFGFLG_DISCOUNTBYSUM запрещает ввод скидки
 			// @v9.2.9 Для заказа разрешается вводить скидку
 			//
-			if(LConfig.Flags & CFGFLG_DISCOUNTBYSUM)
+			if(r_cfg.Flags & CFGFLG_DISCOUNTBYSUM)
 				disableCtrl(CTL_LOT_DISCOUNT, 1);
 			//
 			// Поступление товара (с генерацией лота) однозначно допускает
@@ -502,7 +502,7 @@ void TrfrItemDialog::setupCtrls() // Called from TrfrItemDialog::setDTS
 			// косвенно генерирует лот, но его цена может отличаться от цены
 			// родительского лота только если установлен флаг CFGFLG_FREEPRICE.
 			//
-			else if(!(Item.Flags & PPTFR_RECEIPT) && !(IsIntrExpndOp(OpID) && LConfig.Flags & CFGFLG_FREEPRICE))
+			else if(!(Item.Flags & PPTFR_RECEIPT) && !(IsIntrExpndOp(OpID) && r_cfg.Flags & CFGFLG_FREEPRICE))
 				disableCtrl(CTL_LOT_PRICE, 1);
 		}
 	}
@@ -538,7 +538,7 @@ void TrfrItemDialog::setupCtrls() // Called from TrfrItemDialog::setDTS
 	// В переоценке количество изменять не допускается //
 	//
 	if(Item.Flags & PPTFR_REVAL) {
-		if(!(Item.Flags & PPTFR_CORRECTION)) // @v7.8.10
+		if(!(Item.Flags & PPTFR_CORRECTION))
 			disableCtrl(CTL_LOT_QUANTITY, 1);
 		if(!Item.IsRecomplete()) {
 			disableCtrl(CTL_LOT_INDEPPHQTTY, 1);
@@ -1260,7 +1260,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 	LotArray lot_list;
 	uint   lot_idx = 0;
 
-	InheritedLotTagList.Destroy(); // @v7.4.5
+	InheritedLotTagList.Destroy();
 	Rest = 0.0;
 	Item.Flags &= ~PPTFR_AUTOCOMPL;
 	getCtrlData(CTLSEL_LOT_GOODS, &Item.GoodsID);
@@ -1441,7 +1441,6 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 				Item.RevalCost = 0.0;
 				Item.Discount = 0.0;
 			}
-			// @v7.2.11 {
 			if(suppl_deal_cost > 0.0) {
 				PPOprKind op_rec;
 				if(GetOpData(P_Pack->Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_USESUPPLDEAL) {
@@ -1449,8 +1448,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 					//setCtrlCost();
 				}
 			}
-			// } @v7.2.11
-			// @v7.4.5 {
+			// 
 			// Наследуем теги из предыдущего лота данного товара
 			//
 			if(ItemNo < 0 && Item.LotID && Item.Flags & PPTFR_RECEIPT) {
@@ -1466,7 +1464,6 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 					}
 				}
 			}
-			// } @v7.4.5
 			THROW(setupLot());
 			setCtrlData(CTL_LOT_DISCOUNT, &Item.Discount);
 		}
@@ -2530,13 +2527,14 @@ PPID TrfrItemDialog::GetQuotLocID()
 
 int TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 {
+	const PPConfig & r_cfg = LConfig;
 	if(reset) {
 		if(Item.Flags & PPTFR_QUOT) {
 			if(P_BObj->CheckRights(BILLOPRT_CANCELQUOT, 1)) {
 				Item.SetupQuot(0.0, 0);
 				if(!Item.CurID) {
 					disableCtrl(CTL_LOT_PRICE, 0);
-					if(!(LConfig.Flags & CFGFLG_DISCOUNTBYSUM))
+					if(!(r_cfg.Flags & CFGFLG_DISCOUNTBYSUM))
 						disableCtrl(CTL_LOT_DISCOUNT, 0);
 					drawCtrl(CTL_LOT_PRICE);
 				}
@@ -2564,8 +2562,8 @@ int TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 				}
 			}
 		}
-		if(quot == 0.0 && !autoQuot && LConfig.Flags & CFGFLG_ENABLEFIXDIS && !(Item.Flags & PPTFR_QUOT)) {
-			if(LConfig.Flags & CFGFLG_DISCOUNTBYSUM)
+		if(quot == 0.0 && !autoQuot && r_cfg.Flags & CFGFLG_ENABLEFIXDIS && !(Item.Flags & PPTFR_QUOT)) {
+			if(r_cfg.Flags & CFGFLG_DISCOUNTBYSUM)
 				getCtrlData(CTL_LOT_PRICE, &quot);
 			else {
 				getCtrlData(CTL_LOT_DISCOUNT, &dis);
@@ -2612,7 +2610,7 @@ int TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 				setCtrlReal(CTL_LOT_CURPRICE, quot);
 				evaluateBasePrice(quot, &quot);
 			}
-			else if(LConfig.Flags & CFGFLG_DISCOUNTBYSUM)
+			else if(r_cfg.Flags & CFGFLG_DISCOUNTBYSUM)
 				setCtrlReal(CTL_LOT_PRICE, quot);
 			else
 				setCtrlReal(CTL_LOT_DISCOUNT, R2(Item.Price - quot));

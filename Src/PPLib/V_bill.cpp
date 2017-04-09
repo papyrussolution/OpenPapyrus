@@ -696,7 +696,7 @@ int BillFiltDialog::getDTS(BillFilt * pFilt)
 	Data.SortOrder = (int16)GetClusterData(CTL_BILLFLT_ORDER);
 	*pFilt = Data;
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -802,13 +802,11 @@ int SLAPI PPViewBill::Init_(const PPBaseFilt * pFilt)
 				THROW(LocObj.ResolveWarehouseList(&Filt.LocList.Get(), LocList_));
 				LocList_.intersect(&full_loc_list);
 			}
-			// @v7.7.4 {
 			else if(ObjRts.IsLocRights()) {
 				PPIDArray full_loc_list;
 				LocObj.GetWarehouseList(&full_loc_list);
 				THROW(LocObj.ResolveWarehouseList(&full_loc_list, LocList_));
 			}
-			// } @v7.7.4
 		}
 		else if(Filt.LocList.IsExists())
 			LocList_ = Filt.LocList.Get();
@@ -828,8 +826,7 @@ int SLAPI PPViewBill::Init_(const PPBaseFilt * pFilt)
 		SysJournal * p_sj = DS.GetTLA().P_SysJ;
 		PPIDArray bill_list;
 		Filt.P_SjF->Period.Actualize(ZERODATE);
-		THROW(p_sj->GetObjListByEventPeriod(PPOBJ_BILL, Filt.P_SjF->UserID,
-			&Filt.P_SjF->ActionIDList, &Filt.P_SjF->Period, bill_list));
+		THROW(p_sj->GetObjListByEventPeriod(PPOBJ_BILL, Filt.P_SjF->UserID, &Filt.P_SjF->ActionIDList, &Filt.P_SjF->Period, bill_list));
 		if(IdList.IsExists())
 			bill_list.intersect(&IdList.Get());
 		IdList.Set(&bill_list);
@@ -978,6 +975,7 @@ int SLAPI PPViewBill::IsTempTblNeeded() const
 int SLAPI PPViewBill::GetOpList(const BillFilt * pFilt, PPIDArray * pList, PPID * pSingleOpID) const
 {
 	int    ok = 1;
+	const PPRights & r_orts = ObjRts;
 	ASSIGN_PTR(pSingleOpID, 0);
 	pList->freeAll();
 	if(pFilt->OpID == 0 || IsGenericOp(pFilt->OpID) > 0) {
@@ -996,58 +994,59 @@ int SLAPI PPViewBill::GetOpList(const BillFilt * pFilt, PPIDArray * pList, PPID 
 		else if(pFilt->Flags & BillFilt::fDraftOnly)
 			ot_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, 0L);
 		else if(pFilt->Flags & BillFilt::fWmsOnly)
-			ot_list.addzlist(PPOPT_WAREHOUSE, 0L);
+			ot_list.add(PPOPT_WAREHOUSE);
 		else if(pFilt->Flags & BillFilt::fPaymNeeded) {
 			PPOprKind op_rec;
 			for(PPID op_id = 0; EnumOperations(0L, &op_id, &op_rec) > 0;)
-				if(op_rec.Flags & OPKF_NEEDPAYMENT && ObjRts.CheckOpID(op_id, 0))
+				if(op_rec.Flags & OPKF_NEEDPAYMENT && r_orts.CheckOpID(op_id, PPR_READ))
 					pList->add(op_id);
 		}
 		else {
 			if(pFilt->List.GetCount()) {
-				ot_list.addUnique(PPOPT_GOODSRECEIPT);
-				ot_list.addUnique(PPOPT_GOODSEXPEND);
-				ot_list.addUnique(PPOPT_GOODSRETURN);
-				ot_list.addUnique(PPOPT_GOODSREVAL);
-				ot_list.addUnique(PPOPT_GOODSMODIF);
-				ot_list.addUnique(PPOPT_GOODSORDER);
-				ot_list.addUnique(PPOPT_GOODSACK);
-				ot_list.addUnique(PPOPT_DRAFTRECEIPT);
-				ot_list.addUnique(PPOPT_DRAFTEXPEND);
-				ot_list.addUnique(PPOPT_DRAFTTRANSIT); // @v7.5.5
-				ot_list.addUnique(PPOPT_ACCTURN);
-				ot_list.addUnique(PPOPT_PAYMENT);
-				ot_list.addUnique(PPOPT_CHARGE);
-				ot_list.addUnique(PPOPT_CORRECTION); // @v7.8.10
+				ot_list.add(PPOPT_GOODSRECEIPT);
+				ot_list.add(PPOPT_GOODSEXPEND);
+				ot_list.add(PPOPT_GOODSRETURN);
+				ot_list.add(PPOPT_GOODSREVAL);
+				ot_list.add(PPOPT_GOODSMODIF);
+				ot_list.add(PPOPT_GOODSORDER);
+				ot_list.add(PPOPT_GOODSACK);
+				ot_list.add(PPOPT_DRAFTRECEIPT);
+				ot_list.add(PPOPT_DRAFTEXPEND);
+				ot_list.add(PPOPT_DRAFTTRANSIT);
+				ot_list.add(PPOPT_ACCTURN);
+				ot_list.add(PPOPT_PAYMENT);
+				ot_list.add(PPOPT_CHARGE);
+				ot_list.add(PPOPT_CORRECTION);
 			}
 			else {
-				ot_list.addUnique(PPOPT_GOODSRECEIPT);
-				ot_list.addUnique(PPOPT_GOODSEXPEND);
-				ot_list.addUnique(PPOPT_GOODSRETURN);
-				ot_list.addUnique(PPOPT_GOODSREVAL);
-				ot_list.addUnique(PPOPT_GOODSMODIF);
-				ot_list.addUnique(PPOPT_CORRECTION); // @v7.8.10
+				ot_list.add(PPOPT_GOODSRECEIPT);
+				ot_list.add(PPOPT_GOODSEXPEND);
+				ot_list.add(PPOPT_GOODSRETURN);
+				ot_list.add(PPOPT_GOODSREVAL);
+				ot_list.add(PPOPT_GOODSMODIF);
+				ot_list.add(PPOPT_CORRECTION);
 				if(pFilt->Bbt == bbtUndef) {
-					ot_list.addUnique(PPOPT_DRAFTRECEIPT);
-					ot_list.addUnique(PPOPT_DRAFTEXPEND);
-					ot_list.addUnique(PPOPT_DRAFTTRANSIT); // @v7.5.5
-					ot_list.addUnique(PPOPT_GOODSORDER);
-					ot_list.addUnique(PPOPT_ACCTURN);
+					ot_list.add(PPOPT_DRAFTRECEIPT);
+					ot_list.add(PPOPT_DRAFTEXPEND);
+					ot_list.add(PPOPT_DRAFTTRANSIT);
+					ot_list.add(PPOPT_GOODSORDER);
+					ot_list.add(PPOPT_ACCTURN);
 				}
 				if(pFilt->Bbt == bbtRealTypes || pFilt->OpID /* Generic op */) {
-					ot_list.addUnique(PPOPT_PAYMENT);
-					ot_list.addUnique(PPOPT_CHARGE);
-					ot_list.addUnique(PPOPT_GOODSACK);
-					ot_list.addUnique(PPOPT_ACCTURN);
-					ot_list.addUnique(PPOPT_GOODSORDER);
-					ot_list.addUnique(PPOPT_DRAFTRECEIPT);
-					ot_list.addUnique(PPOPT_DRAFTEXPEND);
-					ot_list.addUnique(PPOPT_DRAFTTRANSIT); // @v7.5.5
+					ot_list.add(PPOPT_PAYMENT);
+					ot_list.add(PPOPT_CHARGE);
+					ot_list.add(PPOPT_GOODSACK);
+					ot_list.add(PPOPT_ACCTURN);
+					ot_list.add(PPOPT_GOODSORDER);
+					ot_list.add(PPOPT_DRAFTRECEIPT);
+					ot_list.add(PPOPT_DRAFTEXPEND);
+					ot_list.add(PPOPT_DRAFTTRANSIT);
 				}
 			}
 		}
 		if(ot_list.getCount()) {
-			ObjRts.MaskOpRightsByTypes(&ot_list, pList);
+			ot_list.sortAndUndup();
+			r_orts.MaskOpRightsByTypes(&ot_list, pList);
 			if(pFilt->OpID) { // Generic op
 				PPIDArray gen_op_list;
 				GetGenericOpList(pFilt->OpID, &gen_op_list);
@@ -1059,14 +1058,14 @@ int SLAPI PPViewBill::GetOpList(const BillFilt * pFilt, PPIDArray * pList, PPID 
 		// @todo @v4.6.9 В эту точку программа не попадает (см if выше)
 		PPIDArray gen_op_list;
 		GetGenericOpList(pFilt->OpID, &gen_op_list);
-		ObjRts.MaskOpRightsByOps(&gen_op_list, pList);
+		r_orts.MaskOpRightsByOps(&gen_op_list, pList);
 	}
 	else if(pFilt->OpID == PPOPK_INTRRECEIPT) {
 		for(PPID op_id = 0; EnumOperations(0L, &op_id, 0) > 0;)
 			if(IsIntrOp(op_id) > 0)
 				pList->add(op_id);
 	}
-	else if(ObjRts.CheckOpID(pFilt->OpID, 0))
+	else if(r_orts.CheckOpID(pFilt->OpID, PPR_READ))
 		pList->add(pFilt->OpID);
 	if(pList->getCount() == 1)
 		ASSIGN_PTR(pSingleOpID, pList->at(0));

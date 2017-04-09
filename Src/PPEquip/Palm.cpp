@@ -754,7 +754,7 @@ int StyloPalmDialog::getDTS(PPStyloPalmPacket * pData)
 	}
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -1870,7 +1870,7 @@ int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID
 	CATCH
 		ok = 0;
 		if(pLogger) {
-			PPGetMessage(mfError, PPErrCode, 0, 1, temp_buf);
+			PPGetLastErrorMessage(1, temp_buf);
 			pLogger->Log((msg_buf = palm_rec.Name).CatChar(':').Space().Cat(temp_buf));
 		}
 	ENDCATCH
@@ -1922,7 +1922,7 @@ int SLAPI PPObjStyloPalm::ImportInventory(PalmBillPacket * pSrcPack, PPID opID, 
 		ok = 0;
 		if(pLogger) {
 			SString msg;
-			PPGetMessage(mfError, PPErrCode, 0, 1, temp_buf);
+			PPGetLastErrorMessage(1, temp_buf);
 			(msg = palm_rec.Name).CatChar(':').Space().Cat(temp_buf);
 			pLogger->Log(msg);
 		}
@@ -4193,7 +4193,7 @@ int PalmPaneDialog::getDTS(PalmPaneData * pData)
 	THROW_PP(Data.LocID, PPERR_LOCNEEDED);
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -4222,6 +4222,7 @@ int SLAPI PPObjStyloPalm::EditImpExpData(PalmPaneData * pData)
 int SLAPI PPObjStyloPalm::ImpExp(PalmPaneData * pData)
 {
 	int    ok = 1;
+	const  PPConfig & r_cfg = LConfig;
 	int    edit_param = 1;
 	int    r = 0;
 	int    locked = 0;
@@ -4230,7 +4231,7 @@ int SLAPI PPObjStyloPalm::ImpExp(PalmPaneData * pData)
 	PPSyncItem sync_item;
 	PalmPaneData data;
 	PPObjStyloPalm palm_obj;
-	if((r = DS.GetSync().CreateMutex(LConfig.SessionID, PPOBJ_STYLOPALM, -1, &mutex_id, &sync_item)) < 0) {
+	if((r = DS.GetSync().CreateMutex(r_cfg.SessionID, PPOBJ_STYLOPALM, -1, &mutex_id, &sync_item)) < 0) {
 		THROW_PP_S(0, PPERR_PALMEXPIMPBLOCKED, sync_item.Name);
 	}
 	else if(r == 0) {
@@ -4245,7 +4246,7 @@ int SLAPI PPObjStyloPalm::ImpExp(PalmPaneData * pData)
 			if(palm_obj.EnumItems(&temp_id) > 0)
 				data.PalmID = 0;
 		}
-		data.LocID = LConfig.Location;
+		data.LocID = r_cfg.Location;
 	}
 	else if(!(data.Flags & PalmPaneData::fForceEdit))
 		edit_param = 0;

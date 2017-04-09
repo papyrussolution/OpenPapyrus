@@ -183,7 +183,7 @@ int SLAPI PPView::CreateInstance(int viewID, int32 * pSrvInstId, PPView ** ppV)
 			case PPVIEW_JOB:            p_v = new PPViewJob();          break;
 			case PPVIEW_GEOTRACKING:    p_v = new PPViewGeoTracking();  break;
 			case PPVIEW_OPRKIND:        p_v = new PPViewOprKind();      break; // @v9.3.6
-			default: ok = (PPErrCode = PPERR_UNDEFVIEWID, 0);
+			default: ok = PPSetError(PPERR_UNDEFVIEWID);
 		}
 		if(p_v && p_v->Symb.Empty()) {
 			Rc rc;
@@ -695,7 +695,7 @@ int FASTCALL PPBaseFilt::SetBranchDisplayExtList(size_t offs)
 
 int FASTCALL PPBaseFilt::IsA(const PPBaseFilt * pS) const
 {
-	return (pS && pS->Signature == Signature) ? 1 : (PPErrCode = PPERR_FILTNEQTYPE, 0);
+	return (pS && pS->Signature == Signature) ? 1 : PPSetError(PPERR_FILTNEQTYPE);
 }
 
 long SLAPI PPBaseFilt::GetSignature() const
@@ -1170,7 +1170,7 @@ int SLAPI PPView::IsConsistent() const
 
 const PPBaseFilt * SLAPI PPView::GetBaseFilt() const
 {
-	return P_F ? P_F : (PPErrCode = PPERR_BASEFILTUNSUPPORTED, 0);
+	return P_F ? P_F : (PPSetError(PPERR_BASEFILTUNSUPPORTED), 0);
 }
 
 int SLAPI PPView::Helper_InitBaseFilt(const PPBaseFilt * pFilt)
@@ -1187,7 +1187,7 @@ int SLAPI PPView::Helper_InitBaseFilt(const PPBaseFilt * pFilt)
 			ok = 0;
 	}
 	else
-		ok = (PPErrCode = PPERR_UNDEFINNERBASEFILT, 0);
+		ok = PPSetError(PPERR_UNDEFINNERBASEFILT);
 	return ok;
 }
 
@@ -1199,7 +1199,7 @@ PPBaseFilt * SLAPI PPView::CreateFilt(void * extraPtr) const
 		return p_filt;
 	}
 	else
-		return (PPErrCode = PPERR_BASEFILTUNSUPPORTED, 0);
+		return (PPSetError(PPERR_BASEFILTUNSUPPORTED), 0);
 }
 
 #if 0 // @construction {
@@ -1474,9 +1474,9 @@ int SLAPI PPView::GetOuterTitle(SString * pBuf) const
 }
 
 int SLAPI PPView::EditBaseFilt(PPBaseFilt * pFilt)
-	{ return (PPErrCode = PPERR_BASEFILTUNSUPPORTED, 0); }
+	{ return PPSetError(PPERR_BASEFILTUNSUPPORTED); }
 int SLAPI PPView::Init_(const PPBaseFilt * pFilt)
-	{ return (PPErrCode = PPERR_BASEFILTUNSUPPORTED, 0); }
+	{ return PPSetError(PPERR_BASEFILTUNSUPPORTED); }
 int SLAPI PPView::GetOuterChangesStatus() const
 	{ return BIN(BaseState & bsOuterChangesStatus); }
 const char * SLAPI PPView::GetSymb() const

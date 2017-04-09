@@ -79,16 +79,17 @@
  *
  * The history for versions after 1.2.0 are in ChangeLog in zlib distribution.
  */
-
-#include "zutil.h"
+#define ZLIB_INTERNAL
+#include "zlib.h"
+#pragma hdrstop
 #include "inftrees.h"
 #include "inflate.h"
 #include "inffast.h"
 
 #ifdef MAKEFIXED
-#  ifndef BUILDFIXED
-#    define BUILDFIXED
-#  endif
+	#ifndef BUILDFIXED
+		#define BUILDFIXED
+	#endif
 #endif
 
 /* function prototypes */
@@ -137,8 +138,8 @@ int ZEXPORT inflateResetKeep(z_streamp strm)
 int ZEXPORT inflateReset(z_streamp strm)
 {
 	struct inflate_state  * state;
-
-	if(inflateStateCheck(strm)) return Z_STREAM_ERROR;
+	if(inflateStateCheck(strm)) 
+		return Z_STREAM_ERROR;
 	state = (struct inflate_state *)strm->state;
 	state->wsize = 0;
 	state->whave = 0;
@@ -146,16 +147,14 @@ int ZEXPORT inflateReset(z_streamp strm)
 	return inflateResetKeep(strm);
 }
 
-int ZEXPORT inflateReset2(z_streamp strm,
-    int windowBits)
+int ZEXPORT inflateReset2(z_streamp strm, int windowBits)
 {
 	int wrap;
 	struct inflate_state  * state;
-
 	/* get the state */
-	if(inflateStateCheck(strm)) return Z_STREAM_ERROR;
+	if(inflateStateCheck(strm)) 
+		return Z_STREAM_ERROR;
 	state = (struct inflate_state *)strm->state;
-
 	/* extract wrap request from windowBits parameter */
 	if(windowBits < 0) {
 		wrap = 0;
@@ -168,31 +167,24 @@ int ZEXPORT inflateReset2(z_streamp strm,
 			windowBits &= 15;
 #endif
 	}
-
 	/* set number of window bits, free window if different */
 	if(windowBits && (windowBits < 8 || windowBits > 15))
 		return Z_STREAM_ERROR;
 	if(state->window != Z_NULL && state->wbits != (unsigned)windowBits) {
-		ZFREE(strm, state->window);
+		ZLIB_FREE(strm, state->window);
 		state->window = Z_NULL;
 	}
-
 	/* update state and reset the rest of it */
 	state->wrap = wrap;
 	state->wbits = (unsigned)windowBits;
 	return inflateReset(strm);
 }
 
-int ZEXPORT inflateInit2_(z_streamp strm,
-    int windowBits,
-    const char * version,
-    int stream_size)
+int ZEXPORT inflateInit2_(z_streamp strm, int windowBits, const char * version, int stream_size)
 {
 	int ret;
 	struct inflate_state  * state;
-
-	if(version == Z_NULL || version[0] != ZLIB_VERSION[0] ||
-	    stream_size != (int)(sizeof(z_stream)))
+	if(version == Z_NULL || version[0] != ZLIB_VERSION[0] || stream_size != (int)(sizeof(z_stream)))
 		return Z_VERSION_ERROR;
 	if(strm == Z_NULL) return Z_STREAM_ERROR;
 	strm->msg = Z_NULL;             /* in case we return an error */
@@ -210,8 +202,7 @@ int ZEXPORT inflateInit2_(z_streamp strm,
 #else
 		strm->zfree = zcfree;
 #endif
-	state = (struct inflate_state *)
-	    ZALLOC(strm, 1, sizeof(struct inflate_state));
+	state = (struct inflate_state *)ZLIB_ALLOC(strm, 1, sizeof(struct inflate_state));
 	if(state == Z_NULL) return Z_MEM_ERROR;
 	Tracev((stderr, "inflate: allocated\n"));
 	strm->state = (struct internal_state *)state;
@@ -220,7 +211,7 @@ int ZEXPORT inflateInit2_(z_streamp strm,
 	state->mode = HEAD; /* to pass state test in inflateReset2() */
 	ret = inflateReset2(strm, windowBits);
 	if(ret != Z_OK) {
-		ZFREE(strm, state);
+		ZLIB_FREE(strm, state);
 		strm->state = Z_NULL;
 	}
 	return ret;
@@ -382,19 +373,16 @@ static int updatewindow(z_streamp strm, const Bytef * end, unsigned copy)
 	struct inflate_state  * state = (struct inflate_state *)strm->state;
 	/* if it hasn't been done already, allocate space for the window */
 	if(state->window == Z_NULL) {
-		state->window = (unsigned char *)
-		    ZALLOC(strm, 1U << state->wbits,
-		    sizeof(unsigned char));
-		if(state->window == Z_NULL) return 1;
+		state->window = (unsigned char *)ZLIB_ALLOC(strm, 1U << state->wbits, sizeof(unsigned char));
+		if(state->window == Z_NULL) 
+			return 1;
 	}
-
 	/* if window not in use yet, initialize */
 	if(state->wsize == 0) {
 		state->wsize = 1U << state->wbits;
 		state->wnext = 0;
 		state->whave = 0;
 	}
-
 	/* copy state->wsize or less output bytes into the circular window */
 	if(copy >= state->wsize) {
 		zmemcpy(state->window, end - state->wsize, state->wsize);
@@ -403,7 +391,8 @@ static int updatewindow(z_streamp strm, const Bytef * end, unsigned copy)
 	}
 	else {
 		dist = state->wsize - state->wnext;
-		if(dist > copy) dist = copy;
+		if(dist > copy) 
+			dist = copy;
 		zmemcpy(state->window + state->wnext, end - copy, dist);
 		copy -= dist;
 		if(copy) {
@@ -413,8 +402,10 @@ static int updatewindow(z_streamp strm, const Bytef * end, unsigned copy)
 		}
 		else {
 			state->wnext += dist;
-			if(state->wnext == state->wsize) state->wnext = 0;
-			if(state->whave < state->wsize) state->whave += dist;
+			if(state->wnext == state->wsize) 
+				state->wnext = 0;
+			if(state->whave < state->wsize) 
+				state->whave += dist;
 		}
 	}
 	return 0;
@@ -1250,15 +1241,17 @@ inf_leave:
 int ZEXPORT inflateEnd(z_streamp strm)
 {
 	struct inflate_state  * state;
-
 	if(inflateStateCheck(strm))
 		return Z_STREAM_ERROR;
-	state = (struct inflate_state *)strm->state;
-	if(state->window != Z_NULL) ZFREE(strm, state->window);
-	ZFREE(strm, strm->state);
-	strm->state = Z_NULL;
-	Tracev((stderr, "inflate: end\n"));
-	return Z_OK;
+	else {
+		state = (struct inflate_state *)strm->state;
+		if(state->window != Z_NULL) 
+			ZLIB_FREE(strm, state->window);
+		ZLIB_FREE(strm, strm->state);
+		strm->state = Z_NULL;
+		Tracev((stderr, "inflate: end\n"));
+		return Z_OK;
+	}
 }
 
 int ZEXPORT inflateGetDictionary(z_streamp strm, Bytef * dictionary, uInt * dictLength)
@@ -1421,13 +1414,13 @@ int ZEXPORT inflateCopy(z_streamp dest, z_streamp source)
 		return Z_STREAM_ERROR;
 	state = (struct inflate_state *)source->state;
 	/* allocate space */
-	copy = (struct inflate_state *)ZALLOC(source, 1, sizeof(struct inflate_state));
+	copy = (struct inflate_state *)ZLIB_ALLOC(source, 1, sizeof(struct inflate_state));
 	if(copy == Z_NULL) return Z_MEM_ERROR;
 	window = Z_NULL;
 	if(state->window != Z_NULL) {
-		window = (unsigned char *)ZALLOC(source, 1U << state->wbits, sizeof(unsigned char));
+		window = (unsigned char *)ZLIB_ALLOC(source, 1U << state->wbits, sizeof(unsigned char));
 		if(window == Z_NULL) {
-			ZFREE(source, copy);
+			ZLIB_FREE(source, copy);
 			return Z_MEM_ERROR;
 		}
 	}

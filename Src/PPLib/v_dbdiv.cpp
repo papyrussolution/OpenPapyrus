@@ -21,6 +21,7 @@ DBDivFilt & FASTCALL DBDivFilt::operator=(const DBDivFilt & s)
 SLAPI PPViewDBDiv::PPViewDBDiv() : PPView(&ObjDBDiv, &Filt, PPVIEW_DBDIV)
 {
 	P_TempTbl = 0;
+	ImplementFlags |= PPView::implDontEditNullFilter;
 }
 
 SLAPI PPViewDBDiv::~PPViewDBDiv()

@@ -2,8 +2,9 @@
  * Copyright (C) 1995-2017 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
-
-#include "zutil.h"
+#define ZLIB_INTERNAL
+#include "zlib.h"
+#pragma hdrstop
 #include "inftrees.h"
 #include "inflate.h"
 #include "inffast.h"

@@ -394,7 +394,7 @@ int DBDivDialog::getDTS(DBDivPack * p)
 	GetClusterData(CTL_DBDIV_FLAGS, &data.Rec.Flags);
 	ASSIGN_PTR(p, data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }

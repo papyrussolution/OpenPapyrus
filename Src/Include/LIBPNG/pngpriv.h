@@ -38,9 +38,9 @@
 #define _POSIX_SOURCE 1 /* Just the POSIX 1003.1 and C89 APIs */
 
 #ifndef PNG_VERSION_INFO_ONLY
-/* Standard library headers not required by png.h: */
-#  include <stdlib.h>
-#  include <string.h>
+	// Standard library headers not required by png.h: 
+	#include <stdlib.h>
+	#include <string.h>
 #endif
 
 #define PNGLIB_BUILD /*libpng is being built, not used*/
@@ -55,10 +55,9 @@
  * special build system support on a reasonably ANSI-C compliant system.
  */
 #if defined(HAVE_CONFIG_H) && !defined(PNG_NO_CONFIG_H)
-#  include <config.h>
-
-/* Pick up the definition of 'restrict' from config.h if it was read: */
-#  define PNG_RESTRICT restrict
+	#include <config.h>
+	// Pick up the definition of 'restrict' from config.h if it was read: 
+	#define PNG_RESTRICT restrict
 #endif
 
 /* To support symbol prefixing it is necessary to know *before* including png.h
@@ -67,23 +66,21 @@
  * before png.h is included, but load the configuration now if it is available.
  */
 #ifndef PNGLCONF_H
-#  include "pnglibconf.h"
+	#include "pnglibconf.h"
 #endif
-
-/* Local renames may change non-exported API functions from png.h */
+// Local renames may change non-exported API functions from png.h 
 #if defined(PNG_PREFIX) && !defined(PNGPREFIX_H)
-#  include "pngprefix.h"
+	#include "pngprefix.h"
 #endif
-
 #ifdef PNG_USER_CONFIG
-#  include "pngusr.h"
-/* These should have been defined in pngusr.h */
-#  ifndef PNG_USER_PRIVATEBUILD
-#    define PNG_USER_PRIVATEBUILD "Custom libpng build"
-#  endif
-#  ifndef PNG_USER_DLLFNAME_POSTFIX
-#    define PNG_USER_DLLFNAME_POSTFIX "Cb"
-#  endif
+	#include "pngusr.h"
+	// These should have been defined in pngusr.h 
+	#ifndef PNG_USER_PRIVATEBUILD
+		#define PNG_USER_PRIVATEBUILD "Custom libpng build"
+	#endif
+	#ifndef PNG_USER_DLLFNAME_POSTFIX
+		#define PNG_USER_DLLFNAME_POSTFIX "Cb"
+	#endif
 #endif
 
 /* Compile time options.

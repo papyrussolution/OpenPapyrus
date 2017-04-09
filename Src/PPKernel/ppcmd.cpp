@@ -1715,7 +1715,7 @@ int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 								prompt.Cat(psn_data.Sc.UsageTmEnd);
 						}
 						if(!sc_obj.CheckRestrictions(&psn_data.Sc, 0, getcurdatetime_())) {
-							PPGetMessage(mfError, PPErrCode, 0, 1, warn);
+							PPGetLastErrorMessage(1, warn);
 							disable_op = 1;
 						}
 						info.CatDiv(';', 2).Cat(prompt);
@@ -1734,7 +1734,7 @@ int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 						}
 					}
 					if(!pev_obj.CheckRestrictions(&pack, psn_pack.Rec.ID, pack.Rec.PrmrSCardID, &pop_pack.PCPrmr)) {
-						PPGetMessage(mfError, PPErrCode, 0, 1, warn);
+						PPGetLastErrorMessage(1, warn);
 						disable_op = 1;
 					}
 					if(warn.Empty()) {

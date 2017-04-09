@@ -69,7 +69,7 @@ int SLAPI PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 		if(!CheckName(*pID, strip(rec.Name), 0))
 			dlg->selectCtrl(CTL_BILLSTATUS_NAME);
 		else if(*strip(rec.Symb) && !ref->CheckUniqueSymb(Obj, rec.ID, rec.Symb, offsetof(PPBillStatus, Symb)))
-			PPErrorByDialog(dlg, CTL_BILLSTATUS_SYMB, -1);
+			PPErrorByDialog(dlg, CTL_BILLSTATUS_SYMB);
 		else {
 			valid_data = 1;
 			dlg->getCtrlData(CTL_BILLSTATUS_ID,   &rec.ID);

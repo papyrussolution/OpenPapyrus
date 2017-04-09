@@ -99,7 +99,7 @@ int SLAPI PPObjectTransmit::EditConfig()
 			GetClusterData(CTL_DBXCHGCFG_CHARRYF, &Data.Flags);
 			GetClusterData(CTL_DBXCHGCFG_RLZORD,  &Data.RealizeOrder);
 			getCtrlData(CTLSEL_DBXCHGCFG_ONELOC,  &Data.OneRcvLocID);
-			getCtrlData(CTLSEL_DBXCHGCFG_DROP,    &Data.DfctRcptOpID); // @v7.7.0
+			getCtrlData(CTLSEL_DBXCHGCFG_DROP,    &Data.DfctRcptOpID);
 			sel = CTL_DBXCHGCFG_DROP;
 			if(Data.DfctRcptOpID) {
 				PPOprKind op_rec;
@@ -110,7 +110,7 @@ int SLAPI PPObjectTransmit::EditConfig()
 			ok = 1;
 			ASSIGN_PTR(pData, Data);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}
@@ -383,7 +383,7 @@ int SLAPI ObjTransmContext::OutputString(uint strId, const char * pAddedInfo)
 int SLAPI ObjTransmContext::OutputAcceptErrMsg(uint msgID, PPID objID, const char * pObjName)
 {
 	SString msg_buf, err_msg, fmt_buf;
-	PPGetMessage(mfError|mfOK, PPErrCode, 0, 1, err_msg);
+	PPGetLastErrorMessage(1, err_msg);
 	PPLoadText(msgID, fmt_buf);
 	return OutReceivingMsg(msg_buf.Printf(fmt_buf, objID, pObjName, (const char *)err_msg));
 }
@@ -391,7 +391,7 @@ int SLAPI ObjTransmContext::OutputAcceptErrMsg(uint msgID, PPID objID, const cha
 int SLAPI ObjTransmContext::OutputAcceptObjErrMsg(PPID objType, PPID objID, const char * pObjName)
 {
 	SString msg_buf, err_msg, fmt_buf, obj_title;
-	PPGetMessage(mfError|mfOK, PPErrCode, 0, 1, err_msg);
+	PPGetLastErrorMessage(1, err_msg);
 	PPLoadText(PPTXT_ERRACCEPTOBJECT, fmt_buf);
 	GetObjectTitle(objType, obj_title);
 	return OutReceivingMsg(msg_buf.Printf(fmt_buf, (const char *)obj_title, objID, pObjName, (const char *)err_msg));
@@ -1157,7 +1157,7 @@ int SLAPI PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, 
 				sys_file.Close();
 				if(!P_Queue->AddFileRecord(&sys_file_id, fi, 0)) {
 					PPLoadText(PPTXT_LOG_ERRINSFILESYNCQUEUE, fmt_buf);
-					PPGetMessage(mfError|mfOK, PPErrCode, 0, 1, err_msg);
+					PPGetLastErrorMessage(1, err_msg);
 					Ctx.OutReceivingMsg(msg_buf.Printf(fmt_buf, pInFileName, (const char *)err_msg));
 					CALLEXCEPT();
 				}
@@ -1188,7 +1188,7 @@ int SLAPI PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, 
 						PPLoadText(PPTXT_LOG_ERRMODSYNCQUEUE, fmt_buf);
 						GetObjectTitle(ex_rec.ObjType, err_msg);
 						(obj_buf = 0).Cat(err_msg).CatDiv('-', 1).Cat(ex_rec.ObjID).CatDiv('-', 1).Cat(ex_rec.DBID);
-						PPGetMessage(mfError|mfOK, PPErrCode, 0, 1, err_msg);
+						PPGetLastErrorMessage(1, err_msg);
 						Ctx.OutReceivingMsg(msg_buf.Printf(fmt_buf, (const char *)obj_buf, (const char *)err_msg));
 						PPLogMessage(PPFILNAM_ERR_LOG, err_msg, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER); // @v8.5.5
 						//CALLEXCEPT();
@@ -1206,7 +1206,7 @@ int SLAPI PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, 
 					PPLoadText(PPTXT_LOG_ERRINSSYNCQUEUE, fmt_buf);
 					GetObjectTitle(idx_rec.ObjType, err_msg);
 					(obj_buf = 0).Cat(err_msg).CatDiv('-', 1).Cat(idx_rec.ObjID).CatDiv('-', 1).Cat(idx_rec.DBID);
-					PPGetMessage(mfError|mfOK, PPErrCode, 0, 1, err_msg);
+					PPGetLastErrorMessage(1, err_msg);
 					Ctx.OutReceivingMsg(msg_buf.Printf(fmt_buf, (const char *)obj_buf, (const char *)err_msg));
 					PPLogMessage(PPFILNAM_ERR_LOG, err_msg, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER); // @v8.5.5
 					//CALLEXCEPT();
@@ -1360,7 +1360,7 @@ int SLAPI PPObjectTransmit::RestoreObjBlock::PopRestoredObj(PPID dbID, PPObjID o
 {
 	int    ok = 1;
 	RestoreStackItem i;
-	return (!S.pop(&i) || oi != i.Oi || dbID != i.DbID) ? (PPErrCode = PPERR_OBJTSTACKFAULT, 0) : 0;
+	return (!S.pop(&i) || oi != i.Oi || dbID != i.DbID) ? PPSetError(PPERR_OBJTSTACKFAULT) : 0;
 }
 
 PPObjectTransmit::OtFilePoolItem * SLAPI PPObjectTransmit::RestoreObjBlock::SearchFile(long fileId)
@@ -2282,7 +2282,7 @@ public:
 			ok = 1;
 		}
 		CATCH
-			ok = PPErrorByDialog(this, sel, -1);
+			ok = PPErrorByDialog(this, sel);
 		ENDCATCH
 		return ok;
 	}

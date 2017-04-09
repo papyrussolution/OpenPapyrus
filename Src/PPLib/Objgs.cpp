@@ -369,7 +369,7 @@ int SLAPI PPGoodsStruc::GetEstimationPrice(uint itemIdx, double * pPrice, double
 		}
 	}
 	else
-		ok = (PPErrCode = PPERR_INVPARAM, 0);
+		ok = PPSetError(PPERR_INVPARAM);
 	ASSIGN_PTR(pRec, rec);
 	ASSIGN_PTR(pPrice, p);
 	ASSIGN_PTR(pTotalPrice, t);
@@ -625,7 +625,7 @@ int SLAPI PPGoodsStruc::GetItemQtty(PPID goodsID, double complQtty, double * pQt
 			return r_item.GetQtty(complQtty, pQtty);
 	}
 	PPSetAddedMsgObjName(PPOBJ_GOODS, goodsID);
-	return (PPErrCode = PPERR_GSTRUCHASNTGOODS, 0);
+	return PPSetError(PPERR_GSTRUCHASNTGOODS);
 }
 
 static int SLAPI IsNumber(const char * pStr, size_t * pPos)
@@ -1123,7 +1123,7 @@ int GSDialog::getDTS(PPGoodsStruc * pData)
 	}
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -1500,9 +1500,9 @@ static int SLAPI EditGoodsStrucItem(const PPGoodsStruc * pStruc, PPGoodsStrucIte
 		dlg->getCtrlData(CTL_GSITEM_SYMB, item.Symb);
 		SETFLAG(item.Flags, GSIF_GOODSGROUP, dlg->getCtrlUInt16(CTL_GSITEM_GROUPONLY));
 		if(!item.SetEstimationString(temp_buf))
-			PPErrorByDialog(dlg, CTL_GSITEM_VALUE, -1);
+			PPErrorByDialog(dlg, CTL_GSITEM_VALUE);
 		else if(!item.SetFormula(formula, pStruc))
-			PPErrorByDialog(dlg, CTL_GSITEM_FORMULA, -1);
+			PPErrorByDialog(dlg, CTL_GSITEM_FORMULA);
 		else if(item.Flags & GSIF_PHUVAL && goods_rec.PhUPerU == 0)
 			PPErrorByDialog(dlg, CTL_GSITEM_UNITS, PPERR_PHUFORGOODSWOPHU);
 		else {
@@ -1525,7 +1525,7 @@ int GSDialog::checkDupGoods(int pos, PPGoodsStrucItem * pItem)
 	int    ok = 1;
 	for(int i = 0; ok && i < (int)Data.Items.getCount(); i++)
 		if(i != pos && pItem->GoodsID == Data.Items.at(i).GoodsID)
-			ok = (PPErrCode = PPERR_DUPGSTRUCITEM, 0);
+			ok = PPSetError(PPERR_DUPGSTRUCITEM);
 	return ok;
 }
 
@@ -1615,7 +1615,7 @@ int GSDialog::addItemBySample()
 			THROW_PP(Data.GStrucID, PPERR_GSTRUCNEEDED);
 			ASSIGN_PTR(pData, Data);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}
@@ -1717,7 +1717,7 @@ int GSExtDialog::getDTS(PPGoodsStruc * pData)
 	getCtrlData(CTL_GSTRUC_NAME, buf);
 	if(*strip(buf) == 0) {
 		if(Data.Rec.Flags & GSF_NAMED)
-			return (PPErrCode = PPERR_NAMENEEDED, 0);
+			return PPSetError(PPERR_NAMENEEDED);
 	}
 	else
 		Data.Rec.Flags |= GSF_NAMED;

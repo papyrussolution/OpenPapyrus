@@ -69,9 +69,9 @@ int SLAPI PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 		dlg->getCtrlData(CTL_GDSTYP_NAME, rec.Name);
 		dlg->getCtrlData(CTL_GDSTYP_SYMB, rec.Symb);
 		if(!CheckName(rec.ID, strip(rec.Name), 1))
-			PPErrorByDialog(dlg, CTL_GDSTYP_NAME, -1);
+			PPErrorByDialog(dlg, CTL_GDSTYP_NAME);
 		else if(!ref->CheckUniqueSymb(Obj, rec.ID, strip(rec.Symb), offsetof(ReferenceTbl::Rec, Symb))) {
-			PPErrorByDialog(dlg, CTL_GDSTYP_SYMB, -1);
+			PPErrorByDialog(dlg, CTL_GDSTYP_SYMB);
 		}
 		else {
 			valid_data = 1;
@@ -341,12 +341,12 @@ private:
 			SString temp_buf;
 			getCtrlString(CTL_GVR_LOWBFORM, temp_buf = 0);
 			if(temp_buf.NotEmpty() && !PPObjGoodsValRestr::TestFormula(temp_buf)) {
-				PPErrorByDialog(this, CTL_GVR_LOWBFORM, -1);
+				PPErrorByDialog(this, CTL_GVR_LOWBFORM);
 			}
 			else {
 				getCtrlString(CTL_GVR_UPPBFORM, temp_buf = 0);
 				if(temp_buf.NotEmpty() && !PPObjGoodsValRestr::TestFormula(temp_buf)) {
-					PPErrorByDialog(this, CTL_GVR_UPPBFORM, -1);
+					PPErrorByDialog(this, CTL_GVR_UPPBFORM);
 				}
 			}
 		}
@@ -539,7 +539,7 @@ int SLAPI PPObjGoodsValRestr::Edit(PPID * pID, void * extraPtr)
 		if(!CheckName(*pID, strip(pack.Rec.Name), 0))
 			dlg->selectCtrl(CTL_GVR_NAME);
 		else if(*strip(pack.Rec.Symb) && !ref->CheckUniqueSymb(Obj, pack.Rec.ID, pack.Rec.Symb, offsetof(PPGoodsValRestr, Symb)))
-			PPErrorByDialog(dlg, CTL_GVR_SYMB, -1);
+			PPErrorByDialog(dlg, CTL_GVR_SYMB);
 		else {
 			valid_data = 1;
 			if(*pID)
@@ -832,7 +832,7 @@ int SLAPI PPObjPallet::Edit(PPID * pID, void * extraPtr)
 		if(!CheckName(*pID, strip(pack.Name), 0))
 			dlg->selectCtrl(CTL_PALLET_NAME);
 		else if(*strip(pack.Symb) && !ref->CheckUniqueSymb(Obj, pack.ID, pack.Symb, offsetof(PPPallet, Symb)))
-			PPErrorByDialog(dlg, CTL_PALLET_SYMB, -1);
+			PPErrorByDialog(dlg, CTL_PALLET_SYMB);
 		else {
 			dlg->getCtrlData(CTL_PALLET_ID, &pack.ID);
 			pack.Dim.Length = dlg->getCtrlLong(CTL_PALLET_LENGTH);

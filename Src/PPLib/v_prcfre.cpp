@@ -288,7 +288,7 @@ int SLAPI PPViewPrcBusy::InitIteration()
 		P_IterQuery->initIteration(0, k, spFirst);
 	}
 	else
-		ok = (PPErrCode = PPERR_PPVIEWNOTINITED, 0);
+		ok = PPSetError(PPERR_PPVIEWNOTINITED);
 	return ok;
 }
 

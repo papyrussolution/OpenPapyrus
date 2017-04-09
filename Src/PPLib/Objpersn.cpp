@@ -3590,7 +3590,7 @@ public:
 		THROW(PsnObj.ValidatePacket(&Data, 0));
 		ASSIGN_PTR(pData, Data);
 		CATCH
-			ok = PPErrorByDialog(this, sel, -1);
+			ok = PPErrorByDialog(this, sel);
 		ENDCATCH
 		return ok;
 	}
@@ -3780,7 +3780,7 @@ public:
 		THROW(PsnObj.ValidatePacket(&Data, 0));
 		ASSIGN_PTR(pData, Data);
 		CATCH
-			ok = PPErrorByDialog(this, sel, -1);
+			ok = PPErrorByDialog(this, sel);
 		ENDCATCH
 		return ok;
 	}
@@ -4989,7 +4989,7 @@ int MainOrg2Dialog::getDTS()
 		P_Pack->ELA.AddItem(PPELK_WORKPHONE, buf);
 	// Get Phone
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -5256,7 +5256,7 @@ static int EditPersonRel(PersonLink * pData)
 			THROW_PP(Data.LinkTypeID, PPERR_RELTYPENEEDED);
 			ASSIGN_PTR(pData, Data);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}
@@ -5893,7 +5893,7 @@ int SLAPI PPObjPersonKind::Edit(PPID * pID, void * extraPtr)
 		if(!CheckName(*pID, strip(psnk.Name), 0))
 			dlg->selectCtrl(CTL_PSNKIND_NAME);
 		else if(*strip(psnk.Symb) && !ref->CheckUniqueSymb(Obj, psnk.ID, psnk.Symb, offsetof(PPPersonKind, Symb)))
-			PPErrorByDialog(dlg, CTL_PSNKIND_SYMB, -1);
+			PPErrorByDialog(dlg, CTL_PSNKIND_SYMB);
 		else {
 			dlg->getCtrlData(CTL_PSNKIND_CODEREGT,  &psnk.CodeRegTypeID);
 			dlg->getCtrlData(CTL_PSNKIND_FOLDREGT,  &psnk.FolderRegTypeID);

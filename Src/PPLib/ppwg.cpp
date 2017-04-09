@@ -243,7 +243,7 @@ int SLAPI PPDutySchedPacket::Test(const char * pOutFile) const
 	}
 	CATCH
 		ok = 0;
-		PPGetMessage(mfError, PPErrCode, 0, 1, msg_buf);
+		PPGetLastErrorMessage(1, msg_buf);
 		PPLogMessage(pOutFile, msg_buf, 0);
 	ENDCATCH
 	return ok;
@@ -566,7 +566,7 @@ int DutySchedDialog::getDTS(PPDutySchedPacket * pData)
 	Data.Normalyze();
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }

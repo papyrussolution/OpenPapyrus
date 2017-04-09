@@ -609,27 +609,61 @@ int SLAPI SArray::imp_bsearch(const void * key, uint * pIdx, CompFunc fcmp, size
 		uint   lo  = 0;
 		uint   up  = count - 1;
 		const  uint8 * p_org = data/* + ofs*/;
-		while(lo <= up) {
-			const uint8 * p = p_org + (i = (lo + up) >> 1) * isize;
-			cmp = fcmp(((const char *)_USERPTR_C(p))+ofs, key, pExtraData);
-			if(cmp < 0)
-				lo = i + 1;
-			else if(cmp && i)
-				up = i - 1;
-			else {
-				//
-				// На случай, если мы попали не на самый первый элемент, удовлетворяющий условию,
-				// перемещаемся "вниз" до тех пор, пока не наткнемся на первый
-				// "неудовлетворительный" элемент: мы у цели.
-				//
-				for(uint j = i; j > 0;) {
-					p -= isize;
-					if(fcmp(((const char *)_USERPTR_C(p))+ofs, key, pExtraData) == 0)
-						i = --j;
-					else
-						j = 0; // exit loop
+		//
+		// Из-за популярности функции CMPF_LONG в простых массивах (без aryPtrContainer) выделяем в 
+		// отдельную ветку такой случай - это даст значительное ускорение.
+		//
+		if(fcmp == CMPF_LONG && !(flags & aryPtrContainer)) {
+			const long test = *(long *)key;
+			while(lo <= up) {
+				const uint8 * p = p_org + (i = (lo + up) >> 1) * isize;
+				// @v9.6.1 cmp = fcmp(((const char *)_USERPTR_C(p))+ofs, key, pExtraData);
+				cmp = CMPSIGN(*(long *)(p+ofs), test); // @v9.6.1
+				if(cmp < 0)
+					lo = i + 1;
+				else if(cmp && i)
+					up = i - 1;
+				else {
+					//
+					// На случай, если мы попали не на самый первый элемент, удовлетворяющий условию,
+					// перемещаемся "вниз" до тех пор, пока не наткнемся на первый
+					// "неудовлетворительный" элемент: мы у цели.
+					//
+					for(uint j = i; j > 0;) {
+						p -= isize;
+						// @v9.6.1 if(fcmp(((const char *)_USERPTR_C(p))+ofs, key, pExtraData) == 0)
+						if(*(long *)(p+ofs) == test) // @v9.6.1
+							i = --j;
+						else
+							j = 0; // exit loop
+					}
+					break;
 				}
-				break;
+			}
+		}
+		else {
+			while(lo <= up) {
+				const uint8 * p = p_org + (i = (lo + up) >> 1) * isize;
+				cmp = fcmp(((const char *)_USERPTR_C(p))+ofs, key, pExtraData);
+				if(cmp < 0)
+					lo = i + 1;
+				else if(cmp && i)
+					up = i - 1;
+				else {
+					//
+					// На случай, если мы попали не на самый первый элемент, удовлетворяющий условию,
+					// перемещаемся "вниз" до тех пор, пока не наткнемся на первый
+					// "неудовлетворительный" элемент: мы у цели.
+					//
+					for(uint j = i; j > 0;) {
+						p -= isize;
+						if(fcmp(((const char *)_USERPTR_C(p))+ofs, key, pExtraData) == 0)
+							i = --j;
+						else
+							j = 0; // exit loop
+					}
+					break;
+				}
 			}
 		}
 	}
@@ -676,7 +710,7 @@ int SLAPI SArray::lsearch(const void * pcKey, uint * pIdx, CompFunc fcmp, size_t
 			// Так как функция сравнения 4-байтовых значений очень популярна,
 			// применяем для такого случая специальную обработку (без вызова, собственно, функции сравнения).
 			//
-			uint32 test = *PTR32(pcKey);
+			const uint32 test = *PTR32(pcKey);
 			for(; i < lim; i += isize)
 				if(*PTR32(p_org + i) == test) {
 					ASSIGN_PTR(pIdx, i / isize);

@@ -37,7 +37,7 @@ int SLAPI PersonEventCore::SearchPair(const PairIdent * pIdent, int forward, Per
 				if(data.OpID == pIdent->ThisOpID) {
 					if(pIdent->Flags & PairIdent::fSignalNpError) {
 						copyBufTo(pRec);
-						ok = (PPErrCode = PPERR_NONPAIRPSNEVNT, 0);
+						ok = PPSetError(PPERR_NONPAIRPSNEVNT);
 					}
 					else if(pIdent->Flags & PairIdent::fSignalAnalog) {
 						copyBufTo(pRec);
@@ -1436,7 +1436,7 @@ int SLAPI PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int 
 			for(i = 0; i < pok_pack.ClauseList.GetCount(); i++) {
 				pok_pack.ClauseList.Get(i, clause);
 				if(clause.VerbID == POVERB_STYLODISPLAY && clause.DirObj) {
-					PPGetMessage(mfError, PPErrCode, 0, 1, temp_buf);
+					PPGetLastErrorMessage(1, temp_buf);
 					PalmDisplayBlock pdb;
 					pdb.DvcID = clause.DirObj;
 					pdb.Ctx = pdb.ctxPersonEvent;
@@ -2278,7 +2278,7 @@ public:
 		Data.InteractiveLevel = (int16)GetClusterData(CTL_FLTADDPSNEV_INTAL);
 		ASSIGN_PTR(pData, Data);
 		CATCH
-			ok = PPErrorByDialog(this, ctl, -1);
+			ok = PPErrorByDialog(this, ctl);
 		ENDCATCH
 		return ok;
 	}
@@ -2457,7 +2457,7 @@ int SLAPI PPObjPersonEvent::Helper_ProcessDeviceInput(ProcessDeviceInputBlock & 
 				for(uint i = 0; i < rBlk.PokPack.ClauseList.GetCount(); i++) {
 					rBlk.PokPack.ClauseList.Get(i, clause);
 					if(clause.VerbID == POVERB_STYLODISPLAY && clause.DirObj) {
-						PPGetMessage(mfError, PPErrCode, 0, 1, rBlk.TempBuf);
+						PPGetLastErrorMessage(1, rBlk.TempBuf);
 						PalmDisplayBlock pdb;
 						pdb.DvcID = clause.DirObj;
 						pdb.Ctx = pdb.ctxPersonEvent;

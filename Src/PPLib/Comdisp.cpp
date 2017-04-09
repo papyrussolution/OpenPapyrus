@@ -90,7 +90,7 @@ int SLAPI ComDispInterface::AssignIDByName(const char * pName, long nameID)
 			SString msg_buf, err_msg;
 			PPLoadText(PPTXT_DISPIFASSGNFAULT, msg_buf);
 			msg_buf.Space().Cat(ProgIdent).Cat("::").Cat(pName);
-			PPGetMessage(mfError, PPErrCode, 0, 1, err_msg);
+			PPGetLastErrorMessage(1, err_msg);
 			if(err_msg.NotEmptyS())
 				msg_buf.CatDiv(':', 2).Cat(err_msg);
 			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);

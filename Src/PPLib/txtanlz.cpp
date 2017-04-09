@@ -1873,7 +1873,7 @@ int SLAPI PPTextAnalyzer::ParseReplacerFile(const char * pFileName, Replacer & r
 		ok = 0;
 		if(parsing_in_progress) {
 			SString msg_buf, added_msg_buf;
-			PPGetMessage(mfError, PPErrCode, 0, DS.CheckExtFlag(ECF_SYSSERVICE), added_msg_buf);
+			PPGetLastErrorMessage(DS.CheckExtFlag(ECF_SYSSERVICE), added_msg_buf);
 			msg_buf.FormatFileParsingMessage(rRpl.FileName, (int)rRpl.LineNo, added_msg_buf);
 			PPSetError(PPERR_TXA_PARSINGFAULT, msg_buf);
 		}
@@ -2501,7 +2501,7 @@ public:
 		}
 		ASSIGN_PTR(pData, Data);
 		CATCH
-			ok = PPErrorByDialog(this, sel, -1);
+			ok = PPErrorByDialog(this, sel);
 		ENDCATCH
 		return ok;
 	}

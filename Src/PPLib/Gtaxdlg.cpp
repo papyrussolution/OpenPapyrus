@@ -335,7 +335,7 @@ int SLAPI PPObjGoodsTax::Edit(PPID * pID, void * extraPtr)
 				}
 			}
 			else
-				PPErrorByDialog(dlg, CTL_GDSTAX_NAME, -1);
+				PPErrorByDialog(dlg, CTL_GDSTAX_NAME);
 	}
 	CATCH
 		r = PPErrorZ();

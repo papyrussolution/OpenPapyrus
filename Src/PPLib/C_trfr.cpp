@@ -2066,7 +2066,7 @@ static int SLAPI CheckLotList(PPIDArray & rLotList, PPIDArray & rAbsLotList, PPL
 		if(lot_id) {
 			int    r = r_rc.Search(lot_id);
 			if(r == 0) {
-				PPGetMessage(mfError, PPErrCode, 0, 1, added_msg);
+				PPGetLastErrorMessage(1, added_msg);
 				PPFormatT(PPTXT_SEARCHLOTFAULT, &msg_buf, lot_id, added_msg.cptr());
 				rLogger.Log(PPFormat(fmt_buf, &msg_buf, lot_id, added_msg.cptr()));
 				ok = -1;

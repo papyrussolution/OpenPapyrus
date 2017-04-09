@@ -138,7 +138,7 @@ uint16 FASTCALL PPCalcFuncList::SearchFuncByName(const char * pName) const
 		if(p_entry->Name.CmpNC(pName) == 0)
 			return p_entry->FuncID;
 	}
-	return (PPErrCode = PPERR_UNDEFPPCFUNCID, 0);
+	return PPSetError(PPERR_UNDEFPPCFUNCID);
 }
 
 const PPCalcFuncEntry * FASTCALL PPCalcFuncList::SearchFunc(uint16 funcID) const
@@ -1196,11 +1196,11 @@ int PosPaymentBlock::EditDialog2()
                                 }
                                 else if(new_value > sc_rest) {
 									PPSetError(PPERR_MAXCRD_OVERDRAFT, sc_rec.Code);
-									PPErrorByDialog(dlg, CTL_EDITCCAMT_AMT, -1);
+									PPErrorByDialog(dlg, CTL_EDITCCAMT_AMT);
                                 }
                                 else if(new_value > TotalConst) {
 									PPSetError(PPERR_OVERPAYMENT, (temp_buf = 0).Cat(TotalConst, MKSFMTD(0, 2, 0)));
-									PPErrorByDialog(dlg, CTL_EDITCCAMT_AMT, -1);
+									PPErrorByDialog(dlg, CTL_EDITCCAMT_AMT);
                                 }
                                 else {
 									pData->Amount = new_value;

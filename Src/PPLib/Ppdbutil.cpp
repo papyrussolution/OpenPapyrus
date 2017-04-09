@@ -142,7 +142,7 @@ static int SLAPI _Recover(BTBLID tblID, PPRecoverParam * pParam, SArray * pRecov
 		pRecoverInfoAry->insert(&r_info);
 	}
 	CATCH
-		PPGetMessage(mfError, PPErrCode, 0, 1, msg_buf);
+		PPGetLastErrorMessage(1, msg_buf);
 		PPLogMessage(pParam->LogFileName, msg_buf, LOGMSGF_TIME);
 	ENDCATCH
 	return (pParam->Stop || !r) ? 0 : 1;
@@ -188,7 +188,7 @@ static int CallbackBuLog(int event, const char * pInfo, long initParam)
 		case BACKUPLOG_SUC_REMOVE:       msg_code = PPTXT_BACKUPLOG_SUC_REMOVE;       break;
 		case BACKUPLOG_ERROR:
 			{
-				PPGetMessage(mfError, PPErrCode, 0, 1, err_msg_buf);
+				PPGetLastErrorMessage(1, err_msg_buf);
 				p_addinfo = err_msg_buf;
 				msg_code = PPTXT_BACKUPLOG_ERROR;
 			}
@@ -3512,14 +3512,14 @@ int SLAPI PrcssrTestDb::Run()
 	SString msg_buf, err_msg_buf;
 	for(long i = 0; i < P.NumTaSeries; i++) {
 		if(!CreateTa(1)) {
-			PPGetMessage(mfError, PPErrCode, 0, 1, err_msg_buf);
+			PPGetLastErrorMessage(1, err_msg_buf);
 			LogMessage(msg_buf.Printf("Error execution of PrcssrTestDb::CreateTa(): %s", (const char *)err_msg_buf));
 			ok = 0;
 		}
 	}
 	if(ok) {
 		if(!AnalyzeAndUpdateTa()) {
-			PPGetMessage(mfError, PPErrCode, 0, 1, err_msg_buf);
+			PPGetLastErrorMessage(1, err_msg_buf);
 			LogMessage(msg_buf.Printf("Error execution of PrcssrTestDb::CreateTa(): %s", (const char *)err_msg_buf));
 			ok = 0;
 		}

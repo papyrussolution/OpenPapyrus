@@ -178,7 +178,7 @@ SArray * SLAPI PPObjBill::MakePaymentList(PPID id, int kind)
 			link_kind = 3;
 		}
 		if(r > 0) {
-			if(ObjRts.CheckOpID(bill_rec.OpID, 0)) {
+			if(ObjRts.CheckOpID(bill_rec.OpID, PPR_READ)) {
 				PPID   pool_id = 0;
 				int    no_paym = 0; // Статус документа предписывает не учитывать оплату
 				MEMSZERO(entry);
@@ -465,7 +465,7 @@ int SLAPI PPViewLinkedBill::MakeList()
 		}
 		THROW(r)
 		if(r > 0) {
-			if(ObjRts.CheckOpID(bill_rec.OpID, 0)) {
+			if(ObjRts.CheckOpID(bill_rec.OpID, PPR_READ)) {
 				PPID   pool_id = 0;
 				int    no_paym = 0; // Статус документа предписывает не учитывать оплату
 				MEMSZERO(entry);

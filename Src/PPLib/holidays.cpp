@@ -148,7 +148,7 @@ int HldDialog::getDTS(LDATE * pDt)
 			encodedate((int)dw, 0, 0, &Dt);
 	}
 	if(!ok)
-		PPErrorByDialog(this, sel, -1);
+		PPErrorByDialog(this, sel);
 	else
 		ASSIGN_PTR(pDt, Dt);
 	return ok;

@@ -1,5 +1,5 @@
 // OBJCACHE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016á 2017
 // @Kernel
 //
 #include <pp.h>
@@ -50,6 +50,48 @@ int FASTCALL ObjCache::PutTextBlock(MultTextBlock & rBlk, ObjCacheEntry * pEntry
 {
 	assert(rBlk.RdMode == 0);
 	return rBlk.RdMode ? 0 : PutName(rBlk.Ss.getBuf(), pEntry);
+}
+//
+//
+//
+void FASTCALL ObjCache::ExtTextBlock::Dirty(PPID id)
+{
+	Lock.WriteLock();
+	MissingList.Remove(id);
+	List.Remove(id);
+	Lock.Unlock();
+}
+
+int SLAPI ObjCache::ExtTextBlock::Fetch(PPID id, SString & rBuf, void * extraPtr)
+{
+	int    ok = -1;
+	if(id > 0) {
+		Lock.ReadLock();
+		if(!MissingList.Has(id)) {
+			if(List.Get(id, rBuf) > 0)
+				ok = 1;
+			else {
+				Lock.Unlock();
+				Lock.WriteLock();
+				if(Implement_Get(id, rBuf, extraPtr) > 0 && rBuf.NotEmpty()) {
+					MissingList.Remove(id);
+					List.AddFast(id, rBuf);
+					ok = 1;
+				}
+				else
+					MissingList.Add(id);
+			}
+		}
+		Lock.Unlock();
+	}
+	return ok;
+}
+
+//virtual 
+int SLAPI ObjCache::ExtTextBlock::Implement_Get(PPID id, SString & rBuf, void * extraPtr)
+{
+	rBuf = 0;
+	return -1;
 }
 //
 //

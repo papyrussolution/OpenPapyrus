@@ -510,7 +510,7 @@ static int SLAPI _EditBarcodeItem(BarcodeTbl::Rec * pRec, PPID goodsGrpID)
 			Data.BarcodeType = (getCtrlUInt16(CTL_BARCODE_FLAGS) & 0x0001) ? BARCODE_TYPE_PREFERRED : 0;
 			ASSIGN_PTR(pData, Data);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}
@@ -768,7 +768,7 @@ int ArGoodsCodeDialog::getDTS(ArGoodsCodeTbl::Rec * pData)
 	Data.Pack = (long)(upp * 1000.0);
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -1476,7 +1476,7 @@ int GoodsDialog::getDTS(PPGoodsPacket * pPack)
 			case PPERR_BARCODENEEDED:    sel = CTL_GOODS_BARCODE; break;
 			default: sel = 0; break;
 		}
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -2498,7 +2498,7 @@ int GoodsCtrlGroup::getData(TDialog * dlg, void * pData)
 	Rec * p_rec = (Rec*)pData;
 	dlg->getCtrlData(CtlselGrp,   &p_rec->GrpID);
 	dlg->getCtrlData(CtlselGoods, &p_rec->GoodsID);
-	return (p_rec->GoodsID == 0 && Flags & disableEmptyGoods) ? (PPErrCode = PPERR_GOODSNEEDED, 0) : 1;
+	return (p_rec->GoodsID == 0 && Flags & disableEmptyGoods) ? PPSetError(PPERR_GOODSNEEDED) : 1;
 }
 
 int GoodsCtrlGroup::setFlag(TDialog * dlg, long f, int on)
@@ -2865,7 +2865,7 @@ int GoodsAsscDialog::EditPLU(PPID goodsGrpID, long * pPLU)
 			THROW_PP(PPRef->Assc.SearchNum(PPASS_ALTGOODSGRP, GoodsGrpID, plu, &rec) <= 0 || rec.ScndObjID == GoodsID, PPERR_DUPLPLU);
 			ASSIGN_PTR(pPLU, plu);
 			CATCH
-				ok = PPErrorByDialog(this, CTL_EDITPLU_PLU, -1);
+				ok = PPErrorByDialog(this, CTL_EDITPLU_PLU);
 			ENDCATCH
 			return ok;
 		}
@@ -3099,7 +3099,7 @@ int GoodsFiltAdvDialog::getDTS(GoodsFilt * pFilt)
 	ushort v = 0;
 	GetClusterData(CTL_GFLTADVOPT_FLAGS, &Data.Flags);
 	if(!GetPeriodInput(this, CTL_GFLTADVOPT_LOTPERIOD, &Data.LotPeriod))
-		PPErrorByDialog(this, CTL_GFLTADVOPT_LOTPERIOD, -1);
+		PPErrorByDialog(this, CTL_GFLTADVOPT_LOTPERIOD);
 	else if((Data.Flags & (GoodsFilt::fNewLots | GoodsFilt::fNoZeroRestOnLotPeriod)) && !Data.LotPeriod.low)
 		PPErrorByDialog(this, CTL_GFLTADVOPT_PLISTFNEW, PPERR_CHKWPER);
 	else {

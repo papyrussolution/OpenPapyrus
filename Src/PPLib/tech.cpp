@@ -490,10 +490,10 @@ struct CalcCapacity {
 
 IMPL_INVARIANT_C(CalcCapacity)
 {
-	PPErrCode = PPERR_INVCAPACITYVAL;
+	PPSetError(PPERR_INVCAPACITYVAL);
 	S_INVARIANT_PROLOG(pInvP);
-	S_ASSERT_P(!((Flags & fReverse) && (Flags & fAbsolute)), pInvP); // @v7.5.8
-	S_ASSERT_P((Flags & ~(fReverse|fAbsolute)) == 0, pInvP); // @v7.5.8
+	S_ASSERT_P(!((Flags & fReverse) && (Flags & fAbsolute)), pInvP);
+	S_ASSERT_P((Flags & ~(fReverse|fAbsolute)) == 0, pInvP);
 	S_ASSERT_P(oneof4(Unit, UNIT_SECOND, UNIT_MINUTE, UNIT_HOUR, UNIT_DAY), pInvP);
 	S_ASSERT_P(Val >= 0.0, pInvP);
 	S_INVARIANT_EPILOG(pInvP);
@@ -869,11 +869,11 @@ int TechDialog::getDTS(PPTechPacket * pData)
 	GetClusterData(CTL_TECH_FLAGS, &Data.Rec.Flags);
 	getCtrlData(CTL_TECH_ROUNDING, &Data.Rec.Rounding);
 	getCtrlData(CTL_TECH_INITQTTY, &Data.Rec.InitQtty);
-	getCtrlData(CTL_TECH_CIPMAX, &Data.Rec.CipMax); // @v7.7.2
+	getCtrlData(CTL_TECH_CIPMAX, &Data.Rec.CipMax);
 	getCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -996,7 +996,7 @@ int ToolingDialog::getDTS(PPTechPacket * pData)
 	getCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -1011,7 +1011,7 @@ int SLAPI PPObjTech::EditDialog(PPTechPacket * pData)
 			DIALOG_PROC_BODY(ToolingDialog, pData);
 		}
 	}
-	return (PPErrCode = PPERR_INVPARAM, 0);
+	return PPSetError(PPERR_INVPARAM);
 }
 
 int SLAPI PPObjTech::InitPacket(PPTechPacket * pPack, long extraData, int use_ta)
@@ -1528,7 +1528,7 @@ int TechFiltDialog::getDTS(TechFilt * pData)
 	GoodsCtrlGroup::Rec rec;
 	getGroupData(GRP_PRC, &prc_grp_rec);
 	Data.PrcID = prc_grp_rec.PrcID;
-	getCtrlData(CTLSEL_TECHFILT_PARENT, &Data.ParentID); // @v7.5.6
+	getCtrlData(CTLSEL_TECHFILT_PARENT, &Data.ParentID);
 	sel = CTLSEL_TECHFILT_GOODS;
 	THROW(getGroupData(GRP_GOODS, &rec));
 	Data.GoodsID = rec.GoodsID;
@@ -1536,7 +1536,7 @@ int TechFiltDialog::getDTS(TechFilt * pData)
 	GetClusterData(CTL_TECHFILT_SIGN,  &Data.Sign);
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }

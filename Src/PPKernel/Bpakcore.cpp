@@ -1791,7 +1791,7 @@ int SLAPI PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int
 	destroy();
 	if(opID) {
 		PPID   op_counter_id = 0;
-		THROW(ObjRts.CheckOpID(opID, 0));
+		THROW(ObjRts.CheckOpID(opID, PPR_INS));
 		if(opID == PPOPK_CASHSESS)
 			op_rec.OpTypeID = PPOPT_CASHSESS;
 		else {

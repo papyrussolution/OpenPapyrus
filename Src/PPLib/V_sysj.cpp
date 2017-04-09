@@ -109,7 +109,7 @@ int SysJFiltDialog::setDTS(const SysJournalFilt * pFilt)
 int SysJFiltDialog::getDTS(SysJournalFilt * pFilt)
 {
 	if(!GetPeriodInput(this, CTL_SYSJFILT_PERIOD, &Filt.Period))
-		return PPErrorByDialog(this, CTL_SYSJFILT_PERIOD, -1);
+		return PPErrorByDialog(this, CTL_SYSJFILT_PERIOD);
 	else {
 		getCtrlData(CTLSEL_SYSJFILT_USER, &Filt.UserID);
 		if(!Filt.ActionIDList.isList())
@@ -1034,7 +1034,7 @@ int SLAPI PPViewGtaJournal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		int    getDTS(GtaJournalFilt * pData)
 		{
 			if(!GetPeriodInput(this, CTL_GTAJFILT_PERIOD, &Data.Period))
-				return PPErrorByDialog(this, CTL_GTAJFILT_PERIOD, -1);
+				return PPErrorByDialog(this, CTL_GTAJFILT_PERIOD);
 			else {
 				getCtrlData(CTLSEL_GTAJFILT_USER, &Data.GlobalUserID);
 				if(!Data.ActionIDList.isList())

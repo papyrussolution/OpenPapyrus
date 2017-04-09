@@ -734,7 +734,7 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 				if(!Cc.TurnCheck(&pack, 0)) {
 					PPLoadText(PPTXT_LOG_ERRACCEPTCCHECK, err_msg_fmt);
 					CCheckCore::MakeCodeString(&pack.Rec, ccheck_code);
-					PPGetMessage(mfError, PPErrCode, 0, 1, err_msg_text);
+					PPGetLastErrorMessage(1, err_msg_text);
 					msg_buf.Printf(err_msg_fmt, (const char *)ccheck_code, (const char *)err_msg_text);
 					pCtx->Output(msg_buf);
 				}
@@ -827,7 +827,7 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 								CCheckCore::MakeCodeString(&pack.Rec, ccheck_code);
 								if(!Cc.TurnCheck(&pack, 0)) {
 									PPLoadText(PPTXT_LOG_ERRACCEPTCCHECK, err_msg_fmt);
-									PPGetMessage(mfError, PPErrCode, 0, 1, err_msg_text);
+									PPGetLastErrorMessage(1, err_msg_text);
 									msg_buf.Printf(err_msg_fmt, (const char *)ccheck_code, (const char *)err_msg_text);
 								}
 								else {
@@ -1081,14 +1081,14 @@ int SLAPI EditDueToKeyboardRights()
 			KWKCfg.OperRights[6].OperRightFlag = CSESSOPRT_COPYZREPT;
 			KWKCfg.OperRights[7].OperRightFlag = CSESSOPRT_ROWDISCOUNT;
 			KWKCfg.OperRights[8].OperRightFlag = (CSESSOPRT_XREP << 16);   // CSESSOPRT_XREP пересекается с CSESSRT_CLOSE
-			KWKCfg.OperRights[9].OperRightFlag = CSESSOPRT_SPLITCHK;       // @v7.0.5
+			KWKCfg.OperRights[9].OperRightFlag = CSESSOPRT_SPLITCHK;
 			KWKCfg.OperRights[10].OperRightFlag = CSESSOPRT_MERGECHK;      // @v8.5.5
-			KWKCfg.OperRights[11].OperRightFlag = CSESSOPRT_CHGPRINTEDCHK; // @v7.0.5
+			KWKCfg.OperRights[11].OperRightFlag = CSESSOPRT_CHGPRINTEDCHK;
 			KWKCfg.OperRights[12].OperRightFlag = CSESSOPRT_CHGCCAGENT;    // @v8.5.5
 			KWKCfg.OperRights[13].OperRightFlag = CSESSOPRT_ESCCLINEBORD;  // @v8.7.3
 			ASSIGN_PTR(pCfg, KWKCfg);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}
@@ -1287,10 +1287,10 @@ public:
 		getCtrlData(sel = CTL_CTBLORD_PREPAY, &Data.PrepayAmount);
 		THROW_PP(Data.PrepayAmount >= 0.0, PPERR_INVAMOUNT);
 		THROW_PP(Data.PrepayAmount == 0.0 || Data.SCardID, PPERR_CCORDPREPAYREQSCARD);
-		getCtrlString(CTL_CTBLORD_MEMO, Data.Memo); // @v7.1.3
+		getCtrlString(CTL_CTBLORD_MEMO, Data.Memo);
 		ASSIGN_PTR(pData, Data);
 		CATCH
-			ok = PPErrorByDialog(this, sel, -1);
+			ok = PPErrorByDialog(this, sel);
 		ENDCATCH
 		return ok;
 	}
@@ -1446,7 +1446,7 @@ private:
 				}
 			}
 			else {
-				PPGetMessage(mfError, PPErrCode, 0, 1, msg_buf = 0);
+				PPGetLastErrorMessage(1, msg_buf = 0);
 				scard_no = 0;
 			}
 		}
@@ -2235,7 +2235,7 @@ int CSessComplexImpExpDialog::getDTS(PPCSessComplexImpExpParam * pData)
 	}
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }

@@ -1,5 +1,5 @@
 // PROCESSR.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1198,7 +1198,7 @@ int SLAPI PPObjProcessor::EditPrcPlaceItem(PPProcessorPacket::PlaceDescription *
 			PPErrorByDialog(dlg, sel, PPERR_USERINPUT);
         }
         else if(!ppct.Parse(pItem->Range)) {
-            PPErrorByDialog(dlg, sel, -1);
+            PPErrorByDialog(dlg, sel);
         }
         else {
 			sel = CTL_PRCPLACE_GOODS;
@@ -1642,22 +1642,18 @@ int ProcessorDialog::getDTS(PPProcessorPacket * pData)
 		else
 			Data.Rec.LinkObjID = 0;
 	}
-	getCtrlData(CTL_PRC_SRVJOBSYMB, Data.Rec.SrvJobSymb); // @v6.5.0
-	// @v7.7.2 {
+	getCtrlData(CTL_PRC_SRVJOBSYMB, Data.Rec.SrvJobSymb);
 	getCtrlData(CTLSEL_PRC_CIPKIND, &Data.Rec.CipPersonKindID);
 	if(InheritedFlags & PRCF_ALLOWCIP)
 		Data.Rec.Flags &= ~PRCF_ALLOWCIP;
-	// } @v7.7.2
-	// @v7.9.3 {
 	{
 		long  tcbquant = 0;
 		if(getCtrlData(CTL_PRC_TCBQUANT, &tcbquant))
 			Data.Rec.TcbQuant = (int16)(tcbquant / 5);
 	}
-	// } @v7.9.3
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -2183,7 +2179,7 @@ int SLAPI PPViewProcessor::ExportUhtt()
                                     THROW_SL(uhtt_pack.Places.insert(p_new_item));
 								}
 								else {
-									PPGetMessage(mfError, PPErrCode, 0, 1, msg_buf);
+									PPGetLastErrorMessage(1, msg_buf);
 									logger.Log(msg_buf);
 								}
 							}

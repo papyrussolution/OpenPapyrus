@@ -44,9 +44,8 @@ int SLAPI PPObjBill::Lock(PPID id)
 			const  PPID link_id = bill_rec.LinkBillID;
 			int    do_lock_link = 1;
 			if(!locks.bsearch(&link_id, 0, CMPF_LONG)) {
-				if(Fetch(link_id, &link_bill_rec) > 0) { // @v7.1.0
+				if(Fetch(link_id, &link_bill_rec) > 0) {
 					//
-					// @v7.1.0
 					// При открытии документа списания драфт-документа, если драфт-документ допускает
 					// множественное списание, не следует блокировать драфт-документ (это помешает
 					// редактированию других документов списания).
@@ -445,12 +444,10 @@ int SLAPI PPObjBill::ValidatePacket(const PPBillPacket * pPack, long flags)
 							THROW_PP(op_rec.AccSheetID == 0, PPERR_BILLSTCHECKFLD_OBJECT);
 						}
 					}
-					// @v7.0.4 {
 					if(bs_rec.CheckFields & BILCHECKF_OBJECT2 && !pPack->Rec.Object2) {
 						if(GetOpData(pPack->Rec.OpID, &op_rec) > 0)
 							THROW_PP(op_rec.AccSheet2ID == 0, PPERR_BILLSTCHECKFLD_OBJECT2);
 					}
-					// } @v7.0.4
 					// @v8.5.2 {
                     BillCore::GetCode(temp_buf = pPack->Rec.Code);
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_CODE) || temp_buf.NotEmpty(), PPERR_BILLSTCHECKFLD_CODE);
@@ -459,7 +456,7 @@ int SLAPI PPObjBill::ValidatePacket(const PPBillPacket * pPack, long flags)
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_PAYER) || pPack->Ext.PayerID, PPERR_BILLSTCHECKFLD_PAYER);
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_DUEDATE) || checkdate(pPack->Rec.DueDate, 0), PPERR_BILLSTCHECKFLD_DUEDATE); // @v8.3.5
 				}
-				if(CheckOpFlags(pPack->Rec.OpID, OPKF_FREIGHT)) { // @v7.1.2
+				if(CheckOpFlags(pPack->Rec.OpID, OPKF_FREIGHT)) {
 					const PPFreight * p_fr = pPack->P_Freight;
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_FREIGHT) || p_fr, PPERR_BILLSTCHECKFLD_FREIGHT);
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_DLVRADDR) || (p_fr && p_fr->DlvrAddrID), PPERR_BILLSTCHECKFLD_DLVRADDR); // @v8.4.5
@@ -1292,19 +1289,7 @@ int SLAPI PPObjBill::AddRetBill(PPID op, long link, PPID locID)
 			THROW(pack.CreateBlank(op, link, loc_id, 1));
 			if(loc_id)
 				pack.Rec.LocID = loc_id;
-			res = Helper_EditGoodsBill(&bill_id, &pack); // @v7.1.3
-			/* @v7.1.3
-			while((ok = ::EditGoodsBill(&pack, 0)) == cmOK) {
-				PPWait(1);
-				if(!FillTurnList(&pack) || !TurnPacket(&pack, 1))
-					PPError();
-				else {
-					PPWait(0);
-					res = cmOK;
-					break;
-				}
-			}
-			*/
+			res = Helper_EditGoodsBill(&bill_id, &pack);
 			if(res != cmOK)
 				pack.UngetCounter();
 		}
@@ -2018,7 +2003,7 @@ int SLAPI PPObjBill::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg
 			AddClusterAssoc(CTL_RTBILL_OPRFLAGS,  5, BILLOPRT_CANCELQUOT);
 			AddClusterAssoc(CTL_RTBILL_OPRFLAGS,  6, BILLOPRT_TOTALDSCNT);
 			AddClusterAssoc(CTL_RTBILL_OPRFLAGS,  7, BILLOPRT_MODTRANSM);
-			AddClusterAssoc(CTL_RTBILL_OPRFLAGS,  8, BILLOPRT_ACCSSUPPL); // @v7.2.4
+			AddClusterAssoc(CTL_RTBILL_OPRFLAGS,  8, BILLOPRT_ACCSSUPPL);
 			AddClusterAssoc(CTL_RTBILL_OPRFLAGS,  9, BILLOPRT_REJECT);    // @v9.0.1
 			AddClusterAssoc(CTL_RTBILL_OPRFLAGS, 10, BILLOPRT_EMPTY);    // @v9.3.1
 
@@ -2351,13 +2336,13 @@ int SLAPI PPObjBill::GetLabelLotInfo(PPID lotID, RetailGoodsInfo * pData)
 		}
 		GetSerialNumberByLot(lotID, temp_buf, 0);
 		temp_buf.CopyTo(rgi.Serial, sizeof(rgi.Serial));
-		// @v7.2.11 {
+		//
 		// Цены поступления и реализации должны в данной ситуации безусловно
 		// браться из строки (если, конечно, они в ней определены).
 		//
 		rgi.LineCost = lot_rec.Cost;
 		rgi.LinePrice = lot_rec.Price;
-		// } @v7.2.11
+		//
 		rgi.RevalPrice = rgi.Price;
 	}
 	else
@@ -2482,13 +2467,13 @@ struct __PPBillConfig {    // @persistent @store(PropertyTbl)
 	int16  Reserve;            // @reserve
 	PPID   ValuationQuotKindID; // ->Ref(PPOBJ_QUOTKIND) Вид котировки для расценки приходных документов
 	float  ValuationRndPrec;   // Точность округления при расценке
-	char   UniqSerialSfx[16];  // @v7.3.0 Сигнатура суффикса, присоединяемого к серийному номеру для обеспечения его уникальности.
+	char   UniqSerialSfx[16];  // Сигнатура суффикса, присоединяемого к серийному номеру для обеспечения его уникальности.
 	//
-	SVerT Ver;                // @anchor @v7.7.7
+	SVerT Ver;                // @anchor
 	PPID   ContractRegTypeID;  // @v8.4.0
 	PPID   MnfCountryLotTagID; // @v8.4.11
 	LDATE  LowDebtCalcDate;    // @v8.5.7
-	uint8  Reserve2[20];       // @reserve @v7.7.7 @v8.4.11 [28]-->[24]
+	uint8  Reserve2[20];       // @reserve @v8.4.11 [28]-->[24]
 };
 
 const char * BillAddFilesFolder = "BillAddFilesFolder";
@@ -2541,8 +2526,7 @@ int SLAPI PPObjBill::ReadConfig(PPBillConfig * pCfg)
 		pCfg->ValuationRndDir = p_temp->ValuationRndDir;
 		pCfg->ValuationQuotKindID = p_temp->ValuationQuotKindID;
 		pCfg->ValuationRndPrec = p_temp->ValuationRndPrec;
-		STRNSCPY(pCfg->UniqSerialSfx, p_temp->UniqSerialSfx); // @v7.3.0
-		// @v7.7.7 {
+		STRNSCPY(pCfg->UniqSerialSfx, p_temp->UniqSerialSfx);
 		pCfg->Ver = p_temp->Ver;
 		{
 			if(sz > fix_size) {
@@ -2554,7 +2538,6 @@ int SLAPI PPObjBill::ReadConfig(PPBillConfig * pCfg)
 				}
 			}
 		}
-		// } @v7.7.7
 		{
 			char * p_buf = 0;
 			size_t buf_size = 0;
@@ -2626,7 +2609,7 @@ int SLAPI PPObjBill_WriteConfig(PPBillConfig * pCfg, PPOpCounterPacket * pSnCntr
 		p_temp->ValuationRndDir = pCfg->ValuationRndDir;
 		p_temp->ValuationQuotKindID = pCfg->ValuationQuotKindID;
 		p_temp->ValuationRndPrec = (float)pCfg->ValuationRndPrec;
-		STRNSCPY(p_temp->UniqSerialSfx, pCfg->UniqSerialSfx); // @v7.3.0
+		STRNSCPY(p_temp->UniqSerialSfx, pCfg->UniqSerialSfx);
 		p_temp->Ver = DS.GetVersion();
 		{
 			char reg_buf[10];
@@ -2790,7 +2773,7 @@ public:
 		getCtrlString(CTL_BILLCFG_FILESFOLDER, Data.AddFilesFolder);
 		ASSIGN_PTR(pData, Data);
 		CATCH
-			ok = PPErrorByDialog(this, sel, -1);
+			ok = PPErrorByDialog(this, sel);
 		ENDCATCH
 		return ok;
 	}
@@ -2875,7 +2858,7 @@ int SLAPI PPObjBill::EditConfig()
 	//
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  0, BCF_CHECKRESERVEDORDERS);
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  1, BCF_ORDPRICELOWPRIORITY);
-	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  2, BCF_EXTOBJASMAINORG);    // @v7.0.0
+	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  2, BCF_EXTOBJASMAINORG);
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  3, BCF_ACCEPTGOODSBILLCHG); // @v8.0.3
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  4, BCF_SENDATTACHMENT);     // @v8.2.3
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  5, BCF_DONTINHQCERT);       // @v8.2.5
@@ -2906,7 +2889,7 @@ int SLAPI PPObjBill::EditConfig()
 	STRNSCPY(invsn_buf, cfg.InvSnTemplt);
 	dlg->setCtrlData(CTL_BILLCFG_SNTEMPLT, sn_buf);
 	dlg->setCtrlData(CTL_BILLCFG_INVSNTEMPLT, invsn_buf);
-	dlg->setCtrlData(CTL_BILLCFG_UNIQSNSFX, cfg.UniqSerialSfx); // @v7.3.0
+	dlg->setCtrlData(CTL_BILLCFG_UNIQSNSFX, cfg.UniqSerialSfx);
 
 	dlg->AddClusterAssoc(CTL_BILLCFG_DEFICITSUBST, 0, PPBillConfig::gsmGeneric);
 	dlg->AddClusterAssoc(CTL_BILLCFG_DEFICITSUBST, -1, PPBillConfig::gsmGeneric);
@@ -2925,7 +2908,7 @@ int SLAPI PPObjBill::EditConfig()
 		dlg->getCtrlData(CTL_BILLCFG_OPPRFX,  cfg.OpCodePrfx);
 		dlg->getCtrlData(CTL_BILLCFG_SNRCNTR, &cfg.SnrCounter);
 		cfg.SnrCounter = (cfg.SnrCounter <= 0) ? 1 : cfg.SnrCounter;
-		sn_cntr.Head.Counter = cfg.SnrCounter; // @v7.9.6
+		sn_cntr.Head.Counter = cfg.SnrCounter;
 		dlg->getCtrlData(CTL_BILLCFG_CLPRFX,       cfg.ClCodePrfx);
 		dlg->getCtrlData(CTLSEL_BILLCFG_CLCODEREG, &cfg.ClCodeRegTypeID);
 		//dlg->getCtrlData(CTLSEL_BILLCFG_CASHNODE,  &cfg.CashNodeID);
@@ -2936,7 +2919,7 @@ int SLAPI PPObjBill::EditConfig()
 		dlg->getCtrlData(CTL_BILLCFG_INVSNTEMPLT,  invsn_buf);
 		STRNSCPY(sn_cntr.Head.CodeTemplate, sn_buf);
 		STRNSCPY(cfg.InvSnTemplt, invsn_buf);
-		dlg->getCtrlData(CTL_BILLCFG_UNIQSNSFX, cfg.UniqSerialSfx); // @v7.3.0
+		dlg->getCtrlData(CTL_BILLCFG_UNIQSNSFX, cfg.UniqSerialSfx);
 		dlg->GetClusterData(CTL_BILLCFG_FLAGS,  &cfg.Flags);
 		dlg->GetClusterData(CTL_BILLCFG_FLAGS2, &cfg.Flags);
 		dlg->GetClusterData(CTL_BILLCFG_SHOWADDFLD, &cfg.Flags);
@@ -4191,20 +4174,34 @@ public:
 		PPID   OpID;
 		PPID   LocID;
 		PPID   Object;
-		PPID   Object2;    // @v7.4.2
+		PPID   Object2;
 		PPID   StatusID;
 		PPID   LinkBillID;
 		int16  Reserve;
 		int16  EdiOp;
 		long   Flags;
-		long   Flags2;     // @v7.2.0
+		long   Flags2;
 		double Amount;
 	};
-	SLAPI  BillCache();
+	SLAPI  BillCache() : ObjCacheHash(PPOBJ_BILL, sizeof(Data),
+		(DS.CheckExtFlag(ECF_SYSSERVICE) ? (12*1024*1024) : (4*1024U*1024U)),
+		(DS.CheckExtFlag(ECF_SYSSERVICE) ? 16 : 12)),
+		FullSerialList(1)
+	{
+	}
 	virtual int SLAPI Dirty(PPID id); // @sync_w
-	int    SLAPI FetchExtMemo(PPID id, SString & rBuf); // @sync_w
-	int    SLAPI FetchExt(PPID id, PPBillExt * pExt);   // @sync_w
-	int    SLAPI FetchFreight(PPID id, PPFreight * pFreight); // @sync_w
+	int    SLAPI FetchExtMemo(PPID id, SString & rBuf) // @sync_w
+	{
+		return EmBlk.Fetch(id, rBuf, 0);
+	}
+	int    SLAPI FetchExt(PPID id, PPBillExt * pExt) // @sync_w
+	{
+		return ExtCache.Get(id, pExt);
+	}
+	int    SLAPI FetchFreight(PPID id, PPFreight * pFreight) // @sync_w
+	{
+		return FreightCache.Get(id, pFreight);
+	}
 	int    SLAPI GetCrBillEntry(long & rTempID, PPBillPacket * pPack); // @sync_w
 	int    SLAPI SetCrBillEntry(long tempID, PPBillPacket * pPack);    // @sync_w
 	int    SLAPI GetPrjConfig(PPProjectConfig * pCfg, int enforce);    // @sync_w
@@ -4216,20 +4213,22 @@ private:
 	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
 	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
-	UintHashTable NoExtMemoList;
-	StrAssocArray ExtMemoList;
-
-	ReadWriteLock EmLock;  // Блокировка списка ExtMemoList
-	ReadWriteLock CrbLock; // Блокировка списка CrBillList
-	ReadWriteLock FslLock; // Блокировка полного списка серийных номеров лотов
-
+	class BillCache_ExtText_Block : public ObjCache::ExtTextBlock {
+	private:
+		virtual int SLAPI Get(PPID id, SString & rBuf, void * extraPtr)
+		{
+			int    ok = -1;
+			if(PPRef->GetPropVlrString(PPOBJ_BILL, id, PPPRP_BILLMEMO, rBuf) > 0 && rBuf.Len())
+				ok = 1;
+			return ok;
+		}
+	};
 	class BillExtCache : public ObjCacheHash {
 	public:
 		struct Data : public ObjCacheEntry { // size=8+16
 			PPID   AgentID;
 			PPID   PayerID;
 		};
-
 		SLAPI  BillExtCache() : ObjCacheHash(PPOBJ_BILLEXT, sizeof(Data), 128*1024, 4, ObjCache::fUseUndefList)
 		{
 		}
@@ -4270,8 +4269,6 @@ private:
 			return 1;
 		}
 	};
-	BillExtCache ExtCache;
-
 	class BillFreightCache : public ObjCacheHash {
 	public:
 		struct Data : public ObjCacheEntry { // size=48+16
@@ -4358,14 +4355,10 @@ private:
 			return 1;
 		}
 	};
-	BillFreightCache FreightCache;
-
 	struct CrBillEntry : public PPBillPacket {
 		long   TempID;
 		LDATETIME CrDtm;
 	};
-	TSCollection <CrBillEntry> CrBillList;
-	//
 	class FslArray : public StrAssocArray {
 	public:
 		FslArray(int use) : StrAssocArray()
@@ -4381,67 +4374,29 @@ private:
 		int    Inited;
 		UintHashTable DirtyTable;
 	};
+	//
+	BillCache_ExtText_Block EmBlk;
+	ReadWriteLock CrbLock; // Блокировка списка CrBillList
+	ReadWriteLock FslLock; // Блокировка полного списка серийных номеров лотов
+	BillExtCache ExtCache;
+	BillFreightCache FreightCache;
+	TSCollection <CrBillEntry> CrBillList;
 	FslArray FullSerialList;
 
 	PPProjectConfig PrjCfg;   // @v8.0.2
 	ReadWriteLock PrjCfgLock; // @v8.0.2 Блокировка конфигурации проектов
 };
 
-SLAPI BillCache::BillCache() : ObjCacheHash(PPOBJ_BILL, sizeof(Data),
-	(DS.CheckExtFlag(ECF_SYSSERVICE) ? (12*1024*1024) : (4*1024U*1024U)), // @v7.2.0 8-->12, 1-->2, @v7.2.8 12-->12, 2-->4
-	(DS.CheckExtFlag(ECF_SYSSERVICE) ? 16 : 12)),
-	FullSerialList(1)
-{
-}
-
 int SLAPI BillCache::Dirty(PPID id)
 {
 	int    ok = 1;
 	ObjCacheHash::Dirty(id);
 	{
-		EmLock.WriteLock();
-		NoExtMemoList.Remove(id);
-		ExtMemoList.Remove(id);
-		EmLock.Unlock();
+		EmBlk.Dirty(id);
 		ExtCache.Dirty(id);
 		FreightCache.Dirty(id); // @v8.2.9
 	}
 	return ok;
-}
-
-int SLAPI BillCache::FetchExtMemo(PPID id, SString & rBuf)
-{
-	int    ok = -1;
-	if(id > 0) {
-		EmLock.ReadLock();
-		if(!NoExtMemoList.Has(id)) {
-			if(ExtMemoList.Get(id, rBuf) > 0)
-				ok = 1;
-			else {
-				EmLock.Unlock();
-				EmLock.WriteLock();
-				if(PPRef->GetPropVlrString(PPOBJ_BILL, id, PPPRP_BILLMEMO, rBuf) > 0 && rBuf.Len()) {
-					NoExtMemoList.Remove(id);
-					ExtMemoList.Add(id, rBuf);
-					ok = 1;
-				}
-				else
-					NoExtMemoList.Add(id);
-			}
-		}
-		EmLock.Unlock();
-	}
-	return ok;
-}
-
-int SLAPI BillCache::FetchExt(PPID id, PPBillExt * pExt)
-{
-	return ExtCache.Get(id, pExt);
-}
-
-int SLAPI BillCache::FetchFreight(PPID id, PPFreight * pFreight)
-{
-	return FreightCache.Get(id, pFreight);
 }
 
 int SLAPI BillCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
@@ -4918,7 +4873,7 @@ int SLAPI PPObjBill::LoadForSubst(const SubstParam * pParam, PPBill * pPack)
 			break;
 		case SubstGrpBill::sgbAgent:
 		case SubstGrpBill::sgbPayer:
-		case SubstGrpBill::sgbDebtDim: // @v7.0.1
+		case SubstGrpBill::sgbDebtDim:
 			ar = 1;
 			FetchExt(pPack->Rec.ID, &pPack->Ext);
 			break;
@@ -6103,7 +6058,7 @@ int SLAPI PPObjBill::ProcessShadowPacket(PPBillPacket * pPack, int doUpdate)
 		// Флаг BILLF_CLOSEDORDER (Закрытый заказ) здесь не следует снимать - только устанавливать.
 		// Связано это с тем, что данный признак мог быть установлен в ручную.
 		//
-		if(closed) { // @v7.1.12
+		if(closed) {
 			THROW(P_Tbl->SetRecFlag(order_id, BILLF_CLOSEDORDER, closed, 0));
 		}
 	}
@@ -6609,6 +6564,7 @@ int SLAPI PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 	pPack->ErrCause = pPack->ErrLine = 0;
 	if(pPack->Rec.OpID) { // Для теневого документа не проверяем период доступа
 		THROW(ObjRts.CheckBillDate(pPack->Rec.Dt));
+		THROW(ObjRts.CheckOpID(pPack->Rec.OpID, PPR_INS)); // @v9.6.1
 		// @v9.4.3 {
 		if(pPack->OpTypeID == PPOPT_CORRECTION)
 			GetCorrectionBackChain(pPack->Rec, correction_exp_chain);
@@ -6897,6 +6853,7 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 	THROW(CheckParentStatus(pPack->Rec.ID));
 	if(pPack->Rec.OpID) { // Для теневого документа не проверяем период доступа
 		THROW(ObjRts.CheckBillDate(pPack->Rec.Dt));
+		THROW(ObjRts.CheckOpID(pPack->Rec.OpID, PPR_MOD)); // @v9.6.1
 		// @v9.4.3 {
 		if(pPack->OpTypeID == PPOPT_CORRECTION)
 			GetCorrectionBackChain(pPack->Rec, correction_exp_chain);
@@ -7123,7 +7080,7 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 					}
 					if(r == 0) {
 						const uint msg_id = (prev_rbb != rbybill) ? PPTXT_LOG_LOADACCTURNFAULT_C : PPTXT_LOG_LOADACCTURNFAULT;
-						PPGetMessage(mfError, PPErrCode, 0, 1, temp_buf);
+						PPGetLastErrorMessage(1, temp_buf);
 						PPFormatT(msg_id, &msg_buf, id, temp_buf.cptr());
 						PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 						if(prev_rbb != rbybill) {
@@ -7301,6 +7258,7 @@ int SLAPI PPObjBill::RemovePacket(PPID id, int use_ta)
 		if(!is_shadow) { // Для теневого документа не проверяем период доступа и права на удаление
 			THROW(CheckRights(PPR_DEL));
 			THROW(ObjRts.CheckBillDate(brec.Dt));
+			THROW(ObjRts.CheckOpID(brec.OpID, PPR_DEL)); // @v9.6.1
 			if(TLP(HistBill).IsOpened()) {
 				PPBillPacket old_pack;
 				THROW(ExtractPacket(id, &old_pack));
@@ -7610,7 +7568,7 @@ int SLAPI PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl
 	}
 	if(!r) {
 		if(CcFlags & CCFLG_DEBUG) {
-			PPGetMessage(mfError, PPErrCode, 0, 1, temp_buf);
+			PPGetLastErrorMessage(1, temp_buf);
 			PPFormatT(PPTXT_LOG_LOADACCTURNFAULT, &msg_buf, id, temp_buf.cptr());
 			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 		}

@@ -107,7 +107,7 @@ int SLAPI AccountCore::GenerateNumber(PPAccount * pRec)
 	int    ok = -1, r;
 	int    start = 0, finish = 0;
 	if(!pRec)
-		return (PPErrCode = PPERR_INVPARAM, 0);
+		return PPSetError(PPERR_INVPARAM);
 	pRec->Ac = 0;
 	pRec->Sb = 0;
 	if(pRec->Type == ACY_OBAL) {
@@ -140,7 +140,7 @@ int SLAPI AccountCore::GenerateNumber(PPAccount * pRec)
 			else if(r == 0)
 				ok = 0;
 	if(ok < 0)
-		ok = (PPErrCode = PPERR_CANTGENACCNUMBER, 0);
+		ok = PPSetError(PPERR_CANTGENACCNUMBER);
 	return ok;
 }
 

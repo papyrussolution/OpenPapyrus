@@ -4535,7 +4535,7 @@ int ScaleDialog::getDTS(PPScale * pData, SString & rExpPaths)
 	ASSIGN_PTR(pData, Data);
 	rExpPaths = ExpPaths;
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -4592,7 +4592,7 @@ int SLAPI PPObjScale::Edit(PPID * pID, void * extraPtr)
 			if(!CheckName(*pID, scale.Name, 0))
 				dlg->selectCtrl(CTL_SCALE_NAME);
 			else if(!CheckDup(*pID, &scale))
-				PPErrorByDialog(dlg, CTL_SCALE_PORT, -1);
+				PPErrorByDialog(dlg, CTL_SCALE_PORT);
 			else if(!EditItem(PPOBJ_SCALE, *pID, &scale, 1))
 				PPError();
 			else {

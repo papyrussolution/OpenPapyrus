@@ -298,19 +298,20 @@ PPDraftOpEx & FASTCALL PPDraftOpEx::operator = (const PPDraftOpEx & s)
 //
 struct OpkListEntry {
 	PPID   id;
-	char   name[48]; // @v7.0.0 [42]-->[48]
+	char   name[48];
 	int16  rank;
 };
 
 static IMPL_CMPFUNC(OpkListEntry, i1, i2)
 {
-	OpkListEntry * p_i1 = (OpkListEntry *)i1;
-	OpkListEntry * p_i2 = (OpkListEntry *)i2;
+	const OpkListEntry * p_i1 = (const OpkListEntry *)i1;
+	const OpkListEntry * p_i2 = (const OpkListEntry *)i2;
 	if(p_i1->rank > p_i2->rank)
 		return -1;
-	if(p_i1->rank < p_i2->rank)
+	else if(p_i1->rank < p_i2->rank)
 		return 1;
-	return stricmp866(p_i1->name, p_i2->name);
+	else
+		return stricmp866(p_i1->name, p_i2->name);
 }
 
 // static
@@ -326,7 +327,7 @@ StrAssocArray * SLAPI PPObjOprKind::MakeOprKindList(PPID linkOprKind, const PPID
 		if(!(opk.Flags & OPKF_PASSIVE) || (flags & OPKLF_SHOWPASSIVE)) {
 			PPID temp_id = (flags & OPKLF_OPLIST) ? id : opk.OpTypeID;
 			if(!pOpList || pOpList->lsearch(temp_id))
-				suit = BIN((flags & OPKLF_IGNORERIGHTS) || ObjRts.CheckOpID(id, 0));
+				suit = BIN((flags & OPKLF_IGNORERIGHTS) || ObjRts.CheckOpID(id, PPR_READ));
 		}
 		if(suit && (!linkOprKind || linkOprKind == opk.LinkOpID)) {
 			if(PPMaster || !oneof3(id, _PPOPK_SUPPLRET, _PPOPK_SELLRET, _PPOPK_RETAILRET)) {
@@ -1618,7 +1619,7 @@ int OprKindDialog::getDTS(PPOprKindPacket * /*_data*/)
 		}
 	}
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -1784,7 +1785,7 @@ void OprKindDialog::editOptions(uint dlgID, int useMainAmt, const PPIDArray * pS
 							f |= OPKF_BUYING;
 				}
 				else
-					PPErrorByDialog(dlg, CTL_OPKMORE_AMTFORMULA, -1);
+					PPErrorByDialog(dlg, CTL_OPKMORE_AMTFORMULA);
 				// } ahtoxa
 			}
 			else
@@ -1926,7 +1927,7 @@ void OprKindDialog::editOptions2(uint dlgID, int useMainAmt, const PPIDArray * p
 							f |= OPKF_BUYING;
 				}
 				else
-					PPErrorByDialog(dlg, CTL_OPKMORE_AMTFORMULA, -1);
+					PPErrorByDialog(dlg, CTL_OPKMORE_AMTFORMULA);
 				// } ahtoxa
 			}
 			else
@@ -2520,7 +2521,7 @@ int OpCntrDialog::getDTS(PPOpCounterPacket * pData)
 	GetClusterData(CTL_OPKCOUNTER_FLAGS, &Data.Head.Flags);
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -2668,7 +2669,7 @@ int SLAPI PPObjOprKind::EditPacket(PPOprKindPacket * pPack)
 				if(!CheckName(pPack->Rec.ID, pPack->Rec.Name, 0))
 					dlg->selectCtrl(CTL_OPRKIND_NAME);
 				else if(!CheckDupSymb(pPack->Rec.ID, pPack->Rec.Symb))
-					PPErrorByDialog(dlg, CTL_OPRKIND_SYMB, -1);
+					PPErrorByDialog(dlg, CTL_OPRKIND_SYMB);
 				else
 					ok = valid_data = 1;
 			}

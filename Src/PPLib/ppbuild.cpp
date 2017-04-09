@@ -607,7 +607,7 @@ int	SLAPI PrcssrBuild::Run()
 					}
 					else {
 						PPLoadText(PPTXT_BUILD_UHTTCOPY_FAIL, fmt_buf);
-						PPGetMessage(mfError, PPErrCode, 0, 1, temp_buf);
+						PPGetLastErrorMessage(1, temp_buf);
 						msg_buf.Printf(fmt_buf, r_nsis_entry.FileName, (const char *)temp_buf);
 						logger.Log(msg_buf);
 					}

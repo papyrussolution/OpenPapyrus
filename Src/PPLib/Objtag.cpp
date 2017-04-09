@@ -1223,17 +1223,15 @@ int SLAPI PPObjTag::Edit(PPID * pID, void * extraPtr)
 				Data.Rec.Flags &= ~OTF_HIERENUM;
 			}
 			// } @v8.2.5
-			// @v7.3.12 {
 			if(Data.Rec.TagDataType == OTTYP_OBJLINK) {
 				if(Data.Rec.TagEnumID == PPOBJ_PERSON) {
 					getCtrlData(CTLSEL_OBJTAG_OBJGRP, &Data.Rec.LinkObjGrp);
 				}
 			}
-			// } @v7.3.12
 			THROW(CheckRecursion(Data.Rec.ID, Data.Rec.TagGroupID));
 			ASSIGN_PTR(pData, Data);
 			CATCH
-				ok = PPErrorByDialog(this, selctl, -1);
+				ok = PPErrorByDialog(this, selctl);
 			ENDCATCH
 			return ok;
 		}
@@ -2027,7 +2025,7 @@ public:
 		TagFilt::SetColor(&color, Data.Txt);
 		ASSIGN_PTR(pData, Data);
 		CATCH
-			ok = PPErrorByDialog(this, sel, -1);
+			ok = PPErrorByDialog(this, sel);
 		ENDCATCH
 		return ok;
 	}

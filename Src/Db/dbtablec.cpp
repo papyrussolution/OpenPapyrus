@@ -1,5 +1,5 @@
 // DBTABLEC.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // Классы и функции DBTable, не зависящие от провайдера DBMS
 //
@@ -81,29 +81,29 @@ SString & FASTCALL DBRowId::ToStr(SString & rBuf) const
 
 int FASTCALL DBRowId::FromStr(const char * pStr)
 {
-	int    ok = 1;
+	int    ok = -1;
+	const  size_t len = sstrlen(pStr);
 	SetZero();
-	if(!isempty(pStr)) {
-		size_t len = strlen(pStr);
-		int    is_ulong = 1;
+	if(len) {
 		for(uint i = 0; i < len; i++) {
-			if(!isdigit((uchar)pStr[i])) {
-				is_ulong = 0;
+			if(!isdec(pStr[i])) {
+				//
+				// В строке есть не цифровой символ: трактуем ИД просто как текстовый идентификатор
+				//
+				strnzcpy((char *)S, pStr, sizeof(S));
+				ok = 2;
 				break;
 			}
 		}
-		if(is_ulong) {
+		if(ok < 0) {
+			//
+			// В строке все символы цифровые (см. выше): трактуем ИД как беззнаковое целое
+			//
 			strtoulong(pStr, &B);
 			PTR32(S)[1] = 0;
 			ok = 1;
 		}
-		else {
-			strnzcpy((char *)S, pStr, sizeof(S));
-			ok = 2;
-		}
 	}
-	else
-		ok = -1;
 	return ok;
 }
 //

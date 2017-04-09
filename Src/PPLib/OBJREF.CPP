@@ -326,7 +326,7 @@ SEnumImp * SLAPI PPObjReference::EnumByIdxVal(int valN, long val)
 int SLAPI PPObjReference::CheckDupName(PPID objID, const char * pName)
 {
 	PPID   temp_id = 0;
-	return (SearchByName(pName, &temp_id) > 0 && objID != temp_id) ? (PPErrCode = PPERR_DUPOBJNAME, 0) : 1;
+	return (SearchByName(pName, &temp_id) > 0 && objID != temp_id) ? PPSetError(PPERR_DUPOBJNAME) : 1;
 }
 
 int SLAPI PPObjReference::CheckDupSymb(PPID objID, const char * pSymb)
@@ -440,13 +440,13 @@ int SLAPI PPObjReference::EditCommObjItem(PPCommObjEntry * pEntry)
 			p_dlg->getCtrlString(CTL_COMMOBJ_SYMB, symb);
 			p_dlg->GetClusterData(CTL_COMMOBJ_FLAGS, &flags);
 			if(p_obj && !p_obj->CheckName(_id, name, 1))
-				PPErrorByDialog(p_dlg, CTL_COMMOBJ_NAME, -1);
+				PPErrorByDialog(p_dlg, CTL_COMMOBJ_NAME);
 			else if(p_obj && !p_obj->ref->CheckUniqueSymb(pEntry->ObjType, _id, symb, offsetof(ReferenceTbl::Rec, Symb))) {
-				PPErrorByDialog(p_dlg, CTL_COMMOBJ_SYMB, -1);
+				PPErrorByDialog(p_dlg, CTL_COMMOBJ_SYMB);
 			}
 			else if(pEntry->ObjType == PPOBJ_DYNAMICOBJS && GetObjectTypeBySymb(symb, 0)) {
 				PPSetError(PPERR_ILLEGALDYNOBJSYMB, symb);
-				PPErrorByDialog(p_dlg, CTL_COMMOBJ_SYMB, -1);
+				PPErrorByDialog(p_dlg, CTL_COMMOBJ_SYMB);
 			}
 			else {
 				// @v8.2.3 {
@@ -1051,7 +1051,7 @@ int SLAPI PPObjUnit::Edit(PPID * pID, void * extraPtr)
 		else {
 			valid_data = 1;
 			dlg->getCtrlData(CTL_UNIT_ABBR,  unit.Abbr);
-			dlg->getCtrlData(CTL_UNIT_CODE,  unit.Code); // @v7.1.12
+			dlg->getCtrlData(CTL_UNIT_CODE,  unit.Code);
 			dlg->getCtrlData(CTL_UNIT_ID,    &unit.ID);
 			dlg->GetClusterData(CTL_UNIT_FLAGS, &unit.Flags);
 			if(unit.Flags & PPUnit::SI)
@@ -1173,10 +1173,10 @@ int SLAPI PPObjPersonStatus::Edit(PPID * pID, void * extraPtr)
 		dlg->getCtrlData(CTL_PSNST_NAME, rec.Name);
 		dlg->getCtrlData(CTL_PSNST_SYMB, rec.Symb);
 		if(!ref->CheckUniqueSymb(Obj, *pID, rec.Name, offsetof(PPPersonStatus, Name))) {
-			PPErrorByDialog(dlg, CTL_PSNST_NAME, -1);
+			PPErrorByDialog(dlg, CTL_PSNST_NAME);
 		}
 		else if(!ref->CheckUniqueSymb(Obj, *pID, rec.Symb, offsetof(PPPersonStatus, Symb))) {
-			PPErrorByDialog(dlg, CTL_PSNST_SYMB, -1);
+			PPErrorByDialog(dlg, CTL_PSNST_SYMB);
 		}
 		else {
 			valid_data = 1;
@@ -2291,7 +2291,7 @@ public:
 		getCtrlData(CTLSEL_GLOBUSERACC_PSN, &Data.Rec.PersonID);
 		ASSIGN_PTR(pData, Data);
 		CATCH
-			ok = PPErrorByDialog(this, sel, -1);
+			ok = PPErrorByDialog(this, sel);
 		ENDCATCH
 		return ok;
 	}
@@ -2856,10 +2856,10 @@ public:
 		getCtrlData(CTLSEL_UHTTSTORE_LOC, &Data.Rec.LocID);
 		GetClusterData(CTL_UHTTSTORE_KIND, &Data.Rec.Kind);
 		GetClusterData(CTL_UHTTSTORE_FLAGS, &Data.Rec.Flags);
-		Data.Rec.UpRestShowThreshold = getCtrlReal(CTL_UHTTSTORE_URST); // @v7.9.1
+		Data.Rec.UpRestShowThreshold = getCtrlReal(CTL_UHTTSTORE_URST);
 		ASSIGN_PTR(pData, Data);
 		CATCH
-			ok = PPErrorByDialog(this, sel, -1);
+			ok = PPErrorByDialog(this, sel);
 		ENDCATCH
 		return ok;
 	}
@@ -3797,7 +3797,7 @@ int SLAPI PPObjEdiProvider::Edit(PPID * pID, void * extraPtr)
 			Data.Rec.GuaID = getCtrlLong(CTLSEL_EDIPRV_GUA);
 			ASSIGN_PTR(pData, Data);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}

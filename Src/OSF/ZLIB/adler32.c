@@ -5,7 +5,8 @@
 
 /* @(#) $Id$ */
 
-#include "zutil.h"
+#define ZLIB_INTERNAL
+#include "zlib.h"
 
 static uLong adler32_combine_ OF((uLong adler1, uLong adler2, z_off64_t len2));
 
@@ -62,12 +63,11 @@ static uLong adler32_combine_ OF((uLong adler1, uLong adler2, z_off64_t len2));
 /* ========================================================================= */
 uLong ZEXPORT adler32_z(uLong adler, const Bytef * buf, z_size_t len)
 {
-	unsigned long sum2;
 	unsigned n;
-	/* split Adler-32 into component sums */
-	sum2 = (adler >> 16) & 0xffff;
+	// split Adler-32 into component sums 
+	unsigned long sum2 = (adler >> 16) & 0xffff;
 	adler &= 0xffff;
-	/* in case user likes doing a byte at a time, keep it fast */
+	// in case user likes doing a byte at a time, keep it fast 
 	if(len == 1) {
 		adler += buf[0];
 		if(adler >= BASE)
@@ -77,11 +77,9 @@ uLong ZEXPORT adler32_z(uLong adler, const Bytef * buf, z_size_t len)
 			sum2 -= BASE;
 		return adler | (sum2 << 16);
 	}
-
 	/* initial Adler-32 value (deferred check for len == 1 speed) */
 	if(buf == Z_NULL)
 		return 1L;
-
 	/* in case short lengths are provided, keep it somewhat fast */
 	if(len < 16) {
 		while(len--) {
@@ -156,7 +154,6 @@ static uLong adler32_combine_(uLong adler1, uLong adler2, z_off64_t len2)
 	return sum1 | (sum2 << 16);
 }
 
-/* ========================================================================= */
 uLong ZEXPORT adler32_combine(uLong adler1, uLong adler2, z_off_t len2)
 {
 	return adler32_combine_(adler1, adler2, len2);

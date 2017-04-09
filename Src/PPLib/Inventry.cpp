@@ -1360,7 +1360,7 @@ int PrcssrInvImport::EditParam(Param * pParam)
 			THROW_SL(checkdate(Data.Dt, 0));
 			ASSIGN_PTR(pData, Data);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}

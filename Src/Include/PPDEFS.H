@@ -5409,7 +5409,8 @@
 	#define CTL_SCARDSER_BONER           (23 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_BONERVAL        (24 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_USAGETM         (25 + WINDOWS_ID_BIAS)
-#define DLG_SCARD                 530 // Пластиковая карточка
+#define DLG_SCARD                 530 // Персональная карта
+	#define cmNotifyOptions              101
 	#define CTL_SCARD_CODE               (1 + WINDOWS_ID_BIAS)
 	#define CTL_SCARD_ID                 (2 + WINDOWS_ID_BIAS)
 	#define CTL_SCARD_SERIES             (3 + WINDOWS_ID_BIAS)
@@ -10130,6 +10131,8 @@
 	#define CTL_VERIFMPHN_PHONE       (1 + WINDOWS_ID_BIAS)
 	#define CTL_VERIFMPHN_CCODE       (2 + WINDOWS_ID_BIAS)
 	#define CTL_VERIFMPHN_ST_INFO     (3 + WINDOWS_ID_BIAS)
+#define DLG_SCNTFOPT              1317
+	#define CTL_SCNTFOPT_FLAGS        (1 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //
@@ -10720,8 +10723,6 @@
 #define PPERR_DUPOBJNAME          406 // Дублирование имени объекта
 #define PPERR_OBJNFOUND           407 // Объект не найден (uses PPSession.GetConstTLA().LastErrObj)
 #define PPERR_UNDEFCASHNODE       408 // Кассовый узел не определен - операция не доступна
-#define PPERR_OPNOTACCESSIBLE     409 // Недоступная операция '%s'//
-#define PPERR_LOCNOTACCESSIBLE    410 // Недоступный склад
 #define PPERR_VIEWBYFILTISEMPTY   411 // Фильтр дает пустую выборку
 #define PPERR_CANTRMVSUBSESS      412 // Нельзя удалять подчиненную кассовую сессию
 #define PPERR_ACCNGEN             413 // Счет не является группирующим
@@ -10763,16 +10764,6 @@
 #define PPERR_ALDD_NOPENBIN       452 // Невозможно открыть файл ALDD данных
 #define PPERR_CANTOPENFILE        453 // Невозможно открыть файл %s
 #define PPERR_CANTDELMASTER       454 // Нельзя удалять пользователя MASTER
-//
-// BHT communication error
-//
-#define PPERR_BHT_NOHANDSHAKEACK  455 // Нет ответа на установку соединени
-#define PPERR_BHT_NAK             456 // Терминал отклоняет передачу данных
-#define PPERR_BHT_NOREPLY         457 // Терминал не отвечает на передачу данных
-#define PPERR_BHT_EOT             458 // Терминал прервал передачу данных
-#define PPERR_BHT_CLOSELINKFAULT  459 // Не удается завершить передачу данных
-#define PPERR_BHT_NOTSOHSTXSYMB   460 // Принимаемый символ не равен SOH и STX
-
 #define PPERR_MAX_SESSION_DEST    480 // Достигнуто максимальное количество сессий
 #define PPERR_DELLOTWRET          481 // По данной строке был возврат, поэтому удалять ее нельз
 #define PPERR_CANTRMVFILE         482 // Невозможно удалить файл %s

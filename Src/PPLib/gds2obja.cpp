@@ -1,5 +1,5 @@
 // GDS2OBJA.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2014, 2015, 2016, 2017
 //
 // Список соответствий Товар(Группа товаров) - Объект
 // Используется для автоматического формирования документов
@@ -76,11 +76,11 @@ int SLAPI GoodsToObjAssoc::Add(PPID goodsID, PPID objID, uint * pPos)
 {
 	int    ok = 1;
 	if(List.SearchPair(goodsID, objID, 0))
-		ok = (PPErrCode = PPERR_DUPGOODSTOOBJASSOC, 0);
+		ok = PPSetError(PPERR_DUPGOODSTOOBJASSOC);
 	else if((Flags & fDup) || List.CheckUnique(goodsID, 1))
 		ok = List.Add(goodsID, objID, pPos, 1) ? 1 : PPSetErrorSLib();
 	else
-		ok = (PPErrCode = PPERR_DUPGOODSTOOBJASSOC, 0);
+		ok = PPSetError(PPERR_DUPGOODSTOOBJASSOC);
 	return ok;
 }
 
@@ -96,7 +96,7 @@ int SLAPI GoodsToObjAssoc::Update(PPID goodsID, PPID objID, uint * pPos)
 	}
 	else {
 		PPSetAddedMsgObjName(PPOBJ_GOODS, goodsID);
-		return (PPErrCode = PPERR_GOODS2OBJASSCNFOUND, 0);
+		return PPSetError(PPERR_GOODS2OBJASSCNFOUND);
 	}
 }
 #endif // } 0
@@ -114,7 +114,7 @@ int SLAPI GoodsToObjAssoc::UpdateByPos(uint pos, PPID goodsID, PPID objID)
 		List.atFree(pos);
 		{
 			if(List.SearchPair(goodsID, objID, 0))
-				ok = (PPErrCode = PPERR_DUPGOODSTOOBJASSOC, 0);
+				ok = PPSetError(PPERR_DUPGOODSTOOBJASSOC);
 			else if((Flags & fDup) || List.CheckUnique(goodsID, 1)) {
 				LAssoc new_item;
 				new_item.Key = goodsID;
@@ -122,7 +122,7 @@ int SLAPI GoodsToObjAssoc::UpdateByPos(uint pos, PPID goodsID, PPID objID)
 				ok = List.atInsert(pos, &new_item) ? 1 : PPSetErrorSLib();
 			}
 			else
-				ok = (PPErrCode = PPERR_DUPGOODSTOOBJASSOC, 0);
+				ok = PPSetError(PPERR_DUPGOODSTOOBJASSOC);
 		}
 		if(!ok) {
 			List.atInsert(pos, &temp_item);
@@ -667,7 +667,7 @@ int NamedObjAssocDialog::getDTS(PPNamedObjAssoc * pData)
 	getCtrlData(CTLSEL_NOBJASSC_SCNDGRP, &Data.ScndObjGrp);
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }

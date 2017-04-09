@@ -779,7 +779,7 @@ int SLAPI PPLogger::LogLastError()
 {
 	int    ok = -1;
 	SString buf;
-	if(PPGetMessage(mfError, PPErrCode, 0, 1, buf)) {
+	if(PPGetLastErrorMessage(1, buf)) {
 		Log(buf);
 		ok = 1;
 	}
@@ -1195,7 +1195,7 @@ int SLAPI PPSession::Log(const char * pFileName, const char * pStr, long options
 	item.FileName = pFileName;
 	SString temp_buf;
 	if(pStr == 0 && options & LOGMSGF_LASTERR) {
-		PPGetMessage(mfError, PPErrCode, 0, 1, item.Text);
+		PPGetLastErrorMessage(1, item.Text);
 	}
 	else
 		item.Text = pStr;

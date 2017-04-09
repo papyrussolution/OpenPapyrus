@@ -578,7 +578,7 @@ int SLAPI GoodsGrpngArray::Calc(GCTFilt * pFilt, TransferTbl::Rec * pTrfrRec, PP
 	else {
 		const  PPID   op_id  = bill_rec.OpID;
 		const  double amount = BR2(bill_rec.Amount);
-		if((!(pFilt->Flags & OPG_LABELONLY) || (bill_rec.Flags & BILLF_WHITELABEL)) && ObjRts.CheckOpID(op_id, 0)) {
+		if((!(pFilt->Flags & OPG_LABELONLY) || (bill_rec.Flags & BILLF_WHITELABEL)) && ObjRts.CheckOpID(op_id, PPR_READ)) {
 			const int r2 = pFilt->AcceptIntr3(bill_rec);
 			if(r2) {
 				PPID   l_tax_grp_id = 0;
@@ -818,7 +818,7 @@ int SLAPI GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 		dbq = & (*dbq && daterange(p_bill->Dt, &pFilt->Period));
 	BExtQuery q(p_bill, idx, 256); // @v6.4.8 32-->256
 	q.select(p_bill->ID, p_bill->OpID, p_bill->Dt, p_bill->LocID, p_bill->Amount,
-		p_bill->Object, p_bill->LinkBillID, p_bill->Flags, p_bill->StatusID, 0L).where(*dbq); // @v7.2.11 p_bill->StatusID
+		p_bill->Object, p_bill->LinkBillID, p_bill->Flags, p_bill->StatusID, 0L).where(*dbq);
 	k_ = k;
 	counter.Init(q.countIterations(0, &k_, spGt));
 	PPLoadTextS(PPTXT_CALCOPGRPNG, wait_msg).CatDiv(':', 1).Cat(pFilt->Period, 1);
@@ -826,7 +826,7 @@ int SLAPI GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 		BillTbl::Rec bill_rec;
 		p_bill->copyBufTo(&bill_rec);
 		PPID op_id = bill_rec.OpID;
-		if((!(pFilt->Flags & OPG_LABELONLY) || (bill_rec.Flags & BILLF_WHITELABEL)) && ObjRts.CheckOpID(op_id, 0) && pFilt->BillList.CheckID(bill_rec.ID)) {
+		if((!(pFilt->Flags & OPG_LABELONLY) || (bill_rec.Flags & BILLF_WHITELABEL)) && ObjRts.CheckOpID(op_id, PPR_READ) && pFilt->BillList.CheckID(bill_rec.ID)) {
 			PPOprKind op_rec;
 			op_type_id = GetOpType(op_id);
 			if(oneof6(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN, PPOPT_PAYMENT, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF)) {

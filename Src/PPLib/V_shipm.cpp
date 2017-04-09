@@ -93,7 +93,7 @@ int SLAPI PPViewShipmAnalyze::EditBaseFilt(PPBaseFilt * pFilt)
 		{
 			int    ok = 1;
 			if(!GetPeriodInput(this, CTL_SHANLZFLT_PERIOD, &Data.Period) || !AdjustPeriodToRights(Data.Period, 1))
-				ok = PPErrorByDialog(this, CTL_SHANLZFLT_PERIOD, -1);
+				ok = PPErrorByDialog(this, CTL_SHANLZFLT_PERIOD);
 			else {
 				getCtrlData(CTLSEL_SHANLZFLT_OPRKIND, &Data.OpID);
 				if(!Data.OpID)

@@ -866,7 +866,7 @@ int SLAPI AccTurnCore::_RecByBill(PPID billID, short * pRByBill)
 		if(k0.Bill == billID)
 			*pRByBill = k0.RByBill+1;
 		else if(*pRByBill)
-			return (PPErrCode = PPERR_TURNBYBILLNFOUND, 0);
+			return PPSetError(PPERR_TURNBYBILLNFOUND);
 		else
 			*pRByBill = 1;
 		return 1;
@@ -874,19 +874,19 @@ int SLAPI AccTurnCore::_RecByBill(PPID billID, short * pRByBill)
 	else if(!BTRNFOUND)
 		return PPSetErrorDB();
 	else if(*pRByBill)
-		return (PPErrCode = PPERR_TURNBYBILLNFOUND, 0);
+		return PPSetError(PPERR_TURNBYBILLNFOUND);
 	*pRByBill = 1;
 	return 1;
 }
 
 int SLAPI AccTurnCore::GetBill(PPAccTurn * pAt)
 {
-	return pAt->BillID ? _RecByBill(pAt->BillID, &pAt->RByBill) : (PPErrCode = PPERR_INVBILLID, 0);
+	return pAt->BillID ? _RecByBill(pAt->BillID, &pAt->RByBill) : PPSetError(PPERR_INVBILLID);
 }
 
 static int SLAPI ValidateAccKind(int k)
 {
-	return (k == ACT_ACTIVE || k == ACT_PASSIVE || k == ACT_AP) ? 1 : (PPErrCode = PPERR_ACTNDEF, 0);
+	return (k == ACT_ACTIVE || k == ACT_PASSIVE || k == ACT_AP) ? 1 : PPSetError(PPERR_ACTNDEF);
 }
 
 int SLAPI AccTurnCore::GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRec, int createIfNExists, int use_ta)

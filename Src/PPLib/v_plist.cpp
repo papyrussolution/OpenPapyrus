@@ -162,7 +162,7 @@ int SLAPI PPViewPriceList::GetPriceByQuot(RecalcParamBlock * pRPB, PPID quotKind
 {
 	int    done  = 0;
 	double price = *pPrice;
-	QuotIdent qi(pRPB->Dt, Filt.LocID, quotKindID, 0, Filt.ArticleID);
+	const  QuotIdent qi(pRPB->Dt, Filt.LocID, quotKindID, 0, Filt.ArticleID);
 	if(GObj.GetQuotExt(pRPB->GoodsID, qi, pRPB->Cost, pRPB->BasePrice, &price, 1) > 0) {
 		if(pRPB->GoodsPriceWoTaxes) {
 			PPID   op_id = 0;

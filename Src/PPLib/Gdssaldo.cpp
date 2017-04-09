@@ -288,7 +288,7 @@ int GoodsSaldoParamDlg::getDTS(PrcssrGoodsSaldo::Param * pPar)
 	getCtrlData(CTL_GDSSALDO_HOW, &v);
 	GSParam.FullCalc = v;
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	ASSIGN_PTR(pPar, GSParam);
 	return ok;

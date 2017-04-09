@@ -202,13 +202,13 @@ int SLAPI PPObjAccTurn::EditRecoverBalanceParam(RecoverBalanceParam * pParam)
 	dlg->SetClusterData(CTL_CBAL_FLAGS, pParam->Flags);
 	while(!valid_data && ExecView(dlg) == cmOK) {
 		if(!GetPeriodInput(dlg, CTL_CBAL_PERIOD, &pParam->Period))
-			PPErrorByDialog(dlg, CTL_CBAL_PERIOD, -1);
+			PPErrorByDialog(dlg, CTL_CBAL_PERIOD);
 		else {
 			PPAccount acc_rec;
 			dlg->getCtrlData(CTL_CBAL_BAL, &acct);
 			acct.ar = 0;
 			if((acct.ac || acct.sb) && P_Tbl->AccObj.SearchNum(acct.ac, acct.sb, 0L /* @curID */, &acc_rec) <= 0)
-				PPErrorByDialog(dlg, CTL_CBAL_BAL, -1);
+				PPErrorByDialog(dlg, CTL_CBAL_BAL);
 			else {
 				pParam->BalAccID = (acct.ac || acct.sb) ? acc_rec.ID : 0;
 				dlg->GetClusterData(CTL_CBAL_FLAGS, &pParam->Flags);

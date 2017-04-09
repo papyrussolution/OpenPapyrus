@@ -120,7 +120,7 @@ int SLAPI SCoClass::SetupError()
 	if(SUCCEEDED(CreateErrorInfo(&p_cer))) {
 		BSTR w_msg_buf = 0;
 		SString msg_buf;
-		PPGetMessage(mfError, PPErrCode, 0, 1, msg_buf);
+		PPGetLastErrorMessage(1, msg_buf);
 		msg_buf.CopyToOleStr(&w_msg_buf);
 		p_cer->SetDescription(w_msg_buf);
 		if(SUCCEEDED(p_cer->QueryInterface(IID_IErrorInfo, (void **)&p_ei))) {

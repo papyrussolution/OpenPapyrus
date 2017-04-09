@@ -1485,8 +1485,7 @@ PNG_EXPORT(66, void, png_set_crc_action, (png_structrp png_ptr, int crit_action,
 /* Set the filtering method(s) used by libpng.  Currently, the only valid
  * value for "method" is 0.
  */
-PNG_EXPORT(67, void, png_set_filter, (png_structrp png_ptr, int method,
-    int filters));
+PNG_EXPORT(67, void, png_set_filter, (png_structrp png_ptr, int method, int filters));
 #endif /* WRITE */
 
 /* Flags for png_set_filter() to say which filters to use.  The flags

@@ -32,6 +32,9 @@
 #define ZLIB_H
 
 #include "zconf.h"
+#ifdef ZLIB_INTERNAL
+	#include <slib.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -528,12 +531,7 @@ ZEXTERN int ZEXPORT inflateEnd OF((z_streamp strm));
  */
 
 /*
-   ZEXTERN int ZEXPORT deflateInit2 OF((z_streamp strm,
-                                     int  level,
-                                     int  method,
-                                     int  windowBits,
-                                     int  memLevel,
-                                     int  strategy));
+   ZEXTERN int ZEXPORT deflateInit2 OF((z_streamp strm, int  level, int  method, int  windowBits, int  memLevel, int  strategy));
 
      This is another version of deflateInit with more compression options.  The
    fields next_in, zalloc, zfree and opaque must be initialized before by the
@@ -600,10 +598,7 @@ ZEXTERN int ZEXPORT inflateEnd OF((z_streamp strm));
    set to null if there is no error message.  deflateInit2 does not perform any
    compression: this will be done by deflate().
  */
-
-ZEXTERN int ZEXPORT deflateSetDictionary OF((z_streamp strm,
-	    const Bytef *dictionary,
-	    uInt dictLength));
+ZEXTERN int ZEXPORT deflateSetDictionary OF((z_streamp strm, const Bytef *dictionary, uInt dictLength));
 /*
      Initializes the compression dictionary from the given byte sequence
    without producing any compressed output.  When using the zlib format, this
@@ -1693,8 +1688,7 @@ ZEXTERN uLong ZEXPORT adler32 OF((uLong adler, const Bytef *buf, uInt len));
      if (adler != original_adler) error();
  */
 
-ZEXTERN uLong ZEXPORT adler32_z OF((uLong adler, const Bytef *buf,
-	    z_size_t len));
+ZEXTERN uLong ZEXPORT adler32_z OF((uLong adler, const Bytef *buf, z_size_t len));
 /*
      Same as adler32(), but with a size_t length.
  */
@@ -1728,8 +1722,7 @@ ZEXTERN uLong ZEXPORT crc32 OF((uLong crc, const Bytef *buf, uInt len));
      if (crc != original_crc) error();
  */
 
-ZEXTERN uLong ZEXPORT crc32_z OF((uLong adler, const Bytef *buf,
-	    z_size_t len));
+ZEXTERN uLong ZEXPORT crc32_z OF((uLong adler, const Bytef *buf, z_size_t len));
 /*
      Same as crc32(), but with a size_t length.
  */
@@ -1769,19 +1762,12 @@ ZEXTERN int ZEXPORT inflateBackInit_ OF((z_streamp strm, int windowBits, unsigne
 	inflateBackInit_((strm), (windowBits), (window), \
 	    ZLIB_VERSION, (int)sizeof(z_stream))
 #else
-#  define deflateInit(strm, level) \
-	deflateInit_((strm), (level), ZLIB_VERSION, (int)sizeof(z_stream))
-#  define inflateInit(strm) \
-	inflateInit_((strm), ZLIB_VERSION, (int)sizeof(z_stream))
-#  define deflateInit2(strm, level, method, windowBits, memLevel, strategy) \
-	deflateInit2_((strm), (level), (method), (windowBits), (memLevel), \
-	    (strategy), ZLIB_VERSION, (int)sizeof(z_stream))
-#  define inflateInit2(strm, windowBits) \
-	inflateInit2_((strm), (windowBits), ZLIB_VERSION, \
-	    (int)sizeof(z_stream))
-#  define inflateBackInit(strm, windowBits, window) \
-	inflateBackInit_((strm), (windowBits), (window), \
-	    ZLIB_VERSION, (int)sizeof(z_stream))
+	#define deflateInit(strm, level) deflateInit_((strm), (level), ZLIB_VERSION, (int)sizeof(z_stream))
+	#define inflateInit(strm) inflateInit_((strm), ZLIB_VERSION, (int)sizeof(z_stream))
+	#define deflateInit2(strm, level, method, windowBits, memLevel, strategy) \
+		deflateInit2_((strm), (level), (method), (windowBits), (memLevel), (strategy), ZLIB_VERSION, (int)sizeof(z_stream))
+	#define inflateInit2(strm, windowBits) inflateInit2_((strm), (windowBits), ZLIB_VERSION, (int)sizeof(z_stream))
+	#define inflateBackInit(strm, windowBits, window) inflateBackInit_((strm), (windowBits), (window), ZLIB_VERSION, (int)sizeof(z_stream))
 #endif
 
 #ifndef Z_SOLO
@@ -1801,12 +1787,10 @@ struct gzFile_s {
 
 ZEXTERN int ZEXPORT gzgetc_ OF((gzFile file));  /* backward compatibility */
 #ifdef Z_PREFIX_SET
-#  undef z_gzgetc
-#  define z_gzgetc(g) \
-	((g)->have ? ((g)->have--, (g)->pos++, *((g)->next)++) : (gzgetc)(g))
+	#undef z_gzgetc
+	#define z_gzgetc(g) ((g)->have ? ((g)->have--, (g)->pos++, *((g)->next)++) : (gzgetc)(g))
 #else
-#  define gzgetc(g) \
-	((g)->have ? ((g)->have--, (g)->pos++, *((g)->next)++) : (gzgetc)(g))
+	#define gzgetc(g) ((g)->have ? ((g)->have--, (g)->pos++, *((g)->next)++) : (gzgetc)(g))
 #endif
 
 /* provide 64-bit offset functions if _LARGEFILE64_SOURCE defined, and/or
@@ -1816,45 +1800,44 @@ ZEXTERN int ZEXPORT gzgetc_ OF((gzFile file));  /* backward compatibility */
  * without large file support, _LFS64_LARGEFILE must also be true
  */
 #ifdef Z_LARGE64
-ZEXTERN gzFile ZEXPORT gzopen64 OF((const char *, const char *));
-ZEXTERN z_off64_t ZEXPORT gzseek64 OF((gzFile, z_off64_t, int));
-ZEXTERN z_off64_t ZEXPORT gztell64 OF((gzFile));
-ZEXTERN z_off64_t ZEXPORT gzoffset64 OF((gzFile));
-ZEXTERN uLong ZEXPORT adler32_combine64 OF((uLong, uLong, z_off64_t));
-ZEXTERN uLong ZEXPORT crc32_combine64 OF((uLong, uLong, z_off64_t));
+	ZEXTERN gzFile ZEXPORT gzopen64 OF((const char *, const char *));
+	ZEXTERN z_off64_t ZEXPORT gzseek64 OF((gzFile, z_off64_t, int));
+	ZEXTERN z_off64_t ZEXPORT gztell64 OF((gzFile));
+	ZEXTERN z_off64_t ZEXPORT gzoffset64 OF((gzFile));
+	ZEXTERN uLong ZEXPORT adler32_combine64 OF((uLong, uLong, z_off64_t));
+	ZEXTERN uLong ZEXPORT crc32_combine64 OF((uLong, uLong, z_off64_t));
 #endif
-
 #if !defined(ZLIB_INTERNAL) && defined(Z_WANT64)
-#  ifdef Z_PREFIX_SET
+	#ifdef Z_PREFIX_SET
 #    define z_gzopen z_gzopen64
 #    define z_gzseek z_gzseek64
 #    define z_gztell z_gztell64
 #    define z_gzoffset z_gzoffset64
 #    define z_adler32_combine z_adler32_combine64
 #    define z_crc32_combine z_crc32_combine64
-#  else
+	#else
 #    define gzopen gzopen64
 #    define gzseek gzseek64
 #    define gztell gztell64
 #    define gzoffset gzoffset64
 #    define adler32_combine adler32_combine64
 #    define crc32_combine crc32_combine64
-#  endif
-#  ifndef Z_LARGE64
-ZEXTERN gzFile ZEXPORT gzopen64 OF((const char *, const char *));
-ZEXTERN z_off_t ZEXPORT gzseek64 OF((gzFile, z_off_t, int));
-ZEXTERN z_off_t ZEXPORT gztell64 OF((gzFile));
-ZEXTERN z_off_t ZEXPORT gzoffset64 OF((gzFile));
-ZEXTERN uLong ZEXPORT adler32_combine64 OF((uLong, uLong, z_off_t));
-ZEXTERN uLong ZEXPORT crc32_combine64 OF((uLong, uLong, z_off_t));
-#  endif
+	#endif
+	#ifndef Z_LARGE64
+		ZEXTERN gzFile ZEXPORT gzopen64 OF((const char *, const char *));
+		ZEXTERN z_off_t ZEXPORT gzseek64 OF((gzFile, z_off_t, int));
+		ZEXTERN z_off_t ZEXPORT gztell64 OF((gzFile));
+		ZEXTERN z_off_t ZEXPORT gzoffset64 OF((gzFile));
+		ZEXTERN uLong ZEXPORT adler32_combine64 OF((uLong, uLong, z_off_t));
+		ZEXTERN uLong ZEXPORT crc32_combine64 OF((uLong, uLong, z_off_t));
+	#endif
 #else
-ZEXTERN gzFile ZEXPORT gzopen OF((const char *, const char *));
-ZEXTERN z_off_t ZEXPORT gzseek OF((gzFile, z_off_t, int));
-ZEXTERN z_off_t ZEXPORT gztell OF((gzFile));
-ZEXTERN z_off_t ZEXPORT gzoffset OF((gzFile));
-ZEXTERN uLong ZEXPORT adler32_combine OF((uLong, uLong, z_off_t));
-ZEXTERN uLong ZEXPORT crc32_combine OF((uLong, uLong, z_off_t));
+	ZEXTERN gzFile ZEXPORT gzopen OF((const char *, const char *));
+	ZEXTERN z_off_t ZEXPORT gzseek OF((gzFile, z_off_t, int));
+	ZEXTERN z_off_t ZEXPORT gztell OF((gzFile));
+	ZEXTERN z_off_t ZEXPORT gzoffset OF((gzFile));
+	ZEXTERN uLong ZEXPORT adler32_combine OF((uLong, uLong, z_off_t));
+	ZEXTERN uLong ZEXPORT crc32_combine OF((uLong, uLong, z_off_t));
 #endif
 
 #else /* Z_SOLO */
@@ -1874,15 +1857,16 @@ ZEXTERN unsigned long ZEXPORT inflateCodesUsed OF((z_streamp));
 ZEXTERN int ZEXPORT inflateResetKeep OF((z_streamp));
 ZEXTERN int ZEXPORT deflateResetKeep OF((z_streamp));
 #if (defined(_WIN32) || defined(__CYGWIN__)) && !defined(Z_SOLO)
-ZEXTERN gzFile ZEXPORT gzopen_w OF((const wchar_t * path,
-	    const char * mode));
+	ZEXTERN gzFile ZEXPORT gzopen_w OF((const wchar_t * path, const char * mode));
 #endif
 #if defined(STDC) || defined(Z_HAVE_STDARG_H)
-#  ifndef Z_SOLO
-ZEXTERN int ZEXPORTVA gzvprintf Z_ARG((gzFile file,
-	    const char * format,
-	    va_list va));
-#  endif
+	#ifndef Z_SOLO
+		ZEXTERN int ZEXPORTVA gzvprintf Z_ARG((gzFile file, const char * format, va_list va));
+	#endif
+#endif
+
+#if defined(ZLIB_INTERNAL)
+	#include <zutil.h>
 #endif
 
 #ifdef __cplusplus

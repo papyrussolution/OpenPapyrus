@@ -264,8 +264,7 @@ int QuotUpdDialog::getDTS(QuotUpdFilt * pFilt)
 	if(ok)
 		ASSIGN_PTR(pFilt, Data);
 	CATCH
-		PPErrorByDialog(this, sel, -1);
-		ok = 0;
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }

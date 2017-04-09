@@ -1384,7 +1384,7 @@ int GBItemDialog::getDTS(ILTI * pData)
 	Item.GoodsID = rec.GoodsID;
 	ok = 1;
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	ASSIGN_PTR(pData, Item);
 	return ok;
@@ -2079,7 +2079,7 @@ static int SLAPI EditBasket2BillParam(Basket2BillParam * pParam)
 			GetClusterData(CTL_BSKT2BILL_USELINK, &Data.Flags);
 			ASSIGN_PTR(pData, Data);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}

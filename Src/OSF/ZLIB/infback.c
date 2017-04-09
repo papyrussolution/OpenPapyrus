@@ -9,15 +9,15 @@
    with inffast.c is retained so that optimized assembler-coded versions of
    inflate_fast() can be used with either inflate.c or infback.c.
  */
-
-#include "zutil.h"
+#define ZLIB_INTERNAL
+#include "zlib.h"
+#pragma hdrstop
 #include "inftrees.h"
 #include "inflate.h"
 #include "inffast.h"
 
 /* function prototypes */
 static void fixedtables OF((struct inflate_state  * state));
-
 /*
    strm provides memory allocation functions in zalloc and zfree, or
    Z_NULL to use the library memory allocation functions.
@@ -49,9 +49,9 @@ int ZEXPORT inflateBackInit_(z_streamp strm, int windowBits, unsigned char  * wi
 #else
 		strm->zfree = zcfree;
 #endif
-	state = (struct inflate_state *)ZALLOC(strm, 1,
-	    sizeof(struct inflate_state));
-	if(state == Z_NULL) return Z_MEM_ERROR;
+	state = (struct inflate_state *)ZLIB_ALLOC(strm, 1, sizeof(struct inflate_state));
+	if(state == Z_NULL) 
+		return Z_MEM_ERROR;
 	Tracev((stderr, "inflate: allocated\n"));
 	strm->state = (struct internal_state *)state;
 	state->dmax = 32768U;
@@ -500,26 +500,21 @@ int ZEXPORT inflateBack(z_streamp strm,
 			    }
 			    DROPBITS(here.bits);
 			    state->length = (unsigned)here.val;
-
 			    /* process literal */
 			    if(here.op == 0) {
-				    Tracevv((stderr, here.val >= 0x20 && here.val < 0x7f ?
-					    "inflate:         literal '%c'\n" :
-					    "inflate:         literal 0x%02x\n", here.val));
+				    Tracevv((stderr, here.val >= 0x20 && here.val < 0x7f ? "inflate:         literal '%c'\n" : "inflate:         literal 0x%02x\n", here.val));
 				    ROOM();
 				    *put++ = (unsigned char)(state->length);
 				    left--;
 				    state->mode = LEN;
 				    break;
 			    }
-
 			    /* process end of block */
 			    if(here.op & 32) {
 				    Tracevv((stderr, "inflate:         end of block\n"));
 				    state->mode = TYPE;
 				    break;
 			    }
-
 			    /* invalid code */
 			    if(here.op & 64) {
 				    strm->msg = (char*)"invalid literal/length code";
@@ -625,9 +620,11 @@ int ZEXPORT inflateBackEnd(z_streamp strm)
 {
 	if(strm == Z_NULL || strm->state == Z_NULL || strm->zfree == (free_func)0)
 		return Z_STREAM_ERROR;
-	ZFREE(strm, strm->state);
-	strm->state = Z_NULL;
-	Tracev((stderr, "inflate: end\n"));
-	return Z_OK;
+	else {
+		ZLIB_FREE(strm, strm->state);
+		strm->state = Z_NULL;
+		Tracev((stderr, "inflate: end\n"));
+		return Z_OK;
+	}
 }
 

@@ -3,11 +3,15 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
+#define ZLIB_INTERNAL
+#include "zlib.h"
+#pragma hdrstop
 #include "gzguts.h"
-
-/* gzclose() is in a separate file so that it is linked in only if it is used.
-   That way the other gzclose functions can be used instead to avoid linking in
-   unneeded compression or decompression routines. */
+//
+// gzclose() is in a separate file so that it is linked in only if it is used.
+// That way the other gzclose functions can be used instead to avoid linking in
+// unneeded compression or decompression routines. 
+//
 int ZEXPORT gzclose(gzFile file)
 {
 #ifndef NO_GZCOMPRESS

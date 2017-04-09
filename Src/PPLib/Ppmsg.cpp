@@ -160,7 +160,6 @@ int FASTCALL PPLoadText(int code, SString & s)
 
 SString & FASTCALL PPLoadTextS(int code, SString & s)
 {
-	s = 0;
 	PPLoadString(PPSTR_TEXT, code, s);
 	return s;
 }
@@ -174,7 +173,7 @@ int FASTCALL PPLoadTextWin(int code, SString & s)
 
 int FASTCALL PPLoadError(int code, SString & s, const char * pAddInfo)
 {
-	return PPGetMessage(mfError|mfOK, code, pAddInfo, DS.CheckExtFlag(ECF_SYSSERVICE), s);
+	return PPGetMessage(mfError, code, pAddInfo, DS.CheckExtFlag(ECF_SYSSERVICE), s);
 }
 
 int FASTCALL PPSetError(int errCode)
@@ -252,6 +251,11 @@ void SLAPI PPSetAddedMsgObjName(PPID objType, PPID objID)
 	SString obj_name;
 	GetObjectName(objType, objID, obj_name);
 	PPSetAddedMsgString(obj_name);
+}
+
+int FASTCALL PPGetLastErrorMessage(int rmvSpcChrs, SString & rBuf)
+{
+	return PPGetMessage(mfError, /**/PPErrCode, 0, rmvSpcChrs, rBuf);
 }
 
 int SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmvSpcChrs, SString & rBuf)
@@ -872,7 +876,7 @@ int SLAPI PPCheckUserBreak()
 			CheckEscKey(0);
 			PPWait(0);
 			if(PPMessage(mfConf|mfYesNo, PPCFM_USERBREAK, 0) == cmYes)
-                ok = (PPErrCode = PPERR_USERBREAK, 0);
+                ok = PPSetError(PPERR_USERBREAK);
 			else
 				ok = (PPWait(1), -1);
 		}

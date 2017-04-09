@@ -27,7 +27,7 @@ int SLAPI EditELink(PPELink * pLink)
 					tr.Run((const uchar *)pLink->Addr, nta, 0);
 					if(nta.Has(PPNTOK_EMAIL) == 0.0f) {
 						valid_data = PPSetError(PPERR_INVEMAILADDR, pLink->Addr);
-						PPErrorByDialog(dlg, CTL_ELINK_ADDR, -1);
+						PPErrorByDialog(dlg, CTL_ELINK_ADDR);
 					}
 				}
 			}
@@ -230,7 +230,7 @@ int ELinkDialog::getDTS(PPELinkArray * pData)
 	}
 	CALLPTRMEMB(pData, copy(data));
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }

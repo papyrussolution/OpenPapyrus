@@ -836,7 +836,7 @@ void STimeChunkBrowser::OnUpdateData()
 const STimeChunkBrowser::RowState & FASTCALL STimeChunkBrowser::GetRowState(long id) const
 {
 	uint   rs_pos = 0;
-	int    rsf = RowStateList.bsearch(&id, &rs_pos, CMPF_LONG); // @v7.6.10 lsearch-->bsearch Функция OnUpdateData отсортировала список
+	int    rsf = RowStateList.bsearch(&id, &rs_pos, CMPF_LONG); // Функция OnUpdateData отсортировала список
 	assert(rsf);
 	return *RowStateList.at(rs_pos);
 }

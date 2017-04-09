@@ -85,7 +85,7 @@ int CRevalDialog::getDTS(CurRevalParam * pData)
 	}
 	*pData = Data;
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }

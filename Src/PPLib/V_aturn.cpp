@@ -1,5 +1,5 @@
 // V_ATURN.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2015, 2016
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -440,14 +440,15 @@ int SLAPI PPViewAccturn::InitViewItem(AccTurnTbl::Rec * pAtRec, AccturnViewItem 
 		if((Filt.Flags & AccturnFilt::fAllCurrencies) || aturn.CurID == Filt.CurID) {
 			if(P_TmpBillTbl || !OpList.getCount() || OpList.lsearch(aturn.Opr)) {
 				int    rt = 0;
-				if(!ObjRts.CheckAccID(aturn.DbtID.ac, PPR_READ)) {
+				const PPRights & r_orts = ObjRts;
+				if(!r_orts.CheckAccID(aturn.DbtID.ac, PPR_READ)) {
 					aturn.DbtID.ac = 0;
 					aturn.DbtID.ar = 0;
 					aturn.DbtSheet = 0;
 				}
 				else
 					rt++;
-				if(!ObjRts.CheckAccID(aturn.CrdID.ac, PPR_READ)) {
+				if(!r_orts.CheckAccID(aturn.CrdID.ac, PPR_READ)) {
 					aturn.CrdID.ac = 0;
 					aturn.CrdID.ar = 0;
 					aturn.CrdSheet = 0;
@@ -456,10 +457,8 @@ int SLAPI PPViewAccturn::InitViewItem(AccTurnTbl::Rec * pAtRec, AccturnViewItem 
 					rt++;
 				if(rt) {
 					if(pItem) {
-						// @v6.0.9 {
 						if(aturn.Flags & PPAF_OUTBAL_WITHDRAWAL)
 							aturn.Amount = -aturn.Amount;
-						// } @v6.0.9
 						*(PPAccTurn *)pItem = aturn;
 						pItem->OprNo = pAtRec->OprNo;
 						P_ATC->GetAccRelIDs(pAtRec, &pItem->DbtAccRelID, &pItem->CrdAccRelID);
@@ -486,12 +485,12 @@ int SLAPI PPViewAccturn::InitViewItem(TempAccturnGrpngTbl::Rec * pATGRec, Acctur
 		}
 		else {
 			AcctRelTbl::Rec rec;
-			if(P_ATC->AccRel.Fetch(pATGRec->DbtAccID, &rec) > 0) { // @v6.0.9 Search-->Fetch
+			if(P_ATC->AccRel.Fetch(pATGRec->DbtAccID, &rec) > 0) {
 				pItem->DbtAccRelID = rec.ID;
 				pItem->DbtID.ac = rec.AccID;
 				pItem->DbtID.ar = rec.ArticleID;
 			}
-			if(P_ATC->AccRel.Fetch(pATGRec->CrdAccID, &rec) > 0) { // @v6.0.9 Search-->Fetch
+			if(P_ATC->AccRel.Fetch(pATGRec->CrdAccID, &rec) > 0) {
 				pItem->CrdAccRelID = rec.ID;
 				pItem->CrdID.ac = rec.AccID;
 				pItem->CrdID.ar = rec.ArticleID;
@@ -635,7 +634,7 @@ int AccturnFiltDialog::getDTS(AccturnFilt * pFilt)
 	Filt.Cycl = cycle_rec.C;
 	ASSIGN_PTR(pFilt, Filt);
 	CATCH
-		ok = PPErrorByDialog(this, sel, -1);
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -697,8 +696,11 @@ static void SLAPI dbqf_accturn_checkrelrestriction_iii(int option, DBConst * res
 			if(!(p_filt->Flags & AccturnFilt::fAllCurrencies) && dbt_rec.CurID != p_filt->CurID)
 				ok = 0;
 		}
-		if(ok && !ObjRts.CheckAccID(dbt_rec.AccID, PPR_READ) && !ObjRts.CheckAccID(crd_rec.AccID, PPR_READ))
-			ok = 0;
+		if(ok) {
+			const PPRights & r_orts = ObjRts;
+			if(!r_orts.CheckAccID(dbt_rec.AccID, PPR_READ) && !r_orts.CheckAccID(crd_rec.AccID, PPR_READ))
+				ok = 0;
+		}
 	}
 	else
 		ok = 0;

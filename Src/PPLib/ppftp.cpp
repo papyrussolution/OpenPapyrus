@@ -173,13 +173,13 @@ int SLAPI PPFTP::GetFileInfo(const char * pServerPath, LDATETIME * pFileDtTm, ul
 int SLAPI PPFTP::Put(const char * pLocalPath, const char * pServerPath, int checkDtTm, PercentFunc pf)
 {
 	return (pLocalPath && pServerPath) ?
-		FileTransfer(pLocalPath, pServerPath, 1, checkDtTm, pf) : (PPErrCode = PPERR_INVPARAM, 0);
+		FileTransfer(pLocalPath, pServerPath, 1, checkDtTm, pf) : PPSetError(PPERR_INVPARAM);
 }
 
 int SLAPI PPFTP::Get(const char * pLocalPath, const char * pServerPath, int checkDtTm, PercentFunc pf)
 {
 	return (pLocalPath && pServerPath) ?
-		FileTransfer(pLocalPath, pServerPath, 0, checkDtTm, pf) : (PPErrCode = PPERR_INVPARAM, 0);
+		FileTransfer(pLocalPath, pServerPath, 0, checkDtTm, pf) : PPSetError(PPERR_INVPARAM);
 }
 
 int SLAPI PPFTP::FileTransfer(const char * pLocalPath, const char * pServerPath, int send, int checkDtTm, PercentFunc pf)

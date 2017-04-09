@@ -351,7 +351,7 @@ public:
 		THROW_PP(fabs(Data.Amount) < 100000000., PPERR_USERINPUT);
 		ASSIGN_PTR(pData, Data);
 		CATCH
-			ok = PPErrorByDialog(this, sel, -1);
+			ok = PPErrorByDialog(this, sel);
 		ENDCATCH
 		return ok;
 	}
@@ -1790,7 +1790,7 @@ int SLAPI PrcssrSalary::GetFunc(int id, FuncDescr * pDescr) const
 		return id;
 	}
 	else
-		return (PPErrCode = PPERR_SALARYCHARGEFORM_INVFUNCID, 0);
+		return PPSetError(PPERR_SALARYCHARGEFORM_INVFUNCID);
 }
 
 int SLAPI PrcssrSalary::IsFunc(const char * pSymb, int * pFuncId)
@@ -2210,7 +2210,7 @@ int SLAPI PrcssrSalary::CalcPeriod(const CalcPeriodParam & rCpP, long * pDays, d
 	SString temp_buf;
 	SStrCollection dbg_log_list;
 	if(!rCpP.Period.low || !rCpP.Period.upp || rCpP.Period.low > rCpP.Period.upp)
-		ok = (PPErrCode = PPERR_INVPARAM, 0);
+		ok = PPSetError(PPERR_INVPARAM);
 	else {
 		PersonPostTbl::Rec post_rec;
 		PPStaffCal parent_cal, proj_parent_cal;
@@ -2283,7 +2283,7 @@ int SLAPI PrcssrSalary::TestCalcPeriod(PPID postID)
 			else {
 				dlg->setCtrlLong(CTL_TESTSTAFFCAL_DAYS, 0);
 				dlg->setCtrlReal(CTL_TESTSTAFFCAL_HOURS, 0.0);
-				PPGetMessage(mfError, PPErrCode, 0, 1, temp_buf);
+				PPGetLastErrorMessage(1, temp_buf);
 			}
 			dlg->setStaticText(CTL_TESTSTAFFCAL_ST_MSG, temp_buf);
 		}

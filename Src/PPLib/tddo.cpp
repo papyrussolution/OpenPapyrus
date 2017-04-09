@@ -82,7 +82,7 @@ int SLAPI Tddo::GetFileName(const char * pFileName, int fileType, const char * p
 		if(!ok)
 			rResult = preserve_result;
 	}
-	return (ok || fileExists(rResult)) ? 1 : (PPErrCode = PPERR_SLIB, 0);
+	return (ok || fileExists(rResult)) ? 1 : PPSetErrorSLib();
 }
 
 // static
@@ -659,7 +659,7 @@ int SLAPI Tddo::ResolveVar(const SString & rText, const DlScope * pScope, Result
 	}
 	CATCH
 		ok = 0;
-		PPGetMessage(mfError, PPErrCode, 0, 1, rR.S);
+		PPGetLastErrorMessage(1, rR.S);
 	ENDCATCH
 	return ok;
 }

@@ -2887,7 +2887,7 @@ SString & FASTCALL SString::CatBrackStr(const char * pStr)
 SString & FASTCALL SString::CatDiv(int c, int addSpaces, int ifNotEmpty)
 {
 	if(!ifNotEmpty || Strip().NotEmpty()) {
-		if(c != 0) { // @v7.0.9
+		if(c != 0) {
 			if(addSpaces > 0 && addSpaces != 2)
 				Space();
 			CatChar(c);
@@ -3170,7 +3170,7 @@ int SLAPI SString::IsDigit() const
 
 ulong SLAPI SString::ToULong() const
 {
-	if(L > 0) {
+	if(L > 1) {
 		const char * p = P_Buf;
 		while(*p == ' ' || *p == '\t')
 			p++;
@@ -3186,12 +3186,44 @@ ulong SLAPI SString::ToULong() const
 
 long SLAPI SString::ToLong() const
 {
-	return (long)ToULong();
+	// @v9.6.1 return (long)ToULong();
+	// @v9.6.1 Более корректная реализация. И в добавок - значительно быстрее. {
+	long   result = 0;
+	if(L > 1) {
+		const char * _p = P_Buf;
+		size_t src_pos = 0;
+		while(_p[src_pos] == ' ' || _p[src_pos] == '\t')
+			src_pos++;
+		//
+		int    is_neg = 0;
+		int    is_hex = 0;
+		if(_p[src_pos] == '-') {
+			src_pos++;
+			is_neg = 1;
+		}
+		else if(_p[src_pos] == '+')
+			src_pos++;
+		if(_p[src_pos] == '0' && oneof2(_p[src_pos+1], 'x', 'X')) {
+			src_pos += 2;
+			is_hex = 1;
+		}
+		if(is_hex) {
+			if(ishex(_p[src_pos])) { do { result = result * 16 + hex(_p[src_pos]); } while(ishex(_p[++src_pos])); }
+		}
+		else {
+			if(isdec(_p[src_pos])) { do { result = result * 10 + (_p[src_pos] - '0'); } while(isdec(_p[++src_pos])); }
+		}
+		if(is_neg && result)
+			result = -result;
+	}
+	return result;
+	// } @v9.6.1
 }
 
 int64 SLAPI SString::ToInt64() const
 {
-	if(L > 0) {
+	/* @v9.6.1
+	if(L > 1) {
 		const char * p = P_Buf;
 		while(*p == ' ' || *p == '\t')
 			p++;
@@ -3199,12 +3231,44 @@ int64 SLAPI SString::ToInt64() const
 	}
 	else
 		return 0;
+	*/
+	// @v9.6.1 Более корректная реализация. И в добавок - значительно быстрее. {
+	int64  result = 0;
+	if(L > 1) {
+		const char * _p = P_Buf;
+		size_t src_pos = 0;
+		while(_p[src_pos] == ' ' || _p[src_pos] == '\t')
+			src_pos++;
+		//
+		int    is_neg = 0;
+		int    is_hex = 0;
+		if(_p[src_pos] == '-') {
+			src_pos++;
+			is_neg = 1;
+		}
+		else if(_p[src_pos] == '+')
+			src_pos++;
+		if(_p[src_pos] == '0' && oneof2(_p[src_pos+1], 'x', 'X')) {
+			src_pos += 2;
+			is_hex = 1;
+		}
+		if(is_hex) {
+			if(ishex(_p[src_pos])) { do { result = result * 16 + hex(_p[src_pos]); } while(ishex(_p[++src_pos])); }
+		}
+		else {
+			if(isdec(_p[src_pos])) { do { result = result * 10 + (_p[src_pos] - '0'); } while(isdec(_p[++src_pos])); }
+		}
+		if(is_neg && result)
+			result = -result;
+	}
+	return result;
+	// } @v9.6.1
 }
 
 double SLAPI SString::ToReal() const
 {
 	double v = 0.0;
-	if(L > 0)
+	if(L > 1)
 		strtodoub(P_Buf, &v);
 	return v;
 }
@@ -3212,7 +3276,7 @@ double SLAPI SString::ToReal() const
 int SLAPI SString::ToIntRange(IntRange & rRange, long flags) const
 {
 	int    result = 0;
-	if(L > 0) {
+	if(L > 1) {
 		long   lo = 0;
 		long   up = 0;
 		size_t src_pos = 0;
@@ -5922,6 +5986,20 @@ SLTEST_R(SString)
             SLTEST_CHECK_Z(str.IsLegalUtf8());
             str.Transf(CTRANSF_OUTER_TO_UTF8);
             SLTEST_CHECK_NZ(str.IsLegalUtf8());
+		}
+		{
+			SLTEST_CHECK_EQ((str = "0").ToLong(), 0);
+			SLTEST_CHECK_EQ((str = "abc").ToLong(), 0);
+			SLTEST_CHECK_EQ((str = "\t+100 ").ToLong(), 100);
+			SLTEST_CHECK_EQ((str = " -197 ").ToLong(), -197);
+			SLTEST_CHECK_EQ((str = "0xbeefZ").ToLong(), 0xbeef);
+			SLTEST_CHECK_EQ((str = " -0x2BcD7a92 ").ToLong(), -0x2BCD7A92);
+			SLTEST_CHECK_EQ((str = " - 17 ").ToLong(), 0); // Между знаком - и числом не должно быть пробелов
+			SLTEST_CHECK_EQ((str = "0").ToInt64(), 0);
+			SLTEST_CHECK_EQ((str = "abc").ToInt64(), 0);
+			SLTEST_CHECK_EQ((str = "\t 0x1ABCDEF234567890").ToInt64(), 0x1ABCDEF234567890LL);
+			SLTEST_CHECK_EQ((str = "\t\t123000012878963").ToInt64(), 123000012878963LL);
+			SLTEST_CHECK_EQ((str = "-123000012878963").ToInt64(), -123000012878963LL);
 		}
 		{
 			IntRange ir;

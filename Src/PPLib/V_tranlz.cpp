@@ -4559,7 +4559,7 @@ int SLAPI PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const O
 		}
 	}
 	else {
-		PPGetMessage(mfError, PPErrCode, 0, 0, msg_buf);
+		PPGetLastErrorMessage(0, msg_buf);
 		if(rItem.MsgPool.NotEmptyS())
 			rItem.MsgPool.CatChar('\t');
 		rItem.MsgPool.Cat(msg_buf);

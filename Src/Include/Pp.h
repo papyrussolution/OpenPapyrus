@@ -1067,7 +1067,7 @@ public:
 	static int IdObjNameArByAcc;    // (fldArID, fldAccID) Если у пользователя нет прав на доступ к счету fldAccID,
 		// то выдается пустое имя статьи fldArID //
 	static int IdObjNameUser;       // (fldUserID)
-	static int IdObjNameGlobalUser; // @v7.3.8 (fldGlobalUserID)
+	static int IdObjNameGlobalUser; // (fldGlobalUserID)
 	static int IdObjNameUnit;       // (fldUnitID)
 	static int IdObjNameTech;       // (fldTechID)
 	static int IdObjNameGoodsByTech; // (fldTechID)
@@ -1095,13 +1095,13 @@ public:
 	static int IdObjNameAmountType; //
 	static int IdObjNamePsnKind;    //
 	static int IdObjCodeBillCmplx;  // (fldBillID) Формирует строку, состоящую из даты и номера документа
-	static int IdObjCodeBill;       // @v7.2.8  (fldBillID) Формирует строку, состоящую из номера документа
-	static int IdObjMemoBill;       // @v7.2.8  (fldBillID) Формирует строку примечания к документу
-	static int IdObjNameSCardSer;   // @v6.6.9  (fldSCardSeriesID)
-	static int IdObjNameDebtDim;    // @v6.7.x
-	static int IdObjCodeSCard;      // @v7.2.8  (fldSCardID)
-	static int IdSCardOwnerName;    // @v7.2.8  (fldSCardID)
-	static int IdUsrPersonName;     // @v7.5.11 (fldUsrID)
+	static int IdObjCodeBill;       // (fldBillID) Формирует строку, состоящую из номера документа
+	static int IdObjMemoBill;       // (fldBillID) Формирует строку примечания к документу
+	static int IdObjNameSCardSer;   // (fldSCardSeriesID)
+	static int IdObjNameDebtDim;    //
+	static int IdObjCodeSCard;      // (fldSCardID)
+	static int IdSCardOwnerName;    // (fldSCardID)
+	static int IdUsrPersonName;     // (fldUsrID)
 	static int IdLocOwnerName;      // @v9.1.5  (fldLocID) Формирует строку с именем персоналии-владельца локации
 	static int IdUfpFuncName;       // @v8.1.1  (fldFuncId)
 	static int IdVersionText;       // @v8.1.1  (fldLong)
@@ -1127,7 +1127,7 @@ public:
 	static int IdReportTypeName;    // (fldReportTypeID) Строка типа отчета (стандартный или локальный)
 	static int IdLogFileName;		// Имя файла журнала
 	static int IdSysJActionName;    // Строка наименования системного события //
-	static int IdGtaJActionName;    // @v7.3.8 Строка наименования тарифицируемого события глобальной учетной записи
+	static int IdGtaJActionName;    // Строка наименования тарифицируемого события глобальной учетной записи
 	static int IdCounter;           // Счетчик. ((long)(long *)) В качестве параметра должен
 		// передаваться указатель на статическую переменную long.
 	static int IdPropSubStr;        // (ObjType, ObjID, PropID, Sub)
@@ -1143,10 +1143,10 @@ public:
 	static int IdYesWordByFlag;     // (flags, flag) Если flag присутствует в flags, то возвращаем "Да", иначе пустую строку
 	static int IdBudgetPlanOrFact;  // (amount, kind, is_fact) Если kind != is_fact, то 0 иначе amount
 	static int IdChkOpJActionName;  // (action_id - 0..)
-	static int IdAddrCityName;      // @v7.0.8  (locID)
-	static int IdAddrExField;       // @v7.0.8  (locID, locExFld)
-	static int IdCheckCsPosNode;    // @v7.6.3  (csessID, posNodeID)
-	static int IdCheckCsPosNodeList; // @v7.6.3  (csessID, (const LongArray *))
+	static int IdAddrCityName;      // (locID)
+	static int IdAddrExField;       // (locID, locExFld)
+	static int IdCheckCsPosNode;    // (csessID, posNodeID)
+	static int IdCheckCsPosNodeList; // (csessID, (const LongArray *))
 	static int IdStrExistSubStr;	// @vmiller (fldName, const char *) Определяет, содержит ли строковое поле заданную подстроку
 	static int IdAddedCreditLimit;  // @v8.2.4 (limit, limit_term, added_limit_term)
 	static int IdBillFrghtIssueDt;  // @v8.2.9 (billID)
@@ -1160,10 +1160,12 @@ public:
 	static int IdOidText;           // @v8.6.11 (objType, objID) Текстовое представление полного OID
 	static int IdDateBase;          // @v8.6.11 (dateValue, baseDate) Текстовое представление даты, сжатой в виде количества дней, прошедших с baseDate
 	static int IdBillFrghtStrgLoc;  // @v8.8.6 (billID)
+	static int IdSCardExtString;    // @v9.6.1 (scardID, fldId)
 
 	static int SLAPI Register();
 	static int SLAPI InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
 	static int SLAPI InitLongFunc(DBE & rDbe, int funcId, DBField & rFld);
+	static int SLAPI InitFunc2Arg(DBE & rDbe, int funcId, DBItem & rA1, DBItem & rA2);
 	//
 	// ARG(incDiv) Если !0, то результат равен (100 * div / (divisor+div))
 	//   В противном случае (100 * div / divisor)
@@ -6191,6 +6193,16 @@ protected:
 
 	int    FASTCALL PutTextBlock(MultTextBlock & rBlk, ObjCacheEntry * pEntry);
 
+	struct ExtTextBlock {
+		void   FASTCALL Dirty(PPID id);
+		int    SLAPI Fetch(PPID id, SString & rBuf, void * extraPtr);
+		virtual int SLAPI Implement_Get(PPID id, SString & rBuf, void * extraPtr);
+
+		UintHashTable MissingList; // Список идентификаторов, для которых нет текста
+		StrAssocArray List;
+		ReadWriteLock Lock;  // Блокировка списка ExtMemoList
+	};
+
 	StringSet Ss;
 	//SMtLock L;
 	ReadWriteLock RwL; // Блокировка "Один писатель - много читателей"
@@ -6897,7 +6909,11 @@ SString & SLAPIV PPFormatT(int textCode, SString * pBuf, ...);
 SString & SLAPIV PPFormatS(int textGroup, int textCode, SString * pBuf, ...);
 void   FASTCALL PPSetAddedMsgString(const char * pStr);
 void   SLAPI PPSetAddedMsgObjName(PPID objType, PPID objID);
-int    SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmvSpcChrs, SString &);
+int    SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmvSpcChrs, SString & rBuf);
+//
+// Descr: Сокращенный аналог PPGetLastErrorMessage(rmvSpcChrs, rBuf)
+//
+int    FASTCALL PPGetLastErrorMessage(int rmvSpcChrs, SString & rBuf);
 int    SLAPI PPOutputMessage(const char * msg, uint option);
 int    FASTCALL PPMessage(uint options, int msgcode, const char * pAddInfo);
 int    FASTCALL PPError(int errcode, const char * pAddInfo = 0/*, int tooltip = 0*/);
@@ -15060,11 +15076,11 @@ struct PPPersonKind2 {     // @persistent @store(Reference2Tbl+)
 	long   ID;             // @id
 	char   Name[48];       // @name
 	char   Symb[20];       //
-	long   Flags;          // @v5.9.10 @flags
-	PPID   DefStatusID;    // @v5.9.10 ->Ref(PPOBJ_PRSNSTATUS) Статус новой персоналии по умолчанию
+	long   Flags;          // @flags
+	PPID   DefStatusID;    // ->Ref(PPOBJ_PRSNSTATUS) Статус новой персоналии по умолчанию
 	char   Reserve[56];    // @reserve
 	long   CodeRegTypeID;  // Тип регистрационного документа, используемого для поиска
-	PPID   FolderRegTypeID; // @v5.0.6 Тип регистра, идентифицирующего наименование каталога с документами по персоналии
+	PPID   FolderRegTypeID; // Тип регистра, идентифицирующего наименование каталога с документами по персоналии
 };
 
 DECL_REF_REC(PPPersonKind);
@@ -15457,9 +15473,6 @@ public:
 		fDontUpdCounter   = 0x0002  // Функция PutPacket не изменяет значение счетчика
 	};
 	long   Flags;
-	// @v5.7.7 int    DontLogUpdAction; // Если !0, то фукнция PutPacket не фиксирует
-		// событие изменения объекта. Эта опция используется при автоматическом
-		// увеличении счетчика функцией PPObjOpCounter::
 };
 
 class PPObjOpCounter : public PPObjReference {
@@ -15854,7 +15867,7 @@ struct PPInventoryOpEx {   // @persistent @store(PropertyTbl)
 		afmPresents = 0,
 		afmAll,
 		afmPrev,
-		afmByCurLotRest // @v5.6.7 По текущим остаткам лотов
+		afmByCurLotRest // По текущим остаткам лотов
 	};
 	PPID   Tag;              // Const=PPOBJ_OPRKIND
 	PPID   ID;               // ->Ref(PPOBJ_OPRKIND)
@@ -15874,7 +15887,7 @@ struct PPInventoryOpEx {   // @persistent @store(PropertyTbl)
 //
 // Descr: Дополнительная запись инвентаризации задолженности
 //
-struct PPDebtInventOpEx {    // @persistent @store(PropertyTbl) @v5.0.7
+struct PPDebtInventOpEx {    // @persistent @store(PropertyTbl)
 	PPID   Tag;              // Const=PPOBJ_OPRKIND
 	PPID   ID;               // ->Ref(PPOBJ_OPRKIND)
 	PPID   Prop;             // Const=OPKPRP_DEBTINVENT
@@ -15988,8 +16001,8 @@ struct PPBillPoolOpEx {
 #define OPKEXSTR_OBJ2NAME    2 // Наименование дополнительного объекта
 #define OPKEXSTR_DEFPRNFORM  3 // Печатная форма документа по умолчанию
 #define OPKEXSTR_AMTFORMULA  4 // Формула для вычисления номинальной суммы
-#define OPKEXSTR_ATTCHFILEXT 5 // @v5.1.0  Расширения присоединяемых файлов
-#define OPKEXSTR_EXPSYMB     6 // @v7.3.5  Символ вида операции, используемый при экспорте документов.
+#define OPKEXSTR_ATTCHFILEXT 5 // Расширения присоединяемых файлов
+#define OPKEXSTR_EXPSYMB     6 // Символ вида операции, используемый при экспорте документов.
 	// Papyrus не использует и никак не проверяет этот атрибут, но позволяет передать его внешним приложениям.
 //
 // Флаги элемента обобщенной операции
@@ -16378,7 +16391,7 @@ public:
 	int    SLAPI DeleteItem(LDATE actualDate, PPID scID, PPID objID, int use_ta);
 };
 
-int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSocket * pSock); // @v5.9.12 AHTOXA
+int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSocket * pSock);
 
 struct PPBizScore {
 	SLAPI  PPBizScore();
@@ -17247,12 +17260,12 @@ public:
 	PPID   LocID;            //
 	PPID   ExtQuotID;        // ->Ref(PPOBJ_QUOTKIND) Дополнительная котировка
 	long   Flags;            //
-	long   ExtFlags;         // @v5.8.10
-	PPID   GoodsLocAssocID;  // @v5.7.3 Именованная ассоциация товар-склад, спользуемая для печати чеков и списания //
+	long   ExtFlags;         //
+	PPID   GoodsLocAssocID;  // Именованная ассоциация товар-склад, спользуемая для печати чеков и списания //
 	PPID   ParentID;         // Группа кассовых узлов
-	PPID   GoodsGrpID;       // @v7.2.12 Товарная группа, которой следует ограничивать загрузку товаров в асинхр модуль либо
+	PPID   GoodsGrpID;       // Товарная группа, которой следует ограничивать загрузку товаров в асинхр модуль либо
 		// отбор товаров в синхронном узле. // Reserve4-->GoodsGrpID
-	SArray * P_DivGrpList;   // @v5.6.2 VADIM (move from PPAsyncCashNode)
+	SArray * P_DivGrpList;   // (move from PPAsyncCashNode)
 };
 
 class PPAsyncCashNode : public PPGenCashNode {
@@ -17523,7 +17536,7 @@ public:
 	int    SLAPI SyncPrintCheckCopy(CCheckPacket * pPack, const char * pFormatName);
 	int    SLAPI SyncPrintSlipDocument(CCheckPacket * pPack, const char * pFormatName);
 	int    SLAPI SyncPrintXReport();
-	int    SLAPI SyncPrintZReportCopy(const CSessInfo * pInfo); // @v5.5.11 VADIM
+	int    SLAPI SyncPrintZReportCopy(const CSessInfo * pInfo);
 	int    SLAPI SyncPrintIncasso();
 	int    SLAPI SyncAllowPrint();
 	int    SLAPI SyncBrowseCheckList(const char * pCheckPanInitStr, long checkPanFlags);
@@ -17712,7 +17725,7 @@ private:
 PPBnkTerminal * SLAPI GetBnkTerm(PPID bnkTermID, uint logNum, const char * pPort, const char * pPath);
 //
 // @ModuleDecl(PPObjLocPrinter)
-// Descr: Принтеры, привязанные к складам @v5.2.0 VADIM
+// Descr: Принтеры, привязанные к складам
 //
 struct PPLocPrinter2 {     // @persistent @store(Reference2Tbl+)
 	SLAPI  PPLocPrinter2()
@@ -18376,7 +18389,7 @@ protected:
 // Флаги PPAsyncCashSession
 //
 #define PPACSF_TEMPSESS         0x0001L // Временная сессия //
-#define PPACSF_LOADRESTWOSALES  0x0002L // @v5.3.6 VADIM Загружать остатки без учета продаж (для Атола)
+#define PPACSF_LOADRESTWOSALES  0x0002L // Загружать остатки без учета продаж (для Атола)
 
 class DeviceLoadingStat;
 //
@@ -19061,7 +19074,7 @@ private:
 };
 //
 // @ModuleDecl(PPObjTouchScreen)
-// TouchScreen @v5.1.2
+// TouchScreen
 //
 #define TSF_PRINTSLIPDOC  0x0001 // Печать подкладного документа (вместо печати на принтер)
 #define TSF_TXTSTYLEBTN   0x0002 // Текст на кнопках
@@ -19076,9 +19089,9 @@ struct PPTouchScreen2 {    // @persistent @store(Reference2Tbl+)
 	char   Name[48];            // @name @!refname
 	char   Symb[20];            //
 	char   Reserve[20];         // @reserve
-	long   GdsListFontHight;    // @v5.3.11 VADIM
-	char   GdsListFontName[32]; // @v5.3.11 VADIM
-	uint8  GdsListEntryGap;     // @v5.3.11 Дополнительное слагаемое высоты строки списка выбора товара (pixel)
+	long   GdsListFontHight;    //
+	char   GdsListFontName[32]; //
+	uint8  GdsListEntryGap;     // Дополнительное слагаемое высоты строки списка выбора товара (pixel)
 		// Рекомендуемый диапазон: [0..8]
 	uint8  Reserve2[3];         // @alignment
 	long   Flags;               // TSF_XXX
@@ -20256,11 +20269,11 @@ public:
 	// к которой относится структура). Исключает GSF_COMPL и GSF_DECOMPL
 	// @#{GSF_SUBST ^ (GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL)}
 #define GSF_DYNGEN         0x00000800L // @transient Структура принадлежит динамическому обобщению
-#define GSF_PRESENT        0x00001000L // @v5.7.1 Подарок
-#define GSF_GIFTPOTENTIAL  0x00002000L // @v6.6.2 Информировать кассира о близкой возможности предоставления подарка
-#define GSF_COMPLEX        0x00004000L // @v6.7.5 Комплекс
-#define GSF_POSMODIFIER    0x00008000L // @v7.2.0 POS-модификаторы (только в комбинации с GSF_PARTITIAL)
-#define GSF_OVRLAPGIFT     0x00010000L // @v7.3.0 Подарок с "перекрытием": такой подарок назначается независимо от того,
+#define GSF_PRESENT        0x00001000L // Подарок
+#define GSF_GIFTPOTENTIAL  0x00002000L // Информировать кассира о близкой возможности предоставления подарка
+#define GSF_COMPLEX        0x00004000L // Комплекс
+#define GSF_POSMODIFIER    0x00008000L // POS-модификаторы (только в комбинации с GSF_PARTITIAL)
+#define GSF_OVRLAPGIFT     0x00010000L // Подарок с "перекрытием": такой подарок назначается независимо от того,
 	// что по некоторым позициям были выданы другие подарки. При этом два и более подарка с перекрытием взаимно исключаются.
 //
 // Descr: Дескрипторы, определяющие специальные правила установки цен на товарные позиции,
@@ -20955,8 +20968,8 @@ public:
 //
 #define QUOTRT_UPDQUOTS      0x0100 // Право на изменение котировок
 #define QUOTRT_UPDSUPPLCOST  0x0200 // Право на изменение контрактных цен
-#define QUOTRT_UPDMTX        0x0400 // @v5.8.10 Право на изменение товарной матрицы
-#define QUOTRT_UPDMTXRESTR   0x0800 // @v5.8.10 Право на изменение ограничений по товарной матрице
+#define QUOTRT_UPDMTX        0x0400 // Право на изменение товарной матрицы
+#define QUOTRT_UPDMTXRESTR   0x0800 // Право на изменение ограничений по товарной матрице
 //
 // Категории котировок
 //
@@ -21102,13 +21115,13 @@ struct PPPsnOpKind2 {      // @persistent @store(Reference2Tbl+)
 
 	PPID   Tag;            // Const=PPOBJ_PERSONOPKIND
 	PPID   ID;             // @id
-	char   Name[48];       // @name // @v5.4.7 48->36
-	char   Symb[20];       // @v5.4.7 Символ
-	PPID   ParentID;       // @v6.x.1 Родительская группа
+	char   Name[48];       // @name
+	char   Symb[20];       // Символ
+	PPID   ParentID;       // Родительская группа
 	char   Reserve[32];    // @reserve
 	PPID   RestrStaffCalID; // @v8.0.10 Ограничивающий штатный календарь (событие может произойти только в периоды календаря)
 	int32  RscMaxTimes;    // @v8.0.10 Максимальное количество событий, которое может произойти в течении одного периода календаря RestrStaffCalID.
-	long   RedoTimeout;    // @v7.9.0 Таймаут (секунды) в течении которого возможно повторение
+	long   RedoTimeout;    // Таймаут (секунды) в течении которого возможно повторение
 		// операции с целью исполнения действий, помеченных флагом PoClause_::fOnRedo
 	PPID   RegTypeID;      // ->Ref(PPOBJ_REGISTERTYPE).ID Тип регистрационного документа
 	short  ExValGrp;       // Группа дополнительного значения (POPKEVG_XXX)
@@ -21116,7 +21129,7 @@ struct PPPsnOpKind2 {      // @persistent @store(Reference2Tbl+)
 	PPID   ExValSrc;       // Источник дополнительного значения //
 		// if(ExValGrp == POPKEVG_TAG) then ExValSrc ->Ref(PPOBJ_TAG).ID
 	long   Flags;          // Флаги (POPKF_XXX)
-	PPID   LinkBillOpID;   // ->Ref(PPOBJ_OPRKIND).ID @v5.2.2
+	PPID   LinkBillOpID;   // ->Ref(PPOBJ_OPRKIND).ID
 	PPID   PairOp;         // @#{PairOp != ID} ->self.ID   Парная операция //
 };
 
@@ -21360,13 +21373,13 @@ public:
 #define WORLDOBJ_COUNTRY    3
 #define WORLDOBJ_REGION     4
 #define WORLDOBJ_CITY       5
-#define WORLDOBJ_STREET     6 // @v5.5.12 Улица (площадь, проспект и т.д.)
-#define WORLDOBJ_CITYAREA   7 // @v6.7.1 Район города
-#define WORLDOBJ_LOCALAREA  8 // @v7.0.0 Локальная область (район) (в базе данных не хранится)
-#define WORLDOBJ_HOUSE      9 // @v7.0.0 Стоение, дом (в базе данных не хранится)
-#define WORLDOBJ_APART     10 // @v7.0.0 Квартира, комната, офис (в базе данных не хранится)
-#define WORLDOBJ_FLOOR     11 // @v7.0.0 Этаж (в базе данных не хранится)
-#define WORLDOBJ_POSTBOX   12 // @v7.0.0 Абонентский ящик (в базе данных не хранится)
+#define WORLDOBJ_STREET     6 // Улица (площадь, проспект и т.д.)
+#define WORLDOBJ_CITYAREA   7 // Район города
+#define WORLDOBJ_LOCALAREA  8 // Локальная область (район) (в базе данных не хранится)
+#define WORLDOBJ_HOUSE      9 // Стоение, дом (в базе данных не хранится)
+#define WORLDOBJ_APART     10 // Квартира, комната, офис (в базе данных не хранится)
+#define WORLDOBJ_FLOOR     11 // Этаж (в базе данных не хранится)
+#define WORLDOBJ_POSTBOX   12 // Абонентский ящик (в базе данных не хранится)
 
 class PPWorldPacket {
 public:
@@ -22035,7 +22048,7 @@ private:
 	int    IsCityCacheInited;
 	PPObjWorld * P_WObj;
 	PPObjRegister RegObj; // @v8.3.6
-	LocationFilt CurrFilt;
+	LocationFilt * P_CurrFilt; // @v9.6.1
 	SString NameBuf; // Returns by GetNamePtr
 public:
 	TLP_MEMB(LocationCore, P_Tbl);
@@ -22289,7 +22302,7 @@ struct PPPersonRelType2 {  // @persistent @store(Reference2Tbl+)
 	enum {
 		fInhAddr  = 0x0001,
 		fInhRAddr = 0x0002,
-		fGrouping = 0x0004, // @v5.7.1 Группирующее отношение (только для Cardinality = cManyToOne)
+		fGrouping = 0x0004, // Группирующее отношение (только для Cardinality = cManyToOne)
 		fInhMainOrgAgreement = 0x0008, // Наследует соглашение с клиентами из главной организации (только для филиалов)
 		fInhAgreements       = 0x0010  // @v8.2.2 Наследует соглашение (хоть с клиентом, хоть с поставщиком) из родительской организации (PPPSNRELTYP_AFFIL)
 	};
@@ -23435,8 +23448,8 @@ struct PPStaffCal2 {       // @persistent @store(Reference2Tbl+)
 	char   Symb[20];       // Символ. Для порожденных календарей (LinkCalID != 0) - пусто
 	long   Color;          // Цвет календаря (отображается в анализе штатных календарей)
 	char   Reserve[44];    // @reserve
-	PPID   PersonKind;     // @v5.7.7 Вид персоналий, с которыми связываются (устанавливается в родительском календаре)
-	PPID   SubstCalID;     // @v5.6.10 Календарь, замещающий родительский. Используется в том случае,
+	PPID   PersonKind;     // Вид персоналий, с которыми связываются (устанавливается в родительском календаре)
+	PPID   SubstCalID;     // Календарь, замещающий родительский. Используется в том случае,
 		// если родительский календарь является смысловым, а StubCalID - фактическим.
 		// Пример: регулярный календарь (смысловой) замещается графиком для женщин (фактический)
 	PPID   LinkObjType;    // Тип связанного объекта
@@ -23457,9 +23470,9 @@ public:
 	SLAPI  StaffCalFilt();
 
 	char   ReserveStart[20];   // @anchor
-	PPID   ProjCalID;          // @v6.2.8 Календарь, на который следует проецировать записи анализируемых календарей
-	SubstGrpDate  Sgd;         // @v6.0.1 Подстановка даты
-	PPID   LinkPersonKind;     // @v5.7.7 Вид связанной персоналии (по умолчанию - PPPRK_EMPL)
+	PPID   ProjCalID;          // Календарь, на который следует проецировать записи анализируемых календарей
+	SubstGrpDate  Sgd;         // Подстановка даты
+	PPID   LinkPersonKind;     // Вид связанной персоналии (по умолчанию - PPPRK_EMPL)
 	DateRange Period;          // Период, за который показывать календари
 	long   Flags;              // Флаги
 	PPID   LinkObjType;        // Тип связанных объектов
@@ -23766,8 +23779,8 @@ public:
 	virtual int   SLAPI Init_(const PPBaseFilt * pFilt);
 	int    SLAPI InitIteration(int order);
 	int    SLAPI NextIteration(SalaryViewItem *);
-	int    SLAPI GetTabTitle(long tabID, SString & rBuf) const; // @v5.6.14 AHTOXA
-	int    SLAPI GetSalChargeName(PPID salChargeID, SString & rName); // @v5.6.14 AHTOXA
+	int    SLAPI GetTabTitle(long tabID, SString & rBuf) const;
+	int    SLAPI GetSalChargeName(PPID salChargeID, SString & rName);
 	int    SLAPI Calc(PPID postID, PPID salChargeID, int avg, const DateRange & rPeriod, double * pAmount) {return Tbl.Calc(postID, salChargeID, avg, rPeriod, pAmount);}
 	//
 	// Descr: Пара функций, используемых для печати по структуре DL600 SalaryByPost
@@ -24196,11 +24209,6 @@ private:
 //
 // Фильтр по персоналиям
 //
-// @v5.5.1 #define PSNFF_STAFF       0x0001L // Кадры
-// @v5.5.1 #define PSNFF_EXTEDIT     0x0002L // Отдельный диалог редактирования главной организации
-// @v5.5.1 #define PSNFF_VATFREE     0x0004L // Свободен от НДС
-// @v5.5.1 #define PSNFF_TAGSCRSSTAB 0x0008L // Показывать броузер персоналий, как кросстаб с тегами
-
 // EmptyAttrib
 #define EA_ALL          0 // Все
 #define EA_NOEMPTY      1 // С непустым атрибутом
@@ -24722,7 +24730,6 @@ private:
 		// начиная с которого следует извлекать события из журнала для последующего обновления.
 };
 //
-// @v5.8 ANDREW {
 // @ModuleDecl(PPViewLogsMonitor)
 //
 struct LogFileEntry {
@@ -24828,8 +24835,6 @@ private:
 	GeoTrackingFilt Filt;
 	GeoTrackCore T;
 };
-//
-// } @v5.8 ANDREW
 //
 // Descr: Фильтр по классификаторам товаров
 //
@@ -25412,8 +25417,8 @@ public:
 		ufDontChgArCodes = 0x0008, // Функция PPObjGoods::PutPacket не должна изменять список кодов по статьям
 		ufDontChgPltList = 0x0010, // Функция PPObjGoods::PutPacket не должна изменять параметры размещения на паллете
 	};
-	long   UpdFlags;          // @transient @v5.2.10 Флаги, определяющие правила изменения некоторых полей
-	long   ClsDimZeroFlags;   // @transient @v7.7.2  Флаги обнуляние числовых классификаторов товаров. Используется в
+	long   UpdFlags;          // @transient Флаги, определяющие правила изменения некоторых полей
+	long   ClsDimZeroFlags;   // @transient Флаги обнуляние числовых классификаторов товаров. Используется в
 		// специальном случае массового изменения атрибутов товаров (функция PPViewGoods::RemoveAll())
 	SString ExtString;        // Дополнительные текстовые поля товара
 	SString ExTitles;         // Список наименований дополнительных
@@ -25779,12 +25784,10 @@ public:
 	//
 	int    SLAPI FetchSingleBarcode(PPID id, SString & rBuf);
 	//
-	// @v5.2.5 VADIM
 	// Descr: возвращает артикул товара, полученный при импорте в Papyrus.
 	//
 	// @v9.1.4 int    SLAPI GetGoodsArticle(PPID id, PPID * pArticle);
 	//
-	// @v5.9.6 VADIM
 	// Descr: поиск товара по артикулу, полученному при импорте в Papyrus.
 	//
 	int    SLAPI SearchByArticle(PPID article, BarcodeTbl::Rec * pRec);
@@ -26076,7 +26079,7 @@ public:
 	//
 	int    SLAPI Unlock(PPID goodsID);
 	int    SLAPI Helper_Edit(PPID *, PPGoodsPacket *, GoodsPacketKind, int IsNew, int viewOnly = 0);
-	int    SLAPI GetRandomIdsAry(int count, PPIDArray * pAry); // @v5.2.2 VADIM
+	int    SLAPI GetRandomIdsAry(int count, PPIDArray * pAry);
 	//
 	// Descr: Проверяет товар на принадлежность товарной матрице и контрактным ценам поставщика
 	//
@@ -26084,7 +26087,7 @@ public:
 	//
 	// Descr: Сравнивает записи и возвращает их похожесть в диапазоне [0..1]
 	//
-	double SLAPI CalcLikeness(const Goods2Tbl::Rec * pRec1, const Goods2Tbl::Rec * pRec2, int * pSwap, long extra); // @v5.6.14 AHTOXA
+	double SLAPI CalcLikeness(const Goods2Tbl::Rec * pRec1, const Goods2Tbl::Rec * pRec2, int * pSwap, long extra);
 	int    SLAPI GetOpenedList(PPID locID, const PPIDArray * pOverlapList, UintHashTable & rHash);
 	//
 	// Descr: Утилитная функция, автоматически расставляющая признак PREFERRED_BARCODE
@@ -31187,11 +31190,14 @@ private:
 #define SCRDF_INHERITED        0x00000001L // Карта наследует некоторые параметры от серии
 #define SCRDF_CLOSED           0x00000002L // Карта закрыта (блокирована)
 #define SCRDF_CLOSEDSRV        0x00000004L // Карта блокирована для службы доставки
-#define SCRDF_NOGIFT           0x00000008L // @v6.9.0 При продаже по этой карте блокируется выдача подарка
+#define SCRDF_NOGIFT           0x00000008L // При продаже по этой карте блокируется выдача подарка
 #define SCRDF_AUTOCREATE       0x10000000L // @transient Специальный флаг, предписывающий функции, получившей запись
 	// с таким флагом создать новую карту с некоторыми атрибутами записи.
-#define SCRDF_NEEDACTIVATION   0x00000010L // @v7.7.2 Карта требует активации
-#define SCRDF_AUTOACTIVATION   0x00000020L // @v7.7.2 Активаровать карту после первой операции
+#define SCRDF_NEEDACTIVATION   0x00000010L // Карта требует активации
+#define SCRDF_AUTOACTIVATION   0x00000020L // Активаровать карту после первой операции
+#define SCRDF_NOTIFYDISCOUNT   0x00000040L // @v9.6.1 Извещать владельца карты об изменении скидки
+#define SCRDF_NOTIFYDRAW       0x00000080L // @v9.6.1 Извещать владельца карты о списании средств с карты
+#define SCRDF_NOTIFYWITHDRAW   0x00000100L // @v9.6.1 Извещать владельца карты о начислении средств на карту
 
 #define PPTRPROP_SCARDEXT      (PPTRPROP_USER+1)
 
@@ -31244,7 +31250,8 @@ public:
 	static SString & SLAPI CalcSCardHash(const char * pNumber, SString & rHash);
 	static long GetValidFlags()
 	{
-		return (SCRDF_INHERITED|SCRDF_CLOSED|SCRDF_CLOSEDSRV|SCRDF_NOGIFT|SCRDF_NEEDACTIVATION|SCRDF_AUTOACTIVATION);
+		return (SCRDF_INHERITED|SCRDF_CLOSED|SCRDF_CLOSEDSRV|SCRDF_NOGIFT|SCRDF_NEEDACTIVATION|
+			SCRDF_AUTOACTIVATION|SCRDF_NOTIFYDISCOUNT|SCRDF_NOTIFYDRAW|SCRDF_NOTIFYWITHDRAW);
 	}
 
 	SLAPI  PPObjSCard(void * extraPtr = 0);
@@ -31267,6 +31274,10 @@ public:
 	//   SeriesID, PersonID, Flags, Dt, Expiry, PDis, AutoGoodsID, MaxCredit, UsageTmStart, UsageTmEnd
 	//
 	int    SLAPI Fetch(PPID id, SCardTbl::Rec * pRec);
+	//
+	// Descr: Извлекает через кэш строку расширения fldId пакета с идентификатором id.
+	//
+	int    SLAPI FetchExtText(PPID id, int fldId, SString & rBuf);
 	int    SLAPI Dirty(PPID id);
 	//
 	//
@@ -31444,7 +31455,7 @@ private:
 	void   SLAPI ReleaseFullList(const StrAssocArray * pList);
 
 	PPObjCSession * P_CsObj;  // Uses for transmission data to another db division
-	PPObjLocation LocObj; // @v9.4.7 Из-за внесенея собственного номера телефона в атрибуты карты,
+	PPObjLocation LocObj; // @v9.4.7 Из-за внесения собственного номера телефона в атрибуты карты,
 		// PPObjLocation понадобится при сохранении пакета для индексации телефонов.
 	PPSCardConfig Cfg;
 public:
@@ -41144,7 +41155,6 @@ public:
 	int    SLAPI GetPriorList(PPIDArray *) const;
 	SString & SLAPI GetStatusListText(SString &) const;
 	SString & SLAPI GetPriorListText(SString &) const;
-	// @v5.9 ANDREW virtual int Describe(long flags, SString & rBuff) const;
 	//
 	char   ReserveStart[32];   // @anchor
 	enum EnumOrder {
@@ -41179,7 +41189,7 @@ public:
 		fUnbindedOnly         = 0x0001, // Показывать только задачи, не привязанные к проектам
 		fUnviewedOnly         = 0x0002, // Показывать только те задачи, которые не были кем-либо просмотрены
 		fUnviewedEmployerOnly = 0x0004, // Показывать только те задачи, которые не были просмотрены исполнителем
-		fNotShowPPWaitOnInit  = 0x0008, // @v5.4.11 VADIM Не выдавать сообщение "Подождите" в PPViewPrjTask::Init()
+		fNotShowPPWaitOnInit  = 0x0008, // Не выдавать сообщение "Подождите" в PPViewPrjTask::Init()
 		fNoTempTable          = 0x0010  // @v8.5.11 Не строить временную таблицу
 	};
 	long   Kind;               // TODOKIND_XXX
@@ -41188,8 +41198,8 @@ public:
 	PPID   EmployerID;         // ->Person.ID  Исполнитель
 	PPID   TemplateID;         // ->PrjTask.ID (Kind=TODOKIND_TEMPLATE)
 	PPID   CreatorID;          // ->Person.ID  Персоналия, создавшая задачу
-	PPID   CliCityID;          // @v4.8.11 ->City.ID Город клиента
-	PPID   LinkTaskID;         // @v5.0.7  ->PrjTask.LinkTaskID Связанная задача.
+	PPID   CliCityID;          // ->City.ID Город клиента
+	PPID   LinkTaskID;         // ->PrjTask.LinkTaskID Связанная задача.
 		// Если != 0, Kind = TODOKIND_TASK, другие поля фильтра не используютс
 	int16  PriorList[10];      // TODOPRIOR_XXX Список приоритетов, по которым необходимо получить выборку
 	int16  StatusList[10];     // TODOSTTS_XXX  Список статусов, по которым необходимо получить выборку
@@ -41199,9 +41209,9 @@ public:
 	DateRange FinishPeriod;    //
 	long   Flags;              //
 		// @<< PPViewPrjTask::ViewCrosstabDetail
-	LTIME  StartTmPeriodBeg;   // @v4.9.2 AHTOXA период начала выполнения задани
-	LTIME  StartTmPeriodEnd;   // @v4.9.2 AHTOXA используется только для построения детализации кросстаба
-	SubstGrpDate Sgd;          // @v5.2.8 AHTOXA
+	LTIME  StartTmPeriodBeg;   // период начала выполнения задани
+	LTIME  StartTmPeriodEnd;   // используется только для построения детализации кросстаба
+	SubstGrpDate Sgd;          //
 	long   Reserve;            // @anchor Заглушка для отмера "плоского" участка фильтра
 private:
 	int    SLAPI InclInList(int16 * pList, size_t listSize, int16 val);
@@ -41296,7 +41306,7 @@ public:
 		caByAverageLot,    // Средняя по лотам
 		caByLastLot,       // По последнему лоту
 		caByMinLot,        // Минимальная по лотам
-		caByMinLoc         // @v5.7.11 Минимальная по складам (по последним лотам до конца периода)
+		caByMinLoc         // Минимальная по складам (по последним лотам до конца периода)
 	};
 	//
 	// Правило расчета базовой цены
@@ -41546,8 +41556,7 @@ public:
 	};
 
 	SLAPI  ScaleFilt();
-	ScaleFilt & SLAPI operator=(const ScaleFilt &);
-	// @v5.9 ANDREW virtual int Describe(long flags, SString & rBuff) const;
+	ScaleFilt & FASTCALL operator = (const ScaleFilt &);
 
 	char   ReserveStart[24];
 	char   Reserve[24];
@@ -41810,7 +41819,6 @@ public:
 
 	SLAPI  CashNodeFilt();
 	CashNodeFilt & FASTCALL operator = (const CashNodeFilt &);
-	// @v5.9 ANDREW virtual int Describe(long flags, SString & rBuff) const;
 
 	char   ReserveStart[24];
 	char   Reserve[24];
@@ -45776,7 +45784,7 @@ protected:
 	TDialog * P_ChildDlg;
 };
 //
-// @v5.3.5 VADIM Перенесен из Cshmchn.cpp
+// Перенесен из Cshmchn.cpp
 //
 class CSPanel : public TDialog {
 public:
@@ -46824,7 +46832,7 @@ public:
 		Rec & FASTCALL operator = (const Rec & rSrc);
 
 		PPID   MailAccID; // Аккаунт, с которого отправляются письма
-		uint32 Delay;  // @v7.7.10 Задержка между отправкой писем
+		uint32 Delay;     // Задержка между отправкой писем
 		SString Subj;
 		SString Text;
 		StrAssocArray  AddrList;
@@ -47247,7 +47255,7 @@ int    SLAPI TestLogin(); // @<<PPApp::login
 //
 // Descr: Генерация товарных документов
 //
-int    SLAPI GenerateGoodsBills(); //turistti @v5.3.1
+int    SLAPI GenerateGoodsBills();
 //
 // Descr: Генерация платежей для формирования тестовых данных клиент/банк
 //
@@ -47309,10 +47317,10 @@ int    SLAPI EditObjTagValUpdateList(ObjTagList * pList, const PPIDArray * pAllo
 //
 struct SelBasketParam : public PPBasketCombine {
 	enum {
-		fUseGoodsRestAsQtty     = 0x0001,  // @v5.8.8  VADIM Количество товара в корзине выбирать из остатков товара
-		fNotSelPrice            = 0x0002,  // @v5.9.11 VADIM Запрет выбора цены
-		fFillUpToMinStock       = 0x0004,  // @v6.1.11 Попольнить до минимального остатка
-		fEnableFillUpToMinStock = 0x0008   // @v6.1.11 Если этот флаг не установлен, то опция fFillUpToMinStock будет недоступна
+		fUseGoodsRestAsQtty     = 0x0001,  // Количество товара в корзине выбирать из остатков товара
+		fNotSelPrice            = 0x0002,  // Запрет выбора цены
+		fFillUpToMinStock       = 0x0004,  // Попольнить до минимального остатка
+		fEnableFillUpToMinStock = 0x0008   // Если этот флаг не установлен, то опция fFillUpToMinStock будет недоступна
 	};
 	SLAPI  SelBasketParam();
 	int    SLAPI StoreInReg(const char * pName) const;
@@ -47324,7 +47332,7 @@ struct SelBasketParam : public PPBasketCombine {
 	long   SelReplace;   // IN/OUT Способ обработки непустой корзины
 		// {1 - очистить корзину, 2 - заменить существующие товары,
 		// 3 - сложить количества для существующих товаров}
-	int16  Flags;        // @v5.9.11 VADIM
+	int16  Flags;        //
 	int16  Reserve;      // @alignment
 };
 //
@@ -47600,7 +47608,12 @@ int     FASTCALL CheckDialogPtr(void * ppDlg, int genErrMsg = 0);
 //   0 - всегда. Для того, чтобы можно было быстро инициализировать переменную ok
 //     или значение, возвращаемое вызывающей функцией.
 //
-int     FASTCALL PPErrorByDialog(TDialog * dlg, uint ctlID, int err = -1);
+int     FASTCALL PPErrorByDialog(TDialog * dlg, uint ctlID, int err);
+//
+// Descr: То же, что и PPErrorByDialog(TDialog * dlg, uint ctlID, int err), но
+//   аргумент err = -1. Отдельная функция сделана ради уменьшения размера кода (чаще вызывается именно так).
+//
+int     FASTCALL PPErrorByDialog(TDialog * dlg, uint ctlID);
 uint    SLAPI GetComboBoxLinkID(TDialog *, uint comboBoxCtlID);
 int     SLAPI SetComboBoxLinkText(TDialog *, uint comboBoxCtlID, const char * pText);
 
@@ -48328,9 +48341,9 @@ protected:
 		enum {
 			fUseDscntIfNQuot  = 0x0001, // Проекция флага SCRDSF_USEDSCNTIFNQUOT из серии карт
 			fNoGift           = 0x0002, // Проекция флага SCRDF_NOGIFT из записи карты
-			fAmtDiscountGrade = 0x0004, // @v7.3.6 Для карты применяется скидка с градацией по сумме чека (наследуемой из серии карт)
-			fUhtt             = 0x0008, // @v7.3.8 Выбранная карта синхронизирована с системой Universe-HTT
-			fUseMinQuotVal    = 0x0010, // @v7.4.0 Проекция флага SCRDSF_MINQUOTVAL из серии карт
+			fAmtDiscountGrade = 0x0004, // Для карты применяется скидка с градацией по сумме чека (наследуемой из серии карт)
+			fUhtt             = 0x0008, // Выбранная карта синхронизирована с системой Universe-HTT
+			fUseMinQuotVal    = 0x0010, // Проекция флага SCRDSF_MINQUOTVAL из серии карт
 		};
 		CardState();
 		~CardState();
@@ -48352,12 +48365,12 @@ protected:
 		double MaxCreditByCrdCard;
 		double AdditionalPayment;  // Доплата наличными
 		// @v9.0.4 double AddCrdCardPayment_; // Доплата нехватки средств на SCardID, погашаемая за счет AddCrdCardID
-		char   UhttCode[32];      // @v7.3.10 Код карты в UHTT. Так как, сервер Universe-HTT может идентифицировать
+		char   UhttCode[32];      // Код карты в UHTT. Так как, сервер Universe-HTT может идентифицировать
 			// карту, добавляя к ней специальный префикс аккаунта, то необходимо сохранить полный номер
 			// карты в UHTT для того, чтобы осуществлять с ней операции.
-		char   UhttHash[32];      // @v7.4.10 Код доступа к информации о карте, синхронизированной с Universe-HTT.
-		PPSCardSerRule * P_DisByAmtRule; // @v7.3.6
-		RetailPriceExtractor::ExtQuotBlock * P_Eqb; // @v7.4.0
+		char   UhttHash[32];      // Код доступа к информации о карте, синхронизированной с Universe-HTT.
+		PPSCardSerRule * P_DisByAmtRule; //
+		RetailPriceExtractor::ExtQuotBlock * P_Eqb; //
 	private:
 		PPID   SCardID;          // ИД дисконтной карты
 		char   Code[32];         // Номер карты

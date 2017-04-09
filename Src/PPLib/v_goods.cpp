@@ -2019,7 +2019,7 @@ int SLAPI PPViewGoods::RemoveAll()
 			}
 			ASSIGN_PTR(pData, Data);
 			CATCH
-				ok = PPErrorByDialog(this, sel, -1);
+				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
 			return ok;
 		}
@@ -3178,7 +3178,7 @@ int SLAPI PPViewGoods::ExportUhtt()
 			GetClusterData(CTL_UHTTEXPGOODS_FLAGS, &Data.Flags);
 			ASSIGN_PTR(pData, Data);
 			CATCH
-				ok = PPErrorByDialog(this, ctl_id, -1);
+				ok = PPErrorByDialog(this, ctl_id);
 			ENDCATCH
 			return ok;
 		}
@@ -3238,7 +3238,7 @@ int SLAPI PPViewGoods::ExportUhtt()
 				}
 			}
 			CATCH
-				PPGetMessage(mfError, PPErrCode, 0, 1, msg_buf);
+				PPGetLastErrorMessage(1, msg_buf);
 				setStaticText(CTL_UHTTEXPGOODS_INFO, msg_buf);
 				ok = 0;
 			ENDCATCH
