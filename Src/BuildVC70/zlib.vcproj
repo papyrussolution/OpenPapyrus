@@ -403,18 +403,6 @@
 				RelativePath="..\Osf\Zlib\deflate.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Zlib\gzclose.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Zlib\gzlib.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Zlib\gzread.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Zlib\gzwrite.c">
-			</File>
-			<File
 				RelativePath="..\Osf\Zlib\infback.c">
 			</File>
 			<File

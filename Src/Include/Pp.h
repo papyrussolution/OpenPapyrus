@@ -94,25 +94,18 @@
 #ifndef __PP_H // {
 #define __PP_H
 
-#ifndef __DB_H
-	#include <db.h>
-#endif
-#ifndef __PPDBS_H
-	#include <ppdbs.h>
-#endif
-#ifndef __PPDEFS_H
-	#include <ppdefs.h>
-#endif
-#ifndef __REPORT_H
-	#include <report.h>
-#endif
-#include <ctype.h>
 #include <slib.h>
+#include <db.h>
+#include <ppdbs.h>
+#include <ppdefs.h>
+#include <report.h>
+//#include <ctype.h>
 //#include <tv.h> // @v9.2.0
 #include <snet.h>
 #include <stylopalm.h>
 #include <stylobhtII.h>
 #include <ppedi.h>
+#include <wininet.h>
 #include <..\Rsrc\STR\ppstr2.h> // @v9.0.3 перенесено из конца файла сюда
 #ifdef _MSC_VER
 	#pragma intrinsic (fabs)
@@ -294,6 +287,7 @@ class  PPEgaisProcessor;
 struct AddrItemDescr;
 class  GoodsRestFilt;
 class  SmsProtocolBuf;
+class  SrGeoNodeTbl;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -3121,9 +3115,9 @@ public:
 	long   Flags;          // @flags
 	LDATETIME RegDtm;      // Время регистрации //
 	LDATETIME CiDtm;       // Время подтверждения регистрации (CheckID)
-	double Amount;         // @v7.7.5 Сумма, уплаченная или которая должна быть уплачена за регистрацию (подтверждение)
-	PPID   CCheckID;       // @v7.7.5 Кассовый чек, которым оплачено подтверждение регистрации
-	PPID   SCardID;        // @v7.7.5 Карта, с которой ассоциирована зерегистрированная персоналия //
+	double Amount;         // Сумма, уплаченная или которая должна быть уплачена за регистрацию (подтверждение)
+	PPID   CCheckID;       // Кассовый чек, которым оплачено подтверждение регистрации
+	PPID   SCardID;        // Карта, с которой ассоциирована зерегистрированная персоналия //
 	uint   MemoPos;        // @internal
 	char   PlaceCode[8];   // @v8.6.5 Номер места (для регистрации, ассоциированной с посадочным местом)
 	PPID   BillID;         // @v8.7.8 ИД документа, который связан с данной регистрацией
@@ -9769,8 +9763,8 @@ struct BillTotalData {
 
 	AmtList      Amounts;  // @anchor
 	BillVatArray VatList;
-	BillVatArray CostVatList;  // @v7.8.12
-	BillVatArray PriceVatList; // @v7.8.12
+	BillVatArray CostVatList;  //
+	BillVatArray PriceVatList; //
 };
 //
 // Флаги слияния товарных строк документа для функции EnumTItemsExt
@@ -9788,9 +9782,11 @@ struct BillTotalData {
 #define ETIEF_SALDOFILTGRP    0x0400L // Перечислять также те товары из группы FiltGrpID
 	// которые не представлены в документе, но по которым есть ненулевое сальдо в разрезе
 	// контрагента по документу.
-#define ETIEF_LABELQUOTPRICE  0x0800L // @v7.1.12 @internal
-#define ETIEF_DISPOSE         0x1000L // @v7.1.12 Включить в итерацию информацию о размещении строк по складским ячейкам
+#define ETIEF_LABELQUOTPRICE  0x0800L // @internal
+#define ETIEF_DISPOSE         0x1000L // Включить в итерацию информацию о размещении строк по складским ячейкам
 #define ETIEF_DONTUNITE       0x2000L // @v8.8.0 Безусловный запрет на объединение строк
+#define ETIEF_FORCEUNITEGOODS 0x4000L // @v9.6.3 Форсированное объединение строк с одинаковым товаром (без оглядки на дополнительные условия).
+	// ETIEF_DONTUNITE имеет приоритет над ETIEF_FORCEUNITEGOODS
 
 #define SALDOLIST_POS_BIAS    100000
 
@@ -21789,7 +21785,7 @@ public:
 	//   Если форматирующая строка не задана (pFormat == 0), то она извлекается //
 	//   из записи типа регистрационного документа.
 	//
-	int    SLAPI Format(PPID, const char * pFormat, char *, size_t); // @obsolete
+	int    SLAPI Format(PPID id, const char * pFormat, char *, size_t); // @obsolete
 	int    SLAPI Format(PPID id, const char * pFormat, SString & rBuf);
 	int    SLAPI GetTabNumber(PPID personID, SString & rTabNum);
 	//
@@ -24986,14 +24982,14 @@ public:
 	int    SLAPI WriteToProp(PPID obj, PPID id, PPID prop, PPID propBefore8604);
 
 	char   ReserveStart[4];    // @anchor Проецируется на __GoodsFilt::Reserve @v6.0.7 [24]-->[20]
-	PPID   UhttStoreID;        // @v7.9.6 Магазин Universe-HTT в контексте которого извлекаются товары.
-	PPID   RestrictQuotKindID; // @v7.9.6 Вид ограничивающей котировки (извлекаются только те товары, которые имеют котировку этого вида)
-	int32  InitOrder;          // @v7.3.8
-	PPID   MtxLocID;           // @v7.3.4 Если (Flags & (fRestrictByMatrix|fOutOfMatrix)), то данное поле
+	PPID   UhttStoreID;        // Магазин Universe-HTT в контексте которого извлекаются товары.
+	PPID   RestrictQuotKindID; // Вид ограничивающей котировки (извлекаются только те товары, которые имеют котировку этого вида)
+	int32  InitOrder;          // 
+	PPID   MtxLocID;           // Если (Flags & (fRestrictByMatrix|fOutOfMatrix)), то данное поле
 		// определяет склад, по которому проверяется принадлежность (не принадлежность) матрице.
 		// Если (Flags & (fRestrictByMatrix|fOutOfMatrix)) и MtxLocID == 0, то принадлежность (не принадлежность) матрице
 		// проверяется относительно склада LocID_.
-	PPID   BrandOwnerID;       // @v6.0.7
+	PPID   BrandOwnerID;       // 
 	PPID   CodeArID;           // Статья, по которой фильтровать коды, связанные со статьями
 	PPID   GrpID;              //
 	PPID   ManufID;            //
@@ -25023,11 +25019,11 @@ public:
 	SString BarcodeLen;        // Список длин штрихкодов (через запятую)
 	ObjIdListFilt GrpIDList;   // Список групп
 	ObjIdListFilt ManufList;   // Helper (not filter) field
-	ObjIdListFilt LocList;     // @v6.0.1
-	ObjIdListFilt BrandList;   // @v6.0.1
-	ObjIdListFilt BrandOwnerList; // @v7.7.9
-	SysJournalFilt * P_SjF;    // @v6.4.2
-	TagFilt * P_TagF;          // @v7.2.0 Фильтр по тегам
+	ObjIdListFilt LocList;     // 
+	ObjIdListFilt BrandList;   // 
+	ObjIdListFilt BrandOwnerList; // 
+	SysJournalFilt * P_SjF;    // 
+	TagFilt * P_TagF;          // Фильтр по тегам
 private:
 	int    SLAPI InitInstance();
 	virtual int SLAPI Describe(long flags, SString & rBuf) const;
@@ -25053,24 +25049,24 @@ struct RetailGoodsInfo {   // @transient
 		fNoDiscount      = 0x0004  // @v8.6.8  OUT (устанавливается в результате вычислений) - на товар не распространяется скидка
 	};
 	PPID   ID;             // ->Goods.ID
-	char   Name[128];      // =Goods(ID).Name @v6.5.1 [64]-->[128]
+	char   Name[128];      // =Goods(ID).Name
 	char   BarCode[24];    // @v8.8.0 [16]-->[24]
-	char   UnitName[48];   // @v6.9.5 [32]-->[48]
+	char   UnitName[48];   //
 	char   Manuf[48];      //
 	char   ManufCountry[48];
 	PPID   LocID;          // Склад, для которого рассчитана цена
-	PPID   QuotKindUsedForPrice; // @v7.0.10 Вид котировки, использованной для получения цены Price.
+	PPID   QuotKindUsedForPrice; // Вид котировки, использованной для получения цены Price.
 		// Данное поле гарантированно имеет смысл только после вызова PPObjGoods::GetRetailGoodsInfo
-	PPID   QuotKindUsedForExtPrice; // @v7.8.1 Вид котировки из блока RetailPriceExtractor::ExtQuotBlock, примененный для формиования ExtPrice.
+	PPID   QuotKindUsedForExtPrice; // Вид котировки из блока RetailPriceExtractor::ExtQuotBlock, примененный для формиования ExtPrice.
 	LDATE  Expiry;         //
 	double OuterPrice;     // @IN @v8.0.12 Цена, установленная вызывающей функцией дабы использовать ее (при установленном флаге rgifUseOuterPrice)
 	double Cost;           // Цена поступления //
 	double Price;          // Цена реализации
-	double ExtPrice;       // @v7.8.1 Цена по дополнительной котировке
-	double RevalPrice;     // @v6.9.0 Цена реализации до переоценки (RevalPrice != Price только если структура
+	double ExtPrice;       // Цена по дополнительной котировке
+	double RevalPrice;     // Цена реализации до переоценки (RevalPrice != Price только если структура
 		// сформирована по строке документа переоценки).
-	double LineCost;       // @v7.2.12 Цена поступления из строки документа (по контексту)
-	double LinePrice;      // @v7.2.12 Цена реализации из строки документа (по контексту)
+	double LineCost;       // Цена поступления из строки документа (по контексту)
+	double LinePrice;      // Цена реализации из строки документа (по контексту)
 	double PhUPerU;        // Соотношение физические единицы/торговые единицы
 	//
 	// Информация о партии
@@ -25081,8 +25077,8 @@ struct RetailGoodsInfo {   // @transient
 	char   Serial[32];     // Серийный номер лота
 	int16  LabelCount;     // Количество этикеток, которое требуется напечатать. [1..999], default=1
 	int16  Reserve;        // @alignment
-	LDATETIME ManufDtm;    // @v7.5.1 Дата/время производства
-	long   Flags;          // @v7.0.11
+	LDATETIME ManufDtm;    // Дата/время производства
+	long   Flags;          // 
 	double Qtty;           // Количество торговых единиц
 	double PhQtty;         // Количество физических единиц
 	double UnitPerPack;    // Емкость упаковки
@@ -25098,8 +25094,8 @@ struct RetailGoodsInfo {   // @transient
 #define RTLPF_PRICEBYQUOT     0x0001L // Соответствует PPEquipConfig::fUseQuotAsPrice
 #define RTLPF_USEQUOTWTIME    0x0002L // Использовать котировки с установленным временем действия //
 #define RTLPF_GETCURPRICE     0x0004L // Выдавать текущую цену товара (а не по розничным котировкам)
-#define RTLPF_USEQKCACHE      0x0008L // @v6.9.5 Применять кэширование при извлечении списка розничных котировок
-#define RTLPF_USEMINEXTQVAL   0x0010L // @v7.4.0 Если задан RetailPriceExtractor::ExtQuotBlock,
+#define RTLPF_USEQKCACHE      0x0008L // Применять кэширование при извлечении списка розничных котировок
+#define RTLPF_USEMINEXTQVAL   0x0010L // Если задан RetailPriceExtractor::ExtQuotBlock,
 	// то из указанных там котировок применять минимально возможное значение.
 #define RTLPF_USEOUTERPRICE   0x0020L // @v8.0.12 Использовать цену RetailExtrItem::OuterPrice, заданную извне
 
@@ -26662,7 +26658,7 @@ struct PPBrand {           // @persistent @store(GoodsTbl)
 	PPID   ID;             // @id
 	char   Name[64];       // Наименование на родном языке
 	PPID   OwnerID;        // ->Person.ID (PPPRK_MANUF) Владелец брэнда
-	PPID   ParentID;       // @v6.2.2 ->Goods2.ID Группа (PPGDSK_BRANDGROUP), которой принадлежит брэнд (может быть 0)
+	PPID   ParentID;       // ->Goods2.ID Группа (PPGDSK_BRANDGROUP), которой принадлежит брэнд (может быть 0)
 	long   Flags;
 	char   Reserve[8];     // @reserve
 };
@@ -27870,8 +27866,8 @@ private:
 	long   Flags;                 // ACGIF_XXX
 	PPID   CashNodeID;            // Кассовый узел для которого формируется список товаров
 	PPID   LocID;
-	PPID   UserOnlyGoodsGrpID;    // @v6.7.8 Товарная группа, которой ограничен пользователь при загрузке изменений.
-	PPID   SinceDlsID;            // @v7.1.11 Ид записи статистики загрузки, начиная (включая) с которой следует выгрузить изменения //
+	PPID   UserOnlyGoodsGrpID;    // Товарная группа, которой ограничен пользователь при загрузке изменений.
+	PPID   SinceDlsID;            // Ид записи статистики загрузки, начиная (включая) с которой следует выгрузить изменения //
 	enum {
 		algDefault = 0,
 		algUpdBillsVerify,
@@ -27908,12 +27904,12 @@ private:
 	PPQuotArray QuotByQttyList;   // Список котировок, применяемых для скидки на кол-во товара
 	RetailPriceExtractor  RetailExtr;
 	DeviceLoadingStat * P_Dls;    // @notowned
-	GoodsToObjAssoc * P_G2OAssoc; // @v6.6.0
-	GoodsToObjAssoc * P_G2DAssoc; // @v7.9.6 Ассоцииации {товар-кассовый узел} для загрузки номеров кассовый аппаратов, ассоциированных с товарами
-	LAssocArray LocPrnAssoc;      // @v6.6.0 Список ассоциаций Склад-Локальный принтер
-	LAssocArray GroupAssoc;       // @v7.3.0 Список товарных групп, ассоциированных с товарами.
+	GoodsToObjAssoc * P_G2OAssoc; // 
+	GoodsToObjAssoc * P_G2DAssoc; // Ассоцииации {товар-кассовый узел} для загрузки номеров кассовый аппаратов, ассоциированных с товарами
+	LAssocArray LocPrnAssoc;      // Список ассоциаций Склад-Локальный принтер
+	LAssocArray GroupAssoc;       // Список товарных групп, ассоциированных с товарами.
 	IterCounter InnerCounter;     // Используется если (Flags & ACGIF_UPDATEDONLY && Algorithm == algUpdBills)
-	AsyncCashGoodsGroupIterator * P_AcggIter; // @v7.3.0
+	AsyncCashGoodsGroupIterator * P_AcggIter; // 
 	PrcssrAlcReport * P_AlcPrc;   // @v8.9.8
 };
 //
@@ -28034,17 +28030,16 @@ private:
 struct PPScale2 {          // @persistent @store(Reference2Tbl+)
 	PPScale2();
 	int    SLAPI IsValidBcPrefix() const;
-	// @v7.0.0 int    IsValidAddedMsgSign() const;
 
-	long   Tag;            // Const=PPOBJ_SCALE
-	long   ID;             // @id
-	char   Name[48];       // @name @!refname
-	char   Symb[20];       //
-	PPID   ParentID;       // Ид. группы весов
-	char   AddedMsgSign[8]; // @v6.7.5 Символы дополнительных полей, которые следует загружать на весы
-	int16  MaxAddedLine;   // @v6.7.6 Максимальная длина строки дополнительного текста.
+	long   Tag;              // Const=PPOBJ_SCALE
+	long   ID;               // @id
+	char   Name[48];         // @name @!refname
+	char   Symb[20];         //
+	PPID   ParentID;         // Ид. группы весов
+	char   AddedMsgSign[8];  // Символы дополнительных полей, которые следует загружать на весы
+	int16  MaxAddedLine;     // Максимальная длина строки дополнительного текста.
 		// Если не указано, то система принимает значение на свое усмотрение.
-	char   Reserve[10];    // @reserve
+	char   Reserve[10];      // @reserve
 	//
 	// Если Flags & SCALF_TCPIP, то IP-адрес устройства упаковывается в
 	// поле Port в виде: Port[0].Port[1].Port[2].Port[3]
@@ -30398,7 +30393,7 @@ struct LocTransfFilt : public PPBaseFilt {
 	SubstGrpGoods Sgg;         //
 	long   Flags;
 	ObjIdListFilt LocList;     // @anchor
-	ObjIdListFilt BillList;    // @v6.7.8 Список размещаемых документов
+	ObjIdListFilt BillList;    // Список размещаемых документов
 };
 
 struct LocTransfViewItem : public LocTransfTbl::Rec {
@@ -30557,16 +30552,16 @@ struct GCTFilt : public PPBaseFilt {
 #define GGEF_LOCVATFREE      0x0200L // Склад освобожден от НДС
 #define GGEF_INTERNAL        (GGEF_CALCBYPRICE|GGEF_COSTWOVAT|GGEF_SETCOSTWOTAXES)
 #define GGEF_BYLOT           0x0400L // Обработка по лотам
-#define GGEF_COSTBYPAYM      0x0800L // @v6.4.8 Себестоимость элемента умножать на оплаченную долю документа
+#define GGEF_COSTBYPAYM      0x0800L // Себестоимость элемента умножать на оплаченную долю документа
 	// оригинального лота. Оплата учитывается за период, открытый слева и ограниченный справа верхней датой
 	// расчетного периода.
-#define GGEF_PAYMBYPAYOUTLOT 0x1000L // @v6.4.8 Оплата по полностью оплаченному лоту
+#define GGEF_PAYMBYPAYOUTLOT 0x1000L // Оплата по полностью оплаченному лоту
 	// Этот флаг устанавливается для элемента GoodsGrpngEntry если фильтр имеет флаг
 	// OPG_COSTBYPAYM и элемент сформирован по оплате приходного документа при условии,
 	// что весь товар этого документа израсходован и оплачен покупателями.
-#define GGEF_INTRREVERSE     0x2000L // @v6.4.11 Зеркальная по отношению к внутренней
+#define GGEF_INTRREVERSE     0x2000L // Зеркальная по отношению к внутренней
 	// передаче запись (межскладской приход)
-#define GGEF_SUPPRDISCOUNT   0x4000L // @v6.4.11 @internal
+#define GGEF_SUPPRDISCOUNT   0x4000L // @internal
 
 struct GoodsGrpngEntry {
 	SLAPI  GoodsGrpngEntry();
@@ -30652,7 +30647,7 @@ private:
 	PPID   ExtPriceAmtID;
 	PPID   ExtDisAmtID;
 	int    ErrDetected;
-	ObjIdListFilt LockPaymStatusList; // @v6.9.7 Список идентификаторов статусов докумена,
+	ObjIdListFilt LockPaymStatusList; // Список идентификаторов статусов докумена,
 		// которые имеют признак "не учитывать как оплату" (BILSTF_LOCK_PAYMENT)
 	PPObjBill::PplBlock * P_PplBlk;
 	PPLogger * P_Logger; // @notowned
@@ -30753,7 +30748,7 @@ public:
 			// если документ является приходом товаров, то перечисляются все лоты, сформированные
 			// документом и суммируются все отгрузки (возможно по оплатам) по этим лотам за
 			// заданный период.
-		fFactByShipment = 0x0080  // @v6.8.2 Переопределяет учет по данной операции таким образом,
+		fFactByShipment = 0x0080  // Переопределяет учет по данной операции таким образом,
 			// что документы этой операции будут учитываться по отгрузке (если общее правило книги - по оплате).
 			// Если общее правило книги "по отгрузке", то данный флаг игнорируется.
 	};
@@ -31004,14 +30999,14 @@ struct PPSCardSeries2 {    // @persistent @store(Reference2Tbl+)
 	long   ID;                 // @id
 	char   Name[48];           // @name @!refname
 	char   Symb[20];           // @symb
-	PPID   ChargeGoodsID;      // @v7.6.7 Товар, использующийся для начисления на карту
+	PPID   ChargeGoodsID;      // Товар, использующийся для начисления на карту
 		// (имеет приоритет перед PPSCardConfig::ChargeGoodsID)
-	PPID   BonusChrgGrpID;     // @v7.3.10 Товарная группа, ограничивающая начисления на бонусные карты
+	PPID   BonusChrgGrpID;     // Товарная группа, ограничивающая начисления на бонусные карты
 	int16  BonusChrgExtRule;   // @v8.2.10 Дополнительная величина правила изменения начисления бонуса по карте
 	uint8  Reserve2;           // @reserve
 	int8   VerifTag;           // Если 1, то запись верифицирована версией 7.3.7 на предмет правильности установки флагов
-	PPID   BonusGrpID;         // @v7.3.5 Товарная группа, по которой зачитываются бонусы на карты
-	PPID   CrdGoodsGrpID;      // @v6.3.12 Товарная группа, продажа товаров которой зачитывается как
+	PPID   BonusGrpID;         // Товарная группа, по которой зачитываются бонусы на карты
+	PPID   CrdGoodsGrpID;      // Товарная группа, продажа товаров которой зачитывается как
 		// списание по кредитной карте в количественном выражении.
 	char   CodeTempl[20];      // Шаблон номеров карт
 	LDATE  Issue;              // Дата выпуска
@@ -31688,12 +31683,12 @@ private:
 #define PRCF_PASSIVE               0x00004000L // Пассивный процессор (флаг не наследуется от группы)
 #define PRCF_ADDEDOBJASAGENT       0x00008000L // Доп объект сессии списывается как агент (только в случае, если
 	// доп объект по виду операции не определен).
-#define PRCF_CLOSEBYJOBSRV         0x00010000L // @v6.5.0 Сессия процессора может быть закрыта JobServer'ом
-#define PRCF_USETSESSSIMPLEDLG     0x00020000L // @v6.5.1 Использовать упрощенный диалог редактирования технологической сессии
-#define PRCF_NEEDCCHECK            0x00040000L // @v7.6.4 Тех сессии по процессору требуют кассовый чек (запрет на проведение
+#define PRCF_CLOSEBYJOBSRV         0x00010000L // Сессия процессора может быть закрыта JobServer'ом
+#define PRCF_USETSESSSIMPLEDLG     0x00020000L // Использовать упрощенный диалог редактирования технологической сессии
+#define PRCF_NEEDCCHECK            0x00040000L // Тех сессии по процессору требуют кассовый чек (запрет на проведение
 	// сессии без чека регламентируется правом доступа по тех сессиям TSESRT_CLOSEWOCC)
-#define PRCF_ALLOWCIP              0x00080000L // @v7.7.2 Тех сессии по процессору позволяют ассоциировать регистрацию персоналий
-#define PRCF_AUTOCREATE            0x00100000L // @v7.9.3 Для групп процессоров. Если процессоры группы ассоциированы с объектами,
+#define PRCF_ALLOWCIP              0x00080000L // Тех сессии по процессору позволяют ассоциировать регистрацию персоналий
+#define PRCF_AUTOCREATE            0x00100000L // Для групп процессоров. Если процессоры группы ассоциированы с объектами,
 	// то при создании нового объекта автоматически создавать и процессор в этой группе, соответствующий новому объекту.
 #define PRCF_HASEXT                0x00200000L // @v8.1.6 С процессором связана запись расширения в PropertyTbl
 #define PRCF_ALLOWCANCELAFTERCLOSE 0x00400000L // @v8.2.9 Разрешение на перевод сессии в состояние 'ОТМЕНЕНА' из 'ЗАКРЫТА'
@@ -32004,8 +31999,8 @@ private:
 #define TECF_CALCTIMEBYROWS   0x0004 // Для каждой строки сессии извлекается доступная технология //
 	// для процессора и время выполнения количества, заданного по строке прибавляется к планируемому времени
 	// сессии
-#define TECF_AUTOMAIN         0x0008 // @v6.4.4 Основной товар автоматически вставляется в строки сессии
-#define TECF_ABSCAPACITYTIME  0x0010 // @v7.5.8 Производительность определяет абсолютное время работы процессора
+#define TECF_AUTOMAIN         0x0008 // Основной товар автоматически вставляется в строки сессии
+#define TECF_ABSCAPACITYTIME  0x0010 // Производительность определяет абсолютное время работы процессора
 	// (не зависимо от количества обоабатываемой позиции).
 //
 //
@@ -35743,7 +35738,7 @@ public:
         int    SLAPI InitGoodsList(long flags);
         int    FASTCALL IsGoodsUsed(PPID goodsID) const;
         const  PPIDArray * GetGoodsList() const;
-        int    SLAPI Debug_TestUtfText(const SString & rText, const char * pAddendum, PPLogger & rLogger);
+        // @v9.6.2 int    SLAPI Debug_TestUtfText(const SString & rText, const char * pAddendum, PPLogger & rLogger);
 
 		enum {
 			bstGoodsListInited = 0x0001, // Список товаров GoodsList инициализирован
@@ -39551,7 +39546,8 @@ struct SCardViewItem : public SCardTbl::Rec {
 struct SCardSelPrcssrParam { // @persistent
 	enum {
 		fSetClosed    = 0x0001,
-		fZeroDiscount = 0x0002  // Если установлен, но по всем картам скидку требуется обнулить
+		fZeroDiscount = 0x0002, // Если установлен, но по всем картам скидку требуется обнулить
+		fZeroExpiry   = 0x0004  // @v9.6.2 Пустое значение даты истечения срока действия
 	};
 	SCardSelPrcssrParam();
 	int    IsEmpty() const;
@@ -44862,6 +44858,97 @@ private:
 //
 //
 //
+#ifdef __WIN32__
+//
+// CurrListTagParser
+//
+typedef TSArray <PPCurrency> CurrencyArray;
+
+class CurrListTagParser : XTagParser {
+public:
+	SLAPI  CurrListTagParser();
+	SLAPI ~CurrListTagParser();
+	int    SLAPI ProcessNext(CurrencyArray * pCurrAry, const char * pPath);
+protected:
+	virtual int SLAPI ProcessTag(const char * pTag, long);
+private:
+	int    SLAPI SaveTagVal(const char * pTag);
+	CurrencyArray CurrAry;
+	PPCurrency CurrItem;
+	PPIDArray ParentTags;
+	SString TagValBuf;
+	SString TagNamesStr;
+};
+//
+// PpyInetDataPrcssr
+//
+//const static char WinInetDLLPath[] = "wininet.dll";
+
+#endif // __WIN32__
+
+class PpyInetDataPrcssr {
+public:
+	SLAPI  PpyInetDataPrcssr();
+	SLAPI ~PpyInetDataPrcssr();
+#ifdef __WIN32__
+	int    SLAPI Init();
+	void   SLAPI Uninit();
+	int    SLAPI ImportCurrencyList(ulong * pAcceptedRows, int use_ta);
+	//int  SLAPI ImportBankList();
+#endif // __WIN32__
+	static int SLAPI EditCfg();
+	static int SLAPI GetCfg(PPInetConnConfig * pCfg);
+	static int SLAPI PutCfg(const PPInetConnConfig * pCfg, int use_ta);
+protected:
+#ifdef __WIN32__
+	int    SLAPI DownloadData(const char * pURL, const char * pPath);
+	void   SLAPI SetInetError();
+	HINTERNET InetSession;
+	HANDLE    WinInetDLLHandle;
+	PPInetConnConfig IConnCfg;
+#endif // __WIN32__
+};
+//
+// FTP via wininet.lib implementation
+//
+class WinInetFTP {
+public:
+	WinInetFTP();
+	~WinInetFTP();
+	int    Init();
+	int    Init(PPInetConnConfig * pCfg);
+	int    UnInit();
+	int    ReInit();
+	int    Connect(PPInternetAccount * pAccount);
+	int    Disconnect();
+	int    Get(const char * pLocalPath, const char * pFTPPath, int checkDtTm = 0, PercentFunc pf = 0);
+	int    Put(const char * pLocalPath, const char * pFTPPath, int checkDtTm = 0, PercentFunc pf = 0);
+	int    Delete(const char * pPath);
+	int    DeleteWOCD(const char * pPath);
+	int    CD(const char * pDir, int isFullPath = 1);
+	int    CreateDir(const char * pDir);
+	int    CheckSizeAfterCopy(const char * pLocalPath, const char * pFTPPath);
+	int    Exists(const char * pPath);
+	int    GetFileList(const char * pDir, StrAssocArray * pFileList, const char * pMask = 0);
+	int    SafeGet(const char * pLocalPath, const char * pFTPPath, int checkDtTm, PercentFunc pf, PPLogger * pLogger);
+	int    SafePut(const char * pLocalPath, const char * pFTPPath, int checkDtTm, PercentFunc pf, PPLogger * pLogger);
+	int    SafeCD(const char * pPath, int isFullPath, PPLogger * pLogger);
+	int    SafeDelete(const char * pPath, PPLogger * pLogger);
+	int    SafeDeleteWOCD(const char * pPath, PPLogger * pLogger);
+	int    SafeCreateDir(const char * pDir, PPLogger * pLogger);
+	int    SafeGetFileList(const char * pDir, StrAssocArray * pFileList, const char * pMask, PPLogger * pLogger);
+private:
+	int    TransferFile(const char * pLocalPath, const char * pFTPPath, int send, int checkDtTm, PercentFunc pf);
+	int    ReadResponse();
+
+	HINTERNET InetSession, Connection;
+	PPInetConnConfig IConnCfg;
+	HANDLE    WinInetDLLHandle;
+	PPInternetAccount Account;
+};
+//
+//
+//
 class PPOsm : public SStrGroup {
 public:
 	enum {
@@ -44904,6 +44991,13 @@ public:
 		Tile   T;
 		SGeoPosLL_Int C;
     };
+
+	struct NodeClusterStatEntry {
+		uint   LogicalCount;
+		uint64 ClusterCount;
+		uint64 ActualCount;
+		uint64 Size;
+	};
 	class NodeCluster : private SBuffer {
 	public:
 		/*
@@ -44935,8 +45029,34 @@ public:
 		SLAPI  NodeCluster();
 		SLAPI ~NodeCluster();
         static uint SLAPI GetPossiblePackCount(const Node * pN, size_t count, uint * pPossibleCountLogic);
-        int    SLAPI Put(const Node * pN, size_t count, size_t * pActualCount);
-		int    SLAPI Get(TSArray <Node> & rList);
+        int    SLAPI Put(const Node * pN, size_t count, uint64 * pOuterID, size_t * pActualCount);
+		int    SLAPI Get(uint64 outerID, TSArray <Node> & rList);
+		size_t SLAPI GetSize() const;
+		int    SLAPI GetCount(uint * pLogicCount, uint * pActualCount);
+		//
+		// Descr: Возвращает заголовочный идентификатор кластера.
+		// Note: Функция non-const из-за операций чтения SBuffer, которые
+		//   меняют его смещение. Однако, в реальности, состояние объекта не меняется - смещения
+		//   восстанавливаются в изначальном виде.
+		// Returns:
+		//   0 - ошибка
+		//   4 - идентификатор может быть представлен 4-байтовым значением
+		//   8 - идентификатор может быть представлен только 8-байтовым значением
+		//
+		int    FASTCALL GetHeaderID(uint64 * pID);
+		//
+		// Descr: Возвращает заголовочный тайл кластера.
+		// Note: Так же как и GetHeaderID эта функция non-const по спецификации,
+		//   но фактически состояния объекта не меняет.
+		//
+		int    FASTCALL GetTile(Tile * pT);
+		const void * FASTCALL GetBuffer(size_t * pSize) const;
+		//
+		// Descr: Формирует блок кластера из "сырого" буфера данных.
+		// Note: Функция опасная - она не проверяет корректности устанавливаемых данных.
+		//   Используется для обмена данными с базой данных.
+		//
+		int    SLAPI SetBuffer(const void * pData, size_t size);
 	private:
 		enum {
 			indfCountMask   = (0x01 | 0x02 | 0x04), // Маска битов, представляющих количество точек в пакете.
@@ -44957,6 +45077,7 @@ public:
 			linkindfLinkKindMask = (0x01 | 0x02 | 0x04),
 			linkindfId32         = 0x10
 		};
+		int    SLAPI Implement_Get(uint64 outerID, TSArray <Node> * pList, Node * pHead, uint * pCountLogic, uint * pCountActual);
 	};
     struct Way {
     	SLAPI  Way();
@@ -44981,14 +45102,7 @@ public:
         uint   KeySymbID; // Идентификатор символа
         uint64 ValID;     // Идентификатор значения (в варианте теста все значения хранятся в таблице символов)
     };
-	class NodeTbl : public BDbTable {
-	public:
-		SLAPI  NodeTbl(BDbDatabase * pDb);
-		SLAPI ~NodeTbl();
-        int    SLAPI Add(const NodeCluster & rNc);
-        int    SLAPI Get(Tile tl, TSArray <Node> & rList);
-        int    SLAPI Get(Tile tlLow, Tile tlUpp, TSArray <Node> & rList);
-	};
+    /*
 	class WayTbl : public BDbTable {
 	public:
 		WayTbl(BDbDatabase * pDb);
@@ -44999,11 +45113,12 @@ public:
 		RelTbl(BDbDatabase * pDb);
 		~RelTbl();
 	};
+	*/
 	enum {
 		stGridLoaded = 0x0001
 	};
 
-	SLAPI  PPOsm();
+	SLAPI  PPOsm(const char * pDbPath);
 	SLAPI ~PPOsm();
 	long   FASTCALL CheckStatus(long) const;
 	uint   FASTCALL SearchSymb(const char * pSymb) const;
@@ -45015,7 +45130,13 @@ public:
 	{
 		return Grid;
 	}
+	//
+	int    SLAPI OpenDatabase(const char * pDbPath);
+	SrDatabase * SLAPI GetDb();
+	static int FASTCALL SetNodeClusterStat(NodeCluster & rCluster, TSArray <NodeClusterStatEntry> & rStat);
 private:
+	SrDatabase * P_SrDb;
+	//
 	long   Status;
 	uint   LastSymbID;
 	SymbHashTable Ht;
@@ -45042,7 +45163,7 @@ public:
 
 class PrcssrOsm {
 public:
-	SLAPI  PrcssrOsm();
+	SLAPI  PrcssrOsm(const char * pDbPath);
 	SLAPI ~PrcssrOsm();
 	int    SLAPI InitParam(PPBaseFilt * pBaseFilt);
 	int    SLAPI EditParam(PPBaseFilt * pBaseFilt);
@@ -47600,7 +47721,8 @@ int     SLAPI ObjTransmDialogExt(uint dlgID, int viewId, ObjTransmitParam * pPar
 //   !0 - диалог *ppDlg корректен
 //   0  - диалог *ppDlg не корректен
 //
-int     FASTCALL CheckDialogPtr(void * ppDlg, int genErrMsg = 0);
+int     FASTCALL CheckDialogPtr(void * ppDlg/*, int genErrMsg = 0*/);
+int     FASTCALL CheckDialogPtrErr(void * ppDlg);
 //
 // Descr: Вызывает функцию сообщения об ошибке PPError(err, 0) и делает активным
 //   элемент диалога ctlID.
@@ -48690,8 +48812,6 @@ private:
 	HWND   HParentWnd;
 	BizScoreCore Tbl;
 };
-
-#define COMMON_DESKCMDASSOC 100000L
 //
 // Descr: Ассоциация, связывающая ввод данных, принятый рабочим столом с исполняемой командой.
 //
@@ -48699,7 +48819,7 @@ struct PPDesktopAssocCmd { // @transient
 	enum {
 		fSpecCode       = 0x0001,
 		fSpecCodePrefx  = 0x0002,
-		fNonInteractive = 0x0008 // @7.8.2 Вызывать команду с минимизацией интерактивности (если возможно)
+		fNonInteractive = 0x0008 // Вызывать команду с минимизацией интерактивности (если возможно)
 	};
 	enum {
 		cbString = 1,     // Просто строка                  // abc AddedStrVal получает значение 'той строки (очищенное от служебных символов и пробелов)
@@ -49299,7 +49419,7 @@ template <typename Dlg, typename D> int PPDialogProcBodyID(uint dlgID, D * pData
 {
 	int    ok = -1;
 	Dlg * dlg = new Dlg(dlgID);
-	if(CheckDialogPtr(&dlg, 1) && dlg->setDTS(pData)) {
+	if(CheckDialogPtrErr(&dlg) && dlg->setDTS(pData)) {
 		while(ok <= 0 && ExecView(dlg) == cmOK)
 			if(dlg->getDTS(pData))
 				ok = 1;
@@ -49314,7 +49434,7 @@ template <typename Dlg, typename D> int PPDialogProcBody(D * pData)
 {
 	int    ok = -1;
 	Dlg * dlg = new Dlg;
-	if(CheckDialogPtr(&dlg, 1) && dlg->setDTS(pData)) {
+	if(CheckDialogPtrErr(&dlg) && dlg->setDTS(pData)) {
 		while(ok <= 0 && ExecView(dlg) == cmOK)
 			if(dlg->getDTS(pData))
 				ok = 1;
@@ -49329,7 +49449,7 @@ template <typename Dlg, typename D> int PPDialogProcBody(uint dlgId, D * pData)
 {
 	int    ok = -1;
 	Dlg * dlg = new Dlg(dlgId);
-	if(CheckDialogPtr(&dlg, 1) && dlg->setDTS(pData)) {
+	if(CheckDialogPtrErr(&dlg) && dlg->setDTS(pData)) {
 		while(ok <= 0 && ExecView(dlg) == cmOK)
 			if(dlg->getDTS(pData))
 				ok = 1;
@@ -49343,7 +49463,7 @@ template <typename Dlg, typename D> int PPDialogProcBody(uint dlgId, D * pData)
 #define DIALOG_PROC_BODY(dlg_class, data_param)          \
 int ok = -1;                                             \
 dlg_class * dlg = new dlg_class;                         \
-if(CheckDialogPtr(&dlg, 1) && dlg->setDTS(data_param)) { \
+if(CheckDialogPtrErr(&dlg) && dlg->setDTS(data_param)) { \
 	while(ok <= 0 && ExecView(dlg) == cmOK)              \
 		if(dlg->getDTS(data_param)) ok = 1;              \
 }                                                        \
@@ -49353,7 +49473,7 @@ delete dlg; return ok;
 #define DIALOG_PROC_BODYERR(dlg_class, data_param)        \
 int ok = -1;                                             \
 dlg_class * dlg = new dlg_class;                         \
-if(CheckDialogPtr(&dlg, 1) && dlg->setDTS(data_param)) { \
+if(CheckDialogPtrErr(&dlg) && dlg->setDTS(data_param)) { \
 	while(ok <= 0 && ExecView(dlg) == cmOK)              \
 		if(dlg->getDTS(data_param)) ok = 1;              \
 		else PPError();                                  \
@@ -49364,7 +49484,7 @@ delete dlg; return ok;
 #define DIALOG_PROC_BODY_P1(dlg_class, param1, data_param) \
 int ok = -1;                                             \
 dlg_class * dlg = new dlg_class(param1);                 \
-if(CheckDialogPtr(&dlg, 1) && dlg->setDTS(data_param)) { \
+if(CheckDialogPtrErr(&dlg) && dlg->setDTS(data_param)) { \
 	while(ok <= 0 && ExecView(dlg) == cmOK)              \
 		if(dlg->getDTS(data_param)) ok = 1;              \
 }                                                        \
@@ -49374,7 +49494,7 @@ delete dlg; return ok;
 #define DIALOG_PROC_BODY_P2(dlg_class, param1, param2, data_param) \
 int ok = -1;                                             \
 dlg_class * dlg = new dlg_class(param1, param2);         \
-if(CheckDialogPtr(&dlg, 1) && dlg->setDTS(data_param)) { \
+if(CheckDialogPtrErr(&dlg) && dlg->setDTS(data_param)) { \
 	while(ok <= 0 && ExecView(dlg) == cmOK)              \
 		if(dlg->getDTS(data_param)) ok = 1;              \
 }                                                        \
@@ -49384,7 +49504,7 @@ delete dlg; return ok;
 #define DIALOG_PROC_BODY_P1ERR(dlg_class, param1, data_param) \
 int ok = -1;                                             \
 dlg_class * dlg = new dlg_class(param1);                 \
-if(CheckDialogPtr(&dlg, 1) && dlg->setDTS(data_param)) { \
+if(CheckDialogPtrErr(&dlg) && dlg->setDTS(data_param)) { \
 	while(ok <= 0 && ExecView(dlg) == cmOK)              \
 		if(dlg->getDTS(data_param)) ok = 1;              \
 		else PPError();                                  \
@@ -49395,7 +49515,7 @@ delete dlg; return ok;
 #define DIALOG_PROC_BODY_P2ERR(dlg_class, param1, param2, data_param) \
 int ok = -1;                                             \
 dlg_class * dlg = new dlg_class(param1, param2);         \
-if(CheckDialogPtr(&dlg, 1) && dlg->setDTS(data_param)) { \
+if(CheckDialogPtrErr(&dlg) && dlg->setDTS(data_param)) { \
 	while(ok <= 0 && ExecView(dlg) == cmOK)              \
 		if(dlg->getDTS(data_param)) ok = 1;              \
 		else PPError();                                  \

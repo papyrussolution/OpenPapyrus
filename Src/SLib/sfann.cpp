@@ -4674,11 +4674,11 @@ int fann_save_train_internal_fd(Fann::TrainData * data, FILE * file, const char 
 			if(save_as_fixed) {
 				fprintf(file, "%d ", (int)(ov * multiplier));
 			}
-			else{
+			else {
 				if(((int)floor(ov + 0.5) * 1000000) == ((int)floor(ov * 1000000.0 + 0.5))) {
 					fprintf(file, "%d ", (int)ov);
 				}
-				else{
+				else {
 					fprintf(file, "%f ", ov);
 				}
 			}

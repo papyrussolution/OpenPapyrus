@@ -108,7 +108,7 @@ void PrcTechCtrlGroup::selTechByGoods(TDialog * pDlg)
 	PPID   prc_id = pDlg->getCtrlLong(CtlselPrc);
 	if(prc_id) {
 		ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, 0);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			PPIDArray goods_id_list;
 			TIDlgInitData tidi;
 			TecObj.GetGoodsListByPrc(prc_id, &goods_id_list);
@@ -532,7 +532,7 @@ void TSessionDialog::selectFreeEntry()
 	PrcFreeListDialog * dlg = 0;
 	getCtrlData(CTLSEL_TSESS_PRC, &Data.Rec.PrcID);
 	if(Data.Rec.PrcID) {
-		if(CheckDialogPtr(&(dlg = new PrcFreeListDialog), 1)) {
+		if(CheckDialogPtrErr(&(dlg = new PrcFreeListDialog))) {
 			TechTbl::Rec tec_rec;
 			getCtrlData(CTLSEL_TSESS_TECH, &Data.Rec.TechID);
 			double capacity = (TSesObj.GetTech(Data.Rec.TechID, &tec_rec, 1) > 0) ? tec_rec.Capacity : 0;
@@ -1837,7 +1837,7 @@ int SLAPI PPObjTSession::EditDialog(TSessionPacket * pData)
 	else
 		dlg_id = DLG_TSESS;
 	TSessionDialog * dlg = new TSessionDialog(dlg_id);
-	if(CheckDialogPtr(&dlg, 1) && dlg->setDTS(pData)) {
+	if(CheckDialogPtrErr(&dlg) && dlg->setDTS(pData)) {
 		int    r = 0;
 		while(ok <= 0 && (r = ExecView(dlg)) == cmOK) {
 			if(dlg->getDTS(pData))

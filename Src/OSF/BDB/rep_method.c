@@ -1161,7 +1161,7 @@ static int __rep_restore_prepared(ENV * env)
 	 * available.  If so, it might be unresolved.  If not,
 	 * then it is guaranteed to be resolved.
 	 */
-	memzero(&rec, sizeof(DBT));
+	// (replaced by ctr) memzero(&rec, sizeof(DBT));
 	if((ret = __logc_get(logc, &lsn, &rec, DB_FIRST)) != 0) {
 		__db_errx(env, DB_STR("3559", "First record not found"));
 		goto err;

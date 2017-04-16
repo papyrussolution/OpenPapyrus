@@ -655,7 +655,7 @@ GoodsGroupView::GoodsGroupView(PPObjGoodsGroup * _ppobj) : PPListDialog(DLG_GGVI
 {
 	setupList();
 	setupButtons();
-	drawView();
+	Draw_();
 	CurIterID = 0;
 	P_Iter = 0;
 }
@@ -786,7 +786,7 @@ void GoodsGroupView::updateList(PPID id)
 		if(id >= 0) {
 			if(id > 0)
 				P_Box->TransmitData(+1, &id);
-			P_Box->drawView();
+			P_Box->Draw_();
 		}
 		else
 			P_Box->focusItem(cur);
@@ -838,7 +838,7 @@ IMPL_HANDLE_EVENT(GoodsGroupView)
 		GoodsGroupTotal total;
 		GGObj.CalcTotal(&total);
 		TDialog * dlg = new TDialog(DLG_GGRPTOTAL);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setCtrlLong(CTL_GGRPTOTAL_COUNT, total.Count);
 			dlg->setCtrlLong(CTL_GGRPTOTAL_MAXLEVEL, total.MaxLevel);
 			dlg->setCtrlLong(CTL_GGRPTOTAL_ALTCOUNT, total.AltCount);
@@ -1062,7 +1062,7 @@ int SLAPI PPObjPckgType::Edit(long * pID, void * extraPtr)
 	}
 	else
 		MEMSZERO(rec);
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PCKGTYPE)), 0));
+	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PCKGTYPE))));
 	dlg->setCtrlData(CTL_PCKGTYPE_NAME,  rec.Name);
 	dlg->setCtrlData(CTL_PCKGTYPE_TEMPL, rec.CodeTempl);
 	dlg->setCtrlData(CTL_PCKGTYPE_COUNTER, &rec.Counter);
@@ -1303,7 +1303,7 @@ int SLAPI PPObjTransport::EditConfig()
 	int    ok = -1;
 	PPTransportConfig cfg, org_cfg;
 	TDialog * dlg = new TDialog(DLG_TRANSPCFG);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		ReadConfig(&cfg);
 		org_cfg = cfg;
 		SetupPPObjCombo(dlg, CTLSEL_TRANSPCFG_OWNERK, PPOBJ_PRSNKIND, cfg.OwnerKindID, 0, 0);
@@ -1340,12 +1340,12 @@ int FASTCALL PPTransport::IsEqual(const PPTransport & rS) const
 	CMP_FLD(OwnerID);
 	CMP_FLD(CountryID);
 	CMP_FLD(CaptainID);
-	CMP_FLD(Capacity); // @v7.2.7
-	if(strcmp(Name, rS.Name) != 0)
+	CMP_FLD(Capacity);
+	if(!sstreq(Name, rS.Name))
 		return 0;
-	if(strcmp(Code, rS.Code) != 0)
+	if(!sstreq(Code, rS.Code))
 		return 0;
-	if(strcmp(TrailerCode, rS.TrailerCode) != 0)
+	if(!sstreq(TrailerCode, rS.TrailerCode))
 		return 0;
 	return 1;
 #undef CMP_FLD
@@ -1592,7 +1592,7 @@ int SLAPI PPObjTransport::Edit(PPID * pID, void * extraPtr /*initTrType*/)
 		MEMSZERO(rec);
 		if(tr_type != PPTRTYP_CAR && tr_type != PPTRTYP_SHIP) {
 			tr_type = 0;
-			THROW(CheckDialogPtr(&(sel_dlg = new TDialog(DLG_TRSEL)), 0));
+			THROW(CheckDialogPtr(&(sel_dlg = new TDialog(DLG_TRSEL))));
 			sel_dlg->setCtrlUInt16(CTL_TRSEL_WHAT, 0);
 			if(ExecView(sel_dlg) == cmOK) {
 				ushort v = sel_dlg->getCtrlUInt16(CTL_TRSEL_WHAT);
@@ -2046,7 +2046,7 @@ int SLAPI PPObjBrand::Browse(void * extraPtr)
 	int    ok = 1;
 	if(CheckRights(PPR_READ)) {
 		TDialog * dlg = new BrandView(this);
-		if(CheckDialogPtr(&dlg, 1))
+		if(CheckDialogPtrErr(&dlg))
 			ExecViewAndDestroy(dlg);
 		else
 			ok = 0;
@@ -2063,7 +2063,7 @@ int SLAPI PPObjBrand::Edit(PPID * pID, void * extraPtr)
 	int    ok = -1, valid_data = 0, is_new = 0;
 	TDialog * dlg = 0;
 	PPBrandPacket pack;
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_BRAND)), 0));
+	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_BRAND))));
 	THROW(EditPrereq(pID, dlg, &is_new));
 	if(!is_new) {
 		THROW(Get(*pID, &pack) > 0);
@@ -2315,9 +2315,9 @@ int FASTCALL PPSuprWare::IsEqual(const PPSuprWare & rS) const
 		return 0;
 	else if(Flags != rS.Flags)
 		return 0;
-	else if(strcmp(Name, rS.Name) != 0)
+	else if(!sstreq(Name, rS.Name))
 		return 0;
-	else if(strcmp(Code, rS.Code) != 0)
+	else if(!sstreq(Code, rS.Code))
 		return 0;
 	return 1;
 }
@@ -2691,7 +2691,7 @@ int SLAPI PPObjSuprWare::EditList(PPID * pID)
 	pack.Init();
 	THROW(Get(*pID, &pack));
 	SuprWareListDialog * dlg = new SuprWareListDialog(&pack);
-	if(CheckDialogPtr(&dlg, 1))
+	if(CheckDialogPtrErr(&dlg))
 		ok = (ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1;
 	else
 		ok = 0;

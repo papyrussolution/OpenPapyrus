@@ -632,9 +632,9 @@ xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
 ..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle $(InputPath)
 XCOPY /Y $(InputDir)$(InputName).BIN $(OutDir)
 XCOPY /Y $(InputDir)$(InputName).H ..\INCLUDE
-XCOPY /Y $(InputDir)$(InputName).CPP ..\PPKERNEL
+XCOPY /Y $(InputDir)$(InputName).CPP ..\PPLIB
 "
-						Outputs="$(InputDir)\$(InputName).bin;$(InputDir)..\..\PPKERNEL\$(InputName).CPP;$(InputDir)..\..\INCLUDE\$(InputName).H"/>
+						Outputs="$(InputDir)\$(InputName).bin;$(InputDir)..\..\PPLIB\$(InputName).CPP;$(InputDir)..\..\INCLUDE\$(InputName).H"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32">
@@ -648,9 +648,9 @@ xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
 ..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle $(InputPath)
 XCOPY /Y $(InputDir)$(InputName).BIN $(OutDir)
 XCOPY /Y $(InputDir)$(InputName).H ..\INCLUDE
-XCOPY /Y $(InputDir)$(InputName).CPP ..\PPKERNEL
+XCOPY /Y $(InputDir)$(InputName).CPP ..\PPLIB
 "
-						Outputs="$(InputDir)\$(InputName).bin;$(InputDir)..\..\PPKERNEL\$(InputName).CPP;$(InputDir)..\..\INCLUDE\$(InputName).H"/>
+						Outputs="$(InputDir)\$(InputName).bin;$(InputDir)..\..\PPLIB\$(InputName).CPP;$(InputDir)..\..\INCLUDE\$(InputName).H"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="ServerDebug|Win32">
@@ -664,9 +664,9 @@ xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
 ..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle $(InputPath)
 XCOPY /Y $(InputDir)$(InputName).BIN $(OutDir)
 XCOPY /Y $(InputDir)$(InputName).H ..\INCLUDE
-XCOPY /Y $(InputDir)$(InputName).CPP ..\PPKERNEL
+XCOPY /Y $(InputDir)$(InputName).CPP ..\PPLIB
 "
-						Outputs="$(InputDir)\$(InputName).bin;$(InputDir)..\..\PPKERNEL\$(InputName).CPP;$(InputDir)..\..\INCLUDE\$(InputName).H"/>
+						Outputs="$(InputDir)\$(InputName).bin;$(InputDir)..\..\PPLIB\$(InputName).CPP;$(InputDir)..\..\INCLUDE\$(InputName).H"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="ServerRelease|Win32">
@@ -680,9 +680,9 @@ xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
 ..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle $(InputPath)
 XCOPY /Y $(InputDir)$(InputName).BIN $(OutDir)
 XCOPY /Y $(InputDir)$(InputName).H ..\INCLUDE
-XCOPY /Y $(InputDir)$(InputName).CPP ..\PPKERNEL
+XCOPY /Y $(InputDir)$(InputName).CPP ..\PPLIB
 "
-						Outputs="$(InputDir)\$(InputName).bin;$(InputDir)..\..\PPKERNEL\$(InputName).CPP;$(InputDir)..\..\INCLUDE\$(InputName).H"/>
+						Outputs="$(InputDir)\$(InputName).bin;$(InputDir)..\..\PPLIB\$(InputName).CPP;$(InputDir)..\..\INCLUDE\$(InputName).H"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="MtDllDebug|Win32">
@@ -696,9 +696,9 @@ xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
 ..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle $(InputPath)
 XCOPY /Y $(InputDir)$(InputName).BIN $(OutDir)
 XCOPY /Y $(InputDir)$(InputName).H ..\INCLUDE
-XCOPY /Y $(InputDir)$(InputName).CPP ..\PPKERNEL
+XCOPY /Y $(InputDir)$(InputName).CPP ..\PPLIB
 "
-						Outputs="$(InputDir)\$(InputName).bin;$(InputDir)..\..\PPKERNEL\$(InputName).CPP;$(InputDir)..\..\INCLUDE\$(InputName).H"/>
+						Outputs="$(InputDir)\$(InputName).bin;$(InputDir)..\..\PPLIB\$(InputName).CPP;$(InputDir)..\..\INCLUDE\$(InputName).H"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="MtDllRelease|Win32">
@@ -712,9 +712,25 @@ xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
 ..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle $(InputPath)
 XCOPY /Y $(InputDir)$(InputName).BIN $(OutDir)
 XCOPY /Y $(InputDir)$(InputName).H ..\INCLUDE
-XCOPY /Y $(InputDir)$(InputName).CPP ..\PPKERNEL
+XCOPY /Y $(InputDir)$(InputName).CPP ..\PPLIB
 "
-						Outputs="$(InputDir)\$(InputName).bin;$(InputDir)..\..\PPKERNEL\$(InputName).CPP;$(InputDir)..\..\INCLUDE\$(InputName).H"/>
+						Outputs="$(InputDir)\$(InputName).bin;$(InputDir)..\..\PPLIB\$(InputName).CPP;$(InputDir)..\..\INCLUDE\$(InputName).H"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Universe-HTT|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="DL600 compiler (database structure)"
+						CommandLine="set path=%path%;\pvsw\bin
+path
+del ..\..\BASE\INIT_DL6\*.* /Q
+xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle $(InputPath)
+XCOPY /Y $(InputDir)$(InputName).BIN $(OutDir)
+XCOPY /Y $(InputDir)$(InputName).H ..\INCLUDE
+XCOPY /Y $(InputDir)$(InputName).CPP ..\PPLIB
+"
+						Outputs="$(InputDir)\$(InputName).bin;$(InputDir)..\..\PPLIB\$(InputName).CPP;$(InputDir)..\..\INCLUDE\$(InputName).H"/>
 				</FileConfiguration>
 			</File>
 			<File
@@ -724,7 +740,8 @@ XCOPY /Y $(InputDir)$(InputName).CPP ..\PPKERNEL
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="—борка диалогов"
-						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools"
+						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools
+"
 						AdditionalDependencies=""
 						Outputs="$(InputDir)$(InputName)-.rc;$(InputDir)$(InputName)w-.rc"/>
 				</FileConfiguration>
@@ -733,7 +750,8 @@ XCOPY /Y $(InputDir)$(InputName).CPP ..\PPKERNEL
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="—борка диалогов"
-						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools"
+						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools
+"
 						AdditionalDependencies=""
 						Outputs="$(InputDir)$(InputName)-.rc;$(InputDir)$(InputName)w-.rc"/>
 				</FileConfiguration>
@@ -742,7 +760,8 @@ XCOPY /Y $(InputDir)$(InputName).CPP ..\PPKERNEL
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="—борка диалогов"
-						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools"
+						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools
+"
 						AdditionalDependencies=""
 						Outputs="$(InputDir)$(InputName)-.rc;$(InputDir)$(InputName)w-.rc"/>
 				</FileConfiguration>
@@ -751,7 +770,8 @@ XCOPY /Y $(InputDir)$(InputName).CPP ..\PPKERNEL
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="—борка диалогов"
-						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools"
+						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools
+"
 						AdditionalDependencies=""
 						Outputs="$(InputDir)$(InputName)-.rc;$(InputDir)$(InputName)w-.rc"/>
 				</FileConfiguration>
@@ -760,7 +780,8 @@ XCOPY /Y $(InputDir)$(InputName).CPP ..\PPKERNEL
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="—борка диалогов"
-						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools"
+						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools
+"
 						AdditionalDependencies=""
 						Outputs="$(InputDir)$(InputName)-.rc;$(InputDir)$(InputName)w-.rc"/>
 				</FileConfiguration>
@@ -769,7 +790,8 @@ XCOPY /Y $(InputDir)$(InputName).CPP ..\PPKERNEL
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="—борка диалогов"
-						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools"
+						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools
+"
 						AdditionalDependencies=""
 						Outputs="$(InputDir)$(InputName)-.rc;$(InputDir)$(InputName)w-.rc"/>
 				</FileConfiguration>
@@ -778,7 +800,8 @@ XCOPY /Y $(InputDir)$(InputName).CPP ..\PPKERNEL
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="—борка диалогов"
-						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools"
+						CommandLine="..\..\tools\scp2rc -list:$(InputPath) -out:$(InputDir)$(InputName).rc -path:$(InputDir)..\dlg\ -toolspath:..\..\tools
+"
 						Outputs="$(InputDir)$(InputName)-.rc;$(InputDir)$(InputName)w-.rc"/>
 				</FileConfiguration>
 			</File>

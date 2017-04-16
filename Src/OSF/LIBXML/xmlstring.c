@@ -382,19 +382,24 @@ const xmlChar * xmlStrcasestr(const xmlChar * str, const xmlChar * val) {
  * Returns the xmlChar * for the first occurrence or NULL.
  */
 
-xmlChar * xmlStrsub(const xmlChar * str, int start, int len) {
-	int i;
-
-	if(str == NULL) return 0;
-	if(start < 0) return 0;
-	if(len < 0) return 0;
-
-	for(i = 0; i < start; i++) {
-		if(*str == 0) return 0;
-		str++;
+xmlChar * xmlStrsub(const xmlChar * str, int start, int len) 
+{
+	if(str == NULL) 
+		return 0;
+	else if(start < 0) 
+		return 0;
+	else if(len < 0) 
+		return 0;
+	else {
+		for(int i = 0; i < start; i++) {
+			if(*str == 0) 
+				return 0;
+			str++;
+		}
+		if(*str == 0) 
+			return 0;
+		return xmlStrndup(str, len);
 	}
-	if(*str == 0) return 0;
-	return(xmlStrndup(str, len));
 }
 
 /**
@@ -409,7 +414,8 @@ xmlChar * xmlStrsub(const xmlChar * str, int start, int len) {
 int xmlStrlen(const xmlChar * str) 
 {
 	int len = 0;
-	if(str == NULL) return 0;
+	if(str == NULL) 
+		return 0;
 	while(*str != 0) { /* non input consuming */
 		str++;
 		len++;

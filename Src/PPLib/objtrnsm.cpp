@@ -2338,7 +2338,7 @@ int BillTransDialog::updateList()
 				THROW_SL(p_list->addItem(id, text));
 			}
 		}
-		p_list->drawView();
+		p_list->Draw_();
 	}
 	CATCHZOK
 	return ok;
@@ -2584,7 +2584,7 @@ int ObjTranDialog::updateList(int dbDivList)
 				THROW_SL(p_list->addItem(id, text));
 			}
 		}
-		p_list->drawView();
+		p_list->Draw_();
 	}
 	CATCHZOK
 	return ok;
@@ -2912,7 +2912,7 @@ int SLAPI ObjTransmDialogExt(uint dlgID, int viewId, ObjTransmitParam * pParam, 
 {
 	int    ok = -1;
 	ObjTranDialogExt * dlg = new ObjTranDialogExt(dlgID, viewId, dlgFlags);
-	if(CheckDialogPtr(&dlg, 1) && dlg->setDTS(pParam, pFilt)) {
+	if(CheckDialogPtrErr(&dlg) && dlg->setDTS(pParam, pFilt)) {
 		while(ok <= 0 && ExecView(dlg) == cmOK)
 			if(dlg->getDTS(pParam, pFilt))
 				ok = 1;
@@ -3150,7 +3150,7 @@ static int SLAPI SelfSyncDialog(SelfSyncParam * pParam)
 	ushort v;
 	PPID   dest_db_id = pParam->DestDBID;
 	TDialog * dlg = new TDialog(DLG_SELFSYNC);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		SetupPPObjCombo(dlg, CTLSEL_SELFSYNC_DBDIV, PPOBJ_DBDIV, dest_db_id, 0, 0);
 		v = 0;
 		if(pParam->Flags & SelfSyncParam::fDontSyncBills)

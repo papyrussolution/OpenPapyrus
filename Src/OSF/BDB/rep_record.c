@@ -17,26 +17,23 @@
 // @v9.5.5 #include "dbinc/db_am.h"
 // @v9.5.5 #include "dbinc/txn.h"
 
-static int __rep_collect_txn __P((ENV*, DB_LSN*, LSN_COLLECTION *));
-static int __rep_do_ckp __P((ENV*, DBT*, __rep_control_args *));
-static int __rep_fire_newmaster __P((ENV*, uint32, int));
-static int __rep_fire_startupdone __P((ENV*, uint32, int));
-static int __rep_getnext __P((ENV*, DB_THREAD_INFO *));
-static int __rep_lsn_cmp __P((const void *, const void *));
-static int __rep_newfile __P((ENV*, __rep_control_args*, DBT *));
-static int __rep_process_rec __P((ENV*, DB_THREAD_INFO*, __rep_control_args*,
-	                          DBT*, db_timespec*, DB_LSN *));
-static int __rep_remfirst __P((ENV*, DB_THREAD_INFO*, DBT*, DBT *));
-static int __rep_skip_msg __P((ENV*, REP*, int, uint32));
+static int __rep_collect_txn(ENV*, DB_LSN*, LSN_COLLECTION *);
+static int __rep_do_ckp(ENV*, DBT*, __rep_control_args *);
+static int __rep_fire_newmaster(ENV*, uint32, int);
+static int __rep_fire_startupdone(ENV*, uint32, int);
+static int __rep_getnext(ENV*, DB_THREAD_INFO *);
+static int __rep_lsn_cmp(const void *, const void *);
+static int __rep_newfile(ENV*, __rep_control_args*, DBT *);
+static int __rep_process_rec(ENV*, DB_THREAD_INFO*, __rep_control_args*, DBT*, db_timespec*, DB_LSN *);
+static int __rep_remfirst(ENV*, DB_THREAD_INFO*, DBT*, DBT *);
+static int __rep_skip_msg(ENV*, REP*, int, uint32);
 
 /* Used to consistently designate which messages ought to be received where. */
 
 #define MASTER_ONLY(rep, rp) do {                                       \
 		if(!F_ISSET(rep, REP_F_MASTER)) {                              \
-			RPRINT(env, (env, DB_VERB_REP_MSGS,                     \
-				     "Master record received on client"));               \
-			REP_PRINT_MESSAGE(env,                                  \
-				eid, rp, "rep_process_message", 0);                 \
+			RPRINT(env, (env, DB_VERB_REP_MSGS, "Master record received on client")); \
+			REP_PRINT_MESSAGE(env, eid, rp, "rep_process_message", 0);                 \
 			/* Just skip/ignore it. */                              \
 			ret = 0;                                                \
 			goto errlock;                                           \
@@ -45,8 +42,7 @@ static int __rep_skip_msg __P((ENV*, REP*, int, uint32));
 
 #define CLIENT_ONLY(rep, rp) do {                                       \
 		if(!F_ISSET(rep, REP_F_CLIENT)) {                              \
-			RPRINT(env, (env, DB_VERB_REP_MSGS,                     \
-				     "Client record received on master"));               \
+			RPRINT(env, (env, DB_VERB_REP_MSGS, "Client record received on master")); \
 			/* \
 			 * Only broadcast DUPMASTER if leases are not \
 			 * in effect.  If I am an old master, using \
@@ -54,14 +50,10 @@ static int __rep_skip_msg __P((ENV*, REP*, int, uint32));
 			 * had better all be expired. \
 			 */                                                                                                                                                                                                           \
 			if(IS_USING_LEASES(env))                               \
-				DB_ASSERT(env,                                  \
-					__rep_lease_check(env, 0) ==                \
-					DB_REP_LEASE_EXPIRED);                      \
+				DB_ASSERT(env, __rep_lease_check(env, 0) == DB_REP_LEASE_EXPIRED); \
 			else {                                                  \
-				REP_PRINT_MESSAGE(env,                          \
-					eid, rp, "rep_process_message", 0);         \
-				__rep_send_message(env, DB_EID_BROADCAST, \
-					REP_DUPMASTER, NULL, NULL, 0, 0);           \
+				REP_PRINT_MESSAGE(env, eid, rp, "rep_process_message", 0); \
+				__rep_send_message(env, DB_EID_BROADCAST, REP_DUPMASTER, NULL, NULL, 0, 0); \
 			}                                                       \
 			ret = DB_REP_DUPMASTER;                                 \
 			goto errlock;                                           \
@@ -118,16 +110,12 @@ static int __rep_skip_msg __P((ENV*, REP*, int, uint32));
  * all incoming log records until the application requests sync-up.
  */
 #define RECOVERING_LOG_SKIP do {                                        \
-		if(F_ISSET(rep, REP_F_DELAY) ||                                \
-		   rep->master_id == DB_EID_INVALID ||                         \
-		   (recovering &&                                              \
-		    (rep->sync_state != SYNC_LOG ||                             \
-		     LOG_COMPARE(&rp->lsn, &rep->last_lsn) >= 0))) {            \
-			/* Not holding region mutex, may miscount */            \
-			STAT(rep->stat.st_msgs_recover++);                      \
-			ret = __rep_skip_msg(env, rep, eid, rp->rectype);       \
-			goto errlock;                                           \
-		}                                                               \
+	if(F_ISSET(rep, REP_F_DELAY) || rep->master_id == DB_EID_INVALID || (recovering && (rep->sync_state != SYNC_LOG || LOG_COMPARE(&rp->lsn, &rep->last_lsn) >= 0))) { \
+		/* Not holding region mutex, may miscount */            \
+		STAT(rep->stat.st_msgs_recover++);                      \
+		ret = __rep_skip_msg(env, rep, eid, rp->rectype);       \
+		goto errlock;                                           \
+	}                                                               \
 } while(0)
 
 #define ANYSITE(rep)
@@ -149,10 +137,8 @@ static int __rep_skip_msg __P((ENV*, REP*, int, uint32));
  */
 int __rep_process_message_pp(DB_ENV*dbenv, DBT * control, DBT * rec, int eid, DB_LSN * ret_lsnp)
 {
-	ENV * env;
-	int ret;
-	env = dbenv->env;
-	ret = 0;
+	ENV * env = dbenv->env;
+	int ret = 0;
 	ENV_REQUIRES_CONFIG_XX(env, rep_handle, "DB_ENV->rep_process_message", DB_INIT_REP);
 	if(APP_IS_REPMGR(env)) {
 		__db_errx(env, DB_STR_A("3512", "%s cannot call from Replication Manager application", "%s"), "DB_ENV->rep_process_message:");
@@ -234,8 +220,7 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 	rep_version = ((REP_OLD_CONTROL *)control->data)->rep_version;
 	if(rep_version <= DB_REPVERSION_45) {
 		orp = (REP_OLD_CONTROL *)control->data;
-		if(rep_version == DB_REPVERSION_45 &&
-		   F_ISSET(orp, REPCTL_INIT_45)) {
+		if(rep_version == DB_REPVERSION_45 && F_ISSET(orp, REPCTL_INIT_45)) {
 			F_CLR(orp, REPCTL_INIT_45);
 			F_SET(orp, REPCTL_INIT);
 		}
@@ -362,8 +347,7 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 	 * message requesting a lease, and I'm not using leases, that
 	 * is an error.
 	 */
-	if(!IS_USING_LEASES(env) &&
-	   (F_ISSET(rp, REPCTL_LEASE) || rp->rectype == REP_LEASE_GRANT)) {
+	if(!IS_USING_LEASES(env) && (F_ISSET(rp, REPCTL_LEASE) || rp->rectype == REP_LEASE_GRANT)) {
 		__db_errx(env, DB_STR("3520", "Inconsistent lease configuration"));
 		RPRINT(env, (env, DB_VERB_REP_MSGS, "Client received lease message and not using leases"));
 		ret = EINVAL;
@@ -417,12 +401,9 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 		 * elections and communication. Otherwise, I need to hear about
 		 * a new master and sync up.
 		 */
-		if(rp->rectype == REP_ALIVE ||
-		   rp->rectype == REP_VOTE1 || rp->rectype == REP_VOTE2) {
+		if(oneof3(rp->rectype, REP_ALIVE, REP_VOTE1, REP_VOTE2)) {
 			REP_SYSTEM_LOCK(env);
-			RPRINT(env, (env, DB_VERB_REP_MSGS,
-				     "Updating gen from %lu to %lu",
-				     (ulong)gen, (ulong)rp->gen));
+			RPRINT(env, (env, DB_VERB_REP_MSGS, "Updating gen from %lu to %lu", (ulong)gen, (ulong)rp->gen));
 			rep->master_id = DB_EID_INVALID;
 			gen = rp->gen;
 			SET_GEN(gen);
@@ -432,18 +413,14 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 			 */
 			REP_SYSTEM_UNLOCK(env);
 			if(rp->rectype == REP_ALIVE)
-				__rep_send_message(env,
-					DB_EID_BROADCAST, REP_MASTER_REQ, NULL,
-					NULL, 0, 0);
+				__rep_send_message(env, DB_EID_BROADCAST, REP_MASTER_REQ, NULL, NULL, 0, 0);
 		}
 		else if(rp->rectype != REP_NEWMASTER) {
 			/*
 			 * Ignore this message, retransmit if needed.
 			 */
 			if(__rep_check_doreq(env, rep))
-				__rep_send_message(env,
-					DB_EID_BROADCAST, REP_MASTER_REQ,
-					NULL, NULL, 0, 0);
+				__rep_send_message(env, DB_EID_BROADCAST, REP_MASTER_REQ, NULL, NULL, 0, 0);
 			goto errlock;
 		}
 		/*
@@ -459,8 +436,7 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 		REP_SYSTEM_LOCK(env);
 #ifdef  DIAGNOSTIC
 		if(!F_ISSET(rep, REP_F_GROUP_ESTD))
-			RPRINT(env, (env, DB_VERB_REP_MSGS,
-				     "I am now part of an established group"));
+			RPRINT(env, (env, DB_VERB_REP_MSGS, "I am now part of an established group"));
 #endif
 		F_SET(rep, REP_F_GROUP_ESTD);
 		REP_SYSTEM_UNLOCK(env);
@@ -492,9 +468,7 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 			 */
 			if(rep->spent_egen == rep->egen)
 				ret = DB_REP_HOLDELECTION;
-			RPRINT(env, (env, DB_VERB_REP_MSGS,
-				     "Received ALIVE egen of %lu, mine %lu",
-				     (ulong)egen_arg.egen, (ulong)rep->egen));
+			RPRINT(env, (env, DB_VERB_REP_MSGS, "Received ALIVE egen of %lu, mine %lu", (ulong)egen_arg.egen, (ulong)rep->egen));
 			__rep_elect_done(env, rep);
 			rep->egen = egen_arg.egen;
 		}
@@ -517,23 +491,19 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 		 * we break out of the messaging loop too early.
 		 */
 		if(F_ISSET(rep, REP_F_MASTER))
-			__rep_send_message(env,
-				DB_EID_BROADCAST, REP_NEWMASTER, &lsn, NULL, 0, 0);
+			__rep_send_message(env, DB_EID_BROADCAST, REP_NEWMASTER, &lsn, NULL, 0, 0);
 #endif
 		REP_SYSTEM_LOCK(env);
 		egen_arg.egen = rep->egen;
 		REP_SYSTEM_UNLOCK(env);
 		if(rep->version < DB_REPVERSION_47)
-			DB_INIT_DBT(data_dbt, &egen_arg.egen,
-				sizeof(egen_arg.egen));
+			DB_INIT_DBT(data_dbt, &egen_arg.egen, sizeof(egen_arg.egen));
 		else {
-			if((ret = __rep_egen_marshal(env,
-				    &egen_arg, buf, __REP_EGEN_SIZE, &len)) != 0)
+			if((ret = __rep_egen_marshal(env, &egen_arg, buf, __REP_EGEN_SIZE, &len)) != 0)
 				goto errlock;
 			DB_INIT_DBT(data_dbt, buf, len);
 		}
-		__rep_send_message(env,
-			eid, REP_ALIVE, &lsn, &data_dbt, 0, 0);
+		__rep_send_message(env, eid, REP_ALIVE, &lsn, &data_dbt, 0, 0);
 		break;
 	    case REP_ALL_REQ:
 		RECOVERING_SKIP;
@@ -587,8 +557,7 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 			 * Lock out other messages to prevent race
 			 * conditions.
 			 */
-			if((ret =
-			            __rep_lockout_msg(env, rep, 1)) != 0) {
+			if((ret = __rep_lockout_msg(env, rep, 1)) != 0) {
 				goto errhlk;
 			}
 			lockout = 1;
@@ -603,8 +572,7 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 			 * Clean up internal init if one was in progress.
 			 */
 			if(ISSET_LOCKOUT_BDB(rep)) {
-				RPRINT(env, (env, DB_VERB_REP_MSGS,
-					     "FILE_FAIL is cleaning up old internal init"));
+				RPRINT(env, (env, DB_VERB_REP_MSGS, "FILE_FAIL is cleaning up old internal init"));
 #ifdef  CONFIG_TEST
 				STAT(rep->stat.st_filefail_cleanups++);
 #endif
@@ -614,8 +582,7 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 			}
 			MUTEX_UNLOCK(env, rep->mtx_clientdb);
 			if(ret != 0) {
-				RPRINT(env, (env, DB_VERB_REP_MSGS,
-					     "FILE_FAIL error cleaning up internal init: %d", ret));
+				RPRINT(env, (env, DB_VERB_REP_MSGS, "FILE_FAIL error cleaning up internal init: %d", ret));
 				goto errhlk;
 			}
 			FLD_CLR(rep->lockout_flags, REP_LOCKOUT_MSG);
@@ -666,8 +633,7 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 			LOG_SYSTEM_LOCK(env);
 			lsn = lp->lsn;
 			LOG_SYSTEM_UNLOCK(env);
-			__rep_send_message(env,
-				eid, REP_NEWMASTER, &lsn, NULL, 0, 0);
+			__rep_send_message(env, eid, REP_NEWMASTER, &lsn, NULL, 0, 0);
 		}
 		ret = DB_REP_NEWSITE;
 		break;
@@ -703,15 +669,13 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 				 * in sync-up recover or internal init,
 				 * give up.
 				 */
-				if(FLD_ISSET(rep->lockout_flags,
-					   REP_LOCKOUT_MSG))
+				if(FLD_ISSET(rep->lockout_flags, REP_LOCKOUT_MSG))
 					goto errhlk;
 				/*
 				 * Lock out other messages to prevent race
 				 * conditions.
 				 */
-				if((t_ret =
-				            __rep_lockout_msg(env, rep, 1)) != 0) {
+				if((t_ret = __rep_lockout_msg(env, rep, 1)) != 0) {
 					ret = t_ret;
 					goto errhlk;
 				}
@@ -729,19 +693,15 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 				 * progress.
 				 */
 				if(ISSET_LOCKOUT_BDB(rep)) {
-					RPRINT(env, (env, DB_VERB_REP_MSGS,
-						     "NEWCLIENT is cleaning up old internal init for invalid master"));
-					t_ret = __rep_init_cleanup(env,
-						rep, DB_FORCE);
+					RPRINT(env, (env, DB_VERB_REP_MSGS, "NEWCLIENT is cleaning up old internal init for invalid master"));
+					t_ret = __rep_init_cleanup(env, rep, DB_FORCE);
 					F_CLR(rep, REP_F_ABBREVIATED);
 					CLR_RECOVERY_SETTINGS(rep);
 				}
 				MUTEX_UNLOCK(env, rep->mtx_clientdb);
 				if(t_ret != 0) {
 					ret = t_ret;
-					RPRINT(env, (env, DB_VERB_REP_MSGS,
-						     "NEWCLIENT error cleaning up internal init for invalid master: %d",
-						     ret));
+					RPRINT(env, (env, DB_VERB_REP_MSGS, "NEWCLIENT error cleaning up internal init for invalid master: %d", ret));
 					goto errhlk;
 				}
 				FLD_CLR(rep->lockout_flags, REP_LOCKOUT_MSG);
@@ -749,16 +709,13 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 			}
 			REP_SYSTEM_UNLOCK(env);
 			if(rep->version < DB_REPVERSION_47)
-				DB_INIT_DBT(data_dbt, &egen_arg.egen,
-					sizeof(egen_arg.egen));
+				DB_INIT_DBT(data_dbt, &egen_arg.egen, sizeof(egen_arg.egen));
 			else {
-				if((ret = __rep_egen_marshal(env, &egen_arg,
-					    buf, __REP_EGEN_SIZE, &len)) != 0)
+				if((ret = __rep_egen_marshal(env, &egen_arg, buf, __REP_EGEN_SIZE, &len)) != 0)
 					goto errlock;
 				DB_INIT_DBT(data_dbt, buf, len);
 			}
-			__rep_send_message(env, DB_EID_BROADCAST,
-				REP_ALIVE, &rp->lsn, &data_dbt, 0, 0);
+			__rep_send_message(env, DB_EID_BROADCAST, REP_ALIVE, &rp->lsn, &data_dbt, 0, 0);
 			break;
 		}
 	    /* FALLTHROUGH */
@@ -768,8 +725,7 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 			LOG_SYSTEM_LOCK(env);
 			lsn = lp->lsn;
 			LOG_SYSTEM_UNLOCK(env);
-			__rep_send_message(env,
-				DB_EID_BROADCAST, REP_NEWMASTER, &lsn, NULL, 0, 0);
+			__rep_send_message(env, DB_EID_BROADCAST, REP_NEWMASTER, &lsn, NULL, 0, 0);
 			if(IS_USING_LEASES(env))
 				__rep_lease_refresh(env);
 		}
@@ -789,13 +745,11 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 				DB_INIT_DBT(data_dbt, &egen_arg.egen,
 					sizeof(egen_arg.egen));
 			else {
-				if((ret = __rep_egen_marshal(env, &egen_arg,
-					    buf, __REP_EGEN_SIZE, &len)) != 0)
+				if((ret = __rep_egen_marshal(env, &egen_arg, buf, __REP_EGEN_SIZE, &len)) != 0)
 					goto errlock;
 				DB_INIT_DBT(data_dbt, buf, len);
 			}
-			__rep_send_message(env, eid,
-				REP_ALIVE, &rp->lsn, &data_dbt, 0, 0);
+			__rep_send_message(env, eid, REP_ALIVE, &rp->lsn, &data_dbt, 0, 0);
 		}
 		break;
 	    case REP_NEWFILE:
@@ -1129,15 +1083,13 @@ int __rep_apply(ENV * env, DB_THREAD_INFO * ip, __rep_control_args * rp, DBT * r
 		 * the loop.  Although this may seem excessive, it is necessary
 		 * to avoid locking problems with checkpoints.
 		 */
-		while(ret == 0 &&
-		      LOG_COMPARE(&lp->ready_lsn, &lp->waiting_lsn) == 0) {
+		while(ret == 0 && LOG_COMPARE(&lp->ready_lsn, &lp->waiting_lsn) == 0) {
 			/*
 			 * We just filled in a gap in the log record stream.
 			 * Write subsequent records to the log.
 			 */
 gap_check:
-			if((ret = __rep_remfirst(env, ip,
-				    &control_dbt, &rec_dbt)) != 0)
+			if((ret = __rep_remfirst(env, ip, &control_dbt, &rec_dbt)) != 0)
 				goto err;
 			rp = (__rep_control_args *)control_dbt.data;
 			timespecset(&msg_time, rp->msg_sec, rp->msg_nsec);
@@ -1175,8 +1127,7 @@ gap_check:
 		 * Check if we're at a gap in the table and if so, whether we
 		 * need to ask for any records.
 		 */
-		if(!IS_ZERO_LSN(lp->waiting_lsn) &&
-		   LOG_COMPARE(&lp->ready_lsn, &lp->waiting_lsn) != 0) {
+		if(!IS_ZERO_LSN(lp->waiting_lsn) && LOG_COMPARE(&lp->ready_lsn, &lp->waiting_lsn) != 0) {
 			/*
 			 * We got a record and processed it, but we may
 			 * still be waiting for more records.  If we
@@ -1184,8 +1135,7 @@ gap_check:
 			 * records are in the temp database and if we should
 			 * request the next gap at this time.
 			 */
-			if(__rep_check_doreq(env, rep) && (ret =
-			                                           __rep_loggap_req(env, rep, &rp->lsn, 0)) != 0)
+			if(__rep_check_doreq(env, rep) && (ret = __rep_loggap_req(env, rep, &rp->lsn, 0)) != 0)
 				goto err;
 		}
 		else {
@@ -1211,18 +1161,15 @@ gap_check:
 			__os_gettime(env, &lp->last_ts, 1);
 #ifdef HAVE_STATISTICS
 			rep->stat.st_log_queued_total++;
-			if(rep->stat.st_log_queued_max <
-			   rep->stat.st_log_queued)
-				rep->stat.st_log_queued_max =
-				        rep->stat.st_log_queued;
+			if(rep->stat.st_log_queued_max < rep->stat.st_log_queued)
+				rep->stat.st_log_queued_max = rep->stat.st_log_queued;
 #endif
 		}
 		if(ret == DB_KEYEXIST)
 			ret = 0;
 		if(ret != 0)
 			goto done;
-		if(IS_ZERO_LSN(lp->waiting_lsn) ||
-		   LOG_COMPARE(&rp->lsn, &lp->waiting_lsn) < 0) {
+		if(IS_ZERO_LSN(lp->waiting_lsn) || LOG_COMPARE(&rp->lsn, &lp->waiting_lsn) < 0) {
 			/*
 			 * If this is a new gap, then reset the rcvd_ts so
 			 * that an out-of-order record after an idle period
@@ -1232,8 +1179,7 @@ gap_check:
 				__os_gettime(env, &lp->rcvd_ts, 1);
 			lp->waiting_lsn = rp->lsn;
 		}
-		if(__rep_check_doreq(env, rep) &&
-		   (ret = __rep_loggap_req(env, rep, &rp->lsn, 0) != 0))
+		if(__rep_check_doreq(env, rep) && (ret = __rep_loggap_req(env, rep, &rp->lsn, 0) != 0))
 			goto err;
 		/*
 		 * If this is permanent; let the caller know that we have
@@ -1266,9 +1212,7 @@ gap_check:
 		 * in a mixed version group.  If the master has leases
 		 * configured, all clients must also.
 		 */
-		if(IS_USING_LEASES(env) &&
-		   F_ISSET(rp, REPCTL_LEASE) &&
-		   timespecisset(&msg_time)) {
+		if(IS_USING_LEASES(env) && F_ISSET(rp, REPCTL_LEASE) && timespecisset(&msg_time)) {
 			if(timespeccmp(&msg_time, &lp->max_lease_ts, >))
 				max_ts = msg_time;
 			else
@@ -1280,16 +1224,14 @@ gap_check:
 	if(ret == 0 && LOG_COMPARE(&lp->ready_lsn, &lp->waiting_lsn) == 0)
 		goto gap_check;
 done:
-err:    /*
+err:    
+	/*
 	 * In case of a race, to make sure only one thread can get
 	 * DB_REP_LOGREADY, zero out rep->last_lsn to show that we've gotten to
 	 * this point.
 	 */
 	REP_SYSTEM_LOCK(env);
-	if(ret == 0 &&
-	   rep->sync_state == SYNC_LOG &&
-	   !IS_ZERO_LSN(rep->last_lsn) &&
-	   LOG_COMPARE(&lp->ready_lsn, &rep->last_lsn) >= 0) {
+	if(ret == 0 && rep->sync_state == SYNC_LOG && !IS_ZERO_LSN(rep->last_lsn) && LOG_COMPARE(&lp->ready_lsn, &rep->last_lsn) >= 0) {
 		*last_lsnp = max_lsn;
 		ZERO_LSN(rep->last_lsn);
 		ZERO_LSN(max_lsn);
@@ -1302,13 +1244,9 @@ err:    /*
 	 */
 	if(set_apply) {
 		rep->apply_th--;
-		VPRINT(env, (env, DB_VERB_REP_MISC,
-			     "rep_apply: Decrement apply_th %d [%lu][%lu]",
-			     rep->apply_th, (ulong)lp->ready_lsn.file,
-			     (ulong)lp->ready_lsn.offset));
+		VPRINT(env, (env, DB_VERB_REP_MISC, "rep_apply: Decrement apply_th %d [%lu][%lu]", rep->apply_th, (ulong)lp->ready_lsn.file, (ulong)lp->ready_lsn.offset));
 	}
-	if(ret == 0 && rep->sync_state != SYNC_LOG &&
-	   !IS_ZERO_LSN(max_lsn)) {
+	if(ret == 0 && rep->sync_state != SYNC_LOG && !IS_ZERO_LSN(max_lsn)) {
 		if(ret_lsnp != NULL)
 			*ret_lsnp = max_lsn;
 		ret = DB_REP_ISPERM;
@@ -1324,11 +1262,8 @@ err:    /*
 	 * actually process a live log record.  Having cmp==0 here (with a good
 	 * "ret" value) implies we actually processed the record.
 	 */
-	if((ret == 0 || ret == DB_REP_ISPERM) &&
-	   rep->stat.st_startup_complete == 0 &&
-	   rep->sync_state != SYNC_LOG &&
-	   ((cmp <= 0 && F_ISSET(rp, REPCTL_LOG_END)) ||
-	    (cmp == 0 && !F_ISSET(rp, REPCTL_RESEND)))) {
+	if((ret == 0 || ret == DB_REP_ISPERM) && rep->stat.st_startup_complete == 0 && rep->sync_state != SYNC_LOG &&
+	   ((cmp <= 0 && F_ISSET(rp, REPCTL_LOG_END)) || (cmp == 0 && !F_ISSET(rp, REPCTL_RESEND)))) {
 		rep->stat.st_startup_complete = 1;
 		event = 1;
 		gen = rep->gen;
@@ -1357,8 +1292,7 @@ err:    /*
 	 * grant.  We must hold the clientdb mutex.  We must not hold
 	 * the region mutex because rep_update_grant will acquire it.
 	 */
-	if(ret == DB_REP_ISPERM && IS_USING_LEASES(env) &&
-	   timespecisset(&max_ts)) {
+	if(ret == DB_REP_ISPERM && IS_USING_LEASES(env) && timespecisset(&max_ts)) {
 		if((t_ret = __rep_update_grant(env, &max_ts)) != 0)
 			ret = t_ret;
 		else if(timespeccmp(&max_ts, &lp->max_lease_ts, >))
@@ -1370,17 +1304,12 @@ err:    /*
 		 * Now call memp_sync holding only the ckp mutex.
 		 */
 		MUTEX_LOCK(env, rep->mtx_ckp);
-		RPRINT(env, (env, DB_VERB_REP_MISC,
-			     "Starting delayed __memp_sync call [%lu][%lu]",
-			     (ulong)save_lsn.file, (ulong)save_lsn.offset));
-		t_ret = __memp_sync(env,
-			DB_SYNC_CHECKPOINT|DB_SYNC_INTERRUPT_OK, &save_lsn);
+		RPRINT(env, (env, DB_VERB_REP_MISC, "Starting delayed __memp_sync call [%lu][%lu]", (ulong)save_lsn.file, (ulong)save_lsn.offset));
+		t_ret = __memp_sync(env, DB_SYNC_CHECKPOINT|DB_SYNC_INTERRUPT_OK, &save_lsn);
 		MUTEX_UNLOCK(env, rep->mtx_ckp);
 	}
 	if(event) {
-		RPRINT(env, (env, DB_VERB_REP_MISC,
-			     "Start-up is done [%lu][%lu]",
-			     (ulong)rp->lsn.file, (ulong)rp->lsn.offset));
+		RPRINT(env, (env, DB_VERB_REP_MISC, "Start-up is done [%lu][%lu]", (ulong)rp->lsn.file, (ulong)rp->lsn.offset));
 		if((t_ret = __rep_fire_startupdone(env, gen, master)) != 0) {
 			DB_ASSERT(env, ret == 0 || ret == DB_REP_ISPERM);
 			/* Failure trumps either of those values. */
@@ -1453,7 +1382,6 @@ int __rep_process_txn(ENV*env, DBT * rec)
 	uint32 rectype;
 	uint i;
 	int ret, t_ret;
-
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	logc = NULL;
@@ -1461,7 +1389,6 @@ int __rep_process_txn(ENV*env, DBT * rec)
 	txn42_args = NULL;
 	prep_args = NULL;
 	txninfo = NULL;
-
 	ENV_ENTER(env, ip);
 	memzero(&data_dbt, sizeof(data_dbt));
 	if(F_ISSET(env, ENV_THREAD))
@@ -1483,8 +1410,7 @@ int __rep_process_txn(ENV*env, DBT * rec)
 		 * really a commit and not an abort!
 		 */
 		if(rep->version >= DB_REPVERSION_44) {
-			if((ret = __txn_regop_read(
-				    env, rec->data, &txn_args)) != 0)
+			if((ret = __txn_regop_read(env, rec->data, &txn_args)) != 0)
 				return ret;
 			if(txn_args->opcode != TXN_COMMIT) {
 				__os_free(env, txn_args);
@@ -1494,8 +1420,7 @@ int __rep_process_txn(ENV*env, DBT * rec)
 			lock_dbt = &txn_args->locks;
 		}
 		else {
-			if((ret = __txn_regop_42_read(
-				    env, rec->data, &txn42_args)) != 0)
+			if((ret = __txn_regop_42_read(env, rec->data, &txn42_args)) != 0)
 				return ret;
 			if(txn42_args->opcode != TXN_COMMIT) {
 				__os_free(env, txn42_args);
@@ -1508,8 +1433,7 @@ int __rep_process_txn(ENV*env, DBT * rec)
 	else {
 		/* We're a prepare. */
 		DB_ASSERT(env, rectype == DB___txn_prepare);
-		if((ret = __txn_prepare_read(
-			    env, rec->data, &prep_args)) != 0)
+		if((ret = __txn_prepare_read(env, rec->data, &prep_args)) != 0)
 			return ret;
 		prev_lsn = prep_args->prev_lsn;
 		lock_dbt = &prep_args->locks;
@@ -1519,8 +1443,7 @@ int __rep_process_txn(ENV*env, DBT * rec)
 		goto err1;
 	/* We are always more important than user transactions. */
 	locker->priority = DB_LOCK_MAXPRIORITY;
-	if((ret =
-	            __lock_get_list(env, locker, 0, DB_LOCK_WRITE, lock_dbt)) != 0)
+	if((ret = __lock_get_list(env, locker, 0, DB_LOCK_WRITE, lock_dbt)) != 0)
 		goto err;
 	/* Phase 1.  Get a list of the LSNs in this transaction, and sort it. */
 	if((ret = __rep_collect_txn(env, &prev_lsn, &lc)) != 0)
@@ -1554,17 +1477,13 @@ err:
 	if((t_ret = __lock_id_free(env, locker)) != 0 && ret == 0)
 		ret = t_ret;
 err1:
-	if(txn_args != NULL)
-		__os_free(env, txn_args);
-	if(txn42_args != NULL)
-		__os_free(env, txn42_args);
-	if(prep_args != NULL)
-		__os_free(env, prep_args);
-	if(lc.array != NULL)
-		__os_free(env, lc.array);
-	if(logc != NULL && (t_ret = __logc_close(logc)) != 0 && ret == 0)
+	__os_free(env, txn_args);
+	__os_free(env, txn42_args);
+	__os_free(env, prep_args);
+	__os_free(env, lc.array);
+	if(logc && (t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
-	if(txninfo != NULL)
+	if(txninfo)
 		__db_txnlist_end(env, txninfo);
 	if(F_ISSET(&data_dbt, DB_DBT_REALLOC) && data_dbt.data != NULL)
 		__os_ufree(env, data_dbt.data);
@@ -1662,7 +1581,6 @@ static int __rep_newfile(ENV * env, __rep_control_args * rp, DBT * rec)
 	REP * rep;
 	__rep_newfile_args nf_args;
 	int ret;
-
 	dblp = env->lg_handle;
 	lp = (LOG *)dblp->reginfo.primary;
 	db_rep = env->rep_handle;
@@ -1718,24 +1636,19 @@ static int __rep_newfile(ENV * env, __rep_control_args * rp, DBT * rec)
  */
 static int __rep_do_ckp(ENV*env, DBT * rec, __rep_control_args * rp)
 {
-	DB_ENV * dbenv;
 	__txn_ckp_args * ckp_args;
 	DB_LSN ckp_lsn;
 	REP * rep;
 	int ret;
-
-	dbenv = env->dbenv;
+	DB_ENV * dbenv = env->dbenv;
 	/* Crack the log record and extract the checkpoint LSN. */
 	if((ret = __txn_ckp_read(env, rec->data, &ckp_args)) != 0)
 		return ret;
 	ckp_lsn = ckp_args->ckp_lsn;
 	__os_free(env, ckp_args);
-
 	rep = env->rep_handle->region;
-
 	MUTEX_UNLOCK(env, rep->mtx_clientdb);
 	DB_TEST_WAIT(env, env->test_check);
-
 	/*
 	 * Sync the memory pool.
 	 *
@@ -1791,20 +1704,14 @@ static int __rep_remfirst(ENV*env, DB_THREAD_INFO * ip, DBT * cntrl, DBT * rec)
  */
 static int __rep_getnext(ENV*env, DB_THREAD_INFO * ip)
 {
-	DB * dbp;
 	DBC * dbc;
 	DBT lsn_dbt, nextrec_dbt;
-	DB_LOG * dblp;
-	DB_REP * db_rep;
-	LOG * lp;
 	__rep_control_args * rp;
 	int ret, t_ret;
-
-	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
-
-	db_rep = env->rep_handle;
-	dbp = db_rep->rep_db;
+	DB_LOG * dblp = env->lg_handle;
+	LOG * lp = (LOG *)dblp->reginfo.primary;
+	DB_REP * db_rep = env->rep_handle;
+	DB * dbp = db_rep->rep_db;
 	if((ret = __db_cursor(dbp, ip, NULL, &dbc, 0)) != 0)
 		return ret;
 	/*
@@ -1837,8 +1744,8 @@ static int __rep_getnext(ENV*env, DB_THREAD_INFO * ip)
 	}
 	rp = (__rep_control_args *)lsn_dbt.data;
 	lp->waiting_lsn = rp->lsn;
-
-err:    if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
+err:    
+	if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
 }
@@ -2215,13 +2122,11 @@ int __rep_check_missing(ENV*env, uint32 gen, DB_LSN * master_perm_lsn)
 	REP * rep;
 	__rep_fileinfo_args * curinfo;
 	int do_req, has_log_gap, has_page_gap, ret;
-
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	dblp = env->lg_handle;
 	infop = env->reginfo;
 	has_log_gap = has_page_gap = ret = 0;
-
 	ENV_ENTER(env, ip);
 	MUTEX_LOCK(env, rep->mtx_clientdb);
 	REP_SYSTEM_LOCK(env);
@@ -2229,8 +2134,7 @@ int __rep_check_missing(ENV*env, uint32 gen, DB_LSN * master_perm_lsn)
 	 * Check if we are okay to proceed with this operation.  If not,
 	 * do not rerequest anything.
 	 */
-	if(!F_ISSET(rep, REP_F_CLIENT) || rep->master_id == DB_EID_INVALID ||
-	   gen != rep->gen || FLD_ISSET(rep->lockout_flags, REP_LOCKOUT_MSG)) {
+	if(!F_ISSET(rep, REP_F_CLIENT) || rep->master_id == DB_EID_INVALID || gen != rep->gen || FLD_ISSET(rep->lockout_flags, REP_LOCKOUT_MSG)) {
 		REP_SYSTEM_UNLOCK(env);
 		MUTEX_UNLOCK(env, rep->mtx_clientdb);
 		/*
@@ -2269,10 +2173,7 @@ int __rep_check_missing(ENV*env, uint32 gen, DB_LSN * master_perm_lsn)
 		 * it yet.  If the needed LSN is at this LSN, it
 		 * means we are missing the last record we need.
 		 */
-		if(rep->sync_state == SYNC_LOG)
-			end_lsn = &rep->last_lsn;
-		else
-			end_lsn = master_perm_lsn;
+		end_lsn = (rep->sync_state == SYNC_LOG) ? &rep->last_lsn : master_perm_lsn;
 		has_log_gap = !IS_ZERO_LSN(lp->waiting_lsn) || LOG_COMPARE(&lp->ready_lsn, end_lsn) <= 0;
 	}
 	MUTEX_UNLOCK(env, rep->mtx_clientdb);
@@ -2282,8 +2183,7 @@ int __rep_check_missing(ENV*env, uint32 gen, DB_LSN * master_perm_lsn)
 	 * UPDATE_REQ or VERIFY_REQ, or we are in SYNC_LOG to keep
 	 * requesting to the current known end of the log.
 	 */
-	do_req = do_req && (has_log_gap || has_page_gap || rep->sync_state == SYNC_LOG ||
-		rep->sync_state == SYNC_UPDATE || rep->sync_state == SYNC_VERIFY);
+	do_req = do_req && (has_log_gap || has_page_gap || oneof3(rep->sync_state, SYNC_LOG, SYNC_UPDATE, SYNC_VERIFY));
 	/*
 	 * Determines request type from current replication
 	 * state and resends request.  The request may have
@@ -2301,10 +2201,8 @@ out:
 
 static int __rep_fire_newmaster(ENV*env, uint32 gen, int master)
 {
-	DB_REP * db_rep;
-	REP * rep;
-	db_rep = env->rep_handle;
-	rep = db_rep->region;
+	DB_REP * db_rep = env->rep_handle;
+	REP * rep = db_rep->region;
 	REP_EVENT_LOCK(env);
 	/*
 	 * The firing of this event should be idempotent with respect to a
@@ -2320,10 +2218,8 @@ static int __rep_fire_newmaster(ENV*env, uint32 gen, int master)
 
 static int __rep_fire_startupdone(ENV*env, uint32 gen, int master)
 {
-	DB_REP * db_rep;
-	REP * rep;
-	db_rep = env->rep_handle;
-	rep = db_rep->region;
+	DB_REP * db_rep = env->rep_handle;
+	REP * rep = db_rep->region;
 	REP_EVENT_LOCK(env);
 	/*
 	 * Usually NEWMASTER will already have been fired.  But if not, fire

@@ -226,7 +226,7 @@ int SLAPI PPDbTableXmlExportParam_TrfrBill::Edit(PPDbTableXmlExportParam_TrfrBil
 {
     int    ok = -1;
     DbTableXmlExportParamDialog * dlg = new DbTableXmlExportParamDialog(DLG_DBTEXPTRFR);
-    if(CheckDialogPtr(&dlg, 1)) {
+    if(CheckDialogPtrErr(&dlg)) {
 		dlg->SetupCalPeriod(CTLCAL_DBTEXP_PERIOD, CTL_DBTEXP_PERIOD);
 		dlg->setDTS(pData);
         SetPeriodInput(dlg, CTL_DBTEXP_PERIOD, &pData->Period);

@@ -61,8 +61,7 @@ int __mutex_open(ENV * env, int create_ok)
 	 * up our count to allocate its own mutexes, add that in.
 	 */
 	if(dbenv->mutex_cnt == 0 && F_ISSET(env, ENV_PRIVATE|ENV_THREAD) != ENV_PRIVATE)
-		dbenv->mutex_cnt = __lock_region_mutex_count(env)+
-			__log_region_mutex_count(env)+__memp_region_mutex_count(env)+__txn_region_mutex_count(env);
+		dbenv->mutex_cnt = __lock_region_mutex_count(env) + __log_region_mutex_count(env) + __memp_region_mutex_count(env) + __txn_region_mutex_count(env);
 	if(dbenv->mutex_max != 0 && dbenv->mutex_cnt > dbenv->mutex_max)
 		dbenv->mutex_cnt = dbenv->mutex_max;
 	/* Create/initialize the mutex manager structure. */
@@ -107,13 +106,12 @@ err:
  */
 static int __mutex_region_init(ENV * env, DB_MUTEXMGR * mtxmgr)
 {
-	DB_ENV * dbenv;
 	DB_MUTEX * mutexp;
 	DB_MUTEXREGION * mtxregion;
 	db_mutex_t mutex;
 	int ret;
 	void * mutex_array;
-	dbenv = env->dbenv;
+	DB_ENV * dbenv = env->dbenv;
 	COMPQUIET(mutexp, NULL);
 	if((ret = __env_alloc(&mtxmgr->reginfo, sizeof(DB_MUTEXREGION), &mtxmgr->reginfo.primary)) != 0) {
 		__db_errx(env, DB_STR("2013", "Unable to allocate memory for the mutex region"));
@@ -124,10 +122,8 @@ static int __mutex_region_init(ENV * env, DB_MUTEXMGR * mtxmgr)
 	memzero(mtxregion, sizeof(*mtxregion));
 	mtxregion->mutex_size = __mutex_align_size(env);
 	mtxregion->stat.st_mutex_align = dbenv->mutex_align;
-	if(dbenv->mutex_cnt == 0)
-		dbenv->mutex_cnt = 1;
-	mtxregion->stat.st_mutex_init =
-	        mtxregion->stat.st_mutex_cnt = dbenv->mutex_cnt;
+	SETIFZ(dbenv->mutex_cnt, 1);
+	mtxregion->stat.st_mutex_init = mtxregion->stat.st_mutex_cnt = dbenv->mutex_cnt;
 	mtxregion->stat.st_mutex_max = dbenv->mutex_max;
 	if(mtxregion->stat.st_mutex_max != 0)
 		mtxregion->stat.st_mutex_max += dbenv->mutex_inc;
@@ -153,7 +149,6 @@ static int __mutex_region_init(ENV * env, DB_MUTEXMGR * mtxmgr)
 	mutex_array = ALIGNP_INC(mutex_array, mtxregion->stat.st_mutex_align);
 	mtxregion->mutex_off = R_OFFSET(&mtxmgr->reginfo, mutex_array);
 	mtxmgr->mutex_array = mutex_array;
-
 	/*
 	 * Put the mutexes on a free list and clear the allocated flag.
 	 *
@@ -175,10 +170,7 @@ static int __mutex_region_init(ENV * env, DB_MUTEXMGR * mtxmgr)
 	}
 	for(mutex = 1; mutex < mtxregion->stat.st_mutex_cnt; ++mutex) {
 		mutexp->flags = 0;
-		if(F_ISSET(env, ENV_PRIVATE))
-			mutexp->mutex_next_link = (db_mutex_t)(mutexp+1);
-		else
-			mutexp->mutex_next_link = mutex+1;
+		mutexp->mutex_next_link = F_ISSET(env, ENV_PRIVATE) ? (db_mutex_t)(mutexp+1) : (mutex+1);
 		mutexp++;
 		mutexp = (DB_MUTEX *)ALIGNP_INC(mutexp, mtxregion->stat.st_mutex_align);
 	}

@@ -1182,7 +1182,7 @@ process_iac:
 				    CURL_SB_ACCUM(tn, c);
 				    tn->telrcv_state = CURL_TS_SB;
 			    }
-			    else{
+			    else {
 				    CURL_SB_ACCUM(tn, CURL_IAC);
 				    CURL_SB_ACCUM(tn, CURL_SE);
 				    tn->subpointer -= 2;

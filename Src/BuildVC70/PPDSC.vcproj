@@ -165,13 +165,13 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
-				RelativePath="..\PPKernel\Ppds.cpp">
+				RelativePath="..\PPLib\Ppds.cpp">
 			</File>
 			<File
 				RelativePath="..\Util\Ppdsc.cpp">
 			</File>
 			<File
-				RelativePath="..\PPKernel\Ppdsp.cpp">
+				RelativePath="..\PPLib\Ppdsp.cpp">
 			</File>
 		</Filter>
 		<Filter

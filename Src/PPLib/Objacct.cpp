@@ -668,7 +668,7 @@ int GenAccountDialog::editItemDialog(ObjRestrictItem * pItem)
 	int  aco = abs(GetAcoByGenFlags(pItem->Flags));
 	PPID acc_sheet_id = 0;
 	TDialog * dlg = new TDialog(DLG_ACCAGGRI);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		ushort v = 0;
 		getCtrlData(CTLSEL_ACCAGGR_ACCSHEET, &acc_sheet_id);
 		AcctCtrlGroup::Rec ag_rec;

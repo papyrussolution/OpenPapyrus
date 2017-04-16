@@ -387,7 +387,7 @@ static void qr_interpolate_background(uchar * _dst,
 			}
 			for(x = 0; x<_width; x++) {
 				if(!_mask[y*_width+x]) g = _img[y*_width+x];
-				else{
+				else {
 					g = n>0 ? ((m<<1)+n)/(n<<1) : b;
 					delta += (int)g-_img[y*_width+x];
 					ndelta++;

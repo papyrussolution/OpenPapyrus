@@ -1,5 +1,5 @@
 // OBJREG.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2016
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -427,7 +427,7 @@ int SLAPI PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const Regist
 	}
 	else
 		dlg = new RegisterDialog(DLG_REGISTER, pRegList);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(pRec);
 		if(!CheckRightsModByID(&pRec->ID))
 			DisableOKButton(dlg);
@@ -650,7 +650,7 @@ int SLAPI PPObjRegister::EditList(PPPersonPacket * pPsnPack, PPID psnEventID)
 {
 	int    ok = -1;
 	RegisterListDialog * dlg = new RegisterListDialog(pPsnPack, psnEventID);
-	if(CheckDialogPtr(&dlg, 1))
+	if(CheckDialogPtrErr(&dlg))
 		ok = (ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1;
 	else
 		ok = 0;
@@ -661,7 +661,7 @@ int SLAPI PPObjRegister::EditList(PPLocationPacket * pLocPack)
 {
 	int    ok = -1;
 	RegisterListDialog * dlg = new RegisterListDialog(pLocPack);
-	if(CheckDialogPtr(&dlg, 1))
+	if(CheckDialogPtrErr(&dlg))
 		ok = (ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1;
 	else
 		ok = 0;
@@ -741,7 +741,7 @@ int SLAPI PPObjRegister::EditBankAccount(PPBankAccount * pRec, PPID psnKindID)
 	int    ok = -1, valid_data = 0;
 	PPBankAccount rec = *pRec;
 	BankAccountDialog * dlg = new BankAccountDialog();
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		SetupPersonCombo(dlg, CTLSEL_BACCT_BANK, rec.BankID, OLW_CANINSERT, (PPID)PPPRK_BANK, 0);
 		SetupPPObjCombo(dlg, CTLSEL_BACCT_ACCTYPE, PPOBJ_BNKACCTYPE, rec.AccType, OLW_CANINSERT, 0);
 		dlg->setCtrlData(CTL_BACCT_ACCT,     rec.Acct);
@@ -893,7 +893,7 @@ int SLAPI PPObjRegister::EditBankAccountList(PPPersonPacket * pPsnPack)
 {
 	int    ok = -1;
 	BankAccountListDialog * dlg = new BankAccountListDialog(pPsnPack);
-	if(CheckDialogPtr(&dlg, 1))
+	if(CheckDialogPtrErr(&dlg))
 		ok = (ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1;
 	else
 		ok = 0;
@@ -1068,7 +1068,7 @@ int PPObjRegister::PreventDup(RegisterTbl::Rec & rRec, PPID linkObjType, PPID li
 //
 //
 //
-class RegisterCache : public ObjCacheHash { // @v7.8.5 ObjCache-->ObjCacheHash
+class RegisterCache : public ObjCacheHash {
 public:
 	struct RegisterData : public ObjCacheEntry {
 		long   ObjType;
@@ -1149,16 +1149,27 @@ int SLAPI PPObjRegister::Fetch(PPID id, RegisterTbl::Rec * pRec)
 //
 // Implementation of PPALDD_PersonRegister
 //
+struct DlPersonRegisterBlock {
+	DlPersonRegisterBlock()
+	{
+		MEMSZERO(Rec);
+	}
+	PPObjRegister RegObj;
+    RegisterTbl::Rec Rec;
+};
+
 PPALDD_CONSTRUCTOR(PersonRegister)
 {
-	Extra[0].Ptr = new PPObjRegister;
+	//Extra[0].Ptr = new PPObjRegister;
+	Extra[0].Ptr = new DlPersonRegisterBlock;
 	InitFixData(rscDefHdr, &H, sizeof(H));
 }
 
 PPALDD_DESTRUCTOR(PersonRegister)
 {
 	Destroy();
-	delete (PPObjRegister *)Extra[0].Ptr;
+	//delete (PPObjRegister *)Extra[0].Ptr;
+	delete (DlPersonRegisterBlock *)Extra[0].Ptr;
 }
 
 int PPALDD_PersonRegister::InitData(PPFilt & rFilt, long rsrv)
@@ -1169,24 +1180,42 @@ int PPALDD_PersonRegister::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		PPObjRegister * p_reg_obj = (PPObjRegister *)Extra[0].Ptr;
-		RegisterTbl::Rec rec;
-		if(p_reg_obj->Search(rFilt.ID, &rec) > 0) {
-			H.ID = rec.ID;
-			if(rec.ObjType == PPOBJ_PERSON)
-				H.PersonID  = rec.ObjID;
-			else if(rec.ObjType == PPOBJ_LOCATION)
-				H.LocID = rec.ObjID;
-			H.RegTypeID = rec.RegTypeID;
-			H.RegOrgID  = rec.RegOrgID;
-			H.EventID   = rec.PsnEventID;
-			H.Dt        = rec.Dt;
-			H.Expiry    = rec.Expiry;
-			H.Flags     = rec.Flags;
-			STRNSCPY(H.Serial, rec.Serial);
-			STRNSCPY(H.Number, rec.Num);
+		//PPObjRegister * p_reg_obj = (PPObjRegister *)Extra[0].Ptr;
+		//RegisterTbl::Rec rec;
+		DlPersonRegisterBlock * p_blk = (DlPersonRegisterBlock *)Extra[0].Ptr;
+		if(p_blk->RegObj.Search(rFilt.ID, &p_blk->Rec) > 0) {
+			H.ID = p_blk->Rec.ID;
+			if(p_blk->Rec.ObjType == PPOBJ_PERSON)
+				H.PersonID  = p_blk->Rec.ObjID;
+			else if(p_blk->Rec.ObjType == PPOBJ_LOCATION)
+				H.LocID = p_blk->Rec.ObjID;
+			H.RegTypeID = p_blk->Rec.RegTypeID;
+			H.RegOrgID  = p_blk->Rec.RegOrgID;
+			H.EventID   = p_blk->Rec.PsnEventID;
+			H.Dt        = p_blk->Rec.Dt;
+			H.Expiry    = p_blk->Rec.Expiry;
+			H.Flags     = p_blk->Rec.Flags;
+			STRNSCPY(H.Serial, p_blk->Rec.Serial);
+			STRNSCPY(H.Number, p_blk->Rec.Num);
 			ok = DlRtm::InitData(rFilt, rsrv);
 		}
 	}
 	return ok;
+}
+
+int PPALDD_PersonRegister::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+{
+	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
+	#define _ARG_DATE(n) (*(LDATE *)rS.GetPtr(pApl->Get(n)))
+	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
+	#define _RET_STR     (**(SString **)rS.GetPtr(pApl->Get(0)))
+	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
+	if(pF->Name == "?Format") {
+		_RET_STR = 0;
+		DlPersonRegisterBlock * p_blk = (DlPersonRegisterBlock *)Extra[0].Ptr;
+		if(p_blk && p_blk->Rec.ID) {
+			PPObjRegister::Format(p_blk->Rec, 0, _RET_STR);
+		}
+	}
+	return 1;
 }

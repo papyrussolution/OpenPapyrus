@@ -84,19 +84,15 @@ static int __db_quicksort(DB * db, DBT * key, DBT * data, uint32 * kstart, uint3
 		uint32 * dend;
 	} stackbuf[DB_SORT_STACKSIZE], * stack;
 	uint32 soff, slen;
-
 	ret = 0;
 	env = db->env;
-
-	memzero(&a, sizeof(DBT));
-	memzero(&ad, sizeof(DBT));
-	memzero(&b, sizeof(DBT));
-	memzero(&bd, sizeof(DBT));
-	memzero(&m, sizeof(DBT));
-	memzero(&md, sizeof(DBT));
-
-	/* NB end is smaller than start */
-
+	// (replaced by ctr) memzero(&a, sizeof(DBT));
+	// (replaced by ctr) memzero(&ad, sizeof(DBT));
+	// (replaced by ctr) memzero(&b, sizeof(DBT));
+	// (replaced by ctr) memzero(&bd, sizeof(DBT));
+	// (replaced by ctr) memzero(&m, sizeof(DBT));
+	// (replaced by ctr) memzero(&md, sizeof(DBT));
+	// NB end is smaller than start 
 	stack = stackbuf;
 	soff = 0;
 	slen = DB_SORT_STACKSIZE;

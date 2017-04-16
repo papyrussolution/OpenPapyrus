@@ -76,7 +76,7 @@ int SLAPI AmountListDialog(AmtList * pData, PPIDArray * pRestrictList, LDATE cra
 	AmtListDialog * dlg = 0;
 	if(pData) {
 		dlg = new AmtListDialog(DLG_EXAMTLIST, CTL_EXAMTLIST_LIST, 1, pData, pRestrictList, pTitle, options);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setCRateDate(crateDate);
 			if(ExecView(dlg) == cmOK) {
 				dlg->getDTS(pData);
@@ -189,7 +189,7 @@ int AmtListDialog::editAmount(int pos)
 	else
 		can_edit = 1;
 	dlg_data.CRateDate = CRateDate;
-	if(CheckDialogPtr(&(dlg = new AmountDialog(can_edit, &Data, HasRestrict ? &RestrictList : 0)), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new AmountDialog(can_edit, &Data, HasRestrict ? &RestrictList : 0)))) {
 		dlg->setDTS(&dlg_data);
 		while(!valid_data && ExecView(dlg) == cmOK)
 			if(dlg->getDTS(&dlg_data)) {
@@ -342,7 +342,7 @@ int EditStaffAmtEntry(long idx, StaffAmtList * pAmtList)
 	int    ok = -1;
 	StaffAmtEntryDlg * dlg = 0;
 	THROW_PP(pAmtList, PPERR_INVPARAM);
-	if(CheckDialogPtr(&(dlg = new StaffAmtEntryDlg), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new StaffAmtEntryDlg))) {
 		StaffAmtEntry entry;
 		if(idx >= 0)
 			entry = pAmtList->at(idx);
@@ -407,7 +407,7 @@ int SLAPI EditStaffAmtList(StaffAmtList * pData, const char * pTitle, int enable
 {
 	int    ok = -1;
 	StaffAmtListDialog * dlg = new StaffAmtListDialog(pTitle, pData);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->enableCommand(cmOK,      enableMod);
 		dlg->enableCommand(cmaEdit,   enableMod);
 		dlg->enableCommand(cmaInsert, enableMod);
@@ -580,7 +580,7 @@ int SLAPI EditBillTaxes(AmtList * pAmounts, double amount)
 	amtt_obj.GetTaxAmountIDs(&tais, 0);
 	if(tais.VatAmtID[0] || tais.VatAmtID[1] || tais.VatAmtID[2] || tais.STaxAmtID) {
 		BillTaxesDialog * dlg = new BillTaxesDialog();
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setDTS(pAmounts, &tais);
 			dlg->setCtrlData(CTL_BILLTAX_BILLAMT, &amount);
 			while(ok < 0 && ExecView(dlg) == cmOK)

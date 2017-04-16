@@ -448,8 +448,7 @@ this_buffer:
 			if(ret != 0) {
 				if(ret != EPERM) {
 					write_error++;
-					__db_errx(env, DB_STR_A("3018", "%s: unwritable page %d remaining in the cache after error %d", "%s %d %d"),
-						__memp_fns(dbmp, bh_mfp), bhp->pgno, ret);
+					__db_errx(env, DB_STR_A("3018", "%s: unwritable page %d remaining in the cache after error %d", "%s %d %d"), __memp_fns(dbmp, bh_mfp), bhp->pgno, ret);
 				}
 				bhp->priority = MPOOL_LRU_REDZONE;
 				goto next_hb;
@@ -468,7 +467,7 @@ this_buffer:
 			ret = __memp_bh_freeze(dbmp, infop, hp, bhp, &alloc_freeze);
 			if(ret == EIO)
 				write_error++;
-			if(ret == EBUSY || ret == EIO || ret == ENOMEM || ret == ENOSPC) {
+			if(oneof4(ret, EBUSY, EIO, ENOMEM, ENOSPC)) {
 				ret = 0;
 				goto next_hb;
 			}
@@ -547,7 +546,6 @@ this_buffer:
 				frozen_bhp++;
 			}
 			MPOOL_REGION_UNLOCK(env, infop);
-
 			alloc_freeze = 0;
 			MUTEX_READLOCK(env, hp->mtx_hash);
 			h_locked = 1;

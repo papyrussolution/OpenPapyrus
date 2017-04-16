@@ -29,14 +29,11 @@
  * buffering if you are using unbuffered reads.  This should never be asked
  * to read more than 64K on a 16-bit machine.
  */
-void /* PRIVATE */
-png_read_data(png_structrp png_ptr, png_bytep data, png_size_t length)
+void /* PRIVATE */ png_read_data(png_structrp png_ptr, png_bytep data, png_size_t length)
 {
 	png_debug1(4, "reading %d bytes", (int)length);
-
 	if(png_ptr->read_data_fn != NULL)
 		(*(png_ptr->read_data_fn))(png_ptr, data, length);
-
 	else
 		png_error(png_ptr, "Call to NULL read function");
 }
@@ -50,15 +47,12 @@ png_read_data(png_structrp png_ptr, png_bytep data, png_size_t length)
 void PNGCBAPI png_default_read_data(png_structp png_ptr, png_bytep data, png_size_t length)
 {
 	png_size_t check;
-
 	if(png_ptr == NULL)
 		return;
-
 	/* fread() returns 0 on error, so it is OK to store this in a png_size_t
 	 * instead of an int, which is what fread() actually returns.
 	 */
 	check = fread(data, 1, length, png_voidcast(png_FILE_p, png_ptr->io_ptr));
-
 	if(check != length)
 		png_error(png_ptr, "Read Error");
 }
@@ -84,12 +78,10 @@ void PNGCBAPI png_default_read_data(png_structp png_ptr, png_bytep data, png_siz
  *                May be NULL, in which case libpng's default function will
  *                be used.
  */
-void PNGAPI png_set_read_fn(png_structrp png_ptr, png_voidp io_ptr,
-    png_rw_ptr read_data_fn)
+void PNGAPI png_set_read_fn(png_structrp png_ptr, png_voidp io_ptr, png_rw_ptr read_data_fn)
 {
 	if(png_ptr == NULL)
 		return;
-
 	png_ptr->io_ptr = io_ptr;
 
 #ifdef PNG_STDIO_SUPPORTED
@@ -106,9 +98,7 @@ void PNGAPI png_set_read_fn(png_structrp png_ptr, png_voidp io_ptr,
 	/* It is an error to write to a read device */
 	if(png_ptr->write_data_fn != NULL) {
 		png_ptr->write_data_fn = NULL;
-		png_warning(png_ptr,
-		    "Can't set both read_data_fn and write_data_fn in the"
-		    " same structure");
+		png_warning(png_ptr, "Can't set both read_data_fn and write_data_fn in the same structure");
 	}
 #endif
 

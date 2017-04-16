@@ -613,7 +613,7 @@ int SCardRuleDlg::EditTrnovrRng(long pos)
 	int    ok = -1, valid_data = 0;
 	TrnovrRngDis range;
 	TDialog * p_dlg = new TDialog((RuleType == PPSCardSerRule::rultBonus) ? DLG_SCBONUSRULE : DLG_TRNVRRNG);
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	if(pos >= 0 && (uint)pos < Data.getCount())
 		range = Data.at((uint)pos);
 	else
@@ -1517,7 +1517,7 @@ int SLAPI PPObjSCardSeries::Browse(void * extraPtr)
 	int    ok = 1;
 	if(CheckRights(PPR_READ)) {
 		TDialog * dlg = new SCardSeriesView(this);
-		if(CheckDialogPtr(&dlg, 1))
+		if(CheckDialogPtrErr(&dlg))
 			ExecViewAndDestroy(dlg);
 		else
 			ok = 0;
@@ -2860,7 +2860,7 @@ private:
 	{
         int    ok = -1;
         TDialog * dlg = new TDialog(DLG_SCNTFOPT);
-        if(CheckDialogPtr(&dlg, 1)) {
+        if(CheckDialogPtrErr(&dlg)) {
 			dlg->AddClusterAssoc(CTL_SCNTFOPT_FLAGS, 0, SCRDF_NOTIFYDISCOUNT);
 			dlg->AddClusterAssoc(CTL_SCNTFOPT_FLAGS, 1, SCRDF_NOTIFYWITHDRAW);
 			dlg->AddClusterAssoc(CTL_SCNTFOPT_FLAGS, 2, SCRDF_NOTIFYDRAW);
@@ -3113,7 +3113,7 @@ int SLAPI PPObjSCard::FindAndEdit(PPID * pID, const AddParam * pParam)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_SCARDNUM);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		AddParam local_add_param;
 		if(pParam)
 			local_add_param = *pParam;
@@ -3171,7 +3171,7 @@ int SLAPI PPObjSCard::EditDialog(PPSCardPacket * pPack, long flags)
 		if(pack.Rec.SeriesID) {
 			THROW(ser_obj.GetPacket(pack.Rec.SeriesID, &scs_pack) > 0);
 		}
-		THROW(CheckDialogPtr(&(dlg = new SCardDialog(flags)), 1));
+		THROW(CheckDialogPtrErr(&(dlg = new SCardDialog(flags))));
 		THROW(dlg->setDTS(&pack, &scs_pack));
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS(&pack)) {
@@ -3277,7 +3277,7 @@ int SLAPI PPObjSCard::Helper_Edit(PPID * pID, const AddParam * pParam)
 	PPSCardPacket pack;
 	PPObjSCardSeries ser_obj;
 	PPSCardSerPacket scs_pack;
-	THROW(CheckDialogPtr(&(dlg = new SCardDialog()), 1));
+	THROW(CheckDialogPtrErr(&(dlg = new SCardDialog())));
 	THROW(EditPrereq(pID, dlg, &is_new));
 	if(!is_new) {
 		THROW(GetPacket(*pID, &pack) > 0);
@@ -4499,7 +4499,7 @@ int SLAPI EditSCardParam(const char * pIniSection)
    	{
    		int    direction = 0;
    		PPIniFile ini_file(ini_file_name, 0, 1, 1);
-   		THROW(CheckDialogPtr(&(dlg = new SCardImpExpDialog()), 0));
+   		THROW(CheckDialogPtr(&(dlg = new SCardImpExpDialog())));
    		THROW(LoadSdRecord(PPREC_SCARD, &param.InrRec));
    		direction = param.Direction;
    		if(!isempty(pIniSection))

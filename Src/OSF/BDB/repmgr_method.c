@@ -754,8 +754,7 @@ static int __repmgr_await_threads(ENV*env)
 	 */
 
 	/* Message processing threads. */
-	for(i = 0;
-	    i < db_rep->nthreads && db_rep->messengers[i] != NULL; i++) {
+	for(i = 0; i < db_rep->nthreads && db_rep->messengers[i] != NULL; i++) {
 		th = db_rep->messengers[i];
 		if((t_ret = __repmgr_thread_join(th)) != 0 && ret == 0)
 			ret = t_ret;
@@ -765,8 +764,7 @@ static int __repmgr_await_threads(ENV*env)
 	db_rep->messengers = NULL;
 	/* The select() loop thread. */
 	if(db_rep->selector != NULL) {
-		if((t_ret = __repmgr_thread_join(db_rep->selector)) != 0 &&
-		   ret == 0)
+		if((t_ret = __repmgr_thread_join(db_rep->selector)) != 0 && ret == 0)
 			ret = t_ret;
 		__os_free(env, db_rep->selector);
 		db_rep->selector = NULL;

@@ -1896,7 +1896,7 @@ int BillItemBrowser::addModifItem(int * pSign, TIDlgInitData * pInitData)
 	int    sign = pSign ? *pSign : TISIGN_UNDEF;
 	TDialog * dlg = 0;
 	if(sign == TISIGN_UNDEF) {
-		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SELMODIF)), 0));
+		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SELMODIF))));
 		dlg->setCtrlUInt16(CTL_SELMODIF_WHAT, 0);
 		dlg->DisableClusterItem(CTL_SELMODIF_WHAT, 2, BIN(P_Pack->Rec.Flags & BILLF_RECOMPLETE));
 		if(ExecView(dlg) == cmOK) {
@@ -2638,7 +2638,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 							if(!P_BObj->CheckRights(BILLRT_ACCSCOST))
 								btd.Amounts.Put(PPAMT_BUYING, 0L /* @curID */, 0, 0, 1);
 							AmtListDialog * dlg = new AmtListDialog(DLG_GOODSBILLTOTAL, CTL_GBILLTOTAL_AMTLIST, 1, &btd.Amounts, 0, 0, 0);
-							if(CheckDialogPtr(&dlg, 1)) {
+							if(CheckDialogPtrErr(&dlg)) {
 								dlg->setCtrlLong(CTL_GBILLTOTAL_LINES,  btd.LinesCount);
 								dlg->setCtrlLong(CTL_GBILLTOTAL_GCOUNT, btd.GoodsCount);
 								dlg->setCtrlReal(CTL_GBILLTOTAL_BRUTTO, btd.Brutto);
@@ -3001,7 +3001,7 @@ void BillItemBrowser::addItemExt(int mode)
 					if(uis.Restore() <= 0 || !(uis.Flags & UserInterfaceSettings::fOldModifSignSelection))
 						egsd_flags |= ExtGoodsSelDialog::fSelectModifMode;
 				}
-				THROW(CheckDialogPtr(&(dlg = new ExtGoodsSelDialog(op_id, NewGoodsGrpID, egsd_flags)), 0));
+				THROW(CheckDialogPtr(&(dlg = new ExtGoodsSelDialog(op_id, NewGoodsGrpID, egsd_flags))));
 				dlg->RestoreUserSettings();
 				if(mode == 1) {
 					const  int  code_prefix = BIN(DS.CheckExtFlag(ECF_CODEPREFIXEDLIST));

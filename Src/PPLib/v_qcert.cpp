@@ -176,7 +176,7 @@ int SLAPI PPViewQCert::NextIteration(QCertViewItem * pItem)
 int SLAPI PPViewQCert::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_QCERTTOTAL);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		long   count = 0;
 		for(InitIteration(); NextIteration(0) > 0; count++);
 		dlg->setCtrlLong(CTL_QCERTTOTAL_COUNT, count);

@@ -2179,7 +2179,7 @@ public:
 		filt.Init(); // @vmiller
 		const size_t sav_offs = pParam->GetRdOffs();
 		THROW_PP(pParam, PPERR_INVPARAM);
-		THROW(CheckDialogPtr(&p_dlg, 0));
+		THROW(CheckDialogPtr(&p_dlg));
 		filt.Filt.SetupBrowseBillsType(filt.Filt.Bbt = bbtUndef);
 		if(pParam->GetAvailableSize() != 0)
 			filt.Read(*pParam, 0);
@@ -2340,7 +2340,7 @@ public:
 		ExportGoodsFiltDialog * dlg = new ExportGoodsFiltDialog;
 		size_t sav_offs = pParam->GetRdOffs();
 		THROW_PP(pParam, PPERR_INVPARAM);
-		THROW(CheckDialogPtr(&dlg, 0));
+		THROW(CheckDialogPtr(&dlg));
 		if(pParam->GetAvailableSize() != 0)
 			param.Read(*pParam, 0);
 		dlg->setDTS(&param);
@@ -2697,7 +2697,7 @@ int SLAPI PPObjRFIDDevice::Edit(PPID * pID, void * extraPtr)
 	}
 	else
 		MEMSZERO(rec);
-	THROW(CheckDialogPtr(&(p_dlg = new RFIDDeviceDialog()), 0));
+	THROW(CheckDialogPtr(&(p_dlg = new RFIDDeviceDialog())));
 	p_dlg->setDTS(&rec);
 	for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
 		if(p_dlg->getDTS(&rec) > 0) {
@@ -3049,7 +3049,7 @@ public:
 		PPViewSCard view;
 		SCardSelPrcssrDlg * p_dlg = new SCardSelPrcssrDlg(&view, 1);
 		THROW_PP(pParam, PPERR_INVPARAM);
-		THROW(CheckDialogPtr(&p_dlg, 0));
+		THROW(CheckDialogPtr(&p_dlg));
 		sav_offs = pParam->GetRdOffs();
 		if(pParam->GetAvailableSize() != 0)
 			param.Read(*pParam, 0);
@@ -3196,7 +3196,7 @@ public:
 			THROW(param.Read(*pParam, 0));
 		}
 		dlg = new TDialog(DLG_JOB_EXPVIEW);
-		THROW(CheckDialogPtr(&dlg, 1));
+		THROW(CheckDialogPtrErr(&dlg));
 		{
 			PPNamedFiltPool nf_pool(0, 1);
 			PPNamedFilt nf;
@@ -3360,7 +3360,7 @@ public:
 		if(pParam->GetAvailableSize())
 			THROW(param.Read(*pParam, 0));
 		dlg = new TDialog(DLG_JOB_EXPOBJHTM);
-		THROW(CheckDialogPtr(&dlg, 1));
+		THROW(CheckDialogPtrErr(&dlg));
 		{
 			FileBrowseCtrlGroup::Setup(dlg, CTLBRW_JOB_EXPOBJHTM_OUT, CTL_JOB_EXPOBJHTM_OUT, 1, 0, 0,
 				FileBrowseCtrlGroup::fbcgfPath|FileBrowseCtrlGroup::fbcgfAllowNExists);
@@ -3717,7 +3717,7 @@ public:
 
 		sav_offs = pParam->GetRdOffs();
 		THROW_PP(pParam, PPERR_INVPARAM);
-		THROW(CheckDialogPtr(&p_dlg, 0));
+		THROW(CheckDialogPtr(&p_dlg));
 		if(pParam->GetAvailableSize() != 0)
 			filt.Read(*pParam, 0);
 		p_dlg->setDTS(&filt);

@@ -818,9 +818,9 @@ int SLAPI SCS_SYNCCASH::ExchangeParams()
 	if(Arr_Out.getCount()) {
 		for(uint i = 0; Arr_Out.Get(i, buf) > 0; i++) {
 			DestrStr(buf, param_name, param_val);
-			if(strcmpi(param_name, "CASHPASS") == 0)
+			if(sstreqi_ascii(param_name, "CASHPASS"))
 				CashierPassword = param_val.ToLong();
-			else if(strcmpi(param_name, "CHECKSTRLEN") == 0)
+			else if(sstreqi_ascii(param_name, "CHECKSTRLEN"))
 				CheckStrLen = param_val.ToLong();
 		}
 	}
@@ -1126,7 +1126,7 @@ int SLAPI SCS_SYNCCASH::PrintCheckByBill(const PPBillPacket * pPack, double mult
 			// @v9.5.7 {
 			if(departN > 0 && departN <= 1000)
 				THROW(ArrAdd(Arr_In, DVCPARAM_DEPARTMENT, departN));
-			// } @v9.5.7 
+			// } @v9.5.7
 			THROW(ExecPrintOper(DVCCMD_PRINTFISCAL, Arr_In, Arr_Out));
 			(prn_str = "ÑÓÌÌÀ ÏÎ ÑÒÀÂÊÅ ÍÄÑ").Space().Cat(fdiv100i(bte.VAT), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%'); // @cstr #6
 			if(bte.SalesTax)

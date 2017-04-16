@@ -179,7 +179,7 @@ void CRevalDialog::updateCRateList()
 			}
 		}
 		p_list->focusItem(sav_pos);
-		p_list->drawView();
+		p_list->Draw_();
 		unlock();
 	}
 }

@@ -327,7 +327,7 @@ int SLAPI PPViewSStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			p_filt->SetupCfgOptions(PrCfg);
 	}
 	else {
-		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SSTATFLT)), 0));
+		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SSTATFLT))));
 		if(p_filt->GoodsGrpID) {
 			Goods2Tbl::Rec grp_rec;
 			if(GObj.Fetch(p_filt->GoodsGrpID, &grp_rec) > 0)
@@ -1688,7 +1688,7 @@ int SLAPI PPViewSStat::ViewTotal()
 	SStatTotal total;
 	TDialog * dlg = 0;
 	CalcTotal(&total);
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SSTATTOTAL)), 1));
+	THROW(CheckDialogPtrErr(&(dlg = new TDialog(DLG_SSTATTOTAL))));
 	dlg->setCtrlLong(CTL_SSTATTOTAL_LNCOUNT,   total.LinesCount);
 	dlg->setCtrlLong(CTL_SSTATTOTAL_COUNT,     total.Count);
 	dlg->setCtrlReal(CTL_SSTATTOTAL_QTTY,      total.Qtty);

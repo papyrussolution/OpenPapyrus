@@ -294,9 +294,7 @@ static int __log_recover(DB_LOG*dblp)
 		lp->lsn.offset = lp->s_lsn.offset = 0;
 		goto skipsearch;
 	}
-	DB_ASSERT(env,
-		(status == DB_LV_NORMAL || status == DB_LV_OLD_READABLE));
-
+	DB_ASSERT(env, oneof2(status, DB_LV_NORMAL, DB_LV_OLD_READABLE));
 	/*
 	 * We have the last useful log file and we've loaded any persistent
 	 * information.  Set the end point of the log past the end of the last
@@ -370,18 +368,15 @@ err:
  */
 int __log_find(DB_LOG*dblp, int find_first, uint32 * valp, logfile_validity * statusp)
 {
-	ENV * env;
-	LOG * lp;
-	logfile_validity logval_status, status;
 	struct __db_filestart * filestart;
 	uint32 clv, logval;
 	int cnt, fcnt, ret;
 	const char * dir;
 	char * c, ** names, * p, * q;
-	env = dblp->env;
-	lp = (LOG *)dblp->reginfo.primary;
-	logval_status = status = DB_LV_NONEXISTENT;
-
+	ENV * env = dblp->env;
+	LOG * lp = (LOG *)dblp->reginfo.primary;
+	logfile_validity logval_status = DB_LV_NONEXISTENT;
+	logfile_validity status = DB_LV_NONEXISTENT;
 	/* Return a value of 0 as the log file number on failure. */
 	*valp = 0;
 	if(lp->db_log_inmemory) {
@@ -405,7 +400,8 @@ int __log_find(DB_LOG*dblp, int find_first, uint32 * valp, logfile_validity * st
 		dir = p;
 	}
 	/* Get the list of file names. */
-retry:  if((ret = __os_dirlist(env, dir, 0, &names, &fcnt)) != 0) {
+retry:  
+	if((ret = __os_dirlist(env, dir, 0, &names, &fcnt)) != 0) {
 		__db_err(env, ret, "%s", dir);
 		__os_free(env, p);
 		return ret;

@@ -39,7 +39,7 @@ int SLAPI PPViewCurRate::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	TDialog * dlg = 0;
 	THROW(Filt.IsA(pBaseFilt));
 	p_filt = (CurRateFilt *)pBaseFilt;
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_CRATEFLT)), 0));
+	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_CRATEFLT))));
 	dlg->SetupCalPeriod(CTLCAL_CRATEFLT_PERIOD, CTL_CRATEFLT_PERIOD);
 	SetPeriodInput(dlg, CTL_CRATEFLT_PERIOD, &p_filt->Period);
 	SetupPPObjCombo(dlg, CTLSEL_CRATEFLT_CUR, PPOBJ_CURRENCY, p_filt->CurID, 0, 0);
@@ -159,7 +159,7 @@ int SLAPI PPViewCurRate::EditRecord(CurrencyRateTbl::Rec * pRec, int isNew)
 {
 	int    ok = -1, valid_data = 0;
 	TDialog * dlg = new TDialog(DLG_CURRATE);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		uint   sel = 0;
 		dlg->SetupCalDate(CTLCAL_CURRATE_DATE, CTL_CURRATE_DATE);
 		dlg->setCtrlData(CTL_CURRATE_DATE, &pRec->Dt);
@@ -345,7 +345,7 @@ void SelCRateDialog::updateList()
 			return;
 		}
 	}
-	P_List->drawView();
+	P_List->Draw_();
 }
 
 int SelCRateDialog::getIdent(CurRateIdent * pIdent)
@@ -438,7 +438,7 @@ int SLAPI SelectCurRate(PPID curID, PPID rateTypeID, double * pRate)
 	filt.BaseCurID = LConfig.BaseCurID;
 	ASSIGN_PTR(pRate, 0);
 	SelCRateDialog * dlg = new SelCRateDialog(&filt, 0, 0);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		if(ExecView(dlg) == cmOK)
 			if(dlg->getSelectedRate(0, pRate) > 0)
 				ok = 1;

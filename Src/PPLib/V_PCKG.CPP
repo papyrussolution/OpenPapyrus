@@ -123,7 +123,7 @@ void SelPckgDialog::updateList()
 				return;
 			}
 		}
-		P_List->drawView();
+		P_List->Draw_();
 	}
 }
 
@@ -180,7 +180,7 @@ int SLAPI PPObjBill::SelectPckg(PckgFilt * pFilt, PPID * pPckgID)
 	if(CcFlags & CCFLG_USEGOODSPCKG) {
 		SArray list(sizeof(PckgViewListEntry));
 		SelPckgDialog * dlg = new SelPckgDialog(this);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			if(CreatePckgViewList(P_PckgT, &trfr->Rcpt, pFilt, &list)) {
 				dlg->setList(&list);
 		        int r = ExecView(dlg);

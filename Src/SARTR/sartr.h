@@ -1,5 +1,5 @@
 // SARTR.H
-// Copyright (c) A.Sobolev 2011, 2012, 2016
+// Copyright (c) A.Sobolev 2011, 2012, 2016, 2017
 //
 
 /*
@@ -315,9 +315,9 @@ private:
 //
 //
 struct SrWordAssoc {
-	SrWordAssoc();
-	SrWordAssoc & Normalize();
-	SString & ToStr(SString & rBuf) const;
+	SLAPI  SrWordAssoc();
+	SrWordAssoc & SLAPI Normalize();
+	SString & FASTCALL ToStr(SString & rBuf) const;
 
 	enum {
 		fHasFlexiaModel = 0x0001,
@@ -600,6 +600,17 @@ public:
 //
 //
 //
+class SrGeoNodeTbl : public BDbTable {
+public:
+	SLAPI  SrGeoNodeTbl(BDbDatabase * pDb);
+	SLAPI ~SrGeoNodeTbl();
+	int    SLAPI Add(PPOsm::NodeCluster & rNc);
+	int    SLAPI Get(PPOsm::Tile tl, TSArray <PPOsm::Node> & rList);
+	int    SLAPI Get(PPOsm::Tile tlLow, PPOsm::Tile tlUpp, TSArray <PPOsm::Node> & rList);
+};
+//
+//
+//
 class SrImportParam {
 public:
 	enum {
@@ -697,6 +708,7 @@ public:
 	int    FormatProp(const SrCProp & rCp, long flags, SString & rBuf);
 
 	int    ImportFlexiaModel(const SrImportParam & rParam);
+	int    StoreGeoNodeList(const TSArray <PPOsm::Node> & rList);
 //private:
 public:
 	BDbDatabase      * P_Db;
@@ -707,6 +719,7 @@ public:
 	SrConceptPropTbl * P_CpT;
 	SrNGramTbl       * P_NgT;
 	SrConceptNgTbl   * P_CNgT;
+	SrGeoNodeTbl     * P_GnT;
 	LEXID  ZeroWordID;
 private:
 	int    Helper_GetConceptHier(CONCEPTID cID, Int64Array & rConceptHier);

@@ -132,31 +132,31 @@
 	#define HELP_BROWSER_GOODSBILLCUR                  47
 #define BROWSER_DEBTCARD                      48 // Долговая карточка {%s}
 	#define HELP_BROWSER_DEBTCARD                      48
-#define BROWSER_INVNTRYLINES                  49 // Строки инвентаризации {%s}
+#define BROWSER_INVNTRYLINES                  49 // @{view_inventory} {%s}
 	#define HELP_BROWSER_INVNTRYLINES                  49
 #define BROWSER_INVNTRYLINESSUBST             50 // Группировка строк инвентаризации {%s}
 	#define HELP_BROWSER_INVNTRYLINESSUBST             50
 #define BROWSER_CASHNODEBILL                  51 // Товарные чеки {%s}
 	#define HELP_BROWSER_CASHNODEBILL                  51
-#define BROWSER_GOODSITEM_W2                  52 // Строки товарного документа {%s}
+#define BROWSER_GOODSITEM_W2                  52 // @{view_billitem_goods} {%s}
 	#define HELP_BROWSER_GOODSITEM_W2                  52
-#define BROWSER_GOODSITEM_CUR_W2              53 // Строки товарного документа {%s}
+#define BROWSER_GOODSITEM_CUR_W2              53 // @{view_billitem_goods} {%s}
 	#define HELP_BROWSER_GOODSITEM_CUR_W2              53
-#define BROWSER_GOODSITEMPH_CUR_W2            54 // Строки товарного документа {%s}
+#define BROWSER_GOODSITEMPH_CUR_W2            54 // @{view_billitem_goods} {%s}
 	#define HELP_BROWSER_GOODSITEMPH_CUR_W2            54
-#define BROWSER_GOODSITEMPH_W2                55 // Строки товарного документа {%s}
+#define BROWSER_GOODSITEMPH_W2                55 // @{view_billitem_goods} {%s}
 	#define HELP_BROWSER_GOODSITEMPH_W2                55
-#define BROWSER_GOODSITEM_REVAL_W2            56 // Строки товарного документа {%s}
+#define BROWSER_GOODSITEM_REVAL_W2            56 // @{view_billitem_goods} {%s}
 	#define HELP_BROWSER_GOODSITEM_REVAL_W2            56
-#define BROWSER_GOODSITEM_ALTVIEW2            57 // Строки товарного документа [альтернативный вид] {%s}
+#define BROWSER_GOODSITEM_ALTVIEW2            57 // @{view_billitem_goods} [альтернативный вид] {%s}
 	#define HELP_BROWSER_GOODSITEM_ALTVIEW2            57
-#define BROWSER_GOODSITEM_USERPROC            58 // Строки товарного документа {%s}
+#define BROWSER_GOODSITEM_USERPROC            58 // @{view_billitem_goods} {%s}
 	#define HELP_BROWSER_GOODSITEM_USERPROC            58
 #define BROWSER_GOODSITEM_LOCTR               59 // Строки складского документа {%s}
 	#define HELP_BROWSER_GOODSITEM_LOCTR               59
-#define BROWSER_ORDGOODSITEM_W2               60 // Строки товарного заказа {%s}
+#define BROWSER_ORDGOODSITEM_W2               60 // @{view_billitem_order} {%s}
 	#define HELP_BROWSER_ORDGOODSITEM_W2               60
-#define BROWSER_ORDERITEM_W2                  61 // Строки товарного заказа {%s}
+#define BROWSER_ORDERITEM_W2                  61 // @{view_billitem_order} {%s}
 	#define HELP_BROWSER_ORDERITEM_W2                  61
 #define BROWSER_CHECKITEM_W2                  62 // Строки чека {%s}
 	#define HELP_BROWSER_CHECKITEM_W2                  62

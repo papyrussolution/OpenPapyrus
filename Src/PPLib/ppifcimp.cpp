@@ -6,7 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 #include <process.h>
-#include <ppidata.h>
+// @v9.6.2 (moved to pp.h) #include <ppidata.h>
 
 static int SLAPI IfcImpCheckDictionary()
 {

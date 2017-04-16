@@ -198,7 +198,7 @@ int SLAPI PrcssrAssetDeprec::EditParam(Param * pData)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
-	if(CheckDialogPtr(&(dlg = new TDialog(DLG_ASSTREVAL)), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_ASSTREVAL)))) {
 		dlg->SetupCalDate(CTLCAL_ASSTREVAL_DT, CTL_ASSTREVAL_DT);
 		dlg->setCtrlData(CTL_ASSTREVAL_DT, &pData->Dt);
 		SetupPPObjCombo(dlg, CTLSEL_ASSTREVAL_OPRKIND, PPOBJ_OPRKIND,    pData->RevalOpID,   0, (void *)PPOPT_GOODSREVAL);

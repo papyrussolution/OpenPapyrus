@@ -637,7 +637,7 @@ int SLAPI PPViewPersonEvent::ViewTotal()
 {
 	int    ok = 1;
 	TDialog * p_dlg = new TDialog(DLG_PSNEVTTOTAL);
-	if(CheckDialogPtr(&p_dlg, 1)) {
+	if(CheckDialogPtrErr(&p_dlg)) {
 		PPWait(1);
 		InitIteration();
 		PPWait(0);

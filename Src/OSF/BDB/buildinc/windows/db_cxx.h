@@ -48,21 +48,19 @@
 //
 // Forward declarations
 //
-
 #include <stdarg.h>
-
 #define HAVE_CXX_STDHEADERS 1
 #ifdef HAVE_CXX_STDHEADERS
- #include <iostream>
- #include <exception>
- #define __DB_STD(x)     std::x
+	#include <iostream>
+	#include <exception>
+	#define __DB_STD(x)     std::x
 #else
- #include <iostream.h>
- #include <exception.h>
- #define __DB_STD(x)     x
+	#include <iostream.h>
+	#include <exception.h>
+	#define __DB_STD(x)     x
 #endif
-
-#include "db.h"
+// @sobolev #include "db.h"
+#include <BerkeleyDB.h> // @sobolev
 
 class Db;                                        // forward
 class Dbc;                                       // forward

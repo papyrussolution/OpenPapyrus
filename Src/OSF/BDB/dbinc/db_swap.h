@@ -142,15 +142,9 @@ extern "C" {
 #define	M_16_SWAP(a) P_16_SWAP(&a)
 
 #undef	SWAP32
-#define	SWAP32(p) {							\
-	P_32_SWAP(p);							\
-	(p) += sizeof(uint32);					\
-}
+#define	SWAP32(p) { P_32_SWAP(p); (p) += sizeof(uint32); }
 #undef	SWAP16
-#define	SWAP16(p) {							\
-	P_16_SWAP(p);							\
-	(p) += sizeof(uint16);					\
-}
+#define	SWAP16(p) { P_16_SWAP(p); (p) += sizeof(uint16); }
 
 /*
  * Berkeley DB has local versions of htonl() and ntohl() that operate on
@@ -245,14 +239,12 @@ extern "C" {
 
 #define	LOGCOPY_TOLSN(env, lsnp, p) do {				\
 	LOGCOPY_32((env), &(lsnp)->file, (p));				\
-	LOGCOPY_32((env), &(lsnp)->offset,				\
-	    (uint8 *)(p) + sizeof(uint32));			\
+	LOGCOPY_32((env), &(lsnp)->offset, (uint8 *)(p) + sizeof(uint32));			\
 } while (0)
 
 #define	LOGCOPY_FROMLSN(env, p, lsnp) do {				\
 	LOGCOPY_32((env), (p), &(lsnp)->file);				\
-	LOGCOPY_32((env),						\
-	    (uint8 *)(p) + sizeof(uint32), &(lsnp)->offset);	\
+	LOGCOPY_32((env), (uint8 *)(p) + sizeof(uint32), &(lsnp)->offset);	\
 } while (0)
 
 #if defined(__cplusplus)

@@ -66,7 +66,7 @@ IMPL_HANDLE_EVENT(SalChargeDialog)
 				size_t pos = p_il->getCaret();
 				input.Insert(pos, symb.Quot(' ', ' '));
 				p_il->setText(input);
-				p_il->drawView();
+				p_il->Draw_();
 				p_il->selectAll(0);
 				p_il->setCaret(pos + symb.Len());
 			}
@@ -250,7 +250,7 @@ int SLAPI PPObjSalCharge::Browse(void * extraPtr)
 	int    ok = 1;
 	if(CheckRights(PPR_READ)) {
 		TDialog * dlg = new SalChargeView(/*DLG_SALCHGRPV*/this);
-		if(CheckDialogPtr(&dlg, 1))
+		if(CheckDialogPtrErr(&dlg))
 			ExecViewAndDestroy(dlg);
 		else
 			ok = 0;
@@ -1537,7 +1537,7 @@ int SLAPI PPObjStaffCal::Edit(PPID * pID, void * extraPtr)
 		filt = *(StaffCalFilt *)extraPtr;
 	PPStaffCalPacket pack;
 	StaffCalDialog * p_dlg = 0;
-	THROW(CheckDialogPtr(&(p_dlg = new StaffCalDialog), 0));
+	THROW(CheckDialogPtr(&(p_dlg = new StaffCalDialog)));
 	THROW(EditPrereq(pID, p_dlg, &is_new));
 	if(!is_new) {
 		THROW(GetPacket(*pID, &pack));
@@ -2300,7 +2300,7 @@ int SLAPI PPObjStaffCal::Browse(void * extraPtr)
 		if(extraPtr)
 			filt = *(StaffCalFilt *)extraPtr;
 		TDialog * dlg = new StaffCalView(this, &filt);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			SString temp_buf, obj_name;
 			if(filt.LinkObjType) {
 				GetObjectTitle(filt.LinkObjType, temp_buf);

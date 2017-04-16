@@ -236,7 +236,7 @@ int SLAPI PPViewInventory::EditBaseFilt(PPBaseFilt * pFilt)
 	int    ok = -1, valid_data = 0;
 	InventoryFilt * p_filt = (InventoryFilt*)pFilt;
 	InventoryFiltDialog * dlg = 0;
-	if(CheckDialogPtr(&(dlg = new InventoryFiltDialog()), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new InventoryFiltDialog()))) {
 		dlg->setDTS(p_filt);
 		while(!valid_data && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS(p_filt)) {
@@ -1377,7 +1377,7 @@ int SLAPI PPViewInventory::ConvertBasketToBill()
 	THROW(r = gb_obj.SelectBasket(basket));
 	if(r > 0) {
 		PPObjBill::InvMovSgo sgo;
-		THROW(CheckDialogPtr(&(p_dlg = new TDialog(DLG_BSKTTOINV)), 0));
+		THROW(CheckDialogPtr(&(p_dlg = new TDialog(DLG_BSKTTOINV))));
 		p_dlg->setCtrlUInt16(CTL_BSKTTOINV_SGOPTION,  0);
 		p_dlg->setCtrlUInt16(CTL_BSKTTOINV_RULEPRICE, 0);
 		if(ExecView(p_dlg) == cmOK) {
@@ -1499,7 +1499,7 @@ int SLAPI PPViewInventory::Correct()
 	TDialog * dlg = 0;
 	const  PPID bill_id = Filt.GetSingleBillID();
 	if(bill_id && P_BObj) {
-		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SELINVCORR)), 0));
+		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SELINVCORR))));
 		dlg->AddClusterAssoc(CTL_SELINVCORR_FLAGS, 0, PPObjBill::rifRest);
 		dlg->AddClusterAssoc(CTL_SELINVCORR_FLAGS, 1, PPObjBill::rifPrice);
 		dlg->AddClusterAssoc(CTL_SELINVCORR_FLAGS, 2, PPObjBill::rifAverage);
@@ -1572,7 +1572,7 @@ int SLAPI PPViewInventory::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 							SETFLAG(sel_flags, ExtGoodsSelDialog::fExistsOnly, (Filt.Flags & InventoryFilt::fSelExistsGoodsOnly));
 							SETFLAG(sel_flags, ExtGoodsSelDialog::fByName, Flags & fSelGoodsByName); // В диалоге будут полные наименования //
 							ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(bill_rec.OpID, 0, sel_flags);
-							if(CheckDialogPtr(&dlg, 1)) {
+							if(CheckDialogPtrErr(&dlg)) {
 								if(sel_by_name)
 									dlg->setSelectionByGoodsList(&goods_list);
 								while(ExecView(dlg) == cmOK) {

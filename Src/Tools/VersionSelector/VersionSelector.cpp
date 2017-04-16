@@ -172,7 +172,7 @@ int FillVersList(HWND list, int byDiscs)
 		WinRegKey reg_key(HKEY_CURRENT_USER, "Software\\Papyrus\\System", 1);
 		while(reg_key.EnumValues(&i, &key_param, &key_val)) {
 			key_param.Trim(7);
-			if(stricmp(key_param, param) == 0) {
+			if(sstreqi_ascii(key_param, param)) {
 				strcpy(buf, key_val.GetString());
 				GetVersBuf(buf, buf, sizeof(buf));
 				SendMessage(list, LB_ADDSTRING, (WPARAM)0L, (LPARAM)buf);

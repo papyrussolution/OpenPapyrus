@@ -326,7 +326,7 @@ int SLAPI PPObjAccSheet::Browse(void * extraPtr)
 	int    ok = 1;
 	if(CheckRights(PPR_READ)) {
 		TDialog * dlg = new AccSheetView(this);
-		if(CheckDialogPtr(&dlg, 1))
+		if(CheckDialogPtrErr(&dlg))
 			ExecViewAndDestroy(dlg);
 		else
 			ok = 0;

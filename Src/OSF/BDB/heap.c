@@ -16,16 +16,16 @@
 #pragma hdrstop
 // @v9.5.5 #include "dbinc/heap.h"
 
-static int __heap_bulk __P((DBC*, DBT*, uint32));
-static int __heap_getpage __P((DBC*, uint32, uint8 *));
-static int __heapc_close __P((DBC*, db_pgno_t, int *));
-static int __heapc_del (DBC*, uint32);
+static int __heap_bulk(DBC*, DBT*, uint32);
+static int __heap_getpage(DBC*, uint32, uint8 *);
+static int __heapc_close(DBC*, db_pgno_t, int *);
+static int __heapc_del(DBC*, uint32);
 static int __heapc_destroy(DBC *);
-static int __heapc_get __P((DBC*, DBT*, DBT*, uint32, db_pgno_t *));
-static int __heapc_put __P((DBC*, DBT*, DBT*, uint32, db_pgno_t *));
-static int __heapc_reloc __P((DBC*, DBT*, DBT *));
-static int __heapc_reloc_partial __P((DBC*, DBT*, DBT *));
-static int __heapc_split __P((DBC*, DBT*, DBT*, int));
+static int __heapc_get(DBC*, DBT*, DBT*, uint32, db_pgno_t *);
+static int __heapc_put(DBC*, DBT*, DBT*, uint32, db_pgno_t *);
+static int __heapc_reloc(DBC*, DBT*, DBT *);
+static int __heapc_reloc_partial(DBC*, DBT*, DBT *);
+static int __heapc_split(DBC*, DBT*, DBT*, int);
 
 /*
  * Acquire a new page/lock.  If we are already holding a page and a lock
@@ -38,17 +38,13 @@ static int __heapc_split __P((DBC*, DBT*, DBT*, int));
 #define ACQUIRE(dbc, mode, lpgno, lock, fpgno, pagep, flags, mflags, ret) do { \
 		DB_MPOOLFILE * __mpf = (dbc)->dbp->mpf;                          \
 		if((pagep) != NULL) {                                          \
-			ret = __memp_fput(__mpf,                                \
-				(dbc)->thread_info, pagep, dbc->priority);          \
+			ret = __memp_fput(__mpf, (dbc)->thread_info, pagep, dbc->priority); \
 			pagep = NULL;                                           \
 		}                                                               \
 		if((ret) == 0 && STD_LOCKING(dbc))                             \
-			ret = __db_lget(dbc,                                    \
-				LOCK_ISSET(lock) ? LCK_COUPLE : 0,                  \
-				lpgno, mode, flags, &(lock));                       \
+			ret = __db_lget(dbc, LOCK_ISSET(lock) ? LCK_COUPLE : 0, lpgno, mode, flags, &(lock)); \
 		if((ret) == 0)                                                 \
-			ret = __memp_fget(__mpf, &(fpgno),                      \
-				(dbc)->thread_info, (dbc)->txn, mflags, &(pagep));  \
+			ret = __memp_fget(__mpf, &(fpgno), (dbc)->thread_info, (dbc)->txn, mflags, &(pagep));  \
 } while(0)
 
 /* Acquire a new page/lock for a heap cursor */
@@ -68,11 +64,9 @@ static int __heapc_split __P((DBC*, DBT*, DBT*, int));
 #undef  DISCARD
 #define DISCARD(dbc, pagep, lock, tlock, ret) do {                      \
 		DB_MPOOLFILE * __mpf = (dbc)->dbp->mpf;                          \
-		int __t_ret;                                                    \
-		__t_ret = 0;                                                    \
+		int __t_ret = 0;                                                    \
 		if((pagep) != NULL) {                                          \
-			__t_ret = __memp_fput(__mpf,                            \
-				(dbc)->thread_info, pagep, dbc->priority);          \
+			__t_ret = __memp_fput(__mpf, (dbc)->thread_info, pagep, dbc->priority); \
 			pagep = NULL;                                           \
 		}                                                               \
 		if(__t_ret != 0 && (ret) == 0)                                 \
@@ -91,11 +85,10 @@ static int __heapc_split __P((DBC*, DBT*, DBT*, int));
  *
  * PUBLIC: int __heapc_init(DBC *);
  */
-int __heapc_init(DBC*dbc)
+int __heapc_init(DBC * dbc)
 {
-	ENV * env;
 	int ret;
-	env = dbc->env;
+	ENV * env = dbc->env;
 	if(dbc->internal == NULL)
 		if((ret = __os_calloc(env, 1, sizeof(HEAP_CURSOR), &dbc->internal)) != 0)
 			return ret;
@@ -115,7 +108,6 @@ int __heapc_init(DBC*dbc)
 	dbc->am_get = __heapc_get;
 	dbc->am_put = __heapc_put;
 	dbc->am_writelock = NULL;
-
 	return 0;
 }
 
@@ -459,8 +451,7 @@ last:
 			 * is found.
 			 */
 			if(TYPE(dpage) == P_HEAP && NUM_ENT(dpage) != 0) {
-				for(indx = HEAP_HIGHINDX(dpage);
-				    indx >= 0; indx--) {
+				for(indx = HEAP_HIGHINDX(dpage); indx >= 0; indx--) {
 					if(HEAP_OFFSETTBL(dbp, dpage)[indx] == 0)
 						continue;
 					hdr = (HEAPHDR *)P_ENTRY(dbp, dpage, indx);
@@ -511,9 +502,7 @@ last:
 				 * If page is a spam page or its a data
 				 * page without entries, try again.
 				 */
-				if(TYPE(dpage) != P_HEAP ||
-				   (TYPE(dpage) == P_HEAP &&
-				    NUM_ENT(dpage) == 0))
+				if(TYPE(dpage) != P_HEAP || (TYPE(dpage) == P_HEAP && NUM_ENT(dpage) == 0))
 					continue;
 				/* When searching, indx gets bumped to 0 */
 				cp->indx = -1;
@@ -527,13 +516,11 @@ last:
 			 * entry on page.
 			 */
 			cp->indx++;
-			for(indx = cp->indx;
-			    indx <= HEAP_HIGHINDX(dpage); indx++) {
+			for(indx = cp->indx; indx <= HEAP_HIGHINDX(dpage); indx++) {
 				if(HEAP_OFFSETTBL(dbp, dpage)[indx] == 0)
 					continue;
 				hdr = (HEAPHDR *)P_ENTRY(dbp, dpage, indx);
-				if(!F_ISSET(hdr, HEAP_RECSPLIT) ||
-				   F_ISSET(hdr, HEAP_RECFIRST)) {
+				if(!F_ISSET(hdr, HEAP_RECSPLIT) || F_ISSET(hdr, HEAP_RECFIRST)) {
 					found = TRUE;
 					cp->indx = indx;
 					break;
@@ -557,13 +544,12 @@ last:
 		if(ret != 0)
 			goto err;
 		dpage = (HEAPPG *)cp->page;
-
 		/*
 		 * Loop through indexes and find first used slot.  Check if
 		 * already at the first slot.
 		 */
-		for(f_indx = 0; (f_indx <= HEAP_HIGHINDX(dpage)) &&
-		    (HEAP_OFFSETTBL(dbp, dpage)[f_indx] == 0); f_indx++) ;
+		for(f_indx = 0; (f_indx <= HEAP_HIGHINDX(dpage)) && (HEAP_OFFSETTBL(dbp, dpage)[f_indx] == 0); f_indx++) 
+			;
 		/* At the beginning of current page, must get new page */
 		if(cp->indx == 0 || cp->indx <= f_indx) {
 			if(cp->pgno == FIRST_HEAP_DPAGE) {
@@ -649,7 +635,7 @@ last:
 		}
 		cp->pgno = pgno;
 		cp->indx = indx;
-		if(flags == DB_GET_BOTH || flags == DB_GET_BOTH_RANGE) {
+		if(oneof2(flags, DB_GET_BOTH, DB_GET_BOTH_RANGE)) {
 			memzero(&tmp_val, sizeof(DBT));
 			/* does the data match ? */
 			if(F_ISSET(hdr, HEAP_RECSPLIT)) {
@@ -682,7 +668,7 @@ last:
 	}
 err:
 	if(ret == 0) {
-		if(key != NULL) {
+		if(key) {
 			rid.pgno = cp->pgno;
 			rid.indx = cp->indx;
 			ret = __db_retcopy(dbp->env, key, &rid, DB_HEAP_RID_SZ, &dbc->rkey->data, &dbc->rkey->ulen);
@@ -706,25 +692,20 @@ err:
  */
 static int __heapc_reloc_partial(DBC * dbc, DBT * key, DBT * data)
 {
-	DB * dbp;
 	DBT hdr_dbt, log_dbt, t_data, t_key;
 	DB_HEAP_RID last_rid, next_rid;
-	HEAPHDR * old_hdr;
 	HEAPSPLITHDR new_hdr;
-	HEAP_CURSOR * cp;
 	int add_bytes, is_first, ret;
 	uint32 buflen, data_size, dlen, doff, left, old_size;
 	uint32 remaining, size;
-	uint8 * buf, * olddata;
-
-	dbp = dbc->dbp;
-	cp = (HEAP_CURSOR *)dbc->internal;
-	old_hdr = (HEAPHDR *)(P_ENTRY(dbp, cp->page, cp->indx));
-	memzero(&hdr_dbt, sizeof(DBT));
-	memzero(&log_dbt, sizeof(DBT));
-	buf = NULL;
+	uint8 * buf = 0;
+	uint8 * olddata;
+	DB * dbp = dbc->dbp;
+	HEAP_CURSOR * cp = (HEAP_CURSOR *)dbc->internal;
+	HEAPHDR * old_hdr = (HEAPHDR *)(P_ENTRY(dbp, cp->page, cp->indx));
+	// (replaced by ctr) memzero(&hdr_dbt, sizeof(DBT));
+	// (replaced by ctr) memzero(&log_dbt, sizeof(DBT));
 	COMPQUIET(key, NULL);
-
 	/* We only work on partial puts. */
 	DB_ASSERT(dbp->env, F_ISSET(data, DB_DBT_PARTIAL));
 	/*
@@ -733,10 +714,7 @@ static int __heapc_reloc_partial(DBC * dbc, DBT * key, DBT * data)
 	 * copy of doff, we'll adjust it as we see pieces of the record so that
 	 * it's always relative to the current piece of data.
 	 */
-	if(F_ISSET(old_hdr, HEAP_RECSPLIT))
-		old_size = ((HEAPSPLITHDR *)old_hdr)->tsize;
-	else
-		old_size = old_hdr->size;
+	old_size = (F_ISSET(old_hdr, HEAP_RECSPLIT)) ? ((HEAPSPLITHDR *)old_hdr)->tsize : old_hdr->size;
 	doff = data->doff;
 	if(old_size < doff) {
 		/* Post-pending */
@@ -744,10 +722,7 @@ static int __heapc_reloc_partial(DBC * dbc, DBT * key, DBT * data)
 		data_size = doff+data->size;
 	}
 	else {
-		if(old_size-doff < data->dlen)
-			dlen = old_size-doff;
-		else
-			dlen = data->dlen;
+		dlen = (old_size-doff < data->dlen) ? (old_size-doff) : data->dlen;
 		data_size = old_size-dlen+data->size;
 	}
 	/*
@@ -790,8 +765,7 @@ static int __heapc_reloc_partial(DBC * dbc, DBT * key, DBT * data)
 		 * any remaining data from the last piece.
 		 */
 		if(doff >= old_hdr->size)
-			if(F_ISSET(old_hdr, HEAP_RECLAST) ||
-			   !F_ISSET(old_hdr, HEAP_RECSPLIT)) {
+			if(F_ISSET(old_hdr, HEAP_RECLAST) || !F_ISSET(old_hdr, HEAP_RECSPLIT)) {
 				/* Post-pending. */
 				data_size = doff+data->size;
 			}
@@ -807,8 +781,7 @@ static int __heapc_reloc_partial(DBC * dbc, DBT * key, DBT * data)
 			 */
 			data_size = doff+(add_bytes ? data->size : 0);
 		else
-			data_size = old_hdr->size-
-			            dlen+(add_bytes ? data->size : 0);
+			data_size = old_hdr->size-dlen+(add_bytes ? data->size : 0);
 		data_size += remaining;
 		if(data_size > buflen) {
 			if(__os_realloc(dbp->env, data_size, &buf) != 0)
@@ -828,8 +801,7 @@ static int __heapc_reloc_partial(DBC * dbc, DBT * key, DBT * data)
 		if(doff >= old_hdr->size) {
 			memcpy(buf, olddata, old_hdr->size);
 			doff -= old_hdr->size;
-			if(F_ISSET(old_hdr, HEAP_RECLAST) ||
-			   !F_ISSET(old_hdr, HEAP_RECSPLIT)) {
+			if(F_ISSET(old_hdr, HEAP_RECLAST) || !F_ISSET(old_hdr, HEAP_RECSPLIT)) {
 				/* Post-pending. */
 				buf += old_hdr->size;
 				memzero(buf, doff);
@@ -874,8 +846,7 @@ static int __heapc_reloc_partial(DBC * dbc, DBT * key, DBT * data)
 			hdr_dbt.size = HEAP_HDRSIZE(old_hdr);
 			log_dbt.data = (uint8 *)old_hdr+hdr_dbt.size;
 			log_dbt.size = DB_ALIGN(old_hdr->size, sizeof(uint32));
-			if((ret = __heap_addrem_log(dbp, dbc->txn, &LSN(cp->page), 0, DB_REM_HEAP, cp->pgno,
-				    (uint32)cp->indx, old_size, &hdr_dbt, &log_dbt, &LSN(cp->page))) != 0)
+			if((ret = __heap_addrem_log(dbp, dbc->txn, &LSN(cp->page), 0, DB_REM_HEAP, cp->pgno, (uint32)cp->indx, old_size, &hdr_dbt, &log_dbt, &LSN(cp->page))) != 0)
 				goto err;
 		}
 		else
@@ -1042,14 +1013,12 @@ static int __heapc_reloc(DBC * dbc, DBT * key, DBT * data)
 	HEAP_CURSOR * cp;
 	int is_first, ret;
 	uint32 left, old_size, size;
-
 	dbp = dbc->dbp;
 	cp = (HEAP_CURSOR *)dbc->internal;
 	old_hdr = (HEAPHDR *)(P_ENTRY(dbp, cp->page, cp->indx));
-	memzero(&hdr_dbt, sizeof(DBT));
-	memzero(&log_dbt, sizeof(DBT));
+	// (replaced by ctr) memzero(&hdr_dbt, sizeof(DBT));
+	// (replaced by ctr) memzero(&log_dbt, sizeof(DBT));
 	COMPQUIET(key, NULL);
-
 	/*
 	 * We are updating an existing record, which will grow into a split
 	 * record.  The strategy is to overwrite the existing record (or each
@@ -1064,7 +1033,7 @@ static int __heapc_reloc(DBC * dbc, DBT * key, DBT * data)
 	 */
 	is_first = 1;
 	left = data->size;
-	memzero(&t_data, sizeof(DBT));
+	// (replaced by ctr) memzero(&t_data, sizeof(DBT));
 	t_data.data = data->data;
 	for(;; ) {
 		/* Figure out if we have a next piece. */
@@ -1077,16 +1046,14 @@ static int __heapc_reloc(DBC * dbc, DBT * key, DBT * data)
 			next_rid.indx = 0;
 		}
 		/* Delete the old data, after logging it. */
-		old_size = DB_ALIGN(
-			old_hdr->size+HEAP_HDRSIZE(old_hdr), sizeof(uint32));
+		old_size = DB_ALIGN(old_hdr->size+HEAP_HDRSIZE(old_hdr), sizeof(uint32));
 		if(old_size < sizeof(HEAPSPLITHDR))
 			old_size = sizeof(HEAPSPLITHDR);
 		if(DBC_LOGGING(dbc)) {
 			hdr_dbt.data = old_hdr;
 			hdr_dbt.size = HEAP_HDRSIZE(old_hdr);
 			log_dbt.data = (uint8 *)old_hdr+hdr_dbt.size;
-			log_dbt.size = DB_ALIGN(
-				old_hdr->size, sizeof(uint32));
+			log_dbt.size = DB_ALIGN(old_hdr->size, sizeof(uint32));
 			if((ret = __heap_addrem_log(dbp, dbc->txn, &LSN(cp->page), 0, DB_REM_HEAP, cp->pgno,
 				    (uint32)cp->indx, old_size, &hdr_dbt, &log_dbt, &LSN(cp->page))) != 0)
 				goto err;
@@ -1209,10 +1176,8 @@ next_pg:
 		((HEAPSPLITHDR *)old_hdr)->nextpg = next_rid.pgno;
 		((HEAPSPLITHDR *)old_hdr)->nextindx = next_rid.indx;
 		if(DBC_LOGGING(dbc)) {
-			if((ret = __heap_addrem_log(dbp, dbc->txn,
-				    &LSN(cp->page), 0, DB_ADD_HEAP, cp->pgno,
-				    (uint32)cp->indx, old_size,
-				    &hdr_dbt, &log_dbt, &LSN(cp->page))) != 0)
+			if((ret = __heap_addrem_log(dbp, dbc->txn, &LSN(cp->page), 0, DB_ADD_HEAP, cp->pgno,
+				    (uint32)cp->indx, old_size, &hdr_dbt, &log_dbt, &LSN(cp->page))) != 0)
 				goto err;
 		}
 		else
@@ -1263,8 +1228,7 @@ static int __heapc_put(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t
 	}
 	else {
 		/* We have a read lock, but need a write lock. */
-		if(STD_LOCKING(dbc) && cp->lock_mode != DB_LOCK_WRITE &&
-		   (ret = __db_lget(dbc, LCK_COUPLE, cp->pgno, DB_LOCK_WRITE, 0, &cp->lock)) != 0)
+		if(STD_LOCKING(dbc) && cp->lock_mode != DB_LOCK_WRITE && (ret = __db_lget(dbc, LCK_COUPLE, cp->pgno, DB_LOCK_WRITE, 0, &cp->lock)) != 0)
 			return ret;
 		if((ret = __memp_fget(mpf, &cp->pgno, dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &cp->page)) != 0)
 			return ret;
@@ -1774,14 +1738,12 @@ static int __heapc_split(DBC * dbc, DBT * key, DBT * data, int is_first)
 	int ret, spacebits, t_ret;
 	uint32 buflen, doff, left, size;
 	uint8 availbits, * buf;
-
 	dbp = dbc->dbp;
 	mpf = dbp->mpf;
 	cp = (HEAP_CURSOR *)dbc->internal;
 	memzero(&hdrs, sizeof(HEAPSPLITHDR));
-	memzero(&t_data, sizeof(DBT));
+	// (replaced by ctr) memzero(&t_data, sizeof(DBT));
 	hdrs.std_hdr.flags = HEAP_RECSPLIT|HEAP_RECLAST;
-
 	doff = data->doff;
 	rpage = NULL;
 	ret = t_ret = 0;

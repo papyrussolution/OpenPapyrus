@@ -7,7 +7,6 @@
  */
 
 #include "db_config.h"
-
 #include "db_int.h"
 
 static void  __os_windows_ct_numb __P((char *, int));

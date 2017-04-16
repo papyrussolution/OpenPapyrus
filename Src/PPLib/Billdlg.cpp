@@ -177,7 +177,7 @@ int SLAPI BillExtraDialog(PPBillExt * pData, ObjTagList * pTagList, int asFilt)
 	const PPID agent_acs_id = GetAgentAccSheet();
 	const PPID payer_acs_id = GetSellAccSheet();
 	BillExtDialog * dlg = new BillExtDialog(dlg_id, pTagList);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		ushort v;
 		SetupArCombo(dlg, CTLSEL_BILLEXT_PAYER, pData->PayerID, OLW_CANINSERT|OLW_LOADDEFONOPEN, payer_acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
 		SetupArCombo(dlg, CTLSEL_BILLEXT_AGENT, pData->AgentID, OLW_CANINSERT|OLW_LOADDEFONOPEN, agent_acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
@@ -327,7 +327,7 @@ int SLAPI BillPrelude(const PPIDArray * pOpList, uint opklFlags, PPID linkOpID, 
 	PPID   op_id = *pOpID;
 	PPID   loc_id = *pLocID;
 	TDialog * dlg = new BillPreludeDialog();
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		PPObjOprKind op_obj;
 		SmartListBox * p_listbox = (SmartListBox*)dlg->getCtrlView(CTL_BILLPRELUDE_OPLIST);
 		p_listbox->setDef(new StrAssocListBoxDef(op_obj.MakeOprKindList(linkOpID, pOpList, opklFlags), lbtDblClkNotify|lbtFocNotify|lbtDisposeData));
@@ -744,7 +744,7 @@ int BillDialog::editPaymOrder(int forceUpdateRcvr)
 		SETIFZ(order.BnkPaymMethod, BNKPAYMMETHOD_DEFAULT);
 		SETIFZ(order.BnkQueueing, BNKQUEUEING_DEFAULT);
 		order.Amount = getCtrlReal(CTL_BILL_AMOUNT);
-		THROW(CheckDialogPtr(&(dlg = new BankingOrderDialog), 0));
+		THROW(CheckDialogPtr(&(dlg = new BankingOrderDialog)));
 		dlg->setDTS(&order);
 		while(ok <= 0 && ExecView(dlg) == cmOK)
 			if(dlg->getDTS(&order)) {
@@ -1378,7 +1378,7 @@ int BillDialog::editLinkFiles()
 	LinkFilesDialog * dlg = 0;
 	if(P_Pack) {
 		THROW_MEM(dlg = new LinkFilesDialog(&P_Pack->LnkFiles));
-		THROW(CheckDialogPtr(&dlg, 0));
+		THROW(CheckDialogPtr(&dlg));
 		if(ExecView(dlg) == cmOK)
 			dlg->getDTS(&P_Pack->LnkFiles);
 		else {
@@ -1466,7 +1466,7 @@ int BillDialog::sendItem(long pos, long id)
 		PPLinkFile file_info;
 		SendMailDialog::Rec data;
 		PPAlbatrosConfig alb_cfg;
-		THROW(CheckDialogPtr(&(dlg = new SendMailDialog), 0));
+		THROW(CheckDialogPtr(&(dlg = new SendMailDialog)));
 		getCtrlData(CTLSEL_BILL_OBJECT, &ar_id);
 		{
 			PPELinkArray addr_list;
@@ -2070,7 +2070,7 @@ void BillDialog::ReplyCntragntSelection(int force)
 			RegisterTbl::Rec reg_rec;
 			StringSet ss(SLBColumnDelim);
 			TDialog * dlg = new TDialog(DLG_EXPIRYREG);
-			if(CheckDialogPtr(&dlg, 0)) {
+			if(CheckDialogPtr(&dlg)) {
 				SetupStrListBox(dlg, CTL_EXPIRYREG_LIST);
 				SmartListBox * p_list = (SmartListBox *)dlg->getCtrlView(CTL_EXPIRYREG_LIST);
 				if(p_list) {
@@ -2090,7 +2090,7 @@ void BillDialog::ReplyCntragntSelection(int force)
 						}
 						p_list->addItem(i+1, ss.getBuf());
 					}
-					p_list->drawView();
+					p_list->Draw_();
 					GetPersonName(sob.PsnID, add_msg);
 					dlg->setStaticText(CTL_EXPIRYREG_PSNTEXT, add_msg);
 				}
@@ -2899,7 +2899,7 @@ int SLAPI ChangeBillFlagsDialog(long * pSetFlags, long * pResetFlags, PPID * pSt
 {
 	int       ok = -1;
 	TDialog * dlg = new TDialog(DLG_BILLF);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		SetBillFlagsCtrl(dlg, CTL_BILLF_SET, 0);
 		SetBillFlagsCtrl(dlg, CTL_BILLF_RESET, 0);
 		SetupPPObjCombo(dlg, CTLSEL_BILLF_STATUS, PPOBJ_BILLSTATUS, *pStatusID, 0);
@@ -3108,7 +3108,7 @@ int SLAPI PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 		RVALUEPTR(freight, pPack->P_Freight);
 		SETIFZ(freight.TrType, PPTRTYP_CAR);
 		SETIFZ(freight.IssueDate, pPack->Rec.Dt);
-		if(CheckDialogPtr(&(dlg = new FreightDialog), 1)) {
+		if(CheckDialogPtrErr(&(dlg = new FreightDialog))) {
 			dlg->setDTS(&freight, pPack);
 			while(ok <= 0 && ExecView(dlg) == cmOK)
 	 			if(dlg->getDTS(&freight)) {
@@ -3242,7 +3242,7 @@ int SLAPI PPObjBill::EditBillStatus(PPID billID)
 		SString op_name;
 		BillTbl::Rec rec;
 		THROW(Search(billID, &rec) > 0);
-		THROW(CheckDialogPtr(&(dlg = new SelBillStatusDialog()), 0));
+		THROW(CheckDialogPtr(&(dlg = new SelBillStatusDialog())));
 		THROW(dlg->setDTS(&rec));
 		while(ok <= 0 && ExecView(dlg) == cmOK)
 			if(dlg->getDTS(&rec.StatusID))
@@ -3263,7 +3263,7 @@ static int EditPaymPlanItem(const PPBillPacket * pPack, PayPlanTbl::Rec * pData)
 	int    ok = -1;
 	PayPlanTbl::Rec data = *pData;
 	TDialog * dlg = new TDialog(DLG_PAYPLANITEM);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->SetupCalDate(CTLCAL_PAYPLANITEM_DT, CTL_PAYPLANITEM_DT);
 		dlg->setCtrlData(CTL_PAYPLANITEM_DT, &data.PayDate);
 		dlg->setCtrlData(CTL_PAYPLANITEM_AMOUNT,   &data.Amount);
@@ -3522,7 +3522,7 @@ int SLAPI PPObjBill::EditBillExtData(PPID billID)
 		THROW(GetTagList(billID, &tag_list));
 		last_pay_date = payplan.getCount() ? payplan.at(payplan.getCount()-1).PayDate : ZERODATE;
 
-		THROW(CheckDialogPtr(&(dlg = new BillExtDialog(DLG_BILLEXTMOD, &tag_list)), 0));
+		THROW(CheckDialogPtr(&(dlg = new BillExtDialog(DLG_BILLEXTMOD, &tag_list))));
 		dlg->SetupCalDate(CTLCAL_BILLEXT_PAYDATE, CTL_BILLEXT_PAYDATE);
 		if(is_need_paym)
 			dlg->setCtrlData(CTL_BILLEXT_PAYDATE, &last_pay_date);
@@ -3865,7 +3865,7 @@ int SLAPI PPObjBill::EditLotSystemInfo(PPID lotID)
 	LotInfoDialog * dlg = 0;
 	if(lotID && trfr->Rcpt.Search(lotID, &rec) > 0) {
 		const int can_edit = PPMaster ? 1 : 0;
-		if(CheckDialogPtr(&(dlg = new LotInfoDialog(&rec, can_edit)), 1)) {
+		if(CheckDialogPtrErr(&(dlg = new LotInfoDialog(&rec, can_edit)))) {
 			if(ExecView(dlg) == cmOK && can_edit) {
 				//THROW(P_Tbl->Update(lot_id, &rec, 1));
 				//ok = 1;

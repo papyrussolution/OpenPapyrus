@@ -649,7 +649,7 @@ int SLAPI PPObjPsnOpKind::Browse(void * extraPtr)
 	if(CheckRights(PPR_READ)) {
 		int    ok = 1;
 		TDialog * p_dlg = new PsnOpKindView(this);
-		if(CheckDialogPtr(&p_dlg, 1)) {
+		if(CheckDialogPtrErr(&p_dlg)) {
 			ExecViewAndDestroy(p_dlg);
 			ok = 1;
 		}
@@ -1324,7 +1324,7 @@ int PsnOpDialog::editPsnConstr(int scnd)
 				SmartListBox * p_box = (SmartListBox *)getCtrlView(CTL_PSNOPKPC_SCSLIST);
 				if(p_box) {
 					p_box->setDef(CreateScsListDef());
-					p_box->drawView();
+					p_box->Draw_();
 				}
 			}
 			return 1;
@@ -1358,7 +1358,7 @@ int PsnOpDialog::editPsnConstr(int scnd)
 					if(ListToListDialog(&l2l) > 0) {
 						data.RestrictScSerList.addUnique(&scs_list);
 						p_box->setDef(CreateScsListDef());
-						p_box->drawView();
+						p_box->Draw_();
 					}
 				}
 			}
@@ -1368,7 +1368,7 @@ int PsnOpDialog::editPsnConstr(int scnd)
 				if(p_box && p_box->getCurID(&scs_id) && scs_id) {
 					data.RestrictScSerList.freeByKey(scs_id, 0);
 					p_box->setDef(CreateScsListDef());
-					p_box->drawView();
+					p_box->Draw_();
 				}
 			}
 			else

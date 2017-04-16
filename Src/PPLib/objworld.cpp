@@ -37,7 +37,7 @@ int SLAPI PPObjWorldObjStatus::Edit(PPID * pID, void * extraPtr)
 	int    ok = cmCancel, valid_data = 0;
 	PPWorldObjStatus rec;
 	TDialog * dlg = new TDialog(DLG_WOBJSTATUS);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	if(*pID) {
 		THROW(Search(*pID, &rec) > 0);
 	}
@@ -750,7 +750,7 @@ int SLAPI PPObjWorld::Edit(PPID * pID, void * extraPtr /*parent*/)
 			case WORLDOBJ_CITYAREA:  dlg_id = DLG_CITYAREA;  break;
 			default: dlg_id = DLG_CITY; break;
 		}
-		THROW(CheckDialogPtr(&(p_dlg = new EditWorldDialog(dlg_id)), 0));
+		THROW(CheckDialogPtr(&(p_dlg = new EditWorldDialog(dlg_id))));
 		p_dlg->setDTS(&pack);
 		while(ok <= 0 && ExecView(p_dlg) == cmOK) {
 			dup_id = p_dlg->GetDupID();

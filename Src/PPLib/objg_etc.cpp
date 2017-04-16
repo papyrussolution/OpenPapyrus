@@ -368,7 +368,7 @@ private:
 		double up_dev = 0.0, dn_dev = 0.0;
 		PPIDArray op_type_list;
 		TDialog * dlg = new TDialog(DLG_SHIPMCTRL);
-		THROW(CheckDialogPtr(&dlg, 0));
+		THROW(CheckDialogPtr(&dlg));
 		op_type_list.addzlist(PPOPT_GOODSEXPEND, PPOPT_GENERIC, 0);
 		SetupOprKindCombo(dlg, CTLSEL_SHIPMCTRL_SHIPMOP, Data.Rec.ScpShipmOpID, 0, &op_type_list, 0);
 		op_type_list.clear();
@@ -437,7 +437,7 @@ int GoodsValRestrDialog::EditItem(ObjRestrictItem & rItem)
 
 	int    ok = -1;
 	TDialog * dlg = 0;
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_GVRBAR)), 1));
+	THROW(CheckDialogPtrErr(&(dlg = new TDialog(DLG_GVRBAR))));
 	dlg->addGroup(GRP_ARTICLE, new ArticleCtrlGroup(CTLSEL_GVRBAR_ACS, 0, CTLSEL_GVRBAR_AR, 0, 0));
 	{
 		PPID   acs_id = 0;

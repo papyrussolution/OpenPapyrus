@@ -5444,7 +5444,7 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 									}
                         			for(xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
 										if(SXml::IsName(p_c, "Mark")) {
-											QueryBarcode * p_qb = p_qbl->CreateNewItem(0);
+											QueryBarcode * p_qb = p_qbl->CreateNewItem();
 											THROW_SL(p_qb);
 											for(xmlNode * p_m = p_c->children; p_m; p_m = p_m->next) {
 												if(SXml::GetContentByName(p_m, "Type", temp_buf)) {
@@ -7702,7 +7702,7 @@ int SLAPI PPEgaisProcessor::EditQueryParam(PPEgaisProcessor::QueryParam * pData)
 	QueryParam _param;
 	RVALUEPTR(_param, pData);
 	EgaisQDialog * dlg = new EgaisQDialog(this);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(&_param);
 		if(ExecView(dlg) == cmOK) {
 			dlg->getDTS(&_param);
@@ -8014,7 +8014,7 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 					qb.Rank = temp_buf;
 					ss.get(&ssp, temp_buf = 0);
 					qb.Number = temp_buf;
-					QueryBarcode * p_qb = p_qbl->CreateNewItem(0);
+					QueryBarcode * p_qb = p_qbl->CreateNewItem();
 					THROW_SL(p_qb);
 					*p_qb = qb;
 				}
@@ -8041,7 +8041,7 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 									qb.Rank = temp_buf;
 									ss.get(&ssp, temp_buf = 0);
 									qb.Number = temp_buf;
-									QueryBarcode * p_qb = p_qbl->CreateNewItem(0);
+									QueryBarcode * p_qb = p_qbl->CreateNewItem();
 									THROW_SL(p_qb);
 									*p_qb = qb;
 								}
@@ -8096,7 +8096,7 @@ int SLAPI PPEgaisProcessor::EditInformAReg(InformAReg & rData)
     int    ok = -1;
     uint   sel = 0;
     TDialog * dlg = new TDialog(DLG_EGAISREGA);
-    THROW(CheckDialogPtr(&dlg, 0));
+    THROW(CheckDialogPtr(&dlg));
     dlg->setCtrlLong(CTL_EGAISREGA_QTTY, rData.Qtty);
     dlg->setCtrlDate(CTL_EGAISREGA_MANUFDATE, rData.ManufDate);
     dlg->setCtrlDate(CTL_EGAISREGA_TTNDATE, rData.TTNDate);
@@ -8169,7 +8169,7 @@ int SLAPI PPEgaisProcessor::InputMark(PrcssrAlcReport::GoodsItem * pAgi, SString
 	SString temp_buf;
     PrcssrAlcReport::EgaisMarkBlock mb;
     EgaisMakrDialog * dlg = new EgaisMakrDialog(pAgi);
-    THROW(CheckDialogPtr(&dlg, 0));
+    THROW(CheckDialogPtr(&dlg));
 	if(pAgi) {
 		SString line_buf;
 		GetGoodsName(pAgi->GoodsID, temp_buf);
@@ -8209,7 +8209,7 @@ int SLAPI TestEGAIS(PPEgaisProcessor::TestParam * pParam)
 	if(!RVALUEPTR(param, pParam)) {
 		MEMSZERO(param);
 		dlg = new TDialog(DLG_TESTEGAIS);
-		THROW(CheckDialogPtr(&dlg, 0));
+		THROW(CheckDialogPtr(&dlg));
 		param.Flags |= PPEgaisProcessor::TestParam::fReceiveDataToTempCatalog;
 		dlg->AddClusterAssoc(CTL_TESTEGAIS_FLAGS, 0, PPEgaisProcessor::TestParam::fReceiveDataToTempCatalog);
 		dlg->AddClusterAssoc(CTL_TESTEGAIS_FLAGS, 1, PPEgaisProcessor::TestParam::fAcceptDataFromTempCatalog);

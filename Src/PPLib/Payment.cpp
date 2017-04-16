@@ -504,7 +504,7 @@ int SLAPI PPViewLinkedBill::MakeList()
 int SLAPI PPViewLinkedBill::ViewTotal()
 {
 	TDialog * dlg = 0;
-	if(CheckDialogPtr(&(dlg = new TDialog(DLG_PAYMTOTAL)), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_PAYMTOTAL)))) {
 		long   count = 0;
 		double amount = 0.0;
 		for(uint i = 0; i < List.getCount(); i++) {
@@ -893,7 +893,7 @@ IMPL_HANDLE_EVENT(PaymentBrowser)
 			case kbF9:
 				{
 					TDialog * dlg = 0;
-					if(CheckDialogPtr(&(dlg = new TDialog(DLG_PAYMTOTAL)), 1)) {
+					if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_PAYMTOTAL)))) {
 						AryBrowserDef * p_def = (AryBrowserDef *)view->getDef();
 						long   count = 0;
 						double amount = 0.0;
@@ -1333,7 +1333,7 @@ int CfmReckoningDialog::updateList()
 				ss.add((sub = 0).Cat(bill_id));
 			P_List->addItem(i+1, ss.getBuf());
 		}
-		P_List->drawView();
+		P_List->Draw_();
 		return 1;
 	}
 	else
@@ -1463,7 +1463,7 @@ static int SLAPI ConfirmReckoning(PPObjBill * pBObj, CfmReckoningParam * pCRP)
 {
 	int    ok = -1, valid_data = 0, r;
 	CfmReckoningDialog * dlg = new CfmReckoningDialog((pCRP->DebtOrPaym ? DLG_CFM_RECKONDEBT : DLG_CFM_RECKONING), pBObj);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(pCRP);
 		while(!valid_data && ((r = ExecView(dlg)) == cmYes || r == cmRcknSelectedBill))
 			if(dlg->getDTS(pCRP)) {
@@ -1603,7 +1603,7 @@ static int SLAPI SelectAltObject(PPID * pArID)
 	int    ok = -1;
 	PPID   ar_id = *pArID;
 	TDialog * dlg = new SelectAltReckonObjDialog;
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		PPID   acs_id = 0;
 		GetArticleSheetID(ar_id, &acs_id);
 		SetupPPObjCombo(dlg, CTLSEL_REQALTOBJ_SHEET, PPOBJ_ACCSHEET, acs_id, 0, 0);

@@ -205,7 +205,7 @@ int SLAPI PPObjBnkAcct::EditRecord(BankAccountTbl::Rec * pRec, PPID psnKindID)
 	int    ok = -1, valid_data = 0;
 	BankAccountTbl::Rec rec = *pRec;
 	BnkAcctDialog * dlg = new BnkAcctDialog();
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		SetupPersonCombo(dlg, CTLSEL_BACCT_BANK, rec.BankID, OLW_CANINSERT, (PPID)PPPRK_BANK, 0);
 		SetupPPObjCombo(dlg, CTLSEL_BACCT_ACCTYPE, PPOBJ_BNKACCTYPE, rec.AccType, OLW_CANINSERT, 0);
 		dlg->setCtrlData(CTL_BACCT_ACCT,     rec.Acct);

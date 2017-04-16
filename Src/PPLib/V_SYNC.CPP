@@ -280,7 +280,7 @@ int SLAPI PPViewObjSync::EditRecord(ObjSyncTbl::Rec * pRec)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_OBJSYNC);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		PPCommSyncID comm_id;
 		SString comm_id_buf;
 		comm_id = *pRec;
@@ -476,7 +476,7 @@ int SLAPI PPViewObjSyncCmp::EditBaseFilt(PPBaseFilt * pFilt)
 	TDialog * dlg = 0;
 	THROW(Filt.IsA(pFilt));
 	p_filt = (ObjSyncCmpFilt *)pFilt;
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SYNCCMPFLT)), 0));
+	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SYNCCMPFLT))));
 	SetupObjListCombo(dlg, CTLSEL_SYNCCMPFLT_OBJ, p_filt->ObjType);
 	switch(p_filt->ErrCode) {
 		case 0: v = BIN(p_filt->Flags & ObjSyncCmpFilt::fErrOnly); break;
@@ -623,7 +623,7 @@ int SLAPI PPViewObjSyncCmp::ViewTotal()
 	ObjSyncCmpTotal total;
 	CalcTotal(&total);
 	TDialog * dlg = new TDialog(DLG_SYNCCMPTOTAL);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setCtrlLong(CTL_SYNCCMPTOTAL_NECOUNT, total.NeCount);
 		dlg->setCtrlLong(CTL_SYNCCMPTOTAL_N1COUNT, total.N1Count);
 		dlg->setCtrlLong(CTL_SYNCCMPTOTAL_N2COUNT, total.N2Count);
@@ -1000,7 +1000,7 @@ int SLAPI ViewObjSyncTab(PPObjID oid)
 		}
 		GetObjectName(oid.Obj, oid.Id, temp_buf);
 		{
-			THROW(CheckDialogPtr(&(dlg = new ObjSyncTabDialog), 0));
+			THROW(CheckDialogPtr(&(dlg = new ObjSyncTabDialog)));
 			dlg->setStaticText(CTL_OBJSYNCTAB_ST_INFO, temp_buf);
 			dlg->setDTS(&list);
 			ExecViewAndDestroy(dlg);

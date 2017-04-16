@@ -149,8 +149,8 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\PPKernel\Ppds.cpp" />
-    <ClCompile Include="..\PPKernel\Ppdsp.cpp" />
+    <ClCompile Include="..\PPLib\PPDS.CPP" />
+    <ClCompile Include="..\PPLib\PPDSP.CPP" />
     <ClCompile Include="..\Util\Ppdsc.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -53,7 +53,7 @@ int SLAPI PPDeclStrucProcessor::WriteDeclToFiles(FILE * pRcStream, FILE * pChStr
 	PPDeclStrucItem item;
 	if(pDecl && pDecl->GetCount()) {
 		pDecl->GetItem(0, &item);
-		strupr(STRNSCPY(decl_symb, item.Name));
+		_strupr(STRNSCPY(decl_symb, item.Name));
 		strcpy(stpcpy(decl_define, "PPDS_"), decl_symb);
 		if(pChStream)
 			fprintf(pChStream, "\n#define %s %ld\n", decl_define, item.ID);
@@ -66,12 +66,12 @@ int SLAPI PPDeclStrucProcessor::WriteDeclToFiles(FILE * pRcStream, FILE * pChStr
 				p = stpcpy(p, "DSF_");
 				p = stpcpy(p, decl_symb);
 				*p++ = '_';
-				strupr(strcpy(p, item.Name));
+				_strupr(strcpy(p, item.Name));
 				if(pChStream)
 					fprintf(pChStream, "\t#define %s %ld\n", fld_define, item.ID);
 				if(item.Type >= FIRST_DECLSTRUC_ID) {
 					THROW(GetNameByType(item.Type, type_name, sizeof(type_name)) > 0);
-					strcpy(stpcpy(decl_define, "PPDS_"), strupr(type_name));
+					strcpy(stpcpy(decl_define, "PPDS_"), _strupr(type_name));
 				}
 				else {
 					decl_define[0] = '0';

@@ -550,7 +550,7 @@ int SLAPI PPObjBill::UpdateOpCounter(PPBillPacket * pPack)
 	PPOprKind op_rec;
 	PPObjOpCounter opc_obj;
 	THROW_PP(pPack, PPERR_INVPARAM);
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_UPDCNTR)), 1));
+	THROW(CheckDialogPtrErr(&(dlg = new TDialog(DLG_UPDCNTR))));
 	if(GetOpData(pPack->Rec.OpID, &op_rec) > 0) {
 		PPID   cntr_id = op_rec.OpCounterID;
 		PPOpCounterPacket opc_pack;
@@ -743,7 +743,7 @@ static int SLAPI _EditCcByBillParam(_CcByBillParam & rParam)
 {
 	int    ok = -1;
     TDialog * dlg = new TDialog(DLG_CCBYBILL);
-    if(CheckDialogPtr(&dlg, 1)) {
+    if(CheckDialogPtrErr(&dlg)) {
         dlg->AddClusterAssoc(CTL_CCBYBILL_PAYMTYPE,  0, cpmCash);
         dlg->AddClusterAssoc(CTL_CCBYBILL_PAYMTYPE, -1, cpmCash);
         dlg->AddClusterAssoc(CTL_CCBYBILL_PAYMTYPE,  1, cpmBank);
@@ -2636,7 +2636,7 @@ static int SLAPI EditTDisCalcMethod(TDisCalcMethodParam * pData)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_TDISCALC);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->AddClusterAssoc(CTL_TDISCALC_METHOD, 0, PPBillConfig::tdcmSimple);
 		dlg->AddClusterAssoc(CTL_TDISCALC_METHOD, -1, PPBillConfig::tdcmSimple);
 		dlg->AddClusterAssoc(CTL_TDISCALC_METHOD, 1, PPBillConfig::tdcmRegress);
@@ -2701,7 +2701,7 @@ static int SLAPI EditBillCfgValuationParam(PPBillConfig * pData)
 	ValuationParam param;
 	param.Set(*pData);
 	TDialog * dlg = new TDialog(DLG_BILLCFGVAL);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		SetupPPObjCombo(dlg, CTLSEL_SELQUOT2_KIND, PPOBJ_QUOTKIND, param.QuotKindID, 0, 0);
 		dlg->setCtrlData(CTL_SELQUOT2_PREC, &param.RoundPrec);
 		dlg->AddClusterAssoc(CTL_SELQUOT2_ROUND,  0, 0);
@@ -3748,7 +3748,7 @@ static int SLAPI AutoCalcSelectQuot(PPObjBill * pBObj, AutoCalcPricesParam * pDa
 	};
 	int    ok = -1;
 	AutoCalcSelectQuotDialog * dlg = new AutoCalcSelectQuotDialog(pBObj);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(pData);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS(pData))
@@ -3865,8 +3865,7 @@ int PPObjBill::AutoCalcPrices(PPBillPacket * pPack, int interactive, int * pIsMo
 			THROW_SL(prices_ary.Add(goods_id, new_price, 0, 0));
 		}
 		if(interactive)
-			THROW(CheckDialogPtr(&(p_dlg = new NewPricesDialog(
-				pPack, &prices_ary, oneof2(param._Action, AutoCalcPricesParam::_aCost, AutoCalcPricesParam::_aCostByContract))), 0));
+			THROW(CheckDialogPtr(&(p_dlg = new NewPricesDialog(pPack, &prices_ary, oneof2(param._Action, AutoCalcPricesParam::_aCost, AutoCalcPricesParam::_aCostByContract)))));
 		while(ok < 0 && (!interactive || ExecView(p_dlg) == cmOK)) {
 			if(!interactive || p_dlg->getDTS(&prices_ary)) {
 				for(i = 0; pPack->EnumTItems(&i, &p_ti) > 0;) {
@@ -3990,7 +3989,7 @@ int SLAPI PPObjBill::SelectQuotKind(PPBillPacket * pPack, const PPTransferItem *
 						SString sub;
 						SmartListBox * p_lbx = 0;
 						StringSet ss(SLBColumnDelim);
-						THROW(CheckDialogPtr(&(dlg = new QuotKindSelDialog()), 1));
+						THROW(CheckDialogPtrErr(&(dlg = new QuotKindSelDialog())));
  						p_lbx = (SmartListBox*)dlg->getCtrlView(CTL_SELQUOT_LIST);
 						THROW(SetupStrListBox(p_lbx));
 						qks_list.sort(PTR_CMPFUNC(PcharNoCase));
@@ -4002,7 +4001,7 @@ int SLAPI PPObjBill::SelectQuotKind(PPBillPacket * pPack, const PPTransferItem *
 						}
 						if(agt_qk_id)
 							p_lbx->TransmitData(+1, &agt_qk_id);
-						p_lbx->drawView();
+						p_lbx->Draw_();
 						if(ExecView(dlg) == cmOK) {
 							long   p = 0;
 							if(p_lbx->getCurID(&p) && p > 0) {
@@ -4087,7 +4086,7 @@ int SLAPI PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 				qk_id = pPack->QuotKindID ? pPack->QuotKindID : ((PPObjQuotKind::ListEntry *)p_qbo_ary->at(0))->ID;
 				int  valid_data = 0;
 				ComboBox * p_combo = 0;
-				THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SELQUOT2)), 0));
+				THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SELQUOT2))));
 				StdListBoxDef * def = new StdListBoxDef(p_qbo_ary, lbtDblClkNotify | lbtFocNotify | lbtDisposeData,
 					MKSTYPE(S_ZSTRING, sizeof(PPObjQuotKind::ListEntry)-sizeof(PPID)));
 				THROW_MEM(def);
@@ -4215,7 +4214,7 @@ private:
 
 	class BillCache_ExtText_Block : public ObjCache::ExtTextBlock {
 	private:
-		virtual int SLAPI Get(PPID id, SString & rBuf, void * extraPtr)
+		virtual int SLAPI Implement_Get(PPID id, SString & rBuf, void * extraPtr)
 		{
 			int    ok = -1;
 			if(PPRef->GetPropVlrString(PPOBJ_BILL, id, PPPRP_BILLMEMO, rBuf) > 0 && rBuf.Len())

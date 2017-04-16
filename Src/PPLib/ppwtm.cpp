@@ -72,7 +72,7 @@ int SLAPI BaseEditWhatmanToolItem(TWhatmanToolArray::Item * pItem)
 {
 	int    ok = -1;
 	BaseWtmToolDialog * dlg = new BaseWtmToolDialog(DLG_WTMTOOL);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(pItem);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS(pItem))
@@ -329,7 +329,7 @@ int WhatmanObjectBackground::EditTool(TWhatmanToolArray::Item * pItem)
 
 	int    ok = -1;
 	BkgToolDialog * dlg = new BkgToolDialog();
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(pItem);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS(pItem))
@@ -447,7 +447,7 @@ int WhatmanObjectText::HandleCommand(int cmd, void * pExt)
 		case cmdEdit:
 			{
 				TDialog * dlg = new TDialog(DLG_WOTEXT);
-				if(CheckDialogPtr(&dlg, 1)) {
+				if(CheckDialogPtrErr(&dlg)) {
 					SString text;
 					Tlo.GetText().CopyToUtf8(text, 0);
 					text.Transf(CTRANSF_UTF8_TO_INNER);
@@ -703,7 +703,7 @@ int WhatmanObjectProcessor::HandleCommand(int cmd, void * pExt)
 	int    ok = -1;
 	if(cmd == cmdEdit) {
 		TDialog * dlg = new TDialog(DLG_WOPRC);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			SetupPPObjCombo(dlg, CTLSEL_WOPRC_PRC, PPOBJ_PROCESSOR, PrcID, OLW_CANINSERT, 0);
 			if(ExecView(dlg) == cmOK) {
 				SetPrc(dlg->getCtrlLong(CTLSEL_WOPRC_PRC));
@@ -875,7 +875,7 @@ int WhatmanObjectCafeTable::HandleCommand(int cmd, void * pExt)
 	int    ok = -1;
 	if(cmd == cmdEdit) {
 		TDialog * dlg = new TDialog(DLG_WOCAFETBL);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setCtrlLong(CTL_WOCAFETBL_N, TableNo);
 			if(ExecView(dlg) == cmOK) {
 				TableNo = dlg->getCtrlLong(CTL_WOCAFETBL_N);
@@ -1923,7 +1923,7 @@ int PPWhatmanWindow::EditParam()
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_WTMPARAM);
 	TWhatman::Param param;
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		param = W.GetParam();
 		dlg->setCtrlString(CTL_WTMPARAM_NAME, param.Name);
 		dlg->setCtrlString(CTL_WTMPARAM_SYMB, param.Symb);

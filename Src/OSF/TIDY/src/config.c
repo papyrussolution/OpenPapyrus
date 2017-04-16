@@ -672,7 +672,7 @@ static ctmbstr ExpandTilde(TidyDocImpl* doc, ctmbstr filename)
 			++filename;
 	}
 #ifdef SUPPORT_GETPWNAM
-	else{
+	else {
 		struct passwd * passwd = NULL;
 		ctmbstr s = filename + 1;
 		tmbstr t;
@@ -747,7 +747,7 @@ int TY_(ParseConfigFileEnc) (TidyDocImpl* doc, ctmbstr file, ctmbstr charenc)
 		TY_(FileError) (doc, fname, TidyConfig);
 		return -1;
 	}
-	else{
+	else {
 		tchar c;
 		cfg->cfgIn = TY_(FileInput) (doc, fin, enc);
 		c = FirstChar(cfg);
@@ -768,7 +768,7 @@ int TY_(ParseConfigFileEnc) (TidyDocImpl* doc, ctmbstr file, ctmbstr charenc)
 				c = AdvanceChar(cfg);
 				if(option)
 					option->parser(doc, option);
-				else{
+				else {
 					if(NULL != doc->pOptCallback) {
 						TidyConfigImpl* cfg = &doc->config;
 						tmbchar buf[8192];
@@ -851,7 +851,7 @@ bool TY_(ParseConfigValue) (TidyDocImpl* doc, TidyOptionId optId, ctmbstr optval
 
 	if(!status)
 		TY_(ReportBadArgument) (doc, option->name);
-	else{
+	else {
 		TidyBuffer inbuf;    /* Set up input source */
 		tidyBufInitWithAllocator(&inbuf, doc->allocator);
 		tidyBufAttach(&inbuf, (byte*)optval, TY_(tmbstrlen) (optval)+1);
@@ -1029,7 +1029,7 @@ static bool ParseTriState(TidyTriState theState, TidyDocImpl* doc,
 		*flag = false;
 	else if(theState == TidyAutoState && (c == 'a' || c =='A'))
 		*flag = TidyAutoState;
-	else{
+	else {
 		TY_(ReportBadArgument) (doc, entry->name);
 		return false;
 	}
@@ -1383,7 +1383,7 @@ bool ParseDocType(TidyDocImpl* doc, const TidyOptionImpl* option)
 	else if(TY_(tmbstrcasecmp) (buf, "loose") == 0 ||
 	    TY_(tmbstrcasecmp) (buf, "transitional") == 0)
 		dtmode = TidyDoctypeLoose;
-	else{
+	else {
 		TY_(ReportBadArgument) (doc, option->name);
 		status = false;
 	}
@@ -1412,7 +1412,7 @@ bool ParseRepeatAttr(TidyDocImpl* doc, const TidyOptionImpl* option)
 		cfg->value[ TidyDuplicateAttrs ].v = TidyKeepFirst;
 	else if(TY_(tmbstrcasecmp) (buf, "keep-last") == 0)
 		cfg->value[ TidyDuplicateAttrs ].v = TidyKeepLast;
-	else{
+	else {
 		TY_(ReportBadArgument) (doc, option->name);
 		status = false;
 	}
@@ -1438,7 +1438,7 @@ bool ParseSorter(TidyDocImpl* doc, const TidyOptionImpl* option)
 		cfg->value[ TidySortAttributes ].v = TidySortAttrAlpha;
 	else if(TY_(tmbstrcasecmp) (buf, "none") == 0)
 		cfg->value[ TidySortAttributes ].v = TidySortAttrNone;
-	else{
+	else {
 		TY_(ReportBadArgument) (doc, option->name);
 		status = false;
 	}
@@ -1585,7 +1585,7 @@ static int  SaveConfigToStream(TidyDocImpl* doc, StreamOut* out)
 		}
 		else if(option->pickList)
 			rc = WriteOptionPick(option, val->v, out);
-		else{
+		else {
 			switch(option->type)
 			{
 				case TidyString:

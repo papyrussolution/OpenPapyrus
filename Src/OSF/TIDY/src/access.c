@@ -1018,7 +1018,7 @@ static void CheckFrame(TidyDocImpl* doc, Node* node)
 						HasTitle = true;
 						TY_(ReportAccessError) (doc, node, FRAME_TITLE_INVALID_NULL);
 					}
-					else{
+					else {
 						if(IsWhitespace(av->value) && TY_(tmbstrlen) (av->value) > 0) {
 							HasTitle = true;
 							TY_(ReportAccessError) (doc, node, FRAME_TITLE_INVALID_SPACES);
@@ -1295,7 +1295,7 @@ static void CheckColumns(TidyDocImpl* doc, Node* node)
 						numTH++;
 				}
 			}
-			else{
+			else {
 				isMissingHeader = true;
 			}
 		}
@@ -1629,7 +1629,7 @@ static void CheckASCII(TidyDocImpl* doc, Node* node)
 					matchingCount++;
 				}
 
-				else{
+				else {
 					break;
 				}
 			}
@@ -2391,7 +2391,7 @@ static bool CheckMetaData(TidyDocImpl* doc, Node* node, bool HasMetaData)
 				HasMetaData = true;
 				TY_(ReportAccessError) (doc, node, METADATA_MISSING_REDIRECT_AUTOREFRESH);
 			}
-			else{
+			else {
 				if(ContainsAttr && !HasContent && !HasHttpEquiv)
 					HasMetaData = true;
 			}

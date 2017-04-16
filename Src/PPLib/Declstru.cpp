@@ -320,7 +320,7 @@ int SLAPI RcvCharryParam::Edit()
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_RCVCHRY);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		long   action = 0;
 		MailAccCtrlGroup::Rec mac_rec;
 		MailAccCtrlGroup * p_grp = new MailAccCtrlGroup(CTLSEL_RCVCHRY_MAILACC, cmEditMailAcc);

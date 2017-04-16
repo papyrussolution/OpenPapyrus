@@ -1121,11 +1121,11 @@ int SoapPacket::Parse(const char * pMethodName, void * pDoc, const char * pDebug
 					*/
 					State |= stFault;
 					for(xmlNode * p_item_child = p_child->children; p_item_child; p_item_child = p_item_child->next) {
-						if(stricmp((const char *)p_item_child->name, "faultcode") == 0) {
+						if(sstreqi_ascii((const char *)p_item_child->name, "faultcode")) {
 							FaultCode = (const char *)(p_item_child->children ? p_item_child->children->content : p_item_child->content);
 							FaultCode.Transf(CTRANSF_UTF8_TO_INNER);
 						}
-						else if(stricmp((const char *)p_item_child->name, "faultstring") == 0) {
+						else if(sstreqi_ascii((const char *)p_item_child->name, "faultstring")) {
 							FaultText = (const char *)(p_item_child->children ? p_item_child->children->content : p_item_child->content);
 							FaultText.Transf(CTRANSF_UTF8_TO_INNER);
 						}

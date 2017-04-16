@@ -3,8 +3,14 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <ppidata.h>
+// @v9.6.2 (moved to pp.h) #include <ppidata.h>
 #include <idea.h>
+
+#define PPDWNLDATA_MAXTAGVALSIZE   256
+#define PPDWNLDATA_MAXTAGSIZE      64
+#define PPDWNLDATA_MAXTAGNAMESSIZE 2048
+
+//static const char WinInetDLLPath[] = "wininet.dll";
 
 // @v8.6.1 закомментировано ради удобства навигации в Code:Blocks #ifdef __WIN32__
 //
@@ -149,7 +155,7 @@ int SLAPI PpyInetDataPrcssr::Init()
 	sprintf(proxy, "%s:%s", IConnCfg.ProxyHost, IConnCfg.ProxyPort);
 	access_type = (IConnCfg.AccessType == PPINETCONN_DIRECT) ? INTERNET_OPEN_TYPE_DIRECT :
 		((IConnCfg.AccessType == PPINETCONN_PROXY) ? INTERNET_OPEN_TYPE_PROXY : INTERNET_OPEN_TYPE_PRECONFIG);
-	THROW_PP(WinInetDLLHandle = ::LoadLibrary(WinInetDLLPath), 0); // @unicodeproblem
+	THROW_PP(WinInetDLLHandle = ::LoadLibrary(_T("wininet.dll")), 0);
 	THROW_PP((InetSession = InternetOpen(IConnCfg.Agent, access_type, ((access_type == INTERNET_OPEN_TYPE_PROXY) ? proxy : 0), 0, 0)) != NULL, PPERR_RCVFROMINET); // @unicodeproblem
 	THROW_PP(InternetSetOption(InetSession, INTERNET_OPTION_CONNECT_RETRIES, &IConnCfg.MaxTries, sizeof(IConnCfg.MaxTries)), PPERR_RCVFROMINET);
 	CATCH
@@ -264,6 +270,11 @@ WinInetFTP::WinInetFTP()
 	UnInit();
 }
 
+WinInetFTP::~WinInetFTP()
+{
+	UnInit();
+}
+
 int WinInetFTP::Init(PPInetConnConfig * pCfg)
 {
 	int    ok = 1;
@@ -283,7 +294,7 @@ int WinInetFTP::Init(PPInetConnConfig * pCfg)
 	}
 	else
 		access_type = INTERNET_OPEN_TYPE_PRECONFIG;
-	THROW_PP(WinInetDLLHandle = ::LoadLibrary(WinInetDLLPath), 0); // @unicodeproblem
+	THROW_PP(WinInetDLLHandle = ::LoadLibrary(_T("wininet.dll")), 0);
 	THROW_PP((InetSession = InternetOpen(IConnCfg.Agent, access_type, p_proxy_name, 0, 0)) != NULL, PPERR_RCVFROMINET); // @unicodeproblem
 	THROW_PP(InternetSetOption(InetSession, INTERNET_OPTION_CONNECT_RETRIES, &IConnCfg.MaxTries, sizeof(IConnCfg.MaxTries)), PPERR_RCVFROMINET);
 	THROW_PP(InternetSetOption(InetSession, INTERNET_OPTION_CONNECT_TIMEOUT, &conn_timeout, sizeof(conn_timeout)), PPERR_RCVFROMINET);
@@ -955,7 +966,7 @@ int SLAPI PpyInetDataPrcssr::EditCfg()
 	THROW(CheckCfgRights(PPCFGOBJ_INETCONN, PPR_READ, 0));
 	MEMSZERO(cfg);
 	is_new = GetCfg(&cfg);
-	THROW(CheckDialogPtr(&p_dlg, 1));
+	THROW(CheckDialogPtrErr(&p_dlg));
 	p_dlg->setDTS(&cfg);
 	while(!valid_data && ExecView(p_dlg) == cmOK) {
 		THROW(CheckCfgRights(PPCFGOBJ_INETCONN, PPR_MOD, 0));

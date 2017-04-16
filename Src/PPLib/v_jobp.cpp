@@ -106,7 +106,7 @@ IMPL_HANDLE_EVENT(JobItemDialog)
 void JobItemDialog::editSchedule()
 {
 	RepeatingDialog * dlg = new RepeatingDialog(RepeatingDialog::fEditTime);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(&Data.Dtr);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
 			if(dlg->getDTS(&Data.Dtr))
@@ -329,7 +329,7 @@ int SLAPI ViewJobPool()
 	THROW(CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_READ, 0));
 	THROW_PP(CurDict->GetDbSymb(db_symb) > 0, PPERR_DBSYMBUNDEF);
 	THROW(mngr.LoadPool(db_symb, &pool, 0));
-	THROW(CheckDialogPtr(&(dlg = new JobPoolDialog(&mngr, &pool)), 1));
+	THROW(CheckDialogPtrErr(&(dlg = new JobPoolDialog(&mngr, &pool))));
 	while(ExecView(dlg) == cmOK) {
 		THROW(CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_MOD, 0));
 		if(mngr.SavePool(&pool)) {

@@ -377,7 +377,7 @@ int SelQCertDialog::setSelectedItem(PPID id)
 		P_List->TransmitData(+1, &id);
 		if(P_List->HasState(SmartListBox::stDataFounded)) {
 			//selectCtrl(CTL_SELQCERT_LIST);
-			P_List->drawView();
+			P_List->Draw_();
 			return 1;
 		}
 	}
@@ -397,7 +397,7 @@ int SelQCertDialog::updateView(PPID id)
 		QcObj.UpdateSelector(P_List->def, (void *)extra_param);
 		if(id >= 0)
 			P_List->search(&id, 0, srchFirst | lbSrchByID);
-		P_List->drawView();
+		P_List->Draw_();
 	}
 	return 1;
 }
@@ -409,7 +409,7 @@ int SelQCertDialog::updateList(int)
 		ListBoxDef * p_def = QcObj.Selector((void *)extra_param);
 		if(p_def) {
 			P_List->setDef(p_def);
-			P_List->drawView();
+			P_List->Draw_();
 		}
 	}
 	return 1;
@@ -572,7 +572,7 @@ int QCertCtrlGroup::getData(TDialog * /*pDlg*/, void * pData)
 void QCertCtrlGroup::selectQCert(TDialog * pDlg)
 {
 	SelQCertDialog * dlg = new SelQCertDialog();
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setSelectedItem(Data.QCertID);
 		if(ExecView(dlg) == cmOK) {
 			Data.QCertID = dlg->getSelectedItem();

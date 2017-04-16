@@ -3929,37 +3929,39 @@ static int SLAPI CanMerge(const PPTransferItem * pTI1, const PPTransferItem * pT
 	int    yes = 1;
 	if(f & ETIEF_DONTUNITE)
 		yes = 0;
-	else if(f & ETIEF_DISPOSE)
-		yes = 0;
-	else if(!(f & ETIEF_UNITEBYGOODS) || (pTI1->GoodsID != pTI2->GoodsID))
-		yes = 0;
-	else if((pTI1->Flags & (PPTFR_PLUS|PPTFR_MINUS)) != (pTI2->Flags & (PPTFR_PLUS|PPTFR_MINUS)))
-		yes = 0;
-	else if(f & ETIEF_DIFFBYLOT && pTI1->LotID != pTI2->LotID)
-		yes = 0;
-	else if(f & ETIEF_DIFFBYCOST && pTI1->Cost != pTI2->Cost)
-		yes = 0;
-	else if(f & ETIEF_DIFFBYPRICE && pTI1->Price != pTI2->Price)
-		yes = 0;
-	else if(f & ETIEF_DIFFBYNETPRICE && R6(pTI1->NetPrice() - pTI2->NetPrice()) != 0L)
-		yes = 0;
-	else if(f & ETIEF_DIFFBYPACK && pTI1->UnitPerPack != pTI2->UnitPerPack)
-		yes = 0;
-	else if(f & ETIEF_DIFFBYQCERT && pTI1->QCert != pTI2->QCert)
-		yes = 0;
-	else if(f & ETIEF_DIFFBYINTAXGRP && pTI1->LotTaxGrpID != pTI2->LotTaxGrpID)
-		yes = 0;
-	else if((pTI1->Flags & PPTFR_PRICEWOTAXES) != (pTI2->Flags & PPTFR_PRICEWOTAXES))
-		yes = 0;
-	else {
-		// @v8.7.9 {
-		if(pTI1->GoodsID == pTI2->GoodsID && pTI1->LotID != pTI2->LotID) {
-			PPGdsClsPacket gc_pack;
-			PPObjGoods goods_obj;
-			if(goods_obj.FetchCls(pTI1->GoodsID, 0, &gc_pack) > 0 && gc_pack.Rec.Flags & PPGdsCls::fPrintDiffLots)
-				yes = 0;
+	else if(!(f & ETIEF_FORCEUNITEGOODS && pTI1->GoodsID == pTI2->GoodsID)) { // @v9.6.2
+		if(f & ETIEF_DISPOSE)
+			yes = 0;
+		else if(!(f & ETIEF_UNITEBYGOODS) || (pTI1->GoodsID != pTI2->GoodsID))
+			yes = 0;
+		else if((pTI1->Flags & (PPTFR_PLUS|PPTFR_MINUS)) != (pTI2->Flags & (PPTFR_PLUS|PPTFR_MINUS)))
+			yes = 0;
+		else if(f & ETIEF_DIFFBYLOT && pTI1->LotID != pTI2->LotID)
+			yes = 0;
+		else if(f & ETIEF_DIFFBYCOST && pTI1->Cost != pTI2->Cost)
+			yes = 0;
+		else if(f & ETIEF_DIFFBYPRICE && pTI1->Price != pTI2->Price)
+			yes = 0;
+		else if(f & ETIEF_DIFFBYNETPRICE && R6(pTI1->NetPrice() - pTI2->NetPrice()) != 0L)
+			yes = 0;
+		else if(f & ETIEF_DIFFBYPACK && pTI1->UnitPerPack != pTI2->UnitPerPack)
+			yes = 0;
+		else if(f & ETIEF_DIFFBYQCERT && pTI1->QCert != pTI2->QCert)
+			yes = 0;
+		else if(f & ETIEF_DIFFBYINTAXGRP && pTI1->LotTaxGrpID != pTI2->LotTaxGrpID)
+			yes = 0;
+		else if((pTI1->Flags & PPTFR_PRICEWOTAXES) != (pTI2->Flags & PPTFR_PRICEWOTAXES))
+			yes = 0;
+		else {
+			// @v8.7.9 {
+			if(pTI1->GoodsID == pTI2->GoodsID && pTI1->LotID != pTI2->LotID) {
+				PPGdsClsPacket gc_pack;
+				PPObjGoods goods_obj;
+				if(goods_obj.FetchCls(pTI1->GoodsID, 0, &gc_pack) > 0 && gc_pack.Rec.Flags & PPGdsCls::fPrintDiffLots)
+					yes = 0;
+			}
+			// } @v8.7.9
 		}
-		// } @v8.7.9
 	}
 	return yes;
 }

@@ -1,5 +1,5 @@
 // TVDEFS.H
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2016
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2016, 2017
 // @codepage windows-1251
 //
 #ifndef __TVDEFS_H
@@ -306,6 +306,7 @@
 #define cmGroupInserted     303 // evCommand Сообщение посылается диалогом группе CtrlGroup после вставки ее в этот диалог
 //
 #define cmPrint             141 // evCommand
+#define cmDraw              142 // @v9.6.2 replacement for virtual TView::draw()
 //
 //  TListViewer messages
 //
@@ -349,14 +350,14 @@
 #define cmFileInit         1004   // Used by TFileDialog internally
 #define cmChangeDir        1005   // Used by TChDirDialog internally
 #define cmRevert           1006   // Used by TChDirDialog internally
-#define cmFileSave         1007   // 
-#define cmFileSaveAs       1008   // 
+#define cmFileSave         1007   //
+#define cmFileSaveAs       1008   //
 #define cmBringToFront     1009   // Переместить объект на передний план
 #define cmSendToBack       1010   // Переместить объект на задний план
 #define cmProperties       1011   // Свойства
-#define cmUp               1012   // 
-#define cmDown             1013   // 
-#define cmGrouping         1014   // 
+#define cmUp               1012   //
+#define cmDown             1013   //
+#define cmGrouping         1014   //
 //
 // SBrowser command & messages
 //
@@ -393,7 +394,7 @@
 #define sfDisabled        0x00000100
 #define sfModal           0x00000200
 #define sfReadOnly        0x00001000 // Work for TInputLine only
-#define sfCmdSetChanged   0x00002000 // 
+#define sfCmdSetChanged   0x00002000 //
 #define sfMsgToParent     0x00004000 // Если установлен, то Win-сообщение отправляется хозяину, иначе - в handleWindowsMessage
 #define sfEventBarrier    0x00008000 // Объект TView находится в состянии блокировки функции handleEvent.
 	// Такая блокировка необходима для исключения реентера handleEvent в пределах одного 'кземпляра объекта.

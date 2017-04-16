@@ -692,14 +692,14 @@ void CheckSCRIPT(TidyDocImpl* doc, Node * node)
 				TY_(AddAttribute) (doc, node, "type", "text/vbscript");
 			}
 		}
-		else{
+		else {
 			TY_(AddAttribute) (doc, node, "type", "text/javascript");
 		}
 		type = TY_(AttrGetById) (node, TidyAttr_TYPE);
 		if(type != NULL) {
 			TY_(ReportAttrError) (doc, node, type, INSERTING_ATTRIBUTE);
 		}
-		else{
+		else {
 			TY_(ReportMissingAttr) (doc, node, "type");
 		}
 	}

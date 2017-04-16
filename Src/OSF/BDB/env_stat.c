@@ -18,16 +18,15 @@
 // @v9.5.5 #include "dbinc/txn.h"
 
 #ifdef HAVE_STATISTICS
-static int __env_print_all __P((ENV*, uint32));
-static int __env_print_dbenv_all __P((ENV*, uint32));
-static int __env_print_env_all __P((ENV*, uint32));
+static int __env_print_all(ENV*, uint32);
+static int __env_print_dbenv_all(ENV*, uint32);
+static int __env_print_env_all(ENV*, uint32);
 static int __env_print_fh(ENV *);
-static int __env_print_stats __P((ENV*, uint32));
+static int __env_print_stats(ENV*, uint32);
 static int __env_print_thread(ENV *);
-static int __env_stat_print __P((ENV*, uint32));
-static char * __env_thread_state_print __P((DB_THREAD_STATE));
-static const char *
-__reg_type __P((reg_type_t));
+static int __env_stat_print(ENV*, uint32);
+static char * __env_thread_state_print(DB_THREAD_STATE);
+static const char * __reg_type(reg_type_t);
 
 /*
  * __env_stat_print_pp --
@@ -61,8 +60,7 @@ static int __env_stat_print(ENV * env, uint32 flags)
 	__db_msg(env, "%.24s\tLocal time", __os_ctime(&now, time_buf));
 	if((ret = __env_print_stats(env, flags)) != 0)
 		return ret;
-	if(LF_ISSET(DB_STAT_ALL) &&
-	   (ret = __env_print_all(env, flags)) != 0)
+	if(LF_ISSET(DB_STAT_ALL) && (ret = __env_print_all(env, flags)) != 0)
 		return ret;
 	if((ret = __env_print_thread(env)) != 0)
 		return ret;
@@ -114,7 +112,6 @@ static int __env_stat_print(ENV * env, uint32 flags)
 			return ret;
 	}
  #endif
-
 	return 0;
 }
 /*
@@ -155,14 +152,10 @@ static int __env_print_stats(ENV * env, uint32 flags)
  */
 static int __env_print_all(ENV * env, uint32 flags)
 {
-	int ret, t_ret;
-	/*
-	 * There are two structures -- DB_ENV and ENV.
-	 */
-	ret = __env_print_dbenv_all(env, flags);
-	if((t_ret = __env_print_env_all(env, flags)) != 0 && ret == 0)
-		ret = t_ret;
-	return ret;
+	// There are two structures -- DB_ENV and ENV.
+	int ret = __env_print_dbenv_all(env, flags);
+	int t_ret = __env_print_env_all(env, flags);
+	return (t_ret != 0 && ret == 0) ? t_ret : ret;
 }
 /*
  * __env_print_dbenv_all --
@@ -391,16 +384,11 @@ static int __env_print_env_all(ENV * env, uint32 flags)
 static char * __env_thread_state_print(DB_THREAD_STATE state)
 {
 	switch(state) {
-	    case THREAD_ACTIVE:
-		return "active";
-	    case THREAD_BLOCKED:
-		return "blocked";
-	    case THREAD_BLOCKED_DEAD:
-		return "blocked and dead";
-	    case THREAD_OUT:
-		return "out";
-	    default:
-		return "unknown";
+	    case THREAD_ACTIVE: return "active";
+	    case THREAD_BLOCKED: return "blocked";
+	    case THREAD_BLOCKED_DEAD: return "blocked and dead";
+	    case THREAD_OUT: return "out";
+	    default: return "unknown";
 	}
 	/* NOTREACHED */
 }
@@ -411,9 +399,6 @@ static char * __env_thread_state_print(DB_THREAD_STATE state)
 static int __env_print_thread(ENV * env)
 {
 	BH * bhp;
-	DB_ENV * dbenv;
-	DB_HASHTAB * htab;
-	DB_MPOOL * dbmp;
 	DB_THREAD_INFO * ip;
 	PIN_LIST * list, * lp;
 	REGENV * renv;
@@ -421,40 +406,38 @@ static int __env_print_thread(ENV * env)
 	THREAD_INFO * thread;
 	uint32 i;
 	char buf[DB_THREADID_STRLEN];
-
-	dbenv = env->dbenv;
-	/* The thread table may not be configured. */
-	if((htab = env->thr_hashtab) == NULL)
-		return 0;
-	dbmp = env->mp_handle;
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
-	__db_msg(env, "Thread tracking information");
-
-	/* Dump out the info we have on thread tracking. */
-	infop = env->reginfo;
-	renv = (REGENV *)infop->primary;
-	thread = (THREAD_INFO *)R_ADDR(infop, renv->thread_off);
-	STAT_ULONG("Thread blocks allocated", thread->thr_count);
-	STAT_ULONG("Thread allocation threshold", thread->thr_max);
-	STAT_ULONG("Thread hash buckets", thread->thr_nbucket);
-
-	/* Dump out the info we have on active threads. */
-	__db_msg(env, "Thread status blocks:");
-	for(i = 0; i < env->thr_nbucket; i++)
-		SH_TAILQ_FOREACH(ip, &htab[i], dbth_links, __db_thread_info) {
-			if(ip->dbth_state == THREAD_SLOT_NOT_IN_USE)
-				continue;
-			__db_msg(env, "\tprocess/thread %s: %s", dbenv->thread_id_string(
-					dbenv, ip->dbth_pid, ip->dbth_tid, buf), __env_thread_state_print(ip->dbth_state));
-			list = (PIN_LIST *)R_ADDR(env->reginfo, ip->dbth_pinlist);
-			for(lp = list; lp < &list[ip->dbth_pinmax]; lp++) {
-				if(lp->b_ref == INVALID_ROFF)
+	DB_ENV * dbenv = env->dbenv;
+	// The thread table may not be configured. 
+	DB_HASHTAB * htab = env->thr_hashtab;
+	if(htab) {
+		DB_MPOOL * dbmp = env->mp_handle;
+		__db_msg(env, "%s", DB_GLOBAL(db_line));
+		__db_msg(env, "Thread tracking information");
+		// Dump out the info we have on thread tracking.
+		infop = env->reginfo;
+		renv = (REGENV *)infop->primary;
+		thread = (THREAD_INFO *)R_ADDR(infop, renv->thread_off);
+		STAT_ULONG("Thread blocks allocated", thread->thr_count);
+		STAT_ULONG("Thread allocation threshold", thread->thr_max);
+		STAT_ULONG("Thread hash buckets", thread->thr_nbucket);
+		// Dump out the info we have on active threads. 
+		__db_msg(env, "Thread status blocks:");
+		for(i = 0; i < env->thr_nbucket; i++) {
+			SH_TAILQ_FOREACH(ip, &htab[i], dbth_links, __db_thread_info) {
+				if(ip->dbth_state == THREAD_SLOT_NOT_IN_USE)
 					continue;
-				bhp = (BH *)R_ADDR(&dbmp->reginfo[lp->region], lp->b_ref);
-				__db_msg(env, "\t\tpins: %lu", (ulong)bhp->pgno);
+				__db_msg(env, "\tprocess/thread %s: %s", dbenv->thread_id_string(dbenv, ip->dbth_pid, ip->dbth_tid, buf), __env_thread_state_print(ip->dbth_state));
+				list = (PIN_LIST *)R_ADDR(env->reginfo, ip->dbth_pinlist);
+				for(lp = list; lp < &list[ip->dbth_pinmax]; lp++) {
+					if(lp->b_ref == INVALID_ROFF)
+						continue;
+					bhp = (BH *)R_ADDR(&dbmp->reginfo[lp->region], lp->b_ref);
+					__db_msg(env, "\t\tpins: %lu", (ulong)bhp->pgno);
+				}
 			}
 		}
-		return 0;
+	}
+	return 0;
 }
 /*
  * __env_print_fh --
@@ -463,14 +446,14 @@ static int __env_print_thread(ENV * env)
 static int __env_print_fh(ENV * env)
 {
 	DB_FH * fhp;
-	if(TAILQ_FIRST(&env->fdlist) == NULL)
-		return 0;
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
-	__db_msg(env, "Environment file handle information");
-	MUTEX_LOCK(env, env->mtx_env);
-	TAILQ_FOREACH(fhp, &env->fdlist, q)
-	__db_print_fh(env, NULL, fhp, 0);
-	MUTEX_UNLOCK(env, env->mtx_env);
+	if(TAILQ_FIRST(&env->fdlist)) {
+		__db_msg(env, "%s", DB_GLOBAL(db_line));
+		__db_msg(env, "Environment file handle information");
+		MUTEX_LOCK(env, env->mtx_env);
+		TAILQ_FOREACH(fhp, &env->fdlist, q)
+		__db_print_fh(env, NULL, fhp, 0);
+		MUTEX_UNLOCK(env, env->mtx_env);
+	}
 	return 0;
 }
 /*

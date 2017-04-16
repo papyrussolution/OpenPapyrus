@@ -12,12 +12,12 @@
 #define ZLIB_INTERNAL
 #include "zlib.h"
 #pragma hdrstop
-#include "inftrees.h"
-#include "inflate.h"
-#include "inffast.h"
+//#include "inftrees.h"
+//#include "inflate.h"
+//#include "inffast.h"
 
 /* function prototypes */
-static void fixedtables OF((struct inflate_state  * state));
+static void fixedtables(struct inflate_state  * state);
 /*
    strm provides memory allocation functions in zalloc and zfree, or
    Z_NULL to use the library memory allocation functions.
@@ -28,11 +28,9 @@ static void fixedtables OF((struct inflate_state  * state));
 int ZEXPORT inflateBackInit_(z_streamp strm, int windowBits, unsigned char  * window, const char * version, int stream_size)
 {
 	struct inflate_state  * state;
-	if(version == Z_NULL || version[0] != ZLIB_VERSION[0] ||
-	    stream_size != (int)(sizeof(z_stream)))
+	if(version == Z_NULL || version[0] != ZLIB_VERSION[0] || stream_size != (int)(sizeof(z_stream)))
 		return Z_VERSION_ERROR;
-	if(strm == Z_NULL || window == Z_NULL ||
-	    windowBits < 8 || windowBits > 15)
+	if(strm == Z_NULL || window == Z_NULL || windowBits < 8 || windowBits > 15)
 		return Z_STREAM_ERROR;
 	strm->msg = Z_NULL;             /* in case we return an error */
 	if(strm->zalloc == (alloc_func)0) {
@@ -107,7 +105,7 @@ static void fixedtables(struct inflate_state  * state)
 		virgin = 0;
 	}
 #else /* !BUILDFIXED */
-#   include "inffixed.h"
+	#include "inffixed.h"
 #endif /* BUILDFIXED */
 	state->lencode = lenfix;
 	state->lenbits = 9;
@@ -240,14 +238,9 @@ static void fixedtables(struct inflate_state  * state)
    inflateBack() can also return Z_STREAM_ERROR if the input parameters
    are not correct, i.e. strm is Z_NULL or the state was not initialized.
  */
-int ZEXPORT inflateBack(z_streamp strm,
-    in_func in,
-    void  * in_desc,
-    out_func out,
-    void  * out_desc)
+int ZEXPORT inflateBack(z_streamp strm, in_func in, void  * in_desc, out_func out, void  * out_desc)
 {
 	struct inflate_state  * state;
-
 	z_const unsigned char  * next; /* next input */
 	unsigned char  * put; /* next output */
 	unsigned have, left;    /* available input and output */
@@ -255,8 +248,8 @@ int ZEXPORT inflateBack(z_streamp strm,
 	unsigned bits;          /* bits in bit buffer */
 	unsigned copy;          /* number of stored or match bytes to copy */
 	unsigned char  * from; /* where to copy match bytes from */
-	code here;              /* current decoding table entry */
-	code last;              /* parent table entry */
+	ZInfTreesCode here; // current decoding table entry 
+	ZInfTreesCode last; // parent table entry 
 	unsigned len;           /* length to copy for repeats, bits to drop */
 	int ret;                /* return code */
 	static const unsigned short order[19] = /* permutation of code lengths */
@@ -294,19 +287,16 @@ int ZEXPORT inflateBack(z_streamp strm,
 			    DROPBITS(1);
 			    switch(BITS(2)) {
 				    case 0:     /* stored block */
-					Tracev((stderr, "inflate:     stored block%s\n",
-					    state->last ? " (last)" : ""));
+					Tracev((stderr, "inflate:     stored block%s\n", state->last ? " (last)" : ""));
 					state->mode = STORED;
 					break;
 				    case 1:     /* fixed block */
 					fixedtables(state);
-					Tracev((stderr, "inflate:     fixed codes block%s\n",
-					    state->last ? " (last)" : ""));
+					Tracev((stderr, "inflate:     fixed codes block%s\n", state->last ? " (last)" : ""));
 					state->mode = LEN; /* decode codes */
 					break;
 				    case 2:     /* dynamic block */
-					Tracev((stderr, "inflate:     dynamic codes block%s\n",
-					    state->last ? " (last)" : ""));
+					Tracev((stderr, "inflate:     dynamic codes block%s\n", state->last ? " (last)" : ""));
 					state->mode = TABLE;
 					break;
 				    case 3:
@@ -326,8 +316,7 @@ int ZEXPORT inflateBack(z_streamp strm,
 				    break;
 			    }
 			    state->length = (unsigned)hold & 0xffff;
-			    Tracev((stderr, "inflate:       stored length %u\n",
-				    state->length));
+			    Tracev((stderr, "inflate:       stored length %u\n", state->length));
 			    INITBITS();
 
 			    /* copy stored block from input to output */
@@ -376,7 +365,7 @@ int ZEXPORT inflateBack(z_streamp strm,
 			    while(state->have < 19)
 				    state->lens[order[state->have++]] = 0;
 			    state->next = state->codes;
-			    state->lencode = (code const *)(state->next);
+			    state->lencode = (ZInfTreesCode const *)(state->next);
 			    state->lenbits = 7;
 			    ret = inflate_table(CODES, state->lens, 19, &(state->next),
 			    &(state->lenbits), state->work);
@@ -450,16 +439,15 @@ int ZEXPORT inflateBack(z_streamp strm,
 			       values here (9 and 6) without reading the comments in inftrees.h
 			       concerning the ENOUGH constants, which depend on those values */
 			    state->next = state->codes;
-			    state->lencode = (code const *)(state->next);
+			    state->lencode = (ZInfTreesCode const *)(state->next);
 			    state->lenbits = 9;
-			    ret = inflate_table(LENS, state->lens, state->nlen, &(state->next),
-			    &(state->lenbits), state->work);
+			    ret = inflate_table(LENS, state->lens, state->nlen, &(state->next), &(state->lenbits), state->work);
 			    if(ret) {
 				    strm->msg = (char*)"invalid literal/lengths set";
 				    state->mode = BAD;
 				    break;
 			    }
-			    state->distcode = (code const *)(state->next);
+			    state->distcode = (ZInfTreesCode const *)(state->next);
 			    state->distbits = 6;
 			    ret = inflate_table(DISTS, state->lens + state->nlen, state->ndist,
 			    &(state->next), &(state->distbits), state->work);

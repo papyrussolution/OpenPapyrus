@@ -137,8 +137,7 @@ int __bam_rsearch(DBC * dbc, db_recno_t * recnop, uint32 flags, int stop, int * 
 				ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority);
 				if((t_ret = __TLPUT(dbc, lock)) != 0 && ret == 0)
 					ret = t_ret;
-				if(ret == 0)
-					ret = DB_NOTFOUND;
+				SETIFZ(ret, DB_NOTFOUND);
 				goto done;
 			}
 		}
@@ -335,7 +334,7 @@ lock_next:
 	/* NOTREACHED */
 
 err:
-	if(h != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0 && ret == 0)
+	if(h && (t_ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	BT_STK_POP(cp);
 	__bam_stkrel(dbc, 0);

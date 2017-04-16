@@ -4,7 +4,7 @@
 #include <pp.h>
 #pragma hdrstop
 #include <stylopalm.h>
-#include <ppidata.h>
+// @v9.6.2 (moved to pp.h) #include <ppidata.h>
 //
 //
 //
@@ -441,7 +441,7 @@ int SLAPI PPObjStyloPalm::EditConfig()
 			op_list.add(op_id);
 	}
 	THROW(is_new = ReadConfig(&cfg));
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	SetupPPObjCombo(dlg, CTLSEL_SPIICFG_SELLOP, PPOBJ_OPRKIND, cfg.SellOpID, 0);
 	dlg->setCtrlData(CTL_SPIICFG_SELLTERM, &cfg.SellAnlzTerm);
 	SetupOprKindCombo(dlg, CTLSEL_SPIICFG_CLIINVOP, cfg.CliInvOpID, 0, &op_list, OPKLF_OPLIST);
@@ -2524,7 +2524,7 @@ SLAPI AndroidXmlWriter::AndroidXmlWriter(const char * pPath, Header * pHdr, cons
 	P_Buffer = 0;
 	if(!isempty(pPath)) {
 		SFile::Remove(pPath);
-		if(stricmp(pPath, ":buffer:") == 0) {
+		if(sstreqi_ascii(pPath, ":buffer:")) {
             P_Buffer = xmlBufferCreate();
             if(P_Buffer)
 				P_Writer = xmlNewTextWriterMemory(P_Buffer, 0);
@@ -4205,7 +4205,7 @@ int SLAPI PPObjStyloPalm::EditImpExpData(PalmPaneData * pData)
 	PalmPaneDialog * dlg = 0;
 	PalmPaneData data;
 	RVALUEPTR(data, pData);
-	THROW(CheckDialogPtr(&(dlg = new PalmPaneDialog()), 0));
+	THROW(CheckDialogPtr(&(dlg = new PalmPaneDialog())));
 	dlg->setDTS(&data);
 	while(ok < 0 && ExecView(dlg) == cmOK) {
 		if(dlg->getDTS(&data)) {

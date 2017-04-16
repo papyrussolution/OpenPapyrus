@@ -35,7 +35,7 @@ int SLAPI CorrectAccTurnRest()
 	CorrectAccturnRestParam param;
 	param.Correct = 1;
 	TDialog * dlg = new TDialog(DLG_CORCREST);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CORCREST_LOG, CTL_CORCREST_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 	PPLoadText(PPTXT_CORRECTACCREST, log_file_name);
 	dlg->setTitle(log_file_name);
@@ -109,7 +109,7 @@ int SLAPI CorrectAccturn()
 	SString log_fname;
 	CorrectAccturnParam param;
 	TDialog * dlg = new TDialog(DLG_CORATURN);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CORATURN_LOG, CTL_CORATURN_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 	PPGetFileName(PPFILNAM_ACCTURN_LOG, log_fname);
 	dlg->setCtrlString(CTL_CORATURN_LOG, log_fname);

@@ -1232,11 +1232,11 @@ h_alignment :
 } | T_IDENT
 {
 	CtmToken temp_token;
-	if(stricmp($1.U.S, "left") == 0)
+	if(sstreqi_ascii($1.U.S, "left"))
 		temp_token.Create(0, "L");
-	else if(stricmp($1.U.S, "right") == 0)
+	else if(sstreqi_ascii($1.U.S, "right"))
 		temp_token.Create(0, "R");
-	else if(stricmp($1.U.S, "center") == 0)
+	else if(sstreqi_ascii($1.U.S, "center"))
 		temp_token.Create(0, "C");
 	else
 		temp_token.Create(0, "L");

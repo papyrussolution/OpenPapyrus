@@ -3,7 +3,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <ppidata.h>
+// @v9.6.2 (moved to pp.h) #include <ppidata.h>
 //
 // Сопоставление полей импорта/экспорта со структурой SdRecord
 //
@@ -2769,7 +2769,7 @@ ImpExpCfgsListDialog::ImpExpCfgsListDialog() : PPListDialog(DLG_IMPEXPCFGS, CTL_
 				p_box->addItem(CfgsList.at(i).Id, CfgsList.at(i).Txt);
 			if(p_box->def)
 				p_box->def->top();
-			p_box->draw();
+			p_box->Draw_();
 		}
 	}
 	CfgPos = 0;
@@ -2990,7 +2990,7 @@ int ImpExpCfgsListDialog::EditParam(const char * pIniSection, long * pCDbID)
 	ImpExpParamDialog * p_param_dlg = 0;
 	SString ini_file_name, section;
 	PPImpExpParam * p_param = P_ParamList[CfgPos];
-	THROW(CheckDialogPtr(&(p_param_dlg = GetParamDlg(CfgPos)), 0));
+	THROW(CheckDialogPtr(&(p_param_dlg = GetParamDlg(CfgPos))));
 	p_param->Init();
 	THROW(LoadSdRecord(CfgsList.at(CfgPos).Id, &p_param->InrRec));
 	if(DS.CheckExtFlag(ECF_USECDB)) {
@@ -3163,7 +3163,7 @@ int ImpExpCfgsListDialog::setupList()
 int SLAPI EditImpExpConfigs()
 {
 	ImpExpCfgsListDialog * dlg = new ImpExpCfgsListDialog();
-	return CheckDialogPtr(&dlg, 1) ? ((ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1) : 0;
+	return CheckDialogPtrErr(&dlg) ? ((ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1) : 0;
 }
 //
 //
@@ -3298,7 +3298,7 @@ int ImpExpCfgListDialog::EditParam(const char * pIniSection)
 		THROW(LoadSdRecord(SDRecID, &P_Param->InrRec));
 		if(!isempty(pIniSection))
 			THROW(P_Param->ReadIni(&ini_file, pIniSection, 0));
-		THROW(CheckDialogPtr(&P_ParamDlg, 0));
+		THROW(CheckDialogPtr(&P_ParamDlg));
 		direction = P_Param->Direction;
 		P_ParamDlg->setDTS(P_Param);
 		while(ok <= 0 && ExecView(P_ParamDlg) == cmOK)
@@ -3325,7 +3325,7 @@ int ImpExpCfgListDialog::EditParam(const char * pIniSection)
 int SLAPI EditImpExpParams(uint iniFileID, uint sdRecID, PPImpExpParam * pParam, ImpExpParamDialog * pParamDlg)
 {
 	ImpExpCfgListDialog * dlg = new ImpExpCfgListDialog(iniFileID, sdRecID, pParam, pParamDlg);
-	return CheckDialogPtr(&dlg, 1) ? ((ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1) : 0;
+	return CheckDialogPtrErr(&dlg) ? ((ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1) : 0;
 }
 
 int InitImpExpParam(uint hdrRecType, uint recType, PPImpExpParam * pParam, const char * pFileName, int forExport, long dataFormat)

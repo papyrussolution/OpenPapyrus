@@ -1060,7 +1060,7 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 							const double ord_qtty = fabs(ord_rec.Quantity);
 							const double ord_price = fabs(ord_rec.Price) * ord_qtty;
 							const double ord_dis   = ord_rec.Discount * ord_qtty;
-							double ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R4(ord_dis / ord_price) : 0.0;
+							double ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R6(ord_dis / ord_price) : 0.0;
 							if(ord_pct_dis > 0.0)
 								ext_val1 = (pTrfrRec->Price - pTrfrRec->Discount) * ord_pct_dis * qtty / (1.0 - ord_pct_dis);
 						}
@@ -3390,7 +3390,7 @@ int SLAPI PPViewTrfrAnlz::ViewTotal()
 {
 	TDialog * dlg = 0;
 	if(Total.Count > 0 || CalcTotal(&Total) > 0) {
-		if(CheckDialogPtr(&(dlg = new TDialog((Flags & fShowSaldo) ? DLG_TRFRANLZTOTAL_S : DLG_TRFRANLZTOTAL)), 1)) {
+		if(CheckDialogPtrErr(&(dlg = new TDialog((Flags & fShowSaldo) ? DLG_TRFRANLZTOTAL_S : DLG_TRFRANLZTOTAL)))) {
 			dlg->setCtrlLong(CTL_TRFRANLZTOTAL_COUNT,  Total.Count);
 			dlg->setCtrlReal(CTL_TRFRANLZTOTAL_QTTY,   Total.Qtty);
 			dlg->setCtrlReal(CTL_TRFRANLZTOTAL_PHQTTY, Total.PhQtty);
@@ -4061,7 +4061,7 @@ int SLAPI PrcssrAlcReport::EditConfig()
 	Config cfg;
 	THROW(CheckCfgRights(PPCFGOBJ_ALCREPORT, PPR_READ, 0));
 	THROW(PrcssrAlcReport::ReadConfig(&cfg));
-	THROW(CheckDialogPtr(&(dlg = new AlcReportConfigDialog), 0));
+	THROW(CheckDialogPtr(&(dlg = new AlcReportConfigDialog)));
 	dlg->setDTS(&cfg);
 	while(ok < 0 && ExecView(dlg) == cmOK) {
 		THROW(CheckCfgRights(PPCFGOBJ_ALCREPORT, PPR_MOD, 0));

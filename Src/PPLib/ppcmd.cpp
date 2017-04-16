@@ -1287,7 +1287,7 @@ public:
 			if(InputStringDialog(&isd_param, name) > 0) {
 				pParam->Clear();
 				THROW(pParam->Write(name));
-				if(CheckDialogPtr(&(dlg = new PsnSelAnalogDialog(&psn_obj)), 1)) {
+				if(CheckDialogPtrErr(&(dlg = new PsnSelAnalogDialog(&psn_obj)))) {
 					dlg->setSrchString(name);
 					if(ExecView(dlg) == cmOK)
 						dlg->getResult(&id);
@@ -1658,7 +1658,7 @@ int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 			prompt = regtyp_pack.Rec.Name;
 		else
 			PPLoadText(PPTXT_SELPERSONBYSCARD, prompt);
-		THROW(CheckDialogPtr(&(p_dlg = new SelectPersonByCodeDialog(pop_rec.Name, &pk_rec, &scnd_pk_rec, prompt)), 0));
+		THROW(CheckDialogPtr(&(p_dlg = new SelectPersonByCodeDialog(pop_rec.Name, &pk_rec, &scnd_pk_rec, prompt))));
 		THROW(p_dlg->setDTS(&psn_data));
 		while(ok < 0 && ExecView(p_dlg) == cmOK) {
 			int    r = 1;
@@ -1994,7 +1994,7 @@ public:
 		CashNodePaneFilt * p_filt = 0;
 		CashNodeFiltDialog * p_dlg = 0;
 		THROW_PP(pParam, PPERR_INVPARAM);
-		THROW(CheckDialogPtr(&(p_dlg = new CashNodeFiltDialog), 0));
+		THROW(CheckDialogPtr(&(p_dlg = new CashNodeFiltDialog)));
 		sav_offs = pParam->GetRdOffs();
 		THROW(PPView::ReadFiltPtr(*pParam, (PPBaseFilt**)&p_filt));
 		if(!p_filt)
@@ -2164,7 +2164,7 @@ public:
 
 		THROW_PP(pParam, PPERR_INVPARAM);
 		MEMSZERO(filt);
-		THROW(CheckDialogPtr(&(p_dlg = new AddBillFiltDlg), 0));
+		THROW(CheckDialogPtr(&(p_dlg = new AddBillFiltDlg)));
 		sav_offs = pParam->GetRdOffs();
 		filt.Read(*pParam, 0);
 		p_dlg->setDTS(&filt);
@@ -2376,7 +2376,7 @@ public:
 		THROW_PP(pParam, PPERR_INVPARAM);
 		sav_offs = pParam->GetRdOffs();
 		filt.Read(*pParam, 0);
-		THROW(CheckDialogPtr(&p_dlg, 0));
+		THROW(CheckDialogPtr(&p_dlg));
 		FileBrowseCtrlGroup::Setup(p_dlg, CTLBRW_CRTTSESSFLT_WTM, CTL_CRTTSESSFLT_WTM, GRP_CRTTSESSFLT_WTM, 0, PPTXT_FILPAT_WTM,
 			FileBrowseCtrlGroup::fbcgfFile);
 		SetupPPObjCombo(p_dlg, CTLSEL_CRTTSESSFLT_GRP, PPOBJ_PROCESSOR, filt.GrpID, OLW_CANINSERT|OLW_CANSELUPLEVEL, (void *)PRCEXDF_GROUP);
@@ -3572,7 +3572,7 @@ public:
 	{
 		int    ok = -1;
 		if(pParam) {
-			PrcssrOsm prc;
+			PrcssrOsm prc(0);
 			PrcssrOsmFilt filt;
 			if(!filt.Read(*pParam, 0))
 				prc.InitParam(&filt);
@@ -3591,7 +3591,7 @@ public:
 		if(pParam) {
 			PrcssrOsmFilt filt;
 			if(filt.Read(*pParam, 0)) {
-				PrcssrOsm prc;
+				PrcssrOsm prc(0);
 				if(!prc.Init(&filt) || !prc.Run())
 					ok = PPErrorZ();
 			}

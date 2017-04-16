@@ -506,7 +506,7 @@ static void qr_line_fit(qr_line _l, int _x0, int _y0, int _sxx, int _sxy, int _s
 		_l[0] = (v+dround) >> dshift;
 		_l[1] = (u+w+dround) >> dshift;
 	}
-	else{
+	else {
 		_l[0] = (u+w+dround) >> dshift;
 		_l[1] = (v+dround) >> dshift;
 	}
@@ -721,7 +721,7 @@ static int qr_hom_unproject(qr_point _q, const qr_hom * _hom, int _x, int _y)
 		_q[1] = y<0 ? INT_MIN : INT_MAX;
 		return -1;
 	}
-	else{
+	else {
 		if(w<0) {
 			x = -x;
 			y = -y;
@@ -743,7 +743,7 @@ static void qr_hom_fproject(qr_point _p, const qr_hom * _hom, int _x, int _y, in
 		_p[0] = _x<0 ? INT_MIN : INT_MAX;
 		_p[1] = _y<0 ? INT_MIN : INT_MAX;
 	}
-	else{
+	else {
 		if(_w<0) {
 			_x = -_x;
 			_y = -_y;
@@ -839,7 +839,7 @@ static void qr_finder_edge_pts_hom_classify(qr_finder * _f, const qr_hom * _hom)
 			c->edge_pts[i].edge = e;
 			c->edge_pts[i].extent = q[d];
 		}
-		else{
+		else {
 			c->edge_pts[i].edge = 4;
 			c->edge_pts[i].extent = q[0];
 		}
@@ -1097,7 +1097,7 @@ static void qr_line_fit_finder_pair(qr_line _l, const qr_aff * _aff, const qr_fi
 			pts[i][1] = edge_pts[i].pos[1];
 		}
 	}
-	else{
+	else {
 		q[0] = _f0->o[0];
 		q[1] = _f0->o[1];
 		q[_e>>1] += _f0->size[_e>>1]*(2*(_e&1)-1);
@@ -1111,7 +1111,7 @@ static void qr_line_fit_finder_pair(qr_line _l, const qr_aff * _aff, const qr_fi
 			pts[n0+i][1] = edge_pts[i].pos[1];
 		}
 	}
-	else{
+	else {
 		q[0] = _f1->o[0];
 		q[1] = _f1->o[1];
 		q[_e>>1] += _f1->size[_e>>1]*(2*(_e&1)-1);
@@ -1593,7 +1593,7 @@ static void qr_hom_cell_fproject(qr_point _p, const qr_hom_cell * _cell,
 		_p[0] = _x<0 ? INT_MIN : INT_MAX;
 		_p[1] = _y<0 ? INT_MIN : INT_MAX;
 	}
-	else{
+	else {
 		if(_w<0) {
 			_x = -_x;
 			_y = -_y;
@@ -1732,7 +1732,7 @@ static int qr_alignment_pattern_search(qr_point _p, const qr_hom_cell * _cell,
 					y += _cell->fwd[1][dir];
 					w += _cell->fwd[2][dir];
 				}
-				else{
+				else {
 					dir = j>=3*side_len;
 					x -= _cell->fwd[0][dir];
 					y -= _cell->fwd[1][dir];
@@ -1816,7 +1816,7 @@ static int qr_alignment_pattern_search(qr_point _p, const qr_hom_cell * _cell,
 			c[i<<1][1] = QR_DIVROUND(w*(b*c[i<<1][1]+a*c[i<<1|1][1]), a*b);
 			nc[i<<1] = w<<1;
 		}
-		else{
+		else {
 			c[i<<1][0] += c[i<<1|1][0];
 			c[i<<1][1] += c[i<<1|1][1];
 			nc[i<<1] += b;
@@ -2115,7 +2115,7 @@ static int qr_hom_fit(qr_hom * _hom, qr_finder * _ul, qr_finder * _ur,
 	free(r);
 	if(nb>1) 
 		qr_line_fit_points(l[3], b, nb, _aff->res);
-	else{
+	else {
 		qr_aff_project(p, _aff, _dl->o[0], _dl->o[1]+3*_dl->size[1]);
 		shift = QR_MAXI(0, qr_ilog(QR_MAXI(abs(_aff->fwd[0][1]), abs(_aff->fwd[1][1])))-((_aff->res+1) >> 1));
 		round = (1<<shift)>>1;
@@ -2553,7 +2553,7 @@ static void qr_sampling_grid_init(qr_sampling_grid * _grid, int _version,
 	   the base cell and hope it's good enough.*/
 	if(_version<2) 
 		memcpy(_grid->cells[0], &base_cell, sizeof(base_cell));
-	else{
+	else {
 		int j;
 		int k;
 		qr_point * q = (qr_point*)malloc(nalign*nalign*sizeof(*q));
@@ -2705,7 +2705,7 @@ static void qr_sampling_grid_dump(qr_sampling_grid * _grid, int _version,
 					((!(i&(1<<QR_ALIGN_SUBPREC)-1))^(!(j&(1<<QR_ALIGN_SUBPREC)-1)))) {
 					gimg[i*dim+j] = 0x7F;
 				}
-				else{
+				else {
 					qr_point p;
 					u = (j>>QR_ALIGN_SUBPREC)-4;
 					v = (i>>QR_ALIGN_SUBPREC)-4;
@@ -3361,8 +3361,7 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 	   because we can just do it here instead.*/
 	_qrdata->self_parity = ((self_parity>>8)^self_parity)&0xFF;
 	/*Success.*/
-	_qrdata->entries = (qr_code_data_entry*)realloc(_qrdata->entries,
-	    _qrdata->nentries*sizeof(*_qrdata->entries));
+	_qrdata->entries = (qr_code_data_entry*)realloc(_qrdata->entries, _qrdata->nentries*sizeof(*_qrdata->entries));
 	return 0;
 }
 
@@ -3725,7 +3724,7 @@ static int qr_reader_try_configuration(qr_reader * _reader,
 #endif
 			ur_version = ur.eversion[1];
 		}
-		else{
+		else {
 			/*If the estimated versions are significantly different, reject the
 			   configuration.*/
 			if(abs(ur.eversion[1]-dl.eversion[0])>QR_LARGE_VERSION_SLACK) 

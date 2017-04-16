@@ -1,5 +1,5 @@
 // SMRTLBX.CPP
-// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016
+// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017
 // Release for WIN32
 //
 #include <slib.h>
@@ -412,7 +412,7 @@ void SmartListBox::MoveScrollBar(int autoHeight)
 		setRange(def->getRecsCount());
 	}
 	SetScrollBarPos(scroll_pos, 1);
-	draw();
+	Draw_();
 }
 
 void SmartListBox::CreateScrollBar(int create)
@@ -519,7 +519,7 @@ void SmartListBox::onInitDialog(int useScrollBar)
 		dlg_proc = is_multi_col ? ListViewDialogProc : ListBoxDialogProc;
 	}
 	State |= stInited;
-	draw();
+	Draw_();
 	//PrevWindowProc = (WNDPROC)SetWindowLong(h_lb, GWL_WNDPROC, dlg_proc);
 	PrevWindowProc = (WNDPROC)TView::SetWindowProp(h_lb, GWL_WNDPROC, dlg_proc);
 	TView::SetWindowUserData(h_lb, this);
@@ -777,7 +777,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							long   prev_top_item = Top;
 							def->go(index);
 							if(!Columns.getCount() && Top != prev_top_item)
-								draw();
+								Draw_();
 							if(def->Options & lbtFocNotify)
 								TView::messageCommand(owner, cmLBItemFocused, this);
 							Scroll(-1, 0);
@@ -798,7 +798,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 						long   prev_top_item = Top;
 						def->go(LOWORD(hw_clarea_lw_index) + def->_topItem());
 						if(!Columns.getCount() && Top != prev_top_item)
-							draw();
+							Draw_();
 						if(def->Options & lbtFocNotify)
 							TView::messageCommand(owner, cmLBItemFocused, this);
 						Scroll(-1, 0);
@@ -1080,7 +1080,7 @@ void SmartListBox::Scroll(short Code, int value)
 		if(!Columns.getCount()) {
 			SetScrollBarPos(scroll_pos, 1);
 			if(Top != prev_top_item || to_draw)
-				drawView();
+				Draw_();
 			else if(need_sel) {
 				const HWND h_lb = getHandle();
 				if(Columns.getCount()) {
@@ -1162,7 +1162,7 @@ int SmartListBox::search(void * pPattern, CompFunc fcmp, int srchMode)
 			long   scroll_delta, scroll_pos;
 			def->getScrollData(&scroll_delta, &scroll_pos);
 			SetScrollBarPos(scroll_pos, 1);
-			drawView();
+			Draw_();
 		}
 		else
 			SelectTreeItem();
@@ -1426,7 +1426,7 @@ void SmartListBox::search(char * pFirstLetter, int srchMode)
 	}
 	/*
 	if(r >= 0)
-		drawView();
+		Draw_();
 	*/
 }
 
@@ -1473,9 +1473,12 @@ int SmartListBox::TransmitData(int dir, void * pData)
 
 IMPL_HANDLE_EVENT(SmartListBox)
 {
+	if(event.isCmd(cmDraw)) {
+		Implement_Draw();
+	}
 }
 
-void SmartListBox::draw()
+void SmartListBox::Implement_Draw()
 {
 	if(!(State & stTreeList)) {
 		long   i;
@@ -1500,7 +1503,7 @@ void SmartListBox::draw()
 		}
 		if(Height) {
 			long   first_item = 0, last_item = 0;
-			const uint cc = Columns.getCount();
+			const  uint cc = Columns.getCount();
 			StringSet ss(SLBColumnDelim);
 			if(def)
 				if(cc)
@@ -1586,7 +1589,7 @@ void SmartListBox::setState(uint aState, bool enable)
 	TView::setState(aState, enable);
 	if((aState & (sfSelected | sfActive)) && !Columns.getCount())
 		if(!(State & stTreeList))
-			drawView();
+			Draw_();
 }
 
 int SmartListBox::addItem(long id, const char * s, long * pPos)

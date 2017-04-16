@@ -77,7 +77,7 @@ typedef struct {
 static void xz_error(xz_statep state, int err, const char * msg)
 {
 	/* free previously allocated message and clear */
-	if(state->msg != NULL) {
+	if(state->msg) {
 		if(state->err != LZMA_MEM_ERROR)
 			free(state->msg);
 		state->msg = NULL;

@@ -1151,7 +1151,7 @@ int TY_(DocParseStream) (TidyDocImpl* doc, StreamIn* in)
 		if(!TY_(CheckNodeIntegrity) (&doc->root) )
 			TidyPanic(doc->allocator, integrity);
 	}
-	else{
+	else {
 		doc->warnings = 0;
 		TY_(ParseDocument) (doc);
 		if(!TY_(CheckNodeIntegrity) (&doc->root) )
@@ -1250,7 +1250,7 @@ int tidyDocCleanAndRepair(TidyDocImpl* doc)
 			TY_(FixXhtmlNamespace) (doc, true);
 			TY_(FixLanguageInformation) (doc, &doc->root, true, true);
 		}
-		else{
+		else {
 			TY_(FixDocType) (doc);
 			TY_(FixAnchors) (doc, &doc->root, wantNameAttr, true);
 			TY_(FixXhtmlNamespace) (doc, false);

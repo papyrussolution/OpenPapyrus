@@ -6,7 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 #include <idea.h>
-#include <ppidata.h>
+// @v9.6.2 (moved to pp.h) #include <ppidata.h>
 #include <ppftp.h>
 #include <Lm.h>
 #include <strstore.h>
@@ -24,7 +24,7 @@ int PPHandlePrintError(int)
 {
 	int    reply = 0;
 	TDialog * dlg = new TDialog(DLG_PRNERR);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		//char   text[64];
 		//text[0] = '\003';
 		SString text;
@@ -296,7 +296,7 @@ static int SLAPI PPAbout()
 {
 	int    ok = 1;
 	TDialog * dlg = new TDialog(DLG_ABOUT);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		const int is_open = DS.CheckExtFlag(ECF_OPENSOURCE);
 		char  c_buf[512];
 		SString fmt, text;
@@ -1054,7 +1054,7 @@ int SLAPI PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 		SString title_buf;
 		SString temp_buf;
 		LoginDialog * dlg = new LoginDialog(rezID, sysAccLogin, pDbes);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			// @v9.4.3 {
 			if(!protect) {
 				PPLoadText(PPTXT_GREETING, title_buf);
@@ -1684,7 +1684,7 @@ void PPApp::login(int processCmdLine)
 		SString pw;
 		SString ini_src, ini_dest;
 		CvtCipherDialog * dlg = new CvtCipherDialog();
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			PPIniFile ini_file;
 			PPDbEntrySet2 dbes;
 			dbes.ReadFromProfile(&ini_file);
@@ -1998,7 +1998,7 @@ int PPApp::RegisterComServer()
 	RegComSvrDialog * p_dlg = new RegComSvrDialog;
 	PPGetFilePath(PPPATH_BIN, "ppwmt.dll", path);
 	THROW_SL(::fileExists(path));
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	param.Init();
 	p_dlg->setDTS(&param);
 	if(ExecView(p_dlg) == cmOK)	{

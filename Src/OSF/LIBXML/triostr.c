@@ -1079,7 +1079,7 @@ trio_string_create TRIO_ARGS1((initial_size),
 			self->content[0] = (char)0;
 			self->allocated = initial_size;
 		}
-		else{
+		else {
 			trio_string_destroy(self);
 			self = NULL;
 		}
@@ -1134,7 +1134,7 @@ TRIO_STRING_PUBLIC char * trio_string_get TRIO_ARGS2((self, offset), trio_string
 				offset = self->length;
 			}
 		}
-		else{
+		else {
 			offset += self->length + 1;
 			if(offset < 0) {
 				offset = 0;
@@ -1343,7 +1343,7 @@ TRIO_STRING_PUBLIC trio_string_t * trio_string_duplicate TRIO_ARGS1((other), tri
 			self->length = other->length;
 			self->allocated = self->length + 1;
 		}
-		else{
+		else {
 			self->length = self->allocated = 0;
 		}
 	}
@@ -1366,7 +1366,7 @@ TRIO_STRING_PUBLIC trio_string_t * trio_xstring_duplicate TRIO_ARGS1((other), TR
 			self->length = trio_length(self->content);
 			self->allocated = self->length + 1;
 		}
-		else{
+		else {
 			self->length = self->allocated = 0;
 		}
 	}

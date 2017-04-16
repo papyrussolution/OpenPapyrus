@@ -268,7 +268,7 @@ int SLAPI PPViewSalary::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	int    ok = -1, valid_data = 0;
 	TDialog * dlg = 0;
 	THROW(Filt.IsA(pBaseFilt));
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SALARYFLT)), 0));
+	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SALARYFLT))));
 	{
 		SalaryFilt * p_filt = (SalaryFilt *)pBaseFilt;
 		dlg->SetupCalPeriod(CTLCAL_SALARYFLT_PERIOD, CTL_SALARYFLT_PERIOD);
@@ -1048,7 +1048,7 @@ int SLAPI PrcssrSalary::EditParam(Param * pParam)
 #define GRP_DIV 1
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_PP_SALARY);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		Param param = *pParam;
 		dlg->SetupCalPeriod(CTLCAL_PP_SALARY_PERIOD, CTL_PP_SALARY_PERIOD);
 		dlg->addGroup(GRP_DIV, new DivisionCtrlGroup(CTLSEL_PP_SALARY_ORG, CTLSEL_PP_SALARY_DIV, CTLSEL_PP_SALARY_STAFF, 0));
@@ -1271,7 +1271,7 @@ int SLAPI PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 	uint   pos = 0;
 	double result = 0.0;
 	SString fmt_buf, msg_buf;
-	if(stricmp(pSymb, "stdcal") == 0) { // стандартный календарь
+	if(sstreqi_ascii(pSymb, "stdcal")) { // стандартный календарь
 		result = PPSTCAL_STANDARD;
 		ok = 1;
 	}
@@ -1319,7 +1319,7 @@ int SLAPI PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 		}
 		ok = 1;
 	}
-	else if(stricmp(pSymb, "evdate") == 0) {
+	else if(sstreqi_ascii(pSymb, "evdate")) {
 		if(P_CurEv) {
 			LDATETIME dtm;
 			OleDate od;
@@ -1334,7 +1334,7 @@ int SLAPI PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 				Logger.LogLastError();
 		}
 	}
-	else if(stricmp(pSymb, "evpairdate") == 0) {
+	else if(sstreqi_ascii(pSymb, "evpairdate")) {
 		// PPObjPersonEvent PersonEventCore
 		if(P_CurEv) {
 			LDATETIME dtm;
@@ -1408,27 +1408,27 @@ int SLAPI PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 		// prActual    - период начисления с поправкой на дату приема (уволнения) = 1.5   //
 		//
 		ok = 1;
-		if(stricmp(p_symb, "LastMonth") == 0)
+		if(sstreqi_ascii(p_symb, "LastMonth"))
 			result = -30.;
-		else if(stricmp(p_symb, "LastQuart") == 0)
+		else if(sstreqi_ascii(p_symb, "LastQuart"))
 			result = -90.;
-		else if(stricmp(p_symb, "LastYear") == 0)
+		else if(sstreqi_ascii(p_symb, "LastYear"))
 			result = -360.;
-		if(stricmp(p_symb, "NextMonth") == 0)
+		if(sstreqi_ascii(p_symb, "NextMonth"))
 			result = -30.25;
-		else if(stricmp(p_symb, "NextQuart") == 0)
+		else if(sstreqi_ascii(p_symb, "NextQuart"))
 			result = -90.25;
-		else if(stricmp(p_symb, "NextYear") == 0)
+		else if(sstreqi_ascii(p_symb, "NextYear"))
 			result = -360.25;
-		else if(stricmp(p_symb, "ThisMonth") == 0)
+		else if(sstreqi_ascii(p_symb, "ThisMonth"))
 			result = -30.5;
-		else if(stricmp(p_symb, "ThisQuart") == 0)
+		else if(sstreqi_ascii(p_symb, "ThisQuart"))
 			result = -90.5;
-		else if(stricmp(p_symb, "ThisYear") == 0)
+		else if(sstreqi_ascii(p_symb, "ThisYear"))
 			result = -360.5;
-		else if(stricmp(p_symb, "Nominal") == 0)
+		else if(sstreqi_ascii(p_symb, "Nominal"))
 			result = 1.0;
-		else if(stricmp(p_symb, "Actual") == 0)
+		else if(sstreqi_ascii(p_symb, "Actual"))
 			result = 1.5;
 		else {
 			ok = 0;
@@ -2265,7 +2265,7 @@ int SLAPI PrcssrSalary::TestCalcPeriod(PPID postID)
 	};
 	int    ok = 1;
 	TestStaffCalDialog * dlg = new TestStaffCalDialog(this);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		SString temp_buf;
 		CalcPeriodParam param;
 		MEMSZERO(param);

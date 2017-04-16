@@ -494,7 +494,7 @@ int ConfigBackupDialog::updateList()
 		ss.add(pn.Strip(), 0);
 		List->addItem(i+1, ss.getBuf());
 	}
-	List->drawView();
+	List->Draw_();
 	return 1;
 }
 
@@ -1072,36 +1072,35 @@ int SLAPI PrcssrDbDump::Helper_Dump(long tblID)
 		cntr.Init(&tbl);
 		MEMSZERO(key);
 		tbl.clearDataBuf();
-		if(tbl.search(0, &key, spFirst))
-			do {
-				if(has_lob) {
-					//
-					// Канонизируем буфер LOB-поля для того, чтобы функция Serialize могла
-					// правильно сохранить его в потоке.
-					//
-					lob_buf.Clear();
-					tbl.readLobData(lob_fld, lob_buf);
-					tbl.writeLobData(lob_fld, lob_buf, lob_buf.GetAvailableSize(), 1);
-				}
-				THROW_SL(Ctx.Serialize(tbl.tableName, &tbl.fields, tbl.getDataBuf(), buffer));
-				if(has_lob) {
-					//
-					// Очищаем канонизированный буфер LOB-поля во избежании утечки памяти.
-					//
-					tbl.writeLobData(lob_fld, 0, 0, 0);
-				}
-				local_count++;
-				recs_count++;
-				if(buffer.GetAvailableSize() >= MaxBufLen) {
-					THROW_SL(FDump.Write(&local_count, sizeof(local_count)));
-					THROW_SL(FDump.Write(buffer));
-					buffer.Clear();
-					local_count = 0;
-					chunk_count++;
-				}
-				tbl.clearDataBuf();
-				PPWaitPercent(cntr.Increment(), tbl.tableName);
-			} while(tbl.search(0, &key, spNext));
+		if(tbl.search(0, &key, spFirst)) do {
+			if(has_lob) {
+				//
+				// Канонизируем буфер LOB-поля для того, чтобы функция Serialize могла
+				// правильно сохранить его в потоке.
+				//
+				lob_buf.Clear();
+				tbl.readLobData(lob_fld, lob_buf);
+				tbl.writeLobData(lob_fld, lob_buf, lob_buf.GetAvailableSize(), 1);
+			}
+			THROW_SL(Ctx.Serialize(tbl.tableName, &tbl.fields, tbl.getDataBuf(), buffer));
+			if(has_lob) {
+				//
+				// Очищаем канонизированный буфер LOB-поля во избежании утечки памяти.
+				//
+				tbl.writeLobData(lob_fld, 0, 0, 0);
+			}
+			local_count++;
+			recs_count++;
+			if(buffer.GetAvailableSize() >= MaxBufLen) {
+				THROW_SL(FDump.Write(&local_count, sizeof(local_count)));
+				THROW_SL(FDump.Write(buffer));
+				buffer.Clear();
+				local_count = 0;
+				chunk_count++;
+			}
+			tbl.clearDataBuf();
+			PPWaitPercent(cntr.Increment(), tbl.tableName);
+		} while(tbl.search(0, &key, spNext));
 		THROW_DB(BTROKORNFOUND);
 		if(local_count) {
 			THROW_SL(FDump.Write(&local_count, sizeof(local_count)));
@@ -1296,7 +1295,7 @@ int ChangeDBListDialog::DoEditDB(PPID dbid)
 	EditDbEntryDialog * dlg = new EditDbEntryDialog;
 	SString temp_buf;
 	int    server_type = sqlstNone;
-	THROW(CheckDialogPtr(&dlg, 1));
+	THROW(CheckDialogPtrErr(&dlg));
 	Dbes.GetAttr(dbid, DbLoginBlock::attrServerType, temp_buf);
 	if(temp_buf.CmpNC("ORACLE") == 0)
 		server_type = sqlstORA;
@@ -1753,7 +1752,7 @@ int SLAPI EditBackupParam(SString & rDBSymb, PPBackupScen * pScen)
 	int    ok = -1;
 	BackupParamDialog * p_dlg = new BackupParamDialog();
 	THROW_MEM(p_dlg);
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setDTS(pScen);
 	while(ok < 0 && ExecView(p_dlg) == cmOK)
 		if(p_dlg->getDTS(rDBSymb, pScen))
@@ -2161,7 +2160,7 @@ static int SLAPI _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 				const SArray * P_Data;
 			};
 			RcvrInfoDlg * dlg = new RcvrInfoDlg(&bad_tbls_ary);
-			if(CheckDialogPtr(&dlg, 1))
+			if(CheckDialogPtrErr(&dlg))
 				ExecViewAndDestroy(dlg);
 			else
 				ok = 0;
@@ -2174,7 +2173,7 @@ static int SLAPI _DoProtect(PPDbEntrySet2 * pDbes, PPBackup * ppb)
 {
 	int    ok = 1;
 	TDialog * dlg = new TDialog(DLG_PROTECT);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		char   new_pw[64], old_pw[64];
 		dlg->selectCtrl(CTL_LOGIN_PROTECT);
 		SetupDBEntryComboBox(dlg, CTLSEL_LOGIN_DB, pDbes);
@@ -2430,7 +2429,7 @@ int SLAPI SetDatabaseChain()
 	TDialog * dlg = 0;
 	THROW(r = PPCheckDatabaseChain());
 	if(r > 0) {
-		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_DBUNCHAIN)), 0));
+		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_DBUNCHAIN))));
 		if(ExecView(dlg) == cmOK) {
 			dlg->getCtrlData(CTL_DBUNCHAIN_PASSWORD, password);
 			THROW(PPUnchainDatabase(password));
@@ -2493,7 +2492,7 @@ int SLAPI PPLicUpdate()
 	TDialog * dlg = 0;
 	PPLicData lic;
 	if(PPGetLicData(&lic)) {
-		if(CheckDialogPtr(&(dlg = new TDialog(DLG_REGISTRATION)), 1)) {
+		if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_REGISTRATION)))) {
 			FileBrowseCtrlGroup::Setup(dlg, CTLBRW_REGISTRAT_LICFILE, CTL_REGISTRATION_LICFILE, 1, 0, 0, FileBrowseCtrlGroup::fbcgfFile);
 			dlg->setCtrlData(CTL_REGISTRATION_NAME,    lic.RegName);
 			dlg->setCtrlData(CTL_REGISTRATION_SERIAL,  lic.RegNumber);
@@ -2525,7 +2524,7 @@ int SLAPI PPLicRegister()
 	int    ok = -1;
 	char   name[64], regkey[32], path[MAXPATH];
 	TDialog * dlg = 0;
-	if(CheckDialogPtr(&(dlg = new TDialog(DLG_REGISTRATION)), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_REGISTRATION)))) {
 		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_REGISTRAT_LICFILE, CTL_REGISTRATION_LICFILE, 1, 0, 0, FileBrowseCtrlGroup::fbcgfFile);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			dlg->getCtrlData(CTL_REGISTRATION_NAME,    name);

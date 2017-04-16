@@ -17,35 +17,33 @@
 // @v9.5.5 #include "dbinc/db_am.h"
 
 typedef struct __txn_event TXN_EVENT;
+
 struct __txn_event {
 	TXN_EVENT_T op;
 	TAILQ_ENTRY(__txn_event) links;
 	union {
 		struct {
-			/* Delayed close. */
-			DB * dbp;
+			// Delayed close
+			DB * dbp; 
 		} c;
 		struct {
-			/* Delayed remove. */
+			// Delayed remove
 			char * name;
 			uint8 * fileid;
 			int inmem;
 		} r;
 		struct {
-			/* Lock event. */
-			DB_LOCK lock;
+			// Lock event
+			DB_LOCK_BASE lock;
 			DB_LOCKER * locker;
 			DB * dbp;
 		} t;
 	} u;
 };
 
-#define TXN_TOP_PARENT(txn) do {                                        \
-		while(txn->parent != NULL)                                     \
-			txn = txn->parent;                                      \
-} while(0)
+#define TXN_TOP_PARENT(txn) do { while(txn->parent != NULL) txn = txn->parent; } while(0)
 
-static void __clear_fe_watermark __P((DB_TXN*, DB *));
+static void __clear_fe_watermark(DB_TXN*, DB *);
 
 /*
  * __txn_closeevent --
@@ -94,11 +92,9 @@ int __txn_remevent(ENV*env, DB_TXN * txn, const char * name, uint8 * fileid, int
 	e->u.r.inmem = inmem;
 	e->op = TXN_REMOVE;
 	TAILQ_INSERT_TAIL(&txn->events, e, links);
-
 	return 0;
-
-err:    __os_free(env, e);
-
+err:    
+	__os_free(env, e);
 	return ret;
 }
 
@@ -134,13 +130,12 @@ void __txn_remrem(ENV*env, DB_TXN * txn, const char * name)
  * PUBLIC: int __txn_lockevent __P((ENV *,
  * PUBLIC:     DB_TXN *, DB *, DB_LOCK *, DB_LOCKER *));
  */
-int __txn_lockevent(ENV*env, DB_TXN * txn, DB * dbp, DB_LOCK * lock, DB_LOCKER * locker)
+int __txn_lockevent(ENV * env, DB_TXN * txn, DB * dbp, DB_LOCK * lock, DB_LOCKER * locker)
 {
 	int ret;
-	TXN_EVENT * e;
+	TXN_EVENT * e = 0;
 	if(!LOCKING_ON(env))
 		return 0;
-	e = NULL;
 	if((ret = __os_calloc(env, 1, sizeof(TXN_EVENT), &e)) != 0)
 		return ret;
 	e->u.t.locker = locker;
@@ -150,7 +145,6 @@ int __txn_lockevent(ENV*env, DB_TXN * txn, DB * dbp, DB_LOCK * lock, DB_LOCKER *
 	/* This event goes on the current transaction, not its parent. */
 	TAILQ_INSERT_TAIL(&txn->events, e, links);
 	dbp->cur_txn = txn;
-
 	return 0;
 }
 
@@ -188,7 +182,7 @@ void __txn_remlock(ENV*env, DB_TXN * txn, DB_LOCK * lock, DB_LOCKER * locker)
  */
 #define DO_TRADE do {                                                   \
 		memzero(&req, sizeof(req));                                   \
-		req.lock = e->u.t.lock;                                         \
+		req.lock = *(DB_LOCK *)&e->u.t.lock;                            \
 		req.op = DB_LOCK_TRADE;                                         \
 		t_ret = __lock_vec(env, txn->parent ? txn->parent->locker : e->u.t.locker, 0, &req, 1, NULL); \
 		if(t_ret == 0) {                                               \
@@ -274,7 +268,7 @@ int __txn_doevents(ENV*env, DB_TXN * txn, int opcode, int preprocess)
 		    /* Fall through */
 		    case TXN_TRADED:
 			/* Downgrade the lock. */
-			if((t_ret = __lock_downgrade(env, &e->u.t.lock, DB_LOCK_READ, 0)) != 0 && ret == 0)
+			if((t_ret = __lock_downgrade(env, (DB_LOCK *)&e->u.t.lock, DB_LOCK_READ, 0)) != 0 && ret == 0)
 				ret = t_ret;
 			break;
 		    default:

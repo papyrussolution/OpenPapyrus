@@ -118,7 +118,7 @@ loop:   /* Attempt to acquire the mutex mutex_tas_spins times, if waiting. */
 		 * the mutex is already busy.
 		 */
 		if(MUTEXP_IS_BUSY(mutexp) || !MUTEXP_ACQUIRE(mutexp)) {
-			if(F_ISSET(dbenv, DB_ENV_FAILCHK) && ip == NULL && dbenv->is_alive(dbenv, mutexp->pid, mutexp->tid, 0) == 0) {
+			if(F_ISSET(dbenv, DB_ENV_FAILCHK) && !ip && dbenv->is_alive(dbenv, mutexp->pid, mutexp->tid, 0) == 0) {
 				ret = __env_set_state(env, &ip, THREAD_VERIFY);
 				if(ret != 0 || ip->dbth_state == THREAD_FAILCHK)
 					return DB_RUNRECOVERY;

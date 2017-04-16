@@ -303,7 +303,7 @@ int SLAPI PPViewBalance::ViewTotal()
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_BALTOTAL);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		char   diff_buf[32];
 		double diff = Total.InDbtRest - Total.InCrdRest + Total.DbtTrnovr -
 			Total.CrdTrnovr - (Total.OutDbtRest - Total.OutCrdRest);

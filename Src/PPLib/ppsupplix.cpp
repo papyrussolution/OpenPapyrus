@@ -2053,7 +2053,7 @@ PPID SLAPI PPSupplExchange_Baltika::GetConsigLocGroupID()
 	StrAssocArray * p_list = obj_loc.MakeList_(&loc_filt, 1);
 	for(uint i = 0; !loc_grp_id && i < p_list->getCount(); i++) {
 		LocationTbl::Rec loc_rec;
-		if(obj_loc.Search(p_list->at(i).Id, &loc_rec) > 0 && stricmp(loc_rec.Code, "CONSIGNATION") == 0)
+		if(obj_loc.Search(p_list->at(i).Id, &loc_rec) > 0 && sstreqi_ascii(loc_rec.Code, "CONSIGNATION"))
 			loc_grp_id = loc_rec.ID;
 	}
 	ZDELETE(p_list);
@@ -2699,7 +2699,7 @@ int SLAPI iSalesPepsi::ParseResultString(const char * pText, TSCollection <iSale
 			ss_sub.setBuf(temp_buf, temp_buf.Len()+1);
 			uint ssip = 0;
 			if(ss_sub.get(&ssip, temp_buf)) {
-				ResultItem * p_new_item = rList.CreateNewItem(0);
+				ResultItem * p_new_item = rList.CreateNewItem();
 				THROW_SL(p_new_item);
                 p_new_item->Status = -1;
                 p_new_item->ItemDescr = temp_buf;
@@ -3033,7 +3033,7 @@ int SLAPI iSalesPepsi::ReceiveReceipts()
 						THROW(P_BObj->TurnPacket(&pack, 1));
 						// @v9.3.1 R_Logger.LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
 						{
-							iSalesTransferStatus * p_new_status = status_list.CreateNewItem(0);
+							iSalesTransferStatus * p_new_status = status_list.CreateNewItem();
 							THROW_SL(p_new_status);
 							p_new_status->Ifc = iSalesTransferStatus::ifcReceipt;
 							(p_new_status->Ident = 0).Cat(p_src_pack->iSalesId);
@@ -3212,7 +3212,7 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 						THROW(P_BObj->TurnPacket(&pack, 1));
 						// @v9.3.1 R_Logger.LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
 						{
-							iSalesTransferStatus * p_new_status = status_list.CreateNewItem(0);
+							iSalesTransferStatus * p_new_status = status_list.CreateNewItem();
 							THROW_SL(p_new_status);
 							p_new_status->Ifc = iSalesTransferStatus::ifcOrder;
 							(p_new_status->Ident = 0).CatChar('O').Cat(src_order_code);
@@ -3394,7 +3394,7 @@ int SLAPI iSalesPepsi::SendDebts()
 								if(p_temp_item->Code.CmpNC(temp_buf) == 0) {
 									double payment = 0.0;
 									P_BObj->P_Tbl->CalcPayment(bill_rec.ID, 1, 0, 0, &payment);
-									iSalesBillDebt * p_new_item = current_debt_list.CreateNewItem(0);
+									iSalesBillDebt * p_new_item = current_debt_list.CreateNewItem();
 									THROW_SL(p_new_item);
 									*p_new_item = *p_temp_item;
 									p_new_item->Code.Transf(CTRANSF_INNER_TO_UTF8);
@@ -3550,7 +3550,7 @@ int SLAPI iSalesPepsi::SendPrices()
 						}
 					}
 					if(price > 0.0) {
-						iSalesPriceItem * p_new_pl_item = p_new_pl->Prices.CreateNewItem(0);
+						iSalesPriceItem * p_new_pl_item = p_new_pl->Prices.CreateNewItem();
 						THROW_SL(p_new_pl_item);
                         p_new_pl_item->OuterCode = temp_buf;
                         p_new_pl_item->Price = price;
@@ -3640,7 +3640,7 @@ int SLAPI iSalesPepsi::SendStocks()
 			else {
 				LocationTbl::Rec loc_rec;
 				if(LocObj.Search(loc_id, &loc_rec) > 0) {
-					THROW_SL(p_loc_item = outp_packet.CreateNewItem(0));
+					THROW_SL(p_loc_item = outp_packet.CreateNewItem());
 					p_loc_item->WhID = loc_id;
 					p_loc_item->WhCode = loc_rec.Code;
 				}
@@ -3654,7 +3654,7 @@ int SLAPI iSalesPepsi::SendStocks()
 						double Qtty; // Количество на остатке
 					};
 				*/
-				iSalesStockCountingItem * p_new_item = p_loc_item->Items.CreateNewItem(0); // new iSalesStockCountingItem;
+				iSalesStockCountingItem * p_new_item = p_loc_item->Items.CreateNewItem(); // new iSalesStockCountingItem;
 				THROW_SL(p_new_item);
 				p_new_item->OuterCode = temp_buf;
 				p_new_item->Qtty = gr_item.Rest;
@@ -3797,16 +3797,16 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 			cli_face_code.Cat(psn_id);
 			if(pack.P_Freight && pack.P_Freight->DlvrAddrID)
 				cli_addr_code.Cat(pack.P_Freight->DlvrAddrID);
-			iSalesBillPacket * p_new_pack = rList.CreateNewItem(0);
+			iSalesBillPacket * p_new_pack = rList.CreateNewItem();
 			THROW_SL(p_new_pack);
 			p_new_pack->NativeID = pack.Rec.ID;
 			{
 				iSalesBillAmountEntry * p_amt_entry = 0;
-				THROW_SL(p_amt_entry = p_new_pack->Amounts.CreateNewItem(0));
+				THROW_SL(p_amt_entry = p_new_pack->Amounts.CreateNewItem());
 				p_amt_entry->SetType = 0;
-				THROW_SL(p_amt_entry = p_new_pack->Amounts.CreateNewItem(0));
+				THROW_SL(p_amt_entry = p_new_pack->Amounts.CreateNewItem());
 				p_amt_entry->SetType = 1;
-				THROW_SL(p_amt_entry = p_new_pack->Amounts.CreateNewItem(0));
+				THROW_SL(p_amt_entry = p_new_pack->Amounts.CreateNewItem());
 				p_amt_entry->SetType = 2;
 			}
 			p_new_pack->DocType = outerDocType;
@@ -3816,7 +3816,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 			//
 			BillCore::GetCode(p_new_pack->Code = pack.Rec.Code);
 			p_new_pack->Code.Transf(CTRANSF_INNER_TO_UTF8);
-			Debug_TestUtfText(p_new_pack->Code, "makebillentry-1", R_Logger); // @v9.5.11
+			// @v9.6.2 Debug_TestUtfText(p_new_pack->Code, "makebillentry-1", R_Logger); // @v9.5.11
 			p_new_pack->Dtm.Set(pack.Rec.Dt, ZEROTIME);
 			// @v9.4.3 {
 			if(outerDocType == 6 && pack.Rec.LinkBillID) {
@@ -3824,7 +3824,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 				if(P_BObj->Search(pack.Rec.LinkBillID, &link_bill_rec) > 0 && GetOpType(link_bill_rec.OpID) == PPOPT_DRAFTRECEIPT) {
 					BillCore::GetCode(p_new_pack->Code = link_bill_rec.Code);
 					p_new_pack->Code.Transf(CTRANSF_INNER_TO_UTF8);
-					Debug_TestUtfText(p_new_pack->Code, "makebillentry-2", R_Logger); // @v9.5.11
+					// @v9.6.2 Debug_TestUtfText(p_new_pack->Code, "makebillentry-2", R_Logger); // @v9.5.11
 					p_new_pack->Dtm.Set(link_bill_rec.Dt, ZEROTIME);
 				}
 			}
@@ -3833,14 +3833,14 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 				if(cancel_code.NotEmpty()) {
 					p_new_pack->iSalesId = cancel_code;
 					p_new_pack->iSalesId.Transf(CTRANSF_INNER_TO_UTF8);
-					Debug_TestUtfText(p_new_pack->iSalesId, "makebillentry-7", R_Logger); // @v9.5.11
+					// @v9.6.2 Debug_TestUtfText(p_new_pack->iSalesId, "makebillentry-7", R_Logger); // @v9.5.11
 					// @v9.3.10 {
 					LDATE   prev_date;
 					Helper_Parse_iSalesIdent(cancel_code, temp_buf, &prev_date);
 					if(temp_buf.NotEmptyS() && checkdate(prev_date, 0)) {
 						p_new_pack->Code = temp_buf;
 						p_new_pack->Code.Transf(CTRANSF_INNER_TO_UTF8);
-						Debug_TestUtfText(p_new_pack->Code, "makebillentry-3", R_Logger); // @v9.5.11
+						// @v9.6.2 Debug_TestUtfText(p_new_pack->Code, "makebillentry-3", R_Logger); // @v9.5.11
 						p_new_pack->Dtm.Set(prev_date, ZEROTIME);
 					}
 					// } @v9.3.10
@@ -3848,7 +3848,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 				else {
 					Helper_Make_iSalesIdent(pack.Rec, outerDocType, p_new_pack->iSalesId);
 					p_new_pack->iSalesId.Transf(CTRANSF_INNER_TO_UTF8);
-					Debug_TestUtfText(p_new_pack->iSalesId, "makebillentry-7/2", R_Logger); // @v9.5.11
+					// @v9.6.2 Debug_TestUtfText(p_new_pack->iSalesId, "makebillentry-7/2", R_Logger); // @v9.5.11
 				}
 			}
 			p_new_pack->IncDtm.SetZero();
@@ -3866,12 +3866,12 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 					(p_new_pack->iSalesId = temp_buf).Transf(CTRANSF_INNER_TO_UTF8); // @v9.5.11 Transf(CTRANSF_INNER_TO_UTF8)
 				}
 				{
-					iSalesBillRef * p_new_ref = p_new_pack->Refs.CreateNewItem(0);
+					iSalesBillRef * p_new_ref = p_new_pack->Refs.CreateNewItem();
 					THROW_SL(p_new_ref);
 					p_new_ref->DocType = 13;
 					BillCore::GetCode((p_new_ref->Code = 0).CatChar('O').Cat(p_new_pack->Code));
 					p_new_ref->Code.Transf(CTRANSF_INNER_TO_UTF8);
-					Debug_TestUtfText(p_new_ref->Code, "makebillentry-4", R_Logger); // @v9.5.11
+					// @v9.6.2 Debug_TestUtfText(p_new_ref->Code, "makebillentry-4", R_Logger); // @v9.5.11
 					p_new_ref->Dtm.SetZero();
 				}
 			}
@@ -3886,12 +3886,12 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 
 				BillTbl::Rec sell_rec;
 				if(!transmit_linkret_as_unlink && GetOpType(pack.Rec.OpID) == PPOPT_GOODSRETURN && pack.Rec.LinkBillID && P_BObj->Search(pack.Rec.LinkBillID, &sell_rec) > 0) {
-					iSalesBillRef * p_new_ref = p_new_pack->Refs.CreateNewItem(0);
+					iSalesBillRef * p_new_ref = p_new_pack->Refs.CreateNewItem();
 					THROW_SL(p_new_ref);
 					p_new_ref->DocType = 1;
 					BillCore::GetCode(p_new_ref->Code = sell_rec.Code);
 					p_new_ref->Code.Transf(CTRANSF_INNER_TO_UTF8);
-					Debug_TestUtfText(p_new_ref->Code, "makebillentry-5", R_Logger); // @v9.5.11
+					// @v9.6.2 Debug_TestUtfText(p_new_ref->Code, "makebillentry-5", R_Logger); // @v9.5.11
 					p_new_ref->Dtm.Set(sell_rec.Dt, ZEROTIME);
 				}
 				else {
@@ -3915,12 +3915,12 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 							THROW(P_BObj->ExtractPacket(ord_id, &order_pack) > 0);
 							is_own_order = 1;
 							{
-								iSalesBillRef * p_new_ref = p_new_pack->Refs.CreateNewItem(0);
+								iSalesBillRef * p_new_ref = p_new_pack->Refs.CreateNewItem();
 								THROW_SL(p_new_ref);
 								p_new_ref->DocType = 13;
 								BillCore::GetCode(p_new_ref->Code = ord_rec.Code);
 								p_new_ref->Code.Transf(CTRANSF_INNER_TO_UTF8);
-								Debug_TestUtfText(p_new_ref->Code, "makebillentry-6", R_Logger); // @v9.5.11
+								// @v9.6.2 Debug_TestUtfText(p_new_ref->Code, "makebillentry-6", R_Logger); // @v9.5.11
 								p_new_ref->Dtm.SetZero();
 							}
 						}
@@ -4003,7 +4003,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 								}
 							}
 						}
-						iSalesBillItem * p_new_item = p_new_pack->Items.CreateNewItem(0);
+						iSalesBillItem * p_new_item = p_new_pack->Items.CreateNewItem();
 						THROW_SL(p_new_item);
 						const double qtty = fabs(ti.Quantity_);
 						p_new_item->LineN = tiiterpos; // ti.RByBill;
@@ -4058,7 +4058,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, discount,      &vat_sum_in_discount, 0, 0, 12);
 							// } @v9.5.9
 							{
-								iSalesBillAmountEntry * p_amt_entry = p_new_item->Amounts.CreateNewItem(0);
+								iSalesBillAmountEntry * p_amt_entry = p_new_item->Amounts.CreateNewItem();
 								THROW_SL(p_amt_entry);
 								p_amt_entry->SetType    = 0;
 								p_amt_entry->NetPrice   = nominal_price - vat_sum_in_nominal_price;
@@ -4078,7 +4078,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 								p_billamt_entry->DiscGrossSum += p_amt_entry->DiscGrossSum;
 							}
 							{
-								iSalesBillAmountEntry * p_amt_entry = p_new_item->Amounts.CreateNewItem(0);
+								iSalesBillAmountEntry * p_amt_entry = p_new_item->Amounts.CreateNewItem();
 								THROW_SL(p_amt_entry);
 								*p_amt_entry = *p_new_item->Amounts.at(0);
 								p_amt_entry->SetType = 1;
@@ -4100,7 +4100,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 								p_billamt_entry->DiscGrossSum += p_amt_entry->DiscGrossSum;
 							}
 							{
-								iSalesBillAmountEntry * p_amt_entry = p_new_item->Amounts.CreateNewItem(0);
+								iSalesBillAmountEntry * p_amt_entry = p_new_item->Amounts.CreateNewItem();
 								THROW_SL(p_amt_entry);
 								*p_amt_entry = *p_new_item->Amounts.at(1);
 								p_amt_entry->SetType = 2;
@@ -4360,7 +4360,7 @@ int SLAPI iSalesPepsi::SendInvoices()
 									if(p_item->NativeID && p_item->iSalesId.NotEmpty() && P_BObj->Search(p_item->NativeID, &bill_rec) > 0) {
 										if(bill_ack_tag_id) { // @v9.5.7
 											ObjTagItem tag_item;
-											Debug_TestUtfText(p_item->iSalesId, "sendinvoices-1", R_Logger); // @v9.5.11
+											// @v9.6.2 Debug_TestUtfText(p_item->iSalesId, "sendinvoices-1", R_Logger); // @v9.5.11
 											(temp_buf = p_item->iSalesId).Transf(CTRANSF_UTF8_TO_INNER);
 											if(tag_item.SetStr(bill_ack_tag_id, temp_buf))
 												THROW(PPRef->Ot.PutTag(PPOBJ_BILL, p_item->NativeID, &tag_item, 1));
@@ -4603,8 +4603,10 @@ int SLAPI SapEfes::ReceiveOrders()
 					else {
 						THROW(pack.CreateBlank_WithoutCode(acfg.Hdr.OpID, 0, loc_id, 1));
 						pack.Rec.Dt = p_src_pack->Date.d;
-						if(checkdate(p_src_pack->DueDate, 0))
+						if(checkdate(p_src_pack->DueDate, 0)) {
+							pack.Rec.Dt = p_src_pack->DueDate;
 							pack.Rec.DueDate = p_src_pack->DueDate;
+						}
 						STRNSCPY(pack.Rec.Code, p_src_pack->Code);
 						if(Ep.Fb.LocCodeTagID && p_src_pack->DlvrLoc.Code.NotEmpty()) {
 							p_ref->Ot.SearchObjectsByStr(PPOBJ_LOCATION, Ep.Fb.LocCodeTagID, p_src_pack->DlvrLoc.Code, &dlvr_loc_list);
@@ -4684,18 +4686,31 @@ int SLAPI SapEfes::ReceiveOrders()
 									R_Logger.Log(msg_buf);
 							}
 							else {
+								GoodsStockExt gse;
 								for(uint i = 0; i < p_src_pack->Items.getCount(); i++) {
 									const SapEfesBillItem * p_src_item = p_src_pack->Items.at(i);
 									if(p_src_item) {
 										if(GObj.P_Tbl->SearchByArCode(P.SupplID, p_src_item->GoodsCode, 0, &goods_rec) > 0) {
 											PPTransferItem ti;
 											ti.Init(&pack.Rec);
+											double _qtty = fabs(p_src_item->Qtty);
+											double _qtty_mult = 1.0;
+											if(p_src_item->UnitType == sapefesUnitPack) {
+                                                if(p_src_item->BaseUnitType == sapefesUnitItem && p_src_item->QtyN > 0.0) {
+													_qtty_mult = (((double)p_src_item->QtyD) / ((double)p_src_item->QtyN));
+                                                }
+                                                else if(GObj.GetStockExt(goods_rec.ID, &gse, 0) > 0 && gse.Package > 0.0) {
+													_qtty_mult = gse.Package;
+                                                }
+											}
+											_qtty *= _qtty_mult;
+
 											ti.GoodsID = goods_rec.ID;
-											ti.Quantity_ = fabs(p_src_item->Qtty);
+											ti.Quantity_ = _qtty;
 											if(ti.Quantity_ != 0.0) {
                                 				double vat_amt = 0.0;
                                 				GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, /*ti.Quantity_*/1.0, p_src_item->Amount, &vat_amt, 1, 0);
-												ti.Price = (p_src_item->Amount + vat_amt) /*/ ti.Quantity_*/;
+												ti.Price = (p_src_item->Amount + vat_amt) / _qtty_mult;
 												THROW(pack.LoadTItem(&ti, 0, 0));
 											}
 										}
@@ -4715,7 +4730,7 @@ int SLAPI SapEfes::ReceiveOrders()
 									pack.InitAmounts();
 									THROW(P_BObj->TurnPacket(&pack, 1));
 									{
-										SapEfesBillStatus * p_new_status = status_list.CreateNewItem(0);
+										SapEfesBillStatus * p_new_status = status_list.CreateNewItem();
 										THROW_SL(p_new_status);
 										p_new_status->Code = p_src_pack->Code;
 										p_new_status->NativeCode.Cat(pack.Rec.ID);
@@ -4779,7 +4794,7 @@ int SLAPI SapEfes::SendSales_ByDlvrLoc()
                 if(dlvr_loc_id)
 					p_ref->Ot.GetTagStr(PPOBJ_LOCATION, dlvr_loc_id, Ep.Fb.LocCodeTagID, loc_code);
 				if(cli_code.NotEmpty() || loc_code.NotEmpty()) {
-					SapEfesGoodsReportEntry * p_new_item = outp_packet.CreateNewItem(0);
+					SapEfesGoodsReportEntry * p_new_item = outp_packet.CreateNewItem();
 					THROW_SL(p_new_item);
 					p_new_item->DlvrLocCode = loc_code;
 					p_new_item->Dt = ta_filt.Period.upp;
@@ -4830,7 +4845,7 @@ int SLAPI SapEfes::SendSales_ByGoods()
 			for(ta_view.InitIteration(PPViewTrfrAnlz::OrdByDefault); ta_view.NextIteration(&ta_item) > 0;) {
 				int32  ar_code_pack = 0;
 				if(GObj.P_Tbl->GetArCode(P.SupplID, ta_item.GoodsID, ar_code, &ar_code_pack) > 0) {
-					SapEfesGoodsReportEntry * p_new_item = outp_packet.CreateNewItem(0);
+					SapEfesGoodsReportEntry * p_new_item = outp_packet.CreateNewItem();
 					THROW_SL(p_new_item);
 					p_new_item->GoodsCode = ar_code;
 					p_new_item->Dt = ta_filt.Period.upp;
@@ -4884,7 +4899,7 @@ int SLAPI SapEfes::SendStocks()
 			int    skip_goods = 0;
 			int32  ar_code_pack = 0;
 			if(GObj.P_Tbl->GetArCode(P.SupplID, gr_item.GoodsID, ar_code, &ar_code_pack) > 0) {
-				SapEfesGoodsReportEntry * p_new_item = outp_packet.CreateNewItem(0);
+				SapEfesGoodsReportEntry * p_new_item = outp_packet.CreateNewItem();
 				THROW_SL(p_new_item);
 				p_new_item->GoodsCode = ar_code;
 				p_new_item->Dt = gr_filt.Date;
@@ -4913,6 +4928,7 @@ int SLAPI SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacke
 	THROW_PP_S(Ep.Fb.LocCodeTagID, PPERR_SUPPLIX_UNDEFLOCCTAG, ArName);
 	if(opID) {
 		SString temp_buf;
+		SString msg_buf;
 		SString cli_code;
 		SString loc_code;
 		SString isales_code;
@@ -4974,7 +4990,7 @@ int SLAPI SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacke
 					PPBillPacket::TiItemExt tiext;
 					{
 						long   tiiterpos = 0;
-						for(TiIter tiiter(&pack, ETIEF_UNITEBYGOODS, 0); pack.EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
+						for(TiIter tiiter(&pack, ETIEF_FORCEUNITEGOODS|ETIEF_UNITEBYGOODS, 0); pack.EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
 							tiiterpos++;
 							if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf = 0, 0) > 0)
 								ti_pos_list.Add(tiiterpos, temp_buf, 0);
@@ -4982,68 +4998,76 @@ int SLAPI SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacke
 					}
 					if(ti_pos_list.getCount()) {
 						const PPID cli_psn_id = ObjectToPerson(pack.Rec.Object, 0);
+						int   skip = 0;
 						cli_code = 0;
 						loc_code = 0;
                         p_ref->Ot.GetTagStr(PPOBJ_PERSON, cli_psn_id, Ep.Fb.CliCodeTagID, cli_code);
                         if(pack.P_Freight && pack.P_Freight->DlvrAddrID)
 							p_ref->Ot.GetTagStr(PPOBJ_LOCATION, pack.P_Freight->DlvrAddrID, Ep.Fb.LocCodeTagID, loc_code);
 						if(cli_code.Empty()) {
-							; // @todo message
-						}
-						if(loc_code.Empty()) {
-							; // @todo message
-						}
-						Goods2Tbl::Rec goods_rec;
-						BillTbl::Rec ord_rec;
-						PPBillPacket order_pack;
-						SapEfesBillPacket * p_new_item = rList.CreateNewItem(0);
-						THROW_SL(p_new_item);
-
-						p_new_item->NativeID = bill_id;
-						pack.GetOrderList(order_id_list);
-						for(uint ordidx = 0; ordidx < order_id_list.getCount(); ordidx++) {
-							const PPID ord_id = order_id_list.get(ordidx);
-							if(ord_id && P_BObj->Search(ord_id, &ord_rec) > 0 && ord_rec.EdiOp == PPEDIOP_SALESORDER) {
-								if(p_ref->Ot.GetTagStr(PPOBJ_BILL, ord_id, PPTAG_BILL_EDICHANNEL, temp_buf) > 0 && temp_buf.CmpNC("SAP-EFES") == 0) {
-									THROW(P_BObj->ExtractPacket(ord_id, &order_pack) > 0);
-									is_own_order = 1;
-								}
+							if(loc_code.NotEmpty())
+								cli_code = loc_code;
+							else {
+								//PPTXT_LOG_SUPPLIX_NOCLLCCODES
+                                PPObjBill::MakeCodeString(&pack.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddObjName, temp_buf);
+								R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_NOCLLCCODES, &msg_buf, temp_buf.cptr()));
+								skip = 1;
 							}
 						}
-						p_new_item->Date = pack.Rec.Dt;
-						p_new_item->DocType = SapEfesBillPacket::tRetail;
-						BillCore::GetCode(p_new_item->NativeCode = pack.Rec.Code);
-						p_new_item->DueDate = (is_own_order && ord_rec.DueDate) ? ord_rec.DueDate : pack.Rec.Dt;
-						p_new_item->BuyerCode = cli_code;
-						p_new_item->DlvrLocCode = loc_code;
-						if(is_own_order) {
-							BillCore::GetCode(p_new_item->OrderCode = ord_rec.Code);
-							p_new_item->Flags |= p_new_item->fHasOrderRef;
-						}
-						else
-							p_new_item->Flags &= ~p_new_item->fHasOrderRef;
-						p_new_item->Memo = pack.Rec.Memo;
-						//
-						{
-							long   tiiterpos = 0;
-							for(TiIter tiiter(&pack, ETIEF_UNITEBYGOODS, 0); pack.EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
-								tiiterpos++;
-								uint   pos_list_item_pos = 0;
-								if(ti_pos_list.Get(tiiterpos, temp_buf) > 0 && GObj.Fetch(ti.GoodsID, &goods_rec) > 0) {
-									SapEfesBillItem * p_new_row = p_new_item->Items.CreateNewItem(0);
-									THROW_SL(p_new_row);
-                                    p_new_row->PosN = tiiterpos;
-                                    p_new_row->PosType = 0;
-                                    p_new_row->GoodsCode = temp_buf;
-                                    p_new_row->Qtty = fabs(ti.Quantity_);
-                                    p_new_row->UnitType = sapefesUnitItem;
-                                    {
-                                        const double _amt = fabs(ti.Quantity_ * ti.NetPrice());
-                                        double _vat_sum = 0.0;
-										GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, _amt, &_vat_sum, 0, 0);
-										p_new_row->Amount = _amt - _vat_sum;
+						else if(loc_code.Empty())
+							loc_code = cli_code;
+						if(!skip) {
+							Goods2Tbl::Rec goods_rec;
+							BillTbl::Rec ord_rec;
+							PPBillPacket order_pack;
+							SapEfesBillPacket * p_new_item = rList.CreateNewItem();
+							THROW_SL(p_new_item);
+
+							p_new_item->NativeID = bill_id;
+							pack.GetOrderList(order_id_list);
+							for(uint ordidx = 0; ordidx < order_id_list.getCount(); ordidx++) {
+								const PPID ord_id = order_id_list.get(ordidx);
+								if(ord_id && P_BObj->Search(ord_id, &ord_rec) > 0 && ord_rec.EdiOp == PPEDIOP_SALESORDER) {
+									if(p_ref->Ot.GetTagStr(PPOBJ_BILL, ord_id, PPTAG_BILL_EDICHANNEL, temp_buf) > 0 && temp_buf.CmpNC("SAP-EFES") == 0) {
+										THROW(P_BObj->ExtractPacket(ord_id, &order_pack) > 0);
+										is_own_order = 1;
 									}
-									p_new_row->Currency = "RUB";
+								}
+							}
+							p_new_item->Date = pack.Rec.Dt;
+							p_new_item->DocType = SapEfesBillPacket::tRetail;
+							BillCore::GetCode(p_new_item->NativeCode = pack.Rec.Code);
+							p_new_item->DueDate = (is_own_order && ord_rec.DueDate) ? ord_rec.DueDate : pack.Rec.Dt;
+							p_new_item->BuyerCode = cli_code;
+							p_new_item->DlvrLocCode = loc_code;
+							if(is_own_order) {
+								BillCore::GetCode(p_new_item->OrderCode = ord_rec.Code);
+								p_new_item->Flags |= p_new_item->fHasOrderRef;
+							}
+							else
+								p_new_item->Flags &= ~p_new_item->fHasOrderRef;
+							p_new_item->Memo = pack.Rec.Memo;
+							{
+								long   tiiterpos = 0;
+								for(TiIter tiiter(&pack, ETIEF_UNITEBYGOODS|ETIEF_FORCEUNITEGOODS, 0); pack.EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
+									tiiterpos++;
+									uint   pos_list_item_pos = 0;
+									if(ti_pos_list.Get(tiiterpos, temp_buf) > 0 && GObj.Fetch(ti.GoodsID, &goods_rec) > 0) {
+										SapEfesBillItem * p_new_row = p_new_item->Items.CreateNewItem();
+										THROW_SL(p_new_row);
+										p_new_row->PosN = tiiterpos;
+										p_new_row->PosType = 0;
+										p_new_row->GoodsCode = temp_buf;
+										p_new_row->Qtty = fabs(ti.Quantity_);
+										p_new_row->UnitType = sapefesUnitItem;
+										{
+											const double _amt = fabs(ti.Quantity_ * ti.NetPrice());
+											double _vat_sum = 0.0;
+											GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, _amt, &_vat_sum, 0, 0);
+											p_new_row->Amount = _amt - _vat_sum;
+										}
+										p_new_row->Currency = "RUB";
+									}
 								}
 							}
 						}
@@ -5222,7 +5246,7 @@ int SLAPI SapEfes::PrepareDebtsData(TSCollection <SapEfesDebtReportEntry> & rLis
 						}
 						else {
 							{
-								SapEfesDebtReportEntry * p_new_entry = rList.CreateNewItem(0);
+								SapEfesDebtReportEntry * p_new_entry = rList.CreateNewItem();
 								THROW_SL(p_new_entry);
 								p_new_entry->NativeArID = ar_id;
 								p_new_entry->BuyerCode = cli_code;
@@ -5237,7 +5261,7 @@ int SLAPI SapEfes::PrepareDebtsData(TSCollection <SapEfesDebtReportEntry> & rLis
 							}
 							{
 								LDATE   paym_date = ZERODATE;
-								SapEfesDebtDetailReportEntry * p_new_detail_entry = rDetailList.CreateNewItem(0);
+								SapEfesDebtDetailReportEntry * p_new_detail_entry = rDetailList.CreateNewItem();
 								THROW_SL(p_new_detail_entry);
 								pack.GetLastPayDate(&paym_date);
 								p_new_detail_entry->NativeArID = ar_id;
@@ -5403,6 +5427,7 @@ SLAPI PrcssrSupplInterchange::ExecuteBlock::ExecuteBlock(const ExecuteBlock & rS
 	GoodsList = rS.GoodsList;
 }
 
+#if 0 // @v9.6.2 {
 int SLAPI PrcssrSupplInterchange::ExecuteBlock::Debug_TestUtfText(const SString & rText, const char * pAddendum, PPLogger & rLogger)
 {
 	int    ok = 1;
@@ -5427,6 +5452,7 @@ int SLAPI PrcssrSupplInterchange::ExecuteBlock::Debug_TestUtfText(const SString 
 	}
 	return ok;
 }
+#endif // } 0 @v9.6.2
 
 int SLAPI PrcssrSupplInterchange::ExecuteBlock::InitGoodsList(long flags)
 {
@@ -5503,9 +5529,7 @@ int SLAPI PrcssrSupplInterchange::ExecuteBlock::GetSequence(long * pSeq, int use
 			}
 		}
 		THROW(SeqID);
-		{
-			THROW(opc_obj.GetCounter(SeqID, 0, &seq, 0));
-		}
+		THROW(opc_obj.GetCounter(SeqID, 0, &seq, 0));
 		THROW(tra.Commit());
 	}
 	CATCHZOK

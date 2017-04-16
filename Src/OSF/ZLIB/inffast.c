@@ -5,9 +5,9 @@
 #define ZLIB_INTERNAL
 #include "zlib.h"
 #pragma hdrstop
-#include "inftrees.h"
-#include "inflate.h"
-#include "inffast.h"
+//#include "inftrees.h"
+//#include "inflate.h"
+//#include "inffast.h"
 
 #ifdef ASMINF
 	#pragma message("Assembler code may have bugs -- use at your own risk")
@@ -65,11 +65,11 @@ void ZLIB_INTERNAL inflate_fast(z_streamp strm, unsigned start)
 	unsigned char  * window; /* allocated sliding window, if wsize != 0 */
 	unsigned long hold;     /* local strm->hold */
 	unsigned bits;          /* local strm->bits */
-	code const  * lcode; /* local strm->lencode */
-	code const  * dcode; /* local strm->distcode */
+	ZInfTreesCode const  * lcode; /* local strm->lencode */
+	ZInfTreesCode const  * dcode; /* local strm->distcode */
 	unsigned lmask;         /* mask for first level of length codes */
 	unsigned dmask;         /* mask for first level of distance codes */
-	code here;              /* retrieved table entry */
+	ZInfTreesCode here;              /* retrieved table entry */
 	unsigned op;            /* code bits, operation, extra bits, or */
 	                        /*  window position, window bytes to copy */
 	unsigned len;           /* match length, unused bytes */
@@ -170,8 +170,7 @@ dodist:
 					op = dist - op; /* distance back in window */
 					if(op > whave) {
 						if(state->sane) {
-							strm->msg =
-							    (char*)"invalid distance too far back";
+							strm->msg = (char*)"invalid distance too far back";
 							state->mode = BAD;
 							break;
 						}
@@ -293,13 +292,11 @@ dodist:
 	in -= len;
 	bits -= len << 3;
 	hold &= (1U << bits) - 1;
-
 	/* update state and return */
 	strm->next_in = in;
 	strm->next_out = out;
 	strm->avail_in = (unsigned)(in < last ? 5 + (last - in) : 5 - (in - last));
-	strm->avail_out = (unsigned)(out < end ?
-	    257 + (end - out) : 257 - (out - end));
+	strm->avail_out = (unsigned)(out < end ? 257 + (end - out) : 257 - (out - end));
 	state->hold = hold;
 	state->bits = bits;
 	return;

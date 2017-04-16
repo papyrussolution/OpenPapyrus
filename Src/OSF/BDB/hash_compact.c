@@ -26,29 +26,19 @@ static int __ham_truncate_overflow __P((DBC*, PAGE*, uint32, DB_COMPACT*, int *)
  */
 int __ham_compact_int(DBC * dbc, DBT * start, DBT * stop, uint32 factor, DB_COMPACT * c_data, int * donep, uint32 flags)
 {
-	DB * dbp;
-	DB_MPOOLFILE * mpf;
-	HASH_CURSOR * hcp;
 	db_pgno_t origpgno, pgno;
-	int check_trunc, pgs_done, ret, t_ret;
-	uint32 empty_buckets, i, stop_bucket;
-
-	dbp = dbc->dbp;
-	mpf = dbp->mpf;
-	hcp = (HASH_CURSOR *)dbc->internal;
-	pgs_done = 0;
-	empty_buckets = 0;
-	check_trunc = c_data->compact_truncate != PGNO_INVALID;
+	int ret, t_ret;
+	uint32 i, stop_bucket;
+	DB * dbp = dbc->dbp;
+	DB_MPOOLFILE * mpf = dbp->mpf;
+	HASH_CURSOR * hcp = (HASH_CURSOR *)dbc->internal;
+	int pgs_done = 0;
+	uint32 empty_buckets = 0;
+	int check_trunc = c_data->compact_truncate != PGNO_INVALID;
 	if((ret = __ham_get_meta(dbc)) != 0)
 		return ret;
-	if(stop != NULL && stop->size != 0)
-		stop_bucket = *(uint32 *)stop->data;
-	else
-		stop_bucket = hcp->hdr->max_bucket;
-	if(start != NULL && start->size != 0)
-		hcp->bucket = *(uint32 *)start->data;
-	else
-		hcp->bucket = 0;
+	stop_bucket = (stop && stop->size != 0) ? *(uint32 *)stop->data : hcp->hdr->max_bucket;
+	hcp->bucket = (start && start->size != 0) ? *(uint32 *)start->data : 0;
 	for(; hcp->bucket <= stop_bucket && ret == 0; hcp->bucket++) {
 		/*
 		 * For each bucket first move records toward the head of
@@ -140,9 +130,7 @@ err:
 		 * We always must commit the txn if we are in MVCC
 		 * as we have dirtied the hash buckets.
 		 */
-		if(ret == 0 &&
-		   atomic_read(&dbp->mpf->mfp->multiversion) == 0 &&
-		   (pgs_done == 0 || dbc->txn == NULL))
+		if(ret == 0 && atomic_read(&dbp->mpf->mfp->multiversion) == 0 && (pgs_done == 0 || dbc->txn == NULL))
 			ret = __LPUT(dbc, hcp->lock);
 		else if(LF_ISSET(DB_AUTO_COMMIT)) {
 			if(ret == 0)
@@ -161,8 +149,7 @@ err:
 			if((ret = __ham_contract_table(dbc, c_data)) != 0)
 				break;
 	}
-	if(ret == 0)
-		ret = __db_retcopy(dbp->env, start, &hcp->bucket, sizeof(hcp->bucket), &start->data, &start->ulen);
+	SETIFZ(ret, __db_retcopy(dbp->env, start, &hcp->bucket, sizeof(hcp->bucket), &start->data, &start->ulen));
 	__ham_release_meta(dbc);
 	c_data->compact_empty_buckets += empty_buckets;
 	if(hcp->bucket > stop_bucket)
@@ -217,25 +204,21 @@ int __ham_compact_bucket(DBC * dbc, DB_COMPACT * c_data, int * pgs_donep)
  */
 static int __ham_copy_data(DBC * dbc, PAGE * pg, DB_COMPACT * c_data, int * pgs_donep)
 {
-	DB * dbp;
 	DBC * newdbc;
 	DBT data, key;
-	DB_MPOOLFILE * mpf;
-	HASH_CURSOR * hcp, * ncp;
+	HASH_CURSOR * ncp;
 	PAGE * nextpage;
 	db_pgno_t origpgno;
-	int i, nument, records, ret, t_ret;
+	int i, nument, ret, t_ret;
 	uint32 len;
-
-	dbp = dbc->dbp;
-	mpf = dbp->mpf;
-	hcp = (HASH_CURSOR *)dbc->internal;
-	records = 0;
+	DB * dbp = dbc->dbp;
+	DB_MPOOLFILE * mpf = dbp->mpf;
+	HASH_CURSOR * hcp = (HASH_CURSOR *)dbc->internal;
+	int records = 0;
 	if((ret = __dbc_dup(dbc, &newdbc, 0)) != 0)
 		return ret;
 	ncp = (HASH_CURSOR *)newdbc->internal;
 	ncp->hdr = hcp->hdr;
-
 	/*
 	 * Copy data to the front of the bucket. Loop until either we
 	 * have not replaced the next page or there is no next page.
@@ -243,10 +226,8 @@ static int __ham_copy_data(DBC * dbc, PAGE * pg, DB_COMPACT * c_data, int * pgs_
 	 * on it.
 	 */
 	origpgno = PGNO_INVALID;
-	while(origpgno != NEXT_PGNO(pg) &&
-	      (origpgno = NEXT_PGNO(pg)) != PGNO_INVALID) {
-		if((ret = __memp_fget(mpf, &NEXT_PGNO(pg), dbc->thread_info,
-			    dbc->txn, DB_MPOOL_DIRTY, &nextpage)) != 0)
+	while(origpgno != NEXT_PGNO(pg) && (origpgno = NEXT_PGNO(pg)) != PGNO_INVALID) {
+		if((ret = __memp_fget(mpf, &NEXT_PGNO(pg), dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &nextpage)) != 0)
 			break;
 		c_data->compact_pages_examine++;
 		ncp->page = nextpage;
@@ -257,17 +238,13 @@ static int __ham_copy_data(DBC * dbc, PAGE * pg, DB_COMPACT * c_data, int * pgs_
 		nument = NUM_ENT(nextpage);
 		DB_ASSERT(dbp->env, nument != 0);
 		for(i = 0; i < nument; i += 2) {
-			len = LEN_HITEM(dbp, nextpage, dbp->pgsize, 0)+
-			      LEN_HITEM(dbp, nextpage, dbp->pgsize, 1)+
-			      2*sizeof(db_indx_t);
+			len = LEN_HITEM(dbp, nextpage, dbp->pgsize, 0) + LEN_HITEM(dbp, nextpage, dbp->pgsize, 1) + 2 * sizeof(db_indx_t);
 			if(P_FREESPACE(dbp, pg) < len)
 				continue;
-			if((ret =
-			            __ham_copypair(dbc, nextpage, 0, pg, NULL, 1)) != 0)
+			if((ret = __ham_copypair(dbc, nextpage, 0, pg, NULL, 1)) != 0)
 				break;
 			records++;
-			if((ret = __ham_del_pair(newdbc,
-				    HAM_DEL_IGNORE_OFFPAGE, pg)) != 0)
+			if((ret = __ham_del_pair(newdbc, HAM_DEL_IGNORE_OFFPAGE, pg)) != 0)
 				break;
 			if(!STD_LOCKING(dbc)) {
 				if((ret = __ham_dirty_meta(dbc, 0)) != 0)
@@ -284,9 +261,7 @@ static int __ham_copy_data(DBC * dbc, PAGE * pg, DB_COMPACT * c_data, int * pgs_
 			c_data->compact_pages_free++;
 			COMPACT_TRUNCATE(c_data);
 		}
-		if(ncp->page != NULL &&
-		   (t_ret = __memp_fput(mpf, dbc->thread_info,
-			    ncp->page, dbc->priority)) != 0 && ret == 0)
+		if(ncp->page != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, ncp->page, dbc->priority)) != 0 && ret == 0)
 			ret = t_ret;
 		ncp->page = NULL;
 		ncp->pgno = PGNO_INVALID;
@@ -338,18 +313,15 @@ static int __ham_truncate_overflow(DBC * dbc, PAGE * page, uint32 indx, DB_COMPA
  */
 int __ham_compact_hash(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_COMPACT * c_data)
 {
-	DBC * dbc;
 	DB_LOCK lock;
 	HASH_CURSOR * hcp;
 	HMETA * meta;
-	PAGE * oldpage;
 	db_pgno_t free_pgno, last_pgno, pgno, start_pgno;
-	int flags, local_txn, ret, t_ret;
+	int flags, ret, t_ret;
 	uint32 bucket, i;
-
-	local_txn = IS_DB_AUTO_COMMIT(dbp, txn);
-	oldpage = NULL;
-	dbc = NULL;
+	int local_txn = IS_DB_AUTO_COMMIT(dbp, txn);
+	PAGE * oldpage = NULL;
+	DBC * dbc = NULL;
 	LOCK_INIT(lock);
 	if(local_txn && (ret = __txn_begin(dbp->env, ip, txn, &txn, 0)) != 0)
 		return ret;
@@ -386,17 +358,13 @@ int __ham_compact_hash(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_COMPACT *
 		 * Note that __db_exchange_page returns the new page so
 		 * we must put it.
 		 */
-		for(pgno = start_pgno;
-		    pgno < start_pgno+bucket; pgno++, free_pgno++) {
+		for(pgno = start_pgno; pgno < start_pgno+bucket; pgno++, free_pgno++) {
 			if((ret = __db_lget(dbc, LCK_COUPLE, pgno, DB_LOCK_WRITE, 0, &lock)) != 0)
 				goto err;
 			if((ret = __memp_fget(dbp->mpf, &pgno, dbc->thread_info, dbc->txn, DB_MPOOL_CREATE|DB_MPOOL_DIRTY, &oldpage)) != 0)
 				goto err;
 			if(NUM_ENT(oldpage) != 0) {
-				if(pgno < last_pgno)
-					flags = 0;
-				else
-					flags = DB_EXCH_FREE;
+				flags = (pgno < last_pgno) ? 0 : DB_EXCH_FREE;
 				if((ret = __db_exchange_page(dbc, &oldpage, NULL, free_pgno, flags)) != 0)
 					goto err;
 			}
@@ -406,7 +374,7 @@ int __ham_compact_hash(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_COMPACT *
 				COMPACT_TRUNCATE(c_data);
 				oldpage = NULL;
 			}
-			if(oldpage != NULL && (ret = __memp_fput(dbp->mpf, dbc->thread_info, oldpage, dbc->priority)) != 0)
+			if(oldpage && (ret = __memp_fput(dbp->mpf, dbc->thread_info, oldpage, dbc->priority)) != 0)
 				goto err;
 			ret = 0;
 			oldpage = NULL;
@@ -417,13 +385,13 @@ int __ham_compact_hash(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_COMPACT *
 	if(ret == 0 && F_ISSET(dbp, DB_AM_SUBDB) && PGNO(hcp->hdr) > c_data->compact_truncate)
 		ret = __db_move_metadata(dbc, (DBMETA **)&hcp->hdr, c_data);
 err:
-	if(oldpage != NULL && (t_ret = __memp_fput(dbp->mpf, dbc->thread_info, oldpage, dbc->priority)) != 0 && ret == 0)
+	if(oldpage && (t_ret = __memp_fput(dbp->mpf, dbc->thread_info, oldpage, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __TLPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;
 	LOCK_CHECK_ON(ip);
 err1:
-	if(dbc != NULL) {
+	if(dbc) {
 		if((t_ret = __ham_release_meta(dbc)) != 0 && ret == 0)
 			ret = t_ret;
 		if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)

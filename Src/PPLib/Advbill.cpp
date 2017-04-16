@@ -17,7 +17,7 @@ int SLAPI PPObjAdvBillKind::Edit(PPID * pID, void * extraPtr)
 	PPAdvBillKind rec;
 	PPIDArray op_type_list;
 	TDialog * dlg = new TDialog(DLG_ADVBILLKIND);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	THROW(EditPrereq(pID, dlg, &is_new));
 	if(!is_new) {
 		THROW(Search(*pID, &rec) > 0);
@@ -263,13 +263,13 @@ void AdvBillItemDialog::editLink()
 					Data.AccID = acc_rec.AcctId.ac;
 					Data.ArID  = acc_rec.AcctId.ar;
 				}
+				const  PPID current_loc_id = LConfig.Location;
 				PPID   op_id = abk_rec.LinkOpID;
-				PPID   loc_id = P_Pack ? P_Pack->Rec.LocID : LConfig.Location;
+				PPID   loc_id = P_Pack ? P_Pack->Rec.LocID : current_loc_id;
 				if(v == 0) {
 					PPIDArray op_list;
 					op_list.add(abk_rec.LinkOpID);
 					if(BillPrelude(&op_list, OPKLF_OPLIST, 0, &op_id, &loc_id) > 0) {
-						PPID save_loc_id = LConfig.Location;
 						DS.SetLocation(loc_id);
 						if(GetOpType(op_id) == PPOPT_ACCTURN && !CheckOpFlags(op_id, OPKF_EXTACCTURN))
 							r = p_bobj->AddGenAccturn(&bill_id, op_id, 0);
@@ -281,7 +281,7 @@ void AdvBillItemDialog::editLink()
 							bill_filt.AmtRange.SetVal(Data.Amount);
 							r = p_bobj->AddGoodsBillByFilt(&bill_id, &bill_filt, op_id);
 						}
-						DS.SetLocation(save_loc_id);
+						DS.SetLocation(current_loc_id);
 						if(r > 0)
 							Data.AdvBillID = bill_id;
 						setupLinkBill();

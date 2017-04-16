@@ -3952,7 +3952,7 @@ static xmlNodePtr xmlStaticCopyNode(xmlNodePtr node, xmlDocPtr doc, xmlNodePtr p
 	    (node->type != XML_ENTITY_REF_NODE) && (node->type != XML_XINCLUDE_END) && (node->type != XML_XINCLUDE_START)) {
 		ret->content = xmlStrdup(node->content);
 	}
-	else{
+	else {
 		if(node->type == XML_ELEMENT_NODE)
 			ret->line = node->line;
 	}
@@ -7309,7 +7309,7 @@ void xmlBufferWriteQuotedString(xmlBufferPtr buf, const xmlChar * string) {
 				xmlBufferAdd(buf, base, cur - base);
 			xmlBufferCCat(buf, "\"");
 		}
-		else{
+		else {
 			xmlBufferCCat(buf, "\'");
 			xmlBufferCat(buf, string);
 			xmlBufferCCat(buf, "\'");

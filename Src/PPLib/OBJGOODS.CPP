@@ -99,7 +99,7 @@ int SLAPI PPObjGoods::GetBarcodeDiagText(int diag, SString & rBuf)
 int SLAPI PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd, SString * pNormalizedCode)
 {
 	int    ok = 0;
-	uint   bclen = pBarcode ? strlen(pBarcode) : 0;
+	uint   bclen = sstrlen(pBarcode);
 	uint   j;
 	int    cd = 0;
 	int    cdstd = 0;
@@ -110,26 +110,30 @@ int SLAPI PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd
 		diag = cddEmpty; // Empty barcode
 	}
 	else {
-		// @v7.7.2 {
-		const PPID glob_acc_id = DS.GetConstTLA().GlobAccID;
-		if(glob_acc_id) {
-			PPObjGoods goods_obj;
-			const PPGoodsConfig & r_cfg = goods_obj.GetConfig();
-			if(r_cfg.BcPrefixGuaTagID) {
-				PPObjTag tag_obj;
-				ObjTagItem tag_item;
-				if(tag_obj.FetchTag(glob_acc_id, r_cfg.BcPrefixGuaTagID, &tag_item) > 0 && tag_item.GetStr(temp_buf) > 0) {
-					const StringSet ss(';', temp_buf);
-					for(uint p = 0; !ok && ss.get(&p, temp_buf);) {
-						if(temp_buf.CmpL(pBarcode, 1) == 0) {
-							diag = cddGuaPrefix;
-							ok = -1;
+		{
+			//
+			// Код может быть приватным по отношению к активной глобальной учетной записи.
+			// Проверим это по префиксу.
+			//
+			const PPID glob_acc_id = DS.GetConstTLA().GlobAccID;
+			if(glob_acc_id) {
+				PPObjGoods goods_obj;
+				const PPGoodsConfig & r_cfg = goods_obj.GetConfig();
+				if(r_cfg.BcPrefixGuaTagID) {
+					PPObjTag tag_obj;
+					ObjTagItem tag_item;
+					if(tag_obj.FetchTag(glob_acc_id, r_cfg.BcPrefixGuaTagID, &tag_item) > 0 && tag_item.GetStr(temp_buf) > 0) {
+						const StringSet ss(';', temp_buf);
+						for(uint p = 0; !ok && ss.get(&p, temp_buf);) {
+							if(temp_buf.CmpL(pBarcode, 1) == 0) {
+								diag = cddGuaPrefix;
+								ok = -1;
+							}
 						}
 					}
 				}
 			}
 		}
-		// } @v7.7.2
 		if(!ok) {
 			int    first = pBarcode[0];
 			int    second = pBarcode[1];
@@ -3356,7 +3360,7 @@ int SLAPI PPObjGoods::EditClsdGoods(PPGoodsPacket * pPack, int modifyOnlyExtRec)
 
 	if(modifyOnlyExtRec != 2)
 		THROW(gc_obj.GetPacket(pPack->Rec.GdsClsID, &gc_pack) > 0);
-	THROW(CheckDialogPtr(&(dlg = new ClsdGoodsDialog(dlg_id, &gc_pack, modifyOnlyExtRec)), 0));
+	THROW(CheckDialogPtr(&(dlg = new ClsdGoodsDialog(dlg_id, &gc_pack, modifyOnlyExtRec))));
 	dlg->setDTS(pPack);
 	while(ok <= 0 && ((cmd = ExecView(dlg)) == cmOK || cmd == cmFullGoodsDialog))
 		if(dlg->getDTS(pPack)) {
@@ -4335,7 +4339,7 @@ int SLAPI PPObjGoodsInfo::Edit(PPID * pID, void * extraPtr)
 	if(!is_new) {
 		THROW(GetPacket(*pID, &rec) > 0);
 	}
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_EGDSINFO)), 0));
+	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_EGDSINFO))));
 	dlg->setCtrlData(CTL_EGDSINFO_NAME, rec.Name);
 	SetupPPObjCombo(dlg, CTLSEL_EGDSINFO_LOC, PPOBJ_LOCATION, rec.LocID, 0, 0);
 	SetupPPObjCombo(dlg, CTLSEL_EGDSINFO_TOUCHSC, PPOBJ_TOUCHSCREEN, rec.TouchScreenID, 0, 0);

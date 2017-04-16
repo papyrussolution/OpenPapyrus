@@ -662,7 +662,7 @@ int SLAPI TVMsgLog::ShowLogWnd(const char * pTitle)
 		if(!lwnd) {
 			TRect rect(0, 15, 80, 23);
 			lwnd = new LogListWindow(rect, new LogListBoxDef(P_Index, 0, (TYPEID)MKSTYPE(S_ZSTRING, 255), this), pTitle, 0); // @todo invalid size 512 (> 255)
-			APPL->P_DeskTop->insert(lwnd);
+			APPL->P_DeskTop->Insert_(lwnd);
 			lwnd->Refresh(GetVisCount());
 		}
 	}

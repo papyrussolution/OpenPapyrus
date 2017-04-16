@@ -47,7 +47,7 @@ png_size_t PNGAPI png_process_data_pause(png_structrp png_ptr, int save)
 		 */
 		if(save != 0)
 			png_push_save_buffer(png_ptr);
-		else{
+		else {
 			/* This includes any pending saved bytes: */
 			png_size_t remaining = png_ptr->buffer_size;
 			png_ptr->buffer_size = 0;
@@ -70,40 +70,33 @@ png_uint_32 PNGAPI png_process_data_skip(png_structrp png_ptr)
 	 * or abandoned.  It was only to support some internal back-door access
 	 * to png_struct) in libpng-1.4.x.
 	 */
-	png_app_warning(png_ptr,
-	    "png_process_data_skip is not implemented in any current version of libpng");
+	png_app_warning(png_ptr, "png_process_data_skip is not implemented in any current version of libpng");
 	return 0;
 }
 
 /* What we do with the incoming data depends on what we were previously
  * doing before we ran out of data...
  */
-void /* PRIVATE */
-png_process_some_data(png_structrp png_ptr, png_inforp info_ptr)
+void /* PRIVATE */ png_process_some_data(png_structrp png_ptr, png_inforp info_ptr)
 {
 	if(png_ptr == NULL)
 		return;
-
-	switch(png_ptr->process_mode)
-	{
+	switch(png_ptr->process_mode) {
 		case PNG_READ_SIG_MODE:
 	    {
 		    png_push_read_sig(png_ptr, info_ptr);
 		    break;
 	    }
-
 		case PNG_READ_CHUNK_MODE:
 	    {
 		    png_push_read_chunk(png_ptr, info_ptr);
 		    break;
 	    }
-
 		case PNG_READ_IDAT_MODE:
 	    {
 		    png_push_read_IDAT(png_ptr);
 		    break;
 	    }
-
 		default:
 	    {
 		    png_ptr->buffer_size = 0;
@@ -118,8 +111,7 @@ png_process_some_data(png_structrp png_ptr, png_inforp info_ptr)
  * checked by the calling application, or because of multiple calls to this
  * routine.
  */
-void /* PRIVATE */
-png_push_read_sig(png_structrp png_ptr, png_inforp info_ptr)
+void /* PRIVATE */ png_push_read_sig(png_structrp png_ptr, png_inforp info_ptr)
 {
 	png_size_t num_checked = png_ptr->sig_bytes, /* SAFE, does not exceed 8 */
 	    num_to_check = 8 - num_checked;
@@ -127,28 +119,22 @@ png_push_read_sig(png_structrp png_ptr, png_inforp info_ptr)
 	if(png_ptr->buffer_size < num_to_check) {
 		num_to_check = png_ptr->buffer_size;
 	}
-
-	png_push_fill_buffer(png_ptr, &(info_ptr->signature[num_checked]),
-	    num_to_check);
+	png_push_fill_buffer(png_ptr, &(info_ptr->signature[num_checked]), num_to_check);
 	png_ptr->sig_bytes = (png_byte)(png_ptr->sig_bytes + num_to_check);
-
 	if(png_sig_cmp(info_ptr->signature, num_checked, num_to_check)) {
-		if(num_checked < 4 &&
-		    png_sig_cmp(info_ptr->signature, num_checked, num_to_check - 4))
+		if(num_checked < 4 && png_sig_cmp(info_ptr->signature, num_checked, num_to_check - 4))
 			png_error(png_ptr, "Not a PNG file");
-
 		else
 			png_error(png_ptr, "PNG file corrupted by ASCII conversion");
 	}
-	else{
+	else {
 		if(png_ptr->sig_bytes >= 8) {
 			png_ptr->process_mode = PNG_READ_CHUNK_MODE;
 		}
 	}
 }
 
-void /* PRIVATE */
-png_push_read_chunk(png_structrp png_ptr, png_inforp info_ptr)
+void /* PRIVATE */ png_push_read_chunk(png_structrp png_ptr, png_inforp info_ptr)
 {
 	png_uint_32 chunk_name;
 #ifdef PNG_HANDLE_AS_UNKNOWN_SUPPORTED
@@ -345,7 +331,7 @@ png_push_read_chunk(png_structrp png_ptr, png_inforp info_ptr)
 	}
 #endif
 
-	else{
+	else {
 		PNG_PUSH_SAVE_BUFFER_IF_FULL png_handle_unknown(png_ptr, info_ptr, png_ptr->push_length,
 		    PNG_HANDLE_CHUNK_AS_DEFAULT);
 	}
@@ -393,8 +379,7 @@ void PNGCBAPI png_push_fill_buffer(png_structp png_ptr, png_bytep buffer, png_si
 	}
 }
 
-void /* PRIVATE */
-png_push_save_buffer(png_structrp png_ptr)
+void /* PRIVATE */ png_push_save_buffer(png_structrp png_ptr)
 {
 	if(png_ptr->save_buffer_size != 0) {
 		if(png_ptr->save_buffer_ptr != png_ptr->save_buffer) {
@@ -446,9 +431,7 @@ png_push_save_buffer(png_structrp png_ptr)
 	png_ptr->buffer_size = 0;
 }
 
-void /* PRIVATE */
-png_push_restore_buffer(png_structrp png_ptr, png_bytep buffer,
-    png_size_t buffer_length)
+void /* PRIVATE */ png_push_restore_buffer(png_structrp png_ptr, png_bytep buffer, png_size_t buffer_length)
 {
 	png_ptr->current_buffer = buffer;
 	png_ptr->current_buffer_size = buffer_length;
@@ -456,8 +439,7 @@ png_push_restore_buffer(png_structrp png_ptr, png_bytep buffer,
 	png_ptr->current_buffer_ptr = png_ptr->current_buffer;
 }
 
-void /* PRIVATE */
-png_push_read_IDAT(png_structrp png_ptr)
+void /* PRIVATE */ png_push_read_IDAT(png_structrp png_ptr)
 {
 	if((png_ptr->mode & PNG_HAVE_CHUNK_HEADER) == 0) {
 		png_byte chunk_length[4];
@@ -544,9 +526,7 @@ png_push_read_IDAT(png_structrp png_ptr)
 	}
 }
 
-void /* PRIVATE */
-png_process_IDAT_data(png_structrp png_ptr, png_bytep buffer,
-    png_size_t buffer_length)
+void /* PRIVATE */ png_process_IDAT_data(png_structrp png_ptr, png_bytep buffer, png_size_t buffer_length)
 {
 	/* The caller checks for a non-zero buffer length. */
 	if(!(buffer_length > 0) || buffer == NULL)
@@ -646,8 +626,7 @@ png_process_IDAT_data(png_structrp png_ptr, png_bytep buffer,
 		png_warning(png_ptr, "Extra compression data in IDAT");
 }
 
-void /* PRIVATE */
-png_push_process_row(png_structrp png_ptr)
+void /* PRIVATE */ png_push_process_row(png_structrp png_ptr)
 {
 	/* 1.5.6: row_info moved out of png_struct to a local here. */
 	png_row_info row_info;
@@ -691,14 +670,10 @@ png_push_process_row(png_structrp png_ptr)
 
 #ifdef PNG_READ_INTERLACING_SUPPORTED
 	/* Expand interlaced rows to full size */
-	if(png_ptr->interlaced != 0 &&
-	    (png_ptr->transformations & PNG_INTERLACE) != 0) {
+	if(png_ptr->interlaced != 0 && (png_ptr->transformations & PNG_INTERLACE) != 0) {
 		if(png_ptr->pass < 6)
-			png_do_read_interlace(&row_info, png_ptr->row_buf + 1, png_ptr->pass,
-			    png_ptr->transformations);
-
-		switch(png_ptr->pass)
-		{
+			png_do_read_interlace(&row_info, png_ptr->row_buf + 1, png_ptr->pass, png_ptr->transformations);
+		switch(png_ptr->pass) {
 			case 0:
 		    {
 			    int i;
@@ -851,8 +826,7 @@ png_push_process_row(png_structrp png_ptr)
 	}
 }
 
-void /* PRIVATE */
-png_read_push_finish_row(png_structrp png_ptr)
+void /* PRIVATE */ png_read_push_finish_row(png_structrp png_ptr)
 {
 #ifdef PNG_READ_INTERLACING_SUPPORTED
 	/* Arrays to facilitate easy interlacing - use pass (0 - 6) as index */
@@ -878,58 +852,40 @@ png_read_push_finish_row(png_structrp png_ptr)
 	png_ptr->row_number++;
 	if(png_ptr->row_number < png_ptr->num_rows)
 		return;
-
 #ifdef PNG_READ_INTERLACING_SUPPORTED
 	if(png_ptr->interlaced != 0) {
 		png_ptr->row_number = 0;
-		memset(png_ptr->prev_row, 0, png_ptr->rowbytes + 1);
-
+		memzero(png_ptr->prev_row, png_ptr->rowbytes + 1);
 		do {
 			png_ptr->pass++;
-			if((png_ptr->pass == 1 && png_ptr->width < 5) ||
-			    (png_ptr->pass == 3 && png_ptr->width < 3) ||
-			    (png_ptr->pass == 5 && png_ptr->width < 2))
+			if((png_ptr->pass == 1 && png_ptr->width < 5) || (png_ptr->pass == 3 && png_ptr->width < 3) || (png_ptr->pass == 5 && png_ptr->width < 2))
 				png_ptr->pass++;
-
 			if(png_ptr->pass > 7)
 				png_ptr->pass--;
-
 			if(png_ptr->pass >= 7)
 				break;
-
-			png_ptr->iwidth = (png_ptr->width +
-			    png_pass_inc[png_ptr->pass] - 1 -
-			    png_pass_start[png_ptr->pass]) /
-			    png_pass_inc[png_ptr->pass];
-
+			png_ptr->iwidth = (png_ptr->width + png_pass_inc[png_ptr->pass] - 1 - png_pass_start[png_ptr->pass]) / png_pass_inc[png_ptr->pass];
 			if((png_ptr->transformations & PNG_INTERLACE) != 0)
 				break;
-
-			png_ptr->num_rows = (png_ptr->height +
-			    png_pass_yinc[png_ptr->pass] - 1 -
-			    png_pass_ystart[png_ptr->pass]) /
-			    png_pass_yinc[png_ptr->pass];
+			png_ptr->num_rows = (png_ptr->height + png_pass_yinc[png_ptr->pass] - 1 - png_pass_ystart[png_ptr->pass]) / png_pass_yinc[png_ptr->pass];
 		} while(png_ptr->iwidth == 0 || png_ptr->num_rows == 0);
 	}
 #endif /* READ_INTERLACING */
 }
 
-void /* PRIVATE */
-png_push_have_info(png_structrp png_ptr, png_inforp info_ptr)
+void /* PRIVATE */ png_push_have_info(png_structrp png_ptr, png_inforp info_ptr)
 {
 	if(png_ptr->info_fn != NULL)
 		(*(png_ptr->info_fn))(png_ptr, info_ptr);
 }
 
-void /* PRIVATE */
-png_push_have_end(png_structrp png_ptr, png_inforp info_ptr)
+void /* PRIVATE */ png_push_have_end(png_structrp png_ptr, png_inforp info_ptr)
 {
 	if(png_ptr->end_fn != NULL)
 		(*(png_ptr->end_fn))(png_ptr, info_ptr);
 }
 
-void /* PRIVATE */
-png_push_have_row(png_structrp png_ptr, png_bytep row)
+void /* PRIVATE */ png_push_have_row(png_structrp png_ptr, png_bytep row)
 {
 	if(png_ptr->row_fn != NULL)
 		(*(png_ptr->row_fn))(png_ptr, row, png_ptr->row_number,

@@ -51,7 +51,7 @@ int SLAPI PPViewAsset::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	TDialog * dlg = new TDialog(DLG_ASSETFLT);
 	THROW(Filt.IsA(pBaseFilt));
 	filt = *(AssetFilt *)pBaseFilt;
-	THROW(CheckDialogPtr(&dlg, 1));
+	THROW(CheckDialogPtrErr(&dlg));
 	SetupCalCtrl(CTLCAL_ASSETFLT_PERIOD, dlg, CTL_ASSETFLT_PERIOD, 1);
 	SetupCalCtrl(CTLCAL_ASSETFLT_OPERAT, dlg, CTL_ASSETFLT_OPERAT, 2);
 	SetPeriodInput(dlg, CTL_ASSETFLT_PERIOD, &filt.Period);
@@ -467,7 +467,7 @@ int SLAPI PPViewAsset::ViewTotal()
 			total.Deprec2 += P_TempTbl->data.Deprec2;
 		}
 		dlg = new TDialog(DLG_ASSETTOTAL);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setCtrlLong(CTL_ASSETTOTAL_COUNT,  total.Count);
 			dlg->setCtrlReal(CTL_ASSETTOTAL_COST,   total.Cost2);
 			dlg->setCtrlReal(CTL_ASSETTOTAL_PRICE,  total.Price2);

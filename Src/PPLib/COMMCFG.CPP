@@ -161,7 +161,7 @@ IMPL_HANDLE_EVENT(CommCfgDialog)
 			case cmCommCfgMainOrg:
 				{
 					TDialog * dlg = new TDialog(DLG_MAINORG);
-					if(CheckDialogPtr(&dlg, 1)) {
+					if(CheckDialogPtrErr(&dlg)) {
 						SetupPPObjCombo(dlg, CTLSEL_MAINORG_DEF,      PPOBJ_PERSON, cfg.MainOrgID,          OLW_CANINSERT, (void *)PPPRK_MAIN);
 						SetupPPObjCombo(dlg, CTLSEL_MAINORG_DIRECTOR, PPOBJ_PERSON, cfg.MainOrgDirector_,   OLW_CANINSERT, (void *)PPPRK_EMPL);
 						SetupPPObjCombo(dlg, CTLSEL_MAINORG_ACCTNT,   PPOBJ_PERSON, cfg.MainOrgAccountant_, OLW_CANINSERT, (void *)PPPRK_EMPL);
@@ -177,7 +177,7 @@ IMPL_HANDLE_EVENT(CommCfgDialog)
 			case cmCommCfgOp:
 				{
 					TDialog * dlg = new TDialog(DLG_CCFGOP);
-					if(CheckDialogPtr(&dlg, 1)) {
+					if(CheckDialogPtrErr(&dlg)) {
 						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_SUPPLSH,    PPOBJ_ACCSHEET,  cfg.SupplAccSheet, OLW_CANINSERT);
 						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_SELLSH,     PPOBJ_ACCSHEET,  cfg.SellAccSheet,  OLW_CANINSERT);
 						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_RCPTOP,     PPOBJ_OPRKIND,   cfg.ReceiptOp,     OLW_CANINSERT, (void *)PPOPT_GOODSRECEIPT);
@@ -253,7 +253,7 @@ int SLAPI EditCurrConfig()
 	PPID   main_org_id = 0;
 	PPID   curr_loc = 0;
 	TDialog * dlg = new TDialog(DLG_CURRCFG);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		GetMainOrgID(&main_org_id);
 		curr_loc = LConfig.Location;
 		SetupPPObjCombo(dlg, CTLSEL_CURRCFG_MAINORG, PPOBJ_PERSON, main_org_id, 0, (void *)PPPRK_MAIN);

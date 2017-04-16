@@ -723,9 +723,9 @@ int SLAPI SBool::fromstr(void * d, long fmt, const char * buf) const
 {
 	int  ok = 1;
 	long b = 0;
-	if(stricmp(buf, "true") == 0 || stricmp(buf, "yes") == 0 || stricmp(buf, "t") == 0)
+	if(sstreqi_ascii(buf, "true") || sstreqi_ascii(buf, "yes") || sstreqi_ascii(buf, "t"))
 		b = 1;
-	else if(stricmp(buf, "false") == 0 || stricmp(buf, "no") == 0 || stricmp(buf, "f") == 0)
+	else if(sstreqi_ascii(buf, "false") || sstreqi_ascii(buf, "no") || sstreqi_ascii(buf, "f"))
 		b = 0;
 	else {
 		char * p_end = 0;

@@ -230,7 +230,7 @@ static int rs_cubic_solve(const rs_gf256 * _gf,
 		_x[2] = _x[0]^_x[1]^_a;
 		return 3;
 	}
-	else{
+	else {
 		_x[0] = _a;
 		/*In this case _x[1] is a double root, so we know the Reed-Solomon code is
 		   invalid.
@@ -287,7 +287,7 @@ static int rs_quartic_solve(const rs_gf256 * _gf,
 			    _gf->exp[loga+logti], _gf->exp[logti], _x);
 			for(i = 0; i<nroots; i++) _x[i] = _gf->exp[255-_gf->log[_x[i]]]^s;
 		}
-		else{
+		else {
 			/*s must be a root~\cite{LW72}, and is in fact a double-root~\cite{CCO69}.
 			   Thus we're left with only a quadratic to solve.
 			   @ARTICLE{CCO69,

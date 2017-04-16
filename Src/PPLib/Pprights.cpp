@@ -369,7 +369,7 @@ int RtOpListDialog::editItemDialog(ObjRestrictItem * pItem)
 	};
 	int    ok = -1, valid_data = 0;
 	RtOpItemDialog * dlg = new RtOpItemDialog(&Data);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(pItem);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS(pItem)) {
@@ -386,7 +386,7 @@ int RtOpListDialog::editItemDialog(ObjRestrictItem * pItem)
 void RightsDialog::editOpList()
 {
 	RtOpListDialog * dlg = new RtOpListDialog;
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		ObjRestrictArray temp_list;
 		ObjRestrictArray * p_list = NZOR(Data.P_OpList, &temp_list);
 		dlg->setDTS(p_list);
@@ -440,7 +440,7 @@ private:
 	{
 		int    ok = -1, valid_data = 0;
 		TDialog * p_dlg = new TDialog(DLG_RTLOCLI);
-		if(CheckDialogPtr(&p_dlg, 1)) {
+		if(CheckDialogPtrErr(&p_dlg)) {
 			StrAssocArray loc_list;
 			{
 				SString loc_name;
@@ -475,7 +475,7 @@ private:
 void RightsDialog::editLocList()
 {
 	RtLocListDialog * dlg = new RtLocListDialog;
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		ObjRestrictArray temp_list;
 		ObjRestrictArray * p_list = Data.P_LocList ? Data.P_LocList : &temp_list;
 		dlg->setDTS(p_list);
@@ -562,7 +562,7 @@ int RtCfgListDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1, valid_data = 0;
 	TDialog * p_dlg = new TDialog(DLG_CBXSEL);
-	if(CheckDialogPtr(&p_dlg, 1)) {
+	if(CheckDialogPtrErr(&p_dlg)) {
 		StrAssocArray t_ary;
 		SString buf, title;
 		PPGetConfigList(&t_ary);
@@ -592,7 +592,7 @@ int RtCfgListDialog::addItem(long * pPos, long * pID)
 void RightsDialog::editCfgList()
 {
 	RtCfgListDialog * dlg = new RtCfgListDialog;
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		ObjRestrictArray temp_list;
 		ObjRestrictArray * p_list = Data.P_CfgList ? Data.P_CfgList : &temp_list;
 		dlg->setDTS(p_list);
@@ -680,7 +680,7 @@ private:
 		int    ok = -1, valid_data = 0;
 		StrAssocArray * p_acc_list = 0;
 		TDialog * p_dlg = new TDialog(DLG_RTACCLI);
-		if(CheckDialogPtr(&p_dlg, 1)) {
+		if(CheckDialogPtrErr(&p_dlg)) {
 			int    others_acc = (pItem->ObjID == 0 && isNew == 0) ? 1 : 0;
 			p_acc_list = AcctObj.MakeStrAssocList((void *)ACY_SEL_BAL);
 			p_dlg->AddClusterAssoc(CTL_RTACCLI_FLAGS, 0, PPR_READ);
@@ -735,7 +735,7 @@ private:
 void RightsDialog::editAccList()
 {
 	RtAccListDialog * dlg = new RtAccListDialog;
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		ObjRestrictArray temp_list;
 		ObjRestrictArray * p_list = Data.P_AccList ? Data.P_AccList : &temp_list;
 		dlg->setDTS(p_list);
@@ -821,7 +821,7 @@ private:
 		int    ok = -1, valid_data = 0;
 		StrAssocArray * p_list = 0;
 		TDialog * p_dlg = new TDialog(DLG_RTPOSLI);
-		if(CheckDialogPtr(&p_dlg, 1)) {
+		if(CheckDialogPtrErr(&p_dlg)) {
 			int    others = (pItem->ObjID == 0 && isNew == 0) ? 1 : 0;
 			p_list = CnObj.MakeStrAssocList(0);
 			if(p_list) {
@@ -872,7 +872,7 @@ private:
 void RightsDialog::editPosNodeList()
 {
 	RtPosNodeListDialog * dlg = new RtPosNodeListDialog;
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		ObjRestrictArray temp_list;
 		ObjRestrictArray * p_list = NZOR(Data.P_PosList, &temp_list);
 		dlg->setDTS(p_list);
@@ -958,7 +958,7 @@ private:
 		int    ok = -1, valid_data = 0;
 		StrAssocArray * p_list = 0;
 		TDialog * p_dlg = new TDialog(DLG_RTQKLI);
-		if(CheckDialogPtr(&p_dlg, 1)) {
+		if(CheckDialogPtrErr(&p_dlg)) {
 			int    others = (pItem->ObjID == 0 && isNew == 0) ? 1 : 0;
 			p_list = QkObj.MakeStrAssocList(0);
 			if(p_list) {
@@ -1009,7 +1009,7 @@ private:
 void RightsDialog::editQuotKindList()
 {
 	RtQuotKindListDialog * dlg = new RtQuotKindListDialog;
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		ObjRestrictArray temp_list;
 		ObjRestrictArray * p_list = NZOR(Data.P_QkList, &temp_list);
 		dlg->setDTS(p_list);
@@ -1031,7 +1031,7 @@ int SLAPI EditRightsDialog(PPRights & rights)
 {
 	int    r = cmCancel;
 	RightsDialog * dlg = new RightsDialog;
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(&rights);
 		if((r = ExecView(dlg)) == cmOK)
 			dlg->getDTS(&rights);
@@ -1340,7 +1340,7 @@ IMPL_HANDLE_EVENT(FastEditRightsDlg)
 					SmartListBox * p_lbx = (SmartListBox*)getCtrlView(CTL_EDITRHTS_GRPUSRLIST);
 					if(p_lbx) {
 						p_lbx->search(&GrpUserID, CMPF_LONG, srchFirst | lbSrchByID);
-						p_lbx->drawView();
+						p_lbx->Draw_();
 						PPError();
 					}
 				}
@@ -1597,7 +1597,7 @@ int FastEditRightsDlg::setupGrpUsrList()
 	THROW_MEM(p_grp_usr_def);
 	p_lbx->setDef(p_grp_usr_def);
 	p_lbx->def->go(0);
-	p_lbx->drawView();
+	p_lbx->Draw_();
 	ok = 1;
 	CATCH
 		ok = 0;
@@ -1744,7 +1744,7 @@ int SLAPI FastEditRightsDialog()
 	THROW(read_only = LoadGrpUsrRights(&grp_usr_rights));
 	read_only = (read_only == -1);
 	p_dlg = new FastEditRightsDlg(read_only);
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setDTS(&grp_usr_rights);
 	while(!valid_data && ExecView(p_dlg) == cmOK) {
 		if(!read_only) {

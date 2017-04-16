@@ -237,65 +237,36 @@ static int __lock_print_stats(ENV * env, uint32 flags)
 	if(LF_ISSET(DB_STAT_ALL))
 		__db_msg(env, "Default locking region information:");
 	__db_dl(env, "Last allocated locker ID", (ulong)sp->st_id);
-	__db_msg(env, "%#lx\tCurrent maximum unused locker ID",
-		(ulong)sp->st_cur_maxid);
+	__db_msg(env, "%#lx\tCurrent maximum unused locker ID", (ulong)sp->st_cur_maxid);
 	__db_dl(env, "Number of lock modes", (ulong)sp->st_nmodes);
-	__db_dl(env,
-		"Initial number of locks allocated", (ulong)sp->st_initlocks);
-	__db_dl(env,
-		"Initial number of lockers allocated", (ulong)sp->st_initlockers);
-	__db_dl(env, "Initial number of lock objects allocated",
-		(ulong)sp->st_initobjects);
-	__db_dl(env,
-		"Maximum number of locks possible", (ulong)sp->st_maxlocks);
-	__db_dl(env,
-		"Maximum number of lockers possible", (ulong)sp->st_maxlockers);
-	__db_dl(env, "Maximum number of lock objects possible",
-		(ulong)sp->st_maxobjects);
-	__db_dl(env,
-		"Current number of locks allocated", (ulong)sp->st_locks);
-	__db_dl(env,
-		"Current number of lockers allocated", (ulong)sp->st_lockers);
-	__db_dl(env, "Current number of lock objects allocated",
-		(ulong)sp->st_objects);
-	__db_dl(env, "Number of lock object partitions",
-		(ulong)sp->st_partitions);
-	__db_dl(env, "Size of object hash table",
-		(ulong)sp->st_tablesize);
+	__db_dl(env, "Initial number of locks allocated", (ulong)sp->st_initlocks);
+	__db_dl(env, "Initial number of lockers allocated", (ulong)sp->st_initlockers);
+	__db_dl(env, "Initial number of lock objects allocated", (ulong)sp->st_initobjects);
+	__db_dl(env, "Maximum number of locks possible", (ulong)sp->st_maxlocks);
+	__db_dl(env, "Maximum number of lockers possible", (ulong)sp->st_maxlockers);
+	__db_dl(env, "Maximum number of lock objects possible", (ulong)sp->st_maxobjects);
+	__db_dl(env, "Current number of locks allocated", (ulong)sp->st_locks);
+	__db_dl(env, "Current number of lockers allocated", (ulong)sp->st_lockers);
+	__db_dl(env, "Current number of lock objects allocated", (ulong)sp->st_objects);
+	__db_dl(env, "Number of lock object partitions", (ulong)sp->st_partitions);
+	__db_dl(env, "Size of object hash table", (ulong)sp->st_tablesize);
 	__db_dl(env, "Number of current locks", (ulong)sp->st_nlocks);
-	__db_dl(env, "Maximum number of locks at any one time",
-		(ulong)sp->st_maxnlocks);
-	__db_dl(env, "Maximum number of locks in any one bucket",
-		(ulong)sp->st_maxhlocks);
-	__db_dl(env, "Maximum number of locks stolen by for an empty partition",
-		(ulong)sp->st_locksteals);
-	__db_dl(env, "Maximum number of locks stolen for any one partition",
-		(ulong)sp->st_maxlsteals);
+	__db_dl(env, "Maximum number of locks at any one time", (ulong)sp->st_maxnlocks);
+	__db_dl(env, "Maximum number of locks in any one bucket", (ulong)sp->st_maxhlocks);
+	__db_dl(env, "Maximum number of locks stolen by for an empty partition", (ulong)sp->st_locksteals);
+	__db_dl(env, "Maximum number of locks stolen for any one partition", (ulong)sp->st_maxlsteals);
 	__db_dl(env, "Number of current lockers", (ulong)sp->st_nlockers);
-	__db_dl(env, "Maximum number of lockers at any one time",
-		(ulong)sp->st_maxnlockers);
-	__db_dl(env,
-		"Number of current lock objects", (ulong)sp->st_nobjects);
-	__db_dl(env, "Maximum number of lock objects at any one time",
-		(ulong)sp->st_maxnobjects);
-	__db_dl(env, "Maximum number of lock objects in any one bucket",
-		(ulong)sp->st_maxhobjects);
-	__db_dl(env,
-		"Maximum number of objects stolen by for an empty partition",
-		(ulong)sp->st_objectsteals);
-	__db_dl(env, "Maximum number of objects stolen for any one partition",
-		(ulong)sp->st_maxosteals);
-	__db_dl(env,
-		"Total number of locks requested", (ulong)sp->st_nrequests);
-	__db_dl(env,
-		"Total number of locks released", (ulong)sp->st_nreleases);
-	__db_dl(env,
-		"Total number of locks upgraded", (ulong)sp->st_nupgrade);
-	__db_dl(env,
-		"Total number of locks downgraded", (ulong)sp->st_ndowngrade);
-	__db_dl(env,
-		"Lock requests not available due to conflicts, for which we waited",
-		(ulong)sp->st_lock_wait);
+	__db_dl(env, "Maximum number of lockers at any one time", (ulong)sp->st_maxnlockers);
+	__db_dl(env, "Number of current lock objects", (ulong)sp->st_nobjects);
+	__db_dl(env, "Maximum number of lock objects at any one time", (ulong)sp->st_maxnobjects);
+	__db_dl(env, "Maximum number of lock objects in any one bucket", (ulong)sp->st_maxhobjects);
+	__db_dl(env, "Maximum number of objects stolen by for an empty partition", (ulong)sp->st_objectsteals);
+	__db_dl(env, "Maximum number of objects stolen for any one partition", (ulong)sp->st_maxosteals);
+	__db_dl(env, "Total number of locks requested", (ulong)sp->st_nrequests);
+	__db_dl(env, "Total number of locks released", (ulong)sp->st_nreleases);
+	__db_dl(env, "Total number of locks upgraded", (ulong)sp->st_nupgrade);
+	__db_dl(env, "Total number of locks downgraded", (ulong)sp->st_ndowngrade);
+	__db_dl(env, "Lock requests not available due to conflicts, for which we waited", (ulong)sp->st_lock_wait);
 	__db_dl(env, "Lock requests not available due to conflicts, for which we did not wait", (ulong)sp->st_lock_nowait);
 	__db_dl(env, "Number of deadlocks", (ulong)sp->st_ndeadlocks);
 	__db_dl(env, "Lock timeout value", (ulong)sp->st_locktimeout);

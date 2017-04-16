@@ -110,7 +110,7 @@ typedef struct __alloc_element {
 		}                                                               \
 } while(0)
 
-static void __env_size_insert __P((ALLOC_LAYOUT*, ALLOC_ELEMENT *));
+static void __env_size_insert(ALLOC_LAYOUT*, ALLOC_ELEMENT *);
 
 /*
  * __env_alloc_init --
@@ -122,10 +122,8 @@ void __env_alloc_init(REGINFO * infop, size_t size)
 {
 	ALLOC_ELEMENT * elp;
 	ALLOC_LAYOUT * head;
-	ENV * env;
 	uint i;
-
-	env = infop->env;
+	ENV * env = infop->env;
 	/* No initialization needed for heap memory regions. */
 	if(F_ISSET(env, ENV_PRIVATE))
 		return;
@@ -155,11 +153,9 @@ void __env_alloc_init(REGINFO * infop, size_t size)
  * rounded up to standard alignment.
  */
 #ifdef DIAGNOSTIC
- #define DB_ALLOC_SIZE(len)                                              \
-        (size_t)DB_ALIGN((len)+sizeof(ALLOC_ELEMENT)+1, sizeof(uintmax_t))
+	#define DB_ALLOC_SIZE(len) (size_t)DB_ALIGN((len)+sizeof(ALLOC_ELEMENT)+1, sizeof(uintmax_t))
 #else
- #define DB_ALLOC_SIZE(len)                                              \
-        (size_t)DB_ALIGN((len)+sizeof(ALLOC_ELEMENT), sizeof(uintmax_t))
+	#define DB_ALLOC_SIZE(len) (size_t)DB_ALIGN((len)+sizeof(ALLOC_ELEMENT), sizeof(uintmax_t))
 #endif
 
 /*
@@ -239,8 +235,7 @@ int __env_alloc(REGINFO * infop, size_t len, void * retp)
 		++len;
 #endif
 		/* Check if we're over the limit. */
-		if(envinfop->max_alloc != 0 &&
-		   envinfop->allocated+len > envinfop->max_alloc)
+		if(envinfop->max_alloc != 0 && envinfop->allocated+len > envinfop->max_alloc)
 			return ENOMEM;
 		/* Allocate the space. */
 		if((ret = __os_malloc(env, len, &p)) != 0)
@@ -311,8 +306,7 @@ retry:
 #ifdef HAVE_STATISTICS
 	if(head->longest < st_search) {
 		head->longest = st_search;
-		STAT_PERFMON3(env,
-			mpool, longest_search, len, infop->id, st_search);
+		STAT_PERFMON3(env, mpool, longest_search, len, infop->id, st_search);
 	}
 #endif
 	/*
@@ -322,28 +316,22 @@ retry:
 	if(elp == NULL) {
 		ret = ENOMEM;
 #ifdef HAVE_MMAP_EXTEND
-		if(infop->rp->size < infop->rp->max &&
-		   (ret = __env_region_extend(env, infop)) == 0)
+		if(infop->rp->size < infop->rp->max && (ret = __env_region_extend(env, infop)) == 0)
 			goto retry;
 #endif
 		STAT_INC_VERB(env, mpool, fail, head->failure, len, infop->id);
 		return ret;
 	}
 	STAT_INC_VERB(env, mpool, alloc, head->success, len, infop->id);
-
 	/* Pull the chunk off of the size queue. */
 	SH_TAILQ_REMOVE(q, elp, sizeq, __alloc_element);
 	if(elp->len-total_len > SHALLOC_FRAGMENT) {
 		frag = (ALLOC_ELEMENT *)((uint8 *)elp+total_len);
 		frag->len = elp->len-total_len;
 		frag->ulen = 0;
-
 		elp->len = total_len;
-
 		/* The fragment follows the chunk on the address queue. */
-		SH_TAILQ_INSERT_AFTER(
-			&head->addrq, elp, frag, addrq, __alloc_element);
-
+		SH_TAILQ_INSERT_AFTER(&head->addrq, elp, frag, addrq, __alloc_element);
 		/* Insert the frag into the correct size queue. */
 		__env_size_insert(head, frag);
 	}
@@ -409,10 +397,7 @@ void __env_alloc_free(REGINFO * infop, void * ptr)
 	 * Try and merge this chunk with chunks on either side of it.  Two
 	 * chunks can be merged if they're contiguous and not in use.
 	 */
-	if((elp_tmp =
-	            SH_TAILQ_PREV(&head->addrq, elp, addrq, __alloc_element)) != NULL &&
-	   elp_tmp->ulen == 0 &&
-	   (uint8 *)elp_tmp+elp_tmp->len == (uint8 *)elp) {
+	if((elp_tmp = SH_TAILQ_PREV(&head->addrq, elp, addrq, __alloc_element)) != NULL && elp_tmp->ulen == 0 && (uint8 *)elp_tmp+elp_tmp->len == (uint8 *)elp) {
 		/*
 		 * If we're merging the entry into a previous entry, remove the
 		 * current entry from the addr queue and the previous entry from
@@ -472,8 +457,7 @@ int __env_alloc_extend(REGINFO * infop, void * ptr, size_t * lenp)
 #endif
 	/* See if there is anything left in the region. */
 again:
-	if((elp_tmp = SH_TAILQ_NEXT(elp, addrq, __alloc_element)) != NULL &&
-	   elp_tmp->ulen == 0 && (uint8 *)elp+elp->len == (uint8 *)elp_tmp) {
+	if((elp_tmp = SH_TAILQ_NEXT(elp, addrq, __alloc_element)) != NULL && elp_tmp->ulen == 0 && (uint8 *)elp+elp->len == (uint8 *)elp_tmp) {
 		/*
 		 * If we're merging the current entry into a subsequent entry,
 		 * remove the subsequent entry from the addr and size queues
@@ -496,11 +480,8 @@ again:
 			elp_tmp->ulen = 0;
 			elp->len += len;
 			len = 0;
-
 			/* The fragment follows the on the address queue. */
-			SH_TAILQ_INSERT_AFTER(
-				&head->addrq, elp, elp_tmp, addrq, __alloc_element);
-
+			SH_TAILQ_INSERT_AFTER(&head->addrq, elp, elp_tmp, addrq, __alloc_element);
 			/* Insert the frag into the correct size queue. */
 			__env_size_insert(head, elp_tmp);
 		}
@@ -539,10 +520,8 @@ static void __env_size_insert(ALLOC_LAYOUT * head, ALLOC_ELEMENT * elp)
 	SIZEQ_HEAD * q;
 	ALLOC_ELEMENT * elp_tmp;
 	uint i;
-
 	/* Find the appropriate queue for the chunk. */
 	SET_QUEUE_FOR_SIZE(head, q, i, elp->len);
-
 	/* Find the correct slot in the size queue. */
 	SH_TAILQ_FOREACH(elp_tmp, q, sizeq, __alloc_element)
 	if(elp->len >= elp_tmp->len)
@@ -622,10 +601,8 @@ void * __env_get_chunk(REGINFO * infop, void ** nextp, uintmax_t * sizep)
 		*nextp = infop->mem;
 	mem = *(REGION_MEM **)nextp;
 	*nextp = mem->next;
-
 	*sizep = __env_elem_size(infop->env, mem);
 	*sizep -= sizeof(*mem);
-
 	return (void *)(mem+1);
 }
 
@@ -639,11 +616,9 @@ void * __env_get_chunk(REGINFO * infop, void ** nextp, uintmax_t * sizep)
 void __env_alloc_print(REGINFO * infop, uint32 flags)
 {
 	ALLOC_ELEMENT * elp;
-	ALLOC_LAYOUT * head;
-	ENV * env;
 	uint i;
-	env = infop->env;
-	head = (ALLOC_LAYOUT *)infop->head;
+	ENV * env = infop->env;
+	ALLOC_LAYOUT * head = (ALLOC_LAYOUT *)infop->head;
 	if(F_ISSET(env, ENV_PRIVATE))
 		return;
 	__db_msg(env, "Region allocations: %lu allocations, %lu failures, %lu frees, %lu longest",
@@ -659,8 +634,7 @@ void __env_alloc_print(REGINFO * infop, uint32 flags)
 	 * We don't normally display the list of address/chunk pairs, a few
 	 * thousand lines of output is too voluminous for even DB_STAT_ALL.
 	 */
-	__db_msg(env,
-		"Allocation list by address, offset: {chunk length, user length}");
+	__db_msg(env, "Allocation list by address, offset: {chunk length, user length}");
 	SH_TAILQ_FOREACH(elp, &head->addrq, addrq, __alloc_element)
 	__db_msg(env, "\t%#lx, %lu {%lu, %lu}", P_TO_ULONG(elp), (ulong)R_OFFSET(infop, elp), (ulong)elp->len, (ulong)elp->ulen);
 	__db_msg(env, "Allocation free list by size: KB {chunk length}");

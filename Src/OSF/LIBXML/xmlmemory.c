@@ -511,12 +511,12 @@ static void xmlMemContentShow(FILE * fp, MEMHDR * p)
 				q = CLIENT_2_HDR(cur);
 				p = memlist;
 				k = 0;
-				while(p != NULL) {
+				while(p) {
 					if(p == q) break;
 					p = p->mh_next;
 					if(k++ > 100) break;
 				}
-				if((p != NULL) && (p == q)) {
+				if(p && (p == q)) {
 					fprintf(fp, " pointer to #%lu at index %d",
 					    p->mh_number, j);
 					return;
@@ -591,7 +591,8 @@ void xmlMemDisplayLast(FILE * fp, long nbBytes)
 				    fclose(fp);
 			    return;
 		}
-		if(p->mh_file != NULL) fprintf(fp, "%s(%u)", p->mh_file, p->mh_line);
+		if(p->mh_file) 
+			fprintf(fp, "%s(%u)", p->mh_file, p->mh_line);
 		if(p->mh_tag != MEMTAG)
 			fprintf(fp, "  INVALID");
 		nb++;
@@ -668,7 +669,8 @@ void xmlMemDisplay(FILE * fp)
 				    fclose(fp);
 			    return;
 		}
-		if(p->mh_file != NULL) fprintf(fp, "%s(%u)", p->mh_file, p->mh_line);
+		if(p->mh_file) 
+			fprintf(fp, "%s(%u)", p->mh_file, p->mh_line);
 		if(p->mh_tag != MEMTAG)
 			fprintf(fp, "  INVALID");
 		nb++;
@@ -750,10 +752,8 @@ void xmlMemShow(FILE * fp, int nr ATTRIBUTE_UNUSED)
 #ifdef MEM_LIST
 	MEMHDR * p;
 #endif
-
-	if(fp != NULL)
-		fprintf(fp, "      MEMORY ALLOCATED : %lu, MAX was %lu\n",
-		    debugMemSize, debugMaxMemSize);
+	if(fp)
+		fprintf(fp, "      MEMORY ALLOCATED : %lu, MAX was %lu\n", debugMemSize, debugMaxMemSize);
 #ifdef MEM_LIST
 	xmlMutexLock(xmlMemMutex);
 	if(nr > 0) {
@@ -769,7 +769,7 @@ void xmlMemShow(FILE * fp, int nr ATTRIBUTE_UNUSED)
 				case REALLOC_ATOMIC_TYPE: fprintf(fp, "atomicrealloc() in "); break;
 				default: fprintf(fp, "   ???    in "); break;
 			}
-			if(p->mh_file != NULL)
+			if(p->mh_file)
 				fprintf(fp, "%s(%u)", p->mh_file, p->mh_line);
 			if(p->mh_tag != MEMTAG)
 				fprintf(fp, "  INVALID");
@@ -793,17 +793,16 @@ void xmlMemoryDump()
 {
 #ifdef MEM_LIST
 	FILE * dump;
-
 	if(debugMaxMemSize == 0)
 		return;
 	dump = fopen(".memdump", "w");
 	if(dump == NULL)
 		xmlMemoryDumpFile = stderr;
-	else xmlMemoryDumpFile = dump;
-
+	else 
+		xmlMemoryDumpFile = dump;
 	xmlMemDisplay(xmlMemoryDumpFile);
-
-	if(dump != NULL) fclose(dump);
+	if(dump != NULL) 
+		fclose(dump);
 #endif /* MEM_LIST */
 }
 
@@ -839,13 +838,13 @@ int xmlInitMemory()
 
 #ifdef HAVE_STDLIB_H
 	breakpoint = getenv("XML_MEM_BREAKPOINT");
-	if(breakpoint != NULL) {
+	if(breakpoint) {
 		sscanf(breakpoint, "%ud", &xmlMemStopAtBlock);
 	}
 #endif
 #ifdef HAVE_STDLIB_H
 	breakpoint = getenv("XML_MEM_TRACE");
-	if(breakpoint != NULL) {
+	if(breakpoint) {
 		sscanf(breakpoint, "%p", &xmlMemTraceBlockAt);
 	}
 #endif

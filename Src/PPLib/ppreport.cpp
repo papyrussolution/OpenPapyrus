@@ -2183,7 +2183,7 @@ int SLAPI MakeCRptDataFiles(int verifyAll /*=0*/)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_MKRPTFLS);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		SString rpt_name, rpt_path, fname;
 		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_MKRPTFLS_RPTPATH, CTL_MKRPTFLS_RPTPATH, 1, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
 		PPIniFile ini_file;

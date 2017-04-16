@@ -1477,7 +1477,7 @@ int SLAPI PPViewPrjTask::Transmit(PPID /*id*/, int kind)
 int SLAPI PPViewPrjTask::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_TODOTOTAL);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		long   count = 0;
 		PrjTaskViewItem item;
 		PPWait(1);
@@ -1727,7 +1727,7 @@ int SLAPI PPViewPrjTask::ChangeTasks(PPIDArray * pAry)
 	PPIDArray list;
 	TDialog * p_dlg = 0;
 	THROW(TodoObj.CheckRights(PRJTASKRT_MULTCHANGE));
-	THROW(CheckDialogPtr(&(p_dlg = new TDialog(DLG_CHNGTASKS)), 0));
+	THROW(CheckDialogPtr(&(p_dlg = new TDialog(DLG_CHNGTASKS))));
 	p_dlg->AddClusterAssoc(CTL_CHNGTASKS_FLAGS, -1, CHNGTASKS_DELALL);
 	p_dlg->AddClusterAssoc(CTL_CHNGTASKS_FLAGS,  0, CHNGTASKS_DELALL);
 	p_dlg->AddClusterAssoc(CTL_CHNGTASKS_FLAGS,  1, CHNGTASKS_STATUS);

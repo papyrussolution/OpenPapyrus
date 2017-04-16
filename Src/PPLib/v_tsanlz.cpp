@@ -1160,7 +1160,7 @@ int SLAPI PPViewTSessAnlz::EditGoods(PPID goodsID)
 			}
 			else if(id_list.getCount() > 1) {
 				ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, 0, ExtGoodsSelDialog::fByName);
-				if(CheckDialogPtr(&dlg, 1)) {
+				if(CheckDialogPtrErr(&dlg)) {
 					dlg->setSelectionByGoodsList(&id_list);
 					TIDlgInitData d;
 					while(ExecView(dlg) == cmOK) {

@@ -133,19 +133,20 @@ int __bam_compact_int(DBC * dbc, DBT * start, DBT * stop, uint32 factor, int * s
 {
 	BTREE_CURSOR * cp, * ncp;
 	DB * dbp;
-	DBC * ndbc;
+	DBC * ndbc = 0;
 	DB_LOCK metalock, next_lock, nnext_lock, prev_lock, saved_lock;
 	DB_MPOOLFILE * dbmp;
 	ENV * env;
 	EPG * epg;
-	PAGE * pg, * ppg, * npg;
+	PAGE * pg = 0;
+	PAGE * ppg;
+	PAGE * npg = 0;
 	db_pgno_t metapgno, npgno, nnext_pgno;
 	db_pgno_t pgno, prev_pgno, ppgno, saved_pgno;
 	db_recno_t next_recno;
 	uint32 nentry, sflag, pgs_free;
 	int check_dups, check_trunc, clear_root, do_commit, isdone;
 	int merged, next_p, pgs_done, ret, t_ret, tdone;
-
 #ifdef  DEBUG
  #define CTRACE(dbc, location, t, start, f) do {                         \
 		DBT __trace;                                            \
@@ -161,11 +162,6 @@ int __bam_compact_int(DBC * dbc, DBT * start, DBT * stop, uint32 factor, int * s
  #define CTRACE(dbc, location, t, start, f)
  #define PTRACE(dbc, location, p, start, f)
 #endif
-
-	ndbc = NULL;
-	pg = NULL;
-	npg = NULL;
-
 	isdone = 0;
 	tdone = 0;
 	pgs_done = 0;
@@ -2001,7 +1997,7 @@ no_key:
 	else
 		ret = __db_retcopy(env, start, data, len,  &start->data, &start->ulen);
 err:
-	if(pg != NULL && pg != cp->csp->page && (t_ret = __memp_fput(dbp->mpf, dbc->thread_info, pg, dbc->priority)) != 0 && ret == 0)
+	if(pg && pg != cp->csp->page && (t_ret = __memp_fput(dbp->mpf, dbc->thread_info, pg, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
 retry:  
@@ -2147,9 +2143,9 @@ new_txn:
 	 */
 again:
 	if(F_ISSET(dbp, DB_AM_SUBDB) && (bt->bt_root > c_data->compact_truncate || bt->bt_meta > c_data->compact_truncate)) {
-		if(local_txn && txn == NULL && (ret = __txn_begin(dbp->env, ip, txn_orig, &txn, 0)) != 0)
+		if(local_txn && !txn && (ret = __txn_begin(dbp->env, ip, txn_orig, &txn, 0)) != 0)
 			goto err;
-		if(dbc == NULL && (ret = __db_cursor(dbp, ip, txn, &dbc, 0)) != 0)
+		if(!dbc && (ret = __db_cursor(dbp, ip, txn, &dbc, 0)) != 0)
 			goto err;
 		if((ret = __db_lget(dbc, 0, bt->bt_meta, DB_LOCK_WRITE, 0, &meta_lock)) != 0)
 			goto err;
@@ -2212,7 +2208,7 @@ again:
 			if((ret = __memp_fput(dbp->mpf, ip, root, dbp->priority)) != 0)
 				goto err;
 			root = NULL;
-			if(txn == NULL && (ret = __LPUT(dbc, root_lock)) != 0)
+			if(!txn && (ret = __LPUT(dbc, root_lock)) != 0)
 				goto err;
 		}
 		if((ret = __memp_fput(dbp->mpf, ip, meta, dbp->priority)) != 0)
@@ -2229,22 +2225,22 @@ again:
 		}
 	}
 err:
-	sflag = (txn != NULL && ret != 0) ? STK_PGONLY : 0;
+	sflag = (txn && ret != 0) ? STK_PGONLY : 0;
 	if(txn == NULL) {
 		if((t_ret = __LPUT(dbc, meta_lock)) != 0 && ret == 0)
 			ret = t_ret;
 		if((t_ret = __LPUT(dbc, root_lock)) != 0 && ret == 0)
 			ret = t_ret;
 	}
-	if(meta != NULL && (t_ret = __memp_fput(dbp->mpf, ip, meta, dbp->priority)) != 0 && ret == 0)
+	if(meta && (t_ret = __memp_fput(dbp->mpf, ip, meta, dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(root != NULL && (t_ret = __memp_fput(dbp->mpf, ip, root, dbp->priority)) != 0 && ret == 0)
+	if(root && (t_ret = __memp_fput(dbp->mpf, ip, root, dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(dbc != NULL && (t_ret = __bam_stkrel(dbc, sflag)) != 0 && ret == 0)
+	if(dbc && (t_ret = __bam_stkrel(dbc, sflag)) != 0 && ret == 0)
 		ret = t_ret;
-	if(dbc != NULL && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
+	if(dbc && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
-	if(local_txn && txn != NULL && (t_ret = __txn_abort(txn)) != 0 && ret == 0)
+	if(local_txn && txn && (t_ret = __txn_abort(txn)) != 0 && ret == 0)
 		ret = t_ret;
 	__os_free(dbp->env, start.data);
 	return ret;

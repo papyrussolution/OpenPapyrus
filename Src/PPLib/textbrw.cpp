@@ -1106,7 +1106,7 @@ int STextBrowser::BraceHtmlTag()
 	int    ok = -1;
 	SString tag, text;
 	TDialog * dlg = new TDialog(DLG_SELHTMLTAG);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setCtrlString(CTL_SELHTMLTAG_TAGTEXT, tag);
 		if(ExecView(dlg) == cmOK) {
 			dlg->getCtrlString(CTL_SELHTMLTAG_TAGTEXT, tag);

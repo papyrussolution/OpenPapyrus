@@ -753,7 +753,7 @@ int SendSmsDialog::DrawList()
 			PPGetSubStr(params, i, text);
 			THROW_SL(p_list->addItem(i, text));
 		}
-		p_list->draw();
+		p_list->Draw_();
 	}
 	CATCHZOK;
 	return ok;
@@ -936,7 +936,7 @@ int SLAPI PPObjSmsAccount::Edit(PPID * pID, void * extraPtr)
 		{
 			int    ok = -1;
 			TDialog * dlg = new TDialog(DLG_SMSSYS);
-			if(CheckDialogPtr(&dlg, 1)) {
+			if(CheckDialogPtrErr(&dlg)) {
 				dlg->setCtrlData(CTL_SMSSYS_RESPTIMEOUT, &Data.Rec.ResponseTimeout);
 				dlg->setCtrlData(CTL_SMSSYS_RSNDTIMEOUT, &Data.Rec.ResendMsgQueueTimeout);
 				dlg->setCtrlData(CTL_SMSSYS_RSNDNUM, &Data.Rec.ResendTriesNum);
@@ -2300,7 +2300,7 @@ int BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhone
 	int    ok = 1;
 	PPSendSmsParam send_sms;
 	SendSmsDialog * dlg = new SendSmsDialog(accID, rPrsnIdArr, rPhoneArr);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		if(ExecView(dlg) == cmOK)
 			dlg->getDTS(&send_sms);
 	}
@@ -2317,7 +2317,7 @@ int BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhone
 	int    ok = 1;
 	PPSendSmsParam send_sms;
 	SendSmsDialog * dlg = new SendSmsDialog(accID, rPrsnIdArr, rPhoneArr, objTypeId, rObjIdArr);
-	if(CheckDialogPtr(&dlg, 1))
+	if(CheckDialogPtrErr(&dlg))
 		dlg->AutoSmsSending();
 	else
 		ok = 0;
@@ -2770,7 +2770,7 @@ int SLAPI VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, u
 	int    ok = -1;
 	VerifyPhoneNumberBySmsParam param;
 	VerifyPhoneBySmsDialog * dlg = new VerifyPhoneBySmsDialog;
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		param.Number = pNumber;
 		param.Addendum = pAddendum;
 		param.CheckCode = PPEAddr::Phone::GenerateCheckNumber(pNumber, pAddendum);

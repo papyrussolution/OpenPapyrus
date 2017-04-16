@@ -289,20 +289,19 @@ err:
 static int __bam_page(DBC * dbc, EPG * pp, EPG * cp)
 {
 	BTREE_CURSOR * bc;
-	DB * dbp;
 	DBT log_dbt, rentry;
 	DB_LOCK rplock;
 	DB_LSN log_lsn;
 	DB_LSN save_lsn;
-	DB_MPOOLFILE * mpf;
-	PAGE * lp, * rp, * alloc_rp, * tp;
+	PAGE * lp = 0;
+	PAGE * rp = 0;
+	PAGE * alloc_rp = 0;
+	PAGE * tp = 0;
 	db_indx_t split;
 	uint32 opflags;
 	int ret, t_ret;
-
-	dbp = dbc->dbp;
-	mpf = dbp->mpf;
-	alloc_rp = lp = rp = tp = NULL;
+	DB * dbp = dbc->dbp;
+	DB_MPOOLFILE * mpf = dbp->mpf;
 	LOCK_INIT(rplock);
 	ret = -1;
 	/*
@@ -327,16 +326,9 @@ static int __bam_page(DBC * dbc, EPG * pp, EPG * cp)
 	 */
 	if((ret = __os_malloc(dbp->env, dbp->pgsize*2, &lp)) != 0)
 		goto err;
-	P_INIT(lp, dbp->pgsize, PGNO(cp->page),
-		ISINTERNAL(cp->page) ?  PGNO_INVALID : PREV_PGNO(cp->page),
-		ISINTERNAL(cp->page) ?  PGNO_INVALID : 0,
-		cp->page->level, TYPE(cp->page));
-
+	P_INIT(lp, dbp->pgsize, PGNO(cp->page), ISINTERNAL(cp->page) ?  PGNO_INVALID : PREV_PGNO(cp->page), ISINTERNAL(cp->page) ?  PGNO_INVALID : 0, cp->page->level, TYPE(cp->page));
 	rp = (PAGE *)((uint8 *)lp+dbp->pgsize);
-	P_INIT(rp, dbp->pgsize, 0,
-		ISINTERNAL(cp->page) ? PGNO_INVALID : PGNO(cp->page),
-		ISINTERNAL(cp->page) ? PGNO_INVALID : NEXT_PGNO(cp->page),
-		cp->page->level, TYPE(cp->page));
+	P_INIT(rp, dbp->pgsize, 0, ISINTERNAL(cp->page) ? PGNO_INVALID : PGNO(cp->page), ISINTERNAL(cp->page) ? PGNO_INVALID : NEXT_PGNO(cp->page), cp->page->level, TYPE(cp->page));
 	/*
 	 * Split right.
 	 *
@@ -369,12 +361,9 @@ static int __bam_page(DBC * dbc, EPG * pp, EPG * cp)
 	 * we can get it without deadlocking on the parent latch.
 	 */
 	if(ISLEAF(cp->page) && NEXT_PGNO(cp->page) != PGNO_INVALID &&
-	   (ret = __memp_fget(mpf, &NEXT_PGNO(cp->page),
-		    dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &tp)) != 0)
+	   (ret = __memp_fget(mpf, &NEXT_PGNO(cp->page), dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &tp)) != 0)
 		goto err;
-	PERFMON5(env, alloc, btree_split, dbp->fname,
-		dbp->dname, cp->page->pgno, pp->page->pgno, cp->page->level);
-
+	PERFMON5(env, alloc, btree_split, dbp->fname, dbp->dname, cp->page->pgno, pp->page->pgno, cp->page->level);
 	/*
 	 * Fix up the page numbers we didn't have before.  We have to do this
 	 * before calling __bam_pinsert because it may copy a page number onto
@@ -387,8 +376,7 @@ static int __bam_page(DBC * dbc, EPG * pp, EPG * cp)
 
 	bc = (BTREE_CURSOR *)dbc->internal;
 	/* Actually update the parent page. */
-	if((ret = __bam_pinsert(dbc,
-		    pp, split, lp, rp, F_ISSET(bc, C_RECNUM) ? 0 : BPI_NOLOGGING)) != 0)
+	if((ret = __bam_pinsert(dbc, pp, split, lp, rp, F_ISSET(bc, C_RECNUM) ? 0 : BPI_NOLOGGING)) != 0)
 		goto err;
 	/* Log the change. */
 	if(DBC_LOGGING(dbc)) {
@@ -403,16 +391,12 @@ static int __bam_page(DBC * dbc, EPG * pp, EPG * cp)
 			rentry.size = RINTERNAL_SIZE;
 		}
 		else
-			rentry.size =
-			        BINTERNAL_SIZE(((BINTERNAL *)rentry.data)->len);
+			rentry.size = BINTERNAL_SIZE(((BINTERNAL *)rentry.data)->len);
 		if(tp == NULL)
 			ZERO_LSN(log_lsn);
-		if((ret = __bam_split_log(dbp, dbc->txn, &LSN(cp->page),
-			    0, OP_SET(opflags, pp->page), PGNO(cp->page),
-			    &LSN(cp->page), PGNO(alloc_rp), &LSN(alloc_rp),
-			    (uint32)NUM_ENT(lp), tp == NULL ? 0 : PGNO(tp),
-			    tp == NULL ? &log_lsn : &LSN(tp), PGNO(pp->page),
-			    &LSN(pp->page), pp->indx, &log_dbt, NULL, &rentry)) != 0) {
+		if((ret = __bam_split_log(dbp, dbc->txn, &LSN(cp->page), 0, OP_SET(opflags, pp->page), PGNO(cp->page),
+			    &LSN(cp->page), PGNO(alloc_rp), &LSN(alloc_rp), (uint32)NUM_ENT(lp), tp == NULL ? 0 : PGNO(tp),
+			    tp == NULL ? &log_lsn : &LSN(tp), PGNO(pp->page), &LSN(pp->page), pp->indx, &log_dbt, NULL, &rentry)) != 0) {
 			/*
 			 * If this is not RECNO then undo the update
 			 * to the parent page, which has not been
@@ -421,8 +405,7 @@ static int __bam_page(DBC * dbc, EPG * pp, EPG * cp)
 			 * the parent can be logged independently.
 			 */
 			if(F_ISSET(bc, C_RECNUM) == 0) {
-				t_ret = __db_ditem_nolog(dbc, pp->page,
-					pp->indx+1, rentry.size);
+				t_ret = __db_ditem_nolog(dbc, pp->page, pp->indx+1, rentry.size);
 				DB_ASSERT(dbp->env, t_ret == 0);
 			}
 			goto err;
@@ -452,14 +435,12 @@ static int __bam_page(DBC * dbc, EPG * pp, EPG * cp)
 	 */
 	save_lsn = alloc_rp->lsn;
 	memcpy(alloc_rp, rp, LOFFSET(dbp, rp));
-	memcpy((uint8 *)alloc_rp+HOFFSET(rp),
-		(uint8 *)rp+HOFFSET(rp), dbp->pgsize-HOFFSET(rp));
+	memcpy((uint8 *)alloc_rp+HOFFSET(rp), (uint8 *)rp+HOFFSET(rp), dbp->pgsize-HOFFSET(rp));
 	alloc_rp->lsn = save_lsn;
 
 	save_lsn = cp->page->lsn;
 	memcpy(cp->page, lp, LOFFSET(dbp, lp));
-	memcpy((uint8 *)cp->page+HOFFSET(lp),
-		(uint8 *)lp+HOFFSET(lp), dbp->pgsize-HOFFSET(lp));
+	memcpy((uint8 *)cp->page+HOFFSET(lp), (uint8 *)lp+HOFFSET(lp), dbp->pgsize-HOFFSET(lp));
 	cp->page->lsn = save_lsn;
 	/* Adjust any cursors. */
 	if((ret = __bam_ca_split(dbc, PGNO(cp->page), PGNO(cp->page), PGNO(rp), split, 0)) != 0)
@@ -468,14 +449,12 @@ static int __bam_page(DBC * dbc, EPG * pp, EPG * cp)
 	/*
 	 * Success -- write the real pages back to the store.
 	 */
-	if((t_ret = __memp_fput(mpf,
-		    dbc->thread_info, alloc_rp, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, alloc_rp, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __TLPUT(dbc, rplock)) != 0 && ret == 0)
 		ret = t_ret;
-	if(tp != NULL) {
-		if((t_ret = __memp_fput(mpf,
-			    dbc->thread_info, tp, dbc->priority)) != 0 && ret == 0)
+	if(tp) {
+		if((t_ret = __memp_fput(mpf, dbc->thread_info, tp, dbc->priority)) != 0 && ret == 0)
 			ret = t_ret;
 	}
 	if((t_ret = __bam_stkrel(dbc, STK_CLRDBC)) != 0 && ret == 0)

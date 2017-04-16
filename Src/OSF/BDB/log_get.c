@@ -19,17 +19,17 @@
 
 typedef enum { L_ALREADY, L_ACQUIRED, L_NONE } RLOCK;
 
-static int __logc_close_pp __P((DB_LOGC*, uint32));
-static int __logc_get_pp __P((DB_LOGC*, DB_LSN*, DBT*, uint32));
-static int __logc_get_int __P((DB_LOGC*, DB_LSN*, DBT*, uint32));
-static int __logc_hdrchk __P((DB_LOGC*, DB_LSN*, HDR*, int *));
-static int __logc_incursor __P((DB_LOGC*, DB_LSN*, HDR*, uint8**));
-static int __logc_inregion __P((DB_LOGC*, DB_LSN*, RLOCK*, DB_LSN*, HDR*, uint8**, int *));
-static int __logc_io __P((DB_LOGC*, uint32, uint32, void *, size_t*, int *));
-static int __logc_ondisk __P((DB_LOGC*, DB_LSN*, DB_LSN*, uint32, HDR*, uint8**, int *));
-static int __logc_set_maxrec __P((DB_LOGC*, char *));
-static int __logc_shortread __P((DB_LOGC*, DB_LSN*, int));
-static int __logc_version_pp __P((DB_LOGC*, uint32*, uint32));
+static int __logc_close_pp(DB_LOGC*, uint32);
+static int __logc_get_pp(DB_LOGC*, DB_LSN*, DBT*, uint32);
+static int __logc_get_int(DB_LOGC*, DB_LSN*, DBT*, uint32);
+static int __logc_hdrchk(DB_LOGC*, DB_LSN*, HDR*, int *);
+static int __logc_incursor(DB_LOGC*, DB_LSN*, HDR*, uint8**);
+static int __logc_inregion(DB_LOGC*, DB_LSN*, RLOCK*, DB_LSN*, HDR*, uint8**, int *);
+static int __logc_io(DB_LOGC*, uint32, uint32, void *, size_t*, int *);
+static int __logc_ondisk(DB_LOGC*, DB_LSN*, DB_LSN*, uint32, HDR*, uint8**, int *);
+static int __logc_set_maxrec(DB_LOGC*, char *);
+static int __logc_shortread(DB_LOGC*, DB_LSN*, int);
+static int __logc_version_pp(DB_LOGC*, uint32*, uint32);
 
 /*
  * __log_cursor_pp --
@@ -88,13 +88,13 @@ int __log_cursor(ENV * env, DB_LOGC ** logcp)
 static int __logc_close_pp(DB_LOGC * logc, uint32 flags)
 {
 	DB_THREAD_INFO * ip;
-	int ret;
 	ENV * env = logc->env;
-	if((ret = __db_fchk(env, "DB_LOGC->close", flags, 0)) != 0)
-		return ret;
-	ENV_ENTER(env, ip);
-	REPLICATION_WRAP(env, (__logc_close(logc)), 0, ret);
-	ENV_LEAVE(env, ip);
+	int ret = __db_fchk(env, "DB_LOGC->close", flags, 0);
+	if(ret == 0) {
+		ENV_ENTER(env, ip);
+		REPLICATION_WRAP(env, (__logc_close(logc)), 0, ret);
+		ENV_LEAVE(env, ip);
+	}
 	return ret;
 }
 /*
@@ -167,8 +167,7 @@ int __logc_version(DB_LOGC * logc, uint32 * versionp)
 		plsn.offset = 0;
 		plogc->lsn = plsn;
 		memzero(&hdrdbt, sizeof(DBT));
-		if((ret = __logc_get_int(plogc,
-			    &plsn, &hdrdbt, DB_SET)) == 0) {
+		if((ret = __logc_get_int(plogc, &plsn, &hdrdbt, DB_SET)) == 0) {
 			persist = (LOGP *)hdrdbt.data;
 			if(LOG_SWAPPED(env))
 				__log_persistswap(persist);
@@ -256,19 +255,13 @@ int __logc_get(DB_LOGC * logc, DB_LSN * alsn, DBT * dbt, uint32 flags)
 	 */
 	if((ret = __dbt_usercopy(env, dbt)) != 0)
 		return ret;
-	if(alsn->offset == 0 && (flags == DB_FIRST ||
-	                         flags == DB_NEXT || flags == DB_LAST || flags == DB_PREV)) {
+	if(alsn->offset == 0 && oneof4(flags, DB_FIRST, DB_NEXT, DB_LAST, DB_PREV)) {
 		switch(flags) {
-		    case DB_FIRST:
-			flags = DB_NEXT;
-			break;
-		    case DB_LAST:
-			flags = DB_PREV;
-			break;
+		    case DB_FIRST: flags = DB_NEXT; break;
+		    case DB_LAST:  flags = DB_PREV; break;
 		    case DB_NEXT:
 		    case DB_PREV:
-		    default:
-			break;
+		    default: break;
 		}
 		/*
 		 * If we're walking the log and we find a persist header
@@ -393,11 +386,7 @@ nextrec:
 					ret = DB_NOTFOUND;
 					goto err;
 				}
-				if((!lp->db_log_inmemory &&
-				    (__log_valid(dblp, nlsn.file-1, 0, NULL,
-					     0, &status, NULL) != 0 ||
-				     (status != DB_LV_NORMAL &&
-				      status != DB_LV_OLD_READABLE)))) {
+				if((!lp->db_log_inmemory && (__log_valid(dblp, nlsn.file-1, 0, NULL, 0, &status, NULL) != 0 || !oneof2(status, DB_LV_NORMAL, DB_LV_OLD_READABLE)))) {
 					ret = DB_NOTFOUND;
 					goto err;
 				}
@@ -423,7 +412,8 @@ nextrec:
 		goto err;
 	}
 	if(0) {                                 /* Move to the next file. */
-next_file:      ++nlsn.file;
+next_file:      
+		++nlsn.file;
 		nlsn.offset = 0;
 	}
 	/*
@@ -462,11 +452,9 @@ next_file:      ++nlsn.file;
 	 * isn't an issue for this request.
 	 */
 	ZERO_LSN(last_lsn);
-	if(!F_ISSET(logc, DB_LOG_DISK) ||
-	   LOG_COMPARE(&nlsn, &logc->lsn) > 0) {
+	if(!F_ISSET(logc, DB_LOG_DISK) || LOG_COMPARE(&nlsn, &logc->lsn) > 0) {
 		F_CLR(logc, DB_LOG_DISK);
-		if((ret = __logc_inregion(logc,
-			    &nlsn, &rlock, &last_lsn, &hdr, &rp, &need_cksum)) != 0)
+		if((ret = __logc_inregion(logc, &nlsn, &rlock, &last_lsn, &hdr, &rp, &need_cksum)) != 0)
 			goto err;
 		if(rp != NULL) {
 			/*
@@ -493,8 +481,7 @@ next_file:      ++nlsn.file;
 		rlock = L_NONE;
 		LOG_SYSTEM_UNLOCK(env);
 	}
-	if((ret = __logc_ondisk(
-		    logc, &nlsn, &last_lsn, flags, &hdr, &rp, &eof)) != 0)
+	if((ret = __logc_ondisk(logc, &nlsn, &last_lsn, flags, &hdr, &rp, &eof)) != 0)
 		goto err;
 	/*
 	 * If we got a 0-length record, that means we're in the midst of some
@@ -569,10 +556,8 @@ cksum:  /*
 		 * header info is correct, we can skip the failed log record
 		 * and goto next one.
 		 */
-		if(F_ISSET(logc->env->lg_handle, DBLOG_VERIFYING) && (orig_flags == DB_FIRST || orig_flags == DB_LAST ||
-		    orig_flags == DB_PREV || orig_flags == DB_NEXT) && hdr.size > 0 && hdr.len > hdr.size && hdr.len < logfsz &&
-		   (((flags == DB_FIRST || flags == DB_NEXT) && hdr.prev == last_lsn.offset) || ((flags == DB_PREV || flags == DB_LAST) &&
-		      last_lsn.offset-hdr.len == nlsn.offset))) {
+		if(F_ISSET(logc->env->lg_handle, DBLOG_VERIFYING) && oneof4(orig_flags, DB_FIRST, DB_LAST, DB_PREV, DB_NEXT) && hdr.size > 0 && hdr.len > hdr.size && hdr.len < logfsz &&
+		   ((oneof2(flags, DB_FIRST, DB_NEXT) && hdr.prev == last_lsn.offset) || (oneof2(flags, DB_PREV, DB_LAST) && last_lsn.offset-hdr.len == nlsn.offset))) {
 			flags = orig_flags;
 			logc->lsn = nlsn;
 			logc->len = hdr.len;
@@ -968,7 +953,7 @@ static int __logc_ondisk(DB_LOGC * logc, DB_LSN * lsn, DB_LSN * last_lsn, uint32
 	 * Read a buffer's worth, without reading past the logical EOF.  The
 	 * last_lsn may be a zero LSN, but that's OK, the test works anyway.
 	 */
-	if(flags == DB_FIRST || flags == DB_NEXT)
+	if(oneof2(flags, DB_FIRST, DB_NEXT))
 		offset = lsn->offset;
 	else if(lsn->offset+hdr->len < logc->bp_size)
 		offset = 0;
@@ -977,8 +962,7 @@ static int __logc_ondisk(DB_LOGC * logc, DB_LSN * lsn, DB_LSN * last_lsn, uint32
 	nr = logc->bp_size;
 	if(lsn->file == last_lsn->file && offset+nr >= last_lsn->offset)
 		nr = last_lsn->offset-offset;
-	if((ret =
-	            __logc_io(logc, lsn->file, offset, logc->bp, &nr, eofp)) != 0)
+	if((ret = __logc_io(logc, lsn->file, offset, logc->bp, &nr, eofp)) != 0)
 		return ret;
 	/*
 	 * We should have at least gotten the bytes up-to-and-including the
@@ -1024,7 +1008,7 @@ static int __logc_hdrchk(DB_LOGC * logc, DB_LSN * lsn, HDR * hdr, int * eofp)
 	/*
 	 * Check EOF before we do any other processing.
 	 */
-	if(eofp != NULL) {
+	if(eofp) {
 		if(hdr->prev == 0 && hdr->chksum[0] == 0 && hdr->len == 0) {
 			*eofp = 1;
 			return 0;
@@ -1075,7 +1059,7 @@ static int __logc_io(DB_LOGC * logc, uint32 fnum, uint32 offset, void * p, size_
 	 * If we've switched files, discard the current file handle and acquire
 	 * a new one.
 	 */
-	if(logc->fhp != NULL && logc->bp_lsn.file != fnum) {
+	if(logc->fhp && logc->bp_lsn.file != fnum) {
 		ret = __os_closehandle(env, logc->fhp);
 		logc->fhp = NULL;
 		logc->bp_lsn.file = 0;
@@ -1202,7 +1186,6 @@ int __log_read_record(ENV * env, DB ** dbpp, void * td, void * recbuf, DB_LOG_RE
 	uint32 hdrsize, op, uinttmp;
 	uint8 * ap, * bp;
 	int has_data, ret, downrev;
-
 	COMPQUIET(has_data, 0);
 	COMPQUIET(hdrsize, 0);
 	COMPQUIET(hdrstart, NULL);
@@ -1293,7 +1276,7 @@ int __log_read_record(ENV * env, DB ** dbpp, void * td, void * recbuf, DB_LOG_RE
 					break;
 			    /* FALLTHROUGH */
 			    case LOGREC_DATA:
-				if(downrev ? LOG_SWAPPED(env) : (dbpp != NULL && *dbpp != NULL && F_ISSET(*dbpp, DB_AM_SWAP)))
+				if(downrev ? LOG_SWAPPED(env) : (dbpp && *dbpp != NULL && F_ISSET(*dbpp, DB_AM_SWAP)))
 					__db_recordswap(op, hdrsize, hdrstart, has_data ? ap+sp->offset : NULL, 1);
 				break;
 			    case LOGREC_PGDBT:
@@ -1309,7 +1292,7 @@ int __log_read_record(ENV * env, DB ** dbpp, void * td, void * recbuf, DB_LOG_RE
 					break;
 			    /* FALLTHROUGH */
 			    case LOGREC_PGDDBT:
-				if(dbpp != NULL && *dbpp != NULL && (downrev ? LOG_SWAPPED(env) : F_ISSET(*dbpp, DB_AM_SWAP)) && (ret = __db_pageswap(env, *dbpp, hdrstart,
+				if(dbpp && *dbpp != NULL && (downrev ? LOG_SWAPPED(env) : F_ISSET(*dbpp, DB_AM_SWAP)) && (ret = __db_pageswap(env, *dbpp, hdrstart,
 					hdrsize, has_data == 0 ? NULL : (DBT *)(ap+sp->offset), 1)) != 0)
 					return ret;
 				break;

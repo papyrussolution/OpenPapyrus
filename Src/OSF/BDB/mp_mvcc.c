@@ -17,7 +17,7 @@
 // @v9.5.5 #include "dbinc/log.h"
 // @v9.5.5 #include "dbinc/txn.h"
 
-static int __pgno_cmp __P((const void *, const void *));
+static int __pgno_cmp(const void *, const void *);
 /*
  * __memp_bh_settxn --
  *	Set the transaction that owns the given buffer.
@@ -118,13 +118,13 @@ int __memp_bh_freeze(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * 
 	int ret = 0;
 	/* Find the associated MPOOLFILE. */
 	MPOOLFILE * mfp = (MPOOLFILE *)R_ADDR(dbmp->reginfo, bhp->mf_offset);
-	uint32 pagesize = mfp->pagesize;
+	const uint32 pagesize = mfp->pagesize;
 	char * real_name = NULL;
 	DB_FH * fhp = NULL;
 	MVCC_MPROTECT(bhp->buf, pagesize, PROT_READ|PROT_WRITE);
 	MPOOL_REGION_LOCK(env, infop);
 	frozen_bhp = SH_TAILQ_FIRST(&c_mp->free_frozen, __bh);
-	if(frozen_bhp != NULL) {
+	if(frozen_bhp) {
 		SH_TAILQ_REMOVE(&c_mp->free_frozen, frozen_bhp, hq, __bh);
 		*need_frozenp = SH_TAILQ_EMPTY(&c_mp->free_frozen);
 	}
@@ -134,8 +134,7 @@ int __memp_bh_freeze(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * 
 		if(__env_alloc(infop, sizeof(BH_FROZEN_ALLOC)+sizeof(BH_FROZEN_PAGE), &frozen_alloc) == 0) {
 			frozen_bhp = (BH *)(frozen_alloc+1);
 			frozen_bhp->mtx_buf = MUTEX_INVALID;
-			SH_TAILQ_INSERT_TAIL(&c_mp->alloc_frozen,
-				frozen_alloc, links);
+			SH_TAILQ_INSERT_TAIL(&c_mp->alloc_frozen, frozen_alloc, links);
 		}
 	}
 	MPOOL_REGION_UNLOCK(env, infop);
@@ -155,10 +154,8 @@ int __memp_bh_freeze(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * 
 	 */
 	ncache = (uint32)(infop-dbmp->reginfo);
 	nbucket = (uint32)(hp-(DB_MPOOL_HASH *)R_ADDR(infop, c_mp->htab));
-	snprintf(filename, sizeof(filename), "__db.freezer.%lu.%lu.%luK",
-		(ulong)ncache, (ulong)nbucket, (ulong)pagesize/1024);
-	if((ret = __db_appname(env,
-		    DB_APP_NONE, filename, NULL, &real_name)) != 0)
+	snprintf(filename, sizeof(filename), "__db.freezer.%lu.%lu.%luK", (ulong)ncache, (ulong)nbucket, (ulong)pagesize/1024);
+	if((ret = __db_appname(env, DB_APP_NONE, filename, NULL, &real_name)) != 0)
 		goto err;
 	MUTEX_LOCK(env, hp->mtx_hash);
 	h_locked = 1;
@@ -167,32 +164,24 @@ int __memp_bh_freeze(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * 
 		ret = EBUSY;
 		goto err;
 	}
-	if((ret = __os_open(env, real_name, pagesize,
-		    DB_OSO_CREATE|DB_OSO_EXCL, env->db_mode, &fhp)) == 0) {
+	if((ret = __os_open(env, real_name, pagesize, DB_OSO_CREATE|DB_OSO_EXCL, env->db_mode, &fhp)) == 0) {
 		/* We're creating the file -- initialize the metadata page. */
 		created = 1;
 		magic = DB_FREEZER_MAGIC;
 		maxpgno = newpgno = 0;
-		if((ret = __os_write(env, fhp,
-			    &magic, sizeof(uint32), &nio)) != 0 ||
-		   (ret = __os_write(env, fhp,
-			    &newpgno, sizeof(db_pgno_t), &nio)) != 0 ||
-		   (ret = __os_write(env, fhp,
-			    &maxpgno, sizeof(db_pgno_t), &nio)) != 0 ||
+		if((ret = __os_write(env, fhp, &magic, sizeof(uint32), &nio)) != 0 ||
+		   (ret = __os_write(env, fhp, &newpgno, sizeof(db_pgno_t), &nio)) != 0 ||
+		   (ret = __os_write(env, fhp, &maxpgno, sizeof(db_pgno_t), &nio)) != 0 ||
 		   (ret = __os_seek(env, fhp, 0, 0, 0)) != 0)
 			goto err;
 	}
 	else if(ret == EEXIST)
-		ret = __os_open(env,
-			real_name, pagesize, 0, env->db_mode, &fhp);
+		ret = __os_open(env, real_name, pagesize, 0, env->db_mode, &fhp);
 	if(ret != 0)
 		goto err;
-	if((ret = __os_read(env, fhp,
-		    &magic, sizeof(uint32), &nio)) != 0 ||
-	   (ret = __os_read(env, fhp,
-		    &newpgno, sizeof(db_pgno_t), &nio)) != 0 ||
-	   (ret = __os_read(env, fhp,
-		    &maxpgno, sizeof(db_pgno_t), &nio)) != 0)
+	if((ret = __os_read(env, fhp, &magic, sizeof(uint32), &nio)) != 0 ||
+	   (ret = __os_read(env, fhp, &newpgno, sizeof(db_pgno_t), &nio)) != 0 ||
+	   (ret = __os_read(env, fhp, &maxpgno, sizeof(db_pgno_t), &nio)) != 0)
 		goto err;
 	if(magic != DB_FREEZER_MAGIC) {
 		ret = EINVAL;
@@ -200,26 +189,20 @@ int __memp_bh_freeze(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * 
 	}
 	if(newpgno == 0) {
 		newpgno = ++maxpgno;
-		if((ret = __os_seek(env,
-			    fhp, 0, 0, sizeof(uint32)+sizeof(db_pgno_t))) != 0 ||
-		   (ret = __os_write(env, fhp, &maxpgno, sizeof(db_pgno_t),
-			    &nio)) != 0)
+		if((ret = __os_seek(env, fhp, 0, 0, sizeof(uint32)+sizeof(db_pgno_t))) != 0 ||
+		   (ret = __os_write(env, fhp, &maxpgno, sizeof(db_pgno_t), &nio)) != 0)
 			goto err;
 	}
 	else {
 		if((ret = __os_seek(env, fhp, newpgno, pagesize, 0)) != 0 ||
-		   (ret = __os_read(env, fhp, &nextfree, sizeof(db_pgno_t),
-			    &nio)) != 0)
+		   (ret = __os_read(env, fhp, &nextfree, sizeof(db_pgno_t), &nio)) != 0)
 			goto err;
-		if((ret =
-		            __os_seek(env, fhp, 0, 0, sizeof(uint32))) != 0 ||
-		   (ret = __os_write(env, fhp, &nextfree, sizeof(db_pgno_t),
-			    &nio)) != 0)
+		if((ret = __os_seek(env, fhp, 0, 0, sizeof(uint32))) != 0 ||
+		   (ret = __os_write(env, fhp, &nextfree, sizeof(db_pgno_t), &nio)) != 0)
 			goto err;
 	}
 	/* Write the buffer to the allocated page. */
-	if((ret = __os_io(env, DB_IO_WRITE, fhp, newpgno, pagesize, 0,
-		    pagesize, bhp->buf, &nio)) != 0)
+	if((ret = __os_io(env, DB_IO_WRITE, fhp, newpgno, pagesize, 0, pagesize, bhp->buf, &nio)) != 0)
 		goto err;
 	ret = __os_closehandle(env, fhp);
 	fhp = NULL;
@@ -239,8 +222,7 @@ int __memp_bh_freeze(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * 
 	atomic_init(&frozen_bhp->ref, 0);
 	if(mutex != MUTEX_INVALID)
 		frozen_bhp->mtx_buf = mutex;
-	else if((ret = __mutex_alloc(env, MTX_MPOOL_BH,
-			 DB_MUTEX_SHARED, &frozen_bhp->mtx_buf)) != 0)
+	else if((ret = __mutex_alloc(env, MTX_MPOOL_BH, DB_MUTEX_SHARED, &frozen_bhp->mtx_buf)) != 0)
 		goto err;
 	F_SET(frozen_bhp, BH_FROZEN);
 	F_CLR(frozen_bhp, BH_EXCLUSIVE);
@@ -250,13 +232,11 @@ int __memp_bh_freeze(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * 
 	 * we have temporarily created another buffer for the owning
 	 * transaction.
 	 */
-	if(frozen_bhp->td_off != INVALID_ROFF &&
-	   (ret = __txn_add_buffer(env, BH_OWNER(env, frozen_bhp))) != 0) {
+	if(frozen_bhp->td_off != INVALID_ROFF && (ret = __txn_add_buffer(env, BH_OWNER(env, frozen_bhp))) != 0) {
 		__env_panic(env, ret);
 		goto err;
 	}
 	STAT_INC(env, mpool, freeze, hp->hash_frozen, bhp->pgno);
-
 	/*
 	 * Add the frozen buffer to the version chain and update the hash
 	 * bucket if this is the head revision.  The original buffer will be
@@ -265,13 +245,11 @@ int __memp_bh_freeze(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * 
 	 */
 	SH_CHAIN_INSERT_AFTER(bhp, frozen_bhp, vc, __bh);
 	if(!SH_CHAIN_HASNEXT(frozen_bhp, vc)) {
-		SH_TAILQ_INSERT_BEFORE(&hp->hash_bucket,
-			bhp, frozen_bhp, hq, __bh);
+		SH_TAILQ_INSERT_BEFORE(&hp->hash_bucket, bhp, frozen_bhp, hq, __bh);
 		SH_TAILQ_REMOVE(&hp->hash_bucket, bhp, hq, __bh);
 	}
 	MUTEX_UNLOCK(env, hp->mtx_hash);
 	h_locked = 0;
-
 	/*
 	 * Increment the file's block count -- freeing the original buffer will
 	 * decrement it.
@@ -280,13 +258,12 @@ int __memp_bh_freeze(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * 
 	++mfp->block_cnt;
 	MUTEX_UNLOCK(env, mfp->mutex);
 	if(0) {
-err:            if(fhp != NULL &&
-		   (t_ret = __os_closehandle(env, fhp)) != 0 && ret == 0)
+err:            
+		if(fhp != NULL && (t_ret = __os_closehandle(env, fhp)) != 0 && ret == 0)
 			ret = t_ret;
 		if(created) {
 			DB_ASSERT(env, h_locked);
-			if((t_ret = __os_unlink(env, real_name, 0)) != 0 &&
-			   ret == 0)
+			if((t_ret = __os_unlink(env, real_name, 0)) != 0 && ret == 0)
 				ret = t_ret;
 		}
 		if(h_locked)
@@ -295,8 +272,7 @@ err:            if(fhp != NULL &&
 			ret = EIO;
 		if(frozen_bhp != NULL) {
 			MPOOL_REGION_LOCK(env, infop);
-			SH_TAILQ_INSERT_TAIL(&c_mp->free_frozen,
-				frozen_bhp, hq);
+			SH_TAILQ_INSERT_TAIL(&c_mp->free_frozen, frozen_bhp, hq);
 			MPOOL_REGION_UNLOCK(env, infop);
 		}
 	}
@@ -348,8 +324,8 @@ int __memp_bh_thaw(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * fr
 	DB_ASSERT(env, F_ISSET(frozen_bhp, BH_EXCLUSIVE) || alloc_bhp == NULL);
 	h_locked = 1;
 	DB_ASSERT(env, F_ISSET(frozen_bhp, BH_FROZEN) && !F_ISSET(frozen_bhp, BH_THAWED));
-	DB_ASSERT(env, alloc_bhp != NULL || SH_CHAIN_SINGLETON(frozen_bhp, vc) || (SH_CHAIN_HASNEXT(frozen_bhp, vc) && BH_OBSOLETE(frozen_bhp, hp->old_reader, vlsn)));
-	DB_ASSERT(env, alloc_bhp == NULL || !F_ISSET(alloc_bhp, BH_FROZEN));
+	DB_ASSERT(env, alloc_bhp  || SH_CHAIN_SINGLETON(frozen_bhp, vc) || (SH_CHAIN_HASNEXT(frozen_bhp, vc) && BH_OBSOLETE(frozen_bhp, hp->old_reader, vlsn)));
+	DB_ASSERT(env, !alloc_bhp || !F_ISSET(alloc_bhp, BH_FROZEN));
 	spgno = ((BH_FROZEN_PAGE *)frozen_bhp)->spgno;
 	if(alloc_bhp != NULL) {
 		mutex = alloc_bhp->mtx_buf;
@@ -363,25 +339,18 @@ int __memp_bh_thaw(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * fr
 		atomic_init(&alloc_bhp->ref, 1);
 		F_CLR(alloc_bhp, BH_FROZEN);
 	}
-	/*
-	 * For now, keep things simple and have one file per page size per
-	 * hash bucket.  This improves concurrency but can mean lots of files
-	 * if there is lots of freezing.
-	 */
+	//
+	// For now, keep things simple and have one file per page size per
+	// hash bucket.  This improves concurrency but can mean lots of files if there is lots of freezing.
+	//
 	ncache = (uint32)(infop-dbmp->reginfo);
 	nbucket = (uint32)(hp-(DB_MPOOL_HASH *)R_ADDR(infop, c_mp->htab));
-	snprintf(filename, sizeof(filename), "__db.freezer.%lu.%lu.%luK",
-		(ulong)ncache, (ulong)nbucket, (ulong)pagesize/1024);
-	if((ret = __db_appname(env,
-		    DB_APP_NONE, filename, NULL, &real_name)) != 0)
+	snprintf(filename, sizeof(filename), "__db.freezer.%lu.%lu.%luK", (ulong)ncache, (ulong)nbucket, (ulong)pagesize/1024);
+	if((ret = __db_appname(env, DB_APP_NONE, filename, NULL, &real_name)) != 0)
 		goto err;
-	if((ret = __os_open(env,
-		    real_name, pagesize, 0, env->db_mode, &fhp)) != 0)
+	if((ret = __os_open(env, real_name, pagesize, 0, env->db_mode, &fhp)) != 0)
 		goto err;
-	/*
-	 * Read the first free page number -- we're about to free the page
-	 * after we we read it.
-	 */
+	// Read the first free page number -- we're about to free the page after we we read it.
 	if((ret = __os_read(env, fhp, &magic, sizeof(uint32), &nio)) != 0 ||
 	   (ret = __os_read(env, fhp, &freepgno, sizeof(db_pgno_t), &nio)) != 0 ||
 	   (ret = __os_read(env, fhp, &maxpgno, sizeof(db_pgno_t), &nio)) != 0)
@@ -390,16 +359,16 @@ int __memp_bh_thaw(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * fr
 		ret = EINVAL;
 		goto err;
 	}
-	/* Read the buffer from the frozen page. */
-	if(alloc_bhp != NULL) {
+	// Read the buffer from the frozen page.
+	if(alloc_bhp) {
 		DB_ASSERT(env, !F_ISSET(frozen_bhp, BH_FREED));
 		if((ret = __os_io(env, DB_IO_READ, fhp, spgno, pagesize, 0, pagesize, alloc_bhp->buf, &nio)) != 0)
 			goto err;
 	}
-	/*
-	 * Free the page from the file.  If it's the last page, truncate.
-	 * Otherwise, update free page linked list.
-	 */
+	//
+	// Free the page from the file.  If it's the last page, truncate.
+	// Otherwise, update free page linked list.
+	//
 	needfree = 1;
 	if(spgno == maxpgno) {
 		listsize = 100;
@@ -426,7 +395,7 @@ int __memp_bh_thaw(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * fr
 			needfree = 0;
 			ret = __os_closehandle(env, fhp);
 			fhp = NULL;
-			if(ret != 0 || (ret = __os_unlink(env, real_name, 0)) != 0)
+			if(ret || (ret = __os_unlink(env, real_name, 0)) != 0)
 				goto err;
 		}
 #ifdef HAVE_FTRUNCATE
@@ -481,12 +450,11 @@ int __memp_bh_thaw(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * fr
 		SH_TAILQ_REMOVE(&hp->hash_bucket, frozen_bhp, hq, __bh);
 	}
 	SH_CHAIN_REMOVE(frozen_bhp, vc, __bh);
-	if(alloc_bhp == NULL && frozen_bhp->td_off != INVALID_ROFF && (ret = __txn_remove_buffer(env, BH_OWNER(env, frozen_bhp), MUTEX_INVALID)) != 0) {
+	if(!alloc_bhp && frozen_bhp->td_off != INVALID_ROFF && (ret = __txn_remove_buffer(env, BH_OWNER(env, frozen_bhp), MUTEX_INVALID)) != 0) {
 		__env_panic(env, ret);
 		goto err;
 	}
 	frozen_bhp->td_off = INVALID_ROFF;
-
 	/*
 	 * If other threads are waiting for this buffer as well, they will have
 	 * incremented the reference count and will be waiting on the mutex.
@@ -514,13 +482,10 @@ int __memp_bh_thaw(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * fr
 err:            
 		if(h_locked)
 			MUTEX_UNLOCK(env, hp->mtx_hash);
-		if(ret == 0)
-			ret = EIO;
+		SETIFZ(ret, EIO);
 	}
-	if(real_name != NULL)
-		__os_free(env, real_name);
-	if(freelist != NULL)
-		__os_free(env, freelist);
+	__os_free(env, real_name);
+	__os_free(env, freelist);
 	if(fhp != NULL && (t_ret = __os_closehandle(env, fhp)) != 0 && ret == 0)
 		ret = t_ret;
 	if(ret != 0)

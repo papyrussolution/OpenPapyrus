@@ -487,7 +487,7 @@ void * SLAPI PPObjSecur::CreateObjListWin(uint flags, void * extraPtr)
 			}
 			if(update) {
 				P_Obj->UpdateSelector(P_Lb->def, &Param);
-				P_Lb->drawView();
+				P_Lb->Draw_();
 				P_Lb->setRange(P_Lb->def->getRecsCount());
 				if(update == 2)
 					P_Lb->search(&cur_id, 0, srchFirst | lbSrchByID);

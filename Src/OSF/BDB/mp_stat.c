@@ -343,47 +343,28 @@ static int __memp_print_stats(ENV * env, uint32 flags)
 	__db_dl_pct(env, "The number of hash bucket locks that required waiting", (ulong)gsp->st_hash_wait, DB_PCT(gsp->st_hash_wait, gsp->st_hash_wait+gsp->st_hash_nowait), NULL);
 	__db_dl_pct(env, "The maximum number of times any hash bucket lock was waited for", (ulong)gsp->st_hash_max_wait, DB_PCT(gsp->st_hash_max_wait, gsp->st_hash_max_wait+gsp->st_hash_max_nowait), NULL);
 	__db_dl_pct(env, "The number of region locks that required waiting", (ulong)gsp->st_region_wait, DB_PCT(gsp->st_region_wait, gsp->st_region_wait+gsp->st_region_nowait), NULL);
-	__db_dl(env, "The number of buffers frozen",
-		(ulong)gsp->st_mvcc_frozen);
-	__db_dl(env, "The number of buffers thawed",
-		(ulong)gsp->st_mvcc_thawed);
-	__db_dl(env, "The number of frozen buffers freed",
-		(ulong)gsp->st_mvcc_freed);
+	__db_dl(env, "The number of buffers frozen", (ulong)gsp->st_mvcc_frozen);
+	__db_dl(env, "The number of buffers thawed", (ulong)gsp->st_mvcc_thawed);
+	__db_dl(env, "The number of frozen buffers freed", (ulong)gsp->st_mvcc_freed);
 	__db_dl(env, "The number of page allocations", (ulong)gsp->st_alloc);
-	__db_dl(env,
-		"The number of hash buckets examined during allocations",
-		(ulong)gsp->st_alloc_buckets);
-	__db_dl(env,
-		"The maximum number of hash buckets examined for an allocation",
-		(ulong)gsp->st_alloc_max_buckets);
-	__db_dl(env, "The number of pages examined during allocations",
-		(ulong)gsp->st_alloc_pages);
-	__db_dl(env, "The max number of pages examined for an allocation",
-		(ulong)gsp->st_alloc_max_pages);
+	__db_dl(env, "The number of hash buckets examined during allocations", (ulong)gsp->st_alloc_buckets);
+	__db_dl(env, "The maximum number of hash buckets examined for an allocation", (ulong)gsp->st_alloc_max_buckets);
+	__db_dl(env, "The number of pages examined during allocations", (ulong)gsp->st_alloc_pages);
+	__db_dl(env, "The max number of pages examined for an allocation", (ulong)gsp->st_alloc_max_pages);
 	__db_dl(env, "Threads waited on page I/O", (ulong)gsp->st_io_wait);
-	__db_dl(env, "The number of times a sync is interrupted",
-		(ulong)gsp->st_sync_interrupted);
+	__db_dl(env, "The number of times a sync is interrupted", (ulong)gsp->st_sync_interrupted);
 
 	for(tfsp = fsp; fsp != NULL && *tfsp != NULL; ++tfsp) {
 		if(LF_ISSET(DB_STAT_ALL))
 			__db_msg(env, "%s", DB_GLOBAL(db_line));
 		__db_msg(env, "Pool File: %s", (*tfsp)->file_name);
 		__db_dl(env, "Page size", (ulong)(*tfsp)->st_pagesize);
-		__db_dl(env,
-			"Requested pages mapped into the process' address space",
-			(ulong)(*tfsp)->st_map);
-		__db_dl_pct(env, "Requested pages found in the cache",
-			(ulong)(*tfsp)->st_cache_hit, DB_PCT((*tfsp)->st_cache_hit,
-				(*tfsp)->st_cache_hit+(*tfsp)->st_cache_miss), NULL);
-		__db_dl(env, "Requested pages not found in the cache",
-			(ulong)(*tfsp)->st_cache_miss);
-		__db_dl(env, "Pages created in the cache",
-			(ulong)(*tfsp)->st_page_create);
-		__db_dl(env, "Pages read into the cache",
-			(ulong)(*tfsp)->st_page_in);
-		__db_dl(env,
-			"Pages written from the cache to the backing file",
-			(ulong)(*tfsp)->st_page_out);
+		__db_dl(env, "Requested pages mapped into the process' address space", (ulong)(*tfsp)->st_map);
+		__db_dl_pct(env, "Requested pages found in the cache", (ulong)(*tfsp)->st_cache_hit, DB_PCT((*tfsp)->st_cache_hit, (*tfsp)->st_cache_hit+(*tfsp)->st_cache_miss), NULL);
+		__db_dl(env, "Requested pages not found in the cache", (ulong)(*tfsp)->st_cache_miss);
+		__db_dl(env, "Pages created in the cache", (ulong)(*tfsp)->st_page_create);
+		__db_dl(env, "Pages read into the cache", (ulong)(*tfsp)->st_page_in);
+		__db_dl(env, "Pages written from the cache to the backing file", (ulong)(*tfsp)->st_page_out);
 	}
 	__os_ufree(env, fsp);
 	__os_ufree(env, gsp);
@@ -422,8 +403,7 @@ static int __memp_print_all(ENV * env, uint32 flags)
 	__db_msg(env, "DB_MPOOLFILE structures:");
 	for(cnt = 0, dbmfp = TAILQ_FIRST(&dbmp->dbmfq);
 	    dbmfp != NULL; dbmfp = TAILQ_NEXT(dbmfp, q), ++cnt) {
-		__db_msg(env, "File #%lu: %s: per-process, %s", (ulong)cnt+1, __memp_fn(dbmfp),
-			F_ISSET(dbmfp, MP_READONLY) ? "readonly" : "read/write");
+		__db_msg(env, "File #%lu: %s: per-process, %s", (ulong)cnt+1, __memp_fn(dbmfp), F_ISSET(dbmfp, MP_READONLY) ? "readonly" : "read/write");
 		STAT_ULONG("Reference count", dbmfp->ref);
 		STAT_ULONG("Pinned block reference count", dbmfp->ref);
 		STAT_ULONG("Clear length", dbmfp->clear_len);

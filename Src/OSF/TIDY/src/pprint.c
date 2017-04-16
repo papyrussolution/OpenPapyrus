@@ -515,7 +515,7 @@ static void ResetLine(TidyPrintImpl* pprint)
 		if(ind[0].attrValStart > wrap)
 			ind[0].attrValStart -= wrap;
 	}
-	else{
+	else {
 		if(ind[0].attrStringStart > 0)
 			ind[0].attrStringStart = 0;
 		if(ind[0].attrValStart > 0)
@@ -544,7 +544,7 @@ static void ResetLineAfterWrap(TidyPrintImpl* pprint)
 
 		pprint->linelen -= pprint->wraphere;
 	}
-	else{
+	else {
 		pprint->linelen = 0;
 	}
 
@@ -921,7 +921,7 @@ static void PPrintText(TidyDocImpl* doc, uint mode, uint indent,
 			ixWS = TextStartsWithWhitespace(doc->lexer, node, ix+1, mode);
 			ix = IncrWS(ix, end, indent, ixWS);
 		}
-		else{
+		else {
 			PPrintChar(doc, c, mode);
 		}
 	}
@@ -1885,7 +1885,7 @@ void TY_(PPrintTree) (TidyDocImpl* doc, uint mode, uint indent, Node *node)
 				TY_(PFlushLine) (doc, indent);
 		}
 	}
-	else{ /* some kind of container element */
+	else { /* some kind of container element */
 		if(node->type == StartEndTag)
 			node->type = StartTag;
 
@@ -1951,7 +1951,7 @@ void TY_(PPrintTree) (TidyDocImpl* doc, uint mode, uint indent, Node *node)
 				PCondFlushLine(doc, indent);
 				/* PCondFlushLine( doc, indent ); */
 			}
-			else{
+			else {
 				for(content = node->content;
 				    content != NULL;
 				    content = content->next)
@@ -1959,7 +1959,7 @@ void TY_(PPrintTree) (TidyDocImpl* doc, uint mode, uint indent, Node *node)
 			}
 			PPrintEndTag(doc, mode, indent, node);
 		}
-		else{ /* other tags */
+		else { /* other tags */
 			bool indcont  = ( cfgAutoBool(doc, TidyIndentContent) != TidyNoState );
 			bool indsmart = ( cfgAutoBool(doc, TidyIndentContent) == TidyAutoState );
 			bool hideend  = cfgBool(doc, TidyHideEndTags);
@@ -2022,7 +2022,7 @@ void TY_(PPrintTree) (TidyDocImpl* doc, uint mode, uint indent, Node *node)
 					/* TY_(PFlushLine)( doc, indent ); */
 				}
 			}
-			else{
+			else {
 				if(!hideend || !TY_(nodeHasCM) (node, CM_OPT) ) {
 					/* newline before endtag for classic formatting */
 					if(classic && !HasMixedContent(node) )
@@ -2082,7 +2082,7 @@ void TY_(PPrintXMLTree) (TidyDocImpl* doc, uint mode, uint indent, Node *node)
 		PPrintTag(doc, mode, indent, node);
 		/* TY_(PFlushLine)( doc, indent ); */
 	}
-	else{ /* some kind of container element */
+	else { /* some kind of container element */
 		uint spaces = cfg(doc, TidyIndentSpaces);
 		Node * content;
 		bool mixed = false;

@@ -2164,7 +2164,7 @@ int ImportCls::ListMessageBox(uint messageType)
 						THROWERR((p_xml_ptr = xmlNewTextReader(p_input, NULL)), IEERR_NULLREADXMLPTR);
 						while(xmlTextReaderRead(p_xml_ptr)) {
 							xmlNodePtr p_node = xmlTextReaderCurrentNode(p_xml_ptr);
-							if(p_node && p_node->children && stricmp((const char *)p_node->name, "document-info") == 0) {
+							if(p_node && p_node->children && sstreqi_ascii((const char *)p_node->name, "document-info")) {
 								//THROWERR(p_info_blk = new MessageInfoBlock, IEERR_NOMEM);
 								PPEdiMessageEntry eme;
 								for(xmlNodePtr p_doc_child = p_node->children; p_doc_child != 0; p_doc_child = p_doc_child->next) {

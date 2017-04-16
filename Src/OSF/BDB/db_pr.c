@@ -658,10 +658,8 @@ int __db_prpage_int(ENV * env, DB_MSGBUF * mbp, DB * dbp, char * lead, PAGE * h,
 			hk = (uint8 *)sp;
 			switch(HPAGE_PTYPE(hk)) {
 			    case H_OFFDUP:
-				memcpy(&pgno,
-					HOFFDUP_PGNO(hk), sizeof(db_pgno_t));
-				__db_msgadd(env, mbp,
-					"%4lu [offpage dups]", (ulong)pgno);
+				memcpy(&pgno, HOFFDUP_PGNO(hk), sizeof(db_pgno_t));
+				__db_msgadd(env, mbp, "%4lu [offpage dups]", (ulong)pgno);
 				DB_MSGBUF_FLUSH(env, mbp);
 				break;
 			    case H_DUPLICATE:
@@ -677,8 +675,7 @@ int __db_prpage_int(ENV * env, DB_MSGBUF * mbp, DB * dbp, char * lead, PAGE * h,
 					len = 1;
 				__db_msgadd(env, mbp, "Duplicates:");
 				DB_MSGBUF_FLUSH(env, mbp);
-				for(p = HKEYDATA_DATA(hk),
-				    ep = p+len; p < ep; ) {
+				for(p = HKEYDATA_DATA(hk), ep = p+len; p < ep; ) {
 					memcpy(&dlen, p, sizeof(db_indx_t));
 					p += sizeof(db_indx_t);
 					__db_msgadd(env, mbp, "\t\t");

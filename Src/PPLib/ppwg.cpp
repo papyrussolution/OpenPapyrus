@@ -46,7 +46,7 @@ static int EditDtr(PPDateTimeRep * pData)
 			TDialog::handleEvent(event);
 			if(TVCOMMAND && TVCMD == cmDtrRepeating) {
 				RepeatingDialog * dlg = new RepeatingDialog(RepeatingDialog::fEditTime|RepeatingDialog::fEditDuration);
-				if(CheckDialogPtr(&dlg, 1)) {
+				if(CheckDialogPtrErr(&dlg)) {
 					dlg->setDTS(&Data.Dtr);
 					dlg->setDuration(Data.Duration);
 					while(ExecView(dlg) == cmOK)
@@ -310,7 +310,7 @@ static int EditDutySchedItem(const PPDutySched * pHead, PPDutySchedEntry * pData
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_DUTYSCHEDITEM);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		PPObjDateTimeRep dtr_obj;
 		//PPDateTimeRep dtr_rec;
 		if(pHead->ObjType)
@@ -423,7 +423,7 @@ void DutySchedDialog::fillStaffCal()
 		PPID   base_cal_id = psn_obj.GetConfig().RegStaffCalID;
 		{
 			TDialog * dlg = new TDialog(DLG_FILLSCDT);
-			if(CheckDialogPtr(&dlg, 1)) {
+			if(CheckDialogPtrErr(&dlg)) {
 				dlg->SetupCalPeriod(CTLCAL_FILLSCDT_PERIOD, CTL_FILLSCDT_PERIOD);
 				SetupPPObjCombo(dlg, CTLSEL_FILLSCDT_CAL, PPOBJ_STAFFCAL, base_cal_id, 0, 0);
 				SetPeriodInput(dlg, CTL_FILLSCDT_PERIOD, &period);
@@ -461,7 +461,7 @@ void DutySchedDialog::updateCountPointList(long pos)
 			p_list->addItem(i, sub);
 		}
 	   	p_list->focusItem((pos < 0) ? sav_pos : pos);
-		p_list->drawView();
+		p_list->Draw_();
 		unlock();
 	}
 }

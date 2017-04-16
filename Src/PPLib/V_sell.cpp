@@ -352,7 +352,7 @@ int SLAPI PPViewPredictSales::ViewTotal()
 	PredictSalesTotal total;
 	CalcTotal(&total);
 	TDialog * dlg = new TDialog(DLG_PSALESTOTAL);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		double qtty_trnovr = fdivnz(1.0, total.QttyAverage);
 		double amt_trnovr  = fdivnz(1.0, total.AmtAverage);
 		double qtty_var    = fdivnz(total.QttyStdDev, total.QttyAverage);
@@ -388,7 +388,7 @@ int SLAPI PPViewPredictSales::EditBaseFilt(PPBaseFilt * pBaseFilt /*PredictSales
 	PredictSalesFilt * p_filt = 0;
 	THROW(Filt.IsA(pBaseFilt));
 	p_filt = (PredictSalesFilt *)pBaseFilt;
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PSALESFLT)), 0));
+	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PSALESFLT))));
 	{
 		dlg->SetupCalPeriod(CTLCAL_PSALESFLT_PERIOD, CTL_PSALESFLT_PERIOD);
 		dlg->SetupCalDate(CTLCAL_PSALESFLT_WATERSHED, CTL_PSALESFLT_WATERSHED);

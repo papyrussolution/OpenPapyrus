@@ -2853,7 +2853,7 @@ static int SetGoodsCorr(CCheckFilt * pFilt)
 	int    ok = -1;
 	if(pFilt) {
 		TDialog * p_dlg = new TDialog(DLG_GOODSCORR);
-		if(CheckDialogPtr(&p_dlg, 1)) {
+		if(CheckDialogPtrErr(&p_dlg)) {
 			p_dlg->setCtrlLong(CTL_GOODSCORR_MINQTTY, pFilt->GcoMinCount);
 			p_dlg->AddClusterAssoc(CTL_GOODSCORR_SORT, 0, CCheckFilt::ordByCount);
 			p_dlg->AddClusterAssoc(CTL_GOODSCORR_SORT, 1, CCheckFilt::ordByName);
@@ -2949,7 +2949,7 @@ int SLAPI PPViewCCheck::ToggleDlvrTag(PPID checkID)
 	TDialog * dlg = 0;
 	CCheckPacket cc_pack; // CCheckCore CCheckExtTbl CCheckTbl
 	if(P_CC->LoadPacket(checkID, 0, &cc_pack) > 0 && cc_pack.Rec.Flags & CCHKF_DELIVERY) {
-		if(CheckDialogPtr(&(dlg = new TDialog(DLG_TOGGLECCDLVR)), 1)) {
+		if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_TOGGLECCDLVR)))) {
 			SString temp_buf;
 			dlg->SetupCalDate(CTLCAL_TOGGLECCDLVR_DT, CTL_TOGGLECCDLVR_DT);
 			SetupTimePicker(dlg, CTL_TOGGLECCDLVR_TM, CTLTM_TOGGLECCDLVR_TM);
@@ -3294,7 +3294,7 @@ int SLAPI PPViewCCheck::ViewTotal()
 	TDialog * dlg = 0;
 	CCheckTotal total;
 	CalcTotal(&total);
-	if(CheckDialogPtr(&(dlg = new TDialog(DLG_CCHECKTOTAL)), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_CCHECKTOTAL)))) {
 		dlg->setCtrlLong(CTL_CCHECKTOTAL_COUNT,    total.Count);
 		dlg->setCtrlReal(CTL_CCHECKTOTAL_QTTY,     total.Qtty);
 		dlg->setCtrlReal(CTL_CCHECKTOTAL_AMOUNT,   total.Amount);
@@ -3477,7 +3477,7 @@ public:
 					ss.add(temp_buf);
 					p_box->addItem(i+1, ss.getBuf());
 				}
-				p_box->drawView();
+				p_box->Draw_();
 				p_box->focusItem(0);
 			}
 		}

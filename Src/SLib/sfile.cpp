@@ -734,7 +734,7 @@ int SLAPI SFile::Flush()
 	int    ok = -1;
 	if(T == tStdFile) {
 		if(F)
-			ok = (fflush(F) == 0) ? 1 : 0;
+			ok = BIN(fflush(F) == 0);
 	}
 	return ok;
 }
@@ -980,8 +980,8 @@ int SLAPI SFile::ReadLine(SString & rBuf)
 
 int SLAPI SFile::Write(const SBuffer & rBuf)
 {
-	size_t offs = rBuf.GetRdOffs();
-	uint32 size = rBuf.GetAvailableSize();
+	const size_t offs = rBuf.GetRdOffs();
+	const uint32 size = rBuf.GetAvailableSize();
 	return (Write(&size, sizeof(size)) && Write(rBuf.GetBuf(offs), size));
 }
 
@@ -1320,7 +1320,7 @@ int FileFormatRegBase::Helper_Register(int id, const char * pMime, const char * 
 			new_sign.ToLower();
 			for(i = 0; i < new_sign.Len(); i++) {
 				const int c = new_sign.C(i);
-				THROW(c == ':' || c == ' ' || ishex(c));
+				THROW(oneof2(c, ':', ' ') || ishex(c));
 			}
 		}
 		if(SearchEntryByID(id, pos_list) > 0) {
@@ -1624,7 +1624,7 @@ int SFileFormat::Identify(const char * pFileName, SString * pExt)
 	int    ok = 0;
 	Id = Unkn;
 	if(GloBaseIdx) {
-		FileFormatRegBase * p_reg = (FileFormatRegBase *)SLS.GetGlobalObject(GloBaseIdx);
+		const FileFormatRegBase * p_reg = (FileFormatRegBase *)SLS.GetGlobalObject(GloBaseIdx);
 		if(p_reg)
 			ok = p_reg->Identify(pFileName, &Id, pExt);
 	}
@@ -1635,7 +1635,7 @@ int SFileFormat::IdentifyMime(const char * pMime)
 {
 	int    ok = 0;
 	if(GloBaseIdx) {
-		FileFormatRegBase * p_reg = (FileFormatRegBase *)SLS.GetGlobalObject(GloBaseIdx);
+		const FileFormatRegBase * p_reg = (FileFormatRegBase *)SLS.GetGlobalObject(GloBaseIdx);
 		if(p_reg)
 			ok = p_reg->IdentifyMime(pMime, &Id);
 	}
@@ -1973,7 +1973,6 @@ SLTEST_R(SFile)
 		// поскольку для этого надо создавать отдельный асинхронный поток.
 		//
 	}
-	//SFile::Sort(0, 0, 0, 0, 0); // @v9.5.9 Вызов вставлен только для линковки модуля sfsort.cpp
 	CATCHZOK;
 	return ok;
 }

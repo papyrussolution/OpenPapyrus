@@ -127,7 +127,7 @@ int SLAPI PPObjGoods::SearchUhttInteractive(SString & rName, SString & rBarcode,
 	UhttSearchGoodsParam param;
 	SelectDialog * sel_dlg = 0;
 	UhttSearchGoodsDialog * dlg = new UhttSearchGoodsDialog;
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	(param.Name = rName).Strip();
 	(param.Barcode = rBarcode).Strip();
 	if(param.Name.NotEmpty()) {
@@ -158,7 +158,7 @@ int SLAPI PPObjGoods::SearchUhttInteractive(SString & rName, SString & rBarcode,
 			}
 			{
 				sel_dlg = new SelectDialog(uhtt_goods_list);
-				THROW(CheckDialogPtr(&sel_dlg, 0));
+				THROW(CheckDialogPtr(&sel_dlg));
 				if(ExecView(sel_dlg) == cmOK) {
 					if(pResultItem) {
 						uint sel_pos = 0;
@@ -270,7 +270,7 @@ int SLAPI PPObjGoods::ViewUhttGoodsRestList(PPID goodsID)
 		{
 			SString goods_info_buf;
 			SelectDialog * dlg = new SelectDialog(uhtt_list);
-			THROW(CheckDialogPtr(&dlg, 0));
+			THROW(CheckDialogPtr(&dlg));
 			goods_info_buf = goods_rec.Name;
 			dlg->setStaticText(CTL_UHTTGRLIST_ST_GOODS, goods_info_buf);
 			ExecViewAndDestroy(dlg);
@@ -929,7 +929,7 @@ int SLAPI PPObjGoods::EditArCode(PPID goodsID, PPID arID, int ownCode)
 		else {
 			ArGoodsCodeListDialog * dlg = 0;
 			THROW(P_Tbl->ReadArCodes(goodsID, &code_list));
-			if(CheckDialogPtr(&(dlg = new ArGoodsCodeListDialog(goodsID, arID)), 1)) {
+			if(CheckDialogPtrErr(&(dlg = new ArGoodsCodeListDialog(goodsID, arID)))) {
 				dlg->setDTS(&code_list);
 				while(ok < 0 && ExecView(dlg) == cmOK) {
 					if(dlg->getDTS(&code_list))
@@ -1556,7 +1556,7 @@ void GoodsDialog::editBarcodeList()
 		if(r == 0)
 			PPError();
 		PPID   goods_grp_id = getCtrlLong(CTLSEL_GOODS_GROUP);
-		if(CheckDialogPtr(&(dlg = new BarcodeListDialog()), 1)) {
+		if(CheckDialogPtrErr(&(dlg = new BarcodeListDialog()))) {
 			dlg->setDTS(&Data.Codes, Data.Rec.ID, goods_grp_id);
 			if(ExecView(dlg) == cmOK)
 				dlg->getDTS(&Data.Codes);
@@ -1638,7 +1638,7 @@ int SLAPI EditGoodsExTitles(SString & rGoodsExTitles)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GOODSEXTITLES);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		enum {
 			adinfNone = 1,
 			adinfLastSellDate = 2
@@ -2057,7 +2057,7 @@ int SLAPI PPObjGoods::EditVad(PPID goodsID)
 	PPGoodsPacket pack;
 	if(GetPacket(goodsID, &pack, 0) > 0) {
 		GoodsVadDialog * dlg = new GoodsVadDialog;
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setDTS(&pack);
 			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
 				if(dlg->getDTS(&pack))
@@ -2189,7 +2189,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 			case cmArGoodsCodeList:
 				{
 					ArGoodsCodeListDialog * dlg = 0;
-					if(CheckDialogPtr(&(dlg = new ArGoodsCodeListDialog(Data.Rec.ID, 0)), 1)) {
+					if(CheckDialogPtrErr(&(dlg = new ArGoodsCodeListDialog(Data.Rec.ID, 0)))) {
 						dlg->setDTS(&Data.ArCodes);
 						if(ExecView(dlg) == cmOK) {
 							dlg->getDTS(&Data.ArCodes);
@@ -2204,7 +2204,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 			case cmGoodsWrOffGrp:
 				{
 					TDialog * dlg = new TDialog(DLG_GOODSWOG);
-					if(CheckDialogPtr(&dlg, 1)) {
+					if(CheckDialogPtrErr(&dlg)) {
 						SetupPPObjCombo(dlg, CTLSEL_GOODSWOG_WOG, PPOBJ_ASSTWROFFGRP, Data.Rec.WrOffGrpID, OLW_CANINSERT, 0);
 						if(ExecView(dlg) == cmOK)
 							dlg->getCtrlData(CTLSEL_GOODSWOG_WOG, &Data.Rec.WrOffGrpID);
@@ -2225,7 +2225,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 				{
 					getCtrlData(CTL_GOODS_NAME, Data.Rec.Name);
 					GoodsVadDialog * dlg = new GoodsVadDialog;
-					if(CheckDialogPtr(&dlg, 1)) {
+					if(CheckDialogPtrErr(&dlg)) {
 						dlg->setDTS(&Data);
 						if(ExecView(dlg) == cmOK)
 							dlg->getDTS(&Data);
@@ -2792,7 +2792,7 @@ int SLAPI PPObjGoods::ReplaceGoods(PPID srcID, PPObjGoods::ExtUniteBlock * pEub)
 		}
 	}
 	THROW(goods_obj.CheckRights(GOODSRT_UNITE));
-	THROW(CheckDialogPtr(&(dlg = new ReplGoodsDialog(special_form)), 0));
+	THROW(CheckDialogPtr(&(dlg = new ReplGoodsDialog(special_form))));
 	dlg->setDTS(dest_id, src_id);
 	while(ExecView(dlg) == cmOK) {
 		if(!dlg->getDTS(&dest_id, &src_id) || !PPObject::ReplaceObj(PPOBJ_GOODS, dest_id, src_id, PPObject::use_transaction|PPObject::user_request))
@@ -2893,7 +2893,7 @@ IMPL_HANDLE_EVENT(GoodsAsscDialog)
 						// в PPObjGoods и реализовать в одной транзакции с LogAction
 						if(!PPRef->Assc.Update(rec.ID, &rec, 1))
 							PPError();
-						else{
+						else {
 							if(rec.InnerNum != old_inner_num)
 								DS.LogAction(PPACN_CHNGPLUALTGRP, PPOBJ_GOODSGROUP, item.Val, rec.InnerNum, 1);
 							updateList(-1);
@@ -2994,7 +2994,7 @@ int SLAPI PPObjGoods::ShowGoodsAsscInfo(PPID goodsID)
 	int    ok = -1;
 	if(goodsID) {
 		GoodsAsscDialog * dlg = new GoodsAsscDialog(goodsID, this);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			ExecViewAndDestroy(dlg);
 			ok = 1;
 		}
@@ -3123,7 +3123,7 @@ int SLAPI GoodsFilterAdvDialog(GoodsFilt * pFilt, int disable)
 {
 	int    ok = -1;
 	GoodsFiltAdvDialog * dlg = new GoodsFiltAdvDialog(DLG_GFLTADVOPT, pFilt, disable);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
 			if(dlg->getDTS(pFilt))
 			   	ok = valid_data = 1;
@@ -3138,7 +3138,7 @@ int GoodsFiltDialog::vatFilt()
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GOODSFLTVAT);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		SetupCalCtrl(CTLCAL_GOODSFLTVAT_DATE, dlg, CTL_GOODSFLTVAT_DATE, 4);
 		double rate = fdiv100i(Data.VatRate);
 		dlg->setCtrlData(CTL_GOODSFLTVAT_RATE, &rate);

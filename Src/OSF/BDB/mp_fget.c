@@ -47,8 +47,7 @@ int __memp_fget_pp(DB_MPOOLFILE * dbmfp, db_pgno_t * pgnoaddr, DB_TXN * txnp, ui
 	 * any attempt to actually write the file in memp_fput().
 	 */
 #undef  OKFLAGS
-#define OKFLAGS         (DB_MPOOL_CREATE|DB_MPOOL_DIRTY| \
-	                 DB_MPOOL_EDIT|DB_MPOOL_LAST|DB_MPOOL_NEW)
+#define OKFLAGS         (DB_MPOOL_CREATE|DB_MPOOL_DIRTY|DB_MPOOL_EDIT|DB_MPOOL_LAST|DB_MPOOL_NEW)
 	if(flags != 0) {
 		if((ret = __db_fchk(env, "memp_fget", flags, OKFLAGS)) != 0)
 			return ret;
@@ -113,14 +112,11 @@ int __memp_fget(DB_MPOOLFILE * dbmfp, db_pgno_t * pgnoaddr, DB_THREAD_INFO * ip,
 	DB_LOCKTAB * lt;
 	DB_LOCKER * locker;
 #endif
-
 	*(void **)addrp = NULL;
 	COMPQUIET(c_mp, NULL);
 	COMPQUIET(infop, NULL);
-
 	env = dbmfp->env;
 	dbmp = env->mp_handle;
-
 	mfp = dbmfp->mfp;
 	mvcc = atomic_read(&mfp->multiversion) && (txn != NULL);
 	mf_offset = R_OFFSET(dbmp->reginfo, mfp);
@@ -145,9 +141,9 @@ int __memp_fget(DB_MPOOLFILE * dbmfp, db_pgno_t * pgnoaddr, DB_THREAD_INFO * ip,
 	 * update, allocate a mutex.  If no transaction has been supplied, that
 	 * will be caught later, when we know whether one is required.
 	 */
-	if(mvcc && txn != NULL && txn->td != NULL) {
+	if(mvcc && txn && txn->td) {
 		/* We're only interested in the ultimate parent transaction. */
-		while(txn->parent != NULL)
+		while(txn->parent)
 			txn = txn->parent;
 		td = (TXN_DETAIL *)txn->td;
 		if(F_ISSET(txn, TXN_SNAPSHOT)) {
@@ -155,26 +151,20 @@ int __memp_fget(DB_MPOOLFILE * dbmfp, db_pgno_t * pgnoaddr, DB_THREAD_INFO * ip,
 			if(IS_MAX_LSN(*read_lsnp) && (ret = __log_current_lsn_int(env, read_lsnp, NULL, NULL)) != 0)
 				return ret;
 		}
-		if((dirty || LF_ISSET(DB_MPOOL_CREATE|DB_MPOOL_NEW)) &&
-		   td->mvcc_mtx == MUTEX_INVALID && (ret = __mutex_alloc(env, MTX_TXN_MVCC, 0, &td->mvcc_mtx)) != 0)
+		if((dirty || LF_ISSET(DB_MPOOL_CREATE|DB_MPOOL_NEW)) && td->mvcc_mtx == MUTEX_INVALID && (ret = __mutex_alloc(env, MTX_TXN_MVCC, 0, &td->mvcc_mtx)) != 0)
 			return ret;
 	}
 	switch(flags) {
-	    case DB_MPOOL_LAST:
-		/* Get the last page number in the file. */
-		MUTEX_LOCK(env, mfp->mutex);
-		*pgnoaddr = mfp->last_pgno;
-		MUTEX_UNLOCK(env, mfp->mutex);
-		break;
-	    case DB_MPOOL_NEW:
-		/*
-		 * If always creating a page, skip the first search
-		 * of the hash bucket.
-		 */
-		goto newpg;
+	    case DB_MPOOL_LAST: // Get the last page number in the file. 
+			MUTEX_LOCK(env, mfp->mutex);
+			*pgnoaddr = mfp->last_pgno;
+			MUTEX_UNLOCK(env, mfp->mutex);
+			break;
+	    case DB_MPOOL_NEW: // If always creating a page, skip the first search of the hash bucket.
+			goto newpg;
 	    case DB_MPOOL_CREATE:
 	    default:
-		break;
+			break;
 	}
 	/*
 	 * If mmap'ing the file and the page is not past the end of the file,
@@ -225,8 +215,8 @@ retry:
 		if(bhp->pgno != *pgnoaddr || bhp->mf_offset != mf_offset)
 			continue;
 		/* Snapshot reads -- get the version visible at read_lsn. */
-		if(read_lsnp != NULL) {
-			while(bhp != NULL && !BH_OWNED_BY(env, bhp, txn) && !BH_VISIBLE(env, bhp, read_lsnp, vlsn))
+		if(read_lsnp) {
+			while(bhp && !BH_OWNED_BY(env, bhp, txn) && !BH_VISIBLE(env, bhp, read_lsnp, vlsn))
 				bhp = SH_CHAIN_PREV(bhp, vc, __bh);
 			/*
 			 * We can get a null bhp if we are looking for a
@@ -252,7 +242,6 @@ retry:
 		}
 		atomic_inc(env, &bhp->ref);
 		b_incr = 1;
-
 		/*
 		 * Lock the buffer. If the page is being read in or modified it
 		 * will be exclusively locked and we will block.
@@ -291,8 +280,7 @@ xlatch:
 		/*
 		 * If the buffer was frozen before we waited for any I/O to
 		 * complete and is still frozen, we will need to thaw it.
-		 * Otherwise, it was thawed while we waited, and we need to
-		 * search again.
+		 * Otherwise, it was thawed while we waited, and we need to search again.
 		 */
 		if(F_ISSET(bhp, BH_THAWED)) {
 thawed:
@@ -318,7 +306,7 @@ thawed:
 		 * file, another thread may have dirtied this buffer while we
 		 * swapped from the hash bucket lock to the buffer lock.
 		 */
-		if(SH_CHAIN_HASNEXT(bhp, vc) && (SH_CHAIN_NEXTP(bhp, vc, __bh)->td_off == bhp->td_off || (!dirty && read_lsnp == NULL))) {
+		if(SH_CHAIN_HASNEXT(bhp, vc) && (SH_CHAIN_NEXTP(bhp, vc, __bh)->td_off == bhp->td_off || (!dirty && !read_lsnp))) {
 			DB_ASSERT(env, b_incr && BH_REFCOUNT(bhp) != 0);
 			atomic_dec(env, &bhp->ref);
 			b_incr = 0;
@@ -335,11 +323,10 @@ thawed:
 			ret = DB_PAGE_NOTFOUND;
 			goto err;
 		}
-		/* Is it worthwhile to publish oh-so-frequent cache hits? */
+		// Is it worthwhile to publish oh-so-frequent cache hits? 
 		STAT_INC_VERB(env, mpool, hit, mfp->stat.st_cache_hit, __memp_fn(dbmfp), *pgnoaddr);
 		break;
 	}
-
 #ifdef HAVE_STATISTICS
 	/*
 	 * Update the hash bucket search statistics -- do now because our next
@@ -374,7 +361,7 @@ thawed:
 	 *	on our second pass:
 	 *	bhp == NULL, alloc_bhp != NULL
 	 */
-	state = bhp == NULL ? (alloc_bhp == NULL ? FIRST_MISS : SECOND_MISS) : (alloc_bhp == NULL ? FIRST_FOUND : SECOND_FOUND);
+	state = (bhp == NULL) ? ((alloc_bhp == NULL) ? FIRST_MISS : SECOND_MISS) : ((alloc_bhp == NULL) ? FIRST_FOUND : SECOND_FOUND);
 	switch(state) {
 	    case FIRST_FOUND:
 		/*
@@ -391,31 +378,26 @@ freebuf:
 				DB_ASSERT(env, atomic_read(&hp->hash_page_dirty) > 0);
 				atomic_dec(env, &hp->hash_page_dirty);
 			}
-			/*
-			 * If the buffer we found is already freed, we're done.
-			 * If the ref count is not 1 then someone may be
-			 * peeking at the buffer.  We cannot free it until they
-			 * determine that it is not what they want.  Clear the
-			 * buffer so that waiting threads get an empty page.
-			 */
+			//
+			// If the buffer we found is already freed, we're done. If the ref count is not 1 then someone may be
+			// peeking at the buffer.  We cannot free it until they determine that it is not what they want.  Clear the
+			// buffer so that waiting threads get an empty page.
+			//
 			if(F_ISSET(bhp, BH_FREED))
 				goto done;
 			else if(BH_REFCOUNT(bhp) != 1 || !SH_CHAIN_SINGLETON(bhp, vc)) {
-				/*
-				 * Create an empty page in the chain for
-				 * subsequent gets.  Otherwise, a thread that
-				 * re-creates this page while it is still in
-				 * cache will see stale data.
-				 */
+				//
+				// Create an empty page in the chain for subsequent gets.  Otherwise, a thread that
+				// re-creates this page while it is still in cache will see stale data.
+				//
 				F_SET(bhp, BH_FREED);
 				F_CLR(bhp, BH_TRASH);
 			}
 			else if(F_ISSET(bhp, BH_FROZEN)) {
-				/*
-				 * Freeing a singleton frozen buffer: just free
-				 * it.  This call will release the hash bucket
-				 * mutex.
-				 */
+				//
+				// Freeing a singleton frozen buffer: just free
+				// it.  This call will release the hash bucket mutex.
+				//
 				ret = __memp_bh_thaw(dbmp, infop, hp, bhp, NULL);
 				bhp = NULL;
 				b_incr = b_lock = h_locked = 0;
@@ -429,7 +411,7 @@ freebuf:
 		}
 		else if(F_ISSET(bhp, BH_FREED|BH_TRASH)) {
 revive:
-			DB_ASSERT(env, F_ISSET(bhp, BH_TRASH) || flags == DB_MPOOL_CREATE || flags == DB_MPOOL_NEW);
+			DB_ASSERT(env, F_ISSET(bhp, BH_TRASH) || oneof2(flags, DB_MPOOL_CREATE, DB_MPOOL_NEW));
 			if(F_ISSET(bhp, BH_FREED))
 				makecopy = makecopy || (mvcc && !BH_OWNED_BY(env, bhp, txn)) || F_ISSET(bhp, BH_FROZEN);
 			if(flags == DB_MPOOL_CREATE) {
@@ -440,17 +422,13 @@ revive:
 			}
 		}
 		if(mvcc) {
-			/*
-			 * With multiversion databases, we might need to
-			 * allocate a new buffer into which we can copy the one
-			 * that we found.  In that case, check the last buffer
-			 * in the chain to see whether we can reuse an obsolete
-			 * buffer.
-			 *
-			 * To provide snapshot isolation, we need to make sure
-			 * that we've seen a buffer older than the oldest
-			 * snapshot read LSN.
-			 */
+			// 
+			// With multiversion databases, we might need to allocate a new buffer into which we can copy the one
+			// that we found.  In that case, check the last buffer in the chain to see whether we can reuse an obsolete buffer.
+			// 
+			// To provide snapshot isolation, we need to make sure that we've seen a buffer older than the oldest
+			// snapshot read LSN.
+			// 
 reuse:
 			if((makecopy || F_ISSET(bhp, BH_FROZEN)) && !h_locked) {
 				MUTEX_LOCK(env, hp->mtx_hash);

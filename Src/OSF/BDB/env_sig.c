@@ -12,10 +12,10 @@
 // @v9.5.5 #include "dbinc/btree.h"
 // @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-#include "dbinc/db_join.h"
+// @v9.6.2 #include "dbinc/db_join.h"
 // @v9.5.5 #include "dbinc/db_verify.h"
 // @v9.5.5 #include "dbinc/heap.h"
-#include "dbinc/log_verify.h"
+// @v9.6.2 #include "dbinc/log_verify.h"
 // @v9.5.5 #include "dbinc/partition.h"
 // @v9.5.5 #include "dbinc/qam.h"
 // @v9.5.5 #include "dbinc/txn.h"
@@ -50,9 +50,7 @@ uint32 __env_struct_sig()
 	u_short t[__STRUCTURE_COUNT+5];
 	uint   i = 0;
 #ifndef NDEBUG
-	#define __ADD(s) \
-		(t[i++] = sizeof(struct s));\
-		__LogStrucSigEntry(#s, sizeof(struct s));
+	#define __ADD(s) (t[i++] = sizeof(struct s)); __LogStrucSigEntry(#s, sizeof(struct s));
 #else
 	#define __ADD(s) (t[i++] = sizeof(struct s))
 #endif

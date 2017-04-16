@@ -66,7 +66,7 @@ int SLAPI PPViewDBDiv::EditBaseFilt(PPBaseFilt * pFilt)
 	LocationCtrlGroup::Rec loc_rec;
 
 	filt.Copy(pFilt, 0);
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_DBDIVFLT_LOCLIST, 0, 0, cmLocList, 0, 0, 0));
 
 	loc_rec.LocList = filt.LocList;

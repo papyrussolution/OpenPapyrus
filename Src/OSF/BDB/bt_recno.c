@@ -441,7 +441,7 @@ retry:
 	 * (We don't have to test for flags == DB_FIRST, because the switch
 	 * statement above re-set flags to DB_NEXT in that case.)
 	 */
-	if((flags == DB_NEXT || flags == DB_CURRENT) && ((ret = __ram_update(dbc, cp->recno, 0)) != 0) && ret != DB_NOTFOUND)
+	if(oneof2(flags, DB_NEXT, DB_CURRENT) && ((ret = __ram_update(dbc, cp->recno, 0)) != 0) && ret != DB_NOTFOUND)
 		goto err;
 	for(;; ++cp->recno) {
 		/* Search the tree for the record. */
@@ -469,8 +469,7 @@ retry:
 			    case DB_NEXT:
 			    case DB_PREV:
 				__bam_stkrel(dbc, STK_CLRDBC);
-				PERFMON4(env, race, ramc_get,
-					dbp->fname, dbp->dname, cp->page, flags);
+				PERFMON4(env, race, ramc_get, dbp->fname, dbp->dname, cp->page, flags);
 				goto retry;
 			    case DB_GET_BOTH:
 			    case DB_GET_BOTH_RANGE:
@@ -1014,8 +1013,7 @@ done:   /* Close the file descriptor. */
 	if(fp != NULL && fclose(fp) != 0) {
 		t_ret = __os_get_errno();
 		__db_err(env, t_ret, "%s", t->re_source);
-		if(ret == 0)
-			ret = t_ret;
+		SETIFZ(ret, t_ret);
 	}
 	/* Discard the cursor. */
 	if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)

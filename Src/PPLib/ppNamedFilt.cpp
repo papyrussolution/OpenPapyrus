@@ -353,7 +353,7 @@ int SLAPI ViewFiltPool()
 	FiltPoolDialog * dlg = 0;
 	THROW_PP(CurDict->GetDbSymb(db_symb) > 0, PPERR_DBSYMBUNDEF);
 	THROW(mngr.LoadPool(db_symb, &pool, 0));
-	THROW(CheckDialogPtr(&(dlg = new FiltPoolDialog(&mngr, &pool)), 1));
+	THROW(CheckDialogPtrErr(&(dlg = new FiltPoolDialog(&mngr, &pool))));
 	while(ExecView(dlg) == cmOK) {
 		if(mngr.SavePool(&pool)) {
 			ok = 1;

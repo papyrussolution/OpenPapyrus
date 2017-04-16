@@ -3620,6 +3620,13 @@ struct SSearchReplaceParam {
 //
 //
 struct SPathStruc {
+	//
+	// Descr: Находит расширение имени файла rPath и возвращает его по указателю pExt (если тот не нулевой).
+	// Returns:
+	//   0 - путь rPath не содержит расширения
+	//  !0 - позиция следующего за точкой первого символа расширения в rPath
+	//
+	static uint FASTCALL GetExt(const SString & rPath, SString * pExt);
 	static int ReplaceExt(SString & rPath, const char * pExt, int force);
 	static int ReplacePath(SString & rPath, const char * pNewPath, int force);
 	static int GetRelativePath(const char * pFrom, uint dwAttrFrom, const char * pTo, uint dwAttrTo, SString & rPath);
@@ -5569,27 +5576,22 @@ public:
 	T * FASTCALL CreateNewItem(uint * pPosition)
 	{
 		T * p_new_item = new T;
-		if(p_new_item) {
-			if(insert(p_new_item)) {
-				ASSIGN_PTR(pPosition, count-1);
-			}
-			else {
-				ZDELETE(p_new_item);
-			}
+		if(!p_new_item)
+			SLS.SetError(SLERR_NOMEM);
+		else if(insert(p_new_item)) {
+			ASSIGN_PTR(pPosition, count-1);
 		}
 		else
-			SLS.SetError(SLERR_NOMEM);
+			ZDELETE(p_new_item);
 		return p_new_item;
 	}
 	T * FASTCALL CreateNewItem()
 	{
 		T * p_new_item = new T;
-		if(p_new_item) {
-			if(!insert(p_new_item))
-				ZDELETE(p_new_item);
-		}
-		else
+		if(!p_new_item)
 			SLS.SetError(SLERR_NOMEM);
+		else if(!insert(p_new_item))
+			ZDELETE(p_new_item);
 		return p_new_item;
 	}
 };
@@ -5631,7 +5633,7 @@ template <class T> int TSCollection_Serialize(TSCollection <T> & rC, int dir, SB
 		uint32 c = 0;
 		THROW(rBuf.ReadV(&c, sizeof(c)));
 		for(uint i = 0; i < c; i++) {
-            T * p_new_item = rC.CreateNewItem(0);
+            T * p_new_item = rC.CreateNewItem();
 			THROW(p_new_item);
 			THROW(p_new_item->Serialize(dir, rBuf, pSCtx));
 		}
@@ -6263,6 +6265,55 @@ public:
 	StrStrAssocArray & SLAPI Clear();
 protected:
 	LAssocArray L;
+};
+//
+//
+//
+class SFileEntryPool : public SStrGroup {
+public:
+	friend DECL_CMPCFUNC(SFileEntryPool_Entry);
+
+	struct Entry {
+		uint   Attr;
+		LDATETIME CreateTime;
+		LDATETIME AccessTime;
+		LDATETIME WriteTime;
+		int64  Size;
+		SString Name;
+		SString Path;
+	};
+	SLAPI  SFileEntryPool();
+	int    SLAPI Add(const char * pPath, SDirEntry & rDe);
+    uint   SLAPI GetCount() const;
+    int    SLAPI Get(uint pos, Entry & rEntry) const;
+
+    enum {
+    	scByName = 1,
+    	scByExt,
+    	scByFullName,
+    	scByCrTime,
+    	scByAccsTime,
+    	scByWrTime,
+    	scBySize,
+
+    	scDesc = 0x8000 // Флаг обратного порядка сортировки
+    };
+    int    SLAPI Sort(int criteria);
+private:
+	struct InnerEntry {
+		uint   Attr;
+		LDATETIME CreateTime;
+		LDATETIME AccessTime;
+		LDATETIME WriteTime;
+		int64  Size;
+		uint   NameP;
+		uint   PathP;
+	};
+
+	void   SLAPI ConvertEntry(const InnerEntry & rIEntry, Entry & rEntry) const;
+
+    TSArray <InnerEntry> L;
+    long   State;
 };
 //
 // Descr: Список временных отрезков.

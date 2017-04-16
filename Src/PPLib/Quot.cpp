@@ -9,7 +9,7 @@ int SLAPI ViewQuotValueInfo(const PPQuot & rQuot)
 	int    ok = -1;
 	SString temp_buf;
 	TDialog * dlg = new TDialog(DLG_QUOT);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	GetObjectName(PPOBJ_QUOTKIND, rQuot.Kind, temp_buf);
 	dlg->setCtrlString(CTL_QUOT_KIND, temp_buf);
 	dlg->setCtrlString(CTL_QUOT_GOODS, GetGoodsName(rQuot.GoodsID, temp_buf));
@@ -585,7 +585,7 @@ static int SLAPI WarnUpdQuot(PPID goodsID, const PPQuot * pOldQuot, const PPQuot
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_W_UPDQUOT);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		ushort v = 0;
 		SString temp_buf;
 		dlg->setCtrlString(CTL_W_UPDQUOT_GOODS, GetGoodsName(goodsID, temp_buf));

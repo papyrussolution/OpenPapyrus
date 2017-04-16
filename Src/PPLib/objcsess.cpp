@@ -1098,7 +1098,7 @@ int SLAPI EditDueToKeyboardRights()
 	_PPKeybordWKeyCfg  kwk_cfg;
 	KeybWKeyCfgDlg * p_dlg = 0;
 	THROW(CheckCfgRights(PPCFGOBJ_KEYBWKEYCFG, PPR_READ, 0));
-	THROW(CheckDialogPtr(&(p_dlg = new KeybWKeyCfgDlg()), 0));
+	THROW(CheckDialogPtr(&(p_dlg = new KeybWKeyCfgDlg())));
 	if(PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_KEYBWKEYCFG, &kwk_cfg, sizeof(kwk_cfg)) <= 0)
 		MEMSZERO(kwk_cfg);
 	p_dlg->setDTS(&kwk_cfg);
@@ -1213,7 +1213,7 @@ int CTableOrder::EditParam(Param * pParam)
 	PPObjCashNode::SelFilt sf;
 	sf.SyncGroup = 1;
 	TDialog * dlg = new TDialog(DLG_CTBLORDPAR);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	RVALUEPTR(param, pParam);
 	SetupPPObjCombo(dlg, CTLSEL_CTBLORD_POSNODE, PPOBJ_CASHNODE, param.PosNodeID, 0, &sf);
 	dlg->setCtrlTime(CTL_CTBLORD_STTM, param.StartTime.t);
@@ -2250,7 +2250,7 @@ int SLAPI EditCSessComplexImpExpParam(const char * pIniSection)
    	{
    		int    direction = 0;
    		PPIniFile ini_file(ini_file_name, 0, 1, 1);
-   		THROW(CheckDialogPtr(&(dlg = new CSessComplexImpExpDialog()), 0));
+   		THROW(CheckDialogPtr(&(dlg = new CSessComplexImpExpDialog())));
    		THROW(LoadSdRecord(PPREC_CSESSCOMPLEX, &param.InrRec));
    		direction = param.Direction;
    		if(!isempty(pIniSection))
@@ -2283,7 +2283,7 @@ int EditCSessComplexImpExpParams()
 	int    ok = -1;
 	PPCSessComplexImpExpParam param;
 	CSessComplexImpExpDialog * p_dlg = new CSessComplexImpExpDialog();
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	THROW(ok = EditImpExpParams(PPFILNAM_IMPEXP_INI, PPREC_CSESSCOMPLEX, &param, p_dlg));
 	CATCHZOK
 	delete p_dlg;

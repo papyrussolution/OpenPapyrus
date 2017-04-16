@@ -341,7 +341,7 @@ int SLAPI PPViewSpecSeries::AddItem()
 	SpecSeries2Tbl::Rec rec;
 	MEMSZERO(rec);
 	SpecSerDlg * p_dlg = new SpecSerDlg();
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setDTS(&rec);
 	for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
 		if(p_dlg->getDTS(&rec)) {
@@ -364,7 +364,7 @@ int SLAPI PPViewSpecSeries::EditItem(PPID id)
 	SpecSeries2Tbl::Rec rec;
 	SpecSerDlg * p_dlg = new SpecSerDlg();
 	THROW(Tbl.Search(id, &rec) > 0);
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setDTS(&rec);
 	for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
 		if(!p_dlg->getDTS(&rec))

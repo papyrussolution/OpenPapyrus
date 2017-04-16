@@ -183,8 +183,7 @@ int __dbreg_close_files(ENV * env, int do_restored)
 				t_ret = __db_close(dbp, NULL, dbp->mpf == NULL ? DB_NOSYNC : 0);
 			else
 				t_ret = __dbreg_revoke_id(dbp, 0, DB_LOGFILEID_INVALID);
-			if(ret == 0)
-				ret = t_ret;
+			SETIFZ(ret, t_ret);
 			MUTEX_LOCK(env, dblp->mtx_dbreg);
 		}
 		dblp->dbentry[i].deleted = 0;

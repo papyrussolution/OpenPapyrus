@@ -498,7 +498,7 @@ uint TY_(Win32MLangGetCPFromName) (TidyAllocator *allocator, ctmbstr encoding)
 			if(hr != S_OK || !p) {
 				wincp = 0;
 			}
-			else{
+			else {
 				hr = IMLangConvertCharset_Initialize(p, wincp, 1200, 0);
 
 				if(hr != S_OK)

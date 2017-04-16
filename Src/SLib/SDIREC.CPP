@@ -1,5 +1,5 @@
 // SDIREC.CPP
-// Copyright (c) A.Sobolev 1999-2001, 2002, 2009, 2010, 2011, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 1999-2001, 2002, 2009, 2010, 2011, 2013, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -181,4 +181,127 @@ int FASTCALL SDirec::Next(SDirEntry * pEntry)
 		FindClose();
 	}
 	return ok;
+}
+//
+//
+//
+SLAPI SFileEntryPool::SFileEntryPool() : SStrGroup()
+{
+	State = 0;
+}
+
+uint SLAPI SFileEntryPool::GetCount() const
+{
+	return L.getCount();
+}
+
+int SLAPI SFileEntryPool::Get(uint pos, Entry & rEntry) const
+{
+    if(pos < L.getCount()) {
+		ConvertEntry(L.at(pos), rEntry);
+		return 1;
+    }
+    else
+		return 0;
+}
+
+int SLAPI SFileEntryPool::Add(const char * pPath, SDirEntry & rDe)
+{
+	int    ok = 1;
+    InnerEntry new_entry;
+    MEMSZERO(new_entry);
+    new_entry.Attr = rDe.Attr;
+    new_entry.CreateTime = rDe.CreateTime;
+    new_entry.AccessTime = rDe.AccessTime;
+    new_entry.WriteTime = rDe.WriteTime;
+    new_entry.Size = rDe.Size;
+    if(pPath) {
+		SString temp_path;
+		SPathStruc::NormalizePath(pPath, 0, temp_path);
+		THROW(AddS(temp_path, &new_entry.PathP));
+    }
+    THROW(AddS(rDe.FileName, &new_entry.NameP));
+    THROW(L.insert(&new_entry));
+    CATCHZOK
+    return ok;
+}
+
+void SLAPI SFileEntryPool::ConvertEntry(const InnerEntry & rIEntry, Entry & rEntry) const
+{
+	rEntry.Attr = rIEntry.Attr;
+	rEntry.CreateTime = rIEntry.CreateTime;
+	rEntry.AccessTime = rIEntry.AccessTime;
+	rEntry.WriteTime = rIEntry.WriteTime;
+	rEntry.Size = rIEntry.Size;
+    GetS(rIEntry.PathP, rEntry.Path);
+    GetS(rIEntry.NameP, rEntry.Name);
+}
+
+struct SFileEntryPool_SortExtraBlock {
+    SFileEntryPool * P_Pool;
+    int    Order;
+    SString TempBuf1;
+    SString TempBuf2;
+};
+
+IMPL_CMPCFUNC(SFileEntryPool_Entry, p1, p2)
+{
+	int    si = 0;
+	SFileEntryPool_SortExtraBlock * p_blk = (SFileEntryPool_SortExtraBlock *)pExtraData;
+    const SFileEntryPool::InnerEntry * p_entry1 = (const SFileEntryPool::InnerEntry *)p1;
+    const SFileEntryPool::InnerEntry * p_entry2 = (const SFileEntryPool::InnerEntry *)p2;
+    const int _desc = BIN(p_blk->Order & SFileEntryPool::scDesc);
+    switch(p_blk->Order & ~SFileEntryPool::scDesc) {
+    	case SFileEntryPool::scByName:
+    		{
+				p_blk->P_Pool->GetS(p_entry1->NameP, p_blk->TempBuf1);
+				p_blk->P_Pool->GetS(p_entry2->NameP, p_blk->TempBuf2);
+                si = p_blk->TempBuf1.CmpNC(p_blk->TempBuf2);
+    		}
+			break;
+    	case SFileEntryPool::scByExt:
+    		{
+    			SString ext1, ext2;
+				p_blk->P_Pool->GetS(p_entry1->NameP, p_blk->TempBuf1);
+				p_blk->P_Pool->GetS(p_entry2->NameP, p_blk->TempBuf2);
+				SPathStruc::GetExt(p_blk->TempBuf1, &ext1);
+				SPathStruc::GetExt(p_blk->TempBuf2, &ext2);
+				si = ext1.CmpNC(ext2);
+				SETIFZ(si, p_blk->TempBuf1.CmpNC(p_blk->TempBuf2));
+    		}
+    		break;
+    	case SFileEntryPool::scByFullName:
+    		{
+    			SString fp1, fp2;
+				p_blk->P_Pool->GetS(p_entry1->PathP, fp1);
+				p_blk->P_Pool->GetS(p_entry2->PathP, fp2);
+				p_blk->P_Pool->GetS(p_entry1->NameP, p_blk->TempBuf1);
+				p_blk->P_Pool->GetS(p_entry2->NameP, p_blk->TempBuf2);
+				fp1.SetLastSlash().Cat(p_blk->TempBuf1);
+				fp2.SetLastSlash().Cat(p_blk->TempBuf2);
+				si = fp1.CmpNC(fp2);
+    		}
+    		break;
+    	case SFileEntryPool::scByCrTime:
+			si = cmp(p_entry1->CreateTime, p_entry2->CreateTime);
+    		break;
+    	case SFileEntryPool::scByAccsTime:
+    		si = cmp(p_entry1->AccessTime, p_entry2->AccessTime);
+    		break;
+    	case SFileEntryPool::scByWrTime:
+    		si = cmp(p_entry1->WriteTime, p_entry2->WriteTime);
+    		break;
+    	case SFileEntryPool::scBySize:
+    		si = CMPSIGN(p_entry1->Size, p_entry2->Size);
+    		break;
+    }
+    return (si && _desc) ? -si : si;
+}
+
+int SLAPI SFileEntryPool::Sort(int criteria)
+{
+	SFileEntryPool_SortExtraBlock blk;
+	blk.Order = criteria;
+	blk.P_Pool = this;
+	return L.sort(PTR_CMPCFUNC(SFileEntryPool_Entry, &blk));
 }

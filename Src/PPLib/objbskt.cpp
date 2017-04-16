@@ -811,7 +811,7 @@ int SLAPI PPObjGoodsBasket::Browse(void * extraPtr)
 	int    ok = 1;
 	if(CheckRights(PPR_READ)) {
 		TDialog * dlg = new GoodsBasketView(this, 0, 0);
-		if(CheckDialogPtr(&dlg, 1))
+		if(CheckDialogPtrErr(&dlg))
 			ExecViewAndDestroy(dlg);
 	}
 	else
@@ -832,7 +832,7 @@ int SLAPI PPObjGoodsBasket::Select(PPID * pID, const char * pMsg)
 	int    ok = -1;
 	PPID   sel_id = 0;
 	TDialog * dlg = new GoodsBasketView(this, pMsg, 1);
-	if(CheckDialogPtr(&dlg, 1))
+	if(CheckDialogPtrErr(&dlg))
 		while(!sel_id && ExecView(dlg) == cmOK) {
 			dlg->getCtrlData(CTL_OBJVIEW_LIST, &sel_id);
 			if(sel_id && Search(sel_id, 0) > 0)
@@ -1088,7 +1088,7 @@ int SLAPI GetBasketByDialog(SelBasketParam * pParam, const char * pCallerSymb, u
 	GBDataDialog * p_dlg = 0;
 	if(gb_obj.GetPreferredBasket(*pParam) > 0) {
 		p_dlg = new GBDataDialog(dlg_id, *pParam, pCallerSymb);
-		THROW(CheckDialogPtr(&p_dlg, 0) > 0);
+		THROW(CheckDialogPtr(&p_dlg) > 0);
 		pParam->RestoreFromReg(pCallerSymb);
 		p_dlg->setDTS();
 		while(ok < 0 && ExecView(p_dlg) == cmOK)
@@ -1182,7 +1182,7 @@ int SLAPI PPViewGoodsBasket::Print()
 	uint   rpt_id = 0;
 	ushort v = 0;
 	TDialog * p_dlg = new TDialog(DLG_GBPRINT);
-	if(CheckDialogPtr(&p_dlg, 1)) {
+	if(CheckDialogPtrErr(&p_dlg)) {
 		p_dlg->setCtrlData(CTL_GBPRINT_REPORT, &(v = 0));
 		p_dlg->setCtrlData(CTL_GBPRINT_REPORT, &(v = 0));
 		if(ExecView(p_dlg) == cmOK) {
@@ -1539,7 +1539,7 @@ int SLAPI GoodsBasketItemDialog(ILTI * pData, PPBasketCombine & rCart)
 	UserInterfaceSettings uis;
 	if(uis.Restore() > 0 && uis.Flags & UserInterfaceSettings::fBasketItemFocusPckg)
 		basket_dlg_flags |= GBItemDialog::fFocusOnPckg;
-	if(CheckDialogPtr(&(dlg = new GBItemDialog(rCart, 0, basket_dlg_flags)), 1) && dlg->setDTS(pData))
+	if(CheckDialogPtrErr(&(dlg = new GBItemDialog(rCart, 0, basket_dlg_flags))) && dlg->setDTS(pData))
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
 			if(dlg->getDTS(pData) > 0)
 				ok = valid_data = 1;
@@ -1751,7 +1751,7 @@ int GBDialog::addItem(long * pPos, long * pID)
 	int    ok = -1, r = 0;
 	SString msg_buf;
 	SETIFZ(P_EGSDlg, new ExtGoodsSelDialog(0, 0, 0));
-	if(CheckDialogPtr(&P_EGSDlg, 1)) {
+	if(CheckDialogPtrErr(&P_EGSDlg)) {
 		while(ExecView(P_EGSDlg) == cmOK) {
 			TIDlgInitData tidi;
 			if(P_EGSDlg->getDTS(&tidi)) {
@@ -1847,7 +1847,7 @@ int GBDialog::DoDiscount()
 	int    ok = 0, valid_data = 0, pctdis = 0;
 	double discount = 0.0;
 	TDialog * p_dlg = new TDialog(DLG_DISCOUNT);
-	if(CheckDialogPtr(&p_dlg, 1) > 0) {
+	if(CheckDialogPtrErr(&p_dlg) > 0) {
 		while(!valid_data && ExecView(p_dlg) == cmOK) {
 			char   buf[64];
 			buf[0] = 0;
@@ -1965,7 +1965,7 @@ int SLAPI AddGoodsToBasket(PPID goodsID, PPID defLocID, double qtty, double pric
 		if(price > 0)
 			item.Price = R2(price);
 		if(gb_obj.GetPreferredBasket(basket) > 0) {
-			THROW(CheckDialogPtr(&(dlg = new GBItemDialog(basket, defLocID, basket_dlg_flags)), 0));
+			THROW(CheckDialogPtr(&(dlg = new GBItemDialog(basket, defLocID, basket_dlg_flags))));
 			THROW(dlg->setDTS(&item));
 			while(ok < 0 && ExecView(dlg) == cmOK) {
 				if(dlg->getDTS(&item)) {
@@ -2135,7 +2135,7 @@ int SLAPI PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket 
 	// @v7.4.12 {
 	else if(op_type_id == PPOPT_GOODSMODIF) {
 		TDialog * p_sel_modif_dlg = 0;
-		THROW(CheckDialogPtr(&(p_sel_modif_dlg = new TDialog(DLG_SELMODIF)), 0));
+		THROW(CheckDialogPtr(&(p_sel_modif_dlg = new TDialog(DLG_SELMODIF))));
 		p_sel_modif_dlg->setCtrlUInt16(CTL_SELMODIF_WHAT, 0);
 		p_sel_modif_dlg->DisableClusterItem(CTL_SELMODIF_WHAT, 2, 1);
 		if(ExecView(p_sel_modif_dlg) == cmOK) {

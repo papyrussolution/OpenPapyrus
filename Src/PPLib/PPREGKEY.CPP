@@ -383,7 +383,7 @@ int main(int argc, char ** argv)
 			do {
 				is_ticker = 0;
 				for(uint i = 0; !is_ticker && i < SIZEOFARRAY(LfKeys); i++) {
-					if(stricmp(argv[arg_idx], LfKeys[i].P_Ticker) == 0) {
+					if(sstreqi_ascii(argv[arg_idx], LfKeys[i].P_Ticker)) {
 						param.FuncList.add(LfKeys[i].P_Ticker, 0);
 						is_ticker = 1;
 						arg_idx++;

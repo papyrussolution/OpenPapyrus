@@ -215,7 +215,7 @@ found_meta:
 						if((!xmlStrcasecmp(attr->name, BAD_CAST "http-equiv"))
 						    && (!xmlStrcasecmp(value, BAD_CAST "Content-Type")))
 							http = 1;
-						else{
+						else {
 							if((value != NULL) &&
 							    (!xmlStrcasecmp(attr->name, BAD_CAST "content")))
 								content = value;

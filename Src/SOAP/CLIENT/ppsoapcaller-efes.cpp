@@ -71,7 +71,7 @@ static char * EncodeEfesUnitType(int unitType, TSCollection <InParamString> & rA
 	return GetDynamicParamString(temp_buf.Transf(CTRANSF_INNER_TO_UTF8), rArgStrPool);
 }
 
-extern "C" __declspec(dllexport) TSCollection <SapEfesOrder> * EfesGetSalesOrderSyncList(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, 
+extern "C" __declspec(dllexport) TSCollection <SapEfesOrder> * EfesGetSalesOrderSyncList(PPSoapClientSession & rSess, const SapEfesCallHeader & rH,
 	const DateRange * pPeriod, int repeat, const char * pDocNumberList)
 {
 	TSCollection <SapEfesOrder> * p_result = 0;
@@ -80,7 +80,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesOrder> * EfesGetSalesOrder
 	//proxi.recv_timeout = 60; // @v9.5.0
 	TSCollection <InParamString> arg_str_pool;
 	SString temp_buf;
-	gSoapClientInit(&proxi, 0, 0); 
+	gSoapClientInit(&proxi, 0, 0);
 	ns2__GetSalesOrderRequestType param;
 	ns2__GetSalesOrderResponseType resp;
 	char * p_empty_doc_num[] = { 0 };
@@ -290,11 +290,11 @@ static int CreateLogMsgItem(TSCollection <SapEfesLogMsg> & rList, const ns2__Log
 	if(pSrcMsg) {
 		SapEfesLogMsg * p_new_msg = rList.CreateNewItem(0);
 		THROW(p_new_msg);
-		if(_stricmp(pSrcMsg->MsgType, "S") == 0)
+		if(sstreqi_ascii(pSrcMsg->MsgType, "S"))
 			p_new_msg->MsgType = SapEfesLogMsg::tS;
-		else if(_stricmp(pSrcMsg->MsgType, "W") == 0)
+		else if(sstreqi_ascii(pSrcMsg->MsgType, "W"))
 			p_new_msg->MsgType = SapEfesLogMsg::tW;
-		else if(_stricmp(pSrcMsg->MsgType, "E") == 0)
+		else if(sstreqi_ascii(pSrcMsg->MsgType, "E"))
 			p_new_msg->MsgType = SapEfesLogMsg::tE;
 		(p_new_msg->Msg = pSrcMsg->MsgText).Transf(CTRANSF_UTF8_TO_INNER);
 	}
@@ -739,7 +739,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetDebtDetai
 	SString temp_buf;
 	gSoapClientInit(&proxi, 0, 0);
 	/*
-		class SOAP_CMAC _ns2__SetDebtsDetailedRequestType_Data_Row 
+		class SOAP_CMAC _ns2__SetDebtsDetailedRequestType_Data_Row
 			char *PRTDocNum;
 			char *DelvDate;
 			char *PaymDate;
@@ -791,7 +791,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetDebtDetai
 								cli_code = p_src_pack->BuyerCode;
 							items_count++;
 						}
-						else if(p_src_pack->NativeArID > native_ar_id) 
+						else if(p_src_pack->NativeArID > native_ar_id)
 							break;
 					}
 				}
@@ -811,7 +811,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetDebtDetai
 							r_row.PaymDate = GetDynamicParamString(p_src_pack->PaymDate, DATF_ISO8601|DATF_CENTURY, arg_str_pool);
 							item_no++;
 						}
-						else if(p_src_pack->NativeArID > native_ar_id) 
+						else if(p_src_pack->NativeArID > native_ar_id)
 							break;
 					}
 				}

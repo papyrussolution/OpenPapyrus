@@ -1788,7 +1788,7 @@ int SLAPI PPViewQuot::AddItem(PPID * pGoodsID)
 		else {
 			if(!P_GoodsSelDlg) {
 				P_GoodsSelDlg = new ExtGoodsSelDialog(0, Filt.GoodsGrpID, ExtGoodsSelDialog::fByName);
-				if(!CheckDialogPtr(&P_GoodsSelDlg, 1))
+				if(!CheckDialogPtrErr(&P_GoodsSelDlg))
 					return PPErrorZ();
 			}
 			if(P_GoodsSelDlg && ExecView(P_GoodsSelDlg) == cmOK) {
@@ -1955,7 +1955,7 @@ int SLAPI PPViewQuot::ViewTotal()
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_QUOTTOTAL);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		long   count = 0;
 		QuotViewItem item;
 		PPWait(1);

@@ -194,7 +194,7 @@ int SLAPI PPViewSuprWare::NextIteration(SuprWareViewItem * pItem)
 int SLAPI PPViewSuprWare::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_GOODSTOTAL);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		long   count = 0;
 		SuprWareViewItem item;
 		PPWait(1);

@@ -319,7 +319,7 @@ int SLAPI PPObjLocation::EditConfig()
 	PPLocationConfig cfg, org_cfg;
 	TDialog * dlg = 0;
 	THROW(CheckCfgRights(PPCFGOBJ_PERSON, PPR_READ, 0));
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_LOCCFG)), 0));
+	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_LOCCFG))));
 	ReadConfig(&cfg);
 	org_cfg = cfg;
 	SetupStringCombo(dlg, CTLSEL_LOCCFG_WHZONECOD, PPTXT_WHCODINGITEM, cfg.WhZoneCoding);
@@ -1306,7 +1306,7 @@ int SLAPI PPObjLocation::Browse(void * extraPtr)
 	int    ok = 0;
 	if(CheckRights(PPR_READ)) {
 		LocationView * dlg = new LocationView(this, extraPtr);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			ExecViewAndDestroy(dlg);
 			ok = 1;
 		}
@@ -1407,7 +1407,7 @@ int LocationExtFieldsDialog::Edit(TaggedString * pData)
 		if(id != data.Id && field_names.Search(id, &pos) > 0)
 			field_names.atFree(pos);
 	}
-	if(CheckDialogPtr(&(p_dlg = new AddExtFldDialog(&field_names)), 1) > 0) {
+	if(CheckDialogPtrErr(&(p_dlg = new AddExtFldDialog(&field_names))) > 0) {
 		p_dlg->setDTS(&data);
 		for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
 			if(!p_dlg->getDTS(&data))
@@ -1892,7 +1892,7 @@ int SLAPI PPObjLocation::EditDialog(PPID locTyp, PPLocationPacket * pData, long 
 		case LOCTYP_DIVISION:  dlg_id = DLG_DIVISION;  break;
 		default: return (PPError(PPERR_INVPARAM, 0), 0);
 	}
-	if(CheckDialogPtr(&(dlg = new LocationDialog(dlg_id, locTyp, flags)), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new LocationDialog(dlg_id, locTyp, flags)))) {
 		pData->Type = (int16)locTyp;
 		if(locTyp == LOCTYP_DIVISION) {
 			if(pData->OwnerID == 0)
@@ -2397,7 +2397,7 @@ int SLAPI PPObjLocation::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr
 			THROW(BroadcastObjMessage(DBMSG_OBJREPLACE, Obj, _id, extraPtr));
 		}
 		else if(_obj == PPOBJ_PERSON) {
-			long types[] = {LOCTYP_WAREHOUSE, LOCTYP_DIVISION, LOCTYP_ADDRESS};
+			const long types[] = { LOCTYP_WAREHOUSE, LOCTYP_DIVISION, LOCTYP_ADDRESS };
 			for(uint i = 0; i < SIZEOFARRAY(types); i++) {
 				THROW_DB(updateFor(P_Tbl, 0, (P_Tbl->Type == types[i] && P_Tbl->OwnerID == _id),
 					set(P_Tbl->OwnerID, dbconst((long)extraPtr))));
@@ -2479,6 +2479,30 @@ int SLAPI PPObjLocation::Write(PPObjPack * p, PPID * pID, void * stream, ObjTran
 			else if(Search(*pID, &same_rec) > 0) {
 				p_pack->ID = *pID;
 				p_pack->Counter = same_rec.Counter;
+				// @v9.6.2 {
+				if(p_pack->OwnerID != same_rec.OwnerID && p_pack->OwnerID && same_rec.OwnerID) {
+					//
+					// Потенциально конфликтная ситуация: пришедшая локация имеет отличное от
+					// нашего значение владельца - необходимо разобраться.
+					//
+					PPObjPerson psn_obj;
+					PersonTbl::Rec native_psn_rec, foreign_psn_rec;
+					if(psn_obj.Search(same_rec.OwnerID, &native_psn_rec) > 0) {
+						if(psn_obj.Search(p_pack->OwnerID, &foreign_psn_rec) > 0) {
+							PPIDArray native_dlvr_loc_list;
+							psn_obj.GetDlvrLocList(native_psn_rec.ID, &native_dlvr_loc_list);
+							if(native_dlvr_loc_list.lsearch(*pID)) {
+								// Нашли этот адрес среди адресов доставки "своего" владельца - безусловно оставляем существующего владельца
+								p_pack->OwnerID = same_rec.OwnerID; 
+							}
+						}
+						else {
+							// "Чужой" владелец не найден - безусловно оставляем существующего
+							p_pack->OwnerID = same_rec.OwnerID; 
+						}
+					}
+				}
+				// } @v9.6.2 
 				r = PutPacket(pID, p_pack, 1);
 			}
 			else {
@@ -2764,7 +2788,7 @@ int SLAPI PPObjLocation::ViewWarehouse()
 int SLAPI PPObjLocation::ViewDivision()
 {
 	DivisionView * dlg = new DivisionView();
-	return CheckDialogPtr(&dlg, 1) ? ExecViewAndDestroy(dlg) : 0;
+	return CheckDialogPtrErr(&dlg) ? ExecViewAndDestroy(dlg) : 0;
 }
 //
 //
@@ -3485,7 +3509,6 @@ int PPALDD_Location::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack 
 			LocationCore::GetExField(&loc_rec, _ARG_INT(1), _RET_STR);
 		}
 	}
-	// @v7.5.0 {
 	else if(pF->Name == "?GetLongAddr") {
 		_RET_STR = 0;
 		PPObjLocation * p_obj = (PPObjLocation*)Extra[0].Ptr;
@@ -3494,7 +3517,6 @@ int PPALDD_Location::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack 
 			LocationCore::GetAddress(loc_rec, 0, _RET_STR);
 		}
 	}
-	// } @v7.5.0
 	// @v8.3.7 {
 	else if(pF->Name == "?GetRegister") {
 		_RET_INT = 0;
@@ -6198,7 +6220,7 @@ public:
 	{
 		int    ok = 1;
         TestDialog * dlg = new TestDialog(this);
-        if(CheckDialogPtr(&dlg, 1)) {
+        if(CheckDialogPtrErr(&dlg)) {
 			FiasAddressCtrlGroup::Rec fr;
             dlg->setGroupData(1, &fr);
 			ExecViewAndDestroy(dlg);

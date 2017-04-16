@@ -94,7 +94,7 @@ int SLAPI PPViewCashNode::EditBaseFilt(PPBaseFilt * pFilt)
 	CashNodeFilt filt;
 	TDialog * p_dlg = new TDialog(DLG_CASHNFLT);
 	filt.Copy(pFilt, 0);
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	SetupStringCombo(p_dlg, CTLSEL_CASHNFLT_TYPE, PPTXT_CMT, filt.CashTypeID);
 	SetupPPObjCombo(p_dlg,  CTLSEL_CASHNFLT_LOC, PPOBJ_LOCATION, filt.LocID, 0, 0);
 	p_dlg->AddClusterAssoc(CTL_CASHNFLT_SYNCTYPE, -1, CashNodeFilt::sAll);

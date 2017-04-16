@@ -1560,7 +1560,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 		const PPID qk_id = (P_TSesF && P_TSesF->QuotKindID) ? P_TSesF->QuotKindID : PPQUOTK_BASE;
 		PPObjTSession::PlaceStatus status_item;
 		TSCollection <PPObjTSession::PlaceStatus> status_list;
-		if(P_LocTspF && P_LocTspF->PlaceCode[0] && stricmp(P_LocTspF->PlaceCode, "all") != 0) {
+		if(P_LocTspF && P_LocTspF->PlaceCode[0] && !sstreqi_ascii(P_LocTspF->PlaceCode, "all")) {
             for(uint j = 0; j < ResultList.getCount(); j++) {
                 const PPID tsess_id = ResultList.at(j).Id;
                 THROW(P_TSesObj->GetPlaceStatus(tsess_id, P_LocTspF->PlaceCode, qk_id, (store_id ? store_rec.LocID : 0), status_item));

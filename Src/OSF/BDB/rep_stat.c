@@ -17,38 +17,29 @@
 // @v9.5.5 #include "dbinc/db_am.h"
 
 #ifdef HAVE_STATISTICS
-static int __rep_print_all __P((ENV*, uint32));
-static int __rep_print_stats __P((ENV*, uint32));
-static int __rep_stat __P((ENV*, DB_REP_STAT**, uint32));
+static int __rep_print_all(ENV*, uint32);
+static int __rep_print_stats(ENV*, uint32);
+static int __rep_stat(ENV*, DB_REP_STAT**, uint32);
 static int __rep_stat_summary_print(ENV *);
-static const char * __rep_syncstate_to_string __P((repsync_t));
+static const char * __rep_syncstate_to_string(repsync_t);
 
 /*
  * Print the individual statistic for items that appear both in the full and
  * the summary replication statistics output.
  */
- #define PRINT_LOGQUEUED(sp) do {                                        \
-		__db_dl(env, "Number of log records currently queued",          \
-			(ulong)(sp)->st_log_queued);                               \
-} while(0)
+ #define PRINT_LOGQUEUED(sp) do { __db_dl(env, "Number of log records currently queued", (ulong)(sp)->st_log_queued); } while(0)
 
  #define PRINT_MAXPERMLSN(sp) do {                                       \
-		__db_msg(env, "%lu/%lu\t%s",                                    \
-			(ulong)(sp)->st_max_perm_lsn.file,                         \
-			(ulong)(sp)->st_max_perm_lsn.offset,                       \
-			(sp)->st_max_perm_lsn.file == 0 ?                           \
-			"No maximum permanent LSN" :                                \
-			"Maximum permanent LSN");                                   \
+		__db_msg(env, "%lu/%lu\t%s", (ulong)(sp)->st_max_perm_lsn.file, (ulong)(sp)->st_max_perm_lsn.offset, \
+			(sp)->st_max_perm_lsn.file == 0 ? "No maximum permanent LSN" : "Maximum permanent LSN"); \
 } while(0)
 
  #define PRINT_MSGSRECOVER(sp) do {                                      \
-		__db_dl(env, "Number of messages ignored due to pending recovery", \
-			(ulong)(sp)->st_msgs_recover);                             \
+		__db_dl(env, "Number of messages ignored due to pending recovery", (ulong)(sp)->st_msgs_recover); \
 } while(0)
 
  #define PRINT_MSGSSENDFAILURES(sp) do {                                 \
-		__db_dl(env, "Number of failed message sends",                  \
-			(ulong)(sp)->st_msgs_send_failures);                       \
+		__db_dl(env, "Number of failed message sends", (ulong)(sp)->st_msgs_send_failures); \
 } while(0)
 
  #define PRINT_STARTUPCOMPLETE(sp) do {                                  \
@@ -62,17 +53,14 @@ static const char * __rep_syncstate_to_string __P((repsync_t));
 		is_client = 0;                                                  \
 		switch((sp)->st_status) {                                      \
 		    case DB_REP_MASTER:                                             \
-			__db_msg(env,                                           \
-				"Environment configured as a replication master");  \
+			__db_msg(env, "Environment configured as a replication master");  \
 			break;                                                  \
 		    case DB_REP_CLIENT:                                             \
-			__db_msg(env,                                           \
-				"Environment configured as a replication client");  \
+			__db_msg(env, "Environment configured as a replication client");  \
 			is_client = 1;                                          \
 			break;                                                  \
 		    default:                                                        \
-			__db_msg(env,                                           \
-				"Environment not configured for replication");      \
+			__db_msg(env, "Environment not configured for replication");      \
 			break;                                                  \
 		}                                                               \
 } while(0)
@@ -219,11 +207,10 @@ int __rep_stat_print_pp(DB_ENV*dbenv, uint32 flags)
  *
  * PUBLIC: int __rep_stat_print __P((ENV *, uint32));
  */
-int __rep_stat_print(ENV*env, uint32 flags)
+int __rep_stat_print(ENV * env, uint32 flags)
 {
-	uint32 orig_flags;
 	int ret;
-	orig_flags = flags;
+	const uint32 orig_flags = flags;
 	LF_CLR(DB_STAT_CLEAR|DB_STAT_SUBSYSTEM);
 	if(LF_ISSET(DB_STAT_SUMMARY))
 		return __rep_stat_summary_print(env);
@@ -232,9 +219,7 @@ int __rep_stat_print(ENV*env, uint32 flags)
 		if(flags == 0 || ret != 0)
 			return ret;
 	}
-	if(LF_ISSET(DB_STAT_ALL) && (ret = __rep_print_all(env, orig_flags)) != 0)
-		return ret;
-	return 0;
+	return (LF_ISSET(DB_STAT_ALL) && (ret = __rep_print_all(env, orig_flags)) != 0) ? ret : 0;
 }
 /*
  * __rep_print_stats --
@@ -251,55 +236,32 @@ static int __rep_print_stats(ENV*env, uint32 flags)
 		__db_msg(env, "Default replication region information:");
 	PRINT_STATUS(sp, is_client);
 
-	__db_msg(env, "%lu/%lu\t%s",
-		(ulong)sp->st_next_lsn.file, (ulong)sp->st_next_lsn.offset,
-		is_client ? "Next LSN expected" : "Next LSN to be used");
-	__db_msg(env, "%lu/%lu\t%s",
-		(ulong)sp->st_waiting_lsn.file, (ulong)sp->st_waiting_lsn.offset,
-		sp->st_waiting_lsn.file == 0 ?
-		"Not waiting for any missed log records" :
-		"LSN of first log record we have after missed log records");
+	__db_msg(env, "%lu/%lu\t%s", (ulong)sp->st_next_lsn.file, (ulong)sp->st_next_lsn.offset, is_client ? "Next LSN expected" : "Next LSN to be used");
+	__db_msg(env, "%lu/%lu\t%s", (ulong)sp->st_waiting_lsn.file, (ulong)sp->st_waiting_lsn.offset,
+		sp->st_waiting_lsn.file == 0 ? "Not waiting for any missed log records" : "LSN of first log record we have after missed log records");
 	PRINT_MAXPERMLSN(sp);
 
 	__db_dl(env, "Next page number expected", (ulong)sp->st_next_pg);
-	p = sp->st_waiting_pg == PGNO_INVALID ?
-	    "Not waiting for any missed pages" :
-	    "Page number of first page we have after missed pages";
+	p = sp->st_waiting_pg == PGNO_INVALID ? "Not waiting for any missed pages" : "Page number of first page we have after missed pages";
 	__db_msg(env, "%lu\t%s", (ulong)sp->st_waiting_pg, p);
-	__db_dl(env,
-		"Number of duplicate master conditions originally detected at this site",
-		(ulong)sp->st_dupmasters);
+	__db_dl(env, "Number of duplicate master conditions originally detected at this site", (ulong)sp->st_dupmasters);
 	if(sp->st_env_id != DB_EID_INVALID)
 		__db_dl(env, "Current environment ID", (ulong)sp->st_env_id);
 	else
 		__db_msg(env, "No current environment ID");
-	__db_dl(env,
-		"Current environment priority", (ulong)sp->st_env_priority);
+	__db_dl(env, "Current environment priority", (ulong)sp->st_env_priority);
 	__db_dl(env, "Current generation number", (ulong)sp->st_gen);
-	__db_dl(env,
-		"Election generation number for the current or next election",
-		(ulong)sp->st_egen);
-	__db_dl(env, "Number of lease validity checks",
-		(ulong)sp->st_lease_chk);
-	__db_dl(env, "Number of invalid lease validity checks",
-		(ulong)sp->st_lease_chk_misses);
-	__db_dl(env,
-		"Number of lease refresh attempts during lease validity checks",
-		(ulong)sp->st_lease_chk_refresh);
-	__db_dl(env, "Number of live messages sent while using leases",
-		(ulong)sp->st_lease_sends);
-	__db_dl(env, "Number of duplicate log records received",
-		(ulong)sp->st_log_duplicated);
+	__db_dl(env, "Election generation number for the current or next election", (ulong)sp->st_egen);
+	__db_dl(env, "Number of lease validity checks", (ulong)sp->st_lease_chk);
+	__db_dl(env, "Number of invalid lease validity checks", (ulong)sp->st_lease_chk_misses);
+	__db_dl(env, "Number of lease refresh attempts during lease validity checks", (ulong)sp->st_lease_chk_refresh);
+	__db_dl(env, "Number of live messages sent while using leases", (ulong)sp->st_lease_sends);
+	__db_dl(env, "Number of duplicate log records received", (ulong)sp->st_log_duplicated);
 	PRINT_LOGQUEUED(sp);
-	__db_dl(env, "Maximum number of log records ever queued at once",
-		(ulong)sp->st_log_queued_max);
-	__db_dl(env, "Total number of log records queued",
-		(ulong)sp->st_log_queued_total);
-	__db_dl(env,
-		"Number of log records received and appended to the log",
-		(ulong)sp->st_log_records);
-	__db_dl(env, "Number of log records missed and requested",
-		(ulong)sp->st_log_requested);
+	__db_dl(env, "Maximum number of log records ever queued at once", (ulong)sp->st_log_queued_max);
+	__db_dl(env, "Total number of log records queued", (ulong)sp->st_log_queued_total);
+	__db_dl(env, "Number of log records received and appended to the log", (ulong)sp->st_log_records);
+	__db_dl(env, "Number of log records missed and requested", (ulong)sp->st_log_requested);
 	if(sp->st_master != DB_EID_INVALID)
 		__db_dl(env, "Current master ID", (ulong)sp->st_master);
 	else
@@ -325,10 +287,7 @@ static int __rep_print_stats(ENV*env, uint32 flags)
 	if(sp->st_election_status == 0) {
 		__db_msg(env, "No election in progress");
 		if(sp->st_election_sec > 0 || sp->st_election_usec > 0)
-			__db_msg(env,
-				"%lu.%.6lu\tDuration of last election (seconds)",
-				(ulong)sp->st_election_sec,
-				(ulong)sp->st_election_usec);
+			__db_msg(env, "%lu.%.6lu\tDuration of last election (seconds)", (ulong)sp->st_election_sec, (ulong)sp->st_election_usec);
 	}
 	else {
 		__db_dl(env, "Current election phase", (ulong)sp->st_election_status);
@@ -350,10 +309,8 @@ static int __rep_print_stats(ENV*env, uint32 flags)
 	__db_dl(env, "Number of request messages this client failed to process", (ulong)sp->st_client_svc_miss);
 	__db_dl(env, "Number of request messages received by this client", (ulong)sp->st_client_svc_req);
 	if(sp->st_max_lease_sec > 0 || sp->st_max_lease_usec > 0)
-		__db_msg(env, "%lu.%.6lu\tDuration of maximum lease (seconds)",
-			(ulong)sp->st_max_lease_sec, (ulong)sp->st_max_lease_usec);
+		__db_msg(env, "%lu.%.6lu\tDuration of maximum lease (seconds)", (ulong)sp->st_max_lease_sec, (ulong)sp->st_max_lease_usec);
 	__os_ufree(env, sp);
-
 	return 0;
 }
 
@@ -413,20 +370,14 @@ static int __rep_print_all(ENV*env, uint32 flags)
 		{ 0,                    NULL }
 	};
 	DB_LOG * dblp;
-	DB_REP * db_rep;
 	DB_THREAD_INFO * ip;
 	LOG * lp;
-	REGENV * renv;
-	REGINFO * infop;
-	REP * rep;
 	char time_buf[CTIME_BUFLEN];
-
-	db_rep = env->rep_handle;
-	rep = db_rep->region;
-	infop = env->reginfo;
-	renv = (REGENV *)infop->primary;
+	DB_REP * db_rep = env->rep_handle;
+	REP * rep = db_rep->region;
+	REGINFO * infop = env->reginfo;
+	REGENV * renv = (REGENV *)infop->primary;
 	ENV_ENTER(env, ip);
-
 	__db_msg(env, "%s", DB_GLOBAL(db_line));
 	__db_msg(env, "DB_REP handle information:");
 	if(db_rep->rep_db == NULL)
@@ -493,18 +444,12 @@ static int __rep_print_all(ENV*env, uint32 flags)
 static const char * __rep_syncstate_to_string(repsync_t state)
 {
 	switch(state) {
-	    case SYNC_OFF:
-		return "Not Synchronizing";
-	    case SYNC_LOG:
-		return "SYNC_LOG";
-	    case SYNC_PAGE:
-		return "SYNC_PAGE";
-	    case SYNC_UPDATE:
-		return "SYNC_UPDATE";
-	    case SYNC_VERIFY:
-		return "SYNC_VERIFY";
-	    default:
-		break;
+	    case SYNC_OFF: return "Not Synchronizing";
+	    case SYNC_LOG: return "SYNC_LOG";
+	    case SYNC_PAGE: return "SYNC_PAGE";
+	    case SYNC_UPDATE: return "SYNC_UPDATE";
+	    case SYNC_VERIFY: return "SYNC_VERIFY";
+	    default: break;
 	}
 	return "UNKNOWN STATE";
 }

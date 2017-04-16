@@ -1298,7 +1298,7 @@ int TWindowBase::AddChild(TWindowBase * pWin, long createOptions, long zone)
 		pWin->Create((long)HW, createOptions);
 		if(zone)
 			Layout.InsertWindow(zone, pWin, 0, 0);
-		TWindow::insert(pWin);
+		TWindow::Insert_(pWin);
 		Layout.Arrange();
 		ShowWindow(pWin->H(), SW_SHOWNORMAL);
 		UpdateWindow(H());

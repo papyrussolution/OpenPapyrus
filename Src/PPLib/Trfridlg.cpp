@@ -145,7 +145,7 @@ int SLAPI ViewSpoilList(SpecSeriesCore * pTbl, const char * pSerial, int useText
 {
 	int    ok = -1;
 	PPListDialog * dlg = new PPListDialog(DLG_SPOILLIST, CTL_SPOILLIST_LIST);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		StrAssocArray name_list;
 		dlg->setCtrlString(CTL_SPOILLIST_SERIAL, pSerial);
 		pTbl->GetListBySerial(SPCSERIK_SPOILAGE, pSerial, &name_list);

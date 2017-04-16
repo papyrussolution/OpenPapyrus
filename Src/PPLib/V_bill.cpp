@@ -338,7 +338,7 @@ int SLAPI BillFilterDialog(uint dlgID, BillFilt * pFilt, const char * pAddText)
 void BillFiltDialog::viewOptions()
 {
 	TDialog * dlg = new TDialog(DLG_BILLFLTVOPT);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		long   flags = 0;
 		// PPViewDisplayExtList Dl
 		if(Data.Dl.GetItemByDataId(BillFilt::dliFreightIssueDate, 0))
@@ -2219,7 +2219,7 @@ static int SLAPI EditBill2MrpParam(Bill2MrpParam * pParam)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_BILL2MRP);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		ushort v = BIN(pParam->Flags & Bill2MrpParam::fAllSelection);
 		dlg->setCtrlData(CTL_BILL2MRP_WHAT, &v);
 		dlg->setCtrlData(CTL_BILL2MRP_MRPNAME, pParam->MrpName);
@@ -3008,7 +3008,7 @@ static int SLAPI SelectAddByRcptAction(SelAddBySampleParam * pData)
 	int    ok = -1, what = -1;
 	PPID   op_id = 0;
 	TDialog * dlg = new TDialog(DLG_SELBBSMPL);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		ushort v = 0;
 		PPIDArray op_type_list;
 		dlg->setCtrlData(CTL_SELBBSMPL_WHAT, &v);
@@ -3233,7 +3233,7 @@ static int SLAPI ConfirmRmvDraft(int all)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(all ? DLG_RMVDRAFTALL : DLG_RMVDRAFT);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setCtrlUInt16(CTL_RMVDRAFT_WHAT, 0);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			ushort v = dlg->getCtrlUInt16(CTL_RMVDRAFT_WHAT);
@@ -3252,7 +3252,7 @@ int SLAPI PPViewBill::DeleteBillFromPool(PPID billID)
 	int    ok = -1;
 	ushort v = 0;
 	TDialog * dlg = new TDialog(DLG_BPOOLRMV);
-	THROW(CheckDialogPtr(&dlg, 1));
+	THROW(CheckDialogPtrErr(&dlg));
 	dlg->setCtrlData(CTL_BPOOLRMV_VERB, &v);
 	if(ExecView(dlg) == cmOK) {
 		PPIDArray bill_list;
@@ -3601,7 +3601,7 @@ int SLAPI PPViewBill::UniteInventory()
 	int    rmv_src = 1;
 	PPIDArray ary;
 	TDialog * dlg = new TDialog(DLG_UNITEINVENT);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	dlg->setCtrlUInt16(CTL_UNITEINVENT_SGOPTION, 0);
 	dlg->setCtrlUInt16(CTL_UNITEINVENT_FLAGS,    1);
 	if(ExecView(dlg) == cmOK) {
@@ -3932,7 +3932,7 @@ int SLAPI PPViewBill::AddBillToPool()
 	BillPoolAddDialog * dlg = 0;
 	PoolInsertionParam param = Pip;
 	SetupPoolInsertionFilt(&param.Filt);
-	THROW(CheckDialogPtr(&(dlg = new BillPoolAddDialog), 0));
+	THROW(CheckDialogPtr(&(dlg = new BillPoolAddDialog)));
 	while(dlg->setDTS(&param) && ExecView(dlg) == cmOK) {
 		PPID   new_bill_id = 0;
 		PPID   op_id = 0;
@@ -4156,7 +4156,7 @@ static int SLAPI SelectPrintPoolVerb(int * pVerb)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_PRNPOOLBILL);
-	if(CheckDialogPtr(&dlg, 0)) {
+	if(CheckDialogPtr(&dlg)) {
 		ushort v = (*pVerb == 1) ? 0 : 1;
 		dlg->setCtrlData(CTL_PRNPOOLBILL_WHAT, &v);
 		if(ExecView(dlg) == cmOK) {
@@ -4183,7 +4183,7 @@ int SLAPI PPViewBill::PrintBill(PPID billID, int addCashSummator)
 		if(pack.Rec.Flags & BILLF_CASH) {
 			ushort v = 0;
 			TDialog * dlg = new TDialog(DLG_SELPRNCHK);
-			if(CheckDialogPtr(&dlg, 1)) {
+			if(CheckDialogPtrErr(&dlg)) {
 				dlg->setCtrlUInt16(CTL_SELPRNCHK_WHAT, 0);
 				if(ExecView(dlg) == cmOK)
 					v = dlg->getCtrlUInt16(CTL_SELPRNCHK_WHAT) + 1;
@@ -4293,7 +4293,7 @@ int SLAPI PPViewBill::UpdateAttributes()
 	if(Filt.OpID)
 		GetOpCommonAccSheet(Filt.OpID, obj_sheet_id ? 0 : &obj_sheet_id, &obj_sheet2_id);
 	THROW(GetBillIDList(&ary));
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_UPDBLIST)), 1));
+	THROW(CheckDialogPtrErr(&(dlg = new TDialog(DLG_UPDBLIST))));
 	SetupArCombo(dlg, CTLSEL_UPDBLIST_PAYER,   ua.PayerID,   OLW_CANINSERT, GetSellAccSheet(),  sacfDisableIfZeroSheet);
 	SetupArCombo(dlg, CTLSEL_UPDBLIST_AGENT,   ua.AgentID,   OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 	SetupArCombo(dlg, CTLSEL_UPDBLIST_OBJECT,  ua.ObjectID,  OLW_CANINSERT, obj_sheet_id,       sacfDisableIfZeroSheet);
@@ -4431,7 +4431,7 @@ int SLAPI PPViewBill::ViewVATaxList()
 	if(p_list) {
 		THROW_MEM(p_def = new StrAssocListBoxDef(p_ary, lbtDisposeData));
 		p_list->setDef(p_def);
-		p_list->drawView();
+		p_list->Draw_();
 	}
 	PPWait(0);
 	ExecView(dlg);
@@ -4493,7 +4493,7 @@ int SLAPI PPViewBill::ViewTotal()
 			}
 			total.Amounts.Remove(PPAMT_PCTDIS, 0L);
 			BillTotalDialog * dlg = new BillTotalDialog(DLG_BILLTOTAL2, CTL_BILLTOTAL2_AMTLIST, &total, this);
-			if(CheckDialogPtr(&dlg, 1))
+			if(CheckDialogPtrErr(&dlg))
 				ExecViewAndDestroy(dlg);
 		}
 		PPWait(0);
@@ -4925,7 +4925,7 @@ static int SLAPI SCardNumDlg(PPSCardPacket & rScPack, CCheckTbl::Rec * pChkRec, 
 	CCheckCore cc_core;
 	LDATE  dt = ZERODATE;
 	MEMSZERO(cc_rec);
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	if(isDraft) {
 		SetupCalCtrl(CTLCAL_SCARDNUM_CHKDT, p_dlg, CTL_SCARDNUM_CHKDT, 4);
 		p_dlg->setCtrlData(CTL_SCARDNUM_CHKDT, &(dt = getcurdate_()));
@@ -5042,7 +5042,7 @@ static int SLAPI SCardInfoDlg(PPSCardPacket & rScPack, PPID * pOpID, long flags,
 			}
 		}
 	}
-	THROW(CheckDialogPtr(&(p_dlg = new TDialog(DLG_SCARDINFO)), 0));
+	THROW(CheckDialogPtr(&(p_dlg = new TDialog(DLG_SCARDINFO))));
 	p_dlg->setCtrlData(CTL_SCARDINFO_CODE, rScPack.Rec.Code);
 	p_dlg->setCtrlData(CTL_SCARDINFO_NAME, psn_pack.Rec.Name);
 	{

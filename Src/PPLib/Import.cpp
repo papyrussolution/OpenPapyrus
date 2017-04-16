@@ -6,6 +6,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
+#include "..\sartr\sartr.h"
 /*
 import.ini
 
@@ -668,7 +669,7 @@ static int SLAPI RequestImportGoodsParam(ImportGoodsParam * pData)
 	SETIFZ(pData->RcptOpID, CConfig.ReceiptOp);
 	SETIFZ(pData->DefUnitID, goods_cfg.DefUnitID);
 	dlg = new TDialog(DLG_IMPGOODS);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		SetupPPObjCombo(dlg, CTLSEL_IMPGOODS_GRP, PPOBJ_GOODSGROUP, pData->DefParentID, OLW_CANINSERT);
 		SetupPPObjCombo(dlg, CTLSEL_IMPGOODS_OP,  PPOBJ_OPRKIND,    pData->RcptOpID, 0, (void *)PPOPT_GOODSRECEIPT);
 		SetupArCombo(dlg, CTLSEL_IMPGOODS_SUPPL, pData->SupplID, 0, GetSupplAccSheet(), sacfDisableIfZeroSheet);
@@ -1785,7 +1786,7 @@ int SLAPI EditSpecSeriesFormatDescription()
 		PPIniFile ini_file(ini_file_name, 0, 1, 1);
 		THROW(LoadSdRecord(PPREC_SPECSERIES, &param.InrRec));
 		THROW(param.ReadIni(&ini_file, sect_name, 0));
-		THROW(CheckDialogPtr(&(dlg = new ImpExpParamDialog(DLG_IMPEXP, ImpExpParamDialog::fDisableExport)), 0));
+		THROW(CheckDialogPtr(&(dlg = new ImpExpParamDialog(DLG_IMPEXP, ImpExpParamDialog::fDisableExport))));
 		dlg->setDTS(&param);
 		while(ok <= 0 && ExecView(dlg) == cmOK)
 			if(dlg->getDTS(&param)) {
@@ -1822,7 +1823,7 @@ int SLAPI ImportSpecSeries()
 			int    clear_data = 0;
 			{
 				TDialog * dlg = new TDialog(DLG_IMPSPOIL);
-				THROW(CheckDialogPtr(&dlg, 0));
+				THROW(CheckDialogPtr(&dlg));
 				dlg->setCtrlUInt16(CTL_IMPSPOIL_FLAGS, BIN(clear_data));
 				if(ExecView(dlg) == cmOK) {
 					clear_data = BIN(dlg->getCtrlUInt16(CTL_IMPSPOIL_FLAGS));
@@ -2019,7 +2020,7 @@ int SLAPI EditPhoneListParam(const char * pIniSection)
    	{
    		int    direction = 0;
    		PPIniFile ini_file(ini_file_name, 0, 1, 1);
-   		THROW(CheckDialogPtr(&(dlg = new PhoneListImpExpDialog()), 0));
+   		THROW(CheckDialogPtr(&(dlg = new PhoneListImpExpDialog())));
    		THROW(LoadSdRecord(PPREC_PHONELIST, &param.InrRec));
    		direction = param.Direction;
    		if(!isempty(pIniSection))
@@ -2355,7 +2356,7 @@ int SLAPI ImportBanks()
 		PPWait(0);
 
 		p_dlg = new TDialog(DLG_REGIONSEL);
-		THROW(CheckDialogPtr(&p_dlg, 0));
+		THROW(CheckDialogPtr(&p_dlg));
 		city_sc.sort(PTR_CMPFUNC(Pchar));
 		SetupSCollectionComboBox(p_dlg, CTLSEL_REGIONSEL_REGION, &region_sc, 0);
 		SetupSCollectionComboBox(p_dlg, CTLSEL_REGIONSEL_CITY, &city_sc, 0);
@@ -2507,7 +2508,7 @@ int SLAPI PrcssrImportKLADR::EditParam(Param * pData)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_IMPKLADR);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	dlg->setCtrlString(CTL_IMPKLADR_PARENT, pData->ParentCodeString);
 	dlg->AddClusterAssoc(CTL_IMPKLADR_FLAGS, 0, Param::fSkipSmallItems);
 	dlg->AddClusterAssoc(CTL_IMPKLADR_FLAGS, 1, Param::fStreet);
@@ -3704,7 +3705,7 @@ int SLAPI EditPersonImpExpParams()
 	int    ok = -1;
 	PPPersonImpExpParam param;
 	ImpExpParamDialog * p_dlg = new ImpExpParamDialog(DLG_IMPEXP, 0);
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	THROW(ok = EditImpExpParams(PPFILNAM_IMPEXP_INI, PPREC_PERSON, &param, p_dlg));
 	CATCHZOK
 	delete p_dlg;
@@ -4676,7 +4677,7 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 {
 	int    ok = 1;
 	SString line_buf;
-	if(InputObject == inpAddrObj && stricmp(pName, "object") == 0) {
+	if(InputObject == inpAddrObj && sstreqi_ascii(pName, "object")) {
 		RawRecN++;
 		if(CurPsPos >= 0) {
 			const ProcessState::Item & r_state = Ps.L.at(CurPsPos);
@@ -4854,7 +4855,7 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 			}
 		}
 	}
-	else if(InputObject == inpHouse && stricmp(pName, "house") == 0) {
+	else if(InputObject == inpHouse && sstreqi_ascii(pName, "house")) {
 		RawRecN++;
 		if(CurPsPos >= 0) {
 			const ProcessState::Item & r_state = Ps.L.at(CurPsPos);
@@ -5202,7 +5203,7 @@ void SLAPI PrcssrOsm::CommonAttrSet::Reset()
 	User = 0;
 }
 
-SLAPI PrcssrOsm::PrcssrOsm() : O(), GgtFinder(O.GetGrid())
+SLAPI PrcssrOsm::PrcssrOsm(const char * pDbPath) : O(pDbPath), GgtFinder(O.GetGrid())
 {
 	SaxCtx = 0;
 	State = 0;
@@ -5455,7 +5456,7 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
         CurrentTagList.clear();
 	}
 	else if(sstreqi_ascii(pName, "way")) { // osm/way
-		FlashNodeAccum(1);
+		THROW(FlashNodeAccum(1));
 		tok = tWay;
 		WayCount++;
 		PPOsm::Way new_way;
@@ -5479,7 +5480,7 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 		}
 	}
 	else if(sstreqi_ascii(pName, "relation")) { // osm/relation
-		FlashNodeAccum(1);
+		THROW(FlashNodeAccum(1));
 		tok = tRelation;
 		RelationCount++;
 		PPOsm::Relation new_rel;
@@ -5624,21 +5625,27 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 					PPOsm::NodeCluster cluster;
 					TSArray <PPOsm::Node> test_list;
 					size_t offs = 0;
-					while(offs < _count) {
-						size_t actual_count = 0;
-						cluster.Put(&NodeAccum.at(offs), _count - offs, &actual_count);
-						// @debug {
-						{
-							test_list.clear();
-							cluster.Get(test_list);
-							for(uint i = 0; i < test_list.getCount(); i++) {
-								assert(test_list.at(i) == NodeAccum.at(offs+i));
-							}
-						}
-						// } @debug 
-						offs += actual_count;
+					SrDatabase * p_db = O.GetDb();
+					if(p_db) {
+						THROW_DB(p_db->StoreGeoNodeList(NodeAccum));
 					}
-					assert(offs == _count);
+					else {
+						while(offs < _count) {
+							size_t actual_count = 0;
+							THROW(cluster.Put(&NodeAccum.at(offs), _count - offs, 0, &actual_count));
+							// @debug {
+							{
+								test_list.clear();
+								cluster.Get(0, test_list);
+								for(uint i = 0; i < test_list.getCount(); i++) {
+									assert(test_list.at(i) == NodeAccum.at(offs+i));
+								}
+							}
+							// } @debug
+							offs += actual_count;
+						}
+						assert(offs == _count);
+					}
 					if(force)
 						NodeAccum.freeAll();
 					else
@@ -5647,6 +5654,7 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 			}
 		}
 	}
+	CATCHZOK
 	return ok;
 }
 
@@ -5658,11 +5666,12 @@ int PrcssrOsm::EndElement(const char * pName)
 		if(CurrentTagList.getCount() == 0)
 			NakedNodeCount++;
 	}
-	FlashNodeAccum(BIN(tok == tOsm));
+	THROW(FlashNodeAccum(BIN(tok == tOsm)));
 	if(oneof3(tok, tNode, tWay, tRelation)) {
 		//PPUPRF_OSMXMLPARSETAG
         CALLPTRMEMB(P_Ufp, CommitAndRestart());
 	}
+	CATCHZOK
 	return ok;
 }
 
@@ -6145,17 +6154,21 @@ int SLAPI PrcssrOsm::Run()
 	if(P.Flags & PrcssrOsmFilt::fImport) {
 		Phase = phaseImport;
 		if(O.CheckStatus(O.stGridLoaded)) {
-			xmlSAXHandler saxh_addr_obj;
-			MEMSZERO(saxh_addr_obj);
-			saxh_addr_obj.startDocument = Scb_StartDocument;
-			saxh_addr_obj.endDocument = Scb_EndDocument;
-			saxh_addr_obj.startElement = Scb_StartElement;
-			saxh_addr_obj.endElement = Scb_EndElement;
-			//
-			THROW_MEM(SETIFZ(P_Ufp, new PPUserFuncProfiler(PPUPRF_OSMXMLPARSETAG)));
-			PROFILE_START
-			THROW(SaxParseFile(&saxh_addr_obj, file_name) == 0);
-			PROFILE_END
+			const  char * p_db_path = "/PAPYRUS/PPY/BIN/SARTRDB";
+			THROW(O.OpenDatabase(p_db_path));
+			{
+				xmlSAXHandler saxh_addr_obj;
+				MEMSZERO(saxh_addr_obj);
+				saxh_addr_obj.startDocument = Scb_StartDocument;
+				saxh_addr_obj.endDocument = Scb_EndDocument;
+				saxh_addr_obj.startElement = Scb_StartElement;
+				saxh_addr_obj.endElement = Scb_EndElement;
+				//
+				THROW_MEM(SETIFZ(P_Ufp, new PPUserFuncProfiler(PPUPRF_OSMXMLPARSETAG)));
+				PROFILE_START
+				THROW(SaxParseFile(&saxh_addr_obj, file_name) == 0);
+				PROFILE_END
+			}
 		}
 	}
 	PPWait(0);
@@ -6175,7 +6188,7 @@ int SLAPI PrcssrOsm::Run()
 int SLAPI DoProcessOsm(PrcssrOsmFilt * pFilt)
 {
 	int    ok = -1;
-	PrcssrOsm prcssr;
+	PrcssrOsm prcssr(0);
 	if(pFilt) {
 		if(prcssr.Init(pFilt) && prcssr.Run())
 			ok = 1;

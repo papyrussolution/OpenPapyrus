@@ -29,15 +29,13 @@
  * they are excluded. They can be enabled with --enable-perfmon-statistics.
  */
 #ifdef HAVE_PERFMON_STATISTICS
-#define STAT_PERFMON1(env, cat, id, a1)		PERFMON1(env, cat, id, (a1))
-#define STAT_PERFMON2(env, cat, id, a1, a2) 	\
-    PERFMON2(env, cat, id, (a1), (a2))
-#define STAT_PERFMON3(env, cat, id, a1, a2, a3)	\
-    PERFMON3(env, cat, id, (a1), (a2), (a3))
+	#define STAT_PERFMON1(env, cat, id, a1)         PERFMON1(env, cat, id, (a1))
+	#define STAT_PERFMON2(env, cat, id, a1, a2)     PERFMON2(env, cat, id, (a1), (a2))
+	#define STAT_PERFMON3(env, cat, id, a1, a2, a3) PERFMON3(env, cat, id, (a1), (a2), (a3))
 #else
-#define STAT_PERFMON1(env, cat, id, a1)		NOP_STATEMENT
-#define STAT_PERFMON2(env, cat, id, a1, a2)	NOP_STATEMENT
-#define STAT_PERFMON3(env, cat, id, a1, a2, a3)	NOP_STATEMENT
+	#define STAT_PERFMON1(env, cat, id, a1)         NOP_STATEMENT
+	#define STAT_PERFMON2(env, cat, id, a1, a2)     NOP_STATEMENT
+	#define STAT_PERFMON3(env, cat, id, a1, a2, a3) NOP_STATEMENT
 #endif
 
 

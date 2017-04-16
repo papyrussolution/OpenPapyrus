@@ -290,16 +290,11 @@ retry:
 	min_leases = rep->config_nsites/2;
 	ret = 0;
 	__os_gettime(env, &curtime, 1);
-	VPRINT(env, (env, DB_VERB_REP_LEASE,
-		     "%s %d of %d refresh %d min_leases %lu curtime %lu %lu, maxLSN [%lu][%lu]",
-		     "lease_check: try ", tries, max_tries, refresh,
-		     (ulong)min_leases, (ulong)curtime.tv_sec,
-		     (ulong)curtime.tv_nsec,
-		     (ulong)lease_lsn.file,
-		     (ulong)lease_lsn.offset));
+	VPRINT(env, (env, DB_VERB_REP_LEASE, "%s %d of %d refresh %d min_leases %lu curtime %lu %lu, maxLSN [%lu][%lu]",
+		"lease_check: try ", tries, max_tries, refresh, (ulong)min_leases, (ulong)curtime.tv_sec,
+		(ulong)curtime.tv_nsec, (ulong)lease_lsn.file, (ulong)lease_lsn.offset));
 	table = (REP_LEASE_ENTRY *)R_ADDR(infop, rep->lease_off);
-	for(i = 0, valid_leases = 0;
-	    i < rep->config_nsites && valid_leases < min_leases; i++) {
+	for(i = 0, valid_leases = 0; i < rep->config_nsites && valid_leases < min_leases; i++) {
 		le = &table[i];
 		/*
 		 * Count this lease as valid if:

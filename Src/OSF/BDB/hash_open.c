@@ -52,7 +52,7 @@
 // @v9.5.5 #include "dbinc/partition.h"
 // @v9.5.5 #include "dbinc/fop.h"
 
-static db_pgno_t __ham_init_meta __P((DB*, HMETA*, db_pgno_t, DB_LSN *));
+static db_pgno_t __ham_init_meta(DB*, HMETA*, db_pgno_t, DB_LSN *);
 
 /*
  * __ham_open --

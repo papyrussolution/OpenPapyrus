@@ -112,8 +112,7 @@ retry:
 		__LPUT(dbc, lock);
 		return ret;
 	}
-	DB_ASSERT(dbp->env, TYPE(h) == P_IBTREE || TYPE(h) == P_IRECNO ||
-		TYPE(h) == P_LBTREE || TYPE(h) == P_LRECNO || TYPE(h) == P_LDUP);
+	DB_ASSERT(dbp->env, oneof5(TYPE(h), P_IBTREE, P_IRECNO, P_LBTREE, P_LRECNO, P_LDUP));
 	/*
 	 * Decide if we need to dirty and/or lock this page.
 	 * We must not hold the latch while we get the lock.
@@ -144,7 +143,7 @@ retry:
 			if(lock_mode != DB_LOCK_WRITE)
 				goto done;
 			if((ret = __memp_dirty(mpf, &h, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0) {
-				if(h != NULL)
+				if(h)
 					__memp_fput(mpf, dbc->thread_info, h, dbc->priority);
 				return ret;
 			}
@@ -153,7 +152,7 @@ retry:
 			/* Try to lock the page without waiting first. */
 			if((ret = __db_lget(dbc, 0, root_pgno, lock_mode, DB_LOCK_NOWAIT, &lock)) == 0) {
 				if(lock_mode == DB_LOCK_WRITE && (ret = __memp_dirty(mpf, &h, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0) {
-					if(h != NULL)
+					if(h)
 						__memp_fput(mpf, dbc->thread_info, h, dbc->priority);
 					return ret;
 				}
@@ -161,10 +160,9 @@ retry:
 			}
 			t_ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority);
 			h = NULL;
-			if(ret == DB_LOCK_DEADLOCK || ret == DB_LOCK_NOTGRANTED)
+			if(oneof2(ret, DB_LOCK_DEADLOCK, DB_LOCK_NOTGRANTED))
 				ret = 0;
-			if(ret == 0)
-				ret = t_ret;
+			SETIFZ(ret, t_ret);
 			if(ret != 0)
 				return ret;
 			get_mode = 0;
@@ -619,7 +617,7 @@ lock_next:
 				if(wait == 0 || (ret != DB_LOCK_NOTGRANTED && ret != DB_LOCK_DEADLOCK))
 					goto err;
 				/* Relase the parent if we are holding it. */
-				if(parent_h != NULL && (ret = __memp_fput(mpf, dbc->thread_info, parent_h, dbc->priority)) != 0)
+				if(parent_h && (ret = __memp_fput(mpf, dbc->thread_info, parent_h, dbc->priority)) != 0)
 					goto err;
 				parent_h = NULL;
 
@@ -629,36 +627,24 @@ lock_next:
 				if((ret = __db_lget(dbc, 0, pg, lock_mode, 0, &saved_lock)) != 0)
 					goto err;
 				/*
-				 * A very strange case: if this page was
-				 * freed while we wait then we cannot hold
-				 * the lock on it while we reget the root
-				 * latch because allocation is one place
+				 * A very strange case: if this page was freed while we wait then we cannot hold
+				 * the lock on it while we reget the root latch because allocation is one place
 				 * we lock while holding a latch.
-				 * We want to hold the lock but must ensure
-				 * that the page is not free or cannot become
-				 * free.  If we are at the LEAF level we can
-				 * hold on to the lock if the page is still
-				 * of the right type.  Otherwise we need to
-				 * besure this page cannot move to an off page
-				 * duplicate tree (which are not locked) and
-				 * masquerade as the page we want.
+				 * We want to hold the lock but must ensure that the page is not free or cannot become
+				 * free.  If we are at the LEAF level we can hold on to the lock if the page is still
+				 * of the right type.  Otherwise we need to besure this page cannot move to an off page
+				 * duplicate tree (which are not locked) and masquerade as the page we want.
 				 */
 				/*
-				 * If the page is not at leaf level
-				 * then see if OPD trees are around.
-				 * If the page could appear as an
-				 * interior offpage duplicate node
-				 * at the right level the it will
-				 * not be locked and subsequently be
-				 * freed. If there are multiple
-				 * databases in the file then they
-				 * could have OPDs.
+				 * If the page is not at leaf level then see if OPD trees are around.
+				 * If the page could appear as an interior offpage duplicate node
+				 * at the right level the it will not be locked and subsequently be
+				 * freed. If there are multiple databases in the file then they could have OPDs.
 				 */
 				if(level-1 > LEAFLEVEL && (F_ISSET(dbp, DB_AM_SUBDB) || (dbp->type == DB_BTREE && F_ISSET(dbp, DB_AM_DUPSORT))))
 					goto drop_lock;
 				/*
-				 * Take a look at the page.  If it got
-				 * freed it could be very gone.
+				 * Take a look at the page.  If it got freed it could be very gone.
 				 */
 				if((ret = __memp_fget(mpf, &pg, dbc->thread_info, dbc->txn, 0, &h)) != 0 && ret != DB_PAGE_NOTFOUND)
 					goto err;
@@ -682,10 +668,8 @@ drop_lock:
 					LF_SET(SR_NEXT);
 				}
 				/*
-				 * We have the lock but we dropped the
-				 * latch so we need to search again. If
-				 * we get back to the same page then all
-				 * is good, otherwise we need to try to
+				 * We have the lock but we dropped the latch so we need to search again. If
+				 * we get back to the same page then all is good, otherwise we need to try to
 				 * lock the new page.
 				 */
 				saved_pg = pg;
@@ -699,7 +683,7 @@ skip_lock:
 		if((ret = __memp_fget(mpf, &pg, dbc->thread_info, dbc->txn, get_mode, &h)) != 0)
 			goto err;
 		/* Release the parent. */
-		if(parent_h != NULL && (ret = __memp_fput(mpf, dbc->thread_info, parent_h, dbc->priority)) != 0)
+		if(parent_h && (ret = __memp_fput(mpf, dbc->thread_info, parent_h, dbc->priority)) != 0)
 			goto err;
 		parent_h = NULL;
 	}
@@ -730,7 +714,7 @@ found:
 	 * not move from the original found key on the basis of the SR_DELNO
 	 * flag.)
 	 */
-	DB_ASSERT(env, recnop == NULL || LF_ISSET(SR_DELNO));
+	DB_ASSERT(env, !recnop || LF_ISSET(SR_DELNO));
 	if(LF_ISSET(SR_DELNO)) {
 		deloffset = TYPE(h) == P_LBTREE ? O_INDX : 0;
 		if(LF_ISSET(SR_DUPLAST))
@@ -764,8 +748,7 @@ found:
 	}
 	if(LF_ISSET(SR_STK_ONLY)) {
 		BT_STK_NUM(env, cp, h, indx, ret);
-		if((t_ret = __memp_fput(mpf,
-			    dbc->thread_info, h, dbc->priority)) != 0 && ret == 0)
+		if((t_ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0 && ret == 0)
 			ret = t_ret;
 		h = NULL;
 	}
@@ -785,13 +768,11 @@ done:
 	if((ret = __LPUT(dbc, saved_lock)) != 0)
 		return ret;
 	return 0;
-
 err:
-	if(ret == 0)
+	SETIFZ(ret, t_ret);
+	if(h && (t_ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(h != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0 && ret == 0)
-		ret = t_ret;
-	if(parent_h != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, parent_h, dbc->priority)) != 0 && ret == 0)
+	if(parent_h && (t_ret = __memp_fput(mpf, dbc->thread_info, parent_h, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	/* Keep any not-found page locked for serializability. */
 	if((t_ret = __TLPUT(dbc, lock)) != 0 && ret == 0)
@@ -827,7 +808,7 @@ int __bam_stkrel(DBC * dbc, uint32 flags)
 	 * either serializability or recoverability.
 	 */
 	for(ret = 0, epg = cp->sp; epg <= cp->csp; ++epg) {
-		if(epg->page != NULL) {
+		if(epg->page) {
 			if(LF_ISSET(STK_CLRDBC) && cp->page == epg->page) {
 				cp->page = NULL;
 				LOCK_INIT(cp->lock);

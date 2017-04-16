@@ -252,7 +252,7 @@ int SLAPI ConvertLandQCertToLotTag()
 	PPLogger logger;
 	PPObjTag obj_tag;
 	TDialog * p_dlg = new TDialog(DLG_CVTQCERT);
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 
 	MEMSZERO(filt);
 	p_dlg->SetupCalPeriod(CTLCAL_CVTQCERT_PERIOD, CTL_CVTQCERT_PERIOD);
@@ -480,7 +480,7 @@ IMPL_HANDLE_EVENT(LotFiltDialog)
 		GetClusterData(CTL_FLTLOT_FLAGS, &Data.Flags);
 		LotFilt temp_data = Data;
 		TDialog * dlg = new TDialog(DLG_FLTLOTEXT);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			dlg->disableCtrl(CTL_FLTLOT_EXPIRY, BIN(Data.Flags & LotFilt::fWithoutExpiry));
 			if(Data.Flags & LotFilt::fWithoutExpiry)
 				dlg->disableCtrl(CTLCAL_FLTLOT_EXPIRY, 1);
@@ -775,7 +775,7 @@ int SLAPI PPViewLot::ViewTotal()
 			if(event.isCmd(cmaMore)) {
 				if(LV->CalcTotal(LotTotal::Extended, &Total)) {
 					TDialog * dlg = 0;
-					if(CheckDialogPtr(&(dlg = new TDialog(DLG_LOTTOTALE)), 1)) {
+					if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_LOTTOTALE)))) {
 						dlg->setCtrlLong(CTL_LOTTOTAL_COUNT,   Total.Count);
 						dlg->setCtrlLong(CTL_LOTTOTAL_DCOUNT,  Total.DCount);
 						dlg->setCtrlReal(CTL_LOTTOTAL_QTTY,    Total.Qtty);
@@ -797,7 +797,7 @@ int SLAPI PPViewLot::ViewTotal()
 		LotTotal Total;
 	};
 	LotTotalDialog * dlg = new LotTotalDialog(this);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setup();
 		ExecViewAndDestroy(dlg);
 	}
@@ -1442,7 +1442,7 @@ int SLAPI PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 					long   selection = 0; // PPEDIOP_EGAIS_ACTCHARGEON - по справкам Б, PPEDIOP_EGAIS_ACTCHARGEONSHOP - торговый зал (регистр 2) по кодам ЕГАИС
 					{
 						TDialog * dlg = new TDialog(DLG_SELEGAISCHRGON);
-						if(CheckDialogPtr(&dlg, 1)) {
+						if(CheckDialogPtrErr(&dlg)) {
 							dlg->AddClusterAssoc(CTL_SELEGAISCHRGON_WHAT,  0, PPEDIOP_EGAIS_ACTCHARGEON);
 							dlg->AddClusterAssoc(CTL_SELEGAISCHRGON_WHAT, -1, PPEDIOP_EGAIS_ACTCHARGEON);
 							dlg->AddClusterAssoc(CTL_SELEGAISCHRGON_WHAT,  1, PPEDIOP_EGAIS_ACTCHARGEONSHOP);
@@ -2478,7 +2478,7 @@ int SLAPI PPViewLot::Print(const void *)
 	int    ok = 1;
 	PPReportEnv env;
 	TDialog * dlg = new TDialog(DLG_PRNLOTS);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		int    reply = ExecView(dlg);
 		ushort v;
 		dlg->getCtrlData(CTL_PRNLOTS_ORDER, &v);
@@ -3072,7 +3072,7 @@ int SLAPI EditLotImpExpParam(const char * pIniSection)
    	{
    		int    direction = 0;
    		PPIniFile ini_file(ini_file_name, 0, 1, 1);
-   		THROW(CheckDialogPtr(&(dlg = new LotImpExpDialog()), 0));
+   		THROW(CheckDialogPtr(&(dlg = new LotImpExpDialog())));
    		THROW(LoadSdRecord(PPREC_LOT, &param.InrRec));
    		direction = param.Direction;
    		if(!isempty(pIniSection))
@@ -3277,7 +3277,7 @@ int SLAPI EditLotExtCode(LotExtCodeTbl::Rec & rRec, char firstChar)
 	SString mark_buf;
 	ReceiptTbl::Rec lot_rec;
 	ReceiptCore & r_rcpt = BillObj->trfr->Rcpt;
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	THROW(r_rcpt.Search(rRec.LotID, &lot_rec) > 0);
 	if(firstChar) {
 		(temp_buf = 0).CatChar(firstChar);
@@ -3462,7 +3462,7 @@ int SLAPI PPViewLotExtCode::CheckDupCode(const LotExtCodeTbl::Rec & rRec)
 int SLAPI PPViewLotExtCode::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_LOTEXTCTOTAL);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		long count = 0;
 		LotExtCodeViewItem item;
 		PPWait(1);

@@ -304,47 +304,29 @@ void PNGAPI png_set_pCAL(png_const_structrp png_ptr, png_inforp info_ptr,
 	info_ptr->pcal_nparams = (png_byte)nparams;
 
 	length = strlen(units) + 1;
-	png_debug1(3, "allocating units for info (%lu bytes)",
-	    (unsigned long)length);
-
-	info_ptr->pcal_units = png_voidcast(png_charp,
-	    png_malloc_warn(png_ptr, length));
-
+	png_debug1(3, "allocating units for info (%lu bytes)", (unsigned long)length);
+	info_ptr->pcal_units = png_voidcast(png_charp, png_malloc_warn(png_ptr, length));
 	if(info_ptr->pcal_units == NULL) {
 		png_warning(png_ptr, "Insufficient memory for pCAL units");
-
 		return;
 	}
-
 	memcpy(info_ptr->pcal_units, units, length);
-
-	info_ptr->pcal_params = png_voidcast(png_charpp, png_malloc_warn(png_ptr,
-		    (png_size_t)((nparams + 1) * (sizeof(png_charp)))));
-
+	info_ptr->pcal_params = png_voidcast(png_charpp, png_malloc_warn(png_ptr, (png_size_t)((nparams + 1) * (sizeof(png_charp)))));
 	if(info_ptr->pcal_params == NULL) {
 		png_warning(png_ptr, "Insufficient memory for pCAL params");
-
 		return;
 	}
-
-	memset(info_ptr->pcal_params, 0, (nparams + 1) * (sizeof(png_charp)));
-
+	memzero(info_ptr->pcal_params, (nparams + 1) * (sizeof(png_charp)));
 	for(i = 0; i < nparams; i++) {
 		length = strlen(params[i]) + 1;
-		png_debug2(3, "allocating parameter %d for info (%lu bytes)", i,
-		    (unsigned long)length);
-
+		png_debug2(3, "allocating parameter %d for info (%lu bytes)", i, (unsigned long)length);
 		info_ptr->pcal_params[i] = (png_charp)png_malloc_warn(png_ptr, length);
-
 		if(info_ptr->pcal_params[i] == NULL) {
 			png_warning(png_ptr, "Insufficient memory for pCAL parameter");
-
 			return;
 		}
-
 		memcpy(info_ptr->pcal_params[i], params[i], length);
 	}
-
 	info_ptr->valid |= PNG_INFO_pCAL;
 	info_ptr->free_me |= PNG_FREE_PCAL;
 }
@@ -356,12 +338,9 @@ void PNGAPI png_set_sCAL_s(png_const_structrp png_ptr, png_inforp info_ptr,
     int unit, png_const_charp swidth, png_const_charp sheight)
 {
 	png_size_t lengthw = 0, lengthh = 0;
-
 	png_debug1(1, "in %s storage function", "sCAL");
-
 	if(png_ptr == NULL || info_ptr == NULL)
 		return;
-
 	/* Double check the unit (should never get here with an invalid
 	 * unit unless this is an API call.)
 	 */
@@ -428,7 +407,7 @@ void PNGAPI png_set_sCAL(png_const_structrp png_ptr, png_inforp info_ptr, int un
 	else if(height <= 0)
 		png_warning(png_ptr, "Invalid sCAL height ignored");
 
-	else{
+	else {
 		/* Convert 'width' and 'height' to ASCII. */
 		char swidth[PNG_sCAL_MAX_DIGITS+1];
 		char sheight[PNG_sCAL_MAX_DIGITS+1];
@@ -457,7 +436,7 @@ void PNGAPI png_set_sCAL_fixed(png_const_structrp png_ptr, png_inforp info_ptr, 
 	else if(height <= 0)
 		png_warning(png_ptr, "Invalid sCAL height ignored");
 
-	else{
+	else {
 		/* Convert 'width' and 'height' to ASCII. */
 		char swidth[PNG_sCAL_MAX_DIGITS+1];
 		char sheight[PNG_sCAL_MAX_DIGITS+1];
@@ -506,7 +485,7 @@ void PNGAPI png_set_PLTE(png_structrp png_ptr, png_inforp info_ptr,
 		if(info_ptr->color_type == PNG_COLOR_TYPE_PALETTE)
 			png_error(png_ptr, "Invalid palette length");
 
-		else{
+		else {
 			png_warning(png_ptr, "Invalid palette length");
 
 			return;
@@ -668,25 +647,17 @@ void PNGAPI png_set_iCCP(png_const_structrp png_ptr, png_inforp info_ptr,
 #endif
 
 #ifdef PNG_TEXT_SUPPORTED
-void PNGAPI png_set_text(png_const_structrp png_ptr, png_inforp info_ptr,
-    png_const_textp text_ptr, int num_text)
+void PNGAPI png_set_text(png_const_structrp png_ptr, png_inforp info_ptr, png_const_textp text_ptr, int num_text)
 {
-	int ret;
-	ret = png_set_text_2(png_ptr, info_ptr, text_ptr, num_text);
-
+	int ret = png_set_text_2(png_ptr, info_ptr, text_ptr, num_text);
 	if(ret != 0)
 		png_error(png_ptr, "Insufficient memory to store text");
 }
 
-int /* PRIVATE */
-png_set_text_2(png_const_structrp png_ptr, png_inforp info_ptr,
-    png_const_textp text_ptr, int num_text)
+int /* PRIVATE */ png_set_text_2(png_const_structrp png_ptr, png_inforp info_ptr, png_const_textp text_ptr, int num_text)
 {
 	int i;
-
-	png_debug1(1, "in %lx storage function", png_ptr == NULL ? 0xabadca11U :
-	    (unsigned long)png_ptr->chunk_name);
-
+	png_debug1(1, "in %lx storage function", png_ptr == NULL ? 0xabadca11U : (unsigned long)png_ptr->chunk_name);
 	if(png_ptr == NULL || info_ptr == NULL || num_text <= 0 || text_ptr == NULL)
 		return(0);
 
@@ -795,7 +766,7 @@ png_set_text_2(png_const_structrp png_ptr, png_inforp info_ptr,
 			textp->compression = PNG_TEXT_COMPRESSION_NONE;
 		}
 
-		else{
+		else {
 			text_length = strlen(text_ptr[i].text);
 			textp->compression = text_ptr[i].compression;
 		}
@@ -828,7 +799,7 @@ png_set_text_2(png_const_structrp png_ptr, png_inforp info_ptr,
 			textp->text = textp->lang_key + lang_key_len + 1;
 		}
 
-		else{
+		else {
 			textp->lang = NULL;
 			textp->lang_key = NULL;
 			textp->text = textp->key + key_len + 1;
@@ -1148,7 +1119,7 @@ void PNGAPI png_set_unknown_chunks(png_const_structrp png_ptr,
 			np->size = 0;
 		}
 
-		else{
+		else {
 			np->data = png_voidcast(png_bytep,
 			    png_malloc_base(png_ptr, unknowns->size));
 
@@ -1290,7 +1261,7 @@ void PNGAPI png_set_keep_unknown_chunks(png_structrp png_ptr, int keep,
 		num_chunks = (unsigned int)/*SAFE*/ (sizeof chunks_to_ignore)/5U;
 	}
 
-	else{ /* num_chunks_in > 0 */
+	else { /* num_chunks_in > 0 */
 		if(chunk_list == NULL) {
 			/* Prior to 1.6.0 this was silently ignored, now it is an app_error
 			 * which can be switched off.
@@ -1567,27 +1538,21 @@ void PNGAPI png_set_check_for_invalid_index(png_structrp png_ptr, int allowed)
  * trailing '\0').  If this routine returns 0 then there was no keyword, or a
  * valid one could not be generated, and the caller must png_error.
  */
-png_uint_32 /* PRIVATE */
-png_check_keyword(png_structrp png_ptr, png_const_charp key, png_bytep new_key)
+png_uint_32 /* PRIVATE */ png_check_keyword(png_structrp png_ptr, png_const_charp key, png_bytep new_key)
 {
 	png_const_charp orig_key = key;
 	png_uint_32 key_len = 0;
 	int bad_character = 0;
 	int space = 1;
-
 	png_debug(1, "in png_check_keyword");
-
 	if(key == NULL) {
 		*new_key = 0;
 		return 0;
 	}
-
 	while(*key && key_len < 79) {
 		png_byte ch = (png_byte)*key++;
-
 		if((ch > 32 && ch <= 126) || (ch >= 161 /*&& ch <= 255*/))
 			*new_key++ = ch, ++key_len, space = 0;
-
 		else if(space == 0) {
 			/* A space or an invalid character when one wasn't seen immediately
 			 * before; output just a space.

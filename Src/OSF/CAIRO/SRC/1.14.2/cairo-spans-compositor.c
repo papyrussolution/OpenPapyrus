@@ -782,7 +782,7 @@ static cairo_int_status_t _cairo_spans_compositor_stroke(const cairo_compositor_
 				_cairo_polygon_init(&polygon, &limits, 1);
 			}
 		}
-		else{
+		else {
 			_cairo_polygon_init(&polygon, NULL, 0);
 		}
 		status = _cairo_path_fixed_stroke_to_polygon(path,
@@ -850,7 +850,7 @@ static cairo_int_status_t _cairo_spans_compositor_fill(const cairo_compositor_t 
 				_cairo_polygon_init(&polygon, &limits, 1);
 			}
 		}
-		else{
+		else {
 			_cairo_polygon_init(&polygon, NULL, 0);
 		}
 		status = _cairo_path_fixed_fill_to_polygon(path, tolerance, &polygon);

@@ -258,7 +258,7 @@ int XmlDbFile::Open(const char * pPath, const Param * pParam, const SdRecord * p
 	FileName = pPath;
 	const Param & r_param = St.GetParam();
 	if(!readOnly) {
-        if(stricmp(pPath, ":buffer:") == 0) {
+        if(sstreqi_ascii(pPath, ":buffer:")) {
             THROW(P_Buffer = xmlBufferCreate());
             THROW(P_Writer = xmlNewTextWriterMemory(P_Buffer, 0));
         }

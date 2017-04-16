@@ -246,7 +246,6 @@ done:
 			t_ret = ret;
 	}
 #endif
-
 	return ret;
 }
 
@@ -422,8 +421,7 @@ int __db_exchange_page(DBC * dbc, PAGE ** pgp, PAGE * opg, db_pgno_t newpgno, in
 	    case P_LRECNO:
 	    case P_LDUP:
 	    case P_HASH:
-		if(NEXT_PGNO(newpage) == PGNO_INVALID &&
-		   PREV_PGNO(newpage) == PGNO_INVALID)
+		if(NEXT_PGNO(newpage) == PGNO_INVALID && PREV_PGNO(newpage) == PGNO_INVALID)
 			break;
 		if((ret = __db_relink(dbc, *pgp, opg, PGNO(newpage))) != 0)
 			goto err;
@@ -437,8 +435,7 @@ int __db_exchange_page(DBC * dbc, PAGE ** pgp, PAGE * opg, db_pgno_t newpgno, in
 	 */
 	if(!LF_ISSET(DB_EXCH_FREE)) {
 		NEXT_PGNO(*pgp) = PREV_PGNO(*pgp) = PGNO_INVALID;
-		ret = __memp_fput(dbp->mpf,
-			dbc->thread_info, *pgp, dbc->priority);
+		ret = __memp_fput(dbp->mpf, dbc->thread_info, *pgp, dbc->priority);
 	}
 	else
 		ret = __db_free(dbc, *pgp, 0);
@@ -528,7 +525,7 @@ int __db_truncate_overflow(DBC * dbc, db_pgno_t pgno, PAGE ** ppg, DB_COMPACT * 
 			break;
 	}
 err:
-	if(page != NULL && (t_ret = __memp_fput( dbp->mpf, dbc->thread_info, page, dbc->priority)) != 0 && ret == 0)
+	if(page && (t_ret = __memp_fput( dbp->mpf, dbc->thread_info, page, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __TLPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;
@@ -585,7 +582,7 @@ int __db_truncate_root(DBC * dbc, PAGE * ppg, uint32 indx, db_pgno_t * pgnop, ui
 		LSN_NOT_LOGGED(LSN(ppg));
 	*pgnop = newpgno;
 err:
-	if(page != NULL && (t_ret = __memp_fput(dbp->mpf, dbc->thread_info, page, dbc->priority)) != 0 && ret == 0)
+	if(page && (t_ret = __memp_fput(dbp->mpf, dbc->thread_info, page, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
 }
@@ -725,10 +722,10 @@ found:  /* We have size range of pages.  Remove them. */
 	t_ret = __TLPUT(dbc, metalock);
 	return ret == 0 ? t_ret : ret;
 err:
-	if(page != NULL && page != (PAGE *)meta)
+	if(page && page != (PAGE *)meta)
 		__memp_fput(mpf, dbc->thread_info, page, dbc->priority);
 	__os_free(dbp->env, pglist);
-	if(meta != NULL && hash == 0)
+	if(meta && hash == 0)
 		__memp_fput(mpf, dbc->thread_info, meta, dbc->priority);
 	__TLPUT(dbc, metalock);
 	return ret;
@@ -812,9 +809,9 @@ int __db_relink(DBC * dbc, PAGE * pagep, PAGE * otherp, db_pgno_t new_pgno)
 	}
 	return 0;
 err:
-	if(np != NULL && np != otherp)
+	if(np && np != otherp)
 		__memp_fput(mpf, dbc->thread_info, np, dbc->priority);
-	if(pp != NULL && pp != otherp)
+	if(pp && pp != otherp)
 		__memp_fput(mpf, dbc->thread_info, pp, dbc->priority);
 	return ret;
 }

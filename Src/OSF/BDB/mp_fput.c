@@ -16,7 +16,7 @@
 #pragma hdrstop
 // @v9.5.5 #include "dbinc/log.h"
 
-static int __memp_reset_lru __P((ENV*, REGINFO *));
+static int __memp_reset_lru(ENV*, REGINFO *);
 
 /*
  * __memp_fput_pp --
@@ -75,7 +75,7 @@ int __memp_fput(DB_MPOOLFILE * dbmfp, DB_THREAD_INFO * ip, void * pgaddr, DB_CAC
 	 * to see if the address we gave the application was part of the map
 	 * region.
 	 */
-	if(dbmfp->addr != NULL && pgaddr >= dbmfp->addr && (uint8 *)pgaddr <= (uint8 *)dbmfp->addr+dbmfp->len)
+	if(dbmfp->addr && pgaddr >= dbmfp->addr && (uint8 *)pgaddr <= (uint8 *)dbmfp->addr+dbmfp->len)
 		return 0;
 	DB_ASSERT(env, IS_RECOVERING(env) || bhp->pgno <= mfp->last_pgno || F_ISSET(bhp, BH_FREED) || !SH_CHAIN_SINGLETON(bhp, vc));
 #ifdef DIAGNOSTIC
@@ -92,7 +92,6 @@ int __memp_fput(DB_MPOOLFILE * dbmfp, DB_THREAD_INFO * ip, void * pgaddr, DB_CAC
 	--dbmfp->pinref;
 	MPOOL_SYSTEM_UNLOCK(env);
 #endif
-
 unpin:
 	infop = &dbmp->reginfo[bhp->region];
 	c_mp = (MPOOL *)infop->primary;
@@ -109,7 +108,7 @@ unpin:
 	}
 	/* Note the activity so allocation won't decide to quit. */
 	++c_mp->put_counter;
-	if(ip != NULL) {
+	if(ip) {
 		reginfo = env->reginfo;
 		list = (PIN_LIST *)R_ADDR(reginfo, ip->dbth_pinlist);
 		region = (int)(infop-dbmp->reginfo);
@@ -132,20 +131,15 @@ unpin:
 		mfp->file_written = 1;
 	}
 	/*
-	 * If more than one reference to the page we're done.  Ignore the
-	 * discard flags (for now) and leave the buffer's priority alone.
-	 * We are doing this a little early as the remaining ref may or
-	 * may not be a write behind.  If it is we set the priority
-	 * here, if not it will get set again later.  We might race
-	 * and miss setting the priority which would leave it wrong
-	 * for a while.
+	 * If more than one reference to the page we're done.  Ignore the discard flags (for now) and leave the buffer's priority alone.
+	 * We are doing this a little early as the remaining ref may or may not be a write behind.  If it is we set the priority
+	 * here, if not it will get set again later.  We might race and miss setting the priority which would leave it wrong for a while.
 	 */
 	DB_ASSERT(env, atomic_read(&bhp->ref) != 0);
 	if(atomic_dec(env, &bhp->ref) > 1 || (atomic_read(&bhp->ref) == 1 && !F_ISSET(bhp, BH_DIRTY))) {
 		/*
 		 * __memp_pgwrite only has a shared lock while it clears
-		 * the BH_DIRTY bit. If we only have a shared latch then
-		 * we can't touch the flags bits.
+		 * the BH_DIRTY bit. If we only have a shared latch then we can't touch the flags bits.
 		 */
 		if(F_ISSET(bhp, BH_EXCLUSIVE))
 			F_CLR(bhp, BH_EXCLUSIVE);
@@ -217,7 +211,6 @@ static int __memp_reset_lru(ENV * env, REGINFO * infop)
 	BH * bhp, * tbhp;
 	DB_MPOOL_HASH * hp;
 	uint32 bucket;
-	int reset;
 	/*
 	 * Update the priority so all future allocations will start at the
 	 * bottom. Lock this cache region to ensure that exactly one thread
@@ -225,36 +218,36 @@ static int __memp_reset_lru(ENV * env, REGINFO * infop)
 	 */
 	MPOOL * c_mp = (MPOOL *)infop->primary;
 	MPOOL_REGION_LOCK(env, infop);
-	reset = c_mp->lru_priority >= MPOOL_LRU_DECREMENT;
+	const int reset = (c_mp->lru_priority >= MPOOL_LRU_DECREMENT);
 	if(reset) {
 		c_mp->lru_priority -= MPOOL_LRU_DECREMENT;
 		c_mp->lru_generation++;
 	}
 	MPOOL_REGION_UNLOCK(env, infop);
-	if(!reset)
-		return 0;
-	/* Reduce the priority of every buffer in this cache region. */
-	for(hp = (DB_MPOOL_HASH *)R_ADDR(infop, c_mp->htab), bucket = 0; bucket < c_mp->htab_buckets; ++hp, ++bucket) {
-		/*
-		 * Skip empty buckets.
-		 *
-		 * We can check for empty buckets before locking as we
-		 * only care if the pointer is zero or non-zero.
-		 */
-		if(SH_TAILQ_FIRST(&hp->hash_bucket, __bh) == NULL)
-			continue;
-		MUTEX_LOCK(env, hp->mtx_hash);
-		SH_TAILQ_FOREACH(bhp, &hp->hash_bucket, hq, __bh) {
-			for(tbhp = bhp; tbhp != NULL; tbhp = SH_CHAIN_PREV(tbhp, vc, __bh)) {
-				if(tbhp->priority > MPOOL_LRU_DECREMENT)
-					tbhp->priority -= MPOOL_LRU_DECREMENT;
-				else
-					tbhp->priority = 0;
+	if(reset) {
+		/* Reduce the priority of every buffer in this cache region. */
+		for(hp = (DB_MPOOL_HASH *)R_ADDR(infop, c_mp->htab), bucket = 0; bucket < c_mp->htab_buckets; ++hp, ++bucket) {
+			/*
+			 * Skip empty buckets.
+			 *
+			 * We can check for empty buckets before locking as we
+			 * only care if the pointer is zero or non-zero.
+			 */
+			if(SH_TAILQ_FIRST(&hp->hash_bucket, __bh) == NULL)
+				continue;
+			MUTEX_LOCK(env, hp->mtx_hash);
+			SH_TAILQ_FOREACH(bhp, &hp->hash_bucket, hq, __bh) {
+				for(tbhp = bhp; tbhp != NULL; tbhp = SH_CHAIN_PREV(tbhp, vc, __bh)) {
+					if(tbhp->priority > MPOOL_LRU_DECREMENT)
+						tbhp->priority -= MPOOL_LRU_DECREMENT;
+					else
+						tbhp->priority = 0;
+				}
 			}
+			MUTEX_UNLOCK(env, hp->mtx_hash);
 		}
-		MUTEX_UNLOCK(env, hp->mtx_hash);
+		COMPQUIET(env, NULL);
 	}
-	COMPQUIET(env, NULL);
 	return 0;
 }
 /*

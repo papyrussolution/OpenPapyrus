@@ -20,21 +20,21 @@
 // @v9.5.5 #include "dbinc/partition.h"
 // @v9.5.5 #include "dbinc/txn.h"
 
-static int __db_associate_arg __P((DB*, DB*, int (*)(DB *, const DBT *, const DBT *, DBT *), uint32));
-static int __dbc_del_arg (DBC*, uint32);
-static int __dbc_pget_arg __P((DBC*, DBT*, uint32));
+static int __db_associate_arg(DB*, DB*, int (*)(DB *, const DBT *, const DBT *, DBT *), uint32);
+static int __dbc_del_arg(DBC*, uint32);
+static int __dbc_pget_arg(DBC*, DBT*, uint32);
 static int __dbc_put_arg(DBC*, DBT*, DBT*, uint32);
-static int __db_curinval __P((const ENV *));
-static int __db_cursor_arg __P((DB*, uint32));
-static int __db_del_arg __P((DB*, DBT*, uint32));
-static int __db_get_arg __P((const DB*, DBT*, DBT*, uint32));
-static int __db_join_arg __P((DB*, DBC**, uint32));
-static int __db_open_arg __P((DB*, DB_TXN*, const char *, const char *, DBTYPE, uint32));
-static int __db_pget_arg __P((DB*, DBT*, uint32));
-static int __db_put_arg __P((DB*, DBT*, DBT*, uint32));
-static int __dbt_ferr __P((const DB*, const char *, const DBT*, int));
-static int __db_compact_func __P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *));
-static int __db_associate_foreign_arg __P((DB*, DB*, int (*)(DB *, const DBT *, DBT *, const DBT *, int *), uint32));
+static int __db_curinval(const ENV *);
+static int __db_cursor_arg(DB*, uint32);
+static int __db_del_arg(DB*, DBT*, uint32);
+static int __db_get_arg(const DB*, DBT*, DBT*, uint32);
+static int __db_join_arg(DB*, DBC**, uint32);
+static int __db_open_arg(DB*, DB_TXN*, const char *, const char *, DBTYPE, uint32);
+static int __db_pget_arg(DB*, DBT*, uint32);
+static int __db_put_arg(DB*, DBT*, DBT*, uint32);
+static int __dbt_ferr(const DB*, const char *, const DBT*, int);
+static int __db_compact_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
+static int __db_associate_foreign_arg(DB*, DB*, int (*)(DB *, const DBT *, DBT *, const DBT *, int *), uint32);
 
 /*
  * These functions implement the Berkeley DB API.  They are organized in a
@@ -194,13 +194,12 @@ int __db_close_pp(DB * dbp, uint32 flags)
 	handle_check = IS_ENV_REPLICATED(env);
 	if(handle_check && (t_ret = __db_rep_enter(dbp, 0, 0, 0)) != 0) {
 		handle_check = 0;
-		if(ret == 0)
-			ret = t_ret;
+		SETIFZ(ret, t_ret);
 	}
-	if((t_ret = __db_close(dbp, NULL, flags)) != 0 && ret == 0)
+	if((t_ret = __db_close(dbp, NULL, flags)) != 0 && !ret)
 		ret = t_ret;
 	/* Release replication block. */
-	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && ret == 0)
+	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && !ret)
 		ret = t_ret;
 	ENV_LEAVE(env, ip);
 	return ret;
@@ -254,11 +253,11 @@ int __db_cursor_pp(DB * dbp, DB_TXN * txn, DBC ** dbcp, uint32 flags)
 	 * the cursor may not match.
 	 */
 	txn = (*dbcp)->txn;
-	if(txn != NULL && ret == 0)
+	if(txn && !ret)
 		TAILQ_INSERT_HEAD(&(txn->my_cursors), *dbcp, txn_cursors);
 err:
 	/* Release replication block on error. */
-	if(ret != 0 && rep_blocked)
+	if(ret && rep_blocked)
 		__op_rep_exit(env);
 	ENV_LEAVE(env, ip);
 	return ret;
@@ -379,10 +378,10 @@ int __db_del_pp(DB * dbp, DB_TXN * txn, DBT * key, uint32 flags)
 		goto err;
 	ret = __db_del(dbp, ip, txn, key, flags);
 err:
-	if(txn_local && (t_ret = __db_txn_auto_resolve(env, txn, 0, ret)) && ret == 0)
+	if(txn_local && (t_ret = __db_txn_auto_resolve(env, txn, 0, ret)) && !ret)
 		ret = t_ret;
 	/* Release replication block. */
-	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && ret == 0)
+	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && !ret)
 		ret = t_ret;
 	ENV_LEAVE(env, ip);
 	__dbt_userfree(env, key, NULL, NULL);
@@ -487,7 +486,7 @@ int __db_fd_pp(DB * dbp, int * fdp)
 			*fdp = fhp->fd;
 	}
 	/* Release replication block. */
-	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && ret == 0)
+	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && !ret)
 		ret = t_ret;
 err:
 	ENV_LEAVE(env, ip);
@@ -543,10 +542,10 @@ int __db_get_pp(DB * dbp, DB_TXN * txn, DBT * key, DBT * data, uint32 flags)
 	if(ret == 0 && IS_REP_MASTER(env) && IS_USING_LEASES(env) && !ignore_lease)
 		ret = __rep_lease_check(env, 1);
 err:
-	if(txn_local && (t_ret = __db_txn_auto_resolve(env, txn, 0, ret)) && ret == 0)
+	if(txn_local && (t_ret = __db_txn_auto_resolve(env, txn, 0, ret)) && !ret)
 		ret = t_ret;
 	/* Release replication block. */
-	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && ret == 0)
+	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && !ret)
 		ret = t_ret;
 	ENV_LEAVE(env, ip);
 	__dbt_userfree(env, key, NULL, data);
@@ -604,7 +603,7 @@ int __db_get(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * key, DBT * data,
 	else
 #endif
 	ret = __dbc_get(dbc, key, data, flags);
-	if(dbc != NULL && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
+	if(dbc != NULL && (t_ret = __dbc_close(dbc)) != 0 && !ret)
 		ret = t_ret;
 	return ret;
 }
@@ -728,7 +727,7 @@ int __db_join_pp(DB * primary, DBC ** curslist, DBC ** dbcp, uint32 flags)
 	if((ret = __db_join_arg(primary, curslist, flags)) == 0)
 		ret = __db_join(primary, curslist, dbcp, flags);
 	/* Release replication block. */
-	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && ret == 0)
+	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && !ret)
 		ret = t_ret;
 err:
 	ENV_LEAVE(env, ip);
@@ -740,27 +739,25 @@ err:
  */
 static int __db_join_arg(DB * primary, DBC ** curslist, uint32 flags)
 {
-	DB_TXN * txn;
-	int i;
 	ENV * env = primary->env;
 	switch(flags) {
 	    case 0:
-	    case DB_JOIN_NOSORT:
-		break;
-	    default:
-		return __db_ferr(env, "DB->join", 0);
+	    case DB_JOIN_NOSORT: break;
+	    default: return __db_ferr(env, "DB->join", 0);
 	}
-	if(curslist == NULL || curslist[0] == NULL) {
+	if(!curslist || !curslist[0]) {
 		__db_errx(env, DB_STR("0588", "At least one secondary cursor must be specified to DB->join"));
 		return EINVAL;
 	}
-	txn = curslist[0]->txn;
-	for(i = 1; curslist[i] != NULL; i++)
-		if(curslist[i]->txn != txn) {
-			__db_errx(env, DB_STR("0589", "All secondary cursors must share the same transaction"));
-			return EINVAL;
-		}
-	return 0;
+	else {
+		DB_TXN * txn = curslist[0]->txn;
+		for(int i = 1; curslist[i] != NULL; i++)
+			if(curslist[i]->txn != txn) {
+				__db_errx(env, DB_STR("0589", "All secondary cursors must share the same transaction"));
+				return EINVAL;
+			}
+		return 0;
+	}
 }
 /*
  * __db_key_range_pp --
@@ -814,7 +811,7 @@ int __db_key_range_pp(DB * dbp, DB_TXN * txn, DBT * key, DB_KEY_RANGE * kr, uint
 		else
 #endif
 		ret = __bam_key_range(dbc, key, kr, flags);
-		if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
+		if((t_ret = __dbc_close(dbc)) != 0 && !ret)
 			ret = t_ret;
 		__dbt_userfree(env, key, NULL, NULL);
 		break;
@@ -829,7 +826,7 @@ int __db_key_range_pp(DB * dbp, DB_TXN * txn, DBT * key, DB_KEY_RANGE * kr, uint
 		break;
 	}
 err:    /* Release replication block. */
-	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && ret == 0)
+	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && !ret)
 		ret = t_ret;
 	ENV_LEAVE(env, ip);
 	return ret;
@@ -927,16 +924,14 @@ int __db_open_pp(DB * dbp, DB_TXN * txn, const char * fname, const char * dname,
 	 * cleans up.
 	 */
 txnerr:
-	if(ret != 0 && !IS_REAL_TXN(txn)) {
-		remove_me = (F_ISSET(dbp, DB_AM_CREATED) && (fname != NULL || dname != NULL)) ? 1 : 0;
+	if(ret && !IS_REAL_TXN(txn)) {
+		remove_me = (F_ISSET(dbp, DB_AM_CREATED) && (fname || dname)) ? 1 : 0;
 		if(F_ISSET(dbp, DB_AM_CREATED_MSTR) || (dname == NULL && remove_me))
-			/* Remove file. */
-			__db_remove_int(dbp, ip, txn, fname, NULL, DB_FORCE);
+			__db_remove_int(dbp, ip, txn, fname, NULL, DB_FORCE); // Remove file. 
 		else if(remove_me)
-			/* Remove subdatabase. */
-			__db_remove_int(dbp, ip, txn, fname, dname, DB_FORCE);
+			__db_remove_int(dbp, ip, txn, fname, dname, DB_FORCE); // Remove subdatabase.
 	}
-	if(txn_local && (t_ret = __db_txn_auto_resolve(env, txn, nosync, ret)) && ret == 0)
+	if(txn_local && (t_ret = __db_txn_auto_resolve(env, txn, nosync, ret)) && !ret)
 		ret = t_ret;
 err:
 	/* Release replication block. */
@@ -956,10 +951,7 @@ static int __db_open_arg(DB * dbp, DB_TXN * txn, const char * fname, const char 
 	ENV * env = dbp->env;
 	/* Validate arguments. */
 #undef  OKFLAGS
-#define OKFLAGS                                                         \
-	(DB_AUTO_COMMIT|DB_CREATE|DB_EXCL|DB_FCNTL_LOCKING|      \
-	 DB_MULTIVERSION|DB_NOMMAP|DB_NO_AUTO_COMMIT|DB_RDONLY|   \
-	 DB_RDWRMASTER|DB_READ_UNCOMMITTED|DB_THREAD|DB_TRUNCATE)
+#define OKFLAGS (DB_AUTO_COMMIT|DB_CREATE|DB_EXCL|DB_FCNTL_LOCKING|DB_MULTIVERSION|DB_NOMMAP|DB_NO_AUTO_COMMIT|DB_RDONLY|DB_RDWRMASTER|DB_READ_UNCOMMITTED|DB_THREAD|DB_TRUNCATE)
 	if((ret = __db_fchk(env, "DB->open", flags, OKFLAGS)) != 0)
 		return ret;
 	if(LF_ISSET(DB_EXCL) && !LF_ISSET(DB_CREATE))
@@ -1069,9 +1061,8 @@ static int __db_open_arg(DB * dbp, DB_TXN * txn, const char * fname, const char 
 int __db_pget_pp(DB * dbp, DB_TXN * txn, DBT * skey, DBT * pkey, DBT * data, uint32 flags)
 {
 	DB_THREAD_INFO * ip;
-	ENV * env;
 	int handle_check, ignore_lease, ret, t_ret;
-	env = dbp->env;
+	ENV * env = dbp->env;
 	DB_ILLEGAL_BEFORE_OPEN(dbp, "DB->pget");
 	ignore_lease = LF_ISSET(DB_IGNORE_LEASE) ? 1 : 0;
 	LF_CLR(DB_IGNORE_LEASE);
@@ -1165,41 +1156,40 @@ static int __db_pget_arg(DB * dbp, DBT * pkey, uint32 flags)
 		__db_errx(env, DB_STR("0601", "DB->pget may only be used on secondary indices"));
 		return EINVAL;
 	}
-	if(LF_ISSET(DB_MULTIPLE|DB_MULTIPLE_KEY)) {
+	else if(LF_ISSET(DB_MULTIPLE|DB_MULTIPLE_KEY)) {
 		__db_errx(env, DB_STR("0602", "DB_MULTIPLE and DB_MULTIPLE_KEY may not be used on secondary indices"));
 		return EINVAL;
 	}
-	/* DB_CONSUME makes no sense on a secondary index. */
-	LF_CLR(DB_READ_COMMITTED|DB_READ_UNCOMMITTED|DB_RMW);
-	switch(flags) {
-	    case DB_CONSUME:
-	    case DB_CONSUME_WAIT:
-		return __db_ferr(env, "DB->pget", 0);
-	    default:
-		/* __db_get_arg will catch the rest. */
-		break;
-	}
-	/*
-	 * We allow the pkey field to be NULL, so that we can make the
-	 * two-DBT get calls into wrappers for the three-DBT ones.
-	 */
-	if(pkey != NULL && (ret = __dbt_ferr(dbp, "primary key", pkey, 1)) != 0)
-		return ret;
-	/* Check invalid partial pkey. */
-	if(pkey != NULL && F_ISSET(pkey, DB_DBT_PARTIAL)) {
-		__db_errx(env, DB_STR("0709", "The primary key returned by pget can't be partial"));
-		return EINVAL;
-	}
-	if(flags == DB_GET_BOTH) {
-		/* The pkey field can't be NULL if we're doing a DB_GET_BOTH. */
-		if(pkey == NULL) {
-			__db_errx(env, DB_STR("0603", "DB_GET_BOTH on a secondary index requires a primary key"));
+	else {
+		// DB_CONSUME makes no sense on a secondary index. 
+		LF_CLR(DB_READ_COMMITTED|DB_READ_UNCOMMITTED|DB_RMW);
+		switch(flags) {
+			case DB_CONSUME:
+			case DB_CONSUME_WAIT:
+				return __db_ferr(env, "DB->pget", 0);
+			default: // __db_get_arg will catch the rest. 
+				break;
+		}
+		// We allow the pkey field to be NULL, so that we can make the
+		// two-DBT get calls into wrappers for the three-DBT ones.
+		if(pkey && (ret = __dbt_ferr(dbp, "primary key", pkey, 1)) != 0)
+			return ret;
+		// Check invalid partial pkey. 
+		else if(pkey && F_ISSET(pkey, DB_DBT_PARTIAL)) {
+			__db_errx(env, DB_STR("0709", "The primary key returned by pget can't be partial"));
 			return EINVAL;
 		}
-		if((ret = __dbt_usercopy(env, pkey)) != 0)
-			return ret;
+		else if(flags == DB_GET_BOTH) {
+			// The pkey field can't be NULL if we're doing a DB_GET_BOTH. 
+			if(pkey == NULL) {
+				__db_errx(env, DB_STR("0603", "DB_GET_BOTH on a secondary index requires a primary key"));
+				return EINVAL;
+			}
+			else if((ret = __dbt_usercopy(env, pkey)) != 0)
+				return ret;
+		}
+		return 0;
 	}
-	return 0;
 }
 /*
  * __db_put_pp --
@@ -1254,10 +1244,10 @@ static int __db_put_arg(DB * dbp, DBT * key, DBT * data, uint32 flags)
 	int    ret;
 	ENV  * env = dbp->env;
 	int    returnkey = 0;
-	/* Check for changes to a read-only tree. */
+	// Check for changes to a read-only tree. 
 	if(DB_IS_READONLY(dbp))
 		return __db_rdonly(env, "DB->put");
-	/* Check for puts on a secondary. */
+	// Check for puts on a secondary. 
 	if(F_ISSET(dbp, DB_AM_SECONDARY)) {
 		__db_errx(env, DB_STR("0604", "DB->put forbidden on secondary indices"));
 		return EINVAL;
@@ -1289,26 +1279,25 @@ static int __db_put_arg(DB * dbp, DBT * key, DBT * data, uint32 flags)
 	    case 0:
 	    case DB_NOOVERWRITE:
 	    case DB_OVERWRITE_DUP:
-		break;
-	    case DB_APPEND:
-		if(dbp->type != DB_RECNO && dbp->type != DB_QUEUE && dbp->type != DB_HEAP)
-			goto err;
-		returnkey = 1;
-		break;
-	    case DB_NODUPDATA:
-		if(F_ISSET(dbp, DB_AM_DUPSORT))
 			break;
-	    /* FALLTHROUGH */
+	    case DB_APPEND:
+			if(!oneof3(dbp->type, DB_RECNO, DB_QUEUE, DB_HEAP))
+				goto err;
+			returnkey = 1;
+			break;
+	    case DB_NODUPDATA:
+			if(F_ISSET(dbp, DB_AM_DUPSORT))
+				break;
+			// FALLTHROUGH 
 	    default:
 err:
 			return __db_ferr(env, "DB->put", 0);
 	}
 	/*
 	 * Check for invalid key/data flags.  The key may reasonably be NULL
-	 * if DB_APPEND is set and the application doesn't care about the
-	 * returned key.
+	 * if DB_APPEND is set and the application doesn't care about the returned key.
 	 */
-	if(((returnkey && key != NULL) || !returnkey) && (ret = __dbt_ferr(dbp, "key", key, returnkey)) != 0)
+	if(((returnkey && key) || !returnkey) && (ret = __dbt_ferr(dbp, "key", key, returnkey)) != 0)
 		return ret;
 	if(!LF_ISSET(DB_MULTIPLE_KEY) && (ret = __dbt_ferr(dbp, "data", data, 0)) != 0)
 		return ret;
@@ -1321,16 +1310,14 @@ err:
 	 * numbers, and returning part of a record number  doesn't make sense:
 	 * only accept a partial return if the length returned is 0.)
 	 */
-	if((returnkey && key != NULL && F_ISSET(key, DB_DBT_PARTIAL) && key->dlen != 0) ||
-	   (!returnkey && F_ISSET(key, DB_DBT_PARTIAL)))
+	if((returnkey && key && F_ISSET(key, DB_DBT_PARTIAL) && key->dlen) || (!returnkey && F_ISSET(key, DB_DBT_PARTIAL)))
 		return __db_ferr(env, "key DBT", 0);
-	/* Check for partial puts in the presence of duplicates. */
-	if(data != NULL && F_ISSET(data, DB_DBT_PARTIAL) && (F_ISSET(dbp, DB_AM_DUP) || F_ISSET(key, DB_DBT_DUPOK))) {
+	// Check for partial puts in the presence of duplicates. 
+	if(data && F_ISSET(data, DB_DBT_PARTIAL) && (F_ISSET(dbp, DB_AM_DUP) || F_ISSET(key, DB_DBT_DUPOK))) {
 		__db_errx(env, DB_STR("0608", "a partial put in the presence of duplicates requires a cursor operation"));
 		return EINVAL;
 	}
-	if((flags != DB_APPEND && (ret = __dbt_usercopy(env, key)) != 0) || (!LF_ISSET(DB_MULTIPLE_KEY) &&
-	    (ret = __dbt_usercopy(env, data)) != 0))
+	if((flags != DB_APPEND && (ret = __dbt_usercopy(env, key)) != 0) || (!LF_ISSET(DB_MULTIPLE_KEY) && (ret = __dbt_usercopy(env, data)) != 0))
 		return ret;
 	return 0;
 }

@@ -1160,9 +1160,9 @@ BOOL CALLBACK EnumCtrls(HWND hWnd, LPARAM lParam)
 		RealGetWindowClass(hWnd, cls_name, sizeof(cls_name));
 		if(p_e->ViewKind == UserInterfaceSettings::wndVKFlat) {
 			ex_style |= WS_EX_STATICEDGE;
-			if(stricmp(cls_name, "BUTTON") == 0)
+			if(sstreqi_ascii(cls_name, "BUTTON"))
 				style |= BS_FLAT;
-			else if(stricmp(cls_name, "EDIT") == 0) {
+			else if(sstreqi_ascii(cls_name, "EDIT")) {
 				TView::SetWindowProp(hWnd, GWL_STYLE, style | WS_BORDER);
 				style &= ~WS_BORDER;
 				ex_style &= ~WS_EX_DLGMODALFRAME;
@@ -1183,9 +1183,9 @@ BOOL CALLBACK EnumCtrls(HWND hWnd, LPARAM lParam)
 			}
 		}
 		else if(oneof2(p_e->ViewKind, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {
-			if(stricmp(cls_name, "BUTTON") == 0 && (style & BS_AUTOCHECKBOX) != BS_AUTOCHECKBOX && (style & BS_AUTORADIOBUTTON) != BS_AUTORADIOBUTTON)
+			if(sstreqi_ascii(cls_name, "BUTTON") && (style & BS_AUTOCHECKBOX) != BS_AUTOCHECKBOX && (style & BS_AUTORADIOBUTTON) != BS_AUTORADIOBUTTON)
 				style |= BS_OWNERDRAW;
-			else if(stricmp(cls_name, "EDIT") == 0) {
+			else if(sstreqi_ascii(cls_name, "EDIT")) {
 				ex_style &= ~WS_EX_STATICEDGE;
 				TView::SetWindowProp(hWnd, GWL_EXSTYLE, ex_style);
 			}
@@ -1273,7 +1273,7 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 					{
 						TButton * p_btn  = new TButton(TRect(10, 10, 10, 10), 0, cmCancel, 0, CLOSEBTN_BITMAPID);
 						p_btn->Parent = hWnd;
-						p_dlg->insert(&p_btn->SetId(SPEC_TITLEWND_ID + 1));
+						p_dlg->Insert_(&p_btn->SetId(SPEC_TITLEWND_ID + 1));
 						btn_hwnd = CreateWindow(_T("BUTTON"), NULL, WS_CHILD|BS_NOTIFY|BS_BITMAP,
 							r.right - r.left - 30, -e.CaptionHeight, 16, 16, hWnd, 0, TProgram::hInstance, 0);
 						{

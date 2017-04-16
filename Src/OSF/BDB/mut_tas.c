@@ -107,8 +107,7 @@ inline static int __db_tas_mutex_lock_int(ENV*env, db_mutex_t mutex, db_timeout_
 	ip = NULL;
 
 loop:   /* Attempt to acquire the resource for N spins. */
-	for(nspins =
-	            mtxregion->stat.st_mutex_tas_spins; nspins > 0; --nspins) {
+	for(nspins = mtxregion->stat.st_mutex_tas_spins; nspins > 0; --nspins) {
 #ifdef HAVE_MUTEX_S390_CC_ASSEMBLY
 		tsl_t zero;
 

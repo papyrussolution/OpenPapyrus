@@ -59,8 +59,7 @@ int __db_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, c
 		if((ret = __db_create_internal(&tdbp, dbp->env, 0)) != 0)
 			goto err;
 		ret = __db_open(tdbp, ip, txn, fname, dname, DB_UNKNOWN, DB_NOERROR|(flags&~(DB_TRUNCATE|DB_CREATE)), mode, meta_pgno);
-		if(ret == 0)
-			ret = __memp_ftruncate(tdbp->mpf, txn, ip, 0, 0);
+		SETIFZ(ret, __memp_ftruncate(tdbp->mpf, txn, ip, 0, 0));
 		__db_close(tdbp, txn, DB_NOSYNC);
 		if(ret != 0 && ret != ENOENT && ret != EINVAL)
 			goto err;
@@ -87,9 +86,9 @@ int __db_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, c
 	/* Fill in the type. */
 	dbp->type = type;
 	/* Save the file and database names. */
-	if((fname != NULL && (ret = __os_strdup(env, fname, &dbp->fname)) != 0))
+	if((fname && (ret = __os_strdup(env, fname, &dbp->fname)) != 0))
 		goto err;
-	if((dname != NULL && (ret = __os_strdup(env, dname, &dbp->dname)) != 0))
+	if((dname && (ret = __os_strdup(env, dname, &dbp->dname)) != 0))
 		goto err;
 	/*
 	 * If both fname and subname are NULL, it's always a create, so make
@@ -185,28 +184,17 @@ int __db_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, c
 			goto err;
 	}
 	switch(dbp->type) {
-	    case DB_BTREE:
-			ret = __bam_open(dbp, ip, txn, fname, meta_pgno, flags);
-			break;
-	    case DB_HASH:
-			ret = __ham_open(dbp, ip, txn, fname, meta_pgno, flags);
-			break;
-	    case DB_HEAP:
-			ret = __heap_open(dbp, ip, txn, fname, meta_pgno, flags);
-			break;
-	    case DB_RECNO:
-			ret = __ram_open(dbp, ip, txn, fname, meta_pgno, flags);
-			break;
-	    case DB_QUEUE:
-			ret = __qam_open(dbp, ip, txn, fname, meta_pgno, mode, flags);
-			break;
-	    case DB_UNKNOWN:
-			return __db_unknown_type(env, "__db_dbopen", dbp->type);
+	    case DB_BTREE:   ret = __bam_open(dbp, ip, txn, fname, meta_pgno, flags); break;
+	    case DB_HASH:    ret = __ham_open(dbp, ip, txn, fname, meta_pgno, flags); break;
+	    case DB_HEAP:    ret = __heap_open(dbp, ip, txn, fname, meta_pgno, flags); break;
+	    case DB_RECNO:   ret = __ram_open(dbp, ip, txn, fname, meta_pgno, flags); break;
+	    case DB_QUEUE:   ret = __qam_open(dbp, ip, txn, fname, meta_pgno, mode, flags); break;
+	    case DB_UNKNOWN: return __db_unknown_type(env, "__db_dbopen", dbp->type);
 	}
 	if(ret != 0)
 		goto err;
 #ifdef HAVE_PARTITION
-	if(dbp->p_internal != NULL && (ret = __partition_open(dbp, ip, txn, fname, type, flags, mode, 1)) != 0)
+	if(dbp->p_internal && (ret = __partition_open(dbp, ip, txn, fname, type, flags, mode, 1)) != 0)
 		goto err;
 #endif
 	DB_TEST_RECOVERY(dbp, DB_TEST_POSTOPEN, ret, fname);
@@ -215,7 +203,7 @@ int __db_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, c
 	 * for a handle lock downgrade or lockevent in the case of named
 	 * files.
 	 */
-	if(!F_ISSET(dbp, DB_AM_RECOVER) && (fname != NULL || dname != NULL) && LOCK_ISSET(dbp->handle_lock)) {
+	if(!F_ISSET(dbp, DB_AM_RECOVER) && (fname || dname) && LOCK_ISSET(dbp->handle_lock)) {
 		if(IS_REAL_TXN(txn))
 			ret = __txn_lockevent(env, txn, dbp, &dbp->handle_lock, dbp->locker);
 		else if(LOCKING_ON(env))
@@ -309,18 +297,12 @@ int __db_init_subdb(DB * mdbp, DB * dbp, const char * name, DB_THREAD_INFO * ip,
 	/* Handle the create case here. */
 	switch(dbp->type) {
 	    case DB_BTREE:
-	    case DB_RECNO:
-			ret = __bam_new_subdb(mdbp, dbp, ip, txn);
-			break;
-	    case DB_HASH:
-			ret = __ham_new_subdb(mdbp, dbp, ip, txn);
-			break;
-	    case DB_QUEUE:
-			ret = EINVAL;
-			break;
+	    case DB_RECNO: ret = __bam_new_subdb(mdbp, dbp, ip, txn); break;
+	    case DB_HASH: ret = __ham_new_subdb(mdbp, dbp, ip, txn); break;
+	    case DB_QUEUE: ret = EINVAL; break;
 	    case DB_UNKNOWN:
-	    default:
-			__db_errx(dbp->env, DB_STR_A("0639", "Invalid subdatabase type %d specified", "%d"), dbp->type);
+	    default: 
+			__db_errx(dbp->env, DB_STR_A("0639", "Invalid subdatabase type %d specified", "%d"), dbp->type); 
 			return EINVAL;
 	}
 err:
@@ -344,9 +326,9 @@ int __db_chk_meta(ENV * env, DB * dbp, DBMETA * meta, uint32 flags)
 	int ret = 0;
 	int swapped = 0;
 	if(FLD_ISSET(meta->metaflags, DBMETA_CHKSUM)) {
-		if(dbp != NULL)
+		if(dbp)
 			F_SET(dbp, DB_AM_CHKSUM);
-		is_hmac = meta->encrypt_alg == 0 ? 0 : 1;
+		is_hmac = (meta->encrypt_alg == 0) ? 0 : 1;
 		chksum = ((BTMETA *)meta)->chksum;
 		/*
 		 * If we need to swap, the checksum function overwrites the
@@ -543,13 +525,11 @@ int __db_reopen(DBC * arg_dbc)
 	DBC * dbc = arg_dbc;
 	DB * dbp = dbc->dbp;
 	DB * mdbp = NULL;
-
 	COMPQUIET(bt, NULL);
 	COMPQUIET(ht, NULL);
 	COMPQUIET(txn, NULL);
 	LOCK_INIT(new_lock);
 	LOCK_INIT(old_lock);
-
 	/*
 	 * This must be done in the context of a transaction.  If the
 	 * requester does not have a transaction, create one.
@@ -585,7 +565,7 @@ int __db_reopen(DBC * arg_dbc)
 		if((ret = __LPUT(dbc, old_lock)) != 0)
 			goto err;
 		/* Drop the latch too. */
-		if(old_page != NULL && (ret = __memp_fput(dbp->mpf, dbc->thread_info, old_page, dbc->priority)) != 0)
+		if(old_page && (ret = __memp_fput(dbp->mpf, dbc->thread_info, old_page, dbc->priority)) != 0)
 			goto err;
 		old_page = NULL;
 	}
@@ -613,11 +593,11 @@ done:
 	else
 		bt->revision = dbp->mpf->mfp->revision;
 err:
-	if(old_page != NULL && (t_ret = __memp_fput(dbp->mpf, dbc->thread_info, old_page, dbc->priority)) != 0 && ret == 0)
+	if(old_page && (t_ret = __memp_fput(dbp->mpf, dbc->thread_info, old_page, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(new_page != NULL && (t_ret = __memp_fput(dbp->mpf, dbc->thread_info, new_page, dbc->priority)) != 0 && ret == 0)
+	if(new_page && (t_ret = __memp_fput(dbp->mpf, dbc->thread_info, new_page, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(mdbp != NULL && (t_ret = __db_close(mdbp, dbc->txn, DB_NOSYNC)) != 0 && ret == 0)
+	if(mdbp && (t_ret = __db_close(mdbp, dbc->txn, DB_NOSYNC)) != 0 && ret == 0)
 		ret = t_ret;
 	if(dbc != arg_dbc) {
 		if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)

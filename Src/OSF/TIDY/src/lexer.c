@@ -610,7 +610,7 @@ char FoldCase(TidyDocImpl* doc, tmbchar c, bool tocaps)
 		if(tocaps) {
 			c = (tmbchar)ToUpper(c);
 		}
-		else{ /* force to lower case */
+		else { /* force to lower case */
 			c = (tmbchar)ToLower(c);
 		}
 	}
@@ -907,7 +907,7 @@ static void ParseEntity(TidyDocImpl* doc, GetTokenMode mode)
 					TY_(AddCharToLexer) (lexer, c1);
 					semicolon = false;
 				}
-				else{
+				else {
 					/* discard */
 					lexer->lexsize = start;
 					semicolon = false;
@@ -924,7 +924,7 @@ static void ParseEntity(TidyDocImpl* doc, GetTokenMode mode)
 			TY_(ReportEntityError) (doc, UNESCAPED_AMPERSAND,
 			    lexer->lexbuf+start, ch);
 	}
-	else{
+	else {
 		if(c != ';') { /* issue warning if not terminated by ';' */
 			/* set error position just before offending chararcter */
 			SetLexerLocus(doc, lexer);
@@ -934,7 +934,7 @@ static void ParseEntity(TidyDocImpl* doc, GetTokenMode mode)
 
 		if(preserveEntities)
 			TY_(AddCharToLexer) (lexer, ';');
-		else{
+		else {
 			lexer->lexsize = start;
 			if(ch == 160 && (mode == Preformatted) )
 				ch = ' ';
@@ -1120,7 +1120,7 @@ void StoreOriginalTextInToken(TidyDocImpl* doc, Node* node, uint count)
 		doc->docIn->otextlen = 0;
 		doc->docIn->otextsize = 0;
 	}
-	else{
+	else {
 		uint len = doc->docIn->otextlen;
 		tmbstr buf1 = (tmbstr)TidyDocAlloc(doc, len - count + 1);
 		tmbstr buf2 = (tmbstr)TidyDocAlloc(doc, count + 1);
@@ -1488,7 +1488,7 @@ bool TY_(SetXHTMLDocType) (TidyDocImpl* doc)
 		doctype = NewDocTypeNode(doc);
 		doctype->element = TY_(tmbstrdup) (doc->allocator, "html");
 	}
-	else{
+	else {
 		doctype->element = TY_(tmbstrtolower) (doctype->element);
 	}
 
@@ -1544,7 +1544,7 @@ bool TY_(SetXHTMLDocType) (TidyDocImpl* doc)
 			    TY_(RepairAttrValue) (doc, doctype, sys, GetSIFromVers(X10T));
 			    lexer->versionEmitted = X10T;
 		    }
-		    else{
+		    else {
 			    if(doctype)
 				    TY_(DiscardElement) (doc, doctype);
 			    return false;
@@ -1614,7 +1614,7 @@ bool TY_(FixDocType) (TidyDocImpl* doc)
 	if(doctype) {
 		doctype->element = TY_(tmbstrtolower) (doctype->element);
 	}
-	else{
+	else {
 		doctype = NewDocTypeNode(doc);
 		doctype->element = TY_(tmbstrdup) (doc->allocator, "html");
 	}
@@ -1639,7 +1639,7 @@ bool TY_(FixXmlDecl) (TidyDocImpl* doc)
 	if(root->content && root->content->type == XmlDecl) {
 		xml = root->content;
 	}
-	else{
+	else {
 		xml = TY_(NewNode) (lexer->allocator, lexer);
 		xml->type = XmlDecl;
 		if(root->content)
@@ -1793,7 +1793,7 @@ static Node * GetCDATA(TidyDocImpl* doc, Node * container)
 				start = lexer->lexsize;
 				state = CDATA_ENDTAG;
 			}
-			else{
+			else {
 				TY_(UngetChar) (c, doc->docIn);
 			}
 		}
@@ -1999,7 +1999,7 @@ static Node* GetTokenFromStream(TidyDocImpl* doc, GetTokenMode mode)
 						    SetLexerLocus(doc, lexer);
 					    }
 				    }
-				    else{ /* prev character wasn't white */
+				    else { /* prev character wasn't white */
 					    lexer->waswhite = true;
 
 					    if(mode != Preformatted && mode != IgnoreMarkup && c != ' ')
@@ -2467,7 +2467,7 @@ end_comment:
 				    lexer->lexbuf +
 				    lexer->txtstart - i, i);
 			    }
-			    else{
+			    else {
 				    lexer->txtend = lexer->lexsize;
 				    lexer->lexbuf[lexer->lexsize] = '\0';
 				    lexer->token = PIToken(doc);
@@ -3109,7 +3109,7 @@ static tmbstr ParseValue(TidyDocImpl* doc, ctmbstr name,
 					TY_(UngetChar) (c, doc->docIn);
 					break;
 				}
-				else{
+				else {
 					TY_(UngetChar) (c, doc->docIn);
 					c = q;
 				}
@@ -3144,7 +3144,7 @@ static tmbstr ParseValue(TidyDocImpl* doc, ctmbstr name,
 				c = '/';
 			}
 		}
-		else{ /* delim is '\'' or '"' */
+		else { /* delim is '\'' or '"' */
 			if(c == delim)
 				break;
 
@@ -3300,7 +3300,7 @@ static void AddAttrToList(AttVal** list, AttVal* av)
 {
 	if(*list == NULL)
 		*list = av;
-	else{
+	else {
 		AttVal* here = *list;
 		while(here->next)
 			here = here->next;
@@ -3365,7 +3365,7 @@ static AttVal* ParseAttrs(TidyDocImpl* doc, bool * isempty)
 			av->dict = TY_(FindAttribute) (doc, av);
 			AddAttrToList(&list, av);
 		}
-		else{
+		else {
 			av = TY_(NewAttribute) (doc);
 			av->attribute = attribute;
 			av->value = value;
@@ -3426,12 +3426,12 @@ static Node * ParseDocTypeDecl(TidyDocImpl* doc)
 				TY_(AddCharToLexer) (lexer, c);
 				lexer->waswhite = true;
 			}
-			else{
+			else {
 				/* discard space */
 				continue;
 			}
 		}
-		else{
+		else {
 			TY_(AddCharToLexer) (lexer, c);
 			lexer->waswhite = false;
 		}
@@ -3475,7 +3475,7 @@ static Node * ParseDocTypeDecl(TidyDocImpl* doc)
 #endif
 				    return node;
 			    }
-			    else{
+			    else {
 				    /* error */
 			    }
 			    break;

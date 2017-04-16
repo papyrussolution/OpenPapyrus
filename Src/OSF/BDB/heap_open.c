@@ -73,8 +73,7 @@ int __heap_metachk(DB * dbp, const char * name, HEAPMETA * hm)
 	    case 1:
 		break;
 	    default:
-		__db_errx(env,
-			"%s: unsupported heap version: %lu", name, (ulong)vers);
+		__db_errx(env, "%s: unsupported heap version: %lu", name, (ulong)vers);
 		return EINVAL;
 	}
 	/* Swap the page if needed. */
@@ -139,8 +138,7 @@ int __heap_read_meta(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, db_pgno_t meta
 			__memp_set_last_pgno(mpf, meta->dbmeta.last_pgno);
 	}
 	else {
-		DB_ASSERT(dbp->env,
-			IS_RECOVERING(dbp->env) || F_ISSET(dbp, DB_AM_RECOVER));
+		DB_ASSERT(dbp->env, IS_RECOVERING(dbp->env) || F_ISSET(dbp, DB_AM_RECOVER));
 	}
 err:    /* Put the metadata page back. */
 	if(meta != NULL && (t_ret = __memp_fput(mpf, ip, meta, dbc->priority)) != 0 && ret == 0)

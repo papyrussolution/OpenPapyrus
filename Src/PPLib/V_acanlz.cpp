@@ -301,7 +301,7 @@ private:
 		}
 		else if(event.isCmd(cmaMore)) {
 			TDialog * dlg = new TDialog(DLG_ACCANLZ2);
-			if(CheckDialogPtr(&dlg, 1)) {
+			if(CheckDialogPtrErr(&dlg)) {
 				SetupPPObjCombo(dlg, CTLSEL_ACCANLZ_LOC, PPOBJ_LOCATION, Filt.LocID, OLW_CANSELUPLEVEL, 0);
 				SetupArCombo(dlg, CTLSEL_ACCANLZ_AGENT, Filt.AgentID, OLW_LOADDEFONOPEN, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 				dlg->AddClusterAssoc(CTL_ACCANLZ_ORDER,  0, PPViewAccAnlz::OrdByDefault);
@@ -466,7 +466,7 @@ int SLAPI PPViewAccAnlz::EditBaseFilt(PPBaseFilt * pFilt)
 	else {
 		uint   dlg_id = (p_filt->Flags & AccAnlzFilt::fAsCashBook) ? DLG_CASHBOOK : DLG_ACCANLZ;
 		AccAnlzFiltDialog * dlg = new AccAnlzFiltDialog(dlg_id, P_BObj->atobj);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setDTS(p_filt);
 			while(!valid_data && ExecView(dlg) == cmOK)
 				if(dlg->getDTS(p_filt)) {
@@ -2132,7 +2132,7 @@ int SLAPI PPViewAccAnlz::ViewTotal()
 	if(Filt.Flags & AccAnlzFilt::fTrnovrBySheet)
 		CalcTotalAccTrnovr(&Total);
 	AccAnlzTotalDialog * dlg = new AccAnlzTotalDialog(&Total, &Filt);
-	if(CheckDialogPtr(&dlg, 1))
+	if(CheckDialogPtrErr(&dlg))
 		ExecViewAndDestroy(dlg);
 	else
 		ok = 0;
@@ -2162,7 +2162,7 @@ static int SLAPI SelectPrintingAccSheetTrnovr(int * pWhat, LDATE * pExpiry, uint
 	};
 	int    ok = -1;
 	SelPrnAtDialog * dlg = new SelPrnAtDialog();
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		ushort v = *pWhat;
 		dlg->setCtrlData(CTL_SELPRNAT_SEL, &v);
 		dlg->setCtrlData(CTL_SELPRNAT_EXPIRY, pExpiry);

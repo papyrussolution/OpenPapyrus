@@ -247,7 +247,7 @@ int SLAPI MakeDatabase()
 	PPID   dbid = 0;
 	SString dbname, dbentry, dbpath;
 	PPDbEntrySet2 dbes;
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_MAKENEWDB_PATH, CTL_MAKENEWDB_PATH, FBB_GROUP1, PPTXT_SELNEWBASEDIR, PPTXT_FILPAT_DDFBTR, FileBrowseCtrlGroup::fbcgfPath);
 	dbes.ReadFromProfile(&ini_file);
 	{

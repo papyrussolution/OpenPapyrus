@@ -117,8 +117,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\PPKernel\dlscope.cpp" />
     <ClCompile Include="..\PPLib\dl600.cpp" />
+    <ClCompile Include="..\PPLib\dlscope.cpp" />
     <ClCompile Include="..\Tools\Dl600\dl600c.cpp" />
     <ClCompile Include="..\Tools\Dl600\dl600c.lex.cpp" />
     <ClCompile Include="..\Tools\Dl600\dl600c.tab.cpp" />

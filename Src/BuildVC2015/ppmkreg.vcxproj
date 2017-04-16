@@ -118,7 +118,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\PPKernel\Ppregkey.cpp" />
+    <ClCompile Include="..\PPLib\PPREGKEY.CPP" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="slib.vcxproj">

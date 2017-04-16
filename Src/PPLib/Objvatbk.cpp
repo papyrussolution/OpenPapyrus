@@ -1149,7 +1149,7 @@ int SLAPI PPObjVATBook::EditConfig(PPID kind, VATBCfg * pConfig)
 			pConfig->AcctgBasis = INCM_BYPAYMENT;
 			pConfig->Period.SetZero();
 		}
-	THROW(CheckDialogPtr(&(dlg = new VATBCfgDialog(dlg_id)), 0));
+	THROW(CheckDialogPtr(&(dlg = new VATBCfgDialog(dlg_id))));
 	pConfig->Kind = kind;
 	dlg->setDTS(pConfig);
 	for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
@@ -1404,7 +1404,7 @@ int SLAPI PPViewVatBook::ViewTotal()
 	TDialog * dlg = 0;
 	if(Total.Count == 0)
 		CalcTotal(&Total);
-	THROW(CheckDialogPtr(&(dlg = new TDialog(res_id)), 1));
+	THROW(CheckDialogPtrErr(&(dlg = new TDialog(res_id))));
 	if(Filt.Kind == PPVTB_SIMPLELEDGER) {
 		dlg->setCtrlData(CTL_SLEDGTOTAL_COUNT, &Total.Count);
 		dlg->setCtrlData(CTL_SLEDGTOTAL_AMT,  &Total.Amount);

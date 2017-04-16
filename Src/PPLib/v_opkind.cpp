@@ -104,7 +104,7 @@ int SLAPI PPViewOprKind::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	THROW(Filt.IsA(pBaseFilt));
 	{
 		OprKindFilt * p_filt = (OprKindFilt *)pBaseFilt;
-		THROW(CheckDialogPtr(&(p_dlg = new TDialog(DLG_OPKINDFLT)), 0));
+		THROW(CheckDialogPtr(&(p_dlg = new TDialog(DLG_OPKINDFLT))));
 		SetupPPObjCombo(p_dlg, CTLSEL_OPKINDFLT_TYPE, PPOBJ_OPRTYPE, p_filt->OpTypeID, 0, 0);
 		SetupPPObjCombo(p_dlg, CTLSEL_OPKINDFLT_ACCSHT, PPOBJ_ACCSHEET,	p_filt->AccSheetID, OLW_CANINSERT, 0);
 		p_dlg->AddClusterAssoc(CTL_OPKINDFLT_FLAGS, 0, OPKF_PASSIVE);

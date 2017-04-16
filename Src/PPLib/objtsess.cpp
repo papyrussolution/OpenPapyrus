@@ -495,7 +495,7 @@ int SLAPI PPObjTSession::EditConfig()
 	TSessCfgDialog * p_dlg = new TSessCfgDialog;
 	THROW(CheckCfgRights(PPCFGOBJ_TECHSESS, PPR_READ, 0));
 	THROW(is_new = ReadConfig(&cfg));
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setDTS(&cfg);
 	for(valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
 		THROW(CheckCfgRights(PPCFGOBJ_TECHSESS, PPR_MOD, 0));
@@ -2840,7 +2840,7 @@ int SLAPI PPObjTSession::EditNewIdleSession(PPID prcID, PPID curSessID, PPID * p
 	rec.Incomplete = 10;
 	rec.Flags |= TSESF_IDLE;
 	THROW(SetSessionState(&rec, TSESST_INPROCESS, 0));
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_TSESSIDLE)), 0));
+	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_TSESSIDLE))));
 	{
 		if(GetConfig().IdleAccSheetID)
 			SetupArCombo(dlg, CTLSEL_TSESS_OBJ2, rec.Ar2ID, OLW_CANINSERT, GetConfig().IdleAccSheetID, sacfDisableIfZeroSheet|sacfNonGeneric);
@@ -3910,7 +3910,7 @@ int SLAPI PPObjTSession::EditWrOffOrder()
 			const  int prc_ctrl_group = 1;
 			int    ok = -1;
 			TDialog * dlg = new TDialog(DLG_TSESWOORDI);
-			if(CheckDialogPtr(&dlg, 1)) {
+			if(CheckDialogPtrErr(&dlg)) {
 				dlg->addGroup(prc_ctrl_group, new PrcCtrlGroup(CTLSEL_TSESWOORDI_PRC));
 				PrcCtrlGroup::Rec cg_rec(pItem->ObjID);
 				dlg->setGroupData(prc_ctrl_group, &cg_rec);
@@ -3935,7 +3935,7 @@ int SLAPI PPObjTSession::EditWrOffOrder()
 	};
 	int    ok = -1;
 	TSessWrOffOrderDialog * dlg = new TSessWrOffOrderDialog;
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		TSessWrOffOrder woo;
 		GetWrOffOrder(&woo);
 		dlg->setDTS(&woo);
@@ -4480,7 +4480,7 @@ int SLAPI PPObjTSession::SelectSerialByGoods(PPID goodsID, PPID locID, SerialByG
 	PPListDialog * dlg = 0;
 	SArray list(sizeof(SerialByGoodsListItem));
 	if(GetSerialListByGoodsID(goodsID, locID, &list) > 0) {
-		if(CheckDialogPtr(&(dlg = new PPListDialog(DLG_SELSERIAL, CTL_SELSERIAL_LIST, PPListDialog::fOnDblClkOk)), 1)) {
+		if(CheckDialogPtrErr(&(dlg = new PPListDialog(DLG_SELSERIAL, CTL_SELSERIAL_LIST, PPListDialog::fOnDblClkOk)))) {
 			SString goods_name;
 			StringSet ss(SLBColumnDelim);
 			dlg->setCtrlString(CTL_SELSERIAL_GOODSNAME, GetGoodsName(goodsID, goods_name));
@@ -4491,7 +4491,7 @@ int SLAPI PPObjTSession::SelectSerialByGoods(PPID goodsID, PPID locID, SerialByG
 				ss.add(p_item->Text, 0);
 				dlg->addStringToList(i, ss.getBuf());
 			}
-			dlg->drawView();
+			dlg->Draw_();
 			if(ExecView(dlg) == cmOK) {
 				PPID   id = 0;
 				if(dlg->getSelection(&id) > 0 && id > 0 && id <= (PPID)list.getCount()) {

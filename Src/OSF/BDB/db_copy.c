@@ -81,8 +81,7 @@ retry:
 		if(F_ISSET(dbp, DB_AM_CHKSUM) || passwd != NULL)
 			ret = __db_encrypt_and_checksum_pg(env, dbp, (PAGE *)pagep);
 		if(ret == 0 && ((ret = __os_write(env, fp, pagep, dbp->pgsize, &nw)) != 0 || nw != dbp->pgsize)) {
-			if(ret == 0)
-				ret = EIO;
+			SETIFZ(ret, EIO);
 		}
 		if((t_ret = mpf->put(mpf, pagep, DB_PRIORITY_VERY_LOW, 0)) != 0 && ret == 0)
 			ret = t_ret;
@@ -90,7 +89,7 @@ retry:
 	if(ret == DB_PAGE_NOTFOUND)
 		ret = 0;
 #ifdef HAVE_QUEUE
-	/* Queue exents cannot be read directly, use the internal interface. */
+	// Queue exents cannot be read directly, use the internal interface. 
 	if(ret == 0) {
 		if((ret = dbp->get_type(dbp, &type) != 0))
 			goto err;
@@ -98,14 +97,13 @@ retry:
 			ret = copy_queue_extents(dbp, target, passwd);
 	}
 #endif
-	/* We have read pages for which log records may still be in cache. */
-	if(ret == 0)
-		ret = dbenv->log_flush(dbenv, NULL);
+	// We have read pages for which log records may still be in cache. 
+	SETIFZ(ret, dbenv->log_flush(dbenv, NULL));
 err:
 	__os_free(env, path);
-	if(fp != NULL && (t_ret = __os_closehandle(env, fp)) != 0 && ret == 0)
+	if(fp && (t_ret = __os_closehandle(env, fp)) != 0 && ret == 0)
 		ret = t_ret;
-	if(dbp != NULL && (t_ret = dbp->close(dbp, DB_NOSYNC)) != 0 && ret == 0)
+	if(dbp && (t_ret = dbp->close(dbp, DB_NOSYNC)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
 }

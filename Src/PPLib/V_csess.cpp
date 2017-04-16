@@ -1260,14 +1260,14 @@ int SLAPI PPObjDraftCreateRule::Edit(PPID * pID, void * extraPtr)
 		THROW(GetPacket(*pID, &pack) > 0);
 	}
 	else {
-		THROW(CheckDialogPtr(&(p_what_dlg = new TDialog(DLG_DFRULEADDW)), 0));
+		THROW(CheckDialogPtr(&(p_what_dlg = new TDialog(DLG_DFRULEADDW))));
 		if((r = ExecView(p_what_dlg)) == cmOK) {
 			p_what_dlg->getCtrlData(CTL_DFRULEADDW_WHAT, &(v = 0));
 			SETFLAG(pack.Rec.Flags, PPDraftCreateRule::fIsRulesGroup, v & 0x01);
 		}
 	}
 	if(!is_new || r == cmOK) {
-		THROW(CheckDialogPtr(&(p_dlg = new DraftCreateRuleDialog), 0));
+		THROW(CheckDialogPtr(&(p_dlg = new DraftCreateRuleDialog)));
 		p_dlg->setDTS(&pack);
 		while(!valid_data && (ok = ExecView(p_dlg)) == cmOK) {
 			if(p_dlg->getDTS(&pack) > 0) {
@@ -1730,7 +1730,7 @@ int SLAPI PPViewCSess::SelectOneOrAll(uint * pResult, long * pFlags)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(pFlags ? DLG_SELCSESSEXC : DLG_SELCSESS);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		ushort v = *pResult;
 		dlg->setCtrlData(CTL_SELCSESS_SEL, &v);
 		if(pFlags)
@@ -2023,7 +2023,7 @@ int SLAPI PPViewCSess::DeleteItem(PPID sessID)
 		THROW(cn_obj.Search(sess_rec.CashNodeID, &cn_rec) > 0);
 		if(cn_rec.CashType == PPCMT_CASHNGROUP || PPCashMachine::IsSyncCMT(cn_rec.CashType) || PPCashMachine::IsAsyncCMT(cn_rec.CashType)) {
 			int    grade = -1;
-			THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_CSESSDEL)), 0));
+			THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_CSESSDEL))));
 			dlg->setCtrlUInt16(CTL_CSESSDEL_OPTIONS, 0);
 			if(ExecView(dlg) == cmOK) {
 				int    is_confirmed = 1;
@@ -2083,7 +2083,7 @@ int SLAPI PPViewCSess::ViewTotal()
 	TDialog * dlg = 0;
 	CSessTotal total;
 	CalcTotal(&total);
-	if(CheckDialogPtr(&(dlg = new TDialog((Filt.Flags & CSessFilt::fExtBill) ? DLG_CSESSWRETTOTAL : DLG_CSESSTOTAL)), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new TDialog((Filt.Flags & CSessFilt::fExtBill) ? DLG_CSESSWRETTOTAL : DLG_CSESSTOTAL)))) {
 		double  ret_amt = total.WORetAmount - total.Amount;
 		SetPeriodInput(dlg, CTL_CSESSTOTAL_PERIOD, &Filt.Period);
 		dlg->setCtrlData(CTL_CSESSTOTAL_COUNT,    &total.SessCount);
@@ -2179,7 +2179,7 @@ int SLAPI PPViewCSessExc::EditBaseFilt(PPBaseFilt * pFilt)
 	int    ok = -1;
 	TDialog * dlg = 0;
 	THROW(Filt.IsA(pFilt));
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_CSESSEXC)), 0));
+	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_CSESSEXC))));
 	{
 		CSessExcFilt * p_filt = (CSessExcFilt *)pFilt;
 		PPID   cashnode_id = p_filt->CashNodeID;
@@ -2789,7 +2789,7 @@ int SLAPI PPViewCSessExc::ViewTotal()
 	double total_altdiff = 0.0;
 	CSessExcViewItem item;
 	TDialog * dlg = 0;
-	if(CheckDialogPtr(&(dlg = new TDialog(DLG_CSESSEXCTOTAL)), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_CSESSEXCTOTAL)))) {
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			count++;
 			if(item.Sign > 0) {

@@ -479,7 +479,7 @@ int SLAPI PPObjBill::EditInventory(PPBillPacket * pPack, long)
 {
 	int    r = cmCancel, valid_data = 0;
 	InventoryDialog * dlg = new InventoryDialog(DLG_INVENTORY, this, pPack);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		LDATE  old_date = pPack->Rec.Dt;
 		PPSetupCtrlMenu(dlg, CTL_BILL_DOC, CTLMNU_BILL_DOC, CTRLMENU_BILLNUMBER);
 		PPSetupCtrlMenu(dlg, CTL_BILL_MEMO, CTLMNU_BILL_MEMO, CTRLMENU_BILLMEMO);
@@ -1608,7 +1608,7 @@ int SLAPI EditInventoryImpExpParams()
 	int    ok = -1;
 	PPInventoryImpExpParam param;
 	ImpExpParamDialog * dlg = new ImpExpParamDialog(DLG_IMPEXP, 0);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	THROW(ok = EditImpExpParams(PPFILNAM_IMPEXP_INI, PPREC_INVENTORYITEM, &param, dlg));
 	CATCHZOK
 	delete dlg;

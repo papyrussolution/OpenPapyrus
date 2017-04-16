@@ -1956,6 +1956,7 @@ SrDatabase::SrDatabase()
 	P_CpT = 0;
 	P_NgT = 0;
 	P_CNgT = 0;
+	P_GnT = 0;
 	ZeroWordID = 0;
 }
 
@@ -1970,7 +1971,7 @@ int SrDatabase::Open(const char * pDbPath)
 	BDbDatabase::Config cfg;
 	cfg.CacheSize = 120 * 1024 * 1024;
 	cfg.CacheCount = 20;
-	cfg.MaxLockers = 20000;
+	cfg.MaxLockers = 256*1024; // @v9.6.2 20000-->256*1024
 	cfg.LogBufSize = 256 * 1024;
 	cfg.LogFileSize = 256 * 1024 * 1024;
 	//cfg.LogSubDir = "LOG";
@@ -1984,6 +1985,7 @@ int SrDatabase::Open(const char * pDbPath)
 	THROW_S(P_CpT = new SrConceptPropTbl(*this), SLERR_NOMEM);
 	THROW_S(P_NgT = new SrNGramTbl(P_Db), SLERR_NOMEM);
 	THROW_S(P_CNgT = new SrConceptNgTbl(P_Db), SLERR_NOMEM);
+	THROW_S(P_GnT = new SrGeoNodeTbl(P_Db), SLERR_NOMEM);
 	{
 		CONCEPTID prop_instance = GetReservedConcept(rcInstance);
 		CONCEPTID prop_subclass = GetReservedConcept(rcSubclass);
@@ -1991,6 +1993,11 @@ int SrDatabase::Open(const char * pDbPath)
 		THROW(prop_instance);
 		THROW(prop_subclass);
 		THROW(prop_crtype);
+	}
+	{
+		SString err_file_name;
+		(err_file_name = pDbPath).SetLastSlash().Cat("bdberr.log");
+		P_Db->SetupErrLog(err_file_name);
 	}
 	CATCH
 		ok = 0;
@@ -2130,6 +2137,7 @@ int SrDatabase::Close()
 	ZDELETE(P_CpT);
 	ZDELETE(P_NgT);
 	ZDELETE(P_CNgT);
+	ZDELETE(P_GnT);
 
 	ZDELETE(P_Db);
 	return 1;
@@ -2783,7 +2791,7 @@ static int ReadAncodeDescrLine_En(const char * pLine, SString & rAncode, SrWordF
 //
 //
 //
-SrWordAssoc::SrWordAssoc()
+SLAPI SrWordAssoc::SrWordAssoc()
 {
 	ID = 0;
 	WordID = 0;
@@ -2795,7 +2803,7 @@ SrWordAssoc::SrWordAssoc()
 	AffixModelID = 0;
 }
 
-SrWordAssoc & SrWordAssoc::Normalize()
+SrWordAssoc & SLAPI SrWordAssoc::Normalize()
 {
 	Flags = 0;
 	if(FlexiaModelID)
@@ -2809,7 +2817,7 @@ SrWordAssoc & SrWordAssoc::Normalize()
 	return *this;
 }
 
-SString & SrWordAssoc::ToStr(SString & rBuf) const
+SString & FASTCALL SrWordAssoc::ToStr(SString & rBuf) const
 {
 	return (rBuf = 0).CatChar('[').Cat(ID).CatDiv(',', 2).Cat(WordID).CatDiv(',', 2).Cat("0x").CatHex(Flags).CatDiv(',', 2).
 		Cat(BaseDescrID).CatDiv(',', 2).Cat(FlexiaModelID).CatDiv(',', 2).Cat(AccentModelID).CatDiv(',', 2).
@@ -2963,6 +2971,55 @@ int SrWordAssocTbl::SerializeRecBuf(int dir, SrWordAssoc * pWa, SBuffer & rBuf)
 	if(pWa->Flags & SrWordAssoc::fHasAffixModel) {
 		THROW(p_sctx->Serialize(dir, pWa->AffixModelID, rBuf));
 	}
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
+SrGeoNodeTbl::SrGeoNodeTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("geomap.db->node", BDbTable::idxtypHash, 0), pDb)
+{
+	class Idx01 : public SecondaryIndex {
+		virtual int Cb(const BDbTable::Buffer & rKey, const BDbTable::Buffer & rData, BDbTable::Buffer & rResult)
+		{
+			size_t rec_size = 0;
+			PPOsm::Tile tile;
+			PPOsm::NodeCluster clu;
+			const void * p_data = rData.GetPtr(&rec_size);
+			clu.SetBuffer(p_data, rec_size);
+			clu.GetTile(&tile);
+			rResult.Set(&tile.V, sizeof(tile.V));
+			return 0;
+		}
+	};
+	new BDbTable(BDbTable::Config("geomap.db->node_idx01", BDbTable::idxtypBTree, BDbTable::cfDup), pDb, new Idx01, this);
+}
+
+SrGeoNodeTbl::~SrGeoNodeTbl()
+{
+}
+
+int SLAPI SrGeoNodeTbl::Add(PPOsm::NodeCluster & rNc)
+{
+	int    ok = 1;
+	BDbTable::Buffer key_buf, data_buf;
+	uint64 hid = 0;
+	int    his = 0;
+	THROW(his = rNc.GetHeaderID(&hid));
+	assert(oneof2(his, 4, 8));
+	if(his == 4) {
+		key_buf = (uint32)hid;
+	}
+	else if(his == 8) {
+		key_buf = hid;
+	}
+	{
+		size_t buf_size = 0;
+		const void * p_buf = rNc.GetBuffer(&buf_size);
+		THROW(p_buf);
+		THROW(data_buf.Set(p_buf, buf_size));
+	}
+	THROW(InsertRec(key_buf, data_buf));
 	CATCHZOK
 	return ok;
 }
@@ -3793,6 +3850,68 @@ int SrDatabase::FormatProp(const SrCProp & rCp, long flags, SString & rBuf)
 	else
 		rBuf.Cat("#zeroprop");
 	return 1;
+}
+
+int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList)
+{
+	const  uint max_cluster_per_tx = 20*1024;
+	int    ok = 1;
+	const  uint _count = rList.getCount();
+	if(_count) {
+		TSCollection <PPOsm::NodeCluster> cluster_list;
+		//PPOsm::NodeCluster cluster;
+		TSArray <PPOsm::Node> test_list;
+		size_t offs = 0;
+		{
+			while(offs < _count) {
+				size_t actual_count = 0;
+				{
+					PPOsm::NodeCluster * p_cluster = cluster_list.CreateNewItem();
+					THROW(p_cluster);
+					THROW(p_cluster->Put(&rList.at(offs), _count - offs, 0, &actual_count));
+					// @debug {
+					{
+						test_list.clear();
+						p_cluster->Get(0, test_list);
+						for(uint i = 0; i < test_list.getCount(); i++) {
+							assert(test_list.at(i) == rList.at(offs+i));
+						}
+					}
+					// } @debug
+				}
+				offs += actual_count;
+				if(cluster_list.getCount() >= max_cluster_per_tx) {
+					PROFILE_START
+					BDbTransaction tra(P_Db, 1);
+					THROW(tra);
+					for(uint i = 0; i < cluster_list.getCount(); i++) {
+						PPOsm::NodeCluster * p_item = cluster_list.at(i);
+						THROW(P_GnT->Add(*p_item));
+					}
+					THROW(tra.Commit());
+					PROFILE_END
+					PROFILE(cluster_list.freeAll());
+				}
+			}
+			assert(offs == _count);
+			if(cluster_list.getCount()) {
+				PROFILE_START
+				BDbTransaction tra(P_Db, 1);
+				THROW(tra);
+				for(uint i = 0; i < cluster_list.getCount(); i++) {
+					PPOsm::NodeCluster * p_item = cluster_list.at(i);
+					THROW(P_GnT->Add(*p_item));
+				}
+				THROW(tra.Commit());
+				PROFILE_END
+				PROFILE(cluster_list.freeAll());
+			}
+		}
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;
 }
 //
 //

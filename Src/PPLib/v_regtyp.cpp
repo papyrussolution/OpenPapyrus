@@ -135,7 +135,7 @@ int SLAPI PPViewRegisterType::EditBaseFilt(PPBaseFilt * pFilt)
 	RegisterTypeFilt filt;
 	RegTypeFiltDialog * p_dlg = new RegTypeFiltDialog;
 	filt.Copy(pFilt, 0);
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setDTS(&filt);
 	while(ok < 0 && ExecView(p_dlg) == cmOK) {
 		if(p_dlg->getDTS(&filt) > 0) {

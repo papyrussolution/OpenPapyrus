@@ -44,19 +44,18 @@ extern "C" {
  * Unused, or not-used-yet variable.  We need to write and then read the
  * variable, some compilers are too bloody clever by half.
  */
-#define	COMPQUIET(n, v)	do { (n) = (v); (n) = (n); } while (0)
-
+// @sobolev #define	COMPQUIET(n, v)	do { (n) = (v); (n) = (n); } while (0)
+#define	COMPQUIET(n, v)	(n) = (v) // @sobolev
 /*
  * Purify and other run-time tools complain about uninitialized reads/writes
  * of structure fields whose only purpose is padding, as well as when heap
  * memory that was never initialized is written to disk.
  */
 #ifdef	UMRW
-#define	UMRW_SET(v)	(v) = 0
+	#define	UMRW_SET(v)	(v) = 0
 #else
-#define	UMRW_SET(v)	NOP_STATEMENT
+	#define	UMRW_SET(v)	NOP_STATEMENT
 #endif
-
 /*
  * Errors are in one of two areas: a Berkeley DB error, or a system-level
  * error.  We use db_strerror to translate the former and __os_strerror to
@@ -77,8 +76,7 @@ typedef enum {
 #if defined(STDC_HEADERS) || defined(__cplusplus)
 #define	DB_REAL_ERR(dbenv, error, error_set, app_call, fmt) {		\
 	va_list __ap;							\
-									\
-	/* Call the application's callback function, if specified. */	\
+	/* Call the application's callback function, if specified.*/ \
 	va_start(__ap, fmt);						\
 	if((dbenv) != NULL && (dbenv)->db_errcall != NULL)		\
 		__db_errcall(dbenv, error, error_set, fmt, __ap);	\
@@ -115,10 +113,7 @@ typedef enum {
 	 * configured an output channel, default by writing to stderr.	\
 	 */								\
 	va_start(__ap);							\
-	if((dbenv) == NULL ||						\
-	    (dbenv)->db_errfile != NULL ||				\
-	    ((dbenv)->db_errcall == NULL &&				\
-	    ((app_call) || F_ISSET((dbenv)->env, ENV_NO_OUTPUT_SET))))	\
+	if((dbenv) == NULL || (dbenv)->db_errfile != NULL || ((dbenv)->db_errcall == NULL && ((app_call) || F_ISSET((dbenv)->env, ENV_NO_OUTPUT_SET))))	\
 		 __db_errfile(env, error, error_set, fmt, __ap);	\
 	va_end(__ap);							\
 }
@@ -180,25 +175,24 @@ typedef enum {
  */
 #define	LOG_OP(C, T, O, K, A, F) {					\
 	DB_LSN __lsn;							\
-	DBT __op;							\
 	if(DBC_LOGGING((C))) {						\
-		memzero(&__op, sizeof(__op));				\
+		DBT __op;							\
+		/* (replaced by ctr) memzero(&__op, sizeof(__op));*/ \
 		__op.data = O;						\
 		__op.size = (uint32)strlen(O) + 1;			\
 		__db_debug_log((C)->env, T, &__lsn, 0, &__op, (C)->dbp->log_filename->id, K, A, F);	\
 	}								\
 }
 #ifdef	DEBUG_ROP
-#define	DEBUG_LREAD(C, T, O, K, A, F)	LOG_OP(C, T, O, K, A, F)
+	#define	DEBUG_LREAD(C, T, O, K, A, F)	LOG_OP(C, T, O, K, A, F)
 #else
-#define	DEBUG_LREAD(C, T, O, K, A, F)
+	#define	DEBUG_LREAD(C, T, O, K, A, F)
 #endif
 #ifdef	DEBUG_WOP
-#define	DEBUG_LWRITE(C, T, O, K, A, F)	LOG_OP(C, T, O, K, A, F)
+	#define	DEBUG_LWRITE(C, T, O, K, A, F)	LOG_OP(C, T, O, K, A, F)
 #else
-#define	DEBUG_LWRITE(C, T, O, K, A, F)
+	#define	DEBUG_LWRITE(C, T, O, K, A, F)
 #endif
-
 /*
  * Hook for testing recovery at various places in the create/delete paths.
  * Hook for testing subdb locks.
@@ -228,11 +222,9 @@ typedef enum {
 	PANIC_CHECK(__env);						\
 	if(__env->test_copy == (val)) {				\
 		/* Copy the file. */					\
-		if(F_ISSET((dbp),					\
-		    DB_AM_OPEN_CALLED) && (dbp)->mpf != NULL)		\
+		if(F_ISSET((dbp), DB_AM_OPEN_CALLED) && (dbp)->mpf != NULL) \
 			__db_sync(dbp);				\
-		if((__ret =						\
-		    __db_testcopy(__env, (dbp), (name))) != 0)		\
+		if((__ret = __db_testcopy(__env, (dbp), (name))) != 0) \
 			(ret) = __env_panic(__env, __ret);		\
 	}								\
 	if(__env->test_abort == (val)) {				\

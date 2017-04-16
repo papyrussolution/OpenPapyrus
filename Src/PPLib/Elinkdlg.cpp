@@ -9,7 +9,7 @@ int SLAPI EditELink(PPELink * pLink)
 {
 	int    r = cmCancel;
 	TDialog * dlg = new TDialog(DLG_ELINK);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		SetupPPObjCombo(dlg, CTLSEL_ELINK_KIND, PPOBJ_ELINKKIND, pLink->KindID, OLW_CANINSERT, 0);
 		dlg->setCtrlData(CTL_ELINK_ADDR, pLink->Addr);
 		for(int valid_data = 0; !valid_data && (r = ExecView(dlg)) == cmOK;) {
@@ -261,7 +261,7 @@ void ELinkDialog::editList()
 {
 	ELinkListDialog * dlg = 0;
 	getDTS(0);
-	if(CheckDialogPtr(&(dlg = new ELinkListDialog(&data)), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new ELinkListDialog(&data)))) {
 		if(ExecView(dlg) == cmOK) {
 			dlg->getDTS(&data);
 			setup();
@@ -274,7 +274,7 @@ int SLAPI EditELinks(PPELinkArray * pList)
 {
 	int    r = -1;
 	ELinkDialog * dlg = new ELinkDialog(pList);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		while(r < 0 && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS(pList))
 				r = 1;

@@ -16,12 +16,12 @@
 #pragma hdrstop
 // @v9.5.5 #include "dbinc/log.h"
 
-static int __memp_get_clear_len __P((DB_MPOOLFILE*, uint32 *));
-static int __memp_get_lsn_offset __P((DB_MPOOLFILE*, int32 *));
-static int __memp_get_maxsize __P((DB_MPOOLFILE*, uint32*, uint32 *));
-static int __memp_set_maxsize __P((DB_MPOOLFILE*, uint32, uint32));
-static int __memp_set_priority __P((DB_MPOOLFILE*, DB_CACHE_PRIORITY));
-static int __memp_get_last_pgno_pp __P((DB_MPOOLFILE*, db_pgno_t *));
+static int __memp_get_clear_len(DB_MPOOLFILE*, uint32 *);
+static int __memp_get_lsn_offset(DB_MPOOLFILE*, int32 *);
+static int __memp_get_maxsize(DB_MPOOLFILE*, uint32*, uint32 *);
+static int __memp_set_maxsize(DB_MPOOLFILE*, uint32, uint32);
+static int __memp_set_priority(DB_MPOOLFILE*, DB_CACHE_PRIORITY);
+static int __memp_get_last_pgno_pp(DB_MPOOLFILE*, db_pgno_t *);
 /*
  * __memp_fcreate_pp --
  *	ENV->memp_fcreate pre/post processing.
@@ -311,20 +311,21 @@ int __memp_get_pgcookie(DB_MPOOLFILE * dbmfp, DBT * pgcookie)
 int __memp_set_pgcookie(DB_MPOOLFILE * dbmfp, DBT * pgcookie)
 {
 	DBT * cookie;
-	ENV * env;
-	int ret;
 	MPF_ILLEGAL_AFTER_OPEN(dbmfp, "DB_MPOOLFILE->set_pgcookie");
-	env = dbmfp->env;
+	int ret = 0;
+	ENV * env = dbmfp->env;
 	if((ret = __os_calloc(env, 1, sizeof(*cookie), &cookie)) != 0)
 		return ret;
-	if((ret = __os_malloc(env, pgcookie->size, &cookie->data)) != 0) {
+	else if((ret = __os_malloc(env, pgcookie->size, &cookie->data)) != 0) {
 		__os_free(env, cookie);
 		return ret;
 	}
-	memcpy(cookie->data, pgcookie->data, pgcookie->size);
-	cookie->size = pgcookie->size;
-	dbmfp->pgcookie = cookie;
-	return 0;
+	else {
+		memcpy(cookie->data, pgcookie->data, pgcookie->size);
+		cookie->size = pgcookie->size;
+		dbmfp->pgcookie = cookie;
+		return 0;
+	}
 }
 /*
  * __memp_get_priority --
@@ -335,24 +336,14 @@ int __memp_set_pgcookie(DB_MPOOLFILE * dbmfp, DBT * pgcookie)
 int __memp_get_priority(DB_MPOOLFILE * dbmfp, DB_CACHE_PRIORITY * priorityp)
 {
 	switch(dbmfp->priority) {
-	    case MPOOL_PRI_VERY_LOW:
-		*priorityp = DB_PRIORITY_VERY_LOW;
-		break;
-	    case MPOOL_PRI_LOW:
-		*priorityp = DB_PRIORITY_LOW;
-		break;
-	    case MPOOL_PRI_DEFAULT:
-		*priorityp = DB_PRIORITY_DEFAULT;
-		break;
-	    case MPOOL_PRI_HIGH:
-		*priorityp = DB_PRIORITY_HIGH;
-		break;
-	    case MPOOL_PRI_VERY_HIGH:
-		*priorityp = DB_PRIORITY_VERY_HIGH;
-		break;
+	    case MPOOL_PRI_VERY_LOW: *priorityp = DB_PRIORITY_VERY_LOW; break;
+	    case MPOOL_PRI_LOW: *priorityp = DB_PRIORITY_LOW; break;
+	    case MPOOL_PRI_DEFAULT: *priorityp = DB_PRIORITY_DEFAULT; break;
+	    case MPOOL_PRI_HIGH: *priorityp = DB_PRIORITY_HIGH; break;
+	    case MPOOL_PRI_VERY_HIGH: *priorityp = DB_PRIORITY_VERY_HIGH; break;
 	    default:
-		__db_errx(dbmfp->env, DB_STR_A("3031", "DB_MPOOLFILE->get_priority: unknown priority value: %d", "%d"), dbmfp->priority);
-		return EINVAL;
+			__db_errx(dbmfp->env, DB_STR_A("3031", "DB_MPOOLFILE->get_priority: unknown priority value: %d", "%d"), dbmfp->priority);
+			return EINVAL;
 	}
 	return 0;
 }
@@ -363,27 +354,17 @@ int __memp_get_priority(DB_MPOOLFILE * dbmfp, DB_CACHE_PRIORITY * priorityp)
 static int __memp_set_priority(DB_MPOOLFILE * dbmfp, DB_CACHE_PRIORITY priority)
 {
 	switch(priority) {
-	    case DB_PRIORITY_VERY_LOW:
-		dbmfp->priority = MPOOL_PRI_VERY_LOW;
-		break;
-	    case DB_PRIORITY_LOW:
-		dbmfp->priority = MPOOL_PRI_LOW;
-		break;
-	    case DB_PRIORITY_DEFAULT:
-		dbmfp->priority = MPOOL_PRI_DEFAULT;
-		break;
-	    case DB_PRIORITY_HIGH:
-		dbmfp->priority = MPOOL_PRI_HIGH;
-		break;
-	    case DB_PRIORITY_VERY_HIGH:
-		dbmfp->priority = MPOOL_PRI_VERY_HIGH;
-		break;
+	    case DB_PRIORITY_VERY_LOW: dbmfp->priority = MPOOL_PRI_VERY_LOW; break;
+	    case DB_PRIORITY_LOW: dbmfp->priority = MPOOL_PRI_LOW; break;
+	    case DB_PRIORITY_DEFAULT: dbmfp->priority = MPOOL_PRI_DEFAULT; break;
+	    case DB_PRIORITY_HIGH: dbmfp->priority = MPOOL_PRI_HIGH; break;
+	    case DB_PRIORITY_VERY_HIGH: dbmfp->priority = MPOOL_PRI_VERY_HIGH; break;
 	    default:
-		__db_errx(dbmfp->env, DB_STR_A("3032", "DB_MPOOLFILE->set_priority: unknown priority value: %d", "%d"), priority);
-		return EINVAL;
+			__db_errx(dbmfp->env, DB_STR_A("3032", "DB_MPOOLFILE->set_priority: unknown priority value: %d", "%d"), priority);
+			return EINVAL;
 	}
-	/* Update the underlying file if we've already opened it. */
-	if(dbmfp->mfp != NULL)
+	// Update the underlying file if we've already opened it.
+	if(dbmfp->mfp)
 		dbmfp->mfp->priority = dbmfp->priority;
 	return 0;
 }
@@ -439,7 +420,5 @@ char * __memp_fn(DB_MPOOLFILE * dbmfp)
  */
 char * __memp_fns(DB_MPOOL * dbmp, MPOOLFILE * mfp)
 {
-	if(mfp == NULL || mfp->path_off == 0)
-		return (char *)"unknown";
-	return (char *)R_ADDR(dbmp->reginfo, mfp->path_off);
+	return (mfp == NULL || mfp->path_off == 0) ? (char *)"unknown" : (char *)R_ADDR(dbmp->reginfo, mfp->path_off);
 }

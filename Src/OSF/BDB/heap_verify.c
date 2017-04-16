@@ -243,7 +243,7 @@ int __heap_salvage(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, PAGE * h, void *
 	db_indx_t i, * offtbl;
 	int err_ret, ret, t_ret;
 	COMPQUIET(flags, 0);
-	memzero(&dbt, sizeof(DBT));
+	// (replaced by ctr) memzero(&dbt, sizeof(DBT));
 	offtbl = (db_indx_t *)HEAP_OFFSETTBL(dbp, h);
 	err_ret = ret = t_ret = 0;
 	/*

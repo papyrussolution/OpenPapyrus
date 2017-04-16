@@ -486,12 +486,9 @@ int __qam_salvage(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, PAGE * h, void * 
 	int ret, err_ret, t_ret;
 	uint32 pagesize, qlen;
 	uint32 i;
-
-	memzero(&dbt, sizeof(DBT));
-	memzero(&key, sizeof(DBT));
-
+	// (replaced by ctr) memzero(&dbt, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
 	err_ret = ret = 0;
-
 	pagesize = (uint32)dbp->mpf->mfp->pagesize;
 	qlen = ((QUEUE *)dbp->q_internal)->re_len;
 	dbt.size = qlen;
@@ -500,8 +497,7 @@ int __qam_salvage(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, PAGE * h, void * 
 	recno = (pgno-1)*QAM_RECNO_PER_PAGE(dbp)+1;
 	i = 0;
 	qep = (QAMDATA *)((uint8 *)h+pagesize-qlen);
-	for(qp = QAM_GET_RECORD(dbp, h, i); qp < qep;
-	    recno++, i++, qp = QAM_GET_RECORD(dbp, h, i)) {
+	for(qp = QAM_GET_RECORD(dbp, h, i); qp < qep; recno++, i++, qp = QAM_GET_RECORD(dbp, h, i)) {
 		if(F_ISSET(qp, ~(QAM_VALID|QAM_SET)))
 			continue;
 		if(!F_ISSET(qp, QAM_SET))

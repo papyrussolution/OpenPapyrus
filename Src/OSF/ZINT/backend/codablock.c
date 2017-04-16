@@ -134,7 +134,7 @@ void CreateCharacterSetTable(CharacterSetTable T[], uchar * data, int dataLength
 				if(T[runChar].CharacterSet==ZTFNC1)
 					/* FNC1 */
 					++(T[charCur].CFollowing);
-				else{
+				else {
 					++runChar;
 					if(runChar>=dataLength)
 						break;
@@ -264,14 +264,14 @@ int Columns2Rows(CharacterSetTable * T, uchar * data, int dataLength, int * pRow
 								    pSet[charCur-1] |= CEnd+CFill;
 								    emptyColumns = 0;
 							    }
-							    else{
+							    else {
 								    /* <Shift> or <switchB>? */
 								    pSet[charCur] |= (T[charCur].BFollowing==1) ? CShift : CodeB;
 								    emptyColumns -= 2;
 								    ++charCur;
 							    }
 						    }
-						    else{
+						    else {
 							    --emptyColumns;
 							    ++charCur;
 						    }
@@ -291,7 +291,7 @@ int Columns2Rows(CharacterSetTable * T, uchar * data, int dataLength, int * pRow
 								    ++charCur;
 							    }
 						    }
-						    else{
+						    else {
 							    --emptyColumns;
 							    ++charCur;
 						    }
@@ -302,14 +302,14 @@ int Columns2Rows(CharacterSetTable * T, uchar * data, int dataLength, int * pRow
 						    charCur += (T[charCur].CharacterSet==ZTFNC1) ? 1 : 2;
 						    emptyColumns--;
 					    }
-					    else{
+					    else {
 						    /* Must change to A or B */
 						    if(emptyColumns==1) {
 							    /* Can't switch: */
 							    pSet[charCur-1] |= CEnd+CFill;
 							    emptyColumns = 0;
 						    }
-						    else{
+						    else {
 							    /*<SwitchA> or <switchA>?*/
 							    characterSetCur = pSet[charCur] =
 							    (T[charCur].AFollowing > T[charCur].BFollowing)
@@ -334,7 +334,7 @@ int Columns2Rows(CharacterSetTable * T, uchar * data, int dataLength, int * pRow
 					rowsCur = 0;
 					memzero(pSet, dataLength*sizeof(int));
 				}
-				else{
+				else {
 					/* Calculate real Length of OneLiner */
 					/* This is -2 BASED !!! */
 					useColumns -= emptyColumns;
@@ -345,7 +345,7 @@ int Columns2Rows(CharacterSetTable * T, uchar * data, int dataLength, int * pRow
 		/* Place check characters C1,C2 */
 		if(fOneLiner)
 			fillings = 0;
-		else{
+		else {
 			switch(emptyColumns) {
 				case 1:
 				    pSet[charCur-1] |= CFill;
@@ -758,14 +758,14 @@ int codablock(struct ZintSymbol * symbol, uchar source[], int length)
 					A2C128_C(&pOutPos, aCodeB, '\0');
 					characterSetCur = CodeB;
 				}
-				else{
+				else {
 					A2C128_B(&pOutPos, aCodeC);
 					characterSetCur = CodeC;
 				}
 				--emptyColumns;
 			}
 		}
-		else{
+		else {
 			/* >> Normal Line */
 			/* > Startcode */
 			switch(pSet[charCur] & (CodeA+CodeB+CodeC)) {
@@ -853,12 +853,12 @@ int codablock(struct ZintSymbol * symbol, uchar source[], int length)
 					ASCIIZ128(&pOutPos, characterSetCur, data[charCur], '\0');
 					characterSetCur = (characterSetCur==CodeB) ? CodeA : CodeB;
 				}
-				else{
+				else {
 					/* Normal Character */
 					if(characterSetCur==CodeC) {
 						if(data[charCur]==aFNC1)
 							A2C128_C(&pOutPos, aFNC1, '\0');
-						else{
+						else {
 							A2C128_C(&pOutPos, data[charCur], data[charCur+1]);
 							++charCur;
 							/* We need this here to get the good index */

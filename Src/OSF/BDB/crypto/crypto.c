@@ -104,7 +104,6 @@ int __crypto_region_init(ENV * env)
 	__os_free(env, dbenv->passwd);
 	dbenv->passwd = NULL;
 	dbenv->passwd_len = 0;
-
 	return ret;
 }
 /*

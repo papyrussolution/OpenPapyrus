@@ -288,7 +288,7 @@ void DBDivDialog::updateList()
 				break;
 			}
 		}
-		p_list->drawView();
+		p_list->Draw_();
 	}
 }
 

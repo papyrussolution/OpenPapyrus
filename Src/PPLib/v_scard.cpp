@@ -516,8 +516,8 @@ int SLAPI PPViewSCard::CheckForFilt(const SCardTbl::Rec * pRec, PreprocessScRecB
 		THROW(pRec->PDis >= Filt.MinPDis);
 		THROW(Filt.MaxPDis <= 0 || pRec->PDis <= Filt.MaxPDis)
 	}
-	THROW(!pRec->Dt || Filt.IssuePeriod.CheckDate(pRec->Dt));
-	THROW(!pRec->Expiry || Filt.ExpiryPeriod.CheckDate(pRec->Expiry));
+	THROW(/*!pRec->Dt ||*/ Filt.IssuePeriod.CheckDate(pRec->Dt)); // @v9.6.2 @fix /**/
+	THROW(/*!pRec->Expiry ||*/ Filt.ExpiryPeriod.CheckDate(pRec->Expiry)); // @v9.6.2 @fix /**/
 	THROW(!ExcludeOwnerList.IsExists() || !ExcludeOwnerList.CheckID(pRec->PersonID));
 	{
 		size_t ss_len = Filt.Number.Len();
@@ -1079,7 +1079,7 @@ int SLAPI Helper_EditSCardFilt(SCardFilt * pFilt, int cascade)
 {
 	int    ok = -1;
 	SCardFiltDialog * dlg = new SCardFiltDialog;
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		if(cascade)
 			dlg->ToCascade();
 		if(dlg->setDTS(pFilt)) {
@@ -1120,7 +1120,7 @@ int SLAPI PPViewSCard::DeleteItem(PPID id)
 			RemoveAllParam param;
 			param.Action = RemoveAllParam::aMoveToGroup;
 			param.DestGrpID = 0;
-			if(CheckDialogPtr(&(p_dlg = new RemoveAllDialog(DLG_SCARDRMVALL)), 1) > 0) {
+			if(CheckDialogPtrErr(&(p_dlg = new RemoveAllDialog(DLG_SCARDRMVALL))) > 0) {
 				p_dlg->setDTS(&param);
 				while(!valid_data && ExecView(p_dlg) == cmOK) {
 					if(p_dlg->getDTS(&param))
@@ -1272,7 +1272,7 @@ static int SLAPI EditChargeCreditParam(int enableUhttSync, SCardChrgCrdParam * p
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_SCCHRGCRD);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		ushort v = 0;
 		dlg->SetupCalDate(CTLCAL_SCCHRGCRD_DATE, CTL_SCCHRGCRD_DATE);
 		dlg->setCtrlData(CTL_SCCHRGCRD_DATE, &pData->Dt);
@@ -1508,7 +1508,7 @@ int SLAPI PPViewSCard::ReplaceCardInChecks(PPID destCardID)
 	THROW(SCObj.CheckRights(SCRDRT_BINDING));
 	if(SCObj.Search(destCardID, &dest_card_rec) > 0 && !SCObj.IsCreditSeries(dest_card_rec.SeriesID)) {
 		CCheckCore & r_cc = *SCObj.P_CcTbl;
-		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_REPLCARD)), 0));
+		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_REPLCARD))));
 		dlg->setCtrlData(CTL_REPLCARD_DESTCARD, dest_card_rec.Code);
 		dlg->setCtrlData(CTL_REPLCARD_SRCCARD, src_card_rec.Code);
 		dlg->disableCtrl(CTL_REPLCARD_DESTCARD, 1);
@@ -1826,7 +1826,7 @@ int SLAPI EditSCardFlags(long * pSetFlags, long * pResetFlags)
 	int    ok = -1, valid_data = 0;
 	SCardFlagsDialog * dlg = new SCardFlagsDialog();
 	THROW_MEM(dlg);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	while(!valid_data && ExecView(dlg) == cmOK)
 		if(dlg->getDTS(pSetFlags, pResetFlags))
 			ok = valid_data = 1;
@@ -1905,8 +1905,10 @@ int SCardSelPrcssrDlg::setDTS(const SCardSelPrcssrParam * pData)
 	SetClusterData(CTL_FLTSCARDCHNG_FR, Data.FlagsReset);
 
 	setCtrlData(CTL_FLTSCARDCHNG_DTEND, &Data.DtEnd);
+	AddClusterAssoc(CTL_FLTSCARDCHNG_ZEXPIRY, 0, SCardSelPrcssrParam::fZeroExpiry); // @v9.6.2
+	SetClusterData(CTL_FLTSCARDCHNG_ZEXPIRY, Data.Flags); // @v9.6.2
 	SetupPPObjCombo(this, CTLSEL_FLTSCARDCHNG_SER, PPOBJ_SCARDSERIES, Data.NewSerID, 0, 0);
-	SetupPPObjCombo(this, CTLSEL_FLTSCARDCHNG_AG,  PPOBJ_GOODS, Data.AutoGoodsID, OLW_CANINSERT|OLW_LOADDEFONOPEN, 0); // @v7.7.0
+	SetupPPObjCombo(this, CTLSEL_FLTSCARDCHNG_AG,  PPOBJ_GOODS, Data.AutoGoodsID, OLW_CANINSERT|OLW_LOADDEFONOPEN, 0);
 
 	SetupStringCombo(this, CTLSEL_FLTSCARDCHNG_PRD, PPTXT_CYCLELIST, Data.PeriodTerm);
 	setCtrlUInt16(CTL_FLTSCARDCHNG_PRDC, Data.PeriodCount);
@@ -1928,9 +1930,11 @@ int SCardSelPrcssrDlg::getDTS(SCardSelPrcssrParam * pData)
 
  	getCtrlData(sel = CTL_FLTSCARDCHNG_DTEND, &Data.DtEnd);
  	THROW_SL(checkdate(Data.DtEnd, 1));
+	GetClusterData(CTL_FLTSCARDCHNG_ZEXPIRY, &Data.Flags); // @v9.6.2
+
  	sel = CTL_FLTSCARDCHNG_FLAGS;
  	getCtrlData(CTLSEL_FLTSCARDCHNG_SER, &Data.NewSerID);
-	getCtrlData(CTLSEL_FLTSCARDCHNG_AG, &Data.AutoGoodsID); // @v7.7.0
+	getCtrlData(CTLSEL_FLTSCARDCHNG_AG, &Data.AutoGoodsID);
 
 	Data.PeriodTerm = (int16)getCtrlLong(CTLSEL_FLTSCARDCHNG_PRD);
 	Data.PeriodCount = (int16)getCtrlUInt16(CTL_FLTSCARDCHNG_PRDC);
@@ -1960,6 +1964,10 @@ IMPL_HANDLE_EVENT(SCardSelPrcssrDlg)
 		GetClusterData(CTL_FLTSCARDCHNG_ZDSCNT, &Data.Flags);
 		disableCtrl(CTL_FLTSCARDCHNG_DSCNT, BIN(Data.Flags & SCardSelPrcssrParam::fZeroDiscount));
 	}
+	else if(event.isClusterClk(CTL_FLTSCARDCHNG_ZEXPIRY)) {
+		GetClusterData(CTL_FLTSCARDCHNG_ZEXPIRY, &Data.Flags);
+		disableCtrl(CTL_FLTSCARDCHNG_DTEND, BIN(Data.Flags & SCardSelPrcssrParam::fZeroExpiry));
+	}
 	else
 		return;
 	clearEvent(event);
@@ -1981,7 +1989,7 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 			THROW(Init_(&param.SelFilt));
 	}
 	else {
-		THROW(CheckDialogPtr(&(dlg = new SCardSelPrcssrDlg(this, 0)), 0));
+		THROW(CheckDialogPtr(&(dlg = new SCardSelPrcssrDlg(this, 0))));
 		dlg->setDTS(&param);
 		while(!valid_data && ExecView(dlg) == cmOK)
 			if(dlg->getDTS(&param) > 0)
@@ -2056,8 +2064,11 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 							upd_discount = 1;
 						}
 					}
-					if(param.DtEnd && rec.Expiry != param.DtEnd) {
-						rec.Expiry = param.DtEnd;
+					if((param.DtEnd && rec.Expiry != param.DtEnd) || (param.Flags & param.fZeroExpiry && rec.Expiry)) {
+						if(param.Flags & param.fZeroExpiry)
+							rec.Expiry = ZERODATE;
+						else
+							rec.Expiry = param.DtEnd;
 						rec.Flags &= ~SCRDF_INHERITED; // ‘орсированно снимаем признак наследовани€ //
 						upd = 1;
 					}
@@ -2271,7 +2282,7 @@ int SLAPI PPViewSCard::ViewTotal()
 	}
 	PPWait(0);
 	TDialog * dlg = new TDialog(DLG_SCARDTOTAL);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setCtrlLong(CTL_SCARDTOTAL_COUNT, total.Count);
 		dlg->setCtrlReal(CTL_SCARDTOTAL_TRNOVR, total.Turnover);
 		ok = ExecViewAndDestroy(dlg);
@@ -2606,7 +2617,7 @@ static int SLAPI EditSCardOp(SCardCore::OpBlock & rBlk)
 	};
 	int    ok = -1;
 	SCardOpDialog * dlg = new SCardOpDialog(BIN(rBlk.Flags & rBlk.fFreezing));
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(&rBlk);
 		if(rBlk.Flags & rBlk.fEdit && !(rBlk.Flags & rBlk.fFreezing))
 			DisableOKButton(dlg);

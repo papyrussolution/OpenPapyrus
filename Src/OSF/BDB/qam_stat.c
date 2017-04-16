@@ -26,8 +26,6 @@
  */
 int __qam_stat(DBC*dbc, void * spp, uint32 flags)
 {
-	DB * dbp;
-	DB_LOCK lock;
 	DB_MPOOLFILE * mpf;
 	DB_QUEUE_STAT * sp;
 	PAGE * h;
@@ -38,9 +36,8 @@ int __qam_stat(DBC*dbc, void * spp, uint32 flags)
 	db_pgno_t first, last, pgno, pg_ext, stop;
 	uint32 re_len;
 	int ret, t_ret;
-
-	dbp = dbc->dbp;
-
+	DB * dbp = dbc->dbp;
+	DB_LOCK lock;
 	LOCK_INIT(lock);
 	mpf = dbp->mpf;
 	sp = NULL;
@@ -51,13 +48,11 @@ int __qam_stat(DBC*dbc, void * spp, uint32 flags)
 	if((ret = __os_umalloc(dbp->env, sizeof(*sp), &sp)) != 0)
 		goto err;
 	memzero(sp, sizeof(*sp));
-
 	re_len = ((QUEUE *)dbp->q_internal)->re_len;
 	/* Determine the last page of the database. */
 	if((ret = __db_lget(dbc, 0, t->q_meta, DB_LOCK_READ, 0, &lock)) != 0)
 		goto err;
-	if((ret = __memp_fget(mpf, &t->q_meta,
-		    dbc->thread_info, dbc->txn, 0, &meta)) != 0)
+	if((ret = __memp_fget(mpf, &t->q_meta, dbc->thread_info, dbc->txn, 0, &meta)) != 0)
 		goto err;
 	if(flags == DB_FAST_STAT) {
 		sp->qs_nkeys = meta->dbmeta.key_count;
@@ -161,7 +156,7 @@ meta_only:
 	*(DB_QUEUE_STAT **)spp = sp;
 	if(0) {
 err:            
-		if(sp != NULL)
+		if(sp)
 			__os_ufree(dbp->env, sp);
 	}
 	if((t_ret = __LPUT(dbc, lock)) != 0 && ret == 0)
@@ -196,8 +191,7 @@ int __qam_stat_print(DBC*dbc, uint32 flags)
 	__db_dl(env, "Number of records in the database", (ulong)sp->qs_nkeys);
 	__db_dl(env, "Number of data items in the database", (ulong)sp->qs_ndata);
 	__db_dl(env, "Number of database pages", (ulong)sp->qs_pages);
-	__db_dl_pct(env, "Number of bytes free in database pages", (ulong)sp->qs_pgfree,
-		DB_PCT_PG(sp->qs_pgfree, sp->qs_pages, sp->qs_pagesize), "ff");
+	__db_dl_pct(env, "Number of bytes free in database pages", (ulong)sp->qs_pgfree, DB_PCT_PG(sp->qs_pgfree, sp->qs_pages, sp->qs_pagesize), "ff");
 	__db_msg(env, "%lu\tFirst undeleted record", (ulong)sp->qs_first_recno);
 	__db_msg(env, "%lu\tNext available record number", (ulong)sp->qs_cur_recno);
 	__os_ufree(env, sp);

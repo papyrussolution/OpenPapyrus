@@ -3955,13 +3955,13 @@ int SLAPI PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSec
 					break;
 				case JSON_STRING:
 					if(p_cur->text && p_cur->child) {
-						if(stricmp(p_cur->text, "access_token") == 0) {
+						if(sstreqi_ascii(p_cur->text, "access_token")) {
 							(Token = p_cur->child->text).Unescape();
 							AuthTime = getcurdatetime_();
 							AuthName = pIdent;
 							AuthSecret = pSecret;
 						}
-						else if(stricmp(p_cur->text, "expires_in") == 0) {
+						else if(sstreqi_ascii(p_cur->text, "expires_in")) {
 							ExpirySec = (temp_buf = p_cur->child->text).Unescape().ToLong();
 						}
 					}
@@ -6104,7 +6104,7 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt)
 								//static int Test_TranslateFile(const char * pSrcFileName, const char * pDestFileName, const SCodepageMapPool::TranslIndex & rIdx)
 								if((oneof2(map.Id, cp1251, cp866) || (map.Code == "KOI8_R")) && (oneof2(map2.Id, cp1251, cp866) || (map2.Code == "KOI8_R"))) {
 									{
-										_TestTranslIndexEntry * p_new_tti = test_tidx_list.CreateNewItem(0);
+										_TestTranslIndexEntry * p_new_tti = test_tidx_list.CreateNewItem();
 										THROW_SL(p_new_tti);
 										p_new_tti->SrcCpIdx = cpidx;
 										p_new_tti->DestCpIdx = cpj;

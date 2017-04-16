@@ -92,11 +92,8 @@ static int message_loop(ENV*env, REPMGR_RUNNABLE * th)
 		    case REPMGR_REP_MESSAGE:
 			if(membership != SITE_PRESENT)
 				break;
-			while((ret = process_message(env,
-				       &msg->v.repmsg.control, &msg->v.repmsg.rec,
-				       msg->v.repmsg.originating_eid)) == DB_LOCK_DEADLOCK)
-				RPRINT(env, (env, DB_VERB_REPMGR_MISC,
-					     "repmgr deadlock retry"));
+			while((ret = process_message(env, (DBT *)&msg->v.repmsg.control, (DBT *)&msg->v.repmsg.rec, msg->v.repmsg.originating_eid)) == DB_LOCK_DEADLOCK)
+				RPRINT(env, (env, DB_VERB_REPMGR_MISC, "repmgr deadlock retry"));
 			break;
 		    case REPMGR_APP_MESSAGE:
 			ret = dispatch_app_message(env, msg);
@@ -155,7 +152,7 @@ out:
 	return ret;
 }
 
-static int dispatch_app_message(ENV*env, REPMGR_MESSAGE * msg)
+static int dispatch_app_message(ENV * env, REPMGR_MESSAGE * msg)
 {
 	DB_REP * db_rep;
 	DB_CHANNEL db_channel;
@@ -199,7 +196,7 @@ static int dispatch_app_message(ENV*env, REPMGR_MESSAGE * msg)
 	 * (See the definition of DB_MULTIPLE_INIT for a reminder of the format
 	 * of a bulk buffer.)
 	 */
-	dbt = &msg->v.appmsg.buf;
+	dbt = (DBT *)&msg->v.appmsg.buf;
 	data = (uint8 *)dbt->data;
 	dbt->size -= __REPMGR_MSG_METADATA_SIZE;
 	ret = __repmgr_msg_metadata_unmarshal(env, &meta, &data[dbt->size], __REPMGR_MSG_METADATA_SIZE, NULL);
@@ -207,7 +204,7 @@ static int dispatch_app_message(ENV*env, REPMGR_MESSAGE * msg)
 	dbt->ulen = dbt->size;
 	DB_MULTIPLE_INIT(ptr, dbt);
 	for(i = 0; i < APP_MSG_SEGMENT_COUNT(msg->msg_hdr); i++) {
-		segment = &msg->v.appmsg.segments[i];
+		segment = (DBT *)&msg->v.appmsg.segments[i];
 		uiptr = (uint32 *)ptr;
 		*uiptr = ntohl(*uiptr);
 		uiptr[-1] = ntohl(uiptr[-1]);
@@ -223,7 +220,7 @@ static int dispatch_app_message(ENV*env, REPMGR_MESSAGE * msg)
 		else
 			return 0;
 	}
-	(*db_rep->msg_dispatch)(env->dbenv, &db_channel, &msg->v.appmsg.segments[0], APP_MSG_SEGMENT_COUNT(msg->msg_hdr), flags);
+	(*db_rep->msg_dispatch)(env->dbenv, &db_channel, (DBT *)&msg->v.appmsg.segments[0], APP_MSG_SEGMENT_COUNT(msg->msg_hdr), flags);
 	if(F_ISSET(channel.meta, REPMGR_REQUEST_MSG_TYPE) && !channel.responded) {
 		__db_errx(env, DB_STR("3671", "Application failed to provide a response"));
 		return __repmgr_send_err_resp(env, &channel, DB_KEYEMPTY);
@@ -541,7 +538,7 @@ static int serve_repmgr_request(ENV*env, REPMGR_MESSAGE * msg)
 		ret = resolve_limbo_wrapper(env, ip);
 		break;
 	    case REPMGR_SHARING:
-		dbt = &msg->v.gmdb_msg.request;
+		dbt = (DBT *)&msg->v.gmdb_msg.request;
 		ret = __repmgr_refresh_membership(env, (uint8 *)dbt->data, dbt->size);
 		break;
 	    default:
@@ -576,7 +573,7 @@ static int serve_join_request(ENV*env, DB_THREAD_INFO * ip, REPMGR_MESSAGE * msg
 	db_rep = env->rep_handle;
 	COMPQUIET(status, 0);
 	conn = msg->v.gmdb_msg.conn;
-	dbt = &msg->v.gmdb_msg.request;
+	dbt = (DBT *)&msg->v.gmdb_msg.request;
 	ret = __repmgr_site_info_unmarshal(env, &site_info, (uint8 *)dbt->data, dbt->size, NULL);
 	host = (char *)site_info.host.data;
 	host[site_info.host.size-1] = '\0';
@@ -640,7 +637,7 @@ static int serve_remove_request(ENV*env, DB_THREAD_INFO * ip, REPMGR_MESSAGE * m
 	COMPQUIET(status, 0);
 	db_rep = env->rep_handle;
 	conn = msg->v.gmdb_msg.conn;
-	dbt = &msg->v.gmdb_msg.request;
+	dbt = (DBT *)&msg->v.gmdb_msg.request;
 	ret = __repmgr_site_info_unmarshal(env, &site_info, (uint8 *)dbt->data, dbt->size, NULL);
 	host = (char *)site_info.host.data;
 	host[site_info.host.size-1] = '\0';

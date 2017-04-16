@@ -302,6 +302,8 @@ struct DesktopAssocCmdPool_Strg {
 	SVerT Ver;
 };
 
+#define COMMON_DESKCMDASSOC 100000L
+
 int PPDesktopAssocCmdPool::WriteToProp(int use_ta)
 {
 	int    ok = 1;
@@ -1423,7 +1425,7 @@ int PPDesktop::WaitCommand()
 	SString addendum;
 	WaitCmdDialog * p_dlg = 0;
 	MEMSZERO(cmd);
-	THROW(CheckDialogPtr(&(p_dlg = new WaitCmdDialog(P_ActiveDesktop->ID)), 0));
+	THROW(CheckDialogPtr(&(p_dlg = new WaitCmdDialog(P_ActiveDesktop->ID))));
 	while(ok < 0 && ExecView(p_dlg) == cmOK) {
 		if(p_dlg->getDTS(&cmd, &addendum) > 0)
 			ok = 1;
@@ -2204,7 +2206,7 @@ int PPDesktop::Open(long desktopID, int createIfZero)
 		THROW_MEM(p_v = new PPDesktop());
 		r = p_v->Init(desktopID);
 		if(r > 0) {
-			APPL->P_DeskTop->insert(p_v);
+			APPL->P_DeskTop->Insert_(p_v);
 			ok = p_v->insert();
 		}
 	}
@@ -2215,7 +2217,7 @@ int PPDesktop::Open(long desktopID, int createIfZero)
 			THROW_MEM(p_v = new PPDesktop());
 			DS.GetTLA().Lc.DesktopID = desktopID;
 			THROW(p_v->Init(desktopID));
-			APPL->P_DeskTop->insert(p_v);
+			APPL->P_DeskTop->Insert_(p_v);
 			ok = p_v->insert();
 		}
 		else

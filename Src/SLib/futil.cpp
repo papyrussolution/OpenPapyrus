@@ -484,7 +484,7 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SCopy
 	scfd.ExtraParam = pExtra;
 	if(pp && !quite) {
 		reply = pp(&scfd);
-		if(reply == SPRGRS_CANCEL || reply == SPRGRS_STOP)
+		if(oneof2(reply, SPRGRS_CANCEL, SPRGRS_STOP))
 			cancel = 1;
 		else if(reply == SPRGRS_QUITE)
 			quite = 1;
@@ -513,7 +513,7 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SCopy
 			if(pp && !quite) {
 				scfd.TransferredBytes += len;
 				reply = pp(&scfd);
-				if(reply == SPRGRS_CANCEL || reply == SPRGRS_STOP)
+				if(oneof2(reply, SPRGRS_CANCEL, SPRGRS_STOP))
 					cancel = 1;
 				else if(reply == SPRGRS_QUITE)
 					quite = 1;

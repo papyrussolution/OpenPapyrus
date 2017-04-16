@@ -17,8 +17,8 @@
 // @v9.5.5 #include "dbinc/db_am.h"
 // @v9.5.5 #include "dbinc/txn.h"
 
-static void __db_msgcall __P((const DB_ENV*, const char *, va_list));
-static void __db_msgfile __P((const DB_ENV*, const char *, va_list));
+static void __db_msgcall(const DB_ENV*, const char *, va_list);
+static void __db_msgfile(const DB_ENV*, const char *, va_list);
 
 /*
  * __db_fchk --
@@ -328,8 +328,7 @@ void __db_errcall(const DB_ENV*dbenv, int error, db_error_set_t error_set, const
 	if(fmt != NULL)
 		p += vsnprintf(buf, sizeof(buf), fmt, ap);
 	if(error_set != DB_ERROR_NOT_SET)
-		p += snprintf(p, sizeof(buf)-(size_t)(p-buf), ": %s", error_set == DB_ERROR_SET ?
-			db_strerror(error) : __os_strerror(error, sysbuf, sizeof(sysbuf)));
+		p += snprintf(p, sizeof(buf)-(size_t)(p-buf), ": %s", error_set == DB_ERROR_SET ? db_strerror(error) : __os_strerror(error, sysbuf, sizeof(sysbuf)));
 	dbenv->db_errcall(dbenv, dbenv->db_errpfx, buf);
 }
 
@@ -343,21 +342,20 @@ void __db_errcall(const DB_ENV*dbenv, int error, db_error_set_t error_set, const
 void __db_errfile(const DB_ENV*dbenv, int error, db_error_set_t error_set, const char * fmt, va_list ap)
 {
 	char sysbuf[1024];      /* !!!: END OF THE STACK DON'T TRUST SPRINTF. */
-	FILE * fp = dbenv == NULL || dbenv->db_errfile == NULL ? stderr : dbenv->db_errfile;
+	FILE * fp = (!dbenv || !dbenv->db_errfile) ? stderr : dbenv->db_errfile;
 	int need_sep = 0;
-	if(dbenv != NULL && dbenv->db_errpfx != NULL) {
+	if(dbenv && dbenv->db_errpfx) {
 		fprintf(fp, "%s", dbenv->db_errpfx);
 		need_sep = 1;
 	}
-	if(fmt != NULL && fmt[0] != '\0') {
+	if(!isempty(fmt)) {
 		if(need_sep)
 			fprintf(fp, ": ");
 		need_sep = 1;
 		vfprintf(fp, fmt, ap);
 	}
 	if(error_set != DB_ERROR_NOT_SET)
-		fprintf(fp, "%s%s", need_sep ? ": " : "", error_set == DB_ERROR_SET ?
-			db_strerror(error) : __os_strerror(error, sysbuf, sizeof(sysbuf)));
+		fprintf(fp, "%s%s", need_sep ? ": " : "", error_set == DB_ERROR_SET ? db_strerror(error) : __os_strerror(error, sysbuf, sizeof(sysbuf)));
 	fprintf(fp, "\n");
 	fflush(fp);
 }
@@ -575,14 +573,14 @@ int __db_check_txn(DB * dbp, DB_TXN * txn, DB_LOCKER * assoc_locker, int read_op
 	 * the secondary in another transaction (presumably by updating the
 	 * primary).
 	 */
-	if(!read_op && dbp->associate_locker != NULL && txn != NULL && dbp->associate_locker != assoc_locker) {
+	if(!read_op && dbp->associate_locker && txn && dbp->associate_locker != assoc_locker) {
 		__db_errx(env, DB_STR("0099", "Operation forbidden while secondary index is being created"));
 		return EINVAL;
 	}
 	/*
 	 * Check the txn and dbp are from the same env.
 	 */
-	if(txn != NULL && env != txn->mgrp->env) {
+	if(txn && env != txn->mgrp->env) {
 		__db_errx(env, DB_STR("0100", "Transaction and database from different environments"));
 		return EINVAL;
 	}
@@ -627,9 +625,7 @@ int __db_not_txn_env(ENV * env)
  */
 int __db_rec_toobig(ENV * env, uint32 data_len, uint32 fixed_rec_len)
 {
-	__db_errx(env, DB_STR_A("0104",
-		"%lu larger than database's maximum record length %lu",
-		"%lu %lu"), (ulong)data_len, (ulong)fixed_rec_len);
+	__db_errx(env, DB_STR_A("0104", "%lu larger than database's maximum record length %lu", "%lu %lu"), (ulong)data_len, (ulong)fixed_rec_len);
 	return EINVAL;
 }
 
@@ -641,9 +637,7 @@ int __db_rec_toobig(ENV * env, uint32 data_len, uint32 fixed_rec_len)
  */
 int __db_rec_repl(ENV * env, uint32 data_size, uint32 data_dlen)
 {
-	__db_errx(env, DB_STR_A("0105", "Record length error: "
-		"replacement length %lu differs from replaced length %lu",
-		"%lu %lu"), (ulong)data_size, (ulong)data_dlen);
+	__db_errx(env, DB_STR_A("0105", "Record length error: replacement length %lu differs from replaced length %lu", "%lu %lu"), (ulong)data_size, (ulong)data_dlen);
 	return EINVAL;
 }
 

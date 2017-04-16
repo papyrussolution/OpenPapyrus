@@ -485,13 +485,9 @@ typedef struct _qpage {
  * a second hot spot in trees being actively modified, or recalculate it from
  * the BINTERNAL fields on each access.)  Overload the PREV_PGNO field.
  */
-#define	RE_NREC(p)							\
-	((TYPE(p) == P_IBTREE || TYPE(p) == P_IRECNO) ?	PREV_PGNO(p) :	\
-	(db_pgno_t)(TYPE(p) == P_LBTREE ? NUM_ENT(p) / 2 : NUM_ENT(p)))
-#define	RE_NREC_ADJ(p, adj)						\
-	PREV_PGNO(p) += adj;
-#define	RE_NREC_SET(p, num)						\
-	PREV_PGNO(p) = (num);
+#define	RE_NREC(p)          ((TYPE(p) == P_IBTREE || TYPE(p) == P_IRECNO) ? PREV_PGNO(p) : (db_pgno_t)(TYPE(p) == P_LBTREE ? NUM_ENT(p) / 2 : NUM_ENT(p)))
+#define	RE_NREC_ADJ(p, adj) PREV_PGNO(p) += adj;
+#define	RE_NREC_SET(p, num) PREV_PGNO(p) = (num);
 
 /*
  * Initialize a page.
@@ -597,21 +593,14 @@ typedef struct _hkeydata {
  * The length of any HKEYDATA item. Note that indx is an element index,
  * not a PAIR index.
  */
-#define	LEN_HITEM(dbp, pg, pgsize, indx)				\
-	(((indx) == 0 ? (pgsize) :					\
-	(P_INP(dbp, pg)[(indx) - 1])) - (P_INP(dbp, pg)[indx]))
-
-#define	LEN_HKEYDATA(dbp, pg, psize, indx)				\
-	(db_indx_t)(LEN_HITEM(dbp, pg, psize, indx) - HKEYDATA_SIZE(0))
-
+#define	LEN_HITEM(dbp, pg, pgsize, indx)   (((indx) == 0 ? (pgsize) : (P_INP(dbp, pg)[(indx) - 1])) - (P_INP(dbp, pg)[indx]))
+#define	LEN_HKEYDATA(dbp, pg, psize, indx) (db_indx_t)(LEN_HITEM(dbp, pg, psize, indx) - HKEYDATA_SIZE(0))
 /*
  * Page space required to add a new HKEYDATA item to the page, with and
  * without the index value.
  */
-#define	HKEYDATA_SIZE(len)						\
-	((len) + SSZA(HKEYDATA, data))
-#define	HKEYDATA_PSIZE(len)						\
-	(HKEYDATA_SIZE(len) + sizeof(db_indx_t))
+#define	HKEYDATA_SIZE(len)  ((len) + SSZA(HKEYDATA, data))
+#define	HKEYDATA_PSIZE(len) (HKEYDATA_SIZE(len) + sizeof(db_indx_t))
 
 /* Put a HKEYDATA item at the location referenced by a page entry. */
 #define	PUT_HKEYDATA(pe, kd, len, etype) {				\

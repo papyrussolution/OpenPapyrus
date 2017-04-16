@@ -583,11 +583,8 @@ int __env_refresh(DB_ENV * dbenv, uint32 orig_flags, int rep_check)
 		__db_errx(env, DB_STR("1579", "Database handles still open at environment close"));
 		TAILQ_FOREACH(ldbp, &env->dblist, dblistlinks)
 		__db_errx(env, DB_STR_A("1580", "Open database handle: %s%s%s", "%s %s %s"),
-			ldbp->fname == NULL ? "unnamed" : ldbp->fname,
-			ldbp->dname == NULL ? "" : "/",
-			ldbp->dname == NULL ? "" : ldbp->dname);
-		if(ret == 0)
-			ret = EINVAL;
+			!ldbp->fname ? "unnamed" : ldbp->fname, !ldbp->dname ? "" : "/", !ldbp->dname ? "" : ldbp->dname);
+		SETIFZ(ret, EINVAL);
 	}
 	TAILQ_INIT(&env->dblist);
 	if((t_ret = __mutex_free(env, &env->mtx_dblist)) != 0 && ret == 0)
@@ -805,8 +802,7 @@ int __env_attach_regions(DB_ENV * dbenv, uint32 flags, uint32 orig_flags, int re
 		LF_SET(DB_INIT_REP);
 	if(FLD_ISSET(init_flags, DB_INITENV_TXN))
 		LF_SET(DB_INIT_TXN);
-	if(FLD_ISSET(init_flags, DB_INITENV_CDB_ALLDB) &&
-	   (ret = __env_set_flags(dbenv, DB_CDB_ALLDB, 1)) != 0)
+	if(FLD_ISSET(init_flags, DB_INITENV_CDB_ALLDB) && (ret = __env_set_flags(dbenv, DB_CDB_ALLDB, 1)) != 0)
 		goto err;
 	/* Initialize for CDB product. */
 	if(LF_ISSET(DB_INIT_CDB)) {

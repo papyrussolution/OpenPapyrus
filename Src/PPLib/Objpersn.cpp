@@ -552,7 +552,7 @@ int ExtFieldsDialog::Edit(TaggedString * pItem)
 	int    ok = -1, is_new = BIN(Data.Search(pItem->Id, 0) <= 0);
 	SString title;
 	ExtFldCfgDialog * p_dlg = new ExtFldCfgDialog(is_new);
-	if(CheckDialogPtr(&p_dlg, 1) > 0) {
+	if(CheckDialogPtrErr(&p_dlg) > 0) {
 		p_dlg->setDTS(pItem);
 		for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
 			uint pos = 0;
@@ -746,7 +746,7 @@ int NewPersMarksDialog::Edit(PPPersonConfig::NewClientDetectionItem * pItem, SSt
 	}
 	const int is_new = BIN(!item_found && Data.getCount());
 	NewPersMarksFieldDialog * p_dlg = new NewPersMarksFieldDialog(is_new);
-	if(CheckDialogPtr(&p_dlg, 1) > 0) {
+	if(CheckDialogPtrErr(&p_dlg) > 0) {
 		p_dlg->setDTS(pItem);
 		for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
 			uint pos = 0;
@@ -934,7 +934,7 @@ int SLAPI PPObjPerson::EditConfig()
 			TDialog::handleEvent(event);
 			if(event.isCmd(cmExtFields)) {
 				ExtFieldsDialog * p_dlg = new ExtFieldsDialog;
-				if(CheckDialogPtr(&p_dlg, 1) > 0) {
+				if(CheckDialogPtrErr(&p_dlg) > 0) {
 					p_dlg->setDTS(&Data.DlvrAddrExtFldList);
 					for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
 						if(p_dlg->getDTS(&Data.DlvrAddrExtFldList) > 0)
@@ -949,7 +949,7 @@ int SLAPI PPObjPerson::EditConfig()
 			// @vmiller {
 			else if(event.isCmd(cmNewPersnMarks)) {
 				NewPersMarksDialog * p_dlg = new NewPersMarksDialog;
-				if(CheckDialogPtr(&p_dlg, 1) > 0) {
+				if(CheckDialogPtrErr(&p_dlg) > 0) {
 					p_dlg->setDTS(&Data.NewClientDetectionList);
 					for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
 						if(p_dlg->getDTS(&Data.NewClientDetectionList) > 0)
@@ -970,7 +970,7 @@ int SLAPI PPObjPerson::EditConfig()
 	PPPersonConfig cfg;
 	THROW(CheckCfgRights(PPCFGOBJ_PERSON, PPR_READ, 0));
 	THROW(ReadConfig(&cfg));
-	THROW(CheckDialogPtr(&(dlg = new PersonCfgDialog), 0));
+	THROW(CheckDialogPtr(&(dlg = new PersonCfgDialog)));
 	dlg->setDTS(&cfg);
 	while(ok < 0 && ExecView(dlg) == cmOK) {
 		THROW(CheckCfgRights(PPCFGOBJ_PERSON, PPR_MOD, 0));
@@ -2503,7 +2503,7 @@ int SLAPI PPObjPerson::ReplacePerson(PPID srcID, PPID srcKindID)
 	PPObjPerson psn_obj;
 	ReplPrsnDialog * dlg = 0;
 	THROW(psn_obj.CheckRights(PSNRT_UNITE, 0));
-	THROW(CheckDialogPtr(&(dlg = new ReplPrsnDialog(0)), 1));
+	THROW(CheckDialogPtrErr(&(dlg = new ReplPrsnDialog(0))));
 	dlg->setDTS(src_id, srcKindID);
 	while(ExecView(dlg) == cmOK)
 		if(!dlg->getDTS(&dest_id, &src_id) || !PPObject::ReplaceObj(PPOBJ_PERSON, dest_id, src_id, PPObject::use_transaction|PPObject::user_request))
@@ -2525,7 +2525,7 @@ int SLAPI PPObjPerson::ReplaceDlvrAddr(PPID srcID)
 	PPObjPerson psn_obj;
 	ReplPrsnDialog * dlg = 0;
 	THROW(psn_obj.CheckRights(PSNRT_UNITEADDR, 0));
-	THROW(CheckDialogPtr(&(dlg = new ReplPrsnDialog(1)), 1));
+	THROW(CheckDialogPtrErr(&(dlg = new ReplPrsnDialog(1))));
 	dlg->setDTS(src_id, 0);
 	while(ExecView(dlg) == cmOK)
 		if(!dlg->getDTS(&dest_id, &src_id) || !PPObject::ReplaceObj(PPOBJ_LOCATION, dest_id, src_id,
@@ -3506,7 +3506,7 @@ public:
 		Data.GetExtName(temp_buf);
 		setCtrlString(CTL_PERSON_EXTNAME, temp_buf);
 		p_list->setDef(createKindListDef());
-		p_list->drawView();
+		p_list->Draw_();
 		//
 		AddClusterAssoc(CTL_PERSON_FLAGS, 0, PSNF_NOVATAX);
 		AddClusterAssoc(CTL_PERSON_FLAGS, 1, PSNF_NONOTIFICATIONS);
@@ -3618,7 +3618,7 @@ private:
 				if(Data.Rec.ID == 0 || (r = SendObjMessage(DBMSG_PERSONLOSEKIND, 0, Data.Rec.ID, Data.Kinds.at(pos))) == DBRPL_OK) {
 					Data.Kinds.atFree(pos);
 					box->setDef(createKindListDef());
-					box->drawView();
+					box->Draw_();
 				}
 				THROW(r != DBRPL_ERROR);
 			}
@@ -3820,7 +3820,7 @@ private:
 			PPPersonPacket fdata;
 			if(getDTS(&fdata)) {
 				PersonDialog * fdlg = new PersonDialog(DLG_PERSON);
-				if(CheckDialogPtr(&fdlg, 1)) {
+				if(CheckDialogPtrErr(&fdlg)) {
 					int    r = 1, valid_data = 0;
 					fdlg->setDTS(&fdata);
 					fdlg->ToCascade();
@@ -4254,7 +4254,7 @@ int SLAPI PPObjPerson::SelectAnalog(const char * pName, PPID * pID)
 	int    ok = -1;
 	PPID   id = 0;
 	PsnSelAnalogDialog * dlg = 0;
-	if(CheckDialogPtr(&(dlg = new PsnSelAnalogDialog(this)), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new PsnSelAnalogDialog(this)))) {
 		dlg->setSrchString(pName);
 		if(ExecView(dlg) == cmOK) {
 			dlg->getResult(&id);
@@ -4439,7 +4439,7 @@ int PsnSelAnalogDialog::setupList()
 					p_list->addItem(psn_id, rec.Name);
 			}
 		}
-		p_list->drawView();
+		p_list->Draw_();
 	}
 	return 1;
 }
@@ -4547,7 +4547,7 @@ IMPL_HANDLE_EVENT(PersonDialog)
 						}
 						if(p_box) {
 							p_box->setDef(createKindListDef());
-							p_box->drawView();
+							p_box->Draw_();
 						}
 					}
 					SetupCtrls();
@@ -4619,7 +4619,7 @@ IMPL_HANDLE_EVENT(PersonDialog)
 						CashierInfo  CshrInfo;
 					};
 					CashierRightsDialog * dlg = 0;
-					if(CheckDialogPtr(&(dlg = new CashierRightsDialog())), 1) {
+					if(CheckDialogPtrErr(&(dlg = new CashierRightsDialog()))) {
 						dlg->setDTS(&Data.CshrInfo);
 						if(ExecView(dlg) == cmOK) {
 							dlg->getDTS(&Data.CshrInfo);

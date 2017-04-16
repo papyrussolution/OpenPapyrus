@@ -159,8 +159,7 @@ struct __epg {
 } while(0)
 
 #define BT_STK_ENTER(env, c, pagep, page_indx, l, mode, ret) do {       \
-		if((ret = ((c)->csp == (c)->esp ?                              \
-		           __bam_stkgrow(env, c) : 0)) == 0) {                         \
+		if((ret = ((c)->csp == (c)->esp ? __bam_stkgrow(env, c) : 0)) == 0) { \
 			(c)->csp->page = pagep;                                 \
 			(c)->csp->indx = (page_indx);                           \
 			(c)->csp->entries = NUM_ENT(pagep);                     \
@@ -175,8 +174,7 @@ struct __epg {
 } while(0)
 
 #define BT_STK_NUM(env, c, pagep, page_indx, ret) do {          \
-		if((ret = ((c)->csp ==                                         \
-		           (c)->esp ? __bam_stkgrow(env, c) : 0)) == 0) {              \
+		if((ret = ((c)->csp == (c)->esp ? __bam_stkgrow(env, c) : 0)) == 0) { \
 			(c)->csp->page = NULL;                                  \
 			(c)->csp->indx = (page_indx);                           \
 			(c)->csp->entries = NUM_ENT(pagep);                     \
@@ -219,8 +217,7 @@ struct __epg {
 			if(ret != 0 && ret != DB_LOCK_NOTGRANTED && ret != DB_LOCK_DEADLOCK) \
 				break;                                          \
 			if((ndbc) != NULL) {                                   \
-				BTREE_CURSOR * __cp;                             \
-				__cp = (BTREE_CURSOR *)(dbc)->internal;        \
+				BTREE_CURSOR * __cp = (BTREE_CURSOR *)(dbc)->internal; \
 				__cp->sp->page = NULL;                          \
 				LOCK_INIT(__cp->sp->lock);                      \
 				if((ret = __bam_stkrel(ndbc, 0)) != 0)         \
@@ -241,8 +238,7 @@ struct __epg {
 			if(ret != DB_LOCK_NOTGRANTED && ret != DB_LOCK_DEADLOCK) \
 				break;                                          \
 			if((ndbc) != NULL) {                                   \
-				BTREE_CURSOR * __cp;                             \
-				__cp = (BTREE_CURSOR *)(dbc)->internal;        \
+				BTREE_CURSOR * __cp = (BTREE_CURSOR *)(dbc)->internal; \
 				__cp->sp->page = NULL;                          \
 				LOCK_INIT(__cp->sp->lock);                      \
 				if((ret = __bam_stkrel(ndbc, 0)) != 0)         \

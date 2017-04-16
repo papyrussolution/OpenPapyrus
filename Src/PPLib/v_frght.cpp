@@ -438,7 +438,7 @@ int SLAPI PPViewFreight::ViewTotal()
 		brutto += item.Brutto;
 		volume += item.Volume;
 	}
-	if(CheckDialogPtr(&(dlg = new TDialog(DLG_FRGHTTOTAL)), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_FRGHTTOTAL)))) {
 		dlg->setCtrlLong(CTL_FRGHTTOTAL_COUNT,  count);
 		dlg->setCtrlReal(CTL_FRGHTTOTAL_AMOUNT, amount);
 		dlg->setCtrlReal(CTL_FRGHTTOTAL_PACKCOUNT, pack_count);
@@ -642,7 +642,7 @@ int SLAPI PPViewFreight::UpdateFeatures()
     LDATE  issue_date = ZERODATE;
     LDATE  arrival_date = ZERODATE;
     TDialog * dlg = new TDialog(DLG_UPDFREIGHT);
-    THROW(CheckDialogPtr(&dlg, 0));
+    THROW(CheckDialogPtr(&dlg));
 	SetupPPObjCombo(dlg, CTLSEL_UPDFREIGHT_TR, PPOBJ_TRANSPORT, ship_id, OLW_CANINSERT, (void *)tr_type);
 	dlg->SetupCalDate(CTLCAL_UPDFREIGHT_ISSDT, CTL_UPDFREIGHT_ISSDT);
 	dlg->SetupCalDate(CTLCAL_UPDFREIGHT_ARRDT, CTL_UPDFREIGHT_ARRDT);

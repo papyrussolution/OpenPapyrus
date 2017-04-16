@@ -572,10 +572,7 @@ int __env_get_encrypt_flags(DB_ENV * dbenv, uint32 * flagsp)
 	ENV * env = dbenv->env;
 #ifdef HAVE_CRYPTO
 	db_cipher = env->crypto_handle;
-	if(db_cipher != NULL && db_cipher->alg == CIPHER_AES)
-		*flagsp = DB_ENCRYPT_AES;
-	else
-		*flagsp = 0;
+	*flagsp = (db_cipher && db_cipher->alg == CIPHER_AES) ? DB_ENCRYPT_AES : 0;
 	return 0;
 #else
 	COMPQUIET(flagsp, 0);
@@ -718,15 +715,13 @@ static int __env_get_flags(DB_ENV * dbenv, uint32 * flagsp)
 	__env_fetch_flags(EnvMap, sizeof(EnvMap), &dbenv->flags, flagsp);
 	env = dbenv->env;
 	/* Some flags are persisted in the regions. */
-	if(env->reginfo != NULL &&
-	   ((REGENV *)env->reginfo->primary)->panic != 0)
+	if(env->reginfo && ((REGENV *)env->reginfo->primary)->panic != 0)
 		FLD_SET(*flagsp, DB_PANIC_ENVIRONMENT);
 	/* If the hotbackup counter is positive, set the flag indicating so. */
 	if(TXN_ON(env)) {
 		ENV_ENTER(env, ip);
 		TXN_SYSTEM_LOCK(env);
-		if(((DB_TXNREGION *)
-		    env->tx_handle->reginfo.primary)->n_hotbackup > 0)
+		if(((DB_TXNREGION *)env->tx_handle->reginfo.primary)->n_hotbackup > 0)
 			FLD_SET(*flagsp, DB_HOTBACKUP_IN_PROGRESS);
 		TXN_SYSTEM_UNLOCK(env);
 		ENV_LEAVE(env, ip);
@@ -747,22 +742,17 @@ int __env_set_flags(DB_ENV * dbenv, uint32 flags, int on)
 	int mem_on, needs_checkpoint, ret;
 	ENV * env = dbenv->env;
 #define OK_FLAGS                                                        \
-	(DB_AUTO_COMMIT|DB_CDB_ALLDB|DB_DATABASE_LOCKING|          \
-	 DB_DIRECT_DB|DB_DSYNC_DB|DB_MULTIVERSION|             \
-	 DB_NOLOCKING|DB_NOMMAP|DB_NOPANIC|DB_OVERWRITE|      \
-	 DB_PANIC_ENVIRONMENT|DB_REGION_INIT|                     \
-	 DB_TIME_NOTGRANTED|DB_TXN_NOSYNC|DB_TXN_NOWAIT|        \
-	 DB_TXN_SNAPSHOT|DB_TXN_WRITE_NOSYNC|DB_YIELDCPU|       \
+	(DB_AUTO_COMMIT|DB_CDB_ALLDB|DB_DATABASE_LOCKING|DB_DIRECT_DB|DB_DSYNC_DB|DB_MULTIVERSION|\
+	 DB_NOLOCKING|DB_NOMMAP|DB_NOPANIC|DB_OVERWRITE|DB_PANIC_ENVIRONMENT|DB_REGION_INIT|\
+	 DB_TIME_NOTGRANTED|DB_TXN_NOSYNC|DB_TXN_NOWAIT|DB_TXN_SNAPSHOT|DB_TXN_WRITE_NOSYNC|DB_YIELDCPU|\
 	 DB_HOTBACKUP_IN_PROGRESS|DB_NOFLUSH)
 	if(LF_ISSET(~OK_FLAGS))
 		return __db_ferr(env, "DB_ENV->set_flags", 0);
 	if(on) {
-		if((ret = __db_fcchk(env, "DB_ENV->set_flags",
-			    flags, DB_TXN_NOSYNC, DB_TXN_WRITE_NOSYNC)) != 0)
+		if((ret = __db_fcchk(env, "DB_ENV->set_flags", flags, DB_TXN_NOSYNC, DB_TXN_WRITE_NOSYNC)) != 0)
 			return ret;
 		if(LF_ISSET(DB_DIRECT_DB) && __os_support_direct_io() == 0) {
-			__db_errx(env,
-				"DB_ENV->set_flags: direct I/O either not configured or not supported");
+			__db_errx(env, "DB_ENV->set_flags: direct I/O either not configured or not supported");
 			return EINVAL;
 		}
 	}
@@ -833,10 +823,13 @@ int __env_set_flags(DB_ENV * dbenv, uint32 flags, int on)
 	}
 	mapped_flags = 0;
 	__env_map_flags(EnvMap, sizeof(EnvMap), &flags, &mapped_flags);
+	/* @sobolev
 	if(on)
 		F_SET(dbenv, mapped_flags);
 	else
 		F_CLR(dbenv, mapped_flags);
+	*/
+	SETFLAG(dbenv->flags, mapped_flags, on); // @sobolev
 	return 0;
 }
 
@@ -1007,7 +1000,7 @@ void __env_get_errcall(DB_ENV * dbenv, void (**errcallp)__P((const DB_ENV*, cons
  * PUBLIC: void __env_set_errcall __P((DB_ENV *,
  * PUBLIC:		void (*)(const DB_ENV *, const char *, const char *)));
  */
-void __env_set_errcall(DB_ENV * dbenv, void (*errcall)__P((const DB_ENV*, const char *, const char *)))
+void __env_set_errcall(DB_ENV * dbenv, void (*errcall)(const DB_ENV*, const char *, const char *))
 {
 	ENV * env = dbenv->env;
 	F_CLR(env, ENV_NO_OUTPUT_SET);

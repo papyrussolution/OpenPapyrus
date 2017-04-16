@@ -333,7 +333,7 @@ int SLAPI PPViewGoodsMov2::ViewTotal()
 	int    ok = 1;
 	TDialog * p_dlg = 0;
 	THROW_MEM(p_dlg = new TDialog(DLG_GDSMOVT));
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setCtrlData(CTL_GDSMOVT_INRESTQTY,    &Total.InRestQtty);
 	p_dlg->setCtrlData(CTL_GDSMOVT_INRESTPHQTY,  &Total.InRestPhQtty);
 	p_dlg->setCtrlData(CTL_GDSMOVT_INRESTCOST,   &Total.InRestCost);

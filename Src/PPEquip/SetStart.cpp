@@ -6,7 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 #include <frontol.h>
-#include <ppidata.h>
+// @v9.6.2 (moved to pp.h) #include <ppidata.h>
 
 static void RcvMailCallback(const IterCounter & bytesCounter, const IterCounter & msgCounter)
 {
@@ -908,7 +908,7 @@ int SLAPI ACS_SETSTART::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 	TDialog * dlg = 0;
 	if(!pPrd) {
 		dlg = new TDialog(DLG_SELSESSRNG);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			SString dt_buf;
 			ChkRepPeriod.low = LConfig.OperDate;
 			ChkRepPeriod.upp = LConfig.OperDate;

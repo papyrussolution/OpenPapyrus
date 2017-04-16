@@ -142,14 +142,14 @@ meta_only:
 err:    /* Discard the second page. */
 	if((t_ret = __LPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;
-	if(h != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0 && ret == 0)
+	if(h && (t_ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	/* Discard the metadata page. */
 	if((t_ret = __LPUT(dbc, metalock)) != 0 && ret == 0)
 		ret = t_ret;
-	if(meta != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority)) != 0 && ret == 0)
+	if(meta && (t_ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(ret != 0 && sp != NULL) {
+	if(ret && sp) {
 		__os_ufree(env, sp);
 		*(DB_BTREE_STAT **)spp = NULL;
 	}
@@ -258,8 +258,7 @@ int __bam_stat_callback(DBC * dbc, PAGE * h, void * cookie, int * putp)
 			if(B_DISSET(type))
 				continue;
 			/* Ignore duplicate keys. */
-			if(indx+P_INDX >= top ||
-			   inp[indx] != inp[indx+P_INDX])
+			if(indx+P_INDX >= top || inp[indx] != inp[indx+P_INDX])
 				++sp->bt_nkeys;
 			/* Ignore off-page duplicates. */
 			if(B_TYPE(type) != B_DUPLICATE)
@@ -428,19 +427,15 @@ int __bam_traverse(DBC * dbc, db_lockmode_t mode, db_pgno_t root_pgno, int (*cal
 {
 	BINTERNAL * bi;
 	BKEYDATA * bk;
-	DB * dbp;
 	DB_LOCK lock;
-	DB_MPOOLFILE * mpf;
 	PAGE * h;
 	RINTERNAL * ri;
 	db_indx_t indx, * inp;
-	int already_put, ret, t_ret;
-
-	dbp = dbc->dbp;
-	mpf = dbp->mpf;
-	already_put = 0;
+	int ret, t_ret;
+	DB * dbp = dbc->dbp;
+	DB_MPOOLFILE * mpf = dbp->mpf;
+	int already_put = 0;
 	LOCK_INIT(lock);
-
 	COMPQUIET(h, NULL);
 	BAM_GET_ROOT(dbc, root_pgno, h, 0, mode, lock, ret);
 	if(ret != 0)

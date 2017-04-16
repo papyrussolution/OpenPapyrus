@@ -161,8 +161,7 @@ int __crdel_inmem_create_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops
 			goto out;
 	}
 	if(DB_UNDO(op)) {
-		if(ret == 0)
-			ret = __memp_nameop(env, (uint8 *)argp->fid.data, NULL, (const char *)argp->name.data,  NULL, 1);
+		SETIFZ(ret, __memp_nameop(env, (uint8 *)argp->fid.data, NULL, (const char *)argp->name.data,  NULL, 1));
 		if(ret == ENOENT || ret == DB_DELETED)
 			ret = 0;
 		else

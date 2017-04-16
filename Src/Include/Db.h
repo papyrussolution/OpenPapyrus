@@ -2851,7 +2851,6 @@ public:
 	//   0
 	//
 	int    FASTCALL SetError(int errCode, const char * pAddedMsg);
-	// @v7.9.9 int    SLAPI OpenDictionary(int serverType, const char * pLocation, const char * pDataPath, const char * pTempPath); // @obsolete
 	int    SLAPI OpenDictionary2(DbProvider * pDb);
 	int    SLAPI CloseDictionary();
 
@@ -4003,9 +4002,11 @@ public:
 		Buffer & FASTCALL operator = (const int32 & rVal);
 		Buffer & FASTCALL operator = (const uint32 & rVal);
 		Buffer & FASTCALL operator = (const int64 & rVal);
+		Buffer & FASTCALL operator = (const uint64 & rVal);
 		Buffer & FASTCALL Set(const void * pData, size_t size);
 
 		size_t GetSize() const;
+		const  void * FASTCALL GetPtr(size_t * pSize) const;
 		DBT *  FASTCALL Get(DBT * pD) const;
 		int    FASTCALL Get(SBuffer & rBuf) const;
 		int    FASTCALL Get(SString & rBuf) const;
@@ -4158,6 +4159,7 @@ public:
 	int    operator ! () const;
 	operator DB_ENV * ();
 	operator DB_TXN * ();
+	int    SetupErrLog(const char * pFileName);
 	int    GetCurrentConfig(Config & rCfg);
 	int    IsFileExists(const char * pFileName);
 	int    CreateDataFile(const char * pFileName, int createMode, BDbTable::Config * pCfg);
@@ -4208,6 +4210,7 @@ private:
 	TSArray <Seq> SeqList;
 	StringSet StrPool;
 	SSerializeContext * P_SCtx;
+	SFile  ErrF;
 };
 
 class BDbTransaction {

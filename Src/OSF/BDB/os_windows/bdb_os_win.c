@@ -107,7 +107,7 @@ int __os_open(ENV * env, const char * name, uint32 page_size, uint32 flags, int 
 		return ret;
 	if((ret = __os_strdup(env, name, &fhp->name)) != 0)
 		goto err;
-	if(env != NULL) {
+	if(env) {
 		MUTEX_LOCK(env, env->mtx_env);
 		TAILQ_INSERT_TAIL(&env->fdlist, fhp, q);
 		MUTEX_UNLOCK(env, env->mtx_env);
@@ -610,7 +610,7 @@ int __os_get_syserr()
  * __os_set_errno --
  *	Set the value of errno.
  */
-void __os_set_errno(int evalue)
+void FASTCALL __os_set_errno(int evalue)
 {
 	/*
 	 * This routine is called by the compatibility interfaces (DB 1.85,
@@ -620,7 +620,7 @@ void __os_set_errno(int evalue)
 	 * As the compatibility APIs aren't included on Windows, the Windows
 	 * version of this routine doesn't need this behavior.
 	 */
-	errno = evalue >= 0 ? evalue : (evalue == DB_RUNRECOVERY ? EFAULT : EINVAL);
+	errno = (evalue >= 0) ? evalue : (evalue == DB_RUNRECOVERY ? EFAULT : EINVAL);
 }
 /*
  * __os_strerror --
@@ -1235,7 +1235,7 @@ err:    __os_closehandle(env, fhp);
  * __os_closehandle --
  *	Close a file.
  */
-int __os_closehandle(ENV * env, DB_FH * fhp)
+int FASTCALL __os_closehandle(ENV * env, DB_FH * fhp)
 {
 	DB_ENV * dbenv;
 	int t_ret;

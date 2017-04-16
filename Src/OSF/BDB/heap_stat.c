@@ -25,36 +25,26 @@
  */
 int __heap_stat(DBC * dbc, void * spp, uint32 flags)
 {
-	DB * dbp;
-	DB_HEAP_STAT * sp;
+	DB_HEAP_STAT * sp = 0;
 	DB_LOCK lock, metalock;
-	DB_MPOOLFILE * mpf;
-	ENV * env;
-	HEAPMETA * meta;
+	HEAPMETA * meta = 0;
 	db_pgno_t metapgno;
 	int ret, t_ret, write_meta;
-
-	dbp = dbc->dbp;
-	env = dbp->env;
-
-	meta = NULL;
+	DB * dbp = dbc->dbp;
+	ENV * env = dbp->env;
 	LOCK_INIT(metalock);
 	LOCK_INIT(lock);
-	mpf = dbp->mpf;
-	sp = NULL;
+	DB_MPOOLFILE * mpf = dbp->mpf;
 	ret = t_ret = write_meta = 0;
 	/* Allocate and clear the structure. */
 	if((ret = __os_umalloc(env, sizeof(*sp), &sp)) != 0)
 		goto err;
 	memzero(sp, sizeof(*sp));
-
-	/* Get the metadata page for the entire database. */
+	// Get the metadata page for the entire database.
 	metapgno = PGNO_BASE_MD;
-	if((ret = __db_lget(dbc,
-		    0, metapgno, DB_LOCK_READ, 0, &metalock)) != 0)
+	if((ret = __db_lget(dbc, 0, metapgno, DB_LOCK_READ, 0, &metalock)) != 0)
 		goto err;
-	if((ret = __memp_fget(mpf, &metapgno,
-		    dbc->thread_info, dbc->txn, 0, &meta)) != 0)
+	if((ret = __memp_fget(mpf, &metapgno, dbc->thread_info, dbc->txn, 0, &meta)) != 0)
 		goto err;
 	sp->heap_metaflags = meta->dbmeta.flags;
 	sp->heap_pagecnt = meta->dbmeta.last_pgno+1;
@@ -69,21 +59,17 @@ int __heap_stat(DBC * dbc, void * spp, uint32 flags)
 		/* Count the entries in the database. */
 		if((ret = __heap_traverse(dbc, __heap_stat_callback, sp)) != 0)
 			goto err;
-		write_meta = !F_ISSET(dbp, DB_AM_RDONLY) &&
-		             (!MULTIVERSION(dbp) || dbc->txn != NULL);
+		write_meta = !F_ISSET(dbp, DB_AM_RDONLY) && (!MULTIVERSION(dbp) || dbc->txn != NULL);
 		if(write_meta) {
-			ret = __memp_fput(mpf,
-				dbc->thread_info, meta, dbc->priority);
+			ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority);
 			meta = NULL;
 			if((t_ret = __LPUT(dbc, metalock)) != 0 && ret == 0)
 				ret = t_ret;
 			if(ret != 0)
 				goto err;
-			if((ret = __db_lget(dbc,
-				    0, metapgno, DB_LOCK_WRITE, 0, &metalock)) != 0)
+			if((ret = __db_lget(dbc, 0, metapgno, DB_LOCK_WRITE, 0, &metalock)) != 0)
 				goto err;
-			if((ret = __memp_fget(mpf, &metapgno, dbc->thread_info,
-				    dbc->txn, DB_MPOOL_DIRTY, &meta)) != 0)
+			if((ret = __memp_fget(mpf, &metapgno, dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &meta)) != 0)
 				goto err;
 			meta->dbmeta.key_count = sp->heap_nrecs;
 			meta->dbmeta.record_count = sp->heap_nrecs;
@@ -94,8 +80,7 @@ int __heap_stat(DBC * dbc, void * spp, uint32 flags)
 err:    /* Discard metadata page. */
 	if((t_ret = __LPUT(dbc, metalock)) != 0 && ret == 0)
 		ret = t_ret;
-	if(meta != NULL && (t_ret = __memp_fput(mpf,
-				    dbc->thread_info, meta, dbc->priority)) != 0 && ret == 0)
+	if(meta != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if(ret != 0 && sp != NULL) {
 		__os_ufree(env, sp);
@@ -112,12 +97,10 @@ err:    /* Discard metadata page. */
  */
 int __heap_stat_print(DBC * dbc, uint32 flags)
 {
-	DB * dbp;
 	DB_HEAP_STAT * sp;
-	ENV * env;
 	int ret;
-	dbp = dbc->dbp;
-	env = dbp->env;
+	DB * dbp = dbc->dbp;
+	ENV * env = dbp->env;
 	if((ret = __heap_stat(dbc, &sp, LF_ISSET(DB_FAST_STAT))) != 0)
 		return ret;
 	if(LF_ISSET(DB_STAT_ALL)) {
@@ -126,15 +109,11 @@ int __heap_stat_print(DBC * dbc, uint32 flags)
 	}
 	__db_msg(env, "%lx\tHeap magic number", (ulong)sp->heap_magic);
 	__db_msg(env, "%lu\tHeap version number", (ulong)sp->heap_version);
-	__db_dl(env,
-		"Underlying database page size", (ulong)sp->heap_pagesize);
-	__db_dl(env,
-		"Number of records in the database", (ulong)sp->heap_nrecs);
+	__db_dl(env, "Underlying database page size", (ulong)sp->heap_pagesize);
+	__db_dl(env, "Number of records in the database", (ulong)sp->heap_nrecs);
 	__db_dl(env, "Number of database pages", (ulong)sp->heap_pagecnt);
 	__db_dl(env, "Number of database regions", (ulong)sp->heap_nregions);
-
 	__os_ufree(env, sp);
-
 	return 0;
 }
 /*

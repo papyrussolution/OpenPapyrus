@@ -30,14 +30,12 @@
  * to write more than 64K on a 16-bit machine.
  */
 
-void /* PRIVATE */
-png_write_data(png_structrp png_ptr, png_const_bytep data, png_size_t length)
+void /* PRIVATE */ png_write_data(png_structrp png_ptr, png_const_bytep data, png_size_t length)
 {
 	/* NOTE: write_data_fn must not change the buffer! */
 	if(png_ptr->write_data_fn != NULL)
 		(*(png_ptr->write_data_fn))(png_ptr, png_constcast(png_bytep, data),
 		    length);
-
 	else
 		png_error(png_ptr, "Call to NULL write function");
 }
@@ -68,8 +66,7 @@ void PNGCBAPI png_default_write_data(png_structp png_ptr, png_bytep data, png_si
  * writing in any buffers.
  */
 #ifdef PNG_WRITE_FLUSH_SUPPORTED
-void /* PRIVATE */
-png_flush(png_structrp png_ptr)
+void /* PRIVATE */ png_flush(png_structrp png_ptr)
 {
 	if(png_ptr->output_flush_fn != NULL)
 		(*(png_ptr->output_flush_fn))(png_ptr);
@@ -79,12 +76,10 @@ png_flush(png_structrp png_ptr)
 void PNGCBAPI png_default_flush(png_structp png_ptr)
 {
 	png_FILE_p io_ptr;
-
-	if(png_ptr == NULL)
-		return;
-
-	io_ptr = png_voidcast(png_FILE_p, (png_ptr->io_ptr));
-	fflush(io_ptr);
+	if(png_ptr) {
+		io_ptr = png_voidcast(png_FILE_p, (png_ptr->io_ptr));
+		fflush(io_ptr);
+	}
 }
 
 #  endif

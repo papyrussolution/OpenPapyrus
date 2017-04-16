@@ -59,16 +59,13 @@ int __db_31_offdup(DB * dbp, char * real_name, DB_FH * fhp, int sorted, db_pgno_
 	 * sorted, they are converted to a Btree leaf page, otherwise to a
 	 * Recno leaf page.
 	 */
-	for(nrecs = 0, cur_cnt = pgno_max = 0,
-	    pgno = *pgnop; pgno != PGNO_INVALID; ) {
+	for(nrecs = 0, cur_cnt = pgno_max = 0, pgno = *pgnop; pgno != PGNO_INVALID; ) {
 		if(pgno_max == cur_cnt) {
 			pgno_max += 20;
-			if((ret = __os_realloc(dbp->env, pgno_max*
-				    sizeof(db_pgno_t), &pgno_cur)) != 0)
+			if((ret = __os_realloc(dbp->env, pgno_max * sizeof(db_pgno_t), &pgno_cur)) != 0)
 				goto err;
 		}
 		pgno_cur[cur_cnt++] = pgno;
-
 		GET_PAGE(dbp, fhp, pgno, page);
 		nrecs += NUM_ENT(page);
 		LEVEL(page) = LEAFLEVEL;

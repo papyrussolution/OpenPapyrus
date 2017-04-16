@@ -1026,7 +1026,7 @@ int EditClientBankFormatDescription(const char * pIniSection)
 			if(undecorated)
 				param.ProcessName(1, sect);
 		}
-		THROW(CheckDialogPtr(&(dlg = new CliBnkImpExpDialog()), 0));
+		THROW(CheckDialogPtr(&(dlg = new CliBnkImpExpDialog())));
 		dlg->setDTS(&param);
 		direction = param.Direction;
 		while(ok <= 0 && ExecView(dlg) == cmOK)
@@ -1141,7 +1141,7 @@ int SLAPI SetupCliBnkFormats()
 {
 	MemLeakTracer mlt;
 	SetupCliBnkFormatsDialog * dlg = new SetupCliBnkFormatsDialog();
-	return CheckDialogPtr(&dlg, 1) ? ((ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1) : 0;
+	return CheckDialogPtrErr(&dlg) ? ((ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1) : 0;
 }
 
 class SetupCliBnkAssocDialog : public PPListDialog {
@@ -1293,7 +1293,7 @@ int SLAPI SetupCliBnkAssoc()
 	int    ok = 0;
 	SetupCliBnkAssocDialog * dlg = new SetupCliBnkAssocDialog();
 	THROW(CheckCfgRights(PPCFGOBJ_CLIBNKAS, PPR_READ, 0));
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	ok = (ExecView(dlg) == cmOK) ? 1 : -1;
 	if(ok > 0) {
 		THROW(CheckCfgRights(PPCFGOBJ_CLIBNKAS, PPR_MOD, 0));
@@ -1321,7 +1321,7 @@ int SLAPI CliBnkSelectCfgDialog(int kind/*1 - export, 2 - import*/, SString & rS
 			ok = 1;
 	}
 	else {
-		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_GRPSEL)), 0));
+		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_GRPSEL))));
 		THROW(PPLoadText(PPTXT_SELECT_CONFIGURATION, buf));
 		dlg->setTitle(buf);
 		{

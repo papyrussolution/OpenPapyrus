@@ -326,16 +326,13 @@ npage:
 		CHECK_LSN(env, op, cmp_p, &LSN(pagep), &argp->nextlsn);
 		CHECK_ABORT(env, op, cmp_n, &LSN(pagep), lsnp);
 		change = 0;
-		if((cmp_p == 0 && DB_REDO(op) && argp->opcode == PUTOVFL) ||
-		   (cmp_n == 0 && DB_UNDO(op) && argp->opcode == DELOVFL)) {
+		if((cmp_p == 0 && DB_REDO(op) && argp->opcode == PUTOVFL) || (cmp_n == 0 && DB_UNDO(op) && argp->opcode == DELOVFL)) {
 			/* Redo a create new page or undo a delete new page. */
 			REC_DIRTY(mpf, ip, file_dbp->priority, &pagep);
 			pagep->prev_pgno = argp->new_pgno;
 			change = 1;
 		}
-		else if((cmp_p == 0 &&
-		         DB_REDO(op) && argp->opcode == DELOVFL) ||
-		        (cmp_n == 0 && DB_UNDO(op) && argp->opcode == PUTOVFL)) {
+		else if((cmp_p == 0 && DB_REDO(op) && argp->opcode == DELOVFL) || (cmp_n == 0 && DB_UNDO(op) && argp->opcode == PUTOVFL)) {
 			/* Redo a delete or undo a create new page. */
 			REC_DIRTY(mpf, ip, file_dbp->priority, &pagep);
 			pagep->prev_pgno = argp->prev_pgno;
@@ -343,8 +340,7 @@ npage:
 		}
 		if(change)
 			LSN(pagep) = DB_REDO(op) ? *lsnp : argp->nextlsn;
-		if((ret = __memp_fput(mpf,
-			    ip, pagep, file_dbp->priority)) != 0)
+		if((ret = __memp_fput(mpf, ip, pagep, file_dbp->priority)) != 0)
 			goto out;
 		pagep = NULL;
 	}

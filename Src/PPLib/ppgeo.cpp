@@ -3,6 +3,8 @@
 //
 #include <pp.h>
 #pragma hdrstop
+#include <BerkeleyDB.h>
+#include "..\sartr\sartr.h"
 //
 //
 //
@@ -12,6 +14,11 @@ SLAPI PPOsm::NodeCluster::NodeCluster() : SBuffer(32)
 
 SLAPI PPOsm::NodeCluster::~NodeCluster()
 {
+}
+
+size_t SLAPI PPOsm::NodeCluster::GetSize() const
+{
+	return GetAvailableSize();
 }
 
 //static
@@ -139,7 +146,7 @@ uint SLAPI PPOsm::NodeCluster::GetPossiblePackCount(const Node * pN, size_t coun
 	]
 */
 
-int SLAPI PPOsm::NodeCluster::Put(const Node * pN, size_t count, size_t * pActualCount)
+int SLAPI PPOsm::NodeCluster::Put(const Node * pN, size_t count, uint64 * pOuterID, size_t * pActualCount)
 {
 	int    ok = 1;
 	uint   actual_count = 0;
@@ -248,14 +255,16 @@ int SLAPI PPOsm::NodeCluster::Put(const Node * pN, size_t count, size_t * pActua
 	return ok;
 }
 
-int SLAPI PPOsm::NodeCluster::Get(TSArray <Node> & rList)
+int SLAPI PPOsm::NodeCluster::Implement_Get(uint64 outerID, TSArray <Node> * pList, Node * pHead, uint * pCountLogic, uint * pCountActual)
 {
 	int    ok = 1;
 	uint   count_logic = 0;
+	uint   count_actual = 0;
 	uint8  indicator = 0;
 	Node   head;
 	int32  head_lat = 0;
 	int32  head_lon = 0;
+	const size_t preserve_pos = GetRdOffs();
 	THROW_SL(Read(indicator));
 	switch(indicator & indfCountMask) {
 		case 0: count_logic =   1; break;
@@ -280,81 +289,123 @@ int SLAPI PPOsm::NodeCluster::Get(TSArray <Node> & rList)
 	THROW_SL(Read(head_lat));
 	THROW_SL(Read(head_lon));
 	head.C.SetInt(head_lat, head_lon);
-	THROW_SL(rList.insert(&head));
-	if(count_logic > 1) {
-		const uint8 head_level = head.T.GetLevel();
-		uint64 prev_id = head.ID;
-		int32  prev_lat = head_lat;
-		int32  prev_lon = head_lon;
-		for(uint i = 1; i < count_logic; i++) {
-			uint8 inf_indicator = 0;
-			THROW_SL(Read(inf_indicator));
-			if(!(inf_indicator & infindfEmpty)) {
-				uint8 _tile_level = 0;
-				int32 _lat = 0;
-				int32 _lon = 0;
-				int32 _lat_diff = 0;
-				int32 _lon_diff = 0;
-				Node   node;
-				if(inf_indicator & infindfPrevLatIncr8) {
-					int8   _diff = 0;
-					THROW_SL(Read(_diff));
-					_lat = prev_lat + (int32)_diff;
+	if(pList || pCountActual) {
+		{
+			if(pList)
+				THROW_SL(pList->insert(&head));
+			count_actual++;
+		}
+		if(count_logic > 1) {
+			const uint8 head_level = head.T.GetLevel();
+			uint64 prev_id = head.ID;
+			int32  prev_lat = head_lat;
+			int32  prev_lon = head_lon;
+			for(uint i = 1; i < count_logic; i++) {
+				uint8 inf_indicator = 0;
+				THROW_SL(Read(inf_indicator));
+				if(!(inf_indicator & infindfEmpty)) {
+					uint8 _tile_level = 0;
+					int32 _lat = 0;
+					int32 _lon = 0;
+					int32 _lat_diff = 0;
+					int32 _lon_diff = 0;
+					Node   node;
+					if(inf_indicator & infindfPrevLatIncr8) {
+						int8   _diff = 0;
+						THROW_SL(Read(_diff));
+						_lat = prev_lat + (int32)_diff;
+					}
+					else if(inf_indicator & infindfPrevLatIncr16) {
+						int16  _diff = 0;
+						THROW_SL(Read(_diff));
+						_lat = prev_lat + (int32)_diff;
+					}
+					else {
+						THROW_SL(Read(_lat));
+					}
+					if(inf_indicator & infindfPrevLonIncr8) {
+						int8   _diff = 0;
+						THROW_SL(Read(_diff));
+						_lon = prev_lon + (int32)_diff;
+					}
+					else if(inf_indicator & infindfPrevLonIncr16) {
+						int16  _diff = 0;
+						THROW_SL(Read(_diff));
+						_lon = prev_lon + (int32)_diff;
+					}
+					else {
+						THROW_SL(Read(_lon));
+					}
+					if(inf_indicator & infindfDiffTileLevel) {
+						THROW_SL(Read(_tile_level));
+					}
+					else
+						_tile_level = head_level;
+					node.C.SetInt(_lat, _lon);
+					node.ID = (prev_id+1);
+					node.T = head.T;
+					node.T.SetLevel(_tile_level);
+					if(pList)
+						THROW_SL(pList->insert(&node));
+					count_actual++;
+					prev_lat = _lat;
+					prev_lon = _lon;
 				}
-				else if(inf_indicator & infindfPrevLatIncr16) {
-					int16  _diff = 0;
-					THROW_SL(Read(_diff));
-					_lat = prev_lat + (int32)_diff;
-				}
-				else {
-					THROW_SL(Read(_lat));
-				}
-				if(inf_indicator & infindfPrevLonIncr8) {
-					int8   _diff = 0;
-					THROW_SL(Read(_diff));
-					_lon = prev_lon + (int32)_diff;
-				}
-				else if(inf_indicator & infindfPrevLonIncr16) {
-					int16  _diff = 0;
-					THROW_SL(Read(_diff));
-					_lon = prev_lon + (int32)_diff;
-				}
-				else {
-					THROW_SL(Read(_lon));
-				}
-				if(inf_indicator & infindfDiffTileLevel) {
-					THROW_SL(Read(_tile_level));
-				}
-				else
-					_tile_level = head_level;
-				node.C.SetInt(_lat, _lon);
-				node.ID = (prev_id+1);
-				node.T = head.T;
-				node.T.SetLevel(_tile_level);
-				THROW_SL(rList.insert(&node));
-				prev_lat = _lat;
-				prev_lon = _lon;
+				prev_id++;
 			}
-			prev_id++;
 		}
 	}
+	ASSIGN_PTR(pHead, head);
+	ASSIGN_PTR(pCountLogic, count_logic);
+	ASSIGN_PTR(pCountActual, count_actual);
 	CATCHZOK
+	SetRdOffs(preserve_pos);
 	return ok;
 }
-//
-//
-//
-PPOsm::NodeTbl::NodeTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("geomap.db->node", BDbTable::idxtypHash, 0), pDb)
+
+int SLAPI PPOsm::NodeCluster::Get(uint64 outerID, TSArray <Node> & rList)
 {
+	return Implement_Get(outerID, &rList, 0, 0, 0);
 }
 
-PPOsm::NodeTbl::~NodeTbl()
+int SLAPI PPOsm::NodeCluster::GetCount(uint * pLogicCount, uint * pActualCount)
 {
+	return Implement_Get(0, 0, 0, pLogicCount, pActualCount);
 }
 
-int SLAPI PPOsm::NodeTbl::Add(const NodeCluster & rNc)
+int FASTCALL PPOsm::NodeCluster::GetHeaderID(uint64 * pID)
 {
-	int    ok = 0;
+	Node   head;
+	int    ok = Implement_Get(0, 0, &head, 0, 0);
+	if(ok) {
+		ASSIGN_PTR(pID, head.ID);
+	}
+	return ok;
+}
+
+int FASTCALL PPOsm::NodeCluster::GetTile(Tile * pT)
+{
+	Node   head;
+	int    ok = Implement_Get(0, 0, &head, 0, 0);
+	if(ok) {
+		ASSIGN_PTR(pT, head.T);
+	}
+	return ok;
+}
+
+const void * FASTCALL PPOsm::NodeCluster::GetBuffer(size_t * pSize) const
+{
+    const void * ptr = SBuffer::GetBuf(0);
+    ASSIGN_PTR(pSize, SBuffer::GetAvailableSize());
+    return ptr;
+}
+
+int SLAPI PPOsm::NodeCluster::SetBuffer(const void * pData, size_t size)
+{
+	int    ok = 1;
+	SBuffer::Clear();
+	THROW_SL(SBuffer::Write(pData, size));
+	CATCHZOK
 	return ok;
 }
 //
@@ -403,14 +454,71 @@ SLAPI PPOsm::Tag::Tag()
 	ValID = 0;
 }
 
-SLAPI PPOsm::PPOsm() : Ht(1024*1024, 0), Grid(12)
+//static 
+int FASTCALL PPOsm::SetNodeClusterStat(NodeCluster & rCluster, TSArray <NodeClusterStatEntry> & rStat)
 {
+	int    ok = 1;
+	uint   count_logic = 0;
+	uint   count_actual = 0;
+	THROW(rCluster.GetCount(&count_logic, &count_actual));
+	{
+		const  size_t sz = rCluster.GetSize();
+		int    found = 0;
+		for(uint i = 0; !found && i < rStat.getCount(); i++) {
+			NodeClusterStatEntry & r_entry = rStat.at(i);
+			if(r_entry.LogicalCount == count_logic) {
+				r_entry.ActualCount += count_actual;
+				r_entry.ClusterCount++;
+				r_entry.Size += sz;
+				found = 1;
+			}
+		}
+		if(!found) {
+			NodeClusterStatEntry new_entry;
+			MEMSZERO(new_entry);
+			new_entry.LogicalCount = count_logic;
+			new_entry.ActualCount = count_actual;
+			new_entry.ClusterCount = 1;
+			new_entry.Size = sz;
+			THROW(rStat.insert(&new_entry));
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+SLAPI PPOsm::PPOsm(const char * pDbPath) : Ht(1024*1024, 0), Grid(12)
+{
+	P_SrDb = 0;
 	LastSymbID = 0;
 	Status = 0;
+	if(!isempty(pDbPath)) {
+		OpenDatabase(pDbPath);
+	}
 }
 
 SLAPI PPOsm::~PPOsm()
 {
+	delete P_SrDb;
+}
+
+int SLAPI PPOsm::OpenDatabase(const char * pDbPath)
+{
+	int    ok = 1;
+	ZDELETE(P_SrDb);
+	if(!isempty(pDbPath)) {
+		P_SrDb = new SrDatabase;
+		if(!P_SrDb->Open(pDbPath)) {
+			ZDELETE(P_SrDb);
+			ok = 0;
+		}
+	}
+	return ok;
+}
+
+SrDatabase * PPOsm::GetDb()
+{
+	return P_SrDb;
 }
 
 int SLAPI PPOsm::LoadGeoGrid()
@@ -875,7 +983,7 @@ int SLAPI PPViewGeoTracking::ViewTotal()
 	TDialog * dlg = 0;
 	GeoTrackingTotal total;
 	THROW(CalcTotal(&total));
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_GEOTRTOTAL)), 1));
+	THROW(CheckDialogPtrErr(&(dlg = new TDialog(DLG_GEOTRTOTAL))));
     dlg->setCtrlLong(CTL_GEOTRTOTAL_COUNT, total.Count);
     dlg->setCtrlLong(CTL_GEOTRTOTAL_OBJCOUNT, total.ObjCount);
     ExecViewAndDestroy(dlg);

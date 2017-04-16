@@ -16,8 +16,8 @@
 #pragma hdrstop
 // @v9.5.5 #include "dbinc/log.h"
 
-static int __memp_mpf_alloc __P((DB_MPOOL*, DB_MPOOLFILE*, const char *, uint32, uint32, MPOOLFILE**));
-static int __memp_mpf_find __P((ENV*, DB_MPOOLFILE*, DB_MPOOL_HASH*, const char *, uint32, MPOOLFILE**));
+static int __memp_mpf_alloc(DB_MPOOL*, DB_MPOOLFILE*, const char *, uint32, uint32, MPOOLFILE**);
+static int __memp_mpf_find(ENV*, DB_MPOOLFILE*, DB_MPOOL_HASH*, const char *, uint32, MPOOLFILE**);
 /*
  * __memp_fopen_pp --
  *	DB_MPOOLFILE->open pre/post processing.

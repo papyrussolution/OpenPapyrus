@@ -23,13 +23,13 @@
 #ifndef __NO_SYSTEM_INCLUDES
 	#include <sys/types.h>
 	#include <stddef.h>
-	#include <stdio.h>
+	//#include <stdio.h>
 #endif
 
 /*
  * Turn off inappropriate compiler warnings
  */
- #ifdef _MSC_VER
+#ifdef _MSC_VER
 /*
  * This warning is explicitly disabled in Visual C++ by default.
  * It is necessary to explicitly enable the /Wall flag to generate this
@@ -76,6 +76,10 @@ extern "C" {
  */
 #ifndef __BIT_TYPES_DEFINED__
 	#define __BIT_TYPES_DEFINED__
+	typedef unsigned char uint8;
+	typedef short int16;
+	typedef unsigned short uint16;
+	//typedef int int32;
 	typedef __int64 int64_t;
 	typedef unsigned __int64 u_int64_t;
 #endif
@@ -105,7 +109,7 @@ typedef unsigned short u_short;
  * no unsigned type the same size as a pointer -- here's hoping.
  */
 #if defined(_MSC_VER) && _MSC_VER < 1300
-	typedef unsigned int uintmax_t;
+	typedef uint32 uintmax_t;
 #else
 	typedef u_int64_t uintmax_t;
 #endif
@@ -121,19 +125,19 @@ typedef unsigned short u_short;
  */
 #define off_t   __db_off_t
 typedef int64_t off_t;
-typedef signed int pid_t;
+typedef int32 pid_t;
 #ifdef HAVE_MIXED_SIZE_ADDRESSING
-	typedef unsigned int db_size_t;
+	typedef uint32 db_size_t;
 #else
 	typedef size_t db_size_t;
 #endif
 #ifdef _WIN64
 	typedef int64_t ssize_t;
 #else
-	typedef signed int ssize_t;
+	typedef int32 ssize_t;
 #endif
 #ifdef HAVE_MIXED_SIZE_ADDRESSING
-	typedef signed int db_ssize_t;
+	typedef int32 db_ssize_t;
 #else
 	typedef ssize_t db_ssize_t;
 #endif
@@ -156,17 +160,17 @@ typedef uint32 db_timeout_t;    /* Type of a timeout. */
  * arbitrary pointers.
  */
 typedef db_size_t roff_t;
-
-/*
- * Forward structure declarations, so we can declare pointers and
- * applications can get type checking.
- */
+//
+// Forward structure declarations, so we can declare pointers and
+// applications can get type checking.
+//
 struct __channel;       typedef struct __channel CHANNEL;
 struct __db;            typedef struct __db DB;
 struct __db_bt_stat;    typedef struct __db_bt_stat DB_BTREE_STAT;
 struct __db_channel;    typedef struct __db_channel DB_CHANNEL;
 struct __db_cipher;     typedef struct __db_cipher DB_CIPHER;
 struct __db_compact;    typedef struct __db_compact DB_COMPACT;
+struct __db_dbt_base;   typedef struct __db_dbt_base DBT_BASE;
 struct __db_dbt;        typedef struct __db_dbt DBT;
 struct __db_distab;     typedef struct __db_distab DB_DISTAB;
 struct __db_env;        typedef struct __db_env DB_ENV;
@@ -177,6 +181,7 @@ struct __db_ilock;      typedef struct __db_ilock DB_LOCK_ILOCK;
 struct __db_lock_hstat; typedef struct __db_lock_hstat DB_LOCK_HSTAT;
 struct __db_lock_pstat; typedef struct __db_lock_pstat DB_LOCK_PSTAT;
 struct __db_lock_stat;  typedef struct __db_lock_stat DB_LOCK_STAT;
+struct __db_lock_u_base; typedef struct __db_lock_u_base DB_LOCK_BASE;
 struct __db_lock_u;     typedef struct __db_lock_u DB_LOCK;
 struct __db_locker;     typedef struct __db_locker DB_LOCKER;
 struct __db_lockreq;    typedef struct __db_lockreq DB_LOCKREQ;
@@ -219,36 +224,44 @@ struct __key_range;     typedef struct __key_range DB_KEY_RANGE;
 struct __mpoolfile;     typedef struct __mpoolfile MPOOLFILE;
 struct __db_logvrfy_config;
 typedef struct __db_logvrfy_config DB_LOG_VERIFY_CONFIG;
+//
+// The Berkeley DB API flags are automatically-generated -- the following flag
+// names are no longer used, but remain for compatibility reasons.
+//
+#define DB_DEGREE_2           DB_READ_COMMITTED
+#define DB_DIRTY_READ         DB_READ_UNCOMMITTED
+#define DB_JOINENV            0x0
 
-/*
- * The Berkeley DB API flags are automatically-generated -- the following flag
- * names are no longer used, but remain for compatibility reasons.
- */
- #define DB_DEGREE_2           DB_READ_COMMITTED
- #define DB_DIRTY_READ         DB_READ_UNCOMMITTED
- #define DB_JOINENV            0x0
-
-/* Key/data structure -- a Data-Base Thang. */
-struct __db_dbt {
+#define DB_DBT_APPMALLOC        0x001  /* Callback allocated memory. */
+#define DB_DBT_BULK             0x002  /* Internal: Insert if duplicate. */
+#define DB_DBT_DUPOK            0x004  /* Internal: Insert if duplicate. */
+#define DB_DBT_ISSET            0x008  /* Lower level calls set value. */
+#define DB_DBT_MALLOC           0x010  /* Return in malloc'd memory. */
+#define DB_DBT_MULTIPLE         0x020  /* References multiple records. */
+#define DB_DBT_PARTIAL          0x040  /* Partial put/get. */
+#define DB_DBT_REALLOC          0x080  /* Return in realloc'd memory. */
+#define DB_DBT_READONLY         0x100  /* Readonly, don't update. */
+#define DB_DBT_STREAMING        0x200  /* Internal: DBT is being streamed. */
+#define DB_DBT_USERCOPY         0x400  /* Use the user-supplied callback. */
+#define DB_DBT_USERMEM          0x800  /* Return in user's memory. */
+//
+// Key/data structure -- a Data-Base Thang.
+//
+struct __db_dbt_base {
 	void * data;            /* Key/data */
 	uint32 size;                 /* key/data length */
 	uint32 ulen;                 /* RO: length of user buffer. */
 	uint32 dlen;                 /* RO: get/put record length. */
 	uint32 doff;                 /* RO: get/put record offset. */
 	void * app_data;
- #define DB_DBT_APPMALLOC        0x001  /* Callback allocated memory. */
- #define DB_DBT_BULK             0x002  /* Internal: Insert if duplicate. */
- #define DB_DBT_DUPOK            0x004  /* Internal: Insert if duplicate. */
- #define DB_DBT_ISSET            0x008  /* Lower level calls set value. */
- #define DB_DBT_MALLOC           0x010  /* Return in malloc'd memory. */
- #define DB_DBT_MULTIPLE         0x020  /* References multiple records. */
- #define DB_DBT_PARTIAL          0x040  /* Partial put/get. */
- #define DB_DBT_REALLOC          0x080  /* Return in realloc'd memory. */
- #define DB_DBT_READONLY         0x100  /* Readonly, don't update. */
- #define DB_DBT_STREAMING        0x200  /* Internal: DBT is being streamed. */
- #define DB_DBT_USERCOPY         0x400  /* Use the user-supplied callback. */
- #define DB_DBT_USERMEM          0x800  /* Return in user's memory. */
 	uint32 flags;
+};
+
+struct __db_dbt : public __db_dbt_base {
+	__db_dbt()
+	{
+		THISZERO();
+	}
 };
 
 /*******************************************************
@@ -433,7 +446,6 @@ struct __db_lock_pstat { /* SHARED */
 	uintmax_t st_locksteals;        /* Number of lock steals so far. */
 	uintmax_t st_objectsteals;      /* Number of objects steals so far. */
 };
-
 /*
  * DB_LOCK_ILOCK --
  *	Internal DB access method lock.
@@ -447,21 +459,27 @@ struct __db_ilock { /* SHARED */
  #define DB_DATABASE_LOCK        4
 	uint32 type;                 /* Type of lock. */
 };
-
-/*
- * DB_LOCK --
- *	The structure is allocated by the caller and filled in during a
- *	lock_get request (or a lock_vec/DB_LOCK_GET).
- */
-struct __db_lock_u { /* SHARED */
-	roff_t off;                     /* Offset of the lock in the region */
-	uint32 ndx;                  /* Index of the object referenced by
-	                                 * this lock; used for locking. */
-	uint32 gen;                  /* Generation number of this lock. */
-	db_lockmode_t mode;             /* mode of this lock. */
+//
+// DB_LOCK --
+//  The structure is allocated by the caller and filled in during a
+//  lock_get request (or a lock_vec/DB_LOCK_GET).
+//
+struct __db_lock_u_base { // SHARED 
+	roff_t off; // Offset of the lock in the region
+	uint32 ndx; // Index of the object referenced by this lock; used for locking.
+	uint32 gen; // Generation number of this lock
+	db_lockmode_t mode; // mode of this lock
 };
 
-/* Lock request structure. */
+struct __db_lock_u : public __db_lock_u_base { // SHARED 
+	__db_lock_u()
+	{
+		off = 0;
+	}
+};
+//
+// Lock request structure
+//
 struct __db_lockreq {
 	db_lockop_t op;                 /* Operation. */
 	db_lockmode_t mode;             /* Requested mode. */
@@ -526,9 +544,9 @@ struct __db_log_cursor {
 	/*
 		DB_LOGC PUBLIC HANDLE LIST BEGIN
 	*/
-	int (*close)__P((DB_LOGC*, uint32));
-	int (*get)__P((DB_LOGC*, DB_LSN*, DBT*, uint32));
-	int (*version)__P((DB_LOGC*, uint32*, uint32));
+	int (*close)(DB_LOGC*, uint32);
+	int (*get)(DB_LOGC*, DB_LSN*, DBT*, uint32);
+	int (*version)(DB_LOGC*, uint32*, uint32);
 	/* DB_LOGC PUBLIC HANDLE LIST END */
 
  #define DB_LOG_DISK             0x01   /* Log record came from disk. */
@@ -576,8 +594,7 @@ struct __db_log_stat { /* SHARED */
  * need to track the last record of the transaction, this returns the
  * place to put that info.
  */
- #define DB_SET_TXN_LSNP(txn, blsnp, llsnp)              \
-        ((txn)->set_txn_lsnp(txn, blsnp, llsnp))
+#define DB_SET_TXN_LSNP(txn, blsnp, llsnp) ((txn)->set_txn_lsnp(txn, blsnp, llsnp))
 
 /*
  * Definition of the structure which specifies marshalling of log records.
@@ -655,8 +672,7 @@ struct __db_mpoolfile {
 	ENV * env;                      /* Environment */
 	MPOOLFILE * mfp;                /* Underlying MPOOLFILE. */
 	uint32 clear_len;            /* Cleared length on created pages. */
-	uint8                        /* Unique file ID. */
-	        fileid[DB_FILE_ID_LEN];
+	uint8  fileid[DB_FILE_ID_LEN]; /* Unique file ID. */
 	int ftype;                      /* File type. */
 	int32 lsn_offset;             /* LSN offset in page. */
 	uint32 gbytes, bytes;        /* Maximum file size. */
@@ -1404,9 +1420,9 @@ struct __db {
 	uint32 pgsize;               /* Database logical page size. */
 	DB_CACHE_PRIORITY priority;     /* Database priority in cache. */
 	/* Callbacks. */
-	int (*db_append_recno)__P((DB*, DBT*, db_recno_t));
-	void (*db_feedback)__P((DB*, int, int));
-	int (*dup_compare)__P((DB*, const DBT*, const DBT *));
+	int (*db_append_recno)(DB*, DBT*, db_recno_t);
+	void (*db_feedback)(DB*, int, int);
+	int (*dup_compare)(DB*, const DBT*, const DBT *);
 	void * app_private;             /* Application-private handle. */
 	/*******************************************************
 	* Private: owned by DB.
@@ -1804,10 +1820,8 @@ struct __db {
  #define DB_MULTIPLE_RESERVE_NEXT(pointer, dbt, writedata, writedlen)    \
         do {                                                            \
 		uint32 * __p = (uint32 *)(pointer);                \
-		uint32 __off = ((pointer) == (uint8 *)(dbt)->data+ \
-		                   (dbt)->ulen-sizeof(uint32)) ?  0 : __p[1]+__p[2]; \
-		if((uint8 *)(dbt)->data+__off+(writedlen) >     \
-		   (uint8 *)(__p-2))                              \
+		uint32 __off = ((pointer) == (uint8 *)(dbt)->data+(dbt)->ulen-sizeof(uint32)) ?  0 : __p[1]+__p[2]; \
+		if((uint8 *)(dbt)->data+__off+(writedlen) > (uint8 *)(__p-2)) \
 			writedata = NULL;                               \
 		else {                                                  \
 			writedata = (uint8 *)(dbt)->data+__off;    \
@@ -1830,10 +1844,8 @@ struct __db {
  #define DB_MULTIPLE_KEY_RESERVE_NEXT(pointer, dbt, writekey, writeklen, writedata, writedlen) \
         do {                                                            \
 		uint32 * __p = (uint32 *)(pointer);                \
-		uint32 __off = ((pointer) == (uint8 *)(dbt)->data+ \
-		                   (dbt)->ulen-sizeof(uint32)) ?  0 : __p[1]+__p[2]; \
-		if((uint8 *)(dbt)->data+__off+(writeklen)+     \
-		   (writedlen) > (uint8 *)(__p-4)) {              \
+		uint32 __off = ((pointer) == (uint8 *)(dbt)->data+(dbt)->ulen-sizeof(uint32)) ?  0 : __p[1]+__p[2]; \
+		if((uint8 *)(dbt)->data+__off+(writeklen)+(writedlen) > (uint8 *)(__p-4)) {              \
 			writekey = NULL;                                \
 			writedata = NULL;                               \
 		} else {                                                \
@@ -1853,8 +1865,7 @@ struct __db {
  #define DB_MULTIPLE_KEY_WRITE_NEXT(pointer, dbt, writekey, writeklen, writedata, writedlen) \
         do {                                                            \
 		void * __destk, * __destd;                                \
-		DB_MULTIPLE_KEY_RESERVE_NEXT((pointer), (dbt),          \
-			__destk, (writeklen), __destd, (writedlen));        \
+		DB_MULTIPLE_KEY_RESERVE_NEXT((pointer), (dbt), __destk, (writeklen), __destd, (writedlen));        \
 		if(__destk == NULL)                                    \
 			pointer = NULL;                                 \
 		else {                                                  \
@@ -2166,16 +2177,16 @@ struct __db_env {
 	//
 	// Other application callback functions 
 	//
-	int   (*app_dispatch)__P((DB_ENV*, DBT*, DB_LSN*, db_recops));
-	void  (*db_event_func)__P((DB_ENV*, uint32, void *));
-	void  (*db_feedback)__P((DB_ENV*, int, int));
-	void  (*db_free)__P((void *));
-	void  (*db_paniccall)__P((DB_ENV*, int));
-	void *(*db_malloc)__P((size_t));
-	void *(*db_realloc)__P((void *, size_t));
-	int   (*is_alive)__P((DB_ENV*, pid_t, db_threadid_t, uint32));
-	void  (*thread_id)__P((DB_ENV*, pid_t*, db_threadid_t *));
-	char *(*thread_id_string)__P((DB_ENV*, pid_t, db_threadid_t, char *));
+	int   (*app_dispatch)(DB_ENV*, DBT*, DB_LSN*, db_recops);
+	void  (*db_event_func)(DB_ENV*, uint32, void *);
+	void  (*db_feedback)(DB_ENV*, int, int);
+	void  (*db_free)(void *);
+	void  (*db_paniccall)(DB_ENV*, int);
+	void *(*db_malloc)(size_t);
+	void *(*db_realloc)(void *, size_t);
+	int   (*is_alive)(DB_ENV*, pid_t, db_threadid_t, uint32);
+	void  (*thread_id)(DB_ENV*, pid_t*, db_threadid_t *);
+	char *(*thread_id_string)(DB_ENV*, pid_t, db_threadid_t, char *);
 
 	/* Application specified paths */
 	char * db_log_dir;              /* Database log file directory */
@@ -2488,9 +2499,9 @@ struct __db_env {
  * we need something more elaborate than a single pointer and size.
  */
 struct __db_distab {
-	int   (**int_dispatch)__P((ENV*, DBT*, DB_LSN*, db_recops, void *));
+	int   (**int_dispatch)(ENV*, DBT*, DB_LSN*, db_recops, void *);
 	size_t int_size;
-	int   (**ext_dispatch)__P((DB_ENV*, DBT*, DB_LSN*, db_recops));
+	int   (**ext_dispatch)(DB_ENV*, DBT*, DB_LSN*, db_recops);
 	size_t ext_size;
 };
 
@@ -2527,12 +2538,12 @@ struct __db_site {
 	uint32 flags;
 
 	/* DB_SITE PUBLIC HANDLE LIST BEGIN */
-	int (*get_address)__P((DB_SITE*, const char **, uint *));
-	int (*get_config)__P((DB_SITE*, uint32, uint32 *));
-	int (*get_eid)__P((DB_SITE*, int *));
-	int (*set_config)__P((DB_SITE*, uint32, uint32));
-	int (*remove)__P((DB_SITE *));
-	int (*close)__P((DB_SITE *));
+	int (*get_address)(DB_SITE*, const char **, uint *);
+	int (*get_config)(DB_SITE*, uint32, uint32 *);
+	int (*get_eid)(DB_SITE*, int *);
+	int (*set_config)(DB_SITE*, uint32, uint32);
+	int (*remove)(DB_SITE *);
+	int (*close)(DB_SITE *);
 	/* DB_SITE PUBLIC HANDLE LIST END */
 };
 

@@ -401,7 +401,7 @@ static int SLAPI BarcodeList(BarcodeArray * pCodes, int * pSelection)
 	};
 	int    ok = -1, sel = 0;
 	SelByBCListDlg * dlg = new SelByBCListDlg(pCodes);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		if(ExecView(dlg) == cmOK)
 			ok = dlg->getDTS(&sel);
 	}
@@ -1871,7 +1871,7 @@ int QuotationDialog::SetupLocList()
 		p_box->TransmitData(+1, &SelLocID);
 	else
 		p_box->focusItem(cur_foc_pos);
-	p_box->drawView();
+	p_box->Draw_();
 	selectCtrl(CTL_GQUOT_LOCLIST);
 	return 1;
 }
@@ -2300,7 +2300,7 @@ void QuotationDialog::updatePage()
 					p_box->addItem(i+1, ss.getBuf());
 				}
 			}
-			p_box->drawView();
+			p_box->Draw_();
 		}
 	}
 	else {
@@ -3243,7 +3243,7 @@ int SLAPI PPBarcode::RecognizeImage(const char * pInpFileName, TSCollection <PPB
 			int n = zbar_scan_image(p_scanner, p_zbar_image);
 			// extract results
 			for(const zbar_symbol_t * p_symbol = zbar_image_first_symbol(p_zbar_image); p_symbol; p_symbol = zbar_symbol_next(p_symbol)) {
-				PPBarcode::Entry * p_new_entry = rList.CreateNewItem(0);
+				PPBarcode::Entry * p_new_entry = rList.CreateNewItem();
 				THROW_SL(p_new_entry);
 				p_new_entry->BcStd = ZBarStdToPp(zbar_symbol_get_type(p_symbol));
 				p_new_entry->Code = zbar_symbol_get_data(p_symbol);

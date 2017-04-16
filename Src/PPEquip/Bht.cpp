@@ -112,7 +112,7 @@ PPID SLAPI StyloBhtIIOnHostCfg::GetOpID(PPID opID) const
 int SLAPI StyloBhtIIOnHostCfg::IsCostAsPrice(PPID opID) const
 {
 	uint   pos = 0;
-	return (P_OpList && P_OpList->lsearch(&opID, &pos, PTR_CMPFUNC(long)) > 0) ? BIN(P_OpList->at(pos).Flags & StyloBhtIIConfig::foprCostAsPrice) : 0;
+	return (P_OpList && P_OpList->lsearch(&opID, &pos, PTR_CMPFUNC(long))) ? BIN(P_OpList->at(pos).Flags & StyloBhtIIConfig::foprCostAsPrice) : 0;
 }
 //
 //
@@ -541,7 +541,7 @@ int StyloBhtIICfgDialog::editItem(long pos, long id)
 	int    ok = -1, valid_data = 0;
 	StyloBhtIIOpInfoDlg * dlg = 0;
 	if(Data.P_OpList && pos >= 0 && pos < (long)Data.P_OpList->getCount()) {
-		if(CheckDialogPtr(&(dlg = new StyloBhtIIOpInfoDlg), 1) > 0) {
+		if(CheckDialogPtrErr(&(dlg = new StyloBhtIIOpInfoDlg)) > 0) {
 			dlg->setDTS(&Data.P_OpList->at(pos));
 			while(!valid_data && ExecView(dlg) == cmOK) {
 				if(dlg->getDTS(&Data.P_OpList->at(pos)) > 0)
@@ -673,7 +673,7 @@ void BhtDialog::editMore()
 			THROW_SL(Data.P_SBIICfg->P_OpList->insert(&op_info));
 		}
 	}
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	dlg->setDTS(Data.P_SBIICfg);
 	while(!valid_data && ExecView(dlg) == cmOK) {
 		if(dlg->getDTS(Data.P_SBIICfg) > 0)
@@ -1973,7 +1973,7 @@ int SLAPI PPObjBHT::TransmitProgram()
 		return -1;
 
 	TDialog * dlg = new TDialog(DLG_BHTPROGUPLOAD);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	PPGetFilePath(PPPATH_IN, "STYLOBHT.PD3", path);
 	bht_id = bht_obj.GetSingle();
 	SetupPPObjCombo(dlg, CTLSEL_BHTSEND_BHT, PPOBJ_BHT, bht_id, 0);
@@ -4844,7 +4844,7 @@ int SLAPI PPObjBHT::ReceiveData()
 	PPID   dest_intr_loc_id = 0; // Склад назначения для документов внутренней передачи
 	PPBhtTerminalPacket pack;
 	TDialog * dlg = new TDialog(DLG_BHTRCV);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	bht_id = bht_obj.GetSingle();
 	SetupPPObjCombo(dlg, CTLSEL_BHTRCV_BHT, PPOBJ_BHT, bht_id, 0);
 	SetupLocationCombo(dlg, CTLSEL_BHTRCV_DINTRLOC, dest_intr_loc_id, 0, LOCTYP_WAREHOUSE, 0); // @v9.4.12
@@ -5122,7 +5122,7 @@ int SLAPI PPObjBHT::TransmitData()
 	PPObjBHT bht_obj;
 	PPBhtTerminal rec;
 	BhtSendDlg * dlg = new BhtSendDlg(&bht_obj);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	if(ExecView(dlg) == cmOK) {
 		dlg->getCtrlData(CTLSEL_BHTSEND_BHT, &bht_id);
 		if(bht_id) {

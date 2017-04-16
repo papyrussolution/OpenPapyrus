@@ -407,7 +407,7 @@ int BillHdrImpExpCfgListDialog::EditParam(const char * pIniSection)
 	{
 		int    direction = 0;
 		PPIniFile ini_file(ini_file_name, 0, 1, 1);
-		THROW(CheckDialogPtr(&(dlg = new BillHdrImpExpDialog()), 0));
+		THROW(CheckDialogPtr(&(dlg = new BillHdrImpExpDialog())));
 		THROW(LoadSdRecord(PPREC_BILL, &param.InrRec));
 		direction = param.Direction;
 		if(!isempty(pIniSection))
@@ -442,11 +442,11 @@ int SLAPI EditBillImpExpParams(int editBill)
 	ImpExpParamDialog * dlg = 0;
 	if(editBill) {
 		BillHdrImpExpCfgListDialog * p_list_dlg = new BillHdrImpExpCfgListDialog();
-		THROW(CheckDialogPtr(&p_list_dlg, 1));
+		THROW(CheckDialogPtrErr(&p_list_dlg));
 		ok = (ExecViewAndDestroy(p_list_dlg) == cmOK) ? 1 : -1;
 	}
 	else {
-		THROW(CheckDialogPtr(&(dlg = new ImpExpParamDialog(DLG_IMPEXP, 0)), 0));
+		THROW(CheckDialogPtr(&(dlg = new ImpExpParamDialog(DLG_IMPEXP, 0))));
 		THROW(ok = EditImpExpParams(PPFILNAM_IMPEXP_INI, PPREC_BROW, &param, dlg));
 	}
 	CATCHZOK
@@ -874,7 +874,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 		//PPIniFile ini_file(ini_file_name, 0, 1, 1);
 		BillParam.Direction = BIN(import);
 		BRowParam.Direction = BIN(import);
-		THROW(CheckDialogPtr(&(dlg = new SelectBillImpCfgDialog((import ? DLG_RUNIE_BILL_IMP : DLG_RUNIE_BILL_EXP), ini_file_name, import)), 0));
+		THROW(CheckDialogPtr(&(dlg = new SelectBillImpCfgDialog((import ? DLG_RUNIE_BILL_IMP : DLG_RUNIE_BILL_EXP), ini_file_name, import))));
 		THROW(dlg->setDTS(this));
 		while(ok <= 0 && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS())
@@ -907,7 +907,7 @@ int SLAPI SelectBillImpExpCfgs(PPBillImpExpParam * pBillParam, PPBillImpExpParam
 		pBRowParam->Direction = BIN(import);
 		THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_BILL, &param, &list1, import ? 2 : 1));
 		THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_BROW, &param, &list2, import ? 2 : 1));
-		THROW(CheckDialogPtr(&(p_dlg = new SelectBillImpCfgDialog(list1, list2, pBillParam, &ini_file)), 0));
+		THROW(CheckDialogPtr(&(p_dlg = new SelectBillImpCfgDialog(list1, list2, pBillParam, &ini_file))));
 		id = (list1.SearchByText(pBillParam->Name, 1, &p) > 0) ? (uint)list1.at(p).Id : 0;
 		SetupStrAssocCombo(p_dlg, CTLSEL_IEBILLSEL_BILL, &list1, (long)id, 0);
 		id = (list2.SearchByText(pBRowParam->Name, 1, &p) > 0) ? (uint)list2.at(p).Id : 0;
@@ -3372,7 +3372,7 @@ int SignBillDialog::DrawList()
 					THROW_SL(p_list->addItem(i, signer_name.Transf(CTRANSF_OUTER_TO_INNER)));
 				}
 			}
-			p_list->draw();
+			p_list->Draw_();
 		}
 	}
 	{
@@ -3385,7 +3385,7 @@ int SignBillDialog::DrawList()
 					THROW_SL(p_list->addItem(i, file_name.Transf(CTRANSF_OUTER_TO_INNER)));
 				}
 			}
-			p_list->draw();
+			p_list->Draw_();
 		}
 	}
 	CATCHZOKPPERR;
@@ -3466,7 +3466,7 @@ int SLAPI PPBillExporter::SignBill()
 	TDialog * p_sign_dlg = 0;
 	if(Flags & fSignExport) {
 		SString file_name = BillParam.FileName;
-		THROW(CheckDialogPtr(&(p_sign_dlg = new SignBillDialog(file_name)), 0));
+		THROW(CheckDialogPtr(&(p_sign_dlg = new SignBillDialog(file_name))));
 		ExecView(p_sign_dlg);
 	}
 	CATCHZOK

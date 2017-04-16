@@ -81,8 +81,8 @@ extern "C" {
    even in the case of corrupted input.
  */
 
-typedef voidpf (*alloc_func) OF ((voidpf opaque, uInt items, uInt size));
-typedef void (*free_func)  OF ((voidpf opaque, voidpf address));
+typedef voidpf (*alloc_func)(voidpf opaque, uInt items, uInt size);
+typedef void (*free_func)(voidpf opaque, voidpf address);
 
 struct internal_state;
 
@@ -1359,8 +1359,7 @@ ZEXTERN int ZEXPORT gzbuffer OF((gzFile file, unsigned size));
      gzbuffer() returns 0 on success, or -1 on failure, such as being called
    too late.
  */
-
-ZEXTERN int ZEXPORT gzsetparams OF((gzFile file, int level, int strategy));
+ZEXTERN int ZEXPORT gzsetparams(gzFile file, int level, int strategy);
 /*
      Dynamically update the compression level or strategy.  See the description
    of deflateInit2 for the meaning of these parameters.  Previously provided
@@ -1370,8 +1369,7 @@ ZEXTERN int ZEXPORT gzsetparams OF((gzFile file, int level, int strategy));
    opened for writing, Z_ERRNO if there is an error writing the flushed data,
    or Z_MEM_ERROR if there is a memory allocation error.
  */
-
-ZEXTERN int ZEXPORT gzread OF((gzFile file, voidp buf, unsigned len));
+ZEXTERN int ZEXPORT gzread(gzFile file, voidp buf, unsigned len);
 /*
      Reads the given number of uncompressed bytes from the compressed file.  If
    the input file is not in gzip format, gzread copies the given number of
@@ -1400,9 +1398,7 @@ ZEXTERN int ZEXPORT gzread OF((gzFile file, voidp buf, unsigned len));
    then nothing is read, -1 is returned, and the error state is set to
    Z_STREAM_ERROR.
  */
-
-ZEXTERN z_size_t ZEXPORT gzfread OF((voidp buf, z_size_t size, z_size_t nitems,
-	    gzFile file));
+ZEXTERN z_size_t ZEXPORT gzfread(voidp buf, z_size_t size, z_size_t nitems, gzFile file);
 /*
      Read up to nitems items of size size from file to buf, otherwise operating
    as gzread() does.  This duplicates the interface of stdio's fread(), with
@@ -1427,16 +1423,14 @@ ZEXTERN z_size_t ZEXPORT gzfread OF((voidp buf, z_size_t size, z_size_t nitems,
    file, reseting and retrying on end-of-file, when size is not 1.
  */
 
-ZEXTERN int ZEXPORT gzwrite OF((gzFile file,
-	    voidpc buf, unsigned len));
+ZEXTERN int ZEXPORT gzwrite(gzFile file, voidpc buf, unsigned len);
 /*
      Writes the given number of uncompressed bytes into the compressed file.
    gzwrite returns the number of uncompressed bytes written or 0 in case of
    error.
  */
 
-ZEXTERN z_size_t ZEXPORT gzfwrite OF((voidpc buf, z_size_t size,
-	    z_size_t nitems, gzFile file));
+ZEXTERN z_size_t ZEXPORT gzfwrite(voidpc buf, z_size_t size, z_size_t nitems, gzFile file);
 /*
      gzfwrite() writes nitems items of size size from buf to file, duplicating
    the interface of stdio's fwrite(), with size_t request and return types.  If
@@ -1694,8 +1688,7 @@ ZEXTERN uLong ZEXPORT adler32_z OF((uLong adler, const Bytef *buf, z_size_t len)
  */
 
 /*
-   ZEXTERN uLong ZEXPORT adler32_combine OF((uLong adler1, uLong adler2,
-                                          z_off_t len2));
+   ZEXTERN uLong ZEXPORT adler32_combine OF((uLong adler1, uLong adler2, z_off_t len2));
 
      Combine two Adler-32 checksums into one.  For two sequences of bytes, seq1
    and seq2 with lengths len1 and len2, Adler-32 checksums were calculated for
@@ -1704,8 +1697,7 @@ ZEXTERN uLong ZEXPORT adler32_z OF((uLong adler, const Bytef *buf, z_size_t len)
    that the z_off_t type (like off_t) is a signed integer.  If len2 is
    negative, the result has no meaning or utility.
  */
-
-ZEXTERN uLong ZEXPORT crc32 OF((uLong crc, const Bytef *buf, uInt len));
+ZEXTERN uLong ZEXPORT crc32(uLong crc, const Bytef *buf, uInt len);
 /*
      Update a running CRC-32 with the bytes buf[0..len-1] and return the
    updated CRC-32.  If buf is Z_NULL, this function returns the required
@@ -1721,8 +1713,7 @@ ZEXTERN uLong ZEXPORT crc32 OF((uLong crc, const Bytef *buf, uInt len));
      }
      if (crc != original_crc) error();
  */
-
-ZEXTERN uLong ZEXPORT crc32_z OF((uLong adler, const Bytef *buf, z_size_t len));
+ZEXTERN uLong ZEXPORT crc32_z(uLong adler, const Bytef *buf, z_size_t len);
 /*
      Same as crc32(), but with a size_t length.
  */
@@ -1742,11 +1733,11 @@ ZEXTERN uLong ZEXPORT crc32_z OF((uLong adler, const Bytef *buf, z_size_t len));
 /* deflateInit and inflateInit are macros to allow checking the zlib version
  * and the compiler's view of z_stream:
  */
-ZEXTERN int ZEXPORT deflateInit_ OF((z_streamp strm, int level, const char * version, int stream_size));
-ZEXTERN int ZEXPORT inflateInit_ OF((z_streamp strm, const char * version, int stream_size));
-ZEXTERN int ZEXPORT deflateInit2_ OF((z_streamp strm, int level, int method, int windowBits, int memLevel, int strategy, const char * version, int stream_size));
-ZEXTERN int ZEXPORT inflateInit2_ OF((z_streamp strm, int windowBits, const char * version, int stream_size));
-ZEXTERN int ZEXPORT inflateBackInit_ OF((z_streamp strm, int windowBits, unsigned char * window, const char * version, int stream_size));
+ZEXTERN int ZEXPORT deflateInit_(z_streamp strm, int level, const char * version, int stream_size);
+ZEXTERN int ZEXPORT inflateInit_(z_streamp strm, const char * version, int stream_size);
+ZEXTERN int ZEXPORT deflateInit2_(z_streamp strm, int level, int method, int windowBits, int memLevel, int strategy, const char * version, int stream_size);
+ZEXTERN int ZEXPORT inflateInit2_(z_streamp strm, int windowBits, const char * version, int stream_size);
+ZEXTERN int ZEXPORT inflateBackInit_(z_streamp strm, int windowBits, unsigned char * window, const char * version, int stream_size);
 #ifdef Z_PREFIX_SET
 #  define z_deflateInit(strm, level) \
 	deflateInit_((strm), (level), ZLIB_VERSION, (int)sizeof(z_stream))
@@ -1755,17 +1746,12 @@ ZEXTERN int ZEXPORT inflateBackInit_ OF((z_streamp strm, int windowBits, unsigne
 #  define z_deflateInit2(strm, level, method, windowBits, memLevel, strategy) \
 	deflateInit2_((strm), (level), (method), (windowBits), (memLevel), \
 	    (strategy), ZLIB_VERSION, (int)sizeof(z_stream))
-#  define z_inflateInit2(strm, windowBits) \
-	inflateInit2_((strm), (windowBits), ZLIB_VERSION, \
-	    (int)sizeof(z_stream))
-#  define z_inflateBackInit(strm, windowBits, window) \
-	inflateBackInit_((strm), (windowBits), (window), \
-	    ZLIB_VERSION, (int)sizeof(z_stream))
+#  define z_inflateInit2(strm, windowBits)            inflateInit2_((strm), (windowBits), ZLIB_VERSION, (int)sizeof(z_stream))
+#  define z_inflateBackInit(strm, windowBits, window) inflateBackInit_((strm), (windowBits), (window), ZLIB_VERSION, (int)sizeof(z_stream))
 #else
 	#define deflateInit(strm, level) deflateInit_((strm), (level), ZLIB_VERSION, (int)sizeof(z_stream))
 	#define inflateInit(strm) inflateInit_((strm), ZLIB_VERSION, (int)sizeof(z_stream))
-	#define deflateInit2(strm, level, method, windowBits, memLevel, strategy) \
-		deflateInit2_((strm), (level), (method), (windowBits), (memLevel), (strategy), ZLIB_VERSION, (int)sizeof(z_stream))
+	#define deflateInit2(strm, level, method, windowBits, memLevel, strategy) deflateInit2_((strm), (level), (method), (windowBits), (memLevel), (strategy), ZLIB_VERSION, (int)sizeof(z_stream))
 	#define inflateInit2(strm, windowBits) inflateInit2_((strm), (windowBits), ZLIB_VERSION, (int)sizeof(z_stream))
 	#define inflateBackInit(strm, windowBits, window) inflateBackInit_((strm), (windowBits), (window), ZLIB_VERSION, (int)sizeof(z_stream))
 #endif
@@ -1809,19 +1795,19 @@ ZEXTERN int ZEXPORT gzgetc_ OF((gzFile file));  /* backward compatibility */
 #endif
 #if !defined(ZLIB_INTERNAL) && defined(Z_WANT64)
 	#ifdef Z_PREFIX_SET
-#    define z_gzopen z_gzopen64
-#    define z_gzseek z_gzseek64
-#    define z_gztell z_gztell64
-#    define z_gzoffset z_gzoffset64
-#    define z_adler32_combine z_adler32_combine64
-#    define z_crc32_combine z_crc32_combine64
+		#define z_gzopen z_gzopen64
+		#define z_gzseek z_gzseek64
+		#define z_gztell z_gztell64
+		#define z_gzoffset z_gzoffset64
+		#define z_adler32_combine z_adler32_combine64
+		#define z_crc32_combine z_crc32_combine64
 	#else
-#    define gzopen gzopen64
-#    define gzseek gzseek64
-#    define gztell gztell64
-#    define gzoffset gzoffset64
-#    define adler32_combine adler32_combine64
-#    define crc32_combine crc32_combine64
+		#define gzopen gzopen64
+		#define gzseek gzseek64
+		#define gztell gztell64
+		#define gzoffset gzoffset64
+		#define adler32_combine adler32_combine64
+		#define crc32_combine crc32_combine64
 	#endif
 	#ifndef Z_LARGE64
 		ZEXTERN gzFile ZEXPORT gzopen64 OF((const char *, const char *));
@@ -1839,25 +1825,22 @@ ZEXTERN int ZEXPORT gzgetc_ OF((gzFile file));  /* backward compatibility */
 	ZEXTERN uLong ZEXPORT adler32_combine OF((uLong, uLong, z_off_t));
 	ZEXTERN uLong ZEXPORT crc32_combine OF((uLong, uLong, z_off_t));
 #endif
-
 #else /* Z_SOLO */
-
-ZEXTERN uLong ZEXPORT adler32_combine OF((uLong, uLong, z_off_t));
-ZEXTERN uLong ZEXPORT crc32_combine OF((uLong, uLong, z_off_t));
-
+	ZEXTERN uLong ZEXPORT adler32_combine(uLong, uLong, z_off_t);
+	ZEXTERN uLong ZEXPORT crc32_combine(uLong, uLong, z_off_t);
 #endif /* !Z_SOLO */
 
 /* undocumented functions */
-ZEXTERN const char   * ZEXPORT zError OF((int));
-ZEXTERN int ZEXPORT inflateSyncPoint OF((z_streamp));
-ZEXTERN const z_crc_t  * ZEXPORT get_crc_table OF((void));
-ZEXTERN int ZEXPORT inflateUndermine OF((z_streamp, int));
-ZEXTERN int ZEXPORT inflateValidate OF((z_streamp, int));
-ZEXTERN unsigned long ZEXPORT inflateCodesUsed OF((z_streamp));
-ZEXTERN int ZEXPORT inflateResetKeep OF((z_streamp));
-ZEXTERN int ZEXPORT deflateResetKeep OF((z_streamp));
+ZEXTERN const char * ZEXPORT zError(int);
+ZEXTERN int ZEXPORT inflateSyncPoint(z_streamp);
+ZEXTERN const z_crc_t  * ZEXPORT get_crc_table(void);
+ZEXTERN int ZEXPORT inflateUndermine(z_streamp, int);
+ZEXTERN int ZEXPORT inflateValidate(z_streamp, int);
+ZEXTERN unsigned long ZEXPORT inflateCodesUsed(z_streamp);
+ZEXTERN int ZEXPORT inflateResetKeep(z_streamp);
+ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 #if (defined(_WIN32) || defined(__CYGWIN__)) && !defined(Z_SOLO)
-	ZEXTERN gzFile ZEXPORT gzopen_w OF((const wchar_t * path, const char * mode));
+	ZEXTERN gzFile ZEXPORT gzopen_w(const wchar_t * path, const char * mode);
 #endif
 #if defined(STDC) || defined(Z_HAVE_STDARG_H)
 	#ifndef Z_SOLO
@@ -1866,11 +1849,710 @@ ZEXTERN int ZEXPORT deflateResetKeep OF((z_streamp));
 #endif
 
 #if defined(ZLIB_INTERNAL)
-	#include <zutil.h>
+	//#include <zutil.h>
+	#ifdef HAVE_HIDDEN
+		#define ZLIB_INTERNAL __attribute__((visibility("hidden")))
+	#else
+		// @sobolev #define ZLIB_INTERNAL
+	#endif
+	//#include "zlib.h"
+	#if defined(STDC) && !defined(Z_SOLO)
+		#if !(defined(_WIN32_WCE) && defined(_MSC_VER))
+			#include <stddef.h>
+		#endif
+		//#include <string.h>
+		//#include <stdlib.h>
+	#endif
+	#ifdef Z_SOLO
+		typedef long ptrdiff_t;     /* guess -- will be caught if guess is wrong */
+	#endif
+	/* @sobolev #ifndef local
+		#define local static
+	#endif */
+	/* since "static" is used to mean two completely different things in C, we
+	   define "local" for the non-static meaning of "static", for readability
+	   (compile with -Dlocal if your debugger can't find static symbols) */
+
+	typedef unsigned char uch;
+	typedef uch uchf;
+	typedef unsigned short ush;
+	typedef ush ushf;
+	typedef unsigned long ulg;
+
+	extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
+	/* (size given to avoid silly warnings with Visual C++) */
+
+	#define ERR_MSG(err) z_errmsg[Z_NEED_DICT-(err)]
+	#define ERR_RETURN(strm, err) return (strm->msg = ERR_MSG(err), (err))
+	// To be used only when the state is known to be valid 
+	//
+	// common constants 
+	//
+	#ifndef DEF_WBITS
+		#define DEF_WBITS MAX_WBITS
+	#endif
+	/* default windowBits for decompression. MAX_WBITS is for compression only */
+	#if MAX_MEM_LEVEL >= 8
+		#define DEF_MEM_LEVEL 8
+	#else
+		#define DEF_MEM_LEVEL  MAX_MEM_LEVEL
+	#endif
+	//
+	// default memLevel 
+	//
+	#define STORED_BLOCK 0
+	#define STATIC_TREES 1
+	#define DYN_TREES    2
+	//
+	// The three kinds of block type 
+	//
+	#define MIN_MATCH  3
+	#define MAX_MATCH  258
+	//
+	// The minimum and maximum match lengths 
+	//
+	#define PRESET_DICT 0x20 /* preset dictionary flag in zlib header */
+	//
+	// target dependencies 
+	//
+	#if defined(MSDOS) || (defined(WINDOWS) && !defined(WIN32))
+		#define OS_CODE  0x00
+		#ifndef Z_SOLO
+			#if defined(__TURBOC__) || defined(__BORLANDC__)
+				#if (__STDC__ == 1) && (defined(__LARGE__) || defined(__COMPACT__))
+					// Allow compilation with ANSI keywords only enabled 
+					void _Cdecl farfree(void * block);
+					void * _Cdecl farmalloc(unsigned long nbytes);
+				#else
+					#include <alloc.h>
+				#endif
+			#else /* MSC or DJGPP */
+				#include <malloc.h>
+			#endif
+		#endif
+	#endif
+	#ifdef AMIGA
+		#define OS_CODE  1
+	#endif
+	#if defined(VAXC) || defined(VMS)
+		#define OS_CODE  2
+		#define F_OPEN(name, mode) fopen((name), (mode), "mbc=60", "ctx=stm", "rfm=fix", "mrs=512")
+	#endif
+	#ifdef __370__
+		#if __TARGET_LIB__ < 0x20000000
+			#define OS_CODE 4
+		#elif __TARGET_LIB__ < 0x40000000
+			#define OS_CODE 11
+		#else
+			#define OS_CODE 8
+		#endif
+	#endif
+	#if defined(ATARI) || defined(atarist)
+		#define OS_CODE  5
+	#endif
+	#ifdef OS2
+		#define OS_CODE  6
+		#if defined(M_I86) && !defined(Z_SOLO)
+			#include <malloc.h>
+		#endif
+	#endif
+	#if defined(MACOS) || defined(TARGET_OS_MAC)
+	#  define OS_CODE  7
+	#  ifndef Z_SOLO
+	#    if defined(__MWERKS__) && __dest_os != __be_os && __dest_os != __win32_os
+	#      include <unix.h> /* for fdopen */
+	#    else
+	#      ifndef fdopen
+	#        define fdopen(fd, mode) NULL /* No fdopen() */
+	#      endif
+	#    endif
+	#  endif
+	#endif
+	#ifdef __acorn
+		#define OS_CODE 13
+	#endif
+	#if defined(WIN32) && !defined(__CYGWIN__)
+		#define OS_CODE  10
+	#endif
+	#ifdef _BEOS_
+		#define OS_CODE  16
+	#endif
+	#ifdef __TOS_OS400__
+		#define OS_CODE 18
+	#endif
+	#ifdef __APPLE__
+		#define OS_CODE 19
+	#endif
+	#if defined(_BEOS_) || defined(RISCOS)
+		#define fdopen(fd, mode) NULL /* No fdopen() */
+	#endif
+	#if (defined(_MSC_VER) && (_MSC_VER > 600)) && !defined __INTERIX
+		#if defined(_WIN32_WCE)
+			#define fdopen(fd, mode) NULL /* No fdopen() */
+			#ifndef _PTRDIFF_T_DEFINED
+				typedef int ptrdiff_t;
+				#define _PTRDIFF_T_DEFINED
+			#endif
+		#else
+			#define fdopen(fd, type)  _fdopen(fd, type)
+		#endif
+	#endif
+	#if defined(__BORLANDC__) && !defined(MSDOS)
+		#pragma warn -8004
+		#pragma warn -8008
+		#pragma warn -8066
+	#endif
+	// provide prototypes for these when building zlib without LFS 
+	#if !defined(_WIN32) &&	(!defined(_LARGEFILE64_SOURCE) || _LFS64_LARGEFILE-0 == 0)
+		ZEXTERN uLong ZEXPORT adler32_combine64 OF((uLong, uLong, z_off_t));
+		ZEXTERN uLong ZEXPORT crc32_combine64 OF((uLong, uLong, z_off_t));
+	#endif
+	//
+	// common defaults 
+	//
+	#ifndef OS_CODE
+		#define OS_CODE  3     /* assume Unix */
+	#endif
+	#ifndef F_OPEN
+		#define F_OPEN(name, mode) fopen((name), (mode))
+	#endif
+	//
+	// functions 
+	//
+	#if defined(pyr) || defined(Z_SOLO)
+		#define NO_MEMCPY
+	#endif
+	#if defined(SMALL_MEDIUM) && !defined(_MSC_VER) && !defined(__SC__)
+		//
+		// Use our own functions for small and medium model with MSC <= 5.0.
+		// You may have to use the same strategy for Borland C (untested).
+		// The __SC__ check is for Symantec.
+		//
+		#define NO_MEMCPY
+	#endif
+	#if defined(STDC) && !defined(HAVE_MEMCPY) && !defined(NO_MEMCPY)
+		#define HAVE_MEMCPY
+	#endif
+	#ifdef HAVE_MEMCPY
+		#ifdef SMALL_MEDIUM /* MSDOS small or medium model */
+			#define zmemcpy _fmemcpy
+			#define zmemcmp _fmemcmp
+			#define zmemzero(dest, len) _fmemset(dest, 0, len)
+		#else
+			#define zmemcpy memcpy
+			#define zmemcmp memcmp
+			#define zmemzero(dest, len) memset(dest, 0, len)
+		#endif
+	#else
+		void ZLIB_INTERNAL zmemcpy OF((Bytef* dest, const Bytef* source, uInt len));
+		int ZLIB_INTERNAL zmemcmp OF((const Bytef* s1, const Bytef* s2, uInt len));
+		void ZLIB_INTERNAL zmemzero OF((Bytef* dest, uInt len));
+	#endif
+	//
+	// Diagnostic functions 
+	//
+	#ifdef ZLIB_DEBUG
+		//#include <stdio.h>
+		extern int ZLIB_INTERNAL z_verbose;
+		extern void ZLIB_INTERNAL z_error OF((char* m));
+		#define Assert(cond, msg) {if(!(cond)) z_error(msg); }
+		#define Trace(x) {if(z_verbose>=0) fprintf x; }
+		#define Tracev(x) {if(z_verbose>0) fprintf x; }
+		#define Tracevv(x) {if(z_verbose>1) fprintf x; }
+		#define Tracec(c, x) {if(z_verbose>0 && (c)) fprintf x; }
+		#define Tracecv(c, x) {if(z_verbose>1 && (c)) fprintf x; }
+	#else
+		#define Assert(cond, msg)
+		#define Trace(x)
+		#define Tracev(x)
+		#define Tracevv(x)
+		#define Tracec(c, x)
+		#define Tracecv(c, x)
+	#endif
+	#ifndef Z_SOLO
+		voidpf ZLIB_INTERNAL zcalloc(voidpf opaque, unsigned items, unsigned size);
+		void ZLIB_INTERNAL zcfree(voidpf opaque, voidpf ptr);
+	#endif
+	#define ZLIB_ALLOC(strm, items, size) (*((strm)->zalloc))((strm)->opaque, (items), (size))
+	#define ZLIB_FREE(strm, addr)  (*((strm)->zfree))((strm)->opaque, (voidpf)(addr))
+	#define TRY_FREE(s, p) { if(p) ZLIB_FREE(s, p); }
+	//
+	// Reverse the bytes in a 32-bit value 
+	//
+	#define ZSWAP32(q) ((((q) >> 24) & 0xff) + (((q) >> 8) & 0xff00) + (((q) & 0xff00) << 8) + (((q) & 0xff) << 24))
 #endif
 
 #ifdef __cplusplus
 }
+#endif
+
+#ifdef ZLIB_INTERNAL
+	//#include "inftrees.h"
+	// 
+	// Structure for decoding tables.  Each entry provides either the
+	// information needed to do the operation requested by the code that
+	// indexed that table entry, or it provides a pointer to another
+	// table that indexes more bits of the code.  op indicates whether
+	// the entry is a pointer to another table, a literal, a length or
+	// distance, an end-of-block, or an invalid code.  For a table
+	// pointer, the low four bits of op is the number of index bits of
+	// that table.  For a length or distance, the low four bits of op
+	// is the number of extra bits to get after the code.  bits is
+	// the number of bits in this code or part of the code to drop off
+	// of the bit buffer.  val is the actual byte to output in the case
+	// of a literal, the base length or distance, or the offset from
+	// the current table to the next table.  Each entry is four bytes. 
+	// 
+	typedef struct {
+		unsigned char op;       /* operation, extra bits, table bits */
+		unsigned char bits;     /* bits in this part of the code */
+		unsigned short val;     /* offset in table or code value */
+	} ZInfTreesCode; // code
+	// 
+	// op values as set by inflate_table():
+	//   00000000 - literal
+	//   0000tttt - table link, tttt != 0 is the number of table index bits
+	//   0001eeee - length or distance, eeee is the number of extra bits
+	//   01100000 - end of block
+	//   01000000 - invalid code
+	//
+	// Maximum size of the dynamic table.  The maximum number of code structures is
+	// 1444, which is the sum of 852 for literal/length codes and 592 for distance
+	// codes.  These values were found by exhaustive searches using the program
+	// examples/enough.c found in the zlib distribtution.  The arguments to that
+	// program are the number of symbols, the initial root table size, and the
+	// maximum bit length of a code.  "enough 286 9 15" for literal/length codes
+	// returns returns 852, and "enough 30 6 15" for distance codes returns 592.
+	// The initial root table size (9 or 6) is found in the fifth argument of the
+	// inflate_table() calls in inflate.c and infback.c.  If the root table size is
+	// changed, then these maximum sizes would be need to be recalculated and updated. 
+	//
+	#define ENOUGH_LENS 852
+	#define ENOUGH_DISTS 592
+	#define ENOUGH (ENOUGH_LENS+ENOUGH_DISTS)
+	//
+	// Type of code to build for inflate_table() 
+	//
+	typedef enum {
+		CODES,
+		LENS,
+		DISTS
+	} codetype;
+
+	int ZLIB_INTERNAL inflate_table(codetype type, unsigned short * lens, unsigned codes, ZInfTreesCode ** table, unsigned * bits, unsigned short * work);
+	//#include "inflate.h"
+	//
+	// define NO_GZIP when compiling if you want to disable gzip header and
+	// trailer decoding by inflate().  NO_GZIP would be used to avoid linking in
+	// the crc code when it is not needed.  For shared libraries, gzip decoding should be left enabled.
+	//
+	#ifndef NO_GZIP
+		#define GUNZIP
+	#endif
+	//
+	// Possible inflate modes between inflate() calls 
+	//
+	typedef enum {
+		HEAD = 16180, /* i: waiting for magic header */
+		FLAGS,  /* i: waiting for method and flags (gzip) */
+		TIME,   /* i: waiting for modification time (gzip) */
+		OS,     /* i: waiting for extra flags and operating system (gzip) */
+		EXLEN,  /* i: waiting for extra length (gzip) */
+		EXTRA,  /* i: waiting for extra bytes (gzip) */
+		NAME,   /* i: waiting for end of file name (gzip) */
+		COMMENT, /* i: waiting for end of comment (gzip) */
+		HCRC,   /* i: waiting for header crc (gzip) */
+		DICTID, /* i: waiting for dictionary check value */
+		DICT,   /* waiting for inflateSetDictionary() call */
+		TYPE,       /* i: waiting for type bits, including last-flag bit */
+		TYPEDO,     /* i: same, but skip check to exit inflate on new block */
+		STORED,     /* i: waiting for stored size (length and complement) */
+		COPY_,      /* i/o: same as COPY below, but only first time in */
+		COPY,       /* i/o: waiting for input or output to copy stored block */
+		TABLE,      /* i: waiting for dynamic block table lengths */
+		LENLENS,    /* i: waiting for code length code lengths */
+		CODELENS,   /* i: waiting for length/lit and distance code lengths */
+		LEN_,           /* i: same as LEN below, but only first time in */
+		LEN,            /* i: waiting for length/lit/eob code */
+		LENEXT,         /* i: waiting for length extra bits */
+		DIST,           /* i: waiting for distance code */
+		DISTEXT,        /* i: waiting for distance extra bits */
+		MATCH,          /* o: waiting for output space to copy string */
+		LIT,            /* o: waiting for output space to write literal */
+		CHECK,  /* i: waiting for 32-bit check value */
+		LENGTH, /* i: waiting for 32-bit length (gzip) */
+		DONE,   /* finished check, done -- remain here until reset */
+		BAD,    /* got a data error -- remain here until reset */
+		MEM,    /* got an inflate() memory error -- remain here until reset */
+		SYNC    /* looking for synchronization bytes to restart inflate() */
+	} inflate_mode;
+	/*
+		State transitions between above modes -
+
+		(most modes can go to BAD or MEM on error -- not shown for clarity)
+
+		Process header:
+			HEAD -> (gzip) or (zlib) or (raw)
+			(gzip) -> FLAGS -> TIME -> OS -> EXLEN -> EXTRA -> NAME -> COMMENT ->
+					  HCRC -> TYPE
+			(zlib) -> DICTID or TYPE
+			DICTID -> DICT -> TYPE
+			(raw) -> TYPEDO
+		Read deflate blocks:
+				TYPE -> TYPEDO -> STORED or TABLE or LEN_ or CHECK
+				STORED -> COPY_ -> COPY -> TYPE
+				TABLE -> LENLENS -> CODELENS -> LEN_
+				LEN_ -> LEN
+		Read deflate codes in fixed or dynamic block:
+					LEN -> LENEXT or LIT or TYPE
+					LENEXT -> DIST -> DISTEXT -> MATCH -> LEN
+					LIT -> LEN
+		Process trailer:
+			CHECK -> LENGTH -> DONE
+	 */
+	//
+	// State maintained between inflate() calls -- approximately 7K bytes, not
+	// including the allocated sliding window, which is up to 32K bytes. 
+	//
+	struct inflate_state {
+		z_streamp strm;         /* pointer back to this zlib stream */
+		inflate_mode mode;      /* current inflate mode */
+		int last;               /* true if processing last block */
+		int wrap;               /* bit 0 true for zlib, bit 1 true for gzip, bit 2 true to validate check value */
+		int havedict;           /* true if dictionary provided */
+		int flags;              /* gzip header method and flags (0 if zlib) */
+		unsigned dmax;          /* zlib header max distance (INFLATE_STRICT) */
+		unsigned long check;    /* protected copy of check value */
+		unsigned long total;    /* protected copy of output count */
+		gz_headerp head;        /* where to save gzip header information */
+		/* sliding window */
+		unsigned wbits;         /* log base 2 of requested window size */
+		unsigned wsize;         /* window size or zero if not using window */
+		unsigned whave;         /* valid bytes in the window */
+		unsigned wnext;         /* window write index */
+		unsigned char  * window; /* allocated sliding window, if needed */
+		/* bit accumulator */
+		unsigned long hold;     /* input bit accumulator */
+		unsigned bits;          /* number of bits in "in" */
+		/* for string and stored block copying */
+		unsigned length;        /* literal or length of data to copy */
+		unsigned offset;        /* distance back to copy string from */
+		/* for table and code decoding */
+		unsigned extra;         /* extra bits needed */
+		/* fixed and dynamic code tables */
+		ZInfTreesCode const  * lencode; /* starting table for length/literal codes */
+		ZInfTreesCode const  * distcode; /* starting table for distance codes */
+		unsigned lenbits;       /* index bits for lencode */
+		unsigned distbits;      /* index bits for distcode */
+		/* dynamic table building */
+		unsigned ncode;         /* number of code length code lengths */
+		unsigned nlen;          /* number of length code lengths */
+		unsigned ndist;         /* number of distance code lengths */
+		unsigned have;          /* number of code lengths in lens[] */
+		ZInfTreesCode * next;        /* next available space in codes[] */
+		unsigned short lens[320]; /* temporary storage for code lengths */
+		unsigned short work[288]; /* work area for code table building */
+		ZInfTreesCode codes[ENOUGH];     /* space for code tables */
+		int sane;               /* if false, allow invalid distance too far */
+		int back;               /* bits back of last unprocessed length/lit */
+		unsigned was;           /* initial length of match */
+	};
+	//#include "inffast.h"
+	void ZLIB_INTERNAL inflate_fast(z_streamp strm, unsigned start);
+	//
+	//#include "deflate.h"
+	//#include "zutil.h"
+	// define NO_GZIP when compiling if you want to disable gzip header and
+	// trailer creation by deflate().  NO_GZIP would be used to avoid linking in
+	// the crc code when it is not needed.  For shared libraries, gzip encoding should be left enabled. 
+	#ifndef NO_GZIP
+		#define GZIP 2 // @sobolev (nothing-->2)
+	#endif
+	//
+	// Internal compression state.
+	//
+	#define LENGTH_CODES 29 /* number of length codes, not counting the special END_BLOCK code */
+	#define LITERALS  256 /* number of literal bytes 0..255 */
+	#define L_CODES (LITERALS+1+LENGTH_CODES) /* number of Literal or Length codes, including the END_BLOCK code */
+	#define D_CODES   30 /* number of distance codes */
+	#define BL_CODES  19 /* number of codes used to transfer the bit lengths */
+	#define HEAP_SIZE (2*L_CODES+1) /* maximum heap size */
+	#define MAX_BITS 15 /* All codes must not exceed MAX_BITS bits */
+	#define Buf_size 16 /* size of bit buffer in bi_buf */
+	#define INIT_STATE    42    /* zlib header -> BUSY_STATE */
+	#ifdef GZIP
+		#define GZIP_STATE  57    /* gzip header -> BUSY_STATE | EXTRA_STATE */
+	#endif
+	#define EXTRA_STATE   69    /* gzip extra block -> NAME_STATE */
+	#define NAME_STATE    73    /* gzip file name -> COMMENT_STATE */
+	#define COMMENT_STATE 91    /* gzip comment -> HCRC_STATE */
+	#define HCRC_STATE   103    /* gzip header CRC -> BUSY_STATE */
+	#define BUSY_STATE   113    /* deflate -> FINISH_STATE */
+	#define FINISH_STATE 666    /* stream complete */
+	/* Stream status */
+	//
+	// Data structure describing a single value and its code string. 
+	//
+	typedef struct ct_data_s {
+		union {
+			ush freq; /* frequency count */
+			ush code; /* bit string */
+		} fc;
+
+		union {
+			ush dad; /* father node in Huffman tree */
+			ush len; /* length of bit string */
+		} dl;
+	} ct_data;
+
+	#define Freq fc.freq
+	#define Code fc.code
+	#define Dad  dl.dad
+	#define Len  dl.len
+
+	typedef struct static_tree_desc_s static_tree_desc;
+
+	typedef struct tree_desc_s {
+		ct_data * dyn_tree;      /* the dynamic tree */
+		int max_code;            /* largest code with non zero frequency */
+		const static_tree_desc * stat_desc; /* the corresponding static tree */
+	} tree_desc;
+
+	typedef ush Pos;
+	typedef Pos Posf;
+	typedef unsigned IPos;
+	//
+	// A Pos is an index in the character window. We use short instead of int to
+	// save space in the various tables. IPos is used only for parameter passing.
+	//
+	typedef struct internal_state {
+		z_streamp strm;  /* pointer back to this zlib stream */
+		int status;      /* as the name implies */
+		Bytef * pending_buf; /* output still pending */
+		ulg pending_buf_size; /* size of pending_buf */
+		Bytef * pending_out; /* next pending byte to output to the stream */
+		ulg pending;     /* nb of bytes in the pending buffer */
+		int wrap;        /* bit 0 true for zlib, bit 1 true for gzip */
+		gz_headerp gzhead; /* gzip header information to write */
+		ulg gzindex;     /* where in extra, name, or comment */
+		Byte method;     /* can only be DEFLATED */
+		int last_flush;  /* value of flush param for previous deflate call */
+
+		/* used by deflate.c: */
+
+		uInt w_size;     /* LZ77 window size (32K by default) */
+		uInt w_bits;     /* log2(w_size)  (8..16) */
+		uInt w_mask;     /* w_size - 1 */
+
+		Bytef * window;
+		/* Sliding window. Input bytes are read into the second half of the window,
+		 * and move to the first half later to keep a dictionary of at least wSize
+		 * bytes. With this organization, matches are limited to a distance of
+		 * wSize-MAX_MATCH bytes, but this ensures that IO is always
+		 * performed with a length multiple of the block size. Also, it limits
+		 * the window size to 64K, which is quite useful on MSDOS.
+		 * To do: use the user input buffer as sliding window.
+		 */
+
+		ulg window_size;
+		/* Actual size of window: 2*wSize, except when the user input buffer
+		 * is directly used as sliding window.
+		 */
+
+		Posf * prev;
+		/* Link to older string with same hash index. To limit the size of this
+		 * array to 64K, this link is maintained only for the last 32K strings.
+		 * An index in this array is thus a window index modulo 32K.
+		 */
+
+		Posf * head; /* Heads of the hash chains or NIL. */
+
+		uInt ins_h;       /* hash index of string to be inserted */
+		uInt hash_size;   /* number of elements in hash table */
+		uInt hash_bits;   /* log2(hash_size) */
+		uInt hash_mask;   /* hash_size-1 */
+
+		uInt hash_shift;
+		/* Number of bits by which ins_h must be shifted at each input
+		 * step. It must be such that after MIN_MATCH steps, the oldest
+		 * byte no longer takes part in the hash key, that is:
+		 *   hash_shift * MIN_MATCH >= hash_bits
+		 */
+
+		long block_start;
+		/* Window position at the beginning of the current output block. Gets
+		 * negative when the window is moved backwards.
+		 */
+
+		uInt match_length;       /* length of best match */
+		IPos prev_match;         /* previous match */
+		int match_available;     /* set if previous match exists */
+		uInt strstart;           /* start of string to insert */
+		uInt match_start;        /* start of matching string */
+		uInt lookahead;          /* number of valid bytes ahead in window */
+
+		uInt prev_length;
+		/* Length of the best match at previous step. Matches not greater than this
+		 * are discarded. This is used in the lazy match evaluation.
+		 */
+
+		uInt max_chain_length;
+		/* To speed up deflation, hash chains are never searched beyond this
+		 * length.  A higher limit improves compression ratio but degrades the
+		 * speed.
+		 */
+
+		uInt max_lazy_match;
+		/* Attempt to find a better match only when the current match is strictly
+		 * smaller than this value. This mechanism is used only for compression
+		 * levels >= 4.
+		 */
+	#   define max_insert_length  max_lazy_match
+		/* Insert new strings in the hash table only if the match length is not
+		 * greater than this length. This saves time but degrades compression.
+		 * max_insert_length is used only for compression levels <= 3.
+		 */
+
+		int level; /* compression level (1..9) */
+		int strategy; /* favor or force Huffman coding*/
+		uInt good_match; /* Use a faster search when the previous match is longer than this */
+		int nice_match; /* Stop searching when current match exceeds this */
+
+		/* used by trees.c: */
+		/* Didn't use ct_data typedef below to suppress compiler warning */
+		struct ct_data_s dyn_ltree[HEAP_SIZE]; /* literal and length tree */
+		struct ct_data_s dyn_dtree[2*D_CODES+1]; /* distance tree */
+		struct ct_data_s bl_tree[2*BL_CODES+1]; /* Huffman tree for bit lengths */
+		struct tree_desc_s l_desc;           /* desc. for literal tree */
+		struct tree_desc_s d_desc;           /* desc. for distance tree */
+		struct tree_desc_s bl_desc;          /* desc. for bit length tree */
+
+		ush bl_count[MAX_BITS+1];
+		/* number of codes at each bit length for an optimal tree */
+
+		int heap[2*L_CODES+1];  /* heap used to build the Huffman trees */
+		int heap_len;           /* number of elements in the heap */
+		int heap_max;           /* element of largest frequency */
+		/* The sons of heap[n] are heap[2*n] and heap[2*n+1]. heap[0] is not used.
+		 * The same heap array is used to build all trees.
+		 */
+
+		uch depth[2*L_CODES+1];
+		/* Depth of each subtree used as tie breaker for trees of equal frequency
+		 */
+
+		uchf * l_buf;     /* buffer for literals or lengths */
+
+		uInt lit_bufsize;
+		/* Size of match buffer for literals/lengths.  There are 4 reasons for
+		 * limiting lit_bufsize to 64K:
+		 *   - frequencies can be kept in 16 bit counters
+		 *   - if compression is not successful for the first block, all input
+		 *     data is still in the window so we can still emit a stored block even
+		 *     when input comes from standard input.  (This can also be done for
+		 *     all blocks if lit_bufsize is not greater than 32K.)
+		 *   - if compression is not successful for a file smaller than 64K, we can
+		 *     even emit a stored file instead of a stored block (saving 5 bytes).
+		 *     This is applicable only for zip (not gzip or zlib).
+		 *   - creating new Huffman trees less frequently may not provide fast
+		 *     adaptation to changes in the input data statistics. (Take for
+		 *     example a binary file with poorly compressible code followed by
+		 *     a highly compressible string table.) Smaller buffer sizes give
+		 *     fast adaptation but have of course the overhead of transmitting
+		 *     trees more frequently.
+		 *   - I can't count above 4
+		 */
+
+		uInt last_lit;  /* running index in l_buf */
+
+		ushf * d_buf;
+		/* Buffer for distances. To simplify the code, d_buf and l_buf have
+		 * the same number of elements. To use different lengths, an extra flag
+		 * array would be necessary.
+		 */
+
+		ulg opt_len;    /* bit length of current block with optimal trees */
+		ulg static_len; /* bit length of current block with static trees */
+		uInt matches;   /* number of string matches in current block */
+		uInt insert;    /* bytes at end of window left to insert */
+
+	#ifdef ZLIB_DEBUG
+		ulg compressed_len; /* total bit length of compressed file mod 2^32 */
+		ulg bits_sent;  /* bit length of compressed data sent mod 2^32 */
+	#endif
+
+		ush bi_buf;
+		/* Output buffer. bits are inserted starting at the bottom (least
+		 * significant bits).
+		 */
+		int bi_valid;
+		/* Number of valid bits in bi_buf.  All bits above the last valid bit
+		 * are always zero.
+		 */
+
+		ulg high_water;
+		/* High water mark offset in window for initialized bytes -- bytes above
+		 * this are set to zero in order to avoid memory check warnings when
+		 * longest match routines access bytes past the input.  This is then
+		 * updated to the new high water mark.
+		 */
+	} deflate_state;
+
+	/* Output a byte on the stream.
+	 * IN assertion: there is enough room in pending_buf.
+	 */
+	#define put_byte(s, c) { s->pending_buf[s->pending++] = (Bytef)(c); }
+
+	#define MIN_LOOKAHEAD (MAX_MATCH+MIN_MATCH+1) // Minimum amount of lookahead, except at the end of the input file. See deflate.c for comments about the MIN_MATCH+1.
+	#define MAX_DIST(s) ((s)->w_size-MIN_LOOKAHEAD) // In order to simplify the code, particularly on 16 bit machines, match distances are limited to MAX_DIST instead of WSIZE.
+	#define WIN_INIT    MAX_MATCH // Number of bytes after end of data in window to initialize in order to avoid memory checker errors from longest match routines 
+
+	/* in trees.c */
+	void ZLIB_INTERNAL _tr_init(deflate_state *s);
+	int ZLIB_INTERNAL _tr_tally(deflate_state *s, unsigned dist, unsigned lc);
+	void ZLIB_INTERNAL _tr_flush_block(deflate_state *s, charf *buf, ulg stored_len, int last);
+	void ZLIB_INTERNAL _tr_flush_bits(deflate_state *s);
+	void ZLIB_INTERNAL _tr_align(deflate_state *s);
+	void ZLIB_INTERNAL _tr_stored_block(deflate_state *s, charf *buf, ulg stored_len, int last);
+
+	#define d_code(dist) ((dist) < 256 ? _dist_code[dist] : _dist_code[256+((dist)>>7)])
+	/* Mapping from a distance to a distance code. dist is the distance - 1 and
+	 * must not have side effects. _dist_code[256] and _dist_code[257] are never used.
+	 */
+
+	#ifndef ZLIB_DEBUG
+	/* Inline versions of _tr_tally for speed: */
+
+	#if defined(GEN_TREES_H) || !defined(STDC)
+		extern uch ZLIB_INTERNAL _length_code[];
+		extern uch ZLIB_INTERNAL _dist_code[];
+	#else
+		extern const uch ZLIB_INTERNAL _length_code[];
+		extern const uch ZLIB_INTERNAL _dist_code[];
+	#endif
+
+	# define _tr_tally_lit(s, c, flush) \
+		{ uch cc = (c);	\
+		  s->d_buf[s->last_lit] = 0; \
+		  s->l_buf[s->last_lit++] = cc;	\
+		  s->dyn_ltree[cc].Freq++; \
+		  flush = (s->last_lit == s->lit_bufsize-1); \
+		}
+	# define _tr_tally_dist(s, distance, length, flush) \
+		{ uch len = (uch)(length); \
+		  ush dist = (ush)(distance); \
+		  s->d_buf[s->last_lit] = dist;	\
+		  s->l_buf[s->last_lit++] = len; \
+		  dist--; \
+		  s->dyn_ltree[_length_code[len]+LITERALS+1].Freq++; \
+		  s->dyn_dtree[d_code(dist)].Freq++; \
+		  flush = (s->last_lit == s->lit_bufsize-1); \
+		}
+	#else
+		#define _tr_tally_lit(s, c, flush) flush = _tr_tally(s, 0, c)
+		#define _tr_tally_dist(s, distance, length, flush) flush = _tr_tally(s, distance, length)
+	#endif
+
 #endif
 
 #endif /* ZLIB_H */

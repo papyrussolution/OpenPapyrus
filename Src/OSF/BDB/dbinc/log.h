@@ -208,23 +208,17 @@ struct __log_persist {
  */
 struct __log { /* SHARED */
 	db_mutex_t mtx_region;		/* Region mutex. */
-
 	db_mutex_t mtx_filelist;	/* Mutex guarding file name list. */
-
 	LOGP	persist;		/* Persistent information. */
-
 	SH_TAILQ_HEAD(__fq1) fq;	/* List of file names. */
 	int32	fid_max;		/* Max fid allocated. */
 	roff_t	free_fid_stack;		/* Stack of free file ids. */
 	uint32  free_fids;		/* Height of free fid stack. */
 	uint32  free_fids_alloced;	/* N free fid slots allocated. */
-
-	/*
-	 * The lsn LSN is the file offset that we're about to write and which
-	 * we will return to the user.
-	 */
+	//
+	// The lsn LSN is the file offset that we're about to write and which we will return to the user.
+	//
 	DB_LSN	  lsn;			/* LSN at current file offset. */
-
 	/*
 	 * The f_lsn LSN is the LSN (returned to the user) that "owns" the
 	 * first byte of the buffer.  If the record associated with the LSN
@@ -235,11 +229,8 @@ struct __log { /* SHARED */
 	db_size_t b_off;		/* Current offset in the buffer. */
 	uint32 w_off;		/* Current write offset in the file. */
 	uint32 len;			/* Length of the last record. */
-
 	DB_LSN	  active_lsn;		/* Oldest active LSN in the buffer. */
-	db_size_t a_off;		/* Offset in the buffer of first active
-					   file. */
-
+	db_size_t a_off;		/* Offset in the buffer of first active file. */
 	/*
 	 * The s_lsn LSN is the last LSN that we know is on disk, not just
 	 * written, but synced.  This field is protected by the flush mutex
@@ -248,9 +239,7 @@ struct __log { /* SHARED */
 	db_mutex_t mtx_flush;		/* Mutex guarding flushing. */
 	int32	   in_flush;	/* Log flush in progress. */
 	DB_LSN	   s_lsn;		/* LSN of the last sync. */
-
 	DB_LOG_STAT stat;		/* Log statistics. */
-
 	/*
 	 * This timestamp is updated anytime someone unlinks log
 	 * files.  This can happen when calling __log_vtruncate
@@ -261,7 +250,6 @@ struct __log { /* SHARED */
 	 * so they're not potentially writing to now-removed files.
 	 */
 	__time64_t	   timestamp;		/* Log trunc timestamp. */
-
 	/*
 	 * !!!
 	 * NOTE: the next group of fields are NOT protected by the log
@@ -320,29 +308,22 @@ struct __log { /* SHARED */
 	 * initialization.
 	 */
 	DB_LSN	cached_ckp_lsn;
-
 	uint32 regionmax;		/* Configured size of the region. */
-
 	roff_t	  buffer_off;		/* Log buffer offset in the region. */
 	uint32 buffer_size;		/* Log buffer size. */
-
 	uint32 log_size;		/* Log file's size. */
 	uint32 log_nsize;		/* Next log file's size. */
-
 	int	  filemode;		/* Log file permissions mode. */
-
 	/*
 	 * DB_LOG_AUTOREMOVE and DB_LOG_INMEMORY: not protected by a mutex,
 	 * all we care about is if they're zero or non-zero.
 	 */
 	int32	  db_log_autoremove;
 	int32	  db_log_inmemory;
-
 	uint32 ncommit;		/* Number of txns waiting to commit. */
 	DB_LSN	  t_lsn;		/* LSN of first commit */
 	SH_TAILQ_HEAD(__commit) commits;/* list of txns waiting to commit. */
 	SH_TAILQ_HEAD(__free) free_commits;/* free list of commit structs. */
-
 	/*
 	 * In-memory logs maintain a list of the start positions of all log
 	 * files currently active in the in-memory buffer.  This is to make the
@@ -351,7 +332,6 @@ struct __log { /* SHARED */
 	SH_TAILQ_HEAD(__logfile) logfiles;
 	SH_TAILQ_HEAD(__free_logfile) free_logfiles;
 };
-
 /*
  * __db_commit structure --
  *	One of these is allocated for each transaction waiting to commit.
@@ -360,11 +340,9 @@ struct __db_commit {
 	db_mutex_t	mtx_txnwait;	/* Mutex for txn to wait on. */
 	DB_LSN		lsn;		/* LSN of commit record. */
 	SH_TAILQ_ENTRY	links;		/* Either on free or waiting list. */
-
 #define	DB_COMMIT_FLUSH		0x0001	/* Flush the log when you wake up. */
 	uint32	flags;
 };
-
 /*
  * Check for the proper progression of Log Sequence Numbers.
  * If we are rolling forward the LSN on the page must be greater

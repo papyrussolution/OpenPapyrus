@@ -1,12 +1,12 @@
 // SHTRIHMF.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2011, 2013, 2015, 2016
+// Copyright (c) A.Starodub 2009, 2010, 2011, 2013, 2015, 2016, 2017
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу "Штрих-М-ФР-К"
 //
 #include <pp.h>
 #pragma hdrstop
 #include <comdisp.h>
-#include <ppidata.h>
+// @v9.6.2 (moved to pp.h) #include <ppidata.h>
 //
 //   Интерфейс к драйверу "Штрих-М-ФР-К"
 //
@@ -478,7 +478,7 @@ int SLAPI ACS_SHTRIHMFRK::GetSessionData(int * pSessCount, int * pIsForwardSess,
 	ImportedFiles = 0;
 	if(!pPrd) {
 		dlg = new TDialog(DLG_SELSESSRNG);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			SString dt_buf;
 			ChkRepPeriod.low = LConfig.OperDate;
 			ChkRepPeriod.upp = LConfig.OperDate;

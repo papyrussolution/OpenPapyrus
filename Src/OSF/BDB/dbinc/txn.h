@@ -47,8 +47,7 @@ struct __txn_logrec;	typedef struct __txn_logrec DB_TXNLOGREC;
  * being populated for output through the API.
  */
 DB_ALIGN8 struct __db_txn_stat_int { /* SHARED */
-	uint32 st_nrestores;		/* number of restored transactions
-					   after recovery. */
+	uint32 st_nrestores;		/* number of restored transactions after recovery. */
 #ifndef __TEST_DB_NO_STATISTICS
 	DB_LSN	  st_last_ckp;		/* lsn of the last checkpoint */
 	__time64_t	  st_time_ckp;		/* time of last checkpoint */
@@ -67,37 +66,28 @@ DB_ALIGN8 struct __db_txn_stat_int { /* SHARED */
 	roff_t	  st_regsize;		/* Region size. */
 #endif
 };
-
 /*
  * Internal data maintained in shared memory for each transaction.
  */
 typedef struct __txn_detail {
-	uint32 txnid;		/* current transaction id
-					   used to link free list also */
+	uint32 txnid;		/* current transaction id used to link free list also */
 	pid_t pid;			/* Process owning txn */
 	db_threadid_t tid;		/* Thread owning txn */
-
 	DB_LSN	last_lsn;		/* Last LSN written for this txn. */
 	DB_LSN	begin_lsn;		/* LSN of begin record. */
 	roff_t	parent;			/* Offset of transaction's parent. */
 	roff_t	name;			/* Offset of txn name. */
-	
 	uint32	nlog_dbs;	/* Number of databases used. */
 	uint32	nlog_slots;	/* Number of allocated slots. */
 	roff_t		log_dbs;	/* Databases used. */
 
 	DB_LSN	read_lsn;		/* Read LSN for MVCC. */
-	DB_LSN	visible_lsn;		/* LSN at which this transaction's
-					   changes are visible. */
+	DB_LSN	visible_lsn;		/* LSN at which this transaction's changes are visible. */
 	db_mutex_t	mvcc_mtx;	/* Version mutex. */
-	uint32	mvcc_ref;	/* Number of buffers created by this
-					   transaction still in cache.  */
-
+	uint32	mvcc_ref;	/* Number of buffers created by this transaction still in cache.  */
 	uint32	priority;	/* Deadlock resolution priority. */
-
 	SH_TAILQ_HEAD(__tdkids)	kids;	/* Linked list of child txn detail. */
 	SH_TAILQ_ENTRY		klinks;
-
 	/* TXN_{ABORTED, COMMITTED PREPARED, RUNNING} */
 	uint32 status;		/* status of the transaction */
 
@@ -133,53 +123,39 @@ struct __db_txnmgr {
 	 * TXN_DETAIL structure on the list).
 	 */
 	db_mutex_t mutex;
-					/* List of active transactions. */
-	TAILQ_HEAD(_chain, __db_txn)	txn_chain;
-
+	TAILQ_HEAD(_chain, __db_txn)	txn_chain; /* List of active transactions. */
 	uint32 n_discards;		/* Number of txns discarded. */
-
 	/* These fields are never updated after creation, so not protected. */
 	ENV	*env;			/* Environment. */
 	REGINFO	 reginfo;		/* Region information. */
 };
 
 /* Macros to lock/unlock the transaction region as a whole. */
-#define	TXN_SYSTEM_LOCK(env)						\
-	MUTEX_LOCK(env, ((DB_TXNREGION *)				\
-	    (env)->tx_handle->reginfo.primary)->mtx_region)
-#define	TXN_SYSTEM_UNLOCK(env)						\
-	MUTEX_UNLOCK(env, ((DB_TXNREGION *)				\
-	    (env)->tx_handle->reginfo.primary)->mtx_region)
-
+#define	TXN_SYSTEM_LOCK(env)   MUTEX_LOCK(env, ((DB_TXNREGION *)(env)->tx_handle->reginfo.primary)->mtx_region)
+#define	TXN_SYSTEM_UNLOCK(env) MUTEX_UNLOCK(env, ((DB_TXNREGION *)(env)->tx_handle->reginfo.primary)->mtx_region)
 /*
  * DB_TXNREGION --
  *	The primary transaction data structure in the shared memory region.
  */
 struct __db_txnregion { /* SHARED */
 	db_mutex_t	mtx_region;	/* Region mutex. */
-
 	uint32	inittxns;	/* initial number of active TXNs */
 	uint32	curtxns;	/* current number of active TXNs */
 	uint32	maxtxns;	/* maximum number of active TXNs */
 	uint32	last_txnid;	/* last transaction id given out */
 	uint32	cur_maxid;	/* current max unused id. */
-
 	db_mutex_t	mtx_ckp;	/* Single thread checkpoints. */
 	DB_LSN		last_ckp;	/* lsn of the last checkpoint */
 	__time64_t		time_ckp;	/* time of last checkpoint */
-
 	DB_TXN_STAT_INT	stat;		/* Statistics for txns. */
-
 	uint32 n_bulk_txn;		/* Num. bulk txns in progress. */
 	uint32 n_hotbackup;		/* Num. of outstanding backup notices.*/
-
 #define	TXN_IN_RECOVERY	 0x01		/* environment is being recovered */
 	uint32	flags;
 					/* active TXN list */
 	SH_TAILQ_HEAD(__active) active_txn;
 	SH_TAILQ_HEAD(__mvcc) mvcc_txn;
 };
-
 /*
  * DB_COMMIT_INFO --
  *	Meta-data uniquely describing a transaction commit across a replication
@@ -191,14 +167,12 @@ struct __db_commit_info {
 	uint32	envid;		/* Unique env ID of master. */
 	DB_LSN		lsn;		/* LSN of commit log record. */
 };
-
 /*
  * DB_TXNLOGREC --
  *	An in-memory, linked-list copy of a log record.
  */
 struct __txn_logrec {
 	STAILQ_ENTRY(__txn_logrec) links;/* Linked list. */
-
 	uint8 data[1];		/* Log record. */
 };
 

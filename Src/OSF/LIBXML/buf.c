@@ -1024,7 +1024,7 @@ int xmlBufWriteQuotedString(xmlBufPtr buf, const xmlChar * string)
 				xmlBufAdd(buf, base, cur - base);
 			xmlBufCCat(buf, "\"");
 		}
-		else{
+		else {
 			xmlBufCCat(buf, "\'");
 			xmlBufCat(buf, string);
 			xmlBufCCat(buf, "\'");

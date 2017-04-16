@@ -23,8 +23,7 @@
 // @v9.5.5 #include "dbinc/qam.h"
 // @v9.5.5 #include "dbinc/txn.h"
 // @v9.5.5 #include "dbinc/fop.h"
-
-#include "dbinc/log_verify.h"
+// @v9.6.2 #include "dbinc/log_verify.h"
 
 #define BDBOP(op)       do {            \
 		ret = (op);                     \
@@ -57,24 +56,24 @@
 typedef int (*btcmp_funct)(DB *, const DBT *, const DBT *);
 typedef int (*dupcmp_funct)(DB *, const DBT *, const DBT *);
 
-static int __lv_add_recycle_handler __P((DB_LOG_VRFY_INFO*, VRFY_TXN_INFO*, void *));
-static int __lv_add_recycle_lsn __P((VRFY_TXN_INFO*, const DB_LSN *));
-static size_t __lv_dbt_arrsz __P((const DBT*, uint32));
+static int __lv_add_recycle_handler(DB_LOG_VRFY_INFO*, VRFY_TXN_INFO*, void *);
+static int __lv_add_recycle_lsn(VRFY_TXN_INFO*, const DB_LSN *);
+static size_t __lv_dbt_arrsz(const DBT*, uint32);
 static int __lv_fidpgno_cmp(DB*, const DBT*, const DBT *);
 static int __lv_i32_cmp(DB*, const DBT*, const DBT *);
 static int __lv_lsn_cmp(DB*, const DBT*, const DBT *);
 static void __lv_on_bdbop_err(int);
-static int __lv_open_db __P((DB_ENV*, DB**, DB_THREAD_INFO*, const char *, int, btcmp_funct, uint32, dupcmp_funct));
-static int __lv_pack_filereg __P((const VRFY_FILEREG_INFO*, DBT *));
-static int __lv_pack_txn_vrfy_info __P((const VRFY_TXN_INFO*, DBT*, DBT*data));
-static int __lv_seccbk_fname __P((DB*, const DBT*, const DBT*, DBT *));
-static int __lv_seccbk_lsn __P((DB*, const DBT*, const DBT*, DBT *));
-static int __lv_seccbk_txnpg __P((DB*, const DBT*, const DBT*, DBT *));
-static void __lv_setup_logtype_names __P((DB_LOG_VRFY_INFO*lvinfo));
+static int __lv_open_db(DB_ENV*, DB**, DB_THREAD_INFO*, const char *, int, btcmp_funct, uint32, dupcmp_funct);
+static int __lv_pack_filereg(const VRFY_FILEREG_INFO*, DBT *);
+static int __lv_pack_txn_vrfy_info(const VRFY_TXN_INFO*, DBT*, DBT*data);
+static int __lv_seccbk_fname(DB*, const DBT*, const DBT*, DBT *);
+static int __lv_seccbk_lsn(DB*, const DBT*, const DBT*, DBT *);
+static int __lv_seccbk_txnpg(DB*, const DBT*, const DBT*, DBT *);
+static void __lv_setup_logtype_names(DB_LOG_VRFY_INFO*lvinfo);
 static int __lv_txnrgns_lsn_cmp(DB*, const DBT*, const DBT *);
 static int __lv_ui32_cmp(DB*, const DBT*, const DBT *);
-static int __lv_unpack_txn_vrfy_info __P((VRFY_TXN_INFO**, const DBT *));
-static int __lv_unpack_filereg __P((const DBT*, VRFY_FILEREG_INFO**));
+static int __lv_unpack_txn_vrfy_info(VRFY_TXN_INFO**, const DBT *);
+static int __lv_unpack_filereg(const DBT*, VRFY_FILEREG_INFO**);
 
 static void __lv_on_bdbop_err(int ret)
 {
@@ -92,30 +91,22 @@ static void __lv_on_bdbop_err(int ret)
  */
 int __create_log_vrfy_info(const DB_LOG_VERIFY_CONFIG * cfg, DB_LOG_VRFY_INFO ** lvinfopp, DB_THREAD_INFO * ip)
 {
-	const char * envhome;
 	int inmem, ret;
-	uint32 cachesz, envflags;
-	const char * dbf1, * dbf2, * dbf3, * dbf4, * dbf5, * dbf6, * dbf7, * dbf8,
-	* dbf9, * dbf10, * dbf11;
-	DB_LOG_VRFY_INFO * lvinfop;
-
-	dbf1 = "__db_log_vrfy_txninfo.db";
-	dbf2 = "__db_log_vrfy_fileregs.db";
-	dbf3 = "__db_log_vrfy_pgtxn.db";
-	dbf4 = "__db_log_vrfy_lsntime.db";
-	dbf5 = "__db_log_vrfy_timelsn.db";
-	dbf6 = "__db_log_vrfy_ckps.db";
-	dbf7 = "__db_log_vrfy_dbregids.db";
-	dbf8 = "__db_log_vrfy_fnameuid.db";
-	dbf9 = "__db_log_vrfy_timerange.db";
-	dbf10 = "__db_log_vrfy_txnaborts.db";
-	dbf11 = "__db_log_vrfy_txnpg.db";
-
-	envhome = cfg->temp_envhome;
-	lvinfop = NULL;
-	cachesz = cfg->cachesize;
-	if(cachesz== 0)
-		cachesz = 1024*1024*256;
+	uint32 envflags;
+	DB_LOG_VRFY_INFO * lvinfop = 0;
+	const char * dbf1 = "__db_log_vrfy_txninfo.db";
+	const char * dbf2 = "__db_log_vrfy_fileregs.db";
+	const char * dbf3 = "__db_log_vrfy_pgtxn.db";
+	const char * dbf4 = "__db_log_vrfy_lsntime.db";
+	const char * dbf5 = "__db_log_vrfy_timelsn.db";
+	const char * dbf6 = "__db_log_vrfy_ckps.db";
+	const char * dbf7 = "__db_log_vrfy_dbregids.db";
+	const char * dbf8 = "__db_log_vrfy_fnameuid.db";
+	const char * dbf9 = "__db_log_vrfy_timerange.db";
+	const char * dbf10 = "__db_log_vrfy_txnaborts.db";
+	const char * dbf11 = "__db_log_vrfy_txnpg.db";
+	const char * envhome = cfg->temp_envhome;
+	const uint32 cachesz = NZOR(cfg->cachesize, (1024*1024*256));
 	BDBOP(__os_malloc(NULL, sizeof(DB_LOG_VRFY_INFO), &lvinfop));
 	memzero(lvinfop, sizeof(DB_LOG_VRFY_INFO));
 	lvinfop->ip = ip;
@@ -261,17 +252,18 @@ static int __lv_seccbk_lsn(DB * secdb, const DBT * key, const DBT * data, DBT * 
  */
 static int __lv_open_db(DB_ENV * dbenv, DB ** dbpp, DB_THREAD_INFO * ip, const char * name, int inmem, btcmp_funct cmpf, uint32 sflags, dupcmp_funct dupcmpf)
 {
-	const char * dbfname, * dbname;
+	const char * dbfname = inmem ? 0 : name;
+	const char * dbname = inmem ? name : 0;
 	DB * dbp = NULL;
 	int ret = 0;
-	if(inmem) {
+	/*if(inmem) {
 		dbfname = NULL;
 		dbname = name;
 	}
 	else {
 		dbfname = name;
 		dbname = NULL;
-	}
+	}*/
 	BDBOP(db_create(&dbp, dbenv, 0));
 	if(cmpf != NULL)
 		BDBOP(__bam_set_bt_compare(dbp, cmpf));
@@ -396,14 +388,14 @@ static int __lv_pack_txn_vrfy_info(const VRFY_TXN_INFO * txninfop, DBT * key, DB
 err:
 	return ret;
 }
-
-/* Calculate a DBT array's total number of bytes to store. */
+//
+// Calculate a DBT array's total number of bytes to store. 
+//
 static size_t __lv_dbt_arrsz(const DBT * arr, uint32 arrlen)
 {
-	uint32 i;
 	size_t sz = 0;
-	/* For each DBT object, store its size and its data bytes. */
-	for(i = 0; i < arrlen; i++)
+	// For each DBT object, store its size and its data bytes
+	for(uint32 i = 0; i < arrlen; i++)
 		sz += arr[i].size+sizeof(arr[i].size);
 	return sz;
 }
@@ -420,8 +412,8 @@ int __get_txn_vrfy_info(const DB_LOG_VRFY_INFO * lvinfo, uint32 txnid, VRFY_TXN_
 {
 	int ret;
 	DBT key, data;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	key.data = &txnid;
 	key.size = sizeof(txnid);
 	BDBOP3(lvinfo->dbenv, __db_get(lvinfo->txninfo, lvinfo->ip, NULL, &key, &data, 0), DB_NOTFOUND, "__get_txn_vrfy_info");
@@ -500,29 +492,25 @@ int __add_recycle_lsn_range(DB_LOG_VRFY_INFO * lvinfo, const DB_LSN * lsn, uint3
 	uint32 i;
 	DBT key2, data2;
 	struct __add_recycle_params param;
-
 	csr = NULL;
 	ret = tret = 0;
-	memzero(&key2, sizeof(DBT));
-	memzero(&data2, sizeof(DBT));
+	// (replaced by ctr) memzero(&key2, sizeof(DBT));
+	// (replaced by ctr) memzero(&data2, sizeof(DBT));
 	memzero(&param, sizeof(param));
-	if((ret = __os_malloc(lvinfo->dbenv->env, sizeof(VRFY_TXN_INFO *)*
-		    (param.ti2ul = 1024), &(param.ti2u))) != 0)
+	if((ret = __os_malloc(lvinfo->dbenv->env, sizeof(VRFY_TXN_INFO *) * (param.ti2ul = 1024), &(param.ti2u))) != 0)
 		goto err;
 	param.ti2ui = 0;
 	param.recycle_lsn = *lsn;
 	param.min = min;
 	param.max = max;
 	/* Iterate the specified range and process each transaction. */
-	if((ret = __iterate_txninfo(lvinfo, min, max, __lv_add_recycle_handler,
-		    &param)) != 0)
+	if((ret = __iterate_txninfo(lvinfo, min, max, __lv_add_recycle_handler, &param)) != 0)
 		goto err;
 	/*
 	 * Save updated txninfo structures. We can't do so in the above
 	 * iteration, so we have to save them here.
 	 */
 	BDBOP(__db_cursor(lvinfo->txninfo, lvinfo->ip, NULL, &csr, DBC_BULK));
-
 	for(i = 0; i < param.ti2ui; i++) {
 		ret = __lv_pack_txn_vrfy_info(param.ti2u[i], &key2, &data2);
 		DB_ASSERT(lvinfo->dbenv->env, ret == 0);
@@ -563,7 +551,6 @@ int __iterate_txninfo(DB_LOG_VRFY_INFO * lvinfo, uint32 min, uint32 max, TXNINFO
 	DBT key, data, data2;
 	DBC * csr;
 	void * p;
-
 	csr = NULL;
 	env = lvinfo->dbenv->env;
 	txninfop = NULL;
@@ -573,11 +560,9 @@ int __iterate_txninfo(DB_LOG_VRFY_INFO * lvinfo, uint32 min, uint32 max, TXNINFO
 	bufsz = 64*1024;
 	btbuf = NULL;
 	retk = retd = NULL;
-
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
-	memzero(&data2, sizeof(DBT));
-
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&data2, sizeof(DBT));
 	pgsz = lvinfo->txninfo->pgsize;
 	DB_ASSERT(env, ret == 0);
 	if(bufsz%pgsz != 0)
@@ -679,11 +664,8 @@ static int __lv_add_recycle_handler(DB_LOG_VRFY_INFO * lvinfo, VRFY_TXN_INFO * t
 	        __on_txn_abort(lvinfo, txninfop);
 	 */
 	if(txninfop->status == TXN_STAT_PREPARE) {
-		__db_errx(lvinfo->dbenv->env,
-			"[ERROR] Transaction with ID %u is prepared and not "
-			"committed, but its ID is recycled by log record [%u, %u].",
-			txninfop->txnid, param->recycle_lsn.file,
-			param->recycle_lsn.offset);
+		__db_errx(lvinfo->dbenv->env, "[ERROR] Transaction with ID %u is prepared and not committed, but its ID is recycled by log record [%u, %u].", 
+			txninfop->txnid, param->recycle_lsn.file, param->recycle_lsn.offset);
 	}
 	/* Note down to store later. */
 	param->ti2u[(param->ti2ui)++] = txninfop;
@@ -868,7 +850,7 @@ int __put_filereg_info(const DB_LOG_VRFY_INFO * lvinfo, const VRFY_FILEREG_INFO 
 
 	int ret;
 	DBT data;
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	if((ret = __lv_pack_filereg(freginfo, &data)) != 0)
 		goto err;
 	/*
@@ -895,7 +877,7 @@ int __del_filelife(const DB_LOG_VRFY_INFO * lvinfo, int32 dbregid)
 {
 	int ret;
 	DBT key;
-	memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
 	key.data = &(dbregid);
 	key.size = sizeof(dbregid);
 	if((ret = __db_del(lvinfo->dbregids, lvinfo->ip, NULL, &key, 0)) != 0)
@@ -910,8 +892,8 @@ int __put_filelife(const DB_LOG_VRFY_INFO * lvinfo, VRFY_FILELIFE * pflife)
 {
 	int ret;
 	DBT key, data;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	key.data = &(pflife->dbregid);
 	key.size = sizeof(pflife->dbregid);
 	data.data = pflife;
@@ -930,8 +912,8 @@ int __get_filelife(const DB_LOG_VRFY_INFO * lvinfo, int32 dbregid, VRFY_FILELIFE
 	int ret = 0;
 	DBT key, data;
 	VRFY_FILELIFE * flifep = NULL;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	key.data = &dbregid;
 	key.size = sizeof(dbregid);
 	if((ret = __db_get(lvinfo->dbregids, lvinfo->ip, NULL, &key, &data, 0)) != 0)
@@ -954,8 +936,8 @@ int __get_filereg_by_dbregid(const DB_LOG_VRFY_INFO * lvinfo, int32 dbregid, VRF
 	DBT key, data;
 	char uid[DB_FILE_ID_LEN];
 	VRFY_FILELIFE * pflife;
-	memzero(&data, sizeof(DBT));
-	memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
 	key.data = &dbregid;
 	key.size = sizeof(dbregid);
 	BDBOP3(lvinfo->dbenv, __db_get(lvinfo->dbregids, lvinfo->ip, NULL, &key, &data, 0), DB_NOTFOUND,  "__get_filereg_by_dbregid");
@@ -1042,7 +1024,7 @@ int __get_filereg_info(const DB_LOG_VRFY_INFO * lvinfo, const DBT * fuid, VRFY_F
 {
 	int ret;
 	DBT data;
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	BDBOP3(lvinfo->dbenv, __db_get(lvinfo->fileregs, lvinfo->ip, NULL, (DBT *)fuid, &data, 0), DB_NOTFOUND,  "__get_filereg_info");
 	if(ret == DB_NOTFOUND)
 		goto err;
@@ -1109,9 +1091,8 @@ int __get_ckp_info(const DB_LOG_VRFY_INFO * lvinfo, DB_LSN lsn, VRFY_CKP_INFO **
 	int ret;
 	DBT key, data;
 	VRFY_CKP_INFO * ckpinfo;
-
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	key.data = &lsn;
 	key.size = sizeof(DB_LSN);
 	BDBOP3(lvinfo->dbenv, __db_get(lvinfo->ckps, lvinfo->ip, NULL, &key, &data, 0), DB_NOTFOUND, "__get_ckp_info");
@@ -1134,8 +1115,8 @@ int __get_last_ckp_info(const DB_LOG_VRFY_INFO * lvinfo, VRFY_CKP_INFO ** ckpinf
 	DBT key, data;
 	VRFY_CKP_INFO * ckpinfo;
 	DBC * csr = NULL;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	BDBOP(__db_cursor(lvinfo->ckps, lvinfo->ip, NULL, &csr, 0));
 	if((ret = __dbc_get(csr, &key, &data, DB_LAST)) != 0)
 		goto err;
@@ -1159,8 +1140,8 @@ int __put_ckp_info(const DB_LOG_VRFY_INFO * lvinfo, const VRFY_CKP_INFO * ckpinf
 {
 	int ret;
 	DBT key, data;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	key.data = (void *)&ckpinfo->lsn;
 	key.size = sizeof(DB_LSN);
 	data.data = (void *)ckpinfo;
@@ -1177,8 +1158,8 @@ int __get_timestamp_info(const DB_LOG_VRFY_INFO * lvinfo, DB_LSN lsn, VRFY_TIMES
 	int ret;
 	DBT key, data;
 	VRFY_TIMESTAMP_INFO * tsinfo;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	key.data = &lsn;
 	key.size = sizeof(DB_LSN);
 	BDBOP3(lvinfo->dbenv, __db_get(lvinfo->lsntime, lvinfo->ip, NULL,
@@ -1204,12 +1185,10 @@ int __get_latest_timestamp_info(const DB_LOG_VRFY_INFO * lvinfo, DB_LSN lsn, VRF
 	DBT key, data;
 	VRFY_TIMESTAMP_INFO * tsinfo;
 	DBC * csr;
-
 	csr = NULL;
 	ret = tret = 0;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
-
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	key.data = &lsn;
 	key.size = sizeof(lsn);
 	BDBOP(__db_cursor(lvinfo->lsntime, lvinfo->ip, NULL, &csr, 0));
@@ -1238,8 +1217,8 @@ int __put_timestamp_info(const DB_LOG_VRFY_INFO * lvinfo, const VRFY_TIMESTAMP_I
 {
 	int ret;
 	DBT key, data;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	key.data = (void *)&(tsinfo->lsn);
 	key.size = sizeof(DB_LSN);
 	data.data = (void *)tsinfo;
@@ -1266,16 +1245,14 @@ static int __lv_txnrgns_lsn_cmp(DB * db, const DBT * d1, const DBT * d2)
  */
 int __find_lsnrg_by_timerg(DB_LOG_VRFY_INFO * lvinfo, __time64_t begin, __time64_t end, DB_LSN * startlsn, DB_LSN * endlsn)
 {
-	int ret, tret;
-	DBC * csr;
+	int ret = 0;
+	int tret = 0;
+	DBC * csr = 0;
 	struct __lv_timestamp_info * t1, * t2;
 	DBT key, data;
-	ret = tret = 0;
-	csr = NULL;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	BDBOP(__db_cursor(lvinfo->timelsn, lvinfo->ip, NULL, &csr, 0));
-
 	/*
 	 * We want a lsn range that completely contains [begin, end], so
 	 * try move 1 record prev when getting the startlsn.
@@ -1329,17 +1306,15 @@ err:
  */
 int __add_txnrange(DB_LOG_VRFY_INFO * lvinfo, uint32 txnid, DB_LSN lsn, int32 when, int ishead /* Whether it's the 1st log of the txn */)
 {
-	int ret, tret;
-	DBC * csr;
-	struct __lv_txnrange tr, * ptr;
+	int ret = 0;
+	int tret;
+	DBC * csr = 0;
+	struct __lv_txnrange tr;
+	struct __lv_txnrange * ptr = 0;
 	DBT key, data;
-	csr = NULL;
-	ret = 0;
-	ptr = NULL;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	memzero(&tr, sizeof(tr));
-
 	key.data = &txnid;
 	key.size = sizeof(txnid);
 	tr.txnid = txnid;
@@ -1383,13 +1358,11 @@ int __get_aborttxn(DB_LOG_VRFY_INFO * lvinfo, DB_LSN lsn)
 	uint32 txnid;
 	DBC * csr;
 	DBT key, data;
-
 	csr = NULL;
 	txnid = 0;
 	ret = tret = 0;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
-
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	key.data = &lsn;
 	key.size = sizeof(lsn);
 	BDBOP(__db_cursor(lvinfo->txnaborts, lvinfo->ip, NULL, &csr, 0));
@@ -1428,8 +1401,8 @@ int __txn_started(DB_LOG_VRFY_INFO * lvinfo, DB_LSN lsn, uint32 txnid, int * res
 	ret = *res = 0;
 	csr = NULL;
 	memzero(&tr, sizeof(tr));
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	key.data = &txnid;
 	key.size = sizeof(txnid);
 
@@ -1460,8 +1433,8 @@ int __set_logvrfy_dbfuid(DB_LOG_VRFY_INFO * lvinfo)
 	DBT key, data;
 	size_t buflen;
 	p = NULL;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	/* So far we only support verifying a specific db file. */
 	p = lvinfo->lv_config->dbfile;
 	buflen = sizeof(char)*(strlen(p)+1);
@@ -1497,9 +1470,8 @@ int __add_page_to_txn(DB_LOG_VRFY_INFO * lvinfo, int32 dbregid, db_pgno_t pgno, 
 	buflen = sizeof(uint8)*DB_FILE_ID_LEN+sizeof(db_pgno_t);
 	BDBOP(__os_malloc(lvinfo->dbenv->env, buflen, &buf));
 	memzero(buf, buflen);
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
-
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	/*
 	 * We use the file uid as key because a single db file can have
 	 * multiple dbregid at the same time, and we may neglect the fact
@@ -1508,8 +1480,7 @@ int __add_page_to_txn(DB_LOG_VRFY_INFO * lvinfo, int32 dbregid, db_pgno_t pgno, 
 	 */
 	key.data = &dbregid;
 	key.size = sizeof(dbregid);
-	if((ret = __db_get(lvinfo->dbregids, lvinfo->ip, NULL,
-		    &key, &data, 0)) != 0) {
+	if((ret = __db_get(lvinfo->dbregids, lvinfo->ip, NULL, &key, &data, 0)) != 0) {
 		if(ret == DB_NOTFOUND) {
 			if(F_ISSET(lvinfo, DB_LOG_VERIFY_PARTIAL)) {
 				ret = 0;
@@ -1527,13 +1498,11 @@ int __add_page_to_txn(DB_LOG_VRFY_INFO * lvinfo, int32 dbregid, db_pgno_t pgno, 
 	memzero(&data, sizeof(DBT));
 	key.data = buf;
 	key.size = (uint32)buflen;
-	if((ret = __db_get(lvinfo->pgtxn, lvinfo->ip, NULL,
-		    &key, &data, 0)) != 0) {
+	if((ret = __db_get(lvinfo->pgtxn, lvinfo->ip, NULL, &key, &data, 0)) != 0) {
 		if(ret == DB_NOTFOUND) {
 			data.data = &txnid;
 			data.size = sizeof(txnid);
-			BDBOP(__db_put(lvinfo->pgtxn, lvinfo->ip, NULL, &key,
-					&data, 0));
+			BDBOP(__db_put(lvinfo->pgtxn, lvinfo->ip, NULL, &key, &data, 0));
 			*result = 1;
 			ret = 0; /* This is not an error. */
 		}
@@ -1560,7 +1529,7 @@ int __del_txn_pages(DB_LOG_VRFY_INFO * lvinfo, uint32 txnid)
 {
 	DBT key;
 	int ret = 0;
-	memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
 	key.data = &txnid;
 	key.size = sizeof(txnid);
 	BDBOP(__db_del(lvinfo->txnpg, lvinfo->ip, NULL, &key, 0));
@@ -1586,8 +1555,8 @@ int __is_ancestor_txn(DB_LOG_VRFY_INFO * lvinfo, uint32 ptxnid, uint32 txnid, DB
 	ptid = txnid;
 	csr = NULL;
 	pdb = lvinfo->txnrngs;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	*res = 0;
 	BDBOP(__db_cursor(pdb, lvinfo->ip, NULL, &csr, 0));
 	/* See if ptxnid is an ancestor of txnid. */
@@ -1631,11 +1600,10 @@ int __return_txn_pages(DB_LOG_VRFY_INFO * lvh, uint32 ctxn, uint32 ptxn)
 	char buf[DB_FILE_ID_LEN+sizeof(db_pgno_t)];
 	DB * sdb = lvh->txnpg;
 	DB * pdb = lvh->pgtxn;
-	memzero(&key, sizeof(DBT));
-	memzero(&key2, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
-	memzero(&data2, sizeof(DBT));
-
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&key2, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&data2, sizeof(DBT));
 	BDBOP(__db_cursor(sdb, lvh->ip, NULL, &csr, 0));
 	key.data = &ctxn;
 	key.size = sizeof(ctxn);

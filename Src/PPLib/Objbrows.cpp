@@ -133,7 +133,7 @@ int FASTCALL PPObjListWindow::valid(ushort command)
 			if(r < 0) {
 				P_Obj->UpdateSelector(P_Lb->def, ExtraPtr);
 				P_Lb->setRange(P_Lb->def->getRecsCount());
-				P_Lb->drawView();
+				P_Lb->Draw_();
 			}
 			return 0;
 		}
@@ -264,7 +264,7 @@ void PPObjListWindow::PostProcessHandleEvent(int update, PPID focusID)
 {
 	if(update) {
 		P_Obj->UpdateSelector(P_Lb->def, ExtraPtr);
-		P_Lb->drawView();
+		P_Lb->Draw_();
 		P_Lb->setRange(P_Lb->def->getRecsCount());
 		if(update == 2)
 			P_Lb->search(&focusID, 0, srchFirst | lbSrchByID);
@@ -452,7 +452,7 @@ void SLAPI PPListDialog::updateList(long pos, int byPos /*= 1*/)
 		int    sav_pos = P_Box->def ? (int)P_Box->def->_curItem() : 0;
 		P_Box->freeAll();
 		if(setupList()) {
-			P_Box->drawView();
+			P_Box->Draw_();
 			if(byPos)
 		   		P_Box->focusItem((pos < 0) ? sav_pos : pos);
 			else

@@ -84,7 +84,7 @@ IMPL_HANDLE_EVENT(LogsMonitorFiltDialog)
 		LoadAllLogs(&l_logs);
 		ListToListAryData lists_data(0, &l_logs, &r_logs);
 		SelectLogsDialog *p_dlg = 0;
-		if(CheckDialogPtr(&(p_dlg = new SelectLogsDialog(&lists_data, &l_logs, &r_logs)), 1)) {
+		if(CheckDialogPtrErr(&(p_dlg = new SelectLogsDialog(&lists_data, &l_logs, &r_logs)))) {
 			if(ExecView(p_dlg) == cmOK) {
 				SArray *p_selected = p_dlg->getSelected();
 				SelectedLogs.clear();

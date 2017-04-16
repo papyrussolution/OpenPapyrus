@@ -106,8 +106,7 @@ int SLAPI SpecSeriesCore::GetListBySerial(PPID kind, const char * pSerial, StrAs
 	q.select(this->ID, this->Serial, this->Tail, 0).where(this->Serial == pSerial);
 	for(q.initIteration(0, &k1, spEq); q.nextIteration() > 0;) {
 		SpecSeriesCore::GetExField(&data, SPCSNEXSTR_GOODSNAME, temp_buf);
-		if(pList)
-			pList->Add(data.ID, temp_buf);
+		CALLPTRMEMB(pList, Add(data.ID, temp_buf));
 		ok = 1;
 	}
 	return ok;

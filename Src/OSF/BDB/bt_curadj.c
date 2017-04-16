@@ -15,15 +15,15 @@
 // @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
-static int __bam_opd_cursor __P((DB*, DBC*, db_pgno_t, uint32, uint32));
-static int __bam_ca_delete_func __P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *));
-static int __ram_ca_delete_func __P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *));
-static int __bam_ca_di_func __P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *));
-static int __bam_ca_dup_func __P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *));
-static int __bam_ca_undodup_func __P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *));
-static int __bam_ca_rsplit_func __P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *));
-static int __bam_ca_split_func __P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *));
-static int __bam_ca_undosplit_func __P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *));
+static int __bam_opd_cursor(DB*, DBC*, db_pgno_t, uint32, uint32);
+static int __bam_ca_delete_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
+static int __ram_ca_delete_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
+static int __bam_ca_di_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
+static int __bam_ca_dup_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
+static int __bam_ca_undodup_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
+static int __bam_ca_rsplit_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
+static int __bam_ca_split_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
+static int __bam_ca_undosplit_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
 
 /*
  * Cursor adjustments are logged if they are for subtransactions.  This is
@@ -42,11 +42,9 @@ static int __bam_ca_undosplit_func __P((DBC*, DBC*, uint32*, db_pgno_t, uint32, 
  */
 static int __bam_ca_delete_func(DBC * dbc, DBC * my_dbc, uint32 * countp, db_pgno_t pgno, uint32 indx, void * args)
 {
-	BTREE_CURSOR * cp;
-	uint32 del;
 	COMPQUIET(my_dbc, NULL);
-	del = *(uint32 *)args;
-	cp = (BTREE_CURSOR *)dbc->internal;
+	uint32 del = *(uint32 *)args;
+	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
 	if(cp->pgno == pgno && cp->indx == indx && !MVCC_SKIP_CURADJ(dbc, pgno)) {
 		/*
 		 * [#8032] This assert is checking for possible race
@@ -56,8 +54,7 @@ static int __bam_ca_delete_func(DBC * dbc, DBC * my_dbc, uint32 * countp, db_pgn
 		 * None of them are known to be a problem, but this
 		 * assert should be re-activated when the Btree stack
 		 * code is re-written.
-		   DB_ASSERT(env, !STD_LOCKING(dbc) ||
-		    cp->lock_mode != DB_LOCK_NG);
+		   DB_ASSERT(env, !STD_LOCKING(dbc) || cp->lock_mode != DB_LOCK_NG);
 		 */
 		if(del) {
 			F_SET(cp, C_DELETED);
@@ -165,8 +162,7 @@ static int __bam_ca_di_func(DBC * dbc, DBC * my_dbc, uint32 * foundp, db_pgno_t 
 		/* Cursor indices should never be negative. */
 		DB_ASSERT(dbc->dbp->env, cp->indx != 0 || args->adjust > 0);
 		/* [#8032]
-		   DB_ASSERT(env, !STD_LOCKING(dbc) ||
-		    cp->lock_mode != DB_LOCK_NG);
+		   DB_ASSERT(env, !STD_LOCKING(dbc) || cp->lock_mode != DB_LOCK_NG);
 		 */
 		cp->indx += args->adjust;
 		if(args->my_txn != NULL && args->my_txn != dbc->txn)
@@ -372,8 +368,7 @@ static int __bam_ca_rsplit_func(DBC * dbc, DBC * my_dbc, uint32 * foundp, db_pgn
 	   !MVCC_SKIP_CURADJ(dbc, fpgno)) {
 		dbc->internal->pgno = tpgno;
 		/* [#8032]
-		   DB_ASSERT(env, !STD_LOCKING(dbc) ||
-		    dbc->internal->lock_mode != DB_LOCK_NG);
+		   DB_ASSERT(env, !STD_LOCKING(dbc) || dbc->internal->lock_mode != DB_LOCK_NG);
 		 */
 		if(IS_SUBTRANSACTION(my_dbc->txn) && dbc->txn != my_dbc->txn)
 			*foundp = 1;
@@ -420,8 +415,7 @@ static int __bam_ca_split_func(DBC*dbc, DBC * my_dbc, uint32 * foundp, db_pgno_t
 	if(cp->pgno == ppgno &&
 	   !MVCC_SKIP_CURADJ(dbc, ppgno)) {
 		/* [#8032]
-		   DB_ASSERT(env, !STD_LOCKING(dbc) ||
-		    cp->lock_mode != DB_LOCK_NG);
+		   DB_ASSERT(env, !STD_LOCKING(dbc) || cp->lock_mode != DB_LOCK_NG);
 		 */
 		if(args->my_txn != NULL && args->my_txn != dbc->txn)
 			*foundp = 1;

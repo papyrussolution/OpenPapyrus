@@ -353,7 +353,7 @@ int SLAPI PPViewTransport::NextIteration(TransportViewItem * pItem)
 int SLAPI PPViewTransport::ViewTotal()
 {
 	TDialog * p_dlg = new TDialog(DLG_GOODSTOTAL);
-	if(CheckDialogPtr(&p_dlg, 1)) {
+	if(CheckDialogPtrErr(&p_dlg)) {
 		long   count = 0;
 		SString title;
 		TransportViewItem item;

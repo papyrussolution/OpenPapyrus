@@ -274,7 +274,7 @@ IMPL_HANDLE_EVENT(TButton)
 				case cmReleaseDefault:
 					if(flags & bfDefault) {
 						SETFLAG(flags, bfDefault, TVCMD == cmReleaseDefault);
-						drawView();
+						Draw_();
 					}
 					break;
 				case cmCommandSetChanged:
@@ -283,7 +283,7 @@ IMPL_HANDLE_EVENT(TButton)
 						if((is_enabled && IsInState(sfDisabled)) || (!is_enabled && !IsInState(sfDisabled))) {
 							setState(sfDisabled, !is_enabled);
 							EnableWindow(getHandle(), !IsInState(sfDisabled));
-							drawView();
+							Draw_();
 						}
 					}
 					break;
@@ -313,7 +313,7 @@ void TButton::setState(uint aState, bool enable)
 {
 	TView::setState(aState, enable);
 	if(aState & (sfSelected | sfActive))
-		drawView();
+		Draw_();
 	if(aState & sfFocused)
 		makeDefault(enable);
 }
@@ -666,7 +666,7 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				SendDlgItemMessage(Parent, Id, EM_SETLIMITTEXT, maxLen ? (maxLen-1) : 0, 0);
 				if(format & STRF_PASSWORD)
 					SendDlgItemMessage(Parent, Id, EM_SETPASSWORDCHAR, DEFAULT_PASSWORD_SYMB, 0);
-				draw();
+				Draw_();
 				HWND h_wnd = getHandle();
 				// @v9.1.11 SetWindowLong(h_wnd, GWL_USERDATA, (long)this);
 				TView::SetWindowProp(h_wnd, GWL_USERDATA, this); // @v9.1.11
@@ -804,7 +804,7 @@ void TInputLine::disableDeleteSelection(int _disable)
 	SendDlgItemMessage(Parent, Id, EM_SETSEL, -1, -1);
 }
 
-void TInputLine::draw()
+void TInputLine::Implement_Draw()
 {
 	// @v9.1.5 char   buf[4096]; // @v8.3.11 [1024]-->[4096]
 	// @v9.1.5 SendDlgItemMessage(Parent, Id, WM_SETTEXT, 0, (long)SOemToChar(Data.CopyTo(buf, sizeof(buf))));
@@ -899,13 +899,16 @@ void TInputLine::setText(const char * b)
 	(Data = b).Strip();
 	if(maxLen)
 		Data.Trim(maxLen).Strip();
-	draw();
+	Draw_();
 }
 
 IMPL_HANDLE_EVENT(TInputLine)
 {
 	TView::handleEvent(event);
-	if(TVCOMMAND && IsInState(sfSelected)) {
+	if(event.isCmd(cmDraw)) {
+		Implement_Draw();
+	}
+	else if(TVCOMMAND && IsInState(sfSelected)) {
 		if(event.message.infoPtr)
 			if(event.message.command == cmGetFocusedNumber)
 				*(double*)event.message.infoPtr = Data.ToReal();
@@ -915,15 +918,17 @@ IMPL_HANDLE_EVENT(TInputLine)
 				return;
 		else
 			return;
-		clearEvent(event);
 	}
+	else
+		return;
+	clearEvent(event);
 }
 
 void TInputLine::setState(uint aState, bool enable)
 {
 	TView::setState(aState, enable);
 	if(aState == sfReadOnly)
-		SendDlgItemMessage(Parent, Id, EM_SETREADONLY, enable ? TRUE : FALSE, 0);
+		::SendDlgItemMessage(Parent, Id, EM_SETREADONLY, BIN(enable), 0);
 }
 
 int TInputLine::GetStatistics(Statistics * pStat) const
@@ -998,13 +1003,13 @@ void TInfoPane::setText(char * str)
 	delete text;
 	text = newStr(str);
 	SOemToChar(text);
-	drawView();
+	Draw_();
 }
 
 int TInfoPane::handleWindowsMessage(UINT  uMsg, WPARAM  wParam, LPARAM  lParam)
 {
 	if(uMsg == WM_INITDIALOG)
-		drawView();
+		Draw_();
 	return 1;
 }
 #endif // } 0 @v9.1.5
@@ -1248,7 +1253,7 @@ int TCluster::TransmitData(int dir, void * pData)
 	int    s = sizeof(Value);
 	if(dir > 0) {
 		Value = *(ushort *)pData;
-		drawView();
+		Draw_();
 		if(Kind == RADIOBUTTONS)
 			Sel = Value;
 		WPARAM state;
@@ -1262,7 +1267,7 @@ int TCluster::TransmitData(int dir, void * pData)
 	}
 	else if(dir < 0) {
 		*(ushort *)pData = Value;
-		drawView();
+		Draw_();
 	}
 	return s;
 }
@@ -1282,7 +1287,7 @@ void TCluster::setState(uint aState, bool enable)
 			ShowWindow(GetDlgItem(Parent, MAKE_BUTTON_ID(Id, i+1)), enable);
 	}
 	else if(aState == sfSelected)
-		drawView();
+		Draw_();
 }
 
 bool TCluster::mark(int item)
@@ -1714,7 +1719,7 @@ int ComboBox::search(const void * pPattern, CompFunc fcmp, int srchMode)
 		long   scroll_delta, scroll_pos;
 		P_Def->getScrollData(&scroll_delta, &scroll_pos);
 		SendDlgItemMessage(Parent, MAKE_BUTTON_ID(Id, 1), SBM_SETPOS, scroll_pos, 1);
-		drawView();
+		Draw_();
 		return 1;
 	}
 	return 0;
@@ -1738,7 +1743,7 @@ void ComboBox::search(const char * pFirstLetter, int srchMode)
 	else if((srchMode & ~srchFlags) == srchNext && SearchPattern.NotEmpty())
 		r = search(SearchPattern, SrchFunc, srchNext);
 	if(r >= 0)
-		drawView();
+		Draw_();
 }
 
 void FASTCALL ComboBox::setDef(ListBoxDef * pDef)
@@ -1747,7 +1752,7 @@ void FASTCALL ComboBox::setDef(ListBoxDef * pDef)
 		P_Def = pDef;
 		setRange(P_Def->getRecsCount());
 		State |= stUndef;
-		draw();
+		Draw_();
 	}
 	else
 		P_Def = 0;
@@ -1837,7 +1842,7 @@ int ComboBox::TransmitData(int dir, void * pData)
 
 IMPL_HANDLE_EVENT(ComboBox)
 {
-	if(TVCOMMAND && TVCMD == cmCBActivate) {
+	if(event.isCmd(cmCBActivate)) {
 		if(Parent) {
 			HWND   h_link = GetDlgItem(Parent, P_ILink->GetId());
 			const  uint preserve_state = Sf;
@@ -1869,7 +1874,7 @@ void ComboBox::setState(uint aState, bool enable)
 		P_ILink->setState(sfVisible, enable);
 	TView::setState(aState, enable);
 	if(aState & (sfSelected | sfActive))
-		drawView();
+		Draw_();
 }
 
 int ComboBox::addItem(long id, char * pS, long * pPos)

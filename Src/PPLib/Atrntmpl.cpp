@@ -1074,7 +1074,7 @@ void ATurnTmplDialog::swapPrim()
 		clu->getText(1, ft, sizeof(ft));
 		clu->setText(0, ft);
 		clu->setText(1, pt);
-		clu->drawView();
+		clu->Draw_();
 	}
 }
 
@@ -1088,7 +1088,7 @@ void ATurnTmplDialog::symbToFormula(const char * pSymb)
 		size_t pos = p_il->getCaret();
 		input.Insert(pos, symb.Quot(' ', ' '));
 		p_il->setText(input);
-		p_il->drawView();
+		p_il->Draw_();
 		p_il->selectAll(0);
 		p_il->setCaret(pos + symb.Len());
 	}
@@ -1355,7 +1355,7 @@ void SelAmtSymbDialog::updateList()
 		StrAssocArray * p_list = new StrAssocArray;
 		if(MakeList(p_list)) {
 			((StrAssocListBoxDef *)(P_List->def))->setArray(p_list);
-			drawView();
+			Draw_();
 		}
 		else
 			delete p_list;
@@ -1367,7 +1367,7 @@ int SLAPI SelectAmountSymb(PPID * pID, long options, int * pKind, SString & rSym
 	int    ok = -1;
 	SelAmtSymbDialog * dlg = 0;
 	rSymbBuf = 0;
-	if(CheckDialogPtr(&(dlg = new SelAmtSymbDialog(options)), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new SelAmtSymbDialog(options)))) {
 		if(ExecView(dlg) == cmOK)
 			ok = dlg->getSelectedSymb(pID, pKind, rSymbBuf) ? 1 : -1;
 		delete dlg;

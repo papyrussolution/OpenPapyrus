@@ -2396,7 +2396,7 @@ static xmlChar * htmlParseHTMLAttribute(htmlParserCtxtPtr ctxt, const xmlChar st
 					else if(c < 0x10000) {
 						*out++  = ((c >> 12) & 0x0F) | 0xE0;  bits =  6;
 					}
-					else{ *out++  = ((c >> 18) & 0x07) | 0xF0;  bits = 12; }
+					else { *out++  = ((c >> 18) & 0x07) | 0xF0;  bits = 12; }
 
 					for(; bits >= 0; bits -= 6) {
 						*out++  = ((c >> bits) & 0x3F) | 0x80;

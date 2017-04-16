@@ -37,20 +37,23 @@
 
 zip_extra_field_t * _zip_ef_clone(const zip_extra_field_t * ef, zip_error_t * error)
 {
-	zip_extra_field_t * head, * prev, * def;
-	head = prev = NULL;
+	zip_extra_field_t * head = 0;
+	zip_extra_field_t * prev = 0;
+	zip_extra_field_t * def;
 	while(ef) {
 		if((def = _zip_ef_new(ef->id, ef->size, ef->data, ef->flags)) == NULL) {
 			zip_error_set(error, ZIP_ER_MEMORY, 0);
 			_zip_ef_free(head);
 			return NULL;
 		}
-		if(head == NULL)
-			head = def;
-		if(prev)
-			prev->next = def;
-		prev = def;
-		ef = ef->next;
+		else {
+			if(head == NULL)
+				head = def;
+			if(prev)
+				prev->next = def;
+			prev = def;
+			ef = ef->next;
+		}
 	}
 	return head;
 }

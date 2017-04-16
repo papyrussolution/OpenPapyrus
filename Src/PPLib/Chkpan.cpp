@@ -3718,7 +3718,7 @@ int CheckPaneDialog::ConfirmPosPaymBank(double amount)
 	int    yes = 1;
 	if(amount != 0.0) {
 		TDialog * dlg = new TDialog(DLG_POSPAYMBNK);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setCtrlReal(CTL_POSPAYMBNK_AMOUNT, amount);
 			if(ExecViewAndDestroy(dlg) != cmOK)
 				yes = 0;
@@ -4143,7 +4143,7 @@ int CheckPaneDialog::Sleep()
 		Flags |= fSleepMode;
 		TDialog * dlg = new TDialog(DLG_CHKPANSLEEP); // @newok
 		SString code;
-		if(CheckDialogPtr(&dlg, 1))
+		if(CheckDialogPtrErr(&dlg))
 			while(1)
 				if(ExecView(dlg) == cmOK) {
 					dlg->getCtrlString(CTL_CHKPANSLEEP_CODE, code);
@@ -4314,7 +4314,7 @@ IMPL_HANDLE_EVENT(ComplexDinnerDialog)
 					}
 					p_box->focusItem(focus_pos);
 				}
-				p_box->drawView();
+				p_box->Draw_();
 			}
 		}
 	}
@@ -4818,7 +4818,7 @@ int SelCheckListDialog::SetupItemList()
 					setCtrlString(CTL_SELCHECK_MEMO, memo_buf);
 				}
 				p_list->focusItem(0);
-				p_list->drawView();
+				p_list->Draw_();
 				LastChkID = chk_id;
 			}
 		}
@@ -4962,7 +4962,7 @@ int SplitSuspCheckDialog::SetupList(SArray * pList, SmartListBox * pListBox)
 				ok = (PPSetErrorSLib(), 0);
 		}
 		pListBox->def->go(preserve_pos);
-		pListBox->drawView();
+		pListBox->Draw_();
 	}
 	return ok;
 }
@@ -5002,7 +5002,7 @@ int SelCheckListDialog::SplitCheck()
 			ListToListUIData ui_data;
 			ui_data.LeftCtlId  = CTL_SPLITSUSCHK_LIST1;
 			ui_data.RightCtlId = CTL_SPLITSUSCHK_LIST2;
-			THROW(CheckDialogPtr(&(dlg = new SplitSuspCheckDialog(dlg_id, &pack, &ui_data, &left_list, &right_list)), 0));
+			THROW(CheckDialogPtr(&(dlg = new SplitSuspCheckDialog(dlg_id, &pack, &ui_data, &left_list, &right_list))));
 			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 				if(!dlg->getDTS(&left_list, &right_list))
 					PPError();
@@ -5098,7 +5098,7 @@ int SelCheckListDialog::UniteChecks()
 		THROW_SL(list.lsearch(&chk1_id, &pos, PTR_CMPFUNC(long)) > 0);
 		list.atFree(pos);
 		uint dlg_id = (DlgFlags & fLarge) ? DLG_SELSUSCHECK_L : DLG_SELSUSCHECK;
-		THROW(CheckDialogPtr(&(dlg = new SelCheckListDialog(dlg_id, &list, 1, P_Srv, P_AddParam)), 0));
+		THROW(CheckDialogPtr(&(dlg = new SelCheckListDialog(dlg_id, &list, 1, P_Srv, P_AddParam))));
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			_SelCheck check2;
 			if(!dlg->getDTS(&check2))
@@ -5608,7 +5608,7 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 				if(!__lock) {
 					__lock = 1;
 					SelAddrByPhoneDialog * dlg = new SelAddrByPhoneDialog(&AddrByPhoneList);
-					if(CheckDialogPtr(&dlg, 1)) {
+					if(CheckDialogPtrErr(&dlg)) {
 						if(ExecView(dlg) == cmOK)
 							SetupAddr(dlg->getSelectedItem());
 					}
@@ -5824,7 +5824,7 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 		sc_id = CSt.GetID();
 	}
 	CheckDlvrDialog * dlg = new CheckDlvrDialog(sc_id, pDlvrPhone, pChannel);
-	if(CheckDialogPtr(&dlg, 1) && dlg->setDTS(&P.Eccd)) {
+	if(CheckDialogPtrErr(&dlg) && dlg->setDTS(&P.Eccd)) {
 		while(ok <= 0 && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS(&P.Eccd)) {
 				if(dlg->getSCardID(&sc_id)) {
@@ -5995,7 +5995,7 @@ int CheckPaneDialog::SelectGuestCount(int tableCode, long * pGuestCount)
 	if(tableCode) {
 		param.TableNo = tableCode;
 		param.GuestCount = 0;
-		if(CheckDialogPtr(&(dlg = new SelectGuestCountDialog), 1)) {
+		if(CheckDialogPtrErr(&(dlg = new SelectGuestCountDialog))) {
 			dlg->setDTS(&param);
 			while(ok < 0 && ExecView(dlg) == cmOK) {
 				dlg->getDTS(&param);
@@ -6275,7 +6275,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 									long   verb = rowopNone;
 									int8   queue = r_cur_item.Queue;
 									TDialog * dlg = new TDialog(DLG_CHKPANROWOP);
-									if(CheckDialogPtr(&dlg, 1)) {
+									if(CheckDialogPtrErr(&dlg)) {
 										dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 0, rowopNone);
 										dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, -1, rowopNone);
 										dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 1, rowopUp);
@@ -6496,7 +6496,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 							SelCheckListDialog::AddedParam param(/* @v8.4.3 CashNodeID */0, P.TableCode, P.GetAgentID(), OperRightsFlags);
 							const uint dlg_id = (DlgFlags & fLarge) ? DLG_ORDERCHECKS_L : DLG_ORDERCHECKS;
 							SelCheckListDialog * dlg = new SelCheckListDialog(dlg_id, (TSArray <CCheckViewItem> *)0, 0, this, &param);
-							if(CheckDialogPtr(&dlg, 1)) {
+							if(CheckDialogPtrErr(&dlg)) {
 								if(ExecView(dlg) == cmNewCheck) {
 									_SelCheck sc;
 									if(dlg->getDTS(&sc)) {
@@ -6974,7 +6974,7 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 				if(p_list->def)
 					p_list->def->SetOption(lbtSelNotify, 1);
 				ActiveListID = CTL_CHKPAN_GDSLIST;
-				p_list->drawView();
+				p_list->Draw_();
 			}
 		}
 		else {
@@ -7032,7 +7032,7 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 				}
 				else
 					p_grp_list->focusItem(sav_pos);
-				p_grp_list->drawView();
+				p_grp_list->Draw_();
 				p_def->getCurID(&SelGoodsGrpID);
 			}
 			LastGrpListUpdTime = getcurdatetime_();
@@ -7223,7 +7223,7 @@ int CheckPaneDialog::SelectCheck(PPID * pChkID, SString * pSelFormat, long flags
 	InitCashMachine();
 	const uint dlg_id = (DlgFlags & fLarge) ? DLG_SELCHECK_L : DLG_SELCHECK;
 	SelCheckListDialog * dlg = new SelCheckListDialog(dlg_id, (pSelFormat ? ((flags & scfSelSlipDocForm) ? 1 : -1) : 0), P_CM, this, &param);
-	if(!CheckDialogPtr(&dlg, 1))
+	if(!CheckDialogPtrErr(&dlg))
 		ok = 0;
 	while(ok < 0 && ExecView(dlg) == cmOK)
 		if(dlg->getDTS(&sch))
@@ -7308,7 +7308,7 @@ int CheckPaneDialog::SelectSuspendedCheck()
 		const uint dlg_id = (DlgFlags & fLarge) ? DLG_SELSUSCHECK_L : DLG_SELSUSCHECK;
 		dlg = new SelCheckListDialog(dlg_id, &list, 0, this, &param);
 		Flags |= fSuspSleepTimeout;
-		THROW(CheckDialogPtr(&dlg, 0));
+		THROW(CheckDialogPtr(&dlg));
 		do {
 			cc_filt.Period.low = plusdate(getcurdate_(), (Scf.DaysPeriod > 0) ? -Scf.DaysPeriod : -7);
 			cc_filt.Flags |= (CCheckFilt::fSuspendedOnly | CCheckFilt::fShowSuspended);
@@ -7935,7 +7935,7 @@ int CheckPaneDialog::OnUpdateList(int goBottom)
 		if(goBottom)
 			cur = P.getCount() - 1;
 		p_list->focusItem(cur);
-		p_list->drawView();
+		p_list->Draw_();
 		{
 			double total = 0.0, discount = 0.0;
 			CalcTotal(&total, &discount);
@@ -8409,7 +8409,7 @@ void CheckPaneDialog::SelectGoods__(int mode)
 	else {
 		Flags &= ~fSelByPrice;
 		SETIFZ(P_EGSDlg, new ExtGoodsSelDialog(GetCashOp(), 0, (CnFlags & CASHF_SELALLGOODS) ? ExtGoodsSelDialog::fForceExhausted : 0));
-		if(CheckDialogPtr(&P_EGSDlg, 1)) {
+		if(CheckDialogPtrErr(&P_EGSDlg)) {
 			PPWait(1);
 			SString temp_buf;
 			const int inp_not_empty = GetInput();
@@ -10265,7 +10265,7 @@ int CPosProcessor::ProcessGift()
 										//
 										if(!manual_gift) {
 											ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(GetCashOp(), 0, (CnFlags & CASHF_SELALLGOODS) ? ExtGoodsSelDialog::fForceExhausted : 0);
-											THROW(CheckDialogPtr(&dlg, 1));
+											THROW(CheckDialogPtrErr(&dlg));
 											dlg->setSelectionByGoodsList(&gen_list);
 											if(ExecView(dlg) == cmOK) {
 												TIDlgInitData tidi;
@@ -11304,7 +11304,7 @@ int SLAPI CCheckPane(PPID cashNodeID, PPID chkID, const char * pInitLine, long f
 	if(chkID) {
 		THROW(sc_obj.P_CcTbl->LoadPacket(chkID, 0, &pack));
 	}
-	THROW(CheckDialogPtr(&(dlg = new CheckPaneDialog(cashNodeID, chkID, chkID ? &pack : 0, is_touch_screen)), 0));
+	THROW(CheckDialogPtr(&(dlg = new CheckPaneDialog(cashNodeID, chkID, chkID ? &pack : 0, is_touch_screen))));
 	if(pInitLine)
 		dlg->SetInput(pInitLine);
 	if(flags & cchkpanfOnce)
@@ -11357,7 +11357,7 @@ public:
 			if(p_tree_list) {
 				PPObjGoodsGroup gg_obj;
 				p_tree_list->setDef(gg_obj.Selector(0));
-				p_tree_list->drawView();
+				p_tree_list->Draw_();
 				p_tree_list->def->SetOption(lbtSelNotify, 1);
 			}
 			UpdateGList(-1);
@@ -11647,7 +11647,7 @@ void InfoKioskDialog::UpdateGList(int updGdsList)
 			p_list->setDef(p_def);
 			if(p_list->def)
 				p_list->def->SetOption(lbtSelNotify, 1);
-			p_list->drawView();
+			p_list->Draw_();
 			PPWait(0);
 		}
 		else
@@ -11863,7 +11863,7 @@ int InfoKioskDialog::SelectGoods(SearchParam srch)
 		}
 		else if(oneof3(srch, srchByName, srchByPrice, srchByNone)) {
 			TIDlgInitData tidi;
-			THROW(CheckDialogPtr(&(dlg = new ExtGoodsSelDialog(0)), 0));
+			THROW(CheckDialogPtr(&(dlg = new ExtGoodsSelDialog(0))));
 			if(srch == srchByName) {
 				SString pattern;
 				StrAssocArray goods_list;
@@ -11984,7 +11984,7 @@ int InfoKioskDialog::SetupLots(PPID goodsID)
 				}
 			}
 			p_list->focusItem(0);
-			p_list->drawView();
+			p_list->Draw_();
 		}
 	}
 	showCtrl(CTL_INFKIOSK_LOTS, show_lots);
@@ -12013,7 +12013,7 @@ int SLAPI PPObjGoodsInfo::EditInfoKioskPaneFilt(InfoKioskPaneFilt * pData)
 	InfoKioskPaneFilt filt;
 	RVALUEPTR(filt, pData);
 	TDialog * dlg = new TDialog(DLG_INFOKIOSKFLT);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	SetupPPObjCombo(dlg, CTLSEL_INFOKIOSKFLT_NODE, PPOBJ_GOODSINFO, filt.InfoKioskID, OLW_CANINSERT, 0);
 	SetupPPObjCombo(dlg, CTLSEL_INFOKIOSKFLT_GRP, PPOBJ_GOODSGROUP, filt.DefaultGrpID, OLW_CANSELUPLEVEL, 0);
 	while(ok < 0 && ExecView(dlg) == cmOK) {

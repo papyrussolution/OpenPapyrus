@@ -1867,7 +1867,7 @@ int DebtTrnovrCycleDialog::embedChild()
 	GetClusterData(CTL_DEBTTOC_KIND, &Data.CycleKind);
 	if(oneof2(Data.CycleKind, DebtTrnovrFilt::ckExpiry, DebtTrnovrFilt::ckDelay)) {
 		DelayDialog * dlg = new DelayDialog;
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			Embed(dlg);
 			dlg->setData(&Data.Cf); // @v8.3.4
 		}
@@ -1877,7 +1877,7 @@ int DebtTrnovrCycleDialog::embedChild()
 	else if(Data.CycleKind == DebtTrnovrFilt::ckShipments || Data.CycleKind == DebtTrnovrFilt::ckPayments) {
 		const  uint ctl_id = (Data.CycleKind == DebtTrnovrFilt::ckShipments) ? CTL_SLLTOFLT_PERIOD : CTL_SLLTOFLT_PAYMPERIOD;
 		CycleDialog * dlg = new CycleDialog(this, ctl_id);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			Embed(dlg);
 			dlg->setData(&Data.Cf); // @v8.3.4
 		}
@@ -2048,7 +2048,7 @@ int SLAPI PPViewDebtTrnovr::ViewTotal()
 	};
 	const int  kind = (Filt.ExtKind == DebtTrnovrFilt::ekExpiryPart) ? 1 : 0;
 	ExtDebtTrnovrTotalDialog * dlg = new ExtDebtTrnovrTotalDialog(kind, &Total);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		ExecViewAndDestroy(dlg);
 		return 1;
 	}
@@ -2445,7 +2445,7 @@ static int SLAPI SelectPrintingDebtTrnovrSheet(int * pWhat, LDATE * pExpiry, ush
 	};
 	int    ok = -1;
 	SelWhatPrnDialog * dlg = new SelWhatPrnDialog();
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		ushort v = *pWhat;
 		dlg->setCtrlData(CTL_PRNSELLTO_FLAGS, &v);
 		dlg->setCtrlData(CTL_PRNSELLTO_DTIN,  pExpiry);
@@ -2654,7 +2654,7 @@ int SLAPI PPDebtorStatConfig::Edit()
 	TDialog * dlg = new TDialog(DLG_DSTATCFG);
 	THROW(CheckCfgRights(cfg_obj_type, PPR_READ, 0));
 	THROW(is_new = Read(&cfg));
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	dlg->SetupCalPeriod(CTLCAL_DSTATCFG_PERIOD, CTL_DSTATCFG_PERIOD);
 	SetupPPObjCombo(dlg, CTLSEL_DSTATCFG_RELTYPE, PPOBJ_PERSONRELTYPE, cfg.HoldingRelTypeID, 0, 0);
 	dlg->setCtrlReal(CTL_DSTATCFG_SIGMFACTOR, cfg.PaymSigmFactor);

@@ -1354,7 +1354,7 @@ int SLAPI PrcssrDL200::EditParam(Param * pData)
 {
 	int    ok = -1;
 	DL200_ParamDialog * dlg = 0;
-	if(CheckDialogPtr(&(dlg = new DL200_ParamDialog()), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new DL200_ParamDialog()))) {
 		dlg->setDTS(pData);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
 			if(dlg->getDTS(pData)) {

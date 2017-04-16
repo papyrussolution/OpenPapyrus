@@ -285,10 +285,8 @@ kill_all:       /*
 			break;
 #endif
 		}
-		else
-		if(FLD_ISSET(dbenv->verbose, DB_VERB_REGISTER))
-			__db_msg(env, DB_STR_A("1531",
-					"%02u: %s: LOCKED", "%02u %s"), lcnt, p);
+		else if(FLD_ISSET(dbenv->verbose, DB_VERB_REGISTER))
+			__db_msg(env, DB_STR_A("1531", "%02u: %s: LOCKED", "%02u %s"), lcnt, p);
 	}
 	/*
 	 * If we have to perform recovery...
@@ -357,8 +355,7 @@ sig_proc:
 		/* Wait for processes to see the panic and leave. */
 		__os_yield(env, 0, dbenv->envreg_timeout);
 		/* FIGURE out how big the file is. */
-		if((ret = __os_ioinfo(
-			    env, NULL, dbenv->registry, &mbytes, &bytes, NULL)) != 0)
+		if((ret = __os_ioinfo(env, NULL, dbenv->registry, &mbytes, &bytes, NULL)) != 0)
 			return ret;
 		end = (off_t)mbytes*MEGABYTE+bytes;
 		/*
@@ -371,10 +368,8 @@ sig_proc:
 		 */
 		if((ret = __os_seek(env, dbenv->registry, 0, 0, 0)) != 0)
 			return ret;
-		for(lcnt = 0; lcnt < ((uint)end/PID_LEN+
-		                      ((uint)end%PID_LEN == 0 ? 0 : 1)); ++lcnt) {
-			if((ret = __os_read(
-				    env, dbenv->registry, buf, PID_LEN, &nr)) != 0)
+		for(lcnt = 0; lcnt < ((uint)end/PID_LEN + ((uint)end%PID_LEN == 0 ? 0 : 1)); ++lcnt) {
+			if((ret = __os_read(env, dbenv->registry, buf, PID_LEN, &nr)) != 0)
 				return ret;
 			pos = (off_t)lcnt*PID_LEN;
 			/* do not notify on dead process */
@@ -382,10 +377,7 @@ sig_proc:
 				pid = (pid_t)strtoul(buf, NULL, 10);
 				DB_EVENT(env, DB_EVENT_REG_ALIVE, &pid);
 			}
-			if((ret = __os_seek(env,
-				    dbenv->registry, 0, 0, (uint32)pos)) != 0 ||
-			   (ret = __os_write(env,
-				    dbenv->registry, PID_EMPTY, PID_LEN, &nw)) != 0)
+			if((ret = __os_seek(env, dbenv->registry, 0, 0, (uint32)pos)) != 0 || (ret = __os_write(env, dbenv->registry, PID_EMPTY, PID_LEN, &nw)) != 0)
 				return ret;
 		}
 		/* wait one last time to get everyone out */
@@ -395,25 +387,19 @@ sig_proc:
 	 * Seek to the first process slot and add ourselves to the first empty
 	 * slot we can lock.
 	 */
-add:    if((ret = __os_seek(env, dbenv->registry, 0, 0, 0)) != 0)
+add:    
+	if((ret = __os_seek(env, dbenv->registry, 0, 0, 0)) != 0)
 		return ret;
 	for(lcnt = 0;; ++lcnt) {
-		if((ret = __os_read(
-			    env, dbenv->registry, buf, PID_LEN, &nr)) != 0)
+		if((ret = __os_read(env, dbenv->registry, buf, PID_LEN, &nr)) != 0)
 			return ret;
 		if(nr == PID_LEN && !PID_ISEMPTY(buf))
 			continue;
 		pos = (off_t)lcnt*PID_LEN;
 		if(REGISTRY_LOCK(env, pos, 1) == 0) {
 			if(FLD_ISSET(dbenv->verbose, DB_VERB_REGISTER))
-				__db_msg(env, DB_STR_A("1532",
-						"%lu: locking slot %02u at offset %lu",
-						"%lu %02u %lu"), (ulong)pid, lcnt,
-					(ulong)pos);
-			if((ret = __os_seek(env,
-				    dbenv->registry, 0, 0, (uint32)pos)) != 0 ||
-			   (ret = __os_write(env,
-				    dbenv->registry, pid_buf, PID_LEN, &nw)) != 0)
+				__db_msg(env, DB_STR_A("1532", "%lu: locking slot %02u at offset %lu", "%lu %02u %lu"), (ulong)pid, lcnt, (ulong)pos);
+			if((ret = __os_seek(env, dbenv->registry, 0, 0, (uint32)pos)) != 0 || (ret = __os_write(env, dbenv->registry, pid_buf, PID_LEN, &nw)) != 0)
 				return ret;
 			dbenv->registry_off = (uint32)pos;
 			break;

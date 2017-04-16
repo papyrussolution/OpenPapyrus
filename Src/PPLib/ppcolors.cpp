@@ -711,7 +711,7 @@ int EditColor(long * pColor)
 	int    ok = -1;
 	PPColorPickerDialog * p_dlg = 0;
 	THROW_MEM(p_dlg = new PPColorPickerDialog);
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setDTS(pColor);
 	if(ExecView(p_dlg) == cmOK) {
 		p_dlg->getDTS(pColor);

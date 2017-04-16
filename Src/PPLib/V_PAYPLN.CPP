@@ -426,7 +426,7 @@ int SLAPI PPViewPaymPlan::ViewTotal()
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_PAYPLANTOTAL);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setCtrlLong(CTL_PAYPLANTOTAL_COUNT,  Total.Count);
 		dlg->setCtrlReal(CTL_PAYPLANTOTAL_AMOUNT, Total.Amount);
 		dlg->setCtrlReal(CTL_PAYPLANTOTAL_PAYM,   Total.Paym);

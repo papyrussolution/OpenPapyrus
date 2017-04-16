@@ -36,31 +36,29 @@
 // @v9.5.5 #include "dbinc/heap.h"
 // @v9.5.5 #include "dbinc/qam.h"
 // @v9.5.5 #include "dbinc/txn.h"
+// @v9.6.2 #include "dbinc/log_verify.h"
 
-#include "dbinc/log_verify.h"
-
-static int __log_vrfy_proc __P((DB_LOG_VRFY_INFO*, DB_LSN, DB_LSN, uint32, DB_TXN*, int32, int *));
-static int __lv_ckp_vrfy_handler __P((DB_LOG_VRFY_INFO*, VRFY_TXN_INFO*, void *));
-static const char * __lv_dbreg_str __P((uint32));
-static int __lv_dbregid_to_dbtype __P((DB_LOG_VRFY_INFO*, int32, DBTYPE *));
-static int __lv_dbt_str __P((const DBT*, char **));
-static const char * __lv_dbtype_str __P((DBTYPE));
-static uint32 __lv_first_offset(ENV *);
-static int __lv_new_logfile_vrfy __P((DB_LOG_VRFY_INFO*, const DB_LSN *));
-static int __lv_log_fwdscr_oncmt __P((DB_LOG_VRFY_INFO*, DB_LSN, uint32, uint32, int32));
-static int __lv_log_fwdscr_onrec __P((DB_LOG_VRFY_INFO*, uint32, uint32, DB_LSN, DB_LSN));
-static int __lv_log_mismatch __P((DB_LOG_VRFY_INFO*, DB_LSN, DBTYPE, DBTYPE));
-static int __lv_on_bam_log __P((DB_LOG_VRFY_INFO*, DB_LSN, int32));
-static int __lv_on_ham_log __P((DB_LOG_VRFY_INFO*, DB_LSN, int32));
-static int __lv_on_heap_log __P((DB_LOG_VRFY_INFO*, DB_LSN, int32));
-static int __lv_on_new_txn __P((DB_LOG_VRFY_INFO*, const DB_LSN*, const DB_TXN*, uint32, int32, const DBT *));
-static int __lv_on_nontxn_update __P((DB_LOG_VRFY_INFO*, const DB_LSN*, uint32, uint32, int32));
-static int __lv_on_page_update __P((DB_LOG_VRFY_INFO*, DB_LSN, int32, db_pgno_t, DB_TXN*, int *));
-static int __lv_on_qam_log __P((DB_LOG_VRFY_INFO*, DB_LSN, int32));
-static int __lv_on_timestamp __P((DB_LOG_VRFY_INFO*, const DB_LSN*, int32, uint32));
-static int __lv_on_txn_aborted __P((DB_LOG_VRFY_INFO *));
-static int __lv_on_txn_logrec __P((DB_LOG_VRFY_INFO*, const DB_LSN*, const DB_LSN*, const DB_TXN*, uint32, int32));
-static int __lv_vrfy_for_dbfile __P((DB_LOG_VRFY_INFO*, int32, int *));
+static int __log_vrfy_proc(DB_LOG_VRFY_INFO*, DB_LSN, DB_LSN, uint32, DB_TXN*, int32, int *);
+static int __lv_ckp_vrfy_handler(DB_LOG_VRFY_INFO*, VRFY_TXN_INFO*, void *);
+static const char * __lv_dbreg_str(uint32);
+static int __lv_dbregid_to_dbtype(DB_LOG_VRFY_INFO*, int32, DBTYPE *);
+static int __lv_dbt_str(const DBT*, char **);
+static const char * __lv_dbtype_str(DBTYPE);
+static int __lv_new_logfile_vrfy(DB_LOG_VRFY_INFO*, const DB_LSN *);
+static int __lv_log_fwdscr_oncmt(DB_LOG_VRFY_INFO*, DB_LSN, uint32, uint32, int32);
+static int __lv_log_fwdscr_onrec(DB_LOG_VRFY_INFO*, uint32, uint32, DB_LSN, DB_LSN);
+static int __lv_log_mismatch(DB_LOG_VRFY_INFO*, DB_LSN, DBTYPE, DBTYPE);
+static int __lv_on_bam_log(DB_LOG_VRFY_INFO*, DB_LSN, int32);
+static int __lv_on_ham_log(DB_LOG_VRFY_INFO*, DB_LSN, int32);
+static int __lv_on_heap_log(DB_LOG_VRFY_INFO*, DB_LSN, int32);
+static int __lv_on_new_txn(DB_LOG_VRFY_INFO*, const DB_LSN*, const DB_TXN*, uint32, int32, const DBT *);
+static int __lv_on_nontxn_update(DB_LOG_VRFY_INFO*, const DB_LSN*, uint32, uint32, int32);
+static int __lv_on_page_update(DB_LOG_VRFY_INFO*, DB_LSN, int32, db_pgno_t, DB_TXN*, int *);
+static int __lv_on_qam_log(DB_LOG_VRFY_INFO*, DB_LSN, int32);
+static int __lv_on_timestamp(DB_LOG_VRFY_INFO*, const DB_LSN*, int32, uint32);
+static int __lv_on_txn_aborted(DB_LOG_VRFY_INFO *);
+static int __lv_on_txn_logrec(DB_LOG_VRFY_INFO*, const DB_LSN*, const DB_LSN*, const DB_TXN*, uint32, int32);
+static int __lv_vrfy_for_dbfile(DB_LOG_VRFY_INFO*, int32, int *);
 
 /* General error handlers, called when a check fails. */
 #define ON_ERROR(lvh, errv) do {                                        \
@@ -78,17 +76,12 @@ static int __lv_vrfy_for_dbfile __P((DB_LOG_VRFY_INFO*, int32, int *));
 		goto err;                                                       \
 } while(0)
 
-#define SKIP_FORWARD_CHK(type) ((type) != DB___txn_regop &&             \
-                                (type) != DB___txn_ckp && (type) != DB___fop_rename &&              \
-                                (type) != DB___txn_child)
-
-#define NOTCOMMIT(type) ((type) != DB___txn_regop && (type) != DB___txn_child)
+#define SKIP_FORWARD_CHK(type) ((type) != DB___txn_regop && (type) != DB___txn_ckp && (type) != DB___fop_rename && (type) != DB___txn_child)
+#define NOTCOMMIT(type)        ((type) != DB___txn_regop && (type) != DB___txn_child)
 
 #define LOG_VRFY_PROC(lvh, lsn, argp, fileid) do {                      \
 		int __lv_log_vrfy_proc_step = 0;                                \
-		if((ret = __log_vrfy_proc((lvh), (lsn), (argp)->prev_lsn,      \
-			    (argp)->type, (argp)->txnp, (fileid),                       \
-			    &__lv_log_vrfy_proc_step)) != 0)                            \
+		if((ret = __log_vrfy_proc((lvh), (lsn), (argp)->prev_lsn, (argp)->type, (argp)->txnp, (fileid), &__lv_log_vrfy_proc_step)) != 0) \
 			goto err;                                               \
 		if(__lv_log_vrfy_proc_step == 1)                               \
 			goto out;                                               \
@@ -101,8 +94,7 @@ static int __lv_vrfy_for_dbfile __P((DB_LOG_VRFY_INFO*, int32, int *));
 /* Log record handlers used by log types involving page updates. */
 #define ON_PAGE_UPDATE(lvh, lsn, argp, pgno) do {                       \
 		int __lv_onpgupdate_res;                                        \
-		if((ret = __lv_on_page_update((lvh), (lsn), (argp)->fileid,    \
-			    (pgno), (argp)->txnp, &__lv_onpgupdate_res)) != 0)          \
+		if((ret = __lv_on_page_update((lvh), (lsn), (argp)->fileid, (pgno), (argp)->txnp, &__lv_onpgupdate_res)) != 0) \
 			goto err;                                               \
 		if(__lv_onpgupdate_res == 1)                                   \
 			goto out;                                               \
@@ -201,8 +193,7 @@ static int __log_vrfy_proc(DB_LOG_VRFY_INFO * lvh, DB_LSN lsn, DB_LSN prev_lsn, 
 			goto err;
 		if(!dovrfy)
 			goto out;
-		if(lvh->aborted_txnid != 0 &&
-		   ((ret = __lv_on_txn_aborted(lvh)) != 0))
+		if(lvh->aborted_txnid != 0 && ((ret = __lv_on_txn_aborted(lvh)) != 0))
 			goto err;
 		if((ret = __get_aborttxn(lvh, lsn)) != 0)
 			goto err;
@@ -277,10 +268,9 @@ static int __lv_log_fwdscr_oncmt(DB_LOG_VRFY_INFO * lvinfo, DB_LSN lsn, uint32 t
 	int ret;
 	struct __lv_txnrange tr;
 	DBT key, data;
-
 	memzero(&tr, sizeof(tr));
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	tr.txnid = txnid;
 	tr.end = lsn;
 	tr.when_commit = timestamp;
@@ -312,10 +302,10 @@ static int __lv_log_fwdscr_onrec(DB_LOG_VRFY_INFO * lvinfo, uint32 txnid, uint32
 	doput = ret = ret2 = 0;
 	csr = NULL;
 	memzero(&tr, sizeof(tr));
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
-	memzero(&key2, sizeof(DBT));
-	memzero(&data2, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key2, sizeof(DBT));
+	// (replaced by ctr) memzero(&data2, sizeof(DBT));
 	key.data = &txnid;
 	key.size = sizeof(txnid);
 	tr.txnid = txnid;
@@ -2682,9 +2672,7 @@ int __txn_prepare_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused
 		goto out;
 
 	}
-	DB_ASSERT(env,
-		(IS_ZERO_LSN(ptvi->prep_lsn) && ptvi->status != TXN_STAT_PREPARE) ||
-		(!IS_ZERO_LSN(ptvi->prep_lsn) && ptvi->status == TXN_STAT_PREPARE));
+	DB_ASSERT(env, (IS_ZERO_LSN(ptvi->prep_lsn) && ptvi->status != TXN_STAT_PREPARE) || (!IS_ZERO_LSN(ptvi->prep_lsn) && ptvi->status == TXN_STAT_PREPARE));
 	lvh->ntxn_prep++;
 	lvh->ntxn_active--;
 	if(!IS_ZERO_LSN(ptvi->prep_lsn)) { /* Prepared more than once. */
@@ -2711,11 +2699,9 @@ err:
 int __txn_recycle_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
 	__txn_recycle_args * argp;
-	DB_LOG_VRFY_INFO * lvh;
-	int ret;
+	int ret = 0;
+	DB_LOG_VRFY_INFO * lvh = (DB_LOG_VRFY_INFO *)lvhp;
 	notused2 = DB_TXN_LOG_VERIFY;
-	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	ret = 0;
 	if((ret = __txn_recycle_read(env, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, INVAL_DBREGID);
@@ -2730,21 +2716,15 @@ err:
 /* Handle log types having timestamps, so far only __txn_ckp and __txn_regop. */
 static int __lv_on_timestamp(DB_LOG_VRFY_INFO * lvh, const DB_LSN * lsn, int32 timestamp, uint32 logtype)
 {
-	VRFY_TIMESTAMP_INFO * ltsinfo;
-	int ret;
-	ltsinfo = NULL;
-	ret = 0;
+	VRFY_TIMESTAMP_INFO * ltsinfo = 0;
+	int ret = 0;
 	if((ret = __get_latest_timestamp_info(lvh, *lsn, &ltsinfo)) == 0) {
 		DB_ASSERT(lvh->dbenv->env, ltsinfo != NULL);
-		if(ltsinfo->timestamp >= timestamp &&
-		   F_ISSET(lvh, DB_LOG_VERIFY_VERBOSE)) {
+		if(ltsinfo->timestamp >= timestamp && F_ISSET(lvh, DB_LOG_VERIFY_VERBOSE)) {
 			__db_errx(lvh->dbenv->env, DB_STR_A("2559", "[%lu][%lu] [WARNING] This log record of type %s "
 					"does not have a greater time stamp than [%lu, %lu] of type %s", "%lu %lu %s %lu %lu %s"),
-				(ulong)lsn->file, (ulong)lsn->offset,
-				LOGTYPE_NAME(lvh, logtype),
-				(ulong)ltsinfo->lsn.file,
-				(ulong)ltsinfo->lsn.offset,
-				LOGTYPE_NAME(lvh, ltsinfo->logtype));
+				(ulong)lsn->file, (ulong)lsn->offset, LOGTYPE_NAME(lvh, logtype),
+				(ulong)ltsinfo->lsn.file, (ulong)ltsinfo->lsn.offset, LOGTYPE_NAME(lvh, ltsinfo->logtype));
 			lvh->flags |= DB_LOG_VERIFY_WARNING;
 		}
 	}
@@ -2760,14 +2740,12 @@ static int __lv_on_timestamp(DB_LOG_VRFY_INFO * lvh, const DB_LSN * lsn, int32 t
 static int __lv_on_txn_logrec(DB_LOG_VRFY_INFO * lvh, const DB_LSN * lsnp, const DB_LSN * prev_lsnp, const DB_TXN * txnp, uint32 type, int32 dbregid)
 {
 	DBT fid;
-	VRFY_TXN_INFO * pvti;
+	VRFY_TXN_INFO * pvti = 0;
 	uint32 txnid;
-	VRFY_FILEREG_INFO * fregp;
-	int ret, ret2, started;
-
-	ret = ret2 = started = 0;
-	pvti = NULL;
-	fregp = NULL;
+	VRFY_FILEREG_INFO * fregp = 0;
+	int ret = 0;
+	int ret2 = 0;
+	int started = 0;
 	lvh->lrtypes[type]++; /* Increment per-type log record count. */
 	txnid = txnp->txnid;
 	memzero(&fid, sizeof(fid));
@@ -2837,16 +2815,15 @@ cont:
 	}
 	pvti->cur_lsn = *lsnp;
 	pvti->flags = txnp->flags;
-	if(dbregid != INVAL_DBREGID && fid.size > 0 &&
-	   (ret = __add_file_updated(pvti, &fid, dbregid)) != 0)
+	if(dbregid != INVAL_DBREGID && fid.size > 0 && (ret = __add_file_updated(pvti, &fid, dbregid)) != 0)
 		goto err;
 	if((ret = __put_txn_vrfy_info(lvh, pvti)) != 0)
 		goto err;
 out:
 err:
-	if(pvti != NULL && (ret2 = __free_txninfo(pvti)) != 0 && ret == 0)
+	if(pvti && (ret2 = __free_txninfo(pvti)) != 0 && ret == 0)
 		ret = ret2;
-	if(fregp != NULL && (ret2 = __free_filereg_info(fregp)) != 0 && ret == 0)
+	if(fregp && (ret2 = __free_filereg_info(fregp)) != 0 && ret == 0)
 		ret = ret2;
 	return ret;
 }
@@ -2855,28 +2832,25 @@ err:
  */
 static int __lv_on_new_txn(DB_LOG_VRFY_INFO * lvh, const DB_LSN * lsnp, const DB_TXN * txnp, uint32 type, int32 dbregid, const DBT * fid)
 {
-	VRFY_TXN_INFO vti, * pvti, * vtip;
-	int ret, tret;
-	uint32 txnid;
+	VRFY_TXN_INFO vti;
+	VRFY_TXN_INFO * pvti = 0;
+	VRFY_TXN_INFO * vtip;
 	ENV * env;
-
-	ret = tret = 0;
-	txnid = txnp->txnid;
-	pvti = NULL;
+	int ret = 0;
+	int tret = 0;
+	uint32 txnid = txnp->txnid;
 	memzero(&vti, sizeof(vti));
 	vti.txnid = txnid;
 	env = lvh->dbenv->env;
 	/* Log record type, may be used later. Pass lint checks. */
 	COMPQUIET(type, 0);
-
 	/*
 	 * It's possible that the new txn is a child txn, we will decrement
 	 * this value in __txn_child_verify when we realize this, because
 	 * this value only records the number of outermost active txns.
 	 */
 	lvh->ntxn_active++;
-	if((ret = __get_txn_vrfy_info(lvh, txnid, &pvti)) != 0 &&
-	   ret != DB_NOTFOUND)
+	if((ret = __get_txn_vrfy_info(lvh, txnid, &pvti)) != 0 && ret != DB_NOTFOUND)
 		goto err;
 	if(ret == DB_NOTFOUND)
 		vtip = &vti;
@@ -2934,39 +2908,32 @@ err:
 	return ret;
 }
 
+static uint32 __lv_first_offset(ENV * env)
+{
+	uint32 sz = CRYPTO_ON(env) ? HDR_CRYPTO_SZ : HDR_NORMAL_SZ;
+	sz += sizeof(LOGP);
+	return sz;
+}
+
 /* Called when we detect that a new log file is used. */
 static int __lv_new_logfile_vrfy(DB_LOG_VRFY_INFO * lvh, const DB_LSN * lsnp)
 {
 	int ret = 0;
 	if(IS_ZERO_LSN(lvh->last_lsn) || lvh->last_lsn.file == lsnp->file) {
 		lvh->last_lsn = *lsnp;
-		return 0;
 	}
-	/*
-	 * If file number changed, it must have been incremented,
-	 * and the offset is 0.
-	 * */
-	if(lsnp->file-lvh->last_lsn.file != 1 || lsnp->offset != __lv_first_offset(lvh->dbenv->env)) {
-		__db_errx(lvh->dbenv->env, "[%lu][%lu] Last log record verified ([%lu][%lu]) is not "
-			"immidiately before the current log record.",
-			(ulong)lsnp->file, (ulong)lsnp->offset, (ulong)lvh->last_lsn.file, (ulong)lvh->last_lsn.offset);
-		ret = DB_LOG_VERIFY_BAD;
-		ON_ERROR(lvh, DB_LOG_VERIFY_ERR);
+	else {
+		// If file number changed, it must have been incremented, and the offset is 0.
+		if(lsnp->file-lvh->last_lsn.file != 1 || lsnp->offset != __lv_first_offset(lvh->dbenv->env)) {
+			__db_errx(lvh->dbenv->env, "[%lu][%lu] Last log record verified ([%lu][%lu]) is not immidiately before the current log record.",
+				(ulong)lsnp->file, (ulong)lsnp->offset, (ulong)lvh->last_lsn.file, (ulong)lvh->last_lsn.offset);
+			ret = DB_LOG_VERIFY_BAD;
+			ON_ERROR(lvh, DB_LOG_VERIFY_ERR);
+		}
+		lvh->last_lsn = *lsnp;
 	}
-	lvh->last_lsn = *lsnp;
 err:
 	return ret;
-}
-
-static uint32 __lv_first_offset(ENV * env)
-{
-	uint32 sz;
-	if(CRYPTO_ON(env))
-		sz = HDR_CRYPTO_SZ;
-	else
-		sz = HDR_NORMAL_SZ;
-	sz += sizeof(LOGP);
-	return sz;
 }
 
 /* Called when we see a non-transactional update log record. */
@@ -2984,18 +2951,14 @@ static int __lv_on_nontxn_update(DB_LOG_VRFY_INFO * lvh, const DB_LSN * lsnp, ui
 
 static int __lv_on_txn_aborted(DB_LOG_VRFY_INFO * lvinfo)
 {
-	int ret, ret2, sres;
-	VRFY_TXN_INFO * ptvi;
-	uint32 abtid;
-	DB_LSN lsn, slsn;
-
-	ret = ret2 = sres = 0;
-	abtid = lvinfo->aborted_txnid;
-	lsn = lvinfo->aborted_txnlsn;
-	slsn = lvinfo->lv_config->start_lsn;
-	ptvi = NULL;
-	if((ret = __del_txn_pages(lvinfo, lvinfo->aborted_txnid)) != 0 &&
-	   ret != DB_NOTFOUND)
+	int ret = 0;
+	int ret2 = 0;
+	int sres = 0;
+	VRFY_TXN_INFO * ptvi = 0;
+	uint32 abtid = lvinfo->aborted_txnid;
+	DB_LSN lsn = lvinfo->aborted_txnlsn;
+	DB_LSN slsn = lvinfo->lv_config->start_lsn;
+	if((ret = __del_txn_pages(lvinfo, lvinfo->aborted_txnid)) != 0 && ret != DB_NOTFOUND)
 		goto err;  /* Some txns may have updated no pages. */
 	ret = __get_txn_vrfy_info(lvinfo, lvinfo->aborted_txnid, &ptvi);
 	if(ret == DB_NOTFOUND && !F_ISSET(lvinfo, DB_LOG_VERIFY_PARTIAL)) {
@@ -3003,8 +2966,7 @@ static int __lv_on_txn_aborted(DB_LOG_VRFY_INFO * lvinfo)
 		 * If verifying from slsn and the txn abtid started before
 		 * slsn, it's expected that we can't find the txn.
 		 */
-		if(!IS_ZERO_LSN(slsn) && (ret2 = __txn_started(lvinfo, slsn,
-						  abtid, &sres)) == 0 && sres != 0) {
+		if(!IS_ZERO_LSN(slsn) && (ret2 = __txn_started(lvinfo, slsn, abtid, &sres)) == 0 && sres != 0) {
 			ret = 0;
 			goto err;
 		}
@@ -3025,8 +2987,7 @@ static int __lv_on_txn_aborted(DB_LOG_VRFY_INFO * lvinfo)
 	/* Report txn stats. */
 	if(F_ISSET(lvinfo, DB_LOG_VERIFY_VERBOSE)) {
 		__db_msg(lvinfo->dbenv->env, DB_STR_A("2567", "[%lu][%lu] Txn %lx aborted after this log record.",
-				"%lu %lu %lx"), (ulong)lvinfo->aborted_txnlsn.file,
-			(ulong)lvinfo->aborted_txnlsn.offset, (ulong)ptvi->txnid);
+				"%lu %lu %lx"), (ulong)lvinfo->aborted_txnlsn.file, (ulong)lvinfo->aborted_txnlsn.offset, (ulong)ptvi->txnid);
 		__db_msg(lvinfo->dbenv->env, DB_STR_A("2568", "\tThe number of active, committed and aborted child txns of txn %lx: %u, %u, %u.", "%lx %u %u %u"),
 			(ulong)ptvi->txnid, ptvi->nchild_active, ptvi->nchild_commit, ptvi->nchild_abort);
 	}

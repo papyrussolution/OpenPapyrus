@@ -157,10 +157,7 @@ int __db_new(DBC * dbc, uint32 type, DB_LOCK * lockp, PAGE ** pagepp)
 		extend = 0;
 		DB_ASSERT(env, TYPE(h) == P_INVALID);
 		if(TYPE(h) != P_INVALID) {
-			__db_errx(env, DB_STR_A("0689",
-					"%s page %lu is on free list with type %lu",
-					"%s %lu %lu"), dbp->fname, (ulong)PGNO(h),
-				(ulong)TYPE(h));
+			__db_errx(env, DB_STR_A("0689", "%s page %lu is on free list with type %lu", "%s %lu %lu"), dbp->fname, (ulong)PGNO(h), (ulong)TYPE(h));
 			return __env_panic(env, EINVAL);
 		}
 	}
@@ -197,8 +194,7 @@ int __db_new(DBC * dbc, uint32 type, DB_LOCK * lockp, PAGE ** pagepp)
 
 	}
 	LSN(h) = LSN(meta);
-	if(hash == 0 && (ret = __memp_fput(mpf,
-				 dbc->thread_info, meta, dbc->priority)) != 0)
+	if(hash == 0 && (ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority)) != 0)
 		goto err;
 	meta = NULL;
 
@@ -222,8 +218,7 @@ int __db_new(DBC * dbc, uint32 type, DB_LOCK * lockp, PAGE ** pagepp)
 		if(nelems != 0) {
 			DB_ASSERT(env, h->pgno == list[0]);
 			memmove(list, &list[1], (nelems-1)*sizeof(*list));
-			if((ret = __memp_extend_freelist(
-				    dbp->mpf, nelems-1, &list)) != 0)
+			if((ret = __memp_extend_freelist(dbp->mpf, nelems-1, &list)) != 0)
 				goto err;
 		}
 	}
@@ -1017,7 +1012,7 @@ int __db_lget(DBC * dbc, int action, db_pgno_t pgno, db_lockmode_t mode, uint32 
 	lkflags &= ~DB_LOCK_RECORD;
 	if(F_ISSET(dbc, DBC_READ_UNCOMMITTED) && mode == DB_LOCK_READ)
 		mode = DB_LOCK_READ_UNCOMMITTED;
-	has_timeout = F_ISSET(dbc, DBC_RECOVER) || (txn != NULL && F_ISSET(txn, TXN_LOCKTIMEOUT));
+	has_timeout = F_ISSET(dbc, DBC_RECOVER) || (txn && F_ISSET(txn, TXN_LOCKTIMEOUT));
 	/*
 	 * Transactional locking.
 	 * Hold on to the previous read lock only if we are in full isolation.
@@ -1026,9 +1021,9 @@ int __db_lget(DBC * dbc, int action, db_pgno_t pgno, db_lockmode_t mode, uint32 
 	 * Downgrade write locks if we are supporting dirty readers and the
 	 * update did not have an error.
 	 */
-	if((action != LCK_COUPLE && action != LCK_COUPLE_ALWAYS) || !LOCK_ISSET(*lockp))
+	if(!oneof2(action, LCK_COUPLE, LCK_COUPLE_ALWAYS) || !LOCK_ISSET(*lockp))
 		action = 0;
-	else if(dbc->txn == NULL || action == LCK_COUPLE_ALWAYS)
+	else if(!dbc->txn || action == LCK_COUPLE_ALWAYS)
 		action = LCK_COUPLE;
 	else if(F_ISSET(dbc, DBC_READ_COMMITTED|DBC_WAS_READ_COMMITTED) && lockp->mode == DB_LOCK_READ)
 		action = LCK_COUPLE;
@@ -1041,39 +1036,38 @@ int __db_lget(DBC * dbc, int action, db_pgno_t pgno, db_lockmode_t mode, uint32 
 	i = 0;
 	switch(action) {
 	    default:
-		if(has_timeout)
-			goto do_couple;
-		ret = __lock_get(env, dbc->locker, lkflags, &dbc->lock_dbt, mode, lockp);
-		break;
-
+			if(has_timeout)
+				goto do_couple;
+			ret = __lock_get(env, dbc->locker, lkflags, &dbc->lock_dbt, mode, lockp);
+			break;
 	    case LCK_DOWNGRADE:
-		couple[0].op = DB_LOCK_GET;
-		couple[0].obj = NULL;
-		couple[0].lock = *lockp;
-		couple[0].mode = DB_LOCK_WWRITE;
-		UMRW_SET(couple[0].timeout);
-		i++;
+			couple[0].op = DB_LOCK_GET;
+			couple[0].obj = NULL;
+			couple[0].lock = *lockp;
+			couple[0].mode = DB_LOCK_WWRITE;
+			UMRW_SET(couple[0].timeout);
+			i++;
 	    /* FALLTHROUGH */
 	    case LCK_COUPLE:
 do_couple:
-		couple[i].op = has_timeout ? DB_LOCK_GET_TIMEOUT : DB_LOCK_GET;
-		couple[i].obj = &dbc->lock_dbt;
-		couple[i].mode = mode;
-		UMRW_SET(couple[i].timeout);
-		i++;
-		if(has_timeout)
-			couple[0].timeout = F_ISSET(dbc, DBC_RECOVER) ? 0 : txn->lock_timeout;
-		if(action == LCK_COUPLE || action == LCK_DOWNGRADE) {
-			couple[i].op = DB_LOCK_PUT;
-			couple[i].lock = *lockp;
+			couple[i].op = has_timeout ? DB_LOCK_GET_TIMEOUT : DB_LOCK_GET;
+			couple[i].obj = &dbc->lock_dbt;
+			couple[i].mode = mode;
+			UMRW_SET(couple[i].timeout);
 			i++;
-		}
-		ret = __lock_vec(env, dbc->locker, lkflags, couple, i, &reqp);
-		if(ret == 0 || reqp == &couple[i-1])
-			*lockp = i == 1 ? couple[0].lock : couple[i-2].lock;
-		break;
+			if(has_timeout)
+				couple[0].timeout = F_ISSET(dbc, DBC_RECOVER) ? 0 : txn->lock_timeout;
+			if(oneof2(action, LCK_COUPLE, LCK_DOWNGRADE)) {
+				couple[i].op = DB_LOCK_PUT;
+				couple[i].lock = *lockp;
+				i++;
+			}
+			ret = __lock_vec(env, dbc->locker, lkflags, couple, i, &reqp);
+			if(ret == 0 || reqp == &couple[i-1])
+				*lockp = i == 1 ? couple[0].lock : couple[i-2].lock;
+			break;
 	}
-	if(txn != NULL && ret == DB_LOCK_DEADLOCK)
+	if(txn && ret == DB_LOCK_DEADLOCK)
 		F_SET(txn, TXN_DEADLOCK);
 	return (ret == DB_LOCK_NOTGRANTED && !F_ISSET(env->dbenv, DB_ENV_TIME_NOTGRANTED)) ? DB_LOCK_DEADLOCK : ret;
 }

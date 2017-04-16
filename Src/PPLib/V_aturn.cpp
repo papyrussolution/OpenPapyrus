@@ -106,7 +106,7 @@ int SLAPI PPViewAccturn::ViewTotal()
 	AccturnTotal total;
 	if(CalcTotal(&total)) {
 		AmtListDialog * dlg = new AmtListDialog(DLG_ATURNTOTAL, CTL_ATURNTOTAL_AMTLIST, 1, &total.Amounts, 0, 0, 0);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setCtrlLong(CTL_ATURNTOTAL_COUNT, total.Count);
 			ExecViewAndDestroy(dlg);
 		}

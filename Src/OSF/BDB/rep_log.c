@@ -60,8 +60,7 @@ int __rep_allreq(ENV*env, __rep_control_args * rp, int eid)
 	 */
 	use_bulk = FLD_ISSET(rep->config, REP_C_BULK);
 	bulk.addr = NULL;
-	if(use_bulk && (ret = __rep_bulk_alloc(env, &bulk, eid,
-				&bulkoff, &bulkflags, REP_BULK_LOG)) != 0)
+	if(use_bulk && (ret = __rep_bulk_alloc(env, &bulk, eid, &bulkoff, &bulkflags, REP_BULK_LOG)) != 0)
 		goto err;
 	memzero(&repth, sizeof(repth));
 	REP_SYSTEM_LOCK(env);
@@ -121,9 +120,7 @@ int __rep_allreq(ENV*env, __rep_control_args * rp, int eid)
 		 * bad or unknown LSN.  Ignore it if we're the master.
 		 * Any other error is returned.
 		 */
-		if(ret == 0)
-			ret = __logc_get(logc, &repth.lsn,
-				&data_dbt, DB_CURRENT);
+		SETIFZ(ret, __logc_get(logc, &repth.lsn, &data_dbt, DB_CURRENT));
 		if(ret == DB_NOTFOUND && F_ISSET(rep, REP_F_MASTER)) {
 			ret = 0;
 			goto err;
@@ -136,9 +133,7 @@ int __rep_allreq(ENV*env, __rep_control_args * rp, int eid)
 	 * Or if we're not using throttling, or we are using bulk, we stop
 	 * when we reach the end (i.e. ret != 0).
 	 */
-	for(end_flag = 0;
-	    ret == 0 && repth.type != REP_LOG_MORE && end_flag == 0;
-	    ret = __logc_get(logc, &repth.lsn, &data_dbt, DB_NEXT)) {
+	for(end_flag = 0; ret == 0 && repth.type != REP_LOG_MORE && end_flag == 0; ret = __logc_get(logc, &repth.lsn, &data_dbt, DB_NEXT)) {
 		/*
 		 * If we just changed log files, we need to send the
 		 * version of this log file to the client.

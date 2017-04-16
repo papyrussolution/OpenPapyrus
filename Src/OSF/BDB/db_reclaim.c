@@ -34,10 +34,7 @@ int __db_traverse_big(DBC * dbc, db_pgno_t pgno, int (*callback)__P((DBC*, PAGE*
 		did_put = 0;
 		if((ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, 0, &p)) != 0)
 			return ret;
-		/*
-		 * If we are freeing pages only process the overflow
-		 * chain if the head of the chain has a refcount of 1.
-		 */
+		// If we are freeing pages only process the overflow chain if the head of the chain has a refcount of 1.
 		pgno = NEXT_PGNO(p);
 		if(callback == __db_truncate_callback && OV_REF(p) != 1)
 			pgno = PGNO_INVALID;
@@ -151,8 +148,7 @@ int __db_truncate_callback(DBC * dbc, PAGE * p, void * cookie, int * putp)
 			    case H_DUPLICATE:
 				tlen = LEN_HDATA(dbp, p, 0, indx);
 				hk = H_PAIRDATA(dbp, p, indx);
-				for(off = 0; off < tlen;
-				    off += len+2*sizeof(db_indx_t)) {
+				for(off = 0; off < tlen; off += len+2*sizeof(db_indx_t)) {
 					++*countp;
 					memcpy(&len, HKEYDATA_DATA(hk)+off, sizeof(db_indx_t));
 				}

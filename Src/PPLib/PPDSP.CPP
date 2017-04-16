@@ -388,7 +388,7 @@ int SLAPI PPDeclStrucProcessor::GetTypeByName(const char * pName, long * pTypeID
 	PPSetAddedMsgString(pName);
 	if(P_NameTab)
 		for(uint i = 0; P_NameTab->enumItems(&i, (void**)&p_item);)
-			if(stricmp(p_item->Name, pName) == 0) {
+			if(sstreqi_ascii(p_item->Name, pName)) {
 				ASSIGN_PTR(pTypeID, p_item->ID);
 				PPSetError(PPERR_DS_TYPENAMEEXISTS);
 				return 1;
@@ -408,7 +408,7 @@ int SLAPI PPDeclStrucProcessor::GetNameByType(long typeID, char * pBuf, size_t b
 			}
 	ASSIGN_PTR(pBuf, 0);
 	char   msg[48];
-	PPSetAddedMsgString(ltoa(typeID, msg, 10));
+	PPSetAddedMsgString(_ltoa(typeID, msg, 10));
 	return (PPErrCode = PPERR_DS_STRUCTYPENFOUND, -1);
 }
 

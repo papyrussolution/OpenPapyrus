@@ -136,7 +136,7 @@ int SLAPI Transfer::CorrectReverse()
 	param.LogFileName = "trfr_rev.log";
 	{
 		TDialog * dlg = new TDialog(DLG_CORTRFRREV);
-		THROW(CheckDialogPtr(&dlg, 0));
+		THROW(CheckDialogPtr(&dlg));
 		dlg->SetupCalPeriod(CTLCAL_CORTRFRREV_PERIOD, CTL_CORTRFRREV_PERIOD);
 		SetPeriodInput(dlg, CTL_CORTRFRREV_PERIOD, &param.Period);
 		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CORTRFRREV_LOG, CTL_CORTRFRREV_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
@@ -253,7 +253,7 @@ int SLAPI RecoverAbsenceLots()
 	DateRange period;
 	int    correct = 1;
 	ushort v = 0;
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_CABSLOTS)), 0));
+	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_CABSLOTS))));
 	dlg->SetupCalPeriod(CTLCAL_CABSLOTS_PERIOD, CTL_CABSLOTS_PERIOD);
 	period.SetZero();
 	SetPeriodInput(dlg, CTL_CABSLOTS_PERIOD, &period);
@@ -532,7 +532,7 @@ int SLAPI CorrectCurRest()
 	SString log_fname;
 	uint   correct = 1;
 	TDialog * dlg = new TDialog(DLG_CORCREST);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CORCREST_LOG, CTL_CORCREST_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 	PPGetFileName(PPFILNAM_CURRESTERR_LOG, log_fname);
 	dlg->setCtrlString(CTL_CORCREST_LOG, log_fname);
@@ -1934,7 +1934,7 @@ int SLAPI PrcssrAbsentGoods::EditParam(Param * pParam)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
-	if(CheckDialogPtr(&(dlg = new TDialog(DLG_CABSGOODS)), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_CABSGOODS)))) {
 		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CABSGOODS_LOG, CTL_CABSGOODS_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 		dlg->setCtrlString(CTL_CABSGOODS_LOG, pParam->LogFileName);
 		dlg->setCtrlUInt16(CTL_CABSGOODS_FLAGS, BIN(pParam->Flags & Param::fCorrectErrors));
@@ -2184,7 +2184,7 @@ int SLAPI RecoverTransfer()
 	PPWait(0);
 	if(bad_list.getCount()) {
 		BadTrfrEntryListDialog * dlg = new BadTrfrEntryListDialog(&bad_list);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			if(ExecViewAndDestroy(dlg) == cmOK)
 				do_recover = 1;
 			else
@@ -2328,7 +2328,7 @@ int SLAPI PrcssrAbsenceAccounts::EditParam(Param * pParam)
 	Param  p;
 	if(!RVALUEPTR(p, pParam))
 		MEMSZERO(p);
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_ABSACCT)), 0));
+	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_ABSACCT))));
 	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_ABSACCT_LOGFNAME, CTL_ABSACCT_LOGFNAME, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 	dlg->setCtrlString(CTL_ABSACCT_LOGFNAME, p.LogFileName);
 	dlg->AddClusterAssoc(CTL_ABSACCT_FLAGS, 0, Param::fCorrectErrors);

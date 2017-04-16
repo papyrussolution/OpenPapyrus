@@ -699,9 +699,9 @@ int FASTCALL PPGoodsStrucItem::IsEqual(const PPGoodsStrucItem & rS) const
 	CMPF(Denom);
 	CMPF(Netto);
 #undef CMPF
-	if(strcmp(Symb, rS.Symb) != 0)
+	if(!sstreq(Symb, rS.Symb))
 		return 0;
-	if(strcmp(Formula, rS.Formula) != 0)
+	if(!sstreq(Formula, rS.Formula))
 		return 0;
 	return 1;
 }
@@ -917,7 +917,7 @@ int SLAPI PPObjGoodsStruc::SelectorDialog(const TSCollection <PPGoodsStruc> & rL
 	int    ok = -1;
 	uint   pos = 0;
 	GoodsStrucSelectorDialog * dlg = new GoodsStrucSelectorDialog(*this);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		PPID   init_id = 0;
 		if(pSelectionPos && *pSelectionPos < rList.getCount())
 			init_id = rList.at(*pSelectionPos)->Rec.ID;
@@ -945,7 +945,7 @@ int SLAPI PPObjGoodsStruc::SelectorDialog(PPID * pNamedGsID)
 {
 	int    ok = -1;
 	GoodsStrucSelectorDialog * dlg = new GoodsStrucSelectorDialog(*this);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		GoodsStrucSelectorDialog::DataBlock blk(*pNamedGsID);
 		dlg->setDTS(&blk);
 		if(ExecView(dlg) == cmOK) {
@@ -1557,7 +1557,7 @@ int GSDialog::addItemExt(long * pPos, long * pID)
 {
 	int    ok = -1;
 	ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, NewGoodsGrpID, ExtGoodsSelDialog::fForcePassive);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		TIDlgInitData tidi;
 		tidi.GoodsGrpID = NewGoodsGrpID;
 		dlg->setDTS(&tidi);
@@ -1637,7 +1637,7 @@ int GSDialog::addItemBySample()
 	};
 	int    ok = -1;
 	GoodsStrucCopyDialog * dlg = new GoodsStrucCopyDialog;
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		if(!GscParam.GoodsGrpID) {
 			Goods2Tbl::Rec goods_rec;
 			if(GObj.Fetch(Data.GoodsID, &goods_rec) > 0) {
@@ -1768,7 +1768,7 @@ void GSExtDialog::reduce()
 void GSExtDialog::selNamedGS()
 {
 	TDialog * dlg = new TDialog(DLG_GSDATA);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		PPObjGoodsStruc gs_obj;
 		PPID   id = Data.Rec.ID;
 		if(!Data.IsNamed() && !Data.IsEmpty()) {
@@ -2093,7 +2093,7 @@ int SLAPI PPObjGoodsStruc::EditExtDialog(PPGoodsStruc * pData)
 {
 	int    ok = -1;
 	GSExtDialog * dlg = new GSExtDialog;
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		int r;
 		dlg->setDTS(pData);
 		while(ok <= 0 && ((r = ExecView(dlg)) == cmOK || r == cmUtil))
@@ -2121,7 +2121,7 @@ int SLAPI PPObjGoodsStruc::EditDialog(PPGoodsStruc * pData, int toCascade)
 			ok = EditExtDialog(pData);
 		else {
 			GSDialog * dlg = new GSDialog;
-			if(CheckDialogPtr(&dlg, 1)) {
+			if(CheckDialogPtrErr(&dlg)) {
 				int    r;
 				if(toCascade)
 					dlg->ToCascade();

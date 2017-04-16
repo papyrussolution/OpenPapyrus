@@ -963,7 +963,7 @@ int SLAPI BarcodeLabel::GetText(int wrap, char ** ppLine)
 			else
 				SubstVar(&s, &d);
 		*d = 0;
-		if(stricmp(BLP.Codepage, "windows-1251") == 0)
+		if(sstreqi_ascii(BLP.Codepage, "windows-1251"))
 			SOemToChar(str);
 		entry.Text = str;
 	}
@@ -1215,7 +1215,7 @@ static int SLAPI EditBarcodeLabelPrintParam(BarcodeLabelPrintParam * pParam, int
 	};
 	int    ok = -1, valid_data = 0;
 	PrintBarcodeLabelDialog * dlg = new PrintBarcodeLabelDialog(isExtDlg);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		SetupPPObjCombo(dlg, CTLSEL_BCPLABEL_PRINTER, PPOBJ_BCODEPRINTER, pParam->PrinterID, 0);
 		dlg->setCtrlString(CTL_BCPLABEL_PORT, pParam->Port);
 		dlg->setCtrlData(CTL_BCPLABEL_COUNT, &pParam->NumCopies);

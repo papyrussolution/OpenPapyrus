@@ -353,7 +353,7 @@ static void Style2Rule(TidyDocImpl* doc, Node * node)
 			TY_(AppendToClassAttr) (doc, classattr, classname);
 			TY_(RemoveAttribute) (doc, node, styleattr);
 		}
-		else{ /* reuse style attribute for class attribute */
+		else { /* reuse style attribute for class attribute */
 			TidyDocFree(doc, styleattr->attribute);
 			TidyDocFree(doc, styleattr->value);
 			styleattr->attribute = TY_(tmbstrdup) (doc->allocator, "class");
@@ -587,7 +587,7 @@ static void DiscardContainer(TidyDocImpl* doc, Node * element, Node ** pnode)
 		element->next = element->content = NULL;
 		TY_(FreeNode) (doc, element);
 	}
-	else{
+	else {
 		*pnode = TY_(DiscardElement) (doc, element);
 	}
 }
@@ -629,11 +629,11 @@ void TY_(AddStyleProperty) (TidyDocImpl* doc, Node *node, ctmbstr property)
 			TidyDocFree(doc, av->value);
 			av->value = s;
 		}
-		else{
+		else {
 			av->value = TY_(tmbstrdup) (doc->allocator, property);
 		}
 	}
-	else{ /* else create new style attribute */
+	else { /* else create new style attribute */
 		av = TY_(NewAttributeEx) (doc, "style", property, '"');
 		TY_(InsertAttributeAtStart) (node, av);
 	}
@@ -942,7 +942,7 @@ static bool Center2Div(TidyDocImpl* doc, Node * node, Node ** pnode)
 				node = TY_(InferredTag) (doc, TidyTag_BR);
 				TY_(InsertNodeAfterElement) (last, node);
 			}
-			else{
+			else {
 				Node * prev = node->prev, * next = node->next,
 				* parent = node->parent;
 				DiscardContainer(doc, node, pnode);
@@ -1325,7 +1325,7 @@ static bool Font2Span(TidyDocImpl* doc, Node * node, Node ** pnode)
 				av->next = NULL;
 				style = av;
 			}
-			else{
+			else {
 				TY_(FreeAttribute) (doc, av);
 			}
 			av = next;
@@ -2046,7 +2046,7 @@ void FixBrakes(TidyDocImpl* pDoc, Node * pParent)
 				TY_(DiscardElement) (pDoc, pNode);
 				bBRDeleted = true;
 			}
-			else{
+			else {
 				TY_(RemoveNode) (pNode);
 				TY_(InsertNodeAfterElement) (pParent, pNode);
 			}

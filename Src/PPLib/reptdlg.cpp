@@ -493,7 +493,7 @@ void RepeatingDialog::setInitDate(LDATE dt)
 
 int RepeatingDialog::embedOneChild(TDialog * pDlg)
 {
-	if(CheckDialogPtr(&pDlg, 1)) {
+	if(CheckDialogPtrErr(&pDlg)) {
 		Embed(pDlg);
 		setChildPos(CTL_REPEATING_PRD);
 		return 1;

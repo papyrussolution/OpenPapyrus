@@ -475,7 +475,7 @@ IMPL_HANDLE_EVENT(BudgetDialog)
 	TDialog::handleEvent(event);
 	if(event.isCmd(cmScenaries)) {
 		BudgetScenDialog * p_dlg = 0;
-		if(CheckDialogPtr(&(p_dlg = new BudgetScenDialog), 1) > 0) {
+		if(CheckDialogPtrErr(&(p_dlg = new BudgetScenDialog)) > 0) {
 			p_dlg->setDTS(&Data);
 			for(int valid_data = 0; !valid_data && ExecView(p_dlg) > 0;) {
 				if(p_dlg->getDTS(&Data) > 0)
@@ -585,7 +585,7 @@ int SLAPI PPObjBudget::Helper_Edit(PPBudgetPacket * pPack)
 	BudgetDialog * p_dlg = 0;
 
 	THROW(CheckRights(PPR_READ));
-	THROW(CheckDialogPtr(&(p_dlg = new BudgetDialog), 0));
+	THROW(CheckDialogPtr(&(p_dlg = new BudgetDialog)));
 	p_dlg->setDTS(pPack);
 	for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
 		if(p_dlg->getDTS(pPack) > 0) {
@@ -793,7 +793,7 @@ int BudgetItemsDialog::editItem(long pos, long id)
 	int ok = -1;
 	if(pos >= 0 && pos < (long)Data.getCount()) {
 		TDialog * p_dlg = new TDialog(DLG_BUDGICYCLEPAR);
-		if(CheckDialogPtr(&p_dlg, 1) > 0) {
+		if(CheckDialogPtrErr(&p_dlg) > 0) {
 			double amount = Data.at(pos).Amount;
 			SString memo;
 			memo = Data.at(pos).Memo;
@@ -847,7 +847,7 @@ int BudgetItemsDialog::setDTS(const BudgetItemsList * pData)
 	updateList(-1);
 	if(P_Box && P_Box->def) {
 		P_Box->def->go(pos);
-		P_Box->draw();
+		P_Box->Draw_();
 	}
 	return 1;
 }
@@ -884,7 +884,7 @@ int SLAPI PPObjBudget::Helper_EditLine(BudgetItemTbl::Rec * pRec)
 	BudgetItemDialog * p_dlg = 0;
 
 	THROW_PP(pRec, PPERR_INVPARAM);
-	THROW(CheckDialogPtr(&(p_dlg = new BudgetItemDialog(this)), 0));
+	THROW(CheckDialogPtr(&(p_dlg = new BudgetItemDialog(this))));
 	p_dlg->setDTS(pRec);
 	for(int valid_data = 0; !valid_data && ((cm = ExecView(p_dlg)) == cmOK || cm == cmaMore);) {
 		if(p_dlg->getDTS(pRec) > 0)
@@ -906,7 +906,7 @@ int SLAPI PPObjBudget::Helper_EditLines(PPID initID, BudgetItemsList * pList)
 	BudgetItemsDialog * p_dlg = 0;
 
 	THROW_PP(pList, PPERR_INVPARAM);
-	THROW(CheckDialogPtr(&(p_dlg = new BudgetItemsDialog(initID, this)), 0));
+	THROW(CheckDialogPtr(&(p_dlg = new BudgetItemsDialog(initID, this))));
 	p_dlg->setDTS(pList);
 	for(int valid_data = 0; !valid_data && ((cm = ExecView(p_dlg)) == cmOK || cm == cmaMore);) {
 		if(p_dlg->getDTS(pList) > 0)
@@ -1175,7 +1175,7 @@ int SLAPI PPViewBudget::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	if(Filt.IsA(pBaseFilt)) {
 		BudgetFilt * p_filt = (BudgetFilt*)pBaseFilt;
 		p_dlg = new BudgetFiltDialog;
-		if(CheckDialogPtr(&p_dlg, 1) && p_dlg->setDTS(p_filt)) {
+		if(CheckDialogPtrErr(&p_dlg) && p_dlg->setDTS(p_filt)) {
 			while(ok <= 0 && ExecView(p_dlg) == cmOK)
 				if(p_dlg->getDTS(p_filt))
 					ok = 1;
@@ -1622,7 +1622,7 @@ int SLAPI PPViewBudget::ViewTotal()
 				data.X += item.Item.Amount;
 			else
 				data.Y += item.Item.Amount;
-		THROW(CheckDialogPtr(&(p_dlg = new BudgetTotalDialog(&data)), 0));
+		THROW(CheckDialogPtr(&(p_dlg = new BudgetTotalDialog(&data))));
 		ExecView(p_dlg);
 	}
 	CATCHZOKPPERR

@@ -25,7 +25,7 @@ ObjViewDialog::ObjViewDialog(uint dlgRez, PPObject * aObj, void * extraPtr) : TD
 		setTitle(GetObjectTitle(P_Obj->Obj, obj_title));
 		P_List->options |= ofFramed;
 		P_List->setDef(P_Obj->Selector(ExtraPtr));
-		P_List->drawView();
+		P_List->Draw_();
 		enableCommand(cmaInsert, Rt & PPR_INS);
 		enableCommand(cmaEdit,   Rt & PPR_MOD);
 		enableCommand(cmaDelete, Rt & PPR_DEL);
@@ -43,7 +43,7 @@ void ObjViewDialog::updateList(PPID id)
 			P_List->focusItem(cur);
 		else if(id > 0)
 			P_List->TransmitData(+1, &id);
-		P_List->drawView();
+		P_List->Draw_();
 	}
 }
 
@@ -201,7 +201,7 @@ int SLAPI RefObjView(PPObject * pObj, long charryID, void * extraPtr)
 {
 	int    ok = 1;
 	TDialog * dlg = new RefObjViewDialog(DLG_REFOBJVIEW, pObj, charryID, extraPtr);
-	if(CheckDialogPtr(&dlg, 1))
+	if(CheckDialogPtrErr(&dlg))
 		ExecViewAndDestroy(dlg);
 	else
 		ok = 0;
@@ -215,7 +215,7 @@ int SLAPI SimpleObjView(PPObject * pObj, void * extraPtr)
 	int    ok = 1;
 	TDialog * dlg = new ObjViewDialog(((pObj->GetImplementFlags() & PPObject::implTreeSelector) ?
 		DLG_OBJVIEWT : DLG_OBJVIEW), pObj, extraPtr);
-	if(CheckDialogPtr(&dlg, 1))
+	if(CheckDialogPtrErr(&dlg))
 		ExecViewAndDestroy(dlg);
 	else
 		ok = 0;
@@ -789,7 +789,7 @@ int SLAPI PPObjUnit::Browse(void * extraPtr)
 	int    ok = cmCancel;
 	ObjUnitDialog * p_dlg = new ObjUnitDialog(this, extraPtr);
 	THROW(CheckRights(PPR_READ));
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	ok = ExecViewAndDestroy(p_dlg);
 	CATCHZOK
 	return ok;
@@ -2002,7 +2002,7 @@ int PPObjDynamicObjs::ReplaceObjs(PPID srcID /*=0*//*)
 	int    ok = -1;
 	PPID   dest_id = 0, src_id = 0;
 	ReplObjDialog * dlg = 0;
-	THROW(CheckDialogPtr(&(dlg = new ReplObjDialog()), 0));
+	THROW(CheckDialogPtr(&(dlg = new ReplObjDialog())));
 	dlg->setDTS(dest_id, src_id);
 	while(ExecView(dlg) == cmOK)
 		if(!dlg->getDTS(&dest_id, &src_id) || !PPObject::ReplaceObj(PPOBJ_DYNAMICOBJS, dest_id, src_id))
@@ -2073,7 +2073,7 @@ int SLAPI PPObjGlobalUserAcc::EditConfig()
 	TDialog * dlg = new TDialog(DLG_GUACFG);
 	THROW(CheckCfgRights(PPCFGOBJ_GLOBALUSERACC, PPR_READ, 0));
 	THROW(is_new = ReadConfig(&cfg));
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	SetupPPObjCombo(dlg, CTLSEL_GUACFG_OWNERKIND, PPOBJ_PRSNKIND, cfg.PersonKindID, OLW_CANINSERT, 0);
 	SetupPPObjCombo(dlg, CTLSEL_GUACFG_SCARDSER,  PPOBJ_SCARDSERIES, cfg.SCardSerID, OLW_CANINSERT, 0);
 	while(ok < 0 && ExecView(dlg) == cmOK) {

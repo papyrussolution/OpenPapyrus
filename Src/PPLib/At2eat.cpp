@@ -173,7 +173,7 @@ int SLAPI PPViewAccturn::ConvertGenAccturnToExtAccBill()
 				CvtAt2Ab_Param param;
 				MEMSZERO(param);
 				param.P_OpList = &op_list;
-				THROW(CheckDialogPtr(&(dlg = new CvtAt2Ab_Dialog()), 0));
+				THROW(CheckDialogPtr(&(dlg = new CvtAt2Ab_Dialog())));
 				dlg->setDTS(&param);
 				while(!valid_data && ExecView(dlg) == cmOK) {
 					if(dlg->getDTS(&param)) {

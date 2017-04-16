@@ -1037,7 +1037,7 @@ int DivGrpAsscListDialog::editItem(int pos, PPGenCashNode::DivGrpAssc * pItem)
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_DIVGRPASSCITM);
 	PPGenCashNode::DivGrpAssc temp_item = *pItem;
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		SetupPPObjCombo(dlg, CTLSEL_DIVGRPASSCITM_GRP, PPOBJ_GOODSGROUP, temp_item.GrpID, OLW_CANINSERT, 0);
 		dlg->setCtrlData(CTL_DIVGRPASSCITM_DIV, &temp_item.DivN);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
@@ -1407,7 +1407,7 @@ int SyncCashNodeCfgDialog::editRoundParam()
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_CNROUND);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		PPGenCashNode::RoundParam param;
 		Data.GetRoundParam(&param);
 		dlg->setCtrlReal(CTL_CNROUND_DISPREC, param.DisRoundPrec);
@@ -1460,7 +1460,7 @@ int SyncCashNodeCfgDialog::editExt()
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_CASHNSEXT);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		SString ctbl_list_buf;
 		long   dlvr_items_show_tag = 0; //DlvrItemsShowTag
 		if(Data.Scf.DlvrItemsShowTag > 0)
@@ -1953,7 +1953,7 @@ int SLAPI PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 	SString temp_buf;
 	PPObjLocation loc_obj;
 	AsyncCashNodeDialog * dlg = 0;
-	THROW(CheckDialogPtr(&(dlg = new AsyncCashNodeDialog(pACN)), 0));
+	THROW(CheckDialogPtr(&(dlg = new AsyncCashNodeDialog(pACN))));
 	dlg->setCtrlData(CTL_CASHN_NAME, pACN->Name);
 	dlg->setCtrlData(CTL_CASHN_SYMB, pACN->Symb);
 	dlg->setCtrlLong(CTL_CASHN_ID, pACN->ID);
@@ -2912,7 +2912,7 @@ int SLAPI PPObjLocPrinter::Browse(void * extraPtr)
 	int    ok = 1;
 	if(CheckRights(PPR_READ)) {
 		TDialog * dlg = new LocPrinterView(this, extraPtr);
-		if(CheckDialogPtr(&dlg, 1))
+		if(CheckDialogPtrErr(&dlg))
 			ExecViewAndDestroy(dlg);
 		else
 			ok = 0;

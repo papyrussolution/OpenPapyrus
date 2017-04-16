@@ -737,8 +737,7 @@ void __db_recordswap(uint32 op, uint32 size, void * hdr, void * data, uint32 pgi
 		M_32_SWAP(bi->nrecs);
 		if(B_TYPE(bi->type) == B_OVERFLOW) {
 			if(data == NULL) {
-				DB_ASSERT(NULL,
-					size == BINTERNAL_SIZE(BOVERFLOW_SIZE));
+				DB_ASSERT(NULL, size == BINTERNAL_SIZE(BOVERFLOW_SIZE));
 				bo = (BOVERFLOW *)bi->data;
 			}
 			else

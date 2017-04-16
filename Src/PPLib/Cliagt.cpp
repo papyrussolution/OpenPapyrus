@@ -5,7 +5,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <ppidata.h>
+// @v9.6.2 (moved to pp.h) #include <ppidata.h>
 
 SLAPI PPClientAgreement::PPClientAgreement()
 {
@@ -1425,7 +1425,7 @@ static int EditOrderCalendar(DateRepeating * pData)
 {
 	int    ok = -1;
 	RepeatingDialog * dlg = new RepeatingDialog;
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(pData);
 		while(ok <= 0 && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS(pData)) {
@@ -1906,7 +1906,7 @@ int SupplAgtDialog::EditExchangeCfg()
 	int    ok = -1, valid_data = 0;
 	//PPSupplAgreement::ExchangeParam ep;
 	SupplExchangeCfgDialog * dlg = new SupplExchangeCfgDialog();
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	dlg->setDTS(&Data.Ep);
 	while(!valid_data && ExecView(dlg) == cmOK)
 		if(dlg->getDTS(&Data.Ep) > 0)

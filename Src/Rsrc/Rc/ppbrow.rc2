@@ -1733,7 +1733,7 @@ browser DEBTCARD north(100), 1, 2, "Долговая карточка {%s}", OWNER|GRID, 0
 	toolbar GOODSBILL
 }
 
-browser INVNTRYLINES north(100), 1, 1, "Строки инвентаризации {%s}", OWNER|GRID, 0
+browser INVNTRYLINES north(100), 1, 1, "@{view_inventory} {%s}", OWNER|GRID, 0
 {
 	"#",               1, notype, 0,  4
 	"@ware",           3, notype, 0, 25
@@ -1835,7 +1835,7 @@ browser CASHNODEBILL north(100), 1, 2, "Товарные чеки {%s}", OWNER|GRID, 0
 // 27 - Штрихкод       (поле 16 показывает ЛИБО штрихкод, ЛИБО серию в зависимости от настройки)
 // 28 - Серийный номер (поле 16 показывает ЛИБО штрихкод, ЛИБО серию в зависимости от настройки)
 //
-browser GOODSITEM_W2 south(73), 1, 1, "Строки товарного документа {%s}", OWNER|GRID, 0
+browser GOODSITEM_W2 south(73), 1, 1, "@{view_billitem_goods} {%s}", OWNER|GRID, 0
 {
 	"#",          0, int32,        0,  4, BCO_USERPROC
 	"@ware",      1, zstring(128), 0, 25, BCO_USERPROC
@@ -1847,7 +1847,7 @@ browser GOODSITEM_W2 south(73), 1, 1, "Строки товарного документа {%s}", OWNER|G
 	toolbar GOODSBILLITEM
 }
 
-browser GOODSITEM_CUR_W2 south(73), 2, 1, "Строки товарного документа {%s}", OWNER|GRID, 0
+browser GOODSITEM_CUR_W2 south(73), 2, 1, "@{view_billitem_goods} {%s}", OWNER|GRID, 0
 {
 	"#",                0, int32,       0,  4, BCO_USERPROC
 	"@ware",            1, zstring(128), 0, 25, BCO_USERPROC
@@ -1858,7 +1858,7 @@ browser GOODSITEM_CUR_W2 south(73), 2, 1, "Строки товарного документа {%s}", OWN
 	toolbar GOODSBILLITEM
 }
 
-browser GOODSITEMPH_CUR_W2 south(73), 2, 1, "Строки товарного документа {%s}", OWNER|GRID, 0
+browser GOODSITEMPH_CUR_W2 south(73), 2, 1, "@{view_billitem_goods} {%s}", OWNER|GRID, 0
 {
 	"#",                0, int32,       0,  4, BCO_USERPROC
 	"@ware",            1, zstring(128), 0, 25, BCO_USERPROC
@@ -1870,7 +1870,7 @@ browser GOODSITEMPH_CUR_W2 south(73), 2, 1, "Строки товарного документа {%s}", O
 	toolbar GOODSBILLITEM
 }
 
-browser GOODSITEMPH_W2 south(73), 1, 1, "Строки товарного документа {%s}", OWNER|GRID, 0
+browser GOODSITEMPH_W2 south(73), 1, 1, "@{view_billitem_goods} {%s}", OWNER|GRID, 0
 {
 	"#",              0, int32,        0,  4, BCO_USERPROC
 	"@ware",          1, zstring(128), 0, 25, BCO_USERPROC
@@ -1883,7 +1883,7 @@ browser GOODSITEMPH_W2 south(73), 1, 1, "Строки товарного документа {%s}", OWNER
 	toolbar GOODSBILLITEM
 }
 
-browser GOODSITEM_REVAL_W2 south(73), 3, 0, "Строки товарного документа {%s}", OWNER|GRID, 0
+browser GOODSITEM_REVAL_W2 south(73), 3, 0, "@{view_billitem_goods} {%s}", OWNER|GRID, 0
 {
 	"#",           0, int32,        0,  4, BCO_USERPROC
 	"@ware",       1, zstring(128), 0, 25, BCO_USERPROC
@@ -1897,7 +1897,7 @@ browser GOODSITEM_REVAL_W2 south(73), 3, 0, "Строки товарного документа {%s}", O
 	toolbar GOODSBILLITEM
 }
 
-browser GOODSITEM_ALTVIEW2 south(73), 1, 1, "Строки товарного документа [альтернативный вид] {%s}", OWNER|GRID, 0
+browser GOODSITEM_ALTVIEW2 south(73), 1, 1, "@{view_billitem_goods} [альтернативный вид] {%s}", OWNER|GRID, 0
 {
 	"#",                  0, int32,        0,  4, BCO_USERPROC
 	"@ware",              1, zstring(128), 0, 25, BCO_USERPROC
@@ -1910,7 +1910,7 @@ browser GOODSITEM_ALTVIEW2 south(73), 1, 1, "Строки товарного документа [альтерн
 	toolbar GOODSBILLITEM
 }
 
-browser GOODSITEM_USERPROC south(73), 1, 1, "Строки товарного документа {%s}", OWNER|GRID, 0
+browser GOODSITEM_USERPROC south(73), 1, 1, "@{view_billitem_goods} {%s}", OWNER|GRID, 0
 {
 	"@ware",     1, zstring(128), 0, 25,        BCO_USERPROC
 	"@qtty",     2, double, NMBF_NOTRAILZ, 8.3, BCO_USERPROC
@@ -1935,7 +1935,7 @@ browser GOODSITEM_LOCTR south(73), 1, 1, "Строки складского документа {%s}", OWN
 //
 // Строки товарного заказа для вставки их в товарных документ исполнения заказа
 //
-browser ORDGOODSITEM_W2 south(73), 2, 1, "Строки товарного заказа {%s}", OWNER|GRID, 0
+browser ORDGOODSITEM_W2 south(73), 2, 1, "@{view_billitem_order} {%s}", OWNER|GRID, 0
 {
 	"#",                   0, int32,       0,  4, BCO_USERPROC
 	"@ware",               1, zstring(128), 0, 25, BCO_USERPROC
@@ -1947,7 +1947,7 @@ browser ORDGOODSITEM_W2 south(73), 2, 1, "Строки товарного заказа {%s}", OWNER|G
 //
 // Строки товарного заказа
 //
-browser ORDERITEM_W2 south(73), 1, 1, "Строки товарного заказа {%s}", OWNER|GRID, 0
+browser ORDERITEM_W2 south(73), 1, 1, "@{view_billitem_order} {%s}", OWNER|GRID, 0
 {
 	"#",          0, int32,       0,  4, BCO_USERPROC
 	"@ware",      1, zstring(128), 0, 35, BCO_USERPROC
@@ -5145,7 +5145,7 @@ browser TSESSION north(100), 3, 1, "@{tsession_pl} {%s}", OWNER|GRID, 0
 		ADDITEM     : kbIns,     TBBM_INSERT,        "@{add}\tInsert"
 		//ADDSUPERSESS : kbAltIns,   TBBM_NOICON,   "Добавить суперсессию\tAlt-Insert"
 		DELETEITEM  : kbDel,     TBBM_DELETE,        "@{delete}\tDelete"
-		DETAIL      : kbF3,      TBBM_BROWSE,        "Строки сессии\tF3"
+		DETAIL      : kbF3,      TBBM_BROWSE,        "@{sessitem_pl}\tF3"
 		VIEWSUBSESS : kbAltF3,   TBBM_NOICON,        "Вложенные сессии\tAlt-F3"
 		GOODSREST   : kbF6,      TBBM_NOICON,        "Фиксированные остатки\tF6"
 		EDITPRC     : kbF2,      TBBM_PRC,           "@{processor}\tF2"
@@ -5202,7 +5202,7 @@ browser TSUBSESSION north(100), 3, 1, "Технологические субсессии {%s}", OWNER|GR
 		ADDITEM     : kbIns,     TBBM_INSERT,        "@{add}\tInsert"
 		//ADDSUPERSESS : kbAltIns,   TBBM_NOICON,   "Добавить суперсессию\tAlt-Insert"
 		DELETEITEM  : kbDel,     TBBM_DELETE,        "@{delete}\tDelete"
-		DETAIL      : kbF3,      TBBM_BROWSE,        "Строки сессии\tF3"
+		DETAIL      : kbF3,      TBBM_BROWSE,        "@{sessitem_pl}\tF3"
 		VIEWSUBSESS : kbAltF3,   TBBM_NOICON,        "Вложенные сессии\tAlt-F3"
 		GOODSREST   : kbF6,      TBBM_NOICON,        "Фиксированные остатки\tF6"
 		EDITPRC     : kbF2,      TBBM_PRC,           "@{processor}\tF2"
@@ -5474,7 +5474,7 @@ browser PRCBUSY north(100), 3, 1, "@{view_prcbusy} {%s}", OWNER|GRID, 0
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL         : kbEnter,   TBBM_EDIT,        "@{session}\tEnter"
 		ADDITEM        : kbIns,     TBBM_INSERT,      "Добавить сессию\tInsert"
-		VIEWTSESSLINES : kbF3,      TBBM_BROWSE,      "Строки сессии\tF3"
+		VIEWTSESSLINES : kbF3,      TBBM_BROWSE,      "@{sessitem_pl}\tF3"
 		EDITPRC        : kbF2,      TBBM_PRC,         "@{processor}\tF2"
 		WROFFSESS      : kbCtrlW,   TBBM_CLOSECSESS,  "@{dowriteoffsess}\tCtrl-W"
 		DELETEITEM     : kbDel,     TBBM_DELETE,      "Удалить/Откатить списание\tDelete"

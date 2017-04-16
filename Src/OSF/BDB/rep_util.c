@@ -203,34 +203,22 @@ int __rep_send_bulk(ENV*env, REP_BULK * bulkp, uint32 ctlflags)
 	DB_REP * db_rep;
 	REP * rep;
 	int ret;
-	/*
-	 * If the offset is 0, we're done.  There is nothing to send.
-	 */
+	// If the offset is 0, we're done.  There is nothing to send.
 	if(*(bulkp->offp) == 0)
 		return 0;
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
-
-	/*
-	 * Set that this buffer is being actively transmitted.
-	 */
+	// Set that this buffer is being actively transmitted.
 	FLD_SET(*(bulkp->flagsp), BULK_XMIT);
 	DB_INIT_DBT(dbt, bulkp->addr, *(bulkp->offp));
 	MUTEX_UNLOCK(env, rep->mtx_clientdb);
-	VPRINT(env, (env, DB_VERB_REP_MSGS,
-		     "send_bulk: Send %d (0x%x) bulk buffer bytes", dbt.size, dbt.size));
-
-	/*
-	 * Unlocked the mutex and now send the message.
-	 */
+	VPRINT(env, (env, DB_VERB_REP_MSGS, "send_bulk: Send %d (0x%x) bulk buffer bytes", dbt.size, dbt.size));
+	// Unlocked the mutex and now send the message.
 	STAT(rep->stat.st_bulk_transfers++);
-	if((ret = __rep_send_message(env,
-		    bulkp->eid, bulkp->type, &bulkp->lsn, &dbt, ctlflags, 0)) != 0)
+	if((ret = __rep_send_message(env, bulkp->eid, bulkp->type, &bulkp->lsn, &dbt, ctlflags, 0)) != 0)
 		ret = DB_REP_UNAVAIL;
 	MUTEX_LOCK(env, rep->mtx_clientdb);
-	/*
-	 * Ready the buffer for further records.
-	 */
+	// Ready the buffer for further records.
 	*(bulkp->offp) = 0;
 	FLD_CLR(*(bulkp->flagsp), BULK_XMIT);
 	return ret;
@@ -292,32 +280,23 @@ int __rep_bulk_free(ENV * env, REP_BULK * bulkp, uint32 flags)
 int __rep_send_message(ENV * env, int eid, uint32 rtype, DB_LSN * lsnp, const DBT * dbt, uint32 ctlflags, uint32 repflags)
 {
 	DBT cdbt, scrap_dbt;
-	DB_ENV * dbenv;
-	DB_LOG * dblp;
-	DB_REP * db_rep;
-	LOG * lp;
-	REP * rep;
 	REP_46_CONTROL cntrl46;
 	REP_OLD_CONTROL ocntrl;
 	__rep_control_args cntrl;
 	db_timespec msg_time;
-	int ret;
 	uint32 myflags;
 	uint8 buf[__REP_CONTROL_SIZE];
 	size_t len;
-
-	dbenv = env->dbenv;
-	db_rep = env->rep_handle;
-	rep = db_rep->region;
-	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
-	ret = 0;
-
+	DB_ENV * dbenv = env->dbenv;
+	DB_REP * db_rep = env->rep_handle;
+	REP * rep = db_rep->region;
+	DB_LOG * dblp = env->lg_handle;
+	LOG * lp = (LOG *)dblp->reginfo.primary;
+	int    ret = 0;
 #if defined(DEBUG_ROP) || defined(DEBUG_WOP)
 	if(db_rep->send == NULL)
 		return 0;
 #endif
-
 	/* Set up control structure. */
 	memzero(&cntrl, sizeof(cntrl));
 	memzero(&ocntrl, sizeof(ocntrl));
@@ -333,8 +312,7 @@ int __rep_send_message(ENV * env, int eid, uint32 rtype, DB_LSN * lsnp, const DB
 		cntrl.rectype = rtype;
 	else if(rep->version < DB_REPVERSION) {
 		cntrl.rectype = __rep_msg_to_old(rep->version, rtype);
-		VPRINT(env, (env, DB_VERB_REP_MSGS, "rep_send_msg: rtype %lu to version %lu record %lu.",
-			(ulong)rtype, (ulong)rep->version, (ulong)cntrl.rectype));
+		VPRINT(env, (env, DB_VERB_REP_MSGS, "rep_send_msg: rtype %lu to version %lu record %lu.", (ulong)rtype, (ulong)rep->version, (ulong)cntrl.rectype));
 		if(cntrl.rectype == REP_INVALID)
 			return ret;
 	}
@@ -387,8 +365,7 @@ int __rep_send_message(ENV * env, int eid, uint32 rtype, DB_LSN * lsnp, const DB
 	 * !!! If we are a master, using leases, we had better not be
 	 * sending to an older version.
 	 */
-	if(IS_REP_MASTER(env) && IS_USING_LEASES(env) &&
-	   FLD_ISSET(ctlflags, REPCTL_LEASE|REPCTL_PERM)) {
+	if(IS_REP_MASTER(env) && IS_USING_LEASES(env) && FLD_ISSET(ctlflags, REPCTL_LEASE|REPCTL_PERM)) {
 		F_SET(&cntrl, REPCTL_LEASE);
 		DB_ASSERT(env, rep->version == DB_REPVERSION);
 		__os_gettime(env, &msg_time, 1);
@@ -405,16 +382,13 @@ int __rep_send_message(ENV * env, int eid, uint32 rtype, DB_LSN * lsnp, const DB
 	/*
 	 * If DB_REP_PERMANENT is set, the LSN better be non-zero.
 	 */
-	DB_ASSERT(env, !FLD_ISSET(myflags, DB_REP_PERMANENT) ||
-		!IS_ZERO_LSN(cntrl.lsn));
-
+	DB_ASSERT(env, !FLD_ISSET(myflags, DB_REP_PERMANENT) || !IS_ZERO_LSN(cntrl.lsn));
 	/*
 	 * If we're talking to an old version, send an old control structure.
 	 */
 	memzero(&cdbt, sizeof(cdbt));
 	if(rep->version <= DB_REPVERSION_45) {
-		if(rep->version == DB_REPVERSION_45 &&
-		   F_ISSET(&cntrl, REPCTL_INIT)) {
+		if(rep->version == DB_REPVERSION_45 && F_ISSET(&cntrl, REPCTL_INIT)) {
 			F_CLR(&cntrl, REPCTL_INIT);
 			F_SET(&cntrl, REPCTL_INIT_45);
 		}
@@ -440,8 +414,7 @@ int __rep_send_message(ENV * env, int eid, uint32 rtype, DB_LSN * lsnp, const DB
 		cdbt.size = sizeof(cntrl46);
 	}
 	else {
-		__rep_control_marshal(env, &cntrl, buf,
-			__REP_CONTROL_SIZE, &len);
+		__rep_control_marshal(env, &cntrl, buf, __REP_CONTROL_SIZE, &len);
 		DB_INIT_DBT(cdbt, buf, len);
 	}
 	/*
@@ -459,8 +432,7 @@ int __rep_send_message(ENV * env, int eid, uint32 rtype, DB_LSN * lsnp, const DB
 	 * extra accuracy.
 	 */
 	if(ret != 0) {
-		RPRINT(env, (env, DB_VERB_REP_MSGS,
-			     "rep_send_function returned: %d", ret));
+		RPRINT(env, (env, DB_VERB_REP_MSGS, "rep_send_function returned: %d", ret));
 #ifdef HAVE_STATISTICS
 		rep->stat.st_msgs_send_failures++;
 	}
@@ -478,16 +450,12 @@ int __rep_send_message(ENV * env, int eid, uint32 rtype, DB_LSN * lsnp, const DB
  *	This is a debugging routine for printing out log records that
  * we are about to transmit to a client.
  */
-static void __rep_print_logmsg(env, logdbt, lsnp)
-ENV*env;
-const DBT * logdbt;
-DB_LSN * lsnp;
+static void __rep_print_logmsg(ENV * env, const DBT * logdbt, DB_LSN * lsnp)
 {
 	static int first = 1;
 	static DB_DISTAB dtab;
 	if(first) {
 		first = 0;
-
 		__bam_init_print(env, &dtab);
 		__crdel_init_print(env, &dtab);
 		__db_init_print(env, &dtab);
@@ -576,8 +544,7 @@ int __rep_new_master(ENV*env, __rep_control_args * cntrl, int eid)
 		 * so that no new message can be processed and re-grant
 		 * the lease out from under us.
 		 */
-		if(IS_USING_LEASES(env) &&
-		   ((lease_to = __rep_lease_waittime(env)) != 0)) {
+		if(IS_USING_LEASES(env) && ((lease_to = __rep_lease_waittime(env)) != 0)) {
 			REP_SYSTEM_UNLOCK(env);
 			__os_yield(env, 0, (ulong)lease_to);
 			REP_SYSTEM_LOCK(env);

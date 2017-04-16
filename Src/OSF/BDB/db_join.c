@@ -14,15 +14,15 @@
 // @v9.5.5 #include "dbinc/btree.h"
 // @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-#include "dbinc/db_join.h"
+// @v9.6.2 #include "dbinc/db_join.h"
 
 static int __db_join_close_pp(DBC *);
-static int __db_join_cmp __P((const void *, const void *));
-static int __db_join_del (DBC*, uint32);
+static int __db_join_cmp(const void *, const void *);
+static int __db_join_del(DBC*, uint32);
 static int __db_join_get(DBC*, DBT*, DBT*, uint32);
 static int __db_join_get_pp(DBC*, DBT*, DBT*, uint32);
-static int __db_join_getnext __P((DBC*, DBT*, DBT*, uint32, uint32));
-static int __db_join_primget __P((DB*, DB_THREAD_INFO*, DB_TXN*, DB_LOCKER*, DBT*, DBT*, uint32));
+static int __db_join_getnext(DBC*, DBT*, DBT*, uint32, uint32);
+static int __db_join_primget(DB*, DB_THREAD_INFO*, DB_TXN*, DB_LOCKER*, DBT*, DBT*, uint32);
 static int __db_join_put(DBC*, DBT*, DBT*, uint32);
 /*
  * Check to see if the Nth secondary cursor of join cursor jc is pointing
@@ -324,8 +324,7 @@ static int __db_join_get(DBC * dbc, DBT * key_arg, DBT * data_arg, uint32 flags)
 	 * management flags.  If necessary, use a stack-allocated DBT;
 	 * we'll appropriately copy and/or allocate the data later.
 	 */
-	if(F_ISSET(key_arg,
-		   DB_DBT_MALLOC|DB_DBT_USERCOPY|DB_DBT_USERMEM)) {
+	if(F_ISSET(key_arg, DB_DBT_MALLOC|DB_DBT_USERCOPY|DB_DBT_USERMEM)) {
 		/* We just use the default buffer;  no need to go malloc. */
 		key_n = &key_n_mem;
 		memzero(key_n, sizeof(DBT));
@@ -461,9 +460,7 @@ retry2:
 			 * reset all of the workcurs[j] where j>i, so that
 			 * we don't miss any duplicate duplicates.
 			 */
-			for(j = i+1;
-			    jc->j_workcurs[j] != NULL;
-			    j++) {
+			for(j = i+1; jc->j_workcurs[j] != NULL; j++) {
 				if((ret = __dbc_close(jc->j_workcurs[j])) != 0)
 					goto err;
 				jc->j_exhausted[j] = 0;

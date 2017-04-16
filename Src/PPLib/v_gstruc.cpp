@@ -281,7 +281,7 @@ int SLAPI PPViewGoodsStruc::ViewTotal()
 	PPID   prev_goods = 0;
 	GoodsStrucViewItem item;
 	TDialog * p_dlg = 0;
-	THROW(CheckDialogPtr(&(p_dlg = new TDialog(DLG_TGSTRUC)), 0));
+	THROW(CheckDialogPtr(&(p_dlg = new TDialog(DLG_TGSTRUC))));
 	for(InitIteration(); NextIteration(&item) > 0;) {
 		if(item.GoodsID != prev_goods) {
 			goods_count++;

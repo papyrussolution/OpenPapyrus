@@ -108,7 +108,7 @@ public:
 				Kind = kind;
 				Fix.get(*this);
 				strcpy(orgID, Fix.id);
-				if(ctlNo != 0 && kind != __Dialog && kind != __ScrollBar)
+				if(ctlNo != 0 && !oneof2(kind, __Dialog, __ScrollBar))
 					if(Fix.id[0] == 0 || strncmp(Fix.id, DEF_CTL_ID, strlen(DEF_CTL_ID)) == 0)
 						itoa(/*20000*/4000+(ctlNo++), Fix.id, 10);
 					/*

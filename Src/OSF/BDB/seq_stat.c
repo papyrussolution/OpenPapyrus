@@ -160,8 +160,7 @@ static int __seq_print_stats(DB_SEQUENCE * seq, uint32 flags)
 	ENV * env = seq->seq_dbp->env;
 	if((ret = __seq_stat(seq, &sp, flags)) != 0)
 		return ret;
-	__db_dl_pct(env, "The number of sequence locks that required waiting",
-		(ulong)sp->st_wait, DB_PCT(sp->st_wait, sp->st_wait+sp->st_nowait), NULL);
+	__db_dl_pct(env, "The number of sequence locks that required waiting", (ulong)sp->st_wait, DB_PCT(sp->st_wait, sp->st_wait+sp->st_nowait), NULL);
 	STAT_FMT("The current sequence value", INT64_FMT, db_seq_t, sp->st_current);
 	STAT_FMT("The cached sequence value", INT64_FMT, db_seq_t, sp->st_value);
 	STAT_FMT("The last cached sequence value", INT64_FMT, db_seq_t, sp->st_last_value);

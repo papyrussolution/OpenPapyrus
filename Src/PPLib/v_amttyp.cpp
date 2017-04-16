@@ -308,7 +308,7 @@ int SLAPI PPViewAmountType::EditBaseFilt(PPBaseFilt * pFilt)
 	AmountTypeFilt filt;
 	AmtTypeFiltDialog * p_dlg = new AmtTypeFiltDialog;
 	filt.Copy(pFilt, 0);
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setDTS(&filt);
 	while(ok < 0 && ExecView(p_dlg) == cmOK) {
 		if(p_dlg->getDTS(&filt) > 0) {

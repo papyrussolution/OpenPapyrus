@@ -29,23 +29,22 @@ static int __ham_get_h_compare(DB*, int (* *)(DB*, const DBT*, const DBT *));
  */
 int __ham_db_create(DB * dbp)
 {
-	HASH * hashp;
-	int ret;
-	if((ret = __os_malloc(dbp->env, sizeof(HASH), &dbp->h_internal)) != 0)
-		return ret;
-	hashp = (HASH *)dbp->h_internal;
-	hashp->h_nelem = 0;                     /* Defaults. */
-	hashp->h_ffactor = 0;
-	hashp->h_hash = NULL;
-	hashp->h_compare = NULL;
-	dbp->get_h_ffactor = __ham_get_h_ffactor;
-	dbp->set_h_ffactor = __ham_set_h_ffactor;
-	dbp->get_h_hash = __ham_get_h_hash;
-	dbp->set_h_hash = __ham_set_h_hash;
-	dbp->get_h_compare = __ham_get_h_compare;
-	dbp->set_h_compare = __ham_set_h_compare;
-	dbp->get_h_nelem = __ham_get_h_nelem;
-	dbp->set_h_nelem = __ham_set_h_nelem;
+	int ret = __os_malloc(dbp->env, sizeof(HASH), &dbp->h_internal);
+	if(ret == 0) {
+		HASH * hashp = (HASH *)dbp->h_internal;
+		hashp->h_nelem = 0;                     /* Defaults. */
+		hashp->h_ffactor = 0;
+		hashp->h_hash = NULL;
+		hashp->h_compare = NULL;
+		dbp->get_h_ffactor = __ham_get_h_ffactor;
+		dbp->set_h_ffactor = __ham_set_h_ffactor;
+		dbp->get_h_hash = __ham_get_h_hash;
+		dbp->set_h_hash = __ham_set_h_hash;
+		dbp->get_h_compare = __ham_get_h_compare;
+		dbp->set_h_compare = __ham_set_h_compare;
+		dbp->get_h_nelem = __ham_get_h_nelem;
+		dbp->set_h_nelem = __ham_set_h_nelem;
+	}
 	return 0;
 }
 /*
@@ -76,10 +75,9 @@ int __ham_get_h_ffactor(DB * dbp, uint32 * h_ffactorp)
  */
 static int __ham_set_h_ffactor(DB * dbp, uint32 h_ffactor)
 {
-	HASH * hashp;
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_h_ffactor");
 	DB_ILLEGAL_METHOD(dbp, DB_OK_HASH);
-	hashp = (HASH *)dbp->h_internal;
+	HASH * hashp = (HASH *)dbp->h_internal;
 	hashp->h_ffactor = h_ffactor;
 	return 0;
 }
@@ -89,11 +87,9 @@ static int __ham_set_h_ffactor(DB * dbp, uint32 h_ffactor)
  */
 static int __ham_get_h_hash(DB * dbp, uint32(**funcp) __P((DB*, const void *, uint32)))
 {
-	HASH * hashp;
 	DB_ILLEGAL_METHOD(dbp, DB_OK_HASH);
-	hashp = (HASH *)dbp->h_internal;
-	if(funcp != NULL)
-		*funcp = hashp->h_hash;
+	HASH * hashp = (HASH *)dbp->h_internal;
+	ASSIGN_PTR(funcp, hashp->h_hash);
 	return 0;
 }
 /*
@@ -102,10 +98,9 @@ static int __ham_get_h_hash(DB * dbp, uint32(**funcp) __P((DB*, const void *, ui
  */
 static int __ham_set_h_hash(DB * dbp, uint32(*func) __P((DB*, const void *, uint32)))
 {
-	HASH * hashp;
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_h_hash");
 	DB_ILLEGAL_METHOD(dbp, DB_OK_HASH);
-	hashp = (HASH *)dbp->h_internal;
+	HASH * hashp = (HASH *)dbp->h_internal;
 	hashp->h_hash = func;
 	return 0;
 }
@@ -115,11 +110,9 @@ static int __ham_set_h_hash(DB * dbp, uint32(*func) __P((DB*, const void *, uint
  */
 static int __ham_get_h_compare(DB * dbp, int (**funcp)(DB*, const DBT*, const DBT *))
 {
-	HASH * t;
 	DB_ILLEGAL_METHOD(dbp, DB_OK_HASH);
-	t = (HASH *)dbp->h_internal;
-	if(funcp != NULL)
-		*funcp = t->h_compare;
+	HASH * t = (HASH *)dbp->h_internal;
+	ASSIGN_PTR(funcp, t->h_compare);
 	return 0;
 }
 /*

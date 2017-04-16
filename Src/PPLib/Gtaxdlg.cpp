@@ -220,7 +220,7 @@ int GoodsTaxListDialog::editItemDialog(int pos, PPGoodsTaxEntry * pEntry)
 {
 	int    ok = -1;
 	GoodsTaxDialog * dlg = new GoodsTaxDialog(DLG_GDSTAXENTRY);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setEntry(pEntry);
 		dlg->setCtrlData(CTL_GDSTAX_NAME, Data.Rec.Name);
 		dlg->disableCtrl(CTL_GDSTAX_NAME, 1);
@@ -276,7 +276,7 @@ int GoodsTaxListDialog::editItem(long pos, long)
 void GoodsTaxDialog::editList()
 {
 	GoodsTaxListDialog * dlg = new GoodsTaxListDialog();
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(&Data);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
 			if(dlg->getDTS(&Data))
@@ -295,7 +295,7 @@ int SLAPI PPObjGoodsTax::AddBySample(PPID * pID, long sampleID)
 		pack.Rec.ID = 0;
 		for(uint i = 0; pack.enumItems(&i, (void **)&p_entry);)
 			p_entry->TaxGrpID = 0;
-		if(CheckDialogPtr(&(dlg = new GoodsTaxDialog(DLG_GDSTAX)), 1)) {
+		if(CheckDialogPtrErr(&(dlg = new GoodsTaxDialog(DLG_GDSTAX)))) {
 			dlg->setDTS(&pack);
 			for(int valid_data = 0; !valid_data && (r = ExecView(dlg)) == cmOK;)
 				if(dlg->getDTS(&pack))

@@ -1316,7 +1316,7 @@ int SLAPI PPObjTag::EditEnumListDialog(PPTagEnumList * pList)
 {
 	int    ok = -1;
 	TagEnumListDialog * dlg = new TagEnumListDialog((pList->GetFlags() & PPCommObjEntry::fHierarchical) ? DLG_TAGENUMTREEVIEW : DLG_TAGENUMVIEW, CTL_TAGENUMVIEW_LIST, 48);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(pList);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
 			if(dlg->getDTS(pList))
@@ -2161,7 +2161,7 @@ int TagFiltDialog::EditItem(long * pPos)
 	SelTagDialogData item(is_new ? 0 : &Data.TagsRestrict.at(pos));
 	SelTagDialog * p_dlg = 0;
 	GetClusterData(CTL_TAGFLT_FLAGS, &Data.Flags);
-	THROW(CheckDialogPtr(&(p_dlg = new SelTagDialog((Data.Flags & TagFilt::fNotTagsInList) ? 0 : 1, ObjType)), 0));
+	THROW(CheckDialogPtr(&(p_dlg = new SelTagDialog((Data.Flags & TagFilt::fNotTagsInList) ? 0 : 1, ObjType))));
 	p_dlg->setDTS(&item);
 	while(ok <= 0 && ExecView(p_dlg) == cmOK) {
 		if(p_dlg->getDTS(&item) > 0) {
@@ -2227,7 +2227,7 @@ int SLAPI EditTagFilt(PPID objType, TagFilt * pData)
 	int    ok = 1, valid_data = 0;
 	TagFiltDialog * p_dlg = 0;
 	THROW_MEM(p_dlg = new TagFiltDialog(objType));
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setDTS(pData);
 	while(!valid_data && ExecView(p_dlg) == cmOK) {
 		p_dlg->getDTS(pData);
@@ -2430,7 +2430,7 @@ static int SLAPI EditPosRights(ObjTagItem * pItem)
 	TDialog * dlg = 0;
 	SString rt_buf;
 	pItem->GetStr(rt_buf);
-	if(CheckDialogPtr(&(dlg = new TDialog(DLG_RTPOSAGENT)), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_RTPOSAGENT)))) {
 		long   rt = 0;
 		long   ort = 0;
 		long   v = 0;
@@ -2617,7 +2617,7 @@ int SLAPI EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const PPI
 	}
 	else {
 		param.GetDlgID(pItem->TagDataType, &dlg_id);
-		THROW(CheckDialogPtr(&(dlg = new TagValDialog(dlg_id, pItem, objID)), 0));
+		THROW(CheckDialogPtr(&(dlg = new TagValDialog(dlg_id, pItem, objID))));
 		THROW(param.SetDlgData(dlg, pItem));
 		while(!valid_data && (r = ExecView(dlg)) == cmOK)
 			if(param.GetDlgData(dlg, pItem))
@@ -2775,7 +2775,7 @@ int SLAPI EditObjTagValList(ObjTagList * pList, const PPIDArray * pAllowedTags)
 	blk.P_AllowedTags = pAllowedTags;
 	blk.UpdateMode = 0;
 	TagValListDialog * dlg = new TagValListDialog(DLG_TAGVALVIEW);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(&blk);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS(&blk) > 0) {
@@ -2800,7 +2800,7 @@ int SLAPI EditObjTagValUpdateList(ObjTagList * pList, const PPIDArray * pAllowed
 	blk.P_AllowedTags = pAllowedTags;
 	blk.UpdateMode = pUpdateMode ? *pUpdateMode : 0;
 	TagValListDialog * dlg = new TagValListDialog(DLG_TAGVALUPD);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(&blk);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS(&blk) > 0) {

@@ -1037,7 +1037,7 @@ int SLAPI PPObjStaffList::EditPostDialog(PPPsnPostPacket * pPack, long flags)
 {
 	int    ok = -1;
 	PersonPostDialog * dlg = new PersonPostDialog;
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	if(pPack->Rec.ID == 0) {
 		if(pPack->Rec.StaffID)
 			THROW(Search(pPack->Rec.StaffID) > 0);
@@ -1229,7 +1229,7 @@ int SLAPI PPObjStaffList::EditFixedStaffPost(PPID orgID)
 	THROW(PsnObj.Search(orgID, &org_rec) > 0);
 	THROW(GetFixedPostOnDate(orgID, PPFIXSTF_DIRECTOR, ZERODATE, &dir));
 	THROW(GetFixedPostOnDate(orgID, PPFIXSTF_ACCOUNTANT, ZERODATE, &acc));
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_FIXSTAFF)), 0));
+	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_FIXSTAFF))));
 	dlg->setStaticText(CTL_FIXSTAFF_ORGNAME, org_rec.Name);
 	SetupPPObjCombo(dlg, CTLSEL_FIXSTAFF_DIRECTOR, PPOBJ_PERSON, dir.PersonID, OLW_CANINSERT, (void *)PPPRK_EMPL);
 	SetupPPObjCombo(dlg, CTLSEL_FIXSTAFF_ACCTNT, PPOBJ_PERSON, acc.PersonID, OLW_CANINSERT, (void *)PPPRK_EMPL);

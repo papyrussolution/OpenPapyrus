@@ -476,7 +476,7 @@ int SLAPI PPObjGoodsTax::Browse(void * extraPtr)
 	int    ok = 1;
 	if(CheckRights(PPR_READ)) {
 		GoodsTaxView * dlg = new GoodsTaxView(this);
-		if(CheckDialogPtr(&dlg, 1))
+		if(CheckDialogPtrErr(&dlg))
 			ExecViewAndDestroy(dlg);
 		else
 			ok = 0;
@@ -841,7 +841,7 @@ int SLAPI PPObjGoodsTax::ReplaceGoodsTaxGrp()
 	int    ok = -1;
 	PPID   src_id = 0, dest_id = 0;
 	TDialog * dlg = new TDialog(DLG_REPLGTX);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		SetupPPObjCombo(dlg, CTLSEL_REPLGTX_DEST, PPOBJ_GOODSTAX, dest_id, 0, 0);
 		SetupPPObjCombo(dlg, CTLSEL_REPLGTX_SRC,  PPOBJ_GOODSTAX, src_id,  0, 0);
 		while(ExecView(dlg) == cmOK) {

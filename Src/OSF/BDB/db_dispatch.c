@@ -47,7 +47,7 @@
 #pragma hdrstop
 // @v9.5.5 #include "dbinc/fop.h"
 // @v9.5.5 #include "dbinc/txn.h"
-#include "dbinc/log_verify.h"
+// @v9.6.2 #include "dbinc/log_verify.h"
 
 static int __db_txnlist_find_internal __P((ENV*, DB_TXNHEAD*, db_txnlist_type, uint32,  DB_TXNLIST**, int, uint32 *));
 /*

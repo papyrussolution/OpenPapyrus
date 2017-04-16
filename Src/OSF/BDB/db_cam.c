@@ -19,18 +19,18 @@
 // @v9.5.5 #include "dbinc/qam.h"
 // @v9.5.5 #include "dbinc/txn.h"
 
-static int __db_s_count __P((DB *));
+static int FASTCALL __db_s_count(DB *);
 static int __db_wrlock_err(ENV *);
 static int __dbc_del_foreign(DBC *);
-static int __dbc_del_oldskey __P((DB*, DBC*, DBT*, DBT*, DBT *));
+static int __dbc_del_oldskey(DB*, DBC*, DBT*, DBT*, DBT *);
 static int __dbc_del_secondary(DBC *);
 static int __dbc_pget_recno(DBC*, DBT*, DBT*, uint32);
-static inline int __dbc_put_append __P((DBC*, DBT*, DBT*, uint32*, uint32));
-static inline int __dbc_put_fixed_len __P((DBC*, DBT*, DBT *));
-static inline int __dbc_put_partial __P((DBC*, DBT*, DBT*, DBT*, DBT*, uint32*, uint32));
+static inline int __dbc_put_append(DBC*, DBT*, DBT*, uint32*, uint32);
+static inline int __dbc_put_fixed_len(DBC*, DBT*, DBT *);
+static inline int __dbc_put_partial(DBC*, DBT*, DBT*, DBT*, DBT*, uint32*, uint32);
 static int __dbc_put_primary(DBC*, DBT*, DBT*, uint32);
-static inline int __dbc_put_resolve_key __P((DBC*, DBT*, DBT*, uint32*, uint32));
-static inline int __dbc_put_secondaries __P((DBC*, DBT*, DBT*, DBT*, int, DBT*, uint32 *));
+static inline int __dbc_put_resolve_key(DBC*, DBT*, DBT*, uint32*, uint32);
+static inline int __dbc_put_secondaries(DBC*, DBT*, DBT*, DBT*, int, DBT*, uint32 *);
 
 #define CDB_LOCKING_INIT(env, dbc)                                      \
         /* \
@@ -71,75 +71,77 @@ static inline int __dbc_put_secondaries __P((DBC*, DBT*, DBT*, DBT*, int, DBT*, 
  */
 int __dbc_close(DBC * dbc)
 {
-	DB_TXN * txn;
-	int    t_ret;
-	DB   * dbp = dbc->dbp;
-	ENV  * env = dbp->env;
-	DBC_INTERNAL * cp = dbc->internal;
-	DBC  * opd = cp->opd;
 	int    ret = 0;
-	/*
-	 * Remove the cursor(s) from the active queue.  We may be closing two
-	 * cursors at once here, a top-level one and a lower-level, off-page
-	 * duplicate one.  The access-method specific cursor close routine must
-	 * close both of them in a single call.
-	 *
-	 * !!!
-	 * Cursors must be removed from the active queue before calling the
-	 * access specific cursor close routine, btree depends on having that
-	 * order of operations.
-	 */
-	MUTEX_LOCK(env, dbp->mutex);
-	if(opd != NULL) {
-		DB_ASSERT(env, F_ISSET(opd, DBC_ACTIVE));
-		F_CLR(opd, DBC_ACTIVE);
-		TAILQ_REMOVE(&dbp->active_queue, opd, links);
-	}
-	DB_ASSERT(env, F_ISSET(dbc, DBC_ACTIVE));
-	F_CLR(dbc, DBC_ACTIVE);
-	TAILQ_REMOVE(&dbp->active_queue, dbc, links);
+	if(dbc) {
+		DB_TXN * txn;
+		int    t_ret;
+		DB   * dbp = dbc->dbp;
+		ENV  * env = dbp->env;
+		DBC_INTERNAL * cp = dbc->internal;
+		DBC  * opd = cp->opd;
+		/*
+		* Remove the cursor(s) from the active queue.  We may be closing two
+		* cursors at once here, a top-level one and a lower-level, off-page
+		* duplicate one.  The access-method specific cursor close routine must
+		* close both of them in a single call.
+		*
+		* !!!
+		* Cursors must be removed from the active queue before calling the
+		* access specific cursor close routine, btree depends on having that
+		* order of operations.
+		*/
+		MUTEX_LOCK(env, dbp->mutex);
+		if(opd != NULL) {
+			DB_ASSERT(env, F_ISSET(opd, DBC_ACTIVE));
+			F_CLR(opd, DBC_ACTIVE);
+			TAILQ_REMOVE(&dbp->active_queue, opd, links);
+		}
+		DB_ASSERT(env, F_ISSET(dbc, DBC_ACTIVE));
+		F_CLR(dbc, DBC_ACTIVE);
+		TAILQ_REMOVE(&dbp->active_queue, dbc, links);
 
-	MUTEX_UNLOCK(env, dbp->mutex);
-	/* Call the access specific cursor close routine. */
-	if((t_ret = dbc->am_close(dbc, PGNO_INVALID, NULL)) != 0 && ret == 0)
-		ret = t_ret;
-	/*
-	 * Release the lock after calling the access method specific close
-	 * routine, a Btree cursor may have had pending deletes.
-	 *
-	 * Also, be sure not to free anything if mylock.off is INVALID;  in
-	 * some cases, such as idup'ed read cursors and secondary update
-	 * cursors, a cursor in a CDB environment may not have a lock at all.
-	 */
-	if(LOCK_ISSET(dbc->mylock)) {
-		if((t_ret = __LPUT(dbc, dbc->mylock)) != 0 && ret == 0)
+		MUTEX_UNLOCK(env, dbp->mutex);
+		// Call the access specific cursor close routine.
+		if((t_ret = dbc->am_close(dbc, PGNO_INVALID, NULL)) != 0 && ret == 0)
 			ret = t_ret;
-		/* For safety's sake, since this is going on the free queue. */
-		memzero(&dbc->mylock, sizeof(dbc->mylock));
-		if(opd != NULL)
-			memzero(&opd->mylock, sizeof(opd->mylock));
-	}
-	/*
-	 * Remove this cursor's locker ID from its family.
-	 */
-	if(F_ISSET(dbc, DBC_OWN_LID) && F_ISSET(dbc, DBC_FAMILY)) {
-		if((t_ret = __lock_familyremove(env->lk_handle, dbc->lref)) != 0 && ret == 0)
-			ret = t_ret;
-		F_CLR(dbc, DBC_FAMILY);
-	}
-	if((txn = dbc->txn) != NULL)
-		txn->cursors--;
-	/* Move the cursor(s) to the free queue. */
-	MUTEX_LOCK(env, dbp->mutex);
-	if(opd != NULL) {
-		if(txn != NULL)
+		/*
+		* Release the lock after calling the access method specific close
+		* routine, a Btree cursor may have had pending deletes.
+		*
+		* Also, be sure not to free anything if mylock.off is INVALID;  in
+		* some cases, such as idup'ed read cursors and secondary update
+		* cursors, a cursor in a CDB environment may not have a lock at all.
+		*/
+		if(LOCK_ISSET(dbc->mylock)) {
+			if((t_ret = __LPUT(dbc, dbc->mylock)) != 0 && ret == 0)
+				ret = t_ret;
+			/* For safety's sake, since this is going on the free queue. */
+			memzero(&dbc->mylock, sizeof(dbc->mylock));
+			if(opd)
+				memzero(&opd->mylock, sizeof(opd->mylock));
+		}
+		/*
+		* Remove this cursor's locker ID from its family.
+		*/
+		if(F_ISSET(dbc, DBC_OWN_LID) && F_ISSET(dbc, DBC_FAMILY)) {
+			if((t_ret = __lock_familyremove(env->lk_handle, dbc->lref)) != 0 && ret == 0)
+				ret = t_ret;
+			F_CLR(dbc, DBC_FAMILY);
+		}
+		if((txn = dbc->txn) != NULL)
 			txn->cursors--;
-		TAILQ_INSERT_TAIL(&dbp->free_queue, opd, links);
+		/* Move the cursor(s) to the free queue. */
+		MUTEX_LOCK(env, dbp->mutex);
+		if(opd) {
+			if(txn)
+				txn->cursors--;
+			TAILQ_INSERT_TAIL(&dbp->free_queue, opd, links);
+		}
+		TAILQ_INSERT_TAIL(&dbp->free_queue, dbc, links);
+		MUTEX_UNLOCK(env, dbp->mutex);
+		if(txn && F_ISSET(txn, TXN_PRIVATE) && txn->cursors == 0 && (t_ret = __txn_commit(txn, 0)) != 0 && ret == 0)
+			ret = t_ret;
 	}
-	TAILQ_INSERT_TAIL(&dbp->free_queue, dbc, links);
-	MUTEX_UNLOCK(env, dbp->mutex);
-	if(txn != NULL && F_ISSET(txn, TXN_PRIVATE) && txn->cursors == 0 && (t_ret = __txn_commit(txn, 0)) != 0 && ret == 0)
-		ret = t_ret;
 	return ret;
 }
 /*
@@ -685,8 +687,7 @@ int __dbc_iget(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 	 * cursor's upgrade routine first.
 	 */
 	cp = dbc->internal;
-	if(cp->opd != NULL && (flags == DB_CURRENT || flags == DB_GET_BOTHC ||
-	    flags == DB_NEXT || flags == DB_NEXT_DUP || flags == DB_PREV || flags == DB_PREV_DUP)) {
+	if(cp->opd && oneof6(flags, DB_CURRENT, DB_GET_BOTHC, DB_NEXT, DB_NEXT_DUP, DB_PREV, DB_PREV_DUP)) {
 		if(tmp_rmw && (ret = dbc->am_writelock(dbc)) != 0)
 			goto err;
 		if(F_ISSET(dbc, DBC_TRANSIENT))
@@ -700,7 +701,7 @@ int __dbc_iget(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 		 * duplicates, so for operations that are moving a cursor, we
 		 * need to skip the empty tree and retry on the parent cursor.
 		 */
-		if(ret == DB_NOTFOUND && (flags == DB_PREV || flags == DB_NEXT)) {
+		if(ret == DB_NOTFOUND && oneof2(flags, DB_PREV, DB_NEXT)) {
 			ret = __dbc_close(opd);
 			opd = NULL;
 			if(F_ISSET(dbc, DBC_TRANSIENT))
@@ -939,12 +940,11 @@ err:    /* Don't pass DB_DBT_ISSET back to application level, error or no. */
 	}
 	if(key_small) {
 		data->ulen = orig_ulen;
-		if(ret == 0)
-			ret = DB_BUFFER_SMALL;
+		SETIFZ(ret, DB_BUFFER_SMALL);
 	}
-	if((t_ret = __dbc_cleanup(dbc, dbc_n, ret)) != 0 && (ret == 0 || ret == DB_BUFFER_SMALL))
+	if((t_ret = __dbc_cleanup(dbc, dbc_n, ret)) != 0 && oneof2(ret, 0, DB_BUFFER_SMALL))
 		ret = t_ret;
-	if(flags == DB_CONSUME || flags == DB_CONSUME_WAIT)
+	if(oneof2(flags, DB_CONSUME, DB_CONSUME_WAIT))
 		CDB_LOCKING_DONE(env, dbc);
 	return ret;
 }
@@ -1042,9 +1042,7 @@ static inline int __dbc_put_append(DBC*dbc, DBT * key, DBT * data, uint32 * put_
 		break;
 	    default:
 		/* The interface should prevent this. */
-		DB_ASSERT(env,
-			dbp->type == DB_QUEUE || dbp->type == DB_RECNO);
-
+		DB_ASSERT(env, dbp->type == DB_QUEUE || dbp->type == DB_RECNO);
 		ret = __db_ferr(env, "DBC->put", 0);
 		goto err;
 	}
@@ -1189,29 +1187,23 @@ static inline int __dbc_put_fixed_len(DBC*dbc, DBT * data, DBT * out_data)
  */
 static inline int __dbc_put_secondaries(DBC*dbc, DBT * pkey, DBT * data, DBT * orig_data, int s_count, DBT * s_keys_buf, uint32 * put_statep)
 {
-	DB * dbp, * sdbp;
-	DBC * fdbc, * sdbc;
+	DB  * sdbp = 0;
+	DBC * fdbc = 0;
+	DBC * sdbc = 0;
 	DBT fdata, oldpkey, * skeyp, temppkey, tempskey, * tskeyp;
-	ENV * env;
-	int cmp, ret, rmw, t_ret;
+	int cmp, ret;
 	uint32 nskey;
-
-	dbp = dbc->dbp;
-	env = dbp->env;
-	fdbc = sdbc = NULL;
-	sdbp = NULL;
-	t_ret = 0;
-	rmw = FLD_ISSET(*put_statep, DBC_PUT_RMW) ? DB_RMW : 0;
-
+	DB   * dbp = dbc->dbp;
+	ENV  * env = dbp->env;
+	int    t_ret = 0;
+	int    rmw = FLD_ISSET(*put_statep, DBC_PUT_RMW) ? DB_RMW : 0;
 	/*
 	 * Loop through the secondaries.  (Step 3.)
 	 *
 	 * Note that __db_s_first and __db_s_next will take care of
 	 * thread-locking and refcounting issues.
 	 */
-	for(ret = __db_s_first(dbp, &sdbp), skeyp = s_keys_buf;
-	    sdbp != NULL && ret == 0;
-	    ret = __db_s_next(&sdbp, dbc->txn), ++skeyp) {
+	for(ret = __db_s_first(dbp, &sdbp), skeyp = s_keys_buf; sdbp && !ret; ret = __db_s_next(&sdbp, dbc->txn), ++skeyp) {
 		DB_ASSERT(env, skeyp-s_keys_buf < s_count);
 		/*
 		 * Don't process this secondary if the key is immutable and we
@@ -1234,7 +1226,7 @@ static inline int __dbc_put_secondaries(DBC*dbc, DBT * pkey, DBT * data, DBT * o
 			else
 				goto err;
 		}
-		if(sdbp->s_foreign != NULL && (ret = __db_cursor_int(sdbp->s_foreign, dbc->thread_info, dbc->txn, sdbp->s_foreign->type, PGNO_INVALID, 0, dbc->locker, &fdbc)) != 0)
+		if(sdbp->s_foreign && (ret = __db_cursor_int(sdbp->s_foreign, dbc->thread_info, dbc->txn, sdbp->s_foreign->type, PGNO_INVALID, 0, dbc->locker, &fdbc)) != 0)
 			goto err;
 		/*
 		 * Mark the secondary key DBT(s) as set -- that is, the
@@ -1252,7 +1244,7 @@ static inline int __dbc_put_secondaries(DBC*dbc, DBT * pkey, DBT * data, DBT * o
 			__db_check_skeyset(sdbp, skeyp);
 #endif
 			for(tskeyp = (DBT *)skeyp->data, nskey = skeyp->size; nskey > 0; nskey--, tskeyp++) {
-				if(fdbc != NULL) {
+				if(fdbc) {
 					memzero(&fdata, sizeof(DBT));
 					F_SET(&fdata, DB_DBT_PARTIAL|DB_DBT_USERMEM);
 					if((ret = __dbc_get(fdbc, tskeyp, &fdata, DB_SET|rmw)) == DB_NOTFOUND || ret == DB_KEYEMPTY) {
@@ -1266,7 +1258,7 @@ static inline int __dbc_put_secondaries(DBC*dbc, DBT * pkey, DBT * data, DBT * o
 			nskey = skeyp->size;
 		}
 		else {
-			if(fdbc != NULL) {
+			if(fdbc) {
 				memzero(&fdata, sizeof(DBT));
 				F_SET(&fdata, DB_DBT_PARTIAL|DB_DBT_USERMEM);
 				if((ret = __dbc_get(fdbc, skeyp, &fdata, DB_SET|rmw)) == DB_NOTFOUND || ret == DB_KEYEMPTY)
@@ -1276,7 +1268,7 @@ static inline int __dbc_put_secondaries(DBC*dbc, DBT * pkey, DBT * data, DBT * o
 			tskeyp = skeyp;
 			nskey = 1;
 		}
-		if(fdbc != NULL && (t_ret = __dbc_close(fdbc)) != 0 && ret == 0)
+		if(fdbc && (t_ret = __dbc_close(fdbc)) != 0 && ret == 0)
 			ret = t_ret;
 		fdbc = NULL;
 		if(ret != 0)
@@ -1324,41 +1316,26 @@ static inline int __dbc_put_secondaries(DBC*dbc, DBT * pkey, DBT * data, DBT * o
 		 * swap it after reading.
 		 */
 		SWAP_IF_NEEDED(sdbp, pkey);
-		for(; nskey > 0 && ret == 0; nskey--, tskeyp++) {
+		for(; nskey > 0 && !ret; nskey--, tskeyp++) {
 			/* Skip this key if it is already in the database. */
 			if(!F_ISSET(tskeyp, DB_DBT_ISSET))
 				continue;
 			/*
 			 * There are three cases here--
-			 * 1) The secondary supports sorted duplicates.
-			 *	If we attempt to put a secondary/primary pair
-			 *	that already exists, that's a duplicate
-			 *	duplicate, and c_put will return DB_KEYEXIST
-			 *	(see __db_duperr).  This will leave us with
-			 *	exactly one copy of the secondary/primary pair,
-			 *	and this is just right--we'll avoid deleting it
-			 *	later, as the old and new secondaries will
-			 *	match (since the old secondary is the dup dup
-			 *	that's already there).
-			 * 2) The secondary supports duplicates, but they're not
-			 *	sorted.  We need to avoid putting a duplicate
-			 *	duplicate, because the matching old and new
-			 *	secondaries will prevent us from deleting
-			 *	anything and we'll wind up with two secondary
-			 *	records that point to the same primary key.  Do
-			 *	a c_get(DB_GET_BOTH);  only do the put if the
-			 *	secondary doesn't exist.
-			 * 3) The secondary doesn't support duplicates at all.
-			 *	In this case, secondary keys must be unique;
-			 *	if another primary key already exists for this
-			 *	secondary key, we have to either overwrite it
-			 *	or not put this one, and in either case we've
-			 *	corrupted the secondary index.  Do a
-			 *	c_get(DB_SET).  If the secondary/primary pair
-			 *	already exists, do nothing;  if the secondary
-			 *	exists with a different primary, return an
-			 *	error;  and if the secondary does not exist,
-			 *	put it.
+			 * 1) The secondary supports sorted duplicates. If we attempt to put a secondary/primary pair
+			 *	that already exists, that's a duplicate duplicate, and c_put will return DB_KEYEXIST
+			 *	(see __db_duperr).  This will leave us with exactly one copy of the secondary/primary pair,
+			 *	and this is just right--we'll avoid deleting it later, as the old and new secondaries will
+			 *	match (since the old secondary is the dup dup that's already there).
+			 * 2) The secondary supports duplicates, but they're not sorted.  We need to avoid putting a duplicate
+			 *	duplicate, because the matching old and new secondaries will prevent us from deleting
+			 *	anything and we'll wind up with two secondary records that point to the same primary key.  Do
+			 *	a c_get(DB_GET_BOTH);  only do the put if the secondary doesn't exist.
+			 * 3) The secondary doesn't support duplicates at all. In this case, secondary keys must be unique;
+			 *	if another primary key already exists for this secondary key, we have to either overwrite it
+			 *	or not put this one, and in either case we've corrupted the secondary index.  Do a
+			 *	c_get(DB_SET).  If the secondary/primary pair already exists, do nothing;  if the secondary
+			 *	exists with a different primary, return an error;  and if the secondary does not exist, put it.
 			 */
 			if(!F_ISSET(sdbp, DB_AM_DUP)) {
 				/* Case 3. */
@@ -1413,7 +1390,7 @@ static inline int __dbc_put_secondaries(DBC*dbc, DBT * pkey, DBT * data, DBT * o
 		F_SET(skeyp, DB_DBT_ISSET);
 	}
 err:
-	if(sdbp != NULL && (t_ret = __db_s_done(sdbp, dbc->txn)) != 0 && ret == 0)
+	if(sdbp && (t_ret = __db_s_done(sdbp, dbc->txn)) != 0 && !ret)
 		ret = t_ret;
 	COMPQUIET(s_count, 0);
 	return ret;
@@ -1432,9 +1409,8 @@ static int __dbc_put_primary(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 	int t_ret = 0;
 	uint32 put_state = 0;
 	DBT * all_skeys = NULL;
-
-	memzero(&newdata, sizeof(DBT));
-	memzero(&olddata, sizeof(DBT));
+	// (replaced by ctr) memzero(&newdata, sizeof(DBT));
+	// (replaced by ctr) memzero(&olddata, sizeof(DBT));
 	/*
 	 * We do multiple cursor operations in some cases and subsequently
 	 * access the data DBT information.  Set DB_DBT_MALLOC so we don't risk
@@ -1512,8 +1488,7 @@ static int __dbc_put_primary(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 	 * should have been caught by the checking routine, but
 	 * add a sprinkling of paranoia.
 	 */
-	DB_ASSERT(env, flags == DB_APPEND || flags == DB_CURRENT || flags == DB_KEYFIRST ||
-		flags == DB_KEYLAST || flags == DB_NOOVERWRITE || flags == DB_OVERWRITE_DUP);
+	DB_ASSERT(env, oneof6(flags, DB_APPEND, DB_CURRENT, DB_KEYFIRST, DB_KEYLAST, DB_NOOVERWRITE, DB_OVERWRITE_DUP));
 	/*
 	 * We'll want to use DB_RMW in a few places, but it's only legal
 	 * when locking is on.
@@ -1572,8 +1547,7 @@ static int __dbc_put_primary(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 			goto err;
 	}
 	/* Validate any foreign databases, and update secondaries. (Step 3). */
-	if((ret = __dbc_put_secondaries(dbc, key, &newdata, &olddata, s_count, all_skeys, &put_state))
-	   != 0)
+	if((ret = __dbc_put_secondaries(dbc, key, &newdata, &olddata, s_count, all_skeys, &put_state)) != 0)
 		goto err;
 	/*
 	 * If we've already got the old primary key/data pair, the secondary
@@ -1591,7 +1565,7 @@ static int __dbc_put_primary(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 	DB_ASSERT(env, flags != DB_CURRENT);
 	F_SET(key, DB_DBT_ISSET);
 	ret = __dbc_get(pdbc, key, &olddata, rmw|DB_SET);
-	if(ret == DB_KEYEMPTY || ret == DB_NOTFOUND) {
+	if(oneof2(ret, DB_KEYEMPTY, DB_NOTFOUND)) {
 		FLD_SET(put_state, DBC_PUT_NODEL);
 		ret = 0;
 	}
@@ -1605,9 +1579,7 @@ static int __dbc_put_primary(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 	 */
 	if(FLD_ISSET(put_state, DBC_PUT_NODEL))
 		goto done;
-	for(ret = __db_s_first(dbp, &sdbp), skeyp = all_skeys;
-	    sdbp != NULL && ret == 0;
-	    ret = __db_s_next(&sdbp, dbc->txn), skeyp++) {
+	for(ret = __db_s_first(dbp, &sdbp), skeyp = all_skeys; sdbp && !ret; ret = __db_s_next(&sdbp, dbc->txn), skeyp++) {
 		DB_ASSERT(env, skeyp-all_skeys < s_count);
 		/*
 		 * Don't process this secondary if the key is immutable.  We
@@ -1699,9 +1671,12 @@ int __dbc_put(DBC*dbc, DBT * key, DBT * data, uint32 flags)
  */
 int __dbc_iput(DBC*dbc, DBT * key, DBT * data, uint32 flags)
 {
-	DBC * dbc_n, * oldopd, * opd;
+	DBC * dbc_n = 0;
+	DBC * oldopd;
+	DBC * opd;
 	db_pgno_t pgno;
-	int ret, t_ret;
+	int ret = 0;
+	int t_ret = 0;
 	uint32 tmp_flags;
 	/*
 	 * Cursor Cleanup Note:
@@ -1712,8 +1687,6 @@ int __dbc_iput(DBC*dbc, DBT * key, DBT * data, uint32 flags)
 	 * the cursor references do not need to be resolved by the underlying
 	 * functions.
 	 */
-	dbc_n = NULL;
-	ret = t_ret = 0;
 	/*
 	 * If we have an off-page duplicates cursor, and the operation applies
 	 * to it, perform the operation.  Duplicate the cursor and call the
@@ -1724,7 +1697,7 @@ int __dbc_iput(DBC*dbc, DBT * key, DBT * data, uint32 flags)
 	 * off-page dup tree.  If the put operation is done in an off-page
 	 * duplicate tree, call the primary cursor's upgrade routine first.
 	 */
-	if(dbc->internal->opd != NULL && (flags == DB_AFTER || flags == DB_BEFORE || flags == DB_CURRENT)) {
+	if(dbc->internal->opd && oneof3(flags, DB_AFTER, DB_BEFORE, DB_CURRENT)) {
 		/*
 		 * A special case for hash off-page duplicates.  Hash doesn't
 		 * support (and is documented not to support) put operations
@@ -1747,7 +1720,7 @@ int __dbc_iput(DBC*dbc, DBT * key, DBT * data, uint32 flags)
 	 * Perform an operation on the main cursor.  Duplicate the cursor,
 	 * and call the underlying function.
 	 */
-	tmp_flags = (flags == DB_AFTER || flags == DB_BEFORE || flags == DB_CURRENT) ? DB_POSITION : 0;
+	tmp_flags = oneof3(flags, DB_AFTER, DB_BEFORE, DB_CURRENT) ? DB_POSITION : 0;
 	/*
 	 * If this cursor is going to be closed immediately, we don't
 	 * need to take precautions to clean it up on error.
@@ -1777,8 +1750,8 @@ int __dbc_iput(DBC*dbc, DBT * key, DBT * data, uint32 flags)
 			goto err;
 	}
 done:
-err:    /* Cleanup and cursor resolution. */
-	if(dbc_n != NULL && !DB_RETOK_DBCPUT(ret))
+err: // Cleanup and cursor resolution. 
+	if(dbc_n && !DB_RETOK_DBCPUT(ret))
 		F_SET(dbc_n, DBC_ERROR);
 	if((t_ret = __dbc_cleanup(dbc, dbc_n, ret)) != 0 && ret == 0)
 		ret = t_ret;
@@ -1791,29 +1764,24 @@ err:    /* Cleanup and cursor resolution. */
  */
 static int __dbc_del_oldskey(DB * sdbp, DBC * dbc, DBT * skey, DBT * pkey, DBT * olddata)
 {
-	DB * dbp;
-	DBC * sdbc;
+	DBC * sdbc = 0;
 	DBT * toldskeyp, * tskeyp;
 	DBT oldskey, temppkey, tempskey;
-	ENV * env;
 	int ret, t_ret;
-	uint32 i, noldskey, nsame, nskey, rmw;
-
-	sdbc = NULL;
-	dbp = sdbp->s_primary;
-	env = dbp->env;
-	nsame = 0;
-	rmw = STD_LOCKING(dbc) ? DB_RMW : 0;
-
+	uint32 i;
+	uint32 noldskey;
+	uint32 nsame = 0;
+	uint32 nskey;
+	DB * dbp = sdbp->s_primary;
+	ENV * env = dbp->env;
+	uint32 rmw = STD_LOCKING(dbc) ? DB_RMW : 0;
 	/*
 	 * Get the old secondary key.
 	 */
 	memzero(&oldskey, sizeof(DBT));
 	if((ret = sdbp->s_callback(sdbp, pkey, olddata, &oldskey)) != 0) {
-		if(ret == DB_DONOTINDEX ||
-		   (F_ISSET(&oldskey, DB_DBT_MULTIPLE) && oldskey.size == 0))
-			/* There's no old key to delete. */
-			ret = 0;
+		if(ret == DB_DONOTINDEX || (F_ISSET(&oldskey, DB_DBT_MULTIPLE) && oldskey.size == 0))
+			ret = 0; // There's no old key to delete. 
 		return ret;
 	}
 	if(F_ISSET(&oldskey, DB_DBT_MULTIPLE)) {
@@ -1839,25 +1807,22 @@ static int __dbc_del_oldskey(DB * sdbp, DBC * dbc, DBT * skey, DBT * pkey, DBT *
 		 * before we delete it.  Note that bt_compare is (and must be)
 		 * set no matter what access method we're in.
 		 */
-		for(i = 0, tskeyp = skey; i < nskey; i++, tskeyp++)
-			if(((BTREE *)sdbp->bt_internal)->bt_compare(sdbp,
-				   toldskeyp, tskeyp) == 0) {
+		for(i = 0, tskeyp = skey; i < nskey; i++, tskeyp++) {
+			if(((BTREE *)sdbp->bt_internal)->bt_compare(sdbp, toldskeyp, tskeyp) == 0) {
 				nsame++;
 				F_CLR(tskeyp, DB_DBT_ISSET);
 				break;
 			}
+		}
 		if(i < nskey) {
 			FREE_IF_NEEDED(env, toldskeyp);
 			continue;
 		}
 		if(sdbc == NULL) {
-			if((ret = __db_cursor_int(sdbp,
-				    dbc->thread_info, dbc->txn, sdbp->type,
-				    PGNO_INVALID, 0, dbc->locker, &sdbc)) != 0)
+			if((ret = __db_cursor_int(sdbp, dbc->thread_info, dbc->txn, sdbp->type, PGNO_INVALID, 0, dbc->locker, &sdbc)) != 0)
 				goto err;
 			if(CDB_LOCKING(env)) {
-				DB_ASSERT(env,
-					sdbc->mylock.off == LOCK_INVALID);
+				DB_ASSERT(env, sdbc->mylock.off == LOCK_INVALID);
 				F_SET(sdbc, DBC_WRITER);
 			}
 		}
@@ -2343,9 +2308,9 @@ perr:
 	else
 		return __db_retcopy(env, pkey, &oob, sizeof(oob), &sdbc->rdata->data, &sdbc->rdata->ulen);
 }
-/*
- * __db_wrlock_err -- do not have a write lock.
- */
+//
+// __db_wrlock_err -- do not have a write lock.
+//
 static int __db_wrlock_err(ENV*env)
 {
 	__db_errx(env, DB_STR("0697", "Write attempted on read-only cursor"));
@@ -2374,8 +2339,8 @@ static int __dbc_del_secondary(DBC * dbc)
 	 * We don't actually care about the secondary key, just
 	 * the primary.
 	 */
-	memzero(&skey, sizeof(DBT));
-	memzero(&pkey, sizeof(DBT));
+	// (replaced by ctr) memzero(&skey, sizeof(DBT));
+	// (replaced by ctr) memzero(&pkey, sizeof(DBT));
 	F_SET(&skey, DB_DBT_PARTIAL|DB_DBT_USERMEM);
 	if((ret = __dbc_get(dbc, &skey, &pkey, DB_CURRENT)) != 0)
 		return ret;
@@ -2446,14 +2411,12 @@ int __dbc_del_primary(DBC*dbc)
 	 * Get the current record so that we can construct appropriate
 	 * secondary keys as needed.
 	 */
-	memzero(&pkey, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&pkey, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	if((ret = __dbc_get(dbc, &pkey, &data, DB_CURRENT)) != 0)
 		return ret;
-	memzero(&skey, sizeof(DBT));
-	for(ret = __db_s_first(dbp, &sdbp);
-	    sdbp != NULL && ret == 0;
-	    ret = __db_s_next(&sdbp, dbc->txn)) {
+	// (replaced by ctr) memzero(&skey, sizeof(DBT));
+	for(ret = __db_s_first(dbp, &sdbp); sdbp != NULL && ret == 0; ret = __db_s_next(&sdbp, dbc->txn)) {
 		/*
 		 * Get the secondary key for this secondary and the current
 		 * item.
@@ -2550,16 +2513,15 @@ err:
 static int __dbc_del_foreign(DBC * dbc)
 {
 	DB_FOREIGN_INFO * f_info;
-	DB * dbp, * pdbp, * sdbp;
+	DB * pdbp, * sdbp;
 	DBC * pdbc, * sdbc;
 	DBT data, fkey, pkey;
-	ENV * env;
 	uint32 flags, rmw;
 	int changed, ret, t_ret;
-	dbp = dbc->dbp;
-	env = dbp->env;
-	memzero(&fkey, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	DB * dbp = dbc->dbp;
+	ENV * env = dbp->env;
+	// (replaced by ctr) memzero(&fkey, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	if((ret = __dbc_get(dbc, &fkey, &data, DB_CURRENT)) != 0)
 		return ret;
 	LIST_FOREACH(f_info, &(dbp->f_primaries), f_links) {
@@ -2688,8 +2650,7 @@ static int __dbc_del_foreign(DBC * dbc)
 			ret = 0;
 		if((t_ret = __dbc_close(sdbc)) != 0 && ret == 0)
 			ret = t_ret;
-		if(LF_ISSET(DB_FOREIGN_NULLIFY) &&
-		   (t_ret = __dbc_close(pdbc)) != 0 && ret == 0)
+		if(LF_ISSET(DB_FOREIGN_NULLIFY) && (t_ret = __dbc_close(pdbc)) != 0 && ret == 0)
 			ret = t_ret;
 		if(ret != 0)
 			return ret;
@@ -2702,13 +2663,12 @@ static int __dbc_del_foreign(DBC * dbc)
  *
  * PUBLIC: int __db_s_first __P((DB *, DB **));
  */
-int __db_s_first(DB * pdbp, DB ** sdbpp)
+int FASTCALL __db_s_first(DB * pdbp, DB ** sdbpp)
 {
-	DB * sdbp;
 	MUTEX_LOCK(pdbp->env, pdbp->mutex);
-	sdbp = LIST_FIRST(&pdbp->s_secondaries);
-	/* See __db_s_next. */
-	if(sdbp != NULL)
+	DB * sdbp = LIST_FIRST(&pdbp->s_secondaries);
+	// See __db_s_next.
+	if(sdbp)
 		sdbp->s_refcnt++;
 	MUTEX_UNLOCK(pdbp->env, pdbp->mutex);
 	*sdbpp = sdbp;
@@ -2720,7 +2680,7 @@ int __db_s_first(DB * pdbp, DB ** sdbpp)
  *
  * PUBLIC: int __db_s_next __P((DB **, DB_TXN *));
  */
-int __db_s_next(DB ** sdbpp, DB_TXN * txn)
+int FASTCALL __db_s_next(DB ** sdbpp, DB_TXN * txn)
 {
 	/*
 	 * Secondary indices are kept in a linked list, s_secondaries,
@@ -2756,14 +2716,12 @@ int __db_s_next(DB ** sdbpp, DB_TXN * txn)
 		closeme = sdbp;
 	}
 	sdbp = LIST_NEXT(sdbp, s_links);
-	if(sdbp != NULL)
+	if(sdbp)
 		sdbp->s_refcnt++;
 	MUTEX_UNLOCK(env, pdbp->mutex);
 	*sdbpp = sdbp;
-	/*
-	 * closeme->close() is a wrapper;  call __db_close explicitly.
-	 */
-	return (closeme == NULL) ? 0 : __db_close(closeme, txn, 0);
+	// closeme->close() is a wrapper;  call __db_close explicitly.
+	return closeme ? __db_close(closeme, txn, 0) : 0;
 }
 /*
  * __db_s_done --
@@ -2795,7 +2753,7 @@ int __db_s_done(DB * sdbp, DB_TXN * txn)
  * __db_s_count --
  *	Count the number of secondaries associated with a given primary.
  */
-static int __db_s_count(DB*pdbp)
+static int FASTCALL __db_s_count(DB * pdbp)
 {
 	DB * sdbp;
 	ENV * env = pdbp->env;

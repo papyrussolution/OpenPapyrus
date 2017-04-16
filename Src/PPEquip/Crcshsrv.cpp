@@ -2731,15 +2731,16 @@ int SLAPI ACS_CRCSHSRV::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 		ok = 1;
 	else if(!pPrd) {
 		dlg = new TDialog(DLG_SELSESSRNG);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			SString dt_buf;
-			ChkRepPeriod.SetDate(LConfig.OperDate);
+			const LDATE oper_date = LConfig.OperDate;
+			ChkRepPeriod.SetDate(oper_date);
 			dlg->SetupCalPeriod(CTLCAL_DATERNG_PERIOD, CTL_DATERNG_PERIOD);
 			SetPeriodInput(dlg, CTL_DATERNG_PERIOD, &ChkRepPeriod);
 			PPWait(0);
 			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 				if(dlg->getCtrlString(CTL_DATERNG_PERIOD, dt_buf) && strtoperiod(dt_buf, &ChkRepPeriod, 0) && !ChkRepPeriod.IsZero()) {
-					SETIFZ(ChkRepPeriod.upp, plusdate(LConfig.OperDate, 2));
+					SETIFZ(ChkRepPeriod.upp, plusdate(oper_date, 2));
 					if(diffdate(ChkRepPeriod.upp, ChkRepPeriod.low) >= 0)
 						ok = valid_data = 1;
 				}
@@ -3224,11 +3225,11 @@ int SLAPI XmlReader::Next(Packet * pPack)
 		xmlNodePtr p_items = 0;
 		xmlNodePtr p_fld_ = 0;
 		for(p_fld_ = P_CurRec->children; !p_root && p_fld_; p_fld_ = p_fld_->next)
-			if(stricmp((const char*)p_fld_->name, "positions") == 0)
+			if(sstreqi_ascii((const char*)p_fld_->name, "positions"))
 				p_root = p_fld_;
 		if(p_root) {
 			for(p_fld_ = p_root->children; !p_items && p_fld_; p_fld_ = p_fld_->next)
-				if(stricmp((const char*)p_fld_->name, "position") == 0)
+				if(sstreqi_ascii((const char*)p_fld_->name, "position"))
 					p_items = p_fld_;
 		}
 		if(p_items) {
@@ -3324,7 +3325,7 @@ int SLAPI XmlReader::Next(Packet * pPack)
 		{
 			SString gift_card_code;
 			for(xmlNodePtr p_fld = P_CurRec->children; p_fld; p_fld = p_fld->next) {
-				if(stricmp((const char*)p_fld->name, "payments") == 0) {
+				if(sstreqi_ascii((const char*)p_fld->name, "payments")) {
 					//const char * p_items_attr = "amount;typeClass";
 					CcAmountList ccpl;
 					Header head;
@@ -3404,7 +3405,7 @@ int SLAPI XmlReader::Next(Packet * pPack)
 		{
 			xmlNodePtr p_fld = P_CurRec->children;
 			for(; p_fld != 0; p_fld = p_fld->next) {
-				if(stricmp((const char*)p_fld->name, "discounts") == 0) {
+				if(sstreqi_ascii((const char*)p_fld->name, "discounts")) {
 					const char * p_items_attr = "positionOrder;amount";
 					Header head;
 					MEMSZERO(head);
@@ -3442,12 +3443,12 @@ int SLAPI XmlReader::Next(Packet * pPack)
 			xmlNodePtr p_cards_fld = 0;
 			p_fld = P_CurRec->children;
 			for(; !p_cards_fld && p_fld; p_fld = p_fld->next)
-				if(stricmp((const char*)p_fld->name, "discountCards") == 0)
+				if(sstreqi_ascii((const char*)p_fld->name, "discountCards"))
 					p_cards_fld = p_fld;
 			if(p_cards_fld && p_cards_fld->children) {
 				xmlNodePtr p_dis_fld = 0;
 				for(p_fld = p_cards_fld->children; !p_dis_fld && p_fld; p_fld = p_fld->next)
-					if(stricmp((const char*)p_fld->name, "discountCard") == 0)
+					if(sstreqi_ascii((const char*)p_fld->name, "discountCard"))
 						p_dis_fld = p_fld;
 				if(p_dis_fld && p_dis_fld->children && p_dis_fld->children->content) {
 					Header head;

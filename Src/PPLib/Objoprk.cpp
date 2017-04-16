@@ -1269,7 +1269,7 @@ int SLAPI PPObjOpCounter::Browse(void * extraPtr)
 	int    ok = 1;
 	if(CheckRights(PPR_READ)) {
 		TDialog * dlg = new OpCounterView(this);
-		if(CheckDialogPtr(&dlg, 1))
+		if(CheckDialogPtrErr(&dlg))
 			ExecViewAndDestroy(dlg);
 		else
 			ok = 0;
@@ -1459,7 +1459,7 @@ static int SLAPI EditGenOpItem(ObjRestrictItem * pItem)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GENOPITEM);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		uint   fl = 0;
 		PPIDArray optype_list;
 		optype_list.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN,
@@ -1570,7 +1570,7 @@ void OprKindDialog::updateList()
 				THROW_SL(P_ListBox->addItem(i, ss.getBuf()));
 			}
 		}
-		P_ListBox->drawView();
+		P_ListBox->Draw_();
 	}
 	CATCH
 		PPError();
@@ -1631,7 +1631,7 @@ void OprKindDialog::prnOptDialog()
 	SString prn_form_name;
 	if(OpObj.CheckRights(OPKRT_MODIFYOPTIONS)) {
 		TDialog * dlg = new TDialog(DLG_OPKPRNOPT);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			if(f & OPKF_PRT_BUYING)   v |= 0x0001;
 			if(f & OPKF_PRT_SELLING)  v |= 0x0002;
 			dlg->setCtrlData(CTL_OPKMORE_PRTAMT, &v);
@@ -1718,7 +1718,7 @@ void OprKindDialog::editOptions(uint dlgID, int useMainAmt, const PPIDArray * pS
 	va_start(ap, pSubTypeList);
 	while((_o = va_arg(ap, long)) != 0)
 		options.add(_o);
-	if(CheckDialogPtr(&(dlg = new TDialog(dlgID)), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new TDialog(dlgID)))) {
 		for(i = 0; i < options.getCount(); i++) {
 			o = (ulong)options.at(i);
 			SETFLAG(v, (1 << i), f & o);
@@ -1835,7 +1835,7 @@ void OprKindDialog::editOptions2(uint dlgID, int useMainAmt, const PPIDArray * p
 	SString amt_formula;
 	RVALUEPTR(options, pFlagsList);
 	RVALUEPTR(ext_options, pExtFlagsList);
-	if(CheckDialogPtr(&(dlg = new TDialog(dlgID)), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new TDialog(dlgID)))) {
 		v = 0;
 		for(i = 0; i < options.getCount(); i++) {
 			o = (ulong)options.at(i);
@@ -2077,7 +2077,7 @@ void OprKindDialog::editExtension()
 {
 	TDialog * dlg = 0;
 	if(P_Data->Rec.OpTypeID == PPOPT_ACCTURN && P_Data->Rec.SubType == OPSUBT_DEBTINVENT)
-		if(CheckDialogPtr(&(dlg = new TDialog(DLG_OPKDINVE)), 1)) {
+		if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_OPKDINVE)))) {
 			PPDebtInventOpEx rec;
 			if(!RVALUEPTR(rec, P_Data->P_DIOE))
 				MEMSZERO(rec);
@@ -2194,7 +2194,7 @@ IMPL_HANDLE_EVENT(OpListDialog)
 		if(getCurItem(&p, &id) && id > 0 && editItem(p, id) > 0)
 			updateList(p);
 	}
-	else{
+	else {
 		PPListDialog::handleEvent(event);
 		if(TVCOMMAND && TVCMD == cmaAltInsert) {
 			if(editItem(0, 0) > 0)
@@ -2332,7 +2332,7 @@ void OprKindDialog::editPaymList()
 		if(!P_Data->P_ReckonData)
 			P_Data->P_ReckonData = new PPReckonOpEx;
 		dlg = new OpkPaymListDialog(P_Data->P_ReckonData, &op_types_list);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			if(ExecView(dlg) == cmOK)
 				dlg->getDTS(P_Data->P_ReckonData);
 			delete dlg;
@@ -2405,7 +2405,7 @@ int DiffByLocCntrDlg::setupList()
 {
 	if(P_Box) {
 		P_Box->setDef(LObj.Selector(0));
-		P_Box->drawView();
+		P_Box->Draw_();
 	}
 	return 1;
 }
@@ -2530,7 +2530,7 @@ int SLAPI EditCounter(PPOpCounterPacket * pPack, uint resID, PPID * pOpcID)
 {
 	int    ok = -1;
 	OpCntrDialog * dlg = new OpCntrDialog(resID);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	dlg->setDTS(pPack);
 	while(ok < 0 && ExecView(dlg) == cmOK) {
 		if(dlg->getDTS(pPack)) {
@@ -2592,7 +2592,7 @@ void OprKindDialog::editPoolOptions()
 		op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_PAYMENT, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND,
 			PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, PPOPT_GOODSORDER, PPOPT_GOODSMODIF, PPOPT_GOODSACK,
 			PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, 0L);
-		THROW(CheckDialogPtr(&(dlg = new OpkPoolDialog(&op_type_list)), 0));
+		THROW(CheckDialogPtr(&(dlg = new OpkPoolDialog(&op_type_list))));
 		dlg->setDTS(P_Data);
 		if(ExecView(dlg) == cmOK)
 			dlg->getDTS(P_Data);
@@ -2663,7 +2663,7 @@ int SLAPI PPObjOprKind::EditPacket(PPOprKindPacket * pPack)
 		if(pPack->Rec.ID == 0)
 			pPack->Rec.Flags |= OPKF_EXTACCTURN;
 	}
-	if(CheckDialogPtr(&(dlg = new OprKindDialog(dlg_id, pPack)), 0)) {
+	if(CheckDialogPtr(&(dlg = new OprKindDialog(dlg_id, pPack)))) {
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			if(dlg->getDTS(pPack)) {
 				if(!CheckName(pPack->Rec.ID, pPack->Rec.Name, 0))

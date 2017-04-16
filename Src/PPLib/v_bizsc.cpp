@@ -603,7 +603,7 @@ int BizScTemplDialog::EditCell()
 	long   col_id = 0L, row_id = 0L;
 	PPBizScTemplCell cell;
 	BizScTemplCellDialog * p_dlg = new BizScTemplCellDialog;
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	MEMSZERO(cell);
 	GetCurItem(CTL_BIZSCT_LIST, 0, &col_id);
 	GetCurItem(CTL_BIZSCT_ROWS, 0, &row_id);
@@ -844,7 +844,7 @@ int BizScTemplDialog::addItem(long * pPos, long * pID)
 	int ok = -1;
 	long pos = -1, id = -1;
 	TDialog * p_dlg = GetItemDialog(-1, 0);
-	if(CheckDialogPtr(&p_dlg, 1) > 0) {
+	if(CheckDialogPtrErr(&p_dlg) > 0) {
 		SetItemDTS(p_dlg);
 		for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
 			if(GetItemDTS(p_dlg) > 0) {
@@ -866,7 +866,7 @@ int BizScTemplDialog::editItem(long pos, long id)
 	int ok = -1;
 	TDialog * p_dlg = 0;
 	if((p_dlg = GetItemDialog(pos, 1))) {
-		if(CheckDialogPtr(&p_dlg, 1) > 0) {
+		if(CheckDialogPtrErr(&p_dlg) > 0) {
 			SetItemDTS(p_dlg);
 			for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
 				if(GetItemDTS(p_dlg) > 0) {

@@ -1,14 +1,14 @@
 // CSHSES.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 // Интерфейс с асинхронными кассовыми устройствами
 //
 #include <pp.h>
 #pragma hdrstop
-#include <ppidata.h>
+// @v9.6.2 (moved to pp.h) #include <ppidata.h>
 #include <fcntl.h>
-#include <sys\stat.h>
+#include <sys/stat.h>
 //
 // PPSyncCashSession
 //
@@ -1628,7 +1628,7 @@ int SLAPI AsyncCashGoodsIterator::SearchCPrice(PPID goodsID, double * pPrice)
 	k.GoodsID = goodsID;
 	if(CCP.search(0, &k, spEq))
 		if(pPrice) {
-			double p = *pPrice;
+			const double p = *pPrice;
 			*pPrice = MONEYTOLDBL(CCP.data.Price);
 			return (p == *pPrice) ? 2 : 1;
 		}
@@ -1761,7 +1761,7 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 						if(GObj.FetchUnit(grec.UnitID, &unit_rec) > 0 && unit_rec.Rounding > 0.0)
 							Rec.Precision = unit_rec.Rounding;
 					}
-					Rec.GoodsFlags = grec.Flags; // @v7.4.12
+					Rec.GoodsFlags = grec.Flags;
 					if(grec.Flags & GF_NODISCOUNT)
 						Rec.NoDis  = 1;
 					else if(NoDisToggleGoodsList.bsearch(grec.ID)) {
@@ -1919,17 +1919,17 @@ void SLAPI AsyncCashGoodsInfo::Init()
 	ExtQuot = 0.0;
 	Rest = 0.0;
 	Precision = fpow10i(-3);
-	GoodsFlags = 0; // @v7.4.12
+	GoodsFlags = 0;
 	Deleted_ = 0;
 	NoDis = 0;
 	DivN = 0;
 	VatRate = 0;
 	LocPrnID = 0;
-	AsscPosNodeID = 0; // @v7.9.7
+	AsscPosNodeID = 0;
 	AddedMsgList.clear(1);
 	LabelName = 0;
 	memzero(LocPrnSymb, sizeof(LocPrnSymb));
-	memzero(AsscPosNodeSymb, sizeof(AsscPosNodeSymb)); // @v7.9.7
+	memzero(AsscPosNodeSymb, sizeof(AsscPosNodeSymb));
 	for(uint i = 0; i < QuotList.getCount(); i++)
 		QuotList.at(i).Val = 0;
 	P_QuotByQttyList = 0;
@@ -2342,8 +2342,7 @@ int SLAPI AsyncCashGoodsGroupIterator::Next(AsyncCashGoodsGroupInfo * pInfo)
 		}
 		PPQuotArray  quot_list(info.ID);
 		QuotByQttyList.freeAll();
-		// @v7.9.0 THROW(GObj.GetQuotList(info.ID, AcnPack.LocID, quot_list));
-		THROW(GObj.P_Tbl->FetchQuotList(info.ID, 0, AcnPack.LocID, quot_list)); // @v7.9.0
+		THROW(GObj.P_Tbl->FetchQuotList(info.ID, 0, AcnPack.LocID, quot_list));
 		for(i = 0; i < quot_list.getCount(); i++) {
 			PPQuot  quot = quot_list.at(i);
 			if(quot.MinQtty)

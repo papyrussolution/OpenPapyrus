@@ -296,7 +296,7 @@ int SLAPI PPObjWorkbook::EditConfig()
 	PPObjOpCounter opc_obj;
 	WorkbookCfgDialog::Rec data;
 
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	THROW(CheckCfgRights(PPCFGOBJ_WORKBOOK, PPR_READ, 0));
 	is_new = ReadConfig(&data.Cfg);
 	SETIFZ(data.Cfg.SymbCntrID, PPOPCNTR_WORKBOOK);
@@ -668,7 +668,7 @@ public:
 				if(fileExists(file_path)) {
 					SFileFormat ff;
 					int    f = ff.Identify(file_path);
-					if(!oneof4(f, SFileFormat::Jpeg, SFileFormat::Png, SFileFormat::Gif, SFileFormat::Bmp))
+					if(!oneof4(ff, SFileFormat::Jpeg, SFileFormat::Png, SFileFormat::Gif, SFileFormat::Bmp)) // @v9.6.2 @fix f-->ff
 						DisableImage = 1;
 				}
 				if(DisableImage) {
@@ -2068,7 +2068,7 @@ int SLAPI PPObjWorkbook::EditImportParam(PPObjWorkbook::ImpExpParam * pParam)
 	int    ok = -1;
 	ImpExpParam param = *pParam;
 	TDialog * dlg = new TDialog(DLG_IMPWBOOK);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_IMPWBOOK_WILDCARD, CTL_IMPWBOOK_WILDCARD, 1, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
 	dlg->setCtrlString(CTL_IMPWBOOK_WILDCARD, param.Wildcard);
 	dlg->setCtrlString(CTL_IMPWBOOK_RMVPREFIX, param.RmvFileNamePrefix);
@@ -2767,7 +2767,7 @@ int SLAPI EditWorkbookImpExpParams()
 	int    ok = -1;
 	PPWorkbookImpExpParam param;
 	ImpExpParamDialog * dlg = new ImpExpParamDialog(DLG_IMPEXP, 0);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	THROW(ok = EditImpExpParams(PPFILNAM_IMPEXP_INI, PPREC_WORKBOOK, &param, dlg));
 	CATCHZOK
 	delete dlg;

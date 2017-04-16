@@ -851,7 +851,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Print(const void *)
 	}
 	else if(Filt.HasCycleFlags()) {
 		TDialog * dlg = new TDialog(DLG_PRNPRP);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setCtrlUInt16(CTL_PRNPRP_WHAT, 0);
 			if(ExecView(dlg) == cmOK) {
 				ushort v = dlg->getCtrlUInt16(CTL_PRNPRP_WHAT);
@@ -1024,12 +1024,10 @@ int SLAPI PPViewGoodsTaxAnalyze::ViewTotal()
 						}
 						THROW_SL(p_list->addItem(i, ss.getBuf()));
 					}
-					p_list->draw();
+					p_list->Draw_();
 				}
 			}
-			CATCH
-				ok = 0;
-			ENDCATCH
+			CATCHZOK
 			return ok;
 		}
 	protected:
@@ -1049,7 +1047,7 @@ int SLAPI PPViewGoodsTaxAnalyze::ViewTotal()
 	if(CalcTotal(&total) > 0) {
 		if(Filt.Flags & GoodsTaxAnalyzeFilt::fLedgerByLots) {
 			TDialog * dlg = 0;
-			THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_GTANLZTOTAL_PIL)), 0));
+			THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_GTANLZTOTAL_PIL))));
 			dlg->setCtrlLong(CTL_GTANLZTOTAL_COUNT, total.Count);
 			dlg->setCtrlReal(CTL_GTANLZTOTAL_RCPT,  total.PilRcptSum);
 			dlg->setCtrlReal(CTL_GTANLZTOTAL_EXP,   total.PilExpSum);
@@ -1058,7 +1056,7 @@ int SLAPI PPViewGoodsTaxAnalyze::ViewTotal()
 		}
 		else {
 			GTaxAnlzTotalDialog * dlg = 0;
-			THROW(CheckDialogPtr(&(dlg = new GTaxAnlzTotalDialog(&total, this)), 0));
+			THROW(CheckDialogPtr(&(dlg = new GTaxAnlzTotalDialog(&total, this))));
 			THROW(dlg->setDTS());
 			ExecViewAndDestroy(dlg);
 		}

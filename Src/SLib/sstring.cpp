@@ -4375,6 +4375,30 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 	}
 }
 
+//static
+uint FASTCALL SPathStruc::GetExt(const SString & rPath, SString * pExt)
+{
+	ASSIGN_PTR(pExt, 0);
+	size_t p = rPath.Len();
+	while(p){
+		const char _c = rPath.C(--p);
+		if(oneof2(_c, '/', '\\')) {
+			p = 0;
+			break;
+		}
+		else if(_c == '.') {
+			p++;
+			if(pExt) {
+				for(size_t n = p; n < rPath.Len(); n++) {
+                    pExt->CatChar(rPath.C(n));
+				}
+			}
+			break;
+		}
+	}
+	return p;
+}
+
 // static
 int SPathStruc::ReplaceExt(SString & rPath, const char * pExt, int force)
 {

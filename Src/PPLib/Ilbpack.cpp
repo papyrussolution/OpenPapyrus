@@ -438,7 +438,7 @@ public:
 			TSCollection <UlongArray> vlist;
 			ulong  _c = 1;
 			for(uint n = 0; ok > 0 && n < rPrl.getCount(); n++) {
-				UlongArray * p_new_list = vlist.CreateNewItem(0);
+				UlongArray * p_new_list = vlist.CreateNewItem();
 				rPrl.at(n).GetList(*p_new_list);
 				p_new_list->setPointer(0);
 				_c *= p_new_list->getCount();
@@ -448,7 +448,7 @@ public:
 			if(ok > 0) {
 				int    r;
 				do {
-					UlongArray * p_enum = rEnumList.CreateNewItem(0);
+					UlongArray * p_enum = rEnumList.CreateNewItem();
 					r = Helper_AddPossibilityItem(vlist, 0, p_enum);
 				} while(r > 0);
 				assert(rEnumList.getCount() == _c);
@@ -2265,7 +2265,7 @@ int SLAPI BillTransmDeficit::TurnDeficitDialog(double * pPctAddition)
 	if(!CS_SERVER) { // @v8.5.2
 		double pct_add = *pPctAddition;
 		TDeficitDialog * dlg = new TDeficitDialog;
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setDTS(LocPeriodList_, pct_add);
 			while(ok < 0 && ExecView(dlg) == cmOK) {
 				dlg->getDTS(LocPeriodList_, &pct_add);

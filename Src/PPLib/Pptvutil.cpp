@@ -31,7 +31,7 @@ ushort FASTCALL ExecViewAndDestroy(TWindow * pView) // @v9.0.4 TView-->TWindow
 ushort FASTCALL CheckExecAndDestroyDialog(TDialog * pDlg, int genErrMsg, int toCascade)
 {
 	ushort ret = 0;
-	if(CheckDialogPtr(&pDlg, genErrMsg)) {
+	if(genErrMsg ? CheckDialogPtrErr(&pDlg) : CheckDialogPtr(&pDlg)) {
 		if(toCascade)
 			pDlg->ToCascade();
 		ret = ExecViewAndDestroy(pDlg);
@@ -42,7 +42,7 @@ ushort FASTCALL CheckExecAndDestroyDialog(TDialog * pDlg, int genErrMsg, int toC
 ushort FASTCALL ExecView(TBaseBrowserWindow * v)
 {
 	if(v) {
-		uint last_cmd = ((PPApp *)APPL)->LastCmd;
+		const uint last_cmd = ((PPApp *)APPL)->LastCmd;
 		v->SetToolbarID(last_cmd ? (last_cmd + TOOLBAR_OFFS) : 0);
 		return APPL->P_DeskTop->execView(v);
 	}
@@ -54,9 +54,9 @@ ushort FASTCALL ExecView(TBaseBrowserWindow * v)
 int SLAPI InsertView(TBaseBrowserWindow * v)
 {
 	if(v) {
-		uint   last_cmd = ((PPApp *)APPL)->LastCmd;
+		const uint last_cmd = ((PPApp *)APPL)->LastCmd;
 		v->SetToolbarID(last_cmd ? (last_cmd + TOOLBAR_OFFS) : 0);
-		APPL->P_DeskTop->insert(v);
+		APPL->P_DeskTop->Insert_(v);
 		return v->Insert();
 	}
 	else
@@ -468,7 +468,7 @@ void ViewAsyncEventQueueStat()
 		SCycleTimer T;
 	};
 	AsyncEventQueueStatDialog * dlg = new AsyncEventQueueStatDialog;
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		ExecViewAndDestroy(dlg);
 	}
 }
@@ -589,7 +589,7 @@ int SLAPI InputDateDialog(const char * pTitle, const char * pInputTitle, LDATE *
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_DATE);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setTitle(pTitle);
 		if(pInputTitle)
 			dlg->setLabelText(CTL_DATE_DATE, pInputTitle);
@@ -616,7 +616,7 @@ int SLAPI DateRangeDialog(const char * pTitle, const char * pInputTitle, DateRan
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_DATERNG);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setTitle(pTitle);
 		if(pInputTitle)
 			dlg->setLabelText(CTL_DATERNG_PERIOD, pInputTitle);
@@ -638,7 +638,7 @@ int SLAPI InputQttyDialog(const char * pTitle, const char * pInputTitle, double 
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_QTTY);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setTitle(pTitle);
 		if(pInputTitle)
 			dlg->setLabelText(CTL_QTTY_QTTY, pInputTitle);
@@ -654,15 +654,29 @@ int SLAPI InputQttyDialog(const char * pTitle, const char * pInputTitle, double 
 	return ok;
 }
 
-int FASTCALL CheckDialogPtr(void * ppDlg, int genErrMsg)
+int FASTCALL CheckDialogPtr(void * ppDlg/*, int genErrMsg*/)
 {
 	int    ok = 1;
 	TDialog ** dlg = (TDialog**)ppDlg;
 	if(ValidView(*dlg) == 0) {
 		*(void**)ppDlg = 0;
 		ok = PPSetError(PPERR_DLGLOADFAULT);
+		/*
 		if(genErrMsg)
 			PPError();
+		*/
+	}
+	return ok;
+}
+
+int FASTCALL CheckDialogPtrErr(void * ppDlg)
+{
+	int    ok = 1;
+	TDialog ** dlg = (TDialog**)ppDlg;
+	if(ValidView(*dlg) == 0) {
+		*(void**)ppDlg = 0;
+		ok = PPSetError(PPERR_DLGLOADFAULT);
+		PPError();
 	}
 	return ok;
 }
@@ -686,7 +700,7 @@ int SLAPI PasswordDialog(uint dlgID, char * pBuf, size_t pwSize, size_t minLen, 
 	int    ok = -1, valid_data = 0;
 	char   b1[32], b2[32];
 	TDialog * dlg = new TDialog(NZOR(dlgID, DLG_PASSWORD));
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		b1[0] = 0;
 		dlg->SetCtrlBitmap(CTL_PASSWORD_IMG, BM_KEYS);
 		dlg->setCtrlData(CTL_PASSWORD_FIRST,  b1);
@@ -946,7 +960,7 @@ int Lst2LstAryDialog::SetupList(SArray *pA, SmartListBox * pL)
 		StdListBoxDef * def = new StdListBoxDef(pA, lbtFocNotify | lbtDblClkNotify, MKSTYPE(S_ZSTRING, 64));
 		pL->setDef(def);
 		pL->def->go(pos);
-		pL->drawView();
+		pL->Draw_();
 	}
 	return 1;
 }
@@ -1095,7 +1109,7 @@ int Lst2LstObjDialog::setupRightTList()
 	THROW_MEM(p_def);
 	p_r_lbx->setDef(p_def);
 	p_r_lbx->def->go(0);
-	p_r_lbx->drawView();
+	p_r_lbx->Draw_();
 	CATCH
 		if(p_def)
 			delete p_def;
@@ -1134,7 +1148,7 @@ int Lst2LstObjDialog::setupRightList()
 		THROW_MEM(p_def = new StdListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify, TaggedString::BufType()));
 		p_lb->setDef(p_def);
 		p_lb->def->go(pos);
-		p_lb->drawView();
+		p_lb->Draw_();
 	}
 	CATCH
 		if(p_def)
@@ -1164,7 +1178,7 @@ int Lst2LstObjDialog::setupLeftList()
 		SmartListBox * p_list = GetLeftList();
 		if(p_list) {
 			p_list->setDef(p_def);
-			p_list->drawView();
+			p_list->Draw_();
 		}
 	}
 	else
@@ -1196,7 +1210,7 @@ int Lst2LstObjDialog::addNewItem()
 		if(p_view && P_Object->Edit(&obj_id, Data.ExtraPtr) > 0) {
 			P_Object->UpdateSelector(p_view->def, Data.ExtraPtr);
 			p_view->search(&obj_id, 0, srchFirst|lbSrchByID);
-			p_view->drawView();
+			p_view->Draw_();
 			ok = 1;
 		}
 	}
@@ -2213,7 +2227,7 @@ int ExtOpenFileDialog(SString & rPath, StringSet * pPatterns, SString * pDefWait
 {
 	int    ok = 0, valid_data = 0;
 	ExtOpenFileDlg * p_dlg = new ExtOpenFileDlg(pPatterns, pDefWaitFolder);
-	if(CheckDialogPtr(&p_dlg, 1) > 0) {
+	if(CheckDialogPtrErr(&p_dlg) > 0) {
 		p_dlg->setDTS(rPath);
 		while(!valid_data && ExecView(p_dlg) == cmOK) {
 			if(p_dlg->getDTS(rPath, pDefWaitFolder) <= 0)
@@ -2370,7 +2384,7 @@ int SLAPI BarcodeInputDialog(int initChar, SString & rBuf)
 	int    ok = -1;
 	SString code;
 	BarcodeSrchDialog * dlg = new BarcodeSrchDialog;
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		if(isalnum(initChar))
 			code.CatChar(initChar);
 		else
@@ -2397,7 +2411,7 @@ int SLAPI SelectorDialog(uint dlgID, uint ctlID, uint * pVal /* IN,OUT */, const
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(dlgID);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setTitle(pTitle);
 		dlg->setCtrlUInt16(ctlID, *pVal);
 		if(ExecView(dlg) == cmOK) {
@@ -2461,7 +2475,7 @@ int SLAPI ListBoxSelDialog(PPID objID, PPID * pID, void * extraPtr)
 	ListBoxSelDlg * p_dlg = 0;
 	if(p_def) {
 		p_dlg = new ListBoxSelDlg(p_def);
-		if(CheckDialogPtr(&p_dlg, 1)) {
+		if(CheckDialogPtrErr(&p_dlg)) {
 			PPID id = pID ? *pID : 0;
 			SString obj_title;
 			p_dlg->setSubTitle(GetObjectTitle(objID, obj_title));
@@ -2487,7 +2501,7 @@ int  SLAPI ListBoxSelDialog(uint dlgID, StrAssocArray * pAry, PPID * pID, uint f
 	int    ok = -1;
 	ListBoxSelDlg * p_dlg = 0;
 	ListBoxDef * p_def = pAry ? new StrAssocListBoxDef(pAry, lbtDblClkNotify|lbtFocNotify) : 0;
-	if(p_def && CheckDialogPtr(&(p_dlg = new ListBoxSelDlg(p_def, dlgID)), 1)) {
+	if(p_def && CheckDialogPtrErr(&(p_dlg = new ListBoxSelDlg(p_def, dlgID)))) {
 		PPID id = (pID) ? *pID : 0;
 		p_dlg->setDTS(id);
 		if(ExecView(p_dlg) == cmOK) {
@@ -2508,7 +2522,7 @@ int  SLAPI ListBoxSelDialog(uint dlgID, StrAssocArray * pAry, PPID * pID, uint f
 {
 	int    ok = -1;
 	TDialog * p_dlg = new TDialog(DLG_CBXSEL);
-	if(CheckDialogPtr(&p_dlg, 1)) {
+	if(CheckDialogPtrErr(&p_dlg)) {
 		PPID   id = (pID) ? *pID : 0;
 		SString obj_title;
 		p_dlg->setSubTitle(GetObjectTitle(objID, obj_title));
@@ -2531,7 +2545,7 @@ int SLAPI ComboBoxSelDialog2(StrAssocArray * pAry, uint subTitleStrId, uint labe
 	int    ok = -1;
 	long   sel_id = pSelectedId ? *pSelectedId : 0;
 	TDialog * p_dlg = 0;
-	if(pAry && CheckDialogPtr(&(p_dlg = new TDialog(DLG_CBXSEL)), 1)) {
+	if(pAry && CheckDialogPtrErr(&(p_dlg = new TDialog(DLG_CBXSEL)))) {
 		SString subtitle, label;
 		if(subTitleStrId) {
 			PPLoadText(subTitleStrId, subtitle);
@@ -2558,7 +2572,7 @@ int  SLAPI AdvComboBoxSeldialog(StrAssocArray * pAry, SString & rTitle, SString 
 {
 	int    ok = -1;
 	TDialog * p_dlg = 0;
-	if(pAry && CheckDialogPtr(&(p_dlg = new TDialog(DLG_ADVCBXSEL)), 1)) {
+	if(pAry && CheckDialogPtrErr(&(p_dlg = new TDialog(DLG_ADVCBXSEL)))) {
 		PPID   id = (pID) ? *pID : 0;
 		SString subtitle, label;
 		if(rTitle.Len())
@@ -2601,7 +2615,7 @@ int SLAPI ListBoxSelDialog(StrAssocArray * pAry, const char * pTitle, PPID * pID
 	int    ok = -1;
 	ListBoxSelDlg * p_dlg = 0;
 	ListBoxDef * p_def = pAry ? new StrAssocListBoxDef(pAry, lbtDblClkNotify|lbtFocNotify) : 0;
-	if(p_def && CheckDialogPtr(&(p_dlg = new ListBoxSelDlg(p_def)), 1)) {
+	if(p_def && CheckDialogPtrErr(&(p_dlg = new ListBoxSelDlg(p_def)))) {
 		{
 			SString title_buf;
 			if(pTitle && pTitle[0] == '@') {
@@ -2737,7 +2751,7 @@ int SLAPI UISettingsDialog()
 {
 	int    r = 0;
 	UICfgDialog	* p_dlg = new UICfgDialog();
-	if(CheckDialogPtr(&p_dlg, 1)) {
+	if(CheckDialogPtrErr(&p_dlg)) {
 		uint   v = 0;
 		UserInterfaceSettings uiset;
 		uiset.Restore();
@@ -2769,7 +2783,7 @@ int EmbedDialog::Embed(TDialog * pDlg)
 	int    ok = -1;
 	ZDELETE(P_ChildDlg);
 	if(pDlg) {
-		THROW(CheckDialogPtr(&pDlg, 0));
+		THROW(CheckDialogPtr(&pDlg));
 		P_ChildDlg = pDlg;
 		P_ChildDlg->destroyCtrl(STDCTL_OKBUTTON);
 		P_ChildDlg->destroyCtrl(STDCTL_CANCELBUTTON);
@@ -4745,7 +4759,7 @@ int SLAPI InputStringDialog(const char * pTitle, const char * pInpTitle, int dis
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog((inputMemo) ? DLG_MEMO : DLG_INPUT);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setTitle(pTitle);
 		if(pInpTitle)
 			dlg->setLabelText(CTL_INPUT_STR, pInpTitle);
@@ -4782,7 +4796,7 @@ int SLAPI InputStringDialog(PPInputStringDialogParam * pParam, SString & rBuf)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog((pParam && pParam->Flags & pParam->fInputMemo) ? DLG_MEMO : DLG_INPUT);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		if(pParam) {
 			dlg->setTitle(pParam->Title);
 			if(pParam->InputTitle.NotEmpty())
@@ -4816,7 +4830,7 @@ int SLAPI InputNumberDialog(const char * pTitle, const char * pInpTitle, double 
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_INPUTNUM);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setTitle(pTitle);
 		if(pInpTitle)
 			dlg->setLabelText(CTL_INPUT_STR, pInpTitle);
@@ -5088,7 +5102,7 @@ int ResolveGoodsDialog::editItem(long pos, long id)
 		TIDlgInitData tidi;
 		THROW_MEM(p_dlg = new ExtGoodsSelDialog(0, maxlike_goods ? 0 : GoodsGrpID,
 			maxlike_goods ? ExtGoodsSelDialog::fByName : 0));
-		THROW(CheckDialogPtr(&p_dlg, 0));
+		THROW(CheckDialogPtr(&p_dlg));
 		if(maxlike_goods) {
 			StrAssocArray goods_list;
 			SString goods_name;
@@ -5189,7 +5203,7 @@ int SLAPI ResolveGoodsDlg(ResolveGoodsItemList * pData, int flags)
 	int    ok = -1;
 	ResolveGoodsDialog * p_dlg = 0;
 	if(pData && pData->getCount()) {
-		THROW(CheckDialogPtr(&(p_dlg = new ResolveGoodsDialog(flags)), 0));
+		THROW(CheckDialogPtr(&(p_dlg = new ResolveGoodsDialog(flags))));
 		p_dlg->setDTS(pData);
 		while(ok < 0 && ExecView(p_dlg) == cmOK)
 			if(p_dlg->getDTS(pData) > 0)
@@ -5208,7 +5222,7 @@ int SLAPI ViewImageInfo(const char * pImagePath, const char * pInfo, const char 
 {
 	int    ok = -1;
 	TDialog * p_dlg = new TDialog(DLG_IMAGEINFO);
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setCtrlData(CTL_IMAGEINFO_IMAGE, (void*)pImagePath);
 	p_dlg->setStaticText(CTL_IMAGEINFO_INFO, pInfo);
 	p_dlg->setStaticText(CTL_IMAGEINFO_WARN, pWarn);
@@ -5365,7 +5379,7 @@ int SLAPI EditObjMemos(PPID objTypeID, PPID prop, PPID objID)
 		ok = 1;
 	}
 	if(ok == -1 && memos.Len()) {
-		THROW(CheckDialogPtr(&(p_dlg = new EditMemosDialog), 0));
+		THROW(CheckDialogPtr(&(p_dlg = new EditMemosDialog)));
 		p_dlg->setDTS(memos);
 		if(ExecView(p_dlg) == cmOK) {
 			p_dlg->getDTS(memos);
@@ -5410,13 +5424,14 @@ private:
 	};
 
 	DECL_HANDLE_EVENT;
-	virtual void draw();
+	// @v9.6.2 virtual void draw();
 	int    Select(long x, long y);
 	void   DrawMainRect(TCanvas *, RECT *);
 	void   DrawHourText(TCanvas *);
 	void   DrawHoursRect(TCanvas *);
 	void   DrawMinutText(TCanvas *);
 	void   DrawMinutsRect(TCanvas *);
+	void   Implement_Draw();
 
 	struct TimeRects {
 		void Init(long hoursLinesCount, long minutsLinesCount, HWND hWnd)
@@ -5539,8 +5554,10 @@ IMPL_HANDLE_EVENT(TimePickerDialog)
 {
 	TDialog::handleEvent(event);
 	if(event.isCmd(cmPaint)) {
-		draw();
-		clearEvent(event);
+		Implement_Draw();
+	}
+	else if(event.isCmd(cmDraw)) {
+		Implement_Draw();
 	}
 	else if(event.isCmd(cmCurTime)) {
 		Data = getcurtime_();
@@ -5548,14 +5565,15 @@ IMPL_HANDLE_EVENT(TimePickerDialog)
 		Data = encodetime(Data.hour(), m - (m % 5), 0, 0);
 		invalidateRect(getClientRect(), 1);
 		::UpdateWindow(H());
-		clearEvent(event);
 	}
 	else if(TVEVENT == evMouseDown) {
 		Select(event.mouse.WhereX, event.mouse.WhereY);
 		if(event.mouse.doubleClick == 1)
 			endModal(cmOK);
-		clearEvent(event);
 	}
+	else
+		return;
+	clearEvent(event);
 }
 
 int TimePickerDialog::Select(long x, long y)
@@ -5682,8 +5700,7 @@ void TimePickerDialog::DrawMinutText(TCanvas * pCanv)
 	}
 }
 
-// virtual
-void TimePickerDialog::draw()
+void TimePickerDialog::Implement_Draw()
 {
 	const int h = Data.hour();
 	const int m = Data.minut();
@@ -5813,7 +5830,7 @@ void SLAPI SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 					{
 						LTIME  tm = p_cbwe->Dlg->getCtrlTime(p_cbwe->EditID);
 						TimePickerDialog * dlg = new TimePickerDialog;
-						if(CheckDialogPtr(&dlg, 1)) {
+						if(CheckDialogPtrErr(&dlg)) {
 							dlg->setDTS(tm);
 							if(ExecView(dlg) == cmOK) {
 								dlg->getDTS(&tm);
@@ -5871,7 +5888,7 @@ int TimePickerCtrlGroup::Edit(TDialog * pDlg)
 	int    ok = -1;
 	TimePickerDialog * dlg = new TimePickerDialog;
 	getData(pDlg, &Data);
-	if(CheckDialogPtr(&dlg, 1) && dlg->setDTS(Data)) {
+	if(CheckDialogPtrErr(&dlg) && dlg->setDTS(Data)) {
 		while(ok <= 0 && ExecView(dlg) == cmOK)
 			if(dlg->getDTS(&Data)) {
 				setData(pDlg, &Data);
@@ -6077,7 +6094,7 @@ int EmailCtrlGroup::Edit(TDialog * pDlg)
 {
 	int    ok = -1;
 	EmailListDlg * p_dlg = new EmailListDlg;
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setDTS(&Data.AddrList);
 	for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
 		if(p_dlg->getDTS(&Data.AddrList) > 0) {
@@ -6881,7 +6898,7 @@ void OpenEditFileDialog::SetupReservList()
 				p_reserv_box->addItem(fi.ID, (const char*)ss.getBuf());
 			}
 		}
-		p_reserv_box->drawView();
+		p_reserv_box->Draw_();
 	}
 }
 
@@ -6949,7 +6966,7 @@ int SLAPI BigTextDialog(uint maxLen, const char * pTitle, SString & rText)
 	};
     int    ok = -1;
     __BigTextDialog * dlg = new __BigTextDialog(maxLen);
-    if(CheckDialogPtr(&dlg, 1)) {
+    if(CheckDialogPtrErr(&dlg)) {
 		dlg->setTitle(pTitle);
 		dlg->setDTS(&rText);
 		if(ExecView(dlg)) {

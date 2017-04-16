@@ -118,7 +118,7 @@ int SLAPI PPViewPalm::EditBaseFilt(PPBaseFilt * pFilt)
 	PalmFilt filt;
 	TDialog * p_dlg = new TDialog(DLG_PALMFLT);
 	filt.Copy(pFilt, 0);
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	SetupPPObjCombo(p_dlg, CTLSEL_PALMFLT_GROUP, PPOBJ_STYLOPALM, filt.GroupID, OLW_CANSELUPLEVEL, (void *)PLMF_GENERIC);
 	SetupArCombo(p_dlg, CTLSEL_PALMFLT_AGENT, filt.AgentID, OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 	SetupPPObjCombo(p_dlg, CTLSEL_PALMFLT_GOODSGRP, PPOBJ_GOODSGROUP, filt.GoodsGrpID, OLW_CANSELUPLEVEL);

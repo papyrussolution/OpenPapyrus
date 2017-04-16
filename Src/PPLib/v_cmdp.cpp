@@ -228,7 +228,7 @@ int CommandsDialog::setupList()
 		THROW(Data.GetCommandList(p_list, 0));
 		THROW_MEM(p_def = new StdTreeListBoxDef(p_list, lbtDisposeData | lbtDblClkNotify, 0));
 		P_Box->setDef(p_def);
-		P_Box->drawView();
+		P_Box->Draw_();
 		ok = 1;
 	}
 	CATCH
@@ -250,7 +250,7 @@ int CommandsDialog::addItem(long * pPos, long * pID)
 	StrAssocArray cmd_list;
 
 	THROW(Data.GetCommandList(&cmd_list, 1));
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->AddClusterAssoc(CTL_ADDCMD_WHAT, -1, 1);
 	p_dlg->AddClusterAssoc(CTL_ADDCMD_WHAT,  0, 1);
 	p_dlg->AddClusterAssoc(CTL_ADDCMD_WHAT,  1, 2);
@@ -627,7 +627,7 @@ int PPDesktop::EditAssocCmdList(long desktopID)
 	PPDesktopAssocCmdPool list;
 	DesktopAssocCmdsDialog * p_dlg = 0;
 	THROW(list.ReadFromProp(desktopID));
-	THROW(CheckDialogPtr(&(p_dlg = new DesktopAssocCmdsDialog()), 0));
+	THROW(CheckDialogPtr(&(p_dlg = new DesktopAssocCmdsDialog())));
 	p_dlg->setDTS(&list);
 	for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
 		if(p_dlg->getDTS(&list) > 0) {
@@ -951,7 +951,7 @@ int EditMenusDlg::EditMenu(long id)
 	PPCommandGroup * p_menus = 0;
 	if(p_folder) {
 		p_menus = (PPCommandGroup*)Data.Dup();
-		THROW(CheckDialogPtr(&(p_dlg = new CommandsDialog(p_menus, IsDesktop)), 0));
+		THROW(CheckDialogPtr(&(p_dlg = new CommandsDialog(p_menus, IsDesktop))));
 		p_dlg->setDTS(p_folder);
 		if(ExecView(p_dlg) == cmOK) {
 			Data = *p_menus;
@@ -972,7 +972,7 @@ int SLAPI EditMenus(PPCommandGroup * pData, long initID, int isDesktop)
 	EditMenusDlg * p_dlg = new EditMenusDlg(isDesktop, initID);
 	PPCommandMngr * p_mgr = 0;
 	THROW_MEM(p_dlg);
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	if(pData)
 		desks = *pData;
 	else {

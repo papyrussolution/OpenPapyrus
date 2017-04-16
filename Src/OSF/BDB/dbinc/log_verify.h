@@ -62,11 +62,9 @@ struct __db_log_verify_info {
 
 /* Transaction information. */
 struct __txn_verify_info {
-#define TXN_VERIFY_INFO_FIXSIZE (4 * sizeof(DB_LSN) + 9 * sizeof(uint32))
-#define TXN_VERIFY_INFO_TOTSIZE(s)					\
-	(TXN_VERIFY_INFO_FIXSIZE + (s).num_recycle * sizeof(DB_LSN) + 	\
-	__lv_dbt_arrsz((s).fileups, (s).filenum) + 			\
-	sizeof(int32) * (s).filenum)
+#define TXN_VERIFY_INFO_FIXSIZE    (4 * sizeof(DB_LSN) + 9 * sizeof(uint32))
+#define TXN_VERIFY_INFO_TOTSIZE(s) (TXN_VERIFY_INFO_FIXSIZE + (s).num_recycle * sizeof(DB_LSN) + 	\
+	__lv_dbt_arrsz((s).fileups, (s).filenum) + sizeof(int32) * (s).filenum)
 
 	uint32 txnid; 	/* The key, also stored in data here. */
 	uint32 ptxnid; 	/* The parent txn id. */
@@ -84,14 +82,11 @@ struct __txn_verify_info {
 #define TXN_STAT_COMMIT 2
 #define TXN_STAT_PREPARE 3
 	uint32 status;	/* Txn status */
-
 	/* The number of active, abort and commit children. */
 	uint32 nchild_active;
 	uint32 nchild_abort;
 	uint32 nchild_commit;
-
 	uint32 flags; /* Copied from the DB_TXN::flags member. */
-
 	DB_LSN *recycle_lsns; 	/* The array of txn_recycle records' lsns. */
 	/* The array of file unique ids of files updated by this txn. */
 	DBT *fileups; 	
@@ -102,8 +97,7 @@ struct __txn_verify_info {
 struct __lv_filereg_info {
 #define FILE_REG_INFO_FIXSIZE (sizeof(uint32))
 #define FILE_REG_INFO_TOTSIZE(s) (FILE_REG_INFO_FIXSIZE + (s).fileid.size + \
-	sizeof((s).fileid.size) + sizeof(int32) * (s).regcnt 	+ \
-	strlen((s).fname) + 1)
+	sizeof((s).fileid.size) + sizeof(int32) * (s).regcnt + strlen((s).fname) + 1)
 
 	uint32 regcnt;	/* The number of dbregids for this file-uid. */
 	int32 *dbregids;
@@ -135,10 +129,8 @@ struct __lv_ckp_info {
 struct __lv_timestamp_info {
 	DB_LSN lsn;		/* The primary key. */
 	int32 timestamp;	/* The secondary key. */
-
 	/* 
-	 * The log types containing a time stamp, so far only txn_ckp
-	 * and txn_regop types.
+	 * The log types containing a time stamp, so far only txn_ckp and txn_regop types.
 	 */
 	uint32 logtype;
 };
@@ -153,20 +145,15 @@ struct __lv_txnrange {
 	 * type should allow dup since txnids maybe reused. 
 	 */
 	uint32 txnid;
-
 	/* 
-	 * The parent txn id, ptxnid is the parent of txnid 
-	 * during [begin, end]. 
+	 * The parent txn id, ptxnid is the parent of txnid during [begin, end]. 
 	 */
 	uint32 ptxnid; 	
-
 	/* 
 	 * The first and last lsn, end is used to sort dup data because it's
-	 * seen prior to begin in a backward playback, and [begin, end] 
-	 * intervals won't overlap. 
+	 * seen prior to begin in a backward playback, and [begin, end] intervals won't overlap. 
 	 */
 	DB_LSN begin, end;
-
 	int32 when_commit;/* The time of the commit, 0 if aborted. */
 };
 
@@ -185,20 +172,16 @@ struct __ckp_verify_params {
 	ENV *env;
 };
 
-/* Helper macros. */
-#define LOGTYPE_NAME(lvh, type) (lvh->logtype_names[type] == NULL ? \
-	NULL : lvh->logtype_names[type] + 3)
+// Helper macros.
+#define LOGTYPE_NAME(lvh, type) ((lvh->logtype_names[type] == NULL) ? NULL : lvh->logtype_names[type] + 3)
 #define NUMCMP(i1, i2) ((i1) > (i2) ? 1 : ((i1) < (i2) ? -1 : 0))
 
 #define INVAL_DBREGID -1
-
-/* 
- * During recovery, DBREG_CHKPNT can be seen as open, and it's followed by 
- * a DBREG_RCLOSE or DBREG_CLOSE. 
- */
-#define IS_DBREG_OPEN(opcode) (opcode == DBREG_OPEN || opcode == \
-	DBREG_PREOPEN || opcode == DBREG_REOPEN || opcode == DBREG_CHKPNT)
-#define IS_DBREG_CLOSE(opcode) (opcode == DBREG_CLOSE || opcode == DBREG_RCLOSE)
+//
+// During recovery, DBREG_CHKPNT can be seen as open, and it's followed by a DBREG_RCLOSE or DBREG_CLOSE. 
+//
+#define IS_DBREG_OPEN(opcode)  oneof4(opcode, DBREG_OPEN, DBREG_PREOPEN, DBREG_REOPEN, DBREG_CHKPNT)
+#define IS_DBREG_CLOSE(opcode) oneof2(opcode, DBREG_CLOSE, DBREG_RCLOSE)
 
 #define IS_LOG_VRFY_SUPPORTED(version) ((version) == DB_LOGVERSION)
 

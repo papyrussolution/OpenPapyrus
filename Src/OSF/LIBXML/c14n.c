@@ -740,7 +740,8 @@ static int xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, in
 				has_empty_ns = 1;
 			}
 		}
-		else if((attr->ns != NULL) && (xmlStrlen(attr->ns->prefix) == 0) && (xmlStrlen(attr->ns->href) == 0)) {
+		//else if(attr->ns && (xmlStrlen(attr->ns->prefix) == 0) && (xmlStrlen(attr->ns->href) == 0)) {
+		else if(attr->ns && isempty(attr->ns->prefix) && isempty(attr->ns->href)) {
 			has_visibly_utilized_empty_ns = 1;
 		}
 	}

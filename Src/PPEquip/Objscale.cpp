@@ -4318,7 +4318,7 @@ int ScaleDialog::editSysData()
 	}
 	else if(scale_type_id != 0) {
 		TDialog * dlg = new TDialog(DLG_SCALESYS);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			if(!(Data.Flags & SCALF_SYSPINITED)) {
 				PPScaleDevice * p_comm = 0;
 				if(scale_type_id == PPSCLT_CAS)
@@ -4368,7 +4368,7 @@ int ScaleDialog::editExpPaths()
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_SCALE_EXPPATHS);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setCtrlString(CTL_SCALE_EXPPATHS, ExpPaths);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			dlg->getCtrlString(CTL_SCALE_EXPPATHS, ExpPaths);
@@ -5248,7 +5248,7 @@ int SLAPI ScalePrepDialog(uint rezID, PPID * pScaleID, long * pFlags)
 	data.ScaleID = *pScaleID;
 	data.Flags = pFlags ? *pFlags : 0;
 	ScalePrepDlg * dlg = 0;
-	if(CheckDialogPtr(&(dlg = new ScalePrepDlg(rezID)), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new ScalePrepDlg(rezID)))) {
 		dlg->setDTS(&data);
 		if(ExecView(dlg) == cmOK) {
 			dlg->getDTS(&data);

@@ -560,7 +560,7 @@ int SLAPI CalcDiff(double amount, double * pDiff)
 	double diff = pDiff ? *pDiff : 0.0;
 	double cash = amount + diff;
 	CalcDiffDialog * dlg = new CalcDiffDialog();
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setCtrlData(CTL_CALCDIFF_DIFF,   &diff);
 		dlg->setCtrlData(CTL_CALCDIFF_AMOUNT, &amount);
 		dlg->setCtrlData(CTL_CALCDIFF_CASH,   &cash);
@@ -659,7 +659,7 @@ int PPCalculator(uint32 parentWnd, const char * pInitData)
 				iil->getText(input);
 				input.Insert(pos, mem.Quot(' ', ' '));
 				iil->setText(input);
-				iil->drawView();
+				iil->Draw_();
 				iil->selectAll(0);
 				iil->setCaret(pos + mem.Len());
 			}
@@ -685,7 +685,7 @@ int PPCalculator(uint32 parentWnd, const char * pInitData)
 	else
 		TView::messageCommand(APPL->P_DeskTop, cmGetFocusedNumber, &c);
 	CalcDialog * dlg = new CalcDialog;
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		if(c != 0) {
 			realfmt(c, MKSFMTD(0, 6, NMBF_NOTRAILZ), ct);
 			dlg->setCtrlData(CTL_CALC_INPUT, ct);
@@ -816,7 +816,7 @@ int SLAPI CalcTaxPrice(PPID goodsID, PPID opID, LDATE dt, double price, int /*= 
 	param.PriceWoTaxes = price;
 	param.CalcWotaxByWtax = 0;
 	CalcTaxPriceDialog * dlg = new CalcTaxPriceDialog;
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(&param);
 		ExecViewAndDestroy(dlg);
 		ok = 1;
@@ -1173,7 +1173,7 @@ int PosPaymentBlock::EditDialog2()
 		{
 			int    ok = -1;
 			TDialog * dlg = new TDialog(DLG_EDITCCAMT);
-			if(CheckDialogPtr(&dlg, 1)) {
+			if(CheckDialogPtrErr(&dlg)) {
 				SString info_buf, temp_buf;
                 if(pData->Type == CCAMTTYP_CRDCARD && pData->AddedID) {
                 	SCardTbl::Rec sc_rec;

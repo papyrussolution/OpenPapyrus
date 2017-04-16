@@ -23,6 +23,13 @@ destination:
 	code:
 */
 
+/*
+	query-csession [id] [date] [daterange] [last] [current]
+		tokId, tokCode, tokPeriod, tokTime
+	query-refs [objtype]
+		tokObjType
+*/
+
 class PPPosProtocol {
 public:
 	enum {
@@ -73,7 +80,13 @@ public:
 		tokQtty,
 		tokSumDiscount,
 		tokInnerId,
-		tokPos
+		tokPos,
+		tokObj,
+		tokLast,
+		tokCurrent,
+
+		tokQueryCSession,
+		tokQueryRefs
 	};
 
 	SLAPI  PPPosProtocol();
@@ -162,9 +175,31 @@ public:
 		obCSession,
 		obCCheck,
 		obCcLine,
-		obPosNode
+		obPosNode,
+		obQuery
 	};
 
+	struct QueryBlock {
+		QueryBlock()
+		{
+			THISZERO();
+		}
+        enum {
+        	qUnkn = 0,
+        	qCSession = 1,
+        	qRefs
+        };
+        enum {
+        	fCSessN       = 0x0001, // CSess - номер сессии
+        	fCSessLast    = 0x0002,
+        	fCSessCurrent = 0x0004
+        };
+        int    Q;
+        long   Flags;
+		DateRange Period;
+		PPID   CSess;   // Идентификатор или номер сессии (в зависимости от флага fCSessN)
+		PPID   ObjType; // Если Q==qRef, то здесь может быть указан тип объекта ()
+	};
 	struct ObjectBlock {
 		ObjectBlock();
 		enum {
@@ -395,6 +430,7 @@ public:
 			CPY_FLD(CSessBlkList);
 			CPY_FLD(CcBlkList);
 			CPY_FLD(CclBlkList);
+			CPY_FLD(QueryList);
 			CPY_FLD(RefList);
 			#undef CPY_FLD
 			return *this;
@@ -452,6 +488,7 @@ public:
 		TSArray <CSessionBlock> CSessBlkList;
 		TSArray <CCheckBlock> CcBlkList;
 		TSArray <CcLineBlock> CclBlkList;
+		TSArray <QueryBlock> QueryList;
 		TSArray <ObjBlockRef> RefList;
 	};
 
@@ -475,6 +512,9 @@ private:
 	int    SaxStop();
 
 	const  SString & FASTCALL EncText(const char * pS);
+	void   FASTCALL Helper_AddStringToPool(uint * pPos);
+	int    FASTCALL Helper_PushQuery(int queryType);
+	QueryBlock * Helper_RenewQuery(uint & rRefPos, int queryType);
 	int    SLAPI Accept_Person(PPPosProtocol::PersonBlock & rBlk, PPID kindID);
 	int    SLAPI CreateGoodsGroup(const GoodsGroupBlock & rBlk, int isFolder, PPID * pID);
 	int    SLAPI CreateParentGoodsGroup(const ParentBlock & rBlk, int isFolder, PPID * pID);
@@ -902,6 +942,7 @@ int  SLAPI PPPosProtocol::ReadBlock::CreateItem(int type, uint * pRefPos)
 		case obCCheck:      THROW(Helper_CreateItem(CcBlkList, type, pRefPos)); break;
 		case obCcLine:      THROW(Helper_CreateItem(CclBlkList, type, pRefPos)); break;
 		case obPosNode:     THROW(Helper_CreateItem(PosBlkList, type, pRefPos)); break;
+		case obQuery:       THROW(Helper_CreateItem(QueryList, type, pRefPos)); break;
 		default:
 			assert(0);
 			CALLEXCEPT();
@@ -933,6 +974,7 @@ void * SLAPI PPPosProtocol::ReadBlock::GetItem(uint refPos, int * pType) const
 			case obCCheck:      p_ret = &CcBlkList.at(r_ref.P); break;
 			case obCcLine:      p_ret = &CclBlkList.at(r_ref.P); break;
 			case obPosNode:     p_ret = &PosBlkList.at(r_ref.P); break;
+			case obQuery:       p_ret = &QueryList.at(r_ref.P); break;
 			default:
 				assert(0);
 				CALLEXCEPT();
@@ -1453,6 +1495,38 @@ int PPPosProtocol::EndDocument()
 	return 1;
 }
 
+int FASTCALL PPPosProtocol::Helper_PushQuery(int queryType)
+{
+	int    ok = 1;
+	uint   ref_pos = 0;
+	assert(oneof2(queryType, QueryBlock::qCSession, QueryBlock::qRefs));
+	THROW(RdB.CreateItem(obQuery, &ref_pos));
+	RdB.RefPosStack.push(ref_pos);
+	{
+		int    test_type = 0;
+		QueryBlock * p_item = (QueryBlock *)RdB.GetItem(ref_pos, &test_type);
+		assert(test_type == obQuery);
+		p_item->Q = queryType;
+	}
+	CATCHZOK
+	return ok;
+}
+
+PPPosProtocol::QueryBlock * PPPosProtocol::Helper_RenewQuery(uint & rRefPos, int queryType)
+{
+	QueryBlock * p_blk = 0;
+	int    type = 0;
+	RdB.RefPosStack.pop(rRefPos);
+	THROW(Helper_PushQuery(queryType));
+	rRefPos = RdB.RefPosStack.peek();
+	p_blk = (QueryBlock *)RdB.GetItem(rRefPos, &type);
+	assert(type == obQuery && p_blk && p_blk->Q == queryType);
+	CATCH
+		p_blk = 0;
+	ENDCATCH
+	return p_blk;
+}
+
 int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 {
 	int    ok = 1;
@@ -1473,6 +1547,14 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 			tok = tokDestination;
 			THROW(RdB.CreateItem(obDestination, &ref_pos));
 			RdB.RefPosStack.push(ref_pos);
+		}
+		else if(sstreqi_ascii(pName, "query-csession")) {
+			tok = tokQueryCSession;
+			THROW(Helper_PushQuery(QueryBlock::qCSession));
+		}
+		else if(sstreqi_ascii(pName, "query-refs")) {
+			tok = tokQueryRefs;
+			THROW(Helper_PushQuery(QueryBlock::qRefs));
 		}
 		else if(sstreqi_ascii(pName, "refs")) {
 			tok = tokRefs;
@@ -1700,6 +1782,15 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 		else if(sstreqi_ascii(pName, "innerid")) {
 			tok = tokInnerId;
 		}
+		else if(sstreqi_ascii(pName, "obj")) {
+			tok = tokObj;
+		}
+		else if(sstreqi_ascii(pName, "last")) {
+			tok = tokLast;
+		}
+		else if(sstreqi_ascii(pName, "current")) {
+			tok = tokCurrent;
+		}
 	}
 	RdB.TokPath.push(tok);
 	RdB.TagValue = 0;
@@ -1709,6 +1800,13 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 		ok = 0;
 	ENDCATCH
     return ok;
+}
+
+void FASTCALL PPPosProtocol::Helper_AddStringToPool(uint * pPos)
+{
+	if(RdB.TagValue.NotEmptyS()) {
+		RdB.AddS(RdB.TagValue, pPos);
+	}
 }
 
 int PPPosProtocol::EndElement(const char * pName)
@@ -1722,6 +1820,66 @@ int PPPosProtocol::EndElement(const char * pName)
 		case tokPapyrusAsyncPosInterchange:
 			assert(sstreqi_ascii(pName, "PapyrusAsyncPosInterchange"));
 			RdB.State &= ~RdB.stHeaderOccured;
+			break;
+		case tokQueryCSession:
+			assert(sstreqi_ascii(pName, "query-csession"));
+			break;
+		case tokQueryRefs:
+			assert(sstreqi_ascii(pName, "query-refs"));
+			break;
+		case tokObj:
+			assert(sstreqi_ascii(pName, "obj"));
+			{
+				ref_pos = RdB.RefPosStack.peek();
+				p_item = RdB.GetItem(ref_pos, &type);
+				if(type == obQuery) {
+					QueryBlock * p_blk = (QueryBlock *)p_item;
+					if(p_blk->Q == QueryBlock::qRefs) {
+						if(RdB.TagValue.NotEmptyS()) {
+							long   obj_type_ext = 0;
+							PPID   obj_type = DS.GetObjectTypeBySymb(RdB.TagValue, &obj_type_ext);
+                            if(obj_type) {
+								if(p_blk->ObjType) {
+									THROW(p_blk = Helper_RenewQuery(ref_pos, QueryBlock::qRefs));
+								}
+                                p_blk->ObjType = obj_type;
+                            }
+						}
+					}
+				}
+			}
+			break;
+		case tokLast:
+			assert(sstreqi_ascii(pName, "last"));
+			{
+				ref_pos = RdB.RefPosStack.peek();
+				p_item = RdB.GetItem(ref_pos, &type);
+				if(type == obQuery) {
+					QueryBlock * p_blk = (QueryBlock *)p_item;
+					if(p_blk->Q == QueryBlock::qCSession) {
+						if(p_blk->CSess || !p_blk->Period.IsZero()) {
+							THROW(p_blk = Helper_RenewQuery(ref_pos, QueryBlock::qCSession));
+						}
+						p_blk->Flags |= QueryBlock::fCSessLast;
+					}
+				}
+			}
+			break;
+		case tokCurrent:
+			assert(sstreqi_ascii(pName, "current"));
+			{
+				ref_pos = RdB.RefPosStack.peek();
+				p_item = RdB.GetItem(ref_pos, &type);
+				if(type == obQuery) {
+					QueryBlock * p_blk = (QueryBlock *)p_item;
+					if(p_blk->Q == QueryBlock::qCSession) {
+						if(p_blk->CSess || !p_blk->Period.IsZero()) {
+							THROW(p_blk = Helper_RenewQuery(ref_pos, QueryBlock::qCSession));
+						}
+						p_blk->Flags |= QueryBlock::fCSessCurrent;
+					}
+				}
+			}
 			break;
 		case tokRefs:
 			assert(sstreqi_ascii(pName, "refs"));
@@ -1867,6 +2025,15 @@ int PPPosProtocol::EndElement(const char * pName)
 					if(type == obQuotKind) {
                         ((QuotKindBlock *)p_item)->Period = period;
 					}
+					else if(type == obQuery) {
+						QueryBlock * p_blk = (QueryBlock *)p_item;
+						if(p_blk->Q == QueryBlock::qCSession) {
+							if(p_blk->CSess || !p_blk->Period.IsZero() || (p_blk->Flags & (QueryBlock::fCSessCurrent|QueryBlock::fCSessLast))) {
+								THROW(p_blk = Helper_RenewQuery(ref_pos, QueryBlock::qCSession));
+							}
+							p_blk->Period = period;
+						}
+					}
 				}
 			}
 			break;
@@ -1931,35 +2098,29 @@ int PPPosProtocol::EndElement(const char * pName)
 				ref_pos = RdB.RefPosStack.peek();
 				p_item = RdB.GetItem(ref_pos, &type);
 				switch(type) {
-					case obPosNode:
-						((PosNodeBlock *)p_item)->ID = _val_id;
-						break;
-					case obGoods:
-						((GoodsBlock *)p_item)->ID = _val_id;
-						break;
-					case obGoodsGroup:
-						((GoodsGroupBlock *)p_item)->ID = _val_id;
-						break;
-					case obPerson:
-						((PersonBlock *)p_item)->ID = _val_id;
-						break;
-					case obSCard:
-						((SCardBlock *)p_item)->ID = _val_id;
-						break;
-					case obParent:
-						((ParentBlock *)p_item)->ID = _val_id;
-						break;
-					case obQuotKind:
-						((QuotKindBlock *)p_item)->ID = _val_id;
-						break;
-					case obCSession:
-						((CSessionBlock *)p_item)->ID = _val_id;
-						break;
-					case obCCheck:
-						((CCheckBlock *)p_item)->ID = _val_id;
-						break;
-					case obCcLine:
-						((CcLineBlock *)p_item)->RByCheck = _val_id;
+					case obPosNode: ((PosNodeBlock *)p_item)->ID = _val_id; break;
+					case obGoods: ((GoodsBlock *)p_item)->ID = _val_id; break;
+					case obGoodsGroup: ((GoodsGroupBlock *)p_item)->ID = _val_id; break;
+					case obPerson: ((PersonBlock *)p_item)->ID = _val_id; break;
+					case obSCard: ((SCardBlock *)p_item)->ID = _val_id; break;
+					case obParent: ((ParentBlock *)p_item)->ID = _val_id; break;
+					case obQuotKind: ((QuotKindBlock *)p_item)->ID = _val_id; break;
+					case obCSession: ((CSessionBlock *)p_item)->ID = _val_id; break;
+					case obCCheck: ((CCheckBlock *)p_item)->ID = _val_id; break;
+					case obCcLine: ((CcLineBlock *)p_item)->RByCheck = _val_id; break;
+					case obQuery:
+						{
+							QueryBlock * p_blk = (QueryBlock *)p_item;
+							if(p_blk->Q == QueryBlock::qCSession) {
+								if(_val_id) {
+									if(p_blk->CSess || !p_blk->Period.IsZero() || (p_blk->Flags & (QueryBlock::fCSessCurrent|QueryBlock::fCSessLast))) {
+										THROW(p_blk = Helper_RenewQuery(ref_pos, QueryBlock::qCSession));
+									}
+									p_blk->CSess = _val_id;
+									p_blk->Flags &= ~QueryBlock::fCSessN;
+								}
+							}
+						}
 						break;
 				}
 			}
@@ -2007,33 +2168,12 @@ int PPPosProtocol::EndElement(const char * pName)
 				ref_pos = RdB.RefPosStack.peek();
 				p_item = RdB.GetItem(ref_pos, &type);
 				switch(type) {
-					case obPosNode:
-						if(RdB.TagValue.NotEmptyS()) {
-							RdB.AddS(RdB.TagValue, &((PosNodeBlock *)p_item)->NameP);
-						}
-						break;
-					case obGoods:
-						if(RdB.TagValue.NotEmptyS()) {
-							RdB.AddS(RdB.TagValue, &((GoodsBlock *)p_item)->NameP);
-						}
-						break;
-					case obGoodsGroup:
-						if(RdB.TagValue.NotEmptyS()) {
-							RdB.AddS(RdB.TagValue, &((GoodsGroupBlock *)p_item)->NameP);
-						}
-						break;
-					case obPerson:
-						if(RdB.TagValue.NotEmptyS()) {
-							RdB.AddS(RdB.TagValue, &((PersonBlock *)p_item)->NameP);
-						}
-						break;
-					case obSCard:
-						break;
-					case obQuotKind:
-						if(RdB.TagValue.NotEmptyS()) {
-							RdB.AddS(RdB.TagValue, &((QuotKindBlock *)p_item)->NameP);
-						}
-						break;
+					case obPosNode: Helper_AddStringToPool(&((PosNodeBlock *)p_item)->NameP); break;
+					case obGoods:   Helper_AddStringToPool(&((GoodsBlock *)p_item)->NameP); break;
+					case obGoodsGroup: Helper_AddStringToPool(&((GoodsGroupBlock *)p_item)->NameP); break;
+					case obPerson: Helper_AddStringToPool(&((PersonBlock *)p_item)->NameP); break;
+					case obSCard: break;
+					case obQuotKind: Helper_AddStringToPool(&((QuotKindBlock *)p_item)->NameP); break;
 				}
 			}
 			break;
@@ -2043,49 +2183,19 @@ int PPPosProtocol::EndElement(const char * pName)
 				ref_pos = RdB.RefPosStack.peek();
 				p_item = RdB.GetItem(ref_pos, &type);
 				switch(type) {
-					case obPosNode:
-						if(RdB.TagValue.NotEmptyS()) {
-							RdB.AddS(RdB.TagValue, &((PosNodeBlock *)p_item)->CodeP);
-						}
-						break;
+					case obPosNode: Helper_AddStringToPool(&((PosNodeBlock *)p_item)->CodeP); break;
+					case obGoodsGroup: Helper_AddStringToPool(&((GoodsGroupBlock *)p_item)->CodeP); break;
+					case obPerson: Helper_AddStringToPool(&((PersonBlock *)p_item)->CodeP); break;
+					case obSCard: Helper_AddStringToPool(&((SCardBlock *)p_item)->CodeP); break;
+					case obParent: Helper_AddStringToPool(&((ParentBlock *)p_item)->CodeP); break;
+					case obQuotKind: Helper_AddStringToPool(&((QuotKindBlock *)p_item)->CodeP); break;
+					case obSource:
+					case obDestination: Helper_AddStringToPool(&((RouteObjectBlock *)p_item)->CodeP); break;
 					case obGoods:
 						break;
 					case obGoodsCode:
-						if(RdB.TagValue.NotEmptyS()) {
-							RdB.AddS(RdB.TagValue, &((GoodsCode *)p_item)->CodeP);
-						}
+						Helper_AddStringToPool(&((GoodsCode *)p_item)->CodeP);
 						RdB.RefPosStack.pop(ref_pos);
-						break;
-					case obGoodsGroup:
-						if(RdB.TagValue.NotEmptyS()) {
-							RdB.AddS(RdB.TagValue, &((GoodsGroupBlock *)p_item)->CodeP);
-						}
-						break;
-					case obPerson:
-						if(RdB.TagValue.NotEmptyS()) {
-							RdB.AddS(RdB.TagValue, &((PersonBlock *)p_item)->CodeP);
-						}
-						break;
-					case obSCard:
-						if(RdB.TagValue.NotEmptyS()) {
-							RdB.AddS(RdB.TagValue, &((SCardBlock *)p_item)->CodeP);
-						}
-						break;
-					case obParent:
-						if(RdB.TagValue.NotEmptyS()) {
-							RdB.AddS(RdB.TagValue, &((ParentBlock *)p_item)->CodeP);
-						}
-						break;
-					case obQuotKind:
-						if(RdB.TagValue.NotEmptyS()) {
-							RdB.AddS(RdB.TagValue, &((QuotKindBlock *)p_item)->CodeP);
-						}
-						break;
-					case obSource:
-					case obDestination:
-						if(RdB.TagValue.NotEmptyS()) {
-							RdB.AddS(RdB.TagValue, &((RouteObjectBlock *)p_item)->CodeP);
-						}
 						break;
 					case obCSession:
 						if(RdB.TagValue.NotEmptyS()) {
@@ -2097,6 +2207,21 @@ int PPPosProtocol::EndElement(const char * pName)
 						if(RdB.TagValue.NotEmptyS()) {
 							long   icode = RdB.TagValue.ToLong();
 							((CCheckBlock *)p_item)->Code = icode;
+						}
+						break;
+					case obQuery:
+						{
+							QueryBlock * p_blk = (QueryBlock *)p_item;
+							if(p_blk->Q == QueryBlock::qCSession) {
+								const long csess_n = RdB.TagValue.ToLong();
+								if(csess_n) {
+									if(p_blk->CSess || !p_blk->Period.IsZero() || (p_blk->Flags & (QueryBlock::fCSessCurrent|QueryBlock::fCSessLast))) {
+										THROW(p_blk = Helper_RenewQuery(ref_pos, QueryBlock::qCSession));
+									}
+									p_blk->CSess = csess_n;
+									p_blk->Flags |= QueryBlock::fCSessN;
+								}
+							}
 						}
 						break;
 				}
@@ -2163,9 +2288,7 @@ int PPPosProtocol::EndElement(const char * pName)
 				ref_pos = RdB.RefPosStack.peek();
 				p_item = RdB.GetItem(ref_pos, &type);
 				if(oneof2(type, obSource, obDestination)) {
-					if(RdB.TagValue.NotEmptyS()) {
-						RdB.AddS(RdB.TagValue, &((RouteObjectBlock *)p_item)->SystemP);
-					}
+					Helper_AddStringToPool(&((RouteObjectBlock *)p_item)->SystemP);
 				}
 			}
 			break;
@@ -2175,9 +2298,7 @@ int PPPosProtocol::EndElement(const char * pName)
 				ref_pos = RdB.RefPosStack.peek();
 				p_item = RdB.GetItem(ref_pos, &type);
 				if(oneof2(type, obSource, obDestination)) {
-					if(RdB.TagValue.NotEmptyS()) {
-						RdB.AddS(RdB.TagValue, &((RouteObjectBlock *)p_item)->VersionP);
-					}
+					Helper_AddStringToPool(&((RouteObjectBlock *)p_item)->VersionP);
 				}
 			}
 			break;
@@ -2206,12 +2327,8 @@ int PPPosProtocol::EndElement(const char * pName)
 				ref_pos = RdB.RefPosStack.peek();
 				p_item = RdB.GetItem(ref_pos, &type);
 				switch(type) {
-					case obCSession:
-						((CSessionBlock *)p_item)->Dtm = dtm;
-						break;
-					case obCCheck:
-						((CCheckBlock *)p_item)->Dtm = dtm;
-						break;
+					case obCSession: ((CSessionBlock *)p_item)->Dtm = dtm; break;
+					case obCCheck:   ((CCheckBlock *)p_item)->Dtm = dtm; break;
 				}
 			}
 			break;
@@ -2242,13 +2359,13 @@ int PPPosProtocol::EndElement(const char * pName)
 				switch(type) {
 					case obCCheck:
 						{
-							double _value = RdB.TagValue.ToReal();
+							const double _value = RdB.TagValue.ToReal();
 							((CCheckBlock *)p_item)->Amount = _value;
 						}
 						break;
 					case obCcLine:
 						{
-							double _value = RdB.TagValue.ToReal();
+							const double _value = RdB.TagValue.ToReal();
 							((CcLineBlock *)p_item)->Amount = _value;
 						}
 						break;
@@ -2257,6 +2374,11 @@ int PPPosProtocol::EndElement(const char * pName)
 			break;
 	}
 	assert(ok);
+	CATCH
+		SaxStop();
+		RdB.State |= RdB.stError;
+		ok = 0;
+	ENDCATCH
     return ok;
 }
 
@@ -2313,6 +2435,7 @@ void SLAPI PPPosProtocol::ReadBlock::Destroy()
 	CSessBlkList.freeAll();
 	CcBlkList.freeAll();
 	CclBlkList.freeAll();
+	QueryList.freeAll();
 	RefList.freeAll();
 }
 
@@ -3189,12 +3312,45 @@ int SLAPI ImportPosRefs()
 {
 	int    ok = -1;
 #ifndef NDEBUG // {
+	const char * p_base_name = "ppp-refs";
+	const char * p_done_suffix = "-done";
 	SString in_file_name;
+	SString temp_buf;
+	SPathStruc ps;
 	PPPosProtocol pp;
-	THROW(PPGetFilePath(PPPATH_IN, "papyrus-refs.xml", in_file_name));
+	{
+		SString in_path;
+		SDirEntry de;
+		SString done_plus_xml_suffix;
+		(done_plus_xml_suffix = p_done_suffix).Dot().Cat("xml");
+		THROW(PPGetPath(PPPATH_IN, in_path));
+		(temp_buf = in_path).SetLastSlash().Cat(p_base_name).Cat("*.xml");
+        for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
+			if(de.IsFile()) {
+                const size_t fnl = strlen(de.FileName);
+                if(fnl <= done_plus_xml_suffix.Len() || !sstreqi_ascii(de.FileName+fnl-done_plus_xml_suffix.Len(), done_plus_xml_suffix)) {
+
+                }
+			}
+        }
+		long   _seq = 0;
+		(temp_buf = p_base_name).Dot().Cat("xml");
+		THROW(PPGetFilePath(PPPATH_IN, temp_buf, in_file_name));
+		while(fileExists(in_file_name)) {
+			ps.Split(in_file_name);
+			(ps.Nam = p_base_name).CatChar('-').Cat(++_seq);
+			ps.Merge(in_file_name);
+		}
+	}
 	PPWait(1);
 	THROW(pp.SaxParseFile(in_file_name));
 	THROW(pp.AcceptData());
+	{
+        ps.Split(in_file_name);
+        ps.Nam.CatChar('-').Cat("done");
+        ps.Merge(temp_buf);
+        SFile::Rename(in_file_name, temp_buf);
+	}
 	PPWait(0);
 	CATCH
 		ok = PPErrorZ();
@@ -3206,21 +3362,34 @@ int SLAPI ImportPosRefs()
 int SLAPI ExportPosSession(PPID sessID)
 {
 	int    ok = -1;
-#ifndef NDEBUG // {
+/*// @v9.6.2*/ #ifndef NDEBUG // {
+	const char * p_base_name = "ppp-csess";
 	SString out_file_name;
+	SString temp_buf;
+	SPathStruc ps;
 	PPPosProtocol pp;
 	PPPosProtocol::WriteBlock wb;
-	THROW(PPGetFilePath(PPPATH_OUT, "papyrus-csess.xml", out_file_name));
+	{
+		long   _seq = 0;
+		(temp_buf = p_base_name).Dot().Cat("xml");
+		THROW(PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name));
+		while(fileExists(out_file_name)) {
+			ps.Split(out_file_name);
+			(ps.Nam = p_base_name).CatChar('-').Cat(++_seq);
+			ps.Merge(out_file_name);
+		}
+	}
 	THROW(pp.StartWriting(out_file_name, wb));
 	{
 		{
+			DbProvider * p_dict = CurDict;
 			PPPosProtocol::RouteBlock rb;
 			PPVersionInfo vi = DS.GetVersionInfo();
 			vi.GetProductName(rb.System);
 			vi.GetVersion().ToStr(rb.Version);
-			if(CurDict) {
-				CurDict->GetDbUUID(&rb.Uuid);
-				CurDict->GetDbSymb(rb.Code);
+			if(p_dict) {
+				p_dict->GetDbUUID(&rb.Uuid);
+				p_dict->GetDbSymb(rb.Code);
 			}
 			THROW(pp.WriteRouteInfo(wb, "source", rb));
 		}
@@ -3238,7 +3407,7 @@ int SLAPI ExportPosSession(PPID sessID)
 	pp.FinishWriting(wb);
 	ok = 1;
 	CATCHZOK
-#endif // } !NDEBUG
+/*// @v9.6.2*/ #endif // } !NDEBUG
 	return ok;
 }
 

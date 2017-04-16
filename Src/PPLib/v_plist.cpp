@@ -221,7 +221,7 @@ int SLAPI EditPriceListImpExpParams()
 	int    ok = -1;
 	PPPriceListImpExpParam param;
 	ImpExpParamDialog * p_dlg = new ImpExpParamDialog(DLG_IMPEXP, 0);
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	THROW(ok = EditImpExpParams(PPFILNAM_IMPEXP_INI, PPREC_PRICELIST, &param, p_dlg));
 	CATCHZOK
 	delete p_dlg;
@@ -1083,7 +1083,7 @@ int SLAPI PPViewPriceList::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 					PPID   goods_grp_id = NewGoodsGrpID;
 					ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, goods_grp_id,
 						(Filt.Flags & PLISTF_PRESENTONLY) ? ExtGoodsSelDialog::fExistsOnly : 0);
-					if(CheckDialogPtr(&dlg, 1)) {
+					if(CheckDialogPtrErr(&dlg)) {
 						while(ExecView(dlg) == cmOK) {
 							TIDlgInitData tidi;
 							if(dlg->getDTS(&tidi) > 0) {
@@ -1159,7 +1159,7 @@ int SLAPI PPViewPriceList::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 				ok = -1;
 				if(Tbl.Search(Filt.PListID) > 0) {
 					TDialog * dlg = new TDialog(DLG_PLISTUPD);
-					if(CheckDialogPtr(&dlg, 1)) {
+					if(CheckDialogPtrErr(&dlg)) {
 						LDATE   plist_date = getcurdate_();
 						dlg->SetupCalDate(CTLCAL_PLISTUPD_DT, CTL_PLISTUPD_DT);
 						dlg->setCtrlUInt16(CTL_PLISTUPD_SEL, 0);
@@ -1509,7 +1509,7 @@ int SLAPI PPViewPriceList::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	PriceListFilt * p_filt = 0;
 	THROW(Filt.IsA(pBaseFilt));
 	p_filt = (PriceListFilt *)pBaseFilt;
-	THROW(CheckDialogPtr(&(dlg = new PListFiltDialog(this)), 0));
+	THROW(CheckDialogPtr(&(dlg = new PListFiltDialog(this))));
 	THROW(dlg->setDTS(p_filt));
 	while(!valid_data && ExecView(dlg) == cmOK)
 		if(dlg->getDTS(p_filt)) {
@@ -1699,7 +1699,7 @@ int SLAPI PPViewPriceList::AddLine(PriceLineIdent * pIdent)
 	PriceLineTbl::Rec rec;
 	PLineDialog * dlg = 0;
 	Gsl.Clear(); // AHTOXA
-	THROW(CheckDialogPtr(&(dlg = new PLineDialog(this)), 0));
+	THROW(CheckDialogPtr(&(dlg = new PLineDialog(this))));
 	MEMSZERO(rec);
 	rec.ListID  = pIdent->PListID;
 	rec.GoodsID = pIdent->GoodsID;
@@ -1733,7 +1733,7 @@ int SLAPI PPViewPriceList::EditLine(PriceLineIdent * pIdent)
 	int    ok = -1, valid_data = 0;
 	PriceLineTbl::Rec rec;
 	PLineDialog * dlg = 0;
-	if(CheckDialogPtr(&(dlg = new PLineDialog(this)), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new PLineDialog(this)))) {
 		if(SearchLine(pIdent, &rec) > 0) {
 			pIdent->LineNo = rec.LineNo;
 			dlg->setDTS(&rec);
@@ -2679,7 +2679,7 @@ int SLAPI EditPriceListConfig()
 	ListWindow * p_lw = 0;
 	THROW(CheckCfgRights(PPCFGOBJ_PRICELIST, PPR_READ, 0));
 	THROW(is_new = ReadPriceListConfig(&cfg));
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PLISTCFG)), 0));
+	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PLISTCFG))));
 	SetupPPObjCombo(dlg, CTLSEL_PLISTCFG_P1Q, PPOBJ_QUOTKIND, cfg.AddPriceQuot[0], 0, 0);
 	SetupPPObjCombo(dlg, CTLSEL_PLISTCFG_P2Q, PPOBJ_QUOTKIND, cfg.AddPriceQuot[1], 0, 0);
 	SetupPPObjCombo(dlg, CTLSEL_PLISTCFG_P3Q, PPOBJ_QUOTKIND, cfg.AddPriceQuot[2], 0, 0);

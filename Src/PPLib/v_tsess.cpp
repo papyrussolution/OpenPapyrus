@@ -159,7 +159,7 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	THROW(Filt.IsA(pBaseFilt));
 	p_filt = (TSessionFilt *)pBaseFilt;
 	dlg_id = (p_filt->Flags & TSessionFilt::fManufPlan) ? DLG_TSESSPLANFILT : DLG_TSESSFILT;
-	THROW(CheckDialogPtr(&(dlg = new TSessFiltDialog(dlg_id)), 0));
+	THROW(CheckDialogPtr(&(dlg = new TSessFiltDialog(dlg_id))));
 	MEMSZERO(ptcg_rec);
 	ptcg_rec.PrcID = p_filt->PrcID;
 	if(p_filt->Flags & TSessionFilt::fManufPlan) {
@@ -839,7 +839,7 @@ int SLAPI PPViewTSession::ViewTotal()
 	TDialog * dlg = new TDialog(DLG_TSESSTOTAL);
 	TSessionTotal total;
 	CalcTotal(&total);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setCtrlLong(CTL_TSESSTOTAL_COUNT, total.Count);
 		{
 			long   h, m, s;
@@ -1558,7 +1558,7 @@ int SLAPI PPViewTSessLine::ViewTotal()
 		total.Discount += (item.Discount * item.Qtty);
 	}
 	dlg = new TDialog(DLG_TSESSLNTOTAL);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setCtrlLong(CTL_TSESSLNTOTAL_COUNT,  total.Count);
 		dlg->setCtrlReal(CTL_TSESSLNTOTAL_QTTY,   total.Qtty);
 		dlg->setCtrlReal(CTL_TSESSLNTOTAL_AMOUNT, total.Amount);
@@ -1713,7 +1713,7 @@ int SLAPI PPViewTSessLine::AddItemExt(PPID tsesID, PPViewBrowser * pBrw)
 	if(tsesID) {
 		if(!TSesObj.CheckRights(TSESRT_ADDLINE))
 			ok = PPErrorZ();
-		else if(CheckDialogPtr(&(dlg = new ExtGoodsSelDialog(0, NewGoodsGrpID)), 1)) {
+		else if(CheckDialogPtrErr(&(dlg = new ExtGoodsSelDialog(0, NewGoodsGrpID)))) {
 			TIDlgInitData tidi;
 			PPIDArray goods_list;
 			TGSArray tgs_list;

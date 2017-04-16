@@ -91,7 +91,7 @@ int SLAPI PPViewGoodsBillCmp::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	TDialog * dlg = 0;
 	GoodsBillCmpFilt * p_filt = (GoodsBillCmpFilt *)pBaseFilt;
 	THROW(Filt.IsA(pBaseFilt));
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_GBILLCMPFLT)), 0));
+	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_GBILLCMPFLT))));
 	GetBillCodes(p_filt, lh_code, rh_code);
 	dlg->setCtrlString(CTL_GBILLCMPFLT_LHBILL, lh_code);
 	dlg->setCtrlString(CTL_GBILLCMPFLT_RHBILL, rh_code);
@@ -403,7 +403,7 @@ int SLAPI PPViewGoodsBillCmp::ViewTotal()
 		if(item.IsDiffQtty)
 			diff_count++;
 	}
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		SString lh_code, rh_code;
 		GetBillCodes(&Filt, lh_code, rh_code);
 		dlg->setCtrlString(CTL_GBILLCMPTTL_LHBILL, lh_code);

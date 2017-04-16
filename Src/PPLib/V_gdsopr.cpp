@@ -1060,7 +1060,7 @@ IMPL_HANDLE_EVENT(GoodsOpAnlzFiltDialog)
 			GetClusterData(CTL_BILLFLT_DIFFBYPRICE, &Data.Flags);
 			GetPeriodInput(this, CTL_BILLFLT_PERIOD, &Data.Period);
 			p_dlg->setDTS(&Data);
-			if(CheckDialogPtr(&p_dlg, 1)) {
+			if(CheckDialogPtrErr(&p_dlg)) {
 				while(!valid_data && ExecView(p_dlg) == cmOK) {
 					if(p_dlg->getDTS(&Data) > 0) {
 						valid_data = 1;
@@ -3120,7 +3120,7 @@ int SLAPI PPViewGoodsOpAnalyze::ChangeOrder(BrowserWindow * pW)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GOPANLZORD);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->AddClusterAssoc(CTL_GOPANLZORD_ORDER,  0, OrdByGoodsName);
 		dlg->AddClusterAssoc(CTL_GOPANLZORD_ORDER, -1, OrdByGoodsName);
 		dlg->AddClusterAssoc(CTL_GOPANLZORD_ORDER,  1, OrdByQtty);
@@ -3240,7 +3240,7 @@ int SLAPI PPViewGoodsOpAnalyze::ViewTotal()
 		else
 			dlg_id = DLG_GDSOPRTOTAL;
 		AmtListDialog * dlg = new AmtListDialog(dlg_id, CTL_GDSOPRTOTAL_AMTLIST, 0, &Total.Amounts, 0, 0, 0);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setCtrlData(CTL_GDSOPRTOTAL_COUNT,     &Total.Count);
 			dlg->setCtrlData(CTL_GDSOPRTOTAL_QTTY,      &Total.Qtty);
 			dlg->setCtrlData(CTL_GDSOPRTOTAL_PHQTTY,    &Total.PhQtty);
@@ -3895,7 +3895,7 @@ int SLAPI PPViewGoodsOpAnalyze::ABCGrpToAltGrp(short abcGroup)
 		int    valid_data = 0;
 		PPID   grp_id = 0;
 		p_dlg = new TDialog(DLG_GRPSEL);
-		THROW(CheckDialogPtr(&p_dlg, 0));
+		THROW(CheckDialogPtr(&p_dlg));
 		SetupPPObjCombo(p_dlg, CTLSEL_GRPSEL_GROUP, PPOBJ_GOODSGROUP, 0, OLW_CANINSERT|OLW_LOADDEFONOPEN, (void *)GGRTYP_SEL_ALT);
 		while(!valid_data && ExecView(p_dlg) == cmOK) {
 			grp_id = p_dlg->getCtrlLong(CTLSEL_GRPSEL_GROUP);
@@ -4067,7 +4067,7 @@ int SLAPI PPViewGoodsOpAnalyze::Print(const void *)
 			else
 				rpt_id = REPORT_GOODSOPRPRICE;
 			dlg = new TDialog(DLG_GOPANLZPRN);
-			if(CheckDialogPtr(&dlg, 1)) {
+			if(CheckDialogPtrErr(&dlg)) {
 				ushort v = 0;
 				dlg->AddClusterAssoc(CTL_GOPANLZPRN_ORDER, 0, OrdByGoodsName);
 				dlg->AddClusterAssoc(CTL_GOPANLZPRN_ORDER, -1, OrdByGoodsName);

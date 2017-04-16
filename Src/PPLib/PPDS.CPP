@@ -497,11 +497,12 @@ void SLAPI PPDeclStruc::SetItemAddedMsgString(const char * pName)
 int SLAPI PPDeclStruc::SearchItem(const char * pName, PPDeclStrucItem * pItem)
 {
 	PPDeclStrucItem * p_item;
-	for(uint i = 1; enumItems(&i, (void**)&p_item);)
-		if(stricmp(p_item->Name, pName) == 0) {
+	for(uint i = 1; enumItems(&i, (void**)&p_item);) {
+		if(sstreqi_ascii(p_item->Name, pName)) {
 			ASSIGN_PTR(pItem, *p_item);
 			return (PPErrCode = PPERR_DS_STRUCITEMEXISTS, 1);
 		}
+	}
 	return (PPErrCode = PPERR_DS_STRUCITEMNFOUND, -1);
 }
 

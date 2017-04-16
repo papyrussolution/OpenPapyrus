@@ -1479,7 +1479,6 @@ public:
 	//
 	int    FASTCALL IsInState(uint s) const;
 	virtual int    FASTCALL valid(ushort command);
-	virtual void   draw();
 	//
 	// Descr: Метод, используемый для передачи (извлечения) данных в (из)
 	//   экземпляр объекта. Кроме того, метод реализует возрат размера
@@ -1489,6 +1488,8 @@ public:
 	// @v9.0.4 virtual void   endModal(ushort command);
 	virtual void setState(uint aState, bool enable);
 	virtual int  handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	// @v9.6.2 virtual void   draw();
+	void   Draw_(); // @v9.6.2
 	//
 	// Descr: отрисовывает элемент диалога с видом, отличным от стандартного
 	//
@@ -1499,7 +1500,7 @@ public:
 	// ARG(doShow IN): !0 - показывает окно, 0 - скрывает окно
 	//
 	void   Show(int doShow);
-	void   drawView();
+	// @v9.6.2 (replaced by Draw_()) void   drawView();
 	void   clearEvent(TEvent & event)
 	{
 		event.what = evNothing;
@@ -1596,10 +1597,10 @@ public:
 	SLAPI  TGroup(const TRect & bounds);
 	SLAPI ~TGroup();
 	DECL_HANDLE_EVENT;
-	virtual void   insert(TView *p);
+	virtual void   Insert_(TView *p);
 	virtual void   setState(uint aState, bool enable);
 	virtual int    TransmitData(int dir, void * pData);
-	virtual void   draw();
+	// @v9.6.2 virtual void   draw();
 	// @v9.0.4 virtual void   endModal(ushort command);
 	virtual int    FASTCALL valid(ushort command);
 
@@ -2628,9 +2629,8 @@ public:
 		fMouseResizing = 0x0020,
 		fLarge         = 0x0040, // Диалог увеличин в размерах для использования с TouchScreen
 		fExport        = 0x0080, // Экземпляр диалога создан для экспорта
-		fInitModal     = 0x0100  // @v7.7.6 Отладочный флаг, сигнализирующий о том, что при создании диалог был модальным.
-			// Необходим для идентификации проблемы спонтанной невозможности вывода окна диалога из модального режима
-			// при нажатии OK или Cancel.
+		// @v9.6.2 fInitModal     = 0x0100  // @v7.7.6 Отладочный флаг, сигнализирующий о том, что при создании диалог был модальным.
+			// Необходим для идентификации проблемы спонтанной невозможности вывода окна диалога из модального режима при нажатии OK или Cancel.
 	};
 
 	friend  BOOL CALLBACK DialogProc(HWND, UINT, WPARAM, LPARAM);
@@ -2880,8 +2880,9 @@ public:
 protected:
 	DECL_HANDLE_EVENT;
 	// @v9.1.3 virtual int Paint_(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	virtual void   draw();
+	// @v9.6.2 virtual void   draw();
 	int    Implement_GetText();
+	void   Implement_Draw();
 
 	SString Data;
 	size_t maxLen;
@@ -3047,7 +3048,7 @@ class TInfoPane : public TView {
 public:
 	TInfoPane(TRect & r);
 	~TInfoPane();
-	virtual void draw();
+	// @v9.6.2 virtual void draw();
 	void setText(char *);
 	int handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 protected:
@@ -3367,7 +3368,7 @@ public:
 	int    getText(long itemN  /* 0.. */, SString & rBuf);
 	int    getID(long itemN, long * pID);
 	int    isTreeList() const;
-	virtual void   draw();
+	// @v9.6.2 virtual void   draw();
 	DECL_HANDLE_EVENT;
 	virtual void   selectItem(long item);
 	virtual int    TransmitData(int dir, void * pData);
@@ -3440,6 +3441,7 @@ protected:
 	void   onInitDialog(int useScrollbar);
 	int    FASTCALL onVKeyToItem(WPARAM wParam);
 	int    GetMaxListHeight();
+	void   Implement_Draw();
 private:
 	void   Helper_InsertColumn(uint pos);
 	void   Helper_ClearTreeWnd();
@@ -4637,7 +4639,7 @@ protected:
 	uint   RezID;
 	TToolbar * P_Toolbar;
 private:
-	virtual void insert(TView *p);
+	virtual void Insert_(TView *p);
 	virtual TBaseBrowserWindow::IdentBlock & GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk);
 	void   WMHCreate(LPCREATESTRUCT);
 	int    IsLastPage(uint viewHeight); // AHTOXA

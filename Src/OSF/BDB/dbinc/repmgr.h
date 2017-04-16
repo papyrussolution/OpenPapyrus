@@ -268,21 +268,20 @@ typedef struct __repmgr_message {
 	union {
 		struct {
 			int originating_eid;
-			DBT control, rec;
+			DBT_BASE control;
+			DBT_BASE rec;
 		} repmsg;
 		struct {
 			REPMGR_CONNECTION *conn;
-			DBT request;
+			DBT_BASE request;
 		} gmdb_msg;
 		struct {
-			/*
-			 * Connection from which the message arrived; NULL if
-			 * generated on the local site.
-			 */
+			//
+			// Connection from which the message arrived; NULL if generated on the local site.
+			//
 			REPMGR_CONNECTION *conn;
-
-			DBT buf; /* for reading */
-			DBT segments[1]; /* expanded in msg th. before callbk */
+			DBT_BASE buf; // for reading 
+			DBT_BASE segments[1]; // expanded in msg th. before callbk 
 		} appmsg;
 	} v;			/* Variants */
 } REPMGR_MESSAGE;
@@ -359,14 +358,13 @@ struct __repmgr_connection {
 	 */
 	phase_t		reading_phase;
 	REPMGR_IOVECS iovecs;
-
 	uint8	msg_type;
 	uint8	msg_hdr_buf[__REPMGR_MSG_HDR_SIZE];
-
 	union {
-		REPMGR_MESSAGE *rep_message;
+		REPMGR_MESSAGE * rep_message;
 		struct {
-			DBT cntrl, rec;
+			DBT_BASE cntrl;
+			DBT_BASE rec;
 		} repmgr_msg;
 	} input;
 
@@ -475,7 +473,6 @@ typedef struct {
 	char *host;		/* Separately allocated copy of string. */
 	uint16 port;		/* Stored in plain old host-byte-order. */
 } repmgr_netaddr_t;
-
 /*
  * We store site structs in a dynamically allocated, growable array, indexed by
  * EID.  We allocate EID numbers for all sites simply according to their
@@ -484,16 +481,11 @@ typedef struct {
 #define	SITE_FROM_EID(eid)	(&db_rep->sites[eid])
 #define	EID_FROM_SITE(s)	((int)((s) - (&db_rep->sites[0])))
 #define	IS_VALID_EID(e)		((e) >= 0)
-#define	IS_KNOWN_REMOTE_SITE(e)	((e) >= 0 && ((e) != db_rep->self_eid) && \
-	    (((uint)(e)) < db_rep->site_cnt))
-#define	FOR_EACH_REMOTE_SITE_INDEX(i)                    \
-	for((i) = (db_rep->self_eid == 0 ? 1 : 0);	\
-	     (i) < db_rep->site_cnt;			 \
-	     ((int)++(i)) == db_rep->self_eid ? ++(i) : i)
+#define	IS_KNOWN_REMOTE_SITE(e)	((e) >= 0 && ((e) != db_rep->self_eid) && (((uint)(e)) < db_rep->site_cnt))
+#define	FOR_EACH_REMOTE_SITE_INDEX(i) for((i) = (db_rep->self_eid == 0 ? 1 : 0); (i) < db_rep->site_cnt; ((int)++(i)) == db_rep->self_eid ? ++(i) : i)
 
 struct __repmgr_site {
 	repmgr_netaddr_t net_addr;
-
 	/*
 	 * Group membership status: a copy of the status from the membership
 	 * database, or the out-of-band value 0, meaning that it doesn't exist.
@@ -503,7 +495,6 @@ struct __repmgr_site {
 	 */
 	uint32	membership; /* Status flags from GMDB. */
 	uint32	config;	    /* Flags from site->set_config() */
-
 	/*
 	 * Everything below here is applicable only to remote sites.
 	 */
@@ -541,38 +532,33 @@ struct __repmgr_site {
 #define	SITE_TOUCHED	0x04	/* Seen GMDB record during present scan. */
 	uint32 flags;
 };
-
-/*
- * Flag values for the public DB_SITE handle.
- */
+//
+// Flag values for the public DB_SITE handle.
+//
 #define	DB_SITE_PREOPEN	0x01	/* Provisional EID; may change at env open. */
-
-struct __repmgr_response {
-	DBT		dbt;
-	int		ret;
 
 #define	RESP_COMPLETE		0x01
 #define	RESP_DUMMY_BUF		0x02
 #define	RESP_IN_USE		0x04
 #define	RESP_READING		0x08
 #define	RESP_THREAD_WAITING	0x10
-	uint32	flags;
+
+struct __repmgr_response {
+	DBT		dbt;
+	int		ret;
+	uint32	flags; // RESP_XXX
 };
-
-/*
- * Private structure for managing comms "channels."  This is separate from
- * DB_CHANNEL so as to avoid dragging in other private structures (e.g.,
- * REPMGR_CONNECTION) into db.h, similar to the relationship between DB_ENV and
- * ENV.
- */
+//
+// Private structure for managing comms "channels."  This is separate from
+// DB_CHANNEL so as to avoid dragging in other private structures (e.g.,
+// REPMGR_CONNECTION) into db.h, similar to the relationship between DB_ENV and ENV.
+//
 struct __channel {
-	DB_CHANNEL *db_channel;
-	ENV *env;
-
+	DB_CHANNEL * db_channel;
+	ENV * env;
 	union {
 		/* For simple, specific-EID channels. */
 		REPMGR_CONNECTION *conn;
-
 		/* For EID_MASTER or EID_BROADCAST channels. */
 		struct {
 			mgr_mutex_t *mutex;  /* For connection establishment. */
@@ -583,7 +569,6 @@ struct __channel {
 	REPMGR_MESSAGE *msg;	/* Incoming channel only; NULL otherwise. */
 	int	responded;	/* Boolean flag. */
 	__repmgr_msg_metadata_args *meta;
-
 	/* Used only in send-to-self request case. */
 	struct __repmgr_response	response;
 };
@@ -657,8 +642,8 @@ struct __channel {
 #define	REPMGR_HDR2(hdr)		((hdr).word2)
 
 /* REPMGR_APP_MESSAGE */
-#define APP_MSG_BUFFER_SIZE		REPMGR_HDR1
-#define	APP_MSG_SEGMENT_COUNT		REPMGR_HDR2
+#define APP_MSG_BUFFER_SIZE    REPMGR_HDR1
+#define	APP_MSG_SEGMENT_COUNT  REPMGR_HDR2
 
 /* REPMGR_REP_MESSAGE and the other traditional repmgr message types. */
 #define	REP_MSG_CONTROL_SIZE		REPMGR_HDR1

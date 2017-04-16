@@ -750,7 +750,7 @@ void PrcPaneDialog::selectGoods(int mode)
 	if(H.SessID && oneof6(State, sEMPTY_SESS, sGOODS_NOQTTY, sGOODS_QTTY, sREST, sREST_SERIAL_NOQTTY, sREST_SERIAL_QTTY)) {
 		if(mode == 0) {
 			ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, NewGoodsGrpID);
-			if(CheckDialogPtr(&dlg, 1)) {
+			if(CheckDialogPtrErr(&dlg)) {
 				TIDlgInitData tidi;
 				PPIDArray goods_list;
 				TGSArray tgs_list;
@@ -1041,7 +1041,7 @@ int SLAPI ExecPrcPane(PPID prcID)
 	int    ok = -1;
 	if(prcID || ListBoxSelDialog(PPOBJ_PROCESSOR, &prcID, 0) > 0) {
 		PrcPaneDialog * dlg = new PrcPaneDialog;
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setDTS(prcID);
 			ExecView(dlg);
 			ok = 1;

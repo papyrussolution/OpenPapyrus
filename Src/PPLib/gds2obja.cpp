@@ -421,7 +421,7 @@ int SLAPI PPViewGoodsToObjAssoc::EditGoodsToObjAssoc(LAssoc * pData, PPID objTyp
 	PPObjGoods goods_obj;
 	Goods2Tbl::Rec goods_rec;
 	TDialog * dlg = new TDialog(DLG_G2OA);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		SString obj_title;
 		dlg->setSubTitle(GetObjectTitle(objType, obj_title));
 		dlg->setLabelText(CTL_G2OA_OBJ, obj_title);
@@ -677,7 +677,7 @@ int SLAPI PPObjNamedObjAssoc::Edit(PPID * pID, void * extraPtr)
 	int    ok = cmCancel;
 	PPNamedObjAssoc rec;
 	NamedObjAssocDialog * dlg = new NamedObjAssocDialog();
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	if(*pID) {
 		THROW(Search(*pID, &rec) > 0);
 	}
@@ -718,7 +718,7 @@ int SLAPI PPObjNamedObjAssoc::Browse(void * extraPtr)
 	int    ok = 1;
 	if(CheckRights(PPR_READ)) {
 		TDialog * dlg = new NamedObjAssocView(this);
-		if(CheckDialogPtr(&dlg, 1))
+		if(CheckDialogPtrErr(&dlg))
 			ExecViewAndDestroy(dlg);
 		else
 			ok = 0;

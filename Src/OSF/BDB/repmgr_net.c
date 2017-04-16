@@ -1135,8 +1135,7 @@ int __repmgr_destroy_conn(ENV * env, REPMGR_CONNECTION * conn)
 			 * saying there must be a cur_resp, and it must be
 			 * READING.
 			 */
-			DB_ASSERT(env, conn->cur_resp < conn->aresp &&
-				conn->responses != NULL);
+			DB_ASSERT(env, conn->cur_resp < conn->aresp && conn->responses != NULL);
 			resp = &conn->responses[conn->cur_resp];
 			DB_ASSERT(env, F_ISSET(resp, RESP_READING));
 			if(F_ISSET(resp, RESP_DUMMY_BUF))
@@ -1145,14 +1144,13 @@ int __repmgr_destroy_conn(ENV * env, REPMGR_CONNECTION * conn)
 
 		    case REPMGR_PERMLSN:
 		    case REPMGR_HANDSHAKE:
-			dbt = &conn->input.repmgr_msg.cntrl;
-			if(dbt->size > 0)
-				__os_free(env, dbt->data);
-			dbt = &conn->input.repmgr_msg.rec;
-			if(dbt->size > 0)
-				__os_free(env, dbt->data);
-			break;
-
+				dbt = (DBT *)&conn->input.repmgr_msg.cntrl;
+				if(dbt->size > 0)
+					__os_free(env, dbt->data);
+				dbt = (DBT *)&conn->input.repmgr_msg.rec;
+				if(dbt->size > 0)
+					__os_free(env, dbt->data);
+				break;
 		    case REPMGR_RESP_ERROR:
 		    /*
 		     * This type doesn't use a DATA_PHASE, so this should be

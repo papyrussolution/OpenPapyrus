@@ -26,8 +26,7 @@ static void png_do_pack(png_row_infop row_info, png_bytep row, png_uint_32 bit_d
 {
 	png_debug(1, "in png_do_pack");
 	if(row_info->bit_depth == 8 && row_info->channels == 1) {
-		switch((int)bit_depth)
-		{
+		switch((int)bit_depth) {
 			case 1:
 		    {
 			    png_bytep sp, dp;
@@ -49,7 +48,7 @@ static void png_do_pack(png_row_infop row_info, png_bytep row, png_uint_32 bit_d
 				    if(mask > 1)
 					    mask >>= 1;
 
-				    else{
+				    else {
 					    mask = 0x80;
 					    *dp = (png_byte)v;
 					    dp++;
@@ -160,15 +159,12 @@ static void png_do_pack(png_row_infop row_info, png_bytep row, png_uint_32 bit_d
  * would pass 3 as bit_depth, and this routine would translate the
  * data to 0 to 15.
  */
-static void png_do_shift(png_row_infop row_info, png_bytep row,
-    png_const_color_8p bit_depth)
+static void png_do_shift(png_row_infop row_info, png_bytep row, png_const_color_8p bit_depth)
 {
 	png_debug(1, "in png_do_shift");
-
 	if(row_info->color_type != PNG_COLOR_TYPE_PALETTE) {
 		int shift_start[4], shift_dec[4];
 		int channels = 0;
-
 		if((row_info->color_type & PNG_COLOR_MASK_COLOR) != 0) {
 			shift_start[channels] = row_info->bit_depth - bit_depth->red;
 			shift_dec[channels] = bit_depth->red;
@@ -182,13 +178,11 @@ static void png_do_shift(png_row_infop row_info, png_bytep row,
 			shift_dec[channels] = bit_depth->blue;
 			channels++;
 		}
-
-		else{
+		else {
 			shift_start[channels] = row_info->bit_depth - bit_depth->gray;
 			shift_dec[channels] = bit_depth->gray;
 			channels++;
 		}
-
 		if((row_info->color_type & PNG_COLOR_MASK_ALPHA) != 0) {
 			shift_start[channels] = row_info->bit_depth - bit_depth->alpha;
 			shift_dec[channels] = bit_depth->alpha;
@@ -201,77 +195,53 @@ static void png_do_shift(png_row_infop row_info, png_bytep row,
 			png_size_t i;
 			unsigned int mask;
 			png_size_t row_bytes = row_info->rowbytes;
-
 			if(bit_depth->gray == 1 && row_info->bit_depth == 2)
 				mask = 0x55;
-
 			else if(row_info->bit_depth == 4 && bit_depth->gray == 3)
 				mask = 0x11;
-
 			else
 				mask = 0xff;
-
 			for(i = 0; i < row_bytes; i++, bp++) {
-				int j;
-				unsigned int v, out;
-
-				v = *bp;
-				out = 0;
-
-				for(j = shift_start[0]; j > -shift_dec[0]; j -= shift_dec[0]) {
+				unsigned int v = *bp;
+				unsigned int out = 0;
+				for(int j = shift_start[0]; j > -shift_dec[0]; j -= shift_dec[0]) {
 					if(j > 0)
 						out |= v << j;
-
 					else
 						out |= (v >> (-j)) & mask;
 				}
-
 				*bp = (png_byte)(out & 0xff);
 			}
 		}
-
 		else if(row_info->bit_depth == 8) {
 			png_bytep bp = row;
 			png_uint_32 i;
 			png_uint_32 istop = channels * row_info->width;
-
 			for(i = 0; i < istop; i++, bp++) {
 				const unsigned int c = i%channels;
-				int j;
-				unsigned int v, out;
-
-				v = *bp;
-				out = 0;
-
-				for(j = shift_start[c]; j > -shift_dec[c]; j -= shift_dec[c]) {
+				unsigned int v = *bp;
+				unsigned int out = 0;
+				for(int j = shift_start[c]; j > -shift_dec[c]; j -= shift_dec[c]) {
 					if(j > 0)
 						out |= v << j;
-
 					else
 						out |= v >> (-j);
 				}
-
 				*bp = (png_byte)(out & 0xff);
 			}
 		}
-
-		else{
+		else {
 			png_bytep bp;
 			png_uint_32 i;
-			png_uint_32 istop = channels * row_info->width;
-
+			const png_uint_32 istop = channels * row_info->width;
 			for(bp = row, i = 0; i < istop; i++) {
 				const unsigned int c = i%channels;
 				int j;
-				unsigned int value, v;
-
-				v = png_get_uint_16(bp);
-				value = 0;
-
+				unsigned int v = png_get_uint_16(bp);
+				unsigned int value = 0;
 				for(j = shift_start[c]; j > -shift_dec[c]; j -= shift_dec[c]) {
 					if(j > 0)
 						value |= v << j;
-
 					else
 						value |= v >> (-j);
 				}
@@ -307,7 +277,7 @@ static void png_do_write_swap_alpha(png_row_infop row_info, png_bytep row)
 			}
 
 #ifdef PNG_WRITE_16BIT_SUPPORTED
-			else{
+			else {
 				/* This converts from AARRGGBB to RRGGBBAA */
 				png_bytep sp, dp;
 				png_uint_32 i;
@@ -345,7 +315,7 @@ static void png_do_write_swap_alpha(png_row_infop row_info, png_bytep row)
 			}
 
 #ifdef PNG_WRITE_16BIT_SUPPORTED
-			else{
+			else {
 				/* This converts from AAGG to GGAA */
 				png_bytep sp, dp;
 				png_uint_32 i;
@@ -393,7 +363,7 @@ static void png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
 			}
 
 #ifdef PNG_WRITE_16BIT_SUPPORTED
-			else{
+			else {
 				/* This inverts the alpha channel in RRGGBBAA */
 				png_bytep sp, dp;
 				png_uint_32 i;
@@ -430,7 +400,7 @@ static void png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
 			}
 
 #ifdef PNG_WRITE_16BIT_SUPPORTED
-			else{
+			else {
 				/* This inverts the alpha channel in GGAA */
 				png_bytep sp, dp;
 				png_uint_32 i;
@@ -456,14 +426,11 @@ static void png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
 /* Transform the data according to the user's wishes.  The order of
  * transformations is significant.
  */
-void /* PRIVATE */
-png_do_write_transformations(png_structrp png_ptr, png_row_infop row_info)
+void /* PRIVATE */ png_do_write_transformations(png_structrp png_ptr, png_row_infop row_info)
 {
 	png_debug(1, "in png_do_write_transformations");
-
 	if(png_ptr == NULL)
 		return;
-
 #ifdef PNG_WRITE_USER_TRANSFORM_SUPPORTED
 	if((png_ptr->transformations & PNG_USER_TRANSFORM) != 0)
 		if(png_ptr->write_user_transform_fn != NULL)
@@ -482,49 +449,38 @@ png_do_write_transformations(png_structrp png_ptr, png_row_infop row_info)
 
 #ifdef PNG_WRITE_FILLER_SUPPORTED
 	if((png_ptr->transformations & PNG_FILLER) != 0)
-		png_do_strip_channel(row_info, png_ptr->row_buf + 1,
-		    !(png_ptr->flags & PNG_FLAG_FILLER_AFTER));
+		png_do_strip_channel(row_info, png_ptr->row_buf + 1, !(png_ptr->flags & PNG_FLAG_FILLER_AFTER));
 #endif
-
 #ifdef PNG_WRITE_PACKSWAP_SUPPORTED
 	if((png_ptr->transformations & PNG_PACKSWAP) != 0)
 		png_do_packswap(row_info, png_ptr->row_buf + 1);
 #endif
-
 #ifdef PNG_WRITE_PACK_SUPPORTED
 	if((png_ptr->transformations & PNG_PACK) != 0)
-		png_do_pack(row_info, png_ptr->row_buf + 1,
-		    (png_uint_32)png_ptr->bit_depth);
+		png_do_pack(row_info, png_ptr->row_buf + 1, (png_uint_32)png_ptr->bit_depth);
 #endif
-
 #ifdef PNG_WRITE_SWAP_SUPPORTED
 #  ifdef PNG_16BIT_SUPPORTED
 	if((png_ptr->transformations & PNG_SWAP_BYTES) != 0)
 		png_do_swap(row_info, png_ptr->row_buf + 1);
 #  endif
 #endif
-
 #ifdef PNG_WRITE_SHIFT_SUPPORTED
 	if((png_ptr->transformations & PNG_SHIFT) != 0)
-		png_do_shift(row_info, png_ptr->row_buf + 1,
-		    &(png_ptr->shift));
+		png_do_shift(row_info, png_ptr->row_buf + 1, &(png_ptr->shift));
 #endif
-
 #ifdef PNG_WRITE_SWAP_ALPHA_SUPPORTED
 	if((png_ptr->transformations & PNG_SWAP_ALPHA) != 0)
 		png_do_write_swap_alpha(row_info, png_ptr->row_buf + 1);
 #endif
-
 #ifdef PNG_WRITE_INVERT_ALPHA_SUPPORTED
 	if((png_ptr->transformations & PNG_INVERT_ALPHA) != 0)
 		png_do_write_invert_alpha(row_info, png_ptr->row_buf + 1);
 #endif
-
 #ifdef PNG_WRITE_BGR_SUPPORTED
 	if((png_ptr->transformations & PNG_BGR) != 0)
 		png_do_bgr(row_info, png_ptr->row_buf + 1);
 #endif
-
 #ifdef PNG_WRITE_INVERT_SUPPORTED
 	if((png_ptr->transformations & PNG_INVERT_MONO) != 0)
 		png_do_invert(row_info, png_ptr->row_buf + 1);

@@ -365,10 +365,8 @@ TView::TView()
 
 TView::~TView()
 {
-	// @v7.0.0 from shutDown() {
 	ZDELETE(P_WordSelBlk);
 	CALLPTRMEMB(owner, remove(this));
-	// } @v7.0.0
 	Sign = 0;
 	Id = 0;
 	Parent = 0;
@@ -394,8 +392,9 @@ int TView::GetEndModalCmd() const
 	return EndModalCmd;
 }
 
-void TView::draw()
+void TView::Draw_()
 {
+	TView::messageCommand(this, cmDraw);
 }
 
 /* @v9.1.3 int TView::Paint_(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -732,10 +731,12 @@ void FASTCALL TView::enableCommand(ushort cmd, int isEnable)
 	}
 }
 
+/* @v9.6.2 replaced by Draw_()
 void TView::drawView()
 {
-	draw();
+	Draw_();
 }
+*/
 
 /* @v9.0.4
 void TView::endModal(ushort command)
@@ -1301,7 +1302,7 @@ int SLAPI KeyDownCommand::SetKeyName(const char * pStr, uint * pLen)
 		}
 		scan.Skip();
 		if(state) {
-			if(scan[0] == '-' || scan[0] == '+' || scan[0] == '_') {
+			if(oneof3(scan[0], '-', '+', '_')) {
 				scan.Incr();
 				scan.Skip();
 			}
@@ -1413,7 +1414,6 @@ SLAPI TGroup::TGroup(const TRect & bounds) : TView(bounds)
 
 SLAPI TGroup::~TGroup()
 {
-	// @v7.0.0 from shutDown() {
 	TView * p = P_Last;
 	if(p) do {
 		if(p->IsConsistent()) { // @v8.0.6
@@ -1425,7 +1425,6 @@ SLAPI TGroup::~TGroup()
 			break;
 	} while(P_Last);
 	P_Current = 0;
-	// } @v7.0.0
 }
 
 /* @v9.4.8 TView * FASTCALL TGroup::at(short index) const
@@ -1504,10 +1503,12 @@ void TGroup::remove(TView * p)
 	p->next = 0;
 }
 
+/* @v9.6.2
 void TGroup::draw()
 {
 	redraw();
 }
+*/
 
 /* @v9.0.4
 void TGroup::endModal(ushort command)
@@ -1536,7 +1537,7 @@ ushort TGroup::execView(TWindow * p)
 		p->setState(sfModal, true);
 		setCurrent(p, enterSelect);
 		if(save_owner == 0)
-			insert(p);
+			Insert_(p);
 		{
 			// @v9.0.4 retval = p->execute();
 			// @v9.0.4 {
@@ -1598,6 +1599,9 @@ IMPL_HANDLE_EVENT(TGroup)
 		clearEvent(event);
 		event.message.infoLong = 0;
 	}
+	else if(event.isCmd(cmDraw)) {
+		redraw();
+	}
 	else {
 		TView::handleEvent(event);
 		handleStruct hs;
@@ -1620,14 +1624,14 @@ IMPL_HANDLE_EVENT(TGroup)
 	}
 }
 
-void TGroup::insert(TView * p)
+void TGroup::Insert_(TView * p)
 {
 	insertBefore(p, first());
 }
 
 void TGroup::insertBefore(TView * p, TView * Target)
 {
-	if(p && p->owner == 0 && (Target == 0 || Target->owner == this))
+	if(p && !p->owner && (!Target || Target->owner == this))
 		insertView(p, Target);
 }
 
@@ -1653,7 +1657,7 @@ void TGroup::insertView(TView * p, TView * Target)
 void TGroup::redraw()
 {
 	for(TView * p = first(); p != 0; p = p->nextView())
-		p->drawView();
+		p->Draw_();
 }
 
 void TGroup::selectNext(/*Boolean forwards*/ /*false*/)
@@ -1685,7 +1689,7 @@ void TGroup::setCurrent(TView * p, selectMode mode)
 				HWND   ctrl = p->getHandle();
 				if(ctrl || (ctrl = GetDlgItem(p->Parent, MAKE_BUTTON_ID(p->GetId(), 1))))
 					SetFocus(ctrl);
-				P_Current->draw();
+				P_Current->Draw_();
 			}
 		}
 		if(!(MsgLockFlags & TGroup::fLockMsgChangedFocus)) {

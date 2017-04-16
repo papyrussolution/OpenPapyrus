@@ -125,7 +125,7 @@ int __os_urealloc(ENV * env, size_t size, void * storep)
  *
  * PUBLIC: void __os_ufree __P((ENV *, void *));
  */
-void __os_ufree(ENV * env, void * ptr)
+void FASTCALL __os_ufree(ENV * env, void * ptr)
 {
 	DB_ENV * dbenv = env ? env->dbenv : NULL;
 	if(dbenv && dbenv->db_free)
@@ -279,7 +279,7 @@ int __os_realloc(ENV * env, size_t size, void * storep)
  *
  * PUBLIC: void __os_free __P((ENV *, void *));
  */
-void __os_free(ENV * env, void * ptr)
+void FASTCALL __os_free(ENV * env, void * ptr)
 {
 	/*
 	 * ANSI C requires free(NULL) work.  Don't depend on the underlying
@@ -363,7 +363,7 @@ void * __ua_memcpy(void * dst, const void * src, size_t len)
  *
  * PUBLIC: char *__os_ctime __P((const __time64_t *, char *));
  */
-char * __os_ctime(const __time64_t * tod, char * time_buf)
+char * FASTCALL __os_ctime(const __time64_t * tod, char * time_buf)
 {
 	time_buf[CTIME_BUFLEN-1] = '\0';
 	/*
@@ -405,7 +405,7 @@ char * __os_ctime(const __time64_t * tod, char * time_buf)
  * PUBLIC:    const char *, const ADDRINFO *, ADDRINFO **));
  * PUBLIC: #endif
  */
-int __os_getaddrinfo(ENV*env, const char * nodename, uint port, const char * servname, const ADDRINFO * hints, ADDRINFO ** res)
+int __os_getaddrinfo(ENV * env, const char * nodename, uint port, const char * servname, const ADDRINFO * hints, ADDRINFO ** res)
 {
 #ifdef HAVE_GETADDRINFO
 	int ret;
@@ -471,13 +471,10 @@ int __os_getaddrinfo(ENV*env, const char * nodename, uint port, const char * ser
   #endif
 				switch(h_errno) {
 				    case HOST_NOT_FOUND:
-				    case NO_DATA:
-					return EHOSTUNREACH;
-				    case TRY_AGAIN:
-					return EAGAIN;
+				    case NO_DATA: return EHOSTUNREACH;
+				    case TRY_AGAIN: return EAGAIN;
 				    case NO_RECOVERY:
-				    default:
-					return EFAULT;
+				    default: return EFAULT;
 				}
 				/* NOTREACHED */
  #endif
@@ -520,10 +517,8 @@ void __os_freeaddrinfo(ENV * env, ADDRINFO * ai)
 #else
 	ADDRINFO * next, * tmpaddr;
 	for(next = ai; next != NULL; next = tmpaddr) {
-		if(next->ai_canonname != NULL)
-			__os_free(env, next->ai_canonname);
-		if(next->ai_addr != NULL)
-			__os_free(env, next->ai_addr);
+		__os_free(env, next->ai_canonname);
+		__os_free(env, next->ai_addr);
 		tmpaddr = next->ai_next;
 		__os_free(env, next);
 	}
@@ -623,10 +618,8 @@ found:                  return __os_strdup(env, tdir, &dbenv->db_tmp_dir);
 #ifdef macintosh
 	/* Get the path to the temporary folder. */
 	{FSSpec spec;
-	 if(!Special2FSSpec(kTemporaryFolderType,
-		    kOnSystemDisk, 0, &spec))
-		 return __os_strdup(env,
-			 FSp2FullPath(&spec), &dbenv->db_tmp_dir); }
+	 if(!Special2FSSpec(kTemporaryFolderType, kOnSystemDisk, 0, &spec))
+		 return __os_strdup(env, FSp2FullPath(&spec), &dbenv->db_tmp_dir); }
 #endif
 #ifdef DB_WIN32
 	/* Get the path to the temporary directory. */
@@ -641,8 +634,7 @@ found:                  return __os_strdup(env, tdir, &dbenv->db_tmp_dir);
 			if(*eos == '\\' || *eos == '/')
 				*eos = '\0';
 			if(__os_exists(env, path, &isdir) == 0 && isdir) {
-				ret = __os_strdup(env,
-					path, &dbenv->db_tmp_dir);
+				ret = __os_strdup(env, path, &dbenv->db_tmp_dir);
 				FREE_STRING(env, path);
 				return ret;
 			}

@@ -118,7 +118,7 @@ int __ham_46_hashmeta __P((DB *, char *, uint32, DB_FH *, PAGE *, int *));
 int __ham_46_hash __P((DB *, char *, uint32, DB_FH *, PAGE *, int *));
 int __ham_vrfy_meta __P((DB *, VRFY_DBINFO *, HMETA *, db_pgno_t, uint32));
 int __ham_vrfy __P((DB *, VRFY_DBINFO *, PAGE *, db_pgno_t, uint32));
-int __ham_vrfy_structure __P((DB *, VRFY_DBINFO *, db_pgno_t, uint32));
+int __ham_vrfy_structure(DB *, VRFY_DBINFO *, db_pgno_t, uint32);
 int __ham_vrfy_hashing __P((DBC *, uint32, HMETA *, uint32, db_pgno_t, uint32, uint32 (*) __P((DB *, const void *, uint32))));
 int __ham_salvage __P((DB *, VRFY_DBINFO *, db_pgno_t, PAGE *, void *, int (*)(void *, const void *), uint32));
 int __ham_meta2pgset __P((DB *, VRFY_DBINFO *, HMETA *, uint32, DB *));

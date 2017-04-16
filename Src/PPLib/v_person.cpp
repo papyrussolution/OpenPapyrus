@@ -615,7 +615,7 @@ int SLAPI PPViewPerson::DeleteItem(PPID id)
 int SLAPI PPViewPerson::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_PERSONTOTAL);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		long   count = 0;
 		PPWait(1);
 		for(InitIteration(); NextIteration(0) > 0;) {
@@ -2393,7 +2393,7 @@ int SLAPI PPViewPerson::SendMail(PPID mailAccId, StrAssocArray * pMailList, PPLo
 	SendMailDialog * p_dlg = 0;
 	if(pMailList && pMailList->getCount() > 0) {
 		SendMailDialog::Rec data;
-		THROW(CheckDialogPtr(&(p_dlg = new SendMailDialog()), 0));
+		THROW(CheckDialogPtr(&(p_dlg = new SendMailDialog())));
 		data.MailAccID = mailAccId;
 		data.AddrList = *pMailList;
 		p_dlg->setDTS(&data);

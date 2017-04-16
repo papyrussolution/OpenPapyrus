@@ -448,11 +448,11 @@ static int __rep_get_fileinfo(ENV*env, const char * file, const char * subdb, __
 	if(ret != 0)
 		goto err;
 err:
-	if(pagep != NULL && (t_ret = __memp_fput(mpf, ip, pagep, dbc->priority)) != 0 && ret == 0)
+	if(pagep && (t_ret = __memp_fput(mpf, ip, pagep, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(dbc != NULL && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
+	if(dbc && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
-	if(dbp != NULL && (t_ret = __db_close(dbp, NULL, 0)) != 0 && ret == 0)
+	if(dbp && (t_ret = __db_close(dbp, NULL, 0)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
 }
@@ -1410,8 +1410,7 @@ int __rep_page(ENV*env, DB_THREAD_INFO * ip, int eid, __rep_control_args * rp, D
 	if(ret == DB_KEYEXIST) {
 		VPRINT(env, (env, DB_VERB_REP_SYNC, "%s: Received duplicate page %lu from file %d", msg, (ulong)msgfp->pgno, msgfp->filenum));
 		STAT(rep->stat.st_pg_duplicated++);
-		PERFMON4(env, rep, pg_duplicated, eid,
-			msgfp->pgno, msgfp->filenum, rep->stat.st_pg_duplicated);
+		PERFMON4(env, rep, pg_duplicated, eid, msgfp->pgno, msgfp->filenum, rep->stat.st_pg_duplicated);
 		ret = 0;
 		goto err;
 	}
@@ -1421,8 +1420,7 @@ int __rep_page(ENV*env, DB_THREAD_INFO * ip, int eid, __rep_control_args * rp, D
 	 * We put the page in the database file itself.
 	 */
 	if(rp->rectype != REP_PAGE_FAIL) {
-		VPRINT(env, (env, DB_VERB_REP_SYNC,
-			     "%s: Write page %lu into mpool", msg, (ulong)msgfp->pgno));
+		VPRINT(env, (env, DB_VERB_REP_SYNC, "%s: Write page %lu into mpool", msg, (ulong)msgfp->pgno));
 		if((ret = __rep_write_page(env, ip, rep, msgfp)) != 0) {
 			/*
 			 * We got an error storing the page, therefore, we need
@@ -1469,16 +1467,11 @@ static int __rep_write_page(ENV * env, DB_THREAD_INFO * ip, REP * rep, __rep_fil
 	DBT pgcookie;
 	DB_MPOOLFILE * mpf;
 	DB_PGINFO * pginfo;
-	DB_REP * db_rep;
-	REGINFO * infop;
-	__rep_fileinfo_args * rfp;
+	__rep_fileinfo_args * rfp = 0;
 	int ret;
 	void * dst;
-
-	db_rep = env->rep_handle;
-	infop = env->reginfo;
-	rfp = NULL;
-
+	DB_REP * db_rep = env->rep_handle;
+	REGINFO * infop = env->reginfo;
 	/*
 	 * If this is the first page we're putting in this database, we need
 	 * to create the mpool file.  Otherwise call memp_fget to create the
@@ -1617,8 +1610,7 @@ static int __rep_page_gap(ENV*env, REP * rep, __rep_fileinfo_args * msgfp, uint3
 	 * We just want to return.
 	 */
 	if(msgfp->pgno < rep->ready_pg) {
-		VPRINT(env, (env, DB_VERB_REP_SYNC, "PAGE_GAP: pgno %lu < ready %lu, waiting %lu",
-			(ulong)msgfp->pgno, (ulong)rep->ready_pg, (ulong)rep->waiting_pg));
+		VPRINT(env, (env, DB_VERB_REP_SYNC, "PAGE_GAP: pgno %lu < ready %lu, waiting %lu", (ulong)msgfp->pgno, (ulong)rep->ready_pg, (ulong)rep->waiting_pg));
 		goto err;
 	}
 	/*
@@ -1768,16 +1760,14 @@ int __rep_init_cleanup(ENV*env, REP * rep, int force)
 	if(db_rep->file_dbp != NULL) {
 		t_ret = __db_close(db_rep->file_dbp, NULL, DB_NOSYNC);
 		db_rep->file_dbp = NULL;
-		if(ret == 0)
-			ret = t_ret;
+		SETIFZ(ret, t_ret);
 	}
 	if(force && db_rep->queue_dbc != NULL) {
 		queue_dbp = db_rep->queue_dbc->dbp;
 		if((t_ret = __dbc_close(db_rep->queue_dbc)) != 0 && ret == 0)
 			ret = t_ret;
 		db_rep->queue_dbc = NULL;
-		if((t_ret = __db_close(queue_dbp, NULL, DB_NOSYNC)) != 0 &&
-		   ret == 0)
+		if((t_ret = __db_close(queue_dbp, NULL, DB_NOSYNC)) != 0 && ret == 0)
 			ret = t_ret;
 	}
 	if(rep->curinfo_off != INVALID_ROFF) {

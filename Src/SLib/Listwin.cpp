@@ -1,5 +1,5 @@
 // LISTWIN.CPP
-// Copyright (c) V.Antonov, A.Osolotkin, A.Starodub, A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016
+// Copyright (c) V.Antonov, A.Osolotkin, A.Starodub, A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -15,7 +15,7 @@ ListWindow::ListWindow(ListBoxDef * pDef, const char * pTitle, int aNum) : TDial
 	P_Lb = new ListWindowSmartListBox(TRect(0, 0, 11, 11), pDef);
 	setDef(pDef);
 	TButton * b = new TButton(TRect(0, 0, 20, 20), "OK", cmOK, bfDefault);
-	insert(&b->SetId(IDOK)); /*CTLID_LISTBOXOKBUTTON*/
+	Insert_(&b->SetId(IDOK)); /*CTLID_LISTBOXOKBUTTON*/
 	TbId = 0;
 }
 
@@ -99,7 +99,7 @@ int FASTCALL ListWindow::setDef(ListBoxDef * pDef)
 		if(found)
 			insertBefore(P_Lb, p_next);
 		else
-			insert(P_Lb);
+			Insert_(P_Lb);
 	}
 	return 1;
 }
@@ -463,7 +463,7 @@ WordSelector::WordSelector(WordSel_ExtraBlock * pBlk)
 	P_Lb->SetOwnerDrawState();
 	setDef(def);
 	TButton * b = new TButton(TRect(0, 0, 20, 20), "OK", cmOK, bfDefault);
-	insert(&b->SetId(IDOK)); /*CTLID_LISTBOXOKBUTTON*/
+	Insert_(&b->SetId(IDOK)); /*CTLID_LISTBOXOKBUTTON*/
 
 	Ptb.SetColor(clrFocus,  RGB(0x20, 0xAC, 0x90));
 	Ptb.SetColor(clrOdd,    RGB(0xDC, 0xED, 0xD5));
@@ -551,7 +551,7 @@ int WordSelector::Refresh(const char * pText)
 					IsVisible = 0;
 			}
 			else
-				drawView();
+				Draw_();
 			r = 1;
 		}
 		if(r <= 0 && CheckVisible() == 1) {
@@ -714,7 +714,7 @@ int FASTCALL WordSelector::setDef(ListBoxDef * pDef)
 		if(found)
 			insertBefore(P_Lb, p_next);
 		else
-			insert(P_Lb);
+			Insert_(P_Lb);
 	}
 	return 1;
 }

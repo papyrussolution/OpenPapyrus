@@ -417,7 +417,7 @@ int SLAPI PrcssrPrediction::EditPredictCfg()
 	MEMSZERO(cfg);
 	is_new = PrcssrPrediction::GetPredictCfg(&cfg);
 
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	op_list.add(PPOPT_DRAFTRECEIPT);
 	SetupOprKindCombo(dlg, CTLSEL_PREDICTCFG_OPRPCH, cfg.PurchaseOpID, 0, &op_list, 0);
 	SetupPPObjCombo(dlg, CTLSEL_PREDICTCFG_OPRS, PPOBJ_OPRKIND, cfg.OpID, 0, 0);
@@ -780,7 +780,7 @@ int SLAPI PrcssrPrediction::EditParam(Param * pParam)
 	THROW_PP(PrcssrPrediction::GetPredictCfg(&cfg) > 0 && cfg.OpID > 0, PPERR_INVPREDICTOP);
 	if(pParam && pParam->Process & pParam->prcsTest) {
 		PSalesTestParamDialog * dlg = 0;
-		THROW(CheckDialogPtr(&(dlg = new PSalesTestParamDialog(&cfg)), 0));
+		THROW(CheckDialogPtr(&(dlg = new PSalesTestParamDialog(&cfg))));
 		p_dlg_ = dlg;
 		THROW(dlg->setDTS(pParam));
 		while(ok < 0 && ExecView(dlg) == cmOK)
@@ -789,7 +789,7 @@ int SLAPI PrcssrPrediction::EditParam(Param * pParam)
 	}
 	else {
 		PredictionParamDialog * dlg = 0;
-		THROW(CheckDialogPtr(&(dlg = new PredictionParamDialog(&cfg, &T)), 0));
+		THROW(CheckDialogPtr(&(dlg = new PredictionParamDialog(&cfg, &T))));
 		p_dlg_ = dlg;
 		THROW(dlg->setDTS(pParam));
 		while(ok < 0 && ExecView(dlg) == cmOK)

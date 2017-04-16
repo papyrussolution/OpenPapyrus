@@ -679,7 +679,7 @@ int GoodsRestFiltDlg::editAdvOptions()
 	int    ok = -1;
 	ushort v = 0;
 	TDialog * p_dlg = new TDialog(DLG_GRESTFLTA);
-	if(CheckDialogPtr(&p_dlg, 1)) {
+	if(CheckDialogPtrErr(&p_dlg)) {
 		p_dlg->SetupCalDate(CTLCAL_GRESTFLTA_DEFICDT, CTL_GRESTFLTA_DEFICDT);
 		SetupArCombo(p_dlg, CTLSEL_GRESTFLTA_AGENT, Data.AgentID, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 		p_dlg->setCtrlData(CTL_GRESTFLTA_DEFICDT, &Data.DeficitDt);
@@ -3111,7 +3111,7 @@ int SLAPI PPViewGoodsRest::ViewPrediction(PPID goodsID, PPID /*locID*/)
 		double predict = 0.0;
 		if(GetEstimatedSales(&LocList, goodsID, &prd, &predict) > 0) {
 			TDialog * p_dlg = new TDialog(DLG_VIEWPRGN);
-			if(CheckDialogPtr(&p_dlg, 1)) {
+			if(CheckDialogPtrErr(&p_dlg)) {
 				SString goods_name;
 				p_dlg->setCtrlString(CTL_VIEWPRGN_GOODS, GetGoodsName(goodsID, goods_name));
 				SetPeriodInput(p_dlg, CTL_VIEWPRGN_PRDPRGN, &prd);
@@ -3558,7 +3558,7 @@ int SLAPI PPViewGoodsRest::ViewTotal()
 	if(GetTotal(&total)) {
 		PPWait(0);
 		GoodsRestTotalDialog * dlg = new GoodsRestTotalDialog(&total, this);
-		if(CheckDialogPtr(&dlg, 1))
+		if(CheckDialogPtrErr(&dlg))
 			ExecViewAndDestroy(dlg);
 	}
 	PPWait(0);
@@ -3593,7 +3593,7 @@ int SLAPI PPViewGoodsRest::ExportUhtt(int silent)
 			if(exp_options & GoodsRestFilt::uefZeroAbsPrices)
 				_f |= 0x0001;
 
-			THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_GRESTUHTTEXP)), 0));
+			THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_GRESTUHTTEXP))));
 			dlg->AddClusterAssoc(CTL_GRESTUHTTEXP_F, 0, 1);
 			dlg->AddClusterAssoc(CTL_GRESTUHTTEXP_F, -1, 1);
 			dlg->AddClusterAssoc(CTL_GRESTUHTTEXP_F, 1, 2);

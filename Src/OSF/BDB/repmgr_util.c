@@ -528,8 +528,7 @@ retry:
 			continue;
 		DB_INIT_DBT(key.host, addr.host, strlen(addr.host)+1);
 		key.port = addr.port;
-		ret = __repmgr_membership_key_marshal(env,
-			&key, key_buf, sizeof(key_buf), &len);
+		ret = __repmgr_membership_key_marshal(env, &key, key_buf, sizeof(key_buf), &len);
 		DB_ASSERT(env, ret == 0);
 		DB_INIT_DBT(key_dbt, key_buf, len);
 		member_status.flags = status;
@@ -581,9 +580,7 @@ int __repmgr_each_connection(ENV * env, CONNECTION_ACTION callback, void * info,
 	 * We might have used TAILQ_FOREACH here, except that in some cases we
 	 * need to unlink an element along the way.
 	 */
-	for(conn = TAILQ_FIRST(&db_rep->connections);
-	    conn != NULL;
-	    conn = next) {
+	for(conn = TAILQ_FIRST(&db_rep->connections); conn != NULL; conn = next) {
 		next = TAILQ_NEXT(conn, entries);
 		if((t_ret = (*callback)(env, conn, info)) != 0)
 			HANDLE_ERROR;
@@ -595,9 +592,7 @@ int __repmgr_each_connection(ENV * env, CONNECTION_ACTION callback, void * info,
 			if((t_ret = (*callback)(env, conn, info)) != 0)
 				HANDLE_ERROR;
 		}
-		for(conn = TAILQ_FIRST(&site->sub_conns);
-		    conn != NULL;
-		    conn = next) {
+		for(conn = TAILQ_FIRST(&site->sub_conns); conn != NULL; conn = next) {
 			next = TAILQ_NEXT(conn, entries);
 			if((t_ret = (*callback)(env, conn, info)) != 0)
 				HANDLE_ERROR;

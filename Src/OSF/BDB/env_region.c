@@ -1030,8 +1030,7 @@ static int __env_sys_attach(ENV * env, REGINFO * infop, REGION * rp)
 			return EINVAL;
 		}
 #endif
-		if((ret = __os_malloc(
-			    env, sizeof(REGENV), &infop->addr)) != 0)
+		if((ret = __os_malloc(env, sizeof(REGENV), &infop->addr)) != 0)
 			return ret;
 	}
 	else {
@@ -1062,12 +1061,13 @@ static int __env_sys_attach(ENV * env, REGINFO * infop, REGION * rp)
  */
 static int __env_sys_detach(ENV * env, REGINFO * infop, int destroy)
 {
-	/* If a region is private, free the memory. */
+	// If a region is private, free the memory.
 	if(F_ISSET(env, ENV_PRIVATE)) {
 		__os_free(env, infop->addr);
 		return 0;
 	}
-	return __os_detach(env, infop, destroy);
+	else
+		return __os_detach(env, infop, destroy);
 }
 /*
  * __env_des_get --
@@ -1076,11 +1076,10 @@ static int __env_sys_detach(ENV * env, REGINFO * infop, int destroy)
  */
 static int __env_des_get(ENV * env, REGINFO * env_infop, REGINFO * infop, REGION ** rpp)
 {
-	REGENV * renv;
 	REGION * rp, * empty_slot, * first_type;
 	uint32 i, maxid;
 	*rpp = NULL;
-	renv = (REGENV *)env_infop->primary;
+	REGENV * renv = (REGENV *)env_infop->primary;
 	/*
 	 * If the caller wants to join a region, walk through the existing
 	 * regions looking for a matching ID (if ID specified) or matching
@@ -1097,8 +1096,7 @@ static int __env_des_get(ENV * env, REGINFO * env_infop, REGINFO * infop, REGION
 	empty_slot = first_type = NULL;
 	for(rp = (REGION *)R_ADDR(env_infop, renv->region_off), i = 0; i < renv->region_cnt; ++i, ++rp) {
 		if(rp->id == INVALID_REGION_ID) {
-			if(empty_slot == NULL)
-				empty_slot = rp;
+			SETIFZ(empty_slot, rp);
 			continue;
 		}
 		if(infop->id != INVALID_REGION_ID) {

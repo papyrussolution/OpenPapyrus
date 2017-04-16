@@ -773,9 +773,9 @@ void BrowserWindow::AdjustCursorsForHdr()
 	RectCursors.LineCursor.bottom += hdr_width;
 }
 
-void BrowserWindow::insert(TView *p)
+void BrowserWindow::Insert_(TView *p)
 {
-	TGroup::insert(p);
+	TGroup::Insert_(p);
 	P_Header = p;
 	// @v9.0.1 P_Def->setViewHight((CliSz.y - CapOffs) / YCell - p->getExtent().b.y - 1);
 	P_Def->setViewHight((CliSz.y - CapOffs) / YCell - p->size.y - 1); // @v9.0.1

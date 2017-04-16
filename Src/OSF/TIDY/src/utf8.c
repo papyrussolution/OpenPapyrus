@@ -207,7 +207,7 @@ int TY_(DecodeUTF8BytesToChar) (uint* c, uint firstByte, ctmbstr successorBytes,
 		bytes = 6;
 		hasError = true;
 	}
-	else{
+	else {
 		/* not a valid first byte of a UTF-8 sequence */
 		n = ch;
 		bytes = 1;
@@ -271,7 +271,7 @@ int TY_(DecodeUTF8BytesToChar) (uint* c, uint firstByte, ctmbstr successorBytes,
 		/* check for overlong sequences */
 		if((n < validUTF8[lo].lowChar) || (n > validUTF8[hi].highChar))
 			hasError = true;
-		else{
+		else {
 			hasError = true; /* assume error until proven otherwise */
 
 			for(i = lo; i <= hi; i++) {

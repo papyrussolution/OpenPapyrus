@@ -714,10 +714,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Osf\Zlib\deflate.c" />
-    <ClCompile Include="..\Osf\Zlib\gzclose.c" />
-    <ClCompile Include="..\Osf\Zlib\gzlib.c" />
-    <ClCompile Include="..\Osf\Zlib\gzread.c" />
-    <ClCompile Include="..\Osf\Zlib\gzwrite.c" />
     <ClCompile Include="..\Osf\Zlib\infback.c" />
     <ClCompile Include="..\Osf\Zlib\inffast.c" />
     <ClCompile Include="..\Osf\Zlib\inflate.c" />
@@ -755,17 +751,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Include\ZLIB\crc32.h" />
-    <ClInclude Include="..\Include\ZLIB\deflate.h" />
-    <ClInclude Include="..\Include\ZLIB\gzguts.h" />
-    <ClInclude Include="..\Include\ZLIB\inffast.h" />
     <ClInclude Include="..\Include\ZLIB\inffixed.h" />
-    <ClInclude Include="..\Include\ZLIB\inflate.h" />
-    <ClInclude Include="..\Include\ZLIB\inftrees.h" />
-    <ClInclude Include="..\Include\ZLIB\trees.h" />
     <ClInclude Include="..\Include\ZLIB\zconf.h" />
     <ClInclude Include="..\Include\ZLIB\zlib.h" />
-    <ClInclude Include="..\Include\ZLIB\zutil.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

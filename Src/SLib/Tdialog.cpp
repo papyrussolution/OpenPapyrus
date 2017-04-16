@@ -253,18 +253,18 @@ int TDialog::SetCtlSymb(uint id, const char * pSymb)
 int TDialog::GetCtlSymb(uint id, SString & rBuf) const
 {
 	rBuf = 0;
-	return (P_SymbList && P_SymbList->Get((long)id, rBuf) > 0) ? 1 : 0;
+	return BIN(P_SymbList && P_SymbList->Get((long)id, rBuf) > 0);
 }
 
 int TDialog::InsertCtl(TView * pCtl, uint id, const char * pSymb)
 {
+	int    ok = 0;
 	if(pCtl) {
-		insert(&pCtl->SetId(id));
+		Insert_(&pCtl->SetId(id));
 		SetCtlSymb(id, pSymb);
-		return 1;
+		ok = 1;
 	}
-	else
-		return 0;
+	return ok;
 }
 
 // static
@@ -354,18 +354,19 @@ int SLAPI TDialog::LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long fl
 						r  = rez->getRect();
 						id = rez->getUINT();
 						rez->getString(symb, 0);
-						int    is_tree_list = 0;
 						rez->getUINT();    // options
 						rez->getType(0);   // type
 						rez->getFormat(0); // format
 						help_ctx = rez->getUINT();
 						rez->getString(columns_buf, 0);
-						is_tree_list = (columns_buf.CmpNC("TREELISTVIEW") == 0);
-						SmartListBox * p_lb = new SmartListBox(r, 0, is_tree_list);
-						if(p_lb) {
-							if(!is_tree_list)
-								p_lb->SetupColumns(columns_buf);
-							dlg->InsertCtl(p_lb, id, (flags & ldfDL600_Cvt) ? (const char *)symb : 0);
+						{
+							const int is_tree_list = (columns_buf.CmpNC("TREELISTVIEW") == 0);
+							SmartListBox * p_lb = new SmartListBox(r, 0, is_tree_list);
+							if(p_lb) {
+								if(!is_tree_list)
+									p_lb->SetupColumns(columns_buf);
+								dlg->InsertCtl(p_lb, id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
+							}
 						}
 					}
 					break;
@@ -385,13 +386,13 @@ int SLAPI TDialog::LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long fl
 						rez->getString(buf);
                 		rez->getString(columns_buf);
 						rez->getString(temp_buf = 0, 0); // image_symbol
-						if(stricmp(columns_buf, "IMAGEVIEW") == 0) {
+						if(sstreqi_ascii(columns_buf, "IMAGEVIEW")) {
 							p_ctl = new TImageView(r, temp_buf);
 						}
 						else
 							p_ctl = new TStaticText(r, buf);
 					}
-					dlg->InsertCtl(p_ctl, id, (flags & ldfDL600_Cvt) ? (const char *)symb : 0);
+					dlg->InsertCtl(p_ctl, id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
 					break;
 				case TV_LABEL:
 					r = rez->getRect();
@@ -400,7 +401,7 @@ int SLAPI TDialog::LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long fl
 					rez->getString(buf);
 					p_view = dlg->getCtrlView(rez->getUINT());
 					if(p_view)
-						dlg->InsertCtl(new TLabel(r, buf, p_view), id, (flags & ldfDL600_Cvt) ? (const char *)symb : 0);
+						dlg->InsertCtl(new TLabel(r, buf, p_view), id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
 					break;
 				case TV_COMBO:
 					r  = rez->getRect();
@@ -415,7 +416,7 @@ int SLAPI TDialog::LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long fl
 						ComboBox * combo = new ComboBox(r,  options);
 						TInputLine * il = (TInputLine *)p_view;
 						CALLPTRMEMB(il, setupCombo(combo));
-						dlg->InsertCtl(combo, id, (flags & ldfDL600_Cvt) ? (const char *)symb : 0);
+						dlg->InsertCtl(combo, id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
 					}
 					break;
 				case TV_LOCALMENU:
@@ -624,7 +625,7 @@ IMPL_HANDLE_EVENT(TDialog)
 					is_list_win = TRUE;
 					EnableWindow(GetParent(PrevInStack), 0);
 				}
-				DlgFlags |= fInitModal; // @debug @v7.7.6
+				// @v9.6.2 DlgFlags |= fInitModal; // @debug @v7.7.6
 				MSG msg;
 				do {
 					GetMessage(&msg, 0, 0, 0);
@@ -669,6 +670,7 @@ IMPL_HANDLE_EVENT(TDialog)
 							EndModalCmd = event.message.command;
 							clearEvent(event);
 						}
+						/* @v9.6.2
 						// @v7.7.6 {
 						else if(DlgFlags & fInitModal) {
 							SString msg_buf;
@@ -678,6 +680,7 @@ IMPL_HANDLE_EVENT(TDialog)
 							clearEvent(event);
 						}
 						// } @v7.7.6
+						@v9.6.2 */
 						break;
 					case cmaCalculate:
 						{

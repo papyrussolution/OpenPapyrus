@@ -22,7 +22,7 @@ typedef struct __db_foreign_info DB_FOREIGN_INFO;
 struct __db_foreign_info {
 	DB *dbp;
 	uint32 flags;
-	int (*callback) __P((DB *, const DBT *, DBT *, const DBT *, int *));
+	int (*callback)(DB *, const DBT *, DBT *, const DBT *, int *);
 
 	/*
 	 * List entries for foreign key.

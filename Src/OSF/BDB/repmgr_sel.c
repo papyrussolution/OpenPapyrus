@@ -683,10 +683,8 @@ static int prepare_input(ENV * env, REPMGR_CONNECTION * conn)
 	 */
 	ret = __repmgr_msg_hdr_unmarshal(env, &msg_hdr, conn->msg_hdr_buf, __REPMGR_MSG_HDR_SIZE, NULL);
 	DB_ASSERT(env, ret == 0);
-
 	__repmgr_iovec_init(&conn->iovecs);
 	skip = FALSE;
-
 	switch((conn->msg_type = msg_hdr.type)) {
 	    case REPMGR_HEARTBEAT:
 	    /*
@@ -703,8 +701,7 @@ static int prepare_input(ENV * env, REPMGR_CONNECTION * conn)
 		if(control_size == 0) {
 			if(conn->msg_type == REPMGR_HEARTBEAT) {
 				/*
-				 * Got an old-style heartbeat without payload,
-				 * nothing to do.
+				 * Got an old-style heartbeat without payload, nothing to do.
 				 */
 				skip = TRUE;
 				break;
@@ -735,22 +732,14 @@ static int prepare_input(ENV * env, REPMGR_CONNECTION * conn)
 		conn->input.rep_message = (REPMGR_MESSAGE *)membase;
 		conn->input.rep_message->msg_hdr = msg_hdr;
 		conn->input.rep_message->v.repmsg.originating_eid = conn->eid;
-
-		DB_INIT_DBT(conn->input.rep_message->v.repmsg.control,
-			(uint8 *)membase+control_offset, control_size);
-		__repmgr_add_dbt(&conn->iovecs,
-			&conn->input.rep_message->v.repmsg.control);
+		DB_INIT_DBT(conn->input.rep_message->v.repmsg.control, (uint8 *)membase+control_offset, control_size);
+		__repmgr_add_dbt(&conn->iovecs, (const DBT *)&conn->input.rep_message->v.repmsg.control);
 		if(rec_size > 0) {
-			DB_INIT_DBT(conn->input.rep_message->v.repmsg.rec,
-				(rec_size > 0 ?
-				 (uint8 *)membase+rec_offset : NULL),
-				rec_size);
-			__repmgr_add_dbt(&conn->iovecs,
-				&conn->input.rep_message->v.repmsg.rec);
+			DB_INIT_DBT(conn->input.rep_message->v.repmsg.rec, (rec_size > 0 ? (uint8 *)membase+rec_offset : NULL), rec_size);
+			__repmgr_add_dbt(&conn->iovecs, (const DBT *)&conn->input.rep_message->v.repmsg.rec);
 		}
 		else
-			DB_INIT_DBT(conn->input.rep_message->v.repmsg.rec,
-				NULL, 0);
+			DB_INIT_DBT(conn->input.rep_message->v.repmsg.rec, NULL, 0);
 		break;
 
 	    case REPMGR_APP_MESSAGE:
@@ -760,9 +749,7 @@ static int prepare_input(ENV * env, REPMGR_CONNECTION * conn)
 		 * extend the struct size for the variable-length DBT array at
 		 * the end.
 		 */
-		size = DB_ALIGN((size_t)(sizeof(REPMGR_MESSAGE)+
-			                 APP_MSG_SEGMENT_COUNT(msg_hdr)*sizeof(DBT)),
-			MEM_ALIGN);
+		size = DB_ALIGN((size_t)(sizeof(REPMGR_MESSAGE) + APP_MSG_SEGMENT_COUNT(msg_hdr)*sizeof(DBT)), MEM_ALIGN);
 		memsize = size+APP_MSG_BUFFER_SIZE(msg_hdr);
 		if((ret = __os_malloc(env, memsize, &membase)) != 0)
 			return ret;
@@ -770,11 +757,8 @@ static int prepare_input(ENV * env, REPMGR_CONNECTION * conn)
 		conn->input.rep_message->msg_hdr = msg_hdr;
 		conn->input.rep_message->v.appmsg.conn = conn;
 
-		DB_INIT_DBT(conn->input.rep_message->v.appmsg.buf,
-			(uint8 *)membase+size,
-			APP_MSG_BUFFER_SIZE(msg_hdr));
-		__repmgr_add_dbt(&conn->iovecs,
-			&conn->input.rep_message->v.appmsg.buf);
+		DB_INIT_DBT(conn->input.rep_message->v.appmsg.buf, (uint8 *)membase+size, APP_MSG_BUFFER_SIZE(msg_hdr));
+		__repmgr_add_dbt(&conn->iovecs, (const DBT *)&conn->input.rep_message->v.appmsg.buf);
 		break;
 
 	    case REPMGR_OWN_MSG:
@@ -794,11 +778,8 @@ static int prepare_input(ENV * env, REPMGR_CONNECTION * conn)
 		 * for a one-shot GMDB request.
 		 */
 		DB_ASSERT(env, REPMGR_OWN_BUF_SIZE(msg_hdr) > 0);
-		DB_INIT_DBT(conn->input.rep_message->v.gmdb_msg.request,
-			(uint8 *)membase+sizeof(REPMGR_MESSAGE),
-			REPMGR_OWN_BUF_SIZE(msg_hdr));
-		__repmgr_add_dbt(&conn->iovecs,
-			&conn->input.rep_message->v.gmdb_msg.request);
+		DB_INIT_DBT(conn->input.rep_message->v.gmdb_msg.request, (uint8 *)membase+sizeof(REPMGR_MESSAGE), REPMGR_OWN_BUF_SIZE(msg_hdr));
+		__repmgr_add_dbt(&conn->iovecs, (const DBT *)&conn->input.rep_message->v.gmdb_msg.request);
 		break;
 
 	    case REPMGR_APP_RESPONSE:
@@ -903,21 +884,19 @@ static int prepare_input(ENV * env, REPMGR_CONNECTION * conn)
  */
 int __repmgr_prepare_simple_input(ENV * env, REPMGR_CONNECTION * conn, __repmgr_msg_hdr_args * msg_hdr)
 {
-	DBT * dbt;
-	uint32 control_size, rec_size;
 	int ret;
-	control_size = REP_MSG_CONTROL_SIZE(*msg_hdr);
-	rec_size = REP_MSG_REC_SIZE(*msg_hdr);
-	dbt = &conn->input.repmgr_msg.cntrl;
+	uint32 control_size = REP_MSG_CONTROL_SIZE(*msg_hdr);
+	uint32 rec_size = REP_MSG_REC_SIZE(*msg_hdr);
+	DBT * dbt = (DBT *)&conn->input.repmgr_msg.cntrl;
 	if((dbt->size = control_size) > 0) {
 		if((ret = __os_malloc(env, dbt->size, &dbt->data)) != 0)
 			return ret;
 		__repmgr_add_dbt(&conn->iovecs, dbt);
 	}
-	dbt = &conn->input.repmgr_msg.rec;
+	dbt = (DBT *)&conn->input.repmgr_msg.rec;
 	if((dbt->size = rec_size) > 0) {
 		if((ret = __os_malloc(env, dbt->size, &dbt->data)) != 0) {
-			dbt = &conn->input.repmgr_msg.cntrl;
+			dbt = (DBT *)&conn->input.repmgr_msg.cntrl;
 			if(dbt->size > 0)
 				__os_free(env, dbt->data);
 			return ret;
@@ -994,13 +973,13 @@ static int dispatch_msgin(ENV*env, REPMGR_CONNECTION * conn)
 		 */
 		switch(conn->msg_type) {
 		    case REPMGR_HANDSHAKE:
-			dbt = &conn->input.repmgr_msg.rec;
-			hostname = (char *)dbt->data;
-			hostname[dbt->size-1] = '\0';
-			if((ret = accept_handshake(env, conn, hostname)) != 0)
-				return ret;
-			conn->state = CONN_READY;
-			break;
+				dbt = (DBT *)&conn->input.repmgr_msg.rec;
+				hostname = (char *)dbt->data;
+				hostname[dbt->size-1] = '\0';
+				if((ret = accept_handshake(env, conn, hostname)) != 0)
+					return ret;
+				conn->state = CONN_READY;
+				break;
 		    case REPMGR_OWN_MSG:
 			/*
 			 * GM change requests arrive in their own dedicated
@@ -1109,18 +1088,18 @@ static int dispatch_msgin(ENV*env, REPMGR_CONNECTION * conn)
 	switch(conn->msg_type) {
 	    case REPMGR_HANDSHAKE:
 	    case REPMGR_PERMLSN:
-		dbt = &conn->input.repmgr_msg.cntrl;
-		if(dbt->size > 0)
-			__os_free(env, dbt->data);
-		dbt = &conn->input.repmgr_msg.rec;
-		if(dbt->size > 0)
-			__os_free(env, dbt->data);
-		break;
+			dbt = (DBT *)&conn->input.repmgr_msg.cntrl;
+			if(dbt->size > 0)
+				__os_free(env, dbt->data);
+			dbt = (DBT *)&conn->input.repmgr_msg.rec;
+			if(dbt->size > 0)
+				__os_free(env, dbt->data);
+			break;
 	    default:
-		/*
-		 * Some messages in REPMGR_OWN_MSG format are also handled
-		 */
-		break;
+			/*
+			* Some messages in REPMGR_OWN_MSG format are also handled
+			*/
+			break;
 	}
 	__repmgr_reset_for_reading(conn);
 	return 0;
@@ -1150,27 +1129,27 @@ static int process_own_msg(ENV*env, REPMGR_CONNECTION * conn)
 	 */
 	switch(REPMGR_OWN_MSG_TYPE((msg = conn->input.rep_message)->msg_hdr)) {
 	    case REPMGR_CONNECT_REJECT:
-		dbt = &msg->v.gmdb_msg.request;
-		if((ret = __repmgr_connect_reject_unmarshal(env, &reject, (uint8 *)dbt->data, dbt->size, NULL)) != 0)
-			return DB_REP_UNAVAIL;
-		/*
-		 * If we're being rejected by someone who has more up-to-date
-		 * membership information than we do, it means we have been
-		 * removed from the group.  If we've just gotten started, we can
-		 * make one attempt at automatically rejoining; otherwise we bow
-		 * out gracefully.
-		 */
-		RPRINT(env, (env, DB_VERB_REPMGR_MISC, "got rejection msg citing version %lu/%lu", (ulong)reject.gen, (ulong)reject.version));
-		if(__repmgr_gmdb_version_cmp(env, reject.gen, reject.version) > 0) {
-			if(env->rep_handle->seen_repmsg)
-				ret = DB_DELETED;
-			else if((ret = __repmgr_defer_op(env, REPMGR_REJOIN)) == 0)
+			dbt = (DBT *)&msg->v.gmdb_msg.request;
+			if((ret = __repmgr_connect_reject_unmarshal(env, &reject, (uint8 *)dbt->data, dbt->size, NULL)) != 0)
+				return DB_REP_UNAVAIL;
+			/*
+			* If we're being rejected by someone who has more up-to-date
+			* membership information than we do, it means we have been
+			* removed from the group.  If we've just gotten started, we can
+			* make one attempt at automatically rejoining; otherwise we bow
+			* out gracefully.
+			*/
+			RPRINT(env, (env, DB_VERB_REPMGR_MISC, "got rejection msg citing version %lu/%lu", (ulong)reject.gen, (ulong)reject.version));
+			if(__repmgr_gmdb_version_cmp(env, reject.gen, reject.version) > 0) {
+				if(env->rep_handle->seen_repmsg)
+					ret = DB_DELETED;
+				else if((ret = __repmgr_defer_op(env, REPMGR_REJOIN)) == 0)
+					ret = DB_REP_UNAVAIL;
+			}
+			else
 				ret = DB_REP_UNAVAIL;
-		}
-		else
-			ret = DB_REP_UNAVAIL;
-		DB_ASSERT(env, ret != 0);
-		return ret;
+			DB_ASSERT(env, ret != 0);
+			return ret;
 
 	    case REPMGR_SHARING:
 		if((ret = __repmgr_queue_put(env, msg)) != 0)
@@ -1180,21 +1159,20 @@ static int process_own_msg(ENV*env, REPMGR_CONNECTION * conn)
 		break;
 
 	    case REPMGR_PARM_REFRESH:
-		dbt = &conn->input.rep_message->v.gmdb_msg.request;
-		if((ret = __repmgr_parm_refresh_unmarshal(env, &parms, (uint8 *)dbt->data, dbt->size, NULL)) != 0)
-			return DB_REP_UNAVAIL;
-		db_rep = env->rep_handle;
-		DB_ASSERT(env, conn->type == REP_CONNECTION &&
-			IS_KNOWN_REMOTE_SITE(conn->eid));
-		site = SITE_FROM_EID(conn->eid);
-		site->ack_policy = (int)parms.ack_policy;
-		if(F_ISSET(&parms, ELECTABLE_SITE))
-			F_SET(site, SITE_ELECTABLE);
-		else
-			F_CLR(site, SITE_ELECTABLE);
-		F_SET(site, SITE_HAS_PRIO);
-		break;
-
+			dbt = (DBT *)&conn->input.rep_message->v.gmdb_msg.request;
+			if((ret = __repmgr_parm_refresh_unmarshal(env, &parms, (uint8 *)dbt->data, dbt->size, NULL)) != 0)
+				return DB_REP_UNAVAIL;
+			db_rep = env->rep_handle;
+			DB_ASSERT(env, conn->type == REP_CONNECTION &&
+				IS_KNOWN_REMOTE_SITE(conn->eid));
+			site = SITE_FROM_EID(conn->eid);
+			site->ack_policy = (int)parms.ack_policy;
+			if(F_ISSET(&parms, ELECTABLE_SITE))
+				F_SET(site, SITE_ELECTABLE);
+			else
+				F_CLR(site, SITE_ELECTABLE);
+			F_SET(site, SITE_HAS_PRIO);
+			break;
 	    case REPMGR_GM_FAILURE:
 	    case REPMGR_GM_FORWARD:
 	    case REPMGR_JOIN_REQUEST:
@@ -1413,10 +1391,9 @@ static int read_version_response(ENV*env, REPMGR_CONNECTION * conn)
  */
 int __repmgr_find_version_info(ENV*env, REPMGR_CONNECTION * conn, DBT * vi)
 {
-	DBT * dbt;
 	char * hostname;
 	uint32 hostname_len;
-	dbt = &conn->input.repmgr_msg.rec;
+	DBT * dbt = (DBT *)&conn->input.repmgr_msg.rec;
 	if(dbt->size == 0) {
 		__db_errx(env, DB_STR("3624", "handshake is missing rec part"));
 		return DB_REP_UNAVAIL;
@@ -1481,8 +1458,7 @@ static int accept_handshake(ENV*env, REPMGR_CONNECTION * conn, char * hostname)
 	    default:
 		return __db_unknown_path(env, "accept_handshake");
 	}
-	return process_parameters(env,
-		conn, hostname, port, ack, electable, flags);
+	return process_parameters(env, conn, hostname, port, ack, electable, flags);
 }
 
 static int accept_v1_handshake(ENV*env, REPMGR_CONNECTION * conn, char * hostname)
@@ -1494,23 +1470,23 @@ static int accept_v1_handshake(ENV*env, REPMGR_CONNECTION * conn, char * hostnam
 		__db_errx(env, DB_STR("3625", "malformed V1 handshake"));
 		return DB_REP_UNAVAIL;
 	}
-	conn->version = 1;
-	prio = ntohl(handshake->priority);
-	electable = prio > 0;
-	return process_parameters(env, conn, hostname, handshake->port, 0, electable, 0);
+	else {
+		conn->version = 1;
+		prio = ntohl(handshake->priority);
+		electable = prio > 0;
+		return process_parameters(env, conn, hostname, handshake->port, 0, electable, 0);
+	}
 }
 
 /* Caller must hold mutex. */
 static int process_parameters(ENV*env, REPMGR_CONNECTION * conn, char * host, uint port, uint32 ack, int electable, uint32 flags)
 {
-	DB_REP * db_rep;
 	REPMGR_RETRY * retry;
 	REPMGR_SITE * site;
 	__repmgr_connect_reject_args reject;
 	uint8 reject_buf[__REPMGR_CONNECT_REJECT_SIZE];
 	int eid, ret, sockopt;
-
-	db_rep = env->rep_handle;
+	DB_REP * db_rep = env->rep_handle;
 	/* Connection state can be used to discern incoming versus outgoing. */
 	if(conn->state == CONN_CONNECTED) {
 		/*
@@ -1521,14 +1497,10 @@ static int process_parameters(ENV*env, REPMGR_CONNECTION * conn, char * host, ui
 		 */
 		DB_ASSERT(env, IS_KNOWN_REMOTE_SITE(conn->eid));
 		site = SITE_FROM_EID(conn->eid);
-		RPRINT(env, (env, DB_VERB_REPMGR_MISC,
-			     "handshake from connection to %s:%lu EID %u",
-			     site->net_addr.host,
-			     (ulong)site->net_addr.port, conn->eid));
+		RPRINT(env, (env, DB_VERB_REPMGR_MISC, "handshake from connection to %s:%lu EID %u", site->net_addr.host, (ulong)site->net_addr.port, conn->eid));
 	}
 	else {
-		DB_ASSERT(env, conn->state == CONN_NEGOTIATE ||
-			conn->state == CONN_PARAMETERS);
+		DB_ASSERT(env, oneof2(conn->state, CONN_NEGOTIATE, CONN_PARAMETERS));
 		/*
 		 * Incoming connection: until now we haven't known what kind of
 		 * connection we're dealing with (and in the case of a
@@ -1546,8 +1518,7 @@ static int process_parameters(ENV*env, REPMGR_CONNECTION * conn, char * host, ui
 		 * Now that we've been given the host and port, use them to find
 		 * the site.
 		 */
-		if((site = __repmgr_lookup_site(env, host, port)) != NULL &&
-		   site->membership == SITE_PRESENT) {
+		if((site = __repmgr_lookup_site(env, host, port)) != NULL && site->membership == SITE_PRESENT) {
 			TAILQ_REMOVE(&db_rep->connections, conn, entries);
 			conn->ref_count--;
 
@@ -1584,23 +1555,18 @@ static int process_parameters(ENV*env, REPMGR_CONNECTION * conn, char * host, ui
 					 * site we were already connected to; at
 					 * least we thought we were.
 					 */
-					RPRINT(env, (env, DB_VERB_REPMGR_MISC,
-						     "connection from %s:%u EID %u supersedes existing",
-						     host, port, eid));
+					RPRINT(env, (env, DB_VERB_REPMGR_MISC, "connection from %s:%u EID %u supersedes existing", host, port, eid));
 					/*
 					 * No need for site-oriented recovery,
 					 * since we now have a replacement
 					 * connection; so skip bust_connection()
 					 * and call disable_conn() directly.
 					 */
-					if((ret = __repmgr_disable_connection(
-						    env, site->ref.conn)) != 0)
+					if((ret = __repmgr_disable_connection(env, site->ref.conn)) != 0)
 						return ret;
 					break;
 				    case SITE_CONNECTING:
-					RPRINT(env, (env, DB_VERB_REPMGR_MISC,
-						     "handshake from connecting site %s:%u EID %u",
-						     host, port, eid));
+					RPRINT(env, (env, DB_VERB_REPMGR_MISC, "handshake from connecting site %s:%u EID %u", host, port, eid));
 					/*
 					 * Connector thread will give up when it
 					 * sees this site's state change, so we
@@ -1613,21 +1579,15 @@ static int process_parameters(ENV*env, REPMGR_CONNECTION * conn, char * host, ui
 				conn->eid = eid;
 				site->state = SITE_CONNECTED;
 				site->ref.conn = conn;
-				__os_gettime(env,
-					&site->last_rcvd_timestamp, 1);
+				__os_gettime(env, &site->last_rcvd_timestamp, 1);
 			}
 		}
 		else {
-			RPRINT(env, (env, DB_VERB_REPMGR_MISC,
-				     "rejecting connection from unknown or provisional site %s:%u",
-				     host, port));
+			RPRINT(env, (env, DB_VERB_REPMGR_MISC, "rejecting connection from unknown or provisional site %s:%u", host, port));
 			reject.version = db_rep->membership_version;
 			reject.gen = db_rep->member_version_gen;
-			__repmgr_connect_reject_marshal(env,
-				&reject, reject_buf);
-			if((ret = __repmgr_send_own_msg(env, conn,
-				    REPMGR_CONNECT_REJECT, reject_buf,
-				    __REPMGR_CONNECT_REJECT_SIZE)) != 0)
+			__repmgr_connect_reject_marshal(env, &reject, reject_buf);
+			if((ret = __repmgr_send_own_msg(env, conn, REPMGR_CONNECT_REJECT, reject_buf, __REPMGR_CONNECT_REJECT_SIZE)) != 0)
 				return ret;
 			/*
 			 * Since we haven't set conn->eid, bust_connection will
@@ -1648,11 +1608,8 @@ static int process_parameters(ENV*env, REPMGR_CONNECTION * conn, char * host, ui
 	 * getting in touch with another site might finally provide sufficient
 	 * connectivity to find out.
 	 */
-	if(!IS_SUBORDINATE(db_rep) &&  /* us */
-	   !__repmgr_master_is_known(env) &&
-	   !LF_ISSET(REPMGR_SUBORDINATE)) {  /* the remote site */
-		RPRINT(env, (env, DB_VERB_REPMGR_MISC,
-			     "handshake with no known master to wake election thread"));
+	if(!IS_SUBORDINATE(db_rep) &&  /* us */ !__repmgr_master_is_known(env) && !LF_ISSET(REPMGR_SUBORDINATE)) {  /* the remote site */
+		RPRINT(env, (env, DB_VERB_REPMGR_MISC, "handshake with no known master to wake election thread"));
 		db_rep->new_connection = TRUE;
 		if((ret = __repmgr_signal(&db_rep->check_election)) != 0)
 			return ret;

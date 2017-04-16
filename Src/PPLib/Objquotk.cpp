@@ -881,7 +881,7 @@ int QuotKindDialog::EditRestr()
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_QUOTKINDRESTR);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		RealRange amt_range;
 		dlg->SetupCalPeriod(CTLCAL_QKRESTR_PERIOD, CTL_QKRESTR_PERIOD);
 		SetPeriodInput(dlg, CTL_QKRESTR_PERIOD, &Data.Rec.Period);

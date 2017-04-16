@@ -869,7 +869,7 @@ int SLAPI PPViewStockOpt::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 				{
 					TIDlgInitData tidi;
 					ExtGoodsSelDialog * dlg = 0;
-					if(CheckDialogPtr(&(dlg = new ExtGoodsSelDialog(0, 0)), 0)) {
+					if(CheckDialogPtr(&(dlg = new ExtGoodsSelDialog(0, 0)))) {
 						while(ExecView(dlg) == cmOK) {
 							if(dlg->getDTS(&tidi) > 0 && tidi.GoodsID) {
 								PPStockOpt::Item item(tidi.GoodsID);

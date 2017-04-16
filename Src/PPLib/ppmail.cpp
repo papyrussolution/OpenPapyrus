@@ -639,7 +639,7 @@ int AddrBookDialog::setupList()
 int SLAPI ViewAddressBook()
 {
 	AddrBookDialog * dlg = new AddrBookDialog(0);
-	if(CheckDialogPtr(&dlg, 1))
+	if(CheckDialogPtrErr(&dlg))
 		ExecView(dlg);
 	delete dlg;
 	return 1;
@@ -649,7 +649,7 @@ int SLAPI SelectAddressFromBook(PPID * pSelPersonID, SString & rAddr)
 {
 	int    ok = -1;
 	AddrBookDialog * dlg = new AddrBookDialog(1);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		if(ExecView(dlg) == cmOK && dlg->getSelection(pSelPersonID, rAddr) > 0)
 			ok = 1;
 	}

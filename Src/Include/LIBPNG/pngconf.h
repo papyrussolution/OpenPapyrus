@@ -250,13 +250,13 @@
 
 /* Now do all the defaulting . */
 #ifndef PNGCAPI
-#  define PNGCAPI
+	#define PNGCAPI
 #endif
 #ifndef PNGCBAPI
-#  define PNGCBAPI PNGCAPI
+	#define PNGCBAPI PNGCAPI
 #endif
 #ifndef PNGAPI
-#  define PNGAPI PNGCAPI
+	#define PNGAPI PNGCAPI
 #endif
 
 /* PNG_IMPEXP may be set on the compilation system command line or (if not set)

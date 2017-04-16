@@ -1,5 +1,5 @@
 // BDB.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2015, 2016
+// Copyright (c) A.Sobolev 2011, 2012, 2015, 2016, 2017
 //
 #include <db.h>
 #pragma hdrstop
@@ -39,6 +39,25 @@ int BDbDatabase::SplitFileName(const char * pFileName, SString & rFile, SString 
 	else if(file_name.NotEmpty()) {
 		rFile = file_name;
 		ok = 1;
+	}
+	return ok;
+}
+
+int BDbDatabase::SetupErrLog(const char * pFileName)
+{
+	int    ok = 0;
+	ErrF.Close();
+	if(isempty(pFileName)) {
+		if(E) {
+			E->set_errfile(E, 0);
+			ok = 1;
+		}
+	}
+	else if(ErrF.Open(pFileName, SFile::mAppend)) {
+		if(E) {
+			E->set_errfile(E, ErrF);
+			ok = 1;
+		}
 	}
 	return ok;
 }
@@ -199,6 +218,7 @@ BDbDatabase::~BDbDatabase()
 		E = 0;
 	}
 	ZDELETE(P_SCtx);
+	ErrF.Close();
 }
 
 int BDbDatabase::operator ! () const
@@ -726,6 +746,11 @@ BDbTable::Buffer & FASTCALL BDbTable::Buffer::operator = (const int64 & rVal)
 	return Set(&rVal, sizeof(rVal));
 }
 
+BDbTable::Buffer & FASTCALL BDbTable::Buffer::operator = (const uint64 & rVal)
+{
+	return Set(&rVal, sizeof(rVal));
+}
+
 BDbTable::Buffer & FASTCALL BDbTable::Buffer::Set(const void * pData, size_t sz)
 {
 	Reset();
@@ -743,6 +768,12 @@ BDbTable::Buffer & FASTCALL BDbTable::Buffer::Set(const void * pData, size_t sz)
 size_t BDbTable::Buffer::GetSize() const
 {
 	return Size;
+}
+
+const void * FASTCALL BDbTable::Buffer::GetPtr(size_t * pSize) const
+{
+	ASSIGN_PTR(pSize, Size);
+	return P_Data;
 }
 
 int FASTCALL BDbTable::Buffer::Get(SBuffer & rBuf) const

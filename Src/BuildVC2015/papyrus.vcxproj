@@ -1021,123 +1021,53 @@
     <ClCompile Include="..\PPEquip\stylopalm.cpp" />
     <ClCompile Include="..\PPEquip\Synccash.cpp" />
     <ClCompile Include="..\PPEquip\wincexch.cpp" />
-    <ClCompile Include="..\PPKernel\Amtlist.cpp" />
-    <ClCompile Include="..\PPKernel\Bill.cpp" />
-    <ClCompile Include="..\PPKernel\billhist.cpp" />
-    <ClCompile Include="..\PPKernel\Bnkacct.cpp" />
-    <ClCompile Include="..\PPKernel\Bpakcore.cpp" />
-    <ClCompile Include="..\PPKernel\Ccheck.cpp" />
-    <ClCompile Include="..\PPKernel\Cptransf.cpp" />
-    <ClCompile Include="..\PPKernel\csess.cpp" />
-    <ClCompile Include="..\PPKernel\Currate.cpp" />
-    <ClCompile Include="..\PPKernel\Dbentset.cpp" />
-    <ClCompile Include="..\PPKernel\dlscope.cpp" />
-    <ClCompile Include="..\PPKernel\gctiter.cpp" />
-    <ClCompile Include="..\PPKernel\Gdsgrpng.cpp" />
-    <ClCompile Include="..\PPKernel\Gdsiter.cpp" />
-    <ClCompile Include="..\PPKernel\Gdspack.cpp" />
-    <ClCompile Include="..\PPKernel\GENVER.CPP" />
-    <ClCompile Include="..\PPKernel\Goods.cpp" />
-    <ClCompile Include="..\PPKernel\Invcore.cpp" />
-    <ClCompile Include="..\PPKernel\Loadtrfr.cpp" />
-    <ClCompile Include="..\PPKernel\Location.cpp" />
-    <ClCompile Include="..\PPKernel\loctransf.cpp" />
-    <ClCompile Include="..\PPKernel\Objassoc.cpp" />
-    <ClCompile Include="..\PPKernel\Objcache.cpp" />
-    <ClCompile Include="..\PPKernel\objsync.cpp" />
-    <ClCompile Include="..\PPKernel\Package.cpp" />
-    <ClCompile Include="..\PPKernel\Path.cpp" />
-    <ClCompile Include="..\PPKernel\Plist.cpp" />
-    <ClCompile Include="..\PPKernel\Pparray.cpp" />
-    <ClCompile Include="..\PPKernel\ppcmd.cpp" />
-    <ClCompile Include="..\PPKernel\ppdbqf.cpp" />
-    <ClCompile Include="..\PPKernel\Ppdbs.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\PPKernel\Ppds.cpp" />
-    <ClCompile Include="..\PPKernel\Ppdsp.cpp" />
-    <ClCompile Include="..\PPKernel\Ppexpr.cpp" />
-    <ClCompile Include="..\PPKernel\ppifcimp.cpp" />
-    <ClCompile Include="..\PPKernel\Ppinicfg.cpp" />
-    <ClCompile Include="..\PPKernel\ppjob.cpp" />
-    <ClCompile Include="..\PPKernel\Ppregkey.cpp" />
-    <ClCompile Include="..\PPKernel\ppserver.cpp" />
-    <ClCompile Include="..\PPKernel\ppsess.cpp" />
-    <ClCompile Include="..\PPKernel\Ppsync.cpp" />
-    <ClCompile Include="..\PPKernel\Pputil.cpp" />
-    <ClCompile Include="..\PPKernel\Ppver.cpp" />
-    <ClCompile Include="..\PPKernel\Profile.cpp" />
-    <ClCompile Include="..\PPKernel\psales.cpp" />
-    <ClCompile Include="..\PPKernel\Quotcore.cpp" />
-    <ClCompile Include="..\PPKernel\Receipt.cpp" />
-    <ClCompile Include="..\PPKernel\Referenc.cpp" />
-    <ClCompile Include="..\PPKernel\Register.cpp" />
-    <ClCompile Include="..\PPKernel\Scard.cpp" />
-    <ClCompile Include="..\PPKernel\scoclass.cpp" />
-    <ClCompile Include="..\PPKernel\specsn.cpp" />
-    <ClCompile Include="..\PPKernel\Tagcore.cpp" />
-    <ClCompile Include="..\PPKernel\tempassc.cpp" />
-    <ClCompile Include="..\PPKernel\transfer.cpp" />
-    <ClCompile Include="..\PPKernel\Trfritem.cpp" />
     <ClCompile Include="..\PPLib\Account.cpp" />
     <ClCompile Include="..\PPLib\Acct.cpp" />
     <ClCompile Include="..\PPLib\Accturn.cpp" />
     <ClCompile Include="..\PPLib\Advbill.cpp" />
     <ClCompile Include="..\PPLib\albatros.cpp" />
     <ClCompile Include="..\PPLib\Amtdlg.cpp" />
+    <ClCompile Include="..\PPLib\AMTLIST.CPP" />
     <ClCompile Include="..\PPLib\Asstwrof.cpp" />
     <ClCompile Include="..\PPLib\At2eat.cpp" />
     <ClCompile Include="..\PPLib\Atrntmpl.cpp" />
     <ClCompile Include="..\PPLib\Aturndlg.cpp" />
     <ClCompile Include="..\PPLib\Autocmpl.cpp" />
     <ClCompile Include="..\PPLib\Balance.cpp" />
+    <ClCompile Include="..\PPLib\BILL.CPP" />
     <ClCompile Include="..\PPLib\Billdlg.cpp" />
+    <ClCompile Include="..\PPLib\billhist.cpp" />
     <ClCompile Include="..\PPLib\bilvatax.cpp" />
     <ClCompile Include="..\PPLib\bitmbrow.cpp" />
+    <ClCompile Include="..\PPLib\BNKACCT.CPP" />
     <ClCompile Include="..\PPLib\Bnkodlg.cpp" />
+    <ClCompile Include="..\PPLib\Bpakcore.cpp" />
     <ClCompile Include="..\PPLib\calendar.cpp" />
+    <ClCompile Include="..\PPLib\CCHECK.CPP" />
     <ClCompile Include="..\PPLib\chkinpsn.cpp" />
     <ClCompile Include="..\PPLib\Chkpan.cpp" />
     <ClCompile Include="..\PPLib\Cliagt.cpp" />
     <ClCompile Include="..\PPLib\clibnk2.cpp" />
     <ClCompile Include="..\PPLib\Comdisp.cpp" />
     <ClCompile Include="..\PPLib\Commcfg.cpp" />
+    <ClCompile Include="..\PPLib\Cptransf.cpp" />
     <ClCompile Include="..\PPLib\Creval.cpp" />
     <ClCompile Include="..\PPLib\crosstab.cpp" />
+    <ClCompile Include="..\PPLib\csess.cpp" />
     <ClCompile Include="..\PPLib\Cshmchn.cpp" />
     <ClCompile Include="..\PPLib\Cshses.cpp" />
     <ClCompile Include="..\PPLib\Ctrandlg.cpp" />
+    <ClCompile Include="..\PPLib\CURRATE.CPP" />
     <ClCompile Include="..\PPLib\Cutting.cpp" />
     <ClCompile Include="..\PPLib\C_aturn.cpp" />
     <ClCompile Include="..\PPLib\C_bill.cpp" />
     <ClCompile Include="..\PPLib\C_trfr.cpp" />
+    <ClCompile Include="..\PPLib\Dbentset.cpp" />
     <ClCompile Include="..\PPLib\Declstru.cpp" />
     <ClCompile Include="..\PPLib\Dgacc.cpp" />
     <ClCompile Include="..\PPLib\dl600.cpp" />
     <ClCompile Include="..\PPLib\dl600r.cpp" />
+    <ClCompile Include="..\PPLib\dlscope.cpp" />
     <ClCompile Include="..\PPLib\Draftwof.cpp" />
     <ClCompile Include="..\PPLib\d_charry.cpp" />
     <ClCompile Include="..\PPLib\egais.cpp" />
@@ -1145,10 +1075,16 @@
     <ClCompile Include="..\PPLib\Extgsel.cpp" />
     <ClCompile Include="..\PPLib\FilTrnsm.cpp" />
     <ClCompile Include="..\PPLib\gct.cpp" />
+    <ClCompile Include="..\PPLib\gctiter.cpp" />
     <ClCompile Include="..\PPLib\gds2obja.cpp" />
     <ClCompile Include="..\PPLib\Gdscls.cpp" />
+    <ClCompile Include="..\PPLib\Gdsgrpng.cpp" />
+    <ClCompile Include="..\PPLib\GDSITER.CPP" />
+    <ClCompile Include="..\PPLib\Gdspack.cpp" />
     <ClCompile Include="..\PPLib\Gdssaldo.cpp" />
     <ClCompile Include="..\PPLib\Gdsutil.cpp" />
+    <ClCompile Include="..\PPLib\GENVER.CPP" />
+    <ClCompile Include="..\PPLib\Goods.cpp" />
     <ClCompile Include="..\PPLib\Goodsdlg.cpp" />
     <ClCompile Include="..\PPLib\Gtaxdlg.cpp" />
     <ClCompile Include="..\PPLib\holidays.cpp" />
@@ -1156,14 +1092,19 @@
     <ClCompile Include="..\PPLib\ie_goods.cpp" />
     <ClCompile Include="..\PPLib\Ilbpack.cpp" />
     <ClCompile Include="..\PPLib\Import.cpp" />
+    <ClCompile Include="..\PPLib\INVCORE.CPP" />
     <ClCompile Include="..\PPLib\Inventry.cpp" />
     <ClCompile Include="..\PPLib\ld2.cpp" />
+    <ClCompile Include="..\PPLib\Loadtrfr.cpp" />
+    <ClCompile Include="..\PPLib\LOCATION.CPP" />
+    <ClCompile Include="..\PPLib\loctransf.cpp" />
     <ClCompile Include="..\PPLib\mrp.cpp" />
     <ClCompile Include="..\PPLib\Nmbtotxt.cpp" />
     <ClCompile Include="..\PPLib\Objacct.cpp" />
     <ClCompile Include="..\PPLib\Objacsht.cpp" />
     <ClCompile Include="..\PPLib\Objamtt.cpp" />
     <ClCompile Include="..\PPLib\Objartcl.cpp" />
+    <ClCompile Include="..\PPLib\OBJASSOC.CPP" />
     <ClCompile Include="..\PPLib\Objaturn.cpp" />
     <ClCompile Include="..\PPLib\Objbacct.cpp" />
     <ClCompile Include="..\PPLib\Objbill.cpp" />
@@ -1171,6 +1112,7 @@
     <ClCompile Include="..\PPLib\objbizsc.cpp" />
     <ClCompile Include="..\PPLib\Objbrows.cpp" />
     <ClCompile Include="..\PPLib\objbskt.cpp" />
+    <ClCompile Include="..\PPLib\OBJCACHE.CPP" />
     <ClCompile Include="..\PPLib\Objcashn.cpp" />
     <ClCompile Include="..\PPLib\objcntr.cpp" />
     <ClCompile Include="..\PPLib\objcsess.cpp" />
@@ -1193,6 +1135,7 @@
     <ClCompile Include="..\PPLib\objscard.cpp" />
     <ClCompile Include="..\PPLib\Objsecur.cpp" />
     <ClCompile Include="..\PPLib\Objstaff.cpp" />
+    <ClCompile Include="..\PPLib\objsync.cpp" />
     <ClCompile Include="..\PPLib\Objtag.cpp" />
     <ClCompile Include="..\PPLib\objtrnsm.cpp" />
     <ClCompile Include="..\PPLib\objtsess.cpp" />
@@ -1200,8 +1143,11 @@
     <ClCompile Include="..\PPLib\Objvatbk.cpp" />
     <ClCompile Include="..\PPLib\objworld.cpp" />
     <ClCompile Include="..\PPLib\ofd.cpp" />
+    <ClCompile Include="..\PPLib\PACKAGE.CPP" />
+    <ClCompile Include="..\PPLib\Path.cpp" />
     <ClCompile Include="..\PPLib\Payment.cpp" />
     <ClCompile Include="..\PPLib\Person.cpp" />
+    <ClCompile Include="..\PPLib\PLIST.CPP" />
     <ClCompile Include="..\PPLib\pp-pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -1218,34 +1164,58 @@
     </ClCompile>
     <ClCompile Include="..\PPLib\Ppaction.cpp" />
     <ClCompile Include="..\PPLib\Ppappo.cpp" />
+    <ClCompile Include="..\PPLib\PPARRAY.CPP" />
     <ClCompile Include="..\PPLib\ppbuild.cpp" />
     <ClCompile Include="..\PPLib\Ppcalc.cpp" />
+    <ClCompile Include="..\PPLib\ppcmd.cpp" />
     <ClCompile Include="..\PPLib\ppcolors.cpp" />
     <ClCompile Include="..\PPLib\Ppconvrt.cpp" />
     <ClCompile Include="..\PPLib\ppdbmake.cpp" />
+    <ClCompile Include="..\PPLib\ppdbqf.cpp" />
+    <ClCompile Include="..\PPLib\ppdbs.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\PPLib\Ppdbutil.cpp" />
     <ClCompile Include="..\PPLib\ppdeltmp.cpp" />
     <ClCompile Include="..\PPLib\ppdesktp.cpp" />
     <ClCompile Include="..\PPLib\ppdevice.cpp" />
+    <ClCompile Include="..\PPLib\PPDS.CPP" />
+    <ClCompile Include="..\PPLib\PPDSP.CPP" />
     <ClCompile Include="..\PPLib\ppedi.cpp" />
     <ClCompile Include="..\PPLib\ppeds.cpp" />
     <ClCompile Include="..\PPLib\Ppexport.cpp" />
+    <ClCompile Include="..\PPLib\PPEXPR.CPP" />
     <ClCompile Include="..\PPLib\ppftp.cpp" />
     <ClCompile Include="..\PPLib\ppgeo.cpp" />
     <ClCompile Include="..\PPLib\ppgplot.cpp" />
     <ClCompile Include="..\PPLib\ppidata.cpp" />
+    <ClCompile Include="..\PPLib\ppifcimp.cpp" />
+    <ClCompile Include="..\PPLib\Ppinicfg.cpp" />
+    <ClCompile Include="..\PPLib\ppjob.cpp" />
     <ClCompile Include="..\PPLib\Pplog.cpp" />
     <ClCompile Include="..\PPLib\ppmail.cpp" />
     <ClCompile Include="..\PPLib\Ppmsg.cpp" />
     <ClCompile Include="..\PPLib\ppNamedFilt.cpp" />
     <ClCompile Include="..\PPLib\PPPosProtocol.cpp" />
+    <ClCompile Include="..\PPLib\PPREGKEY.CPP" />
     <ClCompile Include="..\PPLib\ppreport.cpp" />
     <ClCompile Include="..\PPLib\Pprights.cpp" />
+    <ClCompile Include="..\PPLib\ppserver.cpp" />
+    <ClCompile Include="..\PPLib\ppsess.cpp" />
     <ClCompile Include="..\PPLib\ppsms.cpp" />
     <ClCompile Include="..\PPLib\ppsoapclient.cpp" />
     <ClCompile Include="..\PPLib\ppsupplix.cpp" />
+    <ClCompile Include="..\PPLib\PPSYNC.CPP" />
     <ClCompile Include="..\PPLib\pptex2html.cpp" />
     <ClCompile Include="..\PPLib\Pptvutil.cpp" />
+    <ClCompile Include="..\PPLib\Pputil.cpp" />
+    <ClCompile Include="..\PPLib\PPVER.CPP" />
     <ClCompile Include="..\PPLib\ppview.cpp" />
     <ClCompile Include="..\PPLib\ppwg.cpp" />
     <ClCompile Include="..\PPLib\ppwtm.cpp" />
@@ -1253,22 +1223,35 @@
     <ClCompile Include="..\PPLib\predict.cpp" />
     <ClCompile Include="..\PPLib\prnbill.cpp" />
     <ClCompile Include="..\PPLib\processr.cpp" />
+    <ClCompile Include="..\PPLib\Profile.cpp" />
     <ClCompile Include="..\PPLib\project.cpp" />
+    <ClCompile Include="..\PPLib\psales.cpp" />
     <ClCompile Include="..\PPLib\Psnevent.cpp" />
     <ClCompile Include="..\PPLib\Psnopk.cpp" />
     <ClCompile Include="..\PPLib\Quot.cpp" />
+    <ClCompile Include="..\PPLib\QUOTCORE.CPP" />
+    <ClCompile Include="..\PPLib\RECEIPT.CPP" />
+    <ClCompile Include="..\PPLib\Referenc.cpp" />
+    <ClCompile Include="..\PPLib\Register.cpp" />
     <ClCompile Include="..\PPLib\Rent.cpp" />
     <ClCompile Include="..\PPLib\reptdlg.cpp" />
     <ClCompile Include="..\PPLib\rfldcorr.cpp" />
     <ClCompile Include="..\PPLib\salary.cpp" />
+    <ClCompile Include="..\PPLib\SCARD.CPP" />
+    <ClCompile Include="..\PPLib\scoclass.cpp" />
     <ClCompile Include="..\PPLib\Securdlg.cpp" />
     <ClCompile Include="..\PPLib\soblk.cpp" />
+    <ClCompile Include="..\PPLib\specsn.cpp" />
     <ClCompile Include="..\PPLib\stockopt.cpp" />
     <ClCompile Include="..\PPLib\Strstore.cpp" />
+    <ClCompile Include="..\PPLib\TAGCORE.CPP" />
     <ClCompile Include="..\PPLib\tddo.cpp" />
     <ClCompile Include="..\PPLib\tech.cpp" />
+    <ClCompile Include="..\PPLib\tempassc.cpp" />
     <ClCompile Include="..\PPLib\textbrw.cpp" />
+    <ClCompile Include="..\PPLib\transfer.cpp" />
     <ClCompile Include="..\PPLib\Trfridlg.cpp" />
+    <ClCompile Include="..\PPLib\Trfritem.cpp" />
     <ClCompile Include="..\PPLib\tsess.cpp" />
     <ClCompile Include="..\PPLib\tsessdlg.cpp" />
     <ClCompile Include="..\PPLib\txtanlz.cpp" />
@@ -1393,6 +1376,7 @@
     <ClCompile Include="..\Sartr\Sartr.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Include\berkeleydb.h" />
     <ClInclude Include="..\Include\Pp.h" />
     <ClInclude Include="..\Include\ppbrow.H" />
     <ClInclude Include="..\Include\Ppdefs.h" />

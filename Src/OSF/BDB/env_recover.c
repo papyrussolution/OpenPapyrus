@@ -692,13 +692,11 @@ int __env_openfiles(ENV * env, DB_LOGC * logc, void * txninfo, DBT * data, DB_LS
 	 * during recovery.
 	 */
 	log_size = ((LOG *)env->lg_handle->reginfo.primary)->log_size;
-
 	lsn = *open_lsn;
 	for(;; ) {
 		if(in_recovery && dbenv->db_feedback != NULL) {
 			DB_ASSERT(env, last_lsn != NULL);
-			progress = (int)(33*(__lsn_diff(open_lsn,
-						     last_lsn, &lsn, log_size, 1)/nfiles));
+			progress = (int)(33*(__lsn_diff(open_lsn, last_lsn, &lsn, log_size, 1)/nfiles));
 			dbenv->db_feedback(dbenv, DB_RECOVER, progress);
 		}
 		tlsn = lsn;
@@ -706,9 +704,7 @@ int __env_openfiles(ENV * env, DB_LOGC * logc, void * txninfo, DBT * data, DB_LS
 			in_recovery ? DB_TXN_OPENFILES : DB_TXN_POPENFILES,
 			txninfo);
 		if(ret != 0 && ret != DB_TXN_CKP) {
-			__db_errx(env, DB_STR_A("1521",
-					"Recovery function for LSN %lu %lu failed",
-					"%lu %lu"), (ulong)lsn.file, (ulong)lsn.offset);
+			__db_errx(env, DB_STR_A("1521", "Recovery function for LSN %lu %lu failed", "%lu %lu"), (ulong)lsn.file, (ulong)lsn.offset);
 			break;
 		}
 		if((ret = __logc_get(logc, &lsn, data, DB_NEXT)) != 0) {

@@ -93,8 +93,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\PPKernel\Genver.cpp" />
-    <ClCompile Include="..\PPKernel\Ppver.cpp" />
+    <ClCompile Include="..\PPLib\GENVER.CPP" />
+    <ClCompile Include="..\PPLib\PPVER.CPP" />
     <ClCompile Include="..\Tools\VersionSelector\VersionSelector.cpp" />
   </ItemGroup>
   <ItemGroup>

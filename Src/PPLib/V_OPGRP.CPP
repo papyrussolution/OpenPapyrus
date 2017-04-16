@@ -589,7 +589,7 @@ int OpGroupingFiltDialog::EditAdvOptions()
 {
 	int    valid_data = 0, ok = -1;
 	TDialog * p_dlg = new TDialog(DLG_OPGRPNGFLTA);
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	SetupCalCtrl(CTLCAL_OPGRPNGFLTA_PRD, p_dlg, CTL_OPGRPNGFLTA_PRD, 1);
 	SetPeriodInput(p_dlg, CTL_OPGRPNGFLTA_PRD, &Data.ShipmentPeriod);
 	while(!valid_data && ExecView(p_dlg) == cmOK) {

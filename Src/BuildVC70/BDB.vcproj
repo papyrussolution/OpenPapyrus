@@ -1093,6 +1093,9 @@
 				RelativePath="..\Osf\Bdb\dbinc\atomic.h">
 			</File>
 			<File
+				RelativePath="..\Include\berkeleydb.h">
+			</File>
+			<File
 				RelativePath="..\Osf\Bdb\dbinc\btree.h">
 			</File>
 			<File
@@ -1126,12 +1129,6 @@
 				RelativePath="..\Osf\Bdb\dbinc\cxx_int.h">
 			</File>
 			<File
-				RelativePath="..\Include\BerkeleyDB\db.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\buildinc\windows\db.h">
-			</File>
-			<File
 				RelativePath="..\Osf\Bdb\dbinc\db_am.h">
 			</File>
 			<File
@@ -1153,9 +1150,6 @@
 				RelativePath="..\Osf\Bdb\buildinc\windows\db_int.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Bdb\dbinc\db_join.h">
-			</File>
-			<File
 				RelativePath="..\Osf\Bdb\dbinc\db_page.h">
 			</File>
 			<File
@@ -1163,9 +1157,6 @@
 			</File>
 			<File
 				RelativePath="..\Osf\Bdb\dbinc\db_upgrade.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\dbinc\db_verify.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Bdb\dbinc_auto\dbreg_auto.h">

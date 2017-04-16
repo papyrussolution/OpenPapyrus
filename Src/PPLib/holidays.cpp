@@ -158,7 +158,7 @@ static int SLAPI EditHoliday(PPID locID, LDATE * pDt)
 {
 	int    ok = -1;
 	HldDialog * dlg = new HldDialog();
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(*pDt, locID);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			if(dlg->getDTS(pDt))
@@ -281,7 +281,7 @@ int SLAPI EditHolidays()
 	PredictSalesCore t;
 	HolidaysDialog * dlg = new HolidaysDialog();
 	THROW(CheckCfgRights(PPCFGOBJ_PREDICTHOLYDAYS, PPR_READ, 0));
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	dlg->setDTS(LConfig.Location, &t);
 	while(ok <= 0 && ExecView(dlg) == cmOK) {
 		THROW(CheckCfgRights(PPCFGOBJ_PREDICTHOLYDAYS, PPR_MOD, 0));

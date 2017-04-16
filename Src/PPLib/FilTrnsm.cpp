@@ -1,11 +1,11 @@
 // FILTRNSM.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // Передача объектов между разделами БД
 //
 #include <pp.h>
 #pragma hdrstop
-#include <ppidata.h>
+// @v9.6.2 (moved to pp.h) #include <ppidata.h>
 //
 // Descr: Удаляет или добавляет (в зависимости от remove) заголовок из файла pFile
 //
@@ -79,7 +79,7 @@ void ObjReceiveParamDialog::updateList()
 			PPLoadText(PPTXT_ALLDBDIV, text);
 			THROW_SL(p_list->addItem(1, text));
 		}
-		p_list->drawView();
+		p_list->Draw_();
 	}
 	CATCH
 		PPError();

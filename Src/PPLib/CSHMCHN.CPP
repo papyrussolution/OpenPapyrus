@@ -1177,7 +1177,7 @@ int SLAPI PPCashMachine::SyncPrintIncasso()
 	TDialog * dlg = 0;
 	CmLocking cml(NodeRec);
 	THROW(cml);
-	THROW(CheckDialogPtr(&(dlg = new TDialog(SLS.CheckUiFlag(sluifUseLargeDialogs) ? DLG_INCASSO_L : DLG_INCASSO)), 1));
+	THROW(CheckDialogPtrErr(&(dlg = new TDialog(SLS.CheckUiFlag(sluifUseLargeDialogs) ? DLG_INCASSO_L : DLG_INCASSO))));
 	dlg->setCtrlReal(CTL_INCASSO_SUM,  sum);
 	dlg->setCtrlUInt16(CTL_INCASSO_TYPE, v);
 	while(ok <= 0 && ExecView(dlg) == cmOK) {
@@ -1352,7 +1352,7 @@ int SLAPI AsyncCashnPrepDialog(AsyncCashNPrepParam * pParam)
 		MEMSZERO(param);
 	TDialog * dlg = new TDialog(DLG_CASHNPAR);
 	THROW_MEM(dlg);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	dlg->AddClusterAssoc(CTL_CASHNPAR_FLAGS, 0, AsyncCashNPrepParam::fUpdateOnly);
 	dlg->SetClusterData(CTL_CASHNPAR_FLAGS, param.Flags);
 	f.LocID = 0;
@@ -1382,7 +1382,7 @@ int SLAPI SelectCSession(PPID cashNodeID, PPID extCashNodeID, CSessInfo * pInfo)
 	CSessInfo     cs_info;
 	MEMSZERO(cs_info);
 	TDialog * dlg = new TDialog(SLS.CheckUiFlag(sluifUseLargeDialogs) ? DLG_SELSESNO_L : DLG_SELSESNO);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	dlg->SetupCalDate(CTLCAL_SELSESNO_DATE, CTL_SELSESNO_DATE);
 	dlg->disableCtrl(CTL_SELSESNO_EXTCASHNODE, extCashNodeID ? 0 : 1);
 	dlg->setCtrlData(CTL_SELSESNO_DATE, &dt);

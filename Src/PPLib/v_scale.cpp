@@ -85,7 +85,7 @@ int SLAPI PPViewScale::EditBaseFilt(PPBaseFilt * pFilt)
 	ScaleFilt filt;
 	TDialog * p_dlg = new TDialog(DLG_SCALEFLT);
 	filt.Copy(pFilt, 0);
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	SetupStringCombo(p_dlg, CTLSEL_SCALEFLT_TYPE, PPTXT_SCLT, filt.ScaleTypeID);
 	SetupPPObjCombo(p_dlg,  CTLSEL_SCALEFLT_LOC, PPOBJ_LOCATION, filt.LocID, 0);
 	SetupPPObjCombo(p_dlg,  CTLSEL_SCALEFLT_ALTGRP, PPOBJ_GOODSGROUP, filt.AltGoodsGrpID, 0, (void *)GGRTYP_SEL_ALT);

@@ -3,7 +3,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <ppidata.h>
+// @v9.6.2 (moved to pp.h) #include <ppidata.h>
 #include <idea.h>
 
 SLAPI PPBizScore::PPBizScore()
@@ -627,7 +627,7 @@ private:
 			score.Init(p_resolver);
 			//if(PPDialogProcBody <BizPrimitivCreateDialog, DL2_Score> (&score) > 0) {
 			BizPrimitivCreateDialog * dlg = new BizPrimitivCreateDialog(Data.Rec.Name);
-			if(CheckDialogPtr(&dlg, 1) && dlg->setDTS(&score)) {
+			if(CheckDialogPtrErr(&dlg) && dlg->setDTS(&score)) {
 				int r = -1;
 				while(r <= 0 && ExecView(dlg) == cmOK)
 					if(dlg->getDTS(&score)) {
@@ -1156,7 +1156,7 @@ int SLAPI CreateBizScGlblUserAcct()
 	int    ok = -1, valid_data = 0;
 	CreateBizScGblAcctDlg::Param data;
 	CreateBizScGblAcctDlg * p_dlg = new CreateBizScGblAcctDlg;
-	THROW(CheckDialogPtr(&p_dlg, 0) > 0);
+	THROW(CheckDialogPtr(&p_dlg) > 0);
 	for(;!valid_data && ExecView(p_dlg) == cmOK;) {
 		if(p_dlg->getDTS(&data) > 0)
 			ok = valid_data = 1;
@@ -1844,7 +1844,7 @@ int SLAPI PrcssrBizScore::EditParam(Param * pParam)
 	if(pParam) {
 		TDialog * dlg = new TDialog(DLG_BIZSCPRC);
 		Param data;
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			data = *pParam;
 			dlg->SetupCalPeriod(CTLCAL_BIZSCPRC_PERIOD, CTL_BIZSCPRC_PERIOD);
 			SetPeriodInput(dlg, CTL_BIZSCPRC_PERIOD, &data.Period);

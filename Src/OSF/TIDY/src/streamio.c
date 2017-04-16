@@ -285,7 +285,7 @@ static void RestoreLastPos(StreamIn * in)
 {
 	if(in->firstlastpos == in->curlastpos)
 		in->curcol = 0;
-	else{
+	else {
 		in->curcol = in->lastcols[in->curlastpos];
 		if(in->curlastpos == 0)
 			in->curlastpos = LASTPOS_SIZE;
@@ -352,7 +352,7 @@ uint TY_(ReadChar) (StreamIn *in)
 				TY_(UngetChar) (c, in);
 				c = '\n';
 			}
-			else{
+			else {
 #ifdef TIDY_STORE_ORIGINAL_TEXT
 				TY_(AddCharToOriginalText) (in, (tchar)c);
 #endif
@@ -598,7 +598,7 @@ void TY_(WriteChar) (uint c, StreamOut* out)
 	else if(out->encoding == ISO2022) {
 		if(c == 0x1b) /* ESC */
 			out->state = FSM_ESC;
-		else{
+		else {
 			switch(out->state)
 			{
 				case FSM_ESC:
@@ -660,7 +660,7 @@ void TY_(WriteChar) (uint c, StreamOut* out)
 				numChars = 0;
 			}
 		}
-		else{
+		else {
 			/* just put the char out */
 			theChars[0] = c;
 		}
@@ -685,7 +685,7 @@ void TY_(WriteChar) (uint c, StreamOut* out)
 	else if(out->encoding == BIG5 || out->encoding == SHIFTJIS) {
 		if(c < 128)
 			PutByte(c, out);
-		else{
+		else {
 			uint ch = (c >> 8) & 0xFF; PutByte(ch, out);
 			ch = c & 0xFF; PutByte(ch, out);
 		}
@@ -730,7 +730,7 @@ static void EncodeWin1252(uint c, StreamOut* out)
 {
 	if(c < 128 || (c > 159 && c < 256))
 		PutByte(c, out);
-	else{
+	else {
 		int i;
 
 		for(i = 128; i < 160; i++)
@@ -791,7 +791,7 @@ static void EncodeMacRoman(uint c, StreamOut* out)
 {
 	if(c < 128)
 		PutByte(c, out);
-	else{
+	else {
 		/* For mac users, map Unicode back to MacRoman. */
 		int i;
 		for(i = 128; i < 256; i++) {
@@ -840,7 +840,7 @@ static void EncodeIbm858(uint c, StreamOut* out)
 {
 	if(c < 128)
 		PutByte(c, out);
-	else{
+	else {
 		int i;
 		for(i = 128; i < 256; i++) {
 			if(IBM2Unicode[i - 128] == c) {
@@ -1067,7 +1067,7 @@ static void ReadRawBytesFromStream(StreamIn * in, byte* buf, int * count)
 			if(in->rawBufpos == 0)
 				in->rawPushed = false;
 		}
-		else{
+		else {
 			if(in->source.eof(in->source.sourceData) ) {
 				*count = -i;
 				break;
@@ -1218,7 +1218,7 @@ static uint ReadCharFromStream(StreamIn* in)
 			 */
 			return c;
 		}
-		else{
+		else {
 			uint c1 = ReadByte(in);
 			if(EndOfStream == c1)
 				return EndOfStream;

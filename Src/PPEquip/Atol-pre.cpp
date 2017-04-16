@@ -724,7 +724,7 @@ int SLAPI ACS_ATOL::GetSessionData(int * pSessCount, int * pIsForwardSess, DateR
 	TDialog * dlg = 0;
 	if(!pPrd) {
 		dlg = new TDialog(DLG_SELSESSRNG);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			SString dt_buf;
 			ChkRepPeriod.low = LConfig.OperDate;
 			ChkRepPeriod.upp = LConfig.OperDate;

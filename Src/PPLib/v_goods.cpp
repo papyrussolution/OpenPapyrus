@@ -966,7 +966,7 @@ int SLAPI SelectGoods(PPID & rGoodsID)
 	int    ok = -1;
 	PPID   goods_id = rGoodsID;
 	GoodsListDialog * dlg = new GoodsListDialog(1);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->selectCtrl(CTLSEL_GDSLST_GGRP);
 		dlg->setSelectedItem(goods_id);
 		if(ExecView(dlg) == cmOK) {
@@ -991,7 +991,7 @@ int GoodsListDialog::setSelectedItem(PPID goodsID)
 		if(goodsID) {
 			P_List->TransmitData(+1, &goodsID);
 			if(P_List->HasState(SmartListBox::stDataFounded)) {
-				P_List->drawView();
+				P_List->Draw_();
 				ok = 1;
 			}
 		}
@@ -1048,7 +1048,7 @@ void GoodsListDialog::selectGoods(PPID grp, PPID goodsID)
 		P_List->TransmitData(+1, &goodsID);
 		if(P_List->HasState(SmartListBox::stDataFounded)) {
 			selectCtrl(CTL_GDSLST_LIST);
-			P_List->drawView();
+			P_List->Draw_();
 		}
 	}
 }
@@ -1084,7 +1084,7 @@ void GoodsListDialog::updateList()
 			else
 				ResetWordSelector(CTL_GDSLST_LIST);
 			P_List->setDef(p_def);
-			P_List->drawView();
+			P_List->Draw_();
 		}
 	}
 }
@@ -1871,7 +1871,7 @@ const IterCounter & SLAPI PPViewGoods::GetCounter() const
 int SLAPI PPViewGoods::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_GOODSTOTAL);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		long count = 0;
 		GoodsViewItem item;
 		PPWait(1);
@@ -2103,7 +2103,7 @@ int SLAPI PPViewGoods::RemoveAll()
 		THROW((GmParam.Flags & GoodsMoveParam::fMassOpAllowed) || (GmParam.Flags & GoodsMoveParam::fAltGroup));
 		GmParam.Flags |= GmParam.fInit;
 	}
-	THROW(CheckDialogPtr(&(dlg = new GoodsMoveDialog), 0));
+	THROW(CheckDialogPtr(&(dlg = new GoodsMoveDialog)));
 	dlg->setDTS(&GmParam);
 	while(!valid_data && ExecView(dlg) == cmOK)
 		if(dlg->getDTS(&GmParam))
@@ -2516,7 +2516,7 @@ int SLAPI PPViewGoods::AddItem(GoodsListDialog ** ppDlgPtr, PPViewBrowser * pBrw
 	if(IsAltFltGroup() || IsGenGoodsFlt()) {
 		if(!GObj.CheckFlag(Filt.GrpID, GF_DYNAMIC)) {
 			if(ppDlgPtr == 0 || *ppDlgPtr == 0) {
-				THROW(CheckDialogPtr(&(dlg = new GoodsListDialog(0)), 1));
+				THROW(CheckDialogPtrErr(&(dlg = new GoodsListDialog(0))));
 			}
 			else
 				dlg = *ppDlgPtr;
@@ -2675,7 +2675,7 @@ static int SLAPI EditGoodsRecoverParam(GoodsRecoverParam * pData)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_RCVRGOODS);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_RCVRGOODS_LOG, CTL_RCVRGOODS_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 		dlg->setCtrlString(CTL_RCVRGOODS_LOG, pData->LogFileName);
 		dlg->AddClusterAssoc(CTL_RCVRGOODS_FLAGS, 0, GoodsRecoverParam::fCheckAlcoAttribs);
@@ -2781,7 +2781,7 @@ int SLAPI PPViewGoods::Repair(PPID /*id*/)
 							}
 						}
 					}
-					// } @v9.5.5 
+					// } @v9.5.5
 					if(p_eg_prc) {
 						const int agr = p_eg_prc->IsAlcGoods(pack.Rec.ID);
 						// 402
@@ -2949,7 +2949,7 @@ int SLAPI PPViewGoods::ReplaceNames()
 		return PPErrorZ();
 	SrGoodsDialog * dlg = new SrGoodsDialog;
 	TDialog * dlg_cfm = new TDialog(DLG_SRGOODSCFM);
-	if(CheckDialogPtr(&dlg, 1) && CheckDialogPtr(&dlg_cfm, 1)) {
+	if(CheckDialogPtrErr(&dlg) && CheckDialogPtrErr(&dlg_cfm)) {
 		PPGoodsReplaceNameParam param;
 		dlg->setDTS(&param);
 		if(ExecView(dlg) == cmOK) {
@@ -3013,7 +3013,7 @@ int SLAPI PPViewGoods::UpdateFlags()
 	long   setf = 0, resetf = 0;
 	TDialog * dlg = 0;
 	THROW(GObj.CheckRights(PPR_MOD) && GObj.CheckRights(GOODSRT_MULTUPD));
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_UPDGOODSFLAGS)), 0));
+	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_UPDGOODSFLAGS))));
 	dlg->AddClusterAssoc(CTL_UPDGOODSFLAGS_SET, 0, GF_NODISCOUNT);
 	dlg->AddClusterAssoc(CTL_UPDGOODSFLAGS_SET, 1, GF_PASSIV);
 	dlg->AddClusterAssoc(CTL_UPDGOODSFLAGS_SET, 2, GF_PRICEWOTAXES);
@@ -3079,7 +3079,7 @@ int SLAPI PPViewGoods::PrintPLabel(PPID goodsID)
 	env.Sort = OrdByName;
 	env.PrnFlags = SReport::DisableGrouping;
 	if(goodsID) {
-		if(CheckDialogPtr(&(p_dlg = new TDialog(DLG_GPLABEL)), 1) > 0) {
+		if(CheckDialogPtrErr(&(p_dlg = new TDialog(DLG_GPLABEL))) > 0) {
 			p_dlg->setCtrlUInt16(CTL_GPLABEL_WHAT, 0);
 			if(ExecView(p_dlg) == cmOK) {
 				v = p_dlg->getCtrlUInt16(CTL_GPLABEL_WHAT);
@@ -3255,7 +3255,7 @@ int SLAPI PPViewGoods::ExportUhtt()
 	PPLogger logger;
 	UhttExpGoodsParam param;
 	UhttExportGoodsDialog * dlg = new UhttExportGoodsDialog(this);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	dlg->setDTS(&param);
 	while(ExecView(dlg) == cmOK) {
 		if(dlg->getDTS(&param)) {
@@ -3354,7 +3354,7 @@ int SLAPI PPViewGoods::ExportUhtt()
 											for(uint k = 0; !uhtt_manuf_id && k < person_list.getCount(); k++) {
 												const UhttPersonPacket * p_pack = person_list.at(k);
 												for(uint n = 0; !uhtt_manuf_id && n < p_pack->KindList.getCount(); n++) {
-													if(stricmp(p_pack->KindList.at(n)->Code, "MANUF") == 0)
+													if(sstreqi_ascii(p_pack->KindList.at(n)->Code, "MANUF"))
 														uhtt_manuf_id = p_pack->ID;
 												}
 											}
@@ -3530,7 +3530,7 @@ int SLAPI PPViewGoods::ChangeOrder(PPViewBrowser * pW)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GOODSORD);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->AddClusterAssoc(CTL_GOODSORD_ORDER,  0, OrdByName);
 		dlg->AddClusterAssoc(CTL_GOODSORD_ORDER, -1, OrdByName);
 		dlg->AddClusterAssoc(CTL_GOODSORD_ORDER,  1, OrdByAbbr);
@@ -3697,7 +3697,7 @@ int SLAPI PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 						const PPID acs_id = (ar_obj.Fetch(src_ar_id, &ar_rec) > 0) ? ar_rec.AccSheetID : GetSupplAccSheet();
 						if(acs_id) {
 							TDialog * dlg = new TDialog(DLG_MOVARCODE);
-							if(CheckDialogPtr(&dlg, 1)) {
+							if(CheckDialogPtrErr(&dlg)) {
 								SString temp_buf;
 								PPID   dest_ar_id = 0;
 								SetupArCombo(dlg, CTLSEL_MOVARCODE_DESTAR, dest_ar_id, 0, acs_id, sacfDisableIfZeroSheet);
@@ -4887,7 +4887,7 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 				r_blk.Pack.Codes.Add(norm_code, 0, (I_BarcodeList.Package > 0) ? I_BarcodeList.Package : 1);
 		}
 		else if(iterId == GetIterID("iter@TagList")) {
-			if(glob_acc_id && stricmp(I_TagList.TagSymb, "OuterGroup") == 0) {
+			if(glob_acc_id && sstreqi_ascii(I_TagList.TagSymb, "OuterGroup")) {
 				ObjTagItem pgg_tag;
 				if(PPRef->Ot.GetTag(PPOBJ_GLOBALUSERACC, glob_acc_id, PPTAG_GUA_PGGTAG, &pgg_tag) > 0) {
 					if(pgg_tag.GetStr(temp_buf = 0) > 0) {

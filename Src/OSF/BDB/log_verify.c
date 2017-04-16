@@ -17,8 +17,7 @@
 // @v9.5.5 #include "dbinc/fop.h"
 // @v9.5.5 #include "dbinc/qam.h"
 // @v9.5.5 #include "dbinc/txn.h"
-
-#include "dbinc/log_verify.h"
+// @v9.6.2 #include "dbinc/log_verify.h"
 
 #define FIRST_OFFSET(env) (sizeof(LOGP)+(CRYPTO_ON(env) ? HDR_CRYPTO_SZ : HDR_NORMAL_SZ))
 

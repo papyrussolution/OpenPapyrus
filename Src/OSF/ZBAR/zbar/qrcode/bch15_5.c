@@ -197,7 +197,7 @@ int main(void)
 			printf("0x%04X->Failed\n", i);
 			if(hamming(i, z)<=3) printf("Error: 0x%04X should map to 0x%04X\n", i, z);
 		}
-		else{
+		else {
 			printf("0x%04X->0x%04X\n", i, y);
 			if(z!=y) printf("Error: 0x%04X should map to 0x%04X\n", i, z);
 		}

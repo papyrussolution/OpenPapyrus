@@ -367,14 +367,14 @@ int __bam_defcompress(DB * dbp, const DBT * prevKey, const DBT * prevData, const
  */
 int __bam_defdecompress(DB * dbp, const DBT * prevKey, const DBT * prevData, DBT * compressed, DBT * destKey, DBT * destData)
 {
-	uint8 * s, * d;
+	uint8 * d;
 	uint32 prefix, suffix, size;
 	COMPQUIET(dbp, NULL);
 	/*
 	 * Check for the magic identifying byte, that tells us that this is a
 	 * compressed duplicate value.
 	 */
-	s = (uint8 *)compressed->data;
+	uint8 * s = (uint8 *)compressed->data;
 	if(*s == CMP_INT_SPARE_VAL) {
 		++s;
 		size = 1;
@@ -477,8 +477,7 @@ static int __bamc_start_decompress(DBC * dbc)
 
 	/* Unmarshal the first data */
 	cp->compcursor += __db_decompress_int32(cp->compcursor, &datasize);
-	ret = __bam_compress_set_dbt(dbc->dbp,
-		cp->currentData, cp->compcursor, datasize);
+	ret = __bam_compress_set_dbt(dbc->dbp, cp->currentData, cp->compcursor, datasize);
 	if(ret == 0)
 		cp->compcursor += datasize;
 	return ret;
@@ -609,7 +608,6 @@ static void __bamc_compress_reset(DBC * dbc)
 	cp->prev2cursor = 0;
 	F_CLR(cp, C_COMPRESS_DELETED|C_COMPRESS_MODIFIED);
 }
-
 /*
  * Duplicate the cursor and delete the current entry, move the original cursor
  * on and then close the cursor we used to delete. We do that to make sure that
@@ -701,25 +699,22 @@ err:
 /* Merge the sorted key/data pairs from stream into the compressed database. */
 static int __bamc_compress_merge_insert(DBC * dbc, BTREE_COMPRESS_STREAM * stream, uint32 * countp, uint32 flags)
 {
-	DBT ikey1, ikey2, idata1, idata2, nextk, nextc, nextd, destkey, destbuf;
-	DBT * ikey, * idata, * prevIkey, * prevIdata, * prevDestKey, * prevDestData;
-	int ret, cmp, nextExists, moreCompressed, iSmallEnough;
-	int moreStream;
+	DBT    ikey1, ikey2, idata1, idata2, nextk, nextc, nextd, destkey, destbuf;
+	DBT  * ikey, * idata, * prevIkey, * prevIdata, * prevDestKey, * prevDestData;
+	int    ret, cmp, nextExists, moreCompressed, iSmallEnough;
+	int    moreStream;
 	uint32 chunk_count;
 	ENV  * env = dbc->env;
 	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
 	DB   * dbp = dbc->dbp;
 	int    bulk_ret = 0;
-
-	memzero(&ikey1, sizeof(DBT));
-	memzero(&ikey2, sizeof(DBT));
-	memzero(&idata1, sizeof(DBT));
-	memzero(&idata2, sizeof(DBT));
-
+	// (replaced by ctr) memzero(&ikey1, sizeof(DBT));
+	// (replaced by ctr) memzero(&ikey2, sizeof(DBT));
+	// (replaced by ctr) memzero(&idata1, sizeof(DBT));
+	// (replaced by ctr) memzero(&idata2, sizeof(DBT));
 	CMP_INIT_DBT(&nextk);
 	CMP_INIT_DBT(&nextc);
-	memzero(&nextd, sizeof(DBT));
-
+	// (replaced by ctr) memzero(&nextd, sizeof(DBT));
 	CMP_INIT_DBT(&destkey);
 	CMP_INIT_DBT(&destbuf);
 	if((ret = __os_malloc(env, cp->ovflsize, &destbuf.data)) != 0)
@@ -727,8 +722,7 @@ static int __bamc_compress_merge_insert(DBC * dbc, BTREE_COMPRESS_STREAM * strea
 	destbuf.ulen = cp->ovflsize;
 	ASSIGN_PTR(countp, 0);
 	chunk_count = 0;
-
-	/* Get the first input key and data */
+	// Get the first input key and data 
 	ret = 0;
 	prevIkey = NULL;
 	prevIdata = NULL;
@@ -903,33 +897,26 @@ static int __bamc_compress_merge_delete(DBC * dbc, BTREE_COMPRESS_STREAM * strea
 	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
 	DB   * dbp = dbc->dbp;
 	int    bulk_ret = 0;
-
-	memzero(&ikey, sizeof(DBT));
-	memzero(&idata, sizeof(DBT));
-
+	// (replaced by ctr) memzero(&ikey, sizeof(DBT));
+	// (replaced by ctr) memzero(&idata, sizeof(DBT));
 	CMP_INIT_DBT(&nextk);
 	CMP_INIT_DBT(&nextc);
-	memzero(&nextd, sizeof(DBT));
-
+	// (replaced by ctr) memzero(&nextd, sizeof(DBT));
 	CMP_INIT_DBT(&pdestkey);
 	CMP_INIT_DBT(&pdestdata);
-
 	CMP_INIT_DBT(&destkey);
 	CMP_INIT_DBT(&destbuf);
 	if((ret = __os_malloc(env, cp->ovflsize, &destbuf.data)) != 0)
 		goto end;
 	destbuf.ulen = cp->ovflsize;
-	if(countp != NULL)
-		*countp = 0;
+	ASSIGN_PTR(countp, 0);
 	chunk_count = 0;
-
-	/* Get the first input key and data */
+	// Get the first input key and data 
 	ret = 0;
 	if(stream->next(stream, &ikey, &idata) == 0)
 		goto end;
 	prevDestKey = NULL;
 	prevDestData = NULL;
-
 	moreStream = 1;
 	while(moreStream != 0) {
 		nextExists = 1;
@@ -1004,17 +991,13 @@ static int __bamc_compress_merge_delete(DBC * dbc, BTREE_COMPRESS_STREAM * strea
 				}
  #ifdef DIAGNOSTIC
 				/* Check that the stream is sorted */
-				DB_ASSERT(env, moreStream == 0 ||
-					__db_compare_both(dbp, &ikey, &idata,
-						&pikey, &pidata) >= 0);
+				DB_ASSERT(env, moreStream == 0 || __db_compare_both(dbp, &ikey, &idata, &pikey, &pidata) >= 0);
  #endif
 				/*
 				 * Check that !nextExists ||
 				 * ikey/idata < nextk/nextd
 				 */
-				if(moreStream != 0 && nextExists != 0 &&
-				   __db_compare_both(dbp, &ikey,
-					   &idata, &nextk, &nextd) >= 0)
+				if(moreStream != 0 && nextExists != 0 && __db_compare_both(dbp, &ikey, &idata, &nextk, &nextd) >= 0)
 					iSmallEnough = 0;
 			}
 			if(cmp <= 0) {
@@ -1073,26 +1056,19 @@ static int __bamc_compress_merge_delete_dups(DBC * dbc, BTREE_COMPRESS_STREAM * 
 	cp = (BTREE_CURSOR *)dbc->internal;
 	dbp = dbc->dbp;
 	bulk_ret = 0;
-
-	memzero(&ikey, sizeof(DBT));
-
+	// (replaced by ctr) memzero(&ikey, sizeof(DBT));
 	CMP_INIT_DBT(&nextk);
-
-	memzero(&noread, sizeof(DBT));
+	// (replaced by ctr) memzero(&noread, sizeof(DBT));
 	noread.flags = DB_DBT_PARTIAL|DB_DBT_USERMEM;
-
 	CMP_INIT_DBT(&pdestkey);
 	CMP_INIT_DBT(&pdestdata);
-
 	CMP_INIT_DBT(&destkey);
 	CMP_INIT_DBT(&destbuf);
 	if((ret = __os_malloc(env, cp->ovflsize, &destbuf.data)) != 0)
 		goto end;
 	destbuf.ulen = cp->ovflsize;
-	if(countp != NULL)
-		*countp = 0;
+	ASSIGN_PTR(countp, 0);
 	chunk_count = 0;
-
 	/* Get the first input key and data */
 	ret = 0;
 	if(stream->next(stream, &ikey, NULL) == 0)
@@ -1204,14 +1180,10 @@ static int __bamc_compress_merge_delete_dups(DBC * dbc, BTREE_COMPRESS_STREAM * 
 
  #ifdef DIAGNOSTIC
 				/* Check that the stream is sorted */
-				DB_ASSERT(env, moreStream == 0 ||
-					__db_compare_both(dbp, &ikey, NULL,
-						&pikey, NULL) >= 0);
+				DB_ASSERT(env, moreStream == 0 || __db_compare_both(dbp, &ikey, NULL, &pikey, NULL) >= 0);
  #endif
 				/* Check that !nextExists || ikey <= nextk */
-				if(moreStream != 0 && nextExists != 0 &&
-				   __db_compare_both(dbp,
-					   &ikey, NULL, &nextk, NULL) > 0)
+				if(moreStream != 0 && nextExists != 0 && __db_compare_both(dbp, &ikey, NULL, &nextk, NULL) > 0)
 					iSmallEnough = 0;
 			}
 			else   /* cmp == 0 */
@@ -1508,8 +1480,7 @@ static int __bamc_compress_get_set(DBC * dbc, DBT * key, DBT * data, uint32 meth
 		ret = __bamc_next_decompress(dbc);
 		if(ret == DB_NOTFOUND) {
 			CMP_IGET_RETRY(ret, dbc, &cp->key1, &cp->compressed, DB_NEXT|flags);
-			if(ret == 0)
-				ret = __bamc_start_decompress(dbc);
+			SETIFZ(ret, __bamc_start_decompress(dbc));
 		}
 	}
 	switch(method) {
@@ -1519,16 +1490,14 @@ static int __bamc_compress_get_set(DBC * dbc, DBT * key, DBT * data, uint32 meth
 		 * We need to exactly match the key, and if cmp != 0 we
 		 * might not have - so check again here.
 		 */
-		if(ret == 0 &&
-		   __db_compare_both(dbp, cp->currentKey, 0, key, 0) != 0) {
+		if(ret == 0 && __db_compare_both(dbp, cp->currentKey, 0, key, 0) != 0) {
 			/* We didn't find the key */
 			ret = DB_NOTFOUND;
 		}
 		break;
 	    case DB_GET_BOTH:
 		if(ret == 0 && (cmp != 0 || (!F_ISSET(dbp, DB_AM_DUPSORT) && __bam_defcmp(dbp, cp->currentData, data) != 0))) {
-			/* We didn't find the key/data pair */
-			ret = DB_NOTFOUND;
+			ret = DB_NOTFOUND; // We didn't find the key/data pair 
 		}
 		break;
 	    default:
@@ -1553,7 +1522,7 @@ static int __bamc_compress_get_bothc(DBC * dbc, DBT * data, uint32 flags)
 	while((ret = __bamc_next_decompress(dbc)) == 0 && (cmp = __db_compare_both(dbp, cp->currentKey, cp->currentData, cp->prevKey, data)) < 0)
 		continue;
 	if(ret == 0)
-		return cmp == 0 ? 0 : DB_NOTFOUND;
+		return (cmp == 0) ? 0 : DB_NOTFOUND;
 	if(ret != DB_NOTFOUND)
 		return ret;
 	/* Copy the current key to del_key */
@@ -1581,27 +1550,17 @@ static int __bamc_compress_get_multiple_key(DBC * dbc, DBT * data, uint32 flags)
 	memcpy(writekey, cp->currentKey->data, cp->currentKey->size);
 	memcpy(writedata, cp->currentData->data, cp->currentData->size);
 	while((ret = __bamc_compress_get_next(dbc, flags)) == 0) {
-		DB_MULTIPLE_KEY_RESERVE_NEXT(mptr, data, writekey,
-			cp->currentKey->size, writedata, cp->currentData->size);
+		DB_MULTIPLE_KEY_RESERVE_NEXT(mptr, data, writekey, cp->currentKey->size, writedata, cp->currentData->size);
 		if(writekey == NULL)
 			break;
 		DB_ASSERT(dbc->dbp->env, writedata != NULL);
-
-		/*
-		 * We could choose to optimize this by just storing one
-		 * copy of a key for each set of duplicate data.
-		 */
+		// We could choose to optimize this by just storing one copy of a key for each set of duplicate data.
 		memcpy(writekey, cp->currentKey->data, cp->currentKey->size);
 		memcpy(writedata, cp->currentData->data, cp->currentData->size);
 	}
 	if(ret == DB_NOTFOUND)
 		ret = 0;
-	if(ret == 0)
-		/*
-		 * Rewind to the previous key/data, since we can't fit
-		 * this one in the buffer
-		 */
-		ret = __bamc_compress_get_prev(dbc, flags);
+	SETIFZ(ret, __bamc_compress_get_prev(dbc, flags)); // Rewind to the previous key/data, since we can't fit this one in the buffer
 	return ret;
 }
 /*
@@ -1618,30 +1577,24 @@ static int __bamc_compress_get_multiple(DBC * dbc, DBT * key, DBT * data, uint32
 	DB_MULTIPLE_RESERVE_NEXT(mptr, data, writedata, cp->currentData->size);
 	data->size += cp->currentData->size+2*sizeof(uint32);
 	if(writedata == NULL)
-		return DB_BUFFER_SMALL;
-	memcpy(writedata, cp->currentData->data, cp->currentData->size);
-	while((ret = __bamc_compress_get_next_dup(dbc, key, flags)) == 0) {
-		DB_MULTIPLE_RESERVE_NEXT(mptr, data, writedata, cp->currentData->size);
-		data->size += cp->currentData->size+2*sizeof(uint32);
-		if(writedata == NULL) {
-			/* DBC_FROM_DB_GET indicates we need to fit all the
-			 * duplicates into the buffer or return DB_BUFFER_SMALL.
-			 * [#17039]
-			 */
-			if(F_ISSET(dbc, DBC_FROM_DB_GET))
-				return DB_BUFFER_SMALL;
-			break;
-		}
+		ret = DB_BUFFER_SMALL;
+	else {
 		memcpy(writedata, cp->currentData->data, cp->currentData->size);
+		while((ret = __bamc_compress_get_next_dup(dbc, key, flags)) == 0) {
+			DB_MULTIPLE_RESERVE_NEXT(mptr, data, writedata, cp->currentData->size);
+			data->size += cp->currentData->size+2*sizeof(uint32);
+			if(writedata == NULL) {
+				// DBC_FROM_DB_GET indicates we need to fit all the duplicates into the buffer or return DB_BUFFER_SMALL. [#17039]
+				if(F_ISSET(dbc, DBC_FROM_DB_GET))
+					return DB_BUFFER_SMALL;
+				break;
+			}
+			memcpy(writedata, cp->currentData->data, cp->currentData->size);
+		}
+		if(ret == DB_NOTFOUND)
+			ret = 0;
+		SETIFZ(ret, __bamc_compress_get_prev(dbc, flags)); // Rewind to the previous key/data, as that's now our current entry.
 	}
-	if(ret == DB_NOTFOUND)
-		ret = 0;
-	if(ret == 0)
-		/*
-		 * Rewind to the previous key/data, as that's now our current
-		 * entry.
-		 */
-		ret = __bamc_compress_get_prev(dbc, flags);
 	return ret;
 }
 /*
@@ -1658,81 +1611,80 @@ static int __bamc_compress_iget(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 	flags = flags&~(DB_OPFLAGS_MASK|DB_MULTIPLE|DB_MULTIPLE_KEY);
 	switch(method) {
 	    case DB_CURRENT:
-		if(F_ISSET(cp, C_COMPRESS_DELETED))
-			ret = DB_KEYEMPTY;
-		else if(cp->currentKey == NULL)
-			ret = EINVAL;
-		break;
+			if(F_ISSET(cp, C_COMPRESS_DELETED))
+				ret = DB_KEYEMPTY;
+			else if(cp->currentKey == NULL)
+				ret = EINVAL;
+			break;
 	    case DB_FIRST:
-		__bamc_compress_reset(dbc);
-		ret = __bamc_compress_get_next(dbc, flags);
-		break;
+			__bamc_compress_reset(dbc);
+			ret = __bamc_compress_get_next(dbc, flags);
+			break;
 	    case DB_NEXT:
-		ret = __bamc_compress_get_next(dbc, flags);
-		break;
+			ret = __bamc_compress_get_next(dbc, flags);
+			break;
 	    case DB_NEXT_DUP:
-		ret = __bamc_compress_get_next_dup(dbc, 0, flags);
-		break;
+			ret = __bamc_compress_get_next_dup(dbc, 0, flags);
+			break;
 	    case DB_NEXT_NODUP:
-		ret = __bamc_compress_get_next_nodup(dbc, flags);
-		break;
+			ret = __bamc_compress_get_next_nodup(dbc, flags);
+			break;
 	    case DB_LAST:
-		__bamc_compress_reset(dbc);
-		ret = __bamc_compress_get_prev(dbc, flags);
-		break;
+			__bamc_compress_reset(dbc);
+			ret = __bamc_compress_get_prev(dbc, flags);
+			break;
 	    case DB_PREV:
-		ret = __bamc_compress_get_prev(dbc, flags);
-		break;
+			ret = __bamc_compress_get_prev(dbc, flags);
+			break;
 	    case DB_PREV_DUP:
-		ret = __bamc_compress_get_prev_dup(dbc, flags);
-		break;
+			ret = __bamc_compress_get_prev_dup(dbc, flags);
+			break;
 	    case DB_PREV_NODUP:
-		ret = __bamc_compress_get_prev_nodup(dbc, flags);
-		break;
+			ret = __bamc_compress_get_prev_nodup(dbc, flags);
+			break;
 	    case DB_SET:
-		if(((BTREE *)dbc->dbp->bt_internal)->bt_compare == __bam_defcmp)
-			F_SET(key, DB_DBT_ISSET);
-	    /* FALL THROUGH */
+			if(((BTREE *)dbc->dbp->bt_internal)->bt_compare == __bam_defcmp)
+				F_SET(key, DB_DBT_ISSET);
+			/* FALL THROUGH */
 	    case DB_SET_RANGE:
-		ret = __bamc_compress_get_set(dbc, key, 0, method, flags);
-		break;
+			ret = __bamc_compress_get_set(dbc, key, 0, method, flags);
+			break;
 	    case DB_GET_BOTH:
-		if(!F_ISSET(dbc->dbp, DB_AM_DUPSORT) || ((BTREE *)dbc->dbp->bt_internal)->compress_dup_compare == __bam_defcmp)
-			F_SET(data, DB_DBT_ISSET);
-	    /* FALL THROUGH */
+			if(!F_ISSET(dbc->dbp, DB_AM_DUPSORT) || ((BTREE *)dbc->dbp->bt_internal)->compress_dup_compare == __bam_defcmp)
+				F_SET(data, DB_DBT_ISSET);
+			/* FALL THROUGH */
 	    case DB_GET_BOTH_RANGE:
-		if(((BTREE *)dbc->dbp->bt_internal)->bt_compare == __bam_defcmp)
-			F_SET(key, DB_DBT_ISSET);
-		ret = __bamc_compress_get_set(dbc, key, data, method, flags);
-		break;
+			if(((BTREE *)dbc->dbp->bt_internal)->bt_compare == __bam_defcmp)
+				F_SET(key, DB_DBT_ISSET);
+			ret = __bamc_compress_get_set(dbc, key, data, method, flags);
+			break;
 	    case DB_GET_BOTHC:
-		ret = __bamc_compress_get_bothc(dbc, data, flags);
-		break;
+			ret = __bamc_compress_get_bothc(dbc, data, flags);
+			break;
 	    default:
-		ret = __db_unknown_flag(dbp->env, "__bamc_compress_iget", method);
-		break;
+			ret = __db_unknown_flag(dbp->env, "__bamc_compress_iget", method);
+			break;
 	}
 	if(ret != 0)
 		goto err;
 	switch(multiple) {
 	    case 0:
-		if(!F_ISSET(key, DB_DBT_ISSET))
-			ret = __db_retcopy(dbc->env, key, cp->currentKey->data, cp->currentKey->size, &dbc->rkey->data, &dbc->rkey->ulen);
-		if(!F_ISSET(data, DB_DBT_ISSET) && ret == 0)
-			ret = __db_retcopy(dbc->env, data, cp->currentData->data, cp->currentData->size, &dbc->rdata->data, &dbc->rdata->ulen);
-		break;
+			if(!F_ISSET(key, DB_DBT_ISSET))
+				ret = __db_retcopy(dbc->env, key, cp->currentKey->data, cp->currentKey->size, &dbc->rkey->data, &dbc->rkey->ulen);
+			if(!F_ISSET(data, DB_DBT_ISSET) && ret == 0)
+				ret = __db_retcopy(dbc->env, data, cp->currentData->data, cp->currentData->size, &dbc->rdata->data, &dbc->rdata->ulen);
+			break;
 	    case DB_MULTIPLE:
-		if(!F_ISSET(key, DB_DBT_ISSET))
-			ret = __db_retcopy(dbc->env, key, cp->currentKey->data, cp->currentKey->size, &dbc->rkey->data, &dbc->rkey->ulen);
-		if(ret == 0)
-			ret = __bamc_compress_get_multiple(dbc, key, data, flags);
-		break;
+			if(!F_ISSET(key, DB_DBT_ISSET))
+				ret = __db_retcopy(dbc->env, key, cp->currentKey->data, cp->currentKey->size, &dbc->rkey->data, &dbc->rkey->ulen);
+			SETIFZ(ret, __bamc_compress_get_multiple(dbc, key, data, flags));
+			break;
 	    case DB_MULTIPLE_KEY:
-		ret = __bamc_compress_get_multiple_key(dbc, data, flags);
-		break;
+			ret = __bamc_compress_get_multiple_key(dbc, data, flags);
+			break;
 	    default:
-		ret = __db_unknown_flag(dbp->env, "__bamc_compress_iget", multiple);
-		break;
+			ret = __db_unknown_flag(dbp->env, "__bamc_compress_iget", multiple);
+			break;
 	}
 err:
 	F_CLR(key, DB_DBT_ISSET);
@@ -1773,10 +1725,7 @@ int __bamc_compress_get(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 	else {
 		if((ret = __dbc_dup(dbc, &dbc_n, tmp_flags)) != 0)
 			goto err;
-		/*
-		 * We don't care about preserving the cursor's position on
-		 * error.
-		 */
+		// We don't care about preserving the cursor's position on error.
 		F_SET(dbc_n, DBC_TRANSIENT);
 		COPY_RET_MEM(dbc, dbc_n);
 	}
@@ -1801,8 +1750,8 @@ static int __bamc_compress_iput(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
 	DB * dbp = dbc->dbp;
 	ENV * env = dbc->env;
-	memzero(&pdata, sizeof(DBT));
-	memzero(&empty, sizeof(DBT));
+	// (replaced by ctr) memzero(&pdata, sizeof(DBT));
+	// (replaced by ctr) memzero(&empty, sizeof(DBT));
 	multi = LF_ISSET(DB_MULTIPLE|DB_MULTIPLE_KEY);
 	LF_CLR(DB_MULTIPLE|DB_MULTIPLE_KEY);
 	switch(flags) {
@@ -1826,9 +1775,7 @@ static int __bamc_compress_iput(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 			goto end;
 		__bam_cs_create_single(&stream, &kcpy, data);
 		ret = __bamc_compress_merge_insert(dbc, &stream, NULL, flags);
-		if(ret == 0)
-			/* Position the cursor on the entry written */
-			ret = __bamc_compress_get_set(dbc, &kcpy, data, DB_GET_BOTH_RANGE, 0);
+		SETIFZ(ret, __bamc_compress_get_set(dbc, &kcpy, data, DB_GET_BOTH_RANGE, 0)); // Position the cursor on the entry written
 		CMP_FREE_DBT(env, &kcpy);
 		break;
 	    case DB_KEYFIRST:
@@ -1847,8 +1794,7 @@ static int __bamc_compress_iput(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 			__bam_cs_create_single(&stream, key, data);
 			ret = __bamc_compress_merge_insert(dbc, &stream, NULL, flags);
 			if(ret == 0)
-				/* Position the cursor on the entry written */
-				ret = __bamc_compress_get_set(dbc, key, data, DB_GET_BOTH_RANGE, 0);
+				ret = __bamc_compress_get_set(dbc, key, data, DB_GET_BOTH_RANGE, 0); // Position the cursor on the entry written 
 			break;
 		    case DB_MULTIPLE:
 			__bam_cs_create_multiple(&stream, key, data);
@@ -1863,26 +1809,23 @@ static int __bamc_compress_iput(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 		}
 		break;
 	    case DB_NOOVERWRITE:
-		/* Check key doesn't already exist */
-		ret = __bamc_compress_get_set(dbc, key, 0, DB_SET, 0);
-		if(ret != DB_NOTFOUND) {
-			if(ret == 0)
-				ret = DB_KEYEXIST;
-			goto end;
-		}
-		if(F_ISSET(data, DB_DBT_PARTIAL)) {
-			if((ret = __db_buildpartial(dbp, &empty, data, &pdata)) != 0)
+			// Check key doesn't already exist 
+			ret = __bamc_compress_get_set(dbc, key, 0, DB_SET, 0);
+			if(ret != DB_NOTFOUND) {
+				SETIFZ(ret, DB_KEYEXIST);
 				goto end;
-			data = &pdata;
-		}
-		__bam_cs_create_single(&stream, key, data);
-		ret = __bamc_compress_merge_insert(dbc, &stream, NULL, flags);
-		if(ret == 0)
-			/* Position the cursor on the entry written */
-			ret = __bamc_compress_get_set(dbc, key, data, DB_GET_BOTH_RANGE, 0);
-		break;
+			}
+			if(F_ISSET(data, DB_DBT_PARTIAL)) {
+				if((ret = __db_buildpartial(dbp, &empty, data, &pdata)) != 0)
+					goto end;
+				data = &pdata;
+			}
+			__bam_cs_create_single(&stream, key, data);
+			ret = __bamc_compress_merge_insert(dbc, &stream, NULL, flags);
+			SETIFZ(ret, __bamc_compress_get_set(dbc, key, data, DB_GET_BOTH_RANGE, 0)); // Position the cursor on the entry written 
+			break;
 	    default:
-		return __db_unknown_flag(dbp->env, "__bamc_compress_iput", flags);
+			return __db_unknown_flag(dbp->env, "__bamc_compress_iput", flags);
 	}
 end:
 	__os_free(env, pdata.data);
@@ -2054,28 +1997,22 @@ int __bamc_compress_count(DBC * dbc, db_recno_t * countp)
 {
 	int ret, t_ret;
 	db_recno_t count;
-	DBT * key;
 	DBC * dbc_n;
 	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
-	/*
-	 * If the current entry is deleted use del_key, otherwise use
-	 * currentKey.
-	 */
-	if(F_ISSET(cp, C_COMPRESS_DELETED))
-		key = &cp->del_key;
-	else
-		key = cp->currentKey;
-	/* Duplicate the cursor */
+	//
+	// If the current entry is deleted use del_key, otherwise use currentKey.
+	//
+	DBT * key = F_ISSET(cp, C_COMPRESS_DELETED) ? &cp->del_key : cp->currentKey;
+	// Duplicate the cursor 
 	if((ret = __dbc_dup(dbc, &dbc_n, 0)) != 0)
 		return ret;
-	/* We don't care about preserving the cursor's position on error */
+	// We don't care about preserving the cursor's position on error 
 	F_SET(dbc_n, DBC_TRANSIENT);
-	/* Find the first duplicate */
+	// Find the first duplicate 
 	if((ret = __bamc_compress_get_set(dbc_n, key, 0, DB_SET, 0)) != 0)
 		goto err;
 	count = 1;
-
-	/* Count subsequent duplicates */
+	// Count subsequent duplicates 
 	while((ret = __bamc_compress_get_next_dup(dbc_n, key, 0)) == 0)
 		++count;
 	if(ret == DB_NOTFOUND)
@@ -2158,10 +2095,8 @@ int __bamc_compress_dup(DBC * orig_dbc, DBC * new_dbc, uint32 flags)
 			return ret;
 		p_new_cursor->compcursor = (uint8 *)p_new_cursor->compressed.data+(orig->compcursor-(uint8 *)orig->compressed.data);
 		p_new_cursor->compend = (uint8 *)p_new_cursor->compressed.data+(orig->compend-(uint8 *)orig->compressed.data);
-		p_new_cursor->prevcursor = orig->prevcursor == NULL ? NULL :
-			(uint8 *)p_new_cursor->compressed.data+(orig->prevcursor- (uint8 *)orig->compressed.data);
-		p_new_cursor->prev2cursor = orig->prev2cursor == NULL ? NULL :
-			(uint8 *)p_new_cursor->compressed.data+(orig->prev2cursor-(uint8 *)orig->compressed.data);
+		p_new_cursor->prevcursor = !orig->prevcursor ? NULL : (uint8 *)p_new_cursor->compressed.data+(orig->prevcursor- (uint8 *)orig->compressed.data);
+		p_new_cursor->prev2cursor = !orig->prev2cursor ? NULL : (uint8 *)p_new_cursor->compressed.data+(orig->prev2cursor-(uint8 *)orig->compressed.data);
 		if(F_ISSET(orig, C_COMPRESS_DELETED)) {
 			if((ret = __bam_compress_set_dbt(dbp, &p_new_cursor->del_key, orig->del_key.data, orig->del_key.size)) != 0)
 				return ret;
@@ -2186,11 +2121,11 @@ int __bam_compress_salvage(DB * dbp, VRFY_DBINFO * vdp, void * handle, int (*cal
 	uint8 * compcursor, * compend;
 	uint32 datasize, size;
 	ENV * env = dbp->env;
-	memzero(&key1, sizeof(DBT));
-	memzero(&key2, sizeof(DBT));
-	memzero(&data1, sizeof(DBT));
-	memzero(&data2, sizeof(DBT));
-	memzero(&compressed, sizeof(DBT));
+	// (replaced by ctr) memzero(&key1, sizeof(DBT));
+	// (replaced by ctr) memzero(&key2, sizeof(DBT));
+	// (replaced by ctr) memzero(&data1, sizeof(DBT));
+	// (replaced by ctr) memzero(&data2, sizeof(DBT));
+	// (replaced by ctr) memzero(&compressed, sizeof(DBT));
 	key1.flags = DB_DBT_USERMEM;
 	key2.flags = DB_DBT_USERMEM;
 	data1.flags = DB_DBT_USERMEM;

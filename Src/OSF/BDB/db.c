@@ -723,15 +723,13 @@ int __db_refresh(DB * dbp, DB_TXN * txn, uint32 flags, int * deferred_closep, in
 		if(dbc->txn != NULL)
 			TAILQ_REMOVE(&(dbc->txn->my_cursors), dbc, txn_cursors);
 		if((t_ret = __dbc_close(dbc)) != 0) {
-			if(ret == 0)
-				ret = t_ret;
+			SETIFZ(ret, t_ret);
 			break;
 		}
 	}
 	while((dbc = TAILQ_FIRST(&dbp->free_queue)) != NULL)
 		if((t_ret = __dbc_destroy(dbc)) != 0) {
-			if(ret == 0)
-				ret = t_ret;
+			SETIFZ(ret, t_ret);
 			break;
 		}
 	/*
@@ -741,8 +739,7 @@ int __db_refresh(DB * dbp, DB_TXN * txn, uint32 flags, int * deferred_closep, in
 	 */
 	while((dbc = TAILQ_FIRST(&dbp->join_queue)) != NULL)
 		if((t_ret = __db_join_close(dbc)) != 0) {
-			if(ret == 0)
-				ret = t_ret;
+			SETIFZ(ret, t_ret);
 			break;
 		}
 	/*
@@ -909,12 +906,10 @@ never_opened:
 	 * If this is a temporary file (un-named in-memory file), then
 	 * discard the locker ID allocated as the fileid.
 	 */
-	if(LOCKING_ON(env) && F_ISSET(dbp, DB_AM_INMEM) && !dbp->preserve_fid &&
-	   *(uint32 *)dbp->fileid != DB_LOCK_INVALIDID) {
+	if(LOCKING_ON(env) && F_ISSET(dbp, DB_AM_INMEM) && !dbp->preserve_fid && *(uint32 *)dbp->fileid != DB_LOCK_INVALIDID) {
 		if((t_ret = __lock_getlocker(env->lk_handle, *(uint32 *)dbp->fileid, 0, &locker)) == 0)
 			t_ret = __lock_id_free(env, locker);
-		if(ret == 0)
-			ret = t_ret;
+		SETIFZ(ret, t_ret);
 	}
 	if(reuse) {
 		/*
@@ -1053,17 +1048,17 @@ static int __db_disassociate_foreign(DB * sdbp)
  */
 int __db_log_page(DB * dbp, DB_TXN * txn, DB_LSN * lsn, db_pgno_t pgno, PAGE * page)
 {
-	DBT page_dbt;
-	DB_LSN new_lsn;
-	int ret;
-	if(!LOGGING_ON(dbp->env) || txn == NULL)
-		return 0;
-	memzero(&page_dbt, sizeof(page_dbt));
-	page_dbt.size = dbp->pgsize;
-	page_dbt.data = page;
-	ret = __crdel_metasub_log(dbp, txn, &new_lsn, F_ISSET(dbp, DB_AM_NOT_DURABLE) ? DB_LOG_NOT_DURABLE : 0, pgno, &page_dbt, lsn);
-	if(ret == 0)
-		page->lsn = new_lsn;
+	int ret = 0;
+	if(LOGGING_ON(dbp->env) && txn) {
+		DBT page_dbt;
+		DB_LSN new_lsn;
+		memzero(&page_dbt, sizeof(page_dbt));
+		page_dbt.size = dbp->pgsize;
+		page_dbt.data = page;
+		ret = __crdel_metasub_log(dbp, txn, &new_lsn, F_ISSET(dbp, DB_AM_NOT_DURABLE) ? DB_LOG_NOT_DURABLE : 0, pgno, &page_dbt, lsn);
+		if(ret == 0)
+			page->lsn = new_lsn;
+	}
 	return ret;
 }
 /*
@@ -1314,18 +1309,16 @@ err:
 
 static int __db_makecopy(ENV * env, const char * src, const char * dest)
 {
-	DB_FH * rfhp, * wfhp;
+	DB_FH * rfhp = 0;
+	DB_FH * wfhp = 0;
 	size_t rcnt, wcnt;
 	int ret;
 	char * buf;
-	rfhp = wfhp = NULL;
 	if((ret = __os_malloc(env, 64*1024, &buf)) != 0)
 		goto err;
-	if((ret = __os_open(env, src, 0,
-		    DB_OSO_RDONLY, DB_MODE_600, &rfhp)) != 0)
+	if((ret = __os_open(env, src, 0, DB_OSO_RDONLY, DB_MODE_600, &rfhp)) != 0)
 		goto err;
-	if((ret = __os_open(env, dest, 0,
-		    DB_OSO_CREATE|DB_OSO_TRUNC, DB_MODE_600, &wfhp)) != 0)
+	if((ret = __os_open(env, dest, 0, DB_OSO_CREATE|DB_OSO_TRUNC, DB_MODE_600, &wfhp)) != 0)
 		goto err;
 	for(;; ) {
 		if((ret = __os_read(env, rfhp, buf, sizeof(buf), &rcnt)) != 0)

@@ -73,7 +73,8 @@
 	#undef	DB_DBM_HSEARCH
 	#define	DB_DBM_HSEARCH 1
 #endif
-#include "db.h"
+// @sobolev #include "db.h"
+#include <BerkeleyDB.h> // @sobolev
 #include "clib_port.h"
 #include "dbinc/queue.h"
 #include "dbinc/shqueue.h"
@@ -126,10 +127,12 @@ typedef SH_TAILQ_HEAD(__hash_head) DB_HASHTAB;
 /*******************************************************
  * General purpose constants and macros.
  *******************************************************/
+/* @sobolev
 #undef	FALSE
 #define	FALSE		0
 #undef	TRUE
 #define	TRUE		(!FALSE)
+*/
 
 #define	MEGABYTE	1048576
 #define	GIGABYTE	1073741824
@@ -187,13 +190,11 @@ typedef SH_TAILQ_HEAD(__hash_head) DB_HASHTAB;
 #ifndef	va_copy
 	#define	va_copy(d, s)	((d) = (s))
 #endif
-/*
- * Print an address as a ulong (a ulong is the largest type we can print
- * portably).  Most 64-bit systems have made longs 64-bits, so this should
- * work.
- */
+//
+// Print an address as a ulong (a ulong is the largest type we can print
+// portably).  Most 64-bit systems have made longs 64-bits, so this should work.
+//
 #define	P_TO_ULONG(p)	((ulong)(uintptr_t)(p))
-
 /*
  * Convert a pointer to an integral value.
  *
@@ -205,10 +206,8 @@ typedef SH_TAILQ_HEAD(__hash_head) DB_HASHTAB;
 #define	P_TO_UINT32(p)	((uint32)(uintptr_t)(p))
 #define	P_TO_UINT16(p)	((uint16)(uintptr_t)(p))
 #define	P_TO_ROFF(p)	((roff_t)(uintptr_t)(p))
-
-/* The converse of P_TO_ROFF() above. */
+// The converse of P_TO_ROFF() above. 
 #define	ROFF_TO_P(roff)	((void *)(uintptr_t)(roff))
-
 /*
  * There are several on-page structures that are declared to have a number of
  * fields followed by a variable length array of items.  The structure size
@@ -219,8 +218,7 @@ typedef SH_TAILQ_HEAD(__hash_head) DB_HASHTAB;
  * structure.  This is used in various places to copy structure elements from
  * unaligned memory references, e.g., pointers into a packed page.
  *
- * There are two versions because compilers object if you take the address of
- * an array.
+ * There are two versions because compilers object if you take the address of an array.
  */
 #undef	SSZ
 #define	SSZ(name, field)  P_TO_UINT16(&(((name *)0)->field))
@@ -244,18 +242,14 @@ typedef struct __fn {
 #define	LF_CLR(f)		((flags) &= ~(f))
 #define	LF_ISSET(f)		((flags) & (f))
 #define	LF_SET(f)		((flags) |= (f))
-
-/*
- * Calculate a percentage.  The values can overflow 32-bit integer arithmetic
- * so we use floating point.
- *
- * When calculating a bytes-vs-page size percentage, we're getting the inverse
- * of the percentage in all cases, that is, we want 100 minus the percentage we
- * calculate.
- */
+// 
+// Calculate a percentage.  The values can overflow 32-bit integer arithmetic so we use floating point.
+// 
+// When calculating a bytes-vs-page size percentage, we're getting the inverse
+// of the percentage in all cases, that is, we want 100 minus the percentage we calculate.
+//
 #define	DB_PCT(v, total)              ((int)((total) == 0 ? 0 : ((double)(v) * 100) / (total)))
 #define	DB_PCT_PG(v, total, pgsize)   ((int)((total) == 0 ? 0 : 100 - ((double)(v) * 100) / (((double)total) * (pgsize))))
-
 /*
  * Statistics update shared memory and so are expensive -- don't update the
  * values unless we're going to display the results.
@@ -269,10 +263,10 @@ typedef struct __fn {
 #define	STAT_ADJUST_VERB(env, cat, subcat, val, amount, id1, id2) do { (val) += (amount); STAT_PERFMON3((env), cat, subcat, (val), (id1), (id2)); } while(0)
 #define	STAT_INC(env, cat, subcat, val, id)            STAT_ADJUST(env, cat, subcat, (val), 1, (id))
 #define	STAT_INC_VERB(env, cat, subcat, val, id1, id2) STAT_ADJUST_VERB((env), cat, subcat, (val), 1, (id1), (id2))
-/*
- * STAT_DEC() subtracts one rather than adding (-1) with STAT_ADJUST(); the
- * latter might generate a compilation warning for an unsigned value.
- */
+// 
+// STAT_DEC() subtracts one rather than adding (-1) with STAT_ADJUST(); the
+// latter might generate a compilation warning for an unsigned value.
+// 
 #define	STAT_DEC(env, cat, subcat, val, id) do { (val)--; STAT_PERFMON2((env), cat, subcat, (val), (id)); } while (0)
 /* N.B.: Add a verbose version of STAT_DEC() when needed. */
 
@@ -406,21 +400,20 @@ typedef struct __db_msgbuf {
  * standard 'return of 0 is only OK value', but some, like db->get have
  * DB_NOTFOUND as a return value, but it really isn't an error.
  */
-#define	DB_RETOK_STD(ret)	((ret) == 0)
-#define	DB_RETOK_DBCDEL(ret)	((ret) == 0 || (ret) == DB_KEYEMPTY || (ret) == DB_NOTFOUND)
-#define	DB_RETOK_DBCGET(ret)	((ret) == 0 || (ret) == DB_KEYEMPTY || (ret) == DB_NOTFOUND)
-#define	DB_RETOK_DBCPUT(ret)	((ret) == 0 || (ret) == DB_KEYEXIST || (ret) == DB_NOTFOUND)
-#define	DB_RETOK_DBDEL(ret)	DB_RETOK_DBCDEL(ret)
-#define	DB_RETOK_DBGET(ret)	DB_RETOK_DBCGET(ret)
-#define	DB_RETOK_DBPUT(ret)	((ret) == 0 || (ret) == DB_KEYEXIST)
-#define	DB_RETOK_EXISTS(ret)	DB_RETOK_DBCGET(ret)
-#define	DB_RETOK_LGGET(ret)	((ret) == 0 || (ret) == DB_NOTFOUND)
-#define	DB_RETOK_MPGET(ret)	((ret) == 0 || (ret) == DB_PAGE_NOTFOUND)
-#define	DB_RETOK_REPPMSG(ret)	((ret) == 0 || (ret) == DB_REP_IGNORE || (ret) == DB_REP_ISPERM || \
-	(ret) == DB_REP_NEWMASTER || (ret) == DB_REP_NEWSITE || (ret) == DB_REP_NOTPERM || (ret) == DB_REP_WOULDROLLBACK)
-#define	DB_RETOK_REPMGR_LOCALSITE(ret)	((ret) == 0 || (ret) == DB_NOTFOUND)
-#define	DB_RETOK_REPMGR_START(ret) ((ret) == 0 || (ret) == DB_REP_IGNORE)
-#define	DB_RETOK_TXNAPPLIED(ret) ((ret) == 0 || (ret) == DB_NOTFOUND || (ret) == DB_TIMEOUT || (ret) == DB_KEYEMPTY)
+#define	DB_RETOK_STD(ret)     ((ret) == 0)
+#define	DB_RETOK_DBCDEL(ret)  oneof3((ret), 0, DB_KEYEMPTY, DB_NOTFOUND)
+#define	DB_RETOK_DBCGET(ret)  oneof3((ret), 0, DB_KEYEMPTY, DB_NOTFOUND)
+#define	DB_RETOK_DBCPUT(ret)  oneof3((ret), 0, DB_KEYEXIST, DB_NOTFOUND)
+#define	DB_RETOK_DBDEL(ret)   DB_RETOK_DBCDEL(ret)
+#define	DB_RETOK_DBGET(ret)   DB_RETOK_DBCGET(ret)
+#define	DB_RETOK_DBPUT(ret)   oneof2((ret), 0, DB_KEYEXIST)
+#define	DB_RETOK_EXISTS(ret)  DB_RETOK_DBCGET(ret)
+#define	DB_RETOK_LGGET(ret)   oneof2((ret), 0, DB_NOTFOUND)
+#define	DB_RETOK_MPGET(ret)   oneof2((ret), 0, DB_PAGE_NOTFOUND)
+#define	DB_RETOK_REPPMSG(ret) oneof7((ret), 0, DB_REP_IGNORE, DB_REP_ISPERM, DB_REP_NEWMASTER, DB_REP_NEWSITE, DB_REP_NOTPERM, DB_REP_WOULDROLLBACK)
+#define	DB_RETOK_REPMGR_LOCALSITE(ret)  oneof2((ret), 0, DB_NOTFOUND)
+#define	DB_RETOK_REPMGR_START(ret)      oneof2((ret), 0, DB_REP_IGNORE)
+#define	DB_RETOK_TXNAPPLIED(ret)        oneof4((ret), 0, DB_NOTFOUND, DB_TIMEOUT, DB_KEYEMPTY)
 
 /* Find a reasonable operation-not-supported error. */
 #ifdef	EOPNOTSUPP
@@ -863,11 +856,7 @@ typedef struct __dbpginfo {
 //
 // LOG_COMPARE -- compare two LSNs.
 //
-#define	LOG_COMPARE(lsn0, lsn1)						\
-	((lsn0)->file != (lsn1)->file ?					\
-	((lsn0)->file < (lsn1)->file ? -1 : 1) :			\
-	((lsn0)->offset != (lsn1)->offset ?				\
-	((lsn0)->offset < (lsn1)->offset ? -1 : 1) : 0))
+#define	LOG_COMPARE(lsn0, lsn1) ((lsn0)->file != (lsn1)->file ? ((lsn0)->file < (lsn1)->file ? -1 : 1) : ((lsn0)->offset != (lsn1)->offset ? ((lsn0)->offset < (lsn1)->offset ? -1 : 1) : 0))
 //
 // Txn.
 //
@@ -937,7 +926,162 @@ typedef struct __dbpginfo {
 #include "dbinc/db_dispatch.h" // @v9.5.5
 #include "dbinc/db_am.h" // @v9.5.5
 #include "dbinc/txn.h" // @v9.5.5
-#include "dbinc/db_verify.h" // @v9.5.5
+#include "dbinc/log_verify.h" // @v9.6.2
+//#include "dbinc/db_verify.h" // @v9.5.5
+//
+// Structures and macros for the storage and retrieval of all information
+// needed for inter-page verification of a database.
+//
+/*
+ * EPRINT is the macro for error printing.  Takes as an arg the arg set
+ * for DB->err.
+ */
+#define	EPRINT(x) do { if(!LF_ISSET(DB_SALVAGE)) __db_errx x; } while (0)
+
+/* Complain about a totally zeroed page where we don't expect one. */
+#define	ZEROPG_ERR_PRINT(dbenv, pgno, str) do {				\
+	EPRINT(((dbenv), DB_STR_A("0501", "Page %lu: %s is of inappropriate type %lu", "%lu %s %lu"), (ulong)(pgno), str, (ulong)P_INVALID)); \
+	EPRINT(((dbenv), DB_STR_A("0502", "Page %lu: totally zeroed page", "%lu"), (ulong)(pgno))); \
+} while (0)
+/*
+ * Note that 0 is, in general, a valid pgno, despite equaling PGNO_INVALID;
+ * we have to test it separately where it's not appropriate.
+ */
+#define	IS_VALID_PGNO(x)	((x) <= vdp->last_pgno)
+/*
+ * VRFY_DBINFO is the fundamental structure;  it either represents the database
+ * of subdatabases, or the sole database if there are no subdatabases.
+ */
+struct __vrfy_dbinfo {
+	DB_THREAD_INFO *thread_info;
+	DBTYPE		type; /* Info about this database in particular. */
+	LIST_HEAD(__subdbs, __vrfy_childinfo) subdbs; /* List of subdatabase meta pages, if any. */
+	DB_TXN *txn; /* Transaction handle for CDS group. */
+	DB *pgdbp; /* File-global info--stores VRFY_PAGEINFOs for each page. */
+	DB *cdbp; /* Child database--stores VRFY_CHILDINFOs of each page. */
+	LIST_HEAD(__activepips, __vrfy_pageinfo) activepips; /* Page info structures currently in use. */
+	/*
+	 * DB we use to keep track of which pages are linked somehow
+	 * during verification.  0 is the default, "unseen";  1 is seen.
+	 */
+	DB *pgset;
+	/*
+	 * This is a database we use during salvaging to keep track of which
+	 * overflow and dup pages we need to come back to at the end and print
+	 * with key "UNKNOWN".  Pages which print with a good key get set
+	 * to SALVAGE_IGNORE;  others get set, as appropriate, to SALVAGE_LDUP,
+	 * SALVAGE_LRECNODUP, SALVAGE_OVERFLOW for normal db overflow pages,
+	 * and SALVAGE_BTREE, SALVAGE_LRECNO, and SALVAGE_HASH for subdb pages.
+	 */
+#define	SALVAGE_INVALID		0
+#define	SALVAGE_IGNORE		1
+#define	SALVAGE_LDUP		2
+#define	SALVAGE_IBTREE		3
+#define	SALVAGE_OVERFLOW	4
+#define	SALVAGE_LBTREE		5
+#define	SALVAGE_HASH		6
+#define	SALVAGE_LRECNO		7
+#define	SALVAGE_LRECNODUP	8
+	DB * salvage_pages;
+	db_pgno_t	last_pgno;
+	db_pgno_t	meta_last_pgno;
+	db_pgno_t	pgs_remaining;	/* For dbp->db_feedback(). */
+	/*
+	 * These are used during __bam_vrfy_subtree to keep track, while
+	 * walking up and down the Btree structure, of the prev- and next-page
+	 * chain of leaf pages and verify that it's intact.  Also, make sure
+	 * that this chain contains pages of only one type.
+	 */
+	db_pgno_t	prev_pgno;
+	db_pgno_t	next_pgno;
+	uint8	leaf_type;
+	/* Queue needs these to verify data pages in the first pass. */
+	uint32	re_pad;		/* Record pad character. */
+	uint32	re_len;		/* Record length. */
+	uint32	rec_page;
+	uint32	page_ext;
+	uint32       first_recno;
+	uint32       last_recno;
+	int		nextents;
+	db_pgno_t	*extents;
+#define	SALVAGE_PRINTABLE	0x01	/* Output printable chars literally. */
+#define	SALVAGE_PRINTHEADER	0x02	/* Print the unknown-key header. */
+#define	SALVAGE_PRINTFOOTER	0x04	/* Print the unknown-key footer. */
+#define	SALVAGE_HASSUBDBS	0x08	/* There are subdatabases to salvage. */
+#define	VRFY_LEAFCHAIN_BROKEN	0x10	/* Lost one or more Btree leaf pgs. */
+#define	VRFY_QMETA_SET		0x20    /* We've seen a QUEUE meta page and set things up for it. */
+	uint32	flags;
+}; /* VRFY_DBINFO */
+
+/*
+ * The amount of state information we need per-page is small enough that
+ * it's not worth the trouble to define separate structures for each
+ * possible type of page, and since we're doing verification with these we
+ * have to be open to the possibility that page N will be of a completely
+ * unexpected type anyway.  So we define one structure here with all the
+ * info we need for inter-page verification.
+ */
+struct __vrfy_pageinfo {
+	uint8	type;
+	uint8	bt_level;
+	uint8	unused1;
+	uint8	unused2;
+	db_pgno_t	pgno;
+	db_pgno_t	prev_pgno;
+	db_pgno_t	next_pgno;
+	/* meta pages */
+	db_pgno_t	root;
+	db_pgno_t	free;		/* Free list head. */
+	db_indx_t	entries;	/* Actual number of entries. */
+	uint16	unused;
+	db_recno_t	rec_cnt;	/* Record count. */
+	uint32	re_pad;		/* Record pad character. */
+	uint32	re_len;		/* Record length. */
+	uint32	bt_minkey;
+	uint32	h_ffactor;
+	uint32	h_nelem;
+
+	/* overflow pages */
+	/*
+	 * Note that refcount is the refcount for an overflow page; pi_refcount
+	 * is this structure's own refcount!
+	 */
+	uint32	refcount;
+	uint32	olen;
+
+#define	VRFY_DUPS_UNSORTED	0x0001	/* Have to flag the negative! */
+#define	VRFY_HAS_CHKSUM		0x0002
+#define	VRFY_HAS_DUPS		0x0004
+#define	VRFY_HAS_DUPSORT	0x0008	/* Has the flag set. */
+#define	VRFY_HAS_PART_RANGE	0x0010	/* Has the flag set. */
+#define	VRFY_HAS_PART_CALLBACK	0x0020	/* Has the flag set. */
+#define	VRFY_HAS_RECNUMS	0x0040
+#define	VRFY_HAS_SUBDBS		0x0080
+#define	VRFY_INCOMPLETE		0x0100	/* Meta or item order checks incomp. */
+#define	VRFY_IS_ALLZEROES	0x0200	/* Hash page we haven't touched? */
+#define	VRFY_IS_FIXEDLEN	0x0400
+#define	VRFY_IS_RECNO		0x0800
+#define	VRFY_IS_RRECNO		0x1000
+#define	VRFY_OVFL_LEAFSEEN	0x2000
+#define	VRFY_HAS_COMPRESS	0x4000
+	uint32	flags;
+	LIST_ENTRY(__vrfy_pageinfo) links;
+	uint32	pi_refcount;
+}; /* VRFY_PAGEINFO */
+
+struct __vrfy_childinfo {
+	/* The following fields are set by the caller of __db_vrfy_childput. */
+	db_pgno_t	pgno;
+#define	V_DUPLICATE	1		/* off-page dup metadata */
+#define	V_OVERFLOW	2		/* overflow page */
+#define	V_RECNO		3		/* btree internal or leaf page */
+	uint32	type;
+	db_recno_t	nrecs;		/* record count on a btree subtree */
+	uint32	tlen;		/* ovfl. item total size */
+	/* The following field is maintained by __db_vrfy_childput. */
+	uint32	refcnt;		/* # of times parent points to child. */
+	LIST_ENTRY(__vrfy_childinfo) links;
+}; /* VRFY_CHILDINFO */
 
 /*******************************************************
  * Remaining Log.
@@ -950,7 +1094,6 @@ typedef struct __dbpginfo {
  * already in the log, even though we have a fully functional log system.
  */
 #define	DBENV_LOGGING(env) (LOGGING_ON(env) && !IS_REP_CLIENT(env) && (!IS_RECOVERING(env)))
-
 /*
  * Test if we need to log a change.  By default, we don't log operations without
  * associated transactions, unless DIAGNOSTIC, DEBUG_ROP or DEBUG_WOP are on.
@@ -979,5 +1122,22 @@ typedef struct __dbpginfo {
 //
 //
 #define THROW_BDBI(expr) {if((expr) != 0){goto __scatch;}}
+//
+// Joins use a join cursor that is similar to a regular DB cursor except
+// that it only supports c_get and c_close functionality.  Also, it does
+// not support the full range of flags for get.
+//
+typedef struct __join_cursor {
+	uint8 *j_exhausted;	/* Array of flags; is cursor i exhausted? */
+	DBC	**j_curslist;	/* Array of cursors in the join: constant. */
+	DBC	**j_fdupcurs;	/* Cursors w/ first instances of current dup. */
+	DBC	**j_workcurs;	/* Scratch cursor copies to muck with. */
+	DB	 *j_primary;	/* Primary dbp. */
+	DBT	  j_key;	/* Used to do lookups. */
+	DBT	  j_rdata;	/* Memory used for data return. */
+	uint32 j_ncurs;	/* How many cursors do we have? */
+#define	JOIN_RETRY	0x01	/* Error on primary get; re-return same key. */
+	uint32 flags;
+} JOIN_CURSOR;
 //
 #endif /* !_DB_INT_H_ */

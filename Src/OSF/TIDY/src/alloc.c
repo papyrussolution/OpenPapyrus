@@ -46,7 +46,7 @@ static void TIDY_CALL defaultPanic(TidyAllocator* ARG_UNUSED(allocator), ctmbstr
 {
 	if(g_panic)
 		g_panic(msg);
-	else{
+	else {
 		/* 2 signifies a serious error */
 		fprintf(stderr, "Fatal error: %s\n", msg);
 #ifdef _DEBUG

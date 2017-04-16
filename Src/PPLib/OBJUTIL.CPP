@@ -426,7 +426,7 @@ int PPObject::ReplaceObjInteractive(PPID objTypeID, PPID srcID /*=0*/)
 	int    ok = -1;
 	PPID   dest_id = 0, src_id = srcID;
 	ReplObjDialog * dlg = 0;
-	THROW(CheckDialogPtr(&(dlg = new ReplObjDialog(objTypeID)), 0));
+	THROW(CheckDialogPtr(&(dlg = new ReplObjDialog(objTypeID))));
 	dlg->setDTS(dest_id, src_id);
 	while(ExecView(dlg) == cmOK) {
 		if(!dlg->getDTS(&dest_id, &src_id) || !PPObject::ReplaceObj(objTypeID, dest_id, src_id, PPObject::use_transaction|PPObject::user_request))
@@ -2187,7 +2187,7 @@ int SLAPI PPGlobalAccRights::EditDialog(PPID tagID, SString & rLine)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GUART);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		long   flags = 0;
 		uint   i;
 		for(i = 0; i < rLine.Len(); i++) {

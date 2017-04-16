@@ -53,11 +53,11 @@
 // @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
-static int __hamc_chgpg __P((DBC*, db_pgno_t, uint32, db_pgno_t, uint32));
-static int __ham_check_move (DBC*, uint32);
-static int __ham_dcursor __P((DBC*, db_pgno_t, uint32));
-static int __ham_move_offpage __P((DBC*, PAGE*, uint32, db_pgno_t));
-static int __hamc_chgpg_func __P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *));
+static int __hamc_chgpg(DBC*, db_pgno_t, uint32, db_pgno_t, uint32);
+static int __ham_check_move(DBC*, uint32);
+static int __ham_dcursor(DBC*, db_pgno_t, uint32);
+static int __ham_move_offpage(DBC*, PAGE*, uint32, db_pgno_t);
+static int __hamc_chgpg_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
 
 /*
  * Called from hash_access to add a duplicate key. nval is the new
@@ -116,8 +116,7 @@ int __ham_add_dup(DBC * dbc, DBT * nval, uint32 flags, db_pgno_t * pgnop)
 		if(HPAGE_PTYPE(hk) != H_DUPLICATE) {
 			pval.flags = 0;
 			pval.data = HKEYDATA_DATA(hk);
-			pval.size = LEN_HDATA(dbp, hcp->page, dbp->pgsize,
-				hcp->indx);
+			pval.size = LEN_HDATA(dbp, hcp->page, dbp->pgsize, hcp->indx);
 			if((ret = __ham_make_dup(env, &pval, &tmp_val, &dbc->my_rdata.data, &dbc->my_rdata.ulen)) != 0 || 
 				(ret = __ham_replpair(dbc, &tmp_val, H_DUPLICATE)) != 0)
 				return ret;
@@ -141,17 +140,11 @@ int __ham_add_dup(DBC * dbc, DBT * nval, uint32 flags, db_pgno_t * pgnop)
 		    case DB_KEYLAST:
 		    case DB_NODUPDATA:
 		    case DB_OVERWRITE_DUP:
-			if(dbp->dup_compare != NULL) {
+			if(dbp->dup_compare) {
 				__ham_dsearch(dbc, nval, &tmp_val.doff, &cmp, flags);
-				/*
-				 * Duplicate duplicates are not supported w/
-				 * sorted dups.  We can either overwrite or
-				 * return DB_KEYEXIST.
-				 */
+				// Duplicate duplicates are not supported with sorted dups.  We can either overwrite or return DB_KEYEXIST.
 				if(cmp == 0) {
-					if(flags == DB_OVERWRITE_DUP)
-						return __ham_overwrite(dbc, nval, flags);
-					return __db_duperr(dbp, flags);
+					return (flags == DB_OVERWRITE_DUP) ? __ham_overwrite(dbc, nval, flags) : __db_duperr(dbp, flags);
 				}
 			}
 			else {
@@ -261,11 +254,11 @@ int __ham_dup_convert(DBC * dbc)
 finish:
 		if(ret == 0) {
 			/* Update any other cursors. */
-			if(hcs != NULL && DBC_LOGGING(dbc) && IS_SUBTRANSACTION(dbc->txn)) {
+			if(hcs && DBC_LOGGING(dbc) && IS_SUBTRANSACTION(dbc->txn)) {
 				if((ret = __ham_chgpg_log(dbp, dbc->txn, &lsn, 0, DB_HAM_DUP, PGNO(hcp->page), PGNO(dp), hcp->indx, 0)) != 0)
 					break;
 			}
-			for(c = 0; hcs != NULL && hcs[c] != NULL; c++)
+			for(c = 0; hcs && hcs[c]; c++)
 				if((ret = __ham_dcursor(hcs[c], PGNO(dp), 0)) != 0)
 					break;
 		}
@@ -308,10 +301,8 @@ finish:
 	 * Now attach this to the source page in place of the old duplicate
 	 * item.
 	 */
-	if(ret == 0)
-		ret = __memp_dirty(mpf, &hcp->page, dbc->thread_info, dbc->txn, dbc->priority, 0);
-	if(ret == 0)
-		ret = __ham_move_offpage(dbc, (PAGE *)hcp->page, (uint32)H_DATAINDEX(hcp->indx), PGNO(dp));
+	SETIFZ(ret, __memp_dirty(mpf, &hcp->page, dbc->thread_info, dbc->txn, dbc->priority, 0));
+	SETIFZ(ret, __ham_move_offpage(dbc, (PAGE *)hcp->page, (uint32)H_DATAINDEX(hcp->indx), PGNO(dp)));
 err:
 	if((t_ret = __memp_fput(mpf, dbc->thread_info, dp, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
@@ -473,12 +464,9 @@ static int __ham_check_move(DBC * dbc, uint32 add_len)
 			d.data = HKEYDATA_DATA(hk);
 			d.size = LEN_HDATA(dbp, hcp->page, dbp->pgsize, hcp->indx);
 		}
-		if((ret = __ham_insdel_log(dbp, dbc->txn, &new_lsn,
-			    0, PUTPAIR, PGNO(new_pagep), (uint32)new_indx,
-			    &LSN(new_pagep), OP_SET(key_type, new_pagep), &k,
-			    OP_SET(data_type, new_pagep), &d)) != 0) {
-			__memp_fput(mpf,
-				dbc->thread_info, new_pagep, dbc->priority);
+		if((ret = __ham_insdel_log(dbp, dbc->txn, &new_lsn, 0, PUTPAIR, PGNO(new_pagep), (uint32)new_indx,
+			    &LSN(new_pagep), OP_SET(key_type, new_pagep), &k, OP_SET(data_type, new_pagep), &d)) != 0) {
+			__memp_fput(mpf, dbc->thread_info, new_pagep, dbc->priority);
 			return ret;
 		}
 	}
@@ -563,17 +551,14 @@ static int __ham_move_offpage(DBC * dbc, PAGE * pagep, uint32 ndx, db_pgno_t pgn
 		hk = (HKEYDATA *)P_ENTRY(dbp, pagep, ndx);
 		if(hk->type == H_KEYDATA || hk->type == H_DUPLICATE) {
 			old_dbt.data = hk->data;
-			old_dbt.size = LEN_HITEM(dbp, pagep, dbp->pgsize, ndx)-
-			               SSZA(HKEYDATA, data);
+			old_dbt.size = LEN_HITEM(dbp, pagep, dbp->pgsize, ndx) - SSZA(HKEYDATA, data);
 		}
 		else {
 			old_dbt.data = hk;
 			old_dbt.size = LEN_HITEM(dbp, pagep, dbp->pgsize, ndx);
 		}
-		if((ret = __ham_replace_log(dbp, dbc->txn, &LSN(pagep), 0,
-			    PGNO(pagep), (uint32)ndx, &LSN(pagep), -1,
-			    OP_SET(hk->type, pagep), &old_dbt,
-			    OP_SET(H_OFFDUP, pagep), &new_dbt)) != 0)
+		if((ret = __ham_replace_log(dbp, dbc->txn, &LSN(pagep), 0, PGNO(pagep), (uint32)ndx, &LSN(pagep), -1,
+			OP_SET(hk->type, pagep), &old_dbt, OP_SET(H_OFFDUP, pagep), &new_dbt)) != 0)
 			return ret;
 	}
 	else
@@ -721,12 +706,11 @@ static int __hamc_chgpg_func(DBC * cp, DBC * my_dbc, uint32 * foundp, db_pgno_t 
  */
 static int __hamc_chgpg(DBC * dbc, db_pgno_t old_pgno, uint32 old_index, db_pgno_t new_pgno, uint32 new_index)
 {
-	DB * dbp;
 	DB_LSN lsn;
 	int ret;
 	uint32 found;
 	struct __hamc_chgpg_args args;
-	dbp = dbc->dbp;
+	DB * dbp = dbc->dbp;
 	args.my_txn = IS_SUBTRANSACTION(dbc->txn) ? dbc->txn : NULL;
 	args.new_pgno = new_pgno;
 	args.new_index = new_index;

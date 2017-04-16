@@ -548,7 +548,7 @@ int SLAPI PrcssrAbsentBill::Repair(const AbsentEntry * pEntry)
 	rabd.OpTypeID = pEntry->OpTypeID;
 	rabd.OpID = 0;
 
-	THROW(CheckDialogPtr(&(dlg = new AbsBillDialog), 0));
+	THROW(CheckDialogPtr(&(dlg = new AbsBillDialog)));
 	dlg->setDTS(&rabd);
 	for(valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
 		if(dlg->getDTS(&rabd))
@@ -704,7 +704,7 @@ int SLAPI PPObjBill::SearchPaymWOLinkBill()
 	SString log_filename, wait_msg_buf, msg_buf, code;
 	{
 		TDialog * dlg = new TDialog(DLG_C_LINKBILL);
-		THROW(CheckDialogPtr(&dlg, 0));
+		THROW(CheckDialogPtr(&dlg));
 		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_C_LINKBILL_LOG, CTL_C_LINKBILL_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 		PPGetFileName(PPFILNAM_PAYMLINK_LOG, log_filename);
 		dlg->setCtrlString(CTL_C_LINKBILL_LOG, log_filename);

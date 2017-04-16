@@ -73,18 +73,12 @@ static int __txn_stat(ENV * env, DB_TXN_STAT ** statp, uint32 flags)
 	stats->st_last_ckp = region->last_ckp;
 	stats->st_time_ckp = region->time_ckp;
 	stats->st_txnarray = (DB_TXN_ACTIVE *)&stats[1];
-
-	for(ndx = 0,
-	    td = SH_TAILQ_FIRST(&region->active_txn, __txn_detail);
-	    td != NULL && ndx < maxtxn;
-	    td = SH_TAILQ_NEXT(td, links, __txn_detail), ++ndx) {
+	for(ndx = 0, td = SH_TAILQ_FIRST(&region->active_txn, __txn_detail); td && ndx < maxtxn; td = SH_TAILQ_NEXT(td, links, __txn_detail), ++ndx) {
 		stats->st_txnarray[ndx].txnid = td->txnid;
 		if(td->parent == INVALID_ROFF)
 			stats->st_txnarray[ndx].parentid = TXN_INVALID;
 		else
-			stats->st_txnarray[ndx].parentid =
-			        ((TXN_DETAIL *)R_ADDR(&mgr->reginfo,
-					 td->parent))->txnid;
+			stats->st_txnarray[ndx].parentid = ((TXN_DETAIL *)R_ADDR(&mgr->reginfo, td->parent))->txnid;
 		stats->st_txnarray[ndx].pid = td->pid;
 		stats->st_txnarray[ndx].tid = td->tid;
 		stats->st_txnarray[ndx].lsn = td->begin_lsn;
@@ -172,73 +166,45 @@ static int __txn_print_stats(ENV*env, uint32 flags)
 	uint32 i;
 	int ret;
 	char buf[DB_THREADID_STRLEN], time_buf[CTIME_BUFLEN];
-
 	dbenv = env->dbenv;
 	if((ret = __txn_stat(env, &sp, flags)) != 0)
 		return ret;
 	if(LF_ISSET(DB_STAT_ALL))
 		__db_msg(env, "Default transaction region information:");
-	__db_msg(env, "%lu/%lu\t%s",
-		(ulong)sp->st_last_ckp.file, (ulong)sp->st_last_ckp.offset,
-		sp->st_last_ckp.file == 0 ?
-		"No checkpoint LSN" : "File/offset for last checkpoint LSN");
+	__db_msg(env, "%lu/%lu\t%s", (ulong)sp->st_last_ckp.file, (ulong)sp->st_last_ckp.offset,
+		sp->st_last_ckp.file == 0 ? "No checkpoint LSN" : "File/offset for last checkpoint LSN");
 	if(sp->st_time_ckp == 0)
 		__db_msg(env, "0\tNo checkpoint timestamp");
 	else
-		__db_msg(env, "%.24s\tCheckpoint timestamp",
-			__os_ctime(&sp->st_time_ckp, time_buf));
-	__db_msg(env, "%#lx\tLast transaction ID allocated",
-		(ulong)sp->st_last_txnid);
-	__db_dl(env, "Maximum number of active transactions configured",
-		(ulong)sp->st_maxtxns);
-	__db_dl(env, "Initial number of transactions configured",
-		(ulong)sp->st_inittxns);
+		__db_msg(env, "%.24s\tCheckpoint timestamp", __os_ctime(&sp->st_time_ckp, time_buf));
+	__db_msg(env, "%#lx\tLast transaction ID allocated", (ulong)sp->st_last_txnid);
+	__db_dl(env, "Maximum number of active transactions configured", (ulong)sp->st_maxtxns);
+	__db_dl(env, "Initial number of transactions configured", (ulong)sp->st_inittxns);
 	__db_dl(env, "Active transactions", (ulong)sp->st_nactive);
-	__db_dl(env,
-		"Maximum active transactions", (ulong)sp->st_maxnactive);
-	__db_dl(env,
-		"Number of transactions begun", (ulong)sp->st_nbegins);
-	__db_dl(env,
-		"Number of transactions aborted", (ulong)sp->st_naborts);
-	__db_dl(env,
-		"Number of transactions committed", (ulong)sp->st_ncommits);
+	__db_dl(env, "Maximum active transactions", (ulong)sp->st_maxnactive);
+	__db_dl(env, "Number of transactions begun", (ulong)sp->st_nbegins);
+	__db_dl(env, "Number of transactions aborted", (ulong)sp->st_naborts);
+	__db_dl(env, "Number of transactions committed", (ulong)sp->st_ncommits);
 	__db_dl(env, "Snapshot transactions", (ulong)sp->st_nsnapshot);
-	__db_dl(env, "Maximum snapshot transactions",
-		(ulong)sp->st_maxnsnapshot);
-	__db_dl(env,
-		"Number of transactions restored", (ulong)sp->st_nrestores);
-
-	__db_dlbytes(env, "Region size",
-		(ulong)0, (ulong)0, (ulong)sp->st_regsize);
-	__db_dl_pct(env,
-		"The number of region locks that required waiting",
-		(ulong)sp->st_region_wait, DB_PCT(sp->st_region_wait,
-			sp->st_region_wait+sp->st_region_nowait), NULL);
-
-	qsort(sp->st_txnarray,
-		sp->st_nactive, sizeof(sp->st_txnarray[0]), __txn_compare);
+	__db_dl(env, "Maximum snapshot transactions", (ulong)sp->st_maxnsnapshot);
+	__db_dl(env, "Number of transactions restored", (ulong)sp->st_nrestores);
+	__db_dlbytes(env, "Region size", (ulong)0, (ulong)0, (ulong)sp->st_regsize);
+	__db_dl_pct(env, "The number of region locks that required waiting", (ulong)sp->st_region_wait, DB_PCT(sp->st_region_wait, sp->st_region_wait+sp->st_region_nowait), NULL);
+	qsort(sp->st_txnarray, sp->st_nactive, sizeof(sp->st_txnarray[0]), __txn_compare);
 	__db_msg(env, "Active transactions:");
 	DB_MSGBUF_INIT(&mb);
 	for(i = 0; i < sp->st_nactive; ++i) {
 		txn = &sp->st_txnarray[i];
-		__db_msgadd(env, &mb, "\t%lx: %s; xa_status %s;"
-			" pid/thread %s; begin LSN: file/offset %lu/%lu",
-			(ulong)txn->txnid, __txn_status(txn), __txn_xa_status(txn),
-			dbenv->thread_id_string(dbenv, txn->pid, txn->tid, buf),
-			(ulong)txn->lsn.file, (ulong)txn->lsn.offset);
+		__db_msgadd(env, &mb, "\t%lx: %s; xa_status %s; pid/thread %s; begin LSN: file/offset %lu/%lu",
+			(ulong)txn->txnid, __txn_status(txn), __txn_xa_status(txn), dbenv->thread_id_string(dbenv, txn->pid, txn->tid, buf), (ulong)txn->lsn.file, (ulong)txn->lsn.offset);
 		if(txn->parentid != 0)
-			__db_msgadd(env, &mb,
-				"; parent: %lx", (ulong)txn->parentid);
+			__db_msgadd(env, &mb, "; parent: %lx", (ulong)txn->parentid);
 		if(!IS_MAX_LSN(txn->read_lsn))
-			__db_msgadd(env, &mb, "; read LSN: %lu/%lu",
-				(ulong)txn->read_lsn.file,
-				(ulong)txn->read_lsn.offset);
+			__db_msgadd(env, &mb, "; read LSN: %lu/%lu", (ulong)txn->read_lsn.file, (ulong)txn->read_lsn.offset);
 		if(txn->mvcc_ref != 0)
-			__db_msgadd(env, &mb,
-				"; mvcc refcount: %lu", (ulong)txn->mvcc_ref);
+			__db_msgadd(env, &mb, "; mvcc refcount: %lu", (ulong)txn->mvcc_ref);
 		if(LOCKING_ON(env))
-			__db_msgadd(env, &mb,
-				"; priority: %lu", (ulong)txn->priority);
+			__db_msgadd(env, &mb, "; priority: %lu", (ulong)txn->priority);
 		if(txn->name[0] != '\0')
 			__db_msgadd(env, &mb, "; \"%s\"", txn->name);
 		if(txn->status == TXN_PREPARE)
@@ -246,7 +212,6 @@ static int __txn_print_stats(ENV*env, uint32 flags)
 		DB_MSGBUF_FLUSH(env, &mb);
 	}
 	__os_ufree(env, sp);
-
 	return 0;
 }
 
@@ -287,18 +252,12 @@ static int __txn_print_all(ENV*env, uint32 flags)
 static char * __txn_status(DB_TXN_ACTIVE * txn)
 {
 	switch(txn->status) {
-	    case TXN_ABORTED:
-		return "aborted";
-	    case TXN_COMMITTED:
-		return "committed";
-	    case TXN_NEED_ABORT:
-		return "need abort";
-	    case TXN_PREPARED:
-		return "prepared";
-	    case TXN_RUNNING:
-		return "running";
-	    default:
-		break;
+	    case TXN_ABORTED: return "aborted";
+	    case TXN_COMMITTED: return "committed";
+	    case TXN_NEED_ABORT: return "need abort";
+	    case TXN_PREPARED: return "prepared";
+	    case TXN_RUNNING: return "running";
+	    default: break;
 	}
 	return "unknown state";
 }
@@ -306,18 +265,12 @@ static char * __txn_status(DB_TXN_ACTIVE * txn)
 static char * __txn_xa_status(DB_TXN_ACTIVE * txn)
 {
 	switch(txn->xa_status) {
-	    case TXN_XA_ACTIVE:
-		return "xa active";
-	    case TXN_XA_DEADLOCKED:
-		return "xa deadlock";
-	    case TXN_XA_IDLE:
-		return "xa idle";
-	    case TXN_XA_PREPARED:
-		return "xa prepared";
-	    case TXN_XA_ROLLEDBACK:
-		return "xa rollback";
-	    default:
-		break;
+	    case TXN_XA_ACTIVE: return "xa active";
+	    case TXN_XA_DEADLOCKED: return "xa deadlock";
+	    case TXN_XA_IDLE: return "xa idle";
+	    case TXN_XA_PREPARED: return "xa prepared";
+	    case TXN_XA_ROLLEDBACK: return "xa rollback";
+	    default: break;
 	}
 	return "no xa state";
 }
@@ -347,9 +300,10 @@ static int __txn_compare(const void * a1, const void * b1)
 	const DB_TXN_ACTIVE * b = (const DB_TXN_ACTIVE *)b1;
 	if(a->txnid > b->txnid)
 		return 1;
-	if(a->txnid < b->txnid)
+	else if(a->txnid < b->txnid)
 		return -1;
-	return 0;
+	else
+		return 0;
 }
 
 #else /* !HAVE_STATISTICS */

@@ -592,7 +592,7 @@ int SLAPI PPViewReport::SendMail(long id)
 			data.Struc.ReplaceStr("(!)", "\0", 0);
 			data.Dtm = getcurdatetime_();
 			THROW(GetAltPath(r_rec.Type, r_rec.Path, r_rec.StdName, data.RptPath));
-			THROW(CheckDialogPtr(&(p_dlg = new ReportMailDialog), 0));
+			THROW(CheckDialogPtr(&(p_dlg = new ReportMailDialog)));
 			p_dlg->setDTS(&data);
 			while(!valid_data && ExecView(p_dlg) == cmOK) {
 				if(p_dlg->getDTS(&data)) {
@@ -1028,7 +1028,7 @@ int SLAPI PPViewReport::EditItem(long * pID)
 		MEMSZERO(item);
 		item.Type = ReportFilt::rpttLocal;
 	}
-	THROW(CheckDialogPtr(&(p_dlg = new ReportDlg(this)), 0));
+	THROW(CheckDialogPtr(&(p_dlg = new ReportDlg(this))));
 	p_dlg->setDTS(&item);
 	while(!valid_data && ExecView(p_dlg) == cmOK) {
 		if(p_dlg->getDTS(&item) > 0)

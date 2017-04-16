@@ -212,7 +212,7 @@ public:
 	}
 	SFSortChunkInfo * CreateItem()
 	{
-		SFSortChunkInfo * p_new_item = CreateNewItem(0);
+		SFSortChunkInfo * p_new_item = CreateNewItem();
 		if(p_new_item) {
 			long   n = 0;
 			SFSortChunkInfoList * p_head = this;

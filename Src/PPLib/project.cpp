@@ -169,7 +169,7 @@ int SLAPI PPObjProject::EditConfig()
 	PPObjOpCounter opc_obj;
 	ProjectCfgDialog::Rec data;
 
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	THROW(CheckCfgRights(PPCFGOBJ_PROJECT, PPR_READ, 0));
 	is_new = ReadConfig(&data.Cfg);
 	opc_obj.GetPacket(data.Cfg.PrjCntrID,   &data.PrjCntr);
@@ -506,7 +506,7 @@ int SLAPI PPObjProject::Edit(PPID * pID, void * extraPtr /*parentPrjID*/)
 			dlg_id = DLG_PRJPHASE;
 		}
 	}
-	THROW(CheckDialogPtr(&(dlg = new ProjectDialog(dlg_id)), 0));
+	THROW(CheckDialogPtr(&(dlg = new ProjectDialog(dlg_id))));
 	dlg->setDTS(&rec);
 	for(valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 		if(dlg->getDTS(&rec)) {
@@ -549,7 +549,7 @@ int SLAPI PPViewProject::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	ProjectFilt filt;
 	THROW(Filt.IsA(pBaseFilt));
 	filt = *(ProjectFilt *)pBaseFilt;
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PRJFLT)), 0));
+	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PRJFLT))));
 	SetupCalCtrl(CTLCAL_PRJFLT_PRDSTART, dlg, CTL_PRJFLT_PRDSTART, 1);
 	SetupCalCtrl(CTLCAL_PRJFLT_PRDESTFINISH, dlg, CTL_PRJFLT_PRDESTFINISH, 1);
 	SetPeriodInput(dlg, CTL_PRJFLT_PRDSTART, &filt.StartPeriod);
@@ -1180,7 +1180,7 @@ int SLAPI PPObjPrjTask::ImportFromVCal()
 	int    valid_data = 0;
 	VCalImportParamDlg::Param param;
 	VCalImportParamDlg * p_dlg = new VCalImportParamDlg;
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setDTS(&param);
 	while(!valid_data && ExecView(p_dlg) == cmOK) {
 		if(p_dlg->getDTS(&param) > 0)
@@ -1683,7 +1683,7 @@ int PrjTaskDialog::editRepeating()
 	if(Data.Kind == TODOKIND_TEMPLATE) {
 		DateRepeating dr = *(DateRepeating *)&Data.DrPrd;
 		RepeatingDialog * dlg = new RepeatingDialog(RepeatingDialog::fEditRepeatAfterItem);
-		if(CheckDialogPtr(&dlg, 1)) {
+		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setDTS(&dr);
 			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
 				if(dlg->getDTS(&dr)) {
@@ -2388,7 +2388,7 @@ int SLAPI PPObjPrjTask::RecoverAbsencePerson()
 	ZDELETE(p_q);
 	PPWait(0);
 	if(list.getCount()) {
-		THROW(CheckDialogPtr(&(p_dlg = new RestoreLostPrjTPersonDlg()), 0));
+		THROW(CheckDialogPtr(&(p_dlg = new RestoreLostPrjTPersonDlg())));
 		p_dlg->setDTS(&list);
 		if(ExecView(p_dlg) == cmOK) {
 			p_dlg->getDTS(&list);

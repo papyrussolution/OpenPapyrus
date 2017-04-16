@@ -619,7 +619,7 @@ int GdsClsParamMask::Edit(long options)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GCDGM);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		SetupPPObjCombo(dlg, CTLSEL_GCDGM_GDSCLS, PPOBJ_GOODSCLASS, ClsID, 0, 0);
 		if(options & 0x0001)
 			dlg->disableCtrl(CTLSEL_GCDGM_GDSCLS, 1);
@@ -661,7 +661,7 @@ int GoodsClassDialog::EditLotDimParam()
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GDSCLSLD);
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
     SetupPPObjCombo(dlg, CTLSEL_GDSCLSLD_UNIT, PPOBJ_UNIT, Data.Rec.LotDimUnitID, 0, (void *)PPUnit::Phisical);
     dlg->setCtrlData(CTL_GDSCLSLD_NUMDIM, &Data.Rec.LotDimCount);
 	dlg->setCtrlString(CTL_GDSCLSLD_QTTYFORM, Data.LotDimQtty_Formula); // @v8.9.10
@@ -681,7 +681,7 @@ int GoodsClassDialog::editDynGenMask()
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GCDGM);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->AddClusterAssoc(CTL_GCDGM_MASK, 0, 1<<(PPGdsCls::eKind-1));
 		dlg->AddClusterAssoc(CTL_GCDGM_MASK, 1, 1<<(PPGdsCls::eGrade-1));
 		dlg->AddClusterAssoc(CTL_GCDGM_MASK, 2, 1<<(PPGdsCls::eAdd-1));
@@ -705,7 +705,7 @@ int GoodsClassDialog::replyPropCmd(PPGdsClsProp * pData, int gcProp)
 {
 	int    ok = -1;
 	GoodsClassProp2Dialog * dlg = new GoodsClassProp2Dialog;
-	if(CheckDialogPtr(&dlg, 1) && dlg->setDTS(pData, gcProp, &Data)) {
+	if(CheckDialogPtrErr(&dlg) && dlg->setDTS(pData, gcProp, &Data)) {
 		while(ok <= 0 && ExecView(dlg) == cmOK)
 			if(dlg->getDTS(pData))
 				ok = 1;
@@ -807,7 +807,7 @@ int SLAPI PPObjGoodsClass::Edit(PPID * pID, void * extraPtr)
 	PPObjGoods goods_obj;
 	PPGdsClsPacket pack;
 	GoodsClassDialog * dlg = 0;
-	THROW(CheckDialogPtr(&(dlg = new GoodsClassDialog), 0));
+	THROW(CheckDialogPtr(&(dlg = new GoodsClassDialog)));
 	THROW(EditPrereq(pID, dlg, &is_new));
 	if(!is_new) {
 		THROW(GetPacket(*pID, &pack) > 0);
@@ -888,7 +888,7 @@ int SLAPI PPObjGoodsClass::Browse(void * extraPtr)
 	int    ok = 1;
 	if(CheckRights(PPR_READ)) {
 		TDialog * dlg = new GdsClsView(this);
-		if(CheckDialogPtr(&dlg, 1))
+		if(CheckDialogPtrErr(&dlg))
 			ExecViewAndDestroy(dlg);
 		else
 			ok = 0;
@@ -1124,7 +1124,7 @@ static int SLAPI EditGcFormula(PPGdsClsFormula * pForm)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GDSCLSFORM);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		PPGdsClsFormula form = *pForm;
 		dlg->setCtrlString(CTL_GDSCLSFORM_NAME, form.Name);
 		dlg->setCtrlString(CTL_GDSCLSFORM_FORM, form.Formula);
@@ -1243,7 +1243,7 @@ int SLAPI EditGcFormulaList(PPGdsClsPacket * pData)
 	PPGdsClsPacket temp_data;
 	temp_data = *pData;
 	GdsClsFormListDialog * dlg = new GdsClsFormListDialog(&temp_data);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		if(ExecView(dlg) == cmOK) {
 			*pData = temp_data;
 			ok = 1;
@@ -1402,7 +1402,7 @@ int SLAPI PPGoodsCalculator(PPID goodsID, PPID tsesID, int argIdx, double arg, d
 {
 	int    ok = -1;
 	GcCalcDialog * dlg = new GcCalcDialog;
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		if(dlg->setDTS(goodsID, tsesID)) {
 			dlg->setArg(argIdx, arg);
 			ExecView(dlg);

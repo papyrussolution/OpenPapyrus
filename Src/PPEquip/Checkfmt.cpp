@@ -150,7 +150,7 @@ public:
 		long   GoodsID;       // @v9.5.7
 		// @v9.5.7 char   PictPath[256];
 		char   Text[256];     // @v9.5.7
-		char   Code[32];      // @v9.5.7 
+		char   Code[32];      // @v9.5.7
 		RECT   PictCoord;
 
 		const  PPSlipFormatZone  * P_Zone;
@@ -1462,7 +1462,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							pIter->Price = is / pIter->Qtty;
 							pIter->DivID = (cc_item.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? (cc_item.DivID - CHECK_LINE_IS_PRINTED_BIAS) : cc_item.DivID;
 							// @v9.5.7 {
-							pIter->GoodsID = cc_item.GoodsID; 
+							pIter->GoodsID = cc_item.GoodsID;
 							if(P_Od && P_Od->GObj.Fetch(pIter->GoodsID, &goods_rec) > 0) {
 								STRNSCPY(pIter->Text, goods_rec.Name);
 								P_Od->GObj.GetSingleBarcode(pIter->GoodsID, temp_buf);
@@ -1476,7 +1476,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							pIter->Qtty  = R3(fabs(ti.Quantity_));
 							pIter->Price = R2(fabs(ti.NetPrice()));
 							// @v9.5.7 {
-							pIter->GoodsID = labs(ti.GoodsID); 
+							pIter->GoodsID = labs(ti.GoodsID);
 							if(P_Od && P_Od->GObj.Fetch(pIter->GoodsID, &goods_rec) > 0) {
 								STRNSCPY(pIter->Text, goods_rec.Name);
 								P_Od->GObj.GetSingleBarcode(pIter->GoodsID, temp_buf);

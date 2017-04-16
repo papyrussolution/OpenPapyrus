@@ -1,5 +1,5 @@
 // DL600C.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017
 // Compile-time DL600 modules
 //
 #include <pp.h>
@@ -1677,13 +1677,12 @@ int SLAPI DlContext::ResolveDbIndexSegFlag(long flags, const char * pSymb, long 
 {
 	int    ok = 1;
 	long   f = 0;
-	if(stricmp(pSymb, "DESC") == 0)
+	if(sstreqi_ascii(pSymb, "DESC"))
 		flags |= XIF_DESC;
-	else if(stricmp(pSymb, "ACS") == 0)
+	else if(sstreqi_ascii(pSymb, "ACS"))
 		flags |= XIF_ACS;
 	// @v8.6.10 {
-	else if(stricmp(pSymb, "IGNORECASE") == 0 || stricmp(pSymb, "NOCASE") == 0 || 
-		stricmp(pSymb, "CASEINSENSITIVE") == 0 || stricmp(pSymb, "I") == 0) {
+	else if(sstreqi_ascii(pSymb, "IGNORECASE") || sstreqi_ascii(pSymb, "NOCASE") || sstreqi_ascii(pSymb, "CASEINSENSITIVE") || sstreqi_ascii(pSymb, "I")) {
 		flags |= XIF_NOCASE;
 	}
 	// } @v8.6.10
@@ -1703,7 +1702,7 @@ int SLAPI DlContext::ResolveDbIndexFlag(const char * pSymb)
 	MEMSZERO(attr);
 	DlScope * p_scope = GetScope(CurScopeID, DlScope::kDbIndex);
 	THROW(p_scope);
-	if(stricmp(pSymb, "DUP") == 0) {
+	if(sstreqi_ascii(pSymb, "DUP")) {
 		if(p_scope->GetAttrib(DlScope::sfDbiUnique, 0)) {
 			Error(PPERR_DL6_MISSIDXUNIQ, 0, erfLog);
 			ok = 0;
@@ -1711,7 +1710,7 @@ int SLAPI DlContext::ResolveDbIndexFlag(const char * pSymb)
 		attr.A = DlScope::sfDbiDup;
 		p_scope->SetAttrib(attr);
 	}
-	else if(stricmp(pSymb, "UNIQUE") == 0) {
+	else if(sstreqi_ascii(pSymb, "UNIQUE")) {
 		if(p_scope->GetAttrib(DlScope::sfDbiDup, 0)) {
 			Error(PPERR_DL6_MISSIDXUNIQ, 0, erfLog);
 			ok = 0;
@@ -1719,15 +1718,15 @@ int SLAPI DlContext::ResolveDbIndexFlag(const char * pSymb)
 		attr.A = DlScope::sfDbiUnique;
 		p_scope->SetAttrib(attr);
 	}
-	else if(stricmp(pSymb, "MOD") == 0) {
+	else if(sstreqi_ascii(pSymb, "MOD")) {
 		attr.A = DlScope::sfDbiMod;
 		p_scope->SetAttrib(attr);
 	}
-	else if(stricmp(pSymb, "ALLSEGNULL") == 0) {
+	else if(sstreqi_ascii(pSymb, "ALLSEGNULL")) {
 		attr.A = DlScope::sfDbiAllSegNull;
 		p_scope->SetAttrib(attr);
 	}
-	else if(stricmp(pSymb, "ANYSEGNULL") == 0) {
+	else if(sstreqi_ascii(pSymb, "ANYSEGNULL")) {
 		attr.A = DlScope::sfDbiAnySegNull;
 		p_scope->SetAttrib(attr);
 	}
@@ -1756,7 +1755,7 @@ int SLAPI DlContext::ResolveDbFileDefinition(const CtmToken & rSymb, const char 
 			THROW(p_scope->AddConst(DlScope::cdbtFileName, c, 1));
 		}
 	}
-	else if(stricmp(rSymb.U.S, "page") == 0) {
+	else if(sstreqi_ascii(rSymb.U.S, "page")) {
 		ok = 0;
 		val = 0;
 		for(uint i = 0; !ok && i < NUMPGSIZES; i++)
@@ -1770,7 +1769,7 @@ int SLAPI DlContext::ResolveDbFileDefinition(const CtmToken & rSymb, const char 
 			Error(PPERR_DL6_INVDBFILEPAGE, (temp_buf = 0).Cat(constInt), erfLog);
 		// @todo Надо еще проверить на максимальное количество сегментов
 	}
-	else if(stricmp(rSymb.U.S, "prealloc") == 0) {
+	else if(sstreqi_ascii(rSymb.U.S, "prealloc")) {
 		if(constInt < 0 || constInt > 65535) {
 			// @err
 		}
@@ -1780,7 +1779,7 @@ int SLAPI DlContext::ResolveDbFileDefinition(const CtmToken & rSymb, const char 
 			THROW(p_scope->AddConst(DlScope::cdbtPrealloc, c, 1));
 		}
 	}
-	else if(stricmp(rSymb.U.S, "threshold") == 0) {
+	else if(sstreqi_ascii(rSymb.U.S, "threshold")) {
 		if(oneof5(constInt, 0, 5, 10, 20, 30)) {
 			val = (uint32)constInt;
 			THROW(AddConst(val, &c));
@@ -1790,46 +1789,46 @@ int SLAPI DlContext::ResolveDbFileDefinition(const CtmToken & rSymb, const char 
 			// @err
 		}
 	}
-	else if(stricmp(rSymb.U.S, "acstable") == 0) {
+	else if(sstreqi_ascii(rSymb.U.S, "acstable")) {
 		if(pConstStr) {
-			temp_buf = (stricmp(pConstStr, "default") == 0) ? "rusncase.alt" : pConstStr;
+			temp_buf = sstreqi_ascii(pConstStr, "default") ? "rusncase.alt" : pConstStr;
 			THROW(AddConst(temp_buf, &c));
 			THROW(p_scope->AddConst(DlScope::cdbtAcsName, c, 1));
 		}
 	}
-	else if(stricmp(rSymb.U.S, "vlr") == 0) {
+	else if(sstreqi_ascii(rSymb.U.S, "vlr")) {
 		attr.A = DlScope::sfDbtVLR;
 		p_scope->SetAttrib(attr);
 	}
-	else if(stricmp(rSymb.U.S, "vat") == 0) {
+	else if(sstreqi_ascii(rSymb.U.S, "vat")) {
 		attr.A = DlScope::sfDbtVAT;
 		p_scope->SetAttrib(attr);
 	}
-	else if(stricmp(rSymb.U.S, "replace") == 0) {
+	else if(sstreqi_ascii(rSymb.U.S, "replace")) {
 		attr.A = DlScope::sfDbtReplace;
 		p_scope->SetAttrib(attr);
 	}
-	else if(stricmp(rSymb.U.S, "truncate") == 0) {
+	else if(sstreqi_ascii(rSymb.U.S, "truncate")) {
 		attr.A = DlScope::sfDbtTruncate;
 		p_scope->SetAttrib(attr);
 	}
-	else if(stricmp(rSymb.U.S, "compress") == 0) {
+	else if(sstreqi_ascii(rSymb.U.S, "compress")) {
 		attr.A = DlScope::sfDbtCompress;
 		p_scope->SetAttrib(attr);
 	}
-	else if(stricmp(rSymb.U.S, "balanced") == 0) {
+	else if(sstreqi_ascii(rSymb.U.S, "balanced")) {
 		attr.A = DlScope::sfDbtBalanced;
 		p_scope->SetAttrib(attr);
 	}
-	else if(stricmp(rSymb.U.S, "temporary") == 0) {
+	else if(sstreqi_ascii(rSymb.U.S, "temporary")) {
 		attr.A = DlScope::sfDbtTemporary;
 		p_scope->SetAttrib(attr);
 	}
-	else if(stricmp(rSymb.U.S, "system") == 0) {
+	else if(sstreqi_ascii(rSymb.U.S, "system")) {
 		attr.A = DlScope::sfDbtSystem;
 		p_scope->SetAttrib(attr);
 	}
-	else if(stricmp(rSymb.U.S, "access") == 0) {
+	else if(sstreqi_ascii(rSymb.U.S, "access")) {
 		if(constInt < 0 || constInt > 100) {
 			// @err
 		}
@@ -3754,8 +3753,8 @@ int SLAPI DlContext::Write_Code()
 	THROW(buf.Write(symb));
 	//
 	THROW(ConstList.Write(&buf));
-	THROW(buf.Write(&TypeList));
-	THROW(buf.Write(&UuidList));
+	THROW(buf.Write(&TypeList, 0));
+	THROW(buf.Write(&UuidList, 0));
 	THROW(Sc.Write(buf));
 	THROW(outf.Write(buf));
 	THROW(outf.CalcCRC(sizeof(hdr), &hdr.Crc32));

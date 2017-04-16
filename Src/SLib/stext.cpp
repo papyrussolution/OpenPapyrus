@@ -1856,6 +1856,16 @@ char * FASTCALL sstrdup(const char * pStr)
 int FASTCALL sstreq(const char * pS1, const char * pS2)
 {
 	if(pS1 != pS2) {
+		if(pS1) {
+            if(pS1[0] == pS2[0]) {
+				return BIN(pS1[0] == 0 || strcmp(pS1, pS2) == 0);
+            }
+            else
+				return 0;
+		}
+		else
+			return 0;
+		/*
         const size_t len = sstrlen(pS1);
         if(len != sstrlen(pS2))
 			return 0;
@@ -1863,6 +1873,7 @@ int FASTCALL sstreq(const char * pS1, const char * pS2)
 			return (memcmp(pS1, pS2, len) == 0);
 		else
 			return 1;
+		*/
 	}
 	else
 		return 1;

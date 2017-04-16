@@ -69,10 +69,8 @@ static int __fop_ondisk_swap(DB*, DB*, DB_TXN*, const char *, const char *, cons
 		if((F) != NULL) {                                              \
 			if(LF_ISSET(DB_FCNTL_LOCKING))                         \
 				(D)->saved_open_fhp = (F);                      \
-			else if((t_ret =                                       \
-			                 __os_closehandle((D)->env, (F))) != 0) {            \
-				if(ret == 0)                                   \
-					ret = t_ret;                            \
+			else if((t_ret = __os_closehandle((D)->env, (F))) != 0) { \
+				SETIFZ(ret, t_ret);                            \
 				goto err;                                       \
 			}                                                       \
 			(F) = NULL;                                             \
@@ -259,9 +257,7 @@ retry:
 	 * a previous crash).
 	 */
 	if(++retries > DB_RETRY) {
-		__db_errx(env, DB_STR_A("0002",
-				"__fop_file_setup:  Retry limit (%d) exceeded", "%d"),
-			DB_RETRY);
+		__db_errx(env, DB_STR_A("0002", "__fop_file_setup:  Retry limit (%d) exceeded", "%d"), DB_RETRY);
 		goto err;
 	}
 	if(!F_ISSET(dbp, DB_AM_COMPENSATE) && !F_ISSET(dbp, DB_AM_RECOVER))
@@ -349,25 +345,20 @@ reopen:         if(!F_ISSET(dbp, DB_AM_INMEM) && (ret =
 				goto done;
 			}
 			/* Case 4: This is a valid file. */
-			if(ret == 0)
-				ret = __db_meta_setup(env, dbp, real_name,
-					(DBMETA *)mbuf, flags, DB_CHK_META);
+			SETIFZ(ret, __db_meta_setup(env, dbp, real_name, (DBMETA *)mbuf, flags, DB_CHK_META));
 		}
 		/* Case 5: Invalid file. */
 		if(ret != 0)
 			goto err;
 		/* Now, get our handle lock. */
-		if((ret = __fop_lock_handle(env,
-			    dbp, locker, DB_LOCK_READ, NULL, DB_LOCK_NOWAIT)) == 0) {
+		if((ret = __fop_lock_handle(env, dbp, locker, DB_LOCK_READ, NULL, DB_LOCK_NOWAIT)) == 0) {
 			if((ret = __ENV_LPUT(env, elock)) != 0)
 				goto err;
 		}
-		else if(ret != DB_LOCK_NOTGRANTED ||
-		        (txn != NULL && F_ISSET(txn, TXN_NOWAIT)))
+		else if(ret != DB_LOCK_NOTGRANTED || (txn != NULL && F_ISSET(txn, TXN_NOWAIT)))
 			goto err;
 		else {
-			PERFMON3(env,
-				race, fop_file_setup, (char *)name, ret, flags);
+			PERFMON3(env, race, fop_file_setup, (char *)name, ret, flags);
 			/*
 			 * We were unable to acquire the handle lock without
 			 * blocking.  The fact that we are blocking might mean
@@ -453,8 +444,7 @@ reopen:         if(!F_ISSET(dbp, DB_AM_INMEM) && (ret =
 		if(LF_ISSET(DB_EXCL)) {
 			ret = __ENV_LPUT(env, dbp->handle_lock);
 			LOCK_INIT(dbp->handle_lock);
-			if(ret == 0)
-				ret = EEXIST;
+			SETIFZ(ret, EEXIST);
 			goto err;
 		}
 		goto done;
@@ -502,11 +492,9 @@ create:
 	else {
 		if((ret = __db_backup_name(env, name, txn, &tmpname)) != 0)
 			goto err;
-		if(TXN_ON(env) && txn != NULL &&
-		   (ret = __txn_begin(env, NULL, txn, &stxn, 0)) != 0)
+		if(TXN_ON(env) && txn && (ret = __txn_begin(env, NULL, txn, &stxn, 0)) != 0)
 			goto err;
-		if((ret = __fop_create(env, stxn, &fhp,
-			    tmpname, &dbp->dirname, aflags, mode, dflags)) != 0) {
+		if((ret = __fop_create(env, stxn, &fhp, tmpname, &dbp->dirname, aflags, mode, dflags)) != 0) {
 			/*
 			 * If no transactions, there is a race on creating the
 			 * backup file, as the backup file name is the same for

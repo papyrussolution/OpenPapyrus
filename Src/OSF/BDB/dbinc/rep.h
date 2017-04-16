@@ -89,18 +89,12 @@ extern "C" {
  * need adjusting.  They are in rep_util.c.
  */
 #define	REP_MAX_MSG	31
-
 /*
  * This is the list of client-to-client requests messages.
  * We use this to decide if we're doing client-to-client and
  * might need to send a rerequest.
  */
-#define	REP_MSG_REQ(rectype)			\
-    (rectype == REP_ALL_REQ ||			\
-    rectype == REP_LOG_REQ ||			\
-    rectype == REP_PAGE_REQ ||			\
-    rectype == REP_VERIFY_REQ)
-
+#define	REP_MSG_REQ(rectype) oneof4(rectype, REP_ALL_REQ, REP_LOG_REQ, REP_PAGE_REQ, REP_VERIFY_REQ)
 /*
  * Note that the version information should be at the beginning of the
  * structure, so that we can rearrange the rest of it while letting the
@@ -218,11 +212,8 @@ typedef enum {
  * so that an application's call-back function can be invoked without locking
  * the whole region.
  */
-#define	REP_EVENT_LOCK(env)						\
-	MUTEX_LOCK(env, (env)->rep_handle->region->mtx_event)
-#define	REP_EVENT_UNLOCK(env)						\
-	MUTEX_UNLOCK(env, (env)->rep_handle->region->mtx_event)
-
+#define	REP_EVENT_LOCK(env)   MUTEX_LOCK(env, (env)->rep_handle->region->mtx_event)
+#define	REP_EVENT_UNLOCK(env) MUTEX_UNLOCK(env, (env)->rep_handle->region->mtx_event)
 /*
  * Synchronization states
  * Please change __rep_syncstate_to_string (rep_stat.c) to track any changes
@@ -295,10 +286,8 @@ typedef struct __rep { /* SHARED */
 	uint32	bytes;		/* __rep_process_message call. */
 #define	DB_REP_REQUEST_GAP	40000	/* 40 msecs */
 #define	DB_REP_MAX_GAP		1280000	/* 1.28 seconds */
-	db_timespec	request_gap;	/* Minimum time to wait before we
-					 * request a missing log record. */
-	db_timespec	max_gap;	/* Maximum time to wait before
-					 * requesting a missing log record. */
+	db_timespec	request_gap;	/* Minimum time to wait before we request a missing log record. */
+	db_timespec	max_gap;	/* Maximum time to wait before requesting a missing log record. */
 	/* Status change information */
 	uint32	apply_th;	/* Number of callers in rep_apply. */
 	uint32	arch_th;	/* Number of callers in log_archive. */
@@ -494,11 +483,8 @@ struct __rep_waiter {
  * locked out/set individually because they pertain to different pieces of
  * the BDB API, they are otherwise always checked and cleared together.
  */
-#define ISSET_LOCKOUT_BDB(R) 						\
-    (FLD_ISSET((R)->lockout_flags, (REP_LOCKOUT_API | REP_LOCKOUT_OP)))
-
-#define CLR_LOCKOUT_BDB(R) 						\
-    (FLD_CLR((R)->lockout_flags, (REP_LOCKOUT_API | REP_LOCKOUT_OP)))
+#define ISSET_LOCKOUT_BDB(R) (FLD_ISSET((R)->lockout_flags, (REP_LOCKOUT_API | REP_LOCKOUT_OP)))
+#define CLR_LOCKOUT_BDB(R)   (FLD_CLR((R)->lockout_flags, (REP_LOCKOUT_API | REP_LOCKOUT_OP)))
 
 /*
  * Recovery flag mask to easily check any/all recovery bits.  That is
@@ -514,42 +500,22 @@ do {									\
 	CLR_LOCKOUT_BDB(R);						\
 } while (0)
 
-#define	IS_REP_RECOVERING(R)						\
-    ((R)->sync_state != SYNC_OFF || ISSET_LOCKOUT_BDB(R))
+#define	IS_REP_RECOVERING(R) ((R)->sync_state != SYNC_OFF || ISSET_LOCKOUT_BDB(R))
 
 /*
  * REP_F_EPHASE0 is not a *real* election phase.  It is used for
  * master leases and allowing the client to find the master or
  * expire its lease.  However, EPHASE0 is cleared by __rep_elect_done.
  */
-#define	IN_ELECTION(R)							\
-	FLD_ISSET((R)->elect_flags, REP_E_PHASE1 | REP_E_PHASE2)
-#define	IN_ELECTION_TALLY(R) \
-	FLD_ISSET((R)->elect_flags, REP_E_PHASE1 | REP_E_PHASE2 | REP_E_TALLY)
+#define	IN_ELECTION(R) FLD_ISSET((R)->elect_flags, REP_E_PHASE1 | REP_E_PHASE2)
+#define	IN_ELECTION_TALLY(R) FLD_ISSET((R)->elect_flags, REP_E_PHASE1 | REP_E_PHASE2 | REP_E_TALLY)
 #define	ELECTION_MAJORITY(n) (((n) / 2) + 1)
-
-#define	IN_INTERNAL_INIT(R) \
-	((R)->sync_state == SYNC_LOG || (R)->sync_state == SYNC_PAGE)
-
-#define	IS_REP_MASTER(env)						\
-	(REP_ON(env) &&							\
-	    F_ISSET(((env)->rep_handle->region), REP_F_MASTER))
-
-#define	IS_REP_CLIENT(env)						\
-	(REP_ON(env) &&							\
-	    F_ISSET(((env)->rep_handle->region), REP_F_CLIENT))
-
-#define	IS_REP_STARTED(env)						\
-	(REP_ON(env) &&							\
-	    F_ISSET(((env)->rep_handle->region), REP_F_START_CALLED))
-
-#define	IS_USING_LEASES(env)						\
-	(REP_ON(env) &&							\
-	    FLD_ISSET(((env)->rep_handle->region)->config, REP_C_LEASE))
-
-#define	IS_CLIENT_PGRECOVER(env)					\
-	(IS_REP_CLIENT(env) &&						\
-	    (((env)->rep_handle->region)->sync_state ==  SYNC_PAGE))
+#define	IN_INTERNAL_INIT(R) ((R)->sync_state == SYNC_LOG || (R)->sync_state == SYNC_PAGE)
+#define	IS_REP_MASTER(env) (REP_ON(env) && F_ISSET(((env)->rep_handle->region), REP_F_MASTER))
+#define	IS_REP_CLIENT(env) (REP_ON(env) && F_ISSET(((env)->rep_handle->region), REP_F_CLIENT))
+#define	IS_REP_STARTED(env) (REP_ON(env) && F_ISSET(((env)->rep_handle->region), REP_F_START_CALLED))
+#define	IS_USING_LEASES(env) (REP_ON(env) && FLD_ISSET(((env)->rep_handle->region)->config, REP_C_LEASE))
+#define	IS_CLIENT_PGRECOVER(env) (IS_REP_CLIENT(env) && (((env)->rep_handle->region)->sync_state ==  SYNC_PAGE))
 
 /*
  * Macros to figure out if we need to do replication pre/post-amble processing.
@@ -557,14 +523,8 @@ do {									\
  * replication is running recovery or because it's a handle entirely owned by
  * the replication code (replication opens its own databases to track state).
  */
-#define REP_FLAGS_SET(env)						\
-	((env)->rep_handle->region->flags != 0 ||			\
-	(env)->rep_handle->region->elect_flags != 0 ||			\
-	(env)->rep_handle->region->lockout_flags != 0)
-
-#define	IS_ENV_REPLICATED(env)						\
-	(REP_ON(env) && REP_FLAGS_SET(env))
-
+#define REP_FLAGS_SET(env) ((env)->rep_handle->region->flags != 0 || (env)->rep_handle->region->elect_flags != 0 || (env)->rep_handle->region->lockout_flags != 0)
+#define	IS_ENV_REPLICATED(env) (REP_ON(env) && REP_FLAGS_SET(env))
 /*
  * Update the temporary log archive block timer.
  */
@@ -831,7 +791,7 @@ struct __db_rep {
 	uint8 * restored_list;
 	size_t restored_list_length;
 	/* Application's message dispatch call-back function. */
-	void  (*msg_dispatch) __P((DB_ENV *, DB_CHANNEL *, DBT *, uint32, uint32));
+	void  (*msg_dispatch)(DB_ENV *, DB_CHANNEL *, DBT *, uint32, uint32);
 #endif  /* HAVE_REPLICATION_THREADS */
 };
 

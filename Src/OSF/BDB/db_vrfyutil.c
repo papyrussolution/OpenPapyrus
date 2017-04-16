@@ -160,8 +160,8 @@ int __db_vrfy_getpageinfo(VRFY_DBINFO * vdp, db_pgno_t pgno, VRFY_PAGEINFO ** pi
 	/* Case 2. */
 	pgdbp = vdp->pgdbp;
 	env = pgdbp->env;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	F_SET(&data, DB_DBT_MALLOC);
 	key.data = &pgno;
 	key.size = sizeof(db_pgno_t);
@@ -200,9 +200,8 @@ int __db_vrfy_putpageinfo(ENV * env, VRFY_DBINFO * vdp, VRFY_PAGEINFO * pip)
 	if(--pip->pi_refcount > 0)
 		return 0;
 	pgdbp = vdp->pgdbp;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
-
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	key.data = &pip->pgno;
 	key.size = sizeof(db_pgno_t);
 	data.data = pip;
@@ -257,8 +256,8 @@ int __db_vrfy_pgset_get(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, db_pgno_t p
 {
 	DBT key, data;
 	int ret, val;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	key.data = &pgno;
 	key.size = sizeof(db_pgno_t);
 	data.data = &val;
@@ -286,8 +285,8 @@ int __db_vrfy_pgset_inc(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, db_pgno_t p
 	DBT key, data;
 	int ret;
 	int val;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	val = 0;
 	key.data = &pgno;
 	key.size = sizeof(db_pgno_t);
@@ -315,8 +314,8 @@ int __db_vrfy_pgset_next(DBC * dbc, db_pgno_t * pgnop)
 	DBT key, data;
 	db_pgno_t pgno;
 	int ret;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	/* We don't care about the data, just the keys. */
 	F_SET(&data, DB_DBT_USERMEM|DB_DBT_PARTIAL);
 	F_SET(&key, DB_DBT_USERMEM);
@@ -358,11 +357,9 @@ int __db_vrfy_childput(VRFY_DBINFO * vdp, db_pgno_t pgno, VRFY_CHILDINFO * cip)
 	DBT key, data;
 	VRFY_CHILDINFO * oldcip;
 	int ret;
-
 	cdbp = vdp->cdbp;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
-
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	key.data = &pgno;
 	key.size = sizeof(db_pgno_t);
 	/*
@@ -414,8 +411,8 @@ int __db_vrfy_childput(VRFY_DBINFO * vdp, db_pgno_t pgno, VRFY_CHILDINFO * cip)
 static int __db_vrfy_childinc(DBC * dbc, VRFY_CHILDINFO * cip)
 {
 	DBT key, data;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	cip->refcnt++;
 	data.data = cip;
 	data.size = sizeof(VRFY_CHILDINFO);
@@ -432,8 +429,8 @@ int __db_vrfy_ccset(DBC * dbc, db_pgno_t pgno, VRFY_CHILDINFO ** cipp)
 {
 	DBT key, data;
 	int ret;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	key.data = &pgno;
 	key.size = sizeof(db_pgno_t);
 	if((ret = __dbc_get(dbc, &key, &data, DB_SET)) != 0)
@@ -454,8 +451,8 @@ int __db_vrfy_ccnext(DBC * dbc, VRFY_CHILDINFO ** cipp)
 {
 	DBT key, data;
 	int ret;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	if((ret = __dbc_get(dbc, &key, &data, DB_NEXT_DUP)) != 0)
 		return ret;
 	DB_ASSERT(dbc->env, data.size == sizeof(VRFY_CHILDINFO));
@@ -545,8 +542,8 @@ int __db_salvage_getnext(VRFY_DBINFO * vdp, DBC ** dbcp, db_pgno_t * pgnop, uint
 	int ret;
 	uint32 pgtype;
 	dbp = vdp->salvage_pages;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	if(*dbcp == NULL && (ret = __db_cursor(dbp, vdp->thread_info, vdp->txn, dbcp, 0)) != 0)
 		return ret;
 	while((ret = __dbc_get(*dbcp, &key, &data, DB_NEXT)) == 0) {
@@ -584,8 +581,8 @@ int __db_salvage_isdone(VRFY_DBINFO * vdp, db_pgno_t pgno)
 	int ret;
 	uint32 currtype;
 	dbp = vdp->salvage_pages;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	currtype = SALVAGE_INVALID;
 	data.data = &currtype;
 	data.ulen = sizeof(uint32);
@@ -627,13 +624,10 @@ int __db_salvage_markdone(VRFY_DBINFO * vdp, db_pgno_t pgno)
 	DBT key, data;
 	int pgtype, ret;
 	uint32 currtype;
-
 	pgtype = SALVAGE_IGNORE;
 	dbp = vdp->salvage_pages;
-
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
-
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	currtype = SALVAGE_INVALID;
 	data.data = &currtype;
 	data.ulen = sizeof(uint32);
@@ -673,8 +667,8 @@ int __db_salvage_markneeded(VRFY_DBINFO * vdp, db_pgno_t pgno, uint32 pgtype)
 	DBT key, data;
 	int ret;
 	DB * dbp = vdp->salvage_pages;
-	memzero(&key, sizeof(DBT));
-	memzero(&data, sizeof(DBT));
+	// (replaced by ctr) memzero(&key, sizeof(DBT));
+	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	key.data = &pgno;
 	key.size = sizeof(db_pgno_t);
 	data.data = &pgtype;

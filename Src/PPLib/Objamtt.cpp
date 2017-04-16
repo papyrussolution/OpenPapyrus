@@ -139,7 +139,7 @@ int AmtTypeDialog::EditDistribParam()
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_COSTDISTR);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->AddClusterAssoc(CTL_COSTDISTR_ALG, 0, ecalgCost);
 		dlg->AddClusterAssoc(CTL_COSTDISTR_ALG, -1, ecalgCost);
 		dlg->AddClusterAssoc(CTL_COSTDISTR_ALG, 1, ecalgPrice);
@@ -868,7 +868,7 @@ int SLAPI PPObjAmountType::Browse(void * extraPtr)
 	int    ok = 1;
 	if(CheckRights(PPR_READ)) {
 		TDialog * dlg = new AmountTypeView(this, extraPtr);
-		if(CheckDialogPtr(&dlg, 1))
+		if(CheckDialogPtrErr(&dlg))
 			ExecViewAndDestroy(dlg);
 		else
 			ok = 0;

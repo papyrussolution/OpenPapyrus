@@ -12600,11 +12600,11 @@ xmlParserErrors xmlParseInNodeContext(xmlNodePtr node, const char * data, int da
 	cur = fake->next;
 	fake->next = NULL;
 	node->last = fake;
-	if(cur != NULL) {
+	if(cur) {
 		cur->prev = NULL;
 	}
 	*lst = cur;
-	while(cur != NULL) {
+	while(cur) {
 		cur->parent = NULL;
 		cur = cur->next;
 	}
@@ -12659,118 +12659,123 @@ int xmlParseBalancedChunkMemoryRecover(xmlDocPtr doc, xmlSAXHandlerPtr sax,
 	int size;
 	int ret = 0;
 	if(depth > 40) {
-		return XML_ERR_ENTITY_LOOP;
-	}
-	ASSIGN_PTR(lst, NULL);
-	if(string == NULL)
-		return -1;
-	size = xmlStrlen(string);
-	ctxt = xmlCreateMemoryParserCtxt((char*)string, size);
-	if(ctxt == NULL) return -1;
-	ctxt->userData = ctxt;
-	if(sax != NULL) {
-		oldsax = ctxt->sax;
-		ctxt->sax = sax;
-		if(user_data != NULL)
-			ctxt->userData = user_data;
-	}
-	newDoc = xmlNewDoc(BAD_CAST "1.0");
-	if(newDoc == NULL) {
-		xmlFreeParserCtxt(ctxt);
-		return -1;
-	}
-	newDoc->properties = XML_DOC_INTERNAL;
-	if((doc != NULL) && (doc->dict != NULL)) {
-		xmlDictFree(ctxt->dict);
-		ctxt->dict = doc->dict;
-		xmlDictReference(ctxt->dict);
-		ctxt->str_xml = xmlDictLookup(ctxt->dict, BAD_CAST "xml", 3);
-		ctxt->str_xmlns = xmlDictLookup(ctxt->dict, BAD_CAST "xmlns", 5);
-		ctxt->str_xml_ns = xmlDictLookup(ctxt->dict, XML_XML_NAMESPACE, 36);
-		ctxt->dictNames = 1;
+		ret = XML_ERR_ENTITY_LOOP;
 	}
 	else {
-		xmlCtxtUseOptionsInternal(ctxt, XML_PARSE_NODICT, NULL);
-	}
-	if(doc != NULL) {
-		newDoc->intSubset = doc->intSubset;
-		newDoc->extSubset = doc->extSubset;
-	}
-	newRoot = xmlNewDocNode(newDoc, NULL, BAD_CAST "pseudoroot", NULL);
-	if(newRoot == NULL) {
-		if(sax != NULL)
-			ctxt->sax = oldsax;
-		xmlFreeParserCtxt(ctxt);
-		newDoc->intSubset = NULL;
-		newDoc->extSubset = NULL;
-		xmlFreeDoc(newDoc);
-		return -1;
-	}
-	xmlAddChild((xmlNodePtr)newDoc, newRoot);
-	nodePush(ctxt, newRoot);
-	if(doc == NULL) {
-		ctxt->myDoc = newDoc;
-	}
-	else {
-		ctxt->myDoc = newDoc;
-		newDoc->children->doc = doc;
-		/* Ensure that doc has XML spec namespace */
-		xmlSearchNsByHref(doc, (xmlNodePtr)doc, XML_XML_NAMESPACE);
-		newDoc->oldNs = doc->oldNs;
-	}
-	ctxt->instate = XML_PARSER_CONTENT;
-	ctxt->depth = depth;
-	/*
-	 * Doing validity checking on chunk doesn't make sense
-	 */
-	ctxt->validate = 0;
-	ctxt->loadsubset = 0;
-	xmlDetectSAX2(ctxt);
-	if(doc != NULL) {
-		content = doc->children;
-		doc->children = NULL;
-		xmlParseContent(ctxt);
-		doc->children = content;
-	}
-	else {
-		xmlParseContent(ctxt);
-	}
-	if((RAW == '<') && (NXT(1) == '/')) {
-		xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, NULL);
-	}
-	else if(RAW != 0) {
-		xmlFatalErr(ctxt, XML_ERR_EXTRA_CONTENT, NULL);
-	}
-	if(ctxt->node != newDoc->children) {
-		xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, NULL);
-	}
-	if(!ctxt->wellFormed) {
-		ret = (ctxt->errNo == 0) ? 1 : ctxt->errNo;
-	}
-	else {
-		ret = 0;
-	}
-	if(lst && (!ret || recover == 1)) {
-		/*
-		 * Return the newly created nodeset after unlinking it from
-		 * they pseudo parent.
-		 */
-		xmlNodePtr cur = newDoc->children->children;
-		*lst = cur;
-		while(cur != NULL) {
-			xmlSetTreeDoc(cur, doc);
-			cur->parent = NULL;
-			cur = cur->next;
+		ASSIGN_PTR(lst, NULL);
+		if(string == NULL)
+			ret = -1;
+		else {
+			size = xmlStrlen(string);
+			ctxt = xmlCreateMemoryParserCtxt((char*)string, size);
+			if(ctxt == NULL) 
+				ret = -1;
+			else {
+				ctxt->userData = ctxt;
+				if(sax != NULL) {
+					oldsax = ctxt->sax;
+					ctxt->sax = sax;
+					if(user_data != NULL)
+						ctxt->userData = user_data;
+				}
+				newDoc = xmlNewDoc(BAD_CAST "1.0");
+				if(newDoc == NULL) {
+					xmlFreeParserCtxt(ctxt);
+					ret = -1;
+				}
+				else {
+					newDoc->properties = XML_DOC_INTERNAL;
+					if(doc && doc->dict) {
+						xmlDictFree(ctxt->dict);
+						ctxt->dict = doc->dict;
+						xmlDictReference(ctxt->dict);
+						ctxt->str_xml = xmlDictLookup(ctxt->dict, BAD_CAST "xml", 3);
+						ctxt->str_xmlns = xmlDictLookup(ctxt->dict, BAD_CAST "xmlns", 5);
+						ctxt->str_xml_ns = xmlDictLookup(ctxt->dict, XML_XML_NAMESPACE, 36);
+						ctxt->dictNames = 1;
+					}
+					else {
+						xmlCtxtUseOptionsInternal(ctxt, XML_PARSE_NODICT, NULL);
+					}
+					if(doc) {
+						newDoc->intSubset = doc->intSubset;
+						newDoc->extSubset = doc->extSubset;
+					}
+					newRoot = xmlNewDocNode(newDoc, NULL, BAD_CAST "pseudoroot", NULL);
+					if(newRoot == NULL) {
+						if(sax)
+							ctxt->sax = oldsax;
+						xmlFreeParserCtxt(ctxt);
+						newDoc->intSubset = NULL;
+						newDoc->extSubset = NULL;
+						xmlFreeDoc(newDoc);
+						ret = -1;
+					}
+					else {
+						xmlAddChild((xmlNodePtr)newDoc, newRoot);
+						nodePush(ctxt, newRoot);
+						if(doc == NULL) {
+							ctxt->myDoc = newDoc;
+						}
+						else {
+							ctxt->myDoc = newDoc;
+							newDoc->children->doc = doc;
+							// Ensure that doc has XML spec namespace 
+							xmlSearchNsByHref(doc, (xmlNodePtr)doc, XML_XML_NAMESPACE);
+							newDoc->oldNs = doc->oldNs;
+						}
+						ctxt->instate = XML_PARSER_CONTENT;
+						ctxt->depth = depth;
+						//
+						// Doing validity checking on chunk doesn't make sense
+						//
+						ctxt->validate = 0;
+						ctxt->loadsubset = 0;
+						xmlDetectSAX2(ctxt);
+						if(doc) {
+							content = doc->children;
+							doc->children = NULL;
+							xmlParseContent(ctxt);
+							doc->children = content;
+						}
+						else {
+							xmlParseContent(ctxt);
+						}
+						if((RAW == '<') && (NXT(1) == '/')) {
+							xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, NULL);
+						}
+						else if(RAW != 0) {
+							xmlFatalErr(ctxt, XML_ERR_EXTRA_CONTENT, NULL);
+						}
+						if(ctxt->node != newDoc->children) {
+							xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, NULL);
+						}
+						ret = ctxt->wellFormed ? 0 : ((ctxt->errNo == 0) ? 1 : ctxt->errNo);
+						if(lst && (!ret || recover == 1)) {
+							//
+							// Return the newly created nodeset after unlinking it from they pseudo parent.
+							//
+							xmlNodePtr cur = newDoc->children->children;
+							*lst = cur;
+							while(cur) {
+								xmlSetTreeDoc(cur, doc);
+								cur->parent = NULL;
+								cur = cur->next;
+							}
+							newDoc->children->children = NULL;
+						}
+						if(sax)
+							ctxt->sax = oldsax;
+						xmlFreeParserCtxt(ctxt);
+						newDoc->intSubset = NULL;
+						newDoc->extSubset = NULL;
+						newDoc->oldNs = NULL;
+						xmlFreeDoc(newDoc);
+					}
+				}
+			}
 		}
-		newDoc->children->children = NULL;
 	}
-	if(sax != NULL)
-		ctxt->sax = oldsax;
-	xmlFreeParserCtxt(ctxt);
-	newDoc->intSubset = NULL;
-	newDoc->extSubset = NULL;
-	newDoc->oldNs = NULL;
-	xmlFreeDoc(newDoc);
 	return ret;
 }
 

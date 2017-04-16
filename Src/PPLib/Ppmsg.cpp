@@ -511,7 +511,7 @@ static int SLAPI PPCriticalWarning(SString & rMsg, uint /*options*/)
 		char   answ[32];
 		rMsg.ReplaceChar('\003', ' ');
 		TDialog * dlg = new TDialog(DLG_CRITWARN);
-		if(CheckDialogPtr(&dlg, 1)){
+		if(CheckDialogPtrErr(&dlg)){
 			dlg->setStaticText(CTL_CRITWARN_HEAD, rMsg);
 			if(ExecView(dlg) == cmOK) {
 				dlg->getCtrlData(CTL_CRITWARN_ANSWER, answ);

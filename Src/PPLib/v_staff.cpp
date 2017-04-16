@@ -53,7 +53,7 @@ int SLAPI PPViewStaffList::EditBaseFilt(PPBaseFilt * pFilt)
 	int    ok = -1, valid_data = 0;
 	TDialog * dlg = 0;
 	THROW(Filt.IsA(pFilt));
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_STAFFLFLT)), 0));
+	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_STAFFLFLT))));
 	{
 		StaffListFilt * p_filt = (StaffListFilt *)pFilt;
 		dlg->addGroup(GRP_DIV, new DivisionCtrlGroup(CTLSEL_STAFFLFLT_ORG, CTLSEL_STAFFLFLT_DIV, 0, 0));
@@ -440,7 +440,7 @@ int SLAPI PPViewStaffPost::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	int    ok = -1, valid_data = 0;
 	TDialog * dlg = 0;
 	THROW(Filt.IsA(pBaseFilt));
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PPOSTFLT)), 0));
+	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PPOSTFLT))));
 	{
 		StaffPostFilt * p_filt = (StaffPostFilt *)pBaseFilt;
 		dlg->SetupCalPeriod(CTLCAL_PPOSTFLT_PERIOD, CTL_PPOSTFLT_PERIOD);
@@ -1078,7 +1078,7 @@ int FastEditSumByDivDlg::SetupDivList()
 				p_def->AddImageAssoc(item.Id, img_id);
 			}
 			p_lb->setDef(p_def);
-			p_lb->drawView();
+			p_lb->Draw_();
 			ok = 1;
 		}
 	}
@@ -1402,7 +1402,7 @@ int FastEditDivBySumDlg::SetupSumList()
 				p_def->AddImageAssoc(item.Id, img_id);
 			}
 			p_lb->setDef(p_def);
-			p_lb->drawView();
+			p_lb->Draw_();
 			ok = 1;
 		}
 		p_lb->getCurID(&CurAmtID);

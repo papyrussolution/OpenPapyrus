@@ -247,19 +247,14 @@ err:
  */
 int __db_safe_goff(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, DBT * dbt, void * buf, uint32 * bufsz, uint32 flags)
 {
-	DB_MPOOLFILE * mpf;
-	PAGE * h;
-	int ret, t_ret;
-	uint32 bytesgot, bytes;
+	PAGE * h = 0;
+	int ret = 0;
+	int t_ret = 0;
+	uint32 bytesgot = 0;
+	uint32 bytes = 0;
 	uint8 * src, * dest;
-
-	mpf = dbp->mpf;
-	h = NULL;
-	ret = t_ret = 0;
-	bytesgot = bytes = 0;
-
+	DB_MPOOLFILE * mpf = dbp->mpf;
 	DB_ASSERT(dbp->env, bufsz != NULL);
-
 	/*
 	 * Back up to the start of the overflow chain (if necessary) via the
 	 * prev pointer of the overflow page.  This guarantees we transverse the

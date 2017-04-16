@@ -342,7 +342,7 @@ private:
 			item = Data.SupplSubstList.at(*pSupplSubstPos);
 			assert(item.Position == PuglPos);
         }
-		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PUGLSPLI)), 0));
+		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PUGLSPLI))));
 		SetupArCombo(dlg, CTLSEL_PUGLSPLI_SUPPL, item.SupplID, 0, AcsID, sacfDisableIfZeroSheet);
 		dlg->setCtrlReal(CTL_PUGLSPLI_QTTY, item.Qtty);
 		dlg->AddClusterAssoc(CTL_PUGLSPLI_UNIT,  0, item.uAbs);
@@ -408,7 +408,7 @@ private:
 		PuglSupplAssocDialog * dlg = 0;
 		if(Data.SupplAccSheetForSubstID && selId > 0 && selId <= (long)Data.getCount()) {
 			dlg = new PuglSupplAssocDialog(Data.SupplAccSheetForSubstID, selId);
-			if(CheckDialogPtr(&dlg, 1)) {
+			if(CheckDialogPtrErr(&dlg)) {
 				if(dlg->setDTS(&Data)) {
 					if(ExecView(dlg) == cmOK) {
 						dlg->getDTS(&Data);
@@ -526,7 +526,7 @@ int SLAPI ProcessUnsuffisientList(uint dlgID, PUGL * pList)
 {
 	int    ret = PCUG_CANCEL, valid_data = 0;
 	PuglDialog * dlg = new PuglDialog(NZOR(dlgID, DLG_MSGNCMPL3));
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(pList);
 		while(!valid_data && ExecView(dlg) == cmOK)
 			if(dlg->getDTS(pList)) {
@@ -548,7 +548,7 @@ int SLAPI ProcessUnsuffisientGoods(PPID goods, PUGP param)
 	else
 		dlg_id = DLG_MSGNCMPL2;
 	TDialog * dlg = new TDialog(dlg_id);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		ushort v = 0;
 		SString fmt, buf, goods_name;
 		if(dlg->getStaticText(CTL_MSGNCMPL_LINE1, fmt) > 0) {

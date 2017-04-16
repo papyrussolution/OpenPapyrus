@@ -33,7 +33,7 @@ int SLAPI PPViewMrpTab::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	TDialog * dlg = 0;
 	if(!Filt.IsA(pBaseFilt))
 		ok = 0;
-	else if(CheckDialogPtr(&(dlg = new TDialog(DLG_MRPTABFLT)), 1)) {
+	else if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_MRPTABFLT)))) {
 		MrpTabFilt * p_filt = (MrpTabFilt *)pBaseFilt;
 		PPObjMrpTab::SetupLinkObjTypeCombo(dlg, CTLSEL_MRPTABFLT_OBJTYPE, p_filt->LinkObjType);
 		SetupPPObjCombo(dlg, CTLSEL_MRPTABFLT_LOC, PPOBJ_LOCATION, p_filt->LocID, 0, 0);
@@ -349,7 +349,7 @@ int SLAPI PPViewMrpLine::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	TDialog * dlg = 0;
 	if(!Filt.IsA(pBaseFilt))
 		ok = 0;
-	else if(CheckDialogPtr(&(dlg = new TDialog(DLG_MRPLINEFLT)), 1)) {
+	else if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_MRPLINEFLT)))) {
 		MrpLineFilt * p_filt = (MrpLineFilt *)pBaseFilt;
 		ushort v = 0;
 		if(p_filt->SrcGoodsID == MRPSRCV_TOTAL && p_filt->Flags & MrpLineFilt::fShowTotalReq)
@@ -492,7 +492,7 @@ int SLAPI PPViewMrpLine::ViewTotal()
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_MRPLNTOTAL);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		MrpLineTotal total;
 		CalcTotal(&total);
 		dlg->setCtrlData(CTL_MRPLNTOTAL_COUNT, &total.Count);

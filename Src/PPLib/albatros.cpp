@@ -404,7 +404,7 @@ int SLAPI PPAlbatrosCfgMngr::Edit()
 	THROW(CheckCfgRights(PPCFGOBJ_ALBATROS, PPR_READ, 0));
 	MEMSZERO(cfg);
 	THROW(is_new = PPAlbatrosCfgMngr::Get(&cfg));
-	THROW(CheckDialogPtr(&p_dlg, 0));
+	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setDTS(&cfg);
 	while(!valid_data && ExecView(p_dlg) == cmOK) {
 		THROW(CheckCfgRights(PPCFGOBJ_ALBATROS, PPR_MOD, 0));
@@ -642,7 +642,7 @@ int SLAPI AlbatrosTagParser::ConfirmClientAdd(PPPersonPacket * pPack, const char
 {
 	int    ok = -1, valid_data = 0;
 	ClientAddDialog *p_dlg = new ClientAddDialog(add, pClientINNInOrder);
-	THROW(pPack && CheckDialogPtr(&p_dlg, 0));
+	THROW(pPack && CheckDialogPtr(&p_dlg));
 	p_dlg->setDTS(pPack);
 	while(!valid_data && ExecView(p_dlg) == cmOK) {
 		if(p_dlg->getDTS(pPack) > 0) {

@@ -138,10 +138,10 @@ redo:
 		 * Drop the latches on the lower level pages before
 		 * getting an exclusive latch on the higher level page.
 		 */
-		if(lp != NULL && (ret = __memp_fput(mpf, ip, lp, file_dbp->priority)) && ret == 0)
+		if(lp && (ret = __memp_fput(mpf, ip, lp, file_dbp->priority)) && ret == 0)
 			goto out;
 		lp = NULL;
-		if(rp != NULL && (ret = __memp_fput(mpf, ip, rp, file_dbp->priority)) && ret == 0)
+		if(rp && (ret = __memp_fput(mpf, ip, rp, file_dbp->priority)) && ret == 0)
 			goto out;
 		rp = NULL;
 		/*
@@ -196,11 +196,11 @@ check_next:
 		 * The undo of the page allocation(s) will restore them to the
 		 * free list.
 		 */
-		if(rootsplit && lp != NULL && LOG_COMPARE(lsnp, &LSN(lp)) == 0) {
+		if(rootsplit && lp && LOG_COMPARE(lsnp, &LSN(lp)) == 0) {
 			REC_DIRTY(mpf, ip, file_dbp->priority, &lp);
 			lp->lsn = argp->llsn;
 		}
-		if(rp != NULL && LOG_COMPARE(lsnp, &LSN(rp)) == 0) {
+		if(rp && LOG_COMPARE(lsnp, &LSN(rp)) == 0) {
 			REC_DIRTY(mpf, ip, file_dbp->priority, &rp);
 			rp->lsn = argp->rlsn;
 		}
@@ -208,7 +208,7 @@ check_next:
 		 * Drop the lower level pages before getting an exclusive
 		 * latch on  the parent.
 		 */
-		if(rp != NULL && (ret = __memp_fput(mpf, ip, rp, file_dbp->priority)))
+		if(rp && (ret = __memp_fput(mpf, ip, rp, file_dbp->priority)))
 			goto out;
 		rp = NULL;
 		/*
@@ -217,7 +217,7 @@ check_next:
 		 */
 		if(rootsplit) {
 			DB_ASSERT(env, pgno == argp->ppgno);
-			if(lp != NULL && (ret = __memp_fput(mpf, ip, lp, file_dbp->priority)) != 0)
+			if(lp && (ret = __memp_fput(mpf, ip, lp, file_dbp->priority)) != 0)
 				goto out;
 			lp = pp;
 			pp = NULL;
@@ -275,13 +275,13 @@ done:   *lsnp = argp->prev_lsn;
 	ret = 0;
 
 out:    /* Free any pages that are left. */
-	if(lp != NULL && (t_ret = __memp_fput(mpf, ip, lp, file_dbp->priority)) != 0 && ret == 0)
+	if(lp && (t_ret = __memp_fput(mpf, ip, lp, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(np != NULL && (t_ret = __memp_fput(mpf, ip, np, file_dbp->priority)) != 0 && ret == 0)
+	if(np && (t_ret = __memp_fput(mpf, ip, np, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(rp != NULL && (t_ret = __memp_fput(mpf, ip, rp, file_dbp->priority)) != 0 && ret == 0)
+	if(rp && (t_ret = __memp_fput(mpf, ip, rp, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(pp != NULL && (t_ret = __memp_fput(mpf, ip, pp, file_dbp->priority)) != 0 && ret == 0)
+	if(pp && (t_ret = __memp_fput(mpf, ip, pp, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	/* Free any allocated space. */
 	__os_free(env, _lp);
@@ -308,17 +308,12 @@ int __bam_split_48_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, v
 	db_pgno_t pgno, parent_pgno;
 	uint32 ptype, size;
 	int cmp, l_update, p_update, r_update, ret, rootsplit, t_ret;
-
 	ip = ((DB_TXNHEAD *)info)->thread_info;
 	REC_PRINT(__bam_split_print);
-
 	_lp = lp = np = pp = _rp = rp = NULL;
 	sp = NULL;
-
 	REC_INTRO(__bam_split_48_read, ip, 0);
-	if((ret = __db_cursor_int(file_dbp, ip, NULL,
-		    (argp->opflags&SPL_RECNO) ?  DB_RECNO : DB_BTREE,
-		    PGNO_INVALID, DB_RECOVER, NULL, &dbc)) != 0)
+	if((ret = __db_cursor_int(file_dbp, ip, NULL, (argp->opflags&SPL_RECNO) ?  DB_RECNO : DB_BTREE, PGNO_INVALID, DB_RECOVER, NULL, &dbc)) != 0)
 		goto out;
 	if(argp->opflags&SPL_NRECS)
 		F_SET((BTREE_CURSOR *)dbc->internal, C_RECNUM);
@@ -360,10 +355,7 @@ redo:
 		 * we have truncated it due to a future deallocation.
 		 */
 		if(pp != NULL) {
-			if(rootsplit)
-				plsnp = &LSN(argp->pg.data);
-			else
-				plsnp = &argp->plsn;
+			plsnp = rootsplit ? &LSN(argp->pg.data) : &argp->plsn;
 			cmp = LOG_COMPARE(&LSN(pp), plsnp);
 			CHECK_LSN(env, op, cmp, &LSN(pp), plsnp);
 			if(cmp == 0)
@@ -383,26 +375,19 @@ redo:
 		}
 		if(!p_update && !l_update && !r_update)
 			goto check_next;
-		/* Allocate and initialize new left/right child pages. */
-		if((ret = __os_malloc(env, file_dbp->pgsize, &_lp)) != 0 ||
-		   (ret = __os_malloc(env, file_dbp->pgsize, &_rp)) != 0)
+		// Allocate and initialize new left/right child pages. 
+		if((ret = __os_malloc(env, file_dbp->pgsize, &_lp)) != 0 || (ret = __os_malloc(env, file_dbp->pgsize, &_rp)) != 0)
 			goto out;
 		if(rootsplit) {
-			P_INIT(_lp, file_dbp->pgsize, argp->left, PGNO_INVALID,
-				ISINTERNAL(sp) ? PGNO_INVALID : argp->right,
-				LEVEL(sp), TYPE(sp));
-			P_INIT(_rp, file_dbp->pgsize, argp->right, ISINTERNAL(sp) ?  PGNO_INVALID : argp->left,
-				PGNO_INVALID, LEVEL(sp), TYPE(sp));
+			P_INIT(_lp, file_dbp->pgsize, argp->left, PGNO_INVALID, ISINTERNAL(sp) ? PGNO_INVALID : argp->right, LEVEL(sp), TYPE(sp));
+			P_INIT(_rp, file_dbp->pgsize, argp->right, ISINTERNAL(sp) ?  PGNO_INVALID : argp->left, PGNO_INVALID, LEVEL(sp), TYPE(sp));
 		}
 		else {
-			P_INIT(_lp, file_dbp->pgsize, PGNO(sp), ISINTERNAL(sp) ? PGNO_INVALID : PREV_PGNO(sp),
-				ISINTERNAL(sp) ? PGNO_INVALID : argp->right, LEVEL(sp), TYPE(sp));
-			P_INIT(_rp, file_dbp->pgsize, argp->right, ISINTERNAL(sp) ? PGNO_INVALID : sp->pgno,
-				ISINTERNAL(sp) ? PGNO_INVALID : NEXT_PGNO(sp), LEVEL(sp), TYPE(sp));
+			P_INIT(_lp, file_dbp->pgsize, PGNO(sp), ISINTERNAL(sp) ? PGNO_INVALID : PREV_PGNO(sp), ISINTERNAL(sp) ? PGNO_INVALID : argp->right, LEVEL(sp), TYPE(sp));
+			P_INIT(_rp, file_dbp->pgsize, argp->right, ISINTERNAL(sp) ? PGNO_INVALID : sp->pgno, ISINTERNAL(sp) ? PGNO_INVALID : NEXT_PGNO(sp), LEVEL(sp), TYPE(sp));
 		}
 		/* Split the page. */
-		if((ret = __bam_copy(file_dbp, sp, _lp, 0, argp->indx)) != 0 || (ret = __bam_copy(file_dbp, sp, _rp, argp->indx,
-			    NUM_ENT(sp))) != 0)
+		if((ret = __bam_copy(file_dbp, sp, _lp, 0, argp->indx)) != 0 || (ret = __bam_copy(file_dbp, sp, _rp, argp->indx, NUM_ENT(sp))) != 0)
 			goto out;
 		if(l_update) {
 			REC_DIRTY(mpf, ip, file_dbp->priority, &lp);
@@ -418,10 +403,10 @@ redo:
 		 * Drop the latches on the lower level pages before
 		 * getting an exclusive latch on the higher level page.
 		 */
-		if(lp != NULL && (ret = __memp_fput(mpf, ip, lp, file_dbp->priority)) && ret == 0)
+		if(lp && (ret = __memp_fput(mpf, ip, lp, file_dbp->priority)) && ret == 0)
 			goto out;
 		lp = NULL;
-		if(rp != NULL && (ret = __memp_fput(mpf, ip, rp, file_dbp->priority)) && ret == 0)
+		if(rp && (ret = __memp_fput(mpf, ip, rp, file_dbp->priority)) && ret == 0)
 			goto out;
 		rp = NULL;
 		/*
@@ -432,10 +417,7 @@ redo:
 		 */
 		if(p_update) {
 			REC_DIRTY(mpf, ip, file_dbp->priority, &pp);
-			if(argp->opflags&SPL_RECNO)
-				ptype = P_IRECNO;
-			else
-				ptype = P_IBTREE;
+			ptype = (argp->opflags&SPL_RECNO) ? P_IRECNO : P_IBTREE;
 			if(rootsplit) {
 				P_INIT(pp, file_dbp->pgsize, pgno, PGNO_INVALID, PGNO_INVALID, _lp->level+1, ptype);
 				if(argp->opflags&SPL_NRECS) {
@@ -495,7 +477,7 @@ check_next:     /*
 		 */
 		if(rootsplit) {
 			DB_ASSERT(env, pgno == argp->ppgno);
-			if(lp != NULL && (ret = __memp_fput(mpf, ip, lp, file_dbp->priority)) != 0)
+			if(lp && (ret = __memp_fput(mpf, ip, lp, file_dbp->priority)) != 0)
 				goto out;
 			lp = pp;
 			pp = NULL;
@@ -549,17 +531,17 @@ check_next:     /*
 			}
 		}
 	}
-done:   *lsnp = argp->prev_lsn;
+done:   
+	*lsnp = argp->prev_lsn;
 	ret = 0;
-
 out:    /* Free any pages that are left. */
-	if(lp != NULL && (t_ret = __memp_fput(mpf, ip, lp, file_dbp->priority)) != 0 && ret == 0)
+	if(lp && (t_ret = __memp_fput(mpf, ip, lp, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(np != NULL && (t_ret = __memp_fput(mpf, ip, np, file_dbp->priority)) != 0 && ret == 0)
+	if(np && (t_ret = __memp_fput(mpf, ip, np, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(rp != NULL && (t_ret = __memp_fput(mpf, ip, rp, file_dbp->priority)) != 0 && ret == 0)
+	if(rp && (t_ret = __memp_fput(mpf, ip, rp, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(pp != NULL && (t_ret = __memp_fput(mpf, ip, pp, file_dbp->priority)) != 0 && ret == 0)
+	if(pp && (t_ret = __memp_fput(mpf, ip, pp, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	/* Free any allocated space. */
 	__os_free(env, _lp);
@@ -577,21 +559,21 @@ out:    /* Free any pages that are left. */
 int __bam_split_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
 	__bam_split_42_args * argp;
-	DB_THREAD_INFO * ip;
 	DB * file_dbp;
 	DBC * dbc;
 	DB_MPOOLFILE * mpf;
-	PAGE * _lp, * lp, * np, * pp, * _rp, * rp, * sp;
+	PAGE * _lp = 0;
+	PAGE * lp = 0;
+	PAGE * np = 0;
+	PAGE * pp = 0;
+	PAGE * _rp = 0;
+	PAGE * rp = 0;
+	PAGE * sp = 0;
 	db_pgno_t pgno, root_pgno;
 	uint32 ptype;
 	int cmp, l_update, p_update, r_update, rc, ret, rootsplit, t_ret;
-
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
 	REC_PRINT(__bam_split_print);
-
-	_lp = lp = np = pp = _rp = rp = NULL;
-	sp = NULL;
-
 	REC_INTRO(__bam_split_42_read, ip, 0);
 	/*
 	 * There are two kinds of splits that we have to recover from.  The
@@ -615,9 +597,10 @@ int __bam_split_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, v
 	root_pgno = argp->root_pgno;
 	rootsplit = root_pgno != PGNO_INVALID;
 	REC_FGET(mpf, ip, argp->left, &lp, right);
-right:  REC_FGET(mpf, ip, argp->right, &rp, redo);
-
-redo:   if(DB_REDO(op)) {
+right:  
+	REC_FGET(mpf, ip, argp->right, &rp, redo);
+redo:   
+	if(DB_REDO(op)) {
 		l_update = r_update = p_update = 0;
 		/*
 		 * Decide if we need to resplit the page.
@@ -628,11 +611,11 @@ redo:   if(DB_REDO(op)) {
 		if(rootsplit) {
 			REC_FGET(mpf, ip, root_pgno, &pp, do_left);
 			cmp = LOG_COMPARE(&LSN(pp), &LSN(argp->pg.data));
-			CHECK_LSN(env, op,
-				cmp, &LSN(pp), &LSN(argp->pg.data));
+			CHECK_LSN(env, op, cmp, &LSN(pp), &LSN(argp->pg.data));
 			p_update = cmp  == 0;
 		}
-do_left:        if(lp != NULL) {
+do_left:        
+		if(lp != NULL) {
 			cmp = LOG_COMPARE(&LSN(lp), &argp->llsn);
 			CHECK_LSN(env, op, cmp, &LSN(lp), &argp->llsn);
 			if(cmp == 0)
@@ -647,39 +630,24 @@ do_left:        if(lp != NULL) {
 		if(!p_update && !l_update && !r_update)
 			goto check_next;
 		/* Allocate and initialize new left/right child pages. */
-		if((ret = __os_malloc(env, file_dbp->pgsize, &_lp)) != 0 ||
-		   (ret = __os_malloc(env, file_dbp->pgsize, &_rp)) != 0)
+		if((ret = __os_malloc(env, file_dbp->pgsize, &_lp)) != 0 || (ret = __os_malloc(env, file_dbp->pgsize, &_rp)) != 0)
 			goto out;
 		if(rootsplit) {
-			P_INIT(_lp, file_dbp->pgsize, argp->left,
-				PGNO_INVALID,
-				ISINTERNAL(sp) ? PGNO_INVALID : argp->right,
-				LEVEL(sp), TYPE(sp));
-			P_INIT(_rp, file_dbp->pgsize, argp->right,
-				ISINTERNAL(sp) ?  PGNO_INVALID : argp->left,
-				PGNO_INVALID, LEVEL(sp), TYPE(sp));
+			P_INIT(_lp, file_dbp->pgsize, argp->left, PGNO_INVALID, ISINTERNAL(sp) ? PGNO_INVALID : argp->right, LEVEL(sp), TYPE(sp));
+			P_INIT(_rp, file_dbp->pgsize, argp->right, ISINTERNAL(sp) ?  PGNO_INVALID : argp->left, PGNO_INVALID, LEVEL(sp), TYPE(sp));
 		}
 		else {
-			P_INIT(_lp, file_dbp->pgsize, PGNO(sp),
-				ISINTERNAL(sp) ? PGNO_INVALID : PREV_PGNO(sp),
-				ISINTERNAL(sp) ? PGNO_INVALID : argp->right,
-				LEVEL(sp), TYPE(sp));
-			P_INIT(_rp, file_dbp->pgsize, argp->right,
-				ISINTERNAL(sp) ? PGNO_INVALID : sp->pgno,
-				ISINTERNAL(sp) ? PGNO_INVALID : NEXT_PGNO(sp),
-				LEVEL(sp), TYPE(sp));
+			P_INIT(_lp, file_dbp->pgsize, PGNO(sp), ISINTERNAL(sp) ? PGNO_INVALID : PREV_PGNO(sp), ISINTERNAL(sp) ? PGNO_INVALID : argp->right, LEVEL(sp), TYPE(sp));
+			P_INIT(_rp, file_dbp->pgsize, argp->right, ISINTERNAL(sp) ? PGNO_INVALID : sp->pgno, ISINTERNAL(sp) ? PGNO_INVALID : NEXT_PGNO(sp), LEVEL(sp), TYPE(sp));
 		}
 		/* Split the page. */
-		if((ret = __bam_copy(file_dbp, sp, _lp, 0, argp->indx)) != 0 ||
-		   (ret = __bam_copy(file_dbp, sp, _rp, argp->indx,
-			    NUM_ENT(sp))) != 0)
+		if((ret = __bam_copy(file_dbp, sp, _lp, 0, argp->indx)) != 0 || (ret = __bam_copy(file_dbp, sp, _rp, argp->indx, NUM_ENT(sp))) != 0)
 			goto out;
 		if(l_update) {
 			REC_DIRTY(mpf, ip, file_dbp->priority, &lp);
 			memcpy(lp, _lp, file_dbp->pgsize);
 			lp->lsn = *lsnp;
-			if((ret = __memp_fput(mpf,
-				    ip, lp, file_dbp->priority)) != 0)
+			if((ret = __memp_fput(mpf, ip, lp, file_dbp->priority)) != 0)
 				goto out;
 			lp = NULL;
 		}
@@ -687,8 +655,7 @@ do_left:        if(lp != NULL) {
 			REC_DIRTY(mpf, ip, file_dbp->priority, &rp);
 			memcpy(rp, _rp, file_dbp->pgsize);
 			rp->lsn = *lsnp;
-			if((ret = __memp_fput(mpf,
-				    ip, rp, file_dbp->priority)) != 0)
+			if((ret = __memp_fput(mpf, ip, rp, file_dbp->priority)) != 0)
 				goto out;
 			rp = NULL;
 		}
@@ -701,21 +668,18 @@ do_left:        if(lp != NULL) {
 		if(rootsplit && p_update) {
 			if(IS_BTREE_PAGE(sp)) {
 				ptype = P_IBTREE;
-				rc = argp->opflags&SPL_NRECS ? 1 : 0;
+				rc = BIN(argp->opflags&SPL_NRECS);
 			}
 			else {
 				ptype = P_IRECNO;
 				rc = 1;
 			}
 			REC_DIRTY(mpf, ip, file_dbp->priority, &pp);
-			P_INIT(pp, file_dbp->pgsize, root_pgno,
-				PGNO_INVALID, PGNO_INVALID, _lp->level+1, ptype);
-			RE_NREC_SET(pp, rc ? __bam_total(file_dbp, _lp)+
-				__bam_total(file_dbp, _rp) : 0);
+			P_INIT(pp, file_dbp->pgsize, root_pgno, PGNO_INVALID, PGNO_INVALID, _lp->level+1, ptype);
+			RE_NREC_SET(pp, rc ? __bam_total(file_dbp, _lp)+__bam_total(file_dbp, _rp) : 0);
 
 			pp->lsn = *lsnp;
-			if((ret = __memp_fput(mpf,
-				    ip, pp, file_dbp->priority)) != 0)
+			if((ret = __memp_fput(mpf, ip, pp, file_dbp->priority)) != 0)
 				goto out;
 			pp = NULL;
 		}
@@ -727,11 +691,9 @@ check_next:     /*
 		 * page must exist because we're redoing the operation.
 		 */
 		if(!rootsplit && argp->npgno != PGNO_INVALID) {
-			if((ret = __memp_fget(mpf, &argp->npgno,
-				    ip, NULL, 0, &np)) != 0) {
+			if((ret = __memp_fget(mpf, &argp->npgno, ip, NULL, 0, &np)) != 0) {
 				if(ret != DB_PAGE_NOTFOUND) {
-					ret = __db_pgerr(
-						file_dbp, argp->npgno, ret);
+					ret = __db_pgerr(file_dbp, argp->npgno, ret);
 					goto out;
 				}
 				else
@@ -743,8 +705,7 @@ check_next:     /*
 				REC_DIRTY(mpf, ip, file_dbp->priority, &np);
 				PREV_PGNO(np) = argp->right;
 				np->lsn = *lsnp;
-				if((ret = __memp_fput(mpf, ip,
-					    np, file_dbp->priority)) != 0)
+				if((ret = __memp_fput(mpf, ip, np, file_dbp->priority)) != 0)
 					goto out;
 				np = NULL;
 			}
@@ -758,16 +719,14 @@ check_next:     /*
 		 * the adds onto the page that caused the split, and there's
 		 * really no undo-ing to be done.
 		 */
-		if((ret = __memp_fget(mpf, &pgno, ip, NULL,
-			    DB_MPOOL_EDIT, &pp)) != 0) {
+		if((ret = __memp_fget(mpf, &pgno, ip, NULL, DB_MPOOL_EDIT, &pp)) != 0) {
 			pp = NULL;
 			goto lrundo;
 		}
 		if(LOG_COMPARE(lsnp, &LSN(pp)) == 0) {
 			REC_DIRTY(mpf, ip, file_dbp->priority, &pp);
 			memcpy(pp, argp->pg.data, argp->pg.size);
-			if((ret = __memp_fput(mpf,
-				    ip, pp, file_dbp->priority)) != 0)
+			if((ret = __memp_fput(mpf, ip, pp, file_dbp->priority)) != 0)
 				goto out;
 			pp = NULL;
 		}
@@ -779,22 +738,19 @@ check_next:     /*
 		 * The undo of the page allocation(s) will restore them to the
 		 * free list.
 		 */
-lrundo:         if((rootsplit && lp != NULL) || rp != NULL) {
-			if(rootsplit && lp != NULL &&
-			   LOG_COMPARE(lsnp, &LSN(lp)) == 0) {
+lrundo:         
+		if((rootsplit && lp) || rp) {
+			if(rootsplit && lp && LOG_COMPARE(lsnp, &LSN(lp)) == 0) {
 				REC_DIRTY(mpf, ip, file_dbp->priority, &lp);
 				lp->lsn = argp->llsn;
-				if((ret = __memp_fput(mpf, ip,
-					    lp, file_dbp->priority)) != 0)
+				if((ret = __memp_fput(mpf, ip, lp, file_dbp->priority)) != 0)
 					goto out;
 				lp = NULL;
 			}
-			if(rp != NULL &&
-			   LOG_COMPARE(lsnp, &LSN(rp)) == 0) {
+			if(rp && LOG_COMPARE(lsnp, &LSN(rp)) == 0) {
 				REC_DIRTY(mpf, ip, file_dbp->priority, &rp);
 				rp->lsn = argp->rlsn;
-				if((ret = __memp_fput(mpf, ip,
-					    rp, file_dbp->priority)) != 0)
+				if((ret = __memp_fput(mpf, ip, rp, file_dbp->priority)) != 0)
 					goto out;
 				rp = NULL;
 			}
@@ -808,8 +764,7 @@ lrundo:         if((rootsplit && lp != NULL) || rp != NULL) {
 		 * if there's nothing to undo.
 		 */
 		if(!rootsplit && argp->npgno != PGNO_INVALID) {
-			if((ret = __memp_fget(mpf, &argp->npgno,
-				    ip, NULL, DB_MPOOL_EDIT, &np)) != 0) {
+			if((ret = __memp_fget(mpf, &argp->npgno, ip, NULL, DB_MPOOL_EDIT, &np)) != 0) {
 				np = NULL;
 				goto done;
 			}
@@ -817,8 +772,7 @@ lrundo:         if((rootsplit && lp != NULL) || rp != NULL) {
 				REC_DIRTY(mpf, ip, file_dbp->priority, &np);
 				PREV_PGNO(np) = argp->left;
 				np->lsn = argp->nlsn;
-				if(__memp_fput(mpf,
-					   ip, np, file_dbp->priority))
+				if(__memp_fput(mpf, ip, np, file_dbp->priority))
 					goto out;
 				np = NULL;
 			}
@@ -828,17 +782,13 @@ done:   *lsnp = argp->prev_lsn;
 	ret = 0;
 
 out:    /* Free any pages that weren't dirtied. */
-	if(pp != NULL && (t_ret = __memp_fput(mpf,
-				  ip, pp, file_dbp->priority)) != 0 && ret == 0)
+	if(pp && (t_ret = __memp_fput(mpf, ip, pp, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(lp != NULL && (t_ret = __memp_fput(mpf,
-				  ip, lp, file_dbp->priority)) != 0 && ret == 0)
+	if(lp && (t_ret = __memp_fput(mpf, ip, lp, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(np != NULL && (t_ret = __memp_fput(mpf,
-				  ip, np, file_dbp->priority)) != 0 && ret == 0)
+	if(np && (t_ret = __memp_fput(mpf, ip, np, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(rp != NULL && (t_ret = __memp_fput(mpf,
-				  ip, rp, file_dbp->priority)) != 0 && ret == 0)
+	if(rp && (t_ret = __memp_fput(mpf, ip, rp, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	/* Free any allocated space. */
 	__os_free(env, _lp);
@@ -1162,19 +1112,16 @@ out:
 int __bam_repl_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
 	__bam_repl_args * argp;
-	DB_THREAD_INFO * ip;
 	BKEYDATA * bk;
 	DB * file_dbp;
 	DBC * dbc;
 	DBT dbt;
 	DB_MPOOLFILE * mpf;
-	PAGE * pagep;
 	int cmp_n, cmp_p, ret;
 	uint32 len;
 	uint8 * dp, * p;
-
-	ip = ((DB_TXNHEAD *)info)->thread_info;
-	pagep = NULL;
+	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	PAGE * pagep = NULL;
 	REC_PRINT(__bam_repl_print);
 	REC_INTRO(__bam_repl_read, ip, 1);
 	/* Get the page; if it never existed and we're undoing, we're done. */
@@ -1269,14 +1216,12 @@ int __bam_irep_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 {
 	__bam_irep_args * argp;
 	BINTERNAL * bn;
-	DB_THREAD_INFO * ip;
 	DB * file_dbp;
 	DBC * dbc;
 	DB_MPOOLFILE * mpf;
-	PAGE * pagep;
 	int cmp_n, cmp_p, ret;
-	ip = ((DB_TXNHEAD *)info)->thread_info;
-	pagep = NULL;
+	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	PAGE * pagep = NULL;
 	REC_PRINT(__bam_irep_print);
 	REC_INTRO(__bam_irep_read, ip, 1);
 	/* Get the page; if it never existed and we're undoing, we're done. */
@@ -1302,8 +1247,7 @@ int __bam_irep_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 	else if(cmp_n == 0 && DB_UNDO(op)) {
 		REC_DIRTY(mpf, ip, dbc->priority, &pagep);
 		bn = (BINTERNAL *)argp->old.data;
-		if((ret = __bam_ritem_nolog(dbc,
-			    pagep, argp->indx, &argp->old, NULL, bn->type)) != 0)
+		if((ret = __bam_ritem_nolog(dbc, pagep, argp->indx, &argp->old, NULL, bn->type)) != 0)
 			goto out;
 		LSN(pagep) = argp->lsn;
 	}
@@ -1314,7 +1258,7 @@ done:
 	*lsnp = argp->prev_lsn;
 	ret = 0;
 out:
-	if(pagep != NULL)
+	if(pagep)
 		__memp_fput(mpf, ip, pagep, dbc->priority);
 	REC_CLOSE;
 }

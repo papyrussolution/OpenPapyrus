@@ -759,7 +759,7 @@ bool TY_(IsCSS1Selector) (ctmbstr buf)
 			if(valid)
 				valid = (pos>0 || esclen>0);
 		}
-		else{
+		else {
 			valid = (esclen > 0 /* Escaped? Anything goes. */
 			    || ( pos>0 && c == '-' ) /* Dash cannot be 1st char */
 			    || isalpha(c)        /* a-z, A-Z anywhere */
@@ -820,7 +820,7 @@ static Anchor* AddAnchor(TidyDocImpl* doc, ctmbstr name, Node * node)
 
 	if(attribs->anchor_list == NULL)
 		attribs->anchor_list = a;
-	else{
+	else {
 		Anchor * here =  attribs->anchor_list;
 		while(here->next)
 			here = here->next;
@@ -945,7 +945,7 @@ static void AppendToStyleAttr(TidyDocImpl* doc, AttVal * styleattr, ctmbstr styl
 		TY_(tmbstrcat) (styleattr->value, styleprop);
 		TY_(tmbstrcat) (styleattr->value, " }");
 	}
-	else{
+	else {
 		/* attribute ends with property value */
 
 		styleattr->value = (tmbstr)TidyDocRealloc(doc, styleattr->value,
@@ -1015,7 +1015,7 @@ void TY_(RepairDuplicateAttributes) (TidyDocImpl* doc, Node *node, bool isXml)
 				first = temp;
 				second = second->next;
 			}
-			else{ /* TidyDuplicateAttrs == TidyKeepFirst */
+			else { /* TidyDuplicateAttrs == TidyKeepFirst */
 				temp = second->next;
 				TY_(ReportAttrError) (doc, node, second, REPEATED_ATTRIBUTE);
 				TY_(RemoveAttribute) (doc, node, second);
@@ -1408,7 +1408,7 @@ void CheckLength(TidyDocImpl* doc, Node * node, AttVal * attval)
 	if(!TY_(IsDigit) (*p++)) {
 		TY_(ReportAttrError) (doc, node, attval, BAD_ATTRIBUTE_VALUE);
 	}
-	else{
+	else {
 		while(*p) {
 			if(!TY_(IsDigit) (*p) && *p != '%') {
 				TY_(ReportAttrError) (doc, node, attval, BAD_ATTRIBUTE_VALUE);

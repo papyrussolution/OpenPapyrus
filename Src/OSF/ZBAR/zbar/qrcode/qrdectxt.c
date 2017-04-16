@@ -110,7 +110,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 				}
 				// TODO: If the S-A group is complete, check the parity
 			}
-			else{
+			else {
 				sa[0] = i;
 				sa_size = 1;
 			}
@@ -343,7 +343,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 						       The spec says that in this case, data should be treated as if it
 						       came from the given character set even when encoded in kanji
 						       mode.*/
-						    else{
+						    else {
 							    err = eci_cd==(iconv_t)-1||
 								    iconv(eci_cd, &in, &inleft, &out, &outleft)==(size_t)-1;
 							    if(!err) sa_ntext = out-sa_text;

@@ -1184,7 +1184,7 @@ int SLAPI PPObjProcessor::EditPrcPlaceItem(PPProcessorPacket::PlaceDescription *
     uint   sel = 0;
     ProcessorPlaceCodeTemplate ppct;
     TDialog * dlg = new TDialog(DLG_PRCPLACE);
-    THROW(CheckDialogPtr(&dlg, 1));
+    THROW(CheckDialogPtrErr(&dlg));
 	dlg->addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_PRCPLACE_GGRP, CTLSEL_PRCPLACE_GOODS));
 	{
 		GoodsCtrlGroup::Rec grp_rec(0, pItem->GoodsID, GoodsCtrlGroup::disableEmptyGoods|GoodsCtrlGroup::enableInsertGoods);
@@ -1705,7 +1705,7 @@ int SLAPI PPObjProcessor::Edit(PPID * pID, void * extraPtr /*parentID*/)
 		char   kind_buf[32];
 		CALLEXCEPT_PP_S(PPERR_INVPRCKIND, ltoa(pack.Rec.Kind, kind_buf, 10));
 	}
-	THROW(CheckDialogPtr(&(dlg = new ProcessorDialog(dlg_id)), 0));
+	THROW(CheckDialogPtr(&(dlg = new ProcessorDialog(dlg_id))));
 	dlg->setDTS(&pack);
 	while(!valid_data && ExecView(dlg) == cmOK) {
 		if(dlg->getDTS(&pack)) {
@@ -1942,7 +1942,7 @@ int SLAPI PPViewProcessor::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	TDialog * dlg = 0;
 	if(Filt.IsA(pBaseFilt)) {
 		ProcessorFilt * p_filt = (ProcessorFilt *)pBaseFilt;
-		if(CheckDialogPtr(&(dlg = new TDialog(DLG_PRCFILT)), 1)) {
+		if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_PRCFILT)))) {
 			dlg->AddClusterAssoc(CTL_PRCFILT_KIND, 0, PPPRCK_GROUP);
 			dlg->AddClusterAssoc(CTL_PRCFILT_KIND, 1, PPPRCK_PROCESSOR);
 			dlg->SetClusterData(CTL_PRCFILT_KIND, p_filt->Kind);

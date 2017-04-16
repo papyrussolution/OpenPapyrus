@@ -19,9 +19,9 @@
 // @v9.5.5 #include "dbinc/qam.h"
 // @v9.5.5 #include "dbinc/txn.h"
 
-static int __db_secondary_get __P((DB*, DB_TXN*, DBT*, DBT*, uint32));
-static int __dbc_set_priority __P((DBC*, DB_CACHE_PRIORITY));
-static int __dbc_get_priority __P((DBC*, DB_CACHE_PRIORITY *));
+static int __db_secondary_get(DB*, DB_TXN*, DBT*, DBT*, uint32);
+static int __dbc_set_priority(DBC*, DB_CACHE_PRIORITY);
+static int __dbc_get_priority(DBC*, DB_CACHE_PRIORITY *);
 /*
  * __db_cursor_int --
  *	Internal routine to create a cursor.
@@ -59,11 +59,8 @@ int __db_cursor_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, 
 	 * If we knew this cursor will not be used in an update, we could avoid
 	 * this, but we don't have that information.
 	 */
-	if(IS_REAL_TXN(txn) &&
-	   !LF_ISSET(DBC_OPD|DBC_DUPLICATE) &&
-	   !F_ISSET(dbp, DB_AM_RECOVER) &&
-	   dbp->log_filename != NULL && !IS_REP_CLIENT(env) &&
-	   (ret = __txn_record_fname(env, txn, dbp->log_filename)) != 0) {
+	if(IS_REAL_TXN(txn) && !LF_ISSET(DBC_OPD|DBC_DUPLICATE) && !F_ISSET(dbp, DB_AM_RECOVER) &&
+	   dbp->log_filename != NULL && !IS_REP_CLIENT(env) && (ret = __txn_record_fname(env, txn, dbp->log_filename)) != 0) {
 		MUTEX_UNLOCK(env, dbp->mutex);
 		return ret;
 	}
@@ -193,17 +190,14 @@ int __db_cursor_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, 
 	 * as well.  This doesn't apply to CDS group transactions, where the
 	 * cursor can simply use the transaction's locker directly.
 	 */
-	if(!CDB_LOCKING(env) && txn != NULL && F_ISSET(txn, TXN_FAMILY) &&
-	   (F_ISSET(dbc, DBC_OWN_LID) || dbc->lref == NULL || envlid)) {
+	if(!CDB_LOCKING(env) && txn && F_ISSET(txn, TXN_FAMILY) && (F_ISSET(dbc, DBC_OWN_LID) || dbc->lref == NULL || envlid)) {
 		if(LOCKING_ON(env)) {
 			if(dbc->lref == NULL) {
-				if((ret =
-				            __lock_id(env, NULL, &dbc->lref)) != 0)
+				if((ret = __lock_id(env, NULL, &dbc->lref)) != 0)
 					goto err;
 				F_SET(dbc, DBC_OWN_LID);
 			}
-			if((ret = __lock_addfamilylocker(env,
-				    txn->txnid, dbc->lref->id, 1)) != 0)
+			if((ret = __lock_addfamilylocker(env, txn->txnid, dbc->lref->id, 1)) != 0)
 				goto err;
 		}
 		F_SET(dbc, DBC_FAMILY);
@@ -268,8 +262,7 @@ int __db_cursor_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, 
 	 * a full search avoids taking write locks necessary to maintain
 	 * consistent numbering.
 	 */
-	if(LF_ISSET(DB_CURSOR_BULK) && dbtype == DB_BTREE &&
-	   !F_ISSET(dbp, DB_AM_RECNUM))
+	if(LF_ISSET(DB_CURSOR_BULK) && dbtype == DB_BTREE && !F_ISSET(dbp, DB_AM_RECNUM))
 		F_SET(dbc, DBC_BULK);
 	if(LF_ISSET(DB_CURSOR_TRANSIENT))
 		F_SET(dbc, DBC_TRANSIENT);
@@ -284,9 +277,7 @@ int __db_cursor_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, 
 	 * If we are replicating from a down rev version then we must
 	 * use old locking protocols.
 	 */
-	if(LOGGING_ON(env) &&
-	   ((LOG *)env->lg_handle->
-	    reginfo.primary)->persist.version < DB_LOGVERSION_LATCHING)
+	if(LOGGING_ON(env) && ((LOG *)env->lg_handle->reginfo.primary)->persist.version < DB_LOGVERSION_LATCHING)
 		F_SET(dbc, DBC_DOWNREV);
 #endif
 
@@ -307,20 +298,20 @@ int __db_cursor_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, 
 	else switch(dbtype) {
 		    case DB_BTREE:
 		    case DB_RECNO:
-			if((ret = __bamc_refresh(dbc)) != 0)
-				goto err;
-			break;
+				if((ret = __bamc_refresh(dbc)) != 0)
+					goto err;
+				break;
 		    case DB_HEAP:
-			if((ret = __heapc_refresh(dbc)) != 0)
-				goto err;
-			break;
+				if((ret = __heapc_refresh(dbc)) != 0)
+					goto err;
+				break;
 		    case DB_HASH:
 		    case DB_QUEUE:
-			break;
+				break;
 		    case DB_UNKNOWN:
-		    default:
-			ret = __db_unknown_type(env, "DB->cursor", dbp->type);
-			goto err;
+			default:
+				ret = __db_unknown_type(env, "DB->cursor", dbp->type);
+				goto err;
 		}
 	/*
 	 * The transaction keeps track of how many cursors were opened within
@@ -332,14 +323,10 @@ int __db_cursor_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, 
 	if(ip != NULL) {
 		dbc->thread_info = ip;
 #ifdef DIAGNOSTIC
-		if(dbc->locker != NULL)
-			ip->dbth_locker =
-			        R_OFFSET(&(env->lk_handle->reginfo), dbc->locker);
-		else
-			ip->dbth_locker = INVALID_ROFF;
+		ip->dbth_locker = dbc->locker ? R_OFFSET(&(env->lk_handle->reginfo), dbc->locker) : INVALID_ROFF;
 #endif
 	}
-	else if(txn != NULL)
+	else if(txn)
 		dbc->thread_info = txn->thread_info;
 	else
 		ENV_GET_THREAD_INFO(env, dbc->thread_info);
@@ -381,15 +368,11 @@ int __db_put(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * key, DBT * data,
 	 * position-dependent.
 	 */
 	cursor_flags = DB_WRITELOCK;
-	if(LF_ISSET(DB_MULTIPLE|DB_MULTIPLE_KEY))
-		cursor_flags |= DB_CURSOR_BULK;
-	else
-		cursor_flags |= DB_CURSOR_TRANSIENT;
+	cursor_flags |= (LF_ISSET(DB_MULTIPLE|DB_MULTIPLE_KEY) ? DB_CURSOR_BULK : DB_CURSOR_TRANSIENT);
 	if((ret = __db_cursor(dbp, ip, txn, &dbc, cursor_flags)) != 0)
 		return ret;
 	DEBUG_LWRITE(dbc, txn, "DB->put", key, data, flags);
-	PERFMON6(env, db, put, dbp->fname, dbp->dname, txn == NULL ? 0 : txn->txnid, key, data, flags);
-
+	PERFMON6(env, db, put, dbp->fname, dbp->dname, (!txn ? 0 : txn->txnid), key, data, flags);
 	SET_RET_MEM(dbc, dbp);
 	if(flags == DB_APPEND && !DB_IS_PRIMARY(dbp)) {
 		/*
@@ -399,11 +382,7 @@ int __db_put(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * key, DBT * data,
 		 * on a copy of the data DBT.
 		 */
 		tdata = *data;
-
-		/*
-		 * Append isn't a normal put operation;  call the appropriate
-		 * access method's append function.
-		 */
+		// Append isn't a normal put operation;  call the appropriate access method's append function.
 		switch(dbp->type) {
 		    case DB_HEAP:
 			if((ret = __heap_append(dbc, key, &tdata)) != 0)
@@ -431,7 +410,6 @@ int __db_put(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * key, DBT * data,
 		 * a new tdata.data buffer.  If so, free it.
 		 */
 		FREE_IF_NEEDED(env, &tdata);
-
 		/* No need for a cursor put;  we're done. */
 #ifdef HAVE_COMPRESSION
 	}
@@ -473,7 +451,7 @@ int __db_put(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * key, DBT * data,
 		memzero(&tdata, sizeof(tdata));
 		DB_MULTIPLE_INIT(bulk_ptr, key);
 		while(ret == 0) {
-			if(dbp->type == DB_QUEUE || dbp->type == DB_RECNO)
+			if(oneof2(dbp->type, DB_QUEUE, DB_RECNO))
 				DB_MULTIPLE_RECNO_NEXT(bulk_ptr, key, recno, tdata.data, tdata.size);
 			else
 				DB_MULTIPLE_KEY_NEXT(bulk_ptr, key, tkey.data, tkey.size, tdata.data, tdata.size);
@@ -611,8 +589,7 @@ bulk_next:
 		 * can't do that if deleting specific key/data pairs.
 		 */
 		if(dbp->type == DB_HASH && !LF_ISSET(DB_MULTIPLE_KEY)) {
-			DBC * sdbc;
-			sdbc = dbc;
+			DBC * sdbc = dbc;
  #ifdef HAVE_PARTITION
 			if(F_ISSET(dbc, DBC_PARTITIONED))
 				sdbc = ((PART_CURSOR *)dbc->internal)->sub_cursor;
@@ -702,16 +679,15 @@ int __db_sync(DB * dbp)
  */
 int __db_associate(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB * sdbp, int (*callback)__P((DB*, const DBT*, const DBT*, DBT *)), uint32 flags)
 {
-	DBT key, data, skey, * tskeyp;
+	DBT key, data, skey;
+	DBT * tskeyp = 0;
 	int build, t_ret;
-	uint32 nskey;
+	uint32 nskey = 0;
 	ENV * env = dbp->env;
 	DBC * pdbc = NULL;
 	DBC * sdbc = NULL;
 	int ret = 0;
-	memzero(&skey, sizeof(DBT));
-	nskey = 0;
-	tskeyp = NULL;
+	// (replaced by ctr) memzero(&skey, sizeof(DBT));
 	/*
 	 * Check to see if the secondary is empty -- and thus if we should
 	 * build it -- before we link it in and risk making it show up in other
@@ -727,8 +703,8 @@ int __db_associate(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB * sdbp, int (
 		 * We don't care about key or data;  we're just doing
 		 * an existence check.
 		 */
-		memzero(&key, sizeof(DBT));
-		memzero(&data, sizeof(DBT));
+		// (replaced by ctr) memzero(&key, sizeof(DBT));
+		// (replaced by ctr) memzero(&data, sizeof(DBT));
 		F_SET(&key, DB_DBT_PARTIAL|DB_DBT_USERMEM);
 		F_SET(&data, DB_DBT_PARTIAL|DB_DBT_USERMEM);
 		if((ret = __dbc_get(sdbc, &key, &data, (STD_LOCKING(sdbc) ? DB_RMW : 0)|DB_FIRST)) == DB_NOTFOUND) {
@@ -749,20 +725,16 @@ int __db_associate(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB * sdbp, int (
 	 */
 	sdbp->s_callback = callback;
 	sdbp->s_primary = dbp;
-
 	sdbp->stored_get = sdbp->get;
 	sdbp->get = __db_secondary_get;
-
 	sdbp->stored_close = sdbp->close;
 	sdbp->close = __db_secondary_close_pp;
-
 	F_SET(sdbp, DB_AM_SECONDARY);
 	if(LF_ISSET(DB_IMMUTABLE_KEY))
 		FLD_SET(sdbp->s_assoc_flags, DB_ASSOC_IMMUTABLE_KEY);
 	/*
 	 * Add the secondary to the list on the primary.  Do it here
-	 * so that we see any updates that occur while we're walking
-	 * the primary.
+	 * so that we see any updates that occur while we're walking the primary.
 	 */
 	MUTEX_LOCK(env, dbp->mutex);
 
@@ -823,9 +795,9 @@ int __db_associate(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB * sdbp, int (
 			ret = 0;
 	}
 err:    
-	if(sdbc != NULL && (t_ret = __dbc_close(sdbc)) != 0 && ret == 0)
+	if(sdbc && (t_ret = __dbc_close(sdbc)) != 0 && ret == 0)
 		ret = t_ret;
-	if(pdbc != NULL && (t_ret = __dbc_close(pdbc)) != 0 && ret == 0)
+	if(pdbc && (t_ret = __dbc_close(pdbc)) != 0 && ret == 0)
 		ret = t_ret;
 	dbp->associate_locker = NULL;
 	for(; nskey > 0; nskey--, tskeyp++)
@@ -933,10 +905,12 @@ int __db_associate_foreign(DB * fdbp, DB * pdbp, int (* callback)(DB *, const DB
 	 * currently have no way of removing pdbp from the old foreign db's list
 	 * of primaries.
 	 */
-	if(pdbp->s_foreign != NULL)
+	if(pdbp->s_foreign)
 		return EINVAL;
-	pdbp->s_foreign = fdbp;
-	return ret;
+	else {
+		pdbp->s_foreign = fdbp;
+		return ret;
+	}
 }
 
 static int __dbc_set_priority(DBC * dbc, DB_CACHE_PRIORITY priority)
@@ -949,7 +923,8 @@ static int __dbc_get_priority(DBC * dbc, DB_CACHE_PRIORITY * priority)
 {
 	if(dbc->priority == DB_PRIORITY_UNCHANGED)
 		return __memp_get_priority(dbc->dbp->mpf, priority);
-	else
+	else {
 		*priority = dbc->priority;
-	return 0;
+		return 0;
+	}
 }

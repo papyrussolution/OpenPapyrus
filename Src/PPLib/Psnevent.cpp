@@ -2534,7 +2534,7 @@ int SLAPI PPObjPersonEvent::ProcessDeviceInput(const AddPersonEventFilt & rFilt)
 	};
 	int    ok = 1;
 	PersonEventByDeviceInputDialog * dlg = new PersonEventByDeviceInputDialog;
-	THROW(CheckDialogPtr(&dlg, 0));
+	THROW(CheckDialogPtr(&dlg));
 	{
 		RECT r1, r2;
 		GetWindowRect(dlg->H(), &r1);

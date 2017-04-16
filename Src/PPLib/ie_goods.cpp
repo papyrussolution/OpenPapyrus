@@ -198,7 +198,7 @@ int SLAPI EditQuotImpExpParam(const char * pIniSection)
    		int    direction = 0;
    		PPIniFile ini_file(ini_file_name, 0, 1, 1);
 		//Или здесь??
-   		THROW(CheckDialogPtr(&(dlg = new QuotImpExpDialog()), 0));
+   		THROW(CheckDialogPtr(&(dlg = new QuotImpExpDialog())));
    		THROW(LoadSdRecord(PPREC_QUOTVAL, &param.InrRec));
    		direction = param.Direction;
    		if(!isempty(pIniSection))
@@ -667,7 +667,7 @@ int GoodsImpExpDialog::setDTS(const PPGoodsImpExpParam * pData)
 		AddClusterAssoc(CTL_IMPEXPGOODS_FLAGS, 3, PPGoodsImpExpParam::fAnalyzeOnly);
 		AddClusterAssoc(CTL_IMPEXPGOODS_FLAGS, 4, PPGoodsImpExpParam::fUHTT);
 		AddClusterAssoc(CTL_IMPEXPGOODS_FLAGS, 5, PPGoodsImpExpParam::fForceSnglBarcode);
-		AddClusterAssoc(CTL_IMPEXPGOODS_FLAGS, 6, PPGoodsImpExpParam::fImportImages); // @v7.9.0
+		AddClusterAssoc(CTL_IMPEXPGOODS_FLAGS, 6, PPGoodsImpExpParam::fImportImages);
 		AddClusterAssoc(CTL_IMPEXPGOODS_FLAGS, 7, PPGoodsImpExpParam::fForceUpdateManuf); // @v8.9.1
 		SetClusterData(CTL_IMPEXPGOODS_FLAGS, Data.Flags);
 		setCtrlLong(CTL_IMPEXPGOODS_MXACT, Data.MatrixAction);
@@ -758,7 +758,7 @@ int SLAPI EditGoodsImpExpParams(const char * pIniSection)
    		int    direction = 0;
    		PPIniFile ini_file(ini_file_name, 0, 1, 1);
 		//Или здесь??
-   		THROW(CheckDialogPtr(&(dlg = new GoodsImpExpDialog()), 0));
+   		THROW(CheckDialogPtr(&(dlg = new GoodsImpExpDialog())));
    		THROW(LoadSdRecord(PPREC_GOODS2, &param.InrRec));
    		direction = param.Direction;
    		if(!isempty(pIniSection))
@@ -803,7 +803,7 @@ int EditGoodsImpExpParams()
 	};
 	int    ok = 1;
 	GoodsImpExpCfgListDialog * dlg = new GoodsImpExpCfgListDialog;
-	if(CheckDialogPtr(&dlg, 1))
+	if(CheckDialogPtrErr(&dlg))
 		ExecViewAndDestroy(dlg);
 	else
 		ok = PPErrorZ();
@@ -842,7 +842,7 @@ int SLAPI SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
 		#endif
 		// } конец
 		// @v9.5.10 {
-		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_IEGOODS)), 1));
+		THROW(CheckDialogPtrErr(&(dlg = new TDialog(DLG_IEGOODS))));
 		SetupStrAssocCombo(dlg, CTLSEL_IEGOODS_CFG, &list, id, 0, 0, 0);
 		SetupPPObjCombo(dlg, CTLSEL_IEGOODS_LOC, PPOBJ_LOCATION, loc_id, 0, 0);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
@@ -943,7 +943,7 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 				if(fileExists(img_path)) {
 					SFileFormat ff;
 					if(ff.Identify(img_path, &ext_buf)) {
-						if(ff == SFileFormat::Jpeg || ff == SFileFormat::Png || ff == SFileFormat::Gif || ff == SFileFormat::Bmp) {
+						if(oneof4(ff, SFileFormat::Jpeg, SFileFormat::Png, SFileFormat::Gif, SFileFormat::Bmp)) {
 							if(!ext_buf.NotEmptyS()) {
 								SFileFormat::GetExt(ff, ext_buf);
 							}
@@ -1905,8 +1905,8 @@ int SLAPI PPGoodsImporter::CreateGoodsPacket(const Sdr_Goods2 & rRec, const char
 
 static int _IsTrueString(const char * pStr)
 {
-	if(!isempty(pStr) && (stricmp(pStr, "Yes") == 0 || stricmp(pStr, "Y") == 0 ||
-		stricmp(pStr, "True") == 0 || stricmp(pStr, "T") == 0 || stricmp(pStr, ".T.") == 0))
+	if(!isempty(pStr) && (sstreqi_ascii(pStr, "Yes") || sstreqi_ascii(pStr, "Y") ||
+		sstreqi_ascii(pStr, "True") || sstreqi_ascii(pStr, "T") || sstreqi_ascii(pStr, ".T.")))
 		return 1;
 	else
 		return 0;
@@ -1937,22 +1937,24 @@ int PPGoodsImporter::ImageFileBlock::SetFile(const char * pFileName, PPID goodsI
 			}
 			SCopyFile(pFileName, TempBuf, 0, FILE_SHARE_READ, 0);
 		}
-		Entry entry;
-		MEMSZERO(entry);
-		entry.GoodsID = goodsID;
-		entry.Sz = fs.Size;
+		if(goodsID) {
+			Entry entry;
+			MEMSZERO(entry);
+			entry.GoodsID = goodsID;
+			entry.Sz = fs.Size;
 
-		uint pos = 0;
-		if(List.lsearch(&goodsID, &pos, CMPF_LONG)) {
-			Entry & r_entry = List.at(pos);
-			if(entry.Sz > r_entry.Sz) {
-				r_entry.Sz = entry.Sz;
-				AddS(pFileName, &r_entry.FnP);
+			uint pos = 0;
+			if(List.lsearch(&goodsID, &pos, CMPF_LONG)) {
+				Entry & r_entry = List.at(pos);
+				if(entry.Sz > r_entry.Sz) {
+					r_entry.Sz = entry.Sz;
+					AddS(pFileName, &r_entry.FnP);
+				}
 			}
-		}
-		else {
-			AddS(pFileName, &entry.FnP);
-			List.insert(&entry);
+			else {
+				AddS(pFileName, &entry.FnP);
+				List.insert(&entry);
+			}
 		}
 	}
 	return ok;
@@ -1967,7 +1969,7 @@ int SLAPI PPGoodsImporter::Helper_ProcessDirForImages(const char * pPath, ImageF
 	SDirEntry de;
 	for(SDirec direc(temp_buf); direc.Next(&de) > 0;) {
 		if(de.IsFolder()) {
-			if(!de.IsSelf() && !de.IsUpFolder() && stricmp(de.FileName, "__SET__") != 0) {
+			if(!de.IsSelf() && !de.IsUpFolder() && !sstreqi_ascii(de.FileName, "__SET__")) {
 				(temp_buf = pPath).SetLastSlash().Cat(de.FileName);
 				THROW(Helper_ProcessDirForImages(temp_buf, rBlk)); // @recursion
 			}
@@ -1977,7 +1979,7 @@ int SLAPI PPGoodsImporter::Helper_ProcessDirForImages(const char * pPath, ImageF
 			PPWaitMsg(temp_buf);
 			SFileFormat ff;
 			int    f = ff.Identify((temp_buf = pPath).SetLastSlash().Cat(de.FileName));
-			if(oneof2(f, SFileFormat::Jpeg, SFileFormat::Png)) {
+			if(f && oneof2(ff, SFileFormat::Jpeg, SFileFormat::Png)) {
 				BarcodeTbl::Rec bc_rec;
 				ps.Split(de.FileName);
 				code_buf = ps.Nam;
@@ -1995,6 +1997,7 @@ int SLAPI PPGoodsImporter::Helper_ProcessDirForImages(const char * pPath, ImageF
 						// Если не получилось по полному имени, то извлекаем из имени максимально длинные цифровые последовательности
 						// и пытаемся рассматривать их как коды.
 						//
+						/* @v9.6.2
 						const char * p = ps.Nam;
 						do {
 							code_buf = 0;
@@ -2008,6 +2011,37 @@ int SLAPI PPGoodsImporter::Helper_ProcessDirForImages(const char * pPath, ImageF
 								THROW(rBlk.SetFile(temp_buf, bc_rec.GoodsID));
 							}
 						} while(*p);
+						*/
+						//
+						//
+						// @v9.6.2 {
+						size_t _pos = 0;
+						while(ps.Nam[_pos]) {
+							if(isdec(ps.Nam[_pos])) {
+								code_buf = 0;
+								const size_t _start = _pos;
+								do {
+									code_buf.CatChar(ps.Nam[_pos++]);
+									if(code_buf.Len() > 6) {
+										if(GObj.SearchByBarcode(code_buf, &bc_rec, 0, 0) > 0) {
+											THROW(rBlk.SetFile(temp_buf, bc_rec.GoodsID));
+										}
+										else {
+											int dr = PPObjGoods::DiagBarcode(code_buf, 0, 0, 0);
+											if(dr > 0) {
+												THROW(rBlk.SetFile(temp_buf, 0));
+											}
+										}
+									}
+								} while(isdec(ps.Nam[_pos]));
+                                if(code_buf.Len() > 6) {
+									_pos = _start+1;
+                                }
+							}
+							else
+								_pos++;
+						}
+						// } @v9.6.2
 					}
 				}
 			}

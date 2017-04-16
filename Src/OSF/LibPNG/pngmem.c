@@ -29,7 +29,7 @@ void /* PRIVATE */ png_destroy_png_struct(png_structrp png_ptr)
 		 * png_get_mem_ptr, so fake a temporary png_struct to support this.
 		 */
 		png_struct dummy_struct = *png_ptr;
-		memset(png_ptr, 0, (sizeof *png_ptr));
+		memzero(png_ptr, (sizeof *png_ptr));
 		png_free(&dummy_struct, png_ptr);
 
 #     ifdef PNG_SETJMP_SUPPORTED
@@ -45,16 +45,11 @@ void /* PRIVATE */ png_destroy_png_struct(png_structrp png_ptr)
  * need to allocate exactly 64K, so whatever you call here must
  * have the ability to do that.
  */
-PNG_FUNCTION(png_voidp, PNGAPI
-    png_calloc, (png_const_structrp png_ptr, png_alloc_size_t size), PNG_ALLOCATED)
+PNG_FUNCTION(png_voidp, PNGAPI png_calloc, (png_const_structrp png_ptr, png_alloc_size_t size), PNG_ALLOCATED)
 {
-	png_voidp ret;
-
-	ret = png_malloc(png_ptr, size);
-
+	png_voidp ret = png_malloc(png_ptr, size);
 	if(ret != NULL)
-		memset(ret, 0, size);
-
+		memzero(ret, size);
 	return ret;
 }
 
@@ -63,9 +58,7 @@ PNG_FUNCTION(png_voidp, PNGAPI
  * Checking and error handling must happen outside this routine; it returns NULL
  * if the allocation cannot be done (for any reason.)
  */
-PNG_FUNCTION(png_voidp /* PRIVATE */,
-    png_malloc_base, (png_const_structrp png_ptr, png_alloc_size_t size),
-    PNG_ALLOCATED)
+PNG_FUNCTION(png_voidp /* PRIVATE */, png_malloc_base, (png_const_structrp png_ptr, png_alloc_size_t size), PNG_ALLOCATED)
 {
 	/* Moved to png_malloc_base from png_malloc_default in 1.6.0; the DOS
 	 * allocators have also been removed in 1.6.0, so any 16-bit system now has
@@ -115,46 +108,30 @@ static png_voidp png_malloc_array_checked(png_const_structrp png_ptr, int neleme
 	return NULL;
 }
 
-PNG_FUNCTION(png_voidp /* PRIVATE */,
-    png_malloc_array, (png_const_structrp png_ptr, int nelements,
-	    size_t element_size), PNG_ALLOCATED)
+PNG_FUNCTION(png_voidp /* PRIVATE */, png_malloc_array, (png_const_structrp png_ptr, int nelements, size_t element_size), PNG_ALLOCATED)
 {
 	if(nelements <= 0 || element_size == 0)
 		png_error(png_ptr, "internal error: array alloc");
-
 	return png_malloc_array_checked(png_ptr, nelements, element_size);
 }
 
-PNG_FUNCTION(png_voidp /* PRIVATE */,
-    png_realloc_array, (png_const_structrp png_ptr, png_const_voidp old_array,
-	    int old_elements, int add_elements, size_t element_size), PNG_ALLOCATED)
+PNG_FUNCTION(png_voidp /* PRIVATE */, png_realloc_array, 
+	(png_const_structrp png_ptr, png_const_voidp old_array, int old_elements, int add_elements, size_t element_size), PNG_ALLOCATED)
 {
 	/* These are internal errors: */
-	if(add_elements <= 0 || element_size == 0 || old_elements < 0 ||
-	    (old_array == NULL && old_elements > 0))
+	if(add_elements <= 0 || element_size == 0 || old_elements < 0 || (old_array == NULL && old_elements > 0))
 		png_error(png_ptr, "internal error: array realloc");
-
-	/* Check for overflow on the elements count (so the caller does not have to
-	 * check.)
-	 */
+	// Check for overflow on the elements count (so the caller does not have to check.)
 	if(add_elements <= INT_MAX - old_elements) {
-		png_voidp new_array = png_malloc_array_checked(png_ptr,
-		    old_elements+add_elements, element_size);
-
+		png_voidp new_array = png_malloc_array_checked(png_ptr, old_elements+add_elements, element_size);
 		if(new_array != NULL) {
-			/* Because png_malloc_array worked the size calculations below cannot
-			 * overflow.
-			 */
+			// Because png_malloc_array worked the size calculations below cannot overflow.
 			if(old_elements > 0)
 				memcpy(new_array, old_array, element_size*(unsigned)old_elements);
-
-			memset((char*)new_array + element_size*(unsigned)old_elements, 0,
-			    element_size*(unsigned)add_elements);
-
+			memzero((char*)new_array + element_size*(unsigned)old_elements, element_size*(unsigned)add_elements);
 			return new_array;
 		}
 	}
-
 	return NULL; /* error */
 }
 #endif /* TEXT || sPLT || STORE_UNKNOWN_CHUNKS */

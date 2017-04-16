@@ -516,7 +516,7 @@ void ExtGoodsSelDialog::updateList(int pos)
 			P_List->setDef(p_def);
 			if(pos < 0)
 				P_List->focusItem(sav_pos);
-			P_List->drawView();
+			P_List->Draw_();
 			P_List->select();
 		}
 	}
@@ -532,7 +532,7 @@ int ExtGoodsSelDialog::selectGoods(PPID grp, PPID goodsID)
 			P_List->TransmitData(+1, &goodsID);
 			if(P_List->HasState(SmartListBox::stDataFounded)) {
 				selectCtrl(CTL_EXTGSEL_LIST);
-				P_List->drawView();
+				P_List->Draw_();
 			}
 		}
 		ok = 1;
@@ -646,7 +646,7 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 			if(GObj.P_Tbl->SearchGoodsAnalogs(goods_id, analog_list, &transit_component_buf) > 0 && analog_list.getCount()) {
 				TIDlgInitData inner_tidi;
 				ExtGoodsSelDialog * p_inner_dlg = new ExtGoodsSelDialog(0);
-				if(CheckDialogPtr(&p_inner_dlg, 1)) {
+				if(CheckDialogPtrErr(&p_inner_dlg)) {
 					SString info_buf, temp_buf;
 					PPLoadString("analogs", temp_buf);
 					(info_buf = 0).Cat(goods_rec.Name).CR();

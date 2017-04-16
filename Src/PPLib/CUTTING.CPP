@@ -397,7 +397,7 @@ static int SLAPI EditSaveBalanceDialog(LDATE * pDt, char * pFileName)
 	char   fname[MAXPATH];
 	STRNSCPY(fname, pFileName);
 	TDialog * dlg = new TDialog(DLG_SAVEBALANCE);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_SAVEBALANCE_FNAME, CTL_SAVEBALANCE_FNAME, 1, 0, 0, FileBrowseCtrlGroup::fbcgfFile);
 		dlg->SetupCalDate(CTLCAL_SAVEBALANCE_DATE, CTL_SAVEBALANCE_DATE);
 		dlg->setCtrlData(CTL_SAVEBALANCE_DATE, &dt);
@@ -454,7 +454,7 @@ int SLAPI DatabaseCutting()
 {
 	int    ok = -1, valid_data = 0;
 	TDialog * dlg = new TDialog(DLG_CUTTING);
-	if(CheckDialogPtr(&dlg, 1)) {
+	if(CheckDialogPtrErr(&dlg)) {
 		LDATE  end_date = ZERODATE;
 		SetupCalCtrl(CTLCAL_CUTTING_DATE, dlg, CTL_CUTTING_DATE, 4);
 		dlg->setCtrlData(CTL_CUTTING_DATE, &end_date);

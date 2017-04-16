@@ -147,7 +147,7 @@ int SecurDialog::getPaths()
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
-	if(CheckDialogPtr(&(dlg = new TDialog(DLG_PATH)), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_PATH)))) {
 		setPathFld(dlg, PPPATH_DRIVE, CTL_PATH_DRV,  CTL_PATH_D_DRV);
 		setPathFld(dlg, PPPATH_ROOT,  CTL_PATH_ROOT, CTL_PATH_D_ROOT);
 		setPathFld(dlg, PPPATH_DAT,   CTL_PATH_DAT,  CTL_PATH_D_DAT);
@@ -305,7 +305,7 @@ static int SLAPI CfgRoundDialog(PPConfig * pCfg)
 	int    r;
 	ushort v = 0;
 	TDialog * dlg = new TDialog(DLG_CFGROUND);
-	if(!CheckDialogPtr(&dlg, 1))
+	if(!CheckDialogPtrErr(&dlg))
 		return 0;
 	dlg->setCtrlData(CTL_CFGROUND_PREC, &pCfg->RoundPrec);
 	long   rd = (pCfg->Flags & (CFGFLG_ROUNDUP | CFGFLG_ROUNDDOWN));
@@ -367,7 +367,7 @@ private:
 void CfgOptionsDialog::editCurConfig()
 {
 	TDialog * dlg = 0;
-	if(CheckDialogPtr(&(dlg = new TDialog(DLG_CURCFG)), 1)) {
+	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_CURCFG)))) {
 		SetupPPObjCombo(dlg, CTLSEL_CURCFG_BASECUR, PPOBJ_CURRENCY, Cfg.BaseCurID, OLW_CANINSERT, 0);
 		SetupPPObjCombo(dlg, CTLSEL_CURCFG_RATETYPE, PPOBJ_CURRATETYPE, Cfg.BaseRateTypeID, OLW_CANINSERT, 0);
 		dlg->AddClusterAssoc(CTL_CURCFG_FLAGS, 0, CFGFLG_MULTICURACCT);
@@ -632,7 +632,7 @@ int SLAPI ActiveUsersListDialog()
 {
 	int    ok = -1;
 	ActiveUserListDlg * dlg = new ActiveUserListDlg();
-	if(CheckDialogPtr(&dlg, 1))
+	if(CheckDialogPtrErr(&dlg))
 		ExecViewAndDestroy(dlg);
 	else
 		ok = 0;

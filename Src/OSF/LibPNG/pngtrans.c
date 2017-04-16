@@ -141,24 +141,21 @@ void PNGAPI png_set_filler(png_structrp png_ptr, png_uint_32 filler, int filler_
 #     endif
 	}
 
-	else{ /* write */
+	else { /* write */
 #     ifdef PNG_WRITE_FILLER_SUPPORTED
 		/* On write the usr_channels parameter must be set correctly at the
 		 * start to record the number of channels in the app-supplied data.
 		 */
-		switch(png_ptr->color_type)
-		{
+		switch(png_ptr->color_type) {
 			case PNG_COLOR_TYPE_RGB:
 			    png_ptr->usr_channels = 4;
 			    break;
-
 			case PNG_COLOR_TYPE_GRAY:
 			    if(png_ptr->bit_depth >= 8) {
 				    png_ptr->usr_channels = 2;
 				    break;
 			    }
-
-			    else{
+			    else {
 				    /* There simply isn't any code in libpng to strip out bits
 				     * from bytes when the components are less than a byte in
 				     * size!
@@ -239,19 +236,14 @@ void PNGAPI png_set_invert_alpha(png_structrp png_ptr)
 void PNGAPI png_set_invert_mono(png_structrp png_ptr)
 {
 	png_debug(1, "in png_set_invert_mono");
-
-	if(png_ptr == NULL)
-		return;
-
-	png_ptr->transformations |= PNG_INVERT_MONO;
+	if(png_ptr)
+		png_ptr->transformations |= PNG_INVERT_MONO;
 }
 
 /* Invert monochrome grayscale data */
-void /* PRIVATE */
-png_do_invert(png_row_infop row_info, png_bytep row)
+void /* PRIVATE */ png_do_invert(png_row_infop row_info, png_bytep row)
 {
 	png_debug(1, "in png_do_invert");
-
 	/* This test removed from libpng version 1.0.13 and 1.2.0:
 	 *   if (row_info->bit_depth == 1 &&
 	 */
@@ -299,11 +291,9 @@ png_do_invert(png_row_infop row_info, png_bytep row)
 #ifdef PNG_16BIT_SUPPORTED
 #if defined(PNG_READ_SWAP_SUPPORTED) || defined(PNG_WRITE_SWAP_SUPPORTED)
 /* Swaps byte order on 16-bit depth images */
-void /* PRIVATE */
-png_do_swap(png_row_infop row_info, png_bytep row)
+void /* PRIVATE */ png_do_swap(png_row_infop row_info, png_bytep row)
 {
 	png_debug(1, "in png_do_swap");
-
 	if(row_info->bit_depth == 16) {
 		png_bytep rp = row;
 		png_uint_32 i;
@@ -434,11 +424,9 @@ static PNG_CONST png_byte fourbppswaptable[256] = {
 };
 
 /* Swaps pixel packing order within bytes */
-void /* PRIVATE */
-png_do_packswap(png_row_infop row_info, png_bytep row)
+void /* PRIVATE */ png_do_packswap(png_row_infop row_info, png_bytep row)
 {
 	png_debug(1, "in png_do_packswap");
-
 	if(row_info->bit_depth < 8) {
 		png_bytep rp;
 		png_const_bytep end, table;
@@ -474,8 +462,7 @@ png_do_packswap(png_row_infop row_info, png_bytep row)
  * The routine isn't general - the channel must be the channel at the start or
  * end (not in the middle) of each pixel.
  */
-void /* PRIVATE */
-png_do_strip_channel(png_row_infop row_info, png_bytep row, int at_start)
+void /* PRIVATE */ png_do_strip_channel(png_row_infop row_info, png_bytep row, int at_start)
 {
 	png_bytep sp = row; /* source pointer */
 	png_bytep dp = row; /* destination pointer */
@@ -578,11 +565,9 @@ png_do_strip_channel(png_row_infop row_info, png_bytep row, int at_start)
 
 #if defined(PNG_READ_BGR_SUPPORTED) || defined(PNG_WRITE_BGR_SUPPORTED)
 /* Swaps red and blue bytes within a pixel */
-void /* PRIVATE */
-png_do_bgr(png_row_infop row_info, png_bytep row)
+void /* PRIVATE */ png_do_bgr(png_row_infop row_info, png_bytep row)
 {
 	png_debug(1, "in png_do_bgr");
-
 	if((row_info->color_type & PNG_COLOR_MASK_COLOR) != 0) {
 		png_uint_32 row_width = row_info->width;
 		if(row_info->bit_depth == 8) {
@@ -648,8 +633,7 @@ png_do_bgr(png_row_infop row_info, png_bytep row)
 #if defined(PNG_READ_CHECK_FOR_INVALID_INDEX_SUPPORTED) || \
 	defined(PNG_WRITE_CHECK_FOR_INVALID_INDEX_SUPPORTED)
 /* Added at libpng-1.5.10 */
-void /* PRIVATE */
-png_do_check_palette_indexes(png_structrp png_ptr, png_row_infop row_info)
+void /* PRIVATE */ png_do_check_palette_indexes(png_structrp png_ptr, png_row_infop row_info)
 {
 	if(png_ptr->num_palette < (1 << row_info->bit_depth) &&
 	    png_ptr->num_palette > 0) { /* num_palette can be 0 in MNG files */
@@ -661,9 +645,7 @@ png_do_check_palette_indexes(png_structrp png_ptr, png_row_infop row_info)
 		 */
 		int padding = (-row_info->pixel_depth * row_info->width) & 7;
 		png_bytep rp = png_ptr->row_buf + row_info->rowbytes;
-
-		switch(row_info->bit_depth)
-		{
+		switch(row_info->bit_depth) {
 			case 1:
 		    {
 			    /* in this case, all bytes must be 0 so we don't need
