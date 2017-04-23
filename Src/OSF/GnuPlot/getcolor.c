@@ -80,11 +80,7 @@ int palettes_differ(t_sm_palette * p1, t_sm_palette * p2)
 						for(int i = 0; i<p1->gradient_num; ++i) {
 							if(p1->gradient[i].pos != p2->gradient[i].pos)
 								return 1;
-							else if(p1->gradient[i].col.r != p2->gradient[i].col.r)
-								return 1;
-							else if(p1->gradient[i].col.g != p2->gradient[i].col.g)
-								return 1;
-							else if(p1->gradient[i].col.b != p2->gradient[i].col.b)
+							else if(!p1->gradient[i].col.IsEqual(p2->gradient[i].col))
 								return 1;
 						}
 					}
@@ -117,16 +113,18 @@ int GpGadgets::InterpolateColorFromGray(double gray, rgb_color * pColor)
 	rgb_color * col1;
 	rgb_color * col2;
 	if(gray < 0) {
-		pColor->r = SmPalette.gradient[0].col.r;
-		pColor->g = SmPalette.gradient[0].col.g;
-		pColor->b = SmPalette.gradient[0].col.b;
+		//pColor->r = SmPalette.gradient[0].col.r;
+		//pColor->g = SmPalette.gradient[0].col.g;
+		//pColor->b = SmPalette.gradient[0].col.b;
+		*pColor = SmPalette.gradient[0].col;
 		return 1;
 	}
 	maxidx = SmPalette.gradient_num;
 	if(gray > 1) {
-		pColor->r = SmPalette.gradient[maxidx-1].col.r;
-		pColor->g = SmPalette.gradient[maxidx-1].col.g;
-		pColor->b = SmPalette.gradient[maxidx-1].col.b;
+		//pColor->r = SmPalette.gradient[maxidx-1].col.r;
+		//pColor->g = SmPalette.gradient[maxidx-1].col.g;
+		//pColor->b = SmPalette.gradient[maxidx-1].col.b;
+		*pColor = SmPalette.gradient[maxidx-1].col;
 		return 1;
 	}
 	// find index by bisecting 
@@ -145,18 +143,17 @@ int GpGadgets::InterpolateColorFromGray(double gray, rgb_color * pColor)
 	col2 = &SmPalette.gradient[idx].col;
 	if(gray == SmPalette.gradient[idx].pos) {
 		// exact hit 
-		pColor->r = col2->r;
-		pColor->g = col2->g;
-		pColor->b = col2->b;
+		//pColor->r = col2->r;
+		//pColor->g = col2->g;
+		//pColor->b = col2->b;
+		*pColor = *col2;
 	}
 	else {
 		// linear interpolation of two colors 
 		double dx = SmPalette.gradient[idx].pos - SmPalette.gradient[idx - 1].pos;
 		double f = (gray - SmPalette.gradient[idx-1].pos) / dx;
 		col1 = &SmPalette.gradient[idx - 1].col;
-		pColor->r = (col1->r + f * (col2->r - col1->r));
-		pColor->g = (col1->g + f * (col2->g - col1->g));
-		pColor->b = (col1->b + f * (col2->b - col1->b));
+		pColor->Set((col1->R + f * (col2->R - col1->R)), (col1->G + f * (col2->G - col1->G)), (col1->B + f * (col2->B - col1->B)));
 	}
 	return 0;
 }
@@ -176,24 +173,22 @@ int GpGadgets::CalculateColorFromFormulae(double gray, rgb_color * pColor)
 	SmPalette.Afunc.dummy_values[0].SetComplex(gray, 0.0);
 	Ev.EvaluateAt(SmPalette.Afunc.at, &v);
 	if(Ev.undefined)
-		GpGg.IntError(GpC, NO_CARET, "Undefined value first pColor during function evaluation");
+		GpGg.IntErrorNoCaret("Undefined value first pColor during function evaluation");
 	a = v.Real();
 	a = CONSTRAIN(a);
 	SmPalette.Bfunc.dummy_values[0].SetComplex(gray, 0.0);
 	Ev.EvaluateAt(SmPalette.Bfunc.at, &v);
 	if(Ev.undefined)
-		GpGg.IntError(GpC, NO_CARET, "Undefined value second pColor during function evaluation");
+		GpGg.IntErrorNoCaret("Undefined value second pColor during function evaluation");
 	b = v.Real();
 	b = CONSTRAIN(b);
 	SmPalette.Cfunc.dummy_values[0].SetComplex(gray, 0.0);
 	Ev.EvaluateAt(SmPalette.Cfunc.at, &v);
 	if(Ev.undefined)
-		GpGg.IntError(GpC, NO_CARET, "Undefined value third pColor during function evaluation");
+		GpGg.IntErrorNoCaret("Undefined value third pColor during function evaluation");
 	c = v.Real();
 	c = CONSTRAIN(c);
-	pColor->r = a;
-	pColor->g = b;
-	pColor->b = c;
+	pColor->Set(a, b, c);
 #undef NO_CARET
 	return 0;
 }
@@ -210,12 +205,12 @@ void GpGadgets::ColorComponentsFromGray(double gray, rgb_color * pColor)
 		gray = 1.0;
 	switch(SmPalette.colorMode) {
 		case SMPAL_COLOR_MODE_GRAY:
-		    pColor->r = pColor->g = pColor->b = pow(gray, 1.0/SmPalette.gamma);
+		    pColor->SetGray(pow(gray, 1.0/SmPalette.gamma));
 		    return; /* all done, no pColor space transformation needed  */
 		case SMPAL_COLOR_MODE_RGB:
-		    pColor->r = GetColorValueFromFormula(SmPalette.formulaR, gray);
-		    pColor->g = GetColorValueFromFormula(SmPalette.formulaG, gray);
-		    pColor->b = GetColorValueFromFormula(SmPalette.formulaB, gray);
+		    pColor->Set(GetColorValueFromFormula(SmPalette.formulaR, gray),
+				GetColorValueFromFormula(SmPalette.formulaG, gray),
+				GetColorValueFromFormula(SmPalette.formulaB, gray));
 		    break;
 		case SMPAL_COLOR_MODE_GRADIENT:
 		    InterpolateColorFromGray(gray, pColor);
@@ -231,21 +226,10 @@ void GpGadgets::ColorComponentsFromGray(double gray, rgb_color * pColor)
 		    if(SmPalette.gamma != 1.0)
 			    gray = pow(gray, 1./SmPalette.gamma);
 		    a = SmPalette.cubehelix_saturation * gray * (1.-gray) / 2.;
-		    pColor->r = gray + a * (-0.14861 * cos(phi) + 1.78277 * sin(phi));
-		    pColor->g = gray + a * (-0.29227 * cos(phi) - 0.90649 * sin(phi));
-		    pColor->b = gray + a * ( 1.97294 * cos(phi));
-		    if(pColor->r > 1.0) 
-				pColor->r = 1.0; 
-			if(pColor->r < 0.0) 
-				pColor->r = 0.0;
-		    if(pColor->g > 1.0) 
-				pColor->g = 1.0; 
-			if(pColor->g < 0.0) 
-				pColor->g = 0.0;
-		    if(pColor->b > 1.0) 
-				pColor->b = 1.0; 
-			if(pColor->b < 0.0) 
-				pColor->b = 0.0;
+		    pColor->Set(gray + a * (-0.14861 * cos(phi) + 1.78277 * sin(phi)),
+				gray + a * (-0.29227 * cos(phi) - 0.90649 * sin(phi)),
+				gray + a * ( 1.97294 * cos(phi)));
+			pColor->Constrain();
 	    }
 	    break;
 		default:
@@ -294,9 +278,9 @@ void GpGadgets::RGB1FromGray(double gray, rgb_color * pColor)
  */
 void rgb255_from_rgb1(rgb_color rgb1, rgb255_color * rgb255)
 {
-	rgb255->r = (uchar)(255 * rgb1.r + 0.5);
-	rgb255->g = (uchar)(255 * rgb1.g + 0.5);
-	rgb255->b = (uchar)(255 * rgb1.b + 0.5);
+	rgb255->r = (uchar)(255 * rgb1.R + 0.5);
+	rgb255->g = (uchar)(255 * rgb1.G + 0.5);
+	rgb255->b = (uchar)(255 * rgb1.B + 0.5);
 }
 
 /*
@@ -372,16 +356,18 @@ static double get_max_dev(rgb_color * colors, int j, double limit)
 {
 	double max_dev = 0.0;
 	double rdev, gdev, bdev;
-	double r = colors[0].r, g = colors[0].g, b = colors[0].b;
+	double r = colors[0].R;
+	double g = colors[0].G;
+	double b = colors[0].B;
 	int i;
-	double sr = (colors[j].r - r) / j;
-	double sg = (colors[j].g - g) / j;
-	double sb = (colors[j].b - b) / j;
+	double sr = (colors[j].R - r) / j;
+	double sg = (colors[j].G - g) / j;
+	double sb = (colors[j].B - b) / j;
 	for(i = 1; i<j; ++i) {
 		double dx = i;
-		rdev = fabs(sr*dx + r - colors[i].r);
-		gdev = fabs(sg*dx + g - colors[i].g);
-		bdev = fabs(sb*dx + b - colors[i].b);
+		rdev = fabs(sr*dx + r - colors[i].R);
+		gdev = fabs(sg*dx + g - colors[i].G);
+		bdev = fabs(sb*dx + b - colors[i].B);
 		if(rdev > max_dev)
 			max_dev = rdev;
 		if(gdev > max_dev)
@@ -401,21 +387,19 @@ static double get_max_dev(rgb_color * colors, int j, double limit)
 static int is_extremum(rgb_color left, rgb_color mid, rgb_color right)
 {
 	/* mid is maximum */
-	if(left.r < mid.r && mid.r > right.r)
+	if(left.R < mid.R && mid.R > right.R)
 		return 1;
-	if(left.g < mid.g && mid.g > right.g)
+	if(left.G < mid.G && mid.G > right.G)
 		return 1;
-	if(left.b < mid.b && mid.b > right.b)
+	if(left.B < mid.B && mid.B > right.B)
 		return 1;
-
 	/* mid is minimum */
-	if(left.r > mid.r && mid.r < right.r)
+	if(left.R > mid.R && mid.R < right.R)
 		return 1;
-	if(left.g > mid.g && mid.g < right.g)
+	if(left.G > mid.G && mid.G < right.G)
 		return 1;
-	if(left.b > mid.b && mid.b < right.b)
+	if(left.B > mid.B && mid.B < right.B)
 		return 1;
-
 	return 0;
 }
 
@@ -731,6 +715,7 @@ const char * ps_math_color_formulae[] = {
  */
 static void CMY_2_RGB(rgb_color * col)
 {
+	/*
 	double c, m, y;
 	c = col->r;
 	m = col->g;
@@ -738,45 +723,58 @@ static void CMY_2_RGB(rgb_color * col)
 	col->r = CONSTRAIN(1.0 - c);
 	col->g = CONSTRAIN(1.0 - m);
 	col->b = CONSTRAIN(1.0 - y);
+	*/
+	col->R = (1.0 - col->R);
+	col->G = (1.0 - col->G);
+	col->B = (1.0 - col->B);
+	col->Constrain();
 }
 
 static void CIEXYZ_2_RGB(rgb_color * col)
 {
+	/*
 	double x, y, z;
-
 	x = col->r;
 	y = col->g;
 	z = col->b;
-	col->r = CONSTRAIN(1.9100 * x - 0.5338 * y - 0.2891 * z);
-	col->g = CONSTRAIN(-0.9844 * x + 1.9990 * y - 0.0279 * z);
-	col->b = CONSTRAIN(0.0585 * x - 0.1187 * y - 0.9017 * z);
+	col->r = CONSTRAIN(1.9100 * temp.r - 0.5338 * temp.g - 0.2891 * temp.b);
+	col->g = CONSTRAIN(-0.9844 * temp.r + 1.9990 * temp.g - 0.0279 * temp.b);
+	col->b = CONSTRAIN(0.0585 * temp.r - 0.1187 * temp.g - 0.9017 * temp.b);
+	*/
+	rgb_color temp(*col);
+	col->Set((1.9100 * temp.R - 0.5338 * temp.G - 0.2891 * temp.B), 
+		(-0.9844 * temp.R + 1.9990 * temp.G - 0.0279 * temp.B), 
+		(0.0585 * temp.R - 0.1187 * temp.G - 0.9017 * temp.B));
+	col->Constrain();
 }
 
 static void YIQ_2_RGB(rgb_color * col)
 {
-	double y, i, q;
-
-	y = col->r;
-	i = col->g;
-	q = col->b;
+	/*
+	double y = col->r;
+	double i = col->g;
+	double q = col->b;
 	col->r = CONSTRAIN(y - 0.956 * i + 0.621 * q);
 	col->g = CONSTRAIN(y - 0.272 * i - 0.647 * q);
 	col->b = CONSTRAIN(y - 1.105 * i - 1.702 * q);
+	*/
+	rgb_color temp;
+	temp = *col;
+	col->Set((temp.R - 0.956 * temp.G + 0.621 * temp.B), (temp.R - 0.272 * temp.G - 0.647 * temp.B), (temp.R - 1.105 * temp.G - 1.702 * temp.B));
+	col->Constrain();
 }
 
 static void HSV_2_RGB(rgb_color * col)
 {
-	double h, s, v, f, p, q, t;
+	double f, p, q, t;
 	int i;
-
-	h = col->r;
-	s = col->g;
-	v = col->b;
-	if(s == 0) { /* achromatic (gray) */
-		col->r = col->g = col->b = v;
+	double h = col->R;
+	double s = col->G;
+	double v = col->B;
+	if(s == 0) { // achromatic (gray) 
+		col->SetGray(v);
 		return;
 	}
-
 	h *= 6.; /* h range in gnuplot is [0,1] and not the usual [0,360] */
 	i = (int)floor(h);
 	f = h - i;
@@ -784,36 +782,12 @@ static void HSV_2_RGB(rgb_color * col)
 	q = v * (1.0 - s*f);
 	t = v * (1.0 - s*(1.0-f));
 	switch(i % 6) {
-		case 0:
-		    col->r = v;
-		    col->g = t;
-		    col->b = p;
-		    break;
-		case 1:
-		    col->r = q;
-		    col->g = v;
-		    col->b = p;
-		    break;
-		case 2:
-		    col->r = p;
-		    col->g = v;
-		    col->b = t;
-		    break;
-		case 3:
-		    col->r = p;
-		    col->g = q;
-		    col->b = v;
-		    break;
-		case 4:
-		    col->r = t;
-		    col->g = p;
-		    col->b = v;
-		    break;
-		default:
-		    col->r = v;
-		    col->g = p;
-		    col->b = q;
-		    break;
+		case 0: col->Set(v, t, p); break;
+		case 1: col->Set(q, v, p); break;
+		case 2: col->Set(p, v, t); break;
+		case 3: col->Set(p, q, v); break;
+		case 4: col->Set(t, p, v); break;
+		default: col->Set(v, p, q); break;
 	}
 }
 
@@ -825,7 +799,7 @@ static void HSV_2_RGB(rgb_color * col)
 uint hsv2rgb(rgb_color * color)
 {
 	HSV_2_RGB(color);
-	return ((uint)(255.*color->r) << 16) + ((uint)(255.*color->g) << 8) + ((uint)(255.*color->b));
+	return ((uint)(255.0*color->R) << 16) + ((uint)(255.0*color->G) << 8) + ((uint)(255.0*color->B));
 }
 
 /* eof getcolor.c */

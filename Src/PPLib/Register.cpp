@@ -596,7 +596,7 @@ int SLAPI RegisterCore::_Get(PPID objType, PPID id, RegisterArray * pAry)
 		k.k1.ObjID = id;
 	}
 	else
-		return PPSetError(PPERR_INVPARAM);
+		return PPSetErrorInvParam();
 	if(search(idx, &k, spEq)) do {
 		if(objType == PPOBJ_PERSONEVENT) {
 			if(data.PsnEventID != id)

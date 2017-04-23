@@ -5,7 +5,7 @@
 #include <pp.h>
 #pragma hdrstop
 #include <ppsoapclient.h>
-#include <idea.h>
+// @v9.6.3 #include <idea.h>
 //#include <ppsms.h>
 //
 // Kernel Parameters

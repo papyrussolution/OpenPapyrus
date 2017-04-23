@@ -421,7 +421,7 @@ int SLAPI PPCashMachine::SyncCloseSession()
 	THROW(GetSyncIntrf());
 	THROW(GetNode() > 0);
 	if(!(NodeRec.Flags & CASHF_CHKPAN) && NodeRec.DownBill) {
-		r = PPMessage(mfConf|mfYesNoCancel, PPCFM_CONTDAYCLOSING, 0);
+		r = PPMessage(mfConf|mfYesNoCancel, PPCFM_CONTDAYCLOSING);
 		if(r != cmYes)
 			if(r == cmNo) {
 				NodeRec.DownBill = 0;
@@ -431,7 +431,7 @@ int SLAPI PPCashMachine::SyncCloseSession()
 				return -1;
 	}
 	THROW_PP((NodeRec.Flags & CASHF_DAYCLOSED) == 0, PPERR_DAYCLOSED);
-	if(chk_core.IsCheckWFlags(NodeRec.CurSessID, CCHKF_SUSPENDED) && PPMessage(mfConf|mfYesNo, PPCFM_CLOSESESSWSUSPCHKS, 0) == cmNo)
+	if(chk_core.IsCheckWFlags(NodeRec.CurSessID, CCHKF_SUSPENDED) && PPMessage(mfConf|mfYesNo, PPCFM_CLOSESESSWSUSPCHKS) == cmNo)
 		close_sess = 0;
 	if(close_sess) {
 		DS.SetOperDate(NodeRec.CurDate);
@@ -702,7 +702,7 @@ int SLAPI PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long
 		else {
 			if(cnf & CASHF_DAYCLOSED || !NodeRec.CurDate || (cnf & CASHF_CHKPAN && !NodeRec.CurSessID)) {
 				THROW_PP(p_bobj->CheckRights(BILLRT_OPENCASH), PPERR_NORTOPENCASH);
-				if((r = PPMessage(mfConf|mfYesNo, PPCFM_PREVCASHDAYCLOSED, 0)) == cmYes) {
+				if((r = PPMessage(mfConf|mfYesNo, PPCFM_PREVCASHDAYCLOSED)) == cmYes) {
 					THROW(r = SyncOpenSession(&cur_date));
 					if(r > 0)
 						r = cmOK;
@@ -738,7 +738,7 @@ int SLAPI PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long
 				else {
 					if(cnxf & CASHF_DAYCLOSED || !cn_ext.CurDate || (cnxf & CASHF_CHKPAN && !cn_ext.CurSessID)) {
 						THROW_PP(p_bobj->CheckRights(BILLRT_OPENCASH), PPERR_NORTOPENCASH);
-						if(cur_date || (r = PPMessage(mfConf|mfYesNo, PPCFM_PREVCASHDAYCLOSED, 0)) == cmYes) {
+						if(cur_date || (r = PPMessage(mfConf|mfYesNo, PPCFM_PREVCASHDAYCLOSED)) == cmYes) {
 							THROW(r = p_cm_ext->SyncOpenSession(&cur_date));
 							if(r > 0)
 								r = cmOK;
@@ -859,7 +859,7 @@ int CmLocking::operator !() const
 int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 {
 	int     ok = 1, chk_no = 0, is_format = 0;
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	if(pPack->GetCount() == 0)
 		ok = -1;
 	else if(GetSyncIntrf()) {
@@ -997,7 +997,7 @@ int SLAPI PPCashMachine::SyncPrintCheck(CCheckPacket * p, int addSummator)
 	CmLocking cml(NodeRec);
 	THROW(cml);
 	THROW(GetSyncIntrf());
-	if(!(p->Rec.Flags & CCHKF_PRINTED) || PPMessage(mfConf|mfYesNo, PPCFM_BILLCHECKED, 0) == cmYes) {
+	if(!(p->Rec.Flags & CCHKF_PRINTED) || PPMessage(mfConf|mfYesNo, PPCFM_BILLCHECKED) == cmYes) {
 		uint   flags = 0;
 		THROW(GetNode() > 0);
 		if(NodeRec.Flags & CASHF_OPENBOX)
@@ -1048,7 +1048,7 @@ int SLAPI PPCashMachine::SyncCheckForSessionOver()
 	THROW(GetSyncIntrf());
 	THROW(is_over = P_SyncIntrf->CheckForSessionOver());
 	if(is_over > 0) {
-		if(PPMessage(mfConf|mfYesNo, PPCFM_CLOSESESSWHICHOVER, 0) == cmYes) {
+		if(PPMessage(mfConf|mfYesNo, PPCFM_CLOSESESSWHICHOVER) == cmYes) {
 			LDATE  cur_date = getcurdate_();
 			THROW(SyncCloseSession());
 			THROW(SyncOpenSession(&cur_date));

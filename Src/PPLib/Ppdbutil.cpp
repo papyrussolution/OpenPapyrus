@@ -4,8 +4,8 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <idea.h>
-#include <dos.h>
+// @v9.6.3 #include <idea.h>
+// @v9.6.3 #include <dos.h>
 #include <sys\stat.h>
 //
 // Формат записи параметров резервной копии в файле pp.ini
@@ -286,7 +286,7 @@ int SLAPI PPBackup::GetDefaultScen(PPBackupScen * pScen)
 		GetDefaultBackupPath(pScen->BackupPath);
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -560,7 +560,7 @@ int ConfigBackupDialog::editEntry(int isNewEntry, PPBackupScen * pEntry)
 			valid_data = 1;
 		if(!valid_data) {
 			if(err_text)
-				PPMessage(mfInfo, err_text, 0);
+				PPMessage(mfInfo, err_text);
 			dlg->selectCtrl(sel);
 		}
 		else {
@@ -1626,7 +1626,7 @@ int SLAPI PPBackup::LockDatabase()
 				ok = 0;
 			else if(PPErrCode != PPERR_SYNCDBLOCKED && PPErrCode != PPERR_SYNCDBINUSE)
 				ok = 0;
-			else if(waiting || PPMessage(mfConf|mfYes|mfNo, PPCFM_WAITONDBLOCK, 0) == cmYes) {
+			else if(waiting || PPMessage(mfConf|mfYes|mfNo, PPCFM_WAITONDBLOCK) == cmYes) {
 				if(!waiting) {
 					PPWait(1);
 					PPWaitMsg(PPSTR_TEXT, PPTXT_WAITONDBLOCK, 0);
@@ -1928,7 +1928,7 @@ static int SLAPI _DoBackup(PPBackup * ppb, BackupDlgData & bdd, int useCopyConti
 {
 	int    ok = -1;
 	BCopyData copy_data;
-	if(!bdd.CopyID || PPMessage(mfConf|mfYesNo, PPCFM_REWRITEBCOPY, 0) == cmYes) {
+	if(!bdd.CopyID || PPMessage(mfConf|mfYesNo, PPCFM_REWRITEBCOPY) == cmYes) {
 		if(!useCopyContinouos) {
 			THROW(ok = ppb->LockDatabase());
 		}
@@ -1963,7 +1963,7 @@ static int SLAPI _DoBackup(PPBackup * ppb, BackupDlgData & bdd, int useCopyConti
 static int SLAPI _DoRemoveCopy(PPBackup * ppb, BackupDlgData & bdd)
 {
 	int    ok = -1;
-	if(bdd.CopyID && PPMessage(mfConf|mfYesNo, PPCFM_BREMOVE, 0) == cmYes) {
+	if(bdd.CopyID && PPMessage(mfConf|mfYesNo, PPCFM_BREMOVE) == cmYes) {
 		BCopyData copy_data;
 		MEMSZERO(copy_data);
 		THROW_PP(ppb->GetCopyData(bdd.CopyID, &copy_data), PPERR_DBLIB);
@@ -1977,7 +1977,7 @@ static int SLAPI _DoRemoveCopy(PPBackup * ppb, BackupDlgData & bdd)
 static int SLAPI _DoRestore(PPBackup * ppb, BackupDlgData & bdd)
 {
 	int    ok = -1;
-	if(bdd.CopyID && PPMessage(mfConf|mfYesNo, PPCFM_BRESTORE, 0) == cmYes) {
+	if(bdd.CopyID && PPMessage(mfConf|mfYesNo, PPCFM_BRESTORE) == cmYes) {
 		THROW(ok = ppb->LockDatabase());
 		if(ok > 0) {
 			BCopyData copy_data;
@@ -2132,7 +2132,7 @@ static int SLAPI _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 				all_ok = 1;
 		}
 		if(all_ok > 0)
-			PPMessage(mfInfo|mfOK, PPINF_RECOVERSUCCESS, 0);
+			PPMessage(mfInfo|mfOK, PPINF_RECOVERSUCCESS);
 		else if(all_ok == 0) {
 			class RcvrInfoDlg : public PPListDialog {
 			public:
@@ -2454,7 +2454,7 @@ static int SLAPI ProtectDatabase(DbLoginBlock * pDlb, int protect, char * pPw, c
 {
 	int    ok = 1;
 	char   buf[128];
-	if(PPMessage(mfConf|mfYes|mfCancel, PPCFM_PROTECT, 0) == cmYes) {
+	if(PPMessage(mfConf|mfYes|mfCancel, PPCFM_PROTECT) == cmYes) {
 		DbTableStat ts;
 		StrAssocArray tbl_list;
 		PPWait(1);

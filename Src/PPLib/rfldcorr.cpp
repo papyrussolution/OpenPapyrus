@@ -1162,9 +1162,7 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 		if(pExclParamList && pExclParamList->search(par, 0, 1))
 			continue;
 		switch(tsl_par.Translate(par.Strip(), &next_pos)) {
-			case iefFileName:
-				FileName = val;
-				break;
+			case iefFileName: FileName = val; break;
 			case iefImpExp:
 				if(val.CmpPrefix("IMP", 1) == 0)
 					Direction = 1;
@@ -1204,91 +1202,39 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 				else
 					SETFLAG(TdfParam.Flags, TextDbFile::fOemText, 1);
 				break;
-			case iefOemText:
-				SETFLAG(TdfParam.Flags, TextDbFile::fOemText, val.ToLong());
-				break;
-			case iefFldNameRec:
-				SETFLAG(TdfParam.Flags, TextDbFile::fFldNameRec, val.ToLong());
-				break;
-			case iefQuotStr:
-				SETFLAG(TdfParam.Flags, TextDbFile::fQuotText, val.ToLong());
-				break;
-			case iefHdrLinesCount:
-				TdfParam.HdrLinesCount = val.ToLong();
-				break;
-			case iefFieldDiv:
-				fld_div = val;
-				break;
-			case iefFixedFields:
-				SETFLAG(TdfParam.Flags, TextDbFile::fFixedFields, val.ToLong());
-				break;
-			case iefFieldEqVal:
-				SETFLAG(TdfParam.Flags, TextDbFile::fFldEqVal, val.ToLong());
-				break;
-			case iefFooterLine:
-				footer_line = val;
-				break;
-			case iefFormula:
-				THROW(ParseFormula(0, par, val));
-				break;
-			case iefHdrFormula:
-				THROW(ParseFormula(1, par, val));
-				break;
-			case iefRootTag:
-				XdfParam.RootTag = val;
-				break;
-			case iefRecTag:
-				XdfParam.RecTag = val;
-				break;
-			case iefHdrTag:
-				XdfParam.HdrTag = val;
-				break;
-			case iefUseDTD:
-				SETFLAG(XdfParam.Flags, XmlDbFile::Param::fUseDTD, val.ToLong());
-				break;
-			case iefUtf8Codepage:
-				SETFLAG(XdfParam.Flags, XmlDbFile::Param::fUtf8Codepage, val.ToLong());
-				break;
-			case iefSubRec:
-				SETFLAG(XdfParam.Flags, XmlDbFile::Param::fHaveSubRec, val.ToLong());
-				break;
-			case iefSheetNum:
-				XlsdfParam.SheetNum = val.ToLong();
-				break;
-			case iefSheetName:
-				XlsdfParam.SheetName_ = val;
-				break;
-			case iefEndStr:
-				XlsdfParam.EndStr_ = val;
-				break;
-			case iefXlsFldNameRec:
-				SETFLAG(XlsdfParam.Flags, ExcelDbFile::fFldNameRec, val.ToLong());
-				break;
-			case iefXlsQuotStr:
-				SETFLAG(XlsdfParam.Flags, ExcelDbFile::fQuotText, val.ToLong());
-				break;
-			case iefOneRecPerFile:
-				SETFLAG(XlsdfParam.Flags, ExcelDbFile::fOneRecPerFile, val.ToLong());
-				break;
+			case iefOemText: SETFLAG(TdfParam.Flags, TextDbFile::fOemText, val.ToLong()); break;
+			case iefFldNameRec: SETFLAG(TdfParam.Flags, TextDbFile::fFldNameRec, val.ToLong()); break;
+			case iefQuotStr: SETFLAG(TdfParam.Flags, TextDbFile::fQuotText, val.ToLong()); break;
+			case iefHdrLinesCount: TdfParam.HdrLinesCount = val.ToLong(); break;
+			case iefFieldDiv: fld_div = val; break;
+			case iefFixedFields: SETFLAG(TdfParam.Flags, TextDbFile::fFixedFields, val.ToLong()); break;
+			case iefFieldEqVal: SETFLAG(TdfParam.Flags, TextDbFile::fFldEqVal, val.ToLong()); break;
+			case iefFooterLine: footer_line = val; break;
+			case iefFormula: THROW(ParseFormula(0, par, val)); break;
+			case iefHdrFormula: THROW(ParseFormula(1, par, val)); break;
+			case iefRootTag: XdfParam.RootTag = val; break;
+			case iefRecTag: XdfParam.RecTag = val; break;
+			case iefHdrTag: XdfParam.HdrTag = val; break;
+			case iefUseDTD: SETFLAG(XdfParam.Flags, XmlDbFile::Param::fUseDTD, val.ToLong()); break;
+			case iefUtf8Codepage: SETFLAG(XdfParam.Flags, XmlDbFile::Param::fUtf8Codepage, val.ToLong()); break;
+			case iefSubRec: SETFLAG(XdfParam.Flags, XmlDbFile::Param::fHaveSubRec, val.ToLong()); break;
+			case iefSheetNum: XlsdfParam.SheetNum = val.ToLong(); break;
+			case iefSheetName: XlsdfParam.SheetName_ = val; break;
+			case iefEndStr: XlsdfParam.EndStr_ = val; break;
+			case iefXlsFldNameRec: SETFLAG(XlsdfParam.Flags, ExcelDbFile::fFldNameRec, val.ToLong()); break;
+			case iefXlsQuotStr: SETFLAG(XlsdfParam.Flags, ExcelDbFile::fQuotText, val.ToLong()); break;
+			case iefOneRecPerFile: SETFLAG(XlsdfParam.Flags, ExcelDbFile::fOneRecPerFile, val.ToLong()); break;
 			case iefXlsOrient:
 				if(val.CmpPrefix("HOR", 1) == 0)
 					XlsdfParam.Flags &= ~ExcelDbFile::fVerticalRec;
 				else if(val.CmpPrefix("VER", 1) == 0)
 					XlsdfParam.Flags |= ExcelDbFile::fVerticalRec;
 				break;
-			case iefXlsHdrLinesCount:
-				XlsdfParam.HdrLinesCount = val.ToLong();
-				break;
-			case iefColumnsCount:
-				XlsdfParam.ColumnsCount = val.ToLong();
-				break;
+			case iefXlsHdrLinesCount: XlsdfParam.HdrLinesCount = val.ToLong(); break;
+			case iefColumnsCount: XlsdfParam.ColumnsCount = val.ToLong(); break;
 			// @vmiller {
-			case iedllDllPath:
-				ImpExpParamDll.DllPath = val;
-				break;
-			case iedllReceiptTag:
-				ImpExpParamDll.RcptTagID = val.ToLong();
-				break;
+			case iedllDllPath: ImpExpParamDll.DllPath = val; break;
+			case iedllReceiptTag: ImpExpParamDll.RcptTagID = val.ToLong(); break;
 			case iedllGlobalName:
 				ImpExpParamDll.Login = val;
 				// Получим пароль
@@ -1305,53 +1251,23 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 					}
 				}
 				break;
-			case iedllBeerGrpId:
-				ImpExpParamDll.BeerGrpID = val.ToLong();
-				break;
-			case iedllAlcoGrpId:
-				ImpExpParamDll.AlcoGrpID = val.ToLong();
-				break;
-			case iedllAlcoLicenseRegId:
-				ImpExpParamDll.AlcoLicenseRegID = val.ToLong();
-				break;
-			case iedllTTNTagId:
-				ImpExpParamDll.TTNTagID = val.ToLong();
-				break;
-			case iedllManufTagId:
-				ImpExpParamDll.ManufTagID = val.ToLong();
-				break;
-			case iedllManufKPPRegTagId:
-				ImpExpParamDll.ManufKPPRegTagID = val.ToLong();
-				break;
-			case iedllManufRegionCode:
-				ImpExpParamDll.ManufRegionCode = val.ToLong();
-				break;
-			case iedllIsManufTagId:
-				ImpExpParamDll.IsManufTagID = val.ToLong();
-				break;
-			case iedllGoodsKindSymb:
-				ImpExpParamDll.GoodsKindSymb = val;
-				break;
-			case iedllXmlPrefix:
-				ImpExpParamDll.XmlPrefix = val;
-				break;
-			case iedllGoodsKindTagID:
-				ImpExpParamDll.GoodsKindTagID = val.ToLong();
-				break;
-			case iedllOperType:
-				ImpExpParamDll.OperType = val;
-				break;
-			case iedllGoodsVolSymb:
-				ImpExpParamDll.GoodsVolSymb = val;
-				break;
-			case iedllManufINNID:
-				ImpExpParamDll.ManufINNID = val.ToLong();
-				break;
+			case iedllBeerGrpId: ImpExpParamDll.BeerGrpID = val.ToLong(); break;
+			case iedllAlcoGrpId: ImpExpParamDll.AlcoGrpID = val.ToLong(); break;
+			case iedllAlcoLicenseRegId: ImpExpParamDll.AlcoLicenseRegID = val.ToLong(); break;
+			case iedllTTNTagId: ImpExpParamDll.TTNTagID = val.ToLong(); break;
+			case iedllManufTagId: ImpExpParamDll.ManufTagID = val.ToLong(); break;
+			case iedllManufKPPRegTagId: ImpExpParamDll.ManufKPPRegTagID = val.ToLong(); break;
+			case iedllManufRegionCode: ImpExpParamDll.ManufRegionCode = val.ToLong(); break;
+			case iedllIsManufTagId: ImpExpParamDll.IsManufTagID = val.ToLong(); break;
+			case iedllGoodsKindSymb: ImpExpParamDll.GoodsKindSymb = val; break;
+			case iedllXmlPrefix: ImpExpParamDll.XmlPrefix = val; break;
+			case iedllGoodsKindTagID: ImpExpParamDll.GoodsKindTagID = val.ToLong(); break;
+			case iedllOperType: ImpExpParamDll.OperType = val; break;
+			case iedllGoodsVolSymb: ImpExpParamDll.GoodsVolSymb = val; break;
+			case iedllManufINNID: ImpExpParamDll.ManufINNID = val.ToLong(); break;
 			// } @vmiller
 			// @v8.4.6 {
-			case iefBaseFlags:
-				BaseFlags = val.ToLong();
-				break;
+			case iefBaseFlags: BaseFlags = val.ToLong(); break;
 			// } @v8.4.6
 			// @v8.6.1 {
 			case iefFtpAccSymb:
@@ -3331,7 +3247,7 @@ int SLAPI EditImpExpParams(uint iniFileID, uint sdRecID, PPImpExpParam * pParam,
 int InitImpExpParam(uint hdrRecType, uint recType, PPImpExpParam * pParam, const char * pFileName, int forExport, long dataFormat)
 {
 	int    ok = 1;
-	THROW_PP(pParam && pFileName, PPERR_INVPARAM);
+	THROW_INVARG(pParam && pFileName);
 	pParam->Init();
 	if(hdrRecType)
 		THROW(LoadSdRecord(hdrRecType, &pParam->HdrInrRec));

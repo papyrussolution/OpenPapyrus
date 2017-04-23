@@ -163,7 +163,7 @@ static void wxt_options(GpCommand & rC)
 #ifndef WIN32
 	if(term_interlock != NULL && term_interlock != (void *)wxt_init) {
 		term = NULL;
-		GpGg.IntError(GpC, NO_CARET, "The wxt terminal cannot be used in a qt session");
+		GpGg.IntErrorNoCaret("The wxt terminal cannot be used in a qt session");
 	}
 #endif
 	while (!rC.EndOfCommand()) {
@@ -171,7 +171,7 @@ static void wxt_options(GpCommand & rC)
 		case WXT_FONT:
 			rC.CToken++;
 			if(!(s = rC.TryToGetString()))
-				GpGg.IntError(rC, rC.CToken,"font: expecting string");
+				GpGg.IntErrorCurToken("font: expecting string");
 			font_setting = gp_strdup(s);
 			if(*s) {
 				char *sep = strchr(s,',');
@@ -205,23 +205,23 @@ static void wxt_options(GpCommand & rC)
 		case WXT_SIZE:
 			rC.CToken++;
 			if(rC.EndOfCommand())
-				GpGg.IntError(rC, rC.CToken,"size requires 'width,heigth'");
+				GpGg.IntErrorCurToken("size requires 'width,heigth'");
 			wxt_width = rC.RealExpression();
 			if(!rC.Eq(rC.CToken++,","))
-				GpGg.IntError(rC, rC.CToken,"size requires 'width,heigth'");
+				GpGg.IntErrorCurToken("size requires 'width,heigth'");
 			wxt_height = rC.RealExpression();
 			if(wxt_width < 1 || wxt_height < 1)
-				GpGg.IntError(rC, rC.CToken, "size is out of range");
+				GpGg.IntErrorCurToken("size is out of range");
 			if(set_size) duplication=true;
 			set_size = true;
 			break;
 		case WXT_POSITION:
 			rC.CToken++;
 			if(rC.EndOfCommand())
-				GpGg.IntError(rC, rC.CToken,"position requires 'x,y'");
+				GpGg.IntErrorCurToken("position requires 'x,y'");
 			wxt_posx = rC.RealExpression();
 			if(!rC.Eq(rC.CToken++,","))
-				GpGg.IntError(rC, rC.CToken,"position requires 'x,y'");
+				GpGg.IntErrorCurToken("position requires 'x,y'");
 			wxt_posy = rC.RealExpression();
 			if(set_position) duplication = true;
 			set_position = true;
@@ -265,7 +265,7 @@ static void wxt_options(GpCommand & rC)
 		case WXT_TITLE:
 			rC.CToken++;
 			if(!(s = rC.TryToGetString()))
-				GpGg.IntError(rC, rC.CToken,"title: expecting string");
+				GpGg.IntErrorCurToken("title: expecting string");
 			if(*s)
 				strncpy(wxt_title, s, sizeof(wxt_title));
 			free(s);

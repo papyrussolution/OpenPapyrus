@@ -5,7 +5,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <idea.h>
+// @v9.6.3 #include <idea.h>
 // @v9.6.2 (moved to pp.h) #include <ppidata.h>
 #include <ppftp.h>
 #include <Lm.h>
@@ -720,7 +720,13 @@ int PPApp::processCommand(uint cmd)
 				tsess_obj.ImportUHTT();
 			}
 			break;
-		case cmImportPosRefs:         ImportPosRefs();                   break; // @v9.0.8
+		case cmImportPosRefs:         
+			{
+				PPPosProtocol pp;
+				PPPosProtocol::ProcessInputBlock pib;
+				pp.ProcessInput(pib);
+			}
+			break; // @v9.0.8
 		case cmChainDatabase:         SetDatabaseChain();                break;
 		case cmDeleteTmpFiles:        DeleteTmpFiles();                  break;
 		case cmCreateNewFiles:        MakeDatabase();                    break;
@@ -785,7 +791,7 @@ int PPApp::processCommand(uint cmd)
 				int    r = ini_file.UpdateFromFile(src_file_name);
 				if(r > 0) {
 					ini_file.FlashIniBuf();
-					PPMessage(mfInfo|mfOK, PPINF_PPINIUPDATED, 0);
+					PPMessage(mfInfo|mfOK, PPINF_PPINIUPDATED);
 				}
 				else if(r < 0)
 					PPMessage(mfInfo|mfOK, PPINF_PPININOTUPDATED, src_file_name);
@@ -1225,7 +1231,7 @@ int SLAPI PPVerHistory::Write(const char * pDataPath, const Info * pInfo)
 	SFile  f;
 	Header hdr;
 	Record rec;
-	THROW_PP(pInfo, PPERR_INVPARAM);
+	THROW_INVARG(pInfo);
 	PPSetAddedMsgString(path);
 	if(fileExists(path)) {
 		THROW_SL(f.Open(path, SFile::mDenyWrite|SFile::mReadWrite|SFile::mBinary) > 0);
@@ -1643,7 +1649,7 @@ void PPApp::login(int processCmdLine)
 				if(CONFIRM(PPCFM_REGISTRATION) && PPLicRegister() > 0)
 					DS.SetDemoMode(0);
 				else
-					PPMessage(mfInfo|mfOK, PPINF_DEMO, 0);
+					PPMessage(mfInfo|mfOK, PPINF_DEMO);
 			}
 			DS.SetOperDate(dt);
 			StatusWinChange(1);
@@ -1788,7 +1794,7 @@ void PPApp::login(int processCmdLine)
 				if(CONFIRM(PPCFM_REGISTRATION) && PPLicRegister() > 0)
 					DS.SetDemoMode(0);
 				else
-					PPMessage(mfInfo|mfOK, PPINF_DEMO, 0);
+					PPMessage(mfInfo|mfOK, PPINF_DEMO);
 			}
 		}
 		if(valid && !prot && !recover) {

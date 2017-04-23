@@ -608,11 +608,11 @@ static void HPGL_options(GpCommand & rC)
 			HPGL_numpen = (int)rC.P_Token[rC.CToken].l_val.Real();
 			if(HPGL_numpen <= 0) {
 				HPGL_numpen = 6;
-				GpGg.IntError(rC, rC.CToken, "Number of pens must be positive");
+				GpGg.IntErrorCurToken("Number of pens must be positive");
 			}
 		}
 		else
-			GpGg.IntError(rC, rC.CToken, "expecting \"eject\" or number of pens");
+			GpGg.IntErrorCurToken("expecting \"eject\" or number of pens");
 		rC.CToken++;
 	}
 	sprintf(term_options, "%d pens %s", HPGL_numpen, HPGL_eject ? "eject" : "noeject");
@@ -665,7 +665,7 @@ static void HPGL2_options(GpCommand & rC)
 				    HPGL2_numpen = (int)rC.P_Token[rC.CToken].l_val.Real();
 				    if(HPGL2_numpen <= 0) {
 					    HPGL2_numpen = 6;
-					    GpGg.IntError(rC, rC.CToken, "Number of pens must be a positive");
+					    GpGg.IntErrorCurToken("Number of pens must be a positive");
 				    }
 				    rC.CToken++;
 			    }
@@ -688,11 +688,11 @@ static void HPGL2_options(GpCommand & rC)
 					    HPGL2_font_num_current = HPGL2_font_num;
 				    }
 				    else
-					    GpGg.IntError(rC, rC.CToken, "expecting font: stick, cg_times, univers, zapf_dingbats, antique_olive,\narial, courier, garamond_antigua, letter_gothic, cg_omega, albertus,\ntimes_new_roman, clarendon, coronet, marigold, truetype_symbols, or wingdings");
+					    GpGg.IntErrorCurToken("expecting font: stick, cg_times, univers, zapf_dingbats, antique_olive,\narial, courier, garamond_antigua, letter_gothic, cg_omega, albertus,\ntimes_new_roman, clarendon, coronet, marigold, truetype_symbols, or wingdings");
 				    rC.CToken++;
 			    }
 			    else
-				    GpGg.IntError(rC, rC.CToken, "expecting font: stick, cg_times, univers, zapf_dingbats, antique_olive,\narial, courier, garamond_antigua, letter_gothic, cg_omega, albertus,\ntimes_new_roman, clarendon, coronet, marigold, truetype_symbols, or wingdings");
+				    GpGg.IntErrorCurToken("expecting font: stick, cg_times, univers, zapf_dingbats, antique_olive,\narial, courier, garamond_antigua, letter_gothic, cg_omega, albertus,\ntimes_new_roman, clarendon, coronet, marigold, truetype_symbols, or wingdings");
 			    break;
 			case HPGL2_SIZE:
 			    rC.CToken++;
@@ -707,11 +707,11 @@ static void HPGL2_options(GpCommand & rC)
 						    HPGL2_font->pitch = 72 * 3 / (HPGL2_point_size * 2);
 				    }
 				    else
-					    GpGg.IntError(rC, rC.CToken, "expecting point size: real number");
+					    GpGg.IntErrorCurToken("expecting point size: real number");
 				    rC.CToken++;
 			    }
 			    else
-				    GpGg.IntError(rC, rC.CToken, "expecting point size: real number");
+				    GpGg.IntErrorCurToken("expecting point size: real number");
 			    break;
 			case HPGL2_NOPSPOINTS:
 			    rC.CToken++;
@@ -768,11 +768,11 @@ static void PCL_options(GpCommand & rC)
 			if(i < PCL_MODES)
 				PCL_mode = &PCL_mode_table[i];
 			else
-				GpGg.IntError(rC, rC.CToken, "expecting mode: portrait or landscape");
+				GpGg.IntErrorCurToken("expecting mode: portrait or landscape");
 			rC.CToken++;
 		}
 		else
-			GpGg.IntError(rC, rC.CToken, "expecting mode: portrait or landscape");
+			GpGg.IntErrorCurToken("expecting mode: portrait or landscape");
 	}
 	if(!rC.EndOfCommand() && rC.AlmostEq("ext$ended")) {
 		PCL_mode->xmax = (HPGL_XMAX_D);

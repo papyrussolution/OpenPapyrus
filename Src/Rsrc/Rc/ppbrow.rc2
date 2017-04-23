@@ -5361,8 +5361,10 @@ browser TSESSANLZ north(100), 3, 1, "Анализ производства", OWNER|GRID, 0
 
 browser GOODSTOOBJASSC north(100), 3, 1, "Ассоциации товар-%s", OWNER|GRID, 0
 {
-	"@ware",     2, notype, 0, 30
-	"@object",   3, notype, 0, 20
+	"@goodsid",  0, long,         0,  6, BCO_USERPROC
+	"@id",       1, long,         0,  6, BCO_USERPROC
+	"@ware",     2, zstring(128), 0, 30, BCO_USERPROC
+	"@object",   3, zstring(128), 0, 30, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM   : kbEnter, TBBM_EDIT,   "@{edit}\tEnter"
 		ADDITEM    : kbIns,   TBBM_INSERT, "@{add}\tInsert"
@@ -6441,7 +6443,7 @@ cmd TestUhttGetQuotByLoc  { "Тест SOAP-функции получения котировок по коду локац
 cmd LocationTag           { "@{cmd_locationtag}"                           ICON_TAGS              none cmLocationTag } // @v8.3.6
 cmd ConvertVersionToHtml  { "Конвертация version.txt (только для внутреннего использования)" none none cmConvertVersionToHtml } // @v8.3.12
 cmd ObjTagAllObjects      { "@{cmd_objtagallobj}"                          ICON_TAGS              none cmObjTagAllObj } // @v8.5.3
-cmd ImportFias            { "Импорт справочника ФИАС"                      none                   none cmImportFias } // @v8.6.2
+cmd ImportFias            { "@{cmd_importfias}"                            none                   none cmImportFias } // @v8.6.2
 cmd ExportDbTblTransfer   { "Экспорт таблицы Transfer"                     none                   none cmExportDbTblTransfer } // @v8.6.7
 cmd ExportDbTblBill       { "Экспорт таблицы Bill"                         none                   none cmExportDbTblBill } // @v8.6.8
 cmd TestFias              { "Тестирование справочника ФИАС"                none                   none cmTestFias } // @v8.6.10

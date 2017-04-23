@@ -431,7 +431,7 @@ int SLAPI PPObject::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, 
 	int    r;
 	if(!(options & not_checkrights))
 		THROW(CheckRights(PPR_DEL));
-	r = (options & user_request) ? PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE, 0) : cmYes;
+	r = (options & user_request) ? PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE) : cmYes;
 	if(r == cmYes) {
 		if(!(options & no_wait_indicator))
 			PPWait(1);
@@ -466,7 +466,7 @@ int  SLAPI PPObjWorkbook::RemoveObjV(PPID id, ObjCollection * pObjColl, uint opt
 	int    ok = -1;
 	int    r;
 	THROW(CheckRights(PPR_DEL));
-	r = (options & user_request) ? PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE, 0) : cmYes;
+	r = (options & user_request) ? PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE) : cmYes;
 	if(r == cmYes) {
 		SString msg_buf;
 		PPIDArray child_list;
@@ -1699,6 +1699,12 @@ int SLAPI PPObjWorkbook::RemoveAll()
 	return ok;
 }
 
+//virtual 
+const char * SLAPI PPObjWorkbook::GetNamePtr() 
+{ 
+	return P_Tbl->data.Name; 
+}
+
 // virtual
 void * SLAPI PPObjWorkbook::CreateObjListWin(uint flags, void * extraPtr)
 {
@@ -2782,7 +2788,7 @@ static int SLAPI SelectWorkbookImpExpConfig(PPWorkbookImpExpParam * pParam, int 
 	SString temp_buf;
 	StrAssocArray list;
 	PPWorkbookImpExpParam param;
-	THROW_PP(pParam, PPERR_INVPARAM);
+	THROW_INVARG(pParam);
 	pParam->Direction = BIN(import);
 	THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_WORKBOOK, &param, &list, import ? 2 : 1));
 	id = (list.SearchByText(pParam->Name, 1, &p) > 0) ? (uint)list.at(p).Id : 0;
@@ -2986,7 +2992,7 @@ int SLAPI PPWorkbookExporter::ExportPacket(const PPWorkbookPacket * pPack)
 	int    ok = 1;
 	SString temp_buf;
 	Sdr_Workbook sdr_rec;
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	MEMSZERO(sdr_rec);
 	WorkbookTbl::Rec inner_rec;
 	sdr_rec.ID = pPack->Rec.ID;

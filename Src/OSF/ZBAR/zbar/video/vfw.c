@@ -178,10 +178,8 @@ static zbar_image_t * vfw_dq(zbar_video_t * vdo)
 static int vfw_start(zbar_video_t * vdo)
 {
 	ResetEvent(vdo->state->captured);
-
 	if(!capCaptureSequenceNoFile(vdo->state->hwnd))
-		return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__,
-			    "starting video stream"));
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "starting video stream");
 	return 0;
 }
 
@@ -189,9 +187,7 @@ static int vfw_stop(zbar_video_t * vdo)
 {
 	video_state_t * state = vdo->state;
 	if(!capCaptureAbort(state->hwnd))
-		return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__,
-			    "stopping video stream"));
-
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "stopping video stream");
 	_zbar_mutex_lock(&vdo->qlock);
 	if(state->image)
 		state->image = NULL;
@@ -200,14 +196,11 @@ static int vfw_stop(zbar_video_t * vdo)
 	return 0;
 }
 
-static int vfw_set_format(zbar_video_t * vdo,
-    uint32 fmt)
+static int vfw_set_format(zbar_video_t * vdo, uint32 fmt)
 {
 	const zbar_format_def_t * fmtdef = _zbar_format_lookup(fmt);
 	if(!fmtdef->format)
-		return(err_capture_int(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__,
-			    "unsupported vfw format: %x", fmt));
-
+		return err_capture_int(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "unsupported vfw format: %x", fmt);
 	BITMAPINFOHEADER * bih = vdo->state->bih;
 	assert(bih);
 	bih->biWidth = vdo->width;
@@ -229,44 +222,29 @@ static int vfw_set_format(zbar_video_t * vdo,
 	}
 	bih->biClrUsed = bih->biClrImportant = 0;
 	bih->biCompression = fmt;
-
-	zprintf(8, "seting format: %.4s(%08x) " BIH_FMT "\n",
-	    (char*)&fmt, fmt, BIH_FIELDS(bih));
-
+	zprintf(8, "seting format: %.4s(%08x) " BIH_FMT "\n", (char*)&fmt, fmt, BIH_FIELDS(bih));
 	if(!capSetVideoFormat(vdo->state->hwnd, bih, vdo->state->bi_size))
-		return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__,
-			    "setting video format"));
-
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "setting video format");
 	if(!capGetVideoFormat(vdo->state->hwnd, bih, vdo->state->bi_size))
-		return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__,
-			    "getting video format"));
-
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "getting video format");
 	if(bih->biCompression != fmt)
-		return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__,
-			    "video format set ignored"));
-
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "video format set ignored");
 	vdo->format = fmt;
 	vdo->width = bih->biWidth;
 	vdo->height = bih->biHeight;
 	vdo->datalen = bih->biSizeImage;
-
-	zprintf(4, "set new format: %.4s(%08x) " BIH_FMT "\n",
-	    (char*)&fmt, fmt, BIH_FIELDS(bih));
+	zprintf(4, "set new format: %.4s(%08x) " BIH_FMT "\n", (char*)&fmt, fmt, BIH_FIELDS(bih));
 	return 0;
 }
 
-static int vfw_init(zbar_video_t * vdo,
-    uint32 fmt)
+static int vfw_init(zbar_video_t * vdo, uint32 fmt)
 {
 	if(vfw_set_format(vdo, fmt))
 		return -1;
-
 	HWND hwnd = vdo->state->hwnd;
 	CAPTUREPARMS cp;
 	if(!capCaptureGetSetup(hwnd, &cp, sizeof(cp)))
-		return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_WINAPI, __func__,
-			    "retrieving capture parameters"));
-
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_WINAPI, __func__, "retrieving capture parameters");
 	cp.dwRequestMicroSecPerFrame = 33333;
 	cp.fMakeUserHitOKToCapture = 0;
 	cp.wPercentDropForError = 90;
@@ -277,34 +255,19 @@ static int vfw_init(zbar_video_t * vdo,
 	cp.fAbortLeftMouse = 0;
 	cp.fAbortRightMouse = 0;
 	cp.fLimitEnabled = 0;
-
 	if(!capCaptureSetSetup(hwnd, &cp, sizeof(cp)))
-		return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_WINAPI, __func__,
-			    "setting capture parameters"));
-
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_WINAPI, __func__, "setting capture parameters");
 	if(!capCaptureGetSetup(hwnd, &cp, sizeof(cp)))
-		return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_WINAPI, __func__,
-			    "checking capture parameters"));
-
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_WINAPI, __func__, "checking capture parameters");
 	/* ignore errors since we skipped checking fHasOverlay */
 	capOverlay(hwnd, 0);
-
-	if(!capPreview(hwnd, 0) ||
-	    !capPreviewScale(hwnd, 0))
-		err_capture(vdo, SEV_WARNING, ZBAR_ERR_WINAPI, __func__,
-		    "disabling preview");
-
-	if(!capSetCallbackOnVideoStream(hwnd, vfw_stream_cb) ||
-	    !capSetCallbackOnError(hwnd, vfw_error_cb))
-		return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_BUSY, __func__,
-			    "setting capture callbacks"));
-
+	if(!capPreview(hwnd, 0) || !capPreviewScale(hwnd, 0))
+		err_capture(vdo, SEV_WARNING, ZBAR_ERR_WINAPI, __func__, "disabling preview");
+	if(!capSetCallbackOnVideoStream(hwnd, vfw_stream_cb) || !capSetCallbackOnError(hwnd, vfw_error_cb))
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_BUSY, __func__, "setting capture callbacks");
 	vdo->num_images = cp.wNumVideoRequested;
 	vdo->iomode = VIDEO_MMAP; /* driver provides "locked" buffers */
-
-	zprintf(3, "initialized video capture: %d buffers %ldms/frame\n",
-	    vdo->num_images, cp.dwRequestMicroSecPerFrame);
-
+	zprintf(3, "initialized video capture: %d buffers %ldms/frame\n", vdo->num_images, cp.dwRequestMicroSecPerFrame);
 	return 0;
 }
 
@@ -380,7 +343,7 @@ static int vfw_probe(zbar_video_t * vdo)
 	/* FIXME check OOM */
 
 	if(!capSetUserData(state->hwnd, (LONG)vdo) || !state->bi_size || !bih || !capGetVideoFormat(state->hwnd, bih, state->bi_size))
-		return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "setting up video capture"));
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "setting up video capture");
 	zprintf(3, "initial format: " BIH_FMT " (bisz=%x)\n", BIH_FIELDS(bih), state->bi_size);
 
 	if(!vdo->width || !vdo->height) {

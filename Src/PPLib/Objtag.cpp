@@ -659,7 +659,7 @@ void ObjectTagView::removeItem()
 	{
 		PPTransaction tra(1);
 		THROW(tra);
-		if((Rt & PPR_DEL) && id && PPMessage(mfConf|mfYesNo, PPCFM_DELETE, 0) == cmYes) {
+		if((Rt & PPR_DEL) && id && PPMessage(mfConf|mfYesNo, PPCFM_DELETE) == cmYes) {
 			r = 1;
 			if(P_List && P_List->def && P_List->isTreeList()) {
 				StdTreeListBoxDef * p_def = (StdTreeListBoxDef*)P_List->def;

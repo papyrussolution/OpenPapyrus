@@ -274,7 +274,7 @@ char * __db_unknown_error(int error)
  */
 void __db_syserr(const ENV * env, int error, const char * fmt, ...)
 {
-	DB_ENV * dbenv = (env == NULL) ? NULL : env->dbenv;
+	DB_ENV * dbenv = env ? env->dbenv : 0;
 	/*
 	 * The same as DB->err, except we don't default to writing to stderr
 	 * after any output channel has been configured, and we use a system-
@@ -291,7 +291,7 @@ void __db_syserr(const ENV * env, int error, const char * fmt, ...)
  */
 void __db_err(const ENV * env, int error, const char * fmt, ...)
 {
-	DB_ENV * dbenv = (env == NULL) ? NULL : env->dbenv;
+	DB_ENV * dbenv = env ? env->dbenv : 0;
 	/*
 	 * The same as DB->err, except we don't default to writing to stderr
 	 * once an output channel has been configured.
@@ -410,7 +410,7 @@ void __db_msgadd_ap(ENV*env, DB_MSGBUF * mbp, const char * fmt, va_list ap)
  */
 void __db_msg(const ENV * env, const char * fmt, ...)
 {
-	DB_ENV * dbenv = (env == NULL) ? NULL : env->dbenv;
+	DB_ENV * dbenv = env ? env->dbenv : 0;
 	DB_REAL_MSG(dbenv, fmt);
 }
 

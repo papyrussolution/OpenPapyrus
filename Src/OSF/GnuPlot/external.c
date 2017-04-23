@@ -100,11 +100,11 @@ AtType * GpCommand::ExternalAt(const char * pFuncName)
 	fifn_t fifn;
 	AtType * at = NULL;
 	if(!IsString(CToken))
-		GpGg.IntError(*this, CToken, "expecting external function filename");
+		GpGg.IntErrorCurToken("expecting external function filename");
 	// NB: cannot use TryToGetString() inside an expression evaluation 
 	MQuoteCapture(&file, CToken, CToken);
 	if(!file)
-		GpGg.IntError(*this, CToken, "expecting external function filename");
+		GpGg.IntErrorCurToken("expecting external function filename");
 	gp_expand_tilde(&file);
 	func = strrchr(file, ':');
 	if(func) {

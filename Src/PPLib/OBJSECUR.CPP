@@ -3,7 +3,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <idea.h>
+// @v9.6.3 #include <idea.h>
 
 #define SECUREXTRAPARAMSIGN 0xABCDEF07
 
@@ -316,7 +316,7 @@ int  SLAPI PPObjSecur::RemoveObjV(PPID id, ObjCollection * pObjColl, uint option
 			THROW_PP(id != PPUSR_MASTER, PPERR_CANTDELMASTER);
 			msg = PPCFM_DELUSR;
 		}
-		if(msg && PPMessage(mfConf|mfYes|mfNo, msg, 0) == cmYes) {
+		if(msg && PPMessage(mfConf|mfYes|mfNo, msg) == cmYes) {
 			PPTransaction tra(1);
 			THROW(tra);
 			THROW(ref->RemoveSecur(Obj, id, 0));
@@ -326,7 +326,7 @@ int  SLAPI PPObjSecur::RemoveObjV(PPID id, ObjCollection * pObjColl, uint option
 		}
 	}
 	else if(Obj == PPOBJ_CONFIG) {
-		PPMessage(mfInfo|mfCancel, PPINF_CANNOTDELCONFIG, 0);
+		PPMessage(mfInfo|mfCancel, PPINF_CANNOTDELCONFIG);
 	}
 	CATCHZOKPPERR
 	return ok;

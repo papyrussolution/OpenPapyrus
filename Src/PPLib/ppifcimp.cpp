@@ -1804,7 +1804,7 @@ int32 DL6ICLS_PPSession::GetDatabaseInfo(int32 id, SPpyDatabaseInfo* pInfo)
 	PPIniFile ini_file;
 	THROW(ini_file.IsValid());
 	THROW(set.ReadFromProfile(&ini_file, 0, 0));
-	THROW_PP(id > 0 && id <= (long)set.GetCount(), PPERR_INVPARAM);
+	THROW_INVARG(id > 0 && id <= (long)set.GetCount());
 	THROW(set.GetByID(id, &blk));
 	if(pInfo) {
 		SString temp_buf;
@@ -9130,7 +9130,7 @@ int32 DL6ICLS_PPViewGoodsOpAnlz::Init(IUnknown* pFilt)
 {
 	IPpyFilt_GoodsOpAnlz * p_ifc_filt = 0;
 	S_GUID uuid;
-	THROW_PP(pFilt, PPERR_INVPARAM);
+	THROW_INVARG(pFilt);
 	THROW(GetInnerUUID("IPpyFilt_GoodsOpAnlz", uuid));
 	THROW(SUCCEEDED(pFilt->QueryInterface(uuid, (void **)&p_ifc_filt)));
 	THROW(((PPViewGoodsOpAnalyze *)ExtraPtr)->Init_((const GoodsOpAnalyzeFilt *)GetExtraPtrByInterface(p_ifc_filt)));
@@ -9333,7 +9333,7 @@ int32 DL6ICLS_PPObjTransport::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	PPID   id = 0;
 	PPObjTransport * p_e = (PPObjTransport *)ExtraPtr;
 	PPTransport tr_rec;
-	THROW_PP(p_e, PPERR_INVPARAM);
+	THROW_INVARG(p_e);
 	THROW(AcceptTransportRec((SPpyO_Transport *)pRec, &tr_rec));
 	tr_rec.ID = 0;
 	THROW(p_e->Put(&id, &tr_rec, (flags & 1) ? 0 : 1));
@@ -9347,7 +9347,7 @@ int32 DL6ICLS_PPObjTransport::Update(int32 id, int32 flags, PPYOBJREC rec)
 	int    ok = 1;
 	PPObjTransport * p_e = (PPObjTransport *)ExtraPtr;
 	PPTransport tr_rec;
-	THROW_PP(p_e, PPERR_INVPARAM);
+	THROW_INVARG(p_e);
 	THROW(AcceptTransportRec((SPpyO_Transport *)rec, &tr_rec));
 	THROW(p_e->Put(&id, &tr_rec, (flags & 1) ? 0 : 1));
 	CATCHZOK
@@ -9487,7 +9487,7 @@ int32 DL6ICLS_PPObjProcessor::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	PPID   id = 0;
 	PPObjProcessor * p_e = (PPObjProcessor *)ExtraPtr;
 	PPProcessorPacket inner_pack;
-	THROW_PP(p_e, PPERR_INVPARAM);
+	THROW_INVARG(p_e);
 	THROW(AcceptProcessorRec((SPpyO_Processor *)pRec, &inner_pack));
 	inner_pack.Rec.ID = 0;
 	THROW(p_e->PutPacket(&id, &inner_pack, (flags & 1) ? 0 : 1));
@@ -9501,7 +9501,7 @@ int32 DL6ICLS_PPObjProcessor::Update(int32 id, int32 flags, PPYOBJREC rec)
 	int    ok = 1;
 	PPObjProcessor * p_e = (PPObjProcessor *)ExtraPtr;
 	PPProcessorPacket inner_pack;
-	THROW_PP(p_e, PPERR_INVPARAM);
+	THROW_INVARG(p_e);
 	THROW(AcceptProcessorRec((SPpyO_Processor *)rec, &inner_pack));
 	THROW(p_e->PutPacket(&id, &inner_pack, (flags & 1) ? 0 : 1));
 	CATCHZOK
@@ -9633,7 +9633,7 @@ int32 DL6ICLS_PPObjTSession::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	PPID   id = 0;
 	PPObjTSession * p_e = (PPObjTSession *)ExtraPtr;
 	TSessionTbl::Rec inner_rec;
-	THROW_PP(p_e, PPERR_INVPARAM);
+	THROW_INVARG(p_e);
 	THROW(AcceptTSessionRec((SPpyO_TSession *)pRec, &inner_rec));
 	inner_rec.ID = 0;
 	THROW(p_e->PutRec(&id, &inner_rec, (flags & 1) ? 0 : 1));
@@ -9647,7 +9647,7 @@ int32 DL6ICLS_PPObjTSession::Update(int32 id, int32 flags, PPYOBJREC rec)
 	int    ok = 1;
 	PPObjTSession * p_e = (PPObjTSession *)ExtraPtr;
 	TSessionTbl::Rec inner_rec;
-	THROW_PP(p_e, PPERR_INVPARAM);
+	THROW_INVARG(p_e);
 	THROW(AcceptTSessionRec((SPpyO_TSession *)rec, &inner_rec));
 	THROW(p_e->PutRec(&id, &inner_rec, (flags & 1) ? 0 : 1));
 	CATCHZOK
@@ -10031,7 +10031,7 @@ int32 DL6ICLS_PPViewOpGrouping::Init(IUnknown* pFilt)
 {
 	IPpyFilt_OpGrouping * p_ifc_filt = 0;
 	S_GUID uuid;
-	THROW_PP(pFilt, PPERR_INVPARAM);
+	THROW_INVARG(pFilt);
 	THROW(GetInnerUUID("IPpyFilt_OpGrouping", uuid));
 	THROW(SUCCEEDED(pFilt->QueryInterface(uuid, (void **)&p_ifc_filt)));
 	THROW(((PPViewOpGrouping *)ExtraPtr)->Init_((const OpGroupingFilt *)GetExtraPtrByInterface(p_ifc_filt)));
@@ -10234,7 +10234,7 @@ int32 DL6ICLS_PPViewDebtTrnovr::Init(IUnknown* pFilt)
 {
 	IPpyFilt_DebtTrnovr * p_ifc_filt = 0;
 	S_GUID uuid;
-	THROW_PP(pFilt, PPERR_INVPARAM);
+	THROW_INVARG(pFilt);
 	THROW(GetInnerUUID("IPpyFilt_DebtTrnovr", uuid));
 	THROW(SUCCEEDED(pFilt->QueryInterface(uuid, (void **)&p_ifc_filt)));
 	THROW(((PPViewDebtTrnovr *)ExtraPtr)->Init_((const DebtTrnovrFilt *)GetExtraPtrByInterface(p_ifc_filt)));
@@ -10327,7 +10327,7 @@ int32 DL6ICLS_PPViewLotOp::Init(IUnknown* pFilt)
 {
 	IPpyFilt_LotOp * p_ifc_filt = 0;
 	S_GUID uuid;
-	THROW_PP(pFilt, PPERR_INVPARAM);
+	THROW_INVARG(pFilt);
 	THROW(GetInnerUUID("IPpyFilt_LotOp", uuid));
 	THROW(SUCCEEDED(pFilt->QueryInterface(uuid, (void **)&p_ifc_filt)));
 	THROW(((PPViewLotOp *)ExtraPtr)->Init_((const LotOpFilt *)GetExtraPtrByInterface(p_ifc_filt)));

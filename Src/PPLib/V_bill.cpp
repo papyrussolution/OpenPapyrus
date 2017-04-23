@@ -1826,7 +1826,7 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 			if(s == 0) {
 				if(P_BObj->Search(id, &bill_rec) > 0) {
 					if(bill_rec.Flags & BILLF_WRITEDOFF)
-						PPMessage(mfInfo|mfOK, PPINF_DRAFTALLREADYWROFF, 0);
+						PPMessage(mfInfo|mfOK, PPINF_DRAFTALLREADYWROFF);
 					else {
 						THROW(ok = P_BObj->WriteOffDraft(id, 0, &deficit_list, 1));
 						if(ok == -2) {
@@ -1867,7 +1867,7 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 			else if(s == 2) {
 				if(P_BObj->Search(id, &bill_rec) > 0) {
 					if(!(bill_rec.Flags & BILLF_WRITEDOFF)) {
-						PPMessage(mfInfo|mfOK, PPINF_DRAFTNOTWROFF, 0);
+						PPMessage(mfInfo|mfOK, PPINF_DRAFTNOTWROFF);
 					}
 					else {
 						PPIDArray wroff_bill_list;
@@ -2927,7 +2927,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 int SLAPI PPViewBill::SendAddBillMessage(PPID id)
 {
 	if(id && P_BObj->Cfg.Flags & BCF_WARNADDBILLNOFLT)
-		return (CheckIDForFilt(id, 0) > 0) ? -1 : (PPMessage(mfInfo|mfOK, PPINF_ADDBILLNOSHOWBYFLT, 0), 1);
+		return (CheckIDForFilt(id, 0) > 0) ? -1 : (PPMessage(mfInfo|mfOK, PPINF_ADDBILLNOSHOWBYFLT), 1);
 	else
 		return -1;
 }
@@ -3639,7 +3639,7 @@ int SLAPI PPViewBill::UniteSellBills()
 	int    ok = -1;
 	PPIDArray  src_ids, dest_ids;
 	PPBillPacket pack;
-	if(PPMessage(mfConf|mfYesNo, PPCFM_UNITESELL, 0) == cmYes) {
+	if(PPMessage(mfConf|mfYesNo, PPCFM_UNITESELL) == cmYes) {
 		PPWait(1);
 		THROW(GetBillIDList(&src_ids));
 		if(src_ids.getCount() > 1) {
@@ -3689,7 +3689,7 @@ int SLAPI PPViewBill::UniteReceiptBills()
 {
 	int    ok = -1;
 	PPIDArray ary;
-	if(PPMessage(mfConf|mfYesNo, PPCFM_UNITERCPT, 0) == cmYes) {
+	if(PPMessage(mfConf|mfYesNo, PPCFM_UNITERCPT) == cmYes) {
 		PPWait(1);
 		THROW(GetBillIDList(&ary));
 		if(ary.getCount() > 1) {
@@ -5907,7 +5907,7 @@ int SLAPI BrowseBills(BrowseBillsType bbt)
 {
 	int    ok = -1;
 	if(bbt == bbtDraftBills && !(CConfig.Flags & CCFLG_USEDRAFTBILL))
-		ok = (PPMessage(mfInfo, PPINF_NOSETUSEDRAFTBILLFLAG, 0), -1);
+		ok = (PPMessage(mfInfo, PPINF_NOSETUSEDRAFTBILLFLAG), -1);
 	else {
 		THROW(PPCheckDatabaseChain());
 		{

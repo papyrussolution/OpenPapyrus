@@ -49,7 +49,7 @@ int SLAPI GoodsSaldoCore::GetLastSaldo(PPID goodsID, PPID arID, PPID dlvrLocID, 
 		}
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	ASSIGN_PTR(pRec, gd_rec);
 	ASSIGN_PTR(pDt, dt);
 	return ok;
@@ -300,7 +300,7 @@ int SLAPI PrcssrGoodsSaldo::EditParam(Param * pPar)
 {
 	int    ok = -1, valid_data;
 	GoodsSaldoParamDlg * dlg = 0;
-	THROW_PP(pPar, PPERR_INVPARAM);
+	THROW_INVARG(pPar);
 	THROW(CheckDialogPtr(&(dlg = new GoodsSaldoParamDlg())));
 	dlg->setDTS(pPar);
 	for(valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
@@ -313,7 +313,7 @@ int SLAPI PrcssrGoodsSaldo::EditParam(Param * pPar)
 
 int SLAPI PrcssrGoodsSaldo::Init(const Param * pPar)
 {
-	return RVALUEPTR(Par, pPar) ? 1 : PPSetError(PPERR_INVPARAM);
+	return RVALUEPTR(Par, pPar) ? 1 : PPSetErrorInvParam();
 }
 
 IMPL_CMPFUNC(GArSEntry, i1, i2)
@@ -433,7 +433,7 @@ int SLAPI PrcssrGoodsSaldo::Run()
 	IterCounter cntr;
 	TSArray <GArSEntry> list;
 	//TSArray <GArSLastEntry> idx_list;
-	THROW_PP(Par.GoodsGrpID || Par.GoodsID, PPERR_INVPARAM);
+	THROW_INVARG(Par.GoodsGrpID || Par.GoodsID);
 	PPWait(1);
 	if(!Par.GoodsID) {
 		THROW(GoodsIterator::GetListByGroup(Par.GoodsGrpID, &goods_list));

@@ -487,7 +487,7 @@ public:
 		uint   p = 0;
 		SString sect; // @vmiller
 		PPBillImpExpParam param;
-		THROW_PP(P_Data, PPERR_INVPARAM);
+		THROW_INVARG(P_Data);
 		THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_BILL, &param, &HdrList, Import ? 2 : 1));
 		THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_BROW, &param, &LineList, Import ? 2 : 1));
 		THROW(LoadSdRecord(PPREC_BILL, &P_Data->BillParam.InrRec)); // @vmiller (для отображения в фильтре иконки)
@@ -560,8 +560,8 @@ public:
 		int    ok = 1;
 		uint   id = 0;
 		SString sect;
-		THROW_PP(P_IniFile, PPERR_INVPARAM);
-		THROW_PP(P_Data, PPERR_INVPARAM);
+		THROW_INVARG(P_IniFile);
+		THROW_INVARG(P_Data);
 		GetTech();
 		if(Import) {
 			P_Data->OpID = getCtrlLong(CTLSEL_IEBILLSEL_OP);
@@ -899,7 +899,7 @@ int SLAPI SelectBillImpExpCfgs(PPBillImpExpParam * pBillParam, PPBillImpExpParam
 	StrAssocArray list1, list2;
 	PPBillImpExpParam param;
 	TDialog * p_dlg = 0;
-	THROW_PP(pBillParam && pBRowParam, PPERR_INVPARAM);
+	THROW_INVARG(pBillParam && pBRowParam);
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
 	{
 		PPIniFile ini_file(ini_file_name, 0, 1, 1);
@@ -1014,7 +1014,7 @@ int UnknownGoodsSubstDialog::setDTS(SdrBillRowArray * pData)
 int UnknownGoodsSubstDialog::getDTS(SdrBillRowArray * pData, PPIDArray * pSubstGoodsList)
 {
 	int    ok = 1;
-	THROW_PP(pData && pSubstGoodsList, PPERR_INVPARAM);
+	THROW_INVARG(pData && pSubstGoodsList);
 	pData->freeAll();
 	pSubstGoodsList->freeAll();
 	for(uint i = 0; i < SubstGoodsList.getCount(); i++) {
@@ -1567,7 +1567,7 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 	PPObjTag tag_obj;
 	SdRecord dyn_rec;
 	SdbField dyn_fld, inner_fld;
-	THROW_PP(pImpExp, PPERR_INVPARAM);
+	THROW_INVARG(pImpExp);
 	THROW(pImpExp->InitDynRec(&dyn_rec));
 	pImpExp->GetNumRecs(&count);
 	def_inn = BillParam.Object1SrchCode;
@@ -1861,7 +1861,7 @@ int SLAPI PPBillImporter::AddBillToList(Sdr_Bill * pBill, long extraBillId)
 	int    ok = 1;
 	int    found = 0;
 	assert(pBill);
-	THROW_PP(pBill, PPERR_INVPARAM);
+	THROW_INVARG(pBill);
 	for(uint j = 0; ok > 0 && j < Bills.getCount(); j++) {
 		const Sdr_Bill & r_rec = Bills.at(j);
 		if(pBill->Date == r_rec.Date && (!pBill->Code[0] || stricmp(pBill->Code, r_rec.Code) == 0) && (!pBill->ID[0] || stricmp(pBill->ID, r_rec.ID) == 0))
@@ -2805,7 +2805,7 @@ int SLAPI PPBillImporter::ResolveGLN(const char * pGLN, const char * pLocCode, c
 	PPID   reg_type_id = 0, ar_id = 0;
 	SString code;
 	assert(pGLN || pLocCode);
-	THROW_PP(pGLN || pLocCode, PPERR_INVPARAM);
+	THROW_INVARG(pGLN || pLocCode);
 	//
 	if((code = pGLN).NotEmptyS()) {
 		reg_type_id = PPREGT_GLN;
@@ -3484,7 +3484,7 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 	PPTransferItem * p_ti = 0;
 	ReceiptCore * p_rcpt = (P_BObj && P_BObj->trfr) ? &P_BObj->trfr->Rcpt : 0;
 	GTaxVect vect;
-	THROW_PP(pPack && P_IEBill && (P_IEBRow || (sessId && pImpExpDll)), PPERR_INVPARAM);
+	THROW_INVARG(pPack && P_IEBill && (P_IEBRow || (sessId && pImpExpDll)));
 	{
 		const SString edi_op_symb = BillParam.ImpExpParamDll.OperType;
 		SString ttn_tag_value;

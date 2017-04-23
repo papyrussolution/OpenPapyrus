@@ -1,5 +1,5 @@
 // PPEXPR.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // @Kernel
 //
@@ -411,11 +411,11 @@ int SLAPI BillContext::Resolve(const char * b, double * pResult)
 		b   = p_delim+1;
 		*p_delim = '.';
 	}
-	if(!stricmp(b, "QTTY")) {
+	if(sstreqi_ascii(b, "QTTY")) {
 		artefact_symb = ARTSYMB_QTTY;
 		r = 1;
 	}
-	else if(!stricmp(b, "PHQTTY")) {
+	else if(sstreqi_ascii(b, "PHQTTY")) {
 		artefact_symb = ARTSYMB_PHQTTY;
 		r = 1;
 	}

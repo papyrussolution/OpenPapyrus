@@ -140,7 +140,7 @@ void save_array_content(FILE * fp, t_value * array)
  * current term setting to a file uncommentedly. */
 void save_term(FILE * fp)
 {
-	show_version(GpC, fp);
+	show_version(GpGg.Gp__C, fp);
 	/* A possible gotcha: the default initialization often doesn't set
 	 * term_options, but a 'set term <type>' without options doesn't
 	 * reset the options to startup defaults. This may have to be
@@ -678,7 +678,7 @@ void GpGadgets::SaveSetAll(GpCommand & rC, FILE * fp)
 		save_nonlinear(fp, &AxA[axis]);
 #undef SAVE_AXISLABEL
 #undef SAVE_AXISLABEL_OR_TITLE
-	save_jitter(fp);
+	SaveJitter(fp);
 	fprintf(fp, "set zero %g\n", Zero);
 	fprintf(fp, "set LMrg %s %g\n", LMrg.scalex == screen ? "at screen" : "", LMrg.x);
 	fprintf(fp, "set BMrg %s %g\n", BMrg.scalex == screen ? "at screen" : "", BMrg.x);
@@ -761,7 +761,7 @@ void GpGadgets::SaveSetAll(GpCommand & rC, FILE * fp)
 			    fprintf(fp, "defined (");
 			    for(int i = 0; i < SmPalette.gradient_num; i++) {
 				    fprintf(fp, " %.4g %.4g %.4g %.4g", SmPalette.gradient[i].pos,
-					    SmPalette.gradient[i].col.r, SmPalette.gradient[i].col.g, SmPalette.gradient[i].col.b);
+					    SmPalette.gradient[i].col.R, SmPalette.gradient[i].col.G, SmPalette.gradient[i].col.B);
 				    if(i < SmPalette.gradient_num-1) {
 					    fputs(",", fp);
 					    if(i==2 || i%4==2) 
@@ -1540,7 +1540,7 @@ void save_object(FILE * fp, int tag)
 		}
 	}
 	if(tag > 0 && !showed)
-		GpGg.IntError(GpC, GpC.CToken, "object not found");
+		GpGg.IntErrorCurToken("object not found");
 }
 
 #endif

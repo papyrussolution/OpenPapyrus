@@ -67,14 +67,14 @@ void GpParser::ParseResetAfterError()
 }
 
 /* JW 20051126:
- * Wrapper around const_express() called by GpC.TryToGetString().
+ * Wrapper around const_express() called by GpGg.Gp__C.TryToGetString().
  * Disallows top level + and - operators.
  * This enables things like set xtics ('-\pi' -pi, '-\pi/2' -pi/2.)
  */
 t_value * GpParser::ConstStringExpress(t_value * valptr)
 {
 	IsStringResultOnly = true;
-	ConstExpress(GpC, valptr);
+	ConstExpress(GpGg.Gp__C, valptr);
 	IsStringResultOnly = false;
 	return (valptr);
 }
@@ -83,17 +83,17 @@ t_value * GpParser::ConstExpress(GpCommand & rC, t_value * valptr)
 {
 	int    tkn = rC.CToken;
 	if(rC.EndOfCommand())
-		GpGg.IntError(rC, rC.CToken, "constant expression required");
+		GpGg.IntErrorCurToken("constant expression required");
 	// div - no dummy variables in a constant expression
 	rC.P_DummyFunc = NULL;
 	GpGg.Ev.EvaluateAt(TempAt(), valptr); // run it and send answer back
 	if(GpGg.Ev.undefined) {
-		GpGg.IntError(GpC, tkn, "undefined value");
+		GpGg.IntError(tkn, "undefined value");
 	}
 	if(valptr->type == ARRAY) {
 		// Make sure no one tries to free it later
 		valptr->type = NOTDEFINED;
-		GpGg.IntError(GpC, NO_CARET, "const_express: unsupported array operation");
+		GpGg.IntErrorNoCaret("const_express: unsupported array operation");
 	}
 	return (valptr);
 }
@@ -118,7 +118,7 @@ char * GpParser::StringOrExpress(GpCommand & rC, AtType ** atptr)
 	P_DfArray = NULL;
 	ASSIGN_PTR(atptr, 0);
 	if(rC.EndOfCommand())
-		GpGg.IntError(rC, rC.CToken, "expression expected");
+		GpGg.IntErrorCurToken("expression expected");
 	// parsing for datablocks
 	if(rC.Eq("$"))
 		return rC.ParseDataBlockName();
@@ -173,7 +173,7 @@ AtType * GpParser::TempAt()
 	memzero(P_At, sizeof(*P_At)); // reset action table !!! 
 	AtSize = MAX_AT_LEN;
 	parse_recursion_level = 0;
-	ParseExpression(GpC);
+	ParseExpression(GpGg.Gp__C);
 	return P_At;
 }
 //
@@ -398,7 +398,7 @@ void GpParser::ParsePrimaryExpression(GpCommand & rC)
 			ParseExpression(rC);
 		}
 		if(!rC.Eq(")"))
-			GpGg.IntError(rC, rC.CToken, "')' expected");
+			GpGg.IntErrorCurToken("')' expected");
 		rC.CToken++;
 	}
 	else if(rC.Eq("$")) {
@@ -410,12 +410,12 @@ void GpParser::ParsePrimaryExpression(GpCommand & rC)
 			AtHighestColumnUsed = -3;
 		}
 		else if(!rC.IsANumber(rC.CToken)) {
-			GpGg.IntError(rC, rC.CToken, "Column number expected");
+			GpGg.IntErrorCurToken("Column number expected");
 		}
 		else {
 			rC.Convert(&a, rC.CToken++);
 			if(a.type != INTGR || a.v.int_val < 0)
-				GpGg.IntError(rC, rC.CToken, "Positive integer expected");
+				GpGg.IntErrorCurToken("Positive integer expected");
 			SETMAX(AtHighestColumnUsed, a.v.int_val);
 		}
 		AddAction(DOLLARS)->v_arg = a;
@@ -457,7 +457,7 @@ void GpParser::ParsePrimaryExpression(GpCommand & rC)
 					ParseExpression(rC);
 				}
 				if(!rC.Eq(")"))
-					GpGg.IntError(rC, rC.CToken, "')' expected");
+					GpGg.IntErrorCurToken("')' expected");
 				rC.CToken++;
 				// So far sprintf is the only built-in function 
 				// with a variable number of arguments.         
@@ -489,7 +489,7 @@ void GpParser::ParsePrimaryExpression(GpCommand & rC)
 					call_type = (enum operators)CALLN;
 				}
 				if(!rC.Eq(")"))
-					GpGg.IntError(rC, rC.CToken, "')' expected");
+					GpGg.IntErrorCurToken("')' expected");
 				rC.CToken++;
 				AddAction(call_type)->udf_arg = GpGg.Ev.AddUdf(rC, tok);
 			}
@@ -547,7 +547,7 @@ void GpParser::ParsePrimaryExpression(GpCommand & rC)
 		rC.CToken++;
 	}
 	else {
-		GpGg.IntError(rC, rC.CToken, "invalid expression ");
+		GpGg.IntErrorCurToken("invalid expression ");
 	}
 	/* The remaining operators are postfixes and can be stacked, e.g. */
 	/* Array[i]**2, so we may have to loop to catch all of them.      */
@@ -587,7 +587,7 @@ void GpParser::ParsePrimaryExpression(GpCommand & rC)
 				continue;
 			}
 			if(!rC.Eq(":"))
-				GpGg.IntError(rC, rC.CToken, "':' expected");
+				GpGg.IntErrorCurToken("':' expected");
 			// handle '*' or empty end of range 
 			if(rC.Eq(++rC.CToken, "*") || rC.Eq("]")) {
 				GpArgument * empty = AddAction(PUSHC);
@@ -599,7 +599,7 @@ void GpParser::ParsePrimaryExpression(GpCommand & rC)
 			else
 				ParseExpression(rC);
 			if(!rC.Eq("]"))
-				GpGg.IntError(rC, rC.CToken, "']' expected");
+				GpGg.IntErrorCurToken("']' expected");
 			rC.CToken++;
 			AddAction(RANGE);
 			// Whatever this is, it isn't another postfix operator 
@@ -631,7 +631,7 @@ void GpParser::ParseConditionalExpression(GpCommand & rC)
 		AddAction(JTERN);
 		ParseExpression(rC);
 		if(!rC.Eq(":"))
-			GpGg.IntError(rC, rC.CToken, "expecting ':'");
+			GpGg.IntErrorCurToken("expecting ':'");
 		rC.CToken++;
 		savepc2 = P_At->a_count;
 		AddAction(JUMP);
@@ -885,7 +885,7 @@ void GpCommand::ParseLinkVia(UdftEntry * pUdf)
 	CToken++;
 	int start_token = CToken;
 	if(EndOfCommand())
-		GpGg.IntError(*this, CToken, "Missing expression");
+		GpGg.IntErrorCurToken("Missing expression");
 	// Save action table for the linkage mapping
 	P_DummyFunc = pUdf;
 	AtType::Destroy(pUdf->at);
@@ -920,7 +920,7 @@ void GpParser::ParseSumExpression(GpCommand & rC)
 	rC.CToken += 2;
 	/* <var> */
 	if(!rC.IsLetter(rC.CToken))
-		GpGg.IntError(rC, rC.CToken, errormsg);
+		GpGg.IntErrorCurToken(errormsg);
 	// create a user defined variable and pass it to f_sum via PUSHC, since the
 	// argument of f_sum is already used by the udf 
 	rC.MCapture(&varname, rC.CToken, rC.CToken);
@@ -929,17 +929,17 @@ void GpParser::ParseSumExpression(GpCommand & rC)
 	Gstring(&(arg->v_arg), varname);
 	rC.CToken++;
 	if(!rC.Eq("="))
-		GpGg.IntError(rC, rC.CToken, errormsg);
+		GpGg.IntErrorCurToken(errormsg);
 	rC.CToken++;
 	/* <start> */
 	ParseExpression(rC);
 	if(!rC.Eq(":"))
-		GpGg.IntError(rC, rC.CToken, errormsg);
+		GpGg.IntErrorCurToken(errormsg);
 	rC.CToken++;
 	/* <end> */
 	ParseExpression(rC);
 	if(!rC.Eq("]"))
-		GpGg.IntError(rC, rC.CToken, errormsg);
+		GpGg.IntErrorCurToken(errormsg);
 	rC.CToken++;
 	/* parse <expr> and convert it to a new action table. */
 	/* modeled on code from temp_at(). */
@@ -1041,13 +1041,13 @@ t_iterator * GpCommand::CheckForIteration()
 		bool just_once = false;
 		CToken++;
 		if(!Eq(CToken++, "[") || !IsLetter(CToken))
-			GpGg.IntError(*this, CToken-1, errormsg);
+			GpGg.IntError(CToken-1, errormsg);
 		iteration_udv = GpGg.Ev.AddUdv(*this, CToken++);
 		if(Eq("=")) {
 			CToken++;
 			iteration_start = IntExpression();
 			if(!Eq(CToken++, ":"))
-				GpGg.IntError(*this, CToken-1, errormsg);
+				GpGg.IntError(CToken-1, errormsg);
 			if(Eq("*")) {
 				iteration_end = INT_MAX;
 				CToken++;
@@ -1058,10 +1058,10 @@ t_iterator * GpCommand::CheckForIteration()
 				CToken++;
 				iteration_increment = IntExpression();
 				if(iteration_increment == 0)
-					GpGg.IntError(*this, CToken-1, errormsg);
+					GpGg.IntError(CToken-1, errormsg);
 			}
 			if(!Eq(CToken++, "]"))
-				GpGg.IntError(*this, CToken-1, errormsg);
+				GpGg.IntError(CToken-1, errormsg);
 			gpfree_array(&(iteration_udv->udv_value));
 			gpfree_string(&(iteration_udv->udv_value));
 			iteration_udv->udv_value.SetInt(iteration_start);
@@ -1069,9 +1069,9 @@ t_iterator * GpCommand::CheckForIteration()
 		else if(Eq(CToken++, "in")) {
 			iteration_string = TryToGetString();
 			if(!iteration_string)
-				GpGg.IntError(*this, CToken-1, errormsg);
+				GpGg.IntError(CToken-1, errormsg);
 			if(!Eq(CToken++, "]"))
-				GpGg.IntError(*this, CToken-1, errormsg);
+				GpGg.IntError(CToken-1, errormsg);
 			iteration_start = 1;
 			iteration_end = GpGg.Ev.GpWords(iteration_string);
 			gpfree_array(&(iteration_udv->udv_value));
@@ -1079,7 +1079,7 @@ t_iterator * GpCommand::CheckForIteration()
 			Gstring(&(iteration_udv->udv_value), gp_word(iteration_string, 1));
 		}
 		else // Neither [i=B:E] or [s in "foo"] 
-			GpGg.IntError(*this, CToken-1, errormsg);
+			GpGg.IntError(CToken-1, errormsg);
 		iteration_current = iteration_start;
 		empty_iteration = false;
 		if(iteration_udv && ((iteration_end > iteration_start && iteration_increment < 0) || (iteration_end < iteration_start && iteration_increment > 0))) {

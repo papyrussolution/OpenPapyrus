@@ -160,14 +160,14 @@ void GpGadgets::MultiplotStart(GpTermEntry * pT, GpCommand & rC)
 		if(rC.Eq("next")) {
 			rC.CToken++;
 			if(!MpL.auto_layout)
-				IntError(rC, rC.CToken, "only valid inside an auto-layout multiplot");
+				IntErrorCurToken("only valid inside an auto-layout multiplot");
 			MultiplotNext(pT);
 			return;
 		}
 		else if(rC.AlmostEq("prev$ious")) {
 			rC.CToken++;
 			if(!MpL.auto_layout)
-				IntError(rC, rC.CToken, "only valid inside an auto-layout multiplot");
+				IntErrorCurToken("only valid inside an auto-layout multiplot");
 			MultiplotPrevious(pT);
 			return;
 		}
@@ -206,23 +206,23 @@ void GpGadgets::MultiplotStart(GpTermEntry * pT, GpCommand & rC)
 		}
 		if(rC.AlmostEq("lay$out")) {
 			if(MpL.auto_layout)
-				IntError(rC, rC.CToken, "too many layout commands");
+				IntErrorCurToken("too many layout commands");
 			else
 				MpL.auto_layout = true;
 
 			rC.CToken++;
 			if(rC.EndOfCommand()) {
-				IntError(rC, rC.CToken, "expecting '<num_cols>,<num_rows>'");
+				IntErrorCurToken("expecting '<num_cols>,<num_rows>'");
 			}
 
 			/* read row,col */
 			MpL.num_rows = rC.IntExpression();
 			if(rC.EndOfCommand() || !rC.Eq(",") )
-				IntError(rC, rC.CToken, "expecting ', <num_cols>'");
+				IntErrorCurToken("expecting ', <num_cols>'");
 
 			rC.CToken++;
 			if(rC.EndOfCommand())
-				IntError(rC, rC.CToken, "expecting <num_cols>");
+				IntErrorCurToken("expecting <num_cols>");
 			MpL.num_cols = rC.IntExpression();
 
 			/* remember current values of the plot size and the margins */
@@ -241,7 +241,7 @@ void GpGadgets::MultiplotStart(GpTermEntry * pT, GpCommand & rC)
 		}
 		/* The remaining options are only valid for auto-layout mode */
 		if(!MpL.auto_layout)
-			IntError(rC, rC.CToken, "only valid in the context of an auto-layout command");
+			IntErrorCurToken("only valid in the context of an auto-layout command");
 		switch(rC.LookupTable(&set_multiplot_tbl[0], rC.CToken)) {
 			case S_MULTIPLOT_COLUMNSFIRST:
 			    MpL.row_major = true;
@@ -265,7 +265,7 @@ void GpGadgets::MultiplotStart(GpTermEntry * pT, GpCommand & rC)
 			    if(!rC.EndOfCommand() && rC.Eq(",") ) {
 				    rC.CToken++;
 				    if(rC.EndOfCommand()) {
-					    IntError(rC, rC.CToken, "expecting <yscale>");
+					    IntErrorCurToken("expecting <yscale>");
 				    }
 				    MpL.Scale.y = rC.RealExpression();
 			    }
@@ -276,7 +276,7 @@ void GpGadgets::MultiplotStart(GpTermEntry * pT, GpCommand & rC)
 			    if(!rC.EndOfCommand() && rC.Eq(",") ) {
 				    rC.CToken++;
 				    if(rC.EndOfCommand()) {
-					    IntError(rC, rC.CToken, "expecting <yoffset>");
+					    IntErrorCurToken("expecting <yoffset>");
 				    }
 				    MpL.Offs.y = rC.RealExpression();
 			    }
@@ -284,49 +284,49 @@ void GpGadgets::MultiplotStart(GpTermEntry * pT, GpCommand & rC)
 			case S_MULTIPLOT_MARGINS:
 			    rC.CToken++;
 			    if(rC.EndOfCommand())
-				    IntError(rC, rC.CToken, "expecting '<left>,<right>,<bottom>,<top>'");
+				    IntErrorCurToken("expecting '<left>,<right>,<bottom>,<top>'");
 
 			    MpL.LMrg.scalex = screen;
 			    mp_layout_set_margin_or_spacing(rC, &(MpL.LMrg));
 			    if(!rC.EndOfCommand() && rC.Eq(",") ) {
 				    rC.CToken++;
 				    if(rC.EndOfCommand())
-					    IntError(rC, rC.CToken, "expecting <right>");
+					    IntErrorCurToken("expecting <right>");
 
 				    MpL.RMrg.scalex = MpL.LMrg.scalex;
 				    mp_layout_set_margin_or_spacing(rC, &(MpL.RMrg));
 			    }
 			    else {
-				    IntError(rC, rC.CToken, "expecting <right>");
+				    IntErrorCurToken("expecting <right>");
 			    }
 			    if(!rC.EndOfCommand() && rC.Eq(",") ) {
 				    rC.CToken++;
 				    if(rC.EndOfCommand())
-					    IntError(rC, rC.CToken, "expecting <top>");
+					    IntErrorCurToken("expecting <top>");
 
 				    MpL.BMrg.scalex = MpL.RMrg.scalex;
 				    mp_layout_set_margin_or_spacing(rC, &(MpL.BMrg));
 			    }
 			    else {
-				    IntError(rC, rC.CToken, "expecting <bottom>");
+				    IntErrorCurToken("expecting <bottom>");
 			    }
 			    if(!rC.EndOfCommand() && rC.Eq(",") ) {
 				    rC.CToken++;
 				    if(rC.EndOfCommand())
-					    IntError(rC, rC.CToken, "expecting <bottom>");
+					    IntErrorCurToken("expecting <bottom>");
 
 				    MpL.TMrg.scalex = MpL.BMrg.scalex;
 				    mp_layout_set_margin_or_spacing(rC, &(MpL.TMrg));
 			    }
 			    else {
-				    IntError(rC, rC.CToken, "expection <top>");
+				    IntErrorCurToken("expection <top>");
 			    }
 			    set_margins = true;
 			    break;
 			case S_MULTIPLOT_SPACING:
 			    rC.CToken++;
 			    if(rC.EndOfCommand())
-				    IntError(rC, rC.CToken, "expecting '<xspacing>,<yspacing>'");
+				    IntErrorCurToken("expecting '<xspacing>,<yspacing>'");
 			    MpL.xspacing.scalex = screen;
 			    mp_layout_set_margin_or_spacing(rC, &(MpL.xspacing));
 			    MpL.yspacing = MpL.xspacing;
@@ -334,13 +334,13 @@ void GpGadgets::MultiplotStart(GpTermEntry * pT, GpCommand & rC)
 			    if(!rC.EndOfCommand() && rC.Eq(",")) {
 				    rC.CToken++;
 				    if(rC.EndOfCommand())
-					    IntError(rC, rC.CToken, "expecting <yspacing>");
+					    IntErrorCurToken("expecting <yspacing>");
 				    mp_layout_set_margin_or_spacing(rC, &(MpL.yspacing));
 			    }
 			    set_spacing = true;
 			    break;
 			default:
-			    IntError(rC, rC.CToken, "invalid or duplicate option");
+			    IntErrorCurToken("invalid or duplicate option");
 			    break;
 		}
 	}
@@ -349,7 +349,7 @@ void GpGadgets::MultiplotStart(GpTermEntry * pT, GpCommand & rC)
 			if(MpL.LMrg.x >= 0 && MpL.RMrg.x >= 0 && MpL.TMrg.x >= 0 && MpL.BMrg.x >= 0 && MpL.xspacing.x >= 0 && MpL.yspacing.x >= 0)
 				MpL.auto_layout_margins = true;
 			else
-				GpGg.IntError(GpC, NO_CARET, "must give positive margin and spacing values");
+				GpGg.IntErrorNoCaret("must give positive margin and spacing values");
 		}
 		else if(set_spacing) {
 			int_warn(NO_CARET, "must give margins and spacing, continue with auto margins.");

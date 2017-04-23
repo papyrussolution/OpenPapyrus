@@ -51,7 +51,7 @@
 
 static void disp_at(AtType *, int);
 //static void show_clip();
-static void show_contour();
+//static void show_contour();
 static void show_styles(const char * name, enum PLOT_STYLE style);
 #ifdef EAM_OBJECTS
 static void show_style_circle();
@@ -178,7 +178,7 @@ void GpGadgets::ShowCommand(GpCommand & rC)
 		case S_CONTOUR:
 		case S_CNTRPARAM:
 		case S_CNTRLABEL:
-		    show_contour();
+		    ShowContour();
 		    break;
 		case S_DGRID3D:
 		    ShowDGrid3D();
@@ -211,7 +211,7 @@ void GpGadgets::ShowCommand(GpCommand & rC)
 			{
 				int    p = rC.IntExpression();
 				if(p <= 0 || p > (int)NumParallelAxes)
-					IntError(rC, rC.CToken, "no such parallel axis is active");
+					IntErrorCurToken("no such parallel axis is active");
 				fputs("\n\t", stderr);
 				if(rC.Eq("range"))
 					save_prange(stderr, &P_ParallelAxis[p-1]);
@@ -289,7 +289,7 @@ void GpGadgets::ShowCommand(GpCommand & rC)
 					}
 				}
 				if(tag > 0 && !showed)
-					IntError(rC, rC.CToken, "dashtype not found");
+					IntErrorCurToken("dashtype not found");
 			}
 		    break;
 		case S_LINK:
@@ -388,7 +388,7 @@ void GpGadgets::ShowCommand(GpCommand & rC)
 		    ShowIsoSamples();
 		    break;
 		case S_JITTER:
-		    show_jitter();
+		    ShowJitter();
 		    break;
 		case S_VIEW:
 		    ShowView();
@@ -603,7 +603,7 @@ void GpGadgets::ShowCommand(GpCommand & rC)
 		    break;
 	}
 	if(error_message)
-		IntError(rC, rC.CToken, error_message);
+		IntErrorCurToken(error_message);
 	screen_ok = false;
 	putc('\n', stderr);
 #undef CHECK_TAG_GT_ZERO
@@ -693,7 +693,7 @@ void GpGadgets::ShowAll(GpCommand & rC)
 	ShowBorder();
 	ShowBoxWidth();
 	ShowClip();
-	show_contour();
+	ShowContour();
 	ShowDGrid3D();
 	ShowMapping();
 	rC.ShowDummy();
@@ -756,7 +756,7 @@ void GpGadgets::ShowAll(GpCommand & rC)
 	show_range(SECOND_X_AXIS);
 	show_range(SECOND_Y_AXIS);
 	show_range(FIRST_Z_AXIS);
-	show_jitter();
+	ShowJitter();
 	show_title();
 	show_axislabel(FIRST_X_AXIS);
 	show_axislabel(FIRST_Y_AXIS);
@@ -1150,13 +1150,14 @@ void GpGadgets::ShowClip()
 //
 // process 'show cntrparam|cntrlabel|contour' commands
 //
-static void show_contour()
+//static void show_contour()
+void GpGadgets::ShowContour()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tcontour for surfaces are %s", (GpGg.draw_contour) ? "drawn" : "not drawn\n");
-	if(GpGg.draw_contour) {
+	fprintf(stderr, "\tcontour for surfaces are %s", (draw_contour) ? "drawn" : "not drawn\n");
+	if(draw_contour) {
 		fprintf(stderr, " in %d levels on ", contour_levels);
-		switch(GpGg.draw_contour) {
+		switch(draw_contour) {
 			case CONTOUR_BASE:
 			    fputs("grid base\n", stderr);
 			    break;
@@ -1196,19 +1197,16 @@ static void show_contour()
 			    break;
 		    }
 			case LEVELS_INCREMENTAL:
-			    fprintf(stderr,
-			    "\t\t%d incremental levels starting at %g, step %g, end %g\n",
-			    contour_levels,
-			    contour_levels_list[0],
-			    contour_levels_list[1],
-			    contour_levels_list[0] + (contour_levels - 1) * contour_levels_list[1]);
+			    fprintf(stderr, "\t\t%d incremental levels starting at %g, step %g, end %g\n",
+					contour_levels, contour_levels_list[0], contour_levels_list[1],
+					contour_levels_list[0] + (contour_levels - 1) * contour_levels_list[1]);
 			    /* contour-levels counts both ends */
 			    break;
 		}
 		/* Show contour label options */
-		fprintf(stderr, "\tcontour lines are drawn in %s linetypes\n", GpGg.clabel_onecolor ? "the same" : "individual");
-		fprintf(stderr, "\tformat for contour labels is '%s' font '%s'\n", contour_format, NZOR(GpGg.P_ClabelFont, ""));
-		fprintf(stderr, "\ton-plot labels placed at segment %d with interval %d\n", GpGg.clabel_start, GpGg.clabel_interval);
+		fprintf(stderr, "\tcontour lines are drawn in %s linetypes\n", clabel_onecolor ? "the same" : "individual");
+		fprintf(stderr, "\tformat for contour labels is '%s' font '%s'\n", contour_format, NZOR(P_ClabelFont, ""));
+		fprintf(stderr, "\ton-plot labels placed at segment %d with interval %d\n", clabel_start, clabel_interval);
 	}
 }
 //
@@ -1294,7 +1292,7 @@ void GpGadgets::ShowFormat()
 void GpGadgets::ShowStyle(GpCommand & rC)
 {
 	int tag = 0;
-#define CHECK_TAG_GT_ZERO if(!rC.EndOfCommand()) { tag = (int)rC.RealExpression(); if(tag <= 0) IntError(rC, rC.CToken, "tag must be > zero"); }
+#define CHECK_TAG_GT_ZERO if(!rC.EndOfCommand()) { tag = (int)rC.RealExpression(); if(tag <= 0) IntErrorCurToken("tag must be > zero"); }
 	switch(rC.LookupTable(&show_style_tbl[0], rC.CToken)) {
 		case SHOW_STYLE_DATA:
 		    SHOW_ALL_NL;
@@ -1560,7 +1558,7 @@ void GpGadgets::ShowLabel(GpCommand & rC, int tag)
 		}
 	}
 	if(tag > 0 && !showed)
-		IntError(rC, rC.CToken, "label not found");
+		IntErrorCurToken("label not found");
 }
 //
 // Show arrow number <tag> (0 means show all) 
@@ -1610,7 +1608,7 @@ void GpGadgets::ShowArrow(GpCommand & rC, int tag)
 		}
 	}
 	if(tag > 0 && !showed)
-		IntError(rC, rC.CToken, "arrow not found");
+		IntErrorCurToken("arrow not found");
 }
 //
 // process 'show keytitle' command 
@@ -1868,7 +1866,7 @@ static void show_palette_palette(GpCommand & rC)
 	FILE * f;
 	rC.CToken++;
 	if(rC.EndOfCommand())
-		GpGg.IntError(rC, rC.CToken, "palette size required");
+		GpGg.IntErrorCurToken("palette size required");
 	colors = rC.IntExpression();
 	if(colors<2) colors = 128;
 	if(!rC.EndOfCommand()) {
@@ -1877,7 +1875,7 @@ static void show_palette_palette(GpCommand & rC)
 		else if(rC.AlmostEq("i$nt")) /* option: print only integer 0..255 values */
 			how = 2;
 		else
-			GpGg.IntError(rC, rC.CToken, "expecting no option or int or float");
+			GpGg.IntErrorCurToken("expecting no option or int or float");
 		rC.CToken++;
 	}
 	i = (!rC.F_PrintOut || rC.F_PrintOut == stderr || rC.F_PrintOut == stdout);
@@ -1896,13 +1894,13 @@ static void show_palette_palette(GpCommand & rC)
 		rgb255_from_rgb1(rgb1, &rgb255);
 		switch(how) {
 			case 1:
-			    fprintf(f, "%0.4f\t%0.4f\t%0.4f\n", rgb1.r, rgb1.g, rgb1.b);
+			    fprintf(f, "%0.4f\t%0.4f\t%0.4f\n", rgb1.R, rgb1.G, rgb1.B);
 			    break;
 			case 2:
 			    fprintf(f, "%i\t%i\t%i\n", (int)rgb255.r, (int)rgb255.g, (int)rgb255.b);
 			    break;
 			default:
-			    fprintf(f, "%3i. gray=%0.4f, (r,g,b)=(%0.4f,%0.4f,%0.4f), #%02x%02x%02x = %3i %3i %3i\n", i, gray, rgb1.r, rgb1.g, rgb1.b,
+			    fprintf(f, "%3i. gray=%0.4f, (r,g,b)=(%0.4f,%0.4f,%0.4f), #%02x%02x%02x = %3i %3i %3i\n", i, gray, rgb1.R, rgb1.G, rgb1.B,
 					(int)rgb255.r, (int)rgb255.g, (int)rgb255.b, (int)rgb255.r, (int)rgb255.g, (int)rgb255.b);
 		}
 	}
@@ -1919,9 +1917,9 @@ void GpGadgets::ShowPaletteGradient(GpCommand & rC)
 	else {
 		for(int i = 0; i < SmPalette.gradient_num; i++) {
 			gray = SmPalette.gradient[i].pos;
-			r = SmPalette.gradient[i].col.r;
-			g = SmPalette.gradient[i].col.g;
-			b = SmPalette.gradient[i].col.b;
+			r = SmPalette.gradient[i].col.R;
+			g = SmPalette.gradient[i].col.G;
+			b = SmPalette.gradient[i].col.B;
 			fprintf(stderr, "%3i. gray=%0.4f, (r,g,b)=(%0.4f,%0.4f,%0.4f), #%02x%02x%02x = %3i %3i %3i\n",
 				i, gray, r, g, b, (int)(255*r+.5), (int)(255*g+.5), (int)(255*b+.5), (int)(255*r+.5), (int)(255*g+.5), (int)(255*b+.5) );
 		}
@@ -2084,7 +2082,7 @@ void GpGadgets::ShowPalette(GpCommand & rC)
 					for(ib = 0; ib < 2*maxFormula+1; ib++) {
 						dist = 0; // calculate distance of the two rgb profiles 
 						for(p = 0; p < pts; p++) {
-							double tmp = rgb_distance( currRGB[p].r - formulae[ir][p], currRGB[p].g - formulae[ig][p], currRGB[p].b - formulae[ib][p]);
+							double tmp = rgb_distance(currRGB[p].R - formulae[ir][p], currRGB[p].G - formulae[ig][p], currRGB[p].B - formulae[ib][p]);
 							dist += tmp;
 						}
 						if(dist < distMin) {
@@ -2106,7 +2104,7 @@ void GpGadgets::ShowPalette(GpCommand & rC)
 		}
 	}
 	else { // wrong option to "show palette" 
-		IntError(rC, rC.CToken, "Expecting 'gradient' or 'palette <n>' or 'rgbformulae' or 'colornames'");
+		IntErrorCurToken("Expecting 'gradient' or 'palette <n>' or 'rgbformulae' or 'colornames'");
 	}
 }
 
@@ -2145,7 +2143,7 @@ void GpGadgets::ShowColorBox(GpCommand & rC)
 		    fputs("\n", stderr);
 		    break;
 		default: /* should *never* happen */
-		    GpGg.IntError(GpC, NO_CARET, "Argh!");
+		    GpGg.IntErrorNoCaret("Argh!");
 	}
 	fprintf(stderr, "\tcolor gradient is %s in the color box\n", ColorBox.rotation == 'v' ? "VERTICAL" : "HORIZONTAL");
 }
@@ -2512,7 +2510,7 @@ static void show_mtics(AXIS_INDEX axis)
 		    fprintf(stderr, "\tminor %stics are drawn with %d subintervals between major xtic marks\n", p_ax_name, (int)GpGg[axis].mtic_freq);
 		    break;
 		default:
-		    GpGg.IntError(GpC, NO_CARET, "Unknown minitic type in show_mtics()");
+		    GpGg.IntErrorNoCaret("Unknown minitic type in show_mtics()");
 	}
 }
 //
@@ -2729,7 +2727,7 @@ void GpGadgets::ShowMouse()
 static void show_plot()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tlast plot command was: %s\n", GpC.P_ReplotLine);
+	fprintf(stderr, "\tlast plot command was: %s\n", GpGg.Gp__C.P_ReplotLine);
 }
 
 // process 'show variables' command 
@@ -2791,7 +2789,7 @@ static void show_linestyle(int tag)
 		}
 	}
 	if(tag > 0 && !showed)
-		GpGg.IntError(GpC, GpC.CToken, "linestyle not found");
+		GpGg.IntErrorCurToken("linestyle not found");
 }
 
 /* Show linetype number <tag> (0 means show all) */
@@ -2810,7 +2808,7 @@ static void show_linetype(linestyle_def * listhead, int tag)
 		}
 	}
 	if(tag > 0 && !showed)
-		GpGg.IntError(GpC, GpC.CToken, "linetype not found");
+		GpGg.IntErrorCurToken("linetype not found");
 	if(listhead == GpGg.first_perm_linestyle)
 		recycle_count = linetype_recycle_count;
 	else if(listhead == GpGg.first_mono_linestyle)
@@ -2861,7 +2859,7 @@ static void show_arrowstyle(int tag)
 		}
 	}
 	if(tag > 0 && !showed)
-		GpGg.IntError(GpC, GpC.CToken, "arrowstyle not found");
+		GpGg.IntErrorCurToken("arrowstyle not found");
 }
 //
 // called by show_tics 
@@ -2956,7 +2954,7 @@ void GpGadgets::ShowTicDefP(GpAxis & rAx)
 		    break;
 	    }
 		default: {
-		    GpGg.IntError(GpC, NO_CARET, "unknown ticdef type in show_ticdef()"); // NOTREACHED 
+		    GpGg.IntErrorNoCaret("unknown ticdef type in show_ticdef()"); // NOTREACHED 
 	    }
 	}
 	if(rAx.ticdef.def.user) {

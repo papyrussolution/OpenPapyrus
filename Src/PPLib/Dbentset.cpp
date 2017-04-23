@@ -1,11 +1,11 @@
 // DBENTSET.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017
 // @Kernel
 // @codepage windows-1251
 //
 #include <pp.h>
 #pragma hdrstop
-#include <idea.h>
+// @v9.6.3 #include <idea.h>
 
 static int FASTCALL GetAveragePath(const char * name, SString & rBuf)
 {

@@ -632,8 +632,7 @@ static void PS_options(GpCommand & rC)
 			switch(ps_params->terminal) {
 				case PSTERM_POSTSCRIPT:
 				    while(ps_params->first_fontfile != NULL)
-					    delete_ps_fontfile((struct ps_fontfile_def*)NULL,
-					    ps_params->first_fontfile);
+					    delete_ps_fontfile((struct ps_fontfile_def*)NULL, ps_params->first_fontfile);
 				    *ps_params = post_params_default;
 				    break;
 				case PSTERM_EPSLATEX:
@@ -648,7 +647,7 @@ static void PS_options(GpCommand & rC)
 			}
 			rC.CToken++;
 			if(!rC.EndOfCommand())
-				GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 		}
 	}
 
@@ -666,35 +665,35 @@ static void PS_options(GpCommand & rC)
 		switch(rC.LookupTable(&PS_opts[0], rC.CToken)) {
 			case PS_PORTRAIT:
 			    if(set_orientation || ps_params->terminal != PSTERM_POSTSCRIPT)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_orientation = true;
 			    ps_params->psformat = PSTERM_PORTRAIT;
 			    rC.CToken++;
 			    break;
 			case PS_LANDSCAPE:
 			    if(set_orientation || ps_params->terminal != PSTERM_POSTSCRIPT)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_orientation = true;
 			    ps_params->psformat = PSTERM_LANDSCAPE;
 			    rC.CToken++;
 			    break;
 			case PS_EPSF:
 			    if(set_orientation || ps_params->terminal != PSTERM_POSTSCRIPT)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_orientation = true;
 			    ps_params->psformat = PSTERM_EPS;
 			    rC.CToken++;
 			    break;
 			case PS_LEVEL1:
 			    if(set_level)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_level = true;
 			    ps_params->level1 = true;
 			    rC.CToken++;
 			    break;
 			case PS_LEVELDEFAULT:
 			    if(set_level)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_level = true;
 			    ps_params->level1 = false;
 			    ps_params->level3 = false;
@@ -702,21 +701,21 @@ static void PS_options(GpCommand & rC)
 			    break;
 			case PS_LEVEL3:
 			    if(set_level)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_level = true;
 			    ps_params->level3 = true;
 #ifndef HAVE_DEFLATE_ENCODER
-			    GpGg.IntError(rC, rC.CToken, "level3 output requires libgd or libcairo");
+			    GpGg.IntErrorCurToken("level3 output requires libgd or libcairo");
 #endif
 			    rC.CToken++;
 			    break;
 			case PS_DEFAULT:
-			    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+			    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    rC.CToken++;
 			    break;
 			case PS_ENHANCED:
 			    if(set_enhanced || ps_params->terminal != PSTERM_POSTSCRIPT)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_enhanced = true;
 			    term->put_text = ENHPS_put_text;
 			    term->set_font = ENHPS_set_font;
@@ -725,7 +724,7 @@ static void PS_options(GpCommand & rC)
 			    break;
 			case PS_NOENHANCED:
 			    if(set_enhanced || ps_params->terminal != PSTERM_POSTSCRIPT)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_enhanced = true;
 			    term->put_text = PS_put_text;
 			    term->set_font = PS_set_font;
@@ -735,14 +734,14 @@ static void PS_options(GpCommand & rC)
 #ifdef PSLATEX_DRIVER
 			case EPSLATEX_STANDALONE:
 			    if(set_standalone || ps_params->terminal != PSTERM_EPSLATEX)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_standalone = true;
 			    ps_params->epslatex_standalone = true;
 			    ++rC.CToken;
 			    break;
 			case EPSLATEX_INPUT:
 			    if(set_standalone || ps_params->terminal != PSTERM_EPSLATEX)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_standalone = true;
 			    ps_params->epslatex_standalone = false;
 			    ++rC.CToken;
@@ -750,7 +749,7 @@ static void PS_options(GpCommand & rC)
 
 			case EPSLATEX_HEADER:
 			    if(set_epslheader || ps_params->terminal != PSTERM_EPSLATEX)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_epslheader = true;
 			    ++rC.CToken;
 			    free(epslatex_header);
@@ -758,12 +757,12 @@ static void PS_options(GpCommand & rC)
 			    epslatex_header = NULL;
 			    epslatex_header = rC.TryToGetString();
 			    if(!epslatex_header)
-				    GpGg.IntError(rC, rC.CToken, "String containing header information expected");
+				    GpGg.IntErrorCurToken("String containing header information expected");
 			    break;
 
 			case EPSLATEX_NOHEADER:
 			    if(set_epslheader || ps_params->terminal != PSTERM_EPSLATEX)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_epslheader = true;
 			    free(epslatex_header);
 			    epslatex_header = NULL;
@@ -772,35 +771,35 @@ static void PS_options(GpCommand & rC)
 
 			case PSLATEX_ROTATE:
 			    if(set_pslrotate || ((ps_params->terminal != PSTERM_PSLATEX) && (ps_params->terminal != PSTERM_PSTEX)))
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_pslrotate = true;
 			    ps_params->rotate = true;
 			    ++rC.CToken;
 			    break;
 			case PSLATEX_NOROTATE:
 			    if(set_pslrotate || ((ps_params->terminal != PSTERM_PSLATEX) && (ps_params->terminal != PSTERM_PSTEX)))
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_pslrotate = true;
 			    ps_params->rotate = false;
 			    ++rC.CToken;
 			    break;
 			case PSLATEX_AUXFILE:
 			    if(set_pslauxfile || ((ps_params->terminal == PSTERM_POSTSCRIPT) || (ps_params->terminal == PSTERM_EPSLATEX)))
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_pslauxfile = true;
 			    ps_params->useauxfile = true;
 			    rC.CToken++;
 			    break;
 			case PSLATEX_NOAUXFILE:
 			    if(set_pslauxfile || ((ps_params->terminal == PSTERM_POSTSCRIPT) || (ps_params->terminal == PSTERM_EPSLATEX)))
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_pslauxfile = true;
 			    ps_params->useauxfile = false;
 			    rC.CToken++;
 			    break;
 			case PSLATEX_OLDSTYLE:
 			    if(set_psloldstyle || ps_params->terminal == PSTERM_POSTSCRIPT)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_psloldstyle = true;
 			    ps_params->oldstyle = true;
 			    if(ps_params->terminal == PSTERM_EPSLATEX)
@@ -809,7 +808,7 @@ static void PS_options(GpCommand & rC)
 			    break;
 			case PSLATEX_NEWSTYLE:
 			    if(set_psloldstyle || ps_params->terminal == PSTERM_POSTSCRIPT)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_psloldstyle = true;
 			    ps_params->oldstyle = false;
 			    rC.CToken++;
@@ -817,7 +816,7 @@ static void PS_options(GpCommand & rC)
 #endif
 			case PS_MONOCHROME:
 			    if(set_color)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_color = true;
 			    ps_params->color = false;
 			    term->flags |= TERM_MONOCHROME;
@@ -825,7 +824,7 @@ static void PS_options(GpCommand & rC)
 			    break;
 			case PS_COLOR:
 			    if(set_color)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_color = true;
 			    ps_params->color = true;
 			    term->flags &= ~TERM_MONOCHROME;
@@ -834,7 +833,7 @@ static void PS_options(GpCommand & rC)
 			case PS_BLACKTEXT:
 			    if(set_colortext || ((ps_params->terminal != PSTERM_POSTSCRIPT) &&
 				    (ps_params->terminal != PSTERM_EPSLATEX)))
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_colortext = true;
 			    ps_params->blacktext = true;
 			    rC.CToken++;
@@ -842,7 +841,7 @@ static void PS_options(GpCommand & rC)
 			case PS_COLORTEXT:
 			    if(set_colortext || ((ps_params->terminal != PSTERM_POSTSCRIPT) &&
 				    (ps_params->terminal != PSTERM_EPSLATEX)))
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_colortext = true;
 			    ps_params->blacktext = false;
 			    rC.CToken++;
@@ -855,7 +854,7 @@ static void PS_options(GpCommand & rC)
 			    break;
 			case PS_DASHLENGTH:
 			    if(set_dashlen)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_dashlen = true;
 			    rC.CToken++;
 			    ps_params->dash_length = (float)rC.RealExpression();
@@ -864,7 +863,7 @@ static void PS_options(GpCommand & rC)
 			    break;
 			case PS_LINEWIDTH:
 			    if(set_linewidth)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_linewidth = true;
 			    rC.CToken++;
 			    ps_params->linewidth_factor = (float)rC.RealExpression();
@@ -873,7 +872,7 @@ static void PS_options(GpCommand & rC)
 			    break;
 			case PS_SIMPLEX:
 			    if(set_plex || ps_params->terminal != PSTERM_POSTSCRIPT)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_plex = true;
 			    ps_params->duplex_state  = false;
 			    ps_params->duplex_option = true;
@@ -881,7 +880,7 @@ static void PS_options(GpCommand & rC)
 			    break;
 			case PS_DUPLEX:
 			    if(set_plex || ps_params->terminal != PSTERM_POSTSCRIPT)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_plex = true;
 			    ps_params->duplex_state  = true;
 			    ps_params->duplex_option = true;
@@ -889,42 +888,42 @@ static void PS_options(GpCommand & rC)
 			    break;
 			case PS_DEFAULTPLEX:
 			    if(set_plex || ps_params->terminal != PSTERM_POSTSCRIPT)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_plex = true;
 			    ps_params->duplex_option = false;
 			    rC.CToken++;
 			    break;
 			case PS_ROUNDED:
 			    if(set_round)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_round = true;
 			    ps_params->rounded = true;
 			    rC.CToken++;
 			    break;
 			case PS_NOROUNDED:
 			    if(set_round)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_round = true;
 			    ps_params->rounded = false;
 			    rC.CToken++;
 			    break;
 			case PS_CLIP:
 			    if(set_clip)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_clip = true;
 			    ps_params->clipped = true;
 			    rC.CToken++;
 			    break;
 			case PS_NOCLIP:
 			    if(set_clip)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_clip = true;
 			    ps_params->clipped = false;
 			    rC.CToken++;
 			    break;
 			case PS_FONTSCALE:
 			    if(set_fontscale)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_fontscale = true;
 			    rC.CToken++;
 			    ps_params->fontscale = rC.EndOfCommand() ? -1.0f : (float)rC.RealExpression();
@@ -936,7 +935,7 @@ static void PS_options(GpCommand & rC)
 			    char * fontfilename = NULL;
 			    rC.CToken++;
 			    if(ps_params->terminal != PSTERM_POSTSCRIPT)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 
 			    if(rC.Eq("add"))
 				    rC.CToken++;
@@ -945,7 +944,7 @@ static void PS_options(GpCommand & rC)
 				    rC.CToken++;
 			    }
 			    if(!(fontfilename = rC.TryToGetString())) {
-				    GpGg.IntError(rC, rC.CToken, "Font filename expected");
+				    GpGg.IntErrorCurToken("Font filename expected");
 			    }
 			    else {
 				    bool filename_doubled = false;
@@ -962,7 +961,7 @@ static void PS_options(GpCommand & rC)
 #endif
 					    new_ps_fontfile->fontfile_fullname = fontpath_fullname(new_ps_fontfile->fontfile_name);
 					    if(!new_ps_fontfile->fontfile_fullname)
-						    GpGg.IntError(rC, rC.CToken-1, "Font file '%s' not found", new_ps_fontfile->fontfile_name);
+						    GpGg.IntError(rC.CToken-1, "Font file '%s' not found", new_ps_fontfile->fontfile_name);
 #if defined(PIPES)
 				    }
 				    else
@@ -1016,7 +1015,7 @@ static void PS_options(GpCommand & rC)
 		    }
 			case PS_NOFONTFILES:
 			    if(ps_params->terminal != PSTERM_POSTSCRIPT)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    while(ps_params->first_fontfile != NULL)
 				    delete_ps_fontfile((struct ps_fontfile_def*)NULL, ps_params->first_fontfile);
 			    ++rC.CToken;
@@ -1044,7 +1043,7 @@ static void PS_options(GpCommand & rC)
 			    break;
 			case PS_PALFUNCPARAM:
 			    if(set_palfunc)
-				    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_palfunc = true;
 			    ++rC.CToken;
 			    ps_params->palfunc_samples = rC.IntExpression();
@@ -1054,7 +1053,7 @@ static void PS_options(GpCommand & rC)
 				    ++rC.CToken;
 				    ps_params->palfunc_deviation = fabs(rC.RealExpression());
 				    if(ps_params->palfunc_deviation >= 1)
-					    GpGg.IntError(rC, rC.CToken-1, "allowed deviation must be < 1");
+					    GpGg.IntError(rC.CToken-1, "allowed deviation must be < 1");
 			    }
 			    break;
 
@@ -1079,7 +1078,7 @@ static void PS_options(GpCommand & rC)
 			default:
 			    if((s = rC.TryToGetString())) {
 				    if(set_font)
-					    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+					    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 				    set_font = true;
 				    if((ps_params->terminal == PSTERM_POSTSCRIPT) ||
 				    (ps_params->terminal == PSTERM_EPSLATEX)) {
@@ -1102,11 +1101,11 @@ static void PS_options(GpCommand & rC)
 					    free(s);
 				    }
 				    else
-					    GpGg.IntError(rC, rC.CToken-1, "terminal %s does not allow specification %s", term->name, "of font name");
+					    GpGg.IntError(rC.CToken-1, "terminal %s does not allow specification %s", term->name, "of font name");
 			    }
 			    else {
 				    if(set_fontsize)
-					    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+					    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 				    set_fontsize = true;
 				    /* We have font size specified */
 				    ps_params->fontsize = (float)rC.RealExpression();
@@ -1302,7 +1301,7 @@ static void PS_load_fontfile(struct ps_fontfile_def * current_ps_fontfile, bool 
 		for(i = 0; i<3; i++)
 			ext[i] = tolower((unsigned char)ext[i]);
 		if(!current_ps_fontfile->fontfile_fullname)
-			GpGg.IntError(GpC, NO_CARET, "Font file '%s' not found", current_ps_fontfile->fontfile_name);
+			GpGg.IntErrorNoCaret("Font file '%s' not found", current_ps_fontfile->fontfile_name);
 #if defined(PIPES)
 	}
 #endif
@@ -1314,7 +1313,7 @@ static void PS_load_fontfile(struct ps_fontfile_def * current_ps_fontfile, bool 
 			strcpy(cmd, current_ps_fontfile->fontfile_name + 1);
 			ffont = popen(cmd, "r");
 			if(!ffont)
-				GpGg.IntError(GpC, NO_CARET, "Could not execute pipe '%s'", current_ps_fontfile->fontfile_name + 1);
+				GpGg.IntErrorNoCaret("Could not execute pipe '%s'", current_ps_fontfile->fontfile_name + 1);
 #endif
 		}
 		else if(!strcmp(ext, "ttf") || !strcmp(ext, "otf")) {
@@ -1326,18 +1325,16 @@ static void PS_load_fontfile(struct ps_fontfile_def * current_ps_fontfile, bool 
 			if(envcmd != NULL)
 				sprintf(cmd, envcmd, current_ps_fontfile->fontfile_fullname);
 			else
-				sprintf(cmd, "ttf2pt1 -a -e -W 0 %s -",
-				    current_ps_fontfile->fontfile_fullname);
+				sprintf(cmd, "ttf2pt1 -a -e -W 0 %s -", current_ps_fontfile->fontfile_fullname);
 			if(strlen(cmd) == 0)
-				GpGg.IntError(GpC, NO_CARET, "No command for automatic font conversion ttf->pfa defined");
+				GpGg.IntErrorNoCaret("No command for automatic font conversion ttf->pfa defined");
 			else {
 				ffont = popen(cmd, "r");
 				if(!ffont)
-					GpGg.IntError(GpC, NO_CARET, "Could not execute command '%s'", cmd);
+					GpGg.IntErrorNoCaret("Could not execute command '%s'", cmd);
 			}
 #else
-			os_error(NO_CARET,
-			    "Automatic font conversion ttf->pfa not supported");
+			os_error(NO_CARET, "Automatic font conversion ttf->pfa not supported");
 #endif
 		}
 		else if(strcmp(ext, "pfb") == 0) {
@@ -1352,11 +1349,11 @@ static void PS_load_fontfile(struct ps_fontfile_def * current_ps_fontfile, bool 
 				sprintf(cmd, "pfbtops %s",
 				    current_ps_fontfile->fontfile_fullname);
 			if(strlen(cmd) == 0)
-				GpGg.IntError(GpC, NO_CARET, "No command for automatic font conversion pfb->pfa defined");
+				GpGg.IntErrorNoCaret("No command for automatic font conversion pfb->pfa defined");
 			else {
 				ffont = popen(cmd, "r");
 				if(!ffont)
-					GpGg.IntError(GpC, NO_CARET, "Could not execute command '%s'", cmd);
+					GpGg.IntErrorNoCaret("Could not execute command '%s'", cmd);
 			}
 #else
 			os_error(NO_CARET, "Automatic font conversion pfb->pfa not supported");
@@ -1370,7 +1367,7 @@ static void PS_load_fontfile(struct ps_fontfile_def * current_ps_fontfile, bool 
 				    current_ps_fontfile->fontfile_name);
 			ffont = fopen(current_ps_fontfile->fontfile_fullname, "r");
 			if(!ffont)
-				GpGg.IntError(GpC, NO_CARET, "Font file '%s' not found", current_ps_fontfile->fontfile_name);
+				GpGg.IntErrorNoCaret("Font file '%s' not found", current_ps_fontfile->fontfile_name);
 		}
 		/* read the file */
 		while(fgets(line, 255, ffont)) {
@@ -1423,7 +1420,7 @@ static void PS_load_fontfile(struct ps_fontfile_def * current_ps_fontfile, bool 
 		if(ispipe) {
 			int exitcode;
 			if((exitcode = pclose(ffont)) != 0)
-				GpGg.IntError(GpC, NO_CARET, "Command '%s' generated error, exitcode is %d", cmd, exitcode);
+				GpGg.IntErrorNoCaret("Command '%s' generated error, exitcode is %d", cmd, exitcode);
 		}
 		else
 #endif
@@ -1432,10 +1429,10 @@ static void PS_load_fontfile(struct ps_fontfile_def * current_ps_fontfile, bool 
 		if(linesread == 0) {
 #if defined(PIPES)
 			if(ispipe)
-				GpGg.IntError(GpC, NO_CARET, "Command '%s' generates empty output", cmd);
+				GpGg.IntErrorNoCaret("Command '%s' generates empty output", cmd);
 			else
 #endif
-			GpGg.IntError(GpC, NO_CARET, "Font file '%s' is empty", current_ps_fontfile->fontfile_name);
+			GpGg.IntErrorNoCaret("Font file '%s' is empty", current_ps_fontfile->fontfile_name);
 		}
 		if(doload)
 			fputs("%%EndProcSet\n", gppsfile);
@@ -1743,7 +1740,7 @@ static void PS_init()
 		    term->tscale = PS_SC;
 		    break;
 		default:
-		    GpGg.IntError(GpC, NO_CARET, "invalid postscript format used");
+		    GpGg.IntErrorNoCaret("invalid postscript format used");
 	}
 
 	/* for enhanced postscript, copy ps_params->font to ps_enh_font
@@ -3195,7 +3192,7 @@ static void write_png_image_to_buffer(unsigned M, unsigned N, double * image, t_
 		png_img = gdImageCreatePalette(M, N);
 	}
 	if(!png_img) {
-		GpGg.IntError(GpC, NO_CARET, "GNUPLOT (post.trm): failed to create libgd image structure");
+		GpGg.IntErrorNoCaret("GNUPLOT (post.trm): failed to create libgd image structure");
 	}
 
 	if(color_mode == IC_RGB) {
@@ -3219,7 +3216,7 @@ static void write_png_image_to_buffer(unsigned M, unsigned N, double * image, t_
 		   needed to enable bit packing of low-depth images. */
 		for(n = 0; n < (1 << bits_per_component); n++) {
 			if(gdImageColorAllocate(png_img, n, n, n) < 0) {
-				GpGg.IntError(GpC, NO_CARET, "GNUPLOT(post.trm): libgd failed to allocate gray value %d\n", n);
+				GpGg.IntErrorNoCaret("GNUPLOT(post.trm): libgd failed to allocate gray value %d\n", n);
 			}
 		}
 		for(n = 0; n < N; n++) {
@@ -3340,7 +3337,7 @@ static void write_png_image_to_buffer(unsigned M, unsigned N, double * image, t_
 	cairo_surface_destroy(image_surface);
 	free(image255);
 	if(cairo_stat != CAIRO_STATUS_SUCCESS) {
-		GpGg.IntError(GpC, NO_CARET, "GNUPLOT(post.trm): could not write cairo png image to buffer: %s.",
+		GpGg.IntErrorNoCaret("GNUPLOT(post.trm): could not write cairo png image to buffer: %s.",
 		    cairo_status_to_string(cairo_stat));
 	}
 }
@@ -3490,7 +3487,7 @@ static char * PS_encode_image(uint M, uint N, double * image, t_imagecolor color
 
 	/* Reserve enough memory. */
 	if(!(encoded_image = (char*)malloc(max_encoded_bytes)))
-		GpGg.IntError(GpC, NO_CARET, "GNUPLOT (post.trm):  Error allocating memory.\n");
+		GpGg.IntErrorNoCaret("GNUPLOT (post.trm):  Error allocating memory.\n");
 	encoded_image_ptr = encoded_image;
 
 	coord_ptr = image;
@@ -3964,7 +3961,7 @@ static FILE * PS_open_prologue_file(char * name)
 		fprintf(stderr, "Please copy %s to one of the above directories\n", name);
 		fprintf(stderr, "or set the environmental variable GNUPLOT_PS_DIR\n");
 		fprintf(stderr, "or set the loadpath appropriately\n");
-		GpGg.IntError(GpC, NO_CARET, "Plot failed!");
+		GpGg.IntErrorNoCaret("Plot failed!");
 	}
 
 	return prologue_fd;

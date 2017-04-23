@@ -557,7 +557,7 @@ void ExtGoodsSelDialog::searchBarcode()
 		else
 			selectGoods(rec.ParentID, rec.ID);
 	}
-	else if(r == -2 && PPMessage(mfConf|mfYesNo, PPCFM_ADDNEWGOODS, 0) == cmYes) {
+	else if(r == -2 && PPMessage(mfConf|mfYesNo, PPCFM_ADDNEWGOODS) == cmYes) {
 		PPID   id = 0;
 		PPID   grp_id = getCtrlLong(CTLSEL_EXTGSEL_GGRP);
 		r = GObj.Edit(&id, gpkndGoods, grp_id, 0, bcode);

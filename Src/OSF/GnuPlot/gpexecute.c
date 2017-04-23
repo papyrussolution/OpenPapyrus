@@ -161,7 +161,7 @@ void gp_exec_event(char type, int mx, int my, int par1, int par2, int winid)
 	}
 #endif
 #ifdef WIN_IPC
-	GpGg.DoEvent(term, GpC, &ge);
+	GpGg.DoEvent(term, &ge);
 	return;
 #endif
 #ifdef PIPE_IPC

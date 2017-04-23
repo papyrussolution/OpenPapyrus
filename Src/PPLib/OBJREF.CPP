@@ -533,7 +533,7 @@ int SLAPI PPObjReference::RemoveObjV(PPID id, ObjCollection * pObjColl, uint opt
 	int    r = -1;
 	if(!CheckRights(PPR_DEL))
 		r = 0;
-	else if(!(options & PPObject::user_request) || PPMessage(mfConf|mfYesNo, PPCFM_DELETE, 0) == cmYes) {
+	else if(!(options & PPObject::user_request) || PPMessage(mfConf|mfYesNo, PPCFM_DELETE) == cmYes) {
 		PPWait(1);
 		r = BIN(ref->RemoveItem(Obj, id, BIN(options & PPObject::use_transaction)) && RemoveSync(id));
 		PPWait(0);
@@ -2374,7 +2374,7 @@ int SLAPI PPObjGlobalUserAcc::CheckPassword(const char * pName, const char * pPa
 	PPID   gua_id = 0;
 	PPGlobalUserAcc gua_rec;
 	SString pwd;
-	THROW_PP(pName && pPassword, PPERR_INVPARAM);
+	THROW_INVARG(pName && pPassword);
 	if(SearchByName(pName, &gua_id, &gua_rec) > 0) {
 		pwd = 0;
 		Reference::Decrypt(Reference::crymRef2, gua_rec.Password, strlen(gua_rec.Password), pwd);

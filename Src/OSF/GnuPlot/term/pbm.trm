@@ -183,7 +183,7 @@ static void PBM_options(GpCommand & rC)
 			    /* reset to default, since term is already set */
 			    pbm_font = 1;
 			    pbm_mode = 0;
-			    GpGg.IntError(rC, rC.CToken, "expecting: {small, medium, large} and {monochrome, gray, color}");
+			    GpGg.IntErrorCurToken("expecting: {small, medium, large} and {monochrome, gray, color}");
 			    break;
 		}
 	}

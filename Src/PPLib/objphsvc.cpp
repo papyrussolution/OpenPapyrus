@@ -1,9 +1,9 @@
 // OBJPHSVC.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
-#include <idea.h>
+// @v9.6.3 #include <idea.h>
 
 int SLAPI TestAsteriskAmiClient(PPID phnSvcID);
 //

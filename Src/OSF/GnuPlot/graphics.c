@@ -335,9 +335,9 @@ void GpGadgets::AdjustOffsets()
 		GetX().Range.low += r;
 	}
 	if(GetX().Range.low == GetX().Range.upp)
-		GpGg.IntError(GpC, NO_CARET, "x_min should not equal x_max!");
+		GpGg.IntErrorNoCaret("x_min should not equal x_max!");
 	if(GetY().Range.low == GetY().Range.upp)
-		GpGg.IntError(GpC, NO_CARET, "y_min should not equal y_max!");
+		GpGg.IntErrorNoCaret("y_min should not equal y_max!");
 	if(AxA[FIRST_X_AXIS].P_LinkToScnd)
 		clone_linked_axes(&AxA[FIRST_X_AXIS], &AxA[SECOND_X_AXIS]);
 	if(AxA[FIRST_Y_AXIS].P_LinkToScnd)
@@ -636,7 +636,7 @@ SECOND_KEY_PASS:
 				    plot_parallel(p_plot);
 				    break;
 				default:
-				    GpGg.IntError(GpC, NO_CARET, "unknown plot style");
+				    GpGg.IntErrorNoCaret("unknown plot style");
 			}
 		}
 		// If there are two passes, defer key sample till the second
@@ -1659,7 +1659,7 @@ void GpGadgets::PlotPoints(GpTermEntry * pT, CurvePoints * pPlot)
 	// This operation leaves x and y untouched, but loads the	
 	// jitter offsets into xhigh and yhigh.			
 	if(jitter.spread > 0)
-		jitter_points(pPlot);
+		JitterPoints(pPlot);
 	for(i = 0; i < pPlot->p_count; i++) {
 		if((pPlot->plot_style == LINESPOINTS) && (interval) && (i % interval)) {
 			continue;
@@ -3992,7 +3992,7 @@ void GpGadgets::ProcessImage(GpTermEntry * pT, void * pPlot, t_procimg_action ac
 			int j, i_image;
 			const bool log_axes = ((GetX().Flags & GpAxis::fLog) || (GetY().Flags & GpAxis::fLog));
 			if(!pT->filled_polygon)
-				GpGg.IntError(GpC, NO_CARET, "This terminal does not support filled polygons");
+				GpGg.IntErrorNoCaret("This terminal does not support filled polygons");
 			(pT->layer)(TERM_LAYER_BEGIN_IMAGE);
 			// Grid spacing in 3D space
 			if(log_axes) {
@@ -4150,6 +4150,165 @@ skip_pixel:
 			}
 			(pT->layer)(TERM_LAYER_END_IMAGE);
 		}
+	}
+}
+//
+// JITTER
+//
+//t_jitter jitter;
+
+static int compare_xypoints(const void * arg1, const void * arg2)
+{
+	GpCoordinate const * p1 = (GpCoordinate const *)arg1;
+	GpCoordinate const * p2 = (GpCoordinate const *)arg2;
+	/* Primary sort is on x */
+	/* FIXME: I'd like to treat x coords within jitter.x as equal, */
+	/*        but the GpCoordinate system mismatch makes this hard.  */
+	if(p1->x > p2->x)
+		return (1);
+	else if(p1->x < p2->x)
+		return (-1);
+	else if(p1->y > p2->y)
+		return (1);
+	else if(p1->y < p2->y)
+		return (-1);
+	else
+		return (0);
+}
+/*
+ * "set jitter overlap <ydelta> spread <factor>"
+ * displaces overlapping points in a point plot.
+ * The jittering algorithm is inspired by the beeswarm plot variant in R.
+ */
+//static double jdist(GpCoordinate * pi, GpCoordinate * pj)
+double GpGadgets::JDist(const GpCoordinate * pi, const GpCoordinate * pj)
+{
+	int delx = MapX(pi->x) - MapX(pj->x);
+	int dely = MapY(pi->y) - MapY(pj->y);
+	return sqrt((double)(delx*delx + dely*dely));
+}
+
+//void jitter_points(CurvePoints * plot)
+void GpGadgets::JitterPoints(CurvePoints * plot)
+{
+	int i, j;
+	/* The "x" and "xscale" stored in jitter are really along y */
+	double xjit, ygap;
+	GpPosition yoverlap;
+	yoverlap.x = 0;
+	yoverlap.y = jitter.overlap.x;
+	yoverlap.scaley = jitter.overlap.scalex;
+	GpGg.MapPositionR(yoverlap, &xjit, &ygap, "jitter");
+	/* Clear xhigh and yhigh, where we will later store the jitter offsets. */
+	/* Store variable color temporarily in ylow so it is not lost by sorting. */
+	for(i = 0; i < plot->p_count; i++) {
+		if(plot->varcolor)
+			plot->points[i].ylow = plot->varcolor[i];
+		plot->points[i].xhigh = 0.0;
+		plot->points[i].yhigh = 0.0;
+	}
+	qsort(plot->points, plot->p_count, sizeof(GpCoordinate), compare_xypoints);
+	/* For each point, check whether subsequent points would overlap it. */
+	/* If so, displace them in a fixed pattern */
+	i = 0;
+	while(i < plot->p_count - 1) {
+		for(j = 1; i+j < plot->p_count; j++) {
+			if(GpGg.JDist(&plot->points[i], &plot->points[i+j]) >= ygap)
+				break;
+			/* Displace point purely on x */
+			xjit  = (j+1)/2 * jitter.spread * plot->lp_properties.p_size;
+			if(jitter.limit > 0)
+				while(xjit > jitter.limit)
+					xjit -= jitter.limit;
+			if((j & 01) != 0)
+				xjit = -xjit;
+			plot->points[i+j].xhigh = xjit;
+			if(jitter.style == JITTER_SQUARE)
+				plot->points[i+j].yhigh = plot->points[i].y - plot->points[i+j].y;
+		}
+		i += j;
+	}
+	/* Copy variable colors back to where the plotting code expects to find them */
+	if(plot->varcolor)
+		for(i = 0; i < plot->p_count; i++) {
+			plot->varcolor[i] = plot->points[i].ylow;
+			plot->points[i].ylow = plot->points[i].y;
+		}
+}
+//
+// process 'set jitter' command 
+//
+//void set_jitter()
+void GpGadgets::SetJitter(GpCommand & rC)
+{
+	rC.CToken++;
+	// Default overlap criterion 1 character (usually on y) 
+	jitter.overlap.scalex = character;
+	jitter.overlap.x = 1;
+	jitter.spread = 1.0;
+	jitter.limit = 0.0;
+	jitter.style = JITTER_DEFAULT;
+	while(!rC.EndOfCommand()) {
+		if(rC.AlmostEq("over$lap")) {
+			rC.CToken++;
+			GetPositionDefault(rC, &jitter.overlap, character, 2);
+		}
+		else if(rC.Eq("spread")) {
+			rC.CToken++;
+			jitter.spread = rC.RealExpression();
+			if(jitter.spread <= 0)
+				jitter.spread = 1.0;
+		}
+		else if(rC.Eq("swarm")) {
+			rC.CToken++;
+			jitter.style = JITTER_SWARM;
+		}
+		else if(rC.Eq("square")) {
+			rC.CToken++;
+			jitter.style = JITTER_SQUARE;
+		}
+		else if(rC.Eq("wrap")) {
+			rC.CToken++;
+			jitter.limit = rC.RealExpression();
+		}
+		else
+			IntErrorCurToken("unrecognized keyword");
+	}
+}
+//
+// process 'show jitter' command 
+//
+void GpGadgets::ShowJitter()
+{
+	if(jitter.spread <= 0) {
+		fprintf(stderr, "\tno jitter\n");
+	}
+	else {
+		fprintf(stderr, "\toverlap criterion  %g %s coords\n", jitter.overlap.x, coord_msg[jitter.overlap.scalex]);
+		fprintf(stderr, "\tspread multiplier on x: %g\n", jitter.spread);
+		if(jitter.limit > 0)
+			fprintf(stderr, "\twrap at %g character widths\n", jitter.limit);
+		fprintf(stderr, "\tstyle: %s\n", jitter.style == JITTER_SQUARE ? "square" : "swarm");
+	}
+}
+//
+// process 'unset jitter' command 
+//
+void GpGadgets::UnsetJitter()
+{
+	jitter.spread = 0;
+}
+//
+// called by the save command 
+//
+void GpGadgets::SaveJitter(FILE * fp)
+{
+	if(jitter.spread <= 0)
+		fprintf(fp, "unset jitter\n");
+	else {
+		fprintf(fp, "set jitter overlap %s%g", jitter.overlap.scalex == character ? "" : coord_msg[jitter.overlap.scalex], jitter.overlap.x);
+		fprintf(fp, "  spread %g  wrap %g", jitter.spread, jitter.limit);
+		fprintf(fp, jitter.style == JITTER_SQUARE ? " square\n" : "\n");
 	}
 }
 

@@ -1562,7 +1562,7 @@ int SLAPI PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 									PPMessage(mfInfo, PPINF_ACTCHARGEONCR, temp_buf);
 								}
 								else {
-									PPMessage(mfInfo, PPINF_ACTCHARGEONDONTCR, 0);
+									PPMessage(mfInfo, PPINF_ACTCHARGEONDONTCR);
 								}
 							}
 						}
@@ -3112,7 +3112,7 @@ int SLAPI SelectLotImpExpCfgs(PPLotImpExpParam * pParam, int import)
 	StrAssocArray list;
 	PPLotImpExpParam param;
 	TDialog * p_dlg = 0;
-	THROW_PP(pParam, PPERR_INVPARAM);
+	THROW_INVARG(pParam);
 	pParam->Direction = BIN(import);
 	THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_LOT, &param, &list, import ? 2 : 1));
 	id = (list.SearchByText(pParam->Name, 1, &p) > 0) ? (uint)list.at(p).Id : 0;
@@ -3182,7 +3182,7 @@ int SLAPI PPLotExporter::Export(const LotViewItem * pItem)
 	SString temp_buf;
 	Sdr_Lot  sdr_lot;
 	MEMSZERO(sdr_lot);
-	THROW_PP(pItem && P_IE, PPERR_INVPARAM);
+	THROW_INVARG(pItem && P_IE);
 	sdr_lot.ID = pItem->ID;
 	sdr_lot.BillID = pItem->BillID;
 	sdr_lot.LocID = pItem->LocID;

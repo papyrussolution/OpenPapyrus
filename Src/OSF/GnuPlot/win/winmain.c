@@ -780,7 +780,7 @@ FILE * fake_popen(const char * command, const char * type)
 		pipe_type = *type;
 		/* Write output to temporary file and handle the rest in fake_pclose. */
 		if(type[1] == 'b')
-			GpGg.IntError(GpC, NO_CARET, "Could not execute pipe '%s'. Writing to binary pipes is not supported.", command);
+			GpGg.IntErrorNoCaret("Could not execute pipe '%s'. Writing to binary pipes is not supported.", command);
 		else
 			f = fopen(pipe_filename, "w");
 		pipe_command = _strdup(command);
@@ -814,7 +814,7 @@ int fake_pclose(FILE * stream)
 		/* system() returns 255 if the command could not be executed.
 		   The real popen would have returned an error already. */
 		if(rc == 255)
-			GpGg.IntError(GpC, NO_CARET, "Could not execute pipe '%s'.", pipe_command);
+			GpGg.IntErrorNoCaret("Could not execute pipe '%s'.", pipe_command);
 		free(pipe_command);
 	}
 	return rc;

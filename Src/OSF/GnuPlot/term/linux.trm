@@ -282,7 +282,7 @@ static
 void LINUX_options()
 {
     if(!LINUX_graphics_allowed) {
-	GpGg.IntError(GpC, NO_CARET, "Linux terminal driver not available");
+	GpGg.IntErrorNoCaret("Linux terminal driver not available");
     }
     fprintf(stderr, "%s\n", vga_getmodename(linux_vmode));
 }

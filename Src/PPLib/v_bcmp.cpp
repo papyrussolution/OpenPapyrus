@@ -131,7 +131,7 @@ int SLAPI PPViewGoodsBillCmp::PutBillToTempTable(PPID billID, int side /* 1 - lh
 {
 	int    ok = 1, r = 0;
 	PPBillPacket pack;
-	THROW_PP(oneof2(side, 1, 2), PPERR_INVPARAM);
+	THROW_INVARG(oneof2(side, 1, 2));
 	if(isHistory) {
 		PPHistBillPacket h_pack;
 		if((r = Hb.GetPacket(billID, &h_pack)) > 0)

@@ -5095,7 +5095,8 @@ library PapyrusInterfaceLib version(1.1) {
 		long   SupplRetOpID;         // Операция возврата поставщику
 		long   ExpndEtcOpID;         // Операция прочего расхода
 		long   IntrExpndOpID;        // Операция внутреннего перемещения
-		long   AlcGoodsGrpID;        // Товарная группа, ограничивающая алкогольную продукцию
+
+		long   AlcGoodsGrpID;        // Товарная группа, ограничивающая алкогольную продукцию
 		long   BeerGoodsGrpID;       // Товарная группа, ограничивающая пивную продукцию
 		long   CategoryTagID;        // Тег, определяющий категорию вида продукции (имеет приоритет перед CategoryClsDim)
 		long   CategoryClsDim;       // PPGdsCls2::e... Размерность класса, определяющая категорию алкогольной продукции

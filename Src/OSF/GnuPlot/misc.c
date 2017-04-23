@@ -143,7 +143,7 @@ static void prepare_call(GpCommand & rC, int calltype)
 						    call_args[call_argc] = gp_strdup(val_as_string);
 						    break;
 						default:
-						    GpGg.IntError(GpC, save_token, "Unrecognized argument type");
+						    GpGg.IntError(save_token, "Unrecognized argument type");
 						    break;
 						case INTGR:
 						    sprintf(val_as_string, "%d", a.v.int_val);
@@ -163,7 +163,7 @@ static void prepare_call(GpCommand & rC, int calltype)
 		}
 		lf_head->CToken = rC.CToken;
 		if(!rC.EndOfCommand())
-			GpGg.IntError(GpC, ++rC.CToken, "too many arguments for 'call <file>'");
+			GpGg.IntError(++rC.CToken, "too many arguments for 'call <file>'");
 	}
 	else if(calltype == 5) {
 		// lf_push() moved our call arguments from call_args[] to lf->call_args[] 
@@ -273,7 +273,7 @@ void GpGadgets::LoadFile(GpCommand & rC, FILE * pFp, char * pFileName, int callt
 	gpval_lineno->udv_value.SetInt(0);
 	lf_push(pFp, pFileName, NULL); /* save state for errors and recursion */
 	if(pFp == (FILE*)NULL) {
-		IntError(rC, NO_CARET, "Cannot open script file '%s'", pFileName);
+		IntErrorNoCaret("Cannot open script file '%s'", pFileName);
 		// won't actually reach here
 	}
 	else if(pFp == stdin) {
@@ -349,7 +349,7 @@ void GpGadgets::LoadFile(GpCommand & rC, FILE * pFp, char * pFileName, int callt
 						* bracketed clause {...}
 						*/
 						if(curly_brace_count < 0)
-							IntError(rC, NO_CARET, "Unexpected }");
+							IntErrorNoCaret("Unexpected }");
 						if(curly_brace_count > 0) {
 							if((len + 4) > (int)rC.InputLineLen)
 								rC.ExtendInputLine();
@@ -466,13 +466,13 @@ void lf_push(FILE * fp, char * name, char * cmdline)
 	LFS * lf = (LFS*)malloc(sizeof(LFS));
 	if(lf == (LFS*)NULL) {
 		SFile::ZClose(&fp);  // it won't be otherwise 
-		GpGg.IntError(GpC, GpC.CToken, "not enough memory to load file");
+		GpGg.IntErrorCurToken("not enough memory to load file");
 	}
 	lf->fp = fp;            /* save this file pointer */
 	lf->name = name;
 	lf->cmdline = cmdline;
 	lf->interactive = GpGg.IsInteractive; // save current state 
-	lf->inline_num = GpC.InlineNum;    /* save current line number */
+	lf->inline_num = GpGg.Gp__C.InlineNum;    /* save current line number */
 	lf->call_argc = call_argc;
 	// Call arguments are irrelevant if invoked from do_string_and_free 
 	if(cmdline == NULL) {
@@ -483,15 +483,15 @@ void lf_push(FILE * fp, char * name, char * cmdline)
 	}
 	lf->depth = lf_head ? lf_head->depth+1 : 0; /* recursion depth */
 	if(lf->depth > STACK_DEPTH)
-		GpGg.IntError(GpC, NO_CARET, "load/eval nested too deeply");
-	lf->if_depth = GpC.IfDepth;
-	lf->if_open_for_else = GpC.IfOpenForElse;
-	lf->if_condition = GpC.IfCondition;
-	lf->CToken = GpC.CToken;
-	lf->NumTokens = GpC.NumTokens;
-	lf->P_Ttokens = (LexicalUnit *)malloc((GpC.NumTokens+1) * sizeof(LexicalUnit));
-	memcpy(lf->P_Ttokens, GpC.P_Token, (GpC.NumTokens+1) * sizeof(LexicalUnit));
-	lf->input_line = gp_strdup(GpC.P_InputLine);
+		GpGg.IntErrorNoCaret("load/eval nested too deeply");
+	lf->if_depth = GpGg.Gp__C.IfDepth;
+	lf->if_open_for_else = GpGg.Gp__C.IfOpenForElse;
+	lf->if_condition = GpGg.Gp__C.IfCondition;
+	lf->CToken = GpGg.Gp__C.CToken;
+	lf->NumTokens = GpGg.Gp__C.NumTokens;
+	lf->P_Ttokens = (LexicalUnit *)malloc((GpGg.Gp__C.NumTokens+1) * sizeof(LexicalUnit));
+	memcpy(lf->P_Ttokens, GpGg.Gp__C.P_Token, (GpGg.Gp__C.NumTokens+1) * sizeof(LexicalUnit));
+	lf->input_line = gp_strdup(GpGg.Gp__C.P_InputLine);
 	lf->prev = lf_head; // link to stack 
 	lf_head = lf;
 }
@@ -507,7 +507,7 @@ void load_file_error()
 {
 	/* clean up from error in load_file */
 	/* pop off everything on stack */
-	while(lf_pop(GpC))
+	while(lf_pop(GpGg.Gp__C))
 		;
 }
 
@@ -678,7 +678,7 @@ void pop_terminal()
 		i = GpGg.IsInteractive;
 		GpGg.IsInteractive = 0;
 		sprintf(s, "set term %s %s", push_term_name, (push_term_opts ? push_term_opts : ""));
-		GpC.DoStringAndFree(s);
+		GpGg.Gp__C.DoStringAndFree(s);
 		GpGg.IsInteractive = i ? true : false;
 		if(GpGg.IsInteractive)
 			fprintf(stderr, "   restored terminal is %s %s\n", term->name, ((*term_options) ? term_options : ""));
@@ -696,7 +696,7 @@ enum PLOT_STYLE get_style(GpCommand & rC)
 	ps = (enum PLOT_STYLE)rC.LookupTable(&plotstyle_tbl[0], rC.CToken);
 	rC.CToken++;
 	if(ps == PLOT_STYLE_NONE)
-		GpGg.IntError(rC, rC.CToken, "unrecognized plot type");
+		GpGg.IntErrorCurToken("unrecognized plot type");
 	return ps;
 }
 //
@@ -733,7 +733,7 @@ void get_filledcurves_style_options(GpCommand & rC, filledcurves_opts * fco)
 			if(p == FILLEDCURVES_ATXY) {
 				// two values required for FILLEDCURVES_ATXY
 				if(!rC.Eq(","))
-					GpGg.IntError(rC, rC.CToken, "syntax is xy=<x>,<y>");
+					GpGg.IntErrorCurToken("syntax is xy=<x>,<y>");
 				rC.CToken++;
 				fco->aty = rC.RealExpression();
 			}
@@ -799,19 +799,19 @@ int GpCommand::ParseDashType(t_dashtype * pDashType)
 		CToken++;
 		while(!EndOfCommand()) {
 			if(j >= DASHPATTERN_LENGTH) {
-				GpGg.IntError(*this, CToken, "too many pattern elements");
+				GpGg.IntErrorCurToken("too many pattern elements");
 			}
 			pDashType->pattern[j++] = (float)RealExpression(); /* The solid portion */
 			if(!Eq(CToken++, ","))
-				GpGg.IntError(*this, CToken, "expecting comma");
+				GpGg.IntErrorCurToken("expecting comma");
 			pDashType->pattern[j++] = (float)RealExpression(); /* The empty portion */
 			if(Eq(")"))
 				break;
 			if(!Eq(CToken++, ","))
-				GpGg.IntError(*this, CToken, "expecting comma");
+				GpGg.IntErrorCurToken("expecting comma");
 		}
 		if(!Eq(")"))
-			GpGg.IntError(*this, CToken, "expecting , or )");
+			GpGg.IntErrorCurToken("expecting , or )");
 		CToken++;
 		res = DASHTYPE_CUSTOM;
 
@@ -842,7 +842,7 @@ int GpCommand::ParseDashType(t_dashtype * pDashType)
 					    pDashType->pattern[k-1] += 1.0 * DSCALE;
 				    break;
 				default:
-				    GpGg.IntError(*this, CToken - 1, "expecting one of . - _ or space");
+				    GpGg.IntError(CToken - 1, "expecting one of . - _ or space");
 			}
 			j++;
 #undef  DSCALE
@@ -859,7 +859,7 @@ int GpCommand::ParseDashType(t_dashtype * pDashType)
 	else {
 		res = IntExpression();
 		if(res < 0)
-			GpGg.IntError(*this, CToken - 1, "dashtype must be non-negative");
+			GpGg.IntError(CToken - 1, "dashtype must be non-negative");
 		else
 			res = (res == 0) ? DASHTYPE_AXIS : (res - 1);
 	}
@@ -899,14 +899,14 @@ int GpGadgets::LpParse(GpCommand & rC, lp_style_type & rLp, lp_class destination
 		// which would otherwise be accepted but ignored, leading to confusion
 		// FIXME:  Couldn't this be handled at a higher level?
 		if((destinationClass == LP_NOFILL) && (rC.Eq("lt") || rC.AlmostEq("linet$ype"))) {
-			IntError(rC, rC.CToken, "object linecolor must be set using fillstyle border");
+			IntErrorCurToken("object linecolor must be set using fillstyle border");
 		}
 		if(rC.AlmostEq("linet$ype") || rC.Eq("lt")) {
 			if(set_lt++)
 				break;
 			else {
 				if(destinationClass == LP_TYPE)
-					IntError(rC, rC.CToken, "linetype definition cannot use linetype");
+					IntErrorCurToken("linetype definition cannot use linetype");
 				rC.CToken++;
 				if(rC.AlmostEq("rgb$color")) {
 					if(set_pal++)
@@ -1125,7 +1125,7 @@ int GpGadgets::LpParse(GpCommand & rC, lp_style_type & rLp, lp_class destination
 		break; // caught unknown option -> quit the while(1) loop
 	}
 	if(set_lt > 1 || set_pal > 1 || set_lw > 1 || set_pt > 1 || set_ps > 1 || set_dt > 1)
-		IntError(rC, rC.CToken, "duplicated arguments in style specification");
+		IntErrorCurToken("duplicated arguments in style specification");
 	if(set_pal) {
 		rLp.pm3d_color = newlp.pm3d_color;
 		// hidden3d uses this to decide that a single color surface is wanted
@@ -1188,7 +1188,7 @@ void GpCommand::ParseFillStyle(fill_style_type * fs, int def_style, int def_dens
 					case FS_SOLID:
 					case FS_PATTERN:
 						if(set_fill && fs->fillstyle != i)
-							GpGg.IntError(*this, CToken, "conflicting option");
+							GpGg.IntErrorCurToken("conflicting option");
 						fs->fillstyle = i;
 						set_fill = true;
 						CToken++;
@@ -1204,13 +1204,13 @@ void GpCommand::ParseFillStyle(fill_style_type * fs, int def_style, int def_dens
 								SETMAX(fs->fillpattern, 0);
 							}
 							else
-								GpGg.IntError(*this, CToken, "this fill style does not have a parameter");
+								GpGg.IntErrorCurToken("this fill style does not have a parameter");
 						}
 						continue;
 				}
 				if(AlmostEq("bo$rder")) {
 					if(set_border && fs->border_color.lt == LT_NODRAW)
-						GpGg.IntError(*this, CToken, "conflicting option");
+						GpGg.IntErrorCurToken("conflicting option");
 					fs->border_color.type = TC_DEFAULT;
 					set_border = true;
 					CToken++;
@@ -1231,7 +1231,7 @@ void GpCommand::ParseFillStyle(fill_style_type * fs, int def_style, int def_dens
 				}
 				else if(AlmostEq("nobo$rder")) {
 					if(set_border && fs->border_color.lt != LT_NODRAW)
-						GpGg.IntError(*this, CToken, "conflicting option");
+						GpGg.IntErrorCurToken("conflicting option");
 					fs->border_color.type = TC_LT;
 					fs->border_color.lt = LT_NODRAW;
 					set_border = true;
@@ -1265,7 +1265,7 @@ void GpCommand::ParseColorSpec(t_colorspec * tc, int options)
 {
 	CToken++;
 	if(EndOfCommand())
-		GpGg.IntError(*this, CToken, "expected colorspec");
+		GpGg.IntErrorCurToken("expected colorspec");
 	if(AlmostEq("def$ault")) {
 		CToken++;
 		tc->type = TC_DEFAULT;
@@ -1284,7 +1284,7 @@ void GpCommand::ParseColorSpec(t_colorspec * tc, int options)
 		CToken++;
 		lp_style_type lptemp;
 		if(EndOfCommand())
-			GpGg.IntError(*this, CToken, "expected linetype");
+			GpGg.IntErrorCurToken("expected linetype");
 		tc->type = TC_LT;
 		tc->lt = IntExpression()-1;
 		if(tc->lt < LT_BACKGROUND) {
@@ -1302,7 +1302,7 @@ void GpCommand::ParseColorSpec(t_colorspec * tc, int options)
 	}
 	else if(options <= TC_LT) {
 		tc->type = TC_DEFAULT;
-		GpGg.IntError(*this, CToken, "only tc lt <n> possible here");
+		GpGg.IntErrorCurToken("only tc lt <n> possible here");
 	}
 	else if(Eq("ls") || AlmostEq("lines$tyle")) {
 		CToken++;
@@ -1330,7 +1330,7 @@ void GpCommand::ParseColorSpec(t_colorspec * tc, int options)
 			}
 			else {
 				tc->type = TC_DEFAULT;
-				GpGg.IntError(*this, CToken, "palette z not possible here");
+				GpGg.IntErrorCurToken("palette z not possible here");
 			}
 			CToken++;
 		}
@@ -1338,17 +1338,17 @@ void GpCommand::ParseColorSpec(t_colorspec * tc, int options)
 			tc->type = TC_CB;
 			CToken++;
 			if(EndOfCommand())
-				GpGg.IntError(*this, CToken, "expected cb value");
+				GpGg.IntErrorCurToken("expected cb value");
 			tc->value = RealExpression();
 		}
 		else if(AlmostEq("frac$tion")) {
 			tc->type = TC_FRAC;
 			CToken++;
 			if(EndOfCommand())
-				GpGg.IntError(*this, CToken, "expected palette fraction");
+				GpGg.IntErrorCurToken("expected palette fraction");
 			tc->value = RealExpression();
 			if(tc->value < 0. || tc->value > 1.0)
-				GpGg.IntError(*this, CToken, "palette fraction out of range");
+				GpGg.IntErrorCurToken("palette fraction out of range");
 		}
 		else {
 			// EndOfCommand() or palette <blank> 
@@ -1366,7 +1366,7 @@ void GpCommand::ParseColorSpec(t_colorspec * tc, int options)
 		tc->lt = parse_color_name();
 	}
 	else {
-		GpGg.IntError(*this, CToken, "colorspec option not recognized");
+		GpGg.IntErrorCurToken("colorspec option not recognized");
 	}
 }
 
@@ -1375,9 +1375,9 @@ long parse_color_name()
 	char * string;
 	long color = -2;
 	/* Terminal drivers call this after seeing a "background" option */
-	if(GpC.AlmostEq("rgb$color") && GpC.AlmostEq(GpC.CToken-1, "back$ground"))
-		GpC.CToken++;
-	if((string = GpC.TryToGetString())) {
+	if(GpGg.Gp__C.AlmostEq("rgb$color") && GpGg.Gp__C.AlmostEq(GpGg.Gp__C.CToken-1, "back$ground"))
+		GpGg.Gp__C.CToken++;
+	if((string = GpGg.Gp__C.TryToGetString())) {
 		int iret = lookup_table_nth(pm3d_color_names_tbl, string);
 		if(iret >= 0)
 			color = pm3d_color_names_tbl[iret].value;
@@ -1387,10 +1387,10 @@ long parse_color_name()
 			iret = sscanf(string, "%lx", &color);
 		free(string);
 		if(color == -2)
-			GpGg.IntError(GpC, GpC.CToken, "unrecognized color name and not a string \"#AARRGGBB\" or \"0xAARRGGBB\"");
+			GpGg.IntErrorCurToken("unrecognized color name and not a string \"#AARRGGBB\" or \"0xAARRGGBB\"");
 	}
 	else {
-		color = GpC.IntExpression();
+		color = GpGg.Gp__C.IntExpression();
 	}
 	return (uint)(color);
 }
@@ -1495,7 +1495,7 @@ void arrow_parse(GpCommand & rC, arrow_style_type * arrow, bool allow_as)
 				// only scalex used; scaley is angle of the head in [deg] 
 				rC.CToken++;
 				if(rC.EndOfCommand())
-					GpGg.IntError(rC, rC.CToken, "head size expected");
+					GpGg.IntErrorCurToken("head size expected");
 				GpGg.GetPosition(rC, &hsize);
 				arrow->head_length = hsize.x;
 				arrow->head_lengthunit = hsize.scalex;
@@ -1537,14 +1537,14 @@ void arrow_parse(GpCommand & rC, arrow_style_type * arrow, bool allow_as)
 			}
 		}
 		if(set_layer>1 || set_line>1 || set_head>1 || set_headsize>1 || set_headfilled>1)
-			GpGg.IntError(rC, rC.CToken, "duplicated arguments in style specification");
+			GpGg.IntErrorCurToken("duplicated arguments in style specification");
 	}
 }
 
 void get_image_options(t_image * image)
 {
-	if(GpC.AlmostEq("pix$els") || GpC.Eq("failsafe")) {
-		GpC.CToken++;
+	if(GpGg.Gp__C.AlmostEq("pix$els") || GpGg.Gp__C.Eq("failsafe")) {
+		GpGg.Gp__C.CToken++;
 		image->fallback = true;
 	}
 }

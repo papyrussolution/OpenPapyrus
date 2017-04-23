@@ -273,7 +273,7 @@ static int SLAPI SelectQuotImportCfgs(PPQuotImpExpParam * pParam, int import)
 	StrAssocArray list;
 	PPQuotImpExpParam param;
 	TDialog * p_dlg = 0;
-	THROW_PP(pParam, PPERR_INVPARAM);
+	THROW_INVARG(pParam);
 	pParam->Direction = BIN(import);
 	THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, _rec_ident, &param, &list, import ? 2 : 1));
 	id = (list.SearchByText(pParam->Name, 1, &p) > 0) ? (uint)list.at(p).Id : 0;
@@ -820,7 +820,7 @@ int SLAPI SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
 	SString ini_file_name;
 	StrAssocArray list;
 	PPGoodsImpExpParam param;
-	THROW_PP(pParam, PPERR_INVPARAM);
+	THROW_INVARG(pParam);
 	pParam->Direction = BIN(import);
 	THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_GOODS2, &param, &list, import ? 2 : 1));
 	id = (list.SearchByText(pParam->Name, 1, &p) > 0) ? (uint)list.at(p).Id : 0;
@@ -931,7 +931,7 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 	Sdr_Goods2 sdr_goods;
 
 	THROW_MEM(P_GObj && P_PsnObj && P_QcObj); // @v8.1.1
-	THROW_PP(pPack && P_IEGoods, PPERR_INVPARAM);
+	THROW_INVARG(pPack && P_IEGoods);
 	if(Param.Flags & PPGoodsImpExpParam::fImportImages) {
 		uint count = pPack->Codes.getCount();
 		if(count) {
@@ -942,7 +942,8 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 				pPack->LinkFiles.At(0, img_path);
 				if(fileExists(img_path)) {
 					SFileFormat ff;
-					if(ff.Identify(img_path, &ext_buf)) {
+					const int fir = ff.Identify(img_path, &ext_buf);
+					if(oneof2(fir, 2, 3)) { // Принимаем только идентификацию по сигнатуре
 						if(oneof4(ff, SFileFormat::Jpeg, SFileFormat::Png, SFileFormat::Gif, SFileFormat::Bmp)) {
 							if(!ext_buf.NotEmptyS()) {
 								SFileFormat::GetExt(ff, ext_buf);
@@ -1942,7 +1943,6 @@ int PPGoodsImporter::ImageFileBlock::SetFile(const char * pFileName, PPID goodsI
 			MEMSZERO(entry);
 			entry.GoodsID = goodsID;
 			entry.Sz = fs.Size;
-
 			uint pos = 0;
 			if(List.lsearch(&goodsID, &pos, CMPF_LONG)) {
 				Entry & r_entry = List.at(pos);
@@ -1978,8 +1978,8 @@ int SLAPI PPGoodsImporter::Helper_ProcessDirForImages(const char * pPath, ImageF
 			(temp_buf = pPath).SetLastSlash().Cat(de.FileName);
 			PPWaitMsg(temp_buf);
 			SFileFormat ff;
-			int    f = ff.Identify((temp_buf = pPath).SetLastSlash().Cat(de.FileName));
-			if(f && oneof2(ff, SFileFormat::Jpeg, SFileFormat::Png)) {
+			const int fir = ff.Identify((temp_buf = pPath).SetLastSlash().Cat(de.FileName));
+			if(oneof2(fir, 2, 3) && oneof2(ff, SFileFormat::Jpeg, SFileFormat::Png)) { // Принимаем только идентификацию по сигнатуре
 				BarcodeTbl::Rec bc_rec;
 				ps.Split(de.FileName);
 				code_buf = ps.Nam;

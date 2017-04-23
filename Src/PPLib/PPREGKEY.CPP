@@ -1,9 +1,9 @@
 // PPREGKEY.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2015, 2016
+// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
-#include <idea.h>
+// @v9.6.3 #include <idea.h>
 
 //#define REGKEY_DRIVER
 //#define REGKEY_GENMATRIX

@@ -1,5 +1,5 @@
 // V_PANLZ.CPP
-// Copyright (c) A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016
+// Copyright (c) A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -68,7 +68,7 @@ public:
 	int    getDTS(PriceAnlzFilt *);
 private:
 	DECL_HANDLE_EVENT;
-	int    setupBaseLoc(long baseCost);
+	void   setupBaseLoc(long baseCost);
 
 	PriceAnlzFilt Data;
 };
@@ -82,12 +82,11 @@ IMPL_HANDLE_EVENT(PriceAnlzFiltDialog)
 	}
 }
 
-int PriceAnlzFiltDialog::setupBaseLoc(long baseCost)
+void PriceAnlzFiltDialog::setupBaseLoc(long baseCost)
 {
 	disableCtrl(CTLSEL_PANLZFLT_BASELOC, baseCost != PriceAnlzFilt::bcByLoc);
 	if(baseCost != PriceAnlzFilt::bcByLoc)
 		setCtrlData(CTLSEL_PANLZFLT_BASELOC, 0);
-	return 1;
 }
 
 int PriceAnlzFiltDialog::setDTS(const PriceAnlzFilt * pData)
@@ -437,12 +436,13 @@ int SLAPI PPViewPriceAnlz::InitIteration()
 
 int SLAPI PPViewPriceAnlz::NextIteration(PriceAnlzViewItem * pItem)
 {
-	while(P_IterQuery && P_IterQuery->nextIteration() > 0) {
+	int    ok = -1;
+	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		Counter.Increment();
 		ASSIGN_PTR(pItem, P_TempTbl->data);
-		return 1;
+		ok = 1;
 	}
-	return -1;
+	return ok;
 }
 
 DBQuery * SLAPI PPViewPriceAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
@@ -455,8 +455,10 @@ DBQuery * SLAPI PPViewPriceAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	}
 	if(pSubTitle) {
 		SString obj_name, temp_buf;
-		if(Filt.Flags & PriceAnlzFilt::fShowDiffAsPrc)
-			(*pSubTitle = "Разница цен в %").ToOem();
+		if(Filt.Flags & PriceAnlzFilt::fShowDiffAsPrc) {
+			// @v9.6.3 (*pSubTitle = "Разница цен в %").ToOem();
+			PPLoadString("priceanlzfilt_fshowdiffasprc", *pSubTitle); // @v9.6.3 
+		}
 		if(Filt.SupplID) {
 			PPLoadText(PPTXT_SUPPLTXT, temp_buf);
 			GetArticleName(Filt.SupplID, obj_name);

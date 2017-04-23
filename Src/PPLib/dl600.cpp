@@ -2632,7 +2632,7 @@ int SLAPI DlContext::Helper_LoadDbTableSpec(const DlScope * pScope, DBTable * pT
 	char   s_buf[256];
 	CtmExprConst c;
 	DlScope * p_index = 0;
-	THROW_PP(pScope, PPERR_INVPARAM);
+	THROW_INVARG(pScope);
 	pTbl->tableID = pScope->GetId();
 	STRNSCPY(pTbl->tableName, pScope->GetName());
 	if(pScope->GetConst(DlScope::cdbtPageSize, &c)) {

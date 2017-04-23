@@ -63,21 +63,18 @@ cairo_gl_flavor_t _cairo_gl_get_flavor(void)
 {
 	const char * version = (const char*)glGetString(GL_VERSION);
 	cairo_gl_flavor_t flavor;
-
 	if(version == NULL)
 		flavor = CAIRO_GL_FLAVOR_NONE;
 	else if(strstr(version, "OpenGL ES") != NULL)
 		flavor = CAIRO_GL_FLAVOR_ES;
 	else
 		flavor = CAIRO_GL_FLAVOR_DESKTOP;
-
 	return flavor;
 }
 
 ulong _cairo_gl_get_vbo_size(void)
 {
 	ulong vbo_size;
-
 	const char * env = getenv("CAIRO_GL_VBO_SIZE");
 	if(env == NULL) {
 		vbo_size = CAIRO_GL_VBO_SIZE_DEFAULT;
@@ -88,7 +85,6 @@ ulong _cairo_gl_get_vbo_size(void)
 		assert(errno == 0);
 		assert(vbo_size > 0);
 	}
-
 	return vbo_size;
 }
 

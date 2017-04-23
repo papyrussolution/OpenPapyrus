@@ -318,7 +318,7 @@ int GpGadgets::Run(int argc, char ** argv)
 	Ev.AddUdvByName("NaN");
 	InitConstants();
 	Ev.udv_user_head = &Ev.udv_NaN->next_udv;
-	GpC.InitMemory();
+	GpGg.Gp__C.InitMemory();
 	IsInteractive = false;
 	init_terminal(); // can set term type if it likes 
 	push_terminal(0); // remember the default terminal 
@@ -348,7 +348,7 @@ int GpGadgets::Run(int argc, char ** argv)
 		}
 	}
 	// Need this before show_version is called for the first time
-	show_version(GpC, IsInteractive ? stderr : NULL); // Only load GPVAL_COMPILE_OPTIONS
+	show_version(GpGg.Gp__C, IsInteractive ? stderr : NULL); // Only load GPVAL_COMPILE_OPTIONS
 #ifdef WGP_CONSOLE
 #ifdef CONSOLE_SWITCH_CP
 	if(cp_changed && interactive) {
@@ -386,7 +386,7 @@ int GpGadgets::Run(int argc, char ** argv)
 		init_locale();
 		memzero(&SmPalette, sizeof(SmPalette));
 		GpF.Init(); // Initialization of fitting module
-		InitSession(GpC);
+		InitSession(GpGg.Gp__C);
 		if(IsInteractive && term != 0) {  /* not unknown */
 #ifdef GNUPLOT_HISTORY
 #if defined(HAVE_LIBREADLINE) || defined(HAVE_LIBEDITLINE)
@@ -395,7 +395,7 @@ int GpGadgets::Run(int argc, char ** argv)
 			expanded_history_filename = gp_strdup(GNUPLOT_HISTORY_FILE);
 			gp_expand_tilde(&expanded_history_filename);
 #endif
-			GpC.H.ReadHistory(expanded_history_filename);
+			GpGg.Gp__C.H.ReadHistory(expanded_history_filename);
 			/*
 			 * It is safe to ignore the return values of 'atexit()' and
 			 * 'on_exit()'. In the worst case, there is no history of your
@@ -455,7 +455,7 @@ int GpGadgets::Run(int argc, char ** argv)
 	// load filenames given as arguments 
 	while(--argc > 0) {
 		++argv;
-		GpC.CToken = 0;
+		GpGg.Gp__C.CToken = 0;
 		if(!strncmp(*argv, "-persist", 2) || !strcmp(*argv, "--persist")
 #ifdef _Windows
 		    || !_stricmp(*argv, "-noend") || !_stricmp(*argv, "/noend")
@@ -472,7 +472,7 @@ int GpGadgets::Run(int argc, char ** argv)
 #endif
 RECOVER_FROM_ERROR_IN_DASH:
 			reading_from_dash = true;
-			while(!ComLine(GpC)) {
+			while(!ComLine(GpGg.Gp__C)) {
 				;
 			}
 			reading_from_dash = false;
@@ -486,7 +486,7 @@ RECOVER_FROM_ERROR_IN_DASH:
 			}
 			IsInteractive = false;
 			noinputfiles = false;
-			GpC.DoString(*argv);
+			GpGg.Gp__C.DoString(*argv);
 		}
 		else if(!strncmp(*argv, "-d", 2) || !strcmp(*argv, "--default-settings")) {
 			// Ignore this; it already had its effect 
@@ -505,7 +505,7 @@ RECOVER_FROM_ERROR_IN_DASH:
 			for(i = 0; i<argc; i++)
 				call_args[i] = gp_strdup(argv[i+1]); // Need to stash argv[i] somewhere visible to load_file() 
 			call_argc = argc - 1;
-			LoadFile(GpC, loadpath_fopen(*argv, "r"), gp_strdup(*argv), 5);
+			LoadFile(GpGg.Gp__C, loadpath_fopen(*argv, "r"), gp_strdup(*argv), 5);
 			gp_exit(EXIT_SUCCESS);
 		}
 		else if(*argv[0] == '-') {
@@ -514,12 +514,12 @@ RECOVER_FROM_ERROR_IN_DASH:
 		else {
 			IsInteractive = false;
 			noinputfiles = false;
-			LoadFile(GpC, loadpath_fopen(*argv, "r"), gp_strdup(*argv), 4);
+			LoadFile(GpGg.Gp__C, loadpath_fopen(*argv, "r"), gp_strdup(*argv), 4);
 		}
 	}
 	// take commands from stdin 
 	if(noinputfiles)
-		while(!ComLine(GpC))
+		while(!ComLine(GpGg.Gp__C))
 			ctrlc_flag = false; // reset asynchronous Ctrl-C flag 
 #ifdef _Windows
 	// On Windows, handle 'persist' by keeping the main input loop running (windows/wxt), 
@@ -536,7 +536,7 @@ RECOVER_FROM_ERROR_IN_DASH:
 #endif
 			{
 				IsInteractive = true;
-				while(!ComLine(GpC))
+				while(!ComLine(GpGg.Gp__C))
 					ctrlc_flag = false; // reset asynchronous Ctrl-C flag 
 				IsInteractive = false;
 			}
@@ -687,7 +687,7 @@ void get_user_env()
 void gp_expand_tilde(char ** pathp)
 {
 	if(!*pathp)
-		GpGg.IntError(GpC, NO_CARET, "Cannot expand empty path");
+		GpGg.IntErrorNoCaret("Cannot expand empty path");
 	if((*pathp)[0] == '~' && (*pathp)[1] == DIRSEP1) {
 		if(user_homedir) {
 			size_t n = strlen(*pathp);
@@ -743,10 +743,10 @@ static void wrapper_for_write_history()
 	// What we really want to do is truncate(expanded_history_filename), but this is only available on BSD compatible systems
 	if(expanded_history_filename) {
 		remove(expanded_history_filename);
-		if(GpC.H.gnuplot_history_size < 0)
-			GpC.H.WriteHistory(expanded_history_filename);
+		if(GpGg.Gp__C.H.gnuplot_history_size < 0)
+			GpGg.Gp__C.H.WriteHistory(expanded_history_filename);
 		else
-			GpC.H.WriteHistoryN(GpC.H.gnuplot_history_size, expanded_history_filename, "w");
+			GpGg.Gp__C.H.WriteHistoryN(GpGg.Gp__C.H.gnuplot_history_size, expanded_history_filename, "w");
 	}
 }
 
@@ -756,6 +756,6 @@ static void wrapper_for_write_history()
 void restrict_popen()
 {
 	if(!successful_initialization)
-		GpGg.IntError(GpC, NO_CARET, "Pipes and shell commands not permitted during initialization");
+		GpGg.IntErrorNoCaret("Pipes and shell commands not permitted during initialization");
 }
 

@@ -198,7 +198,7 @@ int SLAPI TSessionCore::SearchByPrcTime(PPID prcID, int kind, const LDATETIME & 
 	int    ok = -1;
 	int    sp = spLe;
 	TSessionTbl::Key4 k4;
-	THROW_PP(oneof5(kind, TSESK_SESSION, TSESK_SUPERSESS, TSESK_PLAN, TSESK_IDLE, TSESK_SUBSESS), PPERR_INVPARAM);
+	THROW_INVARG(oneof5(kind, TSESK_SESSION, TSESK_SUPERSESS, TSESK_PLAN, TSESK_IDLE, TSESK_SUBSESS));
 	MEMSZERO(k4);
 	k4.PrcID = prcID;
 	k4.StDt = rDtm.d;
@@ -434,7 +434,7 @@ int SLAPI TSessionCore::LoadBusyArray(PPID prcID, PPID exclTSesID, int kind, con
 	MEMSZERO(k4);
 	k4.PrcID = prcID;
 	BExtQuery q(this, 4, 128);
-	THROW_PP(oneof3(kind, TSESK_SESSION, TSESK_PLAN, TSESK_IDLE), PPERR_INVPARAM);
+	THROW_INVARG(oneof3(kind, TSESK_SESSION, TSESK_PLAN, TSESK_IDLE));
 	dbq = &(this->PrcID == prcID);
 	if(pPeriod) {
 		if(pPeriod->Start.d) {

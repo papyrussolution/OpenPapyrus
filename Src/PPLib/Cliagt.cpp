@@ -2020,7 +2020,7 @@ int SLAPI PPObjArticle::GetAgreementKind(const ArticleTbl::Rec * pArRec)
 	int    ok = -1;
 	PPObjAccSheet acs_obj;
 	PPAccSheet acs_rec;
-	THROW_PP(pArRec, PPERR_INVPARAM);
+	THROW_INVARG(pArRec);
 	THROW(acs_obj.Fetch(pArRec->AccSheetID, &acs_rec) > 0);
 	if(pArRec->AccSheetID == GetSupplAccSheet() && acs_rec.Flags & ACSHF_USESUPPLAGT)
 		ok = 2;

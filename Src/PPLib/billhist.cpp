@@ -55,7 +55,7 @@ int SLAPI HistBillCore::HBRecToBRec(HistBillTbl::Rec * pHBRec, BillTbl::Rec * pB
 		pBRec->SCardID = pHBRec->SCardID;
 	}
 	else
-		return (PPErrCode = PPERR_INVPARAM, -1);
+		return (PPSetErrorInvParam(), -1);
 	return 1;
 }
 
@@ -83,7 +83,7 @@ int SLAPI HistBillCore::PutPacket(PPID * pID, PPHistBillPacket * pPack, int clos
 	int    ok = 1;
 	PPID   id = 0;
 	HistTrfrTbl::Rec * p_rec;
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -111,7 +111,7 @@ int SLAPI HistBillCore::GetPacket(PPID id, PPHistBillPacket * pPack)
 {
 	int    ok = -1;
 	char   str_id[20];
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	PPSetAddedMsgString(ltoa(id, str_id, 10));
 	if(Search(id, &pPack->Head) > 0) {
 		HistTrfrTbl::Key0 k;
@@ -247,7 +247,7 @@ int SLAPI PPHistBillPacket::Init(PPBillPacket * pPack)
 		}
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -256,7 +256,7 @@ int SLAPI PPHistBillPacket::ConvertToBillPack(PPBillPacket * pPack)
 {
 	int    ok = 1;
 	HistTrfrTbl::Rec * p_h_item;
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	THROW(pPack->CreateBlank_WithoutCode(Head.OpID, Head.LinkBillID, Head.LocID, 1));
 	pPack->Rec.ID   = Head.BillID;
 	STRNSCPY(pPack->Rec.Code, Head.Code);

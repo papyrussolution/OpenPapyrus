@@ -41,6 +41,25 @@
 	#include <io.h>
 	#include <direct.h>
 #endif
+#include "version.h"
+//
+//
+//
+const char gnuplot_version[] = "5.1";
+const char gnuplot_patchlevel[] = "0";
+#ifdef DEVELOPMENT_VERSION
+#include "timestamp.h"
+#else
+const char gnuplot_date[] = "2015-01-20 ";
+#endif
+const char gnuplot_copyright[] = "Copyright (C) 1986-1993, 1998, 2004, 2007-2015";
+
+const char faq_location[] = FAQ_LOCATION;
+
+char * compile_options = (char *)0;      /* Will be loaded at runtime */
+
+const char bug_email[] = "gnuplot-beta@lists.sourceforge.net";
+const char help_email[] = "gnuplot-beta@lists.sourceforge.net";
 //
 // Exported (set-table) variables
 //
@@ -60,9 +79,9 @@ static void parse_sq(char*);
 static bool utf8_getmore(ulong * wch, const char ** str, int nbytes);
 static char * utf8_strchrn(const char * s, int N);
 //
-// GpC.Eq() compares string value of token number t_num with str[], and returns true if they are identical.
+// GpGg.Gp__C.Eq() compares string value of token number t_num with str[], and returns true if they are identical.
 //
-//int GpC.Eq(int t_num, const char * str)
+//int GpGg.Gp__C.Eq(int t_num, const char * str)
 int GpCommand::Eq(int t_num, const char * str) const
 {
 	if(t_num < 0 || t_num >= NumTokens || !P_Token[t_num].is_token)
@@ -183,7 +202,7 @@ void GpCommand::CopyStr(char * str, int t_num, int max)
 	}
 }
 /*
- * capture() copies into str[] the part of GpC.P_InputLine[] which lies between
+ * capture() copies into str[] the part of GpGg.Gp__C.P_InputLine[] which lies between
  * the begining of token[start] and end of token[end].
  */
 void GpCommand::Capture(char * str, int start, int end, int max)
@@ -356,7 +375,7 @@ static void mant_exp(double log10_base, double x,
 				case 0:
 					break;
 				default:
-					GpGg.IntError(GpC, NO_CARET, "Internal error in scientific number formatting");
+					GpGg.IntErrorNoCaret("Internal error in scientific number formatting");
 			}
 			power -= (power % 3);
 		}
@@ -454,7 +473,7 @@ void gprintf(char * outstring, size_t count, const char * format, double log10_b
 			got_hash = true;
 		}
 		/* dont put isdigit first since side effect in macro is bad */
-		while(*++format == '.' || isdigit((uchar)*format) || *format == '-' || *format == '+' || *format == ' ' || *format == '\'')
+		while(*++format == '.' || isdigit((uchar)*format) || oneof4(*format, '-', '+', ' ', '\''))
 			*t++ = *format;
 		/*}}} */
 
@@ -632,7 +651,7 @@ void gprintf(char * outstring, size_t count, const char * format, double log10_b
 					    power = stored_power;
 				    }
 				    else {
-					    GpGg.IntError(GpC, NO_CARET, "Format character mismatch: %%L is only valid with %%l");
+					    GpGg.IntErrorNoCaret("Format character mismatch: %%L is only valid with %%l");
 				    }
 			    }
 			    else {
@@ -654,7 +673,7 @@ void gprintf(char * outstring, size_t count, const char * format, double log10_b
 					    power = stored_power;
 				    }
 				    else {
-					    GpGg.IntError(GpC, NO_CARET, "Format character mismatch: %%T is only valid with %%t");
+					    GpGg.IntErrorNoCaret("Format character mismatch: %%T is only valid with %%t");
 				    }
 			    }
 			    else {
@@ -675,7 +694,7 @@ void gprintf(char * outstring, size_t count, const char * format, double log10_b
 					    power = stored_power;
 				    }
 				    else {
-					    GpGg.IntError(GpC, NO_CARET, "Format character mismatch: %%S is only valid with %%s");
+					    GpGg.IntErrorNoCaret("Format character mismatch: %%S is only valid with %%s");
 				    }
 			    }
 			    else {
@@ -696,7 +715,7 @@ void gprintf(char * outstring, size_t count, const char * format, double log10_b
 					    power = stored_power;
 				    }
 				    else {
-					    GpGg.IntError(GpC, NO_CARET, "Format character mismatch: %%c is only valid with %%s");
+					    GpGg.IntErrorNoCaret("Format character mismatch: %%c is only valid with %%s");
 				    }
 			    }
 			    else {
@@ -738,7 +757,7 @@ void gprintf(char * outstring, size_t count, const char * format, double log10_b
 					    power = stored_power;
 				    }
 				    else {
-					    GpGg.IntError(GpC, NO_CARET, "Format character mismatch: %%B is only valid with %%b");
+					    GpGg.IntErrorNoCaret("Format character mismatch: %%B is only valid with %%b");
 				    }
 			    }
 			    else {
@@ -782,13 +801,13 @@ void gprintf(char * outstring, size_t count, const char * format, double log10_b
 			/*}}} */
 			default:
 			    reset_numeric_locale();
-			    GpGg.IntError(GpC, NO_CARET, "Bad format character");
+			    GpGg.IntErrorNoCaret("Bad format character");
 		} /* switch */
 		  /*}}} */
 
 		if(got_hash && (format != strpbrk(format, "oeEfFgG"))) {
 			reset_numeric_locale();
-			GpGg.IntError(GpC, NO_CARET, "Bad format character");
+			GpGg.IntErrorNoCaret("Bad format character");
 		}
 
 		/* change decimal '.' to the actual entry in decimalsign */
@@ -808,7 +827,7 @@ void gprintf(char * outstring, size_t count, const char * format, double log10_b
 					size_t taillength = strlen(dotpos2);
 					dotpos1 = dotpos2 + newlength;
 					if((dotpos1 + taillength) > limit)
-						GpGg.IntError(GpC, NO_CARET, "format too long due to decimalsign string");
+						GpGg.IntErrorNoCaret("format too long due to decimalsign string");
 					/* move tail end of string out of the way */
 					memmove(dotpos1, dotpos2 + 1, taillength);
 					/* insert decimalsign */
@@ -842,7 +861,7 @@ done:
 /* some macros for the error and warning functions below
  * may turn this into a utility function later
  */
-//#define PRINT_MESSAGE_TO_STDERR do { fprintf(stderr, "\n%s%s\n", current_prompt ? current_prompt : "", GpC.P_InputLine); } while(0)
+//#define PRINT_MESSAGE_TO_STDERR do { fprintf(stderr, "\n%s%s\n", current_prompt ? current_prompt : "", GpGg.Gp__C.P_InputLine); } while(0)
 void GpCommand::PrintMessageToStderr()
 {
 	fprintf(stderr, "\n%s%s\n", current_prompt ? current_prompt : "", P_InputLine);
@@ -859,8 +878,8 @@ void PrintSpacesUnderPrompt()
 /*
 #define PRINT_SPACES_UPTO_TOKEN						\
 	do { \
-		for(int i = 0; i < GpC.P_Token[t_num].start_index; i++)			   \
-			fputc((GpC.P_InputLine[i] == '\t') ? '\t' : ' ', stderr);  \
+		for(int i = 0; i < GpGg.Gp__C.P_Token[t_num].start_index; i++)			   \
+			fputc((GpGg.Gp__C.P_InputLine[i] == '\t') ? '\t' : ' ', stderr);  \
 	} while(0)
 */
 
@@ -896,9 +915,9 @@ void os_error(int t_num, const char * str, ...)
 	}
 	else if(t_num != NO_CARET) {    /* put caret under error */
 		if(!GpGg.screen_ok)
-			GpC.PrintMessageToStderr();
+			GpGg.Gp__C.PrintMessageToStderr();
 		PrintSpacesUnderPrompt();
-		GpC.PrintSpacesUpToToken(t_num);
+		GpGg.Gp__C.PrintSpacesUpToToken(t_num);
 		fputs("^\n", stderr); //PRINT_CARET;
 	}
 	PrintSpacesUnderPrompt();
@@ -911,7 +930,7 @@ void os_error(int t_num, const char * str, ...)
 	va_end(args);
 	putc('\n', stderr);
 	PrintSpacesUnderPrompt();
-	GpGg.PrintFileAndLine(GpC);
+	GpGg.PrintFileAndLine(GpGg.Gp__C);
 #ifdef VMS
 	status[1] = vaxc$errno;
 	sys$putmsg(status);
@@ -920,11 +939,26 @@ void os_error(int t_num, const char * str, ...)
 #endif
 	putc('\n', stderr);
 	GpGg.Ev.FillGpValString("GPVAL_ERRMSG", strerror(errno));
-	common_error_exit();
+	GpGg.CommonErrorExit();
 }
 
-//void int_error(int t_num, const char * str, ...)
-void GpGadgets::IntError(GpCommand & rC, int t_num, const char * pStr, ...)
+void GpGadgets::IntErrorNoCaret(const char * pStr, ...)
+{
+	va_list arg_list;
+	va_start(arg_list, pStr);
+	IntError(NO_CARET, pStr, arg_list);
+	va_end(arg_list);
+}
+
+void GpGadgets::IntErrorCurToken(const char * pStr, ...)
+{
+	va_list arg_list;
+	va_start(arg_list, pStr);
+	IntError(Gp__C.CToken, pStr, arg_list);
+	va_end(arg_list);
+}
+
+void GpGadgets::IntError(int t_num, const char * pStr, ...)
 {
 	va_list args;
 	char error_message[128] = {'\0'};
@@ -934,13 +968,13 @@ void GpGadgets::IntError(GpCommand & rC, int t_num, const char * pStr, ...)
 	}
 	else if(t_num != NO_CARET) { // put caret under error 
 		if(!screen_ok)
-			rC.PrintMessageToStderr();
+			Gp__C.PrintMessageToStderr();
 		PrintSpacesUnderPrompt();
-		rC.PrintSpacesUpToToken(t_num);
+		Gp__C.PrintSpacesUpToToken(t_num);
 		fputs("^\n", stderr); //PRINT_CARET;
 	}
 	PrintSpacesUnderPrompt();
-	PrintFileAndLine(rC);
+	PrintFileAndLine(Gp__C);
 	VA_START(args, pStr);
 #if defined(HAVE_VFPRINTF) || _LIBC
 	vsnprintf(error_message, sizeof(error_message), pStr, args);
@@ -951,21 +985,21 @@ void GpGadgets::IntError(GpCommand & rC, int t_num, const char * pStr, ...)
 	va_end(args);
 	fputs("\n\n", stderr);
 	Ev.FillGpValString("GPVAL_ERRMSG", error_message);
-	common_error_exit();
+	CommonErrorExit();
 }
 
-void common_error_exit()
+void GpGadgets::CommonErrorExit()
 {
 	// We are bailing out of nested context without ever reaching 
 	// the normal cleanup code. Reset any flags before bailing.   
 	df_reset_after_error();
 	eval_reset_after_error();
-	GpC.ClauseResetAfterError();
-	GpC.P.ParseResetAfterError();
-	GpC.P.IsScanningRangeInProgress = false;
-	GpGg.inside_zoom = false;
+	Gp__C.ClauseResetAfterError();
+	Gp__C.P.ParseResetAfterError();
+	Gp__C.P.IsScanningRangeInProgress = false;
+	inside_zoom = false;
 	// Load error state variables 
-	GpGg.Ev.UpdateGpValVariables(2);
+	Ev.UpdateGpValVariables(2);
 	bail_to_command_line();
 }
 //
@@ -980,13 +1014,13 @@ void int_warn(int t_num, const char * str, ...)
 	}
 	else if(t_num != NO_CARET) { /* put caret under error */
 		if(!GpGg.screen_ok)
-			GpC.PrintMessageToStderr();
+			GpGg.Gp__C.PrintMessageToStderr();
 		PrintSpacesUnderPrompt();
-		GpC.PrintSpacesUpToToken(t_num);
+		GpGg.Gp__C.PrintSpacesUpToToken(t_num);
 		fputs("^\n", stderr); //PRINT_CARET;
 	}
 	PrintSpacesUnderPrompt();
-	GpGg.PrintFileAndLine(GpC);
+	GpGg.PrintFileAndLine(GpGg.Gp__C);
 	fputs("warning: ", stderr);
 	VA_START(args, str);
 #if defined(HAVE_VFPRINTF) || _LIBC
@@ -1079,7 +1113,7 @@ void parse_esc(char * instr)
 					s += n;
 				}
 				else {
-					// int_error("illegal octal number ", GpC.CToken);
+					// int_error("illegal octal number ", GpGg.Gp__C.CToken);
 					*t++ = '\\';
 					*t++ = *s++;
 				}
@@ -1321,7 +1355,7 @@ char * value_to_str(t_value * val, bool need_quotes)
 					    }
 					    else {
 						    c[j] = 0;
-						    GpGg.IntError(GpC, NO_CARET, "out of memory");
+						    GpGg.IntErrorNoCaret("out of memory");
 					    }
 				    }
 				    sprintf(s[j], "\"%s\"", cstr);
@@ -1353,7 +1387,7 @@ char * value_to_str(t_value * val, bool need_quotes)
 		    break;
 	    }
 		default:
-		    GpGg.IntError(GpC, NO_CARET, "unknown type in value_to_str()");
+		    GpGg.IntErrorNoCaret("unknown type in value_to_str()");
 	}
 	return s[j];
 }
@@ -1374,4 +1408,72 @@ char * num_to_str(double r)
 		strcat(s[j], ".0");
 	return s[j];
 }
+//
+// ALLOC
+//
+#ifndef GP_FARMALLOC
+	#ifdef FARALLOC
+		#define GP_FARMALLOC(size) farmalloc((size))
+		#define GP_FARREALLOC(p, size) farrealloc((p), (size))
+	#else
+		#ifdef MALLOC_ZERO_RETURNS_ZERO
+			#define GP_FARMALLOC(size) malloc((size_t)((size==0) ? 1 : size))
+		#else
+			#define GP_FARMALLOC(size) malloc((size_t)(size))
+		#endif
+		#define GP_FARREALLOC(p, size) realloc((p), (size_t)(size))
+	#endif
+#endif
+//
+// malloc:
+// allocate memory
+// This is a protected version of malloc. It causes an int_error
+// if there is not enough memory. If message is NULL, we allow NULL return.
+// Otherwise, we handle the error, using the message to create the int_error string.
+// Note cp/sp_extend uses realloc, so it depends on this using malloc().
+// 
+void * unused_gp_alloc(size_t size, const char * message)
+{
+	char * p = (char *)GP_FARMALLOC(size); /* try again */
+	if(p == NULL) {
+		if(message) {
+			GpGg.IntErrorNoCaret("out of memory for %s", message);
+			// NOTREACHED
+		}
+	}
+	return (p);
+}
+//
+// note gp_realloc assumes that failed realloc calls leave the original mem
+// block allocated. If this is not the case with any C compiler, a substitue
+// realloc function has to be used.
+//
+void * gp_realloc(void * p, size_t size, const char * message)
+{
+	void * res = 0; // the new allocation 
+	// realloc(NULL,x) is meant to do malloc(x), but doesn't always 
+	if(!p)
+		res = malloc(size);
+	else {
+		res = (char *)realloc(p, size);
+		if(!res) {
+			if(message)
+				GpGg.IntErrorNoCaret("out of memory for %s", message);
+		}
+	}
+	return (res);
+}
+
+#ifdef FARALLOC
+	void gpfree(generic * p)
+	{
+	#ifdef _Windows
+		HGLOBAL hGlobal = GlobalHandle(p);
+		GlobalUnlock(hGlobal);
+		GlobalFree(hGlobal);
+	#else
+		farfree(p);
+	#endif
+	}
+#endif
 

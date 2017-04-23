@@ -448,7 +448,7 @@ static void extend_cur_line()
 	char * new_line = (char *)gp_realloc(cur_line, line_len + MAXBUF, NULL);
 	if(!new_line) {
 		reset_termio();
-		GpGg.IntError(GpC, NO_CARET, "Can't extend readline length");
+		GpGg.IntErrorNoCaret("Can't extend readline length");
 	}
 	cur_line = new_line;
 	line_len += MAXBUF;

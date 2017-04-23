@@ -146,6 +146,7 @@
     </ClCompile>
     <ClCompile Include="..\Dl200\dl200.lex.cpp" />
     <ClCompile Include="..\Dl200\dl200.tab.cpp" />
+    <ClCompile Include="..\PPLib\Acct.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Dl200\dl200.l">

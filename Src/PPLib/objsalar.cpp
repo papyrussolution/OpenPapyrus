@@ -590,7 +590,7 @@ int32 DL6ICLS_PPObjSalCharge::SearchByName(SString & text, int32 kind, int32 ext
 		else if(kind == 1)
 			ok = p_obj->ref->SearchSymb(p_obj->Obj, &id, text, offsetof(PPSalCharge, Symb));
 		else
-			ok = PPSetError(PPERR_INVPARAM);
+			ok = PPSetErrorInvParam();
 		if(ok > 0)
 			if(p_obj->GetPacket(id, &pack) > 0)
 				FillSalChargeRec(&pack, (SPpyO_SalCharge *)rec);
@@ -917,7 +917,7 @@ int SLAPI PPStaffCalPacket::AddItem(StaffCalendarTbl::Rec * pItem, uint * pPos)
 {
 	int    ok = 1;
 	int    f_day_gap = 0;
-	THROW_PP(pItem, PPERR_INVPARAM);
+	THROW_INVARG(pItem);
 	THROW(SetupEntry(pItem));
 	// @v8.4.11 {
 	if(Rec.LinkCalID) {
@@ -1698,7 +1698,7 @@ int SLAPI PPObjStaffCal::RemoveEntriesByPsnEvent(PPID psnEvID, int use_ta)
 int SLAPI PPObjStaffCal::SetEntriesByDutySched(PPID baseCalID, PPDutySchedPacket * pDsPack, const DateRange & rPeriod, int use_ta)
 {
 	int    ok = -1;
-	THROW_PP(pDsPack, PPERR_INVPARAM);
+	THROW_INVARG(pDsPack);
 	if(pDsPack->Rec.ObjType == PPOBJ_PERSON) {
 		PPDutySchedPacket::EnumParam ep;
 		STimeChunk bounds;

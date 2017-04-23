@@ -273,7 +273,7 @@ void GpGadgets::DoKDensity(CurvePoints * cp, int first_point, int num_points, Gp
 	XAxis = (AXIS_INDEX)cp->x_axis;
 	YAxis = (AXIS_INDEX)cp->y_axis;
 	if(GetX().Flags & GpAxis::fLog)
-		GpGg.IntError(GpC, NO_CARET, "kdensity cannot handle logscale x axis");
+		GpGg.IntErrorNoCaret("kdensity cannot handle logscale x axis");
 	sx = GetX().Range;
 	step = sx.GetDistance() / (Samples1 - 1);
 	for(i = 0; i < Samples1; i++) {
@@ -509,11 +509,11 @@ static spline_coeff * cp_approx_spline(CurvePoints * plot,
 	GpGg.YAxis = (AXIS_INDEX)plot->y_axis;
 	sc = (spline_coeff *)malloc((num_points) * sizeof(spline_coeff));
 	if(num_points < 4)
-		GpGg.IntError(GpC, plot->Token, "Can't calculate approximation splines, need at least 4 points");
+		GpGg.IntError(plot->Token, "Can't calculate approximation splines, need at least 4 points");
 	this_points = (plot->points) + first_point;
 	for(i = 0; i < num_points; i++)
 		if(this_points[i].z <= 0)
-			GpGg.IntError(GpC, plot->Token, "Can't calculate approximation splines, all weights have to be > 0");
+			GpGg.IntError(plot->Token, "Can't calculate approximation splines, all weights have to be > 0");
 	m = (five_diag *)malloc((num_points - 2) * sizeof(five_diag));
 	r = (double *)malloc((num_points - 2) * sizeof(double));
 	x = (double *)malloc((num_points - 2) * sizeof(double));
@@ -562,7 +562,7 @@ static spline_coeff * cp_approx_spline(CurvePoints * plot,
 		free(m);
 		free(xp);
 		free(yp);
-		GpGg.IntError(GpC, plot->Token, "Can't calculate approximation splines");
+		GpGg.IntError(plot->Token, "Can't calculate approximation splines");
 	}
 	sc[0][2] = 0;
 	for(i = 1; i <= num_points - 2; i++)
@@ -606,7 +606,7 @@ spline_coeff * GpGadgets::CpTriDiag(CurvePoints * pPlot, int firstPoint, int num
 	XAxis = (AXIS_INDEX)pPlot->x_axis;
 	YAxis = (AXIS_INDEX)pPlot->y_axis;
 	if(numPoints < 3)
-		GpGg.IntError(GpC, pPlot->Token, "Can't calculate splines, need at least 3 points");
+		GpGg.IntError(pPlot->Token, "Can't calculate splines, need at least 3 points");
 	this_points = (pPlot->points) + firstPoint;
 	sc = (spline_coeff *)malloc((numPoints) * sizeof(spline_coeff));
 	m = (tri_diag *)malloc((numPoints - 2) * sizeof(tri_diag));
@@ -645,7 +645,7 @@ spline_coeff * GpGadgets::CpTriDiag(CurvePoints * pPlot, int firstPoint, int num
 		free(m);
 		free(xp);
 		free(yp);
-		GpGg.IntError(GpC, pPlot->Token, "Can't calculate cubic splines");
+		GpGg.IntError(pPlot->Token, "Can't calculate cubic splines");
 	}
 	sc[0][2] = 0;
 	for(i = 1; i <= numPoints - 2; i++)
@@ -729,7 +729,7 @@ void GpGadgets::DoCubic(CurvePoints * pPlot, spline_coeff * pSc, int firstPoint,
 	xstart = MAX(this_points[0].x, sxmin);
 	xend = MIN(this_points[numPoints - 1].x, sxmax);
 	if(xstart >= xend)
-		GpGg.IntError(GpC, pPlot->Token, "Cannot smooth: no data within fixed xrange!");
+		GpGg.IntError(pPlot->Token, "Cannot smooth: no data within fixed xrange!");
 #endif
 	xdiff = (xend - xstart) / (Samples1 - 1);
 	for(i = 0; i < Samples1; i++) {

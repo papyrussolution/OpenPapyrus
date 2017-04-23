@@ -283,7 +283,7 @@ double GpGadgets::LogValueChecked(AXIS_INDEX axIdx, double coord, const char * p
 	const GpAxis & r_ax = AxA[axIdx];
 	if(r_ax.Flags & GpAxis::fLog) {
 		if(coord <= 0.0) {
-			IntError(GpC, NO_CARET, "%s has %s coord of %g; must be above 0 for log scale!", pWhat, GetAxisName(axIdx), coord);
+			IntErrorNoCaret("%s has %s coord of %g; must be above 0 for log scale!", pWhat, GetAxisName(axIdx), coord);
 		}
 		else 
 			return r_ax.DoLog(coord);
@@ -373,7 +373,7 @@ void GpGadgets::InitSampleRange(const GpAxis * pAx)
  *    variables describing the status of autoscaling and range ends, for
  *    each of the possible axes.
  *
- * GpC.CToken = (in) (defined in plot.h) Used in formatting an error message.
+ * GpGg.Gp__C.CToken = (in) (defined in plot.h) Used in formatting an error message.
  *
  */
 void GpGadgets::AxisCheckedExtendEmptyRange(AXIS_INDEX axis, const char * mesg)
@@ -387,7 +387,7 @@ void GpGadgets::AxisCheckedExtendEmptyRange(AXIS_INDEX axis, const char * mesg)
 	// the invocations of this function, so I moved it into here.
 	// Only do this if 'mesg' is non-NULL --> pass NULL if you don't want the test
 	if(mesg && (r_ax.Range.low == GPVL || r_ax.Range.upp == -GPVL))
-		IntError(GpC, GpC.CToken, mesg);
+		IntErrorCurToken(mesg);
 	if(drange.GetDistance() == 0.0) {
 		// empty range
 		if(r_ax.AutoScale) {
@@ -405,7 +405,7 @@ void GpGadgets::AxisCheckedExtendEmptyRange(AXIS_INDEX axis, const char * mesg)
 		}
 		else {
 			// user has explicitly set the range (to something empty) ==> we're in trouble
-			IntError(GpC, NO_CARET, "Can't plot with an empty %s range!", GetAxisName(axis));
+			IntErrorNoCaret("Can't plot with an empty %s range!", GetAxisName(axis));
 		}
 	}
 }
@@ -1050,7 +1050,7 @@ void GpGadgets::GenTics(GpTermEntry * pT, GpAxis & rAx, /*tic_callback*/TicCallb
 					SETMAX(step, 1);
 					break;
 				default:
-					IntError(GpC, NO_CARET, "Internal error : unknown tic type");
+					IntErrorNoCaret("Internal error : unknown tic type");
 					return; // avoid gcc -Wall warning about start 
 			}
 			/* }}} */
@@ -1525,12 +1525,12 @@ void GpAxis::LoadOneRange(GpCommand & rC, double * pA, t_autoscale * pAutoscale,
 		number = GpGg.GetNumOrTime(rC, this);
 		rC.P.IsScanningRangeInProgress = false;
 		if(rC.EndOfCommand())
-			GpGg.IntError(rC, rC.CToken, "unfinished range");
+			GpGg.IntErrorCurToken("unfinished range");
 		if(rC.Eq("<")) {
 			// this _seems_ to be autoscaling with lower bound
 			rC.CToken++;
 			if(rC.EndOfCommand()) {
-				GpGg.IntError(rC, rC.CToken, "unfinished range with constraint");
+				GpGg.IntErrorCurToken("unfinished range with constraint");
 			}
 			else if(rC.Eq("*")) {
 				// okay:  this _is_ autoscaling with lower bound!
@@ -1546,11 +1546,11 @@ void GpAxis::LoadOneRange(GpCommand & rC, double * pA, t_autoscale * pAutoscale,
 				rC.CToken++;
 			}
 			else {
-				GpGg.IntError(rC, rC.CToken, "malformed range with constraint");
+				GpGg.IntErrorCurToken("malformed range with constraint");
 			}
 		}
 		else if(rC.Eq(">")) {
-			GpGg.IntError(rC, rC.CToken, "malformed range with constraint (use '<' only)");
+			GpGg.IntErrorCurToken("malformed range with constraint (use '<' only)");
 		}
 		else {
 			// no autoscaling-with-lower-bound but simple fixed value only
@@ -1569,12 +1569,12 @@ void GpAxis::LoadOneRange(GpCommand & rC, double * pA, t_autoscale * pAutoscale,
 	if(*pAutoscale & which) {
 		// check for upper bound only if autoscaling is on
 		if(rC.EndOfCommand())
-			GpGg.IntError(rC, rC.CToken, "unfinished range");
+			GpGg.IntErrorCurToken("unfinished range");
 		if(rC.Eq("<")) {
 			/*  looks like upper bound up to now...  */
 			rC.CToken++;
 			if(rC.EndOfCommand())
-				GpGg.IntError(rC, rC.CToken, "unfinished range with constraint");
+				GpGg.IntErrorCurToken("unfinished range with constraint");
 			number = GpGg.GetNumOrTime(rC, this);
 			// this autoscaling has an upper bound:
 			if(which==AUTOSCALE_MIN) {
@@ -1587,7 +1587,7 @@ void GpAxis::LoadOneRange(GpCommand & rC, double * pA, t_autoscale * pAutoscale,
 			}
 		}
 		else if(rC.Eq(">")) {
-			GpGg.IntError(rC, rC.CToken, "malformed range with constraint (use '<' only)");
+			GpGg.IntErrorCurToken("malformed range with constraint (use '<' only)");
 		}
 		else {
 			// there is _no_ upper bound on this autoscaling
@@ -1604,7 +1604,7 @@ void GpAxis::LoadOneRange(GpCommand & rC, double * pA, t_autoscale * pAutoscale,
 	else if(!rC.EndOfCommand()) {
 		// no autoscaling = fixed value --> complain about constraints
 		if(rC.Eq("<") || rC.Eq(">") ) {
-			GpGg.IntError(rC, rC.CToken, "no upper bound constraint allowed if not autoscaling");
+			GpGg.IntErrorCurToken("no upper bound constraint allowed if not autoscaling");
 		}
 	}
 	// Consitency check
@@ -1636,13 +1636,13 @@ t_autoscale GpAxis::LoadRange(GpCommand & rC, /*double * pA, double * pB*/RealRa
 	}
 	else {
 		if(rC.EndOfCommand()) {
-			GpGg.IntError(rC, rC.CToken, "starting range value or ':' or 'to' expected");
+			GpGg.IntErrorCurToken("starting range value or ':' or 'to' expected");
 		}
 		else if(!rC.Eq("to") && !rC.Eq(":")) {
 			LoadOneRange(rC, &rRange.low, &autoscale, AUTOSCALE_MIN);
 		}
 		if(!rC.Eq("to") && !rC.Eq(":"))
-			GpGg.IntError(rC, rC.CToken, "':' or keyword 'to' expected");
+			GpGg.IntErrorCurToken("':' or keyword 'to' expected");
 		rC.CToken++;
 		if(!rC.Eq("]")) {
 			LoadOneRange(rC, &rRange.upp, &autoscale, AUTOSCALE_MAX);
@@ -1918,7 +1918,7 @@ void gstrdms(char * label, char * format, double value)
 				case 's':   *c = 'f'; stype = 2; break;
 				case 'E':   *c = 'c'; EWflag = true; break;
 				case 'N':   *c = 'c'; NSflag = true; break;
-				case '%':   GpGg.IntError(GpC, NO_CARET, "unrecognized format: \"%s\"", format);
+				case '%':   GpGg.IntErrorNoCaret("unrecognized format: \"%s\"", format);
 			}
 		}
 	}
@@ -2002,7 +2002,7 @@ int GpAxisBlock::ParseRange(AXIS_INDEX axis, GpCommand & rC)
 			}
 		}
 		if(!rC.Eq("]"))
-			GpGg.IntError(rC, rC.CToken, "']' expected");
+			GpGg.IntErrorCurToken("']' expected");
 		rC.CToken++;
 		return dummy_token;
 	}
@@ -2091,7 +2091,7 @@ void GpAxis::UnlogInterval(RealRange & rR, bool checkrange)
 {
 	if(Flags & GpAxis::fLog) {
 		if(checkrange && (rR.low <= 0.0 || rR.upp <= 0.0))
-			GpGg.IntError(GpC, NO_CARET, "%s range must be greater than 0 for log scale", GpGg.GetAxisName(Index));
+			GpGg.IntErrorNoCaret("%s range must be greater than 0 for log scale", GpGg.GetAxisName(Index));
 		rR.low = (rR.low <= 0.0) ? -GPVL : DoLog(rR.low);
 		rR.upp = (rR.upp <= 0.0) ? -GPVL : DoLog(rR.upp);
 	}
@@ -2138,7 +2138,7 @@ GpAxis * get_shadow_axis(GpAxis * pAx)
 	if(pAx->Index != SAMPLE_AXIS && pAx->Index < NUMBER_OF_MAIN_VISIBLE_AXES)
 		primary = &shadow_axis_array[pAx->Index];
 	else
-		GpGg.IntError(GpC, NO_CARET, "invalid shadow pAx");
+		GpGg.IntErrorNoCaret("invalid shadow pAx");
 	primary->Index = -secondary->Index;
 	return primary;
 }

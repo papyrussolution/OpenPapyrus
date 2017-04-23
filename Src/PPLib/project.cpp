@@ -1274,6 +1274,12 @@ int SLAPI PPObjPrjTask::Search(PPID id, void * b)
 	return P_Tbl->Search(id, b);
 }
 
+//virtual 
+const char * SLAPI PPObjPrjTask::GetNamePtr() 
+{ 
+	return P_Tbl->data.Code; 
+}
+
 StrAssocArray * SLAPI PPObjPrjTask::MakeStrAssocList(void * extraPtr)
 {
 	PrjTaskTbl::Key0  k0;
@@ -1594,7 +1600,7 @@ int SLAPI PPObjPrjTask::SubstDescr(PrjTaskTbl::Rec * pPack)
 int SLAPI PPObjPrjTask::InitPacketByTemplate(const PrjTaskTbl::Rec * pTemplRec, LDATE startDt, PrjTaskTbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1;
-	THROW_PP(pTemplRec && pRec && startDt != ZERODATE, PPERR_INVPARAM);
+	THROW_INVARG(pTemplRec && pRec && startDt != ZERODATE);
 	THROW(InitPacket(pRec, TODOKIND_TASK, pTemplRec->ProjectID, pTemplRec->ClientID, pTemplRec->EmployerID, use_ta));
 	getcurdatetime(&pRec->Dt, &pRec->Tm);
 	pRec->TemplateID = pTemplRec->ID;

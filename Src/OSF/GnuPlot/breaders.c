@@ -271,7 +271,7 @@ void jpeg_filetype_function(void)
 
 void gd_filetype_function(int type)
 {
-	GpGg.IntError(GpC, NO_CARET, "This copy of gnuplot cannot read png/gif/jpeg images");
+	GpGg.IntErrorNoCaret("This copy of gnuplot cannot read png/gif/jpeg images");
 }
 
 int df_libgd_get_pixel(int i, int j, int component) 
@@ -296,7 +296,7 @@ void gd_filetype_function(int filetype)
 	// read image into memory 
 	fp = loadpath_fopen(df_filename, "rb");
 	if(!fp)
-		GpGg.IntError(GpC, NO_CARET, "Can't open data file \"%s\"", df_filename);
+		GpGg.IntErrorNoCaret("Can't open data file \"%s\"", df_filename);
 	switch(filetype) {
 		case GD_PNG:    im = gdImageCreateFromPng(fp); break;
 		case GD_GIF:
@@ -312,7 +312,7 @@ void gd_filetype_function(int filetype)
 	}
 	fclose(fp);
 	if(!im)
-		GpGg.IntError(GpC, NO_CARET, "libgd doesn't recognize the format of \"%s\"", df_filename);
+		GpGg.IntErrorNoCaret("libgd doesn't recognize the format of \"%s\"", df_filename);
 	// check on image properties and complain if we can't handle them 
 	M = im->sx;
 	N = im->sy;

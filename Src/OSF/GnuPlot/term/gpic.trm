@@ -120,10 +120,10 @@ static void GPIC_options()
 	t_value a;
 	GPIC_x = 0;
 	GPIC_y = 0;
-	if(!GpC.EndOfCommand()) {
-		x = GpC.ConstExpress(&a)->Real();
-		if(!GpC.EndOfCommand()) {
-			y = GpC.ConstExpress(&a)->Real();
+	if(!GpGg.Gp__C.EndOfCommand()) {
+		x = GpGg.Gp__C.ConstExpress(&a)->Real();
+		if(!GpGg.Gp__C.EndOfCommand()) {
+			y = GpGg.Gp__C.ConstExpress(&a)->Real();
 			GPIC_x = x;
 			GPIC_y = y;
 		}

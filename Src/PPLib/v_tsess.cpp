@@ -2269,7 +2269,7 @@ int32 DL6ICLS_PPViewTSession::Init(IUnknown* pFilt)
 {
 	IPpyFilt_TSession * p_ifc_filt = 0;
 	S_GUID uuid;
-	THROW_PP(pFilt, PPERR_INVPARAM);
+	THROW_INVARG(pFilt);
 	THROW(GetInnerUUID("IPpyFilt_TSession", uuid));
 	THROW(SUCCEEDED(pFilt->QueryInterface(uuid, (void **)&p_ifc_filt)));
 	THROW(((PPViewTSession *)ExtraPtr)->Init_((const TSessionFilt *)GetExtraPtrByInterface(p_ifc_filt)));

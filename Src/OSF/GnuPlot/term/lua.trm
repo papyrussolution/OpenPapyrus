@@ -258,7 +258,7 @@ static int LUA_GP_int_error(lua_State * L)
 	snprintf(last_error_msg, MAX_LINE_LEN, "%s Lua context closed.", msg);
 	// close Lua context on fatal errors 
 	LUA_close();
-	GpGg.IntError(GpC, t_num, last_error_msg);
+	GpGg.IntError(t_num, last_error_msg);
 	return(0);
 }
 
@@ -448,7 +448,7 @@ static int LUA_GP_parse_color_name(lua_State * L)
 	else
 		sscanf(opt_str, "#%x", &color);
 	if((color & 0xff000000) != 0)
-		GpGg.IntError(GpC, token_cnt, "not recognized as a color name or a string of form \"#RRGGBB\"");
+		GpGg.IntError(token_cnt, "not recognized as a color name or a string of form \"#RRGGBB\"");
 	lua_createtable(L, 3, 0);
 	n = lua_gettop(L);
 	lua_pushnumber(L, (double)((color >> 16 ) & 255) / 255.); lua_rawseti(L, n, 1);
@@ -585,7 +585,7 @@ static void LUA_set_term_vars()
 static int LUA_init_luaterm_function(const char * fnc)
 {
 	if(!L)
-		GpGg.IntError(GpC, NO_CARET, "Missing Lua context! No script?");
+		GpGg.IntErrorNoCaret("Missing Lua context! No script?");
 
 	lua_getfield(L, luaterm, fnc);
 	if(lua_isfunction(L, -1)) {
@@ -605,7 +605,7 @@ static int LUA_call_report(int status)
 		if(msg == NULL) msg = "(error with no message)";
 		snprintf(last_error_msg, MAX_LINE_LEN, "%s. Lua context closed.", msg);
 		LUA_close();
-		GpGg.IntError(GpC, NO_CARET, last_error_msg);
+		GpGg.IntErrorNoCaret(last_error_msg);
 	}
 	return status;
 }
@@ -786,7 +786,7 @@ static void LUA_options(GpCommand & rC)
 	if(!rC.Eq("tikz")) {
 		if(rC.AlmostEq("termop$tions")) {
 			if(!LUA_script) {
-				GpGg.IntError(GpC, NO_CARET, "No Lua context for setting terminal options!");
+				GpGg.IntErrorNoCaret("No Lua context for setting terminal options!");
 				return;
 			}
 			need_init = 0;
@@ -828,7 +828,7 @@ static void LUA_options(GpCommand & rC)
 		}
 		else {
 			LUA_close();
-			GpGg.IntError(GpC, NO_CARET, "No Lua driver name or file name given!");
+			GpGg.IntErrorNoCaret("No Lua driver name or file name given!");
 		}
 
 		/* init lua when opening the terminal or on script change */

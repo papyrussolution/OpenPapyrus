@@ -668,7 +668,7 @@ int SLAPI GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*
 {
 	int    ok = -1;
 	__GoodsStockExt * p_strg = 0;
-	THROW_PP(pData, PPERR_INVPARAM);
+	THROW_INVARG(pData);
 	if(useCache) {
 		ok = FetchStockExt(id, pData);
 	}
@@ -2136,7 +2136,7 @@ int SLAPI GoodsCore::BelongToGen(PPID goodsID, PPID * pGenID, ObjAssocTbl::Rec *
 			ok = BelongToDynGen(goodsID, pGenID, 0);
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 

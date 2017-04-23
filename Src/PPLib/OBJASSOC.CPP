@@ -146,7 +146,7 @@ int SLAPI ObjAssoc::Count(PPID asscTyp, PPID prmrID, long * pCount)
 int SLAPI ObjAssoc::GetItemsListByPrmr(PPID asscTyp, PPID prmrID, SArray * pList)
 {
 	return (pList && pList->getItemSize() == sizeof(ObjAssocTbl::Rec)) ?
-		GetByPrmr_Helper(asscTyp, prmrID, 0, 0, pList) : PPSetError(PPERR_INVPARAM);
+		GetByPrmr_Helper(asscTyp, prmrID, 0, 0, pList) : PPSetErrorInvParam();
 }
 
 int SLAPI ObjAssoc::EnumByPrmr(PPID asscTyp, PPID prmrID, PPID * pScndID, ObjAssocTbl::Rec * b)
@@ -189,8 +189,8 @@ SEnumImp * SLAPI ObjAssoc::Enum(PPID asscType, PPID keyID, int byScnd)
 int SLAPI ObjAssoc::AddArray(PPID asscTyp, PPID prmrID, const SArray * pList, int preRemove, int use_ta)
 {
 	int    ok = 1;
-	THROW_PP(asscTyp && prmrID, PPERR_INVPARAM);
-	THROW_PP(!pList || pList->getItemSize() == sizeof(ObjAssocTbl::Rec), PPERR_INVPARAM);
+	THROW_INVARG(asscTyp && prmrID);
+	THROW_INVARG(!pList || pList->getItemSize() == sizeof(ObjAssocTbl::Rec));
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -218,7 +218,7 @@ int SLAPI ObjAssoc::AddArray(PPID asscTyp, PPID prmrID, const SArray * pList, in
 int SLAPI ObjAssoc::AddArray(PPID asscTyp, const LAssocArray * pList, int preRemove, int use_ta)
 {
 	int    ok = 1;
-	THROW_PP(asscTyp, PPERR_INVPARAM);
+	THROW_INVARG(asscTyp);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);

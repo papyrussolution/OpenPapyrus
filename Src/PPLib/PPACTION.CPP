@@ -743,7 +743,7 @@ int SLAPI DGQCore::PutQuery(const S_GUID & rUuid, int queryType, int use_ta)
     int    ok = 1;
 	DGQTbl::Rec rec;
     assert(sizeof(rec.QUUID) >= sizeof(S_GUID));
-    THROW_PP(!rUuid.IsZero(), PPERR_INVPARAM);
+    THROW_INVARG(!rUuid.IsZero());
     {
     	PPTransaction tra(use_ta);
     	THROW(tra);

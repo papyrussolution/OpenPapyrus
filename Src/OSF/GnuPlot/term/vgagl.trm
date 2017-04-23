@@ -383,7 +383,7 @@ static
 void VGAGL_options(GpCommand & rC)
 {
 	if(!LINUX_graphics_allowed) {
-		GpGg.IntError(GpC, NO_CARET, "vgagl terminal driver not available");
+		GpGg.IntErrorNoCaret("vgagl terminal driver not available");
 		return;
 	}
 
@@ -445,7 +445,7 @@ void VGAGL_options(GpCommand & rC)
 			    /* since this is not documented it won't hurt too much to leave it in. */
 			    ++rC.CToken;
 			    if(!((VGAGL_dump_file = rC.TryToGetString())))
-				    GpGg.IntError(GpC, NO_CARET, "expecting string value");
+				    GpGg.IntErrorNoCaret("expecting string value");
 			    break;
 #endif
 			default:
@@ -649,7 +649,7 @@ static int VGAGL_get_mode()
 
 	if(TEXT == *iptr) {
 		vgagl_vmode = TEXT;
-		GpGg.IntError(GpC, NO_CARET, "vgagl terminal driver not available");
+		GpGg.IntErrorNoCaret("vgagl terminal driver not available");
 		return 0;
 	}
 	modeinfo = vga_getmodeinfo(vgagl_vmode);
@@ -659,7 +659,7 @@ static int VGAGL_get_mode()
 	VGAGL_pm3d_colors = VGAGL_8bit_colors;
 	VGAGL_pm3d_colors_ = VGAGL_pm3d_colors - 1;
 	if(modeinfo->colors != 256) {
-		GpGg.IntError(GpC, NO_CARET, "Error: need a 256 color mode but got %d colors\n", modeinfo->colors);
+		GpGg.IntErrorNoCaret("Error: need a 256 color mode but got %d colors\n", modeinfo->colors);
 		return 0;
 #ifdef VGAGL_ENABLE_TRUECOLOR
 	}
@@ -1050,7 +1050,7 @@ void VGAGL_signal_handler(int signum)
 	GpEvent ge = {-1, -1, -1, -1, -1, ""};
 	ge.type = GE_modifier;
 	ge.par1 = 0; /* release all modifiers */
-	GpGg.DoEvent(term, GpC, &gp_ev);
+	GpGg.DoEvent(term, &gp_ev);
 	VGAGL_processing_graphics_events = false;
 	signal(SIGINT, VGAGL_old_handler); /* reset signal handler */
 	VGAGL_reset();
@@ -1119,13 +1119,13 @@ void VGAGL_eventually_process_graphics_events()
 						ge.par1 = 2;
 					else if(button_changed & MOUSE_RIGHTBUTTON)
 						ge.par1 = 3;
-					GpGg.DoEvent(term, GpC, &ge);
+					GpGg.DoEvent(term, &ge);
 					lastbutton = button;
 				}
 				if(motion) {
 					// fprintf(stderr, "(motion) VGAGL_cursorx, VGAGL_cursory = %d %d\n", VGAGL_cursorx, VGAGL_cursory);
 					ge.type = GE_motion;
-					GpGg.DoEvent(term, GpC, &ge);
+					GpGg.DoEvent(term, &ge);
 					VGAGL_update_cursor(VGAGL_cursorx, VGAGL_cursory);
 					VGAGL_update_zoombox(VGAGL_cursorx, VGAGL_cursory);
 				}
@@ -1148,13 +1148,13 @@ void VGAGL_eventually_process_graphics_events()
 				if(mask) {
 					ge.type = GE_modifier;
 					ge.par1 = mask;
-					GpGg.DoEvent(term, GpC, &ge);
+					GpGg.DoEvent(term, &ge);
 				}
 				else if(VGAGL_modifier_mask) {
 					/* modifiers were released */
 					ge.type = GE_modifier;
 					ge.par1 = 0;
-					GpGg.DoEvent(term, GpC, &ge);
+					GpGg.DoEvent(term, &ge);
 				}
 				VGAGL_modifier_mask = mask;
 
@@ -1175,7 +1175,7 @@ void VGAGL_eventually_process_graphics_events()
 						ge.type = GE_keypress;
 						ge.par1 = VGAGL_Keytable[i];
 						ge.par2 = 0;
-						GpGg.DoEvent(term, GpC, &ge);
+						GpGg.DoEvent(term, &ge);
 					}
 				}
 			} /* VGA_KEYEVENT */

@@ -413,10 +413,10 @@ static void EPSLATEX_common_init()
 			}
 		}
 		else
-			os_error(GpC.CToken, "Cannot reopen output files");
+			os_error(GpGg.Gp__C.CToken, "Cannot reopen output files");
 	}
 	if(!outstr)
-		os_error(GpC.CToken, "epslatex terminal cannot write to standard output");
+		os_error(GpGg.Gp__C.CToken, "epslatex terminal cannot write to standard output");
 	if(gpoutfile) {
 		char * inputenc = NULL;
 		fprintf(gpoutfile, "%% GNUPLOT: LaTeX picture with Postscript\n");
@@ -460,7 +460,7 @@ static void EPSLATEX_common_init()
 			    inputenc = "koi8-u";
 			    break;
 			case S_ENC_INVALID:
-			    GpGg.IntError(GpC, NO_CARET, "invalid input encoding used");
+			    GpGg.IntErrorNoCaret("invalid input encoding used");
 			    break;
 			default:
 			    /* do nothing */
@@ -785,7 +785,7 @@ void EPSLATEX_reopen_output(char * ext)
 	if(outstr) {
 		uint outstrlen = strlen(outstr);
 		if(strrchr(outstr, '.') != &outstr[outstrlen-4]) {
-			GpGg.IntError(GpC, NO_CARET, "epslatex output file name must be of the form filename.xxx");
+			GpGg.IntErrorNoCaret("epslatex output file name must be of the form filename.xxx");
 		}
 
 		/* copy filename to postsript output */
@@ -794,7 +794,7 @@ void EPSLATEX_reopen_output(char * ext)
 		if((!strncmp(&outstr[outstrlen-4], ".eps", 4)) ||
 		    (!strncmp(&outstr[outstrlen-4], ".EPS", 4))) {
 			if(ps_params->epslatex_standalone)
-				GpGg.IntError(GpC, NO_CARET, "For epslatex standalone mode, you have to %s", "give the tex filename as output");
+				GpGg.IntErrorNoCaret("For epslatex standalone mode, you have to %s", "give the tex filename as output");
 			/* rename primary output (tex) */
 			strncpy(&outstr[outstrlen-4], ".tex", 4);
 			/* redirect FILE stream */
@@ -803,7 +803,7 @@ void EPSLATEX_reopen_output(char * ext)
 			int_warn(NO_CARET, "Resetting primary output file to %s,\n\
                   PostScript output to %s", outstr, psoutstr);
 			if(!gpoutfile)
-				GpGg.IntError(GpC, NO_CARET, "--- reopen failed");
+				GpGg.IntErrorNoCaret("--- reopen failed");
 		}
 		else {
 			char suffix[PATH_MAX];
@@ -816,7 +816,7 @@ void EPSLATEX_reopen_output(char * ext)
 			gppsfile = fopen(psoutstr, "wb");
 		}
 		if(!gppsfile)
-			GpGg.IntError(GpC, NO_CARET, "open of postscipt output file %s failed", psoutstr);
+			GpGg.IntErrorNoCaret("open of postscipt output file %s failed", psoutstr);
 
 		/* set the name for the \includegraphics command */
 		pslatex_auxname = (char*)malloc(strlen(psoutstr)-3);

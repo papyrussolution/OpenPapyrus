@@ -97,12 +97,10 @@ int _zbar_process_image(zbar_processor_t * proc, zbar_image_t * img)
 				    zbar_symbol_get_loc_size(sym),
 				    zbar_symbol_get_orientation(sym),
 				    zbar_symbol_get_quality(sym),
-				    (count < 0) ? "uncertain" :
-				    (count > 0) ? "duplicate" : "new");
+				    (count < 0) ? "uncertain" : ((count > 0) ? "duplicate" : "new"));
 				sym = zbar_symbol_next(sym);
 			}
 		}
-
 		if(nsyms) {
 			/* FIXME only call after filtering */
 			_zbar_mutex_lock(&proc->mutex);
@@ -111,7 +109,6 @@ int _zbar_process_image(zbar_processor_t * proc, zbar_image_t * img)
 			if(proc->handler)
 				proc->handler(img, proc->userdata);
 		}
-
 		if(force_fmt) {
 			zbar_symbol_set_t * syms = img->syms;
 			img = zbar_image_convert(img, force_fmt);
@@ -121,7 +118,6 @@ int _zbar_process_image(zbar_processor_t * proc, zbar_image_t * img)
 			zbar_symbol_set_ref(syms, 1);
 		}
 	}
-
 	/* display to window if enabled */
 	int rc = 0;
 	if(proc->window) {
@@ -129,28 +125,22 @@ int _zbar_process_image(zbar_processor_t * proc, zbar_image_t * img)
 			err_copy(proc, proc->window);
 		_zbar_processor_invalidate(proc);
 	}
-
 	if(force_fmt && img)
 		zbar_image_destroy(img);
 	return(rc);
-
 error:
-	return(err_capture(proc, SEV_ERROR, ZBAR_ERR_UNSUPPORTED,
-		    __func__, "unknown image format"));
+	return err_capture(proc, SEV_ERROR, ZBAR_ERR_UNSUPPORTED, __func__, "unknown image format");
 }
 
-int _zbar_processor_handle_input(zbar_processor_t * proc,
-    int input)
+int _zbar_processor_handle_input(zbar_processor_t * proc, int input)
 {
 	int event = EVENT_INPUT;
 	switch(input) {
 		case -1:
 		    event |= EVENT_CANCELED;
 		    _zbar_processor_set_visible(proc, 0);
-		    err_capture(proc, SEV_WARNING, ZBAR_ERR_CLOSED, __func__,
-		    "user closed display window");
+		    err_capture(proc, SEV_WARNING, ZBAR_ERR_CLOSED, __func__, "user closed display window");
 		    break;
-
 		case 'd':
 		    proc->dumping = 1;
 		    return 0;
@@ -162,7 +152,6 @@ int _zbar_processor_handle_input(zbar_processor_t * proc,
 			    zbar_window_set_overlay(proc->window, ovl + 1);
 		    }
 		    break;
-
 		case '-':
 		    if(proc->window) {
 			    int ovl = zbar_window_get_overlay(proc->window);
@@ -475,28 +464,21 @@ int zbar_processor_is_visible(zbar_processor_t * proc)
 	return(visible);
 }
 
-int zbar_processor_set_visible(zbar_processor_t * proc,
-    int visible)
+int zbar_processor_set_visible(zbar_processor_t * proc, int visible)
 {
 	proc_enter(proc);
 	_zbar_mutex_unlock(&proc->mutex);
-
 	int rc = 0;
 	if(proc->window) {
 		if(proc->video)
-			rc = _zbar_processor_set_size(proc,
-			    zbar_video_get_width(proc->video),
-			    zbar_video_get_height(proc->video));
+			rc = _zbar_processor_set_size(proc, zbar_video_get_width(proc->video), zbar_video_get_height(proc->video));
 		if(!rc)
 			rc = _zbar_processor_set_visible(proc, visible);
-
 		if(!rc)
 			proc->visible = (visible != 0);
 	}
 	else if(visible)
-		rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_INVALID, __func__,
-		    "processor display window not initialized");
-
+		rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "processor display window not initialized");
 	_zbar_mutex_lock(&proc->mutex);
 	proc_leave(proc);
 	return(rc);
@@ -513,46 +495,34 @@ const zbar_symbol_set_t* zbar_processor_get_results(const zbar_processor_t * pro
 	return(syms);
 }
 
-int zbar_processor_user_wait(zbar_processor_t * proc,
-    int timeout)
+int zbar_processor_user_wait(zbar_processor_t * proc, int timeout)
 {
 	proc_enter(proc);
 	_zbar_mutex_unlock(&proc->mutex);
-
 	int rc = -1;
 	if(proc->visible || proc->streaming || timeout >= 0) {
 		zbar_timer_t timer;
-		rc = _zbar_processor_wait(proc, EVENT_INPUT,
-		    _zbar_timer_init(&timer, timeout));
+		rc = _zbar_processor_wait(proc, EVENT_INPUT, _zbar_timer_init(&timer, timeout));
 	}
-
 	if(!proc->visible)
-		rc = err_capture(proc, SEV_WARNING, ZBAR_ERR_CLOSED, __func__,
-		    "display window not available for input");
-
+		rc = err_capture(proc, SEV_WARNING, ZBAR_ERR_CLOSED, __func__, "display window not available for input");
 	if(rc > 0)
 		rc = proc->input;
-
 	_zbar_mutex_lock(&proc->mutex);
 	proc_leave(proc);
 	return(rc);
 }
 
-int zbar_processor_set_active(zbar_processor_t * proc,
-    int active)
+int zbar_processor_set_active(zbar_processor_t * proc, int active)
 {
 	proc_enter(proc);
-
 	int rc;
 	if(!proc->video) {
-		rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_INVALID, __func__,
-		    "video input not initialized");
+		rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "video input not initialized");
 		goto done;
 	}
 	_zbar_mutex_unlock(&proc->mutex);
-
 	zbar_image_scanner_enable_cache(proc->scanner, active);
-
 	rc = zbar_video_enable(proc->video, active);
 	if(!rc) {
 		_zbar_mutex_lock(&proc->mutex);
@@ -562,7 +532,6 @@ int zbar_processor_set_active(zbar_processor_t * proc,
 	}
 	else
 		err_copy(proc, proc->video);
-
 	if(!proc->streaming && proc->window) {
 		if(zbar_window_draw(proc->window, NULL) && !rc)
 			rc = err_copy(proc, proc->window);
@@ -587,48 +556,37 @@ int zbar_process_one(zbar_processor_t * proc,
 
 	int rc = 0;
 	if(!proc->video) {
-		rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_INVALID, __func__,
-		    "video input not initialized");
+		rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "video input not initialized");
 		goto done;
 	}
-
 	if(!streaming) {
 		rc = zbar_processor_set_active(proc, 1);
 		if(rc)
 			goto done;
 	}
-
 	zbar_timer_t timer;
-	rc = _zbar_processor_wait(proc, EVENT_OUTPUT,
-	    _zbar_timer_init(&timer, timeout));
-
+	rc = _zbar_processor_wait(proc, EVENT_OUTPUT, _zbar_timer_init(&timer, timeout));
 	if(!streaming && zbar_processor_set_active(proc, 0))
 		rc = -1;
-
 done:
 	_zbar_mutex_lock(&proc->mutex);
 	proc_leave(proc);
 	return(rc);
 }
 
-int zbar_process_image(zbar_processor_t * proc,
-    zbar_image_t * img)
+int zbar_process_image(zbar_processor_t * proc, zbar_image_t * img)
 {
 	proc_enter(proc);
 	_zbar_mutex_unlock(&proc->mutex);
-
 	int rc = 0;
 	if(img && proc->window)
-		rc = _zbar_processor_set_size(proc,
-		    zbar_image_get_width(img),
-		    zbar_image_get_height(img));
+		rc = _zbar_processor_set_size(proc, zbar_image_get_width(img), zbar_image_get_height(img));
 	if(!rc) {
 		zbar_image_scanner_enable_cache(proc->scanner, 0);
 		rc = _zbar_process_image(proc, img);
 		if(proc->streaming)
 			zbar_image_scanner_enable_cache(proc->scanner, 1);
 	}
-
 	_zbar_mutex_lock(&proc->mutex);
 	proc_leave(proc);
 	return(rc);

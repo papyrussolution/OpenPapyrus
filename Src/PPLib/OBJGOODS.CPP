@@ -506,6 +506,18 @@ int SLAPI PPObjGoods::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDl
 		EditSpcRightFlags(DLG_RTGOODS, 0, 0, bufSize, rt, pDlg) : PPObject::EditRights(bufSize, rt, pDlg);
 }
 
+static PPID SetSingleRefAsEnumProp(PPID objTypeID, PPID * pRefID)
+{
+	PPID   single_id = 0;
+	if(objTypeID > 0 && (IS_DYN_OBJTYPE(objTypeID) || objTypeID < 1000)) {
+		PPObjReference ref_obj(objTypeID, 0);
+		single_id = ref_obj.GetSingle();
+		if(single_id)
+			ASSIGN_PTR(pRefID, single_id);
+	}
+	return single_id;
+}
+
 int SLAPI PPObjGoods::InitPacket(PPGoodsPacket * pPack, GoodsPacketKind gpk, PPID parentID, PPID clsID, const char * pBarcode)
 {
 	MEMSZERO(pPack->Rec);
@@ -539,7 +551,6 @@ int SLAPI PPObjGoods::InitPacket(PPGoodsPacket * pPack, GoodsPacketKind gpk, PPI
 			if(oneof2(pPack->Rec.Kind, PPGDSK_GOODS, PPGDSK_GROUP)) {
 				SETIFZ(pPack->Rec.GdsClsID, parent_rec.GdsClsID);
 				pPack->Rec.GoodsTypeID = parent_rec.GoodsTypeID;
-				// @v7.8.1 {
 				if(pPack->Rec.Kind == PPGDSK_GOODS) {
 					if(parent_rec.StrucID) {
 						PPGoodsStruc gs;
@@ -553,7 +564,6 @@ int SLAPI PPObjGoods::InitPacket(PPGoodsPacket * pPack, GoodsPacketKind gpk, PPI
 						}
 					}
 				}
-				// } @v7.8.1
 			}
 		}
 	}
@@ -561,42 +571,14 @@ int SLAPI PPObjGoods::InitPacket(PPGoodsPacket * pPack, GoodsPacketKind gpk, PPI
 		PPObjGoodsClass gc_obj;
 		PPGdsClsPacket gc_pack;
 		if(gc_obj.Fetch(pPack->Rec.GdsClsID, &gc_pack) > 0) {
-			if(gc_pack.Rec.GetDynGenMask(PPGdsCls::eKind)) {
-				const PPID obj_type_id = gc_pack.PropKind.ItemsListID;
-				if(obj_type_id > 0 && (IS_DYN_OBJTYPE(obj_type_id) || obj_type_id < 1000)) {
-					PPObjReference ref_obj(obj_type_id, 0);
-					PPID single_id = ref_obj.GetSingle();
-					if(single_id)
-						pPack->ExtRec.KindID = single_id;
-				}
-			}
-			if(gc_pack.Rec.GetDynGenMask(PPGdsCls::eGrade)) {
-				const PPID obj_type_id = gc_pack.PropGrade.ItemsListID;
-				if(obj_type_id > 0 && (IS_DYN_OBJTYPE(obj_type_id) || obj_type_id < 1000)) {
-					PPObjReference ref_obj(obj_type_id, 0);
-					PPID single_id = ref_obj.GetSingle();
-					if(single_id)
-						pPack->ExtRec.GradeID = single_id;
-				}
-			}
-			if(gc_pack.Rec.GetDynGenMask(PPGdsCls::eAdd)) {
-				const PPID obj_type_id = gc_pack.PropAdd.ItemsListID;
-				if(obj_type_id > 0 && (IS_DYN_OBJTYPE(obj_type_id) || obj_type_id < 1000)) {
-					PPObjReference ref_obj(obj_type_id, 0);
-					PPID single_id = ref_obj.GetSingle();
-					if(single_id)
-						pPack->ExtRec.AddObjID = single_id;
-				}
-			}
-			if(gc_pack.Rec.GetDynGenMask(PPGdsCls::eAdd2)) {
-				const PPID obj_type_id = gc_pack.PropAdd2.ItemsListID;
-				if(obj_type_id > 0 && (IS_DYN_OBJTYPE(obj_type_id) || obj_type_id < 1000)) {
-					PPObjReference ref_obj(obj_type_id, 0);
-					PPID single_id = ref_obj.GetSingle();
-					if(single_id)
-						pPack->ExtRec.AddObj2ID = single_id;
-				}
-			}
+			if(gc_pack.Rec.GetDynGenMask(PPGdsCls::eKind))
+				SetSingleRefAsEnumProp(gc_pack.PropKind.ItemsListID, &pPack->ExtRec.KindID);
+			if(gc_pack.Rec.GetDynGenMask(PPGdsCls::eGrade))
+				SetSingleRefAsEnumProp(gc_pack.PropGrade.ItemsListID, &pPack->ExtRec.GradeID);
+			if(gc_pack.Rec.GetDynGenMask(PPGdsCls::eAdd))
+				SetSingleRefAsEnumProp(gc_pack.PropAdd.ItemsListID, &pPack->ExtRec.AddObjID);
+			if(gc_pack.Rec.GetDynGenMask(PPGdsCls::eAdd2))
+				SetSingleRefAsEnumProp(gc_pack.PropAdd2.ItemsListID, &pPack->ExtRec.AddObj2ID);
 		}
 		else
 			pPack->Rec.GdsClsID = 0;

@@ -79,7 +79,7 @@ int PayPlanArray::Update(const PayPlanTbl::Rec * pItem, uint * pPos)
 	int    ok = 1;
 	uint   pos = 0;
 	LDATE  test_dt = pItem->PayDate;
-	THROW_PP(pItem, PPERR_INVPARAM);
+	THROW_INVARG(pItem);
 	THROW_SL(checkdate(&test_dt));
 	THROW_PP(pItem->Amount > 0.0 || pItem->Interest > 0.0, PPERR_INVAMOUNT);
 	if(SearchDate(pItem->PayDate, &pos, 0)) {
@@ -3468,7 +3468,7 @@ int SLAPI PPBillPacket::CheckLargeBill(int genWarn) const
 			is_max_items = 1;
 	}
 	if(is_max_items && genWarn)
-		PPMessage(mfInfo|mfOK, PPINF_BILLTOOLARGE, 0);
+		PPMessage(mfInfo|mfOK, PPINF_BILLTOOLARGE);
 	return is_max_items;
 }
 

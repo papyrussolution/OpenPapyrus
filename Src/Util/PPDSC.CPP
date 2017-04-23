@@ -1,5 +1,5 @@
 // PPDSC.CPP
-// Copyright (c) A.Sobolev 2001-2002, 2008, 2010, 2011, 2016
+// Copyright (c) A.Sobolev 2001-2002, 2008, 2010, 2011, 2016, 2017
 //
 #pragma hdrstop
 #define LOCAL_PPERRCODE
@@ -19,6 +19,7 @@ int FASTCALL PPSetError(int err)
 
 int PPSetErrorNoMem() { return PPSetError(PPERR_NOMEM); }
 int PPSetErrorSLib() { return PPSetError(PPERR_SLIB); }
+int PPSetErrorInvParam() { return PPSetError(PPERR_INVPARAM); }
 
 int FASTCALL PPSetError(int err, const char * pStr)
 {

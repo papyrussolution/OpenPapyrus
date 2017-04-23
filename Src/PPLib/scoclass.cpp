@@ -68,7 +68,7 @@ int SLAPI SCoClass::CreateInnerInstance(const char * pClsName, const char * pIfc
 	S_GUID ifc_uuid;
 	SCoClass * p_cls = 0;
 	const DlScope * p_scope = 0;
-	THROW_PP(pClsName, PPERR_INVPARAM);
+	THROW_INVARG(pClsName);
 	THROW_PP(P_Ctx, PPERR_DL6_CTXNINITED);
 	THROW(P_Ctx->SearchSymb(pClsName, '@', &clsid));
 	if(pIfcName) {

@@ -189,7 +189,7 @@ int SLAPI EditQCertDialog(QualityCertTbl::Rec * aRec, int viewOnly)
 			dlg->selectCtrl(CTL_QCERT_GOODS);
 		}
 		*/
-		else if(!rec.Expiry && PPMessage(mfConf|mfYesNo, PPCFM_QCEXPIRYNEEDED, 0) != cmYes) {
+		else if(!rec.Expiry && PPMessage(mfConf|mfYesNo, PPCFM_QCEXPIRYNEEDED) != cmYes) {
 			dlg->selectCtrl(CTL_QCERT_EXPIRY);
 		}
 		else if(rec.Expiry && !checkdate(&rec.Expiry))

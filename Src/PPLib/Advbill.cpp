@@ -629,7 +629,7 @@ static int SetAdvBillItemEntry(AdvBillItemEntry * pEntry, const PPAdvBillItem * 
 	Acct   acct;
 
 	memzero(pEntry, sizeof(AdvBillItemEntry));
-	THROW_PP(pEntry && pItem && pBObj, PPERR_INVPARAM);
+	THROW_INVARG(pEntry && pItem && pBObj);
 	pEntry->Dt = pItem->AdvDt;
 	STRNSCPY(pEntry->Code, pItem->AdvCode);
 	pEntry->Amount = pItem->Amount;
@@ -650,7 +650,7 @@ static int SetWarrantItemEntry(AdvBillItemEntry * pEntry, const PPAdvBillItem * 
 {
 	int    ok = 1;
 	memzero(pEntry, sizeof(AdvBillItemEntry));
-	THROW_PP(pEntry && pItem, PPERR_INVPARAM);
+	THROW_INVARG(pEntry && pItem);
 	STRNSCPY(pEntry->Memo, pItem->Memo);
 	GetObjectName(PPOBJ_UNIT, pItem->ArID, pEntry->Code, sizeof(pEntry->Code));
 	pEntry->Amount = pItem->Amount;
@@ -665,7 +665,7 @@ static int SetDebtInventItemEntry(AdvBillItemEntry * pEntry, const PPAdvBillItem
 	PPObjArticle ar_obj;
 	ArticleTbl::Rec ar_rec;
 	memzero(pEntry, sizeof(AdvBillItemEntry));
-	THROW_PP(pEntry && pItem, PPERR_INVPARAM);
+	THROW_INVARG(pEntry && pItem);
 	STRNSCPY(pEntry->Memo, pItem->Memo);
 	if(ar_obj.Fetch(pItem->ArID, &ar_rec) > 0)
 		STRNSCPY(pEntry->Account, ar_rec.Name);

@@ -142,7 +142,7 @@ static void HP500C_options(GpCommand & rC)
 #define HPDJCERROR "expecting dots per inch size 75, 100, 150 or 300 and/or compression method"
 	while(!rC.EndOfCommand()) {
 		if(rC.P_Token[rC.CToken].length > 4)
-			GpGg.IntError(rC, rC.CToken, HPDJCERROR);
+			GpGg.IntErrorCurToken(HPDJCERROR);
 		/* almost_equals() won't accept numbers - use strcmp() instead */
 		rC.Capture(opt, rC.CToken, rC.CToken, 6);
 		if(!strcmp(opt, "75")) {

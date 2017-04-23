@@ -1651,6 +1651,12 @@ int SLAPI PPObjSCard::Search(PPID id, void * b)
 	return P_Tbl->Search(id, (SCardTbl::Rec*)b);
 }
 
+//virtual 
+const char * SLAPI PPObjSCard::GetNamePtr() 
+{ 
+	return P_Tbl->data.Code; 
+}
+
 int SLAPI PPObjSCard::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 {
 	return EditSpcRightFlags(DLG_RTSCARD, CTL_RTSCARD_FLAGS, CTL_RTSCARD_SFLAGS, bufSize, rt, pDlg);
@@ -4578,7 +4584,7 @@ static int SLAPI SelectSCardImportCfgs(PPSCardImpExpParam * pParam, int import)
 	StrAssocArray list;
 	PPSCardImpExpParam param;
 	TDialog * p_dlg = 0;
-	THROW_PP(pParam, PPERR_INVPARAM);
+	THROW_INVARG(pParam);
 	pParam->Direction = BIN(import);
 	THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_SCARD, &param, &list, import ? 2 : 1));
 	id = (list.SearchByText(pParam->Name, 1, &p) > 0) ? (uint)list.at(p).Id : 0;

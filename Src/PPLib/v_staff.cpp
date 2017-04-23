@@ -743,7 +743,7 @@ int SLAPI PPViewStaffPost::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 		}
 		else if(ppvCmd == PPVCMD_DELETEITEM) {
 			ok = -1;
-			if(id && PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE, 0) == cmYes)
+			if(id && PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE) == cmYes)
 				if(SlObj.PutPostPacket(&id, 0, 1))
 					ok = 1;
 				else
@@ -1265,7 +1265,7 @@ int FastEditDivBySumDlg::PutDivEntryToList(PPID objType, PPID objID, StrAssocArr
 	int ok = -1;
 	PPID div_id = 0;
 	SString name;
-	THROW_PP(pDivList, PPERR_INVPARAM);
+	THROW_INVARG(pDivList);
 	if(objType == PPOBJ_PERSON)
 		div_id = objID;
 	else if(objType == PPOBJ_STAFFLIST2)

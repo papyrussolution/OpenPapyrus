@@ -396,14 +396,14 @@ static void FIG_options(GpCommand & rC)
 			case FIG_SIZE:
 			    rC.CToken++;
 			    if(rC.EndOfCommand()) {
-				    GpGg.IntError(rC, rC.CToken, "size: 2 numbers expected");
+				    GpGg.IntErrorCurToken("size: 2 numbers expected");
 			    }
 			    else {
 				    xsize_t = rC.RealExpression();
 				    if(rC.Eq(","))
 					    rC.CToken++;
 				    if(rC.EndOfCommand()) {
-					    GpGg.IntError(rC, rC.CToken, "size: 2 numbers expected");
+					    GpGg.IntErrorCurToken("size: 2 numbers expected");
 					    xsize_t = 0.;
 				    }
 				    else {
@@ -411,7 +411,7 @@ static void FIG_options(GpCommand & rC)
 				    }
 				    if(xsize_t < 2. || ysize_t < 2. || xsize_t > 99. || ysize_t > 99.) {
 					    if(xsize_t != 0. || ysize_t != 0.)
-						    GpGg.IntError(rC, rC.CToken, "size: out of range");
+						    GpGg.IntErrorCurToken("size: out of range");
 					    xsize_t = ysize_t = 0.;
 				    }
 			    }
@@ -422,7 +422,7 @@ static void FIG_options(GpCommand & rC)
 			    int sep;
 			    rC.CToken++;
 			    if(rC.EndOfCommand() || !((fontname = rC.TryToGetString())))
-				    GpGg.IntError(rC, rC.CToken, "expecting font name");
+				    GpGg.IntErrorCurToken("expecting font name");
 			    sep = strcspn(fontname, ",");
 			    sscanf(&(fontname[sep+1]), "%d", &FIG_font_s);
 			    fontname[sep] = '\0';
@@ -439,12 +439,12 @@ static void FIG_options(GpCommand & rC)
 			case FIG_THICKNESS:
 			    rC.CToken++;
 			    if(rC.EndOfCommand()) {
-				    GpGg.IntError(rC, rC.CToken, "thickness: number expected");
+				    GpGg.IntErrorCurToken("thickness: number expected");
 			    }
 			    else {
 				    FIG_default_thickness = rC.IntExpression();
 				    if(FIG_default_thickness < 1 || FIG_default_thickness > 10) {
-					    GpGg.IntError(rC, rC.CToken - 1, "thickness out of range");
+					    GpGg.IntError(rC.CToken - 1, "thickness out of range");
 					    FIG_default_thickness = 1;
 				    }
 			    }
@@ -452,12 +452,12 @@ static void FIG_options(GpCommand & rC)
 			case FIG_DEPTH:
 			    rC.CToken++;
 			    if(rC.EndOfCommand()) {
-				    GpGg.IntError(rC, rC.CToken, "depth: number expected");
+				    GpGg.IntErrorCurToken("depth: number expected");
 			    }
 			    else {
 				    FIG_depth = rC.IntExpression();
 				    if(FIG_depth < 0 || FIG_depth > 99) {
-					    GpGg.IntError(rC, rC.CToken - 1, "depth out of range");
+					    GpGg.IntError(rC.CToken - 1, "depth out of range");
 					    FIG_depth = 10;
 				    }
 				    FIG_linedepth = FIG_depth;
@@ -467,7 +467,7 @@ static void FIG_options(GpCommand & rC)
 			    /* Skip the word and then expect the number ! */
 			    rC.CToken++;
 			    if(rC.EndOfCommand()) {
-				    GpGg.IntError(rC, rC.CToken, "max. points per polyline: number expected");
+				    GpGg.IntErrorCurToken("max. points per polyline: number expected");
 			    }
 			    else {
 				    temp_max = (long)rC.RealExpression();
@@ -477,7 +477,7 @@ static void FIG_options(GpCommand & rC)
 					    FIG_poly_vec_max = temp_max - 1;
 				    }
 				    else {
-					    GpGg.IntError(rC, rC.CToken, "pointsmax: number out of range (2,%ld)",
+					    GpGg.IntErrorCurToken("pointsmax: number out of range (2,%ld)",
 					    (FIG_MAX_POINTS + 1));
 				    }
 			    }
@@ -485,20 +485,20 @@ static void FIG_options(GpCommand & rC)
 			case FIG_VERSION:
 			    rC.CToken++;
 			    if(rC.EndOfCommand()) {
-				    GpGg.IntError(rC, rC.CToken, "version: 3.1 or 3.2 expected");
+				    GpGg.IntErrorCurToken("version: 3.1 or 3.2 expected");
 			    }
 			    else {
 				    rC.CopyStr(FIG_version, rC.CToken, MAX_ID_LEN);
 				    rC.CToken++;
 				    if(strcmp(FIG_version, "3.1") != 0 && strcmp(FIG_version, "3.2") != 0) {
-					    GpGg.IntError(rC, rC.CToken, "wrong version number, must be 3.1 or 3.2");
+					    GpGg.IntErrorCurToken("wrong version number, must be 3.1 or 3.2");
 				    }
 			    }
 			    break;
 			case FIG_OTHER:
 			default:
 			    parse_error = true;
-			    GpGg.IntError(rC, rC.CToken, "unrecognized option");
+			    GpGg.IntErrorCurToken("unrecognized option");
 			    break;
 		}
 	}
@@ -569,7 +569,7 @@ static void FIG_options(GpCommand & rC)
 	term->HChr = (uint)FIG_to_pixel_h(FIG_inches, FIG_font_s);
 	FIG_thickness = FIG_default_thickness;
 	if(parse_error) {       /* JFS, KB */
-		GpGg.IntError(rC, rC.CToken, "unrecognized option");
+		GpGg.IntErrorCurToken("unrecognized option");
 	}
 }
 
@@ -1178,8 +1178,7 @@ static int FIG_make_palette(t_sm_palette * palette)
 				fprintf(stderr, "Monochrome fig file: using gray palette instead of color\n");
 			for(i = 0; i < GpGg.SmPalette.colors; i++) {
 				int j = (int)(i * 255.0 / (GpGg.SmPalette.colors-1) + 0.5);
-				fprintf(gpoutfile, "%d %d #%2.2x%2.2x%2.2x\n",
-				    O_COLOR_DEF, (i + FIG_palette_offst), j, j, j);
+				fprintf(gpoutfile, "%d %d #%2.2x%2.2x%2.2x\n", O_COLOR_DEF, (i + FIG_palette_offst), j, j, j);
 			}
 		}
 		else {
@@ -1187,14 +1186,14 @@ static int FIG_make_palette(t_sm_palette * palette)
 			for(i = 0; i < GpGg.SmPalette.colors; i++) {
 				fprintf(gpoutfile, "%d %d #%2.2x%2.2x%2.2x\n",
 				    O_COLOR_DEF, (i + FIG_palette_offst),
-				    (int)( palette->color[i].r * 255 + 0.5 ),
-				    (int)( palette->color[i].g * 255 + 0.5 ),
-				    (int)( palette->color[i].b * 255 + 0.5 ) );
+				    (int)( palette->color[i].R * 255 + 0.5 ),
+				    (int)( palette->color[i].G * 255 + 0.5 ),
+				    (int)( palette->color[i].B * 255 + 0.5 ) );
 
 				FIG_RGB_colors[FIG_palette_offst - FIG_rgb_color_offset + i] =
-				    (int)( palette->color[i].r * 255 + 0.5 ) << 16 |
-				    (int)( palette->color[i].g * 255 + 0.5 ) << 8  |
-				    (int)( palette->color[i].b * 255 + 0.5 );
+				    (int)( palette->color[i].R * 255 + 0.5 ) << 16 |
+				    (int)( palette->color[i].G * 255 + 0.5 ) << 8  |
+				    (int)( palette->color[i].B * 255 + 0.5 );
 			}
 		}
 	}

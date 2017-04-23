@@ -105,7 +105,7 @@ static void   do_system(const char*);
 static int    find_clause(int *, int *);
 //static int    expand_1level_macros();
 
-GpCommand GpC;
+//GpCommand GpGg.Gp__C;
 
 //void   extend_input_line()
 void GpCommand::ExtendInputLine()
@@ -177,9 +177,9 @@ int GpGadgets::ComLine(GpCommand & rC)
 					// terminal can either only do multiplot when writing to
 					// to a file, or it does not do multiplot at all
 					if(term->flags & TERM_CANNOT_MULTIPLOT)
-						IntError(rC, NO_CARET, "This terminal does not support multiplot");
+						IntErrorNoCaret("This terminal does not support multiplot");
 					else
-						IntError(rC, NO_CARET, "Must set output to a file or put all multiplot commands on one input line");
+						IntErrorNoCaret("Must set output to a file or put all multiplot commands on one input line");
 				}
 			}
 		}
@@ -237,12 +237,12 @@ int GpCommand::DoLine(GpGadgets & rGg)
 		* NB: This may leave an "else" condition on the next line.
 		*/
 		if(curly_brace_count < 0)
-			GpGg.IntError(GpC, NO_CARET, "Unexpected }");
+			GpGg.IntErrorNoCaret("Unexpected }");
 		while(curly_brace_count > 0) {
 			if(lf_head && lf_head->depth > 0) {
 				// This catches the case that we are inside a "load foo" operation
 				// and therefore requesting interactive input is not an option. FIXME: or is it?
-				GpGg.IntError(GpC, NO_CARET, "Syntax error: missing block terminator }");
+				GpGg.IntErrorNoCaret("Syntax error: missing block terminator }");
 			}
 			else if(rGg.IsInteractive || rGg.noinputfiles) {
 				/* If we are really in interactive mode and there are unterminated blocks,
@@ -256,7 +256,7 @@ int GpCommand::DoLine(GpGadgets & rGg)
 				strcat(P_InputLine, ";");
 				int retval = ReadLine("more> ", strlen(P_InputLine));
 				if(retval)
-					GpGg.IntError(GpC, NO_CARET, "Syntax error: missing block terminator }");
+					GpGg.IntErrorNoCaret("Syntax error: missing block terminator }");
 				// Expand any string variables in the current input line 
 				StringExpandMacros();
 				NumTokens = Scanner(&P_InputLine, &InputLineLen);
@@ -268,7 +268,7 @@ int GpCommand::DoLine(GpGadgets & rGg)
 				* Having curly_brace_count > 0 means that there are at least one
 				* unterminated blocks in the string.
 				* Likely user error, so we die with an error message. */
-				GpGg.IntError(GpC, NO_CARET, "Syntax error: missing block terminator }");
+				GpGg.IntErrorNoCaret("Syntax error: missing block terminator }");
 			}
 		}
 		CToken = 0;
@@ -293,7 +293,7 @@ int GpCommand::DoLine(GpGadgets & rGg)
 					EndClause();
 				}
 				else
-					GpGg.IntError(*this, CToken, "unexpected or unrecognized token");
+					GpGg.IntErrorCurToken("unexpected or unrecognized token");
 			}
 		}
 		// This check allows event handling inside load/eval/while statements
@@ -390,14 +390,14 @@ void GpCommand::Define()
 			CopyStr(P.CDummyVar[dummy_num++], CToken, MAX_ID_LEN);
 		} while(Eq(CToken + 1, ",") && (dummy_num < MAX_NUM_VAR));
 		if(Eq(CToken + 1, ","))
-			GpGg.IntError(*this, CToken + 2, "function contains too many parameters");
+			GpGg.IntError(CToken + 2, "function contains too many parameters");
 		CToken += 3; // skip (, dummy, ) and = 
 		if(EndOfCommand())
-			GpGg.IntError(*this, CToken, "function definition expected");
+			GpGg.IntErrorCurToken("function definition expected");
 		udf = P_DummyFunc = GpGg.Ev.AddUdf(*this, start_token);
 		udf->dummy_num = dummy_num;
 		if((at_tmp = P.PermAt()) == (AtType*)NULL)
-			GpGg.IntError(GpC, start_token, "not enough memory for function");
+			GpGg.IntError(start_token, "not enough memory for function");
 		AtType::Destroy(udf->at);
 		udf->at = at_tmp; // before re-assigning it.
 		memcpy(P.CDummyVar, save_dummy, sizeof(save_dummy));
@@ -414,7 +414,7 @@ void GpCommand::Define()
 		// variable ! 
 		char * p_varname = P_InputLine + P_Token[CToken].start_index;
 		if(!strncmp(p_varname, "GPVAL_", 6) || !strncmp(p_varname, "MOUSE_", 6))
-			GpGg.IntError(*this, CToken, "Cannot set internal variables GPVAL_ and MOUSE_");
+			GpGg.IntErrorCurToken("Cannot set internal variables GPVAL_ and MOUSE_");
 		start_token = CToken;
 		CToken += 2;
 		udv = GpGg.Ev.AddUdv(*this, start_token);
@@ -446,7 +446,6 @@ void undefine_command(GpCommand & rC)
 	}
 }
 
-//static void command()
 void GpCommand::Command(GpGadgets & rGg)
 {
 #if 0 // {
@@ -554,7 +553,7 @@ void GpCommand::Command(GpGadgets & rGg)
 				CToken++;
 				char * p_command = TryToGetString();
 				if(!p_command)
-					GpGg.IntError(*this, CToken, "Expected command string");
+					GpGg.IntErrorCurToken("Expected command string");
 				DoStringAndFree(p_command);
 			}
 		}
@@ -653,7 +652,7 @@ void GpCommand::Command(GpGadgets & rGg)
 				rGg.Ev.AddUdvByName("MOUSE_Y2")->udv_value.type = NOTDEFINED;
 				rGg.Ev.AddUdvByName("MOUSE_BUTTON")->udv_value.type = NOTDEFINED;
 			#endif
-				rGg.Plot3DRequest(GpC);
+				rGg.Plot3DRequest(GpGg.Gp__C);
 				SET_CURSOR_ARROW;
 			}
 		}
@@ -683,9 +682,9 @@ void GpCommand::Command(GpGadgets & rGg)
 				char * npfname = NULL; // new parameter filename
 				CToken++;
 				if(!(opfname = TryToGetString()))
-					GpGg.IntError(*this, CToken, "Parameter filename expected");
+					GpGg.IntErrorCurToken("Parameter filename expected");
 				if(!EndOfCommand() && !(npfname = TryToGetString()))
-					GpGg.IntError(*this, CToken, "New parameter filename expected");
+					GpGg.IntErrorCurToken("New parameter filename expected");
 				GpF.Update(opfname, npfname);
 				free(npfname);
 				free(opfname);
@@ -716,7 +715,6 @@ void GpCommand::Command(GpGadgets & rGg)
 //
 // process the 'raise' or 'lower' command 
 //
-//void raise_lower_command(int lower)
 void GpCommand::RaiseLowerCommand(int lower)
 {
 	++CToken;
@@ -781,9 +779,9 @@ void GpCommand::RaiseLowerCommand(int lower)
 		}
 	}
 	if(lower)
-		GpGg.IntError(*this, CToken, "usage: lower {plot_id}");
+		GpGg.IntErrorCurToken("usage: lower {plot_id}");
 	else
-		GpGg.IntError(*this, CToken, "usage: raise {plot_id}");
+		GpGg.IntErrorCurToken("usage: raise {plot_id}");
 }
 
 //void raise_command() { raise_lower_command(0); }
@@ -808,17 +806,17 @@ void GpCommand::ArrayCommand(GpGadgets & rGg)
 	int i;
 	// Create or recycle a udv containing an array with the requested name
 	if(!IsLetter(++CToken))
-		GpGg.IntError(*this, CToken, "illegal variable name");
+		GpGg.IntErrorCurToken("illegal variable name");
 	array = rGg.Ev.AddUdv(*this, CToken);
 	gpfree_array(&array->udv_value);
 	gpfree_string(&array->udv_value);
 
 	if(!Eq(++CToken, "["))
-		GpGg.IntError(*this, CToken, "expecting array[size]");
+		GpGg.IntErrorCurToken("expecting array[size]");
 	CToken++;
 	nsize = IntExpression();
 	if(!Eq(CToken++, "]") || nsize <= 0)
-		GpGg.IntError(*this, CToken-1, "expecting array[size>0]");
+		GpGg.IntError(CToken-1, "expecting array[size>0]");
 	array->udv_value.v.value_array = (t_value *)malloc((nsize+1) * sizeof(t_value));
 	array->udv_value.type = ARRAY;
 	// Element zero of the new array is not visible but contains the size
@@ -830,7 +828,7 @@ void GpCommand::ArrayCommand(GpGadgets & rGg)
 	// Initializer syntax:   array A[10] = [x,y,z,,"foo",]
 	if(Eq("=")) {
 		if(!Eq(++CToken, "["))
-			GpGg.IntError(*this, CToken, "expecting Array[size] = [x,y,...]");
+			GpGg.IntErrorCurToken("expecting Array[size] = [x,y,...]");
 		CToken++;
 		for(i = 1; i <= nsize; i++) {
 			if(Eq("]"))
@@ -845,7 +843,7 @@ void GpCommand::ArrayCommand(GpGadgets & rGg)
 				if(Eq(","))
 					CToken++;
 				else
-					GpGg.IntError(*this, CToken, "expecting Array[size] = [x,y,...]");
+					GpGg.IntErrorCurToken("expecting Array[size] = [x,y,...]");
 			}
 		}
 		CToken++;
@@ -887,14 +885,14 @@ bool GpCommand::IsArrayAssignment()
 	}
 	if(looks_OK) {
 		if(udv->udv_value.type != ARRAY)
-			GpGg.IntError(*this, CToken, "Not a known array");
+			GpGg.IntErrorCurToken("Not a known array");
 		// Evaluate index
 		CToken += 2;
 		index = IntExpression();
 		if(index <= 0 || index > udv->udv_value.v.value_array[0].v.int_val)
-			GpGg.IntError(*this, CToken, "array index out of range");
+			GpGg.IntErrorCurToken("array index out of range");
 		if(!Eq("]") || !Eq(CToken+1, "="))
-			GpGg.IntError(*this, CToken, "Expecting Arrayname[<expr>] = <expr>");
+			GpGg.IntErrorCurToken("Expecting Arrayname[<expr>] = <expr>");
 		// Evaluate right side of assignment
 		CToken += 2;
 		P.ConstExpress(*this, &newvalue);
@@ -1003,7 +1001,7 @@ void GpCommand::CallCommand()
 	CToken++;
 	char * save_file = TryToGetString();
 	if(!save_file)
-		GpGg.IntError(*this, CToken, "expecting filename");
+		GpGg.IntErrorCurToken("expecting filename");
 	gp_expand_tilde(&save_file);
 	// Argument list follows filename 
 	GpGg.LoadFile(*this, loadpath_fopen(save_file, "r"), save_file, 2);
@@ -1018,10 +1016,10 @@ void GpGadgets::ChangeDirCommand(GpCommand & rC)
 	rC.CToken++;
 	save_file = rC.TryToGetString();
 	if(!save_file)
-		IntError(rC, rC.CToken, "expecting directory name");
+		IntErrorCurToken("expecting directory name");
 	gp_expand_tilde(&save_file);
 	if(changedir(save_file))
-		IntError(rC, rC.CToken, "Can't change to this directory");
+		IntErrorCurToken("Can't change to this directory");
 	else
 		Ev.UpdateGpValVariables(5);
 	free(save_file);
@@ -1055,7 +1053,7 @@ void GpCommand::ExitCommand()
 	// exit error 'error message'  returns to the top command line 
 	if(Eq(CToken+1, "error")) {
 		CToken += 2;
-		GpGg.IntError(GpC, NO_CARET, TryToGetString());
+		GpGg.IntErrorNoCaret(TryToGetString());
 	}
 	// else graphics will be tidied up in main 
 	command_exit_status = 1;
@@ -1078,7 +1076,7 @@ void history_command(GpCommand & rC)
 		rC.MCapture(&search_str, rC.CToken, rC.CToken); // reallocates memory
 		printf("history ?%s\n", search_str);
 		if(!rC.H.HistoryFindAll(search_str))
-			GpGg.IntError(rC, rC.CToken, "not in history");
+			GpGg.IntErrorCurToken("not in history");
 		rC.CToken++;
 	}
 	else if(!rC.EndOfCommand() && rC.Eq("!")) {
@@ -1095,7 +1093,7 @@ void history_command(GpCommand & rC)
 			free(search_str);
 		}
 		if(line_to_do == NULL)
-			GpGg.IntError(rC, rC.CToken, "not in history");
+			GpGg.IntErrorCurToken("not in history");
 		// Replace current entry "history !..." in history list	
 		// with the command we found by searching.		
 #if defined(HAVE_LIBREADLINE)
@@ -1143,7 +1141,7 @@ void history_command(GpCommand & rC)
 static char * new_clause(int clause_start, int clause_end)
 {
 	char * clause = (char *)malloc(clause_end - clause_start);
-	memcpy(clause, &GpC.P_InputLine[clause_start+1], clause_end - clause_start);
+	memcpy(clause, &GpGg.Gp__C.P_InputLine[clause_start+1], clause_end - clause_start);
 	clause[clause_end - clause_start - 1] = '\0';
 	return clause;
 }
@@ -1156,7 +1154,7 @@ void GpCommand::IfCommand()
 	double exprval;
 	int end_token;
 	if(!Eq(++CToken, "("))     /* no expression */
-		GpGg.IntError(*this, CToken, "expecting (expression)");
+		GpGg.IntErrorCurToken("expecting (expression)");
 	exprval = RealExpression();
 	/*
 	 * EAM May 2011
@@ -1173,7 +1171,7 @@ void GpCommand::IfCommand()
 
 		if(Eq("else")) {
 			if(!Eq(++CToken, "{"))
-				GpGg.IntError(*this, CToken, "expected {else-clause}");
+				GpGg.IntErrorCurToken("expected {else-clause}");
 			CToken = find_clause(&else_start, &else_end);
 		}
 		end_token = CToken;
@@ -1203,7 +1201,7 @@ void GpCommand::IfCommand()
 	 * Deprecate?
 	 */
 	if(clause_depth > 0)
-		GpGg.IntError(*this, CToken, "Old-style if/else statement encountered inside brackets");
+		GpGg.IntErrorCurToken("Old-style if/else statement encountered inside brackets");
 	IfDepth++;
 	if(exprval != 0.0) {
 		// fake the condition of a ';' between commands
@@ -1248,7 +1246,7 @@ void GpCommand::ElseCommand()
 		if(IfOpenForElse)
 			IfOpenForElse = false;
 		else
-			GpGg.IntError(*this, CToken, "Invalid {else-clause}");
+			GpGg.IntErrorCurToken("Invalid {else-clause}");
 
 		CToken++; /* Advance to the opening curly brace */
 		end_token = find_clause(&clause_start, &clause_end);
@@ -1264,7 +1262,7 @@ void GpCommand::ElseCommand()
 	// EAM May 2011
 	// The rest is only relevant to the old if/else syntax (no curly braces)
 	if(IfDepth <= 0) {
-		GpGg.IntError(*this, CToken, "else without if");
+		GpGg.IntErrorCurToken("else without if");
 		return;
 	}
 	else {
@@ -1300,7 +1298,7 @@ void GpCommand::DoCommand()
 	CToken++;
 	do_iterator = CheckForIteration();
 	if(!Eq("{"))
-		GpGg.IntError(*this, CToken, "expecting {do-clause}");
+		GpGg.IntErrorCurToken("expecting {do-clause}");
 	end_token = find_clause(&do_start, &do_end);
 	clause = new_clause(do_start, do_end);
 	BeginClause();
@@ -1338,7 +1336,7 @@ void GpCommand::WhileCommand()
 	save_token = CToken;
 	exprval = RealExpression();
 	if(!Eq("{"))
-		GpGg.IntError(*this, CToken, "expecting {while-clause}");
+		GpGg.IntErrorCurToken("expecting {while-clause}");
 	end_token = find_clause(&do_start, &do_end);
 	clause = new_clause(do_start, do_end);
 	BeginClause();
@@ -1390,10 +1388,10 @@ void GpGadgets::LinkCommand(GpCommand & rC)
 		if((axis = (AXIS_INDEX)rC.LookupTable(axisname_tbl, rC.CToken)) >= 0)
 			secondary_axis = &AxA[axis];
 		else
-			IntError(rC, rC.CToken, "not a valid nonlinear axis");
+			IntErrorCurToken("not a valid nonlinear axis");
 		primary_axis = get_shadow_axis(secondary_axis);
 #else
-		GpGg.IntError(GpC, , "This copy of gnuplot does not support nonlinear axes");
+		IntErrorCurToken("This copy of gnuplot does not support nonlinear axes");
 #endif
 		//
 		// "set link" applies to either x|x2 or y|y2
@@ -1411,7 +1409,7 @@ void GpGadgets::LinkCommand(GpCommand & rC)
 			secondary_axis = &AxA[SECOND_Y_AXIS];
 		}
 		else {
-			IntError(rC, rC.CToken, "expecting x2 or y2");
+			IntErrorCurToken("expecting x2 or y2");
 		}
 	}
 	rC.CToken++;
@@ -1484,7 +1482,7 @@ void GpGadgets::LoadCommand(GpCommand & rC)
 	rC.CToken++;
 	save_file = rC.TryToGetString();
 	if(!save_file)
-		IntError(rC, rC.CToken, "expecting filename");
+		IntErrorCurToken("expecting filename");
 	gp_expand_tilde(&save_file);
 	fp = strcmp(save_file, "-") ? loadpath_fopen(save_file, "r") : stdout;
 	LoadFile(rC, fp, save_file, 1);
@@ -1506,24 +1504,24 @@ void null_command()
  * }
  */
 
-/* Find the start and end character positions within GpC.P_InputLine
+/* Find the start and end character positions within GpGg.Gp__C.P_InputLine
  * bounding a clause delimited by {...}.
- * Assumes that GpC.CToken indexes the opening left curly brace.
+ * Assumes that GpGg.Gp__C.CToken indexes the opening left curly brace.
  * Returns the index of the first token after the closing curly brace.
  */
 int find_clause(int * clause_start, int * clause_end)
 {
 	int i, depth;
-	*clause_start = GpC.P_Token[GpC.CToken].start_index;
-	for(i = ++GpC.CToken, depth = 1; i<GpC.NumTokens; i++) {
-		if(GpC.Eq(i, "{"))
+	*clause_start = GpGg.Gp__C.P_Token[GpGg.Gp__C.CToken].start_index;
+	for(i = ++GpGg.Gp__C.CToken, depth = 1; i<GpGg.Gp__C.NumTokens; i++) {
+		if(GpGg.Gp__C.Eq(i, "{"))
 			depth++;
-		else if(GpC.Eq(i, "}"))
+		else if(GpGg.Gp__C.Eq(i, "}"))
 			depth--;
 		if(depth == 0)
 			break;
 	}
-	*clause_end = GpC.P_Token[i].start_index;
+	*clause_end = GpGg.Gp__C.P_Token[i].start_index;
 	return (i+1);
 }
 
@@ -1538,7 +1536,7 @@ void GpCommand::BeginClause()
 void GpCommand::EndClause()
 {
 	if(clause_depth == 0)
-		GpGg.IntError(*this, CToken, "unexpected }");
+		GpGg.IntErrorCurToken("unexpected }");
 	else
 		clause_depth--;
 	CToken++;
@@ -1710,7 +1708,7 @@ void GpGadgets::PauseCommand(GpCommand & rC)
 	else {
 		char * tmp = rC.TryToGetString();
 		if(!tmp)
-			IntError(rC, rC.CToken, "expecting string");
+			IntErrorCurToken("expecting string");
 		else {
 #ifdef WIN32
 			char * nbuf = translate_string_encoding(tmp, 0, encoding);
@@ -1961,7 +1959,7 @@ void pwd_command()
 		fprintf(stderr, "%s\n", save_file);
 		free(save_file);
 	}
-	GpC.CToken++;
+	GpGg.Gp__C.CToken++;
 }
 
 /* EAM April 2007
@@ -1971,7 +1969,7 @@ void pwd_command()
  */
 void refresh_command()
 {
-	GpC.CToken++;
+	GpGg.Gp__C.CToken++;
 	GpGg.RefreshRequest();
 }
 
@@ -1979,11 +1977,11 @@ void refresh_command()
 void GpGadgets::RefreshRequest()
 {
 	FPRINTF((stderr, "refresh_request\n"));
-	if((!P_FirstPlot && (RefreshOk == E_REFRESH_OK_2D)) || (!P_First3DPlot && (RefreshOk == E_REFRESH_OK_3D))|| (!*GpC.P_ReplotLine && (RefreshOk == E_REFRESH_NOT_OK)))
-		GpGg.IntError(GpC, NO_CARET, "no active plot; cannot refresh");
+	if((!P_FirstPlot && (RefreshOk == E_REFRESH_OK_2D)) || (!P_First3DPlot && (RefreshOk == E_REFRESH_OK_3D))|| (!*GpGg.Gp__C.P_ReplotLine && (RefreshOk == E_REFRESH_NOT_OK)))
+		GpGg.IntErrorNoCaret("no active plot; cannot refresh");
 	if(RefreshOk == E_REFRESH_NOT_OK) {
 		int_warn(NO_CARET, "cannot refresh from this state. trying full replot");
-		ReplotRequest(GpC);
+		ReplotRequest(GpGg.Gp__C);
 	}
 	else {
 		//
@@ -2020,7 +2018,7 @@ void GpGadgets::RefreshRequest()
 			GpGg.Ev.UpdateGpValVariables(1);
 		}
 		else
-			GpGg.IntError(GpC, NO_CARET, "Internal error - refresh of unknown plot type");
+			GpGg.IntErrorNoCaret("Internal error - refresh of unknown plot type");
 	}
 }
 //
@@ -2030,7 +2028,7 @@ void GpGadgets::RefreshRequest()
 void GpGadgets::ReplotCommand(GpTermEntry * pT, GpCommand & rC)
 {
 	if(!*rC.P_ReplotLine)
-		IntError(rC, rC.CToken, "no previous plot");
+		IntErrorCurToken("no previous plot");
 	if(IsVolatileData && (RefreshOk != E_REFRESH_NOT_OK) && !rC.IsReplotDisabled) {
 		FPRINTF((stderr, "volatile_data %d RefreshOk %d plotted_data_from_stdin %d\n", IsVolatileData, RefreshOk, plotted_data_from_stdin));
 		//refresh_command();
@@ -2049,7 +2047,7 @@ void GpGadgets::ReplotCommand(GpTermEntry * pT, GpCommand & rC)
 			bail_to_command_line(); /* be silent --- don't mess the screen */
 		}
 		if(!pT) // unknown terminal
-			IntError(rC, rC.CToken, "use 'set pT' to set terminal type first");
+			IntErrorCurToken("use 'set pT' to set terminal type first");
 		rC.CToken++;
 		SET_CURSOR_WAIT;
 		if(pT->flags & TERM_INIT_ON_REPLOT)
@@ -2066,7 +2064,7 @@ void reread_command()
 	FILE * fp = lf_top();
 	if(fp)
 		rewind(fp);
-	GpC.CToken++;
+	GpGg.Gp__C.CToken++;
 }
 //
 // process the 'save' command 
@@ -2090,7 +2088,7 @@ void GpGadgets::SaveCommand(GpCommand & rC)
 	}
 	save_file = rC.TryToGetString();
 	if(!save_file)
-		IntError(rC, rC.CToken, "expecting filename");
+		IntErrorCurToken("expecting filename");
 #ifdef PIPES
 	if(save_file[0]=='|') {
 		restrict_popen();
@@ -2134,7 +2132,7 @@ void GpGadgets::SaveCommand(GpCommand & rC)
 /* process the 'screendump' command */
 void screendump_command()
 {
-	GpC.CToken++;
+	GpGg.Gp__C.CToken++;
 #ifdef _Windows
 	screen_dump();
 #else
@@ -2147,17 +2145,17 @@ void screendump_command()
 void stats_command()
 {
 #ifdef USE_STATS
-	GpGg.StatsRequest(GpC);
+	GpGg.StatsRequest(GpGg.Gp__C);
 #else
-	GpGg.IntError(GpC, NO_CARET, "This copy of gnuplot was not configured with support for the stats command");
+	GpGg.IntErrorNoCaret("This copy of gnuplot was not configured with support for the stats command");
 #endif
 }
 
 // process the 'system' command 
 void system_command()
 {
-	++GpC.CToken;
-	char * cmd = GpC.TryToGetString();
+	++GpGg.Gp__C.CToken;
+	char * cmd = GpGg.Gp__C.TryToGetString();
 	do_system(cmd);
 	free(cmd);
 }
@@ -2217,7 +2215,7 @@ $PALETTE u 1:2 t 'red' w l lt 1 lc rgb 'red',\
 	while(!rC.EndOfCommand())
 		rC.CToken++;
 	if(!f)
-		GpGg.IntError(GpC, NO_CARET, "cannot write temporary file");
+		GpGg.IntErrorNoCaret("cannot write temporary file");
 
 	/* Store R/G/B/Int curves in a datablock */
 	datablock = Ev.AddUdvByName("$PALETTE");
@@ -2236,10 +2234,10 @@ $PALETTE u 1:2 t 'red' w l lt 1 lc rgb 'red',\
 		rgb_color rgb;
 		double ntsc;
 		double z = (double)i / (test_palette_colors - 1);
-		double gray = (SmPalette.positive == SMPAL_NEGATIVE) ? 1. - z : z;
+		double gray = (SmPalette.positive == SMPAL_NEGATIVE) ? (1.0 - z) : z;
 		RGB1FromGray(gray, &rgb);
-		ntsc = 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
-		sprintf(dataline, "%0.4f %0.4f %0.4f %0.4f %0.4f %c", z, rgb.r, rgb.g, rgb.b, ntsc, '\0');
+		ntsc = 0.299 * rgb.R + 0.587 * rgb.G + 0.114 * rgb.B;
+		sprintf(dataline, "%0.4f %0.4f %0.4f %0.4f %0.4f %c", z, rgb.R, rgb.G, rgb.B, ntsc, '\0');
 		append_to_datablock(&datablock->udv_value, _strdup(dataline));
 	}
 	reset_numeric_locale();
@@ -2272,12 +2270,12 @@ void GpGadgets::TestCommand(GpCommand & rC)
 	int what;
 	int save_token = rC.CToken++;
 	if(!term) /* unknown terminal */
-		IntError(rC, rC.CToken, "use 'set term' to set terminal type first");
+		IntErrorCurToken("use 'set term' to set terminal type first");
 	what = rC.LookupTable(&test_tbl[0], rC.CToken);
 	switch(what) {
 		default:
 		    if(!rC.EndOfCommand())
-			    IntError(rC, rC.CToken, "unrecognized test option");
+			    IntErrorCurToken("unrecognized test option");
 		// otherwise fall through to test_term 
 		case TEST_TERMINAL: TestTerm(term, rC); break;
 		case TEST_PALETTE: TestPaletteSubcommand(rC); break;
@@ -2343,18 +2341,18 @@ void GpCommand::ImportCommand()
 	int dummy_num = 0;
 	char save_dummy[MAX_NUM_VAR][MAX_ID_LEN+1];
 	if(!Eq(++CToken + 1, "("))
-		GpGg.IntError(*this, CToken, "Expecting function template");
+		GpGg.IntErrorCurToken("Expecting function template");
 	memcpy(save_dummy, P.CDummyVar, sizeof(save_dummy));
 	do {
 		CToken += 2; /* skip to the next dummy */
 		CopyStr(P.CDummyVar[dummy_num++], CToken, MAX_ID_LEN);
 	} while(Eq(CToken + 1, ",") && (dummy_num < MAX_NUM_VAR));
 	if(Eq(++CToken, ","))
-		GpGg.IntError(*this, CToken + 1, "function contains too many parameters");
+		GpGg.IntError(CToken + 1, "function contains too many parameters");
 	if(!Eq(CToken++, ")"))
-		GpGg.IntError(*this, CToken, "missing ')'");
+		GpGg.IntErrorCurToken("missing ')'");
 	if(!Eq("from"))
-		GpGg.IntError(*this, CToken, "Expecting 'from <sharedobj>'");
+		GpGg.IntErrorCurToken("Expecting 'from <sharedobj>'");
 	CToken++;
 	udf = P_DummyFunc = GpGg.Ev.AddUdf(*this, start_token+1);
 	udf->dummy_num = dummy_num;
@@ -2363,25 +2361,25 @@ void GpCommand::ImportCommand()
 	memcpy(P.CDummyVar, save_dummy, sizeof(save_dummy));
 	P_DummyFunc = NULL; /* dont let anyone else use our workspace */
 	if(!udf->at)
-		GpGg.IntError(GpC, NO_CARET, "failed to load external function");
+		GpGg.IntErrorNoCaret("failed to load external function");
 	// Don't copy the definition until we know it worked
 	MCapture(&(udf->definition), start_token, CToken - 1);
 #else
 	while(!EndOfCommand())
 		CToken++;
-	GpGg.IntError(GpC, start_token, "This copy of gnuplot does not support plugins");
+	GpGg.IntError(start_token, "This copy of gnuplot does not support plugins");
 #endif
 }
 
 /* process invalid commands and, on OS/2, REXX commands */
 void invalid_command()
 {
-	int save_token = GpC.CToken;
+	int save_token = GpGg.Gp__C.CToken;
 	/* Skip the rest of the command; otherwise we're left pointing to */
 	/* the middle of a command we already know is not valid.          */
-	while(!GpC.EndOfCommand())
-		GpC.CToken++;
-	GpGg.IntError(GpC, save_token, "invalid command");
+	while(!GpGg.Gp__C.EndOfCommand())
+		GpGg.Gp__C.CToken++;
+	GpGg.IntError(save_token, "invalid command");
 }
 
 /*
@@ -2595,7 +2593,7 @@ void help_command(GpCommand & rC)
 void do_shell()
 {
 	screen_ok = false;
-	GpC.CToken++;
+	GpGg.Gp__C.CToken++;
 	if((vaxc$errno = lib$spawn()) != SS$_NORMAL) {
 		os_error(NO_CARET, "spawn error");
 	}
@@ -2604,7 +2602,7 @@ void do_shell()
 static void do_system(const char * cmd)
 {
 	if(cmd){
-		/* GpC.P_InputLine is filled by read_line or load_file, but
+		/* GpGg.Gp__C.P_InputLine is filled by read_line or load_file, but
 		* line_desc length is set only by read_line; adjust now
 		*/
 		line_desc.dsc$w_length = strlen(cmd);
@@ -2817,7 +2815,7 @@ void help_command(GpCommand & rC)
 		    perror(help_ptr);
 		    break;
 		default:
-		    GpGg.IntError(GpC, NO_CARET, "Impossible case in switch");
+		    GpGg.IntErrorNoCaret("Impossible case in switch");
 		    break;
 	}
 
@@ -2842,10 +2840,12 @@ static void do_system(const char * cmd)
 	}
 }
 
-/* is_history_command:
-   Test if line starts with an (abbreviated) history command.
-   Modified copy of almost_equals() (util.c).
- */
+#if defined(READLINE) || defined(HAVE_LIBREADLINE) || defined(HAVE_LIBEDITLINE)
+//
+// is_history_command:
+// Test if line starts with an (abbreviated) history command.
+// Modified copy of almost_equals() (util.c).
+//
 static bool is_history_command(const char * line)
 {
 	int i;
@@ -2853,7 +2853,6 @@ static bool is_history_command(const char * line)
 	int length = 0;
 	int after = 0;
 	const char str[] = "hi$story";
-
 	/* skip leading whitespace */
 	while(oneof2(line[start], ' ', '\t'))
 		start++;
@@ -2874,11 +2873,6 @@ static bool is_history_command(const char * line)
 	return (after || str[i] == '$' || str[i] == NUL);
 }
 
-# if defined(READLINE) || defined(HAVE_LIBREADLINE) || defined(HAVE_LIBEDITLINE)
-/* keep some compilers happy */
-//static char * rlgets(char * s, size_t n, const char * prompt);
-
-//static char * rlgets(char * s, size_t n, const char * prompt)
 char * GpCommand::RlGets(char * s, size_t n, const char * prompt)
 {
 	static char * line = (char*)NULL;
@@ -2945,7 +2939,7 @@ char * GpCommand::RlGets(char * s, size_t n, const char * prompt)
 void do_shell()
 {
 	GpGg.screen_ok = false;
-	GpC.CToken++;
+	GpGg.Gp__C.CToken++;
 	if(GpGg.user_shell) {
 #if defined(_Windows)
 		if(WinExec(GpGg.user_shell, SW_SHOWNORMAL) <= 32)
@@ -2964,7 +2958,7 @@ void do_shell()
 {
 	static char exec[100] = EXEC;
 	screen_ok = false;
-	GpC.CToken++;
+	GpGg.Gp__C.CToken++;
 	if(user_shell) {
 		if(system(strnzcpy(&exec[sizeof(EXEC) - 1], user_shell, sizeof(exec) - sizeof(EXEC) - 1)))
 			os_error(NO_CARET, "system() failed");
@@ -3024,7 +3018,7 @@ static char * fgets_ipc(GpTermEntry * pT, char * dest /* string to fill */, int 
 static char * gp_get_string(char * buffer, size_t len, const char * prompt)
 {
 # if defined(READLINE) || defined(HAVE_LIBREADLINE) || defined(HAVE_LIBEDITLINE)
-	return GpGg.IsInteractive ? GpC.RlGets(buffer, len, prompt) : fgets_ipc(term, buffer, len);
+	return GpGg.IsInteractive ? GpGg.Gp__C.RlGets(buffer, len, prompt) : fgets_ipc(term, buffer, len);
 # else
 	if(GpGg.IsInteractive)
 		PUT_STRING(prompt);
@@ -3111,10 +3105,10 @@ int GpCommand::ReadLine(const char * prompt, int start)
 void GpCommand::StringExpandMacros()
 {
 	if(Expand1LevelMacros() && Expand1LevelMacros() && Expand1LevelMacros() && Expand1LevelMacros())
-		GpGg.IntError(GpC, NO_CARET, "Macros nested too deeply");
+		GpGg.IntErrorNoCaret("Macros nested too deeply");
 }
 
-#define COPY_CHAR GpC.P_InputLine[o++] = *c; after_backslash = false;
+#define COPY_CHAR GpGg.Gp__C.P_InputLine[o++] = *c; after_backslash = false;
 
 //int expand_1level_macros()
 int GpCommand::Expand1LevelMacros()

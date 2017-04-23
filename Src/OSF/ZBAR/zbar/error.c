@@ -227,7 +227,7 @@ int err_capture_str(const void * container, errsev_t sev, zbar_error_t type, con
 	assert(err->magic == ERRINFO_MAGIC);
 	free(err->arg_str);
 	err->arg_str = _strdup(arg);
-	return(err_capture(container, sev, type, func, detail));
+	return err_capture(container, sev, type, func, detail);
 }
 
 int err_capture_int(const void * container, errsev_t sev, zbar_error_t type, const char * func, const char * detail, int arg)
@@ -235,7 +235,7 @@ int err_capture_int(const void * container, errsev_t sev, zbar_error_t type, con
 	errinfo_t * err = (errinfo_t*)container;
 	assert(err->magic == ERRINFO_MAGIC);
 	err->arg_int = arg;
-	return(err_capture(container, sev, type, func, detail));
+	return err_capture(container, sev, type, func, detail);
 }
 
 int err_capture_num(const void * container, errsev_t sev, zbar_error_t type, const char * func, const char * detail, int num)
@@ -243,7 +243,7 @@ int err_capture_num(const void * container, errsev_t sev, zbar_error_t type, con
 	errinfo_t * err = (errinfo_t*)container;
 	assert(err->magic == ERRINFO_MAGIC);
 	err->errnum = num;
-	return(err_capture(container, sev, type, func, detail));
+	return err_capture(container, sev, type, func, detail);
 }
 
 void err_init(errinfo_t * err, errmodule_t module)

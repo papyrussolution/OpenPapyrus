@@ -134,7 +134,7 @@ int SLAPI DeviceLoadingStat::RegisterGoods(PPID statID, const GoodsInfo * pInfo)
 {
 	int    ok = 1;
 	uint   pos = 0;
-	THROW_PP(statID == StatID, PPERR_INVPARAM);
+	THROW_INVARG(statID == StatID);
 	if(P_GoodsList == 0)
 		THROW_MEM(P_GoodsList = new SArray(sizeof(_GoodsInfo)));
 	if(!P_GoodsList->lsearch(&pInfo->ID, &pos, CMPF_LONG)) {
@@ -151,7 +151,7 @@ int SLAPI DeviceLoadingStat::RegisterGoods(PPID statID, const GoodsInfo * pInfo)
 int SLAPI DeviceLoadingStat::RegisterSCard(PPID statID, const SCardInfo * pInfo)
 {
 	int    ok = 1;
-	THROW_PP(statID == StatID, PPERR_INVPARAM);
+	THROW_INVARG(statID == StatID);
 	if(!SCardList.Search(pInfo->ID, 0, 0))
 		THROW_SL(SCardList.Add(pInfo->ID, pInfo->Discount, 0));
 	CATCHZOK
@@ -182,7 +182,7 @@ int SLAPI DeviceLoadingStat::FinishLoading(PPID statID, int status, int use_ta)
 	int    ok = 1;
 	long   timing = 0;
 	DvcLoadingStatTbl::Rec rec;
-	THROW_PP(statID == StatID, PPERR_INVPARAM);
+	THROW_INVARG(statID == StatID);
 	timing = clock() - StartClock;
 	{
 		PPTransaction tra(use_ta);

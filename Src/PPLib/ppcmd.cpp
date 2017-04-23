@@ -532,7 +532,7 @@ int SLAPI PPCommandFolder::Update(uint pos, const PPCommandItem * pItem)
 int SLAPI PPCommandFolder::Add(int pos, const PPCommandItem * pItem)
 {
 	int    ok = 1;
-	THROW_PP(pItem, PPERR_INVPARAM);
+	THROW_INVARG(pItem);
 	const  uint c = GetCount();
 	const  PPCommandGroup * p_new_grp = (pItem->Kind == PPCommandItem::kGroup) ? (PPCommandGroup *)pItem : 0;
 	for(uint i = 0; i < c; i++) {
@@ -1174,7 +1174,7 @@ int SLAPI EditPPViewFilt(int viewID, SBuffer * pParam, void * extraPtr)
 	size_t sav_offs = 0;
 	PPBaseFilt * p_filt = 0;
 	PPView     * p_view = 0;
-	THROW_PP(pParam, PPERR_INVPARAM);
+	THROW_INVARG(pParam);
 	sav_offs = pParam->GetRdOffs();
 	THROW(PPView::CreateInstance(viewID, &p_view) > 0);
 	{
@@ -1278,7 +1278,7 @@ public:
 			PPObjPerson psn_obj;
 			PPInputStringDialogParam isd_param;
 			PsnSelAnalogDialog * dlg = 0;
-			THROW_PP(pParam, PPERR_INVPARAM);
+			THROW_INVARG(pParam);
 			sav_offs = pParam->GetRdOffs();
 			pParam->Read(name);
 			((PPApp*)APPL)->LastCmd = D.MenuCm;
@@ -1329,7 +1329,7 @@ int ReadPrjTaskRec(PrjTaskTbl::Rec * pRec, SBuffer & rBuf, long)
 {
 	int    ok = 1;
 	SString code, descr, memo;
-	THROW_PP(pRec, PPERR_INVPARAM);
+	THROW_INVARG(pRec);
 	THROW_SL(rBuf.Read(pRec->ID));
 	THROW_SL(rBuf.Read(pRec->ProjectID));
 	THROW_SL(rBuf.Read(pRec->Kind));
@@ -1371,7 +1371,7 @@ int WritePrjTaskRec(PrjTaskTbl::Rec * pRec, SBuffer & rBuf, long)
 {
 	int    ok = 1;
 	SString code, descr, memo;
-	THROW_PP(pRec, PPERR_INVPARAM);
+	THROW_INVARG(pRec);
 	code.CopyFrom(pRec->Code);
 	descr.CopyFrom(pRec->Descr);
 	memo.CopyFrom(pRec->Memo);
@@ -1419,7 +1419,7 @@ public:
 		int    ok = -1;
 		size_t sav_offs = 0;
 		PrjTaskTbl::Rec rec;
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
         sav_offs = pParam->GetRdOffs();
 		MEMSZERO(rec);
 		if(pParam->GetAvailableSize() == 0)
@@ -1447,7 +1447,7 @@ public:
 		if((D.MenuCm || cmdID)&& APPL) {
 			PPID   id = 0;
 			SBuffer param;
-			THROW_PP(pParam, PPERR_INVPARAM);
+			THROW_INVARG(pParam);
 			THROW(TodoObj.CheckRightsModByID(&id));
 			((PPApp*)APPL)->LastCmd = (cmdID) ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
 			param = *pParam;
@@ -1480,7 +1480,7 @@ public:
 		int    ok = -1, valid_data = 0;
 		size_t sav_offs = 0;
 		AddPersonEventFilt filt;
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
         sav_offs = pParam->GetRdOffs();
 		filt.Read(*pParam, 0);
 		if(filt.Edit() > 0) {
@@ -1993,7 +1993,7 @@ public:
 		size_t sav_offs = 0;
 		CashNodePaneFilt * p_filt = 0;
 		CashNodeFiltDialog * p_dlg = 0;
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
 		THROW(CheckDialogPtr(&(p_dlg = new CashNodeFiltDialog)));
 		sav_offs = pParam->GetRdOffs();
 		THROW(PPView::ReadFiltPtr(*pParam, (PPBaseFilt**)&p_filt));
@@ -2092,7 +2092,7 @@ IMPL_HANDLE_EVENT(AddBillFiltDlg)
 int AddBillFiltDlg::OpTypeListByBbt(PPID bbt, PPIDArray * pOpTypeList)
 {
 	int    ok = 1;
-	THROW_PP(pOpTypeList, PPERR_INVPARAM);
+	THROW_INVARG(pOpTypeList);
 	if(bbt == bbtGoodsBills) {
 		pOpTypeList->addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN,
 			PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_PAYMENT, PPOPT_CORRECTION, 0L); // @v7.8.10 PPOPT_CORRECTION
@@ -2162,7 +2162,7 @@ public:
 		AddBillFiltDlg::Param filt;
 		AddBillFiltDlg * p_dlg = 0;
 
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
 		MEMSZERO(filt);
 		THROW(CheckDialogPtr(&(p_dlg = new AddBillFiltDlg)));
 		sav_offs = pParam->GetRdOffs();
@@ -2373,7 +2373,7 @@ public:
 		size_t sav_offs = 0;
 		TDialog * p_dlg = new TDialog(DLG_CRTTSESSFLT);
 		TSessCreateFilt filt;
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
 		sav_offs = pParam->GetRdOffs();
 		filt.Read(*pParam, 0);
 		THROW(CheckDialogPtr(&p_dlg));
@@ -2428,7 +2428,7 @@ public:
 				SBuffer param;
 				TSessCreateFilt filt;
 				p_app->LastCmd = (cmdID) ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
-				THROW_PP(pParam, PPERR_INVPARAM);
+				THROW_INVARG(pParam);
 				param = *pParam;
 				if(!param.GetAvailableSize()) {
 					if(EditParam(&param, cmdID, extra) > 0) {
@@ -2498,7 +2498,7 @@ public:
 		CTableOrder cto;
 		CTableOrder::Param param;
 		SSerializeContext ctx;
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
 		sav_offs = pParam->GetRdOffs();
 		if(pParam->GetAvailableSize())
 			THROW(param.Serialize(-1, *pParam, &ctx));
@@ -2525,7 +2525,7 @@ public:
 				SBuffer param_buf;
 				CTableOrder::Param param;
 				p_app->LastCmd = (cmdID) ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
-				THROW_PP(pParam, PPERR_INVPARAM);
+				THROW_INVARG(pParam);
 				param_buf = *pParam;
 				if(param_buf.GetAvailableSize()) {
 					SSerializeContext ctx;
@@ -2558,7 +2558,7 @@ public:
 		int    ok = -1;
 		size_t sav_offs = 0;
 		QuotUpdFilt filt;
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
 		sav_offs = pParam->GetRdOffs();
 		if(!pParam->GetAvailableSize()) {
 			filt.LocList.Add(LConfig.Location);
@@ -2589,7 +2589,7 @@ public:
 				QuotUpdFilt filt;
 				SBuffer param;
 				p_app->LastCmd = (cmdID) ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
-				THROW_PP(pParam, PPERR_INVPARAM);
+				THROW_INVARG(pParam);
 				param = *pParam;
 				if(!param.GetAvailableSize()) {
 					if(EditParam(&param, cmdID, extra) > 0) {
@@ -2625,7 +2625,7 @@ public:
 		size_t sav_offs = 0;
 		ObjTransmitParam trnsm_param;
 		QuotUpdFilt filt;
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
 
 		sav_offs = pParam->GetRdOffs();
 		if(pParam->GetAvailableSize())
@@ -2652,7 +2652,7 @@ public:
 			SBuffer param;
 			((PPApp*)APPL)->LastCmd = (cmdID) ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
 
-			THROW_PP(pParam, PPERR_INVPARAM);
+			THROW_INVARG(pParam);
 			param = *pParam;
 			if(!param.GetAvailableSize()) {
 				if(EditParam(&param, cmdID, extra) > 0) {
@@ -2739,7 +2739,7 @@ public:
 			LongArray dt_list;
 			StrAssocArray codes_list;
 			PPInputStringDialogParam isd_param;
-			THROW_PP(pParam, PPERR_INVPARAM);
+			THROW_INVARG(pParam);
 			sav_offs = pParam->GetRdOffs();
 			pParam->Read(srch_str);
 			((PPApp*)APPL)->LastCmd = D.MenuCm;
@@ -3210,7 +3210,7 @@ public:
 		int    ok = -1;
 		size_t sav_offs = 0;
 		AddPersonEventFilt filt;
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
         sav_offs = pParam->GetRdOffs();
 		filt.Read(*pParam, 0);
 		if(filt.Edit() > 0) {

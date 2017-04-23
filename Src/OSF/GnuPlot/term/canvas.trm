@@ -254,14 +254,14 @@ static void CANVAS_options(GpCommand & rC)
 			case CANVAS_TITLE:
 			    CANVAS_title = rC.TryToGetString();
 			    if(!CANVAS_title)
-				    GpGg.IntError(rC, rC.CToken, "expecting an HTML title string");
+				    GpGg.IntErrorCurToken("expecting an HTML title string");
 			    break;
 			case CANVAS_NAME:
 			    CANVAS_name = rC.TryToGetString();
 			    if(!CANVAS_name)
-				    GpGg.IntError(rC, rC.CToken, "expecting a javascript function name");
+				    GpGg.IntErrorCurToken("expecting a javascript function name");
 			    if(CANVAS_name[strspn(CANVAS_name, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_1234567890")])
-				    GpGg.IntError(rC, rC.CToken-1, "illegal javascript function name");
+				    GpGg.IntError(rC.CToken-1, "illegal javascript function name");
 			    CANVAS_standalone = false;
 			    break;
 			case CANVAS_STANDALONE:
@@ -271,7 +271,7 @@ static void CANVAS_options(GpCommand & rC)
 			    /* FIXME: See note at CANVAS_set_font() */
 			    free(canvas_font_name);
 			    if(!(canvas_font_name = rC.TryToGetString()))
-				    GpGg.IntError(rC, rC.CToken, "font: expecting string");
+				    GpGg.IntErrorCurToken("font: expecting string");
 			    CANVAS_set_font(canvas_font_name);
 			    break;
 			case CANVAS_FSIZE:

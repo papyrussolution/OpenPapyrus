@@ -2240,7 +2240,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 					for(int valid_data = 0; !valid_data && GObj.GSObj.EditDialog(&Data.GS) > 0;) {
 						valid_data = 1;
 						if(Data.GS.IsNamed())
-							if(disable_confirm || PPMessage(mfConf|mfYes|mfNo, PPCFM_MODIFYNAMEDGS, 0) == cmYes) {
+							if(disable_confirm || PPMessage(mfConf|mfYes|mfNo, PPCFM_MODIFYNAMEDGS) == cmYes) {
 								disable_confirm = 1;
 								if(!GObj.GSObj.Put(&Data.GS.Rec.ID, &Data.GS, 1))
 									valid_data = PPErrorZ();

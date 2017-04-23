@@ -3,8 +3,8 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <albatros.h>
-#include <idea.h>
+// @v9.6.3 @obsolete #include <albatros.h>
+// @v9.6.3 #include <idea.h>
 
 class AlbatrosConfigDialog : public TDialog {
 public:
@@ -419,11 +419,13 @@ int SLAPI PPAlbatrosCfgMngr::Edit()
 	return ok;
 }
 
+#if 0 // @v9.6.3 @obsolete {
 void SLAPI AlbatrosOrder::Init()
 {
 	MEMSZERO(Head);
 	Items.freeAll();
 }
+#endif // } 0 @v9.6.3 @obsolete
 #if 0 // @v9.3.8 @obsolete {
 //
 // AlbatrosTagParser
@@ -1030,7 +1032,7 @@ int SLAPI UhttGoodsValueMgr::Set(const UhttGoodsValue * pRec, int use_ta)
 	SString temp_buf;
 	LDATETIME dtm;
 	UhttPriceTbl::Key0 k0;
-	THROW_PP(pRec, PPERR_INVPARAM);
+	THROW_INVARG(pRec);
 	THROW_PP_S(pRec->SellerLocID, PPERR_UHTTPRICE_INVSELLERLOCID, pRec->SellerLocID);
 	THROW_PP_S(pRec->Price >= 0.0 && pRec->Price < 1.e9, PPERR_UHTTPRICE_INVPRICE, (temp_buf = 0).Cat(pRec->Price, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
 	{

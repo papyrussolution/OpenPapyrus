@@ -29,507 +29,6 @@ destination:
 	query-refs [objtype]
 		tokObjType
 */
-
-class PPPosProtocol {
-public:
-	enum {
-		tokUnkn = 0,
-		tokPapyrusAsyncPosInterchange = 1,
-		tokRefs,
-		tokWare,
-		tokCard,
-		tokOwner,
-		tokId,
-		tokCode,
-		tokParent,
-		tokName,
-		tokRank,
-		tokPrice,
-		tokDiscount,
-		tokReturn,
-
-		tokGoodsGroup,
-		tokQuotKind,
-		tokQuot,
-		tokCurrency,
-		tokCurrencyRate,
-
-		tokCSession,
-		tokCCheck,
-		tokCcLine,
-
-		tokRestriction,
-		tokPeriod,
-		tokWeekday,
-		tokTimerange,
-		tokAmountrange,
-		tokLow,
-		tokUpp,
-		tokMinQtty,
-		tokExpiry,
-		tokValue,
-		tokKind,
-		tokTime,
-		tokSource,
-		tokDestination,
-		tokSystem,
-		tokVersion,
-		tokUuid,
-		tokFlags,
-		tokAmount,
-		tokQtty,
-		tokSumDiscount,
-		tokInnerId,
-		tokPos,
-		tokObj,
-		tokLast,
-		tokCurrent,
-
-		tokQueryCSession,
-		tokQueryRefs
-	};
-
-	SLAPI  PPPosProtocol();
-	SLAPI ~PPPosProtocol();
-
-	struct WriteBlock {
-		SLAPI  WriteBlock()
-		{
-			P_Xw = 0;
-			P_Xd = 0;
-			P_Root = 0;
-		}
-		SLAPI ~WriteBlock()
-		{
-			Destroy();
-		}
-		void   Destroy()
-		{
-			ZDELETE(P_Root);
-			ZDELETE(P_Xd);
-			xmlFreeTextWriter(P_Xw);
-			P_Xw = 0;
-			UsedQkList.freeAll();
-		}
-		xmlTextWriter * P_Xw;
-		SXml::WDoc * P_Xd;
-		SXml::WNode * P_Root;
-		PPIDArray NeededQkList;
-		PPIDArray UsedQkList;
-	};
-	struct RouteBlock {
-		RouteBlock()
-		{
-			Uuid.SetZero();
-		}
-		void   Destroy()
-		{
-			Uuid.SetZero();
-			System = 0;
-			Version = 0;
-			Code = 0;
-		}
-		int    IsEmpty() const
-		{
-			return BIN(Uuid.IsZero() && System.Empty() && Version.Empty() && Code.Empty());
-		}
-		S_GUID Uuid;
-		SString System;
-		SString Version;
-		SString Code;
-	};
-	int    SLAPI StartWriting(const char * pFileName, PPPosProtocol::WriteBlock & rB);
-	int    SLAPI FinishWriting(WriteBlock & rB);
-	int    SLAPI WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, const AsyncCashGoodsInfo & rInfo, const PPQuotArray * pQList);
-	int    SLAPI WriteGoodsGroupInfo(WriteBlock & rB, const char * pScopeXmlTag, const AsyncCashGoodsGroupInfo & rInfo, const PPQuotArray * pQList);
-	int    SLAPI WriteSCardInfo(WriteBlock & rB, const char * pScopeXmlTag, const AsyncCashSCardInfo & rInfo);
-	int    SLAPI WritePersonInfo(WriteBlock & rB, const char * pScopeXmlTag, PPID codeRegTypeID, const PPPersonPacket & rPack);
-	int    SLAPI WriteQuotInfo(WriteBlock & rB, const char * pScopeXmlTag, PPID parentObj, const PPQuot & rInfo);
-	int    SLAPI WriteQuotKindInfo(WriteBlock & rB, const char * pScopeXmlTag, const PPQuotKind & rInfo);
-	int    SLAPI WriteRouteInfo(WriteBlock & rB, const char * pScopeXmlTag, RouteBlock & rInfo);
-	int    SLAPI WritePosNode(WriteBlock & rB, const char * pScopeXmlTag, PPCashNode & rInfo);
-
-	int    SLAPI WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, const CSessionTbl::Rec & rInfo);
-
-    int    SLAPI SendReferences(PPID nodeID, int updOnly, PPID sinceDlsID, DeviceLoadingStat * pDls, const char * pFileName);
-	//
-	// Descr: Разбирает входящий документ из файла pFileName и складывает данные в объект RdB.
-	//   После разбора данные в RdB могут быть импортированы.
-	//
-	int    SLAPI SaxParseFile(const char * pFileName);
-	int    SLAPI AcceptData();
-    int    SLAPI DestroyReadBlock();
-
-	enum {
-		obUnkn = 0,
-		obGoods = 1,
-		obGoodsGroup,
-		obPerson,
-		obGoodsCode,
-		obSCard,
-		obParent,
-		obQuotKind,
-		obQuot,
-		obSource,
-		obDestination,
-		obCSession,
-		obCCheck,
-		obCcLine,
-		obPosNode,
-		obQuery
-	};
-
-	struct QueryBlock {
-		QueryBlock()
-		{
-			THISZERO();
-		}
-        enum {
-        	qUnkn = 0,
-        	qCSession = 1,
-        	qRefs
-        };
-        enum {
-        	fCSessN       = 0x0001, // CSess - номер сессии
-        	fCSessLast    = 0x0002,
-        	fCSessCurrent = 0x0004
-        };
-        int    Q;
-        long   Flags;
-		DateRange Period;
-		PPID   CSess;   // Идентификатор или номер сессии (в зависимости от флага fCSessN)
-		PPID   ObjType; // Если Q==qRef, то здесь может быть указан тип объекта ()
-	};
-	struct ObjectBlock {
-		ObjectBlock();
-		enum {
-			fReady   = 0x0001,
-			fRefItem = 0x0002  // Блок создан как внутренняя ссылка. По такому блоку объект следует создавать
-				// только после того, как были перебраны блоки не имеющие такого флага.
-		};
-		long   Flags;
-		long   ID;       // Идентификатор объекта в источнике данных
-		long   NativeID; // Идентификатор объекта в нашей базе данных
-		uint   NameP;
-	};
-	struct ParentBlock {
-        ParentBlock();
-
-        long   ID;
-        uint   CodeP;
-	};
-	struct GoodsCode {
-		GoodsCode();
-
-		uint   GoodsBlkP;
-		uint   CodeP;
-        long   Pack;
-	};
-	struct QuotBlock {
-		QuotBlock()
-		{
-			THISZERO();
-		}
-		enum {
-			fGroup  = 0x0001 // Котировка относится к товарной группе (иначе - к товару)
-		};
-		long   BlkFlags; // Флаги, определяющие специфику блока (не проецируются на флаги котировок)
-		union {
-			uint   GoodsBlkP;
-			uint   GoodsGroupBlkP;
-		};
-		uint   QuotKindBlkP;
-		long   MinQtty;
-		DateRange Period;
-		double Value;
-		long   Flags;
-	};
-	struct PosNodeBlock : public ObjectBlock {
-		PosNodeBlock() : ObjectBlock()
-		{
-		}
-        uint   CodeP; // Символьное представление кода узла
-        long   CodeI; // Целочисленное значение кода узла
-	};
-	struct QuotKindBlock : public ObjectBlock {
-        QuotKindBlock() : ObjectBlock()
-        {
-        	CodeP = 0;
-			Rank = 0;
-			Reserve = 0;
-        	Period.SetZero();
-			TimeRestriction.SetZero();
-			AmountRestriction.Clear();
-        }
-		uint   CodeP;
-		int16   Rank;
-		uint16  Reserve;
-		TimeRange TimeRestriction;
-		DateRange Period;
-		RealRange AmountRestriction;
-	};
-	struct GoodsBlock : public ObjectBlock {
-		GoodsBlock() : ObjectBlock()
-		{
-			ParentBlkP = 0;
-			InnerId = 0;
-			Price = 0.0;
-		}
-		PPID   ParentBlkP;
-		long   InnerId;
-		double Price;
-	};
-	struct GoodsGroupBlock : public ObjectBlock {
-		GoodsGroupBlock() : ObjectBlock()
-		{
-			CodeP = 0;
-			ParentBlkP = 0;
-		}
-		uint   CodeP;
-		PPID   ParentBlkP;
-	};
-	struct PersonBlock : public ObjectBlock {
-		PersonBlock() : ObjectBlock()
-		{
-			CodeP = 0;
-		}
-		uint   CodeP;
-	};
-	struct SCardBlock : public ObjectBlock {
-		SCardBlock() : ObjectBlock()
-		{
-			CodeP = 0;
-			OwnerBlkP = 0;
-			Discount = 0.0;
-		}
-		uint   CodeP;
-		uint   OwnerBlkP;
-		double Discount;
-	};
-	struct CSessionBlock : public ObjectBlock {
-		CSessionBlock() : ObjectBlock()
-		{
-			ID = 0;
-			Code = 0;
-			PosBlkP = 0;
-			Dtm.SetZero();
-		}
-        long   ID;
-        long   Code;
-        uint   PosBlkP;
-        LDATETIME Dtm;
-	};
-	struct CCheckBlock : public ObjectBlock {
-		CCheckBlock() : ObjectBlock()
-		{
-			Code = 0;
-			CcFlags = 0;
-			SaCcFlags = 0;
-			CTableN = 0;
-			GuestCount = 0;
-			CSessionBlkP = 0;
-			AddrBlkP = 0;
-			AgentBlkP = 0;
-			Amount = 0.0;
-			Discount = 0.0;
-			Dtm.SetZero();
-			CreationDtm.SetZero();
-			SCardBlkP = 0;
-			MemoP = 0;
-		}
-		long   Code;
-		long   CcFlags;   // CCHKF_XXX Значения флагов чека, принимаемые из общего тега <flags>
-		long   SaCcFlags; // CCHKF_XXX Значения флагов чека, принимаемые из специализированных тегов. Например <return>
-			// Необходимо проверить, что бы CcFlags и SaCcFlags не конфликтовали
-		long   CTableN;
-		long   GuestCount;
-		uint   CSessionBlkP;
-		uint   AddrBlkP;
-		uint   AgentBlkP;
-		double Amount;
-		double Discount;
-		LDATETIME CreationDtm;
-		LDATETIME Dtm;
-		uint   SCardBlkP;
-		uint   MemoP;
-	};
-	struct CcLineBlock : public ObjectBlock {
-		CcLineBlock() : ObjectBlock()
-		{
-			CcID = 0;
-			RByCheck = 0; // (id)
-			CclFlags = 0;
-			DivN = 0;
-			Queue = 0;
-			GoodsBlkP = 0;
-			Qtty = 0.0;
-			Price = 0.0;
-			Discount = 0.0;
-			SumDiscount = 0.0;
-			Amount = 0.0;
-			CCheckBlkP = 0;
-			SerialP = 0;
-			EgaisMarkP = 0;
-		}
-		long   CcID;
-        long   RByCheck; // (id)
-        long   CclFlags;
-        long   DivN;
-        long   Queue;
-        uint   GoodsBlkP;
-        double Qtty;
-        double Price;
-        double Discount;
-        double SumDiscount;
-		double Amount;
-        uint   CCheckBlkP;
-        uint   SerialP;
-        uint   EgaisMarkP;
-	};
-	struct RouteObjectBlock : public ObjectBlock {
-		RouteObjectBlock();
-
-		int    Direction; // 0 - undef, 1 - source, 2 - destination
-		uint   SystemP;
-		uint   VersionP;
-		uint   CodeP;
-        S_GUID Uuid;
-	};
-	struct ObjBlockRef {
-		ObjBlockRef(int t, uint pos)
-		{
-			Type = t;
-			P = pos;
-		}
-		int    Type;
-		uint   P;
-	};
-	struct ReadBlock : SStrGroup {
-		SLAPI  ReadBlock();
-		SLAPI ~ReadBlock();
-		void   SLAPI Destroy();
-		//
-		// Descr: Копирует структуры, необходимые для анализа данных после разбора xml-потока
-		//
-		ReadBlock & Copy(const ReadBlock & rS)
-		{
-			Destroy();
-			SStrGroup::CopyS(rS);
-			#define CPY_FLD(f) f = rS.f
-			CPY_FLD(SrcBlkList);
-			CPY_FLD(DestBlkList);
-			CPY_FLD(GoodsBlkList);
-			CPY_FLD(GoodsGroupBlkList);
-			CPY_FLD(GoodsCodeList);
-			CPY_FLD(QkBlkList);
-			CPY_FLD(QuotBlkList);
-			CPY_FLD(PersonBlkList);
-			CPY_FLD(SCardBlkList);
-			CPY_FLD(ParentBlkList);
-			CPY_FLD(PosBlkList);
-			CPY_FLD(CSessBlkList);
-			CPY_FLD(CcBlkList);
-			CPY_FLD(CclBlkList);
-			CPY_FLD(QueryList);
-			CPY_FLD(RefList);
-			#undef CPY_FLD
-			return *this;
-		}
-
-		template <class B> int SLAPI Helper_CreateItem(TSArray <B> & rList, int type, uint * pRefPos)
-		{
-			int    ok = 1;
-			ObjBlockRef ref(type, rList.getCount());
-			B new_blk;
-			THROW_SL(rList.insert(&new_blk));
-			ASSIGN_PTR(pRefPos, RefList.getCount());
-			THROW_SL(RefList.insert(&ref));
-			CATCHZOK
-			return ok;
-		}
-		int    SLAPI CreateItem(int type, uint * pRefPos);
-		void * SLAPI GetItem(uint refPos, int * pType) const;
-		int    SLAPI SearchRef(int type, uint pos, uint * pRefPos) const;
-		int    SLAPI SearchAnalogRef_QuotKind(const QuotKindBlock & rBlk, uint exclPos, uint * pRefPos) const;
-		const QuotKindBlock * FASTCALL SearchAnalog_QuotKind(const QuotKindBlock & rBlk) const;
-		//
-		// Descr: Находит входящий аналог блока персоналии rBlk с идентифицированным
-		//   NativeID.
-		// Returns:
-		//   Указатель на найденный блок-аналог
-		//   Если поиск оказался безуспешным, то возвращает 0
-		//
-		const PersonBlock * FASTCALL SearchAnalog_Person(const PersonBlock & rBlk) const;
-
-		xmlParserCtxt * P_SaxCtx;
-
-		enum {
-			stHeaderOccured = 0x0001,
-			stError         = 0x0002
-		};
-
-		int    State;
-
-		SString TagValue;
-		TSStack <int> TokPath;
-		TSStack <uint> RefPosStack; //
-
-		TSArray <RouteObjectBlock> SrcBlkList;
-		TSArray <RouteObjectBlock> DestBlkList;
-		TSArray <GoodsBlock> GoodsBlkList;
-		TSArray <GoodsGroupBlock> GoodsGroupBlkList;
-		TSArray <GoodsCode> GoodsCodeList;
-		TSArray <QuotKindBlock> QkBlkList;
-		TSArray <QuotBlock> QuotBlkList;
-		TSArray <PersonBlock> PersonBlkList;
-		TSArray <SCardBlock> SCardBlkList;
-		TSArray <ParentBlock> ParentBlkList; // Список абстрактных блоков, идентифицирующих родительских элементов объектов
-		TSArray <PosNodeBlock> PosBlkList;
-		TSArray <CSessionBlock> CSessBlkList;
-		TSArray <CCheckBlock> CcBlkList;
-		TSArray <CcLineBlock> CclBlkList;
-		TSArray <QueryBlock> QueryList;
-		TSArray <ObjBlockRef> RefList;
-	};
-
-	const ReadBlock & GetReadBlock() const
-	{
-		return RdB;
-	}
-	int    SLAPI ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int asRefOnly, PPID defParentID, PPID defUnitID, PPID srcArID, PPID * pNativeID);
-private:
-	static void Scb_StartDocument(void * ptr);
-	static void Scb_EndDocument(void * ptr);
-	static void Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList);
-	static void Scb_EndElement(void * ptr, const xmlChar * pName);
-	static void Scb_Characters(void * ptr, const uchar * pC, int len);
-
-	int    StartDocument();
-	int    EndDocument();
-	int    StartElement(const char * pName, const char ** ppAttrList);
-	int    EndElement(const char * pName);
-	int    Characters(const char * pS, size_t len);
-	int    SaxStop();
-
-	const  SString & FASTCALL EncText(const char * pS);
-	void   FASTCALL Helper_AddStringToPool(uint * pPos);
-	int    FASTCALL Helper_PushQuery(int queryType);
-	QueryBlock * Helper_RenewQuery(uint & rRefPos, int queryType);
-	int    SLAPI Accept_Person(PPPosProtocol::PersonBlock & rBlk, PPID kindID);
-	int    SLAPI CreateGoodsGroup(const GoodsGroupBlock & rBlk, int isFolder, PPID * pID);
-	int    SLAPI CreateParentGoodsGroup(const ParentBlock & rBlk, int isFolder, PPID * pID);
-
-	SString EncBuf;
-	PPObjPerson PsnObj;
-	ReadBlock RdB;
-
-	PPObjGoods GObj;
-	PPObjGoodsGroup GgObj;
-	PPObjQuotKind QkObj;
-	PPObjCSession CsObj;
-	PPObjSCard  ScObj;
-};
-
 class ACS_PAPYRUS_APN : public PPAsyncCashSession {
 public:
 	SLAPI  ACS_PAPYRUS_APN(PPID n, PPID parent) : PPAsyncCashSession(n), ParentNodeID(parent)
@@ -751,6 +250,82 @@ REGISTER_CMT(PAPYRUS,0,1);
 //virtual
 int SLAPI ACS_PAPYRUS_APN::ExportData(int updOnly)
 {
+	return Pp.ExportDataForPosNode(NodeID, updOnly, SinceDlsID);
+}
+
+int SLAPI PPPosProtocol::WriteSourceRoute(WriteBlock & rB)
+{
+	int    ok = 1;
+	DbProvider * p_dict = CurDict;
+	PPPosProtocol::RouteBlock rb;
+	PPVersionInfo vi = DS.GetVersionInfo();
+	vi.GetProductName(rb.System);
+	vi.GetVersion().ToStr(rb.Version);
+	if(p_dict) {
+		p_dict->GetDbUUID(&rb.Uuid);
+		p_dict->GetDbSymb(rb.Code);
+	}
+	THROW(WriteRouteInfo(rB, "source", rb));
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPPosProtocol::SendQuery(const PPPosProtocol::QueryBlock & rQ)
+{
+	int    ok = 1;
+	SString out_file_name;
+	SString temp_buf;
+	THROW(oneof3(rQ.Q, QueryBlock::qTest, QueryBlock::qRefs, QueryBlock::qCSession));
+	THROW(SelectOutFileName(0, "query", out_file_name));
+	{
+		PPPosProtocol::WriteBlock wb;
+		THROW(StartWriting(out_file_name, wb));
+		{
+			THROW(WriteSourceRoute(wb));
+			{
+				PPPosProtocol::RouteBlock rb;
+				THROW(WriteRouteInfo(wb, "destination", rb));
+			}
+		}
+		{
+			if(rQ.Q == QueryBlock::qCSession) {
+				SXml::WNode w_s(wb.P_Xw, "query-csession");
+				if(rQ.Flags & QueryBlock::fCSessCurrent) {
+					w_s.PutInner("current", 0);
+				}
+				else if(rQ.Flags & QueryBlock::fCSessLast) {
+					w_s.PutInner("last", 0);
+				}
+				else if(!rQ.Period.IsZero()) {
+					THROW(checkdate(rQ.Period.low, 1) && checkdate(rQ.Period.upp, 1));
+					temp_buf = 0;
+					if(rQ.Period.low)
+						temp_buf.Cat(rQ.Period.low, DATF_ISO8601|DATF_CENTURY);
+					temp_buf.Dot().Dot();
+					if(rQ.Period.upp)
+						temp_buf.Cat(rQ.Period.upp, DATF_ISO8601|DATF_CENTURY);
+					w_s.PutInner("period", temp_buf);
+				}
+				else if(rQ.CSess) {
+					(temp_buf = 0).Cat(rQ.CSess);
+					w_s.PutInner((rQ.Flags & QueryBlock::fCSessN) ? "code" : "id", temp_buf);
+				}
+			}
+			else if(rQ.Q == QueryBlock::qRefs) {
+				SXml::WNode w_s(wb.P_Xw, "query-refs");
+			}
+			else if(rQ.Q == QueryBlock::qTest) {
+				SXml::WNode w_s(wb.P_Xw, "query-test");
+			}
+		}
+		FinishWriting(wb);
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsID)
+{
 	int    ok = 1;
 	PPIDArray qk_list; // Список идентификаторов видов котировок, которые должны выгружаться
 	PPIDArray used_qk_list; // Список идентификаторов видов котировок, которые выгружались
@@ -762,58 +337,79 @@ int SLAPI ACS_PAPYRUS_APN::ExportData(int updOnly)
 	PPObjGoods goods_obj;
 
 	PPAsyncCashNode cn_data;
-	THROW(GetNodeData(&cn_data) > 0);
+	//THROW(GetNodeData(&cn_data) > 0);
+	PPObjCashNode cnobj;
+	THROW(cnobj.GetAsync(nodeID, &cn_data) > 0);
+	/*
+	if(r > 0) {
+		CnFlags = pData->Flags;
+		CnExtFlags = pData->ExtFlags;
+	}
+	return r;
+	*/
 
 	PPWait(1);
-	THROW(PPGetFilePath(PPPATH_OUT, "papyrus-refs.xml", out_file_name));
-	THROW(Pp.StartWriting(out_file_name, wb));
+	THROW(SelectOutFileName(0, "refs", out_file_name));
 	{
-		PPQuotKind qk_rec;
-        for(SEnum en = qk_obj.Enum(0); en.Next(&qk_rec) > 0;) {
-			if(qk_rec.ID == PPQUOTK_BASE || (qk_rec.Flags & QUOTKF_RETAILED)) {
-				qk_list.add(qk_rec.ID);
-			}
-        }
-        qk_list.sortAndUndup();
-	}
-	{
-		DbProvider * p_dict = CurDict;
-		PPPosProtocol::RouteBlock rb;
-		PPVersionInfo vi = DS.GetVersionInfo();
-		vi.GetProductName(rb.System);
-		vi.GetVersion().ToStr(rb.Version);
-        if(p_dict) {
-			p_dict->GetDbUUID(&rb.Uuid);
-			p_dict->GetDbSymb(rb.Code);
-        }
-        THROW(Pp.WriteRouteInfo(wb, "source", rb));
-	}
-	{
-		PPPosProtocol::RouteBlock rb;
-		rb.System = "Papyrus";
-        THROW(Pp.WriteRouteInfo(wb, "destination", rb));
-	}
-	/*
-	{
-		SXml::WNode n_scope(wb.P_Xw, "destination");
-	}
-	*/
-	{
-		SXml::WNode n_scope(wb.P_Xw, "refs");
-		THROW_MEM(SETIFZ(P_Dls, new DeviceLoadingStat));
+		DeviceLoadingStat dls;
+		PPID   stat_id = 0;
+		dls.StartLoading(&stat_id, dvctCashs, nodeID, 1);
+		THROW(StartWriting(out_file_name, wb));
 		{
-			long   acgi_flags = ACGIF_ALLCODESPERITER;
-			PPQuotArray qlist;
-			if(updOnly)
-				acgi_flags |= ACGIF_UPDATEDONLY;
-			AsyncCashGoodsIterator acgi(NodeID, acgi_flags, SinceDlsID, P_Dls);
-			if(cn_data.Flags & CASHF_EXPGOODSGROUPS) {
-				AsyncCashGoodsGroupInfo acggi_info;
-				AsyncCashGoodsGroupIterator * p_group_iter = acgi.GetGroupIterator();
-				if(p_group_iter) {
-					while(p_group_iter->Next(&acggi_info) > 0) {
+			PPQuotKind qk_rec;
+			for(SEnum en = qk_obj.Enum(0); en.Next(&qk_rec) > 0;) {
+				if(qk_rec.ID == PPQUOTK_BASE || (qk_rec.Flags & QUOTKF_RETAILED)) {
+					qk_list.add(qk_rec.ID);
+				}
+			}
+			qk_list.sortAndUndup();
+		}
+		THROW(WriteSourceRoute(wb));
+		{
+			PPPosProtocol::RouteBlock rb;
+			rb.System = "Papyrus";
+			THROW(WriteRouteInfo(wb, "destination", rb));
+		}
+		/*
+		{
+			SXml::WNode n_scope(wb.P_Xw, "destination");
+		}
+		*/
+		{
+			SXml::WNode n_scope(wb.P_Xw, "refs");
+			{
+				long   acgi_flags = ACGIF_ALLCODESPERITER;
+				PPQuotArray qlist;
+				if(updOnly)
+					acgi_flags |= ACGIF_UPDATEDONLY;
+				AsyncCashGoodsIterator acgi(nodeID, acgi_flags, sinceDlsID, &dls);
+				if(cn_data.Flags & CASHF_EXPGOODSGROUPS) {
+					AsyncCashGoodsGroupInfo acggi_info;
+					AsyncCashGoodsGroupIterator * p_group_iter = acgi.GetGroupIterator();
+					if(p_group_iter) {
+						while(p_group_iter->Next(&acggi_info) > 0) {
+							qlist.clear();
+							goods_obj.GetQuotList(acggi_info.ID, cn_data.LocID, qlist);
+							{
+								uint qp = qlist.getCount();
+								if(qp) do {
+									PPQuot & r_q = qlist.at(--qp);
+									if(!qk_list.bsearch(r_q.Kind))
+										qlist.atFree(qp);
+									else
+										used_qk_list.addUnique(r_q.Kind);
+								} while(qp);
+							}
+							THROW(WriteGoodsGroupInfo(wb, "goodsgroup", acggi_info, &qlist));
+						}
+					}
+				}
+				{
+					// Товары
+					AsyncCashGoodsInfo acgi_item;
+					while(acgi.Next(&acgi_item) > 0) {
 						qlist.clear();
-						goods_obj.GetQuotList(acggi_info.ID, cn_data.LocID, qlist);
+						goods_obj.GetQuotList(acgi_item.ID, cn_data.LocID, qlist);
 						{
 							uint qp = qlist.getCount();
 							if(qp) do {
@@ -824,72 +420,55 @@ int SLAPI ACS_PAPYRUS_APN::ExportData(int updOnly)
 									used_qk_list.addUnique(r_q.Kind);
 							} while(qp);
 						}
-						THROW(Pp.WriteGoodsGroupInfo(wb, "goodsgroup", acggi_info, &qlist));
+						THROW(WriteGoodsInfo(wb, "ware", acgi_item, &qlist));
+						PPWaitPercent(acgi.GetIterCounter());
 					}
 				}
 			}
 			{
-				// Товары
-				AsyncCashGoodsInfo acgi_item;
-				while(acgi.Next(&acgi_item) > 0) {
-					qlist.clear();
-					goods_obj.GetQuotList(acgi_item.ID, cn_data.LocID, qlist);
+				//
+				// Карты
+				//
+				LAssocArray scard_quot_list;
+				PPObjSCardSeries scs_obj;
+				PPSCardSeries scs_rec;
+				AsyncCashSCardsIterator acci(nodeID, updOnly, &dls, sinceDlsID);
+				for(PPID ser_id = 0, idx = 1; scs_obj.EnumItems(&ser_id, &scs_rec) > 0;) {
+					const int scs_type = scs_rec.GetType();
+					//if(scs_type == scstDiscount || (scs_type == scstCredit && CrdCardAsDsc)) {
 					{
-						uint qp = qlist.getCount();
-						if(qp) do {
-							PPQuot & r_q = qlist.at(--qp);
-							if(!qk_list.bsearch(r_q.Kind))
-								qlist.atFree(qp);
-							else
-								used_qk_list.addUnique(r_q.Kind);
-						} while(qp);
+						AsyncCashSCardInfo acci_item;
+						PPSCardSerPacket scs_pack;
+						if(scs_obj.GetPacket(ser_id, &scs_pack) > 0) {
+							if(scs_rec.QuotKindID_s)
+								THROW_SL(scard_quot_list.Add(scs_rec.ID, scs_rec.QuotKindID_s, 0));
+							(msg_buf = fmt_buf).CatDiv(':', 2).Cat(scs_rec.Name);
+							for(acci.Init(&scs_pack); acci.Next(&acci_item) > 0;) {
+								THROW(WriteSCardInfo(wb, "card", acci_item));
+								PPWaitPercent(acci.GetCounter(), msg_buf);
+							}
+						}
 					}
-					THROW(Pp.WriteGoodsInfo(wb, "ware", acgi_item, &qlist));
-					PPWaitPercent(acgi.GetIterCounter());
 				}
 			}
-		}
-		{
-			//
-			// Карты
-			//
-			LAssocArray scard_quot_list;
-			PPObjSCardSeries scs_obj;
-			PPSCardSeries scs_rec;
-			AsyncCashSCardsIterator acci(NodeID, updOnly, P_Dls, SinceDlsID);
-			for(PPID ser_id = 0, idx = 1; scs_obj.EnumItems(&ser_id, &scs_rec) > 0;) {
-				const int scs_type = scs_rec.GetType();
-				//if(scs_type == scstDiscount || (scs_type == scstCredit && CrdCardAsDsc)) {
-				{
-					AsyncCashSCardInfo acci_item;
-					PPSCardSerPacket scs_pack;
-					if(scs_obj.GetPacket(ser_id, &scs_pack) > 0) {
-						if(scs_rec.QuotKindID_s)
-							THROW_SL(scard_quot_list.Add(scs_rec.ID, scs_rec.QuotKindID_s, 0));
-						(msg_buf = fmt_buf).CatDiv(':', 2).Cat(scs_rec.Name);
-						for(acci.Init(&scs_pack); acci.Next(&acci_item) > 0;) {
-							THROW(Pp.WriteSCardInfo(wb, "card", acci_item));
-							PPWaitPercent(acci.GetCounter(), msg_buf);
+			{
+				//
+				// Виды котировок
+				//
+				if(used_qk_list.getCount()) {
+					PPQuotKind qk_rec;
+					for(uint i = 0; i < used_qk_list.getCount(); i++) {
+						if(qk_obj.Search(used_qk_list.get(i), &qk_rec) > 0) {
+							THROW(WriteQuotKindInfo(wb, "quotekind", qk_rec));
 						}
 					}
 				}
 			}
 		}
-		{
-			//
-			// Виды котировок
-			//
-			if(used_qk_list.getCount()) {
-				PPQuotKind qk_rec;
-                for(uint i = 0; i < used_qk_list.getCount(); i++) {
-					if(qk_obj.Search(used_qk_list.get(i), &qk_rec) > 0) {
-                        THROW(Pp.WriteQuotKindInfo(wb, "quotekind", qk_rec));
-					}
-                }
-			}
-		}
+		FinishWriting(wb);
+		if(stat_id)
+			dls.FinishLoading(stat_id, 1, 1);
 	}
-	Pp.FinishWriting(wb);
 	CATCHZOK
 	PPWait(0);
 	return ok;
@@ -897,7 +476,70 @@ int SLAPI ACS_PAPYRUS_APN::ExportData(int updOnly)
 //
 //
 //
-PPPosProtocol::ObjectBlock::ObjectBlock()
+SLAPI PPPosProtocol::WriteBlock::WriteBlock()
+{
+	P_Xw = 0;
+	P_Xd = 0;
+	P_Root = 0;
+}
+
+SLAPI PPPosProtocol::WriteBlock::~WriteBlock()
+{
+	Destroy();
+}
+
+void PPPosProtocol::WriteBlock::Destroy()
+{
+	ZDELETE(P_Root);
+	ZDELETE(P_Xd);
+	xmlFreeTextWriter(P_Xw);
+	P_Xw = 0;
+	UsedQkList.freeAll();
+}
+
+SLAPI PPPosProtocol::RouteBlock::RouteBlock()
+{
+	Uuid.SetZero();
+}
+
+void SLAPI PPPosProtocol::RouteBlock::Destroy()
+{
+	Uuid.SetZero();
+	System = 0;
+	Version = 0;
+	Code = 0;
+}
+
+int SLAPI PPPosProtocol::RouteBlock::IsEmpty() const
+{
+	return BIN(Uuid.IsZero() && System.Empty() && Version.Empty() && Code.Empty());
+}
+
+int FASTCALL PPPosProtocol::RouteBlock::IsEqual(const RouteBlock & rS) const
+{
+	int    yes = 1;
+	if(!Uuid.IsZero()) {
+		if(!rS.Uuid.IsZero())
+			yes = (Uuid == rS.Uuid);
+		else
+			yes = 0;
+	}
+	else if(!rS.Uuid.IsZero())
+		yes = 0;
+	else if(Code.NotEmpty()) {
+		if(rS.Code.NotEmpty())
+			yes = (Code == rS.Code);
+		else
+			yes = 0;
+	}
+	else if(rS.Code.NotEmpty())
+		yes = 0;
+	return yes;
+}
+//
+//
+//
+SLAPI PPPosProtocol::ObjectBlock::ObjectBlock()
 {
 	Flags = 0;
 	ID = 0;
@@ -905,23 +547,171 @@ PPPosProtocol::ObjectBlock::ObjectBlock()
 	NameP = 0;
 }
 
-PPPosProtocol::ParentBlock::ParentBlock()
+SLAPI PPPosProtocol::PosNodeBlock::PosNodeBlock() : ObjectBlock()
+{
+	CodeP = 0;
+	CodeI = 0;
+}
+
+SLAPI PPPosProtocol::QuotKindBlock::QuotKindBlock() : ObjectBlock()
+{
+    CodeP = 0;
+	Rank = 0;
+	Reserve = 0;
+    Period.SetZero();
+	TimeRestriction.SetZero();
+	AmountRestriction.Clear();
+}
+
+SLAPI PPPosProtocol::GoodsBlock::GoodsBlock() : ObjectBlock()
+{
+	ParentBlkP = 0;
+	InnerId = 0;
+	Price = 0.0;
+}
+
+SLAPI PPPosProtocol::GoodsGroupBlock::GoodsGroupBlock() : ObjectBlock()
+{
+	CodeP = 0;
+	ParentBlkP = 0;
+}
+
+SLAPI PPPosProtocol::PersonBlock::PersonBlock() : ObjectBlock()
+{
+	CodeP = 0;
+}
+
+SLAPI PPPosProtocol::SCardBlock::SCardBlock() : ObjectBlock()
+{
+	CodeP = 0;
+	OwnerBlkP = 0;
+	Discount = 0.0;
+}
+
+SLAPI PPPosProtocol::CSessionBlock::CSessionBlock() : ObjectBlock()
+{
+	ID = 0;
+	Code = 0;
+	PosBlkP = 0;
+	Dtm.SetZero();
+}
+
+SLAPI PPPosProtocol::CCheckBlock::CCheckBlock() : ObjectBlock()
+{
+	Code = 0;
+	CcFlags = 0;
+	SaCcFlags = 0;
+	CTableN = 0;
+	GuestCount = 0;
+	CSessionBlkP = 0;
+	AddrBlkP = 0;
+	AgentBlkP = 0;
+	Amount = 0.0;
+	Discount = 0.0;
+	Dtm.SetZero();
+	CreationDtm.SetZero();
+	SCardBlkP = 0;
+	MemoP = 0;
+}
+
+SLAPI PPPosProtocol::CcLineBlock::CcLineBlock() : ObjectBlock()
+{
+	CcID = 0;
+	RByCheck = 0; // (id)
+	CclFlags = 0;
+	DivN = 0;
+	Queue = 0;
+	GoodsBlkP = 0;
+	Qtty = 0.0;
+	Price = 0.0;
+	Discount = 0.0;
+	SumDiscount = 0.0;
+	Amount = 0.0;
+	CCheckBlkP = 0;
+	SerialP = 0;
+	EgaisMarkP = 0;
+}
+
+SLAPI PPPosProtocol::QueryBlock::QueryBlock()
+{
+	Init(qUnkn);
+}
+
+void FASTCALL PPPosProtocol::QueryBlock::Init(int q)
+{
+	THISZERO();
+	Q = oneof3(q, qTest, qCSession, qRefs) ? q : qUnkn;
+}
+
+void SLAPI PPPosProtocol::QueryBlock::SetQueryCSessionLast()
+{
+	Init(qCSession);
+	Flags = fCSessLast;
+}
+
+void SLAPI PPPosProtocol::QueryBlock::SetQueryCSessionCurrent()
+{
+	Init(qCSession);
+	Flags = fCSessCurrent;
+}
+
+void SLAPI PPPosProtocol::QueryBlock::SetQueryCSessionByID(PPID sessID)
+{
+	Init(qCSession);
+	CSess = sessID;
+}
+
+void SLAPI PPPosProtocol::QueryBlock::SetQueryCSessionByNo(long sessN)
+{
+	Init(qCSession);
+	Flags = fCSessN;
+	CSess = sessN;
+}
+
+void SLAPI PPPosProtocol::QueryBlock::SetQueryCSessionByDate(const DateRange & rPeriod)
+{
+	Init(qCSession);
+	Period = rPeriod;
+}
+
+void SLAPI PPPosProtocol::QueryBlock::SetQueryRefs()
+{
+	Init(qRefs);
+}
+
+void SLAPI PPPosProtocol::QueryBlock::SetQueryTest()
+{
+	Init(qTest);
+}
+
+SLAPI PPPosProtocol::QuotBlock::QuotBlock()
 {
 	THISZERO();
 }
 
-PPPosProtocol::GoodsCode::GoodsCode()
+SLAPI PPPosProtocol::ParentBlock::ParentBlock()
 {
 	THISZERO();
 }
 
-PPPosProtocol::RouteObjectBlock::RouteObjectBlock() : ObjectBlock()
+SLAPI PPPosProtocol::GoodsCode::GoodsCode()
+{
+	THISZERO();
+}
+
+SLAPI PPPosProtocol::RouteObjectBlock::RouteObjectBlock() : ObjectBlock()
 {
 	Direction = 0;
 	SystemP = 0;
 	VersionP = 0;
 	CodeP = 0;
 	Uuid.SetZero();
+}
+
+SLAPI PPPosProtocol::ObjBlockRef::ObjBlockRef(int t, uint pos)
+{
+	Type = t;
+	P = pos;
 }
 
 int  SLAPI PPPosProtocol::ReadBlock::CreateItem(int type, uint * pRefPos)
@@ -950,6 +740,31 @@ int  SLAPI PPPosProtocol::ReadBlock::CreateItem(int type, uint * pRefPos)
 	}
 	CATCHZOK
 	return ok;
+}
+
+PPPosProtocol::ReadBlock & FASTCALL PPPosProtocol::ReadBlock::Copy(const PPPosProtocol::ReadBlock & rS)
+{
+	Destroy();
+	SStrGroup::CopyS(rS);
+	#define CPY_FLD(f) f = rS.f
+	CPY_FLD(SrcBlkList);
+	CPY_FLD(DestBlkList);
+	CPY_FLD(GoodsBlkList);
+	CPY_FLD(GoodsGroupBlkList);
+	CPY_FLD(GoodsCodeList);
+	CPY_FLD(QkBlkList);
+	CPY_FLD(QuotBlkList);
+	CPY_FLD(PersonBlkList);
+	CPY_FLD(SCardBlkList);
+	CPY_FLD(ParentBlkList);
+	CPY_FLD(PosBlkList);
+	CPY_FLD(CSessBlkList);
+	CPY_FLD(CcBlkList);
+	CPY_FLD(CclBlkList);
+	CPY_FLD(QueryList);
+	CPY_FLD(RefList);
+	#undef CPY_FLD
+	return *this;
 }
 
 void * SLAPI PPPosProtocol::ReadBlock::GetItem(uint refPos, int * pType) const
@@ -1081,6 +896,17 @@ SLAPI PPPosProtocol::PPPosProtocol()
 
 SLAPI PPPosProtocol::~PPPosProtocol()
 {
+}
+
+int SLAPI PPPosProtocol::ReadBlock::GetRouteItem(const RouteObjectBlock & rO, RouteBlock & rR) const
+{
+	int    ok = 1;
+	rR.Destroy();
+	rR.Uuid = rO.Uuid;
+	GetS(rO.CodeP, rR.Code);
+	GetS(rO.SystemP, rR.System);
+	GetS(rO.VersionP, rR.Version);
+	return ok;
 }
 
 const SString & FASTCALL PPPosProtocol::EncText(const char * pS)
@@ -1530,266 +1356,204 @@ PPPosProtocol::QueryBlock * PPPosProtocol::Helper_RenewQuery(uint & rRefPos, int
 int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 {
 	int    ok = 1;
-	int    tok = tokUnkn;
 	uint   ref_pos = 0;
-	if(sstreqi_ascii(pName, "PapyrusAsyncPosInterchange")) {
-		tok = tokPapyrusAsyncPosInterchange;
+    (RdB.TempBuf = pName).ToLower();
+    int    tok = 0;
+    if(RdB.P_ShT) {
+		uint _ut = 0;
+		RdB.P_ShT->Search(RdB.TempBuf, &_ut, 0);
+		tok = _ut;
+    }
+    if(tok == PPHS_PPPP_START) {
 		RdB.State |= RdB.stHeaderOccured;
 	}
 	else {
 		THROW_PP(RdB.State & RdB.stHeaderOccured, PPERR_FILEISNTPPAPI);
-		if(sstreqi_ascii(pName, "source")) {
-			tok = tokSource;
-			THROW(RdB.CreateItem(obSource, &ref_pos));
-			RdB.RefPosStack.push(ref_pos);
-		}
-		else if(sstreqi_ascii(pName, "destination")) {
-			tok = tokDestination;
-			THROW(RdB.CreateItem(obDestination, &ref_pos));
-			RdB.RefPosStack.push(ref_pos);
-		}
-		else if(sstreqi_ascii(pName, "query-csession")) {
-			tok = tokQueryCSession;
-			THROW(Helper_PushQuery(QueryBlock::qCSession));
-		}
-		else if(sstreqi_ascii(pName, "query-refs")) {
-			tok = tokQueryRefs;
-			THROW(Helper_PushQuery(QueryBlock::qRefs));
-		}
-		else if(sstreqi_ascii(pName, "refs")) {
-			tok = tokRefs;
-		}
-		else if(sstreqi_ascii(pName, "pos")) {
-			tok = tokPos;
-
-			THROW(RdB.CreateItem(obPosNode, &ref_pos));
-			RdB.RefPosStack.push(ref_pos);
-		}
-		else if(sstreqi_ascii(pName, "ware")) {
-			tok = tokWare;
-
-			uint   link_ref_pos = RdB.RefPosStack.peek();
-			int    link_type = 0;
-			void * p_link_item = RdB.GetItem(link_ref_pos, &link_type);
-
-			THROW(RdB.CreateItem(obGoods, &ref_pos));
-			RdB.RefPosStack.push(ref_pos);
-
-			if(link_type == obCcLine) {
-				int    test_type = 0;
-				GoodsBlock * p_item = (GoodsBlock *)RdB.GetItem(ref_pos, &test_type);
-				assert(test_type == obGoods);
-				p_item->Flags |= ObjectBlock::fRefItem;
-			}
-		}
-		else if(sstreqi_ascii(pName, "goodsgroup")) {
-			tok = tokGoodsGroup;
-			THROW(RdB.CreateItem(obGoodsGroup, &ref_pos));
-			RdB.RefPosStack.push(ref_pos);
-		}
-		else if(sstreqi_ascii(pName, "card")) {
-			tok = tokCard;
-
-			uint   link_ref_pos = RdB.RefPosStack.peek();
-			int    link_type = 0;
-			void * p_link_item = RdB.GetItem(link_ref_pos, &link_type);
-
-			THROW(RdB.CreateItem(obSCard, &ref_pos));
-			RdB.RefPosStack.push(ref_pos);
-
-			if(link_type == obCCheck) {
-				int    test_type = 0;
-				SCardBlock * p_item = (SCardBlock *)RdB.GetItem(ref_pos, &test_type);
-				assert(test_type == obSCard);
-				p_item->Flags |= ObjectBlock::fRefItem;
-			}
-		}
-		else if(sstreqi_ascii(pName, "quote")) {
-			tok = tokQuot;
-			uint   link_ref_pos = RdB.RefPosStack.peek();
-			int    link_type = 0;
-			void * p_link_item = RdB.GetItem(link_ref_pos, &link_type);
-			THROW(RdB.CreateItem(obQuot, &ref_pos));
-			RdB.RefPosStack.push(ref_pos);
-			{
-				int    test_type = 0;
-				QuotBlock * p_item = (QuotBlock *)RdB.GetItem(ref_pos, &test_type);
-				assert(test_type == obQuot);
-				if(link_type == obGoods) {
-					p_item->GoodsBlkP = link_ref_pos; // Котировка ссылается на позицию товара, которому принадлежит
-				}
-				else if(link_type == obGoodsGroup) {
-					p_item->BlkFlags |= p_item->fGroup;
-					p_item->GoodsGroupBlkP = link_ref_pos; // Котировка ссылается на позицию товарной группы, которой принадлежит
-				}
-			}
-		}
-		else if(sstreqi_ascii(pName, "kind")) {
-			tok = tokKind;
-			ref_pos = RdB.RefPosStack.peek();
-			int  type = 0;
-			void * p_item = RdB.GetItem(ref_pos, &type);
-			if(type == obQuot) {
-				uint   qk_ref_pos = 0;
-				THROW(RdB.CreateItem(obQuotKind, &qk_ref_pos));
+		switch(tok) {
+			case PPHS_SOURCE:
+				THROW(RdB.CreateItem(obSource, &ref_pos));
+				RdB.RefPosStack.push(ref_pos);
+				break;
+			case PPHS_DESTINATION:
+				THROW(RdB.CreateItem(obDestination, &ref_pos));
+				RdB.RefPosStack.push(ref_pos);
+				break;
+			case PPHS_QUERYCSESS:
+				THROW(Helper_PushQuery(QueryBlock::qCSession));
+				break;
+			case PPHS_QUERYREFS:
+				THROW(Helper_PushQuery(QueryBlock::qRefs));
+				break;
+			case PPHS_POS:
+				THROW(RdB.CreateItem(obPosNode, &ref_pos));
+				RdB.RefPosStack.push(ref_pos);
+				break;
+			case PPHS_WARE:
 				{
-					int    test_type = 0;
-					QuotKindBlock * p_qk_blk = (QuotKindBlock *)RdB.GetItem(qk_ref_pos, &test_type);
-					assert(test_type == obQuotKind);
-					p_qk_blk->Flags |= ObjectBlock::fRefItem;
+					uint   link_ref_pos = RdB.RefPosStack.peek();
+					int    link_type = 0;
+					void * p_link_item = RdB.GetItem(link_ref_pos, &link_type);
+
+					THROW(RdB.CreateItem(obGoods, &ref_pos));
+					RdB.RefPosStack.push(ref_pos);
+
+					if(link_type == obCcLine) {
+						int    test_type = 0;
+						GoodsBlock * p_item = (GoodsBlock *)RdB.GetItem(ref_pos, &test_type);
+						assert(test_type == obGoods);
+						p_item->Flags |= ObjectBlock::fRefItem;
+					}
 				}
-				RdB.RefPosStack.push(qk_ref_pos);
-			}
-		}
-		else if(sstreqi_ascii(pName, "quotekind")) {
-			tok = tokQuotKind;
-			THROW(RdB.CreateItem(obQuotKind, &ref_pos));
-			RdB.RefPosStack.push(ref_pos);
-		}
-		else if(sstreqi_ascii(pName, "csession")) {
-			tok = tokCSession;
-			THROW(RdB.CreateItem(obCSession, &ref_pos));
-			RdB.RefPosStack.push(ref_pos);
-		}
-		else if(sstreqi_ascii(pName, "cc")) {
-			tok = tokCCheck;
-
-			uint   link_ref_pos = RdB.RefPosStack.peek();
-			int    link_type = 0;
-			void * p_link_item = RdB.GetItem(link_ref_pos, &link_type);
-
-			THROW(RdB.CreateItem(obCCheck, &ref_pos));
-			RdB.RefPosStack.push(ref_pos);
-			if(link_type == obCSession) {
-				int    test_type = 0;
-				CCheckBlock * p_item = (CCheckBlock *)RdB.GetItem(ref_pos, &test_type);
-				assert(test_type == obCCheck);
-				p_item->CSessionBlkP = link_ref_pos; // Чек ссылается на позицию сессии, которой принадлежит
-			}
-		}
-		else if(sstreqi_ascii(pName, "ccl")) {
-			tok = tokCcLine;
-
-			uint   link_ref_pos = RdB.RefPosStack.peek();
-			int    link_type = 0;
-			void * p_link_item = RdB.GetItem(link_ref_pos, &link_type);
-
-			THROW(RdB.CreateItem(obCcLine, &ref_pos));
-			RdB.RefPosStack.push(ref_pos);
-			if(link_type == obCCheck) {
-				int    test_type = 0;
-				CcLineBlock * p_item = (CcLineBlock *)RdB.GetItem(ref_pos, &test_type);
-				assert(test_type == obCcLine);
-				p_item->CCheckBlkP = link_ref_pos; // Строка ссылается на позицию чека, которому принадлежит
-			}
-		}
-		else if(sstreqi_ascii(pName, "owner")) {
-			tok = tokOwner;
-			THROW(RdB.CreateItem(obPerson, &ref_pos));
-			RdB.RefPosStack.push(ref_pos);
-		}
-		else if(sstreqi_ascii(pName, "parent")) {
-			tok = tokParent;
-			THROW(RdB.CreateItem(obParent, &ref_pos));
-			RdB.RefPosStack.push(ref_pos);
-		}
-		else if(sstreqi_ascii(pName, "code")) {
-			tok = tokCode;
-			ref_pos = RdB.RefPosStack.peek();
-			int  type = 0;
-			void * p_item = RdB.GetItem(ref_pos, &type);
-			if(type == obGoods) {
-				uint   goods_code_ref_pos = 0;
-				THROW(RdB.CreateItem(obGoodsCode, &goods_code_ref_pos));
-				RdB.RefPosStack.push(goods_code_ref_pos);
+				break;
+			case PPHS_GOODSGROUP:
+				THROW(RdB.CreateItem(obGoodsGroup, &ref_pos));
+				RdB.RefPosStack.push(ref_pos);
+				break;
+			case PPHS_CARD:
 				{
-					int    test_type = 0;
-					GoodsCode * p_item = (GoodsCode *)RdB.GetItem(goods_code_ref_pos, &test_type);
-					assert(test_type == obGoodsCode);
-					p_item->GoodsBlkP = ref_pos; // Код ссылается на позицию товара, которому принадлежит
+					uint   link_ref_pos = RdB.RefPosStack.peek();
+					int    link_type = 0;
+					void * p_link_item = RdB.GetItem(link_ref_pos, &link_type);
+					THROW(RdB.CreateItem(obSCard, &ref_pos));
+					RdB.RefPosStack.push(ref_pos);
+					if(link_type == obCCheck) {
+						int    test_type = 0;
+						SCardBlock * p_item = (SCardBlock *)RdB.GetItem(ref_pos, &test_type);
+						assert(test_type == obSCard);
+						p_item->Flags |= ObjectBlock::fRefItem;
+					}
 				}
-			}
-		}
-		else if(sstreqi_ascii(pName, "system")) {
-			tok = tokSystem;
-		}
-		else if(sstreqi_ascii(pName, "version")) {
-			tok = tokVersion;
-		}
-		else if(sstreqi_ascii(pName, "uuid")) {
-			tok = tokUuid;
-		}
-		else if(sstreqi_ascii(pName, "time")) {
-			tok = tokTime;
-		}
-		else if(sstreqi_ascii(pName, "id")) {
-			tok = tokId;
-		}
-		else if(sstreqi_ascii(pName, "name")) {
-			tok = tokName;
-		}
-		else if(sstreqi_ascii(pName, "rank")) {
-			tok = tokRank;
-		}
-		else if(sstreqi_ascii(pName, "price")) {
-			tok = tokPrice;
-		}
-		else if(sstreqi_ascii(pName, "discount")) {
-			tok = tokDiscount;
-		}
-		else if(sstreqi_ascii(pName, "return")) {
-			tok = tokReturn;
-		}
-		else if(sstreqi_ascii(pName, "restriction")) {
-			tok = tokRestriction;
-		}
-		else if(sstreqi_ascii(pName, "period")) {
-			tok = tokPeriod;
-		}
-		else if(sstreqi_ascii(pName, "weekday")) {
-			tok = tokWeekday;
-		}
-		else if(sstreqi_ascii(pName, "timerange")) {
-			tok = tokTimerange;
-		}
-		else if(sstreqi_ascii(pName, "amountrange")) {
-			tok = tokAmountrange;
-		}
-		else if(sstreqi_ascii(pName, "low")) {
-			tok = tokLow;
-		}
-		else if(sstreqi_ascii(pName, "upp")) {
-			tok = tokUpp;
-		}
-		else if(sstreqi_ascii(pName, "value")) {
-			tok = tokValue;
-		}
-		else if(sstreqi_ascii(pName, "expiry")) {
-			tok = tokExpiry;
-		}
-		else if(sstreqi_ascii(pName, "flags")) {
-			tok = tokFlags;
-		}
-		else if(sstreqi_ascii(pName, "amount")) {
-			tok = tokAmount;
-		}
-		else if(sstreqi_ascii(pName, "qtty")) {
-			tok = tokQtty;
-		}
-		else if(sstreqi_ascii(pName, "sumdiscount")) {
-			tok = tokSumDiscount;
-		}
-		else if(sstreqi_ascii(pName, "innerid")) {
-			tok = tokInnerId;
-		}
-		else if(sstreqi_ascii(pName, "obj")) {
-			tok = tokObj;
-		}
-		else if(sstreqi_ascii(pName, "last")) {
-			tok = tokLast;
-		}
-		else if(sstreqi_ascii(pName, "current")) {
-			tok = tokCurrent;
+				break;
+			case PPHS_QUOTE:
+				{
+					uint   link_ref_pos = RdB.RefPosStack.peek();
+					int    link_type = 0;
+					void * p_link_item = RdB.GetItem(link_ref_pos, &link_type);
+					THROW(RdB.CreateItem(obQuot, &ref_pos));
+					RdB.RefPosStack.push(ref_pos);
+					{
+						int    test_type = 0;
+						QuotBlock * p_item = (QuotBlock *)RdB.GetItem(ref_pos, &test_type);
+						assert(test_type == obQuot);
+						if(link_type == obGoods) {
+							p_item->GoodsBlkP = link_ref_pos; // Котировка ссылается на позицию товара, которому принадлежит
+						}
+						else if(link_type == obGoodsGroup) {
+							p_item->BlkFlags |= p_item->fGroup;
+							p_item->GoodsGroupBlkP = link_ref_pos; // Котировка ссылается на позицию товарной группы, которой принадлежит
+						}
+					}
+				}
+				break;
+			case PPHS_KIND:
+				{
+					int  type = 0;
+					void * p_item = PeekRefItem(&ref_pos, &type);
+					if(type == obQuot) {
+						uint   qk_ref_pos = 0;
+						THROW(RdB.CreateItem(obQuotKind, &qk_ref_pos));
+						{
+							int    test_type = 0;
+							QuotKindBlock * p_qk_blk = (QuotKindBlock *)RdB.GetItem(qk_ref_pos, &test_type);
+							assert(test_type == obQuotKind);
+							p_qk_blk->Flags |= ObjectBlock::fRefItem;
+						}
+						RdB.RefPosStack.push(qk_ref_pos);
+					}
+				}
+				break;
+			case PPHS_QUOTEKIND:
+				THROW(RdB.CreateItem(obQuotKind, &ref_pos));
+				RdB.RefPosStack.push(ref_pos);
+				break;
+			case PPHS_CSESSION:
+				THROW(RdB.CreateItem(obCSession, &ref_pos));
+				RdB.RefPosStack.push(ref_pos);
+				break;
+			case PPHS_CC:
+				{
+					uint   link_ref_pos = RdB.RefPosStack.peek();
+					int    link_type = 0;
+					void * p_link_item = RdB.GetItem(link_ref_pos, &link_type);
+					THROW(RdB.CreateItem(obCCheck, &ref_pos));
+					RdB.RefPosStack.push(ref_pos);
+					if(link_type == obCSession) {
+						int    test_type = 0;
+						CCheckBlock * p_item = (CCheckBlock *)RdB.GetItem(ref_pos, &test_type);
+						assert(test_type == obCCheck);
+						p_item->CSessionBlkP = link_ref_pos; // Чек ссылается на позицию сессии, которой принадлежит
+					}
+				}
+				break;
+			case PPHS_CCL:
+				{
+					uint   link_ref_pos = RdB.RefPosStack.peek();
+					int    link_type = 0;
+					void * p_link_item = RdB.GetItem(link_ref_pos, &link_type);
+					THROW(RdB.CreateItem(obCcLine, &ref_pos));
+					RdB.RefPosStack.push(ref_pos);
+					if(link_type == obCCheck) {
+						int    test_type = 0;
+						CcLineBlock * p_item = (CcLineBlock *)RdB.GetItem(ref_pos, &test_type);
+						assert(test_type == obCcLine);
+						p_item->CCheckBlkP = link_ref_pos; // Строка ссылается на позицию чека, которому принадлежит
+					}
+				}
+				break;
+			case PPHS_OWNER:
+				THROW(RdB.CreateItem(obPerson, &ref_pos));
+				RdB.RefPosStack.push(ref_pos);
+				break;
+			case PPHS_PARENT:
+				THROW(RdB.CreateItem(obParent, &ref_pos));
+				RdB.RefPosStack.push(ref_pos);
+				break;
+			case PPHS_CODE:
+				{
+					int  type = 0;
+					void * p_item = PeekRefItem(&ref_pos, &type);
+					if(type == obGoods) {
+						uint   goods_code_ref_pos = 0;
+						THROW(RdB.CreateItem(obGoodsCode, &goods_code_ref_pos));
+						RdB.RefPosStack.push(goods_code_ref_pos);
+						{
+							int    test_type = 0;
+							GoodsCode * p_item = (GoodsCode *)RdB.GetItem(goods_code_ref_pos, &test_type);
+							assert(test_type == obGoodsCode);
+							p_item->GoodsBlkP = ref_pos; // Код ссылается на позицию товара, которому принадлежит
+						}
+					}
+				}
+				break;
+			case PPHS_REFS:
+			case PPHS_SYSTEM:
+			case PPHS_VERSION:
+			case PPHS_UUID:
+			case PPHS_TIME:
+			case PPHS_ID:
+			case PPHS_NAME:
+			case PPHS_RANK:
+			case PPHS_PRICE:
+			case PPHS_DISCOUNT:
+			case PPHS_RETURN:
+			case PPHS_RESTRICTION:
+			case PPHS_PERIOD:
+			case PPHS_WEEKDAY:
+			case PPHS_TIMERANGE:
+			case PPHS_AMOUNTRANGE:
+			case PPHS_LOW:
+			case PPHS_UPP:
+			case PPHS_VALUE:
+			case PPHS_EXPIRY:
+			case PPHS_FLAGS:
+			case PPHS_AMOUNT:
+			case PPHS_QTTY:
+			case PPHS_SUMDISCOUNT:
+			case PPHS_INNERID:
+			case PPHS_OBJ:
+			case PPHS_LAST:
+			case PPHS_CURRENT:
+				break;
 		}
 	}
 	RdB.TokPath.push(tok);
@@ -1809,154 +1573,108 @@ void FASTCALL PPPosProtocol::Helper_AddStringToPool(uint * pPos)
 	}
 }
 
+void * SLAPI PPPosProtocol::PeekRefItem(uint * pRefPos, int * pType) const
+{
+	const uint ref_pos = RdB.RefPosStack.peek();
+	ASSIGN_PTR(pRefPos, ref_pos);
+	return RdB.GetItem(ref_pos, pType);
+}
+
 int PPPosProtocol::EndElement(const char * pName)
 {
 	int    tok = 0;
 	int    ok = RdB.TokPath.pop(tok);
 	uint   ref_pos = 0;
+	uint   parent_ref_pos = 0;
 	void * p_item = 0;
 	int    type = 0;
+	int    is_processed = 1;
 	switch(tok) {
-		case tokPapyrusAsyncPosInterchange:
-			assert(sstreqi_ascii(pName, "PapyrusAsyncPosInterchange"));
+		case PPHS_PPPP_START:
 			RdB.State &= ~RdB.stHeaderOccured;
 			break;
-		case tokQueryCSession:
-			assert(sstreqi_ascii(pName, "query-csession"));
-			break;
-		case tokQueryRefs:
-			assert(sstreqi_ascii(pName, "query-refs"));
-			break;
-		case tokObj:
-			assert(sstreqi_ascii(pName, "obj"));
-			{
-				ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(ref_pos, &type);
-				if(type == obQuery) {
-					QueryBlock * p_blk = (QueryBlock *)p_item;
-					if(p_blk->Q == QueryBlock::qRefs) {
-						if(RdB.TagValue.NotEmptyS()) {
-							long   obj_type_ext = 0;
-							PPID   obj_type = DS.GetObjectTypeBySymb(RdB.TagValue, &obj_type_ext);
-                            if(obj_type) {
-								if(p_blk->ObjType) {
-									THROW(p_blk = Helper_RenewQuery(ref_pos, QueryBlock::qRefs));
-								}
-                                p_blk->ObjType = obj_type;
-                            }
-						}
+		case PPHS_OBJ:
+			p_item = PeekRefItem(&ref_pos, &type);
+			if(type == obQuery) {
+				QueryBlock * p_blk = (QueryBlock *)p_item;
+				if(p_blk->Q == QueryBlock::qRefs) {
+					if(RdB.TagValue.NotEmptyS()) {
+						long   obj_type_ext = 0;
+						PPID   obj_type = DS.GetObjectTypeBySymb(RdB.TagValue, &obj_type_ext);
+                        if(obj_type) {
+							if(p_blk->ObjType) {
+								THROW(p_blk = Helper_RenewQuery(ref_pos, QueryBlock::qRefs));
+							}
+                            p_blk->ObjType = obj_type;
+                        }
 					}
 				}
 			}
 			break;
-		case tokLast:
-			assert(sstreqi_ascii(pName, "last"));
-			{
-				ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(ref_pos, &type);
-				if(type == obQuery) {
-					QueryBlock * p_blk = (QueryBlock *)p_item;
-					if(p_blk->Q == QueryBlock::qCSession) {
-						if(p_blk->CSess || !p_blk->Period.IsZero()) {
-							THROW(p_blk = Helper_RenewQuery(ref_pos, QueryBlock::qCSession));
-						}
-						p_blk->Flags |= QueryBlock::fCSessLast;
+		case PPHS_LAST:
+			p_item = PeekRefItem(&ref_pos, &type);
+			if(type == obQuery) {
+				QueryBlock * p_blk = (QueryBlock *)p_item;
+				if(p_blk->Q == QueryBlock::qCSession) {
+					if(p_blk->CSess || !p_blk->Period.IsZero()) {
+						THROW(p_blk = Helper_RenewQuery(ref_pos, QueryBlock::qCSession));
 					}
+					p_blk->Flags |= QueryBlock::fCSessLast;
 				}
 			}
 			break;
-		case tokCurrent:
-			assert(sstreqi_ascii(pName, "current"));
-			{
-				ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(ref_pos, &type);
-				if(type == obQuery) {
-					QueryBlock * p_blk = (QueryBlock *)p_item;
-					if(p_blk->Q == QueryBlock::qCSession) {
-						if(p_blk->CSess || !p_blk->Period.IsZero()) {
-							THROW(p_blk = Helper_RenewQuery(ref_pos, QueryBlock::qCSession));
-						}
-						p_blk->Flags |= QueryBlock::fCSessCurrent;
+		case PPHS_CURRENT:
+			p_item = PeekRefItem(&ref_pos, &type);
+			if(type == obQuery) {
+				QueryBlock * p_blk = (QueryBlock *)p_item;
+				if(p_blk->Q == QueryBlock::qCSession) {
+					if(p_blk->CSess || !p_blk->Period.IsZero()) {
+						THROW(p_blk = Helper_RenewQuery(ref_pos, QueryBlock::qCSession));
 					}
+					p_blk->Flags |= QueryBlock::fCSessCurrent;
 				}
 			}
 			break;
-		case tokRefs:
-			assert(sstreqi_ascii(pName, "refs"));
-			break;
-		case tokPos:
-			assert(sstreqi_ascii(pName, "pos"));
-			{
-				RdB.RefPosStack.pop(ref_pos);
-				//
-				uint parent_ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(parent_ref_pos, &type);
-				if(type == obCSession) {
-					((CSessionBlock *)p_item)->PosBlkP = ref_pos;
-				}
-			}
-			break;
-		case tokWare:
-			assert(sstreqi_ascii(pName, "ware"));
-			{
-				RdB.RefPosStack.pop(ref_pos);
-				//
-				uint parent_ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(parent_ref_pos, &type);
-				if(type == obCcLine) {
-					((CcLineBlock *)p_item)->GoodsBlkP = ref_pos;
-				}
-			}
-			break;
-		case tokGoodsGroup:
-			assert(sstreqi_ascii(pName, "goodsgroup"));
+		case PPHS_POS:
 			RdB.RefPosStack.pop(ref_pos);
+			//
+			parent_ref_pos = RdB.RefPosStack.peek();
+			p_item = RdB.GetItem(parent_ref_pos, &type);
+			if(type == obCSession) {
+				((CSessionBlock *)p_item)->PosBlkP = ref_pos;
+			}
 			break;
-		case tokQuotKind:
-			assert(sstreqi_ascii(pName, "quotekind"));
+		case PPHS_WARE:
 			RdB.RefPosStack.pop(ref_pos);
+			//
+			parent_ref_pos = RdB.RefPosStack.peek();
+			p_item = RdB.GetItem(parent_ref_pos, &type);
+			if(type == obCcLine) {
+				((CcLineBlock *)p_item)->GoodsBlkP = ref_pos;
+			}
 			break;
-		case tokQuot:
-			assert(sstreqi_ascii(pName, "quote"));
-			{
-				RdB.RefPosStack.pop(ref_pos);
-				//
-				uint parent_ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(parent_ref_pos, &type);
-				if(type == obGoods) {
-					((SCardBlock *)p_item)->OwnerBlkP = ref_pos;
-				}
-				else if(type == obGoodsGroup) {
+		case PPHS_QUOTE:
+			RdB.RefPosStack.pop(ref_pos);
+			//
+			parent_ref_pos = RdB.RefPosStack.peek();
+			p_item = RdB.GetItem(parent_ref_pos, &type);
+			if(type == obGoods) {
+				((SCardBlock *)p_item)->OwnerBlkP = ref_pos;
+			}
+			else if(type == obGoodsGroup) {
 
-				}
 			}
 			break;
-		case tokCard:
-			assert(sstreqi_ascii(pName, "card"));
-			{
-				RdB.RefPosStack.pop(ref_pos);
-				//
-				uint parent_ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(parent_ref_pos, &type);
-				if(type == obCCheck) {
-					((CCheckBlock *)p_item)->SCardBlkP = ref_pos;
-				}
+		case PPHS_CARD:
+			RdB.RefPosStack.pop(ref_pos);
+			//
+			parent_ref_pos = RdB.RefPosStack.peek();
+			p_item = RdB.GetItem(parent_ref_pos, &type);
+			if(type == obCCheck) {
+				((CCheckBlock *)p_item)->SCardBlkP = ref_pos;
 			}
 			break;
-		case tokCSession:
-			assert(sstreqi_ascii(pName, "csession"));
-			RdB.RefPosStack.pop(ref_pos);
-			break;
-		case tokCCheck:
-			assert(sstreqi_ascii(pName, "cc"));
-			RdB.RefPosStack.pop(ref_pos);
-			break;
-		case tokCcLine:
-			assert(sstreqi_ascii(pName, "ccl"));
-			RdB.RefPosStack.pop(ref_pos);
-			break;
-		case tokKind:
-			assert(sstreqi_ascii(pName, "kind"));
+		case PPHS_KIND:
 			{
 				RdB.RefPosStack.pop(ref_pos);
 				int    this_type = 0;
@@ -1978,7 +1696,7 @@ int PPPosProtocol::EndElement(const char * pName)
 							}
 						}
 					}
-					uint parent_ref_pos = RdB.RefPosStack.peek();
+					parent_ref_pos = RdB.RefPosStack.peek();
 					p_item = RdB.GetItem(parent_ref_pos, &type);
 					if(type == obQuot) {
 						((QuotBlock *)p_item)->QuotKindBlkP = ref_pos;
@@ -1986,42 +1704,30 @@ int PPPosProtocol::EndElement(const char * pName)
 				}
 			}
 			break;
-		case tokOwner:
-			assert(sstreqi_ascii(pName, "owner"));
-			{
-				RdB.RefPosStack.pop(ref_pos);
-				//
-				uint parent_ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(parent_ref_pos, &type);
-				if(type == obSCard) {
-					((SCardBlock *)p_item)->OwnerBlkP = ref_pos;
-				}
+		case PPHS_OWNER:
+			RdB.RefPosStack.pop(ref_pos);
+			parent_ref_pos = RdB.RefPosStack.peek();
+			p_item = RdB.GetItem(parent_ref_pos, &type);
+			if(type == obSCard) {
+				((SCardBlock *)p_item)->OwnerBlkP = ref_pos;
 			}
 			break;
-		case tokParent:
-			assert(sstreqi_ascii(pName, "parent"));
-			{
-				RdB.RefPosStack.pop(ref_pos);
-				uint parent_ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(parent_ref_pos, &type);
-				if(type == obGoods) {
-					((GoodsBlock *)p_item)->ParentBlkP = ref_pos;
-				}
-				else if(type == obGoodsGroup) {
-					((GoodsGroupBlock *)p_item)->ParentBlkP = ref_pos;
-				}
+		case PPHS_PARENT:
+			RdB.RefPosStack.pop(ref_pos);
+			parent_ref_pos = RdB.RefPosStack.peek();
+			p_item = RdB.GetItem(parent_ref_pos, &type);
+			if(type == obGoods) {
+				((GoodsBlock *)p_item)->ParentBlkP = ref_pos;
+			}
+			else if(type == obGoodsGroup) {
+				((GoodsGroupBlock *)p_item)->ParentBlkP = ref_pos;
 			}
 			break;
-		case tokRestriction:
-			assert(sstreqi_ascii(pName, "restriction"));
-			break;
-		case tokPeriod:
-			assert(sstreqi_ascii(pName, "period"));
+		case PPHS_PERIOD:
 			{
 				DateRange period;
 				if(strtoperiod(RdB.TagValue, &period, 0)) {
-					ref_pos = RdB.RefPosStack.peek();
-					p_item = RdB.GetItem(ref_pos, &type);
+					p_item = PeekRefItem(&ref_pos, &type);
 					if(type == obQuotKind) {
                         ((QuotKindBlock *)p_item)->Period = period;
 					}
@@ -2037,66 +1743,52 @@ int PPPosProtocol::EndElement(const char * pName)
 				}
 			}
 			break;
-		case tokTimerange:
-			assert(sstreqi_ascii(pName, "timerange"));
-			break;
-		case tokAmountrange:
-			assert(sstreqi_ascii(pName, "amountrange"));
-			break;
-		case tokLow:
-			assert(sstreqi_ascii(pName, "low"));
+		case PPHS_LOW:
             {
 				int prev_tok = RdB.TokPath.peek();
-                if(prev_tok == tokTimerange) {
+                if(prev_tok == PPHS_TIMERANGE) {
 					LTIME   t = ZEROTIME;
 					if(strtotime(RdB.TagValue, TIMF_HMS, &t)) {
-						ref_pos = RdB.RefPosStack.peek();
-						p_item = RdB.GetItem(ref_pos, &type);
+						p_item = PeekRefItem(&ref_pos, &type);
 						if(type == obQuotKind) {
 							((QuotKindBlock *)p_item)->TimeRestriction.low = t;
 						}
 					}
                 }
-                else if(prev_tok == tokAmountrange) {
+                else if(prev_tok == PPHS_AMOUNTRANGE) {
 					double v = RdB.TagValue.ToReal();
-					ref_pos = RdB.RefPosStack.peek();
-					p_item = RdB.GetItem(ref_pos, &type);
+					p_item = PeekRefItem(&ref_pos, &type);
 					if(type == obQuotKind) {
 						((QuotKindBlock *)p_item)->AmountRestriction.low = v;
 					}
                 }
             }
 			break;
-		case tokUpp:
-			assert(sstreqi_ascii(pName, "upp"));
+		case PPHS_UPP:
             {
 				int prev_tok = RdB.TokPath.peek();
-                if(prev_tok == tokTimerange) {
+                if(prev_tok == PPHS_TIMERANGE) {
 					LTIME   t = ZEROTIME;
 					if(strtotime(RdB.TagValue, TIMF_HMS, &t)) {
-						ref_pos = RdB.RefPosStack.peek();
-						p_item = RdB.GetItem(ref_pos, &type);
+						p_item = PeekRefItem(&ref_pos, &type);
 						if(type == obQuotKind) {
 							((QuotKindBlock *)p_item)->TimeRestriction.upp = t;
 						}
 					}
                 }
-                else if(prev_tok == tokAmountrange) {
+                else if(prev_tok == PPHS_AMOUNTRANGE) {
 					double v = RdB.TagValue.ToReal();
-					ref_pos = RdB.RefPosStack.peek();
-					p_item = RdB.GetItem(ref_pos, &type);
+					p_item = PeekRefItem(&ref_pos, &type);
 					if(type == obQuotKind) {
 						((QuotKindBlock *)p_item)->AmountRestriction.upp = v;
 					}
                 }
             }
 			break;
-		case tokId:
-			assert(sstreqi_ascii(pName, "id"));
+		case PPHS_ID:
 			{
 				const long _val_id = RdB.TagValue.ToLong();
-				ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(ref_pos, &type);
+				p_item = PeekRefItem(&ref_pos, &type);
 				switch(type) {
 					case obPosNode: ((PosNodeBlock *)p_item)->ID = _val_id; break;
 					case obGoods: ((GoodsBlock *)p_item)->ID = _val_id; break;
@@ -2125,23 +1817,19 @@ int PPPosProtocol::EndElement(const char * pName)
 				}
 			}
 			break;
-		case tokInnerId:
-			assert(sstreqi_ascii(pName, "innerid"));
+		case PPHS_INNERID:
 			{
 				const long _val_id = RdB.TagValue.ToLong();
-				ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(ref_pos, &type);
+				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obGoods) {
 					((GoodsBlock *)p_item)->InnerId = _val_id;
 				}
 			}
 			break;
-		case tokValue:
-			assert(sstreqi_ascii(pName, "value"));
+		case PPHS_VALUE:
 			{
 				const double _value = RdB.TagValue.ToReal();
-				ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(ref_pos, &type);
+				p_item = PeekRefItem(&ref_pos, &type);
 				switch(type) {
 					case obQuot:
 						((QuotBlock *)p_item)->Value = _value;
@@ -2149,12 +1837,10 @@ int PPPosProtocol::EndElement(const char * pName)
 				}
 			}
 			break;
-		case tokRank:
-			assert(sstreqi_ascii(pName, "rank"));
+		case PPHS_RANK:
 			{
 				const long _val_id = RdB.TagValue.ToLong();
-				ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(ref_pos, &type);
+				p_item = PeekRefItem(&ref_pos, &type);
 				switch(type) {
 					case obQuotKind:
 						((QuotKindBlock *)p_item)->Rank = (int16)_val_id;
@@ -2162,216 +1848,191 @@ int PPPosProtocol::EndElement(const char * pName)
 				}
 			}
 			break;
-		case tokName:
-			assert(sstreqi_ascii(pName, "name"));
-			{
-				ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(ref_pos, &type);
-				switch(type) {
-					case obPosNode: Helper_AddStringToPool(&((PosNodeBlock *)p_item)->NameP); break;
-					case obGoods:   Helper_AddStringToPool(&((GoodsBlock *)p_item)->NameP); break;
-					case obGoodsGroup: Helper_AddStringToPool(&((GoodsGroupBlock *)p_item)->NameP); break;
-					case obPerson: Helper_AddStringToPool(&((PersonBlock *)p_item)->NameP); break;
-					case obSCard: break;
-					case obQuotKind: Helper_AddStringToPool(&((QuotKindBlock *)p_item)->NameP); break;
-				}
+		case PPHS_NAME:
+			p_item = PeekRefItem(&ref_pos, &type);
+			switch(type) {
+				case obPosNode: Helper_AddStringToPool(&((PosNodeBlock *)p_item)->NameP); break;
+				case obGoods:   Helper_AddStringToPool(&((GoodsBlock *)p_item)->NameP); break;
+				case obGoodsGroup: Helper_AddStringToPool(&((GoodsGroupBlock *)p_item)->NameP); break;
+				case obPerson: Helper_AddStringToPool(&((PersonBlock *)p_item)->NameP); break;
+				case obSCard: break;
+				case obQuotKind: Helper_AddStringToPool(&((QuotKindBlock *)p_item)->NameP); break;
 			}
 			break;
-		case tokCode:
-			assert(sstreqi_ascii(pName, "code"));
-			{
-				ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(ref_pos, &type);
-				switch(type) {
-					case obPosNode: Helper_AddStringToPool(&((PosNodeBlock *)p_item)->CodeP); break;
-					case obGoodsGroup: Helper_AddStringToPool(&((GoodsGroupBlock *)p_item)->CodeP); break;
-					case obPerson: Helper_AddStringToPool(&((PersonBlock *)p_item)->CodeP); break;
-					case obSCard: Helper_AddStringToPool(&((SCardBlock *)p_item)->CodeP); break;
-					case obParent: Helper_AddStringToPool(&((ParentBlock *)p_item)->CodeP); break;
-					case obQuotKind: Helper_AddStringToPool(&((QuotKindBlock *)p_item)->CodeP); break;
-					case obSource:
-					case obDestination: Helper_AddStringToPool(&((RouteObjectBlock *)p_item)->CodeP); break;
-					case obGoods:
-						break;
-					case obGoodsCode:
-						Helper_AddStringToPool(&((GoodsCode *)p_item)->CodeP);
-						RdB.RefPosStack.pop(ref_pos);
-						break;
-					case obCSession:
-						if(RdB.TagValue.NotEmptyS()) {
-							long   icode = RdB.TagValue.ToLong();
-							((CSessionBlock *)p_item)->Code = icode;
-						}
-						break;
-					case obCCheck:
-						if(RdB.TagValue.NotEmptyS()) {
-							long   icode = RdB.TagValue.ToLong();
-							((CCheckBlock *)p_item)->Code = icode;
-						}
-						break;
-					case obQuery:
-						{
-							QueryBlock * p_blk = (QueryBlock *)p_item;
-							if(p_blk->Q == QueryBlock::qCSession) {
-								const long csess_n = RdB.TagValue.ToLong();
-								if(csess_n) {
-									if(p_blk->CSess || !p_blk->Period.IsZero() || (p_blk->Flags & (QueryBlock::fCSessCurrent|QueryBlock::fCSessLast))) {
-										THROW(p_blk = Helper_RenewQuery(ref_pos, QueryBlock::qCSession));
-									}
-									p_blk->CSess = csess_n;
-									p_blk->Flags |= QueryBlock::fCSessN;
+		case PPHS_CODE:
+			p_item = PeekRefItem(&ref_pos, &type);
+			switch(type) {
+				case obPosNode:     Helper_AddStringToPool(&((PosNodeBlock *)p_item)->CodeP); break;
+				case obGoodsGroup:  Helper_AddStringToPool(&((GoodsGroupBlock *)p_item)->CodeP); break;
+				case obPerson:      Helper_AddStringToPool(&((PersonBlock *)p_item)->CodeP); break;
+				case obSCard:       Helper_AddStringToPool(&((SCardBlock *)p_item)->CodeP); break;
+				case obParent:      Helper_AddStringToPool(&((ParentBlock *)p_item)->CodeP); break;
+				case obQuotKind:    Helper_AddStringToPool(&((QuotKindBlock *)p_item)->CodeP); break;
+				case obSource:
+				case obDestination: Helper_AddStringToPool(&((RouteObjectBlock *)p_item)->CodeP); break;
+				case obGoods:
+					break;
+				case obGoodsCode:
+					Helper_AddStringToPool(&((GoodsCode *)p_item)->CodeP);
+					RdB.RefPosStack.pop(ref_pos);
+					break;
+				case obCSession:
+					if(RdB.TagValue.NotEmptyS()) {
+						long   icode = RdB.TagValue.ToLong();
+						((CSessionBlock *)p_item)->Code = icode;
+					}
+					break;
+				case obCCheck:
+					if(RdB.TagValue.NotEmptyS()) {
+						long   icode = RdB.TagValue.ToLong();
+						((CCheckBlock *)p_item)->Code = icode;
+					}
+					break;
+				case obQuery:
+					{
+						QueryBlock * p_blk = (QueryBlock *)p_item;
+						if(p_blk->Q == QueryBlock::qCSession) {
+							const long csess_n = RdB.TagValue.ToLong();
+							if(csess_n) {
+								if(p_blk->CSess || !p_blk->Period.IsZero() || (p_blk->Flags & (QueryBlock::fCSessCurrent|QueryBlock::fCSessLast))) {
+									THROW(p_blk = Helper_RenewQuery(ref_pos, QueryBlock::qCSession));
 								}
+								p_blk->CSess = csess_n;
+								p_blk->Flags |= QueryBlock::fCSessN;
 							}
 						}
-						break;
-				}
-			}
-			break;
-		case tokPrice:
-			assert(sstreqi_ascii(pName, "price"));
-			{
-				ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(ref_pos, &type);
-				if(type == obGoods)
-					((GoodsBlock *)p_item)->Price = RdB.TagValue.ToReal();
-				else if(type == obCcLine)
-					((CcLineBlock *)p_item)->Price = RdB.TagValue.ToReal();
-			}
-			break;
-		case tokDiscount:
-			assert(sstreqi_ascii(pName, "discount"));
-			{
-				ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(ref_pos, &type);
-				if(type == obSCard)
-					((SCardBlock *)p_item)->Discount = RdB.TagValue.ToReal();
-				else if(type == obCCheck)
-					((CCheckBlock *)p_item)->Discount = RdB.TagValue.ToReal();
-				else if(type == obCcLine)
-					((CcLineBlock *)p_item)->Discount = RdB.TagValue.ToReal();
-			}
-			break;
-		case tokReturn:
-			assert(sstreqi_ascii(pName, "return"));
-			{
-				ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(ref_pos, &type);
-				if(type == obCCheck) {
-					((CCheckBlock *)p_item)->SaCcFlags |= CCHKF_RETURN;
-				}
-				else {
-					; // @error
-				}
-			}
-			break;
-		case tokSumDiscount:
-			assert(sstreqi_ascii(pName, "sumdiscount"));
-			{
-				ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(ref_pos, &type);
-				if(type == obCcLine)
-					((CcLineBlock *)p_item)->SumDiscount = RdB.TagValue.ToReal();
-			}
-			break;
-		case tokQtty:
-			assert(sstreqi_ascii(pName, "qtty"));
-			{
-				ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(ref_pos, &type);
-				if(type == obCcLine)
-					((CcLineBlock *)p_item)->Qtty = RdB.TagValue.ToReal();
-			}
-			break;
-		case tokSystem:
-			assert(sstreqi_ascii(pName, "system"));
-			{
-				ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(ref_pos, &type);
-				if(oneof2(type, obSource, obDestination)) {
-					Helper_AddStringToPool(&((RouteObjectBlock *)p_item)->SystemP);
-				}
-			}
-			break;
-		case tokVersion:
-			assert(sstreqi_ascii(pName, "version"));
-			{
-				ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(ref_pos, &type);
-				if(oneof2(type, obSource, obDestination)) {
-					Helper_AddStringToPool(&((RouteObjectBlock *)p_item)->VersionP);
-				}
-			}
-			break;
-		case tokUuid:
-			assert(sstreqi_ascii(pName, "uuid"));
-			{
-				ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(ref_pos, &type);
-				if(oneof2(type, obSource, obDestination)) {
-					if(RdB.TagValue.NotEmptyS()) {
-                        S_GUID uuid;
-						if(uuid.FromStr(RdB.TagValue)) {
-							((RouteObjectBlock *)p_item)->Uuid = uuid;
-						}
-						else
-							; // @error
 					}
+					break;
+			}
+			break;
+		case PPHS_PRICE:
+			p_item = PeekRefItem(&ref_pos, &type);
+			if(type == obGoods)
+				((GoodsBlock *)p_item)->Price = RdB.TagValue.ToReal();
+			else if(type == obCcLine)
+				((CcLineBlock *)p_item)->Price = RdB.TagValue.ToReal();
+			break;
+		case PPHS_DISCOUNT:
+			p_item = PeekRefItem(&ref_pos, &type);
+			if(type == obSCard)
+				((SCardBlock *)p_item)->Discount = RdB.TagValue.ToReal();
+			else if(type == obCCheck)
+				((CCheckBlock *)p_item)->Discount = RdB.TagValue.ToReal();
+			else if(type == obCcLine)
+				((CcLineBlock *)p_item)->Discount = RdB.TagValue.ToReal();
+			break;
+		case PPHS_RETURN:
+			p_item = PeekRefItem(&ref_pos, &type);
+			if(type == obCCheck) {
+				((CCheckBlock *)p_item)->SaCcFlags |= CCHKF_RETURN;
+			}
+			else {
+				; // @error
+			}
+			break;
+		case PPHS_SUMDISCOUNT:
+			p_item = PeekRefItem(&ref_pos, &type);
+			if(type == obCcLine)
+				((CcLineBlock *)p_item)->SumDiscount = RdB.TagValue.ToReal();
+			break;
+		case PPHS_QTTY:
+			p_item = PeekRefItem(&ref_pos, &type);
+			if(type == obCcLine)
+				((CcLineBlock *)p_item)->Qtty = RdB.TagValue.ToReal();
+			break;
+		case PPHS_SYSTEM:
+			p_item = PeekRefItem(&ref_pos, &type);
+			if(oneof2(type, obSource, obDestination)) {
+				Helper_AddStringToPool(&((RouteObjectBlock *)p_item)->SystemP);
+			}
+			break;
+		case PPHS_VERSION:
+			p_item = PeekRefItem(&ref_pos, &type);
+			if(oneof2(type, obSource, obDestination)) {
+				Helper_AddStringToPool(&((RouteObjectBlock *)p_item)->VersionP);
+			}
+			break;
+		case PPHS_UUID:
+			p_item = PeekRefItem(&ref_pos, &type);
+			if(oneof2(type, obSource, obDestination)) {
+				if(RdB.TagValue.NotEmptyS()) {
+                    S_GUID uuid;
+					if(uuid.FromStr(RdB.TagValue)) {
+						((RouteObjectBlock *)p_item)->Uuid = uuid;
+					}
+					else
+						; // @error
 				}
 			}
 			break;
-		case tokTime:
-			assert(sstreqi_ascii(pName, "time"));
+		case PPHS_TIME:
 			{
 				LDATETIME dtm;
                 strtodatetime(RdB.TagValue, &dtm, DATF_ISO8601, 0);
-				ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(ref_pos, &type);
+				p_item = PeekRefItem(&ref_pos, &type);
 				switch(type) {
 					case obCSession: ((CSessionBlock *)p_item)->Dtm = dtm; break;
 					case obCCheck:   ((CCheckBlock *)p_item)->Dtm = dtm; break;
 				}
 			}
 			break;
-		case tokFlags:
-			assert(sstreqi_ascii(pName, "flags"));
-			{
-				ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(ref_pos, &type);
-				switch(type) {
-					case obCCheck:
-						{
-							uint32 _f = 0;
-							size_t real_len = 0;
-							RdB.TagValue.DecodeHex(0, &_f, sizeof(_f), &real_len);
-							if(real_len == sizeof(_f)) {
-								((CCheckBlock *)p_item)->CcFlags = _f;
-							}
+		case PPHS_FLAGS:
+			p_item = PeekRefItem(&ref_pos, &type);
+			switch(type) {
+				case obCCheck:
+					{
+						uint32 _f = 0;
+						size_t real_len = 0;
+						RdB.TagValue.DecodeHex(0, &_f, sizeof(_f), &real_len);
+						if(real_len == sizeof(_f)) {
+							((CCheckBlock *)p_item)->CcFlags = _f;
 						}
-						break;
-				}
+					}
+					break;
 			}
 			break;
-		case tokAmount:
-			assert(sstreqi_ascii(pName, "amount"));
-			{
-				ref_pos = RdB.RefPosStack.peek();
-				p_item = RdB.GetItem(ref_pos, &type);
-				switch(type) {
-					case obCCheck:
-						{
-							const double _value = RdB.TagValue.ToReal();
-							((CCheckBlock *)p_item)->Amount = _value;
-						}
-						break;
-					case obCcLine:
-						{
-							const double _value = RdB.TagValue.ToReal();
-							((CcLineBlock *)p_item)->Amount = _value;
-						}
-						break;
-				}
+		case PPHS_AMOUNT:
+			p_item = PeekRefItem(&ref_pos, &type);
+			switch(type) {
+				case obCCheck:
+					{
+						const double _value = RdB.TagValue.ToReal();
+						((CCheckBlock *)p_item)->Amount = _value;
+					}
+					break;
+				case obCcLine:
+					{
+						const double _value = RdB.TagValue.ToReal();
+						((CcLineBlock *)p_item)->Amount = _value;
+					}
+					break;
 			}
 			break;
+		case PPHS_GOODSGROUP:
+		case PPHS_QUOTEKIND:
+		case PPHS_CSESSION:
+		case PPHS_CC:
+		case PPHS_CCL:
+			RdB.RefPosStack.pop(ref_pos);
+			break;
+		case PPHS_RESTRICTION:
+		case PPHS_REFS:
+		case PPHS_QUERYCSESS:
+		case PPHS_QUERYREFS:
+		case PPHS_TIMERANGE:
+		case PPHS_AMOUNTRANGE:
+			break;
+		default:
+			is_processed = 0;
+			break;
+	}
+	if(is_processed) {
+		(RdB.TempBuf = pName).ToLower();
+		if(RdB.P_ShT) {
+			uint _ut = 0;
+			RdB.P_ShT->Search(RdB.TempBuf, &_ut, 0);
+			assert((int)_ut == tok);
+		}
 	}
 	assert(ok);
 	CATCH
@@ -2399,11 +2060,13 @@ SLAPI PPPosProtocol::ReadBlock::ReadBlock()
 {
 	P_SaxCtx = 0;
 	State = 0;
+	P_ShT = PPGetStringHash(PPSTR_HASHTOKEN);
 }
 
 SLAPI PPPosProtocol::ReadBlock::~ReadBlock()
 {
 	Destroy();
+	P_ShT = 0;
 }
 
 void SLAPI PPPosProtocol::ReadBlock::Destroy()
@@ -2417,6 +2080,7 @@ void SLAPI PPPosProtocol::ReadBlock::Destroy()
 	}
 	State = 0;
 
+	TempBuf = 0;
 	TagValue = 0;
 	TokPath.freeAll();
 	RefPosStack.clear();
@@ -2490,6 +2154,19 @@ int SLAPI PPPosProtocol::CreateGoodsGroup(const GoodsGroupBlock & rBlk, int isFo
 			PPGoodsPacket gg_pack;
 			THROW(GgObj.InitPacket(&gg_pack, isFolder ? gpkndFolderGroup : gpkndOrdinaryGroup, inner_parent_id, 0, code_buf));
 			STRNSCPY(gg_pack.Rec.Name, name_buf);
+			if(gg_pack.Rec.ParentID) {
+				Goods2Tbl::Rec parent_rec;
+				if(GgObj.Search(gg_pack.Rec.ParentID, &parent_rec) > 0) {
+					if(parent_rec.Kind != PPGDSK_GROUP || !(parent_rec.Flags & GF_FOLDER) || (parent_rec.Flags & (GF_ALTGROUP|GF_EXCLALTFOLD))) {
+						gg_pack.Rec.ParentID = 0;
+						// @todo message
+					}
+				}
+				else {
+					gg_pack.Rec.ParentID = 0;
+					// @todo message
+				}
+			}
 			THROW(GgObj.PutPacket(&native_id, &gg_pack, 1));
 			ok = 1;
 		}
@@ -2643,7 +2320,12 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 					THROW(CreateParentGoodsGroup(*p_inner_blk, 0, &parent_id));
 				}
 			}
-			goods_pack.Rec.ParentID = NZOR(parent_id, defParentID);
+			{
+				if(GgObj.Fetch(parent_id, &parent_rec) > 0 && parent_rec.Kind == PPGDSK_GROUP && !(parent_rec.Flags & (GF_FOLDER|GF_EXCLALTFOLD)))
+					goods_pack.Rec.ParentID = parent_id;
+				else
+					goods_pack.Rec.ParentID = defParentID;
+			}
 		}
 		for(uint j = 0; j < RdB.GoodsCodeList.getCount(); j++) {
 			const GoodsCode & r_c = RdB.GoodsCodeList.at(j);
@@ -2696,44 +2378,42 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 					; // @error
 				}
 			}
+			else if(pretend_obj_list.getCount() == 0) {
+				PPID   new_goods_id = 0;
+				SETIFZ(goods_pack.Rec.UnitID, defUnitID);
+				THROW(GObj.PutPacket(&new_goods_id, &goods_pack, 1));
+				native_id = new_goods_id;
+			}
 			else {
-				if(pretend_obj_list.getCount() == 0) {
-					PPID   new_goods_id = 0;
-					SETIFZ(goods_pack.Rec.UnitID, defUnitID);
-					THROW(GObj.PutPacket(&new_goods_id, &goods_pack, 1));
-					native_id = new_goods_id;
+				PPGoodsPacket ex_goods_pack;
+				PPID   ex_goods_id = pretend_obj_list.get(0);
+				if(GObj.GetPacket(ex_goods_id, &ex_goods_pack, 0) > 0) {
+					STRNSCPY(ex_goods_pack.Rec.Name, goods_pack.Rec.Name);
+					STRNSCPY(ex_goods_pack.Rec.Abbr, goods_pack.Rec.Abbr);
+					if(goods_pack.Rec.ParentID)
+						ex_goods_pack.Rec.ParentID = goods_pack.Rec.ParentID;
+					ex_goods_pack.Codes = goods_pack.Codes;
+					for(uint bci = 0; bci < goods_pack.Codes.getCount(); bci++) {
+						const BarcodeTbl::Rec & r_bc_rec = goods_pack.Codes.at(bci);
+						uint   bcp = 0;
+						if(ex_goods_pack.Codes.SearchCode(r_bc_rec.Code, &bcp)) {
+							ex_goods_pack.Codes.atFree(bcp);
+						}
+						ex_goods_pack.Codes.insert(&r_bc_rec);
+						THROW(GObj.P_Tbl->RemoveDupBarcode(ex_goods_id, r_bc_rec.Code, 1));
+					}
+					for(uint aci = 0; aci < goods_pack.ArCodes.getCount(); aci++) {
+						THROW_SL(ex_goods_pack.ArCodes.insert(&goods_pack.ArCodes.at(aci)));
+					}
+					if(goods_pack.Rec.ParentID && GgObj.Search(goods_pack.Rec.ParentID, &parent_rec) > 0 &&
+						parent_rec.Kind == PPGDSK_GROUP && !(parent_rec.Flags & (GF_ALTGROUP|GF_FOLDER))) {
+						ex_goods_pack.Rec.ParentID = goods_pack.Rec.ParentID;
+					}
+					THROW(GObj.PutPacket(&ex_goods_id, &ex_goods_pack, 1));
+					native_id = ex_goods_id;
 				}
-				else if(pretend_obj_list.getCount()) {
-					PPGoodsPacket ex_goods_pack;
-					PPID   ex_goods_id = pretend_obj_list.get(0);
-					if(GObj.GetPacket(ex_goods_id, &ex_goods_pack, 0) > 0) {
-						STRNSCPY(ex_goods_pack.Rec.Name, goods_pack.Rec.Name);
-						STRNSCPY(ex_goods_pack.Rec.Abbr, goods_pack.Rec.Abbr);
-						if(goods_pack.Rec.ParentID)
-							ex_goods_pack.Rec.ParentID = goods_pack.Rec.ParentID;
-						ex_goods_pack.Codes = goods_pack.Codes;
-						for(uint bci = 0; bci < goods_pack.Codes.getCount(); bci++) {
-							const BarcodeTbl::Rec & r_bc_rec = goods_pack.Codes.at(bci);
-							uint   bcp = 0;
-							if(ex_goods_pack.Codes.SearchCode(r_bc_rec.Code, &bcp)) {
-								ex_goods_pack.Codes.atFree(bcp);
-							}
-							ex_goods_pack.Codes.insert(&r_bc_rec);
-							THROW(GObj.P_Tbl->RemoveDupBarcode(ex_goods_id, r_bc_rec.Code, 1));
-						}
-						for(uint aci = 0; aci < goods_pack.ArCodes.getCount(); aci++) {
-							THROW_SL(ex_goods_pack.ArCodes.insert(&goods_pack.ArCodes.at(aci)));
-						}
-						if(goods_pack.Rec.ParentID && GgObj.Search(goods_pack.Rec.ParentID, &parent_rec) > 0 &&
-							parent_rec.Kind == PPGDSK_GROUP && !(parent_rec.Flags & (GF_ALTGROUP|GF_FOLDER))) {
-							ex_goods_pack.Rec.ParentID = goods_pack.Rec.ParentID;
-						}
-						THROW(GObj.PutPacket(&ex_goods_id, &ex_goods_pack, 1));
-						native_id = ex_goods_id;
-					}
-					else {
-						; // @error
-					}
+				else {
+					; // @error
 				}
 			}
 		}
@@ -2801,19 +2481,22 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 	return ok;
 }
 
-int SLAPI PPPosProtocol::AcceptData()
+int SLAPI PPPosProtocol::AcceptData(TSCollection <QueryProcessBlock> * pQpBlkList)
 {
 	int    ok = 1;
+	uint   qpb_list_idx = 0;
 	SString fmt_buf, msg_buf;
 	PPID   src_ar_id = 0; // Статья аналитического учета, соответствующая источнику данных
 	SString temp_buf;
 	SString code_buf;
 	SString name_buf;
+	SString wait_msg_buf;
 	PPIDArray temp_id_list;
 	PPIDArray pretend_obj_list; // Список ид объектов, которые соответствуют импортируемому
 	PPObjUnit u_obj;
 	PPObjSCardSeries scs_obj;
 	PPObjPersonKind pk_obj;
+	PPWait(1);
 	{
 		//
 		// Прежде всего разберем данные об источнике и получателях данных
@@ -2823,13 +2506,34 @@ int SLAPI PPPosProtocol::AcceptData()
 			if(!r_blk.Uuid.IsZero()) {
 				// @todo Создать или найти глобальную учетную запись и сопоставленную ей аналитическую статью src_ar_id
 			}
+			if(pQpBlkList) {
+				RouteBlock src_;
+				RdB.GetRouteItem(r_blk, src_);
+				for(uint j = 0; !qpb_list_idx && j < pQpBlkList->getCount(); j++) {
+					QueryProcessBlock * p_qpb = pQpBlkList->at(j);
+					if(p_qpb->R.IsEqual(src_)) {
+						qpb_list_idx = j+1;
+					}
+				}
+				if(!qpb_list_idx) {
+					uint _pos = 0;
+					QueryProcessBlock * p_new_qpb = pQpBlkList->CreateNewItem(&_pos);
+					THROW_SL(p_new_qpb);
+					p_new_qpb->R = src_;
+					qpb_list_idx = _pos+1;
+				}
+			}
 		}
-		else if(RdB.SrcBlkList.getCount() > 1) {
-			; // @error
+		else {
+			if(RdB.SrcBlkList.getCount() > 1) {
+				; // @error
+			}
+			else { // no src info
+				; // @log
+			}
 		}
-		else { // no src info
-			; // @log
-		}
+		//
+
 		//
 		if(RdB.DestBlkList.getCount()) {
 			for(uint i = 0; i < RdB.DestBlkList.getCount(); i++) {
@@ -2843,8 +2547,10 @@ int SLAPI PPPosProtocol::AcceptData()
 		//   1-я фаза - виды котировок без флага ObjectBlock::fRefItem
 		//   2-я фаза - виды котировок не зависимо от флага ObjectBlock::fRefItem (без NativeID)
 		//
+		PPLoadText(PPTXT_IMPQUOTKIND, wait_msg_buf);
+		const uint __count = RdB.QkBlkList.getCount();
 		for(uint phase = 0; phase < 2; phase++) {
-			for(uint i = 0; i < RdB.QkBlkList.getCount(); i++) {
+			for(uint i = 0; i < __count; i++) {
 				QuotKindBlock & r_blk = RdB.QkBlkList.at(i);
 				if(((phase > 0) || !(r_blk.Flags & r_blk.fRefItem)) && !r_blk.NativeID) {
 					uint   ref_pos = 0;
@@ -2893,6 +2599,7 @@ int SLAPI PPPosProtocol::AcceptData()
 						}
 					}
 				}
+				PPWaitPercent((phase * __count) + i+1, __count * 2, wait_msg_buf);
 			}
 		}
 	}
@@ -2904,7 +2611,9 @@ int SLAPI PPPosProtocol::AcceptData()
 			//
 			// Сначала прогоним цикл по группам с целью создать или идентифицировать все группы-папки
 			//
-			for(uint i = 0; i < RdB.GoodsGroupBlkList.getCount(); i++) {
+			PPLoadText(PPTXT_IMPGOODSGRP, wait_msg_buf);
+			const uint __count = RdB.GoodsGroupBlkList.getCount();
+			for(uint i = 0; i < __count; i++) {
 				GoodsGroupBlock & r_blk = RdB.GoodsGroupBlkList.at(i);
 				uint   ref_pos = 0;
 				if(RdB.SearchRef(obGoodsGroup, i, &ref_pos)) {
@@ -2922,15 +2631,16 @@ int SLAPI PPPosProtocol::AcceptData()
 				else {
 					; // @error
 				}
-				PPLoadText(PPTXT_IMPGOODSGRP, msg_buf);
-				PPWaitPercent(i+1, RdB.GoodsGroupBlkList.getCount(), msg_buf);
+				PPWaitPercent(i+1, __count * 2, wait_msg_buf);
 			}
 		}
 		{
 			//
 			// Теперь создадим все группы нижнего уровня (папки уже идентифицированы на предыдущем проходе)
 			//
-			for(uint i = 0; i < RdB.GoodsGroupBlkList.getCount(); i++) {
+			PPLoadText(PPTXT_IMPGOODSGRP, wait_msg_buf);
+			const uint __count = RdB.GoodsGroupBlkList.getCount();
+			for(uint i = 0; i < __count; i++) {
 				GoodsGroupBlock & r_blk = RdB.GoodsGroupBlkList.at(i);
 				if(r_blk.NativeID == 0) {
 					uint   ref_pos = 0;
@@ -2941,8 +2651,7 @@ int SLAPI PPPosProtocol::AcceptData()
 						; // @error
 					}
 				}
-				PPLoadText(PPTXT_IMPGOODSGRP, msg_buf);
-				PPWaitPercent(i+1, RdB.GoodsGroupBlkList.getCount(), msg_buf);
+				PPWaitPercent(__count+i+1, __count * 2, wait_msg_buf);
 			}
 		}
 	}
@@ -2973,8 +2682,7 @@ int SLAPI PPPosProtocol::AcceptData()
 					(def_unit_name = "default").CatChar('-').CatLongZ(++def_counter, 3);
 			}
 		}
-		if(def_parent_id && GgObj.Search(def_parent_id, &parent_rec) > 0 && parent_rec.Kind == PPGDSK_GROUP &&
-			!(parent_rec.Flags & (GF_ALTGROUP|GF_FOLDER))) {
+		if(def_parent_id && GgObj.Search(def_parent_id, &parent_rec) > 0 && parent_rec.Kind == PPGDSK_GROUP && !(parent_rec.Flags & (GF_ALTGROUP|GF_FOLDER))) {
 			; // @ok
 		}
 		else {
@@ -3009,19 +2717,22 @@ int SLAPI PPPosProtocol::AcceptData()
 		}
 		assert(def_parent_id > 0);
 		assert(def_unit_id > 0);
-		for(uint i = 0; i < RdB.GoodsBlkList.getCount(); i++) {
-			GoodsBlock & r_blk = RdB.GoodsBlkList.at(i);
-			uint   ref_pos = 0;
-			if(RdB.SearchRef(obGoods, i, &ref_pos)) {
-				PPID   native_id = 0;
-				THROW(ResolveGoodsBlock(r_blk, ref_pos, 0, def_parent_id, def_unit_id, src_ar_id, &native_id));
-				r_blk.NativeID = native_id;
+		{
+			PPLoadText(PPTXT_IMPGOODS, wait_msg_buf);
+			const uint __count = RdB.GoodsBlkList.getCount();
+			for(uint i = 0; i < __count; i++) {
+				GoodsBlock & r_blk = RdB.GoodsBlkList.at(i);
+				uint   ref_pos = 0;
+				if(RdB.SearchRef(obGoods, i, &ref_pos)) {
+					PPID   native_id = 0;
+					THROW(ResolveGoodsBlock(r_blk, ref_pos, 0, def_parent_id, def_unit_id, src_ar_id, &native_id));
+					r_blk.NativeID = native_id;
+				}
+				else {
+					; // @error
+				}
+				PPWaitPercent(i+1, __count, wait_msg_buf);
 			}
-			else {
-				; // @error
-			}
-			PPLoadText(PPTXT_IMPGOODS, msg_buf);
-			PPWaitPercent(i+1, RdB.GoodsBlkList.getCount(), msg_buf);
 		}
 	}
 	{
@@ -3087,149 +2798,152 @@ int SLAPI PPPosProtocol::AcceptData()
 			}
 			THROW(tra.Commit());
 		}
-		for(uint i = 0; i < RdB.SCardBlkList.getCount(); i++) {
-			SCardBlock & r_blk = RdB.SCardBlkList.at(i);
-			uint   ref_pos = 0;
-			if(RdB.SearchRef(obSCard, i, &ref_pos)) {
-				if(r_blk.Flags & ObjectBlock::fRefItem) {
-					//
-					// Для объектов, переданных как ссылка мы должны найти аналоги в нашей БД, но создавать не будем
-					//
-					RdB.GetS(r_blk.CodeP, temp_buf);
-					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-					if(ScObj.SearchCode(0, temp_buf, &_ex_sc_rec) > 0) {
+		{
+			PPLoadText(PPTXT_IMPSCARD, wait_msg_buf);
+			const uint __count = RdB.SCardBlkList.getCount();
+			for(uint i = 0; i < __count; i++) {
+				SCardBlock & r_blk = RdB.SCardBlkList.at(i);
+				uint   ref_pos = 0;
+				if(RdB.SearchRef(obSCard, i, &ref_pos)) {
+					if(r_blk.Flags & ObjectBlock::fRefItem) {
 						//
-						// Здесь все просто - нашли по коду, значит наша карта
-						// Note: однако, мы абстрагируемся от вероятной сквозной не уникальности номеров карт.
+						// Для объектов, переданных как ссылка мы должны найти аналоги в нашей БД, но создавать не будем
 						//
-						r_blk.NativeID = _ex_sc_rec.ID;
-					}
-				}
-				else {
-					//SCardTbl::Rec sc_pack;
-					//MEMSZERO(sc_pack);
-					PPSCardPacket sc_pack;
-					pretend_obj_list.clear();
-					RdB.GetS(r_blk.CodeP, temp_buf);
-					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-					STRNSCPY(sc_pack.Rec.Code, temp_buf);
-					if(r_blk.Discount != 0.0) {
-						sc_pack.Rec.PDis = R0i(r_blk.Discount * 100);
-					}
-					assert(def_dcard_ser_id);
-					sc_pack.Rec.SeriesID = def_dcard_ser_id;
-					if(r_blk.OwnerBlkP) {
-						PPPersonKind pk_rec;
-						PPID   owner_status_id = PPPRS_PRIVATE;
-						int    ref_type = 0;
-						PersonBlock * p_psn_blk = (PersonBlock *)RdB.GetItem(r_blk.OwnerBlkP, &ref_type);
-						assert(p_psn_blk);
-						assert(ref_type == obPerson);
-						if(p_psn_blk->NativeID) {
-							sc_pack.Rec.PersonID = p_psn_blk->NativeID;
-						}
-						else {
-							const PersonBlock * p_analog = RdB.SearchAnalog_Person(*p_psn_blk);
-							if(p_analog) {
-								sc_pack.Rec.PersonID = p_analog->NativeID;
-								p_psn_blk->NativeID = p_analog->NativeID;
-							}
-						}
-						if(!sc_pack.Rec.PersonID) {
-							psn_pack.destroy();
-							psn_pack.Rec.Status = owner_status_id;
-							RdB.GetS(p_psn_blk->CodeP, code_buf);
-							code_buf.Transf(CTRANSF_UTF8_TO_INNER);
-							RdB.GetS(p_psn_blk->NameP, temp_buf);
-							temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-							STRNSCPY(psn_pack.Rec.Name, temp_buf);
-							PPID   owner_kind_id = (sc_pack.Rec.SeriesID && scs_obj.Fetch(sc_pack.Rec.SeriesID, &scs_rec) > 0) ? scs_rec.PersonKindID : 0;
-							SETIFZ(owner_kind_id, ScObj.GetConfig().PersonKindID);
-							SETIFZ(owner_kind_id, PPPRK_CLIENT);
-							if(owner_kind_id && pk_obj.Search(owner_kind_id, &pk_rec) > 0) {
-								PersonTbl::Rec psn_rec;
-								PPID   reg_type_id = pk_rec.CodeRegTypeID;
-								temp_id_list.clear();
-								if(code_buf.NotEmptyS() && reg_type_id && PsnObj.GetListByRegNumber(reg_type_id, owner_kind_id, code_buf, temp_id_list) > 0) {
-									if(temp_id_list.getCount() == 1)
-										sc_pack.Rec.PersonID = temp_id_list.getSingle();
-									else if(temp_id_list.getCount() > 1) {
-										for(uint k = 0; !sc_pack.Rec.PersonID && k < temp_id_list.getCount(); k++) {
-											if(PsnObj.Search(temp_id_list.get(k), &psn_rec) > 0 && stricmp866(psn_rec.Name, psn_pack.Rec.Name) == 0)
-												sc_pack.Rec.PersonID = psn_rec.ID;
-										}
-									}
-								}
-								if(!sc_pack.Rec.PersonID && psn_pack.Rec.Name[0]) {
-									temp_id_list.clear();
-									temp_id_list.add(owner_kind_id);
-									if(PsnObj.SearchFirstByName(psn_pack.Rec.Name, &temp_id_list, 0, &psn_rec) > 0)
-										sc_pack.Rec.PersonID = psn_rec.ID;
-								}
-								if(sc_pack.Rec.PersonID) {
-									PPPersonPacket ex_psn_pack;
-									THROW(PsnObj.GetPacket(sc_pack.Rec.PersonID, &ex_psn_pack, 0) > 0);
-									STRNSCPY(ex_psn_pack.Rec.Name, psn_pack.Rec.Name);
-									if(reg_type_id && code_buf.NotEmptyS()) {
-										THROW(ex_psn_pack.AddRegister(reg_type_id, code_buf, 1));
-									}
-									psn_pack.Kinds.addUnique(owner_kind_id);
-									THROW(PsnObj.PutPacket(&sc_pack.Rec.PersonID, &ex_psn_pack, 1));
-								}
-								else {
-									if(reg_type_id && code_buf.NotEmptyS()) {
-										RegisterTbl::Rec reg_rec;
-										MEMSZERO(reg_rec);
-										reg_rec.RegTypeID = reg_type_id;
-										STRNSCPY(reg_rec.Num, code_buf);
-									}
-									psn_pack.Kinds.addUnique(owner_kind_id);
-									THROW(PsnObj.PutPacket(&sc_pack.Rec.PersonID, &psn_pack, 1));
-								}
-								p_psn_blk->NativeID = sc_pack.Rec.PersonID;
-							}
-							else {
-								; // @error Не удалось создать персоналию-владельца карты из-за не определенности вида
-							}
-						}
-					}
-					if(ScObj.SearchCode(0, sc_pack.Rec.Code, &_ex_sc_rec) > 0) {
-						pretend_obj_list.add(_ex_sc_rec.ID);
-					}
-					//
-					if(pretend_obj_list.getCount() == 0) {
-						PPID   new_sc_id = 0;
-						if(ScObj.PutPacket(&new_sc_id, &sc_pack, 1)) {
-							r_blk.NativeID = new_sc_id;
-						}
-						else {
-							; // @error
-						}
-					}
-					else if(pretend_obj_list.getCount() == 1) {
-						PPID   sc_id = pretend_obj_list.get(0);
-						PPSCardPacket ex_sc_pack;
-						THROW(ScObj.GetPacket(sc_id, &ex_sc_pack) > 0);
-						STRNSCPY(ex_sc_pack.Rec.Code, sc_pack.Rec.Code);
-						ex_sc_pack.Rec.PDis = sc_pack.Rec.PDis;
-						ex_sc_pack.Rec.PersonID = sc_pack.Rec.PersonID;
-						if(ScObj.PutPacket(&sc_id, &ex_sc_pack, 1)) {
-							r_blk.NativeID = sc_id;
-						}
-						else {
-							; // @error
+						RdB.GetS(r_blk.CodeP, temp_buf);
+						temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+						if(ScObj.SearchCode(0, temp_buf, &_ex_sc_rec) > 0) {
+							//
+							// Здесь все просто - нашли по коду, значит наша карта
+							// Note: однако, мы абстрагируемся от вероятной сквозной не уникальности номеров карт.
+							//
+							r_blk.NativeID = _ex_sc_rec.ID;
 						}
 					}
 					else {
-						; // @error импортируемая карта может быть сопоставлена более чем одной карте в бд.
+						//SCardTbl::Rec sc_pack;
+						//MEMSZERO(sc_pack);
+						PPSCardPacket sc_pack;
+						pretend_obj_list.clear();
+						RdB.GetS(r_blk.CodeP, temp_buf);
+						temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+						STRNSCPY(sc_pack.Rec.Code, temp_buf);
+						if(r_blk.Discount != 0.0) {
+							sc_pack.Rec.PDis = R0i(r_blk.Discount * 100);
+						}
+						assert(def_dcard_ser_id);
+						sc_pack.Rec.SeriesID = def_dcard_ser_id;
+						if(r_blk.OwnerBlkP) {
+							PPPersonKind pk_rec;
+							PPID   owner_status_id = PPPRS_PRIVATE;
+							int    ref_type = 0;
+							PersonBlock * p_psn_blk = (PersonBlock *)RdB.GetItem(r_blk.OwnerBlkP, &ref_type);
+							assert(p_psn_blk);
+							assert(ref_type == obPerson);
+							if(p_psn_blk->NativeID) {
+								sc_pack.Rec.PersonID = p_psn_blk->NativeID;
+							}
+							else {
+								const PersonBlock * p_analog = RdB.SearchAnalog_Person(*p_psn_blk);
+								if(p_analog) {
+									sc_pack.Rec.PersonID = p_analog->NativeID;
+									p_psn_blk->NativeID = p_analog->NativeID;
+								}
+							}
+							if(!sc_pack.Rec.PersonID) {
+								psn_pack.destroy();
+								psn_pack.Rec.Status = owner_status_id;
+								RdB.GetS(p_psn_blk->CodeP, code_buf);
+								code_buf.Transf(CTRANSF_UTF8_TO_INNER);
+								RdB.GetS(p_psn_blk->NameP, temp_buf);
+								temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+								STRNSCPY(psn_pack.Rec.Name, temp_buf);
+								PPID   owner_kind_id = (sc_pack.Rec.SeriesID && scs_obj.Fetch(sc_pack.Rec.SeriesID, &scs_rec) > 0) ? scs_rec.PersonKindID : 0;
+								SETIFZ(owner_kind_id, ScObj.GetConfig().PersonKindID);
+								SETIFZ(owner_kind_id, PPPRK_CLIENT);
+								if(owner_kind_id && pk_obj.Search(owner_kind_id, &pk_rec) > 0) {
+									PersonTbl::Rec psn_rec;
+									PPID   reg_type_id = pk_rec.CodeRegTypeID;
+									temp_id_list.clear();
+									if(code_buf.NotEmptyS() && reg_type_id && PsnObj.GetListByRegNumber(reg_type_id, owner_kind_id, code_buf, temp_id_list) > 0) {
+										if(temp_id_list.getCount() == 1)
+											sc_pack.Rec.PersonID = temp_id_list.getSingle();
+										else if(temp_id_list.getCount() > 1) {
+											for(uint k = 0; !sc_pack.Rec.PersonID && k < temp_id_list.getCount(); k++) {
+												if(PsnObj.Search(temp_id_list.get(k), &psn_rec) > 0 && stricmp866(psn_rec.Name, psn_pack.Rec.Name) == 0)
+													sc_pack.Rec.PersonID = psn_rec.ID;
+											}
+										}
+									}
+									if(!sc_pack.Rec.PersonID && psn_pack.Rec.Name[0]) {
+										temp_id_list.clear();
+										temp_id_list.add(owner_kind_id);
+										if(PsnObj.SearchFirstByName(psn_pack.Rec.Name, &temp_id_list, 0, &psn_rec) > 0)
+											sc_pack.Rec.PersonID = psn_rec.ID;
+									}
+									if(sc_pack.Rec.PersonID) {
+										PPPersonPacket ex_psn_pack;
+										THROW(PsnObj.GetPacket(sc_pack.Rec.PersonID, &ex_psn_pack, 0) > 0);
+										STRNSCPY(ex_psn_pack.Rec.Name, psn_pack.Rec.Name);
+										if(reg_type_id && code_buf.NotEmptyS()) {
+											THROW(ex_psn_pack.AddRegister(reg_type_id, code_buf, 1));
+										}
+										psn_pack.Kinds.addUnique(owner_kind_id);
+										THROW(PsnObj.PutPacket(&sc_pack.Rec.PersonID, &ex_psn_pack, 1));
+									}
+									else {
+										if(reg_type_id && code_buf.NotEmptyS()) {
+											RegisterTbl::Rec reg_rec;
+											MEMSZERO(reg_rec);
+											reg_rec.RegTypeID = reg_type_id;
+											STRNSCPY(reg_rec.Num, code_buf);
+										}
+										psn_pack.Kinds.addUnique(owner_kind_id);
+										THROW(PsnObj.PutPacket(&sc_pack.Rec.PersonID, &psn_pack, 1));
+									}
+									p_psn_blk->NativeID = sc_pack.Rec.PersonID;
+								}
+								else {
+									; // @error Не удалось создать персоналию-владельца карты из-за не определенности вида
+								}
+							}
+						}
+						if(ScObj.SearchCode(0, sc_pack.Rec.Code, &_ex_sc_rec) > 0) {
+							pretend_obj_list.add(_ex_sc_rec.ID);
+						}
+						//
+						if(pretend_obj_list.getCount() == 0) {
+							PPID   new_sc_id = 0;
+							if(ScObj.PutPacket(&new_sc_id, &sc_pack, 1)) {
+								r_blk.NativeID = new_sc_id;
+							}
+							else {
+								; // @error
+							}
+						}
+						else if(pretend_obj_list.getCount() == 1) {
+							PPID   sc_id = pretend_obj_list.get(0);
+							PPSCardPacket ex_sc_pack;
+							THROW(ScObj.GetPacket(sc_id, &ex_sc_pack) > 0);
+							STRNSCPY(ex_sc_pack.Rec.Code, sc_pack.Rec.Code);
+							ex_sc_pack.Rec.PDis = sc_pack.Rec.PDis;
+							ex_sc_pack.Rec.PersonID = sc_pack.Rec.PersonID;
+							if(ScObj.PutPacket(&sc_id, &ex_sc_pack, 1)) {
+								r_blk.NativeID = sc_id;
+							}
+							else {
+								; // @error
+							}
+						}
+						else {
+							; // @error импортируемая карта может быть сопоставлена более чем одной карте в бд.
+						}
 					}
 				}
+				else {
+					; // @error
+				}
+				PPWaitPercent(i+1, __count, wait_msg_buf);
 			}
-			else {
-				; // @error
-			}
-			PPLoadText(PPTXT_IMPSCARD, msg_buf);
-			PPWaitPercent(i+1, RdB.SCardBlkList.getCount(), msg_buf);
 		}
 	}
 	{
@@ -3302,23 +3016,24 @@ int SLAPI PPPosProtocol::SaxParseFile(const char * pFileName)
     return ok;
 }
 
-int SLAPI PPPosProtocol::DestroyReadBlock()
+void SLAPI PPPosProtocol::DestroyReadBlock()
 {
     RdB.Destroy();
-    return 1;
 }
 
-int SLAPI ImportPosRefs()
+int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 {
 	int    ok = -1;
 #ifndef NDEBUG // {
-	const char * p_base_name = "ppp-refs";
+	const char * p_base_name = "pppp";
 	const char * p_done_suffix = "-done";
 	SString in_file_name;
 	SString temp_buf;
 	SPathStruc ps;
-	PPPosProtocol pp;
+	//PPPosProtocol pp;
+	PPWait(1);
 	{
+		SFileEntryPool fep;
 		SString in_path;
 		SDirEntry de;
 		SString done_plus_xml_suffix;
@@ -3329,27 +3044,36 @@ int SLAPI ImportPosRefs()
 			if(de.IsFile()) {
                 const size_t fnl = strlen(de.FileName);
                 if(fnl <= done_plus_xml_suffix.Len() || !sstreqi_ascii(de.FileName+fnl-done_plus_xml_suffix.Len(), done_plus_xml_suffix)) {
-
+					THROW_SL(fep.Add(in_path, de));
                 }
 			}
         }
-		long   _seq = 0;
-		(temp_buf = p_base_name).Dot().Cat("xml");
-		THROW(PPGetFilePath(PPPATH_IN, temp_buf, in_file_name));
-		while(fileExists(in_file_name)) {
-			ps.Split(in_file_name);
-			(ps.Nam = p_base_name).CatChar('-').Cat(++_seq);
-			ps.Merge(in_file_name);
+		fep.Sort(SFileEntryPool::scByWrTime/*|SFileEntryPool::scDesc*/);
+		{
+			SFileEntryPool::Entry fe;
+			for(uint i = 0; i < fep.GetCount(); i++) {
+				if(fep.Get(i, fe)) {
+					(in_file_name = fe.Path).SetLastSlash().Cat(fe.Name);
+					if(fileExists(in_file_name)) {
+						DestroyReadBlock();
+						if(SaxParseFile(in_file_name)) {
+							if(AcceptData(&rPib.QpBlkList)) {
+								if(rPib.Flags & rPib.fRenameProcessed) {
+									ps.Split(in_file_name);
+									ps.Nam.CatChar('-').Cat("done");
+									ps.Merge(temp_buf);
+									if(fileExists(temp_buf))
+										SFile::Remove(temp_buf);
+									SFile::Rename(in_file_name, temp_buf);
+								}
+							}
+							else
+								PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+						}
+					}
+				}
+			}
 		}
-	}
-	PPWait(1);
-	THROW(pp.SaxParseFile(in_file_name));
-	THROW(pp.AcceptData());
-	{
-        ps.Split(in_file_name);
-        ps.Nam.CatChar('-').Cat("done");
-        ps.Merge(temp_buf);
-        SFile::Rename(in_file_name, temp_buf);
 	}
 	PPWait(0);
 	CATCH
@@ -3359,55 +3083,68 @@ int SLAPI ImportPosRefs()
 	return ok;
 }
 
-int SLAPI ExportPosSession(PPID sessID)
+int SLAPI PPPosProtocol::SelectOutFileName(const char * pPath, const char * pInfix, SString & rResult)
 {
-	int    ok = -1;
-/*// @v9.6.2*/ #ifndef NDEBUG // {
-	const char * p_base_name = "ppp-csess";
-	SString out_file_name;
+	rResult = 0;
+	const char * p_base_name = "pppp";
+	int    ok = 1;
 	SString temp_buf;
-	SPathStruc ps;
-	PPPosProtocol pp;
-	PPPosProtocol::WriteBlock wb;
+	SString path;
+	if(isempty(pPath)) {
+		THROW(PPGetPath(PPPATH_OUT, path));
+	}
+	else
+		path = pPath;
 	{
 		long   _seq = 0;
-		(temp_buf = p_base_name).Dot().Cat("xml");
-		THROW(PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name));
-		while(fileExists(out_file_name)) {
-			ps.Split(out_file_name);
-			(ps.Nam = p_base_name).CatChar('-').Cat(++_seq);
-			ps.Merge(out_file_name);
-		}
+		do {
+			temp_buf = p_base_name;
+			if(!isempty(pInfix))
+				temp_buf.CatChar('-').Cat(pInfix);
+			if(_seq)
+				temp_buf.CatChar('-').Cat(_seq);
+			temp_buf.Dot().Cat("xml");
+			(rResult = path).SetLastSlash().Cat(temp_buf);
+			_seq++;
+		} while(::fileExists(rResult));
 	}
-	THROW(pp.StartWriting(out_file_name, wb));
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPPosProtocol::ExportPosSession(const PPIDArray & rSessList)
+{
+	int    ok = -1;
+// @v9.6.2 #ifndef NDEBUG // {
+	SString out_file_name;
+	PPPosProtocol::WriteBlock wb;
+	THROW(SelectOutFileName(0, "csess", out_file_name));
 	{
+		THROW(StartWriting(out_file_name, wb));
 		{
-			DbProvider * p_dict = CurDict;
-			PPPosProtocol::RouteBlock rb;
-			PPVersionInfo vi = DS.GetVersionInfo();
-			vi.GetProductName(rb.System);
-			vi.GetVersion().ToStr(rb.Version);
-			if(p_dict) {
-				p_dict->GetDbUUID(&rb.Uuid);
-				p_dict->GetDbSymb(rb.Code);
+			THROW(WriteSourceRoute(wb));
+			{
+				PPPosProtocol::RouteBlock rb;
+				THROW(WriteRouteInfo(wb, "destination", rb));
 			}
-			THROW(pp.WriteRouteInfo(wb, "source", rb));
 		}
 		{
-			PPPosProtocol::RouteBlock rb;
-			THROW(pp.WriteRouteInfo(wb, "destination", rb));
+			PPObjCSession cs_obj;
+			CSessionTbl::Rec cs_rec;
+			for(uint i = 0; i < rSessList.getCount(); i++) {
+				const PPID sess_id = rSessList.get(i);
+				if(cs_obj.Search(sess_id, &cs_rec) > 0) {
+					if(!WriteCSession(wb, "csession", cs_rec)) {
+						; // @todo logerror
+					}
+				}
+			}
 		}
+		FinishWriting(wb);
 	}
-	{
-		PPObjCSession cs_obj;
-		CSessionTbl::Rec cs_rec;
-		THROW(cs_obj.Search(sessID, &cs_rec) > 0);
-		THROW(pp.WriteCSession(wb, "csession", cs_rec));
-	}
-	pp.FinishWriting(wb);
 	ok = 1;
 	CATCHZOK
-/*// @v9.6.2*/ #endif // } !NDEBUG
+// @v9.6.2 #endif // } !NDEBUG
 	return ok;
 }
 

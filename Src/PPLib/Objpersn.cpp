@@ -4832,7 +4832,7 @@ int MainOrg2Dialog::getDTS()
 				bnk_rec.AccType = PPBAC_CURRENT;
 				bnk_rec.Flags |= BACCTF_PREFERRED;
 				if(find_acc) {
-					if(PPMessage(mfConf|mfYesNo, PPCFM_ADDACC, 0) == cmNo) {
+					if(PPMessage(mfConf|mfYesNo, PPCFM_ADDACC) == cmNo) {
 						THROW(P_Pack->Regs.atFree(bnk_pos));
 						bnk_pos = -1;
 					}
@@ -4869,7 +4869,7 @@ int MainOrg2Dialog::getDTS()
 				bnk_rec.AccType = PPBAC_CURRENT;
 				bnk_rec.Flags |= BACCTF_PREFERRED;
 				if(find_acc) {
-					if(PPMessage(mfConf|mfYesNo, PPCFM_ADDACC, 0) == cmNo) {
+					if(PPMessage(mfConf|mfYesNo, PPCFM_ADDACC) == cmNo) {
 						THROW(P_Pack->BAA.atFree(bnk_pos));
 						bnk_pos = -1;
 					}

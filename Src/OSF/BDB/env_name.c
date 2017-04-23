@@ -37,7 +37,6 @@ static int __db_fullpath __P((ENV*, const char *, const char *, int, int, char *
 			slash = strchr(PATH_SEPARATOR, p[-1]) == NULL;          \
 		}                                                               \
 }
-
 /*
  * __db_fullpath --
  *	Constructs a path name relative to the environment home, and optionally
@@ -45,14 +44,11 @@ static int __db_fullpath __P((ENV*, const char *, const char *, int, int, char *
  */
 static int __db_fullpath(ENV * env, const char * dir, const char * file, int check_file, int check_dir, char ** namep)
 {
-	size_t len;
-	const char * home;
 	char * p, * str;
 	int isdir, ret, slash;
-
-	/* All paths are relative to the environment home. */
-	home = (env == NULL) ? NULL : env->db_home;
-	len = (home == NULL ? 0 : strlen(home)+1)+(dir == NULL ? 0 : strlen(dir)+1)+(file == NULL ? 0 : strlen(file)+1);
+	// All paths are relative to the environment home. 
+	const char * home = env ? env->db_home : 0;
+	size_t len = (!home ? 0 : strlen(home)+1)+(!dir ? 0 : strlen(dir)+1)+(!file ? 0 : strlen(file)+1);
 	if((ret = __os_malloc(env, len, &str)) != 0)
 		return ret;
 	slash = 0;

@@ -1805,7 +1805,6 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 							MEMSZERO(qk_rec);
 						dbfrD.put(next_fld++, GetDatetimeStrBeg(qk_rec.Period.low, qk_rec.BeginTm, dttm_str));
 						dbfrD.put(next_fld++, GetDatetimeStrEnd(qk_rec.Period.upp, qk_rec.EndTm,   dttm_str));
-						// @v7.1.0 {
 						if(qk_rec.HasWeekDayRestriction()) {
 							for(uint d = 0; d < 7; d++)
 								tempbuf[d] = (qk_rec.DaysOfWeek & (1 << d)) ? '1' : '0';
@@ -1816,7 +1815,6 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 						}
 						tempbuf[7] = 0;
 						dbfrD.put(next_fld++, tempbuf); // weekdays
-						// } @v7.1.0
 						THROW_PP(p_tbl->appendRec(&dbfrD), PPERR_DBFWRFAULT);
 					}
 				}
@@ -2963,7 +2961,7 @@ static int FindFirstRec(xmlNodePtr pChild, xmlNodePtr * ppCurRec, const char * p
 	if(pChild)
 		p_rec = pChild;
 	for(; p_rec && ok < 0; p_rec = p_rec->next) {
-		if(stricmp((const char*)p_rec->name, pTag) == 0) {
+		if(sstreqi_ascii((const char*)p_rec->name, pTag)) {
 			*ppCurRec = p_rec;
 			ok = 1;
 		}
@@ -3088,10 +3086,10 @@ SLAPI XmlReader::XmlReader(const char * pPath, PPIDArray * pLogNumList, int subV
 			P_Doc = xmlTextReaderCurrentDoc(P_Reader);
 			if(P_Doc) {
 				xmlNodePtr p_root = xmlDocGetRootElement(P_Doc);
-				if(FindFirstRec(p_root, &P_CurRec, p_chr_tag) > 0 && P_CurRec && stricmp((const char*)P_CurRec->name, p_chr_tag) == 0) {
+				if(FindFirstRec(p_root, &P_CurRec, p_chr_tag) > 0 && P_CurRec && sstreqi_ascii((const char*)P_CurRec->name, p_chr_tag)) {
 					xmlNodePtr p_rec = P_CurRec;
 					for(ChecksCount = 1; p_rec = p_rec->next;)
-						if(stricmp((const char*)p_rec->name, p_chr_tag) == 0)
+						if(sstreqi_ascii((const char*)p_rec->name, p_chr_tag))
 							ChecksCount++;
 				}
 			}
@@ -3123,7 +3121,7 @@ int SLAPI XmlReader::GetGiftCard(xmlNodePtr * pPlugins, SString & rSerial, int i
 	rSerial = 0;
 	if(pPlugins) {
 		for(xmlNodePtr p_plugins = *pPlugins; !is_gift_card && p_plugins; p_plugins = p_plugins->next) {
-			if(stricmp((const char*)p_plugins->name, "plugin-property") == 0 && p_plugins->properties) {
+			if(sstreqi_ascii((const char*)p_plugins->name, "plugin-property") && p_plugins->properties) {
 				xmlAttrPtr p_fld = p_plugins->properties;
 				is_gift_card = 0;
 				serial = 0;
@@ -4218,15 +4216,15 @@ private:
 
 SLAPI XmlZRepReader::XmlZRepReader(const char * pPath)
 {
-	const char * p_chr_tag = "zreport";
 	ZRepsCount = 0;
 	P_CurRec    = 0;
 	P_Doc       = 0;
 	if(pPath)
 		P_Reader = xmlReaderForFile(pPath, NULL, XML_PARSE_NOENT);
 	if(P_Reader) {
-		int r = 0;
-		xmlTextReaderPreservePattern(P_Reader, (const xmlChar*)(const char*)p_chr_tag, NULL);
+		const char * p_chr_tag = "zreport";
+		int    r = 0;
+		xmlTextReaderPreservePattern(P_Reader, (const xmlChar*)p_chr_tag, NULL);
 		r = xmlTextReaderRead(P_Reader);
 		while(r == 1)
 			r = xmlTextReaderRead(P_Reader);
@@ -4234,10 +4232,10 @@ SLAPI XmlZRepReader::XmlZRepReader(const char * pPath)
 			P_Doc = xmlTextReaderCurrentDoc(P_Reader);
 			if(P_Doc) {
 				xmlNodePtr p_root = xmlDocGetRootElement(P_Doc);
-				if(FindFirstRec(p_root, &P_CurRec, p_chr_tag) > 0 && P_CurRec && stricmp((const char*)P_CurRec->name, p_chr_tag) == 0) {
+				if(FindFirstRec(p_root, &P_CurRec, p_chr_tag) > 0 && P_CurRec && sstreqi_ascii((const char*)P_CurRec->name, p_chr_tag)) {
 					xmlNodePtr p_rec = P_CurRec;
 					for(ZRepsCount = 1; p_rec = p_rec->next;)
-						if(stricmp((const char*)p_rec->name, p_chr_tag) == 0)
+						if(sstreqi_ascii((const char*)p_rec->name, p_chr_tag))
 							ZRepsCount++;
 				}
 			}

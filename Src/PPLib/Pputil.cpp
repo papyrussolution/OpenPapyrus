@@ -4,7 +4,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <idea.h>
+// @v9.6.3 #include <idea.h>
 
 // Prototype
 DBFCreateFld * SLAPI LoadDBFStruct(uint rezID, uint * pNumFlds);
@@ -180,10 +180,8 @@ int SLAPI PPCmpSubStr(const char * pStr, int idx, const char * pTestStr, int ign
 
 int SLAPI PPGetSubStr(uint strID, int idx, SString & dest)
 {
-	int    ok = 0;
 	SString temp;
-	if(PPLoadText(strID, temp))
-		ok = PPGetSubStr(temp, idx, dest);
+	int    ok = PPLoadText(strID, temp) ? PPGetSubStr(temp, idx, dest) : 0;
 	if(!ok)
 		dest = 0;
 	return ok;
@@ -191,10 +189,8 @@ int SLAPI PPGetSubStr(uint strID, int idx, SString & dest)
 
 int SLAPI PPGetSubStr(uint strID, int idx, char * pBuf, size_t bufLen)
 {
-	int    ok = 0;
 	SString temp;
-	if(PPLoadText(strID, temp))
-		ok = PPGetSubStr(temp, idx, pBuf, bufLen);
+	int    ok = PPLoadText(strID, temp) ? PPGetSubStr(temp, idx, pBuf, bufLen) : 0;
 	if(!ok && pBuf)
 		pBuf[0] = 0;
 	return ok;

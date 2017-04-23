@@ -203,17 +203,17 @@ int zbar_video_open(zbar_video_t * vdo,
 int zbar_video_get_fd(const zbar_video_t * vdo)
 {
 	if(vdo->intf == VIDEO_INVALID)
-		return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "video device not opened"));
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "video device not opened");
 	if(vdo->intf != VIDEO_V4L2)
-		return(err_capture(vdo, SEV_WARNING, ZBAR_ERR_UNSUPPORTED, __func__, "video driver does not support polling"));
-	return(vdo->fd);
+		return err_capture(vdo, SEV_WARNING, ZBAR_ERR_UNSUPPORTED, __func__, "video driver does not support polling");
+	return vdo->fd;
 }
 
 int zbar_video_request_size(zbar_video_t * vdo, uint width, uint height)
 {
 	if(vdo->initialized)
 		/* FIXME re-init different format? */
-		return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "already initialized, unable to resize"));
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "already initialized, unable to resize");
 	vdo->width = width;
 	vdo->height = height;
 	zprintf(1, "request size: %d x %d\n", width, height);
@@ -223,7 +223,7 @@ int zbar_video_request_size(zbar_video_t * vdo, uint width, uint height)
 int zbar_video_request_interface(zbar_video_t * vdo, int ver)
 {
 	if(vdo->intf != VIDEO_INVALID)
-		return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "device already opened, unable to change interface"));
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "device already opened, unable to change interface");
 	vdo->intf = (video_interface_t)ver;
 	zprintf(1, "request interface version %d\n", vdo->intf);
 	return 0;
@@ -232,9 +232,9 @@ int zbar_video_request_interface(zbar_video_t * vdo, int ver)
 int zbar_video_request_iomode(zbar_video_t * vdo, int iomode)
 {
 	if(vdo->intf != VIDEO_INVALID)
-		return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "device already opened, unable to change iomode"));
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "device already opened, unable to change iomode");
 	if(iomode < 0 || iomode > VIDEO_USERPTR)
-		return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "invalid iomode requested"));
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "invalid iomode requested");
 	vdo->iomode = (video_iomode_t)iomode;
 	return 0;
 }
@@ -263,11 +263,8 @@ static inline int video_init_images(zbar_video_t * vdo)
 		vdo->buflen = vdo->num_images * vdo->datalen;
 		vdo->buf = calloc(1, vdo->buflen);
 		if(!vdo->buf)
-			return(err_capture(vdo, SEV_FATAL, ZBAR_ERR_NOMEM, __func__,
-				    "unable to allocate image buffers"));
-		zprintf(1, "pre-allocated %d %s buffers size=0x%lx\n", vdo->num_images,
-		    (vdo->iomode == VIDEO_READWRITE) ? "READ" : "USERPTR",
-		    vdo->buflen);
+			return err_capture(vdo, SEV_FATAL, ZBAR_ERR_NOMEM, __func__, "unable to allocate image buffers");
+		zprintf(1, "pre-allocated %d %s buffers size=0x%lx\n", vdo->num_images, (vdo->iomode == VIDEO_READWRITE) ? "READ" : "USERPTR", vdo->buflen);
 	}
 	for(i = 0; i < vdo->num_images; i++) {
 		zbar_image_t * img = vdo->images[i];
@@ -291,9 +288,7 @@ int zbar_video_init(zbar_video_t * vdo,
 #endif
 	if(vdo->initialized)
 		/* FIXME re-init different format? */
-		return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__,
-			    "already initialized, re-init unimplemented"));
-
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "already initialized, re-init unimplemented");
 	if(vdo->init(vdo, fmt))
 		return -1;
 	vdo->format = fmt;
@@ -320,22 +315,16 @@ int zbar_video_init(zbar_video_t * vdo,
 	return 0;
 }
 
-int zbar_video_enable(zbar_video_t * vdo,
-    int enable)
+int zbar_video_enable(zbar_video_t * vdo, int enable)
 {
 	if(vdo->active == enable)
 		return 0;
-
 	if(enable) {
 		if(vdo->intf == VIDEO_INVALID)
-			return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__,
-				    "video device not opened"));
-
-		if(!vdo->initialized &&
-		    zbar_negotiate_format(vdo, NULL))
+			return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "video device not opened");
+		if(!vdo->initialized && zbar_negotiate_format(vdo, NULL))
 			return -1;
 	}
-
 	if(video_lock(vdo))
 		return -1;
 	vdo->active = enable;
@@ -343,10 +332,8 @@ int zbar_video_enable(zbar_video_t * vdo,
 		/* enqueue all buffers */
 		int i;
 		for(i = 0; i < vdo->num_images; i++)
-			if(vdo->nq(vdo, vdo->images[i]) ||
-			    ((i + 1 < vdo->num_images) && video_lock(vdo)))
+			if(vdo->nq(vdo, vdo->images[i]) || ((i + 1 < vdo->num_images) && video_lock(vdo)))
 				return -1;
-
 		return(vdo->start(vdo));
 	}
 	else {
@@ -356,7 +343,6 @@ int zbar_video_enable(zbar_video_t * vdo,
 		vdo->nq_image = vdo->dq_image = NULL;
 		if(video_unlock(vdo))
 			return -1;
-
 		return(vdo->stop(vdo));
 	}
 }

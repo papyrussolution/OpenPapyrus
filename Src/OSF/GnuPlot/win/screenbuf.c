@@ -66,7 +66,6 @@ void lb_init(LPLB lb)
 static void lb_free(LPLB lb)
 {
 	assert(lb != NULL);
-
 	free(lb->str);
 	free(lb->attr);
 	lb_init(lb);
@@ -453,7 +452,6 @@ void sb_find_new_pos(LPSB sb, uint x, uint y, uint new_wrap_at, uint * new_x, ui
 	uint old_wrap_at;
 	uint idx, xofs;
 	uint i;
-
 	/* determine index of corresponding internal line */
 	internal_length = sb_internal_length(sb);
 	for(idx = line_count = 0; idx < internal_length; idx++) {
@@ -461,28 +459,22 @@ void sb_find_new_pos(LPSB sb, uint x, uint y, uint new_wrap_at, uint * new_x, ui
 		if(line_count + lines > y) break;
 		line_count += lines;
 	}
-
 	if(line_count == 0) {
 		*new_x = *new_y = 0;
 		return;
 	}
-
 	/* calculate x offset within this line */
 	xofs = x + (y - line_count) * sb->wrap_at;
-
 	if(new_wrap_at) {
 		/* temporarily switch wrapping */
 		old_wrap_at = sb->wrap_at;
 		sb->wrap_at = new_wrap_at;
-
 		/* count lines with new wrapping */
 		for(i = line_count = 0; i < idx; i++)
 			line_count += sb_lines(sb, sb_internal_get(sb, i));
-
 		/* determine new position */
 		*new_x = xofs % new_wrap_at;
 		*new_y = line_count + (xofs / new_wrap_at);
-
 		/* switch wrapping back */
 		sb->wrap_at = old_wrap_at;
 	}
@@ -495,11 +487,9 @@ void sb_find_new_pos(LPSB sb, uint x, uint y, uint new_wrap_at, uint * new_x, ui
 void sb_wrap(LPSB sb, uint wrap_at)
 {
 	sb->wrap_at = wrap_at;
-
 	/* invalidate line cache */
 	sb->last_line = 0;
 	sb->last_line_index = 0;
-
 	/* update length cache */
 	sb->length = sb_calc_length(sb);
 }
@@ -510,11 +500,8 @@ void sb_wrap(LPSB sb, uint wrap_at)
  */
 void sb_last_insert_str(LPSB sb, uint pos, char * s, uint count)
 {
-	LPLB lb;
-	uint len;
-
-	lb = sb_get_last(sb);
-	len = sb_lines(sb, lb);
+	LPLB lb = sb_get_last(sb);
+	uint len = sb_lines(sb, lb);
 	lb_insert_str(lb, pos, s, count);
 	/* check if total length of sb has changed */
 	sb->length += sb_lines(sb, lb) - len;

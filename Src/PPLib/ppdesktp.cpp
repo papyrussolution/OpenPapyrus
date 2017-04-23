@@ -1267,7 +1267,7 @@ void PPDesktop::WMHCreate(LPCREATESTRUCT)
 PPCommandMngr * PPDesktop::LoadDeskList(int readOnly, PPCommandGroup * pDesktopList)
 {
 	PPCommandMngr * p_mgr = 0;
-	THROW_PP(pDesktopList, PPERR_INVPARAM);
+	THROW_INVARG(pDesktopList);
 	THROW(p_mgr = GetCommandMngr(readOnly, 1, 0));
 	THROW_PP(p_mgr->Load(pDesktopList), PPERR_CANTLOADDESKTOPLIST);
 	CATCH
@@ -1317,7 +1317,7 @@ int PPDesktop::SaveDesktop(PPCommandMngr * pMgr, PPCommandGroup * pDeskList)
 			p_mgr       = pMgr;
 			p_desk_list = pDeskList;
 		}
-		THROW_PP(p_desk_list, PPERR_INVPARAM);
+		THROW_INVARG(p_desk_list);
 		THROW(ok);
 		{
 			uint   pos = 0;

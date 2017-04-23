@@ -369,7 +369,7 @@ int SLAPI PPGoodsStruc::GetEstimationPrice(uint itemIdx, double * pPrice, double
 		}
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	ASSIGN_PTR(pRec, rec);
 	ASSIGN_PTR(pPrice, p);
 	ASSIGN_PTR(pTotalPrice, t);
@@ -1772,7 +1772,7 @@ void GSExtDialog::selNamedGS()
 		PPObjGoodsStruc gs_obj;
 		PPID   id = Data.Rec.ID;
 		if(!Data.IsNamed() && !Data.IsEmpty()) {
-			PPMessage(mfConf | mfOK, PPCFM_SELNAMEDSTRUC, 0);
+			PPMessage(mfConf | mfOK, PPCFM_SELNAMEDSTRUC);
 			id = 0;
 		}
 		SetupPPObjCombo(dlg, CTLSEL_GSDATA_NAMEDSTRUC, PPOBJ_GOODSSTRUC, id, 0, 0);

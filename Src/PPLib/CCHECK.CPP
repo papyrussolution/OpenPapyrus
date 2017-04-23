@@ -1862,7 +1862,7 @@ int SLAPI CCheckCore::LoadLinesBySessList(PPID goodsID, const PPIDArray * pSessL
 		}
 	}
 	else
-		PPSetError(PPERR_INVPARAM);
+		PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }

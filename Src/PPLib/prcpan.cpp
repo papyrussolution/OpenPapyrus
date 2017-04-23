@@ -285,7 +285,7 @@ int FASTCALL PrcPaneDialog::valid(ushort command)
 			clearPanel();
 			r = 0;
 		}
-		else if(PPMessage(mfConf|mfYesNo, PPCFM_CLOSEPRCPANE, 0) == cmYes)
+		else if(PPMessage(mfConf|mfYesNo, PPCFM_CLOSEPRCPANE) == cmYes)
 			r = 1;
 		else
 			r = 0;

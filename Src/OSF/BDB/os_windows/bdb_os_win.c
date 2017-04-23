@@ -1015,7 +1015,7 @@ int __os_fdlock(ENV * env, DB_FH * fhp, off_t offset, int acquire, int nowait)
 	DWORD low, high;
 	OVERLAPPED over;
 	int ret;
-	DB_ENV * dbenv = (env == NULL) ? NULL : env->dbenv;
+	DB_ENV * dbenv = env ? env->dbenv : 0;
 	DB_ASSERT(env, F_ISSET(fhp, DB_FH_OPENED) && fhp->handle != INVALID_HANDLE_VALUE);
 	if(dbenv != NULL && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS_ALL))
 		__db_msg(env, DB_STR_A("0020", "fileops: flock %s %s offset %lu", "%s %s %lu"),
@@ -1059,11 +1059,10 @@ int __os_fdlock(ENV * env, DB_FH * fhp, off_t offset, int acquire, int nowait)
 int __os_fsync(ENV * env, DB_FH * fhp)
 {
 	int ret;
-	DB_ENV * dbenv = (env == NULL) ? NULL : env->dbenv;
-	/*
-	 * Do nothing if the file descriptor has been marked as not requiring
-	 * any sync to disk.
-	 */
+	DB_ENV * dbenv = env ? env->dbenv : 0;
+	//
+	// Do nothing if the file descriptor has been marked as not requiring any sync to disk.
+	//
 	if(F_ISSET(fhp, DB_FH_NOSYNC))
 		return 0;
 	if(dbenv != NULL && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS_ALL))
@@ -1621,11 +1620,10 @@ int __os_io(ENV * env, int op, DB_FH * fhp, db_pgno_t pgno, uint32 pgsize, uint3
 	int ret;
 #ifndef DB_WINCE
 	if(__os_is_winnt()) {
-		DB_ENV * dbenv;
 		DWORD nbytes;
 		OVERLAPPED over;
 		ULONG64 off;
-		dbenv = env == NULL ? NULL : env->dbenv;
+		DB_ENV * dbenv = env ? env->dbenv : 0;
 		if((off = relative) == 0)
 			off = (ULONG64)pgsize*pgno;
 		over.Offset = (DWORD)(off&0xffffffff);
@@ -1912,11 +1910,10 @@ int __os_get_cluster_size(const char * path, uint32 * psize)
  */
 int __os_exists(ENV * env, const char * path, int * isdirp)
 {
-	DB_ENV * dbenv;
 	DWORD attrs;
 	_TCHAR * tpath;
 	int ret;
-	dbenv = env == NULL ? NULL : env->dbenv;
+	DB_ENV * dbenv = env ? env->dbenv : 0;
 	TO_TSTRING(env, path, tpath, ret);
 	if(ret != 0)
 		return ret;

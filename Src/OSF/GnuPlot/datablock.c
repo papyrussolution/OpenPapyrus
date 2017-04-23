@@ -88,7 +88,7 @@ void datablock_command(GpCommand & rC)
 	UdvtEntry * datablock;
 	char * dataline = NULL;
 	if(!rC.IsLetter(rC.CToken+1))
-		GpGg.IntError(rC, rC.CToken, "illegal datablock name");
+		GpGg.IntErrorCurToken("illegal datablock name");
 	// Create or recycle a datablock with the requested name 
 	name = rC.ParseDataBlockName();
 	datablock = GpGg.Ev.AddUdvByName(name);
@@ -97,7 +97,7 @@ void datablock_command(GpCommand & rC)
 	datablock->udv_value.type = DATABLOCK;
 	datablock->udv_value.v.data_array = NULL;
 	if(!rC.Eq("<<") || !rC.IsLetter(rC.CToken+1))
-		GpGg.IntError(rC, rC.CToken, "data block name must be followed by << EODmarker");
+		GpGg.IntErrorCurToken("data block name must be followed by << EODmarker");
 	rC.CToken++;
 	eod = (char*)malloc(rC.P_Token[rC.CToken].length +2);
 	rC.CopyStr(&eod[0], rC.CToken, rC.P_Token[rC.CToken].length + 2);
@@ -105,7 +105,7 @@ void datablock_command(GpCommand & rC)
 	// Read in and store data lines until EOD 
 	fin = (lf_head == NULL) ? stdin : lf_head->fp;
 	if(!fin)
-		GpGg.IntError(GpC, NO_CARET, "attempt to define data block from invalid context");
+		GpGg.IntErrorNoCaret("attempt to define data block from invalid context");
 	for(nlines = 0; (dataline = GpDf.DfFGets(rC, fin)); nlines++) {
 		int n;
 		if(!strncmp(eod, dataline, strlen(eod)))
@@ -149,7 +149,7 @@ char ** get_datablock(char * name)
 {
 	UdvtEntry * datablock = GpGg.Ev.GetUdvByName(name);
 	if(!datablock || datablock->udv_value.type == NOTDEFINED ||  datablock->udv_value.v.data_array == NULL)
-		GpGg.IntError(GpC, NO_CARET, "no datablock named %s", name);
+		GpGg.IntErrorNoCaret("no datablock named %s", name);
 	return datablock->udv_value.v.data_array;
 }
 

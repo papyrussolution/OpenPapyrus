@@ -5,7 +5,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <idea.h>
+// @v9.6.3 #include <idea.h>
 
 //static
 int SLAPI Reference::Helper_EncodeOtherPw(const char * pEncPw, const char * pPw, size_t pwBufSize, SString & rResult)
@@ -464,7 +464,7 @@ int SLAPI Reference::InitEnumByIdxVal(PPID objType, int valN, long val, long * p
 		ok = EnumList.RegisterIterHandler(q, pHandle);
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -2372,10 +2372,10 @@ int SLAPI TextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText, i
 {
     int    ok = 1;
     SStringU _t;
-    THROW_PP(rI.L >= 0, PPERR_INVPARAM);
-    THROW_PP(rI.P >= 0, PPERR_INVPARAM);
-    THROW_PP(rI.O.Obj > 0, PPERR_INVPARAM);
-    THROW_PP(rI.O.Id > 0, PPERR_INVPARAM);
+    THROW_INVARG(rI.L >= 0);
+    THROW_INVARG(rI.P >= 0);
+    THROW_INVARG(rI.O.Obj > 0);
+    THROW_INVARG(rI.O.Id > 0);
     {
     	PPTransaction tra(use_ta);
     	THROW(tra);
@@ -2510,10 +2510,10 @@ int SLAPI UnxTextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText
     int    ok = 1;
 	SString utf_buf;
     SStringU _t;
-    THROW_PP(rI.L >= 0, PPERR_INVPARAM);
-    THROW_PP(rI.P >= 0, PPERR_INVPARAM);
-    THROW_PP(rI.O.Obj > 0, PPERR_INVPARAM);
-    THROW_PP(rI.O.Id > 0, PPERR_INVPARAM);
+    THROW_INVARG(rI.L >= 0);
+    THROW_INVARG(rI.P >= 0);
+    THROW_INVARG(rI.O.Obj > 0);
+    THROW_INVARG(rI.O.Id > 0);
     {
     	_t = pText;
         _t.CopyToUtf8(utf_buf, 1);
@@ -2656,7 +2656,7 @@ SLTEST_R(Reference_EnumItems)
 		THROW(SLTEST_CHECK_EQ((long)temp_list.getCount(), (long)obj_type_list.getCount()));
 		obj_type_list = temp_list;
 	}
-	if(!pBenchmark || stricmp(pBenchmark, "EnumItems") == 0) {
+	if(!pBenchmark || sstreqi_ascii(pBenchmark, "EnumItems")) {
 		//
 		// Перебираем все записи всех объектов методом Reference::EnumItems
 		//
@@ -2667,7 +2667,7 @@ SLTEST_R(Reference_EnumItems)
 			}
 		}
 	}
-	if(!pBenchmark || stricmp(pBenchmark, "NextEnum") == 0) {
+	if(!pBenchmark || sstreqi_ascii(pBenchmark, "NextEnum")) {
 		//
 		// Перебираем все записи всех объектов методами Reference::InitEnum, Reference::NextEnum
 		//

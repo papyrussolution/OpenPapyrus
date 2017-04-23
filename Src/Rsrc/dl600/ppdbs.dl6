@@ -4451,6 +4451,7 @@ file:
 //
 //
 //
+/*
 table TempGoodsObjAssc {
 	long   GoodsID;
 	long   ObjID;
@@ -4465,6 +4466,7 @@ file:
 	temporary;
 	acstable = "rusncase.alt";
 }
+*/
 //
 //
 //

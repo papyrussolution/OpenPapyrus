@@ -350,9 +350,9 @@ static void CACA_options(GpCommand & rC)
 			    else if(rC.Eq("unicode"))
 				    CACA_charset = CACA_UNICODE;
 			    else if(!rC.EndOfCommand())
-				    GpGg.IntError(rC, rC.CToken, "Unknown character set.");
+				    GpGg.IntErrorCurToken("Unknown character set.");
 			    else
-				    GpGg.IntError(rC, rC.CToken, "Option `charset` requires an argument, see `help caca`.");
+				    GpGg.IntErrorCurToken("Option `charset` requires an argument, see `help caca`.");
 			    rC.CToken++;
 			    break;
 		    }
@@ -403,7 +403,7 @@ static void CACA_options(GpCommand & rC)
 					    CACA_driver = driver;
 				    }
 				    else {
-					    GpGg.IntError(rC, rC.CToken, "Option `driver` requires an argument, see `help caca`.");
+					    GpGg.IntErrorCurToken("Option `driver` requires an argument, see `help caca`.");
 				    }
 			    }
 
@@ -434,7 +434,7 @@ static void CACA_options(GpCommand & rC)
 				    if(!found) {
 					    free(CACA_driver);
 					    CACA_driver = NULL;
-					    GpGg.IntError(rC, rC.CToken, "Unknown driver or export format.");
+					    GpGg.IntErrorCurToken("Unknown driver or export format.");
 				    }
 			    }
 
@@ -488,12 +488,12 @@ static void CACA_options(GpCommand & rC)
 				    CACA_title = strdup(rC.TryToGetString());
 			    }
 			    else {
-				    GpGg.IntError(rC, rC.CToken, "Option `title` requires an argument, see `help caca`.");
+				    GpGg.IntErrorCurToken("Option `title` requires an argument, see `help caca`.");
 			    }
 			    break;
 			case CACA_OTHER:
 			default:
-			    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+			    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    break;
 		}
 	}
@@ -3126,7 +3126,7 @@ static bool process_event(char type, int mx, int my, int par1, int par2, int win
 	ge.par1 = par1;
 	ge.par2 = par2;
 	ge.winid = winid;
-	GpGg.DoEvent(term, GpC, &ge);
+	GpGg.DoEvent(term, &ge);
 
 	/* FIXME: IMHO changing paused_for_mouse in terminal code is bad design. */
 	/* end pause mouse? */

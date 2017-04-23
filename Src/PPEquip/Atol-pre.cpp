@@ -548,7 +548,7 @@ int SLAPI ACS_ATOL::SetGoodsRestLoadFlag(int updOnly)
 	int    ok = -1, use_replace_qtty_wosale = 0;
 	PPIniFile  ini_file;
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ATOL_QTTYWOSALE, &use_replace_qtty_wosale);
-	if(use_replace_qtty_wosale && (updOnly || PPMessage(mfConf|mfYesNo, PPCFM_LOADGDSRESTWOSALES, 0) == cmYes)) {
+	if(use_replace_qtty_wosale && (updOnly || PPMessage(mfConf|mfYesNo, PPCFM_LOADGDSRESTWOSALES) == cmYes)) {
 		Flags |= PPACSF_LOADRESTWOSALES;
 		ok = 1;
 	}

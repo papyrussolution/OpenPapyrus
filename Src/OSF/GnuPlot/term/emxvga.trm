@@ -391,16 +391,16 @@ int emx_xlast, emx_ylast;
 static void
 EMXVESA_options()
 {
-    if(!GpC.EndOfCommand()) {
-	if(GpC.AlmostEq("d$efault")) {
+    if(!GpGg.Gp__C.EndOfCommand()) {
+	if(GpGg.Gp__C.AlmostEq("d$efault")) {
 	    emx_vesamode = G640x480x256;
-	    GpC.CToken++;
+	    GpGg.Gp__C.CToken++;
 	}
     }
-    if(!GpC.EndOfCommand()) {
+    if(!GpGg.Gp__C.EndOfCommand()) {
 	/* We have a vesa mode specified */
 	t_value a;
-	emx_vesamode = (int) GpC.ConstExpress(&a)->Real();
+	emx_vesamode = (int) GpGg.Gp__C.ConstExpress(&a)->Real();
     }
     sprintf(term_options, "%d", emx_vesamode);
 }
@@ -409,7 +409,7 @@ static void
 EMXVESA_init()
 {
     if(!g_mode(emx_vesamode))
-	GpGg.IntError(GpC, NO_CARET, "Couldn't select graphics mode");
+	GpGg.IntErrorNoCaret("Couldn't select graphics mode");
     emx_xlast = g_xsize - 1;
     term->xmax = emx_xlast + 1;
     emx_ylast = g_ysize - 1;
@@ -430,7 +430,7 @@ EMXVESA_text()
     ch = getch();
     g_mode(GTEXT);
     if(ch == 3)
-	GpGg.IntError(GpC, NO_CARET, "Interrupt");
+	GpGg.IntErrorNoCaret("Interrupt");
 }
 
 static void

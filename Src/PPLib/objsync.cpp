@@ -229,7 +229,7 @@ int SLAPI ObjSyncCore::Remove_S(const ObjSyncIdent * pIdent, int use_ta)
 int SLAPI ObjSyncCore::AddRawRecord(ObjSyncTbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1;
-	THROW_PP(pRec, PPERR_INVPARAM);
+	THROW_INVARG(pRec);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);

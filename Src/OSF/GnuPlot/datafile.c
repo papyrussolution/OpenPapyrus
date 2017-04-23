@@ -107,7 +107,7 @@ GpDatafile GpDf; // @global
 #define is_EOF(c) ((c) == 'e' || (c) == 'E') // test to see if the end of an inline datafile is reached
 #define is_comment(c) ((c) && (strchr(df_commentschars, (c)) != NULL)) // is it a comment line?
 #define NOTSEP (!df_separators || !strchr(df_separators, *s)) // Used to skip whitespace but not cross a field boundary
-#define DATA_LINE_BUFSIZ 160 // These control the handling of fields in the first row of a data file. See also GpC.P.Parse1stRowAsHeaders.
+#define DATA_LINE_BUFSIZ 160 // These control the handling of fields in the first row of a data file. See also GpGg.Gp__C.P.Parse1stRowAsHeaders.
 
 static bool valid_format(const char*);
 #ifdef BACKWARDS_COMPATIBLE
@@ -566,7 +566,7 @@ float * GpDatafile::DfReadMatrix(int * rows, int * cols)
 	*rows = 0;
 	*cols = 0;
 	for(;; ) {
-		if(!(s = DfGets(GpC))) {
+		if(!(s = DfGets(GpGg.Gp__C))) {
 			df_eof = 1;
 			return linearized_matrix; // NULL if we have not read anything yet
 		}
@@ -618,7 +618,7 @@ float * GpDatafile::DfReadMatrix(int * rows, int * cols)
 		if(*cols && c != *cols) {
 			// it's not regular
 			free(linearized_matrix);
-			GpGg.IntError(GpC, NO_CARET, "Matrix does not represent a grid");
+			GpGg.IntErrorNoCaret("Matrix does not represent a grid");
 		}
 		*cols = c;
 		++*rows;
@@ -751,10 +751,10 @@ int GpDatafile::DfOpen(GpCommand & rC, const char * cmd_filename, int max_using,
 	df_already_got_headers = false;
 	/*}}} */
 	if(!cmd_filename)
-		GpGg.IntError(rC, rC.CToken, "missing filename");
+		GpGg.IntErrorCurToken("missing filename");
 	if(!cmd_filename[0]) {
 		if(!df_filename || !*df_filename)
-			GpGg.IntError(rC, rC.CToken, "No previous filename");
+			GpGg.IntErrorCurToken("No previous filename");
 	}
 	else {
 		free(df_filename);
@@ -772,7 +772,7 @@ int GpDatafile::DfOpen(GpCommand & rC, const char * cmd_filename, int max_using,
 		/* look for binary / matrix */
 		if(rC.AlmostEq("bin$ary")) {
 			if(df_filename[0] == '$')
-				GpGg.IntError(rC, rC.CToken, "data blocks cannot be binary");
+				GpGg.IntErrorCurToken("data blocks cannot be binary");
 			rC.CToken++;
 			if(df_binary_file || set_skip) {
 				duplication = true;
@@ -799,7 +799,7 @@ int GpDatafile::DfOpen(GpCommand & rC, const char * cmd_filename, int max_using,
 			 * some keyword specific to general binary has been given.
 			 */
 			if(!df_matrix_file && df_binary_file)
-				GpGg.IntError(rC, rC.CToken, matrix_general_binary_conflict_msg);
+				GpGg.IntErrorCurToken(matrix_general_binary_conflict_msg);
 			df_matrix_file = true;
 			set_matrix = true;
 			fast_columns = 0;
@@ -902,7 +902,7 @@ int GpDatafile::DfOpen(GpCommand & rC, const char * cmd_filename, int max_using,
 		break; // unknown option 
 	}
 	if(duplication)
-		GpGg.IntError(rC, rC.CToken, "duplicated or contradicting arguments in datafile options");
+		GpGg.IntErrorCurToken("duplicated or contradicting arguments in datafile options");
 	// Check for auto-generation of key title from column header
 	// Mar 2009:  This may no longer be the best place for this!
 	if(GpGg.keyT.auto_titles == COLUMNHEAD_KEYTITLES) {
@@ -944,11 +944,11 @@ int GpDatafile::DfOpen(GpCommand & rC, const char * cmd_filename, int max_using,
 		// read from an already open file descriptor 
 		data_fd = strtol(df_filename + 2, &substr, 10);
 		if(*substr != '\0' || data_fd < 0 || substr == df_filename+2)
-			GpGg.IntError(GpC, name_token, "invalid file descriptor integer");
+			GpGg.IntError(name_token, "invalid file descriptor integer");
 		else if(data_fd == fileno(stdin) || data_fd == fileno(stdout) || data_fd == fileno(stderr))
-			GpGg.IntError(GpC, name_token, "cannot plot from stdin/stdout/stderr");
+			GpGg.IntError(name_token, "cannot plot from stdin/stdout/stderr");
 		else if((data_fp = fdopen(data_fd, "r")) == (FILE*)NULL)
-			GpGg.IntError(GpC, name_token, "cannot open file descriptor for reading data");
+			GpGg.IntError(name_token, "cannot open file descriptor for reading data");
 		// if this stream isn't seekable, set it to volatile
 		if(fseek(data_fp, 0, SEEK_CUR) < 0)
 			GpGg.IsVolatileData = true;
@@ -984,7 +984,7 @@ int GpDatafile::DfOpen(GpCommand & rC, const char * cmd_filename, int max_using,
 		df_datablock_line = get_datablock(df_filename);
 	}
 	else if(!strcmp(df_filename, "@@") && rC.P.P_DfArray) {
-		// GpC.P.P_DfArray was set in string_or_express() 
+		// GpGg.Gp__C.P.P_DfArray was set in string_or_express() 
 		df_array_index = 0;
 	}
 	else {
@@ -1119,7 +1119,7 @@ void GpDatafile::PlotOptionEvery(GpCommand & rC)
 		if(everypoint < 0)
 			everypoint = 1;
 		else if(everypoint < 1)
-			GpGg.IntError(rC, rC.CToken, "Expected positive integer");
+			GpGg.IntErrorCurToken("Expected positive integer");
 	}
 	/* if it fails on first test, no more tests will succeed. If it
 	 * fails on second test, next test will succeed with correct
@@ -1129,7 +1129,7 @@ void GpDatafile::PlotOptionEvery(GpCommand & rC)
 		if(everyline < 0)
 			everyline = 1;
 		else if(everyline < 1)
-			GpGg.IntError(rC, rC.CToken, "Expected positive integer");
+			GpGg.IntErrorCurToken("Expected positive integer");
 	}
 	if(rC.Eq(":") && !rC.Eq(++rC.CToken, ":")) {
 		firstpoint = rC.IntExpression();
@@ -1144,7 +1144,7 @@ void GpDatafile::PlotOptionEvery(GpCommand & rC)
 		if(lastpoint < 0)
 			lastpoint = MAXINT;
 		else if(lastpoint < firstpoint)
-			GpGg.IntError(rC, rC.CToken, "Last point must not be before first point");
+			GpGg.IntErrorCurToken("Last point must not be before first point");
 	}
 	if(rC.Eq(":")) {
 		++rC.CToken;
@@ -1152,14 +1152,14 @@ void GpDatafile::PlotOptionEvery(GpCommand & rC)
 		if(lastline < 0) 
 			lastline = MAXINT;
 		else if(lastline < firstline)
-			GpGg.IntError(rC, rC.CToken, "Last line must not be before first line");
+			GpGg.IntErrorCurToken("Last line must not be before first line");
 	}
 }
 
 void GpDatafile::PlotOptionIndex(GpCommand & rC)
 {
 	if(df_binary_file && df_matrix_file)
-		GpGg.IntError(rC, rC.CToken, "Binary matrix file format does not allow more than one surface per file");
+		GpGg.IntErrorCurToken("Binary matrix file format does not allow more than one surface per file");
 	++rC.CToken;
 	// Check for named index 
 	if((indexname = rC.TryToGetString())) {
@@ -1169,7 +1169,7 @@ void GpDatafile::PlotOptionIndex(GpCommand & rC)
 	// Numerical index list 
 	df_lower_index = rC.IntExpression();
 	if(df_lower_index < 0)
-		GpGg.IntError(rC, rC.CToken, "index must be non-negative");
+		GpGg.IntErrorCurToken("index must be non-negative");
 	if(rC.Eq(":")) {
 		++rC.CToken;
 		if(rC.Eq(":")) {
@@ -1178,13 +1178,13 @@ void GpDatafile::PlotOptionIndex(GpCommand & rC)
 		else {
 			df_upper_index = rC.IntExpression();
 			if(df_upper_index < df_lower_index)
-				GpGg.IntError(rC, rC.CToken, "Upper index should be bigger than lower index");
+				GpGg.IntErrorCurToken("Upper index should be bigger than lower index");
 		}
 		if(rC.Eq(":")) {
 			++rC.CToken;
 			df_index_step = abs(rC.IntExpression());
 			if(df_index_step < 1)
-				GpGg.IntError(rC, rC.CToken, "Index step must be positive");
+				GpGg.IntErrorCurToken("Index step must be positive");
 		}
 	}
 	else {
@@ -1232,9 +1232,9 @@ void GpDatafile::PlotOptionUsing(GpCommand & rC, int max_using)
 	if(!rC.EndOfCommand()) {
 		do {            /* must be at least one */
 			if(df_no_use_specs >= MAXDATACOLS)
-				GpGg.IntError(rC, rC.CToken, "at most %d columns allowed in using spec", MAXDATACOLS);
+				GpGg.IntErrorCurToken("at most %d columns allowed in using spec", MAXDATACOLS);
 			if(df_no_use_specs >= max_using)
-				GpGg.IntError(rC, rC.CToken, "Too many columns in using specification");
+				GpGg.IntErrorCurToken("Too many columns in using specification");
 			if(rC.Eq(":")) {
 				/* empty specification - use default */
 				use_spec[df_no_use_specs].column = df_no_use_specs;
@@ -1294,7 +1294,7 @@ void GpDatafile::PlotOptionUsing(GpCommand & rC, int max_using)
 				if(col == -3) // pseudocolumn -3 means "last column" 
 					fast_columns = 0;
 				else if(col < -2)
-					GpGg.IntError(rC, rC.CToken, "Column must be >= -2");
+					GpGg.IntErrorCurToken("Column must be >= -2");
 				use_spec[df_no_use_specs++].column = col;
 				// Supposedly only happens for binary files, but don't bet on it 
 				if(col > no_cols)
@@ -1313,7 +1313,7 @@ void GpDatafile::PlotOptionUsing(GpCommand & rC, int max_using)
 	if(!rC.EndOfCommand() && rC.IsString(rC.CToken)) {
 		df_format = rC.TryToGetString();
 		if(!valid_format(df_format))
-			GpGg.IntError(rC, rC.CToken, "format must have 1-7 conversions of type double (%%lf)");
+			GpGg.IntErrorCurToken("format must have 1-7 conversions of type double (%%lf)");
 	}
 }
 
@@ -1322,7 +1322,7 @@ void GpDatafile::PlotTicLabelUsing(GpCommand & rC, int axis)
 	int col = 0;
 	rC.CToken++;
 	if(!rC.Eq("("))
-		GpGg.IntError(rC, rC.CToken, "missing '('");
+		GpGg.IntErrorCurToken("missing '('");
 	rC.CToken++;
 	/* FIXME: What we really want is a test for a constant expression as  */
 	/* opposed to a dummy expression. This is similar to the problem with */
@@ -1337,9 +1337,9 @@ void GpDatafile::PlotTicLabelUsing(GpCommand & rC, int axis)
 		col = 1; // Redundant because of the above
 	}
 	if(col < 1)
-		GpGg.IntError(rC, rC.CToken, "ticlabels must come from a real column");
+		GpGg.IntErrorCurToken("ticlabels must come from a real column");
 	if(!rC.Eq(")"))
-		GpGg.IntError(rC, rC.CToken, "missing ')'");
+		GpGg.IntErrorCurToken("missing ')'");
 	rC.CToken++;
 	use_spec[df_no_use_specs+df_no_tic_specs].expected_type = axis;
 	use_spec[df_no_use_specs+df_no_tic_specs].column = col;
@@ -1348,12 +1348,12 @@ void GpDatafile::PlotTicLabelUsing(GpCommand & rC, int axis)
 
 int GpDatafile::DfReadLine(double v[], int max)
 {
-	if(!data_fp && !df_pseudodata && !df_datablock && !GpC.P.P_DfArray)
+	if(!data_fp && !df_pseudodata && !df_datablock && !GpGg.Gp__C.P.P_DfArray)
 		return DF_EOF;
 	else if(df_read_binary)
 		return DfReadBinary(v, max); // General binary, matrix binary or matrix ascii converted to binary
 	else
-		return DfReadAscii(GpC, v, max);
+		return DfReadAscii(GpGg.Gp__C, v, max);
 }
 
 /*}}} */
@@ -1727,7 +1727,7 @@ int GpDatafile::DfReadAscii(GpCommand & rC, double v[], int max)
 					v[output] = df_datum; /* using 0 */
 				}
 				else if(column <= 0) /* really < -2, but */
-					GpGg.IntError(GpC, NO_CARET, "internal error: column <= 0 in datafile.c");
+					GpGg.IntErrorNoCaret("internal error: column <= 0 in datafile.c");
 				else if((df_axis[output] != NO_AXIS) && (GpGg[df_axis[output]].datatype == DT_TIMEDATE)) {
 					struct tm tm;
 					double usec = 0.0;
@@ -1833,7 +1833,7 @@ float df_read_a_float(FILE * fin)
 {
 	float fdummy;
 	if(fread(&fdummy, sizeof(fdummy), 1, fin) != 1)
-		GpGg.IntError(GpC, NO_CARET, feof(fin) ? "Data file is empty" : read_error_msg);
+		GpGg.IntErrorNoCaret(feof(fin) ? "Data file is empty" : read_error_msg);
 	df_swap_bytes_by_endianess((char*)&fdummy, byte_read_order(df_bin_file_endianess), sizeof(fdummy));
 	return fdummy;
 }
@@ -1848,9 +1848,9 @@ void GpDatafile::DfDetermineMatrixInfo(FILE * fin)
 		float fdummy = df_read_a_float(fin);
 		off_t nc = ((size_t)fdummy);
 		if(nc == 0)
-			GpGg.IntError(GpC, NO_CARET, "Read grid of zero width");
+			GpGg.IntErrorNoCaret("Read grid of zero width");
 		else if(nc > 1e8)
-			GpGg.IntError(GpC, NO_CARET, "Read grid width too large");
+			GpGg.IntErrorNoCaret("Read grid width too large");
 		// Read second value for corner_0 x. 
 		fdummy = df_read_a_float(fin);
 		df_matrix_corner[0][0] = fdummy;
@@ -1867,7 +1867,7 @@ void GpDatafile::DfDetermineMatrixInfo(FILE * fin)
 		flength = ftell(fin)/sizeof(float);
 		nr = flength/(nc + 1);
 		if(nr*(nc + 1) != flength)
-			GpGg.IntError(GpC, NO_CARET, "File doesn't factorize into full matrix");
+			GpGg.IntErrorNoCaret("File doesn't factorize into full matrix");
 		// Read last value for corner_1 y 
 		fseek(fin, -(nc + 1)*sizeof(float), SEEK_END);
 		df_matrix_corner[1][1] = df_read_a_float(fin);
@@ -1894,7 +1894,7 @@ void GpDatafile::DfDetermineMatrixInfo(FILE * fin)
 		set_numeric_locale();
 		/* "skip" option to skip lines at start of ascii file */
 		while(df_skip_at_front > 0) {
-			DfGets(GpC);
+			DfGets(GpGg.Gp__C);
 			df_skip_at_front--;
 		}
 		// Keep reading matrices until file is empty
@@ -1960,7 +1960,7 @@ void GpDatafile::F_StringColumn(GpArgument * pArg)
 	int column;
 	GpGg.Ev.Pop(a);
 	if(!GpDf.evaluate_inside_using || GpDf.df_matrix)
-		GpGg.IntError(GpC, GpC.CToken-1, "stringcolumn() called from invalid context");
+		GpGg.IntError(GpGg.Gp__C.CToken-1, "stringcolumn() called from invalid context");
 	if(a.type == STRING) {
 		int j;
 		char * name = a.v.string_val;
@@ -2179,7 +2179,7 @@ char * GpDatafile::DfParseStringField(char * field)
 			length = MAX_LINE_LEN;
 			int_warn(NO_CARET, "input file contains very long line with no separators, truncating");
 			if(strcspn(field, "\r") < MAX_LINE_LEN)
-				GpGg.IntError(GpC, NO_CARET, "      line contains embedded <CR>, wrong file format?");
+				GpGg.IntErrorNoCaret("      line contains embedded <CR>, wrong file format?");
 		}
 		temp_string = (char *)malloc(length+1);
 		strncpy(temp_string, field, length);
@@ -2287,7 +2287,7 @@ void GpDatafile::DfSetDatafileBinary(GpCommand & rC)
 {
 	rC.CToken++;
 	if(rC.EndOfCommand())
-		GpGg.IntError(rC, rC.CToken, "option expected");
+		GpGg.IntErrorCurToken("option expected");
 	ClearBinaryRecords(DF_CURRENT_RECORDS);
 	// Set current records to default in order to retain current default settings.
 	if(df_bin_record_default) {
@@ -2421,7 +2421,7 @@ void GpDatafile::DfInsertScannedUseSpec(int uspec)
 	 * from the third dimensional counter, which will be zero.
 	 */
 	if(df_no_use_specs >= MAXDATACOLS)
-		GpGg.IntError(GpC, NO_CARET, too_many_cols_msg);
+		GpGg.IntErrorNoCaret(too_many_cols_msg);
 	else {
 		int j;
 		for(j = df_no_use_specs; j > uspec; j--)
@@ -2507,12 +2507,12 @@ void GpDatafile::AdjustBinaryUseSpec(CurvePoints * plot)
 			break;
 	}
 	if(ps_index == sizeof(default_style_cols)/sizeof(default_style_cols[0]))
-		GpGg.IntError(GpC, NO_CARET, nothing_known);
+		GpGg.IntErrorNoCaret(nothing_known);
 
 	/* Matrix format is interpretted as always having three columns. */
 	if(df_matrix_file) {
 		if(df_no_bin_cols > 3)
-			GpGg.IntError(GpC, NO_CARET, "Matrix data contains only three columns");
+			GpGg.IntErrorNoCaret("Matrix data contains only three columns");
 		DfExtendBinaryColumns(3);
 	}
 	/* If nothing has been done to set the using specs, use the default using
@@ -2522,7 +2522,7 @@ void GpDatafile::AdjustBinaryUseSpec(CurvePoints * plot)
 		if(!df_matrix_file) {
 			int no_cols = default_style_cols[ps_index].excluding_gen_coords;
 			if(!no_cols)
-				GpGg.IntError(GpC, NO_CARET, nothing_known);
+				GpGg.IntErrorNoCaret(nothing_known);
 
 			/* If coordinates are generated, make sure this plot style allows it.
 			 * Otherwise, add in the number of generated coordinates and add an
@@ -2530,7 +2530,7 @@ void GpDatafile::AdjustBinaryUseSpec(CurvePoints * plot)
 			 */
 			if(df_num_bin_records && df_bin_record[0].scan_generate_coord) {
 				if(default_style_cols[ps_index].dimen_in_2d == 0)
-					GpGg.IntError(GpC, NO_CARET, "Cannot generate coords for that plot style");
+					GpGg.IntErrorNoCaret("Cannot generate coords for that plot style");
 			}
 			else {
 				/* If there aren't generated coordinates, then add the
@@ -2572,7 +2572,7 @@ void GpDatafile::AdjustBinaryUseSpec(CurvePoints * plot)
 				}
 			}
 			else
-				GpGg.IntError(GpC, NO_CARET, "Plot style does not conform to three column data in this graph mode");
+				GpGg.IntErrorNoCaret("Plot style does not conform to three column data in this graph mode");
 		}
 	}
 
@@ -2590,7 +2590,7 @@ void GpDatafile::AdjustBinaryUseSpec(CurvePoints * plot)
 				break;
 		}
 		if((df_no_use_specs + added_columns) >= MAXDATACOLS)
-			GpGg.IntError(GpC, NO_CARET, too_many_cols_msg);
+			GpGg.IntErrorNoCaret(too_many_cols_msg);
 		else {
 			// Shift the original columns over by added number of columns, but only if not matrix data.
 			memcpy(&use_spec[added_columns], original_use_spec, df_no_use_specs*sizeof(use_spec[0]));
@@ -2612,11 +2612,11 @@ void GpDatafile::AdjustBinaryUseSpec(CurvePoints * plot)
 			for(int k = 0; k < df_num_bin_records; k++) {
 				if((df_bin_record[k].cart_dim[2] == 0) && (df_bin_record[k].scan_dim[2] == 0)) {
 					if(default_style_cols[ps_index].dimen_in_2d > 2)
-						GpGg.IntError(GpC, NO_CARET, "Plot style requires higher than two-dimensional sampling array");
+						GpGg.IntErrorNoCaret("Plot style requires higher than two-dimensional sampling array");
 					else {
 						if((df_bin_record[k].cart_dim[1] == 0) && (df_bin_record[k].scan_dim[1] == 0)) {
 							if(default_style_cols[ps_index].dimen_in_2d > 1)
-								GpGg.IntError(GpC, NO_CARET, "Plot style requires higher than one-dimensional sampling array");
+								GpGg.IntErrorNoCaret("Plot style requires higher than one-dimensional sampling array");
 							else {
 								/* Place a special marker in the using list to derive
 								   the y value
@@ -2668,11 +2668,11 @@ void GpDatafile::PlotOptionBinary(GpCommand & rC, bool set_matrix, bool set_defa
 		// Above keyword not part of pre-existing binary definition.
 		// So use general binary.
 		if(set_matrix)
-			GpGg.IntError(rC, rC.CToken, matrix_general_binary_conflict_msg);
+			GpGg.IntErrorCurToken(matrix_general_binary_conflict_msg);
 		df_matrix_file = false;
 		if(rC.AlmostEq("file$type")) {
 			if(!rC.Eq(++rC.CToken, "="))
-				GpGg.IntError(rC, rC.CToken, equal_symbol_msg);
+				GpGg.IntErrorCurToken(equal_symbol_msg);
 			rC.CopyStr(file_ext, ++rC.CToken, 8);
 			for(i = 0; df_bin_filetype_table[i].key; i++)
 				if(!strcasecmp(file_ext, df_bin_filetype_table[i].key)) {
@@ -2681,7 +2681,7 @@ void GpDatafile::PlotOptionBinary(GpCommand & rC, bool set_matrix, bool set_defa
 					break;
 				}
 			if(df_bin_filetype != i) // Maybe set to "auto" and continue? 
-				GpGg.IntError(rC, rC.CToken, "Unrecognized filetype; try \"show datafile binary filetypes\"");
+				GpGg.IntErrorCurToken("Unrecognized filetype; try \"show datafile binary filetypes\"");
 			rC.CToken++;
 		}
 		if(df_plot_mode != MODE_QUERY && !strcmp("auto", df_bin_filetype_table[df_bin_filetype].key)) {
@@ -2693,7 +2693,7 @@ void GpDatafile::PlotOptionBinary(GpCommand & rC, bool set_matrix, bool set_defa
 						binary_input_function = df_bin_filetype_table[i].value;
 			}
 			if(binary_input_function == auto_filetype_function)
-				GpGg.IntError(GpC, NO_CARET, "Unrecognized filename extension; try \"show datafile binary filetypes\"");
+				GpGg.IntErrorNoCaret("Unrecognized filename extension; try \"show datafile binary filetypes\"");
 		}
 		// Unless only querying settings, call the routine to prep binary data parameters.
 		if(df_plot_mode != MODE_QUERY) {
@@ -2732,7 +2732,7 @@ void GpDatafile::PlotOptionBinary(GpCommand & rC, bool set_matrix, bool set_defa
 				rC.CToken++;
 				// Above keyword not part of pre-existing binary definition.  So use general binary. 
 				if(set_matrix)
-					GpGg.IntError(rC, rC.CToken, matrix_general_binary_conflict_msg);
+					GpGg.IntErrorCurToken(matrix_general_binary_conflict_msg);
 				df_matrix_file = false;
 				PlotOptionArray(rC);
 				set_record = true;
@@ -2748,7 +2748,7 @@ void GpDatafile::PlotOptionBinary(GpCommand & rC, bool set_matrix, bool set_defa
 				rC.CToken++;
 				// Above keyword not part of pre-existing binary definition.  So use general binary. 
 				if(set_matrix)
-					GpGg.IntError(rC, rC.CToken, matrix_general_binary_conflict_msg);
+					GpGg.IntErrorCurToken(matrix_general_binary_conflict_msg);
 				df_matrix_file = false;
 				PlotOptionArray(rC);
 				for(int i = 0; i < df_num_bin_records; i++) {
@@ -2783,7 +2783,7 @@ void GpDatafile::PlotOptionBinary(GpCommand & rC, bool set_matrix, bool set_defa
 				duplication = true; 
 			else {
 				if(!set_array && !df_bin_record)
-					GpGg.IntError(rC, rC.CToken, "Must specify a sampling array size before indicating spacing in second dimension");
+					GpGg.IntErrorCurToken("Must specify a sampling array size before indicating spacing in second dimension");
 				rC.CToken++;
 				PlotOptionMultiValued(rC, DF_DELTA, 1);
 				if(!set_dz) {
@@ -2794,12 +2794,12 @@ void GpDatafile::PlotOptionBinary(GpCommand & rC, bool set_matrix, bool set_defa
 			}
 		}
 		else if(rC.Eq("dz")) {
-			GpGg.IntError(rC, rC.CToken, "Currently not supporting three-dimensional sampling");
+			GpGg.IntErrorCurToken("Currently not supporting three-dimensional sampling");
 			if(set_dz)
 				duplication = true; 
 			else {
 				if(!set_array && !df_bin_record)
-					GpGg.IntError(rC, rC.CToken, "Must specify a sampling array size before indicating spacing in third dimension");
+					GpGg.IntErrorCurToken("Must specify a sampling array size before indicating spacing in third dimension");
 				rC.CToken++;
 				PlotOptionMultiValued(rC, DF_DELTA, 2);
 				set_dz = true;
@@ -2827,7 +2827,7 @@ void GpDatafile::PlotOptionBinary(GpCommand & rC, bool set_matrix, bool set_defa
 				duplication = true;
 			else {
 				if(!set_array && !df_bin_record)
-					GpGg.IntError(rC, rC.CToken, "Must specify a sampling array size before indicating flip in second dimension");
+					GpGg.IntErrorCurToken("Must specify a sampling array size before indicating flip in second dimension");
 				rC.CToken++;
 				// If no equal sign, then set flip true for all records. 
 				if(!rC.Eq("=")) {
@@ -2840,13 +2840,13 @@ void GpDatafile::PlotOptionBinary(GpCommand & rC, bool set_matrix, bool set_defa
 			}
 		}
 		else if(rC.Eq("flipz")) {
-			GpGg.IntError(rC, rC.CToken, "Currently not supporting three-dimensional sampling");
+			GpGg.IntErrorCurToken("Currently not supporting three-dimensional sampling");
 			if(set_flipz) {
 				duplication = true;
 			}
 			else {
 				if(!set_array && !df_bin_record)
-					GpGg.IntError(rC, rC.CToken, "Must specify a sampling array size before indicating spacing in third dimension");
+					GpGg.IntErrorCurToken("Must specify a sampling array size before indicating spacing in third dimension");
 				rC.CToken++;
 				// If no equal sign, then set flip true for all records. 
 				if(!rC.Eq("=")) {
@@ -2906,7 +2906,7 @@ void GpDatafile::PlotOptionBinary(GpCommand & rC, bool set_matrix, bool set_defa
 		}
 		else if(rC.AlmostEq("orig$in")) { // deal with origin 
 			if(set_center)
-				GpGg.IntError(rC, rC.CToken, origin_and_center_conflict_message);
+				GpGg.IntErrorCurToken(origin_and_center_conflict_message);
 			if(set_origin) {
 				duplication = true;
 			}
@@ -2918,7 +2918,7 @@ void GpDatafile::PlotOptionBinary(GpCommand & rC, bool set_matrix, bool set_defa
 		}
 		else if(rC.AlmostEq("cen$ter")) { // deal with origin 
 			if(set_origin)
-				GpGg.IntError(rC, rC.CToken, origin_and_center_conflict_message);
+				GpGg.IntErrorCurToken(origin_and_center_conflict_message);
 			if(set_center) {
 				duplication = true;
 			}
@@ -2940,7 +2940,7 @@ void GpDatafile::PlotOptionBinary(GpCommand & rC, bool set_matrix, bool set_defa
 		}
 		else if(rC.AlmostEq("perp$endicular")) { // deal with rotation angle 
 			if(df_plot_mode == MODE_PLOT)
-				GpGg.IntError(rC, rC.CToken, "Key word `perpendicular` is not allowed with `plot` command");
+				GpGg.IntErrorCurToken("Key word `perpendicular` is not allowed with `plot` command");
 			if(set_perpendicular) {
 				duplication = true; 
 			}
@@ -2968,7 +2968,7 @@ void GpDatafile::PlotOptionBinary(GpCommand & rC, bool set_matrix, bool set_defa
 				rC.CToken++;
 				// Require equal symbol. 
 				if(!rC.Eq("="))
-					GpGg.IntError(rC, rC.CToken, equal_symbol_msg);
+					GpGg.IntErrorCurToken(equal_symbol_msg);
 				rC.CToken++;
 				if(rC.AlmostEq("def$ault"))
 					df_bin_file_endianess = THIS_COMPILER_ENDIAN;
@@ -2982,10 +2982,10 @@ void GpDatafile::PlotOptionBinary(GpCommand & rC, bool set_matrix, bool set_defa
 				else if(rC.AlmostEq("mid$dle") || rC.Eq("pdp"))
 					df_bin_file_endianess = DF_PDP_ENDIAN;
 				else
-					GpGg.IntError(rC, rC.CToken, "Options are default, swap (swab), little, big, middle (pdp)");
+					GpGg.IntErrorCurToken("Options are default, swap (swab), little, big, middle (pdp)");
 #else
 				else
-					GpGg.IntError(rC, rC.CToken, "Options are default, swap (swab), little, big");
+					GpGg.IntErrorCurToken("Options are default, swap (swab), little, big");
 #endif
 				rC.CToken++;
 				set_endian = true;
@@ -2999,11 +2999,11 @@ void GpDatafile::PlotOptionBinary(GpCommand & rC, bool set_matrix, bool set_defa
 				rC.CToken++;
 				// Format string not part of pre-existing binary definition.  So use general binary.
 				if(set_matrix)
-					GpGg.IntError(rC, rC.CToken, matrix_general_binary_conflict_msg);
+					GpGg.IntErrorCurToken(matrix_general_binary_conflict_msg);
 				df_matrix_file = false;
 				// Require equal sign 
 				if(!rC.Eq("="))
-					GpGg.IntError(rC, rC.CToken, equal_symbol_msg);
+					GpGg.IntErrorCurToken(equal_symbol_msg);
 				rC.CToken++;
 				if(set_default) {
 					free(df_binary_format);
@@ -3012,7 +3012,7 @@ void GpDatafile::PlotOptionBinary(GpCommand & rC, bool set_matrix, bool set_defa
 				else {
 					char * format_string = rC.TryToGetString();
 					if(!format_string)
-						GpGg.IntError(rC, rC.CToken, "missing format string");
+						GpGg.IntErrorCurToken("missing format string");
 					PlotOptionBinaryFormat(format_string);
 					free(format_string);
 				}
@@ -3024,7 +3024,7 @@ void GpDatafile::PlotOptionBinary(GpCommand & rC, bool set_matrix, bool set_defa
 		}
 	}
 	if(duplication)
-		GpGg.IntError(rC, rC.CToken, "Duplicated or contradicting arguments in datafile options");
+		GpGg.IntErrorCurToken("Duplicated or contradicting arguments in datafile options");
 	if(!set_default && !set_matrix && df_num_bin_records_default) {
 		int_warn(NO_CARET, "using default binary record/array structure");
 	}
@@ -3094,7 +3094,7 @@ void GpDatafile::PlotOptionArray(GpCommand & rC)
 {
 	int number_of_records = 0;
 	if(!rC.Eq("="))
-		GpGg.IntError(rC, rC.CToken, equal_symbol_msg);
+		GpGg.IntErrorCurToken(equal_symbol_msg);
 	do {
 		rC.CToken++;
 		// Partial backward compatibility with syntax up to 4.2.4
@@ -3123,7 +3123,7 @@ void GpDatafile::PlotOptionArray(GpCommand & rC)
 				df_bin_record[df_num_bin_records - 1].cart_dim[1] = rC.IntExpression();
 			}
 			if(!rC.Eq(")"))
-				GpGg.IntError(rC, rC.CToken, "tuple syntax error");
+				GpGg.IntErrorCurToken("tuple syntax error");
 			rC.CToken++;
 		}
 	} while(rC.Eq(":"));
@@ -3146,7 +3146,7 @@ int GpCommand::Token2Tuple(double * tuple, int dimension)
 				if(++N <= dimension)
 					*tuple++ = RealExpression();
 				else
-					GpGg.IntError(*this, CToken-1, "More than %d elements", N);
+					GpGg.IntError(CToken-1, "More than %d elements", N);
 				expecting_number = false;
 			}
 			else if(Eq(",")) {
@@ -3158,7 +3158,7 @@ int GpCommand::Token2Tuple(double * tuple, int dimension)
 				return N;
 			}
 			else
-				GpGg.IntError(*this, CToken, "Expecting ',' or '" RIGHT_TUPLE_CHAR "'");
+				GpGg.IntErrorCurToken("Expecting ',' or '" RIGHT_TUPLE_CHAR "'");
 		}
 	}
 	return 0; // Not a tuple 
@@ -3173,7 +3173,7 @@ void GpDatafile::PlotOptionMultiValued(GpCommand & rC, df_multivalue_type type, 
 	int test_val;
 	// Require equal symbol
 	if(!rC.Eq("="))
-		GpGg.IntError(rC, rC.CToken, equal_symbol_msg);
+		GpGg.IntErrorCurToken(equal_symbol_msg);
 	rC.CToken++;
 	while(!rC.EndOfCommand()) {
 		double tuple[3];
@@ -3199,13 +3199,13 @@ void GpDatafile::PlotOptionMultiValued(GpCommand & rC, df_multivalue_type type, 
 			char const * cannot_flip_msg = "Cannot flip a non-existent dimension";
 			char flip_list[4];
 			if(bin_record_count >= df_num_bin_records)
-				GpGg.IntError(rC, rC.CToken, "More parameters specified than data records specified");
+				GpGg.IntErrorCurToken("More parameters specified than data records specified");
 			switch(type) {
 				case DF_DELTA:
 				    // Set the spacing between grid points in the specified dimension.
 				    *(df_bin_record[bin_record_count].cart_delta + arg) = tuple[0];
 				    if(df_bin_record[bin_record_count].cart_delta[arg] <= 0)
-					    GpGg.IntError(rC, rC.CToken - 2, "Sample period must be positive. Try `flip` for changing direction");
+					    GpGg.IntError(rC.CToken - 2, "Sample period must be positive. Try `flip` for changing direction");
 				    break;
 				case DF_FLIP_AXIS:
 				    // Set the direction of grid points increment in the specified dimension.
@@ -3215,10 +3215,10 @@ void GpDatafile::PlotOptionMultiValued(GpCommand & rC, df_multivalue_type type, 
 					    else if(tuple[0] == 1.0)
 						    df_bin_record[bin_record_count].cart_dir[arg] = 1;
 					    else
-						    GpGg.IntError(rC, rC.CToken-1, "Flipping dimension direction must be 1 or 0");
+						    GpGg.IntError(rC.CToken-1, "Flipping dimension direction must be 1 or 0");
 				    }
 				    else
-					    GpGg.IntError(rC, rC.CToken, cannot_flip_msg);
+					    GpGg.IntErrorCurToken(cannot_flip_msg);
 				    break;
 				case DF_FLIP:
 				    /* Set the direction of grid points increment in
@@ -3226,25 +3226,25 @@ void GpDatafile::PlotOptionMultiValued(GpCommand & rC, df_multivalue_type type, 
 				    * any characters in string that shouldn't be. */
 				    rC.CopyStr(flip_list, rC.CToken, 4);
 				    if(strlen(flip_list) != strspn(flip_list, "xXyYzZ"))
-					    GpGg.IntError(rC, rC.CToken, "Can only flip x, y, and/or z");
+					    GpGg.IntErrorCurToken("Can only flip x, y, and/or z");
 				    /* Check for valid dimensions. */
 				    if(strpbrk(flip_list, "xX")) {
 					    if(df_bin_record[bin_record_count].cart_dim[0] != 0)
 						    df_bin_record[bin_record_count].cart_dir[0] = arg;
 					    else
-						    GpGg.IntError(rC, rC.CToken, cannot_flip_msg);
+						    GpGg.IntErrorCurToken(cannot_flip_msg);
 				    }
 				    if(strpbrk(flip_list, "yY")) {
 					    if(df_bin_record[bin_record_count].cart_dim[1] != 0)
 						    df_bin_record[bin_record_count].cart_dir[1] = arg;
 					    else
-						    GpGg.IntError(rC, rC.CToken, cannot_flip_msg);
+						    GpGg.IntErrorCurToken(cannot_flip_msg);
 				    }
 				    if(strpbrk(flip_list, "zZ")) {
 					    if(df_bin_record[bin_record_count].cart_dim[2] != 0)
 						    df_bin_record[bin_record_count].cart_dir[2] = arg;
 					    else
-						    GpGg.IntError(rC, rC.CToken, cannot_flip_msg);
+						    GpGg.IntErrorCurToken(cannot_flip_msg);
 				    }
 				    rC.CToken++;
 				    break;
@@ -3254,7 +3254,7 @@ void GpDatafile::PlotOptionMultiValued(GpCommand & rC, df_multivalue_type type, 
 				    int i;
 				    if(!(df_bin_record[bin_record_count].cart_dim[0] || df_bin_record[bin_record_count].scan_dim[0]) ||
 						!(df_bin_record[bin_record_count].cart_dim[1] || df_bin_record[bin_record_count].scan_dim[1]))
-					    GpGg.IntError(rC, rC.CToken, "Cannot alter scanning method for one-dimensional data");
+					    GpGg.IntErrorCurToken("Cannot alter scanning method for one-dimensional data");
 				    else if(df_bin_record[bin_record_count].cart_dim[2]
 					    || df_bin_record[bin_record_count].scan_dim[2]) {
 					    for(i = 0; i < sizeof(df_bin_scan_table_3D)/sizeof(df_bin_scan_table_3D_struct); i++)
@@ -3263,7 +3263,7 @@ void GpDatafile::PlotOptionMultiValued(GpCommand & rC, df_multivalue_type type, 
 							    break;
 						    }
 					    if(i == sizeof(df_bin_scan_table_3D) / sizeof(df_bin_scan_table_3D_struct))
-						    GpGg.IntError(rC, rC.CToken, "Improper scanning string. Try 3 character string for 3D data");
+						    GpGg.IntErrorCurToken("Improper scanning string. Try 3 character string for 3D data");
 				    }
 				    else {
 					    for(i = 0; i < sizeof(df_bin_scan_table_2D)/sizeof(df_bin_scan_table_2D_struct); i++)
@@ -3272,7 +3272,7 @@ void GpDatafile::PlotOptionMultiValued(GpCommand & rC, df_multivalue_type type, 
 							    break;
 						    }
 					    if(i == sizeof(df_bin_scan_table_2D) / sizeof(df_bin_scan_table_2D_struct))
-						    GpGg.IntError(rC, rC.CToken, "Improper scanning string. Try 2 character string for 2D data");
+						    GpGg.IntErrorCurToken("Improper scanning string. Try 2 character string for 2D data");
 				    }
 				    // Remove the file supplied scan direction. 
 				    memcpy(df_bin_record[bin_record_count].scan_dir, df_bin_record_reset.scan_dir, sizeof(df_bin_record[0].scan_dir));
@@ -3283,7 +3283,7 @@ void GpDatafile::PlotOptionMultiValued(GpCommand & rC, df_multivalue_type type, 
 				    // Set the number of bytes to skip before reading record.
 				    df_bin_record[bin_record_count].scan_skip[0] = (off_t)tuple[0];
 				    if((df_bin_record[bin_record_count].scan_skip[0] != tuple[0]) || (df_bin_record[bin_record_count].scan_skip[0] < 0))
-					    GpGg.IntError(rC, rC.CToken, "Number of bytes to skip must be positive integer");
+					    GpGg.IntErrorCurToken("Number of bytes to skip must be positive integer");
 				    break;
 				case DF_ORIGIN:
 				case DF_CENTER:
@@ -3294,19 +3294,19 @@ void GpDatafile::PlotOptionMultiValued(GpCommand & rC, df_multivalue_type type, 
 					    df_bin_record[bin_record_count].cart_trans = DF_TRANSLATE_VIA_CENTER;
 				    if(arg == MODE_PLOT) {
 					    if(test_val != 2)
-						    GpGg.IntError(rC, rC.CToken, "Two-dimensional tuple required for 2D plot");
+						    GpGg.IntErrorCurToken("Two-dimensional tuple required for 2D plot");
 					    tuple[2] = 0.0;
 				    }
 				    else if(arg == MODE_SPLOT) {
 					    if(test_val != 3)
-						    GpGg.IntError(rC, rC.CToken, "Three-dimensional tuple required for 3D plot");
+						    GpGg.IntErrorCurToken("Three-dimensional tuple required for 3D plot");
 				    }
 				    else if(arg == MODE_QUERY) {
 					    if(test_val != 3)
-						    GpGg.IntError(rC, rC.CToken, "Three-dimensional tuple required for setting binary parameters");
+						    GpGg.IntErrorCurToken("Three-dimensional tuple required for setting binary parameters");
 				    }
 				    else {
-					    GpGg.IntError(rC, rC.CToken, "Internal error (datafile.c): Unknown plot mode");
+					    GpGg.IntErrorCurToken("Internal error (datafile.c): Unknown plot mode");
 				    }
 				    memcpy(df_bin_record[bin_record_count].cart_cen_or_ori,
 				    tuple, sizeof(tuple));
@@ -3329,21 +3329,21 @@ void GpDatafile::PlotOptionMultiValued(GpCommand & rC, df_multivalue_type type, 
 				    // Make sure in three dimensional plotting mode before
 				    // accepting the perpendicular vector for translation. 
 				    if(test_val != 3)
-					    GpGg.IntError(rC, rC.CToken, "Three-dimensional tuple required");
+					    GpGg.IntErrorCurToken("Three-dimensional tuple required");
 				    // Compare vector length against variable precision
 				    // to determine if this is the null vector 
 				    if((tuple[0]*tuple[0] + tuple[1]*tuple[1] + tuple[2]*tuple[2]) < (100.0*SMathConst::Epsilon))
-					    GpGg.IntError(rC, rC.CToken, "Perpendicular vector cannot be zero");
+					    GpGg.IntErrorCurToken("Perpendicular vector cannot be zero");
 				    memcpy(df_bin_record[bin_record_count].cart_p,
 				    tuple,
 				    sizeof(tuple));
 				    break;
 				default:
-				    GpGg.IntError(GpC, NO_CARET, "Internal error: Invalid comma separated type");
+				    GpGg.IntErrorNoCaret("Internal error: Invalid comma separated type");
 			}
 		}
 		else {
-			GpGg.IntError(rC, rC.CToken, "Invalid numeric or tuple form");
+			GpGg.IntErrorCurToken("Invalid numeric or tuple form");
 		}
 		if(rC.Eq(TUPLE_SEPARATOR_CHAR)) {
 			bin_record_count++;
@@ -3468,7 +3468,7 @@ void GpDatafile::PlotOptionBinaryFormat(char * format_string)
 							}
 							else {
 								if(!df_column_bininfo)
-									GpGg.IntError(GpC, NO_CARET, "Failure in binary table initialization");
+									GpGg.IntErrorNoCaret("Failure in binary table initialization");
 								df_column_bininfo[no_fields].skip_bytes += field_repeat * df_binary_tables[j].group[k].type.read_size;
 							}
 							breakout = 1;
@@ -3483,11 +3483,11 @@ void GpDatafile::PlotOptionBinaryFormat(char * format_string)
 			}
 			if(j == (sizeof(df_binary_tables)/sizeof(df_binary_tables[0])) &&
 				(k == df_binary_tables[j-1].group_length) && (m == df_binary_tables[j-1].group[k-1].no_names)) {
-				GpGg.IntError(GpC, GpC.CToken, "Unrecognized binary format specification");
+				GpGg.IntErrorCurToken("Unrecognized binary format specification");
 			}
 		}
 		else {
-			GpGg.IntError(GpC, GpC.CToken, "Format specifier must begin with '%'");
+			GpGg.IntErrorCurToken("Format specifier must begin with '%'");
 		}
 	}
 
@@ -3664,7 +3664,7 @@ int GpDatafile::DfSkipBytes(off_t nbytes)
 				df_eof = 1;
 				return DF_EOF;
 			}
-			GpGg.IntError(GpC, NO_CARET, read_error_msg);
+			GpGg.IntErrorNoCaret(read_error_msg);
 		}
 	}
 	else
@@ -3674,7 +3674,7 @@ int GpDatafile::DfSkipBytes(off_t nbytes)
 			df_eof = 1;
 			return DF_EOF;
 		}
-		GpGg.IntError(GpC, NO_CARET, read_error_msg);
+		GpGg.IntErrorNoCaret(read_error_msg);
 	}
 	return 0;
 }
@@ -3739,7 +3739,7 @@ int GpDatafile::DfReadBinary(double v[], int max)
 			df_xpixels = scan_size[1];
 			df_ypixels = scan_size[0];
 			if(scan_size[0] == 0)
-				GpGg.IntError(GpC, NO_CARET, "Scan size of matrix is zero");
+				GpGg.IntErrorNoCaret("Scan size of matrix is zero");
 			/* To accomplish flipping in this case, multiply the
 			 * appropriate column of the rotation matrix by -1.  */
 			for(i = 0; i < 2; i++) {
@@ -3948,7 +3948,7 @@ int GpDatafile::DfReadBinary(double v[], int max)
 				case DF_ULONGLONG: df_column[i].datum = (double)io_val.ull; break;
 				case DF_FLOAT: df_column[i].datum = io_val.fl; break;
 				case DF_DOUBLE: df_column[i].datum = io_val.db; break;
-				default: GpGg.IntError(GpC, NO_CARET, "Binary data type unknown");
+				default: GpGg.IntErrorNoCaret("Binary data type unknown");
 			}
 			df_column[i].good = DF_GOOD;
 			df_column[i].position = NULL; /* cant get a time */
@@ -4004,12 +4004,12 @@ int GpDatafile::DfReadBinary(double v[], int max)
 			if(i != df_no_bin_cols) {
 				if(feof(data_fp)) {
 					if(i != 0)
-						GpGg.IntError(GpC, NO_CARET, "Last point in the binary file did not match the specified `using` columns");
+						GpGg.IntErrorNoCaret("Last point in the binary file did not match the specified `using` columns");
 					df_eof = 1;
 					return DF_EOF;
 				}
 				else {
-					GpGg.IntError(GpC, NO_CARET, read_error_msg);
+					GpGg.IntErrorNoCaret(read_error_msg);
 				}
 			}
 		}
@@ -4118,7 +4118,7 @@ int GpDatafile::DfReadBinary(double v[], int max)
 					v[output] = df_datum;
 				}
 				else if(column <= 0) {
-					GpGg.IntError(GpC, NO_CARET, "internal error: unknown column type");
+					GpGg.IntErrorNoCaret("internal error: unknown column type");
 					/* July 2010 - We used to have special code to handle time data. */
 					/* But time data in a binary file is just one more binary value, */
 					/* so let the general case code handle it.                       */
@@ -4296,7 +4296,7 @@ char * GpDatafile::DfGeneratePseudoData()
 		}
 		if(df_pseudospan == 0) {
 			if(GpGg.Samples1 < 2 || GpGg.Samples2 < 2 || GpGg.iso_samples_1 < 2 || GpGg.iso_samples_2 < 2)
-				GpGg.IntError(GpC, NO_CARET, "samples or iso_samples < 2. Must be at least 2.");
+				GpGg.IntErrorNoCaret("samples or iso_samples < 2. Must be at least 2.");
 			if(GpGg.IsParametric) {
 				u_range = GpGg[U_AXIS].Range;
 				v_range = GpGg[V_AXIS].Range;
@@ -4369,10 +4369,10 @@ void GpDatafile::ClearDfColumnHeaders()
 char * GpDatafile::DfGenerateAsciiArrayEntry()
 {
 	df_array_index++;
-	if(df_array_index > GpC.P.P_DfArray->udv_value.v.value_array[0].v.int_val)
+	if(df_array_index > GpGg.Gp__C.P.P_DfArray->udv_value.v.value_array[0].v.int_val)
 		return NULL;
 	else {
-		const t_value * entry = &(GpC.P.P_DfArray->udv_value.v.value_array[df_array_index]);
+		const t_value * entry = &(GpGg.Gp__C.P.P_DfArray->udv_value.v.value_array[df_array_index]);
 		if(entry->type == STRING)
 			sprintf(df_line, "%d \"%s\"", df_array_index, entry->v.string_val);
 		else
@@ -4398,7 +4398,7 @@ void GpDatafile::SetSeparator(GpCommand & rC)
 			rC.CToken++;
 		}
 		else if(!(df_separators = rC.TryToGetString())) {
-			GpGg.IntError(rC, rC.CToken, "expected \"<separator_char>\"");
+			GpGg.IntErrorCurToken("expected \"<separator_char>\"");
 		}
 	}
 }

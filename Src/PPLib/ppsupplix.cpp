@@ -96,7 +96,7 @@ int SLAPI SupplExpFilt::Read(SBuffer & rBuf, long)
 int SupplExpFilt::OpListFromCfg(const /*PPSupplExchangeCfg*/PPSupplAgreement::ExchangeParam * pCfg)
 {
 	int    ok = 1;
-	THROW_PP(pCfg, PPERR_INVPARAM);
+	THROW_INVARG(pCfg);
 	ExpendOp   = pCfg->ExpendOp;
 	RcptOp     = pCfg->RcptOp;
 	SupplRetOp = pCfg->SupplRetOp;
@@ -111,7 +111,7 @@ int SupplExpFilt::OpListFromCfg(const /*PPSupplExchangeCfg*/PPSupplAgreement::Ex
 int SupplExpFilt::OpListToCfg(/*PPSupplExchangeCfg*/PPSupplAgreement::ExchangeParam * pCfg)
 {
 	int    ok = 1;
-	THROW_PP(pCfg, PPERR_INVPARAM);
+	THROW_INVARG(pCfg);
 	pCfg->ExpendOp   = ExpendOp;
 	pCfg->RcptOp     = RcptOp;
 	pCfg->SupplRetOp = SupplRetOp;
@@ -2596,9 +2596,6 @@ private:
 		stEpDefined          = 0x0002,
 		stGoodsMappingInited = 0x0004
 	};
-	//PPID   ArID;
-    //PPSupplAgreement::ExchangeParam Ep;
-    //DateRange BillExportPeriod;
 	long   State;
 	SDynLibrary * P_Lib;
 	void * P_DestroyFunc;
@@ -2608,24 +2605,15 @@ private:
 	SString LastMsg;
 	SString LogFileName;
 	TSCollection <iSalesGoodsPacket> GoodsMapping;
-
-	//PPObjBill * P_BObj;
-	//PPObjArticle ArObj;
-	//PPObjLocation LocObj;
-	//PPObjGoods GObj;
 	PPObjPerson PsnObj;
-
 	PPLogger & R_Logger;
 };
 
 
 SLAPI iSalesPepsi::iSalesPepsi(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger)
 {
-	//P_BObj = BillObj;
 	State = 0;
-	//ArID = 0;
 	P_DestroyFunc = 0;
-	//BillExportPeriod.SetZero();
 	PPGetFilePath(PPPATH_LOG, "isalespepsi.log", LogFileName);
  	{
 		SString lib_path;
@@ -2817,6 +2805,8 @@ int SLAPI iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
 	SString strg_file_name;
 	GetGoodsStoreFileName(strg_file_name);
 	int     storage_exists = 0;
+	DateRange goods_query_period; // @v9.6.3
+	goods_query_period.SetZero(); // @v9.6.3
 	if(useStorage) {
 		if(fileExists(strg_file_name)) {
 			storage_exists = 1;
@@ -2824,6 +2814,7 @@ int SLAPI iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
             if(SFile::GetTime(strg_file_name, 0, 0, &mt)) {
                 if(diffdate(getcurdate_(), mt.d) <= 2) {
 					if(RestoreGoods(GoodsMapping)) {
+						goods_query_period.low = mt.d; // @v9.6.3
 						State |= stGoodsMappingInited;
 						ok = 2;
 					}
@@ -2845,10 +2836,35 @@ int SLAPI iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
 		THROW(P_Lib);
 		THROW_SL(func = (ISALESGETGOODSLIST_PROC)P_Lib->GetProcAddr("iSalesGetGoodsList"));
 		sess.Setup(SvcUrl);
-		p_result = func(sess, UserName, Password);
+		{
+			DateRange * p_qp = 0;
+			if(goods_query_period.low) {
+				goods_query_period.upp = encodedate(31, 12, 2030);
+				p_qp = &goods_query_period;
+			}
+			p_result = func(sess, UserName, Password, p_qp);
+		}
 		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 		{
-			THROW_SL(TSCollection_Copy(GoodsMapping, *p_result));
+			// @v9.6.3 THROW_SL(TSCollection_Copy(GoodsMapping, *p_result));
+			// @v9.6.3 {
+			for(uint nidx = 0; nidx < p_result->getCount(); nidx++) {
+				const iSalesGoodsPacket * p_np = p_result->at(nidx);
+				int _found = 0;
+				for(uint pidx = 0; pidx < GoodsMapping.getCount(); pidx++) {
+					iSalesGoodsPacket * p_pp = GoodsMapping.at(pidx);
+					if(p_pp && p_pp->OuterCode == p_np->OuterCode) {
+                        *p_pp = *p_np;
+                        _found = 1;
+					}
+				}
+				if(!_found) {
+                    iSalesGoodsPacket * p_new_item = GoodsMapping.CreateNewItem();
+					THROW_SL(p_new_item);
+					*p_new_item = *p_np;
+				}
+			}
+			// } @v9.6.3
 			State |= stGoodsMappingInited;
 			ok = 1;
 			if(useStorage) {
@@ -4127,8 +4143,10 @@ int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 	int    ok = -1;
 	const  PPID bill_ack_tag_id = NZOR(Ep.Fb.BillAckTagID, PPTAG_BILL_EDIACK);
 	if(opID && outerDocType >= 0) {
+		Reference * p_ref = PPRef;
 		SString temp_buf;
 		SString isales_code;
+		S_GUID test_uuid;
 		PPViewBill b_view;
 		BillTbl::Rec bill_rec;
 		PPIDArray force_bill_list; // Список документов которые надо послать снова
@@ -4152,7 +4170,6 @@ int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 			upd_bill_list.sortAndUndup();
 			for(uint i = 0; i < upd_bill_list.getCount(); i++) {
 				const PPID upd_bill_id = upd_bill_list.get(i);
-				S_GUID test_uuid;
 				//
 				// Теги PPTAG_BILL_EDIACK используются так же для обмена с ЕГАИС.
 				// Дабы отличить документ isales от ЕГАИС попытаемся преобразовать значение
@@ -4160,7 +4177,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 				// Метод очень плохой, но пока оставим так.
 				// @v9.5.7 В конфигурацию обмена данными добавлен спец тег для этого.
 				//
-				if(PPRef->Ot.GetTagStr(PPOBJ_BILL, upd_bill_id, bill_ack_tag_id, temp_buf) > 0 && !test_uuid.FromStr(temp_buf)) {
+				if(p_ref->Ot.GetTagStr(PPOBJ_BILL, upd_bill_id, bill_ack_tag_id, temp_buf) > 0 && !test_uuid.FromStr(temp_buf)) {
                     if(P_BObj->Search(upd_bill_id, &bill_rec) > 0) {
 						if(IsOpBelongTo(bill_rec.OpID, b_filt.OpID)) {
 							Helper_Make_iSalesIdent(bill_rec, outerDocType, isales_code);
@@ -4196,10 +4213,16 @@ int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 		THROW(b_view.Init_(&b_filt));
 		for(b_view.InitIteration(PPViewBill::OrdByDefault); b_view.NextIteration(&view_item) > 0;) {
 			if(!force_bill_list.bsearch(view_item.ID)) {
+				int    dont_send = 0;
 				if(outerDocType == 6 && !P_BObj->CheckStatusFlag(view_item.StatusID, BILSTF_READYFOREDIACK)) {
 					// Статус не позволяет отправку
+					dont_send = 1;
 				}
-				else {
+				else if(p_ref->Ot.GetTagStr(PPOBJ_BILL, view_item.ID, bill_ack_tag_id, temp_buf) > 0 && !test_uuid.FromStr(temp_buf)) {
+					// @v9.6.4 (не отправляем документы, которые уже были отправлены ранее)
+					dont_send = 1;
+				}
+				if(!dont_send) {
 					Helper_MakeBillEntry(view_item.ID, outerDocType, rList);
 				}
 			}
@@ -5576,7 +5599,7 @@ int SLAPI PrcssrSupplInterchange::InitExecuteBlock(const SupplInterchangeFilt * 
 	int    ok = 1;
 	ArticleTbl::Rec ar_rec;
 	PPSupplAgreement suppl_agt;
-	THROW_PP(pParam, PPERR_INVPARAM);
+	THROW_INVARG(pParam);
 	THROW_PP(pParam->SupplID, PPERR_INVSUPPL);
 	THROW(ArObj.Search(pParam->SupplID, &ar_rec) > 0);
 	THROW_PP_S(ArObj.GetSupplAgreement(pParam->SupplID, &suppl_agt, 0) > 0, PPERR_ARHASNTAGREEMENT, ar_rec.Name);
@@ -5643,42 +5666,6 @@ int SLAPI SupplGoodsImport()
 	CATCHZOKPPERR
 	return ok;
 }
-
-#if 0 // {
-int SLAPI DoSupplInterchange_Pre9201(SupplExpFilt * pFilt)
-{
-	int    ok = -1;
-	PPID   suppl_id = 0;
-	SupplExpFilt filt;
-	RVALUEPTR(filt, pFilt);
-	if(pFilt || EditSupplExpFilt(&filt, 0) > 0) {
-		int    max_size_kb = 0;
-		PPIniFile ini_file;
-		if(ini_file.Valid()) {
-			ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SUPPLEXP_BILLFILEMAXSIZE, &max_size_kb);
-			ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SPECENCODESYMBS, filt.EncodeStr);
-		}
-		filt.MaxFileSizeKB = (size_t)max_size_kb;
-		//
-		SupplInterchangeFilt six_filt;
-		six_filt = filt;
-		PrcssrSupplInterchange six_prc;
-		PrcssrSupplInterchange::ExecuteBlock eb;
-		THROW(six_prc.InitExecuteBlock(&six_filt, eb));
-		{
-			PPSupplExchange_Baltika s_e(eb);
-			PPWait(1);
-			THROW(s_e.Init(/*&filt*/));
-			THROW(s_e.Export());
-			PPWait(0);
-			ok = 1;
-		}
-	}
-	CATCHZOKPPERR
-	PPWait(0);
-	return ok;
-}
-#endif // } 0
 
 int SLAPI DoSupplInterchange(SupplInterchangeFilt * pFilt)
 {

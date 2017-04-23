@@ -101,8 +101,30 @@ int SLAPI _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int *
 				if(year_end < 1900 || year_end > 2100)
 					year_end = 0;
 			}
-			else
+			else {
+				//
+				// ѕопытка с ходу засечь дату в формате DATF_ISO8601 (yyyy-mm-dd).
+				// “ак как по счастливой случайности этот формат не перекрываетс€ никакими иными DATF_XXX
+				// форматами, мы может рассмотреть этот вариант отдельно.
+				// «а одно воспользуемс€ тем, что количество лидирующих цифр уже подсчитано (dig_count == 4)
+				//
+				if(dig_count == 4 && style != DATF_ISO8601) { 
+					if(
+						/*isdec(c[0]) &&
+						isdec(c[1]) &&
+						isdec(c[2]) &&
+						isdec(c[3]) &&*/
+						c[4] == '-' &&
+						isdec(c[5]) &&
+						isdec(c[6]) &&
+						c[7] == '-' &&
+						isdec(c[8]) &&
+						isdec(c[9])) {
+						style = DATF_ISO8601;
+					}
+				}
 				dig_count = 0;
+			}
 			//
 			ord = _decode_date_fmt(style, &div);
 			if(year_start) {

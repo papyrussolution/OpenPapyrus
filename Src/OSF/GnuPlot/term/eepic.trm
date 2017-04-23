@@ -464,7 +464,7 @@ static void EEPIC_options(GpCommand & rC)
 			t_value a;
 			fontsize = (float)rC.ConstExpress(&a)->Real();
 			if(fontsize < 1 || fontsize > 100)
-				GpGg.IntError(rC, rC.CToken, "font size out of bounds [1..100]");
+				GpGg.IntErrorCurToken("font size out of bounds [1..100]");
 			else {
 				eepic_fontsize_set = true;
 				term->VChr = (uint)(fontsize/EEPIC_UNIT);
@@ -472,7 +472,7 @@ static void EEPIC_options(GpCommand & rC)
 			}
 		}
 		else
-			GpGg.IntError(rC, rC.CToken, "unrecognized option");
+			GpGg.IntErrorCurToken("unrecognized option");
 	} /* while(command) */
 	sprintf(term_options, "%s%s%s%s",
 	    eepic_color_on ? " color" : "",
@@ -574,7 +574,7 @@ START_HELP(eepic)
 " 'default' resets all options to their defaults = no color, no dashed lines,",
 " pseudo-rotated (stacked) text, large point symbols.",
 " <fontsize> is a number which specifies the font size inside the picture",
-" environment; the unit is pt (points), i.e., 10 pt GpC.Eq approx. 3.5 mm.",
+" environment; the unit is pt (points), i.e., 10 pt GpGg.Gp__C.Eq approx. 3.5 mm.",
 " If fontsize is not specified, then all text inside the picture will be set",
 " in \\footnotesize.",
 "",

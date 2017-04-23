@@ -302,7 +302,7 @@ static void NEC_options(GpCommand & rC)
 			    /* error, but since the terminal is already set, default to mono */
 			    strcpy(term_options, "monochrome");
 			    NECmode = 'm';
-			    GpGg.IntError(rC, rC.CToken, "modes: color, monochrome, draft");
+			    GpGg.IntErrorCurToken("modes: color, monochrome, draft");
 			    break;
 		}
 	}
@@ -770,7 +770,7 @@ static void DPU414_options(GpCommand & rC)
 			    /* reset to default, since term is already set */
 			    DPU414_font = 2;
 			    DPU414_quality = 1;
-			    GpGg.IntError(rC, rC.CToken, "expecting: {small, medium, large} {normal, draft}");
+			    GpGg.IntErrorCurToken("expecting: {small, medium, large} {normal, draft}");
 			    break;
 		}
 	}

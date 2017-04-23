@@ -222,7 +222,8 @@ extern "C" __declspec(dllexport) TSCollection <iSalesRoutePacket> * iSalesGetRou
 	return p_result;
 }
 
-extern "C" __declspec(dllexport) TSCollection <iSalesGoodsPacket> * iSalesGetGoodsList(PPSoapClientSession & rSess, const char * pUser, const char * pPassw)
+extern "C" __declspec(dllexport) TSCollection <iSalesGoodsPacket> * iSalesGetGoodsList(PPSoapClientSession & rSess,
+	const char * pUser, const char * pPassw, const DateRange * pPeriod)
 {
 	TSCollection <iSalesGoodsPacket> * p_result = 0;
 	AccountingTransferSoapProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
@@ -237,7 +238,10 @@ extern "C" __declspec(dllexport) TSCollection <iSalesGoodsPacket> * iSalesGetGoo
 	DateRange period;
 	//period.Set(encodedate(1, 1, 2001), encodedate(31, 12, 2030));
 	//period.Set(encodedate(1, 7, 2016), encodedate(20, 7, 2016));
-	period.Set(encodedate(1, 1, 2016), encodedate(20, 7, 2030));
+	if(pPeriod && pPeriod->low && pPeriod->upp)
+		period = *pPeriod;
+	else
+		period.Set(encodedate(1, 1, 2016), encodedate(20, 7, 2030));
 	InParamString arg_dtstart((temp_buf = 0).Cat(period.low, DATF_YMD|DATF_CENTURY|DATF_NODIV));
 	InParamString arg_dtend((temp_buf = 0).Cat(period.upp, DATF_YMD|DATF_CENTURY|DATF_NODIV));
 	param.dtFrom = arg_dtstart;
@@ -401,7 +405,7 @@ static TSCollection <iSalesBillPacket> * Helper_AcceptDocList(const ns1__ArrayOf
 						}
 					}
 				}
-				// } @v9.3.1 
+				// } @v9.3.1
 			}
 		}
 	}

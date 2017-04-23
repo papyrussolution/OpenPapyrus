@@ -1413,13 +1413,13 @@ int SXml::WNode::Construct(xmlTextWriterPtr pWriter, const char * pName)
 //static
 int FASTCALL SXml::IsName(const xmlNode * pNode, const char * pName)
 {
-	return BIN(pNode && pNode->name && stricmp((const char *)pNode->name, pName) == 0);
+	return BIN(pNode && sstreqi_ascii((const char *)pNode->name, pName));
 }
 
 //static
 int FASTCALL SXml::IsContent(const xmlNode * pNode, const char * pText)
 {
-	return BIN(pNode && pNode->content && stricmp((const char *)pNode->content, pText) == 0);
+	return BIN(pNode && sstreqi_ascii((const char *)pNode->content, pText));
 }
 
 //static
@@ -1460,7 +1460,7 @@ int SLAPI SXml::GetAttrib(const xmlNode * pNode, const char * pAttr, SString & r
 	rResult = 0;
     if(pNode) {
 		for(const xmlAttr * p_attr = pNode->properties; p_attr; p_attr = p_attr->next) {
-			if(p_attr->name && stricmp((const char *)p_attr->name, pAttr) == 0) {
+			if(sstreqi_ascii((const char *)p_attr->name, pAttr)) {
 				if(p_attr->children && p_attr->children->type == XML_TEXT_NODE)
 					rResult.Set(p_attr->children->content);
 				ok = 1;

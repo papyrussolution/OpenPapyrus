@@ -668,7 +668,7 @@ int GpCommand::LookupTable(const GenTable * pTbl, int findToken)
 parsefuncp_t lookup_ftable(const GpGenFTable * ftbl, int find_token)
 {
 	while(ftbl->key) {
-		if(GpC.AlmostEq(find_token, ftbl->key))
+		if(GpGg.Gp__C.AlmostEq(find_token, ftbl->key))
 			return ftbl->value;
 		ftbl++;
 	}

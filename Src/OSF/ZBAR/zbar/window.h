@@ -72,8 +72,7 @@ static inline int window_lock(zbar_window_t * w)
 {
 	int rc = 0;
 	if((rc = _zbar_mutex_lock(&w->imglock))) {
-		err_capture(w, SEV_FATAL, ZBAR_ERR_LOCKING, __func__,
-		    "unable to acquire lock");
+		err_capture(w, SEV_FATAL, ZBAR_ERR_LOCKING, __func__, "unable to acquire lock");
 		w->err.errnum = rc;
 		return -1;
 	}
@@ -84,8 +83,7 @@ static inline int window_unlock(zbar_window_t * w)
 {
 	int rc = 0;
 	if((rc = _zbar_mutex_unlock(&w->imglock))) {
-		err_capture(w, SEV_FATAL, ZBAR_ERR_LOCKING, __func__,
-		    "unable to release lock");
+		err_capture(w, SEV_FATAL, ZBAR_ERR_LOCKING, __func__, "unable to release lock");
 		w->err.errnum = rc;
 		return -1;
 	}

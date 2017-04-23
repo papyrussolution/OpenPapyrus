@@ -522,7 +522,7 @@ static void X11_options(GpCommand & rC)
 			case X11_FONT:
 			    rC.CToken++;
 			    if(rC.EndOfCommand())
-				    GpGg.IntError(rC, rC.CToken, "expecting font name");
+				    GpGg.IntErrorCurToken("expecting font name");
 			    if(rC.IsStringValue(rC.CToken) && (s = rC.TryToGetString())) {
 				    strncpy(X11_default_font, s, sizeof(X11_default_font));
 				    free(s);
@@ -539,7 +539,7 @@ static void X11_options(GpCommand & rC)
 			case X11_TITLE:
 			    rC.CToken++;
 			    if(rC.EndOfCommand())
-				    GpGg.IntError(rC, rC.CToken, "expecting title text");
+				    GpGg.IntErrorCurToken("expecting title text");
 			    c_title_token = rC.CToken;
 			    rC.CToken++;
 			    if(set_title) duplication = true;
@@ -558,7 +558,7 @@ static void X11_options(GpCommand & rC)
 			case X11_SIZE:
 			    rC.CToken++;
 			    if(rC.EndOfCommand()) {
-				    GpGg.IntError(rC, rC.CToken, "expecting X[,Y]");
+				    GpGg.IntErrorCurToken("expecting X[,Y]");
 			    }
 			    else {
 				    int x_in, y_in;
@@ -566,14 +566,14 @@ static void X11_options(GpCommand & rC)
 				    if(x_in > 0)
 					    X11_SIZE_X = x_in;
 				    else
-					    GpGg.IntError(rC, rC.CToken, "X size must be > 0");
+					    GpGg.IntErrorCurToken("X size must be > 0");
 				    if(rC.Eq(",")) {
 					    rC.CToken++;
 					    y_in = rC.IntExpression();
 					    if(y_in > 0)
 						    X11_SIZE_Y = y_in;
 					    else
-						    GpGg.IntError(rC, rC.CToken, "Y size must be > 0");
+						    GpGg.IntErrorCurToken("Y size must be > 0");
 				    }
 				    set_size = yes;
 			    }
@@ -581,7 +581,7 @@ static void X11_options(GpCommand & rC)
 			case X11_POSITION:
 			    rC.CToken++;
 			    if(rC.EndOfCommand()) {
-				    GpGg.IntError(rC, rC.CToken, "expecting X[,Y]");
+				    GpGg.IntErrorCurToken("expecting X[,Y]");
 			    }
 			    else {
 				    X11_POSITION_X = rC.IntExpression();
@@ -604,11 +604,11 @@ static void X11_options(GpCommand & rC)
 			    char * windowid;
 			    rC.CToken++;
 			    if(!(windowid = rC.TryToGetString()))
-				    GpGg.IntError(rC, rC.CToken, "expecting X window ID as string in hex");
+				    GpGg.IntErrorCurToken("expecting X window ID as string in hex");
 			    sscanf(windowid, "%lx", &existing_X11_window_id);
 			    free(windowid);
 			    if(!existing_X11_window_id)
-				    GpGg.IntError(rC, rC.CToken, "expecting X window ID as string in hex");
+				    GpGg.IntErrorCurToken("expecting X window ID as string in hex");
 			    if(set_window) duplication = true;
 			    set_window = true;
 			    break;
@@ -626,13 +626,13 @@ static void X11_options(GpCommand & rC)
 			    /* let gnuplot_x11 check range */
 			    new_term_number = rC.IntExpression();
 			    if(new_term_number < 0)
-				    GpGg.IntError(rC, rC.CToken, "plot number must be non-negative");
+				    GpGg.IntErrorCurToken("plot number must be non-negative");
 			    set_number = true;
 			    break;
 		}
 
 		if(duplication) {
-			GpGg.IntError(rC, rC.CToken-1, "duplicated or contradicting arguments in X11 term options");
+			GpGg.IntError(rC.CToken-1, "duplicated or contradicting arguments in X11 term options");
 		}
 	}
 
@@ -656,7 +656,7 @@ static void X11_options(GpCommand & rC)
 		else if(set_number) {
 #ifdef EXTERNAL_X11_WINDOW
 			if(set_window)
-				GpGg.IntError(GpC, NO_CARET, "an existing X11 window cannot be asigned to a plot number");
+				GpGg.IntErrorNoCaret("an existing X11 window cannot be asigned to a plot number");
 #endif
 			fprintf(X11_ipc, "N%d\n", new_term_number);
 			fflush(X11_ipc);
@@ -900,7 +900,7 @@ AGAIN:
 					/* note: do_event() may not return (if an
 					 * error occurs), so need to reset l first */
 					l = 0;
-					GpGg.DoEvent(term, GpC, &ge);
+					GpGg.DoEvent(term, &ge);
 
 					/* I react only to the first GE_fontprops event. Subsequent
 					   GE_fontprops events only save the sizing information for
@@ -942,7 +942,7 @@ AGAIN:
 	/* If ipc_back_fd is not open, we will never see any mouse events! */
 	else if(paused_for_mouse) {
 		paused_for_mouse = 0;
-		GpGg.IntError(GpC, NO_CARET, "Mousing not active");
+		GpGg.IntErrorNoCaret("Mousing not active");
 	}
 
 	/* IPC_LOCK indicates that we are specifically waiting for a reply on */

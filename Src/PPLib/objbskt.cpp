@@ -856,7 +856,7 @@ int SLAPI PPObjGoodsBasket::Edit(PPID * pID, void * extraPtr)
 	PPGoodsBasket  org_rec;
 	PPID   org_id = 0;
 	PPBasketCombine bc;
-	THROW_PP(pID, PPERR_INVPARAM);
+	THROW_INVARG(pID);
 	org_id = bc.BasketID = *pID;
 	if(PPObjGoodsBasket::IsPrivate(*pID)) {
 		PPBasketPacket * p_private_cart = DS.GetPrivateBasket();
@@ -1765,7 +1765,7 @@ int GBDialog::addItem(long * pPos, long * pID)
 						GetGoodsName(item.GoodsID, msg_buf).Space().CatChar('[').Cat(R_Data.Pack.Lots.at(pos).Quantity, MKSFMTD(0, 6, NMBF_NOTRAILZ)).
 							Space().Cat("itm").CatChar(']');
 						PPSetAddedMsgString(msg_buf);
-						if(PPMessage(mfConf|mfYes|mfNo, PPCFM_SUMDUPGOODSINBASKET, 0) == cmYes) {
+						if(PPMessage(mfConf|mfYes|mfNo, PPCFM_SUMDUPGOODSINBASKET) == cmYes) {
 							R_Data.Pack.Lots.at(pos).Quantity += item.Quantity;
 							ASSIGN_PTR(pPos, (long)pos);
 							ASSIGN_PTR(pID, (long)(pos+1));

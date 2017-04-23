@@ -420,7 +420,7 @@ static void CGM_options(GpCommand & rC)
 				    unsigned short red, green, blue;
 
 				    if(sscanf(string, "x%2hx%2hx%2hx", &red, &green, &blue) != 3)
-					    GpGg.IntError(rC, rC.CToken, "invalid color spec, must be xRRGGBB");
+					    GpGg.IntErrorCurToken("invalid color spec, must be xRRGGBB");
 				    if(cgm_user_color_count >= cgm_user_color_max) {
 					    cgm_user_color_max = cgm_user_color_max*2 + 4;
 					    cgm_user_color_table = (int*)gp_realloc(cgm_user_color_table,

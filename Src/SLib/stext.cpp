@@ -1887,8 +1887,8 @@ int FASTCALL sstreqi_ascii(const char * pS1, const char * pS2)
 			return 0;
 		else if(len) {
             for(size_t i = 0; i < len; i++) {
-				char c1 = pS1[i];
-				char c2 = pS2[i];
+				/*char*/int c1 = pS1[i];
+				/*char*/int c2 = pS2[i];
 				if(c1 != c2) {
 					if(c1 >= 'A' && c1 <= 'Z')
 						c1 -= ('A' - 'a');

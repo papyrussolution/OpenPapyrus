@@ -186,7 +186,7 @@ int InventoryDialog::showLinkFilesList()
 
 void InventoryDialog::writeOff()
 {
-	if(PPMessage(mfConf|mfYesNo, PPCFM_INVWRITEOFF, 0) == cmYes) {
+	if(PPMessage(mfConf|mfYesNo, PPCFM_INVWRITEOFF) == cmYes) {
 		PPWait(1);
 		if(!P_BObj->ConvertInventory(P_Data->Rec.ID))
 			PPError();
@@ -490,7 +490,7 @@ int SLAPI PPObjBill::EditInventory(PPBillPacket * pPack, long)
 					if(pPack->Rec.ID && P_Tbl->EnumLinks(pPack->Rec.ID, 0, BLNK_ALL) > 0)
 						valid_data = (PPError(PPERR_INVTOOWRITEDOFF, 0), 0);
 					else if(pPack->Rec.ID) {
-						if(PPMessage(mfConf|mfYesNo, PPCFM_INVDATEUPD, 0) != cmYes)
+						if(PPMessage(mfConf|mfYesNo, PPCFM_INVDATEUPD) != cmYes)
 							valid_data = 0;
 						else if(!RecalcInventoryStockRests(pPack->Rec.ID, 0, 1))
 							valid_data = PPErrorZ();
@@ -1011,9 +1011,9 @@ int SLAPI InventoryConversion::Init(PPID billID)
 	//
 	if(!(invOpEx.Flags & INVOPF_INVBYCLIENT)) {
 		THROW_PP(invOpEx.WrDnOp || invOpEx.WrUpOp, PPERR_UNDEFINVWROPS);
-		if(!invOpEx.WrDnOp && PPMessage(mfConf|mfYesNo, PPCFM_UNDEFINVWRDNOP, 0) != cmYes)
+		if(!invOpEx.WrDnOp && PPMessage(mfConf|mfYesNo, PPCFM_UNDEFINVWRDNOP) != cmYes)
 			ok = -1;
-		if(!invOpEx.WrUpOp && PPMessage(mfConf|mfYesNo, PPCFM_UNDEFINVWRUPOP, 0) != cmYes)
+		if(!invOpEx.WrUpOp && PPMessage(mfConf|mfYesNo, PPCFM_UNDEFINVWRUPOP) != cmYes)
 			ok = -1;
 	}
 	else

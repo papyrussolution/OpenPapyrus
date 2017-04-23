@@ -50,7 +50,7 @@ int curly_brace_count;
 
 #define LBRACE '{'
 #define RBRACE '}'
-//#define APPEND_TOKEN { GpC.P_Token[t_num].length++; current++; }
+//#define APPEND_TOKEN { GpGg.Gp__C.P_Token[t_num].length++; current++; }
 
 static int t_num; // number of token I'm working on 
 
@@ -155,12 +155,12 @@ int GpCommand::Scanner(char ** expressionp, size_t * expressionlenp)
 						continue;
 					}
 					if(partial != 3 || brace != RBRACE)
-						GpGg.IntError(GpC, t_num, "invalid complex constant");
+						GpGg.IntError(t_num, "invalid complex constant");
 					P_Token[t_num].length += 2;
 					while(expression[++current] != RBRACE) {
 						P_Token[t_num].length++;
 						if(expression[current] == NUL) /* { for vi % */
-							GpGg.IntError(GpC, t_num, "no matching '}'");
+							GpGg.IntError(t_num, "no matching '}'");
 					}
 				}
 				else if(expression[current] == '\'' || expression[current] == '\"') {
@@ -245,7 +245,7 @@ int GpCommand::Scanner(char ** expressionp, size_t * expressionlenp)
 							}
 							break;
 						default:
-							GpGg.IntError(GpC, t_num, "invalid character %c", expression[current]);
+							GpGg.IntError(t_num, "invalid character %c", expression[current]);
 					}
 				}
 				++t_num; // next token if not white space 
@@ -283,7 +283,7 @@ int GpCommand::GetNum(char str[])
 			count++;
 		if(!isdigit((uchar)str[count])) {
 			P_Token[t_num].start_index += count;
-			GpGg.IntError(GpC, t_num, "expecting exponent");
+			GpGg.IntError(t_num, "expecting exponent");
 		} 
 		while(isdigit((uchar)str[++count]))
 			;

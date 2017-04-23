@@ -1,11 +1,11 @@
 // PPMAIL.CPP
-// Copyright (c) A. Starodub, A.Sobolev 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A. Starodub, A.Sobolev 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <idea.h>
+// @v9.6.3 #include <idea.h>
 #include <charry.h>
 //
 //
@@ -1041,7 +1041,7 @@ int SLAPI PPMailFile::SaveAttachment(const char * pAttachName, const char * pDes
 	int    ok = -1;
 	SString temp_buf, file_name;
 	FILE * p_out = 0;
-	THROW_PP(pDestPath, PPERR_INVPARAM);
+	THROW_INVARG(pDestPath);
 	THROW(SkipHeader());
 	if(Msg.Flags & PPMailMsg::fMultipart) {
 		int    boundary = 0, this_attachment = 0;
@@ -1133,7 +1133,7 @@ int SLAPI PPMailFile::SaveOrder(const char * pDestFileName)
 {
 	int    ok = -1;
 	FILE * p_out = 0;
-	THROW_PP(pDestFileName, PPERR_INVPARAM);
+	THROW_INVARG(pDestFileName);
 	THROW(SkipHeader());
 	if(Msg.Flags & PPMailMsg::fPpyOrder) {
 		int    store = 0;
@@ -1463,8 +1463,8 @@ int SLAPI PPMailPop3::SaveAttachment(const char * pMsgFileName, const char * pAt
 {
 	int    ok = -1;
 	PPMailFile mail_file;
-	THROW_PP(pMsgFileName, PPERR_INVPARAM);
-	THROW_PP(pDestPath, PPERR_INVPARAM);
+	THROW_INVARG(pMsgFileName);
+	THROW_INVARG(pDestPath);
 	THROW(mail_file.Open(pMsgFileName));
 	THROW(ok = mail_file.SaveAttachment(pAttachName, pDestPath));
 	CATCHZOK
@@ -1475,8 +1475,8 @@ int SLAPI PPMailPop3::SaveOrder(const char * pMsgFileName, const char * pDestPat
 {
 	int    ok = -1;
 	PPMailFile mail_file;
-	THROW_PP(pMsgFileName, PPERR_INVPARAM);
-	THROW_PP(pDestPath, PPERR_INVPARAM);
+	THROW_INVARG(pMsgFileName);
+	THROW_INVARG(pDestPath);
 	THROW(mail_file.Open(pMsgFileName));
 	THROW(ok = mail_file.SaveOrder(pDestPath));
 	CATCHZOK
@@ -1606,7 +1606,7 @@ int SLAPI PPMailSmtp::SendMsgToFile(PPMailMsg * pMsg, SString & rFileName)
 	FILE * f2 = 0;
 	FILE * out = 0;
 
-	THROW_PP(pMsg, PPERR_INVPARAM);
+	THROW_INVARG(pMsg);
 	/*
 	if(!PPGetPath(PPPATH_TEMP, temp_buf))
 		PPGetPath(PPPATH_OUT, temp_buf);
@@ -1745,7 +1745,7 @@ int SLAPI PPMailSmtp::SendMsgFromFile(PPMailMsg * pMsg, const char * pFileName, 
 	FILE * f2 = 0;
 	FILE * in = 0;
 
-	THROW_PP(pMsg, PPERR_INVPARAM);
+	THROW_INVARG(pMsg);
 	THROW_PP(in = fopen(pFileName, "rt"), PPERR_CANTOPENFILE);
 	is_attach = (pMsg->Flags & PPMailMsg::fMultipart) ? 1 : 0;
 
@@ -1845,7 +1845,7 @@ static void SendMailCallback(const IterCounter & bytesCounter, const IterCounter
 int SLAPI SendMailWithAttach(const char * pSubj, const char * pPath, const char * pLetter, const char * pMail, PPID accountID)
 {
 	int    ok = -1;
-	THROW_PP(pPath, PPERR_INVPARAM);
+	THROW_INVARG(pPath);
 	{
 		SStrCollection files_list;
 		THROW_SL(files_list.insert(newStr(pPath)));
@@ -1876,7 +1876,7 @@ int SLAPI SendMail(const char * pSubj, const char * pLetter, StrAssocArray * pMa
 	SString ok_msg, buf, from_addr, mail_addr;
 	IterCounter msg_counter;
 
-	THROW_PP(pSubj && pMailList && pMailList->getCount(), PPERR_INVPARAM);
+	THROW_INVARG(pSubj && pMailList && pMailList->getCount());
 	PPLoadText(PPTXT_MAIL_SENDOK, ok_msg);
 	msg_counter.Init(1);
 	for(uint i = 0; i < pMailList->getCount(); i++) {
@@ -1910,7 +1910,7 @@ int SLAPI InitImpExpParam(PPImpExpParam * pParam, const char * pFileName, int fo
 {
 	int    ok = 1;
 	SStrCollection fields;
-	THROW_PP(pParam && pFileName, PPERR_INVPARAM);
+	THROW_INVARG(pParam && pFileName);
 	pParam->Init();
 	THROW(LoadSdRecord(PPREC_EMAILACCOUNT, &pParam->InrRec));
 	pParam->Direction  = forExport ? 0 : 1;
@@ -1944,7 +1944,7 @@ int SLAPI PPEmailAcctsImporter::Init(const PPImpExpParam * pImpExpParam)
 {
 	int    ok = 1;
 	if(!RVALUEPTR(ImpExpParam, pImpExpParam))
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 

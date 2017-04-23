@@ -303,5 +303,5 @@ int SLAPI SFileEntryPool::Sort(int criteria)
 	SFileEntryPool_SortExtraBlock blk;
 	blk.Order = criteria;
 	blk.P_Pool = this;
-	return L.sort(PTR_CMPCFUNC(SFileEntryPool_Entry, &blk));
+	return L.sort(PTR_CMPCFUNC(SFileEntryPool_Entry), &blk);
 }

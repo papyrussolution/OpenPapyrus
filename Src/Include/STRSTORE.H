@@ -52,6 +52,32 @@ public:
 	int    SLAPI Load(const char * pFileName, int selfTest);
 	int    SLAPI GetString(int group, int code, SString & rBuf) const;
 	int    SLAPI GetString(const char * pSignature, SString & rBuf) const;
+	//
+	// Descr: Создает и заполняет хэш-таблицу символов, содержащихся в группе group.
+	// Note: Возвращаемый указатель ссылается на объект, который переходит в собственность
+	//   вызывающей функции.
+	// Returns:
+	//   0 - не удалось создать хэш-таблицу. Вероятные причины:
+	//       -- группа group не является хэширующей
+	//       -- группа group пуста
+	//       -- не достаточно памяти
+	//       -- могут быть и иные причины
+	//   !0 - указатель на хэш-таблицу, переходящую в собственность вызывающей функции.
+	//       после использования таблица должна быть разрушена в целях освобождения памяти.
+	//
+	SymbHashTable * SLAPI LoadStringHash(int group) const;
+	//
+	// Descr: Возвращает собственный экземпляр хэш-таблицы символов, ассоциированный с группой group.
+	// Note: В отличии от LoadStringHash эта функция возвращает собственный экземпляр хэш-таблицы.
+	//   Если таблица до этого не была загружена, то она загружается.
+	// Returns:
+	//   0 - не удалось создать хэш-таблицу. См. возможные причины в описании функции LoadStringHash.
+	//   !0 - указатель на хэш-таблицу. Этот указатель ссылается на "собственность" this. Таким образом
+	//      никакие nonconst действия (в том числе и посредством "трюков") с этим экземпляром
+	//      абсолютно не допустимы: в результате могут быть серьезно повреждены внутренности объекта,
+	//      совместно используемого многими потоками.
+	//
+	const  SymbHashTable * FASTCALL GetStringHash(int group); // @nonconst @cs
 	int    SLAPI GetDescription(int group, int code, SString & rBuf); // @nonconst @cs
 	int    SLAPI GetDescription(const char * pSignature, SString & rBuf); // @nonconst @cs
 	int    SLAPI ExpandString(SString & rBuf, int ctransf /*CTRANSF_XXX*/) const;
@@ -82,7 +108,8 @@ private:
 		};
 		enum {
 			fNextLine    = 0x0001, // Признак того, что для предыдущей строки был задан перевод на новую строку (\)
-			fNoTranslate = 0x0002  // Строку не следует переводить на другие языки
+			fNoTranslate = 0x0002, // Строку не следует переводить на другие языки
+			fHashGroup   = 0x0004  // Если Kind == kGroup и этот флаг установлен, то строка определяет хэширующую группу [abc:hash]
 		};
 		long   Kind;
 		long   Flags;
@@ -115,6 +142,9 @@ private:
 		StrAssocArray List;       // Собственно строки, сопоставленные с идентификаторами
 		StrAssocArray DescrList;  // Список описаний к строкам (сопоставленны с идентификаторами строк)
 		LAssocArray DescrPosList; // Список сопоставлений идентификаторов строк с позицией в файле, по которой хранится подробное описание
+		LAssocArray HashAssocList; // @v9.6.4 Список ассоциаций хэширующих групп с идентификаторами строк, в них входящих.
+			// Хэширующая группа обеспечивает быстрый поиск строки любой строки, входящей в нее, по содержанию и возврат кода этой строки.
+			// Техника хэширующих групп необходима для разбора входящий потоков и команд.
 		StringStore2::Hash * P_PositionHash;
 	};
 
@@ -168,12 +198,32 @@ private:
 		uint8  Reserve[36];    // @reserve // @v8.9.10 [48]-->[44] // @v9.0.2 [44]-->[40] // @v9.0.8 [40]-->[36]
 	};
 
+	StrAssocArray GrpSymbList; // @v9.6.4
+	LongArray HashGroupList;   // @v9.6.4 Список идентификаторов групп, которые определены как хэширующие
+	//
+	// Descr: Предварительно загруженая хэш-таблица символов
+	//
+	struct PreloadedHashGroupEntry {
+		PreloadedHashGroupEntry()
+		{
+			Group = 0;
+			P_Tab = 0;
+		}
+		~PreloadedHashGroupEntry()
+		{
+			ZDELETE(P_Tab);
+		}
+		int    Group;
+		SymbHashTable * P_Tab;
+	};
+	TSCollection <PreloadedHashGroupEntry> PhgL;
+	//
 	struct ParseBlock {
 		SString InFileName;            // Имя разбираемого файла
 		uint   Line;                   // Номер разбираемой строки
 		long   LastAutoGrpCode;
 		uint32 LastSignatureCode;
-		StrAssocArray GrpSymbList;
+		// @v9.6.4 StrAssocArray GrpSymbList;
 		StrAssocArray StrSymbList;
 		LAssocArray LastAutoCodeList;
 		//

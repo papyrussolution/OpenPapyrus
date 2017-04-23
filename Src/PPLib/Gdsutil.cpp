@@ -1156,7 +1156,7 @@ int SLAPI PPObjGoods::EditConfig()
 	if(ok > 0) {
 		int    rebuild = 0;
 		if(!suppress_l_zero && goods_cfg.Flags & GCF_SUPPRLZERO)
-			if(PPMessage(mfConf|mfYes|mfNo, PPCFM_SUPPRBCLZERO, 0) == cmYes)
+			if(PPMessage(mfConf|mfYes|mfNo, PPCFM_SUPPRBCLZERO) == cmYes)
 				rebuild = 1;
 		THROW(goods_obj.Helper_WriteConfig(&goods_cfg, &goods_ex_titles.Strip(), &ownac_cntr, rebuild, 1));
 	}
@@ -2516,7 +2516,7 @@ int SLAPI PPObjGoods::SetSupplDeal(PPID goodsID, const QuotIdent & rQi, const PP
 	const  PPID up_qk_id   = r_tla.SupplDevUpQuotKindID;
 	QuotIdent qi;
 	PPQuotArray qary;
-	THROW_PP(pDeal, PPERR_INVPARAM);
+	THROW_INVARG(pDeal);
 	THROW_PP(deal_qk_id, PPERR_UNDEFSUPPLDEAL);
 	THROW_PP(dn_qk_id, PPERR_UNDEFSUPPLDEALLOWDEV);
 	THROW_PP(up_qk_id, PPERR_UNDEFSUPPLDEALUPPDEV);
@@ -2865,7 +2865,7 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 	ReceiptTbl::Rec lot_rec;
 	MEMSZERO(lot_rec);
 	PROFILE_START
-	THROW_PP(pItem, PPERR_INVPARAM);
+	THROW_INVARG(pItem);
 	pItem->QuotKindUsedForPrice = 0;
 	pItem->QuotKindUsedForExtPrice = 0;
 	pItem->ManufDtm.SetZero();

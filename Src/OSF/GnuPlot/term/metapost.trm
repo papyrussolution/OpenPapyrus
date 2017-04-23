@@ -322,7 +322,7 @@ static void MP_options(GpCommand & rC)
 				    free(s);
 			    }
 			    else if(option == MP_OPT_FONT) {
-				    GpGg.IntError(rC, rC.CToken, "expecting font name");
+				    GpGg.IntErrorCurToken("expecting font name");
 			    }
 			    else if(!rC.EndOfCommand()) { /*font size */
 				    MP_fontsize = (double)rC.ConstExpress(&a)->Real();

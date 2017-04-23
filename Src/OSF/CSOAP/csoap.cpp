@@ -968,36 +968,33 @@ xmlNodePtr soap_env_get_method(SoapEnv * env)
 /* XXX: unused function? */
 xmlNodePtr _soap_env_get_body(SoapEnv * env)
 {
-	xmlNodePtr body;
-	xmlNodeSetPtr nodeset;
-	xmlXPathObjectPtr xpathobj;
+	xmlNodePtr body = 0;
 	if(env == NULL) {
 		log_error1("SoapEnv is NULL");
-		return NULL;
 	}
-	if(env->root == NULL) {
+	else if(env->root == NULL) {
 		log_error1("SoapEnv contains no XML document");
-		return NULL;
 	}
-	/*
-	   find <Body> tag find out namespace xpath: //Envelope/Body/ */
-	xpathobj = soap_xpath_eval(env->root->doc, "//Envelope/Body");
-	if(!xpathobj) {
-		log_error1("No Body (xpathobj)!");
-		return NULL;
+	else {
+		// find <Body> tag find out namespace xpath: //Envelope/Body/ 
+		xmlXPathObjectPtr xpathobj = soap_xpath_eval(env->root->doc, "//Envelope/Body");
+		xmlNodeSetPtr nodeset;
+		if(!xpathobj) {
+			log_error1("No Body (xpathobj)!");
+		}
+		else if(!(nodeset = xpathobj->nodesetval)) {
+			log_error1("No Body (nodeset)!");
+			xmlXPathFreeObject(xpathobj);
+		}
+		else if(nodeset->nodeNr < 1) {
+			log_error1("No Body (nodeNr)!");
+			xmlXPathFreeObject(xpathobj);
+		}
+		else {
+			body = nodeset->nodeTab[0]; // body is <Body> 
+			xmlXPathFreeObject(xpathobj);
+		}
 	}
-	if(!(nodeset = xpathobj->nodesetval)) {
-		log_error1("No Body (nodeset)!");
-		xmlXPathFreeObject(xpathobj);
-		return NULL;
-	}
-	if(nodeset->nodeNr < 1) {
-		log_error1("No Body (nodeNr)!");
-		xmlXPathFreeObject(xpathobj);
-		return NULL;
-	}
-	body = nodeset->nodeTab[0]; /* body is <Body> */
-	xmlXPathFreeObject(xpathobj);
 	return body;
 }
 

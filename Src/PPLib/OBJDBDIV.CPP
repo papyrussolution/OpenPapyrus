@@ -543,7 +543,7 @@ int  SLAPI PPObjDBDiv::RemoveObjV(PPID id, ObjCollection * pObjColl, uint option
 {
 	int    r = -1;
 	THROW(CheckRights(PPR_DEL));
-	if(id != LConfig.DBDiv && (!(options & PPObject::user_request) || PPMessage(mfConf|mfYesNo, PPCFM_DELDBDIV, 0) == cmYes)) {
+	if(id != LConfig.DBDiv && (!(options & PPObject::user_request) || PPMessage(mfConf|mfYesNo, PPCFM_DELDBDIV) == cmYes)) {
 		int    use_ta = BIN(options & PPObject::use_transaction);
 		ObjSyncTbl sync_tbl;
 		PPWait(1);

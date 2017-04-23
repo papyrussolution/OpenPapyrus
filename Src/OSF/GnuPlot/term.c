@@ -324,7 +324,7 @@ void term_set_output(char * dest)
 			f = popen(dest + 1, "w");
 #endif
 			if(f == (FILE*)NULL)
-				os_error(GpC.CToken, "cannot create pipe; output not changed");
+				os_error(GpGg.Gp__C.CToken, "cannot create pipe; output not changed");
 			else
 				output_pipe_open = true;
 		}
@@ -340,7 +340,7 @@ void term_set_output(char * dest)
 		}
 		if(_stricmp(dest, "PRN") == 0) {
 			if((f = open_printer()) == (FILE*)NULL)
-				os_error(GpC.CToken, "cannot open printer temporary file; output may have changed");
+				os_error(GpGg.Gp__C.CToken, "cannot open printer temporary file; output may have changed");
 		}
 		else
 #endif
@@ -348,7 +348,7 @@ void term_set_output(char * dest)
 		{
 			f = (term && (term->flags & TERM_BINARY)) ? FOPEN_BINARY(dest) : fopen(dest, "w");
 			if(f == (FILE*)NULL)
-				os_error(GpC.CToken, "cannot open file; output not changed");
+				os_error(GpGg.Gp__C.CToken, "cannot open file; output not changed");
 		}
 #if defined(PIPES)
 	}
@@ -364,7 +364,7 @@ void GpGadgets::TermInitialise()
 {
 	FPRINTF((stderr, "term_initialise()\n"));
 	if(!term)
-		IntError(GpC, NO_CARET, "No terminal defined");
+		IntErrorNoCaret("No terminal defined");
 	//
 	// check if we have opened the output file in the wrong mode
 	// (text/binary), if set term comes after set output
@@ -671,7 +671,7 @@ static void do_point(uint x, uint y, int number)
 
 	/* point types 1..4 are same as in postscript, png and x11
 	   point types 5..6 are "similar"
-	   (note that (number) GpC.Eq (pointtype-1)
+	   (note that (number) GpGg.Gp__C.Eq (pointtype-1)
 	 */
 	switch(number) {
 		case 4:         /* do diamond */
@@ -1026,7 +1026,7 @@ static int null_scale(double x, double y)
 {
 	(void)x;                
 	(void)y;
-	GpGg.IntError(GpC, NO_CARET, "Attempt to call deprecated terminal function");
+	GpGg.IntErrorNoCaret("Attempt to call deprecated terminal function");
 	return false;           /* can't be done */
 }
 
@@ -1208,7 +1208,7 @@ GpTermEntry * set_term(GpCommand & rC)
 	}
 	if(!t) {
 		change_term("unknown", 7);
-		GpGg.IntError(rC, rC.CToken-1, "unknown or ambiguous terminal type; type just 'set terminal' for a list");
+		GpGg.IntError(rC.CToken-1, "unknown or ambiguous terminal type; type just 'set terminal' for a list");
 	}
 	// otherwise the type was changed 
 	return (t);
@@ -1366,10 +1366,10 @@ void init_terminal()
 		/* "png" for example. However, calling X11_options() is expensive due */
 		/* to the fork+execute of gnuplot_x11 and x11 can tolerate not being  */
 		/* initialized until later.                                           */
-		/* Note that GpC.P_InputLine[] is blank at this point.	              */
+		/* Note that GpGg.Gp__C.P_InputLine[] is blank at this point.	              */
 		if(change_term(term_name, namelength)) {
 			if(strcmp(term->name, "x11"))
-				term->options(GpC);
+				term->options(GpGg.Gp__C);
 			return;
 		}
 		fprintf(stderr, "Unknown or ambiguous terminal name '%s'\n", term_name);
@@ -1420,7 +1420,7 @@ void GpGadgets::TestTerm(GpTermEntry * pT, GpCommand & rC)
 	}
 	// Echo back the current terminal type
 	if(!strcmp(term->name, "unknown"))
-		GpGg.IntError(GpC, NO_CARET, "terminal type is unknown");
+		IntErrorNoCaret("terminal type is unknown");
 	else {
 		char tbuf[64];
 		(*pT->justify_text)(LEFT);
@@ -2308,7 +2308,7 @@ size_units GpCommand::ParseTermSize(float * pXSize, float * pYSize, size_units d
 {
 	size_units units = defaultUnits;
 	if(EndOfCommand())
-		GpGg.IntError(*this, CToken, "size requires two numbers:  pXSize, pYSize");
+		GpGg.IntErrorCurToken("size requires two numbers:  pXSize, pYSize");
 	*pXSize = (float)RealExpression();
 	if(AlmostEq("in$ches")) {
 		CToken++;
@@ -2325,7 +2325,7 @@ size_units GpCommand::ParseTermSize(float * pXSize, float * pYSize, size_units d
 		default:             break;
 	}
 	if(!Eq(CToken++, ","))
-		GpGg.IntError(*this, CToken, "size requires two numbers:  pXSize, pYSize");
+		GpGg.IntErrorCurToken("size requires two numbers:  pXSize, pYSize");
 	*pYSize = (float)RealExpression();
 	if(AlmostEq("in$ches")) {
 		CToken++;
@@ -2342,7 +2342,7 @@ size_units GpCommand::ParseTermSize(float * pXSize, float * pYSize, size_units d
 		default:             break;
 	}
 	if(*pXSize < 1 || *pYSize < 1)
-		GpGg.IntError(*this, CToken, "size: out of range");
+		GpGg.IntErrorCurToken("size: out of range");
 	return units;
 }
 //

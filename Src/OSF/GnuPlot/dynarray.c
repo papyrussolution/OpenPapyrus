@@ -78,7 +78,7 @@ void dynarray::Init(size_t entrySize, long sz, long incr)
 void dynarray::Resize(long newsize)
 {
 	if(!v)
-		GpGg.IntError(GpC, NO_CARET, init_failure_msg);
+		GpGg.IntErrorNoCaret(init_failure_msg);
 	if(newsize == 0)
 		Destroy();
 	else {
@@ -99,7 +99,7 @@ void dynarray::Resize(long newsize)
 void * dynarray::GetNext()
 {
 	if(!v)
-		GpGg.IntError(GpC, NO_CARET, init_failure_msg);
+		GpGg.IntErrorNoCaret(init_failure_msg);
 	if(end >= size) {
 		Resize(size + increment);
 	}
@@ -111,7 +111,7 @@ void * dynarray::GetNext()
 void droplast_dynarray(dynarray * pThis)
 {
 	if(!pThis->v)
-		GpGg.IntError(GpC, NO_CARET, init_failure_msg);
+		GpGg.IntErrorNoCaret(init_failure_msg);
 	if(pThis->end)
 		pThis->end--;
 }

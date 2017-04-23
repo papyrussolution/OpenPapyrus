@@ -41,7 +41,7 @@ int SLAPI PPDS_CrrAddress::InitData(Ido op, void * dataPtr, long /*addedParam*/)
 			ok = 0;
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -93,7 +93,7 @@ int SLAPI PPDS_CrrBnkAcct::InitData(Ido op, void * dataPtr, long /*addedParam*/)
 			ok = -1;
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -153,7 +153,7 @@ int SLAPI PPDS_ELinkAddr::InitData(Ido op, void * dataPtr, long /*addedParam*/)
 			ok = 0;
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -206,7 +206,7 @@ int SLAPI PPDS_CrrPerson::InitData(Ido op, void * dataPtr, long addedParam)
 		*/
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -337,7 +337,7 @@ int SLAPI PPDS_Barcode::InitData(Ido op, void * dataPtr, long /*addedParam*/)
 		;
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -466,7 +466,7 @@ int SLAPI PPDS_CrrGoods::InitData(Ido op, void * dataPtr, long addedParam)
 		AcceptOuterData(1);
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -557,7 +557,7 @@ int SLAPI PPDS_CrrQCert::InitData(Ido op, void * dataPtr, long addedParam)
 		}
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -602,7 +602,7 @@ int SLAPI PPDS_CrrBillItem::InitData(Ido op, void * dataPtr, long /*addedParam*/
 		;
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -1321,7 +1321,7 @@ int SLAPI PPDS_CrrStaffCalEntry::InitData(Ido op, void * dataPtr, long /*addedPa
 		ok = 1;
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -1659,7 +1659,7 @@ int SLAPI PPDS_CrrBarcodeStruc::InitData(Ido op, void * dataPtr, long addedParam
 			ok = Obj.AddItem(&id, &Data, 1);
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -1767,7 +1767,7 @@ int SLAPI PPDS_CrrGoodsType::InitData(Ido op, void * dataPtr, long addedParam)
 			ok = Obj.AddItem(&id, &Data, 1);
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -1904,7 +1904,7 @@ int SLAPI PPDS_CrrFormula::InitData(Ido op, void * dataPtr, long addedParam)
 			ok = Obj.Put(&id, Data.Name, Data.Expr, 0);
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -1988,7 +1988,7 @@ int SLAPI PPDS_CrrPersonKind::InitData(Ido op, void * dataPtr, long addedParam)
 		}
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -2084,7 +2084,7 @@ int SLAPI PPDS_CrrCurrency::InitData(Ido op, void * dataPtr, long addedParam)
 		}
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -2161,7 +2161,7 @@ int SLAPI PPDS_CrrCurRateType::InitData(Ido op, void * dataPtr, long addedParam)
 			ok = Obj.AddItem(&id, &Data, 1);
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -2278,7 +2278,7 @@ int SLAPI PPDS_CrrScale::InitData(Ido op, void * dataPtr, long addedParam)
 			ok = Obj.AddItem(&id, &Data, 1);
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -2476,7 +2476,7 @@ int SLAPI PPDS_CrrRegisterType::InitData(Ido op, void * dataPtr, long addedParam
 		}
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -2634,7 +2634,7 @@ int SLAPI PPDS_CrrQuotKind::InitData(Ido op, void * dataPtr, long addedParam)
 			ok = Obj.AddItem(&id, &Data, 1);
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -2797,7 +2797,7 @@ int SLAPI PPDS_CrrAssetWrOffGrp::InitData(Ido op, void * dataPtr, long addedPara
 			ok = Obj.AddItem(&id, &Data, 1);
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -2937,7 +2937,7 @@ int SLAPI PPDS_CrrMailAccount::InitData(Ido op, void * dataPtr, long addedParam)
 			ok = Obj.Put(&id, &Data, 0);
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -3103,7 +3103,7 @@ int SLAPI PPDS_CrrPersonRelType::InitData(Ido op, void * dataPtr, long addedPara
 		}
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -3268,7 +3268,7 @@ int SLAPI PPDS_CrrObjTag::InitData(Ido op, void * dataPtr, long addedParam)
 			ok = Obj.PutPacket(&id, &Data, 0);
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -3357,7 +3357,7 @@ int SLAPI PPDS_CrrDraftWrOffEntry::InitData(Ido op, void * dataPtr, long /*added
 	else if(op == idoAccept) {
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -3457,7 +3457,7 @@ int SLAPI PPDS_CrrDraftWrOff::InitData(Ido op, void * dataPtr, long addedParam)
 			ok = Obj.PutPacket(&id, &Data, 0);
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -3641,7 +3641,7 @@ int SLAPI PPDS_CrrLocation::InitData(Ido op, void * dataPtr, long addedParam)
 		}
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -3850,7 +3850,7 @@ int SLAPI PPDS_CrrArticle::InitData(Ido op, void * dataPtr, long addedParam)
 		}
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -4025,7 +4025,7 @@ int SLAPI PPDS_CrrAccSheet::InitData(Ido op, void * dataPtr, long addedParam)
 		}
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -4218,7 +4218,7 @@ int SLAPI PPDS_CrrAccount::InitData(Ido op, void * dataPtr, long addedParam)
 		}
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -4377,7 +4377,7 @@ int SLAPI PPDS_CrrAcctEntry::InitData(Ido op, void * dataPtr, long /*addedParam*
 	else if(op == idoAccept) {
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -4436,7 +4436,7 @@ int SLAPI PPDS_CrrAccturnTempl::InitData(Ido op, void * dataPtr, long /*addedPar
 	else if(op == idoAccept) {
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -4734,7 +4734,7 @@ int SLAPI PPDS_CrrOprKindEntry::InitData(Ido op, void * dataPtr, long addedParam
 			;// ok = Obj.PutPacket(&id, &Pack, 0);
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -5034,7 +5034,7 @@ int SLAPI PPDS_CrrInvOpExEntry::InitData(Ido op, void * dataPtr, long addedParam
 			; // ok = Obj.PutPacket(&id, &Pack, 0);
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -5243,7 +5243,7 @@ int SLAPI PPDS_CrrReckonOpExEntry::InitData(Ido op, void * dataPtr, long addedPa
 			; // ok = Obj.PutPacket(&id, &Pack, 0);
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -5379,7 +5379,7 @@ int SLAPI PPDS_CrrDraftOpExEntry::InitData(Ido op, void * dataPtr, long addedPar
 			; // ok = Obj.PutPacket(&id, &Pack, 0);
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -5514,7 +5514,7 @@ int SLAPI PPDS_CrrBillPoolOpExEntry::InitData(Ido op, void * dataPtr, long added
 			; // ok = Obj.PutPacket(&id, &Pack, 0);
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -5633,7 +5633,7 @@ int SLAPI PPDS_CrrOprKind::InitData(Ido op, void * dataPtr, long addedParam)
 		}
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }
@@ -5865,7 +5865,7 @@ int SLAPI PPDS_CrrBillStatus::InitData(Ido op, void * dataPtr, long addedParam)
 			ok = Obj.AddItem(&id, &Data, 1);
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	CATCHZOK
 	return ok;
 }

@@ -462,6 +462,12 @@ int SLAPI PPObjProcessor::Search(PPID id, void * b)
 	return SearchByID(P_Tbl, Obj, id, b);
 }
 
+//virtual 
+const char * SLAPI PPObjProcessor::GetNamePtr() 
+{ 
+	return P_Tbl->data.Name; 
+}
+
 int SLAPI PPObjProcessor::SearchByName(int kind, const char * pName, PPID * pID, ProcessorTbl::Rec * pRec)
 {
 	int    ok = -1;

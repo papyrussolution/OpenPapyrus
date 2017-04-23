@@ -493,19 +493,19 @@ static void SVG_options(GpCommand & rC)
 			double value;
 			rC.CToken++;
 			if(rC.EndOfCommand())
-				GpGg.IntError(rC, rC.CToken, "expecting x size");
+				GpGg.IntErrorCurToken("expecting x size");
 			value = rC.RealExpression();
 			if(value < 2)
-				GpGg.IntError(rC, rC.CToken, "x size out of range");
+				GpGg.IntErrorCurToken("x size out of range");
 			SVG_xSize = (uint)(value * SVG_SCALE);
 
 			if(rC.Eq(","))
 				rC.CToken++;
 			if(rC.EndOfCommand())
-				GpGg.IntError(rC, rC.CToken, "expecting y size");
+				GpGg.IntErrorCurToken("expecting y size");
 			value = rC.RealExpression();
 			if(value < 2)
-				GpGg.IntError(rC, rC.CToken, "y size out of range");
+				GpGg.IntErrorCurToken("y size out of range");
 			SVG_ySize = (uint)(value * SVG_SCALE);
 			continue;
 		}
@@ -523,9 +523,9 @@ static void SVG_options(GpCommand & rC)
 			rC.CToken++;
 			SVG_name = rC.TryToGetString();
 			if(!SVG_name)
-				GpGg.IntError(rC, rC.CToken, "expecting a plot name");
+				GpGg.IntErrorCurToken("expecting a plot name");
 			if(SVG_name[strspn(SVG_name, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_1234567890")])
-				GpGg.IntError(rC, rC.CToken-1, "name must contain only alphanumerics or _");
+				GpGg.IntError(rC.CToken-1, "name must contain only alphanumerics or _");
 			continue;
 		}
 
@@ -563,7 +563,7 @@ static void SVG_options(GpCommand & rC)
 			rC.CToken++;
 
 			if(!(s = rC.TryToGetString()))
-				GpGg.IntError(rC, rC.CToken, "expecting font name");
+				GpGg.IntErrorCurToken("expecting font name");
 			comma = strrchr(s, ',');
 			if(comma && (1 == sscanf(comma + 1, "%lf", &SVG_fontSizeDef)))
 				*comma = '\0';
@@ -602,7 +602,7 @@ static void SVG_options(GpCommand & rC)
 		if(rC.AlmostEq("fs$ize")) {
 			rC.CToken++;
 			if(rC.EndOfCommand())
-				GpGg.IntError(rC, rC.CToken, "fsize: expecting font size");
+				GpGg.IntErrorCurToken("fsize: expecting font size");
 			SVG_fontSizeDef = rC.RealExpression();
 			continue;
 		}
@@ -610,7 +610,7 @@ static void SVG_options(GpCommand & rC)
 			rC.CToken++;
 			char * fontfile_name = rC.TryToGetString();
 			if(!fontfile_name)
-				GpGg.IntError(rC, rC.CToken, "Font filename expected");
+				GpGg.IntErrorCurToken("Font filename expected");
 			gp_expand_tilde(&fontfile_name);
 			SVG_embedded_font = fontfile_name;
 			continue;
@@ -658,7 +658,7 @@ static void SVG_options(GpCommand & rC)
 			SVG_background = parse_color_name();
 			continue;
 		}
-		GpGg.IntError(rC, rC.CToken, "unrecognized terminal option");
+		GpGg.IntErrorCurToken("unrecognized terminal option");
 	}
 
 	/* I don't think any error checks on font name are possible; just set it */
@@ -1976,14 +1976,14 @@ static void SVG_load_fontfile(char * fontfile)
 			ispipe = true;
 			ffont = popen(fontfile + 1, "r");
 			if(!ffont)
-				GpGg.IntError(GpC, NO_CARET, "Could not execute pipe '%s'", fontfile + 1);
+				GpGg.IntErrorNoCaret("Could not execute pipe '%s'", fontfile + 1);
 		}
 		else
 #endif
 		{
 			ffont = fopen(fontfile, "r");
 			if(!ffont)
-				GpGg.IntError(GpC, NO_CARET, "Font file '%s' not found", fontfile);
+				GpGg.IntErrorNoCaret("Font file '%s' not found", fontfile);
 		}
 
 		/* read the file */
@@ -2003,7 +2003,7 @@ static void SVG_load_fontfile(char * fontfile)
 		if(ispipe) {
 			int exitcode;
 			if( (exitcode = pclose(ffont)) != 0)
-				GpGg.IntError(GpC, NO_CARET, "Command '%s' generated error exitcode %d", fontfile + 1, exitcode);
+				GpGg.IntErrorNoCaret("Command '%s' generated error exitcode %d", fontfile + 1, exitcode);
 		}
 		else
 #endif
@@ -2012,10 +2012,10 @@ static void SVG_load_fontfile(char * fontfile)
 		if(linesread == 0) {
 #if defined(PIPES)
 			if(ispipe)
-				GpGg.IntError(GpC, NO_CARET, "Command '%s' generates empty output", fontfile + 1);
+				GpGg.IntErrorNoCaret("Command '%s' generates empty output", fontfile + 1);
 			else
 #endif
-			GpGg.IntError(GpC, NO_CARET, "Font file '%s' is empty", fontfile);
+			GpGg.IntErrorNoCaret("Font file '%s' is empty", fontfile);
 		}
 	}
 }

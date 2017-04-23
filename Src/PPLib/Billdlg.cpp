@@ -2062,7 +2062,7 @@ void BillDialog::ReplyCntragntSelection(int force)
 			}
 		}
 		if(P_Pack->P_PaymOrder && !force && sob.PsnID != P_Pack->P_PaymOrder->RcvrID) {
-			if(PPMessage(mfConf|mfYesNo, PPCFM_UPDATEBNKPAYMRCVR, 0) == cmYes)
+			if(PPMessage(mfConf|mfYesNo, PPCFM_UPDATEBNKPAYMRCVR) == cmYes)
 				editPaymOrder(1);
 		}
 		if(sob.RegInfoList.getCount()) {
@@ -2741,7 +2741,7 @@ int BillDialog::editItems()
 		getCtrlData(CTLSEL_BILL_OBJECT, &P_Pack->Rec.Object);
 		if(P_Pack->Rec.Object == 0) {
 			if(P_Pack->OpTypeID == PPOPT_GOODSRECEIPT && P_Pack->AccSheetID == GetSupplAccSheet() && P_Pack->GetTCount() == 0) {
-				if(PPMessage(mfConf|mfYesNo|mfDefaultYes, PPCFM_ZERORCPTOBJ, 0) == cmYes) {
+				if(PPMessage(mfConf|mfYesNo|mfDefaultYes, PPCFM_ZERORCPTOBJ) == cmYes) {
 					messageToCtrl(CTLSEL_BILL_OBJECT, cmCBActivate, 0);
 					return 0;
 				}

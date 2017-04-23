@@ -454,7 +454,7 @@ static void CONTEXT_options(GpCommand & rC)
 			    /* parse the string */
 			    tmp_string = rC.TryToGetString();
 			    if(!tmp_string) {
-				    GpGg.IntError(rC, rC.CToken, "String containing header information expected");
+				    GpGg.IntErrorCurToken("String containing header information expected");
 				    /* only touch the options if the string is OK */
 			    }
 			    else {
@@ -609,7 +609,7 @@ static void CONTEXT_options(GpCommand & rC)
 			case CONTEXT_OPT_OTHER:
 			default:
 			    /* error */
-			    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+			    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    break;
 		}
 	}
@@ -1734,7 +1734,7 @@ static void CONTEXT_filled_polygon(int points, gpiPoint * corners)
 	if(CONTEXT_path_count > 0)
 		CONTEXT_endpath();
 
-	/* if the first point GpC.Eq the last one, skip the last point; --cycle does that already
+	/* if the first point GpGg.Gp__C.Eq the last one, skip the last point; --cycle does that already
 	 * this condition is probably always true in gnuplot, so the if condition may not be needed */
 	if((corners[0].x == corners[points-1].x) && (corners[0].y == corners[points-1].y))
 		points--;

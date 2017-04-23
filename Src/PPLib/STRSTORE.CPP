@@ -254,6 +254,78 @@ int SLAPI StringStore2::Helper_GetDescription(long ident, SString & rBuf) // @no
     return ok;
 }
 
+SymbHashTable * SLAPI StringStore2::LoadStringHash(int group) const
+{
+	SymbHashTable * p_tab = 0;
+    if(HashGroupList.lsearch(group)) {
+		const  LangStrCollItem * p_item = GetList(0);
+		if(p_item) {
+			LongArray str_id_list;
+			p_item->HashAssocList.GetListByKey(group, str_id_list);
+			if(str_id_list.getCount()) {
+				SString temp_buf;
+				uint result_count = 0;
+                uint ht_size = str_id_list.getCount()+1;
+                while(!IsPrime(ht_size))
+					ht_size++;
+				THROW_MEM(p_tab = new SymbHashTable(ht_size, 0));
+				for(uint i = 0; i < str_id_list.getCount(); i++) {
+					const long str_id = str_id_list.get(i);
+					//const long combine_id = MakeLong(str_id, group);
+					if(p_item->Get(str_id, temp_buf)) {
+						THROW_SL(p_tab->Add(temp_buf, LoWord(str_id)));
+						result_count++;
+					}
+				}
+				if(!result_count) {
+					ZDELETE(p_tab);
+				}
+			}
+		}
+    }
+    CATCH
+		ZDELETE(p_tab);
+    ENDCATCH
+    return p_tab;
+}
+
+const SymbHashTable * FASTCALL StringStore2::GetStringHash(int group) // @nonconst @cs
+{
+	//
+	// Если не удалось загрузить хэш-таблицу, то мы все равно вставляем в список PhgL
+	// нулевой указатель с идентификатором группы group, дабы при следующем
+	// обращении не тратить время на попытку.
+	//
+	const SymbHashTable * p_result = 0;
+	int    _found = 0;
+	ENTER_CRITICAL_SECTION
+	//
+	// Увы, поиск в списке тоже под защитой критической секции. Это меньшее зло
+	// чем Read-Write-блокировка.
+	//
+	for(uint i = 0; !_found && i < PhgL.getCount(); i++) {
+		const PreloadedHashGroupEntry * p_entry = PhgL.at(i);
+		if(p_entry && p_entry->Group == group) {
+			p_result = p_entry->P_Tab;
+			_found = 1;
+		}
+	}
+    if(!_found) {
+		SymbHashTable * p_new_tab = LoadStringHash(group);
+		PreloadedHashGroupEntry * p_new_entry = PhgL.CreateNewItem();
+		if(p_new_entry) {
+			p_new_entry->Group = group;
+			p_new_entry->P_Tab = p_new_tab;
+			//
+			p_result = p_new_entry->P_Tab;
+		}
+		else
+			PPSetErrorSLib();
+    }
+    LEAVE_CRITICAL_SECTION
+    return p_result;
+}
+
 int SLAPI StringStore2::GetDescription(int group, int code, SString & rBuf) // @nonconst
 {
 	return Helper_GetDescription(MakeLong(code, group), rBuf);
@@ -501,8 +573,8 @@ int SLAPI StringStore2::StoreState(const char * pFileName)
 		ini_file.AppendParam("SignatureList", item.Txt, (temp_buf = 0).Cat((uint32)item.Id), 1);
 	}
 	//
-	for(i = 0; i < P_Pb->GrpSymbList.getCount(); i++) {
-		StrAssocArray::Item item = P_Pb->GrpSymbList.at(i);
+	for(i = 0; i < /*P_Pb->*/GrpSymbList.getCount(); i++) {
+		StrAssocArray::Item item = /*P_Pb->*/GrpSymbList.at(i);
 		ini_file.AppendParam("GrpSymbList", item.Txt, (temp_buf = 0).Cat((uint32)item.Id), 1);
 	}
 	//
@@ -553,7 +625,7 @@ int SLAPI StringStore2::RestoreState(const char * pFileName)
 		}
 		//
 		{
-			P_Pb->GrpSymbList.Clear();
+			/*P_Pb->*/GrpSymbList.Clear();
 			P_Pb->Saved_GrpSymbList.Clear();
 			ss.clear();
 			ini_file.GetEntries("GrpSymbList", &ss, 1);
@@ -928,7 +1000,7 @@ int SLAPI StringStore2::Write(SFile & rF, LangStrCollItem * pData)
 	hdr.Signature[2] = '2';
 	hdr.Signature[3] = 'B';
 	hdr.SLang = pData->SLang;
-	hdr.Ver = 2; // @v9.0.8
+	hdr.Ver = 3; // @v9.0.8 // @v9.6.3 2-->3
 	THROW(rF.IsValid());
 	rF.Seek(0);
 	THROW(rF.Write(&hdr, sizeof(hdr)));
@@ -936,8 +1008,18 @@ int SLAPI StringStore2::Write(SFile & rF, LangStrCollItem * pData)
 	THROW(pData->List.Write(rF, 0));
 	hdr.SListOffs = (uint32)rF.Tell();
 	THROW(SignatureList.Write(rF, 0));
-	// @v9.0.8 {
+	// @v9.6.4 {
 	{
+		HashGroupList.sortAndUndup();
+		pData->HashAssocList.Sort();
+		//
+		THROW(GrpSymbList.Write(rF, 0));
+		THROW(HashGroupList.Write(rF, 0));
+		THROW(pData->HashAssocList.Write(rF, 0));
+	}
+	// } @v9.6.4
+	{
+		// @v9.0.8 {
 		pData->DescrPosList.freeAll();
 		for(uint i = 0; i < pData->DescrList.getCount(); i++) {
             long   offs = rF.Tell();
@@ -951,8 +1033,8 @@ int SLAPI StringStore2::Write(SFile & rF, LangStrCollItem * pData)
 		}
 		hdr.DescrListOffs = (uint32)rF.Tell();
 		THROW(pData->DescrPosList.Write(rF, 0));
+		// } @v9.0.8
 	}
-	// } @v9.0.8
 	THROW(rF.CalcCRC(sizeof(hdr), &hdr.Crc32));
 	rF.Seek(0);
 	THROW(rF.Write(&hdr, sizeof(hdr)));
@@ -983,6 +1065,13 @@ int SLAPI StringStore2::Read(SFile & rF)
 			THROW(p_lsc_item->List.Read(rF, 0));
 			THROW(rF.Seek(hdr.SListOffs));
 			THROW(SignatureList.Read(rF, 0));
+			// @v9.6.4 {
+			if(hdr.Ver >= 3) {
+				THROW(GrpSymbList.Read(rF, 0));
+				THROW(HashGroupList.Read(rF, 0));
+				THROW(p_lsc_item->HashAssocList.Read(rF, 0));
+			}
+			// } @v9.6.4
 		}
 		{
 			THROW(rF.Seek(hdr.DescrListOffs));
@@ -1012,13 +1101,13 @@ int SLAPI StringStore2::AddGroup(StringStore2::ParseItem & rItem)
 	uint   pos;
 	if(rItem.Group == 0) {
 		if(rItem.GroupSymb.NotEmpty()) {
-			if(P_Pb->GrpSymbList.SearchByText(rItem.GroupSymb, 0, &(pos = 0))) {
-				rItem.Group = P_Pb->GrpSymbList.at(pos).Id;
+			if(/*P_Pb->*/GrpSymbList.SearchByText(rItem.GroupSymb, 0, &(pos = 0))) {
+				rItem.Group = /*P_Pb->*/GrpSymbList.at(pos).Id;
 				ok = 2;
 			}
 			else if(P_Pb->Saved_GrpSymbList.SearchByText(rItem.GroupSymb, 0, &(pos = 0))) {
 				rItem.Group = P_Pb->Saved_GrpSymbList.at(pos).Id;
-				THROW(P_Pb->GrpSymbList.Add(rItem.Group, rItem.GroupSymb));
+				THROW(/*P_Pb->*/GrpSymbList.Add(rItem.Group, rItem.GroupSymb));
 				if(!P_Pb->LastAutoCodeList.Search(rItem.Group, 0, 0)) {
 					THROW(P_Pb->LastAutoCodeList.Add(rItem.Group, 10000, 0, 0));
 				}
@@ -1031,8 +1120,8 @@ int SLAPI StringStore2::AddGroup(StringStore2::ParseItem & rItem)
 	if(ok < 0) {
 		if(rItem.GroupSymb.Empty()) {
 			empty_symb = 1;
-			if(P_Pb->GrpSymbList.Search(rItem.Group, &(pos = 0))) {
-				rItem.GroupSymb = P_Pb->GrpSymbList.at(pos).Txt;
+			if(/*P_Pb->*/GrpSymbList.Search(rItem.Group, &(pos = 0))) {
+				rItem.GroupSymb = /*P_Pb->*/GrpSymbList.at(pos).Txt;
 				ok = 2;
 			}
 			else
@@ -1040,21 +1129,24 @@ int SLAPI StringStore2::AddGroup(StringStore2::ParseItem & rItem)
 		}
 	}
 	if(ok < 0) {
-		if(P_Pb->GrpSymbList.Search(rItem.Group, &(pos = 0))) {
-			THROW(rItem.GroupSymb.Cmp(P_Pb->GrpSymbList.at(pos).Txt, 0) == 0);
+		if(/*P_Pb->*/GrpSymbList.Search(rItem.Group, &(pos = 0))) {
+			THROW(rItem.GroupSymb.Cmp(/*P_Pb->*/GrpSymbList.at(pos).Txt, 0) == 0);
 			ok = 2;
 		}
-		else if(!empty_symb && P_Pb->GrpSymbList.SearchByText(rItem.GroupSymb, 0, &(pos = 0))) {
-			THROW(rItem.Group == P_Pb->GrpSymbList.at(pos).Id);
+		else if(!empty_symb && /*P_Pb->*/GrpSymbList.SearchByText(rItem.GroupSymb, 0, &(pos = 0))) {
+			THROW(rItem.Group == /*P_Pb->*/GrpSymbList.at(pos).Id);
 			ok = 2;
 		}
 		else {
-			THROW(P_Pb->GrpSymbList.Add(rItem.Group, rItem.GroupSymb));
+			THROW(/*P_Pb->*/GrpSymbList.Add(rItem.Group, rItem.GroupSymb));
 			if(!P_Pb->LastAutoCodeList.Search(rItem.Group, 0, 0)) {
 				THROW(P_Pb->LastAutoCodeList.Add(rItem.Group, 10000, 0, 0));
 			}
 			ok = 1;
 		}
+	}
+	if(ok > 0 && rItem.Group && rItem.Flags & rItem.fHashGroup) {
+		HashGroupList.addUnique(rItem.Group);
 	}
 	CATCHZOK
 	return ok;
@@ -1125,6 +1217,11 @@ int SLAPI StringStore2::AddString(long group, StringStore2::ParseItem & rItem, l
 		THROW_V(p_coll_item->List.Search(code_str, &dup_pos) == 0, sc2eDupStrById);
 		THROW(p_coll_item->List.Add(code_str, rItem.Str));
 		ASSIGN_PTR(pCodeStr, code_str);
+		// @v9.6.4 {
+		if(HashGroupList.lsearch(group)) {
+            THROW(p_coll_item->HashAssocList.Add(group, code_str, 0, 0));
+		}
+		// } @v9.6.4
 	}
 	CATCHZOK
 	return ok;
@@ -1137,6 +1234,8 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 		/!/ - no translate line
 		#!{ - start no translate scope
 		#!} - end no translate scope
+
+		[hgroup:hash] // Суффикс :hash определяет хэширующую группу с символом "hgroup".
 
 		[PPSTR_SOMEGROUP]
 		1 "Some String 01"
@@ -1234,10 +1333,21 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 					}
 					else if(TempBuf.ToLong() != 0) {
 						rItem.Group = TempBuf.ToLong();
+                        if(TempBuf.Divide(':', left, right) > 0) {
+							if(right == "hash")
+                                rItem.Flags |= rItem.fHashGroup;
+                        }
 					}
 					else {
 						rItem.Group = 0;
 						rItem.GroupSymb = TempBuf;
+					}
+					if(rItem.GroupSymb.NotEmpty()) {
+                        if(rItem.GroupSymb.Divide(':', left, right) > 0) {
+							rItem.GroupSymb = left;
+							if(right == "hash")
+                                rItem.Flags |= rItem.fHashGroup;
+                        }
 					}
 				}
 			}
@@ -1391,7 +1501,7 @@ int SLAPI StringStore2::GenerateRcFile(const char * pFileName, const char * pSrc
 	uint   i;
 	long   last_grp = 0;
 	SString temp_buf, str_buf, symb_buf;
-	P_Pb->GrpSymbList.SortByID();
+	/*P_Pb->*/GrpSymbList.SortByID();
 	P_Pb->StrSymbList.SortByID();
 	if(P_Pb->StrSymbList.getCount()) {
 		/*
@@ -1437,7 +1547,7 @@ int SLAPI StringStore2::GenerateRcFile(const char * pFileName, const char * pSrc
 				long code = 0;
 				if(grp != last_grp) {
 					gen.Wr_Comment(0);
-					if(P_Pb->GrpSymbList.Get(grp, temp_buf) <= 0)
+					if(/*P_Pb->*/GrpSymbList.Get(grp, temp_buf) <= 0)
 						(temp_buf = 0).Cat(grp);
 					gen.Wr_Comment(temp_buf);
 					gen.Wr_Comment(0);
@@ -1478,10 +1588,10 @@ int SLAPI StringStore2::GenerateHeaderFile(const char * pFileName, const char * 
 	//
 	//
 	//
-	P_Pb->GrpSymbList.SortByID();
+	/*P_Pb->*/GrpSymbList.SortByID();
 	P_Pb->StrSymbList.SortByID();
-	for(i = 0; i < P_Pb->GrpSymbList.getCount(); i++) {
-		StrAssocArray::Item item = P_Pb->GrpSymbList.at(i);
+	for(i = 0; i < /*P_Pb->*/GrpSymbList.getCount(); i++) {
+		StrAssocArray::Item item = /*P_Pb->*/GrpSymbList.at(i);
 		if(strcmp(item.Txt, P_StrSt_EmptyCodeSymb) != 0)
 			gen.Wr_Define(item.Txt, (temp_buf = 0).Cat(item.Id));
 	}
@@ -1492,7 +1602,7 @@ int SLAPI StringStore2::GenerateHeaderFile(const char * pFileName, const char * 
 			long code = 0;
 			if(grp != last_grp) {
 				gen.Wr_Comment(0);
-				if(P_Pb->GrpSymbList.Get(grp, temp_buf) <= 0)
+				if(/*P_Pb->*/GrpSymbList.Get(grp, temp_buf) <= 0)
 					(temp_buf = 0).Cat(grp);
 				gen.Wr_Comment(temp_buf);
 				gen.Wr_Comment(0);

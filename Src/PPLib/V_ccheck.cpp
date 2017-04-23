@@ -2652,7 +2652,7 @@ static int SLAPI PutGdsCorr(BExtInsert * pBei, PPID goods1ID, PPID goods2ID, SSt
 {
 	int    ok = 1;
 	TempCCheckGdsCorrTbl::Rec gc_rec;
-	THROW_PP(pBei, PPERR_INVPARAM);
+	THROW_INVARG(pBei);
 	MEMSZERO(gc_rec);
 	gc_rec.Goods1ID = goods1ID;
 	gc_rec.Goods2ID = goods2ID;
@@ -3149,7 +3149,7 @@ int SLAPI PPViewCCheck::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 				ok = -1;
 				if(!Filt.Grp)
 					if(CsObj.CheckRights(CSESSRT_RMVCHECK)) {
-						if(id && PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE, 0) == cmYes) {
+						if(id && PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE) == cmYes) {
 							ok = P_CC->RemovePacket(id, 1);
 							if(ok) {
 								DS.LogAction(PPACN_CCHECKDELETED, PPOBJ_CCHECK, id, 0, 1);
@@ -3260,7 +3260,7 @@ int SLAPI PPViewCCheck::CalcTotal(CCheckTotal * pTotal)
 		PPWait(0);
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -3338,7 +3338,7 @@ int SLAPI PPViewCCheck::AddItem()
 							close_imm = 1;
 						if(scn.Flags & CASHF_DAYCLOSED) {
 							r = cmNo;
-							if(PPMessage(mfConf|mfYesNo, PPCFM_PREVCASHDAYCLOSED, 0) == cmYes && p_cm->SyncOpenSession(&dt) > 0)
+							if(PPMessage(mfConf|mfYesNo, PPCFM_PREVCASHDAYCLOSED) == cmYes && p_cm->SyncOpenSession(&dt) > 0)
 								r = cmOK;
 						}
 						if(r == cmOK && scn.ExtCashNodeID) {
@@ -3347,7 +3347,7 @@ int SLAPI PPViewCCheck::AddItem()
 								const PPCashNode & r_cn = p_cm_ext->GetNodeData();
 								if(r_cn.Flags & CASHF_DAYCLOSED) {
 									r = cmNo;
-									if((dt != ZERODATE || PPMessage(mfConf|mfYesNo, PPCFM_PREVCASHDAYCLOSED, 0) == cmYes)
+									if((dt != ZERODATE || PPMessage(mfConf|mfYesNo, PPCFM_PREVCASHDAYCLOSED) == cmYes)
 										&& p_cm_ext->SyncOpenSession(&dt) > 0)
 										r = cmOK;
 								}

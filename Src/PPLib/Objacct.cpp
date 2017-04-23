@@ -417,7 +417,7 @@ int SLAPI PPObjAccount::GenerateNumber(PPAccount * pRec)
 {
 	int    ok = -1, r;
 	int    start = 0, finish = 0;
-	THROW_PP(pRec, PPERR_INVPARAM);
+	THROW_INVARG(pRec);
 	pRec->A.Ac = 0;
 	pRec->A.Sb = 0;
 	if(pRec->Type == ACY_OBAL) {
@@ -583,7 +583,7 @@ IMPL_HANDLE_EVENT(GenAccountDialog)
 	ObjRestrictListDialog::handleEvent(event);
 	if(event.isCbSelected(CTLSEL_ACCAGGR_ACCSHEET)) {
 		PPID   acc_sheet_id = getCtrlLong(CTLSEL_ACCAGGR_ACCSHEET);
-		if(PPMessage(mfConf|mfYesNo, PPCFM_FILLACCAGGRLIST, 0) == cmYes) {
+		if(PPMessage(mfConf|mfYesNo, PPCFM_FILLACCAGGRLIST) == cmYes) {
 			PPIDArray acc_list;
 			Data.GenList.freeAll();
 			AccObj.GetListByAccSheet(acc_sheet_id, acc_list);

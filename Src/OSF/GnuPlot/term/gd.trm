@@ -491,7 +491,7 @@ static int PNG_FillPattern(int style)
 
 		/* create new tile */
 		if(!((PNG_fill_tile.im = gdImageCreate(8, 8))))
-			GpGg.IntError(GpC, NO_CARET, "libgd: failed to create pattern-fill tile");
+			GpGg.IntErrorNoCaret("libgd: failed to create pattern-fill tile");
 
 		background = gdImageColorAllocate(PNG_fill_tile.im,
 		    (brgb >> 16) & 0xff, (brgb >> 8) & 0xff, brgb & 0xff);
@@ -890,7 +890,7 @@ static void PNG_options(GpCommand & rC)
 			/* parse gif animation options */
 			case GIF_ANIMATE:
 			    if(strncmp("gif", term->name, 3))
-				    GpGg.IntError(rC, rC.CToken, "Only the gif terminal supports animation");
+				    GpGg.IntErrorCurToken("Only the gif terminal supports animation");
 			    rC.CToken++;
 			    png_state.animate = true;
 			    png_state.frame_count = 0;
@@ -900,7 +900,7 @@ static void PNG_options(GpCommand & rC)
 			    break;
 			case GIF_DELAY:
 			    if(strncmp("gif", term->name, 3))
-				    GpGg.IntError(rC, rC.CToken, "Only the gif terminal supports animation");
+				    GpGg.IntErrorCurToken("Only the gif terminal supports animation");
 			    rC.CToken++;
 			    png_state.frame_delay = rC.IntExpression();
 			    if(png_state.frame_delay <= 0)
@@ -909,21 +909,21 @@ static void PNG_options(GpCommand & rC)
 			    break;
 			case GIF_LOOP:
 			    if(strncmp("gif", term->name, 3))
-				    GpGg.IntError(rC, rC.CToken, "Only the gif terminal supports animation");
+				    GpGg.IntErrorCurToken("Only the gif terminal supports animation");
 			    rC.CToken++;
 			    png_state.loop_count = rC.IntExpression();
 			    gif_anim_option = 1;
 			    break;
 			case GIF_NOOPT:
 			    if(strncmp("gif", term->name, 3))
-				    GpGg.IntError(rC, rC.CToken, "Only the gif terminal supports animation");
+				    GpGg.IntErrorCurToken("Only the gif terminal supports animation");
 			    rC.CToken++;
 			    png_state.frame_optimization = false;
 			    gif_anim_option = 1;
 			    break;
 			case GIF_OPT:
 			    if(strncmp("gif", term->name, 3))
-				    GpGg.IntError(rC, rC.CToken, "Only the gif terminal supports animation");
+				    GpGg.IntErrorCurToken("Only the gif terminal supports animation");
 			    rC.CToken++;
 			    png_state.frame_optimization = true;
 			    gif_anim_option = 1;
@@ -963,9 +963,9 @@ static void PNG_options(GpCommand & rC)
 #endif
 
 			    if(sscanf(string, "x%lx", &color) == 1)
-				    GpGg.IntError(rC, rC.CToken, "obsolete color option");
+				    GpGg.IntErrorCurToken("obsolete color option");
 			    else
-				    GpGg.IntError(rC, rC.CToken, "unrecognized terminal option");
+				    GpGg.IntErrorCurToken("unrecognized terminal option");
 			    break;
 		}
 	}
@@ -1143,7 +1143,7 @@ static void PNG_init_brush(int width)
 		PNG_brush[width] = brush;
 		brush->last_rgb = -99; /* Something invalid */
 		if(!((brush->im = gdImageCreate(width, width))))
-			GpGg.IntError(GpC, NO_CARET, "libgd: failed to create brush structure");
+			GpGg.IntErrorNoCaret("libgd: failed to create brush structure");
 		brush->bgnd = gdImageColorAllocate(brush->im, 255, 255, 255);
 		gdImageFill(brush->im, 0, 0, brush->bgnd);
 		gdImageColorTransparent(brush->im, brush->bgnd);
@@ -1216,7 +1216,7 @@ void PNG_show_current_palette()
 /*
    How this works: Gray interval [0;1] will be mapped to interval
    [0;sm_palette.colors-1] those r,g,b components are mapped by the array
-   below palette.offset GpC.Eq 0 since png_smooth_color[0..colors] are
+   below palette.offset GpGg.Gp__C.Eq 0 since png_smooth_color[0..colors] are
    from ColorAllocate
  */
 static int png_smooth_color[gdMaxColors];
@@ -1429,7 +1429,7 @@ static void PNG_graphics()
 		uint brgb = png_state.rgb_table[0];
 		png_state.image = gdImageCreateTrueColor(PNG_XMAX, PNG_YMAX);
 		if(!png_state.image)
-			GpGg.IntError(GpC, NO_CARET, "libgd: failed to create output image structure");
+			GpGg.IntErrorNoCaret("libgd: failed to create output image structure");
 		if(png_state.flags & PNG_USE_TRANSPARENT) {
 			rgb = gdImageColorAllocateAlpha(png_state.image,
 			    (brgb >> 16) & 0xff, (brgb >> 8) & 0xff, brgb & 0xff, 127);
@@ -1446,7 +1446,7 @@ static void PNG_graphics()
 	else
 		png_state.image = gdImageCreate(PNG_XMAX, PNG_YMAX);
 	if(!png_state.image)
-		GpGg.IntError(GpC, NO_CARET, "libgd: failed to create output image structure");
+		GpGg.IntErrorNoCaret("libgd: failed to create output image structure");
 
 	png_state.height = PNG_YMAX - 1;
 	png_state.charw = term->HChr;   /* png_state.font->w; */
@@ -2213,12 +2213,12 @@ static void PNG_image(uint M, uint N, double * image, gpiPoint * corner, t_image
 	if(png_state.TrueColor) {
 		im = gdImageCreateTrueColor(M, N);
 		if(!im)
-			GpGg.IntError(GpC, NO_CARET, "libgd: failed to create image structure");
+			GpGg.IntErrorNoCaret("libgd: failed to create image structure");
 	}
 	else {
 		im = gdImageCreate(M, N);
 		if(!im)
-			GpGg.IntError(GpC, NO_CARET, "libgd: failed to create image structure");
+			GpGg.IntErrorNoCaret("libgd: failed to create image structure");
 		gdImagePaletteCopy(im, png_state.image);
 	}
 

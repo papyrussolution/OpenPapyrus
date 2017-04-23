@@ -68,10 +68,10 @@ int snprintf __P((char *, size_t, const char *, ...));
 int vsnprintf __P((char *, size_t, const char *, va_list));
 #endif
 #ifndef HAVE_STRCASECMP
-int strcasecmp __P((const char *, const char *));
+int strcasecmp(const char *, const char *);
 #endif
 #ifndef HAVE_STRCASECMP
-int strncasecmp __P((const char *, const char *, size_t));
+int strncasecmp(const char *, const char *, size_t);
 #endif
 #ifndef HAVE_STRCAT
 char *strcat __P((char *, const char *));

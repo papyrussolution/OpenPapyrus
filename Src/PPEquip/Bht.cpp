@@ -2316,7 +2316,7 @@ int SLAPI PPObjBHT::PrepareBillData(PPBhtTerminalPacket * pPack, int uniteGoods 
 	PPIDArray draft_op_list, goods_op_list, order_op_list;
 	PPImpExp * p_ie_bill = 0, * p_ie_brow = 0;
 
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	THROW_PP(pPack->Rec.BhtTypeID == PPObjBHT::btStyloBhtII && pPack->P_SBIICfg, PPERR_SBII_CFGNOTVALID);
 	PPWait(1);
 	for(uint i = 0; i < pPack->P_SBIICfg->P_OpList->getCount(); i++) {
@@ -2473,7 +2473,7 @@ int SLAPI PPObjBHT::PrepareBillData2(PPBhtTerminalPacket * pPack, PPIDArray * pG
 	TSArray <BHT_BillOpEntry> bill_op_list;
 	PPIDArray result_goods_list;
 
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	THROW_PP(pPack->Rec.BhtTypeID == PPObjBHT::btStyloBhtII && pPack->P_SBIICfg, PPERR_SBII_CFGNOTVALID);
 	PPWait(1);
 	{
@@ -2633,7 +2633,7 @@ int SLAPI PPObjBHT::PrepareLocCellData(PPBhtTerminalPacket * pPack)
 	StrAssocArray * p_cell_list = 0;
 	PPObjLocation loc_obj;
 
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	THROW_PP(pPack->Rec.BhtTypeID == PPObjBHT::btStyloBhtII && pPack->P_SBIICfg, PPERR_SBII_CFGNOTVALID);
 	PPWait(1);
 	p_cell_list = loc_obj.MakeList_(&filt);
@@ -2686,7 +2686,7 @@ int SLAPI PPObjBHT::PrepareConfigData(const PPBhtTerminalPacket * pPack, StyloBh
 	SFile  file;
 	PPImpExpParam ie_param;
 	PPImpExp * p_ie_op = 0;
-	THROW_PP(pPack && pCfg, PPERR_INVPARAM);
+	THROW_INVARG(pPack && pCfg);
 	THROW_PP(pPack->Rec.BhtTypeID == PPObjBHT::btStyloBhtII && pPack->P_SBIICfg, PPERR_SBII_CFGNOTVALID);
 
 	PPGetFilePath(PPPATH_OUT, PPFILNAM_BHT_OPLIST, out_path);
@@ -3656,7 +3656,7 @@ int SLAPI GetBillRows(const char * pLName, TSArray <Sdr_SBIIBillRow> * pList)
 {
 	int    ok = 1;
 	PPImpExpParam ie_param_brow;
-	THROW_PP(pList, PPERR_INVPARAM);
+	THROW_INVARG(pList);
 	THROW(InitImpExpDbfParam(PPREC_SBIIBILLROW, &ie_param_brow, pLName, 0));
 	{
 		PPObjBill * p_bobj = BillObj;
@@ -3746,7 +3746,7 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 	uuid.SetZero();
 	THROW(InitImpExpDbfParam(PPREC_SBIIBILL, &ie_param_bill, pHName, 0));
 	THROW_MEM(p_ie_bill = new PPImpExp(&ie_param_bill, 0));
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	THROW_PP(pPack->Rec.BhtTypeID == PPObjBHT::btStyloBhtII && pPack->P_SBIICfg, PPERR_SBII_CFGNOTVALID);
 	//
 	// —читываем список строк документов и разрешаем неизвестные товары

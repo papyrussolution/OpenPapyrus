@@ -100,7 +100,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 {
 	int    ok = -1;
 	int    text_output = 0;
-	THROW_PP(pPrnLines, PPERR_INVPARAM);
+	THROW_INVARG(pPrnLines);
 	if(PrinterPort.Len()) {
 		if(TextOutput) {
 			int    port_no = 0;
@@ -329,7 +329,7 @@ int SLAPI SCS_SYNCSYM::PrintCheck(CCheckPacket * pPack, uint flags)
 	int     ok = 1;
 	if(PrinterPort.Len()) {
 		SString buf;
-		THROW_PP(pPack, PPERR_INVPARAM);
+		THROW_INVARG(pPack);
 		if(pPack->GetCount() == 0)
 			ok = -1;
 		else {
@@ -382,7 +382,7 @@ int SLAPI SCS_SYNCSYM::PrintCheckByBill(const PPBillPacket * pPack, double multi
 	if(PrinterPort.Len()) {
 		SString buf;
 		SlipDocCommonParam sdc_param;
-		THROW_PP(pPack, PPERR_INVPARAM);
+		THROW_INVARG(pPack);
 		if(P_SlipFmt) {
 			int      r = 0;
 			SString  line_buf;
@@ -420,7 +420,7 @@ int SLAPI SCS_SYNCSYM::PrintCheckCopy(CCheckPacket * pPack, const char * pFormat
 	int     ok = 1;
 	if(PrinterPort.Len()) {
 		SlipDocCommonParam  sdc_param;
-		THROW_PP(pPack, PPERR_INVPARAM);
+		THROW_INVARG(pPack);
 		if(P_SlipFmt) {
 			int   r = 0;
 			SString  line_buf, format_name = (pFormatName && pFormatName[0]) ? pFormatName : ((flags & PRNCHK_RETURN) ? "CCheckRetCopy" : "CCheckCopy");
@@ -491,7 +491,7 @@ int SLAPI SCS_SYNCSYM::PrintZReportCopy(const CSessInfo * pSessInfo)
 	int     ok = 1;
 	if(PrinterPort.Len()) {
 		SlipDocCommonParam  sdc_param;
-		THROW_PP(pSessInfo, PPERR_INVPARAM);
+		THROW_INVARG(pSessInfo);
 		if(P_SlipFmt) {
 			int   r = 0;
 			SString  line_buf, format_name = "ZReportCopy";

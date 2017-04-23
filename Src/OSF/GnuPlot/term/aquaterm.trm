@@ -180,7 +180,7 @@ static void AQUA_options(GpCommand & rC)
 		if(rC.AlmostEq("ti$tle")) {
 			rC.CToken++;
 			if(!(s = rC.TryToGetString()))
-				GpGg.IntError(rC, rC.CToken, "fname: expecting plot title");
+				GpGg.IntErrorCurToken("fname: expecting plot title");
 			strncpy(AQUA_title, s, sizeof(AQUA_title));
 			free(s);
 			continue;
@@ -192,19 +192,19 @@ static void AQUA_options(GpCommand & rC)
 			rC.CToken++;
 
 			if(rC.EndOfCommand())
-				GpGg.IntError(rC, rC.CToken, "expecting x size");
+				GpGg.IntErrorCurToken("expecting x size");
 			value = rC.RealExpression();
 			if(value < 2 || value > 2048)
-				GpGg.IntError(rC, rC.CToken, "x size out of range");
+				GpGg.IntErrorCurToken("x size out of range");
 			AQUA_xSize = (uint)value * AQUA_RESOLUTION;
 
 			if(rC.EndOfCommand())
-				GpGg.IntError(rC, rC.CToken, "expecting y size");
+				GpGg.IntErrorCurToken("expecting y size");
 			if(rC.Eq(","))
 				rC.CToken++;
 			value = rC.RealExpression();
 			if(value < 2 || value > 2048)
-				GpGg.IntError(rC, rC.CToken, "y size out of range");
+				GpGg.IntErrorCurToken("y size out of range");
 			AQUA_ySize = (uint)value * AQUA_RESOLUTION;
 			continue;
 		}
@@ -214,7 +214,7 @@ static void AQUA_options(GpCommand & rC)
 			rC.CToken++;
 
 			if(!(s = rC.TryToGetString()))
-				GpGg.IntError(rC, rC.CToken, "expecting font specifier");
+				GpGg.IntErrorCurToken("expecting font specifier");
 			comma = strrchr(s, ',');
 			if(comma && (1 == sscanf(comma+1, "%lf", &AQUA_fontSizeCur)))
 				*comma = '\0';
@@ -228,7 +228,7 @@ static void AQUA_options(GpCommand & rC)
 			rC.CToken++;
 
 			if(rC.EndOfCommand())
-				GpGg.IntError(rC, rC.CToken, "expecting font size");
+				GpGg.IntErrorCurToken("expecting font size");
 			AQUA_fontSizeCur = rC.RealExpression();
 			continue;
 		}
@@ -248,7 +248,7 @@ static void AQUA_options(GpCommand & rC)
 		if(rC.Eq("dl") || rC.AlmostEq("dashl$ength")) {
 			rC.CToken++;
 			if(rC.EndOfCommand())
-				GpGg.IntError(rC, rC.CToken, "expecting dashlength multiplier");
+				GpGg.IntErrorCurToken("expecting dashlength multiplier");
 			AQUA_dashlength_factor = rC.RealExpression();
 			if(AQUA_dashlength_factor < 0.0)
 				AQUA_dashlength_factor = AQUA_DEFAULT_DASHLENGTH_FACTOR;
@@ -275,7 +275,7 @@ static void AQUA_options(GpCommand & rC)
 			continue;
 		}
 
-		GpGg.IntError(rC, rC.CToken, "unexpected text at end of command");
+		GpGg.IntErrorCurToken("unexpected text at end of command");
 	}
 
 	if(AQUA_title[0]=='\0') /* always set title */

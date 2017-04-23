@@ -34,9 +34,9 @@
 //
 // static prototypes
 //
-static void calculate_set_of_isolines(AXIS_INDEX value_axis, bool cross, iso_curve ** this_iso,
+/*static void calculate_set_of_isolines(AXIS_INDEX value_axis, bool cross, iso_curve ** this_iso,
 	    AXIS_INDEX iso_axis, double iso_min, double iso_step, int num_iso_to_use,
-	    AXIS_INDEX sam_axis, double sam_min, double sam_step, int num_sam_to_use);
+	    AXIS_INDEX sam_axis, double sam_min, double sam_step, int num_sam_to_use);*/
 //static int get_3ddata(SurfacePoints* this_plot);
 //static void eval_3dplots();
 //static void grid_nongrid_data(SurfacePoints* this_plot);
@@ -172,7 +172,7 @@ void GpGadgets::Plot3DRequest(GpCommand & rC)
 	InitAxis(V_AXIS, 0);
 	InitAxis(COLOR_AXIS, 1);
 	if(!term)               /* unknown */
-		IntError(rC, rC.CToken, "use 'set term' to set terminal type first");
+		IntErrorCurToken("use 'set term' to set terminal type first");
 	// Range limits for the entire plot are optional but must be given
 	// in a fixed order. The keyword 'sample' terminates range parsing
 	u_axis = (IsParametric ? U_AXIS : FIRST_X_AXIS);
@@ -210,7 +210,7 @@ void GpGadgets::Plot3DRequest(GpCommand & rC)
 	// but must be linked to the respective primary axis.
 	if(splot_map) {
 		if((AxA[SECOND_X_AXIS].ticmode && !AxA[SECOND_X_AXIS].P_LinkToPrmr) || (AxA[SECOND_Y_AXIS].ticmode && !AxA[SECOND_Y_AXIS].P_LinkToPrmr))
-			GpGg.IntError(GpC, NO_CARET, "Secondary axis must be linked to primary axis in order to draw tics");
+			GpGg.IntErrorNoCaret("Secondary axis must be linked to primary axis in order to draw tics");
 	}
 	Eval3DPlots(rC);
 }
@@ -552,7 +552,7 @@ void GpGadgets::GridNongridData(SurfacePoints * pPlot)
 				z = z / w;
 			STORE_WITH_LOG_AND_UPDATE_RANGE(points->z, z, points->type, ZAxis, pPlot->noautoscale, NOOP, continue);
 			if(pPlot->pm3d_color_from_column)
-				GpGg.IntError(GpC, NO_CARET, "Gridding of the color column is not implemented");
+				GpGg.IntErrorNoCaret("Gridding of the color column is not implemented");
 			else {
 				COLOR_STORE_WITH_LOG_AND_UPDATE_RANGE(points->CRD_COLOR, z, points->type, COLOR_AXIS, pPlot->noautoscale, NOOP, continue);
 			}
@@ -587,7 +587,7 @@ int GpGadgets::Get3DData(SurfacePoints * pPlot)
 	if(mapping3d == MAP3D_CARTESIAN) {
 		// do this check only, if we have PM3D / PM3D-COLUMN not compiled in 
 		if(GpDf.df_no_use_specs == 2)
-			GpGg.IntError(GpC, pPlot->token, "Need 1 or 3 columns for cartesian data");
+			GpGg.IntError(pPlot->token, "Need 1 or 3 columns for cartesian data");
 		// HBB NEW 20060427: if there's only one, explicit using
 		// column, it's z data.  df_axis[] has to reflect that, so
 		// df_readline() will expect time/date input
@@ -596,7 +596,7 @@ int GpGadgets::Get3DData(SurfacePoints * pPlot)
 	}
 	else {
 		if(GpDf.df_no_use_specs == 1)
-			GpGg.IntError(GpC, pPlot->token, "Need 2 or 3 columns for polar data");
+			GpGg.IntError(pPlot->token, "Need 2 or 3 columns for polar data");
 	}
 	pPlot->num_iso_read = 0;
 	pPlot->has_grid_topology = true;
@@ -729,7 +729,7 @@ int GpGadgets::Get3DData(SurfacePoints * pPlot)
 				    }
 				    if(j == 2) {
 					    if(PM3DSURFACE != pPlot->plot_style)
-						    GpGg.IntError(GpC, pPlot->token, "2 columns only possible with explicit pm3d style (line %d)", GpDf.df_line_number);
+						    GpGg.IntError(pPlot->token, "2 columns only possible with explicit pm3d style (line %d)", GpDf.df_line_number);
 					    x = xdatum;
 					    y = ydatum;
 					    z = v[0];
@@ -751,7 +751,7 @@ int GpGadgets::Get3DData(SurfacePoints * pPlot)
 
 				case MAP3D_SPHERICAL:
 				    if(j < 2)
-					    GpGg.IntError(GpC, pPlot->token, "Need 2 or 3 columns");
+					    GpGg.IntError(pPlot->token, "Need 2 or 3 columns");
 				    if(j < 3) {
 					    v[2] = 1; /* default radius */
 					    j = 3;
@@ -769,7 +769,7 @@ int GpGadgets::Get3DData(SurfacePoints * pPlot)
 
 				case MAP3D_CYLINDRICAL:
 				    if(j < 2)
-					    GpGg.IntError(GpC, pPlot->token, "Need 2 or 3 columns");
+					    GpGg.IntError(pPlot->token, "Need 2 or 3 columns");
 				    if(j < 3) {
 					    v[2] = 1; /* default radius */
 					    j = 3;
@@ -785,11 +785,11 @@ int GpGadgets::Get3DData(SurfacePoints * pPlot)
 				    break;
 
 				default:
-				    GpGg.IntError(GpC, NO_CARET, "Internal error: Unknown mapping type");
+				    GpGg.IntErrorNoCaret("Internal error: Unknown mapping type");
 				    return retval;
 			}
 			if(j < GpDf.df_no_use_specs)
-				GpGg.IntError(GpC, pPlot->token, "Wrong number of columns in input data - line %d", GpDf.df_line_number);
+				GpGg.IntError(pPlot->token, "Wrong number of columns in input data - line %d", GpDf.df_line_number);
 			/* Work-around for hidden3d, which otherwise would use the */
 			/* color of the vector midpoint rather than the endpoint. */
 			if(pPlot->plot_style == IMPULSES) {
@@ -807,7 +807,7 @@ int GpGadgets::Get3DData(SurfacePoints * pPlot)
 				if(pPlot->lp_properties.p_type == PT_VARIABLE)
 					cp->CRD_PTTYPE = v[varcol++];
 				if(j < varcol)
-					GpGg.IntError(GpC, NO_CARET, "Not enough input columns");
+					GpGg.IntErrorNoCaret("Not enough input columns");
 				else if(j == varcol) {
 					color = z;
 					color_from_column(false);
@@ -968,57 +968,56 @@ come_here_if_undefined:
 	}
 	return retval;
 }
-
-/* HBB 20000501: code isolated from eval_3dplots(), where practically
- * identical code occured twice, for direct and crossing isolines,
- * respectively.  The latter only are done for in non-hidden3d
- * mode. */
-static void calculate_set_of_isolines(AXIS_INDEX value_axis,
-    bool cross,
-    iso_curve ** this_iso,
-    AXIS_INDEX iso_axis,
-    double iso_min, double iso_step,
-    int num_iso_to_use,
-    AXIS_INDEX sam_axis,
-    double sam_min, double sam_step,
-    int num_sam_to_use)
+//
+// HBB 20000501: code isolated from eval_3dplots(), where practically
+// identical code occured twice, for direct and crossing isolines,
+// respectively.  The latter only are done for in non-hidden3d mode.
+//
+/* static void calculate_set_of_isolines(AXIS_INDEX value_axis,
+    bool cross, iso_curve ** this_iso, AXIS_INDEX iso_axis,
+    double iso_min, double iso_step, int num_iso_to_use, AXIS_INDEX sam_axis,
+    double sam_min, double sam_step, int num_sam_to_use)*/
+void GpGadgets::CalculateSetOfIsolines(AXIS_INDEX valueAxis,
+    bool cross, iso_curve ** ppThisIso, AXIS_INDEX isoAxis,
+    double iso_min, double iso_step, int num_iso_to_use, AXIS_INDEX sam_axis,
+    double sam_min, double sam_step, int num_sam_to_use)
 {
 	int i, j;
-	GpCoordinate * points = (*this_iso)->points;
-	int do_update_color = (!GpGg.IsParametric || (GpGg.IsParametric && value_axis == FIRST_Z_AXIS));
+	GpCoordinate * p_points = (*ppThisIso)->points;
+	int do_update_color = (!IsParametric || (IsParametric && valueAxis == FIRST_Z_AXIS));
 	for(j = 0; j < num_iso_to_use; j++) {
 		double iso = iso_min + j * iso_step;
 		// HBB 20000501: with the new code, it should
 		// be safe to rely on the actual 'v' axis not to be improperly logscaled...
-		GpGg.plot3D_func.dummy_values[cross ? 0 : 1].SetComplex(GpGg.DelogValue(iso_axis, iso), 0.0);
+		plot3D_func.dummy_values[cross ? 0 : 1].SetComplex(DelogValue(isoAxis, iso), 0.0);
 		for(i = 0; i < num_sam_to_use; i++) {
 			double sam = sam_min + i * sam_step;
 			t_value a;
 			double temp;
-			GpGg.plot3D_func.dummy_values[cross ? 1 : 0].SetComplex(GpGg.DelogValue(sam_axis, sam), 0.0);
+			plot3D_func.dummy_values[cross ? 1 : 0].SetComplex(DelogValue(sam_axis, sam), 0.0);
 			if(cross) {
-				points[i].x = iso;
-				points[i].y = sam;
+				p_points[i].x = iso;
+				p_points[i].y = sam;
 			}
 			else {
-				points[i].x = sam;
-				points[i].y = iso;
+				p_points[i].x = sam;
+				p_points[i].y = iso;
 			}
-			GpGg.Ev.EvaluateAt(GpGg.plot3D_func.at, &a);
-			if(GpGg.Ev.undefined || !GpGg.IsZero(imag(&a))) {
-				points[i].type = UNDEFINED;
+			Ev.EvaluateAt(plot3D_func.at, &a);
+			if(Ev.undefined || !IsZero(imag(&a))) {
+				p_points[i].type = UNDEFINED;
 				continue;
 			}
 			temp = a.Real();
-			points[i].type = INRANGE;
-			STORE_WITH_LOG_AND_UPDATE_RANGE(points[i].z, temp, points[i].type, value_axis, false, NOOP, NOOP);
+			p_points[i].type = INRANGE;
+			STORE_WITH_LOG_AND_UPDATE_RANGE(p_points[i].z, temp, p_points[i].type, valueAxis, false, NOOP, NOOP);
 			if(do_update_color) {
-				COLOR_STORE_WITH_LOG_AND_UPDATE_RANGE(points[i].CRD_COLOR, temp, points[i].type, COLOR_AXIS, false, NOOP, NOOP);
+				COLOR_STORE_WITH_LOG_AND_UPDATE_RANGE(p_points[i].CRD_COLOR, temp, p_points[i].type, COLOR_AXIS, false, NOOP, NOOP);
 			}
 		}
-		(*this_iso)->p_count = num_sam_to_use;
-		*this_iso = (*this_iso)->next;
-		points = (*this_iso) ? (*this_iso)->points : NULL;
+		(*ppThisIso)->p_count = num_sam_to_use;
+		*ppThisIso = (*ppThisIso)->next;
+		p_points = (*ppThisIso) ? (*ppThisIso)->points : NULL;
 	}
 }
 
@@ -1083,7 +1082,7 @@ void GpGadgets::Eval3DPlots(GpCommand & rC)
 		// Forgive trailing comma on a multi-element plot command 
 		if(rC.EndOfCommand()) {
 			if(plot_num == 0)
-				IntError(rC, rC.CToken, "function to plot expected");
+				IntErrorCurToken("function to plot expected");
 			break;
 		}
 		if(crnt_param == 0 && !was_definition)
@@ -1119,7 +1118,7 @@ void GpGadgets::Eval3DPlots(GpCommand & rC)
 			if(name_str) {
 				/*{{{  data file to plot */
 				if(IsParametric && crnt_param != 0)
-					IntError(rC, rC.CToken, "previous parametric function not fully specified");
+					IntErrorCurToken("previous parametric function not fully specified");
 				if(!some_data_files) {
 					AxA[FIRST_X_AXIS].SetAutoscale(GPVL, -GPVL);
 					AxA[FIRST_Y_AXIS].SetAutoscale(GPVL, -GPVL);
@@ -1158,10 +1157,10 @@ void GpGadgets::Eval3DPlots(GpCommand & rC)
 				// p_plot->token is temporary, for errors in get_3ddata() 
 				if(specs < 3) {
 					if(AxA[FIRST_X_AXIS].datatype == DT_TIMEDATE) {
-						IntError(rC, rC.CToken, "Need full using spec for x time data");
+						IntErrorCurToken("Need full using spec for x time data");
 					}
 					if(AxA[FIRST_Y_AXIS].datatype == DT_TIMEDATE) {
-						IntError(rC, rC.CToken, "Need full using spec for y time data");
+						IntErrorCurToken("Need full using spec for y time data");
 					}
 				}
 				GpDf.df_axis[0] = FIRST_X_AXIS;
@@ -1233,7 +1232,7 @@ void GpGadgets::Eval3DPlots(GpCommand & rC)
 					}
 					if(oneof3(p_plot->plot_style, IMAGE, RGBA_IMAGE, RGBIMAGE)) {
 						if(p_plot->plot_type == FUNC3D)
-							IntError(rC, rC.CToken-1, "a function cannot be plotted as an image");
+							IntError(rC.CToken-1, "a function cannot be plotted as an image");
 						else
 							get_image_options(&p_plot->image_properties);
 					}
@@ -1246,7 +1245,7 @@ void GpGadgets::Eval3DPlots(GpCommand & rC)
 						}
 					}
 					if(p_plot->plot_style == TABLESTYLE)
-						GpGg.IntError(GpC, NO_CARET, "use `plot with table` rather than `splot with table`");
+						GpGg.IntErrorNoCaret("use `plot with table` rather than `splot with table`");
 					set_with = true;
 					continue;
 				}
@@ -1361,7 +1360,7 @@ void GpGadgets::Eval3DPlots(GpCommand & rC)
 				break; // unknown option
 			}
 			if(duplication)
-				IntError(rC, rC.CToken, "duplicated or contradicting arguments in plot options");
+				IntErrorCurToken("duplicated or contradicting arguments in plot options");
 			// set default values for title if this has not been specified
 			p_plot->title_is_filename = false;
 			if(!set_title) {
@@ -1522,7 +1521,7 @@ SKIPPED_EMPTY_FILE:
 				eof_during_iteration = true;
 			}
 			if(forever_iteration(rC.P.P_PlotIterator) && (p_plot->plot_type == FUNC3D)) {
-				GpGg.IntError(GpC, NO_CARET, "unbounded iteration in function plot");
+				GpGg.IntErrorNoCaret("unbounded iteration in function plot");
 			}
 		}
 		if(crnt_param != 0) {
@@ -1551,7 +1550,7 @@ SKIPPED_EMPTY_FILE:
 			break;
 	}
 	if(IsParametric && crnt_param != 0)
-		GpGg.IntError(GpC, NO_CARET, "parametric function not fully specified");
+		GpGg.IntErrorNoCaret("parametric function not fully specified");
 /*** Second Pass: Evaluate the functions ***/
 	/*
 	 * Everything is defined now, except the function data. We expect no
@@ -1598,7 +1597,7 @@ SKIPPED_EMPTY_FILE:
 		v_max = LogValueChecked(v_axis, AxA[v_axis].Range.upp, "y range");
 		/*}}} */
 		if(Samples1 < 2 || Samples2 < 2 || iso_samples_1 < 2 || iso_samples_2 < 2) {
-			GpGg.IntError(GpC, NO_CARET, "samples or iso_samples < 2. Must be at least 2.");
+			GpGg.IntErrorNoCaret("samples or iso_samples < 2. Must be at least 2.");
 		}
 
 		/* start over */
@@ -1656,11 +1655,11 @@ SKIPPED_EMPTY_FILE:
 					plot3D_func.at = at_ptr;
 					num_iso_to_use = iso_samples_2;
 					num_sam_to_use = hidden3d ? iso_samples_1 : Samples1;
-					calculate_set_of_isolines((AXIS_INDEX)crnt_param, false, &this_iso, v_axis, v_min, v_isostep, num_iso_to_use, u_axis, u_min, u_step, num_sam_to_use);
+					GpGg.CalculateSetOfIsolines((AXIS_INDEX)crnt_param, false, &this_iso, v_axis, v_min, v_isostep, num_iso_to_use, u_axis, u_min, u_step, num_sam_to_use);
 					if(!hidden3d) {
 						num_iso_to_use = iso_samples_1;
 						num_sam_to_use = Samples2;
-						calculate_set_of_isolines((AXIS_INDEX)crnt_param, true, &this_iso, u_axis, u_min, u_isostep, num_iso_to_use, v_axis, v_min, v_step, num_sam_to_use);
+						GpGg.CalculateSetOfIsolines((AXIS_INDEX)crnt_param, true, &this_iso, u_axis, u_min, u_isostep, num_iso_to_use, v_axis, v_min, v_step, num_sam_to_use);
 					}
 					/*}}} */
 				} /* end of ITS A FUNCTION TO PLOT */
@@ -1698,7 +1697,7 @@ SKIPPED_EMPTY_FILE:
 	// if first_3dplot is NULL, we have no functions or data at all.
 	// This can happen if you type "splot x=5", since x=5 is a variable assignment.
 	if(plot_num == 0 || !P_First3DPlot) {
-		IntError(rC, rC.CToken, "no functions or data to plot");
+		IntErrorCurToken("no functions or data to plot");
 	}
 	AxisCheckedExtendEmptyRange(FIRST_X_AXIS, "All points x value undefined");
 	RevertAndUnlogRange(FIRST_X_AXIS);
@@ -1720,7 +1719,7 @@ SKIPPED_EMPTY_FILE:
 		AxA[COLOR_AXIS].SetupTics(20);
 	}
 	if(plot_num == 0 || !P_First3DPlot) {
-		IntError(rC, rC.CToken, "no functions or data to plot");
+		IntErrorCurToken("no functions or data to plot");
 	}
 	// Creates contours if contours are to be plotted as well
 	if(draw_contour) {
@@ -1746,10 +1745,10 @@ SKIPPED_EMPTY_FILE:
 				int_warn(NO_CARET, "Cannot contour non grid data. Please use \"set dgrid3d\".");
 			}
 			else if(p_plot->plot_type == DATA3D) {
-				p_plot->contours = contour(p_plot->num_iso_read, p_plot->iso_crvs);
+				p_plot->contours = Contour(p_plot->num_iso_read, p_plot->iso_crvs);
 			}
 			else {
-				p_plot->contours = contour(iso_samples_2, p_plot->iso_crvs);
+				p_plot->contours = Contour(iso_samples_2, p_plot->iso_crvs);
 			}
 		}
 	}                       /* draw_contour */
@@ -1909,6 +1908,6 @@ static void load_contour_label_options(GpTextLabel * contour_label)
 	SETIFZ(contour_label->font, gp_strdup(GpGg.P_ClabelFont));
 	lp->p_interval = GpGg.clabel_interval;
 	lp->flags |= LP_SHOW_POINTS;
-	GpGg.LpParse(GpC, *lp, LP_ADHOC, true);
+	GpGg.LpParse(GpGg.Gp__C, *lp, LP_ADHOC, true);
 }
 

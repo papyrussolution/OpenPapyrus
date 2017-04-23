@@ -61,7 +61,7 @@
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-#include <idea.h>
+// @v9.6.3 #include <idea.h>
 #if defined(TEST) || defined(TEST2)
 	#include <process.h>
 	//#include <stdio.h>
@@ -135,7 +135,7 @@ static void SLAPI en_key_idea(uint16 *userkey, uint16 *Z)
 	// shifts
 	for(j = 0; j < 8; j++)
 		Z[j] = *userkey++;
-	for(i = 0; j < KEYLEN; j++) {
+	for(i = 0; j < IDEA_KEYLEN; j++) {
 		i++;
 		Z[i+7] = (Z[i & 7] << 9) | (Z[i+1 & 7] >> 7);
 		Z += (i & 8);
@@ -151,7 +151,7 @@ static void SLAPI de_key_idea(IDEAkey Z, IDEAkey DK)
 	int j;
 	uint16 t1, t2, t3;
 	IDEAkey T;
-	uint16 *p = T + KEYLEN;
+	uint16 *p = T + IDEA_KEYLEN;
 
 	t1 = inv(*Z++);
 	t2 = -*Z++;
@@ -160,7 +160,7 @@ static void SLAPI de_key_idea(IDEAkey Z, IDEAkey DK)
 	*--p = t3;
 	*--p = t2;
 	*--p = t1;
-	for(j = 1; j < ROUNDS; j++) {
+	for(j = 1; j < IDEA_ROUNDS; j++) {
 		t1 = *Z++;
 		*--p = *Z++;
 		*--p = t1;
@@ -185,7 +185,7 @@ static void SLAPI de_key_idea(IDEAkey Z, IDEAkey DK)
 	*--p = t2;
 	*--p = t1;
 	/* Copy and destroy temp copy */
-	for(j = 0, p = T; j < KEYLEN; j++) {
+	for(j = 0, p = T; j < IDEA_KEYLEN; j++) {
 		*DK++ = *p;
 		*p++ = 0;
 	}
@@ -229,7 +229,7 @@ static void SLAPI cipher_idea(uint16 in[4], uint16 out[4], register IDEAkey Z)
 	register uint32 t32;
 #endif
 
-	int r = ROUNDS;
+	int r = IDEA_ROUNDS;
 
 	x1 = *in++;  x2 = *in++;
 	x3 = *in++;  x4 = *in;
@@ -510,8 +510,11 @@ SLAPI IDEACFB::~IDEACFB() // erase current key schedule tables
 */
 void SLAPI IDEACFB::close()
 {
-	for(int i = 0; i < KEYLEN; i++)
+	/* @v9.6.3
+	for(int i = 0; i < IDEA_KEYLEN; i++)
 		Z[i] = 0;
+	*/
+	memzero(Z, sizeof(Z)); // @v9.6.3
 }
 //
 // IDEARAND
@@ -593,7 +596,7 @@ void SLAPI IDEARAND::close()
 //
 void SLAPI hashpass(char * keystring, int keylen, uint8 * hash)
 {
-	MD5 md;
+	S_MD5 md;
 	md.Calc((unsigned char *)keystring, keylen, hash);
 	//md.update((unsigned char *)keystring, keylen);
 	//md.final(hash);

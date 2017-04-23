@@ -186,18 +186,9 @@ JMESSAGE(JWRN_TOO_MUCH_DATA, "Application transferred too many scanlines")
 /* The first parameter is either type of cinfo pointer */
 
 /* Fatal errors (print message and exit) */
-#define ERREXIT(cinfo,code)  \
-  ((cinfo)->err->msg_code = (code), \
-   (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)))
-#define ERREXIT1(cinfo,code,p1)  \
-  ((cinfo)->err->msg_code = (code), \
-   (cinfo)->err->msg_parm.i[0] = (p1), \
-   (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)))
-#define ERREXIT2(cinfo,code,p1,p2)  \
-  ((cinfo)->err->msg_code = (code), \
-   (cinfo)->err->msg_parm.i[0] = (p1), \
-   (cinfo)->err->msg_parm.i[1] = (p2), \
-   (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)))
+#define ERREXIT(cinfo,code)  ((cinfo)->err->msg_code = (code), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)))
+#define ERREXIT1(cinfo,code,p1)  ((cinfo)->err->msg_code = (code), (cinfo)->err->msg_parm.i[0] = (p1), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)))
+#define ERREXIT2(cinfo,code,p1,p2)  ((cinfo)->err->msg_code = (code), (cinfo)->err->msg_parm.i[0] = (p1), (cinfo)->err->msg_parm.i[1] = (p2), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)))
 #define ERREXIT3(cinfo,code,p1,p2,p3)  \
   ((cinfo)->err->msg_code = (code), \
    (cinfo)->err->msg_parm.i[0] = (p1), \

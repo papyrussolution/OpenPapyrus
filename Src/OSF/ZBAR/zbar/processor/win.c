@@ -188,7 +188,7 @@ static inline int win_handle_events(zbar_processor_t * proc)
 		if(!rc)
 			return 0;
 		if(rc < 0)
-			return(err_capture(proc, SEV_ERROR, ZBAR_ERR_WINAPI, __func__, "failed to obtain event"));
+			return err_capture(proc, SEV_ERROR, ZBAR_ERR_WINAPI, __func__, "failed to obtain event");
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
@@ -249,21 +249,15 @@ int _zbar_processor_open(zbar_processor_t * proc, char * title, uint width, uint
 	HMODULE hmod = NULL;
 	if(!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
 		(LPCSTR)_zbar_processor_open, (HINSTANCE*)&hmod))
-		return(err_capture(proc, SEV_ERROR, ZBAR_ERR_WINAPI, __func__, "failed to obtain module handle"));
-
+		return err_capture(proc, SEV_ERROR, ZBAR_ERR_WINAPI, __func__, "failed to obtain module handle");
 	ATOM wca = win_register_class(hmod);
 	if(!wca)
-		return(err_capture(proc, SEV_ERROR, ZBAR_ERR_WINAPI, __func__, "failed to register window class"));
+		return err_capture(proc, SEV_ERROR, ZBAR_ERR_WINAPI, __func__, "failed to register window class");
 	RECT r = { 0, 0, (LONG)width, (LONG)height };
 	AdjustWindowRectEx(&r, WIN_STYLE, 0, EXT_STYLE);
-	proc->display = CreateWindowEx(EXT_STYLE, (LPCTSTR)(long)wca,
-	    "ZBar", WIN_STYLE,
-	    CW_USEDEFAULT, CW_USEDEFAULT,
-	    r.right - r.left, r.bottom - r.top,
-	    NULL, NULL, hmod, proc);
-
+	proc->display = CreateWindowEx(EXT_STYLE, (LPCTSTR)(long)wca, "ZBar", WIN_STYLE, CW_USEDEFAULT, CW_USEDEFAULT, r.right - r.left, r.bottom - r.top, NULL, NULL, hmod, proc);
 	if(!proc->display)
-		return(err_capture(proc, SEV_ERROR, ZBAR_ERR_WINAPI, __func__, "failed to open window"));
+		return err_capture(proc, SEV_ERROR, ZBAR_ERR_WINAPI, __func__, "failed to open window");
 	return 0;
 }
 

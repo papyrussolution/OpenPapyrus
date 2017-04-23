@@ -390,7 +390,7 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 	SString temp_buf;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR;
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	if(pPack->GetCount() == 0)
 		ok = -1;
 	else {
@@ -908,7 +908,7 @@ int SLAPI SCS_SYNCCASH::PrintCheckCopy(CCheckPacket * pPack, const char * pForma
 	SlipDocCommonParam  sdc_param;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	THROW(Connect());
 	Arr_In.Clear();
 	THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, SERVICEDOC));
@@ -1034,7 +1034,7 @@ int SLAPI SCS_SYNCCASH::GetCheckInfo(const PPBillPacket * pPack, Sync_BillTaxArr
 		if(SearchObject(PPOBJ_PERSON, main_org_id, &prec) > 0 && prec.Flags & PSNF_NOVATAX)
 			wovatax = 1;
 	}
-	THROW_PP(pPack && pAry, PPERR_INVPARAM);
+	THROW_INVARG(pPack && pAry);
 	RVALUEPTR(flags, pFlags);
 	if(pPack->OpTypeID == PPOPT_ACCTURN) {
 		long   s_tax = 0;
@@ -1099,7 +1099,7 @@ int SLAPI SCS_SYNCCASH::PrintCheckByBill(const PPBillPacket * pPack, double mult
 	PPIDArray     vat_ary;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR;
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	THROW(GetCheckInfo(pPack, &bt_ary, &flags, name));
 	if(bt_ary.getCount()) {
 		THROW(Connect());
@@ -1176,7 +1176,7 @@ int SLAPI SCS_SYNCCASH::PrintSlipDoc(CCheckPacket * pPack, const char * pFormatN
 	SString temp_buf;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	THROW(Connect());
 	if(P_SlipFmt) {
 		int   r = 1;
@@ -1248,7 +1248,7 @@ int SLAPI SCS_SYNCCASH::PrintZReportCopy(const CSessInfo * pInfo)
 	SString input;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
-	THROW_PP(pInfo, PPERR_INVPARAM);
+	THROW_INVARG(pInfo);
 	THROW(Connect());
 	Arr_In.Clear();
 	THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, SERVICEDOC));

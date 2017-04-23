@@ -68,7 +68,7 @@ int SLAPI CS_1::GetFileSet(char *, uint filesPerSet)
 DbfTable * SLAPI CS_1::OpenDBFTable(uint num, uint fn)
 {
 	DbfTable * t = 0;
-	THROW_PP(P_Entries && num >= 0 && num < NumEntries && fn >= 0 && fn < FilesPerSet, PPERR_INVPARAM);
+	THROW_INVARG(P_Entries && num >= 0 && num < NumEntries && fn >= 0 && fn < FilesPerSet);
 	THROW_MEM(t = new DbfTable(P_Entries[num].fn[fn]));
 	THROW_PP(t->isOpened(), PPERR_DBFOPFAULT);
 	CATCH

@@ -1,5 +1,5 @@
 // DBQUERY.CPP
-// Copyright (c) Sobolev A. 1995, 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2016
+// Copyright (c) Sobolev A. 1995, 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2016, 2017
 // @codepage windows-1251
 //
 #include <db.h>
@@ -576,7 +576,7 @@ int SLAPI DBQuery::calcRecSize()
 int SLAPI DBQuery::getFieldPosByName(const char * pFldName, uint * pPos) const
 {
 	for(uint i = 0; i < fldCount; i++)
-		if(flds[i].cell.i.id > 0 && stricmp(flds[i].cell.f.getField().Name, pFldName) == 0) {
+		if(flds[i].cell.i.id > 0 && sstreqi_ascii(flds[i].cell.f.getField().Name, pFldName)) {
 			ASSIGN_PTR(pPos, i);
 			return 1;
 		}

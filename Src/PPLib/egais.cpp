@@ -877,7 +877,7 @@ int SLAPI PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locI
 int SLAPI PPEgaisProcessor::QueryClients(PPID locID, int queryby, const char * pQ)
 {
 	int    ok = -1;
-	THROW_PP(oneof2(queryby, querybyINN, querybyCode) && !isempty(pQ), PPERR_INVPARAM);
+	THROW_INVARG(oneof2(queryby, querybyINN, querybyCode) && !isempty(pQ));
 	{
 		Ack    ack;
 		Packet qp(PPEDIOP_EGAIS_QUERYCLIENTS);
@@ -923,7 +923,7 @@ int SLAPI PPEgaisProcessor::QueryRestsShop(PPID locID, const char *)
 int SLAPI PPEgaisProcessor::QueryProducts(PPID locID, int queryby, const char * pQ)
 {
 	int    ok = -1;
-	THROW_PP(oneof2(queryby, querybyINN, querybyCode) && !isempty(pQ), PPERR_INVPARAM);
+	THROW_INVARG(oneof2(queryby, querybyINN, querybyCode) && !isempty(pQ));
 	{
 		Ack    ack;
 		Packet qp(PPEDIOP_EGAIS_QUERYAP);
@@ -1803,7 +1803,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 	SString lot_text;
 	PrcssrAlcReport::GoodsItem agi;
 	assert(pX);
-	THROW_PP(pX, PPERR_INVPARAM);
+	THROW_INVARG(pX);
 	THROW(p_doc_type_tag);
 	THROW(GetFSRARID(locID, fsrar_ident, &main_org_id));
 	if(rPack.P_Data || oneof2(doc_type, PPEDIOP_EGAIS_QUERYRESTS, PPEDIOP_EGAIS_QUERYRESTSSHOP)) {
@@ -6580,7 +6580,7 @@ int SLAPI PPEgaisProcessor::GetActChargeOnOp(PPID * pID, int egaisOp, int use_ta
 		p_cntr_template = "EGACTS%05";
 	}
 	assert(reserved_id);
-	THROW_PP(reserved_id, PPERR_INVPARAM);
+	THROW_INVARG(reserved_id);
 	if(op_obj.Search(reserved_id, &op_rec) > 0) {
 		op_id = op_rec.ID;
 	}
@@ -6616,7 +6616,7 @@ int SLAPI PPEgaisProcessor::CreateActChargeOnBill(PPID * pBillID, int ediOp, PPI
 	PPIDArray ex_lot_list;
 	const LDATE rest_date = NZOR(restDate, getcurdate_());
 	assert(oneof2(ediOp, PPEDIOP_EGAIS_ACTCHARGEON, PPEDIOP_EGAIS_ACTCHARGEONSHOP));
-	THROW_PP(oneof2(ediOp, PPEDIOP_EGAIS_ACTCHARGEON, PPEDIOP_EGAIS_ACTCHARGEONSHOP), PPERR_INVPARAM);
+	THROW_INVARG(oneof2(ediOp, PPEDIOP_EGAIS_ACTCHARGEON, PPEDIOP_EGAIS_ACTCHARGEONSHOP));
 	THROW(GetActChargeOnOp(&op_id, ediOp, 1));
 	if(ediOp == PPEDIOP_EGAIS_ACTCHARGEON) {
 		THROW_PP(CheckOpFlags(op_id, OPKF_NOUPDLOTREST, 0), PPERR_EGAIS_INVACTOP);

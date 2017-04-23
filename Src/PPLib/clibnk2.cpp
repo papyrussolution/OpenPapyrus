@@ -87,8 +87,7 @@ int PPCliBnkImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const St
 	int    ok = 1;
 	SString params, fld_name, param_val;
 	StringSet excl;
-	if(pExclParamList)
-		excl = *pExclParamList;
+	RVALUEPTR(excl, pExclParamList);
 	BnkCode = 0;
 	PaymMethodTransl = 0;
 	THROW(PPLoadText(PPTXT_CLIENTBANKPARAMS, params));
@@ -229,8 +228,7 @@ struct BankStmntItem : public Sdr_CliBnkData { // @flat
 
 SString & SLAPI BankStmntItem::MakeDescrText(SString & rBuf) const
 {
-	rBuf = 0;
-	return rBuf.Cat(Date, DATF_DMY|DATF_CENTURY).CatDiv('-', 1).Cat(Code).CatDiv('-', 1).
+	return (rBuf = 0).Cat(Date, DATF_DMY|DATF_CENTURY).CatDiv('-', 1).Cat(Code).CatDiv('-', 1).
 		Cat(GetContragentName()).Space().Eq().Cat(Amount, SFMT_MONEY);
 }
 
@@ -305,7 +303,7 @@ public:
 		else
 			ok = 0;
 		return ok;
-		return P_ImEx ? P_ImEx->OpenFileForWriting(0, 1) : 0;
+		// @v9.6.3 @fix (не пон€тна€ лишн€€ строка) return P_ImEx ? P_ImEx->OpenFileForWriting(0, 1) : 0;
 	}
 	int    SLAPI PutRecord(const PPBillPacket * pPack, PPID debtBillID, PPLogger * pLogger);
 	int    SLAPI PutHeader()
@@ -374,13 +372,12 @@ static int GetOurInfo(BankStmntItem * pItem)
 }
 // } AHTOXA
 
-static int LogError(PPLogger & rLogger, long err, BankStmntItem * pItem)
+static void LogError(PPLogger & rLogger, long err, BankStmntItem * pItem)
 {
 	SString msg_buf, log_buf;
 	pItem->MakeDescrText(msg_buf).Quot('(', ')');
 	if(PPGetMessage(mfError, err, msg_buf, 1, log_buf))
 		rLogger.Log(log_buf);
-	return 1;
 }
 
 struct Assoc {
@@ -1467,10 +1464,8 @@ int SLAPI GenerateCliBnkImpData()
 	};
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
-
 	const  LDATE cd = getcurdate_();
 	SString temp_buf;
-
 	SString imp_cfg_name;
 	int    max_items = 0;
 	double mean = 0.0;

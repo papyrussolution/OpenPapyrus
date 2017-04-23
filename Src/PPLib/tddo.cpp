@@ -1123,7 +1123,7 @@ int SLAPI TestTddo()
 	id_list.addUnique(3);
 	(temp_buf = "\\papyrus\\src\\pptest\\data").SetLastSlash().Cat("test.tddo");
 	SFile in_file(temp_buf, SFile::mRead);
-	tddo.SetInputFileName(temp_buf); // @v7.5.10
+	tddo.SetInputFileName(temp_buf);
 	(temp_buf = "\\papyrus\\src\\pptest\\out").SetLastSlash().Cat("test-out.tddo");
 	SFile out_file(temp_buf, SFile::mWrite);
 	THROW_SL(in_file.IsValid());

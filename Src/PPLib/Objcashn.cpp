@@ -841,7 +841,7 @@ int SLAPI PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 		PPAsyncCashNode * p_acn;
 	};
 	p_scn = 0;
-	THROW_PP(pCN != 0, PPERR_INVPARAM);
+	THROW_INVARG(pCN != 0);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);

@@ -210,19 +210,19 @@ static void IMAGEN_options(GpCommand & rC)
 					    break;
 				    }
 				    if(rC.EndOfCommand()) {
-					    GpGg.IntError(rC, rC.CToken, "no. windows: [horizontal,vertical] expected");
+					    GpGg.IntErrorCurToken("no. windows: [horizontal,vertical] expected");
 				    }
 				    else if(!rC.Eq(",")) {
 					    IM_win_horiz = (int)rC.ConstExpress(&a)->Real();
 				    }
 				    if(!rC.Eq(","))
-					    GpGg.IntError(rC, rC.CToken, "',' expected");
+					    GpGg.IntErrorCurToken("',' expected");
 				    rC.CToken++;
 				    if(!rC.Eq("]")) {
 					    IM_win_verti = (int)rC.ConstExpress(&a)->Real();
 				    }
 				    if(!rC.Eq("]"))
-					    GpGg.IntError(rC, rC.CToken, "expecting ']'");
+					    GpGg.IntErrorCurToken("expecting ']'");
 				    rC.CToken++;
 			    }
 			    else {

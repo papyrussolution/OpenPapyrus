@@ -767,14 +767,14 @@ char * gstrptime(char * s, char * fmt, struct tm * tm)
 #undef NOTHING
 #undef LETTER
 			default:
-			    GpGg.IntError(GpC, DATAFILE, "incorrect time format character");
+			    GpGg.IntError(DATAFILE, "incorrect time format character");
 		}
 	}
 	FPRINTF((stderr, "Before mktime : %d/%d/%d:%d:%d:%d\n", tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_hour, tm->tm_min, tm->tm_sec));
 	// mktime range-checks the time 
 	if(mktime(tm) == -1) {
 		FPRINTF((stderr, "mktime() was not happy\n"));
-		GpGg.IntError(GpC, DATAFILE, "Invalid date/time [mktime() did not like it]");
+		GpGg.IntError(DATAFILE, "Invalid date/time [mktime() did not like it]");
 	}
 	FPRINTF((stderr, "After mktime : %d/%d/%d:%d:%d:%d\n", tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_hour, tm->tm_min, tm->tm_sec));
 	return s;

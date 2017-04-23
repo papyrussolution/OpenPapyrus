@@ -230,7 +230,7 @@ void GpFit::ErrorEx(int t_num, const char * str, ...)
 		(*regress_cleanup)();
 	GpDf.DfClose(); // the datafile may still be open
 	interrupt_setup(); // restore original SIGINT function
-	GpGg.IntError(GpC, t_num, buf); // exit via int_error() so that it can clean up state variables
+	GpGg.IntError(t_num, buf); // exit via int_error() so that it can clean up state variables
 }
 //
 // Marquardt's nonlinear least squares fit
@@ -450,7 +450,7 @@ void GpFit::CallGnuplot(const double * par, double * data)
 		for(j = 0; j < MAX_NUM_VAR; j++) {
 			UdvtEntry * udv = fit_dummy_udvs[j];
 			if(!udv)
-				GpGg.IntError(GpC, NO_CARET, "Internal error: lost a dummy parameter!");
+				GpGg.IntErrorNoCaret("Internal error: lost a dummy parameter!");
 			func.dummy_values[j].SetComplex(udv->udv_value.type == NOTDEFINED ? 0 : udv->udv_value.Real(), 0.0);
 		}
 		// set actual dummy variables from file data
@@ -464,7 +464,7 @@ void GpFit::CallGnuplot(const double * par, double * data)
 			Dblf("=========================\n");
 			Dblf3("%-15s = %i out of %i\n", "#", i + 1, num_data);
 			for(j = 0; j < num_indep; j++)
-				Dblf3("%-15.15s = %-15g\n", GpC.P.CDummyVar[j], par[j] * scale_params[j]);
+				Dblf3("%-15.15s = %-15g\n", GpGg.Gp__C.P.CDummyVar[j], par[j] * scale_params[j]);
 			Dblf3("%-15.15s = %-15g\n", "z", fit_z[i]);
 			Dblf("\nCurrent set of parameters\n");
 			Dblf("=========================\n");
@@ -559,7 +559,7 @@ bool GpFit::FitInterrupt()
 					// set parameters visible to gnuplot
 					for(int i = 0; i < num_params; i++)
 						setvar(par_name[i], P_A[i] * scale_params[i]);
-					GpC.DoString(tmp);
+					GpGg.Gp__C.DoString(tmp);
 					free(tmp);
 				}
 		}
@@ -1810,7 +1810,7 @@ void GpFit::Implement_FitCommand(GpCommand & rC)
 			    break;
 			default: /* June 2013 - allow more than 7 data columns */
 			    if(i<0)
-				    GpGg.IntError(GpC, NO_CARET, "unexpected value returned by df_readline");
+				    GpGg.IntErrorNoCaret("unexpected value returned by df_readline");
 			    break;
 		}
 		num_points++;

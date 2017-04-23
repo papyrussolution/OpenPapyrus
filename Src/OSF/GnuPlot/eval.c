@@ -369,7 +369,7 @@ double t_value::Real() const
 		case CMPLX: return (v.cmplx_val.real);
 		case STRING:  /* is this ever used? */ return (atof(v.string_val));
 		case NOTDEFINED: return not_a_number();
-		default: GpGg.IntError(GpC, NO_CARET, "unknown type in real()");
+		default: GpGg.IntErrorNoCaret("unknown type in real()");
 	}
 	return ((double)0.0); // NOTREACHED
 }
@@ -382,7 +382,7 @@ int real_int(const t_value * val)
 		case INTGR: return val->v.int_val;
 		case CMPLX: return (int)val->v.cmplx_val.real;
 		case STRING: return atoi(val->v.string_val);
-		default: GpGg.IntError(GpC, NO_CARET, "unknown type in real_int()");
+		default: GpGg.IntErrorNoCaret("unknown type in real_int()");
 	}
 	return 0; // NOTREACHED
 }
@@ -397,9 +397,9 @@ double imag(const t_value * val)
 		case STRING:
 		    // This is where we end up if the user tries:  x = 2;  plot sprintf(format,x)
 		    int_warn(NO_CARET, "encountered a string when expecting a number");
-		    GpGg.IntError(GpC, NO_CARET, "Did you try to generate a file name using dummy variable x or y?");
+		    GpGg.IntErrorNoCaret("Did you try to generate a file name using dummy variable x or y?");
 		default:
-		    GpGg.IntError(GpC, NO_CARET, "unknown type in imag()");
+		    GpGg.IntErrorNoCaret("unknown type in imag()");
 	}
 	return ((double)0.0); // NOTREACHED
 }
@@ -434,7 +434,7 @@ double magnitude(const t_value * val)
 		    }
 	    }
 		default:
-		    GpGg.IntError(GpC, NO_CARET, "unknown type in magnitude()");
+		    GpGg.IntErrorNoCaret("unknown type in magnitude()");
 	}
 	return ((double)0.0); // NOTREACHED
 }
@@ -452,7 +452,7 @@ double angle(const t_value * val)
 			else
 				return (atan2(val->v.cmplx_val.imag, val->v.cmplx_val.real));
 		default:
-		    GpGg.IntError(GpC, NO_CARET, "unknown type in angle()");
+		    GpGg.IntErrorNoCaret("unknown type in angle()");
 	}
 	return ((double)0.0); // NOTREACHED
 }
@@ -532,6 +532,19 @@ double gp_exp(double x)
 #endif /* E_MINEXP */
 }
 
+GpEval::GpEval(GpGadgets & rGg) : R_Gg(rGg)
+{
+	first_udv = &udv_pi;
+	first_udf = NULL;
+	udv_pi.Init(0, "pi", INTGR);
+	udv_NaN = 0;
+	udv_user_head= 0;
+	undefined = false;
+	memzero(Stack, sizeof(Stack));
+	Sp = -1;
+	JumpOffset = 0;
+}
+
 //void reset_stack()
 void GpEval::ResetStack()
 {
@@ -556,7 +569,7 @@ bool more_on_stack()
 t_value & FASTCALL GpEval::Pop(t_value & rValue)
 {
 	if(Sp < 0)
-		GpGg.IntError(GpC, NO_CARET, "stack underflow (function call with missing parameters?)");
+		GpGg.IntErrorNoCaret("stack underflow (function call with missing parameters?)");
 	rValue = Stack[Sp--];
 	return rValue;
 }
@@ -571,7 +584,7 @@ t_value & FASTCALL GpEval::PopOrConvertFromString(t_value & rValue)
 	// DEBUG Dec 2014 - Consolidate sanity check for variable type 
 	// FIXME: Test for INVALID_VALUE? Other corner cases? 
 	if(rValue.type == INVALID_NAME)
-		GpGg.IntError(GpC, NO_CARET, "invalid dummy variable name");
+		R_Gg.IntErrorNoCaret("invalid dummy variable name");
 	if(rValue.type == STRING) {
 		char * eov;
 		if(*(rValue.v.string_val) && strspn(rValue.v.string_val, "0123456789 ") == strlen(rValue.v.string_val)) {
@@ -583,7 +596,7 @@ t_value & FASTCALL GpEval::PopOrConvertFromString(t_value & rValue)
 			double d = strtod(rValue.v.string_val, &eov);
 			if(rValue.v.string_val == eov) {
 				gpfree_string(&rValue);
-				GpGg.IntError(GpC, NO_CARET, "Non-numeric string found where a numeric expression was expected");
+				R_Gg.IntErrorNoCaret("Non-numeric string found where a numeric expression was expected");
 				/* Note: This also catches syntax errors like "set term ''*0 " */
 			}
 			gpfree_string(&rValue);
@@ -598,7 +611,7 @@ t_value & FASTCALL GpEval::PopOrConvertFromString(t_value & rValue)
 void FASTCALL GpEval::Push(t_value * x)
 {
 	if(Sp == STACK_DEPTH - 1)
-		GpGg.IntError(GpC, NO_CARET, "stack overflow");
+		R_Gg.IntErrorNoCaret("stack overflow");
 	Stack[++Sp] = *x;
 	// WARNING - This is a memory leak if the string is not later freed 
 	if(x->type == STRING && x->v.string_val)
@@ -632,7 +645,7 @@ void FASTCALL GpEval::Push(t_value * x)
 void int_check(t_value & rValue)
 {
 	if(rValue.type != INTGR)
-		GpGg.IntError(GpC, NO_CARET, "non-integer passed to boolean operator");
+		GpGg.IntErrorNoCaret("non-integer passed to boolean operator");
 }
 //
 // This is the heart of the expression evaluation module: the stack
@@ -656,7 +669,7 @@ void GpEval::ExecuteAt(AtType * pAt)
 		const int op = (int)pAt->actions[instruction_index].Index;
 		JumpOffset = 1; // jump operators can modify this 
 		GpArgument * p_arg = &(pAt->actions[instruction_index].arg);
-		AngToRad = GpGg.Ang2Rad;
+		AngToRad = R_Gg.Ang2Rad;
 #if 0 // {
 		GpEval::ft[op].Proc_(p_arg);
 #else
@@ -1255,12 +1268,12 @@ void GpEval::FillGpValComplex(char * var, double areal, double aimag)
 //static void update_plot_bounds()
 void GpEval::UpdatePlotBounds()
 {
-	FillGpValInteger("GPVAL_TERM_XMIN", (int)(GpGg[FIRST_X_AXIS].TermBounds.low / term->tscale));
-	FillGpValInteger("GPVAL_TERM_XMAX", (int)(GpGg[FIRST_X_AXIS].TermBounds.upp / term->tscale));
-	FillGpValInteger("GPVAL_TERM_YMIN", (int)(GpGg[FIRST_Y_AXIS].TermBounds.low / term->tscale));
-	FillGpValInteger("GPVAL_TERM_YMAX", (int)(GpGg[FIRST_Y_AXIS].TermBounds.upp / term->tscale));
-	FillGpValInteger("GPVAL_TERM_XSIZE", GpGg.Canvas.xright+1);
-	FillGpValInteger("GPVAL_TERM_YSIZE", GpGg.Canvas.ytop+1);
+	FillGpValInteger("GPVAL_TERM_XMIN", (int)(R_Gg[FIRST_X_AXIS].TermBounds.low / term->tscale));
+	FillGpValInteger("GPVAL_TERM_XMAX", (int)(R_Gg[FIRST_X_AXIS].TermBounds.upp / term->tscale));
+	FillGpValInteger("GPVAL_TERM_YMIN", (int)(R_Gg[FIRST_Y_AXIS].TermBounds.low / term->tscale));
+	FillGpValInteger("GPVAL_TERM_YMAX", (int)(R_Gg[FIRST_Y_AXIS].TermBounds.upp / term->tscale));
+	FillGpValInteger("GPVAL_TERM_XSIZE", R_Gg.Canvas.xright+1);
+	FillGpValInteger("GPVAL_TERM_YSIZE", R_Gg.Canvas.ytop+1);
 	FillGpValInteger("GPVAL_TERM_SCALE", (int)term->tscale);
 }
 
@@ -1280,26 +1293,26 @@ void GpEval::UpdateGpValVariables(int context)
 {
 	// These values may change during a plot command due to auto range
 	if(context == 1) {
-		GpGg.FillGpValAxis(FIRST_X_AXIS);
-		GpGg.FillGpValAxis(FIRST_Y_AXIS);
-		GpGg.FillGpValAxis(SECOND_X_AXIS);
-		GpGg.FillGpValAxis(SECOND_Y_AXIS);
-		GpGg.FillGpValAxis(FIRST_Z_AXIS);
-		GpGg.FillGpValAxis(COLOR_AXIS);
-		GpGg.FillGpValAxis(T_AXIS);
-		GpGg.FillGpValAxis(U_AXIS);
-		GpGg.FillGpValAxis(V_AXIS);
-		FillGpValFloat("GPVAL_R_MIN", GpGg.GetR().Range.low);
-		FillGpValFloat("GPVAL_R_MAX", GpGg.GetR().Range.upp);
-		FillGpValFloat("GPVAL_R_LOG", GpGg.GetR().base);
+		R_Gg.FillGpValAxis(FIRST_X_AXIS);
+		R_Gg.FillGpValAxis(FIRST_Y_AXIS);
+		R_Gg.FillGpValAxis(SECOND_X_AXIS);
+		R_Gg.FillGpValAxis(SECOND_Y_AXIS);
+		R_Gg.FillGpValAxis(FIRST_Z_AXIS);
+		R_Gg.FillGpValAxis(COLOR_AXIS);
+		R_Gg.FillGpValAxis(T_AXIS);
+		R_Gg.FillGpValAxis(U_AXIS);
+		R_Gg.FillGpValAxis(V_AXIS);
+		FillGpValFloat("GPVAL_R_MIN", R_Gg.GetR().Range.low);
+		FillGpValFloat("GPVAL_R_MAX", R_Gg.GetR().Range.upp);
+		FillGpValFloat("GPVAL_R_LOG", R_Gg.GetR().base);
 		UpdatePlotBounds();
-		FillGpValInteger("GPVAL_PLOT", GpGg.Is3DPlot ? 0 : 1);
-		FillGpValInteger("GPVAL_SPLOT", GpGg.Is3DPlot ? 1 : 0);
-		FillGpValInteger("GPVAL_VIEW_MAP", GpGg.splot_map ? 1 : 0);
-		FillGpValFloat("GPVAL_VIEW_ROT_X", GpGg.surface_rot_x);
-		FillGpValFloat("GPVAL_VIEW_ROT_Z", GpGg.surface_rot_z);
-		FillGpValFloat("GPVAL_VIEW_SCALE", GpGg.surface_scale);
-		FillGpValFloat("GPVAL_VIEW_ZSCALE", GpGg.surface_zscale);
+		FillGpValInteger("GPVAL_PLOT", R_Gg.Is3DPlot ? 0 : 1);
+		FillGpValInteger("GPVAL_SPLOT", R_Gg.Is3DPlot ? 1 : 0);
+		FillGpValInteger("GPVAL_VIEW_MAP", R_Gg.splot_map ? 1 : 0);
+		FillGpValFloat("GPVAL_VIEW_ROT_X", R_Gg.surface_rot_x);
+		FillGpValFloat("GPVAL_VIEW_ROT_Z", R_Gg.surface_rot_z);
+		FillGpValFloat("GPVAL_VIEW_SCALE", R_Gg.surface_scale);
+		FillGpValFloat("GPVAL_VIEW_ZSCALE", R_Gg.surface_zscale);
 		return;
 	}
 	// These are set after every "set" command, which is kind of silly
@@ -1354,7 +1367,7 @@ void GpEval::UpdateGpValVariables(int context)
 		}
 	}
 	if(context == 6) {
-		FillGpValInteger("GPVAL_TERM_WINDOWID", GpGg.CurrentX11WindowId);
+		FillGpValInteger("GPVAL_TERM_WINDOWID", R_Gg.CurrentX11WindowId);
 	}
 }
 

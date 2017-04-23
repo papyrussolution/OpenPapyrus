@@ -157,14 +157,14 @@ static char * zoombox_format();
 //static char * GetAnnotateString(char * s, double x, double y, int mode, char * fmt);
 static char * xDateTimeFormat(double x, char * b, int mode);
 //static void GetRulerString(char * p, double x, double y);
-static void ZoomNext();
-static void ZoomPrevious();
-static void ZoomUnzoom();
+//static void ZoomNext();
+//static void ZoomPrevious();
+//static void ZoomUnzoom();
 static void incr_mousemode(const int amount);
 //static void UpdateStatuslineWithMouseSetting(GpMouse::Settings * ms);
 //static void ChangeView(int x, int z);
 static void event_modifier(GpEvent* ge);
-static void load_mouse_variables(double, double, bool, int);
+//static void load_mouse_variables(double, double, bool, int);
 
 static void do_zoom_in_around_mouse();
 static void do_zoom_out_around_mouse();
@@ -646,7 +646,7 @@ void GpGadgets::ApplyZoom(GpTermEntry * pT, GpZoom * pZ)
 		}
 		else
 			inside_zoom = true;
-		DoStringReplot(GpC, s);
+		DoStringReplot(GpGg.Gp__C, s);
 		inside_zoom = false;
 	}
 }
@@ -683,39 +683,6 @@ void GpGadgets::DoZoom(GpTermEntry * pT, double xmin, double ymin, double x2min,
 	p_z->xRange.upp = (AxA[SECOND_Y_AXIS].Range.upp > -GPVL) ? y2max : AxA[SECOND_Y_AXIS].Range.upp;
 
 	ApplyZoom(pT, p_z);
-}
-
-static void ZoomNext()
-{
-	if(zoom_now == NULL || zoom_now->next == NULL)
-		alert();
-	else
-		GpGg.ApplyZoom(term, zoom_now->next);
-	if(display_ipc_commands()) {
-		fprintf(stderr, "next zoom.\n");
-	}
-}
-
-static void ZoomPrevious()
-{
-	if(zoom_now == NULL || zoom_now->prev == NULL)
-		alert();
-	else
-		GpGg.ApplyZoom(term, zoom_now->prev);
-	if(display_ipc_commands()) {
-		fprintf(stderr, "previous zoom.\n");
-	}
-}
-
-static void ZoomUnzoom()
-{
-	if(zoom_head == NULL || zoom_now == zoom_head)
-		alert();
-	else
-		GpGg.ApplyZoom(term, zoom_head);
-	if(display_ipc_commands()) {
-		fprintf(stderr, "unzoom.\n");
-	}
 }
 
 static void incr_mousemode(const int amount)
@@ -851,7 +818,7 @@ static char * builtin_autoscale(GpEvent * ge)
 		return "`builtin-autoscale` (set autoscale keepfix; replot)";
 	}
 	else {
-		GpGg.DoStringReplot(GpC, "set autoscale keepfix");
+		GpGg.DoStringReplot(GpGg.Gp__C, "set autoscale keepfix");
 		return (char*)0;
 	}
 }
@@ -875,7 +842,7 @@ static char * builtin_toggle_border(GpEvent * ge)
 		GpGg.DrawBorder = 4095;
 	else
 		GpGg.DrawBorder = 0;
-	GpGg.DoStringReplot(GpC, "");
+	GpGg.DoStringReplot(GpGg.Gp__C, "");
 	return (char*)0;
 }
 
@@ -885,7 +852,7 @@ static char * builtin_replot(GpEvent * ge)
 		return "`builtin-replot`";
 	}
 	else {
-		GpGg.DoStringReplot(GpC, "");
+		GpGg.DoStringReplot(GpGg.Gp__C, "");
 		return (char*)0;
 	}
 }
@@ -897,9 +864,9 @@ static char * builtin_toggle_grid(GpEvent * ge)
 	}
 	else {
 		if(!GpGg.SomeGridSelected())
-			GpGg.DoStringReplot(GpC, "set grid");
+			GpGg.DoStringReplot(GpGg.Gp__C, "set grid");
 		else
-			GpGg.DoStringReplot(GpC, "unset grid");
+			GpGg.DoStringReplot(GpGg.Gp__C, "unset grid");
 		return (char*)0;
 	}
 }
@@ -949,7 +916,7 @@ static char * builtin_invert_plot_visibilities(GpEvent * ge)
 
 static char * builtin_toggle_log(GpEvent * ge)
 {
-	return GpGg.BuiltInToggleLog(GpC, ge);
+	return GpGg.BuiltInToggleLog(GpGg.Gp__C, ge);
 }
 
 char * GpGadgets::BuiltInToggleLog(GpCommand & rC, GpEvent * ge)
@@ -972,7 +939,7 @@ char * GpGadgets::BuiltInToggleLog(GpCommand & rC, GpEvent * ge)
 
 static char * builtin_nearest_log(GpEvent * ge)
 {
-	return GpGg.BuiltInNearestLog(GpC, ge);
+	return GpGg.BuiltInNearestLog(GpGg.Gp__C, ge);
 }
 
 char * GpGadgets::BuiltInNearestLog(GpCommand & rC, GpEvent * ge)
@@ -1131,11 +1098,11 @@ static char * builtin_toggle_ratio(GpEvent * ge)
 		return "`builtin-toggle-ratio`";
 	}
 	if(GpGg.AspectRatio == 0)
-		GpGg.DoStringReplot(GpC, "set size ratio -1");
+		GpGg.DoStringReplot(GpGg.Gp__C, "set size ratio -1");
 	else if(GpGg.AspectRatio == 1)
-		GpGg.DoStringReplot(GpC, "set size nosquare");
+		GpGg.DoStringReplot(GpGg.Gp__C, "set size nosquare");
 	else
-		GpGg.DoStringReplot(GpC, "set size square");
+		GpGg.DoStringReplot(GpGg.Gp__C, "set size square");
 	return (char*)0;
 }
 
@@ -1144,7 +1111,17 @@ static char * builtin_zoom_next(GpEvent * ge)
 	if(!ge)
 		return "`builtin-zoom-next` go to next zoom in the zoom stack";
 	else {
-		ZoomNext();
+		//ZoomNext();
+		//static void ZoomNext()
+		{
+			if(zoom_now == NULL || zoom_now->next == NULL)
+				alert();
+			else
+				GpGg.ApplyZoom(term, zoom_now->next);
+			if(display_ipc_commands()) {
+				fprintf(stderr, "next zoom.\n");
+			}
+		}
 		return (char*)0;
 	}
 }
@@ -1154,7 +1131,17 @@ static char * builtin_zoom_previous(GpEvent * ge)
 	if(!ge)
 		return "`builtin-zoom-previous` go to previous zoom in the zoom stack";
 	else {
-		ZoomPrevious();
+		//ZoomPrevious();
+		//static void ZoomPrevious()
+		{
+			if(zoom_now == NULL || zoom_now->prev == NULL)
+				alert();
+			else
+				GpGg.ApplyZoom(term, zoom_now->prev);
+			if(display_ipc_commands()) {
+				fprintf(stderr, "previous zoom.\n");
+			}
+		}
 		return (char*)0;
 	}
 }
@@ -1164,7 +1151,17 @@ static char * builtin_unzoom(GpEvent * ge)
 	if(!ge)
 		return "`builtin-unzoom`";
 	else {
-		ZoomUnzoom();
+		//ZoomUnzoom();
+		//static void ZoomUnzoom()
+		{
+			if(zoom_head == NULL || zoom_now == zoom_head)
+				alert();
+			else
+				GpGg.ApplyZoom(term, zoom_head);
+			if(display_ipc_commands()) {
+				fprintf(stderr, "unzoom.\n");
+			}
+		}
 		return (char*)0;
 	}
 }
@@ -1174,7 +1171,7 @@ static char * builtin_rotate_right(GpEvent * ge)
 	if(!ge)
 		return "`scroll right in 2d, rotate right in 3d`; <Shift> faster";
 	if(GpGg.Is3DPlot)
-		GpGg.ChangeView(term, GpC, 0, -1);
+		GpGg.ChangeView(term, GpGg.Gp__C, 0, -1);
 	else {
 		int k = (GpGg.Mse.modifier_mask & Mod_Shift) ? 3 : 1;
 		while(k-- > 0)
@@ -1188,7 +1185,7 @@ static char * builtin_rotate_left(GpEvent * ge)
 	if(!ge)
 		return "`scroll left in 2d, rotate left in 3d`; <Shift> faster";
 	if(GpGg.Is3DPlot)
-		GpGg.ChangeView(term, GpC, 0, 1);
+		GpGg.ChangeView(term, GpGg.Gp__C, 0, 1);
 	else {
 		int k = (GpGg.Mse.modifier_mask & Mod_Shift) ? 3 : 1;
 		while(k-- > 0)
@@ -1202,7 +1199,7 @@ static char * builtin_rotate_up(GpEvent * ge)
 	if(!ge)
 		return "`scroll up in 2d, rotate up in 3d`; <Shift> faster";
 	if(GpGg.Is3DPlot)
-		GpGg.ChangeView(term, GpC, 1, 0);
+		GpGg.ChangeView(term, GpGg.Gp__C, 1, 0);
 	else {
 		int k = (GpGg.Mse.modifier_mask & Mod_Shift) ? 3 : 1;
 		while(k-- > 0)
@@ -1216,7 +1213,7 @@ static char * builtin_rotate_down(GpEvent * ge)
 	if(!ge)
 		return "`scroll down in 2d, rotate down in 3d`; <Shift> faster";
 	if(GpGg.Is3DPlot)
-		GpGg.ChangeView(term, GpC, -1, 0);
+		GpGg.ChangeView(term, GpGg.Gp__C, -1, 0);
 	else {
 		int k = (GpGg.Mse.modifier_mask & Mod_Shift) ? 3 : 1;
 		while(k-- > 0)
@@ -1270,7 +1267,7 @@ void GpGadgets::EventKeyPress(GpTermEntry * pT, GpCommand & rC, GpEvent * pGe, b
 	 * which is a bad thing if you are in the  middle of a mousing operation.
 	 */
 	if((paused_for_mouse & PAUSE_KEYSTROKE) && (c > '\0') && current) {
-		load_mouse_variables(x, y, false, c);
+		LoadMouseVariables(x, y, false, c);
 	}
 	else {
 		for(ptr = Mse.P_Bindings; ptr; ptr = ptr->next) {
@@ -1282,11 +1279,11 @@ void GpGadgets::EventKeyPress(GpTermEntry * pT, GpCommand & rC, GpEvent * pGe, b
 				/* Always honor keys set with "bind all" */
 				if(ptr->allwindows && ptr->command) {
 					if(current)
-						load_mouse_variables(x, y, false, c);
+						LoadMouseVariables(x, y, false, c);
 					else
 						/* FIXME - Better to clear MOUSE_[XY] than to set it wrongly. */
 						/*         This may be worth a separate subroutine.           */
-						load_mouse_variables(0, 0, false, c);
+						LoadMouseVariables(0, 0, false, c);
 					rC.DoString(ptr->command);
 					// Treat as a current event after we return to x11.trm 
 					pGe->type = GE_keypress;
@@ -1666,7 +1663,7 @@ void GpGadgets::EventButtonPress(GpTermEntry * pT, GpCommand & rC, GpEvent * pGe
 			if(1 == b) {
 				/* "pause button1" or "pause any" takes precedence over key Mse.P_Bindings */
 				if(paused_for_mouse & PAUSE_BUTTON1) {
-					load_mouse_variables(Mse.MP.x, Mse.MP.y, true, b);
+					LoadMouseVariables(Mse.MP.x, Mse.MP.y, true, b);
 					Mse.TrapRelease = true; /* Don't trigger on release also */
 					return;
 				}
@@ -1814,18 +1811,17 @@ void GpGadgets::EventButtonRelease(GpTermEntry * pT, GpEvent * pGe)
 						GetAnnotateString(s0, Mse.RealP.x, Mse.RealP.y, mouse_mode, mouse_alt_string);
 						if(Mse.Cfg.label) {
 							if(Mse.modifier_mask & Mod_Ctrl) {
-								RemoveLabel(pT, GpC, Mse.MP.x, Mse.MP.y);
+								RemoveLabel(pT, GpGg.Gp__C, Mse.MP.x, Mse.MP.y);
 							}
 							else {
 								put_label(s0, Mse.RealP.x, Mse.RealP.y);
 							}
 						}
 						else {
-							int dx, dy;
 							int x = Mse.MP.x;
 							int y = Mse.MP.y;
-							dx = pT->HTic;
-							dy = pT->VTic;
+							int dx = pT->HTic;
+							int dy = pT->VTic;
 							(pT->linewidth)(BorderLp.l_width);
 							(pT->linetype)(BorderLp.l_type);
 							(pT->move)(x - dx, y);
@@ -1842,20 +1838,20 @@ void GpGadgets::EventButtonRelease(GpTermEntry * pT, GpEvent * pGe)
 			if(Is3DPlot && (b == 1 || b == 2)) {
 				if(!!(Mse.modifier_mask & Mod_Ctrl) && !Mse.needreplot) {
 					// redraw the 3d plot if its last redraw was 'quick' (only axes) because modifier key was pressed 
-					DoSave3DPlot(GpC, P_First3DPlot, plot3d_num, 0);
+					DoSave3DPlot(GpGg.Gp__C, P_First3DPlot, plot3d_num, 0);
 				}
 				if(pT->set_cursor)
 					pT->set_cursor((Mse.button & (1 << 1)) ? 1 : (Mse.button & (1 << 2)) ? 2 : 0, 0, 0);
 			}
 			// Export current mouse coords to user-accessible variables also 
-			load_mouse_variables(Mse.MP.x, Mse.MP.y, true, b);
+			LoadMouseVariables(Mse.MP.x, Mse.MP.y, true, b);
 			UpdateStatusline(pT);
 			// In 2D mouse button 1 is available for "bind" commands 
 			if(!Is3DPlot && (b == 1)) {
 				int save = pGe->par1;
 				pGe->par1 = GP_Button1;
 				pGe->par2 = 0;
-				EventKeyPress(pT, GpC, pGe, true);
+				EventKeyPress(pT, GpGg.Gp__C, pGe, true);
 				pGe->par1 = save; // needed for "pause mouse" 
 			}
 		}
@@ -1958,7 +1954,7 @@ static void event_modifier(GpEvent * ge)
 	GpGg.Mse.modifier_mask = ge->par1;
 	if(GpGg.Mse.modifier_mask == 0 && GpGg.Is3DPlot && (GpGg.Mse.button & ((1 << 1) | (1 << 2))) && !GpGg.Mse.needreplot) {
 		// redraw the 3d plot if modifier key released 
-		GpGg.DoSave3DPlot(GpC, GpGg.P_First3DPlot, GpGg.plot3d_num, 0);
+		GpGg.DoSave3DPlot(GpGg.Gp__C, GpGg.P_First3DPlot, GpGg.plot3d_num, 0);
 	}
 }
 
@@ -1966,7 +1962,7 @@ void event_plotdone()
 {
 	if(GpGg.Mse.needreplot) {
 		GpGg.Mse.needreplot = false;
-		GpGg.DoSave3DPlot(GpC, GpGg.P_First3DPlot, GpGg.plot3d_num, !!(GpGg.Mse.modifier_mask & Mod_Ctrl));
+		GpGg.DoSave3DPlot(GpGg.Gp__C, GpGg.P_First3DPlot, GpGg.plot3d_num, !!(GpGg.Mse.modifier_mask & Mod_Ctrl));
 	}
 	else {
 		allowmotion = true;
@@ -2002,16 +1998,16 @@ void GpGadgets::EventReset(GpTermEntry * pT, GpEvent * pEv)
 	if(pEv != (void*)1) {
 		pEv->par1 = GP_Cancel; /* Dummy keystroke */
 		pEv->par2 = 0;   /* Not used; could pass window id here? */
-		EventKeyPress(pT, GpC, pEv, true);
+		EventKeyPress(pT, GpGg.Gp__C, pEv, true);
 	}
 }
 
 //void do_event(GpEvent * ge)
-void GpGadgets::DoEvent(GpTermEntry * pT, GpCommand & rC, GpEvent * pGe)
+void GpGadgets::DoEvent(GpTermEntry * pT, GpEvent * pGe)
 {
 	if(pT) {
 		// disable `replot` when some data were sent through stdin
-		rC.IsReplotDisabled = GpDf.plotted_data_from_stdin;
+		Gp__C.IsReplotDisabled = GpDf.plotted_data_from_stdin;
 		if(pGe->type) {
 			FPRINTF((stderr, "(do_event) type       = %d\n", pGe->type));
 			FPRINTF((stderr, "           mx, my     = %d, %d\n", pGe->mx, pGe->my));
@@ -2026,10 +2022,10 @@ void GpGadgets::DoEvent(GpTermEntry * pT, GpCommand & rC, GpEvent * pGe)
 				}
 				break;
 			case GE_keypress:
-				EventKeyPress(pT, rC, pGe, true);
+				EventKeyPress(pT, Gp__C, pGe, true);
 				break;
 			case GE_keypress_old:
-				EventKeyPress(pT, rC, pGe, false);
+				EventKeyPress(pT, Gp__C, pGe, false);
 				break;
 			case GE_modifier:
 				event_modifier(pGe);
@@ -2037,12 +2033,12 @@ void GpGadgets::DoEvent(GpTermEntry * pT, GpCommand & rC, GpEvent * pGe)
 			case GE_motion:
 				if(!Mse.Cfg.on)
 					break;
-				EventMotion(rC, pGe);
+				EventMotion(Gp__C, pGe);
 				break;
 			case GE_buttonpress:
 				if(!Mse.Cfg.on)
 					break;
-				EventButtonPress(pT, rC, pGe);
+				EventButtonPress(pT, Gp__C, pGe);
 				break;
 			case GE_buttonrelease:
 				if(!Mse.Cfg.on)
@@ -2052,13 +2048,13 @@ void GpGadgets::DoEvent(GpTermEntry * pT, GpCommand & rC, GpEvent * pGe)
 			case GE_replot:
 				// auto-generated replot (e.g. from replot-on-resize) 
 				// FIXME: more terminals should use this! 
-				if(rC.P_ReplotLine == NULL || rC.P_ReplotLine[0] == '\0')
+				if(Gp__C.P_ReplotLine == NULL || Gp__C.P_ReplotLine[0] == '\0')
 					break;
-				if(!strncmp(rC.P_ReplotLine, "test", 4))
+				if(!strncmp(Gp__C.P_ReplotLine, "test", 4))
 					break;
 				if(IsMultiPlot)
 					break;
-				DoStringReplot(rC, "");
+				DoStringReplot(Gp__C, "");
 				break;
 			case GE_reset:
 				EventReset(pT, pGe);
@@ -2109,7 +2105,7 @@ void GpGadgets::DoEvent(GpTermEntry * pT, GpCommand & rC, GpEvent * pGe)
 				fprintf(stderr, "%s:%d protocol error\n", __FILE__, __LINE__);
 				break;
 		}
-		rC.IsReplotDisabled = false; // enable replot again
+		Gp__C.IsReplotDisabled = false; // enable replot again
 	}
 }
 
@@ -2130,7 +2126,7 @@ void GpGadgets::DoSave3DPlot(GpCommand & rC, SurfacePoints * plots, int pcount, 
 	else {
 #if(0) /* Dead code.  This error is now trapped elsewhere */
 		if(M_TEST_AXIS(GetX()) || M_TEST_AXIS(GetY()) || M_TEST_AXIS(GetZ()) || M_TEST_AXIS(GetCB())) {
-			GpGg.IntError(GpC, NO_CARET, "axis ranges must be above 0 for log scale!");
+			GpGg.IntErrorNoCaret("axis ranges must be above 0 for log scale!");
 			return;
 		}
 #endif
@@ -2639,54 +2635,54 @@ static void put_label(char * label, double x, double y)
 {
 	char cmd[256];
 	sprintf(cmd, "set label \"%s\" at %g,%g %s", label, x, y, GpGg.Mse.Cfg.labelopts ? GpGg.Mse.Cfg.labelopts : "point pt 1");
-	GpGg.DoStringReplot(GpC, cmd);
+	GpGg.DoStringReplot(GpGg.Gp__C, cmd);
 }
 
 /* Save current mouse position to user-accessible variables.
  * Save the keypress or mouse button that triggered this in MOUSE_KEY,
  * and define MOUSE_BUTTON if it was a button click.
  */
-static void load_mouse_variables(double x, double y, bool button, int c)
+//static void load_mouse_variables(double x, double y, bool button, int c)
+void GpGadgets::LoadMouseVariables(double x, double y, bool button, int c)
 {
-	UdvtEntry * current;
-	GpGg.MousePosToGraphPosReal((int)x, (int)y, &GpGg.Mse.RealP.x, &GpGg.Mse.RealP.y, &GpGg.Mse.RealP2.x, &GpGg.Mse.RealP2.y);
-	if((current = GpGg.Ev.AddUdvByName("MOUSE_BUTTON"))) {
-		current->udv_value.SetInt(button ? c : -1);
+	UdvtEntry * p_current;
+	MousePosToGraphPosReal((int)x, (int)y, &Mse.RealP.x, &Mse.RealP.y, &Mse.RealP2.x, &Mse.RealP2.y);
+	if((p_current = Ev.AddUdvByName("MOUSE_BUTTON"))) {
+		p_current->udv_value.SetInt(button ? c : -1);
 		if(!button)
-			current->udv_value.type = NOTDEFINED;
+			p_current->udv_value.type = NOTDEFINED;
 	}
-	if((current = GpGg.Ev.AddUdvByName("MOUSE_KEY"))) {
-		current->udv_value.SetInt(c);
+	if((p_current = Ev.AddUdvByName("MOUSE_KEY"))) {
+		p_current->udv_value.SetInt(c);
 	}
-	if((current = GpGg.Ev.AddUdvByName("MOUSE_CHAR"))) {
+	if((p_current = Ev.AddUdvByName("MOUSE_CHAR"))) {
 		char * keychar = (char *)malloc(2);
 		keychar[0] = c;
 		keychar[1] = '\0';
-		gpfree_string(&current->udv_value);
-		Gstring(&current->udv_value, keychar);
+		gpfree_string(&p_current->udv_value);
+		Gstring(&p_current->udv_value, keychar);
 	}
-	if((current = GpGg.Ev.AddUdvByName("MOUSE_X"))) {
-		current->udv_value.SetComplex(GpGg.Mse.RealP.x, 0);
+	if((p_current = Ev.AddUdvByName("MOUSE_X"))) {
+		p_current->udv_value.SetComplex(Mse.RealP.x, 0);
 	}
-	if((current = GpGg.Ev.AddUdvByName("MOUSE_Y"))) {
-		current->udv_value.SetComplex(GpGg.Mse.RealP.y, 0);
+	if((p_current = Ev.AddUdvByName("MOUSE_Y"))) {
+		p_current->udv_value.SetComplex(Mse.RealP.y, 0);
 	}
-	if((current = GpGg.Ev.AddUdvByName("MOUSE_X2"))) {
-		current->udv_value.SetComplex(GpGg.Mse.RealP2.x, 0);
+	if((p_current = Ev.AddUdvByName("MOUSE_X2"))) {
+		p_current->udv_value.SetComplex(Mse.RealP2.x, 0);
 	}
-	if((current = GpGg.Ev.AddUdvByName("MOUSE_Y2"))) {
-		current->udv_value.SetComplex(GpGg.Mse.RealP2.y, 0);
+	if((p_current = Ev.AddUdvByName("MOUSE_Y2"))) {
+		p_current->udv_value.SetComplex(Mse.RealP2.y, 0);
 	}
-	if((current = GpGg.Ev.AddUdvByName("MOUSE_SHIFT"))) {
-		current->udv_value.SetInt(GpGg.Mse.modifier_mask & Mod_Shift);
+	if((p_current = Ev.AddUdvByName("MOUSE_SHIFT"))) {
+		p_current->udv_value.SetInt(Mse.modifier_mask & Mod_Shift);
 	}
-	if((current = GpGg.Ev.AddUdvByName("MOUSE_ALT"))) {
-		current->udv_value.SetInt(GpGg.Mse.modifier_mask & Mod_Alt);
+	if((p_current = Ev.AddUdvByName("MOUSE_ALT"))) {
+		p_current->udv_value.SetInt(Mse.modifier_mask & Mod_Alt);
 	}
-	if((current = GpGg.Ev.AddUdvByName("MOUSE_CTRL"))) {
-		current->udv_value.SetInt(GpGg.Mse.modifier_mask & Mod_Ctrl);
+	if((p_current = Ev.AddUdvByName("MOUSE_CTRL"))) {
+		p_current->udv_value.SetInt(Mse.modifier_mask & Mod_Ctrl);
 	}
-	return;
 }
 
 #endif /* USE_MOUSE */

@@ -34,6 +34,7 @@ int FASTCALL PPSetError(int errCode)
 
 int PPSetErrorNoMem() { return PPSetError(PPERR_NOMEM); }
 int PPSetErrorSLib() { return PPSetError(PPERR_SLIB); }
+int PPSetErrorInvParam() { return PPSetError(PPERR_INVPARAM); }
 //
 //
 //

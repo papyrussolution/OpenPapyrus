@@ -712,7 +712,7 @@ int STestSuite::ReportTestEntry(int title, const Entry * pEntry)
 {
 	int    ok = 1;
 	SString line_buf, bm_buf;
-	if(title) {
+	if(title == 1) {
 		line_buf.Cat("Result").Semicol();
 		line_buf.Cat("Test").Semicol().
 			Cat("Descr").Semicol().
@@ -722,6 +722,11 @@ int STestSuite::ReportTestEntry(int title, const Entry * pEntry)
 			Cat("SysTiming").Semicol().
 			Cat("IncMemBlk").Semicol().
 			Cat("IncMemSize");
+		SLS.LogMessage(LogFileName, line_buf);
+	}
+	else if(title == 2) {
+		SLS.LogMessage(LogFileName, line_buf = 0);
+		line_buf.Cat(getcurdatetime_(), DATF_DMY|DATF_CENTURY, TIMF_HMS);
 		SLS.LogMessage(LogFileName, line_buf);
 	}
 	else {
@@ -786,6 +791,7 @@ int STestSuite::Run(const char * pIniFileName)
 		const HANDLE thr_id = GetCurrentThread();
 		if(LogFileName.NotEmpty() && !fileExists(LogFileName))
 			ReportTestEntry(1, 0);
+		ReportTestEntry(2, 0);
 		// –аспредел€ем достаточно большой буфер дл€ строки вывода тестов, дабы в дальнейшем
 		// не было увеличени€ этого буфера (иначе будем видеть искажение результатов замера используемой тестами пам€ти)
 		CaseBuffer.CatCharN(' ', 8192);

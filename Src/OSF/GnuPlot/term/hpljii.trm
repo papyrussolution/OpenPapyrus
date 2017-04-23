@@ -189,7 +189,7 @@ static void HPLJII_options(GpCommand & rC)
 	}
 
 	if(parse_error)
-		GpGg.IntError(rC, rC.CToken, "expecting dots per inch size 75, 100, 150 or 300");
+		GpGg.IntErrorCurToken("expecting dots per inch size 75, 100, 150 or 300");
 }
 
 static void HPLJII_init()

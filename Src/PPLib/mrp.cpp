@@ -1,5 +1,5 @@
 // MRP.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1005,6 +1005,12 @@ SLAPI PPObjMrpTab::~PPObjMrpTab()
 int SLAPI PPObjMrpTab::Search(PPID id, void * pRec)
 {
 	return P_Tbl->Search(id, (MrpTabTbl::Rec *)pRec);
+}
+
+//virtual 
+const char * SLAPI PPObjMrpTab::GetNamePtr() 
+{ 
+	return P_Tbl->data.Name; 
 }
 
 int SLAPI PPObjMrpTab::DeleteObj(PPID id)

@@ -137,7 +137,7 @@ int SLAPI InventoryCore::Set(PPID id, long * pOprNo, InventoryTbl::Rec * pRec, i
 		}
 		else {
 			long   oprno = MAXLONG;
-			THROW_PP(pRec, PPERR_INVPARAM);
+			THROW_INVARG(pRec);
 			*pOprNo = (_Search(id, &oprno, spLe) > 0) ? (oprno + 1) : 1;
 			pRec->BillID = id;
 			pRec->OprNo  = *pOprNo;

@@ -19,16 +19,10 @@
 
 typedef struct {
 	struct jpeg_decomp_master pub; /* public fields */
-
 	int pass_number;        /* # of passes completed */
-
 	boolean using_merged_upsample; /* TRUE if using merged upsample/cconvert */
-
-	/* Saved references to initialized quantizer modules,
-	 * in case we need to switch modes.
-	 */
+	// Saved references to initialized quantizer modules, in case we need to switch modes.
 	struct jpeg_color_quantizer * quantizer_1pass;
-
 	struct jpeg_color_quantizer * quantizer_2pass;
 } my_decomp_master;
 
@@ -38,9 +32,7 @@ typedef my_decomp_master * my_master_ptr;
  * Determine whether merged upsample/color conversion should be used.
  * CRUCIAL: this must match the actual capabilities of jdmerge.c!
  */
-
-LOCAL(boolean)
-use_merged_upsample(j_decompress_ptr cinfo)
+LOCAL(boolean) use_merged_upsample(j_decompress_ptr cinfo)
 {
 #ifdef UPSAMPLE_MERGING_SUPPORTED
 	/* Merging is the equivalent of plain box-filter upsampling. */

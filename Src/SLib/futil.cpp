@@ -161,9 +161,9 @@ int SLAPI isDir(const char * pStr)
 // fexpand:    reimplementation of pascal's FExpand routine.
 // Takes a relative DOS path and makes an absolute path of the form
 // drive:\[subdir\ ...]filename.ext
-// 
+//
 // works with '/' or '\' as the subdir separator on input; changes all '/'
-// to '\' on output. 
+// to '\' on output.
 //
 #ifndef __WIN32__ // {
 static char * SLAPI squeeze(char * path)
@@ -772,12 +772,12 @@ SLTEST_R(Directory)
 		THROW(SLTEST_CHECK_EQ((long)sz, (long)files_size));
 		//
 		if(pBenchmark) {
-			if(stricmp(pBenchmark, "access") == 0) {
+			if(sstreqi_ascii(pBenchmark, "access")) {
 				for(uint i = 0; i < file_list.getCount(); i++) {
 					::access(file_list.at(i), 0);
 				}
 			}
-			else if(stricmp(pBenchmark, "winfileexists") == 0) {
+			else if(sstreqi_ascii(pBenchmark, "winfileexists")) {
 				for(uint i = 0; i < file_list.getCount(); i++) {
 					Win_IsFileExists(file_list.at(i));
 				}

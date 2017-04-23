@@ -2210,7 +2210,7 @@ int SLAPI PrcssrSalary::CalcPeriod(const CalcPeriodParam & rCpP, long * pDays, d
 	SString temp_buf;
 	SStrCollection dbg_log_list;
 	if(!rCpP.Period.low || !rCpP.Period.upp || rCpP.Period.low > rCpP.Period.upp)
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	else {
 		PersonPostTbl::Rec post_rec;
 		PPStaffCal parent_cal, proj_parent_cal;

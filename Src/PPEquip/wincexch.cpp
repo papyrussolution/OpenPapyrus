@@ -258,7 +258,7 @@ int SLAPI StyloBhtIIExchanger::GetTable(TcpSocket & rSo, int16 cmd, uint fileNam
 	SString fname, path;
 	DbfTable * p_tbl = 0;
 	THROW_PP(BhtPack.P_SBIICfg && BhtPack.P_SBIICfg->IsValid(), PPERR_SBII_UNDEFDEVICE);
-	THROW_PP(pRec, PPERR_INVPARAM);
+	THROW_INVARG(pRec);
 	PPGetFileName(fileNameCode, fname);
 	SPathStruc::ReplaceExt(fname, "dbf", 1);
 	(path = DeviceDir).Cat(fname);
@@ -400,7 +400,7 @@ int SLAPI StyloBhtIIExchanger::SetTable(TcpSocket & rSo, int16 cmd, uint fileNam
 	SString fname, path;
 	DbfTable * p_tbl = 0;
 	THROW_PP(BhtPack.P_SBIICfg && BhtPack.P_SBIICfg->IsValid(), PPERR_SBII_UNDEFDEVICE);
-	THROW_PP(pRec, PPERR_INVPARAM);
+	THROW_INVARG(pRec);
 	THROW(SendCmd(rSo, cmd, 1, 0, 0));
 	if(count > 0) {
 		size_t pack_buf_size = pRec->GetSize() * MAXRECS_IN_PACKBUF;
@@ -535,7 +535,7 @@ int SLAPI StyloBhtIIExchanger::FindLocCell(PPID locID, const char * pName, SBIIL
 int SLAPI StyloBhtIIExchanger::AcceptLocOp(SBIILocOp * pRec)
 {
 	int    ok = -1;
-	THROW_PP(pRec, PPERR_INVPARAM);
+	THROW_INVARG(pRec);
 	SETIFZ(P_LocTransf, new LocTransfCore);
 	THROW_MEM(P_LocTransf);
 	{

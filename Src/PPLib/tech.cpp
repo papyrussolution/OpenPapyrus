@@ -1,5 +1,5 @@
 // TECH.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -99,7 +99,7 @@ int SLAPI PPObjTech::SearchAuto(PPID prcID, PPID goodsID, PPID * pTechID)
 	TechTbl::Key2 k2;
 	MEMSZERO(k2);
 	k2.PrcID = prcID;
-	BExtQuery q(P_Tbl, 2); // @v7.8.1 0-->2 (error)
+	BExtQuery q(P_Tbl, 2);
 	q.selectAll().where(P_Tbl->PrcID == prcID && P_Tbl->Kind == (long)2);
 	for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
 		if(goodsID == P_Tbl->data.GoodsID || goods_obj.BelongToGroup(goodsID, P_Tbl->data.GoodsID, 0) > 0) {
@@ -125,7 +125,7 @@ int SLAPI PPObjTech::SearchAutoForGoodsCreation(PPID prcID, PPID * pGoodsGrpID)
 			TechTbl::Key2 k2;
 			MEMSZERO(k2);
 			k2.PrcID = prc_id;
-			BExtQuery q(P_Tbl, 2); // @v7.8.1 0-->2 (error)
+			BExtQuery q(P_Tbl, 2);
 			q.selectAll().where(P_Tbl->PrcID == prc_id && P_Tbl->Kind == (long)2);
 			for(q.initIteration(0, &k2, spGe); ok < 0 && q.nextIteration() > 0;) {
 				goods_id = P_Tbl->data.GoodsID;
@@ -162,7 +162,6 @@ int SLAPI PPObjTech::CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, in
 				new_pack.Rec.GoodsID = goodsID;
 				new_pack.Rec.Sign = pack.Rec.Sign;
 				new_pack.Rec.InitQtty = pack.Rec.InitQtty;
-				// @v7.8.5 {
 				PPGetExtStrData(TECEXSTR_CAPACITY, pack.ExtString, temp_buf);
 				if(temp_buf.NotEmptyS()) {
 					double capacity = 0.0;
@@ -170,7 +169,6 @@ int SLAPI PPObjTech::CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, in
 						new_pack.Rec.Capacity = capacity;
 					}
 				}
-				// } @v7.8.5
 				STRNSCPY(new_pack.Rec.Memo, pack.Rec.Memo);
 				THROW(PutPacket(&tech_id, &new_pack, 0));
 				THROW(tra.Commit());
@@ -191,6 +189,12 @@ int SLAPI PPObjTech::CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, in
 int SLAPI PPObjTech::Search(PPID id, void * b)
 {
 	return SearchByID(P_Tbl, Obj, id, b);
+}
+
+//virtual 
+const char * SLAPI PPObjTech::GetNamePtr() 
+{ 
+	return P_Tbl->data.Code; 
 }
 
 int SLAPI PPObjTech::SearchByCode(const char * pCode, TechTbl::Rec * pRec)
@@ -268,7 +272,7 @@ int SLAPI PPObjTech::GetGoodsStruc(PPID id, PPGoodsStruc * pGs)
 {
 	int    ok = -1;
 	TechTbl::Rec tec_rec;
-	THROW_PP(pGs, PPERR_INVPARAM);
+	THROW_INVARG(pGs);
 	if(Fetch(id, &tec_rec) > 0 && tec_rec.GStrucID) {
 		PPObjGoodsStruc gs_obj;
 		THROW_PP(gs_obj.Get(tec_rec.GStrucID, pGs) > 0, PPERR_UNDEFGOODSSTRUC);
@@ -376,7 +380,7 @@ int SLAPI PPObjTech::DeleteObj(PPID id)
 int SLAPI PPObjTech::GetPacket(PPID id, PPTechPacket * pPack)
 {
 	int    ok = -1;
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	if(Search(id, &pPack->Rec) > 0) {
 		THROW(PPRef->GetPropVlrString(Obj, id, TECPRP_EXTSTR, pPack->ExtString));
 		ok = 1;
@@ -470,15 +474,6 @@ struct CalcCapacity {
 	int    SLAPI Save() const;
 	int    SLAPI Restore();
 
-	/* @v7.5.8
-	enum TimeUnit {
-		tuSec = 0,
-		tuMin,
-		tuHour,
-		tuDay
-	};
-	TimeUnit Tu;
-	*/
 	enum {
 		fReverse  = 0x0001,
 		fAbsolute = 0x0002
@@ -776,7 +771,7 @@ void TechDialog::setupCtrls()
 	ProcessorTbl::Rec prc_rec;
 	MEMSZERO(prc_rec);
 	PrcObj.GetRecWithInheritance(Data.Rec.PrcID, &prc_rec, 1);
-	disableCtrl(CTL_TECH_CIPMAX, !(prc_rec.Flags & PRCF_ALLOWCIP)); // @v7.7.2
+	disableCtrl(CTL_TECH_CIPMAX, !(prc_rec.Flags & PRCF_ALLOWCIP));
 	if(Data.Rec.Sign > 0) {
 		if(prc_rec.ID && GetOpType(prc_rec.WrOffOpID) == PPOPT_GOODSMODIF)
 			enable_recompl_flag = 1;
@@ -810,8 +805,8 @@ int TechDialog::setDTS(const PPTechPacket * pData)
 	PrcCtrlGroup::Rec prc_grp_rec(Data.Rec.PrcID);
 	setGroupData(GRP_PRC, &prc_grp_rec);
 	SetupPPObjCombo(this, CTLSEL_TECH_GSTRUC, PPOBJ_GOODSSTRUC, Data.Rec.GStrucID, OLW_CANINSERT, (void *)NZOR(Data.Rec.GoodsID, -1));
-	SetupPPObjCombo(this, CTLSEL_TECH_PARENT, PPOBJ_TECH, Data.Rec.ParentID, OLW_CANSELUPLEVEL); // @v7.5.6
-	setCtrlLong(CTL_TECH_ORDERN, Data.Rec.OrderN); // @v7.5.6
+	SetupPPObjCombo(this, CTLSEL_TECH_PARENT, PPOBJ_TECH, Data.Rec.ParentID, OLW_CANSELUPLEVEL);
+	setCtrlLong(CTL_TECH_ORDERN, Data.Rec.OrderN);
 	AddClusterAssoc(CTL_TECH_SIGN,  0, -1);
 	AddClusterAssoc(CTL_TECH_SIGN,  1,  1);
 	AddClusterAssoc(CTL_TECH_SIGN,  2,  0);
@@ -819,12 +814,12 @@ int TechDialog::setDTS(const PPTechPacket * pData)
 	SetClusterData (CTL_TECH_SIGN, Data.Rec.Sign);
 	AddClusterAssoc(CTL_TECH_FLAGS, 0, TECF_RECOMPLMAINGOODS);
 	AddClusterAssoc(CTL_TECH_FLAGS, 1, TECF_CALCTIMEBYROWS);
-	AddClusterAssoc(CTL_TECH_FLAGS, 2, TECF_AUTOMAIN); // @v6.4.4
+	AddClusterAssoc(CTL_TECH_FLAGS, 2, TECF_AUTOMAIN);
 	SetClusterData (CTL_TECH_FLAGS, Data.Rec.Flags);
 	setCtrlData(CTL_TECH_ROUNDING, &Data.Rec.Rounding);
 	setCtrlData(CTL_TECH_INITQTTY, &Data.Rec.InitQtty);
 	setCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
-	setCtrlData(CTL_TECH_CIPMAX, &Data.Rec.CipMax); // @v7.7.2
+	setCtrlData(CTL_TECH_CIPMAX, &Data.Rec.CipMax);
 	setupCtrls();
 	return 1;
 }
@@ -849,7 +844,7 @@ int TechDialog::getDTS(PPTechPacket * pData)
 	Data.Rec.PrcID = prc_grp_rec.PrcID;
 	sel = CTLSEL_TECH_PRC;
 	THROW_PP(Data.Rec.PrcID, PPERR_PRCNEEDED);
-	getCtrlData(CTLSEL_TECH_PARENT, &Data.Rec.ParentID); // @v7.5.6
+	getCtrlData(CTLSEL_TECH_PARENT, &Data.Rec.ParentID);
 	sel = CTLSEL_TECH_GOODS;
 	THROW(getGroupData(GRP_GOODS, &rec));
 	if(Data.Rec.Kind == 0)
@@ -931,8 +926,8 @@ int ToolingDialog::setDTS(const PPTechPacket * pData)
 	disableCtrl(CTL_TECH_ID, 1);
 	PrcCtrlGroup::Rec prc_grp_rec(Data.Rec.PrcID);
 	setGroupData(GRP_PRC, &prc_grp_rec);
-	SetupPPObjCombo(this, CTLSEL_TECH_PARENT, PPOBJ_TECH, Data.Rec.ParentID, OLW_CANSELUPLEVEL, 0); // @v7.5.6
-	setCtrlLong(CTL_TECH_ORDERN, Data.Rec.OrderN); // @v7.5.6
+	SetupPPObjCombo(this, CTLSEL_TECH_PARENT, PPOBJ_TECH, Data.Rec.ParentID, OLW_CANSELUPLEVEL, 0);
+	setCtrlLong(CTL_TECH_ORDERN, Data.Rec.OrderN);
 	{
 		GoodsCtrlGroup::Rec rec(0, Data.Rec.GoodsID, 0, GoodsCtrlGroup::enableInsertGoods);
 		setGroupData(GRP_GOODS, &rec);
@@ -971,7 +966,7 @@ int ToolingDialog::getDTS(PPTechPacket * pData)
 	Data.Rec.PrcID = prc_grp_rec.PrcID;
 	sel = CTLSEL_TECH_PRC;
 	THROW_PP(Data.Rec.PrcID, PPERR_PRCNEEDED);
-	getCtrlData(CTLSEL_TECH_PARENT, &Data.Rec.ParentID); // @v7.5.6
+	getCtrlData(CTLSEL_TECH_PARENT, &Data.Rec.ParentID);
 	sel = CTLSEL_TECH_GOODS;
 	{
 		GoodsCtrlGroup::Rec rec;
@@ -1011,7 +1006,7 @@ int SLAPI PPObjTech::EditDialog(PPTechPacket * pData)
 			DIALOG_PROC_BODY(ToolingDialog, pData);
 		}
 	}
-	return PPSetError(PPERR_INVPARAM);
+	return PPSetErrorInvParam();
 }
 
 int SLAPI PPObjTech::InitPacket(PPTechPacket * pPack, long extraData, int use_ta)
@@ -1070,7 +1065,7 @@ int SLAPI PPObjTech::Edit(PPID * pID, void * extraPtr)
 int SLAPI PPObjTech::ChangeOrderN(PPID techID, int sow, int use_ta)
 {
 	int    ok = -1;
-	THROW_PP(oneof2(sow, SOW_NORD, SOW_SOUTH), PPERR_INVPARAM);
+	THROW_INVARG(oneof2(sow, SOW_NORD, SOW_SOUTH));
 	{
 		int    do_swap = 0;
 		PPID   swap_id = 0;
@@ -1503,7 +1498,7 @@ int TechFiltDialog::setDTS(const TechFilt * pData)
 	Data = *pData;
 	PrcCtrlGroup::Rec prc_grp_rec(Data.PrcID);
 	setGroupData(GRP_PRC, &prc_grp_rec);
-	SetupPPObjCombo(this, CTLSEL_TECHFILT_PARENT, PPOBJ_TECH, Data.ParentID, OLW_SETUPSINGLE, 0); // @v7.5.6
+	SetupPPObjCombo(this, CTLSEL_TECHFILT_PARENT, PPOBJ_TECH, Data.ParentID, OLW_SETUPSINGLE, 0);
 	GoodsCtrlGroup::Rec rec(0, Data.GoodsID);
 	setGroupData(GRP_GOODS, &rec);
 	AddClusterAssoc(CTL_TECHFILT_KIND, 0, 0);
@@ -1656,12 +1651,12 @@ DBQuery * SLAPI PPViewTech::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 	q->addField(p_tect->Duration);  // #7
 	q->addField(dbe_prev_goods);    // #8
 	q->addField(p_tect->InitQtty);  // #9
-	q->addField(dbe_parent);        // #10 @v7.5.6
-	q->addField(p_tect->OrderN);    // #11 @v7.5.6
+	q->addField(dbe_parent);        // #10
+	q->addField(p_tect->OrderN);    // #11
 	dbq = ppcheckfiltid(dbq, p_tect->GoodsID, Filt.GoodsID);
 	dbq = ppcheckfiltid(dbq, p_tect->PrcID, Filt.PrcID);
 	dbq = ppcheckfiltid(dbq, p_tect->GStrucID, Filt.GStrucID);
-	dbq = ppcheckfiltid(dbq, p_tect->ParentID, Filt.ParentID); // @v7.5.6
+	dbq = ppcheckfiltid(dbq, p_tect->ParentID, Filt.ParentID);
 	if(Filt.Sign == TechFilt::signMinusOnly)
 		dbq = &(*dbq && p_tect->Sign < 0L);
 	else if(Filt.Sign == TechFilt::signPlusOnly)
@@ -1676,8 +1671,7 @@ DBQuery * SLAPI PPViewTech::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 	else if(Filt.PrcID)
 		q->orderBy(p_tect->PrcID, 0L);
 	else {
-		// @v7.5.6 q->orderBy(p_tect->Code, 0L);
-		q->orderBy(p_tect->ParentID, p_tect->OrderN, 0L); // @v7.5.6
+		q->orderBy(p_tect->ParentID, p_tect->OrderN, 0L);
 	}
 	THROW(CheckQueryPtr(q));
 	if(pSubTitle) {
@@ -1952,8 +1946,8 @@ private:
 
 IMPL_CMPFUNC(ToolingEntry, i1, i2)
 {
-	ToolingSelector::Entry * p1 = (ToolingSelector::Entry *)i1;
-	ToolingSelector::Entry * p2 = (ToolingSelector::Entry *)i2;
+	const ToolingSelector::Entry * p1 = (ToolingSelector::Entry *)i1;
+	const ToolingSelector::Entry * p2 = (ToolingSelector::Entry *)i2;
 	if(p1->PrcID == p2->PrcID)
 		if(p1->GoodsID == p2->GoodsID)
 			if(p1->PrevGoodsID == p2->PrevGoodsID)

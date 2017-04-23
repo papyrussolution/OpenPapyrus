@@ -324,13 +324,13 @@ static void TK_options(GpCommand & rC)
 			case TK_SIZE: {
 			    rC.CToken++;
 			    if(rC.EndOfCommand())
-				    GpGg.IntError(rC, rC.CToken, "size requires 'width,heigth'");
+				    GpGg.IntErrorCurToken("size requires 'width,heigth'");
 			    tk_width = rC.RealExpression();
 			    if(!rC.Eq(rC.CToken++, ","))
-				    GpGg.IntError(rC, rC.CToken, "size requires 'width,heigth'");
+				    GpGg.IntErrorCurToken("size requires 'width,heigth'");
 			    tk_height = rC.RealExpression();
 			    if(tk_width < 1 || tk_height < 1)
-				    GpGg.IntError(rC, rC.CToken, "size is out of range");
+				    GpGg.IntErrorCurToken("size is out of range");
 			    break;
 		    }
 			case TK_ENHANCED:
@@ -355,7 +355,7 @@ static void TK_options(GpCommand & rC)
 			case TK_OTHER:
 			default:
 			    rC.CToken++;
-			    GpGg.IntError(rC, rC.CToken, "unknown option");
+			    GpGg.IntErrorCurToken("unknown option");
 			    break;
 		}
 	}
@@ -592,9 +592,7 @@ static int TK_make_palette(t_sm_palette * palette)
 static void TK_color(t_colorspec * colorspec)
 {
 	char tmp_color[20];
-
 	strnzcpy(tmp_color, tk_color, sizeof(tmp_color));
-
 	switch(colorspec->type) {
 		case TC_LT: {
 		    int linetype = colorspec->lt;

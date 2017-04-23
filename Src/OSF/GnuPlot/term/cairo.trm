@@ -282,7 +282,7 @@ static void cairotrm_options(GpCommand & rC)
 		case CAIROTRM_FONT:
 			rC.CToken++;
 			if(!(s = rC.TryToGetString()))
-				GpGg.IntError(rC, rC.CToken,"font: expecting string");
+				GpGg.IntErrorCurToken("font: expecting string");
 			if(!(*s)) {
 				strcpy (cairo_params->fontname, "");
 				cairo_params->fontsize = 0;
@@ -303,14 +303,14 @@ static void cairotrm_options(GpCommand & rC)
 			break;
 		case CAIROTRM_ENHANCED:
 			if(ISCAIROLATEX)
-				GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			rC.CToken++;
 			cairo_params->enhanced = true;
 			term->flags |= TERM_ENHANCED_TEXT;
 			break;
 		case CAIROTRM_NOENHANCED:
 			if(ISCAIROLATEX)
-				GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			rC.CToken++;
 			cairo_params->enhanced = false;
 			term->flags &= ~TERM_ENHANCED_TEXT;
@@ -412,7 +412,7 @@ static void cairotrm_options(GpCommand & rC)
 #ifdef PSLATEX_DRIVER
 		case CAIROLATEX_STANDALONE:
 			if(!ISCAIROLATEX)
-				GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			ps_params->epslatex_standalone = true;
 			++rC.CToken;
 			if(set_standalone) duplication = true;
@@ -420,7 +420,7 @@ static void cairotrm_options(GpCommand & rC)
 			break;
 		case CAIROLATEX_INPUT:
 			if(!ISCAIROLATEX)
-				GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			ps_params->epslatex_standalone = false;
 			++rC.CToken;
 			if(set_standalone) duplication = true;
@@ -428,20 +428,20 @@ static void cairotrm_options(GpCommand & rC)
 			break;
 		case CAIROLATEX_HEADER:
 			if(!ISCAIROLATEX)
-				GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			++rC.CToken;
 			free(epslatex_header);
 			/* Protect against int_error() bail from rC.TryToGetString() */
 			epslatex_header = NULL;
 			epslatex_header = rC.TryToGetString();
 			if(!epslatex_header)
-				GpGg.IntError(rC, rC.CToken,"String containing header information expected");
+				GpGg.IntErrorCurToken("String containing header information expected");
 			if(set_header) duplication = true;
 			set_header = true;
 			break;
 		case CAIROLATEX_NOHEADER:
 			if(!ISCAIROLATEX)
-				GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+				GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			free(epslatex_header);
 			epslatex_header = NULL;
 			if(set_header) duplication = true;
@@ -450,29 +450,29 @@ static void cairotrm_options(GpCommand & rC)
 			break;
 		case CAIROLATEX_BLACKTEXT:
 			if(!ISCAIROLATEX)
-				GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s",term->name);
+				GpGg.IntErrorCurToken("extraneous argument in set terminal %s",term->name);
 			ps_params->blacktext = true;
 			rC.CToken++;
 			break;
 		case CAIROLATEX_COLORTEXT:
 			if(!ISCAIROLATEX)
-				GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s",term->name);
+				GpGg.IntErrorCurToken("extraneous argument in set terminal %s",term->name);
 			ps_params->blacktext = false;
 			rC.CToken++;
 			break;
 		case CAIROLATEX_EPS:
 			if(!ISCAIROLATEX)
-				GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s",term->name);
+				GpGg.IntErrorCurToken("extraneous argument in set terminal %s",term->name);
 #ifdef HAVE_CAIROEPS
 			cairo_params->pdf_output = false;
 #else
-			GpGg.IntError(rC, rC.CToken, "eps output not supported");
+			GpGg.IntErrorCurToken("eps output not supported");
 #endif
 			rC.CToken++;
 			break;
 		case CAIROLATEX_PDF:
 			if(!ISCAIROLATEX)
-				GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s",term->name);
+				GpGg.IntErrorCurToken("extraneous argument in set terminal %s",term->name);
 			cairo_params->pdf_output = true;
 			rC.CToken++;
 			break;
@@ -485,12 +485,12 @@ static void cairotrm_options(GpCommand & rC)
 			    break;
 			}
 		default:
-			GpGg.IntError(rC, rC.CToken, "unrecognized terminal option");
+			GpGg.IntErrorCurToken("unrecognized terminal option");
 			break;
 		}
 
 		if(duplication)
-			GpGg.IntError(rC, rC.CToken-1, "Duplicated or contradicting arguments in cairo terminal options.");
+			GpGg.IntError(rC.CToken-1, "Duplicated or contradicting arguments in cairo terminal options.");
 	}
 
 #if 0
@@ -615,10 +615,10 @@ void cairotrm_init()
 	FPRINTF((stderr,"Init\n"));
 	/* do a sanity check for once */
 	if(strcmp(term->name, "epscairo") && strcmp(term->name, "cairolatex") && strcmp(term->name, "pdfcairo") && strcmp(term->name, "pngcairo"))
-		GpGg.IntError(GpC, GpC.CToken, "Unrecognized cairo terminal");
+		GpGg.IntErrorCurToken("Unrecognized cairo terminal");
 	/* cairolatex requires a file */
 	if(ISCAIROLATEX && !outstr)
-	    os_error(GpC.CToken, "cairolatex terminal cannot write to standard output");
+	    os_error(GpGg.Gp__C.CToken, "cairolatex terminal cannot write to standard output");
 	/* initialisations */
 	gp_cairo_initialize_plot(&plot);
 	plot.device_xmax = (double) cairo_params->width;

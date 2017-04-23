@@ -798,7 +798,7 @@ int SLAPI PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
 	int    ok = 1;
 	SString tmp_log_fpath, fmt_buf, msg_buf;
 	PPJob  inner_job;
-	THROW_PP(pMngr && pJob, PPERR_INVPARAM);
+	THROW_INVARG(pMngr && pJob);
 	if(pJob->NextJobID) {
 		//
 		// “естируем цепочку задач на отсутствие рекурсии
@@ -1784,7 +1784,7 @@ private:
 		CCheckViewItem item;
 		CCheckFilt     f;
 		PPViewCCheck   v;
-		THROW_PP(pList, PPERR_INVPARAM);
+		THROW_INVARG(pList);
 		f.Flags = CCheckFilt::fShowSuspended|CCheckFilt::fSuspendedOnly|CCheckFilt::fCTableStatus;
 		f.TableCode = tblId;
 		f.NodeList.Add(P_Prcssr->GetPosNodeID());
@@ -2957,7 +2957,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 			break;
 		case PPSCMD_SOBLK:
 			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
-			THROW_PP(pEv->P_SoBlk, PPERR_INVPARAM);
+			THROW_INVARG(pEv->P_SoBlk);
 			THROW(r = pEv->P_SoBlk->Execute(rReply));
 			break;
 		case PPSCMD_POS_INIT:
@@ -4774,10 +4774,10 @@ int SLAPI run_client()
 			gets(cmd);
 #endif
 			if(*strip(cmd)) {
-				if(stricmp(cmd, "exit") == 0)
+				if(sstreqi_ascii(cmd, "exit"))
 					break;
 				// @v7.3.2 @debug {
-				else if(stricmp(cmd, "pingtest") == 0) {
+				else if(sstreqi_ascii(cmd, "pingtest")) {
 					if(cli.Exec("ping term 0A", "0A", reply)) {
 						int r = reply.StartReading(&reply_str);
 						if(r == 2) {
@@ -4802,7 +4802,7 @@ int SLAPI run_client()
 					}
 				}
 				// } @v7.3.2 @debug
-				else if(stricmp(cmd, "connect") == 0) {
+				else if(sstreqi_ascii(cmd, "connect")) {
 					if(cli.GetState() & PPJobSrvClient::stConnected) {
 						printf("Allready connected\n");
 					}

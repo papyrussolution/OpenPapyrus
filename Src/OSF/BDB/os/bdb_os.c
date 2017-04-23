@@ -53,7 +53,7 @@ typedef union {
 int __os_umalloc(ENV * env, size_t size, void * storep)
 {
 	int ret;
-	DB_ENV * dbenv = (env == NULL) ? NULL : env->dbenv;
+	DB_ENV * dbenv = env ? env->dbenv : 0;
 	/* Never allocate 0 bytes -- some C libraries don't like it. */
 	if(size == 0)
 		++size;
@@ -89,7 +89,7 @@ int __os_umalloc(ENV * env, size_t size, void * storep)
 int __os_urealloc(ENV * env, size_t size, void * storep)
 {
 	int ret;
-	DB_ENV * dbenv = (env == NULL) ? NULL : env->dbenv;
+	DB_ENV * dbenv = env ? env->dbenv : 0;
 	void * ptr = *(void **)storep;
 	/* Never allocate 0 bytes -- some C libraries don't like it. */
 	if(size == 0)

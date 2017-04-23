@@ -337,7 +337,7 @@ int SLAPI SCardCore::MakeCodeByTemplate(PPID seriesID, const char * pPattern, SS
 	char   templ[64];
 	char * c = pfx;
 	char * x, * p = 0;
-	THROW_PP(pPattern, PPERR_INVPARAM);
+	THROW_INVARG(pPattern);
 	assert(pPattern);
 	STRNSCPY(templ, pPattern);
 	p = strip(templ);

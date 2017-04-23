@@ -538,7 +538,7 @@ char * locale_handler(int action, char * newlocale)
 					current_locale = gp_strdup(setlocale(LC_TIME, NULL));
 				}
 				else {
-					GpGg.IntError(GpC, GpC.CToken, "Locale not available");
+					GpGg.IntErrorCurToken("Locale not available");
 				}
 				// we can do a *lot* better than this ; eg use system functions
 				// where available; create values on first use, etc

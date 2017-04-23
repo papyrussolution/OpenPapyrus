@@ -417,7 +417,7 @@ int PsnOpKindView::editItem(long, long id)
 int PsnOpKindView::delItem(long, long id)
 {
 	int    ok = -1;
-	if(id && PPMessage(mfConf|mfYesNo, PPCFM_DELETE, 0) == cmYes) {
+	if(id && PPMessage(mfConf|mfYesNo, PPCFM_DELETE) == cmYes) {
 		ok = Obj.PutPacket(&id, 0, 1);
 		if(!ok)
 			PPError();
@@ -1696,7 +1696,7 @@ int PoVerbListDialog::editItem(long pos, long)
 int PoVerbListDialog::delItem(long pos, long)
 {
 	if(pos >= 0 && pos < (long)Data.GetCount()) {
- 		if(PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE, 0) == cmYes) {
+ 		if(PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE) == cmYes) {
 			Data.Set((uint)pos, 0);
 			return 1;
 		}

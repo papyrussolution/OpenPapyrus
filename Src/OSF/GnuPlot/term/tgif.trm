@@ -308,11 +308,11 @@ static void TGIF_options(GpCommand & rC)
 			case TGIF_LINEWIDTH:
 			    rC.CToken++;
 			    if(rC.EndOfCommand()) {
-				    GpGg.IntError(rC, rC.CToken, "linewidth: width is not specified.");
+				    GpGg.IntErrorCurToken("linewidth: width is not specified.");
 			    }
 			    else {
 				    if((dActThick_default = rC.ConstExpress(&a)->Real())<=0.0) {
-					    GpGg.IntError(rC, rC.CToken-1, "linewidth: out of range");
+					    GpGg.IntError(rC.CToken-1, "linewidth: out of range");
 					    dActThick_default = 1.0;
 				    }
 			    }
@@ -330,19 +330,19 @@ static void TGIF_options(GpCommand & rC)
 			case TGIF_GRAPHS:
 			    rC.CToken++;
 			    if(rC.EndOfCommand()) {
-				    GpGg.IntError(rC, rC.CToken, "no. windows: [horizontal,vertical] expected");
+				    GpGg.IntErrorCurToken("no. windows: [horizontal,vertical] expected");
 			    }
 			    else if(!rC.Eq(",")) {
 				    uTgif_win_horiz = (int)rC.ConstExpress(&a)->Real();
 			    }
 			    if(!rC.Eq(","))
-				    GpGg.IntError(rC, rC.CToken, "',' expected");
+				    GpGg.IntErrorCurToken("',' expected");
 			    rC.CToken++;
 			    if(!rC.Eq("]")) {
 				    uTgif_win_verti = (int)rC.ConstExpress(&a)->Real();
 			    }
 			    if(!rC.Eq("]"))
-				    GpGg.IntError(rC, rC.CToken, "expecting ']'");
+				    GpGg.IntErrorCurToken("expecting ']'");
 			    rC.CToken++;
 			    uTgifPlotsPerPage = uTgif_win_verti * uTgif_win_horiz;
 			    break;
@@ -374,7 +374,7 @@ static void TGIF_options(GpCommand & rC)
 				    free(s);
 			    }
 			    else if(option == TGIF_FONT) {
-				    GpGg.IntError(rC, rC.CToken, "Expecting font name ");
+				    GpGg.IntErrorCurToken("Expecting font name ");
 			    }
 			    else {
 				    /* We have font size specified */

@@ -818,7 +818,7 @@ int SLAPI PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 	ObjAssocTbl::Rec   oa_rec;
 	PPIDArray oa_ary;
 	PPID   id;
-	THROW_PP(pID, PPERR_INVPARAM);
+	THROW_INVARG(pID);
 	THROW(CheckRightsModByID(pID));
 	if(*pID == 0) {
 		MEMSZERO(ar_rec);
@@ -1936,7 +1936,7 @@ int SLAPI PPObjArticle::CheckObject(const ArticleTbl::Rec * pRec, SString * pMsg
 	SString ar_buf;
 	PPObjAccSheet acs_obj;
 	PPAccSheet acs_rec;
-	THROW_PP(pRec, PPERR_INVPARAM);
+	THROW_INVARG(pRec);
 	MakeCodeString(pRec, 0x0001, ar_buf);
 	THROW_PP(acs_obj.Fetch(pRec->AccSheetID, &acs_rec) > 0, PPERR_AR_INVACCSHEET);
 	if(acs_rec.Assoc == PPOBJ_PERSON) {

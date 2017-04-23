@@ -1,12 +1,12 @@
 // PPFTP.CPP
-// Copyright (c) A. Starodub 2005, 2006, 2009, 2010, 2014, 2016
+// Copyright (c) A. Starodub 2005, 2006, 2009, 2010, 2014, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <ppftp.h>
-#include <idea.h>
+// @v9.6.3 #include <idea.h>
 //
 //
 //
@@ -36,7 +36,7 @@ int SLAPI PPFTP::Connect(PPInternetAccount * pAccount)
 	SString reply, temp_buf;
 	InetAddr addr;
 	OurAddr.Set(ADDR_ANY);
-	THROW_PP(pAccount, PPERR_INVPARAM);
+	THROW_INVARG(pAccount);
 	Account = *pAccount;
 	Account.GetExtField(FTPAEXSTR_HOST, temp_buf);
 	addr.Set(temp_buf, Account.GetSendPort());
@@ -65,7 +65,7 @@ int SLAPI PPFTP::Delete(const char * pPath)
 	int    ok = 1;
 	char   drv[MAXDRIVE], dir[MAXDIR], name[MAXFILE + MAXEXT], ext[MAXEXT];
 	SString reply;
-	THROW_PP(pPath, PPERR_INVPARAM);
+	THROW_INVARG(pPath);
 	fnsplit(pPath, drv, dir, name, ext);
 	strcat(setLastSlash(name), ext);
 	if(dir[0] != '\0')
@@ -103,7 +103,7 @@ int SLAPI PPFTP::GetFileInfo(const char * pServerPath, LDATETIME * pFileDtTm, ul
 	InetAddr addr;
 	TcpSocket ftp_conn(Account.Timeout, 1);
 	STRNSCPY(type_i, onecstr(FTPTRFRTYPE_IMAGE));
-	THROW_PP(pServerPath, PPERR_INVPARAM);
+	THROW_INVARG(pServerPath);
 	fnsplit(pServerPath, drv, dir, fname, ext);
 	strcat(fname, ext);
 	if(dir[0] != '\0')
@@ -173,13 +173,13 @@ int SLAPI PPFTP::GetFileInfo(const char * pServerPath, LDATETIME * pFileDtTm, ul
 int SLAPI PPFTP::Put(const char * pLocalPath, const char * pServerPath, int checkDtTm, PercentFunc pf)
 {
 	return (pLocalPath && pServerPath) ?
-		FileTransfer(pLocalPath, pServerPath, 1, checkDtTm, pf) : PPSetError(PPERR_INVPARAM);
+		FileTransfer(pLocalPath, pServerPath, 1, checkDtTm, pf) : PPSetErrorInvParam();
 }
 
 int SLAPI PPFTP::Get(const char * pLocalPath, const char * pServerPath, int checkDtTm, PercentFunc pf)
 {
 	return (pLocalPath && pServerPath) ?
-		FileTransfer(pLocalPath, pServerPath, 0, checkDtTm, pf) : PPSetError(PPERR_INVPARAM);
+		FileTransfer(pLocalPath, pServerPath, 0, checkDtTm, pf) : PPSetErrorInvParam();
 }
 
 int SLAPI PPFTP::FileTransfer(const char * pLocalPath, const char * pServerPath, int send, int checkDtTm, PercentFunc pf)
@@ -275,7 +275,7 @@ int SLAPI PPFTP::SendPort(InetAddr * pAddr, char aType)
 	int    ok = 1;
 	char   type[2];
 	SString str_addr;
-	THROW_PP(pAddr, PPERR_INVPARAM);
+	THROW_INVARG(pAddr);
 	type[0] = aType;
 	type[1] = 0;
 	pAddr->ToStr(InetAddr::fmtAddr, str_addr);

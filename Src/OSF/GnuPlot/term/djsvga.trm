@@ -160,7 +160,7 @@ DJSVGA_options()
 {
     char *font = NULL;
 
-    if(!GpC.EndOfCommand() && ((font = GpC.TryToGetString()))) {
+    if(!GpGg.Gp__C.EndOfCommand() && ((font = GpGg.Gp__C.TryToGetString()))) {
 	strncpy(DJSVGA_fontname, font, MAX_ID_LEN-1);
 	free(font);
     }
@@ -378,7 +378,7 @@ DJSVGA_set_font(const char *fontname)
 	DJSVGA_TextOption.txo_font = font;
 	return true;
     } else {
-	GpGg.IntError(GpC, NO_CARET, "Font not found");
+	GpGg.IntErrorNoCaret("Font not found");
 	return false;
     }
 }

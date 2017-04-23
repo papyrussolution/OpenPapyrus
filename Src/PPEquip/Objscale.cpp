@@ -4845,7 +4845,7 @@ int SLAPI PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 				THROW_DB(BTROKORNFOUND);
 			}
 			PPWait(0);
-			if(!(flags & fTrSkipListing) && PPMessage(mfConf|mfYesNo, PPCFM_PRINTEXPLP15, 0) == cmYes)
+			if(!(flags & fTrSkipListing) && PPMessage(mfConf|mfYesNo, PPCFM_PRINTEXPLP15) == cmYes)
 				THROW(grv->Print(0));
 			ok = 1;
 		}

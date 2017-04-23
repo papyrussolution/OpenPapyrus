@@ -23,7 +23,7 @@ int SLAPI PPObjRegister::InitPacket(RegisterTbl::Rec * pRec, PPID regTypeID, PPI
 		}
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 

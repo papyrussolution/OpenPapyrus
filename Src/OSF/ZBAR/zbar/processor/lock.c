@@ -144,9 +144,7 @@ void _zbar_processor_notify (zbar_processor_t *proc,
     proc->wait_next = NULL;
     proc_waiter_t *waiter;
     for(waiter = proc->wait_head; waiter; waiter = waiter->next)
-        waiter->events = ((waiter->events & ~events) |
-                          (events & EVENT_CANCELED));
-
+        waiter->events = ((waiter->events & ~events) | (events & EVENT_CANCELED));
     if(!proc->lock_level) {
         waiter = proc_waiter_dequeue(proc);
         if(waiter)
@@ -154,13 +152,10 @@ void _zbar_processor_notify (zbar_processor_t *proc,
     }
 }
 
-static inline int proc_wait_unthreaded (zbar_processor_t *proc,
-                                        proc_waiter_t *waiter,
-                                        zbar_timer_t *timeout)
+static inline int proc_wait_unthreaded (zbar_processor_t *proc, proc_waiter_t *waiter, zbar_timer_t *timeout)
 {
     int blocking = proc->streaming && zbar_video_get_fd(proc->video) < 0;
     _zbar_mutex_unlock(&proc->mutex);
-
     int rc = 1;
     while(rc > 0 && (waiter->events & EVENTS_PENDING)) {
         /* FIXME lax w/the locking (though shouldn't matter...) */
@@ -186,22 +181,18 @@ static inline int proc_wait_unthreaded (zbar_processor_t *proc,
     return(rc);
 }
 
-int _zbar_processor_wait (zbar_processor_t *proc,
-                          uint events,
-                          zbar_timer_t *timeout)
+int _zbar_processor_wait (zbar_processor_t *proc, uint events, zbar_timer_t *timeout)
 {
     _zbar_mutex_lock(&proc->mutex);
     int save_level = proc->lock_level;
     proc_waiter_t *waiter = proc_waiter_queue(proc);
     waiter->events = events & EVENTS_PENDING;
-
     _zbar_processor_unlock(proc, 1);
     int rc;
     if(proc->threaded)
         rc = _zbar_event_wait(&waiter->notify, &proc->mutex, timeout);
     else
         rc = proc_wait_unthreaded(proc, waiter, timeout);
-
     if(rc <= 0 || !proc->threaded) {
         /* reacquire api lock */
         waiter->events &= EVENT_CANCELED;

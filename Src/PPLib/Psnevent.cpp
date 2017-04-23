@@ -473,7 +473,7 @@ int SLAPI PPObjPersonEvent::GetPacket(PPID id, PPPsnEventPacket * pPack)
 {
 	int    ok = 1;
 	RegisterArray regary;
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	THROW(pPack->Init(0));
 	THROW(Search(id, &pPack->Rec) > 0);
 	THROW(RegObj.P_Tbl->GetByEvent(id, &regary));
@@ -1464,7 +1464,7 @@ int SLAPI PsnEventDialog::GetParam(PPID pokID, Param * pParam)
 	int    ok = 1;
 	PPPsnOpKindPacket pok_pack;
 	PPObjPsnOpKind    pok_obj;
-	THROW_PP(pParam != 0, PPERR_INVPARAM);
+	THROW_INVARG(pParam != 0);
 	memzero(pParam, sizeof(*pParam));
 	THROW(pok_obj.GetPacket(pokID, &pok_pack) > 0);
 	STRNSCPY(pParam->DlgTitle, pok_pack.Rec.Name);
@@ -1657,7 +1657,7 @@ int PsnEventDialog::setDTS(PPPsnEventPacket * p)
 	int    disable_taglist = 0, disable_post = 0;
 	PPObjPsnOpKind pok_obj;
 
-	THROW_PP(p, PPERR_INVPARAM);
+	THROW_INVARG(p);
 	THROW_PP(p->Rec.OpID, PPERR_UNDEFPEOP);
 	THROW(pok_obj.GetPacket(p->Rec.OpID, &PokPack) > 0);
 	THROW(PokPack.CheckExVal());

@@ -558,7 +558,7 @@ int SLAPI PPObject::CreateReservedObjects(long flags)
 					GetOpList(PPOPT_DRAFTRECEIPT, &temp_op_list);
 					for(uint i = 0; i < temp_op_list.getCount(); i++) {
 						const PPID temp_op_id = temp_op_list.get(i);
-						if(op_obj.Search(temp_op_id, &op_rec) > 0 && op_rec.AccSheetID == suppl_acs_id) 
+						if(op_obj.Search(temp_op_id, &op_rec) > 0 && op_rec.AccSheetID == suppl_acs_id)
 							candid_list.add(temp_op_id);
 					}
 					if(candid_list.getCount() == 1)
@@ -688,7 +688,7 @@ int SLAPI PPObject::EditPrereq(PPID * pID, TDialog * pDlg, int * pIsNew)
 	int    ok = 1, is_new = 0;
 	assert(pID);
 	if(!pID)
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	else if(!CheckRights(PPR_READ))
 		ok = 0;
 	else if(*pID == 0) {
@@ -860,7 +860,7 @@ int FASTCALL PPObject::CheckRights(long rt)
 
 int SLAPI PPObject::CheckRightsModByID(const PPID * pID)
 {
-	return pID ? CheckRights(*pID ? PPR_MOD : PPR_INS) : PPSetError(PPERR_INVPARAM);
+	return pID ? CheckRights(*pID ? PPR_MOD : PPR_INS) : PPSetErrorInvParam();
 }
 
 int SLAPI GenericObjRightsDialog(PPID obj, ObjRights * rt, EmbedDialog * pDlg)
@@ -1024,7 +1024,7 @@ int SLAPI PPObject::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, 
 	int    r;
 	if(!(options & not_checkrights))
 		THROW(CheckRights(PPR_DEL));
-	r = (options & user_request) ? PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE, 0) : cmYes;
+	r = (options & user_request) ? PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE) : cmYes;
 	if(r == cmYes) {
 		if(!(options & no_wait_indicator))
 			PPWait(1);
@@ -1140,7 +1140,7 @@ int SLAPI PPGetObjTypeList(PPIDArray * pList, long flags)
 		pList->sortAndUndup();
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 //
@@ -1384,7 +1384,7 @@ int SLAPI PPObject::Identify(const char * pObjType, const char * pObjIdent, PPOb
 				ok = p_ref->SearchSymb(ident.Obj, &ident.Id, pObjIdent, offsetof(ReferenceTbl::Rec, Symb));
 				break;
 			case PPOBJ_LOCATION:
-				if(stricmp(pObjIdent, "_undef") == 0) {
+				if(sstreqi_ascii(pObjIdent, "_undef")) {
 					ident.Id = 0;
 				}
 				else {

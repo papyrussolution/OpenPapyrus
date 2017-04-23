@@ -1125,9 +1125,9 @@ int SLAPI PPUserProfileCore::ParseUfpLine(StringSet & rSs, SString & rTempBuf, i
 		THROW(rSs.get(&p, rTempBuf));
 		THROW(rItem.Ver.FromStr(rTempBuf));
 		THROW(rSs.get(&p, rItem.DbSymb));
-		rItem.DbSymb.ToOem(); // @v8.1.2
+		rItem.DbSymb.Transf(CTRANSF_OUTER_TO_INNER); // @v8.1.2
 		THROW(rSs.get(&p, rItem.UserName));
-		rItem.UserName.ToOem(); // @v8.1.2
+		rItem.UserName.Transf(CTRANSF_OUTER_TO_INNER); // @v8.1.2
 		THROW(rSs.get(&p, rItem.MachineName));
 		THROW(rSs.get(&p, rTempBuf)); // MAC address
 		THROW(rSs.get(&p, rTempBuf));

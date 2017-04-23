@@ -263,7 +263,7 @@ SLAPI Sem::Sem(int initVal) : SWaitableObject()
 
 int SLAPI Sem::Release(int count)
 {
-	return ReleaseSemaphore(H, count, 0) ? 1 : 0;
+	return BIN(ReleaseSemaphore(H, count, 0));
 }
 //
 //
@@ -279,7 +279,7 @@ SLAPI SMutex::SMutex(int initialValue, const char * pName) : SWaitableObject()
 
 int SLAPI SMutex::Release()
 {
-	return ::ReleaseMutex(H) ? 1 : 0;
+	return BIN(::ReleaseMutex(H));
 }
 //
 //
@@ -303,14 +303,14 @@ int SLAPI STimer::Set(const LDATETIME & rDtm, long period)
 		due_time.LowPart = ft_utc.dwLowDateTime;
 		due_time.HighPart = ft_utc.dwHighDateTime;
 
-		ok = SetWaitableTimer(H, &due_time, period, 0, 0, 0) ? 1 : 0;
+		ok = BIN(SetWaitableTimer(H, &due_time, period, 0, 0, 0));
 	}
 	return ok;
 }
 
 int SLAPI STimer::Cancel()
 {
-	return (H && CancelWaitableTimer(H)) ? 1 : 0;
+	return BIN(H && CancelWaitableTimer(H));
 }
 //
 //
@@ -653,8 +653,9 @@ SLTEST_R(Evnt)
 #endif
 			*P_SignalVar = Id;
 			delay(500);
+			*P_SignalVar = -(int)Id; // @v9.6.3
 			evnt_finish.Signal();
-			*P_SignalVar = -(int)Id;
+			// @v9.6.3 *P_SignalVar = -(int)Id;
 		}
 	private:
 		uint   Id;

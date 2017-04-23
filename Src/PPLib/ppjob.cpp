@@ -8,7 +8,7 @@
 #include <process.h>
 #include <comdef.h>		// COM для WMI
 #include <wbemidl.h>	// WMI для удаленного запуска процессов
-#include <idea.h>		// шифрование пароля доступа WMI
+// @v9.6.3 #include <idea.h>		// шифрование пароля доступа WMI
 #include <charry.h>
 
 #define JOB_FACTORY_PRFX JFF_
@@ -1917,7 +1917,7 @@ public:
 			pBillParam->ProcessName(1, (sect = pBillParamName));
 			THROW_PP_S(pBillParam->ReadIni(&ini_file, sect, 0) > 0, PPERR_INVBILLEXPCFG, pBillParamName);
 			// @vmiller {
-			// Если имя pBillParamName соответсвует одной из строк перечисления PPTXT_EDIEXPCMD, то экспорт
+			// Если имя pBillParamName соответствует одной из строк перечисления PPTXT_EDIEXPCMD, то экспорт
 			// происходит через dll, более того, это режим EDI
 			{
 				SString buf;
@@ -2178,7 +2178,7 @@ public:
 
 		filt.Init(); // @vmiller
 		const size_t sav_offs = pParam->GetRdOffs();
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
 		THROW(CheckDialogPtr(&p_dlg));
 		filt.Filt.SetupBrowseBillsType(filt.Filt.Bbt = bbtUndef);
 		if(pParam->GetAvailableSize() != 0)
@@ -2339,7 +2339,7 @@ public:
 		ExportGoodsParam param;
 		ExportGoodsFiltDialog * dlg = new ExportGoodsFiltDialog;
 		size_t sav_offs = pParam->GetRdOffs();
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
 		THROW(CheckDialogPtr(&dlg));
 		if(pParam->GetAvailableSize() != 0)
 			param.Read(*pParam, 0);
@@ -2396,7 +2396,7 @@ public:
 		size_t sav_offs = 0;
 		SStatFilt * p_filt = 0;
 		PPViewSStat view;
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
 		sav_offs = pParam->GetRdOffs();
 		THROW_MEM(p_filt = (SStatFilt*)view.CreateFilt((void *)1));
 		if(pParam->GetAvailableSize() != 0)
@@ -2992,7 +2992,7 @@ public:
 		size_t sav_offs = 0;
 		PPIDArray dev_list;
 		ListToListData l2_data(PPOBJ_RFIDDEVICE, 0, &dev_list);
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
 		sav_offs = pParam->GetRdOffs();
 		if(pParam->GetAvailableSize() != 0)
 			pParam->Read(&dev_list, 0);
@@ -3048,7 +3048,7 @@ public:
 		SCardSelPrcssrParam param;
 		PPViewSCard view;
 		SCardSelPrcssrDlg * p_dlg = new SCardSelPrcssrDlg(&view, 1);
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
 		THROW(CheckDialogPtr(&p_dlg));
 		sav_offs = pParam->GetRdOffs();
 		if(pParam->GetAvailableSize() != 0)
@@ -3101,7 +3101,7 @@ public:
 		int    ok = -1;
 		size_t sav_offs = 0;
 		QuotUpdFilt filt;
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
 		sav_offs = pParam->GetRdOffs();
 		if(!pParam->GetAvailableSize()) {
 			filt.LocList.Add(LConfig.Location);
@@ -3127,7 +3127,7 @@ public:
 	{
 		int    ok = 1;
 		QuotUpdFilt filt;
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
 		THROW(filt.Read(*pParam, 0));
 		filt.Flags &= ~QuotUpdFilt::fWarnExistsAbsQuot;
 		THROW(UpdateQuots(&filt));
@@ -3188,7 +3188,7 @@ public:
 		TDialog * dlg = 0;
 		PPNamedFiltMngr nf_mngr;
 		SString db_symb;
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
 		THROW_PP(CurDict->GetDbSymb(db_symb) > 0, PPERR_DBSYMBUNDEF);
 
 		sav_offs = pParam->GetRdOffs();
@@ -3242,7 +3242,7 @@ public:
 			const PPThreadLocalArea & r_tla = DS.GetConstTLA();
 			assert((&r_tla) != 0);
 		// } @debug
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
 		THROW(param.Read(*pParam, 0));
 		THROW(PPView::ExecuteNF(param.NfSymb, param.Dl600_Name, result_fname));
 		if(param.FileName.NotEmpty()) {
@@ -3355,7 +3355,7 @@ public:
 		Param  param;
 		TDialog * dlg = 0;
 		SString temp_buf;
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
 		sav_offs = pParam->GetRdOffs();
 		if(pParam->GetAvailableSize())
 			THROW(param.Read(*pParam, 0));
@@ -3401,7 +3401,7 @@ public:
 	{
 		int    ok = 1;
 		Param  param;
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
 		THROW(param.Read(*pParam, 0));
 		if(param.OutPath.NotEmpty()) {
 			if(param.GoodsFlags & param.fExpAllGoods)
@@ -3582,7 +3582,7 @@ public:
 		int    ok = -1;
 		size_t sav_offs = 0;
 		AddPersonEventFilt filt;
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
         sav_offs = pParam->GetRdOffs();
 		filt.Read(*pParam, 0);
 		if(filt.Edit() > 0) {
@@ -3716,7 +3716,7 @@ public:
 		TSessAutoSmsFiltDialog * p_dlg = new TSessAutoSmsFiltDialog;
 
 		sav_offs = pParam->GetRdOffs();
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
 		THROW(CheckDialogPtr(&p_dlg));
 		if(pParam->GetAvailableSize() != 0)
 			filt.Read(*pParam, 0);
@@ -3782,7 +3782,7 @@ public:
 		PPDbTableXmlExportParam_TrfrBill filt;
 		SSerializeContext sctx;
 		const size_t sav_offs = pParam->GetRdOffs();
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
 		if(pParam->GetAvailableSize() != 0)
 			THROW(filt.Serialize(-1, *pParam, &sctx));
 		if(PPDbTableXmlExportParam_TrfrBill::Edit(&filt) > 0) {
@@ -3910,7 +3910,7 @@ public:
 		PPEgaisProcessor::QueryParam filt;
 		SSerializeContext sctx;
 		const size_t sav_offs = pParam->GetRdOffs();
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
 		if(pParam->GetAvailableSize() != 0)
 			THROW(filt.Serialize(-1, *pParam, &sctx));
 		if(prc.EditQueryParam(&filt)) {

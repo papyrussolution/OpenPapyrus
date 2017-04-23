@@ -1060,7 +1060,7 @@ void GoodsListDialog::searchBarcode()
 	char   bcode[64];
 	if((r = GObj.SelectGoodsByBarcode(0, 0, &rec, 0, bcode)) > 0)
 		selectGoods(rec.ParentID, rec.ID);
-	else if(r == -2 && PPMessage(mfConf|mfYesNo, PPCFM_ADDNEWGOODS, 0) == cmYes) {
+	else if(r == -2 && PPMessage(mfConf|mfYesNo, PPCFM_ADDNEWGOODS) == cmYes) {
 		PPID   id = 0;
 		Goods2Tbl::Rec goods_rec;
 		PPID   grp_id = getCtrlLong(CTLSEL_GDSLST_GGRP);
@@ -1813,8 +1813,8 @@ int SLAPI PPViewGoods::NextIteration(GoodsViewItem * pItem)
 							IterCurItem.Brutto   = gse.Brutto;
 							IterCurItem.PckgDim  = gse.PckgDim;
 							IterCurItem.RtlDim   = gse.RtlDim;
-							IterCurItem.ExpiryPeriod = gse.ExpiryPeriod; // @v7.4.5
-							IterCurItem.GseFlags = gse.GseFlags;         // @v7.4.5
+							IterCurItem.ExpiryPeriod = gse.ExpiryPeriod;
+							IterCurItem.GseFlags = gse.GseFlags;
 							IterCurItem.MinStock = gse.GetMinStock(0);
 							IterCurItem.Package  = gse.Package;
 							IterCurItem.MinShippmQtty = gse.MinShippmQtty;
@@ -1841,8 +1841,8 @@ int SLAPI PPViewGoods::NextIteration(GoodsViewItem * pItem)
 						IterCurItem.Brutto   = gse.Brutto;
 						IterCurItem.PckgDim  = gse.PckgDim;
 						IterCurItem.RtlDim   = gse.RtlDim;
-						IterCurItem.ExpiryPeriod = gse.ExpiryPeriod; // @v7.4.5
-						IterCurItem.GseFlags = gse.GseFlags;         // @v7.4.5
+						IterCurItem.ExpiryPeriod = gse.ExpiryPeriod;
+						IterCurItem.GseFlags = gse.GseFlags;
 						IterCurItem.MinStock = gse.GetMinStock(0);
 						IterCurItem.Package  = gse.Package;
 						IterCurItem.MinShippmQtty = gse.MinShippmQtty;

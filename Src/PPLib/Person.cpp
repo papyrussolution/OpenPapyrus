@@ -924,7 +924,7 @@ int SLAPI PPPersonPacket::AddDlvrLoc(const PPLocationPacket & rItem)
 int SLAPI PPPersonPacket::PutDlvrLoc(uint pos, const PPLocationPacket * pItem)
 {
 	int    ok = 1;
-	THROW_PP(pos < DlvrLocList.getCount(), PPERR_INVPARAM);
+	THROW_INVARG(pos < DlvrLocList.getCount());
 	if(pItem == 0) {
 		DlvrLocList.atFree(pos);
 	}

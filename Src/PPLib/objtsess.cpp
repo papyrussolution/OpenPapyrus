@@ -890,7 +890,7 @@ int SLAPI PPObjTSession::IsProcessorBusy(PPID prcID, PPID tsesID, int kind, cons
 	STimeChunk dtm_range;
 	dtm_range.Start.Set(dtm.d, ZEROTIME);
 	dtm_range.Finish.SetFar();
-	THROW_PP(oneof5(kind, TSESK_SESSION, TSESK_PLAN, TSESK_IDLE, TSESK_SUPERSESS, TSESK_SUBSESS), PPERR_INVPARAM);
+	THROW_INVARG(oneof5(kind, TSESK_SESSION, TSESK_PLAN, TSESK_IDLE, TSESK_SUPERSESS, TSESK_SUBSESS));
 	P_Tbl->LoadBusyArray(prcID, tsesID, kind, &dtm_range, &busy_list);
 	entry.Init(dtm, cont, 0);
 	if(!busy_list.IsFreeEntry(dtm, cont, &loaded_sess_id)) {
@@ -2161,7 +2161,7 @@ int SLAPI PPObjTSession::CreateOnlineByLinkBill(PPID * pSessID,
 	int    ok = 1;
 	PPID   sess_id = 0;
 	TSessionTbl::Rec rec;
-	THROW_PP(pPrcRec && pBillRec, PPERR_INVPARAM);
+	THROW_INVARG(pPrcRec && pBillRec);
 	THROW(InitRec(&rec, 0, pPrcRec->ID, 0, 0));
 	getcurdatetime(&rec.StDt, &rec.StTm);
 	rec.Incomplete = 10;

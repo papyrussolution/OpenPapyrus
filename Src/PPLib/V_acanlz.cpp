@@ -460,7 +460,7 @@ int SLAPI PPViewAccAnlz::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	int    ok = -1, valid_data = 0;
 	AccAnlzFilt * p_filt = (AccAnlzFilt*)pFilt;
-	THROW_PP(p_filt, PPERR_INVPARAM);
+	THROW_INVARG(p_filt);
 	if(p_filt->Flags & AccAnlzFilt::fTrnovrBySuppl)
 		ok = EditSupplTrnovrFilt(p_filt);
 	else {

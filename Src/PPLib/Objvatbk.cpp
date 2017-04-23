@@ -263,7 +263,7 @@ int SLAPI PPObjVATBook::WriteCfgList(PPID kind, const VATBCfg * pConfig, int use
 		prop = PPPRP_SMPLLEDGCFG;
 		cfg_id = PPCFGOBJ_SIMPLELEDGER;
 	}
-	THROW_PP(oneof3(kind, PPVTB_SELL, PPVTB_BUY, PPVTB_SIMPLELEDGER), PPERR_INVPARAM);
+	THROW_INVARG(oneof3(kind, PPVTB_SELL, PPVTB_BUY, PPVTB_SIMPLELEDGER));
 	THROW(CheckCfgRights(cfg_id, PPR_MOD, 0));
 	THROW_MEM(p_cfg = (PPVATBConfig *)malloc(sz));
 	memzero(p_cfg, sz);
@@ -1135,7 +1135,7 @@ int SLAPI PPObjVATBook::EditConfig(PPID kind, VATBCfg * pConfig)
 		cfg_id = PPCFGOBJ_SIMPLELEDGER;
 	}
 	else
-		THROW_PP(0, PPERR_INVPARAM);
+		THROW_INVARG(0);
 	THROW(CheckCfgRights(cfg_id, PPR_READ, 0));
 	if(pConfig == 0)
 		if(kind == PPVTB_SELL)
@@ -1721,7 +1721,7 @@ int SLAPI PPViewVatBook::DeleteItem(PPID id)
 		if(VBObj.RemoveObjV(id, 0, PPObject::rmv_default, 0) > 0)
 			ok = 1;
 	}
-	else if(PPMessage(mfCritWarn, PPCFM_REMOVEALLBYFILT, 0) == cmYes) {
+	else if(PPMessage(mfCritWarn, PPCFM_REMOVEALLBYFILT) == cmYes) {
 		uint i;
 		VatBookViewItem item;
 		PPIDArray id_list;

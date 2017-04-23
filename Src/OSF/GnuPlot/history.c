@@ -52,7 +52,7 @@ void GpHistory::AddHistory(char * line)
 					return; // previous command repeated, no change 
 				}
 				if(entry->prev == NULL) {
-					// current cmd line GpC.Eq the first in the history 
+					// current cmd line GpGg.Gp__C.Eq the first in the history 
 					(entry->next)->prev = NULL;
 					first_entry = entry->next;
 					history->next = entry;
@@ -159,7 +159,7 @@ void GpHistory::WriteHistoryN(const int n, const char * filename, const char * m
 		}
 		if(!out) {
 			// cannot use int_error() because we are just exiting gnuplot:
-			// GpGg.IntError(GpC, NO_CARET, "cannot open file for saving the history");
+			// GpGg.IntErrorNoCaret("cannot open file for saving the history");
 			fprintf(stderr, "Warning: cannot open file %s for saving the history.", filename);
 		}
 		else {

@@ -627,7 +627,7 @@ static void SIXEL_options(GpCommand & rC)
 			    /* reset to default, since term is already set */
 			    SIXEL_font = 1;
 			    SIXEL_mode = 1;
-			    GpGg.IntError(rC, rC.CToken, "expecting: {small, medium, large}, {monochrome, color}, and {size x,y}");
+			    GpGg.IntErrorCurToken("expecting: {small, medium, large}, {monochrome, color}, and {size x,y}");
 			    break;
 		}
 	}

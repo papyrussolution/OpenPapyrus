@@ -1303,7 +1303,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 		THROW_PP(!(Item.Flags & PPTFR_REVAL), PPERR_REVALONUNLIM);
 		THROW(r = GObj.GetQuot(Item.GoodsID, qi, 0.0, 0.0, &quot));
 		if(r < 0) {
-			if(PPMessage(mfConf|mfYes|mfNo, PPCFM_SETUPQUOT, 0) == cmYes) {
+			if(PPMessage(mfConf|mfYes|mfNo, PPCFM_SETUPQUOT) == cmYes) {
 				THROW(r = GObj.EditQuotations(Item.GoodsID, 0, Item.CurID, 0 /* ArID */, PPQuot::clsGeneral));
 				if(r > 0) {
 					THROW(GObj.GetQuot(Item.GoodsID, qi, 0L, 0L, &quot) > 0);
@@ -1919,7 +1919,7 @@ int TrfrItemDialog::checkQuantityVal(double * pExtraQtty)
 	if(Rest < 0.0 && !(Item.Flags & (PPTFR_UNLIM|PPTFR_AUTOCOMPL|PPTFR_ACK|PPTFR_DRAFT))) {
 		PPObject::SetLastErrObj(PPOBJ_GOODS, labs(Item.GoodsID));
 		THROW_PP(TotalRest >= 0 && OpTypeID != PPOPT_GOODSRETURN && (Item.Flags & PPTFR_MINUS), PPERR_LOTRESTBOUND);
-		if(PPMessage(mfConf|mfYes|mfCancel, PPCFM_LOTRESTBOUND, 0) == cmYes) {
+		if(PPMessage(mfConf|mfYes|mfCancel, PPCFM_LOTRESTBOUND) == cmYes) {
 			Item.Quantity_ = 0.0;
 			THROW(P_Pack->BoundsByLot(Item.LotID, &Item, ItemNo, &_rest, 0));
 			Item.Quantity_ = R6(_rest);

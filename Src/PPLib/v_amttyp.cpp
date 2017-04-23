@@ -1,5 +1,5 @@
 // V_AMTTYP.CPP
-// Copyright (c) A.Starodub 2010, 2012, 2015, 2016
+// Copyright (c) A.Starodub 2010, 2012, 2015, 2016, 2017
 // @codepage windows-1251
 //
 // Типы сумм документа
@@ -392,7 +392,6 @@ int SLAPI PPViewAmountType::Transmit(int isCharry)
 	}
 	PPWait(0);
 	CATCH
-		PPWait(0);
 		ok = PPErrorZ();
 	ENDCATCH
 	return ok;
@@ -417,8 +416,7 @@ int SLAPI PPViewAmountType::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 	if(ok > 0 && oneof5(ppvCmd, PPVCMD_ADDITEM, PPVCMD_EDITITEM, PPVCMD_DELETEITEM, PPVCMD_REFRESHBYPERIOD, PPVCMD_REFRESH)) {
 		FetchData(id);
 		AryBrowserDef * p_def = (AryBrowserDef *)pBrw->getDef();
-		if(p_def)
-			p_def->setArray(new SArray(Data), 0, 1);
+		CALLPTRMEMB(p_def, setArray(new SArray(Data), 0, 1));
 		ok = 1;
 	}
 	return ok;

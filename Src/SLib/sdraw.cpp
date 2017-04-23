@@ -243,7 +243,8 @@ SDrawFigure * SDrawFigure::CreateFromFile(const char * pFileName, const char * p
 	SDrawFigure * p_fig = 0;
 	SFileFormat fmt;
 	THROW(fileExists(pFileName));
-	THROW(fmt.Identify(pFileName));
+	const int fir = fmt.Identify(pFileName);
+	THROW(fir);
 	if(fmt == SFileFormat::Svg) {
 		SDrawContext dctx((HDC)0);
 		SDraw * p_draw_fig = new SDraw(pSid, 0);
@@ -1883,7 +1884,8 @@ int SImageBuffer::Load(const char * pFileName)
 	if(pFileName) {
 		SFileFormat ff;
 		THROW(fileExists(pFileName));
-		if(ff.Identify(pFileName)) {
+		const int fir = ff.Identify(pFileName);
+		if(oneof3(fir, 1, 2, 3)) {
 			THROW(IsSupportedFormat(ff));
 			THROW(Helper_Load(SFile(pFileName, SFile::mRead|SFile::mBinary), ff));
 		}
@@ -2406,6 +2408,7 @@ int SImageBuffer::LoadJpeg(SFile & rF, int fileFmt)
 	if(fileFmt == SFileFormat::Jpeg) {
 		struct jpeg_decompress_struct di;
 		di.err = jpeg_std_error(&jpeg_err.pub);
+		jpeg_err.pub.error_exit = JpegErr::ExitFunc; // @v9.6.3
 		err_code = setjmp(jpeg_err.setjmp_buf);
 		if(err_code) {
 			SLS.SetAddedMsgString(rF.GetName());
@@ -2557,9 +2560,7 @@ int SImageBuffer::LoadPng(SFile & rF)
 		// png_longjmp png_setjmp
 
 		err_code = setjmp(png_jmpbuf(p_png));
-		if(err_code) {
-			CALLEXCEPT();
-		}
+		THROW(!err_code);
 		THROW_S_S(p_info = png_create_info_struct(p_png), SLERR_PNGLOADFAULT, rF.GetName()); // ?nomem
 		png_set_read_fn(p_png, &rF, PngSupport::ReadFunc);
 		png_set_sig_bytes(p_png, (int)sig_bytes);

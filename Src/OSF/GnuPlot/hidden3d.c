@@ -293,7 +293,7 @@ void GpGadgets::SetHidden3DOptions(GpCommand & rC)
 			    reset_hidden3doptions();
 			    rC.CToken++;
 			    if(!rC.EndOfCommand())
-				    IntError(rC, rC.CToken, "No further options allowed after 'defaults'");
+				    IntErrorCurToken("No further options allowed after 'defaults'");
 			    return;
 			    break;
 			case S_HI_OFFSET:
@@ -339,7 +339,7 @@ void GpGadgets::SetHidden3DOptions(GpCommand & rC)
 			    hidden3d_layer = LAYER_FRONT;
 			    break;
 			case S_HI_INVALID:
-			    IntError(rC, rC.CToken, "No such option to hidden3d (or wrong order)");
+			    IntErrorCurToken("No such option to hidden3d (or wrong order)");
 			default:
 			    break;
 		}
@@ -1941,7 +1941,7 @@ void plot3d_hidden(SurfacePoints * plots, int pcount)
 	if(!edges.end) {
 		/* No drawable edges found. Free all storage and bail out. */
 		term_hidden_line_removal();
-		GpGg.IntError(GpC, NO_CARET, "*All* edges undefined or out of range, thus no plot.");
+		GpGg.IntErrorNoCaret("*All* edges undefined or out of range, thus no plot.");
 	}
 	if(!polygons.end) {
 		/* No polygons anything could be hidden behind... */

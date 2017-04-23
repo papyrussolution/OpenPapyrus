@@ -473,7 +473,7 @@ int SLAPI PPFileNameArray::Scan(const char * pPath, const char * pWildcard)
 	freeAll();
 	Path = pPath;
 	if(!pPath)
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	else {
 		SDirec sdirec;
 		SDirEntry fb;

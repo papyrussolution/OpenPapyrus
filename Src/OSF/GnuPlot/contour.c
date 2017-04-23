@@ -126,7 +126,8 @@ static double fetch_knot(bool contr_isclosed, int num_of_points, int order, int 
 //
 // Entry routine to this whole set of contouring module.
 //
-gnuplot_contours * contour(int num_isolines, iso_curve * iso_lines)
+//gnuplot_contours * contour(int num_isolines, iso_curve * iso_lines)
+gnuplot_contours * GpGadgets::Contour(int numIsoLines, iso_curve * pIsoLines)
 {
 	int i;
 	int num_of_z_levels;    /* # Z contour levels. */
@@ -144,12 +145,11 @@ gnuplot_contours * contour(int num_isolines, iso_curve * iso_lines)
 	//
 	// Calculate min/max values :
 	//
-	calc_min_max(num_isolines, iso_lines, &ContourMin.x, &ContourMin.y, &ContourMin.z, 
-		&ContourMax.x, &ContourMax.y, &ContourMax.z);
+	calc_min_max(numIsoLines, pIsoLines, &ContourMin.x, &ContourMin.y, &ContourMin.z, &ContourMax.x, &ContourMax.y, &ContourMax.z);
 	/*
 	 * Generate list of edges (p_edges) and list of triangles (p_polys):
 	 */
-	gen_triangle(num_isolines, iso_lines, &p_polys, &p_edges);
+	gen_triangle(numIsoLines, pIsoLines, &p_polys, &p_edges);
 	crnt_cntr_pt_index = 0;
 	if(contour_levels_kind == LEVELS_AUTO) {
 		dz = fabs(ContourMax.z - ContourMin.z);
@@ -169,11 +169,11 @@ gnuplot_contours * contour(int num_isolines, iso_curve * iso_lines)
 			    z = CheckZero(z, dz);
 			    break;
 			case LEVELS_INCREMENTAL:
-			    z = GpGg.LogValue(FIRST_Z_AXIS, contour_levels_list[0]) +
-			    i * GpGg.LogValue(FIRST_Z_AXIS, contour_levels_list[1]);
+			    z = LogValue(FIRST_Z_AXIS, contour_levels_list[0]) +
+			    i * LogValue(FIRST_Z_AXIS, contour_levels_list[1]);
 			    break;
 			case LEVELS_DISCRETE:
-			    z = GpGg.LogValue(FIRST_Z_AXIS, contour_levels_list[i]);
+			    z = LogValue(FIRST_Z_AXIS, contour_levels_list[i]);
 			    break;
 		}
 		contour_level = z;
@@ -182,7 +182,7 @@ gnuplot_contours * contour(int num_isolines, iso_curve * iso_lines)
 		if(contour_list != save_contour_list) {
 			contour_list->isNewLevel = 1;
 			// Nov-2011 Use gprintf rather than sprintf so that LC_NUMERIC is used
-			gprintf(contour_list->label, sizeof(contour_list->label), contour_format, 1.0, GpGg.DelogValue(FIRST_Z_AXIS, z));
+			gprintf(contour_list->label, sizeof(contour_list->label), contour_format, 1.0, DelogValue(FIRST_Z_AXIS, z));
 			contour_list->z = z;
 		}
 	}

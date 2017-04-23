@@ -2000,7 +2000,7 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 	THROW(param.Validate(0));
 	if(valid_data) {
 		PPIDArray sc_id_list;
-		param.DtEnd = param.DtEnd.getactual(ZERODATE);
+		// @v9.6.3 param.DtEnd = param.DtEnd.getactual(ZERODATE);
 		PPWait(1);
 		{
 			SCardViewItem item;
@@ -2019,6 +2019,7 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 		const long freset = param.FlagsReset;
 		const long valid_flags = PPObjSCard::GetValidFlags();
 		PPIDArray dirty_list;
+		const int expiry_date_cls = param.DtEnd.getclass();
 		{
 			PPTransaction tra(1);
 			THROW(tra);
@@ -2064,13 +2065,26 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 							upd_discount = 1;
 						}
 					}
-					if((param.DtEnd && rec.Expiry != param.DtEnd) || (param.Flags & param.fZeroExpiry && rec.Expiry)) {
-						if(param.Flags & param.fZeroExpiry)
-							rec.Expiry = ZERODATE;
-						else
-							rec.Expiry = param.DtEnd;
+					if(param.Flags & param.fZeroExpiry && rec.Expiry) {
+						rec.Expiry = ZERODATE;
 						rec.Flags &= ~SCRDF_INHERITED; // ‘орсированно снимаем признак наследовани€ //
 						upd = 1;
+					}
+					else if(param.DtEnd) {
+						LDATE  new_expiry_date = rec.Expiry;
+						if(expiry_date_cls == LDATE::cNormal) {
+							new_expiry_date = param.DtEnd;
+						}
+						else if(expiry_date_cls == LDATE::cSpecial) {
+							if(rec.Expiry) {
+								new_expiry_date = param.DtEnd.getactual(rec.Expiry);
+							}
+						}
+						if(checkdate(new_expiry_date, 0) && new_expiry_date != rec.Expiry) {
+							rec.Expiry = new_expiry_date;
+							rec.Flags &= ~SCRDF_INHERITED; // ‘орсированно снимаем признак наследовани€ //
+							upd = 1;
+						}
 					}
 					if(param.PeriodTerm && param.PeriodCount) {
 						if(rec.PeriodTerm != param.PeriodTerm) {

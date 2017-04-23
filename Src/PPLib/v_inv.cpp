@@ -1153,7 +1153,7 @@ int SLAPI PPViewInventory::EditLine(PPID billID, long * pOprNo, PPID goodsID, co
 								if(accelMode)
 									reply = cmYes;
 								else
-									reply = PPMessage(mfConf | mfYesNoCancel, PPCFM_INVDUPGOODS, 0);
+									reply = PPMessage(mfConf | mfYesNoCancel, PPCFM_INVDUPGOODS);
 								if(reply == cmYes) {
 									duprec.Quantity += rec.Quantity;
 									rec = duprec;

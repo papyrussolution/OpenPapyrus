@@ -549,7 +549,7 @@ int SLAPI PPObjBill::UpdateOpCounter(PPBillPacket * pPack)
 	TDialog * dlg = 0;
 	PPOprKind op_rec;
 	PPObjOpCounter opc_obj;
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	THROW(CheckDialogPtrErr(&(dlg = new TDialog(DLG_UPDCNTR))));
 	if(GetOpData(pPack->Rec.OpID, &op_rec) > 0) {
 		PPID   cntr_id = op_rec.OpCounterID;
@@ -621,7 +621,7 @@ int  SLAPI PPObjBill::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options
 {
 	int    r = 1;
 	PPBillPacket pack;
-	if(!(options & PPObject::user_request) || PPMessage(mfConf|mfYesNo, PPCFM_DELETE, 0) == cmYes) {
+	if(!(options & PPObject::user_request) || PPMessage(mfConf|mfYesNo, PPCFM_DELETE) == cmYes) {
 		if(options & PPObject::user_request)
 			PPWait(1);
 		if((r = ExtractPacketWithFlags(id, &pack, BPLD_SKIPTRFR|BPLD_LOCK)) != 0) {
@@ -771,7 +771,7 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 		PPBillPacket pack;
 		THROW(ExtractPacket(billID, &pack) > 0);
 		if(CheckOpPrnFlags(pack.Rec.OpID, OPKF_PRT_CHECK)) {
-			if(!(pack.Rec.Flags & BILLF_CHECK) || (PPMaster && PPMessage(mfConf|mfYesNo, PPCFM_BILLCHECKED, 0) == cmYes)) {
+			if(!(pack.Rec.Flags & BILLF_CHECK) || (PPMaster && PPMessage(mfConf|mfYesNo, PPCFM_BILLCHECKED) == cmYes)) {
 				int    sync_prn_err = 0;
 				_CcByBillParam param; // @v9.5.7
 				param.PosNodeID = node_id;
@@ -848,7 +848,7 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 			}
 		}
 		else
-			PPMessage(mfInfo|mfOK, PPINF_NPRNTCASHCHKBYOPRKIND, 0);
+			PPMessage(mfInfo|mfOK, PPINF_NPRNTCASHCHKBYOPRKIND);
 	}
 	CATCHZOKPPERR
 	delete p_cm;
@@ -975,7 +975,7 @@ int SLAPI PPObjBill::AddExpendByReceipt(PPID * pBillID, PPID sampleBillID, const
 	PPBillPacket pack, sample_pack;
 
 	ASSIGN_PTR(pBillID, 0L);
-	THROW_PP(pParam, PPERR_INVPARAM);
+	THROW_INVARG(pParam);
 	THROW(CheckRights(PPR_INS));
 	THROW(ExtractPacket(sampleBillID, &sample_pack) > 0);
 	THROW_PP(pParam->OpID > 0, PPERR_INVOPRKIND);
@@ -1027,7 +1027,7 @@ int SLAPI PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const S
 	PPOprKind    op_rec;
 	PPBillPacket pack, sample_pack;
 	ASSIGN_PTR(pBillID, 0L);
-	THROW_PP(pParam, PPERR_INVPARAM);
+	THROW_INVARG(pParam);
 	THROW(CheckRights(PPR_INS));
 	THROW(ExtractPacket(sampleBillID, &sample_pack) > 0);
 	THROW_PP(pParam->OpID > 0, PPERR_INVOPRKIND);
@@ -1089,7 +1089,7 @@ int SLAPI PPObjBill::AddDraftByOrder(PPID * pBillID, PPID sampleBillID, const Se
 	PPBillPacket pack, sample_pack;
 
 	ASSIGN_PTR(pBillID, 0L);
-	THROW_PP(pParam, PPERR_INVPARAM);
+	THROW_INVARG(pParam);
 	THROW(CheckRights(PPR_INS));
 	THROW(ExtractPacket(sampleBillID, &sample_pack) > 0);
 	THROW_PP(pParam->OpID > 0, PPERR_INVOPRKIND);
@@ -1254,7 +1254,7 @@ int SLAPI PPObjBill::AddRetBillByLot(PPID lotID)
 					ok = 1;
 			}
 			else
-				PPMessage(mfInfo|mfOK, PPINF_RETONINTRLOT, 0);
+				PPMessage(mfInfo|mfOK, PPINF_RETONINTRLOT);
 		}
 	}
 	CATCHZOKPPERR

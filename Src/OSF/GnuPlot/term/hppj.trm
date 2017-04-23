@@ -103,7 +103,7 @@ static void HPPJ_options(GpCommand & rC)
 	hppj_font = FNT9X17;    /* in case of error or empty options     */
 	if(!rC.EndOfCommand()) {
 		if(rC.P_Token[rC.CToken].length > 8) {
-			GpGg.IntError(rC, rC.CToken, HPPJERROR);
+			GpGg.IntErrorCurToken(HPPJERROR);
 		}
 		rC.Capture(opt, rC.CToken, rC.CToken, /*4 */ 9); /* HBB 980226 */
 		if(!strcmp(opt, "FNT5X9")) {
@@ -119,7 +119,7 @@ static void HPPJ_options(GpCommand & rC)
 			strcpy(term_options, "FNT13X25");
 		}
 		else {
-			GpGg.IntError(rC, rC.CToken, HPPJERROR);
+			GpGg.IntErrorCurToken(HPPJERROR);
 		}
 		rC.CToken++;
 	}

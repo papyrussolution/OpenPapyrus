@@ -506,7 +506,7 @@ int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, Com
 							// механизма межпоточного ожидани€ по значению счетчика).
 							// Ќе забываем, что мы искусственно увеличиваем на 1 количество потоков.
 							//
-							if(thread_counter > max_thread) {
+							if(thread_counter > (long)max_thread) {
 								thread_counter.Decr();
 								p_ev_finish->Wait(-1);
 								thread_counter.Incr();

@@ -1,5 +1,5 @@
 // STCP.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -8,7 +8,7 @@
 #include <snet.h>
 #include <winsock2.h>
 #include <wininet.h>
-#include <idea.h>
+// @v9.6.3 #include <idea.h>
 #include <openssl/ssl.h>
 
 // static

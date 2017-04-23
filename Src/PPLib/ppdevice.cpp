@@ -994,7 +994,7 @@ int DvcDriver::RunOneCommand(const char * pCmd, const char * pInputData, char * 
 		if(param_name.CmpNC("TEXT") == 0)
 			Text = param_val;
 	}
-	if(stricmp(pCmd,"TEST") == 0) {
+	if(sstreqi_ascii(pCmd,"TEST")) {
 		SString answer, new_size;
 		THROW(!Test(Text, answer));
 		if(answer.BufSize() > outSize) {
@@ -1005,7 +1005,7 @@ int DvcDriver::RunOneCommand(const char * pCmd, const char * pInputData, char * 
 		else
 			memcpy(pOutputData, answer, answer.BufSize());
 	}
-	else if(stricmp(pCmd, "INIT") != 0) {
+	else if(!sstreqi_ascii(pCmd, "INIT")) {
 		memcpy(pOutputData, "2", sizeof("2"));
         ok = 1;
 	}

@@ -121,7 +121,7 @@ int SLAPI PPBizScTemplPacket::GetCellListInclEmpty(long colId, long rowId, TSArr
 	else
 		cols = Cols;
 	MEMSZERO(row);
-	THROW_PP(pCells, PPERR_INVPARAM);
+	THROW_INVARG(pCells);
 	pCells->freeAll();
 	if(GetRow(rowId, 0, &row) > 0) {
 		for(uint c = 0; c < count; c++) {

@@ -738,7 +738,7 @@ int SLAPI CrosstabProcessor::ProcessRec(PrjTaskTbl::Rec * pRec)
 				THROW(AddRec(tab_id, tab_param_val, 1, pRec));
 				break;
 			default:
-				ok = PPSetError(PPERR_INVPARAM);
+				ok = PPSetErrorInvParam();
 				break;
 		}
 	}

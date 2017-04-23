@@ -1,18 +1,21 @@
 // SMATH.CPP
-// Copyright (c) A.Sobolev 2004, 2006, 2007, 2008, 2010, 2012, 2014, 2016
+// Copyright (c) A.Sobolev 2004, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
 #include <float.h>
 
-#define PI__ 3.1415926535897932384626433832795
+#define PI__  3.1415926535897932384626433832795
+#define PI__f 3.14159265358979323846f
 
 const double SMathConst::Pi       = PI__;
 const double SMathConst::Pi2      = (PI__ * 2.0);
-const float  SMathConst::Pi_f     = 3.14159265358979323846f;
+const float  SMathConst::Pi_f     = PI__f;
 const double SMathConst::PiDiv180 = (PI__ / 180.0);
+const float  SMathConst::PiDiv180_f = (PI__f / 180.0f);
 const double SMathConst::PiDiv4   = (PI__ / 4.0);
+const float  SMathConst::PiDiv4_f = (PI__f / 4.0f);
 const double SMathConst::PiDiv2   = (PI__ / 2.0);
 const double SMathConst::E        = 2.71828182845904523536;
 const double SMathConst::LnPi     = 1.14472988584940017414342735135; // ln(pi)

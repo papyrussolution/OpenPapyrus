@@ -1170,6 +1170,17 @@ public:
 	~FileFormatRegBase();
 	int    Register(int id, const char * pMime, const char * pExt, const char * pSign);
 	int    Register(int id, const char * pMime, const char * pExt, FileFormatSignatureFunc signFunc);
+	//
+	// Descr: Идентифицирует формат файла по расширению и сигнатуре.
+	// Returns:
+	//   1 - формат идентифицирован по расширению
+	//   2 - формат идентифицироан по сигнатуре
+	//   3 - формат идентифицирован одновременно по расширению и сигнатуре
+	//   4 - формат не удалось идентифицировать по расширению или сигнатуре, однако
+	//     по начальному блоку данных он похож на результирующий формат.
+	//     На текущий момент такой вариант возможен для форматов: SFileFormat::TxtAscii, SFileFormat::TxtUtf8, SFileFormat::Txt
+	//  -1 - не удалось идентифицировать формат
+	//
 	int    Identify(const char * pFileName, int * pFmtId, SString * pExt) const;
 	int    IdentifyMime(const char * pMime, int * pFmtId) const;
 	int    GetMime(int id, SString & rMime) const;
@@ -1531,15 +1542,15 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 					tes.Finish();
 					if(tes.Flags & tes.fAsciiOnly) {
 						fmt_id = SFileFormat::TxtAscii;
-						ok = 1;
+						ok = 4;
 					}
 					else if(tes.Flags & tes.fLegalUtf8Only) {
 						fmt_id = SFileFormat::TxtUtf8;
-						ok = 1;
+						ok = 4;
 					}
 					else if(tes.Eolf != eolUndef && !(tes.Flags & tes.fMiscEolf)) {
 						fmt_id = SFileFormat::Txt;
-						ok = 1;
+						ok = 4;
 					}
 				}
 			}
@@ -1623,7 +1634,7 @@ int SFileFormat::Identify(const char * pFileName, SString * pExt)
 {
 	int    ok = 0;
 	Id = Unkn;
-	if(GloBaseIdx) {
+	if(!isempty(pFileName) && GloBaseIdx) {
 		const FileFormatRegBase * p_reg = (FileFormatRegBase *)SLS.GetGlobalObject(GloBaseIdx);
 		if(p_reg)
 			ok = p_reg->Identify(pFileName, &Id, pExt);

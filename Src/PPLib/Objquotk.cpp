@@ -578,7 +578,7 @@ int  SLAPI PPObjQuotKind::RemoveObjV(PPID id, ObjCollection * pObjColl, uint opt
 		}
 	}
 	// } @v9.2.9
-	if(!(options & PPObject::user_request) || PPMessage(mfConf|mfYesNo, PPCFM_DELQUOTKIND, 0) == cmYes) {
+	if(!(options & PPObject::user_request) || PPMessage(mfConf|mfYesNo, PPCFM_DELQUOTKIND) == cmYes) {
 		int    use_ta = (options & PPObject::use_transaction) ? 1 : 0;
 		PPObjGoods goods_obj;
 		PPWait(1);

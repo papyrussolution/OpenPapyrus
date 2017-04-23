@@ -289,7 +289,7 @@ int SLAPI MakeDatabase()
 		dbentry.Strip();
 		dlg->getCtrlString(CTL_MAKENEWDB_PATH, dbpath);
 		if((dbname.Empty() && dbentry.Empty()) || dbpath.Empty())
-			PPMessage(mfInfo | mfCancel, PPINF_EMPTYFIELD, 0);
+			PPMessage(mfInfo | mfCancel, PPINF_EMPTYFIELD);
 		else {
 			dbname.SetIfEmpty(dbentry);
 			dbentry.SetIfEmpty(dbname);
@@ -303,12 +303,12 @@ int SLAPI MakeDatabase()
 				pn.SetIfEmpty(n);
 				if(pn.NotEmptyS())
 					if(pn.CmpNC(dbname) == 0) {
-						PPMessage(mfInfo|mfCancel, PPINF_BDEXISTNAME, 0);
+						PPMessage(mfInfo|mfCancel, PPINF_BDEXISTNAME);
 						i = -1;
 						break;
 					}
 					else if(n.CmpNC(dbentry) == 0) {
-						PPMessage(mfInfo|mfCancel, PPINF_BDSYMBOLEXIST, 0);
+						PPMessage(mfInfo|mfCancel, PPINF_BDSYMBOLEXIST);
 						i = -1;
 						break;
 					}
@@ -342,7 +342,7 @@ int SLAPI MakeDatabase()
 				else if(!createDir(dbpath)) {
 					i = 0;
 					PPError(PPERR_SLIB, dbpath);
-					// PPMessage(mfInfo | mfCancel, PPINF_CANTMKDIR, 0);
+					// PPMessage(mfInfo | mfCancel, PPINF_CANTMKDIR);
 				}
 				if(i) {
 					if(dbid == 0) {

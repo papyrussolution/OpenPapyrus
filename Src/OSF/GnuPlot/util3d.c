@@ -69,12 +69,9 @@ void mat_scale(double sx, double sy, double sz, transform_matrix mat)
 
 void mat_rot_x(double teta, transform_matrix mat)
 {
-	double cos_teta, sin_teta;
-
 	teta *= DEG2RAD;
-	cos_teta = cos(teta);
-	sin_teta = sin(teta);
-
+	double cos_teta = cos(teta);
+	double sin_teta = sin(teta);
 	mat_unit(mat);          /* Make it unit matrix. */
 	mat[1][1] = cos_teta;
 	mat[1][2] = -sin_teta;
@@ -190,7 +187,7 @@ void GpGadgets::Edge3DIntersect(GpCoordinate * pPt1, GpCoordinate * pPt2, double
 			else if(inrange(AXIS_ACTUAL_MIN(FIRST_Z_AXIS), iz, oz))
 				*pEz = AXIS_ACTUAL_MIN(FIRST_Z_AXIS);
 			else {
-				IntError(GpC, NO_CARET, "error in edge3d_intersect");
+				IntErrorNoCaret("error in edge3d_intersect");
 			}
 			return;
 		}
@@ -204,7 +201,7 @@ void GpGadgets::Edge3DIntersect(GpCoordinate * pPt1, GpCoordinate * pPt2, double
 			else if(inrange(AXIS_ACTUAL_MIN(FIRST_Y_AXIS), iy, oy))
 				*pEy = AXIS_ACTUAL_MIN(FIRST_Y_AXIS);
 			else {
-				IntError(GpC, NO_CARET, "error in edge3d_intersect");
+				IntErrorNoCaret("error in edge3d_intersect");
 			}
 			return;
 		}
@@ -239,7 +236,7 @@ void GpGadgets::Edge3DIntersect(GpCoordinate * pPt1, GpCoordinate * pPt2, double
 			else if(inrange(AXIS_ACTUAL_MIN(FIRST_X_AXIS), ix, ox))
 				*pEx = AXIS_ACTUAL_MIN(FIRST_X_AXIS);
 			else {
-				IntError(GpC, NO_CARET, "error in edge3d_intersect");
+				IntErrorNoCaret("error in edge3d_intersect");
 			}
 			return;
 		}

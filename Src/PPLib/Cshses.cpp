@@ -112,7 +112,7 @@ SLAPI PPAsyncCashSession::PPAsyncCashSession(PPID n) : CSessGrouping()
 {
 	NodeID = n;
 	Flags  = 0;
-	SinceDlsID = 0; // @v7.1.11
+	SinceDlsID = 0;
 	CnFlags = ~0L;
 	CnExtFlags = ~0L; // @v8.9.10
 	P_TmpCcTbl  = 0;

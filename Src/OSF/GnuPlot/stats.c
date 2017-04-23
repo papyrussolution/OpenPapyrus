@@ -280,7 +280,7 @@ static two_column_stats analyze_two_columns(double * x, double * y, sgl_column_s
    ================================================================= */
 
 // Output
-// Note: GpC.F_PrintOut is a FILE ptr, set by the "set print" command
+// Note: GpGg.Gp__C.F_PrintOut is a FILE ptr, set by the "set print" command
 //static void ensure_output()
 void GpCommand::EnsureOutput()
 {
@@ -663,7 +663,7 @@ void GpGadgets::StatsRequest(GpCommand & rC)
 	data_x = vec(max_n);   /* start with max. value */
 	data_y = vec(max_n);
 	if(!data_x || !data_y)
-		IntError(GpC, NO_CARET, "Internal error: out of memory in stats");
+		IntErrorNoCaret("Internal error: out of memory in stats");
 	n = invalid = blanks = doubleblanks = out_of_range = 0;
 	/* Get filename */
 	i = rC.CToken;
@@ -673,7 +673,7 @@ void GpGadgets::StatsRequest(GpCommand & rC)
 		file_name = gp_strdup(temp_name);
 	}
 	else
-		IntError(GpC, i, "missing filename or datablock");
+		IntError(i, "missing filename or datablock");
 	/* Jan 2015: We used to handle ascii matrix data as a special case but
 	 * the code did not work correctly.  Since df_read_matrix() dummies up
 	 * ascii matrix data to look as if had been presented as a binary blob,
@@ -693,13 +693,13 @@ void GpGadgets::StatsRequest(GpCommand & rC)
 			array_data = true;
 		// For all these below: we could save the state, switch off, then restore
 		if(AxA[FIRST_X_AXIS].log || AxA[FIRST_Y_AXIS].log)
-			IntError(GpC, NO_CARET, "Stats command not available with logscale active");
+			IntErrorNoCaret("Stats command not available with logscale active");
 		if(AxA[FIRST_X_AXIS].datatype == DT_TIMEDATE || AxA[FIRST_Y_AXIS].datatype == DT_TIMEDATE)
-			IntError(GpC, NO_CARET, "Stats command not available in timedata mode");
+			IntErrorNoCaret("Stats command not available in timedata mode");
 		if(polar)
-			IntError(GpC, NO_CARET, "Stats command not available in polar mode");
+			IntErrorNoCaret("Stats command not available in polar mode");
 		if(parametric)
-			IntError(GpC, NO_CARET, "Stats command not available in parametric mode");
+			IntErrorNoCaret("Stats command not available in parametric mode");
 		/* If the user has set an explicit locale for numeric input, apply it */
 		/* here so that it affects data fields read from the input file. */
 		set_numeric_locale();
@@ -718,7 +718,7 @@ void GpGadgets::StatsRequest(GpCommand & rC)
 				// Some of the reallocations went bad:
 				if(!redim_vec(&data_x, max_n) || !redim_vec(&data_y, max_n) ) {
 					df_close();
-					IntError(GpC, NO_CARET, "Out of memory in stats: too many datapoints (%d)?", max_n);
+					IntErrorNoCaret("Out of memory in stats: too many datapoints (%d)?", max_n);
 				}
 			} /* if(need to extend storage space) */
 			switch(i) {
@@ -734,7 +734,7 @@ void GpGadgets::StatsRequest(GpCommand & rC)
 				    doubleblanks += 1;
 				    continue;
 				case 0:
-				    IntError(GpC, NO_CARET, "bad data on line %d of file %s",
+				    IntErrorNoCaret("bad data on line %d of file %s",
 				    df_line_number, df_filename ? df_filename : "");
 				    break;
 
@@ -791,10 +791,10 @@ void GpGadgets::StatsRequest(GpCommand & rC)
 			free(prefix);
 			prefix = rC.TryToGetString();
 			if(!legal_identifier(prefix) || !strcmp("GPVAL_", prefix))
-				IntError(GpC, --rC.CToken, "illegal prefix");
+				IntError(--rC.CToken, "illegal prefix");
 		}
 		else {
-			IntError(rC, rC.CToken, "Expecting [no]output or prefix");
+			IntErrorCurToken("Expecting [no]output or prefix");
 		}
 	}
 	// Set defaults if not explicitly set by user

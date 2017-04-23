@@ -537,8 +537,8 @@ void GpEval::f_ellip_first(GpArgument * pArg)
 	t_value a;
 	double ak, q;
 	PopOrConvertFromString(a);
-	if(!GpGg.IsZero(imag(&a)))
-		GpGg.IntError(GpC, NO_CARET, "can only do elliptic integrals of reals");
+	if(!R_Gg.IsZero(imag(&a)))
+		R_Gg.IntErrorNoCaret("can only do elliptic integrals of reals");
 	ak = a.Real();
 	q = (1.0-ak)*(1.0+ak);
 	if(q > 0.0)
@@ -554,8 +554,8 @@ void GpEval::f_ellip_second(GpArgument * pArg)
 	t_value a;
 	double ak, q, e;
 	PopOrConvertFromString(a);
-	if(!GpGg.IsZero(imag(&a)))
-		GpGg.IntError(GpC, NO_CARET, "can only do elliptic integrals of reals");
+	if(!R_Gg.IsZero(imag(&a)))
+		R_Gg.IntErrorNoCaret("can only do elliptic integrals of reals");
 	ak = a.Real();
 	q = (1.0-ak)*(1.0+ak);
 	if(q > 0.0) {
@@ -578,8 +578,8 @@ void GpEval::f_ellip_third(GpArgument * pArg)
 	double ak, en, q;
 	PopOrConvertFromString(a1);
 	PopOrConvertFromString(a2);
-	if(!GpGg.IsZero(imag(&a1)) || !GpGg.IsZero(imag(&a2)))
-		GpGg.IntError(GpC, NO_CARET, "can only do elliptic integrals of reals");
+	if(!R_Gg.IsZero(imag(&a1)) || !R_Gg.IsZero(imag(&a2)))
+		R_Gg.IntErrorNoCaret("can only do elliptic integrals of reals");
 	ak = a1.Real();
 	en = a2.Real();
 	q = (1.0-ak)*(1.0+ak);
@@ -603,7 +603,7 @@ void GpEval::f_int(GpArgument * pArg)
 		Push(a.SetInt((int)foo));
 }
 
-#define BAD_DEFAULT default: GpGg.IntError(GpC, NO_CARET, "internal error : argument neither INT or CMPLX")
+#define BAD_DEFAULT default: GpGg.IntErrorNoCaret("internal error : argument neither INT or CMPLX")
 
 void GpEval::f_abs(GpArgument * pArg)
 {
@@ -893,8 +893,8 @@ void GpEval::f_besj0(GpArgument * pArg)
 {
 	t_value a;
 	Pop(a);
-	if(!GpGg.IsZero(imag(&a)))
-		GpGg.IntError(GpC, NO_CARET, "can only do bessel functions of reals");
+	if(!R_Gg.IsZero(imag(&a)))
+		R_Gg.IntErrorNoCaret("can only do bessel functions of reals");
 	Push(a.SetComplex(rj0(a.Real()), 0.0));
 }
 
@@ -902,8 +902,8 @@ void GpEval::f_besj1(GpArgument * pArg)
 {
 	t_value a;
 	Pop(a);
-	if(!GpGg.IsZero(imag(&a)))
-		GpGg.IntError(GpC, NO_CARET, "can only do bessel functions of reals");
+	if(!R_Gg.IsZero(imag(&a)))
+		R_Gg.IntErrorNoCaret("can only do bessel functions of reals");
 	Push(a.SetComplex(rj1(a.Real()), 0.0));
 }
 
@@ -911,8 +911,8 @@ void GpEval::f_besy0(GpArgument * pArg)
 {
 	t_value a;
 	Pop(a);
-	if(!GpGg.IsZero(imag(&a)))
-		GpGg.IntError(GpC, NO_CARET, "can only do bessel functions of reals");
+	if(!R_Gg.IsZero(imag(&a)))
+		R_Gg.IntErrorNoCaret("can only do bessel functions of reals");
 	if(a.Real() > 0.0)
 		Push(a.SetComplex(ry0(a.Real()), 0.0));
 	else {
@@ -925,8 +925,8 @@ void GpEval::f_besy1(GpArgument * pArg)
 {
 	t_value a;
 	Pop(a);
-	if(!GpGg.IsZero(imag(&a)))
-		GpGg.IntError(GpC, NO_CARET, "can only do bessel functions of reals");
+	if(!R_Gg.IsZero(imag(&a)))
+		R_Gg.IntErrorNoCaret("can only do bessel functions of reals");
 	if(a.Real() > 0.0)
 		Push(a.SetComplex(ry1(a.Real()), 0.0));
 	else {
@@ -1887,7 +1887,7 @@ static double ibeta(double a, double b, double x)
 	if(x < 0.0 || x > 1.0)
 		return -1.0; ;
 
-	/* If x GpC.Eq 0 or 1, return x as prob */
+	/* If x GpGg.Gp__C.Eq 0 or 1, return x as prob */
 	if(x == 0.0 || x == 1.0)
 		return x;
 
@@ -2112,7 +2112,7 @@ static double ranf(t_value & rInit)
 		long seed2cvrt = (long)imag(&rInit);
 		if(rInit.Real() != (double)seed1cvrt || imag(&rInit) != (double)seed2cvrt || seed1cvrt > 017777777777L ||
 		    seed2cvrt > 017777777777L || (seed1cvrt <= 0 && seed2cvrt != 0) || seed2cvrt < 0)
-			GpGg.IntError(GpC, NO_CARET, "Illegal seed value");
+			GpGg.IntErrorNoCaret("Illegal seed value");
 		else if(seed1cvrt < 0)
 			firsttime = 1;
 		else {
@@ -4259,8 +4259,8 @@ int GP_MATHERR(STRUCT_EXCEPTION_P_X)
 
 static enum DATA_TYPES sprintf_specifier(const char* format);
 
-#define BADINT_DEFAULT GpGg.IntError(GpC, NO_CARET, "error: bit shift applied to non-INT");
-#define BAD_TYPE(type) GpGg.IntError(GpC, NO_CARET, (type==NOTDEFINED) ? "uninitialized user variable" : "internal error : type neither INT nor CMPLX");
+#define BADINT_DEFAULT R_Gg.IntErrorNoCaret("error: bit shift applied to non-INT");
+#define BAD_TYPE(type) R_Gg.IntErrorNoCaret((type==NOTDEFINED) ? "uninitialized user variable" : "internal error : type neither INT nor CMPLX");
 
 static int recursion_depth = 0;
 void eval_reset_after_error()
@@ -4272,10 +4272,10 @@ void GpEval::f_push(GpArgument * x)
 {
 	UdvtEntry * udv = x->udv_arg;
 	if(udv->udv_value.type == NOTDEFINED) {
-		if(GpC.P.IsStringResultOnly)
+		if(GpGg.Gp__C.P.IsStringResultOnly)
 			udv = udv_NaN; // We're only here to check whether this is a string. It isn't
 		else
-			GpGg.IntError(GpC, NO_CARET, "undefined variable: %s", udv->udv_name);
+			R_Gg.IntErrorNoCaret("undefined variable: %s", udv->udv_name);
 	}
 	Push(&(udv->udv_value));
 }
@@ -4321,22 +4321,22 @@ void GpEval::f_call(GpArgument * x)
 	t_value save_dummy;
 	UdftEntry * udf = x->udf_arg;
 	if(!udf->at) {
-		if(GpC.P.IsStringResultOnly) {
+		if(GpGg.Gp__C.P.IsStringResultOnly) {
 			// We're only here to check whether this is a string. It isn't
 			f_pop(x);
 			Push(&udv_NaN->udv_value);
 			return;
 		}
-		GpGg.IntError(GpC, NO_CARET, "undefined function: %s", udf->udf_name);
+		R_Gg.IntErrorNoCaret("undefined function: %s", udf->udf_name);
 	}
 	save_dummy = udf->dummy_values[0];
 	Pop(udf->dummy_values[0]);
 	if(udf->dummy_values[0].type == ARRAY)
-		GpGg.IntError(GpC, NO_CARET, "f_call: unsupported array operation");
+		R_Gg.IntErrorNoCaret("f_call: unsupported array operation");
 	if(udf->dummy_num != 1)
-		GpGg.IntError(GpC, NO_CARET, "function %s requires %d variables", udf->udf_name, udf->dummy_num);
+		R_Gg.IntErrorNoCaret("function %s requires %d variables", udf->udf_name, udf->dummy_num);
 	if(recursion_depth++ > STACK_DEPTH)
-		GpGg.IntError(GpC, NO_CARET, "recursion depth limit exceeded");
+		R_Gg.IntErrorNoCaret("recursion depth limit exceeded");
 	ExecuteAt(udf->at);
 	gpfree_string(&udf->dummy_values[0]);
 	udf->dummy_values[0] = save_dummy;
@@ -4353,12 +4353,12 @@ void GpEval::f_calln(GpArgument * x)
 	t_value num_params;
 	UdftEntry * udf = x->udf_arg;
 	if(!udf->at)            /* undefined */
-		GpGg.IntError(GpC, NO_CARET, "undefined function: %s", udf->udf_name);
+		R_Gg.IntErrorNoCaret("undefined function: %s", udf->udf_name);
 	for(i = 0; i < MAX_NUM_VAR; i++)
 		save_dummy[i] = udf->dummy_values[i];
 	Pop(num_params);
 	if(num_params.v.int_val != udf->dummy_num)
-		GpGg.IntError(GpC, NO_CARET, "function %s requires %d variable%c", udf->udf_name, udf->dummy_num, (udf->dummy_num == 1) ? '\0' : 's');
+		R_Gg.IntErrorNoCaret("function %s requires %d variable%c", udf->udf_name, udf->dummy_num, (udf->dummy_num == 1) ? '\0' : 's');
 	/* if there are more parameters than the function is expecting */
 	/* simply ignore the excess */
 	if(num_params.v.int_val > MAX_NUM_VAR) {
@@ -4375,10 +4375,10 @@ void GpEval::f_calln(GpArgument * x)
 	for(i = num_pop - 1; i >= 0; i--) {
 		Pop((udf->dummy_values[i]));
 		if(udf->dummy_values[i].type == ARRAY)
-			GpGg.IntError(GpC, NO_CARET, "f_calln: unsupported array operation");
+			R_Gg.IntErrorNoCaret("f_calln: unsupported array operation");
 	}
 	if(recursion_depth++ > STACK_DEPTH)
-		GpGg.IntError(GpC, NO_CARET, "recursion depth limit exceeded");
+		R_Gg.IntErrorNoCaret("recursion depth limit exceeded");
 	ExecuteAt(udf->at);
 	recursion_depth--;
 	for(i = 0; i < MAX_NUM_VAR; i++) {
@@ -4399,15 +4399,15 @@ void GpEval::f_sum(GpArgument * pArg)
 	Pop(beg);
 	Pop(varname);
 	if(beg.type != INTGR || end.type != INTGR)
-		GpGg.IntError(GpC, NO_CARET, "range specifiers of sum must have integer values");
+		R_Gg.IntErrorNoCaret("range specifiers of sum must have integer values");
 	if(varname.type != STRING)
-		GpGg.IntError(GpC, NO_CARET, "internal error: f_sum expects argument (varname) of type string.");
+		R_Gg.IntErrorNoCaret("internal error: f_sum expects argument (varname) of type string.");
 	udv = GetUdvByName(varname.v.string_val);
 	if(!udv)
-		GpGg.IntError(GpC, NO_CARET, "internal error: f_sum could not access iteration variable.");
+		R_Gg.IntErrorNoCaret("internal error: f_sum could not access iteration variable.");
 	udf = pArg->udf_arg;
 	if(!udf)
-		GpGg.IntError(GpC, NO_CARET, "internal error: f_sum could not access summation coefficient function");
+		R_Gg.IntErrorNoCaret("internal error: f_sum could not access summation coefficient function");
 	ret.SetComplex(0, 0);
 	for(i = beg.v.int_val; i<=end.v.int_val; ++i) {
 		// calculate f_i = f() with user defined variable i 
@@ -4952,7 +4952,7 @@ void GpEval::f_mod(GpArgument * pArg)
 	PopOrConvertFromString(b);
 	PopOrConvertFromString(a);          /* now do a%b */
 	if(a.type != INTGR || b.type != INTGR)
-		GpGg.IntError(GpC, NO_CARET, "non-integer operand for %%");
+		R_Gg.IntErrorNoCaret("non-integer operand for %%");
 	if(b.v.int_val)
 		Push(a.SetInt(a.v.int_val % b.v.int_val));
 	else {
@@ -5088,7 +5088,7 @@ void GpEval::f_factorial(GpArgument * pArg)
 			    val *= i;
 		    break;
 		default:
-		    GpGg.IntError(GpC, NO_CARET, "factorial (!) argument must be an integer");
+		    R_Gg.IntErrorNoCaret("factorial (!) argument must be an integer");
 		    return;     /* avoid gcc -Wall warning about val */
 	}
 	Push(a.SetComplex(val, 0.0));
@@ -5115,7 +5115,7 @@ void GpEval::f_concatenate(GpArgument * pArg)
 	}
 
 	if(a.type != STRING || b.type != STRING)
-		GpGg.IntError(GpC, NO_CARET, "internal error : STRING operator applied to non-STRING type");
+		R_Gg.IntErrorNoCaret("internal error : STRING operator applied to non-STRING type");
 
 	(void)Gstring(&result, gp_stradd(a.v.string_val, b.v.string_val));
 	gpfree_string(&a);
@@ -5130,7 +5130,7 @@ void GpEval::f_eqs(GpArgument * pArg)
 	Pop(b);
 	Pop(a);
 	if(a.type != STRING || b.type != STRING)
-		GpGg.IntError(GpC, NO_CARET, "internal error : STRING operator applied to non-STRING type");
+		R_Gg.IntErrorNoCaret("internal error : STRING operator applied to non-STRING type");
 	result.SetInt(!strcmp(a.v.string_val, b.v.string_val));
 	gpfree_string(&a);
 	gpfree_string(&b);
@@ -5143,7 +5143,7 @@ void GpEval::f_nes(GpArgument * pArg)
 	Pop(b);
 	Pop(a);
 	if(a.type != STRING || b.type != STRING)
-		GpGg.IntError(GpC, NO_CARET, "internal error : STRING operator applied to non-STRING type");
+		R_Gg.IntErrorNoCaret("internal error : STRING operator applied to non-STRING type");
 	result.SetInt((int)(strcmp(a.v.string_val, b.v.string_val)!=0));
 	gpfree_string(&a);
 	gpfree_string(&b);
@@ -5155,7 +5155,7 @@ void GpEval::f_strlen(GpArgument * pArg)
 	t_value a, result;
 	Pop(a);
 	if(a.type != STRING)
-		GpGg.IntError(GpC, NO_CARET, "internal error : strlen of non-STRING argument");
+		R_Gg.IntErrorNoCaret("internal error : strlen of non-STRING argument");
 	result.SetInt((int)gp_strlen(a.v.string_val));
 	gpfree_string(&a);
 	Push(&result);
@@ -5168,7 +5168,7 @@ void GpEval::f_strstrt(GpArgument * pArg)
 	Pop(needle);
 	Pop(haystack);
 	if(needle.type != STRING || haystack.type != STRING)
-		GpGg.IntError(GpC, NO_CARET, "internal error : non-STRING argument to strstrt");
+		R_Gg.IntErrorNoCaret("internal error : non-STRING argument to strstrt");
 	start = strstr(haystack.v.string_val, needle.v.string_val);
 	result.SetInt((int)(start ? (start-haystack.v.string_val)+1 : 0));
 	gpfree_string(&needle);
@@ -5193,15 +5193,15 @@ void GpEval::f_range(GpArgument * pArg)
 	else if(beg.type == CMPLX)
 		ibeg = (int)floor(beg.v.cmplx_val.real);
 	else
-		GpGg.IntError(GpC, NO_CARET, "internal error: non-numeric substring range specifier");
+		R_Gg.IntErrorNoCaret("internal error: non-numeric substring range specifier");
 	if(end.type == INTGR)
 		iend = end.v.int_val;
 	else if(end.type == CMPLX)
 		iend = (int)floor(end.v.cmplx_val.real);
 	else
-		GpGg.IntError(GpC, NO_CARET, "internal error: non-numeric substring range specifier");
+		R_Gg.IntErrorNoCaret("internal error: non-numeric substring range specifier");
 	if(full.type != STRING)
-		GpGg.IntError(GpC, NO_CARET, "internal error: substring range operator applied to non-STRING type");
+		R_Gg.IntErrorNoCaret("internal error: substring range operator applied to non-STRING type");
 	FPRINTF((stderr, "f_range( \"%s\", %d, %d)\n", full.v.string_val, beg.v.int_val, end.v.int_val));
 	if(iend > (int)gp_strlen(full.v.string_val))
 		iend = gp_strlen(full.v.string_val);
@@ -5229,13 +5229,13 @@ void GpEval::f_index(GpArgument * pArg)
 	Pop(index);
 	Pop(array);
 	if(array.type != ARRAY)
-		GpGg.IntError(GpC, NO_CARET, "internal error: attempt to index non-array variable");
+		R_Gg.IntErrorNoCaret("internal error: attempt to index non-array variable");
 	if(index.type == INTGR)
 		i = index.v.int_val;
 	else if(index.type == CMPLX)
 		i = (int)floor(index.v.cmplx_val.real);
 	if(i <= 0 || i > array.v.value_array[0].v.int_val)
-		GpGg.IntError(GpC, NO_CARET, "array index out of range");
+		R_Gg.IntErrorNoCaret("array index out of range");
 	Push(&array.v.value_array[i]);
 }
 
@@ -5259,11 +5259,11 @@ void GpEval::f_word(GpArgument * pArg)
 	char q;
 	char * s;
 	if(Pop(b).type != INTGR)
-		GpGg.IntError(GpC, NO_CARET, "internal error : non-INTGR argument");
+		R_Gg.IntErrorNoCaret("internal error : non-INTGR argument");
 	ntarget = b.v.int_val;
 
 	if(Pop(a).type != STRING)
-		GpGg.IntError(GpC, NO_CARET, "internal error : non-STRING argument");
+		R_Gg.IntErrorNoCaret("internal error : non-STRING argument");
 	s = a.v.string_val;
 
 	Gstring(&result, "");
@@ -5311,11 +5311,8 @@ void GpEval::f_word(GpArgument * pArg)
 void GpEval::f_sprintf(GpArgument * pArg)
 {
 	t_value a[10], * args;
-
 	t_value num_params;
-
 	t_value result;
-
 	char * buffer;
 	int bufsize;
 	char * next_start, * outpos, tempchar;
@@ -5337,7 +5334,7 @@ void GpEval::f_sprintf(GpArgument * pArg)
 		Pop(args[i]);  /* pop next argument */
 	// Make sure we got a format string of some sort
 	if(args[nargs-1].type != STRING)
-		GpGg.IntError(GpC, NO_CARET, "First parameter to sprintf must be a format string");
+		R_Gg.IntErrorNoCaret("First parameter to sprintf must be a format string");
 
 	/* Allocate space for the output string. If this isn't */
 	/* long enough we can reallocate a larger space later. */
@@ -5383,10 +5380,9 @@ void GpEval::f_sprintf(GpArgument * pArg)
 
 		/* string value <-> numerical value check */
 		if(spec_type == STRING && next_param->type != STRING)
-			GpGg.IntError(GpC, NO_CARET, "f_sprintf: attempt to print numeric value with string format");
+			R_Gg.IntErrorNoCaret("f_sprintf: attempt to print numeric value with string format");
 		if(spec_type != STRING && next_param->type == STRING)
-			GpGg.IntError(GpC, NO_CARET, "f_sprintf: attempt to print string value with numeric format");
-
+			R_Gg.IntErrorNoCaret("f_sprintf: attempt to print string value with numeric format");
 #ifdef HAVE_SNPRINTF
 		/* Use the format to print next arg */
 		switch(spec_type) {
@@ -5403,7 +5399,7 @@ void GpEval::f_sprintf(GpArgument * pArg)
 			    next_start, next_param->v.string_val);
 			    break;
 			default:
-			    GpGg.IntError(GpC, NO_CARET, "internal error: invalid spec_type");
+			    R_Gg.IntErrorNoCaret("internal error: invalid spec_type");
 		}
 #else
 		/* FIXME - this is bad; we should dummy up an snprintf equivalent */
@@ -5418,7 +5414,7 @@ void GpEval::f_sprintf(GpArgument * pArg)
 			    sprintf(outpos, next_start, next_param->v.string_val);
 			    break;
 			default:
-			    GpGg.IntError(GpC, NO_CARET, "internal error: invalid spec_type");
+			    R_Gg.IntErrorNoCaret("internal error: invalid spec_type");
 		}
 #endif
 
@@ -5483,7 +5479,7 @@ void GpEval::f_gprintf(GpArgument * pArg)
 	Pop(fmt);
 	// Make sure parameters are of the correct type 
 	if(fmt.type != STRING)
-		GpGg.IntError(GpC, NO_CARET, "First parameter to gprintf must be a format string");
+		R_Gg.IntErrorNoCaret("First parameter to gprintf must be a format string");
 	// Make sure we have at least as much space in the output as the format itself 
 	length = 80 + strlen(fmt.v.string_val);
 	buffer = (char *)malloc(length);
@@ -5505,7 +5501,7 @@ void GpEval::f_strftime(GpArgument * pArg)
 	Pop(val);
 	Pop(fmt);
 	if(fmt.type != STRING)
-		GpGg.IntError(GpC, NO_CARET, "First parameter to strftime must be a format string");
+		R_Gg.IntErrorNoCaret("First parameter to strftime must be a format string");
 
 	/* Prepare format string.
 	 * Make sure the resulting string not empty by adding a space.
@@ -5522,7 +5518,7 @@ void GpEval::f_strftime(GpArgument * pArg)
 	/* Get time_str */
 	length = gstrftime(buffer, buflen, fmtstr, val.Real());
 	if(length == 0 || length >= buflen)
-		GpGg.IntError(GpC, NO_CARET, "Resulting string is too long");
+		R_Gg.IntErrorNoCaret("Resulting string is too long");
 
 	/* Remove trailing space */
 	assert(buffer[length-1] == ' ');
@@ -5540,17 +5536,15 @@ void GpEval::f_strftime(GpArgument * pArg)
 void GpEval::f_strptime(GpArgument * pArg)
 {
 	t_value fmt, val;
-
 	struct tm time_tm;
-
 	double usec = 0.0;
 	double result;
 	Pop(val);
 	Pop(fmt);
 	if(fmt.type != STRING || val.type != STRING)
-		GpGg.IntError(GpC, NO_CARET, "Both parameters to strptime must be strings");
+		R_Gg.IntErrorNoCaret("Both parameters to strptime must be strings");
 	if(!fmt.v.string_val || !val.v.string_val)
-		GpGg.IntError(GpC, NO_CARET, "Internal error: string not allocated");
+		R_Gg.IntErrorNoCaret("Internal error: string not allocated");
 	/* string -> time_tm  plus extra fractional second */
 	gstrptime(val.v.string_val, fmt.v.string_val, &time_tm, &usec);
 	/* time_tm -> result */
@@ -5599,7 +5593,7 @@ void GpEval::f_time(GpArgument * pArg)
 		    f_strftime(pArg);
 		    break;
 		default:
-		    GpGg.IntError(GpC, NO_CARET, "internal error: invalid argument type");
+		    R_Gg.IntErrorNoCaret("internal error: invalid argument type");
 	}
 }
 
@@ -5620,13 +5614,13 @@ static enum DATA_TYPES sprintf_specifier(const char* format)
 	int string_pos, real_pos, int_pos, illegal_pos;
 	/* check if really format specifier */
 	if(format[0] != '%')
-		GpGg.IntError(GpC, NO_CARET, "internal error: sprintf_specifier called without '%'\n");
+		GpGg.IntErrorNoCaret("internal error: sprintf_specifier called without '%'\n");
 	string_pos  = strcspn(format, string_spec);
 	real_pos    = strcspn(format, real_spec);
 	int_pos     = strcspn(format, int_spec);
 	illegal_pos = strcspn(format, illegal_spec);
 	if(illegal_pos < int_pos && illegal_pos < real_pos && illegal_pos < string_pos)
-		GpGg.IntError(GpC, NO_CARET, "sprintf_specifier: used with invalid format specifier\n");
+		GpGg.IntErrorNoCaret("sprintf_specifier: used with invalid format specifier\n");
 	else if(string_pos < real_pos && string_pos < int_pos)
 		return STRING;
 	else if(real_pos < int_pos)
@@ -5634,11 +5628,12 @@ static enum DATA_TYPES sprintf_specifier(const char* format)
 	else if(int_pos < (int)strlen(format) )
 		return INTGR;
 	else
-		GpGg.IntError(GpC, NO_CARET, "sprintf_specifier: no format specifier\n");
+		GpGg.IntErrorNoCaret("sprintf_specifier: no format specifier\n");
 	return INTGR; /* Can't happen, but the compiler doesn't realize that */
 }
-
-/* execute a system call and return stream from STDOUT */
+//
+// execute a system call and return stream from STDOUT 
+//
 void GpEval::f_system(GpArgument * pArg)
 {
 	t_value val, result;
@@ -5648,7 +5643,7 @@ void GpEval::f_system(GpArgument * pArg)
 	Pop(val);
 	// Make sure parameters are of the correct type 
 	if(val.type != STRING)
-		GpGg.IntError(GpC, NO_CARET, "non-string argument to system()");
+		R_Gg.IntErrorNoCaret("non-string argument to system()");
 	FPRINTF((stderr, " f_system input = \"%s\"\n", val.v.string_val));
 	ierr = do_system_func(val.v.string_val, &output);
 	FillGpValInteger("GPVAL_ERRNO", ierr);
@@ -5673,11 +5668,11 @@ void GpEval::f_assign(GpArgument * pArg)
 	Pop(a);  /* name of variable */
 
 	if(a.type != STRING)
-		GpGg.IntError(GpC, NO_CARET, "attempt to assign to something other than a named variable");
+		R_Gg.IntErrorNoCaret("attempt to assign to something other than a named variable");
 	if(!strncmp(a.v.string_val, "GPVAL_", 6) || !strncmp(a.v.string_val, "MOUSE_", 6))
-		GpGg.IntError(GpC, NO_CARET, "attempt to assign to a read-only variable");
+		R_Gg.IntErrorNoCaret("attempt to assign to a read-only variable");
 	if(b.type == ARRAY)
-		GpGg.IntError(GpC, NO_CARET, "unsupported array operation");
+		R_Gg.IntErrorNoCaret("unsupported array operation");
 	udv = AddUdvByName(a.v.string_val);
 	gpfree_string(&a);
 	if(udv->udv_value.type == ARRAY) {
@@ -5687,9 +5682,9 @@ void GpEval::f_assign(GpArgument * pArg)
 		else if(index.type == CMPLX)
 			i = (int)floor(index.v.cmplx_val.real);
 		else
-			GpGg.IntError(GpC, NO_CARET, "non-numeric array index");
+			R_Gg.IntErrorNoCaret("non-numeric array index");
 		if(i <= 0 || i > udv->udv_value.v.value_array[0].v.int_val)
-			GpGg.IntError(GpC, NO_CARET, "array index out of range");
+			R_Gg.IntErrorNoCaret("array index out of range");
 		gpfree_string(&udv->udv_value.v.value_array[i]);
 		udv->udv_value.v.value_array[i] = b;
 	}
@@ -5745,23 +5740,24 @@ void GpEval::f_hsv2rgb(GpArgument * pArg)
 	Pop(s);
 	Pop(h);
 	if(h.type == INTGR)
-		color.r = h.v.int_val;
+		color.R = h.v.int_val;
 	else if(h.type == CMPLX)
-		color.r = h.v.cmplx_val.real;
+		color.R = h.v.cmplx_val.real;
 	if(s.type == INTGR)
-		color.g = s.v.int_val;
+		color.G = s.v.int_val;
 	else if(s.type == CMPLX)
-		color.g = s.v.cmplx_val.real;
+		color.G = s.v.cmplx_val.real;
 	if(v.type == INTGR)
-		color.b = v.v.int_val;
+		color.B = v.v.int_val;
 	else if(v.type == CMPLX)
-		color.b = v.v.cmplx_val.real;
-	SETMAX(color.r, 0);
-	SETMAX(color.g, 0);
-	SETMAX(color.b, 0);
-	SETMIN(color.r, 1.0);
-	SETMIN(color.g, 1.0);
-	SETMIN(color.b, 1.0);
+		color.B = v.v.cmplx_val.real;
+	//SETMAX(color.r, 0);
+	//SETMAX(color.g, 0);
+	//SETMAX(color.b, 0);
+	//SETMIN(color.r, 1.0);
+	//SETMIN(color.g, 1.0);
+	//SETMIN(color.b, 1.0);
+	color.Constrain();
 	result.SetInt(hsv2rgb(&color));
 	Push(&result);
 }
@@ -5794,7 +5790,7 @@ void GpEval::f_column(GpArgument * pArg)
 	int column;
 	Pop(a);
 	if(!GpDf.evaluate_inside_using)
-		GpGg.IntError(GpC, GpC.CToken-1, "column() called from invalid context");
+		R_Gg.IntError(GpGg.Gp__C.CToken-1, "column() called from invalid context");
 	if(a.type == STRING) {
 		int j;
 		char * name = a.v.string_val;
@@ -5900,7 +5896,7 @@ void GpEval::f_columnhead(GpArgument * pArg)
 	static char placeholder[] = "@COLUMNHEAD0000@";
 	t_value a;
 	if(!GpDf.evaluate_inside_using)
-		GpGg.IntError(GpC, GpC.CToken-1, "columnhead() called from invalid context");
+		R_Gg.IntError(GpGg.Gp__C.CToken-1, "columnhead() called from invalid context");
 	Pop(a);
 	GpDf.column_for_key_title = (int)a.Real();
 	if(GpDf.column_for_key_title < 0 || GpDf.column_for_key_title > 9999)
@@ -5943,16 +5939,16 @@ void GpEval::f_timecolumn(GpArgument * pArg)
 		    // No format parameter passed (v4-style call) 
 		    // Only needed for backward compatibility 
 		    column = (int)magnitude(&b);
-		    b.v.string_val = gp_strdup(GpGg.P_TimeFormat);
+		    b.v.string_val = gp_strdup(R_Gg.P_TimeFormat);
 		    b.type = STRING;
 		    break;
 		default:
-		    GpGg.IntError(GpC, NO_CARET, "wrong number of parameters to timecolumn");
+		    R_Gg.IntErrorNoCaret("wrong number of parameters to timecolumn");
 	}
 	if(!GpDf.evaluate_inside_using)
-		GpGg.IntError(GpC, GpC.CToken-1, "timecolumn() called from invalid context");
+		R_Gg.IntError(GpGg.Gp__C.CToken-1, "timecolumn() called from invalid context");
 	if(b.type != STRING)
-		GpGg.IntError(GpC, NO_CARET, "non-string passed as a format to timecolumn");
+		R_Gg.IntErrorNoCaret("non-string passed as a format to timecolumn");
 	if(column < 1 || column > GpDf.df_no_cols || !GpDf.df_column[column - 1].position ||
 		!gstrptime(GpDf.df_column[column - 1].position, b.v.string_val, &tm, &usec)) {
 		undefined = true;

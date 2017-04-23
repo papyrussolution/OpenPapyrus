@@ -22,7 +22,7 @@ int __os_rename(ENV * env, const char * oldname, const char * newname, uint32 si
 {
 	_TCHAR * toldname, * tnewname;
 	int ret;
-	DB_ENV * dbenv = (env == NULL) ? NULL : env->dbenv;
+	DB_ENV * dbenv = env ? env->dbenv : 0;
 	if(dbenv != NULL && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS|DB_VERB_FILEOPS_ALL))
 		__db_msg(env, DB_STR_A("0036", "fileops: rename %s to %s", "%s %s"), oldname, newname);
 	TO_TSTRING(env, oldname, toldname, ret);

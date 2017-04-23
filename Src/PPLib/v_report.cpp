@@ -39,7 +39,7 @@ int SLAPI PPInetAccountManager::GetMailAccounts(MailClientType mct, PPID * pActi
 	int    ok = 1, all = (mct == mctAll) ? 1 : 0;
 	PPInetAccntArray accounts;
 
-	THROW_PP(pAccounts, PPERR_INVPARAM);
+	THROW_INVARG(pAccounts);
 	pAccounts->freeAll();
 	if(mct == mctDefault) {
 		THROW(GetDefaultMailClient(&mct));
@@ -74,7 +74,7 @@ int SLAPI PPInetAccountManager::GetOutlookAccounts(PPID * pActiveID, PPInetAccnt
 	SString   active_id, accnt_id;
 	WinRegKey reg_accts;
 
-	THROW_PP(pAccounts, PPERR_INVPARAM);
+	THROW_INVARG(pAccounts);
 	pAccounts->freeAll();
 	THROW_PP(reg_accts.Open(HKEY_CURRENT_USER, p_root_key, 1, 1), PPERR_SLIB);
 	THROW_PP(reg_accts.GetBinary(p_param_defmailacct, w_buf, sizeof(w_buf)), PPERR_SLIB)
@@ -138,7 +138,7 @@ int SLAPI PPInetAccountManager::GetOutlookExpressAccounts(PPID * pActiveID, PPIn
 	SString accnt_id, active_id;
 	WinRegKey reg_accts;
 
-	THROW_PP(pAccounts, PPERR_INVPARAM);
+	THROW_INVARG(pAccounts);
 	pAccounts->freeAll();
 	THROW_PP(reg_accts.Open(HKEY_CURRENT_USER, p_acctmngr_key, 1, 1), PPERR_SLIB);
 	THROW_PP(reg_accts.GetString(p_param_defmailacct, buf, sizeof(buf)), PPERR_SLIB);
@@ -188,7 +188,7 @@ int SLAPI PPInetAccountManager::GetOutlookExpressAccounts(PPID * pActiveID, PPIn
 int SLAPI PPInetAccountManager::GetBatAccounts(PPID * pActiveAcctID, PPInetAccntArray * pAccounts)
 {
 	int ok = 1;
-	THROW_PP(pAccounts, PPERR_INVPARAM);
+	THROW_INVARG(pAccounts);
 	pAccounts->freeAll();
 	CATCHZOK
 	return ok;
@@ -754,7 +754,7 @@ int SLAPI PPViewReport::CreateStdRptList(ReportViewItemArray * pList)
 	SString sect;
 	StringSet sections(";");
 	PPIniFile * p_file = P_StdRptFile;
-	THROW_PP(pList, PPERR_INVPARAM);
+	THROW_INVARG(pList);
 	if(!p_file) {
 		SString filename;
 		PPGetFilePath(PPPATH_BIN, PPFILNAM_STDRPT_INI, filename);
@@ -811,7 +811,7 @@ int SLAPI PPViewReport::SplitLocalRptStr(PPIniFile * pFile, int codepage, SStrin
 	SString par, val;
 	StringSet ss("=");
 	MEMSZERO(item);
-	THROW_PP(pFile, PPERR_INVPARAM);
+	THROW_INVARG(pFile);
 	ss.setBuf(rBuf, rBuf.Len() + 1);
 	ss.get(&k, par);
 	ss.get(&k, val);
@@ -852,7 +852,7 @@ int SLAPI PPViewReport::CreateRptList(ReportViewItemArray * pList)
 	PPIniFile * p_file = P_RptFile;
 	SString sect;
 	StringSet sections(";");
-	THROW_PP(pList, PPERR_INVPARAM);
+	THROW_INVARG(pList);
 	if(!p_file) {
 		SString filename;
 		PPGetFilePath(PPPATH_BIN, (uint)PPFILNAM_REPORT_INI, filename);

@@ -74,8 +74,8 @@ static void unset_missing();
 //static void unset_pm3d();
 //static void unset_palette();
 static void unset_psdir();
-static void unset_surface();
-static void unset_table();
+//static void unset_surface();
+//static void unset_table();
 //static void unset_terminal();
 static void unset_ticslevel();
 static void unset_timefmt();
@@ -99,7 +99,7 @@ void GpGadgets::UnsetCommand(GpCommand & rC)
 	}
 	if(forever_iteration(rC.P.P_SetIterator)) {
 		rC.P.CleanupSetIterator();
-		GpGg.IntError(GpC, save_token, "unbounded iteration");
+		GpGg.IntError(save_token, "unbounded iteration");
 	}
 	found_token = rC.LookupTable(&set_tbl[0], rC.CToken);
 	// HBB 20000506: rationalize occurences of rC.CToken++ ...
@@ -180,7 +180,7 @@ ITERATE:
 		    UnsetIsoSamples();
 		    break;
 		case S_JITTER:
-		    unset_jitter();
+		    UnsetJitter();
 		    break;
 		case S_KEY:
 		    //unset_key();
@@ -299,7 +299,7 @@ ITERATE:
 			//static void unset_output()
 			{
 				if(IsMultiPlot) {
-					IntError(rC, rC.CToken, "you can't change the output in multiplot mode");
+					IntErrorCurToken("you can't change the output in multiplot mode");
 				}
 				else {
 					term_set_output(NULL);
@@ -385,10 +385,26 @@ ITERATE:
 		    UnsetStyle(rC);
 		    break;
 		case S_SURFACE:
-		    unset_surface();
+		    //unset_surface();
+			//
+			// process 'unset surface' command 
+			//
+			//static void unset_surface()
+			{
+				draw_surface = false;
+			}
 		    break;
 		case S_TABLE:
-		    unset_table();
+		    //unset_table();
+			//
+			// process 'unset table' command 
+			//
+			//static void unset_table()
+			{
+				SFile::ZClose(&table_outfile);
+				table_var = NULL;
+				table_mode = false;
+			}
 		    break;
 		case S_TERMINAL:
 		    UnsetTerminal();
@@ -572,7 +588,7 @@ ITERATE:
 		    break;
 		case S_INVALID:
 		default:
-		    IntError(rC, rC.CToken, "Unrecognized option.  See 'help unset'.");
+		    IntErrorCurToken("Unrecognized option.  See 'help unset'.");
 		    break;
 	}
 	if(next_iteration(rC.P.P_SetIterator)) {
@@ -594,7 +610,7 @@ void GpGadgets::UnsetArrow(GpCommand & rC)
 		// get tag
 		int    tag = rC.IntExpression();
 		if(!rC.EndOfCommand())
-			IntError(rC, rC.CToken, "extraneous arguments to unset arrow");
+			IntErrorCurToken("extraneous arguments to unset arrow");
 		for(p_arrow = first_arrow, p_prev_arrow = NULL; p_arrow; p_prev_arrow = p_arrow, p_arrow = p_arrow->next) {
 			if(p_arrow->tag == tag) {
 				DeleteArrow(p_prev_arrow, p_arrow);
@@ -687,7 +703,7 @@ void GpGadgets::UnsetClip(GpCommand & rC)
 	else if(rC.AlmostEq("t$wo"))
 		ClipLines2 = false;
 	else
-		IntError(rC, rC.CToken, "expecting 'points', 'one', or 'two'");
+		IntErrorCurToken("expecting 'points', 'one', or 'two'");
 	rC.CToken++;
 }
 
@@ -847,7 +863,7 @@ static void unset_textbox_style()
 #endif
 
 // process 'unset historysize' command DEPRECATED 
-//static void unset_historysize() { GpC.H.gnuplot_history_size = -1; } // don't ever truncate the history
+//static void unset_historysize() { GpGg.Gp__C.H.gnuplot_history_size = -1; } // don't ever truncate the history
 //
 // process 'unset isosamples' command 
 //
@@ -889,7 +905,7 @@ void GpGadgets::UnsetLabel(GpCommand & rC)
 		// get tag 
 		tag = rC.IntExpression();
 		if(!rC.EndOfCommand())
-			IntError(rC, rC.CToken, "extraneous arguments to unset label");
+			IntErrorCurToken("extraneous arguments to unset label");
 		for(p_label = first_label, p_prev_label = NULL; p_label != NULL; p_prev_label = p_label, p_label = p_label->next) {
 			if(p_label->tag == tag) {
 				DeleteLabel(p_prev_label, p_label);
@@ -967,7 +983,7 @@ void GpGadgets::UnsetLogscale(GpCommand & rC)
 			axis = lookup_table_nth_reverse(axisname_tbl, NUMBER_OF_MAIN_VISIBLE_AXES, rC.P_InputLine + rC.P_Token[rC.CToken].start_index + i);
 			if(axis < 0) {
 				rC.P_Token[rC.CToken].start_index += i;
-				IntError(rC, rC.CToken, "invalid axis");
+				IntErrorCurToken("invalid axis");
 			}
 			ResetLogScale(&AxA[axisname_tbl[axis].value]);
 			i += strlen(axisname_tbl[axis].key);
@@ -1169,22 +1185,8 @@ void GpGadgets::UnsetStyle(GpCommand & rC)
 		    rC.CToken++;
 		    break;
 		default:
-		    IntError(rC, rC.CToken, "unrecognized style");
+		    IntErrorCurToken("unrecognized style");
 	}
-}
-
-/* process 'unset surface' command */
-static void unset_surface()
-{
-	GpGg.draw_surface = false;
-}
-
-/* process 'unset table' command */
-static void unset_table()
-{
-	SFile::ZClose(&table_outfile);
-	table_var = NULL;
-	table_mode = false;
 }
 //
 // process 'unset terminal' comamnd
@@ -1296,7 +1298,7 @@ void GpGadgets::ResetCommand(GpCommand & rC)
 	IsInteractive = false;
 	UnsetSamples();
 	UnsetIsoSamples();
-	unset_jitter();
+	UnsetJitter();
 	DestroyArrows();
 	UnsetArrowStyles();
 	DestroyLabeles();

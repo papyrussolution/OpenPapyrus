@@ -72,8 +72,8 @@ static bool   can_pm3d = false;
 //
 // put entries in the key
 //
-static void key_sample_line(int xl, int yl);
-static void key_sample_point(int xl, int yl, int pointtype);
+//static void key_sample_line(GpTermEntry * pT, int xl, int yl);
+//static void key_sample_point(int xl, int yl, int pointtype);
 //static void key_sample_line_pm3d(SurfacePoints * plot, int xl, int yl);
 //static void key_sample_point_pm3d(SurfacePoints * plot, int xl, int yl, int pointtype);
 static void check3d_for_variable_color(SurfacePoints * plot, GpCoordinate * point);
@@ -111,9 +111,9 @@ static double front_x, front_y;
 //
 // unit vector (terminal coords)
 static double tic_unitx, tic_unity, tic_unitz;
-static void do_3dkey_layout(legend_key *key, int * xinkey, int * yinkey);
+//static void do_3dkey_layout(GpTermEntry * pT, legend_key *key, int * xinkey, int * yinkey);
 //static void plot3d_points(SurfacePoints* plot);
-static void plot3d_vectors(SurfacePoints* plot);
+//static void plot3d_vectors(SurfacePoints* plot);
 // no pm3d for impulses
 //static void plot3d_lines_pm3d(SurfacePoints* plot);
 static void get_surface_cbminmax(SurfacePoints * plot, double * cbmin, double * cbmax);
@@ -421,13 +421,95 @@ void GpGadgets::PlaceArrows3D(int layer)
 // we precalculate features of the key, to save lots of nested
 // ifs in code - x,y = user supplied or computed position of key taken to be inner edge of a line sample
 //
-static int key_sample_left;     /* offset from x for left of line sample */
-static int key_sample_right;    /* offset from x for right of line sample */
-static int key_point_offset;    /* offset from x for point sample */
-static int key_text_left;       /* offset from x for left-justified text */
-static int key_text_right;      /* offset from x for right-justified text */
-static int key_size_left;       /* distance from x to left edge of box */
-static int key_size_right;      /* distance from x to right edge of box */
+static int key_sample_left;     // @global offset from x for left of line sample 
+static int key_sample_right;    // @global offset from x for right of line sample
+static int key_point_offset;    // @global offset from x for point sample 
+static int key_text_left;       // @global offset from x for left-justified text 
+static int key_text_right;      // @global offset from x for right-justified text 
+static int key_size_left;       // @global distance from x to left edge of box 
+static int key_size_right;      // @global distance from x to right edge of box 
+//
+//
+//
+void GpGadgets::KeySampleLine(GpTermEntry * pT, int xl, int yl)
+{
+	BoundingBox * p_clip_save = P_Clip;
+	/* Clip against Canvas */
+	P_Clip = (pT->flags & TERM_CAN_CLIP) ? 0 : &Canvas;
+	(pT->layer)(TERM_LAYER_BEGIN_KEYSAMPLE);
+	DrawClipLine(term, xl + key_sample_left, yl, xl + key_sample_right, yl);
+	(pT->layer)(TERM_LAYER_END_KEYSAMPLE);
+	P_Clip = p_clip_save;
+}
+
+void GpGadgets::KeySamplePoint(GpTermEntry * pT, int xl, int yl, int pointtype)
+{
+	BoundingBox * p_clip_save = P_Clip;
+	// Clip against Canvas 
+	P_Clip = (pT->flags & TERM_CAN_CLIP) ? 0 : &Canvas;
+	(pT->layer)(TERM_LAYER_BEGIN_KEYSAMPLE);
+	if(!ClipPoint(xl + key_point_offset, yl))
+		(*pT->point)(xl + key_point_offset, yl, pointtype);
+	(pT->layer)(TERM_LAYER_END_KEYSAMPLE);
+	P_Clip = p_clip_save;
+}
+//
+// Plot the curves in VECTORS style
+//
+void GpGadgets::Plot3dVectors(GpTermEntry * pT, SurfacePoints * pPlot)
+{
+	double x1, y1, x2, y2;
+	GpCoordinate * p_tails = pPlot->iso_crvs->points;
+	GpCoordinate * p_heads = pPlot->iso_crvs->next->points;
+	/* Only necessary once, unless variable arrow style */
+	arrow_style_type _ap = pPlot->arrow_properties;
+	ApplyLpProperties(pT, &_ap.lp_properties);
+	ApplyHeadProperties(_ap);
+	for(int i = 0; i < pPlot->iso_crvs->p_count; i++) {
+		if(p_heads[i].type != UNDEFINED && p_tails[i].type != UNDEFINED){
+			/* variable arrow style read from extra data column */
+			if(pPlot->arrow_properties.tag == AS_VARIABLE) {
+				int as = (int)(p_heads[i].CRD_COLOR);
+				arrow_use_properties(&_ap, as);
+				ApplyLpProperties(pT, &_ap.lp_properties);
+				ApplyHeadProperties(_ap);
+			}
+			else {
+				check3d_for_variable_color(pPlot, &p_heads[i]);
+			}
+			// The normal case: both ends in range 
+			if(p_heads[i].type == INRANGE && p_tails[i].type == INRANGE) {
+				Map3DXY(p_tails[i].x, p_tails[i].y, p_tails[i].z, &x1, &y1);
+				Map3DXY(p_heads[i].x, p_heads[i].y, p_heads[i].z, &x2, &y2);
+				DrawClipArrow(pT, (int)x1, (int)y1, (int)x2, (int)y2, _ap.head);
+				// "set clip two" - both ends out of range 
+			}
+			else if(p_heads[i].type != INRANGE && p_tails[i].type != INRANGE) {
+				double lx[2], ly[2], lz[2];
+				if(!ClipLines2)
+					continue;
+				TwoEdge3DIntersect(&p_tails[i], &p_heads[i], lx, ly, lz);
+				Map3DXY(lx[0], ly[0], lz[0], &x1, &y1);
+				Map3DXY(lx[1], ly[1], lz[1], &x2, &y2);
+				DrawClipArrow(pT, (int)x1, (int)y1, (int)x2, (int)y2, _ap.head);
+				// "set clip one" - one end out of range 
+			}
+			else if(ClipLines1) {
+				double clip_x, clip_y, clip_z;
+				Edge3DIntersect(&p_heads[i], &p_tails[i], &clip_x, &clip_y, &clip_z);
+				if(p_tails[i].type == INRANGE) {
+					Map3DXY(p_tails[i].x, p_tails[i].y, p_tails[i].z, &x1, &y1);
+					Map3DXY(clip_x, clip_y, clip_z, &x2, &y2);
+				}
+				else {
+					Map3DXY(clip_x, clip_y, clip_z, &x1, &y1);
+					Map3DXY(p_heads[i].x, p_heads[i].y, p_heads[i].z, &x2, &y2);
+				}
+				DrawClipArrow(pT, (int)x1, (int)y1, (int)x2, (int)y2, _ap.head);
+			}
+		}
+	}
+}
 
 //do_3dplot
 void GpGadgets::Do3DPlot(GpTermEntry * pT, SurfacePoints * pPlotList, int pcount/* count of pPlotList in linked list */, int quick/* !=0 means plot only axes etc., for quick rotation */)
@@ -443,7 +525,7 @@ void GpGadgets::Do3DPlot(GpTermEntry * pT, SurfacePoints * pPlotList, int pcount
 	bool pm3d_order_depth = 0;
 	/* Initiate transformation matrix using the global view variables. */
 	if(splot_map)
-		SplotMapActivate(GpC);
+		SplotMapActivate(Gp__C);
 	mat_rot_z(surface_rot_z, trans_mat);
 	mat_rot_x(surface_rot_x, mat);
 	mat_mult(trans_mat, trans_mat, mat);
@@ -454,7 +536,7 @@ void GpGadgets::Do3DPlot(GpTermEntry * pT, SurfacePoints * pPlotList, int pcount
 	 * Y axis started at zero.   -RKC
 	 */
 	if(IsPolar)
-		GpGg.IntError(GpC, NO_CARET, "Cannot splot in polar GpCoordinate system.");
+		IntErrorNoCaret("Cannot splot in polar GpCoordinate system.");
 	// absolute or relative placement of xyplane along z
 	base_z = xyplane.IsAbsolute ? LogValue((AXIS_INDEX)0, xyplane.Z) : (GetZ().Range.low - (GetZ().GetRange()) * xyplane.Z);
 	// If we are to draw the bottom grid make sure zmin is updated properly.
@@ -473,11 +555,11 @@ void GpGadgets::Do3DPlot(GpTermEntry * pT, SurfacePoints * pPlotList, int pcount
 		ceiling_z = GetZ().Range.upp;
 	}
 	if(GetX().Range.low == GetX().Range.upp)
-		GpGg.IntError(GpC, NO_CARET, "x_min3d should not equal x_max3d!");
+		IntErrorNoCaret("x_min3d should not equal x_max3d!");
 	if(GetY().Range.low == GetY().Range.upp)
-		GpGg.IntError(GpC, NO_CARET, "y_min3d should not equal y_max3d!");
+		IntErrorNoCaret("y_min3d should not equal y_max3d!");
 	if(GetZ().Range.low == GetZ().Range.upp)
-		GpGg.IntError(GpC, NO_CARET, "z_min3d should not equal z_max3d!");
+		IntErrorNoCaret("z_min3d should not equal z_max3d!");
 	TermStartPlot(pT);
 	(pT->layer)(TERM_LAYER_3DPLOT);
 	screen_ok = false;
@@ -636,7 +718,7 @@ void GpGadgets::Do3DPlot(GpTermEntry * pT, SurfacePoints * pPlotList, int pcount
 		reset_hidden_line_removal();
 	}
 	/* WORK OUT KEY POSITION AND SIZE */
-	do_3dkey_layout(p_key, &xl, &yl);
+	Do3DkeyLayout(pT, p_key, &xl, &yl);
 	/* "set p_key opaque" requires two passes, with the p_key drawn in the second pass */
 	xl_save = xl; yl_save = yl;
 SECOND_KEY_PASS:
@@ -792,7 +874,7 @@ SECOND_KEY_PASS:
 					    break;
 					case VECTOR:
 					    if(!hidden3d || p_plot->opt_out_of_hidden3d)
-						    plot3d_vectors(p_plot);
+						    Plot3dVectors(pT, p_plot);
 					    break;
 					case PM3DSURFACE:
 					    if(draw_this_surface) {
@@ -829,9 +911,8 @@ SECOND_KEY_PASS:
 					    ProcessImage(pT, p_plot, IMG_PLOT);
 					    break;
 					case PARALLELPLOT:
-					    GpGg.IntError(GpC, NO_CARET, "plot style parallelaxes not supported in 3D");
+					    IntErrorNoCaret("plot style parallelaxes not supported in 3D");
 					    break;
-
 					case PLOT_STYLE_NONE:
 					case TABLESTYLE:
 					    /* cannot happen */
@@ -845,7 +926,7 @@ SECOND_KEY_PASS:
 					case FILLEDCURVES:
 					case IMPULSES:
 					    if(!(hidden3d && draw_this_surface))
-						    key_sample_line(xl, yl);
+						    KeySampleLine(pT, xl, yl);
 					    break;
 					case STEPS: /* HBB: I think these should be here */
 					case FILLSTEPS:
@@ -858,7 +939,7 @@ SECOND_KEY_PASS:
 						    KeySampleLinePm3D(pT, p_plot, xl, yl);
 					    /* Contour plot with no surface, all contours use the same linetype */
 					    else if(p_plot->contours != NULL && clabel_onecolor) {
-						    key_sample_line(xl, yl);
+						    KeySampleLine(pT, xl, yl);
 					    }
 					    break;
 					case YERRORLINES: /* ignored; treat like points */
@@ -883,7 +964,7 @@ SECOND_KEY_PASS:
 					case LABELPOINTS:
 					    if((p_plot->labels->lp_properties.flags & LP_SHOW_POINTS)) {
 						    ApplyLpProperties(pT, &p_plot->labels->lp_properties);
-						    key_sample_point(xl, yl, p_plot->labels->lp_properties.p_type);
+						    KeySamplePoint(pT, xl, yl, p_plot->labels->lp_properties.p_type);
 					    }
 					    break;
 					case LINESPOINTS:
@@ -964,13 +1045,13 @@ SECOND_KEY_PASS:
 								case FSTEPS:
 								case HISTEPS:
 								case PM3DSURFACE:
-								    key_sample_line(xl, yl);
+								    KeySampleLine(pT, xl, yl);
 								    break;
 								case POINTSTYLE:
-								    key_sample_point(xl, yl, p_plot->lp_properties.p_type);
+								    KeySamplePoint(pT, xl, yl, p_plot->lp_properties.p_type);
 								    break;
 								case DOTS:
-								    key_sample_point(xl, yl, -1);
+								    KeySamplePoint(pT, xl, yl, -1);
 								    break;
 								default:
 								    break;
@@ -1078,7 +1159,7 @@ SECOND_KEY_PASS:
 		term_hidden_line_removal();
 	}
 	if(splot_map)
-		SplotMapDeactivate(GpC);
+		SplotMapDeactivate(Gp__C);
 }
 //
 // plot3d_impulses:
@@ -1575,8 +1656,8 @@ void GpGadgets::Cntr3DLabels(gnuplot_contours * cntr, char * level_text, GpTextL
 //
 // map xmin | xmax to 0 | 1 and same for y 0.1 avoids any rounding errors
 //
-#define MAP_HEIGHT_X(x) ((int)(((x)-GpGg.GetX().Range.low)/(GpGg.GetX().GetRange())+0.1))
-#define MAP_HEIGHT_Y(y) ((int)(((y)-GpGg.GetY().Range.low)/(GpGg.GetY().GetRange())+0.1))
+#define MAP_HEIGHT_X(x) ((int)(((x)-GetX().Range.low)/(GetX().GetRange())+0.1))
+#define MAP_HEIGHT_Y(y) ((int)(((y)-GetY().Range.low)/(GetY().GetRange())+0.1))
 //
 // if point is at corner, update height[][] and depth[][]
 // we are still assuming that extremes of surfaces are at corners,
@@ -2432,7 +2513,7 @@ int GpGadgets::Map3DGetPosition(GpPosition * pos, const char * what, double * xp
 		    break;
 	}
 	if(plot_coords && (screen_coords || char_coords))
-		GpGg.IntError(GpC, NO_CARET, "Cannot mix screen or character coords with plot coords");
+		IntErrorNoCaret("Cannot mix screen or character coords with plot coords");
 	return (screen_coords || char_coords);
 }
 
@@ -2512,30 +2593,6 @@ void GpGraphics::KeyText(int xl, int yl, char * text)
 	}
 	(term->layer)(TERM_LAYER_END_KEYSAMPLE);
 }
-
-static void key_sample_line(int xl, int yl)
-{
-	BoundingBox * clip_save = GpGg.P_Clip;
-	/* Clip against GpGg.Canvas */
-	GpGg.P_Clip = (term->flags & TERM_CAN_CLIP) ? 0 : &GpGg.Canvas;
-	(term->layer)(TERM_LAYER_BEGIN_KEYSAMPLE);
-	GpGg.DrawClipLine(term, xl + key_sample_left, yl, xl + key_sample_right, yl);
-	(term->layer)(TERM_LAYER_END_KEYSAMPLE);
-	GpGg.P_Clip = clip_save;
-}
-
-static void key_sample_point(int xl, int yl, int pointtype)
-{
-	BoundingBox * clip_save = GpGg.P_Clip;
-	// Clip against GpGg.Canvas 
-	GpGg.P_Clip = (term->flags & TERM_CAN_CLIP) ? 0 : &GpGg.Canvas;
-	(term->layer)(TERM_LAYER_BEGIN_KEYSAMPLE);
-	if(!GpGg.ClipPoint(xl + key_point_offset, yl))
-		(*term->point)(xl + key_point_offset, yl, pointtype);
-	(term->layer)(TERM_LAYER_END_KEYSAMPLE);
-	GpGg.P_Clip = clip_save;
-}
-
 /*
  * returns minimal and maximal values of the cb-range (or z-range if taking the
  * color from the z value) of the given surface
@@ -2585,7 +2642,7 @@ void GpGadgets::KeySampleLinePm3D(GpTermEntry * pT, SurfacePoints * pPlot, int x
 		if(pPlot->lp_properties.l_type == LT_COLORFROMCOLUMN)
 			lp_use_properties(&lptmp, (int)(pPlot->iso_crvs->points[0].CRD_COLOR));
 		ApplyPm3DColor(pT, &lptmp.pm3d_color);
-		key_sample_line(xl, yl);
+		KeySampleLine(pT, xl, yl);
 	}
 	else {
 		// color gradient only over the cb-values of the surface, if smaller than the
@@ -2617,7 +2674,7 @@ void GpGadgets::KeySampleLinePm3D(GpTermEntry * pT, SurfacePoints * pPlot, int x
 //static void key_sample_point_pm3d(SurfacePoints * plot, int xl, int yl, int pointtype)
 void GpGadgets::KeySamplePointPm3D(GpTermEntry * pT, SurfacePoints * plot, int xl, int yl, int pointtype)
 {
-	BoundingBox * clip_save = GpGg.P_Clip;
+	BoundingBox * clip_save = P_Clip;
 	int x_to = xl + key_sample_right;
 	int i = 0, x1 = xl + key_sample_left, x2;
 	double cbmin, cbmax;
@@ -2625,7 +2682,7 @@ void GpGadgets::KeySamplePointPm3D(GpTermEntry * pT, SurfacePoints * plot, int x
 	int colortype = plot->lp_properties.pm3d_color.type;
 	/* rule for number of steps: 3*char_width*pointsize or char_width for dots,
 	 * but at least 3 points */
-	double step = term->HChr * (pointtype == -1 ? 1 : 3*(1+(GpGg.PtSz-1)/2));
+	double step = term->HChr * (pointtype == -1 ? 1 : 3*(1+(PtSz-1)/2));
 	int steps = (int)(((double)(key_sample_right - key_sample_left)) / step + 0.5);
 	SETMAX(steps, 2);
 	step = ((double)(key_sample_right - key_sample_left)) / steps;
@@ -2634,89 +2691,32 @@ void GpGadgets::KeySamplePointPm3D(GpTermEntry * pT, SurfacePoints * plot, int x
 		lp_style_type lptmp = plot->lp_properties;
 		if(plot->lp_properties.l_type == LT_COLORFROMCOLUMN)
 			lp_use_properties(&lptmp, (int)(plot->iso_crvs->points[0].CRD_COLOR));
-		GpGg.ApplyPm3DColor(term, &lptmp.pm3d_color);
-		key_sample_point(xl, yl, pointtype);
+		ApplyPm3DColor(term, &lptmp.pm3d_color);
+		KeySamplePoint(pT, xl, yl, pointtype);
 	}
 	else {
 		// color gradient only over the cb-values of the surface, if smaller than the
 		// cb-axis range (the latter are gray values [0:1])
 		get_surface_cbminmax(plot, &cbmin, &cbmax);
 		if(cbmin <= cbmax) { // splot 1/0, for example, not
-			cbmin = MAX(cbmin, GpGg.GetCB().Range.low);
-			cbmax = MIN(cbmax, GpGg.GetCB().Range.upp);
-			gray_from = GpGg.CB2Gray(cbmin);
-			gray_to = GpGg.CB2Gray(cbmax);
+			cbmin = MAX(cbmin, GetCB().Range.low);
+			cbmax = MIN(cbmax, GetCB().Range.upp);
+			gray_from = CB2Gray(cbmin);
+			gray_to = CB2Gray(cbmax);
 			gray_step = (gray_to - gray_from)/steps;
 			// Clip to GpGg.Canvas
-			GpGg.P_Clip = (term->flags & TERM_CAN_CLIP) ? NULL : &GpGg.Canvas;
+			P_Clip = (term->flags & TERM_CAN_CLIP) ? NULL : &Canvas;
 			while(i <= steps) {
 				/* if(i>0) set_color( i==steps ? gray_to : (i-0.5)/steps ); ... range [0:1] */
 				gray = (i==steps) ? gray_to : gray_from+i*gray_step;
 				term->SetColor(gray);
 				x2 = i==0 ? x1 : (i==steps ? x_to : x1 + (int)(i*step+0.5));
 				/* x2 += key_point_offset; ... that's if there is only 1 point */
-				if(!GpGg.ClipPoint(x2, yl))
+				if(!ClipPoint(x2, yl))
 					(*term->point)(x2, yl, pointtype);
 				i++;
 			}
-			GpGg.P_Clip = clip_save;
-		}
-	}
-}
-//
-// Plot the curves in VECTORS style
-//
-static void plot3d_vectors(SurfacePoints * plot)
-{
-	double x1, y1, x2, y2;
-	GpCoordinate * tails = plot->iso_crvs->points;
-	GpCoordinate * heads = plot->iso_crvs->next->points;
-	/* Only necessary once, unless variable arrow style */
-	arrow_style_type ap = plot->arrow_properties;
-	GpGg.ApplyLpProperties(term, &ap.lp_properties);
-	GpGg.ApplyHeadProperties(ap);
-	for(int i = 0; i < plot->iso_crvs->p_count; i++) {
-		if(heads[i].type != UNDEFINED && tails[i].type != UNDEFINED){
-			/* variable arrow style read from extra data column */
-			if(plot->arrow_properties.tag == AS_VARIABLE) {
-				int as = (int)(heads[i].CRD_COLOR);
-				arrow_use_properties(&ap, as);
-				GpGg.ApplyLpProperties(term, &ap.lp_properties);
-				GpGg.ApplyHeadProperties(ap);
-			}
-			else {
-				check3d_for_variable_color(plot, &heads[i]);
-			}
-			// The normal case: both ends in range 
-			if(heads[i].type == INRANGE && tails[i].type == INRANGE) {
-				GpGg.Map3DXY(tails[i].x, tails[i].y, tails[i].z, &x1, &y1);
-				GpGg.Map3DXY(heads[i].x, heads[i].y, heads[i].z, &x2, &y2);
-				GpGg.DrawClipArrow(term, (int)x1, (int)y1, (int)x2, (int)y2, ap.head);
-				// "set clip two" - both ends out of range 
-			}
-			else if(heads[i].type != INRANGE && tails[i].type != INRANGE) {
-				double lx[2], ly[2], lz[2];
-				if(!GpGg.ClipLines2)
-					continue;
-				GpGg.TwoEdge3DIntersect(&tails[i], &heads[i], lx, ly, lz);
-				GpGg.Map3DXY(lx[0], ly[0], lz[0], &x1, &y1);
-				GpGg.Map3DXY(lx[1], ly[1], lz[1], &x2, &y2);
-				GpGg.DrawClipArrow(term, (int)x1, (int)y1, (int)x2, (int)y2, ap.head);
-				// "set clip one" - one end out of range 
-			}
-			else if(GpGg.ClipLines1) {
-				double clip_x, clip_y, clip_z;
-				GpGg.Edge3DIntersect(&heads[i], &tails[i], &clip_x, &clip_y, &clip_z);
-				if(tails[i].type == INRANGE) {
-					GpGg.Map3DXY(tails[i].x, tails[i].y, tails[i].z, &x1, &y1);
-					GpGg.Map3DXY(clip_x, clip_y, clip_z, &x2, &y2);
-				}
-				else {
-					GpGg.Map3DXY(clip_x, clip_y, clip_z, &x1, &y1);
-					GpGg.Map3DXY(heads[i].x, heads[i].y, heads[i].z, &x2, &y2);
-				}
-				GpGg.DrawClipArrow(term, (int)x1, (int)y1, (int)x2, (int)y2, ap.head);
-			}
+			P_Clip = clip_save;
 		}
 	}
 }
@@ -2745,111 +2745,108 @@ static void check3d_for_variable_color(SurfacePoints * plot, GpCoordinate * poin
 	}
 }
 
-void do_3dkey_layout(legend_key * key, int * xinkey, int * yinkey)
+//void do_3dkey_layout(GpTermEntry * pT, legend_key * pKey, int * pXinkey, int * pYinkey)
+void GpGadgets::Do3DkeyLayout(GpTermEntry * pT, legend_key * pKey, int * pXinkey, int * pYinkey)
 {
-	GpTermEntry * t = term;
 	int key_height, key_width;
-
-	/* NOTE: All of these had better not change after being calculated here! */
-	if(key->reverse) {
+	// NOTE: All of these had better not change after being calculated here! 
+	if(pKey->reverse) {
 		key_sample_left = -key_sample_width;
 		key_sample_right = 0;
-		key_text_left = t->HChr;
-		key_text_right = t->HChr * (max_ptitl_len + 1);
-		key_size_right = (int)(t->HChr * (max_ptitl_len + 2 + key->width_fix));
-		key_size_left = t->HChr + key_sample_width;
+		key_text_left = pT->HChr;
+		key_text_right = pT->HChr * (max_ptitl_len + 1);
+		key_size_right = (int)(pT->HChr * (max_ptitl_len + 2 + pKey->width_fix));
+		key_size_left = pT->HChr + key_sample_width;
 	}
 	else {
 		key_sample_left = 0;
 		key_sample_right = key_sample_width;
-		key_text_left = -(int)(t->HChr * (max_ptitl_len + 1));
-		key_text_right = -(int)t->HChr;
-		key_size_left = (int)(t->HChr * (max_ptitl_len + 2 + key->width_fix));
-		key_size_right = t->HChr + key_sample_width;
+		key_text_left = -(int)(pT->HChr * (max_ptitl_len + 1));
+		key_text_right = -(int)pT->HChr;
+		key_size_left = (int)(pT->HChr * (max_ptitl_len + 2 + pKey->width_fix));
+		key_size_right = pT->HChr + key_sample_width;
 	}
 	key_point_offset = (key_sample_left + key_sample_right) / 2;
-	KeyTitleHeight = (int)(ktitle_lines * t->VChr);
+	KeyTitleHeight = (int)(ktitle_lines * pT->VChr);
 	KeyTitleExtra = 0;
-	if((key->title.text) && (t->flags & TERM_ENHANCED_TEXT) && (strchr(key->title.text, '^') || strchr(key->title.text, '_')))
-		KeyTitleExtra = t->VChr;
+	if((pKey->title.text) && (pT->flags & TERM_ENHANCED_TEXT) && (strchr(pKey->title.text, '^') || strchr(pKey->title.text, '_')))
+		KeyTitleExtra = pT->VChr;
 	key_width = key_col_wth * (key_cols - 1) + key_size_right + key_size_left;
-	key_height = (int)(KeyTitleHeight + KeyTitleExtra + KeyEntryHeight * key_rows + key->height_fix * t->VChr);
+	key_height = (int)(KeyTitleHeight + KeyTitleExtra + KeyEntryHeight * key_rows + pKey->height_fix * pT->VChr);
 	/* Now that we know the size of the key, we can position it as requested */
-	if(key->region == GPKEY_USER_PLACEMENT) {
+	if(pKey->region == GPKEY_USER_PLACEMENT) {
 		int corner_x, corner_y;
-		GpGg.Map3DPosition(key->user_pos, &corner_x, &corner_y, "key");
-		if(key->hpos == CENTRE) {
-			key->bounds.xleft = corner_x - key_width / 2;
-			key->bounds.xright = corner_x + key_width / 2;
+		Map3DPosition(pKey->user_pos, &corner_x, &corner_y, "key");
+		if(pKey->hpos == CENTRE) {
+			pKey->bounds.xleft = corner_x - key_width / 2;
+			pKey->bounds.xright = corner_x + key_width / 2;
 		}
-		else if(key->hpos == RIGHT) {
-			key->bounds.xleft = corner_x - key_width;
-			key->bounds.xright = corner_x;
+		else if(pKey->hpos == RIGHT) {
+			pKey->bounds.xleft = corner_x - key_width;
+			pKey->bounds.xright = corner_x;
 		}
 		else {
-			key->bounds.xleft = corner_x;
-			key->bounds.xright = corner_x + key_width;
+			pKey->bounds.xleft = corner_x;
+			pKey->bounds.xright = corner_x + key_width;
 		}
-		key->bounds.ytop = corner_y;
-		key->bounds.ybot = corner_y - key_height;
-		*xinkey = key->bounds.xleft + key_size_left;
-		*yinkey = key->bounds.ytop - KeyTitleHeight - KeyTitleExtra;
+		pKey->bounds.ytop = corner_y;
+		pKey->bounds.ybot = corner_y - key_height;
+		*pXinkey = pKey->bounds.xleft + key_size_left;
+		*pYinkey = pKey->bounds.ytop - KeyTitleHeight - KeyTitleExtra;
 	}
 	else {
-		if(key->region != GPKEY_AUTO_INTERIOR_LRTBC && key->margin == GPKEY_BMARGIN) {
+		if(pKey->region != GPKEY_AUTO_INTERIOR_LRTBC && pKey->margin == GPKEY_BMARGIN) {
 			if(ptitl_cnt > 0) {
 				/* we divide into columns, then centre in column by considering
 				 * ratio of key_left_size to key_right_size
-				 * key_size_left / (key_size_left+key_size_right)
-				 *               * (GpGg.PlotBounds.xright-GpGg.PlotBounds.xleft)/key_cols
+				 * key_size_left / (key_size_left+key_size_right) * (PlotBounds.xright-PlotBounds.xleft)/key_cols
 				 * do one integer division to maximise accuracy (hope we dont overflow!)
 				 */
-				*xinkey = GpGg.PlotBounds.xleft + ((GpGg.PlotBounds.xright - GpGg.PlotBounds.xleft) * key_size_left) /
-					(key_cols * (key_size_left + key_size_right));
-				key->bounds.xleft = *xinkey - key_size_left;
-				key->bounds.xright = key->bounds.xleft + key_width;
-				key->bounds.ytop = GpGg.PlotBounds.ybot;
-				key->bounds.ybot = GpGg.PlotBounds.ybot - key_height;
-				*yinkey = key->bounds.ytop - KeyTitleHeight - KeyTitleExtra;
+				*pXinkey = PlotBounds.xleft + ((PlotBounds.xright - PlotBounds.xleft) * key_size_left) / (key_cols * (key_size_left + key_size_right));
+				pKey->bounds.xleft = *pXinkey - key_size_left;
+				pKey->bounds.xright = pKey->bounds.xleft + key_width;
+				pKey->bounds.ytop = PlotBounds.ybot;
+				pKey->bounds.ybot = PlotBounds.ybot - key_height;
+				*pYinkey = pKey->bounds.ytop - KeyTitleHeight - KeyTitleExtra;
 			}
 		}
 		else {
-			if(key->vpos == JUST_TOP) {
-				key->bounds.ytop = GpGg.PlotBounds.ytop - t->VTic;
-				key->bounds.ybot = key->bounds.ytop - key_height;
-				*yinkey = key->bounds.ytop - KeyTitleHeight - KeyTitleExtra;
+			if(pKey->vpos == JUST_TOP) {
+				pKey->bounds.ytop = PlotBounds.ytop - pT->VTic;
+				pKey->bounds.ybot = pKey->bounds.ytop - key_height;
+				*pYinkey = pKey->bounds.ytop - KeyTitleHeight - KeyTitleExtra;
 			}
 			else {
-				key->bounds.ybot = GpGg.PlotBounds.ybot + t->VTic;
-				key->bounds.ytop = key->bounds.ybot + key_height;
-				*yinkey = key->bounds.ytop - KeyTitleHeight - KeyTitleExtra;
+				pKey->bounds.ybot = PlotBounds.ybot + pT->VTic;
+				pKey->bounds.ytop = pKey->bounds.ybot + key_height;
+				*pYinkey = pKey->bounds.ytop - KeyTitleHeight - KeyTitleExtra;
 			}
-			if(key->region != GPKEY_AUTO_INTERIOR_LRTBC && key->margin == GPKEY_RMARGIN) {
-				/* keys outside plot border (right) */
-				key->bounds.xleft = GpGg.PlotBounds.xright + t->HTic;
-				key->bounds.xright = key->bounds.xleft + key_width;
-				*xinkey = key->bounds.xleft + key_size_left;
+			if(pKey->region != GPKEY_AUTO_INTERIOR_LRTBC && pKey->margin == GPKEY_RMARGIN) {
+				// keys outside plot border (right) 
+				pKey->bounds.xleft = PlotBounds.xright + pT->HTic;
+				pKey->bounds.xright = pKey->bounds.xleft + key_width;
+				*pXinkey = pKey->bounds.xleft + key_size_left;
 			}
-			else if(key->region != GPKEY_AUTO_INTERIOR_LRTBC && key->margin == GPKEY_LMARGIN) {
-				/* keys outside plot border (left) */
-				key->bounds.xright = GpGg.PlotBounds.xleft - t->HTic;
-				key->bounds.xleft = key->bounds.xright - key_width;
-				*xinkey = key->bounds.xleft + key_size_left;
+			else if(pKey->region != GPKEY_AUTO_INTERIOR_LRTBC && pKey->margin == GPKEY_LMARGIN) {
+				// keys outside plot border (left) 
+				pKey->bounds.xright = PlotBounds.xleft - pT->HTic;
+				pKey->bounds.xleft = pKey->bounds.xright - key_width;
+				*pXinkey = pKey->bounds.xleft + key_size_left;
 			}
-			else if(key->hpos == LEFT) {
-				key->bounds.xleft = GpGg.PlotBounds.xleft + t->HTic;
-				key->bounds.xright = key->bounds.xleft + key_width;
-				*xinkey = key->bounds.xleft + key_size_left;
+			else if(pKey->hpos == LEFT) {
+				pKey->bounds.xleft = PlotBounds.xleft + pT->HTic;
+				pKey->bounds.xright = pKey->bounds.xleft + key_width;
+				*pXinkey = pKey->bounds.xleft + key_size_left;
 			}
 			else {
-				key->bounds.xright = GpGg.PlotBounds.xright - t->HTic;
-				key->bounds.xleft = key->bounds.xright - key_width;
-				*xinkey = key->bounds.xleft + key_size_left;
+				pKey->bounds.xright = PlotBounds.xright - pT->HTic;
+				pKey->bounds.xleft = pKey->bounds.xright - key_width;
+				*pXinkey = pKey->bounds.xleft + key_size_left;
 			}
 		}
-		yl_ref = *yinkey - KeyTitleHeight - KeyTitleExtra;
+		yl_ref = *pYinkey - KeyTitleHeight - KeyTitleExtra;
 	}
-	/* Center the key entries vertically, allowing for requested extra space */
-	*yinkey -= (int)((key->height_fix * t->VChr) / 2);
+	// Center the key entries vertically, allowing for requested extra space 
+	*pYinkey -= (int)((pKey->height_fix * pT->VChr) / 2);
 }
 

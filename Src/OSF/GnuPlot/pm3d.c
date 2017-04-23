@@ -450,7 +450,7 @@ void GpGadgets::Pm3DPlot(GpTermEntry * pT, SurfacePoints * pPlot, int atWhichZ)
 			}
 		}
 		if(max_scan_pts == 0 || max_scans == 0)
-			GpGg.IntError(GpC, NO_CARET, "all scans empty");
+			GpGg.IntErrorNoCaret("all scans empty");
 		if(interp_i <= 0) {
 			ii = (interp_i == 0) ? DEFAULT_OPTIMAL_NB_POINTS : -interp_i;
 			// @sobolev interp_i = floor(ii / max_scan_pts) + 1;
@@ -1004,7 +1004,7 @@ void GpGadgets::Pm3DDrawOne(GpTermEntry * pT, SurfacePoints * pPlot)
 
 static void pm3d_option_at_error()
 {
-	GpGg.IntError(GpC, GpC.CToken, "parameter to `pm3d at` requires combination of up to 6 characters b,s,t\n\t(drawing at bottom, surface, top)");
+	GpGg.IntErrorCurToken("parameter to `pm3d at` requires combination of up to 6 characters b,s,t\n\t(drawing at bottom, surface, top)");
 }
 
 /* Read the option for 'pm3d at' command.
@@ -1139,9 +1139,9 @@ int GpGadgets::ApplyLightingModel(GpCoordinate * pV0, GpCoordinate * pV1, GpCoor
 	}
 	else {
 		RGB1FromGray(gray, &color);
-		r = color.r;
-		g = color.g;
-		b = color.b;
+		r = color.R;
+		g = color.G;
+		b = color.B;
 	}
 	psi = -DEG2RAD*(surface_rot_z);
 	phi = -DEG2RAD*(surface_rot_x);

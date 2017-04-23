@@ -126,7 +126,7 @@ int SLAPI StaffAmtList::CheckDup(int pos, const StaffAmtEntry * pEntry) const
 int SLAPI StaffAmtList::Add(const StaffAmtEntry * pItem)
 {
 	int    ok = 1;
-	THROW_PP(pItem, PPERR_INVPARAM);
+	THROW_INVARG(pItem);
 	THROW(CheckDup(-1, pItem));
 	THROW_SL(insert(pItem));
 	CATCHZOK
@@ -615,7 +615,7 @@ int SLAPI PPObjStaffList::GetPersonPostList(PPID staffID, PPID personID, SArray 
 {
 	int    ok = -1;
 	if(pList == 0 || pList->getItemSize() != sizeof(PersonPostTbl::Rec))
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	else {
 		PersonPostTbl::Key1 k1;
 		k1.StaffID  = staffID;
@@ -688,7 +688,7 @@ int SLAPI PPObjStaffList::GetPostByPersonList(PPID personID, PPID employerID, in
 	PersonPostTbl::Key2 k2;
 	MEMSZERO(k2);
 	k2.PersonID  = personID;
-	THROW_PP(!pList || pList->getItemSize() == sizeof(P_PostTbl->data), PPERR_INVPARAM);
+	THROW_INVARG(!pList || pList->getItemSize() == sizeof(P_PostTbl->data));
 	while(P_PostTbl->search(2, &k2, spGt) && k2.PersonID == personID) {
 		if((openedOnly > 0 && !P_PostTbl->data.Closed) || (openedOnly < 0 && P_PostTbl->data.Closed)) {
 			if(employerID) {
@@ -713,7 +713,7 @@ int SLAPI PPObjStaffList::GetPostList(PPID staffID, PersonPostArray * pList)
 	PersonPostTbl::Key1 k1;
 	MEMSZERO(k1);
 	k1.StaffID  = staffID;
-	THROW_PP(!pList || pList->getItemSize() == sizeof(P_PostTbl->data), PPERR_INVPARAM);
+	THROW_INVARG(!pList || pList->getItemSize() == sizeof(P_PostTbl->data));
 	while(P_PostTbl->search(1, &k1, spGt) && k1.StaffID == staffID) {
 		if(pList)
 			pList->insert(&P_PostTbl->data);
@@ -1077,7 +1077,7 @@ int SLAPI PPObjStaffList::MakePostStrAssocList(PPID orgID, PPID divID, PPID staf
 	PPIDArray staff_list;
 	PersonPostArray post_list;
 	PersonPostTbl::Rec * p_post_rec;
-	THROW_PP(pList, PPERR_INVPARAM);
+	THROW_INVARG(pList);
 	pList->Clear();
 	if(staffID) {
 		THROW_SL(staff_list.add(staffID));

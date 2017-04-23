@@ -165,7 +165,7 @@
 	#define SLAPI    //__stdcall Тип вызова __stdcall позволяет уменьшить размер бинарного кода, но
 		// снижает скорость работы member-функция из-за того, что this передается на стеке, а не в регистре
 	#define SLAPIV   __cdecl
-	#define SLCLASS
+	// @v9.6.3 #define SLCLASS
 	#define FASTCALL __fastcall // Следует использовать для часто вызываемых функций с количеством параметров
 		// от 1 до 3. Не совсем понятны побочные эффекты от использования регистров под параметры с точки
 		// зрения оптимизации распределения регистров в вызывающих функциях.
@@ -176,7 +176,7 @@
 	#define SFAR                 far
 	#define SLAPI                pascal SFAR
 	#define SLAPIV               cdecl SFAR
-	#define SLCLASS
+	// @v9.6.3 #define SLCLASS
 	#define FASTCALL
 #endif
 #ifdef _MSC_VER
@@ -4744,6 +4744,97 @@ int SCalcCheckDigit(int alg, const char * pInput, size_t inputLen);
 
 #endif // } _WIN32_WCE
 //
+// IDEA
+//
+// Определен в md5.h
+//class MD5 {
+//public:
+//	SLAPI  MD5() { init(); }
+//	void   SLAPI init();
+//	void   SLAPI update(uchar * bug, uint len);
+//	void   SLAPI final(uchar digest[16]);
+//private:
+//	uint32 buf[4]; // scratch buffer
+//	uint32 i[2];   // number of _bits_ handled mod 2^64
+//	uchar  in[64]; // input buffer
+//};
+
+
+//#ifndef MD5_H_INCLUDED
+//#define MD5_H_INCLUDED
+
+//#include "base_types.h"
+
+class S_MD5 {
+public:
+	S_MD5();
+	~S_MD5();
+	void Init();
+	void Update(const void *data, uint32 len);
+	void Final(uint8 digest[16]);
+	/* internal function */
+	static void Transform(uint32 buf[4], uint32 in_data[16]);
+	static void Calc(const void *data, uint32 length, uint8 digest[16]);
+private:
+	uint32 m_buf[4];
+	uint32 m_bits[2];
+	uint8  m_in[64];
+	bool   m_need_byteswap;
+	bool   m_big_endian;
+
+	void reverse_u32(uint8 *buf, int n_u32);
+};
+
+//#endif /* MD5_H_INCLUDED */
+
+void SLAPI Transform(uint32 *buf, uint32 *in);
+
+#define IDEAKEYSIZE 16
+#define IDEABLOCKSIZE 8
+
+// hashpass - Hash pass phrase down to 128 bits (16 bytes).
+void SLAPI hashpass(char *keystring, int keylen, uint8 *hash);
+
+#define IDEA_ROUNDS	8            // Don't change this value, should be 8
+#define IDEA_KEYLEN	(6*IDEA_ROUNDS+4) // length of key schedule */
+
+typedef uint16 IDEAkey[IDEA_KEYLEN];
+
+class IDEACFB {
+public:
+	SLAPI  IDEACFB();
+	SLAPI  IDEACFB(uint16 iv0[4], uint8 key[16], int decryp);
+	SLAPI ~IDEACFB();
+	void   SLAPI init(uint16 iv0[4], uint8 key[16], int decryp);
+	void   SLAPI close();
+	void   SLAPI run(uint8 * buf, int count);
+private:
+	// Key schedules for IDEA encryption and decryption
+	IDEAkey  Z;
+	uint16 * iv_idea;     // pointer to IV for CFB or CBC
+	int      cfb_dc_idea; // TRUE iff CFB decrypting
+};
+
+class IDEARAND {
+public:
+	SLAPI  IDEARAND();
+	SLAPI  IDEARAND(uint8 key[16], uint8 seed[8], uint32 tstamp);
+	SLAPI ~IDEARAND();
+	void   SLAPI init(uint8 key[16], uint8 seed[8], uint32 tstamp);
+	uint8  SLAPI rand();
+	void   SLAPI close();
+private:
+	uint16 dtbuf[4];        // buffer for enciphered timestamp
+	uint16 randseed[4];     // seed for IDEA random # generator
+	uint16 randbuf[4];      // buffer for IDEA random # generator
+	uint8  randbuf_counter; // # of random bytes left in randbuf
+	IDEAkey randkey;         // Expanded key for IDEA random # generator
+};
+
+void SLAPI IdeaEncrypt(const char * password, void * buf, size_t len);
+void SLAPI IdeaDecrypt(const char * password, void * buf, size_t len);
+void SLAPI IdeaRandMem(void * buf, size_t len);
+//
 // Math
 //
 
@@ -7641,6 +7732,21 @@ public:
 	SFileFormat(int f);
 	operator int () const;
 	int    operator !() const;
+	//
+	// Descr: Идентифицирует формат файла pFileName по расширению и сигнатуре.
+	// ARG(pFileName IN): @#vptr  Имя файла, формат которого необходимо иденитифицировать
+	// ARG(pExt     OUT): @#vptr0 Расширение файла (справочный параметр, позволяющий избежать дополнительных
+	//   действий в вызывающем модуле).
+	// Returns:
+	//   0 - ошибка (isempty(pFileName) || не инициализированна внутренняя таблица сигнатур)
+	//   1 - формат идентифицирован по расширению
+	//   2 - формат идентифицирован по сигнатуре
+	//   3 - формат идентифицирован одновременно по расширению и сигнатуре
+	//   4 - формат не удалось идентифицировать по расширению или сигнатуре, однако
+	//     по начальному блоку данных он похож на результирующий формат.
+	//     На текущий момент такой вариант возможен для форматов: SFileFormat::TxtAscii, SFileFormat::TxtUtf8, SFileFormat::Txt
+	//  -1 - не удалось идентифицировать формат
+	//
 	int    Identify(const char * pFileName, SString * pExt = 0);
 	int    IdentifyMime(const char * pMime);
 private:
@@ -8247,11 +8353,13 @@ private:
 class SMathConst {
 public:
 	static const double Pi;
-	static const double Pi2;      // pi*2
+	static const double Pi2;        // pi*2
 	static const float  Pi_f;
-	static const double PiDiv180; // pi/180 (DEG to RAD)
-	static const double PiDiv4;   // pi/4
-	static const double PiDiv2;   // pi/2
+	static const double PiDiv180;   // pi/180 (DEG to RAD)
+	static const float  PiDiv180_f; // pi/180 (DEG to RAD)
+	static const double PiDiv4;     // pi/4
+	static const float  PiDiv4_f;   // pi/4
+	static const double PiDiv2;     // pi/2
 	static const double E;
 	static const double LnPi;    // 1.14472988584940017414342735135      ln(pi)
 	static const double Ln2;     // 0.69314718055994530941723212146      ln(2)

@@ -4,7 +4,7 @@
 #include <pp.h>
 #pragma hdrstop
 // @v9.6.2 (moved to pp.h) #include <ppidata.h>
-#include <idea.h>
+// @v9.6.3 #include <idea.h>
 
 SLAPI PPBizScore::PPBizScore()
 {
@@ -1203,7 +1203,7 @@ int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSo
 	SString buf, db_symb, bizsc_path, msg_buf;
 	PPIniFile ini_file;
 	PPVersionInfo vi = DS.GetVersionInfo();
-	THROW_PP(pUserName && pPassword && pSock, PPERR_INVPARAM);
+	THROW_INVARG(pUserName && pPassword && pSock);
 	ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BIZSCORE_DBSYMB, db_symb);
 	ini_file.Get(PPINISECT_PATH, PPINIPARAM_BIZSCORES_PATH, bizsc_path);
 	THROW(vi.GetSecret(secret, sizeof(secret)));

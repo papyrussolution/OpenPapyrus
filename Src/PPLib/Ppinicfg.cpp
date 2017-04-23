@@ -1,5 +1,5 @@
 // PPINICFG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2012, 2013, 2015, 2016, 2017
 // @Kernel
 //
 #include <pp.h>
@@ -27,9 +27,12 @@ SLAPI PPIniFile::PPIniFile(const char * pFileName, int fcreate, int winCoding, i
 		Init(getExecPath(TempBuf).SetLastSlash().Cat("PP.INI"), fcreate, winCoding, useIniBuf);
 }
 
-int SLAPI PPIniFile::ParamIdToStrings(uint sectId, uint paramId, SString & rSectName, SString * pParam)
+int SLAPI PPIniFile::ParamIdToStrings(uint sectId, uint paramId, SString * pSectName, SString * pParam)
 {
-	PPIniFile::GetSectSymb(sectId, rSectName);
+	if(pSectName) {
+		*pSectName = 0;
+		PPIniFile::GetSectSymb(sectId, *pSectName);
+	}
 	if(pParam) {
 		*pParam = 0;
 		PPIniFile::GetParamSymb(paramId, *pParam);
@@ -41,29 +44,43 @@ int SLAPI PPIniFile::Get(uint sectId, uint paramId, SString & rBuf)
 {
 	SString sect_name;
 	SString param_name;
-	ParamIdToStrings(sectId, paramId, sect_name, &param_name);
+	ParamIdToStrings(sectId, paramId, &sect_name, &param_name);
 	return GetParam(sect_name, param_name, rBuf);
 }
 
 int SLAPI PPIniFile::Get(uint sectId, const char * pParamName, SString & rBuf)
 {
 	SString sect_name;
-	ParamIdToStrings(sectId, 0, sect_name, 0);
+	ParamIdToStrings(sectId, 0, &sect_name, 0);
 	return GetParam(sect_name, pParamName, rBuf);
+}
+
+int SLAPI PPIniFile::Get(const char * pSectName, uint paramId, SString & rBuf)
+{
+	SString param_name;
+	ParamIdToStrings(0, paramId, 0, &param_name);
+	return GetParam(pSectName, param_name, rBuf);
 }
 
 int SLAPI PPIniFile::GetInt(uint sectId, uint paramId, int * pVal)
 {
 	SString sect_name;
 	SString param_name;
-	ParamIdToStrings(sectId, paramId, sect_name, &param_name);
+	ParamIdToStrings(sectId, paramId, &sect_name, &param_name);
 	return GetIntParam(sect_name, param_name, pVal);
+}
+
+int SLAPI PPIniFile::GetInt(const char * pSectName, uint paramId, int * pVal)
+{
+	SString param_name;
+	ParamIdToStrings(0, paramId, 0, &param_name);
+	return GetIntParam(pSectName, param_name, pVal);
 }
 
 int SLAPI PPIniFile::GetEntryList(uint sectId, StringSet * pEntries, int storeAllString)
 {
 	SString sect_name;
-	ParamIdToStrings(sectId, 0, sect_name, 0);
+	ParamIdToStrings(sectId, 0, &sect_name, 0);
 	return SIniFile::GetEntries(sect_name, pEntries, storeAllString);
 }
 
@@ -71,7 +88,7 @@ int SLAPI PPIniFile::Append(uint sectId, uint paramId, const char * pVal, int ov
 {
 	SString sect_name;
 	SString param_name;
-	ParamIdToStrings(sectId, paramId, sect_name, &param_name);
+	ParamIdToStrings(sectId, paramId, &sect_name, &param_name);
 	return AppendParam(sect_name, param_name, pVal, overwrite);
 }
 

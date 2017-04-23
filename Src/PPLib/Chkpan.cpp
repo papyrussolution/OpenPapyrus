@@ -1229,6 +1229,11 @@ void CPosProcessor::SetPrintedFlag(int set)
 	SETFLAG(Flags, fPrinted, set);
 }
 
+int FASTCALL CPosProcessor::F(long f) const
+{
+	return BIN(Flags & f);
+}
+
 int CPosProcessor::SetupExt(const CCheckPacket * pPack)
 {
 	SetupAgent((pPack ? pPack->Ext.SalerID : 0), 0);
@@ -2283,7 +2288,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, double cash, int mode /
 	const  int turn_check_before_printing = 1;
 	int    was_turned_before_printing = 0;
 	SString before_printing_check_text, msg_buf, fmt_buf;
-	THROW_PP((mode != accmAveragePrinting) || P_ChkPack, PPERR_INVPARAM);
+	THROW_INVARG((mode != accmAveragePrinting) || P_ChkPack);
 	if(CashNodeID) {
 		AcceptCheckProcessBlock epb;
 		if(!(Flags & fNoEdit)) {
@@ -2592,7 +2597,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 	PPCheckInPersonMngr cip_mgr;
 	const  LDATETIME dtm = getcurdatetime_();
 	assert(pPack);
-	THROW_PP(pPack != 0, PPERR_INVPARAM);
+	THROW_INVARG(pPack != 0);
 	const  PPID  preserve_csess_id = pPack->Rec.SessID;
 	{
 		PPTransaction tra(1);
@@ -3297,7 +3302,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 		showButton(cmChkPanPrint, 0);
 		showButton(cmToLocPrinters, 0);
 	}
-	// } @v9.6.0 
+	// } @v9.6.0
 	LastCtrlID = 0;
 }
 
@@ -3348,7 +3353,7 @@ int FASTCALL CheckPaneDialog::valid(ushort command)
 			RemoveRow();
 		else if(P.getCount()) {
 			if(OperRightsFlags & orfEscCheck) {
-				if(PPMessage(mfConf|mfYesNo, PPCFM_CLEARCHECK, 0) == cmYes) {
+				if(PPMessage(mfConf|mfYesNo, PPCFM_CLEARCHECK) == cmYes) {
 					AcceptCheckToBeCleared();
 					ClearCheck();
 					if(CConfig.Flags & CCFLG_DEBUG) {
@@ -3367,12 +3372,12 @@ int FASTCALL CheckPaneDialog::valid(ushort command)
 				}
 			}
 			else
-				PPMessage(mfInfo|mfOK, PPINF_CHKPAN_TURNCHECK, 0);
+				PPMessage(mfInfo|mfOK, PPINF_CHKPAN_TURNCHECK);
 		}
 		else if(P.OrderCheckID) {
 			ClearCheck();
 		}
-		else if((UiFlags & uifCloseWOAsk) || PPMessage(mfConf|mfYesNo, PPCFM_CLOSECCHKPANE, 0) == cmYes)
+		else if((UiFlags & uifCloseWOAsk) || PPMessage(mfConf|mfYesNo, PPCFM_CLOSECCHKPANE) == cmYes)
 			r = 1;
 	}
 	else
@@ -6479,12 +6484,12 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					}
 					else if(Flags & fTouchScreen) {
 						if(AbstractGoodsID)
-							SelectGoods__(cgmAbstractSale);
+							SelectGoods__(sgmAbstractSale);
 						else
 							UpdateGList(-2, 0);
 					}
 					else {
-						SelectGoods__(AbstractGoodsID ? cgmAbstractSale : sgmByPrice);
+						SelectGoods__(AbstractGoodsID ? sgmAbstractSale : sgmByPrice);
 					}
 					Barrier(1);
 				}
@@ -6563,6 +6568,9 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 			case kbF2:
 				BARRIER(SelectGoods__(sgmNormal));
 				break;
+			case kbShiftF2: // @v9.6.3
+				BARRIER(SelectGoods__(sgmAllByName));
+				break;
 			case kbF3:
 				BARRIER(AcceptSCard(((Flags & fWaitOnSCard) ? 1 : 100), 0));
 				break;
@@ -6571,7 +6579,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					P_CM->SyncOpenBox();
 				break;
 			case kbF4:
-				BARRIER(SelectGoods__(AbstractGoodsID ? cgmAbstractSale : sgmByPrice));
+				BARRIER(SelectGoods__(AbstractGoodsID ? sgmAbstractSale : sgmByPrice));
 				break;
 			case kbF5:
 				BARRIER(SetupRowByScale());
@@ -6679,8 +6687,6 @@ void CheckPaneDialog::DrawListItem(TDrawItemData * pDrawItem)
 				}
 				else if(pDrawItem->ItemID != 0xffffffff) {
 					h_fnt_def = (HFONT)SelectObject(h_dc, (HFONT)Ptb.Get(fontGoodsList));
-					//p_lbx->getText((long)pDrawItem->ItemData, temp_buf, sizeof(temp_buf));
-					//SOemToChar(temp_buf);
 					p_lbx->getText((long)pDrawItem->ItemData, temp_buf);
 					temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 					if(pDrawItem->ItemState & (ODS_FOCUS|ODS_SELECTED)) {
@@ -6730,8 +6736,6 @@ void CheckPaneDialog::DrawListItem(TDrawItemData * pDrawItem)
 							gli = GroupList.at(pos);
 					}
 					h_fnt_def = (HFONT)SelectObject(h_dc, Ptb.Get(fontGoodsList));
-					//p_lbx->getText((long)pDrawItem->ItemData, temp_buf, sizeof(temp_buf));
-					//SOemToChar(temp_buf);
 					p_lbx->getText((long)pDrawItem->ItemData, temp_buf);
 					temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 					if(pDrawItem->ItemState & (ODS_FOCUS | ODS_SELECTED)) {
@@ -8006,16 +8010,12 @@ int CheckPaneDialog::CDispCommand(int cmd, int iVal, double rv1, double rv2)
 				ok = P_CDY->ClearDisplay();
 				break;
 			case cdispcmdText:
-				{
-					if(iVal == cdisptxtOpened) {
-						ok = P_CDY->OpenedCash();
-					}
-					else if(iVal == cdisptxtClosed) {
-						ok = P_CDY->ClosedCash();
-					}
-					else
-						ok = -1;
-				}
+				if(iVal == cdisptxtOpened)
+					ok = P_CDY->OpenedCash();
+				else if(iVal == cdisptxtClosed)
+					ok = P_CDY->ClosedCash();
+				else
+					ok = -1;
 				break;
 			case cdispcmdTotal:
 				ok = P_CDY->SetTotal(rv1);
@@ -8263,7 +8263,7 @@ void CheckPaneDialog::SelectGoods__(int mode)
 			ClearInput(0);
 		}
 	}
-	else if(mode == cgmAbstractSale) {
+	else if(mode == sgmAbstractSale) {
         if(AbstractGoodsID && GetInput()) {
 			PgsBlock pgsb(1.0);
 			pgsb.AbstractPrice = R2(Input.ToReal());
@@ -8429,15 +8429,17 @@ void CheckPaneDialog::SelectGoods__(int mode)
 					{
 						GoodsFilt gf;
 						gf.PutExtssData(GoodsFilt::extssNameText, temp_buf);
-						if(!(CnFlags & CASHF_SELALLGOODS)) {
-							gf.Flags |= GoodsFilt::fActualOnly;
-							gf.LocList.Add(CnLocID);
+						if(temp_buf.Empty() || mode != sgmAllByName) { // @v9.6.3
+							if(!(CnFlags & CASHF_SELALLGOODS) && (temp_buf.NotEmpty() && mode != sgmAllByName)) {
+								gf.Flags |= GoodsFilt::fActualOnly;
+								gf.LocList.Add(CnLocID);
+							}
 						}
 						GoodsIterator::GetListByFilt(&gf, &goods_list, 1);
 						if(goods_list.getCount())
 							P_EGSDlg->setSelectionByGoodsList(&goods_list);
 					}
-					// } @v9.6.1 
+					// } @v9.6.1
 				}
 				ClearInput(0);
 			}
@@ -8480,7 +8482,7 @@ void CheckPaneDialog::AcceptQuantity()
 				r = GetDataFromScale(0, &qtty);
 				if(r > 0)
 					is_input = 1;
-				else if(!r && PPMessage(mfConf|mfYesNo, PPCFM_SCALENOTREADY, 0) != cmYes)
+				else if(!r && PPMessage(mfConf|mfYesNo, PPCFM_SCALENOTREADY) != cmYes)
 					Flags |= fNotUseScale;
 			}
 		}
@@ -11126,7 +11128,7 @@ int CheckPaneDialog::PrintCashReports()
 		delete dlg;
 		dlg = 0;
 		if(zreport_printed)
-			if(PPMessage(mfConf|mfYesNo, PPCFM_PREVCASHDAYCLOSED, 0) == cmYes) {
+			if(PPMessage(mfConf|mfYesNo, PPCFM_PREVCASHDAYCLOSED) == cmYes) {
 				dt = ZERODATE;
 				if(r > 0)
 					THROW(ok = P_CM->SyncOpenSession(&dt));
@@ -12129,7 +12131,7 @@ int PrcssrCCheckGenerator::Init(Param * pParam)
 	ZDELETE(P_RngQtty);
 	ZDELETE(P_RngCount);
 	P = *pParam;
-	THROW_PP(P.P_Pan, PPERR_INVPARAM);
+	THROW_INVARG(P.P_Pan);
 	{
 		PPIniFile ini_file;
 		int    enbl = 0;

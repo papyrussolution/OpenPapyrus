@@ -96,6 +96,11 @@ int SLAPI PPReleaseStrings()
 	return 1;
 }
 
+const SymbHashTable * FASTCALL PPGetStringHash(int group)
+{
+	return _PPStrStore ? _PPStrStore->GetStringHash(group) : 0;
+}
+
 int SLAPI PPLoadString(int group, int code, SString & s)
 {
 	//
@@ -207,6 +212,7 @@ int FASTCALL PPSetLibXmlError(const xmlParserCtxt * pCtx)
 }
 
 int PPSetErrorNoMem() { return PPSetError(PPERR_NOMEM); } // @v8.5.10 (,0)
+int PPSetErrorInvParam() { return PPSetError(PPERR_INVPARAM); } // @v9.6.3
 int PPSetErrorSLib() { return PPSetError(PPERR_SLIB); }
 int PPSetErrorDB() { return PPSetError(PPERR_DBENGINE); }
 
@@ -532,6 +538,17 @@ int FASTCALL PPMessage(uint options, int msgcode, const char * pAddInfo)
 	int    ok = 0;
 	SString buf;
 	if(PPGetMessage(options, msgcode, pAddInfo, DS.CheckExtFlag(ECF_SYSSERVICE), buf)) {
+		PPWait(0);
+		ok = ((options & mfCritWarn) == mfCritWarn) ? PPCriticalWarning(buf, options) : PPOutputMessage(buf, options);
+	}
+	return ok;
+}
+
+int FASTCALL PPMessage(uint options, int msgcode)
+{
+	int    ok = 0;
+	SString buf;
+	if(PPGetMessage(options, msgcode, 0, DS.CheckExtFlag(ECF_SYSSERVICE), buf)) {
 		PPWait(0);
 		ok = ((options & mfCritWarn) == mfCritWarn) ? PPCriticalWarning(buf, options) : PPOutputMessage(buf, options);
 	}
@@ -875,7 +892,7 @@ int SLAPI PPCheckUserBreak()
 		if(__WD.GetWindowHandle() && CheckEscKey(1)) {
 			CheckEscKey(0);
 			PPWait(0);
-			if(PPMessage(mfConf|mfYesNo, PPCFM_USERBREAK, 0) == cmYes)
+			if(PPMessage(mfConf|mfYesNo, PPCFM_USERBREAK) == cmYes)
                 ok = PPSetError(PPERR_USERBREAK);
 			else
 				ok = (PPWait(1), -1);

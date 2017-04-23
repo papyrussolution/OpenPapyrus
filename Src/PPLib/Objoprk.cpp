@@ -1813,7 +1813,7 @@ void OprKindDialog::editOptions(uint dlgID, int useMainAmt, const PPIDArray * pS
 		delete dlg;
 	}
 	if(warn_noupdlotrestflagdisabled)
-		PPMessage(mfInfo, PPINF_NOUPDRESTOPFLAGDISABLED, 0);
+		PPMessage(mfInfo, PPINF_NOUPDRESTOPFLAGDISABLED);
 	va_end(ap);
 	enableCommand(cmOprKindExt, P_Data->Rec.OpTypeID == PPOPT_ACCTURN && P_Data->Rec.SubType == OPSUBT_DEBTINVENT);
 }
@@ -1956,7 +1956,7 @@ void OprKindDialog::editOptions2(uint dlgID, int useMainAmt, const PPIDArray * p
 		delete dlg;
 	}
 	if(warn_noupdlotrestflagdisabled)
-		PPMessage(mfInfo, PPINF_NOUPDRESTOPFLAGDISABLED, 0);
+		PPMessage(mfInfo, PPINF_NOUPDRESTOPFLAGDISABLED);
 	enableCommand(cmOprKindExt, P_Data->Rec.OpTypeID == PPOPT_ACCTURN && P_Data->Rec.SubType == OPSUBT_DEBTINVENT);
 }
 

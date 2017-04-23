@@ -320,7 +320,7 @@ int FASTCALL PPQuot::GetValFromStr(const char * pStr)
 		}
 		{
 			double val = 0.0;
-			if(stricmp(temp_buf, "zero") == 0 || stricmp(temp_buf, "z") == 0) {
+			if(sstreqi_ascii(temp_buf, "zero") || sstreqi_ascii(temp_buf, "z")) {
 				flags |= PPQuot::fZero;
 				val = 0.0;
 			}

@@ -269,43 +269,43 @@ static void WIN_options(GpCommand & rC)
 			case WIN_SIZE: {
 			    rC.CToken++;
 			    if(set_wsize)
-				    GpGg.IntError(rC, rC.CToken, "conflicting size options");
+				    GpGg.IntErrorCurToken("conflicting size options");
 			    if(rC.EndOfCommand())
-				    GpGg.IntError(rC, rC.CToken, "size requires 'width,heigth'");
+				    GpGg.IntErrorCurToken("size requires 'width,heigth'");
 			    win_width = (int)rC.RealExpression();
 			    if(!rC.Eq(rC.CToken++, ","))
-				    GpGg.IntError(rC, rC.CToken, "size requires 'width,heigth'");
+				    GpGg.IntErrorCurToken("size requires 'width,heigth'");
 			    win_height = (int)rC.RealExpression();
 			    if(win_width < 1 || win_height < 1)
-				    GpGg.IntError(rC, rC.CToken, "size is out of range");
+				    GpGg.IntErrorCurToken("size is out of range");
 			    set_size = true;
 			    break;
 		    }
 			case WIN_WSIZE: {
 			    rC.CToken++;
 			    if(set_size)
-				    GpGg.IntError(rC, rC.CToken, "conflicting size options");
+				    GpGg.IntErrorCurToken("conflicting size options");
 			    if(rC.EndOfCommand())
-				    GpGg.IntError(rC, rC.CToken, "windowsize requires 'width,heigth'");
+				    GpGg.IntErrorCurToken("windowsize requires 'width,heigth'");
 			    win_width = (int)rC.RealExpression();
 			    if(!rC.Eq(rC.CToken++, ","))
-				    GpGg.IntError(rC, rC.CToken, "windowsize requires 'width,heigth'");
+				    GpGg.IntErrorCurToken("windowsize requires 'width,heigth'");
 			    win_height = (int)rC.RealExpression();
 			    if(win_width < 1 || win_height < 1)
-				    GpGg.IntError(rC, rC.CToken, "windowsize canvas size is out of range");
+				    GpGg.IntErrorCurToken("windowsize canvas size is out of range");
 			    set_wsize = true;
 			    break;
 		    }
 			case WIN_POSITION: {
 			    rC.CToken++;
 			    if(rC.EndOfCommand())
-				    GpGg.IntError(rC, rC.CToken, "position requires 'x,y'");
+				    GpGg.IntErrorCurToken("position requires 'x,y'");
 			    win_x = (int)rC.RealExpression();
 			    if(!rC.Eq(rC.CToken++, ","))
-				    GpGg.IntError(rC, rC.CToken, "position requires 'x,y'");
+				    GpGg.IntErrorCurToken("position requires 'x,y'");
 			    win_y = (int)rC.RealExpression();
 			    if(win_x < 1 || win_y < 1)
-				    GpGg.IntError(rC, rC.CToken, "position is out of range");
+				    GpGg.IntErrorCurToken("position is out of range");
 			    set_position = true;
 			    break;
 		    }
@@ -313,7 +313,7 @@ static void WIN_options(GpCommand & rC)
 			    rC.CToken++;
 			    title = rC.TryToGetString();
 			    if(title == NULL)
-				    GpGg.IntError(rC, rC.CToken, "expecting string argument");
+				    GpGg.IntErrorCurToken("expecting string argument");
 			    if(strcmp(title, "") == 0)
 				    title = NULL;
 			    set_title = true;
@@ -328,7 +328,7 @@ static void WIN_options(GpCommand & rC)
 			    if((s = rC.TryToGetString())) {
 				    char * comma;
 				    if(set_font)
-					    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+					    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 				    comma = strrchr(s, ',');
 				    if(comma && (1 == sscanf(comma + 1, "%i", &fontsize))) {
 					    set_fontsize = true;
@@ -342,7 +342,7 @@ static void WIN_options(GpCommand & rC)
 			    }
 			    else {
 				    if(set_fontsize)
-					    GpGg.IntError(rC, rC.CToken, "extraneous argument in set terminal %s", term->name);
+					    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 				    set_fontsize = true;
 				    fontsize = rC.IntExpression();
 			    }
@@ -774,10 +774,9 @@ static void WIN_boxfill(int style, uint xleft, uint ybottom, uint width, uint he
 
 static int WIN_set_font(const char * font)
 {
-	/* Note: defer the determination of default font name and default
-	   font size until drawgraph() is executed. */
+	// Note: defer the determination of default font name and default font size until drawgraph() is executed.
 	if((font == NULL) || (font[0] == '\0')) {
-		/* select default font */
+		// select default font 
 		GraphOp(graphwin, W_font, 0, 0, NULL);
 	}
 	else {

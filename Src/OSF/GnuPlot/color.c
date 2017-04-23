@@ -638,4 +638,3 @@ void GpGadgets::DrawColorSmoothBox(GpTermEntry * pT, int plot_mode)
 	}
 }
 
-

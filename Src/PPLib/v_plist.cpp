@@ -236,7 +236,7 @@ int SLAPI SelectPriceListImportCfg(PPPriceListImpExpParam * pParam, int forExpor
 	SString ini_file_name;
 	PPPriceListImpExpParam param;
 	StrAssocArray list;
-	THROW_PP(pParam, PPERR_INVPARAM);
+	THROW_INVARG(pParam);
 	param = *pParam;
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
 	THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_PRICELIST, &param, &list, forExport ? 1 : 2));
@@ -278,7 +278,7 @@ private:
 int PPPriceListImporter::Init(PPViewPriceList * pView)
 {
 	int    ok = -1;
-	THROW_PP(pView, PPERR_INVPARAM);
+	THROW_INVARG(pView);
 	P_View = pView;
 	Rows.freeAll();
 	UnResolvedRows.freeAll();
@@ -1801,7 +1801,7 @@ int SLAPI PPPriceListExporter::Export(const PriceListViewItem * pItem)
 	SString temp_buf;
 	Sdr_PriceList sdr;
 	MEMSZERO(sdr);
-	THROW_PP(pItem && P_IE, PPERR_INVPARAM);
+	THROW_INVARG(pItem && P_IE);
 	Goods2Tbl::Rec goods_rec;
 	sdr.GoodsID = pItem->GoodsID;
 	sdr.AltGrpPLU = pItem->GoodsCode;

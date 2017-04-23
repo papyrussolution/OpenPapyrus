@@ -360,7 +360,7 @@ static void PDF_options(GpCommand & rC)
 			rC.CToken++;
 
 			if(!(s = rC.TryToGetString()))
-				GpGg.IntError(rC, rC.CToken, "fname: expecting font name");
+				GpGg.IntErrorCurToken("fname: expecting font name");
 			comma = strrchr(s, ',');
 			if(comma && (1 == sscanf(comma+1, "%lf", &PDF_fontSizeDef)))
 				*comma = '\0';
@@ -374,7 +374,7 @@ static void PDF_options(GpCommand & rC)
 			rC.CToken++;
 
 			if(rC.EndOfCommand())
-				GpGg.IntError(rC, rC.CToken, "fsize: expecting font size");
+				GpGg.IntErrorCurToken("fsize: expecting font size");
 			PDF_fontSizeDef = rC.RealExpression();
 			continue;
 		}
@@ -383,7 +383,7 @@ static void PDF_options(GpCommand & rC)
 			rC.CToken++;
 
 			if(rC.EndOfCommand())
-				GpGg.IntError(rC, rC.CToken, "expecting line width");
+				GpGg.IntErrorCurToken("expecting line width");
 			PDF_linewidth_factor = rC.RealExpression();
 			if(PDF_linewidth_factor <= 0)
 				PDF_linewidth_factor = 0.1;
@@ -418,7 +418,7 @@ static void PDF_options(GpCommand & rC)
 		if(rC.Eq("dl") || rC.AlmostEq("dashl$ength")) {
 			rC.CToken++;
 			if(rC.EndOfCommand())
-				GpGg.IntError(rC, rC.CToken, "expecting dashlength multiplier");
+				GpGg.IntErrorCurToken("expecting dashlength multiplier");
 			PDF_dashlength_factor = rC.RealExpression();
 			if(PDF_dashlength_factor < 0.0)
 				PDF_dashlength_factor = 1.0;
@@ -449,7 +449,7 @@ static void PDF_options(GpCommand & rC)
 			continue;
 		}
 
-		GpGg.IntError(rC, rC.CToken, "unexpected text at end of command");
+		GpGg.IntErrorCurToken("unexpected text at end of command");
 	}
 
 	/* Save options back into options string in normalized format */
@@ -496,7 +496,7 @@ static void PDF_init()
 	if(PDF_begin_document(myPDF, outstr ? outstr : "-", 0,
 		    "compatibility=1.4") == -1)
 #endif /* HAVE_LIBPDF_OPEN_FILE */
-		GpGg.IntError(GpC, NO_CARET, "Error:cannot open PDF file .\n");
+		GpGg.IntErrorNoCaret("Error:cannot open PDF file .\n");
 
 #ifdef PDF_DONT_COMPRESS
 	/* for easier debugging of the output, turn off PDF stream

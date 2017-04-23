@@ -404,7 +404,7 @@ char * gp_basename(char *path);
 /* #define NDEBUG */
 /* #include <assert.h> */
 #ifndef assert
-	#define assert(X) if(!(X)) GpGg.IntError(GpC, -1, "Assertion failed: %s", #X )
+	#define assert(X) if(!(X)) GpGg.IntError(-1, "Assertion failed: %s", #X )
 #endif
 #ifdef DEBUG
 	#define DEBUG_WHERE do { fprintf(stderr,"%s:%d ",__FILE__,__LINE__); } while (0)

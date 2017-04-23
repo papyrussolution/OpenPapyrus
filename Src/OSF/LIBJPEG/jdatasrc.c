@@ -94,10 +94,7 @@ METHODDEF(void) init_mem_source(j_decompress_ptr cinfo)
 METHODDEF(boolean) fill_input_buffer(j_decompress_ptr cinfo)
 {
 	my_src_ptr src = (my_src_ptr)cinfo->src;
-	size_t nbytes;
-
-	nbytes = JFREAD(src->infile, src->buffer, INPUT_BUF_SIZE);
-
+	size_t nbytes = JFREAD(src->infile, src->buffer, INPUT_BUF_SIZE);
 	if(nbytes <= 0) {
 		if(src->start_of_file) /* Treat empty input file as fatal error */
 			ERREXIT(cinfo, JERR_INPUT_EMPTY);
@@ -107,11 +104,9 @@ METHODDEF(boolean) fill_input_buffer(j_decompress_ptr cinfo)
 		src->buffer[1] = (JOCTET)JPEG_EOI;
 		nbytes = 2;
 	}
-
 	src->pub.next_input_byte = src->buffer;
 	src->pub.bytes_in_buffer = nbytes;
 	src->start_of_file = FALSE;
-
 	return TRUE;
 }
 
@@ -120,13 +115,11 @@ METHODDEF(boolean) fill_mem_input_buffer(j_decompress_ptr cinfo)
 	static const JOCTET mybuffer[4] = {
 		(JOCTET)0xFF, (JOCTET)JPEG_EOI, 0, 0
 	};
-
 	/* The whole JPEG data is expected to reside in the supplied memory
 	 * buffer, so any request for more data beyond the given buffer size
 	 * is treated as an error.
 	 */
 	WARNMS(cinfo, JWRN_JPEG_EOF);
-
 	/* Insert a fake EOI marker */
 
 	cinfo->src->next_input_byte = mybuffer;

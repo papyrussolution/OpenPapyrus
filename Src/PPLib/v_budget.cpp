@@ -193,7 +193,7 @@ int SLAPI BudgetItemCore::GetItemsByBudget(PPID budgetID, PPID accID, long kind,
 	BExtQuery q(this, 1);
 	BudgetItemTbl::Key1 k1;
 
-	THROW_PP(pItems, PPERR_INVPARAM);
+	THROW_INVARG(pItems);
 	pItems->freeAll();
 	MEMSZERO(k1);
 	k1.BudgetID = budgetID;
@@ -251,7 +251,7 @@ SLAPI PPObjBudget::~PPObjBudget()
 int SLAPI PPObjBudget::GetPacket(PPID id, PPBudgetPacket * pPack)
 {
 	int ok = -1;
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	pPack->Init();
 	if(Search(id, &pPack->Rec) > 0) {
 		PPIDArray scen_list;
@@ -883,7 +883,7 @@ int SLAPI PPObjBudget::Helper_EditLine(BudgetItemTbl::Rec * pRec)
 	uint cm = 0;
 	BudgetItemDialog * p_dlg = 0;
 
-	THROW_PP(pRec, PPERR_INVPARAM);
+	THROW_INVARG(pRec);
 	THROW(CheckDialogPtr(&(p_dlg = new BudgetItemDialog(this))));
 	p_dlg->setDTS(pRec);
 	for(int valid_data = 0; !valid_data && ((cm = ExecView(p_dlg)) == cmOK || cm == cmaMore);) {
@@ -905,7 +905,7 @@ int SLAPI PPObjBudget::Helper_EditLines(PPID initID, BudgetItemsList * pList)
 	uint cm = 0;
 	BudgetItemsDialog * p_dlg = 0;
 
-	THROW_PP(pList, PPERR_INVPARAM);
+	THROW_INVARG(pList);
 	THROW(CheckDialogPtr(&(p_dlg = new BudgetItemsDialog(initID, this))));
 	p_dlg->setDTS(pList);
 	for(int valid_data = 0; !valid_data && ((cm = ExecView(p_dlg)) == cmOK || cm == cmaMore);) {
@@ -926,7 +926,7 @@ int SLAPI PPObjBudget::InitItemsCycleList(const BudgetItemTbl::Rec * pRec, Budge
 	int ok = -1;
 	BudgetItemTbl::Rec rec;
 	PPBudget budg_rec;
-	THROW_PP(pRec && pList, PPERR_INVPARAM);
+	THROW_INVARG(pRec && pList);
 	pList->freeAll();
 	rec = *pRec;
 	if(rec.BudgetID && Search(rec.BudgetID, &budg_rec) > 0 && budg_rec.Cycle > 1) {
@@ -970,7 +970,7 @@ int SLAPI PPObjBudget::EditLine(PPID * pID, PPIDArray * pIdList, PPID budgetID, 
 	BudgetItemTbl::Rec rec;
 	BudgetItemDialog * p_dlg = 0;
 
-	THROW_PP(pIdList, PPERR_INVPARAM);
+	THROW_INVARG(pIdList);
 	MEMSZERO(rec);
 	if(pID && *pID) {
 		THROW(ItemsTbl.Search(*pID, &rec) > 0);

@@ -1956,8 +1956,6 @@ int SLAPI PPViewCSess::DetachSessFromSuperSess(PPID sessID)
 	return ok;
 }
 
-int SLAPI ExportPosSession(PPID sessID); // @prototype(ppposprotocol.cpp)
-
 int SLAPI PPViewCSess::Transmit(PPID id, int transmitKind)
 {
 	int    ok = -1;
@@ -1977,7 +1975,10 @@ int SLAPI PPViewCSess::Transmit(PPID id, int transmitKind)
 			THROW(cses_exp.PutSess(&sess_list, 0)); // @vmiller
 		}
 		*/
-		THROW(ExportPosSession(id));
+		PPIDArray sess_list;
+		sess_list.add(id);
+		PPPosProtocol pp;
+		THROW(pp.ExportPosSession(sess_list));
 	}
 	else {
 		ObjTransmitParam param;
@@ -2681,7 +2682,7 @@ int SLAPI PPViewCSessExc::SetAltGoods(int sign, PPID goodsID)
 				if(p_item->AltGoodsID != alt_goods_id)
 					alt_goods_id = alt_goods_id ? -1L : p_item->AltGoodsID;
 			if(alt_goods_id < 0)
-				PPMessage(mfInfo|mfOK, PPINF_AMBIGUITYCSEXCALTGOODS, 0);
+				PPMessage(mfInfo|mfOK, PPINF_AMBIGUITYCSEXCALTGOODS);
 			else {
 				CSessExcAltGoodsParam param;
 				param.GoodsID    = goodsID;

@@ -1033,7 +1033,7 @@ static int _StringFuncC(const char * pStr)
 {
 	char buf[512];
 	strcat(strcpy(buf, pStr), "abcdefg-012345");
-	return (stricmp(buf, "xyz") != 0);
+	return !sstreqi_ascii(buf, "xyz");
 }
 
 int TestSStringPerf()

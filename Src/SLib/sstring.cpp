@@ -691,7 +691,12 @@ void SLAPI SString::Obfuscate()
 	if(Size && P_Buf) {
 		SlThreadLocalArea & r_tla = SLS.GetTLA();
 		r_tla.Rg.ObfuscateBuffer(P_Buf, Size);
-		P_Buf[L-1] = 0;
+		const char * p_zero = (const char *)memchr(P_Buf, '\0', Size);
+		if(p_zero) {
+			L = (p_zero - P_Buf);
+		}
+		else
+			P_Buf[L-1] = 0;
 	}
 }
 
@@ -1516,35 +1521,39 @@ int  SLAPI SString::GetIdxBySub(const char * pSubStr, int div)
 
 char * FASTCALL SString::CopyTo(char * pS, size_t bufLen) const
 {
-	return strnzcpy(pS, P_Buf, bufLen);
-	/* @construction @todo (такой вариант предпочтительнее поскольку функция критична по быстродействию, но нужен тест)
-	{
-		if(pS) {
-			const size_t src_len = Len();
-			if(src_len) {
-				if(bufLen) {
-					if(src_len < bufLen)
-						memcpy(pS, P_Buf, src_len+1);
-					else {
-						memcpy(pS, P_Buf, bufLen-1);
-						pS[bufLen-1] = 0;
-					}
+	// @v9.6.3 return strnzcpy(pS, P_Buf, bufLen);
+	/* @construction @todo (такой вариант предпочтительнее поскольку функция критична по быстродействию, но нужен тест) */
+	// @v9.6.3 (test has been done) {
+	if(pS) {
+		const size_t src_len = Len();
+		if(src_len) {
+			if(bufLen) {
+				if(src_len < bufLen)
+					memcpy(pS, P_Buf, src_len+1);
+				else {
+					memcpy(pS, P_Buf, bufLen-1);
+					pS[bufLen-1] = 0;
 				}
-				else
-					strcpy(pS, P_Buf);
 			}
 			else
-				pS[0] = 0;
+				strcpy(pS, P_Buf);
 		}
-		return pS;
+		else
+			pS[0] = 0;
 	}
-	*/
+	return pS;
+	// @v9.6.3 {
 }
 
 BSTR FASTCALL SString::CopyToOleStr(BSTR * pBuf) const
 {
 	size_t wbuflen = Len()+1;
-	WCHAR * p_wname = (WCHAR *)malloc(wbuflen * sizeof(WCHAR));
+	WCHAR  wname_stk_buf[256];
+	WCHAR * p_wname = 0; // (WCHAR *)malloc(wbuflen * sizeof(WCHAR));
+	if(wbuflen > SIZEOFARRAY(wname_stk_buf)) 
+		p_wname = (WCHAR *)malloc(wbuflen * sizeof(WCHAR));
+	else
+		p_wname = wname_stk_buf;
 	if(p_wname) {
 		p_wname[0] = 0;
 #ifndef _WIN32_WCE // {
@@ -1555,7 +1564,8 @@ BSTR FASTCALL SString::CopyToOleStr(BSTR * pBuf) const
 		*pBuf = SysAllocString(p_wname);
 #endif // } _WIN32_WCE
 	}
-	free(p_wname);
+	if(p_wname != wname_stk_buf)
+		free(p_wname);
 	return *pBuf;
 }
 
@@ -5859,6 +5869,45 @@ SLTEST_R(SString)
 	for(uint i = 0; i < 1000; i++) {
 		(str = 0).NumberToLat(i);
 		out.WriteLine(out_buf.Printf("%u\t\t%s\n", i, (const char *)str));
+	}
+	//
+	// Тестирование функции CopyTo
+	//
+	{
+		char   buffer[1024];
+		char   preserve_buffer[sizeof(buffer)];
+		SLS.GetTLA().Rg.ObfuscateBuffer(buffer, sizeof(buffer));
+		memcpy(preserve_buffer, buffer, sizeof(preserve_buffer));
+		//
+		{
+			const size_t _src_len = 503;
+			str = 0;
+			for(uint si = 0; si < _src_len; si++) {
+				uint _v = SLS.GetTLA().Rg.GetUniformInt(100000);
+				char _c = (_v % 26) + ((si & 1) ? 'a' : 'A');
+				str.CatChar(_c);
+			}
+			SLTEST_CHECK_EQ(str.Len(), _src_len);
+		}
+		for(uint tl = 1; tl <= sizeof(buffer); tl++) { 
+			str.CopyTo(buffer, tl);
+			if(tl > 1)
+				SLTEST_CHECK_Z(str.CmpPrefix(buffer, 0));
+			{
+				const size_t real_data_len = MIN(tl, str.Len()+1);
+				SLTEST_CHECK_Z(memcmp(str.cptr(), buffer, real_data_len-1));
+				SLTEST_CHECK_EQ((uint8)buffer[real_data_len-1], (uint8)0);
+				SLTEST_CHECK_Z(memcmp(buffer+real_data_len, preserve_buffer+real_data_len, sizeof(buffer)-real_data_len));
+			}
+		}
+		{
+			str.CopyTo(buffer, 0);
+			SLTEST_CHECK_Z(str.CmpPrefix(buffer, 0));
+			SLTEST_CHECK_Z(memcmp(str.cptr(), buffer, str.Len()));
+			SLTEST_CHECK_EQ(strlen(buffer), str.Len());
+			SLTEST_CHECK_EQ((uint8)buffer[str.Len()], (uint8)0);
+			SLTEST_CHECK_Z(memcmp(buffer+str.Len()+1, preserve_buffer+str.Len()+1, sizeof(buffer)-str.Len()-1));
+		}
 	}
 	//
 	// Тестирование функций EncodeMime64 и DecodeMime64

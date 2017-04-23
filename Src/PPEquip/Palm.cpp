@@ -1154,7 +1154,7 @@ int SLAPI AndroidReader::ReadGeoTracks(PalmInputParam * pParam)
 	xmlDocPtr p_doc = P_Doc;
 	SString wait_msg_buf;
 	SString val;
-	PPLoadText(PPTXT_WAIT_PALMIMPGEOTRACK, wait_msg_buf);
+	PPLoadText(PPTXT_IMPGEOTRACK, wait_msg_buf);
 	if(pParam && pParam->P_GtList && p_doc) {
 		long   _count = 0;
 		IterCounter cntr;
@@ -1235,7 +1235,7 @@ int SLAPI AndroidReader::ReadBills(PalmInputParam * pParam, long billIdBias, lon
 	xmlDocPtr p_doc = P_Doc;
 	SString wait_msg_buf;
 	SString val;
-	PPLoadText(PPTXT_WAIT_PALMIMPBILL, wait_msg_buf);
+	PPLoadText(PPTXT_IMPBILL, wait_msg_buf);
 	if(pParam && pParam->P_BillQueue && p_doc) {
 		long   _count = 0;
 		IterCounter cntr;
@@ -1479,7 +1479,7 @@ int SLAPI PPObjStyloPalm::ReadInputBill(PPStyloPalm * pRec, const char * pPath, 
 				int fldn_memo = 0;
 				int fldn_loc  = 0;
 
-				PPLoadText(PPTXT_WAIT_PALMIMPBILL, wait_msg_buf);
+				PPLoadText(PPTXT_IMPBILL, wait_msg_buf);
 				cntr.Init(p_bill_tbl->getNumRecs());
 				p_bill_tbl->getFieldNumber("ID", &fldn_id);
 				if(!p_bill_tbl->getFieldNumber("AGENTID", &fldn_clientid))
@@ -1537,7 +1537,7 @@ int SLAPI PPObjStyloPalm::ReadInputBill(PPStyloPalm * pRec, const char * pPath, 
 					int fldn_qtty = 0;
 					int fldn_price = 0;
 
-					PPLoadText(PPTXT_WAIT_PALMIMPBLINE, wait_msg_buf);
+					PPLoadText(PPTXT_IMPBILLLINE, wait_msg_buf);
 					cntr.Init(p_line_tbl->getNumRecs());
 					p_line_tbl->getFieldNumber("ID",      &fldn_lineid);
 					p_line_tbl->getFieldNumber("BILLID",  &fldn_billid);
@@ -2735,7 +2735,7 @@ int SLAPI AndroidXmlWriter::AddAttrib(const char * pName, LDATE val)
 int SLAPI InitImpExpParam(PPImpExpParam * pParam, const char * pFileName, uint recTyp, int forExport)
 {
 	int    ok = 1;
-	THROW_PP(pParam && pFileName, PPERR_INVPARAM);
+	THROW_INVARG(pParam && pFileName);
 	pParam->Init();
 	THROW(LoadSdRecord(recTyp, &pParam->InnerRec));
 	pParam->Direction  = forExport ? 0 : 1;
@@ -3170,9 +3170,9 @@ int SLAPI PPObjStyloPalm::XmlCmpDtm(LDATE dt, LTIME tm, const char * pXmlPath)
 					xmlAttrPtr p_attr = p_root->properties;
 					for(; p_attr; p_attr = p_attr->next) {
 						if(p_attr->children && p_attr->children->content) {
-							if(stricmp("CreateDt", (const char*)p_attr->name) == 0)
+							if(sstreqi_ascii("CreateDt", (const char*)p_attr->name))
 								strtodate((const char*)p_attr->children->content, DATF_DMY, &dtm.d);
-							else if(stricmp("CreateTm", (const char*)p_attr->name) == 0)
+							else if(sstreqi_ascii("CreateTm", (const char*)p_attr->name))
 								strtotime((const char*)p_attr->children->content, TIMF_HMS, &dtm.t);
 						}
 					}

@@ -812,7 +812,7 @@ void GpBitmapBlock::Create(uint x, uint y, uint planes)
 		(*b_p)[j] = (pixels*)malloc(x * sizeof(pixels));
 		if((*b_p)[j] == (pixels*)NULL) {
 			Destroy(); // free what we have already allocated 
-			GpGg.IntError(GpC, NO_CARET, "out of memory for bitmap buffer");
+			GpGg.IntErrorNoCaret("out of memory for bitmap buffer");
 		}
 		memzero((*b_p)[j], x * sizeof(pixels));
 	}
@@ -935,7 +935,7 @@ void GpBitmapBlock::CharSize(uint size)
 			    b_font[j] = fnt13x25[j];
 		    break;
 		default:
-		    GpGg.IntError(GpC, NO_CARET, "Unknown character size");
+		    GpGg.IntErrorNoCaret("Unknown character size");
 	}
 }
 //

@@ -107,7 +107,7 @@ int SLAPI AccountCore::GenerateNumber(PPAccount * pRec)
 	int    ok = -1, r;
 	int    start = 0, finish = 0;
 	if(!pRec)
-		return PPSetError(PPERR_INVPARAM);
+		return PPSetErrorInvParam();
 	pRec->Ac = 0;
 	pRec->Sb = 0;
 	if(pRec->Type == ACY_OBAL) {
@@ -699,7 +699,7 @@ SEnumImp * SLAPI AcctRel::Enum(int keyN, PPID keyID)
 	SEnumImp * p_enum = 0;
 	long   h = -1;
 	BExtQuery * q = 0;
-	THROW_PP(oneof2(keyN, 1, 2), PPERR_INVPARAM);
+	THROW_INVARG(oneof2(keyN, 1, 2));
 	THROW_MEM(q = new BExtQuery(this, keyN));
 	q->selectAll();
 	if(keyN == 1) {

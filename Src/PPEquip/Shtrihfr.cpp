@@ -692,7 +692,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 	SString buf;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR;
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	if(pPack->GetCount() == 0)
 		ok = -1;
 	else {
@@ -968,7 +968,7 @@ int SLAPI SCS_SHTRIHFRF::GetCheckInfo(const PPBillPacket * pPack, BillTaxArray *
 		if(SearchObject(PPOBJ_PERSON, main_org_id, &prec) > 0 && prec.Flags & PSNF_NOVATAX)
 			wovatax = 1;
 	}
-	THROW_PP(pPack && pAry, PPERR_INVPARAM);
+	THROW_INVARG(pPack && pAry);
 	RVALUEPTR(flags, pFlags);
 	if(pPack->OpTypeID == PPOPT_ACCTURN) {
 		long   s_tax = 0;
@@ -1104,7 +1104,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double mul
 	PPIDArray     vat_ary;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR;
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	THROW(GetCheckInfo(pPack, &bt_ary, &flags, name));
 	if(bt_ary.getCount() == 0)
 		return -1;
@@ -1192,7 +1192,7 @@ int SLAPI SCS_SHTRIHFRF::PrintSlipDoc(CCheckPacket * pPack, const char * pFormat
 	SString  temp_buf;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	THROW(ConnectFR());
 	if(CConfig.Flags & CCFLG_DEBUG) {
 		(temp_buf = "SCS_SHTRIHFRF::PrintSlipDoc entry").CatDiv(':', 2).CatEq("DeviceType", (long)devtypeCombo).
@@ -1272,7 +1272,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckCopy(CCheckPacket * pPack, const char * pForm
 	SlipDocCommonParam  sdc_param;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	THROW(ConnectFR());
 	THROW(SetFR(DocumentNumber, pPack->Rec.Code));
 	if(P_SlipFmt) {
@@ -1399,7 +1399,7 @@ int SLAPI SCS_SHTRIHFRF::PrintZReportCopy(const CSessInfo * pInfo)
 	int  ok = -1;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
-	THROW_PP(pInfo, PPERR_INVPARAM);
+	THROW_INVARG(pInfo);
 	THROW(ConnectFR());
 	THROW(SetFR(DocumentNumber, pInfo->Rec.SessNumber));
 	if(P_SlipFmt) {
@@ -1641,7 +1641,7 @@ int SLAPI SCS_SHTRIHFRF::AnnulateCheck()
 	THROW(GetFR(ECRMode, &mode));
 	if(mode == FRMODE_OPEN_CHECK) {
 		Flags |= sfOpenCheck | sfCancelled;
-		PPMessage(mfInfo|mfOK, PPINF_SHTRIHFR_CHK_ANNUL, 0);
+		PPMessage(mfInfo|mfOK, PPINF_SHTRIHFR_CHK_ANNUL);
 		THROW(ExecFRPrintOper(CancelCheck));
 		Flags &= ~(sfOpenCheck | sfCancelled);
 		cut = 1;
@@ -2009,7 +2009,7 @@ int SLAPI SCS_SHTRIHFRF::AllowPrintOper(PPID id)
 		if(oneof2(slip_mode_status, SLIPMODE_BEFORE_PRINT, SLIPMODE_AFTER_PRINT)) {
 			ExecFR(Beep);
 			wait_prn_err = 1;
-			if(PPMessage(mfConf|mfYesNo, PPCFM_CONTSLIPDOCPRINT, 0) != cmYes) {
+			if(PPMessage(mfConf|mfYesNo, PPCFM_CONTSLIPDOCPRINT) != cmYes) {
 				Flags |= sfCancelled;
 				ok = 0;
 			}
@@ -2038,7 +2038,7 @@ int SLAPI SCS_SHTRIHFRF::AllowPrintOper(PPID id)
 			wait_prn_err = 1;
 			r = PPError();
 			if((!send_msg && r != cmOK) || (send_msg && ExecFR(Beep) &&
-				PPMessage(mfConf|mfYesNo, PPCFM_SETPAPERTOPRINT, 0) != cmYes)) {
+				PPMessage(mfConf|mfYesNo, PPCFM_SETPAPERTOPRINT) != cmYes)) {
 				Flags |= sfCancelled;
 				ok = 0;
 			}

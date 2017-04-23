@@ -1,5 +1,5 @@
 // SMEM.CPP
-// Copyright (c) Sobolev A. 1993-2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016
+// Copyright (c) Sobolev A. 1993-2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017
 // @codepage windows-1251
 //
 #include <slib.h>
@@ -367,11 +367,11 @@ SLTEST_FIXTURE(MEMMOVO, SlTestFixtureMEMMOVO)
 	int    bm = -1;
 	if(pBenchmark == 0)
 		bm = 0;
-	else if(stricmp(pBenchmark, "memmovo") == 0)
+	else if(sstreqi_ascii(pBenchmark, "memmovo"))
 		bm = 1;
-	else if(stricmp(pBenchmark, "memmove") == 0)
+	else if(sstreqi_ascii(pBenchmark, "memmove"))
 		bm = 2;
-	else if(stricmp(pBenchmark, "A_memmove") == 0)
+	else if(sstreqi_ascii(pBenchmark, "A_memmove"))
 		bm = 3;
 	else
 		SetInfo("invalid benchmark");

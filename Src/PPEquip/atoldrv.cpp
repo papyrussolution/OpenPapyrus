@@ -303,7 +303,7 @@ int SLAPI SCS_ATOLDRV::EditParam(void * pDevNum)
 {
 	int    ok = 1;
 	long   dev_num = (pDevNum) ? *(long*)pDevNum : 1;
-	THROW_PP(P_Disp, PPERR_INVPARAM);
+	THROW_INVARG(P_Disp);
 	THROW(P_Disp->SetProperty(CurrentDeviceNumber, dev_num) > 0);
 	THROW(P_Disp->CallMethod(ShowProperties) > 0);
 	THROW(P_Disp->GetProperty(CurrentDeviceNumber, &dev_num) > 0);
@@ -320,7 +320,7 @@ int SLAPI SCS_ATOLDRV::SetErrorMessage()
 	int    ok = -1;
 	char   err_buf[MAXPATH];
 	memzero(err_buf, sizeof(err_buf));
-	THROW_PP(P_Disp, PPERR_INVPARAM)
+	THROW_INVARG(P_Disp)
 	THROW(P_Disp->GetProperty(ResultCode, &ResCode) > 0);
 	if(ResCode != RESCODE_NO_ERROR) {
 		THROW(P_Disp->GetProperty(ResultDescription, err_buf, sizeof(err_buf) - 1) > 0);
@@ -528,7 +528,7 @@ int SLAPI SCS_ATOLDRV::AllowPrintOper(uint id)
 			wait_prn_err = 1;
 			r = PPError();
 			if((!send_msg && r != cmOK) || (send_msg && Exec(Beep) &&
-				PPMessage(mfConf|mfYesNo, PPCFM_SETPAPERTOPRINT, 0) != cmYes)) {
+				PPMessage(mfConf|mfYesNo, PPCFM_SETPAPERTOPRINT) != cmYes)) {
 				Flags |= sfCancelled;
 				ok = 0;
 			}
@@ -577,7 +577,7 @@ int SLAPI SCS_ATOLDRV::AllowPrintOper(uint id)
 int SLAPI SCS_ATOLDRV::Exec(uint id)
 {
 	int ok = 1;
-	THROW_PP(P_Disp, PPERR_INVPARAM);
+	THROW_INVARG(P_Disp);
 	THROW(SetProp(Password, CashierPassword));
 	THROW(P_Disp->CallMethod(id) > 0);
 	THROW(SetErrorMessage() == -1);
@@ -647,7 +647,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 	SString debug_log_buf;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR;
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	debug_log_buf.CatEq("CCID", pPack->Rec.ID).CatDiv(';', 2).CatEq("CCCode", pPack->Rec.Code);
 	if(pPack->GetCount() == 0)
 		ok = -1;
@@ -942,7 +942,7 @@ int SLAPI SCS_ATOLDRV::PrintCheckCopy(CCheckPacket * pPack, const char * pFormat
 	int     ok = 1;
 	{
 		SlipDocCommonParam sdc_param;
-		THROW_PP(pPack, PPERR_INVPARAM);
+		THROW_INVARG(pPack);
 		THROW(Connect());
 		THROW(SetProp(Mode, MODE_REGISTER));
 		// THROW(ExecOper(NewDocument));
@@ -1024,7 +1024,7 @@ int SLAPI SCS_ATOLDRV::PrintZReportCopy(const CSessInfo * pInfo)
 	int  ok = -1;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
-	THROW_PP(pInfo, PPERR_INVPARAM);
+	THROW_INVARG(pInfo);
 	THROW(Connect());
 
 	THROW(Connect());

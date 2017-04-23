@@ -1752,7 +1752,7 @@ public:
 		size_t sav_offs = 0;
 		PPTex2HtmlPrcssr prc;
 		PPTex2HtmlPrcssr::Param filt;
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
         sav_offs = pParam->GetRdOffs();
 		filt.Read(*pParam, 0);
 		if(prc.EditParam(&filt) > 0) {
@@ -2564,7 +2564,7 @@ public:
 		size_t sav_offs = 0;
 		PPVer2HtmlPrcssr prc;
 		PPVer2HtmlPrcssr::Param filt;
-		THROW_PP(pParam, PPERR_INVPARAM);
+		THROW_INVARG(pParam);
         sav_offs = pParam->GetRdOffs();
 		filt.Read(*pParam, 0);
 		if(prc.EditParam(&filt) > 0) {

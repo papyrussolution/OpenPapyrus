@@ -4,7 +4,7 @@
 #include <pp.h>
 #pragma hdrstop
 #include <private\_ppo.h>
-#include <idea.h>
+// @v9.6.3 #include <idea.h>
 #include <float.h>
 #include <signal.h>
 #include <ppsoapclient.h>
@@ -2227,7 +2227,7 @@ int SLAPI PPSession::SetupConfigByOps()
 			cc.Flags |= CCFLG_USEDRAFTBILL;
 	}
 	if(missingnoupdrestopflag)
-		PPMessage(mfInfo, PPINF_MISSINGNOUPDRESTOPFLAG, 0);
+		PPMessage(mfInfo, PPINF_MISSINGNOUPDRESTOPFLAG);
 	return ok;
 }
 
@@ -2393,14 +2393,14 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 			// Имя SYSTEM является встроенным аналогом имени MASTER и отличается //
 			// от него только идентификатором меню (MENU_SYSTEM)
 			//
-			if(stricmp(user_name, "SYSTEM") == 0) {
+			if(sstreqi_ascii(user_name, "SYSTEM")) {
 				STRNSCPY(user_name, "MASTER");
 				// @v9.4.8 is_system_login = 1;
 				logmode = logmSystem; // @v9.4.8
 			}
-			else if(stricmp(user_name, PPSession::P_JobLogin) == 0)
+			else if(sstreqi_ascii(user_name, PPSession::P_JobLogin))
 				logmode = logmService;
-			else if(stricmp(user_name, PPSession::P_EmptyBaseCreationLogin) == 0)
+			else if(sstreqi_ascii(user_name, PPSession::P_EmptyBaseCreationLogin))
 				logmode = logmEmptyBaseCreation;
 		}
 		{

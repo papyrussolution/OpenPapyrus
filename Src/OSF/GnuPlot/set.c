@@ -62,7 +62,7 @@ static void set_datafile_commentschars(GpCommand & rC);
 static void set_print(GpCommand & rC);
 static void set_table(GpCommand & rC);
 static void set_termoptions(GpCommand & rC);
-static void set_range(GpCommand & rC, GpAxis * pAx);
+//static void set_range(GpCommand & rC, GpAxis * pAx);
 
 /******** Local functions ********/
 
@@ -98,7 +98,7 @@ void GpGadgets::SetCommand(GpCommand & rC)
 		}
 		if(forever_iteration(rC.P.P_SetIterator)) {
 			rC.P.CleanupSetIterator();
-			GpGg.IntError(GpC, save_token, "unbounded iteration");
+			GpGg.IntError(save_token, "unbounded iteration");
 		}
 		save_token = rC.CToken;
 ITERATE:
@@ -202,7 +202,7 @@ ITERATE:
 						rC.CToken++;
 						ZFREE(GpDf.missing_val);
 						if(!rC.EndOfCommand() && !(GpDf.missing_val = rC.TryToGetString()))
-							IntError(rC, rC.CToken, "expected missing-value string");
+							IntErrorCurToken("expected missing-value string");
 					}
 				}
 			    else if(rC.AlmostEq("sep$arators"))
@@ -228,7 +228,7 @@ ITERATE:
 				    rC.CToken++;
 			    }
 			    else
-				    IntError(rC, rC.CToken, "expecting datafile modifier");
+				    IntErrorCurToken("expecting datafile modifier");
 			    break;
 #ifdef USE_MOUSE
 			case S_MOUSE:
@@ -246,7 +246,7 @@ ITERATE:
 					char * testfile;
 					rC.CToken++;
 					if(IsMultiPlot)
-						IntError(rC, rC.CToken, "you can't change the output in multiplot mode");
+						IntErrorCurToken("you can't change the output in multiplot mode");
 					if(rC.EndOfCommand()) {    /* no file specified */
 						term_set_output(NULL);
 						ZFREE(outstr); // means STDOUT
@@ -261,7 +261,7 @@ ITERATE:
 						// if we get here then it worked, and outstr now = testfile
 					}
 					else
-						IntError(rC, rC.CToken, "expecting filename");
+						IntErrorCurToken("expecting filename");
 					invalidate_palette(); // Invalidate previous palette
 				}
 				break;
@@ -285,7 +285,7 @@ ITERATE:
 						gp_expand_tilde(&PS_psdir);
 					}
 					else
-						IntError(rC, rC.CToken, "expecting filename");
+						IntErrorCurToken("expecting filename");
 				}
 				break;
 #ifdef EAM_OBJECTS
@@ -401,35 +401,35 @@ ITERATE:
 			case S_CBLABEL: SetXYZLabel(rC, &AxA[COLOR_AXIS].label); break;
 			case S_X2LABEL: SetXYZLabel(rC, &AxA[SECOND_X_AXIS].label); break;
 			case S_Y2LABEL: SetXYZLabel(rC, &AxA[SECOND_Y_AXIS].label); break;
-			case S_XRANGE: set_range(rC, &AxA[FIRST_X_AXIS]); break;
-			case S_X2RANGE: set_range(rC, &AxA[SECOND_X_AXIS]); break;
-			case S_YRANGE: set_range(rC, &AxA[FIRST_Y_AXIS]); break;
-			case S_Y2RANGE: set_range(rC, &AxA[SECOND_Y_AXIS]); break;
-			case S_ZRANGE: set_range(rC, &AxA[FIRST_Z_AXIS]); break;
-			case S_CBRANGE: set_range(rC, &AxA[COLOR_AXIS]); break;
+			case S_XRANGE: SetRange(rC, &AxA[FIRST_X_AXIS]); break;
+			case S_X2RANGE: SetRange(rC, &AxA[SECOND_X_AXIS]); break;
+			case S_YRANGE: SetRange(rC, &AxA[FIRST_Y_AXIS]); break;
+			case S_Y2RANGE: SetRange(rC, &AxA[SECOND_Y_AXIS]); break;
+			case S_ZRANGE: SetRange(rC, &AxA[FIRST_Z_AXIS]); break;
+			case S_CBRANGE: SetRange(rC, &AxA[COLOR_AXIS]); break;
 			case S_RRANGE:
-			    set_range(rC, &AxA[POLAR_AXIS]);
+			    SetRange(rC, &AxA[POLAR_AXIS]);
 			    if(IsPolar)
 				    RRangeToXY();
 			    break;
-			case S_TRANGE: set_range(rC, &AxA[T_AXIS]); break;
-			case S_URANGE: set_range(rC, &AxA[U_AXIS]); break;
-			case S_VRANGE: set_range(rC, &AxA[V_AXIS]); break;
+			case S_TRANGE: SetRange(rC, &AxA[T_AXIS]); break;
+			case S_URANGE: SetRange(rC, &AxA[U_AXIS]); break;
+			case S_VRANGE: SetRange(rC, &AxA[V_AXIS]); break;
 			case S_PAXIS: 
 				//set_paxis(); 
 				{
 					rC.CToken++;
 					int    p = rC.IntExpression();
 					if(p <= 0 || p > MAX_PARALLEL_AXES)
-						IntError(rC, rC.CToken-1, "illegal paxis");
+						IntError(rC.CToken-1, "illegal paxis");
 					if(p > (int)NumParallelAxes)
 						ExtendParallelAxis(p);
 					if(rC.Eq("range"))
-						set_range(rC, &P_ParallelAxis[p-1]);
+						SetRange(rC, &P_ParallelAxis[p-1]);
 					else if(rC.AlmostEq("tic$s"))
 						SetTicProp(P_ParallelAxis[p-1], rC);
 					else
-						IntError(rC, rC.CToken, "expecting 'range' or 'tics'");
+						IntErrorCurToken("expecting 'range' or 'tics'");
 				}
 				break;
 			case S_RAXIS: 
@@ -456,7 +456,7 @@ ITERATE:
 			case S_XYPLANE: SetXYPlane(rC); break;
 			case S_TICSLEVEL: SetTicsLevel(rC); break;
 			default:
-			    IntError(rC, rC.CToken, "unrecognized option - see 'help set'.");
+			    IntErrorCurToken("unrecognized option - see 'help set'.");
 			    break;
 		}
 		if(next_iteration(rC.P.P_SetIterator)) {
@@ -486,7 +486,7 @@ void GpGadgets::SetAngles(GpCommand & rC)
 		Ang2Rad = DEG2RAD;
 	}
 	else
-		IntError(rC, rC.CToken, "expecting 'radians' or 'degrees'");
+		IntErrorCurToken("expecting 'radians' or 'degrees'");
 	if(IsPolar && AxA[T_AXIS].SetAutoScale) {
 		// set trange if in polar mode and no explicit range
 		AxA[T_AXIS].SetRange.Set(0.0, 2 * M_PI / Ang2Rad);
@@ -520,7 +520,7 @@ void GpGadgets::SetArrow(GpCommand & rC)
 	else
 		tag = rC.IntExpression();
 	if(tag <= 0)
-		IntError(rC, rC.CToken, "tag must be > 0");
+		IntErrorCurToken("tag must be > 0");
 	// OK! add arrow 
 	if(first_arrow != NULL) { /* skip to last arrow */
 		for(this_arrow = first_arrow; this_arrow != NULL;
@@ -555,7 +555,7 @@ void GpGadgets::SetArrow(GpCommand & rC)
 			}
 			rC.CToken++;
 			if(rC.EndOfCommand())
-				IntError(rC, rC.CToken, "start coordinates expected");
+				IntErrorCurToken("start coordinates expected");
 			// get coordinates 
 			GetPosition(rC, &this_arrow->start);
 			set_start = true;
@@ -570,7 +570,7 @@ void GpGadgets::SetArrow(GpCommand & rC)
 			this_arrow->type = (rC.Eq("rto")) ? arrow_end_relative : arrow_end_absolute;
 			rC.CToken++;
 			if(rC.EndOfCommand())
-				IntError(rC, rC.CToken, "end coordinates expected");
+				IntErrorCurToken("end coordinates expected");
 			// get coordinates 
 			GetPosition(rC, &this_arrow->end);
 			set_end = true;
@@ -599,10 +599,10 @@ void GpGadgets::SetArrow(GpCommand & rC)
 		if(save_token != rC.CToken)
 			continue;
 		if(!rC.EndOfCommand())
-			IntError(rC, rC.CToken, "wrong argument in set arrow");
+			IntErrorCurToken("wrong argument in set arrow");
 	}
 	if(duplication)
-		IntError(rC, rC.CToken, "duplicate or contradictory arguments");
+		IntErrorCurToken("duplicate or contradictory arguments");
 }
 
 /* assign a new arrow tag
@@ -724,7 +724,7 @@ void GpAxisBlock::SetAutoscale(GpCommand & rC)
 		if(set_autoscale_axis(rC, &AxA[U_AXIS])) return;
 		if(set_autoscale_axis(rC, &AxA[V_AXIS])) return;
 		// come here only if nothing found:
-		GpGg.IntError(rC, rC.CToken, "Invalid range");
+		GpGg.IntErrorCurToken("Invalid range");
 	}
 }
 //
@@ -846,7 +846,7 @@ void GpGadgets::SetBoxPlot(GpCommand & rC)
 			rC.CToken++;
 			boxplot_opts.limit_value = rC.RealExpression();
 			if(boxplot_opts.limit_value < 0 || boxplot_opts.limit_value > 1)
-				IntError(rC, rC.CToken-1, "fraction must be less than 1");
+				IntError(rC.CToken-1, "fraction must be less than 1");
 			boxplot_opts.limit_type = 1;
 		}
 		else if(rC.AlmostEq("candle$sticks")) {
@@ -861,7 +861,7 @@ void GpGadgets::SetBoxPlot(GpCommand & rC)
 			rC.CToken++;
 			boxplot_opts.separation = rC.RealExpression();
 			if(boxplot_opts.separation < 0)
-				IntError(rC, rC.CToken-1, "separation must be > 0");
+				IntError(rC.CToken-1, "separation must be > 0");
 		}
 		else if(rC.AlmostEq("lab$els")) {
 			rC.CToken++;
@@ -878,7 +878,7 @@ void GpGadgets::SetBoxPlot(GpCommand & rC)
 				boxplot_opts.labels = BOXPLOT_FACTOR_LABELS_AUTO;
 			}
 			else
-				IntError(rC, rC.CToken-1, "expecting 'x', 'x2', 'auto' or 'off'");
+				IntError(rC.CToken-1, "expecting 'x', 'x2', 'auto' or 'off'");
 			rC.CToken++;
 		}
 		else if(rC.AlmostEq("so$rted")) {
@@ -890,7 +890,7 @@ void GpGadgets::SetBoxPlot(GpCommand & rC)
 			rC.CToken++;
 		}
 		else
-			IntError(rC, rC.CToken, "unrecognized option");
+			IntErrorCurToken("unrecognized option");
 	}
 }
 //
@@ -915,7 +915,7 @@ void GpGadgets::SetBoxWidth(GpCommand & rC)
 		else if(rC.AlmostEq("r$elative"))
 			boxwidth_is_absolute = false;
 		else
-			IntError(rC, rC.CToken, "expecting 'absolute' or 'relative' ");
+			IntErrorCurToken("expecting 'absolute' or 'relative' ");
 	}
 	rC.CToken++;
 }
@@ -942,7 +942,7 @@ void GpGadgets::SetClip(GpCommand & rC)
 		rC.CToken++;
 	}
 	else
-		IntError(rC, rC.CToken, "expecting 'points', 'one', or 'two'");
+		IntErrorCurToken("expecting 'points', 'one', or 'two'");
 }
 //
 // process 'set cntrparam' command 
@@ -989,12 +989,12 @@ static void set_cntrparam(GpCommand & rC)
 			contour_levels_kind = LEVELS_DISCRETE;
 			rC.CToken++;
 			if(rC.EndOfCommand())
-				GpGg.IntError(rC, rC.CToken, "expecting discrete level");
+				GpGg.IntErrorCurToken("expecting discrete level");
 			else
 				*(double*)dyn_contour_levels_list.GetNext() = rC.RealExpression();
 			while(!rC.EndOfCommand()) {
 				if(!rC.Eq(","))
-					GpGg.IntError(rC, rC.CToken, "expecting comma to separate discrete levels");
+					GpGg.IntErrorCurToken("expecting comma to separate discrete levels");
 				rC.CToken++;
 				*(double*)dyn_contour_levels_list.GetNext() = rC.RealExpression();
 			}
@@ -1007,13 +1007,13 @@ static void set_cntrparam(GpCommand & rC)
 			rC.CToken++;
 			contour_levels_list[i++] = rC.RealExpression();
 			if(!rC.Eq(","))
-				GpGg.IntError(rC, rC.CToken, "expecting comma to separate start,incr levels");
+				GpGg.IntErrorCurToken("expecting comma to separate start,incr levels");
 			rC.CToken++;
 			if((contour_levels_list[i++] = rC.RealExpression()) == 0)
-				GpGg.IntError(rC, rC.CToken, "increment cannot be 0");
+				GpGg.IntErrorCurToken("increment cannot be 0");
 			if(!rC.EndOfCommand()) {
 				if(!rC.Eq(","))
-					GpGg.IntError(rC, rC.CToken, "expecting comma to separate incr,stop levels");
+					GpGg.IntErrorCurToken("expecting comma to separate incr,stop levels");
 				rC.CToken++;
 				/* need to round up, since 10,10,50 is 5 levels, not four,
 				 * but 10,10,49 is four
@@ -1030,7 +1030,7 @@ static void set_cntrparam(GpCommand & rC)
 		}
 		else {
 			if(contour_levels_kind == LEVELS_DISCRETE)
-				GpGg.IntError(rC, rC.CToken, "Levels type is discrete, ignoring new number of contour levels");
+				GpGg.IntErrorCurToken("Levels type is discrete, ignoring new number of contour levels");
 			contour_levels = rC.IntExpression();
 		}
 	}
@@ -1039,11 +1039,11 @@ static void set_cntrparam(GpCommand & rC)
 		rC.CToken++;
 		order = rC.IntExpression();
 		if(order < 2 || order > MAX_BSPLINE_ORDER)
-			GpGg.IntError(rC, rC.CToken, "bspline order must be in [2..10] range.");
+			GpGg.IntErrorCurToken("bspline order must be in [2..10] range.");
 		contour_order = order;
 	}
 	else
-		GpGg.IntError(rC, rC.CToken, "expecting 'linear', 'cubicspline', 'bspline', 'points', 'levels' or 'order'");
+		GpGg.IntErrorCurToken("expecting 'linear', 'cubicspline', 'bspline', 'points', 'levels' or 'order'");
 }
 //
 // process 'set cntrlabel' command 
@@ -1088,7 +1088,7 @@ void GpGadgets::SetCntrLabel(GpCommand & rC)
 			clabel_interval = rC.IntExpression();
 		}
 		else {
-			IntError(rC, rC.CToken, "unrecognized option");
+			IntErrorCurToken("unrecognized option");
 		}
 	}
 }
@@ -1109,7 +1109,7 @@ void GpGadgets::SetContour(GpCommand & rC)
 		else if(rC.AlmostEq("bo$th"))
 			draw_contour = CONTOUR_BOTH;
 		else
-			IntError(rC, rC.CToken, "expecting 'base', 'surface', or 'both'");
+			IntErrorCurToken("expecting 'base', 'surface', or 'both'");
 		rC.CToken++;
 	}
 }
@@ -1129,7 +1129,7 @@ void GpGadgets::SetColorSequence(GpCommand & rC, int option)
 		else if(rC.Eq("classic"))
 			option = 3;
 		else
-			IntError(rC, rC.CToken, "unrecognized color set");
+			IntErrorCurToken("unrecognized color set");
 	}
 	if(option == 1 || option == 2) {
 		int i;
@@ -1154,7 +1154,7 @@ void GpGadgets::SetColorSequence(GpCommand & rC, int option)
 		linetype_recycle_count = 0;
 	}
 	else {
-		IntError(rC, rC.CToken, "Expecting 'classic' or 'default'");
+		IntErrorCurToken("Expecting 'classic' or 'default'");
 	}
 	rC.CToken++;
 }
@@ -1172,7 +1172,7 @@ void GpGadgets::SetDashType(GpCommand & rC)
 	rC.CToken++;
 	// get tag 
 	if(rC.EndOfCommand() || ((tag = rC.IntExpression()) <= 0))
-		IntError(rC, rC.CToken, "tag must be > zero");
+		IntErrorCurToken("tag must be > zero");
 	// Check if dashtype is already defined 
 	for(this_dashtype = first_custom_dashtype; this_dashtype != NULL;
 	    prev_dashtype = this_dashtype, this_dashtype = this_dashtype->next)
@@ -1205,7 +1205,7 @@ void GpGadgets::SetDashType(GpCommand & rC)
 	if(!rC.EndOfCommand()) {
 		if(is_new)
 			delete_dashtype(prev_dashtype, this_dashtype);
-		IntError(rC, rC.CToken, "Extraneous arguments to set dashtype");
+		IntErrorCurToken("Extraneous arguments to set dashtype");
 	}
 }
 
@@ -1286,18 +1286,18 @@ void GpGadgets::SetDGrid3D(GpCommand & rC)
 				    normval = rC.IntExpression();
 			    }
 			    else
-				    IntError(rC, rC.CToken, "Unrecognized keyword or unexpected value");
+				    IntErrorCurToken("Unrecognized keyword or unexpected value");
 			    break;
 		}
 	}
 	// we could warn here about floating point values being truncated...
 	if(gridx < 2 || gridx > 1000 || gridy < 2 || gridy > 1000)
-		GpGg.IntError(GpC, NO_CARET, "Number of grid points must be in [2:1000] - not changed!");
+		GpGg.IntErrorNoCaret("Number of grid points must be in [2:1000] - not changed!");
 	// no mode token found: classic format
 	if(dgrid3d_mode == DGRID3D_DEFAULT)
 		dgrid3d_mode = DGRID3D_QNORM;
 	if(scalex < 0.0 || scaley < 0.0)
-		GpGg.IntError(GpC, NO_CARET, "Scale factors must be greater than zero - not changed!");
+		GpGg.IntErrorNoCaret("Scale factors must be greater than zero - not changed!");
 	dgrid3d_row_fineness = gridx;
 	dgrid3d_col_fineness = gridy;
 	dgrid3d_norm_value = normval;
@@ -1327,7 +1327,7 @@ static void set_decimalsign(GpCommand & rC)
 		SETIFZ(newlocale, gp_strdup(getenv("LC_NUMERIC")));
 		SETIFZ(newlocale, gp_strdup(getenv("LANG")));
 		if(!setlocale(LC_NUMERIC, newlocale ? newlocale : ""))
-			IntError(rC, rC.CToken-1, "Could not find requested locale");
+			IntError(rC.CToken-1, "Could not find requested locale");
 		decimalsign = gp_strdup(get_decimal_locale());
 		fprintf(stderr, "decimal_sign in locale is %s\n", decimalsign);
 		// Save this locale for later use, but return to "C" for now
@@ -1337,7 +1337,7 @@ static void set_decimalsign(GpCommand & rC)
 #endif
 	}
 	else if(!(decimalsign = rC.TryToGetString()))
-		GpGg.IntError(rC, rC.CToken, "expecting string");
+		GpGg.IntErrorCurToken("expecting string");
 }
 //
 // process 'set dummy' command 
@@ -1356,7 +1356,7 @@ static void set_dummy(GpCommand & rC)
 			break;
 	}
 	if(!rC.EndOfCommand())
-		GpGg.IntError(rC, rC.CToken, "unrecognized syntax");
+		GpGg.IntErrorCurToken("unrecognized syntax");
 }
 //
 // process 'set encoding' command 
@@ -1432,7 +1432,7 @@ static void set_encoding(GpCommand & rC)
 			rC.CToken++;
 		}
 		if(temp == S_ENC_INVALID)
-			GpGg.IntError(rC, rC.CToken, "unrecognized encoding specification; see 'help encoding'.");
+			GpGg.IntErrorCurToken("unrecognized encoding specification; see 'help encoding'.");
 		encoding = (set_encoding_id)temp;
 	}
 	set_degreesign(l); // Set degree sign to match encoding
@@ -1524,7 +1524,7 @@ void GpGadgets::SetFit(GpCommand & rC, GpFit & rF)
 				rF.fitlogfile = tmp;
 			}
 			else {
-				IntError(rC, rC.CToken, "expecting string");
+				IntErrorCurToken("expecting string");
 			}
 		}
 		else if(rC.AlmostEq("nolog$file")) {
@@ -1675,7 +1675,7 @@ void GpGadgets::SetFit(GpCommand & rC, GpFit & rF)
 				rF.fit_script = tmp;
 			}
 			else {
-				IntError(rC, rC.CToken, "expecting string");
+				IntErrorCurToken("expecting string");
 			}
 		}
 		else if(rC.Eq("wrap")) {
@@ -1696,7 +1696,7 @@ void GpGadgets::SetFit(GpCommand & rC, GpFit & rF)
 			rF.fit_v4compatible = false;
 		}
 		else {
-			IntError(rC, rC.CToken, "unrecognized option --- see `help set fit`");
+			IntErrorCurToken("unrecognized option --- see `help set fit`");
 		}
 	}
 }
@@ -1736,7 +1736,7 @@ void GpGadgets::SetFormat(GpCommand & rC)
 		return;
 	}
 	if(!(p_format = rC.TryToGetString()))
-		IntError(rC, rC.CToken, "expecting p_format string");
+		IntErrorCurToken("expecting p_format string");
 	if(rC.AlmostEq("time$date")) {
 		tictype = DT_TIMEDATE;
 		rC.CToken++;
@@ -1855,7 +1855,7 @@ void GpGadgets::SetGrid(GpCommand & rC)
 //
 // process 'set hidden3d' command 
 //
-//static void set_hidden3d() { GpC.CToken++; GpGg.SetHidden3DOptions(GpC); GpGg.hidden3d = true; }
+//static void set_hidden3d() { GpGg.Gp__C.CToken++; GpGg.SetHidden3DOptions(GpGg.Gp__C); GpGg.hidden3d = true; }
 
 static void set_history(GpCommand & rC)
 {
@@ -1909,12 +1909,12 @@ void GpGadgets::SetIsoSamples(GpCommand & rC)
 	int    tsamp2 = tsamp1;
 	if(!rC.EndOfCommand()) {
 		if(!rC.Eq(","))
-			IntError(rC, rC.CToken, "',' expected");
+			IntErrorCurToken("',' expected");
 		rC.CToken++;
 		tsamp2 = abs(rC.IntExpression());
 	}
 	if(tsamp1 < 2 || tsamp2 < 2)
-		IntError(rC, rC.CToken, "sampling rate must be > 1; sampling unchanged");
+		IntErrorCurToken("sampling rate must be > 1; sampling unchanged");
 	else {
 		CurvePoints * f_p = P_FirstPlot;
 		SurfacePoints * f_3dp = P_First3DPlot;
@@ -2191,7 +2191,7 @@ S_KEYTITLE:
 			    rC.CToken++;
 			    // Make sure they've specified a font 
 			    if(!rC.IsStringValue(rC.CToken))
-				    IntError(rC, rC.CToken, "expected font");
+				    IntErrorCurToken("expected font");
 			    else {
 				    char * tmp = rC.TryToGetString();
 				    if(tmp) {
@@ -2247,7 +2247,7 @@ S_KEYTITLE:
 			    break;
 			case S_KEY_INVALID:
 			default:
-			    IntError(rC, rC.CToken, "unknown p_key option");
+			    IntErrorCurToken("unknown p_key option");
 			    break;
 		}
 		rC.CToken++;
@@ -2293,7 +2293,7 @@ void GpGadgets::SetLabel(GpCommand & rC)
 			}
 		}
 		if(tag <= 0)
-			IntError(rC, rC.CToken, "tag must be > zero");
+			IntErrorCurToken("tag must be > zero");
 		if(first_label) { // skip to last label 
 			for(p_label = first_label; p_label != NULL;
 				p_prev_label = p_label, p_label = p_label->next)
@@ -2368,7 +2368,7 @@ static void set_loadpath(GpCommand & rC)
 				free(ss);
 			}
 			else {
-				GpGg.IntError(rC, rC.CToken, "expected string");
+				GpGg.IntErrorCurToken("expected string");
 			}
 		}
 	if(collect) {
@@ -2403,7 +2403,7 @@ static void set_fontpath(GpCommand & rC)
 				free(ss);
 			}
 			else {
-				GpGg.IntError(rC, rC.CToken, "expected string");
+				GpGg.IntErrorCurToken("expected string");
 			}
 		}
 	}
@@ -2428,7 +2428,7 @@ static void set_locale(GpCommand & rC)
 			free(s);
 		}
 		else
-			GpGg.IntError(rC, rC.CToken, "expected string");
+			GpGg.IntErrorCurToken("expected string");
 	}
 }
 //
@@ -2452,7 +2452,7 @@ void GpGadgets::SetLogScale(GpCommand & rC)
 			axis = lookup_table_nth_reverse(axisname_tbl, NUMBER_OF_MAIN_VISIBLE_AXES, rC.P_InputLine + rC.P_Token[rC.CToken].start_index + i);
 			if(axis < 0) {
 				rC.P_Token[rC.CToken].start_index += i;
-				IntError(rC, rC.CToken, "invalid axis");
+				IntErrorCurToken("invalid axis");
 			}
 			set_for_axis[axisname_tbl[axis].value] = true;
 			i += strlen(axisname_tbl[axis].key);
@@ -2461,7 +2461,7 @@ void GpGadgets::SetLogScale(GpCommand & rC)
 		if(!rC.EndOfCommand()) {
 			newbase = fabs(rC.RealExpression());
 			if(newbase <= 1.0)
-				IntError(rC, rC.CToken, "log base must be > 1.0; logscale unchanged");
+				IntErrorCurToken("log base must be > 1.0; logscale unchanged");
 		}
 	}
 	for(axis = 0; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++) {
@@ -2493,7 +2493,7 @@ void GpGadgets::SetMapping(GpCommand & rC)
 	else if(rC.AlmostEq("cy$lindrical"))
 		mapping3d = MAP3D_CYLINDRICAL;
 	else
-		IntError(rC, rC.CToken, "expecting 'cartesian', 'spherical', or 'cylindrical'");
+		IntErrorCurToken("expecting 'cartesian', 'spherical', or 'cylindrical'");
 	rC.CToken++;
 }
 //
@@ -2506,7 +2506,7 @@ void GpPosition::SetMargin(GpCommand & rC)
 	rC.CToken++;
 	if(!rC.EndOfCommand()) {
 		if(rC.Eq("at") && !rC.AlmostEq(++rC.CToken, "sc$reen"))
-			GpGg.IntError(rC, rC.CToken, "expecting 'screen <fraction>'");
+			GpGg.IntErrorCurToken("expecting 'screen <fraction>'");
 		if(rC.AlmostEq("sc$reen")) {
 			scalex = screen;
 			rC.CToken++;
@@ -2534,7 +2534,7 @@ static void set_datafile_commentschars(GpCommand & rC)
 		GpDf.df_commentschars = s;
 	}
 	else // Leave it the way it was
-		GpGg.IntError(rC, rC.CToken, "expected string with comments chars");
+		GpGg.IntErrorCurToken("expected string with comments chars");
 }
 //
 // (version 5) 'set monochrome' command
@@ -2561,7 +2561,7 @@ void GpGadgets::SetMonochrome(GpCommand & rC)
 			SetLineStyle(rC, &first_mono_linestyle, LP_TYPE);
 	}
 	if(!rC.EndOfCommand())
-		IntError(rC, rC.CToken, "unrecognized option");
+		IntErrorCurToken("unrecognized option");
 }
 
 #ifdef USE_MOUSE
@@ -2688,7 +2688,7 @@ void GpGadgets::SetMouse(GpCommand & rC)
 				int x, y;
 				rC.CToken++;
 				if(rC.EndOfCommand())
-					IntError(rC, rC.CToken, "expecting ruler coordinates");
+					IntErrorCurToken("expecting ruler coordinates");
 				GetPosition(rC, &where);
 				MapPosition(term, &where, &x, &y, "ruler at");
 				SetMouseRuler(true, (int)x, (int)y);
@@ -2709,7 +2709,7 @@ void GpGadgets::SetMouse(GpCommand & rC)
 		}
 		else {
 			if(!rC.EndOfCommand())
-				IntError(rC, rC.CToken, "wrong option");
+				IntErrorCurToken("wrong option");
 			break;
 		}
 	}
@@ -2772,7 +2772,7 @@ void GpGadgets::SetOrigin(GpCommand & rC)
 	else {
 		XOffs = (float)rC.RealExpression();
 		if(!rC.Eq(","))
-			IntError(rC, rC.CToken, "',' expected");
+			IntErrorCurToken("',' expected");
 		rC.CToken++;
 		YOffs = (float)rC.RealExpression();
 	}
@@ -2797,7 +2797,7 @@ static void set_print(GpCommand & rC)
 				rC.CToken++;
 			}
 			else {
-				GpGg.IntError(rC, rC.CToken, "expecting keyword \'append\'");
+				GpGg.IntErrorCurToken("expecting keyword \'append\'");
 			}
 		}
 		rC.PrintSetOutput(datablock_name, true, append_p);
@@ -2810,13 +2810,13 @@ static void set_print(GpCommand & rC)
 				rC.CToken++;
 			}
 			else {
-				GpGg.IntError(rC, rC.CToken, "expecting keyword \'append\'");
+				GpGg.IntErrorCurToken("expecting keyword \'append\'");
 			}
 		}
 		rC.PrintSetOutput(testfile, false, append_p);
 	}
 	else
-		GpGg.IntError(rC, rC.CToken, "expecting filename or datablock");
+		GpGg.IntErrorCurToken("expecting filename or datablock");
 }
 //
 // process 'set parametric' command 
@@ -2888,9 +2888,10 @@ int GpGadgets::SetPaletteDefined(GpCommand & rC)
 		    {0.9, 0.6, 0.6, 0.6}, {1.0, 0.95, 0.95, 0.95} };
 		for(int i = 0; i<8; i++) {
 			SmPalette.gradient[i].pos = pal[i][0];
-			SmPalette.gradient[i].col.r = pal[i][1];
-			SmPalette.gradient[i].col.g = pal[i][2];
-			SmPalette.gradient[i].col.b = pal[i][3];
+			//SmPalette.gradient[i].col.r = pal[i][1];
+			//SmPalette.gradient[i].col.g = pal[i][2];
+			//SmPalette.gradient[i].col.b = pal[i][3];
+			SmPalette.gradient[i].col.Set(pal[i][1], pal[i][2], pal[i][3]);
 		}
 		SmPalette.gradient_num = 8;
 		SmPalette.cmodel = C_MODEL_RGB;
@@ -2899,7 +2900,7 @@ int GpGadgets::SetPaletteDefined(GpCommand & rC)
 		return 0;
 	}
 	if(!rC.Eq("(") )
-		IntError(rC, rC.CToken, "expected ( to start gradient definition");
+		IntErrorCurToken("expected ( to start gradient definition");
 	++rC.CToken;
 	num = -1;
 	while(!rC.EndOfCommand()) {
@@ -2911,7 +2912,7 @@ int GpGadgets::SetPaletteDefined(GpCommand & rC)
 				// X-style specifier 
 				int rr, gg, bb;
 				if((sscanf(col_str, "#%2x%2x%2x", &rr, &gg, &bb) != 3 ) &&  (sscanf(col_str, "0x%2x%2x%2x", &rr, &gg, &bb) != 3 ))
-					IntError(rC, rC.CToken-1, "Unknown color specifier. Use '#RRGGBB' of '0xRRGGBB'.");
+					IntError(rC.CToken-1, "Unknown color specifier. Use '#RRGGBB' of '0xRRGGBB'.");
 				r = (double)(rr)/255.;
 				g = (double)(gg)/255.;
 				b = (double)(bb)/255.;
@@ -2934,7 +2935,7 @@ int GpGadgets::SetPaletteDefined(GpCommand & rC)
 					tbl++;
 				}
 				if(!tbl->key)
-					IntError(rC, rC.CToken-1, "Unknown color name.");
+					IntError(rC.CToken-1, "Unknown color name.");
 				named_colors = 1;
 			}
 			free(col_str);
@@ -2943,13 +2944,13 @@ int GpGadgets::SetPaletteDefined(GpCommand & rC)
 			/* numerical rgb, hsv, xyz, ... values  [0,1] */
 			r = rC.RealExpression();
 			if(r<0 || r>1)
-				IntError(rC, rC.CToken-1, "Value out of range [0,1].");
+				IntError(rC.CToken-1, "Value out of range [0,1].");
 			g = rC.RealExpression();
 			if(g<0 || g>1)
-				IntError(rC, rC.CToken-1, "Value out of range [0,1].");
+				IntError(rC.CToken-1, "Value out of range [0,1].");
 			b = rC.RealExpression();
 			if(b<0 || b>1)
-				IntError(rC, rC.CToken-1, "Value out of range [0,1].");
+				IntError(rC.CToken-1, "Value out of range [0,1].");
 		}
 		++num;
 		if(num >= actual_size) {
@@ -2958,12 +2959,13 @@ int GpGadgets::SetPaletteDefined(GpCommand & rC)
 			SmPalette.gradient = (gradient_struct *)gp_realloc(SmPalette.gradient, actual_size*sizeof(gradient_struct), "pm3d gradient");
 		}
 		SmPalette.gradient[num].pos = p;
-		SmPalette.gradient[num].col.r = r;
-		SmPalette.gradient[num].col.g = g;
-		SmPalette.gradient[num].col.b = b;
+		//SmPalette.gradient[num].col.r = r;
+		//SmPalette.gradient[num].col.g = g;
+		//SmPalette.gradient[num].col.b = b;
+		SmPalette.gradient[num].col.Set(r, g, b);
 		if(rC.Eq(")") ) break;
 		if(!rC.Eq(",") )
-			IntError(rC, rC.CToken, "expected comma");
+			IntErrorCurToken("expected comma");
 		++rC.CToken;
 	}
 	SmPalette.gradient_num = num + 1;
@@ -2983,12 +2985,12 @@ void GpGadgets::SetPaletteFile(GpCommand & rC)
 	++rC.CToken;
 	// get filename
 	if(!(file_name = rC.TryToGetString()))
-		IntError(rC, rC.CToken, "missing filename");
+		IntErrorCurToken("missing filename");
 	GpDf.DfSetPlotMode(MODE_QUERY);   /* Needed only for binary datafiles */
 	specs = GpDf.DfOpen(rC, file_name, 4, NULL);
 	free(file_name);
 	if(specs > 0 && specs < 3)
-		IntError(rC, rC.CToken, "Less than 3 using specs for palette");
+		IntErrorCurToken("Less than 3 using specs for palette");
 	ZFREE(SmPalette.gradient);
 	actual_size = 10;
 	SmPalette.gradient = (gradient_struct *)malloc(actual_size*sizeof(gradient_struct));
@@ -3001,27 +3003,29 @@ void GpGadgets::SetPaletteFile(GpCommand & rC)
 		}
 		switch(j) {
 			case 3:
-			    SmPalette.gradient[i].col.r = clip_to_01(v[0]);
-			    SmPalette.gradient[i].col.g = clip_to_01(v[1]);
-			    SmPalette.gradient[i].col.b = clip_to_01(v[2]);
+			    //SmPalette.gradient[i].col.r = clip_to_01(v[0]);
+			    //SmPalette.gradient[i].col.g = clip_to_01(v[1]);
+			    //SmPalette.gradient[i].col.b = clip_to_01(v[2]);
+				SmPalette.gradient[i].col.Set(clip_to_01(v[0]), clip_to_01(v[1]), clip_to_01(v[2]));
 			    SmPalette.gradient[i].pos = i;
 			    break;
 			case 4:
-			    SmPalette.gradient[i].col.r = clip_to_01(v[1]);
-			    SmPalette.gradient[i].col.g = clip_to_01(v[2]);
-			    SmPalette.gradient[i].col.b = clip_to_01(v[3]);
+			    //SmPalette.gradient[i].col.r = clip_to_01(v[1]);
+			    //SmPalette.gradient[i].col.g = clip_to_01(v[2]);
+			    //SmPalette.gradient[i].col.b = clip_to_01(v[3]);
+				SmPalette.gradient[i].col.Set(v[1], v[2], v[3]).Constrain();
 			    SmPalette.gradient[i].pos = v[0];
 			    break;
 			default:
 			    GpDf.DfClose();
-			    IntError(rC, rC.CToken, "Bad data on line %d", GpDf.df_line_number);
+			    IntErrorCurToken("Bad data on line %d", GpDf.df_line_number);
 			    break;
 		}
 		++i;
 	}
 	GpDf.DfClose();
 	if(i==0)
-		IntError(rC, rC.CToken, "No valid palette found");
+		IntErrorCurToken("No valid palette found");
 	SmPalette.gradient_num = i;
 	CheckPaletteGrayscale(rC);
 }
@@ -3063,11 +3067,11 @@ void GpGadgets::SetPaletteFunction(GpCommand & rC)
 	rC.P_DummyFunc = &SmPalette.Afunc;
 	SmPalette.Afunc.at = rC.P.PermAt();
 	if(!SmPalette.Afunc.at)
-		GpGg.IntError(GpC, start_token, "not enough memory for function");
+		GpGg.IntError(start_token, "not enough memory for function");
 	rC.MCapture(&(SmPalette.Afunc.definition), start_token, rC.CToken-1);
 	rC.P_DummyFunc = NULL;
 	if(!rC.Eq(","))
-		IntError(rC, rC.CToken, "expected comma");
+		IntErrorCurToken("expected comma");
 	++rC.CToken;
 	/* Bfunc */
 	start_token = rC.CToken;
@@ -3078,11 +3082,11 @@ void GpGadgets::SetPaletteFunction(GpCommand & rC)
 	rC.P_DummyFunc = &SmPalette.Bfunc;
 	SmPalette.Bfunc.at = rC.P.PermAt();
 	if(!SmPalette.Bfunc.at)
-		GpGg.IntError(GpC, start_token, "not enough memory for function");
+		GpGg.IntError(start_token, "not enough memory for function");
 	rC.MCapture(&(SmPalette.Bfunc.definition), start_token, rC.CToken-1);
 	rC.P_DummyFunc = NULL;
 	if(!rC.Eq(","))
-		IntError(rC, rC.CToken, "expected comma");
+		IntErrorCurToken("expected comma");
 	++rC.CToken;
 	// Cfunc 
 	start_token = rC.CToken;
@@ -3093,7 +3097,7 @@ void GpGadgets::SetPaletteFunction(GpCommand & rC)
 	rC.P_DummyFunc = &SmPalette.Cfunc;
 	SmPalette.Cfunc.at = rC.P.PermAt();
 	if(!SmPalette.Cfunc.at)
-		GpGg.IntError(GpC, start_token, "not enough memory for function");
+		GpGg.IntError(start_token, "not enough memory for function");
 	rC.MCapture(&(SmPalette.Cfunc.definition), start_token, rC.CToken-1);
 	rC.P_DummyFunc = NULL;
 	strncpy(rC.P.CDummyVar[0], saved_dummy_var, MAX_ID_LEN);
@@ -3112,7 +3116,7 @@ void GpGadgets::CheckPaletteGrayscale(GpCommand & rC)
 	// check if gray values are sorted
 	for(i = 0; i<SmPalette.gradient_num-1; ++i) {
 		if(gradient[i].pos > gradient[i+1].pos) {
-			IntError(rC, rC.CToken, "Gray scale not sorted in gradient.");
+			IntErrorCurToken("Gray scale not sorted in gradient.");
 		}
 	}
 	// fit gray axis into [0:1]:  subtract offset and rescale
@@ -3135,7 +3139,7 @@ void GpGadgets::CheckPaletteGrayscale(GpCommand & rC)
 void GpGadgets::CheckTransform(GpCommand & rC, int & rTransformDefined)
 {
 	if(rTransformDefined)
-		IntError(rC, rC.CToken, "inconsistent palette options");
+		IntErrorCurToken("inconsistent palette options");
 	rTransformDefined = 1;				     
 }
 //
@@ -3182,21 +3186,21 @@ void GpGadgets::SetPalette(GpCommand & rC)
 				    rC.CToken++;
 				    i = rC.IntExpression();
 				    if(abs(i) >= SmPalette.colorFormulae)
-					    IntError(rC, rC.CToken, formerr);
+					    IntErrorCurToken(formerr);
 				    SmPalette.formulaR = i;
 				    if(!rC.Eq(rC.CToken--, ","))
 					    continue;
 				    rC.CToken += 2;
 				    i = rC.IntExpression();
 				    if(abs(i) >= SmPalette.colorFormulae)
-					    IntError(rC, rC.CToken, formerr);
+					    IntErrorCurToken(formerr);
 				    SmPalette.formulaG = i;
 				    if(!rC.Eq(rC.CToken--, ","))
 					    continue;
 				    rC.CToken += 2;
 				    i = rC.IntExpression();
 				    if(abs(i) >= SmPalette.colorFormulae)
-					    IntError(rC, rC.CToken, formerr);
+					    IntErrorCurToken(formerr);
 				    SmPalette.formulaB = i;
 				    rC.CToken--;
 				    SmPalette.colorMode = SMPAL_COLOR_MODE_RGB;
@@ -3261,10 +3265,10 @@ void GpGadgets::SetPalette(GpCommand & rC)
 					{
 						++rC.CToken;
 						if(rC.EndOfCommand())
-							IntError(rC, rC.CToken, "expected color model");
+							IntErrorCurToken("expected color model");
 						const int model = rC.LookupTable(&color_model_tbl[0], rC.CToken);
 						if(model == -1)
-							IntError(rC, rC.CToken, "unknown color model");
+							IntErrorCurToken("unknown color model");
 						SmPalette.cmodel = model;
 						continue;
 					}
@@ -3280,13 +3284,13 @@ void GpGadgets::SetPalette(GpCommand & rC)
 				    rC.CToken++;
 				    int i = rC.IntExpression();
 				    if(i < 0) 
-						IntError(rC, rC.CToken, "non-negative number required");
+						IntErrorCurToken("non-negative number required");
 				    SmPalette.use_maxcolors = i;
 				    --rC.CToken;
 				    continue;
 			    }
 			}
-			IntError(rC, rC.CToken, "invalid palette option");
+			IntErrorCurToken("invalid palette option");
 		}
 	}
 	if(named_color && SmPalette.cmodel != C_MODEL_RGB && IsInteractive)
@@ -3340,7 +3344,7 @@ void GpGadgets::SetColorbox(GpCommand & rC)
 					    ColorBox.border_lt_tag = rC.IntExpression();
 					    if(ColorBox.border_lt_tag <= 0) {
 						    ColorBox.border_lt_tag = 0;
-						    IntError(rC, rC.CToken, "tag must be strictly positive (see `help set style line')");
+						    IntErrorCurToken("tag must be strictly positive (see `help set style line')");
 					    }
 					    --rC.CToken;
 				    }
@@ -3355,7 +3359,7 @@ void GpGadgets::SetColorbox(GpCommand & rC)
 				case S_COLORBOX_ORIGIN: /* "o$rigin" */
 				    rC.CToken++;
 				    if(rC.EndOfCommand()) {
-					    IntError(rC, rC.CToken, "expecting screen value [0 - 1]");
+					    IntErrorCurToken("expecting screen value [0 - 1]");
 				    }
 				    else {
 					    // FIXME: should be 2 but old save files may have 3 
@@ -3367,7 +3371,7 @@ void GpGadgets::SetColorbox(GpCommand & rC)
 				case S_COLORBOX_SIZE: /* "s$ize" */
 				    rC.CToken++;
 				    if(rC.EndOfCommand()) {
-					    IntError(rC, rC.CToken, "expecting screen value [0 - 1]");
+					    IntErrorCurToken("expecting screen value [0 - 1]");
 				    }
 				    else {
 					    // FIXME: should be 2 but old save files may have 3 
@@ -3376,7 +3380,7 @@ void GpGadgets::SetColorbox(GpCommand & rC)
 				    rC.CToken--;
 				    continue;
 			}
-			IntError(rC, rC.CToken, "invalid colorbox option");
+			IntErrorCurToken("invalid colorbox option");
 		}
 		if(ColorBox.where == SMCOLOR_BOX_NO) // default: draw at default position
 			ColorBox.where = SMCOLOR_BOX_DEFAULT;
@@ -3412,12 +3416,12 @@ void GpGadgets::SetPm3D(GpCommand & rC)
 				case S_PM3D_INTERPOLATE: /* "interpolate" */
 				    rC.CToken++;
 				    if(rC.EndOfCommand()) {
-					    IntError(rC, rC.CToken, "expecting step values i,j");
+					    IntErrorCurToken("expecting step values i,j");
 				    }
 				    else {
 					    Pm3D.interp_i = rC.IntExpression();
 					    if(!rC.Eq(","))
-						    IntError(rC, rC.CToken, "',' expected");
+						    IntErrorCurToken("',' expected");
 					    rC.CToken++;
 					    Pm3D.interp_j = rC.IntExpression();
 					    rC.CToken--;
@@ -3446,7 +3450,7 @@ void GpGadgets::SetPm3D(GpCommand & rC)
 				    else if(rC.AlmostEq("e$nd"))
 					    Pm3D.flush = PM3D_FLUSH_END;
 				    else
-					    IntError(rC, rC.CToken, "expecting flush 'begin', 'center' or 'end'");
+					    IntErrorCurToken("expecting flush 'begin', 'center' or 'end'");
 				    continue;
 				// clipping method 
 				case S_PM3D_CLIP_1IN: /* "clip1$in" */
@@ -3528,7 +3532,7 @@ void GpGadgets::SetPm3D(GpCommand & rC)
 				    else if(rC.Eq("c4"))
 					    Pm3D.which_corner_color = PM3D_WHICHCORNER_C4;
 				    else
-					    IntError(rC, rC.CToken, "expecting 'mean', 'geomean', 'harmean', 'median', 'min', 'max', 'c1', 'c2', 'c3' or 'c4'");
+					    IntErrorCurToken("expecting 'mean', 'geomean', 'harmean', 'median', 'min', 'max', 'c1', 'c2', 'c3' or 'c4'");
 				    continue;
 				case S_PM3D_NOLIGHTING_MODEL:
 				    Pm3DShade.strength = 0.0;
@@ -3537,7 +3541,7 @@ void GpGadgets::SetPm3D(GpCommand & rC)
 				    ParseLightingOptions(rC);
 				    continue;
 			}
-			IntError(rC, rC.CToken, "invalid pm3d option");
+			IntErrorCurToken("invalid pm3d option");
 		}
 		if(PM3D_SCANS_AUTOMATIC == Pm3D.direction && PM3D_FLUSH_BEGIN != Pm3D.flush) {
 			Pm3D.direction = PM3D_SCANS_FORWARD;
@@ -3611,7 +3615,7 @@ void GpGadgets::SetObject(GpCommand & rC)
 	else {
 		tag = rC.IntExpression();
 		if(tag <= 0)
-			IntError(rC, rC.CToken, "tag must be > zero");
+			IntErrorCurToken("tag must be > zero");
 	}
 	if(rC.AlmostEq("rect$angle")) {
 		SetObj(rC, tag, OBJ_RECTANGLE);
@@ -3636,10 +3640,10 @@ void GpGadgets::SetObject(GpCommand & rC)
 			SetObj(rC, tag, this_object->object_type);
 		}
 		else
-			IntError(rC, rC.CToken, "unknown object");
+			IntErrorCurToken("unknown object");
 	}
 	else
-		IntError(rC, rC.CToken, "unrecognized object type");
+		IntErrorCurToken("unrecognized object type");
 }
 
 static t_object * new_object(int tag, int object_type, t_object * pNew)
@@ -3665,7 +3669,7 @@ static t_object * new_object(int tag, int object_type, t_object * pNew)
 	else if(object_type == OBJ_POLYGON)
 		*pNew = def_polygon;
 	else
-		GpGg.IntError(GpC, NO_CARET, "object initialization failure");
+		GpGg.IntErrorNoCaret("object initialization failure");
 	pNew->tag = tag;
 	pNew->object_type = object_type;
 	return pNew;
@@ -3699,7 +3703,7 @@ void GpGadgets::SetObj(GpCommand & rC, int tag, int obj_type)
 			this_rect = &p_obj->o.rectangle;
 		}
 		else
-			IntError(rC, rC.CToken, "Unknown object type");
+			IntErrorCurToken("Unknown object type");
 	}
 	else {
 		// Look for existing object with this tag 
@@ -3752,12 +3756,12 @@ void GpGadgets::SetObj(GpCommand & rC, int tag, int obj_type)
 					    rC.CToken++;
 					    GetPositionDefault(rC, &this_rect->tr, this_rect->bl.scalex, 2);
 					    if(this_rect->bl.scalex != this_rect->tr.scalex || this_rect->bl.scaley != this_rect->tr.scaley)
-						    IntError(rC, rC.CToken, "relative coordinates must match in type");
+						    IntErrorCurToken("relative coordinates must match in type");
 					    this_rect->tr.x += this_rect->bl.x;
 					    this_rect->tr.y += this_rect->bl.y;
 				    }
 				    else
-					    IntError(rC, rC.CToken, "Expecting to or rto");
+					    IntErrorCurToken("Expecting to or rto");
 				    got_corners = true;
 				    this_rect->type = 0;
 				    continue;
@@ -3799,20 +3803,20 @@ void GpGadgets::SetObj(GpCommand & rC, int tag, int obj_type)
 					    rC.CToken++;
 					    double arc = rC.RealExpression();
 					    if(fabs(arc) > 1000.)
-						    IntError(rC, rC.CToken-1, "Angle out of range");
+						    IntError(rC.CToken-1, "Angle out of range");
 					    else
 						    this_circle->arc_begin = arc;
 					    if(rC.Eq(rC.CToken++, ":")) {
 						    arc = rC.RealExpression();
 						    if(fabs(arc) > 1000.)
-							    IntError(rC, rC.CToken-1, "Angle out of range");
+							    IntError(rC.CToken-1, "Angle out of range");
 						    else
 							    this_circle->arc_end = arc;
 						    if(rC.Eq(rC.CToken++, "]"))
 							    continue;
 					    }
 				    }
-				    GpGg.IntError(GpC, --rC.CToken, "Expecting arc [<begin>:<end>]");
+				    GpGg.IntError(--rC.CToken, "Expecting arc [<begin>:<end>]");
 			    }
 			    else if(rC.Eq("wedge")) {
 				    rC.CToken++;
@@ -3853,7 +3857,7 @@ void GpGadgets::SetObj(GpCommand & rC, int tag, int obj_type)
 				    else if(rC.Eq("yy"))
 					    this_ellipse->type = ELLIPSEAXES_YY;
 				    else {
-					    IntError(rC, rC.CToken, "expecting 'xy', 'xx' or 'yy'");
+					    IntErrorCurToken("expecting 'xy', 'xx' or 'yy'");
 				    }
 				    rC.CToken++;
 				    continue;
@@ -3881,7 +3885,7 @@ void GpGadgets::SetObj(GpCommand & rC, int tag, int obj_type)
 						    int v = p_polygon->type;
 						    GetPositionDefault(rC, &p_polygon->vertex[v], p_polygon->vertex->scalex, 2);
 						    if(p_polygon->vertex[v].scalex != p_polygon->vertex[v-1].scalex ||  p_polygon->vertex[v].scaley != p_polygon->vertex[v-1].scaley)
-							    IntError(rC, rC.CToken, "relative coordinates must match in type");
+							    IntErrorCurToken("relative coordinates must match in type");
 						    p_polygon->vertex[v].x += p_polygon->vertex[v-1].x;
 						    p_polygon->vertex[v].y += p_polygon->vertex[v-1].y;
 					    }
@@ -3900,10 +3904,10 @@ void GpGadgets::SetObj(GpCommand & rC, int tag, int obj_type)
 polygon_error:
 			    ZFREE(p_polygon->vertex);
 			    p_polygon->type = 0;
-			    IntError(rC, rC.CToken, "Unrecognized polygon syntax");
+			    IntErrorCurToken("Unrecognized polygon syntax");
 			// End of polygon options 
 			default:
-			    IntError(rC, rC.CToken, "unrecognized object type");
+			    IntErrorCurToken("unrecognized object type");
 		}
 		// The rest of the options apply to any type of object 
 		if(rC.Eq("front")) {
@@ -3923,7 +3927,7 @@ polygon_error:
 		}
 		else if(rC.AlmostEq("def$ault")) {
 			if(tag < 0) {
-				IntError(rC, rC.CToken, "Invalid command - did you mean 'unset style rectangle'?");
+				IntErrorCurToken("Invalid command - did you mean 'unset style rectangle'?");
 			}
 			else {
 				p_obj->lp_properties.l_type = LT_DEFAULT;
@@ -3983,10 +3987,10 @@ polygon_error:
 				continue;
 			}
 		}
-		IntError(rC, rC.CToken, "Unrecognized or duplicate option");
+		IntErrorCurToken("Unrecognized or duplicate option");
 	}
 	if(got_center && got_corners)
-		GpGg.IntError(GpC, NO_CARET, "Inconsistent options");
+		GpGg.IntErrorNoCaret("Inconsistent options");
 }
 
 #endif
@@ -4001,12 +4005,12 @@ void GpGadgets::SetSamples(GpCommand & rC)
 	int tsamp2 = tsamp1;
 	if(!rC.EndOfCommand()) {
 		if(!rC.Eq(","))
-			IntError(rC, rC.CToken, "',' expected");
+			IntErrorCurToken("',' expected");
 		rC.CToken++;
 		tsamp2 = abs(rC.IntExpression());
 	}
 	if(tsamp1 < 2 || tsamp2 < 2)
-		IntError(rC, rC.CToken, "sampling rate must be > 1; sampling unchanged");
+		IntErrorCurToken("sampling rate must be > 1; sampling unchanged");
 	else {
 		SurfacePoints * f_3dp = P_First3DPlot;
 		P_First3DPlot = NULL;
@@ -4052,7 +4056,7 @@ void GpGadgets::SetSize(GpCommand & rC)
 	}
 	if(XSz <= 0 || YSz <=0) {
 		XSz = YSz = 1.0;
-		GpGg.IntError(GpC, NO_CARET, "Illegal value for size");
+		GpGg.IntErrorNoCaret("Illegal value for size");
 	}
 }
 //
@@ -4075,7 +4079,7 @@ void GpGadgets::SetStyle(GpCommand & rC)
 	    {
 		    enum PLOT_STYLE temp_style = get_style(rC);
 		    if((temp_style & PLOT_STYLE_HAS_ERRORBAR) || oneof6(temp_style, LABELPOINTS, HISTOGRAMS, IMAGE, RGBIMAGE, RGBA_IMAGE, PARALLELPLOT))
-			    IntError(rC, rC.CToken, "style not usable for function plots, left unchanged");
+			    IntErrorCurToken("style not usable for function plots, left unchanged");
 		    else
 			    FuncStyle = temp_style;
 		    if(FuncStyle == FILLEDCURVES) {
@@ -4127,7 +4131,7 @@ void GpGadgets::SetStyle(GpCommand & rC)
 				    DefaultCircle.clip = OBJ_NOCLIP;
 			    }
 			    else
-				    IntError(rC, rC.CToken, "unrecognized style option");
+				    IntErrorCurToken("unrecognized style option");
 		    }
 		    break;
 		case SHOW_STYLE_ELLIPSE:
@@ -4157,7 +4161,7 @@ void GpGadgets::SetStyle(GpCommand & rC)
 					    DefaultEllipse.o.ellipse.type = ELLIPSEAXES_YY;
 				    }
 				    else {
-					    IntError(rC, rC.CToken, "expecting 'xy', 'xx' or 'yy'");
+					    IntErrorCurToken("expecting 'xy', 'xx' or 'yy'");
 				    }
 			    }
 			    else if(rC.Eq("clip")) {
@@ -4169,7 +4173,7 @@ void GpGadgets::SetStyle(GpCommand & rC)
 				    DefaultEllipse.clip = OBJ_NOCLIP;
 			    }
 			    else
-				    IntError(rC, rC.CToken, "expecting 'units {xy|xx|yy}', 'angle <number>' or 'size <position>'");
+				    IntErrorCurToken("expecting 'units {xy|xx|yy}', 'angle <number>' or 'size <position>'");
 
 			    rC.CToken++;
 		    }
@@ -4213,7 +4217,7 @@ void GpGadgets::SetStyle(GpCommand & rC)
 				    textbox_opts.noborder = false;
 			    }
 			    else
-				    IntError(rC, rC.CToken, "unrecognized option");
+				    IntErrorCurToken("unrecognized option");
 		    }
 		    break;
 #endif
@@ -4225,7 +4229,7 @@ void GpGadgets::SetStyle(GpCommand & rC)
 		    else if(rC.AlmostEq("u$serstyles"))
 			    prefer_line_styles = true;
 		    else
-			    IntError(rC, rC.CToken, "unrecognized option");
+			    IntErrorCurToken("unrecognized option");
 		    rC.CToken++;
 #endif
 		    break;
@@ -4236,7 +4240,7 @@ void GpGadgets::SetStyle(GpCommand & rC)
 		    set_style_parallel(rC);
 		    break;
 		default:
-		    IntError(rC, rC.CToken, "unrecognized option - see 'help set style'");
+		    IntErrorCurToken("unrecognized option - see 'help set style'");
 	}
 }
 //
@@ -4288,7 +4292,7 @@ void GpGadgets::SetTerminal(GpCommand & rC)
 {
 	rC.CToken++;
 	if(IsMultiPlot)
-		IntError(rC, rC.CToken, "You can't change the terminal in multiplot mode");
+		IntErrorCurToken("You can't change the terminal in multiplot mode");
 	if(rC.EndOfCommand()) {
 		list_terms();
 		screen_ok = false;
@@ -4333,7 +4337,7 @@ void GpGadgets::SetTerminal(GpCommand & rC)
  * Only reasonably common terminal options are supported.
  *
  * If necessary, the code in term->options() can detect that it was called
- * from here because in this case almost_equals(GpC.CToken-1, "termopt$ion");
+ * from here because in this case almost_equals(GpGg.Gp__C.CToken-1, "termopt$ion");
  */
 
 static void set_termoptions(GpCommand & rC)
@@ -4390,7 +4394,7 @@ static void set_termoptions(GpCommand & rC)
 		ok_to_call_terminal = true;
 	}
 	else {
-		GpGg.IntError(rC, rC.CToken, "This option cannot be changed using 'set termoption'");
+		GpGg.IntErrorCurToken("This option cannot be changed using 'set termoption'");
 	}
 	if(ok_to_call_terminal) {
 		*term_options = 0;
@@ -4518,7 +4522,7 @@ void GpGadgets::SetTics(GpCommand & rC)
 			++rC.CToken;
 			// Make sure they've specified a font 
 			if(!rC.IsStringValue(rC.CToken))
-				IntError(rC, rC.CToken, "expected font");
+				IntErrorCurToken("expected font");
 			else {
 				char * lfont = rC.TryToGetString();
 				for(i = 0; i < AXIS_ARRAY_SIZE; ++i) {
@@ -4544,7 +4548,7 @@ void GpGadgets::SetTics(GpCommand & rC)
 			++rC.CToken;
 		}
 		else if(!rC.EndOfCommand()) {
-			IntError(rC, rC.CToken, "extraneous arguments in set tics");
+			IntErrorCurToken("extraneous arguments in set tics");
 		}
 	}
 	// if tics are off and not set by axis, reset to default (border)
@@ -4637,7 +4641,7 @@ void GpGadgets::SetTimestamp(GpCommand & rC)
 			got_format = true;
 			continue;
 		}
-		IntError(rC, rC.CToken, "unrecognized option");
+		IntErrorCurToken("unrecognized option");
 	}
 	SETIFZ(timelabel.text, gp_strdup(DEFAULT_TIMESTAMP_FORMAT));
 }
@@ -4694,20 +4698,20 @@ void GpGadgets::SetView(GpCommand & rC)
 		}
 		else {
 			if(!was_comma)
-				IntError(rC, rC.CToken, "',' expected");
+				IntErrorCurToken("',' expected");
 			local_vals[i] = rC.RealExpression();
 			i++;
 			was_comma = false;
 		}
 	}
 	if(local_vals[0] < 0 || local_vals[0] > 360)
-		IntError(rC, rC.CToken, errmsg1, 'x', 360);
+		IntErrorCurToken(errmsg1, 'x', 360);
 	if(local_vals[1] < 0 || local_vals[1] > 360)
-		IntError(rC, rC.CToken, errmsg1, 'z', 360);
+		IntErrorCurToken(errmsg1, 'z', 360);
 	if(local_vals[2] < 1e-6)
-		IntError(rC, rC.CToken, errmsg2, "");
+		IntErrorCurToken(errmsg2, "");
 	if(local_vals[3] < 1e-6)
-		IntError(rC, rC.CToken, errmsg2, "z");
+		IntErrorCurToken(errmsg2, "z");
 	surface_rot_x = (float)local_vals[0];
 	surface_rot_z = (float)local_vals[1];
 	surface_scale = (float)local_vals[2];
@@ -4735,7 +4739,8 @@ void GpAxis::SetTimeData(GpCommand & rC)
 	tictype = datatype;
 }
 
-static void set_range(GpCommand & rC, GpAxis * pAx)
+//static void set_range(GpCommand & rC, GpAxis * pAx)
+void GpGadgets::SetRange(GpCommand & rC, GpAxis * pAx)
 {
 	rC.CToken++;
 	if(rC.AlmostEq("re$store")) {
@@ -4746,11 +4751,11 @@ static void set_range(GpCommand & rC, GpAxis * pAx)
 	}
 	else {
 		if(!rC.Eq("["))
-			GpGg.IntError(rC, rC.CToken, "expecting '[' or 'restore'");
+			IntErrorCurToken("expecting '[' or 'restore'");
 		rC.CToken++;
 		pAx->SetAutoScale = pAx->LoadRange(rC, pAx->SetRange, pAx->SetAutoScale);
 		if(!rC.Eq("]"))
-			GpGg.IntError(rC, rC.CToken, "expecting ']'");
+			IntErrorCurToken("expecting ']'");
 		rC.CToken++;
 		while(!rC.EndOfCommand()) {
 			if(rC.AlmostEq("rev$erse")) {
@@ -4778,7 +4783,7 @@ static void set_range(GpCommand & rC, GpAxis * pAx)
 				pAx->SetAutoScale |= AUTOSCALE_FIXMIN | AUTOSCALE_FIXMAX;
 			}
 			else
-				GpGg.IntError(rC, rC.CToken, "unrecognized option");
+				IntErrorCurToken("unrecognized option");
 		}
 	}
 	// If this is one end of a linked axis pair, replicate the new range to the	*/
@@ -4789,7 +4794,7 @@ static void set_range(GpCommand & rC, GpAxis * pAx)
 		clone_linked_axes(pAx, pAx->P_LinkToPrmr);
 }
 //
-//static void set_raxis() { GpGg.raxis = true; GpC.CToken++; }
+//static void set_raxis() { GpGg.raxis = true; GpGg.Gp__C.CToken++; }
 //
 // process 'set {xyz}zeroaxis' command 
 //
@@ -4931,7 +4936,7 @@ int GpGadgets::SetTicProp(GpAxis & rAx, GpCommand & rC)
 				++rC.CToken;
 				/* Make sure they've specified a font */
 				if(!rC.IsStringValue(rC.CToken))
-					IntError(rC, rC.CToken, "expected font");
+					IntErrorCurToken("expected font");
 				else {
 					ZFREE(rAx.ticdef.font);
 					rAx.ticdef.font = rC.TryToGetString();
@@ -4955,7 +4960,7 @@ int GpGadgets::SetTicProp(GpAxis & rAx, GpCommand & rC)
 				char * format;
 				++rC.CToken;
 				if(!((format = rC.TryToGetString())))
-					IntError(rC, rC.CToken, "expected format");
+					IntErrorCurToken("expected format");
 				free(rAx.formatstring);
 				rAx.formatstring  = format;
 			}
@@ -5127,7 +5132,7 @@ void GpGadgets::SetLineStyle(GpCommand & rC, linestyle_def ** ppHead, lp_class d
 	rC.CToken++;
 	// get tag 
 	if(rC.EndOfCommand() || ((tag = rC.IntExpression()) <= 0))
-		IntError(rC, rC.CToken, "tag must be > zero");
+		IntErrorCurToken("tag must be > zero");
 	// Check if linestyle is already defined 
 	for(p_linestyle = *ppHead; p_linestyle; p_prev_linestyle = p_linestyle, p_linestyle = p_linestyle->next)
 		if(tag <= p_linestyle->tag)
@@ -5160,7 +5165,7 @@ void GpGadgets::SetLineStyle(GpCommand & rC, linestyle_def ** ppHead, lp_class d
 		LpParse(rC, p_linestyle->lp_properties, destinationClass, true);
 	}
 	if(!rC.EndOfCommand())
-		IntError(rC, rC.CToken, "Extraneous arguments to set %s", ppHead == &first_perm_linestyle ? "linetype" : "style line");
+		IntErrorCurToken("Extraneous arguments to set %s", ppHead == &first_perm_linestyle ? "linetype" : "style line");
 }
 
 /*
@@ -5199,7 +5204,7 @@ void GpGadgets::SetArrowStyle(GpCommand & rC)
 		/* must be a tag expression! */
 		tag = rC.IntExpression();
 		if(tag <= 0)
-			IntError(rC, rC.CToken, "tag must be > zero");
+			IntErrorCurToken("tag must be > zero");
 	}
 	else
 		tag = assign_arrowstyle_tag();  /* default next tag */
@@ -5237,7 +5242,7 @@ void GpGadgets::SetArrowStyle(GpCommand & rC)
 	else // pick up a arrow spec : dont allow arrowstyle 
 		arrow_parse(rC, &this_arrowstyle->arrow_properties, false);
 	if(!rC.EndOfCommand())
-		IntError(rC, rC.CToken, "extraneous or out-of-order arguments in set arrowstyle");
+		IntErrorCurToken("extraneous or out-of-order arguments in set arrowstyle");
 }
 
 /* assign a new arrowstyle tag
@@ -5305,7 +5310,7 @@ void GpGadgets::LoadTicUser(GpCommand & rC, GpAxis * pAx)
 	if(rC.EndOfCommand() || !rC.Eq(")")) {
 		ticmark::DestroyList(pAx->ticdef.def.user);
 		pAx->ticdef.def.user = NULL;
-		IntError(rC, rC.CToken, "expecting right parenthesis )");
+		IntErrorCurToken("expecting right parenthesis )");
 	}
 	rC.CToken++;
 }
@@ -5363,9 +5368,9 @@ void GpGadgets::LoadTicSeries(GpCommand & rC, GpAxis * pAx)
 		}
 	}
 	if(start < end && incr <= 0)
-		GpGg.IntError(GpC, incr_token, "increment must be positive");
+		GpGg.IntError(incr_token, "increment must be positive");
 	if(start > end && incr >= 0)
-		GpGg.IntError(GpC, incr_token, "increment must be negative");
+		GpGg.IntError(incr_token, "increment must be negative");
 	if(start > end) {
 		// put in order
 		const double numtics = floor((end * (1 + SIGNIF) - start) / incr);
@@ -5472,7 +5477,7 @@ void GpGadgets::ParseLabelOptions(GpCommand & rC, GpTextLabel * pLabel, int nDim
 			}
 			else if(rC.AlmostEq("para$llel")) {
 				if(pLabel->tag >= 0)
-					IntError(rC, rC.CToken, "invalid option");
+					IntErrorCurToken("invalid option");
 				rC.CToken++;
 				pLabel->tag = ROTATE_IN_3D_LABEL_TAG;
 			}
@@ -5496,7 +5501,7 @@ void GpGadgets::ParseLabelOptions(GpCommand & rC, GpTextLabel * pLabel, int nDim
 				continue;
 			}
 			else
-				IntError(rC, rC.CToken, "'fontname,fontsize' expected");
+				IntErrorCurToken("'fontname,fontsize' expected");
 		}
 		/* Flag this as hypertext rather than a normal label */
 		if(!set_hypertext && rC.AlmostEq("hyper$text")) {
@@ -5661,7 +5666,7 @@ static void parse_histogramstyle(GpCommand & rC, histogram_style * hs, t_histogr
 					if(rC.IsANumber(++rC.CToken))
 						hs->gap = rC.IntExpression();
 					else
-						GpGg.IntError(rC, rC.CToken, "expected gap value");
+						GpGg.IntErrorCurToken("expected gap value");
 				}
 				else if(rC.AlmostEq("ti$tle")) {
 					title_specs.offset = hs->title.offset;
@@ -5729,7 +5734,7 @@ static void set_style_parallel(GpCommand & rC)
 			else if(rC.Eq("back"))
 				parallel_axis_style.layer = LAYER_BACK;
 			else
-				GpGg.IntError(rC, rC.CToken, "unrecognized option");
+				GpGg.IntErrorCurToken("unrecognized option");
 			rC.CToken++;
 		}
 	}

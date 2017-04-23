@@ -72,7 +72,7 @@ int SLAPI ComDispInterface::AssignIDByName(const char * pName, long nameID)
 	size_t wname_len = 0;
 	DispIDEntry dispid_entry;
 	OLECHAR * p_wname = 0;
-	THROW_PP(P_Disp, PPERR_INVPARAM);
+	THROW_INVARG(P_Disp);
 	wname_len = mbstowcs(NULL, pName, MAXPATH) + 1;
 	THROW_MEM(p_wname = new OLECHAR[wname_len]);
 	mbstowcs(p_wname, pName, MAXPATH);
@@ -134,7 +134,7 @@ int SLAPI ComDispInterface::_GetProperty(long propertyID, VARIANTARG * pVarArg, 
 		P_ParamsAry ? P_ParamsAry->getCount() : 0,
 		0
 	};
-	THROW_PP(P_Disp, PPERR_INVPARAM);
+	THROW_INVARG(P_Disp);
 	THROW(p_die = GetDispIDEntry(propertyID));
 	VariantInit(&var_arg);
 	THROW(SUCCEEDED(HRes = P_Disp->Invoke(p_die->DispID, IID_NULL, LOCALE_USER_DEFAULT,
@@ -246,7 +246,7 @@ int SLAPI ComDispInterface::GetProperty(long propertyID, ComDispInterface * pDis
 {
 	int    ok = 1;
 	VARIANTARG var_arg;
-	THROW_PP(pDisp, PPERR_INVPARAM);
+	THROW_INVARG(pDisp);
 	VariantInit(&var_arg);
 	var_arg.vt = VT_DISPATCH;
 	if((ok = _GetProperty(propertyID, &var_arg, 1)) > 0) {
@@ -268,7 +268,7 @@ int SLAPI ComDispInterface::SetPropertyByParams(long propertyID)
 		0
 	};
 	VariantInit(&var_arg);
-	THROW_PP(P_Disp, PPERR_INVPARAM);
+	THROW_INVARG(P_Disp);
 	THROW(p_die = GetDispIDEntry(propertyID));
 	THROW(SUCCEEDED(HRes = P_Disp->Invoke(p_die->DispID, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, &var_arg, NULL, NULL)));
 	CATCH
@@ -290,7 +290,7 @@ int SLAPI ComDispInterface::_SetProperty(long propertyID, VARIANTARG * pVarArg)
 	DISPID     dispid_put  = DISPID_PROPERTYPUT;
 	DISPPARAMS null_params = {NULL, NULL, 0, 0};
 	DISPPARAMS dispparams  = {&var_arg, &dispid_put, 1, 1};
-	THROW_PP(P_Disp, PPERR_INVPARAM);
+	THROW_INVARG(P_Disp);
 	THROW(p_die = GetDispIDEntry(propertyID));
 	VariantInit(&var_arg);
 	THROW(SUCCEEDED(HRes = P_Disp->Invoke(p_die->DispID, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &null_params, &var_arg, NULL, NULL)));
@@ -320,7 +320,7 @@ int SLAPI ComDispInterface::_SetPropertyW(long propertyID, VARIANTARG * pVarArg)
 	DISPID     dispid_put  = DISPID_PROPERTYPUT;
 	DISPPARAMS null_params = {NULL, NULL, 0, 0};
 	DISPPARAMS dispparams  = {&var_arg, &dispid_put, 1, 1};
-	THROW_PP(P_Disp, PPERR_INVPARAM);
+	THROW_INVARG(P_Disp);
 	THROW(p_die = GetDispIDEntry(propertyID));
 	VariantInit(&var_arg);
 	if(var_arg.vt == VT_NULL || var_arg.vt == VT_EMPTY) {
@@ -531,7 +531,7 @@ int SLAPI ComDispInterface::CallMethod(long methodID, VARIANTARG * pVarArg)
 	if(rcv_res)
 		VariantInit(&var_arg);
 
-	THROW_PP(P_Disp, PPERR_INVPARAM);
+	THROW_INVARG(P_Disp);
 	THROW(p_die = GetDispIDEntry(methodID));
 	THROW(SUCCEEDED(HRes = P_Disp->Invoke(p_die->DispID, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, &params, rcv_res ? &var_arg : NULL, NULL, NULL)));
 	if(rcv_res) {
@@ -568,7 +568,7 @@ int  SLAPI ComDispInterface::CallMethod(long methodID, ComDispInterface * pDisp)
 {
 	int    ok = 1;
 	VARIANTARG var_arg;
-	THROW_PP(pDisp, PPERR_INVPARAM);
+	THROW_INVARG(pDisp);
 	VariantInit(&var_arg);
 	var_arg.vt = VT_DISPATCH;
 	if((ok = CallMethod(methodID, &var_arg)) > 0) {
@@ -659,7 +659,7 @@ int SLAPI ComExcelShapes::PutPicture(const char * pPath, RECT * pRect)
 	int    ok = 1;
 	ComDispInterface * p_shape = new ComDispInterface;
 
-	THROW_PP(pRect, PPERR_INVPARAM);
+	THROW_INVARG(pRect);
 	THROW(SetParam(pPath));
 	THROW(SetParam(1));
 	THROW(SetParam(0));

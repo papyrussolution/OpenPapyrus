@@ -341,7 +341,7 @@ int EditStaffAmtEntry(long idx, StaffAmtList * pAmtList)
 {
 	int    ok = -1;
 	StaffAmtEntryDlg * dlg = 0;
-	THROW_PP(pAmtList, PPERR_INVPARAM);
+	THROW_INVARG(pAmtList);
 	if(CheckDialogPtrErr(&(dlg = new StaffAmtEntryDlg))) {
 		StaffAmtEntry entry;
 		if(idx >= 0)

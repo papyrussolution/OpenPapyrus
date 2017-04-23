@@ -275,7 +275,7 @@ int SLAPI PPObjOpCounter::UngetCounter(PPID id, long counter, PPID locID, int us
 int SLAPI PPObjOpCounter::ResetAll()
 {
 	int    ok = 1;
-	if(PPMessage(mfConf|mfYesNo, PPCFM_RESETOPCNTRS, 0) == cmYes) {
+	if(PPMessage(mfConf|mfYesNo, PPCFM_RESETOPCNTRS) == cmYes) {
 		PPID   id = 0;
 		PPObjOpCounter opc_obj;
 		PPOpCounterPacket pack;

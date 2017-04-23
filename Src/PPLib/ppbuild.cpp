@@ -30,7 +30,25 @@ public:
 		Param()
 		{
 			Flags = 0;
-			PrefMsvsVerMajor = 0;
+			ConfigEntryIdx = 0;
+			//PrefMsvsVerMajor = 0;
+		}
+		Param(const Param & rS)
+		{
+			Copy(rS);
+		}
+		Param & FASTCALL operator = (const Param & rS)
+		{
+			return Copy(rS);
+		}
+		Param & FASTCALL Copy(const Param & rS)
+		{
+			Ver = rS.Ver;
+			Flags = rS.Flags;
+			ConfigEntryIdx = rS.ConfigEntryIdx;
+			VerSuffix = rS.VerSuffix;
+			TSCollection_Copy(ConfigList, rS.ConfigList);
+			return *this;
 		}
 		SString & GetVerLabel(SString & rBuf) const
 		{
@@ -38,17 +56,25 @@ public:
 				CatChar('(').Cat(Ver.Asm).CatChar(')');
 			return rBuf;
 		}
-		BuildVer Ver;           // Собираемая версия //
+		BuildVer Ver;            // Собираемая версия //
 		long   Flags;
-		int    PrefMsvsVerMajor;
-
-		SString VerSuffix;      // Опциональный суффикс версии дистрибутива (например, PRE)
-		SString RootPath;       // Корневой каталог проекта
-		SString SrcPath;        // Каталог исходных кодов
-		SString SlnPath;        // Каталог, содержащий файлы проектов
-		SString TargetRootPath; // Корневой каталог, в котором должна собираться версия (C:\PPY)
-		SString NsisPath;       // Путь к исполняемому файлу NSIS (сборщик дистрибутива)
-		SString DistribPath;    // Корневой каталог, хранящий дистрибутивы
+		uint   ConfigEntryIdx;   // Индекс выбранной конфигурации сборки. 0 - undef
+		SString VerSuffix;       // Опциональный суффикс версии дистрибутива (например, PRE)
+		struct ConfigEntry {
+			ConfigEntry()
+			{
+				PrefMsvsVerMajor = 0;
+			}
+			SString Name;            // Наименование элемента конфигурации сборки
+			int    PrefMsvsVerMajor; // PPINIPARAM_PREFMSVSVER
+			SString RootPath;        // PPINIPARAM_BUILDROOT     Корневой каталог проекта
+			SString SrcPath;         // PPINIPARAM_BUILDSRC      Каталог исходных кодов
+			SString SlnPath;         // PPINIPARAM_BUILDSOLUTION Каталог, содержащий файлы проектов
+			SString TargetRootPath;  // PPINIPARAM_BUILDTARGET   Корневой каталог, в котором должна собираться версия (C:\PPY)
+			SString NsisPath;        // PPINIPARAM_BUILDNSIS     Путь к исполняемому файлу NSIS (сборщик дистрибутива)
+			SString DistribPath;     // PPINIPARAM_BUILDDISTRIB  Корневой каталог, хранящий дистрибутивы
+		};
+		TSCollection <ConfigEntry> ConfigList;
 	};
 
 	static int SLAPI FindMsvs(int prefMajor, StrAssocArray & rList, SString * pPrefPath);
@@ -58,61 +84,77 @@ public:
 	int	   SLAPI Run();
 	int    SLAPI Build();
 	int    SLAPI BuildLocalDl600(const char * pPath);
+	//
+	Param::ConfigEntry * SLAPI SetupParamByEntryIdx(Param * pParam);
 private:
 	static int CopyProgressProc(const SCopyFileData * scfd); // SCopyFileProgressProc
 	int	   SLAPI UploadFileToUhtt(const char * pFileName, const char * pKey, const char * pVerLabel, const char * pMemo);
+	int	   SLAPI InitConfigEntry(PPIniFile & rIniFile, const char * pSection, Param::ConfigEntry * pEntry);
 
 	Param  P;
 };
 
-int	SLAPI PrcssrBuild::InitParam(Param * pParam)
+int	SLAPI PrcssrBuild::InitConfigEntry(PPIniFile & rIniFile, const char * pSection, Param::ConfigEntry * pEntry)
 {
 	int    ok = 1;
-	SString temp_buf, full_path_buf;
-	SString file_name_buf;
-	PPIniFile ini_file;
-	//
-	ini_file.Get(PPINISECT_PATH, PPINIPARAM_BUILDROOT, temp_buf = 0);
+	SString temp_buf;
+	SString full_path_buf;
+	rIniFile.Get(pSection, PPINIPARAM_BUILDROOT, temp_buf = 0);
 	THROW_PP(temp_buf.NotEmpty(), PPERR_BUILD_UNDEFBUILDROOT);
 	THROW_SL(fileExists(temp_buf));
-	pParam->RootPath = temp_buf;
+	pEntry->RootPath = temp_buf;
 	//
-	ini_file.Get(PPINISECT_PATH, PPINIPARAM_BUILDSRC, temp_buf = 0);
+	rIniFile.Get(pSection, PPINIPARAM_BUILDSRC, temp_buf = 0);
 	THROW_PP(temp_buf.NotEmpty(), PPERR_BUILD_UNDEFBUILDSRC);
-	(full_path_buf = pParam->RootPath).SetLastSlash().Cat(temp_buf);
+	(full_path_buf = pEntry->RootPath).SetLastSlash().Cat(temp_buf);
 	THROW_SL(fileExists(full_path_buf));
-	pParam->SrcPath = full_path_buf;
+	pEntry->SrcPath = full_path_buf;
 	//
-	ini_file.Get(PPINISECT_PATH, PPINIPARAM_BUILDSOLUTION, temp_buf = 0);
+	rIniFile.Get(pSection, PPINIPARAM_BUILDSOLUTION, temp_buf = 0);
 	THROW_PP(temp_buf.NotEmpty(), PPERR_BUILD_UNDEFBUILDSLN);
-	(full_path_buf = pParam->RootPath).SetLastSlash().Cat(temp_buf);
+	(full_path_buf = pEntry->RootPath).SetLastSlash().Cat(temp_buf);
 	THROW_SL(fileExists(full_path_buf));
-	pParam->SlnPath = full_path_buf;
+	pEntry->SlnPath = full_path_buf;
 	//
-	ini_file.Get(PPINISECT_PATH, PPINIPARAM_BUILDTARGET, temp_buf = 0);
+	rIniFile.Get(pSection, PPINIPARAM_BUILDTARGET, temp_buf = 0);
 	THROW_PP(temp_buf.NotEmpty(), PPERR_BUILD_UNDEFBUILDTARGET);
 	THROW_SL(fileExists(temp_buf));
-	pParam->TargetRootPath = temp_buf;
+	pEntry->TargetRootPath = temp_buf;
 	//
-	ini_file.Get(PPINISECT_PATH, PPINIPARAM_BUILDNSIS, temp_buf = 0);
+	rIniFile.Get(pSection, PPINIPARAM_BUILDNSIS, temp_buf = 0);
 	if(temp_buf.Empty()) {
-		(temp_buf = pParam->RootPath).SetLastSlash().Cat("tools").SetLastSlash().Cat("nsis").SetLastSlash().Cat("makensis.exe");
+		(temp_buf = pEntry->RootPath).SetLastSlash().Cat("tools").SetLastSlash().Cat("nsis").SetLastSlash().Cat("makensis.exe");
 	}
 	THROW_SL(fileExists(temp_buf));
-	pParam->NsisPath = temp_buf;
+	pEntry->NsisPath = temp_buf;
 	//
-	ini_file.Get(PPINISECT_PATH, PPINIPARAM_PREFMSVSVER, temp_buf = 0);
+	rIniFile.Get(pSection, PPINIPARAM_BUILDDISTRIB, temp_buf = 0);
+	THROW_PP(temp_buf.NotEmpty(), PPERR_BUILD_UNDEFBUILDDISTRIB);
+	THROW_SL(fileExists(temp_buf));
+	pEntry->DistribPath = temp_buf;
+	//
+	rIniFile.Get(pSection, PPINIPARAM_PREFMSVSVER, temp_buf = 0);
 	if(temp_buf.NotEmptyS()) {
-		pParam->PrefMsvsVerMajor = temp_buf.ToLong();
+		pEntry->PrefMsvsVerMajor = temp_buf.ToLong();
 	}
-	SETIFZ(pParam->PrefMsvsVerMajor, 7);
-	//
-	{
+	SETIFZ(pEntry->PrefMsvsVerMajor, 7);
+	CATCHZOK
+	return ok;
+}
+
+PrcssrBuild::Param::ConfigEntry * SLAPI PrcssrBuild::SetupParamByEntryIdx(Param * pParam)
+{
+	Param::ConfigEntry * p_entry = 0;
+	THROW(pParam && pParam->ConfigEntryIdx > 0 && pParam->ConfigEntryIdx <= pParam->ConfigList.getCount());
+	p_entry = pParam->ConfigList.at(pParam->ConfigEntryIdx-1);
+	if(p_entry) {
+		SString temp_buf;
+		SString file_name_buf;
+		SString full_path_buf;
 		//
 		// Извлекаем из файла SRC\RSRC\VERSION\genver.dat номер создаваемой версии
 		//
-		(temp_buf = pParam->SrcPath).SetLastSlash().Cat("RSRC").SetLastSlash().Cat("Version").SetLastSlash();
-		//(temp_buf = pParam->SrcPath).SetLastSlash().Cat("RSRC").SetLastSlash().Cat("Version").SetLastSlash().Cat("genver.dat");
+		(temp_buf = p_entry->SrcPath).SetLastSlash().Cat("RSRC").SetLastSlash().Cat("Version").SetLastSlash();
 		PPGetFileName(PPFILNAM_GENVER_DAT, file_name_buf);
 		(full_path_buf = temp_buf).Cat(file_name_buf);
 		if(!fileExists(full_path_buf)) {
@@ -122,7 +164,6 @@ int	SLAPI PrcssrBuild::InitParam(Param * pParam)
 		temp_buf = full_path_buf;
 		THROW(fileExists(temp_buf));
 		{
-			// @v9.4.9 {
 			SIniFile f_genver_file(temp_buf);
 			PapyrusPrivateBlock ppb;
 			THROW(ppb.ReadFromIni(f_genver_file));
@@ -131,51 +172,44 @@ int	SLAPI PrcssrBuild::InitParam(Param * pParam)
 				pParam->Ver.Asm = ppb.AssemblyN;
 				SETFLAG(pParam->Flags, Param::fOpenSource, (ppb.Flags & ppb.fOpenSource));
 			}
-			// } @v9.4.9
-			/* @v9.4.9
-			SString line_buf, key_buf, val_buf;
-			int    mj_difined = 0;
-			int    mn_difined = 0;
-			int    r_difined = 0;
-			int    a_difined = 0;
-			SFile f(temp_buf, SFile::mRead);
-			THROW_SL(f.IsValid());
-			while(f.ReadLine(line_buf)) {
-				line_buf.Chomp().Strip();
-				if(line_buf.Divide('=', key_buf, val_buf) > 0) {
-					key_buf.Strip();
-					if(key_buf.CmpNC("MajorVer") == 0) {
-						pParam->Ver.Major = val_buf.Strip().ToLong();
-						mj_difined = 1;
+		}
+	}
+	CATCH
+		p_entry = 0;
+	ENDCATCH
+	return p_entry;
+}
+
+int	SLAPI PrcssrBuild::InitParam(Param * pParam)
+{
+	int    ok = 1;
+	SString temp_buf, full_path_buf;
+	SString file_name_buf;
+	{
+		SString left, right;
+		PPIniFile ini_file;
+		StringSet sections;
+		ini_file.GetSections(&sections);
+		for(uint sp = 0; sections.get(&sp, temp_buf);) {
+			if(temp_buf.CmpPrefix("selfbuild", 1) == 0) {
+				if(temp_buf.Divide('-', left, right) > 0 || temp_buf.Divide(':', left, right) > 0) {
+					uint   new_entry_pos = 0;
+					Param::ConfigEntry * p_new_entry = pParam->ConfigList.CreateNewItem(&new_entry_pos);
+					THROW_SL(p_new_entry);
+					if(InitConfigEntry(ini_file, temp_buf, p_new_entry)) {
+						p_new_entry->Name = right;
+						if(!pParam->ConfigEntryIdx)
+							pParam->ConfigEntryIdx = new_entry_pos+1;
 					}
-					else if(key_buf.CmpNC("MinorVer") == 0) {
-						pParam->Ver.Minor = val_buf.Strip().ToLong();
-						mn_difined = 1;
-					}
-					else if(key_buf.CmpNC("Revision") == 0) {
-						pParam->Ver.Revision = val_buf.Strip().ToLong();
-						r_difined = 1;
-					}
-					else if(key_buf.CmpNC("AssemblyVer") == 0) {
-						pParam->Ver.Asm = val_buf.Strip().ToLong();
-						a_difined = 1;
-					}
-					else if(key_buf.CmpNC("OpenSource") == 0) {
-						if(val_buf.Strip().ToLong() > 0) {
-							pParam->Flags |= Param::fOpenSource;
-						}
+					else {
+						p_new_entry = 0;
+						pParam->ConfigList.atFree(new_entry_pos);
 					}
 				}
 			}
-			*/
 		}
 	}
-	//
-	ini_file.Get(PPINISECT_PATH, PPINIPARAM_BUILDDISTRIB, temp_buf = 0);
-	THROW_PP(temp_buf.NotEmpty(), PPERR_BUILD_UNDEFBUILDDISTRIB);
-	THROW_SL(fileExists(temp_buf));
-	pParam->DistribPath = temp_buf;
-	//
+	SetupParamByEntryIdx(pParam);
 	pParam->Flags |= (Param::fBuildClient|Param::fBuildServer|Param::fBuildMtdll|
 		Param::fBuildDrv|Param::fBuildSoap|Param::fBuildDistrib/*|Param::fCopyToUhtt*/);
 	CATCHZOK
@@ -186,9 +220,13 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 {
 	class SelfBuildDialog : public TDialog {
 	public:
-		SelfBuildDialog() : TDialog(DLG_SELFBUILD)
+		SelfBuildDialog(PrcssrBuild & rPrcssr) : TDialog(DLG_SELFBUILD), R_Prcssr(rPrcssr)
 		{
+#ifdef NDEBUG
 			CloseTimeout = 60;
+#else
+			CloseTimeout = -1;
+#endif
 			PrevTimeoutRest = -1;
 			StartClock = 0;
 		}
@@ -197,6 +235,16 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 			int    ok = 1;
 			SString temp_buf;
 			Data = *pData;
+			{
+				StrAssocArray config_str_list;
+				for(uint i = 0; i < Data.ConfigList.getCount(); i++) {
+					Param::ConfigEntry * p_entry = Data.ConfigList.at(i);
+					if(p_entry) {
+						config_str_list.Add(i+1, p_entry->Name);
+					}
+				}
+				SetupStrAssocCombo(this, CTLSEL_SELFBUILD_CONFIG, &config_str_list, Data.ConfigEntryIdx, 0, 0, 0);
+			}
 			AddClusterAssoc(CTL_SELFBUILD_FLAGS, 0, PrcssrBuild::Param::fBuildClient);
 			AddClusterAssoc(CTL_SELFBUILD_FLAGS, 1, PrcssrBuild::Param::fBuildServer);
 			AddClusterAssoc(CTL_SELFBUILD_FLAGS, 2, PrcssrBuild::Param::fBuildMtdll);
@@ -204,23 +252,7 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 			AddClusterAssoc(CTL_SELFBUILD_FLAGS, 4, PrcssrBuild::Param::fBuildSoap);
 			AddClusterAssoc(CTL_SELFBUILD_FLAGS, 5, PrcssrBuild::Param::fBuildDistrib);
 			AddClusterAssoc(CTL_SELFBUILD_FLAGS, 6, PrcssrBuild::Param::fCopyToUhtt);
-			SetClusterData(CTL_SELFBUILD_FLAGS, Data.Flags);
-
-			setCtrlString(CTL_SELFBUILD_VERSION, Data.GetVerLabel(temp_buf));
-			setCtrlString(CTL_SELFBUILD_VERSFX, Data.VerSuffix);
-			{
-				StrAssocArray msvs_ver_list;
-				PrcssrBuild::FindMsvs(Data.PrefMsvsVerMajor, msvs_ver_list, &(temp_buf = 0));
-				setCtrlString(CTL_SELFBUILD_CMPLRPATH, temp_buf);
-			}
-			setCtrlString(CTL_SELFBUILD_IMPATH, Data.NsisPath);
-			{
-				temp_buf = 0;
-				if(Data.Flags & Data.fOpenSource) {
-					temp_buf = "OPENSOURCE";
-				}
-				setStaticText(CTL_SELFBUILD_ST_INFO, temp_buf);
-			}
+			Setup();
 			if(CloseTimeout >= 0)
 				setStaticText(CTL_SELFBUILD_TIMEOUT, (temp_buf = 0).Cat(CloseTimeout));
 			StartClock = clock();
@@ -228,6 +260,7 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 		}
 		int getDTS(PrcssrBuild::Param * pData)
 		{
+			getCtrlData(CTLSEL_SELFBUILD_CONFIG, &Data.ConfigEntryIdx);
 			GetClusterData(CTL_SELFBUILD_FLAGS, &Data.Flags);
 			getCtrlString(CTL_SELFBUILD_VERSFX, Data.VerSuffix);
 			ASSIGN_PTR(pData, Data);
@@ -238,7 +271,11 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 		{
 			SString temp_buf;
 			TDialog::handleEvent(event);
-			if(TVCMD == cmInputUpdated) {
+			if(event.isCbSelected(CTLSEL_SELFBUILD_CONFIG)) {
+				getCtrlData(CTLSEL_SELFBUILD_CONFIG, &Data.ConfigEntryIdx);
+				Setup();
+			}
+			else if(TVCMD == cmInputUpdated) {
 				if(event.isCtlEvent(CTL_SELFBUILD_VERSFX)) {
 					getCtrlString(CTL_SELFBUILD_VERSFX, Data.VerSuffix);
 					setCtrlString(CTL_SELFBUILD_VERSION, Data.GetVerLabel(temp_buf));
@@ -264,12 +301,42 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 			else
 				return;
 		}
+		void Setup()
+		{
+			SString temp_buf;
+			const Param::ConfigEntry * p_config_entry = R_Prcssr.SetupParamByEntryIdx(&Data);
+			SetClusterData(CTL_SELFBUILD_FLAGS, Data.Flags);
+			setCtrlString(CTL_SELFBUILD_VERSION, Data.GetVerLabel(temp_buf));
+			setCtrlString(CTL_SELFBUILD_VERSFX, Data.VerSuffix);
+			{
+				temp_buf = 0;
+				if(p_config_entry) {
+					StrAssocArray msvs_ver_list;
+					PrcssrBuild::FindMsvs(p_config_entry->PrefMsvsVerMajor, msvs_ver_list, &temp_buf);
+					setCtrlString(CTL_SELFBUILD_CMPLRPATH, temp_buf);
+				}
+				setCtrlString(CTL_SELFBUILD_CMPLRPATH, temp_buf);
+			}
+			{
+				temp_buf = 0;
+				if(p_config_entry)
+					temp_buf = p_config_entry->NsisPath;
+				setCtrlString(CTL_SELFBUILD_IMPATH, temp_buf);
+			}
+			{
+				temp_buf = 0;
+				if(Data.Flags & Data.fOpenSource)
+					temp_buf = "OPENSOURCE";
+				setStaticText(CTL_SELFBUILD_ST_INFO, temp_buf);
+			}
+		}
 		PrcssrBuild::Param Data;
 		long   CloseTimeout;
 		long   PrevTimeoutRest;
 		clock_t StartClock;
+		PrcssrBuild & R_Prcssr;
 	};
-	DIALOG_PROC_BODY(SelfBuildDialog, pParam);
+	DIALOG_PROC_BODY_P1(SelfBuildDialog, *this, pParam);
 }
 
 int	SLAPI PrcssrBuild::Init(const Param * pParam)
@@ -386,6 +453,9 @@ int	SLAPI PrcssrBuild::Run()
 	}
 	*/
 	// } @debug
+	const Param::ConfigEntry * p_config_entry = SetupParamByEntryIdx(&P);
+	THROW(p_config_entry);
+	logger.Log((msg_buf = "Configuration").CatDiv(':', 2).Cat(p_config_entry->Name));
 	{
 		//
 		// Сборка исполняемых файлов и ресурсов
@@ -407,9 +477,9 @@ int	SLAPI PrcssrBuild::Run()
 		};
 		StrAssocArray msvs_ver_list;
 		SString msvs_path;
-		const char * p_prc_cur_dir = P.SlnPath.NotEmpty() ? (const char *)P.SlnPath : (const char *)0;
+		const char * p_prc_cur_dir = p_config_entry->SlnPath.NotEmpty() ? p_config_entry->SlnPath.cptr() : (const char *)0;
 		logger.Log((msg_buf = "Current dir for child processes").CatDiv(':', 2).Cat(p_prc_cur_dir));
-		THROW(FindMsvs(P.PrefMsvsVerMajor, msvs_ver_list, &msvs_path));
+		THROW(FindMsvs(p_config_entry->PrefMsvsVerMajor, msvs_ver_list, &msvs_path));
 		PPLoadText(PPTXT_BUILD_COMPILERNAME_VS71, temp_buf);
 		THROW_PP_S(msvs_path.NotEmpty() && fileExists(msvs_path), PPERR_BUILD_COMPILERNFOUND, temp_buf);
 		for(uint j = 0; j < SIZEOFARRAY(sln_list); j++) {
@@ -441,18 +511,18 @@ int	SLAPI PrcssrBuild::Run()
 					{
 						GetExitCodeProcess(pi.hProcess, &exit_code);
 						if(exit_code == 0) {
-							(temp_buf = P.TargetRootPath).SetLastSlash().Cat("BIN").SetLastSlash().Cat(r_sln_entry.P_Result);
+							(temp_buf = p_config_entry->TargetRootPath).SetLastSlash().Cat("BIN").SetLastSlash().Cat(r_sln_entry.P_Result);
 							if(fileExists(temp_buf)) {
 								msg_buf.Printf(PPLoadTextS(PPTXT_BUILD_SLN_SUCCESS, fmt_buf), r_sln_entry.P_Name);
 								logger.Log(msg_buf);
 							}
 							else {
-								msg_buf.Printf(PPLoadTextS(PPTXT_BUILD_SLN_TARGETNFOUND, fmt_buf), r_sln_entry.P_Name, (const char *)temp_buf);
+								msg_buf.Printf(PPLoadTextS(PPTXT_BUILD_SLN_TARGETNFOUND, fmt_buf), r_sln_entry.P_Name, temp_buf.cptr());
 								logger.Log(msg_buf);
 							}
 						}
 						else {
-							msg_buf.Printf(PPLoadTextS(PPTXT_BUILD_SLN_FAIL, fmt_buf), r_sln_entry.P_Name, (const char *)build_log_path);
+							msg_buf.Printf(PPLoadTextS(PPTXT_BUILD_SLN_FAIL, fmt_buf), r_sln_entry.P_Name, build_log_path.cptr());
 							logger.Log(msg_buf);
 						}
 					}
@@ -493,23 +563,23 @@ int	SLAPI PrcssrBuild::Run()
 			(sub_path = 0).CatChar('v').Cat(P.Ver.Major).Cat(P.Ver.Minor).CatLongZ(P.Ver.Revision, 2).CatChar('a' + (P.Ver.Asm + _c) % 26);
 			if(P.VerSuffix.NotEmpty())
 				sub_path.CatChar('-').Cat(P.VerSuffix);
-			(distrib_path = P.DistribPath).SetLastSlash().Cat(sub_path);
+			(distrib_path = p_config_entry->DistribPath).SetLastSlash().Cat(sub_path);
 			_c++;
 		} while(fileExists(distrib_path));
 		THROW(::createDir(distrib_path));
-		(distrib_src_path = P.DistribPath).SetLastSlash().Cat("SRC").SetLastSlash().Cat(sub_path);
+		(distrib_src_path = p_config_entry->DistribPath).SetLastSlash().Cat("SRC").SetLastSlash().Cat(sub_path);
 		THROW(::createDir(distrib_src_path));
 		//
-		(temp_buf = P.RootPath).SetLastSlash().Cat("ManWork").SetLastSlash().Cat("LaTex").SetLastSlash().Cat("ppmanual.pdf");
-		temp_buf.CopyTo(nsis_list[4].FileName, sizeof(nsis_list[4].FileName));
+		(temp_buf = p_config_entry->RootPath).SetLastSlash().Cat("ManWork").SetLastSlash().Cat("LaTex").SetLastSlash().Cat("ppmanual.pdf");
+		STRNSCPY(nsis_list[4].FileName, temp_buf);
 		//
-		(temp_buf = P.RootPath).SetLastSlash().Cat("ManWork").SetLastSlash().Cat("LaTex").SetLastSlash().Cat("features.pdf");
-		temp_buf.CopyTo(nsis_list[5].FileName, sizeof(nsis_list[5].FileName));
+		(temp_buf = p_config_entry->RootPath).SetLastSlash().Cat("ManWork").SetLastSlash().Cat("LaTex").SetLastSlash().Cat("features.pdf");
+		STRNSCPY(nsis_list[5].FileName, temp_buf);
 		//
-		(temp_buf = P.SrcPath).SetLastSlash().Cat("doc").SetLastSlash().Cat("version.txt");
-		temp_buf.CopyTo(nsis_list[6].FileName, sizeof(nsis_list[6].FileName));
+		(temp_buf = p_config_entry->SrcPath).SetLastSlash().Cat("doc").SetLastSlash().Cat("version.txt");
+		STRNSCPY(nsis_list[6].FileName, temp_buf);
 		//
-		(build_path = P.SrcPath).SetLastSlash().Cat("BUILD");
+		(build_path = p_config_entry->SrcPath).SetLastSlash().Cat("BUILD");
 		for(i = 0; i < SIZEOFARRAY(nsis_list); i++) {
 			NsisEntry & r_nsis_entry = nsis_list[i];
 			if(r_nsis_entry.P_NsisFile) {
@@ -523,8 +593,8 @@ int	SLAPI PrcssrBuild::Run()
 				target_file_name.Cat(r_nsis_entry.P_Name).CatChar('_').Cat(ver_label).Dot().Cat("exe");
 				PPGetPath(PPPATH_LOG, build_log_path);
 				build_log_path.SetLastSlash().Cat("build").CatChar('-').Cat("nsis").CatChar('-').Cat(r_nsis_entry.P_Name).Dot().Cat("log");
-				(temp_buf = 0).CatQStr(P.NsisPath).Space().CatEq("/DPRODUCT_VERSION", ver_label).Space().
-					CatEq("/DSRC_ROOT", P.RootPath).Space().Cat("/NOCD").Space().Cat("/V2").Space().Cat("/P1").Space();
+				(temp_buf = 0).CatQStr(p_config_entry->NsisPath).Space().CatEq("/DPRODUCT_VERSION", ver_label).Space().
+					CatEq("/DSRC_ROOT", p_config_entry->RootPath).Space().Cat("/NOCD").Space().Cat("/V2").Space().Cat("/P1").Space();
 				if(r_nsis_entry.P_Config) {
 					temp_buf.Cat("/D").Cat(r_nsis_entry.P_Config).Space();
 				}

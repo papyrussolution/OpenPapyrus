@@ -43,7 +43,7 @@ int SLAPI PPDeclStruc::InitData(Ido op, void * extraPtr, long)
 	else if(op == idoAccept)
 		ok = 1;
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -58,7 +58,7 @@ int SLAPI PPDeclStruc::TransferData(int32 * pData, Tfd dir, SString & rBuf, int 
 	else if(dir == tfdBufToData)
 		*pData = rBuf.ToLong();
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -95,7 +95,7 @@ int SLAPI PPDeclStruc::TransferData(int16 * pData, Tfd dir, SString & rBuf, int 
 	else if(dir == tfdBufToData)
 		*pData = (int16)rBuf.ToLong();
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -110,7 +110,7 @@ int SLAPI PPDeclStruc::TransferData(uint16 * pData, Tfd dir, SString & rBuf, int
 	else if(dir == tfdBufToData)
 		*pData = (uint16)rBuf.ToLong();
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -125,7 +125,7 @@ int SLAPI PPDeclStruc::TransferData(uint8 * pData, Tfd dir, SString & rBuf, int 
 	else if(dir == tfdBufToData)
 		*pData = (uint8)rBuf.ToLong();
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 
 }
@@ -141,7 +141,7 @@ int SLAPI PPDeclStruc::TransferData(double * pData, Tfd dir, SString & rBuf, int
 	else if(dir == tfdBufToData)
 		*pData = rBuf.ToReal();
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -184,7 +184,7 @@ int SLAPI PPDeclStruc::TransferData(SString & rData, Tfd dir, SString & rBuf, in
 		}
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -225,7 +225,7 @@ int SLAPI PPDeclStruc::TransferData(char * pData, size_t dataBufLen, Tfd dir, SS
 		*pData = 0;
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -240,7 +240,7 @@ int SLAPI PPDeclStruc::TransferData(DateRange * pData, Tfd dir, SString & rBuf, 
 	else if(dir == tfdBufToData)
 		strtoperiod(rBuf, pData, 0);
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -255,7 +255,7 @@ int SLAPI PPDeclStruc::TransferData(LDATE * pData, Tfd dir, SString & rBuf, int 
 	else if(dir == tfdBufToData)
 		strtodate(rBuf, DATF_DMY|DATF_CENTURY, pData);
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -270,7 +270,7 @@ int SLAPI PPDeclStruc::TransferData(LTIME * pData, Tfd dir, SString & rBuf, int 
 	else if(dir == tfdBufToData)
 		strtotime(rBuf, TIMF_HMS, pData);
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -286,7 +286,7 @@ int SLAPI PPDeclStruc::TransferData(long * pData, long flag, Tfd dir, SString & 
 		SETFLAG(*pData, flag, rBuf.ToLong());
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -305,7 +305,7 @@ int SLAPI PPDeclStruc::TransferData(PPIDArray * pList, Tfd dir, uint iter, SStri
 		ok = 1;
 	}
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 
@@ -319,7 +319,7 @@ int SLAPI PPDeclStruc::TransferField(long, Tfd dir, uint *, SString & rBuf)
 	else if(dir == tfdBufToData)
 		ok = -1;
 	else
-		ok = PPSetError(PPERR_INVPARAM);
+		ok = PPSetErrorInvParam();
 	return ok;
 }
 

@@ -642,7 +642,7 @@ int SLAPI AccTurnCore::LockFRR(PPID accRelID, LDATE dt)
 int SLAPI AccTurnCore::LockingFRR(int lock, int * pFRRL_Tag, int use_ta)
 {
 	int    ok = 1, frrl_tag = 0;
-	THROW_PP(pFRRL_Tag, PPERR_INVPARAM);
+	THROW_INVARG(pFRRL_Tag);
 	if(!Frrl) {
 		TLP_OPEN(Frrl);
 		Frrl->Counter = 0;

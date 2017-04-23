@@ -196,7 +196,7 @@ void lu_decomp(double ** a, int n, int * indx, double * d)
 			if((temp = fabs(*ac++)) > large)
 				large = temp;
 		if(large == 0.0)
-			GpGg.IntError(GpC, NO_CARET, "Singular matrix in LU-DECOMP");
+			GpGg.IntErrorNoCaret("Singular matrix in LU-DECOMP");
 		*dp++ = 1 / large;
 	}
 	ar = a;

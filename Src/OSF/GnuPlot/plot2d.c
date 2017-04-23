@@ -134,7 +134,7 @@ void GpGadgets::PlotRequest(GpCommand & rC)
 	int dummy_token = 0;
 	/*AXIS_INDEX*/ int t_axis;
 	if(!term) // unknown 
-		IntError(rC, rC.CToken, "use 'set term' to set terminal type first");
+		IntErrorCurToken("use 'set term' to set terminal type first");
 	Is3DPlot = false;
 	// Deactivate if 'set view map' is still running after the previous 'splot': 
 	// EAM Jan 2012 - this should no longer be necessary, but it doesn't hurt.
@@ -460,9 +460,9 @@ int GpGadgets::GetData(GpCommand & rC, CurvePoints * pPlot)
 			GpDf.ExpectString(2);
 	}
 	if(GpDf.df_no_use_specs > cols_range.upp) 
-		GpGg.IntError(GpC, NO_CARET, "Too many using specs for this style");
+		GpGg.IntErrorNoCaret("Too many using specs for this style");
 	if(GpDf.df_no_use_specs > 0 && GpDf.df_no_use_specs < cols_range.low)
-		GpGg.IntError(GpC, NO_CARET, "Not enough columns for this style");
+		GpGg.IntErrorNoCaret("Not enough columns for this style");
 	i = 0;
 	ngood = 0;
 	// If the user has set an explicit locale for numeric input, apply it 
@@ -497,17 +497,17 @@ int GpGadgets::GetData(GpCommand & rC, CurvePoints * pPlot)
 					case CANDLESTICKS:
 					case FINANCEBARS:
 					    if(j < 6) 
-							GpGg.IntError(GpC, NO_CARET, errmsg);
+							GpGg.IntErrorNoCaret(errmsg);
 					    break;
 					case XYERRORLINES:
 					case XYERRORBARS:
 					case BOXXYERROR:
 					    if(j != 7 && j != 5) 
-							GpGg.IntError(GpC, NO_CARET, errmsg);
+							GpGg.IntErrorNoCaret(errmsg);
 					    break;
 					case VECTOR:
 					    if(j < 5) 
-							GpGg.IntError(GpC, NO_CARET, errmsg);
+							GpGg.IntErrorNoCaret(errmsg);
 					    break;
 					case LABELPOINTS:
 					case BOXERROR:
@@ -516,12 +516,12 @@ int GpGadgets::GetData(GpCommand & rC, CurvePoints * pPlot)
 					case YERRORLINES:
 					case YERRORBARS:
 					    if(j < 4) 
-							GpGg.IntError(GpC, NO_CARET, errmsg);
+							GpGg.IntErrorNoCaret(errmsg);
 					    break;
 #ifdef EAM_OBJECTS
 					case CIRCLES:
 					    if(j == 5 || j < 3) 
-							GpGg.IntError(GpC, NO_CARET, errmsg);
+							GpGg.IntErrorNoCaret(errmsg);
 					    break;
 					case ELLIPSES:
 #endif
@@ -532,11 +532,11 @@ int GpGadgets::GetData(GpCommand & rC, CurvePoints * pPlot)
 					case LINES:
 					case DOTS:
 					    if(j < 3) 
-							GpGg.IntError(GpC, NO_CARET, errmsg);
+							GpGg.IntErrorNoCaret(errmsg);
 					    break;
 					case PARALLELPLOT:
 					    if(j < 4) 
-							GpGg.IntError(GpC, NO_CARET, errmsg);
+							GpGg.IntErrorNoCaret(errmsg);
 					    break;
 					case BOXPLOT:
 					    v[j++] = pPlot->base_linetype + 1; // Only the key sample uses this value
@@ -598,7 +598,7 @@ int GpGadgets::GetData(GpCommand & rC, CurvePoints * pPlot)
 				default:
 			    {
 				    GpDf.DfClose();
-				    IntError(rC, rC.CToken, "internal error : df_readline returned %d : datafile line %d", j, GpDf.df_line_number);
+				    IntErrorCurToken("internal error : df_readline returned %d : datafile line %d", j, GpDf.df_line_number);
 			    }
 				case DF_MISSING:
 				    /* Plot type specific handling of missing points goes here. */
@@ -649,7 +649,7 @@ int GpGadgets::GetData(GpCommand & rC, CurvePoints * pPlot)
 				case 0: // not blank line, but df_readline couldn't parse it
 			    {
 				    GpDf.DfClose();
-				    GpGg.IntError(GpC, pPlot->Token, "Bad data on line %d of file %s", GpDf.df_line_number, NZOR(GpDf.df_filename, ""));
+				    GpGg.IntError(pPlot->Token, "Bad data on line %d of file %s", GpDf.df_line_number, NZOR(GpDf.df_filename, ""));
 			    }
 				case 1:
 				    /* only one number */
@@ -668,7 +668,7 @@ H_ERR_BARS:
 					    if(histogram_opts.type == HT_ERRORBARS) {
 						    // The code is a tangle, but we can get here with j = 1, 2, or 3
 						    if(j == 1)
-							    IntError(rC, rC.CToken, "Not enough columns in using specification");
+							    IntErrorCurToken("Not enough columns in using specification");
 						    else if(j == 2) {
 							    v[3] = v[0] + v[1];
 							    v[2] = v[0] - v[1];
@@ -681,7 +681,7 @@ H_ERR_BARS:
 						    v[0] = GpDf.df_datum;
 					    }
 					    else if(j >= 2)
-						    IntError(rC, rC.CToken, "Too many columns in using specification");
+						    IntErrorCurToken("Too many columns in using specification");
 					    else
 						    v[2] = v[3] = v[1];
 					    if(histogram_opts.type == HT_STACKED_IN_TOWERS) {
@@ -1062,7 +1062,7 @@ void GpGadgets::Store2DPoint(CurvePoints * pPlot, int i /* point number */, doub
 		}
 		if(GetR().Flags & GpAxis::fLog) {
 			if(GetR().Range.low <= 0 || GetR().AutoScale & AUTOSCALE_MIN) {
-				IntError(GpC, NO_CARET, "In log mode rrange must not include 0");
+				IntErrorNoCaret("In log mode rrange must not include 0");
 			}
 			y = DoLog(POLAR_AXIS, y) - DoLog(POLAR_AXIS, GetR().Range.low);
 #ifdef NONLINEAR_AXES
@@ -1228,7 +1228,7 @@ static int check_or_add_boxplot_factor(CurvePoints * plot, char* string, double 
 			GpTextLabel * label;
 			GpTextLabel * prev_label = plot->labels;
 			if(!prev_label)
-				GpGg.IntError(GpC, NO_CARET, "boxplot labels not initialized");
+				GpGg.IntErrorNoCaret("boxplot labels not initialized");
 			for(label = prev_label->next; label; label = label->next, prev_label = prev_label->next) {
 				// check if string is already stored 
 				if(!strcmp(trimmed_string, label->text))
@@ -1288,7 +1288,7 @@ void GpGadgets::BoxPlotRangeFiddling(CurvePoints * pPlot)
 	n = filter_boxplot(pPlot);
 	pPlot->p_count = n;
 	if(pPlot->points[0].type == UNDEFINED)
-		GpGg.IntError(GpC, NO_CARET, "boxplot has undefined x GpCoordinate");
+		GpGg.IntErrorNoCaret("boxplot has undefined x GpCoordinate");
 	extra_width = pPlot->points[0].xhigh - pPlot->points[0].xlow;
 	if(extra_width == 0)
 		extra_width = (boxwidth > 0 && boxwidth_is_absolute) ? boxwidth : 0.5;
@@ -1368,7 +1368,7 @@ void GpGadgets::HistogramRangeFiddling(CurvePoints * pPlot)
 			    while(pPlot->points[pPlot->p_count-1].type == UNDEFINED) {
 				    pPlot->p_count--;
 				    if(!pPlot->p_count)
-					    GpGg.IntError(GpC, NO_CARET, "All points in histogram UNDEFINED");
+					    GpGg.IntErrorNoCaret("All points in histogram UNDEFINED");
 			    }
 			    xhigh = pPlot->points[pPlot->p_count-1].x;
 			    xhigh += pPlot->histogram->start + 1.0;
@@ -1451,7 +1451,7 @@ GpTextLabel * store_label(GpTextLabel * listhead, GpCoordinate * cp,
 	/* Walk through list to get to the end. Yes I know this is inefficient */
 	/* but is anyone really going to plot so many labels that it matters?  */
 	if(!tl)
-		GpGg.IntError(GpC, NO_CARET, "GpTextLabel list was not initialized");
+		GpGg.IntErrorNoCaret("GpTextLabel list was not initialized");
 	while(tl->next)
 		tl = tl->next;
 	/* Allocate a new label structure and fill it in */
@@ -1606,7 +1606,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 		// Forgive trailing comma on a multi-element plot command
 		if(rC.EndOfCommand()) {
 			if(plot_num == 0)
-				IntError(rC, rC.CToken, "function to plot expected");
+				IntErrorCurToken("function to plot expected");
 			break;
 		}
 		p_plot = NULL;
@@ -1649,7 +1649,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 			} while(rC.CToken != previous_token);
 			newhist_pattern = fs.fillpattern;
 			if(!rC.Eq(","))
-				IntError(rC, rC.CToken, "syntax error");
+				IntErrorCurToken("syntax error");
 		}
 		else if(rC.IsDefinition()) {
 			rC.Define();
@@ -1691,7 +1691,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 			rC.P_DummyFunc = NULL;
 			if(name_str) { /* data file to plot */
 				if(IsParametric && InParametric)
-					IntError(rC, rC.CToken, "previous parametric function not fully specified");
+					IntErrorCurToken("previous parametric function not fully specified");
 				if(sample_range_token !=0 && *name_str != '+')
 					int_warn(sample_range_token, "Ignoring sample range in non-sampled data plot");
 				if(*tp_ptr)
@@ -1766,7 +1766,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 					if(rC.Eq("binrange")) {
 						rC.CToken++;
 						if(!ParseRange(SAMPLE_AXIS, rC))
-							IntError(rC, rC.CToken, "incomplete bin range");
+							IntErrorCurToken("incomplete bin range");
 						binlow  = AxA[SAMPLE_AXIS].Range.low;
 						binhigh = AxA[SAMPLE_AXIS].Range.upp;
 					}
@@ -1807,7 +1807,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 						    break;
 						case SMOOTH_NONE:
 						default:
-						    IntError(rC, rC.CToken, "unrecognized 'smooth' option");
+						    IntErrorCurToken("unrecognized 'smooth' option");
 						    break;
 					}
 					set_smooth = true;
@@ -1820,7 +1820,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 						break;
 					}
 					if(IsParametric && InParametric)
-						IntError(rC, rC.CToken, "previous parametric function not fully specified");
+						IntErrorCurToken("previous parametric function not fully specified");
 					rC.CToken++;
 					switch(rC.LookupTable(&plot_axes_tbl[0], rC.CToken)) {
 						case AXES_X1Y1:
@@ -1845,7 +1845,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 						    break;
 						case AXES_NONE:
 						default:
-						    IntError(rC, rC.CToken, "axes must be x1y1, x1y2, x2y1 or x2y2");
+						    IntErrorCurToken("axes must be x1y1, x1y2, x2y1 or x2y2");
 						    break;
 					}
 					set_axes = true;
@@ -1868,7 +1868,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 						break;
 					}
 					if(IsParametric && InParametric)
-						IntError(rC, rC.CToken, "\"with\" allowed only after parametric function fully specified");
+						IntErrorCurToken("\"with\" allowed only after parametric function fully specified");
 					p_plot->plot_style = get_style(rC);
 					if(p_plot->plot_style == FILLEDCURVES) {
 						// read a possible option for 'with filledcurves'
@@ -1876,7 +1876,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 					}
 					if(oneof3(p_plot->plot_style, IMAGE, RGBIMAGE, RGBA_IMAGE)) {
 						if(p_plot->plot_type == FUNC)
-							IntError(rC, rC.CToken, "This plot style is only for data files");
+							IntErrorCurToken("This plot style is only for data files");
 						else
 							get_image_options(&p_plot->image_properties);
 					}
@@ -1887,7 +1887,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 					}
 					if(p_plot->plot_style == TABLESTYLE) {
 						if(!table_mode)
-							IntError(rC, rC.CToken, "'with table' requires a previous 'set table'");
+							IntErrorCurToken("'with table' requires a previous 'set table'");
 					}
 
 					/* Parallel plots require allocating additional storage.		*/
@@ -1896,7 +1896,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 					if(p_plot->plot_style == PARALLELPLOT) {
 						int i;
 						if(GpDf.df_no_use_specs < 2)
-							GpGg.IntError(GpC, NO_CARET, "not enough 'using' columns");
+							GpGg.IntErrorNoCaret("not enough 'using' columns");
 						p_plot->n_par_axes = GpDf.df_no_use_specs;
 						p_plot->z_n = (double **)malloc((GpDf.df_no_use_specs) * sizeof(double*));
 						for(i = 0; i < p_plot->n_par_axes; i++)
@@ -1959,7 +1959,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 							p_plot->ellipseaxes_units = ELLIPSEAXES_YY;
 						}
 						else {
-							IntError(rC, rC.CToken, "expecting 'xy', 'xx' or 'yy'");
+							IntErrorCurToken("expecting 'xy', 'xx' or 'yy'");
 						}
 						rC.CToken++;
 					}
@@ -2057,7 +2057,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 				break; /* unknown option */
 			}
 			if(duplication)
-				IntError(rC, rC.CToken, "duplicated or contradicting arguments in plot options");
+				IntErrorCurToken("duplicated or contradicting arguments in plot options");
 			// set default values for title if this has not been specified
 			p_plot->title_is_filename = false;
 			if(!set_title) {
@@ -2127,7 +2127,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 					case YERRORLINES:
 					    break;
 					default:
-					    GpGg.IntError(GpC, NO_CARET, "This plot style is not available in polar mode");
+					    GpGg.IntErrorNoCaret("This plot style is not available in polar mode");
 				}
 
 			/* If we got this far without initializing the fill style, do it now */
@@ -2186,9 +2186,9 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 			// Initialize histogram data structure
 			if(p_plot->plot_style == HISTOGRAMS) {
 				if(GetX().Flags & GpAxis::fLog)
-					IntError(rC, rC.CToken, "Log scale on X is incompatible with histogram plots\n");
+					IntErrorCurToken("Log scale on X is incompatible with histogram plots\n");
 				if(oneof2(histogram_opts.type, HT_STACKED_IN_LAYERS, HT_STACKED_IN_TOWERS) && GetY().Flags & GpAxis::fLog)
-					IntError(rC, rC.CToken, "Log scale on Y is incompatible with stacked histogram plot\n");
+					IntErrorCurToken("Log scale on Y is incompatible with stacked histogram plot\n");
 				p_plot->histogram_sequence = ++histogram_sequence;
 				// Current histogram always goes at the front of the list
 				if(p_plot->histogram_sequence == 0) {
@@ -2227,11 +2227,11 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 				}
 				if(GetX().datatype == DT_TIMEDATE) {
 					if(specs < 2)
-						IntError(rC, rC.CToken, "Need full using spec for x time data");
+						IntErrorCurToken("Need full using spec for x time data");
 				}
 				if(GetY().datatype == DT_TIMEDATE) {
 					if(specs < 1)
-						IntError(rC, rC.CToken, "Need using spec for y time data");
+						IntErrorCurToken("Need using spec for y time data");
 				}
 				// need other cols, but I'm lazy
 				GpDf.df_axis[0] = XAxis;
@@ -2392,7 +2392,7 @@ SKIPPED_EMPTY_FILE:
 			highest_iteration = rC.P.P_PlotIterator->iteration_current;
 		}
 		else if(forever_iteration(rC.P.P_PlotIterator) && (p_plot->plot_type == FUNC)) {
-			GpGg.IntError(GpC, NO_CARET, "unbounded iteration in function plot");
+			GpGg.IntErrorNoCaret("unbounded iteration in function plot");
 		}
 		else if(next_iteration(rC.P.P_PlotIterator)) {
 			rC.CToken = start_token;
@@ -2408,7 +2408,7 @@ SKIPPED_EMPTY_FILE:
 			break;
 	}
 	if(IsParametric && InParametric)
-		GpGg.IntError(GpC, NO_CARET, "parametric function not fully specified");
+		GpGg.IntErrorNoCaret("parametric function not fully specified");
 
 /*** Second Pass: Evaluate the functions ***/
 	/*
@@ -2723,19 +2723,19 @@ come_here_if_undefined:
 	// happen if you type "plot x=5", since x=5 is a variable assignment.
 	//
 	if(!plot_num || !P_FirstPlot) {
-		IntError(rC, rC.CToken, "no functions or data to plot");
+		IntErrorCurToken("no functions or data to plot");
 	}
 	if(!uses_axis[FIRST_X_AXIS] && !uses_axis[SECOND_X_AXIS])
 		if(P_FirstPlot->plot_type == NODATA)
-			GpGg.IntError(GpC, NO_CARET, "No data in plot");
+			GpGg.IntErrorNoCaret("No data in plot");
 	if(uses_axis[FIRST_X_AXIS]) {
 		if(AxA[FIRST_X_AXIS].IsRangeUndef())
-			GpGg.IntError(GpC, NO_CARET, "all points undefined!");
+			GpGg.IntErrorNoCaret("all points undefined!");
 		RevertAndUnlogRange(FIRST_X_AXIS);
 	}
 	if(uses_axis[SECOND_X_AXIS]) {
 		if(AxA[SECOND_X_AXIS].IsRangeUndef())
-			GpGg.IntError(GpC, NO_CARET, "all points undefined!");
+			GpGg.IntErrorNoCaret("all points undefined!");
 		RevertAndUnlogRange(SECOND_X_AXIS);
 	}
 	else {
@@ -2935,7 +2935,7 @@ void GpGadgets::ParsePlotTitle(GpCommand & rC, CurvePoints * pPlot, char * pXTit
 	legend_key * key = &keyT;
 	if(rC.AlmostEq("t$itle") || rC.AlmostEq("not$itle")) {
 		if(*pSetTitle)
-			IntError(rC, rC.CToken, "duplicate title");
+			IntErrorCurToken("duplicate title");
 		*pSetTitle = true;
 		/* title can be enhanced if not explicitly disabled */
 		pPlot->title_no_enhanced = !key->enhanced;
@@ -2943,7 +2943,7 @@ void GpGadgets::ParsePlotTitle(GpCommand & rC, CurvePoints * pPlot, char * pXTit
 			pPlot->title_is_suppressed = true;
 		if(IsParametric || pPlot->title_is_suppressed) {
 			if(InParametric)
-				IntError(rC, rC.CToken, "title allowed only after parametric function fully specified");
+				IntErrorCurToken("title allowed only after parametric function fully specified");
 			ASSIGN_PTR(pXTitle, 0);  /* Remove default title . */
 			ASSIGN_PTR(pYTitle, 0);  /* Remove default title . */
 			if(rC.Eq(","))
@@ -2962,7 +2962,7 @@ void GpGadgets::ParsePlotTitle(GpCommand & rC, CurvePoints * pPlot, char * pXTit
 			char * temp = rC.TryToGetString();
 			GpDf.evaluate_inside_using = false;
 			if(!pPlot->title_is_suppressed && !(pPlot->title = temp))
-				IntError(rC, rC.CToken, "expecting \"title\" for plot");
+				IntErrorCurToken("expecting \"title\" for plot");
 		}
 		if(rC.Eq("at")) {
 			int save_token = ++rC.CToken;
@@ -2981,7 +2981,7 @@ void GpGadgets::ParsePlotTitle(GpCommand & rC, CurvePoints * pPlot, char * pXTit
 				GetPositionDefault(rC, pPlot->title_position, screen, 2);
 			}
 			if(save_token == rC.CToken)
-				IntError(rC, rC.CToken, "expecting \"at {beginning|end|<xpos>,<ypos>}\"");
+				IntErrorCurToken("expecting \"at {beginning|end|<xpos>,<ypos>}\"");
 		}
 	}
 	if(rC.AlmostEq("enh$anced")) {

@@ -1,5 +1,5 @@
 // V_PRCFRE.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -977,7 +977,7 @@ int SLAPI PPViewPrcBusy::UpdateTimeBrowser(int destroy)
 		title_buf = prc_rec.Name;
 	}
 	else
-		title_buf.ToOem();
+		title_buf.Transf(CTRANSF_OUTER_TO_INNER);
 	return PPView::UpdateTimeBrowser(&Grid, title_buf, destroy);
 }
 
@@ -1014,7 +1014,7 @@ int SLAPI PPViewPrcBusy::TimeChunkBrowser()
 	p.PixQuant = 20;
 	p.PixRow = 20;
 	p.PixRowMargin = 5;
-	p.HdrLevelHeight = 20; // @v7.0.4 16-->20
+	p.HdrLevelHeight = 20;
 	p.DefBounds.Set(Filt.Period.Start.d, plusdate(Filt.Period.Finish.d, 30));
 	if(p_brw->RestoreParameters(saved_params) > 0) {
 		p.PixQuant = saved_params.PixQuant;
@@ -1063,7 +1063,7 @@ int SLAPI PPViewPrcBusy::TimeChunkBrowser()
 				(title_buf = prc_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
 			}
 		}
-		p_brw->setTitle(title_buf.ToOem());
+		p_brw->setTitle(title_buf.Transf(CTRANSF_OUTER_TO_INNER));
 	}
 	InsertView(p_brw);
 	return 1;

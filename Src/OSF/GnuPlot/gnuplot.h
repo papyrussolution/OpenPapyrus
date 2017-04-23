@@ -254,7 +254,7 @@ struct GpEvent;
 //
 // This is the maximum number of arguments in a user-defined function.
 // Note: This could be increased further, but in this case it would be good to
-// make  GpC.P.CDummyVar[][] and GpC.P.SetDummyVar[][] into pointer arrays rather than
+// make  GpGg.Gp__C.P.CDummyVar[][] and GpGg.Gp__C.P.SetDummyVar[][] into pointer arrays rather than
 // fixed-size storage for long variable name strings that will never be used.
 //
 #define MAX_NUM_VAR	12
@@ -358,7 +358,7 @@ extern const  char * current_prompt; // needed by is_error() and friends
 void   parse_esc(char *);
 //int    type_udv(int);
 char * gp_stradd(const char *, const char *);
-//#define isstringvalue(_tok) (GpC.IsString(_tok) || GpC.TypeDdv(_tok)==STRING)
+//#define isstringvalue(_tok) (GpGg.Gp__C.IsString(_tok) || GpGg.Gp__C.TypeDdv(_tok)==STRING)
 // HBB 20010726: IMHO this one belongs into alloc.c: 
 char * gp_strdup(const char *);
 // HBB 20020405: moved this here, from axis.[ch] 
@@ -368,15 +368,15 @@ void   gprintf(char * pBuffer, size_t bufLen, const char * pFmt, double, double)
 #if defined(__GNUC__)
 	void os_error(int, const char *, ...)) __attribute__((noreturn);
 	//void int_error(int, const char *, ...)) __attribute__((noreturn);
-	void common_error_exit() __attribute__((noreturn);
+	//void common_error_exit() __attribute__((noreturn);
 #elif defined(_MSC_VER)
 	__declspec(noreturn) void os_error(int, const char *, ...);
 	//__declspec(noreturn) void int_error(int, const char *, ...);
-	__declspec(noreturn) void common_error_exit();
+	//__declspec(noreturn) void common_error_exit();
 #else
 	void os_error(int, const char *, ...);
 	//void int_error(int, const char *, ...);
-	void common_error_exit();
+	//void common_error_exit();
 #endif
 void int_warn(int, const char *, ...);
 // To disallow 8-bit characters in variable names, set this to
@@ -1295,7 +1295,7 @@ public:
 	int    FitDummyVar[MAX_NUM_VAR]; // Dummy variables referenced by name in a fit command
 		// Sep 2014 (DEBUG) used to deduce how many independent variables
 	// the currently used 'dummy' variables. Usually a copy of
-	// GpC.P.SetDummyVar, but may be changed by the '(s)plot' command
+	// GpGg.Gp__C.P.SetDummyVar, but may be changed by the '(s)plot' command
 	// containing an explicit range (--> 'plot [phi=0..pi]')
 	char   CDummyVar[MAX_NUM_VAR][MAX_ID_LEN+1];
 	int    AtHighestColumnUsed; // This is used by plot_option_using()
@@ -1481,7 +1481,7 @@ public:
 	int    IsLetter(int t_num) const;
 	int    IsANumber(int t_num) const;
 	int    TypeDdv(int t_num);
-	//#define isstringvalue(_tok) (GpC.IsString(_tok) || GpC.TypeDdv(_tok)==STRING)
+	//#define isstringvalue(_tok) (GpGg.Gp__C.IsString(_tok) || GpGg.Gp__C.TypeDdv(_tok)==STRING)
 	int    IsStringValue(int t_num)
 	{
 		return (IsString(t_num) || TypeDdv(t_num) == STRING);
@@ -1531,7 +1531,7 @@ public:
 		}
 	}
 	//
-	// GpC.Eq() compares string value of token number t_num with str[], and returns true if they are identical.
+	// GpGg.Gp__C.Eq() compares string value of token number t_num with str[], and returns true if they are identical.
 	//
 	int    Eq(const char * str) const;
 	int    Eq(int t_num, const char * str) const;
@@ -1611,7 +1611,7 @@ public:
 	GpHistory H;
 };
 
-extern GpCommand GpC;
+//extern GpCommand GpGg.Gp__C;
 
 #ifdef USE_MOUSE
 	extern int paused_for_mouse;	/* Flag the end condition we are paused until */
@@ -2099,9 +2099,36 @@ enum t_imagecolor {
 // Values of  r, g and b  are all in range [0;1]
 //
 struct rgb_color {
-	double r;
-	double g;
-	double b;
+	rgb_color & Set(double _r, double _g, double _b)
+	{
+		R = _r;
+		G = _g;
+		B = _b;
+		return *this;
+	}
+	rgb_color & SetGray(double _v)
+	{
+		R = _v;
+		G = _v;
+		B = _v;
+		return *this;
+	}
+	int    IsEqual(const rgb_color & rS) const
+	{
+		return BIN(R == rS.R && G == rS.G && B == rS.B);
+	}
+	rgb_color & Constrain()
+	{
+		RealRange c;
+		c.Set(0.0, 1.0);
+		R = c.Clip(R);
+		G = c.Clip(G);
+		B = c.Clip(B);
+		return *this;
+	}
+	double R;
+	double G;
+	double B;
 };
 //
 // Contains a colour in RGB scheme.
@@ -2154,7 +2181,7 @@ struct t_sm_palette {
 	/* Only this number of colour positions will be used even though
 	 * there are some more available in the discrete palette of the
 	 * terminal.  Useful for multiplot.  Max. number of colours is taken
-	 * if this value GpC.Eq 0.  Unused by: PostScript */
+	 * if this value GpGg.Gp__C.Eq 0.  Unused by: PostScript */
 	int    use_maxcolors;
 	/* Number of colours used for the discrete palette. Equals to the
 	 * result from term->make_palette(NULL), or restricted by
@@ -2868,18 +2895,7 @@ struct ft_entry {
 
 class GpEval {
 public:
-	GpEval()
-	{
-		first_udv = &udv_pi;
-		first_udf = NULL;
-		udv_pi.Init(0, "pi", INTGR);
-		udv_NaN = 0;
-		udv_user_head= 0;
-		undefined = false;
-		memzero(Stack, sizeof(Stack));
-		Sp = -1;
-		JumpOffset = 0;
-	}
+	GpEval(GpGadgets & rGg);
 	void   ClearUdfList();
 	int    IsBuiltinFunction(GpCommand & rC, int t_num) const;
 	UdvtEntry * AddUdvByName(const char * key);
@@ -3045,7 +3061,6 @@ public:
 		void f_voigt(GpArgument *z);
 		void f_erfi(GpArgument *z);
 	#endif
-
 	//
 	//
 	//
@@ -3055,14 +3070,14 @@ public:
 	UdvtEntry udv_pi; /* 'pi' variable */
 	UdvtEntry *udv_NaN; /* 'NaN' variable */
 	UdvtEntry **udv_user_head; /* first udv that can be deleted */
-	bool undefined;
-
+	bool   undefined;
 	t_value Stack[STACK_DEPTH]; //
 	int    Sp;                  // (s_p) stack pointer 
 	int    JumpOffset;          // (jump_offset) to be modified by 'jump' operators 
 private:
 	void   UpdatePlotBounds();
 	double AngToRad; // copy of GpGadgets::Ang2Rad Инициализируется в ExecuteAt перед вызовом функций
+	GpGadgets & R_Gg;
 };
 
 double gp_exp(double x);
@@ -5604,8 +5619,10 @@ public:
 		DefaultFillStyle(FS_EMPTY, 100, 0, t_colorspec(TC_DEFAULT, 0, 0.0)),
 		DefaultRectangle(t_object::defRectangle),
 		DefaultCircle(t_object::defCircle),
-		DefaultEllipse(t_object::defEllipse)
+		DefaultEllipse(t_object::defEllipse),
+		Ev(*this)
 	{
+		State_ = 0;
 		P_Clip = &PlotBounds;
 		XSz = 1.0f;              // scale factor for size 
 		YSz = 1.0f;              // scale factor for size 
@@ -5711,8 +5728,18 @@ public:
 	// Descr: Головная процедура. Вызывается из main()
 	//
 	int    Run(int argc, char ** argv);
+
+#if defined(__GNUC__)
+	void   CommonErrorExit() __attribute__((noreturn);
+#elif defined(_MSC_VER)
+	__declspec(noreturn) void CommonErrorExit();
+#else
+	void   CommonErrorExit();
+#endif
 	//
-	void   IntError(GpCommand & rC, int t_num, const char * pStr, ...);
+	void   IntError(int t_num, const char * pStr, ...);
+	void   IntErrorCurToken(const char * pStr, ...);
+	void   IntErrorNoCaret(const char * pStr, ...);
 
 	void   InitSession(GpCommand & rC);
 	void   InitConstants();
@@ -5813,6 +5840,7 @@ public:
 	void   ZoomRescaleXYX2Y2(GpTermEntry * pT, double a0, double a1, double a2, double a3, double a4, double a5, double a6,
 		double a7, double a8, double a9, double a10, double a11, double a12, double a13, double a14, double a15, char msg[]);
 	void   ZoomInX(GpTermEntry * pT, int zoom_key);
+	void   LoadMouseVariables(double x, double y, bool button, int c);
 	void   GetViewPortX(RealRange & rVpR)
 	{
 		const GpAxis & r_ax = GetX();
@@ -5890,7 +5918,7 @@ public:
 	void   Eval3DPlots(GpCommand & rC);
 	void   MultiplotStart(GpTermEntry * pT, GpCommand & rC);
 	void   MultiplotEnd();
-	void   DoEvent(GpTermEntry * pT, GpCommand & rC, GpEvent * pGe);
+	void   DoEvent(GpTermEntry * pT, GpEvent * pGe);
 	void   DoPlot(CurvePoints * plots, int pcount);
 	void   DoSave3DPlot(GpCommand & rC, SurfacePoints * plots, int pcount, int quick);
 	void   DoStringReplot(GpCommand & rC, const char * pStr);
@@ -5984,6 +6012,11 @@ public:
 	int    InterpolateColorFromGray(double gray, rgb_color * pColor);
 	void   ColorComponentsFromGray(double gray, rgb_color * pColor);
 	int    CalculateColorFromFormulae(double gray, rgb_color * pColor);
+	void   CalculateSetOfIsolines(AXIS_INDEX value_axis,
+		bool cross, iso_curve ** this_iso, AXIS_INDEX iso_axis,
+		double iso_min, double iso_step, int num_iso_to_use, AXIS_INDEX sam_axis,
+		double sam_min, double sam_step, int num_sam_to_use);
+	gnuplot_contours * Contour(int numIsoLines, iso_curve * pIsoLines);
 	void   IFilledQuadrangle(GpTermEntry * pT, gpiPoint * pICorners);
 #ifdef EXTENDED_COLOR_SPECS
 	void   FilledQuadrangle(GpTermEntry * pT, gpdPoint * corners, gpiPoint * icorners);
@@ -6073,6 +6106,7 @@ public:
 	void SetArrow(GpCommand & rC);
 	void SetAngles(GpCommand & rC);
 	void SetFit(GpCommand & rC, GpFit & rF);
+	void SetRange(GpCommand & rC, GpAxis * pAx);
 
 	void UnsetFillStyle()
 	{
@@ -6161,6 +6195,7 @@ public:
 	void UnsetHistogram();
 	void UnsetFit();
 	void UnsetTerminal();
+	void UnsetJitter();
 	void ResetKey();
 	void ResetLogScale(GpAxis * pAx);
 
@@ -6251,7 +6286,7 @@ public:
 		else {
 			const int tag = rC.IntExpression();
 			if(!rC.EndOfCommand())
-				IntError(rC, rC.CToken, "extraneous arguments to unset rectangle");
+				IntErrorCurToken("extraneous arguments to unset rectangle");
 			for(t_object * p_obj = first_object, * p_prev_obj = NULL; p_obj; p_prev_obj = p_obj, p_obj = p_obj->next) {
 				if(p_obj->tag == tag) {
 					DeleteObject(p_prev_obj, p_obj);
@@ -6355,6 +6390,8 @@ public:
 	void   ShowSamples();
 	void   ShowAngles();
 	void   ShowIsoSamples();
+	void   ShowContour();
+	void   ShowJitter();
 	void   ShowAll(GpCommand & rC);
 	void   PrintFileAndLine(GpCommand & rC);
 
@@ -6366,6 +6403,7 @@ public:
 	void   SaveVariables(GpCommand & rC, FILE * fp);
 	void   SaveSet(GpCommand & rC, FILE * fp);
 	void   SaveBars(FILE * fp);
+	void   SaveJitter(FILE * fp);
 	void   SaveAll(GpCommand & rC, FILE * fp);
 	void   SaveCommand(GpCommand & rC);
 	void   ClearCommand(GpCommand & rC);
@@ -6449,6 +6487,39 @@ public:
 	t_sm_palette SmPalette; // initialized in plot.c on program entry
 	legend_key keyT; // = DEFAULT_KEY_PROPS;
 
+	enum {
+		stIsPolar                   = 0x00000001,
+		stClipLines1                = 0x00000002,
+		stClipLines2                = 0x00000004,
+		stClipPoints                = 0x00000008,
+		stIsParametric              = 0x00000010,
+		stInParametric              = 0x00000020,
+		stIs3DPlot                  = 0x00000040, // If last plot was a 3d one
+		stIsVolatileData            = 0x00000080,
+		stIsMonochrome              = 0x00000100,
+		stIsMultiPlot               = 0x00000200, // multiplot;
+		stScreen_ok                 = 0x00000400, // true if command just typed; becomes false whenever we send some other output to screen.  
+			// If false, the command line will be echoed to the screen before the ^ error message.
+		stIsInteractive             = 0x00000800, // false if stdin not a terminal 
+		stNoinputfiles              = 0x00001000, // false if there are script files 
+		stPersist_cl                = 0x00002000, // true if -persist is parsed in the command line 
+		stReading_from_dash         = 0x00004000, // True if processing "-" as an input file 
+		stSkip_gnuplotrc            = 0x00008000, // skip system gnuplotrc and ~/.gnuplot 
+		stCtrlc_flag                = 0x00010000, // Flag for asynchronous handling of Ctrl-C. Used by fit.c and Windows 
+		stPrefer_line_styles        = 0x00020000, // Prefer line styles over plain line types
+		stCallFromRexx              = 0x00040000, // OS2 only
+		stBoxwidth_is_absolute      = 0x00080000, // whether box width is absolute (default) or relative
+		stBoxPlotFactorSortRequired = 0x00100000, // used by compare_ypoints via q_sort from filter_boxplot
+		stDgrid3d                   = 0x00200000,
+		stDgrid3d_kdensity          = 0x00400000,
+		stTerm_initialised          = 0x00800000, // mouse module needs this 
+		stTerm_graphics             = 0x01000000, // true if terminal is in graphics mode
+		stTerm_suspended            = 0x02000000, // we have suspended the driver, in multiplot mode 
+		stOpened_binary             = 0x04000000, // true if? 
+		stTerm_force_init           = 0x08000000, // true if require terminal to be initialized 
+	};
+	long   State_;
+
 	bool   IsPolar;
 	bool   ClipLines1;
 	bool   ClipLines2;
@@ -6470,6 +6541,16 @@ public:
 	bool   ctrlc_flag;         // Flag for asynchronous handling of Ctrl-C. Used by fit.c and Windows 
 	bool   prefer_line_styles; // Prefer line styles over plain line types
 	bool   CallFromRexx;       // OS2 only
+	bool   boxwidth_is_absolute; // whether box width is absolute (default) or relative
+	bool   BoxPlotFactorSortRequired; // used by compare_ypoints via q_sort from filter_boxplot
+	bool   dgrid3d;
+	bool   dgrid3d_kdensity;
+	bool   term_initialised; // mouse module needs this 
+	bool   term_graphics;   // true if terminal is in graphics mode
+	bool   term_suspended;  // we have suspended the driver, in multiplot mode 
+	bool   opened_binary;   // true if? 
+	bool   term_force_init; // true if require terminal to be initialized 
+
 	const  char * user_shell; // user shell 
 	//
 	//
@@ -6477,7 +6558,6 @@ public:
 	CurvePoints * P_FirstPlot;
 	UdftEntry plot_func;
 	double boxwidth; // box width (automatic)
-	bool   boxwidth_is_absolute; // whether box width is absolute (default) or relative
 	double histogram_rightmost;    // Highest x-coord of histogram so far 
 	GpTextLabel histogram_title;          // Subtitle for this histogram 
 	int    StackCount;                 // counter for stackheight 
@@ -6491,7 +6571,6 @@ public:
 	// Status information for stacked histogram plots
 	GpCoordinate * P_PrevRowStackHeight;    // top of previous row
 	int    PrevRowStackCount; // points actually used
-	bool   BoxPlotFactorSortRequired; // used by compare_ypoints via q_sort from filter_boxplot
 	//
 	t_data_mapping mapping3d;
 	int    dgrid3d_row_fineness;
@@ -6500,13 +6579,12 @@ public:
 	int    dgrid3d_mode;
 	double dgrid3d_x_scale;
 	double dgrid3d_y_scale;
-	bool   dgrid3d;
-	bool   dgrid3d_kdensity;
 	//
 	// the curves/surfaces of the plot
 	SurfacePoints * P_First3DPlot;
 	UdftEntry plot3D_func;
 	int    plot3d_num;
+	GpCommand Gp__C;
 	MpLayout MpL; // = MP_LAYOUT_DEFAULT;
 	GpMouse  Mse;
 	GpEval   Ev;
@@ -6516,16 +6594,41 @@ public:
 	pm3d_struct Pm3D; // pm3d;
 	lighting_model Pm3DShade; // pm3d_shade;
 	//
-	bool   term_initialised; // mouse module needs this 
-	bool   term_graphics;   // true if terminal is in graphics mode
-	bool   term_suspended;  // we have suspended the driver, in multiplot mode 
-	bool   opened_binary;   // true if? 
-	bool   term_force_init; // true if require terminal to be initialized 
 	double term_pointsize;  // internal pointsize for do_point 
 private:
 	void   CheckTransform(GpCommand & rC, int & rTransformDefined);
 	bool   GridMatch(GpCommand & rC, int axIdx, const char * pString);
+	void   Plot3dVectors(GpTermEntry * pT, SurfacePoints * pPlot);
+	void   KeySamplePoint(GpTermEntry * pT, int xl, int yl, int pointtype);
+	void   KeySampleLine(GpTermEntry * pT, int xl, int yl);
+	void   Do3DkeyLayout(GpTermEntry * pT, legend_key * pKey, int * pXinkey, int * pYinkey);
+
 	GpVertex PolyLine3DPreviousVertex; // Previous points 3D position 
+	//
+	void   JitterPoints(CurvePoints * pPlot);
+	//
+	// JITTER
+	//
+	enum jitterstyle {
+		JITTER_DEFAULT = 0,
+		JITTER_SWARM,
+		JITTER_SQUARE
+	};
+	struct t_jitter {
+		t_jitter()
+		{
+			overlap.Set(first_axes, first_axes, first_axes, 0.0, 0.0, 0.0);
+			spread = 0.0;
+			limit = 0.0;
+			style = JITTER_DEFAULT;
+		}
+		GpPosition overlap;
+		double spread;
+		double limit;
+		enum jitterstyle style;
+	};
+
+	t_jitter jitter;
 };
 
 /* store VALUE or log(VALUE) in STORE, set TYPE as appropriate
@@ -7300,28 +7403,6 @@ struct LFS {
 #define PT_ARROWHEAD -10
 #define PT_BACKARROW -11
 //
-// JITTER.H
-//
-enum jitterstyle {
-    JITTER_DEFAULT = 0,
-    JITTER_SWARM,
-    JITTER_SQUARE
-};
-
-struct t_jitter {
-	t_jitter()
-	{
-		overlap.Set(first_axes, first_axes, first_axes, 0.0, 0.0, 0.0);
-		spread = 0.0;
-		limit = 0.0;
-		style = JITTER_DEFAULT;
-	}
-    GpPosition overlap;
-    double spread;
-    double limit;
-    enum jitterstyle style;
-};
-//
 // HELP.H
 //
 //
@@ -7481,7 +7562,7 @@ extern UdvtEntry * table_var;
 extern bool table_mode;
 extern int  enable_reset_palette;
 extern bool disable_mouse_z;
-extern t_jitter jitter;
+//extern t_jitter jitter;
 //
 // Standalone functions
 //
@@ -7570,7 +7651,7 @@ void   mat_rot_x(double teta, double mat[4][4]);
 void   mat_rot_z(double teta, double mat[4][4]);
 void   mat_mult(double mat_res[4][4], double mat1[4][4], double mat2[4][4]);
 
-gnuplot_contours * contour(int num_isolines, iso_curve *iso_lines);
+//gnuplot_contours * contour(int num_isolines, iso_curve *iso_lines);
 int    solve_tri_diag(tri_diag m[], double r[], double x[], int n);
 
 // main gray --> rgb color mapping 
@@ -7642,10 +7723,10 @@ long   parse_color_name();
 void   get_image_options(t_image *image);
 void   print_table(CurvePoints * pFirstPlot, int plot_num);
 void   print_3dtable(int pcount);
-void   jitter_points(CurvePoints *plot);
-void   show_jitter();
-void   unset_jitter();
-void   save_jitter(FILE *);
+//void   jitter_points(CurvePoints *plot);
+//void   show_jitter();
+//void   unset_jitter();
+//void   save_jitter(FILE *);
 void   show_hidden3doptions();
 void   reset_hidden3doptions();
 void   save_hidden3doptions(FILE *fp);

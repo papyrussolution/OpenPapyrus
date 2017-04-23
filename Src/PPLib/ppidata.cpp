@@ -4,7 +4,7 @@
 #include <pp.h>
 #pragma hdrstop
 // @v9.6.2 (moved to pp.h) #include <ppidata.h>
-#include <idea.h>
+// @v9.6.3 #include <idea.h>
 
 #define PPDWNLDATA_MAXTAGVALSIZE   256
 #define PPDWNLDATA_MAXTAGSIZE      64
@@ -283,7 +283,7 @@ int WinInetFTP::Init(PPInetConnConfig * pCfg)
 	long   conn_timeout    = 3 * 60 * 1000; // 3 min
 	SString proxy_buf;
 	const  char * p_proxy_name = 0;
-	THROW_PP(pCfg, PPERR_INVPARAM);
+	THROW_INVARG(pCfg);
 	UnInit();
 	IConnCfg = *pCfg;
 	if(IConnCfg.AccessType == PPINETCONN_DIRECT)
@@ -341,7 +341,7 @@ int WinInetFTP::Connect(PPInternetAccount * pAccount)
 	SString url_buf, user;
 	SString host, temp_buf;
 	Disconnect();
-	THROW_PP(pAccount, PPERR_INVPARAM);
+	THROW_INVARG(pAccount);
 	Account = *pAccount;
 	Account.GetExtField(FTPAEXSTR_HOST, url_buf);
 	if(Account.GetExtField(FTPAEXSTR_PORT, temp_buf) > 0)
@@ -586,12 +586,12 @@ int WinInetFTP::SafeGetFileList(const char * pDir, StrAssocArray * pFileList, co
 
 int WinInetFTP::Get(const char * pLocalPath, const char * pFTPPath, int checkDtTm, PercentFunc pf)
 {
-	return pLocalPath && pFTPPath ? TransferFile(pLocalPath, pFTPPath, 0, checkDtTm, pf) : PPSetError(PPERR_INVPARAM);
+	return pLocalPath && pFTPPath ? TransferFile(pLocalPath, pFTPPath, 0, checkDtTm, pf) : PPSetErrorInvParam();
 }
 
 int WinInetFTP::Put(const char * pLocalPath, const char * pFTPPath, int checkDtTm, PercentFunc pf)
 {
-	return pLocalPath && pFTPPath ? TransferFile(pLocalPath, pFTPPath, 1, checkDtTm, pf) : PPSetError(PPERR_INVPARAM);
+	return pLocalPath && pFTPPath ? TransferFile(pLocalPath, pFTPPath, 1, checkDtTm, pf) : PPSetErrorInvParam();
 }
 
 int WinInetFTP::TransferFile(const char * pLocalPath, const char * pFTPPath, int send, int checkDtTm, PercentFunc pf)
@@ -850,7 +850,7 @@ int WinInetFTP::CD(const char * pDir, int isFullPath /*=1*/)
 {
 	int    ok = 1, r;
 	/*
-	THROW_PP(pDir, PPERR_INVPARAM);
+	THROW_INVARG(pDir);
 	char   drv[MAXDRIVE], dir[MAXDIR], fname[MAXFILE + MAXEXT], ext[MAXEXT];
 	fnsplit(pDir, drv, dir, fname, ext);
 	sdir = dir;

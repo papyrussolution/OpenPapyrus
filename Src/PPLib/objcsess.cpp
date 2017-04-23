@@ -1483,7 +1483,7 @@ int CTableOrder::Update(const Packet * pPack, int use_ta)
 	CCheckTbl::Rec cc_rec;
 	CCheckExtTbl::Rec ccext_rec;
 	THROW(HasRight(PPR_MOD));
-	THROW_PP(pPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1528,7 +1528,7 @@ int CTableOrder::MakeCCheckPacket(const Packet * pPack, CCheckPacket * pCcPack)
 	PPCashNode cn_rec;
 	CCheckPacket cc_pack;
 	assert(pPack && pCcPack);
-	THROW_PP(pPack && pCcPack, PPERR_INVPARAM);
+	THROW_INVARG(pPack && pCcPack);
 	THROW(P_CnObj->Search(pPack->PosNodeID, &cn_rec) > 0);
 	THROW_PP_S(cn_rec.CurSessID, PPERR_CSESSNOPENED, cn_rec.Name);
 	pCcPack->Init();

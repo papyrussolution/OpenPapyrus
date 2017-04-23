@@ -851,10 +851,8 @@ static int GGI_eventually_update_modifiers(const ggi_event* event, const int add
 		gp_ev.par1 = 0;
 		gp_ev.par2 = 0;
 		gp_ev.par1 = GGI_modifiers;
-
-		GpGg.DoEvent(term, GpC, &gp_ev);
+		GpGg.DoEvent(term, &gp_ev);
 	}
-
 	return 1;
 }
 
@@ -938,9 +936,9 @@ static int GGI_dispatch_event(const ggi_event* event)
 		    /* fprintf(stderr, "(GGI_dispatch_event) unhandled event\n"); */
 		    break;
 	}
-	GpGg.DoEvent(term, GpC, &gp_ev);
+	GpGg.DoEvent(term, &gp_ev);
 	gp_ev.type = GE_plotdone;
-	GpGg.DoEvent(term, GpC, &gp_ev);
+	GpGg.DoEvent(term, &gp_ev);
 	return 0;
 }
 
@@ -991,8 +989,7 @@ static void GGI_replot()
 		GE_replot,
 		0, 0, 0, 0
 	};
-
-	GpGg.DoEvent(term, GpC, &gp_ev);
+	GpGg.DoEvent(term, &gp_ev);
 }
 
 static void GGI_clear(const GGI_vertex_t* v, const int tag)

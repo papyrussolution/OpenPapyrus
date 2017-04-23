@@ -195,7 +195,7 @@ int SLAPI Predictor::Predict_(const EvalParam & rParam, double * pVal, PredictSa
 		inner_loc_list.Set(&temp_loc_list);
 	}
 	//
-	THROW_PP(rParam.Period.low && rParam.Period.upp, PPERR_INVPARAM);
+	THROW_INVARG(rParam.Period.low && rParam.Period.upp);
 	period = rParam.Period;
 	const PPID goods_id = rParam.GoodsID;
 	THROW(r = T.GetStat(goods_id, inner_loc_list, &pss));
