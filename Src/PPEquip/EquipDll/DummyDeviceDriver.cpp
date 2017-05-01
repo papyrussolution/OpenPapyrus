@@ -1,5 +1,5 @@
 // DummyDeviceDriver.cpp
-// Copyright (c) A.Sobolev 2013
+// Copyright (c) A.Sobolev 2013, 2017
 //
 #include <ppdrvapi.h>
 
@@ -27,7 +27,7 @@ int PPDrvDummy::ProcessCommand(const SString & rCmd, const char * pInputData, SS
 	DRVS.Log((msg_buf = "ProcessCommand executed").Space().CatQStr(rCmd), 0xffff);
 	if(rCmd == "OPEN") {
 		LTIME tm = getcurtime_();
-		delay(2000);
+		SDelay(2000);
 	}
 	else if(rCmd == "CLOSE") {
 	}

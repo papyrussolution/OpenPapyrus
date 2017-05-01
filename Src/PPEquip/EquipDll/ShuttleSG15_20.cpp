@@ -1,6 +1,5 @@
 // PRICECHKR.cpp
 //
-
 #include <ppdefs.h>
 #include <slib.h>
 #include <dl600.h>
@@ -727,9 +726,9 @@ int main()
 	price_chkr.ConcoleMessage(APPLREADY, "");
 	price_chkr.LogMessage(LOGINSUCCESS, "");
 	if(price_chkr.HideWindow() > 0) {
-		delay(500);
+		SDelay(500);
 		price_chkr.ConcoleMessage(HIDEWINDOW, "");
-		delay(2000);
+		SDelay(2000);
 		ShowWindow(GetConsoleWindow(), SW_HIDE);
 	}
 	while(cmd.CmpNC("quit") != 0) {
@@ -750,7 +749,7 @@ int main()
 	}
 	CATCH
 		ok = 0;
-		delay(2000);
+		SDelay(2000);
 	ENDCATCH;
 	return ok;
 
