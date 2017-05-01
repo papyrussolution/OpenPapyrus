@@ -1690,7 +1690,7 @@ int SLAPI PPObjTransport::GetNameByTemplate(PPTransport * pPack, const char * pT
 	PPSymbTranslator st;
 	for(const char * p = pTemplate; p && *p;)
 		if(*p == '@') {
-			uint   next = 1;
+			size_t next = 1;
 			long   sym  = st.Translate(p, &next);
 			temp_buf = 0;
 			switch(sym) {

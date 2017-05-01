@@ -7,19 +7,10 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/log.h"
-// @v9.5.5 #include "dbinc/fop.h"
 
 static int __db_pg_free_recover_int(ENV*, DB_THREAD_INFO*, __db_pg_freedata_args*, DB*, DB_LSN*, DB_MPOOLFILE*, db_recops, int);
 static int __db_pg_free_recover_42_int(ENV*, DB_THREAD_INFO*, __db_pg_freedata_42_args*, DB*, DB_LSN*, DB_MPOOLFILE*, db_recops, int);
-
 /*
  * PUBLIC: int __db_addrem_recover
  * PUBLIC:   (ENV *, DBT *, DB_LSN *, db_recops, void *);
@@ -1980,9 +1971,7 @@ int __db_merge_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 	CHECK_LSN(file_dbp->env, op, cmp_p, &LSN(pagep), &argp->lsn);
 	CHECK_ABORT(file_dbp->env, op, cmp_n, &LSN(pagep), lsnp);
 	if(cmp_p == 0 && DB_REDO(op)) {
-		/*
-		 * When pg_copy is set, we are copying onto a new page.
-		 */
+		// When pg_copy is set, we are copying onto a new page.
 		DB_ASSERT(env, !argp->pg_copy || NUM_ENT(pagep) == 0);
 		REC_DIRTY(mpf, ip, dbc->priority, &pagep);
 		if(argp->pg_copy) {
@@ -2000,11 +1989,10 @@ int __db_merge_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 			memcpy(bp, argp->data.data, argp->data.size);
 		}
 		else {
-			/* Copy the data segment. */
+			// Copy the data segment.
 			bp = (uint8 *)pagep+(db_indx_t)(HOFFSET(pagep)-argp->data.size);
 			memcpy(bp, argp->data.data, argp->data.size);
-
-			/* Copy index table offset past the current entries. */
+			// Copy index table offset past the current entries
 			pinp = P_INP(file_dbp, pagep)+NUM_ENT(pagep);
 			ninp = P_INP(file_dbp, argp->hdr.data);
 			for(i = 0; i < NUM_ENT(argp->hdr.data); i++)
@@ -2270,7 +2258,7 @@ out:
 }
 /*
  * __db_pglist_swap -- swap a list of freelist pages.
- * PUBLIC: void __db_pglist_swap __P((uint32, void *));
+ * PUBLIC: void __db_pglist_swap(uint32, void *);
  */
 void __db_pglist_swap(uint32 size, void * list)
 {

@@ -293,7 +293,7 @@ int SLAPI ACS_CRUKM::ExportData(int updOnly)
 		if(fileExists(path_goods))
 			for(int i = 0; i < 10; i++)
 				if(!SFile::Remove(path_goods))
-					delay(500);
+					SDelay(500);
 		//
 		// Creating (if needed) and opening table Cr_PosLoad
 		//

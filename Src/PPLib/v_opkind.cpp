@@ -677,7 +677,7 @@ int PPALDD_OprKindList::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_OprKindList::Destroy()
+void PPALDD_OprKindList::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(OprKind);
 }

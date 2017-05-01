@@ -594,7 +594,7 @@ void GpGadgets::ApplyZoom(GpTermEntry * pT, GpZoom * pZ)
 	}
 	else {
 		// Now we're committed. Notify the terminal the the next replot is a zoom
-		(*pT->layer)(TERM_LAYER_BEFORE_ZOOM);
+		pT->_Layer(TERM_LAYER_BEFORE_ZOOM);
 		sprintf(s, "set xr[%.12g:%.12g]; set yr[%.12g:%.12g]", zoom_now->xRange.low, zoom_now->xRange.upp, 
 			zoom_now->yRange.low, zoom_now->yRange.upp);
 		// EAM Apr 2013 - The tests on GPVL protect against trying to   
@@ -925,7 +925,7 @@ char * GpGadgets::BuiltInToggleLog(GpCommand & rC, GpEvent * ge)
 		return "`builtin-toggle-log` y logscale for plots, z and cb for splots";
 	else {
 		if(IsVolatileData)
-			int_warn(NO_CARET, "Cannot toggle log scale for volatile data");
+			IntWarn(NO_CARET, "Cannot toggle log scale for volatile data");
 		else if((ColorBox.bounds.xleft < GpGg.Mse.MP.x && GpGg.Mse.MP.x < ColorBox.bounds.xright) && 
 			(ColorBox.bounds.ybot < GpGg.Mse.MP.y && GpGg.Mse.MP.y < ColorBox.bounds.ytop))
 			DoStringReplot(rC, (GetCB().Flags & GpAxis::fLog) ? "unset log cb" : "set log cb");
@@ -1824,10 +1824,10 @@ void GpGadgets::EventButtonRelease(GpTermEntry * pT, GpEvent * pGe)
 							int dy = pT->VTic;
 							(pT->linewidth)(BorderLp.l_width);
 							(pT->linetype)(BorderLp.l_type);
-							(pT->move)(x - dx, y);
-							(pT->vector)(x + dx, y);
-							(pT->move)(x, y - dy);
-							(pT->vector)(x, y + dy);
+							pT->_Move(x - dx, y);
+							pT->_Vector(x + dx, y);
+							pT->_Move(x, y - dy);
+							pT->_Vector(x, y + dy);
 							(pT->justify_text)(LEFT);
 							(pT->put_text)(x + dx / 2, y + dy / 2 + pT->VChr / 3, s0);
 							(pT->text)();

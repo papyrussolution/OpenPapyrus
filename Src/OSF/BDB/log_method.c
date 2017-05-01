@@ -7,19 +7,10 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/log.h"
 /*
  * __log_env_create --
  *	Log specific initialization of the DB_ENV structure.
- *
- * PUBLIC: int __log_env_create(DB_ENV *);
  */
 int __log_env_create(DB_ENV * dbenv)
 {
@@ -36,16 +27,12 @@ int __log_env_create(DB_ENV * dbenv)
 /*
  * __log_env_destroy --
  *	Log specific destruction of the DB_ENV structure.
- *
- * PUBLIC: void __log_env_destroy(DB_ENV *);
  */
 void __log_env_destroy(DB_ENV * dbenv)
 {
 	COMPQUIET(dbenv, NULL);
 }
-/*
- * PUBLIC: int __log_get_lg_bsize(DB_ENV *, uint32 *);
- */
+
 int __log_get_lg_bsize(DB_ENV * dbenv, uint32 * lg_bsizep)
 {
 	ENV * env = dbenv->env;
@@ -61,8 +48,6 @@ int __log_get_lg_bsize(DB_ENV * dbenv, uint32 * lg_bsizep)
 /*
  * __log_set_lg_bsize --
  *	DB_ENV->set_lg_bsize.
- *
- * PUBLIC: int __log_set_lg_bsize(DB_ENV *, uint32);
  */
 int __log_set_lg_bsize(DB_ENV * dbenv, uint32 lg_bsize)
 {
@@ -71,9 +56,7 @@ int __log_set_lg_bsize(DB_ENV * dbenv, uint32 lg_bsize)
 	dbenv->lg_bsize = lg_bsize;
 	return 0;
 }
-/*
- * PUBLIC: int __log_get_lg_filemode __P((DB_ENV *, int *));
- */
+
 int __log_get_lg_filemode(DB_ENV * dbenv, int * lg_modep)
 {
 	DB_LOG * dblp;
@@ -95,8 +78,6 @@ int __log_get_lg_filemode(DB_ENV * dbenv, int * lg_modep)
 /*
  * __log_set_lg_filemode --
  *	DB_ENV->set_lg_filemode.
- *
- * PUBLIC: int __log_set_lg_filemode __P((DB_ENV *, int));
  */
 int __log_set_lg_filemode(DB_ENV * dbenv, int lg_mode)
 {
@@ -118,9 +99,7 @@ int __log_set_lg_filemode(DB_ENV * dbenv, int lg_mode)
 		dbenv->lg_filemode = lg_mode;
 	return 0;
 }
-/*
- * PUBLIC: int __log_get_lg_max(DB_ENV *, uint32 *);
- */
+
 int __log_get_lg_max(DB_ENV * dbenv, uint32 * lg_maxp)
 {
 	DB_LOG * dblp;
@@ -142,8 +121,6 @@ int __log_get_lg_max(DB_ENV * dbenv, uint32 * lg_maxp)
 /*
  * __log_set_lg_max --
  *	DB_ENV->set_lg_max.
- *
- * PUBLIC: int __log_set_lg_max(DB_ENV *, uint32);
  */
 int __log_set_lg_max(DB_ENV * dbenv, uint32 lg_max)
 {
@@ -168,9 +145,7 @@ int __log_set_lg_max(DB_ENV * dbenv, uint32 lg_max)
 		dbenv->lg_size = lg_max;
 	return ret;
 }
-/*
- * PUBLIC: int __log_get_lg_regionmax(DB_ENV *, uint32 *);
- */
+
 int __log_get_lg_regionmax(DB_ENV * dbenv, uint32 * lg_regionmaxp)
 {
 	ENV * env = dbenv->env;
@@ -186,8 +161,6 @@ int __log_get_lg_regionmax(DB_ENV * dbenv, uint32 * lg_regionmaxp)
 /*
  * __log_set_lg_regionmax --
  *	DB_ENV->set_lg_regionmax.
- *
- * PUBLIC: int __log_set_lg_regionmax(DB_ENV *, uint32);
  */
 int __log_set_lg_regionmax(DB_ENV * dbenv, uint32 lg_regionmax)
 {
@@ -203,9 +176,7 @@ int __log_set_lg_regionmax(DB_ENV * dbenv, uint32 lg_regionmax)
 		return 0;
 	}
 }
-/*
- * PUBLIC: int __log_get_lg_dir __P((DB_ENV *, const char **));
- */
+
 int __log_get_lg_dir(DB_ENV * dbenv, const char ** dirp)
 {
 	*dirp = dbenv->db_log_dir;
@@ -214,8 +185,6 @@ int __log_get_lg_dir(DB_ENV * dbenv, const char ** dirp)
 /*
  * __log_set_lg_dir --
  *	DB_ENV->set_lg_dir.
- *
- * PUBLIC: int __log_set_lg_dir __P((DB_ENV *, const char *));
  */
 int __log_set_lg_dir(DB_ENV * dbenv, const char * dir)
 {
@@ -226,8 +195,6 @@ int __log_set_lg_dir(DB_ENV * dbenv, const char * dir)
 /*
  * __log_get_flags --
  *	DB_ENV->get_flags.
- *
- * PUBLIC: void __log_get_flags(DB_ENV *, uint32 *);
  */
 void __log_get_flags(DB_ENV * dbenv, uint32 * flagsp)
 {
@@ -252,8 +219,6 @@ void __log_get_flags(DB_ENV * dbenv, uint32 * flagsp)
 /*
  * __log_set_flags --
  *	DB_ENV->set_flags.
- *
- * PUBLIC: void __log_set_flags __P((ENV *, uint32, int));
  */
 void __log_set_flags(ENV * env, uint32 flags, int on)
 {
@@ -284,8 +249,6 @@ static const FLAG_MAP LogMap[] = {
 /*
  * __log_get_config --
  *	Configure the logging subsystem.
- *
- * PUBLIC: int __log_get_config __P((DB_ENV *, uint32, int *));
  */
 int __log_get_config(DB_ENV * dbenv, uint32 which, int * onp)
 {
@@ -298,17 +261,12 @@ int __log_get_config(DB_ENV * dbenv, uint32 which, int * onp)
 	ENV_REQUIRES_CONFIG(env, dblp, "DB_ENV->log_get_config", DB_INIT_LOG);
 	__env_fetch_flags(LogMap, sizeof(LogMap), &dblp->flags, &flags);
 	__log_get_flags(dbenv, &flags);
-	if(LF_ISSET(which))
-		*onp = 1;
-	else
-		*onp = 0;
+	*onp = LF_ISSET(which) ? 1 : 0;
 	return 0;
 }
 /*
  * __log_set_config --
  *	Configure the logging subsystem.
- *
- * PUBLIC: int __log_set_config __P((DB_ENV *, uint32, int));
  */
 int __log_set_config(DB_ENV * dbenv, uint32 flags, int on)
 {
@@ -317,8 +275,6 @@ int __log_set_config(DB_ENV * dbenv, uint32 flags, int on)
 /*
  * __log_set_config_int --
  *	Configure the logging subsystem.
- *
- * PUBLIC: int __log_set_config_int __P((DB_ENV *, uint32, int, int));
  */
 int __log_set_config_int(DB_ENV * dbenv, uint32 flags, int on, int in_open)
 {
@@ -338,10 +294,7 @@ int __log_set_config_int(DB_ENV * dbenv, uint32 flags, int on, int in_open)
 		__log_set_flags(env, flags, on);
 		mapped_flags = 0;
 		__env_map_flags(LogMap, sizeof(LogMap), &flags, &mapped_flags);
-		if(on)
-			F_SET(dblp, mapped_flags);
-		else
-			F_CLR(dblp, mapped_flags);
+		SETFLAG(dblp->flags, mapped_flags, on);
 	}
 	else {
 		/*
@@ -351,18 +304,13 @@ int __log_set_config_int(DB_ENV * dbenv, uint32 flags, int on, int in_open)
 		 */
 		if(on && LF_ISSET(DB_LOG_IN_MEMORY))
 			F_CLR(dbenv, DB_ENV_TXN_NOSYNC|DB_ENV_TXN_WRITE_NOSYNC);
-		if(on)
-			FLD_SET(dbenv->lg_flags, flags);
-		else
-			FLD_CLR(dbenv->lg_flags, flags);
+		SETFLAG(dbenv->lg_flags, flags, on);
 	}
 	return 0;
 }
 /*
  * __log_check_sizes --
  *	Makes sure that the log file size and log buffer size are compatible.
- *
- * PUBLIC: int __log_check_sizes __P((ENV *, uint32, uint32));
  */
 int __log_check_sizes(ENV * env, uint32 lg_max, uint32 lg_bsize)
 {
@@ -377,10 +325,8 @@ int __log_check_sizes(ENV * env, uint32 lg_max, uint32 lg_bsize)
 	else
 		inmem = (FLD_ISSET(dbenv->lg_flags, DB_LOG_IN_MEMORY) != 0);
 	if(inmem) {
-		if(lg_bsize == 0)
-			lg_bsize = LG_BSIZE_INMEM;
-		if(lg_max == 0)
-			lg_max = LG_MAX_INMEM;
+		SETIFZ(lg_bsize, LG_BSIZE_INMEM);
+		SETIFZ(lg_max, LG_MAX_INMEM);
 		if(lg_bsize <= lg_max) {
 			__db_errx(env, "in-memory log buffer must be larger than the log file size");
 			return EINVAL;

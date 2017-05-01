@@ -2464,7 +2464,7 @@ int PPALDD_AccAnlz::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_AccAnlz::Destroy()
+void PPALDD_AccAnlz::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(AccAnlz);
 }
@@ -2531,7 +2531,7 @@ int PPALDD_AccturnList::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_AccturnList::Destroy()
+void PPALDD_AccturnList::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(Accturn);
 }
@@ -2572,7 +2572,7 @@ int PPALDD_AccountView::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_AccountView::Destroy()
+void PPALDD_AccountView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(Account);
 }
@@ -2738,7 +2738,7 @@ int PPALDD_CurRateView::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_CurRateView::Destroy()
+void PPALDD_CurRateView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(CurRate);
 }

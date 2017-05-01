@@ -3458,8 +3458,8 @@ int SLAPI PPObjBill::ViewLotComplete(PPID lotID, PPID * pSelectedLotID)
 				if(trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
 					// @v9.5.5 GetGoodsName(lot_rec.GoodsID, title_buf);
 					GObj.FetchNameR(lot_rec.GoodsID, title_buf); // @v9.5.5
-					GetObjectName(PPOBJ_LOCATION, lot_rec.LocID, title_buf.CatDiv(':', 1, 1), 1);
-					title_buf.CatDiv(':', 1, 1).Cat(lot_rec.Dt);
+					GetObjectName(PPOBJ_LOCATION, lot_rec.LocID, title_buf.CatDivIfNotEmpty(':', 1), 1);
+					title_buf.CatDivIfNotEmpty(':', 1).Cat(lot_rec.Dt);
 				}
 				p_brw->setSubTitle(title_buf);
 				int   cmd = ExecView(p_brw);
@@ -3527,12 +3527,11 @@ int PPALDD_Complete::NextIteration(PPIterID iterId, long rsrv)
 	return ok;
 }
 
-int PPALDD_Complete::Destroy()
+void PPALDD_Complete::Destroy()
 {
 	if(Extra[0].Ptr) {
 		delete (CompleteBrowser *)Extra[0].Ptr;
 		Extra[0].Ptr = 0;
 	}
 	Extra[1].Ptr = 0;
-	return 1;
 }

@@ -105,12 +105,12 @@ int _zbar_thread_stop(zbar_thread_t * thr,
 
 static LRESULT CALLBACK win_handle_event(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
-	zbar_processor_t * proc = (zbar_processor_t*)GetWindowLongPtr(hwnd, GWL_USERDATA);
+	zbar_processor_t * proc = (zbar_processor_t*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 	/* initialized during window creation */
 	if(message == WM_NCCREATE) {
 		proc = (zbar_processor_t *)((LPCREATESTRUCT)lparam)->lpCreateParams;
 		assert(proc);
-		SetWindowLongPtr(hwnd, GWL_USERDATA, (LONG_PTR)proc);
+		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)proc);
 		proc->display = hwnd;
 
 		zbar_window_attach(proc->window, proc->display, proc->xwin);

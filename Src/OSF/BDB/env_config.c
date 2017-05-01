@@ -7,18 +7,9 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/log.h"
-// @v9.5.5 #include "dbinc/txn.h"
 
-static int __config_parse __P((ENV*, char *, int));
-
+static int __config_parse(ENV*, char *, int);
 /*
  * __env_read_db_config --
  *	Read the DB_CONFIG file.
@@ -94,7 +85,7 @@ int __env_read_db_config(ENV * env)
 } while(0)
 #undef  CONFIG_UINT32
 #define CONFIG_UINT32(s, f) do {                                        \
-		if(strcasecmp(s, argv[0]) == 0) {                              \
+		if(sstreqi_ascii(s, argv[0])) {                              \
 			ulong __v;                                             \
 			if(nf != 2)                                            \
 				goto format;                                    \
@@ -128,27 +119,27 @@ format:
 		__db_errx(env, DB_STR_A("1584", "line %d: %s: incorrect name-value pair", "%d %s"), lc, argv[0]);
 		return EINVAL;
 	}
-	if(strcasecmp(argv[0], "set_memory_max") == 0) {
+	if(sstreqi_ascii(argv[0], "set_memory_max")) {
 		if(nf != 3)
 			goto format;
 		CONFIG_GET_UINT32(argv[1], &uv1);
 		CONFIG_GET_UINT32(argv[2], &uv2);
 		return __env_set_memory_max(dbenv, (uint32)uv1, (uint32)uv2);
 	}
-	if(strcasecmp(argv[0], "set_memory_init") == 0) {
+	if(sstreqi_ascii(argv[0], "set_memory_init")) {
 		if(nf != 3)
 			goto format;
-		if(strcasecmp(argv[1], "DB_MEM_LOCK") == 0)
+		if(sstreqi_ascii(argv[1], "DB_MEM_LOCK"))
 			mem_conf = DB_MEM_LOCK;
-		else if(strcasecmp(argv[1], "DB_MEM_LOCKER") == 0)
+		else if(sstreqi_ascii(argv[1], "DB_MEM_LOCKER"))
 			mem_conf = DB_MEM_LOCKER;
-		else if(strcasecmp(argv[1], "DB_MEM_LOCKOBJECT") == 0)
+		else if(sstreqi_ascii(argv[1], "DB_MEM_LOCKOBJECT"))
 			mem_conf = DB_MEM_LOCKOBJECT;
-		else if(strcasecmp(argv[1], "DB_MEM_TRANSACTION") == 0)
+		else if(sstreqi_ascii(argv[1], "DB_MEM_TRANSACTION"))
 			mem_conf = DB_MEM_TRANSACTION;
-		else if(strcasecmp(argv[1], "DB_MEM_THREAD") == 0)
+		else if(sstreqi_ascii(argv[1], "DB_MEM_THREAD"))
 			mem_conf = DB_MEM_THREAD;
-		else if(strcasecmp(argv[1], "DB_MEM_LOGID") == 0)
+		else if(sstreqi_ascii(argv[1], "DB_MEM_LOGID"))
 			mem_conf = DB_MEM_LOGID;
 		else
 			goto format;
@@ -160,70 +151,70 @@ format:
 	CONFIG_UINT32("mutex_set_init", __mutex_set_init);
 	CONFIG_UINT32("mutex_set_max", __mutex_set_max);
 	CONFIG_UINT32("mutex_set_tas_spins", __mutex_set_tas_spins);
-	if(strcasecmp(argv[0], "rep_set_clockskew") == 0) {
+	if(sstreqi_ascii(argv[0], "rep_set_clockskew")) {
 		if(nf != 3)
 			goto format;
 		CONFIG_GET_UINT32(argv[1], &uv1);
 		CONFIG_GET_UINT32(argv[2], &uv2);
 		return __rep_set_clockskew(dbenv, (uint32)uv1, (uint32)uv2);
 	}
-	if(strcasecmp(argv[0], "rep_set_config") == 0) {
+	if(sstreqi_ascii(argv[0], "rep_set_config")) {
 		if(nf != 2 && nf != 3)
 			goto format;
 		onoff = 1;
 		if(nf == 3) {
-			if(strcasecmp(argv[2], "off") == 0)
+			if(sstreqi_ascii(argv[2], "off"))
 				onoff = 0;
-			else if(strcasecmp(argv[2], "on") != 0)
+			else if(!sstreqi_ascii(argv[2], "on"))
 				goto format;
 		}
-		if(strcasecmp(argv[1], "db_rep_conf_autoinit") == 0)
+		if(sstreqi_ascii(argv[1], "db_rep_conf_autoinit"))
 			return __rep_set_config(dbenv, DB_REP_CONF_AUTOINIT, onoff);
-		if(strcasecmp(argv[1], "db_rep_conf_autorollback") == 0)
+		if(sstreqi_ascii(argv[1], "db_rep_conf_autorollback"))
 			return __rep_set_config(dbenv, DB_REP_CONF_AUTOROLLBACK, onoff);
-		if(strcasecmp(argv[1], "db_rep_conf_bulk") == 0)
+		if(sstreqi_ascii(argv[1], "db_rep_conf_bulk"))
 			return __rep_set_config(dbenv, DB_REP_CONF_BULK, onoff);
-		if(strcasecmp(argv[1], "db_rep_conf_delayclient") == 0)
+		if(sstreqi_ascii(argv[1], "db_rep_conf_delayclient"))
 			return __rep_set_config(dbenv, DB_REP_CONF_DELAYCLIENT, onoff);
-		if(strcasecmp(argv[1], "db_rep_conf_inmem") == 0)
+		if(sstreqi_ascii(argv[1], "db_rep_conf_inmem"))
 			return __rep_set_config(dbenv, DB_REP_CONF_INMEM, onoff);
-		if(strcasecmp(argv[1], "db_rep_conf_lease") == 0)
+		if(sstreqi_ascii(argv[1], "db_rep_conf_lease"))
 			return __rep_set_config(dbenv, DB_REP_CONF_LEASE, onoff);
-		if(strcasecmp(argv[1], "db_rep_conf_nowait") == 0)
+		if(sstreqi_ascii(argv[1], "db_rep_conf_nowait"))
 			return __rep_set_config(dbenv, DB_REP_CONF_NOWAIT, onoff);
-		if(strcasecmp(argv[1], "db_repmgr_conf_2site_strict") == 0)
+		if(sstreqi_ascii(argv[1], "db_repmgr_conf_2site_strict"))
 			return __rep_set_config(dbenv, DB_REPMGR_CONF_2SITE_STRICT, onoff);
-		if(strcasecmp(argv[1], "db_repmgr_conf_elections") == 0)
+		if(sstreqi_ascii(argv[1], "db_repmgr_conf_elections"))
 			return __rep_set_config(dbenv, DB_REPMGR_CONF_ELECTIONS, onoff);
 		goto format;
 	}
-	if(strcasecmp(argv[0], "rep_set_limit") == 0) {
+	if(sstreqi_ascii(argv[0], "rep_set_limit")) {
 		if(nf != 3)
 			goto format;
 		CONFIG_GET_UINT32(argv[1], &uv1);
 		CONFIG_GET_UINT32(argv[2], &uv2);
 		return __rep_set_limit(dbenv, (uint32)uv1, (uint32)uv2);
 	}
-	if(strcasecmp(argv[0], "rep_set_nsites") == 0) {
+	if(sstreqi_ascii(argv[0], "rep_set_nsites")) {
 		if(nf != 2)
 			goto format;
 		CONFIG_GET_UINT32(argv[1], &uv1);
 		return __rep_set_nsites_pp(dbenv, (uint32)uv1);
 	}
-	if(strcasecmp(argv[0], "rep_set_priority") == 0) {
+	if(sstreqi_ascii(argv[0], "rep_set_priority")) {
 		if(nf != 2)
 			goto format;
 		CONFIG_GET_UINT32(argv[1], &uv1);
 		return __rep_set_priority(dbenv, (uint32)uv1);
 	}
-	if(strcasecmp(argv[0], "rep_set_request") == 0) {
+	if(sstreqi_ascii(argv[0], "rep_set_request")) {
 		if(nf != 3)
 			goto format;
 		CONFIG_GET_UINT32(argv[1], &uv1);
 		CONFIG_GET_UINT32(argv[2], &uv2);
 		return __rep_set_request(dbenv, (uint32)uv1, (uint32)uv2);
 	}
-	if(strcasecmp(argv[0], "rep_set_timeout") == 0) {
+	if(sstreqi_ascii(argv[0], "rep_set_timeout")) {
 		if(nf != 3)
 			goto format;
 		CONFIG_GET_UINT32(argv[2], &uv2);
@@ -493,48 +484,36 @@ format:
 		return __memp_set_mp_max_write(dbenv, (int)lv1, (db_timeout_t)lv2);
 	}
 	CONFIG_UINT32("set_mp_mmapsize", __memp_set_mp_mmapsize);
-	if(strcasecmp(argv[0], "set_open_flags") == 0) {
+	if(sstreqi_ascii(argv[0], "set_open_flags")) {
 		if(nf != 2 && nf != 3)
 			goto format;
 		onoff = 1;
 		if(nf == 3) {
-			if(strcasecmp(argv[2], "off") == 0)
+			if(sstreqi_ascii(argv[2], "off"))
 				onoff = 0;
-			else if(strcasecmp(argv[2], "on") != 0)
+			else if(!sstreqi_ascii(argv[2], "on"))
 				goto format;
 		}
-		if(strcasecmp(argv[1], "db_init_rep") == 0) {
-			if(onoff == 1)
-				FLD_SET(env->open_flags, DB_INIT_REP);
-			else
-				FLD_CLR(env->open_flags, DB_INIT_REP);
+		if(sstreqi_ascii(argv[1], "db_init_rep")) {
+			SETFLAG(env->open_flags, DB_INIT_REP, (onoff == 1));
 			return 0;
 		}
-		else if(strcasecmp(argv[1], "db_private") == 0) {
-			if(onoff == 1)
-				FLD_SET(env->open_flags, DB_PRIVATE);
-			else
-				FLD_CLR(env->open_flags, DB_PRIVATE);
+		else if(sstreqi_ascii(argv[1], "db_private")) {
+			SETFLAG(env->open_flags, DB_PRIVATE, (onoff == 1));
 			return 0;
 		}
-		else if(strcasecmp(argv[1], "db_register") == 0) {
-			if(onoff == 1)
-				FLD_SET(env->open_flags, DB_REGISTER);
-			else
-				FLD_CLR(env->open_flags, DB_REGISTER);
+		else if(sstreqi_ascii(argv[1], "db_register")) {
+			SETFLAG(env->open_flags, DB_REGISTER, (onoff == 1));
 			return 0;
 		}
-		else if(strcasecmp(argv[1], "db_thread") == 0) {
-			if(onoff == 1)
-				FLD_SET(env->open_flags, DB_THREAD);
-			else
-				FLD_CLR(env->open_flags, DB_THREAD);
+		else if(sstreqi_ascii(argv[1], "db_thread")) {
+			SETFLAG(env->open_flags, DB_THREAD, (onoff == 1));
 			return 0;
 		}
 		else
 			goto format;
 	}
-	if(strcasecmp(argv[0], "set_region_init") == 0) {
+	if(sstreqi_ascii(argv[0], "set_region_init")) {
 		if(nf != 2)
 			goto format;
 		CONFIG_GET_INT(argv[1], &lv1);
@@ -542,13 +521,13 @@ format:
 			goto format;
 		return __env_set_flags(dbenv, DB_REGION_INIT, lv1 == 0 ? 0 : 1);
 	}
-	if(strcasecmp(argv[0], "set_reg_timeout") == 0) {
+	if(sstreqi_ascii(argv[0], "set_reg_timeout")) {
 		if(nf != 2)
 			goto format;
 		CONFIG_GET_UINT32(argv[1], &uv1);
 		return __env_set_timeout(dbenv, (uint32)uv1, DB_SET_REG_TIMEOUT);
 	}
-	if(strcasecmp(argv[0], "set_shm_key") == 0) {
+	if(sstreqi_ascii(argv[0], "set_shm_key")) {
 		if(nf != 2)
 			goto format;
 		CONFIG_GET_LONG(argv[1], &lv1);
@@ -559,60 +538,60 @@ format:
 	 * The set_tas_spins argv[0] remains for DB_CONFIG compatibility.
 	 */
 	CONFIG_UINT32("set_tas_spins", __mutex_set_tas_spins);
-	if(strcasecmp(argv[0], "set_tmp_dir") == 0 || strcasecmp(argv[0], "db_tmp_dir") == 0) { /* Compatibility.*/
+	if(sstreqi_ascii(argv[0], "set_tmp_dir") || sstreqi_ascii(argv[0], "db_tmp_dir")) { /* Compatibility.*/
 		if(nf != 2)
 			goto format;
 		return __env_set_tmp_dir(dbenv, argv[1]);
 	}
 	CONFIG_UINT32("set_thread_count", __env_set_thread_count);
 	CONFIG_UINT32("set_tx_max", __txn_set_tx_max);
-	if(strcasecmp(argv[0], "set_txn_timeout") == 0) {
+	if(sstreqi_ascii(argv[0], "set_txn_timeout")) {
 		if(nf != 2)
 			goto format;
 		CONFIG_GET_UINT32(argv[1], &uv1);
 		return __lock_set_env_timeout(dbenv, (uint32)uv1, DB_SET_TXN_TIMEOUT);
 	}
-	if(strcasecmp(argv[0], "set_verbose") == 0) {
+	if(sstreqi_ascii(argv[0], "set_verbose")) {
 		if(nf != 2 && nf != 3)
 			goto format;
 		onoff = 1;
 		if(nf == 3) {
-			if(strcasecmp(argv[2], "off") == 0)
+			if(sstreqi_ascii(argv[2], "off"))
 				onoff = 0;
-			else if(strcasecmp(argv[2], "on") != 0)
+			else if(!sstreqi_ascii(argv[2], "on"))
 				goto format;
 		}
-		if(strcasecmp(argv[1], "db_verb_deadlock") == 0)
+		if(sstreqi_ascii(argv[1], "db_verb_deadlock"))
 			flags = DB_VERB_DEADLOCK;
-		else if(strcasecmp(argv[1], "db_verb_fileops") == 0)
+		else if(sstreqi_ascii(argv[1], "db_verb_fileops"))
 			flags = DB_VERB_FILEOPS;
-		else if(strcasecmp(argv[1], "db_verb_fileops_all") == 0)
+		else if(sstreqi_ascii(argv[1], "db_verb_fileops_all"))
 			flags = DB_VERB_FILEOPS_ALL;
-		else if(strcasecmp(argv[1], "db_verb_recovery") == 0)
+		else if(sstreqi_ascii(argv[1], "db_verb_recovery"))
 			flags = DB_VERB_RECOVERY;
-		else if(strcasecmp(argv[1], "db_verb_register") == 0)
+		else if(sstreqi_ascii(argv[1], "db_verb_register"))
 			flags = DB_VERB_REGISTER;
-		else if(strcasecmp(argv[1], "db_verb_replication") == 0)
+		else if(sstreqi_ascii(argv[1], "db_verb_replication"))
 			flags = DB_VERB_REPLICATION;
-		else if(strcasecmp(argv[1], "db_verb_rep_elect") == 0)
+		else if(sstreqi_ascii(argv[1], "db_verb_rep_elect"))
 			flags = DB_VERB_REP_ELECT;
-		else if(strcasecmp(argv[1], "db_verb_rep_lease") == 0)
+		else if(sstreqi_ascii(argv[1], "db_verb_rep_lease"))
 			flags = DB_VERB_REP_LEASE;
-		else if(strcasecmp(argv[1], "db_verb_rep_misc") == 0)
+		else if(sstreqi_ascii(argv[1], "db_verb_rep_misc"))
 			flags = DB_VERB_REP_MISC;
-		else if(strcasecmp(argv[1], "db_verb_rep_msgs") == 0)
+		else if(sstreqi_ascii(argv[1], "db_verb_rep_msgs"))
 			flags = DB_VERB_REP_MSGS;
-		else if(strcasecmp(argv[1], "db_verb_rep_sync") == 0)
+		else if(sstreqi_ascii(argv[1], "db_verb_rep_sync"))
 			flags = DB_VERB_REP_SYNC;
-		else if(strcasecmp(argv[1], "db_verb_rep_system") == 0)
+		else if(sstreqi_ascii(argv[1], "db_verb_rep_system"))
 			flags = DB_VERB_REP_SYSTEM;
-		else if(strcasecmp(argv[1], "db_verb_rep_test") == 0)
+		else if(sstreqi_ascii(argv[1], "db_verb_rep_test"))
 			flags = DB_VERB_REP_TEST;
-		else if(strcasecmp(argv[1], "db_verb_repmgr_connfail") == 0)
+		else if(sstreqi_ascii(argv[1], "db_verb_repmgr_connfail"))
 			flags = DB_VERB_REPMGR_CONNFAIL;
-		else if(strcasecmp(argv[1], "db_verb_repmgr_misc") == 0)
+		else if(sstreqi_ascii(argv[1], "db_verb_repmgr_misc"))
 			flags = DB_VERB_REPMGR_MISC;
-		else if(strcasecmp(argv[1], "db_verb_waitsfor") == 0)
+		else if(sstreqi_ascii(argv[1], "db_verb_waitsfor"))
 			flags = DB_VERB_WAITSFOR;
 		else
 			goto format;

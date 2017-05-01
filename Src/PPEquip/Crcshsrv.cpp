@@ -1261,11 +1261,11 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	PPWait(1);
 
 	THROW(DistributeFile(path,  0, SUBDIR_PRODUCTS));
-	delay(2000);
+	SDelay(2000);
 	THROW(DistributeFile(path_goods, 0, SUBDIR_PRODUCTS));
-	delay(2000);
+	SDelay(2000);
 	THROW(DistributeFile(path_cards, 0, SUBDIR_CARDS));
-	// delay(2000);
+	// SDelay(2000);
 	// THROW(DistributeFile(path_cashiers, 0, SUBDIR_CASHIERS));
 	if(StatID)
 		P_Dls->FinishLoading(StatID, 1, 1);
@@ -1404,14 +1404,14 @@ public:
 		for(i = 0; i < SIZEOFARRAY(List); i++) {
 			if(List[i].T == tCashUpd) {
 				THROW(pSess->DistributeFile(List[i].FileName,  0));
-				delay(2000);
+				SDelay(2000);
 				break;
 			}
 		}
 		for(i = 0; i < SIZEOFARRAY(List); i++) {
 			if(List[i].T && List[i].T != tCashUpd && fileExists(List[i].FileName)) {
 				THROW(pSess->DistributeFile(List[i].FileName,  0));
-				delay(2000);
+				SDelay(2000);
 			}
 		}
 		for(i = 0; i < SIZEOFARRAY(List); i++) {
@@ -2439,29 +2439,29 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 		ZDELETE(p_out_tbl_sggrpi);
 
 		THROW(DistributeFile(path,  0));
-		delay(2000);
+		SDelay(2000);
 		if(cn_data.Flags & CASHF_EXPGOODSGROUPS) {
 			THROW(DistributeFile(path_group, 0));
-			delay(2000);
+			SDelay(2000);
 			THROW(DistributeFile(path_grpqtty_dscnt, 0));
-			delay(2000);
+			SDelay(2000);
 		}
 		THROW(DistributeFile(path_goods, 0));
-		delay(2000);
+		SDelay(2000);
 		THROW(DistributeFile(path_dscnt, 0));
-		delay(2000);
+		SDelay(2000);
 		THROW(DistributeFile(path_barcode, 0));
-		delay(2000);
+		SDelay(2000);
 		THROW(DistributeFile(path_cards, 0));
-		delay(2000);
+		SDelay(2000);
 		THROW(DistributeFile(path_cashiers, 0));
-		delay(2000);
+		SDelay(2000);
 		THROW(DistributeFile(path_gdsqtty_dscnt, 0));
-		delay(2000);
+		SDelay(2000);
 		THROW(DistributeFile(path_salesggrp, 0));
-		delay(2000);
+		SDelay(2000);
 		THROW(DistributeFile(path_salesggrpi, 0));
-		delay(2000);
+		SDelay(2000);
 		THROW(DistributeFile(path,  1));
 		if(StatID)
 			P_Dls->FinishLoading(StatID, 1, 1);
@@ -4064,7 +4064,7 @@ int SLAPI ACS_CRCSHSRV::GetSeparatedFileSet(int filTyp)
 				param = buf;
 		ps.Split(PathRpt[filTyp]);
 		if(param.NotEmptyS()) {
-			uint pos = 0;
+			size_t pos = 0;
 			SString  num;
 			int  d, m, y;
 			decodedate(&d, &m, &y, &CurOperDate);
@@ -4324,7 +4324,7 @@ int SLAPI ACS_CRCSHSRV::ImportZRepList(SArray * pZRepList, int isLocalFiles)
 			r = 1;
 		else {
 			if(oper_date > ChkRepPeriod.low)
-				delay(500);
+				SDelay(500);
 			CurOperDate = oper_date;
 			if(ModuleVer == 10) {
 				r = 1;
@@ -4546,7 +4546,7 @@ int SLAPI ACS_CRCSHSRV::ImportSession(int)
 				MakeQueryBufV10(oper_date, query_buf, 0);
 				if(r > 0) {
 					if(!files_local) {
-						delay(2000);
+						SDelay(2000);
 						if(r > 0)
 							THROW(r = QueryFile(filTypChkXml, query_buf));
 						THROW(ConvertWareListV10(&zrep_list, PathRpt[filTypChkXml], wait_msg));
@@ -4558,7 +4558,7 @@ int SLAPI ACS_CRCSHSRV::ImportSession(int)
 				MakeQueryBuf(oper_date, query_buf);
 				if(Options & oUseAltImport) {
 					CurOperDate = oper_date;
-					delay(2000);
+					SDelay(2000);
 					THROW(r = QueryFile(filTypChkDscnt, query_buf, oper_date));
 					if(r > 0) {
 						THROW(CreateSCardPaymTbl());
@@ -4574,7 +4574,7 @@ int SLAPI ACS_CRCSHSRV::ImportSession(int)
 				else {
 					if(!files_local) {
 						if(!(ModuleVer == 5 && ModuleSubVer >= 9)) { // @v9.2.7 В режиме 5.9 при посылке запроса на отчеты SetRetail возвращает все отчеты
-							delay(2000);
+							SDelay(2000);
 							if(r > 0)
 								THROW(r = QueryFile(filTypChkHeads, query_buf, oper_date));
 							if(r > 0)

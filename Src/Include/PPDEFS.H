@@ -10373,27 +10373,6 @@
 // PPERR_INVXXX - нечто недопустимое
 //
 #define PPERR_DBNOTACTIVE           1 // Процессор БД не запущен
-#define PPERR_DBVERSION             2 // Недопустимая версия процессора БД
-#define PPERR_INVUSERORPASSW        3 // Неверное имя пользователя или пароль
-#define PPERR_INVUSERNAME           3 // Неверное имя пользовател
-#define PPERR_INVPASSWORD           3 // Неверный пароль
-#define PPERR_DBLIB                 4 // Ошибка библиотеки DB
-#define PPERR_NOMEM                 5 // Недостаточно памяти
-#define PPERR_DBENGINE              6 // Ошибка процессора БД
-#define PPERR_SLIB                  7 // Ошибка библиотеки SLIB
-#define PPERR_DBQUERY               8 // Ошибка библиотеки DBQUERY
-#define PPERR_MENULOADFAULT         9 // Ошибка загрузки меню
-#define PPERR_STATUSLOADFAULT      10 // Ошибка загрузки статуса
-#define PPERR_DLGLOADFAULT         11 // Ошибка загрузки диалога
-#define PPERR_BROLOADFAULT         12 // Ошибка загрузки броузера
-#define PPERR_INICFGNFOUND         13 // Не найден файл PPCONFIG.PP
-#define PPERR_UNABLEOPENINICFG     14 // Не открывается PPCONFIG.PP
-#define PPERR_INVINICFG            15 // Неправильная сигнатура или ошибка чтения PPCONFIG.PP
-#define PPERR_INICFGWRITEFAULT     16 // Ошибка открытия или чтения PPCONFIG.PP
-#define PPERR_NORIGHTS             17 // Недостаточно прав для выполнения операции
-#define PPERR_REFISBUSY            18 // Попытка добавить объект с уже используемым ид-ром
-#define PPERR_CFGOBJRDFAULT        19 // Ошибка чтения объекта конфигурации %s
-#define PPERR_USRMUSTBELONGTOGRP   20 // Пользователь должен принадлежать какой-либо группе
 #define PPERR_UNCHANGABLEPERSONKIND 26 // Данный вид персоналии не может быть присвоен или удален произвольно
 #define PPERR_DUPARTICLE           27 // Дублирование номера статьи аналитического учета
 #define PPERR_INVACCSHEETASSOC     28 // Ошибочный код ассоциации в таблице аналитических статей (очень неприятный
@@ -10552,28 +10531,7 @@
 #define PPERR_CRESTCORRUPT_NEQ    187 // Неверный остаток в CurRest
 #define PPERR_CRESTCORRUPT_ABS    188 // Отсутствует запись в CurRest
 #define PPERR_CRESTCORRUPT_EXREC  189 // Лишняя запись в CurRest
-#define PPERR_REPLARTNEQSHEET     198 // Заменяемые статьи принадлежат разным аналитическим таблицам
-#define PPERR_SYNCDUPPRIMID       199 // Ссылка на приватный объект уже синхронизирована с другим общим идентификатором
-#define PPERR_REPLSAMEOBJ         200 // Нельзя заменить объект сам на себя //
-#define PPERR_INTVALUNIT          201 // Единица измерения допускает только целочисленные операции
-#define PPERR_NORTPERIOD          202 // Заданный период закрыт
-#define PPERR_NOTALTGRP           203 // Не альтернативная группа
-#define PPERR_INVBCODELEN         204 // Недопустимая длина штрихкода '%s'
-#define PPERR_INVBCODEPRFX        205 // Недопустимый префикс штрихкода
-#define PPERR_INVPARAM            206 // Неверный параметр (internal debug)
-#define PPERR_OPNOTBELONGTOVATB   207 // Операция не принадлежит книге продаж/покупок
-#define PPERR_INVVATBDT           208 // Неверная дата в записи книги продаж/покупок
-#define PPERR_VATBCODENEEDED      209 // В записе книги продаж/покупок необходим номер инвойса
-#define PPERR_UNMATCHOPSHEET      210 // Несоответствие между выбранной операцией и таблицей статей
-#define PPERR_BILLFCONFLICT       211 // Противоречивые установочные флаги документа
-#define PPERR_EXPFOPENFAULT       212 // Ошибка открытия файла для экспорта
-#define PPERR_UNTERMATTSUBST      213 // Незакрытый список для подстановки объектов в шаблоне проводок
-#define PPERR_INVATTSUBSTVAR      214 // Недопустимая переменная для подстановки в шаблоне проводки
-#define PPERR_UNDEFSYMB           215 // Неопределенный символ '%s'
-#define PPERR_REVALONUNLIM        216 // Не допускается переоценка неограниченного ресурса
-#define PPERR_UNLIMINTROP         217 // Не допускаются межскладские операции над неограниченным ресурсом
-#define PPERR_OBJRTBUFSIZ         218 // Буфер для прав доступа слишком мал
-#define PPERR_LOCNEEDED           219 // Необходимо ввести локацию
+
 #define PPERR_NQUOTID             221 // лот не яляется котировкой (внутренний сбой или ошибка в БД)
 #define PPERR_BACKQUOT            222 // Котировка задним числом не допустима
 #define PPERR_QUOTNEEDED          223 // Отсутствует котировка для заданного товара

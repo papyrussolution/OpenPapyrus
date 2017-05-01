@@ -7,25 +7,13 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
-// @v9.5.5 #include "dbinc/fop.h"
-// @v9.5.5 #include "dbinc/txn.h"
 
 static int __db_rename __P((DB*, DB_THREAD_INFO*, DB_TXN*, const char *, const char *, const char *, uint32));
 static int __db_subdb_rename __P((DB*, DB_THREAD_INFO*, DB_TXN*, const char *, const char *, const char *, uint32));
 /*
  * __env_dbrename_pp
  *	ENV->dbrename pre/post processing.
- *
- * PUBLIC: int __env_dbrename_pp __P((DB_ENV *, DB_TXN *,
- * PUBLIC:     const char *, const char *, const char *, uint32));
  */
 int __env_dbrename_pp(DB_ENV * dbenv, DB_TXN * txn, const char * name, const char * subdb, const char * newname, uint32 flags)
 {

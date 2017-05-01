@@ -7,16 +7,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/hmac.h"
-// @v9.5.5 #include "dbinc/log.h"
-// @v9.5.5 #include "dbinc/txn.h"
 #include "dbinc_auto/db_ext.h"
 
 static int __log_encrypt_record __P((ENV*, DBT*, HDR*, uint32));
@@ -28,12 +19,9 @@ static int __log_put_next __P((ENV*, DB_LSN*, const DBT*, HDR*, DB_LSN *));
 static int __log_put_record_int __P((ENV*, DB*, DB_TXN*, DB_LSN*, uint32, uint32, uint32, uint32, DB_LOG_RECSPEC*, va_list));
 static int __log_putr __P((DB_LOG*, DB_LSN*, const DBT*, uint32, HDR *));
 static int __log_write __P((DB_LOG*, void *, uint32));
-
 /*
  * __log_put_pp --
  *	ENV->log_put pre/post processing.
- *
- * PUBLIC: int __log_put_pp __P((DB_ENV *, DB_LSN *, const DBT *, uint32));
  */
 int __log_put_pp(DB_ENV * dbenv, DB_LSN * lsnp, const DBT * udbt, uint32 flags)
 {
@@ -1170,9 +1158,6 @@ static int __log_newfh(DB_LOG * dblp, int create)
 /*
  * __log_name --
  *	Return the log name for a particular file, and optionally open it.
- *
- * PUBLIC: int __log_name __P((DB_LOG *,
- * PUBLIC:     uint32, char **, DB_FH **, uint32));
  */
 int __log_name(DB_LOG * dblp, uint32 filenumber, char ** namep, DB_FH ** fhpp, uint32 flags)
 {
@@ -1267,8 +1252,6 @@ err:
  *
  * Note that the REP->mtx_clientdb should be held when this is called.
  * Note that we acquire the log region mutex while holding mtx_clientdb.
- *
- * PUBLIC: int __log_rep_put __P((ENV *, DB_LSN *, const DBT *, uint32));
  */
 int __log_rep_put(ENV * env, DB_LSN * lsnp, const DBT * rec, uint32 flags)
 {
@@ -1331,10 +1314,6 @@ static int __log_encrypt_record(ENV * env, DBT * dbt, HDR * hdr, uint32 orig)
 /*
  * __log_put_record_pp --
  *	DB_ENV->log_put_record pre/post processing.
- *
- * PUBLIC: int __log_put_record_pp __P((DB_ENV *, DB *, DB_TXN *, DB_LSN *,
- * PUBLIC:     uint32, uint32, uint32, uint32,
- * PUBLIC:     DB_LOG_RECSPEC *, ...));
  */
 int __log_put_record_pp(DB_ENV * dbenv, DB * dbp, DB_TXN * txnp, DB_LSN * ret_lsnp, uint32 flags, uint32 rectype,
 	uint32 has_data, uint32 size, DB_LOG_RECSPEC * spec, ...)
@@ -1363,11 +1342,6 @@ int __log_put_record_pp(DB_ENV * dbenv, DB * dbp, DB_TXN * txnp, DB_LSN * ret_ls
 	return ret;
 }
 
-/*
- * PUBLIC: int __log_put_record __P((ENV *, DB *, DB_TXN *, DB_LSN *,
- * PUBLIC:     uint32, uint32, uint32, uint32,
- * PUBLIC:     DB_LOG_RECSPEC *, ...));
- */
 int __log_put_record(ENV * env, DB * dbp, DB_TXN * txnp, DB_LSN * ret_lsnp, uint32 flags, uint32 rectype,
 	uint32 has_data, uint32 size, DB_LOG_RECSPEC * spec, ...)
 {

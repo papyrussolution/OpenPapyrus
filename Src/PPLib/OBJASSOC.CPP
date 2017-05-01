@@ -18,7 +18,7 @@ int SLAPI ObjAssoc::Add(PPID * pID, ObjAssocTbl::Rec * b, int use_ta)
 	do {
 		int    r = AddByID(this, pID, b, use_ta);
 		if(!r && PPErrCode == PPERR_DBENGINE && BtrError == BE_DEADLOCK) {
-			delay(DEADLOCK_TIMEOUT);
+			SDelay(DEADLOCK_TIMEOUT);
 		}
 		else
 			return r;
@@ -32,7 +32,7 @@ int SLAPI ObjAssoc::Update(PPID id, ObjAssocTbl::Rec * b, int use_ta)
 	do {
 		int    r = UpdateByID(this, PPOBJ_OBJASSOC, id, b, use_ta);
 		if(!r && PPErrCode == PPERR_DBENGINE && BtrError == BE_DEADLOCK) {
-			delay(DEADLOCK_TIMEOUT);
+			SDelay(DEADLOCK_TIMEOUT);
 		}
 		else
 			return r;
@@ -46,7 +46,7 @@ int SLAPI ObjAssoc::Remove(PPID id, int use_ta)
 	do {
 		int    r = RemoveByID(this, id, use_ta);
 		if(!r && PPErrCode == PPERR_DBENGINE && BtrError == BE_DEADLOCK) {
-			delay(DEADLOCK_TIMEOUT);
+			SDelay(DEADLOCK_TIMEOUT);
 		}
 		else
 			return r;

@@ -13,8 +13,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="1"
 			CharacterSet="2">
 			<Tool
@@ -93,8 +93,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="1"
 			CharacterSet="2">
 			<Tool
@@ -174,8 +174,8 @@
 		</Configuration>
 		<Configuration
 			Name="ServerDebug|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="1"
 			CharacterSet="2">
 			<Tool
@@ -252,8 +252,8 @@
 		</Configuration>
 		<Configuration
 			Name="ServerRelease|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="1"
 			CharacterSet="2">
 			<Tool
@@ -331,8 +331,8 @@
 		</Configuration>
 		<Configuration
 			Name="MtDllDebug|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="2"
 			CharacterSet="2">
 			<Tool
@@ -410,8 +410,8 @@
 		</Configuration>
 		<Configuration
 			Name="MtDllRelease|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			CharacterSet="2">
@@ -492,8 +492,8 @@
 		</Configuration>
 		<Configuration
 			Name="Universe-HTT|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="1"
 			CharacterSet="2">
 			<Tool
@@ -4056,10 +4056,10 @@
 				RelativePath="..\Rsrc\Bitmap\banking.bmp">
 			</File>
 			<File
-				RelativePath="..\Rsrc\Bitmap\BARCODE.bmp">
+				RelativePath="..\Rsrc\Bitmap\Tbbutton\barcode.bmp">
 			</File>
 			<File
-				RelativePath="..\Rsrc\Bitmap\Tbbutton\barcode.bmp">
+				RelativePath="..\Rsrc\Bitmap\BARCODE.bmp">
 			</File>
 			<File
 				RelativePath="..\Rsrc\Bitmap\barcodeprinter.bmp">
@@ -4686,10 +4686,10 @@
 				RelativePath="..\Rsrc\Bitmap\Tbbutton\mark.bmp">
 			</File>
 			<File
-				RelativePath="..\Rsrc\Bitmap\Tbbutton\matrix.bmp">
+				RelativePath="..\Rsrc\Bitmap\matrix.bmp">
 			</File>
 			<File
-				RelativePath="..\Rsrc\Bitmap\matrix.bmp">
+				RelativePath="..\Rsrc\Bitmap\Tbbutton\matrix.bmp">
 			</File>
 			<File
 				RelativePath="..\Rsrc\Bitmap\Tbbutton\membership.bmp">

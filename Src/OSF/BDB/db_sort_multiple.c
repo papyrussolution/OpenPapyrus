@@ -5,12 +5,6 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
 static int __db_quicksort __P((DB*, DBT*, DBT*, uint32*, uint32*, uint32*, uint32*, uint32));
@@ -18,9 +12,6 @@ static int __db_quicksort __P((DB*, DBT*, DBT*, uint32*, uint32*, uint32*, uint3
  * __db_compare_both --
  *	Use the comparison functions from db to compare akey and bkey, and if
  *	DB_DUPSORT adata and bdata.
- *
- * PUBLIC: int __db_compare_both __P((DB *, const DBT *, const DBT *,
- * PUBLIC:   const DBT *, const DBT *));
  */
 int __db_compare_both(DB * db, const DBT * akey, const DBT * adata, const DBT * bkey, const DBT * bdata)
 {
@@ -255,15 +246,13 @@ error:
  *
  *	Uses an in-place quicksort algorithm, with median of three for the pivot
  *	point.
- *
- * PUBLIC: int __db_sort_multiple __P((DB *, DBT *, DBT *, uint32));
  */
 int __db_sort_multiple(DB * db, DBT * key, DBT * data, uint32 flags)
 {
-	uint32 * kstart, * kend, * dstart, * dend;
+	uint32 * kend, * dstart, * dend;
 	/* TODO: sanity checks on the DBTs */
 	/* DB_ILLEGAL_METHOD(db, DB_OK_BTREE); */
-	kstart = (uint32 *)((uint8 *)key->data+key->ulen)-1;
+	uint32 * kstart = (uint32 *)((uint8 *)key->data+key->ulen)-1;
 	switch(flags) {
 	    case DB_MULTIPLE:
 		if(data != NULL)

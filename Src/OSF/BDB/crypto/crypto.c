@@ -10,12 +10,6 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 /*
  * __crypto_region_init --
@@ -335,8 +329,6 @@ alg_retry:
  * __crypto_set_passwd --
  *	Get the password from the shared region; and set it in a new
  * environment handle.  Use this to duplicate environment handles.
- *
- * PUBLIC: int __crypto_set_passwd __P((ENV *, ENV *));
  */
 int __crypto_set_passwd(ENV * env_src, ENV * env_dest)
 {

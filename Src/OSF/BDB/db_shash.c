@@ -7,18 +7,10 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 /*
  * __db_tablesize --
  *	Choose a size for the hash table.
- *
- * PUBLIC: uint32 __db_tablesize __P((uint32));
  */
 uint32 __db_tablesize(uint32 n_buckets)
 {
@@ -40,10 +32,7 @@ uint32 __db_tablesize(uint32 n_buckets)
 	 * We don't use the obvious static data structure because some C
 	 * compilers (and I use the term loosely), can't handle them.
 	 */
-#define HASH_SIZE(power, prime) {                                       \
-		if((power) >= n_buckets)                                       \
-			return (prime);                                         \
-}
+#define HASH_SIZE(power, prime) { if((power) >= n_buckets) return (prime); }
 	HASH_SIZE(32, 37);                      /* 2^5 */
 	HASH_SIZE(64, 67);                      /* 2^6 */
 	HASH_SIZE(128, 131);                    /* 2^7 */
@@ -87,8 +76,6 @@ uint32 __db_tablesize(uint32 n_buckets)
 /*
  * __db_hashinit --
  *	Initialize a hash table that resides in shared memory.
- *
- * PUBLIC: void __db_hashinit __P((void *, uint32));
  */
 void __db_hashinit(void * begin, uint32 nelements)
 {

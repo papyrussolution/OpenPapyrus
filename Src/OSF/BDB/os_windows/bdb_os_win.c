@@ -317,8 +317,7 @@ void __os_gettime(ENV * env, db_timespec * tp, int monotonic)
 		 * Jan 1, 1601; convert to a timespec where the time is
 		 * is expressed in seconds and nanoseconds from Jan 1, 1970.
 		 *
-		 * UTC_1970 is the number of 100-nano-second chunks from
-		 * 1601 to 1970.
+		 * UTC_1970 is the number of 100-nano-second chunks from 1601 to 1970.
 		 */
  #define NS100_PER_SEC   (NS_PER_SEC/100)
  #define UTC_1970        (((LONGLONG)27111902<<32)+(LONGLONG)3577643008)

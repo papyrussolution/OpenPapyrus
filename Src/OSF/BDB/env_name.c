@@ -7,15 +7,9 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
-static int __db_fullpath __P((ENV*, const char *, const char *, int, int, char **));
+static int __db_fullpath(ENV*, const char *, const char *, int, int, char **);
 
 #define DB_ADDSTR(add) {                                                \
 		/* \
@@ -78,14 +72,12 @@ static int __db_fullpath(ENV * env, const char * dir, const char * file, int che
 }
 
 #define DB_CHECKFILE(file, dir, check_file, check_dir, namep, ret_dir) do { \
-		ret = __db_fullpath(env, dir, file,                             \
-			check_file, check_dir, namep);                  \
+		ret = __db_fullpath(env, dir, file, check_file, check_dir, namep); \
 		if(ret == 0 && (ret_dir) != NULL)                              \
 			*(ret_dir) = (dir);                                     \
 		if(ret != ENOENT)                                              \
 			return (ret);                                           \
 } while(0)
-
 /*
  * __db_appname --
  *	Given an optional DB environment, directory and file name and type

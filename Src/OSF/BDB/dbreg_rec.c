@@ -35,17 +35,9 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
-// @v9.5.5 #include "dbinc/txn.h"
 
-static int __dbreg_open_file __P((ENV*, DB_TXN*, __dbreg_register_args*, void *));
+static int __dbreg_open_file(ENV*, DB_TXN*, __dbreg_register_args*, void *);
 /*
  * PUBLIC: int __dbreg_register_recover
  * PUBLIC:    (ENV *, DBT *, DB_LSN *, db_recops, void *);

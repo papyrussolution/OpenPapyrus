@@ -393,11 +393,10 @@ int PPALDD_JobPool::NextIteration(long iterId, long rsrv)
 	return ok;
 }
 
-int PPALDD_JobPool::Destroy()
+void PPALDD_JobPool::Destroy()
 {
 	Extra[0].Ptr = 0;
 	Extra[1].Ptr = 0;
-	return 1;
 }
 //
 // PPViewJob

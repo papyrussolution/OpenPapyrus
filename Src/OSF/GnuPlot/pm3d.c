@@ -974,7 +974,7 @@ void GpGadgets::Pm3DDrawOne(GpTermEntry * pT, SurfacePoints * pPlot)
 		}
 		// for pm3dCompress.awk 
 		if(Pm3D.direction != PM3D_DEPTH)
-			pT->layer(TERM_LAYER_BEGIN_PM3D_MAP);
+			pT->_Layer(TERM_LAYER_BEGIN_PM3D_MAP);
 		for(; where[i]; i++) {
 			Pm3DPlot(pT, pPlot, where[i]);
 		}
@@ -995,7 +995,7 @@ void GpGadgets::Pm3DDrawOne(GpTermEntry * pT, SurfacePoints * pPlot)
 #endif
 		// for pm3dCompress.awk 
 		if(Pm3D.direction != PM3D_DEPTH)
-			pT->layer(TERM_LAYER_END_PM3D_MAP);
+			pT->_Layer(TERM_LAYER_END_PM3D_MAP);
 	}
 }
 

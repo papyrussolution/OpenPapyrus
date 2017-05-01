@@ -1178,13 +1178,10 @@ static void EMF_load_dashtype(int dashtype)
 	};
 
 	emf_dashtype = dashtype;
-
 	if(dashtype >= 0)
 		dashtype = dashtype % EMF_LINE_TYPES;
-
 	if(dashtype == LT_AXIS)
 		dashtype = 2;
-
 	if(dashtype == DASHTYPE_CUSTOM) {
 		dashtype = EMF_LINE_TYPES; /* Point to placeholder array */
 		for(i = 0; i < 8; i += 1)
@@ -1196,7 +1193,7 @@ static void EMF_load_dashtype(int dashtype)
 		EMF_DeleteObject(EMF_HANDLE_PEN);
 		EMF_CreatePen(EMF_HANDLE_PEN, emf_pentype, (ulong)(emf_linewidth * EMF_PX2HM), emf_color);
 		EMF_SelectObject((ulong)EMF_HANDLE_PEN);
-		term->vector = EMF_solid_vector;
+		term->_Vector = EMF_solid_vector;
 	}
 	else {
 		/* Since win32 dashed lines works only with 1 pixel linewith we must emulate */
@@ -1205,7 +1202,7 @@ static void EMF_load_dashtype(int dashtype)
 		EMF_CreatePen(EMF_HANDLE_PEN, emf_pentype, (ulong)(emf_linewidth * EMF_PX2HM), emf_color);
 		EMF_SelectObject(EMF_HANDLE_PEN);
 
-		term->vector = EMF_dashed_vector;
+		term->_Vector = EMF_dashed_vector;
 
 		/* set up dash dimensions */
 		j = (dashtype - 1) * 8;
@@ -1222,7 +1219,7 @@ static void EMF_load_dashtype(int dashtype)
 static void EMF_move(uint x, uint y)
 {
 	if(x >= term->xmax || y >= term->ymax) {
-		int_warn(NO_CARET, "emf_move: (%d,%d) out of range", x, y);
+		IntWarn(NO_CARET, "emf_move: (%d,%d) out of range", x, y);
 		x = MIN(x, term->xmax); y = MIN(y, term->ymax);
 	}
 	if(x == emf_posx && y == emf_posy)
@@ -1240,7 +1237,7 @@ static void EMF_dashed_vector(uint ux, uint uy)
 	long remain; /* approximate distance in plot units remaining to specified end point. */
 
 	if(ux >= term->xmax || uy >= term->ymax)
-		int_warn(NO_CARET, "emf_dashed_vector: (%d,%d) out of range", ux, uy);
+		IntWarn(NO_CARET, "emf_dashed_vector: (%d,%d) out of range", ux, uy);
 
 	dx = (ux - emf_posx);
 	dy = (uy - emf_posy);
@@ -1284,7 +1281,7 @@ static void EMF_dashed_vector(uint ux, uint uy)
 static void EMF_solid_vector(uint ux, uint uy)
 {
 	if(ux >= term->xmax || uy >= term->ymax)
-		int_warn(NO_CARET, "emf_solid_vector: (%d,%d) out of range", ux, uy);
+		IntWarn(NO_CARET, "emf_solid_vector: (%d,%d) out of range", ux, uy);
 	if(ux == emf_posx && uy == emf_posy)
 		return;
 	if(emf_coords * 2 > EMF_MAX_SEGMENTS - 2)
@@ -1323,10 +1320,10 @@ static void EMF_put_text(uint x, uint y, const char str[])
 		else FromEnc = "Shift_JIS";
 
 		if((cd = iconv_open("UTF-16LE", FromEnc)) == (iconv_t)-1)
-			int_warn(NO_CARET, "iconv_open failed");
+			IntWarn(NO_CARET, "iconv_open failed");
 		else {
 			if(iconv(cd, (void*)&str_start, &mblen, &wstr_start, &wlen) == (size_t)-1)
-				int_warn(NO_CARET, "iconv failed");
+				IntWarn(NO_CARET, "iconv failed");
 			iconv_close(cd);
 			slen = wsize - wlen;
 			nchars = slen / 2;

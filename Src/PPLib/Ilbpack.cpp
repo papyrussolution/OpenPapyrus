@@ -1601,7 +1601,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 					// @v8.4.10 {
 					{
 						// @log PPTXT_SYNCLOT_UPDROWNSYNCRMV "Строка изменяемого документа [%s] не синхронизирована и должна быть заменена"
-                        (temp_buf = bill_descr_buf).CatDiv(';', 2).Cat(r_ti.RByBill).CatDiv('-').Cat(r_ti.LotID);
+                        (temp_buf = bill_descr_buf).CatDiv(';', 2).Cat(r_ti.RByBill).CatDiv('-', 0).Cat(r_ti.LotID);
                         msg_buf.Printf(PPLoadTextS(PPTXT_SYNCLOT_UPDROWNSYNCRMV, fmt_buf), (const char *)temp_buf);
                         PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 					}
@@ -1637,7 +1637,8 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 							{
 								// @log PPTXT_SYNCLOT_NSYNCMAIN      "Не удалось разрешить синхронизацию лота [%s]"
 								GetGoodsName(p_ilti->GoodsID, goods_name);
-								(temp_buf = bill_descr_buf).CatDiv(';', 2).Cat(p_ilti->RByBill).CatDiv('-').Cat(preserve_frgn_lot_id).CatDiv('-').Cat(goods_name);
+								(temp_buf = bill_descr_buf).CatDiv(';', 2).Cat(p_ilti->RByBill).
+									CatDiv('-', 0).Cat(preserve_frgn_lot_id).CatDiv('-', 0).Cat(goods_name);
 								msg_buf.Printf(PPLoadTextS(PPTXT_SYNCLOT_NSYNCMAIN, fmt_buf), (const char *)temp_buf);
 								PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 							}
@@ -1653,8 +1654,8 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 						{
 							// @log PPTXT_SYNCLOT_NSYNCMIRR      "Не удалось разрешить синхронизацию зеркального лота [%s]"
 							GetGoodsName(p_ilti->GoodsID, goods_name);
-							(temp_buf = bill_descr_buf).CatDiv(';', 2).Cat(p_ilti->RByBill).CatDiv('-').Cat(preserve_frgn_lot_mirr_id).
-								CatDiv('-').Cat(goods_name);
+							(temp_buf = bill_descr_buf).CatDiv(';', 2).Cat(p_ilti->RByBill).CatDiv('-', 0).Cat(preserve_frgn_lot_mirr_id).
+								CatDiv('-', 0).Cat(goods_name);
 							msg_buf.Printf(PPLoadTextS(PPTXT_SYNCLOT_NSYNCMIRR, fmt_buf), (const char *)temp_buf);
 							PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 						}

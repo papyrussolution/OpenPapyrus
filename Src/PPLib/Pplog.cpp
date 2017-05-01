@@ -128,9 +128,9 @@ int LogListWindowSCI::WMHCreate()
 	P_SciFn  = (int (__cdecl *)(void *, int, int, int))SendMessage(HwndSci, SCI_GETDIRECTFUNCTION, 0, 0);
 	P_SciPtr = (void *)SendMessage(HwndSci, SCI_GETDIRECTPOINTER, 0, 0);
 
-	// @v9.1.12 ::SetWindowLongPtr(HwndSci, GWL_USERDATA, (LONG_PTR)this);
+	// @v9.1.12 ::SetWindowLongPtr(HwndSci, GWLP_USERDATA, (LONG_PTR)this);
 	TView::SetWindowUserData(HwndSci, this); // @v9.1.12
-	OrgScintillaWndProc = (WNDPROC)::SetWindowLongPtr(HwndSci, GWL_WNDPROC, (LONG)ScintillaWindowProc);
+	OrgScintillaWndProc = (WNDPROC)::SetWindowLongPtr(HwndSci, GWLP_WNDPROC, (LONG)ScintillaWindowProc);
 	{
 		KeyAccel.clear();
 		{
@@ -175,8 +175,8 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 			}
 			if(p_view) {
 				p_view->hWnd = hWnd;
-				// @v9.1.11 ::SetWindowLong(hWnd, GWL_USERDATA, (LONG)p_view);
-				TView::SetWindowProp(hWnd, GWL_USERDATA, p_view); // @v9.1.11
+				// @v9.1.11 ::SetWindowLong(hWnd, GWLP_USERDATA, (LONG)p_view);
+				TView::SetWindowProp(hWnd, GWLP_USERDATA, p_view); // @v9.1.11
 				::SetFocus(hWnd);
 				::SendMessage(hWnd, WM_NCACTIVATE, TRUE, 0L);
 				p_view->WMHCreate();
@@ -226,8 +226,8 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 				if(!p_view->IsInState(sfModal)) {
 					APPL->P_DeskTop->remove(p_view);
 					delete p_view;
-					// @v9.1.11 SetWindowLong(hWnd, GWL_USERDATA, 0);
-					TView::SetWindowProp(hWnd, GWL_USERDATA, 0); // @v9.1.11
+					// @v9.1.11 SetWindowLong(hWnd, GWLP_USERDATA, 0);
+					TView::SetWindowProp(hWnd, GWLP_USERDATA, 0); // @v9.1.11
 				}
 			}
 			return 0;
@@ -309,12 +309,12 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 //static
 LRESULT CALLBACK LogListWindowSCI::ScintillaWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	LogListWindowSCI * p_this = (LogListWindowSCI *)::GetWindowLongPtr(hwnd, GWL_USERDATA);
+	LogListWindowSCI * p_this = (LogListWindowSCI *)::GetWindowLongPtr(hwnd, GWLP_USERDATA);
 	if(p_this) {
 		switch(msg) {
 			case WM_DESTROY:
-				SetWindowLongPtr(p_this->HwndSci, GWL_WNDPROC, (LONG)p_this->OrgScintillaWndProc);
-				SetWindowLongPtr(p_this->HwndSci, GWL_USERDATA, 0);
+				SetWindowLongPtr(p_this->HwndSci, GWLP_WNDPROC, (LONG)p_this->OrgScintillaWndProc);
+				SetWindowLongPtr(p_this->HwndSci, GWLP_USERDATA, 0);
 				return ::CallWindowProc(p_this->OrgScintillaWndProc, hwnd, msg, wParam, lParam);
 			case WM_CHAR:
 				if(p_this->SysState & p_this->sstLastKeyDownConsumed)
@@ -708,7 +708,7 @@ SLAPI PPLogger::PPLogger(long flags /* = 0 */)
 SLAPI PPLogger::~PPLogger()
 {
 	if(P_Log)
-		TVMsgLog::Delete((TVMsgLog *)P_Log, CS_SERVER ? 1 : 0);
+		TVMsgLog::Delete((TVMsgLog *)P_Log, BIN(CS_SERVER));
 }
 
 int SLAPI PPLogger::Clear()
@@ -855,8 +855,8 @@ BOOL CALLBACK LogListWindow::LogListProc(HWND hWnd, UINT uMsg, WPARAM wParam, LP
 		// } AHTOXA
 		case WM_DESTROY:
 			p_data->StopExec = 1;
-			// @v9.1.11 SetWindowLong(hWnd, GWL_WNDPROC, (long)p_data->PrevLogListProc);
-			TView::SetWindowProp(hWnd, GWL_WNDPROC, p_data->PrevLogListProc); // @v9.1.11
+			// @v9.1.11 SetWindowLong(hWnd, GWLP_WNDPROC, (long)p_data->PrevLogListProc);
+			TView::SetWindowProp(hWnd, GWLP_WNDPROC, p_data->PrevLogListProc); // @v9.1.11
 			break;
 		case WM_KEYDOWN:
 			if(wParam == VK_ESCAPE) {
@@ -890,10 +890,10 @@ LogListWindow::LogListWindow(TRect & rct, LogListBoxDef * aDef, const char * aTi
 		WS_CHILD|WS_CLIPSIBLINGS|WS_VSCROLL|WS_CAPTION|WS_SYSMENU|WS_THICKFRAME|LBS_DISABLENOSCROLL|LBS_NOINTEGRALHEIGHT,
 		r.left, r.top, r.right, r.bottom, APPL->H_MainWnd, 0, TProgram::GetInst(), 0);
 	// } ATHOXA
-	// @v9.1.11 ::SetWindowLong(H(), GWL_USERDATA, (long)this);
-	TView::SetWindowProp(H(), GWL_USERDATA, this); // @v9.1.11
-	// @v9.1.11 PrevLogListProc = (WNDPROC)SetWindowLong(H(), GWL_WNDPROC, (long)LogListProc);
-	PrevLogListProc = (WNDPROC)TView::SetWindowProp(H(), GWL_WNDPROC, LogListProc); // @v9.1.11
+	// @v9.1.11 ::SetWindowLong(H(), GWLP_USERDATA, (long)this);
+	TView::SetWindowProp(H(), GWLP_USERDATA, this); // @v9.1.11
+	// @v9.1.11 PrevLogListProc = (WNDPROC)SetWindowLong(H(), GWLP_WNDPROC, (long)LogListProc);
+	PrevLogListProc = (WNDPROC)TView::SetWindowProp(H(), GWLP_WNDPROC, LogListProc); // @v9.1.11
 	hf = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 	::SendMessage(H(), WM_SETFONT, (long)hf, 0);
 	::ShowWindow(H(), SW_SHOW);
@@ -1326,9 +1326,8 @@ int PPALDD_LogList::NextIteration(PPIterID iterId, long rsrv)
 	return ok;
 }
 
-int PPALDD_LogList::Destroy()
+void PPALDD_LogList::Destroy()
 {
 	delete ((PPMsgLog *)Extra[0].Ptr);
 	Extra[0].Ptr = Extra[1].Ptr = 0;
-	return 1;
 }

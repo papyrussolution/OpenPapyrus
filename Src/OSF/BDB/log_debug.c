@@ -7,23 +7,12 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
 
 static int __log_printf_int __P((ENV*, DB_TXN*, const char *, va_list));
-
 /*
  * __log_printf_capi --
  *	Write a printf-style format string into the DB log.
- *
- * PUBLIC: int __log_printf_capi __P((DB_ENV *, DB_TXN *, const char *, ...))
- * PUBLIC:    __attribute__ ((__format__ (__printf__, 3, 4)));
  */
 int __log_printf_capi(DB_ENV * dbenv, DB_TXN * txnid, const char * fmt, ...)
 {
@@ -41,9 +30,6 @@ int __log_printf_capi(DB_ENV * dbenv, DB_TXN * txnid, const char * fmt, ...)
  *	The reason this routine isn't just folded into __log_printf_capi
  *	is because the C++ API has to call a C API routine, and you can
  *	only pass variadic arguments to a single routine.
- *
- * PUBLIC: int __log_printf_pp
- * PUBLIC:     __P((DB_ENV *, DB_TXN *, const char *, va_list));
  */
 int __log_printf_pp(DB_ENV * dbenv, DB_TXN * txnid, const char * fmt, va_list ap)
 {
@@ -60,9 +46,6 @@ int __log_printf_pp(DB_ENV * dbenv, DB_TXN * txnid, const char * fmt, va_list ap
 /*
  * __log_printf --
  *	Write a printf-style format string into the DB log.
- *
- * PUBLIC: int __log_printf __P((ENV *, DB_TXN *, const char *, ...))
- * PUBLIC:    __attribute__ ((__format__ (__printf__, 3, 4)));
  */
 int __log_printf(ENV * env, DB_TXN * txnid, const char * fmt, ...)
 {

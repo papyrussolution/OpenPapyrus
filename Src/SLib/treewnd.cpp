@@ -34,13 +34,13 @@ TreeWindow::TreeWindow(HWND parentWnd)
 TreeWindow::~TreeWindow()
 {
 	ZDELETE(P_Toolbar);
-	//SetWindowLong(Hwnd, GWL_USERDATA, 0);
-	TView::SetWindowProp(Hwnd, GWL_USERDATA, (void *)0);
+	//SetWindowLong(Hwnd, GWLP_USERDATA, 0);
+	TView::SetWindowProp(Hwnd, GWLP_USERDATA, (void *)0);
 	DestroyWindow(Hwnd);
 }
 
 // static
-BOOL CALLBACK TreeWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK TreeWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int    r = 1;
 	char   menu_name[256];
@@ -48,8 +48,8 @@ BOOL CALLBACK TreeWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 	switch(message) {
 		case WM_INITDIALOG:
 			{
-				//SetWindowLong(hWnd, GWL_USERDATA, (long)lParam);
-				TView::SetWindowProp(hWnd, GWL_USERDATA, lParam);
+				//SetWindowLong(hWnd, GWLP_USERDATA, (long)lParam);
+				TView::SetWindowProp(hWnd, GWLP_USERDATA, lParam);
 				HWND   h_tv = GetDlgItem(hWnd, MENU_TREELIST);
 				if(h_tv)
 					TreeView_SetBkColor(h_tv, GetGrayColorRef(0.8f));

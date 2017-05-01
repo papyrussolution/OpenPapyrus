@@ -399,7 +399,7 @@ int SLAPI PPObjAccount::LockFRR(PPID accID, LDATE dt, int doUnlock)
 				// Если встречаем ошибку "Конфликт блокировок на уровне записи", то повторяем попытку чтения-изменения try_count раз.
 				//
 				ref->unlock(0);
-				delay(10);
+				SDelay(10);
 				--try_count;
 			}
 			else

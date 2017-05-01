@@ -12,8 +12,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="4"
 			CharacterSet="2">
 			<Tool
@@ -65,8 +65,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="4"
 			CharacterSet="2">
 			<Tool
@@ -121,8 +121,8 @@
 		</Configuration>
 		<Configuration
 			Name="ServerDebug|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="4"
 			CharacterSet="2">
 			<Tool
@@ -174,8 +174,8 @@
 		</Configuration>
 		<Configuration
 			Name="ServerRelease|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="4"
 			CharacterSet="2">
 			<Tool
@@ -230,8 +230,8 @@
 		</Configuration>
 		<Configuration
 			Name="MtDllDebug|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="4"
 			CharacterSet="2">
 			<Tool
@@ -283,8 +283,8 @@
 		</Configuration>
 		<Configuration
 			Name="MtDllRelease|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="4"
 			CharacterSet="2">
 			<Tool
@@ -339,8 +339,8 @@
 		</Configuration>
 		<Configuration
 			Name="Universe-HTT|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="4"
 			CharacterSet="2">
 			<Tool
@@ -419,10 +419,61 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\Osf\Bdb\bdb_memp.c">
+			</File>
+			<File
+				RelativePath="..\Osf\Bdb\bdb_mutex.c">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="2"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="2"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="2"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="2"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="2"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="2"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Universe-HTT|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="2"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\Osf\Bdb\os\bdb_os.c">
 			</File>
 			<File
 				RelativePath="..\Osf\Bdb\os_windows\bdb_os_win.c">
+			</File>
+			<File
+				RelativePath="..\Osf\Bdb\bdb_txn.c">
 			</File>
 			<File
 				RelativePath="..\Osf\Bdb\bt_compact.c">
@@ -833,73 +884,7 @@
 				RelativePath="..\Osf\Bdb\mkpath.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Bdb\mp_alloc.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\mp_bh.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\mp_fget.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\mp_fmethod.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\mp_fopen.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\mp_fput.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\mp_fset.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\mp_method.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\mp_mvcc.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\mp_region.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\mp_register.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\mp_resize.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\mp_stat.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\mp_sync.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\mp_trickle.c">
-			</File>
-			<File
 				RelativePath="..\Osf\Bdb\crypto\mt19937db.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\mut_alloc.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\mut_failchk.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\mut_method.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\mut_region.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\mut_stat.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\mut_tas.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\mut_win32.c">
 			</File>
 			<File
 				RelativePath="..\Osf\Bdb\openflags.c">
@@ -1034,34 +1019,7 @@
 				RelativePath="..\Osf\Bdb\test_mutex.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Bdb\txn.c">
-			</File>
-			<File
 				RelativePath="..\Osf\Bdb\txn_auto.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\txn_chkpt.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\txn_failchk.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\txn_method.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\txn_rec.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\txn_recover.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\txn_region.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\txn_stat.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Bdb\txn_util.c">
 			</File>
 			<File
 				RelativePath="..\Osf\Bdb\util_arg.c">

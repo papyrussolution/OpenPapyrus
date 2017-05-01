@@ -91,7 +91,7 @@ int ObjSyncFiltDialog::setDTS(const ObjSyncFilt * pFilt)
 		ids_set.clear();
 		for(pos = 0; pos < Data.CommIDList.getCount(); pos++) {
 			LAssoc  comm_id = Data.CommIDList.at(pos);
-			ids_set.add((buf = 0).Cat(comm_id.Key).CatDiv('-').Cat(comm_id.Val));
+			ids_set.add((buf = 0).Cat(comm_id.Key).CatDiv('-', 0).Cat(comm_id.Val));
 		}
 		setCtrlString(CTL_SYNCFILT_COMMIDS, ids_set.getBuf());
 		ok = 1;
@@ -377,11 +377,11 @@ DBQuery * SLAPI PPViewObjSync::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		*pSubTitle = 0;
 		SString temp_buf;
 		if(Filt.ObjType) {
-			pSubTitle->CatDiv('-', 1, 1).Cat(GetObjectTitle(Filt.ObjType, temp_buf));
+			pSubTitle->CatDivIfNotEmpty('-', 1).Cat(GetObjectTitle(Filt.ObjType, temp_buf));
 		}
 		if(Filt.DbDivID) {
 			GetObjectName(PPOBJ_DBDIV, Filt.DbDivID, temp_buf);
-			pSubTitle->CatDiv('-', 1, 1).Cat(temp_buf);
+			pSubTitle->CatDivIfNotEmpty('-', 1).Cat(temp_buf);
 		}
 	}
 	ASSIGN_PTR(pBrwId, brw_id);
@@ -833,7 +833,7 @@ int PPALDD_ObjSyncCmp::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_ObjSyncCmp::Destroy()
+void PPALDD_ObjSyncCmp::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(ObjSyncCmp);
 }

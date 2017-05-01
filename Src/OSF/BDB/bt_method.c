@@ -7,16 +7,9 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/qam.h"
 
-static int __bam_set_bt_minkey(DB*, uint32);
+static int __bam_set_bt_minkey(DB *, uint32);
 static int __bam_get_bt_compare(DB*, int (* *)(DB*, const DBT*, const DBT *));
 static int __bam_get_bt_prefix(DB*, size_t (* *)(DB*, const DBT*, const DBT *));
 static int __bam_set_bt_prefix(DB*, size_t (*)(DB *, const DBT *, const DBT *));

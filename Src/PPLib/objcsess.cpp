@@ -1580,6 +1580,7 @@ int CTableOrder::Create(Param * pParam)
 	}
 	if(Edit(&ord) > 0) {
 		CCheckPacket cc_pack;
+		TSArray <SCardCore::UpdateRestNotifyEntry> urn_list;
 		PPTransaction tra(1);
 		THROW(tra);
 		THROW(MakeCCheckPacket(&ord, &cc_pack));
@@ -1608,9 +1609,10 @@ int CTableOrder::Create(Param * pParam)
 			scop_rec.LinkObjID   = cc_pack.Rec.ID;
 			scop_rec.UserID  = cc_pack.Rec.UserID;
 			scop_rec.Amount  = ord.PrepayAmount;
-			THROW(P_ScObj->P_Tbl->PutOpRec(&scop_rec, 0));
+			THROW(P_ScObj->P_Tbl->PutOpRec(&scop_rec, &urn_list, 0));
 		}
 		THROW(tra.Commit());
+		P_ScObj->FinishSCardUpdNotifyList(urn_list);
 		UpdateGridItem(cc_pack.Ext.TableNo, cc_pack.Rec.ID, ord.Chunk);
 	}
 	CATCHZOKPPERR

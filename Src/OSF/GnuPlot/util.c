@@ -1005,7 +1005,8 @@ void GpGadgets::CommonErrorExit()
 //
 // Warn without bailing out to command line. Not a user error 
 //
-void int_warn(int t_num, const char * str, ...)
+//void IntWarn(int t_num, const char * str, ...)
+void GpGadgets::IntWarn(int t_num, const char * str, ...)
 {
 	va_list args;
 	// reprint line if screen has been written to 
@@ -1013,14 +1014,14 @@ void int_warn(int t_num, const char * str, ...)
 		GpDf.DfShowData();
 	}
 	else if(t_num != NO_CARET) { /* put caret under error */
-		if(!GpGg.screen_ok)
-			GpGg.Gp__C.PrintMessageToStderr();
+		if(!screen_ok)
+			Gp__C.PrintMessageToStderr();
 		PrintSpacesUnderPrompt();
-		GpGg.Gp__C.PrintSpacesUpToToken(t_num);
+		Gp__C.PrintSpacesUpToToken(t_num);
 		fputs("^\n", stderr); //PRINT_CARET;
 	}
 	PrintSpacesUnderPrompt();
-	GpGg.PrintFileAndLine(GpGg.Gp__C);
+	PrintFileAndLine(Gp__C);
 	fputs("warning: ", stderr);
 	VA_START(args, str);
 #if defined(HAVE_VFPRINTF) || _LIBC
@@ -1143,7 +1144,7 @@ bool existdir(const char * name)
 #elif defined(VMS)
 	return false;
 #else
-	int_warn(NO_CARET, "Test on directory existence not supported\n\t('%s!')", name);
+	IntWarn(NO_CARET, "Test on directory existence not supported\n\t('%s!')", name);
 	return false;
 #endif
 }

@@ -1145,7 +1145,7 @@ static void PDF_point(uint x, uint y, int number)
 #undef SQUARE_SINGLE_PIESLICE
 
 			default:
-			    int_warn(NO_CARET, "PDF: unknown point type number %d", number);
+			    IntWarn(NO_CARET, "PDF: unknown point type number %d", number);
 		}
 	}
 

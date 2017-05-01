@@ -632,7 +632,7 @@ int PPALDD_AssetView::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_AssetView::Destroy()
+void PPALDD_AssetView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(Asset);
 }

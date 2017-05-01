@@ -563,7 +563,7 @@ int SLAPI PPCommandFolder::AddSeparator(int pos)
 {
 	int    ok = 1;
 	PPCommandItem * p_item = new PPCommandItem(kSeparator);
-	(p_item->Name = 0).CatCharN('-', 40).ToOem();
+	(p_item->Name = 0).CatCharN('-', 40).Transf(CTRANSF_OUTER_TO_INNER);
 	if(pos < 0 || pos >= (int)GetCount())
 		List.insert(p_item);
 	else
@@ -1083,7 +1083,7 @@ SLAPI PPCommandMngr::PPCommandMngr(const char * pFileName, int readOnly)
 		if(F.Open(pFileName, mode))
 			break;
 		else
-			delay(100);
+			SDelay(100);
 	}
 }
 
@@ -1723,7 +1723,7 @@ int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 					else if(psn_pack.GetRegister(pk_rec.CodeRegTypeID, &pos) > 0) {
 						reg_rec = psn_pack.Regs.at(pos-1);
 						psn_obj.RegObj.Format(reg_rec.ID, 0, reg_buf);
-						info.CatDiv(';', 2, 1).Cat(reg_buf);
+						info.CatDivIfNotEmpty(';', 2).Cat(reg_buf);
 						if(reg_rec.Expiry && reg_rec.Expiry < getcurdate_()) {
 							//
 							// Текст сообщения о том, что срок действия регистра истек

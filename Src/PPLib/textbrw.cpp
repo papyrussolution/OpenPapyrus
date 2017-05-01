@@ -110,8 +110,8 @@ STextBrowser::~STextBrowser()
 	if(::IsWindow(HwndSci)) {
 		FileClose();
 		if(OrgScintillaWndProc) {
-			TView::SetWindowProp(HwndSci, GWL_WNDPROC, OrgScintillaWndProc);
-			TView::SetWindowProp(HwndSci, GWL_USERDATA, (void *)0);
+			TView::SetWindowProp(HwndSci, GWLP_WNDPROC, OrgScintillaWndProc);
+			TView::SetWindowProp(HwndSci, GWLP_USERDATA, (void *)0);
 		}
 		DestroyWindow(HwndSci);
 	}
@@ -219,7 +219,7 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 			}
 			if(p_view) {
 				p_view->HW = hWnd;
-				TView::SetWindowProp(hWnd, GWL_USERDATA, p_view);
+				TView::SetWindowProp(hWnd, GWLP_USERDATA, p_view);
 				::SetFocus(hWnd);
 				::SendMessage(hWnd, WM_NCACTIVATE, TRUE, 0L);
 				p_view->WMHCreate();
@@ -265,7 +265,7 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 				if(!p_view->IsInState(sfModal)) {
 					APPL->P_DeskTop->remove(p_view);
 					delete p_view;
-					TView::SetWindowProp(hWnd, GWL_USERDATA, (void *)0);
+					TView::SetWindowProp(hWnd, GWLP_USERDATA, (void *)0);
 				}
 			}
 			return 0;
@@ -495,12 +495,12 @@ int SLAPI STextBrowser::LoadToolbar(uint tbId)
 //static
 LRESULT CALLBACK STextBrowser::ScintillaWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	STextBrowser * p_this = (STextBrowser *)::GetWindowLongPtr(hwnd, GWL_USERDATA);
+	STextBrowser * p_this = (STextBrowser *)::GetWindowLongPtr(hwnd, GWLP_USERDATA);
 	if(p_this) {
 		switch(msg) {
 			case WM_DESTROY:
-				TView::SetWindowProp(p_this->HwndSci, GWL_WNDPROC, p_this->OrgScintillaWndProc);
-				TView::SetWindowProp(p_this->HwndSci, GWL_USERDATA, (void *)0);
+				TView::SetWindowProp(p_this->HwndSci, GWLP_WNDPROC, p_this->OrgScintillaWndProc);
+				TView::SetWindowProp(p_this->HwndSci, GWLP_USERDATA, (void *)0);
 				return ::CallWindowProc(p_this->OrgScintillaWndProc, hwnd, msg, wParam, lParam);
 			case WM_CHAR:
 				if(p_this->SysState & p_this->sstLastKeyDownConsumed)
@@ -556,8 +556,8 @@ int STextBrowser::WMHCreate()
 	P_SciFn  = (int (__cdecl *)(void *, int, int, int))SendMessage(HwndSci, SCI_GETDIRECTFUNCTION, 0, 0);
 	P_SciPtr = (void *)SendMessage(HwndSci, SCI_GETDIRECTPOINTER, 0, 0);
 
-	TView::SetWindowProp(HwndSci, GWL_USERDATA, this);
-	OrgScintillaWndProc = (WNDPROC)TView::SetWindowProp(HwndSci, GWL_WNDPROC, ScintillaWindowProc);
+	TView::SetWindowProp(HwndSci, GWLP_USERDATA, this);
+	OrgScintillaWndProc = (WNDPROC)TView::SetWindowProp(HwndSci, GWLP_WNDPROC, ScintillaWindowProc);
 	// @v8.6.2 (SCI_SETKEYSUNICODE deprecated in sci 3.5.5) CallFunc(SCI_SETKEYSUNICODE, 1, 0);
 	CallFunc(SCI_SETCARETLINEVISIBLE, 1, 0);
 	CallFunc(SCI_SETCARETLINEBACK, RGB(232,232,255), 0);

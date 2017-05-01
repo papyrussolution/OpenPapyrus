@@ -986,8 +986,7 @@ int __db_lget(DBC * dbc, int action, db_pgno_t pgno, db_lockmode_t mode, uint32 
 	if(F_ISSET(dbp->mpf->mfp, MP_DATABASE_LOCKING)) {
 		dbc->lock.type = DB_DATABASE_LOCK;
 		dbc->lock.pgno = PGNO_BASE_MD;
-		if((ret = __lock_get(env, dbc->locker, DB_LOCK_NOWAIT, &dbc->lock_dbt, F_ISSET(dbp, DB_AM_RDONLY) ?
-			    DB_LOCK_READ : DB_LOCK_WRITE, lockp)) == 0) {
+		if((ret = __lock_get(env, dbc->locker, DB_LOCK_NOWAIT, &dbc->lock_dbt, F_ISSET(dbp, DB_AM_RDONLY) ? DB_LOCK_READ : DB_LOCK_WRITE, lockp)) == 0) {
 			if(F_ISSET(dbp->mpf->mfp, MP_DATABASE_LOCKING)) {
 				F_SET(dbc, DBC_DONTLOCK);
 				if(!IS_REAL_TXN(txn))
@@ -1134,17 +1133,14 @@ int __db_has_pagelock(ENV * env, DB_LOCKER * locker, DB_MPOOLFILE * dbmfp, PAGE 
  *
  * PUBLIC: int __db_lput __P((DBC *, DB_LOCK *));
  */
-int __db_lput(DBC * dbc, DB_LOCK * lockp)
+int FASTCALL __db_lput(DBC * dbc, DB_LOCK * lockp)
 {
-	DB_LOCKREQ couple[2], * reqp;
-	ENV * env;
 	int action, ret;
-	/*
-	 * Transactional locking.
-	 * Hold on to the read locks only if we are in full isolation.
-	 * Downgrade write locks if we are supporting dirty readers unless
-	 * there was an error.
-	 */
+	//
+	// Transactional locking.
+	// Hold on to the read locks only if we are in full isolation.
+	// Downgrade write locks if we are supporting dirty readers unless there was an error.
+	// 
 	if(F_ISSET(dbc->dbp, DB_AM_READ_UNCOMMITTED) && !F_ISSET(dbc, DBC_ERROR) && lockp->mode == DB_LOCK_WRITE)
 		action = LCK_DOWNGRADE;
 	else if(dbc->txn == NULL)
@@ -1155,26 +1151,32 @@ int __db_lput(DBC * dbc, DB_LOCK * lockp)
 		action = LCK_COUPLE;
 	else
 		action = 0;
-	env = dbc->env;
 	switch(action) {
 	    case LCK_COUPLE:
-		ret = __lock_put(env, lockp);
-		break;
+			{
+				ENV * env = dbc->env;
+				ret = __lock_put(env, lockp);
+			}
+			break;
 	    case LCK_DOWNGRADE:
-		couple[0].op = DB_LOCK_GET;
-		couple[0].obj = NULL;
-		couple[0].mode = DB_LOCK_WWRITE;
-		couple[0].lock = *lockp;
-		UMRW_SET(couple[0].timeout);
-		couple[1].op = DB_LOCK_PUT;
-		couple[1].lock = *lockp;
-		ret = __lock_vec(env, dbc->locker, 0, couple, 2, &reqp);
-		if(ret == 0 || reqp == &couple[1])
-			*lockp = couple[0].lock;
-		break;
+			{
+				ENV * env = dbc->env;
+				DB_LOCKREQ couple[2], * reqp;
+				couple[0].op = DB_LOCK_GET;
+				couple[0].obj = NULL;
+				couple[0].mode = DB_LOCK_WWRITE;
+				couple[0].lock = *lockp;
+				UMRW_SET(couple[0].timeout);
+				couple[1].op = DB_LOCK_PUT;
+				couple[1].lock = *lockp;
+				ret = __lock_vec(env, dbc->locker, 0, couple, 2, &reqp);
+				if(ret == 0 || reqp == &couple[1])
+					*lockp = couple[0].lock;
+			}
+			break;
 	    default:
-		ret = 0;
-		break;
+			ret = 0;
+			break;
 	}
 	return ret;
 }

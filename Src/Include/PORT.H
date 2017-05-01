@@ -1,5 +1,5 @@
 // PORT.H
-// Copyright (c) V.Antonov, A.Sobolev 1999-2001, 2002, 2003, 2007, 2008, 2009, 2010, 2011, 2015
+// Copyright (c) V.Antonov, A.Sobolev 1999-2001, 2002, 2003, 2007, 2008, 2009, 2010, 2011, 2015, 2017
 //
 #ifdef _WIN32
 	#ifndef __WIN32__
@@ -18,17 +18,17 @@
 	#include <windows.h>
 	#define _Windows
 	// @v8.9.8 #define asm __asm
-	#define far
-	#define _FARFUNC
-	#define farcalloc calloc
-	#define farmalloc malloc
-	#define farrealloc realloc
-	#define farfree free
+	// @v9.6.4 #define far
+	// @v9.6.4 #define _FARFUNC
+	// @v9.6.4 #define farcalloc calloc
+	// @v9.6.4 #define farmalloc malloc
+	// @v9.6.4 #define farrealloc realloc
+	// @v9.6.4 #define farfree free
 
 	#define pow10l(x) pow(10,(x))
 	#define pow10(x)  pow(10,(x))
 
-	#define delay(n) ::Sleep(n)
+	// @v9.6.4 #define delay(n) ::Sleep(n)
 
 	#define MAXDRIVE 3
 	#define MAXFILE 257
@@ -45,12 +45,12 @@
 	#include <windows.h>
 	#define _Windows
 	#define asm __asm
-	#define far
-	#define _FARFUNC
-	#define farcalloc calloc
-	#define farmalloc malloc
-	#define farrealloc realloc
-	#define farfree free
+	// @v9.6.4 #define far
+	// @v9.6.4 #define _FARFUNC
+	// @v9.6.4 #define farcalloc calloc
+	// @v9.6.4 #define farmalloc malloc
+	// @v9.6.4 #define farrealloc realloc
+	// @v9.6.4 #define farfree free
 
 	#define stricmp         _stricmp
 	#define strnicmp        _strnicmp
@@ -69,7 +69,7 @@
 	#define pow10l(x) pow(10,(x))
 	#define pow10(x) pow(10,(x))
 
-	#define delay(n) ::Sleep(n)
+	// @v9.6.4 #define delay(n) ::Sleep(n)
 
 	#define MAXDRIVE 3
 	#define MAXFILE 257

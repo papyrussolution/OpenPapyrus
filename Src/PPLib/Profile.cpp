@@ -1066,7 +1066,7 @@ static int SLAPI ParseUfpFileName(const char * pFileName, S_GUID & rDbUuid, SStr
 					kind = Profile::fkFinish;
 				}
 				else {
-					rDbSymb.CatDiv('_', 0, 1).Cat(temp_buf);
+					rDbSymb.CatDivIfNotEmpty('_', 0).Cat(temp_buf);
 				}
 			}
 		}

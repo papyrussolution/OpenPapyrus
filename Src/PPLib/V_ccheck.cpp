@@ -1427,11 +1427,11 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							break;
 						case CCheckFilt::gDayOfWeek:
 							GetDayOfWeekText(dowtRuFull, rec.Dt.day(), temp_buf);
-							temp_buf.ToOem();
+							temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
 							break;
 						case CCheckFilt::gDowNTime:
 							GetDayOfWeekText(dowtRuFull, rec.Dt.day(), temp_buf);
-							temp_buf.ToOem().CatDiv('-', 1).CatLongZ(rec.Tm.hour(), 2).CatCharN('.', 2).CatLongZ(rec.Tm.hour()+1, 2);
+							temp_buf.Transf(CTRANSF_OUTER_TO_INNER).CatDiv('-', 1).CatLongZ(rec.Tm.hour(), 2).CatCharN('.', 2).CatLongZ(rec.Tm.hour()+1, 2);
 							break;
 						case CCheckFilt::gCash:
 							temp_buf.Cat(rec.CashID);
@@ -1514,10 +1514,10 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 									temp_buf.Cat(name_buf);
 									LocationCore::GetExField(&loc_rec, LOCEXSTR_SHORTADDR, name_buf);
 									if(name_buf.NotEmptyS())
-										temp_buf.CatDiv(',', 2, 1).Cat(name_buf);
+										temp_buf.CatDivIfNotEmpty(',', 2).Cat(name_buf);
 									LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, name_buf);
 									if(name_buf.NotEmptyS())
-										temp_buf.CatDiv(',', 2, 1).Cat(name_buf);
+										temp_buf.CatDivIfNotEmpty(',', 2).Cat(name_buf);
 								}
 							}
 							break;
@@ -1557,7 +1557,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 								// @v9.5.5 GetGoodsName(rec.GoodsID, goods_name);
 								GdsObj.FetchNameR(rec.GoodsID, goods_name); // @v9.5.5
 							}
-							temp_buf.CatDiv('-', 1, 1).Cat(goods_name);
+							temp_buf.CatDivIfNotEmpty('-', 1).Cat(goods_name);
 							break;
 						// @v7.7.0 {
 						case CCheckFilt::gGoodsSCSer:
@@ -1572,7 +1572,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							if(rec.CashID) {
 								PPSCardSeries sc_rec;
 								if(sc_obj.Fetch(rec.CashID, &sc_rec) > 0)
-									temp_buf.CatDiv('-', 1, 1).Cat(sc_rec.Name);
+									temp_buf.CatDivIfNotEmpty('-', 1).Cat(sc_rec.Name);
 							}
 							break;
 						// } @v7.7.0
@@ -1593,7 +1593,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 								// @v9.5.5 GetGoodsName(rec.GoodsID, goods_name);
 								GdsObj.FetchNameR(rec.GoodsID, goods_name); // @v9.5.5
 							}
-							temp_buf.CatDiv('-', 1, 1).Cat(goods_name);
+							temp_buf.CatDivIfNotEmpty('-', 1).Cat(goods_name);
 							break;
 						// } @v8.4.8
 					}
@@ -4076,28 +4076,26 @@ int PPALDD_CCheck::InitData(PPFilt & rFilt, long rsrv)
 				H.OrderEndDt = pack.Ext.EndOrdDtm.d;
 				H.OrderEndTm = pack.Ext.EndOrdDtm.t;
 				H.LinkCheckID = pack.Ext.LinkCheckID;
-				H.DlvrLocID   = pack.Ext.AddrID; // @v7.0.9
-				// @v7.0.9 {
+				H.DlvrLocID   = pack.Ext.AddrID;
 				temp_buf = 0;
 				if(H.OrderStartDt)
 					temp_buf.Cat(H.OrderStartDt, DATF_DMY);
 				if(H.OrderStartTm)
-					temp_buf.CatDiv(0, 1, 1).Cat(H.OrderStartTm, TIMF_HM);
+					temp_buf.CatDivIfNotEmpty(0, 1).Cat(H.OrderStartTm, TIMF_HM);
 				temp_buf.CopyTo(H.OrderStartTxt, sizeof(H.OrderStartTxt));
 				//
 				temp_buf = 0;
 				if(H.OrderEndDt)
 					temp_buf.Cat(H.OrderEndDt, DATF_DMY);
 				if(H.OrderEndTm)
-					temp_buf.CatDiv(0, 1, 1).Cat(H.OrderEndTm, TIMF_HM);
+					temp_buf.CatDivIfNotEmpty(0, 1).Cat(H.OrderEndTm, TIMF_HM);
 				temp_buf.CopyTo(H.OrderEndTxt, sizeof(H.OrderEndTxt));
-				// } @v7.0.9
 				// @v8.0.11 {
 				temp_buf = 0;
 				if(H.CreationDt)
 					temp_buf.Cat(H.CreationDt, DATF_DMY);
 				if(H.CreationTm)
-					temp_buf.CatDiv(0, 1, 1).Cat(H.CreationTm, TIMF_HM);
+					temp_buf.CatDivIfNotEmpty(0, 1).Cat(H.CreationTm, TIMF_HM);
 				temp_buf.CopyTo(H.CreationTxt, sizeof(H.CreationTxt));
 				// } @v8.0.11
 			}
@@ -4196,7 +4194,7 @@ int PPALDD_CCheckView::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_CCheckView::Destroy()
+void PPALDD_CCheckView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(CCheck);
 }
@@ -4262,7 +4260,7 @@ int PPALDD_CCheckViewDetail::NextIteration(long iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_CCheckViewDetail::Destroy()
+void PPALDD_CCheckViewDetail::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(CCheck);
 }
@@ -4332,21 +4330,21 @@ int PPALDD_CCheckDetail::InitData(PPFilt & rFilt, long rsrv)
 	if(H.OrderStartDt)
 		temp_buf.Cat(H.OrderStartDt, DATF_DMY);
 	if(H.OrderStartTm)
-		temp_buf.CatDiv(0, 1, 1).Cat(H.OrderStartTm, TIMF_HM);
+		temp_buf.CatDivIfNotEmpty(0, 1).Cat(H.OrderStartTm, TIMF_HM);
 	temp_buf.CopyTo(H.OrderStartTxt, sizeof(H.OrderStartTxt));
 	//
 	temp_buf = 0;
 	if(H.OrderEndDt)
 		temp_buf.Cat(H.OrderEndDt, DATF_DMY);
 	if(H.OrderEndTm)
-		temp_buf.CatDiv(0, 1, 1).Cat(H.OrderEndTm, TIMF_HM);
+		temp_buf.CatDivIfNotEmpty(0, 1).Cat(H.OrderEndTm, TIMF_HM);
 	temp_buf.CopyTo(H.OrderEndTxt, sizeof(H.OrderEndTxt));
 	// @v8.1.10 {
 	temp_buf = 0;
 	if(H.CreationDt)
 		temp_buf.Cat(H.CreationDt, DATF_DMY);
 	if(H.CreationTm)
-		temp_buf.CatDiv(0, 1, 1).Cat(H.CreationTm, TIMF_HM);
+		temp_buf.CatDivIfNotEmpty(0, 1).Cat(H.CreationTm, TIMF_HM);
 	temp_buf.CopyTo(H.CreationTxt, sizeof(H.CreationTxt));
 	// } @v8.1.10
 	if(pack.Rec.Flags & CCHKF_DELIVERY) {
@@ -4437,11 +4435,10 @@ int PPALDD_CCheckDetail::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmSt
 	return 1;
 }
 
-int PPALDD_CCheckDetail::Destroy()
+void PPALDD_CCheckDetail::Destroy()
 {
  	delete (CheckPaneDialog *)Extra[0].Ptr;
  	Extra[0].Ptr = Extra[1].Ptr = 0;
-	return 1;
 }
 //
 // Implementation of PPALDD_CCheckPacket
@@ -4519,7 +4516,6 @@ int PPALDD_CCheckPacket::NextIteration(long iterId, long rsrv)
 	return ok;
 }
 
-int PPALDD_CCheckPacket::Destroy()
+void PPALDD_CCheckPacket::Destroy()
 {
-	return -1;
 }

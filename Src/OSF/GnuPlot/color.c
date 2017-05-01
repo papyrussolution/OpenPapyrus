@@ -168,9 +168,9 @@ void GpGadgets::IFilledQuadrangle(GpTermEntry * pT, gpiPoint * pICorners)
 		// It should be sufficient to set only the color, but for some 
 		// reason this causes the svg terminal to lose the fill type.  
 		ApplyLpProperties(pT, &Pm3DBorderLp);
-		pT->move(pICorners[0].x, pICorners[0].y);
+		pT->_Move(pICorners[0].x, pICorners[0].y);
 		for(int i = 3; i >= 0; i--) {
-			pT->vector(pICorners[i].x, pICorners[i].y);
+			pT->_Vector(pICorners[i].x, pICorners[i].y);
 		}
 	}
 }
@@ -390,18 +390,18 @@ void GpGadgets::CbTickCallback(GpTermEntry * pT, GpTicCallbackParam * pP)
 	if(pP->Style.l_type > LT_NODRAW) {
 		ApplyLpProperties(pT, &pP->Style); // grid linetype 
 		if(ColorBox.rotation == 'h') {
-			(*pT->move)(x1, ColorBox.bounds.ybot);
-			(*pT->vector)(x1, ColorBox.bounds.ytop);
+			pT->_Move(x1, ColorBox.bounds.ybot);
+			pT->_Vector(x1, ColorBox.bounds.ytop);
 		}
 		else {
-			(*pT->move)(ColorBox.bounds.xleft, y1);
-			(*pT->vector)(ColorBox.bounds.xright, y1);
+			pT->_Move(ColorBox.bounds.xleft, y1);
+			pT->_Vector(ColorBox.bounds.xright, y1);
 		}
 		ApplyLpProperties(pT, &BorderLp); // border linetype 
 	}
 	// draw tic 
-	(*pT->move)(x1, y1);
-	(*pT->vector)(x2, y2);
+	pT->_Move(x1, y1);
+	pT->_Vector(x2, y2);
 	// draw label 
 	if(pP->P_Text) {
 		/*int*/JUSTIFY just;
@@ -458,8 +458,8 @@ void GpGadgets::CbTickCallback(GpTermEntry * pT, GpTicCallbackParam * pP)
 			x1 = ColorBox.bounds.xleft;
 			x2 = x1 - len;
 		}
-		(*pT->move)(x1, y1);
-		(*pT->vector)(x2, y2);
+		pT->_Move(x1, y1);
+		pT->_Vector(x2, y2);
 	}
 }
 //
@@ -571,11 +571,11 @@ void GpGadgets::DrawColorSmoothBox(GpTermEntry * pT, int plot_mode)
 			}
 			{
 				newpath(pT);
-				(pT->move)(ColorBox.bounds.xleft, ColorBox.bounds.ybot);
-				(pT->vector)(ColorBox.bounds.xright, ColorBox.bounds.ybot);
-				(pT->vector)(ColorBox.bounds.xright, ColorBox.bounds.ytop);
-				(pT->vector)(ColorBox.bounds.xleft, ColorBox.bounds.ytop);
-				(pT->vector)(ColorBox.bounds.xleft, ColorBox.bounds.ybot);
+				pT->_Move(ColorBox.bounds.xleft, ColorBox.bounds.ybot);
+				pT->_Vector(ColorBox.bounds.xright, ColorBox.bounds.ybot);
+				pT->_Vector(ColorBox.bounds.xright, ColorBox.bounds.ytop);
+				pT->_Vector(ColorBox.bounds.xleft, ColorBox.bounds.ytop);
+				pT->_Vector(ColorBox.bounds.xleft, ColorBox.bounds.ybot);
 				closepath(pT);
 			}
 			// Set line properties to some value, this also draws lines in postscript terminals.

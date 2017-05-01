@@ -192,8 +192,7 @@ void CtmDclrList::Destroy()
 	uint c = P_List ? P_List->getCount() : 0;
 	if(c) do {
 		CtmDclr * p_dclr = P_List->at(--c);
-		if(p_dclr)
-			p_dclr->Destroy();
+		CALLPTRMEMB(p_dclr, Destroy());
 	} while(c);
 	ZDELETE(P_List);
 }
@@ -1436,12 +1435,9 @@ int DlContext::AddFuncDeclare(const CtmDclr & rSymb, const CtmDclrList & rArgLis
 	else if(propDirParam == DlFunc::fArgOut) { // propget
 		func.Flags |= DlFunc::fPropGet;
 	}
-	// @v5.9.7 {
 	const uint   sc_kind = p_scope ? p_scope->GetKind() : 0;
 	const int    is_exp_func = oneof2(sc_kind, DlScope::kExpDataHdr, DlScope::kExpDataIter);
 	THROW_PP(is_exp_func || sc_kind == DlScope::kInterface, PPERR_DL6_FUNCINVSCOPE);
-	// } @v5.9.7
-	// @v5.9.7 THROW(p_scope && p_scope->GetKind() == DlScope::kInterface);
 	if(is_exp_func)
 		func.Name.CatChar('?').Cat(rSymb.Tok.U.S);
 	else
@@ -2143,7 +2139,6 @@ int DlContext::ResolveExpr(DLSYMBID scopeID, DLSYMBID callerScopeID, int exactSc
 						THROW(GetDotFunc(&rf));
 						THROW(pExpr->SetResolvedFunc(rf));
 					}
-					// @v7.1.10 {
 					else if(pExpr->U.Op == dlopObjRef) {
 						DLSYMBID ref_type_id = 0;
 						THROW(SearchTypeID(pExpr->U.Ref.Typ, &pos, &te));
@@ -2154,7 +2149,6 @@ int DlContext::ResolveExpr(DLSYMBID scopeID, DLSYMBID callerScopeID, int exactSc
 						THROW(GetRefFunc(&rf));
 						THROW(pExpr->SetResolvedFunc(rf));
 					}
-					// } @v7.1.10
 					else {
 						THROW(ResolveExpr(callerScopeID, callerScopeID, /*exactScope*/0, pExpr->P_Arg)); // @recursion
 						THROW(ResolveFunc(scopeID, exactScope, pExpr));
@@ -2553,7 +2547,6 @@ int DlContext::Write_Func(Generator_CPP & gen, const DlFunc & rFunc, int format,
 			if(i)
 				temp_buf.Comma().Space();
 			if(format == ffCPP_CallImp) {
-				// @v5.4.6 {
 				THROW(rFunc.GetArg(i, &arg));
 				THROW(SearchTypeID(arg.TypID, 0, &te));
 				THROW(UnrollType(arg.TypID, te.T, &td));
@@ -2562,7 +2555,6 @@ int DlContext::Write_Func(Generator_CPP & gen, const DlFunc & rFunc, int format,
 					if(td.T.Mod == STypEx::modPtr)
 						temp_buf.CatChar('&');
 				}
-				// } @v5.4.6
 				temp_buf.Cat(arg_name);
 			}
 			else {
@@ -2936,12 +2928,10 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 				gen.Wr_ClassAcsZone(Generator_CPP::acsPublic);
 				gen.IndentInc();
 				const int is_iter = BIN(p_ds->GetFirstChildByKind(DlScope::kExpDataIter, 0));
-				// @v5.9.7 {
 				int is_func_decl = 0;
 				for(j = 0; !is_func_decl && p_ds->EnumChilds(&j, &p_rec);)
 					if((p_rec->IsKind(DlScope::kExpDataHdr) || p_rec->IsKind(DlScope::kExpDataIter)) && p_rec->GetFuncCount())
 						is_func_decl = 1;
-				// } @v5.9.7
 				//
 				// Methods
 				//
@@ -2970,17 +2960,15 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 					gen.Wr_EndDeclFunc(1, 1);
 				}
 				if(p_ds->CheckDvFlag(DlScope::declfDestroy)) {
-					gen.Wr_StartDeclFunc(Generator_CPP::fkOrdinary, Generator_CPP::fmVirtual, "int", "Destroy");
+					gen.Wr_StartDeclFunc(Generator_CPP::fkOrdinary, Generator_CPP::fmVirtual, "void", "Destroy"); // @v9.6.4 "int"-->"void"
 					gen.Wr_EndDeclFunc(1, 1);
 				}
-				// @v6.6.5 {
 				if(p_ds->CheckDvFlag(DlScope::declfSet)) {
 					gen.Wr_StartDeclFunc(Generator_CPP::fkOrdinary, Generator_CPP::fmVirtual, "int", "Set");
 					gen.Wr_VarDecl("long", "iterId", 0, ',');
 					gen.Wr_VarDecl("int", "commit", 0, 0);
 					gen.Wr_EndDeclFunc(1, 1);
 				}
-				// } @v6.6.5
 				if(is_func_decl) {
 					// virtual int EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS);
 					gen.Wr_StartDeclFunc(Generator_CPP::fkOrdinary, Generator_CPP::fmVirtual, "int", "EvaluateFunc");
@@ -3022,8 +3010,8 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 			// Конструктор
 			//
 			gen.Wr_StartDeclFunc(Generator_CPP::fkConstr, 0, 0, cls_name);
-			gen.Wr_VarDecl("const char *", "pFileName", "0", ',');
-			gen.Wr_VarDecl("int", "openMode", "omNormal", 0);
+			gen.Wr_VarDecl("const char *", "pFileName", "0", 0); // @v9.6.4 ','-->0
+			// @v9.6.4 gen.Wr_VarDecl("int", "openMode", "omNormal", 0);
 			gen.Wr_EndDeclFunc(1, 1);
 			gen.WriteLine(0);
 			//
@@ -3385,7 +3373,7 @@ int SLAPI DlContext::Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & r
 				gen.WriteLine(func_name);
 				for(k = 0; p_ifs->EnumFunctions(&k, &func) > 0;) {
 					gen.CatIndent(fld_buf = 0);
-					fld_buf.CatChar('f').CatLongZ(k-1, 3).CatLongZ(j-1, 2).CatDiv('=', 1).CatChar('&'); // @v6.7.0 .CatChar('&')
+					fld_buf.CatChar('f').CatLongZ(k-1, 3).CatLongZ(j-1, 2).CatDiv('=', 1).CatChar('&');
 					if(func.Flags & DlFunc::fPropGet) {
 						(func_name = "get").CatChar('_').Cat(func.Name);
 						func.Name = func_name;
@@ -3669,7 +3657,6 @@ int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScop
 					// } ...code
 					gen.Wr_CloseBrace(0, 0);
 				}
-				// @v6.6.5 {
 				if(p_ds->CheckDvFlag(DlScope::declfSet)) {
 					gen.WriteLine(0);
 					gen.MakeClsfName(cls_name, "Set", fld_buf);
@@ -3687,17 +3674,16 @@ int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScop
 					// } ...code
 					gen.Wr_CloseBrace(0, 0);
 				}
-				// } @v6.6.5
 				if(p_ds->CheckDvFlag(DlScope::declfDestroy)) {
 					gen.WriteLine(0);
 					gen.MakeClsfName(cls_name, "Destroy", fld_buf);
-					gen.Wr_StartDeclFunc(Generator_CPP::fkOrdinary, 0, "int", fld_buf);
+					gen.Wr_StartDeclFunc(Generator_CPP::fkOrdinary, 0, "int", fld_buf); // @v9.6.4 "int"-->"void"
 					gen.Wr_EndDeclFunc(0, 1);
 					gen.Wr_OpenBrace();
 					// code... {
 					gen.IndentInc();
 					{
-						gen.Wr_Return("-1");
+						// @v9.6.4 gen.Wr_Return("-1");
 					}
 					gen.IndentDec();
 					// } ...code

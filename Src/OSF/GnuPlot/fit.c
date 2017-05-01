@@ -1654,7 +1654,7 @@ void GpFit::Implement_FitCommand(GpCommand & rC)
 				err_cols[iz] = true;
 		}
 		else if(columns >= 3 && rC.P.FitDummyVar[columns-2] == 0) {
-			int_warn(NO_CARET,
+			GpGg.IntWarn(NO_CARET,
 			    "\n\t> Implied independent variable %s not found in fit function."
 			    "\n\t> Assuming version 4 syntax with zerror in column %d but no zerror keyword.\n",
 			    rC.P.CDummyVar[columns-2], columns);
@@ -2055,7 +2055,7 @@ out_of_range:
 		fprintf(STANDARD, "  the magnitude of the expected error. If all else fails, try 1.0\n\n");
 	}
 	if(num_params == 0)
-		int_warn(NO_CARET, "No fittable parameters!\n");
+		GpGg.IntWarn(NO_CARET, "No fittable parameters!\n");
 	else
 		Regress(P_A);  /* fit */
 	SFile::ZClose(&log_f);

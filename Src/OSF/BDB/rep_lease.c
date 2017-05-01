@@ -30,26 +30,19 @@ static void __rep_find_entry __P((ENV*, REP*, int, REP_LEASE_ENTRY**));
 int __rep_update_grant(ENV*env, db_timespec * ts)
 {
 	DBT lease_dbt;
-	DB_LOG * dblp;
-	DB_REP * db_rep;
-	LOG * lp;
-	REP * rep;
 	__rep_grant_info_args gi;
 	db_timespec mytime;
 	uint8 buf[__REP_GRANT_INFO_SIZE];
 	int master, ret;
 	size_t len;
-
-	db_rep = env->rep_handle;
-	rep = db_rep->region;
-	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	DB_REP * db_rep = env->rep_handle;
+	REP * rep = db_rep->region;
+	DB_LOG * dblp = env->lg_handle;
+	LOG * lp = (LOG *)dblp->reginfo.primary;
 	timespecclear(&mytime);
-
-	/*
-	 * Get current time, and add in the (skewed) lease duration
-	 * time to send the grant to the master.
-	 */
+	//
+	// Get current time, and add in the (skewed) lease duration time to send the grant to the master.
+	//
 	__os_gettime(env, &mytime, 1);
 	timespecadd(&mytime, &rep->lease_duration);
 	REP_SYSTEM_LOCK(env);
@@ -72,8 +65,7 @@ int __rep_update_grant(ENV*env, db_timespec * ts)
 	 */
 	gi.msg_sec = (uint32)ts->tv_sec;
 	gi.msg_nsec = (uint32)ts->tv_nsec;
-	if((ret = __rep_grant_info_marshal(env, &gi, buf,
-		    __REP_GRANT_INFO_SIZE, &len)) != 0)
+	if((ret = __rep_grant_info_marshal(env, &gi, buf, __REP_GRANT_INFO_SIZE, &len)) != 0)
 		return ret;
 	DB_INIT_DBT(lease_dbt, buf, len);
 	/*
@@ -81,8 +73,7 @@ int __rep_update_grant(ENV*env, db_timespec * ts)
 	 * our site cannot count toward the data being safe.
 	 */
 	if((master = rep->master_id) != DB_EID_INVALID && rep->priority > 0)
-		__rep_send_message(env, master, REP_LEASE_GRANT,
-			&lp->max_perm_lsn, &lease_dbt, 0, 0);
+		__rep_send_message(env, master, REP_LEASE_GRANT, &lp->max_perm_lsn, &lease_dbt, 0, 0);
 	return 0;
 }
 
@@ -255,23 +246,17 @@ static void __rep_find_entry(ENV*env, REP * rep, int eid, REP_LEASE_ENTRY ** lep
  */
 int __rep_lease_check(ENV*env, int refresh)
 {
-	DB_LOG * dblp;
 	DB_LSN lease_lsn;
-	DB_REP * db_rep;
-	LOG * lp;
-	REGINFO * infop;
-	REP * rep;
 	REP_LEASE_ENTRY * le, * table;
 	db_timespec curtime;
-	int max_tries, ret, tries;
+	int max_tries, ret;
+	int tries = 0;
 	uint32 i, min_leases, valid_leases;
-
-	infop = env->reginfo;
-	tries = 0;
-	db_rep = env->rep_handle;
-	rep = db_rep->region;
-	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	REGINFO * infop = env->reginfo;
+	DB_REP * db_rep = env->rep_handle;
+	REP * rep = db_rep->region;
+	DB_LOG * dblp = env->lg_handle;
+	LOG * lp = (LOG *)dblp->reginfo.primary;
 	LOG_SYSTEM_LOCK(env);
 	lease_lsn = lp->max_perm_lsn;
 	LOG_SYSTEM_UNLOCK(env);
@@ -283,8 +268,7 @@ int __rep_lease_check(ENV*env, int refresh)
 	 * so that if a site is waiting to sync, it has a chance to do so.
 	 */
 	max_tries = (int)(rep->lease_timeout/(LEASE_REFRESH_USEC/2));
-	if(max_tries < LEASE_REFRESH_MIN)
-		max_tries = LEASE_REFRESH_MIN;
+	SETMAX(max_tries, LEASE_REFRESH_MIN);
 retry:
 	REP_SYSTEM_LOCK(env);
 	min_leases = rep->config_nsites/2;
@@ -351,7 +335,6 @@ retry:
 		RPRINT(env, (env, DB_VERB_REP_LEASE, "lease_check: Expired.  Only %lu valid", (ulong)valid_leases));
 	return ret;
 }
-
 /*
  * __rep_lease_refresh -
  *	Find the last permanent record and send that out so that it
@@ -360,8 +343,6 @@ retry:
  *	If there is no permanent record, this function cannot refresh
  *	leases.  That should not happen because the master should write
  *	a checkpoint when it starts, if there is no other perm record.
- *
- * PUBLIC: int __rep_lease_refresh(ENV *);
  */
 int __rep_lease_refresh(ENV*env)
 {
@@ -377,9 +358,7 @@ int __rep_lease_refresh(ENV*env)
 	 * Use __rep_log_backup to find the last PERM record.
 	 */
 	if((ret = __rep_log_backup(env, logc, &lsn, REP_REC_PERM)) != 0) {
-		/*
-		 * If there is no PERM record, then we get DB_NOTFOUND.
-		 */
+		// If there is no PERM record, then we get DB_NOTFOUND.
 		if(ret == DB_NOTFOUND)
 			ret = 0;
 		goto err;
@@ -456,11 +435,10 @@ db_timeout_t __rep_lease_waittime(ENV*env)
 		RPRINT(env, (env, DB_VERB_REP_LEASE, "wait_time: mytime %lu %lu, grant_expire %lu %lu",
 			(ulong)mytime.tv_sec, (ulong)mytime.tv_nsec, (ulong)exptime.tv_sec, (ulong)exptime.tv_nsec));
 		if(timespeccmp(&mytime, &exptime, <=)) {
-			/*
-			 * If the current time is before the grant expiration
-			 * compute the difference and return remaining grant
-			 * time.
-			 */
+			//
+			// If the current time is before the grant expiration
+			// compute the difference and return remaining grant time.
+			//
 			timespecsub(&exptime, &mytime);
 			DB_TIMESPEC_TO_TIMEOUT(to, &exptime, 1);
 		}

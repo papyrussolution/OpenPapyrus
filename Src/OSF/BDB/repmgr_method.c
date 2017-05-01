@@ -599,18 +599,12 @@ int __repmgr_close(ENV*env)
  */
 int __repmgr_set_ack_policy(DB_ENV*dbenv, int policy)
 {
-	DB_REP * db_rep;
 	DB_THREAD_INFO * ip;
-	ENV * env;
-	REP * rep;
 	int ret;
-
-	env = dbenv->env;
-	db_rep = env->rep_handle;
-	rep = db_rep->region;
-
-	ENV_NOT_CONFIGURED(
-		env, db_rep->region, "DB_ENV->repmgr_set_ack_policy", DB_INIT_REP);
+	ENV * env = dbenv->env;
+	DB_REP * db_rep = env->rep_handle;
+	REP * rep = db_rep->region;
+	ENV_NOT_CONFIGURED(env, db_rep->region, "DB_ENV->repmgr_set_ack_policy", DB_INIT_REP);
 	if(APP_IS_BASEAPI(env))
 		return repmgr_only(env, "repmgr_set_ack_policy");
 	switch(policy) {
@@ -2259,8 +2253,7 @@ int __repmgr_site_config(DB_SITE*dbsite, uint32 which, uint32 value)
 		}
 		break;
 	    case DB_GROUP_CREATOR:
-		if(IS_VALID_EID(db_rep->self_eid) &&
-		   dbsite->eid != db_rep->self_eid) {
+		if(IS_VALID_EID(db_rep->self_eid) && dbsite->eid != db_rep->self_eid) {
 			__db_errx(env, DB_STR("3664", "Site config value not applicable to remote site"));
 			return EINVAL;
 		}
@@ -2295,10 +2288,7 @@ int __repmgr_site_config(DB_SITE*dbsite, uint32 which, uint32 value)
 		 * is always "best."
 		 */
 		site->config = sites[dbsite->eid].config;
-		if(value)
-			FLD_SET(site->config, which);
-		else
-			FLD_CLR(site->config, which);
+		SETFLAG(site->config, which, value);
 		if(site->config != sites[dbsite->eid].config) {
 			sites[dbsite->eid].config = site->config;
 			rep->siteinfo_seq++;
@@ -2309,10 +2299,7 @@ int __repmgr_site_config(DB_SITE*dbsite, uint32 which, uint32 value)
 	}
 	else {
 		site = SITE_FROM_EID(dbsite->eid);
-		if(value)
-			FLD_SET(site->config, which);
-		else
-			FLD_CLR(site->config, which);
+		SETFLAG(site->config, which, value);
 	}
 	return 0;
 }

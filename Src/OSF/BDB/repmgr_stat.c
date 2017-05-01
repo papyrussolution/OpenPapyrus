@@ -97,18 +97,18 @@ int __repmgr_stat_print(ENV*env, uint32 flags)
 static int __repmgr_print_stats(ENV*env, uint32 flags)
 {
 	DB_REPMGR_STAT * sp;
-	int ret;
-	if((ret = __repmgr_stat(env, &sp, flags)) != 0)
-		return ret;
-	__db_dl(env, "Number of PERM messages not acknowledged", (ulong)sp->st_perm_failed);
-	__db_dl(env, "Number of messages queued due to network delay", (ulong)sp->st_msgs_queued);
-	__db_dl(env, "Number of messages discarded due to queue length", (ulong)sp->st_msgs_dropped);
-	__db_dl(env, "Number of existing connections dropped", (ulong)sp->st_connection_drop);
-	__db_dl(env, "Number of failed new connection attempts", (ulong)sp->st_connect_fail);
-	__db_dl(env, "Number of currently active election threads",(ulong)sp->st_elect_threads);
-	__db_dl(env, "Election threads for which space is reserved", (ulong)sp->st_max_elect_threads);
-	__os_ufree(env, sp);
-	return 0;
+	int ret = __repmgr_stat(env, &sp, flags);
+	if(ret == 0) {
+		__db_dl(env, "Number of PERM messages not acknowledged", (ulong)sp->st_perm_failed);
+		__db_dl(env, "Number of messages queued due to network delay", (ulong)sp->st_msgs_queued);
+		__db_dl(env, "Number of messages discarded due to queue length", (ulong)sp->st_msgs_dropped);
+		__db_dl(env, "Number of existing connections dropped", (ulong)sp->st_connection_drop);
+		__db_dl(env, "Number of failed new connection attempts", (ulong)sp->st_connect_fail);
+		__db_dl(env, "Number of currently active election threads",(ulong)sp->st_elect_threads);
+		__db_dl(env, "Election threads for which space is reserved", (ulong)sp->st_max_elect_threads);
+		__os_ufree(env, sp);
+	}
+	return ret;
 }
 
 static int __repmgr_print_sites(ENV * env)

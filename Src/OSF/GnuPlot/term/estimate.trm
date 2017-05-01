@@ -151,9 +151,7 @@ ENHest_put_text(uint x, uint y, const char *str)
     ENHest_x = x;
     ENHest_y = y;
 
-    while (*(str = enhanced_recursion((char *)str, true,
-    			ENHest_font, ENHest_fontsize,
-			0.0, true, true, 0))) {
+    while(*(str = enhanced_recursion((char *)str, true, ENHest_font, ENHest_fontsize, 0.0, true, true, 0))) {
 	(term->enhanced_flush)();
 
 	enh_err_check(str);
@@ -168,8 +166,7 @@ ENHest_put_text(uint x, uint y, const char *str)
     term->ymax = (uint)(10.0 * (ENHest_max_height - ENHest_min_height) + 0.5);
 }
 
-static void
-ENHest_writec(int c)
+static void ENHest_writec(int c)
 {
     if(c == '\n') {
 	ENHest_FLUSH();
@@ -201,7 +198,8 @@ ENHest_writec(int c)
  * As with the ENHest_writec() routine, it approximates the width of characters
  * above unicode 0x3000 as being twice that of western alphabetic characters.
  */
-size_t strwidth_utf8(const char *s) {
+size_t strwidth_utf8(const char *s) 
+{
     int i = 0, j = 0;
     while (s[i]) {
        if((s[i] & 0xc0) != 0x80) {
@@ -214,6 +212,51 @@ size_t strwidth_utf8(const char *s) {
     return j;
 }
 
+#if 0 // {
+static GpTermEntry ENHest(
+    "estimate", 
+    NULL,
+    1, 
+    1, 
+    1, 
+    1, 
+    1, 
+    1,
+    NULL, 
+    NULL, 
+    NULL,
+    NULL, 
+    NULL, 
+    NULL, 
+    NULL, 
+    NULL,
+    NULL, 
+    ENHest_put_text, 
+    NULL,
+    NULL, 
+    NULL, 
+    NULL, 
+    NULL,
+    0, 
+    0,			/* pointsize, flags */
+    NULL, 
+    NULL, 
+    NULL, 
+    NULL
+#ifdef USE_MOUSE
+    , NULL, 
+    NULL, 
+    NULL, 
+    NULL, 
+    NULL
+#endif
+    , NULL, NULL, NULL, NULL
+    , NULL
+    , ENHest_OPEN, ENHest_FLUSH, ENHest_writec
+);
+#endif // } 0
+
+#if 1 // {
 static GpTermEntry ENHest = {
     "estimate", 
     NULL,
@@ -255,5 +298,6 @@ static GpTermEntry ENHest = {
     , NULL
     , ENHest_OPEN, ENHest_FLUSH, ENHest_writec
 };
+#endif // } 0
 
 #endif /* TERM_BODY */

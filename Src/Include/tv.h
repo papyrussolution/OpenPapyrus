@@ -3711,7 +3711,7 @@ public:
 private:
 	static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 	static LRESULT CALLBACK ToolbarProc(HWND, UINT, WPARAM, LPARAM);
-	static BOOL    CALLBACK TuneToolsDlgProc(HWND, UINT, WPARAM, LPARAM);
+	static INT_PTR CALLBACK TuneToolsDlgProc(HWND, UINT, WPARAM, LPARAM);
 
 	// Message Callback functions {
 	LRESULT OnMoving(WPARAM, LPARAM);
@@ -3856,7 +3856,7 @@ private:
 //
 class ShortcutsWindow {
 public:
-	static BOOL CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	ShortcutsWindow();
 	~ShortcutsWindow();
@@ -3889,7 +3889,7 @@ public:
 
 	TreeWindow(HWND parentWnd);
 	~TreeWindow();
-	static BOOL CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	void   DelItemCmdList(void * ptr);
 	void   UpdateItemCmdList(const char * pTitle, void * ptr);
 	void   AddItemCmdList(const char * pTitle, void * ptr);

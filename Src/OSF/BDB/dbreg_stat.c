@@ -7,23 +7,13 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
-// @v9.5.5 #include "dbinc/txn.h"
 
 #ifdef HAVE_STATISTICS
 static int __dbreg_print_all __P((ENV*, uint32));
 /*
  * __dbreg_stat_print --
  *	Print the dbreg statistics.
- *
- * PUBLIC: int __dbreg_stat_print __P((ENV *, uint32));
  */
 int __dbreg_stat_print(ENV * env, uint32 flags)
 {
@@ -35,8 +25,6 @@ int __dbreg_stat_print(ENV * env, uint32 flags)
 /*
  * __dbreg_print_fname --
  *	Display the contents of an FNAME structure.
- *
- * PUBLIC: void __dbreg_print_fname __P((ENV *, FNAME *));
  */
 void __dbreg_print_fname(ENV * env, FNAME * fnp)
 {

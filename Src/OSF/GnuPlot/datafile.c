@@ -657,7 +657,7 @@ float * GpDatafile::DfReadMatrix(int * rows, int * cols)
 					linearized_matrix[index++] = (float)df_column[i].datum;
 				if(df_column[i].good != DF_GOOD) {
 					if(bad_data++ == 0)
-						int_warn(NO_CARET, "matrix contains missing or undefined values");
+						GpGg.IntWarn(NO_CARET, "matrix contains missing or undefined values");
 				}
 			}
 		}
@@ -1000,7 +1000,7 @@ int GpDatafile::DfOpen(GpCommand & rC, const char * cmd_filename, int max_using,
 #endif /* HAVE_SYS_STAT_H */
 
 		if((data_fp = loadpath_fopen(df_filename, df_binary_file ? "rb" : "r")) == NULL) {
-			int_warn(NO_CARET, "Cannot find or open file \"%s\"", df_filename);
+			GpGg.IntWarn(NO_CARET, "Cannot find or open file \"%s\"", df_filename);
 			df_eof = 1;
 			return DF_EOF;
 		}
@@ -1644,7 +1644,7 @@ int GpDatafile::DfReadAscii(GpCommand & rC, double v[], int max)
 							/* E.g. plot $FOO using 1:2:(filter(3) ? strcol(3) : NaN) */
 							/*
 							   add_tic_user(&GpGg[axis], "", xpos, -1);
-							   int_warn(NO_CARET,"Tic label does not evaluate as
+							   IntWarn(NO_CARET,"Tic label does not evaluate as
 							      string!\n");
 							 */
 						}
@@ -1978,12 +1978,12 @@ void GpDatafile::F_StringColumn(GpArgument * pArg)
 		// This warning should only trigger once per problematic input file
 		if(column == DF_COLUMN_HEADERS && (*name) && GpDf.df_warn_on_missing_columnheader) {
 			GpDf.df_warn_on_missing_columnheader = false;
-			int_warn(NO_CARET, "no column with header \"%s\"", a.v.string_val);
+			GpGg.IntWarn(NO_CARET, "no column with header \"%s\"", a.v.string_val);
 			for(j = 0; j < GpDf.df_no_cols; j++) {
 				if(GpDf.df_column[j].header) {
 					int offset = (*GpDf.df_column[j].header == '"') ? 1 : 0;
 					if(!strncmp(name, GpDf.df_column[j].header + offset, strlen(name)))
-						int_warn(NO_CARET, "partial match against column %d header \"%s\"", j+1, GpDf.df_column[j].header);
+						GpGg.IntWarn(NO_CARET, "partial match against column %d header \"%s\"", j+1, GpDf.df_column[j].header);
 				}
 			}
 		}
@@ -2177,7 +2177,7 @@ char * GpDatafile::DfParseStringField(char * field)
 		// memory use can become excessive. Truncate and report error.  
 		if(length > MAX_LINE_LEN) {
 			length = MAX_LINE_LEN;
-			int_warn(NO_CARET, "input file contains very long line with no separators, truncating");
+			GpGg.IntWarn(NO_CARET, "input file contains very long line with no separators, truncating");
 			if(strcspn(field, "\r") < MAX_LINE_LEN)
 				GpGg.IntErrorNoCaret("      line contains embedded <CR>, wrong file format?");
 		}
@@ -3026,12 +3026,12 @@ void GpDatafile::PlotOptionBinary(GpCommand & rC, bool set_matrix, bool set_defa
 	if(duplication)
 		GpGg.IntErrorCurToken("Duplicated or contradicting arguments in datafile options");
 	if(!set_default && !set_matrix && df_num_bin_records_default) {
-		int_warn(NO_CARET, "using default binary record/array structure");
+		GpGg.IntWarn(NO_CARET, "using default binary record/array structure");
 	}
 	if(!set_format && !df_matrix_file) {
 		if(df_binary_format) {
 			PlotOptionBinaryFormat(df_binary_format);
-			int_warn(NO_CARET, "using default binary format");
+			GpGg.IntWarn(NO_CARET, "using default binary format");
 		}
 	}
 }
@@ -3851,7 +3851,7 @@ int GpDatafile::DfReadBinary(double v[], int max)
 			// Do the actual slurping
 			fread_ret = fread(memory_data, 1, bytes_total, data_fp);
 			if(fread_ret != bytes_total) {
-				int_warn(NO_CARET, "Couldn't slurp %ld bytes (return was %zd)\n", bytes_total, fread_ret);
+				GpGg.IntWarn(NO_CARET, "Couldn't slurp %ld bytes (return was %zd)\n", bytes_total, fread_ret);
 				df_eof = 1;
 				return DF_EOF;
 			}

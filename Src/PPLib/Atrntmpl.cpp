@@ -815,7 +815,7 @@ int SLAPI PPAccTurnTempl::ParseSubstString(const char * str, int * lp, int * _sk
 		for(uint ssp = 0; ok && ss.get(&ssp, s);) {
 			if(s.NotEmpty()) {
 				int    link = 0;
-				uint   next = 0;
+				size_t next = 0;
 				PPID   v = st.Translate(s, &next);
 				if(v == PPSYM_LINK) {
 					s.ShiftLeft(next).Strip();

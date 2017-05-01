@@ -41,35 +41,35 @@ typedef struct {
  * Function that performs any desired processing on a single file, as part of
  * the traversal of a list of database files, such as with internal init.
  */
-typedef int (FILE_WALK_FN) __P ((ENV*, __rep_fileinfo_args*, void *));
+typedef int (FILE_WALK_FN)(ENV*, __rep_fileinfo_args*, void *);
 
 static FILE_WALK_FN __rep_check_uid;
 static int __rep_clean_interrupted(ENV *);
 static FILE_WALK_FN __rep_cleanup_nimdbs;
-static int __rep_filedone __P((ENV*, DB_THREAD_INFO*ip, int, REP*, __rep_fileinfo_args*, uint32));
-static int __rep_find_dbs __P((ENV*, FILE_LIST_CTX *));
+static int __rep_filedone(ENV*, DB_THREAD_INFO*ip, int, REP*, __rep_fileinfo_args*, uint32);
+static int __rep_find_dbs(ENV*, FILE_LIST_CTX *);
 static FILE_WALK_FN __rep_find_inmem;
-static int __rep_get_fileinfo __P((ENV*, const char *, const char *, __rep_fileinfo_args*, uint8 *));
-static int __rep_get_file_list __P((ENV*, DB_FH*, uint32, uint32*, DBT *));
-static int __rep_is_replicated_db __P((const char *, const char *));
-static int __rep_log_setup __P((ENV*, REP*, uint32, uint32, DB_LSN *));
-static int __rep_mpf_open __P((ENV*, DB_MPOOLFILE**, __rep_fileinfo_args*, uint32));
-static int __rep_nextfile __P((ENV*, int, REP *));
-static int __rep_page_gap __P((ENV*, REP*, __rep_fileinfo_args*, uint32));
-static int __rep_page_sendpages __P((ENV*, DB_THREAD_INFO*, int, __rep_control_args*, __rep_fileinfo_args*, DB_MPOOLFILE*, DB *));
-static int __rep_queue_filedone __P((ENV*, DB_THREAD_INFO*, REP*, __rep_fileinfo_args *));
-static int __rep_remove_all __P((ENV*, uint32, DBT *));
+static int __rep_get_fileinfo(ENV*, const char *, const char *, __rep_fileinfo_args*, uint8 *);
+static int __rep_get_file_list(ENV*, DB_FH*, uint32, uint32*, DBT *);
+static int __rep_is_replicated_db(const char *, const char *);
+static int __rep_log_setup(ENV*, REP*, uint32, uint32, DB_LSN *);
+static int __rep_mpf_open(ENV*, DB_MPOOLFILE**, __rep_fileinfo_args*, uint32);
+static int __rep_nextfile(ENV*, int, REP *);
+static int __rep_page_gap(ENV*, REP*, __rep_fileinfo_args*, uint32);
+static int __rep_page_sendpages(ENV*, DB_THREAD_INFO*, int, __rep_control_args*, __rep_fileinfo_args*, DB_MPOOLFILE*, DB *);
+static int __rep_queue_filedone(ENV*, DB_THREAD_INFO*, REP*, __rep_fileinfo_args *);
+static int __rep_remove_all(ENV*, uint32, DBT *);
 static FILE_WALK_FN __rep_remove_by_list;
-static int __rep_remove_by_prefix __P((ENV*, const char *, const char *, size_t, APPNAME));
+static int __rep_remove_by_prefix(ENV*, const char *, const char *, size_t, APPNAME);
 static FILE_WALK_FN __rep_remove_file;
 static int __rep_remove_logs(ENV *);
 static int __rep_remove_nimdbs(ENV *);
-static int __rep_rollback __P((ENV*, DB_LSN *));
-static int __rep_unlink_by_list __P((ENV*, uint32, uint8*, uint32, uint32));
+static int __rep_rollback(ENV*, DB_LSN *);
+static int __rep_unlink_by_list(ENV*, uint32, uint8*, uint32, uint32);
 static FILE_WALK_FN __rep_unlink_file;
-static int __rep_walk_filelist __P((ENV*, uint32, uint8*, uint32, uint32, FILE_WALK_FN*, void *));
-static int __rep_walk_dir __P((ENV*, const char *, FILE_LIST_CTX *));
-static int __rep_write_page __P((ENV*, DB_THREAD_INFO*, REP*, __rep_fileinfo_args *));
+static int __rep_walk_filelist(ENV*, uint32, uint8*, uint32, uint32, FILE_WALK_FN*, void *);
+static int __rep_walk_dir(ENV*, const char *, FILE_LIST_CTX *);
+static int __rep_write_page(ENV*, DB_THREAD_INFO*, REP*, __rep_fileinfo_args *);
 /*
  * __rep_update_req -
  *	Process an update_req and send the file information to clients.
@@ -152,8 +152,7 @@ int __rep_update_req(ENV*env, __rep_control_args * rp)
 	if((ret = __logc_get(logc, &lsn, &vdbt, flag)) != 0) {
 		/*
 		 * We could be racing a fresh master starting up.  If we
-		 * have no log records, assume an initial LSN and current
-		 * log version.
+		 * have no log records, assume an initial LSN and current log version.
 		 */
 		if(ret != DB_NOTFOUND)
 			goto err;
@@ -173,17 +172,14 @@ int __rep_update_req(ENV*env, __rep_control_args * rp)
 	if((ret = __rep_update_marshal(env, rp->rep_version, &u_args, context.buf, __REP_UPDATE_SIZE, &updlen)) != 0)
 		goto err;
 	DB_ASSERT(env, updlen == __REP_UPDATE_SIZE);
-
-	/*
-	 * We have all the file information now.  Send it.
-	 */
+	//
+	// We have all the file information now.  Send it.
+	//
 	DB_INIT_DBT(updbt, context.buf, context.fillptr-context.buf);
-
 	LOG_SYSTEM_LOCK(env);
 	lsn = ((LOG *)dblp->reginfo.primary)->lsn;
 	LOG_SYSTEM_UNLOCK(env);
-	__rep_send_message(
-		env, DB_EID_BROADCAST, REP_UPDATE, &lsn, &updbt, 0, 0);
+	__rep_send_message(env, DB_EID_BROADCAST, REP_UPDATE, &lsn, &updbt, 0, 0);
 
 err:
 	__os_free(env, context.buf);
@@ -395,19 +391,13 @@ static int __rep_check_uid(ENV*env, __rep_fileinfo_args * rfp, void * uid)
 
 static int __rep_get_fileinfo(ENV*env, const char * file, const char * subdb, __rep_fileinfo_args * rfp, uint8 * uid)
 {
-	DB * dbp;
-	DBC * dbc;
+	DB * dbp = 0;
+	DBC * dbc = 0;
 	DBMETA * dbmeta;
-	DB_MPOOLFILE * mpf;
+	DB_MPOOLFILE * mpf = 0;
 	DB_THREAD_INFO * ip;
-	PAGE * pagep;
+	PAGE * pagep = 0;
 	int lorder, ret, t_ret;
-
-	dbp = NULL;
-	dbc = NULL;
-	pagep = NULL;
-	mpf = NULL;
-
 	ENV_GET_THREAD_INFO(env, ip);
 	if((ret = __db_create_internal(&dbp, env, 0)) != 0)
 		goto err;
@@ -426,10 +416,7 @@ static int __rep_get_fileinfo(ENV*env, const char * file, const char * subdb, __
 	 * Queue is a special-case.  We need to set max_pgno to 0 so that
 	 * the client can compute the pages from the meta-data.
 	 */
-	if(dbp->type == DB_QUEUE)
-		rfp->max_pgno = 0;
-	else
-		rfp->max_pgno = dbmeta->last_pgno;
+	rfp->max_pgno = (dbp->type == DB_QUEUE) ? 0 : dbmeta->last_pgno;
 	rfp->pgsize = dbp->pgsize;
 	memcpy(uid, dbp->fileid, DB_FILE_ID_LEN);
 	rfp->type = (uint32)dbp->type;
@@ -439,10 +426,7 @@ static int __rep_get_fileinfo(ENV*env, const char * file, const char * subdb, __
 	 * Send the lorder of this database.
 	 */
 	__db_get_lorder(dbp, &lorder);
-	if(lorder == 1234)
-		FLD_SET(rfp->finfo_flags, REPINFO_DB_LITTLEENDIAN);
-	else
-		FLD_CLR(rfp->finfo_flags, REPINFO_DB_LITTLEENDIAN);
+	SETFLAG(rfp->finfo_flags, REPINFO_DB_LITTLEENDIAN, (lorder == 1234));
 	ret = __memp_fput(dbp->mpf, ip, pagep, dbc->priority);
 	pagep = NULL;
 	if(ret != 0)
@@ -467,13 +451,10 @@ int __rep_page_req(ENV * env, DB_THREAD_INFO * ip, int eid, __rep_control_args *
 {
 	__rep_fileinfo_args * msgfp;
 	DB_MPOOLFILE * mpf;
-	DB_REP * db_rep;
-	REP * rep;
 	int ret, t_ret;
 	uint8 * next;
-
-	db_rep = env->rep_handle;
-	rep = db_rep->region;
+	DB_REP * db_rep = env->rep_handle;
+	REP * rep = db_rep->region;
 	if((ret = __rep_fileinfo_unmarshal(env, rp->rep_version, &msgfp, (uint8 *)rec->data, rec->size, &next)) != 0)
 		return ret;
 	DB_TEST_SET(env->test_abort, DB_TEST_NO_PAGES);
@@ -518,7 +499,6 @@ static int __rep_page_sendpages(ENV * env, DB_THREAD_INFO * ip, int eid, __rep_c
 	uint32 bulkflags, use_bulk;
 	int opened, ret, t_ret;
 	uint8 * buf;
-
 	dblp = env->lg_handle;
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
@@ -554,9 +534,7 @@ static int __rep_page_sendpages(ENV * env, DB_THREAD_INFO * ip, int eid, __rep_c
 	if((ret = __os_calloc(env, 1, msgsz, &buf)) != 0)
 		goto err;
 	memzero(&msgdbt, sizeof(msgdbt));
-	VPRINT(env, (env, DB_VERB_REP_SYNC,
-		     "sendpages: file %d page %lu to %lu",
-		     msgfp->filenum, (ulong)msgfp->pgno, (ulong)msgfp->max_pgno));
+	VPRINT(env, (env, DB_VERB_REP_SYNC, "sendpages: file %d page %lu to %lu", msgfp->filenum, (ulong)msgfp->pgno, (ulong)msgfp->max_pgno));
 	memzero(&repth, sizeof(repth));
 	/*
 	 * If we're doing bulk transfer, allocate a bulk buffer to put our
@@ -567,8 +545,7 @@ static int __rep_page_sendpages(ENV * env, DB_THREAD_INFO * ip, int eid, __rep_c
 	 * Use a local var so that we don't need to worry if someone else
 	 * turns on/off bulk in the middle of our call here.
 	 */
-	if(use_bulk && (ret = __rep_bulk_alloc(env, &bulk, eid,
-				&bulkoff, &bulkflags, REP_BULK_PAGE)) != 0)
+	if(use_bulk && (ret = __rep_bulk_alloc(env, &bulk, eid, &bulkoff, &bulkflags, REP_BULK_PAGE)) != 0)
 		goto err;
 	REP_SYSTEM_LOCK(env);
 	repth.gbytes = rep->gbytes;
@@ -596,19 +573,14 @@ static int __rep_page_sendpages(ENV * env, DB_THREAD_INFO * ip, int eid, __rep_c
 		if(ret == DB_PAGE_NOTFOUND) {
 			if(F_ISSET(rep, REP_F_MASTER)) {
 				ret = 0;
-				RPRINT(env, (env, DB_VERB_REP_SYNC,
-					     "sendpages: PAGE_FAIL on page %lu",
-					     (ulong)p));
-				if((ret = __rep_fileinfo_marshal(env,
-					    rp->rep_version, msgfp, buf,
-					    msgsz, &len)) != 0)
+				RPRINT(env, (env, DB_VERB_REP_SYNC, "sendpages: PAGE_FAIL on page %lu", (ulong)p));
+				if((ret = __rep_fileinfo_marshal(env, rp->rep_version, msgfp, buf, msgsz, &len)) != 0)
 					goto err;
 				LOG_SYSTEM_LOCK(env);
 				lsn = ((LOG *)dblp->reginfo.primary)->lsn;
 				LOG_SYSTEM_UNLOCK(env);
 				DB_SET_DBT(msgdbt, buf, len);
-				__rep_send_message(env, eid,
-					REP_PAGE_FAIL, &lsn, &msgdbt, 0, 0);
+				__rep_send_message(env, eid, REP_PAGE_FAIL, &lsn, &msgdbt, 0, 0);
 				continue;
 			}
 			else
@@ -630,10 +602,7 @@ static int __rep_page_sendpages(ENV * env, DB_THREAD_INFO * ip, int eid, __rep_c
 		 * client-to-client synchronization, the receiving client needs
 		 * to know the byte order of each page independently.
 		 */
-		if(F_ISSET(env, ENV_LITTLEENDIAN))
-			FLD_SET(msgfp->finfo_flags, REPINFO_PG_LITTLEENDIAN);
-		else
-			FLD_CLR(msgfp->finfo_flags, REPINFO_PG_LITTLEENDIAN);
+		SETFLAG(msgfp->finfo_flags, REPINFO_PG_LITTLEENDIAN, F_ISSET(env, ENV_LITTLEENDIAN));
 		RPRINT(env, (env, DB_VERB_REP_SYNC, "sendpages: %lu, page lsn [%lu][%lu]", (ulong)p, (ulong)pagep->lsn.file, (ulong)pagep->lsn.offset));
 		ret = __rep_fileinfo_marshal(env, rp->rep_version, msgfp, buf, msgsz, &len);
 		if(msgfp->type != (uint32)DB_QUEUE || p == 0)

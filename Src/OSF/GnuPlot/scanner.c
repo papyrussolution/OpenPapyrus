@@ -305,7 +305,7 @@ int GpCommand::GetNum(char str[])
 					return(count);
 			}
 		}
-		int_warn(t_num, "integer overflow; changing to floating point");
+		GpGg.IntWarn(t_num, "integer overflow; changing to floating point");
 		P_Token[t_num].l_val.type = CMPLX;
 		// Fall through
 	}

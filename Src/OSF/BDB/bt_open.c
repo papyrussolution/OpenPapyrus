@@ -43,25 +43,12 @@
 
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_swap.h"
-// @v9.5.5 #include "dbinc/partition.h"
-// @v9.5.5 #include "dbinc/fop.h"
 
-static void __bam_init_meta __P((DB*, BTMETA*, db_pgno_t, DB_LSN *));
-
+static void __bam_init_meta(DB*, BTMETA*, db_pgno_t, DB_LSN *);
 /*
  * __bam_open --
  *	Open a btree.
- *
- * PUBLIC: int __bam_open __P((DB *, DB_THREAD_INFO *,
- * PUBLIC:      DB_TXN *, const char *, db_pgno_t, uint32));
  */
 int __bam_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, db_pgno_t base_pgno, uint32 flags)
 {
@@ -90,8 +77,6 @@ int __bam_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, d
 }
 /*
  * __bam_metachk --
- *
- * PUBLIC: int __bam_metachk __P((DB *, const char *, BTMETA *));
  */
 int __bam_metachk(DB * dbp, const char * name, BTMETA * btm)
 {

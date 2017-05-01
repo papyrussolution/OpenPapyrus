@@ -25777,12 +25777,12 @@ BEGIN
     GROUPBOX        "@cfgscard_chargegoods",IDC_STATIC,10,75,295,65
 END
 
-DLG_VATBCFG_SMPLLEDG DIALOGEX 57, 8, 372, 225
+DLG_VATBCFG_SMPLLEDG DIALOGEX 57, 8, 395, 227
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@cfg_simpleledger"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "@accsheet",4001,15,10,205,8
+    LTEXT           "@cfgvatbook_accsheet",4001,15,10,205,8
     EDITTEXT        CTL_VATBCFG_SHEET,15,20,210,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_VATBCFG_SHEET,225,20,12,13,BS_BITMAP | NOT WS_TABSTOP
     GROUPBOX        "",IDC_STATIC,10,35,230,185
@@ -25790,15 +25790,22 @@ BEGIN
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,15,200,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,80,200,60,13
     PUSHBUTTON      "@but_edit",STDCTL_EDITBUTTON,145,200,60,13
-    GROUPBOX        "Система учета",CTL_VATBCFG_INCM,245,35,115,45,WS_GROUP
-    CONTROL         "@bydefault",5300,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,251,46,99,10
-    CONTROL         "По отгрузке",9396,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,251,55,104,10
-    CONTROL         "По оплате",13492,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,251,65,99,10
-    GROUPBOX        "",CTL_VATBCFG_BUY_FLAGS,245,80,115,35,WS_GROUP
-    CONTROL         "Не сторнировать зачеты",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,250,90,100,10
-    CONTROL         "Не учитывать НДС",9398,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,250,100,99,10
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,310,200,50,13
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,245,200,50,13
+    GROUPBOX        "@cfgvatbook_acctgbasis",CTL_VATBCFG_INCM,245,35,145,45,WS_GROUP
+    CONTROL         "@cfgvatbook_acctgbasis_default",5300,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,251,46,129,10
+    CONTROL         "@cfgvatbook_acctgbasis_byshipment",9396,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,251,55,129,10
+    CONTROL         "@cfgvatbook_acctgbasis_bypayment",13492,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,251,65,129,10
+    GROUPBOX        "",CTL_VATBCFG_BUY_FLAGS,245,80,145,35,WS_GROUP
+    CONTROL         "@cfgvatbook_hfdontstornreckon",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,250,90,135,10
+    CONTROL         "@cfgvatbook_hfwotax",9398,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,250,100,135,10
+    GROUPBOX        "",CTL_VATBCFG_INCMPRD,250,135,135,25,WS_GROUP
+    CONTROL         "@cfgvatbook_acctgbasisatperiod_byshipment",5304,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,255,145,60,10
+    CONTROL         "@cfgvatbook_acctgbasisatperiod_bypayment",9400,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,320,145,60,10
+    LTEXT           "@cfgvatbook_acctgbasisatperiod_period",4004,250,165,120,8
+    EDITTEXT        CTL_VATBCFG_PERIOD,250,175,95,13,ES_AUTOHSCROLL
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,340,200,50,13
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,280,200,50,13
+    GROUPBOX        "@cfgvatbook_acctgbasisatperiod",IDC_STATIC,245,120,145,75
+    PUSHBUTTON      "",CTLCAL_VATBCFG_PERIOD,345,175,13,13,BS_BITMAP | NOT WS_TABSTOP
 END
 
 DLG_CLIBNKFMTLIST DIALOGEX 62, 24, 247, 185
@@ -26006,29 +26013,29 @@ CAPTION "@cfg_vatbookbuy"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     EDITTEXT        CTL_VATBCFG_SHEET,15,20,210,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@accsheet",4001,15,10,210,8
+    LTEXT           "@cfgvatbook_accsheet",4001,15,10,210,8
     PUSHBUTTON      "",CTLSEL_VATBCFG_SHEET,225,20,13,13,BS_BITMAP | NOT WS_TABSTOP
     CONTROL         "",CTL_VATBCFG_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,15,45,220,120
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,15,170,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,80,170,60,13
     PUSHBUTTON      "@but_edit",STDCTL_EDITBUTTON,145,170,60,13
-    GROUPBOX        "@cfgvatbookbuy_acctgbasis",CTL_VATBCFG_INCM,245,35,140,45,WS_GROUP
-    CONTROL         "@bydefault",5300,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,255,45,63,10
-    CONTROL         "По отгрузке",9396,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,255,55,63,10
-    CONTROL         "По оплате",13492,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,255,65,63,10
-    GROUPBOX        "Дата записи",CTL_VATBCFG_SELDATE,245,80,140,45,WS_GROUP
-    CONTROL         "Основная дата документа",5307,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,251,90,120,10
-    CONTROL         "@cfgvatbookbuy_hfd_invcdate",9403,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,251,100,125,10
-    CONTROL         "@cfgvatbookbuy_hfd_maxinvcbill",13499,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,251,110,125,10
-    GROUPBOX        "@cfgvatbookbuy_acctgbasisatperiod",CTL_VATBCFG_INCMPRD,245,125,140,65,WS_GROUP
-    CONTROL         "По отгрузке",5304,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,255,145,59,10
-    CONTROL         "По оплате",9400,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,315,145,59,10
-    EDITTEXT        CTL_VATBCFG_PERIOD,280,165,85,13,ES_AUTOHSCROLL
-    LTEXT           "@daterange",4005,250,165,28,8
-    PUSHBUTTON      "",CTLCAL_VATBCFG_PERIOD,365,165,13,13,BS_BITMAP | NOT WS_TABSTOP
+    GROUPBOX        "@cfgvatbook_acctgbasis",CTL_VATBCFG_INCM,245,35,140,45,WS_GROUP
+    CONTROL         "@cfgvatbook_acctgbasis_default",5300,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,255,45,115,10
+    CONTROL         "@cfgvatbook_acctgbasis_byshipment",9396,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,255,55,115,10
+    CONTROL         "@cfgvatbook_acctgbasis_bypayment",13492,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,255,65,120,10
+    GROUPBOX        "@cfgvatbook_hfd_recorddate",CTL_VATBCFG_SELDATE,245,80,140,45,WS_GROUP
+    CONTROL         "@cfgvatbook_hfd_billdate",5307,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,251,90,120,10
+    CONTROL         "@cfgvatbook_hfd_invcdate",9403,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,251,100,125,10
+    CONTROL         "@cfgvatbook_hfd_maxinvcbill",13499,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,251,110,125,10
+    GROUPBOX        "@cfgvatbook_acctgbasisatperiod",CTL_VATBCFG_INCMPRD,245,125,140,65,WS_GROUP
+    CONTROL         "@cfgvatbook_acctgbasisatperiod_byshipment",5304,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,255,145,59,10
+    CONTROL         "@cfgvatbook_acctgbasisatperiod_bypayment",9400,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,315,145,59,10
+    EDITTEXT        CTL_VATBCFG_PERIOD,250,175,85,13,ES_AUTOHSCROLL
+    LTEXT           "@cfgvatbook_acctgbasisatperiod_period",4005,250,165,80,8
+    PUSHBUTTON      "",CTLCAL_VATBCFG_PERIOD,335,175,13,13,BS_BITMAP | NOT WS_TABSTOP
     GROUPBOX        "",CTL_VATBCFG_BUY_FLAGS,10,190,110,35,WS_GROUP
-    CONTROL         "@cfgvatbookbuy_hfdontstornreckon",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,198,100,10
-    CONTROL         "Печатать с ГТД",9398,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,208,100,13
+    CONTROL         "@cfgvatbook_hfdontstornreckon",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,198,100,10
+    CONTROL         "@cfgvatbook_hfiterateclb",9398,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,208,100,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,275,205,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,335,205,50,13
     GROUPBOX        "",IDC_STATIC,10,35,230,155
@@ -26041,31 +26048,31 @@ CAPTION "@cfg_vatbooksell"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     EDITTEXT        CTL_VATBCFG_SHEET,15,20,207,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@accsheet",4001,15,10,205,8
+    LTEXT           "@cfgvatbook_accsheet",4001,15,10,205,8
     PUSHBUTTON      "",CTLSEL_VATBCFG_SHEET,222,20,13,13,BS_BITMAP | NOT WS_TABSTOP
     CONTROL         "",CTL_VATBCFG_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,15,45,220,120
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,15,170,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,80,170,60,13
     PUSHBUTTON      "@but_edit",STDCTL_EDITBUTTON,145,170,60,13
-    GROUPBOX        "@cfgvatbooksell_acctgbasis",CTL_VATBCFG_INCM,245,35,140,45,WS_GROUP
-    CONTROL         "@bydefault",5300,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,250,45,120,10
-    CONTROL         "По отгрузке",9396,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,250,55,125,10
-    CONTROL         "По оплате",13492,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,250,65,95,10
-    GROUPBOX        "Дата записи",CTL_VATBCFG_SELDATE,245,80,140,45,WS_GROUP
-    CONTROL         "Основная дата документа",5307,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,250,90,130,10
-    CONTROL         "@cfgvatbooksell_hfd_invcdate",9403,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,250,100,130,10
-    CONTROL         "@cfgvatbooksell_hfd_maxinvcbill",13499,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,250,110,130,10
-    GROUPBOX        "@cfgvatbooksell_acctgbasisatperiod",CTL_VATBCFG_INCMPRD,245,125,140,65,WS_GROUP
-    CONTROL         "По отгрузке",5304,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,255,145,59,10
-    CONTROL         "По оплате",9400,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,315,145,55,10
-    EDITTEXT        CTL_VATBCFG_PERIOD,280,165,85,13,ES_AUTOHSCROLL
-    LTEXT           "@daterange",4005,250,165,28,8
-    PUSHBUTTON      "",CTLCAL_VATBCFG_PERIOD,365,165,13,13,BS_BITMAP | NOT WS_TABSTOP
-    CONTROL         "@cfgvatbooksell_hfdontstornreckon",5303,"Button",BS_AUTOCHECKBOX | BS_RIGHT | BS_NOTIFY | WS_TABSTOP,10,195,100,13
+    GROUPBOX        "@cfgvatbook_acctgbasis",CTL_VATBCFG_INCM,245,35,145,45,WS_GROUP
+    CONTROL         "@cfgvatbook_acctgbasis_default",5300,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,250,45,120,10
+    CONTROL         "@cfgvatbook_acctgbasis_byshipment",9396,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,250,55,125,10
+    CONTROL         "@cfgvatbook_acctgbasis_bypayment",13492,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,250,65,125,10
+    GROUPBOX        "@cfgvatbook_hfd_recorddate",CTL_VATBCFG_SELDATE,245,80,145,45,WS_GROUP
+    CONTROL         "@cfgvatbook_hfd_billdate",5307,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,250,90,130,10
+    CONTROL         "@cfgvatbook_hfd_invcdate",9403,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,250,100,130,10
+    CONTROL         "@cfgvatbook_hfd_maxinvcbill",13499,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,250,110,130,10
+    GROUPBOX        "@cfgvatbook_acctgbasisatperiod",CTL_VATBCFG_INCMPRD,245,125,145,65,WS_GROUP
+    CONTROL         "@cfgvatbook_acctgbasisatperiod_byshipment",5304,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,255,145,65,10
+    CONTROL         "@cfgvatbook_acctgbasisatperiod_bypayment",9400,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,320,145,60,10
+    EDITTEXT        CTL_VATBCFG_PERIOD,250,175,85,13,ES_AUTOHSCROLL
+    LTEXT           "@cfgvatbook_acctgbasisatperiod_period",4005,250,165,95,8
+    PUSHBUTTON      "",CTLCAL_VATBCFG_PERIOD,335,175,13,13,BS_BITMAP | NOT WS_TABSTOP
+    CONTROL         "@cfgvatbook_hfdontstornreckon",5303,"Button",BS_AUTOCHECKBOX | BS_RIGHT | BS_NOTIFY | WS_TABSTOP,10,195,100,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,275,195,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,335,195,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,340,195,50,13
     GROUPBOX        "",IDC_STATIC,10,35,230,155
-    GROUPBOX        "",IDC_STATIC,250,135,129,25
+    GROUPBOX        "",IDC_STATIC,250,135,135,25
 END
 
 DLG_VATBL DIALOGEX 52, 40, 207, 181
@@ -26077,16 +26084,16 @@ BEGIN
     EDITTEXT        CTL_VATBL_OPRKIND,10,20,175,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_VATBL_OPRKIND,185,20,12,13,BS_BITMAP | NOT WS_TABSTOP
     GROUPBOX        "",CTL_VATBL_FLAGS,10,35,175,75,WS_GROUP
-    CONTROL         "@cfgvatbooksellitem_fexclude",5299,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,45,165,10
-    CONTROL         "@cfgvatbooksellitem_fnegative",9395,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,55,165,10
-    CONTROL         "@cfgvatbooksellitem_fbyextobj",13491,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,65,165,10
-    CONTROL         "@cfgvatbooksellitem_fvatfromreckon",17587,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,75,165,10
-    CONTROL         "@cfgvatbooksellitem_fvatfree",21683,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,85,165,10
-    CONTROL         "@cfgvatbooksellitem_faspayment",25779,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,95,165,10
+    CONTROL         "@cfgvatbookitem_fexclude",5299,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,45,165,10
+    CONTROL         "@cfgvatbookitem_fnegative",9395,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,55,165,10
+    CONTROL         "@cfgvatbookitem_fbyextobj",13491,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,65,165,10
+    CONTROL         "@cfgvatbookitem_fvatfromreckon",17587,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,75,165,10
+    CONTROL         "@cfgvatbookitem_fvatfree",21683,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,85,165,10
+    CONTROL         "@cfgvatbookitem_faspayment",25779,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,95,165,10
     GROUPBOX        "Учет расходов по факту",CTL_VATBL_EXPBYFACT,10,110,175,43,WS_GROUP
     CONTROL         "@no",5300,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,120,165,10
-    CONTROL         "@cfgvatbooksellitem_fexpendbyfact",9396,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,130,165,10
-    CONTROL         "@cfgvatbooksellitem_ffactbyshipment",13492,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,140,165,10
+    CONTROL         "@cfgvatbookitem_fexpendbyfact",9396,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,130,165,10
+    CONTROL         "@cfgvatbookitem_ffactbyshipment",13492,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,140,165,10
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,70,160,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,135,160,50,13
 END
@@ -26100,18 +26107,18 @@ BEGIN
     LTEXT           "@oprkind",4001,10,10,155,8
     PUSHBUTTON      "",CTLSEL_VATBL_OPRKIND,185,20,12,13,BS_BITMAP | NOT WS_TABSTOP
     GROUPBOX        "",CTL_VATBL_FLAGS,10,35,175,75,WS_GROUP
-    CONTROL         "@cfgvatbooksellitem_fexclude",5299,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,45,165,10
-    CONTROL         "@cfgvatbooksellitem_fnegative",9395,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,55,165,10
-    CONTROL         "@cfgvatbooksellitem_fbyextobj",13491,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,65,165,10
-    CONTROL         "@cfgvatbooksellitem_fvatfromreckon",17587,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,75,165,10
-    CONTROL         "@cfgvatbooksellitem_fvatfree",21683,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,85,165,10
-    CONTROL         "@cfgvatbooksellitem_faspayment",25779,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,95,165,10
+    CONTROL         "@cfgvatbookitem_fexclude",5299,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,45,165,10
+    CONTROL         "@cfgvatbookitem_fnegative",9395,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,55,165,10
+    CONTROL         "@cfgvatbookitem_fbyextobj",13491,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,65,165,10
+    CONTROL         "@cfgvatbookitem_fvatfromreckon",17587,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,75,165,10
+    CONTROL         "@cfgvatbookitem_fvatfree",21683,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,85,165,10
+    CONTROL         "@cfgvatbookitem_faspayment",25779,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,95,165,10
     GROUPBOX        "Учет расходов по факту",CTL_VATBL_EXPBYFACT,10,110,175,45,WS_GROUP
     CONTROL         "@no",5300,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,120,131,10
-    CONTROL         "@cfgvatbooksellitem_fexpendbyfact",9396,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,130,131,10
-    CONTROL         "@cfgvatbooksellitem_ffactbyshipment",13492,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,140,131,10
+    CONTROL         "@cfgvatbookitem_fexpendbyfact",9396,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,130,131,10
+    CONTROL         "@cfgvatbookitem_ffactbyshipment",13492,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,140,131,10
     EDITTEXT        CTL_VATBL_MAINAMT,10,170,175,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@cfgvatbooksellitem_mainamttype",4003,10,160,160,8
+    LTEXT           "@cfgvatbookitem_mainamttype",4003,10,160,160,8
     PUSHBUTTON      "",CTLSEL_VATBL_MAINAMT,185,170,12,13,BS_BITMAP | NOT WS_TABSTOP
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,75,190,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,135,190,50,13
@@ -31202,7 +31209,8 @@ BEGIN
 
     DLG_VATBCFG_SMPLLEDG, DIALOG
     BEGIN
-        RIGHTMARGIN, 247
+        RIGHTMARGIN, 270
+        BOTTOMMARGIN, 135
     END
 
     DLG_LOCCFG, DIALOG
@@ -32497,6 +32505,21 @@ BEGIN
 END
 
 DLG_PANLZFLT AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_VATBCFG_BUY AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_VATBCFG_SELL AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_VATBCFG_SMPLLEDG AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

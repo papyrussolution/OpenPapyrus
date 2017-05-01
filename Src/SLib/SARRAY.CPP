@@ -3076,7 +3076,7 @@ int SLAPI STimeChunkArray::IsFreeEntry(const LDATETIME & start, long cont, uint 
 {
 	STimeChunk entry;
 	entry.Init(start, cont);
-	return start.d ? IsFreeEntry(entry, pPos) : 1;
+	return (!!start.d) ? IsFreeEntry(entry, pPos) : 1;
 }
 
 int SLAPI STimeChunkArray::GetFreeList(STimeChunkArray * pList) const

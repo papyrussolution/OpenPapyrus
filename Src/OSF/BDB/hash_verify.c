@@ -568,11 +568,12 @@ int __ham_vrfy_hashing(DBC * dbc, uint32 nentries, HMETA * m, uint32 thisbucket,
 	DB_THREAD_INFO * ip;
 	PAGE * h;
 	db_indx_t i;
-	int ret, t_ret, isbad;
 	uint32 hval, bucket;
 	DB * dbp = dbc->dbp;
 	DB_MPOOLFILE * mpf = dbp->mpf;
-	ret = isbad = 0;
+	int t_ret;
+	int ret = 0;
+	int isbad = 0;
 	// (replaced by ctr) memzero(&dbt, sizeof(DBT));
 	F_SET(&dbt, DB_DBT_REALLOC);
 	ENV_GET_THREAD_INFO(dbp->env, ip);
@@ -599,8 +600,7 @@ int __ham_vrfy_hashing(DBC * dbc, uint32 nentries, HMETA * m, uint32 thisbucket,
 		}
 	}
 err:
-	if(dbt.data != NULL)
-		__os_ufree(dbp->env, dbt.data);
+	__os_ufree(dbp->env, dbt.data);
 	if((t_ret = __memp_fput(mpf, ip, h, dbp->priority)) != 0)
 		return t_ret;
 	return (ret == 0 && isbad == 1) ? DB_VERIFY_BAD : ret;

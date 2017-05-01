@@ -97,6 +97,8 @@ static SString & catval(ulong v, const char * pV, SString & rBuf)
 	{ return rBuf.CatChar('(').Cat(pV).Eq().Cat(v).CatChar(')'); }
 static SString & catval(int64 v, const char * pV, SString & rBuf)
 	{ return rBuf.CatChar('(').Cat(pV).Eq().Cat(v).CatChar(')'); }
+static SString & catval(uint64 v, const char * pV, SString & rBuf)
+	{ return rBuf.CatChar('(').Cat(pV).Eq().Cat(v).CatChar(')'); }
 static SString & catval(double v, const char * pV, SString & rBuf)
 	{ return rBuf.CatChar('(').CatEq(pV, v, MKSFMTD(0, 15, NMBF_NOTRAILZ)).CatChar(')'); }
 static SString & catval(LDATE v, const char * pV, SString & rBuf)
@@ -190,7 +192,7 @@ int STestCase::_check_math_result(SMathResult & r, double val, double tol, const
 	}
 	if(s != 0) {
 		SString msg_buf, temp_buf;
-		(msg_buf = pF).CatDiv(':', 1, 1);
+		(msg_buf = pF).CatDivIfNotEmpty(':', 1);
 		msg_buf.Cat(temp_buf.Printf("expected: %20.16g", val)).Space();
 		msg_buf.Cat(temp_buf.Printf("obtained: %20.16g +/- %.16g (rel=%g)", r.V, r.E, r.E/(fabs(r.V) + r.E))).Space();
 		msg_buf.Cat(temp_buf.Printf("fracdiff: %20.16g", f));
@@ -207,6 +209,15 @@ int STestCase::_check_math_result(SMathResult & r, double val, double tol, const
 	}
 	else
 		return 1;
+}
+
+int STestCase::_check_eq(const void * a, const void * b, const char * pA, const char * pB)
+{
+#ifdef _WIN64
+	return Implement_check_eq((uint64)a, (uint64)b, pA, pB);
+#else
+	return Implement_check_eq((uint32)a, (uint32)b, pA, pB);
+#endif
 }
 
 int STestCase::_check_eq(uint8 a, uint8 b, const char * pA, const char * pB)
@@ -277,6 +288,11 @@ int STestCase::_check_eq(int64 a, int64 b, const char * pA, const char * pB)
 	else
 		return 1;
 	*/
+}
+
+int STestCase::_check_eq(uint64 a, uint64 b, const char * pA, const char * pB)
+{
+	return Implement_check_eq(a, b, pA, pB);
 }
 
 int STestCase::_check_eq(double a, double b, const char * pA, const char * pB)
@@ -608,7 +624,7 @@ STestSuite::~STestSuite()
 void STestSuite::PutCaseInfo(const char * pMsg)
 {
 	if(pMsg)
-		CaseBuffer.CatDiv(';', 0, 1).Cat(pMsg);
+		CaseBuffer.CatDivIfNotEmpty(';', 0).Cat(pMsg);
 }
 
 int STestSuite::LoadTestList(const char * pIniFileName)

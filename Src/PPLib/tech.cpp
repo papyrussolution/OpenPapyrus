@@ -467,7 +467,7 @@ struct CalcCapacity {
 	int    SLAPI SetNorma(double val);
 	SString & SLAPI ToText(SString & rBuf) const
 	{
-		return (rBuf = 0).Cat((long)Unit).CatDiv(';').Cat((long)Flags);
+		return (rBuf = 0).Cat((long)Unit).CatDiv(';', 0).Cat((long)Flags);
 	}
 	int    SLAPI FromText(const char *);
 
@@ -1676,11 +1676,11 @@ DBQuery * SLAPI PPViewTech::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 	THROW(CheckQueryPtr(q));
 	if(pSubTitle) {
 		if(Filt.PrcID) {
-			pSubTitle->CatDiv(';', 0, 1);
+			pSubTitle->CatDivIfNotEmpty(';', 0);
 			GetObjectName(PPOBJ_PROCESSOR, Filt.PrcID, *pSubTitle, 1);
 		}
 		if(Filt.GoodsID) {
-			pSubTitle->CatDiv(';', 0, 1);
+			pSubTitle->CatDivIfNotEmpty(';', 0);
 			GetObjectName(PPOBJ_GOODS, Filt.GoodsID, *pSubTitle, 1);
 		}
 	}
@@ -1897,7 +1897,7 @@ int PPALDD_TechView::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_TechView::Destroy()
+void PPALDD_TechView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(Tech);
 }

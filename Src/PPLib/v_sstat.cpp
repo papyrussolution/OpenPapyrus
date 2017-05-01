@@ -1769,7 +1769,7 @@ int PPALDD_SStatView::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_SStatView::Destroy()
+void PPALDD_SStatView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(PredictSales);
 }

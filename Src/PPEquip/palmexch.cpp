@@ -706,7 +706,7 @@ int SyncTable::PurgeAll()
 static int AddCompressedRec(SyncTable * pTbl, uint32 ver, size_t bufSize,
 	uint8 * pInBuf, size_t dataLen, uint8 * pOutBuf, FILE * fOut, FILE * fOut2)
 {
-	size_t compressed_size = bufSize;
+	uint   compressed_size = bufSize;
 	ucl_nrv2b_99_compress(pInBuf, dataLen, pOutBuf, &compressed_size, 0, 10, 0, 0);
 	if(fOut) {
 		if(ver > 500)
@@ -718,9 +718,10 @@ static int AddCompressedRec(SyncTable * pTbl, uint32 ver, size_t bufSize,
 			return 0;
 	// @debug {
 	if(fOut2) {
-		memzero(pInBuf, dataLen);
-		ucl_nrv2b_decompress_8(pOutBuf, compressed_size, pInBuf, &dataLen, 0);
-		fwrite(pInBuf, dataLen, 1, fOut2);
+		uint _data_len = (uint)dataLen;
+		memzero(pInBuf, _data_len);
+		ucl_nrv2b_decompress_8(pOutBuf, compressed_size, pInBuf, &_data_len, 0);
+		fwrite(pInBuf, _data_len, 1, fOut2);
 	}
 	// } @debug
 	return 1;
@@ -1402,7 +1403,7 @@ static int __CopyFile(const char * pSrcPath, const char * pDestPath, SpiiExchgCo
 					r = 1;
 				else {
 					++j;
-					delay(1000);
+					SDelay(1000);
 				}
 			}
 			if(j) {

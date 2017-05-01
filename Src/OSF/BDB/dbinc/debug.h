@@ -35,7 +35,7 @@ extern "C" {
 #if defined(DIAGNOSTIC) && defined(__STDC__)
 	#define	DB_ASSERT(env, e)   ((e) ? 0 : __db_assert(env, #e, __FILE__, __LINE__))
 #else
-	#define	DB_ASSERT(env, e)   NOP_STATEMENT
+	#define	DB_ASSERT(env, e)   // @sobolev NOP_STATEMENT
 #endif
 
 /*

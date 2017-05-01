@@ -7,15 +7,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
-// @v9.5.5 #include "dbinc/txn.h"
 
 #ifdef HAVE_STATISTICS
 static int __env_print_all(ENV*, uint32);
@@ -27,7 +19,6 @@ static int __env_print_thread(ENV *);
 static int __env_stat_print(ENV*, uint32);
 static char * __env_thread_state_print(DB_THREAD_STATE);
 static const char * __reg_type(reg_type_t);
-
 /*
  * __env_stat_print_pp --
  *	ENV->stat_print pre/post processor.

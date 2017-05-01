@@ -7,16 +7,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/log.h"
-// @v9.5.5 #include "dbinc/qam.h"
-// @v9.5.5 #include "dbinc/txn.h"
 
 static int __absname __P((ENV*, char *, char *, char **));
 static int __build_data __P((ENV*, char *, char ***));
@@ -26,8 +17,6 @@ static int __usermem __P((ENV*, char ***));
 /*
  * __log_archive_pp --
  *	ENV->log_archive pre/post processing.
- *
- * PUBLIC: int __log_archive_pp __P((DB_ENV *, char **[], uint32));
  */
 int __log_archive_pp(DB_ENV * dbenv, char *** listp, uint32 flags)
 {

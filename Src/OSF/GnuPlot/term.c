@@ -296,22 +296,22 @@ static void term_close_output()
 // assigns dest to outstr, so it must be allocated or NULL
 // and it must not be outstr itself !
 //
-void term_set_output(char * dest)
+void GpGadgets::TermSetOutput(GpTermEntry * pT, char * pDest)
 {
 	FILE * f = NULL;
 	FPRINTF((stderr, "term_set_output\n"));
-	assert(dest == NULL || dest != outstr);
-	if(GpGg.IsMultiPlot) {
+	assert(pDest == NULL || pDest != outstr);
+	if(IsMultiPlot) {
 		fputs("In multiplot mode you can't change the output\n", stderr);
 		return;
 	}
-	if(term && GpGg.term_initialised) {
-		(*term->reset)();
-		GpGg.term_initialised = false;
+	if(pT && term_initialised) {
+		(*pT->reset)();
+		term_initialised = false;
 		// switch off output to special postscript file (if used) 
 		gppsfile = NULL;
 	}
-	if(dest == NULL) { // stdout 
+	if(pDest == NULL) { // stdout 
 		term_close_output();
 	}
 	else {
@@ -319,12 +319,12 @@ void term_set_output(char * dest)
 		if(*dest == '|') {
 			restrict_popen();
 #ifdef _Windows
-			f = (term && (term->flags & TERM_BINARY)) ? popen(dest + 1, "wb") : popen(dest + 1, "w");
+			f = (pT && (pT->flags & TERM_BINARY)) ? popen(dest + 1, "wb") : popen(dest + 1, "w");
 #else
 			f = popen(dest + 1, "w");
 #endif
 			if(f == (FILE*)NULL)
-				os_error(GpGg.Gp__C.CToken, "cannot create pipe; output not changed");
+				os_error(Gp__C.CToken, "cannot create pipe; output not changed");
 			else
 				output_pipe_open = true;
 		}
@@ -338,25 +338,25 @@ void term_set_output(char * dest)
 			gpoutfile = stdout; // and reset output to stdout 
 			ZFREE(outstr);
 		}
-		if(_stricmp(dest, "PRN") == 0) {
+		if(_stricmp(pDest, "PRN") == 0) {
 			if((f = open_printer()) == (FILE*)NULL)
-				os_error(GpGg.Gp__C.CToken, "cannot open printer temporary file; output may have changed");
+				os_error(Gp__C.CToken, "cannot open printer temporary file; output may have changed");
 		}
 		else
 #endif
 
 		{
-			f = (term && (term->flags & TERM_BINARY)) ? FOPEN_BINARY(dest) : fopen(dest, "w");
+			f = (pT && (pT->flags & TERM_BINARY)) ? FOPEN_BINARY(pDest) : fopen(pDest, "w");
 			if(f == (FILE*)NULL)
-				os_error(GpGg.Gp__C.CToken, "cannot open file; output not changed");
+				os_error(Gp__C.CToken, "cannot open file; output not changed");
 		}
 #if defined(PIPES)
 	}
 #endif
 		term_close_output();
 		gpoutfile = f;
-		outstr = dest;
-		GpGg.opened_binary = (term && (term->flags & TERM_BINARY));
+		outstr = pDest;
+		opened_binary = (pT && (pT->flags & TERM_BINARY));
 	}
 }
 
@@ -387,7 +387,7 @@ void GpGadgets::TermInitialise()
 		if(temp) {
 			FPRINTF((stderr, "term_initialise: reopening \"%s\" as %s\n", outstr, term->flags & TERM_BINARY ? "binary" : "text"));
 			strcpy(temp, outstr);
-			term_set_output(temp); /* will free outstr */
+			TermSetOutput(term, temp); /* will free outstr */
 			if(temp != outstr) {
 				free(temp);
 				temp = outstr;
@@ -430,7 +430,7 @@ void GpGadgets::TermStartPlot(GpTermEntry * pT)
 		term_suspended = false;
 	}
 	// Sync point for epslatex text positioning 
-	(*pT->layer)(TERM_LAYER_RESET);
+	pT->_Layer(TERM_LAYER_RESET);
 	// Because PostScript plots may be viewed out of order, make sure 
 	// Each new plot makes no assumption about the previous palette. 
 	if(pT->flags & TERM_IS_POSTSCRIPT)
@@ -447,8 +447,8 @@ void GpGadgets::TermEndPlot(GpTermEntry * pT)
 {
 	FPRINTF((stderr, "term_end_plot()\n"));
 	if(term_initialised) {
-		/* Sync point for epslatex text positioning */
-		(*pT->layer)(TERM_LAYER_END_TEXT);
+		// Sync point for epslatex text positioning 
+		pT->_Layer(TERM_LAYER_END_TEXT);
 		if(!IsMultiPlot) {
 			FPRINTF((stderr, "- calling pT->text()\n"));
 			(*pT->text)();
@@ -660,8 +660,8 @@ static void do_point(uint x, uint y, int number)
 	if(term->dashtype != null_dashtype)
 		term->dashtype(DASHTYPE_SOLID, NULL);
 	if(number < 0) {        /* do dot */
-		(*t->move)(x, y);
-		(*t->vector)(x, y);
+		t->_Move(x, y);
+		t->_Vector(x, y);
 		return;
 	}
 	number %= POINT_TYPES;
@@ -675,61 +675,61 @@ static void do_point(uint x, uint y, int number)
 	 */
 	switch(number) {
 		case 4:         /* do diamond */
-		    (*t->move)(x - htic, y);
-		    (*t->vector)(x, y - vtic);
-		    (*t->vector)(x + htic, y);
-		    (*t->vector)(x, y + vtic);
-		    (*t->vector)(x - htic, y);
-		    (*t->move)(x, y);
-		    (*t->vector)(x, y);
+		    t->_Move(x - htic, y);
+		    t->_Vector(x, y - vtic);
+		    t->_Vector(x + htic, y);
+		    t->_Vector(x, y + vtic);
+		    t->_Vector(x - htic, y);
+		    t->_Move(x, y);
+		    t->_Vector(x, y);
 		    break;
 		case 0:         /* do plus */
-		    (*t->move)(x - htic, y);
-		    (*t->vector)(x - htic, y);
-		    (*t->vector)(x + htic, y);
-		    (*t->move)(x, y - vtic);
-		    (*t->vector)(x, y - vtic);
-		    (*t->vector)(x, y + vtic);
+		    t->_Move(x - htic, y);
+		    t->_Vector(x - htic, y);
+		    t->_Vector(x + htic, y);
+		    t->_Move(x, y - vtic);
+		    t->_Vector(x, y - vtic);
+		    t->_Vector(x, y + vtic);
 		    break;
 		case 3:         /* do box */
-		    (*t->move)(x - htic, y - vtic);
-		    (*t->vector)(x - htic, y - vtic);
-		    (*t->vector)(x + htic, y - vtic);
-		    (*t->vector)(x + htic, y + vtic);
-		    (*t->vector)(x - htic, y + vtic);
-		    (*t->vector)(x - htic, y - vtic);
-		    (*t->move)(x, y);
-		    (*t->vector)(x, y);
+		    t->_Move(x - htic, y - vtic);
+		    t->_Vector(x - htic, y - vtic);
+		    t->_Vector(x + htic, y - vtic);
+		    t->_Vector(x + htic, y + vtic);
+		    t->_Vector(x - htic, y + vtic);
+		    t->_Vector(x - htic, y - vtic);
+		    t->_Move(x, y);
+		    t->_Vector(x, y);
 		    break;
 		case 1:         /* do X */
-		    (*t->move)(x - htic, y - vtic);
-		    (*t->vector)(x - htic, y - vtic);
-		    (*t->vector)(x + htic, y + vtic);
-		    (*t->move)(x - htic, y + vtic);
-		    (*t->vector)(x - htic, y + vtic);
-		    (*t->vector)(x + htic, y - vtic);
+		    t->_Move(x - htic, y - vtic);
+		    t->_Vector(x - htic, y - vtic);
+		    t->_Vector(x + htic, y + vtic);
+		    t->_Move(x - htic, y + vtic);
+		    t->_Vector(x - htic, y + vtic);
+		    t->_Vector(x + htic, y - vtic);
 		    break;
 		case 5:         /* do triangle */
-		    (*t->move)(x, y + (4 * vtic / 3));
-		    (*t->vector)(x - (4 * htic / 3), y - (2 * vtic / 3));
-		    (*t->vector)(x + (4 * htic / 3), y - (2 * vtic / 3));
-		    (*t->vector)(x, y + (4 * vtic / 3));
-		    (*t->move)(x, y);
-		    (*t->vector)(x, y);
+		    t->_Move(x, y + (4 * vtic / 3));
+		    t->_Vector(x - (4 * htic / 3), y - (2 * vtic / 3));
+		    t->_Vector(x + (4 * htic / 3), y - (2 * vtic / 3));
+		    t->_Vector(x, y + (4 * vtic / 3));
+		    t->_Move(x, y);
+		    t->_Vector(x, y);
 		    break;
 		case 2:         /* do star */
-		    (*t->move)(x - htic, y);
-		    (*t->vector)(x - htic, y);
-		    (*t->vector)(x + htic, y);
-		    (*t->move)(x, y - vtic);
-		    (*t->vector)(x, y - vtic);
-		    (*t->vector)(x, y + vtic);
-		    (*t->move)(x - htic, y - vtic);
-		    (*t->vector)(x - htic, y - vtic);
-		    (*t->vector)(x + htic, y + vtic);
-		    (*t->move)(x - htic, y + vtic);
-		    (*t->vector)(x - htic, y + vtic);
-		    (*t->vector)(x + htic, y - vtic);
+		    t->_Move(x - htic, y);
+		    t->_Vector(x - htic, y);
+		    t->_Vector(x + htic, y);
+		    t->_Move(x, y - vtic);
+		    t->_Vector(x, y - vtic);
+		    t->_Vector(x, y + vtic);
+		    t->_Move(x - htic, y - vtic);
+		    t->_Vector(x - htic, y - vtic);
+		    t->_Vector(x + htic, y + vtic);
+		    t->_Move(x - htic, y + vtic);
+		    t->_Vector(x - htic, y + vtic);
+		    t->_Vector(x + htic, y - vtic);
 		    break;
 	}
 }
@@ -738,19 +738,15 @@ static void do_pointsize(double size)
 {
 	GpGg.term_pointsize = (size >= 0 ? size : 1);
 }
-
-/*
- * general point routine
- */
+//
+// general point routine
+//
 static void line_and_point(uint x, uint y, int number)
 {
-	/* temporary(?) kludge to allow terminals with bad linetypes
-	   to make nice marks */
-
-	(*term->linetype)(NICE_LINE);
+	// temporary(?) kludge to allow terminals with bad linetypes to make nice marks 
+	term->_LineType(NICE_LINE);
 	do_point(x, y, number);
 }
-
 /*
  * general arrow routine
  *
@@ -1083,7 +1079,7 @@ static int null_set_font(const char * font)
 static void null_set_color(t_colorspec * colorspec)
 {
 	if(colorspec->type == TC_LT)
-		term->linetype(colorspec->lt);
+		term->_LineType(colorspec->lt);
 }
 
 static void null_dashtype(int type, t_dashtype * custom_dash_pattern)
@@ -1097,7 +1093,7 @@ static void null_dashtype(int type, t_dashtype * custom_dash_pattern)
 	 */
 	if(type <= 0)
 		type = LT_SOLID;
-	term->linetype(type);
+	term->_LineType(type);
 }
 
 /* setup the magic macros to compile in the right parts of the
@@ -1405,17 +1401,17 @@ void GpGadgets::TestTerm(GpTermEntry * pT, GpCommand & rC)
 	key_entry_height = (int)(PtSz * pT->VTic * 1.25);
 	SETMAX(key_entry_height, (int)pT->VChr);
 	// Sync point for epslatex text positioning 
-	(*pT->layer)(TERM_LAYER_FRONTTEXT);
+	pT->_Layer(TERM_LAYER_FRONTTEXT);
 	// border linetype 
 	(*pT->linewidth)(1.0);
-	(*pT->linetype)(LT_BLACK);
+	pT->_LineType(LT_BLACK);
 	{
 		newpath(pT);
-		(*pT->move)(x0, y0);
-		(*pT->vector)(x0 + xmax_t - 1, y0);
-		(*pT->vector)(x0 + xmax_t - 1, y0 + ymax_t - 1);
-		(*pT->vector)(x0, y0 + ymax_t - 1);
-		(*pT->vector)(x0, y0);
+		pT->_Move(x0, y0);
+		pT->_Vector(x0 + xmax_t - 1, y0);
+		pT->_Vector(x0 + xmax_t - 1, y0 + ymax_t - 1);
+		pT->_Vector(x0, y0 + ymax_t - 1);
+		pT->_Vector(x0, y0);
 		closepath(pT);
 	}
 	// Echo back the current terminal type
@@ -1425,73 +1421,73 @@ void GpGadgets::TestTerm(GpTermEntry * pT, GpCommand & rC)
 		char tbuf[64];
 		(*pT->justify_text)(LEFT);
 		sprintf(tbuf, "%s  terminal test", term->name);
-		(*pT->put_text)(x0 + pT->HChr * 2, y0 + ymax_t - pT->VChr, tbuf);
+		pT->_PutText(x0 + pT->HChr * 2, y0 + ymax_t - pT->VChr, tbuf);
 		sprintf(tbuf, "gnuplot version %s.%s  ", gnuplot_version, gnuplot_patchlevel);
-		(*pT->put_text)(x0 + pT->HChr * 2, (uint)(y0 + ymax_t - pT->VChr * 2.25), tbuf);
+		pT->_PutText(x0 + pT->HChr * 2, (uint)(y0 + ymax_t - pT->VChr * 2.25), tbuf);
 	}
-	(*pT->linetype)(LT_AXIS);
-	(*pT->move)(x0 + xmax_t / 2, y0);
-	(*pT->vector)(x0 + xmax_t / 2, y0 + ymax_t - 1);
-	(*pT->move)(x0, y0 + ymax_t / 2);
-	(*pT->vector)(x0 + xmax_t - 1, y0 + ymax_t / 2);
+	pT->_LineType(LT_AXIS);
+	pT->_Move(x0 + xmax_t / 2, y0);
+	pT->_Vector(x0 + xmax_t / 2, y0 + ymax_t - 1);
+	pT->_Move(x0, y0 + ymax_t / 2);
+	pT->_Vector(x0 + xmax_t - 1, y0 + ymax_t / 2);
 	// test width and height of characters 
-	(*pT->linetype)(LT_SOLID);
+	pT->_LineType(LT_SOLID);
 	{
 		newpath(pT);
-		(*pT->move)(x0 + xmax_t / 2 - pT->HChr * 10, y0 + ymax_t / 2 + pT->VChr / 2);
-		(*pT->vector)(x0 + xmax_t / 2 + pT->HChr * 10, y0 + ymax_t / 2 + pT->VChr / 2);
-		(*pT->vector)(x0 + xmax_t / 2 + pT->HChr * 10, y0 + ymax_t / 2 - pT->VChr / 2);
-		(*pT->vector)(x0 + xmax_t / 2 - pT->HChr * 10, y0 + ymax_t / 2 - pT->VChr / 2);
-		(*pT->vector)(x0 + xmax_t / 2 - pT->HChr * 10, y0 + ymax_t / 2 + pT->VChr / 2);
+		pT->_Move(x0 + xmax_t / 2 - pT->HChr * 10, y0 + ymax_t / 2 + pT->VChr / 2);
+		pT->_Vector(x0 + xmax_t / 2 + pT->HChr * 10, y0 + ymax_t / 2 + pT->VChr / 2);
+		pT->_Vector(x0 + xmax_t / 2 + pT->HChr * 10, y0 + ymax_t / 2 - pT->VChr / 2);
+		pT->_Vector(x0 + xmax_t / 2 - pT->HChr * 10, y0 + ymax_t / 2 - pT->VChr / 2);
+		pT->_Vector(x0 + xmax_t / 2 - pT->HChr * 10, y0 + ymax_t / 2 + pT->VChr / 2);
 		closepath(pT);
 	}
-	(*pT->put_text)(x0 + xmax_t / 2 - pT->HChr * 10, y0 + ymax_t / 2, "12345678901234567890");
-	(*pT->put_text)(x0 + xmax_t / 2 - pT->HChr * 10, (uint)(y0 + ymax_t / 2 + pT->VChr * 1.4), "test of character width:");
-	(*pT->linetype)(LT_BLACK);
+	pT->_PutText(x0 + xmax_t / 2 - pT->HChr * 10, y0 + ymax_t / 2, "12345678901234567890");
+	pT->_PutText(x0 + xmax_t / 2 - pT->HChr * 10, (uint)(y0 + ymax_t / 2 + pT->VChr * 1.4), "test of character width:");
+	pT->_LineType(LT_BLACK);
 
 	// Test for enhanced text 
 	if(pT->flags & TERM_ENHANCED_TEXT) {
 		char * tmptext1 =   "Enhanced text:   {x@_{0}^{n+1}}";
 		char * tmptext2 = "&{Enhanced text:  }{/:Bold Bold}{/:Italic  Italic}";
-		(*pT->put_text)((uint)(x0 + xmax_t * 0.5), (uint)(y0 + ymax_t * 0.40), tmptext1);
-		(*pT->put_text)((uint)(x0 + xmax_t * 0.5), (uint)(y0 + ymax_t * 0.35), tmptext2);
+		pT->_PutText((uint)(x0 + xmax_t * 0.5), (uint)(y0 + ymax_t * 0.40), tmptext1);
+		pT->_PutText((uint)(x0 + xmax_t * 0.5), (uint)(y0 + ymax_t * 0.35), tmptext2);
 		(*pT->set_font)("");
 		if(!already_in_enhanced_text_mode)
 			rC.DoString("set termopt noenh");
 	}
 	// test justification 
 	(*pT->justify_text)(LEFT);
-	(*pT->put_text)(x0 + xmax_t / 2, y0 + ymax_t / 2 + pT->VChr * 6, "left justified");
+	pT->_PutText(x0 + xmax_t / 2, y0 + ymax_t / 2 + pT->VChr * 6, "left justified");
 	str = "centre+d text";
 	if((*pT->justify_text)(CENTRE))
-		(*pT->put_text)(x0 + xmax_t / 2, y0 + ymax_t / 2 + pT->VChr * 5, str);
+		pT->_PutText(x0 + xmax_t / 2, y0 + ymax_t / 2 + pT->VChr * 5, str);
 	else
-		(*pT->put_text)(x0 + xmax_t / 2 - strlen(str) * pT->HChr / 2, y0 + ymax_t / 2 + pT->VChr * 5, str);
+		pT->_PutText(x0 + xmax_t / 2 - strlen(str) * pT->HChr / 2, y0 + ymax_t / 2 + pT->VChr * 5, str);
 	str = "right justified";
 	if((*pT->justify_text)(RIGHT))
-		(*pT->put_text)(x0 + xmax_t / 2, y0 + ymax_t / 2 + pT->VChr * 4, str);
+		pT->_PutText(x0 + xmax_t / 2, y0 + ymax_t / 2 + pT->VChr * 4, str);
 	else
-		(*pT->put_text)(x0 + xmax_t / 2 - strlen(str) * pT->HChr, y0 + ymax_t / 2 + pT->VChr * 4, str);
+		pT->_PutText(x0 + xmax_t / 2 - strlen(str) * pT->HChr, y0 + ymax_t / 2 + pT->VChr * 4, str);
 	/* test text angle */
-	(*pT->linetype)(1);
+	pT->_LineType(1);
 	str = "rotated ce+ntred text";
 	if((*pT->text_angle)(TEXT_VERTICAL)) {
 		if((*pT->justify_text)(CENTRE))
-			(*pT->put_text)(x0 + pT->VChr, y0 + ymax_t / 2, str);
+			pT->_PutText(x0 + pT->VChr, y0 + ymax_t / 2, str);
 		else
-			(*pT->put_text)(x0 + pT->VChr, y0 + ymax_t / 2 - strlen(str) * pT->HChr / 2, str);
+			pT->_PutText(x0 + pT->VChr, y0 + ymax_t / 2 - strlen(str) * pT->HChr / 2, str);
 		(*pT->justify_text)(LEFT);
 		str = " rotated by +45 deg";
 		(*pT->text_angle)(45);
-		(*pT->put_text)(x0 + pT->VChr * 3, y0 + ymax_t / 2, str);
+		pT->_PutText(x0 + pT->VChr * 3, y0 + ymax_t / 2, str);
 		(*pT->justify_text)(LEFT);
 		str = " rotated by -45 deg";
 		(*pT->text_angle)(-45);
-		(*pT->put_text)(x0 + pT->VChr * 2, y0 + ymax_t / 2, str);
+		pT->_PutText(x0 + pT->VChr * 2, y0 + ymax_t / 2, str);
 	}
 	else {
 		(*pT->justify_text)(LEFT);
-		(*pT->put_text)(x0 + pT->HChr * 2, y0 + ymax_t / 2 - pT->VChr * 2, "can'pT rotate text");
+		pT->_PutText(x0 + pT->HChr * 2, y0 + ymax_t / 2 - pT->VChr * 2, "can'pT rotate text");
 	}
 	(*pT->justify_text)(LEFT);
 	(*pT->text_angle)(0);
@@ -1499,15 +1495,15 @@ void GpGadgets::TestTerm(GpTermEntry * pT, GpCommand & rC)
 	// test tic size 
 	{
 		const double _ts = AxA[FIRST_X_AXIS].ticscale;
-		(*pT->linetype)(2);
-		(*pT->move)  ((uint)(x0 + xmax_t / 2 + pT->HTic * (1 + _ts)), y0 + (uint)ymax_t - 1);
-		(*pT->vector)((uint)(x0 + xmax_t / 2 + pT->HTic * (1 + _ts)), (uint)(y0 + ymax_t - _ts * pT->VTic));
-		(*pT->move)  ((uint)(x0 + xmax_t / 2), y0 + (uint)(ymax_t - pT->VTic * (1 + _ts)));
-		(*pT->vector)((uint)(x0 + xmax_t / 2 + _ts * pT->HTic), (uint)(y0 + ymax_t - pT->VTic * (1 + _ts)));
+		pT->_LineType(2);
+		pT->_Move  ((uint)(x0 + xmax_t / 2 + pT->HTic * (1 + _ts)), y0 + (uint)ymax_t - 1);
+		pT->_Vector((uint)(x0 + xmax_t / 2 + pT->HTic * (1 + _ts)), (uint)(y0 + ymax_t - _ts * pT->VTic));
+		pT->_Move  ((uint)(x0 + xmax_t / 2), y0 + (uint)(ymax_t - pT->VTic * (1 + _ts)));
+		pT->_Vector((uint)(x0 + xmax_t / 2 + _ts * pT->HTic), (uint)(y0 + ymax_t - pT->VTic * (1 + _ts)));
 		(*pT->justify_text)(RIGHT);
-		(*pT->put_text)(x0 + (uint)(xmax_t / 2 - 1* pT->HChr), y0 + (uint)(ymax_t - pT->VChr), "show ticscale");
+		pT->_PutText(x0 + (uint)(xmax_t / 2 - 1* pT->HChr), y0 + (uint)(ymax_t - pT->VChr), "show ticscale");
 		(*pT->justify_text)(LEFT);
-		(*pT->linetype)(LT_BLACK);
+		pT->_LineType(LT_BLACK);
 	}
 	// test line and point types 
 	x = x0 + xmax_t - pT->HChr * 7 - p_width;
@@ -1521,18 +1517,18 @@ void GpGadgets::TestTerm(GpTermEntry * pT, GpCommand & rC)
 		ApplyLpProperties(pT, &ls);
 		sprintf(label, "%d", i + 1);
 		if((*pT->justify_text)(RIGHT))
-			(*pT->put_text)(x, y, label);
+			pT->_PutText(x, y, label);
 		else
-			(*pT->put_text)(x - strlen(label) * pT->HChr, y, label);
-		(*pT->move)(x + pT->HChr, y);
-		(*pT->vector)(x + pT->HChr * 5, y);
+			pT->_PutText(x - strlen(label) * pT->HChr, y, label);
+		pT->_Move(x + pT->HChr, y);
+		pT->_Vector(x + pT->HChr * 5, y);
 		if(i >= -1)
 			(*pT->point)(x + pT->HChr * 6 + p_width / 2, y, i);
 		y -= key_entry_height;
 	}
 	// test some arrows 
 	(*pT->linewidth)(1.0);
-	(*pT->linetype)(0);
+	pT->_LineType(0);
 	(*pT->dashtype)(DASHTYPE_SOLID, NULL);
 	x = (int)(x0 + xmax_t * 0.28);
 	y = (int)(y0 + ymax_t * 0.5);
@@ -1562,13 +1558,13 @@ void GpGadgets::TestTerm(GpTermEntry * pT, GpCommand & rC)
 	x = (int)(x0 + xmax_t * 0.075);
 	y = y0 + yl;
 	for(i = 1; i<7; i++) {
-		(*pT->linewidth)((float)(i)); (*pT->linetype)(LT_BLACK);
-		(*pT->move)(x, y); (*pT->vector)(x+xl, y);
+		(*pT->linewidth)((float)(i)); pT->_LineType(LT_BLACK);
+		pT->_Move(x, y); pT->_Vector(x+xl, y);
 		sprintf(label, "  lw %1d", i);
-		(*pT->put_text)(x+xl, y, label);
+		pT->_PutText(x+xl, y, label);
 		y += yl;
 	}
-	(*pT->put_text)(x, y, "linewidth");
+	pT->_PutText(x, y, "linewidth");
 	// test native dashtypes (_not_ the 'set mono' sequence) 
 	(void)(*pT->justify_text)(LEFT);
 	xl = xmax_t / 10;
@@ -1577,39 +1573,39 @@ void GpGadgets::TestTerm(GpTermEntry * pT, GpCommand & rC)
 	y = y0 + yl;
 	for(i = 0; i<5; i++) {
 		(*pT->linewidth)(1.0);
-		(*pT->linetype)(LT_SOLID);
+		pT->_LineType(LT_SOLID);
 		(*pT->dashtype)(i, NULL);
 		(*pT->set_color)(&black);
-		(*pT->move)(x, y); (*pT->vector)(x+xl, y);
+		pT->_Move(x, y); pT->_Vector(x+xl, y);
 		sprintf(label, "  dt %1d", i+1);
-		(*pT->put_text)(x+xl, y, label);
+		pT->_PutText(x+xl, y, label);
 		y += yl;
 	}
-	(*pT->put_text)(x, y, "dashtype");
+	pT->_PutText(x, y, "dashtype");
 	// test fill patterns 
 	x = (int)(x0 + xmax_t * 0.5);
 	y = y0;
 	xl = xmax_t / 40;
 	yl = ymax_t / 8;
 	(*pT->linewidth)((float)(1));
-	(*pT->linetype)(LT_BLACK);
+	pT->_LineType(LT_BLACK);
 	(*pT->justify_text)(CENTRE);
-	(*pT->put_text)(x+xl*7, (uint)(y + yl+pT->VChr*1.5), "pattern fill");
+	pT->_PutText(x+xl*7, (uint)(y + yl+pT->VChr*1.5), "pattern fill");
 	for(i = 0; i<9; i++) {
 		int style = ((i<<4) + FS_PATTERN);
 		if(pT->fillbox)
 			(*pT->fillbox)(style, x, y, xl, yl);
 		{
 			newpath(pT);
-			(*pT->move)(x, y);
-			(*pT->vector)(x, y+yl);
-			(*pT->vector)(x+xl, y+yl);
-			(*pT->vector)(x+xl, y);
-			(*pT->vector)(x, y);
+			pT->_Move(x, y);
+			pT->_Vector(x, y+yl);
+			pT->_Vector(x+xl, y+yl);
+			pT->_Vector(x+xl, y);
+			pT->_Vector(x, y);
 			closepath(pT);
 		}
 		sprintf(label, "%2d", i);
-		(*pT->put_text)(x+xl/2, (uint)(y+yl+pT->VChr*0.5), label);
+		pT->_PutText(x+xl/2, (uint)(y+yl+pT->VChr*0.5), label);
 		x += (int)(xl * 1.5);
 	}
 
@@ -1635,11 +1631,11 @@ void GpGadgets::TestTerm(GpTermEntry * pT, GpCommand & rC)
 				corners[n].x = corners[0].x;
 				corners[n].y = corners[0].y;
 				if(j == 0) {
-					(*pT->linetype)(2);
+					pT->_LineType(2);
 					corners->style = FS_OPAQUE;
 				}
 				else {
-					(*pT->linetype)(1);
+					pT->_LineType(1);
 					corners->style = FS_TRANSPARENT_SOLID + (50<<4);
 				}
 				term->filled_polygon(n+1, corners);
@@ -1648,9 +1644,9 @@ void GpGadgets::TestTerm(GpTermEntry * pT, GpCommand & rC)
 		}
 		else
 			str = "No filled polygons";
-		(*pT->linetype)(LT_BLACK);
+		pT->_LineType(LT_BLACK);
 		i = ((*pT->justify_text)(CENTRE)) ? 0 : pT->HChr * strlen(str) / 2;
-		(*pT->put_text)(cen_x + i, (uint)(cen_y + radius + pT->VChr * 0.5), str);
+		pT->_PutText(cen_x + i, (uint)(cen_y + radius + pT->VChr * 0.5), str);
 	}
 	TermEndPlot(pT);
 }
@@ -1931,14 +1927,12 @@ const char * enhanced_recursion(const char * p, bool brace,
 			(term->enhanced_writec)(*p);
 		}
 		else
-
 			switch(*p) {
 				case '}':
 				    /*{{{  deal with it*/
 				    if(brace)
 					    return (p);
-
-				    int_warn(NO_CARET, "enhanced text parser - spurious }");
+				    GpGg.IntWarn(NO_CARET, "enhanced text parser - spurious }");
 				    break;
 				/*}}}*/
 
@@ -2039,8 +2033,7 @@ const char * enhanced_recursion(const char * p, bool brace,
 					    } while(((ch = *p) == '=') || (ch == ':') || (ch == '*'));
 
 					    if(ch == '}')
-						    int_warn(NO_CARET, "bad syntax in enhanced text string");
-
+						    GpGg.IntWarn(NO_CARET, "bad syntax in enhanced text string");
 					    if(*p == ' ') /* Eat up a single space following a font spec */
 						    ++p;
 					    if(!start_of_fontname || (start_of_fontname == end_of_fontname)) {
@@ -2165,7 +2158,7 @@ const char * enhanced_recursion(const char * p, bool brace,
 				    /* HBB 20030122: Avoid broken output if there's a \
 				     * exactly at the end of the line */
 				    if(*p == '\0') {
-					    int_warn(NO_CARET, "enhanced text parser -- spurious backslash");
+					    GpGg.IntWarn(NO_CARET, "enhanced text parser -- spurious backslash");
 					    break;
 				    }
 
@@ -2226,9 +2219,9 @@ char * stylefont(const char * fontname, bool isbold, bool isitalic)
 void enh_err_check(const char * str)
 {
 	if(*str == '}')
-		int_warn(NO_CARET, "enhanced text mode parser - ignoring spurious }");
+		GpGg.IntWarn(NO_CARET, "enhanced text mode parser - ignoring spurious }");
 	else
-		int_warn(NO_CARET, "enhanced text mode parsing error");
+		GpGg.IntWarn(NO_CARET, "enhanced text mode parsing error");
 }
 
 /*

@@ -1,5 +1,5 @@
 // V_GDSMOV.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2008, 2009, 2010, 2011, 2014, 2015, 2016
+// Copyright (c) A.Sobolev, A.Starodub 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -190,12 +190,7 @@ int SLAPI PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 	THROW(Helper_InitBaseFilt(pFilt));
 	THROW(p_tbl);
 	Total.Init();
-	/* @v6.0.10
-	if(!Filt.Period.low)
-		THROW(P_BObj->tbl->GetFirstDate(0, &Filt.Period.low) > 0);
-	SETIFZ(Filt.Period.upp, LConfig.OperDate);
-	*/
-	Filt.Period.Actualize(ZERODATE); // @v7.8.1
+	Filt.Period.Actualize(ZERODATE);
 	temp_filt.Period = Filt.Period;
 	temp_filt.LocList = Filt.LocList;
 	temp_filt.SupplID = Filt.SupplID;
@@ -210,7 +205,7 @@ int SLAPI PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 		GoodsGrpngArray ary;
 		PPTransaction tra(ppDbDependTransaction, 1);
 		THROW(tra);
-		THROW(BeginGoodsGroupingProcess(&temp_filt, &agg));
+		THROW(agg.BeginGoodsGroupingProcess(&temp_filt));
 		gf.GrpID   = Filt.GoodsGrpID;
 		gf.SupplID = Filt.SupplID;
 		gf.BrandList.Add(Filt.BrandID);
@@ -336,14 +331,11 @@ int SLAPI PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 						}
 					}
 				}
-				if(rec.InRest_Qtty || rec.OutRest_Qtty || rec.Rcpt_Qtty ||
-					rec.ARcpt_Qtty || rec.Expnd_Qtty || rec.Rlz_Qtty || rec.TExpnd_Qtty || rec.TRcpt_Qtty) {
+				if(rec.InRest_Qtty || rec.OutRest_Qtty || rec.Rcpt_Qtty || rec.ARcpt_Qtty || rec.Expnd_Qtty || rec.Rlz_Qtty || rec.TExpnd_Qtty || rec.TRcpt_Qtty) {
 					SString temp_buf;
-
 					rec.Grp     = gr.ParentID;
 					rec.GoodsID = gr.ID;
 					rec.PhUPerU = gr.PhUPerU;
-					// AHTOXA {
 					Total.InRestQtty    += rec.InRest_Qtty;
 					Total.InRestPhQtty  += rec.InRest_Qtty * rec.PhUPerU;
 					Total.InRestCost    += rec.InRest_Cost;
@@ -352,10 +344,9 @@ int SLAPI PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 					Total.OutRestPhQtty += rec.OutRest_Qtty * rec.PhUPerU;
 					Total.OutRestCost   += rec.OutRest_Cost;
 					Total.OutRestPrice  += rec.OutRest_Price;
-					// } AHTOXA
 					STRNSCPY(rec.GoodsName, gr.Name);
-					gobj.GetSingleBarcode(rec.GoodsID, temp_buf);           // @v6.4.11 AHTOXA
-					temp_buf.CopyTo(rec.Barcode, sizeof(rec.Barcode)); // @v6.4.11 AHTOXA
+					gobj.GetSingleBarcode(rec.GoodsID, temp_buf);
+					temp_buf.CopyTo(rec.Barcode, sizeof(rec.Barcode));
 					THROW_DB(bei.insert(&rec));
 				}
 			}
@@ -368,7 +359,7 @@ int SLAPI PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 		ok = 0;
 		ZDELETE(p_tbl);
 	ENDCATCH
-	EndGoodsGroupingProcess(&agg);
+	agg.EndGoodsGroupingProcess();
 	P_TempTbl = p_tbl;
 	return ok;
 }
@@ -532,7 +523,7 @@ int SLAPI PPViewGoodsMov::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	if(goods_id) {
 		OpGroupingFilt op_grpng_flt;
 		op_grpng_flt.Period  = Filt.Period;
-		op_grpng_flt.LocList = Filt.LocList; // @AHTOXA v4.8.12
+		op_grpng_flt.LocList = Filt.LocList;
 		op_grpng_flt.SupplID = Filt.SupplID;
 		op_grpng_flt.SupplAgentID = Filt.SupplAgentID;
 		op_grpng_flt.GoodsID = goods_id;
@@ -658,7 +649,7 @@ DBQuery * SLAPI PPViewGoodsMov::CreateBrowserQuery(uint * pBrwId, SString * pSub
 		p_t->Barcode,      // #14
 		0L).from(p_t, 0L).orderBy(p_t->GoodsName, 0L);
 	THROW(CheckQueryPtr(p_q));
-	subtitle.CatDiv('-', 1, 1).Cat(GetExtLocationName(Filt.LocList, 2, loc_names));
+	subtitle.CatDivIfNotEmpty('-', 1).Cat(GetExtLocationName(Filt.LocList, 2, loc_names));
 	ASSIGN_PTR(pBrwId, brw_id);
 	ASSIGN_PTR(pSubTitle, subtitle);
 	CATCH
@@ -672,7 +663,6 @@ DBQuery * SLAPI PPViewGoodsMov::CreateBrowserQuery(uint * pBrwId, SString * pSub
 }
 
 // virtual
-// AHTOXA {
 int SLAPI PPViewGoodsMov::ViewTotal()
 {
 	int    ok = 1;
@@ -691,7 +681,6 @@ int SLAPI PPViewGoodsMov::ViewTotal()
 	CATCHZOKPPERR
 	return ok;
 }
-// } AHTOXA
 
 int SLAPI PPViewGoodsMov::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
@@ -762,8 +751,8 @@ int PPALDD_GoodsMov::InitData(PPFilt & rFilt, long rsrv)
 	const GoodsMovFilt * p_flt  = (const GoodsMovFilt*)(p_v->GetBaseFilt());
 	H.FltBeg  = p_flt->Period.low;
 	H.FltEnd  = p_flt->Period.upp;
-	H.fLabelOnly    = (p_flt->Flags & GoodsMovFilt::fLabelOnly) ? 1 : 0;
-	H.fCostWoVat    = (p_flt->Flags & GoodsMovFilt::fCostWoVat) ? 1 : 0;
+	H.fLabelOnly    = BIN(p_flt->Flags & GoodsMovFilt::fLabelOnly);
+	H.fCostWoVat    = BIN(p_flt->Flags & GoodsMovFilt::fCostWoVat);
 	PPFormatPeriod(&p_flt->Period, temp_buf).CopyTo(H.Period, sizeof(H.Period));
 	H.FltLocID      = p_flt->LocList.GetSingle();
 	H.FltSupplID    = p_flt->SupplID;
@@ -844,10 +833,9 @@ int PPALDD_GoodsMov::NextIteration(PPIterID iterId, long rsrv)
 		return -1;
 }
 
-int PPALDD_GoodsMov::Destroy()
+void PPALDD_GoodsMov::Destroy()
 {
 	delete (PPViewGoodsMov*)Extra[0].Ptr;
 	Extra[0].Ptr = Extra[1].Ptr = 0;
-	return 1;
 }
 

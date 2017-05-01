@@ -505,7 +505,7 @@ RECOVER_FROM_ERROR_IN_DASH:
 			for(i = 0; i<argc; i++)
 				call_args[i] = gp_strdup(argv[i+1]); // Need to stash argv[i] somewhere visible to load_file() 
 			call_argc = argc - 1;
-			LoadFile(GpGg.Gp__C, loadpath_fopen(*argv, "r"), gp_strdup(*argv), 5);
+			LoadFile(loadpath_fopen(*argv, "r"), gp_strdup(*argv), 5);
 			gp_exit(EXIT_SUCCESS);
 		}
 		else if(*argv[0] == '-') {
@@ -514,7 +514,7 @@ RECOVER_FROM_ERROR_IN_DASH:
 		else {
 			IsInteractive = false;
 			noinputfiles = false;
-			LoadFile(GpGg.Gp__C, loadpath_fopen(*argv, "r"), gp_strdup(*argv), 4);
+			LoadFile(loadpath_fopen(*argv, "r"), gp_strdup(*argv), 4);
 		}
 	}
 	// take commands from stdin 
@@ -645,7 +645,7 @@ void GpGadgets::LoadRcFile(GpCommand & rC, int where)
 	}
 	if(plotrc) {
 		char * rc = gp_strdup(rcfile ? rcfile : PLOTRC);
-		LoadFile(rC, plotrc, rc, 3);
+		LoadFile(plotrc, rc, 3);
 		push_terminal(0); /* needed if terminal or its options were changed */
 	}
 	free(rcfile);
@@ -665,7 +665,7 @@ void get_user_env()
 		    )
 			user_homedir = (const char*)gp_strdup(env_home);
 		else if(GpGg.IsInteractive)
-			int_warn(NO_CARET, "no HOME found");
+			GpGg.IntWarn(NO_CARET, "no HOME found");
 	}
 	// Hhm ... what about VMS? 
 	if(GpGg.user_shell == NULL) {
@@ -697,7 +697,7 @@ void gp_expand_tilde(char ** pathp)
 			memcpy(*pathp, user_homedir, strlen(user_homedir));
 		}
 		else
-			int_warn(NO_CARET, "HOME not set - cannot expand tilde");
+			GpGg.IntWarn(NO_CARET, "HOME not set - cannot expand tilde");
 	}
 }
 

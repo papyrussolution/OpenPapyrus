@@ -7,12 +7,6 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
 static int __bam_bulk(DBC*, DBT*, uint32);
@@ -2502,7 +2496,7 @@ static int __bamc_physdel(DBC * dbc)
 		if((ret = __TLPUT(dbc, cp->lock)) != 0)
 			goto err;
 		cp->lock_mode = DB_LOCK_WWRITE;
-		if(cp->page != NULL && (ret = __memp_shared(dbp->mpf, cp->page)) != 0)
+		if(cp->page && (ret = __memp_shared(dbp->mpf, cp->page)) != 0)
 			goto err;
 	}
 	/* If we're not going to try and delete the page, we're done. */

@@ -745,7 +745,7 @@ int PPALDD_PaymPlan::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_PaymPlan::Destroy()
+void PPALDD_PaymPlan::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(PaymPlan);
 }

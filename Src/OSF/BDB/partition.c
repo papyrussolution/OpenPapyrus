@@ -7,16 +7,8 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_verify.h"
-// @v9.5.5 #include "dbinc/partition.h"
-// @v9.5.5 #include "dbinc/txn.h"
+
 #ifdef HAVE_PARTITION
 
 static int __part_rr __P((DB*, DB_THREAD_INFO*, DB_TXN*, const char *, const char *, const char *, uint32));
@@ -385,11 +377,11 @@ static int __partition_chk_meta(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, uin
 	else
 		ret = __partition_setup_keys(dbc, part, meta, flags);
 err:    /* Put the metadata page back. */
-	if(meta != NULL && (t_ret = __memp_fput(mpf, ip, meta, dbc->priority)) != 0 && ret == 0)
+	if(meta && (t_ret = __memp_fput(mpf, ip, meta, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __LPUT(dbc, metalock)) != 0 && ret == 0)
 		ret = t_ret;
-	if(dbc != NULL && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
+	if(dbc && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
 	dbp->p_internal = part;
 	return ret;
@@ -420,29 +412,23 @@ static int __part_key_cmp(const void * a, const void * b)
 static int __partition_setup_keys(DBC * dbc, DB_PARTITION * part, DBMETA * meta, uint32 flags)
 {
 	BTREE * t;
-	DB * dbp;
 	DBT data, key, * keys, * kp;
-	ENV * env;
 	uint32 ds, i, j;
 	uint8 * dd;
-	struct key_sort * ks;
-	int have_keys, ret;
+	struct key_sort * ks = 0;
+	int have_keys = 0;
+	int ret;
 	int (*compare)(DB*, const DBT*, const DBT *);
 	void * dp;
-
 	COMPQUIET(dd, NULL);
 	COMPQUIET(ds, 0);
-	memzero(&data, sizeof(data));
-	memzero(&key, sizeof(key));
-	ks = NULL;
-
-	dbp = dbc->dbp;
-	env = dbp->env;
-
-	/* Need to just read the main database. */
+	// @v9.6.4 (ctr) memzero(&data, sizeof(data));
+	// @v9.6.4 (ctr) memzero(&key, sizeof(key));
+	DB * dbp = dbc->dbp;
+	ENV * env = dbp->env;
+	// Need to just read the main database. 
 	dbp->p_internal = NULL;
-	have_keys = 0;
-	/* First verify that things what we expect. */
+	// First verify that things what we expect. 
 	if((ret = __dbc_get(dbc, &key, &data, DB_FIRST)) != 0) {
 		if(ret != DB_NOTFOUND)
 			goto err;
@@ -555,8 +541,7 @@ again:
 		ret = 0;
 err:
 	dbp->p_internal = part;
-	if(ks != NULL)
-		__os_free(env, ks);
+	__os_free(env, ks);
 	return ret;
 }
 /*
@@ -568,13 +553,11 @@ err:
 int __partition_get_callback(DB * dbp, uint32 * parts, uint32 (**callback)(DB*, DBT*key))
 {
 	DB_PARTITION * part = (DB_PARTITION *)dbp->p_internal;
-	/* Only return populated results if partitioned using callbacks. */
+	// Only return populated results if partitioned using callbacks.
 	if(part != NULL && !F_ISSET(part, PART_CALLBACK))
 		part = NULL;
-	if(parts != NULL)
-		*parts = (part != NULL ? part->nparts : 0);
-	if(callback != NULL)
-		*callback = (part != NULL ? part->callback : NULL);
+	ASSIGN_PTR(parts, (part ? part->nparts : 0));
+	ASSIGN_PTR(callback, (part ? part->callback : NULL));
 	return 0;
 }
 /*
@@ -698,20 +681,16 @@ static int __partc_get_pp(DBC * dbc, DBT * key, DBT * data, uint32 flags)
  */
 int __partc_get(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 {
-	DB * dbp;
-	DBC * orig_dbc, * new_dbc;
-	DB_PARTITION * part;
-	PART_CURSOR * cp;
-	uint32 multi, part_id;
-	int ret, retry, search;
-	dbp = dbc->dbp;
-	cp = (PART_CURSOR *)dbc->internal;
-	orig_dbc = cp->sub_cursor;
-	part = (DB_PARTITION *)dbp->p_internal;
-	new_dbc = NULL;
-	retry = search = 0;
-	part_id = cp->part_id;
-	multi = flags&~DB_OPFLAGS_MASK;
+	DBC * new_dbc = 0;
+	int ret;
+	DB * dbp = dbc->dbp;
+	PART_CURSOR * cp = (PART_CURSOR *)dbc->internal;
+	DBC * orig_dbc = cp->sub_cursor;
+	DB_PARTITION * part = (DB_PARTITION *)dbp->p_internal;
+	int retry = 0;
+	int search = 0;
+	uint32 part_id = cp->part_id;
+	uint32 multi = flags&~DB_OPFLAGS_MASK;
 	switch(flags&DB_OPFLAGS_MASK) {
 	    case DB_CURRENT:
 		break;
@@ -734,20 +713,14 @@ int __partc_get(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 		break;
 	    case DB_NEXT:
 	    case DB_NEXT_NODUP:
-		if(orig_dbc == NULL)
-			part_id = 0;
-		else
-			part_id = cp->part_id;
+		part_id = (orig_dbc == NULL) ? 0 : cp->part_id;
 		retry = 1;
 		break;
 	    case DB_NEXT_DUP:
 		break;
 	    case DB_PREV:
 	    case DB_PREV_NODUP:
-		if(orig_dbc == NULL)
-			part_id = part->nparts-1;
-		else
-			part_id = cp->part_id;
+		part_id = (orig_dbc == NULL) ? (part->nparts-1) : cp->part_id;
 		retry = 1;
 		break;
 	    case DB_PREV_DUP:
@@ -812,7 +785,7 @@ int __partc_get(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 	}
 	return 0;
 err:
-	if(new_dbc != NULL && new_dbc != orig_dbc)
+	if(new_dbc != orig_dbc)
 		__dbc_close(new_dbc);
 	return ret;
 }
@@ -823,19 +796,13 @@ err:
  */
 static int __partc_put(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t * pgnop)
 {
-	DB * dbp;
-	DB_PARTITION * part;
 	DBC * new_dbc;
-	PART_CURSOR * cp;
-	uint32 part_id;
 	int ret;
-
-	dbp = dbc->dbp;
-	cp = (PART_CURSOR *)dbc->internal;
-	part_id = cp->part_id;
-	part = (DB_PARTITION *)dbp->p_internal;
+	DB * dbp = dbc->dbp;
+	PART_CURSOR * cp = (PART_CURSOR *)dbc->internal;
+	uint32 part_id = cp->part_id;
+	DB_PARTITION * part = (DB_PARTITION *)dbp->p_internal;
 	*pgnop = PGNO_INVALID;
-
 	switch(flags) {
 	    case DB_KEYFIRST:
 	    case DB_KEYLAST:
@@ -871,7 +838,7 @@ static int __partc_put(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t
 	}
 	return 0;
 err:
-	if(new_dbc != NULL && cp->sub_cursor != new_dbc)
+	if(cp->sub_cursor != new_dbc)
 		__dbc_close(new_dbc);
 	return ret;
 }
@@ -882,8 +849,7 @@ err:
  */
 static int __partc_del(DBC * dbc, uint32 flags)
 {
-	PART_CURSOR * cp;
-	cp = (PART_CURSOR *)dbc->internal;
+	PART_CURSOR * cp = (PART_CURSOR *)dbc->internal;
 	if(F_ISSET(dbc, DBC_WRITER|DBC_WRITECURSOR))
 		F_SET(cp->sub_cursor, DBC_WRITER);
 	return __dbc_del(cp->sub_cursor, flags);
@@ -906,15 +872,14 @@ static int __partc_writelock(DBC * dbc)
  */
 static int __partc_close(DBC * dbc, db_pgno_t root_pgno, int * rmroot)
 {
-	PART_CURSOR * cp;
-	int ret;
 	COMPQUIET(root_pgno, 0);
 	COMPQUIET(rmroot, NULL);
-	cp = (PART_CURSOR *)dbc->internal;
-	if(cp->sub_cursor == NULL)
-		return 0;
-	ret = __dbc_close(cp->sub_cursor);
-	cp->sub_cursor = NULL;
+	int ret = 0;
+	PART_CURSOR * cp = (PART_CURSOR *)dbc->internal;
+	if(cp->sub_cursor) {
+		ret = __dbc_close(cp->sub_cursor);
+		cp->sub_cursor = NULL;
+	}
 	return ret;
 }
 /*
@@ -925,7 +890,7 @@ static int __partc_destroy(DBC * dbc)
 {
 	PART_CURSOR * cp = (PART_CURSOR *)dbc->internal;
 	ENV * env = dbc->env;
-	/* Discard the structure. Don't recurse. */
+	// Discard the structure. Don't recurse.
 	__os_free(env, cp);
 	return 0;
 }
@@ -1074,16 +1039,13 @@ int __partition_stat(DBC * dbc, void * spp, uint32 flags)
 	return 0;
 
 err:
-	if(fsp != NULL)
-		__os_ufree(env, fsp);
+	__os_ufree(env, fsp);
 	*(DB_BTREE_STAT **)spp = NULL;
 	return ret;
 }
 /*
  * __part_truncate --
  *	Truncate a database.
- *
- * PUBLIC: int __part_truncate __P((DBC *, uint32 *));
  */
 int __part_truncate(DBC * dbc, uint32 * countp)
 {
@@ -1092,13 +1054,11 @@ int __part_truncate(DBC * dbc, uint32 * countp)
 	DBC * new_dbc;
 	uint32 count, i;
 	int ret, t_ret;
-
 	dbp = dbc->dbp;
 	part = (DB_PARTITION *)dbp->p_internal;
 	pdbp = part->handles;
 	ret = 0;
-	if(countp != NULL)
-		*countp = 0;
+	ASSIGN_PTR(countp, 0);
 	for(i = 0; ret == 0 && i < part->nparts; i++, pdbp++) {
 		if((ret = __db_cursor_int(*pdbp, dbc->thread_info, dbc->txn, (*pdbp)->type, PGNO_INVALID, 0, dbc->locker, &new_dbc)) != 0)
 			break;

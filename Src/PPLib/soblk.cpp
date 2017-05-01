@@ -1012,7 +1012,7 @@ Backend_SelectObjectBlock::Backend_SelectObjectBlock()
 	P_TSesObj = 0;
 	P_GoodsF = 0;
 	P_PsnF = 0;
-	P_PsnRelF = 0; // @v7.6.1
+	P_PsnRelF = 0;
 	P_GgF = 0;
 	P_BrF = 0;
 	P_QF = 0;
@@ -1024,9 +1024,9 @@ Backend_SelectObjectBlock::Backend_SelectObjectBlock()
 	P_SCardF = 0;
 	P_CurRateF = 0;
 	P_UhttSCardOpF = 0;
-	P_BillF = 0; // @v7.5.5
-	P_DtGrF = 0; // @v7.6.0
-	P_UhttStorF = 0; // @v7.6.3
+	P_BillF = 0;
+	P_DtGrF = 0;
+	P_UhttStorF = 0;
 	P_WorkbookF = 0;
 	P_TSesF = 0; // @v8.7.0
 	P_PrcF = 0; // @v8.7.4
@@ -1035,7 +1035,7 @@ Backend_SelectObjectBlock::Backend_SelectObjectBlock()
 	P_TagBlk = 0;
 	P_DCc = 0;
 	OutFormat = fmtXml;
-	Page = 0; // @v7.5.12
+	Page = 0;
 	Separate = 0;
 	P_UuidList = 0; // @v8.7.5
 }
@@ -1083,7 +1083,7 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 		{ cStatus,        "STATUS"  },
 		{ cFormat,        "FORMAT"  },
 		{ cMatrix,        "MATRIX"  },
-		{ cMatrixLoc,     "MATRIXLOC" }, // @v7.3.4
+		{ cMatrixLoc,     "MATRIXLOC" },
 		{ cPassive,       "PASSIVE" },
 		{ cAndFlags,      "ANDFLAGS" },
 		{ cNotFlags,      "NOTFLAGS" },
@@ -1109,28 +1109,28 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 		{ cAgent,         "AGENT" },
 		{ cOp,            "OP"    },
 		{ cDlvrLoc,       "DLVRLOC" },
-		{ cPage,          "PAGE" },     // @v7.5.12
+		{ cPage,          "PAGE" },
 		{ cLast,          "LAST" },
-		{ cUhttStore,     "UHTTSTORE"     }, // @v7.6.1
-		{ cReverse,       "REVERSE"       }, // @v7.6.1
-		{ cPersonRelType, "PERSONRELTYPE" }, // @v7.6.1
-		{ cPrimary,       "PRIMARY"       }, // @v7.6.1
-		{ cSecondary,     "SECONDARY"     }, // @v7.6.1
-		{ cTag,           "TAG"           }, // @v7.7.0
-		{ cPerson,        "PERSON"        }, // @v7.7.0
-		{ cTagExist,      "TAGEXIST"      }, // @v7.7.4
+		{ cUhttStore,     "UHTTSTORE"     },
+		{ cReverse,       "REVERSE"       },
+		{ cPersonRelType, "PERSONRELTYPE" },
+		{ cPrimary,       "PRIMARY"       },
+		{ cSecondary,     "SECONDARY"     },
+		{ cTag,           "TAG"           },
+		{ cPerson,        "PERSON"        },
+		{ cTagExist,      "TAGEXIST"      },
 		{ cTagValue,      "TAGVALUE"      }, // @v8.0.6
 
-		{ cClass,         "CLASS"         }, // @v7.9.6
-		{ cGcDimX,        "GCDIMX"        }, // @v7.9.6
-		{ cGcDimY,        "GCDIMY"        }, // @v7.9.6
-		{ cGcDimZ,        "GCDIMZ"        }, // @v7.9.6
-		{ cGcGimW,        "GCDIMW"        }, // @v7.9.6
-		{ cGcKind,        "GCKIND"        }, // @v7.9.6
-		{ cGcGrade,       "GCGRADE"       }, // @v7.9.6
-		{ cGcAdd,         "GCADD"         }, // @v7.9.6
-		{ cGcAdd2,        "GCADD2"        }, // @v7.9.6
-		{ cQuotKind,      "QUOTKIND"      },  // @v7.9.6
+		{ cClass,         "CLASS"         },
+		{ cGcDimX,        "GCDIMX"        },
+		{ cGcDimY,        "GCDIMY"        },
+		{ cGcDimZ,        "GCDIMZ"        },
+		{ cGcGimW,        "GCDIMW"        },
+		{ cGcKind,        "GCKIND"        },
+		{ cGcGrade,       "GCGRADE"       },
+		{ cGcAdd,         "GCADD"         },
+		{ cGcAdd2,        "GCADD2"        },
+		{ cQuotKind,      "QUOTKIND"      },
 
 		{ cSeparate,      "SEPARATE"  },
 		{ cStripSSfx,     "STRIPSSFX" },  // @v8.1.9
@@ -3541,7 +3541,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					PPGlobalAccRights  rights_blk(PPTAG_GUA_SCARDRIGHTS);
 					if(rights_blk.IsAllow(PPGlobalAccRights::fOperation)) {
 						double rest = 0.0;
-						const  double amount = R2(fabs(P_SetBlk->U.SC.Amount)); // @v7.5.12 fabs
+						const  double amount = R2(fabs(P_SetBlk->U.SC.Amount));
 						SCardTbl::Rec sc_rec;
 						PPObjSCardSeries scs_obj;
 						PPSCardSeries2 scs_rec;
@@ -3551,13 +3551,15 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						THROW(scs_obj.Search(sc_rec.SeriesID, &scs_rec) > 0);
 						THROW_PP_S(oneof2(scs_rec.GetType(), scstCredit, scstBonus), PPERR_SCARDMUSTBECRDBNS, sc_rec.Code);
 						THROW(P_ScObj->P_Tbl->GetRest(sc_rec.ID, ZERODATE, &rest));
-						rest += sc_rec.MaxCredit; // @v7.5.12
+						rest += sc_rec.MaxCredit;
 						THROW_PP_S((Operator == oSCardDeposit) || amount <= rest, PPERR_SCARDRESTNOTENOUGH, sc_rec.Code);
 						{
+							TSArray <SCardCore::UpdateRestNotifyEntry> urn_list;
 							SCardCore::OpBlock ob;
 							ob.SCardID = sc_rec.ID;
 							ob.Amount = (Operator == oSCardDeposit) ? amount : -amount;
-							THROW(P_ScObj->P_Tbl->PutOpBlk(ob, 1));
+							THROW(P_ScObj->P_Tbl->PutOpBlk(ob, &urn_list, 1));
+							P_ScObj->FinishSCardUpdNotifyList(urn_list);
 						}
 					}
 					else {
@@ -3569,7 +3571,6 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				// }
 			}
 			break;
-		// @Muxa @v7.4.8 {
 		case PPOBJ_UHTTSCARDOP:
 			if(Operator == oSelect) {
 				PPViewUhttSCardOp view;
@@ -3597,8 +3598,6 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				ok = 2;
 			}
 			break;
-		// } @Muxa @v7.4.8
-		// @v7.6.1 @Muxa {
 		case PPOBJ_UHTTSTORE:
 			if(Operator == oSelect) {
 				THROW_MEM(SETIFZ(P_UhttStorF, new LocalUhttStoreFilt));
@@ -3637,8 +3636,6 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				}
 			}
 			break;
-		// } @v7.6.1 @Muxa
-		// @v7.6.7 @Muxa {
 		case PPOBJ_OPRKIND:
 			{
 				use_filt = 1;
@@ -3675,7 +3672,6 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				}
 			}
 			break;
-		// } @v7.6.7 @Muxa
 		case PPOBJ_GTA:
 			if(Operator == oGtaCheckIn) {
 				GtaJournalCore * p_gtaj = DS.GetGtaJ();

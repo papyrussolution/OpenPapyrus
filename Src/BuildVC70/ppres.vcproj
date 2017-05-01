@@ -346,8 +346,8 @@ COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
 		</Configuration>
 		<Configuration
 			Name="Universe-HTT|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="..\..\PPY\BIN"
+			IntermediateDirectory="..\RSRC\RC"
 			ConfigurationType="1">
 			<Tool
 				Name="VCCLCompilerTool"/>

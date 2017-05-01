@@ -156,8 +156,7 @@ meta_only:
 	*(DB_QUEUE_STAT **)spp = sp;
 	if(0) {
 err:            
-		if(sp)
-			__os_ufree(dbp->env, sp);
+		__os_ufree(dbp->env, sp);
 	}
 	if((t_ret = __LPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;

@@ -1651,10 +1651,10 @@ int SLAPI PPObjSCard::Search(PPID id, void * b)
 	return P_Tbl->Search(id, (SCardTbl::Rec*)b);
 }
 
-//virtual 
-const char * SLAPI PPObjSCard::GetNamePtr() 
-{ 
-	return P_Tbl->data.Code; 
+//virtual
+const char * SLAPI PPObjSCard::GetNamePtr()
+{
+	return P_Tbl->data.Code;
 }
 
 int SLAPI PPObjSCard::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
@@ -1952,6 +1952,78 @@ int SLAPI PPObjSCard::CheckExpiredBillDebt(PPID scardID)
 	return ok;
 }
 
+int SLAPI PPObjSCard::FinishSCardUpdNotifyList(const TSArray <SCardCore::UpdateRestNotifyEntry> & rList)
+{
+	int    ok = -1;
+	PPAlbatrosConfig  albtr_cfg;
+	SmsClient sms_cli(0);
+	if(PPAlbatrosCfgMngr::Get(&albtr_cfg) && sms_cli.SmsInit_(albtr_cfg.Hdr.SmsAccID, "UHTT")) {
+		Reference * p_ref = PPRef;
+		SString phone_buf;
+		SString fmt_buf, msg_buf;
+		SString temp_buf;
+		SString status_buf;
+		//TSCollection <UhttSmsPacket> sms_list;
+		StrAssocArray gua_to_prefix_list;
+		UintHashTable gua_byprefix_list;
+		p_ref->Ot.GetObjectList(PPOBJ_GLOBALUSERACC, PPTAG_GUA_SCARDPREFIX, gua_byprefix_list);
+		for(ulong iter_gua_id = 0; gua_byprefix_list.Enum(&iter_gua_id);) {
+			if(p_ref->Ot.GetTagStr(PPOBJ_GLOBALUSERACC, (long)iter_gua_id, PPTAG_GUA_SCARDPREFIX, temp_buf) > 0) {
+				gua_to_prefix_list.Add((long)iter_gua_id, temp_buf, 0);
+			}
+		}
+		for(uint i = 0; i < rList.getCount(); i++) {
+			const SCardCore::UpdateRestNotifyEntry & r_entry = rList.at(i);
+			PPSCardPacket sc_pack;
+			if(GetPacket(r_entry.SCardID, &sc_pack) > 0) {
+				int   do_notify = 0; // 1 - draw, 2 - withdraw
+				double _withdraw = R2(r_entry.NewRest - r_entry.PrevRest);
+				if(_withdraw < 0.0)
+					_withdraw = 0.0;
+				double _draw = R2(r_entry.PrevRest - r_entry.NewRest);
+				if(_draw < 0.0)
+					_draw = 0.0;
+				if(_draw > 0.0 && sc_pack.Rec.Flags & SCRDF_NOTIFYDRAW)
+					do_notify = 1;
+				else if(_withdraw > 0.0 && sc_pack.Rec.Flags & SCRDF_NOTIFYWITHDRAW)
+					do_notify = 2;
+				if(do_notify) {
+					if(sc_pack.GetExtStrData(sc_pack.extssPhone, temp_buf) > 0 && temp_buf.NotEmptyS()) {
+						if(FormatPhone(temp_buf, phone_buf, msg_buf)) {
+							PPID   gua_id = 0;
+							double amount = 0.0;
+							if(do_notify == 1) {
+								PPLoadText(PPTXT_SCARDDRAW, fmt_buf);
+								amount = _draw;
+							}
+							else if(do_notify == 2) {
+								PPLoadText(PPTXT_SCARDWITHDRAW, fmt_buf);
+								amount = _withdraw;
+							}
+							temp_buf = sc_pack.Rec.Code;
+							for(uint i = 0; i < gua_to_prefix_list.getCount(); i++) {
+								StrAssocArray::Item gua_to_prefix_item = gua_to_prefix_list.at_WithoutParent(i);
+								if(temp_buf.CmpPrefix(gua_to_prefix_item.Txt, 1) == 0) {
+									gua_id = gua_to_prefix_item.Id;
+									temp_buf.ShiftLeft(sstrlen(gua_to_prefix_item.Txt));
+									break;
+								}
+							}
+							if(temp_buf.NotEmptyS()) {
+								msg_buf = 0;
+                                PPFormat(fmt_buf, &msg_buf, temp_buf.cptr(), amount);
+								sms_cli.SendSms(phone_buf, msg_buf, status_buf);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	sms_cli.SmsRelease_();
+	return ok;
+}
+
 int SLAPI PPObjSCard::CheckRestrictions(const SCardTbl::Rec * pRec, long flags, LDATETIME dtm)
 {
 	int    ok = 1;
@@ -2016,6 +2088,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 	LDATE  prev_prd_beg = ZERODATE;
 	SString fmt_buf, msg_buf, scard_name, temp_buf, temp_buf2;
 	char   prd_txt[32];
+	TSArray <SCardCore::UpdateRestNotifyEntry> urn_list;
 	SCardTbl::Key2 k2;
 
 	PPUserFuncProfiler ufp(PPUPRF_SCARDUPDBYRULE); // @v8.1.6
@@ -2145,7 +2218,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 									op_blk.SCardID = sc_rec.ID;
 									op_blk.Dtm = getcurdatetime_();
 									op_blk.Amount = bonus_amount;
-									THROW(P_Tbl->PutOpBlk(op_blk, 0));
+									THROW(P_Tbl->PutOpBlk(op_blk, &urn_list, 0));
 									DS.LogAction(PPACN_SCARDBONUSCHARGE, PPOBJ_SCARD, sc_rec.ID, bonus_period_idx, 0);
 									ufp_factor2 += 1.0;
 								}
@@ -2157,7 +2230,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 									op_blk.SCardID = sc_rec.ID;
 									op_blk.Dtm = getcurdatetime_();
 									op_blk.Amount = bonus_amount - rest;
-									THROW(P_Tbl->PutOpBlk(op_blk, 0));
+									THROW(P_Tbl->PutOpBlk(op_blk, &urn_list, 0));
 									DS.LogAction(PPACN_SCARDBONUSCHARGE, PPOBJ_SCARD, sc_rec.ID, bonus_period_idx, 0);
 									ufp_factor2 += 1.0;
 								}
@@ -2264,6 +2337,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 		}
 		THROW(tra.Commit());
 	}
+	FinishSCardUpdNotifyList(urn_list);
 	ufp.SetFactor(0, (double)ufp_factor);
 	ufp.SetFactor(1, (double)ufp_factor2);
 	ufp.Commit();
@@ -3744,7 +3818,7 @@ int SLAPI PPObjSCard::PutTransmitPacket(PPID * pID, SCardTransmitPacket * pPack,
 			for(i = 0; pPack->ScOpList.enumItems(&i, (void**)&p_op_rec);)
 				if(P_Tbl->SearchOp(*pID, p_op_rec->Dt, p_op_rec->Tm, 0) < 0) {
 					p_op_rec->SCardID = *pID;
-					if(!P_Tbl->PutOpRec(p_op_rec, 0)) {
+					if(!P_Tbl->PutOpRec(p_op_rec, 0, 0)) {
 						pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTSCARDOP, pPack->P.Rec.ID, pPack->P.Rec.Code);
 						ok = -1;
 					}

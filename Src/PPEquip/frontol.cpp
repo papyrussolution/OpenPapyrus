@@ -721,7 +721,7 @@ int SLAPI ACS_FRONTOL::ImportFiles()
 					break;
 				}
 				else
-					delay(delay_quant);
+					SDelay(delay_quant);
 			}
 		}
 		else if(imp_path.CmpPrefix(p_email_flag, 1) == 0) {
@@ -1346,19 +1346,19 @@ int SLAPI ACS_FRONTOL::QueryFile(uint setNo, const char * pImpPath)
 				// Задержка для Windows Vist (and above) чтобы убедиться что файл на сетевом диске виден
 				//
 				while(!fileExists(tmp_name)) {
-					delay(50);
+					SDelay(50);
 				}
 				SFile::Rename(tmp_name, path_flag);
 				//
 				// Задержка для Windows Vist (and above) чтобы убедиться что файл на сетевом диске виден
 				//
 				while(!fileExists(path_flag)) {
-					delay(50);
+					SDelay(50);
 				}
 				THROW_PP(ok = WaitForExists(path_flag, 1, notify_timeout), PPERR_ATOL_IMPCHECKS);
 				if(ok > 0) {
 					if(ImportDelay >= 0)
-						delay((ImportDelay > 0) ? ImportDelay : 1000);
+						SDelay((ImportDelay > 0) ? ImportDelay : 1000);
 					if(ImportedFiles.Len())
 						ImportedFiles.Semicol();
 					imp_path.SetLastSlash().Cat(PathRpt);

@@ -380,7 +380,6 @@ int __ham_item_next(DBC * dbc, db_lockmode_t mode, db_pgno_t * pgnop)
 	ret = __ham_item(dbc, mode, pgnop);
 	return ret;
 }
-
 /*
  * __ham_insertpair --
  *
@@ -402,23 +401,20 @@ int __ham_item_next(DBC * dbc, db_lockmode_t mode, db_pgno_t * pgnop)
  */
 int __ham_insertpair(DBC * dbc, PAGE * p, db_indx_t * indxp, const DBT * key_dbt, const DBT * data_dbt, uint32 key_type, uint32 data_type)
 {
-	DB * dbp;
-	uint16 n, indx;
-	db_indx_t * inp;
-	uint32 ksize, dsize, increase, distance;
+	uint16 indx;
+	uint32 distance;
 	uint8 * offset;
 	int i;
-
-	dbp = dbc->dbp;
-	n = NUM_ENT(p);
-	inp = P_INP(dbp, p);
-	ksize = (key_type == H_OFFPAGE) ? key_dbt->size : HKEYDATA_SIZE(key_dbt->size);
-	dsize = (data_type == H_OFFPAGE || data_type == H_OFFDUP) ? data_dbt->size : HKEYDATA_SIZE(data_dbt->size);
-	increase = ksize+dsize;
+	DB * dbp = dbc->dbp;
+	const uint16 n = NUM_ENT(p);
+	db_indx_t * inp = P_INP(dbp, p);
+	const uint32 ksize = (key_type == H_OFFPAGE) ? key_dbt->size : HKEYDATA_SIZE(key_dbt->size);
+	const uint32 dsize = (data_type == H_OFFPAGE || data_type == H_OFFDUP) ? data_dbt->size : HKEYDATA_SIZE(data_dbt->size);
+	const uint32 increase = ksize+dsize;
 	DB_ASSERT(dbp->env, indxp != NULL && *indxp != NDX_INVALID);
 	DB_ASSERT(dbp->env, P_FREESPACE(dbp, p) >= dsize+ksize+2*sizeof(db_indx_t));
 	indx = *indxp;
-	/* Special case if the page is empty or inserting at end of page.*/
+	// Special case if the page is empty or inserting at end of page
 	if(n == 0 || indx == n) {
 		inp[indx] = HOFFSET(p)-ksize;
 		inp[indx+1] = HOFFSET(p)-increase;
@@ -465,22 +461,19 @@ int __ham_insertpair(DBC * dbc, PAGE * p, db_indx_t * indxp, const DBT * key_dbt
 		 * An item in this example is a key/data pair.
 		 */
 		offset = (uint8 *)p+HOFFSET(p);
-		if(indx == 0)
-			distance = dbp->pgsize-HOFFSET(p);
-		else
-			distance = (uint32)(P_ENTRY(dbp, p, indx-1)-offset);
+		distance = (indx == 0) ? (dbp->pgsize-HOFFSET(p)) : (uint32)(P_ENTRY(dbp, p, indx-1)-offset);
 		memmove(offset-increase, offset, distance);
-		/* Shuffle the index array */
+		// Shuffle the index array 
 		memmove(&inp[indx+2], &inp[indx], (n-indx)*sizeof(db_indx_t));
-		/* update the index array */
+		// update the index array 
 		for(i = indx+2; i < n+2; i++)
 			inp[i] -= increase;
-		/* set the new index elements. */
+		// set the new index elements. 
 		inp[indx] = (HOFFSET(p)-increase)+distance+dsize;
 		inp[indx+1] = (HOFFSET(p)-increase)+distance;
 	}
 	HOFFSET(p) -= increase;
-	/* insert the new elements */
+	// insert the new elements 
 	if(key_type == H_OFFPAGE)
 		memcpy(P_ENTRY(dbp, p, indx), key_dbt->data, key_dbt->size);
 	else
@@ -488,10 +481,8 @@ int __ham_insertpair(DBC * dbc, PAGE * p, db_indx_t * indxp, const DBT * key_dbt
 	if(data_type == H_OFFPAGE || data_type == H_OFFDUP)
 		memcpy(P_ENTRY(dbp, p, indx+1), data_dbt->data, data_dbt->size);
 	else
-		PUT_HKEYDATA(P_ENTRY(dbp, p, indx+1), data_dbt->data,
-			data_dbt->size, data_type);
+		PUT_HKEYDATA(P_ENTRY(dbp, p, indx+1), data_dbt->data, data_dbt->size, data_type);
 	NUM_ENT(p) += 2;
-
 	/*
 	 * If debugging a sorted hash page problem, this is a good place to
 	 * insert a call to __ham_verify_sorted_page.

@@ -401,7 +401,7 @@ int PPALDD_CheckOpJrnl::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_CheckOpJrnl::Destroy()
+void PPALDD_CheckOpJrnl::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(CheckOpJrnl);
 }

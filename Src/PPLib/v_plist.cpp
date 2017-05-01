@@ -2815,7 +2815,7 @@ int PPALDD_PriceListData::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_PriceListData::Destroy()
+void PPALDD_PriceListData::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(PriceList);
 }

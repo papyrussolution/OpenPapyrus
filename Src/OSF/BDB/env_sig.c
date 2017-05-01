@@ -5,21 +5,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.6.2 #include "dbinc/db_join.h"
-// @v9.5.5 #include "dbinc/db_verify.h"
-// @v9.5.5 #include "dbinc/heap.h"
-// @v9.6.2 #include "dbinc/log_verify.h"
-// @v9.5.5 #include "dbinc/partition.h"
-// @v9.5.5 #include "dbinc/qam.h"
-// @v9.5.5 #include "dbinc/txn.h"
-
 /*
  * For a pure 32bit/64bit environment, we check all structures and calculate a
  * signature. For compatible environment, we only check the structures in
@@ -203,4 +189,3 @@ uint32 __env_struct_sig()
 #endif
 	return __ham_func5(NULL, t, i*sizeof(t[0]));
 }
-

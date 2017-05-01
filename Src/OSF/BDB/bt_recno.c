@@ -1009,18 +1009,18 @@ write_err:
 		}
 	}
 err:
-done:   /* Close the file descriptor. */
+done:   
+	// Close the file descriptor
 	if(fp != NULL && fclose(fp) != 0) {
 		t_ret = __os_get_errno();
 		__db_err(env, t_ret, "%s", t->re_source);
 		SETIFZ(ret, t_ret);
 	}
-	/* Discard the cursor. */
+	// Discard the cursor. 
 	if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
-	/* Discard memory allocated to hold the data items. */
-	if(data.data != NULL)
-		__os_ufree(env, data.data);
+	// Discard memory allocated to hold the data items. 
+	__os_ufree(env, data.data);
 	__os_free(env, pad);
 	if(ret == 0)
 		t->re_modified = 0;

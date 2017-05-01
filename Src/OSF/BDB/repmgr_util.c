@@ -1110,16 +1110,13 @@ static int read_gmdb(ENV * env, DB_THREAD_INFO * ip, uint8 ** bufp, size_t * len
 	while((ret = __dbc_get(dbc, &key_dbt, &data_dbt, DB_NEXT)) == 0) {
 		ret = __repmgr_membership_key_unmarshal(env, &key, key_buf, key_dbt.size, NULL);
 		DB_ASSERT(env, ret == 0);
-		DB_ASSERT(env, key.host.size <= MAXHOSTNAMELEN+1 &&
-			key.host.size > 1);
+		DB_ASSERT(env, key.host.size <= MAXHOSTNAMELEN+1 && key.host.size > 1);
 		host = (char *)key.host.data;
 		DB_ASSERT(env, host[key.host.size-1] == '\0');
 		DB_ASSERT(env, key.port > 0);
-
 		ret = __repmgr_membership_data_unmarshal(env, &member_status, data_buf, data_dbt.size, NULL);
 		DB_ASSERT(env, ret == 0);
 		DB_ASSERT(env, member_status.flags != 0);
-
 		site_info.host = key.host;
 		site_info.port = key.port;
 		site_info.flags = member_status.flags;
@@ -1138,19 +1135,17 @@ static int read_gmdb(ENV * env, DB_THREAD_INFO * ip, uint8 ** bufp, size_t * len
 	if(ret == DB_NOTFOUND)
 		ret = 0;
 err:
-	if(dbc != NULL && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
+	if(dbc && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
-	if(dbp != NULL &&
-	   (t_ret = __db_close(dbp, txn, DB_NOSYNC)) != 0 && ret == 0)
+	if(dbp && (t_ret = __db_close(dbp, txn, DB_NOSYNC)) != 0 && ret == 0)
 		ret = t_ret;
-	if(txn != NULL &&
-	   (t_ret = __db_txn_auto_resolve(env, txn, 0, ret)) != 0 && ret == 0)
+	if(txn && (t_ret = __db_txn_auto_resolve(env, txn, 0, ret)) != 0 && ret == 0)
 		ret = t_ret;
 	if(ret == 0) {
 		*bufp = buf;
 		*lenp = len;
 	}
-	else if(buf != NULL)
+	else
 		__os_free(env, buf);
 	return ret;
 }

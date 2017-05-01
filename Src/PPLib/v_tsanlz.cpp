@@ -1031,7 +1031,7 @@ DBQuery * SLAPI PPViewTSessAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSu
 		}
 		else {
 			if(Filt.PrcID) {
-				pSubTitle->CatDiv(';', 0, 1);
+				pSubTitle->CatDivIfNotEmpty(';', 0);
 				GetObjectName(PPOBJ_PROCESSOR, Filt.PrcID, *pSubTitle, 1);
 			}
 		}
@@ -1346,7 +1346,7 @@ int PPALDD_TSessAnlz::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_TSessAnlz::Destroy()
+void PPALDD_TSessAnlz::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(TSessAnlz);
 }

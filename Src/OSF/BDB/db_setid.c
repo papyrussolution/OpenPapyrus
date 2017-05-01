@@ -7,20 +7,10 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_swap.h"
-// @v9.5.5 #include "dbinc/db_am.h"
 /*
  * __env_fileid_reset_pp --
  *	ENV->fileid_reset pre/post processing.
- *
- * PUBLIC: int __env_fileid_reset_pp __P((DB_ENV *, const char *, uint32));
  */
 int __env_fileid_reset_pp(DB_ENV * dbenv, const char * name, uint32 flags)
 {
@@ -43,8 +33,6 @@ int __env_fileid_reset_pp(DB_ENV * dbenv, const char * name, uint32 flags)
 /*
  * __env_fileid_reset --
  *	Reset the file IDs for every database in the file.
- * PUBLIC: int __env_fileid_reset
- * PUBLIC:	 __P((ENV *, DB_THREAD_INFO *, const char *, int));
  */
 int __env_fileid_reset(ENV * env, DB_THREAD_INFO * ip, const char * name, int encrypted)
 {

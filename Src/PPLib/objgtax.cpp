@@ -522,12 +522,12 @@ int SLAPI PPObjGoodsTax::GetDefaultName(PPGoodsTax * rec, char * buf, size_t buf
 	if(R6(rec->VAT) != 0)
 		text.CatChar('V').Cat(rec->VAT, MKSFMTD(0, 2, NMBF_NOTRAILZ));
 	if(R6(rec->Excise) != 0) {
-		text.CatDiv(' ', 0, 1).CatChar('A').Cat(rec->Excise, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+		text.CatDivIfNotEmpty(' ', 0).CatChar('A').Cat(rec->Excise, MKSFMTD(0, 2, NMBF_NOTRAILZ));
 		if(rec->Flags & GTAXF_ABSEXCISE)
 			text.CatChar('$');
 	}
 	if(R6(rec->SalesTax) != 0)
-		text.CatDiv(' ', 0, 1).CatChar('S').Cat(rec->SalesTax, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+		text.CatDivIfNotEmpty(' ', 0).CatChar('S').Cat(rec->SalesTax, MKSFMTD(0, 2, NMBF_NOTRAILZ));
 	if(text.Empty())
 		text.CatCharN('0', 3);
 	strnzcpy(buf, text, buflen);

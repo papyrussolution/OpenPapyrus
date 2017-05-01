@@ -7,26 +7,13 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_swap.h"
-// @v9.5.5 #include "dbinc/db_verify.h"
-// @v9.5.5 #include "dbinc/heap.h"
-// @v9.5.5 #include "dbinc/qam.h"
-// @v9.5.5 #include "dbinc/txn.h"
-
 /*
  * This is the code for DB->verify, the DB database consistency checker.
  * For now, it checks all subdatabases in a database, and verifies
  * everything it knows how to (i.e. it's all-or-nothing, and one can't
  * check only for a subset of possible problems).
  */
-
 static uint __db_guesspgsize __P((ENV*, DB_FH *));
 static int __db_is_valid_magicno __P((uint32, DBTYPE *));
 static int __db_meta2pgset __P((DB*, VRFY_DBINFO*, db_pgno_t, uint32, DB *));

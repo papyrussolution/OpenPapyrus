@@ -1226,7 +1226,7 @@ static void FIG_set_color(t_colorspec * colorspec)
 		    if(new_color >= FIG_palette_size)
 			    new_color = FIG_palette_size - 1;
 		    if(FIG_palette_set == false)
-			    int_warn(NO_CARET, "fig: Palette used before set\n");
+			    GpGg.IntWarn(NO_CARET, "fig: Palette used before set\n");
 		    new_color += FIG_palette_offst;
 		    break;
 

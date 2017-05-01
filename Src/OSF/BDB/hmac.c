@@ -10,21 +10,12 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/hmac.h"
-// @v9.5.5 #include "dbinc/log.h"
 
 #define HMAC_OUTPUT_SIZE        20
 #define HMAC_BLOCK_SIZE 64
 
 static void __db_hmac __P((uint8*, uint8*, size_t, uint8 *));
-
 /*
  * !!!
  * All of these functions use a ctx structure on the stack.  The __db_SHA1Init

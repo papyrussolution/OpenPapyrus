@@ -950,7 +950,7 @@ int PPALDD_SysJournal::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_SysJournal::Destroy()
+void PPALDD_SysJournal::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(SysJournal);
 }

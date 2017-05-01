@@ -7,12 +7,6 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
 #ifdef HAVE_64BIT_TYPES
@@ -23,12 +17,9 @@
  #ifdef HAVE_STATISTICS
 static int __seq_print_all __P((DB_SEQUENCE*, uint32));
 static int __seq_print_stats __P((DB_SEQUENCE*, uint32));
-
 /*
  * __seq_stat --
  *	Get statistics from the sequence.
- *
- * PUBLIC: int __seq_stat __P((DB_SEQUENCE *, DB_SEQUENCE_STAT **, uint32));
  */
 int __seq_stat(DB_SEQUENCE * seq, DB_SEQUENCE_STAT ** spp, uint32 flags)
 {
@@ -101,8 +92,6 @@ err:
 /*
  * __seq_stat_print --
  *	Print statistics from the sequence.
- *
- * PUBLIC: int __seq_stat_print __P((DB_SEQUENCE *, uint32));
  */
 int __seq_stat_print(DB_SEQUENCE * seq, uint32 flags)
 {
@@ -137,12 +126,9 @@ static const FN __db_seq_flags_fn[] = {
 	{ DB_SEQ_WRAP,          "wraparound at end" },
 	{ 0,                    NULL }
 };
-
 /*
  * __db_get_seq_flags_fn --
  *	Return the __db_seq_flags_fn array.
- *
- * PUBLIC: const FN * __db_get_seq_flags_fn();
  */
 const FN * __db_get_seq_flags_fn()
 {
@@ -201,8 +187,6 @@ int __seq_stat_print(DB_SEQUENCE * seq, uint32 flags)
 /*
  * __db_get_seq_flags_fn --
  *	Return the __db_seq_flags_fn array.
- *
- * PUBLIC: const FN * __db_get_seq_flags_fn();
  */
 const FN * __db_get_seq_flags_fn()
 {

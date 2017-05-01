@@ -329,13 +329,13 @@ static void wxt_options(GpCommand & rC)
 				if(set_number) duplication=true;
 				set_number = true;
 			} else {
-				int_warn(rC.CToken++, "unrecognized terminal option");
+				IntWarn(rC.CToken++, "unrecognized terminal option");
 			}
 			break;
 		}
 
 		if(duplication) {
-			int_warn(rC.CToken-1, "Duplicated or contradicting arguments in wxt term options.");
+			IntWarn(rC.CToken-1, "Duplicated or contradicting arguments in wxt term options.");
 			duplication = false;
 		}
 	}

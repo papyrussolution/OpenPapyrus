@@ -541,10 +541,10 @@ BOOL CALLBACK PPBizScoreWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, LPA
 		case WM_INITDIALOG:
 			{
 				HWND ctl_hwnd = GetDlgItem(hWnd, CTL_BUSPARAMS_TEXT);
-				WNDPROC prev_window_proc = (WNDPROC)TView::SetWindowProp(ctl_hwnd, GWL_WNDPROC, EditDlgProc);
+				WNDPROC prev_window_proc = (WNDPROC)TView::SetWindowProp(ctl_hwnd, GWLP_WNDPROC, EditDlgProc);
 				TView::SetWindowUserData(ctl_hwnd,  prev_window_proc);
 				TView::SetWindowUserData(hWnd, (void *)lParam);
-				TView::SetWindowProp(hWnd, DWL_USER, DLG_TOOLTIP);
+				TView::SetWindowProp(hWnd, DWLP_USER, DLG_TOOLTIP);
 			}
 			break;
 		case WM_DESTROY:

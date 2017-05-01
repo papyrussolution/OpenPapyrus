@@ -7,21 +7,10 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
-// @v9.5.5 #include "dbinc/heap.h"
 /*
  * __db_ret --
  *	Build return DBT.
- *
- * PUBLIC: int __db_ret __P((DBC *,
- * PUBLIC:    PAGE *, uint32, DBT *, void **, uint32 *));
  */
 int __db_ret(DBC * dbc, PAGE * h, uint32 indx, DBT * dbt, void ** memp, uint32 * memsize)
 {
@@ -74,9 +63,6 @@ int __db_ret(DBC * dbc, PAGE * h, uint32 indx, DBT * dbt, void ** memp, uint32 *
 /*
  * __db_retcopy --
  *	Copy the returned data into the user's DBT, handling special flags.
- *
- * PUBLIC: int __db_retcopy __P((ENV *, DBT *,
- * PUBLIC:    void *, uint32, void **, uint32 *));
  */
 int __db_retcopy(ENV * env, DBT * dbt, void * data, uint32 len, void ** memp, uint32 * memsize)
 {

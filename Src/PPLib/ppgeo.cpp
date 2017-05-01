@@ -155,7 +155,7 @@ int SLAPI PPOsm::NodeCluster::Put(const Node * pN, size_t count, uint64 * pOuter
 	THROW(possible_count);
 	Clear();
     {
-    	const Node & r_head = pN[0];
+		const Node & r_head = pN[0];
 		const int32 head_lat = r_head.C.GetIntLat();
 		const int32 head_lon = r_head.C.GetIntLon();
     	uint8 indicator = 0;
@@ -171,16 +171,21 @@ int SLAPI PPOsm::NodeCluster::Put(const Node * pN, size_t count, uint64 * pOuter
         	default:
 				CALLEXCEPT(); // invalid count
         }
-        if(r_head.ID <= ULONG_MAX) {
+        if(pOuterID) {
+            indicator |= indfOuterId;
+        }
+        else if(r_head.ID <= ULONG_MAX) {
 			indicator |= indfId32;
         }
 		THROW_SL(Write(indicator));
-		if(indicator & indfId32) {
-			const uint32 id32 = (uint32)r_head.ID;
-			THROW_SL(Write(id32));
-		}
-		else {
-			THROW_SL(Write(r_head.ID));
+		if(!(indicator & indfOuterId)) {
+			if(indicator & indfId32) {
+				const uint32 id32 = (uint32)r_head.ID;
+				THROW_SL(Write(id32));
+			}
+			else {
+				THROW_SL(Write(r_head.ID));
+			}
 		}
 		THROW_SL(Write(r_head.T.V));
 		THROW_SL(Write(head_lat));
@@ -249,6 +254,7 @@ int SLAPI PPOsm::NodeCluster::Put(const Node * pN, size_t count, uint64 * pOuter
 				prev_id++;
 			}
 		}
+		ASSIGN_PTR(pOuterID, r_head.ID);
     }
     CATCHZOK
 	ASSIGN_PTR(pActualCount, actual_count);
@@ -277,7 +283,10 @@ int SLAPI PPOsm::NodeCluster::Implement_Get(uint64 outerID, TSArray <Node> * pLi
 		case 7: count_logic = 128; break;
        	default: CALLEXCEPT(); // invalid count
 	}
-	if(indicator & indfId32) {
+	if(indicator & indfOuterId) {
+		head.ID = outerID;
+	}
+	else if(indicator & indfId32) {
 		uint32   id32 = 0;
 		THROW_SL(Read(id32));
 		head.ID = id32;
@@ -285,6 +294,7 @@ int SLAPI PPOsm::NodeCluster::Implement_Get(uint64 outerID, TSArray <Node> * pLi
 	else {
 		THROW_SL(Read(head.ID));
 	}
+	THROW(head.ID && (head.ID % count_logic) == 0); // @todo errcode
 	THROW_SL(Read(head.T.V));
 	THROW_SL(Read(head_lat));
 	THROW_SL(Read(head_lon));
@@ -368,9 +378,9 @@ int SLAPI PPOsm::NodeCluster::Get(uint64 outerID, TSArray <Node> & rList)
 	return Implement_Get(outerID, &rList, 0, 0, 0);
 }
 
-int SLAPI PPOsm::NodeCluster::GetCount(uint * pLogicCount, uint * pActualCount)
+int SLAPI PPOsm::NodeCluster::GetCount(uint64 outerID, uint * pLogicCount, uint * pActualCount)
 {
-	return Implement_Get(0, 0, 0, pLogicCount, pActualCount);
+	return Implement_Get(outerID, 0, 0, pLogicCount, pActualCount);
 }
 
 int FASTCALL PPOsm::NodeCluster::GetHeaderID(uint64 * pID)
@@ -383,10 +393,10 @@ int FASTCALL PPOsm::NodeCluster::GetHeaderID(uint64 * pID)
 	return ok;
 }
 
-int FASTCALL PPOsm::NodeCluster::GetTile(Tile * pT)
+int FASTCALL PPOsm::NodeCluster::GetTile(uint64 outerID, Tile * pT)
 {
 	Node   head;
-	int    ok = Implement_Get(0, 0, &head, 0, 0);
+	int    ok = Implement_Get(outerID, 0, &head, 0, 0);
 	if(ok) {
 		ASSIGN_PTR(pT, head.T);
 	}
@@ -454,13 +464,16 @@ SLAPI PPOsm::Tag::Tag()
 	ValID = 0;
 }
 
-//static 
+//static
 int FASTCALL PPOsm::SetNodeClusterStat(NodeCluster & rCluster, TSArray <NodeClusterStatEntry> & rStat)
 {
 	int    ok = 1;
 	uint   count_logic = 0;
 	uint   count_actual = 0;
-	THROW(rCluster.GetCount(&count_logic, &count_actual));
+	uint64 surr_outer_id = 1024; // ћы не знаем здесь значени€ внешнего идентификатора, но он нам фактически не очень и нужен.
+		// „то бы функци€ rCluster.GetCount отработала правильно в данном конкретном случае достаточно
+		// подложить ей значение внешнего идентификатора кратное максимально возможному значению.q
+	THROW(rCluster.GetCount(surr_outer_id, &count_logic, &count_actual));
 	{
 		const  size_t sz = rCluster.GetSize();
 		int    found = 0;

@@ -97,7 +97,7 @@ int SLAPI PPQuotKind2::GetRestrText(SString & rBuf) const
 	}
 	TimeRange tr;
 	if(GetTimeRange(tr) > 0) {
-		rBuf.CatDiv(';', 2, 1);
+		rBuf.CatDivIfNotEmpty(';', 2);
 		if(tr.low)
 			rBuf.Cat(tr.low, TIMF_HM);
 		rBuf.CatCharN('.', 2);
@@ -105,7 +105,7 @@ int SLAPI PPQuotKind2::GetRestrText(SString & rBuf) const
 			rBuf.Cat(tr.upp, TIMF_HM);
 	}
 	if(DaysOfWeek) {
-		rBuf.CatDiv(';', 2, 1);
+		rBuf.CatDivIfNotEmpty(';', 2);
 		int first_dow = 1;
 		for(uint i = 0; i < 7; i++) {
 			if(DaysOfWeek & (1 << i)) {
@@ -122,7 +122,7 @@ int SLAPI PPQuotKind2::GetRestrText(SString & rBuf) const
 		if(amt_restr.low != amt_restr.upp || amt_restr.low != 0.0) {
 			long   flags = NMBF_NOZERO|NMBF_TRICOMMA;
 			SETSFMTPRC(flags, 2);
-			rBuf.CatDiv(';', 2, 1);
+			rBuf.CatDivIfNotEmpty(';', 2);
 			rBuf.Cat(amt_restr.low, flags);
 			if(amt_restr.upp != amt_restr.low)
 				rBuf.CatCharN('.', 2).Cat(amt_restr.upp, flags);

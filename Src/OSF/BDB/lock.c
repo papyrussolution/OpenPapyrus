@@ -7,14 +7,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/log.h"
 
 static int __lock_allocobj(DB_LOCKTAB*, uint32);
 static int __lock_alloclock(DB_LOCKTAB*, uint32);
@@ -24,7 +17,6 @@ static int __lock_get_api(ENV*, uint32, uint32, const DBT*, db_lockmode_t, DB_LO
 static int __lock_inherit_locks(DB_LOCKTAB*, DB_LOCKER*, uint32);
 static int __lock_same_family(DB_LOCKTAB*, DB_LOCKER*, DB_LOCKER *);
 static int __lock_put_internal(DB_LOCKTAB*, struct __db_lock *, uint32,  uint32);
-static int __lock_put_nolock(ENV*, DB_LOCK*, int *, uint32);
 static int __lock_remove_waiter(DB_LOCKTAB*, DB_LOCKOBJ*, struct __db_lock *, db_status_t);
 static int __lock_trade(ENV*, DB_LOCK*, DB_LOCKER *);
 static int __lock_vec_api(ENV*, uint32, uint32,  DB_LOCKREQ*, int, DB_LOCKREQ**);
@@ -66,6 +58,33 @@ static int __lock_vec_api(ENV * env, uint32 lid, uint32 flags, DB_LOCKREQ * list
 	int ret;
 	if((ret = __lock_getlocker(env->lk_handle, lid, 0, &sh_locker)) == 0)
 		ret = __lock_vec(env, sh_locker, flags, list, nlist, elistp);
+	return ret;
+}
+
+static int __lock_put_nolock(ENV * env, DB_LOCK * lock, int * runp, uint32 flags)
+{
+	int ret = 0;
+	// Check if locks have been globally turned off. 
+	if(!F_ISSET(env->dbenv, DB_ENV_NOLOCKING)) {
+		DB_LOCKTAB * lt = env->lk_handle;
+		DB_LOCKREGION * region = (DB_LOCKREGION * )lt->reginfo.primary;
+		struct __db_lock * lockp = (struct __db_lock * )R_ADDR(&lt->reginfo, lock->off);
+		DB_ASSERT(env, lock->gen == lockp->gen);
+		if(lock->gen != lockp->gen) {
+			__db_errx(env, __db_lock_invalid, "DB_LOCK->lock_put");
+			LOCK_INIT(*lock);
+			ret = EINVAL;
+		}
+		else {
+			OBJECT_LOCK_NDX(lt, region, lock->ndx);
+			ret = __lock_put_internal(lt, lockp, lock->ndx, flags|DB_LOCK_UNLINK|DB_LOCK_FREE);
+			OBJECT_UNLOCK(lt, region, lock->ndx);
+			LOCK_INIT(*lock);
+			*runp = 0;
+			if(ret == 0 && region->detect != DB_LOCK_NORUN && (region->need_dd || timespecisset(&region->next_timeout)))
+				*runp = 1;
+		}
+	}
 	return ret;
 }
 /*
@@ -896,58 +915,30 @@ int __lock_put_pp(DB_ENV * dbenv, DB_LOCK * lock)
 	ENV_LEAVE(env, ip);
 	return ret;
 }
-/*
- * __lock_put --
- *
- * PUBLIC: int  __lock_put __P((ENV *, DB_LOCK *));
- *  Internal lock_put interface.
- */
-int __lock_put(ENV * env, DB_LOCK * lock)
+//
+// __lock_put --
+//
+// PUBLIC: int  __lock_put __P((ENV *, DB_LOCK *));
+// Internal lock_put interface.
+//
+int FASTCALL __lock_put(ENV * env, DB_LOCK * lock)
 {
-	DB_LOCKTAB * lt;
-	int ret, run_dd;
-	if(IS_RECOVERING(env))
-		return 0;
-	lt = env->lk_handle;
-	LOCK_SYSTEM_LOCK(lt, (DB_LOCKREGION *)lt->reginfo.primary);
-	ret = __lock_put_nolock(env, lock, &run_dd, 0);
-	LOCK_SYSTEM_UNLOCK(lt, (DB_LOCKREGION *)lt->reginfo.primary);
-	/*
-	 * Only run the lock detector if put told us to AND we are running
-	 * in auto-detect mode.  If we are not running in auto-detect, then
-	 * a call to lock_detect here will 0 the need_dd bit, but will not
-	 * actually abort anything.
-	 */
-	if(ret == 0 && run_dd)
-		__lock_detect(env, ((DB_LOCKREGION *)lt->reginfo.primary)->detect, NULL);
-	return ret;
-}
-
-static int __lock_put_nolock(ENV * env, DB_LOCK * lock, int * runp, uint32 flags)
-{
-	struct __db_lock * lockp;
-	DB_LOCKREGION * region;
-	DB_LOCKTAB * lt;
-	int ret;
-	/* Check if locks have been globally turned off. */
-	if(F_ISSET(env->dbenv, DB_ENV_NOLOCKING))
-		return 0;
-	lt = env->lk_handle;
-	region = (DB_LOCKREGION * )lt->reginfo.primary;
-	lockp = (struct __db_lock * )R_ADDR(&lt->reginfo, lock->off);
-	DB_ASSERT(env, lock->gen == lockp->gen);
-	if(lock->gen != lockp->gen) {
-		__db_errx(env, __db_lock_invalid, "DB_LOCK->lock_put");
-		LOCK_INIT(*lock);
-		return EINVAL;
+	int ret = 0;
+	int run_dd;
+	if(!IS_RECOVERING(env)) {
+		DB_LOCKTAB * lt = env->lk_handle;
+		LOCK_SYSTEM_LOCK(lt, (DB_LOCKREGION *)lt->reginfo.primary);
+		ret = __lock_put_nolock(env, lock, &run_dd, 0);
+		LOCK_SYSTEM_UNLOCK(lt, (DB_LOCKREGION *)lt->reginfo.primary);
+		// 
+		// Only run the lock detector if put told us to AND we are running
+		// in auto-detect mode.  If we are not running in auto-detect, then
+		// a call to lock_detect here will 0 the need_dd bit, but will not
+		// actually abort anything.
+		//
+		if(ret == 0 && run_dd)
+			__lock_detect(env, ((DB_LOCKREGION *)lt->reginfo.primary)->detect, NULL);
 	}
-	OBJECT_LOCK_NDX(lt, region, lock->ndx);
-	ret = __lock_put_internal(lt, lockp, lock->ndx, flags|DB_LOCK_UNLINK|DB_LOCK_FREE);
-	OBJECT_UNLOCK(lt, region, lock->ndx);
-	LOCK_INIT(*lock);
-	*runp = 0;
-	if(ret == 0 && region->detect != DB_LOCK_NORUN && (region->need_dd || timespecisset(&region->next_timeout)))
-		*runp = 1;
 	return ret;
 }
 /*
@@ -1367,8 +1358,6 @@ static int __lock_inherit_locks(DB_LOCKTAB * lt, DB_LOCKER * sh_locker, uint32 f
  * __lock_wakeup --
  *
  * Wakeup any waiters on a lock objects.
- *
- * PUBLIC: int __lock_wakeup __P((ENV *, const DBT *));
  */
 int __lock_wakeup(ENV * env, const DBT * obj)
 {

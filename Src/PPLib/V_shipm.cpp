@@ -528,7 +528,7 @@ int PPALDD_ShipmAnlz::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_ShipmAnlz::Destroy()
+void PPALDD_ShipmAnlz::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(ShipmAnalyze);
 }

@@ -3333,7 +3333,7 @@ int SLAPI PrcssrPersonImport::ProcessComplexELinkText(const char * pText, PPPers
 				else if(elinktype == ELNKRT_WEBADDR) {
 					if(IeParam.Flags & PPPersonImpExpParam::f2GIS) {
 						if(temp_buf.CmpPrefix("http://link.2gis.ru/", 1) == 0) {
-							uint p_ = 0;
+							size_t p_ = 0;
 							if(temp_buf.StrChr('?', &p_)) {
 								temp_buf.ShiftLeft(p_+1);
 							}
@@ -5216,11 +5216,13 @@ SLAPI PrcssrOsm::PrcssrOsm(const char * pDbPath) : O(pDbPath), GgtFinder(O.GetGr
 	P_TestNodeBinF = 0;
 	P_TestNodeF = 0;
 	P_Ufp = 0;
+	P_ShT = PPGetStringHash(PPSTR_HASHTOKEN);
 	Reset();
 }
 
 SLAPI PrcssrOsm::~PrcssrOsm()
 {
+	P_ShT = 0;
 	Reset();
 }
 
@@ -5295,10 +5297,7 @@ void SLAPI PrcssrOsm::Reset()
 	CurrentTagList.clear();
 	TokPath.clear();
 
-	NodeCount = 0;
-	NakedNodeCount = 0;
-	WayCount = 0;
-	RelationCount = 0;
+	Stat.Clear();
 
 	TempTagKeyList.clear();
 	TagKeyList.clear();
@@ -5377,46 +5376,31 @@ int PrcssrOsm::ReadCommonAttrSet(const char ** ppAttrList, CommonAttrSet & rSet)
 	for(uint i = 0; ppAttrList[i] != 0; i += 2) {
 		Pb.TempBuf = ppAttrList[i+1];
 		if(Pb.TempBuf.NotEmptyS()) {
-			if(sstreqi_ascii(ppAttrList[i], "id")) {
-				rSet.ID = Pb.TempBuf.ToInt64();
+			int    tok = 0;
+			(Pb.AttrBuf = ppAttrList[i]).ToLower();
+			if(P_ShT) {
+				uint _ut = 0;
+				P_ShT->Search(Pb.AttrBuf, &_ut, 0);
+				tok = _ut;
 			}
-			else if(sstreqi_ascii(ppAttrList[i], "lat")) {
-				rSet.Lat = Pb.TempBuf.ToReal();
-			}
-			else if(sstreqi_ascii(ppAttrList[i], "lon")) {
-				rSet.Lon = Pb.TempBuf.ToReal();
-			}
-			else if(sstreqi_ascii(ppAttrList[i], "version")) {
-				rSet.Ver = Pb.TempBuf.ToLong();
-			}
-			else if(sstreqi_ascii(ppAttrList[i], "timestamp")) {
-				rSet.T.Set(Pb.TempBuf, DATF_ISO8601, 0);
-			}
-			else if(sstreqi_ascii(ppAttrList[i], "changeset")) {
-				rSet.ChangeSet = Pb.TempBuf.ToInt64();
-			}
-			else if(sstreqi_ascii(ppAttrList[i], "visible")) {
-				if(Pb.TempBuf == "true")
-					rSet.Visible = 1;
-				else if(Pb.TempBuf == "false")
-					rSet.Visible = 0;
-			}
-			else if(sstreqi_ascii(ppAttrList[i], "user")) {
-				rSet.User = Pb.TempBuf;
-			}
-			else if(sstreqi_ascii(ppAttrList[i], "uid")) {
-				rSet.UserID = Pb.TempBuf.ToInt64();
-			}
-			else if(sstreqi_ascii(ppAttrList[i], "type")) {
-				if(Pb.TempBuf.NotEmptyS())
-					rSet.TypeSymbID = O.CreateSymb(Pb.TempBuf);
-			}
-			else if(sstreqi_ascii(ppAttrList[i], "ref")) {
-				rSet.RefID = Pb.TempBuf.ToInt64();
-			}
-			else if(sstreqi_ascii(ppAttrList[i], "role")) {
-				if(Pb.TempBuf.NotEmptyS())
-					rSet.RoleSymbID = O.CreateSymb(Pb.TempBuf);
+			switch(tok) {
+				case PPHS_ID:        rSet.ID = Pb.TempBuf.ToInt64(); break;
+				case PPHS_LAT:       rSet.Lat = Pb.TempBuf.ToReal(); break;
+				case PPHS_LON:       rSet.Lon = Pb.TempBuf.ToReal(); break;
+				case PPHS_VERSION:   rSet.Ver = Pb.TempBuf.ToLong(); break;
+				case PPHS_TIMESTAMP: rSet.T.Set(Pb.TempBuf, DATF_ISO8601, 0); break;
+				case PPHS_CHANGESET: rSet.ChangeSet = Pb.TempBuf.ToInt64(); break;
+				case PPHS_USER:      rSet.User = Pb.TempBuf; break;
+				case PPHS_UID:       rSet.UserID = Pb.TempBuf.ToInt64(); break;
+				case PPHS_TYPE:      rSet.TypeSymbID = O.CreateSymb(Pb.TempBuf); break;
+				case PPHS_REF:       rSet.RefID = Pb.TempBuf.ToInt64(); break;
+				case PPHS_ROLE:      rSet.RoleSymbID = O.CreateSymb(Pb.TempBuf); break;
+				case PPHS_VISIBLE:
+					if(Pb.TempBuf == "true")
+						rSet.Visible = 1;
+					else if(Pb.TempBuf == "false")
+						rSet.Visible = 0;
+					break;
 			}
 		}
 	}
@@ -5426,146 +5410,155 @@ int PrcssrOsm::ReadCommonAttrSet(const char ** ppAttrList, CommonAttrSet & rSet)
 int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 {
 	int    ok = 1;
-	int    tok = tUnkn;
-	if(sstreqi_ascii(pName, "osm")) {
-		tok = tOsm;
-		CurrentTagList.clear();
-	}
-	else if(sstreqi_ascii(pName, "bounds")) {
-		tok = tBounds;
-		CurrentTagList.clear();
-	}
-	else if(sstreqi_ascii(pName, "node")) { // osm/node
-		tok = tNode;
-		NodeCount++;
-        PPOsm::Node new_node;
-        ReadCommonAttrSet(ppAttrList, TempCaSet);
-        new_node.ID = TempCaSet.ID;
-        new_node.C.Set(TempCaSet.Lat, TempCaSet.Lon);
-        if(!TempCaSet.Visible)
-			new_node.T.SetInvisible();
-        LastNode = new_node;
-        if(Phase == phasePreprocess) {
-			LatAccum.add(new_node.C.GetIntLat());
-			LonAccum.add(new_node.C.GetIntLon());
-        }
-        else if(Phase == phaseImport) {
-            new_node.T.V = GgtFinder.GetZIdx32(new_node.C);
-			THROW_SL(NodeAccum.insert(&new_node));
-        }
-        CurrentTagList.clear();
-	}
-	else if(sstreqi_ascii(pName, "way")) { // osm/way
-		THROW(FlashNodeAccum(1));
-		tok = tWay;
-		WayCount++;
-		PPOsm::Way new_way;
-		ReadCommonAttrSet(ppAttrList, TempCaSet);
-		new_way.ID = TempCaSet.ID;
-        if(!TempCaSet.Visible)
-			new_way.T.SetInvisible();
-		LastWay = new_way;
-		CurrentTagList.clear();
-	}
-	else if(sstreqi_ascii(pName, "nd")) { // osm/way/nd
-		tok = tNd;
-		const int upper_tok = TokPath.peek();
-		if(upper_tok == tWay) {
-			ReadCommonAttrSet(ppAttrList, TempCaSet);
-			if(TempCaSet.RefID)
-				LastWay.NodeRefList.add(TempCaSet.RefID);
-		}
-		else {
-			; // @error
-		}
-	}
-	else if(sstreqi_ascii(pName, "relation")) { // osm/relation
-		THROW(FlashNodeAccum(1));
-		tok = tRelation;
-		RelationCount++;
-		PPOsm::Relation new_rel;
-		ReadCommonAttrSet(ppAttrList, TempCaSet);
-		new_rel.ID = TempCaSet.ID;
-		if(!TempCaSet.Visible)
-			new_rel.T.SetInvisible();
-		LastRel = new_rel;
-		CurrentTagList.clear();
-	}
-	else if(sstreqi_ascii(pName, "member")) { // osm/relation/member
-		tok = tMember;
-		const int upper_tok = TokPath.peek();
-        if(upper_tok == tRelation) {
-			PPOsm::RelMember new_memb;
-			ReadCommonAttrSet(ppAttrList, TempCaSet);
-			new_memb.RefID = TempCaSet.RefID;
-			new_memb.RoleSymbID = TempCaSet.RoleSymbID;
-			new_memb.TypeSymbID = TempCaSet.TypeSymbID;
-			THROW_SL(LastRel.MembList.insert(&new_memb));
-        }
-        else {
-			; // @error
-        }
-	}
-	else if(sstreqi_ascii(pName, "tag")) { // osm/node/tag || osm/relation/tag
-		tok = tTag;
-		const int parent_tok = TokPath.peek();
-		int    tag_err = 0;
-		Pb.TagKeyBuf = 0;
-		Pb.TagValBuf = 0;
-		for(uint i = 0; ppAttrList[i] != 0; i += 2) {
-			const char * p_text_data = ppAttrList[i+1];
-			if(p_text_data != 0) {
-				if(sstreqi_ascii(ppAttrList[i], "k")) {
-					if(Pb.TagKeyBuf.Empty())
-						(Pb.TagKeyBuf = p_text_data).Strip();
-					else
-						tag_err = 1;
+	int    tok = 0;
+    (Pb.TempBuf = pName).ToLower();
+    if(P_ShT) {
+		uint _ut = 0;
+		P_ShT->Search(Pb.TempBuf, &_ut, 0);
+		tok = _ut;
+    }
+    switch(tok) {
+    	case PPHS_OSM:    CurrentTagList.clear(); break;
+		case PPHS_BOUNDS: CurrentTagList.clear(); break;
+		case PPHS_NODE: // osm/node
+			{
+				Stat.NodeCount++;
+				PPOsm::Node new_node;
+				ReadCommonAttrSet(ppAttrList, TempCaSet);
+				new_node.ID = TempCaSet.ID;
+				new_node.C.Set(TempCaSet.Lat, TempCaSet.Lon);
+				if(!TempCaSet.Visible)
+					new_node.T.SetInvisible();
+				LastNode = new_node;
+				if(Phase == phasePreprocess) {
+					LatAccum.add(new_node.C.GetIntLat());
+					LonAccum.add(new_node.C.GetIntLon());
 				}
-				else if(sstreqi_ascii(ppAttrList[i], "v")) {
-					if(Pb.TagValBuf.Empty())
-						(Pb.TagValBuf = p_text_data).Strip();
-					else
-						tag_err = 2;
+				else if(Phase == phaseImport) {
+					new_node.T.V = GgtFinder.GetZIdx32(new_node.C);
+					THROW_SL(NodeAccum.insert(&new_node));
+				}
+				CurrentTagList.clear();
+			}
+			break;
+		case PPHS_WAY: // osm/way
+			{
+				THROW(FlashNodeAccum(1));
+				Stat.WayCount++;
+				PPOsm::Way new_way;
+				ReadCommonAttrSet(ppAttrList, TempCaSet);
+				new_way.ID = TempCaSet.ID;
+				if(!TempCaSet.Visible)
+					new_way.T.SetInvisible();
+				LastWay = new_way;
+				CurrentTagList.clear();
+			}
+			break;
+		case PPHS_ND: // osm/way/nd
+			{
+				const int upper_tok = TokPath.peek();
+				if(upper_tok == PPHS_WAY) {
+					ReadCommonAttrSet(ppAttrList, TempCaSet);
+					if(TempCaSet.RefID)
+						LastWay.NodeRefList.add(TempCaSet.RefID);
+				}
+				else {
+					; // @error
 				}
 			}
-		}
-		if(P_TagOutF || P_TagNodeOutF || P_TagWayOutF || P_TagRelOutF) {
-            (Pb.LineBuf = 0).Cat(Pb.TagKeyBuf).Tab().Cat(Pb.TagValBuf).CR();
-            CALLPTRMEMB(P_TagOutF, WriteLine(Pb.LineBuf));
-            if(parent_tok == tNode) {
-				CALLPTRMEMB(P_TagNodeOutF, WriteLine(Pb.LineBuf));
-            }
-            else if(parent_tok == tWay) {
-				CALLPTRMEMB(P_TagWayOutF, WriteLine(Pb.LineBuf));
-            }
-            else if(parent_tok == tRelation) {
-				CALLPTRMEMB(P_TagRelOutF, WriteLine(Pb.LineBuf));
-            }
-		}
-		if(Pb.TagKeyBuf.Empty())
-			tag_err = 3;
-		else if(!tag_err) {
-			if(0) { // Ќа этапе предварительного анализа данных этот блок не нужен
-				PPOsm::Tag new_tag;
-				new_tag.KeySymbID = O.CreateSymb(Pb.TagKeyBuf);
-				TempTagKeyList.add((long)new_tag.KeySymbID);
-				if(TempTagKeyList.getCount() >= 1000) {
-					TempTagKeyList.sortAndUndup();
-					TagKeyList.add(&TempTagKeyList);
-					TagKeyList.sortAndUndup();
-					TempTagKeyList.clear();
-				}
-				if(Pb.TagValBuf.NotEmpty()) {
-					new_tag.ValID = O.CreateSymb(Pb.TagValBuf);
-				}
-				else
-					new_tag.ValID = 0;
-				CurrentTagList.insert(&new_tag);
+			break;
+		case PPHS_RELATION: // osm/relation
+			{
+				THROW(FlashNodeAccum(1));
+				Stat.RelationCount++;
+				PPOsm::Relation new_rel;
+				ReadCommonAttrSet(ppAttrList, TempCaSet);
+				new_rel.ID = TempCaSet.ID;
+				if(!TempCaSet.Visible)
+					new_rel.T.SetInvisible();
+				LastRel = new_rel;
+				CurrentTagList.clear();
 			}
-		}
-	}
-	else
-		tok = tUnkn;
+			break;
+		case PPHS_MEMBER: // osm/relation/member
+			{
+				const int upper_tok = TokPath.peek();
+				if(upper_tok == PPHS_RELATION) {
+					PPOsm::RelMember new_memb;
+					ReadCommonAttrSet(ppAttrList, TempCaSet);
+					new_memb.RefID = TempCaSet.RefID;
+					new_memb.RoleSymbID = TempCaSet.RoleSymbID;
+					new_memb.TypeSymbID = TempCaSet.TypeSymbID;
+					THROW_SL(LastRel.MembList.insert(&new_memb));
+				}
+				else {
+					; // @error
+				}
+			}
+			break;
+		case PPHS_TAG: // osm/node/tag || osm/relation/tag
+			{
+				const int parent_tok = TokPath.peek();
+				int    tag_err = 0;
+				Pb.TagKeyBuf = 0;
+				Pb.TagValBuf = 0;
+				for(uint i = 0; ppAttrList[i] != 0; i += 2) {
+					const char * p_text_data = ppAttrList[i+1];
+					if(p_text_data != 0) {
+						if(sstreqi_ascii(ppAttrList[i], "k")) {
+							if(Pb.TagKeyBuf.Empty())
+								(Pb.TagKeyBuf = p_text_data).Strip();
+							else
+								tag_err = 1;
+						}
+						else if(sstreqi_ascii(ppAttrList[i], "v")) {
+							if(Pb.TagValBuf.Empty())
+								(Pb.TagValBuf = p_text_data).Strip();
+							else
+								tag_err = 2;
+						}
+					}
+				}
+				if(P_TagOutF || P_TagNodeOutF || P_TagWayOutF || P_TagRelOutF) {
+					(Pb.LineBuf = 0).Cat(Pb.TagKeyBuf).Tab().Cat(Pb.TagValBuf).CR();
+					CALLPTRMEMB(P_TagOutF, WriteLine(Pb.LineBuf));
+					if(parent_tok == PPHS_NODE) {
+						CALLPTRMEMB(P_TagNodeOutF, WriteLine(Pb.LineBuf));
+					}
+					else if(parent_tok == PPHS_WAY) {
+						CALLPTRMEMB(P_TagWayOutF, WriteLine(Pb.LineBuf));
+					}
+					else if(parent_tok == PPHS_RELATION) {
+						CALLPTRMEMB(P_TagRelOutF, WriteLine(Pb.LineBuf));
+					}
+				}
+				if(Pb.TagKeyBuf.Empty())
+					tag_err = 3;
+				else if(!tag_err) {
+					if(0) { // Ќа этапе предварительного анализа данных этот блок не нужен
+						PPOsm::Tag new_tag;
+						new_tag.KeySymbID = O.CreateSymb(Pb.TagKeyBuf);
+						TempTagKeyList.add((long)new_tag.KeySymbID);
+						if(TempTagKeyList.getCount() >= 1000) {
+							TempTagKeyList.sortAndUndup();
+							TagKeyList.add(&TempTagKeyList);
+							TagKeyList.sortAndUndup();
+							TempTagKeyList.clear();
+						}
+						if(Pb.TagValBuf.NotEmpty()) {
+							new_tag.ValID = O.CreateSymb(Pb.TagValBuf);
+						}
+						else
+							new_tag.ValID = 0;
+						CurrentTagList.insert(&new_tag);
+					}
+				}
+			}
+			break;
+		default:
+			tok = 0;
+			break;
+    }
 	TokPath.push(tok);
 	CATCH
 		SaxStop();
@@ -5627,16 +5620,29 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 					size_t offs = 0;
 					SrDatabase * p_db = O.GetDb();
 					if(p_db) {
-						THROW_DB(p_db->StoreGeoNodeList(NodeAccum));
+						THROW_DB(p_db->StoreGeoNodeList(NodeAccum, &Stat.NcList));
 					}
 					else {
 						while(offs < _count) {
+							const int do_use_outer_id = 1;
+							uint64 head_id = 0;
 							size_t actual_count = 0;
-							THROW(cluster.Put(&NodeAccum.at(offs), _count - offs, 0, &actual_count));
+							if(do_use_outer_id) {
+								THROW(cluster.Put(&NodeAccum.at(offs), _count - offs, &head_id, &actual_count));
+							}
+							else {
+								THROW(cluster.Put(&NodeAccum.at(offs), _count - offs, 0, &actual_count));
+							}
+							PPOsm::SetNodeClusterStat(cluster, Stat.NcList);
 							// @debug {
 							{
 								test_list.clear();
-								cluster.Get(0, test_list);
+								if(do_use_outer_id) {
+									cluster.Get(head_id, test_list);
+								}
+								else {
+									cluster.Get(0, test_list);
+								}
 								for(uint i = 0; i < test_list.getCount(); i++) {
 									assert(test_list.at(i) == NodeAccum.at(offs+i));
 								}
@@ -5645,6 +5651,9 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 							offs += actual_count;
 						}
 						assert(offs == _count);
+					}
+					{
+                        // ќбра
 					}
 					if(force)
 						NodeAccum.freeAll();
@@ -5662,14 +5671,35 @@ int PrcssrOsm::EndElement(const char * pName)
 {
 	int    tok = 0;
 	int    ok = TokPath.pop(tok);
-	if(tok == tNode) {
+	if(tok == PPHS_NODE) {
 		if(CurrentTagList.getCount() == 0)
-			NakedNodeCount++;
+			Stat.NakedNodeCount++;
 	}
-	THROW(FlashNodeAccum(BIN(tok == tOsm)));
-	if(oneof3(tok, tNode, tWay, tRelation)) {
+	THROW(FlashNodeAccum(BIN(tok == PPHS_OSM)));
+	if(oneof3(tok, PPHS_NODE, PPHS_WAY, PPHS_RELATION)) {
 		//PPUPRF_OSMXMLPARSETAG
         CALLPTRMEMB(P_Ufp, CommitAndRestart());
+	}
+	{
+		const uint64 total_count = Stat.NodeCount + Stat.WayCount + Stat.RelationCount;
+		if((total_count % 1000000) == 0) {
+            SString stat_info_buf;
+            stat_info_buf.CatEq("Node", Stat.NodeCount).CatDiv(';', 2).
+				CatEq("Way", Stat.WayCount).CatDiv(';', 2).
+				CatEq("Relation", Stat.RelationCount).CatDiv(';', 2);
+			PPLogMessage(PPFILNAM_INFO_LOG, stat_info_buf, LOGMSGF_TIME);
+			if(Stat.NcList.getCount()) {
+				for(uint i = 0; i < Stat.NcList.getCount(); i++) {
+                    const PPOsm::NodeClusterStatEntry & r_entry = Stat.NcList.at(i);
+                    stat_info_buf = 0;
+                    stat_info_buf.CatEq("LogicalCount", r_entry.LogicalCount).CatDiv(';', 2).
+						CatEq("ClusterCount", r_entry.ClusterCount).CatDiv(';', 2).
+						CatEq("ActualCount", r_entry.ActualCount).CatDiv(';', 2).
+						CatEq("Size", r_entry.Size).CatDiv(';', 2);
+					PPLogMessage(PPFILNAM_INFO_LOG, stat_info_buf, 0);
+				}
+			}
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -6089,10 +6119,10 @@ int SLAPI PrcssrOsm::Run()
 					SFile f_log(log_file_name, SFile::mWrite);
 					temp_buf = 0;
 					temp_buf.
-						CatEq("NodeCount", NodeCount).CatDiv(';', 2).
-						CatEq("NakedNodeCount", NakedNodeCount).CatDiv(';', 2).
-						CatEq("WayCount", WayCount).CatDiv(';', 2).
-						CatEq("RelationCount", RelationCount).CR();
+						CatEq("NodeCount", Stat.NodeCount).CatDiv(';', 2).
+						CatEq("NakedNodeCount", Stat.NakedNodeCount).CatDiv(';', 2).
+						CatEq("WayCount", Stat.WayCount).CatDiv(';', 2).
+						CatEq("RelationCount", Stat.RelationCount).CR();
 					f_log.WriteLine(temp_buf);
 					if(0) {
 						for(uint i = 0; i < TagKeyList.getCount(); i++) {

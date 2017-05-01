@@ -29,14 +29,11 @@
 #if !defined(HAVE_SELECT) && !defined(HAVE_POLL_FINE)
 #error "We can't compile without select() or poll() support."
 #endif
-
 #if defined(__BEOS__) && !defined(__HAIKU__)
-/* BeOS has FD_SET defined in socket.h */
-#include <socket.h>
+	#include <socket.h> /* BeOS has FD_SET defined in socket.h */
 #endif
-
 #ifdef MSDOS
-#include <dos.h>  /* delay() */
+	#include <dos.h>  /* delay() */
 #endif
 
 #ifdef __VXWORKS__

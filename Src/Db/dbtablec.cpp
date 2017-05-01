@@ -438,19 +438,19 @@ int DBTable::Debug_Output(SString & rBuf) const
 	CAT_FLD(fileName, rBuf).CR();
 	CAT_FLD(fields.getCount(), rBuf).CR();
 	for(i = 0; i < fields.getCount(); i++) {
-		CAT_FLD(fields.getField(i).Id, rBuf.CatChar('\t')).CR();
-		CAT_FLD(fields.getField(i).Name, rBuf.CatChar('\t')).CR();
-		CAT_FLD(fields.getField(i).Offs, rBuf.CatChar('\t')).CR();
-		CAT_FLD_HEX(fields.getField(i).T, rBuf.CatChar('\t')).CR();
+		CAT_FLD(fields.getField(i).Id, rBuf.Tab()).CR();
+		CAT_FLD(fields.getField(i).Name, rBuf.Tab()).CR();
+		CAT_FLD(fields.getField(i).Offs, rBuf.Tab()).CR();
+		CAT_FLD_HEX(fields.getField(i).T, rBuf.Tab()).CR();
 	}
 	CAT_FLD(indexes.getNumKeys(), rBuf).CR();
 	for(i = 0; i < indexes.getNumKeys(); i++) {
-		CAT_FLD(indexes[i].getKeyNumber(), rBuf.CatChar('\t')).CR();
-		CAT_FLD_HEX((long)indexes[i].getFlags(), rBuf.CatChar('\t')).CR();
-		CAT_FLD(indexes[i].getNumSeg(), rBuf.CatChar('\t')).CR();
+		CAT_FLD(indexes[i].getKeyNumber(), rBuf.Tab()).CR();
+		CAT_FLD_HEX((long)indexes[i].getFlags(), rBuf.Tab()).CR();
+		CAT_FLD(indexes[i].getNumSeg(), rBuf.Tab()).CR();
 		for(int j = 0; j < indexes[i].getNumSeg(); j++) {
-			CAT_FLD(indexes[i].getFieldID(j), rBuf.CatCharN('\t', 2)).CR();
-			CAT_FLD_HEX((long)indexes[i].getFlags(j), rBuf.CatCharN('\t', 2)).CR();
+			CAT_FLD(indexes[i].getFieldID(j), rBuf.Tab(2)).CR();
+			CAT_FLD_HEX((long)indexes[i].getFlags(j), rBuf.Tab(2)).CR();
 		}
 	}
 	return ok;

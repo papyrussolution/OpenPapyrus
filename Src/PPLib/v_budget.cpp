@@ -1933,7 +1933,6 @@ int PPALDD_Budget::NextIteration(long iterId, long rsrv)
 }
 
 //
-int PPALDD_Budget::Destroy()
+void PPALDD_Budget::Destroy()
 {
-	return 1;
 }

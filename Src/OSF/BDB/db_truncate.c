@@ -7,26 +7,13 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/heap.h"
-// @v9.5.5 #include "dbinc/qam.h"
-// @v9.5.5 #include "dbinc/partition.h"
-// @v9.5.5 #include "dbinc/txn.h"
 
 static int __db_cursor_check_func __P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *));
 static int __db_cursor_check __P((DB *));
-
 /*
  * __db_truncate_pp
  *	DB->truncate pre/post processing.
- *
- * PUBLIC: int __db_truncate_pp __P((DB *, DB_TXN *, uint32 *, uint32));
  */
 int __db_truncate_pp(DB * dbp, DB_TXN * txn, uint32 * countp, uint32 flags)
 {
@@ -96,9 +83,6 @@ err:
 /*
  * __db_truncate
  *	DB->truncate.
- *
- * PUBLIC: int __db_truncate __P((DB *, DB_THREAD_INFO *, DB_TXN *,
- * PUBLIC:     uint32 *));
  */
 int __db_truncate(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 * countp)
 {

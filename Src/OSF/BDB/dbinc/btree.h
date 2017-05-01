@@ -435,16 +435,16 @@ struct __btree {                        /* Btree access method. */
 	uint32 revision;             /* Revision of root/meta. */
 	uint32 bt_minkey;            /* Minimum keys per page. */
 	/* Btree comparison function. */
-	int (*bt_compare)__P((DB*, const DBT*, const DBT *));
+	int (*bt_compare)(DB*, const DBT*, const DBT *);
 	/* Btree prefix function. */
-	size_t(*bt_prefix) __P((DB*, const DBT*, const DBT *));
+	size_t(*bt_prefix)(DB*, const DBT*, const DBT *);
 	/* Btree compress function. */
 #ifdef HAVE_COMPRESSION
-	int (*bt_compress)__P((DB*, const DBT*, const DBT*, const DBT*, const DBT*, DBT *));
+	int (*bt_compress)(DB*, const DBT*, const DBT*, const DBT*, const DBT*, DBT *);
 	/* Btree decompress function. */
-	int (*bt_decompress)__P((DB*, const DBT*, const DBT*, DBT*, DBT*, DBT *));
+	int (*bt_decompress)(DB*, const DBT*, const DBT*, DBT*, DBT*, DBT *);
 	/* dup_compare for compression */
-	int (*compress_dup_compare)__P((DB*, const DBT*, const DBT *));
+	int (*compress_dup_compare)(DB*, const DBT*, const DBT *);
 #endif
 
 	/* Recno access method. */

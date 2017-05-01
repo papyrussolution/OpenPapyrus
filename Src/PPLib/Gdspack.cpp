@@ -737,7 +737,7 @@ int SLAPI PPGdsClsPacket::GetNameByTemplate(PPGoodsPacket * pPack, const char * 
 	PPSymbTranslator st;
 	for(const char * p = pTemplate; p && *p;)
 		if(*p == '@') {
-			uint   next = 1;
+			size_t next = 1;
 			long   sym  = st.Translate(p, &next);
 			temp_buf = 0;
 			if(CheckForSgg(sym, sgg)) { // AHTOXA

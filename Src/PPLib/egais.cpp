@@ -742,7 +742,10 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 			url.RmvLastSlash().CatChar('/').Cat("xml");
 			SFile wr_stream(ack_buf, SFile::mWrite);
 			ScURL::HttpForm hf;
-			hf.AddContentFile(file_name, "application/xml", "xml_file");
+			{
+				SFileFormat::GetMime(SFileFormat::Xml, temp_buf); // @v9.6.4
+				hf.AddContentFile(file_name, temp_buf, "xml_file");
+			}
 			THROW_SL(c.HttpPost(url, 0, hf, &wr_stream));
 			//LogSended(rPack);
 			THROW(ReadAck((SBuffer *)wr_stream, rAck));
@@ -802,7 +805,10 @@ int SLAPI PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locI
 			url.CatChar('/').Cat(pUrlSuffix);
 		SFile wr_stream(ack_buf, SFile::mWrite);
 		ScURL::HttpForm hf;
-		hf.AddContentFile(file_name, "application/xml", "xml_file");
+		{
+			SFileFormat::GetMime(SFileFormat::Xml, temp_buf); // @v9.6.4
+			hf.AddContentFile(file_name, temp_buf, "xml_file");
+		}
 		THROW_SL(c.HttpPost(url, 0, hf, &wr_stream));
 		LogSended(rPack);
 		THROW(ReadAck((SBuffer *)wr_stream, rAck));
@@ -819,12 +825,12 @@ int SLAPI PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locI
 				PPEDIOP_EGAIS_ACTWRITEOFF_V2, PPEDIOP_EGAIS_TRANSFERTOSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP,
 				PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_WAYBILLACT_V2,
 				0);
-			THROW_MEM(SETIFZ(P_Dgq, new DGQCore));
+			// @v9.6.4 (useless) THROW_MEM(SETIFZ(P_Dgq, new DGQCore));
 			{
 				Reference * p_ref = PPRef;
 				PPTransaction tra(1);
 				THROW(tra);
-				THROW(P_Dgq->PutQuery(rAck.Id, rPack.DocType, 0));
+				// @v9.6.4 (useless) THROW(P_Dgq->PutQuery(rAck.Id, rPack.DocType, 0));
 				if(rPack.DocType == PPEDIOP_EGAIS_REQUESTREPEALWB) {
 					RepealWb * p_req = (RepealWb *)rPack.P_Data;
                     if(p_req) {
@@ -973,7 +979,7 @@ int SLAPI PPEgaisProcessor::QueryInfB(PPID locID, const char * pInfB)
 SLAPI PPEgaisProcessor::PPEgaisProcessor(long cflags, PPLogger * pOuterLogger) : PrcssrAlcReport()
 {
 	State = 0;
-	P_Dgq = 0;
+	// @v9.6.4 (useless) P_Dgq = 0;
 	P_LecT = 0;
 	P_Logger = 0;
 	P_UtmEntry = 0;
@@ -1009,7 +1015,7 @@ SLAPI PPEgaisProcessor::~PPEgaisProcessor()
 {
 	P_UtmEntry = 0;
 	delete P_LecT;
-	delete P_Dgq;
+	// @v9.6.4 (useless) delete P_Dgq;
 	delete P_Las;
 	if(!(State & stOuterLogger))
 		delete P_Logger;
@@ -5205,7 +5211,7 @@ int SLAPI PPEgaisProcessor::AcceptDoc(PPEgaisProcessor::Reply & rR, const char *
 		int    try_ok = 0;
 		do {
 			if(try_no)
-				delay(1000);
+				SDelay(1000);
 			SFile wr_stream(file_name, SFile::mWrite);
 			ScURL c;
 			try_ok = c.HttpGet(rR.Url, 0, &wr_stream);
@@ -5465,10 +5471,10 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 											{
 												temp_buf = 0;
                                                 if(p_qb->Rank.NotEmpty())
-													temp_buf.CatDiv('-', 0, 1).Cat(p_qb->Rank);
+													temp_buf.CatDivIfNotEmpty('-', 0).Cat(p_qb->Rank);
 												if(p_qb->Number.NotEmpty())
-													temp_buf.CatDiv('-', 0, 1).Cat(p_qb->Number);
-												temp_buf.CatDiv('-', 0, 1).Cat(p_qb->Result);
+													temp_buf.CatDivIfNotEmpty('-', 0).Cat(p_qb->Number);
+												temp_buf.CatDivIfNotEmpty('-', 0).Cat(p_qb->Result);
                                                 PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
 												PPBarcode::CreateImage(p_qb->Result, BARCSTD_PDF417, SFileFormat::Png, out_file_name);
 											}
@@ -6488,6 +6494,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 						// отправленных и ожищающих ответа запросов (DGQ).
 						//
 						THROW(FinishBillProcessingByTicket(p_tick, 1));
+#if 0 // @v9.6.4 (useless) {
 						{
 							DGQTbl::Rec dgq_rec;
 							THROW_MEM(SETIFZ(P_Dgq, new DGQCore));
@@ -6507,6 +6514,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 								}
 							}
 						}
+#endif // } 0 @v9.6.4 (useless)
 						if(!(flags & rifOffline) && diffdate(_curdtm.d, p_tick->TicketTime.d) > 1)
 							DeleteSrcPacket(p_pack, reply_list);
 					}
@@ -7909,7 +7917,7 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 				uint  qc = 0;
 				for(uint ssp = 0; refa_codes.get(&ssp, temp_buf);) {
 					if(qc)
-						delay(_delay_ms);
+						SDelay(_delay_ms);
 					if(QueryInfA(rParam.LocID, temp_buf))
 						qc++;
 					else
@@ -7920,7 +7928,7 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 				if(codes_for_contragents.getCount()) {
 					for(uint ssp = 0; codes_for_contragents.get(&ssp, temp_buf);) {
 						if(qc)
-							delay(_delay_ms);
+							SDelay(_delay_ms);
 						if(QueryClients(rParam.LocID, querybyCode, temp_buf))
 							qc++;
 						else
@@ -7932,7 +7940,7 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 				if(codes_for_products.getCount()) {
 					for(uint ssp = 0; codes_for_products.get(&ssp, temp_buf);) {
 						if(qc)
-							delay(_delay_ms);
+							SDelay(_delay_ms);
 						if(QueryProducts(rParam.LocID, querybyCode, temp_buf))
 							qc++;
 						else
@@ -7988,7 +7996,7 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 		//
 		if(QueryRests(rParam.LocID, 0)) {
 			query_sended = 1;
-			delay(100);
+			SDelay(100);
 			if(QueryRestsShop(rParam.LocID, 0))
 				query_sended = 1;
 			else

@@ -669,7 +669,7 @@ struct SBIIBillRec : public SBIIRec { // size = 56
 			SString str_guid, str_tm;
 			DbfRecord dbf_rec(pTbl);
 
-			str_tm.Cat(Tm);
+			str_tm.Cat(Tm, TIMF_HMS);
 			guid.Init(Uuid);
 			guid.ToStr(S_GUID::fmtIDL, str_guid);
 			dbf_rec.put(1, ID);
@@ -768,7 +768,7 @@ struct SBIIBillRowRec : public SBIIRec { // size = 56
 			SString str_tm;
 			DbfRecord dbf_rec(pTbl);
 
-			str_tm.Cat(Tm);
+			str_tm.Cat(Tm, TIMF_HMS);
 			dbf_rec.put(1, BillID);
 			dbf_rec.put(2, GoodsID);
 			dbf_rec.put(3, StoragePlace);

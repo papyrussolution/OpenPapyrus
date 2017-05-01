@@ -15,24 +15,24 @@
 // @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
-typedef int (*HEARTBEAT_ACTION) __P ((ENV *));
+typedef int (*HEARTBEAT_ACTION)(ENV *);
 
-static int accept_handshake __P((ENV*, REPMGR_CONNECTION*, char *));
-static int accept_v1_handshake __P((ENV*, REPMGR_CONNECTION*, char *));
+static int accept_handshake(ENV*, REPMGR_CONNECTION*, char *);
+static int accept_v1_handshake(ENV*, REPMGR_CONNECTION*, char *);
 static int __repmgr_call_election(ENV *);
-static int __repmgr_connector_main __P((ENV*, REPMGR_RUNNABLE *));
-static void * __repmgr_connector_thread __P((void *));
-static int dispatch_msgin __P((ENV*, REPMGR_CONNECTION *));
-static int __repmgr_next_timeout __P((ENV*, db_timespec*, HEARTBEAT_ACTION *));
-static int prepare_input __P((ENV*, REPMGR_CONNECTION *));
-static int process_own_msg __P((ENV*, REPMGR_CONNECTION *));
-static int process_parameters __P((ENV*, REPMGR_CONNECTION*, char *, uint, uint32, int, uint32));
-static int read_version_response __P((ENV*, REPMGR_CONNECTION *));
-static int record_permlsn __P((ENV*, REPMGR_CONNECTION *));
+static int __repmgr_connector_main(ENV*, REPMGR_RUNNABLE *);
+static void * __repmgr_connector_thread(void *);
+static int dispatch_msgin(ENV*, REPMGR_CONNECTION *);
+static int __repmgr_next_timeout(ENV*, db_timespec*, HEARTBEAT_ACTION *);
+static int prepare_input(ENV*, REPMGR_CONNECTION *);
+static int process_own_msg(ENV*, REPMGR_CONNECTION *);
+static int process_parameters(ENV*, REPMGR_CONNECTION*, char *, uint, uint32, int, uint32);
+static int read_version_response(ENV*, REPMGR_CONNECTION *);
+static int record_permlsn(ENV*, REPMGR_CONNECTION *);
 static int __repmgr_retry_connections(ENV *);
 static int __repmgr_send_heartbeat(ENV *);
-static int send_version_response __P((ENV*, REPMGR_CONNECTION *));
-static int __repmgr_try_one __P((ENV*, uint));
+static int send_version_response(ENV*, REPMGR_CONNECTION *);
+static int __repmgr_try_one(ENV*, uint);
 
 #define ONLY_HANDSHAKE(env, conn) do {                               \
 		if(conn->msg_type != REPMGR_HANDSHAKE) {                    \
@@ -79,23 +79,15 @@ int __repmgr_bow_out(ENV * env)
  */
 int __repmgr_accept(ENV * env)
 {
-	DB_REP * db_rep;
 	REPMGR_CONNECTION * conn;
 	ACCEPT_ADDR siaddr;
-	socklen_t addrlen;
 	socket_t s;
 	int ret;
-
-	db_rep = env->rep_handle;
-	addrlen = sizeof(siaddr);
-	if((s = accept(db_rep->listen_fd, (struct sockaddr *)&siaddr,
-		    &addrlen)) == -1) {
-		/*
-		 * Some errors are innocuous and so should be ignored.  MSDN
-		 * Library documents the Windows ones; the Unix ones are
-		 * advocated in Stevens' UNPv1, section 16.6; and Linux
-		 * Application Development, p. 416.
-		 */
+	DB_REP * db_rep = env->rep_handle;
+	socklen_t addrlen = sizeof(siaddr);
+	if((s = accept(db_rep->listen_fd, (struct sockaddr *)&siaddr, &addrlen)) == -1) {
+		// Some errors are innocuous and so should be ignored.  MSDN Library documents the Windows ones; the Unix ones are
+		// advocated in Stevens' UNPv1, section 16.6; and Linux Application Development, p. 416.
 		switch(ret = net_errno) {
 #ifdef DB_WIN32
 		    case WSAECONNRESET:
@@ -564,8 +556,7 @@ int __repmgr_send_v1_handshake(ENV * env, REPMGR_CONNECTION * conn, void * buf, 
 	 * thing we send.  Which is a good thing, because it would be almost as
 	 * disastrous if we allowed ourselves to drop a handshake.
 	 */
-	return __repmgr_send_one(env,
-		conn, REPMGR_HANDSHAKE, &cntrl, &rec, 0);
+	return __repmgr_send_one(env, conn, REPMGR_HANDSHAKE, &cntrl, &rec, 0);
 }
 
 /*
@@ -599,20 +590,15 @@ int __repmgr_read_from_site(ENV * env, REPMGR_CONNECTION * conn)
 		    case DB_REP_UNAVAIL:
 			/* Error 0 is understood to mean EOF. */
 			__repmgr_fire_conn_err_event(env, conn, 0);
-			STAT(env->rep_handle->
-				region->mstat.st_connection_drop++);
+			STAT(env->rep_handle->region->mstat.st_connection_drop++);
 			return DB_REP_UNAVAIL;
 
 		    case 0:
 			if(IS_VALID_EID(conn->eid)) {
 				site = SITE_FROM_EID(conn->eid);
-				__os_gettime(env,
-					&site->last_rcvd_timestamp, 1);
+				__os_gettime(env, &site->last_rcvd_timestamp, 1);
 			}
-			return conn->reading_phase == SIZES_PHASE ?
-			       prepare_input(env, conn) :
-			       dispatch_msgin(env, conn);
-
+			return conn->reading_phase == SIZES_PHASE ? prepare_input(env, conn) : dispatch_msgin(env, conn);
 		    default:
 #ifdef EBADF
 			DB_ASSERT(env, ret != EBADF);
@@ -644,14 +630,12 @@ int __repmgr_read_conn(REPMGR_CONNECTION * conn)
 	 * we complete the current read phase as defined in iovecs.
 	 */
 	for(;; ) {
-		if((ret = __repmgr_readv(conn->fd,
-			    &conn->iovecs.vectors[conn->iovecs.offset],
-			    conn->iovecs.count-conn->iovecs.offset, &nr)) != 0)
+		if((ret = __repmgr_readv(conn->fd, &conn->iovecs.vectors[conn->iovecs.offset], conn->iovecs.count-conn->iovecs.offset, &nr)) != 0)
 			return ret;
-		if(nr == 0)
+		else if(nr == 0)
 			return DB_REP_UNAVAIL;
-		if(__repmgr_update_consumed(&conn->iovecs, nr)) {
-			/* We've fully read as much as we wanted. */
+		else if(__repmgr_update_consumed(&conn->iovecs, nr)) {
+			// We've fully read as much as we wanted. 
 			return 0;
 		}
 	}
@@ -700,9 +684,7 @@ static int prepare_input(ENV * env, REPMGR_CONNECTION * conn)
 		rec_size = REP_MSG_REC_SIZE(msg_hdr);
 		if(control_size == 0) {
 			if(conn->msg_type == REPMGR_HEARTBEAT) {
-				/*
-				 * Got an old-style heartbeat without payload, nothing to do.
-				 */
+				// Got an old-style heartbeat without payload, nothing to do.
 				skip = TRUE;
 				break;
 			}
@@ -827,28 +809,21 @@ static int prepare_input(ENV * env, REPMGR_CONNECTION * conn)
 			skip = TRUE;
 			if(F_ISSET(resp, RESP_THREAD_WAITING)) {
 				F_SET(resp, RESP_COMPLETE);
-				if((ret = __repmgr_wake_waiters(env,
-					    &conn->response_waiters)) != 0)
+				if((ret = __repmgr_wake_waiters(env, &conn->response_waiters)) != 0)
 					return ret;
 			}
 		}
 		break;
 
 	    case REPMGR_RESP_ERROR:
-		DB_ASSERT(env, RESP_ERROR_TAG(msg_hdr) < conn->aresp &&
-			conn->responses != NULL);
+		DB_ASSERT(env, RESP_ERROR_TAG(msg_hdr) < conn->aresp && conn->responses != NULL);
 		resp = &conn->responses[RESP_ERROR_TAG(msg_hdr)];
 		DB_ASSERT(env, !F_ISSET(resp, RESP_READING));
 		if(F_ISSET(resp, RESP_THREAD_WAITING)) {
 			F_SET(resp, RESP_COMPLETE);
-
-			/*
-			 * DB errors are always negative, but we only send
-			 * unsigned values on the wire.
-			 */
+			// DB errors are always negative, but we only send unsigned values on the wire.
 			resp->ret = -((int)RESP_ERROR_CODE(msg_hdr));
-			if((ret = __repmgr_wake_waiters(env,
-				    &conn->response_waiters)) != 0)
+			if((ret = __repmgr_wake_waiters(env, &conn->response_waiters)) != 0)
 				return ret;
 		}
 		else
@@ -858,8 +833,7 @@ static int prepare_input(ENV * env, REPMGR_CONNECTION * conn)
 
 	    case REPMGR_HANDSHAKE:
 	    case REPMGR_PERMLSN:
-		if((ret = __repmgr_prepare_simple_input(env,
-			    conn, &msg_hdr)) != 0)
+		if((ret = __repmgr_prepare_simple_input(env, conn, &msg_hdr)) != 0)
 			return ret;
 		break;
 
@@ -1157,14 +1131,12 @@ static int process_own_msg(ENV*env, REPMGR_CONNECTION * conn)
 		/* Show that we no longer own this memory. */
 		msg = NULL;
 		break;
-
 	    case REPMGR_PARM_REFRESH:
 			dbt = (DBT *)&conn->input.rep_message->v.gmdb_msg.request;
 			if((ret = __repmgr_parm_refresh_unmarshal(env, &parms, (uint8 *)dbt->data, dbt->size, NULL)) != 0)
 				return DB_REP_UNAVAIL;
 			db_rep = env->rep_handle;
-			DB_ASSERT(env, conn->type == REP_CONNECTION &&
-				IS_KNOWN_REMOTE_SITE(conn->eid));
+			DB_ASSERT(env, conn->type == REP_CONNECTION && IS_KNOWN_REMOTE_SITE(conn->eid));
 			site = SITE_FROM_EID(conn->eid);
 			site->ack_policy = (int)parms.ack_policy;
 			if(F_ISSET(&parms, ELECTABLE_SITE))

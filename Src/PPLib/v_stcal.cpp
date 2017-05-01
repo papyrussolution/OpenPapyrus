@@ -530,12 +530,12 @@ DBQuery * SLAPI PPViewStaffCal::CreateBrowserQuery(uint * pBrwId, SString * pSub
 		PPID obj_id = Filt.LinkObjList.GetSingle();
 		if(Filt.LinkObjType && obj_id) {
 			GetObjectName(Filt.LinkObjType, obj_id, temp_buf);
-			pSubTitle->CatDiv('-', 1, 1).Cat(temp_buf);
+			pSubTitle->CatDivIfNotEmpty('-', 1).Cat(temp_buf);
 		}
 		PPID cal_id = Filt.CalList.GetSingle();
 		if(cal_id) {
 			GetObjectName(PPOBJ_STAFFCAL, cal_id, temp_buf);
-			pSubTitle->CatDiv('-', 1, 1).Cat(temp_buf);
+			pSubTitle->CatDivIfNotEmpty('-', 1).Cat(temp_buf);
 		}
 	}
 	CATCH
@@ -855,7 +855,7 @@ int PPALDD_StaffCalView::NextIteration(long iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_StaffCalView::Destroy()
+void PPALDD_StaffCalView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(StaffCal);
 }

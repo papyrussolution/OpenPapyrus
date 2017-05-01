@@ -7,20 +7,10 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_swap.h"
-// @v9.5.5 #include "dbinc/qam.h"
 /*
  * __db_upgrade_pp --
  *	DB->upgrade pre/post processing.
- *
- * PUBLIC: int __db_upgrade_pp __P((DB *, const char *, uint32));
  */
 int __db_upgrade_pp(DB * dbp, const char * fname, uint32 flags)
 {
@@ -95,8 +85,6 @@ static int __db_set_lastpgno __P((DB*, char *, DB_FH *));
 /*
  * __db_upgrade --
  *	Upgrade an existing database.
- *
- * PUBLIC: int __db_upgrade __P((DB *, const char *, uint32));
  */
 int __db_upgrade(DB * dbp, const char * fname, uint32 flags)
 {
@@ -379,8 +367,6 @@ static int __db_page_pass(DB * dbp, char * real_name, uint32 flags, int (*const 
 /*
  * __db_lastpgno --
  *	Return the current last page number of the file.
- *
- * PUBLIC: int __db_lastpgno __P((DB *, char *, DB_FH *, db_pgno_t *));
  */
 int __db_lastpgno(DB * dbp, char * real_name, DB_FH * fhp, db_pgno_t * pgno_lastp)
 {

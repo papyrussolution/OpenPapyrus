@@ -558,11 +558,11 @@ int SLAPI LocationCore::GetAddress(const LocationTbl::Rec & rRec, uint, SString 
 			PPObjWorld w_obj;
 			WorldTbl::Rec w_rec;
 			if(w_obj.Fetch(rRec.CityID, &w_rec) > 0)
-				rBuf.CatDiv(' ', 0, 1).Cat(strip(w_rec.Name));
+				rBuf.CatDivIfNotEmpty(' ', 0).Cat(strip(w_rec.Name));
 		}
 		LocationCore::GetExField(&rRec, LOCEXSTR_SHORTADDR, temp_buf);
 		if(temp_buf.NotEmptyS())
-			rBuf.CatDiv(',', 2, 1).Cat(temp_buf);
+			rBuf.CatDivIfNotEmpty(',', 2).Cat(temp_buf);
 	}
 	return 1;
 }
@@ -707,7 +707,7 @@ static uint SLAPI Helper_GeneratePhoneCheckNumber(const char * pOrgPhone, const 
 	SString line_buf;
 	PPEAddr::Phone::NormalizeStr(pOrgPhone, line_buf);
     line_buf.Cat(pAddedumCode);
-    uint   p = 0;
+    size_t p = 0;
     while(line_buf.StrChr(' ', &p)) {
         line_buf.Excise(p, 1);
     }

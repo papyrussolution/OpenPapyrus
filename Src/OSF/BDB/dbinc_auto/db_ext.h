@@ -61,7 +61,7 @@ int __db_relink_print(ENV*, DBT*, DB_LSN*, db_recops, void *);
 int __db_merge_print(ENV*, DBT*, DB_LSN*, db_recops, void *);
 int __db_pgno_print(ENV*, DBT*, DB_LSN*, db_recops, void *);
 int __db_init_print(ENV*, DB_DISTAB *);
-int __dbc_close(DBC *);
+int FASTCALL __dbc_close(DBC *);
 int __dbc_destroy(DBC *);
 int __dbc_cmp(DBC*, DBC*, int *);
 int __dbc_count(DBC*, db_recno_t *);
@@ -179,7 +179,7 @@ int __db_haslock(ENV*, DB_LOCKER*, DB_MPOOLFILE*, db_pgno_t, db_lockmode_t, uint
 #ifdef DIAGNOSTIC
 int __db_has_pagelock(ENV*, DB_LOCKER*, DB_MPOOLFILE*, PAGE*, db_lockmode_t);
 #endif
-int __db_lput(DBC*, DB_LOCK *);
+int FASTCALL __db_lput(DBC*, DB_LOCK *);
 int __db_create_internal(DB**, ENV*, uint32);
 int __dbh_am_chk(DB*, uint32);
 int __db_get_flags(DB*, uint32 *);

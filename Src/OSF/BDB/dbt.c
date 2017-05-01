@@ -7,23 +7,20 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-/*
- * __dbt_usercopy --
- *	Take a copy of the user's data, if a callback is supplied.
- *
- * PUBLIC: int __dbt_usercopy(ENV *, DBT *);
- */
-int __dbt_usercopy(ENV * env, DBT * dbt)
+
+__db_dbt::__db_dbt()
+{
+	THISZERO();
+}
+//
+// __dbt_usercopy --
+// Take a copy of the user's data, if a callback is supplied.
+//
+int FASTCALL __dbt_usercopy(ENV * env, DBT * dbt)
 {
 	int ret;
-	if(!dbt || !F_ISSET(dbt, DB_DBT_USERCOPY) || dbt->size == 0 || dbt->data != NULL)
+	if(!dbt || !F_ISSET(dbt, DB_DBT_USERCOPY) || dbt->size == 0 || dbt->data)
 		return 0;
 	else {
 		void * buf = NULL;
@@ -42,20 +39,18 @@ err:
 /*
  * __dbt_userfree --
  *	Free a copy of the user's data, if necessary.
- *
- * PUBLIC: void __dbt_userfree __P((ENV *, DBT *, DBT *, DBT *));
  */
 void __dbt_userfree(ENV * env, DBT * key, DBT * pkey, DBT * data)
 {
-	if(key != NULL && F_ISSET(key, DB_DBT_USERCOPY) && key->data != NULL) {
+	if(key && F_ISSET(key, DB_DBT_USERCOPY) && key->data) {
 		__os_ufree(env, key->data);
 		key->data = NULL;
 	}
-	if(pkey != NULL && F_ISSET(pkey, DB_DBT_USERCOPY) && pkey->data != NULL) {
+	if(pkey && F_ISSET(pkey, DB_DBT_USERCOPY) && pkey->data) {
 		__os_ufree(env, pkey->data);
 		pkey->data = NULL;
 	}
-	if(data != NULL && F_ISSET(data, DB_DBT_USERCOPY) && data->data != NULL) {
+	if(data && F_ISSET(data, DB_DBT_USERCOPY) && data->data) {
 		__os_ufree(env, data->data);
 		data->data = NULL;
 	}

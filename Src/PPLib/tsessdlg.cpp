@@ -593,7 +593,7 @@ void TSessionDialog::setupOrder()
 			}
 			else
 				ideqvalstr(lot_rec.SupplID, temp_buf);
-			order_buf.Cat(serial).CatDiv('-', 1, 1).Cat(lot_rec.Dt).CatDiv('-', 1).Cat(temp_buf).
+			order_buf.Cat(serial).CatDivIfNotEmpty('-', 1).Cat(lot_rec.Dt).CatDiv('-', 1).Cat(temp_buf).
 				CatDiv('-', 1).Cat(lot_rec.Rest, MKSFMTD(0, 3, NMBF_NOTRAILZ));
 			if(Data.Rec.ArID != prev_ar_id || Data.Rec.Ar2ID != prev_ar2_id) {
 				setCtrlLong(CTLSEL_TSESS_OBJ,  Data.Rec.ArID);

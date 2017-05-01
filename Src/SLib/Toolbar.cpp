@@ -34,15 +34,15 @@ TToolbar::TToolbar(HWND hWnd, DWORD style)
 	}
 	H_Wnd = ::CreateWindowEx(WS_EX_TOOLWINDOW, "TOOLBAR_FOR_PPY", NULL, WS_CHILD|WS_CLIPSIBLINGS,
 		0, 0, 0, 0, hWnd, (HMENU)0, TProgram::GetInst(), NULL); // @unicodeproblem
-	//SetWindowLong(H_Wnd, GWL_USERDATA, (long)this);
-	TView::SetWindowProp(H_Wnd, GWL_USERDATA, this);
+	//SetWindowLong(H_Wnd, GWLP_USERDATA, (long)this);
+	TView::SetWindowProp(H_Wnd, GWLP_USERDATA, this);
 	H_Toolbar = CreateWindowEx(WS_EX_TOOLWINDOW, TOOLBARCLASSNAME, (LPSTR) NULL,
 		WS_CHILD | TBSTYLE_TOOLTIPS | TBSTYLE_FLAT | CCS_NORESIZE | WS_CLIPSIBLINGS,
 		0, 0, 0, 0, H_Wnd, (HMENU)0, TProgram::GetInst(), NULL);
-	//SetWindowLong(H_Toolbar, GWL_USERDATA, (long)this);
-	TView::SetWindowProp(H_Toolbar, GWL_USERDATA, this);
-	//PrevToolProc = (WNDPROC)SetWindowLong(H_Toolbar, GWL_WNDPROC, (long)ToolbarProc);
-	PrevToolProc = (WNDPROC)TView::SetWindowProp(H_Toolbar, GWL_WNDPROC, ToolbarProc);
+	//SetWindowLong(H_Toolbar, GWLP_USERDATA, (long)this);
+	TView::SetWindowProp(H_Toolbar, GWLP_USERDATA, this);
+	//PrevToolProc = (WNDPROC)SetWindowLong(H_Toolbar, GWLP_WNDPROC, (long)ToolbarProc);
+	PrevToolProc = (WNDPROC)TView::SetWindowProp(H_Toolbar, GWLP_WNDPROC, ToolbarProc);
 	CurrPos = 0;
 	DWORD s = SendMessage(H_Toolbar, TB_GETBUTTONSIZE, 0, 0);
 	Width  = LOWORD(s);
@@ -60,8 +60,8 @@ TToolbar::~TToolbar()
 		ImageList_Destroy(himl);
 		himl = 0;
 	}
-	//SetWindowLong(H_Toolbar, GWL_WNDPROC, (long)PrevToolProc);
-	TView::SetWindowProp(H_Toolbar, GWL_WNDPROC, PrevToolProc);
+	//SetWindowLong(H_Toolbar, GWLP_WNDPROC, (long)PrevToolProc);
+	TView::SetWindowProp(H_Toolbar, GWLP_WNDPROC, PrevToolProc);
 	if(H_Menu)
 		DestroyMenu(H_Menu);
 	if(H_Wnd)
@@ -739,17 +739,17 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb)
 		SendMessage(GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_UP), BM_SETIMAGE, IMAGE_BITMAP, (long)h_up);
 		HBITMAP h_dn = LoadBitmap(0, MAKEINTRESOURCE(OBM_DNARROWD));
 		SendMessage(GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_DOWN), BM_SETIMAGE, IMAGE_BITMAP, (long)h_dn);
-		//PrevListViewProc = (WNDPROC)SetWindowLong(H_List, GWL_WNDPROC, (long)ListViewProc);
-		PrevListViewProc = (WNDPROC)TView::SetWindowProp(H_List, GWL_WNDPROC, ListViewProc);
-		//SetWindowLong(H_List, GWL_USERDATA, (long)this);
-		TView::SetWindowProp(H_List, GWL_USERDATA, this);
+		//PrevListViewProc = (WNDPROC)SetWindowLong(H_List, GWLP_WNDPROC, (long)ListViewProc);
+		PrevListViewProc = (WNDPROC)TView::SetWindowProp(H_List, GWLP_WNDPROC, ListViewProc);
+		//SetWindowLong(H_List, GWLP_USERDATA, (long)this);
+		TView::SetWindowProp(H_List, GWLP_USERDATA, this);
 	}
 }
 
 TuneToolsDialog::~TuneToolsDialog()
 {
-	//SetWindowLong(H_List, GWL_WNDPROC, (long)PrevListViewProc);
-	TView::SetWindowProp(H_List, GWL_WNDPROC, PrevListViewProc);
+	//SetWindowLong(H_List, GWLP_WNDPROC, (long)PrevListViewProc);
+	TView::SetWindowProp(H_List, GWLP_WNDPROC, PrevListViewProc);
 	free(P_Buttons);
 }
 
@@ -869,14 +869,14 @@ static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 }
 // } @v9.4.5
 
-BOOL CALLBACK TToolbar::TuneToolsDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK TToolbar::TuneToolsDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	TuneToolsDialog * p_param = 0;
 	switch(message) {
 		case WM_INITDIALOG:
 			p_param = new TuneToolsDialog(hWnd, (TToolbar *)lParam);
-			//SetWindowLong(hWnd, GWL_USERDATA, (long)p_param);
-			TView::SetWindowProp(hWnd, GWL_USERDATA, p_param);
+			//SetWindowLong(hWnd, GWLP_USERDATA, (long)p_param);
+			TView::SetWindowProp(hWnd, GWLP_USERDATA, p_param);
 			EnumChildWindows(hWnd, SetupCtrlTextProc, 0); // @v9.4.5
 			return 1;
 		case WM_COMMAND:
@@ -899,8 +899,8 @@ BOOL CALLBACK TToolbar::TuneToolsDlgProc(HWND hWnd, UINT message, WPARAM wParam,
 		case WM_DESTROY:
 			p_param = (TuneToolsDialog *)TView::GetWindowUserData(hWnd);
 			delete p_param;
-			//SetWindowLong(hWnd, GWL_USERDATA, 0);
-			TView::SetWindowProp(hWnd, GWL_USERDATA, (void *)0);
+			//SetWindowLong(hWnd, GWLP_USERDATA, 0);
+			TView::SetWindowProp(hWnd, GWLP_USERDATA, (void *)0);
 			break;
 	}
 	return 0;

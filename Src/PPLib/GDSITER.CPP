@@ -911,7 +911,7 @@ int SLAPI GoodsCore::MakeFullName(PPID id, PPID parentID, SString & rBuf)
 				}
 			} while(parent_id && Fetch(parent_id, &grec) > 0);
 			while(name_stack.pop(name_buf))
-				rBuf.CatDiv('/', 1, 1).Cat(name_buf);
+				rBuf.CatDivIfNotEmpty('/', 1).Cat(name_buf);
 			ok = 1;
 		}
 	}
@@ -1017,7 +1017,7 @@ int SLAPI GoodsGroupIterator::Next(PPID * pID, SString & rBuf)
 			(rBuf = ptr + sizeof(PPID)).ShiftLeftChr('@');
 		else
 			rBuf = 0;
-		rBuf.CatDiv('-', 1, 1).Cat(ptr + sizeof(PPID) + GRPCODESIZE);
+		rBuf.CatDivIfNotEmpty('-', 1).Cat(ptr + sizeof(PPID) + GRPCODESIZE);
 		IterIndex++;
 		return 1;
 	}
@@ -1072,7 +1072,7 @@ int SLAPI PPObjGoods::MakeReplaceStr(const PPGoodsPacket * pPack,
 			p++;
 		}
 		else if(*p == '@') {
-			uint   next = 1;
+			size_t next = 1;
 			temp_buf = 0;
 			long   sym  = st.Translate(p, &next);
 			switch(sym) {

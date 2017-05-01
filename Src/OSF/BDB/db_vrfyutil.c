@@ -7,25 +7,13 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_verify.h"
-// @v9.5.5 #include "dbinc/db_am.h"
 
 static int __db_vrfy_childinc __P((DBC*, VRFY_CHILDINFO *));
 static int __db_vrfy_pageinfo_create __P((ENV*, VRFY_PAGEINFO**));
-
 /*
  * __db_vrfy_dbinfo_create --
  *	Allocate and initialize a VRFY_DBINFO structure.
- *
- * PUBLIC: int __db_vrfy_dbinfo_create
- * PUBLIC:     __P((ENV *, DB_THREAD_INFO *, uint32, VRFY_DBINFO **));
  */
 int __db_vrfy_dbinfo_create(ENV * env, DB_THREAD_INFO * ip, uint32 pgsize, VRFY_DBINFO ** vdpp)
 {
@@ -346,9 +334,6 @@ int __db_vrfy_childcursor(VRFY_DBINFO * vdp, DBC ** dbcp)
 /*
  * __db_vrfy_childput --
  *	Add a child structure to the set for a given page.
- *
- * PUBLIC: int __db_vrfy_childput
- * PUBLIC:     __P((VRFY_DBINFO *, db_pgno_t, VRFY_CHILDINFO *));
  */
 int __db_vrfy_childput(VRFY_DBINFO * vdp, db_pgno_t pgno, VRFY_CHILDINFO * cip)
 {
@@ -422,8 +407,6 @@ static int __db_vrfy_childinc(DBC * dbc, VRFY_CHILDINFO * cip)
  * __db_vrfy_ccset --
  *	Sets a cursor created with __db_vrfy_childcursor to the first
  *	child of the given pgno, and returns it in the third arg.
- *
- * PUBLIC: int __db_vrfy_ccset __P((DBC *, db_pgno_t, VRFY_CHILDINFO **));
  */
 int __db_vrfy_ccset(DBC * dbc, db_pgno_t pgno, VRFY_CHILDINFO ** cipp)
 {
@@ -442,10 +425,7 @@ int __db_vrfy_ccset(DBC * dbc, db_pgno_t pgno, VRFY_CHILDINFO ** cipp)
 /*
  * __db_vrfy_ccnext --
  *	Gets the next child of the given cursor created with
- *	__db_vrfy_childcursor, and returns it in the memory provided in the
- *	second arg.
- *
- * PUBLIC: int __db_vrfy_ccnext __P((DBC *, VRFY_CHILDINFO **));
+ *	__db_vrfy_childcursor, and returns it in the memory provided in the second arg.
  */
 int __db_vrfy_ccnext(DBC * dbc, VRFY_CHILDINFO ** cipp)
 {
@@ -467,8 +447,6 @@ int __db_vrfy_ccnext(DBC * dbc, VRFY_CHILDINFO ** cipp)
  *	not inconceivable that we might change the internal database usage
  *	and keep the interfaces the same, and a function call here or there
  *	seldom hurts anyone.
- *
- * PUBLIC: int __db_vrfy_ccclose(DBC *);
  */
 int __db_vrfy_ccclose(DBC * dbc)
 {
@@ -486,8 +464,7 @@ static int __db_vrfy_pageinfo_create(ENV * env, VRFY_PAGEINFO ** pipp)
 	 * pageinfo structs are sometimes allocated here and sometimes
 	 * allocated by fetching them from a database with DB_DBT_MALLOC.
 	 * There's no easy way for the destructor to tell which was
-	 * used, and so we always allocate with __os_umalloc so we can free
-	 * with __os_ufree.
+	 * used, and so we always allocate with __os_umalloc so we can free with __os_ufree.
 	 */
 	if((ret = __os_umalloc(env, sizeof(VRFY_PAGEINFO), &pip)) != 0)
 		return ret;
@@ -498,8 +475,6 @@ static int __db_vrfy_pageinfo_create(ENV * env, VRFY_PAGEINFO ** pipp)
 /*
  * __db_salvage_init --
  *	Set up salvager database.
- *
- * PUBLIC: int  __db_salvage_init __P((VRFY_DBINFO *));
  */
 int __db_salvage_init(VRFY_DBINFO * vdp)
 {
@@ -520,7 +495,6 @@ err:
 /*
  * __db_salvage_destroy --
  *	Close salvager database.
- * PUBLIC: int  __db_salvage_destroy __P((VRFY_DBINFO *));
  */
 int __db_salvage_destroy(VRFY_DBINFO * vdp)
 {
@@ -531,9 +505,6 @@ int __db_salvage_destroy(VRFY_DBINFO * vdp)
  *	Get the next (first) unprinted page in the database of pages we need to
  *	print still.  Delete entries for any already-printed pages we encounter
  *	in this search, as well as the page we're returning.
- *
- * PUBLIC: int __db_salvage_getnext
- * PUBLIC:     __P((VRFY_DBINFO *, DBC **, db_pgno_t *, uint32 *, int));
  */
 int __db_salvage_getnext(VRFY_DBINFO * vdp, DBC ** dbcp, db_pgno_t * pgnop, uint32 * pgtypep, int skip_overflow)
 {
@@ -569,10 +540,7 @@ int __db_salvage_getnext(VRFY_DBINFO * vdp, DBC ** dbcp, db_pgno_t * pgnop, uint
  *	Return whether or not the given pgno is already marked
  *	SALVAGE_IGNORE (meaning that we don't need to print it again).
  *
- *	Returns DB_KEYEXIST if it is marked, 0 if not, or another error on
- *	error.
- *
- * PUBLIC: int __db_salvage_isdone __P((VRFY_DBINFO *, db_pgno_t));
+ *	Returns DB_KEYEXIST if it is marked, 0 if not, or another error on error.
  */
 int __db_salvage_isdone(VRFY_DBINFO * vdp, db_pgno_t pgno)
 {
@@ -615,8 +583,6 @@ int __db_salvage_isdone(VRFY_DBINFO * vdp, db_pgno_t pgno)
 /*
  * __db_salvage_markdone --
  *	Mark as done a given page.
- *
- * PUBLIC: int __db_salvage_markdone __P((VRFY_DBINFO *, db_pgno_t));
  */
 int __db_salvage_markdone(VRFY_DBINFO * vdp, db_pgno_t pgno)
 {
@@ -658,9 +624,6 @@ int __db_salvage_markdone(VRFY_DBINFO * vdp, db_pgno_t pgno)
  * __db_salvage_markneeded --
  *	If it has not yet been printed, make note of the fact that a page
  *	must be dealt with later.
- *
- * PUBLIC: int __db_salvage_markneeded
- * PUBLIC:     __P((VRFY_DBINFO *, db_pgno_t, uint32));
  */
 int __db_salvage_markneeded(VRFY_DBINFO * vdp, db_pgno_t pgno, uint32 pgtype)
 {
@@ -684,9 +647,6 @@ int __db_salvage_markneeded(VRFY_DBINFO * vdp, db_pgno_t pgno, uint32 pgtype)
 /*
  * __db_vrfy_prdbt --
  *	Print out a DBT data element from a verification routine.
- *
- * PUBLIC: int __db_vrfy_prdbt __P((DBT *, int, const char *, void *,
- * PUBLIC:     int (*)(void *, const void *), int, int, VRFY_DBINFO *));
  */
 int __db_vrfy_prdbt(DBT * dbtp, int checkprint, const char * prefix, void * handle, int (*callback)__P((void *, const void *)), int is_recno, int is_heap, VRFY_DBINFO * vdp)
 {

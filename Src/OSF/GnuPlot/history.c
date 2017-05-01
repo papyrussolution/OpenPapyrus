@@ -348,7 +348,7 @@ void GpHistory::WriteHistoryList(const int num, const char * const filename, con
 #endif
 		{
 			if(!(out = fopen(filename, mode) ) ) {
-				int_warn(NO_CARET, "Cannot open file to save history, using standard output.\n");
+				IntWarn(NO_CARET, "Cannot open file to save history, using standard output.\n");
 				out = stdout;
 			}
 			else {

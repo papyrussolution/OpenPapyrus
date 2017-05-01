@@ -7,21 +7,11 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/log.h"
-// @v9.5.5 #include "dbinc/txn.h"
-// @v9.5.5 #include "dbinc/db_am.h"
 
-static int __dbreg_push_id __P((ENV*, int32));
-static int __dbreg_pop_id __P((ENV*, int32 *));
-static int __dbreg_pluck_id __P((ENV*, int32));
-
+static int __dbreg_push_id(ENV *, int32);
+static int __dbreg_pop_id(ENV *, int32 *);
+static int __dbreg_pluck_id(ENV *, int32);
 /*
  * The dbreg subsystem, as its name implies, registers database handles so
  * that we can associate log messages with them without logging a filename
@@ -86,8 +76,6 @@ static int __dbreg_pluck_id __P((ENV*, int32));
  * entry.  If we later discover that the handle needs to be logged, we can
  * allocate a id for it later.  (This happens when the handle is on a
  * replication client that later becomes a master.)
- *
- * PUBLIC: int __dbreg_setup __P((DB *, const char *, const char *, uint32));
  */
 int __dbreg_setup(DB*dbp, const char * fname, const char * dname, uint32 create_txnid)
 {
@@ -235,27 +223,20 @@ int __dbreg_teardown_int(ENV*env, FNAME * fnp)
 
 	return ret;
 }
-
 /*
  * __dbreg_new_id --
  *	Get an unused dbreg id to this database handle.
  *	Used as a wrapper to acquire the mutex and
  *	only set the id on success.
- *
- * PUBLIC: int __dbreg_new_id __P((DB *, DB_TXN *));
  */
 int __dbreg_new_id(DB*dbp, DB_TXN * txn)
 {
-	DB_LOG * dblp;
-	ENV * env;
-	FNAME * fnp;
-	LOG * lp;
 	int32 id;
 	int ret;
-	env = dbp->env;
-	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
-	fnp = dbp->log_filename;
+	ENV * env = dbp->env;
+	DB_LOG * dblp = env->lg_handle;
+	LOG * lp = (LOG *)dblp->reginfo.primary;
+	FNAME * fnp = dbp->log_filename;
 	/* The mtx_filelist protects the FNAME list and id management. */
 	MUTEX_LOCK(env, lp->mtx_filelist);
 	if(fnp->id != DB_LOGFILEID_INVALID) {
@@ -690,7 +671,6 @@ int __dbreg_log_close(ENV*env, FNAME * fnp, DB_TXN * txn, uint32 op)
 	}
 	return ret;
 }
-
 /*
  * __dbreg_push_id and __dbreg_pop_id --
  *	Dbreg ids from closed files are kept on a stack in shared memory
@@ -701,7 +681,7 @@ int __dbreg_log_close(ENV*env, FNAME * fnp, DB_TXN * txn, uint32 op)
  * The stack is protected by the mtx_filelist, and both functions assume it
  * is already locked.
  */
-static int __dbreg_push_id(ENV*env, int32 id)
+static int __dbreg_push_id(ENV * env, int32 id)
 {
 	int32 * stack, * newstack;
 	int ret;
@@ -733,7 +713,7 @@ static int __dbreg_push_id(ENV*env, int32 id)
 	return 0;
 }
 
-static int __dbreg_pop_id(ENV*env, int32 * id)
+static int __dbreg_pop_id(ENV * env, int32 * id)
 {
 	int32 * stack;
 	DB_LOG * dblp = env->lg_handle;
@@ -758,26 +738,20 @@ static int __dbreg_pop_id(ENV*env, int32 * id)
  */
 static int __dbreg_pluck_id(ENV*env, int32 id)
 {
-	int32 * stack;
-	uint i;
 	DB_LOG * dblp = env->lg_handle;
 	LOG * lp = (LOG *)dblp->reginfo.primary;
-	if(id >= lp->fid_max)
-		return 0;
-	/* Do we have anything to look at? */
-	if(lp->free_fid_stack != INVALID_ROFF) {
-		stack = (int32 *)R_ADDR(&dblp->reginfo, lp->free_fid_stack);
-		for(i = 0; i < lp->free_fids; i++)
-			if(id == stack[i]) {
-				/*
-				 * Found it.  Overwrite it with the top
-				 * id (which may harmlessly be itself),
-				 * and shorten the stack by one.
-				 */
-				stack[i] = stack[lp->free_fids-1];
-				lp->free_fids--;
-				return 0;
-			}
+	if(id < lp->fid_max) {
+		// Do we have anything to look at? 
+		if(lp->free_fid_stack != INVALID_ROFF) {
+			int32 * stack = (int32 *)R_ADDR(&dblp->reginfo, lp->free_fid_stack);
+			for(uint i = 0; i < lp->free_fids; i++)
+				if(id == stack[i]) {
+					// Found it.  Overwrite it with the top id (which may harmlessly be itself), and shorten the stack by one.
+					stack[i] = stack[lp->free_fids-1];
+					lp->free_fids--;
+					return 0;
+				}
+		}
 	}
 	return 0;
 }
@@ -790,8 +764,6 @@ static int __dbreg_pluck_id(ENV*env, int32 id)
  * meta-data may not be fully known, so we can't do a full dbregister.
  * This is a routine exported that will log a complete dbregister
  * record that will allow for both recovery and replication.
- *
- * PUBLIC: int __dbreg_log_id __P((DB *, DB_TXN *, int32, int));
  */
 int __dbreg_log_id(DB*dbp, DB_TXN * txn, int32 id, int needlock)
 {
@@ -814,10 +786,9 @@ int __dbreg_log_id(DB*dbp, DB_TXN * txn, int32 id, int needlock)
 		memcpy(fnp->ufid, dbp->fileid, DB_FILE_ID_LEN);
 	if(fnp->s_type == DB_UNKNOWN)
 		fnp->s_type = dbp->type;
-	/*
-	 * Log the registry.  We should only request a new ID in situations
-	 * where logging is reasonable.
-	 */
+	//
+	// Log the registry.  We should only request a new ID in situations where logging is reasonable.
+	//
 	memzero(&fid_dbt, sizeof(fid_dbt));
 	memzero(&r_name, sizeof(r_name));
 	if(needlock)

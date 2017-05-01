@@ -7,14 +7,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/txn.h"
 
 static int __bam_compact_dups(DBC*, PAGE**, uint32, int, DB_COMPACT*, int *);
 static int __bam_compact_isdone(DBC*, DBT*, PAGE*, int *);
@@ -31,7 +24,6 @@ static int __bam_truncate_root_page(DBC*, PAGE*, uint32, DB_COMPACT *);
 #ifdef HAVE_FTRUNCATE
 static int __bam_savekey __P((DBC*, int, DBT *));
 #endif
-
 /*
  * __bam_csearch -- isolate search code for bam_compact.
  * This routine hides the differences between searching
@@ -60,27 +52,15 @@ static int __bam_csearch(DBC * dbc, DBT * start, uint32 sflag, int level)
 			FLD_CLR(sflag, CS_GETRECNO);
 		}
 		switch(sflag) {
-		    case CS_READ:
-				sflag = SR_READ;
-				break;
-		    case CS_NEXT:
-				sflag = SR_PARENT|SR_READ;
-				break;
-		    case CS_START:
-				level = LEAFLEVEL;
+		    case CS_READ: sflag = SR_READ; break;
+		    case CS_NEXT: sflag = SR_PARENT|SR_READ; break;
+		    case CS_START: level = LEAFLEVEL;
 				/* FALLTHROUGH */
 		    case CS_DEL:
-		    case CS_NEXT_WRITE:
-				sflag = SR_STACK;
-				break;
-		    case CS_NEXT_BOTH:
-				sflag = SR_BOTH|SR_NEXT|SR_WRITE;
-				break;
-		    case CS_PARENT:
-				sflag = SR_PARENT|SR_WRITE;
-				break;
-		    default:
-				return __env_panic(dbc->env, EINVAL);
+		    case CS_NEXT_WRITE: sflag = SR_STACK; break;
+		    case CS_NEXT_BOTH: sflag = SR_BOTH|SR_NEXT|SR_WRITE; break;
+		    case CS_PARENT: sflag = SR_PARENT|SR_WRITE; break;
+		    default: return __env_panic(dbc->env, EINVAL);
 		}
 		if((ret = __bam_rsearch(dbc, &cp->recno, sflag, level, &not_used)) != 0)
 			return ret;
@@ -90,29 +70,14 @@ static int __bam_csearch(DBC * dbc, DBT * start, uint32 sflag, int level)
 	else {
 		FLD_CLR(sflag, CS_GETRECNO);
 		switch(sflag) {
-		    case CS_READ:
-				sflag = SR_READ|SR_DUPFIRST;
-				break;
-		    case CS_DEL:
-				sflag = SR_DEL;
-				break;
-		    case CS_NEXT:
-				sflag = SR_NEXT;
-				break;
-		    case CS_NEXT_WRITE:
-				sflag = SR_NEXT|SR_WRITE;
-				break;
-		    case CS_NEXT_BOTH:
-				sflag = SR_BOTH|SR_NEXT|SR_WRITE;
-				break;
-		    case CS_START:
-				sflag = SR_START|SR_WRITE;
-				break;
-		    case CS_PARENT:
-				sflag = SR_PARENT|SR_WRITE;
-				break;
-		    default:
-				return __env_panic(dbc->env, EINVAL);
+		    case CS_READ: sflag = SR_READ|SR_DUPFIRST; break;
+		    case CS_DEL: sflag = SR_DEL; break;
+		    case CS_NEXT: sflag = SR_NEXT; break;
+		    case CS_NEXT_WRITE: sflag = SR_NEXT|SR_WRITE; break;
+		    case CS_NEXT_BOTH: sflag = SR_BOTH|SR_NEXT|SR_WRITE; break;
+		    case CS_START: sflag = SR_START|SR_WRITE; break;
+		    case CS_PARENT: sflag = SR_PARENT|SR_WRITE; break;
+		    default: return __env_panic(dbc->env, EINVAL);
 		}
 		if(start == NULL || start->size == 0)
 			FLD_SET(sflag, SR_MIN);
@@ -396,18 +361,15 @@ retry:
 		}
 		goto next_page;
 	}
-	/* case 3 -- different parents. */
+	// case 3 -- different parents. 
 	if(*spanp) {
 		CTRACE(dbc, "Span", "", start, 0);
-		/*
-		 * Search the tree looking for the page containing and
-		 * the next page after the current key.
-		 * The stack will be rooted at the page that spans
-		 * the current and next pages. The two subtrees
-		 * are returned below that.  For BTREE the current
-		 * page subtreee will be first while for RECNO the
-		 * next page subtree will be first
-		 */
+		//
+		// Search the tree looking for the page containing and the next page after the current key.
+		// The stack will be rooted at the page that spans the current and next pages. The two subtrees
+		// are returned below that.  For BTREE the current page subtreee will be first while for RECNO the
+		// next page subtree will be first
+		//
 		if(ndbc == NULL && (ret = __dbc_dup(dbc, &ndbc, 0)) != 0)
 			goto err;
 		DB_ASSERT(env, ndbc != NULL);
@@ -617,7 +579,7 @@ retry:
 					if(ret != 0)
 						goto err1;
 				}
-				/* Get a fresh low numbered page. */
+				// Get a fresh low numbered page. 
 				pgno = PGNO(pg);
 				if((ret = __db_exchange_page(dbc, &cp->csp->page, NULL, PGNO_INVALID, DB_EXCH_DEFAULT)) != 0)
 					goto err1;
@@ -698,7 +660,7 @@ retry:
 			epg->page = ppg;
 			goto next_page;
 		}
-		/* Lock and get the next page. */
+		// Lock and get the next page. 
 		TRY_LOCK(dbc, npgno, saved_pgno, saved_lock, DB_LOCK_WRITE, retry);
 		if(ret != 0)
 			goto err1;
@@ -717,7 +679,7 @@ retry:
 					goto err1;
 			}
 			pgno = PGNO(pg);
-			/* Get a fresh low numbered page. */
+			// Get a fresh low numbered page. 
 			if((ret = __db_exchange_page(dbc, &cp->csp->page, npg, PGNO_INVALID, DB_EXCH_DEFAULT)) != 0)
 				goto err1;
 			if((ret = __TLPUT(dbc, prev_lock)) != 0)
@@ -749,11 +711,9 @@ retry:
 		BT_STK_ENTER(env, ncp, npg, 0, ncp->lock, DB_LOCK_WRITE, ret);
 		LOCK_INIT(ncp->lock);
 		npg = NULL;
-
-		/*
-		 * Merge the pages.  This will either free the next
-		 * page or just update its parent pointer.
-		 */
+		//
+		// Merge the pages.  This will either free the next page or just update its parent pointer.
+		//		
 		PTRACE(dbc, "Merge", PGNO(cp->csp->page), start, 0);
 		if((ret = __bam_merge(dbc, ndbc, factor, stop, c_data, &isdone)) != 0)
 			goto err1;
@@ -768,11 +728,11 @@ retry:
 		 */
 		if(cp->csp->page == NULL)
 			goto deleted;
-		/* If we did not bump to the next page something did not fit. */
+		// If we did not bump to the next page something did not fit. 
 		if(npgno != NEXT_PGNO(pg))
 			break;
 	}
-	/* Bottom of the main loop.  Move to the next page. */
+	// Bottom of the main loop.  Move to the next page. 
 	npgno = NEXT_PGNO(pg);
 	cp->recno += NUM_ENT(pg);
 	next_recno = cp->recno;

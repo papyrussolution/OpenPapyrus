@@ -56,7 +56,7 @@ void __db_idspace(uint32 *, int, uint32 *, uint32 *);
 uint32 __db_log2(uint32);
 uint32 __db_tablesize(uint32);
 void __db_hashinit(void *, uint32);
-int __dbt_usercopy(ENV *, DBT *);
+int FASTCALL __dbt_usercopy(ENV *, DBT *);
 void __dbt_userfree(ENV *, DBT *, DBT *, DBT *);
 int __db_mkpath(ENV *, const char *);
 uint32 __db_openflags(int);

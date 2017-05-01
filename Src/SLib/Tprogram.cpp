@@ -44,8 +44,8 @@ TStatusWin::TStatusWin() : TWindow(TRect(1,1,50,20), 0, 1)
 	HW = ::CreateWindowEx(WS_EX_TOPMOST, STATUSCLASSNAME, 0,
 		WS_CHILD|WS_VISIBLE|WS_CLIPSIBLINGS|SBT_TOOLTIPS, 0, 0, 0, 0,
 		APPL->H_MainWnd, (HMENU)0/*111*/, TProgram::GetInst(), 0);
-	TView::SetWindowProp(H(), GWL_USERDATA, this);
-	PrevWindowProc = (WNDPROC)TView::SetWindowProp(H(), GWL_WNDPROC, StatusWinDialogProc);
+	TView::SetWindowProp(H(), GWLP_USERDATA, this);
+	PrevWindowProc = (WNDPROC)TView::SetWindowProp(H(), GWLP_WNDPROC, StatusWinDialogProc);
 }
 //
 // Returns:
@@ -562,7 +562,7 @@ HWND TProgram::GetTreeHWND() const
 	return (P_TreeWnd) ? P_TreeWnd->Hwnd : 0;
 }
 
-BOOL CALLBACK ShortcutsWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK ShortcutsWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch(message) {
 		case WM_INITDIALOG:
@@ -655,7 +655,7 @@ BOOL CALLBACK SendMainWndSizeMessage(HWND hwnd, LPARAM lParam)
 	return TRUE;
 }
 
-BOOL CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int    is_desktop = 0;
 	HWND   h_close_wnd = APPL->H_CloseWnd;
@@ -713,13 +713,13 @@ BOOL CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 				// @v9.1.5 {
 				SString main_text_buf;
 				TView::SGetWindowText(APPL->H_MainWnd, main_text_buf);
-				uint    div_pos = 0;
+				size_t div_pos = 0;
 				if(main_text_buf.Search(" : ", 0, 0, &div_pos))
 					main_text_buf.Trim(div_pos);
 				if(hb) {
 					SString child_text_buf;
 					TView::SGetWindowText(hb, child_text_buf);
-					main_text_buf.CatDiv(':', 1, 0).Cat(child_text_buf);
+					main_text_buf.CatDiv(':', 1).Cat(child_text_buf);
 					ShowWindow(hWnd, SW_SHOWNA);
 					UpdateWindow(hWnd);
 				}
@@ -789,7 +789,7 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 			{
 				LPCREATESTRUCT p_create_data = (LPCREATESTRUCT)lParam;
 				p_pgm = (TProgram *)p_create_data->lpCreateParams;
-				TView::SetWindowProp(hWnd, GWL_USERDATA, p_pgm);
+				TView::SetWindowProp(hWnd, GWLP_USERDATA, p_pgm);
 				p_pgm->H_TopOfStack = hWnd;
 				p_pgm->H_MainWnd = hWnd;
 				BrowserWindow::RegisterClass(TProgram::GetInst());
@@ -815,8 +815,8 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 					2, 2, 12, 12, p_pgm->GetFrameWindow(), 0, TProgram::GetInst(), 0);
 				p_pgm->SetWindowViewByKind(p_pgm->H_ShortcutsWnd, TProgram::wndtypNone);
 				p_pgm->SetWindowViewByKind(p_pgm->H_CloseWnd, TProgram::wndtypNone);
-				p_pgm->PrevCloseWndProc = (WNDPROC)TView::SetWindowProp(p_pgm->H_CloseWnd, GWL_WNDPROC, CloseWndProc);
-				TView::SetWindowProp(p_pgm->H_CloseWnd, GWL_USERDATA, p_pgm);
+				p_pgm->PrevCloseWndProc = (WNDPROC)TView::SetWindowProp(p_pgm->H_CloseWnd, GWLP_WNDPROC, CloseWndProc);
+				TView::SetWindowProp(p_pgm->H_CloseWnd, GWLP_USERDATA, p_pgm);
 				p_pgm->P_Toolbar = new TToolbar(hWnd, 0);
 			}
  			return 0;
@@ -943,7 +943,7 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 				::DestroyWindow(p_pgm->H_ShortcutsWnd);
 				p_pgm->H_ShortcutsWnd = 0;
 			}
-			TView::SetWindowProp(p_pgm->H_CloseWnd, GWL_WNDPROC, p_pgm->PrevCloseWndProc);
+			TView::SetWindowProp(p_pgm->H_CloseWnd, GWLP_WNDPROC, p_pgm->PrevCloseWndProc);
 			ZDELETE(p_pgm->P_Toolbar);
 			PostQuitMessage(0);
 			break;
@@ -1206,7 +1206,7 @@ BOOL CALLBACK SpecTitleWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 	WNDPROC prev_wnd_proc = (WNDPROC)TView::GetWindowUserData(hWnd);
 	switch(message) {
 		case WM_DESTROY:
-			TView::SetWindowProp(hWnd, GWL_WNDPROC, prev_wnd_proc);
+			TView::SetWindowProp(hWnd, GWLP_WNDPROC, prev_wnd_proc);
 			break;
 		case WM_SETFOCUS:
 			return 0;
@@ -1265,7 +1265,7 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 						TView::setFont(title_hwnd, font_face, 24);
 						TView::SetWindowProp(title_hwnd, GWL_STYLE, TView::GetWindowStyle(title_hwnd) & ~WS_TABSTOP);
 						TView::SetWindowProp(title_hwnd, GWL_ID, SPEC_TITLEWND_ID);
-						TView::SetWindowProp(title_hwnd, GWL_USERDATA, TView::SetWindowProp(title_hwnd, GWL_WNDPROC, SpecTitleWndProc));
+						TView::SetWindowProp(title_hwnd, GWLP_USERDATA, TView::SetWindowProp(title_hwnd, GWLP_WNDPROC, SpecTitleWndProc));
 						ShowWindow(title_hwnd, SW_SHOWNORMAL);
 						ReleaseDC(title_hwnd, hdc);
 					}

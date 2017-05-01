@@ -1636,7 +1636,7 @@ int SLAPI PPBackup::LockDatabase()
 					if(PPCheckUserBreak() == 0)
 						ok = -1;
 					else
-						delay(500);
+						SDelay(500);
 			}
 			else
 				ok = -1;
@@ -2466,7 +2466,7 @@ static int SLAPI ProtectDatabase(DbLoginBlock * pDlb, int protect, char * pPw, c
 				if(p_db->GetTableInfo(tbl_list.at(j).Id, &ts) > 0) {
 					PPWaitMsg(ts.TblName);
 					DBS.GetProtectData(buf, 1);
-					THROW_PP(stricmp(buf, pPw) == 0, PPERR_INVPASSWORD);
+					THROW_PP(stricmp(buf, pPw) == 0, PPERR_INVUSERORPASSW);
 					THROW_DB(p_db->ProtectTable(ts.ID, pPw, pNewPw, protect));
 					memzero(buf, sizeof(buf));
 				}
@@ -3058,7 +3058,7 @@ int SLAPI PrcssrTestDb::CreateTa(int use_ta)
 		}
 		for(uint i = 0; i < count; i++) {
 			TestTa01Tbl::Rec rec;
-			delay(20+labs(G.GetUniformInt(100)));
+			SDelay(20+labs(G.GetUniformInt(100)));
 			THROW(GenTa_Rec(&rec));
 			{
 				P_Ta->copyBufFrom(&rec);

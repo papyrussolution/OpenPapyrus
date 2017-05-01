@@ -7,19 +7,10 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/log.h"
 /*
  * log_compare --
  *	Compare two LSN's; return 1, 0, -1 if first is >, == or < second.
- *
- * EXTERN: int log_compare __P((const DB_LSN *, const DB_LSN *));
  */
 int log_compare(const DB_LSN * lsn0, const DB_LSN * lsn1)
 {
@@ -28,8 +19,6 @@ int log_compare(const DB_LSN * lsn0, const DB_LSN * lsn1)
 /*
  * __log_check_page_lsn --
  *	Panic if the page's lsn in past the end of the current log.
- *
- * PUBLIC: int __log_check_page_lsn __P((ENV *, DB *, DB_LSN *));
  */
 int __log_check_page_lsn(ENV * env, DB * dbp, DB_LSN * lsnp)
 {

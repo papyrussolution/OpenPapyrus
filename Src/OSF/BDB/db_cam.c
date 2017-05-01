@@ -69,7 +69,7 @@ static inline int __dbc_put_secondaries(DBC*, DBT*, DBT*, DBT*, int, DBT*, uint3
  *
  * PUBLIC: int __dbc_close(DBC *);
  */
-int __dbc_close(DBC * dbc)
+int FASTCALL __dbc_close(DBC * dbc)
 {
 	int    ret = 0;
 	if(dbc) {
@@ -183,7 +183,7 @@ int __dbc_destroy(DBC * dbc)
  *
  * PUBLIC: int __dbc_cmp __P((DBC *, DBC *, int *));
  */
-int __dbc_cmp(DBC*dbc, DBC*other_dbc, int * result)
+int __dbc_cmp(DBC * dbc, DBC * other_dbc, int * result)
 {
 	DBC * curr_dbc, * curr_odbc;
 	DBC_INTERNAL * dbc_int, * odbc_int;
@@ -469,10 +469,8 @@ int __dbc_dup(DBC*dbc_orig, DBC ** dbcp, uint32 flags)
 	}
 	return 0;
 err:
-	if(dbc_n != NULL)
-		__dbc_close(dbc_n);
-	if(dbc_nopd != NULL)
-		__dbc_close(dbc_nopd);
+	__dbc_close(dbc_n);
+	__dbc_close(dbc_nopd);
 	return ret;
 }
 /*
@@ -504,28 +502,16 @@ int __dbc_idup(DBC * dbc_orig, DBC ** dbcp, uint32 flags)
 		int_n->stream_off = int_orig->stream_off;
 		int_n->stream_curr_pgno = int_orig->stream_curr_pgno;
 		switch(dbc_orig->dbtype) {
-		    case DB_QUEUE:
-			if((ret = __qamc_dup(dbc_orig, dbc_n)) != 0)
-				goto err;
-			break;
+		    case DB_QUEUE: ret = __qamc_dup(dbc_orig, dbc_n); break;
 		    case DB_BTREE:
-		    case DB_RECNO:
-			if((ret = __bamc_dup(dbc_orig, dbc_n, flags)) != 0)
-				goto err;
-			break;
-		    case DB_HASH:
-			if((ret = __hamc_dup(dbc_orig, dbc_n)) != 0)
-				goto err;
-			break;
-		    case DB_HEAP:
-			if((ret = __heapc_dup(dbc_orig, dbc_n)) != 0)
-				goto err;
-			break;
+		    case DB_RECNO: ret = __bamc_dup(dbc_orig, dbc_n, flags); break;
+		    case DB_HASH:  ret = __hamc_dup(dbc_orig, dbc_n); break;
+		    case DB_HEAP:  ret = __heapc_dup(dbc_orig, dbc_n); break;
 		    case DB_UNKNOWN:
-		    default:
-			ret = __db_unknown_type(env, "__dbc_idup", dbc_orig->dbtype);
-			goto err;
+		    default:       ret = __db_unknown_type(env, "__dbc_idup", dbc_orig->dbtype);
 		}
+		if(ret != 0)
+			goto err;
 	}
 	else if(F_ISSET(dbc_orig, DBC_BULK)) {
 		/*
@@ -588,7 +574,7 @@ int __dbc_newopd(DBC * dbc_parent, db_pgno_t root, DBC * oldopd, DBC ** dbcp)
 	 * leave the main cursor in our caller with a non-NULL pointer
 	 * to a freed off-page dup cursor.
 	 */
-	if(oldopd != NULL && (ret = __dbc_close(oldopd)) != 0)
+	if(oldopd && (ret = __dbc_close(oldopd)) != 0)
 		return ret;
 	return 0;
 }
@@ -892,8 +878,7 @@ done:
 		}
 		/*
 		 * If opd is set then we dupped the opd that we came in with.
-		 * When we return we may have a new opd if we went to another
-		 * key.
+		 * When we return we may have a new opd if we went to another key.
 		 */
 		if(opd != NULL) {
 			DB_ASSERT(env, cp_n->opd == NULL);
@@ -960,12 +945,10 @@ err:    /* Don't pass DB_DBT_ISSET back to application level, error or no. */
  */
 static inline int __dbc_put_resolve_key(DBC * dbc, DBT * oldkey, DBT * olddata, uint32 * put_statep, uint32 flags)
 {
-	DB * dbp;
-	ENV * env;
-	int ret, rmw;
-	dbp = dbc->dbp;
-	env = dbp->env;
-	rmw = FLD_ISSET(*put_statep, DBC_PUT_RMW) ? DB_RMW : 0;
+	int ret;
+	DB * dbp = dbc->dbp;
+	ENV * env = dbp->env;
+	int rmw = FLD_ISSET(*put_statep, DBC_PUT_RMW) ? DB_RMW : 0;
 	DB_ASSERT(env, flags == DB_CURRENT);
 	COMPQUIET(flags, 0);
 
@@ -994,15 +977,12 @@ static inline int __dbc_put_resolve_key(DBC * dbc, DBT * oldkey, DBT * olddata, 
  */
 static inline int __dbc_put_append(DBC*dbc, DBT * key, DBT * data, uint32 * put_statep, uint32 flags)
 {
-	DB * dbp;
-	ENV * env;
-	DBC * dbc_n;
+	DBC * dbc_n = 0;
 	DBT tdata;
-	int ret, t_ret;
-	dbp = dbc->dbp;
-	env = dbp->env;
-	ret = 0;
-	dbc_n = NULL;
+	DB * dbp = dbc->dbp;
+	ENV * env = dbp->env;
+	int t_ret;
+	int ret = 0;
 	DB_ASSERT(env, flags == DB_APPEND);
 	COMPQUIET(flags, 0);
 	/*
@@ -1073,17 +1053,13 @@ err:
  */
 static inline int __dbc_put_partial(DBC*dbc, DBT * pkey, DBT * data, DBT * orig_data, DBT * out_data, uint32 * put_statep, uint32 flags)
 {
-	DB * dbp;
 	DBC * pdbc;
-	ENV * env;
-	int ret, rmw, t_ret;
-
-	dbp = dbc->dbp;
-	env = dbp->env;
-	ret = t_ret = 0;
-	rmw = FLD_ISSET(*put_statep, DBC_PUT_RMW) ? DB_RMW : 0;
-	if(!FLD_ISSET(*put_statep, DBC_PUT_HAVEREC) &&
-	   !FLD_ISSET(*put_statep, DBC_PUT_NODEL)) {
+	DB * dbp = dbc->dbp;
+	ENV * env = dbp->env;
+	int ret = 0;
+	int t_ret = 0;
+	int rmw = FLD_ISSET(*put_statep, DBC_PUT_RMW) ? DB_RMW : 0;
+	if(!FLD_ISSET(*put_statep, DBC_PUT_HAVEREC) && !FLD_ISSET(*put_statep, DBC_PUT_NODEL)) {
 		/*
 		 * We're going to have to search the tree for the
 		 * specified key.  Dup a cursor (so we have the same
@@ -1099,7 +1075,7 @@ static inline int __dbc_put_partial(DBC*dbc, DBT * pkey, DBT * data, DBT * orig_
 
 		F_SET(pkey, DB_DBT_ISSET);
 		ret = __dbc_get(pdbc, pkey, orig_data, rmw|DB_SET);
-		if(ret == DB_KEYEMPTY || ret == DB_NOTFOUND) {
+		if(oneof2(ret, DB_KEYEMPTY, DB_NOTFOUND)) {
 			FLD_SET(*put_statep, DBC_PUT_NODEL);
 			ret = 0;
 		}
@@ -1125,13 +1101,11 @@ static inline int __dbc_put_partial(DBC*dbc, DBT * pkey, DBT * data, DBT * orig_
  */
 static inline int __dbc_put_fixed_len(DBC*dbc, DBT * data, DBT * out_data)
 {
-	DB * dbp;
-	ENV * env;
-	int re_pad, ret;
+	int re_pad;
 	uint32 re_len, size;
-	dbp = dbc->dbp;
-	env = dbp->env;
-	ret = 0;
+	DB * dbp = dbc->dbp;
+	ENV * env = dbp->env;
+	int ret = 0;
 	/*
 	 * Handle fixed-length records.  If the primary database has
 	 * fixed-length records, we need to pad out the datum before
@@ -1338,18 +1312,16 @@ static inline int __dbc_put_secondaries(DBC*dbc, DBT * pkey, DBT * data, DBT * o
 			 *	exists with a different primary, return an error;  and if the secondary does not exist, put it.
 			 */
 			if(!F_ISSET(sdbp, DB_AM_DUP)) {
-				/* Case 3. */
+				// Case 3. 
 				memzero(&oldpkey, sizeof(DBT));
 				F_SET(&oldpkey, DB_DBT_MALLOC);
 				ret = __dbc_get(sdbc, tskeyp, &oldpkey, rmw|DB_SET);
 				if(ret == 0) {
 					cmp = __bam_defcmp(sdbp, &oldpkey, pkey);
 					__os_ufree(env, oldpkey.data);
-					/*
-					 * If the secondary key is unchanged,
-					 * skip the put and go on to the next
-					 * one.
-					 */
+					//
+					// If the secondary key is unchanged, skip the put and go on to the next one.
+					//
 					if(cmp == 0)
 						continue;
 					__db_errx(env, DB_STR("0695", "Put results in a non-unique secondary key in an index not configured to support duplicates"));
@@ -1359,15 +1331,14 @@ static inline int __dbc_put_secondaries(DBC*dbc, DBT * pkey, DBT * data, DBT * o
 					break;
 			}
 			else if(!F_ISSET(sdbp, DB_AM_DUPSORT)) {
-				/* Case 2. */
+				// Case 2. 
 				DB_INIT_DBT(tempskey, tskeyp->data, tskeyp->size);
 				DB_INIT_DBT(temppkey, pkey->data, pkey->size);
 				ret = __dbc_get(sdbc, &tempskey, &temppkey, rmw|DB_GET_BOTH);
 				if(ret != DB_NOTFOUND && ret != DB_KEYEMPTY)
 					break;
 			}
-			ret = __dbc_put(sdbc, tskeyp, pkey,
-				DB_UPDATE_SECONDARY);
+			ret = __dbc_put(sdbc, tskeyp, pkey, DB_UPDATE_SECONDARY);
 			/*
 			 * We don't know yet whether this was a put-overwrite
 			 * that in fact changed nothing.  If it was, we may get
@@ -1597,11 +1568,10 @@ done:
 err:
 	if((t_ret = __dbc_cleanup(dbc, dbc_n, ret)) != 0 && ret == 0)
 		ret = t_ret;
-	/* If newdata or olddata were used, free their buffers. */
-	if(newdata.data != NULL && newdata.data != data->data)
+	// If newdata or olddata were used, free their buffers
+	if(newdata.data != data->data)
 		__os_free(env, newdata.data);
-	if(olddata.data != NULL)
-		__os_ufree(env, olddata.data);
+	__os_ufree(env, olddata.data);
 	CDB_LOCKING_DONE(env, dbc);
 	if(sdbp != NULL && (t_ret = __db_s_done(sdbp, dbc->txn)) != 0 && ret == 0)
 		ret = t_ret;

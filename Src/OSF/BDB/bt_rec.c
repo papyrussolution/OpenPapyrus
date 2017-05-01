@@ -453,22 +453,20 @@ check_next:     /*
 		 * If it's a root split and the left child ever existed, update
 		 * its LSN.   Otherwise its the split page. If
 		 * right child ever existed, root split or not, update its LSN.
-		 * The undo of the page allocation(s) will restore them to the
-		 * free list.
+		 * The undo of the page allocation(s) will restore them to the free list.
 		 */
 		if(rootsplit && lp != NULL && LOG_COMPARE(lsnp, &LSN(lp)) == 0) {
 			REC_DIRTY(mpf, ip, file_dbp->priority, &lp);
 			lp->lsn = argp->llsn;
 		}
-		if(rp != NULL && LOG_COMPARE(lsnp, &LSN(rp)) == 0) {
+		if(rp && LOG_COMPARE(lsnp, &LSN(rp)) == 0) {
 			REC_DIRTY(mpf, ip, file_dbp->priority, &rp);
 			rp->lsn = argp->rlsn;
 		}
-		/*
-		 * Drop the lower level pages before getting an exclusive
-		 * latch on  the parent.
-		 */
-		if(rp != NULL && (ret = __memp_fput(mpf, ip, rp, file_dbp->priority)))
+		//
+		// Drop the lower level pages before getting an exclusive latch on  the parent.
+		//
+		if(rp && (ret = __memp_fput(mpf, ip, rp, file_dbp->priority)))
 			goto out;
 		rp = NULL;
 		/*

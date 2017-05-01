@@ -746,11 +746,11 @@ DBQuery * SLAPI PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSub
 		}
 		else {
 			if(Filt.PrcID) {
-				pSubTitle->CatDiv(';', 0, 1);
+				pSubTitle->CatDivIfNotEmpty(';', 0);
 				GetObjectName(PPOBJ_PROCESSOR, Filt.PrcID, *pSubTitle, 1);
 			}
 			if(Filt.TechID) {
-				pSubTitle->CatDiv(';', 0, 1);
+				pSubTitle->CatDivIfNotEmpty(';', 0);
 				GetObjectName(PPOBJ_TECH, Filt.TechID, *pSubTitle, 1);
 			}
 		}
@@ -1665,7 +1665,7 @@ DBQuery * SLAPI PPViewTSessLine::CreateBrowserQuery(uint * pBrwId, SString * pSu
 		GetObjectName(PPOBJ_TSESSION, Filt.TSesList.GetSingle(), *pSubTitle, 0);
 		if(Filt.GoodsID) {
 			SString goods_name;
-			pSubTitle->CatDiv('-', 1, 1).Cat(GetGoodsName(Filt.GoodsID, goods_name));
+			pSubTitle->CatDivIfNotEmpty('-', 1).Cat(GetGoodsName(Filt.GoodsID, goods_name));
 		}
 	}
 	CATCH
@@ -2059,7 +2059,7 @@ int PPALDD_TSessionView::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_TSessionView::Destroy()
+void PPALDD_TSessionView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(TSession);
 }
@@ -2107,7 +2107,7 @@ int PPALDD_TSessionCipView::NextIteration(long iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_TSessionCipView::Destroy()
+void PPALDD_TSessionCipView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(TSession);
 }
@@ -2154,7 +2154,7 @@ int PPALDD_TSessionBillView::NextIteration(long iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_TSessionBillView::Destroy()
+void PPALDD_TSessionBillView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(TSession);
 }
@@ -2205,7 +2205,7 @@ int PPALDD_TSessLineView::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_TSessLineView::Destroy()
+void PPALDD_TSessLineView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(TSessLine);
 }

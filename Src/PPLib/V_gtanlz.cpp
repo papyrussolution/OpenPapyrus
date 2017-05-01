@@ -473,7 +473,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 					gctf.Flags |= (uint)OPG_LABELONLY;
 				if(oneof2(Filt.Sgg, sggSuppl, sggSupplAgent))
 					gctf.Flags |= OPG_PROCESSBYLOTS;
-				THROW(BeginGoodsGroupingProcess(&gctf, &agg));
+				THROW(agg.BeginGoodsGroupingProcess(&gctf));
 				goods_list.clear();
 				if(gctf.BillList.IsExists()) {
 					local_goods_list.clear();
@@ -666,7 +666,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 					}
 					PPWaitPercent(iter_no, iters_count);
 				}
-				EndGoodsGroupingProcess(&agg);
+				agg.EndGoodsGroupingProcess();
 			}
 			THROW(tra.Commit());
 		}
@@ -1194,14 +1194,13 @@ int PPALDD_GoodsTaxAnlz::NextIteration(PPIterID iterId, long rsrv)
 	return DlRtm::NextIteration(iterId, rsrv);
 }
 
-int PPALDD_GoodsTaxAnlz::Destroy()
+void PPALDD_GoodsTaxAnlz::Destroy()
 {
 	if(Extra[0].Ptr) {
 		delete (PPViewGoodsTaxAnalyze*)Extra[0].Ptr;
 		Extra[0].Ptr = 0;
 	}
 	Extra[1].Ptr = 0;
-	return 1;
 }
 //
 // Implementation of PPALDD_GTaxAnlzTotal
@@ -1289,8 +1288,7 @@ int PPALDD_GTaxAnlzTotal::NextIteration(PPIterID iterId, long rsrv)
 	return DlRtm::NextIteration(iterId, rsrv);
 }
 
-int PPALDD_GTaxAnlzTotal::Destroy()
+void PPALDD_GTaxAnlzTotal::Destroy()
 {
 	Extra[1].Ptr = Extra[0].Ptr = 0;
-	return 1;
 }

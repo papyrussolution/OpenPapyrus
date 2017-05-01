@@ -7,17 +7,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/heap.h"
-// @v9.5.5 #include "dbinc/partition.h"
-// @v9.5.5 #include "dbinc/qam.h"
-// @v9.5.5 #include "dbinc/db_verify.h"
 
 static int __db_bmeta(ENV*, DB*, BTMETA*, uint32);
 static int __db_heapmeta(ENV*, DB*, HEAPMETA*, uint32);
@@ -113,12 +103,9 @@ static const FN __db_flags_fn[] = {
 	{ DB_AM_VERIFYING,              "verifier" },
 	{ 0,                            NULL }
 };
-
 /*
  * __db_get_flags_fn --
  *	Return the __db_flags_fn array.
- *
- * PUBLIC: const FN * __db_get_flags_fn();
  */
 const FN * __db_get_flags_fn()
 {
@@ -219,8 +206,6 @@ static int __db_prtree(DB * dbp, DB_TXN * txn, uint32 flags, db_pgno_t first, db
 /*
  * __db_prnpage
  *	-- Print out a specific page.
- *
- * PUBLIC: int __db_prnpage __P((DB *, DB_TXN *, db_pgno_t));
  */
 int __db_prnpage(DB * dbp, DB_TXN * txn, db_pgno_t pgno)
 {
@@ -237,8 +222,6 @@ int __db_prnpage(DB * dbp, DB_TXN * txn, db_pgno_t pgno)
 /*
  * __db_prpage
  *	-- Print out a page.
- *
- * PUBLIC: int __db_prpage __P((DB *, PAGE *, uint32));
  */
 int __db_prpage(DB * dbp, PAGE * h, uint32 flags)
 {
@@ -550,45 +533,36 @@ int __db_prpage_int(ENV * env, DB_MSGBUF * mbp, DB * dbp, char * lead, PAGE * h,
 	if(!HEAPTYPE(h))
 		__db_msgadd(env, mbp, " level %lu", (ulong)h->level);
 	/* Record count. */
-	if(TYPE(h) == P_IBTREE || TYPE(h) == P_IRECNO ||
-	   (dbp != NULL && TYPE(h) == P_LRECNO &&
-	    h->pgno == ((BTREE *)dbp->bt_internal)->bt_root))
+	if(TYPE(h) == P_IBTREE || TYPE(h) == P_IRECNO || (dbp != NULL && TYPE(h) == P_LRECNO && h->pgno == ((BTREE *)dbp->bt_internal)->bt_root))
 		__db_msgadd(env, mbp, " records: %lu", (ulong)RE_NREC(h));
 	DB_MSGBUF_FLUSH(env, mbp);
 
 	switch(TYPE(h)) {
-	    case P_BTREEMETA:
-		return __db_bmeta(env, dbp, (BTMETA *)h, flags);
-	    case P_HASHMETA:
-		return __db_hmeta(env, dbp, (HMETA *)h, flags);
-	    case P_QAMMETA:
-		return __db_qmeta(env, dbp, (QMETA *)h, flags);
+	    case P_BTREEMETA: return __db_bmeta(env, dbp, (BTMETA *)h, flags);
+	    case P_HASHMETA:  return __db_hmeta(env, dbp, (HMETA *)h, flags);
+	    case P_QAMMETA:   return __db_qmeta(env, dbp, (QMETA *)h, flags);
 	    case P_QAMDATA:                     /* Should be meta->start. */
-		if(!LF_ISSET(DB_PR_PAGE) || dbp == NULL)
+			if(!LF_ISSET(DB_PR_PAGE) || dbp == NULL)
+				return 0;
+			qlen = ((QUEUE *)dbp->q_internal)->re_len;
+			recno = (h->pgno-1)*QAM_RECNO_PER_PAGE(dbp)+1;
+			i = 0;
+			qep = (QAMDATA *)((uint8 *)h+pagesize-qlen);
+			for(qp = QAM_GET_RECORD(dbp, h, i); qp < qep;
+				recno++, i++, qp = QAM_GET_RECORD(dbp, h, i)) {
+				if(!F_ISSET(qp, QAM_SET))
+					continue;
+				__db_msgadd(env, mbp, "%s", F_ISSET(qp, QAM_VALID) ? "\t" : "       D");
+				__db_msgadd(env, mbp, "[%03lu] %4lu ", (ulong)recno, (ulong)((uint8 *)qp-(uint8 *)h));
+				__db_prbytes(env, mbp, qp->data, qlen);
+			}
 			return 0;
-		qlen = ((QUEUE *)dbp->q_internal)->re_len;
-		recno = (h->pgno-1)*QAM_RECNO_PER_PAGE(dbp)+1;
-		i = 0;
-		qep = (QAMDATA *)((uint8 *)h+pagesize-qlen);
-		for(qp = QAM_GET_RECORD(dbp, h, i); qp < qep;
-		    recno++, i++, qp = QAM_GET_RECORD(dbp, h, i)) {
-			if(!F_ISSET(qp, QAM_SET))
-				continue;
-			__db_msgadd(env, mbp, "%s",
-				F_ISSET(qp, QAM_VALID) ? "\t" : "       D");
-			__db_msgadd(env, mbp, "[%03lu] %4lu ", (ulong)recno,
-				(ulong)((uint8 *)qp-(uint8 *)h));
-			__db_prbytes(env, mbp, qp->data, qlen);
-		}
-		return 0;
-	    case P_HEAPMETA:
-		return __db_heapmeta(env, dbp, (HEAPMETA *)h, flags);
+	    case P_HEAPMETA: return __db_heapmeta(env, dbp, (HEAPMETA *)h, flags);
 	    case P_IHEAP:
-		if(!LF_ISSET(DB_PR_PAGE))
-			return 0;
-		return __db_heapint(dbp, (HEAPPG *)h, flags);
-	    default:
-		break;
+			if(!LF_ISSET(DB_PR_PAGE))
+				return 0;
+			return __db_heapint(dbp, (HEAPPG *)h, flags);
+	    default: break;
 	}
 	s = "\t";
 	if(!HEAPTYPE(h) && TYPE(h) != P_IBTREE && TYPE(h) != P_IRECNO) {
@@ -1109,9 +1083,6 @@ int __db_prdbt(DBT * dbtp, int checkprint, const char * prefix, void * handle, i
 /*
  * __db_prheader --
  *	Write out header information in the format expected by db_load.
- *
- * PUBLIC: int	__db_prheader __P((DB *, const char *, int, int, void *,
- * PUBLIC:     int (*)(void *, const void *), VRFY_DBINFO *, db_pgno_t));
  */
 int __db_prheader(DB * dbp, const char * subname, int pflag, int keyflag, void * handle, int (*callback)__P((void *, const void *)), VRFY_DBINFO * vdp, db_pgno_t meta_pgno)
 {
@@ -1164,21 +1135,10 @@ int __db_prheader(DB * dbp, const char * subname, int pflag, int keyflag, void *
 		dbtype = DB_BTREE;
 	else if(using_vdp)
 		switch(pip->type) {
-		    case P_BTREEMETA:
-			if(F_ISSET(pip, VRFY_IS_RECNO))
-				dbtype = DB_RECNO;
-			else
-				dbtype = DB_BTREE;
-			break;
-		    case P_HASHMETA:
-			dbtype = DB_HASH;
-			break;
-		    case P_HEAPMETA:
-			dbtype = DB_HEAP;
-			break;
-		    case P_QAMMETA:
-			dbtype = DB_QUEUE;
-			break;
+		    case P_BTREEMETA: dbtype = F_ISSET(pip, VRFY_IS_RECNO) ? DB_RECNO : DB_BTREE; break;
+		    case P_HASHMETA: dbtype = DB_HASH; break;
+		    case P_HEAPMETA: dbtype = DB_HEAP; break;
+		    case P_QAMMETA: dbtype = DB_QUEUE; break;
 		    default:
 			/*
 			 * If the meta page is of a bogus type, it's because
@@ -1462,8 +1422,6 @@ err:
  *	Print the footer that marks the end of a DB dump.  This is trivial,
  *	but for consistency's sake we don't want to put its literal contents
  *	in multiple places.
- *
- * PUBLIC: int __db_prfooter __P((void *, int (*)(void *, const void *)));
  */
 int __db_prfooter(void * handle, int (*callback)__P((void *, const void *)))
 {
@@ -1472,8 +1430,6 @@ int __db_prfooter(void * handle, int (*callback)__P((void *, const void *)))
 /*
  * __db_pr_callback --
  *	Callback function for using pr_* functions from C.
- *
- * PUBLIC: int  __db_pr_callback __P((void *, const void *));
  */
 int __db_pr_callback(void * handle, const void * str_arg)
 {
@@ -1486,8 +1442,6 @@ int __db_pr_callback(void * handle, const void * str_arg)
 /*
  * __db_dbtype_to_string --
  *	Return the name of the database type.
- *
- * PUBLIC: const char * __db_dbtype_to_string __P((DBTYPE));
  */
 const char * __db_dbtype_to_string(DBTYPE type)
 {

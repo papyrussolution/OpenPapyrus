@@ -951,7 +951,7 @@ int SLAPI TestAsteriskAmiClient(PPID phnSvcID)
 					}
 				}
 				*/
-				delay(1000);
+				SDelay(1000);
 			}
 			// ...
 			THROW(client.Logout());

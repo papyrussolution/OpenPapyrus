@@ -182,7 +182,7 @@ int SLAPI StringStore2::CreateHash(int doTest)
 		if(slc > 16) { // Если количество сигнатур не больше 16 то нет смысла городить огород с хэшем
 			// Размер хэша должен быть точно больше количества сигнатур и при этом должен быть простым числом
 			size_t hash_size = slc+1;
-			while(!IsPrime(hash_size))
+			while(!IsPrime((ulong)hash_size))
 				hash_size++;
 			THROW_MEM(P_SignatureHash = new SymbHashTable(hash_size, 0));
 			for(uint i = 0; i < slc; i++) {
@@ -199,7 +199,7 @@ int SLAPI StringStore2::CreateHash(int doTest)
 				const uint lc = p_item->List.getCount();
 				if(lc > 16) {
 					size_t hash_size = lc+1;
-					while(!IsPrime(hash_size))
+					while(!IsPrime((ulong)hash_size))
 						hash_size++;
 					THROW_MEM(p_item->P_PositionHash = new StringStore2::Hash(hash_size));
 					for(uint i = 0; i < lc; i++) {
@@ -265,7 +265,7 @@ SymbHashTable * SLAPI StringStore2::LoadStringHash(int group) const
 			if(str_id_list.getCount()) {
 				SString temp_buf;
 				uint result_count = 0;
-                uint ht_size = str_id_list.getCount()+1;
+                uint ht_size = (str_id_list.getCount() * 3);
                 while(!IsPrime(ht_size))
 					ht_size++;
 				THROW_MEM(p_tab = new SymbHashTable(ht_size, 0));
@@ -732,7 +732,7 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 			for(SDirec direc(temp_buf, 0); direc.Next(&de) > 0;) {
 				if(!de.IsFolder()) {
 					temp_buf = de.FileName;
-					uint   hyphen_pos = 0;
+					size_t hyphen_pos = 0;
                     if(temp_buf.StrChr('-', &hyphen_pos)) {
                         temp_buf.Sub(hyphen_pos+1, temp_buf.Len(), lang_symb = 0);
 						int    slang = RecognizeLinguaSymb(lang_symb, 0);
@@ -1024,7 +1024,7 @@ int SLAPI StringStore2::Write(SFile & rF, LangStrCollItem * pData)
 		for(uint i = 0; i < pData->DescrList.getCount(); i++) {
             long   offs = rF.Tell();
             const  StrAssocArray::Item item = pData->DescrList.at(i);
-            const  uint32 tlen = sstrlen(item.Txt);
+            const  size_t tlen = sstrlen(item.Txt);
             THROW(rF.Write(&item.Id, sizeof(item.Id)));
 			THROW(rF.Write(&tlen, sizeof(tlen)));
 			if(tlen)
@@ -1251,7 +1251,7 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 	*/
 	EXCEPTVAR(ErrCode);
 	int    ok = 1;
-	uint   pos;
+	size_t pos;
 	SString left, right;
 	SString temp_buf;
 	(TempBuf = rStr).Chomp().Strip();
@@ -1357,7 +1357,7 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 				//
 				// Разбор идентификации строки {
 				//
-				TempBuf.Strip(pos).Strip();
+				TempBuf.Trim(pos).Strip(); // @v9.6.4 @fix TempBuf.Strip(pos).Strip()-->TempBuf.Trim(pos).Strip() @todo Необходима провека
 				rScan.Set(TempBuf, 0);
 				int    slang = -1;
 				int    is_ident = 0; // Признак того, что строка идентифицирована

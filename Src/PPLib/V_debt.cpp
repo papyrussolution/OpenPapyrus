@@ -2614,7 +2614,7 @@ int PPALDD_DebtTrnovr::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_DebtTrnovr::Destroy()
+void PPALDD_DebtTrnovr::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(DebtTrnovr);
 }
@@ -4849,7 +4849,7 @@ int PPALDD_DebtorStat::NextIteration(long iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_DebtorStat::Destroy()
+void PPALDD_DebtorStat::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(DebtorStat);
 }

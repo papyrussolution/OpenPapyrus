@@ -7,23 +7,12 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
-// @v9.5.5 #include "dbinc/partition.h"
-// @v9.5.5 #include "dbinc/qam.h"
 
 static int __env_lsn_reset __P((ENV*, DB_THREAD_INFO*, const char *, int));
 /*
  * __env_lsn_reset_pp --
  *	ENV->lsn_reset pre/post processing.
- *
- * PUBLIC: int __env_lsn_reset_pp __P((DB_ENV *, const char *, uint32));
  */
 int __env_lsn_reset_pp(DB_ENV * dbenv, const char * name, uint32 flags)
 {
@@ -87,7 +76,6 @@ err:
 }
 /*
  * __db_lsn_reset -- reset the lsn for a db mpool handle.
- * PUBLIC: int __db_lsn_reset __P((DB_MPOOLFILE *, DB_THREAD_INFO *));
  */
 int __db_lsn_reset(DB_MPOOLFILE * mpf, DB_THREAD_INFO * ip)
 {

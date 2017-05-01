@@ -7,14 +7,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/txn.h"
 /*
  * __lock_failchk --
  *	Check for locks held by dead threads of control and release
@@ -22,8 +15,6 @@
  *	lockers then we must abort and run recovery.  Otherwise we release
  *	read locks for lockers owned by dead threads.  Write locks for
  *	dead transactional lockers will be freed when we abort the transaction.
- *
- * PUBLIC: int __lock_failchk(ENV *);
  */
 int __lock_failchk(ENV * env)
 {

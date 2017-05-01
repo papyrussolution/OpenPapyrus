@@ -7,7 +7,7 @@ extern "C" {
 #endif
 
 int __memp_alloc(DB_MPOOL *, REGINFO *, MPOOLFILE *, size_t, roff_t *, void *);
-void __memp_free(REGINFO *, void *);
+void FASTCALL __memp_free(REGINFO *, void *);
 int __memp_bhwrite(DB_MPOOL *, DB_MPOOL_HASH *, MPOOLFILE *, BH *, int);
 int __memp_pgread(DB_MPOOLFILE *, BH *, int);
 int __memp_pg(DB_MPOOLFILE *, db_pgno_t, void *, int);

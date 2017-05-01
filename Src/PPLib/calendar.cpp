@@ -1,12 +1,12 @@
 // CALENDAR.CPP
-// Copyright (c) A.Fedotkov, A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016
+// Copyright (c) A.Fedotkov, A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017
 //
 #include <pp.h>
 // #include <ppdlgs.h>
 #pragma hdrstop
 
-static BOOL CALLBACK CalendarWndProc(HWND, UINT, WPARAM, LPARAM);
-static BOOL CALLBACK PeriodWndProc(HWND, UINT, WPARAM, LPARAM);
+static INT_PTR CALLBACK CalendarWndProc(HWND, UINT, WPARAM, LPARAM);
+static INT_PTR CALLBACK PeriodWndProc(HWND, UINT, WPARAM, LPARAM);
 
 class TCalendar {
 public:
@@ -51,7 +51,7 @@ static const _TCHAR __Days[7][3] = {_T("Ïí"), _T("Âò"), _T("Ñð"), _T("×ò"), _T("
 
 class TDateCalendar : public TCalendar {
 public:
-	static BOOL CALLBACK CalendarDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK CalendarDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	TDateCalendar(TDialog * pDlg, uint pDateCtlID)
 	{
@@ -269,7 +269,7 @@ int TDateCalendar::OnTodaySelection()
 }
 
 // static
-BOOL CALLBACK TDateCalendar::CalendarDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK TDateCalendar::CalendarDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	TDateCalendar * dc = 0;
 	RECT r;
@@ -1260,7 +1260,7 @@ int TDateCalendar::StepMonth(HWND hWnd, int forward)
 	return ok;
 }
 
-BOOL CALLBACK CalendarWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK CalendarWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	TDateCalendar * dc = (TDateCalendar *)TView::GetWindowUserData(hWnd);
 	switch(message) {
@@ -1448,7 +1448,7 @@ void SLAPI SetupCalCtrl(int buttCtlID, TDialog * pDlg, uint editCtlID, uint T)
 				case WM_DESTROY:
 					TView::SetWindowUserData(hWnd, (void *)0);
 					if(p_cbwe->PrevWndProc) {
-						TView::SetWindowProp(hWnd, GWL_WNDPROC, p_cbwe->PrevWndProc);
+						TView::SetWindowProp(hWnd, GWLP_WNDPROC, p_cbwe->PrevWndProc);
 					}
 					delete p_cbwe;
 					return 0;
@@ -1487,9 +1487,9 @@ void SLAPI SetupCalCtrl(int buttCtlID, TDialog * pDlg, uint editCtlID, uint T)
 		static HBITMAP hbm_daterange = 0; // @global @threadsafe
 		static HBITMAP hbm_calendar = 0;  // @global @threadsafe
 		const int cal_type = BIN(oneof3(T, 1, 2, 3)); // 1 - period, 0 - date
-		CalButtonWndEx * p_cbwe = new CalButtonWndEx(pDlg, editCtlID, cal_type, (WNDPROC)TView::GetWindowProp(hwnd, GWL_WNDPROC));
+		CalButtonWndEx * p_cbwe = new CalButtonWndEx(pDlg, editCtlID, cal_type, (WNDPROC)TView::GetWindowProp(hwnd, GWLP_WNDPROC));
 		TView::SetWindowUserData(hwnd, p_cbwe);
-		TView::SetWindowProp(hwnd, GWL_WNDPROC, CalButtonWndEx::WndProc);
+		TView::SetWindowProp(hwnd, GWLP_WNDPROC, CalButtonWndEx::WndProc);
 		// @v9.1.11 {
 		{
 			RECT r, cr;
@@ -1599,7 +1599,7 @@ int TPeriodCalendar::SelectByFastPrd(HWND hWnd)
 	return 1;
 }
 
-static BOOL CALLBACK PeriodWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+static INT_PTR CALLBACK PeriodWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int    ret = 0;
 	HWND   edit, but1;

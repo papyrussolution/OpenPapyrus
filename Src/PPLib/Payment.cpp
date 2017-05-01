@@ -2293,7 +2293,7 @@ int PPALDD_PaymBillList::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_PaymBillList::Destroy()
+void PPALDD_PaymBillList::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(PaymBill);
 }

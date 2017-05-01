@@ -7,16 +7,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/hmac.h"
-// @v9.5.5 #include "dbinc/db_am.h"
-// @v9.5.5 #include "dbinc/txn.h"
 
 static int __db_env_init(DB_ENV *);
 static void __env_err(const DB_ENV*, int, const char *, ...);
@@ -1303,11 +1294,8 @@ int __env_set_verbose(DB_ENV * dbenv, uint32 which, int on)
 	    case DB_VERB_REPMGR_CONNFAIL:
 	    case DB_VERB_REPMGR_MISC:
 	    case DB_VERB_WAITSFOR:
-		if(on)
-			FLD_SET(dbenv->verbose, which);
-		else
-			FLD_CLR(dbenv->verbose, which);
-		break;
+			SETFLAG(dbenv->verbose, which, on);
+			break;
 	    default:
 		return EINVAL;
 	}

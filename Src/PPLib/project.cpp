@@ -264,7 +264,7 @@ int SLAPI PPObjProject::GetFullName(PPID id, SString & rBuf)
 				return PPSetErrorSLib();
 		} while(parent_id && Search(parent_id, &rec) > 0);
 		while(name_stack.pop(name_buf))
-			rBuf.CatDiv('/', 1, 1).Cat(name_buf);
+			rBuf.CatDivIfNotEmpty('/', 1).Cat(name_buf);
 		ok = 1;
 	}
 	return ok;
@@ -1553,7 +1553,7 @@ int SLAPI PPObjPrjTask::SubstDescr(PrjTaskTbl::Rec * pPack)
 	PPSymbTranslator st;
 	for(char * p = pPack->Descr; *p;) {
 		if(*p == '@') {
-			uint   next = 1;
+			size_t next = 1;
 			long   sym  = st.Translate(p, &next);
 			switch(sym) {
 				case PPSYM_CLIENT:
@@ -2515,7 +2515,7 @@ int PPALDD_ProjectView::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_ProjectView::Destroy()
+void PPALDD_ProjectView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(Project);
 }

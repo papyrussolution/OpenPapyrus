@@ -406,7 +406,7 @@ static void image_do_crop()
 		else
 			im_crop = gdImageCreate(x, y);
 		if(!im_crop) {
-			int_warn(NO_CARET, "libgd: failed to create cropped image structure");
+			IntWarn(NO_CARET, "libgd: failed to create cropped image structure");
 			return;
 		}
 		bg = gdImageColorAllocateAlpha(im_crop, 255, 255, 255, 127);
@@ -956,7 +956,7 @@ static void PNG_options(GpCommand & rC)
 				    if(i > 0 && i < 999)
 					    png_state.default_ttfsize = i;
 				    else
-					    int_warn(rC.CToken, "illegal font size");
+					    IntWarn(rC.CToken, "illegal font size");
 				    rC.CToken++;
 				    break;
 			    }
@@ -973,7 +973,7 @@ static void PNG_options(GpCommand & rC)
 	if(gif_anim_option) {
 #ifndef GIF_ANIMATION /* animated gifs not supported by the current GD library */
 		png_state.animate = false;
-		int_warn(NO_CARET, "gif animation options ignored (not compiled into this binary)");
+		IntWarn(NO_CARET, "gif animation options ignored (not compiled into this binary)");
 #endif
 	}
 
@@ -2331,10 +2331,10 @@ static void gd_iconv(char ** string)
 		iconv_string = malloc(len2, "iconv string");
 		stmp = iconv_string;
 		if((cd = iconv_open("Shift_JIS", "UTF-8")) == (iconv_t)-1)
-			int_warn(NO_CARET, "iconv_open failed");
+			IntWarn(NO_CARET, "iconv_open failed");
 		else {
 			if(iconv(cd, (void*)string, &len1, &stmp, &len2) == (size_t)-1)
-				int_warn(NO_CARET, "iconv failed");
+				IntWarn(NO_CARET, "iconv failed");
 			else
 				*string = iconv_string;
 			iconv_close(cd);
@@ -2346,10 +2346,10 @@ static void gd_iconv(char ** string)
 		iconv_string = malloc(len2, "iconv string");
 		stmp = iconv_string;
 		if((cd = iconv_open("UTF-8", "Shift_JIS")) == (iconv_t)-1)
-			int_warn(NO_CARET, "iconv_open failed");
+			IntWarn(NO_CARET, "iconv_open failed");
 		else {
 			if(iconv(cd, (void*)string, &len1, &stmp, &len2) == (size_t)-1)
-				int_warn(NO_CARET, "iconv failed");
+				IntWarn(NO_CARET, "iconv failed");
 			else
 				*string = iconv_string;
 			iconv_close(cd);
@@ -2359,10 +2359,10 @@ static void gd_iconv(char ** string)
 #else /* ! HAVE_ICONV */
 #ifdef JIS_GDLIB
 	if(encoding == S_ENC_UTF8)
-		int_warn(NO_CARET, "This gdlib supports Shift_JIS encoding, but not UTF-8.");
+		IntWarn(NO_CARET, "This gdlib supports Shift_JIS encoding, but not UTF-8.");
 #else
 	if(encoding == S_ENC_SJIS) // Shift_JIS -> UTF-8 
-		int_warn(NO_CARET, "This gdlib supports UTF-8 encoding, but not Shift_JIS.");
+		IntWarn(NO_CARET, "This gdlib supports UTF-8 encoding, but not Shift_JIS.");
 #endif
 #endif /* HAVE_ICONV */
 }

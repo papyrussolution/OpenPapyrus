@@ -82,6 +82,7 @@
 // @stypeset  - помечаются участки кода, где не полностью учтен набор типов данных STYPE
 // @sfu-r     - временная пометка для вызовов updateRec и updateRecBuf означающая, что
 //              предварительный вызов search приведен к searchForUpdate
+// @speedcritical - пометка, означающая, что код введен ради ускорения критичной по времени исполнения функции
 //
 // @todo Повторная загрузка на асинхронный узел всех объектов, начиная с заданной записи журнала загрузки
 // @todo В примитивы бизнес-показателей добавить фильтрацию по группам
@@ -99,8 +100,6 @@
 #include <ppdbs.h>
 #include <ppdefs.h>
 #include <report.h>
-//#include <ctype.h>
-//#include <tv.h> // @v9.2.0
 #include <snet.h>
 #include <stylopalm.h>
 #include <stylobhtII.h>
@@ -12125,13 +12124,13 @@ private:
 //
 //
 //
-class DGQCore : public DGQTbl {
+/* @v9.6.4 (useless) class DGQCore : public DGQTbl {
 public:
 	SLAPI  DGQCore();
 	int    SLAPI SearchQuery(const S_GUID & rUuid, DGQTbl::Rec * pRec);
     int    SLAPI PutQuery(const S_GUID & rUuid, int queryType, int use_ta);
     int    SLAPI CommitQuery(const S_GUID & rUuid, int use_ta);
-};
+}; */
 //
 // Класс ObjSync управляет синхронизацией объектов в распределенной БД
 //
@@ -12812,6 +12811,12 @@ public:
 		double PrevDestRest; // @*SCardCore::GetOp() Остаток по карте DestSCardID перед операцией (Flags & fEdit)
 	};
 	//
+	struct UpdateRestNotifyEntry {
+		PPID   SCardID;
+		double PrevRest;
+		double NewRest;
+	};
+	//
 	// Descr: Определяет диапазон префиксов карт, которые могут быть сгенерированы
 	//   по шаблону pTemplate.
 	//
@@ -12856,10 +12861,10 @@ public:
 	int    SLAPI GetLastOpByCard(PPID cardID, LDATE dt, SCardOpTbl::Rec *);
 	int    SLAPI EnumOpByCard(PPID cardID, LDATETIME *, SCardOpTbl::Rec *);
 	int    SLAPI PutOpByBill(PPID billID, PPID scardID, LDATE dt, double amount, int use_ta);
-	int    SLAPI PutOpRec(const SCardOpTbl::Rec * pRec, int use_ta);
+	int    SLAPI PutOpRec(const SCardOpTbl::Rec * pRec, TSArray <UpdateRestNotifyEntry> * pNotifyList, int use_ta);
 
 	int    SLAPI GetOp(PPID cardID, const LDATETIME & rDtm, OpBlock * pBlk);
-	int    SLAPI PutOpBlk(const OpBlock & rBlk, int use_ta);
+	int    SLAPI PutOpBlk(const OpBlock & rBlk, TSArray <UpdateRestNotifyEntry> * pNotifyList, int use_ta);
 	int    SLAPI GetOpByLinkObj(PPObjID oid, TSArray <OpBlock> & rList);
 	int    SLAPI GetFreezingOpList(PPID cardID, TSArray <OpBlock> & rList);
 
@@ -12890,7 +12895,7 @@ public:
 
 	SCardOpTbl ScOp;
 private:
-	int    SLAPI UpdateRest(PPID, double rest, int use_ta);
+	int    SLAPI UpdateRest_(PPID, double rest, TSArray <UpdateRestNotifyEntry> * pNotifyList, int use_ta);
 	int    SLAPI UpdateExpiryDelta(PPID id, long delta, int use_ta);
 };
 //
@@ -30621,11 +30626,14 @@ private:
 class AdjGdsGrpng {
 public:
 	SLAPI  AdjGdsGrpng();
-	int    SLAPI PrevPaymentList(const GCTFilt *);
+	int    SLAPI BeginGoodsGroupingProcess(const GCTFilt * pFilt);
+	int    SLAPI EndGoodsGroupingProcess();
+
 	DateRange Period;
 	PPIDArray BillList;
 	PPIDArray SupplAgentBillList;
 private:
+	int    SLAPI PrevPaymentList(const GCTFilt *);
 	int    SLAPI MakeBillIDList(const GCTFilt * pF, const PPIDArray * pOpList, int byReckon);
 };
 
@@ -30669,9 +30677,6 @@ private:
 	PPObjBill::PplBlock * P_PplBlk;
 	PPLogger * P_Logger; // @notowned
 };
-//
-int  SLAPI BeginGoodsGroupingProcess(const GCTFilt *, AdjGdsGrpng *);
-int  SLAPI EndGoodsGroupingProcess(AdjGdsGrpng *);
 //
 //
 //
@@ -30745,7 +30750,6 @@ private:
 #define PPVTB_INVOICELISTBUY     4L // Реестр входящих счетов-фактур
 #define PPVTB_SIMPLELEDGER       5L // Книга доходов/расходов для упрощенной схемы налогообложения //
 
-// @v7.6.1 class VATBCfg : public ObjRestrictArray {
 class VATBCfg {
 public:
 	//
@@ -31445,6 +31449,7 @@ public:
 	//
 	int    SLAPI CheckRestrictions(const SCardTbl::Rec * pRec, long flags, LDATETIME dtm);
 	int    SLAPI CheckExpiredBillDebt(PPID scardID);
+	int    SLAPI FinishSCardUpdNotifyList(const TSArray <SCardCore::UpdateRestNotifyEntry> & rList);
 	//
 	int    SLAPI IndexPhones(int use_ta);
 protected:
@@ -43514,7 +43519,7 @@ private:
 	};
 	long   State;
 	const  UtmEntry * P_UtmEntry; // @notowned
-	DGQCore * P_Dgq;
+	// @v9.6.4 (useless) DGQCore * P_Dgq;
 	SString EncBuf;
 	StringSet ExclChrgOnMarks; // @v8.9.12 Список марок, которые должны быть исключены при постановке лотов на баланс
 	PPLocAddrStruc * P_Las;
@@ -45418,7 +45423,7 @@ public:
         int    SLAPI Put(const Node * pN, size_t count, uint64 * pOuterID, size_t * pActualCount);
 		int    SLAPI Get(uint64 outerID, TSArray <Node> & rList);
 		size_t SLAPI GetSize() const;
-		int    SLAPI GetCount(uint * pLogicCount, uint * pActualCount);
+		int    SLAPI GetCount(uint64 outerID, uint * pLogicCount, uint * pActualCount);
 		//
 		// Descr: Возвращает заголовочный идентификатор кластера.
 		// Note: Функция non-const из-за операций чтения SBuffer, которые
@@ -45435,7 +45440,7 @@ public:
 		// Note: Так же как и GetHeaderID эта функция non-const по спецификации,
 		//   но фактически состояния объекта не меняет.
 		//
-		int    FASTCALL GetTile(Tile * pT);
+		int    FASTCALL GetTile(uint64 outerID, Tile * pT);
 		const void * FASTCALL GetBuffer(size_t * pSize) const;
 		//
 		// Descr: Формирует блок кластера из "сырого" буфера данных.
@@ -45448,6 +45453,7 @@ public:
 			indfCountMask   = (0x01 | 0x02 | 0x04), // Маска битов, представляющих количество точек в пакете.
 				// 0: 1, 1: 2, 2: 4, 3: 8, 4: 16, 5: 32, 6: 64, 7: 128
 			indfId32        = 0x08, // Идентификатор точки представлен 32-битным значением
+			indfOuterId     = 0x10  // Идентификатор точки хранится отдельно (специально для K-V хранилищ: ид держится в ключе)
 		};
 		enum {
 			infindfEmpty         = 0x01, // Точка отсутствует (пропуск идентификатора). Все остальные флаги в этом случае незначимы.
@@ -45557,17 +45563,6 @@ public:
 	int    SLAPI Run();
 	void   SLAPI Reset();
 private:
-	enum {
-		tUnkn = 1,
-		tOsm = 2,
-		tBounds,
-		tNode,
-		tWay,
-		tRelation,
-		tNd,
-		tTag,
-		tMember
-	};
 	struct CommonAttrSet {
 		SLAPI  CommonAttrSet();
 		void   SLAPI Reset();
@@ -45619,6 +45614,7 @@ private:
 	};
 	long   Phase;
 	PrcssrOsmFilt P;
+	const SymbHashTable * P_ShT; // Таблица символов, полученная вызовом PPGetStringHash(int)
 
 	xmlParserCtxtPtr SaxCtx;
 	TSStack <int> TokPath;
@@ -45629,10 +45625,36 @@ private:
 	PPOsm::Way  LastWay;
 	PPOsm::Relation LastRel;
 	//
-	int64  NodeCount;
-	int64  NakedNodeCount; // Количество узлов без тегов
-	int64  WayCount;
-	int64  RelationCount;
+	//int64  NodeCount;
+	//int64  NakedNodeCount; // Количество узлов без тегов
+	//int64  WayCount;
+	//int64  RelationCount;
+	struct StatBlock {
+		SLAPI  StatBlock()
+		{
+			Clear();
+		}
+		void   SLAPI Clear()
+		{
+			NodeCount = 0;
+			NakedNodeCount = 0;
+			WayCount = 0;
+			RelationCount = 0;
+			TagNodeCount = 0;
+			TagWayCount = 0;
+			TagRelCount = 0;
+			NcList.clear();
+		}
+		uint64 NodeCount;
+		uint64 NakedNodeCount; // Количество узлов без тегов
+		uint64 WayCount;
+		uint64 RelationCount;
+		uint64 TagNodeCount;
+		uint64 TagWayCount;
+		uint64 TagRelCount;
+		TSArray <PPOsm::NodeClusterStatEntry> NcList;
+	};
+	StatBlock Stat;
 
 	LongArray LatAccum;
 	LongArray LonAccum;
@@ -45655,6 +45677,7 @@ private:
 
 	struct ProcessBlock {
 		SString TempBuf;
+		SString AttrBuf;
 		SString LineBuf;
 		SString TagKeyBuf; // Временный буфер для хранения ключа тега
 		SString TagValBuf; // Временный буфер для хранения значения тега
@@ -48283,7 +48306,7 @@ int     SLAPI ViewLogs();
 int     SLAPI DatabaseCutting();
 //
 // Descr: Функция возвращает указатель на строку сигнатуры кнопки, управляющей отображением календаря.
-//   Сигнатура необходима для идентификации типа кнопки посредством вызова TView::GetWindowProp(hWnd, GWL_USERDATA)
+//   Сигнатура необходима для идентификации типа кнопки посредством вызова TView::GetWindowProp(hWnd, GWLP_USERDATA)
 //   Если указатель на пользовательские данные не нулевой и в начале содержится строка сигнатуры, возвращаемая
 //   GetCalCtrlSignature, то кнопка относится к искомому типу.
 //

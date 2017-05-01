@@ -184,8 +184,8 @@
     <_ProjectFileVersion>14.0.24720.0</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
     <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules />
@@ -196,12 +196,12 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules />
     <CodeAnalysisRuleAssemblies />
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\x64\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\x64\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules />
@@ -212,8 +212,8 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules />
     <CodeAnalysisRuleAssemblies />
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\x64\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\x64\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
     <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
@@ -652,6 +652,12 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\OSF\BDB;..\OSF\BDB\dbinc;..\OSF\BDB\buildinc\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
+    <ClCompile>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -675,6 +681,9 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="..\OSF\BDB\bdb_memp.c" />
+    <ClCompile Include="..\OSF\BDB\bdb_mutex.c" />
+    <ClCompile Include="..\OSF\BDB\bdb_txn.c" />
     <ClCompile Include="..\Osf\Bdb\btree_auto.c" />
     <ClCompile Include="..\Osf\Bdb\bt_compact.c" />
     <ClCompile Include="..\Osf\Bdb\bt_compare.c" />
@@ -816,28 +825,6 @@
     <ClCompile Include="..\Osf\Bdb\log_verify_int.c" />
     <ClCompile Include="..\Osf\Bdb\log_verify_util.c" />
     <ClCompile Include="..\Osf\Bdb\mkpath.c" />
-    <ClCompile Include="..\Osf\Bdb\mp_alloc.c" />
-    <ClCompile Include="..\Osf\Bdb\mp_bh.c" />
-    <ClCompile Include="..\Osf\Bdb\mp_fget.c" />
-    <ClCompile Include="..\Osf\Bdb\mp_fmethod.c" />
-    <ClCompile Include="..\Osf\Bdb\mp_fopen.c" />
-    <ClCompile Include="..\Osf\Bdb\mp_fput.c" />
-    <ClCompile Include="..\Osf\Bdb\mp_fset.c" />
-    <ClCompile Include="..\Osf\Bdb\mp_method.c" />
-    <ClCompile Include="..\Osf\Bdb\mp_mvcc.c" />
-    <ClCompile Include="..\Osf\Bdb\mp_region.c" />
-    <ClCompile Include="..\Osf\Bdb\mp_register.c" />
-    <ClCompile Include="..\Osf\Bdb\mp_resize.c" />
-    <ClCompile Include="..\Osf\Bdb\mp_stat.c" />
-    <ClCompile Include="..\Osf\Bdb\mp_sync.c" />
-    <ClCompile Include="..\Osf\Bdb\mp_trickle.c" />
-    <ClCompile Include="..\Osf\Bdb\mut_alloc.c" />
-    <ClCompile Include="..\Osf\Bdb\mut_failchk.c" />
-    <ClCompile Include="..\Osf\Bdb\mut_method.c" />
-    <ClCompile Include="..\Osf\Bdb\mut_region.c" />
-    <ClCompile Include="..\Osf\Bdb\mut_stat.c" />
-    <ClCompile Include="..\Osf\Bdb\mut_tas.c" />
-    <ClCompile Include="..\Osf\Bdb\mut_win32.c" />
     <ClCompile Include="..\Osf\Bdb\openflags.c" />
     <ClCompile Include="..\OSF\BDB\os\bdb_os.c" />
     <ClCompile Include="..\Osf\Bdb\os_method.c" />
@@ -881,16 +868,7 @@
     <ClCompile Include="..\Osf\Bdb\seq_stat.c" />
     <ClCompile Include="..\Osf\Bdb\sha1.c" />
     <ClCompile Include="..\Osf\Bdb\test_mutex.c" />
-    <ClCompile Include="..\Osf\Bdb\txn.c" />
     <ClCompile Include="..\Osf\Bdb\txn_auto.c" />
-    <ClCompile Include="..\Osf\Bdb\txn_chkpt.c" />
-    <ClCompile Include="..\Osf\Bdb\txn_failchk.c" />
-    <ClCompile Include="..\Osf\Bdb\txn_method.c" />
-    <ClCompile Include="..\Osf\Bdb\txn_rec.c" />
-    <ClCompile Include="..\Osf\Bdb\txn_recover.c" />
-    <ClCompile Include="..\Osf\Bdb\txn_region.c" />
-    <ClCompile Include="..\Osf\Bdb\txn_stat.c" />
-    <ClCompile Include="..\Osf\Bdb\txn_util.c" />
     <ClCompile Include="..\Osf\Bdb\util_arg.c" />
     <ClCompile Include="..\Osf\Bdb\util_cache.c" />
     <ClCompile Include="..\Osf\Bdb\util_log.c" />

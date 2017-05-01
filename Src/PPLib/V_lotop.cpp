@@ -464,7 +464,7 @@ int PPALDD_LotOps::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_LotOps::Destroy()
+void PPALDD_LotOps::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(LotOp);
 }

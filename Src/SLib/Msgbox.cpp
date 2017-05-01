@@ -17,7 +17,7 @@ struct MsgBoxDlgFuncParam {
 static SString & FASTCALL ConvertMsgString(const char * pMsg, SString & rBuf)
 {
 	rBuf = pMsg;
-	uint _p = 0;
+	size_t _p = 0;
 	while(rBuf.StrChr('\003', &_p))
 		rBuf.Excise(_p, 1);
 	return rBuf.Transf(CTRANSF_INNER_TO_OUTER);
@@ -155,7 +155,7 @@ ushort messageBox(const char * pMsg, ushort aOptions)
 		MsgBoxDlgFuncParam msg_param;
 		msg_param.P_Msg = pMsg;
 		msg_param.Options = aOptions;
-		ret = APPL->DlgBoxParam((aOptions & mfLargeBox) ? DLGW_MSGBOX_L : DLGW_MSGBOX, hw_parent, (DLGPROC)MessageBoxDialogFunc, (long)&msg_param);
+		ret = APPL->DlgBoxParam((aOptions & mfLargeBox) ? DLGW_MSGBOX_L : DLGW_MSGBOX, hw_parent, (DLGPROC)MessageBoxDialogFunc, (LPARAM)&msg_param);
 	}
 	return ret;
 }

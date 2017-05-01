@@ -968,7 +968,7 @@ SString & SLAPI GetExtLocationName(const ObjIdListFilt & rLocList, size_t maxIte
 		PPObjLocation loc_obj; // @frame
 		for(uint i = 0; i < rLocList.GetCount(); i++) {
 			if(i > 0)
-				rBuf.CatDiv(';', 2, 0);
+				rBuf.CatDiv(';', 2);
 			if(maxItems && i >= maxItems) {
 				rBuf.Dot().Dot();
 				break;
@@ -1007,16 +1007,14 @@ DbfTable * SLAPI CreateDbfTable(uint rezID, const char * fName, int forceReplace
 {
 	uint   num_flds = 0;
 	int    exists = 0;
-	char   fn[MAXPATH];
-	long   sDBK = 0x0044424BL; // "DBK"
 	DbfTable     * p_tbl  = 0;
 	DBFCreateFld * p_flds = 0;
-	STRNSCPY(fn, fName);
-	if(fileExists(fn)) {
+	SString file_name = fName;
+	if(::fileExists(file_name)) {
 		if(forceReplace) {
-			replaceExt(fn, (char*)&sDBK, 1);
-			::remove(fn);
-			::rename(fName, fn);
+			SPathStruc::ReplaceExt(file_name, "DBK", 1);
+			SFile::Remove(file_name);
+			SFile::Rename(fName, file_name);
 		}
 		else
 			exists = 1;
@@ -2194,7 +2192,7 @@ static SString & SLAPIV Helper_PPFormat(const SString & rFmt, SString * pBuf, /*
 								buf.Cat(loc_rec.Name);
 								LocationCore::GetAddress(loc_rec, 0, temp_buf = 0);
 								if(temp_buf.NotEmptyS())
-									buf.CatDiv(';', 2, 1).Cat(temp_buf);
+									buf.CatDivIfNotEmpty(';', 2).Cat(temp_buf);
 							}
 							if(buf.Len() == preserve_buf_len)
 								ideqvalstr(obj_id, buf);

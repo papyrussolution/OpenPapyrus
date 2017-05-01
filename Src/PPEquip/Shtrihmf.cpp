@@ -581,7 +581,7 @@ int SLAPI ACS_SHTRIHMFRK::ImportFiles()
 			SFile query_file(PathFlag, SFile::mWrite);
 			query_file.Close();
 			THROW(ftp.SafePut(PathFlag, ftp_path_flag, 0, 0, 0));
-			delay(60 * 1000);
+			SDelay(60 * 1000);
 			*/
 			path_rpt = PathRpt;
 			for(double j = 0; j < timeouts_c; j++) {
@@ -594,7 +594,7 @@ int SLAPI ACS_SHTRIHMFRK::ImportFiles()
 					break;
 				}
 				else
-					delay(delay_quant);
+					SDelay(delay_quant);
 			}
 		}
 		else {
@@ -630,7 +630,7 @@ int SLAPI ACS_SHTRIHMFRK::ImportFiles()
 						break;
 					}
 					else
-						delay(delay_quant);
+						SDelay(delay_quant);
 				}
 			}
 		}

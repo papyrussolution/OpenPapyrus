@@ -152,8 +152,7 @@ int __rep_elect_int(ENV*env, uint32 given_nsites, uint32 nvotes, uint32 flags)
 master:         LOG_SYSTEM_LOCK(env);
 		lsn = lp->lsn;
 		LOG_SYSTEM_UNLOCK(env);
-		__rep_send_message(env,
-			DB_EID_BROADCAST, REP_NEWMASTER, &lsn, NULL, 0, 0);
+		__rep_send_message(env, DB_EID_BROADCAST, REP_NEWMASTER, &lsn, NULL, 0, 0);
 		if(IS_USING_LEASES(env))
 			ret = __rep_lease_refresh(env);
 		if(ret == 0)
@@ -169,8 +168,7 @@ master:         LOG_SYSTEM_LOCK(env);
 		FLD_SET(rep->elect_flags, REP_E_PHASE0);
 		egen = rep->egen;
 		REP_SYSTEM_UNLOCK(env);
-		__rep_send_message(env, DB_EID_BROADCAST,
-			REP_MASTER_REQ, NULL, NULL, 0, 0);
+		__rep_send_message(env, DB_EID_BROADCAST, REP_MASTER_REQ, NULL, NULL, 0, 0);
 		/*
 		 * The only possible non-zero return from __rep_wait() is a
 		 * panic for a mutex failure.  So the state of the PHASE0 flag
@@ -285,9 +283,8 @@ master:         LOG_SYSTEM_LOCK(env);
 		RPRINT(env, (env, DB_VERB_REP_ELECT, "Found egen %lu, abandon my election at egen %lu", (ulong)rep->egen, (ulong)egen));
 		goto err_locked;
 	}
-	/* Generate a randomized tiebreaker value. */
+	// Generate a randomized tiebreaker value.
 	__os_unique_id(env, &tiebreaker);
-
 	FLD_SET(rep->elect_flags, REP_E_PHASE1);
 	FLD_CLR(rep->elect_flags, REP_E_TALLY);
 	/*
@@ -296,8 +293,7 @@ master:         LOG_SYSTEM_LOCK(env);
 	 * If, during lockout, acquiring mutexes, etc, the client has now
 	 * re-granted its lease, we're done - a master exists.
 	 */
-	if(IS_USING_LEASES(env) &&
-	   __rep_islease_granted(env)) {
+	if(IS_USING_LEASES(env) && __rep_islease_granted(env)) {
 		ret = 0;
 		goto err_locked;
 	}
@@ -577,8 +573,7 @@ int __rep_vote1(ENV * env, __rep_control_args * rp, DBT * rec, int eid)
 		LOG_SYSTEM_LOCK(env);
 		lsn = lp->lsn;
 		LOG_SYSTEM_UNLOCK(env);
-		__rep_send_message(env,
-			DB_EID_BROADCAST, REP_NEWMASTER, &lsn, NULL, 0, 0);
+		__rep_send_message(env, DB_EID_BROADCAST, REP_NEWMASTER, &lsn, NULL, 0, 0);
 		return ret;
 	}
 	/*
@@ -627,8 +622,7 @@ int __rep_vote1(ENV * env, __rep_control_args * rp, DBT * rec, int eid)
 				return ret;
 			DB_INIT_DBT(data_dbt, buf, len);
 		}
-		__rep_send_message(env,
-			eid, REP_ALIVE, &rp->lsn, &data_dbt, 0, 0);
+		__rep_send_message(env, eid, REP_ALIVE, &rp->lsn, &data_dbt, 0, 0);
 		return 0;
 	}
 	if(vi->egen > rep->egen) {

@@ -62,6 +62,24 @@ int BDbDatabase::SetupErrLog(const char * pFileName)
 	return ok;
 }
 
+BDbDatabase::Config::Config()
+{
+	Flags = 0;
+	CacheSize = 0;
+	CacheCount = 0;
+	PageSize = 0; // @v9.6.4
+	MaxLockers = 0;
+	MaxLocks = 0;    // @v9.6.4
+	MaxLockObjs = 0;  // @v9.6.4
+	LogBufSize = 0;
+	LogFileSize = 0;
+	// @v8.3.5 {
+	MutexCountInit = 0;
+	MutexCountMax = 0;
+	MutexCountIncr = 0;
+	// } @v8.3.5
+}
+
 int BDbDatabase::GetCurrentConfig(Config & rCfg)
 {
 	int    ok = 1;
@@ -72,6 +90,16 @@ int BDbDatabase::GetCurrentConfig(Config & rCfg)
 			THROW(ProcessError(E->get_cachesize(E, &gb, &b, &n)));
 			rCfg.CacheSize = ((int64)gb * 1024i64 * 1024i64 * 1024i64) + b;
 			rCfg.CacheCount = (uint)n;
+		}
+		{
+			uint32 v = 0;
+			THROW(ProcessError(E->get_memory_init(E, DB_MEM_LOCK, &v)));
+			rCfg.MaxLocks = v;
+		}
+		{
+			uint32 v = 0;
+			THROW(ProcessError(E->get_memory_init(E, DB_MEM_LOCKOBJECT, &v)));
+			rCfg.MaxLockObjs = v;
 		}
 		{
 			uint32 v = 0;
@@ -135,9 +163,16 @@ int BDbDatabase::Helper_SetConfig(const char * pHomeDir, Config & rCfg)
 			THROW(ProcessError(E->set_cachesize(E, gb, b, n)));
 		}
 		if(rCfg.MaxLockers) {
-			uint32 v = rCfg.MaxLockers;
-			THROW(ProcessError(E->set_memory_init(E, DB_MEM_LOCKER, v)));
+			THROW(ProcessError(E->set_memory_init(E, DB_MEM_LOCKER, rCfg.MaxLockers)));
 		}
+		// @v9.6.4 {
+		if(rCfg.MaxLocks) {
+			THROW(ProcessError(E->set_memory_init(E, DB_MEM_LOCK, rCfg.MaxLocks)));
+		}
+		if(rCfg.MaxLockObjs) {
+			THROW(ProcessError(E->set_memory_init(E, DB_MEM_LOCKOBJECT, rCfg.MaxLockObjs)));
+		}
+		// } @v9.6.4 
 		if(rCfg.MutexCountInit) {
 			THROW(ProcessError(E->mutex_set_init(E, rCfg.MutexCountInit)));
 		}
@@ -187,6 +222,10 @@ BDbDatabase::BDbDatabase(const char * pHomeDir, Config * pCfg, long options)
 		int    opf = DB_CREATE|DB_INIT_MPOOL|DB_INIT_LOCK|DB_USE_ENVIRON|DB_INIT_TXN;
 		if(options & oRecover)
 			opf |= DB_RECOVER;
+		// @v9.6.4 {
+		if(options & oPrivate)
+			opf |= DB_PRIVATE;
+		// } @v9.6.4 
 		// @todo Организовать восстановление транзакций (DB_RECOVER) при запуске приложения.
 #ifdef _MT
 		opf |= DB_THREAD;
@@ -349,23 +388,32 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl)
 	SString file_name, tbl_name;
 	int    r2 = BDbDatabase::SplitFileName(pFileName, file_name, tbl_name);
 	THROW(ProcessError(db_create(&p_db, E, 0)));
-	if(pTbl && pTbl->Implement_Cmp(0, 0) == 1) {
-		DBTYPE db_type = (DBTYPE)0;
-		if(p_db->get_type(p_db, &db_type) == 0) {
-			if(db_type == DB_BTREE) {
-				p_db->set_bt_compare(p_db, BDbTable::CmpCallback);
-			}
-			else if(db_type == DB_HASH) {
-				p_db->set_h_compare(p_db, BDbTable::CmpCallback);
+	if(pTbl) {
+		if(pTbl->Implement_Cmp(0, 0) == 1) {
+			DBTYPE db_type = (DBTYPE)0;
+			if(p_db->get_type(p_db, &db_type) == 0) {
+				if(db_type == DB_BTREE) {
+					p_db->set_bt_compare(p_db, BDbTable::CmpCallback);
+				}
+				else if(db_type == DB_HASH) {
+					p_db->set_h_compare(p_db, BDbTable::CmpCallback);
+				}
 			}
 		}
+		/*
+		if(pTbl->Cfg.CacheSize) {
+			const uint32 _gb = (pTbl->Cfg.CacheSize / (1024 * 1024));
+			const uint32 _b  = (pTbl->Cfg.CacheSize % (1024 * 1024)) * 1024;
+			THROW(ProcessError(p_db->set_cachesize(p_db, _gb, _b, 1)));
+		}
+		*/
 	}
 	{
 		int    opf = DB_AUTO_COMMIT | DB_MULTIVERSION | DB_READ_UNCOMMITTED;
 #ifdef _MT
 		opf |= DB_THREAD;
 #endif
-		r = p_db->open(p_db, T.T, (r2 > 0) ? (const char *)file_name : 0, (r2 == 2) ? (const char *)tbl_name : 0, DB_UNKNOWN, opf, 0 /*mode*/);
+		r = p_db->open(p_db, T.T, (r2 > 0) ? file_name.cptr() : 0, (r2 == 2) ? tbl_name.cptr() : 0, DB_UNKNOWN, opf, 0 /*mode*/);
 	}
 	THROW(ProcessError(r));
 	CATCH
@@ -408,6 +456,9 @@ int BDbDatabase::Helper_Create(const char * pFileName, int createMode, BDbTable:
 	THROW(ProcessError(db_create(&p_db, E, 0)));
 	if(pCfg->Flags & (BDbTable::cfDup/*|BDbTable::cfEncrypt*/)) {
 		THROW(ProcessError(p_db->set_flags(p_db, DB_DUP)));
+	}
+	if(pCfg->PageSize) {
+		THROW(ProcessError(p_db->set_pagesize(p_db, pCfg->PageSize)));
 	}
 	{
 		int    opf = (DB_CREATE|DB_AUTO_COMMIT);
@@ -483,7 +534,7 @@ long BDbDatabase::CreateSequence(const char * pName, int64 initVal)
 	if(!P_SeqT) {
 		SString file_name;
 		(file_name = "system.db").Cat("->").Cat("sequence");
-		BDbTable::Config cfg(file_name, BDbTable::idxtypHash);
+		BDbTable::Config cfg(file_name, BDbTable::idxtypHash, 0, 0, 0);
 		THROW_D(P_SeqT = new BDbTable(cfg, this), BE_NOMEM);
 		THROW(P_SeqT->GetState(BDbTable::stOpened));
 	}
@@ -753,15 +804,19 @@ BDbTable::Buffer & FASTCALL BDbTable::Buffer::operator = (const uint64 & rVal)
 
 BDbTable::Buffer & FASTCALL BDbTable::Buffer::Set(const void * pData, size_t sz)
 {
-	Reset();
 	const size_t src_size = sz;
-	if(src_size && Alloc(ALIGNSIZE(src_size, 6))) {
-		if(pData)
-			memcpy(B, pData, src_size);
-		else
-			memzero(B, src_size);
-		Size = src_size;
+	if(src_size) {
+		// Alloc вызывает Reset потому здесь его вызывать не надо (быстродействие критично)
+		if(Alloc(ALIGNSIZE(src_size, 6))) {
+			if(pData)
+				memcpy(B, pData, src_size);
+			else
+				memzero(B, src_size);
+			Size = src_size;
+		}
 	}
+	else
+		Reset();
 	return *this;
 }
 
@@ -838,12 +893,26 @@ int FASTCALL BDbTable::Buffer::Get(int64 * pBuf) const
 //
 //
 //
-BDbTable::Config::Config(const char * pName, int idxType /*= idxtypDefault*/, long flags /*= 0*/)
+//BDbTable::Config::Config(const char * pName, int idxType /*= idxtypDefault*/, long flags /*= 0*/)
+BDbTable::Config::Config(const char * pName, int idxType, long flags, uint32 pageSize, uint32 cacheSizeKb)
 {
+	Clear();
 	IdxType = idxType;
 	Flags = flags;
+	PageSize = pageSize;
+	CacheSize = cacheSizeKb;
 	DataChunk = 1024;
 	Name = pName;
+}
+
+void BDbTable::Config::Clear()
+{
+	IdxType = idxtypDefault;
+	Flags = 0;
+	DataChunk = 0;
+	CacheSize = 0;
+	PageSize = 0;
+	Name = 0;
 }
 //
 //
@@ -869,17 +938,26 @@ int BDbTable::SecondaryIndex::Implement_Cmp(BDbTable * pMainTbl, const BDbTable:
 int BDbTable::ScndIdxCallback(DB * pSecondary, const DBT * pKey, const DBT * pData, DBT * pResult)
 {
 	int    r = DB_DONOTINDEX;
-	DbThreadLocalArea::DbRegList & r_reg = DBS.GetTLA().GetBDbRegList();
+	const  DbThreadLocalArea::DbRegList & r_reg = DBS.GetConstTLA().GetBDbRegList_Const();
+	BDbTable * p_taget_tbl = (BDbTable *)r_reg.GetBySupplementPtr(pSecondary);
+#ifndef NDEBUG
+	// testing {
 	for(int i = 1; i <= r_reg.GetMaxEntries(); i++) {
 		BDbTable * p_tbl = (BDbTable *)r_reg.GetPtr(i);
 		if(p_tbl && p_tbl->H == pSecondary) {
-			if(p_tbl->P_IdxHandle) {
-				BDbTable::Buffer key(pKey);
-				BDbTable::Buffer data(pData);
-				r = p_tbl->P_IdxHandle->Cb(key, data, p_tbl->P_IdxHandle->ResultBuf);
-				p_tbl->P_IdxHandle->ResultBuf.Get(pResult);
-			}
+			assert(p_taget_tbl == p_tbl);
+			//p_taget_tbl = p_tbl;
 			break;
+		}
+	}
+	// }
+#endif
+	if(p_taget_tbl) {
+		if(p_taget_tbl->P_IdxHandle) {
+			BDbTable::Buffer key(pKey);
+			BDbTable::Buffer data(pData);
+			r = p_taget_tbl->P_IdxHandle->Cb(key, data, p_taget_tbl->P_IdxHandle->ResultBuf);
+			p_taget_tbl->P_IdxHandle->ResultBuf.Get(pResult);
 		}
 	}
 	return r;
@@ -890,15 +968,24 @@ int BDbTable::CmpCallback(DB * pDb, const DBT * pDbt1, const DBT * pDbt2)
 {
 	int    c = 0;
 	if(pDbt1 != 0 || pDbt2 != 0) {
-		DbThreadLocalArea::DbRegList & r_reg = DBS.GetTLA().GetBDbRegList();
+		const DbThreadLocalArea::DbRegList & r_reg = DBS.GetConstTLA().GetBDbRegList_Const();
+		BDbTable * p_taget_tbl = (BDbTable *)r_reg.GetBySupplementPtr(pDb);
+#ifndef NDEBUG
+		// testing {
 		for(int i = 1; i <= r_reg.GetMaxEntries(); i++) {
 			BDbTable * p_tbl = (BDbTable *)r_reg.GetPtr(i);
 			if(p_tbl && p_tbl->H == pDb) {
-				BDbTable::Buffer key1(pDbt1);
-				BDbTable::Buffer key2(pDbt2);
-				c = p_tbl->Implement_Cmp(&key1, &key2);
+				assert(p_taget_tbl == p_tbl);
+				//p_taget_tbl = p_tbl;
 				break;
 			}
+		}
+		// }
+#endif 
+		if(p_taget_tbl) {
+			BDbTable::Buffer key1(pDbt1);
+			BDbTable::Buffer key2(pDbt2);
+			c = p_taget_tbl->Implement_Cmp(&key1, &key2);
 		}
 	}
 	return c;
@@ -1013,6 +1100,75 @@ SSerializeContext * BDbTable::GetSCtx() const
 	return P_SCtx;
 }
 
+int BDbTable::Helper_GetConfig(BDbTable * pT, Config & rCfg)
+{
+	int    ok = 1;
+	rCfg.Clear();
+	if(pT && pT->H) {
+		SString temp_buf;
+		DB * p_db = pT->H;
+		{
+			DBTYPE _t = DB_UNKNOWN;
+			THROW(BDbDatabase::ProcessError(p_db->get_type(p_db, &_t)));
+			rCfg.IdxType = _t;
+			switch(_t) {
+				case DB_BTREE: rCfg.IdxType = BDbTable::idxtypBTree; break;
+				case DB_HASH: rCfg.IdxType = BDbTable::idxtypHash; break;
+				case DB_HEAP: rCfg.IdxType = BDbTable::idxtypHeap; break;
+				case DB_QUEUE: rCfg.IdxType = BDbTable::idxtypQueue; break;
+				case DB_UNKNOWN: rCfg.IdxType = BDbTable::idxtypDefault; break;
+				default:
+					DBS.SetError(BE_BDB_UNKNDBTYPE, (temp_buf = 0).Cat(_t));
+					CALLEXCEPT();
+			}
+		}
+		{
+			uint32 _f = 0;
+			THROW(BDbDatabase::ProcessError(p_db->get_flags(p_db, &_f)));
+			SETFLAG(rCfg.Flags, cfEncrypt, _f & DB_ENCRYPT);
+			SETFLAG(rCfg.Flags, cfDup, _f & DB_DUP);
+		}
+		{
+			const char * p_db_name = 0;
+			const char * p_file_name = 0;
+			THROW(BDbDatabase::ProcessError(p_db->get_dbname(p_db, &p_file_name, &p_db_name)));
+			rCfg.Name = p_file_name;
+		}
+		{
+			uint32 _gb = 0;
+			uint32 _b = 0;
+			int    _c = 0;
+			THROW(BDbDatabase::ProcessError(p_db->get_cachesize(p_db, &_gb, &_b, &_c)));
+			rCfg.CacheSize = (_gb * 1024 * 1024) + _b / 1024;
+		}
+		{
+			uint32 _ps = 0;
+			THROW(BDbDatabase::ProcessError(p_db->get_pagesize(p_db, &_ps)));
+			rCfg.PageSize = _ps;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int BDbTable::GetConfig(int idx, Config & rCfg)
+{
+	int    ok = 1;
+	THROW(State & stOpened);
+	if(idx == 0) {
+		THROW(Helper_GetConfig(this, rCfg));
+	}
+	else {
+		THROW_D(idx <= (int)IdxList.getCount(), BE_INVKEY);
+		{
+			BDbTable * p_idx_tbl = IdxList.at(idx-1);
+			THROW(Helper_GetConfig(p_idx_tbl, rCfg));
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int BDbTable::Open(const char * pFileName)
 {
 	int    ok = 1;
@@ -1024,7 +1180,7 @@ int BDbTable::Open(const char * pFileName)
 	THROW(P_Db->Implement_Open(this, pFileName, 0, 0));
 	{
 		DbThreadLocalArea::DbRegList & r_reg = DBS.GetTLA().GetBDbRegList();
-		THROW(Handle = r_reg.AddEntry(this));
+		THROW(Handle = r_reg.AddEntry(this, H));
 	}
 	CATCHZOK
 	return ok;
@@ -1040,7 +1196,7 @@ int BDbTable::Close()
 	THROW(P_Db->Implement_Close(this));
 	if(Handle) {
 		DbThreadLocalArea::DbRegList & r_reg = DBS.GetTLA().GetBDbRegList();
-		r_reg.FreeEntry(Handle);
+		r_reg.FreeEntry(Handle, H);
 		Handle = 0;
 	}
 	CATCHZOK
@@ -1309,13 +1465,20 @@ SLTEST_R(BerkeleyDB)
 		SString line_buf, en_buf, ru_buf, test_buf;
 		THROW(SLTEST_CHECK_NZ(f_in.IsValid()));
 		{
+			/*
+			BDbDatabase::Config bdb_cfg;
+			bdb_cfg.CacheSize = 64 * 1024 * 1024;
+			bdb_cfg.CacheSize = 1;
+			bdb_cfg.MaxLockers = 256 * 1024;
+			bdb_cfg.LogFileSize = 256 * 1024 * 1024;
+			*/
 			BDbDatabase bdb(home_dir);
 			THROW(SLTEST_CHECK_NZ(bdb));
 			{
 				const  uint  test_ta_count = 20;
 				uint   count = 0;
 				BDbTable::Buffer key_buf, val_buf;
-				BDbTable tbl(BDbTable::Config("city-enru-pair", BDbTable::idxtypHash, 0), &bdb);
+				BDbTable tbl(BDbTable::Config("city-enru-pair", BDbTable::idxtypHash, 0, /*1024*/0, 0), &bdb);
 				THROW(SLTEST_CHECK_NZ(tbl));
 				{
 					//

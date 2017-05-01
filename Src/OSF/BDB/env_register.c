@@ -7,12 +7,6 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
 #define REGISTER_FILE   "__db.register"
@@ -28,9 +22,9 @@
 #define REGISTRY_EXCL_LOCK(env, nowait) REGISTRY_LOCK(env, 1, nowait)
 #define REGISTRY_EXCL_UNLOCK(env)       REGISTRY_UNLOCK(env, 1)
 
-static int __envreg_add __P((ENV*, int *, uint32));
-static int __envreg_pid_compare __P((const void *, const void *));
-static int __envreg_create_active_pid __P((ENV*, char *));
+static int __envreg_add(ENV*, int *, uint32);
+static int __envreg_pid_compare(const void *, const void *);
+static int __envreg_create_active_pid(ENV*, char *);
 
 /*
  * Support for portable, multi-process database environment locking, based on

@@ -167,7 +167,7 @@ int SStrScan::IsLegalUtf8() const
 		}
 		else {
 			const size_t tail = strlen((const char *)p);
-			return ((extra+1) <= tail && SUnicode::IsLegalUtf8(p, extra+1)) ? (1+extra) : 0;
+			return ((extra+1) <= tail && SUnicode::IsLegalUtf8(p, extra+1)) ? (int)(1+extra) : 0;
 		}
 	}
 }
@@ -631,47 +631,47 @@ IMPL_INVARIANT_C(SString)
 
 SLAPI SString::SString()
 {
+	L = Size = 0;
 	P_Buf = 0;
-	Size = L = 0;
 }
 
 SLAPI SString::SString(size_t initSize)
 {
+	L = Size = 0;
 	P_Buf = 0;
-	Size = L = 0;
 	if(initSize)
 		Alloc(initSize);
 }
 
 SLAPI SString::SString(const char * pS)
 {
+	L = Size = 0;
 	P_Buf = 0;
-	Size = L = 0;
 	CopyFrom(pS);
 }
 
 SLAPI SString::SString(const SString & s)
 {
+	L = Size = 0;
 	P_Buf = 0;
-	Size = L = 0;
 	CopyFrom(s);
 }
 
 SLAPI SString::~SString()
 {
+	L = Size = 0;
 	//
 	// Обнуление членов класса осуществляется для того, чтобы
 	// при ссылке на разрушенный экземпляр объекта не возникало исключения.
 	//
-	if(P_Buf) // Деструктор критичен по быстродействию: просто избежим вызова free() при нулевом указателе
+	if(P_Buf) // @speedcritical
 		ZFREE(P_Buf);
-	Size = L = 0;
 }
 
 void SLAPI SString::Destroy()
 {
+	L = Size = 0;
 	ZFREE(P_Buf);
-	Size = L = 0;
 }
 
 /* inline
@@ -725,18 +725,12 @@ int FASTCALL SString::HasChr(int c) const
 	else {
 		switch(L) {
 			case 0:
-			case 1:
-				return 0;
-			case 2:
-				return (P_Buf[0] == c);
-			case 3:
-				return (P_Buf[0] == c || P_Buf[1] == c);
-			case 4:
-				return (P_Buf[0] == c || P_Buf[1] == c || P_Buf[2] == c);
-			case 5:
-				return (P_Buf[0] == c || P_Buf[1] == c || P_Buf[2] == c || P_Buf[3] == c);
-			default:
-				return BIN(memchr(P_Buf, (uchar)c, L-1));
+			case 1:  return 0;
+			case 2:  return (P_Buf[0] == c);
+			case 3:  return (P_Buf[0] == c || P_Buf[1] == c);
+			case 4:  return (P_Buf[0] == c || P_Buf[1] == c || P_Buf[2] == c);
+			case 5:  return (P_Buf[0] == c || P_Buf[1] == c || P_Buf[2] == c || P_Buf[3] == c);
+			default: return BIN(memchr(P_Buf, (uchar)c, L-1));
 		}
 	}
 }
@@ -863,12 +857,8 @@ int SLAPI STokenizer::Write(const char * pResource, int64 orgOffs, const void * 
 
 int16 SLAPI STokenizer::NextChr()
 {
-	int16 ret = 0;
 	char  c;
-	if(S.Read(c)) {
-		ret = (int16)c;
-	}
-	return ret;
+	return S.Read(c) ? (int16)c : 0;
 }
 
 int FASTCALL STokenizer::IsDelim(int16 chr) const
@@ -1339,7 +1329,7 @@ int SLAPI SString::Wrap(uint maxLen, SString & rHead, SString & rTail) const
 	if(len > 0) {
 		size_t p = maxLen;
 		if(p > 0 && p < len) {
-			int    temp_pos = p;
+			size_t temp_pos = p;
 			size_t next_pos = p;
 			while(P_Buf[temp_pos] != ' ')
 				if(temp_pos)
@@ -1549,17 +1539,13 @@ BSTR FASTCALL SString::CopyToOleStr(BSTR * pBuf) const
 {
 	size_t wbuflen = Len()+1;
 	WCHAR  wname_stk_buf[256];
-	WCHAR * p_wname = 0; // (WCHAR *)malloc(wbuflen * sizeof(WCHAR));
-	if(wbuflen > SIZEOFARRAY(wname_stk_buf)) 
-		p_wname = (WCHAR *)malloc(wbuflen * sizeof(WCHAR));
-	else
-		p_wname = wname_stk_buf;
+	WCHAR * p_wname = (wbuflen > SIZEOFARRAY(wname_stk_buf)) ? (WCHAR *)malloc(wbuflen * sizeof(WCHAR)) : wname_stk_buf;
 	if(p_wname) {
 		p_wname[0] = 0;
 #ifndef _WIN32_WCE // {
 		if(pBuf && *pBuf)
 			SysFreeString(*pBuf);
-		MultiByteToWideChar(CP_OEMCP, 0, P_Buf, Len(), p_wname, wbuflen);
+		MultiByteToWideChar(CP_OEMCP, 0, P_Buf, (int)Len(), p_wname, (int)wbuflen);
 		p_wname[wbuflen-1] = 0;
 		*pBuf = SysAllocString(p_wname);
 #endif // } _WIN32_WCE
@@ -1576,7 +1562,7 @@ SString & FASTCALL SString::CopyFromOleStr(const BSTR s)
 	size_t new_len = len+1;
 	if(Alloc(new_len)) {
 		if(len) {
-			WideCharToMultiByte(CP_OEMCP, 0, s, -1, P_Buf, new_len, 0, 0);
+			WideCharToMultiByte(CP_OEMCP, 0, s, -1, P_Buf, (int)new_len, 0, 0);
 			L = new_len;
 			P_Buf[new_len-1] = 0;
 		}
@@ -1726,7 +1712,7 @@ SString & FASTCALL SString::RevertSpecSymb(int fileFormat)
 			if(!first_special_symb || HasChr(first_special_symb)) {
 				SString temp_buf;
 				const size_t len = Len();
-				for(uint i = 0; i < len; i++) {
+				for(size_t i = 0; i < len; i++) {
 					const char c = P_Buf[i];
 					int   s = 0;
 					if(!first_special_symb || c == first_special_symb) {
@@ -2315,7 +2301,7 @@ SString & SLAPI SString::Helper_MbToMb(uint srcCodepage, uint destCodepage)
 		Trim(0);
 		for(size_t offs = 0; offs < len;) {
 			size_t s = MIN((len-offs), middle_buf_len/2);
-			int ret = WideCharToMultiByte(destCodepage, 0, ((const wchar_t *)temp_ustr)+offs, s, text, sizeof(text), 0, 0);
+			int ret = WideCharToMultiByte(destCodepage, 0, ((const wchar_t *)temp_ustr)+offs, (int)s, text, (int)sizeof(text), 0, 0);
 			if(ret > 0) {
 				offs += s;
 				CatN(text, (size_t)ret);
@@ -2330,7 +2316,7 @@ SString & SLAPI SString::Helper_MbToMb(uint srcCodepage, uint destCodepage)
 		const size_t len = Len();
 		for(size_t offs = 0; offs < len;) {
 			size_t s = MIN((len-offs), middle_buf_len/2);
-			int    ret = MultiByteToWideChar(srcCodepage, 0, P_Buf+offs, s, wtext, SIZEOFARRAY(wtext));
+			int    ret = MultiByteToWideChar(srcCodepage, 0, P_Buf+offs, (int)s, wtext, SIZEOFARRAY(wtext));
 			if(ret > 0) {
 				offs += s;
 				ret = WideCharToMultiByte(destCodepage, 0, wtext, ret, text, sizeof(text), 0, 0);
@@ -2730,6 +2716,11 @@ SString & FASTCALL SString::Tab(uint c)
 		return CatCharN('\t', c);
 }
 
+SString & SLAPI SString::Tab()
+{
+	return CatChar('\t');
+}
+
 SString & SLAPI SString::Space()   { return CatChar(' ');  }
 SString & SLAPI SString::Dot()     { return CatChar('.');  }
 SString & SLAPI SString::Comma()   { return CatChar(',');  }
@@ -2894,9 +2885,23 @@ SString & FASTCALL SString::CatBrackStr(const char * pStr)
 	return CatChar('[').Cat(pStr).CatChar(']');
 }
 
-SString & FASTCALL SString::CatDiv(int c, int addSpaces, int ifNotEmpty)
+SString & FASTCALL SString::CatDiv(int c, int addSpaces/*, int ifNotEmpty*/)
 {
-	if(!ifNotEmpty || Strip().NotEmpty()) {
+	//if(!ifNotEmpty || Strip().NotEmpty()) {
+		if(c != 0) {
+			if(addSpaces > 0 && addSpaces != 2)
+				Space();
+			CatChar(c);
+		}
+		if(addSpaces)
+			Space();
+	//}
+	return *this;
+}
+
+SString & FASTCALL SString::CatDivIfNotEmpty(int c, int addSpaces)
+{
+	if(Strip().NotEmpty()) {
 		if(c != 0) {
 			if(addSpaces > 0 && addSpaces != 2)
 				Space();
@@ -3006,6 +3011,12 @@ SString & SLAPI SString::Cat(double v, long fmt)
 	return Cat(realfmt(v, fmt, temp_buf));
 }
 
+SString & SLAPI SString::Cat(double v)
+{
+	char   temp_buf[512];
+	return Cat(realfmt(v, MKSFMTD(0, 6, NMBF_NOTRAILZ), temp_buf));
+}
+
 SString & SLAPI SString::CatReal(double v)
 {
 	char   temp_buf[512];
@@ -3018,10 +3029,22 @@ SString & FASTCALL SString::Cat(LDATE dt, long fmt)
 	return Cat(datefmt(&dt, fmt, temp_buf));
 }
 
+SString & FASTCALL SString::Cat(LDATE dt)
+{
+	char   temp_buf[128];
+	return Cat(datefmt(&dt, DATF_DMY, temp_buf));
+}
+
 SString & FASTCALL SString::Cat(LTIME tm, long fmt)
 {
 	char   temp_buf[128];
 	return Cat(timefmt(tm, fmt, temp_buf));
+}
+
+SString & FASTCALL SString::Cat(LTIME tm)
+{
+	char   temp_buf[128];
+	return Cat(timefmt(tm, TIMF_HMS, temp_buf));
 }
 
 SString & FASTCALL SString::Cat(const LDATETIME & rDtm, long datFmt /*=DATF_DMY*/, long timFmt /*=TIMF_HMS*/)
@@ -3117,6 +3140,11 @@ SString & SLAPI SString::CatEq(const char * pKey, int64 val)
 	return Cat(pKey).CatChar('=').Cat(val);
 }
 
+SString & SLAPI SString::CatEq(const char * pKey, uint64 val)
+{
+	return Cat(pKey).CatChar('=').Cat(val);
+}
+
 SString & SLAPI SString::CatEq(const char * pKey, double val, long fmt)
 {
 	return Cat(pKey).CatChar('=').Cat(val, fmt);
@@ -3165,10 +3193,10 @@ SString & cdecl SString::Printf(const char * pFormat, ...)
 
 int SLAPI SString::IsDigit() const
 {
-	const  uint len = Len();
+	const  size_t len = Len();
 	int    ok = 1;
 	if(len) {
-		for(uint i = 0; ok && i < len; i++) {
+		for(size_t i = 0; ok && i < len; i++) {
 			if(!isdec(P_Buf[i]))
 				ok = 0;
 		}
@@ -3348,12 +3376,12 @@ int SLAPI SString::ToIntRange(IntRange & rRange, long flags) const
 			if(upp_is_done) {
 				rRange.low = lo;
 				rRange.upp = up;
-				result = src_pos;
+				result = (int)src_pos;
 			}
 			else {
 				rRange.low = lo;
 				rRange.upp = lo;
-				result = preserve_upp_src_pos;
+				result = (int)preserve_upp_src_pos;
 			}
 		}
 		assert(src_pos <= Len());
@@ -3472,7 +3500,7 @@ SString & SString::EncodeString(const char * pSrc, const char * pEncodeStr, int 
 	StringSet ss(';', pEncodeStr);
 	uint   p;
 	for(p = 0; ss.get(&p, buf) > 0;)
-		list.AddFast(MAXLONG - buf.Len(), buf); // Без проверки на дублирование идентификатора
+		list.AddFast(MAXLONG - (long)buf.Len(), buf); // Без проверки на дублирование идентификатора
 	list.SortByID();
 	ss.setDelim(",");
 	for(p = 0; p < list.getCount(); p++) {
@@ -3528,7 +3556,8 @@ SLAPI SStringU::~SStringU()
 {
 	Size = 0;
 	L = 0;
-	ZFREE(P_Buf);
+	if(P_Buf) // @v9.6.4 @speedcritical
+		ZFREE(P_Buf);
 }
 
 wchar_t FASTCALL SStringU::C(size_t n) const
@@ -3754,7 +3783,7 @@ SStringU & FASTCALL SStringU::CopyFromMb(int cp, const char * pS, size_t srcLen)
 	else {
 		for(size_t offs = 0; offs < srcLen;) {
 			size_t s = MIN((srcLen-offs), middle_buf_len/2);
-			int    ret = MultiByteToWideChar(cp, 0, pS+offs, s, wtext, SIZEOFARRAY(wtext));
+			int    ret = MultiByteToWideChar(cp, 0, pS+offs, (int)s, wtext, SIZEOFARRAY(wtext));
 			if(ret > 0) {
 				CatN(wtext, ret);
 				offs += s;
@@ -3780,7 +3809,7 @@ int SLAPI SStringU::CopyToMb(int cp, SString & rBuf) const
 		for(size_t offs = 0; offs < src_len;) {
 			const size_t s = MIN((src_len-offs), middle_buf_len/2);
 			BOOL   inv_rep = 0;
-			int    ret = ::WideCharToMultiByte(cp, 0, P_Buf+offs, s, mbtext, sizeof(mbtext), "?", &inv_rep);
+			int    ret = ::WideCharToMultiByte(cp, 0, P_Buf+offs, (int)s, mbtext, sizeof(mbtext), "?", &inv_rep);
 			if(ret > 0) {
 				rBuf.CatN(mbtext, ret);
 				offs += s;
@@ -3877,7 +3906,7 @@ int SString::IsLegalUtf8() const
 {
 	int    ok = 1;
 	const  size_t _len = Len();
-	for(uint idx = 0; ok && idx < _len;) {
+	for(size_t idx = 0; ok && idx < _len;) {
 		const uint8 * p = (const uint8 *)(P_Buf+idx);
 		const size_t extra = SUtfConst::TrailingBytesForUTF8[*p];
 		if(extra == 0)
@@ -4406,7 +4435,7 @@ uint FASTCALL SPathStruc::GetExt(const SString & rPath, SString * pExt)
 			break;
 		}
 	}
-	return p;
+	return (uint)p;
 }
 
 // static
@@ -4512,7 +4541,7 @@ static int SPathCommonPrefix(const char * pFile1, const char * pFile2, char * ac
 			achPath[iLen] = '\0';
 		}
 	}
-	return iLen;
+	return (int)iLen;
 }
 
 static int FASTCALL SPathRemoveFileSpec(SString & rPath)
@@ -4658,8 +4687,8 @@ SString * FASTCALL SStringPool::Alloc(uint * pPos)
 		insert(new SString);
 	}
 	BusyList.set(p-1, 1);
-	ASSIGN_PTR(pPos, p-1);
-	return at(p-1);
+	ASSIGN_PTR(pPos, (uint)(p-1));
+	return at((uint)(p-1));
 }
 
 int FASTCALL SStringPool::Free(uint pos)
@@ -4688,11 +4717,11 @@ int FASTCALL SStringPool::Free(const SString * pS)
 
 int FASTCALL SStringPool::Free(const BitArray & rMap)
 {
-	uint   i = rMap.getCount();
+	size_t i = rMap.getCount();
 	if(i) do {
 		--i;
 		if(!rMap.get(i))
-			Free(i);
+			Free((uint)i);
 	} while(i);
 	return 1;
 }
@@ -5889,7 +5918,7 @@ SLTEST_R(SString)
 			}
 			SLTEST_CHECK_EQ(str.Len(), _src_len);
 		}
-		for(uint tl = 1; tl <= sizeof(buffer); tl++) { 
+		for(uint tl = 1; tl <= sizeof(buffer); tl++) {
 			str.CopyTo(buffer, tl);
 			if(tl > 1)
 				SLTEST_CHECK_Z(str.CmpPrefix(buffer, 0));

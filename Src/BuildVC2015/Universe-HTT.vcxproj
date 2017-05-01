@@ -97,10 +97,17 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>\Universe-HTT\liferay-portal\6.1.1-ce-ga2\tomcat-7.0.27\webapps\rsrc\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
     <OutDir>\Universe-HTT\liferay-portal\6.1.1-ce-ga2\tomcat-7.0.27\webapps\rsrc\</OutDir>
     <IntDir>$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>\Universe-HTT\liferay-portal\6.1.1-ce-ga2\tomcat-7.0.27\webapps\rsrc\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
+    <OutDir>\Universe-HTT\liferay-portal\6.1.1-ce-ga2\tomcat-7.0.27\webapps\rsrc\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

@@ -260,7 +260,7 @@ void GpCommand::ExpandCallArgs()
  * (4) to execute script files given on the command line (acts like "load")
  * (5) to execute a single script file given with -c (acts like "call")
  */
-void GpGadgets::LoadFile(GpCommand & rC, FILE * pFp, char * pFileName, int calltype)
+void GpGadgets::LoadFile(FILE * pFp, char * pFileName, int calltype)
 {
 	//int    len;
 	int    start, left;
@@ -279,54 +279,54 @@ void GpGadgets::LoadFile(GpCommand & rC, FILE * pFp, char * pFileName, int callt
 	else if(pFp == stdin) {
 		/* DBT 10-6-98  go interactive if "-" named as load file */
 		IsInteractive = true;
-		while(!ComLine(rC)) 
+		while(!ComLine(Gp__C)) 
 			;
-		lf_pop(rC);
+		lf_pop(Gp__C);
 	}
 	else {
 		// We actually will read from a file 
-		prepare_call(rC, calltype);
+		prepare_call(Gp__C, calltype);
 		// things to do after lf_push 
-		rC.InlineNum = 0;
+		Gp__C.InlineNum = 0;
 		// go into non-interactive mode during load 
 		// will be undone below, or in load_file_error 
 		IsInteractive = false;
 		while(!stop) { // read all lines in file 
-			left = rC.InputLineLen;
+			left = Gp__C.InputLineLen;
 			start = 0;
 			more = true;
 			// read one logical line
 			while(more) {
-				if(fgets(&(rC.P_InputLine[start]), left, pFp) == (char*)NULL) {
+				if(fgets(&(Gp__C.P_InputLine[start]), left, pFp) == (char*)NULL) {
 					stop = true; /* EOF in file */
-					rC.P_InputLine[start] = '\0';
+					Gp__C.P_InputLine[start] = '\0';
 					more = false;
 				}
 				else {
-					rC.InlineNum++;
-					gpval_lineno->udv_value.v.int_val = rC.InlineNum; // User visible copy
-					int    len = strlen(rC.P_InputLine) - 1;
-					if(rC.P_InputLine[len] == '\n') { /* remove any newline */
-						rC.P_InputLine[len] = '\0';
+					Gp__C.InlineNum++;
+					gpval_lineno->udv_value.v.int_val = Gp__C.InlineNum; // User visible copy
+					int    len = strlen(Gp__C.P_InputLine) - 1;
+					if(Gp__C.P_InputLine[len] == '\n') { /* remove any newline */
+						Gp__C.P_InputLine[len] = '\0';
 						/* Look, len was 1-1 = 0 before, take care here! */
 						if(len > 0)
 							--len;
-						if(rC.P_InputLine[len] == '\r') { /* remove any carriage return */
-							rC.P_InputLine[len] = NUL;
+						if(Gp__C.P_InputLine[len] == '\r') { /* remove any carriage return */
+							Gp__C.P_InputLine[len] = NUL;
 							if(len > 0)
 								--len;
 						}
 					}
 					else if(len + 2 >= left) {
-						rC.ExtendInputLine();
-						left = rC.InputLineLen - len - 1;
+						Gp__C.ExtendInputLine();
+						left = Gp__C.InputLineLen - len - 1;
 						start = len + 1;
 						continue; /* don't check for '\' */
 					}
-					if(rC.P_InputLine[len] == '\\') {
+					if(Gp__C.P_InputLine[len] == '\\') {
 						/* line continuation */
 						start = len;
-						left = rC.InputLineLen - start;
+						left = Gp__C.InputLineLen - start;
 					}
 					else {
 						/* EAM May 2011 - handle multi-line bracketed clauses {...}.
@@ -337,13 +337,13 @@ void GpGadgets::LoadFile(GpCommand & rC, FILE * pFp, char * pFileName, int callt
 
 						/* macros in a clause are problematic, as they are */
 						/* only expanded once even if the clause is replayed */
-						rC.StringExpandMacros();
+						Gp__C.StringExpandMacros();
 						// Strip off trailing comment and count curly braces 
-						rC.NumTokens = rC.Scanner(&rC.P_InputLine, &rC.InputLineLen);
-						if(rC.P_InputLine[rC.P_Token[rC.NumTokens].start_index] == '#') {
-							rC.P_InputLine[rC.P_Token[rC.NumTokens].start_index] = NUL;
-							start = rC.P_Token[rC.NumTokens].start_index;
-							left = rC.InputLineLen - start;
+						Gp__C.NumTokens = Gp__C.Scanner(&Gp__C.P_InputLine, &Gp__C.InputLineLen);
+						if(Gp__C.P_InputLine[Gp__C.P_Token[Gp__C.NumTokens].start_index] == '#') {
+							Gp__C.P_InputLine[Gp__C.P_Token[Gp__C.NumTokens].start_index] = NUL;
+							start = Gp__C.P_Token[Gp__C.NumTokens].start_index;
+							left = Gp__C.InputLineLen - start;
 						}
 						/* Read additional lines if necessary to complete a
 						* bracketed clause {...}
@@ -351,11 +351,11 @@ void GpGadgets::LoadFile(GpCommand & rC, FILE * pFp, char * pFileName, int callt
 						if(curly_brace_count < 0)
 							IntErrorNoCaret("Unexpected }");
 						if(curly_brace_count > 0) {
-							if((len + 4) > (int)rC.InputLineLen)
-								rC.ExtendInputLine();
-							strcat(rC.P_InputLine, ";\n");
-							start = strlen(rC.P_InputLine);
-							left = rC.InputLineLen - start;
+							if((len + 4) > (int)Gp__C.InputLineLen)
+								Gp__C.ExtendInputLine();
+							strcat(Gp__C.P_InputLine, ";\n");
+							start = strlen(Gp__C.P_InputLine);
+							left = Gp__C.InputLineLen - start;
 							continue;
 						}
 						more = false;
@@ -363,21 +363,21 @@ void GpGadgets::LoadFile(GpCommand & rC, FILE * pFp, char * pFileName, int callt
 				}
 			}
 			/* If we hit a 'break' or 'continue' statement in the lines just processed */
-			if(rC.IterationEarlyExit())
+			if(Gp__C.IterationEarlyExit())
 				continue;
 			/* process line */
-			if(strlen(rC.P_InputLine) > 0) {
+			if(strlen(Gp__C.P_InputLine) > 0) {
 	#ifdef OLD_STYLE_CALL_ARGS
 				if(calltype == 2 || calltype == 5)
-					rC.ExpandCallArgs();
+					Gp__C.ExpandCallArgs();
 	#endif
 				screen_ok = false; /* make sure command line is echoed on error */
-				if(rC.DoLine(*this))
+				if(Gp__C.DoLine())
 					stop = true;
 			}
 		}
 		/* pop state */
-		lf_pop(rC); // also closes file pFp
+		lf_pop(Gp__C); // also closes file pFp
 	}
 }
 //
@@ -593,7 +593,7 @@ static char * recursivefullname(const char * path, const char * filename, bool r
 			closedir(dir);
 		}
 #else
-		int_warn(NO_CARET, "Recursive directory search not supported\n\t('%s!')", path);
+		IntWarn(NO_CARET, "Recursive directory search not supported\n\t('%s!')", path);
 #endif
 	}
 	return fullname;
@@ -1063,7 +1063,7 @@ int GpGadgets::LpParse(GpCommand & rC, lp_style_type & rLp, lp_class destination
 				}
 			}
 			else {
-				int_warn(rC.CToken, "No pointtype specifier allowed, here");
+				IntWarn(rC.CToken, "No pointtype specifier allowed, here");
 				rC.CToken += 2;
 			}
 			continue;
@@ -1090,7 +1090,7 @@ int GpGadgets::LpParse(GpCommand & rC, lp_style_type & rLp, lp_class destination
 				}
 			}
 			else {
-				int_warn(rC.CToken, "No pointsize specifier allowed, here");
+				IntWarn(rC.CToken, "No pointsize specifier allowed, here");
 				rC.CToken += 2;
 			}
 			continue;
@@ -1102,7 +1102,7 @@ int GpGadgets::LpParse(GpCommand & rC, lp_style_type & rLp, lp_class destination
 				set_pi = 1;
 			}
 			else {
-				int_warn(rC.CToken, "No pointinterval specifier allowed, here");
+				IntWarn(rC.CToken, "No pointinterval specifier allowed, here");
 				rC.IntExpression();
 			}
 			continue;
@@ -1289,7 +1289,7 @@ void GpCommand::ParseColorSpec(t_colorspec * tc, int options)
 		tc->lt = IntExpression()-1;
 		if(tc->lt < LT_BACKGROUND) {
 			tc->type = TC_DEFAULT;
-			int_warn(CToken, "illegal linetype");
+			GpGg.IntWarn(CToken, "illegal linetype");
 		}
 		/*
 		 * July 2014 - translate linetype into user-defined linetype color.
@@ -1418,7 +1418,7 @@ void arrow_use_properties(arrow_style_type * arrow, int tag)
 	}
 	/* tag not found: */
 	default_arrow_style(arrow);
-	int_warn(NO_CARET, "arrowstyle %d not found", tag);
+	GpGg.IntWarn(NO_CARET, "arrowstyle %d not found", tag);
 }
 
 void arrow_parse(GpCommand & rC, arrow_style_type * arrow, bool allow_as)

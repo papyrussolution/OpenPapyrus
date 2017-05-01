@@ -1638,17 +1638,17 @@ DBQuery * SLAPI PPViewBizScoreVal::CreateBrowserQuery(uint * pBrwId, SString * p
 			PPObjSecur sec_obj(PPOBJ_USR, 0);
 			PPSecur sec_rec;
 			if(sec_obj.Fetch(Filt.UserID, &sec_rec) > 0)
-				pSubTitle->CatDiv('-', 1, 1).Cat(sec_rec.Name);
+				pSubTitle->CatDivIfNotEmpty('-', 1).Cat(sec_rec.Name);
 		}
 		if(Filt.BizScoreID) {
 			PPObjBizScore bs_obj;
 			PPBizScorePacket bs_pack;
 			if(bs_obj.Fetch(Filt.BizScoreID, &bs_pack) > 0)
-				pSubTitle->CatDiv('-', 1, 1).Cat(bs_pack.Rec.Name);
+				pSubTitle->CatDivIfNotEmpty('-', 1).Cat(bs_pack.Rec.Name);
 		}
 		if(!Filt.Period.IsZero()) {
 			SString temp_buf;
-			pSubTitle->CatDiv('-', 1, 1).Cat(PPFormatPeriod(&Filt.Period, temp_buf));
+			pSubTitle->CatDivIfNotEmpty('-', 1).Cat(PPFormatPeriod(&Filt.Period, temp_buf));
 		}
 	}
 	ASSIGN_PTR(pBrwId, brw_id);
@@ -1981,7 +1981,7 @@ int SLAPI PrcssrBizScore::Run()
 				// делаем искусственную задержку во избежании
 				// дублирования индекса {Dt, Tm, ScoreID} таблицы BizScore
 				//
-				delay(20);
+				SDelay(20);
 			//}
 			if(r > 0)
 				ok = 1;
@@ -2380,7 +2380,7 @@ int PPALDD_BizScoreValView::NextIteration(long iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_BizScoreValView::Destroy()
+void PPALDD_BizScoreValView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(BizScoreVal);
 }

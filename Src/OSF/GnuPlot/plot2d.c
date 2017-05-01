@@ -129,7 +129,7 @@ void cp_free(CurvePoints * cp)
 // while in the non-parametric case we would say only plot [b= -2:2] [-1:1] sin(b)
 //
 //void plotrequest()
-void GpGadgets::PlotRequest(GpCommand & rC)
+void GpGadgets::PlotRequest()
 {
 	int dummy_token = 0;
 	/*AXIS_INDEX*/ int t_axis;
@@ -138,9 +138,9 @@ void GpGadgets::PlotRequest(GpCommand & rC)
 	Is3DPlot = false;
 	// Deactivate if 'set view map' is still running after the previous 'splot': 
 	// EAM Jan 2012 - this should no longer be necessary, but it doesn't hurt.
-	SplotMapDeactivate(rC);
-	if(IsParametric && strcmp(rC.P.SetDummyVar[0], "u") == 0)
-		strcpy(rC.P.SetDummyVar[0], "t");
+	SplotMapDeactivate(Gp__C);
+	if(IsParametric && strcmp(Gp__C.P.SetDummyVar[0], "u") == 0)
+		strcpy(Gp__C.P.SetDummyVar[0], "t");
 	// initialise the arrays from the 'set' scalars 
 	InitAxis(FIRST_X_AXIS, 0);
 	InitAxis(FIRST_Y_AXIS, 1);
@@ -166,23 +166,23 @@ void GpGadgets::PlotRequest(GpCommand & rC)
 	// If we are called from a mouse zoom operation we should ignore
 	// any range limits because otherwise the zoom won't zoom.		
 	if(inside_zoom) {
-		while(rC.Eq("["))
-			rC.ParseSkipRange();
+		while(Gp__C.Eq("["))
+			Gp__C.ParseSkipRange();
 	}
 	// Range limits for the entire plot are optional but must be given	
 	// in a fixed order. The keyword 'sample' terminates range parsing.	
 	if(IsParametric || IsPolar) {
-		dummy_token = ParseRange(T_AXIS, rC);
-		ParseRange(FIRST_X_AXIS, rC);
+		dummy_token = ParseRange(T_AXIS, Gp__C);
+		ParseRange(FIRST_X_AXIS, Gp__C);
 	}
 	else {
-		dummy_token = ParseRange(FIRST_X_AXIS, rC);
+		dummy_token = ParseRange(FIRST_X_AXIS, Gp__C);
 	}
-	ParseRange(FIRST_Y_AXIS, rC);
-	ParseRange(SECOND_X_AXIS, rC);
-	ParseRange(SECOND_Y_AXIS, rC);
-	if(rC.Eq("sample") && rC.Eq(rC.CToken+1, "["))
-		rC.CToken++;
+	ParseRange(FIRST_Y_AXIS, Gp__C);
+	ParseRange(SECOND_X_AXIS, Gp__C);
+	ParseRange(SECOND_Y_AXIS, Gp__C);
+	if(Gp__C.Eq("sample") && Gp__C.Eq(Gp__C.CToken+1, "["))
+		Gp__C.CToken++;
 	// Clear out any tick labels read from data files in previous plot 
 	for(t_axis = FIRST_AXES; t_axis < AXIS_ARRAY_SIZE; t_axis++) {
 		t_ticdef * ticdef = &AxA[t_axis].ticdef;
@@ -193,10 +193,10 @@ void GpGadgets::PlotRequest(GpCommand & rC)
 	}
 	// use the default dummy variable unless changed 
 	if(dummy_token > 0)
-		rC.CopyStr(rC.P.CDummyVar[0], dummy_token, MAX_ID_LEN);
+		Gp__C.CopyStr(Gp__C.P.CDummyVar[0], dummy_token, MAX_ID_LEN);
 	else
-		strcpy(rC.P.CDummyVar[0], rC.P.SetDummyVar[0]);
-	EvalPlots(rC);
+		strcpy(Gp__C.P.CDummyVar[0], Gp__C.P.SetDummyVar[0]);
+	EvalPlots(/*Gp__C*/);
 }
 //
 // Helper function for refresh command.  Reexamine each data point and update the
@@ -272,7 +272,7 @@ void GpGadgets::RefreshBounds(GpTermEntry * pT, CurvePoints * pFirstPlot, int np
 // it will later be moved passed title/with/linetype/pointtype
 // 
 //static int get_data(CurvePoints * pPlot)
-int GpGadgets::GetData(GpCommand & rC, CurvePoints * pPlot)
+int GpGadgets::GetData(CurvePoints * pPlot)
 {
 	int i /* num. points ! */, j;
 	int ngood;
@@ -447,7 +447,7 @@ int GpGadgets::GetData(GpCommand & rC, CurvePoints * pPlot)
 		    break;
 		default:
 		    if(GpDf.df_no_use_specs > 2)
-			    int_warn(NO_CARET, "extra columns ignored by smoothing option");
+			    IntWarn(NO_CARET, "extra columns ignored by smoothing option");
 		    break;
 	}
 	// EXPERIMENTAL May 2013 - Treating timedata columns as strings allows 
@@ -460,9 +460,9 @@ int GpGadgets::GetData(GpCommand & rC, CurvePoints * pPlot)
 			GpDf.ExpectString(2);
 	}
 	if(GpDf.df_no_use_specs > cols_range.upp) 
-		GpGg.IntErrorNoCaret("Too many using specs for this style");
+		IntErrorNoCaret("Too many using specs for this style");
 	if(GpDf.df_no_use_specs > 0 && GpDf.df_no_use_specs < cols_range.low)
-		GpGg.IntErrorNoCaret("Not enough columns for this style");
+		IntErrorNoCaret("Not enough columns for this style");
 	i = 0;
 	ngood = 0;
 	// If the user has set an explicit locale for numeric input, apply it 
@@ -497,17 +497,17 @@ int GpGadgets::GetData(GpCommand & rC, CurvePoints * pPlot)
 					case CANDLESTICKS:
 					case FINANCEBARS:
 					    if(j < 6) 
-							GpGg.IntErrorNoCaret(errmsg);
+							IntErrorNoCaret(errmsg);
 					    break;
 					case XYERRORLINES:
 					case XYERRORBARS:
 					case BOXXYERROR:
 					    if(j != 7 && j != 5) 
-							GpGg.IntErrorNoCaret(errmsg);
+							IntErrorNoCaret(errmsg);
 					    break;
 					case VECTOR:
 					    if(j < 5) 
-							GpGg.IntErrorNoCaret(errmsg);
+							IntErrorNoCaret(errmsg);
 					    break;
 					case LABELPOINTS:
 					case BOXERROR:
@@ -516,12 +516,12 @@ int GpGadgets::GetData(GpCommand & rC, CurvePoints * pPlot)
 					case YERRORLINES:
 					case YERRORBARS:
 					    if(j < 4) 
-							GpGg.IntErrorNoCaret(errmsg);
+							IntErrorNoCaret(errmsg);
 					    break;
 #ifdef EAM_OBJECTS
 					case CIRCLES:
 					    if(j == 5 || j < 3) 
-							GpGg.IntErrorNoCaret(errmsg);
+							IntErrorNoCaret(errmsg);
 					    break;
 					case ELLIPSES:
 #endif
@@ -532,11 +532,11 @@ int GpGadgets::GetData(GpCommand & rC, CurvePoints * pPlot)
 					case LINES:
 					case DOTS:
 					    if(j < 3) 
-							GpGg.IntErrorNoCaret(errmsg);
+							IntErrorNoCaret(errmsg);
 					    break;
 					case PARALLELPLOT:
 					    if(j < 4) 
-							GpGg.IntErrorNoCaret(errmsg);
+							IntErrorNoCaret(errmsg);
 					    break;
 					case BOXPLOT:
 					    v[j++] = pPlot->base_linetype + 1; // Only the key sample uses this value
@@ -649,7 +649,7 @@ int GpGadgets::GetData(GpCommand & rC, CurvePoints * pPlot)
 				case 0: // not blank line, but df_readline couldn't parse it
 			    {
 				    GpDf.DfClose();
-				    GpGg.IntError(pPlot->Token, "Bad data on line %d of file %s", GpDf.df_line_number, NZOR(GpDf.df_filename, ""));
+				    IntError(pPlot->Token, "Bad data on line %d of file %s", GpDf.df_line_number, NZOR(GpDf.df_filename, ""));
 			    }
 				case 1:
 				    /* only one number */
@@ -738,7 +738,7 @@ H_ERR_BARS:
 				    else {
 					    double w;
 					    if(oneof2(pPlot->plot_style, CANDLESTICKS, FINANCEBARS)) {
-						    int_warn(storetoken, "This plot style does not work with 1 or 2 cols. Setting to points");
+						    IntWarn(storetoken, "This plot style does not work with 1 or 2 cols. Setting to points");
 						    pPlot->plot_style = POINTSTYLE;
 					    }
 						w = (pPlot->plot_smooth == SMOOTH_ACSPLINES) ? 1.0/* Unit weights */ : -1.0/* Auto-width boxes in some styles */;
@@ -759,7 +759,7 @@ H_ERR_BARS:
 								else
 								// fall through 
 								default:
-								    int_warn(storetoken, "This plot style does not work with 3 cols. Setting to yerrorbars");
+								    IntWarn(storetoken, "This plot style does not work with 3 cols. Setting to yerrorbars");
 									pPlot->plot_style = YERRORBARS;
 						    /* fall through */
 						    case FILLEDCURVES:
@@ -830,7 +830,7 @@ H_ERR_BARS:
 
 				    switch(pPlot->plot_style) {
 					    default:
-						int_warn(storetoken, "This plot style does not work with 4 cols. Setting to yerrorbars");
+						IntWarn(storetoken, "This plot style does not work with 4 cols. Setting to yerrorbars");
 						pPlot->plot_style = YERRORBARS;
 					    /* fall through */
 
@@ -908,7 +908,7 @@ H_ERR_BARS:
 			    { /* x, y, ylow, yhigh, width  or  x open low high close */
 				    switch(pPlot->plot_style) {
 					    default:
-						int_warn(storetoken, "Unrecognized 5 column plot style; resetting to boxerrorbars");
+						IntWarn(storetoken, "Unrecognized 5 column plot style; resetting to boxerrorbars");
 						pPlot->plot_style = BOXERROR;
 					    /*fall through */
 					    case BOXERROR: /* x, y, ylow, yhigh, width */
@@ -956,7 +956,7 @@ H_ERR_BARS:
 				    /* x, y, xlow, xhigh, ylow, yhigh */
 				    switch(pPlot->plot_style) {
 					    default:
-						int_warn(storetoken, "This plot style does not work with 6 cols. Setting to xyerrorbars");
+						IntWarn(storetoken, "This plot style does not work with 6 cols. Setting to xyerrorbars");
 						pPlot->plot_style = XYERRORBARS;
 					    /*fall through */
 					    case XYERRORLINES:
@@ -1544,7 +1544,7 @@ enum t_uses_axis {
 // Definitions are processed twice, but that won't hurt.
 //
 //static void eval_plots()
-void GpGadgets::EvalPlots(GpCommand & rC)
+void GpGadgets::EvalPlots(/*GpCommand & rC*/)
 {
 	int    i;
 	CurvePoints * p_plot = 0;
@@ -1555,7 +1555,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 	bool   was_definition = false;
 	int    pattern_num;
 	char * xtitle = NULL;
-	int    begin_token = rC.CToken; /* so we can rewind for second pass */
+	int    begin_token = Gp__C.CToken; /* so we can rewind for second pass */
 	int    start_token = 0, end_token;
 	int    highest_iteration = 0; /* last index reached in iteration [i=start:*] */
 	legend_key * key = &keyT;
@@ -1591,7 +1591,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 	plot_num = 0;
 	line_num = 0;           /* default line type */
 	pattern_num = DefaultFillStyle.fillpattern;    /* default fill pattern */
-	strcpy(orig_dummy_var, rC.P.CDummyVar[0]);
+	strcpy(orig_dummy_var, Gp__C.P.CDummyVar[0]);
 	InParametric = false;
 	xtitle = NULL;
 	/* Assume that the input data can be re-read later */
@@ -1601,19 +1601,19 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 	 * as filling in every thing except the function data. That is done after
 	 * the xrange is defined.
 	 */
-	rC.P.P_PlotIterator = rC.CheckForIteration();
+	Gp__C.P.P_PlotIterator = Gp__C.CheckForIteration();
 	while(true) {
 		// Forgive trailing comma on a multi-element plot command
-		if(rC.EndOfCommand()) {
+		if(Gp__C.EndOfCommand()) {
 			if(plot_num == 0)
 				IntErrorCurToken("function to plot expected");
 			break;
 		}
 		p_plot = NULL;
 		if(!InParametric && !was_definition)
-			start_token = rC.CToken;
-		if(rC.AlmostEq("newhist$ogram")) {
-			rC.CToken++;
+			start_token = Gp__C.CToken;
+		if(Gp__C.AlmostEq("newhist$ogram")) {
+			Gp__C.CToken++;
 			lp_style_type lp; // = DEFAULT_LP_STYLE_TYPE;
 			fill_style_type fs;
 			int previous_token;
@@ -1625,36 +1625,36 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 			newhist_color = lp.l_type + 1;
 			fs.fillpattern = LT_UNDEFINED;
 			do {
-				previous_token = rC.CToken;
-				if(rC.Eq("at")) {
-					rC.CToken++;
-					newhist_start = rC.RealExpression();
+				previous_token = Gp__C.CToken;
+				if(Gp__C.Eq("at")) {
+					Gp__C.CToken++;
+					newhist_start = Gp__C.RealExpression();
 				}
 				// Store title in temporary variable and then copy into the
 				// new histogram structure when it is allocated.
-				if(!histogram_title.text && rC.IsStringValue(rC.CToken)) {
+				if(!histogram_title.text && Gp__C.IsStringValue(Gp__C.CToken)) {
 					histogram_title.textcolor = histogram_opts.title.textcolor;
 					histogram_title.boxed = histogram_opts.title.boxed;
 					histogram_title.pos = histogram_opts.title.pos;
-					histogram_title.text = rC.TryToGetString();
+					histogram_title.text = Gp__C.TryToGetString();
 					histogram_title.font = gp_strdup(histogram_opts.title.font);
-					ParseLabelOptions(rC, &histogram_title, 2);
+					ParseLabelOptions(Gp__C, &histogram_title, 2);
 				}
 				// Allow explicit starting color or pattern for this histogram
-				if(rC.Eq("lt") || rC.AlmostEq("linet$ype")) {
-					rC.CToken++;
-					newhist_color = rC.IntExpression();
+				if(Gp__C.Eq("lt") || Gp__C.AlmostEq("linet$ype")) {
+					Gp__C.CToken++;
+					newhist_color = Gp__C.IntExpression();
 				}
-				rC.ParseFillStyle(&fs, FS_SOLID, 100, fs.fillpattern, DefaultFillStyle.border_color);
-			} while(rC.CToken != previous_token);
+				Gp__C.ParseFillStyle(&fs, FS_SOLID, 100, fs.fillpattern, DefaultFillStyle.border_color);
+			} while(Gp__C.CToken != previous_token);
 			newhist_pattern = fs.fillpattern;
-			if(!rC.Eq(","))
+			if(!Gp__C.Eq(","))
 				IntErrorCurToken("syntax error");
 		}
-		else if(rC.IsDefinition()) {
-			rC.Define();
-			if(rC.Eq(","))
-				rC.CToken++;
+		else if(Gp__C.IsDefinition()) {
+			Gp__C.Define();
+			if(Gp__C.Eq(","))
+				Gp__C.CToken++;
 			was_definition = true;
 			continue;
 		}
@@ -1674,26 +1674,26 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 			plot_num++;
 			// Check for a sampling range.
 			InitSampleRange(&AxA[FIRST_X_AXIS]);
-			sample_range_token = ParseRange(SAMPLE_AXIS, rC);
+			sample_range_token = ParseRange(SAMPLE_AXIS, Gp__C);
 			if(sample_range_token != 0)
 				AxA[SAMPLE_AXIS].range_flags |= RANGE_SAMPLED;
 			was_definition = false;
-			rC.P_DummyFunc = &plot_func;
+			Gp__C.P_DummyFunc = &plot_func;
 			// Allow replacement of the dummy variable in a function
 			if(sample_range_token > 0)
-				rC.CopyStr(rC.P.CDummyVar[0], sample_range_token, MAX_ID_LEN);
+				Gp__C.CopyStr(Gp__C.P.CDummyVar[0], sample_range_token, MAX_ID_LEN);
 			else if(sample_range_token < 0)
-				strcpy(rC.P.CDummyVar[0], rC.P.SetDummyVar[0]);
+				strcpy(Gp__C.P.CDummyVar[0], Gp__C.P.SetDummyVar[0]);
 			else
-				strcpy(rC.P.CDummyVar[0], orig_dummy_var);
+				strcpy(Gp__C.P.CDummyVar[0], orig_dummy_var);
 			// Should this be saved in "p_plot"?
-			name_str = rC.P.StringOrExpress(rC, NULL);
-			rC.P_DummyFunc = NULL;
+			name_str = Gp__C.P.StringOrExpress(Gp__C, NULL);
+			Gp__C.P_DummyFunc = NULL;
 			if(name_str) { /* data file to plot */
 				if(IsParametric && InParametric)
 					IntErrorCurToken("previous parametric function not fully specified");
 				if(sample_range_token !=0 && *name_str != '+')
-					int_warn(sample_range_token, "Ignoring sample range in non-sampled data plot");
+					IntWarn(sample_range_token, "Ignoring sample range in non-sampled data plot");
 				if(*tp_ptr)
 					p_plot = *tp_ptr;
 				else { // no memory malloc()'d there yet
@@ -1706,21 +1706,21 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 				p_plot->filledcurves_options.opt_given = 0;
 				// up to MAXDATACOLS cols
 				GpDf.DfSetPlotMode(MODE_PLOT); // Needed for binary datafiles 
-				specs = GpDf.DfOpen(rC, name_str, MAXDATACOLS, p_plot);
+				specs = GpDf.DfOpen(Gp__C, name_str, MAXDATACOLS, p_plot);
 				// Store a pointer to the named variable used for sampling 
 				if(sample_range_token > 0) {
-					p_plot->sample_var = Ev.AddUdv(rC, sample_range_token);
+					p_plot->sample_var = Ev.AddUdv(Gp__C, sample_range_token);
 				}
 				else {
 					// FIXME: This has the side effect of creating a named variable x 
 					// or overwriting an existing variable x.  Maybe it should save   
 					// and restore the pre-existing variable in this case?            
-					p_plot->sample_var = Ev.AddUdvByName(rC.P.CDummyVar[0]);
+					p_plot->sample_var = Ev.AddUdvByName(Gp__C.P.CDummyVar[0]);
 				}
 				if(p_plot->sample_var->udv_value.type == NOTDEFINED)
 					p_plot->sample_var->udv_value.SetComplex(0.0, 0.0);
 				// include modifiers in default title
-				p_plot->Token = end_token = rC.CToken - 1;
+				p_plot->Token = end_token = Gp__C.CToken - 1;
 			}
 			else {
 				// function to plot
@@ -1738,34 +1738,34 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 				p_plot->plot_type = FUNC;
 				p_plot->plot_style = FuncStyle;
 				p_plot->filledcurves_options.opt_given = 0;
-				end_token = rC.CToken - 1;
+				end_token = Gp__C.CToken - 1;
 			}
 			// axis defaults
 			XAxis = FIRST_X_AXIS;
 			YAxis = FIRST_Y_AXIS;
 			// pm 25.11.2001 allow any order of options
-			while(!rC.EndOfCommand()) {
-				int save_token = rC.CToken;
+			while(!Gp__C.EndOfCommand()) {
+				int save_token = Gp__C.CToken;
 #ifdef SMOOTH_BINS_OPTION
 				// bin the data if requested
-				if(rC.Eq("bins")) {
+				if(Gp__C.Eq("bins")) {
 					if(set_smooth) {
 						duplication = true;
 						break;
 					}
-					rC.CToken++;
+					Gp__C.CToken++;
 					p_plot->plot_smooth = SMOOTH_BINS;
 					nbins = Samples1;
-					if(rC.Eq("=")) {
-						rC.CToken++;
-						nbins = rC.IntExpression();
+					if(Gp__C.Eq("=")) {
+						Gp__C.CToken++;
+						nbins = Gp__C.IntExpression();
 						if(nbins <= 0)
 							nbins = Samples1;
 					}
 					binlow = binhigh = 0.0;
-					if(rC.Eq("binrange")) {
-						rC.CToken++;
-						if(!ParseRange(SAMPLE_AXIS, rC))
+					if(Gp__C.Eq("binrange")) {
+						Gp__C.CToken++;
+						if(!ParseRange(SAMPLE_AXIS, Gp__C))
 							IntErrorCurToken("incomplete bin range");
 						binlow  = AxA[SAMPLE_AXIS].Range.low;
 						binhigh = AxA[SAMPLE_AXIS].Range.upp;
@@ -1774,14 +1774,14 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 				}
 #endif
 				// deal with smooth
-				if(rC.AlmostEq("s$mooth")) {
+				if(Gp__C.AlmostEq("s$mooth")) {
 					int found_token;
 					if(set_smooth) {
 						duplication = true;
 						break;
 					}
-					found_token = rC.LookupTable(plot_smooth_tbl, ++rC.CToken);
-					rC.CToken++;
+					found_token = Gp__C.LookupTable(plot_smooth_tbl, ++Gp__C.CToken);
+					Gp__C.CToken++;
 					switch(found_token) {
 						case SMOOTH_UNWRAP:
 						case SMOOTH_FREQUENCY:
@@ -1789,9 +1789,9 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 						    break;
 						case SMOOTH_KDENSITY:
 						    p_plot->smooth_parameter = -1; /* Default */
-						    if(rC.AlmostEq("band$width")) {
-							    rC.CToken++;
-							    p_plot->smooth_parameter = rC.RealExpression();
+						    if(Gp__C.AlmostEq("band$width")) {
+							    Gp__C.CToken++;
+							    p_plot->smooth_parameter = Gp__C.RealExpression();
 						    }
 						/* Fall through */
 						case SMOOTH_ACSPLINES:
@@ -1814,34 +1814,34 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 					continue;
 				}
 				// look for axes/axis
-				if(rC.AlmostEq("ax$es") || rC.AlmostEq("ax$is")) {
+				if(Gp__C.AlmostEq("ax$es") || Gp__C.AlmostEq("ax$is")) {
 					if(set_axes) {
 						duplication = true;
 						break;
 					}
 					if(IsParametric && InParametric)
 						IntErrorCurToken("previous parametric function not fully specified");
-					rC.CToken++;
-					switch(rC.LookupTable(&plot_axes_tbl[0], rC.CToken)) {
+					Gp__C.CToken++;
+					switch(Gp__C.LookupTable(&plot_axes_tbl[0], Gp__C.CToken)) {
 						case AXES_X1Y1:
 						    XAxis = FIRST_X_AXIS;
 						    YAxis = FIRST_Y_AXIS;
-						    ++rC.CToken;
+						    ++Gp__C.CToken;
 						    break;
 						case AXES_X2Y2:
 						    XAxis = SECOND_X_AXIS;
 						    YAxis = SECOND_Y_AXIS;
-						    ++rC.CToken;
+						    ++Gp__C.CToken;
 						    break;
 						case AXES_X1Y2:
 						    XAxis = FIRST_X_AXIS;
 						    YAxis = SECOND_Y_AXIS;
-						    ++rC.CToken;
+						    ++Gp__C.CToken;
 						    break;
 						case AXES_X2Y1:
 						    XAxis = SECOND_X_AXIS;
 						    YAxis = FIRST_Y_AXIS;
-						    ++rC.CToken;
+						    ++Gp__C.CToken;
 						    break;
 						case AXES_NONE:
 						default:
@@ -1852,27 +1852,27 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 					continue;
 				}
 				// Allow this plot not to affect autoscaling
-				if(rC.AlmostEq("noauto$scale")) {
-					rC.CToken++;
+				if(Gp__C.AlmostEq("noauto$scale")) {
+					Gp__C.CToken++;
 					p_plot->noautoscale = true;
 					continue;
 				}
 				// deal with title
-				ParsePlotTitle(rC, p_plot, xtitle, NULL, &set_title);
-				if(save_token != rC.CToken)
+				ParsePlotTitle(Gp__C, p_plot, xtitle, NULL, &set_title);
+				if(save_token != Gp__C.CToken)
 					continue;
 				// deal with style
-				if(rC.AlmostEq("w$ith")) {
+				if(Gp__C.AlmostEq("w$ith")) {
 					if(set_with) {
 						duplication = true;
 						break;
 					}
 					if(IsParametric && InParametric)
 						IntErrorCurToken("\"with\" allowed only after parametric function fully specified");
-					p_plot->plot_style = get_style(rC);
+					p_plot->plot_style = get_style(Gp__C);
 					if(p_plot->plot_style == FILLEDCURVES) {
 						// read a possible option for 'with filledcurves'
-						get_filledcurves_style_options(rC, &p_plot->filledcurves_options);
+						get_filledcurves_style_options(Gp__C, &p_plot->filledcurves_options);
 					}
 					if(oneof3(p_plot->plot_style, IMAGE, RGBIMAGE, RGBA_IMAGE)) {
 						if(p_plot->plot_type == FUNC)
@@ -1882,7 +1882,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 					}
 					if((p_plot->plot_type == FUNC) && ((p_plot->plot_style & PLOT_STYLE_HAS_ERRORBAR)
 						|| (p_plot->plot_style == LABELPOINTS) || (p_plot->plot_style == PARALLELPLOT))) {
-						int_warn(rC.CToken, "This plot style is only for datafiles, reverting to \"points\"");
+						IntWarn(Gp__C.CToken, "This plot style is only for datafiles, reverting to \"points\"");
 						p_plot->plot_style = POINTSTYLE;
 					}
 					if(p_plot->plot_style == TABLESTYLE) {
@@ -1896,7 +1896,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 					if(p_plot->plot_style == PARALLELPLOT) {
 						int i;
 						if(GpDf.df_no_use_specs < 2)
-							GpGg.IntErrorNoCaret("not enough 'using' columns");
+							IntErrorNoCaret("not enough 'using' columns");
 						p_plot->n_par_axes = GpDf.df_no_use_specs;
 						p_plot->z_n = (double **)malloc((GpDf.df_no_use_specs) * sizeof(double*));
 						for(i = 0; i < p_plot->n_par_axes; i++)
@@ -1912,15 +1912,15 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 				 * - keywords for lt and pt are optional
 				 */
 				if(p_plot->plot_style == CANDLESTICKS) {
-					if(rC.AlmostEq("whisker$bars")) {
+					if(Gp__C.AlmostEq("whisker$bars")) {
 						p_plot->arrow_properties.head = BOTH_HEADS;
-						rC.CToken++;
-						if(rC.IsANumber(rC.CToken) || rC.TypeDdv(rC.CToken) == INTGR || rC.TypeDdv(rC.CToken) == CMPLX)
-							p_plot->arrow_properties.head_length = rC.RealExpression();
+						Gp__C.CToken++;
+						if(Gp__C.IsANumber(Gp__C.CToken) || Gp__C.TypeDdv(Gp__C.CToken) == INTGR || Gp__C.TypeDdv(Gp__C.CToken) == CMPLX)
+							p_plot->arrow_properties.head_length = Gp__C.RealExpression();
 					}
 				}
 				if(p_plot->plot_style == VECTOR) {
-					int stored_token = rC.CToken;
+					int stored_token = Gp__C.CToken;
 					if(!set_lpstyle) {
 						default_arrow_style(&(p_plot->arrow_properties));
 						if(prefer_line_styles)
@@ -1928,8 +1928,8 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 						else
 							load_linetype(&(p_plot->arrow_properties.lp_properties), line_num+1);
 					}
-					arrow_parse(rC, &p_plot->arrow_properties, true);
-					if(stored_token != rC.CToken) {
+					arrow_parse(Gp__C, &p_plot->arrow_properties, true);
+					if(stored_token != Gp__C.CToken) {
 						if(set_lpstyle) {
 							duplication = true;
 							break;
@@ -1944,26 +1944,26 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 #ifdef EAM_OBJECTS
 				/* pick up the special 'units' keyword the 'ellipses' style allows */
 				if(p_plot->plot_style == ELLIPSES) {
-					int stored_token = rC.CToken;
+					int stored_token = Gp__C.CToken;
 					if(!set_ellipseaxes_units)
 						p_plot->ellipseaxes_units = DefaultEllipse.o.ellipse.type;
-					if(rC.AlmostEq("unit$s")) {
-						rC.CToken++;
-						if(rC.Eq("xy")) {
+					if(Gp__C.AlmostEq("unit$s")) {
+						Gp__C.CToken++;
+						if(Gp__C.Eq("xy")) {
 							p_plot->ellipseaxes_units = ELLIPSEAXES_XY;
 						}
-						else if(rC.Eq("xx")) {
+						else if(Gp__C.Eq("xx")) {
 							p_plot->ellipseaxes_units = ELLIPSEAXES_XX;
 						}
-						else if(rC.Eq("yy")) {
+						else if(Gp__C.Eq("yy")) {
 							p_plot->ellipseaxes_units = ELLIPSEAXES_YY;
 						}
 						else {
 							IntErrorCurToken("expecting 'xy', 'xx' or 'yy'");
 						}
-						rC.CToken++;
+						Gp__C.CToken++;
 					}
-					if(stored_token != rC.CToken) {
+					if(stored_token != Gp__C.CToken) {
 						if(set_ellipseaxes_units) {
 							duplication = true;
 							break;
@@ -1978,7 +1978,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 				// Most plot styles accept line and point properties
 				// but do not want font or text properties
 				if(p_plot->plot_style != LABELPOINTS) {
-					int stored_token = rC.CToken;
+					int stored_token = Gp__C.CToken;
 					lp_style_type lp; // = DEFAULT_LP_STYLE_TYPE;
 					int new_lt = 0;
 					lp.l_type = line_num;
@@ -1992,8 +1992,8 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 						load_linetype(&lp, line_num+1);
 					if(p_plot->plot_style == BOXPLOT)
 						lp.p_type = boxplot_opts.pointtype;
-					new_lt = LpParse(rC, lp, LP_ADHOC, (p_plot->plot_style & PLOT_STYLE_HAS_POINT) ? true : false);
-					if(stored_token != rC.CToken) {
+					new_lt = LpParse(Gp__C, lp, LP_ADHOC, (p_plot->plot_style & PLOT_STYLE_HAS_POINT) ? true : false);
+					if(stored_token != Gp__C.CToken) {
 						if(set_lpstyle) {
 							duplication = true;
 							break;
@@ -2014,14 +2014,14 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 				// that all labels in the plot will share.
 				//
 				if((p_plot->plot_style == LABELPOINTS) || (p_plot->plot_style & PLOT_STYLE_HAS_POINT && p_plot->lp_properties.p_type == PT_CHARACTER)) {
-					int stored_token = rC.CToken;
+					int stored_token = Gp__C.CToken;
 					if(p_plot->labels == NULL) {
 						p_plot->labels = new_text_label(-1);
 						p_plot->labels->pos = CENTRE;
 						p_plot->labels->layer = LAYER_PLOTLABELS;
 					}
-					ParseLabelOptions(rC, p_plot->labels, 2);
-					if(stored_token != rC.CToken) {
+					ParseLabelOptions(Gp__C, p_plot->labels, 2);
+					if(stored_token != Gp__C.CToken) {
 						if(set_labelstyle) {
 							duplication = true;
 							break;
@@ -2032,7 +2032,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 						}
 					}
 					else if(p_plot->lp_properties.p_type == PT_CHARACTER) {
-						if(rC.Eq(","))
+						if(Gp__C.Eq(","))
 							break;
 						else
 							continue;
@@ -2040,18 +2040,18 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 				}
 				// Some plots have a fill style as well
 				if(p_plot->plot_style & PLOT_STYLE_HAS_FILL) {
-					int stored_token = rC.CToken;
-					if(rC.Eq("fs") || rC.AlmostEq("fill$style")) {
-						rC.ParseFillStyle(&p_plot->fill_properties, DefaultFillStyle.fillstyle,
+					int stored_token = Gp__C.CToken;
+					if(Gp__C.Eq("fs") || Gp__C.AlmostEq("fill$style")) {
+						Gp__C.ParseFillStyle(&p_plot->fill_properties, DefaultFillStyle.fillstyle,
 						    DefaultFillStyle.filldensity, pattern_num, DefaultFillStyle.border_color);
 						if(p_plot->plot_style == FILLEDCURVES && p_plot->fill_properties.fillstyle == FS_EMPTY)
 							p_plot->fill_properties.fillstyle = FS_SOLID;
 						set_fillstyle = true;
 					}
-					if(rC.Eq("fc") || rC.AlmostEq("fillc$olor")) {
-						rC.ParseColorSpec(&p_plot->lp_properties.pm3d_color, TC_VARIABLE);
+					if(Gp__C.Eq("fc") || Gp__C.AlmostEq("fillc$olor")) {
+						Gp__C.ParseColorSpec(&p_plot->lp_properties.pm3d_color, TC_VARIABLE);
 					}
-					if(stored_token != rC.CToken)
+					if(stored_token != Gp__C.CToken)
 						continue;
 				}
 				break; /* unknown option */
@@ -2063,7 +2063,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 			if(!set_title) {
 				p_plot->title_no_enhanced = true; /* filename or function cannot be enhanced */
 				if(key->auto_titles == FILENAME_KEYTITLES) {
-					rC.MCapture(&(p_plot->title), start_token, end_token);
+					Gp__C.MCapture(&(p_plot->title), start_token, end_token);
 					if(InParametric)
 						xtitle = p_plot->title;
 					p_plot->title_is_filename = true;
@@ -2080,7 +2080,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 						lp_use_properties(&(p_plot->arrow_properties.lp_properties), line_num+1);
 					else
 						load_linetype(&(p_plot->arrow_properties.lp_properties), line_num+1);
-					arrow_parse(rC, &p_plot->arrow_properties, true);
+					arrow_parse(Gp__C, &p_plot->arrow_properties, true);
 				}
 				p_plot->lp_properties = p_plot->arrow_properties.lp_properties;
 				set_lpstyle = true;
@@ -2101,7 +2101,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 					load_linetype(&p_plot->lp_properties, line_num+1);
 				if(p_plot->plot_style == BOXPLOT)
 					p_plot->lp_properties.p_type = boxplot_opts.pointtype;
-				LpParse(rC, p_plot->lp_properties, LP_ADHOC, (p_plot->plot_style & PLOT_STYLE_HAS_POINT) ? true : false);
+				LpParse(Gp__C, p_plot->lp_properties, LP_ADHOC, (p_plot->plot_style & PLOT_STYLE_HAS_POINT) ? true : false);
 			}
 			// Some low-level routines expect to find the pointflag attribute 
 			// in lp_properties (they don't have access to the full header.   
@@ -2127,13 +2127,13 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 					case YERRORLINES:
 					    break;
 					default:
-					    GpGg.IntErrorNoCaret("This plot style is not available in polar mode");
+					    IntErrorNoCaret("This plot style is not available in polar mode");
 				}
 
 			/* If we got this far without initializing the fill style, do it now */
 			if(p_plot->plot_style & PLOT_STYLE_HAS_FILL) {
 				if(!set_fillstyle)
-					rC.ParseFillStyle(&p_plot->fill_properties, DefaultFillStyle.fillstyle, DefaultFillStyle.filldensity, pattern_num, DefaultFillStyle.border_color);
+					Gp__C.ParseFillStyle(&p_plot->fill_properties, DefaultFillStyle.fillstyle, DefaultFillStyle.filldensity, pattern_num, DefaultFillStyle.border_color);
 				if((p_plot->fill_properties.fillstyle == FS_PATTERN) ||(p_plot->fill_properties.fillstyle == FS_TRANSPARENT_PATTERN))
 					pattern_num = p_plot->fill_properties.fillpattern + 1;
 				if(p_plot->plot_style == FILLEDCURVES && p_plot->fill_properties.fillstyle == FS_EMPTY)
@@ -2146,7 +2146,7 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 				if(p_plot->labels == NULL) {
 					p_plot->labels = new_text_label(-1);
 					p_plot->labels->pos = CENTRE;
-					ParseLabelOptions(rC, p_plot->labels, 2);
+					ParseLabelOptions(Gp__C, p_plot->labels, 2);
 				}
 			}
 			// If we got this far without initializing the label list, do it now
@@ -2257,9 +2257,9 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 				// current autoscaled ranges here so we can restore them later. 
 				SaveAutoscaledRanges(&AxA[p_plot->x_axis], &AxA[p_plot->y_axis]);
 				// actually get the data now 
-				if(GetData(rC, p_plot) == 0) {
-					if(!forever_iteration(rC.P.P_PlotIterator))
-						int_warn(NO_CARET, "Skipping data file with no valid points");
+				if(GetData(p_plot) == 0) {
+					if(!forever_iteration(Gp__C.P.P_PlotIterator))
+						IntWarn(NO_CARET, "Skipping data file with no valid points");
 					p_plot->plot_type = NODATA;
 					goto SKIPPED_EMPTY_FILE;
 				}
@@ -2373,42 +2373,42 @@ void GpGadgets::EvalPlots(GpCommand & rC)
 			}
 SKIPPED_EMPTY_FILE:
 			// Note position in command line for second pass
-			p_plot->Token = rC.CToken;
+			p_plot->Token = Gp__C.CToken;
 			tp_ptr = &(p_plot->P_Next);
 		}
 		if(InParametric) {
-			if(rC.Eq(",")) {
-				rC.CToken++;
+			if(Gp__C.Eq(",")) {
+				Gp__C.CToken++;
 				continue;
 			}
 			else
 				break;
 		}
 		// Iterate-over-plot mechanism 
-		if(empty_iteration(rC.P.P_PlotIterator) && p_plot) {
+		if(empty_iteration(Gp__C.P.P_PlotIterator) && p_plot) {
 			p_plot->plot_type = NODATA;
 		}
-		else if(forever_iteration(rC.P.P_PlotIterator) && (p_plot->plot_type == NODATA)) {
-			highest_iteration = rC.P.P_PlotIterator->iteration_current;
+		else if(forever_iteration(Gp__C.P.P_PlotIterator) && (p_plot->plot_type == NODATA)) {
+			highest_iteration = Gp__C.P.P_PlotIterator->iteration_current;
 		}
-		else if(forever_iteration(rC.P.P_PlotIterator) && (p_plot->plot_type == FUNC)) {
-			GpGg.IntErrorNoCaret("unbounded iteration in function plot");
+		else if(forever_iteration(Gp__C.P.P_PlotIterator) && (p_plot->plot_type == FUNC)) {
+			IntErrorNoCaret("unbounded iteration in function plot");
 		}
-		else if(next_iteration(rC.P.P_PlotIterator)) {
-			rC.CToken = start_token;
-			highest_iteration = rC.P.P_PlotIterator->iteration_current;
+		else if(next_iteration(Gp__C.P.P_PlotIterator)) {
+			Gp__C.CToken = start_token;
+			highest_iteration = Gp__C.P.P_PlotIterator->iteration_current;
 			continue;
 		}
-		rC.P.CleanupPlotIterator();
-		if(rC.Eq(",")) {
-			rC.CToken++;
-			rC.P.P_PlotIterator = rC.CheckForIteration();
+		Gp__C.P.CleanupPlotIterator();
+		if(Gp__C.Eq(",")) {
+			Gp__C.CToken++;
+			Gp__C.P.P_PlotIterator = Gp__C.CheckForIteration();
 		}
 		else
 			break;
 	}
 	if(IsParametric && InParametric)
-		GpGg.IntErrorNoCaret("parametric function not fully specified");
+		IntErrorNoCaret("parametric function not fully specified");
 
 /*** Second Pass: Evaluate the functions ***/
 	/*
@@ -2480,16 +2480,16 @@ SKIPPED_EMPTY_FILE:
 		tp_ptr = &(P_FirstPlot);
 		plot_num = 0;
 		p_plot = P_FirstPlot;
-		rC.CToken = begin_token; // start over
-		rC.P.P_PlotIterator = rC.CheckForIteration();
+		Gp__C.CToken = begin_token; // start over
+		Gp__C.P.P_PlotIterator = Gp__C.CheckForIteration();
 		// Read through functions
 		while(true) {
 			if(!InParametric && !was_definition)
-				start_token = rC.CToken;
-			if(rC.IsDefinition()) {
-				rC.Define();
-				if(rC.Eq(","))
-					rC.CToken++;
+				start_token = Gp__C.CToken;
+			if(Gp__C.IsDefinition()) {
+				Gp__C.Define();
+				if(Gp__C.Eq(","))
+					Gp__C.CToken++;
 				was_definition = true;
 				continue;
 			}
@@ -2499,8 +2499,8 @@ SKIPPED_EMPTY_FILE:
 				int    sample_range_token;
 				was_definition = false;
 				// Forgive trailing comma on a multi-element plot command 
-				if(rC.EndOfCommand() || !p_plot) {
-					int_warn(rC.CToken, "ignoring trailing comma in plot command");
+				if(Gp__C.EndOfCommand() || !p_plot) {
+					IntWarn(Gp__C.CToken, "ignoring trailing comma in plot command");
 					break;
 				}
 				// HBB 20000820: now globals in 'axis.c' 
@@ -2510,21 +2510,21 @@ SKIPPED_EMPTY_FILE:
 				// Check for a sampling range. 
 				// Only relevant to function plots, and only needed in second pass. 
 				InitSampleRange(&GetX());
-				sample_range_token = ParseRange(SAMPLE_AXIS, rC);
-				rC.P_DummyFunc = &plot_func;
-				if(rC.AlmostEq("newhist$ogram")) {
+				sample_range_token = ParseRange(SAMPLE_AXIS, Gp__C);
+				Gp__C.P_DummyFunc = &plot_func;
+				if(Gp__C.AlmostEq("newhist$ogram")) {
 					name_str = ""; // Make sure this isn't interpreted as a function
 				}
 				else {
 					// Allow replacement of the dummy variable in a function
 					if(sample_range_token > 0)
-						rC.CopyStr(rC.P.CDummyVar[0], sample_range_token, MAX_ID_LEN);
+						Gp__C.CopyStr(Gp__C.P.CDummyVar[0], sample_range_token, MAX_ID_LEN);
 					else if(sample_range_token < 0)
-						strcpy(rC.P.CDummyVar[0], rC.P.SetDummyVar[0]);
+						strcpy(Gp__C.P.CDummyVar[0], Gp__C.P.SetDummyVar[0]);
 					else
-						strcpy(rC.P.CDummyVar[0], orig_dummy_var);
+						strcpy(Gp__C.P.CDummyVar[0], orig_dummy_var);
 					// WARNING: do NOT free name_str
-					name_str = rC.P.StringOrExpress(rC, &at_ptr);
+					name_str = Gp__C.P.StringOrExpress(Gp__C, &at_ptr);
 				}
 				if(!name_str) { /* function to plot */
 					if(IsParametric) { /* toggle parametric axes */
@@ -2675,7 +2675,7 @@ come_here_if_undefined:
 					p_plot->p_count = i; // Samples1
 				}
 				// skip all modifers func / whole of data plots
-				rC.CToken = p_plot->Token;
+				Gp__C.CToken = p_plot->Token;
 				// used below
 				tp_ptr = &(p_plot->P_Next);
 				p_plot = p_plot->P_Next;
@@ -2683,22 +2683,22 @@ come_here_if_undefined:
 			// Jan 2014: Earlier 2.6 versions missed this case,
 			//           breaking iteration over parametric plots
 			if(InParametric) {
-				if(rC.Eq(",")) {
-					rC.CToken++;
+				if(Gp__C.Eq(",")) {
+					Gp__C.CToken++;
 					continue;
 				}
 			}
 			// Iterate-over-plot mechanism
-			if(next_iteration(rC.P.P_PlotIterator)) {
-				if(rC.P.P_PlotIterator->iteration_current <= highest_iteration) {
-					rC.CToken = start_token;
+			if(next_iteration(Gp__C.P.P_PlotIterator)) {
+				if(Gp__C.P.P_PlotIterator->iteration_current <= highest_iteration) {
+					Gp__C.CToken = start_token;
 					continue;
 				}
 			}
-			rC.P.CleanupPlotIterator();
-			if(rC.Eq(",")) {
-				rC.CToken++;
-				rC.P.P_PlotIterator = rC.CheckForIteration();
+			Gp__C.P.CleanupPlotIterator();
+			if(Gp__C.Eq(",")) {
+				Gp__C.CToken++;
+				Gp__C.P.P_PlotIterator = Gp__C.CheckForIteration();
 			}
 			else
 				break;
@@ -2727,15 +2727,15 @@ come_here_if_undefined:
 	}
 	if(!uses_axis[FIRST_X_AXIS] && !uses_axis[SECOND_X_AXIS])
 		if(P_FirstPlot->plot_type == NODATA)
-			GpGg.IntErrorNoCaret("No data in plot");
+			IntErrorNoCaret("No data in plot");
 	if(uses_axis[FIRST_X_AXIS]) {
 		if(AxA[FIRST_X_AXIS].IsRangeUndef())
-			GpGg.IntErrorNoCaret("all points undefined!");
+			IntErrorNoCaret("all points undefined!");
 		RevertAndUnlogRange(FIRST_X_AXIS);
 	}
 	if(uses_axis[SECOND_X_AXIS]) {
 		if(AxA[SECOND_X_AXIS].IsRangeUndef())
-			GpGg.IntErrorNoCaret("all points undefined!");
+			IntErrorNoCaret("all points undefined!");
 		RevertAndUnlogRange(SECOND_X_AXIS);
 	}
 	else {
@@ -2793,11 +2793,11 @@ come_here_if_undefined:
 	* setting the plot_num must already be done before
 	* entering do_plot(). Thu Jan 27 23:56:24 2000 (joze) */
 	/* if we get here, all went well, so record this line for replot */
-	if(rC.PlotToken != -1) {
+	if(Gp__C.PlotToken != -1) {
 		// note that m_capture also frees the old replot_line
-		rC.MCapture(&rC.P_ReplotLine, rC.PlotToken, rC.CToken - 1);
-		rC.PlotToken = -1;
-		Ev.FillGpValString("GPVAL_LAST_PLOT", rC.P_ReplotLine);
+		Gp__C.MCapture(&Gp__C.P_ReplotLine, Gp__C.PlotToken, Gp__C.CToken - 1);
+		Gp__C.PlotToken = -1;
+		Ev.FillGpValString("GPVAL_LAST_PLOT", Gp__C.P_ReplotLine);
 	}
 	if(table_mode) {
 		print_table(P_FirstPlot, plot_num);

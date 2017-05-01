@@ -2428,7 +2428,8 @@ private:
 	struct CopyParams {
 		SString Path;
 		SString TempPath;
-		SStrCollection FileList;
+		//SStrCollection FileList;
+		StringSet SsFiles;
 		int64  TotalSize;
 		ulong  CheckSum;
 	};
@@ -2732,11 +2733,13 @@ public:
 		DbRegList();
 		void   Init();
 		int    GetMaxEntries() const;
-		int    FASTCALL AddEntry(void * pTbl);
-		int    FASTCALL FreeEntry(int handle);
+		int    FASTCALL AddEntry(void * pTbl, void * pSupplementPtr);
+		int    FASTCALL FreeEntry(int handle, void * pSupplementPtr);
 		void * FASTCALL GetPtr(int handle) const;
+		void * FASTCALL GetBySupplementPtr(const void * pSupplementPtr) const;
 	private:
 		TSArray <void *> Tab;
+		PtrHashTable Ht; // Индексная хэш-таблица
 		int    OpenCount;
 		int    OpenPeak;
 	};
@@ -2762,6 +2765,10 @@ public:
 	//   Возвращает ссылку на таблицу открытых BDB-файлов.
 	//
 	DbRegList & GetBDbRegList()
+	{
+		return BDbTableReg;
+	}
+	const DbRegList & GetBDbRegList_Const() const
 	{
 		return BDbTableReg;
 	}
@@ -3909,11 +3916,14 @@ public:
 			// BDbDatabase, в противном случае создается собственный контекст.
 	};
 	struct Config {
-		Config(const char * pName = 0, int idxType = idxtypDefault, long flags = 0);
+		Config(const char * pName, int idxType, long flags, uint32 pageSize, uint32 cacheSizeKb);
+		void   Clear();
 
 		int    IdxType;    // BDbTable::idxtypXXX
 		long   Flags;      // BDbTable::cfXXX
-		size_t DataChunk;  //
+		uint32 DataChunk;  //
+		uint32 CacheSize;  // @v9.6.4 Размер кэша таблицы (kilobytes!!!). 0 - default
+		uint32 PageSize;   // @v9.6.4 Размер страницы данных (bytes). 0 - default
 		SString Name;      // Имя файла
 	};
 	//
@@ -4053,6 +4063,7 @@ public:
 	TSCollection <BDbTable> & GetIdxList();
 	int    IsConsistent() const;
 	int    FASTCALL GetState(long stateFlag) const;
+	int    GetConfig(int idx, Config & rCfg);
 	int    Create(const char * pFileName, int createMode, BDbTable::Config * pCfg);
 	int    Open(const char * pFileName);
 	int    Close();
@@ -4076,6 +4087,7 @@ protected:
 	int    Helper_EndTransaction();
 	SSerializeContext * GetSCtx() const;
 	int    Helper_Search(Buffer & rKey, Buffer & rData, uint32 flags);
+	int    Helper_GetConfig(BDbTable * pH, Config & rCfg);
 
 	uint32 Sign;   // Подпись экземпляра класса. Используется для идентификации инвалидных экземпляров.
 	int    Handle; // Индекс открытой таблицы в списке DBThreadLocalArea
@@ -4117,27 +4129,21 @@ public:
 		stLoggedIn = 0x0002
 	};
 	enum {
-		oRecover = 0x0001
+		oRecover = 0x0001,
+		oPrivate = 0x0002  // @v9.6.4 окружение (ENVIRONMENT) BerkeleyDB не может быть использовано разными процессами
 	};
 	struct Config {
-		Config()
-		{
-			Flags = 0;
-			CacheSize = 0;
-			CacheCount = 0;
-			MaxLockers = 0;
-			LogBufSize = 0;
-			LogFileSize = 0;
-			// @v8.3.5 {
-			MutexCountInit = 0;
-			MutexCountMax = 0;
-			MutexCountIncr = 0;
-			// } @v8.3.5
-		}
+		Config();
+
 		long   Flags;
 		uint64 CacheSize;   // Максимальный размер кэш-буферов (bytes).
 		uint   CacheCount;  // Максимальное количество кэш-буферов.
+		uint   PageSize;    // @v9.6.4 Размер страницы данных
+		
 		uint   MaxLockers;  // Максимальное количество локеров.
+		uint   MaxLocks;    // @v9.6.4 A thread uses this structure to lock a page (or record for the QUEUE access method) and hold it to the end of a transactions
+		uint   MaxLockObjs; // @v9.6.4 For each page (or record) which is locked in the system, a lock object will be allocated.
+
 		uint   LogBufSize;  // Размер буфера журнала транзакция (bytes).
 		uint   LogFileSize; // Размер одного файла журнала транзакций (bytes). BerkeleyDB формирует журналы
 			// транзакций файлами одинакового размера. После заполнения очередного файла создается //

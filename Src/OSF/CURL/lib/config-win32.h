@@ -501,9 +501,9 @@
 	#endif
 	#if (_WIN32_WINNT < VS2012_MIN_TARGET) || (WINVER < VS2012_MIN_TARGET)
 		#if defined(_USING_V110_SDK71_)
-			#error VS2012 does not support Windows build targets prior to Windows XP
+			// @sobolev #error VS2012 does not support Windows build targets prior to Windows XP
 		#else
-			#error VS2012 does not support Windows build targets prior to Windows Vista
+			// @sobolev #error VS2012 does not support Windows build targets prior to Windows Vista
 		#endif
 	#endif
 #endif

@@ -3150,7 +3150,7 @@ SString & SLAPI PPObjTSession::MakeListName(const PPIDArray * pList, SString & r
 		for(uint i = 0; i < pList->getCount(); i++)
 			if(Search(pList->at(i), &tses_rec) > 0) {
 				MakeName(&tses_rec, ses_name);
-				rBuf.CatDiv(';', 2, 1).Cat(ses_name);
+				rBuf.CatDivIfNotEmpty(';', 2).Cat(ses_name);
 			}
 	}
 	return rBuf;

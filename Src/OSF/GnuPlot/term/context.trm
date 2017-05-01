@@ -561,7 +561,7 @@ static void CONTEXT_options(GpCommand & rC)
 			    rC.CToken++;
 			    CONTEXT_params.images = CONTEXT_IMAGES_EXTERNAL;
 #else
-			    int_warn(rC.CToken, "Gnuplot was built without support for PNG images. You cannot use this option unless you rebuild gnuplot.");
+			    IntWarn(rC.CToken, "Gnuplot was built without support for PNG images. You cannot use this option unless you rebuild gnuplot.");
 #endif
 			    break;
 			/*
@@ -1711,7 +1711,7 @@ static void CONTEXT_set_color(t_colorspec * colorspec)
 		    CONTEXT_color_changed = true;
 		    break;
 		default:
-		    int_warn(NO_CARET, "context.trm set_color unknown colorspec->type %i", colorspec->type);
+		    IntWarn(NO_CARET, "context.trm set_color unknown colorspec->type %i", colorspec->type);
 		    break;
 	}
 }

@@ -2474,29 +2474,29 @@ int SLAPI PPViewBill::PreprocessBrowser(PPViewBrowser * pBrw)
 		pBrw->options |= (ofCenterX | ofCenterY);
 		if(Filt.Flags & BillFilt::fCashOnly) {
 			GetObjectName(PPOBJ_CASHNODE, LConfig.Cash, sub_title, 1);
-			sub_title.CatDiv('-', 1, 1).Cat(LConfig.OperDate);
+			sub_title.CatDivIfNotEmpty('-', 1).Cat(LConfig.OperDate);
 		}
 		else {
 			if(!Filt.Period.IsZero())
-				sub_title.CatDiv('-', 1, 1).Cat(Filt.Period, 1);
+				sub_title.CatDivIfNotEmpty('-', 1).Cat(Filt.Period, 1);
 			if(single_loc_id) {
 				GetLocationName(single_loc_id, temp_buf);
-				sub_title.CatDiv('-', 1, 1).Cat(temp_buf);
+				sub_title.CatDivIfNotEmpty('-', 1).Cat(temp_buf);
 			}
 			if(Filt.OpID) {
 				GetOpName(Filt.OpID, temp_buf);
-				sub_title.CatDiv('-', 1, 1).Cat(temp_buf);
+				sub_title.CatDivIfNotEmpty('-', 1).Cat(temp_buf);
 			}
 			if(Filt.AccSheetID) {
 				GetObjectName(PPOBJ_ACCSHEET, Filt.AccSheetID, temp_buf);
-				sub_title.CatDiv('-', 1, 1).Cat(temp_buf);
+				sub_title.CatDivIfNotEmpty('-', 1).Cat(temp_buf);
 			}
 			if(Filt.ObjectID) {
 				GetArticleName(Filt.ObjectID, temp_buf);
-				sub_title.CatDiv('-', 1, 1).Cat(temp_buf);
+				sub_title.CatDivIfNotEmpty('-', 1).Cat(temp_buf);
 			}
 			if(Filt.CurID > 0 && !(Filt.Flags & BillFilt::fAllCurrencies))
-				sub_title.CatDiv('-', 1, 1).Cat(GetCurSymbText(Filt.CurID, temp_buf));
+				sub_title.CatDivIfNotEmpty('-', 1).Cat(GetCurSymbText(Filt.CurID, temp_buf));
 			if(!(Filt.ObjectID && Filt.Flags & BillFilt::fDebtsWithPayments)) {
 				uint   loc_col  = 1;
 				uint   bs_col   = 2;
@@ -7794,7 +7794,7 @@ int PPALDD_BillList::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_BillList::Destroy()
+void PPALDD_BillList::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(Bill);
 }
@@ -7948,7 +7948,7 @@ int PPALDD_ContentBList::NextIteration(PPIterID iterId, long rsrv)
 	return -1;
 }
 
-int PPALDD_ContentBList::Destroy()
+void PPALDD_ContentBList::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(Bill);
 }
@@ -8202,10 +8202,9 @@ int PPALDD_BillTotal::NextIteration(PPIterID iterId, long rsrv)
 	return DlRtm::NextIteration(iterId, rsrv);
 }
 
-int PPALDD_BillTotal::Destroy()
+void PPALDD_BillTotal::Destroy()
 {
 	Extra[0].Ptr = Extra[1].Ptr = 0;
-	return 1;
 }
 //
 // Implementation of PPALDD_AssetReceipt
@@ -8265,10 +8264,9 @@ int PPALDD_AssetReceipt::NextIteration(PPIterID iterId, long rsrv)
 	return DlRtm::NextIteration(iterId, rsrv);
 }
 
-int PPALDD_AssetReceipt::Destroy()
+void PPALDD_AssetReceipt::Destroy()
 {
 	Extra[0].Ptr = Extra[1].Ptr = 0;
-	return 1;
 }
 //
 // Implementation of PPALDD_Warrant (only WIN32)
@@ -8331,10 +8329,9 @@ int PPALDD_Warrant::NextIteration(PPIterID iterId, long rsrv)
 		return -1;
 }
 
-int PPALDD_Warrant::Destroy()
+void PPALDD_Warrant::Destroy()
 {
 	Extra[0].Ptr = Extra[1].Ptr = 0;
-	return 1;
 }
 //
 // Implementation of PPALDD_BillInfo

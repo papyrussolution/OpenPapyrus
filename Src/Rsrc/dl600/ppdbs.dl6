@@ -2846,6 +2846,7 @@ file:
 // Descr: «апросы к удаленным сервисам, требующие длительного времени отклика
 // (Delayed Global Query)
 //
+/* @v9.6.4 (useless)
 table DGQ {
 	raw    QUUID[16]; // UUID запроса
 	string QSID[48];  // —троковый идентификатор запроса
@@ -2867,6 +2868,7 @@ file:
 	vlr;
 	access=1;
 }
+*/
 //
 // @construction
 //

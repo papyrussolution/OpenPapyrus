@@ -1,9 +1,42 @@
 // PRIME.CPP
-// Copyright (c) A.Sobolev 2004, 2008, 2010, 2016
+// Copyright (c) A.Sobolev 2004, 2008, 2010, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
+//
+//
+//
+uint FASTCALL sshrinkuint64(uint64 value, void * pBuf)
+{
+	uint   size = 0;
+    if(value == 0) {
+		PTR8(pBuf)[0] = 0;
+		size = 1;
+    }
+    else {
+		uint i = 7;
+		while(PTR8(&value)[i] == 0) {
+			i--;
+		}
+		size = i+1;
+		for(i = 0; i < size; i++) {
+			PTR8(pBuf)[i] = PTR8(&value)[i];
+		}
+    }
+    return size;
+}
+
+uint64 FASTCALL sexpanduint64(const void * pBuf, uint size)
+{
+	uint64 result = 0;
+	if(size > 1 || PTR8(pBuf)[0] != 0) {
+		for(uint i = 0; i < size; i++) {
+			PTR8(&result)[i] = PTR8(pBuf)[i];
+		}
+	}
+	return result;
+}
 //
 // Descr: ¬ычисл€ет наибольший общий делитель (GCD) a и b
 //
@@ -229,6 +262,41 @@ SLTEST_R(Prime)
 				break;
 		}
 		SLTEST_CHECK_EQ(is_tabbed_prime, isp);
+    }
+    {
+        struct TestSValue {
+        	uint64 V;
+        	uint32 S;
+        } _test_row[] = {
+        	{ 0ULL,                  1 },
+        	{ 0x00000000000000ffULL, 1 },
+        	{ 0x000000000000ffffULL, 2 },
+        	{ 0x0000000000007f00ULL, 2 },
+        	{ 0x0000000000ffffffULL, 3 },
+        	{ 0x000000000070ff00ULL, 3 },
+        	{ 0x00000000ffffffffULL, 4 },
+        	{ 0x00000000af4f00ffULL, 4 },
+        	{ 0x000000ffffffffffULL, 5 },
+        	{ 0x0000003f00007b00ULL, 5 },
+        	{ 0x0000ffffffffffffULL, 6 },
+        	{ 0x00000ffff12fbeefULL, 6 },
+        	{ 0x00ffffffffffffffULL, 7 },
+        	{ 0x0070ff220001ff00ULL, 7 },
+        	{ 0xffffffffffffffffULL, 8 },
+        	{ 0x7000000000000000ULL, 8 },
+        	{ 0x70af81b39ec62da5ULL, 8 }
+        };
+        uint8 buffer[32];
+        uint32 sz;
+        uint64 value;
+		for(uint i = 0; i < SIZEOFARRAY(_test_row); i++) {
+			memzero(buffer, sizeof(buffer));
+			value = _test_row[i].V;
+			sz = sshrinkuint64(value, buffer);
+			SLTEST_CHECK_NZ(ismemzero(buffer+sz, sizeof(buffer)-sz));
+			SLTEST_CHECK_EQ(sz, _test_row[i].S);
+			SLTEST_CHECK_EQ(sexpanduint64(buffer, sz), value);
+		}
     }
 	return CurrentStatus;
 }

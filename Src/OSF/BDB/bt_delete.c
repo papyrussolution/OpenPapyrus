@@ -42,18 +42,10 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 /*
  * __bam_ditem --
  *	Delete one or more entries from a page.
- *
- * PUBLIC: int __bam_ditem __P((DBC *, PAGE *, uint32));
  */
 int __bam_ditem(DBC*dbc, PAGE * h, uint32 indx)
 {
@@ -143,8 +135,6 @@ int __bam_ditem(DBC*dbc, PAGE * h, uint32 indx)
 /*
  * __bam_adjindx --
  *	Adjust an index on the page.
- *
- * PUBLIC: int __bam_adjindx __P((DBC *, PAGE *, uint32, uint32, int));
  */
 int __bam_adjindx(DBC*dbc, PAGE * h, uint32 indx, uint32 indx_copy, int is_insert)
 {
@@ -441,7 +431,7 @@ stop:
  *
  * PUBLIC: int __bam_pupdate __P((DBC *, PAGE *));
  */
-int __bam_pupdate(DBC*dbc, PAGE * lpg)
+int __bam_pupdate(DBC * dbc, PAGE * lpg)
 {
 	int ret = 0;
 	ENV * env = dbc->env;

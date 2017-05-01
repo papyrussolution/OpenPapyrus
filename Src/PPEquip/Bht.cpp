@@ -70,8 +70,8 @@ int SLAPI StyloBhtIIOnHostCfg::IsValid()
 	int    ok = 1;
 	THROW_PP(DeviceName.Len(), PPERR_NAMENEEDED);
 	if(Flags & StyloBhtIIConfig::fUseWiFi) {
-		THROW_PP(UserName.Len(), PPERR_INVUSERNAME);
-		THROW_PP(Password.Len(), PPERR_INVPASSWORD);
+		THROW_PP(UserName.Len(), PPERR_INVUSERORPASSW);
+		THROW_PP(Password.Len(), PPERR_INVUSERORPASSW);
 		THROW_PP(ServerAddr, PPERR_INVIP);
 	}
 	THROW_PP(P_OpList && P_OpList->getCount(), PPERR_INVOP);
@@ -639,8 +639,8 @@ int StyloBhtIICfgDialog::getDTS(StyloBhtIIOnHostCfg * pData)
 	GetClusterData(CTL_SBIICFG_FLAGS,     &Data.Flags);
 	if(Data.Flags & StyloBhtIIConfig::fUseWiFi) {
 		sel = CTL_SBIICFG_USER;
-		THROW_PP(Data.UserName.Len(), PPERR_INVUSERNAME);
-		THROW_PP(Data.Password.Len(), PPERR_INVPASSWORD);
+		THROW_PP(Data.UserName.Len(), PPERR_INVUSERORPASSW);
+		THROW_PP(Data.Password.Len(), PPERR_INVUSERORPASSW);
 		sel = CTL_SBIICFG_SERVADDR;
 		THROW_PP(Data.ServerAddr > 0, PPERR_INVIP);
 	}
@@ -813,7 +813,7 @@ int SLAPI PPObjBHT::GetPacket(PPID id, PPBhtTerminalPacket * pPack)
 	if(Search(id, &pPack->Rec) > 0) {
 		StyloBhtIIOnHostCfg * p_cfg = 0;
 		GoodsFilt flt;
-		uint   cfg_indb_size = 0;
+		size_t cfg_indb_size = 0;
 		int   _pre764 = 0; // 1 - pre764 без QttyWeightPrefix, 2 - pre764 с QttyWeightPrefix, -1 - не удалось идентифицировать
 		if(flt.ReadFromProp(PPOBJ_BHT, id, BHTPRP_GOODSFILT2, BHTPRP_GOODSFILT_) > 0) {
 			if(!flt.IsEmpty())
@@ -1411,7 +1411,7 @@ int SLAPI BhtProtocol::SetConnection()
 		if((c = GetChr()) == ACK)
 			ok = 1;
 		else
-			delay(Timeout);
+			SDelay(Timeout);
 	}
 	if(!ok) {
 		PutChr(EOT);
@@ -1450,7 +1450,7 @@ int SLAPI BhtProtocol::SendBlock(uint recNo, size_t size, const char * pBlk)
 			case ACK: ok =  1; enq = 0; break;
 			case NAK: ok =  0; nak = 1; break;
 			case EOT: ok = (PPSetError(PPERR_BHT_EOT), -1); break;
-			default:  ok =  0; enq = 1; delay(Timeout); break;
+			default:  ok =  0; enq = 1; SDelay(Timeout); break;
 		}
 	}
 	if(enq) {
@@ -1474,7 +1474,7 @@ int SLAPI BhtProtocol::ReleaseConnection()
 		if((c = GetChr()) == ACK)
 			ok = 1;
 		else
-			delay(Timeout);
+			SDelay(Timeout);
 	}
 	if(!ok) {
 		char   addmsg[32];
@@ -1519,7 +1519,7 @@ int SLAPI BhtProtocol::WaitOnConnection(int releaseLink, long timeout)
 			return 1;
 		}
 		else
-			delay((uint)(timeout / 100));
+			SDelay((uint)(timeout / 100));
 	return 0;
 }
 
@@ -1531,7 +1531,7 @@ int SLAPI BhtProtocol::ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * pBu
 	char   c, bcc = 0;
 	size_t p = 0;
 
-	delay(100);
+	SDelay(100);
 	c = GetChr();
 	THROW_PP(c == SOH || c == STX, PPERR_BHT_NOTSOHSTXSYMB);
 	if(c == STX) {
@@ -1712,7 +1712,7 @@ int SLAPI CipherProtocol::SetConnection()
 		if((c = GetChrEx()) == ACK)
 			ok = 1;
 		else
-			delay(Timeout);
+			SDelay(Timeout);
 	}
 	if(!ok) {
 		PutChrEx(EOT);
@@ -1730,7 +1730,7 @@ int SLAPI CipherProtocol::ReleaseConnection()
 		if((c = GetChrEx()) == ACK)
 			ok = 1;
 		else
-			delay(Timeout);
+			SDelay(Timeout);
 	}
 	if(!ok) {
 		char   addmsg[32];
@@ -1816,7 +1816,7 @@ int SLAPI CipherProtocol::SendBlock(uint recNo, size_t size, const char * pBlk)
 			case ACK: ok =  1; enq = 0; break;
 			case NAK: ok =  0; nak = 1; break;
 			case EOT: ok = (PPSetError(PPERR_BHT_EOT), -1); break;
-			default:  ok =  0; enq = 1; delay(Timeout); break;
+			default:  ok =  0; enq = 1; SDelay(Timeout); break;
 		}
 	}
 	if(enq) {
@@ -1856,7 +1856,7 @@ int SLAPI CipherProtocol::WaitOnConnection(int releaseLink, long timeout)
 		}
 		else {
 			PutChrEx(NAK);
-			delay((uint)(timeout / 100));
+			SDelay((uint)(timeout / 100));
 		}
 	return 0;
 }
@@ -1899,7 +1899,7 @@ int SLAPI CipherProtocol::ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * 
 	size_t p = 0;
 
 	for(int i = 0; !r && i < 100; i++) {
-		delay(300);
+		SDelay(300);
 		c = GetChr();
 		if(c == SOH || c == STX) {
 			if(c == STX) {
@@ -3688,7 +3688,7 @@ int SLAPI GetBillRows(const char * pLName, TSArray <Sdr_SBIIBillRow> * pList)
 				lot_list.clear();
 				if(p_bobj->SearchLotsBySerial(serial, &lot_list) > 0 && lot_list.getCount()) {
 	 				ReceiptTbl::Rec lot_rec;
-	 				THROW(r_rcpt.Search(lot_list.at(0), &lot_rec) > 0);
+	 				THROW(r_rcpt.Search(lot_list.at(0), &lot_rec) > 0); // @todo softerror
 	 				sdr_brow.GoodsID = lot_rec.GoodsID;
 				}
 	 		}
@@ -3905,9 +3905,15 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 						lot_list.clear();
 						if(p_bobj->SearchLotsBySerial(serial, &lot_list) > 0 && lot_list.getCount()) {
 							ReceiptTbl::Rec lot_rec;
-							THROW(r_rcpt.Search(lot_list.at(0), &lot_rec) > 0);
-							SETIFZ(sdr_brow.GoodsID, lot_rec.GoodsID);
-							is_serial = 1;
+							// @v9.6.4 THROW(r_rcpt.Search(lot_list.at(0), &lot_rec) > 0); // @todo softerror
+							// @v9.6.4 {
+							for(uint lidx = 0; !is_serial && lidx < lot_list.getCount(); lidx++) {
+								if(r_rcpt.Search(lot_list.at(lidx), &lot_rec) > 0) {
+									SETIFZ(sdr_brow.GoodsID, lot_rec.GoodsID);
+									is_serial = 1;
+								}
+							}
+							// } @v9.6.4
 						}
 						if(sdr_brow.GoodsID) {
 							if(sdr_bill.OpID == StyloBhtIIConfig::oprkInventory) {
@@ -4383,7 +4389,8 @@ int SLAPI PPObjBHT::AcceptBillsToGBasket(const char * pHName, const char * pLNam
 		char   lbid[12], gid[16], str_price[16], expiry[16];
 		PPID   goods_id = 0;
 		Goods2Tbl::Rec goods_rec;
-		double qtty = 0, price = 0;
+		double qtty = 0.0;
+		double price = 0.0;
 		ILTI   item;
 		br_line.GetStr(0, lbid, sizeof(lbid));
 		br_line.GetStr(1, gid, sizeof(gid));
@@ -4938,17 +4945,17 @@ int SLAPI PPObjBHT::ReceiveData()
 		if(!oneof3(bht_type, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
 			for(i = 0; i < files.getCount(); i++) {
 				BhtFile bf(files.at(i));
-				if(stricmp(bf.Name, fn_bill) == 0)
+				if(sstreqi_ascii(bf.Name, fn_bill))
 					fi_bill = i;
-				else if(stricmp(bf.Name, fn_bline) == 0)
+				else if(sstreqi_ascii(bf.Name, fn_bline))
 					fi_line = i;
-				else if(stricmp(bf.Name, fn_invent) == 0)
+				else if(sstreqi_ascii(bf.Name, fn_invent))
 					fi_inv = i;
-				else if(stricmp(bf.Name, fn_iline) == 0)
+				else if(sstreqi_ascii(bf.Name, fn_iline))
 					fi_iline = i;
-				else if(stricmp(bf.Name, fn_ebill) == 0)
+				else if(sstreqi_ascii(bf.Name, fn_ebill))
 					fi_ebill = i;
-				else if(stricmp(bf.Name, fn_ebline) == 0)
+				else if(sstreqi_ascii(bf.Name, fn_ebline))
 					fi_ebline = i;
 			}
 		}

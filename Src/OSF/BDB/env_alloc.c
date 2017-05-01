@@ -7,14 +7,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-
 /*
  * Implement shared memory region allocation.  The initial list is a single
  * memory "chunk" which is carved up as memory is requested.  Chunks are
@@ -111,12 +104,9 @@ typedef struct __alloc_element {
 } while(0)
 
 static void __env_size_insert(ALLOC_LAYOUT*, ALLOC_ELEMENT *);
-
 /*
  * __env_alloc_init --
  *	Initialize the area as one large chunk.
- *
- * PUBLIC: void __env_alloc_init __P((REGINFO *, size_t));
  */
 void __env_alloc_init(REGINFO * infop, size_t size)
 {
@@ -136,7 +126,6 @@ void __env_alloc_init(REGINFO * infop, size_t size)
 	for(i = 0; i < DB_SIZE_Q_COUNT; ++i)
 		SH_TAILQ_INIT(&head->sizeq[i]);
 	COMPQUIET(head->unused, 0);
-
 	/*
 	 * The rest of the memory is the first available chunk.
 	 */
@@ -147,7 +136,6 @@ void __env_alloc_init(REGINFO * infop, size_t size)
 	SH_TAILQ_INSERT_HEAD(&head->addrq, elp, addrq, __alloc_element);
 	SH_TAILQ_INSERT_HEAD(&head->sizeq[DB_SIZE_Q_COUNT-1], elp, sizeq, __alloc_element);
 }
-
 /*
  * The length, the ALLOC_ELEMENT structure and an optional guard byte,
  * rounded up to standard alignment.
@@ -157,12 +145,9 @@ void __env_alloc_init(REGINFO * infop, size_t size)
 #else
 	#define DB_ALLOC_SIZE(len) (size_t)DB_ALIGN((len)+sizeof(ALLOC_ELEMENT), sizeof(uintmax_t))
 #endif
-
 /*
  * __env_alloc_overhead --
  *	Return the overhead needed for an allocation.
- *
- * PUBLIC: size_t __env_alloc_overhead();
  */
 size_t __env_alloc_overhead()
 {
@@ -171,18 +156,14 @@ size_t __env_alloc_overhead()
 /*
  * __env_alloc_size --
  *	Return the space needed for an allocation, including alignment.
- *
- * PUBLIC: size_t __env_alloc_size __P((size_t));
  */
-size_t __env_alloc_size(size_t len)
+size_t FASTCALL __env_alloc_size(size_t len)
 {
 	return DB_ALLOC_SIZE(len);
 }
 /*
  * __env_alloc --
  *	Allocate space from the shared region.
- *
- * PUBLIC: int __env_alloc __P((REGINFO *, size_t, void *));
  */
 int __env_alloc(REGINFO * infop, size_t len, void * retp)
 {
@@ -204,7 +185,6 @@ int __env_alloc(REGINFO * infop, size_t len, void * retp)
 #ifdef HAVE_MUTEX_SUPPORT
 	MUTEX_REQUIRED(env, infop->mtx_alloc);
 #endif
-
 	PERFMON3(env, mpool, env_alloc, len, infop->id, infop->type);
 	/*
 	 * In a heap-backed environment, we call malloc for additional space.
@@ -215,14 +195,10 @@ int __env_alloc(REGINFO * infop, size_t len, void * retp)
 	 * { uintmax_t total-length } { user-memory } { guard-byte }
 	 */
 	if(F_ISSET(env, ENV_PRIVATE)) {
-		/*
-		 * If we are shared then we must track the allocation
-		 * in the main environment region.
-		 */
-		if(F_ISSET(infop, REGION_SHARED))
-			envinfop = env->reginfo;
-		else
-			envinfop = infop;
+		//
+		// If we are shared then we must track the allocation in the main environment region.
+		//
+		envinfop = F_ISSET(infop, REGION_SHARED) ? env->reginfo : infop;
 		/*
 		 * We need an additional uintmax_t to hold the length (and
 		 * keep the buffer aligned on 32-bit systems).
@@ -258,20 +234,17 @@ int __env_alloc(REGINFO * infop, size_t len, void * retp)
 	}
 	head = (ALLOC_LAYOUT *)infop->head;
 	total_len = DB_ALLOC_SIZE(len);
-
 	/* Find the first size queue that could satisfy the request. */
 	COMPQUIET(q, NULL);
 #ifdef HAVE_MMAP_EXTEND
 retry:
 #endif
 	SET_QUEUE_FOR_SIZE(head, q, i, total_len);
-
 #ifdef HAVE_STATISTICS
 	if(i >= DB_SIZE_Q_COUNT)
 		i = DB_SIZE_Q_COUNT-1;
 	++head->pow2_size[i];           /* Note the size of the request. */
 #endif
-
 	/*
 	 * Search this queue, and, if necessary, queues larger than this queue,
 	 * looking for a chunk we can use.
@@ -288,14 +261,12 @@ retry:
 			if(elp_tmp->len < total_len)
 				break;
 			/*
-			 * This chunk will do... maybe there's a better one,
-			 * but this one will do.
+			 * This chunk will do... maybe there's a better one, but this one will do.
 			 */
 			elp = elp_tmp;
 			/*
 			 * We might have many chunks of the same size.  Stop
-			 * looking if we won't fragment memory by picking the
-			 * current one.
+			 * looking if we won't fragment memory by picking the current one.
 			 */
 			if(elp_tmp->len-total_len <= SHALLOC_FRAGMENT)
 				break;
@@ -309,10 +280,10 @@ retry:
 		STAT_PERFMON3(env, mpool, longest_search, len, infop->id, st_search);
 	}
 #endif
-	/*
-	 * If we don't find an element of the right size, try to extend
-	 * the region, if not then we are done.
-	 */
+	//
+	// If we don't find an element of the right size, try to extend
+	// the region, if not then we are done.
+	//
 	if(elp == NULL) {
 		ret = ENOMEM;
 #ifdef HAVE_MMAP_EXTEND
@@ -323,16 +294,16 @@ retry:
 		return ret;
 	}
 	STAT_INC_VERB(env, mpool, alloc, head->success, len, infop->id);
-	/* Pull the chunk off of the size queue. */
+	// Pull the chunk off of the size queue
 	SH_TAILQ_REMOVE(q, elp, sizeq, __alloc_element);
 	if(elp->len-total_len > SHALLOC_FRAGMENT) {
 		frag = (ALLOC_ELEMENT *)((uint8 *)elp+total_len);
 		frag->len = elp->len-total_len;
 		frag->ulen = 0;
 		elp->len = total_len;
-		/* The fragment follows the chunk on the address queue. */
+		// The fragment follows the chunk on the address queue
 		SH_TAILQ_INSERT_AFTER(&head->addrq, elp, frag, addrq, __alloc_element);
-		/* Insert the frag into the correct size queue. */
+		// Insert the frag into the correct size queue
 		__env_size_insert(head, frag);
 	}
 	p = (uint8 *)elp+sizeof(ALLOC_ELEMENT);
@@ -343,95 +314,78 @@ retry:
 	*(void **)retp = p;
 	return 0;
 }
-/*
- * __env_alloc_free --
- *	Free space into the shared region.
- *
- * PUBLIC: void __env_alloc_free __P((REGINFO *, void *));
- */
-void __env_alloc_free(REGINFO * infop, void * ptr)
+//
+// __env_alloc_free --
+// Free space into the shared region.
+//
+void FASTCALL __env_alloc_free(REGINFO * infop, void * ptr)
 {
 	ALLOC_ELEMENT * elp, * elp_tmp;
 	ALLOC_LAYOUT * head;
-	ENV * env;
 	SIZEQ_HEAD * q;
 	size_t len;
 	uint8 i, * p;
-	env = infop->env;
-	/* In a private region, we call free. */
+	ENV * env = infop->env;
+	// In a private region, we call free
 	if(F_ISSET(env, ENV_PRIVATE)) {
-		/* Find the start of the memory chunk and its length. */
+		// Find the start of the memory chunk and its length
 		p = (uint8 *)((uintmax_t *)ptr-1);
 		len = (size_t)*(uintmax_t *)p;
-
 		infop->allocated -= len;
 		if(F_ISSET(infop, REGION_SHARED))
 			env->reginfo->allocated -= len;
 #ifdef DIAGNOSTIC
-		/* Check the guard byte. */
-		DB_ASSERT(env, p[len-1] == GUARD_BYTE);
-
-		/* Trash the memory chunk. */
-		memset(p, CLEAR_BYTE, len);
+		DB_ASSERT(env, p[len-1] == GUARD_BYTE); /* Check the guard byte. */
+		memset(p, CLEAR_BYTE, len); /* Trash the memory chunk. */
 #endif
 		__os_free(env, p);
-		return;
 	}
+	else {
 #ifdef HAVE_MUTEX_SUPPORT
-	MUTEX_REQUIRED(env, infop->mtx_alloc);
+		MUTEX_REQUIRED(env, infop->mtx_alloc);
 #endif
-
-	head = (ALLOC_LAYOUT *)infop->head;
-	p = (uint8 *)ptr;
-	elp = (ALLOC_ELEMENT *)(p-sizeof(ALLOC_ELEMENT));
-	STAT_INC_VERB(env, mpool, free, head->freed, elp->ulen, infop->id);
+		head = (ALLOC_LAYOUT *)infop->head;
+		p = (uint8 *)ptr;
+		elp = (ALLOC_ELEMENT *)(p-sizeof(ALLOC_ELEMENT));
+		STAT_INC_VERB(env, mpool, free, head->freed, elp->ulen, infop->id);
 #ifdef DIAGNOSTIC
-	/* Check the guard byte. */
-	DB_ASSERT(env, p[elp->ulen] == GUARD_BYTE);
-	/* Trash the memory chunk. */
-	memset(p, CLEAR_BYTE, (size_t)elp->len-sizeof(ALLOC_ELEMENT));
+		// Check the guard byte
+		DB_ASSERT(env, p[elp->ulen] == GUARD_BYTE);
+		// Trash the memory chunk
+		memset(p, CLEAR_BYTE, (size_t)elp->len-sizeof(ALLOC_ELEMENT));
 #endif
-	/* Mark the memory as no longer in use. */
-	elp->ulen = 0;
-	/*
-	 * Try and merge this chunk with chunks on either side of it.  Two
-	 * chunks can be merged if they're contiguous and not in use.
-	 */
-	if((elp_tmp = SH_TAILQ_PREV(&head->addrq, elp, addrq, __alloc_element)) != NULL && elp_tmp->ulen == 0 && (uint8 *)elp_tmp+elp_tmp->len == (uint8 *)elp) {
-		/*
-		 * If we're merging the entry into a previous entry, remove the
-		 * current entry from the addr queue and the previous entry from
-		 * its size queue, and merge.
-		 */
-		SH_TAILQ_REMOVE(&head->addrq, elp, addrq, __alloc_element);
-		SET_QUEUE_FOR_SIZE(head, q, i, elp_tmp->len);
-		SH_TAILQ_REMOVE(q, elp_tmp, sizeq, __alloc_element);
+		// Mark the memory as no longer in use
+		elp->ulen = 0;
+		//
+		// Try and merge this chunk with chunks on either side of it.  Two
+		// chunks can be merged if they're contiguous and not in use.
+		//
+		if((elp_tmp = SH_TAILQ_PREV(&head->addrq, elp, addrq, __alloc_element)) != NULL && elp_tmp->ulen == 0 && (uint8 *)elp_tmp+elp_tmp->len == (uint8 *)elp) {
+			// If we're merging the entry into a previous entry, remove the
+			// current entry from the addr queue and the previous entry from its size queue, and merge.
+			SH_TAILQ_REMOVE(&head->addrq, elp, addrq, __alloc_element);
+			SET_QUEUE_FOR_SIZE(head, q, i, elp_tmp->len);
+			SH_TAILQ_REMOVE(q, elp_tmp, sizeq, __alloc_element);
 
-		elp_tmp->len += elp->len;
-		elp = elp_tmp;
-	}
-	if((elp_tmp = SH_TAILQ_NEXT(elp, addrq, __alloc_element)) != NULL &&
-	   elp_tmp->ulen == 0 &&
-	   (uint8 *)elp+elp->len == (uint8 *)elp_tmp) {
-		/*
-		 * If we're merging the current entry into a subsequent entry,
-		 * remove the subsequent entry from the addr and size queues
-		 * and merge.
-		 */
-		SH_TAILQ_REMOVE(&head->addrq, elp_tmp, addrq, __alloc_element);
-		SET_QUEUE_FOR_SIZE(head, q, i, elp_tmp->len);
-		SH_TAILQ_REMOVE(q, elp_tmp, sizeq, __alloc_element);
+			elp_tmp->len += elp->len;
+			elp = elp_tmp;
+		}
+		if((elp_tmp = SH_TAILQ_NEXT(elp, addrq, __alloc_element)) != NULL && elp_tmp->ulen == 0 && (uint8 *)elp+elp->len == (uint8 *)elp_tmp) {
+			// If we're merging the current entry into a subsequent entry,
+			// remove the subsequent entry from the addr and size queues and merge.
+			SH_TAILQ_REMOVE(&head->addrq, elp_tmp, addrq, __alloc_element);
+			SET_QUEUE_FOR_SIZE(head, q, i, elp_tmp->len);
+			SH_TAILQ_REMOVE(q, elp_tmp, sizeq, __alloc_element);
 
-		elp->len += elp_tmp->len;
+			elp->len += elp_tmp->len;
+		}
+		// Insert in the correct place in the size queues
+		__env_size_insert(head, elp);
 	}
-	/* Insert in the correct place in the size queues. */
-	__env_size_insert(head, elp);
 }
 /*
  * __env_alloc_extend --
  *	Extend a previously allocated chunk at the end of a region.
- *
- * PUBLIC: int __env_alloc_extend __P((REGINFO *, void *, size_t *));
  */
 int __env_alloc_extend(REGINFO * infop, void * ptr, size_t * lenp)
 {
@@ -460,8 +414,7 @@ again:
 	if((elp_tmp = SH_TAILQ_NEXT(elp, addrq, __alloc_element)) != NULL && elp_tmp->ulen == 0 && (uint8 *)elp+elp->len == (uint8 *)elp_tmp) {
 		/*
 		 * If we're merging the current entry into a subsequent entry,
-		 * remove the subsequent entry from the addr and size queues
-		 * and merge.
+		 * remove the subsequent entry from the addr and size queues and merge.
 		 */
 		SH_TAILQ_REMOVE(&head->addrq, elp_tmp, addrq, __alloc_element);
 		SET_QUEUE_FOR_SIZE(head, q, i, elp_tmp->len);
@@ -531,21 +484,16 @@ static void __env_size_insert(ALLOC_LAYOUT * head, ALLOC_ELEMENT * elp)
 	else
 		SH_TAILQ_INSERT_BEFORE(q, elp_tmp, elp, sizeq, __alloc_element);
 }
-
 /*
  * __env_region_extend --
  *	Extend a region.
- *
- * PUBLIC: int __env_region_extend __P((ENV *, REGINFO *));
  */
 int __env_region_extend(ENV * env, REGINFO * infop)
 {
 	ALLOC_ELEMENT * elp;
-	REGION * rp;
-	int ret;
+	REGION * rp = infop->rp;
+	int ret = 0;
 	DB_ASSERT(env, !F_ISSET(env, ENV_PRIVATE));
-	ret = 0;
-	rp = infop->rp;
 	if(rp->size >= rp->max)
 		return ENOMEM;
 	elp = (ALLOC_ELEMENT *)((uint8 *)infop->addr+rp->size);
@@ -564,14 +512,12 @@ int __env_region_extend(ENV * env, REGINFO * infop)
 	__env_alloc_free(infop, elp+1);
 	if(rp->alloc < MEGABYTE)
 		rp->alloc += rp->size;
-	if(rp->alloc > MEGABYTE)
-		rp->alloc = MEGABYTE;
+	SETMIN(rp->alloc, MEGABYTE);
 	return ret;
 }
 /*
  * __env_elem_size --
  *	Return the size of an allocated element.
- * PUBLIC: uintmax_t __env_elem_size __P((ENV *, void *));
  */
 uintmax_t __env_elem_size(ENV * env, void * p)
 {
@@ -590,20 +536,20 @@ uintmax_t __env_elem_size(ENV * env, void * p)
 /*
  * __env_get_chunk --
  *	Return the next chunk allocated in a private region.
- * PUBLIC: void * __env_get_chunk __P((REGINFO *, void **, uintmax_t *));
  */
 void * __env_get_chunk(REGINFO * infop, void ** nextp, uintmax_t * sizep)
 {
-	REGION_MEM * mem;
 	if(infop->mem == NULL)
 		return NULL;
-	if(*nextp == NULL)
-		*nextp = infop->mem;
-	mem = *(REGION_MEM **)nextp;
-	*nextp = mem->next;
-	*sizep = __env_elem_size(infop->env, mem);
-	*sizep -= sizeof(*mem);
-	return (void *)(mem+1);
+	else {
+		if(*nextp == NULL)
+			*nextp = infop->mem;
+		REGION_MEM * mem = *(REGION_MEM **)nextp;
+		*nextp = mem->next;
+		*sizep = __env_elem_size(infop->env, mem);
+		*sizep -= sizeof(*mem);
+		return (void *)(mem+1);
+	}
 }
 
 #ifdef HAVE_STATISTICS

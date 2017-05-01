@@ -770,7 +770,7 @@ int PPALDD_PrcBusyView::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_PrcBusyView::Destroy()
+void PPALDD_PrcBusyView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(PrcBusy);
 }
@@ -824,7 +824,7 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 						cip_list.Count(&reg_count, &ci_count, &canceled_count);
 						if(reg_count) {
 							PPLoadString("registered", temp_buf);
-							rBuf.CatDiv('\n', 0, 1).Cat(temp_buf).CatDiv(':', 2);
+							rBuf.CatDivIfNotEmpty('\n', 0).Cat(temp_buf).CatDiv(':', 2);
 							(temp_buf = 0).Cat((long)reg_count);
 							if(ci_count || canceled_count)
 								temp_buf.CatChar('/').Cat((long)ci_count);
@@ -836,7 +836,7 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 				}
 			}
 			if(ses_rec.Memo[0] != 0)
-				rBuf.CatDiv('\n', 0, 1).Cat(ses_rec.Memo);
+				rBuf.CatDivIfNotEmpty('\n', 0).Cat(ses_rec.Memo);
 			ok = 1;
 		}
 	}
@@ -847,15 +847,15 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 			ProcessorTbl::Rec prc_rec;
 			MEMSZERO(prc_rec);
 			if(P_View->TSesObj.GetPrc(ses_rec.PrcID, &prc_rec, 1, 1) > 0) {
-				rBuf.CatDiv('\n', 0, 1).Cat(prc_rec.Name);
+				rBuf.CatDivIfNotEmpty('\n', 0).Cat(prc_rec.Name);
 			}
 			if(ses_rec.TechID && P_View->TSesObj.GetTech(ses_rec.TechID, &tec_rec, 1) > 0 && tec_rec.GoodsID) {
-				rBuf.CatDiv('\n', 0, 1).Cat(GetGoodsName(tec_rec.GoodsID, temp_buf));
+				rBuf.CatDivIfNotEmpty('\n', 0).Cat(GetGoodsName(tec_rec.GoodsID, temp_buf));
 			}
 			STimeChunkAssoc tca;
 			if(GetChunk(id, 0, &tca) > 0) {
 				tca.Chunk.ToStr(temp_buf = 0, STimeChunk::fmtOmitSec);
-				rBuf.CatDiv('\n', 0, 1).Cat(temp_buf);
+				rBuf.CatDivIfNotEmpty('\n', 0).Cat(temp_buf);
 			}
 			{
 				PPObjArticle ar_obj;
@@ -874,7 +874,7 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 				else
 					temp_buf = 0;
 				if(temp_buf.NotEmptyS()) {
-					rBuf.CatDiv('\n', 0, 1).Cat(temp_buf);
+					rBuf.CatDivIfNotEmpty('\n', 0).Cat(temp_buf);
 
 					const PPID psn_id = ObjectToPerson(ar_rec.ID, 0);
 					if(psn_id) {
@@ -893,7 +893,7 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 					cip_list.Count(&reg_count, &ci_count, &canceled_count);
 					if(reg_count) {
 						PPLoadString("registered", temp_buf);
-						rBuf.CatDiv('\n', 0, 1).Cat(temp_buf).CatDiv(':', 2);
+						rBuf.CatDivIfNotEmpty('\n', 0).Cat(temp_buf).CatDiv(':', 2);
 						(temp_buf = 0).Cat((long)reg_count);
 						if(ci_count || canceled_count)
 							temp_buf.CatChar('/').Cat((long)ci_count);
@@ -904,7 +904,7 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 				}
 			}
 			if(ses_rec.Memo[0] != 0)
-				rBuf.CatDiv('\n', 0, 1).Cat(ses_rec.Memo);
+				rBuf.CatDivIfNotEmpty('\n', 0).Cat(ses_rec.Memo);
 			if(rBuf.NotEmptyS())
 				ok = 1;
 		}

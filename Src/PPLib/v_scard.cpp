@@ -1200,7 +1200,7 @@ int SLAPI PPViewSCard::RenameDup(PPIDArray * pIdList)
 			PPTransaction tra(1);
 			THROW(tra);
 			for(uint i = 0; i < dupl_ary.getCount(); i++) {
-				uint   p = 0;
+				size_t p = 0;
 				PPID   dupl_scard = dupl_ary.at(i).Key;
 				PPID   dest_scard = dupl_ary.at(i).Val;
 				long   code_postfx;
@@ -1329,6 +1329,7 @@ int SLAPI PPViewSCard::ChargeCredit()
 		if(EditChargeCreditParam(uhtt_sync, &param) > 0) {
 			PPLogger logger;
 			long   inc = 0;
+			TSArray <SCardCore::UpdateRestNotifyEntry> urn_list;
 			SCardViewItem item;
 			PPWait(1);
 			if(uhtt_sync) {
@@ -1360,7 +1361,7 @@ int SLAPI PPViewSCard::ChargeCredit()
 							if(p_uhtt_cli->GetSCardByNumber(item.Code, scp) && p_uhtt_cli->GetSCardRest(scp.Code, 0, uhtt_rest)) {
 								if(rest != uhtt_rest) {
 									scop_rec.Amount = R2(uhtt_rest - rest);
-									THROW(SCObj.P_Tbl->PutOpRec(&scop_rec, 0));
+									THROW(SCObj.P_Tbl->PutOpRec(&scop_rec, &urn_list, 0));
 									ok = 1;
 								}
 							}
@@ -1369,7 +1370,7 @@ int SLAPI PPViewSCard::ChargeCredit()
 						}
 					}
 					else if(param.Action == SCardChrgCrdParam::actionExtendTo) {
-						if(param.Amount >= 0.0) { // @v7.6.10
+						if(param.Amount >= 0.0) {
 							if(p_uhtt_cli) {
 								int    uhtt_error = 0;
 								if(p_uhtt_cli->GetSCardByNumber(item.Code, scp) && p_uhtt_cli->GetSCardRest(scp.Code, 0, rest)) {
@@ -1391,7 +1392,7 @@ int SLAPI PPViewSCard::ChargeCredit()
 									logger.LogLastError();
 								else if(amount != 0.0) {
 									scop_rec.Amount = amount;
-									THROW(SCObj.P_Tbl->PutOpRec(&scop_rec, 0));
+									THROW(SCObj.P_Tbl->PutOpRec(&scop_rec, &urn_list, 0));
 									ok = 1;
 								}
 							}
@@ -1399,7 +1400,7 @@ int SLAPI PPViewSCard::ChargeCredit()
 								THROW(SCObj.P_Tbl->GetRest(item.ID, ZERODATE, &rest));
 								if(rest != param.Amount) {
 									scop_rec.Amount = R2(param.Amount - rest);
-									THROW(SCObj.P_Tbl->PutOpRec(&scop_rec, 0));
+									THROW(SCObj.P_Tbl->PutOpRec(&scop_rec, &urn_list, 0));
 									ok = 1;
 								}
 							}
@@ -1426,13 +1427,13 @@ int SLAPI PPViewSCard::ChargeCredit()
 									logger.LogLastError();
 								else {
 									scop_rec.Amount = amount;
-									THROW(SCObj.P_Tbl->PutOpRec(&scop_rec, 0));
+									THROW(SCObj.P_Tbl->PutOpRec(&scop_rec, &urn_list, 0));
 									ok = 1;
 								}
 							}
 							else {
 								scop_rec.Amount = amount;
-								THROW(SCObj.P_Tbl->PutOpRec(&scop_rec, 0));
+								THROW(SCObj.P_Tbl->PutOpRec(&scop_rec, &urn_list, 0));
 								ok = 1;
 							}
 						}
@@ -1441,6 +1442,7 @@ int SLAPI PPViewSCard::ChargeCredit()
 				}
 				THROW(tra.Commit());
 			}
+			SCObj.FinishSCardUpdNotifyList(urn_list);
 			PPWait(0);
 		}
 	}
@@ -1656,7 +1658,7 @@ DBQuery * SLAPI PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	if(Filt.PersonID)
 		GetObjectName(PPOBJ_PERSON, Filt.PersonID, sub_title, 1);
 	if(Filt.SeriesID)
-		sub_title.CatDiv('-', 1, 1).Cat(ser_rec.Name);
+		sub_title.CatDivIfNotEmpty('-', 1).Cat(ser_rec.Name);
 	if(P_TempOrd) {
 		THROW(CheckTblPtr(p_ot = new TempOrderTbl(P_TempOrd->fileName)));
 	}
@@ -2660,8 +2662,15 @@ int SLAPI PPViewSCardOp::AddItem(int freezing)
 			if(freezing)
 				blk.Flags |= SCardCore::OpBlock::fFreezing;
 			while(ok <= 0 && EditSCardOp(blk) > 0) {
-				if(SCObj.PutUhttOp(Filt.SCardID, blk.Amount) != 0 && SCObj.P_Tbl->PutOpBlk(blk, 1))
+				TSArray <SCardCore::UpdateRestNotifyEntry> urn_list;
+				if(SCObj.PutUhttOp(Filt.SCardID, blk.Amount) != 0 && SCObj.P_Tbl->PutOpBlk(blk, &urn_list, 1)) {
+#ifndef NDEBUG
+					SCObj.FinishSCardUpdNotifyList(urn_list);
+#else
+					// @todo (необходимо уточнить кто должен посылать уведомления: uhtt или мы) SCObj.FinishSCardUpdNotifyList(urn_list);
+#endif // !NDEBUG
 					ok = 1;
+				}
 				else
 					ok = PPErrorZ();
 			}
@@ -2870,11 +2879,15 @@ int SLAPI PPViewSCardOp::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 					if(SCObj.CheckRights(SCRDRT_VIEWOPS)) {
 						SCardCore::OpBlock blk;
 						if(p_hdr->SCardID && SCObj.P_Tbl->GetOp(p_hdr->SCardID, p_hdr->Dtm, &blk) > 0)
-							for(int valid = 0; !valid && EditSCardOp(blk) > 0;)
-								if(SCObj.P_Tbl->PutOpBlk(blk, 1))
+							for(int valid = 0; !valid && EditSCardOp(blk) > 0;) {
+								TSArray <SCardCore::UpdateRestNotifyEntry> urn_list;
+								if(SCObj.P_Tbl->PutOpBlk(blk, &urn_list, 1)) {
+									SCObj.FinishSCardUpdNotifyList(urn_list);
 									ok = valid = 1;
+								}
 								else
 	   		    					ok = PPErrorZ();
+							}
 					}
 					else
 						ok = PPErrorZ();
@@ -2985,10 +2998,9 @@ int PPALDD_SCardSerView::NextIteration(PPIterID iterId, long rsrv)
 	return -1;
 }
 
-int PPALDD_SCardSerView::Destroy()
+void PPALDD_SCardSerView::Destroy()
 {
 	Extra[1].Ptr = 0;
-	return 1;
 }
 //
 // Implementation of PPALDD_SCard
@@ -3180,7 +3192,7 @@ int PPALDD_SCardList::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_SCardList::Destroy()
+void PPALDD_SCardList::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(SCard);
 }
@@ -3244,7 +3256,7 @@ int PPALDD_SCardOpList::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_SCardOpList::Destroy()
+void PPALDD_SCardOpList::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(SCardOp);
 }

@@ -312,7 +312,7 @@ int SLAPI GetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, LTIME * pLow, LT
 {
 	int    ok = -1;
 	if(pDlg) {
-		uint   pos = 0;
+		size_t pos = 0;
 		long   format = NZOR(fmt, TIMF_HMS);
 		LTIME  low = ZEROTIME, upp = ZEROTIME;
 		SString buf;
@@ -2165,7 +2165,7 @@ IMPL_HANDLE_EVENT(ExtOpenFileDlg)
 				PPWait(1);
 				if(dir.Len() > 0 && WaitNewFile(dir, file_name) > 0) {
 					setCtrlString(CTL_OPENFILE_PATH, file_name);
-					delay(1000);
+					SDelay(1000);
 					PPWait(0);
 				}
 			}
@@ -3051,17 +3051,17 @@ void SLAPI LocationCtrlGroup::SetupInfo(TDialog * pDlg, PPID locID)
 				if(loc_rec.Name[0])
 					info_buf.Cat(loc_rec.Name);
 				if(loc_rec.Code[0])
-					info_buf.CatDiv('-', 1, 1).Cat(loc_rec.Code);
+					info_buf.CatDivIfNotEmpty('-', 1).Cat(loc_rec.Code);
 				LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, temp_buf);
 				if(temp_buf.NotEmptyS())
-					info_buf.CatDiv('-', 1, 1).Cat(temp_buf);
+					info_buf.CatDivIfNotEmpty('-', 1).Cat(temp_buf);
 				LocationCore::GetExField(&loc_rec, LOCEXSTR_FULLADDR, temp_buf);
 				if(temp_buf.NotEmptyS())
-					info_buf.CatDiv('-', 1, 1).Cat(temp_buf);
+					info_buf.CatDivIfNotEmpty('-', 1).Cat(temp_buf);
 				else {
 					LocationCore::GetExField(&loc_rec, LOCEXSTR_SHORTADDR, temp_buf);
 					if(temp_buf.NotEmptyS())
-						info_buf.CatDiv('-', 1, 1).Cat(temp_buf);
+						info_buf.CatDivIfNotEmpty('-', 1).Cat(temp_buf);
 				}
 			}
 		}
@@ -5818,11 +5818,11 @@ void SLAPI SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 			TimeButtonWndEx * p_cbwe = (TimeButtonWndEx *)TView::GetWindowUserData(hWnd);
 			switch(message) {
 				case WM_DESTROY:
-					//SetWindowLong(hWnd, GWL_USERDATA, 0);
-					TView::SetWindowProp(hWnd, GWL_USERDATA, (void *)0);
+					//SetWindowLong(hWnd, GWLP_USERDATA, 0);
+					TView::SetWindowProp(hWnd, GWLP_USERDATA, (void *)0);
 					if(p_cbwe->PrevWndProc) {
-						//SetWindowLong(hWnd, GWL_WNDPROC, (long)p_cbwe->PrevWndProc);
-						TView::SetWindowProp(hWnd, GWL_WNDPROC, p_cbwe->PrevWndProc);
+						//SetWindowLong(hWnd, GWLP_WNDPROC, (long)p_cbwe->PrevWndProc);
+						TView::SetWindowProp(hWnd, GWLP_WNDPROC, p_cbwe->PrevWndProc);
 					}
 					delete p_cbwe;
 					return 0;
@@ -5851,9 +5851,9 @@ void SLAPI SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 	HWND   hwnd = GetDlgItem(pDlg->H(), buttCtlID);
 	if(hwnd && pDlg->getCtrlView(editCtlID)) {
 		static HBITMAP hbm_clock = 0; // @global @threadsafe
-		TimeButtonWndEx * p_cbwe = new TimeButtonWndEx(pDlg, editCtlID, (WNDPROC)TView::GetWindowProp(hwnd, GWL_WNDPROC));
-		TView::SetWindowProp(hwnd, GWL_USERDATA, p_cbwe);
-		TView::SetWindowProp(hwnd, GWL_WNDPROC, TimeButtonWndEx::WndProc);
+		TimeButtonWndEx * p_cbwe = new TimeButtonWndEx(pDlg, editCtlID, (WNDPROC)TView::GetWindowProp(hwnd, GWLP_WNDPROC));
+		TView::SetWindowProp(hwnd, GWLP_USERDATA, p_cbwe);
+		TView::SetWindowProp(hwnd, GWLP_WNDPROC, TimeButtonWndEx::WndProc);
 		if(!hbm_clock) {
 			ENTER_CRITICAL_SECTION
 			SETIFZ(hbm_clock, APPL->LoadBitmap(IDB_CLOCK));

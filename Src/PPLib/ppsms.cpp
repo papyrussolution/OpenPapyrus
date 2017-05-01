@@ -761,7 +761,7 @@ int SendSmsDialog::DrawList()
 
 int SendSmsDialog::AutoSmsSending()
 {
-	return(SendSmsText());
+	return SendSmsText();
 }
 
 int SendSmsDialog::GetAutoSmsText(PPID prsn_id, PPID objId, SString & rText)
@@ -1646,9 +1646,9 @@ int SmsClient::ConnectToSMSC()
 	inet_addr.Set(Config.Host, Config.Port);
 	THROW_SL(ClientSocket.Connect(inet_addr) > 0);
 	ConnectionState = SMPP_SOCKET_CONNECTED;
-	delay(init_timeout_ms);
+	SDelay(init_timeout_ms);
 	for(int i = 0; i < bind_tries && !ok; i++) {
-		delay(retry_delay_ms);
+		SDelay(retry_delay_ms);
 		ok = Bind();
 	}
 	CATCHZOK;
@@ -1694,14 +1694,16 @@ int SmsClient::TryToReconnect(uint & rReconnectionTryNums)
 	}
     DisconnectSocket();
 	if(Config.ReconnectTimeout > 0)
-		delay(Config.ReconnectTimeout);
+		SDelay(Config.ReconnectTimeout);
 	rReconnectionTryNums++;
 	return ConnectToSMSC();
 }
 
 void SmsClient::DecodeDeliverSm(int sequenceNumber, void * pPduBody, size_t bodyLength)
 {
-	uint   sm_length = 0, pos = 0, end_pos = 0;
+	uint   sm_length = 0;
+	size_t end_pos = 0;
+	size_t pos = 0;
 	SString message;
 	SString status;
 	SString error;
@@ -2090,7 +2092,7 @@ int SmsClient::SendSms_(const char * pFrom, const char * pTo, const char * pText
 				cmd_status = SMResults.SubmitResult;
 				if(ok != 1) {
 					if(cmd_status == ESME_RMSGQFULL) { // ≈сли переполнена очередь смс
-						delay(/*RESEND_QUEUE_MSG_TIMEOUT*/Config.ResendMsgQueueTimeout);
+						SDelay(/*RESEND_QUEUE_MSG_TIMEOUT*/Config.ResendMsgQueueTimeout);
 						ReSendQueueMsgTryNums++;
 					}
 					else if(cmd_status == ESME_RINVMSGLEN && SMParams.DataCoding != UCS2) { // ≈сли неверна€ длина сообщени€, то мен€ем длину сообщени€ и пытаемс€ один раз его переотправить
@@ -2099,7 +2101,7 @@ int SmsClient::SendSms_(const char * pFrom, const char * pTo, const char * pText
 						max_length = MAX_MESSAGE_8BIT_LEN;
 						sms_text.Sub(0, sms_text.Len() + 1 > max_length ? (max_length - 1) : sms_text.Len(), message);
 						sms_text = sms_text.Excise(0, sms_text.Len() + 1 > max_length ? (max_length - 1) : sms_text.Len());
-						delay(500);
+						SDelay(500);
 					}
 				}
 				else {
@@ -2127,7 +2129,7 @@ int SmsClient::SendSms_(const char * pFrom, const char * pTo, const char * pText
 				cmd_status = SMResults.SubmitResult;
 				if(ok != 1) {
 					if(cmd_status == ESME_RMSGQFULL) {
-						delay(Config.ResendMsgQueueTimeout);
+						SDelay(Config.ResendMsgQueueTimeout);
 						ReSendQueueMsgTryNums++;
 					}
 					else if(cmd_status == ESME_RINVMSGLEN) {
@@ -2136,7 +2138,7 @@ int SmsClient::SendSms_(const char * pFrom, const char * pTo, const char * pText
 						max_length = MAX_MESSAGE_8BIT_LEN;
 						sms_text.Sub(0, sms_text.Len() + 1 > max_length ? (max_length - 1) : sms_text.Len(), message);
 						sms_text = sms_text.Excise(0, sms_text.Len() + 1 > max_length ? (max_length - 1) : sms_text.Len());
-						delay(500);
+						SDelay(500);
 					}
 				}
 				else {
@@ -2429,7 +2431,7 @@ int SLAPI SmsClient::SmsRelease_()
 	if(ConnectionState == SMPP_BINDED) {
 		SString status_msg;
 		{
-			delay(500);
+			SDelay(100); // @v9.6.4 500-->100
 			/*THROW(*/Unbind()/*)*/; // @todo разобратьс€ с ошибками в Unbind()
 			DisconnectSocket();
 		}

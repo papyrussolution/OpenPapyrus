@@ -716,7 +716,6 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray * pS
 				chk_rec.ID = 0;
 				chk_rec.Flags |= CCHKF_NOTUSED;
 				chk_rec.Flags &= ~CCHKF_TEMPSESS;
-				// @v7.7.11 {
 				if(temp_chk_rec.Flags & CCHKF_TEMPREPLACE) {
 					assert(temp_chk_rec.TempReplaceID);
 					if(temp_chk_rec.TempReplaceID) {
@@ -724,7 +723,6 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray * pS
 					}
 					chk_rec.Flags &= ~CCHKF_TEMPREPLACE;
 				}
-				// } @v7.7.11
 	#if 0 // @v8.1.0 {
 				if(temp_chk_rec.CrdSCardID) {
 					if(!chk_rec.SCardID) {
@@ -801,7 +799,7 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray * pS
 										scop_rec.LinkObjID   = chk_rec.ID;
 										scop_rec.UserID  = chk_rec.UserID;
 										scop_rec.Amount  = -r_entry.Amount;
-										THROW(CC.Cards.PutOpRec(&scop_rec, 0));
+										THROW(CC.Cards.PutOpRec(&scop_rec, 0, 0));
 									}
 								}
 							}

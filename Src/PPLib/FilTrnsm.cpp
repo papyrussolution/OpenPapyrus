@@ -687,14 +687,17 @@ int CallbackCompress(long, long, const char *, int);
 int SLAPI RemovePPSHeader(const char * pFile, const PPObjectTransmit::Header * pHdr, int remove)
 {
 	int    ok = -1;
-	char   dest[MAXPATH];
+	//char   dest[MAXPATH];
+	SString dest_file_name;
 	FILE * p_in_stream = 0, *p_out_stream = 0;
 	size_t read_bytes = 0, wr_bytes = 0, total_rd_bytes = 0, total_wr_bytes = 0;
 	if(pFile && (pHdr || remove)) {
 		char   buf[4096];
-		replaceExt(STRNSCPY(dest, pFile), "$$$", 1);
+		//replaceExt(STRNSCPY(dest, pFile), "$$$", 1);
+		dest_file_name = pFile;
+		SPathStruc::ReplaceExt(dest_file_name, "$$$", 1);
 		THROW_PP_S(p_in_stream = fopen(pFile, "rb"), PPERR_PPOSOPENFAULT, pFile);
-		THROW_PP_S(p_out_stream = fopen(dest, "wb"), PPERR_PPOSOPENFAULT, dest);
+		THROW_PP_S(p_out_stream = fopen(dest_file_name, "wb"), PPERR_PPOSOPENFAULT, dest_file_name);
 		if(!remove) {
 			wr_bytes = fwrite(pHdr, 1, sizeof(*pHdr), p_out_stream);
 			total_wr_bytes += wr_bytes;
@@ -716,10 +719,10 @@ int SLAPI RemovePPSHeader(const char * pFile, const PPObjectTransmit::Header * p
 	SFile::ZClose(&p_out_stream);
 	if(ok > 0) {
 		SFile::Remove(pFile);
-		SFile::Rename(dest, pFile);
+		SFile::Rename(dest_file_name, pFile);
 	}
 	else
-		SFile::Remove(dest);
+		SFile::Remove(dest_file_name);
 	return ok;
 }
 

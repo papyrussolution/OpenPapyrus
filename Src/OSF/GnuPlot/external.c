@@ -160,7 +160,7 @@ AtType * GpCommand::ExternalAt(const char * pFuncName)
 		if(!dl) {
 			if(!err || !*err)
 				err = "cannot load external function";
-			int_warn(CToken, err);
+			GpGg.IntWarn(CToken, err);
 			goto bailout;
 		}
 	}
@@ -168,7 +168,7 @@ AtType * GpCommand::ExternalAt(const char * pFuncName)
 	if(!exfn) {
 		char * err = DLL_ERROR(dl);
 		SETIFZ(err, "external function not found");
-		int_warn(CToken, err);
+		GpGg.IntWarn(CToken, err);
 		goto bailout;
 	}
 	infn = (infn_t)DLL_SYM(dl, "gnuplot_init");

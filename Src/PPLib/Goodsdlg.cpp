@@ -238,9 +238,9 @@ int SLAPI PPObjGoods::ViewUhttGoodsRestList(PPID goodsID)
 					ss.add(temp_buf = p_item->Name);
 					ss.add(temp_buf = p_item->LocAddr);
 					ss.add((temp_buf = 0).Cat(p_item->Rest, MKSFMTD(0, 3, NMBF_NOZERO)));
-					ss.add((temp_buf = 0).Cat((LDATE)p_item->RestDtm));
+					ss.add((temp_buf = 0).Cat((LDATE)p_item->RestDtm, DATF_DMY));
 					ss.add((temp_buf = 0).Cat(p_item->Price, MKSFMTD(0, 2, NMBF_NOZERO)));
-					ss.add((temp_buf = 0).Cat((LDATE)p_item->PriceDtm));
+					ss.add((temp_buf = 0).Cat((LDATE)p_item->PriceDtm, DATF_DMY));
 					THROW(addStringToList(i+1, ss.getBuf()));
 				}
 			}

@@ -155,8 +155,7 @@ UHTT = "xxxx:xxxxx"
 MSTR = "xxxx:xxxx"
 */
 
-/* @v5.1.6
-Pchar SLAPI replaceExt(Pchar fileName, PCchar newExt, int force)
+/* @v5.1.6 Pchar SLAPI replaceExt(Pchar fileName, PCchar newExt, int force)
 {
 	char drv[MAXDRIVE], dir[MAXPATH], nam[MAXFILE], ext[MAXEXT];
 	fnsplit(fileName, drv, dir, nam, ext);
@@ -170,8 +169,7 @@ Pchar SLAPI replaceExt(Pchar fileName, PCchar newExt, int force)
 		fnmerge(fileName, drv, dir, nam, ext);
 	}
 	return fileName;
-}
-*/
+} */
 
 int SLAPI PapyrusPrivateBlock::WriteToSrc(const char * pFileName)
 {

@@ -999,7 +999,7 @@ static void PS_options(GpCommand & rC)
 						    if(!deleteentry)
 							    prev_ps_fontfile->next = new_ps_fontfile;
 						    else
-							    int_warn(rC.CToken-1, "Can't delete Font filename '%s'",
+							    IntWarn(rC.CToken-1, "Can't delete Font filename '%s'",
 								    new_ps_fontfile->fontfile_name);
 					    }
 				    }
@@ -1007,7 +1007,7 @@ static void PS_options(GpCommand & rC)
 					    if(!deleteentry)
 						    ps_params->first_fontfile = new_ps_fontfile;
 					    else
-						    int_warn(rC.CToken-1, "Can't delete Font filename '%s'",
+						    IntWarn(rC.CToken-1, "Can't delete Font filename '%s'",
 							    new_ps_fontfile->fontfile_name);
 				    }
 			    }
@@ -1090,8 +1090,8 @@ static void PS_options(GpCommand & rC)
 					    if(*s) {
 						    /* Filter out characters that would confuse PostScript */
 						    if(strpbrk(s, "()[]{}| ")) {
-							    int_warn(rC.CToken-1, "Illegal characters in PostScript font name.");
-							    int_warn(NO_CARET, "I will try to fix it but this may not work.");
+							    IntWarn(rC.CToken-1, "Illegal characters in PostScript font name.");
+							    IntWarn(NO_CARET, "I will try to fix it but this may not work.");
 							    while(strpbrk(s, "()[]{}| "))
 								    *(strpbrk(s, "()[]{}| ")) = '-';
 						    }
@@ -1362,7 +1362,7 @@ static void PS_load_fontfile(struct ps_fontfile_def * current_ps_fontfile, bool 
 		else {
 			/* PFA */
 			if(strcmp(ext, "pfa") != 0)
-				int_warn(NO_CARET,
+				IntWarn(NO_CARET,
 				    "Font file '%s' has unknown extension. Assume it is a pfa file",
 				    current_ps_fontfile->fontfile_name);
 			ffont = fopen(current_ps_fontfile->fontfile_fullname, "r");
@@ -1375,10 +1375,10 @@ static void PS_load_fontfile(struct ps_fontfile_def * current_ps_fontfile, bool 
 			if((linesread == 0) && (strstr(line, "%!PS-AdobeFont") != line) && (strstr(line, "%!FontType1") != line)) {
 #if defined(PIPES)
 				if(ispipe)
-					int_warn(NO_CARET, "Command '%s' seems not to generate PFA data", cmd);
+					IntWarn(NO_CARET, "Command '%s' seems not to generate PFA data", cmd);
 				else
 #endif
-				int_warn(NO_CARET, "Font file '%s' seems not to be a PFA file", current_ps_fontfile->fontfile_name);
+				IntWarn(NO_CARET, "Font file '%s' seems not to be a PFA file", current_ps_fontfile->fontfile_name);
 			}
 			/* get fontname */
 			if(strstr(line, "/FontName") == line) {
@@ -4001,7 +4001,7 @@ static void PS_dump_header_to_file(char * name)
 	else if(!strcmp(name, "prologue.ps"))
 		dump = prologue_prologue_ps;
 	else
-		int_warn(NO_CARET, "Requested Postscript prologue %s not included in this build of gnuplot", name);
+		IntWarn(NO_CARET, "Requested Postscript prologue %s not included in this build of gnuplot", name);
 
 	if(dump) {
 		for(i = 0; dump[i] != NULL; ++i)

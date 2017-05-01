@@ -7,13 +7,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/txn.h"
 
 static int __rep_abort_prepared(ENV *);
 static int __rep_await_condition __P((ENV*, struct rep_waitgoal *, db_timeout_t));
@@ -27,15 +21,12 @@ static int __rep_save_lsn_hist __P((ENV*, DB_THREAD_INFO*, DB_LSN *));
 /*
  * __rep_env_create --
  *	Replication-specific initialization of the ENV structure.
- *
- * PUBLIC: int __rep_env_create(DB_ENV *);
  */
 int __rep_env_create(DB_ENV*dbenv)
 {
 	DB_REP * db_rep;
-	ENV * env;
 	int ret;
-	env = dbenv->env;
+	ENV * env = dbenv->env;
 	if((ret = __os_calloc(env, 1, sizeof(DB_REP), &db_rep)) != 0)
 		return ret;
 	db_rep->eid = DB_EID_INVALID;
@@ -53,7 +44,6 @@ int __rep_env_create(DB_ENV*dbenv)
 	db_rep->clock_base = 1;
 	FLD_SET(db_rep->config, REP_C_AUTOINIT);
 	FLD_SET(db_rep->config, REP_C_AUTOROLLBACK);
-
 	/*
 	 * Turn on system messages by default.
 	 */
@@ -65,16 +55,12 @@ int __rep_env_create(DB_ENV*dbenv)
 		return ret;
 	}
 #endif
-
 	env->rep_handle = db_rep;
 	return 0;
 }
-
 /*
  * __rep_env_destroy --
  *	Replication-specific destruction of the ENV structure.
- *
- * PUBLIC: void __rep_env_destroy(DB_ENV *);
  */
 void __rep_env_destroy(DB_ENV*dbenv)
 {
@@ -135,29 +121,21 @@ int __rep_get_config(DB_ENV * dbenv, uint32 which, int * onp)
 int __rep_set_config(DB_ENV * dbenv, uint32 which, int on)
 {
 	DB_LOG * dblp;
-	DB_REP * db_rep;
 	DB_THREAD_INFO * ip;
-	ENV * env;
 	LOG * lp;
 	REP * rep;
 	REP_BULK bulk;
 	uint32 mapped, orig;
-	int ret, t_ret;
-
-	env = dbenv->env;
-	db_rep = env->rep_handle;
-	ret = 0;
-
+	int t_ret;
+	ENV * env = dbenv->env;
+	DB_REP * db_rep = env->rep_handle;
+	int ret = 0;
 #undef  OK_FLAGS
 #define OK_FLAGS                                                        \
-	(DB_REP_CONF_AUTOINIT|DB_REP_CONF_AUTOROLLBACK|                  \
-	 DB_REP_CONF_BULK|DB_REP_CONF_DELAYCLIENT|DB_REP_CONF_INMEM|    \
-	 DB_REP_CONF_LEASE|DB_REP_CONF_NOWAIT|                            \
-	 DB_REPMGR_CONF_2SITE_STRICT|DB_REPMGR_CONF_ELECTIONS)
+	(DB_REP_CONF_AUTOINIT|DB_REP_CONF_AUTOROLLBACK|DB_REP_CONF_BULK|DB_REP_CONF_DELAYCLIENT|DB_REP_CONF_INMEM|    \
+	 DB_REP_CONF_LEASE|DB_REP_CONF_NOWAIT|DB_REPMGR_CONF_2SITE_STRICT|DB_REPMGR_CONF_ELECTIONS)
 #define REPMGR_FLAGS (REP_C_2SITE_STRICT|REP_C_ELECTIONS)
-
-	ENV_NOT_CONFIGURED(
-		env, db_rep->region, "DB_ENV->rep_set_config", DB_INIT_REP);
+	ENV_NOT_CONFIGURED(env, db_rep->region, "DB_ENV->rep_set_config", DB_INIT_REP);
 	if(FLD_ISSET(which, ~OK_FLAGS))
 		return __db_ferr(env, "DB_ENV->rep_set_config", 0);
 	mapped = 0;
@@ -205,10 +183,7 @@ int __rep_set_config(DB_ENV * dbenv, uint32 which, int on)
 		MUTEX_LOCK(env, rep->mtx_clientdb);
 		REP_SYSTEM_LOCK(env);
 		orig = rep->config;
-		if(on)
-			FLD_SET(rep->config, mapped);
-		else
-			FLD_CLR(rep->config, mapped);
+		SETFLAG(rep->config, mapped, on);
 		/*
 		 * Bulk transfer requires special processing if it is getting
 		 * toggled.
@@ -224,10 +199,7 @@ int __rep_set_config(DB_ENV * dbenv, uint32 which, int on)
 		 */
 		if(FLD_ISSET(orig, REP_C_BULK) && !FLD_ISSET(rep->config, REP_C_BULK) && lp->bulk_off != 0) {
 			memzero(&bulk, sizeof(bulk));
-			if(db_rep->bulk == NULL)
-				bulk.addr = (uint8 *)R_ADDR(&dblp->reginfo, lp->bulk_buf);
-			else
-				bulk.addr = db_rep->bulk;
+			bulk.addr = (db_rep->bulk == NULL) ? (uint8 *)R_ADDR(&dblp->reginfo, lp->bulk_buf) : db_rep->bulk;
 			bulk.offp = &lp->bulk_off;
 			bulk.len = lp->bulk_len;
 			bulk.type = REP_BULK_LOG;
@@ -248,10 +220,7 @@ int __rep_set_config(DB_ENV * dbenv, uint32 which, int on)
 #endif
 	}
 	else {
-		if(on)
-			FLD_SET(db_rep->config, mapped);
-		else
-			FLD_CLR(db_rep->config, mapped);
+		SETFLAG(db_rep->config, mapped, on);
 	}
 	/* Configuring 2SITE_STRICT, etc. makes this a repmgr application */
 	if(ret == 0 && FLD_ISSET(mapped, REPMGR_FLAGS))
@@ -524,10 +493,9 @@ int __rep_start_int(ENV * env, DBT * dbt, uint32 flags)
 			if(rep->egen <= rep->gen)
 				rep->egen = rep->gen+1;
 			RPRINT(env, (env, DB_VERB_REP_MISC, "New master gen %lu, egen %lu", (ulong)rep->gen, (ulong)rep->egen));
-			/*
-			 * If not running in-memory replication, write
-			 * gen file.
-			 */
+			//
+			// If not running in-memory replication, write gen file.
+			//
 			if(!FLD_ISSET(rep->config, REP_C_INMEM) && (ret = __rep_write_gen(env, rep, rep->gen)) != 0)
 				goto errunlock;
 		}
@@ -537,10 +505,9 @@ int __rep_start_int(ENV * env, DBT * dbt, uint32 flags)
 		 * expire their grant while the master thinks it is valid.
 		 */
 		if(IS_USING_LEASES(env) && (role_chg || !IS_REP_STARTED(env))) {
-			/*
-			 * If we have already granted our lease, we
-			 * cannot become master.
-			 */
+			//
+			// If we have already granted our lease, we cannot become master.
+			//
 			if((ret = __rep_islease_granted(env))) {
 				__db_errx(env, DB_STR("3558", "rep_start: Cannot become master with outstanding lease granted."));
 				ret = EINVAL;
@@ -553,10 +520,9 @@ int __rep_start_int(ENV * env, DBT * dbt, uint32 flags)
 				goto errunlock;
 			ret = __rep_log_backup(env, logc, &perm_lsn, REP_REC_PERM);
 			__logc_close(logc);
-			/*
-			 * If we found a perm LSN use it.  Otherwise, if
-			 * no perm LSN exists, initialize.
-			 */
+			//
+			// If we found a perm LSN use it.  Otherwise, if no perm LSN exists, initialize.
+			//
 			if(ret == 0)
 				lp->max_perm_lsn = perm_lsn;
 			else if(ret == DB_NOTFOUND)
@@ -746,14 +712,11 @@ int __rep_start_int(ENV * env, DBT * dbt, uint32 flags)
 			 * skews across machines.  So we are being extra
 			 * cautious.
 			 */
-			tmp = (db_timeout_t)((double)rep->lease_timeout*
-			                     ((double)rep->clock_skew/
-			                      (double)rep->clock_base));
+			tmp = (db_timeout_t)((double)rep->lease_timeout*((double)rep->clock_skew/(double)rep->clock_base));
 			DB_TIMEOUT_TO_TIMESPEC(tmp, &rep->lease_duration);
 			if(rep->lease_off != INVALID_ROFF) {
 				MUTEX_LOCK(env, renv->mtx_regenv);
-				__env_alloc_free(infop,
-					R_ADDR(infop, rep->lease_off));
+				__env_alloc_free(infop, R_ADDR(infop, rep->lease_off));
 				MUTEX_UNLOCK(env, renv->mtx_regenv);
 				rep->lease_off = INVALID_ROFF;
 			}
@@ -779,8 +742,7 @@ int __rep_start_int(ENV * env, DBT * dbt, uint32 flags)
 		 * this is perfectly OK.
 		 */
 		MUTEX_LOCK(env, rep->mtx_clientdb);
-		__db_remove(dbp, ip, NULL, REPDBNAME,
-			NULL, DB_FORCE);
+		__db_remove(dbp, ip, NULL, REPDBNAME, NULL, DB_FORCE);
 		MUTEX_UNLOCK(env, rep->mtx_clientdb);
 		/*
 		 * Set pending_event after calls that can fail.
@@ -809,8 +771,7 @@ int __rep_start_int(ENV * env, DBT * dbt, uint32 flags)
 		 */
 		if((ret = __dbt_usercopy(env, dbt)) != 0)
 			goto out;
-		__rep_send_message(env,
-			DB_EID_BROADCAST, REP_NEWCLIENT, NULL, dbt, 0, 0);
+		__rep_send_message(env, DB_EID_BROADCAST, REP_NEWCLIENT, NULL, dbt, 0, 0);
 	}
 	if(0) {
 		/*
@@ -820,8 +781,10 @@ int __rep_start_int(ENV * env, DBT * dbt, uint32 flags)
 		 * 'errunlock' label.  If we error without holding the rep
 		 * mutex we must use 'errlock'.
 		 */
-errlock:        REP_SYSTEM_LOCK(env);
-errunlock:      FLD_CLR(rep->lockout_flags, REP_LOCKOUT_MSG);
+errlock:        
+		REP_SYSTEM_LOCK(env);
+errunlock:      
+		FLD_CLR(rep->lockout_flags, REP_LOCKOUT_MSG);
 		if(locked)
 			CLR_LOCKOUT_BDB(rep);
 		if(interrupting)
@@ -1671,16 +1634,11 @@ int __rep_get_timeout(DB_ENV * dbenv, int which, db_timeout_t * timeout)
  */
 int __rep_get_request(DB_ENV * dbenv, db_timeout_t * minp, db_timeout_t * maxp)
 {
-	DB_REP * db_rep;
 	DB_THREAD_INFO * ip;
-	ENV * env;
 	REP * rep;
-
-	env = dbenv->env;
-	db_rep = env->rep_handle;
-
-	ENV_NOT_CONFIGURED(
-		env, db_rep->region, "DB_ENV->rep_get_request", DB_INIT_REP);
+	ENV * env = dbenv->env;
+	DB_REP * db_rep = env->rep_handle;
+	ENV_NOT_CONFIGURED(env, db_rep->region, "DB_ENV->rep_get_request", DB_INIT_REP);
 	if(REP_ON(env)) {
 		rep = db_rep->region;
 		ENV_ENTER(env, ip);
@@ -2372,9 +2330,9 @@ static int __rep_check_applied(ENV * env, DB_THREAD_INFO * ip, DB_COMMIT_INFO * 
 		return DB_NOTFOUND;
 	}
 out:
-	if(dbc != NULL && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
+	if(dbc && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
-	if(txn != NULL && (t_ret = __db_txn_auto_resolve(env, txn, 1, ret)) != 0 && ret == 0)
+	if(txn && (t_ret = __db_txn_auto_resolve(env, txn, 1, ret)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
 }
@@ -2486,26 +2444,26 @@ err:
 static uint32 __rep_conv_vers(ENV * env, uint32 log_ver)
 {
 	COMPQUIET(env, NULL);
-	/*
-	 * We can't use a switch statement, some of the DB_LOGVERSION_XX
-	 * constants are the same
-	 */
+	//
+	// We can't use a switch statement, some of the DB_LOGVERSION_XX constants are the same
+	//
 	if(log_ver == DB_LOGVERSION)
 		return DB_REPVERSION;
 	/* 5.0 and 5.1 had identical log and rep versions. */
 	if(log_ver == DB_LOGVERSION_51)
 		return DB_REPVERSION_51;
-	if(log_ver == DB_LOGVERSION_48p2)
+	else if(log_ver == DB_LOGVERSION_48p2)
 		return DB_REPVERSION_48;
-	if(log_ver == DB_LOGVERSION_48)
+	else if(log_ver == DB_LOGVERSION_48)
 		return DB_REPVERSION_48;
-	if(log_ver == DB_LOGVERSION_47)
+	else if(log_ver == DB_LOGVERSION_47)
 		return DB_REPVERSION_47;
-	if(log_ver == DB_LOGVERSION_46)
+	else if(log_ver == DB_LOGVERSION_46)
 		return DB_REPVERSION_46;
-	if(log_ver == DB_LOGVERSION_45)
+	else if(log_ver == DB_LOGVERSION_45)
 		return DB_REPVERSION_45;
-	if(log_ver == DB_LOGVERSION_44)
+	else if(log_ver == DB_LOGVERSION_44)
 		return DB_REPVERSION_44;
-	return DB_REPVERSION_INVALID;
+	else
+		return DB_REPVERSION_INVALID;
 }

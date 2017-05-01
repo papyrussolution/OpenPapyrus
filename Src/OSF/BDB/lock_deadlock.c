@@ -7,15 +7,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/log.h"
-// @v9.5.5 #include "dbinc/txn.h"
 
 #define ISSET_MAP(M, N) ((M)[(N)/32]&(1<<((N)%32)))
 #define CLEAR_MAP(M, N) { uint32 __i; for(__i = 0; __i < (N); __i++) (M)[__i] = 0; }
@@ -47,12 +39,9 @@ static int __dd_verify __P((locker_info*, uint32*, uint32*, uint32*, uint32, uin
 #ifdef DIAGNOSTIC
 static void __dd_debug __P((ENV*, locker_info*, uint32*, uint32, uint32));
 #endif
-
 /*
  * __lock_detect_pp --
  *	ENV->lock_detect pre/post processing.
- *
- * PUBLIC: int __lock_detect_pp __P((DB_ENV *, uint32, uint32, int *));
  */
 int __lock_detect_pp(DB_ENV * dbenv, uint32 flags, uint32 atype, int * rejectp)
 {

@@ -1720,7 +1720,7 @@ SString & SLAPI STimeChunk::ToStr(SString & rBuf, long fmt) const
 	const long timf = (fmt & fmtOmitSec) ? TIMF_HM : TIMF_HMS;
 	if(Start.d == Finish.d) {
 		if(Start.d && !Finish.IsFar())
-			rBuf.Cat(Start.d).Space();
+			rBuf.Cat(Start.d, DATF_DMY).Space();
 		rBuf.Cat(Start.t, timf).CatCharN('.', 2).Cat(Finish.t, timf);
 	}
 	else {
@@ -2092,7 +2092,7 @@ SString & SLAPI DateRepeating::Format(int fmt, SString & rBuf) const
 			if(Dtl.D.QuantSec) {
 				LTIME tm;
 				tm.settotalsec(Dtl.D.QuantSec);
-				rBuf.Cat(tm).CatDiv(';', 2);
+				rBuf.Cat(tm, TIMF_HMS).CatDiv(';', 2);
 			}
 			break;
 		case PRD_WEEK:

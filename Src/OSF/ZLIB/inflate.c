@@ -479,14 +479,13 @@ static int updatewindow(z_streamp strm, const Bytef * end, unsigned copy)
 		bits += 8; \
 	} while(0)
 
-/* Assure that there are at least n bits in the bit accumulator.  If there is
-   not enough available input to do that, then return from inflate(). */
+// Assure that there are at least n bits in the bit accumulator.  If there is not enough available input to do that, then return from inflate(). 
 #define NEEDBITS(n) do { while(bits < (unsigned)(n)) PULLBYTE(); } while(0)
-/* Return the low n bits of the bit accumulator (n < 16) */
+// Return the low n bits of the bit accumulator (n < 16) 
 #define BITS(n)	((unsigned)hold & ((1U << (n)) - 1))
-/* Remove n bits from the bit accumulator */
+// Remove n bits from the bit accumulator 
 #define DROPBITS(n) do { hold >>= (n); bits -= (unsigned)(n); } while(0)
-/* Remove zero to seven bits as needed to go to a byte boundary */
+// Remove zero to seven bits as needed to go to a byte boundary 
 #define BYTEBITS() do { hold >>= bits & 7; bits -= bits & 7; } while(0)
 
 /*
@@ -1230,9 +1229,9 @@ int ZEXPORT inflateGetDictionary(z_streamp strm, Bytef * dictionary, uInt * dict
 {
 	struct inflate_state  * state;
 	/* check state */
-	if(inflateStateCheck(strm)) return Z_STREAM_ERROR;
+	if(inflateStateCheck(strm)) 
+		return Z_STREAM_ERROR;
 	state = (struct inflate_state *)strm->state;
-
 	/* copy dictionary */
 	if(state->whave && dictionary != Z_NULL) {
 		zmemcpy(dictionary, state->window + state->wnext, state->whave - state->wnext);
@@ -1288,7 +1287,6 @@ int ZEXPORT inflateGetHeader(z_streamp strm, gz_headerp head)
 	head->done = 0;
 	return Z_OK;
 }
-
 /*
    Search buf[0..len-1] for the pattern: 0, 0, 0xff, 0xff.  Return when found
    or when out of input.  When called, *have is the number of pattern bytes
@@ -1369,11 +1367,12 @@ int ZEXPORT inflateSync(z_streamp strm)
  */
 int ZEXPORT inflateSyncPoint(z_streamp strm)
 {
-	struct inflate_state  * state;
 	if(inflateStateCheck(strm)) 
 		return Z_STREAM_ERROR;
-	state = (struct inflate_state *)strm->state;
-	return state->mode == STORED && state->bits == 0;
+	else {
+		struct inflate_state * state = (struct inflate_state *)strm->state;
+		return state->mode == STORED && state->bits == 0;
+	}
 }
 
 int ZEXPORT inflateCopy(z_streamp dest, z_streamp source)
@@ -1449,19 +1448,21 @@ int ZEXPORT inflateValidate(z_streamp strm, int check)
 
 long ZEXPORT inflateMark(z_streamp strm)
 {
-	struct inflate_state  * state;
 	if(inflateStateCheck(strm))
 		return -(1L << 16);
-	state = (struct inflate_state *)strm->state;
-	return (long)(((unsigned long)((long)state->back)) << 16) + (state->mode == COPY ? state->length : (state->mode == MATCH ? state->was - state->length : 0));
+	else {
+		struct inflate_state * state = (struct inflate_state *)strm->state;
+		return (long)(((unsigned long)((long)state->back)) << 16) + (state->mode == COPY ? state->length : (state->mode == MATCH ? state->was - state->length : 0));
+	}
 }
 
 unsigned long ZEXPORT inflateCodesUsed(z_streamp strm)
 {
-	struct inflate_state  * state;
 	if(inflateStateCheck(strm)) 
 		return (unsigned long)-1;
-	state = (struct inflate_state *)strm->state;
-	return (unsigned long)(state->next - state->codes);
+	else {
+		struct inflate_state  * state = (struct inflate_state *)strm->state;
+		return (unsigned long)(state->next - state->codes);
+	}
 }
 

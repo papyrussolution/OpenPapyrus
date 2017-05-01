@@ -344,7 +344,7 @@ int FASTCALL DateRange::Cmp(const DateRange & rS) const
 
 int SLAPI DateRange::IsZero() const
 {
-	return BIN(low == 0 && upp == 0);
+	return BIN(!low && !upp);
 }
 
 int FASTCALL DateRange::CheckDate(LDATE dt) const

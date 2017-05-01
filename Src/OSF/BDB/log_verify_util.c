@@ -5,25 +5,13 @@
  *
  * $Id$
  */
-
 /*
  * This file contains helper functions like data structure and in-memory db
  * management, which are used to store various log verification information.
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
-// @v9.5.5 #include "dbinc/qam.h"
-// @v9.5.5 #include "dbinc/txn.h"
-// @v9.5.5 #include "dbinc/fop.h"
-// @v9.6.2 #include "dbinc/log_verify.h"
 
 #define BDBOP(op)       do {            \
 		ret = (op);                     \
@@ -523,7 +511,7 @@ int __add_recycle_lsn_range(DB_LOG_VRFY_INFO * lvinfo, const DB_LSN * lsn, uint3
 			goto err;
 	}
 err:
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && ret == 0)
 		ret = tret;
 	__os_free(lvinfo->dbenv->env, param.ti2u);
 	if(ret != 0)
@@ -630,7 +618,7 @@ out:
 	if(ret == DB_NOTFOUND)
 		ret = 0;
 err:
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && ret == 0)
 		ret = tret;
 	__os_free(lvinfo->dbenv->env, btbuf);
 	return ret;
@@ -1126,7 +1114,7 @@ int __get_last_ckp_info(const DB_LOG_VRFY_INFO * lvinfo, VRFY_CKP_INFO ** ckpinf
 	memcpy(ckpinfo, data.data, sizeof(VRFY_CKP_INFO));
 	*ckpinfopp = ckpinfo;
 err:
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && ret == 0)
 		ret = tret;
 	if(ret != 0 && ret != DB_NOTFOUND)
 		__db_err(lvinfo->dbenv->env, ret, "__get_last_ckp_info");
@@ -1204,7 +1192,7 @@ int __get_latest_timestamp_info(const DB_LOG_VRFY_INFO * lvinfo, DB_LSN lsn, VRF
 err:
 	if(ret != 0 && ret != DB_NOTFOUND)
 		__db_err(lvinfo->dbenv->env, ret, "__get_latest_timestamp_info");
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && ret == 0)
 		ret = tret;
 	return ret;
 }
@@ -1296,7 +1284,7 @@ int __find_lsnrg_by_timerg(DB_LOG_VRFY_INFO * lvinfo, __time64_t begin, __time64
 err:
 	if(ret == DB_NOTFOUND)
 		ret = 0;
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && ret == 0)
 		ret = tret;
 	return ret;
 }
@@ -1341,7 +1329,7 @@ int __add_txnrange(DB_LOG_VRFY_INFO * lvinfo, uint32 txnid, DB_LSN lsn, int32 wh
 		BDBOP(__dbc_put(csr, &key, &data, DB_CURRENT));
 	}
 err:
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && ret == 0)
 		ret = tret;
 	return ret;
 }
@@ -1379,7 +1367,7 @@ err:
 	/* It's OK if can't find it. */
 	if(ret == DB_NOTFOUND)
 		ret = 0;
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && ret == 0)
 		ret = tret;
 	return ret;
 }
@@ -1419,7 +1407,7 @@ int __txn_started(DB_LOG_VRFY_INFO * lvinfo, DB_LSN lsn, uint32 txnid, int * res
 err:
 	if(ret == DB_NOTFOUND)
 		ret = 0;  /* It's OK if can't find it. */
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && ret == 0)
 		ret = tret;
 	return ret;
 }
@@ -1545,16 +1533,13 @@ err:
  */
 int __is_ancestor_txn(DB_LOG_VRFY_INFO * lvinfo, uint32 ptxnid, uint32 txnid, DB_LSN lsn, int * res)
 {
-	uint32 ptid;
-	int ret, tret;
-	DBC * csr;
-	DB * pdb;
+	int tret;
 	DBT key, data;
 	struct __lv_txnrange tr;
-	ret = 0;
-	ptid = txnid;
-	csr = NULL;
-	pdb = lvinfo->txnrngs;
+	int ret = 0;
+	uint32 ptid = txnid;
+	DBC * csr = NULL;
+	DB * pdb = lvinfo->txnrngs;
 	// (replaced by ctr) memzero(&key, sizeof(DBT));
 	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	*res = 0;
@@ -1583,7 +1568,7 @@ out:
 err:
 	if(ret == DB_NOTFOUND)
 		ret = 0;
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && ret == 0)
 		ret = tret;
 	return ret;
 }
@@ -1618,7 +1603,7 @@ int __return_txn_pages(DB_LOG_VRFY_INFO * lvh, uint32 ctxn, uint32 ptxn)
 	if((ret = __del_txn_pages(lvh, ctxn)) != 0 && ret != DB_NOTFOUND)
 		goto err;
 err:
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && ret == 0)
 		ret = tret;
 	return ret;
 }

@@ -55,13 +55,9 @@ static int __db_associate_foreign_arg(DB*, DB*, int (*)(DB *, const DBT *, DBT *
  *	Commit/abort internal transaction if necessary
  *	Decrement handle count
  */
-
 /*
  * __db_associate_pp --
  *	DB->associate pre/post processing.
- *
- * PUBLIC: int __db_associate_pp __P((DB *, DB_TXN *, DB *,
- * PUBLIC:     int (*)(DB *, const DBT *, const DBT *, DBT *), uint32));
  */
 int __db_associate_pp(DB * dbp, DB_TXN * txn, DB * sdbp, int (*callback)__P((DB*, const DBT*, const DBT*, DBT *)), uint32 flags)
 {
@@ -111,7 +107,7 @@ int __db_associate_pp(DB * dbp, DB_TXN * txn, DB * sdbp, int (*callback)__P((DB*
 err:
 	if(txn_local && (t_ret = __db_txn_auto_resolve(env, txn, 0, ret)) && ret == 0)
 		ret = t_ret;
-	/* Release replication block. */
+	// Release replication block.
 	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && ret == 0)
 		ret = t_ret;
 	ENV_LEAVE(env, ip);
@@ -171,8 +167,6 @@ static int __db_associate_arg(DB * dbp, DB * sdbp, int (*callback)__P((DB*, cons
 /*
  * __db_close_pp --
  *	DB->close pre/post processing.
- *
- * PUBLIC: int __db_close_pp __P((DB *, uint32));
  */
 int __db_close_pp(DB * dbp, uint32 flags)
 {
@@ -207,8 +201,6 @@ int __db_close_pp(DB * dbp, uint32 flags)
 /*
  * __db_cursor_pp --
  *	DB->cursor pre/post processing.
- *
- * PUBLIC: int __db_cursor_pp __P((DB *, DB_TXN *, DBC **, uint32));
  */
 int __db_cursor_pp(DB * dbp, DB_TXN * txn, DBC ** dbcp, uint32 flags)
 {
@@ -246,7 +238,6 @@ int __db_cursor_pp(DB * dbp, DB_TXN * txn, DBC ** dbcp, uint32 flags)
 	if((ret = __db_check_txn(dbp, txn, DB_LOCK_INVALIDID, 1)) != 0)
 		goto err;
 	ret = __db_cursor(dbp, ip, txn, dbcp, flags);
-
 	/*
 	 * Register externally created cursors into the valid transaction.
 	 * If a family transaction was passed in, the transaction handle in
@@ -256,7 +247,7 @@ int __db_cursor_pp(DB * dbp, DB_TXN * txn, DBC ** dbcp, uint32 flags)
 	if(txn && !ret)
 		TAILQ_INSERT_HEAD(&(txn->my_cursors), *dbcp, txn_cursors);
 err:
-	/* Release replication block on error. */
+	// Release replication block on error.
 	if(ret && rep_blocked)
 		__op_rep_exit(env);
 	ENV_LEAVE(env, ip);
@@ -265,9 +256,6 @@ err:
 /*
  * __db_cursor --
  *	DB->cursor.
- *
- * PUBLIC: int __db_cursor __P((DB *,
- * PUBLIC:      DB_THREAD_INFO *, DB_TXN *, DBC **, uint32));
  */
 int __db_cursor(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBC ** dbcp, uint32 flags)
 {
@@ -283,10 +271,9 @@ int __db_cursor(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBC ** dbcp, uint32
 	PERFMON5(env, db, cursor, dbp->fname, dbp->dname, txn == NULL ? 0 : txn->txnid, flags, &dbp->fileid[0]);
 	if((ret = __db_cursor_int(dbp, ip, txn, dbp->type, PGNO_INVALID, LF_ISSET(DB_CURSOR_BULK|DB_CURSOR_TRANSIENT|DB_RECOVER), NULL, &dbc)) != 0)
 		return ret;
-	/*
-	 * If this is CDB, do all the locking in the interface, which is
-	 * right here.
-	 */
+	//
+	// If this is CDB, do all the locking in the interface, which is right here.
+	//
 	if(CDB_LOCKING(env)) {
 		mode = (LF_ISSET(DB_WRITELOCK)) ? DB_LOCK_WRITE : ((LF_ISSET(DB_WRITECURSOR) || txn != NULL) ? DB_LOCK_IWRITE : DB_LOCK_READ);
 		if((ret = __lock_get(env, dbc->locker, 0, &dbc->lock_dbt, mode, &dbc->mylock)) != 0)
@@ -603,7 +590,7 @@ int __db_get(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * key, DBT * data,
 	else
 #endif
 	ret = __dbc_get(dbc, key, data, flags);
-	if(dbc != NULL && (t_ret = __dbc_close(dbc)) != 0 && !ret)
+	if(dbc && (t_ret = __dbc_close(dbc)) != 0 && !ret)
 		ret = t_ret;
 	return ret;
 }
@@ -640,43 +627,43 @@ static int __db_get_arg(const DB * dbp, DBT * key, DBT * data, uint32 flags)
 		multi = LF_ISSET(DB_MULTIPLE) ? 1 : 0;
 		LF_CLR(DB_MULTIPLE);
 	}
-	/* Check for invalid function flags. */
+	// Check for invalid function flags. 
 	switch(flags) {
 	    case DB_GET_BOTH:
-		if((ret = __dbt_usercopy(env, data)) != 0)
-			return ret;
-	    /* FALLTHROUGH */
+			if((ret = __dbt_usercopy(env, data)) != 0)
+				return ret;
+			// FALLTHROUGH 
 	    case 0:
-		if((ret = __dbt_usercopy(env, key)) != 0) {
-			__dbt_userfree(env, key, NULL, data);
-			return ret;
-		}
-		break;
+			if((ret = __dbt_usercopy(env, key)) != 0) {
+				__dbt_userfree(env, key, NULL, data);
+				return ret;
+			}
+			break;
 	    case DB_SET_RECNO:
-		if(!F_ISSET(dbp, DB_AM_RECNUM))
-			goto err;
-		if((ret = __dbt_usercopy(env, key)) != 0)
-			return ret;
-		break;
+			if(!F_ISSET(dbp, DB_AM_RECNUM))
+				goto err;
+			if((ret = __dbt_usercopy(env, key)) != 0)
+				return ret;
+			break;
 	    case DB_CONSUME:
 	    case DB_CONSUME_WAIT:
-		if(dirty) {
-			__db_errx(env, DB_STR_A("0583", "%s is not supported with DB_CONSUME or DB_CONSUME_WAIT", "%s"), LF_ISSET(DB_READ_UNCOMMITTED) ? "DB_READ_UNCOMMITTED" : "DB_READ_COMMITTED");
-			return EINVAL;
-		}
-		if(multi)
-multi_err:
-		return __db_ferr(env, "DB->get", 1);
-		if(dbp->type == DB_QUEUE)
-			break;
-	    /* FALLTHROUGH */
+			if(dirty) {
+				__db_errx(env, DB_STR_A("0583", "%s is not supported with DB_CONSUME or DB_CONSUME_WAIT", "%s"), LF_ISSET(DB_READ_UNCOMMITTED) ? "DB_READ_UNCOMMITTED" : "DB_READ_COMMITTED");
+				return EINVAL;
+			}
+			if(multi)
+	multi_err:
+			return __db_ferr(env, "DB->get", 1);
+			if(dbp->type == DB_QUEUE)
+				break;
+		// FALLTHROUGH 
 	    default:
 err:
 			return __db_ferr(env, "DB->get", 0);
 	}
-	/*
-	 * Check for invalid key/data flags.
-	 */
+	//
+	// Check for invalid key/data flags.
+	//
 	if((ret = __dbt_ferr(dbp, "key", key, DB_RETURNS_A_KEY(dbp, flags))) != 0)
 		return ret;
 	if(F_ISSET(data, DB_DBT_READONLY)) {
@@ -709,8 +696,6 @@ err:
 /*
  * __db_join_pp --
  *	DB->join pre/post processing.
- *
- * PUBLIC: int __db_join_pp __P((DB *, DBC **, DBC **, uint32));
  */
 int __db_join_pp(DB * primary, DBC ** curslist, DBC ** dbcp, uint32 flags)
 {
@@ -726,7 +711,7 @@ int __db_join_pp(DB * primary, DBC ** curslist, DBC ** dbcp, uint32 flags)
 	}
 	if((ret = __db_join_arg(primary, curslist, flags)) == 0)
 		ret = __db_join(primary, curslist, dbcp, flags);
-	/* Release replication block. */
+	// Release replication block.
 	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && !ret)
 		ret = t_ret;
 err:
@@ -1096,9 +1081,6 @@ err:
 /*
  * __db_pget --
  *	DB->pget.
- *
- * PUBLIC: int __db_pget __P((DB *,
- * PUBLIC:     DB_THREAD_INFO *, DB_TXN *, DBT *, DBT *, DBT *, uint32));
  */
 int __db_pget(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * skey, DBT * pkey, DBT * data, uint32 flags)
 {
@@ -1194,8 +1176,6 @@ static int __db_pget_arg(DB * dbp, DBT * pkey, uint32 flags)
 /*
  * __db_put_pp --
  *	DB->put pre/post processing.
- *
- * PUBLIC: int __db_put_pp __P((DB *, DB_TXN *, DBT *, DBT *, uint32));
  */
 int __db_put_pp(DB * dbp, DB_TXN * txn, DBT * key, DBT * data, uint32 flags)
 {
@@ -1209,26 +1189,26 @@ int __db_put_pp(DB * dbp, DB_TXN * txn, DBT * key, DBT * data, uint32 flags)
 		return ret;
 	ENV_ENTER(env, ip);
 	XA_CHECK_TXN(ip, txn);
-	/* Check for replication block. */
+	// Check for replication block.
 	handle_check = IS_ENV_REPLICATED(env);
 	if(handle_check && (ret = __db_rep_enter(dbp, 1, 0, IS_REAL_TXN(txn))) != 0) {
 		handle_check = 0;
 		goto err;
 	}
-	/* Create local transaction as necessary. */
+	// Create local transaction as necessary.
 	if(IS_DB_AUTO_COMMIT(dbp, txn)) {
 		if((ret = __txn_begin(env, ip, NULL, &txn, 0)) != 0)
 			goto err;
 		txn_local = 1;
 	}
-	/* Check for consistent transaction usage. */
+	// Check for consistent transaction usage. 
 	if((ret = __db_check_txn(dbp, txn, DB_LOCK_INVALIDID, 0)) != 0)
 		goto err;
 	ret = __db_put(dbp, ip, txn, key, data, flags);
 err:
 	if(txn_local && (t_ret = __db_txn_auto_resolve(env, txn, 0, ret)) && ret == 0)
 		ret = t_ret;
-	/* Release replication block. */
+	// Release replication block. 
 	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && ret == 0)
 		ret = t_ret;
 	ENV_LEAVE(env, ip);

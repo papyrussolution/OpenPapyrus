@@ -192,8 +192,8 @@ int SLAPI VCalendar::ReadProp(TodoProperty * pProp, SString & rVal, SString & rA
 		temp_buf.TrimRightChr('\n');
 		prop = (TodoProperty)Properties.GetIdxBySub(temp_buf, ';');
 		if(prop == -1) {
-			int mime64_enc = 0;
-			uint pos = 0;
+			int    mime64_enc = 0;
+			size_t pos = 0;
 			if(temp_buf.StrChr(':', &pos) > 0 && pos > 0 && temp_buf.C(pos - 1) != '\\') {
 				temp_buf.Divide(':', temp_buf2, val);
 				PrevTempBuf = temp_buf;
@@ -443,7 +443,7 @@ SString & SLAPI PrjTaskFilt::GetStatusListText(SString & rDest) const
 	rDest = 0;
 	SString temp_buf;
 	for(uint i = 0; i < id_list.getCount(); i++)
-		rDest.CatDiv(';', 2, 1).Cat(PPObjPrjTask::GetStatusText(id_list.get(i), temp_buf));
+		rDest.CatDivIfNotEmpty(';', 2).Cat(PPObjPrjTask::GetStatusText(id_list.get(i), temp_buf));
 	return rDest;
 }
 
@@ -454,7 +454,7 @@ SString & SLAPI PrjTaskFilt::GetPriorListText(SString & rDest) const
 	rDest = 0;
 	SString temp_buf;
 	for(uint i = 0; i < id_list.getCount(); i++)
-		rDest.CatDiv(';', 2, 1).Cat(PPObjPrjTask::GetPriorText(id_list.get(i), temp_buf));
+		rDest.CatDivIfNotEmpty(';', 2).Cat(PPObjPrjTask::GetPriorText(id_list.get(i), temp_buf));
 	return rDest;
 }
 
@@ -1685,16 +1685,16 @@ DBQuery * SLAPI PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		if(Filt.ProjectID)
 			prj_obj.GetFullName(Filt.ProjectID, *pSubTitle);
 		if(Filt.TemplateID) {
-			pSubTitle->CatDiv('-', 1, 1);
+			pSubTitle->CatDivIfNotEmpty('-', 1);
 			GetObjectName(PPOBJ_PRJTASK, Filt.TemplateID, *pSubTitle, 1);
 		}
 		if(Filt.EmployerID) {
 			GetPersonName(Filt.EmployerID, name_buf);
-			pSubTitle->CatDiv('-', 1, 1).Cat(name_buf);
+			pSubTitle->CatDivIfNotEmpty('-', 1).Cat(name_buf);
 		}
 		if(Filt.ClientID) {
 			GetPersonName(Filt.ClientID, name_buf);
-			pSubTitle->CatDiv('-', 1, 1).Cat(name_buf);
+			pSubTitle->CatDivIfNotEmpty('-', 1).Cat(name_buf);
 		}
 		if(Filt.LinkTaskID) {
 			SString  link_task_name;
@@ -2265,7 +2265,7 @@ int PPALDD_PrjTaskView::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_PrjTaskView::Destroy()
+void PPALDD_PrjTaskView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(PrjTask);
 }
@@ -2363,7 +2363,7 @@ int PPALDD_PrjTaskViewCt::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_PrjTaskViewCt::Destroy()
+void PPALDD_PrjTaskViewCt::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(PrjTask);
 }

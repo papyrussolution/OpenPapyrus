@@ -207,10 +207,10 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 			img_height = p_img->GetHeight(); // @v9.5.10 
 			img_width = p_img->GetWidth(); // @v9.5.10
 			p_img->SetClearColor(Color);
-			// @v9.1.11 SetWindowLong(h_img, GWL_USERDATA, (long)this);
-			TView::SetWindowProp(h_img, GWL_USERDATA, this); // @v9.1.11
-			// @v9.1.11 PrevImgProc = (WNDPROC)SetWindowLong(h_img, GWL_WNDPROC, (long)ImgProc);
-			PrevImgProc = (WNDPROC)TView::SetWindowProp(h_img, GWL_WNDPROC, ImgProc);
+			// @v9.1.11 SetWindowLong(h_img, GWLP_USERDATA, (long)this);
+			TView::SetWindowProp(h_img, GWLP_USERDATA, this); // @v9.1.11
+			// @v9.1.11 PrevImgProc = (WNDPROC)SetWindowLong(h_img, GWLP_WNDPROC, (long)ImgProc);
+			PrevImgProc = (WNDPROC)TView::SetWindowProp(h_img, GWLP_WNDPROC, ImgProc);
 			// @v9.5.10 @construction {
 			if(flags & SMessageWindow::fMaxImgSize && img_height > 0.0 && img_width > 0.0) {
 				const double rel = img_width / img_height;
@@ -280,8 +280,8 @@ int SMessageWindow::Destroy()
 {
 	if(P_Image) {
 		HWND h_img = GetDlgItem(HWnd, 1202/*CTL_TOOLTIP_IMAGE*/);
-		// @v9.1.11 SetWindowLong(h_img, GWL_WNDPROC, (long)PrevImgProc);
-		TView::SetWindowProp(h_img, GWL_WNDPROC, PrevImgProc); // @v9.1.11
+		// @v9.1.11 SetWindowLong(h_img, GWLP_WNDPROC, (long)PrevImgProc);
+		TView::SetWindowProp(h_img, GWLP_WNDPROC, PrevImgProc); // @v9.1.11
 		delete (SImage*)P_Image;
 	}
 	HWnd  = 0;
@@ -422,13 +422,13 @@ BOOL CALLBACK SMessageWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, LPARA
 	SMessageWindow * p_win = (SMessageWindow *)TView::GetWindowUserData(hWnd);
 	switch(message) {
 		case WM_INITDIALOG:
-			SetWindowLong(hWnd, GWL_USERDATA, lParam);
-			SetWindowLong(hWnd, DWL_USER, 1013/*DLG_TOOLTIP*/);
+			SetWindowLong(hWnd, GWLP_USERDATA, lParam);
+			SetWindowLong(hWnd, DWLP_USER, 1013/*DLG_TOOLTIP*/);
 			break;
 		case WM_DESTROY:
 			KillTimer(hWnd, MSGWND_CLOSETIMER);
-			// @v9.1.11 SetWindowLong(hWnd, GWL_USERDATA, 0L);
-			TView::SetWindowProp(hWnd, GWL_USERDATA, (void *)0); // @v9.1.11
+			// @v9.1.11 SetWindowLong(hWnd, GWLP_USERDATA, 0L);
+			TView::SetWindowProp(hWnd, GWLP_USERDATA, (void *)0); // @v9.1.11
 			ZDELETE(p_win);
 			break;
 		case WM_LBUTTONDBLCLK:

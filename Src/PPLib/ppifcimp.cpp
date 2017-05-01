@@ -13,6 +13,14 @@ static int SLAPI IfcImpCheckDictionary()
 	return CurDict ? 1 : PPSetError(PPERR_NOTLOGGEDIN);
 }
 
+static void FASTCALL ReleaseUnknObj(IUnknown ** ppUnkn)
+{
+	if(*ppUnkn) {
+		(*ppUnkn)->Release();
+		(*ppUnkn) = 0;
+	}
+}
+
 SDateRange FASTCALL DateRangeToOleDateRange(DateRange period)
 {
 	SDateRange rng;
@@ -60,15 +68,11 @@ IUnknown * GetPPObjIStrAssocList(SCoClass * pCls, PPObject * pObj, long extraPar
 					p_list_env->setPointer(0);
 					ZDELETE(p_list);
 				}
-				else {
-					p->Release();
-					p = 0;
-				}
+				else
+					ReleaseUnknObj(&p);
 			}
-			else {
-				p->Release();
-				p = 0;
-			}
+			else
+				ReleaseUnknObj(&p);
 		}
 	}
 	return p;
@@ -83,10 +87,8 @@ IUnknown * GetIStrAssocList(SCoClass * pCls, StrAssocArray * pList, int delList 
 			*p_list_env = *pList;
 			p_list_env->setPointer(0);
 		}
-		else {
-			p->Release();
-			p = 0;
-		}
+		else
+			ReleaseUnknObj(&p);
 	}
 	if(delList)
 		ZDELETE(pList);
@@ -100,10 +102,8 @@ IUnknown * GetIPapyrusAmountList(SCoClass * pCls, AmtList * pList, int delList =
 		AmtList * p_list_env = (AmtList*)SCoClass::GetExtraPtrByInterface(p);
 		if(p_list_env)
 			*p_list_env = *pList;
-		else {
-			p->Release();
-			p = 0;
-		}
+		else
+			ReleaseUnknObj(&p);
 	}
 	if(delList)
 		ZDELETE(pList);
@@ -119,10 +119,8 @@ IUnknown * GetILotList(SCoClass * pCls, SArray * pList, int delList = 1)
 			*p_list_env = *pList;
 			p_list_env->setPointer(0);
 		}
-		else {
-			p->Release();
-			p = 0;
-		}
+		else
+			ReleaseUnknObj(&p);
 	}
 	if(delList)
 		ZDELETE(pList);
@@ -264,10 +262,9 @@ SString & DL6ICLS_PapyrusTextAnalyzer::ReplaceString(SString & inputText)
 			inputText.Strip().ToLower().Transf(CTRANSF_INNER_TO_OUTER);
 			p_obj->A.Reset(0);
 			p_obj->A.ProcessString(p_obj->R, 0, inputText, RetStrBuf, &p_obj->Fb, 0);
-			if(RetStrBuf.NotEmpty())
-				RetStrBuf.ToOem();
-			else
-				(RetStrBuf = inputText).ToOem();
+			if(RetStrBuf.Empty())
+				RetStrBuf = inputText;
+			RetStrBuf.Transf(CTRANSF_OUTER_TO_INNER);
 		}
 		else {
 			AppError = 1;
@@ -1244,8 +1241,7 @@ IStrAssocList * DL6ICLS_PPFtp::GetFileList(SString & rDir, SString & rMask)
 	if(p_ftp)
 		THROW(p_ftp->SafeGetFileList(rDir, p_file_list, rMask, 0));
 	CATCH
-		p->Release();
-		p = 0;
+		ReleaseUnknObj(&p);
 		AppError = 1;
 	ENDCATCH
 	return (IStrAssocList *)p;
@@ -1727,10 +1723,7 @@ static ILongList* Impement_GetObjectListBySjSince(SCoClass * pCoCls, PpyObjectId
 	THROW(p_id_list = (LongArray *)SCoClass::GetExtraPtrByInterface(p));
 	p_sj->GetObjListByEventSince(objType, &rAcnList, dtm, *p_id_list);
 	CATCH
-		if(p) {
-			p->Release();
-			p = 0;
-		}
+		ReleaseUnknObj(&p);
 		pCoCls->AppError = 1;
 	ENDCATCH
 	return (ILongList*)p;
@@ -1788,10 +1781,7 @@ IStrAssocList* DL6ICLS_PPSession::GetDatabaseList(int32 nameKind)
 		THROW(set.MakeList(p_list_env, lo));
 	}
 	CATCH
-		if(p) {
-			p->Release();
-			p = 0;
-		}
+		ReleaseUnknObj(&p);
 		AppError = 1;
 	ENDCATCH
 	return (IStrAssocList *)p;
@@ -2062,7 +2052,7 @@ void LoginDialogParam::SetupDBSelCombo(HWND hDlg)
 				pn = n;
 			if(pn.NotEmptyS()) {
 				pn.Transf(CTRANSF_INNER_TO_OUTER);
-				SendDlgItemMessage(hDlg, CTLSEL_LOGIN_DB, CB_ADDSTRING, (WPARAM)0, (LPARAM)(const char*)pn);
+				SendDlgItemMessage(hDlg, CTLSEL_LOGIN_DB, CB_ADDSTRING, (WPARAM)0, (LPARAM)pn.cptr());
 				if(i == entry_id)
 					SendDlgItemMessage(hDlg, CTLSEL_LOGIN_DB, CB_SETCURSEL, (WPARAM)i - 1, 0);
 			}
@@ -4287,7 +4277,7 @@ SString & DL6ICLS_PPLocAddrStruc::Get(PpyLocAddrPart partId)
 		p_las->Get(partId, RetStrBuf);
 	else
 		AppError = 1;
-	return RetStrBuf.ToOem();
+	return RetStrBuf.Transf(CTRANSF_OUTER_TO_INNER);
 }
 //
 // } PPObjLocAddrStruc
@@ -5102,8 +5092,7 @@ IStrAssocList * DL6ICLS_PPObjPerson::GetRegList(int32 psnID, int32 regType)
 		}
 	}
 	CATCH
-		p->Release();
-		p = 0;
+		ReleaseUnknObj(&p);
 		AppError = 1;
 	ENDCATCH
 	return (IStrAssocList*)p;
@@ -5625,10 +5614,8 @@ IUnknown * GetICompleteList(SCoClass * pCls, CompleteArray * pList, int delList 
 			*p_list_env = *pList;
 			p_list_env->setPointer(0);
 		}
-		else {
-			p->Release();
-			p = 0;
-		}
+		else
+			ReleaseUnknObj(&p);
 	}
 	if(delList)
 		ZDELETE(pList);
@@ -6616,8 +6603,7 @@ IStrAssocList * DL6ICLS_PPObjBill::GetDeletedBillList(SDateRange * pPeriod)
 		}
 	}
 	CATCH
-		p->Release();
-		p = 0;
+		ReleaseUnknObj(&p);
 		AppError = 1;
 	ENDCATCH
 	return (IStrAssocList*)p;
@@ -8064,7 +8050,7 @@ int32 DL6ICLS_PrcssrAlcReport::PreprocessGoodsItem(int32 goodsID, int32 lotID, i
 			pItem->Brutto = item.Brutto;
 			SString temp_buf;
 			(temp_buf = item.CategoryCode).CopyToOleStr(&pItem->CategoryCode);
-			(temp_buf = item.CategoryName).ToOem().CopyToOleStr(&pItem->CategoryName); // Эта строка изначально в CHAR-кодировке
+			(temp_buf = item.CategoryName).Transf(CTRANSF_OUTER_TO_INNER).CopyToOleStr(&pItem->CategoryName); // Эта строка изначально в CHAR-кодировке
 			(temp_buf = item.MsgPool).CopyToOleStr(&pItem->MsgPool);
 		}
 	}
@@ -8099,15 +8085,11 @@ IUnknown * GetPPObjIStrAssocList(SCoClass * pCls, PPObject * pObj, long extraPar
 					p_list_env->setPointer(0);
 					ZDELETE(p_list);
 				}
-				else {
-					p->Release();
-					p = 0;
-				}
+				else
+					ReleaseUnknObj(&p);
 			}
-			else {
-				p->Release();
-				p = 0;
-			}
+			else
+				ReleaseUnknObj(&p);
 		}
 	}
 	return p;
@@ -8136,10 +8118,7 @@ ILongList * DL6ICLS_PrcssrAlcReport::GetWkrRegisterListByPeriod(int32 wkr, int32
         }
 	}
 	CATCH
-		if(p) {
-			p->Release();
-			p = 0;
-		}
+		ReleaseUnknObj(&p);
 		AppError = 1;
 	ENDCATCH
 	return (ILongList*)p;
@@ -8208,10 +8187,7 @@ IStrAssocList * DL6ICLS_PrcssrAlcReport::GetWkrRegisterList(int32 wkr, int32 psn
 		}
 	}
 	CATCH
-		if(p) {
-			p->Release();
-			p = 0;
-		}
+		ReleaseUnknObj(&p);
 		AppError = 1;
 	ENDCATCH
 	return (IStrAssocList*)p;

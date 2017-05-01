@@ -102,10 +102,8 @@ static char * gp_get_string(char *, size_t, const char *);
 //static int    read_line(const char * prompt, int start);
 static void   do_system(const char*);
 //static void   test_palette_subcommand();
-static int    find_clause(int *, int *);
+//static int    find_clause(int *, int *);
 //static int    expand_1level_macros();
-
-//GpCommand GpGg.Gp__C;
 
 //void   extend_input_line()
 void GpCommand::ExtendInputLine()
@@ -197,10 +195,10 @@ int GpGadgets::ComLine(GpCommand & rC)
 	 * (DFK 11/89)
 	 */
 	screen_ok = IsInteractive;
-	return BIN(rC.DoLine(GpGg));
+	return BIN(rC.DoLine());
 }
 
-int GpCommand::DoLine(GpGadgets & rGg)
+int GpCommand::DoLine(/*GpGadgets & rGg*/)
 {
 	// Expand any string variables in the current input line
 	StringExpandMacros();
@@ -237,14 +235,14 @@ int GpCommand::DoLine(GpGadgets & rGg)
 		* NB: This may leave an "else" condition on the next line.
 		*/
 		if(curly_brace_count < 0)
-			GpGg.IntErrorNoCaret("Unexpected }");
+			R_Gg.IntErrorNoCaret("Unexpected }");
 		while(curly_brace_count > 0) {
 			if(lf_head && lf_head->depth > 0) {
 				// This catches the case that we are inside a "load foo" operation
 				// and therefore requesting interactive input is not an option. FIXME: or is it?
-				GpGg.IntErrorNoCaret("Syntax error: missing block terminator }");
+				R_Gg.IntErrorNoCaret("Syntax error: missing block terminator }");
 			}
-			else if(rGg.IsInteractive || rGg.noinputfiles) {
+			else if(R_Gg.IsInteractive || R_Gg.noinputfiles) {
 				/* If we are really in interactive mode and there are unterminated blocks,
 				* then we want to display a "more>" prompt to get the rest of the block.
 				* However, there are two more cases that must be dealt here:
@@ -256,7 +254,7 @@ int GpCommand::DoLine(GpGadgets & rGg)
 				strcat(P_InputLine, ";");
 				int retval = ReadLine("more> ", strlen(P_InputLine));
 				if(retval)
-					GpGg.IntErrorNoCaret("Syntax error: missing block terminator }");
+					R_Gg.IntErrorNoCaret("Syntax error: missing block terminator }");
 				// Expand any string variables in the current input line 
 				StringExpandMacros();
 				NumTokens = Scanner(&P_InputLine, &InputLineLen);
@@ -268,12 +266,12 @@ int GpCommand::DoLine(GpGadgets & rGg)
 				* Having curly_brace_count > 0 means that there are at least one
 				* unterminated blocks in the string.
 				* Likely user error, so we die with an error message. */
-				GpGg.IntErrorNoCaret("Syntax error: missing block terminator }");
+				R_Gg.IntErrorNoCaret("Syntax error: missing block terminator }");
 			}
 		}
 		CToken = 0;
 		while(CToken < NumTokens) {
-			Command(rGg);
+			Command();
 			if(IterationEarlyExit()) {
 				CToken = NumTokens;
 				break;
@@ -293,7 +291,7 @@ int GpCommand::DoLine(GpGadgets & rGg)
 					EndClause();
 				}
 				else
-					GpGg.IntErrorCurToken("unexpected or unrecognized token");
+					R_Gg.IntErrorCurToken("unexpected or unrecognized token");
 			}
 		}
 		// This check allows event handling inside load/eval/while statements
@@ -320,8 +318,8 @@ void GpCommand::DoStringAndFree(char * cmdline)
 	while(InputLineLen < strlen(cmdline) + 1)
 		ExtendInputLine();
 	strcpy(P_InputLine, cmdline);
-	GpGg.screen_ok = false;
-	command_exit_status = DoLine(GpGg);
+	R_Gg.screen_ok = false;
+	command_exit_status = DoLine();
 	// We don't know if screen_ok is appropriate so leave it false.
 	lf_pop(*this);
 }
@@ -349,7 +347,7 @@ void GpGadgets::DoStringReplot(GpCommand & rC, const char * pStr)
 	else if(!rC.IsReplotDisabled)
 		ReplotRequest(rC);
 	else
-		int_warn(NO_CARET, "refresh not possible and replot is disabled");
+		IntWarn(NO_CARET, "refresh not possible and replot is disabled");
 }
 
 void restore_prompt()
@@ -390,14 +388,14 @@ void GpCommand::Define()
 			CopyStr(P.CDummyVar[dummy_num++], CToken, MAX_ID_LEN);
 		} while(Eq(CToken + 1, ",") && (dummy_num < MAX_NUM_VAR));
 		if(Eq(CToken + 1, ","))
-			GpGg.IntError(CToken + 2, "function contains too many parameters");
+			R_Gg.IntError(CToken + 2, "function contains too many parameters");
 		CToken += 3; // skip (, dummy, ) and = 
 		if(EndOfCommand())
-			GpGg.IntErrorCurToken("function definition expected");
-		udf = P_DummyFunc = GpGg.Ev.AddUdf(*this, start_token);
+			R_Gg.IntErrorCurToken("function definition expected");
+		udf = P_DummyFunc = R_Gg.Ev.AddUdf(*this, start_token);
 		udf->dummy_num = dummy_num;
 		if((at_tmp = P.PermAt()) == (AtType*)NULL)
-			GpGg.IntError(start_token, "not enough memory for function");
+			R_Gg.IntError(start_token, "not enough memory for function");
 		AtType::Destroy(udf->at);
 		udf->at = at_tmp; // before re-assigning it.
 		memcpy(P.CDummyVar, save_dummy, sizeof(save_dummy));
@@ -407,17 +405,17 @@ void GpCommand::Define()
 		tmpnam = (char *)malloc(8+strlen(udf->udf_name));
 		strcpy(tmpnam, "GPFUN_");
 		strcat(tmpnam, udf->udf_name);
-		GpGg.Ev.FillGpValString(tmpnam, udf->definition);
+		R_Gg.Ev.FillGpValString(tmpnam, udf->definition);
 		free(tmpnam);
 	}
 	else {
 		// variable ! 
 		char * p_varname = P_InputLine + P_Token[CToken].start_index;
 		if(!strncmp(p_varname, "GPVAL_", 6) || !strncmp(p_varname, "MOUSE_", 6))
-			GpGg.IntErrorCurToken("Cannot set internal variables GPVAL_ and MOUSE_");
+			R_Gg.IntErrorCurToken("Cannot set internal variables GPVAL_ and MOUSE_");
 		start_token = CToken;
 		CToken += 2;
-		udv = GpGg.Ev.AddUdv(*this, start_token);
+		udv = R_Gg.Ev.AddUdv(*this, start_token);
 		P.ConstExpress(*this, &result);
 		// Prevents memory leak if the variable name is re-used 
 		gpfree_array(&udv->udv_value);
@@ -446,7 +444,7 @@ void undefine_command(GpCommand & rC)
 	}
 }
 
-void GpCommand::Command(GpGadgets & rGg)
+void GpCommand::Command()
 {
 #if 0 // {
 	static const GpGenFTable command_ftbl[] =
@@ -522,11 +520,11 @@ void GpCommand::Command(GpGadgets & rGg)
 		}
 #ifdef USE_MOUSE
 		else if(AlmostEq(CToken, "bi$nd")) { 
-			rGg.BindCommand(*this); 
+			R_Gg.BindCommand(*this); 
 		}
 #endif
 		else if(AlmostEq(CToken, "array")) { 
-			ArrayCommand(rGg); 
+			ArrayCommand(); 
 		}
 		else if(AlmostEq(CToken, "break")) { 
 			BreakCommand(); 
@@ -535,10 +533,10 @@ void GpCommand::Command(GpGadgets & rGg)
 			CallCommand(); 
 		}
 		else if(AlmostEq(CToken, "cd")) { 
-			rGg.ChangeDirCommand(*this); 
+			R_Gg.ChangeDirCommand(*this); 
 		}
 		else if(AlmostEq(CToken, "cl$ear")) { 
-			rGg.ClearCommand(*this); 
+			R_Gg.ClearCommand(*this); 
 		}
 		else if(AlmostEq(CToken, "continue")) { 
 			ContinueCommand(); 
@@ -553,7 +551,7 @@ void GpCommand::Command(GpGadgets & rGg)
 				CToken++;
 				char * p_command = TryToGetString();
 				if(!p_command)
-					GpGg.IntErrorCurToken("Expected command string");
+					R_Gg.IntErrorCurToken("Expected command string");
 				DoStringAndFree(p_command);
 			}
 		}
@@ -578,13 +576,13 @@ void GpCommand::Command(GpGadgets & rGg)
 			ElseCommand(); 
 		}
 		else if(AlmostEq(CToken, "l$oad")) { 
-			rGg.LoadCommand(*this); 
+			R_Gg.LoadCommand(*this); 
 		}
 		else if(AlmostEq(CToken, "pa$use")) { 
-			rGg.PauseCommand(*this); 
+			R_Gg.PauseCommand(*this); 
 		}
 		else if(AlmostEq(CToken, "p$lot")) { 
-			rGg.PlotCommand(*this); }
+			R_Gg.PlotCommand(*this); }
 		else if(AlmostEq(CToken, "pr$int")) { 
 			print_command(*this); 
 		}
@@ -609,32 +607,32 @@ void GpCommand::Command(GpGadgets & rGg)
 			//void refresh_command()
 			{
 				CToken++;
-				rGg.RefreshRequest();
+				R_Gg.RefreshRequest();
 			}
 		}
 		else if(AlmostEq(CToken, "rep$lot")) { 
-			rGg.ReplotCommand(term, *this); 
+			R_Gg.ReplotCommand(term, *this); 
 		}
 		else if(AlmostEq(CToken, "re$read")) { 
 			reread_command(); 
 		}
 		else if(AlmostEq(CToken, "res$et")) { 
-			rGg.ResetCommand(*this); 
+			R_Gg.ResetCommand(*this); 
 		}
 		else if(AlmostEq(CToken, "sa$ve")) { 
-			rGg.SaveCommand(*this); 
+			R_Gg.SaveCommand(*this); 
 		}
 		else if(AlmostEq(CToken, "scr$eendump")) { 
 			screendump_command(); 
 		}
 		else if(AlmostEq(CToken, "se$t")) { 
-			rGg.SetCommand(*this); 
+			R_Gg.SetCommand(*this); 
 		}
 		else if(AlmostEq(CToken, "she$ll")) { 
 			do_shell(); 
 		}
 		else if(AlmostEq(CToken, "sh$ow")) { 
-			rGg.ShowCommand(*this); 
+			R_Gg.ShowCommand(*this); 
 		}
 		else if(AlmostEq(CToken, "sp$lot")) { 
 			//splot_command(); 
@@ -642,17 +640,17 @@ void GpCommand::Command(GpGadgets & rGg)
 			{
 				PlotToken = CToken++;
 				GpDf.plotted_data_from_stdin = false;
-				rGg.RefreshNPlots = 0;
+				R_Gg.RefreshNPlots = 0;
 				SET_CURSOR_WAIT;
 			#ifdef USE_MOUSE
 				plot_mode(MODE_SPLOT);
-				rGg.Ev.AddUdvByName("MOUSE_X")->udv_value.type = NOTDEFINED;
-				rGg.Ev.AddUdvByName("MOUSE_Y")->udv_value.type = NOTDEFINED;
-				rGg.Ev.AddUdvByName("MOUSE_X2")->udv_value.type = NOTDEFINED;
-				rGg.Ev.AddUdvByName("MOUSE_Y2")->udv_value.type = NOTDEFINED;
-				rGg.Ev.AddUdvByName("MOUSE_BUTTON")->udv_value.type = NOTDEFINED;
+				R_Gg.Ev.AddUdvByName("MOUSE_X")->udv_value.type = NOTDEFINED;
+				R_Gg.Ev.AddUdvByName("MOUSE_Y")->udv_value.type = NOTDEFINED;
+				R_Gg.Ev.AddUdvByName("MOUSE_X2")->udv_value.type = NOTDEFINED;
+				R_Gg.Ev.AddUdvByName("MOUSE_Y2")->udv_value.type = NOTDEFINED;
+				R_Gg.Ev.AddUdvByName("MOUSE_BUTTON")->udv_value.type = NOTDEFINED;
 			#endif
-				rGg.Plot3DRequest(GpGg.Gp__C);
+				R_Gg.Plot3DRequest(*this);
 				SET_CURSOR_ARROW;
 			}
 		}
@@ -663,16 +661,16 @@ void GpCommand::Command(GpGadgets & rGg)
 			system_command(); 
 		}
 		else if(AlmostEq(CToken, "test")) { 
-			rGg.TestCommand(*this); 
+			R_Gg.TestCommand(*this); 
 		}
 		else if(AlmostEq(CToken, "tog$gle")) { 
-			rGg.ToggleCommand(term, *this); 
+			R_Gg.ToggleCommand(term, *this); 
 		}
 		else if(AlmostEq(CToken, "und$efine")) { 
 			undefine_command(*this); 
 		}
 		else if(AlmostEq(CToken, "uns$et")) { 
-			rGg.UnsetCommand(*this); 
+			R_Gg.UnsetCommand(*this); 
 		}
 		else if(AlmostEq(CToken, "up$date")) { 
 			//update_command(); 
@@ -682,9 +680,9 @@ void GpCommand::Command(GpGadgets & rGg)
 				char * npfname = NULL; // new parameter filename
 				CToken++;
 				if(!(opfname = TryToGetString()))
-					GpGg.IntErrorCurToken("Parameter filename expected");
+					R_Gg.IntErrorCurToken("Parameter filename expected");
 				if(!EndOfCommand() && !(npfname = TryToGetString()))
-					GpGg.IntErrorCurToken("New parameter filename expected");
+					R_Gg.IntErrorCurToken("New parameter filename expected");
 				GpF.Update(opfname, npfname);
 				free(npfname);
 				free(opfname);
@@ -779,9 +777,9 @@ void GpCommand::RaiseLowerCommand(int lower)
 		}
 	}
 	if(lower)
-		GpGg.IntErrorCurToken("usage: lower {plot_id}");
+		R_Gg.IntErrorCurToken("usage: lower {plot_id}");
 	else
-		GpGg.IntErrorCurToken("usage: raise {plot_id}");
+		R_Gg.IntErrorCurToken("usage: raise {plot_id}");
 }
 
 //void raise_command() { raise_lower_command(0); }
@@ -798,7 +796,7 @@ void GpCommand::RaiseLowerCommand(int lower)
  * When the array is declared all elements are set to NOTDEFINED.
  */
 //void array_command()
-void GpCommand::ArrayCommand(GpGadgets & rGg)
+void GpCommand::ArrayCommand()
 {
 	int nsize = 0;
 	UdvtEntry * array;
@@ -806,17 +804,17 @@ void GpCommand::ArrayCommand(GpGadgets & rGg)
 	int i;
 	// Create or recycle a udv containing an array with the requested name
 	if(!IsLetter(++CToken))
-		GpGg.IntErrorCurToken("illegal variable name");
-	array = rGg.Ev.AddUdv(*this, CToken);
+		R_Gg.IntErrorCurToken("illegal variable name");
+	array = R_Gg.Ev.AddUdv(*this, CToken);
 	gpfree_array(&array->udv_value);
 	gpfree_string(&array->udv_value);
 
 	if(!Eq(++CToken, "["))
-		GpGg.IntErrorCurToken("expecting array[size]");
+		R_Gg.IntErrorCurToken("expecting array[size]");
 	CToken++;
 	nsize = IntExpression();
 	if(!Eq(CToken++, "]") || nsize <= 0)
-		GpGg.IntError(CToken-1, "expecting array[size>0]");
+		R_Gg.IntError(CToken-1, "expecting array[size>0]");
 	array->udv_value.v.value_array = (t_value *)malloc((nsize+1) * sizeof(t_value));
 	array->udv_value.type = ARRAY;
 	// Element zero of the new array is not visible but contains the size
@@ -828,7 +826,7 @@ void GpCommand::ArrayCommand(GpGadgets & rGg)
 	// Initializer syntax:   array A[10] = [x,y,z,,"foo",]
 	if(Eq("=")) {
 		if(!Eq(++CToken, "["))
-			GpGg.IntErrorCurToken("expecting Array[size] = [x,y,...]");
+			R_Gg.IntErrorCurToken("expecting Array[size] = [x,y,...]");
 		CToken++;
 		for(i = 1; i <= nsize; i++) {
 			if(Eq("]"))
@@ -843,7 +841,7 @@ void GpCommand::ArrayCommand(GpGadgets & rGg)
 				if(Eq(","))
 					CToken++;
 				else
-					GpGg.IntErrorCurToken("expecting Array[size] = [x,y,...]");
+					R_Gg.IntErrorCurToken("expecting Array[size] = [x,y,...]");
 			}
 		}
 		CToken++;
@@ -858,7 +856,7 @@ void GpCommand::ArrayCommand(GpGadgets & rGg)
 //bool is_array_assignment()
 bool GpCommand::IsArrayAssignment()
 {
-	UdvtEntry * udv = GpGg.Ev.AddUdv(*this, CToken);
+	UdvtEntry * udv = R_Gg.Ev.AddUdv(*this, CToken);
 	t_value newvalue;
 	int    index;
 	bool   looks_OK = false;
@@ -885,14 +883,14 @@ bool GpCommand::IsArrayAssignment()
 	}
 	if(looks_OK) {
 		if(udv->udv_value.type != ARRAY)
-			GpGg.IntErrorCurToken("Not a known array");
+			R_Gg.IntErrorCurToken("Not a known array");
 		// Evaluate index
 		CToken += 2;
 		index = IntExpression();
 		if(index <= 0 || index > udv->udv_value.v.value_array[0].v.int_val)
-			GpGg.IntErrorCurToken("array index out of range");
+			R_Gg.IntErrorCurToken("array index out of range");
 		if(!Eq("]") || !Eq(CToken+1, "="))
-			GpGg.IntErrorCurToken("Expecting Arrayname[<expr>] = <expr>");
+			R_Gg.IntErrorCurToken("Expecting Arrayname[<expr>] = <expr>");
 		// Evaluate right side of assignment
 		CToken += 2;
 		P.ConstExpress(*this, &newvalue);
@@ -1001,10 +999,10 @@ void GpCommand::CallCommand()
 	CToken++;
 	char * save_file = TryToGetString();
 	if(!save_file)
-		GpGg.IntErrorCurToken("expecting filename");
+		R_Gg.IntErrorCurToken("expecting filename");
 	gp_expand_tilde(&save_file);
 	// Argument list follows filename 
-	GpGg.LoadFile(*this, loadpath_fopen(save_file, "r"), save_file, 2);
+	R_Gg.LoadFile(loadpath_fopen(save_file, "r"), save_file, 2);
 }
 //
 // process the 'cd' command
@@ -1053,7 +1051,7 @@ void GpCommand::ExitCommand()
 	// exit error 'error message'  returns to the top command line 
 	if(Eq(CToken+1, "error")) {
 		CToken += 2;
-		GpGg.IntErrorNoCaret(TryToGetString());
+		R_Gg.IntErrorNoCaret(TryToGetString());
 	}
 	// else graphics will be tidied up in main 
 	command_exit_status = 1;
@@ -1133,7 +1131,7 @@ void history_command(GpCommand & rC)
 	}
 #else
 	rC.CToken++;
-	int_warn(NO_CARET, "This copy of gnuplot was built without support for command history.");
+	IntWarn(NO_CARET, "This copy of gnuplot was built without support for command history.");
 #endif /* defined(READLINE) || defined(HAVE_LIBREADLINE) || defined(HAVE_LIBEDITLINE) */
 }
 
@@ -1154,7 +1152,7 @@ void GpCommand::IfCommand()
 	double exprval;
 	int end_token;
 	if(!Eq(++CToken, "("))     /* no expression */
-		GpGg.IntErrorCurToken("expecting (expression)");
+		R_Gg.IntErrorCurToken("expecting (expression)");
 	exprval = RealExpression();
 	/*
 	 * EAM May 2011
@@ -1166,13 +1164,11 @@ void GpCommand::IfCommand()
 		char * clause = NULL;
 		int if_start, if_end, else_start = 0, else_end = 0;
 		int clause_start, clause_end;
-
-		CToken = find_clause(&if_start, &if_end);
-
+		CToken = FindClause(&if_start, &if_end);
 		if(Eq("else")) {
 			if(!Eq(++CToken, "{"))
-				GpGg.IntErrorCurToken("expected {else-clause}");
-			CToken = find_clause(&else_start, &else_end);
+				R_Gg.IntErrorCurToken("expected {else-clause}");
+			CToken = FindClause(&else_start, &else_end);
 		}
 		end_token = CToken;
 		if(exprval != 0) {
@@ -1201,7 +1197,7 @@ void GpCommand::IfCommand()
 	 * Deprecate?
 	 */
 	if(clause_depth > 0)
-		GpGg.IntErrorCurToken("Old-style if/else statement encountered inside brackets");
+		R_Gg.IntErrorCurToken("Old-style if/else statement encountered inside brackets");
 	IfDepth++;
 	if(exprval != 0.0) {
 		// fake the condition of a ';' between commands
@@ -1246,10 +1242,10 @@ void GpCommand::ElseCommand()
 		if(IfOpenForElse)
 			IfOpenForElse = false;
 		else
-			GpGg.IntErrorCurToken("Invalid {else-clause}");
+			R_Gg.IntErrorCurToken("Invalid {else-clause}");
 
 		CToken++; /* Advance to the opening curly brace */
-		end_token = find_clause(&clause_start, &clause_end);
+		end_token = FindClause(&clause_start, &clause_end);
 		if(!IfCondition) {
 			clause = new_clause(clause_start, clause_end);
 			BeginClause();
@@ -1262,7 +1258,7 @@ void GpCommand::ElseCommand()
 	// EAM May 2011
 	// The rest is only relevant to the old if/else syntax (no curly braces)
 	if(IfDepth <= 0) {
-		GpGg.IntErrorCurToken("else without if");
+		R_Gg.IntErrorCurToken("else without if");
 		return;
 	}
 	else {
@@ -1298,8 +1294,8 @@ void GpCommand::DoCommand()
 	CToken++;
 	do_iterator = CheckForIteration();
 	if(!Eq("{"))
-		GpGg.IntErrorCurToken("expecting {do-clause}");
-	end_token = find_clause(&do_start, &do_end);
+		R_Gg.IntErrorCurToken("expecting {do-clause}");
+	end_token = FindClause(&do_start, &do_end);
 	clause = new_clause(do_start, do_end);
 	BeginClause();
 	iteration_depth++;
@@ -1336,8 +1332,8 @@ void GpCommand::WhileCommand()
 	save_token = CToken;
 	exprval = RealExpression();
 	if(!Eq("{"))
-		GpGg.IntErrorCurToken("expecting {while-clause}");
-	end_token = find_clause(&do_start, &do_end);
+		R_Gg.IntErrorCurToken("expecting {while-clause}");
+	end_token = FindClause(&do_start, &do_end);
 	clause = new_clause(do_start, do_end);
 	BeginClause();
 	iteration_depth++;
@@ -1440,13 +1436,13 @@ void GpGadgets::LinkCommand(GpCommand & rC)
 			rC.ParseLinkVia(primary_axis->link_udf);
 		}
 		else {
-			int_warn(rC.CToken, "inverse mapping function required");
+			IntWarn(rC.CToken, "inverse mapping function required");
 			linked = false;
 		}
 	}
 #ifdef NONLINEAR_AXES
 	else if(rC.Eq(command_token, "nonlinear") && linked) {
-		int_warn(rC.CToken, "via mapping function required");
+		IntWarn(rC.CToken, "via mapping function required");
 		linked = false;
 	}
 	if(rC.Eq(command_token, "nonlinear") && linked) {
@@ -1485,7 +1481,7 @@ void GpGadgets::LoadCommand(GpCommand & rC)
 		IntErrorCurToken("expecting filename");
 	gp_expand_tilde(&save_file);
 	fp = strcmp(save_file, "-") ? loadpath_fopen(save_file, "r") : stdout;
-	LoadFile(rC, fp, save_file, 1);
+	LoadFile(fp, save_file, 1);
 }
 
 /* null command */
@@ -1503,25 +1499,26 @@ void null_command()
  *    ...
  * }
  */
-
-/* Find the start and end character positions within GpGg.Gp__C.P_InputLine
- * bounding a clause delimited by {...}.
- * Assumes that GpGg.Gp__C.CToken indexes the opening left curly brace.
- * Returns the index of the first token after the closing curly brace.
- */
-int find_clause(int * clause_start, int * clause_end)
+//
+// Find the start and end character positions within GpGg.Gp__C.P_InputLine
+// bounding a clause delimited by {...}.
+// Assumes that GpGg.Gp__C.CToken indexes the opening left curly brace.
+// Returns the index of the first token after the closing curly brace.
+// 
+//int find_clause(int * clause_start, int * clause_end)
+int GpCommand::FindClause(int * pClauseStart, int * pClauseEnd)
 {
 	int i, depth;
-	*clause_start = GpGg.Gp__C.P_Token[GpGg.Gp__C.CToken].start_index;
-	for(i = ++GpGg.Gp__C.CToken, depth = 1; i<GpGg.Gp__C.NumTokens; i++) {
-		if(GpGg.Gp__C.Eq(i, "{"))
+	*pClauseStart = P_Token[CToken].start_index;
+	for(i = ++CToken, depth = 1; i<NumTokens; i++) {
+		if(Eq(i, "{"))
 			depth++;
-		else if(GpGg.Gp__C.Eq(i, "}"))
+		else if(Eq(i, "}"))
 			depth--;
 		if(depth == 0)
 			break;
 	}
-	*clause_end = GpGg.Gp__C.P_Token[i].start_index;
+	*pClauseEnd = P_Token[i].start_index;
 	return (i+1);
 }
 
@@ -1536,7 +1533,7 @@ void GpCommand::BeginClause()
 void GpCommand::EndClause()
 {
 	if(clause_depth == 0)
-		GpGg.IntErrorCurToken("unexpected }");
+		R_Gg.IntErrorCurToken("unexpected }");
 	else
 		clause_depth--;
 	CToken++;
@@ -1654,7 +1651,7 @@ void GpGadgets::PauseCommand(GpCommand & rC)
 		// EAM FIXME - This is not the correct test; what we really want 
 		// to know is whether or not the terminal supports mouse feedback 
 		// if(term_initialised) { 
-		if(GpGg.Mse.Cfg.on && term) {
+		if(Mse.Cfg.on && term) {
 			UdvtEntry * current;
 			int end_condition = 0;
 			while(!(rC.EndOfCommand())) {
@@ -1690,13 +1687,13 @@ void GpGadgets::PauseCommand(GpCommand & rC)
 			}
 			paused_for_mouse = end_condition ? end_condition : PAUSE_CLICK;
 			// Set the pause mouse return codes to -1
-			current = GpGg.Ev.AddUdvByName("MOUSE_KEY");
+			current = Ev.AddUdvByName("MOUSE_KEY");
 			current->udv_value.SetInt(-1);
-			current = GpGg.Ev.AddUdvByName("MOUSE_BUTTON");
+			current = Ev.AddUdvByName("MOUSE_BUTTON");
 			current->udv_value.SetInt(-1);
 		}
 		else
-			int_warn(NO_CARET, "Mousing not active");
+			IntWarn(NO_CARET, "Mousing not active");
 	}
 	else
 #endif
@@ -1788,7 +1785,7 @@ void GpGadgets::PlotCommand(GpCommand & rC)
 	Ev.AddUdvByName("MOUSE_ALT")->udv_value.type = NOTDEFINED;
 	Ev.AddUdvByName("MOUSE_CTRL")->udv_value.type = NOTDEFINED;
 #endif
-	PlotRequest(rC);
+	PlotRequest(/*rC*/);
 	SET_CURSOR_ARROW;
 }
 
@@ -1835,7 +1832,7 @@ void GpCommand::PrintSetOutput(char * name, bool datablock, bool append_p)
 		}
 	}
 	else {
-		P_PrintOutVar = GpGg.Ev.AddUdvByName(name);
+		P_PrintOutVar = R_Gg.Ev.AddUdvByName(name);
 		if(P_PrintOutVar == NULL) {
 			fprintf(stderr, "Error allocating datablock \"%s\"\n", name);
 			return;
@@ -1980,7 +1977,7 @@ void GpGadgets::RefreshRequest()
 	if((!P_FirstPlot && (RefreshOk == E_REFRESH_OK_2D)) || (!P_First3DPlot && (RefreshOk == E_REFRESH_OK_3D))|| (!*GpGg.Gp__C.P_ReplotLine && (RefreshOk == E_REFRESH_NOT_OK)))
 		GpGg.IntErrorNoCaret("no active plot; cannot refresh");
 	if(RefreshOk == E_REFRESH_NOT_OK) {
-		int_warn(NO_CARET, "cannot refresh from this state. trying full replot");
+		IntWarn(NO_CARET, "cannot refresh from this state. trying full replot");
 		ReplotRequest(GpGg.Gp__C);
 	}
 	else {
@@ -2254,7 +2251,7 @@ $PALETTE u 1:2 t 'red' w l lt 1 lc rgb 'red',\
 	SaveSet(rC, f);
 	// execute all commands from the temporary file
 	rewind(f);
-	LoadFile(rC, f, NULL, 1); // note: it does fclose(f)
+	LoadFile(f, NULL, 1); // note: it does fclose(f)
 	// enable reset_palette() and restore replot line
 	enable_reset_palette = 1;
 	free(rC.P_ReplotLine);
@@ -2318,7 +2315,7 @@ void GpGadgets::ToggleCommand(GpTermEntry * pT, GpCommand & rC)
 		}
 		free(plottitle);
 		if(!foundit) {
-			int_warn(NO_CARET, "Did not find a plot with that title");
+			IntWarn(NO_CARET, "Did not find a plot with that title");
 			return;
 		}
 	}
@@ -2448,7 +2445,7 @@ void GpGadgets::ReplotRequest(GpCommand & rC)
 	else if(rC.AlmostEq(0, "s$plot"))
 		Plot3DRequest(rC);
 	else
-		PlotRequest(rC);
+		PlotRequest(/*rC*/);
 }
 //
 // This routine is called at the beginning of 'splot'. It sets up some splot
@@ -3155,7 +3152,7 @@ int GpCommand::Expand1LevelMacros()
 						    P_InputLine[o++] = (*m++);
 				    }
 				    else {
-					    int_warn(NO_CARET, "%s is not a string variable", m);
+					    GpGg.IntWarn(NO_CARET, "%s is not a string variable", m);
 				    }
 				    *c-- = temp_char;
 			    }
@@ -3234,7 +3231,7 @@ int do_system_func(const char * cmd, char ** output)
 		if(result_pos == result_allocated) {
 			if(result_pos >= MAX_TOTAL_LINE_LEN) {
 				result_pos--;
-				int_warn(NO_CARET, "*very* long system call output has been truncated");
+				IntWarn(NO_CARET, "*very* long system call output has been truncated");
 				break;
 			}
 			else {
@@ -3254,7 +3251,7 @@ int do_system_func(const char * cmd, char ** output)
 
 #else /* VMS || PIPES */
 
-	int_warn(NO_CARET, "system() requires support for pipes");
+	GpGg.IntWarn(NO_CARET, "system() requires support for pipes");
 	*output = gp_strdup("");
 	return 0;
 

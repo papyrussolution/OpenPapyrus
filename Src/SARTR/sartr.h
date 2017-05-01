@@ -604,9 +604,16 @@ class SrGeoNodeTbl : public BDbTable {
 public:
 	SLAPI  SrGeoNodeTbl(BDbDatabase * pDb);
 	SLAPI ~SrGeoNodeTbl();
-	int    SLAPI Add(PPOsm::NodeCluster & rNc);
+	int    SLAPI Add(PPOsm::NodeCluster & rNc, uint64 outerID);
 	int    SLAPI Get(PPOsm::Tile tl, TSArray <PPOsm::Node> & rList);
 	int    SLAPI Get(PPOsm::Tile tlLow, PPOsm::Tile tlUpp, TSArray <PPOsm::Node> & rList);
+private:
+	//
+	// Буферы для временного использования. Определены как члены класса
+	// дабы избежать частых распределений памяти.
+	// 
+	BDbTable::Buffer KeyBuf;
+	BDbTable::Buffer DataBuf;
 };
 //
 //
@@ -708,7 +715,7 @@ public:
 	int    FormatProp(const SrCProp & rCp, long flags, SString & rBuf);
 
 	int    ImportFlexiaModel(const SrImportParam & rParam);
-	int    StoreGeoNodeList(const TSArray <PPOsm::Node> & rList);
+	int    StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, TSArray <PPOsm::NodeClusterStatEntry> * pStat);
 //private:
 public:
 	BDbDatabase      * P_Db;

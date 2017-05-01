@@ -43,12 +43,6 @@
 
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
 static int __bam_build __P((DBC*, uint32, DBT*, PAGE*, uint32, uint32));
@@ -433,8 +427,7 @@ int __bam_iitem(DBC * dbc, DBT * key, DBT * data, uint32 op, uint32 flags)
 	 * up at least 25% of the space on the page.  If it does, move it onto
 	 * its own page.
 	 */
-	if(dupadjust &&
-	   (ret = __bam_dup_convert(dbc, h, indx-O_INDX, cnt)) != 0)
+	if(dupadjust && (ret = __bam_dup_convert(dbc, h, indx-O_INDX, cnt)) != 0)
 		return ret;
 	/* If we've modified a recno file, set the flag. */
 	if(dbc->dbtype == DB_RECNO)
@@ -447,21 +440,16 @@ int __bam_iitem(DBC * dbc, DBT * key, DBT * data, uint32 op, uint32 flags)
  */
 static uint32 __bam_partsize(DB * dbp, uint32 op, DBT * data, PAGE * h, uint32 indx)
 {
-	BKEYDATA * bk;
-	uint32 nbytes;
-	/*
-	 * If the record doesn't already exist, it's simply the data we're
-	 * provided.
-	 */
-	if(op != DB_CURRENT)
-		return data->doff+data->size;
-	/*
-	 * Otherwise, it's the data provided plus any already existing data
-	 * that we're not replacing.
-	 */
-	bk = GET_BKEYDATA(dbp, h, indx+(TYPE(h) == P_LBTREE ? O_INDX : 0));
-	nbytes = B_TYPE(bk->type) == B_OVERFLOW ? ((BOVERFLOW *)bk)->tlen : bk->len;
-	return __db_partsize(nbytes, data);
+	if(op != DB_CURRENT) {
+		// If the record doesn't already exist, it's simply the data we're provided.
+		return (data->doff + data->size);
+	}
+	else {
+		// Otherwise, it's the data provided plus any already existing data that we're not replacing.
+		BKEYDATA * bk = GET_BKEYDATA(dbp, h, indx+(TYPE(h) == P_LBTREE ? O_INDX : 0));
+		uint32 nbytes = B_TYPE(bk->type) == B_OVERFLOW ? ((BOVERFLOW *)bk)->tlen : bk->len;
+		return __db_partsize(nbytes, data);
+	}
 }
 /*
  * __bam_build --
@@ -550,8 +538,7 @@ static int __bam_build(DBC * dbc, uint32 op, DBT * dbt, PAGE * h, uint32 indx, u
 	}
 	else {
 		/* Copy in any leading data from the original record. */
-		memcpy(rdata->data,
-			bk->data, dbt->doff > bk->len ? bk->len : dbt->doff);
+		memcpy(rdata->data, bk->data, dbt->doff > bk->len ? bk->len : dbt->doff);
 		tlen = dbt->doff;
 		p = (uint8 *)rdata->data+dbt->doff;
 
@@ -580,8 +567,6 @@ user_copy:
 /*
  * __bam_ritem --
  *	Replace an item on a page.
- *
- * PUBLIC: int __bam_ritem __P((DBC *, PAGE *, uint32, DBT *, uint32));
  */
 int __bam_ritem(DBC * dbc, PAGE * h, uint32 indx, DBT * data, uint32 typeflag)
 {
@@ -631,25 +616,21 @@ int __bam_ritem(DBC * dbc, PAGE * h, uint32 indx, DBT * data, uint32 typeflag)
 /*
  * __bam_ritem_nolog --
  *	Replace an item on a page.
- *
- * PUBLIC: int __bam_ritem_nolog __P((DBC *,
- * PUBLIC:      PAGE *, uint32, DBT *, DBT *, uint32));
  */
 int __bam_ritem_nolog(DBC * dbc, PAGE * h, uint32 indx, DBT * hdr, DBT * data, uint32 type)
 {
 	BKEYDATA * bk;
 	BINTERNAL * bi;
 	db_indx_t cnt, off, lo, ln;
-	db_indx_t * inp;
 	int32 nbytes;
-	uint8 * p, * t;
+	uint8 * t;
 	DB * dbp = dbc->dbp;
 	/*
 	 * Set references to the first in-use byte on the page and the
 	 * first byte of the item being replaced.
 	 */
-	inp = P_INP(dbp, h);
-	p = (uint8 *)h+HOFFSET(h);
+	db_indx_t * inp = P_INP(dbp, h);
+	uint8 * p = (uint8 *)h+HOFFSET(h);
 	if(TYPE(h) == P_IBTREE) {
 		bi = GET_BINTERNAL(dbp, h, indx);
 		t = (uint8 *)bi;

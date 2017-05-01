@@ -1,5 +1,5 @@
 // SLCONFIG.H
-// Copyright (c) Sobolev A. 1995, 1996, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016
+// Copyright (c) Sobolev A. 1995, 1996, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017
 //
 #ifndef __SLCONFIG_H
 #define __SLCONFIG_H

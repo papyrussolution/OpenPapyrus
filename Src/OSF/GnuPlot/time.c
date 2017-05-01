@@ -139,7 +139,7 @@ char * gstrptime(char * s, char * fmt, struct tm * tm, double * usec)
 					    goto found_abbrev_mon;
 				    }
 			    // get here => not found 
-			    int_warn(DATAFILE, "Bad abbreviated month name");
+			    GpGg.IntWarn(DATAFILE, "Bad abbreviated month name");
 			    m = 0;
 found_abbrev_mon:
 			    tm->tm_mon = m;
@@ -154,7 +154,7 @@ found_abbrev_mon:
 					    goto found_full_mon;
 				    }
 			    // get here => not found 
-			    int_warn(DATAFILE, "Bad full month name");
+			    GpGg.IntWarn(DATAFILE, "Bad full month name");
 			    m = 0;
 found_full_mon:
 			    tm->tm_mon = m;
@@ -214,7 +214,7 @@ found_full_mon:
 			    break;
 		    }
 			default:
-			    int_warn(DATAFILE, "Bad time format in string");
+			    GpGg.IntWarn(DATAFILE, "Bad time format in string");
 		}
 		fmt++;
 	}
@@ -648,7 +648,7 @@ int ggmtime(struct tm * tm, double l_clock)
 
 	FPRINTF((stderr, "%g seconds = ", l_clock));
 	if(fabs(l_clock) > 1.e12) { /* Some time in the year 33688 */
-		int_warn(NO_CARET, "time value out of range");
+		GpGg.IntWarn(NO_CARET, "time value out of range");
 		return(-1);
 	}
 

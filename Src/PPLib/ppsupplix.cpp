@@ -4293,30 +4293,30 @@ int SLAPI iSalesPepsi::SendInvoices()
 				const iSalesBillPacket * p_pack = outp_packet.at(i);
 				if(p_pack) {
 					(msg_buf = 0).
-						CatEq("NativeID", p_pack->NativeID).CatDiv(';').
-						CatEq("iSalesId", p_pack->iSalesId).CatDiv(';').
-						CatEq("DocType", (long)p_pack->DocType).CatDiv(';').
-						CatEq("ExtDocType", (long)p_pack->ExtDocType).CatDiv(';').
-						CatEq("Status", (long)p_pack->Status).CatDiv(';').
-						CatEq("Code", p_pack->Code).CatDiv(';').
-						CatEq("ExtCode", p_pack->ExtCode).CatDiv(';').
-						CatEq("Dtm", p_pack->Dtm.d, DATF_DMY|DATF_CENTURY).CatDiv(';').
-						CatEq("IncDtm", p_pack->IncDtm.d, DATF_DMY|DATF_CENTURY).CatDiv(';').
-						CatEq("ExtDtm", p_pack->ExtDtm.d, DATF_DMY|DATF_CENTURY).CatDiv(';').
-						CatEq("CreationDtm", p_pack->CreationDtm.d, DATF_DMY|DATF_CENTURY).CatDiv(';').
-						CatEq("LastUpdDtm", p_pack->LastUpdDtm.d, DATF_DMY|DATF_CENTURY).CatDiv(';').
-						CatEq("DueDate", p_pack->DueDate, DATF_DMY|DATF_CENTURY).CatDiv(';').
-						CatEq("ShipFrom", p_pack->ShipFrom).CatDiv(';').
-						CatEq("ShipTo", p_pack->ShipTo).CatDiv(';').
-						CatEq("SellerCode", p_pack->SellerCode).CatDiv(';').
-						CatEq("PayerCode", p_pack->PayerCode).CatDiv(';').
-						CatEq("Memo", p_pack->Memo).CatDiv(';').
-						CatEq("SrcLocCode", p_pack->SrcLocCode).CatDiv(';').
-						CatEq("DestLocCode", p_pack->DestLocCode).CatDiv(';').
-						CatEq("AgentCode", p_pack->AgentCode).CatDiv(';').
-						CatEq("AuthId", p_pack->AuthId).CatDiv(';').
-						CatEq("EditId", p_pack->EditId).CatDiv(';').
-						CatEq("ErrMsg", p_pack->ErrMsg).CatDiv(';');
+						CatEq("NativeID", p_pack->NativeID).CatDiv(';', 0).
+						CatEq("iSalesId", p_pack->iSalesId).CatDiv(';', 0).
+						CatEq("DocType", (long)p_pack->DocType).CatDiv(';', 0).
+						CatEq("ExtDocType", (long)p_pack->ExtDocType).CatDiv(';', 0).
+						CatEq("Status", (long)p_pack->Status).CatDiv(';', 0).
+						CatEq("Code", p_pack->Code).CatDiv(';', 0).
+						CatEq("ExtCode", p_pack->ExtCode).CatDiv(';', 0).
+						CatEq("Dtm", p_pack->Dtm.d, DATF_DMY|DATF_CENTURY).CatDiv(';', 0).
+						CatEq("IncDtm", p_pack->IncDtm.d, DATF_DMY|DATF_CENTURY).CatDiv(';', 0).
+						CatEq("ExtDtm", p_pack->ExtDtm.d, DATF_DMY|DATF_CENTURY).CatDiv(';', 0).
+						CatEq("CreationDtm", p_pack->CreationDtm.d, DATF_DMY|DATF_CENTURY).CatDiv(';', 0).
+						CatEq("LastUpdDtm", p_pack->LastUpdDtm.d, DATF_DMY|DATF_CENTURY).CatDiv(';', 0).
+						CatEq("DueDate", p_pack->DueDate, DATF_DMY|DATF_CENTURY).CatDiv(';', 0).
+						CatEq("ShipFrom", p_pack->ShipFrom).CatDiv(';', 0).
+						CatEq("ShipTo", p_pack->ShipTo).CatDiv(';', 0).
+						CatEq("SellerCode", p_pack->SellerCode).CatDiv(';', 0).
+						CatEq("PayerCode", p_pack->PayerCode).CatDiv(';', 0).
+						CatEq("Memo", p_pack->Memo).CatDiv(';', 0).
+						CatEq("SrcLocCode", p_pack->SrcLocCode).CatDiv(';', 0).
+						CatEq("DestLocCode", p_pack->DestLocCode).CatDiv(';', 0).
+						CatEq("AgentCode", p_pack->AgentCode).CatDiv(';', 0).
+						CatEq("AuthId", p_pack->AuthId).CatDiv(';', 0).
+						CatEq("EditId", p_pack->EditId).CatDiv(';', 0).
+						CatEq("ErrMsg", p_pack->ErrMsg).CatDiv(';', 0);
 					//PPLogMessage(LogFileName, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 					f_out_log.WriteLine(msg_buf.CR());
 				}
@@ -5206,7 +5206,7 @@ int SLAPI SapEfes::LogResultMsgList(const TSCollection <SapEfesLogMsg> * pMsgLis
 					temp_buf = "W";
 				else if(p_msg->MsgType == SapEfesLogMsg::tS)
 					temp_buf = "S";
-				temp_buf.CatDiv(':', 2, 1);
+				temp_buf.CatDivIfNotEmpty(':', 2);
 				temp_buf.Cat(p_msg->Msg);
 				R_Logger.Log(temp_buf);
 			}

@@ -971,7 +971,7 @@ UdvtEntry * GpEval::AddUdv(GpCommand & rC, int t_num)
 	char varname[MAX_ID_LEN+1];
 	rC.CopyStr(varname, t_num, MAX_ID_LEN);
 	if(rC.P_Token[t_num].length > MAX_ID_LEN-1)
-		int_warn(t_num, "truncating variable name that is too long");
+		GpGg.IntWarn(t_num, "truncating variable name that is too long");
 	return AddUdvByName(varname);
 }
 //
@@ -989,7 +989,7 @@ UdftEntry * GpEval::AddUdf(GpCommand & rC, int t_num)
 	}
 	// get here => not found. udf_ptr points at first_udf or next_udf field of last udf
 	if(IsBuiltinFunction(rC, t_num))
-		int_warn(t_num, "Warning : udf shadowed by built-in function of the same name");
+		GpGg.IntWarn(t_num, "Warning : udf shadowed by built-in function of the same name");
 	/* create and return a new udf slot */
 	*udf_ptr = (UdftEntry*)malloc(sizeof(UdftEntry));
 	(*udf_ptr)->next_udf = (UdftEntry*)NULL;

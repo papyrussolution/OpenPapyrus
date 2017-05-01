@@ -292,8 +292,12 @@ int SLAPI PPObjVATBook::WriteCfgList(PPID kind, const VATBCfg * pConfig, int use
 
 int SLAPI PPObjVATBook::ReadConfig()
 {
-	return (ReadCfgList(PPVTB_SELL, &VATBCSell) && ReadCfgList(PPVTB_BUY, &VATBCBuy) &&
-		ReadCfgList(PPVTB_SIMPLELEDGER, &VATBSmplLedg));
+	int   ok = 1;
+	THROW(ReadCfgList(PPVTB_SELL, &VATBCSell));
+	THROW(ReadCfgList(PPVTB_BUY, &VATBCBuy));
+	THROW(ReadCfgList(PPVTB_SIMPLELEDGER, &VATBSmplLedg));
+	CATCHZOK
+	return ok;
 }
 
 /*
@@ -344,7 +348,7 @@ public:
 		SetupCalDate(CTLCAL_VATBOOK_INVCDT,  CTL_VATBOOK_INVCDT);
 		SetupCalDate(CTLCAL_VATBOOK_PAYMDT,  CTL_VATBOOK_PAYMDT);
 		SetupCalDate(CTLCAL_VATBOOK_RCPTDT,  CTL_VATBOOK_RCPTDT);
-		SetupCalDate(CTLCAL_VATBOOK_CBILLDT, CTL_VATBOOK_CBILLDT); // @v7.3.11
+		SetupCalDate(CTLCAL_VATBOOK_CBILLDT, CTL_VATBOOK_CBILLDT);
 	}
 	int  setDTS(const VATBookTbl::Rec *);
 	int  getDTS(VATBookTbl::Rec *);
@@ -465,8 +469,8 @@ int VATBookDialog::setDTS(const VATBookTbl::Rec * pData)
 	setCtrlData(CTL_VATBOOK_PAYMDT, &Data.PaymDt);
 	setCtrlData(CTL_VATBOOK_RCPTDT, &Data.RcptDt);
 	setCtrlData(CTL_VATBOOK_AMT,    Data.Amount);
-	setCtrlDate(CTL_VATBOOK_CBILLDT,   Data.CBillDt);   // @v7.3.11
-	setCtrlData(CTL_VATBOOK_CBILLCODE, Data.CBillCode); // @v7.3.11
+	setCtrlDate(CTL_VATBOOK_CBILLDT,   Data.CBillDt);
+	setCtrlData(CTL_VATBOOK_CBILLCODE, Data.CBillCode);
 	setCtrlData(CTL_VATBOOK_TAXOPCODE, Data.TaxOpCode); // @v8.5.11
 
 	SString rate_buf;
@@ -500,11 +504,11 @@ int VATBookDialog::getDTS(VATBookTbl::Rec * pData)
 	calcSum();
 	getCtrlData(CTL_VATBOOK_DT,          &Data.Dt);
 	getCtrlData(CTL_VATBOOK_CODE,        Data.Code);
-	getCtrlData(CTL_VATBOOK_CBILLDT,     &Data.CBillDt);  // @v7.3.11
-	getCtrlData(CTL_VATBOOK_CBILLCODE,   Data.CBillCode); // @v7.3.11
+	getCtrlData(CTL_VATBOOK_CBILLDT,     &Data.CBillDt);
+	getCtrlData(CTL_VATBOOK_CBILLCODE,   Data.CBillCode);
 	getCtrlData(CTL_VATBOOK_TAXOPCODE,   Data.TaxOpCode); // @v8.5.11
 	if(!getCtrlData(CTL_VATBOOK_INVCDT, &Data.InvcDt))
-		Data.InvcDt = Data.Dt; // @v5.4.7
+		Data.InvcDt = Data.Dt;
 	getCtrlData(CTL_VATBOOK_PAYMDT, &Data.PaymDt);
 	getCtrlData(CTL_VATBOOK_RCPTDT, &Data.RcptDt);
 	getCtrlData(CTL_VATBOOK_AMT,    Data.Amount);
@@ -719,41 +723,39 @@ int SLAPI PPObjVATBook::ValidateData(void * pData, long)
 	THROW_PP(checkdate(p_rec->InvcDt, 1), PPERR_INVVATBDT);
 	THROW_PP(checkdate(p_rec->PaymDt, 1), PPERR_INVVATBDT);
 	THROW_PP(checkdate(p_rec->RcptDt, 1), PPERR_INVVATBDT);
-	THROW_PP(checkdate(p_rec->CBillDt, 1), PPERR_INVVATBDT); // @v7.3.11
+	THROW_PP(checkdate(p_rec->CBillDt, 1), PPERR_INVVATBDT);
 	CATCHZOK
 	return ok;
 }
 
 int SLAPI PPObjVATBook::EditObj(PPID * pID, void * pData, int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	VATBookTbl::Rec * p_rec = (VATBookTbl::Rec *)pData;
-	THROW(PPStartTransaction(&ta, use_ta));
-	if(*pID) {
-		THROW(UpdateByID(P_Tbl, Obj, *pID, p_rec, 0));
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(*pID) {
+			THROW(UpdateByID(P_Tbl, Obj, *pID, p_rec, 0));
+		}
+		else {
+			THROW(IncDateKey(P_Tbl, 2, p_rec->Dt, &p_rec->LineNo));
+			THROW(AddByID(P_Tbl, pID, p_rec, 0));
+		}
+		THROW(tra.Commit());
 	}
-	else {
-		THROW(IncDateKey(P_Tbl, 2, p_rec->Dt, &p_rec->LineNo));
-		THROW(AddByID(P_Tbl, pID, p_rec, 0));
-	}
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
 int SETVATBOOKDTS(TDialog * pDlg, VATBookTbl::Rec * pRec, PPID kind)
 {
-	return ((kind == PPVTB_SIMPLELEDGER) ? ((SimpleLedgerDialog*)pDlg)->setDTS(pRec) :
-		((VATBookDialog*)pDlg)->setDTS(pRec));
+	return ((kind == PPVTB_SIMPLELEDGER) ? ((SimpleLedgerDialog*)pDlg)->setDTS(pRec) : ((VATBookDialog*)pDlg)->setDTS(pRec));
 }
 
 int GETVATBOOKDTS(TDialog * pDlg, VATBookTbl::Rec * pRec, PPID kind)
 {
-	return ((kind == PPVTB_SIMPLELEDGER) ? ((SimpleLedgerDialog*)pDlg)->getDTS(pRec) :
-		((VATBookDialog*)pDlg)->getDTS(pRec));
+	return ((kind == PPVTB_SIMPLELEDGER) ? ((SimpleLedgerDialog*)pDlg)->getDTS(pRec) : ((VATBookDialog*)pDlg)->getDTS(pRec));
 }
 
 int SLAPI PPObjVATBook::AddBySample(PPID * pID, PPID sampleID)
@@ -937,9 +939,7 @@ int VATBCfgDialog::editItemDialog(VATBCfg::Item * pItem)
 		{
 			PPID   op_id = 0;
 			PPIDArray op_list;
-			if(pItem)
-				Data = *pItem;
-			else
+			if(!RVALUEPTR(Data, pItem))
 				MEMSZERO(Data);
 			while(EnumOperations(0L, &op_id) > 0)
 				op_list.add(op_id);
@@ -1137,7 +1137,7 @@ int SLAPI PPObjVATBook::EditConfig(PPID kind, VATBCfg * pConfig)
 	else
 		THROW_INVARG(0);
 	THROW(CheckCfgRights(cfg_id, PPR_READ, 0));
-	if(pConfig == 0)
+	if(pConfig == 0) {
 		if(kind == PPVTB_SELL)
 			pConfig = &vbobj.VATBCSell;
 		else if(kind == PPVTB_BUY)
@@ -1147,8 +1147,9 @@ int SLAPI PPObjVATBook::EditConfig(PPID kind, VATBCfg * pConfig)
 			pConfig->Flags = (pConfig->Flags & VATBCfg::hfWoTax);
 			pConfig->Flags |= VATBCfg::hfDontStornReckon;
 			pConfig->AcctgBasis = INCM_BYPAYMENT;
-			pConfig->Period.SetZero();
+			// @v9.6.4 pConfig->Period.SetZero();
 		}
+	}
 	THROW(CheckDialogPtr(&(dlg = new VATBCfgDialog(dlg_id))));
 	pConfig->Kind = kind;
 	dlg->setDTS(pConfig);
@@ -1224,8 +1225,7 @@ int SLAPI PPViewVatBook::LoadClbList(PPID billID)
 	SString clb;
 	PPCountryBlock country_blk;
 	BillTbl::Rec bill_rec;
-	if(P_ClbList)
-		P_ClbList->freeAll();
+	CALLPTRMEMB(P_ClbList, freeAll());
 	while(billID && P_BObj->Search(billID, &bill_rec) > 0) {
 		PPID      op_type_id = GetOpType(bill_rec.OpID);
 		if(op_type_id == PPOPT_PAYMENT)
@@ -1238,10 +1238,8 @@ int SLAPI PPViewVatBook::LoadClbList(PPID billID)
 					size_t li_pos = 0;
 					int    is_parent_lot = 0;
 					if(P_BObj->GetClbNumberByLot(ti.LotID, &is_parent_lot, clb) > 0) {
-						if(P_GObj == 0)
-							THROW_MEM(P_GObj = new PPObjGoods);
-						if(P_ClbList == 0)
-							THROW_MEM(P_ClbList = new SArray(VBV_CLB_ITEM_SIZE));
+						THROW_MEM(SETIFZ(P_GObj, new PPObjGoods));
+						THROW_MEM(SETIFZ(P_ClbList, new SArray(VBV_CLB_ITEM_SIZE)));
 						THROW(P_GObj->GetManufCountry(labs(ti.GoodsID), 0, 0, &country_blk));
 						clb.CopyTo(list_item, sizeof(list_item));
 						li_pos = strlen(list_item);
@@ -1447,7 +1445,7 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	void   setupObj();
-	int    setupCtrls();
+	void   setupCtrls();
 
 	VatBookFilt Data;
 	PPObjVATBook * P_VBObj;
@@ -1479,7 +1477,7 @@ void VATBFiltDialog::setupObj()
 	SetupArCombo(this, CTLSEL_VATBFLT_OBJ, Data.ArticleID, OLW_LOADDEFONOPEN, acs_id, sacfDisableIfZeroSheet);
 }
 
-int VATBFiltDialog::setupCtrls()
+void VATBFiltDialog::setupCtrls()
 {
 	long   kind = 0;
 	GetClusterData(CTL_VATBFLT_WHAT, &kind);
@@ -1499,7 +1497,6 @@ int VATBFiltDialog::setupCtrls()
 	}
 	SetupPPObjCombo(this, CTLSEL_VATBFLT_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
 	SetClusterData(CTL_VATBFLT_FLAGS, Data.Flags);
-	return 1;
 }
 
 int VATBFiltDialog::setDTS(const VatBookFilt * pFilt)
@@ -1722,7 +1719,6 @@ int SLAPI PPViewVatBook::DeleteItem(PPID id)
 			ok = 1;
 	}
 	else if(PPMessage(mfCritWarn, PPCFM_REMOVEALLBYFILT) == cmYes) {
-		uint i;
 		VatBookViewItem item;
 		PPIDArray id_list;
 		for(InitIteration(); NextIteration(&item) > 0;)
@@ -1731,7 +1727,7 @@ int SLAPI PPViewVatBook::DeleteItem(PPID id)
 		{
 			PPTransaction tra(1);
 			THROW(tra);
-			for(i = 0; i < id_list.getCount(); i++)
+			for(uint i = 0; i < id_list.getCount(); i++)
 				if(VBObj.Search(id_list.at(i)) > 0)
 					THROW_DB(VBObj.P_Tbl->deleteRec());
 			THROW(tra.Commit());
@@ -1767,14 +1763,12 @@ int SLAPI PPViewVatBook::_SetVATParams(VATBookTbl::Rec * pRec, const BVATAccmArr
 		if(Filt.Kind == PPVTB_BUY) {
 			if(p_vati->IsVatFree)
 				pRec->Flags |= VATBF_VATFREE;
-			// @v7.1.7 rate = p_vati->CRate;
-			rate = selling ? p_vati->PRate : p_vati->CRate; // @v7.1.7
+			rate = selling ? p_vati->PRate : p_vati->CRate;
 		}
 		else if(Filt.Kind == PPVTB_SELL){
 			if(IsMainOrgVatFree > 0)
 				pRec->Flags |= VATBF_VATFREE;
-			// @v7.1.7 rate = p_vati->PRate;
-			rate = selling ? p_vati->PRate : p_vati->CRate; // @v7.1.7
+			rate = selling ? p_vati->PRate : p_vati->CRate;
 		}
 		else {
 			rate = -1L;
@@ -1847,21 +1841,17 @@ int SLAPI PPViewVatBook::_SetVATParams(VATBookTbl::Rec * pRec, const BVATAccmArr
 
 int SLAPI PPViewVatBook::CheckBillRec(const AutoBuildFilt * pFilt, const BillTbl::Rec * pRec)
 {
-	if(pFilt->LocID && pRec->LocID != pFilt->LocID)
-		return 0;
-	if(pFilt->ObjectID && pRec->Object != pFilt->ObjectID)
-		return 0;
-	if((pFilt->Flags & abfWL) && !(pRec->Flags & BILLF_WHITELABEL))
-		return 0;
-	if(BR2(pRec->Amount) == 0.0)
-		return 0;
+	int    ok = 1;
+	THROW(!pFilt->LocID || pRec->LocID == pFilt->LocID);
+	THROW(!pFilt->ObjectID || pRec->Object == pFilt->ObjectID);
+	THROW(!(pFilt->Flags & abfWL) || (pRec->Flags & BILLF_WHITELABEL));
+	THROW(BR2(pRec->Amount) != 0.0);
 	if(Filt.Kind == PPVTB_SELL) {
-		if((pFilt->Flags & abfOnlyEmptyExtAr) && pRec->Object2)
-			return 0;
-		if(pFilt->Object2ID && pRec->Object2 != pFilt->Object2ID)
-			return 0;
+		THROW(!(pFilt->Flags & abfOnlyEmptyExtAr) || !pRec->Object2);
+		THROW(!pFilt->Object2ID || pRec->Object2 == pFilt->Object2ID);
 	}
-	return 1;
+	CATCHZOK
+	return ok;
 }
 //
 //
@@ -2035,7 +2025,6 @@ int SLAPI PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmo
 		}
 	}
 	THROW(P_BObj->ExtractPacket(billID, &pack));
-	// @v7.6.1 {
 	{
 		if(Filt.Kind == PPVTB_SIMPLELEDGER && !pPaymRec && mainAmtTypeID) {
 			double main_amount = pack.Amounts.Get(mainAmtTypeID, 0);
@@ -2065,7 +2054,6 @@ int SLAPI PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmo
 			}
 		}
 	}
-	// } @v7.6.1
 	if(!paym_has_vat_amounts) {
 		if(!pack.Amounts.HasVatSum(pTai))
 			THROW(pack.SetupVirtualTItems());
@@ -2217,7 +2205,7 @@ int SLAPI PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmo
 		{
 			PPTransaction tra(1);
 			THROW(tra);
-			if(!AbBillList.Has(link_id)) { // @v7.3.5
+			if(!AbBillList.Has(link_id)) {
 				for(int sp = spGe; !is_fixed && VBObj.P_Tbl->searchForUpdate(1, &k1, sp) && k1.Link == link_id && k1.LineType_ == Filt.Kind; sp = spGt) {
 					VBObj.P_Tbl->copyBufTo(&temp_rec);
 					if(!(temp_rec.Flags & VATBF_FIX) && !temp_rec.Excluded) {
@@ -2388,7 +2376,7 @@ int SLAPI PPViewVatBook::AutoBuild()
 	//
 	int    by_payments = 0;
 	//
-	AbBillList.Clear(); // @v7.3.5
+	AbBillList.Clear();
 	AutoBuildFilt flt;
 	const VATBCfg & r_cfg = VBObj.GetConfig(Filt.Kind);
 	THROW(VBObj.IsValidKind(Filt.Kind));
@@ -2396,13 +2384,12 @@ int SLAPI PPViewVatBook::AutoBuild()
 		(Filt.Kind == PPVTB_SIMPLELEDGER || CConfig.IncomeCalcMethod == INCM_BYPAYMENT)))
 		by_payments = 1;
 	MEMSZERO(flt);
-	// @v7.2.1 flt.LocID       = LConfig.Location;
 	flt.AccSheetID  = r_cfg.AccSheetID;
 	flt.Period      = Filt.Period;
 	SETFLAG(flt.Flags, abfByPayment, by_payments);
 	if(EditAutoBuildFilt(&flt) > 0) {
 		uint   i;
-		PPObjBill::PplBlock ebf_blk(flt.Period, 0, 0); // @v6.6.3
+		PPObjBill::PplBlock ebf_blk(flt.Period, 0, 0);
 		PPID   main_org_id = 0;
 		PPObjOprKind op_obj;
 		PPIDArray inc_op_list, paym_op_list, neg_op_list, reckon_op_list;
@@ -2646,9 +2633,9 @@ int PPALDD_VatBook::NextIteration(PPIterID iterId, long rsrv)
 	I.fExcluded  = item.Excluded;
 	I.fVatFree   = BIN(item.Flags & VATBF_VATFREE);
 	I.fFixed     = BIN(item.Flags & VATBF_FIX);
-	I.fSlVatAddendum = BIN(item.LineSubType == 1); // @v7.2.9
-	I.CBillDt    = item.CBillDt;           // @v7.3.11
-	STRNSCPY(I.CBillCode, item.CBillCode); // @v7.3.11
+	I.fSlVatAddendum = BIN(item.LineSubType == 1);
+	I.CBillDt    = item.CBillDt;
+	STRNSCPY(I.CBillCode, item.CBillCode);
 	//
 	// Возможно, следующий участок кода придется снова пересмотреть.
 	// Суть проблемы: не очевидно, в каком случае операции не облагаемые НДС
@@ -2671,7 +2658,7 @@ int PPALDD_VatBook::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_VatBook::Destroy()
+void PPALDD_VatBook::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(VatBook);
 }

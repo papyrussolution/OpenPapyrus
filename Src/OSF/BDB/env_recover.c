@@ -7,33 +7,21 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/fop.h"
-// @v9.5.5 #include "dbinc/heap.h"
-// @v9.5.5 #include "dbinc/qam.h"
-// @v9.5.5 #include "dbinc/txn.h"
 
 #ifndef lint
 static const char copyright[] = "Copyright (c) 1996, 2011 Oracle and/or its affiliates.  All rights reserved.\n";
 #endif
 
-static int __db_log_corrupt __P((ENV*, DB_LSN *));
+static int __db_log_corrupt(ENV*, DB_LSN *);
 static int __env_init_rec_42(ENV *);
 static int __env_init_rec_43(ENV *);
 static int __env_init_rec_46(ENV *);
 static int __env_init_rec_47(ENV *);
 static int __env_init_rec_48(ENV *);
-static int __log_earliest __P((ENV*, DB_LOGC*, int32*, DB_LSN *));
-
-static double __lsn_diff __P((DB_LSN*, DB_LSN*, DB_LSN*, uint32, int));
-static int __log_backup __P((ENV*, DB_LOGC*, DB_LSN*, DB_LSN *));
-
+static int __log_earliest(ENV*, DB_LOGC*, int32*, DB_LSN *);
+static double __lsn_diff(DB_LSN*, DB_LSN*, DB_LSN*, uint32, int);
+static int __log_backup(ENV*, DB_LOGC*, DB_LSN*, DB_LSN *);
 /*
  * __db_apprec --
  *	Perform recovery.  If max_lsn is non-NULL, then we are trying

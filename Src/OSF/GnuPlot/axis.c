@@ -672,7 +672,7 @@ static double make_tics(GpAxis * pAx, int guide)
 	const double xr = fabs(pAx->Range.GetDistance());
 	if(xr != 0.0) {
 		if(xr >= GPVL)
-			int_warn(NO_CARET, "%s axis range undefined or overflow", GpGg.GetAxisName(pAx->Index));
+			GpGg.IntWarn(NO_CARET, "%s axis range undefined or overflow", GpGg.GetAxisName(pAx->Index));
 		tic = quantize_normal_tics(xr, guide);
 		// FIXME HBB 20010831: disabling this might allow short log axis to receive better ticking...
 		if((pAx->Flags & GpAxis::fLog) && tic < 1.0)
@@ -1140,7 +1140,7 @@ void GpGadgets::GenTics(GpTermEntry * pT, GpAxis & rAx, /*tic_callback*/TicCallb
 			// }}}
 			// This protects against user error, not precision errors
 			if((internal_max-internal_min)/step > pT->xmax) {
-				int_warn(NO_CARET, "Too many axis ticks requested (>%.0g)", (internal_max-internal_min)/step);
+				IntWarn(NO_CARET, "Too many axis ticks requested (>%.0g)", (internal_max-internal_min)/step);
 				return;
 			}
 			/* This protects against infinite loops if the separation between       */
@@ -1154,7 +1154,7 @@ void GpGadgets::GenTics(GpTermEntry * pT, GpAxis & rAx, /*tic_callback*/TicCallb
 				if(fabs(vol_this_tic - vol_previous_tic) < (step/4.)) {
 					step = end - start;
 					nsteps = 2;
-					int_warn(NO_CARET, "tick interval too small for machine precision");
+					IntWarn(NO_CARET, "tick interval too small for machine precision");
 					break;
 				}
 				vol_previous_tic = vol_this_tic;
@@ -1467,13 +1467,13 @@ void GpGadgets::Draw2DZeroAxis(GpTermEntry * pT, AXIS_INDEX axIdx, AXIS_INDEX cr
 		ApplyLpProperties(pT, r_ax.zeroaxis);
 		if(oneof2(axIdx, FIRST_X_AXIS, SECOND_X_AXIS)) {
 			// zeroaxis is horizontal, at y == 0
-			pT->move(r_ax.TermBounds.low, AxA[crossaxis].term_zero);
-			pT->vector(r_ax.TermBounds.upp, AxA[crossaxis].term_zero);
+			pT->_Move(r_ax.TermBounds.low, AxA[crossaxis].term_zero);
+			pT->_Vector(r_ax.TermBounds.upp, AxA[crossaxis].term_zero);
 		}
 		else if(oneof2(axIdx, FIRST_Y_AXIS, SECOND_Y_AXIS)) {
 			// zeroaxis is vertical, at x == 0
-			pT->move(AxA[crossaxis].term_zero, r_ax.TermBounds.low);
-			pT->vector(AxA[crossaxis].term_zero, r_ax.TermBounds.upp);
+			pT->_Move(AxA[crossaxis].term_zero, r_ax.TermBounds.low);
+			pT->_Vector(AxA[crossaxis].term_zero, r_ax.TermBounds.upp);
 		}
 	}
 }
@@ -1611,13 +1611,13 @@ void GpAxis::LoadOneRange(GpCommand & rC, double * pA, t_autoscale * pAutoscale,
 	if(*pAutoscale & which) {
 		if(which == AUTOSCALE_MIN && min_constraint==CONSTRAINT_BOTH) {
 			if(Ub.low < Lb.low) {
-				int_warn(rC.CToken, "Upper bound of constraint < lower bound:  Turning of constraints.");
+				GpGg.IntWarn(rC.CToken, "Upper bound of constraint < lower bound:  Turning of constraints.");
 				min_constraint = CONSTRAINT_NONE;
 			}
 		}
 		if(which == AUTOSCALE_MAX && max_constraint==CONSTRAINT_BOTH) {
 			if(Ub.upp < Lb.upp) {
-				int_warn(rC.CToken, "Upper bound of constraint < lower bound:  Turning of constraints.");
+				GpGg.IntWarn(rC.CToken, "Upper bound of constraint < lower bound:  Turning of constraints.");
 				max_constraint = CONSTRAINT_NONE;
 			}
 		}
@@ -1851,7 +1851,7 @@ void add_tic_user(GpAxis * pAx, char * pLabel, double position, int level)
 		else {
 			// The new tic must duplicate position of tic->next 
 			if(position != tic->next->position)
-				int_warn(NO_CARET, "add_tic_user: list sort error");
+				GpGg.IntWarn(NO_CARET, "add_tic_user: list sort error");
 			newtic = tic->next;
 			// Don't over-write a major tic with a minor tic 
 			if(level == 1)
@@ -2039,12 +2039,12 @@ void clone_linked_axes(GpAxis * axis1, GpAxis * axis2)
 			// axis1 min/max; apply and check the mappings; then re-log and store the values
 			// for axis2. And after that the tics still come out wrong.
 			if(axis2->Flags & GpAxis::fLog && axis2->link_udf)
-				int_warn(NO_CARET, "cannot handle via/inverse linked log-scale axes");
+				GpGg.IntWarn(NO_CARET, "cannot handle via/inverse linked log-scale axes");
 			// Transform the min/max limits of linked secondary axis
 			axis2->SetRange.Set(axis2->EvalLinkFunction(axis1->SetRange.low), axis2->EvalLinkFunction(axis1->SetRange.upp));
 			axis2->Range.Set(axis2->EvalLinkFunction(axis1->Range.low), axis2->EvalLinkFunction(axis1->Range.upp));
 			if(fisnan(axis2->Range.low) || fisnan(axis2->SetRange.low) || fisnan(axis2->Range.upp) || fisnan(axis2->SetRange.upp))
-				int_warn(NO_CARET, "axis mapping function must return a real value");
+				GpGg.IntWarn(NO_CARET, "axis mapping function must return a real value");
 			// Confirm that the inverse mapping actually works, at least at the endpoints
 			// FIXME:  Should we test values in between the endpoints also?
 			testmin = axis1->EvalLinkFunction(axis2->SetRange.low);
@@ -2054,7 +2054,7 @@ void clone_linked_axes(GpAxis * axis1, GpAxis * axis2)
 			if(fabs(testmax - axis1->SetRange.upp) != 0 && fabs((testmax - axis1->SetRange.upp) / testmax) > 1.e-6)
 				suspect = true;
 			if(suspect) {
-				int_warn(NO_CARET, "could not confirm linked axis inverse mapping function");
+				GpGg.IntWarn(NO_CARET, "could not confirm linked axis inverse mapping function");
 				fprintf(stderr, "\tmin: %g inv(via(min)): %g",   axis1->SetRange.low, testmin);
 				fprintf(stderr, "  max: %g inv(via(max)): %g\n", axis1->SetRange.upp, testmax);
 			}

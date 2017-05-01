@@ -1,5 +1,5 @@
 // V_BCMP.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -471,7 +471,7 @@ int PPALDD_GoodsBillCmp::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_GoodsBillCmp::Destroy()
+void PPALDD_GoodsBillCmp::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(GoodsBillCmp);
 }

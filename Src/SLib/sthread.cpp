@@ -8,6 +8,13 @@
 //
 //
 //
+void FASTCALL SDelay(uint msec)
+{
+	::Sleep(msec);
+}
+//
+//
+//
 SLAPI SWaitableObject::SWaitableObject()
 {
 	H = 0;
@@ -652,7 +659,7 @@ SLTEST_R(Evnt)
 				*P_Result = 0;
 #endif
 			*P_SignalVar = Id;
-			delay(500);
+			SDelay(500);
 			*P_SignalVar = -(int)Id; // @v9.6.3
 			evnt_finish.Signal();
 			// @v9.6.3 *P_SignalVar = -(int)Id;
@@ -684,7 +691,7 @@ SLTEST_R(Evnt)
 			blk.P_Result = &result;
 			EvntThread * p_thread = new EvntThread(&blk);
 			p_thread->Start();
-			delay(500);
+			SDelay(500);
 			{
 				Evnt ev_finish(evnt_name_finish, Evnt::modeOpen);
 				SLTEST_CHECK_NZ((HANDLE)ev_finish);
@@ -694,7 +701,7 @@ SLTEST_R(Evnt)
 				SLTEST_CHECK_NZ(signal_var == 0);
 #endif
 				ev_start.Signal();
-				delay(10);
+				SDelay(10);
 #ifndef NDEBUG
 				assert(signal_var == tid);
 				assert(ev_finish.Wait(-1) > 0);
@@ -739,7 +746,7 @@ SLTEST_R(ReadWriteLock)
 	//
 	// Каждый поток при очередной итерации может быть либо "писателем" либо "читателем" в
 	// зависимости от четности случайного числа, полученного на этой итерации. Кроме того,
-	// после каждой итерации осуществляется небольшая случайная задержка delay(rn%7)
+	// после каждой итерации осуществляется небольшая случайная задержка SDelay(rn%7)
 	//
 	struct RwlEntry {
 		uint   Id;
@@ -819,7 +826,7 @@ SLTEST_R(ReadWriteLock)
 					}
 					P_Lock->Unlock(); lck = 0;
 				}
-				delay(rn%7);
+				SDelay(rn%7);
 			}
 			CATCH
 				if(lck)

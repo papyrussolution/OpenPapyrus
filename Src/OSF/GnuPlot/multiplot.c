@@ -86,7 +86,7 @@ void GpGadgets::MultiplotNext(GpTermEntry * pT)
 				MpL.act_row = 0;
 				MpL.act_col++;
 				if(MpL.act_col == MpL.num_cols) {
-					/* int_warn(NO_CARET,"will overplot first plot"); */
+					/* IntWarn(NO_CARET,"will overplot first plot"); */
 					MpL.act_col = 0;
 				}
 			}
@@ -97,7 +97,7 @@ void GpGadgets::MultiplotNext(GpTermEntry * pT)
 				MpL.act_col = 0;
 				MpL.act_row++;
 				if(MpL.act_row == MpL.num_rows) {
-					/* int_warn(NO_CARET,"will overplot first plot"); */
+					/* IntWarn(NO_CARET,"will overplot first plot"); */
 					MpL.act_row = 0;
 				}
 			}
@@ -120,7 +120,7 @@ void GpGadgets::MultiplotPrevious(GpTermEntry * pT)
 				MpL.act_row = MpL.num_rows-1;
 				MpL.act_col--;
 				if(MpL.act_col < 0) {
-					/* int_warn(NO_CARET,"will overplot first plot"); */
+					/* IntWarn(NO_CARET,"will overplot first plot"); */
 					MpL.act_col = MpL.num_cols-1;
 				}
 			}
@@ -131,7 +131,7 @@ void GpGadgets::MultiplotPrevious(GpTermEntry * pT)
 				MpL.act_col = MpL.num_cols-1;
 				MpL.act_row--;
 				if(MpL.act_row < 0) {
-					/* int_warn(NO_CARET,"will overplot first plot"); */
+					/* IntWarn(NO_CARET,"will overplot first plot"); */
 					MpL.act_row = MpL.num_rows-1;
 				}
 			}
@@ -352,7 +352,7 @@ void GpGadgets::MultiplotStart(GpTermEntry * pT, GpCommand & rC)
 				GpGg.IntErrorNoCaret("must give positive margin and spacing values");
 		}
 		else if(set_spacing) {
-			int_warn(NO_CARET, "must give margins and spacing, continue with auto margins.");
+			IntWarn(NO_CARET, "must give margins and spacing, continue with auto margins.");
 		}
 		else if(set_margins) {
 			MpL.auto_layout_margins = true;
@@ -360,7 +360,7 @@ void GpGadgets::MultiplotStart(GpTermEntry * pT, GpCommand & rC)
 			MpL.xspacing.x = 0.05;
 			MpL.yspacing.scalex = screen;
 			MpL.yspacing.x = 0.05;
-			int_warn(NO_CARET, "must give margins and spacing, continue with spacing of 0.05");
+			IntWarn(NO_CARET, "must give margins and spacing, continue with spacing of 0.05");
 		}
 		// Sanity check that screen TMrg is > screen BMrg 
 		if(MpL.BMrg.scalex == screen && MpL.TMrg.scalex == screen)

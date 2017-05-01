@@ -51,7 +51,7 @@ int SCDBObjProgram::GetHostProgramVer(uint32 * pVer)
 {
 	int    ok = -1;
 	uint32 ver = 0;
-	size_t info_size = 0;
+	uint   info_size = 0;
 	SString path;
 	DWORD set_to_zero = 0;
 
@@ -61,7 +61,7 @@ int SCDBObjProgram::GetHostProgramVer(uint32 * pVer)
 	if(info_size) {
 		char * p_buf = new char[info_size];
 		if(GetFileVersionInfo(path, 0, info_size, p_buf)) {
-			size_t value_size = 0;
+			uint   value_size = 0;
 			char * p_ver_buf = 0;
 			if(VerQueryValue(p_buf, _T("\\"), (LPVOID *)&p_ver_buf, &value_size)) {
 				VS_FIXEDFILEINFO * p_file_info = (VS_FIXEDFILEINFO *)p_ver_buf;

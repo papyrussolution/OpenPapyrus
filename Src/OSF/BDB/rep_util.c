@@ -56,18 +56,13 @@ static int __rep_show_progress __P((ENV*, const char *, int mins));
  */
 int __rep_bulk_message(ENV*env, REP_BULK * bulk, REP_THROTTLE * repth, DB_LSN * lsn, const DBT * dbt, uint32 flags)
 {
-	DB_REP * db_rep;
-	REP * rep;
 	__rep_bulk_args b_args;
 	size_t len;
-	int ret;
+	int ret = 0;
 	uint32 recsize, typemore;
 	uint8 * p;
-
-	db_rep = env->rep_handle;
-	rep = db_rep->region;
-	ret = 0;
-
+	DB_REP * db_rep = env->rep_handle;
+	REP * rep = db_rep->region;
 	/*
 	 * Figure out the total number of bytes needed for this record.
 	 * !!! The marshalling code includes the given len, but also
@@ -127,38 +122,30 @@ int __rep_bulk_message(ENV*env, REP_BULK * bulk, REP_THROTTLE * repth, DB_LSN * 
 	 * *_MORE message type.  If the throttling code hits the limit
 	 * then we're done here.
 	 */
-	if(bulk->type == REP_BULK_LOG)
-		typemore = REP_LOG_MORE;
-	else
-		typemore = REP_PAGE_MORE;
+	typemore = (bulk->type == REP_BULK_LOG) ? REP_LOG_MORE : REP_PAGE_MORE;
 	if(repth != NULL) {
-		if((ret = __rep_send_throttle(env,
-			    bulk->eid, repth, REP_THROTTLE_ONLY, flags)) != 0) {
+		if((ret = __rep_send_throttle(env, bulk->eid, repth, REP_THROTTLE_ONLY, flags)) != 0) {
 			MUTEX_UNLOCK(env, rep->mtx_clientdb);
 			return ret;
 		}
 		if(repth->type == typemore) {
-			VPRINT(env, (env, DB_VERB_REP_MSGS,
-				     "bulk_msg: Record %lu (0x%lx) hit throttle limit.",
-				     (ulong)recsize, (ulong)recsize));
+			VPRINT(env, (env, DB_VERB_REP_MSGS, "bulk_msg: Record %lu (0x%lx) hit throttle limit.", (ulong)recsize, (ulong)recsize));
 			MUTEX_UNLOCK(env, rep->mtx_clientdb);
 			return ret;
 		}
 	}
-	/*
-	 * Now we own the buffer, and we know our record fits into it.
-	 * The buffer is structured with the len, LSN and then the record.
-	 * Copy the record into the buffer.  Then if we need to,
-	 * send the buffer.
-	 */
+	//
+	// Now we own the buffer, and we know our record fits into it.
+	// The buffer is structured with the len, LSN and then the record.
+	// Copy the record into the buffer.  Then if we need to, send the buffer.
+	//
 	p = bulk->addr+*(bulk->offp);
 	b_args.len = dbt->size;
 	b_args.lsn = *lsn;
 	b_args.bulkdata = *dbt;
-	/*
-	 * If we're the first record, we need to save the first
-	 * LSN in the bulk structure.
-	 */
+	//
+	// If we're the first record, we need to save the first LSN in the bulk structure.
+	//
 	if(*(bulk->offp) == 0)
 		bulk->lsn = *lsn;
 	if(rep->version < DB_REPVERSION_47) {
@@ -170,8 +157,7 @@ int __rep_bulk_message(ENV*env, REP_BULK * bulk, REP_THROTTLE * repth, DB_LSN * 
 		memcpy(p, dbt->data, dbt->size);
 		p += dbt->size;
 	}
-	else if((ret = __rep_bulk_marshal(env, &b_args, p,
-			 bulk->len, &len)) != 0)
+	else if((ret = __rep_bulk_marshal(env, &b_args, p, bulk->len, &len)) != 0)
 		goto err;
 	*(bulk->offp) = (roff_t)(p+len-bulk->addr);
 	STAT(rep->stat.st_bulk_records++);
@@ -179,8 +165,7 @@ int __rep_bulk_message(ENV*env, REP_BULK * bulk, REP_THROTTLE * repth, DB_LSN * 
 	 * Send the buffer if it is a perm record or a force.
 	 */
 	if(LF_ISSET(REPCTL_PERM)) {
-		VPRINT(env, (env, DB_VERB_REP_MSGS,
-			     "bulk_msg: Send buffer after copy due to PERM"));
+		VPRINT(env, (env, DB_VERB_REP_MSGS, "bulk_msg: Send buffer after copy due to PERM"));
 		ret = __rep_send_bulk(env, bulk, flags);
 	}
 err:
@@ -466,8 +451,7 @@ static void __rep_print_logmsg(ENV * env, const DBT * logdbt, DB_LSN * lsnp)
 		__repmgr_init_print(env, &dtab);
 		__txn_init_print(env, &dtab);
 	}
-	__db_dispatch(
-		env, &dtab, (DBT *)logdbt, lsnp, DB_TXN_PRINT, NULL);
+	__db_dispatch(env, &dtab, (DBT *)logdbt, lsnp, DB_TXN_PRINT, NULL);
 }
 #endif
 
@@ -498,7 +482,6 @@ int __rep_new_master(ENV*env, __rep_control_args * cntrl, int eid)
 	db_timeout_t lease_to;
 	uint32 unused, vers;
 	int change, do_req, lockout_msg, ret, t_ret;
-
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	dblp = env->lg_handle;
@@ -737,8 +720,7 @@ int __rep_new_master(ENV*env, __rep_control_args * cntrl, int eid)
 	lp->wait_ts = rep->request_gap;
 	MUTEX_UNLOCK(env, rep->mtx_clientdb);
 	if(!F_ISSET(rep, REP_F_DELAY))
-		__rep_send_message(env,
-			eid, REP_VERIFY_REQ, &lsn, NULL, 0, DB_REP_ANYWHERE);
+		__rep_send_message(env, eid, REP_VERIFY_REQ, &lsn, NULL, 0, DB_REP_ANYWHERE);
 	goto newmaster_complete;
 
 err:    /*
@@ -829,8 +811,7 @@ static int __rep_newmaster_empty(ENV*env, int eid)
 	REP_SYSTEM_UNLOCK(env);
 	MUTEX_UNLOCK(env, rep->mtx_clientdb);
 	if(msg)
-		__rep_send_message(env, eid, REP_UPDATE_REQ,
-			NULL, NULL, 0, 0);
+		__rep_send_message(env, eid, REP_UPDATE_REQ, NULL, NULL, 0, 0);
 	return ret;
 }
 
@@ -969,14 +950,12 @@ static int __rep_show_progress(ENV*env, const char * which, int mins)
 		RPRINT(env, (env, DB_VERB_REP_SYNC, LOG_MSG, LOG_ARGS));
 		break;
 	    default:
-		RPRINT(env, (env, DB_VERB_REP_SYNC,
-			     "sync state %d", (int)rep->sync_state));
+		RPRINT(env, (env, DB_VERB_REP_SYNC, "sync state %d", (int)rep->sync_state));
 		break;
 	}
 	REP_SYSTEM_UNLOCK(env);
 	return 0;
 }
-
 /*
  * __env_db_rep_exit --
  *
@@ -986,16 +965,14 @@ static int __rep_show_progress(ENV*env, const char * which, int mins)
  */
 int __env_db_rep_exit(ENV*env)
 {
-	DB_REP * db_rep;
-	REP * rep;
-	/* Check if locks have been globally turned off. */
-	if(F_ISSET(env->dbenv, DB_ENV_NOLOCKING))
-		return 0;
-	db_rep = env->rep_handle;
-	rep = db_rep->region;
-	REP_SYSTEM_LOCK(env);
-	rep->handle_cnt--;
-	REP_SYSTEM_UNLOCK(env);
+	// Check if locks have been globally turned off
+	if(!F_ISSET(env->dbenv, DB_ENV_NOLOCKING)) {
+		DB_REP * db_rep = env->rep_handle;
+		REP * rep = db_rep->region;
+		REP_SYSTEM_LOCK(env);
+		rep->handle_cnt--;
+		REP_SYSTEM_UNLOCK(env);
+	}
 	return 0;
 }
 
@@ -1110,12 +1087,11 @@ int __op_rep_enter(ENV*env, int local_nowait, int obey_user)
 	DB_REP * db_rep;
 	REP * rep;
 	int cnt, ret;
-	/* Check if locks have been globally turned off. */
+	// Check if locks have been globally turned off
 	if(F_ISSET(env->dbenv, DB_ENV_NOLOCKING))
 		return 0;
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
-
 	REP_SYSTEM_LOCK(env);
 	for(cnt = 0; FLD_ISSET(rep->lockout_flags, REP_LOCKOUT_OP); ) {
 		REP_SYSTEM_UNLOCK(env);
@@ -1132,9 +1108,7 @@ int __op_rep_enter(ENV*env, int local_nowait, int obey_user)
 		}
 		__os_yield(env, 5, 0);
 		cnt += 5;
-		if(++cnt%60 == 0 &&
-		   (ret = __rep_show_progress(env,
-			    "__op_rep_enter", cnt/60)) != 0)
+		if(++cnt%60 == 0 && (ret = __rep_show_progress(env, "__op_rep_enter", cnt/60)) != 0)
 			return ret;
 		REP_SYSTEM_LOCK(env);
 	}
@@ -1152,22 +1126,19 @@ int __op_rep_enter(ENV*env, int local_nowait, int obey_user)
  *
  * PUBLIC: int __op_rep_exit(ENV *);
  */
-int __op_rep_exit(ENV*env)
+int __op_rep_exit(ENV * env)
 {
-	DB_REP * db_rep;
-	REP * rep;
-	/* Check if locks have been globally turned off. */
-	if(F_ISSET(env->dbenv, DB_ENV_NOLOCKING))
-		return 0;
-	db_rep = env->rep_handle;
-	rep = db_rep->region;
-	REP_SYSTEM_LOCK(env);
-	DB_ASSERT(env, rep->op_cnt > 0);
-	rep->op_cnt--;
-	REP_SYSTEM_UNLOCK(env);
+	// Check if locks have been globally turned off
+	if(!F_ISSET(env->dbenv, DB_ENV_NOLOCKING)) {
+		DB_REP * db_rep = env->rep_handle;
+		REP * rep = db_rep->region;
+		REP_SYSTEM_LOCK(env);
+		DB_ASSERT(env, rep->op_cnt > 0);
+		rep->op_cnt--;
+		REP_SYSTEM_UNLOCK(env);
+	}
 	return 0;
 }
-
 /*
  * __archive_rep_enter
  *	Used by log_archive to determine if it is okay to remove
@@ -1178,15 +1149,11 @@ int __op_rep_exit(ENV*env)
 int __archive_rep_enter(ENV*env)
 {
 	DB_REP * db_rep;
-	REGENV * renv;
-	REGINFO * infop;
 	REP * rep;
 	__time64_t timestamp;
-	int ret;
-
-	ret = 0;
-	infop = env->reginfo;
-	renv = (REGENV *)infop->primary;
+	int ret = 0;
+	REGINFO * infop = env->reginfo;
+	REGENV * renv = (REGENV *)infop->primary;
 	/*
 	 * This is tested before REP_ON below because we always need
 	 * to obey if any replication process has disabled archiving.
@@ -1223,15 +1190,13 @@ int __archive_rep_enter(ENV*env)
  */
 int __archive_rep_exit(ENV*env)
 {
-	DB_REP * db_rep;
-	REP * rep;
-	if(!REP_ON(env))
-		return 0;
-	db_rep = env->rep_handle;
-	rep = db_rep->region;
-	REP_SYSTEM_LOCK(env);
-	rep->arch_th--;
-	REP_SYSTEM_UNLOCK(env);
+	if(REP_ON(env)) {
+		DB_REP * db_rep = env->rep_handle;
+		REP * rep = db_rep->region;
+		REP_SYSTEM_LOCK(env);
+		rep->arch_th--;
+		REP_SYSTEM_UNLOCK(env);
+	}
 	return 0;
 }
 
@@ -1435,9 +1400,9 @@ int __rep_send_throttle(ENV*env, int eid, REP_THROTTLE * repth, uint32 flags, ui
 	 * NOTE:  It is the responsibility of the caller to marshal, if
 	 * needed, the data_dbt.  This function just sends what it is given.
 	 */
-snd:    if((repth->type == typemore || !LF_ISSET(REP_THROTTLE_ONLY)) &&
-	   (__rep_send_message(env, eid, repth->type,
-		    &repth->lsn, repth->data_dbt, (REPCTL_RESEND|ctlflags), 0) != 0))
+snd:    
+	if((repth->type == typemore || !LF_ISSET(REP_THROTTLE_ONLY)) &&
+	   (__rep_send_message(env, eid, repth->type, &repth->lsn, repth->data_dbt, (REPCTL_RESEND|ctlflags), 0) != 0))
 		return DB_REP_UNAVAIL;
 	return 0;
 }
@@ -1890,75 +1855,75 @@ void __rep_print_message(ENV*env, int eid, __rep_control_args * rp, char * str, 
 		rectype = __rep_msg_from_old(rp->rep_version, rectype);
 	switch(rectype) {
 	    case REP_ALIVE:
-		FLD_SET(verbflag, DB_VERB_REP_ELECT|DB_VERB_REP_MISC);
-		type = "alive";
-		break;
+			FLD_SET(verbflag, DB_VERB_REP_ELECT|DB_VERB_REP_MISC);
+			type = "alive";
+			break;
 	    case REP_ALIVE_REQ:
-		type = "alive_req";
-		break;
+			type = "alive_req";
+			break;
 	    case REP_ALL_REQ:
-		FLD_SET(verbflag, DB_VERB_REP_MISC);
-		type = "all_req";
-		break;
+			FLD_SET(verbflag, DB_VERB_REP_MISC);
+			type = "all_req";
+			break;
 	    case REP_BULK_LOG:
-		FLD_SET(verbflag, DB_VERB_REP_MISC);
-		type = "bulk_log";
-		break;
+			FLD_SET(verbflag, DB_VERB_REP_MISC);
+			type = "bulk_log";
+			break;
 	    case REP_BULK_PAGE:
-		FLD_SET(verbflag, DB_VERB_REP_SYNC);
-		type = "bulk_page";
-		break;
+			FLD_SET(verbflag, DB_VERB_REP_SYNC);
+			type = "bulk_page";
+			break;
 	    case REP_DUPMASTER:
-		FLD_SET(verbflag, DB_VERB_REP_SYSTEM);
-		type = "dupmaster";
-		break;
+			FLD_SET(verbflag, DB_VERB_REP_SYSTEM);
+			type = "dupmaster";
+			break;
 	    case REP_FILE:
-		type = "file";
-		break;
+			type = "file";
+			break;
 	    case REP_FILE_FAIL:
-		type = "file_fail";
-		break;
+			type = "file_fail";
+			break;
 	    case REP_FILE_REQ:
-		type = "file_req";
-		break;
+			type = "file_req";
+			break;
 	    case REP_LEASE_GRANT:
-		FLD_SET(verbflag, DB_VERB_REP_LEASE);
-		type = "lease_grant";
-		break;
+			FLD_SET(verbflag, DB_VERB_REP_LEASE);
+			type = "lease_grant";
+			break;
 	    case REP_LOG:
-		FLD_SET(verbflag, DB_VERB_REP_MISC);
-		type = "log";
-		break;
+			FLD_SET(verbflag, DB_VERB_REP_MISC);
+			type = "log";
+			break;
 	    case REP_LOG_MORE:
-		FLD_SET(verbflag, DB_VERB_REP_MISC);
-		type = "log_more";
-		break;
+			FLD_SET(verbflag, DB_VERB_REP_MISC);
+			type = "log_more";
+			break;
 	    case REP_LOG_REQ:
-		FLD_SET(verbflag, DB_VERB_REP_MISC);
-		type = "log_req";
-		break;
+			FLD_SET(verbflag, DB_VERB_REP_MISC);
+			type = "log_req";
+			break;
 	    case REP_MASTER_REQ:
-		type = "master_req";
-		break;
+			type = "master_req";
+			break;
 	    case REP_NEWCLIENT:
-		FLD_SET(verbflag, DB_VERB_REP_MISC|DB_VERB_REP_SYSTEM);
-		type = "newclient";
-		break;
+			FLD_SET(verbflag, DB_VERB_REP_MISC|DB_VERB_REP_SYSTEM);
+			type = "newclient";
+			break;
 	    case REP_NEWFILE:
-		FLD_SET(verbflag, DB_VERB_REP_MISC);
-		type = "newfile";
-		break;
+			FLD_SET(verbflag, DB_VERB_REP_MISC);
+			type = "newfile";
+			break;
 	    case REP_NEWMASTER:
-		FLD_SET(verbflag, DB_VERB_REP_MISC|DB_VERB_REP_SYSTEM);
-		type = "newmaster";
-		break;
+			FLD_SET(verbflag, DB_VERB_REP_MISC|DB_VERB_REP_SYSTEM);
+			type = "newmaster";
+			break;
 	    case REP_NEWSITE:
-		type = "newsite";
-		break;
+			type = "newsite";
+			break;
 	    case REP_PAGE:
-		FLD_SET(verbflag, DB_VERB_REP_SYNC);
-		type = "page";
-		break;
+			FLD_SET(verbflag, DB_VERB_REP_SYNC);
+			type = "page";
+			break;
 	    case REP_PAGE_FAIL:
 		FLD_SET(verbflag, DB_VERB_REP_SYNC);
 		type = "page_fail";
@@ -2248,9 +2213,7 @@ int __rep_log_backup(ENV * env, DB_LOGC * logc, DB_LSN * lsn, uint32 match)
 	memzero(&mylog, sizeof(mylog));
 	while((ret = __logc_get(logc, lsn, &mylog, DB_PREV)) == 0) {
 		LOGCOPY_32(env, &rectype, mylog.data);
-		/*
-		 * Check the record type against the desired match type(s).
-		 */
+		// Check the record type against the desired match type(s).
 		if((match == REP_REC_COMMIT && rectype == DB___txn_regop) || (match == REP_REC_PERM && (rectype == DB___txn_ckp || rectype == DB___txn_regop)))
 			break;
 	}
@@ -2336,13 +2299,12 @@ retry:
 	DB_INIT_DBT(key_dbt, key_buf, __REP_LSN_HIST_KEY_SIZE);
 	key_dbt.ulen = __REP_LSN_HIST_KEY_SIZE;
 	F_SET(&key_dbt, DB_DBT_USERMEM);
-
 	memzero(&data_dbt, sizeof(data_dbt));
 	data_dbt.data = data_buf;
 	data_dbt.ulen = __REP_LSN_HIST_DATA_SIZE;
 	F_SET(&data_dbt, DB_DBT_USERMEM);
 	if((ret = __dbc_get(dbc, &key_dbt, &data_dbt, flags)) != 0) {
-		if((ret == DB_LOCK_DEADLOCK || ret == DB_LOCK_NOTGRANTED) && ++tries < 5)  /* Limit of 5 is an arbitrary choice. */
+		if(oneof2(ret, DB_LOCK_DEADLOCK, DB_LOCK_NOTGRANTED) && ++tries < 5) // Limit of 5 is an arbitrary choice
 			ret = 0;
 		if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 			ret = t_ret;

@@ -462,16 +462,16 @@ DBQuery * SLAPI PPViewPriceAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSu
 		if(Filt.SupplID) {
 			PPLoadText(PPTXT_SUPPLTXT, temp_buf);
 			GetArticleName(Filt.SupplID, obj_name);
-			pSubTitle->CatDiv(';', 2, 1).CatEq(temp_buf, obj_name);
+			pSubTitle->CatDivIfNotEmpty(';', 2).CatEq(temp_buf, obj_name);
 		}
 		if(Filt.GoodsGrpID) {
 			PPGetWord(PPWORD_GROUP, 0, temp_buf);
 			GetObjectName(PPOBJ_GOODSGROUP, Filt.GoodsGrpID, obj_name);
-			pSubTitle->CatDiv(';', 2, 1).CatEq(temp_buf, obj_name);
+			pSubTitle->CatDivIfNotEmpty(';', 2).CatEq(temp_buf, obj_name);
 		}
 		GetExtLocationName(Filt.LocList, 2, temp_buf);
-		pSubTitle->CatDiv('-', 1, 1).Cat(temp_buf);
-		pSubTitle->CatDiv('-', 1, 1).Cat(Filt.Period);
+		pSubTitle->CatDivIfNotEmpty('-', 1).Cat(temp_buf);
+		pSubTitle->CatDivIfNotEmpty('-', 1).Cat(Filt.Period);
 	}
 	ASSIGN_PTR(pBrwId, brw_id);
 	return p_q;
@@ -642,7 +642,7 @@ int PPALDD_PriceAnlz::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_PriceAnlz::Destroy()
+void PPALDD_PriceAnlz::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(PriceAnlz);
 }

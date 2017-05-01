@@ -2091,7 +2091,7 @@ int PPALDD_QuotView::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_QuotView::Destroy()
+void PPALDD_QuotView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(Quot);
 }

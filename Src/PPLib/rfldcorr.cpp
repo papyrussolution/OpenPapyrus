@@ -629,7 +629,7 @@ int PPImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResult) 
 			use_ps = 1;
 		}
 		{
-			uint gp = 0;
+			size_t gp = 0;
 			if(ps.Nam.Search("#guid", 0, 1, &gp)) {
 				S_GUID guid;
 				guid.Generate();

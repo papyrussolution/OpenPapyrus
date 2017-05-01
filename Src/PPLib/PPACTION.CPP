@@ -111,8 +111,7 @@ int SLAPI SysJournal::GetEvent(PPID action, int mode, LDATETIME * pMoment, int m
 	dbq = ppcheckfiltid(dbq, this->Action, action);
 	q.selectAll().where(*dbq);
 	for(q.initIteration(((mode > 0) ? 0 : 1), &k, sp); q.nextIteration() > 0;) {
-		if(pMoment)
-			pMoment->Set(data.Dt, data.Tm);
+		CALLPTRMEMB(pMoment, Set(data.Dt, data.Tm));
 		copyBufTo(b);
 		return 1;
 	}
@@ -137,8 +136,7 @@ int SLAPI SysJournal::GetLastUserEvent(PPID action, PPID userID, PPID sessID, co
 	dbq = ppcheckfiltid(dbq, this->Extra, sessID);
 	q.selectAll().where(*dbq);
 	for(q.initIteration(1, &k, spLt); q.nextIteration() > 0;) {
-		if(pMoment)
-			pMoment->Set(data.Dt, data.Tm);
+		CALLPTRMEMB(pMoment, Set(data.Dt, data.Tm));
 		copyBufTo(pRec);
 		return 1;
 	}
@@ -656,7 +654,7 @@ int SLAPI PPObjBill::CheckInGta(const PPGta & rGta, int use_ta)
 				op_blk.SCardID = gua_assoc.SCardID;
 				op_blk.Dtm = rGta.Dtm;
 				op_blk.Amount = (rGta.Count > 0) ? -(quot * rGta.Count) : -quot;
-				THROW(P_ScObj->P_Tbl->PutOpBlk(op_blk, use_ta));
+				THROW(P_ScObj->P_Tbl->PutOpBlk(op_blk, 0, use_ta));
 				ok = 1;
 			}
 		}
@@ -707,7 +705,7 @@ int SLAPI GtaJournalCore::CheckInOp(PPGta & rGta, int use_ta)
 				// необходимо задержать выполнение функции на величину искусственного смещения времени
 				// для того, чтобы следующая операция не оказалась бы впереди предыдущей.
 				//
-				delay(inc_count * 10);
+				SDelay(inc_count * 10);
 				//
 				rGta.Dtm = dtm;
 				rec.Dt = dtm.d;
@@ -726,6 +724,7 @@ int SLAPI GtaJournalCore::CheckInOp(PPGta & rGta, int use_ta)
 //
 //
 //
+#if 0 // @v9.6.4 (useless) {
 SLAPI DGQCore::DGQCore() : DGQTbl()
 {
 }
@@ -787,4 +786,4 @@ int SLAPI DGQCore::CommitQuery(const S_GUID & rUuid, int use_ta)
     CATCHZOK
     return ok;
 }
-
+#endif // } 0 @v9.6.4 (useless)

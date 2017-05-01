@@ -5105,7 +5105,7 @@ int SLAPI PPLocAddrStruc::Recognize(const char * pText)
 							if(last_t == p_tok->T && p_tok->T == AddrTok::tText)
 								addendum.Space();
 							else
-								addendum.CatDiv(';', 2, 1);
+								addendum.CatDivIfNotEmpty(';', 2);
 							addendum.Cat(p_tok->S);
 						}
 						last_t = p_tok->T;
@@ -5161,31 +5161,31 @@ int SLAPI PPLocAddrStruc::Output(SString & rBuf)
 	rBuf = 0;
 	SString temp_buf, temp_buf2;
 	if(Get(tCountry, temp_buf)) {
-		rBuf.CatDiv(',', 2, 1).Cat(temp_buf);
+		rBuf.CatDivIfNotEmpty(',', 2).Cat(temp_buf);
 	}
 	if(Get(tZip, temp_buf)) {
-		rBuf.CatDiv(',', 2, 1).Cat(temp_buf);
+		rBuf.CatDivIfNotEmpty(',', 2).Cat(temp_buf);
 	}
 	if(Get(tLocalArea, temp_buf)) {
-		rBuf.CatDiv(',', 2, 1);
+		rBuf.CatDivIfNotEmpty(',', 2);
 		if(Get(tLocalAreaKind, temp_buf2))
 			rBuf.Cat(temp_buf2).Space();
 		rBuf.Cat(temp_buf);
 	}
 	if(Get(tCity, temp_buf)) {
-		rBuf.CatDiv(',', 2, 1);
+		rBuf.CatDivIfNotEmpty(',', 2);
 		if(Get(tCityKind, temp_buf2))
 			rBuf.Cat(temp_buf2).Space();
 		rBuf.Cat(temp_buf);
 	}
 	if(Get(tStreet, temp_buf)) {
-		rBuf.CatDiv(',', 2, 1);
+		rBuf.CatDivIfNotEmpty(',', 2);
 		if(Get(tStreetKind, temp_buf2))
 			rBuf.Cat(temp_buf2).Space();
 		rBuf.Cat(temp_buf);
 	}
 	if(Get(tHouse, temp_buf)) {
-		rBuf.CatDiv(',', 2, 1);
+		rBuf.CatDivIfNotEmpty(',', 2);
 		if(Get(tHouseKind, temp_buf2))
 			rBuf.Cat(temp_buf2).Space();
 		else
@@ -5193,7 +5193,7 @@ int SLAPI PPLocAddrStruc::Output(SString & rBuf)
 		rBuf.Cat(temp_buf);
 	}
 	if(Get(tHouseAddendum, temp_buf)) {
-		rBuf.CatDiv(',', 2, 1);
+		rBuf.CatDivIfNotEmpty(',', 2);
 		if(Get(tHouseAddendumKind, temp_buf2))
 			rBuf.Cat(temp_buf2).Space();
 		else
@@ -5201,7 +5201,7 @@ int SLAPI PPLocAddrStruc::Output(SString & rBuf)
 		rBuf.Cat(temp_buf);
 	}
 	if(Get(tApart, temp_buf)) {
-		rBuf.CatDiv(',', 2, 1);
+		rBuf.CatDivIfNotEmpty(',', 2);
 		if(Get(tApartKind, temp_buf2))
 			rBuf.Cat(temp_buf2).Space();
 		else
@@ -5209,7 +5209,7 @@ int SLAPI PPLocAddrStruc::Output(SString & rBuf)
 		rBuf.Cat(temp_buf);
 	}
 	if(Get(tPostBox, temp_buf)) {
-		rBuf.CatDiv(',', 2, 1).Cat("PostBox").Space().Cat(temp_buf);
+		rBuf.CatDivIfNotEmpty(',', 2).Cat("PostBox").Space().Cat(temp_buf);
 	}
 	if(Get(tAddendum, temp_buf)) {
 		rBuf.Space().CatChar('(').Cat(temp_buf).CatChar(')');

@@ -846,7 +846,7 @@ int PPALDD_FreightList::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_FreightList::Destroy()
+void PPALDD_FreightList::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(Freight);
 }

@@ -7,6 +7,26 @@
 #include <pp.h>
 #include <dl600.h>
 //
+//
+//
+PPFilt::PPFilt()
+{
+	ID = 0;
+	Ptr = 0;
+}
+
+PView::PView(long id)
+{
+	ID = id;
+	Ptr = 0;
+}
+
+PView::PView(void * ptr)
+{
+	ID = 0;
+	Ptr = ptr;
+}
+//
 // Ѕлок доступа к распакованным формулам. ѕри обращении к формуле вызываетс€ функци€ //
 // DlContext::GetFormula, котора€ пытаетс€ найти уже распакованную формулу. ≈сли это у нее
 // не выходит, то формула распаковываетс€, вставл€етс€ в таблицу и передаетс€ клиенту.
@@ -646,9 +666,8 @@ int DlRtm::Set(long iterId, int commit)
 	return 0;
 }
 
-int DlRtm::Destroy()
+void DlRtm::Destroy()
 {
-	return -1;
 }
 
 int FASTCALL DlRtm::IterProlog(PPIterID & rID, int doInit)
@@ -1008,12 +1027,12 @@ int SLAPI DlRtm::Export(ExportParam & rParam)
 		for(uint p = 0; out_file_set.get(&p, path);) {
 			if(_by_btr) {
 				while(!p_dict->IsFileExists_(path)) {
-					delay(10);
+					SDelay(10);
 				}
 			}
 			else {
 				while(!fileExists(path)) {
-					delay(10);
+					SDelay(10);
 				}
 			}
 		}

@@ -1049,7 +1049,7 @@ int SLAPI ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath
 			}
 			buf = gfile.GetName();
 			gfile.Close();
-			delay(300);
+			SDelay(300);
 			SFile::Rename(buf, path_goodsflag);
 			THROW_PP(ok = WaitForExists(path_goodsflag, 1, NZOR(ImpExpTimeout, 5000)), PPERR_ATOL_IMPCHECKS);
 			gfile.Open(path_goods, SFile::mRead);
@@ -1139,7 +1139,7 @@ int SLAPI ACS_ATOL::ImportSession(int)
 				buf.Cat(tmp_buf.Printf(date_mask, d, m, y)).CR();
 				query_file.WriteLine(buf);
 				query_file.Close();
-				delay(300);
+				SDelay(300);
 				SFile::Rename(tmp_name, path_flag);
 				THROW_PP(ok = WaitForExists(path_flag, 1, notify_timeout), PPERR_ATOL_IMPCHECKS);
 				if(ok > 0)

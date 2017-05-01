@@ -3615,7 +3615,7 @@ int PPALDD_TrfrAnlzBase::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_TrfrAnlzBase::Destroy()
+void PPALDD_TrfrAnlzBase::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(TrfrAnlz);
 }

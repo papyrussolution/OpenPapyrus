@@ -7,20 +7,10 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_swap.h"
 /*
  * __bam_pgin --
- *	Convert host-specific page layout from the host-independent format
- *	stored on disk.
- *
- * PUBLIC: int __bam_pgin __P((DB *, db_pgno_t, void *, DBT *));
+ *	Convert host-specific page layout from the host-independent format stored on disk.
  */
 int __bam_pgin(DB * dbp, db_pgno_t pg, void * pp, DBT * cookie)
 {
@@ -31,13 +21,10 @@ int __bam_pgin(DB * dbp, db_pgno_t pg, void * pp, DBT * cookie)
 	h = (PAGE *)pp;
 	return (TYPE(h) == P_BTREEMETA) ?  __bam_mswap(dbp->env, (PAGE *)pp) : __db_byteswap(dbp, pg, (PAGE *)pp, pginfo->db_pagesize, 1);
 }
-
 /*
  * __bam_pgout --
  *	Convert host-specific page layout to the host-independent format
  *	stored on disk.
- *
- * PUBLIC: int __bam_pgout __P((DB *, db_pgno_t, void *, DBT *));
  */
 int __bam_pgout(DB * dbp, db_pgno_t pg, void * pp, DBT * cookie)
 {
@@ -48,12 +35,9 @@ int __bam_pgout(DB * dbp, db_pgno_t pg, void * pp, DBT * cookie)
 	h = (PAGE *)pp;
 	return (TYPE(h) == P_BTREEMETA) ?  __bam_mswap(dbp->env, (PAGE *)pp) : __db_byteswap(dbp, pg, (PAGE *)pp, pginfo->db_pagesize, 0);
 }
-
 /*
  * __bam_mswap --
  *	Swap the bytes on the btree metadata page.
- *
- * PUBLIC: int __bam_mswap __P((ENV *, PAGE *));
  */
 int __bam_mswap(ENV * env, PAGE * pg)
 {

@@ -103,7 +103,7 @@ int SLAPI GetArticleText(PPID arID, PPArticleType artyp, SString & rBuf)
 		SString ar_name;
 		PPGetSubStr(PPTXT_ARTYPE, ((int)artyp) - 1, rBuf);
 		GetArticleName(arID, ar_name);
-		rBuf.CatDiv(':', 2, 1).Cat(ar_name);
+		rBuf.CatDivIfNotEmpty(':', 2).Cat(ar_name);
 		ok = 1;
 	}
 	else

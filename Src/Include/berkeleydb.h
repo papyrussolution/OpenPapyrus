@@ -258,10 +258,10 @@ struct __db_dbt_base {
 };
 
 struct __db_dbt : public __db_dbt_base {
-	__db_dbt()
-	{
-		THISZERO();
-	}
+	//
+	// Descr: Обнуляет все компоненты структуры
+	//
+	__db_dbt();
 };
 
 /*******************************************************
@@ -631,7 +631,9 @@ typedef const struct __log_rec_spec {
 /*******************************************************
 * Shared buffer cache (mpool).
 *******************************************************/
-/* Priority values for DB_MPOOLFILE->{put,set_priority}. */
+//
+// Priority values for DB_MPOOLFILE->{put,set_priority}
+//
 typedef enum {
 	DB_PRIORITY_UNCHANGED = 0,
 	DB_PRIORITY_VERY_LOW = 1,
@@ -640,16 +642,17 @@ typedef enum {
 	DB_PRIORITY_HIGH = 4,
 	DB_PRIORITY_VERY_HIGH = 5
 } DB_CACHE_PRIORITY;
-
-/* Per-process DB_MPOOLFILE information. */
+//
+// Per-process DB_MPOOLFILE information
+//
 struct __db_mpoolfile {
-	DB_FH * fhp;                    /* Underlying file handle. */
+	DB_FH * fhp; // Underlying file handle
 	/*
 	 * !!!
 	 * The ref, pinref and q fields are protected by the region lock.
 	 */
-	uint32 ref;                  /* Reference count. */
-	uint32 pinref;               /* Pinned block reference count. */
+	uint32 ref;    // Reference count
+	uint32 pinref; // Pinned block reference count
 	/*
 	 * !!!
 	 * Explicit representations of structures from queue.h.
@@ -669,13 +672,13 @@ struct __db_mpoolfile {
 	 * by checkpoint or sync threads when using DB_MPOOLFILE structures
 	 * to flush buffers from the cache.
 	 */
-	ENV * env;                      /* Environment */
-	MPOOLFILE * mfp;                /* Underlying MPOOLFILE. */
-	uint32 clear_len;            /* Cleared length on created pages. */
-	uint8  fileid[DB_FILE_ID_LEN]; /* Unique file ID. */
-	int ftype;                      /* File type. */
-	int32 lsn_offset;             /* LSN offset in page. */
-	uint32 gbytes, bytes;        /* Maximum file size. */
+	ENV  * env;           // Environment
+	MPOOLFILE * mfp;      // Underlying MPOOLFILE
+	uint32 clear_len;     // Cleared length on created pages
+	uint8  fileid[DB_FILE_ID_LEN]; // Unique file ID
+	int    ftype;         // File type
+	int32 lsn_offset;     // LSN offset in page
+	uint32 gbytes, bytes; // Maximum file size
 	DBT * pgcookie;                 /* Byte-string passed to pgin/pgout. */
 	int32 priority;               /* Cache priority. */
 
@@ -706,7 +709,6 @@ struct __db_mpoolfile {
 	int (*set_priority)(DB_MPOOLFILE*, DB_CACHE_PRIORITY);
 	int (*sync)(DB_MPOOLFILE *);
 	/* DB_MPOOLFILE PUBLIC HANDLE LIST END */
-
 	/*
 	 * MP_FILEID_SET, MP_OPEN_CALLED and MP_READONLY do not need to be
 	 * thread protected because they are initialized before the file is
@@ -723,57 +725,57 @@ struct __db_mpoolfile {
  #define MP_DUMMY        0x020          /* File is dummy for __memp_fput. */
 	uint32 flags;
 };
-
-/* Mpool statistics structure. */
-struct __db_mpool_stat { /* SHARED */
-	uint32 st_gbytes;            /* Total cache size: GB. */
-	uint32 st_bytes;             /* Total cache size: B. */
-	uint32 st_ncache;            /* Number of cache regions. */
-	uint32 st_max_ncache;        /* Maximum number of regions. */
-	db_size_t st_mmapsize;          /* Maximum file size for mmap. */
-	int32 st_maxopenfd;           /* Maximum number of open fd's. */
-	int32 st_maxwrite;            /* Maximum buffers to write. */
-	db_timeout_t st_maxwrite_sleep; /* Sleep after writing max buffers. */
-	uint32 st_pages;             /* Total number of pages. */
+//
+// Mpool statistics structure
+//
+struct __db_mpool_stat { // SHARED 
+	uint32 st_gbytes;            // Total cache size: GB. 
+	uint32 st_bytes;             // Total cache size: B. 
+	uint32 st_ncache;            // Number of cache regions. 
+	uint32 st_max_ncache;        // Maximum number of regions. 
+	db_size_t st_mmapsize;          // Maximum file size for mmap. 
+	int32 st_maxopenfd;           // Maximum number of open fd's. 
+	int32 st_maxwrite;            // Maximum buffers to write. 
+	db_timeout_t st_maxwrite_sleep; // Sleep after writing max buffers. 
+	uint32 st_pages;             // Total number of pages. 
  #ifndef __TEST_DB_NO_STATISTICS
-	uint32 st_map;               /* Pages from mapped files. */
-	uintmax_t st_cache_hit; /* Pages found in the cache. */
-	uintmax_t st_cache_miss;        /* Pages not found in the cache. */
-	uintmax_t st_page_create;       /* Pages created in the cache. */
-	uintmax_t st_page_in;           /* Pages read in. */
-	uintmax_t st_page_out;          /* Pages written out. */
-	uintmax_t st_ro_evict;          /* Clean pages forced from the cache. */
-	uintmax_t st_rw_evict;          /* Dirty pages forced from the cache. */
-	uintmax_t st_page_trickle;      /* Pages written by memp_trickle. */
-	uint32 st_page_clean;        /* Clean pages. */
-	uint32 st_page_dirty;        /* Dirty pages. */
-	uint32 st_hash_buckets;      /* Number of hash buckets. */
-	uint32 st_hash_mutexes;      /* Number of hash bucket mutexes. */
-	uint32 st_pagesize;          /* Assumed page size. */
-	uint32 st_hash_searches;     /* Total hash chain searches. */
-	uint32 st_hash_longest;      /* Longest hash chain searched. */
-	uintmax_t st_hash_examined;     /* Total hash entries searched. */
-	uintmax_t st_hash_nowait;       /* Hash lock granted with nowait. */
-	uintmax_t st_hash_wait;         /* Hash lock granted after wait. */
-	uintmax_t st_hash_max_nowait;   /* Max hash lock granted with nowait. */
-	uintmax_t st_hash_max_wait;     /* Max hash lock granted after wait. */
-	uintmax_t st_region_nowait;     /* Region lock granted with nowait. */
-	uintmax_t st_region_wait;       /* Region lock granted after wait. */
-	uintmax_t st_mvcc_frozen;       /* Buffers frozen. */
-	uintmax_t st_mvcc_thawed;       /* Buffers thawed. */
-	uintmax_t st_mvcc_freed;        /* Frozen buffers freed. */
-	uintmax_t st_alloc;             /* Number of page allocations. */
-	uintmax_t st_alloc_buckets;     /* Buckets checked during allocation. */
-	uintmax_t st_alloc_max_buckets; /* Max checked during allocation. */
-	uintmax_t st_alloc_pages;       /* Pages checked during allocation. */
-	uintmax_t st_alloc_max_pages;   /* Max checked during allocation. */
-	uintmax_t st_io_wait;           /* Thread waited on buffer I/O. */
-	uintmax_t st_sync_interrupted;  /* Number of times sync interrupted. */
-	roff_t st_regsize;              /* Region size. */
-	roff_t st_regmax;               /* Region max. */
+	uint32 st_map;               // Pages from mapped files. 
+	uintmax_t st_cache_hit; // Pages found in the cache. 
+	uintmax_t st_cache_miss;        // Pages not found in the cache. 
+	uintmax_t st_page_create;       // Pages created in the cache. 
+	uintmax_t st_page_in;           // Pages read in. 
+	uintmax_t st_page_out;          // Pages written out. 
+	uintmax_t st_ro_evict;          // Clean pages forced from the cache. 
+	uintmax_t st_rw_evict;          // Dirty pages forced from the cache. 
+	uintmax_t st_page_trickle;      // Pages written by memp_trickle. 
+	uint32 st_page_clean;        // Clean pages. 
+	uint32 st_page_dirty;        // Dirty pages. 
+	uint32 st_hash_buckets;      // Number of hash buckets. 
+	uint32 st_hash_mutexes;      // Number of hash bucket mutexes. 
+	uint32 st_pagesize;          // Assumed page size. 
+	uint32 st_hash_searches;     // Total hash chain searches. 
+	uint32 st_hash_longest;      // Longest hash chain searched. 
+	uintmax_t st_hash_examined;     // Total hash entries searched. 
+	uintmax_t st_hash_nowait;       // Hash lock granted with nowait. 
+	uintmax_t st_hash_wait;         // Hash lock granted after wait. 
+	uintmax_t st_hash_max_nowait;   // Max hash lock granted with nowait. 
+	uintmax_t st_hash_max_wait;     // Max hash lock granted after wait. 
+	uintmax_t st_region_nowait;     // Region lock granted with nowait. 
+	uintmax_t st_region_wait;       // Region lock granted after wait. 
+	uintmax_t st_mvcc_frozen;       // Buffers frozen. 
+	uintmax_t st_mvcc_thawed;       // Buffers thawed. 
+	uintmax_t st_mvcc_freed;        // Frozen buffers freed. 
+	uintmax_t st_alloc;             // Number of page allocations. 
+	uintmax_t st_alloc_buckets;     // Buckets checked during allocation. 
+	uintmax_t st_alloc_max_buckets; // Max checked during allocation. 
+	uintmax_t st_alloc_pages;       // Pages checked during allocation. 
+	uintmax_t st_alloc_max_pages;   // Max checked during allocation. 
+	uintmax_t st_io_wait;           // Thread waited on buffer I/O. 
+	uintmax_t st_sync_interrupted;  // Number of times sync interrupted. 
+	roff_t st_regsize;              // Region size. 
+	roff_t st_regmax;               // Region max. 
  #endif
 };
-
 /*
  * Mpool file statistics structure.
  * The first fields in this structure must mirror the __db_mpool_fstat_int

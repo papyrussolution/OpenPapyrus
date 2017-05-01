@@ -894,10 +894,9 @@ static void SVG_init()
 
 			svg_js_fd = fopen(fullname, "r");
 			if(!svg_js_fd)
-				int_warn(NO_CARET, "Failed to insert javascript file %s\n", fullname);
+				GpGg.IntWarn(NO_CARET, "Failed to insert javascript file %s\n", fullname);
 			else {
-				fprintf(gpoutfile,
-				    "<script language=\"javaScript\" TYPE=\"text/javascript\" > <![CDATA[\n");
+				fprintf(gpoutfile, "<script language=\"javaScript\" TYPE=\"text/javascript\" > <![CDATA[\n");
 				while(fgets(buf, sizeof(buf), svg_js_fd))
 					fputs(buf, gpoutfile);
 				fprintf(gpoutfile, "]]>\n</script>\n");

@@ -80,7 +80,7 @@ void GpGadgets::SetCommand(GpCommand & rC)
 	// Allow "set no{foo}" rather than "unset foo" 
 	if(rC.P_InputLine[rC.P_Token[rC.CToken].start_index] == 'n' && rC.P_InputLine[rC.P_Token[rC.CToken].start_index+1] == 'o' && rC.P_InputLine[rC.P_Token[rC.CToken].start_index+2] != 'n') {
 		if(IsInteractive)
-			int_warn(rC.CToken, "deprecated syntax, use \"unset\"");
+			IntWarn(rC.CToken, "deprecated syntax, use \"unset\"");
 		rC.P_Token[rC.CToken].start_index += 2;
 		rC.P_Token[rC.CToken].length -= 2;
 		rC.CToken--;
@@ -248,12 +248,12 @@ ITERATE:
 					if(IsMultiPlot)
 						IntErrorCurToken("you can't change the output in multiplot mode");
 					if(rC.EndOfCommand()) {    /* no file specified */
-						term_set_output(NULL);
+						TermSetOutput(term, 0);
 						ZFREE(outstr); // means STDOUT
 					}
 					else if((testfile = rC.TryToGetString())) {
 						gp_expand_tilde(&testfile);
-						term_set_output(testfile);
+						TermSetOutput(term, testfile);
 						if(testfile != outstr) {
 							free(testfile);
 							testfile = outstr;
@@ -1406,11 +1406,11 @@ static void set_encoding(GpCommand & rC)
 				case 28605: encoding = S_ENC_ISO8859_15; break;
 				case 65001: encoding = S_ENC_UTF8; break;
 				case 0:
-				    int_warn(NO_CARET, "Error converting locale \"%s\" to codepage number", l);
+				    IntWarn(NO_CARET, "Error converting locale \"%s\" to codepage number", l);
 				    encoding = S_ENC_DEFAULT;
 				    break;
 				default:
-				    int_warn(NO_CARET, "Locale not supported by gnuplot: %s", l);
+				    IntWarn(NO_CARET, "Locale not supported by gnuplot: %s", l);
 				    encoding = S_ENC_DEFAULT;
 			}
 		}
@@ -1460,10 +1460,10 @@ static void set_degreesign(char * locale)
 			if(strcmp(cencoding, "UTF-8") == 0)
 				strcpy(degree_sign, degree_utf8);
 			else if((cd = iconv_open(cencoding, "UTF-8")) == (iconv_t)(-1))
-				int_warn(NO_CARET, "iconv_open failed for %s", cencoding);
+				IntWarn(NO_CARET, "iconv_open failed for %s", cencoding);
 			else {
 				if(iconv(cd, &in, &lengthin, &out, &lengthout) == (size_t)(-1))
-					int_warn(NO_CARET, "iconv failed to convert degree sign");
+					IntWarn(NO_CARET, "iconv failed to convert degree sign");
 				iconv_close(cd);
 			}
 		}
@@ -1895,7 +1895,7 @@ static void set_history(GpCommand & rC)
 		// Catches both the deprecated "set historysize" and "set history size" 
 		rC.H.gnuplot_history_size = rC.IntExpression();
 #ifndef GNUPLOT_HISTORY
-		int_warn(NO_CARET, "This copy of gnuplot was built without support for command history.");
+		IntWarn(NO_CARET, "This copy of gnuplot was built without support for command history.");
 #endif
 	}
 }
@@ -1998,25 +1998,25 @@ void GpGadgets::SetKey(GpCommand & rC)
 			    break;
 			case S_KEY_TOP:
 			    if(vpos_set)
-				    int_warn(rC.CToken, vpos_warn);
+				    IntWarn(rC.CToken, vpos_warn);
 			    p_key->vpos = JUST_TOP;
 			    vpos_set = true;
 			    break;
 			case S_KEY_BOTTOM:
 			    if(vpos_set)
-				    int_warn(rC.CToken, vpos_warn);
+				    IntWarn(rC.CToken, vpos_warn);
 			    p_key->vpos = JUST_BOT;
 			    vpos_set = true;
 			    break;
 			case S_KEY_LEFT:
 			    if(hpos_set)
-				    int_warn(rC.CToken, hpos_warn);
+				    IntWarn(rC.CToken, hpos_warn);
 			    p_key->hpos = LEFT;
 			    hpos_set = true;
 			    break;
 			case S_KEY_RIGHT:
 			    if(hpos_set)
-				    int_warn(rC.CToken, hpos_warn);
+				    IntWarn(rC.CToken, hpos_warn);
 			    p_key->hpos = RIGHT;
 			    hpos_set = true;
 			    break;
@@ -2030,19 +2030,19 @@ void GpGadgets::SetKey(GpCommand & rC)
 			    break;
 			case S_KEY_VERTICAL:
 			    if(sdir_set)
-				    int_warn(rC.CToken, sdir_warn);
+				    IntWarn(rC.CToken, sdir_warn);
 			    p_key->stack_dir = GPKEY_VERTICAL;
 			    sdir_set = true;
 			    break;
 			case S_KEY_HORIZONTAL:
 			    if(sdir_set)
-				    int_warn(rC.CToken, sdir_warn);
+				    IntWarn(rC.CToken, sdir_warn);
 			    p_key->stack_dir = GPKEY_HORIZONTAL;
 			    sdir_set = true;
 			    break;
 			case S_KEY_OVER:
 			    if(reg_set)
-				    int_warn(rC.CToken, reg_warn);
+				    IntWarn(rC.CToken, reg_warn);
 			// Fall through 
 			case S_KEY_ABOVE:
 			    if(!hpos_set)
@@ -2055,7 +2055,7 @@ void GpGadgets::SetKey(GpCommand & rC)
 			    break;
 			case S_KEY_UNDER:
 			    if(reg_set)
-				    int_warn(rC.CToken, reg_warn);
+				    IntWarn(rC.CToken, reg_warn);
 			// Fall through 
 			case S_KEY_BELOW:
 			    if(!hpos_set)
@@ -2068,40 +2068,40 @@ void GpGadgets::SetKey(GpCommand & rC)
 			    break;
 			case S_KEY_INSIDE:
 			    if(reg_set)
-				    int_warn(rC.CToken, reg_warn);
+				    IntWarn(rC.CToken, reg_warn);
 			    p_key->region = GPKEY_AUTO_INTERIOR_LRTBC;
 			    reg_set = true;
 			    break;
 			case S_KEY_OUTSIDE:
 			    if(reg_set)
-				    int_warn(rC.CToken, reg_warn);
+				    IntWarn(rC.CToken, reg_warn);
 			    p_key->region = GPKEY_AUTO_EXTERIOR_LRTBC;
 			    reg_set = true;
 			    break;
 			case S_KEY_TMARGIN:
 			    if(reg_set)
-				    int_warn(rC.CToken, reg_warn);
+				    IntWarn(rC.CToken, reg_warn);
 			    p_key->region = GPKEY_AUTO_EXTERIOR_MARGIN;
 			    p_key->margin = GPKEY_TMARGIN;
 			    reg_set = true;
 			    break;
 			case S_KEY_BMARGIN:
 			    if(reg_set)
-				    int_warn(rC.CToken, reg_warn);
+				    IntWarn(rC.CToken, reg_warn);
 			    p_key->region = GPKEY_AUTO_EXTERIOR_MARGIN;
 			    p_key->margin = GPKEY_BMARGIN;
 			    reg_set = true;
 			    break;
 			case S_KEY_LMARGIN:
 			    if(reg_set)
-				    int_warn(rC.CToken, reg_warn);
+				    IntWarn(rC.CToken, reg_warn);
 			    p_key->region = GPKEY_AUTO_EXTERIOR_MARGIN;
 			    p_key->margin = GPKEY_LMARGIN;
 			    reg_set = true;
 			    break;
 			case S_KEY_RMARGIN:
 			    if(reg_set)
-				    int_warn(rC.CToken, reg_warn);
+				    IntWarn(rC.CToken, reg_warn);
 			    p_key->region = GPKEY_AUTO_EXTERIOR_MARGIN;
 			    p_key->margin = GPKEY_RMARGIN;
 			    reg_set = true;
@@ -2239,7 +2239,7 @@ S_KEYTITLE:
 			case S_KEY_MANUAL:
 			    rC.CToken++;
 			    if(reg_set)
-				    int_warn(rC.CToken, reg_warn);
+				    IntWarn(rC.CToken, reg_warn);
 			    GetPosition(rC, &p_key->user_pos);
 			    p_key->region = GPKEY_USER_PLACEMENT;
 			    reg_set = true;
@@ -2256,9 +2256,9 @@ S_KEYTITLE:
 		set_key_position_from_stack_direction(p_key);
 	else if(p_key->region == GPKEY_AUTO_EXTERIOR_MARGIN) {
 		if(vpos_set && (p_key->margin == GPKEY_TMARGIN || p_key->margin == GPKEY_BMARGIN))
-			int_warn(NO_CARET, "ignoring top/center/bottom; incompatible with TMrg/BMrg.");
+			IntWarn(NO_CARET, "ignoring top/center/bottom; incompatible with TMrg/BMrg.");
 		else if(hpos_set && (p_key->margin == GPKEY_LMARGIN || p_key->margin == GPKEY_RMARGIN))
-			int_warn(NO_CARET, "ignoring left/center/right; incompatible with LMrg/TMrg.");
+			IntWarn(NO_CARET, "ignoring left/center/right; incompatible with LMrg/TMrg.");
 	}
 }
 //
@@ -3294,7 +3294,7 @@ void GpGadgets::SetPalette(GpCommand & rC)
 		}
 	}
 	if(named_color && SmPalette.cmodel != C_MODEL_RGB && IsInteractive)
-		int_warn(NO_CARET, "Named colors will produce strange results if not in color mode RGB.");
+		IntWarn(NO_CARET, "Named colors will produce strange results if not in color mode RGB.");
 	// Invalidate previous palette 
 	invalidate_palette();
 }
@@ -3498,7 +3498,7 @@ void GpGadgets::SetPm3D(GpCommand & rC)
 				case S_PM3D_NOSOLID: /* "noso$lid" */
 				case S_PM3D_TRANSPARENT: /* "tr$ansparent" */
 				    if(IsInteractive)
-					    int_warn(rC.CToken, "Deprecated syntax --- ignored");
+					    IntWarn(rC.CToken, "Deprecated syntax --- ignored");
 				case S_PM3D_IMPLICIT: /* "i$mplicit" */
 				case S_PM3D_NOEXPLICIT: /* "noe$xplicit" */
 				    Pm3D.implicit = PM3D_IMPLICIT;
@@ -4586,7 +4586,7 @@ void GpGadgets::SetXYPlane(GpCommand & rC)
 	}
 	else if(!rC.AlmostEq("rel$ative")) {
 		rC.CToken--;
-		// int_warn(NO_CARET, "deprecated syntax"); 
+		// IntWarn(NO_CARET, "deprecated syntax"); 
 	}
 	SetTicsLevel(rC);
 }
@@ -5081,7 +5081,7 @@ int GpGadgets::SetTicProp(GpAxis & rAx, GpCommand & rC)
 			}
 			else {
 				rAx.minitics = MINI_DEFAULT;
-				int_warn(rC.CToken-1, "Expecting number of intervals");
+				IntWarn(rC.CToken-1, "Expecting number of intervals");
 			}
 		}
 	}

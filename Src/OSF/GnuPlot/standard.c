@@ -5705,7 +5705,7 @@ void GpEval::f_value(GpArgument * pArg)
 	t_value result;
 	Pop(a);
 	if(a.type != STRING) {
-		// int_warn(NO_CARET,"non-string value passed to value()");
+		// GpGg.IntWarn(NO_CARET,"non-string value passed to value()");
 		Push(&a);
 	}
 	else {
@@ -5722,7 +5722,7 @@ void GpEval::f_value(GpArgument * pArg)
 		}
 		gpfree_string(&a);
 		if(!p) {
-			// int_warn(NO_CARET,"undefined variable name passed to value()");
+			// GpGg.IntWarn(NO_CARET,"undefined variable name passed to value()");
 			result.type = CMPLX;
 			result.v.cmplx_val.real = not_a_number();
 		}
@@ -5808,12 +5808,12 @@ void GpEval::f_column(GpArgument * pArg)
 		/* This warning should only trigger once per problematic input file */
 		if(column == DF_COLUMN_HEADERS && (*name) && GpDf.df_warn_on_missing_columnheader) {
 			GpDf.df_warn_on_missing_columnheader = false;
-			int_warn(NO_CARET, "no column with header \"%s\"", a.v.string_val);
+			GpGg.IntWarn(NO_CARET, "no column with header \"%s\"", a.v.string_val);
 			for(j = 0; j < GpDf.df_no_cols; j++) {
 				if(GpDf.df_column[j].header) {
 					int offset = (*GpDf.df_column[j].header == '"') ? 1 : 0;
 					if(!strncmp(name, GpDf.df_column[j].header + offset, strlen(name)))
-						int_warn(NO_CARET, "partial match against column %d header \"%s\"", j+1, GpDf.df_column[j].header);
+						GpGg.IntWarn(NO_CARET, "partial match against column %d header \"%s\"", j+1, GpDf.df_column[j].header);
 				}
 			}
 		}

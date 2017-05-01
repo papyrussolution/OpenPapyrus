@@ -3031,7 +3031,7 @@ int SLAPI PPObjectTokenizer::SearchGoodsAnalogs(PPID goodsID, PPIDArray & rList,
 							for(i = 0; i < transit_component_list.getCount(); i++) {
 								Goods2Tbl::Rec sw_rec;
 								if(sw_obj.Fetch(transit_component_list.get(i), &sw_rec) > 0)
-									pTransitComponentBuf->CatDiv(',', 2, 1).Cat(sw_rec.Name);
+									pTransitComponentBuf->CatDivIfNotEmpty(',', 2).Cat(sw_rec.Name);
 							}
 						}
 					}

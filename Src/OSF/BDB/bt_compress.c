@@ -6,12 +6,6 @@
 
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
 #ifdef HAVE_COMPRESSION
@@ -781,7 +775,8 @@ static int __bamc_compress_merge_insert(DBC * dbc, BTREE_COMPRESS_STREAM * strea
 			else
 				cmp = __db_compare_both(dbp, cp->currentKey, cp->currentData, ikey, idata);
 			if(cmp < 0) {
-store_current:                  CMP_STORE(cp->currentKey, cp->currentData);
+store_current:                  
+				CMP_STORE(cp->currentKey, cp->currentData);
 				if(ret != 0)
 					goto end;
 			}
@@ -792,12 +787,7 @@ store_current:                  CMP_STORE(cp->currentKey, cp->currentData);
 				    case DB_NODUPDATA:
 					if(cmp == 0 && bulk_ret == 0 && F_ISSET(dbp, DB_AM_DUPSORT)) {
 						bulk_ret = __db_duperr(dbp, flags);
-						/*
-						 * Continue until we store
-						 * the current chunk,
-						 * but don't insert any
-						 * more entries.
-						 */
+						// Continue until we store the current chunk, but don't insert any more entries.
 						moreStream = 0;
 						iSmallEnough = 0;
 						goto store_current;
@@ -842,10 +832,7 @@ store_current:                  CMP_STORE(cp->currentKey, cp->currentData);
 
 					/* Check for duplicates in the stream */
 				} while(__db_compare_both(dbp, ikey, idata, prevIkey, prevIdata) == 0);
-				/*
-				 * Check that !nextExists ||
-				 * ikey/idata < nextk/nextd
-				 */
+				// Check that !nextExists || ikey/idata < nextk/nextd
 				if(moreStream != 0 && nextExists != 0 && __db_compare_both(dbp, ikey, idata, &nextk, &nextd) >= 0)
 					iSmallEnough = 0;
 			}
@@ -943,37 +930,28 @@ static int __bamc_compress_merge_delete(DBC * dbc, BTREE_COMPRESS_STREAM * strea
 			goto end;
 		/* !nextExists || ikey/idata < nextk/nextd */
 		iSmallEnough = 1;
-
 		while(moreCompressed != 0 || iSmallEnough != 0) {
 			if(moreCompressed == 0)
 				cmp = 1;
 			else if(iSmallEnough == 0)
 				cmp = -1;
 			else
-				cmp = __db_compare_both(dbp, cp->currentKey,
-					cp->currentData, &ikey, &idata);
+				cmp = __db_compare_both(dbp, cp->currentKey, cp->currentData, &ikey, &idata);
 			if(cmp < 0) {
 				CMP_STORE(cp->currentKey, cp->currentData);
 				if(ret != 0)
 					goto end;
-				if((ret = __bam_compress_set_dbt(dbp,
-					    &pdestkey, cp->currentKey->data,
-					    cp->currentKey->size)) != 0)
+				if((ret = __bam_compress_set_dbt(dbp, &pdestkey, cp->currentKey->data, cp->currentKey->size)) != 0)
 					goto end;
-				if((ret = __bam_compress_set_dbt(dbp,
-					    &pdestdata, cp->currentData->data,
-					    cp->currentData->size)) != 0)
+				if((ret = __bam_compress_set_dbt(dbp, &pdestdata, cp->currentData->data, cp->currentData->size)) != 0)
 					goto end;
 				prevDestKey = &pdestkey;
 				prevDestData = &pdestdata;
 			}
 			else {
 				if(cmp != 0) {
-					/*
-					 * Continue until we store the current
-					 * chunk, but don't delete any more
-					 * entries.
-					 */
+					// Continue until we store the current
+					// chunk, but don't delete any more entries.
 					bulk_ret = DB_NOTFOUND;
 					moreStream = 0;
 					iSmallEnough = 0;
@@ -984,19 +962,16 @@ static int __bamc_compress_merge_delete(DBC * dbc, BTREE_COMPRESS_STREAM * strea
 				pikey = ikey;
 				pidata = idata;
  #endif
-				/* Get the next input key and data */
+				// Get the next input key and data 
 				if(stream->next(stream, &ikey, &idata) == 0) {
 					moreStream = 0;
 					iSmallEnough = 0;
 				}
  #ifdef DIAGNOSTIC
-				/* Check that the stream is sorted */
+				// Check that the stream is sorted 
 				DB_ASSERT(env, moreStream == 0 || __db_compare_both(dbp, &ikey, &idata, &pikey, &pidata) >= 0);
  #endif
-				/*
-				 * Check that !nextExists ||
-				 * ikey/idata < nextk/nextd
-				 */
+				// Check that !nextExists || ikey/idata < nextk/nextd
 				if(moreStream != 0 && nextExists != 0 && __db_compare_both(dbp, &ikey, &idata, &nextk, &nextd) >= 0)
 					iSmallEnough = 0;
 			}
@@ -1011,13 +986,11 @@ static int __bamc_compress_merge_delete(DBC * dbc, BTREE_COMPRESS_STREAM * strea
 			}
 		}
 		if(prevDestKey != NULL) {
-			if((ret = __dbc_iput(
-				    dbc, &destkey, &destbuf, DB_KEYLAST)) != 0)
+			if((ret = __dbc_iput(dbc, &destkey, &destbuf, DB_KEYLAST)) != 0)
 				goto end;
 			if(countp)
 				*countp += chunk_count;
 			chunk_count = 0;
-
 			prevDestKey = NULL;
 			prevDestData = NULL;
 			destbuf.size = 0;
@@ -1030,8 +1003,7 @@ end:
 	CMP_FREE_DBT(env, &pdestdata);
 	CMP_FREE_DBT(env, &nextk);
 	CMP_FREE_DBT(env, &nextc);
-
-	return ret != 0 ? ret : bulk_ret;
+	return ret ? ret : bulk_ret;
 }
 /*
  * Remove the sorted keys in stream along with all duplicate values from
@@ -1045,17 +1017,13 @@ static int __bamc_compress_merge_delete_dups(DBC * dbc, BTREE_COMPRESS_STREAM * 
 	DBT pikey;
  #endif
 	DBT * prevDestKey, * prevDestData;
-	int ret, ret_n, bulk_ret, cmp, moreCompressed, moreStream, nextExists;
+	int ret, ret_n, cmp, moreCompressed, moreStream, nextExists;
 	int iSmallEnough, ifound;
 	uint32 chunk_count;
-	ENV * env;
-	BTREE_CURSOR * cp;
-	DB * dbp;
-
-	env = dbc->env;
-	cp = (BTREE_CURSOR *)dbc->internal;
-	dbp = dbc->dbp;
-	bulk_ret = 0;
+	ENV * env = dbc->env;
+	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	DB * dbp = dbc->dbp;
+	int bulk_ret = 0;
 	// (replaced by ctr) memzero(&ikey, sizeof(DBT));
 	CMP_INIT_DBT(&nextk);
 	// (replaced by ctr) memzero(&noread, sizeof(DBT));
@@ -1074,20 +1042,15 @@ static int __bamc_compress_merge_delete_dups(DBC * dbc, BTREE_COMPRESS_STREAM * 
 	if(stream->next(stream, &ikey, NULL) == 0)
 		goto end;
 	ifound = 0;
-
 	prevDestKey = NULL;
 	prevDestData = NULL;
-
 	moreStream = 1;
 	iSmallEnough = 0;
 	nextExists = 0;
 	while(moreStream != 0) {
 		if(iSmallEnough != 0) {
 			if(nextExists == 0) {
-				/*
-				 * We've finished deleting the last key
-				 * in the database
-				 */
+				// We've finished deleting the last key in the database
 				if(ifound == 0) {
 					bulk_ret = DB_NOTFOUND;
 				}
@@ -1095,9 +1058,8 @@ static int __bamc_compress_merge_delete_dups(DBC * dbc, BTREE_COMPRESS_STREAM * 
 					++chunk_count;
 				break;
 			}
-			/* Move to the next chunk */
-			CMP_IGET_RETRY(
-				ret, dbc, &cp->key1, &cp->compressed, DB_CURRENT);
+			// Move to the next chunk 
+			CMP_IGET_RETRY(ret, dbc, &cp->key1, &cp->compressed, DB_CURRENT);
 			if(ret == DB_NOTFOUND) {
 				ret = 0;
 				break;
@@ -1136,21 +1098,13 @@ static int __bamc_compress_merge_delete_dups(DBC * dbc, BTREE_COMPRESS_STREAM * 
 			else if(iSmallEnough == 0)
 				cmp = -1;
 			else
-				cmp = __db_compare_both(
-					dbp, cp->currentKey, NULL, &ikey, NULL);
+				cmp = __db_compare_both(dbp, cp->currentKey, NULL, &ikey, NULL);
 			if(cmp < 0) {
-				if((ret = __bamc_compress_store(dbc,
-					    cp->currentKey, cp->currentData,
-					    &prevDestKey,
-					    &prevDestData, &destkey, &destbuf)) != 0)
+				if((ret = __bamc_compress_store(dbc, cp->currentKey, cp->currentData, &prevDestKey, &prevDestData, &destkey, &destbuf)) != 0)
 					goto end;
-				if((ret = __bam_compress_set_dbt(dbp,
-					    &pdestkey, cp->currentKey->data,
-					    cp->currentKey->size)) != 0)
+				if((ret = __bam_compress_set_dbt(dbp, &pdestkey, cp->currentKey->data, cp->currentKey->size)) != 0)
 					goto end;
-				if((ret = __bam_compress_set_dbt(dbp,
-					    &pdestdata, cp->currentData->data,
-					    cp->currentData->size)) != 0)
+				if((ret = __bam_compress_set_dbt(dbp, &pdestdata, cp->currentData->data, cp->currentData->size)) != 0)
 					goto end;
 				prevDestKey = &pdestkey;
 				prevDestData = &pdestdata;
@@ -1202,13 +1156,11 @@ static int __bamc_compress_merge_delete_dups(DBC * dbc, BTREE_COMPRESS_STREAM * 
 			/*
 			 * Do the DBC->put() with a duplicate cursor, so that
 			 * the main cursor's position isn't changed - we might
-			 * need it to be the same in order to use DB_CURRENT
-			 * above.
+			 * need it to be the same in order to use DB_CURRENT above.
 			 */
 			if((ret = __dbc_dup(dbc, &dbc_n, 0)) != 0)
 				goto end;
 			F_SET(dbc_n, DBC_TRANSIENT);
-
 			ret = __dbc_iput(dbc_n, &destkey, &destbuf, DB_KEYLAST);
 			if((ret_n = __dbc_close(dbc_n)) != 0 && ret == 0)
 				ret = ret_n;
@@ -1217,7 +1169,6 @@ static int __bamc_compress_merge_delete_dups(DBC * dbc, BTREE_COMPRESS_STREAM * 
 			if(countp)
 				*countp += chunk_count;
 			chunk_count = 0;
-
 			prevDestKey = NULL;
 			prevDestData = NULL;
 			destbuf.size = 0;
@@ -1254,37 +1205,33 @@ static int __bamc_compress_get_prev(DBC * dbc, uint32 flags)
 	}
 	else {
 		if(cp->currentKey == NULL) {
-			/* No current key, so fetch the last key */
+			// No current key, so fetch the last key 
 			flags |= DB_LAST;
 			tofind = (uint32)-1;
 		}
 		else if(cp->prevcursor == 0) {
-			/*
-			 * The current key is at the begining of the
-			 * compressed block, so get the last key from the
-			 * previous block
-			 */
+			// The current key is at the begining of the
+			// compressed block, so get the last key from the previous block
 			flags |= DB_PREV;
 			tofind = (uint32)-1;
 		}
 		else {
-			/*
-			 * We have to search for the previous key in the
-			 * current block
-			 */
+			// We have to search for the previous key in the current block
 			flags |= DB_CURRENT;
 			tofind = (uint32)(cp->prevcursor-(uint8 *)cp->compressed.data);
 		}
 		CMP_IGET_RETRY(ret, dbc, &cp->key1, &cp->compressed, flags);
 		if(ret != 0)
 			return ret;
-		/* Decompress until we reach tofind */
-		ret = __bamc_start_decompress(dbc);
-		while(ret == 0 && tofind > (uint32)(cp->compcursor-(uint8 *)cp->compressed.data)) {
-			ret = __bamc_next_decompress(dbc);
+		else {
+			// Decompress until we reach tofind 
+			ret = __bamc_start_decompress(dbc);
+			while(ret == 0 && tofind > (uint32)(cp->compcursor-(uint8 *)cp->compressed.data)) {
+				ret = __bamc_next_decompress(dbc);
+			}
+			if(ret == DB_NOTFOUND)
+				ret = 0;
 		}
-		if(ret == DB_NOTFOUND)
-			ret = 0;
 	}
 	return ret;
 }
@@ -1298,8 +1245,7 @@ static int __bamc_compress_get_prev_dup(DBC * dbc, uint32 flags)
 	BTREE * t = (BTREE *)dbp->bt_internal;
 	if(cp->currentKey == 0)
 		return EINVAL;
-	/* If this is a deleted entry, del_key is already set, otherwise we
-	   have to set it now */
+	// If this is a deleted entry, del_key is already set, otherwise we have to set it now 
 	if(!F_ISSET(cp, C_COMPRESS_DELETED)) {
 		if((ret = __bam_compress_set_dbt(dbp, &cp->del_key, cp->currentKey->data, cp->currentKey->size)) != 0)
 			return ret;
@@ -1310,9 +1256,9 @@ static int __bamc_compress_get_prev_dup(DBC * dbc, uint32 flags)
 		return DB_NOTFOUND;
 	return 0;
 }
-/*
-	Implements DB_PREV_NODUP for __bamc_compress_get()
-*/
+//
+// Implements DB_PREV_NODUP for __bamc_compress_get()
+//
 static int __bamc_compress_get_prev_nodup(DBC * dbc, uint32 flags)
 {
 	int ret;
@@ -1321,10 +1267,9 @@ static int __bamc_compress_get_prev_nodup(DBC * dbc, uint32 flags)
 	BTREE * t = (BTREE *)dbp->bt_internal;
 	if(cp->currentKey == 0)
 		return __bamc_compress_get_prev(dbc, flags);
-	/*
-	 * If this is a deleted entry, del_key is already set, otherwise we
-	 * have to set it now.
-	 */
+	//
+	// If this is a deleted entry, del_key is already set, otherwise we have to set it now.
+	//
 	if(!F_ISSET(cp, C_COMPRESS_DELETED))
 		if((ret = __bam_compress_set_dbt(dbp, &cp->del_key, cp->currentKey->data, cp->currentKey->size)) != 0)
 			return ret;
@@ -1332,8 +1277,7 @@ static int __bamc_compress_get_prev_nodup(DBC * dbc, uint32 flags)
 	 * Linear search for the next non-duplicate key - this is
 	 * especially inefficient for DB_PREV_NODUP, since we have to
 	 * decompress from the begining of the chunk to find previous
-	 * key/data pairs. Instead we could check for key equality as we
-	 * decompress.
+	 * key/data pairs. Instead we could check for key equality as we decompress.
 	 */
 	do
 		if((ret = __bamc_compress_get_prev(dbc, flags)) != 0)
@@ -1347,13 +1291,14 @@ static int __bamc_compress_get_prev_nodup(DBC * dbc, uint32 flags)
 static int __bamc_compress_get_next(DBC * dbc, uint32 flags)
 {
 	int ret;
-	BTREE_CURSOR * cp;
-	cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
 	if(F_ISSET(cp, C_COMPRESS_DELETED)) {
 		if(cp->currentKey == 0)
 			return DB_NOTFOUND;
-		F_CLR(cp, C_COMPRESS_DELETED);
-		return 0;
+		else {
+			F_CLR(cp, C_COMPRESS_DELETED);
+			return 0;
+		}
 	}
 	else if(cp->currentKey) {
 		ret = __bamc_next_decompress(dbc);
@@ -1365,11 +1310,10 @@ static int __bamc_compress_get_next(DBC * dbc, uint32 flags)
 		flags |= DB_FIRST;
 	CMP_IGET_RETRY(ret, dbc, &cp->key1, &cp->compressed, flags);
 	if(ret == DB_NOTFOUND) {
-		/*
-		 * Reset the cursor, so that
-		 * __bamc_compress_get_multiple_key will end up pointing
-		 * to the right place
-		 */
+		//
+		// Reset the cursor, so that
+		// __bamc_compress_get_multiple_key will end up pointing to the right place
+		//
 		__bamc_compress_reset(dbc);
 		return DB_NOTFOUND;
 	}
@@ -1390,17 +1334,13 @@ static int __bamc_compress_get_next_dup(DBC * dbc, DBT * key, uint32 flags)
 	if(cp->currentKey == 0)
 		return EINVAL;
 	if(F_ISSET(cp, C_COMPRESS_DELETED)) {
-		/*
-		 * Check that the next entry has the same key as the
-		 * deleted entry.
-		 */
+		// Check that the next entry has the same key as the deleted entry.
 		if(cp->currentKey == 0)
 			return DB_NOTFOUND;
 		F_CLR(cp, C_COMPRESS_DELETED);
-		return t->bt_compare(dbp,
-			cp->currentKey, &cp->del_key) == 0 ? 0 : DB_NOTFOUND;
+		return t->bt_compare(dbp, cp->currentKey, &cp->del_key) == 0 ? 0 : DB_NOTFOUND;
 	}
-	/* Check that the next entry has the same key as the previous entry */
+	// Check that the next entry has the same key as the previous entry 
 	ret = __bamc_next_decompress(dbc);
 	if(ret == 0 && t->bt_compare(dbp, cp->currentKey, cp->prevKey) != 0)
 		return DB_NOTFOUND;
@@ -1408,8 +1348,7 @@ static int __bamc_compress_get_next_dup(DBC * dbc, DBT * key, uint32 flags)
 		return ret;
 	if(key == NULL) {
 		/* Copy the current key to del_key */
-		if((ret = __bam_compress_set_dbt(dbp, &cp->del_key,
-			    cp->currentKey->data, cp->currentKey->size)) != 0)
+		if((ret = __bam_compress_set_dbt(dbp, &cp->del_key, cp->currentKey->data, cp->currentKey->size)) != 0)
 			return ret;
 		key = &cp->del_key;
 	}

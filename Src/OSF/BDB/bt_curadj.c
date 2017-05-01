@@ -7,12 +7,6 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
 static int __bam_opd_cursor(DB*, DBC*, db_pgno_t, uint32, uint32);
@@ -88,14 +82,10 @@ static int __bam_ca_delete_func(DBC * dbc, DBC * my_dbc, uint32 * countp, db_pgn
 	}
 	return 0;
 }
-
 /*
  * __bam_ca_delete --
  *	Update the cursors when items are deleted and when already deleted
  *	items are overwritten.  Return the number of relevant cursors found.
- *
- * PUBLIC: int __bam_ca_delete __P((DB *,
- * PUBLIC:     db_pgno_t, uint32, int, uint32 *));
  */
 int __bam_ca_delete(DB * dbp, db_pgno_t pgno, uint32 indx, int del, uint32 * countp)
 {
@@ -114,8 +104,7 @@ int __bam_ca_delete(DB * dbp, db_pgno_t pgno, uint32 indx, int del, uint32 * cou
 	 */
 	if((ret = __db_walk_cursors(dbp, NULL, __bam_ca_delete_func, &count, pgno, indx, &del)) != 0)
 		return ret;
-	if(countp != NULL)
-		*countp = count;
+	ASSIGN_PTR(countp, count);
 	return 0;
 }
 
@@ -134,8 +123,6 @@ static int __ram_ca_delete_func(DBC*dbc, DBC*my_dbc, uint32 * countp, db_pgno_t 
 /*
  * __ram_ca_delete --
  *	Return if any relevant cursors found.
- *
- * PUBLIC: int __ram_ca_delete __P((DB *, db_pgno_t, uint32 *));
  */
 int __ram_ca_delete(DB*dbp, db_pgno_t root_pgno, uint32 * foundp)
 {
@@ -173,8 +160,6 @@ static int __bam_ca_di_func(DBC * dbc, DBC * my_dbc, uint32 * foundp, db_pgno_t 
 /*
  * __bam_ca_di --
  *	Adjust the cursors during a delete or insert.
- *
- * PUBLIC: int __bam_ca_di __P((DBC *, db_pgno_t, uint32, int));
  */
 int __bam_ca_di(DBC * my_dbc, db_pgno_t pgno, uint32 indx, int adjust)
 {
@@ -279,11 +264,7 @@ static int __bam_ca_dup_func(DBC * dbc, DBC * my_dbc, uint32 * foundp, db_pgno_t
 }
 /*
  * __bam_ca_dup --
- *	Adjust the cursors when moving items from a leaf page to a duplicates
- *	page.
- *
- * PUBLIC: int __bam_ca_dup __P((DBC *,
- * PUBLIC:    uint32, db_pgno_t, uint32, db_pgno_t, uint32));
+ *	Adjust the cursors when moving items from a leaf page to a duplicates page.
  */
 int __bam_ca_dup(DBC * my_dbc, uint32 first, db_pgno_t fpgno, uint32 fi, db_pgno_t tpgno, uint32 ti)
 {
@@ -333,10 +314,7 @@ static int __bam_ca_undodup_func(DBC * dbc, DBC * my_dbc, uint32 * countp, db_pg
 	}
 	orig_cp->opd = NULL;
 	orig_cp->indx = fi;
-	/*
-	 * We released the mutex to free a cursor,
-	 * start over.
-	 */
+	// We released the mutex to free a cursor, start over.
 	return DB_LOCK_NOTGRANTED;
 }
 /*
@@ -344,9 +322,6 @@ static int __bam_ca_undodup_func(DBC * dbc, DBC * my_dbc, uint32 * countp, db_pg
  *	Adjust the cursors when returning items to a leaf page
  *	from a duplicate page.
  *	Called only during undo processing.
- *
- * PUBLIC: int __bam_ca_undodup __P((DB *,
- * PUBLIC:    uint32, db_pgno_t, uint32, uint32));
  */
 int __bam_ca_undodup(DB*dbp, uint32 first, db_pgno_t fpgno, uint32 fi, uint32 ti)
 {
@@ -379,8 +354,6 @@ static int __bam_ca_rsplit_func(DBC * dbc, DBC * my_dbc, uint32 * foundp, db_pgn
 /*
  * __bam_ca_rsplit --
  *	Adjust the cursors when doing reverse splits.
- *
- * PUBLIC: int __bam_ca_rsplit __P((DBC *, db_pgno_t, db_pgno_t));
  */
 int __bam_ca_rsplit(DBC * my_dbc, db_pgno_t fpgno, db_pgno_t tpgno)
 {
@@ -398,45 +371,39 @@ int __bam_ca_rsplit(DBC * my_dbc, db_pgno_t fpgno, db_pgno_t tpgno)
 }
 
 struct __bam_ca_split_args {
-	db_pgno_t lpgno, rpgno;
-	int cleft;
+	db_pgno_t lpgno;
+	db_pgno_t rpgno;
+	int    cleft;
 	DB_TXN * my_txn;
 };
 
 static int __bam_ca_split_func(DBC*dbc, DBC * my_dbc, uint32 * foundp, db_pgno_t ppgno, uint32 split_indx, void * vargs)
 {
-	DBC_INTERNAL * cp;
-	struct __bam_ca_split_args * args;
 	COMPQUIET(my_dbc, NULL);
-	if(dbc->dbtype == DB_RECNO)
-		return 0;
-	cp = dbc->internal;
-	args = (struct __bam_ca_split_args *)vargs;
-	if(cp->pgno == ppgno &&
-	   !MVCC_SKIP_CURADJ(dbc, ppgno)) {
-		/* [#8032]
-		   DB_ASSERT(env, !STD_LOCKING(dbc) || cp->lock_mode != DB_LOCK_NG);
-		 */
-		if(args->my_txn != NULL && args->my_txn != dbc->txn)
-			*foundp = 1;
-		if(cp->indx < split_indx) {
-			if(args->cleft)
-				cp->pgno = args->lpgno;
-		}
-		else {
-			cp->pgno = args->rpgno;
-			cp->indx -= split_indx;
+	if(dbc->dbtype != DB_RECNO) {
+		DBC_INTERNAL * cp = dbc->internal;
+		struct __bam_ca_split_args * args = (struct __bam_ca_split_args *)vargs;
+		if(cp->pgno == ppgno && !MVCC_SKIP_CURADJ(dbc, ppgno)) {
+			/* [#8032]
+			   DB_ASSERT(env, !STD_LOCKING(dbc) || cp->lock_mode != DB_LOCK_NG);
+			 */
+			if(args->my_txn != NULL && args->my_txn != dbc->txn)
+				*foundp = 1;
+			if(cp->indx < split_indx) {
+				if(args->cleft)
+					cp->pgno = args->lpgno;
+			}
+			else {
+				cp->pgno = args->rpgno;
+				cp->indx -= split_indx;
+			}
 		}
 	}
 	return 0;
 }
-
 /*
  * __bam_ca_split --
  *	Adjust the cursors when splitting a page.
- *
- * PUBLIC: int __bam_ca_split __P((DBC *,
- * PUBLIC:    db_pgno_t, db_pgno_t, db_pgno_t, uint32, int));
  */
 int __bam_ca_split(DBC * my_dbc, db_pgno_t ppgno, db_pgno_t lpgno, db_pgno_t rpgno, uint32 split_indx, int cleft)
 {

@@ -61,7 +61,7 @@ int TStaticText::setText(const char * s)
 		// Замещаем конструкцию '~c~' на '$c'
 		//
 		SString temp_buf = Text;
-		uint   _p = 0;
+		size_t _p = 0;
 		while(temp_buf.StrChr('~', &_p) && temp_buf.C(_p+1) && temp_buf.C(_p+2) == '~') {
 			char new_item[4];
 			new_item[0] = '&';
@@ -231,10 +231,10 @@ int TButton::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_INITDIALOG:
 			h_wnd = getHandle();
 			EnableWindow(h_wnd, !IsInState(sfDisabled));
-			// @v9.1.11 SetWindowLong(h_wnd, GWL_USERDATA, (long)this);
-			TView::SetWindowProp(h_wnd, GWL_USERDATA, this); // @v9.1.11
-			// @v9.1.11 PrevWindowProc = (WNDPROC)SetWindowLong(h_wnd, GWL_WNDPROC, (long)ButtonDialogProc);
-			PrevWindowProc = (WNDPROC)TView::SetWindowProp(h_wnd, GWL_WNDPROC, ButtonDialogProc);
+			// @v9.1.11 SetWindowLong(h_wnd, GWLP_USERDATA, (long)this);
+			TView::SetWindowProp(h_wnd, GWLP_USERDATA, this); // @v9.1.11
+			// @v9.1.11 PrevWindowProc = (WNDPROC)SetWindowLong(h_wnd, GWLP_WNDPROC, (long)ButtonDialogProc);
+			PrevWindowProc = (WNDPROC)TView::SetWindowProp(h_wnd, GWLP_WNDPROC, ButtonDialogProc);
 			if(BmpID > 0 && TView::GetWindowStyle(h_wnd) & BS_BITMAP) {
 				LoadBitmap(BmpID);
 				SendDlgItemMessage(Parent, Id, BM_SETIMAGE, IMAGE_BITMAP, (long)HBmp);
@@ -668,10 +668,10 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					SendDlgItemMessage(Parent, Id, EM_SETPASSWORDCHAR, DEFAULT_PASSWORD_SYMB, 0);
 				Draw_();
 				HWND h_wnd = getHandle();
-				// @v9.1.11 SetWindowLong(h_wnd, GWL_USERDATA, (long)this);
-				TView::SetWindowProp(h_wnd, GWL_USERDATA, this); // @v9.1.11
-				// @v9.1.11 PrevWindowProc = (WNDPROC)SetWindowLong(h_wnd, GWL_WNDPROC, (long)TInputLine::DlgProc);
-				PrevWindowProc = (WNDPROC)TView::SetWindowProp(h_wnd, GWL_WNDPROC, TInputLine::DlgProc); // @v9.1.11
+				// @v9.1.11 SetWindowLong(h_wnd, GWLP_USERDATA, (long)this);
+				TView::SetWindowProp(h_wnd, GWLP_USERDATA, this); // @v9.1.11
+				// @v9.1.11 PrevWindowProc = (WNDPROC)SetWindowLong(h_wnd, GWLP_WNDPROC, (long)TInputLine::DlgProc);
+				PrevWindowProc = (WNDPROC)TView::SetWindowProp(h_wnd, GWLP_WNDPROC, TInputLine::DlgProc); // @v9.1.11
 				if(TView::GetWindowStyle(h_wnd) & ES_READONLY)
 					Sf |= sfReadOnly;
 			}
@@ -1083,8 +1083,8 @@ TCluster::~TCluster()
 	if(PrevWindowProc)
 		for(int i = 0; i < 33; i++) {
 			HWND   h_wnd = GetDlgItem(Parent, MAKE_BUTTON_ID(Id, i+1));
-			// @v9.1.11 SetWindowLong(h_wnd, GWL_WNDPROC, (long)PrevWindowProc);
-			TView::SetWindowProp(h_wnd, GWL_WNDPROC, PrevWindowProc); // @v9.1.11
+			// @v9.1.11 SetWindowLong(h_wnd, GWLP_WNDPROC, (long)PrevWindowProc);
+			TView::SetWindowProp(h_wnd, GWLP_WNDPROC, PrevWindowProc); // @v9.1.11
 		}
 }
 
@@ -1187,8 +1187,8 @@ int TCluster::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 								}
 								rc_prev = rc_item;
 							}
-							TView::SetWindowProp(h_wnd, GWL_USERDATA, this);
-							WNDPROC prev_proc = (WNDPROC)TView::SetWindowProp(h_wnd, GWL_WNDPROC, ClusterDialogProc);
+							TView::SetWindowProp(h_wnd, GWLP_USERDATA, this);
+							WNDPROC prev_proc = (WNDPROC)TView::SetWindowProp(h_wnd, GWLP_WNDPROC, ClusterDialogProc);
 							SETIFZ(PrevWindowProc, prev_proc);
 							if(Kind == RADIOBUTTONS) {
 								WPARAM state = (i == Value) ? BST_CHECKED : BST_UNCHECKED;
@@ -1647,10 +1647,10 @@ int ComboBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					P_Def->TransmitData(-1, &prev_item_selected);
 					setRange(P_Def->getRecsCount());
 				}
-				// @v9.1.11 SetWindowLong(hcb, GWL_USERDATA, (long)this);
-				TView::SetWindowProp(hcb, GWL_USERDATA, this); // @v9.1.11
-				// @v9.1.11 PrevWindowProc = (WNDPROC)SetWindowLong(hcb, GWL_WNDPROC, (long)ComboBox::DlgProc);
-				PrevWindowProc = (WNDPROC)TView::SetWindowProp(hcb, GWL_WNDPROC, ComboBox::DlgProc); // @v9.1.11
+				// @v9.1.11 SetWindowLong(hcb, GWLP_USERDATA, (long)this);
+				TView::SetWindowProp(hcb, GWLP_USERDATA, this); // @v9.1.11
+				// @v9.1.11 PrevWindowProc = (WNDPROC)SetWindowLong(hcb, GWLP_WNDPROC, (long)ComboBox::DlgProc);
+				PrevWindowProc = (WNDPROC)TView::SetWindowProp(hcb, GWLP_WNDPROC, ComboBox::DlgProc); // @v9.1.11
 				{
 					HBITMAP h_bm = APPL->FetchSystemBitmap(OBM_COMBO);
 					SendMessage(hcb, BM_SETIMAGE, IMAGE_BITMAP, (long)h_bm);
@@ -1981,9 +1981,9 @@ int TImageView::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	if(uMsg == WM_INITDIALOG) {
 		//draw();
 		HWND   h_wnd = getHandle();
-		// @v9.5.6 TView::SetWindowProp(h_wnd, GWL_USERDATA, this);
+		// @v9.5.6 TView::SetWindowProp(h_wnd, GWLP_USERDATA, this);
 		TView::SetWindowUserData(h_wnd, this); // @v9.5.6
-		PrevWindowProc = (WNDPROC)TView::SetWindowProp(h_wnd, GWL_WNDPROC, TImageView::DlgProc);
+		PrevWindowProc = (WNDPROC)TView::SetWindowProp(h_wnd, GWLP_WNDPROC, TImageView::DlgProc);
 	 }
 	 return 1;
 }

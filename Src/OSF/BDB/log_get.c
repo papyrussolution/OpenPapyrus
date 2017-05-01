@@ -7,17 +7,13 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/hmac.h"
-// @v9.5.5 #include "dbinc/log.h"
 
-typedef enum { L_ALREADY, L_ACQUIRED, L_NONE } RLOCK;
+typedef enum { 
+	L_ALREADY, 
+	L_ACQUIRED, 
+	L_NONE 
+} RLOCK;
 
 static int __logc_close_pp(DB_LOGC*, uint32);
 static int __logc_get_pp(DB_LOGC*, DB_LSN*, DBT*, uint32);
@@ -30,12 +26,9 @@ static int __logc_ondisk(DB_LOGC*, DB_LSN*, DB_LSN*, uint32, HDR*, uint8**, int 
 static int __logc_set_maxrec(DB_LOGC*, char *);
 static int __logc_shortread(DB_LOGC*, DB_LSN*, int);
 static int __logc_version_pp(DB_LOGC*, uint32*, uint32);
-
 /*
  * __log_cursor_pp --
  *	ENV->log_cursor
- *
- * PUBLIC: int __log_cursor_pp __P((DB_ENV *, DB_LOGC **, uint32));
  */
 int __log_cursor_pp(DB_ENV * dbenv, DB_LOGC ** logcp, uint32 flags)
 {
@@ -100,8 +93,6 @@ static int __logc_close_pp(DB_LOGC * logc, uint32 flags)
 /*
  * __logc_close --
  *	DB_LOGC->close.
- *
- * PUBLIC: int __logc_close __P((DB_LOGC *));
  */
 int __logc_close(DB_LOGC * logc)
 {

@@ -230,7 +230,7 @@ int SLAPI PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
 		entry.Dt = dt;
 		datefmt(&dt, DATF_DMY, entry.Title);
 		gga.Reset();
-		THROW(BeginGoodsGroupingProcess(&f, &agg));
+		THROW(agg.BeginGoodsGroupingProcess(&f));
 		THROW(gga.ProcessGoodsGrouping(&f, &agg));
 		for(uint i = 0; gga.enumItems(&i, (void**)&e);) {
 			if(oneof3(e->OpID, -1, 10000, 0))
@@ -294,12 +294,12 @@ int SLAPI PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
 		if(!zero || !(f.Flags & OPG_IGNOREZERO))
 			THROW_SL(P_Items->insert(&entry));
 		plusdate(&dt, 1, 0);
-		EndGoodsGroupingProcess(&agg);
+		agg.EndGoodsGroupingProcess();
 		PPWaitPercent(cntr.Increment(), wait_msg);
 	}
 	PPGetWord(PPWORD_TOTAL, 0, total.Title, sizeof(total.Title));
 	THROW_SL(P_Items->insert(&total));
-	EndGoodsGroupingProcess(&agg);
+	agg.EndGoodsGroupingProcess();
 	//THROW(P_Items = MakeGoodsTurnover());
 	Cntr.Init(P_Items->getCount() ? (P_Items->getCount()-1) : 0);
 	CATCH
@@ -582,7 +582,7 @@ int PPALDD_GoodsTurnovr::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_GoodsTurnovr::Destroy()
+void PPALDD_GoodsTurnovr::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(GoodsTrnovr);
 }

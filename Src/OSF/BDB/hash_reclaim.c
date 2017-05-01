@@ -50,7 +50,7 @@ int __ham_reclaim(DB*dbp, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 flags)
 		goto err;
 	return 0;
 err:    
-	if(hcp->hdr != NULL)
+	if(hcp->hdr)
 		__ham_release_meta(dbc);
 	__dbc_close(dbc);
 	return ret;
@@ -72,7 +72,6 @@ int __ham_truncate(DBC*dbc, uint32 * countp)
 	ret = __ham_traverse(dbc, DB_LOCK_WRITE, __db_truncate_callback, &count, 1);
 	if((t_ret = __ham_release_meta(dbc)) != 0 && ret == 0)
 		ret = t_ret;
-	if(countp != NULL)
-		*countp = count;
+	ASSIGN_PTR(countp, count);
 	return ret;
 }

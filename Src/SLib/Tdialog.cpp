@@ -611,7 +611,7 @@ IMPL_HANDLE_EVENT(TDialog)
 		ushort retval = 0;
 		if(H()) {
 			BOOL   is_list_win = FALSE;
-			TView::SetWindowProp(H(), GWL_USERDATA, this);
+			TView::SetWindowProp(H(), GWLP_USERDATA, this);
 			if(APPL->PushModalWindow(this, H())) {
 				setupPosition();
 				InitRect = getRect();

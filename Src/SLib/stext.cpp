@@ -1805,7 +1805,7 @@ int QuotedStringToStr(char **pStr, char * pBuf, int maxBytes, char dStr)
 //
 char * stpcpy(char *to, const char *from)
 {
-	unsigned len = strlen(from);
+	size_t len = strlen(from);
 	memcpy(to, from, len+1);
 	return (to+len);
 }

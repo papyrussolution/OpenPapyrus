@@ -2535,14 +2535,14 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				THROW(vi.GetSecret(secret, sizeof(secret)));
 				r = stricmp(pPassword, secret);
 				memzero(secret, sizeof(secret));
-				THROW_PP(r == 0, PPERR_INVPASSWORD);
+				THROW_PP(r == 0, PPERR_INVUSERORPASSW);
 				// @v9.4.8 is_service_login = 1;
 			}
 			THROW(r = p_ref->SearchName(PPOBJ_USR, &r_lc.User, user_name));
 			if(r < 0) {
 				id = 0;
 				THROW(r = p_ref->EnumItems(PPOBJ_USR, &id));
-				THROW_PP(r < 0, PPERR_INVUSERNAME);
+				THROW_PP(r < 0, PPERR_INVUSERORPASSW);
 				empty_secur_base = 1;
 				r_lc.User = 0;
 				pw[0] = 0;
@@ -2568,7 +2568,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				else
 					pw_is_wrong = 0;
 				memzero(pw, sizeof(pw));
-				THROW_PP(pw_is_wrong == 0, PPERR_INVPASSWORD);
+				THROW_PP(pw_is_wrong == 0, PPERR_INVUSERORPASSW);
 				if(!CheckExtFlag(ECF_SYSSERVICE)) {
 					//
 					// @v7.0.12 Блок перенесен в это место по причине того, что уникальность входа не должна
@@ -2673,7 +2673,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 			// } @v8.6.1
 			if(!(p_dict->GetCapability() & DbProvider::cSQL)) { // @debug
 				if(PPCheckDatabaseChain() == 0) {
-					delay(10000);
+					SDelay(10000);
 					CALLEXCEPT();
 				}
 			}

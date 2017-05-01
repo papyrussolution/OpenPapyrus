@@ -463,7 +463,7 @@ void GpBoundary::Boundary(GpTermEntry * pT, GpGadgets & rGg, const CurvePoints *
 		xtic_textwidth = maxrightlabel - rGg.PlotBounds.xright;
 		if(xtic_textwidth > (int)(term->xmax/4)) {
 			xtic_textwidth = term->xmax/4;
-			int_warn(NO_CARET, "difficulty making room for xtic labels");
+			GpGg.IntWarn(NO_CARET, "difficulty making room for xtic labels");
 		}
 	}
 	/* tics */
@@ -665,7 +665,7 @@ void GpBoundary::Boundary(GpTermEntry * pT, GpGadgets & rGg, const CurvePoints *
 	rGg.P_Clip = &rGg.PlotBounds; /* Set default clipping to the plot boundary */
 	/* Sanity check. FIXME:  Stricter test? Fatal error? */
 	if(rGg.PlotBounds.xright < rGg.PlotBounds.xleft || rGg.PlotBounds.ytop < rGg.PlotBounds.ybot)
-		int_warn(NO_CARET, "Terminal rGg.Canvas area too small to hold plot.\n\t    Check plot boundary and font sizes.");
+		GpGg.IntWarn(NO_CARET, "Terminal rGg.Canvas area too small to hold plot.\n\t    Check plot boundary and font sizes.");
 }
 
 /*}}} */
@@ -917,7 +917,7 @@ void GpBoundary::DoKeyLayout(GpTermEntry * pT, GpGadgets & rGg, legend_key * pKe
 		pT->set_font("");
 	// warn if we had to punt on pKey size calculations
 	if(key_panic)
-		int_warn(NO_CARET, "Warning - difficulty fitting plot titles into pKey");
+		GpGg.IntWarn(NO_CARET, "Warning - difficulty fitting plot titles into pKey");
 }
 
 int find_maxl_keys(const CurvePoints * pPlots, int count, int * kcnt)
@@ -969,13 +969,13 @@ void GpBoundary::DoKeySample(GpTermEntry * pT, GpGadgets & rGg, CurvePoints * pP
 		rGg.MapPosition(pT, pPlot->title_position, &ptXl, &ptYl, "pKey sample");
 		ptXl -=  (pKey->just == GPKEY_LEFT) ? key_text_left : key_text_right;
 	}
-	(*pT->layer)(TERM_LAYER_BEGIN_KEYSAMPLE);
+	pT->_Layer(TERM_LAYER_BEGIN_KEYSAMPLE);
 	if(pKey->textcolor.type == TC_VARIABLE)
 		; /* Draw pKey text in same color as plot */
 	else if(pKey->textcolor.type != TC_DEFAULT)
 		rGg.ApplyPm3DColor(pT, &pKey->textcolor); /* Draw pKey text in same color as pKey rGg.title */
 	else
-		(*pT->linetype)(LT_BLACK); /* Draw pKey text in black */
+		pT->_LineType(LT_BLACK); /* Draw pKey text in black */
 	if(pKey->just == GPKEY_LEFT) {
 		pT->DrawMultiline(ptXl + key_text_left, ptYl, pTitle, LEFT, JUST_CENTRE, 0, pKey->font);
 	}
@@ -1075,7 +1075,7 @@ void GpBoundary::DoKeySample(GpTermEntry * pT, GpGadgets & rGg, CurvePoints * pP
 	 * when drawing a point, but does not restore it. We must wait to
 	 * draw the point sample at the end of do_plot (comment KEY SAMPLES).
 	 */
-	(*pT->layer)(TERM_LAYER_END_KEYSAMPLE);
+	pT->_Layer(TERM_LAYER_END_KEYSAMPLE);
 	/* Restore previous clipping area */
 	rGg.P_Clip = clip_save;
 }
@@ -1088,7 +1088,7 @@ void GpBoundary::DoKeySamplePoint(GpTermEntry * pT, GpGadgets & rGg, CurvePoints
 		rGg.MapPosition(pT, pPlot->title_position, &xl, &yl, "key sample");
 		xl -=  (key->just == GPKEY_LEFT) ? key_text_left : key_text_right;
 	}
-	(pT->layer)(TERM_LAYER_BEGIN_KEYSAMPLE);
+	pT->_Layer(TERM_LAYER_BEGIN_KEYSAMPLE);
 	if(pPlot->plot_style == LINESPOINTS && pPlot->lp_properties.p_interval < 0) {
 		t_colorspec background_fill(TC_LT, LT_BACKGROUND, 0.0);
 		(*pT->set_color)(&background_fill);
@@ -1109,7 +1109,7 @@ void GpBoundary::DoKeySamplePoint(GpTermEntry * pT, GpGadgets & rGg, CurvePoints
 		if(on_page(xl + key_point_offset, yl)) {
 			if(pPlot->lp_properties.p_type == PT_CHARACTER) {
 				rGg.ApplyPm3DColor(pT, &(pPlot->labels->textcolor));
-				(*pT->put_text)(xl + key_point_offset, yl, pPlot->lp_properties.p_char);
+				pT->_PutText(xl + key_point_offset, yl, pPlot->lp_properties.p_char);
 				rGg.ApplyPm3DColor(pT, &(pPlot->lp_properties.pm3d_color));
 			}
 			else {
@@ -1124,7 +1124,7 @@ void GpBoundary::DoKeySamplePoint(GpTermEntry * pT, GpGadgets & rGg, CurvePoints
 			(*pT->point)(xl + key_point_offset, yl, label->lp_properties.p_type);
 		}
 	}
-	(pT->layer)(TERM_LAYER_END_KEYSAMPLE);
+	pT->_Layer(TERM_LAYER_END_KEYSAMPLE);
 }
 //
 // Graph legend is now optionally done in two passes. The first pass calculates
@@ -1157,7 +1157,7 @@ void GpBoundary::DrawKey(GpTermEntry * pT, GpGadgets & rGg, legend_key * pKey, b
 			ignore_enhanced(pKey->title.noenhanced);
 			pT->DrawMultiline(title_anchor, pKey->bounds.ytop - (key_title_extra + KeyEntryHeight)/2, pKey->title.text, pKey->title.pos, JUST_TOP, 0, pKey->title.font ? pKey->title.font : pKey->font);
 			ignore_enhanced(false);
-			(*pT->linetype)(LT_BLACK);
+			pT->_LineType(LT_BLACK);
 		}
 	}
 	if(pKey->box.l_type > LT_NODRAW) {

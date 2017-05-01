@@ -338,7 +338,7 @@ int PPALDD_GoodsStrucList::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_GoodsStrucList::Destroy()
+void PPALDD_GoodsStrucList::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(GoodsStruc);
 }

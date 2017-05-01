@@ -49,8 +49,8 @@
 
 //GpGraphics3D Gp3Gr; // @global
 
-#define f_max(a, b) MAX((a), (b))
-#define f_min(a, b) MIN((a), (b))
+//#define f_max(a, b) MAX((a), (b))
+//#define f_min(a, b) MIN((a), (b))
 #define i_inrange(z, a, b) inrange((z), (a), (b))
 #define apx_eq(x, y) (fabs(x-y) < 0.001)
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
@@ -137,12 +137,12 @@ int GpGraphics::FindMaxlKeys3D(SurfacePoints * plots, int count, int * kcnt)
 		if(this_plot->title && *this_plot->title && !this_plot->title_is_suppressed && !this_plot->title_position) {
 			++cnt;
 			len = estimate_strlen(this_plot->title);
-			if(len > mlen)
+			if(mlen < len)
 				mlen = len;
 		}
 		if(draw_contour && !clabel_onecolor && this_plot->contours && this_plot->plot_style != LABELPOINTS) {
 			len = find_maxl_cntr(this_plot->contours, &cnt);
-			if(len > mlen)
+			if(mlen < len)
 				mlen = len;
 		}
 	}
@@ -152,13 +152,12 @@ int GpGraphics::FindMaxlKeys3D(SurfacePoints * plots, int count, int * kcnt)
 
 static int find_maxl_cntr(gnuplot_contours * contours, int * count)
 {
-	int cnt;
-	int mlen, len;
+	int cnt = 0;
+	int mlen = 0;
 	gnuplot_contours * cntrs = contours;
-	mlen = cnt = 0;
 	while(cntrs) {
 		if(cntrs->isNewLevel) {
-			len = estimate_strlen(cntrs->label) - strspn(cntrs->label, " ");
+			int len = estimate_strlen(cntrs->label) - strspn(cntrs->label, " ");
 			if(len)
 				cnt++;
 			if(len > mlen)
@@ -436,9 +435,9 @@ void GpGadgets::KeySampleLine(GpTermEntry * pT, int xl, int yl)
 	BoundingBox * p_clip_save = P_Clip;
 	/* Clip against Canvas */
 	P_Clip = (pT->flags & TERM_CAN_CLIP) ? 0 : &Canvas;
-	(pT->layer)(TERM_LAYER_BEGIN_KEYSAMPLE);
+	pT->_Layer(TERM_LAYER_BEGIN_KEYSAMPLE);
 	DrawClipLine(term, xl + key_sample_left, yl, xl + key_sample_right, yl);
-	(pT->layer)(TERM_LAYER_END_KEYSAMPLE);
+	pT->_Layer(TERM_LAYER_END_KEYSAMPLE);
 	P_Clip = p_clip_save;
 }
 
@@ -447,10 +446,10 @@ void GpGadgets::KeySamplePoint(GpTermEntry * pT, int xl, int yl, int pointtype)
 	BoundingBox * p_clip_save = P_Clip;
 	// Clip against Canvas 
 	P_Clip = (pT->flags & TERM_CAN_CLIP) ? 0 : &Canvas;
-	(pT->layer)(TERM_LAYER_BEGIN_KEYSAMPLE);
+	pT->_Layer(TERM_LAYER_BEGIN_KEYSAMPLE);
 	if(!ClipPoint(xl + key_point_offset, yl))
 		(*pT->point)(xl + key_point_offset, yl, pointtype);
-	(pT->layer)(TERM_LAYER_END_KEYSAMPLE);
+	pT->_Layer(TERM_LAYER_END_KEYSAMPLE);
 	P_Clip = p_clip_save;
 }
 //
@@ -561,10 +560,10 @@ void GpGadgets::Do3DPlot(GpTermEntry * pT, SurfacePoints * pPlotList, int pcount
 	if(GetZ().Range.low == GetZ().Range.upp)
 		IntErrorNoCaret("z_min3d should not equal z_max3d!");
 	TermStartPlot(pT);
-	(pT->layer)(TERM_LAYER_3DPLOT);
+	pT->_Layer(TERM_LAYER_3DPLOT);
 	screen_ok = false;
 	// Sync point for epslatex text positioning 
-	(pT->layer)(TERM_LAYER_BACKTEXT);
+	pT->_Layer(TERM_LAYER_BACKTEXT);
 	// now compute boundary for plot 
 	Boundary3D(pPlotList, pcount);
 	AxA[FIRST_X_AXIS].SetScaleAndRange(PlotBounds.xleft, PlotBounds.xright);
@@ -712,7 +711,7 @@ void GpGadgets::Do3DPlot(GpTermEntry * pT, SurfacePoints * pPlotList, int pcount
 	PlaceLabels3D(first_label, LAYER_BACK); /* PLACE LABELS */
 	PlaceArrows3D(LAYER_BACK); /* PLACE ARROWS */
 	/* Sync point for epslatex text positioning */
-	(pT->layer)(TERM_LAYER_FRONTTEXT);
+	pT->_Layer(TERM_LAYER_FRONTTEXT);
 	if(hidden3d && draw_surface && !quick) {
 		init_hidden_line_removal();
 		reset_hidden_line_removal();
@@ -724,7 +723,7 @@ void GpGadgets::Do3DPlot(GpTermEntry * pT, SurfacePoints * pPlotList, int pcount
 SECOND_KEY_PASS:
 	/* This tells the Canvas, qt, and svg terminals to restart the plot   */
 	/* count so that p_key titles are in sync with the pPlotList they describe. */
-	(*pT->layer)(TERM_LAYER_RESET_PLOTNO);
+	pT->_Layer(TERM_LAYER_RESET_PLOTNO);
 	/* Key box */
 	if(p_key->visible) {
 		/* In two-pass mode, we blank out the p_key area after the graph	*/
@@ -756,15 +755,15 @@ SECOND_KEY_PASS:
 			else
 				ApplyPm3DColor(pT, &(p_key->textcolor));
 			pT->DrawMultiline(center, p_key->bounds.ytop - (KeyTitleExtra + pT->VChr)/2, p_key->title.text, CENTRE, JUST_TOP, 0, p_key->title.font ? p_key->title.font : p_key->font);
-			(*pT->linetype)(LT_BLACK);
+			pT->_LineType(LT_BLACK);
 		}
 	}
 	// DRAW SURFACES AND CONTOURS 
 	if(!key_pass)
 		if(hidden3d && (hidden3d_layer == LAYER_BACK) && draw_surface && !quick) {
-			(pT->layer)(TERM_LAYER_BEFORE_PLOT);
+			pT->_Layer(TERM_LAYER_BEFORE_PLOT);
 			plot3d_hidden(pPlotList, pcount);
-			(pT->layer)(TERM_LAYER_AFTER_PLOT);
+			pT->_Layer(TERM_LAYER_AFTER_PLOT);
 		}
 
 	/* Set up bookkeeping for the individual p_key titles */
@@ -799,7 +798,7 @@ SECOND_KEY_PASS:
 			if(p_plot->plot_type == NODATA)
 				continue;
 			/* Sync point for start of new curve (used by svg, post, ...) */
-			(pT->layer)(TERM_LAYER_BEFORE_PLOT);
+			pT->_Layer(TERM_LAYER_BEFORE_PLOT);
 			if(!key_pass)
 				if(can_pm3d && PM3D_IMPLICIT == Pm3D.implicit)
 					Pm3DDrawOne(pT, p_plot);
@@ -816,7 +815,7 @@ SECOND_KEY_PASS:
 				if(p_key->textcolor.type != TC_DEFAULT)
 					ApplyPm3DColor(pT, &p_key->textcolor); /* Draw p_key text in same color as p_key title */
 				else
-					(*pT->linetype)(LT_BLACK); /* Draw p_key text in black */
+					pT->_LineType(LT_BLACK); /* Draw p_key text in black */
 				ignore_enhanced(p_plot->title_no_enhanced);
 				KeyText(xl, yl, p_plot->title);
 				ignore_enhanced(false);
@@ -1008,7 +1007,7 @@ SECOND_KEY_PASS:
 				while(cntrs) {
 					if(!clabel_onecolor && cntrs->isNewLevel) {
 						if(p_key->visible && !p_plot->title_is_suppressed && p_plot->plot_style != LABELPOINTS) {
-							(*pT->linetype)(LT_BLACK);
+							pT->_LineType(LT_BLACK);
 							KeyText(xl, yl, cntrs->label);
 						}
 						if(thiscontour_lp_properties.pm3d_color.type == TC_Z)
@@ -1102,7 +1101,7 @@ SECOND_KEY_PASS:
 				}
 			}
 			// Sync point for end of this curve (used by svg, post, ...) 
-			(pT->layer)(TERM_LAYER_AFTER_PLOT);
+			pT->_Layer(TERM_LAYER_AFTER_PLOT);
 		}
 	if(!key_pass)
 		if(pm3d_order_depth) {
@@ -1110,9 +1109,9 @@ SECOND_KEY_PASS:
 		}
 	if(!key_pass)
 		if(hidden3d && (hidden3d_layer == LAYER_FRONT) && draw_surface && !quick) {
-			(pT->layer)(TERM_LAYER_BEFORE_PLOT);
+			pT->_Layer(TERM_LAYER_BEFORE_PLOT);
 			plot3d_hidden(pPlotList, pcount);
-			(pT->layer)(TERM_LAYER_AFTER_PLOT);
+			pT->_Layer(TERM_LAYER_AFTER_PLOT);
 		}
 	/* Draw grid and border.
 	 * The 1st case allows "set border behind" to override hidden3d processing.
@@ -1319,7 +1318,7 @@ void GpGadgets::Plot3DLines(SurfacePoints * plot)
 				    break;
 			    }
 				default:
-				    int_warn(NO_CARET, "Unknown point type in plot3d_lines");
+				    IntWarn(NO_CARET, "Unknown point type in plot3d_lines");
 			}
 			prev = points[i].type;
 		}
@@ -1463,7 +1462,7 @@ void GpGadgets::Plot3DLinesPm3D(SurfacePoints * plot)
 					case UNDEFINED:
 					    break;
 					default:
-					    int_warn(NO_CARET, "Unknown point type in plot3d_lines");
+					    IntWarn(NO_CARET, "Unknown point type in plot3d_lines");
 				}
 				prev = points[i].type;
 			}
@@ -1509,7 +1508,7 @@ void GpGadgets::Plot3DPoints(GpTermEntry * pT, SurfacePoints * plot)
 					/* Print special character rather than drawn symbol */
 					if(plot->lp_properties.p_type == PT_CHARACTER) {
 						ApplyPm3DColor(pT, &(plot->labels->textcolor));
-						(*pT->put_text)(x, y, plot->lp_properties.p_char);
+						pT->_PutText(x, y, plot->lp_properties.p_char);
 					}
 					/* variable point type */
 					if(plot->lp_properties.p_type == PT_VARIABLE) {
@@ -2199,11 +2198,11 @@ void GpGadgets::XTickCallback(GpTermEntry * pT, GpTicCallbackParam * pP/*GpAxis 
 	// Draw full-length grid line
 	Map3DXYZ(pP->Place, xaxis_y, base_z, &v1);
 	if(pP->Style.l_type > LT_NODRAW) {
-		(pT->layer)(TERM_LAYER_BEGIN_GRID);
+		pT->_Layer(TERM_LAYER_BEGIN_GRID);
 		// to save mapping twice, map non-axis y
 		Map3DXYZ(pP->Place, other_end, base_z, &v3);
 		Draw3DLine(pT, &v1, &v3, &pP->Style);
-		(pT->layer)(TERM_LAYER_END_GRID);
+		pT->_Layer(TERM_LAYER_END_GRID);
 	}
 	if((GetX().ticmode & TICS_ON_AXIS) && !(GetY().Flags & GpAxis::fLog) && GetY().InRange(0.0)) {
 		Map3DXYZ(pP->Place, 0.0, base_z, &v1);
@@ -2299,10 +2298,10 @@ void GpGadgets::YTickCallback(GpTermEntry * pT, GpTicCallbackParam * pP /*GpAxis
 	// Draw full-length grid line
 	Map3DXYZ(yaxis_x, pP->Place, base_z, &v1);
 	if(pP->Style.l_type > LT_NODRAW) {
-		(pT->layer)(TERM_LAYER_BEGIN_GRID);
+		pT->_Layer(TERM_LAYER_BEGIN_GRID);
 		Map3DXYZ(other_end, pP->Place, base_z, &v3);
 		Draw3DLine(pT, &v1, &v3, &pP->Style);
-		(pT->layer)(TERM_LAYER_END_GRID);
+		pT->_Layer(TERM_LAYER_END_GRID);
 	}
 	if(GetY().ticmode & TICS_ON_AXIS && !(GetX().Flags & GpAxis::fLog) && GetX().InRange(0.0)) {
 		Map3DXYZ(0.0, pP->Place, base_z, &v1);
@@ -2397,12 +2396,12 @@ void GpGadgets::ZTickCallback(GpTermEntry * pT, GpTicCallbackParam * pP /* GpAxi
 	else
 		Map3DXYZ(zaxis_x, zaxis_y, pP->Place, &v1);
 	if(pP->Style.l_type > LT_NODRAW) {
-		(pT->layer)(TERM_LAYER_BEGIN_GRID);
+		pT->_Layer(TERM_LAYER_BEGIN_GRID);
 		Map3DXYZ(back_x, back_y, pP->Place, &v2);
 		Map3DXYZ(right_x, right_y, pP->Place, &v3);
 		Draw3DLine(pT, &v1, &v2, &pP->Style);
 		Draw3DLine(pT, &v2, &v3, &pP->Style);
-		(pT->layer)(TERM_LAYER_END_GRID);
+		pT->_Layer(TERM_LAYER_END_GRID);
 	}
 	v2.x = v1.x + len / (double)xscaler;
 	v2.y = v1.y;

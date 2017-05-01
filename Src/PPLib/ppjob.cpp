@@ -2879,6 +2879,7 @@ int RFIDDevPrcssr::Run()
 								double amount = 0;
 								ScObj.P_Tbl->GetRest(sc_rec.ID, ZERODATE, &amount);
 								if((amount - price) > 0.0) {
+									TSArray <SCardCore::UpdateRestNotifyEntry> urn_list;
 									SCardCore::OpBlock op_blk;
 									op_blk.SCardID = sc_rec.ID;
 									op_blk.PrevRest = amount;
@@ -2886,7 +2887,8 @@ int RFIDDevPrcssr::Run()
 									op_blk.Flags |= SCardCore::OpBlock::fEdit;
 									getcurdatetime(&op_blk.Dtm);
 									amount -= price;
-									if(ScObj.P_Tbl->PutOpBlk(op_blk, 1) > 0) {
+									if(ScObj.P_Tbl->PutOpBlk(op_blk, &urn_list, 1) > 0) {
+										ScObj.FinishSCardUpdNotifyList(urn_list);
 										msg.Printf((const char*)BeginPlay, amount);
 										rele_count = cp.ReleCount;
 									}
@@ -2925,7 +2927,7 @@ int RFIDDevPrcssr::Run()
 					AddToBadList(&cp);
 			}
 		}
-		delay(500);
+		SDelay(500);
 	}
 	ProcessBadComList();
 	return ok;

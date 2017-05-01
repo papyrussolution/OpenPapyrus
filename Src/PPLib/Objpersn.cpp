@@ -1581,7 +1581,7 @@ int SLAPI PPObjPerson::GetListByRegNumber(PPID regTypeID, PPID kindID, const cha
 	if(r == 0)
 		ok = 0;
 	else if(r < 0) {
-		PPSetError(PPERR_PERSONBYREGNFOUND, msg_buf.Cat(pSerial).CatDiv(':', 1, 1).Cat(pNumber));
+		PPSetError(PPERR_PERSONBYREGNFOUND, msg_buf.Cat(pSerial).CatDivIfNotEmpty(':', 1).Cat(pNumber));
 		ok = -1;
 	}
 	else if(kindID) {
@@ -1598,7 +1598,7 @@ int SLAPI PPObjPerson::GetListByRegNumber(PPID regTypeID, PPID kindID, const cha
 				PPSetError(PPERR_PERSONBYREGNKIND, psn_rec.Name);
 			}
 			else
-				PPSetError(PPERR_PERSONSBYREGNKIND, msg_buf.Cat(pSerial).CatDiv(':', 1, 1).Cat(pNumber));
+				PPSetError(PPERR_PERSONSBYREGNKIND, msg_buf.Cat(pSerial).CatDivIfNotEmpty(':', 1).Cat(pNumber));
 			ok = -1;
 		}
 	}
@@ -3339,7 +3339,7 @@ int SLAPI PPObjPerson::GetSubstText(PPID id, PPID dlvrLocID, SubstParam * pParam
 			if(dlvrLocID) {
 				// @v9.5.5 LocObj.P_Tbl->GetAddress(dlvrLocID, 0, addr_buf);
 				LocObj.GetAddress(dlvrLocID, 0, addr_buf); // @v9.5.5
-				rBuf.CatDiv(';', 2, 1).Cat(addr_buf);
+				rBuf.CatDivIfNotEmpty(';', 2).Cat(addr_buf);
 			}
 		}
 		if(rBuf.Empty())

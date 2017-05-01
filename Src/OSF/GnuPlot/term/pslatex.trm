@@ -406,7 +406,7 @@ static void EPSLATEX_common_init()
 		char * temp = (char*)malloc(strlen(outstr) + 1);
 		if(temp) {
 			strcpy(temp, outstr);
-			term_set_output(temp); /* will free outstr */
+			GpGg.TermSetOutput(term, temp); /* will free outstr */
 			if(temp != outstr) {
 				free(temp);
 				temp = outstr;
@@ -800,7 +800,7 @@ void EPSLATEX_reopen_output(char * ext)
 			/* redirect FILE stream */
 			gppsfile = gpoutfile;
 			gpoutfile = fopen(outstr, "w");
-			int_warn(NO_CARET, "Resetting primary output file to %s,\n\
+			IntWarn(NO_CARET, "Resetting primary output file to %s,\n\
                   PostScript output to %s", outstr, psoutstr);
 			if(!gpoutfile)
 				GpGg.IntErrorNoCaret("--- reopen failed");

@@ -231,7 +231,7 @@ static BOOL CALLBACK BrightViewProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 	switch(uMsg) {
 		case WM_DESTROY:
 			if(p_struc && p_struc->PrevWindowProc) {
-				TView::SetWindowProp(hWnd, GWL_WNDPROC, p_struc->PrevWindowProc);
+				TView::SetWindowProp(hWnd, GWLP_WNDPROC, p_struc->PrevWindowProc);
 			}
 			ZDELETE(p_struc);
 			break;
@@ -281,8 +281,8 @@ PPColorPickerDialog::PPColorPickerDialog() : TDialog(DLG_COLORS)
 	RGBCenter.y = RGB_CENTER_Y;
 	{
 		BrightStruc * p_s = new BrightStruc;
-		//p_s->PrevWindowProc = (WNDPROC)SetWindowLong(GetDlgItem(hWnd, CTL_COLORS_BRIGHTRECT), GWL_WNDPROC, (long)BrightViewProc);
-		p_s->PrevWindowProc = (WNDPROC)TView::SetWindowProp(::GetDlgItem(H(), CTL_COLORS_BRIGHTRECT), GWL_WNDPROC, BrightViewProc);
+		//p_s->PrevWindowProc = (WNDPROC)SetWindowLong(GetDlgItem(hWnd, CTL_COLORS_BRIGHTRECT), GWLP_WNDPROC, (long)BrightViewProc);
+		p_s->PrevWindowProc = (WNDPROC)TView::SetWindowProp(::GetDlgItem(H(), CTL_COLORS_BRIGHTRECT), GWLP_WNDPROC, BrightViewProc);
 		p_s->P_Dlg = this;
 		TView::SetWindowUserData(::GetDlgItem(H(), CTL_COLORS_BRIGHTRECT), p_s);
 	}

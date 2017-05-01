@@ -642,7 +642,7 @@ int GpGadgets::Get3DData(SurfacePoints * pPlot)
 		while((retval = GpDf.DfReadLine(v, MAXDATACOLS)) != DF_EOF) {
 			j = retval;
 			if(j == 0) /* not blank line, but df_readline couldn't parse it */
-				int_warn(NO_CARET, "Bad data on line %d of file %s", GpDf.df_line_number, NZOR(GpDf.df_filename, ""));
+				IntWarn(NO_CARET, "Bad data on line %d of file %s", GpDf.df_line_number, NZOR(GpDf.df_filename, ""));
 			if(j == DF_SECOND_BLANK)
 				break;  /* two blank lines */
 			if(j == DF_FIRST_BLANK) {
@@ -940,7 +940,7 @@ come_here_if_undefined:
 	if(GetX().IsRangeUndef() || GetY().IsRangeUndef() || GetZ().IsRangeUndef()) {
 		// FIXME: Should we set plot type to NODATA? 
 		// But in the case of 'set view map' we may not care about Z 
-		int_warn(NO_CARET, "No usable data in this plot to auto-scale axis range");
+		IntWarn(NO_CARET, "No usable data in this plot to auto-scale axis range");
 	}
 	if(pPlot->num_iso_read <= 1)
 		pPlot->has_grid_topology = false;
@@ -1226,7 +1226,7 @@ void GpGadgets::Eval3DPlots(GpCommand & rC)
 					}
 					p_plot->plot_style = get_style(rC);
 					if((p_plot->plot_type == FUNC3D) && ((p_plot->plot_style & PLOT_STYLE_HAS_ERRORBAR) || (p_plot->plot_style == LABELPOINTS && !draw_contour))) {
-						int_warn(rC.CToken-1, "This style cannot be used to plot a surface defined by a function");
+						IntWarn(rC.CToken-1, "This style cannot be used to plot a surface defined by a function");
 						p_plot->plot_style = POINTSTYLE;
 						p_plot->plot_type = NODATA;
 					}
@@ -1631,7 +1631,7 @@ SKIPPED_EMPTY_FILE:
 				was_definition = false;
 				// Forgive trailing comma on a multi-element plot command
 				if(rC.EndOfCommand() || p_plot == NULL) {
-					int_warn(rC.CToken, "ignoring trailing comma in plot command");
+					IntWarn(rC.CToken, "ignoring trailing comma in plot command");
 					break;
 				}
 				// Check for a sampling range
@@ -1742,7 +1742,7 @@ SKIPPED_EMPTY_FILE:
 			if(p_plot->opt_out_of_contours)
 				continue;
 			if(!p_plot->has_grid_topology) {
-				int_warn(NO_CARET, "Cannot contour non grid data. Please use \"set dgrid3d\".");
+				IntWarn(NO_CARET, "Cannot contour non grid data. Please use \"set dgrid3d\".");
 			}
 			else if(p_plot->plot_type == DATA3D) {
 				p_plot->contours = Contour(p_plot->num_iso_read, p_plot->iso_crvs);

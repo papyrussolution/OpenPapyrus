@@ -153,14 +153,18 @@ int SLAPI memdword(void * p, size_t size, uint32 key, size_t * pOffs)
 #ifndef _WIN32_WCE // {
 uint16 FASTCALL swapw(uint16 w)
 {
+	/* @v9.6.4
 	__asm {
 		mov ax, w
 		xchg al, ah
 	}
+	*/
+	return ((w>>8) | (w<<8)); // @v9.6.4
 }
 
 uint32 FASTCALL swapdw(uint32 dw)
 {
+	/* @v9.6.4
 	__asm {
 		mov eax, dw
 		mov edx, eax
@@ -170,6 +174,8 @@ uint32 FASTCALL swapdw(uint32 dw)
 		shl edx, 16
 		or  eax, edx
 	}
+	*/
+	return (((dw & 0xffff0000U) >> 16) | ((dw & 0x0000ffffU) << 16));
 }
 #endif // } _WIN32_WCE
 

@@ -2400,7 +2400,7 @@ DBQuery * SLAPI PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		int    ord = BIN(Filt.Flags & LotFilt::fOrders);
 		if(ord) {
 			PPLoadString("orders", temp_buf);
-			sub_title.CatDiv('-', 1, 1).Cat(temp_buf);
+			sub_title.CatDivIfNotEmpty('-', 1).Cat(temp_buf);
 		}
 		if(Filt.ParentLotID) {
 			SString code;
@@ -2414,10 +2414,10 @@ DBQuery * SLAPI PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		else {
 			if(LocList.getSingle()) {
 				GetLocationName(LocList.getSingle(), temp_buf);
-				sub_title.CatDiv('-', 1, 1).Cat(temp_buf);
+				sub_title.CatDivIfNotEmpty('-', 1).Cat(temp_buf);
 			}
 			if(Filt.GoodsID) {
-				sub_title.CatDiv('-', 1, 1).Cat(GetGoodsName(Filt.GoodsID, temp_buf));
+				sub_title.CatDivIfNotEmpty('-', 1).Cat(GetGoodsName(Filt.GoodsID, temp_buf));
 			}
 			{
 				const uint sc = SupplList.GetCount();
@@ -2425,17 +2425,17 @@ DBQuery * SLAPI PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 					SString ar_buf;
 					for(uint i = 0; i < sc; i++) {
 						GetArticleName(SupplList.Get().get(i), temp_buf);
-						ar_buf.CatDiv(';', 2, 1).Cat(temp_buf);
+						ar_buf.CatDivIfNotEmpty(';', 2).Cat(temp_buf);
 						if(ar_buf.Len() > 64 && i < sc-1) {
 							ar_buf.CatCharN('.', 2);
 							break;
 						}
 					}
-					sub_title.CatDiv('-', 1, 1).Cat(ar_buf);
+					sub_title.CatDivIfNotEmpty('-', 1).Cat(ar_buf);
 				}
 			}
 			if(Filt.QCertID) {
-				sub_title.CatDiv('-', 1, 1);
+				sub_title.CatDivIfNotEmpty('-', 1);
 				GetObjectName(PPOBJ_QCERT, Filt.QCertID, sub_title, 1);
 			}
 		}
@@ -2741,7 +2741,7 @@ int PPALDD_Lots::InitData(PPFilt & rFilt, long rsrv)
 	H.FltExpiryEnd  = p_filt->ExpiryPrd.upp;
 	H.OperLow       = p_filt->Operation.low;
 	H.OperUpp       = p_filt->Operation.upp;
-	H.IsOper        = (H.OperLow != 0 || H.OperUpp != 0);
+	H.IsOper        = (H.OperLow || H.OperUpp);
 	H.FltFlags      = p_filt->Flags;
 	H.fWithoutQCert = BIN(p_filt->Flags & LotFilt::fWithoutQCert);
 	H.fOrders       = BIN(p_filt->Flags & LotFilt::fOrders);
@@ -2780,7 +2780,7 @@ int PPALDD_Lots::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_Lots::Destroy()
+void PPALDD_Lots::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(Lot);
 }

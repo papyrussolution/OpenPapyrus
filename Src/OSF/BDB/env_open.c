@@ -7,16 +7,9 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/txn.h"
 
-static int __env_open_arg __P((DB_ENV*, uint32));
+static int __env_open_arg(DB_ENV *, uint32);
 static int __file_handle_cleanup(ENV *);
 /*
  * db_version --

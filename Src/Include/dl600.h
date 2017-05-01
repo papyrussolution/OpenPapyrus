@@ -1,5 +1,5 @@
 // DL600.H
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2015, 2016
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2015, 2016б 2017
 //
 #ifndef __DL600_H
 #define __DL600_H
@@ -620,9 +620,9 @@ public:
 		uint   Op;
 		DLSYMBID Typ;
 	};
-	int    FASTCALL Init(int kind = 0);
-	int    FASTCALL Init(const CtmExprConst & c);
-	int    FASTCALL Init(const CtmVar & v);
+	void   FASTCALL Init(int kind = 0);
+	void   FASTCALL Init(const CtmExprConst & c);
+	void   FASTCALL Init(const CtmVar & v);
 	int    InitUnaryOp(uint op, CtmExpr & a);
 	int    InitBinaryOp(uint op, CtmExpr & a1, CtmExpr & a2);
 	int    InitTypeConversion(CtmExpr & a, DLSYMBID toType);
@@ -642,7 +642,7 @@ public:
 	int    Pack(SString & rBuf) const;
 	int    Unpack(SStrScan &);
 	int    GetKind() const { return Kind; }
-	int    FASTCALL SetType(DLSYMBID typeID);
+	void   FASTCALL SetType(DLSYMBID typeID);
 	DLSYMBID GetOrgTypeID() const { return TypID; }
 	DLSYMBID GetTypeID() const;
 	int    FASTCALL SetImplicitCast(DLSYMBID toTypID);
@@ -1123,26 +1123,16 @@ typedef long PPIterID;
 #define GETISARY(typ)    ((typ)&0x0080)
 
 struct PPFilt {
-	PPFilt()
-	{
-		ID = 0;
-		Ptr = 0;
-	}
+	PPFilt();
+	
 	long   ID;
 	void * Ptr;
 };
 
 struct PView {
-	PView(long id)
-	{
-		ID = id;
-		Ptr = 0;
-	}
-	PView(void * ptr)
-	{
-		ID = 0;
-		Ptr = ptr;
-	}
+	PView(long id);
+	PView(void * ptr);
+
 	long   ID;
 	void * Ptr;
 };
@@ -1179,9 +1169,9 @@ public:
 	//   >0 - функци€ отработала успешно.
 	//    0 - ошибка.
 	//
-	virtual int Set(long iterId, int commit);
-	virtual int Destroy();
-	virtual int EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS);
+	virtual int  Set(long iterId, int commit);
+	virtual void Destroy(); // @v9.6.4 int-->void
+	virtual int  EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS);
 	const  DlScope * GetData() const
 	{
 		return P_Data;
@@ -1359,8 +1349,7 @@ extern "C" typedef SCoClass * (*FN_DL6CLS_FACTORY)(const DlContext *, const DlSc
 		delete (PPView##ViewTypNam *)Extra[0].Ptr;  \
 		Extra[0].Ptr = 0;                    \
 	}                                        \
-	Extra[1].Ptr = 0;                        \
-	return 1;
+	Extra[1].Ptr = 0; /* @v9.6.4 return 1; */
 
 #define INIT_PPVIEW_ALDD_ITER(ViewTypNam) \
 	PPView##ViewTypNam * p_v = (PPView##ViewTypNam *)(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr); \
@@ -1505,7 +1494,7 @@ int Use001(); // @v5.4.5, чтобы линковались модули с коклассами
 // ћакроопределени€, используемые дл€ описани€ таблиц баз данных //
 //
 #define DBTABLE_CONSTRUCTOR(tbl, firstField) \
-	tbl##Tbl::tbl##Tbl(const char * pFileName, int openMode) : DBTable(#tbl, pFileName, &firstField, &data, openMode) {}
+	tbl##Tbl::tbl##Tbl(const char * pFileName/*, int openMode*/) : DBTable(#tbl, pFileName, &firstField, &data, /*openMode*/omNormal) {}
 
 #ifdef DL600C // {
 //

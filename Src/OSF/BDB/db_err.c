@@ -45,8 +45,6 @@ int __db_fcchk(ENV * env, const char * name, uint32 flags, uint32 flag1, uint32 
 /*
  * __db_ferr --
  *	Common flag errors.
- *
- * PUBLIC: int __db_ferr __P((const ENV *, const char *, int));
  */
 int __db_ferr(const ENV * env, const char * name, int iscombo)
 {

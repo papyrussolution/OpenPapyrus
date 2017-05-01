@@ -865,13 +865,11 @@ int SLAPI PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKi
 								SCardTbl::Rec sc_rec;
 								THROW(P_ScObj->Search(sc_id, &sc_rec) > 0);
 								THROW(crret = P_ScObj->CheckRestrictions(&sc_rec, 0, getcurdatetime_())); // @v7.8.2
-								// @v7.8.7 {
 								if(crret == 2) {
 									if(P_ScObj->ActivateRec(&sc_rec) > 0) {
 										THROW(P_ScObj->P_Tbl->Update(sc_rec.ID, &sc_rec, 0));
 									}
 								}
-								// } @v7.8.7
 								scst = P_ScObj->GetSeriesType(sc_rec.SeriesID);
 								THROW_PP_S(oneof2(scst, scstCredit, scstBonus), PPERR_SCARDMUSTBECRDBNS, sc_rec.Code);
 								{
@@ -950,7 +948,7 @@ int SLAPI PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKi
 										ob.SCardID = sc_rec.ID;
 										ob.LinkOi = oi;
 										ob.Amount = value;
-										THROW(P_ScObj->P_Tbl->PutOpBlk(ob, 0));
+										THROW(P_ScObj->P_Tbl->PutOpBlk(ob, 0, 0));
 										pPack->Otb.SCardID = sc_rec.ID;
 										pPack->Otb.SCardWrOffAmount = -value;
 										pPack->Otb.SCardRest = rest+value;
@@ -2063,11 +2061,10 @@ int PPALDD_PsnEventItem::NextIteration(PPIterID iterId, long rsrv)
 	return (r > 0) ? DlRtm::NextIteration(iterId, rsrv) : r;
 }
 
-int PPALDD_PsnEventItem::Destroy()
+void PPALDD_PsnEventItem::Destroy()
 {
 	Extra[0].Ptr = 0;
 	Extra[1].Ptr = 0;
-	return 1;
 }
 //
 //

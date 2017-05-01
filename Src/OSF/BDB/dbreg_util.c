@@ -7,24 +7,12 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
-// @v9.5.5 #include "dbinc/fop.h"
-// @v9.5.5 #include "dbinc/txn.h"
 
 static int __dbreg_check_master __P((ENV*, uint8*, char *));
-
 /*
  * __dbreg_add_dbentry --
  *	Adds a DB entry to the dbreg DB entry table.
- *
- * PUBLIC: int __dbreg_add_dbentry __P((ENV *, DB_LOG *, DB *, int32));
  */
 int __dbreg_add_dbentry(ENV * env, DB_LOG * dblp, DB * dbp, int32 ndx)
 {

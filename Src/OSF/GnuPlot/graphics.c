@@ -606,7 +606,7 @@ SECOND_KEY_PASS:
 				    break;
 				case PM3DSURFACE:
 				case SURFACEGRID:
-				    int_warn(NO_CARET, "Can't use pm3d or surface for 2d plots");
+				    IntWarn(NO_CARET, "Can't use pm3d or surface for 2d plots");
 				    break;
 				case LABELPOINTS:
 				    PlaceLabels(p_terminal, p_plot->labels->next, LAYER_PLOTLABELS, true);
@@ -769,22 +769,22 @@ void GpGadgets::PlotLines(GpTermEntry * pT, CurvePoints * pPlot)
 					if(pPlot->points[i].type == UNDEFINED)
 						break;
 					if(prev == INRANGE) {
-						(*pT->vector)(x, y);
+						pT->_Vector(x, y);
 					}
 					else if(prev == OUTRANGE) {
 						// from outrange to inrange
 						if(!ClipLines1) {
-							(*pT->move)(x, y);
+							pT->_Move(x, y);
 						}
 						else {
 							EdgeIntersect(pPlot->points, i, &ex, &ey);
-							(*pT->move)(MapX(ex), MapY(ey));
-							(*pT->vector)(x, y);
+							pT->_Move(MapX(ex), MapY(ey));
+							pT->_Vector(x, y);
 						}
 					}
 					else { /* prev == UNDEFINED */
-						(*pT->move)(x, y);
-						(*pT->vector)(x, y);
+						pT->_Move(x, y);
+						pT->_Vector(x, y);
 					}
 					break;
 				}
@@ -793,15 +793,15 @@ void GpGadgets::PlotLines(GpTermEntry * pT, CurvePoints * pPlot)
 						// from inrange to outrange
 						if(ClipLines1) {
 							EdgeIntersect(pPlot->points, i, &ex, &ey);
-							(*pT->vector)(MapX(ex), MapY(ey));
+							pT->_Vector(MapX(ex), MapY(ey));
 						}
 					}
 					else if(prev == OUTRANGE) {
 						// from outrange to outrange
 						if(ClipLines2) {
 							if(TwoEdgeIntersect(pPlot->points, i, lx, ly)) {
-								(*pT->move)(MapX(lx[0]), MapY(ly[0]));
-								(*pT->vector)(MapX(lx[1]), MapY(ly[1]));
+								pT->_Move(MapX(lx[0]), MapY(ly[0]));
+								pT->_Vector(MapX(lx[1]), MapY(ly[1]));
 							}
 						}
 					}
@@ -1610,11 +1610,11 @@ void GpGadgets::PlotBoxes(GpTermEntry *pT, CurvePoints * pPlot, int xAxisY)
 			    }
 				{
 					newpath(pT);
-					(*pT->move)(xl, yb);
-					(*pT->vector)(xl, yt);
-					(*pT->vector)(xr, yt);
-					(*pT->vector)(xr, yb);
-					(*pT->vector)(xl, yb);
+					pT->_Move(xl, yb);
+					pT->_Vector(xl, yt);
+					pT->_Vector(xr, yt);
+					pT->_Vector(xr, yb);
+					pT->_Vector(xl, yb);
 					closepath(pT);
 				}
 			    if(pT->fillbox && pPlot->fill_properties.border_color.type != TC_DEFAULT) {
@@ -1702,7 +1702,7 @@ void GpGadgets::PlotPoints(GpTermEntry * pT, CurvePoints * pPlot)
 				// Print special character rather than drawn symbol 
 				if(pointtype == PT_CHARACTER) {
 					ApplyPm3DColor(pT, &(pPlot->labels->textcolor));
-					(*pT->put_text)(x, y, pPlot->lp_properties.p_char);
+					pT->_PutText(x, y, pPlot->lp_properties.p_char);
 				}
 				// The normal case 
 				else if(pointtype >= -1)
@@ -1978,19 +1978,19 @@ void GpGadgets::PlotFBars(GpTermEntry * pT, CurvePoints * pPlot)
 					/* variable color read from extra data column. June 2010 */
 					check_for_variable_color(pPlot, &pPlot->varcolor[i]);
 					/* by here everything has been mapped */
-					(*pT->move)(xM, ylowM);
-					(*pT->vector)(xM, yhighM); /* draw the main bar */
+					pT->_Move(xM, ylowM);
+					pT->_Vector(xM, yhighM); /* draw the main bar */
 					/* draw the open tic */
-					(*pT->move)((uint)(xM - BarSize * tic), MapY(yopen));
-					(*pT->vector)(xM, MapY(yopen));
+					pT->_Move((uint)(xM - BarSize * tic), MapY(yopen));
+					pT->_Vector(xM, MapY(yopen));
 					/* draw the close tic */
-					(*pT->move)((uint)(xM + BarSize * tic), MapY(yclose));
-					(*pT->vector)(xM, MapY(yclose));
+					pT->_Move((uint)(xM + BarSize * tic), MapY(yclose));
+					pT->_Vector(xM, MapY(yclose));
 					/* Draw a bar at the median (stored in xhigh) */
 					if(pPlot->plot_style == BOXPLOT) {
 						uint ymedian = MapY(pPlot->points[i].xhigh);
-						(*pT->move)((uint)(xM - BarSize * tic), ymedian);
-						(*pT->vector)((uint)(xM + BarSize * tic), ymedian);
+						pT->_Move((uint)(xM - BarSize * tic), ymedian);
+						pT->_Vector((uint)(xM + BarSize * tic), ymedian);
 					}
 				}
 			}
@@ -2144,39 +2144,39 @@ void GpGadgets::PlotCBars(GpTermEntry * pT, CurvePoints * pPlot)
 				//
 				if(!skip_box) {
 					newpath(pT);
-					(*pT->move)(xlowM, MapY(yopen));
-					(*pT->vector)(xhighM, MapY(yopen));
-					(*pT->vector)(xhighM, MapY(yclose));
-					(*pT->vector)(xlowM, MapY(yclose));
-					(*pT->vector)(xlowM, MapY(yopen));
+					pT->_Move(xlowM, MapY(yopen));
+					pT->_Vector(xhighM, MapY(yopen));
+					pT->_Vector(xhighM, MapY(yclose));
+					pT->_Vector(xlowM, MapY(yclose));
+					pT->_Vector(xlowM, MapY(yopen));
 					closepath(pT);
 				}
 				// BOXPLOT wants a median line also, which is stored in xhigh
 				if(pPlot->plot_style == BOXPLOT) {
 					int ymedianM = MapY(pPlot->points[i].xhigh);
-					(*pT->move)(xlowM,  ymedianM);
-					(*pT->vector)(xhighM, ymedianM);
+					pT->_Move(xlowM,  ymedianM);
+					pT->_Vector(xhighM, ymedianM);
 				}
 				/* Through 4.2 gnuplot would indicate (open > close) by drawing     */
 				/* three vertical bars.  Now we use solid fill.  But if the current */
 				/* terminal does not support filled boxes, fall back to the old way */
 				if((yopen > yclose) && !(pT->fillbox)) {
-					(*pT->move)(xM, ymin);
-					(*pT->vector)(xM, ymax);
-					(*pT->move)( (xM + xlowM) / 2, ymin);
-					(*pT->vector)( (xM + xlowM) / 2, ymax);
-					(*pT->move)( (xM + xhighM) / 2, ymin);
-					(*pT->vector)( (xM + xhighM) / 2, ymax);
+					pT->_Move(xM, ymin);
+					pT->_Vector(xM, ymax);
+					pT->_Move( (xM + xlowM) / 2, ymin);
+					pT->_Vector( (xM + xlowM) / 2, ymax);
+					pT->_Move( (xM + xhighM) / 2, ymin);
+					pT->_Vector( (xM + xhighM) / 2, ymax);
 				}
 				// Error bars can now have their own line style
 				if((BarLp.flags & LP_ERRORBAR_SET) != 0) {
 					ApplyLpProperties(pT, &BarLp);
 				}
 				// Draw whiskers
-				(*pT->move)(xM, ylowM);
-				(*pT->vector)(xM, ymin);
-				(*pT->move)(xM, ymax);
-				(*pT->vector)(xM, yhighM);
+				pT->_Move(xM, ylowM);
+				pT->_Vector(xM, ymin);
+				pT->_Move(xM, ymax);
+				pT->_Vector(xM, yhighM);
 				// Some users prefer bars at the end of the whiskers
 				if(pPlot->plot_style == BOXPLOT ||  pPlot->arrow_properties.head == BOTH_HEADS) {
 					uint d;
@@ -2188,12 +2188,12 @@ void GpGadgets::PlotCBars(GpTermEntry * pT, CurvePoints * pPlot)
 						d = (frac <= 0) ? 0 : (uint)((xhighM-xlowM)*(1.-frac)/2.0);
 					}
 					if(high_inrange) {
-						(*pT->move)(xlowM+d, yhighM);
-						(*pT->vector)(xhighM-d, yhighM);
+						pT->_Move(xlowM+d, yhighM);
+						pT->_Vector(xhighM-d, yhighM);
 					}
 					if(low_inrange) {
-						(*pT->move)(xlowM+d, ylowM);
-						(*pT->vector)(xhighM-d, ylowM);
+						pT->_Move(xlowM+d, ylowM);
+						pT->_Vector(xhighM-d, ylowM);
 					}
 				}
 				prev = pPlot->points[i].type;
@@ -2738,7 +2738,7 @@ void GpGadgets::XTick2D_Callback(GpTermEntry * pT, GpTicCallbackParam * pP)
 	}
 #undef MINIMUM_SEPARATION
 	if(pP->Style.l_type > LT_NODRAW) {
-		(pT->layer)(TERM_LAYER_BEGIN_GRID);
+		pT->_Layer(TERM_LAYER_BEGIN_GRID);
 		ApplyLpProperties(pT, &pP->Style);
 		if(polar_grid_angle) {
 			double x = pP->Place;
@@ -2772,29 +2772,29 @@ void GpGadgets::XTick2D_Callback(GpTermEntry * pT, GpTicCallbackParam * pP)
 			legend_key * key = &keyT;
 			if(key->visible && x < key->bounds.xright && x > key->bounds.xleft && key->bounds.ytop > PlotBounds.ybot && key->bounds.ybot < PlotBounds.ytop) {
 				if(key->bounds.ybot > PlotBounds.ybot) {
-					(*pT->move)(x, PlotBounds.ybot);
-					(*pT->vector)(x, key->bounds.ybot);
+					pT->_Move(x, PlotBounds.ybot);
+					pT->_Vector(x, key->bounds.ybot);
 				}
 				if(key->bounds.ytop < PlotBounds.ytop) {
-					(*pT->move)(x, key->bounds.ytop);
-					(*pT->vector)(x, PlotBounds.ytop);
+					pT->_Move(x, key->bounds.ytop);
+					pT->_Vector(x, PlotBounds.ytop);
 				}
 			}
 			else {
-				(*pT->move)(x, PlotBounds.ybot);
-				(*pT->vector)(x, PlotBounds.ytop);
+				pT->_Move(x, PlotBounds.ybot);
+				pT->_Vector(x, PlotBounds.ytop);
 			}
 		}
 		ApplyLpProperties(pT, &BorderLp); /* border linetype */
-		(pT->layer)(TERM_LAYER_END_GRID);
+		pT->_Layer(TERM_LAYER_END_GRID);
 	}
 	// we precomputed tic posn and text posn in global vars
 	if(x >= P_Clip->xleft && x <= P_Clip->xright) {
-		(*pT->move)(x, TicStart);
-		(*pT->vector)(x, TicStart + ticsize);
+		pT->_Move(x, TicStart);
+		pT->_Vector(x, TicStart + ticsize);
 		if(TicMirror >= 0) {
-			(*pT->move)(x, TicMirror);
-			(*pT->vector)(x, TicMirror - ticsize);
+			pT->_Move(x, TicMirror);
+			pT->_Vector(x, TicMirror - ticsize);
 		}
 		if(pP->P_Text) {
 			// get offset 
@@ -2834,7 +2834,7 @@ void GpGadgets::YTick2D_Callback(GpTermEntry * pT, GpTicCallbackParam * pP)
 	}
 #undef MINIMUM_SEPARATION
 	if(pP->Style.l_type > LT_NODRAW) {
-		(pT->layer)(TERM_LAYER_BEGIN_GRID);
+		pT->_Layer(TERM_LAYER_BEGIN_GRID);
 		ApplyLpProperties(pT, &pP->Style);
 		if(polar_grid_angle) {
 			double x = 0;
@@ -2863,28 +2863,28 @@ void GpGadgets::YTick2D_Callback(GpTermEntry * pT, GpTicCallbackParam * pP)
 			if(key->visible && y < key->bounds.ytop && y > key->bounds.ybot
 			    && key->bounds.xleft < PlotBounds.xright && key->bounds.xright > PlotBounds.xleft) {
 				if(key->bounds.xleft > PlotBounds.xleft) {
-					(*pT->move)(PlotBounds.xleft, y);
-					(*pT->vector)(key->bounds.xleft, y);
+					pT->_Move(PlotBounds.xleft, y);
+					pT->_Vector(key->bounds.xleft, y);
 				}
 				if(key->bounds.xright < PlotBounds.xright) {
-					(*pT->move)(key->bounds.xright, y);
-					(*pT->vector)(PlotBounds.xright, y);
+					pT->_Move(key->bounds.xright, y);
+					pT->_Vector(PlotBounds.xright, y);
 				}
 			}
 			else {
-				(*pT->move)(PlotBounds.xleft, y);
-				(*pT->vector)(PlotBounds.xright, y);
+				pT->_Move(PlotBounds.xleft, y);
+				pT->_Vector(PlotBounds.xright, y);
 			}
 		}
 		ApplyLpProperties(pT, &BorderLp); /* border linetype */
-		(pT->layer)(TERM_LAYER_END_GRID);
+		pT->_Layer(TERM_LAYER_END_GRID);
 	}
 	// we precomputed tic posn and text posn
-	(*pT->move)(TicStart, y);
-	(*pT->vector)(TicStart + ticsize, y);
+	pT->_Move(TicStart, y);
+	pT->_Vector(TicStart + ticsize, y);
 	if(TicMirror >= 0) {
-		(*pT->move)(TicMirror, y);
-		(*pT->vector)(TicMirror - ticsize, y);
+		pT->_Move(TicMirror, y);
+		pT->_Vector(TicMirror - ticsize, y);
 	}
 	if(pP->P_Text) {
 		// get offset 
@@ -3050,66 +3050,66 @@ void GpGadgets::MapPositionR(const GpPosition & rPos, double * pX, double * pY, 
 void GpGadgets::PlotBorder(GpTermEntry * pT)
 {
 	int min, max;
-	(pT->layer)(TERM_LAYER_BEGIN_BORDER);
+	pT->_Layer(TERM_LAYER_BEGIN_BORDER);
 	ApplyLpProperties(pT, &BorderLp); // border linetype 
 	if((DrawBorder & 15) == 15)
 		newpath(pT);
-	(pT->move)(PlotBounds.xleft, PlotBounds.ytop);
+	pT->_Move(PlotBounds.xleft, PlotBounds.ytop);
 	if((DrawBorder & WEST) && AxA[FIRST_Y_AXIS].ticdef.rangelimited) {
 		max = Map(FIRST_Y_AXIS, AxA[FIRST_Y_AXIS].DataRange.upp);
 		min = Map(FIRST_Y_AXIS, AxA[FIRST_Y_AXIS].DataRange.low);
-		(pT->move)(PlotBounds.xleft, max);
-		(pT->vector)(PlotBounds.xleft, min);
-		(pT->move)(PlotBounds.xleft, PlotBounds.ybot);
+		pT->_Move(PlotBounds.xleft, max);
+		pT->_Vector(PlotBounds.xleft, min);
+		pT->_Move(PlotBounds.xleft, PlotBounds.ybot);
 	}
 	else if(DrawBorder & WEST) {
-		(pT->vector)(PlotBounds.xleft, PlotBounds.ybot);
+		pT->_Vector(PlotBounds.xleft, PlotBounds.ybot);
 	}
 	else {
-		(pT->move)(PlotBounds.xleft, PlotBounds.ybot);
+		pT->_Move(PlotBounds.xleft, PlotBounds.ybot);
 	}
 	if((DrawBorder & SOUTH) && AxA[FIRST_X_AXIS].ticdef.rangelimited) {
 		max = Map(FIRST_X_AXIS, AxA[FIRST_X_AXIS].DataRange.upp);
 		min = Map(FIRST_X_AXIS, AxA[FIRST_X_AXIS].DataRange.low);
-		(pT->move)(min, PlotBounds.ybot);
-		(pT->vector)(max, PlotBounds.ybot);
-		(pT->move)(PlotBounds.xright, PlotBounds.ybot);
+		pT->_Move(min, PlotBounds.ybot);
+		pT->_Vector(max, PlotBounds.ybot);
+		pT->_Move(PlotBounds.xright, PlotBounds.ybot);
 	}
 	else if(DrawBorder & SOUTH) {
-		(pT->vector)(PlotBounds.xright, PlotBounds.ybot);
+		pT->_Vector(PlotBounds.xright, PlotBounds.ybot);
 	}
 	else {
-		(pT->move)(PlotBounds.xright, PlotBounds.ybot);
+		pT->_Move(PlotBounds.xright, PlotBounds.ybot);
 	}
 	if((DrawBorder & EAST) && AxA[SECOND_Y_AXIS].ticdef.rangelimited) {
 		max = Map(SECOND_Y_AXIS, AxA[SECOND_Y_AXIS].DataRange.upp);
 		min = Map(SECOND_Y_AXIS, AxA[SECOND_Y_AXIS].DataRange.low);
-		(pT->move)(PlotBounds.xright, max);
-		(pT->vector)(PlotBounds.xright, min);
-		(pT->move)(PlotBounds.xright, PlotBounds.ybot);
+		pT->_Move(PlotBounds.xright, max);
+		pT->_Vector(PlotBounds.xright, min);
+		pT->_Move(PlotBounds.xright, PlotBounds.ybot);
 	}
 	else if(DrawBorder & EAST) {
-		(pT->vector)(PlotBounds.xright, PlotBounds.ytop);
+		pT->_Vector(PlotBounds.xright, PlotBounds.ytop);
 	}
 	else {
-		(pT->move)(PlotBounds.xright, PlotBounds.ytop);
+		pT->_Move(PlotBounds.xright, PlotBounds.ytop);
 	}
 	if((DrawBorder & NORTH) && AxA[SECOND_X_AXIS].ticdef.rangelimited) {
 		max = Map(SECOND_X_AXIS, AxA[SECOND_X_AXIS].DataRange.upp);
 		min = Map(SECOND_X_AXIS, AxA[SECOND_X_AXIS].DataRange.low);
-		(pT->move)(min, PlotBounds.ytop);
-		(pT->vector)(max, PlotBounds.ytop);
-		(pT->move)(PlotBounds.xright, PlotBounds.ytop);
+		pT->_Move(min, PlotBounds.ytop);
+		pT->_Vector(max, PlotBounds.ytop);
+		pT->_Move(PlotBounds.xright, PlotBounds.ytop);
 	}
 	else if(DrawBorder & NORTH) {
-		(pT->vector)(PlotBounds.xleft, PlotBounds.ytop);
+		pT->_Vector(PlotBounds.xleft, PlotBounds.ytop);
 	}
 	else {
-		(pT->move)(PlotBounds.xleft, PlotBounds.ytop);
+		pT->_Move(PlotBounds.xleft, PlotBounds.ytop);
 	}
 	if((DrawBorder & 15) == 15)
 		closepath(pT);
-	(pT->layer)(TERM_LAYER_END_BORDER);
+	pT->_Layer(TERM_LAYER_END_BORDER);
 }
 
 void init_histogram(histogram_style * histogram, GpTextLabel * title)
@@ -3277,7 +3277,7 @@ void GpGadgets::AttachTitleToPlot(GpTermEntry * pT, CurvePoints * pPlot, legend_
 			else if(pKey->textcolor.type != TC_DEFAULT)
 				ApplyPm3DColor(pT, &pKey->textcolor); /* Draw pKey text in same color as pKey title */
 			else
-				(*pT->linetype)(LT_BLACK); /* Draw pKey text in black */
+				pT->_LineType(LT_BLACK); /* Draw pKey text in black */
 			pT->DrawMultiline(x, y, pPlot->title, (pPlot->title_position->x > 0) ? LEFT : RIGHT, JUST_TOP, 0, pKey->font);
 		}
 	}
@@ -3373,11 +3373,11 @@ void GpGadgets::DoRectangle(GpTermEntry * pT, int dimensions, t_object * pObj, f
 		// Now the border
 		if(NeedFillBorder(pT, pFillStyle)) {
 			newpath(pT);
-			(*pT->move)(x, y);
-			(*pT->vector)(x, y+h);
-			(*pT->vector)(x+w, y+h);
-			(*pT->vector)(x+w, y);
-			(*pT->vector)(x, y);
+			pT->_Move(x, y);
+			pT->_Vector(x, y+h);
+			pT->_Vector(x+w, y+h);
+			pT->_Vector(x+w, y);
+			pT->_Vector(x, y);
 			closepath(pT);
 		}
 	}
@@ -3618,15 +3618,15 @@ void GpGadgets::ProcessImage(GpTermEntry * pT, void * pPlot, t_procimg_action ac
 		image_z_axis = ((CurvePoints*)pPlot)->z_axis;
 	}
 	if(p_count < 1) {
-		int_warn(NO_CARET, "No p_pts (visible or invisible) to pPlot.\n\n");
+		IntWarn(NO_CARET, "No p_pts (visible or invisible) to pPlot.\n\n");
 		return;
 	}
 	if(p_count < 4) {
-		int_warn(NO_CARET, "Image grid must be at least 4 p_pts (2 x 2).\n\n");
+		IntWarn(NO_CARET, "Image grid must be at least 4 p_pts (2 x 2).\n\n");
 		return;
 	}
 	if(project_points && ((GetX().Flags & GpAxis::fLog) || (GetY().Flags & GpAxis::fLog) || (GetZ().Flags & GpAxis::fLog))) {
-		int_warn(NO_CARET, "Log scaling of 3D image plots is not supported");
+		IntWarn(NO_CARET, "Log scaling of 3D image plots is not supported");
 		return;
 	}
 	//
@@ -3778,10 +3778,10 @@ void GpGadgets::ProcessImage(GpTermEntry * pT, void * pPlot, t_procimg_action ac
 				fallback = ((CurvePoints*)pPlot)->image_properties.fallback;
 		}
 		if(pixel_planes == IC_PALETTE && MakePalette(pT)) {
-			return; // int_warn(NO_CARET, "This terminal does not support palette-based images.\n\n"); 
+			return; // IntWarn(NO_CARET, "This terminal does not support palette-based images.\n\n"); 
 		}
 		if(oneof2(pixel_planes, IC_RGB, IC_RGBA) && ((pT->flags & TERM_NULL_SET_COLOR))) {
-			// int_warn(NO_CARET, "This terminal does not support rgb images.\n\n"); 
+			// IntWarn(NO_CARET, "This terminal does not support rgb images.\n\n"); 
 			return;
 		}
 		// Use generic code to handle alpha channel if the terminal can't 
@@ -3904,14 +3904,14 @@ void GpGadgets::ProcessImage(GpTermEntry * pT, void * pPlot, t_procimg_action ac
 								N += 1;
 							line_pixel_count++;
 							if((N != 1) && (line_pixel_count > M)) {
-								int_warn(NO_CARET, "Visible pixel grid has a scan line longer than previous scan lines.");
+								IntWarn(NO_CARET, "Visible pixel grid has a scan line longer than previous scan lines.");
 								return;
 							}
 						}
 						// This can happen if the data supplied for a matrix does not
 						// match the matrix dimensions found when the file was opened
 						if(i_sub_image >= array_size) {
-							int_warn(NO_CARET, "image data corruption");
+							IntWarn(NO_CARET, "image data corruption");
 							break;
 						}
 						pixel_M_N = i_image;
@@ -3932,7 +3932,7 @@ void GpGadgets::ProcessImage(GpTermEntry * pT, void * pPlot, t_procimg_action ac
 						if(M == 0)
 							M = line_pixel_count;
 						else if((line_pixel_count > 0) && (line_pixel_count != M)) {
-							int_warn(NO_CARET, "Visible pixel grid has a scan line shorter than previous scan lines.");
+							IntWarn(NO_CARET, "Visible pixel grid has a scan line shorter than previous scan lines.");
 							return;
 						}
 						line_pixel_count = 0;
@@ -3981,7 +3981,7 @@ void GpGadgets::ProcessImage(GpTermEntry * pT, void * pPlot, t_procimg_action ac
 				free((void*)image);
 			}
 			else {
-				int_warn(NO_CARET, "Could not allocate memory for image.");
+				IntWarn(NO_CARET, "Could not allocate memory for image.");
 				return;
 			}
 		}
@@ -3993,7 +3993,7 @@ void GpGadgets::ProcessImage(GpTermEntry * pT, void * pPlot, t_procimg_action ac
 			const bool log_axes = ((GetX().Flags & GpAxis::fLog) || (GetY().Flags & GpAxis::fLog));
 			if(!pT->filled_polygon)
 				GpGg.IntErrorNoCaret("This terminal does not support filled polygons");
-			(pT->layer)(TERM_LAYER_BEGIN_IMAGE);
+			pT->_Layer(TERM_LAYER_BEGIN_IMAGE);
 			// Grid spacing in 3D space
 			if(log_axes) {
 				delta_grid[0].x = (GRIDX(grid_corner[1]) - GRIDX(grid_corner[0])) / (K-1);
@@ -4148,7 +4148,7 @@ skip_pixel:
 					i_image++;
 				}
 			}
-			(pT->layer)(TERM_LAYER_END_IMAGE);
+			pT->_Layer(TERM_LAYER_END_IMAGE);
 		}
 	}
 }

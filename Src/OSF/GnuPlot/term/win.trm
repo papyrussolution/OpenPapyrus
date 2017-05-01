@@ -647,7 +647,7 @@ static void WIN_image(uint M, uint N, double * image, gpiPoint * corner, t_image
 		image_size = M * N * 4;
 	}
 	else {
-		int_warn(NO_CARET, "Unknown color mode in WIN_image");
+		GpGg.IntWarn(NO_CARET, "Unknown color mode in WIN_image");
 		return;
 	}
 	rgb_image = (PBYTE)malloc(image_size);

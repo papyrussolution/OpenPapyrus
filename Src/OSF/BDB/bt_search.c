@@ -42,12 +42,6 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 /*
  * __bam_get_root --
@@ -58,20 +52,16 @@
  */
 int __bam_get_root(DBC * dbc, db_pgno_t root_pgno, int slevel, uint32 flags, int * stack)
 {
-	BTREE_CURSOR * cp;
-	DB * dbp;
 	DB_LOCK lock;
-	DB_MPOOLFILE * mpf;
 	PAGE * h;
 	db_lockmode_t lock_mode;
 	uint32 get_mode;
 	int ret, t_ret;
-
 	COMPQUIET(h, NULL);
 	LOCK_INIT(lock);
-	dbp = dbc->dbp;
-	mpf = dbp->mpf;
-	cp = (BTREE_CURSOR *)dbc->internal;
+	DB * dbp = dbc->dbp;
+	DB_MPOOLFILE * mpf = dbp->mpf;
+	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
 	/*
 	 * If write-locking pages, we need to know whether or not to acquire a
 	 * write lock on a page before getting it.  This depends on how deep it
@@ -371,8 +361,7 @@ retry:
 			if(LF_ISSET(SR_NEXT)) {
 get_next:
 				/*
-				 * The caller could have asked for a NEXT
-				 * at the root if the tree recently collapsed.
+				 * The caller could have asked for a NEXT at the root if the tree recently collapsed.
 				 */
 				if(PGNO(h) == root_pgno) {
 					ret = DB_NOTFOUND;
@@ -385,12 +374,9 @@ get_next:
 					goto err;
 				}
 				/*
-				 * If we want both the key page and the next
-				 * page, push the key page on the stack
-				 * otherwise save the root of the subtree
-				 * and drop the rest of the subtree.
-				 * Search down again starting at the
-				 * next child of the root of this subtree.
+				 * If we want both the key page and the next page, push the key page on the stack
+				 * otherwise save the root of the subtree and drop the rest of the subtree.
+				 * Search down again starting at the next child of the root of this subtree.
 				 */
 				LF_SET(SR_MIN);
 				LF_CLR(SR_NEXT);
@@ -453,7 +439,7 @@ next:
 				recno += GET_BINTERNAL(dbp, h, i)->nrecs;
 		pg = GET_BINTERNAL(dbp, h, indx)->pgno;
 		level = LEVEL(h);
-		/* See if we are at the level to start stacking. */
+		// See if we are at the level to start stacking. 
 		if(LF_ISSET(SR_START) && slevel == level)
 			set_stack = stack = 1;
 		if(LF_ISSET(SR_STK_ONLY)) {
@@ -471,7 +457,7 @@ next:
 			h = NULL;
 		}
 		else if(stack) {
-			/* Return if this is the lowest page wanted. */
+			// Return if this is the lowest page wanted. 
 			if(LF_ISSET(SR_PARENT) && slevel == level) {
 				BT_STK_ENTER(env, cp, h, indx, lock, lock_mode, ret);
 				if(ret != 0)
@@ -479,18 +465,16 @@ next:
 				goto done;
 			}
 			if(LF_ISSET(SR_DEL) && NUM_ENT(h) > 1) {
-				/*
-				 * There was a page with a singleton pointer
-				 * to a non-empty subtree.
-				 */
+				//
+				// There was a page with a singleton pointer to a non-empty subtree.
+				//				 
 				cp->csp--;
 				if((ret = __bam_stkrel(dbc, STK_NOLOCK)) != 0)
 					goto err;
 				set_stack = stack = 0;
 				goto do_del;
 			}
-			BT_STK_PUSH(env,
-				cp, h, indx, lock, lock_mode, ret);
+			BT_STK_PUSH(env, cp, h, indx, lock, lock_mode, ret);
 			if(ret != 0)
 				goto err;
 			LOCK_INIT(lock);
@@ -531,31 +515,25 @@ next:
 			 * edge, then drop the subtree.
 			 */
 			if((LF_ISSET(SR_DEL) && NUM_ENT(h) == 1)) {
-				/*
-				 * We are pushing the things on the stack,
-				 * set the stack variable now to indicate this
-				 * has happened.
-				 */
+				//
+				// We are pushing the things on the stack, set the stack variable now to indicate this has happened.
+				//
 				stack = set_stack = 1;
 				LF_SET(SR_WRITE);
 				/* Push the parent. */
 				cp->csp++;
-				/* Push this node. */
+				// Push this node. 
 				BT_STK_PUSH(env, cp, h, indx, lock, DB_LOCK_NG, ret);
 				if(ret != 0)
 					goto err;
 				LOCK_INIT(lock);
 			}
 			else {
-				/*
-				 * See if we want to save the tree so far.
-				 * If we are looking for the next key,
-				 * then we must save this node if we are
-				 * at the end of the page.  If not then
-				 * discard anything we have saved so far.
-				 * For delete only keep one node until
-				 * we find a singleton.
-				 */
+				//
+				// See if we want to save the tree so far. If we are looking for the next key,
+				// then we must save this node if we are at the end of the page.  If not then
+				// discard anything we have saved so far. For delete only keep one node until we find a singleton.
+				//
 do_del:
 				if(cp->csp->page != NULL) {
 					if(LF_ISSET(SR_NEXT) && indx == NUM_ENT(h)-1)
@@ -600,18 +578,15 @@ lock_next:
 				if(LF_ISSET(SR_DEL|SR_NEXT) && !stack)
 					cp->csp++;
 				PERFMON6(env, race, bam_search, dbp->fname, dbp->dname, ret, h, parent_h, flags);
-				/*
-				 * If we fail, discard the lock we held.
-				 * This is ok because we will either search
-				 * again or exit without actually looking
-				 * at the data.
-				 */
+				//
+				// If we fail, discard the lock we held.
+				// This is ok because we will either search again or exit without actually looking at the data.
+				//
 				if((t_ret = __LPUT(dbc, lock)) != 0)
 					ret = t_ret;
-				/*
-				 * If we blocked at a different level release
-				 * the previous saved lock.
-				 */
+				//
+				// If we blocked at a different level release the previous saved lock.
+				//
 				if((t_ret = __LPUT(dbc, saved_lock)) != 0 && ret == 0)
 					ret = t_ret;
 				if(wait == 0 || (ret != DB_LOCK_NOTGRANTED && ret != DB_LOCK_DEADLOCK))
@@ -679,10 +654,10 @@ drop_lock:
 skip_lock:
 			stack = set_stack;
 		}
-		/* Get the child page. */
+		// Get the child page. 
 		if((ret = __memp_fget(mpf, &pg, dbc->thread_info, dbc->txn, get_mode, &h)) != 0)
 			goto err;
-		/* Release the parent. */
+		// Release the parent. 
 		if(parent_h && (ret = __memp_fput(mpf, dbc->thread_info, parent_h, dbc->priority)) != 0)
 			goto err;
 		parent_h = NULL;
@@ -711,8 +686,7 @@ found:
 	/*
 	 * Now check if we are allowed to return deleted items; if not, then
 	 * find the next (or previous) non-deleted duplicate entry.  (We do
-	 * not move from the original found key on the basis of the SR_DELNO
-	 * flag.)
+	 * not move from the original found key on the basis of the SR_DELNO flag.)
 	 */
 	DB_ASSERT(env, !recnop || LF_ISSET(SR_DELNO));
 	if(LF_ISSET(SR_DELNO)) {
@@ -723,10 +697,7 @@ found:
 		else
 			while(B_DISSET(GET_BKEYDATA(dbp, h, indx+deloffset)->type) && indx < (db_indx_t)(NUM_ENT(h)-adjust) && inp[indx] == inp[indx+adjust])
 				indx += adjust;
-		/*
-		 * If we weren't able to find a non-deleted duplicate, return
-		 * DB_NOTFOUND.
-		 */
+		// If we weren't able to find a non-deleted duplicate, return DB_NOTFOUND.
 		if(B_DISSET(GET_BKEYDATA(dbp, h, indx+deloffset)->type)) {
 			ret = DB_NOTFOUND;
 			goto err;
@@ -761,7 +732,6 @@ found:
 		goto err;
 	cp->csp->lock = lock;
 	DB_ASSERT(env, parent_h == NULL);
-
 done:
 	if(F_ISSET(dbc, DBC_OPD))
 		LOCK_CHECK_ON(dbc->thread_info);
@@ -774,7 +744,7 @@ err:
 		ret = t_ret;
 	if(parent_h && (t_ret = __memp_fput(mpf, dbc->thread_info, parent_h, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	/* Keep any not-found page locked for serializability. */
+	// Keep any not-found page locked for serializability. 
 	if((t_ret = __TLPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;
 	__LPUT(dbc, saved_lock);
@@ -784,29 +754,26 @@ err:
 		LOCK_CHECK_ON(dbc->thread_info);
 	return ret;
 }
-/*
- * __bam_stkrel --
- *	Release all pages currently held in the stack.
- *
- * PUBLIC: int __bam_stkrel __P((DBC *, uint32));
- */
-int __bam_stkrel(DBC * dbc, uint32 flags)
+//
+// __bam_stkrel --
+// Release all pages currently held in the stack.
+//
+// PUBLIC: int __bam_stkrel(DBC *, uint32);
+ //
+int FASTCALL __bam_stkrel(DBC * dbc, uint32 flags)
 {
-	BTREE_CURSOR * cp;
-	DB * dbp;
-	DB_MPOOLFILE * mpf;
 	EPG * epg;
 	int ret, t_ret;
 	DB_ASSERT(NULL, dbc != NULL);
-	dbp = dbc->dbp;
-	mpf = dbp->mpf;
-	cp = (BTREE_CURSOR *)dbc->internal;
-	/*
-	 * Release inner pages first.
-	 *
-	 * The caller must be sure that setting STK_NOLOCK will not effect
-	 * either serializability or recoverability.
-	 */
+	DB * dbp = dbc->dbp;
+	DB_MPOOLFILE * mpf = dbp->mpf;
+	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	//
+	// Release inner pages first.
+	//
+	// The caller must be sure that setting STK_NOLOCK will not effect
+	// either serializability or recoverability.
+	//
 	for(ret = 0, epg = cp->sp; epg <= cp->csp; ++epg) {
 		if(epg->page) {
 			if(LF_ISSET(STK_CLRDBC) && cp->page == epg->page) {
@@ -817,22 +784,20 @@ int __bam_stkrel(DBC * dbc, uint32 flags)
 				ret = t_ret;
 			epg->page = NULL;
 		}
-		/*
-		 * We set this if we need to release our pins,
-		 * but are not logically ready to have the pages
-		 * visible.
-		 */
-		if(LF_ISSET(STK_PGONLY))
-			continue;
-		if(LF_ISSET(STK_NOLOCK) && (epg->lock.mode == DB_LOCK_READ || atomic_read(&mpf->mfp->multiversion) == 0)) {
-			if((t_ret = __LPUT(dbc, epg->lock)) != 0 && ret == 0)
+		//
+		// We set this if we need to release our pins,
+		// but are not logically ready to have the pages visible.
+		//
+		if(!LF_ISSET(STK_PGONLY)) {
+			if(LF_ISSET(STK_NOLOCK) && (epg->lock.mode == DB_LOCK_READ || atomic_read(&mpf->mfp->multiversion) == 0)) {
+				if((t_ret = __LPUT(dbc, epg->lock)) != 0 && ret == 0)
+					ret = t_ret;
+			}
+			else if((t_ret = __TLPUT(dbc, epg->lock)) != 0 && ret == 0)
 				ret = t_ret;
 		}
-		else
-		if((t_ret = __TLPUT(dbc, epg->lock)) != 0 && ret == 0)
-			ret = t_ret;
 	}
-	/* Clear the stack, all pages have been released. */
+	// Clear the stack, all pages have been released. 
 	if(!LF_ISSET(STK_PGONLY))
 		BT_STK_CLR(cp);
 	return ret;
@@ -841,20 +806,20 @@ int __bam_stkrel(DBC * dbc, uint32 flags)
  * __bam_stkgrow --
  *	Grow the stack.
  *
- * PUBLIC: int __bam_stkgrow __P((ENV *, BTREE_CURSOR *));
+ * PUBLIC: int __bam_stkgrow(ENV *, BTREE_CURSOR *);
  */
 int __bam_stkgrow(ENV * env, BTREE_CURSOR * cp)
 {
 	EPG * p;
-	int ret;
 	size_t entries = cp->esp-cp->sp;
-	if((ret = __os_calloc(env, entries*2, sizeof(EPG), &p)) != 0)
-		return ret;
-	memcpy(p, cp->sp, entries*sizeof(EPG));
-	if(cp->sp != cp->stack)
-		__os_free(env, cp->sp);
-	cp->sp = p;
-	cp->csp = p+entries;
-	cp->esp = p+entries*2;
-	return 0;
+	int ret = __os_calloc(env, entries*2, sizeof(EPG), &p);
+	if(ret == 0) {
+		memcpy(p, cp->sp, entries*sizeof(EPG));
+		if(cp->sp != cp->stack)
+			__os_free(env, cp->sp);
+		cp->sp = p;
+		cp->csp = p+entries;
+		cp->esp = p+entries*2;
+	}
+	return ret;
 }

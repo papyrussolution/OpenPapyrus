@@ -368,7 +368,7 @@ int SLAPI Reference::UpdateItem(PPID obj, PPID id, const void * b, int logAction
 						// повторяем попытку чтения-изменения try_count раз.
 						//
 						unlock(0); // @v9.0.4
-						delay(10);
+						SDelay(10);
 						--try_count;
 					}
 					if(logAction)

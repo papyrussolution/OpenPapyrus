@@ -539,7 +539,7 @@ int SLAPI SGeoGridTab::Load(const char * pFileName)
         line_buf.Chomp();
         if(line_buf.NotEmptyS()) {
             if(line_buf.C(0) == '[') {
-				uint rb_pos = 0;
+				size_t rb_pos = 0;
                 THROW(line_buf.StrChr(']', &rb_pos)); // Ошибка в формате файла geogridtag
 				assert(rb_pos > 0);
 				line_buf.Sub(1, rb_pos-1, temp_buf);

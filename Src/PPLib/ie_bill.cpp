@@ -72,7 +72,7 @@ int PPBillImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResu
 			use_ps = 1;
 		}
 		{
-			uint gp = 0;
+			size_t gp = 0;
 			if(ps.Nam.Search("#guid", 0, 1, &gp)) {
 				S_GUID guid;
 				guid.Generate();
@@ -1445,7 +1445,7 @@ int SLAPI PPBillImporter::RunEDIImport()
 			SString str, type_str;
 			// Импортируем документы, пока получаем настройки для импорта данного типа документа (BillParam.Name) (перечисление в PPTXT_EDIIMPCMD)
 			while(sects.get(&sect_pos, str) > 0) {
-				uint   start_pos = 0;
+				size_t start_pos = 0;
 				uint   end_pos = 0;
 				(type_str = BillParam.Name).Transf(CTRANSF_INNER_TO_OUTER);
 				if(str.Search("IMP@BILL@DLL_", 0, 1, &(start_pos = 0)) > 0 && str.Search(BillParam.Name, 0, 1, &(start_pos = 0)) > 0) {

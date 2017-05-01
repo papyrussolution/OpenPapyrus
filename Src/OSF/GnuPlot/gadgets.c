@@ -82,8 +82,8 @@ int GpGadgets::ClipPoint(uint x, uint y) const
 void GpGadgets::DrawClipLine(GpTermEntry * pT, int x1, int y1, int x2, int y2)
 {
 	if(ClipLine(&x1, &y1, &x2, &y2)) { // clip_line() returns zero --> segment completely outside bounding box 
-		pT->move(x1, y1);
-		pT->vector(x2, y2);
+		pT->_Move(x1, y1);
+		pT->_Vector(x2, y2);
 	}
 }
 //
@@ -98,7 +98,7 @@ void GpGadgets::DrawClipPolygon(GpTermEntry * pT, int points, gpiPoint * p)
 		int y1 = p[0].y;
 		int pos1 = ClipPoint(x1, y1);
 		if(!pos1) // move to first point if it is inside 
-			(*pT->move)(x1, y1);
+			pT->_Move(x1, y1);
 		for(int i = 1; i < points; i++) {
 			int x2 = p[i].x;
 			int y2 = p[i].y;
@@ -107,8 +107,8 @@ void GpGadgets::DrawClipPolygon(GpTermEntry * pT, int points, gpiPoint * p)
 			if(clip_ret) {
 				// there is a line to draw 
 				if(pos1) // first vertex was recalculated, move to new start point 
-					(*pT->move)(x1, y1);
-				(*pT->vector)(x2, y2);
+					pT->_Move(x1, y1);
+				pT->_Vector(x2, y2);
 			}
 			x1 = p[i].x;
 			y1 = p[i].y;
@@ -399,7 +399,7 @@ void GpGadgets::ClipVector(GpTermEntry * pT, uint x, uint y)
 void GpGadgets::ApplyPm3DColor(GpTermEntry * pT, t_colorspec * pCs)
 {
 	double cbval;
-	// V5 - term->linetype(LT_BLACK) would clobber the current
+	// V5 - term->_LineType(LT_BLACK) would clobber the current
 	// dashtype so instead we use term->set_color(black).	
 	static t_colorspec black(TC_LT, LT_BLACK, 0.0); // = BLACK_COLORSPEC;
 	// Replace colorspec with that of the requested line style 
@@ -452,7 +452,7 @@ void GpGadgets::ApplyPm3DColor(GpTermEntry * pT, t_colorspec * pCs)
 void reset_textcolor(const t_colorspec * tc)
 {
 	if(tc->type != TC_DEFAULT)
-		term->linetype(LT_BLACK);
+		term->_LineType(LT_BLACK);
 }
 
 void default_arrow_style(arrow_style_type * arrow)

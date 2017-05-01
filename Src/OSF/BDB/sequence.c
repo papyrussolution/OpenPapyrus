@@ -7,15 +7,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
-// @v9.5.5 #include "dbinc/txn.h"
 #include "dbinc_auto/sequence_ext.h"
 
 #ifdef HAVE_64BIT_TYPES
@@ -570,8 +562,7 @@ overflow:
 		seq->seq_last_value++;
 err:
 	if(need_mutex) {
-		if(data->data != NULL)
-			__os_ufree(env, data->data);
+		__os_ufree(env, data->data);
 		MUTEX_LOCK(env, seq->mtx_seq);
 	}
 	return txn_local ? __db_txn_auto_resolve(env, txn, LF_ISSET(DB_TXN_NOSYNC), ret) : ret;
@@ -690,13 +681,12 @@ static int __seq_close(DB_SEQUENCE * seq, uint32 flags)
 	int    t_ret;
 	int    ret = 0;
 	ENV  * env = seq->seq_dbp->env;
-	if(flags != 0)
+	if(flags)
 		ret = __db_ferr(env, "DB_SEQUENCE->close", 0);
 	if((t_ret = __mutex_free(env, &seq->mtx_seq)) != 0 && ret == 0)
 		ret = t_ret;
-	if(seq->seq_key.data != NULL)
-		__os_free(env, seq->seq_key.data);
-	if(seq->seq_data.data != NULL && seq->seq_data.data != &seq->seq_record)
+	__os_free(env, seq->seq_key.data);
+	if(seq->seq_data.data != &seq->seq_record)
 		__os_ufree(env, seq->seq_data.data);
 	seq->seq_key.data = NULL;
 	memset(seq, CLEAR_BYTE, sizeof(*seq));

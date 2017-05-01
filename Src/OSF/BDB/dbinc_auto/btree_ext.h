@@ -99,7 +99,7 @@ int __bam_nrecs(DBC *, db_recno_t *);
 db_recno_t __bam_total(DB *, PAGE *);
 int __bam_get_root(DBC *, db_pgno_t, int, uint32, int *);
 int __bam_search(DBC *, db_pgno_t, const DBT *, uint32, int, db_recno_t *, int *);
-int __bam_stkrel(DBC *, uint32);
+int FASTCALL __bam_stkrel(DBC *, uint32);
 int __bam_stkgrow(ENV *, BTREE_CURSOR *);
 int __bam_split(DBC *, void *, db_pgno_t *);
 int __bam_broot(DBC *, PAGE *, uint32, PAGE *, PAGE *);

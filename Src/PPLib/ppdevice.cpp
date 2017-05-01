@@ -327,7 +327,7 @@ int SLAPI PPAbstractDevice::ParseRegEntry(const char * pLine, SString & rSymbol,
 	SString temp_buf;
 	const char * p_eq = strchr(pLine, '=');
 
-	uint   eq_pos = 0;
+	size_t eq_pos = 0;
 	temp_buf = pLine;
 	if(temp_buf.StrChr('=', &eq_pos)) {
 		rSymbol = temp_buf.Trim(eq_pos).Strip();
@@ -577,7 +577,7 @@ int PPAbstractDevice::RunCmd(const char * pCmd, StrAssocArray & rOut)
 	SString s_cmd, input;
 	{
 		(s_cmd = pCmd).Strip();
-		uint   p = 0;
+		size_t p = 0;
 		if(s_cmd.StrChr(' ', &p)) {
 			(input = ((const char *)s_cmd) + p + 1).Strip();
 			s_cmd.Trim(p);

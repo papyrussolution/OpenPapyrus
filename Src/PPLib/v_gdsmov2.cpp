@@ -112,7 +112,7 @@ int SLAPI PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 		PPTransaction tra(ppDbDependTransaction, 1);
 		GetGenericOpList(Filt.OpID, &op_list);
 		THROW(tra);
-		THROW(BeginGoodsGroupingProcess(&temp_filt, &agg));
+		THROW(agg.BeginGoodsGroupingProcess(&temp_filt));
 		gf.GrpID   = Filt.GoodsGrpID;
 		gf.SupplID = Filt.SupplID;
 		gf.BrandList.Add(Filt.BrandID);
@@ -218,7 +218,7 @@ int SLAPI PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 		ok = 0;
 		ZDELETE(p_tbl);
 	ENDCATCH
-	EndGoodsGroupingProcess(&agg);
+	agg.EndGoodsGroupingProcess();
 	return ok;
 }
 
@@ -321,7 +321,7 @@ DBQuery * SLAPI PPViewGoodsMov2::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	DBQuery * p_q = PPView::CrosstabDbQueryStub;
 	SString loc_names, subtitle;
 	uint   brw_id = BROWSER_GOODSMOV_CT;
-	subtitle.CatDiv('-', 1, 1).Cat(GetExtLocationName(Filt.LocList, 2, loc_names));
+	subtitle.CatDivIfNotEmpty('-', 1).Cat(GetExtLocationName(Filt.LocList, 2, loc_names));
 	ASSIGN_PTR(pBrwId, brw_id);
 	ASSIGN_PTR(pSubTitle, subtitle);
 	return p_q;
@@ -514,9 +514,8 @@ int PPALDD_GoodsMov2::NextIteration(long iterId, long rsrv)
 		return -1;
 }
 
-int PPALDD_GoodsMov2::Destroy()
+void PPALDD_GoodsMov2::Destroy()
 {
 	delete (PPViewGoodsMov*)Extra[0].Ptr;
 	Extra[0].Ptr = Extra[1].Ptr = 0;
-	return 1;
 }

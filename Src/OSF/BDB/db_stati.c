@@ -7,16 +7,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/heap.h"
-// @v9.5.5 #include "dbinc/qam.h"
-// @v9.5.5 #include "dbinc/partition.h"
 
 #ifdef HAVE_STATISTICS
 static int __db_print_all __P((DB*, uint32));
@@ -28,8 +19,6 @@ static int __db_stat_arg __P((DB*, uint32));
 /*
  * __db_stat_pp --
  *	DB->stat pre/post processing.
- *
- * PUBLIC: int __db_stat_pp __P((DB *, DB_TXN *, void *, uint32));
  */
 int __db_stat_pp(DB * dbp, DB_TXN * txn, void * spp, uint32 flags)
 {
@@ -151,8 +140,6 @@ err:
 /*
  * __db_stat_print --
  *	DB->stat_print.
- *
- * PUBLIC: int __db_stat_print __P((DB *, DB_THREAD_INFO *, uint32));
  */
 int __db_stat_print(DB * dbp, DB_THREAD_INFO * ip, uint32 flags)
 {
@@ -332,14 +319,9 @@ static int __db_print_citem(DBC * dbc)
 		{ DBC_WRITER,           "DBC_WRITER" },
 		{ 0,                    NULL }
 	};
-	DB * dbp;
-	DBC_INTERNAL * cp;
-	ENV * env;
-
-	dbp = dbc->dbp;
-	env = dbp->env;
-	cp = dbc->internal;
-
+	DB * dbp = dbc->dbp;
+	ENV * env = dbp->env;
+	DBC_INTERNAL * cp = dbc->internal;
 	STAT_POINTER("DBC", dbc);
 	STAT_POINTER("Associated dbp", dbc->dbp);
 	STAT_POINTER("Associated txn", dbc->txn);
@@ -355,24 +337,15 @@ static int __db_print_citem(DBC * dbc)
 	STAT_ULONG("Page index", cp->indx);
 	STAT_STRING("Lock mode", __db_lockmode_to_string(cp->lock_mode));
 	__db_prflags(env, NULL, dbc->flags, fn, NULL, "\tFlags");
-
 	switch(dbc->dbtype) {
 	    case DB_BTREE:
-	    case DB_RECNO:
-		__bam_print_cursor(dbc);
-		break;
-	    case DB_HASH:
-		__ham_print_cursor(dbc);
-		break;
-	    case DB_HEAP:
-		__heap_print_cursor(dbc);
-		break;
-	    case DB_UNKNOWN:
-		DB_ASSERT(env, dbp->type != DB_UNKNOWN);
+	    case DB_RECNO: __bam_print_cursor(dbc); break;
+	    case DB_HASH:  __ham_print_cursor(dbc); break;
+	    case DB_HEAP:  __heap_print_cursor(dbc); break;
+	    case DB_UNKNOWN: DB_ASSERT(env, dbp->type != DB_UNKNOWN);
 	    /* FALLTHROUGH */
 	    case DB_QUEUE:
-	    default:
-		break;
+	    default: break;
 	}
 	return 0;
 }

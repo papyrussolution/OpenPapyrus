@@ -233,15 +233,15 @@ typedef struct __fn {
 } FN;
 
 /* Set, clear and test flags. */
-#define	FLD_CLR(fld, f)		(fld) &= ~(f)
-#define	FLD_ISSET(fld, f)	((fld) & (f))
-#define	FLD_SET(fld, f)		(fld) |= (f)
-#define	F_CLR(p, f)		(p)->flags &= ~(f)
-#define	F_ISSET(p, f)		((p)->flags & (f))
-#define	F_SET(p, f)		(p)->flags |= (f)
-#define	LF_CLR(f)		((flags) &= ~(f))
-#define	LF_ISSET(f)		((flags) & (f))
-#define	LF_SET(f)		((flags) |= (f))
+#define	FLD_CLR(fld, f)        (fld) &= ~(f)
+#define	FLD_ISSET(fld, f)      ((fld) & (f))
+#define	FLD_SET(fld, f)        (fld) |= (f)
+#define	F_CLR(p, f)            (p)->flags &= ~(f)
+#define	F_ISSET(p, f)          ((p)->flags & (f))
+#define	F_SET(p, f)            (p)->flags |= (f)
+#define	LF_CLR(f)              ((flags) &= ~(f))
+#define	LF_ISSET(f)            ((flags) & (f))
+#define	LF_SET(f)              ((flags) |= (f))
 // 
 // Calculate a percentage.  The values can overflow 32-bit integer arithmetic so we use floating point.
 // 
@@ -776,9 +776,7 @@ typedef enum { MU_REMOVE, MU_RENAME, MU_OPEN, MU_MOVE } mu_action;
 #ifdef HAVE_PARTITION
 #define	IS_INITIALIZED(dbc)	(DB_IS_PARTITIONED((dbc)->dbp) ?	\
 		((PART_CURSOR *)(dbc)->internal)->sub_cursor != NULL && \
-		((PART_CURSOR *)(dbc)->internal)->sub_cursor->		\
-		    internal->pgno != PGNO_INVALID :			\
-		(dbc)->internal->pgno != PGNO_INVALID)
+		((PART_CURSOR *)(dbc)->internal)->sub_cursor->internal->pgno != PGNO_INVALID : (dbc)->internal->pgno != PGNO_INVALID)
 #else
 #define	IS_INITIALIZED(dbc)	((dbc)->internal->pgno != PGNO_INVALID)
 #endif

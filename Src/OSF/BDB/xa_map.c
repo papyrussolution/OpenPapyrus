@@ -7,25 +7,14 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/txn.h"
 #include "dbinc_auto/xa_ext.h"
 /*
- * This file contains all the mapping information that we need to support
- * the DB/XA interface.
+ * This file contains all the mapping information that we need to support the DB/XA interface.
  */
-
 /*
  * __db_rmid_to_env
  *	Return the environment associated with a given XA rmid.
- *
- * PUBLIC: int __db_rmid_to_env __P((int, ENV **));
  */
 int __db_rmid_to_env(int rmid, ENV ** envp)
 {
@@ -38,8 +27,7 @@ int __db_rmid_to_env(int rmid, ENV ** envp)
 	 * the list of environments, so we acquire the correct environment
 	 * in DB->open.
 	 */
-	for(env = TAILQ_FIRST(&DB_GLOBAL(envq));
-	    env != NULL; env = TAILQ_NEXT(env, links)) {
+	for(env = TAILQ_FIRST(&DB_GLOBAL(envq)); env != NULL; env = TAILQ_NEXT(env, links)) {
 		if(env->xa_rmid == rmid) {
 			*envp = env;
 			if(env != TAILQ_FIRST(&DB_GLOBAL(envq))) {
@@ -51,19 +39,15 @@ int __db_rmid_to_env(int rmid, ENV ** envp)
 	}
 	return 1;
 }
-
 /*
  * __db_xid_to_txn
  *	Return the txn that corresponds to this XID.
- *
- * PUBLIC: int __db_xid_to_txn __P((ENV *, XID *, TXN_DETAIL **));
  */
 int __db_xid_to_txn(ENV*env, XID * xid, TXN_DETAIL ** tdp)
 {
 	uint8 * gid;
 	DB_TXNMGR * mgr = env->tx_handle;
 	DB_TXNREGION * region = (DB_TXNREGION *)mgr->reginfo.primary;
-
 	/*
 	 * Search the internal active transaction table to find the
 	 * matching xid.  If this is a performance hit, then we
@@ -75,31 +59,21 @@ int __db_xid_to_txn(ENV*env, XID * xid, TXN_DETAIL ** tdp)
 	if(memcmp(gid, (*tdp)->gid, sizeof((*tdp)->gid)) == 0)
 		break;
 	TXN_SYSTEM_UNLOCK(env);
-
-	/*
-	 * This returns an error, because TXN_SYSTEM_{UN}LOCK may return
-	 * an error.
-	 */
+	// This returns an error, because TXN_SYSTEM_{UN}LOCK may return an error.
 	return 0;
 }
-
 /*
  * __db_map_rmid
  *	Create a mapping between the specified rmid and environment.
- *
- * PUBLIC: void __db_map_rmid __P((int, ENV *));
  */
 void __db_map_rmid(int rmid, ENV * env)
 {
 	env->xa_rmid = rmid;
 	TAILQ_INSERT_HEAD(&DB_GLOBAL(envq), env, links);
 }
-
 /*
  * __db_unmap_rmid
  *	Destroy the mapping for the given rmid.
- *
- * PUBLIC: int __db_unmap_rmid(int);
  */
 int __db_unmap_rmid(int rmid)
 {
@@ -114,8 +88,6 @@ int __db_unmap_rmid(int rmid)
 /*
  * __db_unmap_xid
  *	Destroy the mapping for the specified XID.
- *
- * PUBLIC: void __db_unmap_xid __P((ENV *, XID *, size_t));
  */
 void __db_unmap_xid(ENV*env, XID * xid, size_t off)
 {

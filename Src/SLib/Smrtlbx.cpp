@@ -26,7 +26,7 @@ IMPL_CMPFUNC(_PcharNoCase, i1, i2)
 //
 //
 //
-BOOL CALLBACK ListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK ListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // DLGPROC
 {
 	SmartListBox * p_view = (SmartListBox *)TView::GetWindowUserData(hWnd);
 	if(p_view) {
@@ -90,7 +90,7 @@ BOOL CALLBACK ListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		return TRUE;
 }
 
-BOOL CALLBACK TreeListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK TreeListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // DLGPROC
 {
 	SmartListBox * p_view = (SmartListBox *)TView::GetWindowUserData(hWnd);
 	const WNDPROC prev_wnd_proc = p_view ? p_view->PrevWindowProc : 0;
@@ -142,7 +142,7 @@ BOOL CALLBACK TreeListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 	return prev_wnd_proc ? CallWindowProc(prev_wnd_proc, hWnd, uMsg, wParam, lParam) : 1;
 }
 
-BOOL CALLBACK ListViewDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK ListViewDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // DLGPROC
 {
 	SmartListBox * p_view = (SmartListBox *)TView::GetWindowUserData(hWnd);
 	switch(uMsg) {
@@ -520,8 +520,8 @@ void SmartListBox::onInitDialog(int useScrollBar)
 	}
 	State |= stInited;
 	Draw_();
-	//PrevWindowProc = (WNDPROC)SetWindowLong(h_lb, GWL_WNDPROC, dlg_proc);
-	PrevWindowProc = (WNDPROC)TView::SetWindowProp(h_lb, GWL_WNDPROC, dlg_proc);
+	//PrevWindowProc = (WNDPROC)SetWindowLong(h_lb, GWLP_WNDPROC, dlg_proc);
+	PrevWindowProc = (WNDPROC)TView::SetWindowProp(h_lb, GWLP_WNDPROC, dlg_proc);
 	TView::SetWindowUserData(h_lb, this);
 }
 
@@ -969,7 +969,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							}
 					}
 					//SetWindowLong(Parent, DWL_MSGRESULT, result);
-					TView::SetWindowProp(Parent, DWL_MSGRESULT, result);
+					TView::SetWindowProp(Parent, DWLP_MSGRESULT, result);
 				}
 				else
 					return 0;
@@ -1274,7 +1274,7 @@ BOOL CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 					p_slb->P_WordSel = new WordSelector(p_slb->P_WordSelBlk);
 					HWND h_ctl = GetDlgItem(hwndDlg, CTL_LBX_LIST);
 					TView::SetWindowUserData(h_ctl, p_slb);
-					p_slb->PrevInputCtlProc = (WNDPROC)TView::SetWindowProp(h_ctl, GWL_WNDPROC, UiSearchTextBlock::InputCtlProc);
+					p_slb->PrevInputCtlProc = (WNDPROC)TView::SetWindowProp(h_ctl, GWLP_WNDPROC, UiSearchTextBlock::InputCtlProc);
 				}
 			}
 			return 1;
@@ -1295,8 +1295,8 @@ BOOL CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 		case WM_DESTROY:
 			{
 				UiSearchTextBlock * p_slb = (UiSearchTextBlock *)TView::GetWindowUserData(hwndDlg);
-				//SetWindowLong(GetDlgItem(hwndDlg, CTL_LBX_LIST), GWL_WNDPROC, (long)p_slb->PrevInputCtlProc);
-				TView::SetWindowProp(GetDlgItem(hwndDlg, CTL_LBX_LIST), GWL_WNDPROC, p_slb->PrevInputCtlProc);
+				//SetWindowLong(GetDlgItem(hwndDlg, CTL_LBX_LIST), GWLP_WNDPROC, (long)p_slb->PrevInputCtlProc);
+				TView::SetWindowProp(GetDlgItem(hwndDlg, CTL_LBX_LIST), GWLP_WNDPROC, p_slb->PrevInputCtlProc);
 			}
 			break;
 		case WM_COMMAND:

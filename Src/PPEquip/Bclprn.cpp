@@ -1521,11 +1521,11 @@ int SLAPI BarcodeLabelPrinter::PrintLabelByBill(PPBillPacket * pPack, uint pos)
 					// задержка больше)
 					//
 					if(++part_count >= 10) {
-						delay(2000);
+						SDelay(2000);
 						part_count = 0;
 					}
 					else
-						delay(row_delay);
+						SDelay(row_delay);
 				}
 			}
 		}

@@ -202,7 +202,7 @@ int SLAPI BillSymbCache::Fetch(const char * pSymb, PPID * pID, SString & rBuf)
 			if(!st)
 				ok = 0;
 			else {
-				uint next_pos = 0;
+				size_t next_pos = 0;
 				id = st.Translate(pSymb, &next_pos);
 				if(id == PPSYM_ADVLNAMT) {
 					f = 0;
@@ -1372,7 +1372,7 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 	double v = 0.0;
 	SString ref;
 	if(!ResolveGoodsAttr(ref = pSymb, P_Pack ? 0 : P.GoodsID, &v)) {
-		uint   pos = 0;
+		size_t pos = 0;
 		if(IsRef(pSymb, &pos, ref = 0)) {
 			enum {
 				spcrefQuot = 1,

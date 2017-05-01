@@ -68,24 +68,19 @@ extern "C" {
 #if defined(HAVE_SHARED_LATCHES) && !defined(HAVE_MUTEX_HYBRID)
 #define	RET_SET_PTHREAD_LOCK(mutexp, ret) do {				\
 	if(F_ISSET(mutexp, DB_MUTEX_SHARED))				\
-		RET_SET((pthread_rwlock_wrlock(&(mutexp)->u.rwlock)),	\
-		    ret);						\
+		RET_SET((pthread_rwlock_wrlock(&(mutexp)->u.rwlock)), ret); \
 	else								\
 		RET_SET((pthread_mutex_lock(&(mutexp)->u.m.mutex)), ret); \
 } while (0)
 #define	RET_SET_PTHREAD_TRYLOCK(mutexp, ret) do {			\
 	if(F_ISSET(mutexp, DB_MUTEX_SHARED))				\
-		RET_SET((pthread_rwlock_trywrlock(&(mutexp)->u.rwlock)), \
-		    ret);						\
+		RET_SET((pthread_rwlock_trywrlock(&(mutexp)->u.rwlock)), ret); \
 	else								\
-		RET_SET((pthread_mutex_trylock(&(mutexp)->u.m.mutex)),	\
-		    ret);						\
+		RET_SET((pthread_mutex_trylock(&(mutexp)->u.m.mutex)), ret); \
 } while (0)
 #else
-#define	RET_SET_PTHREAD_LOCK(mutexp, ret)				\
-		RET_SET(pthread_mutex_lock(&(mutexp)->u.m.mutex), ret);
-#define	RET_SET_PTHREAD_TRYLOCK(mutexp, ret)				\
-		RET_SET(pthread_mutex_trylock(&(mutexp)->u.m.mutex), ret);
+#define	RET_SET_PTHREAD_LOCK(mutexp, ret)    RET_SET(pthread_mutex_lock(&(mutexp)->u.m.mutex), ret);
+#define	RET_SET_PTHREAD_TRYLOCK(mutexp, ret) RET_SET(pthread_mutex_trylock(&(mutexp)->u.m.mutex), ret);
 #endif
 #endif
 
@@ -283,19 +278,19 @@ extern "C" {
  * VMS.
  *********************************************************************/
 #ifdef HAVE_MUTEX_VMS
-#include <sys/mman.h>
-#include <builtins.h>
-typedef volatile unsigned char tsl_t;
+	#include <sys/mman.h>
+	#include <builtins.h>
+	typedef volatile unsigned char tsl_t;
 
-#ifdef LOAD_ACTUAL_MUTEX_CODE
-#ifdef __ALPHA
-#define	MUTEX_SET(tsl)		(!__TESTBITSSI(tsl, 0))
-#else /* __VAX */
-#define	MUTEX_SET(tsl)		(!(int)_BBSSI(0, tsl))
-#endif
-#define	MUTEX_UNSET(tsl)	(*(tsl) = 0)
-#define	MUTEX_INIT(tsl)         (MUTEX_UNSET(tsl), 0)
-#endif
+	#ifdef LOAD_ACTUAL_MUTEX_CODE
+		#ifdef __ALPHA
+			#define	MUTEX_SET(tsl)		(!__TESTBITSSI(tsl, 0))
+		#else /* __VAX */
+			#define	MUTEX_SET(tsl)		(!(int)_BBSSI(0, tsl))
+		#endif
+		#define	MUTEX_UNSET(tsl)	(*(tsl) = 0)
+		#define	MUTEX_INIT(tsl)         (MUTEX_UNSET(tsl), 0)
+	#endif
 #endif
 
 /*********************************************************************
@@ -316,12 +311,10 @@ typedef SEM_ID tsl_t;
  * which determines whether to return right away when the semaphore
  * is busy or to wait until it is available.
  */
-#define	MUTEX_SET(tsl)							\
-	(semTake((*(tsl)), nowait ? NO_WAIT : WAIT_FOREVER) == OK)
-#define	MUTEX_UNSET(tsl)	(semGive((*tsl)))
-#define	MUTEX_INIT(tsl)							\
-	((*(tsl) = semBCreate(SEM_Q_FIFO, SEM_FULL)) == NULL)
-#define	MUTEX_DESTROY(tsl)	semDelete(*tsl)
+#define	MUTEX_SET(tsl)   (semTake((*(tsl)), nowait ? NO_WAIT : WAIT_FOREVER) == OK)
+#define	MUTEX_UNSET(tsl) (semGive((*tsl)))
+#define	MUTEX_INIT(tsl)  ((*(tsl) = semBCreate(SEM_Q_FIFO, SEM_FULL)) == NULL)
+#define	MUTEX_DESTROY(tsl) semDelete(*tsl)
 #endif
 #endif
 
@@ -712,13 +705,10 @@ typedef unsigned char tsl_t;
 })
 
 #define	MUTEX_UNSET(tsl)	(*(tsl) = 0, MUTEX_MEMBAR(tsl))
-#define	MUTEX_INIT(tsl)         (MUTEX_UNSET(tsl), 0)
-#define	MUTEX_MEMBAR(x)	\
-	({ __asm__ volatile ("membar #StoreStore|#StoreLoad|#LoadStore"); })
-#define	MEMBAR_ENTER() \
-	({ __asm__ volatile ("membar #StoreStore|#StoreLoad"); })
-#define	MEMBAR_EXIT() \
-	({ __asm__ volatile ("membar #StoreStore|#LoadStore"); })
+#define	MUTEX_INIT(tsl)     (MUTEX_UNSET(tsl), 0)
+#define	MUTEX_MEMBAR(x)     ({ __asm__ volatile ("membar #StoreStore|#StoreLoad|#LoadStore"); })
+#define	MEMBAR_ENTER()      ({ __asm__ volatile ("membar #StoreStore|#StoreLoad"); })
+#define	MEMBAR_EXIT()       ({ __asm__ volatile ("membar #StoreStore|#LoadStore"); })
 #endif
 #endif
 
@@ -791,8 +781,7 @@ MUTEX_UNSET(tsl_t *tsl) {
 /*********************************************************************
  * x86/gcc (32- and 64-bit) assembly.
  *********************************************************************/
-#if defined(HAVE_MUTEX_X86_GCC_ASSEMBLY) || \
-    defined(HAVE_MUTEX_X86_64_GCC_ASSEMBLY)
+#if defined(HAVE_MUTEX_X86_GCC_ASSEMBLY) || defined(HAVE_MUTEX_X86_64_GCC_ASSEMBLY)
 typedef volatile unsigned char tsl_t;
 
 #ifdef LOAD_ACTUAL_MUTEX_CODE
@@ -815,11 +804,9 @@ typedef volatile unsigned char tsl_t;
  * and initialized.
  */
 #if defined(HAVE_MUTEX_X86_GCC_ASSEMBLY)
-#define	MUTEX_MEMBAR(addr)						\
-    ({ __asm__ volatile ("lock; addl $0, %0" ::"m" (addr): "memory"); 1; })
+	#define	MUTEX_MEMBAR(addr) ({ __asm__ volatile ("lock; addl $0, %0" ::"m" (addr): "memory"); 1; })
 #else
-#define	MUTEX_MEMBAR(addr)						\
-    ({ __asm__ volatile ("mfence" ::: "memory"); 1; })
+	#define	MUTEX_MEMBAR(addr) ({ __asm__ volatile ("mfence" ::: "memory"); 1; })
 #endif
 
 /*
@@ -847,23 +834,20 @@ typedef volatile unsigned char tsl_t;
  * alignment locally.
  */
 #ifndef	MUTEX_ALIGN
-#define	MUTEX_ALIGN	sizeof(unsigned int)
+	#define	MUTEX_ALIGN	sizeof(unsigned int)
 #endif
-
 /*
  * Mutex destruction defaults to a no-op.
  */
 #ifndef	MUTEX_DESTROY
-#define	MUTEX_DESTROY(x)
+	#define	MUTEX_DESTROY(x)
 #endif
-
 /*
  * Mutex pause defaults to a no-op.
  */
 #ifndef	MUTEX_PAUSE
-#define	MUTEX_PAUSE
+	#define	MUTEX_PAUSE
 #endif
-
 /*
  * If no native atomic support is available then use mutexes to
  * emulate atomic increment, decrement, and compare-and-exchange.
@@ -970,57 +954,48 @@ struct __db_mutex_t { /* SHARED */	/* Mutex. */
 /* Macro to get a reference to a specific mutex. */
 #define	MUTEXP_SET(env, indx) (F_ISSET(env, ENV_PRIVATE) ? \
 	(DB_MUTEX *) indx : (DB_MUTEX *)((uint8 *)env->mutex_handle->mutex_array + (indx) * ((DB_MUTEXREGION *)env->mutex_handle->reginfo.primary)->mutex_size))
-
-/*
- * Check that a particular mutex is exclusively held at least by someone, not
- * necessarily the current thread.
- */
+//
+// Check that a particular mutex is exclusively held at least by someone, not necessarily the current thread.
+//
 #ifdef HAVE_MUTEX_SUPPORT
-#define	MUTEX_IS_OWNED(env, mutex) (mutex == MUTEX_INVALID || !MUTEX_ON(env) || F_ISSET(env->dbenv, DB_ENV_NOLOCKING) || F_ISSET(MUTEXP_SET(env, mutex), DB_MUTEX_LOCKED))
+	#define	MUTEX_IS_OWNED(env, mutex) (mutex == MUTEX_INVALID || !MUTEX_ON(env) || F_ISSET(env->dbenv, DB_ENV_NOLOCKING) || F_ISSET(MUTEXP_SET(env, mutex), DB_MUTEX_LOCKED))
 #else
-#define	MUTEX_IS_OWNED(env, mutex)	0
+	#define	MUTEX_IS_OWNED(env, mutex)	0
 #endif
-
 #if defined(HAVE_MUTEX_HYBRID) ||  defined(DB_WIN32) || (defined(HAVE_SHARED_LATCHES) && !defined(HAVE_MUTEX_PTHREADS))
-#define	MUTEXP_IS_BUSY(mutexp)    (F_ISSET(mutexp, DB_MUTEX_SHARED) ? (atomic_read(&(mutexp)->sharecount) != 0) : F_ISSET(mutexp, DB_MUTEX_LOCKED))
-#define	MUTEXP_BUSY_FIELD(mutexp) (F_ISSET(mutexp, DB_MUTEX_SHARED) ? (atomic_read(&(mutexp)->sharecount)) : (mutexp)->flags)
+	#define	MUTEXP_IS_BUSY(mutexp)    (F_ISSET(mutexp, DB_MUTEX_SHARED) ? (atomic_read(&(mutexp)->sharecount) != 0) : F_ISSET(mutexp, DB_MUTEX_LOCKED))
+	#define	MUTEXP_BUSY_FIELD(mutexp) (F_ISSET(mutexp, DB_MUTEX_SHARED) ? (atomic_read(&(mutexp)->sharecount)) : (mutexp)->flags)
 #else
-/* Pthread_rwlocks don't have an low-cost 'is it being shared?' predicate. */
-#define	MUTEXP_IS_BUSY(mutexp)	(F_ISSET((mutexp), DB_MUTEX_LOCKED))
-#define	MUTEXP_BUSY_FIELD(mutexp)	((mutexp)->flags)
+	/* Pthread_rwlocks don't have an low-cost 'is it being shared?' predicate. */
+	#define	MUTEXP_IS_BUSY(mutexp)	(F_ISSET((mutexp), DB_MUTEX_LOCKED))
+	#define	MUTEXP_BUSY_FIELD(mutexp)	((mutexp)->flags)
 #endif
-
 #define	MUTEX_IS_BUSY(env, mutex)       (mutex == MUTEX_INVALID || !MUTEX_ON(env) || F_ISSET(env->dbenv, DB_ENV_NOLOCKING) || MUTEXP_IS_BUSY(MUTEXP_SET(env, mutex)))
 #define	MUTEX_REQUIRED(env, mutex)      DB_ASSERT(env, MUTEX_IS_OWNED(env, mutex))
 #define	MUTEX_REQUIRED_READ(env, mutex) DB_ASSERT(env, MUTEX_IS_OWNED(env, mutex) || MUTEX_IS_BUSY(env, mutex))
-
 /*
  * Test and set (and thus hybrid) shared latches use compare & exchange
  * to acquire; the others the mutex-setting primitive defined above.
  */
 #ifdef LOAD_ACTUAL_MUTEX_CODE
-
-#if defined(HAVE_SHARED_LATCHES)
-/* This is the value of the 'sharecount' of an exclusively held tas latch.
- * The particular value is not special; it is just unlikely to be caused
- * by releasing or acquiring a shared latch too many times.
- */
-#define	MUTEX_SHARE_ISEXCLUSIVE	(-1024)
-
-/*
- * Get an exclusive lock on a possibly sharable latch. We use the native
- * MUTEX_SET() operation for non-sharable latches; it usually is faster.
- */
-#define	MUTEXP_ACQUIRE(mutexp) (F_ISSET(mutexp, DB_MUTEX_SHARED) ? atomic_compare_exchange(env, &(mutexp)->sharecount, 0, MUTEX_SHARE_ISEXCLUSIVE) : MUTEX_SET(&(mutexp)->tas))
-#else
-#define	MUTEXP_ACQUIRE(mutexp) MUTEX_SET(&(mutexp)->tas)
-#endif
-
-#ifndef MEMBAR_ENTER
-#define	MEMBAR_ENTER()
-#define	MEMBAR_EXIT()
-#endif
-
+	#if defined(HAVE_SHARED_LATCHES)
+		/* This is the value of the 'sharecount' of an exclusively held tas latch.
+		 * The particular value is not special; it is just unlikely to be caused
+		 * by releasing or acquiring a shared latch too many times.
+		 */
+		#define	MUTEX_SHARE_ISEXCLUSIVE	(-1024)
+		/*
+		 * Get an exclusive lock on a possibly sharable latch. We use the native
+		 * MUTEX_SET() operation for non-sharable latches; it usually is faster.
+		 */
+		#define	MUTEXP_ACQUIRE(mutexp) (F_ISSET(mutexp, DB_MUTEX_SHARED) ? atomic_compare_exchange(env, &(mutexp)->sharecount, 0, MUTEX_SHARE_ISEXCLUSIVE) : MUTEX_SET(&(mutexp)->tas))
+	#else
+		#define	MUTEXP_ACQUIRE(mutexp) MUTEX_SET(&(mutexp)->tas)
+	#endif
+	#ifndef MEMBAR_ENTER
+		#define	MEMBAR_ENTER()
+		#define	MEMBAR_EXIT()
+	#endif
 #endif
 
 #if defined(__cplusplus)

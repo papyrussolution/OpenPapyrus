@@ -1,5 +1,5 @@
 // PPGPLOT.CPP
-// Copyright (c) A.Sobolev 2008, 2011, 2014, 2016
+// Copyright (c) A.Sobolev 2008, 2011, 2014, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -632,32 +632,32 @@ int Generator_GnuPlot::StartData(int putLegend)
 
 void FASTCALL Generator_GnuPlot::PutData(LDATE dt)
 {
-	LineBuf.CatDiv(' ', 0, 1).Cat(dt, DATF_DMY|DATF_CENTURY);
+	LineBuf.CatDivIfNotEmpty(' ', 0).Cat(dt, DATF_DMY|DATF_CENTURY);
 }
 
 void FASTCALL Generator_GnuPlot::PutData(LTIME tm)
 {
-	LineBuf.CatDiv(' ', 0, 1).Cat(tm, TIMF_HMS);
+	LineBuf.CatDivIfNotEmpty(' ', 0).Cat(tm, TIMF_HMS);
 }
 
 void Generator_GnuPlot::PutData(LDATETIME dtm)
 {
-	LineBuf.CatDiv(' ', 0, 1).Cat(dtm, DATF_DMY|DATF_CENTURY, TIMF_HMS);
+	LineBuf.CatDivIfNotEmpty(' ', 0).Cat(dtm, DATF_DMY|DATF_CENTURY, TIMF_HMS);
 }
 
 void Generator_GnuPlot::PutData(double val)
 {
-	LineBuf.CatDiv(' ', 0, 1).Cat(val, MKSFMTD(0, 12, NMBF_NOTRAILZ));
+	LineBuf.CatDivIfNotEmpty(' ', 0).Cat(val, MKSFMTD(0, 12, NMBF_NOTRAILZ));
 }
 
 void FASTCALL Generator_GnuPlot::PutData(long val)
 {
-	LineBuf.CatDiv(' ', 0, 1).Cat(val);
+	LineBuf.CatDivIfNotEmpty(' ', 0).Cat(val);
 }
 
 void Generator_GnuPlot::PutData(const char * pStr, int withoutQuot)
 {
-	LineBuf.CatDiv(' ', 0, 1);
+	LineBuf.CatDivIfNotEmpty(' ', 0);
 	if(withoutQuot)
 		LineBuf.Cat(pStr);
 	else

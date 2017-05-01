@@ -960,7 +960,7 @@ int SLAPI PPObjRegister::Format(const RegisterTbl::Rec & rRec, const char * pFor
 	}
 	for(const char * p = pFormat; *p;) {
 		if(*p == '@') {
-			uint   next = 1;
+			size_t next = 1;
 			long   sym  = st.Translate(p, &next);
 			switch(sym) {
 				case PPSYM_DATE:    rBuf.Cat(rRec.Dt, DATF_DMY); break;

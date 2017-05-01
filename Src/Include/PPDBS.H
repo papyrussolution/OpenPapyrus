@@ -9,7 +9,7 @@
 
 class Reference_Tbl : public DBTable {
 public:
-	Reference_Tbl(const char * pFileName = 0, int openMode = omNormal);
+	Reference_Tbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ObjType;
@@ -47,7 +47,7 @@ public:
 
 class Reference2Tbl : public DBTable {
 public:
-	Reference2Tbl(const char * pFileName = 0, int openMode = omNormal);
+	Reference2Tbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ObjType;
@@ -85,7 +85,7 @@ public:
 
 class PropertyTbl : public DBTable {
 public:
-	PropertyTbl(const char * pFileName = 0, int openMode = omNormal);
+	PropertyTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ObjType;
@@ -117,7 +117,7 @@ public:
 
 class UuidRefTbl : public DBTable {
 public:
-	UuidRefTbl(const char * pFileName = 0, int openMode = omNormal);
+	UuidRefTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -135,7 +135,7 @@ public:
 
 class TextRefTbl : public DBTable {
 public:
-	TextRefTbl(const char * pFileName = 0, int openMode = omNormal);
+	TextRefTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ObjID;
@@ -166,7 +166,7 @@ public:
 
 class UnxTextRefTbl : public DBTable {
 public:
-	UnxTextRefTbl(const char * pFileName = 0, int openMode = omNormal);
+	UnxTextRefTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ObjID;
@@ -192,7 +192,7 @@ public:
 
 class ObjLikenessTbl : public DBTable {
 public:
-	ObjLikenessTbl(const char * pFileName = 0, int openMode = omNormal);
+	ObjLikenessTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ObjType;
@@ -222,7 +222,7 @@ public:
 
 class ObjSyncTbl : public DBTable {
 public:
-	ObjSyncTbl(const char * pFileName = 0, int openMode = omNormal);
+	ObjSyncTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int16  DBID;
@@ -257,7 +257,7 @@ public:
 
 class ObjSyncBuTbl : public DBTable {
 public:
-	ObjSyncBuTbl(const char * pFileName = 0, int openMode = omNormal);
+	ObjSyncBuTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int16  ObjType;
@@ -288,7 +288,7 @@ public:
 
 class ObjSyncQueueTbl : public DBTable {
 public:
-	ObjSyncQueueTbl(const char * pFileName = 0, int openMode = omNormal);
+	ObjSyncQueueTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -348,7 +348,7 @@ public:
 
 class ObjAssocTbl : public DBTable {
 public:
-	ObjAssocTbl(const char * pFileName = 0, int openMode = omNormal);
+	ObjAssocTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -386,7 +386,7 @@ public:
 
 class ObjTagTbl : public DBTable {
 public:
-	ObjTagTbl(const char * pFileName = 0, int openMode = omNormal);
+	ObjTagTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ObjType;
@@ -426,7 +426,7 @@ public:
 
 class CountryTbl : public DBTable {
 public:
-	CountryTbl(const char * pFileName = 0, int openMode = omNormal);
+	CountryTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -457,7 +457,7 @@ public:
 
 class RegionTbl : public DBTable {
 public:
-	RegionTbl(const char * pFileName = 0, int openMode = omNormal);
+	RegionTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -490,7 +490,7 @@ public:
 
 class CityTbl : public DBTable {
 public:
-	CityTbl(const char * pFileName = 0, int openMode = omNormal);
+	CityTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -531,7 +531,7 @@ public:
 
 class EAddrTbl : public DBTable {
 public:
-	EAddrTbl(const char * pFileName = 0, int openMode = omNormal);
+	EAddrTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -560,7 +560,7 @@ public:
 
 class WorldTbl : public DBTable {
 public:
-	WorldTbl(const char * pFileName = 0, int openMode = omNormal);
+	WorldTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -614,7 +614,7 @@ public:
 
 class TempKLADRTbl : public DBTable {
 public:
-	TempKLADRTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempKLADRTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID__;
@@ -644,7 +644,7 @@ public:
 
 class FiasAddrObjTbl : public DBTable {
 public:
-	FiasAddrObjTbl(const char * pFileName = 0, int openMode = omNormal);
+	FiasAddrObjTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  RecUuID;
@@ -718,7 +718,7 @@ public:
 
 class FiasHouseObjTbl : public DBTable {
 public:
-	FiasHouseObjTbl(const char * pFileName = 0, int openMode = omNormal);
+	FiasHouseObjTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  IdUuRef;
@@ -781,7 +781,7 @@ public:
 
 class GeoTrackTbl : public DBTable {
 public:
-	GeoTrackTbl(const char * pFileName = 0, int openMode = omNormal);
+	GeoTrackTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int16  ObjType;
@@ -825,7 +825,7 @@ public:
 
 class PersonTbl : public DBTable {
 public:
-	PersonTbl(const char * pFileName = 0, int openMode = omNormal);
+	PersonTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -869,7 +869,7 @@ public:
 
 class BankAccount_Pre9004Tbl : public DBTable {
 public:
-	BankAccount_Pre9004Tbl(const char * pFileName = 0, int openMode = omNormal);
+	BankAccount_Pre9004Tbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -903,7 +903,7 @@ public:
 
 class PersonKindTbl : public DBTable {
 public:
-	PersonKindTbl(const char * pFileName = 0, int openMode = omNormal);
+	PersonKindTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  KindID;
@@ -926,7 +926,7 @@ public:
 
 class RegisterTbl : public DBTable {
 public:
-	RegisterTbl(const char * pFileName = 0, int openMode = omNormal);
+	RegisterTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -982,7 +982,7 @@ public:
 
 class PersonEventTbl : public DBTable {
 public:
-	PersonEventTbl(const char * pFileName = 0, int openMode = omNormal);
+	PersonEventTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -1039,7 +1039,7 @@ public:
 
 class StaffList_Pre9003Tbl : public DBTable {
 public:
-	StaffList_Pre9003Tbl(const char * pFileName = 0, int openMode = omNormal);
+	StaffList_Pre9003Tbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -1085,7 +1085,7 @@ public:
 
 class PersonPostTbl : public DBTable {
 public:
-	PersonPostTbl(const char * pFileName = 0, int openMode = omNormal);
+	PersonPostTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -1133,7 +1133,7 @@ public:
 
 class StaffCalendarTbl : public DBTable {
 public:
-	StaffCalendarTbl(const char * pFileName = 0, int openMode = omNormal);
+	StaffCalendarTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  CalID;
@@ -1174,7 +1174,7 @@ public:
 
 class TempStaffCalTbl : public DBTable {
 public:
-	TempStaffCalTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempStaffCalTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID__;
@@ -1221,7 +1221,7 @@ public:
 
 class SalaryTbl : public DBTable {
 public:
-	SalaryTbl(const char * pFileName = 0, int openMode = omNormal);
+	SalaryTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -1281,7 +1281,7 @@ public:
 
 class TempSalaryTbl : public DBTable {
 public:
-	TempSalaryTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempSalaryTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -1336,7 +1336,7 @@ public:
 
 class Goods2Tbl : public DBTable {
 public:
-	Goods2Tbl(const char * pFileName = 0, int openMode = omNormal);
+	Goods2Tbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -1411,7 +1411,7 @@ public:
 
 class HistGoodsTbl : public DBTable {
 public:
-	HistGoodsTbl(const char * pFileName = 0, int openMode = omNormal);
+	HistGoodsTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -1436,7 +1436,7 @@ public:
 
 class BarcodeTbl : public DBTable {
 public:
-	BarcodeTbl(const char * pFileName = 0, int openMode = omNormal);
+	BarcodeTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  GoodsID;
@@ -1458,7 +1458,7 @@ public:
 
 class ArGoodsCodeTbl : public DBTable {
 public:
-	ArGoodsCodeTbl(const char * pFileName = 0, int openMode = omNormal);
+	ArGoodsCodeTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  GoodsID;
@@ -1486,7 +1486,7 @@ public:
 
 class GoodsExtTbl : public DBTable {
 public:
-	GoodsExtTbl(const char * pFileName = 0, int openMode = omNormal);
+	GoodsExtTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  GoodsID;
@@ -1535,7 +1535,7 @@ public:
 
 class PackageTbl : public DBTable {
 public:
-	PackageTbl(const char * pFileName = 0, int openMode = omNormal);
+	PackageTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -1574,7 +1574,7 @@ public:
 
 class PackageLinkTbl : public DBTable {
 public:
-	PackageLinkTbl(const char * pFileName = 0, int openMode = omNormal);
+	PackageLinkTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  PckgID;
@@ -1593,7 +1593,7 @@ public:
 
 class SpecSeriesTbl : public DBTable {
 public:
-	SpecSeriesTbl(const char * pFileName = 0, int openMode = omNormal);
+	SpecSeriesTbl(const char * pFileName = 0);
 
 	struct Rec {
 		char   Serial[64];
@@ -1651,7 +1651,7 @@ public:
 
 class SpecSeries2Tbl : public DBTable {
 public:
-	SpecSeries2Tbl(const char * pFileName = 0, int openMode = omNormal);
+	SpecSeries2Tbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -1719,7 +1719,7 @@ public:
 
 class LocationTbl : public DBTable {
 public:
-	LocationTbl(const char * pFileName = 0, int openMode = omNormal);
+	LocationTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -1795,7 +1795,7 @@ public:
 
 class CurrencyRateTbl : public DBTable {
 public:
-	CurrencyRateTbl(const char * pFileName = 0, int openMode = omNormal);
+	CurrencyRateTbl(const char * pFileName = 0);
 
 	struct Rec {
 		LDATE  Dt;
@@ -1825,7 +1825,7 @@ public:
 
 class BillTbl : public DBTable {
 public:
-	BillTbl(const char * pFileName = 0, int openMode = omNormal);
+	BillTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -1922,7 +1922,7 @@ public:
 
 class HistBillTbl : public DBTable {
 public:
-	HistBillTbl(const char * pFileName = 0, int openMode = omNormal);
+	HistBillTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -1976,7 +1976,7 @@ public:
 
 class HistTrfrTbl : public DBTable {
 public:
-	HistTrfrTbl(const char * pFileName = 0, int openMode = omNormal);
+	HistTrfrTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  HistBillID;
@@ -2008,7 +2008,7 @@ public:
 
 class BillAmountTbl : public DBTable {
 public:
-	BillAmountTbl(const char * pFileName = 0, int openMode = omNormal);
+	BillAmountTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  BillID;
@@ -2029,7 +2029,7 @@ public:
 
 class PayPlanTbl : public DBTable {
 public:
-	PayPlanTbl(const char * pFileName = 0, int openMode = omNormal);
+	PayPlanTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  BillID;
@@ -2049,7 +2049,7 @@ public:
 
 class ReceiptTbl : public DBTable {
 public:
-	ReceiptTbl(const char * pFileName = 0, int openMode = omNormal);
+	ReceiptTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -2143,7 +2143,7 @@ public:
 
 class CurRestTbl : public DBTable {
 public:
-	CurRestTbl(const char * pFileName = 0, int openMode = omNormal);
+	CurRestTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  LocID;
@@ -2165,7 +2165,7 @@ public:
 
 class LotCurRestTbl : public DBTable {
 public:
-	LotCurRestTbl(const char * pFileName = 0, int openMode = omNormal);
+	LotCurRestTbl(const char * pFileName = 0);
 
 	struct Rec {
 		double Rest;
@@ -2187,7 +2187,7 @@ public:
 
 class LotExtCodeTbl : public DBTable {
 public:
-	LotExtCodeTbl(const char * pFileName = 0, int openMode = omNormal);
+	LotExtCodeTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  LotID;
@@ -2206,7 +2206,7 @@ public:
 
 class EgaisProductTbl : public DBTable {
 public:
-	EgaisProductTbl(const char * pFileName = 0, int openMode = omNormal);
+	EgaisProductTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -2238,7 +2238,7 @@ public:
 
 class EgaisPersonTbl : public DBTable {
 public:
-	EgaisPersonTbl(const char * pFileName = 0, int openMode = omNormal);
+	EgaisPersonTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -2275,7 +2275,7 @@ public:
 
 class EgaisRefATbl : public DBTable {
 public:
-	EgaisRefATbl(const char * pFileName = 0, int openMode = omNormal);
+	EgaisRefATbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -2314,7 +2314,7 @@ public:
 
 class InventoryTbl : public DBTable {
 public:
-	InventoryTbl(const char * pFileName = 0, int openMode = omNormal);
+	InventoryTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  BillID;
@@ -2368,7 +2368,7 @@ public:
 
 class TempInventorySubstTbl : public DBTable {
 public:
-	TempInventorySubstTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempInventorySubstTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  GoodsID;
@@ -2402,7 +2402,7 @@ public:
 
 class QuotationTbl : public DBTable {
 public:
-	QuotationTbl(const char * pFileName = 0, int openMode = omNormal);
+	QuotationTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -2451,7 +2451,7 @@ public:
 
 class Quot2RelTbl : public DBTable {
 public:
-	Quot2RelTbl(const char * pFileName = 0, int openMode = omNormal);
+	Quot2RelTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -2492,7 +2492,7 @@ public:
 
 class Quotation2Tbl : public DBTable {
 public:
-	Quotation2Tbl(const char * pFileName = 0, int openMode = omNormal);
+	Quotation2Tbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  RelID;
@@ -2548,7 +2548,7 @@ public:
 
 class PriceListTbl : public DBTable {
 public:
-	PriceListTbl(const char * pFileName = 0, int openMode = omNormal);
+	PriceListTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -2586,7 +2586,7 @@ public:
 
 class PriceLineTbl : public DBTable {
 public:
-	PriceLineTbl(const char * pFileName = 0, int openMode = omNormal);
+	PriceLineTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ListID;
@@ -2649,7 +2649,7 @@ public:
 
 class TransferTbl : public DBTable {
 public:
-	TransferTbl(const char * pFileName = 0, int openMode = omNormal);
+	TransferTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  LocID;
@@ -2716,7 +2716,7 @@ public:
 
 class LocTransfTbl : public DBTable {
 public:
-	LocTransfTbl(const char * pFileName = 0, int openMode = omNormal);
+	LocTransfTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  LocID;
@@ -2792,7 +2792,7 @@ public:
 
 class TempLocTransfTbl : public DBTable {
 public:
-	TempLocTransfTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempLocTransfTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID__;
@@ -2847,7 +2847,7 @@ public:
 
 class GoodsDebtTbl : public DBTable {
 public:
-	GoodsDebtTbl(const char * pFileName = 0, int openMode = omNormal);
+	GoodsDebtTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  GoodsID;
@@ -2879,7 +2879,7 @@ public:
 
 class CpTransfTbl : public DBTable {
 public:
-	CpTransfTbl(const char * pFileName = 0, int openMode = omNormal);
+	CpTransfTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  BillID;
@@ -2933,7 +2933,7 @@ public:
 
 class AdvBillItemTbl : public DBTable {
 public:
-	AdvBillItemTbl(const char * pFileName = 0, int openMode = omNormal);
+	AdvBillItemTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  BillID;
@@ -2994,7 +2994,7 @@ public:
 
 class WorkbookTbl : public DBTable {
 public:
-	WorkbookTbl(const char * pFileName = 0, int openMode = omNormal);
+	WorkbookTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -3059,7 +3059,7 @@ public:
 
 class ProjectTbl : public DBTable {
 public:
-	ProjectTbl(const char * pFileName = 0, int openMode = omNormal);
+	ProjectTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -3121,7 +3121,7 @@ public:
 
 class PrjTaskTbl : public DBTable {
 public:
-	PrjTaskTbl(const char * pFileName = 0, int openMode = omNormal);
+	PrjTaskTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -3223,7 +3223,7 @@ public:
 
 class SCardTbl : public DBTable {
 public:
-	SCardTbl(const char * pFileName = 0, int openMode = omNormal);
+	SCardTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -3286,7 +3286,7 @@ public:
 
 class TempSCardTbl : public DBTable {
 public:
-	TempSCardTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempSCardTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -3361,7 +3361,7 @@ public:
 
 class SCardOpTbl : public DBTable {
 public:
-	SCardOpTbl(const char * pFileName = 0, int openMode = omNormal);
+	SCardOpTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  SCardID;
@@ -3407,7 +3407,7 @@ public:
 
 class CSessionTbl : public DBTable {
 public:
-	CSessionTbl(const char * pFileName = 0, int openMode = omNormal);
+	CSessionTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -3476,7 +3476,7 @@ public:
 
 class TempCSessChecksTbl : public DBTable {
 public:
-	TempCSessChecksTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempCSessChecksTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -3548,7 +3548,7 @@ public:
 
 class CCheckTbl : public DBTable {
 public:
-	CCheckTbl(const char * pFileName = 0, int openMode = omNormal);
+	CCheckTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -3603,7 +3603,7 @@ public:
 
 class CCheckExtTbl : public DBTable {
 public:
-	CCheckExtTbl(const char * pFileName = 0, int openMode = omNormal);
+	CCheckExtTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  CheckID;
@@ -3650,7 +3650,7 @@ public:
 
 class CCheckPaymTbl : public DBTable {
 public:
-	CCheckPaymTbl(const char * pFileName = 0, int openMode = omNormal);
+	CCheckPaymTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  CheckID;
@@ -3680,7 +3680,7 @@ public:
 
 class TempCCheckQttyTbl : public DBTable {
 public:
-	TempCCheckQttyTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempCCheckQttyTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -3747,7 +3747,7 @@ public:
 
 class TempCCheckGrpTbl : public DBTable {
 public:
-	TempCCheckGrpTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempCCheckGrpTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID__;
@@ -3826,7 +3826,7 @@ public:
 
 class TempCCheckGdsCorrTbl : public DBTable {
 public:
-	TempCCheckGdsCorrTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempCCheckGdsCorrTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID__;
@@ -3871,7 +3871,7 @@ public:
 
 class TempCCheckLineTbl : public DBTable {
 public:
-	TempCCheckLineTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempCCheckLineTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  CheckID;
@@ -3909,7 +3909,7 @@ public:
 
 class CCheckLineTbl : public DBTable {
 public:
-	CCheckLineTbl(const char * pFileName = 0, int openMode = omNormal);
+	CCheckLineTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  CheckID;
@@ -3935,7 +3935,7 @@ public:
 
 class CCheckLineExtTbl : public DBTable {
 public:
-	CCheckLineExtTbl(const char * pFileName = 0, int openMode = omNormal);
+	CCheckLineExtTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  CheckID;
@@ -3957,7 +3957,7 @@ public:
 
 class CGoodsLineTbl : public DBTable {
 public:
-	CGoodsLineTbl(const char * pFileName = 0, int openMode = omNormal);
+	CGoodsLineTbl(const char * pFileName = 0);
 
 	struct Rec {
 		LDATE  Dt;
@@ -3994,7 +3994,7 @@ public:
 
 class CCurPriceTbl : public DBTable {
 public:
-	CCurPriceTbl(const char * pFileName = 0, int openMode = omNormal);
+	CCurPriceTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  CashID;
@@ -4012,7 +4012,7 @@ public:
 
 class DvcLoadingStatTbl : public DBTable {
 public:
-	DvcLoadingStatTbl(const char * pFileName = 0, int openMode = omNormal);
+	DvcLoadingStatTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -4055,7 +4055,7 @@ public:
 
 class DlsObjTbl : public DBTable {
 public:
-	DlsObjTbl(const char * pFileName = 0, int openMode = omNormal);
+	DlsObjTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  DlsID;
@@ -4083,7 +4083,7 @@ public:
 
 class QualityCertTbl : public DBTable {
 public:
-	QualityCertTbl(const char * pFileName = 0, int openMode = omNormal);
+	QualityCertTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -4140,7 +4140,7 @@ public:
 
 class ArticleTbl : public DBTable {
 public:
-	ArticleTbl(const char * pFileName = 0, int openMode = omNormal);
+	ArticleTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -4181,7 +4181,7 @@ public:
 
 class Account_Pre9004Tbl : public DBTable {
 public:
-	Account_Pre9004Tbl(const char * pFileName = 0, int openMode = omNormal);
+	Account_Pre9004Tbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -4235,7 +4235,7 @@ public:
 
 class AcctRelTbl : public DBTable {
 public:
-	AcctRelTbl(const char * pFileName = 0, int openMode = omNormal);
+	AcctRelTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -4289,7 +4289,7 @@ public:
 
 class AccTurnTbl : public DBTable {
 public:
-	AccTurnTbl(const char * pFileName = 0, int openMode = omNormal);
+	AccTurnTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  Acc;
@@ -4336,7 +4336,7 @@ public:
 
 class BalanceTbl : public DBTable {
 public:
-	BalanceTbl(const char * pFileName = 0, int openMode = omNormal);
+	BalanceTbl(const char * pFileName = 0);
 
 	struct Rec {
 		LDATE  Dt;
@@ -4360,7 +4360,7 @@ public:
 
 class BudgetItemTbl : public DBTable {
 public:
-	BudgetItemTbl(const char * pFileName = 0, int openMode = omNormal);
+	BudgetItemTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -4395,7 +4395,7 @@ public:
 
 class VATBookTbl : public DBTable {
 public:
-	VATBookTbl(const char * pFileName = 0, int openMode = omNormal);
+	VATBookTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -4498,7 +4498,7 @@ public:
 
 class MrpTabTbl : public DBTable {
 public:
-	MrpTabTbl(const char * pFileName = 0, int openMode = omNormal);
+	MrpTabTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -4545,7 +4545,7 @@ public:
 
 class MrpLineTbl : public DBTable {
 public:
-	MrpLineTbl(const char * pFileName = 0, int openMode = omNormal);
+	MrpLineTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -4588,7 +4588,7 @@ public:
 
 class SysJournalTbl : public DBTable {
 public:
-	SysJournalTbl(const char * pFileName = 0, int openMode = omNormal);
+	SysJournalTbl(const char * pFileName = 0);
 
 	struct Rec {
 		LDATE  Dt;
@@ -4620,7 +4620,7 @@ public:
 
 class SjRsrvTbl : public DBTable {
 public:
-	SjRsrvTbl(const char * pFileName = 0, int openMode = omNormal);
+	SjRsrvTbl(const char * pFileName = 0);
 
 	struct Rec {
 		LDATE  Dt;
@@ -4646,7 +4646,7 @@ public:
 
 class GtaJournalTbl : public DBTable {
 public:
-	GtaJournalTbl(const char * pFileName = 0, int openMode = omNormal);
+	GtaJournalTbl(const char * pFileName = 0);
 
 	struct Rec {
 		LDATE  Dt;
@@ -4693,48 +4693,9 @@ public:
 	DBField Reserve;
 };
 
-class DGQTbl : public DBTable {
-public:
-	DGQTbl(const char * pFileName = 0, int openMode = omNormal);
-
-	struct Rec {
-		uint8  QUUID[16];  // raw
-		char   QSID[48];
-		LDATE  QDt;
-		LTIME  QTm;
-		LDATE  ADt;
-		LTIME  ATm;
-		int32  QueryType;
-		int16  Ready;
-		int16  Flags;
-		TSLob <512> VT;
-	} data;
-	struct Key0 {
-		uint8  QUUID[16];
-	};
-	struct Key1 {
-		char   QSID[48];
-	};
-	struct Key2 {
-		int16  Ready;
-		LDATE  QDt;
-		LTIME  QTm;
-	};
-	DBField QUUID;
-	DBField QSID;
-	DBField QDt;
-	DBField QTm;
-	DBField ADt;
-	DBField ATm;
-	DBField QueryType;
-	DBField Ready;
-	DBField Flags;
-	DBField VT;
-};
-
 class SysProfilerTbl : public DBTable {
 public:
-	SysProfilerTbl(const char * pFileName = 0, int openMode = omNormal);
+	SysProfilerTbl(const char * pFileName = 0);
 
 	struct Rec {
 		LDATE  StartDt;
@@ -4768,7 +4729,7 @@ public:
 
 class Cr_PosLoadTbl : public DBTable {
 public:
-	Cr_PosLoadTbl(const char * pFileName = 0, int openMode = omNormal);
+	Cr_PosLoadTbl(const char * pFileName = 0);
 
 	struct Rec {
 		char   Cash_Code[21]; // lstring
@@ -4878,7 +4839,7 @@ public:
 
 class Cr_CredoPayTbl : public DBTable {
 public:
-	Cr_CredoPayTbl(const char * pFileName = 0, int openMode = omNormal);
+	Cr_CredoPayTbl(const char * pFileName = 0);
 
 	struct Rec {
 		char   BarCode[23]; // lstring
@@ -4927,7 +4888,7 @@ public:
 
 class Cr_ZReportTbl : public DBTable {
 public:
-	Cr_ZReportTbl(const char * pFileName = 0, int openMode = omNormal);
+	Cr_ZReportTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  CashNumber;
@@ -4973,7 +4934,7 @@ public:
 
 class Cr_SaleTbl : public DBTable {
 public:
-	Cr_SaleTbl(const char * pFileName = 0, int openMode = omNormal);
+	Cr_SaleTbl(const char * pFileName = 0);
 
 	struct Rec {
 		double Quant;
@@ -5087,7 +5048,7 @@ public:
 
 class Cr_CashAuthTbl : public DBTable {
 public:
-	Cr_CashAuthTbl(const char * pFileName = 0, int openMode = omNormal);
+	Cr_CashAuthTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int16  ShopIndex;
@@ -5130,7 +5091,7 @@ public:
 
 class Cr_CashDCrdTbl : public DBTable {
 public:
-	Cr_CashDCrdTbl(const char * pFileName = 0, int openMode = omNormal);
+	Cr_CashDCrdTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int16  ShopIndex;
@@ -5177,7 +5138,7 @@ public:
 
 class PredictSalesTbl : public DBTable {
 public:
-	PredictSalesTbl(const char * pFileName = 0, int openMode = omNormal);
+	PredictSalesTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  GoodsID;
@@ -5205,7 +5166,7 @@ public:
 
 class GoodsStatTbl : public DBTable {
 public:
-	GoodsStatTbl(const char * pFileName = 0, int openMode = omNormal);
+	GoodsStatTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int16  Loc;
@@ -5239,7 +5200,7 @@ public:
 
 class ProcessorTbl : public DBTable {
 public:
-	ProcessorTbl(const char * pFileName = 0, int openMode = omNormal);
+	ProcessorTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -5301,7 +5262,7 @@ public:
 
 class TechTbl : public DBTable {
 public:
-	TechTbl(const char * pFileName = 0, int openMode = omNormal);
+	TechTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -5376,7 +5337,7 @@ public:
 
 class TSessionTbl : public DBTable {
 public:
-	TSessionTbl(const char * pFileName = 0, int openMode = omNormal);
+	TSessionTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -5474,7 +5435,7 @@ public:
 
 class TSessLineTbl : public DBTable {
 public:
-	TSessLineTbl(const char * pFileName = 0, int openMode = omNormal);
+	TSessLineTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  TSessID;
@@ -5534,7 +5495,7 @@ public:
 
 class BizScoreTbl : public DBTable {
 public:
-	BizScoreTbl(const char * pFileName = 0, int openMode = omNormal);
+	BizScoreTbl(const char * pFileName = 0);
 
 	struct Rec {
 		LDATE  ActualDate;
@@ -5585,7 +5546,7 @@ public:
 
 class GlobalBizScoreTbl : public DBTable {
 public:
-	GlobalBizScoreTbl(const char * pFileName = 0, int openMode = omNormal);
+	GlobalBizScoreTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  UpdCounter;
@@ -5633,7 +5594,7 @@ public:
 
 class DebtStatTbl : public DBTable {
 public:
-	DebtStatTbl(const char * pFileName = 0, int openMode = omNormal);
+	DebtStatTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  AccSheetID;
@@ -5692,7 +5653,7 @@ public:
 
 class CheckOpJrnlTbl : public DBTable {
 public:
-	CheckOpJrnlTbl(const char * pFileName = 0, int openMode = omNormal);
+	CheckOpJrnlTbl(const char * pFileName = 0);
 
 	struct Rec {
 		LDATE  Dt;
@@ -5728,7 +5689,7 @@ public:
 
 class UserFuncPrfSessTbl : public DBTable {
 public:
-	UserFuncPrfSessTbl(const char * pFileName = 0, int openMode = omNormal);
+	UserFuncPrfSessTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -5778,7 +5739,7 @@ public:
 
 class UserFuncPrfTbl : public DBTable {
 public:
-	UserFuncPrfTbl(const char * pFileName = 0, int openMode = omNormal);
+	UserFuncPrfTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  SessID;
@@ -5835,7 +5796,7 @@ public:
 
 class TempTSessRepTbl : public DBTable {
 public:
-	TempTSessRepTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempTSessRepTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID__;
@@ -5905,7 +5866,7 @@ public:
 
 class TempPrcBusyTbl : public DBTable {
 public:
-	TempPrcBusyTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempPrcBusyTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID__;
@@ -5947,7 +5908,7 @@ public:
 
 class TempPredictSalesTbl : public DBTable {
 public:
-	TempPredictSalesTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempPredictSalesTbl(const char * pFileName = 0);
 
 	struct Rec {
 		LDATE  Dt;
@@ -5978,7 +5939,7 @@ public:
 
 class TempGoodsStatTbl : public DBTable {
 public:
-	TempGoodsStatTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempGoodsStatTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  GoodsID;
@@ -6026,7 +5987,7 @@ public:
 
 class TempGoodsRestTbl : public DBTable {
 public:
-	TempGoodsRestTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempGoodsRestTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID__;
@@ -6114,7 +6075,7 @@ public:
 
 class TempCSessExcTbl : public DBTable {
 public:
-	TempCSessExcTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempCSessExcTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  OrgGoodsID;
@@ -6168,7 +6129,7 @@ public:
 
 class TempDeficitTbl : public DBTable {
 public:
-	TempDeficitTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempDeficitTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  Location;
@@ -6208,7 +6169,7 @@ public:
 
 class TempShipmentAnlzTbl : public DBTable {
 public:
-	TempShipmentAnlzTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempShipmentAnlzTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  BillID;
@@ -6251,7 +6212,7 @@ public:
 
 class TempGoodsOprTbl : public DBTable {
 public:
-	TempGoodsOprTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempGoodsOprTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID__;
@@ -6333,7 +6294,7 @@ public:
 
 class TempGoodsMovTbl : public DBTable {
 public:
-	TempGoodsMovTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempGoodsMovTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  Grp;
@@ -6412,7 +6373,7 @@ public:
 
 class TempGoodsMov2Tbl : public DBTable {
 public:
-	TempGoodsMov2Tbl(const char * pFileName = 0, int openMode = omNormal);
+	TempGoodsMov2Tbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID__;
@@ -6446,7 +6407,7 @@ public:
 
 class TempGoodsBillCmpTbl : public DBTable {
 public:
-	TempGoodsBillCmpTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempGoodsBillCmpTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  GoodsID;
@@ -6488,7 +6449,7 @@ public:
 
 class TempAccTrnovrTbl : public DBTable {
 public:
-	TempAccTrnovrTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempAccTrnovrTbl(const char * pFileName = 0);
 
 	struct Rec {
 		LDATE  Dt;
@@ -6537,7 +6498,7 @@ public:
 
 class TempSellTrnovrTbl : public DBTable {
 public:
-	TempSellTrnovrTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempSellTrnovrTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -6608,7 +6569,7 @@ public:
 
 class TempTrfrGrpngTbl : public DBTable {
 public:
-	TempTrfrGrpngTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempTrfrGrpngTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID__;
@@ -6676,7 +6637,7 @@ public:
 
 class TempTrfrAnlzTbl : public DBTable {
 public:
-	TempTrfrAnlzTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempTrfrAnlzTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID__;
@@ -6745,7 +6706,7 @@ public:
 
 class TempOpGrpngTbl : public DBTable {
 public:
-	TempOpGrpngTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempOpGrpngTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID__;
@@ -6814,7 +6775,7 @@ public:
 
 class TempPersonTbl : public DBTable {
 public:
-	TempPersonTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempPersonTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -6861,7 +6822,7 @@ public:
 
 class TempOrderTbl : public DBTable {
 public:
-	TempOrderTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempOrderTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -6879,7 +6840,7 @@ public:
 
 class TempDoubleIDTbl : public DBTable {
 public:
-	TempDoubleIDTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempDoubleIDTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  PrmrID;
@@ -6904,7 +6865,7 @@ public:
 
 class TempAssocTbl : public DBTable {
 public:
-	TempAssocTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempAssocTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  PrmrID;
@@ -6920,7 +6881,7 @@ public:
 
 class TempAccturnGrpngTbl : public DBTable {
 public:
-	TempAccturnGrpngTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempAccturnGrpngTbl(const char * pFileName = 0);
 
 	struct Rec {
 		LDATE  Dt;
@@ -6990,7 +6951,7 @@ public:
 
 class TempAccAnlzTbl : public DBTable {
 public:
-	TempAccAnlzTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempAccAnlzTbl(const char * pFileName = 0);
 
 	struct Rec {
 		LDATE  Dt;
@@ -7037,7 +6998,7 @@ public:
 
 class TempBillTbl : public DBTable {
 public:
-	TempBillTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempBillTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  BillID;
@@ -7082,7 +7043,7 @@ public:
 
 class TempFreightTbl : public DBTable {
 public:
-	TempFreightTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempFreightTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  BillID;
@@ -7151,7 +7112,7 @@ public:
 
 class TempLotTbl : public DBTable {
 public:
-	TempLotTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempLotTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  LotID;
@@ -7197,7 +7158,7 @@ public:
 
 class TempGoodsTaxAnlzTbl : public DBTable {
 public:
-	TempGoodsTaxAnlzTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempGoodsTaxAnlzTbl(const char * pFileName = 0);
 
 	struct Rec {
 		LDATE  Dt;
@@ -7270,7 +7231,7 @@ public:
 
 class TempPaymPlanTbl : public DBTable {
 public:
-	TempPaymPlanTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempPaymPlanTbl(const char * pFileName = 0);
 
 	struct Rec {
 		LDATE  Dt;
@@ -7305,7 +7266,7 @@ public:
 
 class TempSyncCmpTbl : public DBTable {
 public:
-	TempSyncCmpTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempSyncCmpTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ObjType;
@@ -7369,7 +7330,7 @@ public:
 
 class TempAssetTbl : public DBTable {
 public:
-	TempAssetTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempAssetTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  LotID;
@@ -7425,7 +7386,7 @@ public:
 
 class TempQuotSerialTbl : public DBTable {
 public:
-	TempQuotSerialTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempQuotSerialTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  GoodsID;
@@ -7455,7 +7416,7 @@ public:
 
 class TempQuotTbl : public DBTable {
 public:
-	TempQuotTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempQuotTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID__;
@@ -7548,7 +7509,7 @@ public:
 
 class TempGoodsCargoTbl : public DBTable {
 public:
-	TempGoodsCargoTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempGoodsCargoTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  GoodsID;
@@ -7575,7 +7536,7 @@ public:
 
 class TempGoodsStrucTbl : public DBTable {
 public:
-	TempGoodsStrucTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempGoodsStrucTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  GoodsID;
@@ -7605,7 +7566,7 @@ public:
 
 class TempPrjTaskTbl : public DBTable {
 public:
-	TempPrjTaskTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempPrjTaskTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  TabID;
@@ -7641,7 +7602,7 @@ public:
 
 class TempPriceAnlzTbl : public DBTable {
 public:
-	TempPriceAnlzTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempPriceAnlzTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  TabID;
@@ -7670,7 +7631,7 @@ public:
 
 class TempPersonEventTbl : public DBTable {
 public:
-	TempPersonEventTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempPersonEventTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -7701,7 +7662,7 @@ public:
 
 class TempPersonRelTbl : public DBTable {
 public:
-	TempPersonRelTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempPersonRelTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -7727,7 +7688,7 @@ public:
 
 class TempArAgtTbl : public DBTable {
 public:
-	TempArAgtTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempArAgtTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ArID;
@@ -7798,7 +7759,7 @@ public:
 
 class TempScaleTbl : public DBTable {
 public:
-	TempScaleTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempScaleTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -7829,7 +7790,7 @@ public:
 
 class TempLogFileMonTbl : public DBTable {
 public:
-	TempLogFileMonTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempLogFileMonTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID__;
@@ -7859,7 +7820,7 @@ public:
 
 class TempCashNodeTbl : public DBTable {
 public:
-	TempCashNodeTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempCashNodeTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -7897,7 +7858,7 @@ public:
 
 class TempReportTbl : public DBTable {
 public:
-	TempReportTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempReportTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -7937,7 +7898,7 @@ public:
 
 class TempPalmTbl : public DBTable {
 public:
-	TempPalmTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempPalmTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -7977,7 +7938,7 @@ public:
 
 class TempLongOrderTbl : public DBTable {
 public:
-	TempLongOrderTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempLongOrderTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -7992,7 +7953,7 @@ public:
 
 class TempTransportTbl : public DBTable {
 public:
-	TempTransportTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempTransportTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -8028,7 +7989,7 @@ public:
 
 class TempBudgetTbl : public DBTable {
 public:
-	TempBudgetTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempBudgetTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -8051,7 +8012,7 @@ public:
 
 class TempBudgItemTbl : public DBTable {
 public:
-	TempBudgItemTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempBudgItemTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -8090,7 +8051,7 @@ public:
 
 class TempBizScTemplTbl : public DBTable {
 public:
-	TempBizScTemplTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempBizScTemplTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -8109,7 +8070,7 @@ public:
 
 class TempCCheckTbl : public DBTable {
 public:
-	TempCCheckTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempCCheckTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -8170,7 +8131,7 @@ public:
 
 class TempSysJournalTbl : public DBTable {
 public:
-	TempSysJournalTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempSysJournalTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -8201,7 +8162,7 @@ public:
 
 class TempGlobUserAccTbl : public DBTable {
 public:
-	TempGlobUserAccTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempGlobUserAccTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -8222,7 +8183,7 @@ public:
 
 class TempDBDivTbl : public DBTable {
 public:
-	TempDBDivTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempDBDivTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -8241,7 +8202,7 @@ public:
 
 class TempUserProfileTbl : public DBTable {
 public:
-	TempUserProfileTbl(const char * pFileName = 0, int openMode = omNormal);
+	TempUserProfileTbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -8318,7 +8279,7 @@ public:
 
 class TestRef01Tbl : public DBTable {
 public:
-	TestRef01Tbl(const char * pFileName = 0, int openMode = omNormal);
+	TestRef01Tbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -8376,7 +8337,7 @@ public:
 
 class TestRef02Tbl : public DBTable {
 public:
-	TestRef02Tbl(const char * pFileName = 0, int openMode = omNormal);
+	TestRef02Tbl(const char * pFileName = 0);
 
 	struct Rec {
 		int32  ID;
@@ -8436,7 +8397,7 @@ public:
 
 class TestTa01Tbl : public DBTable {
 public:
-	TestTa01Tbl(const char * pFileName = 0, int openMode = omNormal);
+	TestTa01Tbl(const char * pFileName = 0);
 
 	struct Rec {
 		LDATE  Dt;

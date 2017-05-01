@@ -473,7 +473,7 @@ int SLAPI PPScaleDevice::GetChr()
 				return buf[0];
 			}
 			else if(cycle_delay) {
-				delay(cycle_delay);
+				SDelay(cycle_delay);
 				collision++;
 			}
 		}
@@ -511,7 +511,7 @@ int SLAPI PPScaleDevice::_PutChr(uint8 c, int /*direct*/)
 		DWORD  sz = 1;
 		buf[0] = c;
 		buf[1] = 0;
-		delay(Data.Put_Delay);
+		SDelay(Data.Put_Delay);
 		return (H_Port != INVALID_HANDLE_VALUE && WriteFile(H_Port, buf, sz, &sz, 0) && sz == 1) ? 1 : PPSetError(PPERR_SCALE_SEND);
 	}
 }
@@ -525,7 +525,7 @@ int SLAPI PPScaleDevice::PutBuffer()
 		STempBuffer temp_buf(sz);
 		Buf.Read(temp_buf, sz);
 		if(sz) {
-			delay(Data.Put_Delay);
+			SDelay(Data.Put_Delay);
 			ok = (WriteFile(H_Port, (char *)temp_buf, sz, &actual_sz, 0) && actual_sz == temp_buf.GetSize()) ? 1 : PPSetError(PPERR_SCALE_SEND);
 		}
 	}
@@ -766,7 +766,7 @@ int SLAPI CommLP15::CheckAckForPLU()
 		if(ret == (uint8)0xAA)
 			return 1;
 		else if(ret == (uint8)0xEE) {
-			delay(200);
+			SDelay(200);
 			return -1;
 		}
 		else
@@ -2479,7 +2479,7 @@ int SLAPI TCPIPMToledo::CloseConnection()
 	}
 	CATCHZOK
 	if(TrfrDLLHandle) {
-		delay(500);
+		SDelay(500);
 		FreeLibrary(TrfrDLLHandle);
 		TrfrDLLHandle = 0;
 	}
@@ -4963,7 +4963,7 @@ int SLAPI PPObjScale::SendPlu(PPScale * pScaleData, const char * pFileName, int 
 				}
 				else {
 					collision++;
-					delay(100);
+					SDelay(100);
 				}
 			}
 			if(collision) {

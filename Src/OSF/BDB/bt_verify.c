@@ -991,10 +991,8 @@ overflow:
 err:    
 	if(pip != NULL && ((t_ret = __db_vrfy_putpageinfo(env, vdp, pip)) != 0) && ret == 0)
 		ret = t_ret;
-	if(buf1 != NULL)
-		__os_ufree(env, buf1);
-	if(buf2 != NULL)
-		__os_ufree(env, buf2);
+	__os_ufree(env, buf1);
+	__os_ufree(env, buf2);
 	return (ret == 0 && isbad == 1) ? DB_VERIFY_BAD : ret;
 }
 /*

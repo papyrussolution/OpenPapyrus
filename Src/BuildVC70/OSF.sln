@@ -45,7 +45,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libzip", "libzip.vcproj", "
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "openssl", "openssl.vcproj", "{0CFA8FB9-A664-4B3E-B162-26965EA0B9E5}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "openssl-ssl", "openssl.vcproj", "{0CFA8FB9-A664-4B3E-B162-26965EA0B9E5}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -62,6 +62,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZBAR", "ZBAR.vcproj", "{64A
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "leptonica", "leptonica.vcproj", "{DAA73FF2-F363-4304-AA4B-080667021E2F}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libjpeg-turbo", "libjpeg-turbo.vcproj", "{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -261,6 +265,18 @@ Global
 		{DAA73FF2-F363-4304-AA4B-080667021E2F}.ServerDebug.Build.0 = Debug|Win32
 		{DAA73FF2-F363-4304-AA4B-080667021E2F}.ServerRelease.ActiveCfg = Release|Win32
 		{DAA73FF2-F363-4304-AA4B-080667021E2F}.ServerRelease.Build.0 = Release|Win32
+		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Debug.ActiveCfg = Debug|Win32
+		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Debug.Build.0 = Debug|Win32
+		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.MtDllDebug.ActiveCfg = Debug|Win32
+		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.MtDllDebug.Build.0 = Debug|Win32
+		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.MtDllRelease.ActiveCfg = Release|Win32
+		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.MtDllRelease.Build.0 = Release|Win32
+		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Release.ActiveCfg = Release|Win32
+		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.Release.Build.0 = Release|Win32
+		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerDebug.ActiveCfg = Debug|Win32
+		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerDebug.Build.0 = Debug|Win32
+		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerRelease.ActiveCfg = Release|Win32
+		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerRelease.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

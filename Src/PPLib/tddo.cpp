@@ -724,7 +724,7 @@ int DlContext::ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope,
 						THROW_PP(p_scope->GetFuncByPos(rf.Pos, &func), PPERR_DL6_NOFUNCBYPOS);
 						{
 							uint   arg_no = 0;
-							uint   slen = 0;
+							size_t slen = 0;
 							const  uint arg_count = func.GetArgCount();
 							SV_Uint32 arg_pos_list;
 							arg_pos_list.Init();

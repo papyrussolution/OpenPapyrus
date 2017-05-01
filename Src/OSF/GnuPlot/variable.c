@@ -91,7 +91,7 @@ char * loadpath_handler(int action, char * path)
 				    /* convert all PATHSEPs to \0 */
 				    PATHSEP_TO_NUL(loadpath);
 			    }   /* else: NULL = empty */
-		    }           /* else: already initialised; int_warn (?) */
+		    }           /* else: already initialised; IntWarn (?) */
 		    /* point to env portion of loadpath */
 		    envptr = loadpath;
 		    break;
@@ -420,7 +420,7 @@ char * fontpath_handler(int action, char * path)
 					    PATHSEP_TO_NUL(fontpath);
 			    }
 #endif /* HAVE_DIRENT_H */
-		    }           /* else: already initialised; int_warn (?) */
+		    }           /* else: already initialised; IntWarn (?) */
 		    /* point to env portion of fontpath */
 		    envptr = fontpath;
 		    break;

@@ -322,18 +322,18 @@ int __db_master_update(DB * mdbp, DB * sdbp, DB_THREAD_INFO * ip, DB_TXN * txn, 
 		mdbp->mpf->mfp->revision++;
 	}
 err:
-done:   /*
-	 * If we allocated a page: if we're successful, mark the page dirty
-	 * and return it to the cache, otherwise, discard/free it.
-	 */
-	if(p != NULL && (t_ret = __memp_fput(mdbp->mpf, dbc->thread_info, p, dbc->priority)) != 0 && ret == 0)
+done:   
+	//
+	// If we allocated a page: if we're successful, mark the page dirty
+	// and return it to the cache, otherwise, discard/free it.
+	//
+	if(p && (t_ret = __memp_fput(mdbp->mpf, dbc->thread_info, p, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	/* Discard the cursor(s) and data. */
-	if(data.data != NULL)
-		__os_ufree(env, data.data);
-	if(dbc != NULL && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
+	// Discard the cursor(s) and data
+	__os_ufree(env, data.data);
+	if(dbc && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
-	if(ndbc != NULL && (t_ret = __dbc_close(ndbc)) != 0 && ret == 0)
+	if(ndbc && (t_ret = __dbc_close(ndbc)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
 }
@@ -563,10 +563,8 @@ int __env_mpool(DB * dbp, const char * fname, uint32 flags)
 	if(F_ISSET(dbp, DB_AM_TXN) && dbp->type != DB_QUEUE && dbp->type != DB_UNKNOWN)
 		LF_SET(DB_MULTIVERSION);
 	if((ret = __memp_fopen(mpf, NULL, fname, &dbp->dirname,
-		    LF_ISSET(DB_CREATE|DB_DURABLE_UNKNOWN|DB_MULTIVERSION|
-			    DB_NOMMAP|DB_ODDFILESIZE|DB_RDONLY|DB_TRUNCATE)|
-		    (F_ISSET(env->dbenv, DB_ENV_DIRECT_DB) ? DB_DIRECT : 0)|
-		    (F_ISSET(dbp, DB_AM_NOT_DURABLE) ? DB_TXN_NOT_DURABLE : 0),
+		    LF_ISSET(DB_CREATE|DB_DURABLE_UNKNOWN|DB_MULTIVERSION|DB_NOMMAP|DB_ODDFILESIZE|DB_RDONLY|DB_TRUNCATE)|
+		    (F_ISSET(env->dbenv, DB_ENV_DIRECT_DB) ? DB_DIRECT : 0)|(F_ISSET(dbp, DB_AM_NOT_DURABLE) ? DB_TXN_NOT_DURABLE : 0),
 		    0, dbp->pgsize)) != 0) {
 		/*
 		 * The open didn't work; we need to reset the mpf,

@@ -1224,7 +1224,7 @@ int PPALDD_LocTransfView::NextIteration(long iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_LocTransfView::Destroy()
+void PPALDD_LocTransfView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(LocTransf);
 }

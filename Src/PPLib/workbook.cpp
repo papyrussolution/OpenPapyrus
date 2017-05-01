@@ -988,10 +988,10 @@ private:
 						if(WbObj.Fetch(kw_id, &kw_rec) > 0 && kw_rec.Type == PPWBTYP_KEYWORD) {
 							temp_buf = kw_rec.Symb;
 							if(temp_buf.NotEmptyS()) {
-								rList.CatDiv(',', 0, 1).CatChar('$').Cat(temp_buf);
+								rList.CatDivIfNotEmpty(',', 0).CatChar('$').Cat(temp_buf);
 							}
 							else {
-								rList.CatDiv(',', 0, 1).CatChar('#').Cat(kw_id);
+								rList.CatDivIfNotEmpty(',', 0).CatChar('#').Cat(kw_id);
 							}
 						}
 					}
@@ -3199,12 +3199,12 @@ int PPALDD_UhttWorkbook::NextIteration(long iterId, long rsrv)
 									PPID   f_id = 0;
 									f_name.ShiftLeft(1);
 									if(f_obj.Get(f_id, f_name, f_body) > 0)
-										new_tag_text.CatDiv(',', 0, 1).Cat(f_body);
+										new_tag_text.CatDivIfNotEmpty(',', 0).Cat(f_body);
 									else
-										new_tag_text.CatDiv(',', 0, 1).CatChar('@').Cat(f_name);
+										new_tag_text.CatDivIfNotEmpty(',', 0).CatChar('@').Cat(f_name);
 								}
 								else
-									new_tag_text.CatDiv(',', 0, 1).Cat(f_name);
+									new_tag_text.CatDivIfNotEmpty(',', 0).Cat(f_name);
 							}
 							temp_buf = new_tag_text;
 						}
@@ -3221,18 +3221,18 @@ int PPALDD_UhttWorkbook::NextIteration(long iterId, long rsrv)
 									PPID   kw_id = f_name.ShiftLeft().ToLong();
 									WorkbookTbl::Rec kw_rec;
 									if(r_blk.WbObj.Fetch(kw_id, &kw_rec) > 0) {
-										new_tag_text.CatDiv(',', 0, 1).Cat(kw_rec.Name);
+										new_tag_text.CatDivIfNotEmpty(',', 0).Cat(kw_rec.Name);
 									}
 								}
 								else if(f_name.Strip().C(0) == '$' && f_name.Len() > 1) {
 									PPID   kw_id = 0;
 									WorkbookTbl::Rec kw_rec;
 									if(r_blk.WbObj.SearchBySymb(f_name+1, &kw_id, &kw_rec) > 0) {
-										new_tag_text.CatDiv(',', 0, 1).Cat(kw_rec.Name);
+										new_tag_text.CatDivIfNotEmpty(',', 0).Cat(kw_rec.Name);
 									}
 								}
 								else
-									new_tag_text.CatDiv(',', 0, 1).Cat(f_name);
+									new_tag_text.CatDivIfNotEmpty(',', 0).Cat(f_name);
 							}
 							temp_buf = new_tag_text;
 						}

@@ -281,7 +281,7 @@ SLAPI TWindow::~TWindow()
 		// Обнуляем ссылку на this в системной структуре окна во
 		// избежании попытки повторного удаления оконной процедурой.
 		//
-		//SetWindowLong(hWnd, GWL_USERDATA, 0);
+		//SetWindowLong(hWnd, GWLP_USERDATA, 0);
 		TView::SetWindowUserData(HW, (void *)0);
 	}
 }

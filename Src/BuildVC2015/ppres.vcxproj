@@ -204,6 +204,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>..\..\PPY\BIN\</OutDir>
@@ -213,6 +215,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
     <OutDir>..\..\PPY\BIN\</OutDir>
@@ -222,6 +226,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
     <OutDir>..\..\PPY\BIN\</OutDir>
@@ -231,6 +237,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
     <OutDir>..\..\PPY\BIN\</OutDir>
@@ -240,6 +248,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
     <OutDir>..\..\PPY\BIN\</OutDir>
@@ -249,11 +259,17 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
-    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <IntDir>$(Configuration)\</IntDir>
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
     <IncludePath>$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);..\include</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
+    <OutDir>..\..\PPY\BIN\</OutDir>
+    <IntDir>..\RSRC\RC\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -273,12 +289,14 @@
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
-COPY /Y $(IntDir)PP.RES $(OutDir)PPRAW.RES
-COPY /B /Y $(IntDir)PP.RES+$(IntDir)PPMENU.RES $(OutDir)PP.RES
-COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
 </Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -306,14 +324,15 @@ COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
-rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPRPT.RC
-COPY /Y $(IntDir)PP.RES $(OutDir)PPRAW.RES
-COPY /B /Y $(IntDir)PP.RES+$(IntDir)PPMENU.RES $(OutDir)PP.RES
-rem COPY $(IntDir)PPRPT.RES $(OutDir)PPRPT.RES
-COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta</Command>
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -336,12 +355,14 @@ COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta</Command>
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
-COPY /Y $(IntDir)PP.RES $(OutDir)PPRAW.RES
-COPY /B /Y $(IntDir)PP.RES+$(IntDir)PPMENU.RES $(OutDir)PP.RES
-COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
 </Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -362,14 +383,15 @@ COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
-rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPRPT.RC
-COPY /Y $(IntDir)PP.RES $(OutDir)PPRAW.RES
-COPY /B /Y $(IntDir)PP.RES+$(IntDir)PPMENU.RES $(OutDir)PP.RES
-rem COPY $(IntDir)PPRPT.RES $(OutDir)PPRPT.RES
-COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta</Command>
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -392,12 +414,14 @@ COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta</Command>
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
-COPY /Y $(IntDir)PP.RES $(OutDir)PPRAW.RES
-COPY /B /Y $(IntDir)PP.RES+$(IntDir)PPMENU.RES $(OutDir)PP.RES
-COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
 </Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -421,14 +445,15 @@ COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
-rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPRPT.RC
-COPY /Y $(IntDir)PP.RES $(OutDir)PPRAW.RES
-COPY /B /Y $(IntDir)PP.RES+$(IntDir)PPMENU.RES $(OutDir)PP.RES
-rem COPY $(IntDir)PPRPT.RES $(OutDir)PPRPT.RES
-COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta</Command>
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -451,12 +476,14 @@ COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta</Command>
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
-COPY /Y $(IntDir)PP.RES $(OutDir)PPRAW.RES
-COPY /B /Y $(IntDir)PP.RES+$(IntDir)PPMENU.RES $(OutDir)PP.RES
-COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
 </Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -480,14 +507,15 @@ COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
-rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPRPT.RC
-COPY /Y $(IntDir)PP.RES $(OutDir)PPRAW.RES
-COPY /B /Y $(IntDir)PP.RES+$(IntDir)PPMENU.RES $(OutDir)PP.RES
-rem COPY $(IntDir)PPRPT.RES $(OutDir)PPRPT.RES
-COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta</Command>
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -510,12 +538,14 @@ COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta</Command>
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
-COPY /Y $(IntDir)PP.RES $(OutDir)PPRAW.RES
-COPY /B /Y $(IntDir)PP.RES+$(IntDir)PPMENU.RES $(OutDir)PP.RES
-COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
 </Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -539,14 +569,15 @@ COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
-rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPRPT.RC
-COPY /Y $(IntDir)PP.RES $(OutDir)PPRAW.RES
-COPY /B /Y $(IntDir)PP.RES+$(IntDir)PPMENU.RES $(OutDir)PP.RES
-rem COPY $(IntDir)PPRPT.RES $(OutDir)PPRPT.RES
-COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta</Command>
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -569,12 +600,14 @@ COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta</Command>
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
-COPY /Y $(IntDir)PP.RES $(OutDir)PPRAW.RES
-COPY /B /Y $(IntDir)PP.RES+$(IntDir)PPMENU.RES $(OutDir)PP.RES
-COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
 </Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -598,14 +631,15 @@ COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
-rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPRPT.RC
-COPY /Y $(IntDir)PP.RES $(OutDir)PPRAW.RES
-COPY /B /Y $(IntDir)PP.RES+$(IntDir)PPMENU.RES $(OutDir)PP.RES
-rem COPY $(IntDir)PPRPT.RES $(OutDir)PPRPT.RES
-COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta</Command>
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -613,12 +647,28 @@ COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
     <PostBuildEvent>
-      <Command>COPY /B /Y $(IntDir)ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
-COPY /Y $(IntDir)PP.RES $(OutDir)PPRAW.RES
-COPY /B /Y $(IntDir)PP.RES+$(IntDir)PPMENU.RES $(OutDir)PP.RES
-COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+</Command>
+      <Message>Make resources</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
+    <PostBuildEvent>
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
+COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
+rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
+COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
 </Command>
       <Message>Make resources</Message>
     </PostBuildEvent>
@@ -755,10 +805,10 @@ xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
 ..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
-XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPKERNEL
+XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPKERNEL\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">DL600 compiler (database structure)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">DL600 compiler (database structure)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">set path=%25path%25%3b\pvsw\bin
@@ -777,10 +827,10 @@ xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
 ..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
-XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPKERNEL
+XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPKERNEL\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">DL600 compiler (database structure)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">DL600 compiler (database structure)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">set path=%25path%25%3b\pvsw\bin
@@ -799,10 +849,10 @@ xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
 ..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
-XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPKERNEL
+XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPKERNEL\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">DL600 compiler (database structure)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">DL600 compiler (database structure)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">set path=%25path%25%3b\pvsw\bin
@@ -821,10 +871,10 @@ xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
 ..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
-XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPKERNEL
+XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPKERNEL\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">DL600 compiler (database structure)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">DL600 compiler (database structure)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">set path=%25path%25%3b\pvsw\bin
@@ -843,10 +893,10 @@ xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
 ..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
-XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPKERNEL
+XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPKERNEL\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">DL600 compiler (database structure)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">DL600 compiler (database structure)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">set path=%25path%25%3b\pvsw\bin
@@ -865,10 +915,10 @@ xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
 ..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
-XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPKERNEL
+XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPKERNEL\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">set path=%25path%25%3b\pvsw\bin
 path
 del ..\..\BASE\INIT_DL6\*.* /Q
@@ -880,6 +930,17 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
 </Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">DL600 compiler (database structure)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">set path=%25path%25%3b\pvsw\bin
+path
+del ..\..\BASE\INIT_DL6\*.* /Q
+xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
+XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
+</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">DL600 compiler (database structure)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)..\..\PPLIB\%(Filename).CPP;%(RootDir)%(Directory)..\..\INCLUDE\%(Filename).H;%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\Rsrc\Dl600\ppexp.dl6">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">DL600 compiler (ppexp structure)</Message>
@@ -1013,6 +1074,13 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 </Command>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkObjects>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
+</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">DL600 compiler (interface)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">DL600 compiler (interface)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\Rsrc\Rc\charry.ds">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename)%(Extension)</Message>
@@ -1163,6 +1231,14 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)%(Filename)-.rc;%(RootDir)%(Directory)%(Filename)w-.rc;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)%(Filename)-.rc;%(RootDir)%(Directory)%(Filename)w-.rc;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\tools\scp2rc -list:%(FullPath) -out:%(RootDir)%(Directory)%(Filename).rc -path:%(RootDir)%(Directory)..\dlg\ -toolspath:..\..\tools
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\tools\scp2rc -list:%(FullPath) -out:%(RootDir)%(Directory)%(Filename).rc -path:%(RootDir)%(Directory)..\dlg\ -toolspath:..\..\tools
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">%(RootDir)%(Directory)%(Filename)-.rc;%(RootDir)%(Directory)%(Filename)w-.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">%(RootDir)%(Directory)%(Filename)-.rc;%(RootDir)%(Directory)%(Filename)w-.rc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">Сборка диалогов</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">Сборка диалогов</Message>
     </CustomBuild>
     <CustomBuild Include="..\Rsrc\Version\genver.dat">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename)%(Extension)</Message>
@@ -1420,6 +1496,55 @@ COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
       <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">%(Filename).tlb</TypeLibraryName>
       <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).tlb</TypeLibraryName>
       <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(Filename).tlb</TypeLibraryName>
+      <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RelativeDir)</OutputDirectory>
+      <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RelativeDir)</OutputDirectory>
+      <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RelativeDir)</OutputDirectory>
+      <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RelativeDir)</OutputDirectory>
+      <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">%(RelativeDir)</OutputDirectory>
+      <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RelativeDir)</OutputDirectory>
+      <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RelativeDir)</OutputDirectory>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename)_i.c</InterfaceIdentifierFileName>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(Filename)_i.c</InterfaceIdentifierFileName>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(Filename)_i.c</InterfaceIdentifierFileName>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(Filename)_i.c</InterfaceIdentifierFileName>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">%(Filename)_i.c</InterfaceIdentifierFileName>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename)_i.c</InterfaceIdentifierFileName>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename)_p.c</ProxyFileName>
+      <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(Filename)_p.c</ProxyFileName>
+      <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(Filename)_p.c</ProxyFileName>
+      <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(Filename)_p.c</ProxyFileName>
+      <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">%(Filename)_p.c</ProxyFileName>
+      <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename)_p.c</ProxyFileName>
+      <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(Filename)_p.c</ProxyFileName>
+      <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).tlb</TypeLibraryName>
+      <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(Filename).tlb</TypeLibraryName>
+      <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(Filename).tlb</TypeLibraryName>
+      <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(Filename).tlb</TypeLibraryName>
+      <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">%(Filename).tlb</TypeLibraryName>
+      <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).tlb</TypeLibraryName>
+      <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(Filename).tlb</TypeLibraryName>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">1</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">1</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">1</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">1</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">1</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|x64'">1</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">1</StructMemberAlignment>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">3</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">3</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">3</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">3</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">3</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">3</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">3</WarningLevel>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</SuppressStartupBanner>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</SuppressStartupBanner>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</SuppressStartupBanner>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</SuppressStartupBanner>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">false</SuppressStartupBanner>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</SuppressStartupBanner>
+      <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</SuppressStartupBanner>
     </Midl>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

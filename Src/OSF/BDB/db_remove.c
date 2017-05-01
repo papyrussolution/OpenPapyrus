@@ -7,24 +7,13 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/fop.h"
-// @v9.5.5 #include "dbinc/txn.h"
 
 static int __db_dbtxn_remove __P((DB*, DB_THREAD_INFO*, DB_TXN*, const char *, const char *));
 static int __db_subdb_remove __P((DB*, DB_THREAD_INFO*, DB_TXN*, const char *, const char *, uint32));
 /*
  * __env_dbremove_pp
  *	ENV->dbremove pre/post processing.
- *
- * PUBLIC: int __env_dbremove_pp __P((DB_ENV *,
- * PUBLIC:     DB_TXN *, const char *, const char *, uint32));
  */
 int __env_dbremove_pp(DB_ENV * dbenv, DB_TXN * txn, const char * name, const char * subdb, uint32 flags)
 {
@@ -250,20 +239,16 @@ int __db_inmem_remove(DB * dbp, DB_TXN * txn, const char * name)
 	DB_ASSERT(env, name != NULL);
 	/* This had better exist if we are trying to do a remove. */
 	__memp_set_flags(dbp->mpf, DB_MPOOL_NOFILE, 1);
-	if((ret = __memp_fopen(dbp->mpf, NULL,
-		    name, &dbp->dirname, 0, 0, 0)) != 0)
+	if((ret = __memp_fopen(dbp->mpf, NULL, name, &dbp->dirname, 0, 0, 0)) != 0)
 		return ret;
 	if((ret = __memp_get_fileid(dbp->mpf, dbp->fileid)) != 0)
 		return ret;
 	dbp->preserve_fid = 1;
 	if(LOCKING_ON(env)) {
-		if(dbp->locker == NULL &&
-		   (ret = __lock_id(env, NULL, &dbp->locker)) != 0)
+		if(dbp->locker == NULL && (ret = __lock_id(env, NULL, &dbp->locker)) != 0)
 			return ret;
-		if(!CDB_LOCKING(env) &&
-		   txn != NULL && F_ISSET(txn, TXN_INFAMILY)) {
-			if((ret = __lock_addfamilylocker(env,
-				    txn->txnid, dbp->locker->id, 1)) != 0)
+		if(!CDB_LOCKING(env) && txn != NULL && F_ISSET(txn, TXN_INFAMILY)) {
+			if((ret = __lock_addfamilylocker(env, txn->txnid, dbp->locker->id, 1)) != 0)
 				return ret;
 			txn = NULL;
 		}
@@ -276,8 +261,7 @@ int __db_inmem_remove(DB * dbp, DB_TXN * txn, const char * name)
 	 * another name.  We'll then use a commit-time event to remove the
 	 * entry.
 	 */
-	if((ret =
-	            __fop_lock_handle(env, dbp, locker, DB_LOCK_WRITE, NULL, 0)) != 0)
+	if((ret = __fop_lock_handle(env, dbp, locker, DB_LOCK_WRITE, NULL, 0)) != 0)
 		return ret;
 	if(!IS_REAL_TXN(txn))
 		ret = __memp_nameop(env, dbp->fileid, NULL, name, NULL, 1);

@@ -378,7 +378,7 @@ void   gprintf(char * pBuffer, size_t bufLen, const char * pFmt, double, double)
 	//void int_error(int, const char *, ...);
 	//void common_error_exit();
 #endif
-void int_warn(int, const char *, ...);
+//void IntWarn(int, const char *, ...);
 // To disallow 8-bit characters in variable names, set this to
 // #define ALLOWED_8BITVAR(c) false 
 #define ALLOWED_8BITVAR(c) ((c)&0x80)
@@ -1412,10 +1412,10 @@ public:
 	void   ExitCommand();
 	void   BeginClause();
 	void   EndClause();
-	void   ArrayCommand(GpGadgets & rGg);
+	void   ArrayCommand();
 	void   CallCommand();
 
-	GpCommand()
+	GpCommand(GpGadgets & rGg) : R_Gg(rGg)
 	{
 		P_InputLine = 0;
 		InputLineLen = 0;
@@ -1470,8 +1470,8 @@ public:
 	{
 		return (size_t)(P_Token[t_num].length);
 	}
-	int    DoLine(GpGadgets & rGg); // do_line()
-	void   Command(GpGadgets & rGg);
+	int    DoLine(); // do_line()
+	void   Command();
 	void   Define();
 	void   Convert(t_value * pValue, int t_num);
 	void   ExpandCallArgs();
@@ -1609,6 +1609,10 @@ public:
 	//
 	GpParser P;
 	GpHistory H;
+private:
+	int    FindClause(int * pClauseStart, int * pClauseEnd);
+
+	GpGadgets & R_Gg;
 };
 
 //extern GpCommand GpGg.Gp__C;
@@ -2267,30 +2271,77 @@ struct t_sm_palette {
  */
 struct GpTermEntry {
 #if 0 // @construction {	
-    virtual void Options(GpCommand & rC);
-    virtual void Init();
-    virtual void Reset();
-    virtual void Text();
-    virtual int  Scale(double, double);
-    virtual void Graphics();
-    virtual void Move(uint, uint);
-    virtual void Vector(uint, uint);
-	virtual void LineType(int);
-    virtual void PutText(uint, uint, const char*);
+    virtual void Options(GpCommand & rC)
+	{
+	}
+    virtual void Init()
+	{
+	}
+    virtual void Reset()
+	{
+	}
+    virtual void Text()
+	{
+	}
+    virtual int  Scale(double, double)
+	{
+		return 0;
+	}
+    virtual void Graphics()
+	{
+	}
+    virtual void Move(uint, uint)
+	{
+	}
+    virtual void Vector(uint, uint)
+	{
+	}
+	virtual void LineType(int)
+	{
+	}
+    virtual void PutText(uint, uint, const char * pText)
+	{
+	}
 	//
     // the following are optional. set term ensures they are not NULL
 	//
-    virtual int  TextAngle(int);
-    virtual int  JustifyText(enum JUSTIFY);
-    virtual void Point(uint, uint, int);
-    virtual void Arrow(uint, uint, uint, uint, int);
-    virtual int  SetFont(const char *font);
-    virtual void PointSize(double); /* change pointsize */
-    virtual void Suspend(); /* called after one plot of multiplot */
-    virtual void Resume(); /* called before plots of multiplot */
-    virtual void FillBox(int, uint, uint, uint, uint); /* clear in multiplot mode */
-    virtual void LineWidth(double linewidth);
-	virtual int  MakePalette(t_sm_palette *palette);
+    virtual int  TextAngle(int)
+	{
+		return 0;
+	}
+    virtual int  JustifyText(enum JUSTIFY)
+	{
+		return 0;
+	}
+    virtual void Point(uint, uint, int)
+	{
+	}
+    virtual void Arrow(uint, uint, uint, uint, int)
+	{
+	}
+    virtual int  SetFont(const char *font)
+	{
+		return 0;
+	}
+    virtual void PointSize(double) // change pointsize 
+	{
+	}
+    virtual void Suspend() // called after one plot of multiplot 
+	{
+	}
+    virtual void Resume() // called before plots of multiplot 
+	{
+	}
+    virtual void FillBox(int, uint, uint, uint, uint) // clear in multiplot mode 
+	{
+	}
+    virtual void LineWidth(double linewidth)
+	{
+	}
+	virtual int  MakePalette(t_sm_palette * pPalette)
+	{
+		return 0;
+	}
 	//
 	// 1. if palette==NULL, then return nice/suitable
 	// maximal number of colours supported by this terminal.
@@ -2298,7 +2349,9 @@ struct GpTermEntry {
 	// 2. if palette!=NULL, then allocate its own palette return value is undefined
 	// 3. available: some negative values of max_colors for whatever can be useful
 	//
-	virtual void PreviousPalette();
+	virtual void PreviousPalette()
+	{
+	}
 	//
 	// release the palette that the above routine allocated and get
 	// back the palette that was active before.
@@ -2306,47 +2359,205 @@ struct GpTermEntry {
 	// using their own palette. Those terminals that possess only
 	// one palette for the whole plot don't need this routine.
 	//
-    virtual void SetColor(t_colorspec *);
+    virtual void SetColor(t_colorspec * pColor)
+	{
+	}
 	//
 	// EAM November 2004 - revised to take a pointer to struct rgb_color,
 	// so that a palette gray value is not the only option for specifying color.
 	//
-    virtual void FilledPolygon(int points, gpiPoint *corners);
-    virtual void Image(uint, uint, double *, gpiPoint *, t_imagecolor);
+    virtual void FilledPolygon(int points, gpiPoint *corners)
+	{
+	}
+    virtual void Image(uint, uint, double *, gpiPoint *, t_imagecolor)
+	{
+	}
 	// Enhanced text mode driver call-backs
-    virtual void   EnhancedOpen(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
-    virtual void   EnhancedFlush();
-    virtual void   EnhancedWritec(int c);
+    virtual void   EnhancedOpen(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+	{
+	}
+    virtual void   EnhancedFlush()
+	{
+	}
+    virtual void   EnhancedWritec(int c)
+	{
+	}
 	//
 	// Driver-specific synchronization or other layering commands.
 	// Introduced as an alternative to the ugly sight of
 	// driver-specific code strewn about in the core routines.
 	// As of this point (July 2005) used only by pslatex.trm
 	//
-    virtual void   Layer(t_termlayer);
+    virtual void   Layer(t_termlayer)
+	{
+	}
 	//
 	// Begin/End path control.
 	// Needed by PostScript-like devices in order to join the endpoints of a polygon cleanly.
 	//
-    virtual void   Path(int p);
+    virtual void   Path(int p)
+	{
+	}
 	//
 	// Scale factor for converting terminal coordinates to output
 	// pixel coordinates.  Used to provide data for external mousing code.
 	//
 	// Pass hypertext for inclusion in the output plot
-    virtual void   HyperText(int type, const char *text);
-    virtual void   ModifyPlots(uint operations, int plotno);
-    virtual void   DashType(int type, t_dashtype *custom_dash_pattern);
+    virtual void   HyperText(int type, const char *text)
+	{
+	}
+    virtual void   ModifyPlots(uint operations, int plotno)
+	{
+	}
+    virtual void   DashType(int type, t_dashtype *custom_dash_pattern)
+	{
+	}
 #ifdef USE_MOUSE
-    virtual int  WaitForInput(int);     /* used for mouse and hotkey input */
-    virtual void PutTmpText(int, const char []);   /* draws temporary text; int determines where: 0=statusline, 1,2: at corners of zoom box, with \r separating text above and below the point */
-    virtual void SetRuler(int, int);    /* set ruler location; x<0 switches ruler off */
-    virtual void SetCursor(int, int, int);   /* set cursor style and corner of rubber band */
-    virtual void SetClipboard(const char[]);  /* write text into cut&paste buffer (clipboard) */
+    virtual int  WaitForInput(int) // used for mouse and hotkey input 
+	{
+		return 0;
+	}
+    virtual void PutTmpText(int, const char []) // draws temporary text; int determines where: 0=statusline, 1,2: at corners of zoom box, with \r separating text above and below the point 
+	{
+	}
+    virtual void SetRuler(int, int) // set ruler location; x<0 switches ruler off 
+	{
+	}
+    virtual void SetCursor(int, int, int) // set cursor style and corner of rubber band 
+	{
+	}
+    virtual void SetClipboard(const char[]) // write text into cut&paste buffer (clipboard) 
+	{
+	}
 #endif
 #ifdef EAM_BOXED_TEXT
-    virtual void   BoxedText(uint, uint, int);
+    virtual void   BoxedText(uint, uint, int)
+	{
+	}
 #endif
+	GpTermEntry()
+	{
+		name = 0;
+		description = 0;
+		xmax = 0;
+		ymax = 0;
+		VChr = 0;
+		HChr = 0;
+		VTic = 0;
+		HTic = 0;
+		flags = 0;
+		tscale = 1.0;
+	}
+	GpTermEntry(
+			const char * pName, 
+			const char * pDescr, 
+			uint _xmax, 
+			uint _ymax, 
+			uint _vchr, 
+			uint _hchr, 
+			uint _vtic, 
+			uint _htic, 
+			void (*fOptions)(GpCommand & rC),
+			void (*fInit)(),
+			void (*fReset)(),
+			void (*fText)(),
+			int  (*fScale)(double, double),
+			void (*fGraphics)(),
+			void (*fMove)(uint, uint),
+			void (*fVector)(uint, uint),
+			void (*fLinetype)(int),
+			void (*fPut_text)(uint, uint, const char*),
+			int  (*fText_angle)(int),
+			int  (*fJustify_text)(enum JUSTIFY),
+			void (*fPoint)(uint, uint, int),
+			void (*fArrow)(uint, uint, uint, uint, int),
+			int  (*fSet_font)(const char *font),
+			void (*fPointsize)(double),
+			int  _flags,
+			void (*fSuspend)(),
+			void (*fResume) (),
+			void (*fFillbox)(int, uint, uint, uint, uint),
+			void (*fLinewidth)(double linewidth),
+		#ifdef USE_MOUSE
+			int  (*fWaitforinput)(int),
+			void (*fPut_tmptext)(int, const char []),
+			void (*fSet_ruler)(int, int),
+			void (*fSet_cursor)(int, int, int),
+			void (*fSet_clipboard)(const char[]),
+		#endif
+			int (*fMake_palette)(t_sm_palette *palette),
+			void (*fPrevious_palette)(),
+			void (*fSet_color)(t_colorspec *),
+			void (*fFilled_polygon)(int points, gpiPoint *corners),
+			void (*fImage)(uint, uint, double *, gpiPoint *, t_imagecolor),
+			void   (*fEnhanced_open)(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint),
+			void   (*fEnhanced_flush)(),
+			void   (*fEnhanced_writec)(int),
+			void   (*fLayer)(t_termlayer),
+			void   (*fPath)(int),
+			double _tscale,
+			void   (*fHypertext)(int type, const char *text),
+#ifdef EAM_BOXED_TEXT
+			void   (*fBoxedText)(uint, uint, int),
+#endif
+			void   (*fModify_plots)(uint operations, int plotno),
+			void   (*fDashtype)(int type, t_dashtype *custom_dash_pattern)
+		)
+	{
+		name = pName;
+		description = pDescr;
+		xmax = _xmax;
+		ymax = _ymax;
+		VChr = _vchr;
+		HChr = _hchr;
+		VTic = _vtic;
+		HTic = _htic;
+		options = fOptions;
+		init = fInit;
+		reset = fReset;
+		text = fText;
+		scale = fScale;
+		graphics = fGraphics;
+		move = fMove;
+		vector = fVector;
+		linetype = fLinetype;
+		put_text = fPut_text;
+		text_angle = fText_angle;
+		justify_text = fJustify_text;
+		point = fPoint;
+		arrow = fArrow;
+		set_font = fSet_font;
+		pointsize = fPointsize;
+		flags = _flags;
+		suspend = fSuspend;
+		resume = fResume;
+		fillbox = fFillbox;
+		linewidth = fLinewidth;
+	#ifdef USE_MOUSE
+		waitforinput = fWaitforinput;
+		put_tmptext = fPut_tmptext;
+		set_ruler = fSet_ruler;
+		set_cursor = fSet_cursor;
+		set_clipboard = fSet_clipboard;
+	#endif
+		make_palette = fMake_palette;
+		previous_palette = fPrevious_palette;
+		set_color = fSet_color;
+		filled_polygon = fFilled_polygon;
+		image = fImage;
+		enhanced_open = fEnhanced_open;
+		enhanced_flush = fEnhanced_flush;
+		enhanced_writec = fEnhanced_writec;
+		layer = fLayer;
+		path = fPath;
+		tscale = _tscale;
+		hypertext = fHypertext;
+#ifdef EAM_BOXED_TEXT
+		boxed_text = fBoxedText;
+#endif
+		modify_plots = fModify_plots;
+		dashtype = fDashtype;
+	}
 #endif // } @construction
 	//
 	//
@@ -2369,7 +2580,7 @@ struct GpTermEntry {
     void (*move)(uint, uint);
     void (*vector)(uint, uint);
     void (*linetype)(int);
-    void (*put_text)(uint, uint, const char*);
+    void (*put_text)(uint, uint, const char *);
 	//
     // the following are optional. set term ensures they are not NULL
 	//
@@ -2447,6 +2658,27 @@ struct GpTermEntry {
 	//
 	void SetColor(double gray);
 	void DrawMultiline(uint x, uint y, char * pText, JUSTIFY hor, VERT_JUSTIFY vert, int angle, const char * pFont);
+	//
+	void _Move(uint x, uint y)
+	{
+		(*move)(x, y);
+	}
+	void _Vector(uint x, uint y)
+	{
+		(*vector)(x, y);
+	}
+	void _LineType(int _lt)
+	{
+		(*linetype)(_lt);
+	}
+	void _Layer(t_termlayer _l)
+	{
+		(*layer)(_l);
+	}
+	void _PutText(uint x, uint y, const char * pText)
+	{
+		(*put_text)(x, y, pText);
+	}
 };
 
 enum set_encoding_id {
@@ -2536,7 +2768,7 @@ extern bool ignore_enhanced_text;
 //
 // Prototypes of functions exported by term.c
 //
-void term_set_output(char *);
+//void term_set_output(char *);
 //void term_initialise();
 void term_reset();
 //void term_check_multiplot_okay(bool);
@@ -5620,7 +5852,8 @@ public:
 		DefaultRectangle(t_object::defRectangle),
 		DefaultCircle(t_object::defCircle),
 		DefaultEllipse(t_object::defEllipse),
-		Ev(*this)
+		Ev(*this),
+		Gp__C(*this)
 	{
 		State_ = 0;
 		P_Clip = &PlotBounds;
@@ -5740,6 +5973,7 @@ public:
 	void   IntError(int t_num, const char * pStr, ...);
 	void   IntErrorCurToken(const char * pStr, ...);
 	void   IntErrorNoCaret(const char * pStr, ...);
+	void   IntWarn(int t_num, const char * str, ...);
 
 	void   InitSession(GpCommand & rC);
 	void   InitConstants();
@@ -5747,6 +5981,7 @@ public:
 	void   ResetPalette();
 
 	void   TermInitialise();
+	void   TermSetOutput(GpTermEntry * pT, char * pDest);
 	int    ComLine(GpCommand & rC);
 
 	GpAxis & GetX() 
@@ -5914,7 +6149,7 @@ public:
 	void   Setup3DBoxCorners();
 	bool   GetArrow3D(arrow_def* arrow, int* sx, int* sy, int* ex, int* ey);
 	void   AdjustOffsets();
-	void   LoadFile(GpCommand & rC, FILE * pFp, char * pFileName, int calltype);
+	void   LoadFile(FILE * pFp, char * pFileName, int calltype);
 	void   Eval3DPlots(GpCommand & rC);
 	void   MultiplotStart(GpTermEntry * pT, GpCommand & rC);
 	void   MultiplotEnd();
@@ -5965,7 +6200,7 @@ public:
 	void   BoxPlotRangeFiddling(CurvePoints * pPlot);
 	void   Store2DPoint(CurvePoints * pPlot, int i /* point number */, double x, double y, double xlow, double xhigh,
 		double ylow, double yhigh, double width /* BOXES widths: -1 -> autocalc, 0 ->  use xlow/xhigh */);
-	int    GetData(GpCommand & rC, CurvePoints * pPlot);
+	int    GetData(CurvePoints * pPlot);
 	void   HistogramRangeFiddling(CurvePoints * pPlot);
 	void   FilledPolygonCommon(GpTermEntry * pT, int points, const GpCoordinate & rCoords, bool fixed, double z);
 	void   FilledPolygon3DCoords(GpTermEntry * pT, int points, const GpCoordinate & rCoords);
@@ -6336,10 +6571,10 @@ public:
 	void   ParseLabelOptions(GpCommand & rC, GpTextLabel * pLabel, int nDim);
 	void   ParsePlotTitle(GpCommand & rC, CurvePoints * pPlot, char * pXTitle, char * pYTitle, bool * pSetTitle);
 
-	void   PlotRequest(GpCommand & rC);
+	void   PlotRequest(/*GpCommand & rC*/);
 	void   Plot3DRequest(GpCommand & rC);
 	void   StatsRequest(GpCommand & rC);
-	void   EvalPlots(GpCommand & rC);
+	void   EvalPlots(/*GpCommand & rC*/);
 
 	void   CheckPaletteGrayscale(GpCommand & rC);
 	void   SetPaletteFile(GpCommand & rC);

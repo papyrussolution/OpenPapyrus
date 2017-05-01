@@ -240,19 +240,19 @@ SString & SLAPI PPObjBill::MakeCodeString(const BillTbl::Rec * pRec, int options
 	rBuf.Cat(pRec->Dt, DATF_DMY|DATF_CENTURY).CatDiv('-', 1).Cat(BillCore::GetCode(code));
 	if(options == 1 || options & mcsAddOpName) {
 		GetOpName(pRec->OpID, name = 0);
-		rBuf.CatDiv('-', 1, 1).Cat(name);
+		rBuf.CatDivIfNotEmpty('-', 1).Cat(name);
 	}
 	if(options & mcsAddObjName && pRec->Object) {
 		GetArticleName(pRec->Object, name = 0);
-		rBuf.CatDiv('-', 1, 1).Cat(name);
+		rBuf.CatDivIfNotEmpty('-', 1).Cat(name);
 	}
 	if(options & mcsAddLocName) {
 		GetLocationName(pRec->LocID, name = 0);
-		rBuf.CatDiv('-', 1, 1).Cat(name);
+		rBuf.CatDivIfNotEmpty('-', 1).Cat(name);
 	}
 	if(options & mcsAddSCard && pRec->SCardID) {
 		GetObjectName(PPOBJ_SCARD, pRec->SCardID, name = 0);
-		rBuf.CatDiv('-', 1, 1).Cat(name);
+		rBuf.CatDivIfNotEmpty('-', 1).Cat(name);
 	}
 	return rBuf;
 }
@@ -5040,7 +5040,7 @@ int SLAPI PPObjBill::GetSubstText(PPID srcID, SubstParam * pParam, SString & rBu
 					SString addr_buf;
 					LocationCore::GetAddress(loc_rec, 0, addr_buf);
                     if(addr_buf.NotEmptyS())
-						rBuf.CatDiv(';', 2, 1).Cat(addr_buf);
+						rBuf.CatDivIfNotEmpty(';', 2).Cat(addr_buf);
                 }
                 if(!rBuf.NotEmptyS()) {
                     ideqvalstr(val, rBuf);
@@ -8124,7 +8124,7 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 		AgtBlock agt_blk;
 		PPSymbTranslator st;
 		for(const char * p = pTemplate; *p;) {
-			uint   next = 1;
+			size_t next = 1;
 			if(*p == '@') {
 				long   sym  = st.Translate(p, &next);
 				if(sym == 0) {

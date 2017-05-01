@@ -236,7 +236,7 @@ SString & SLAPI PPSyncCashNode::CTblListToString(SString & rBuf) const
 	if(c) {
 		temp_list.sort();
 		for(uint i = 0; i < c;) {
-			rBuf.CatDiv(',', 2, 1).Cat(temp_list.get(i));
+			rBuf.CatDivIfNotEmpty(',', 2).Cat(temp_list.get(i));
 			uint j = i+1;
 			//
 			// Пропускаем одинаковые номера
@@ -2875,10 +2875,9 @@ int PPALDD_LocPrnTest::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_LocPrnTest::Destroy()
+void PPALDD_LocPrnTest::Destroy()
 {
 	Extra[1].Ptr = 0;
-	return 1;
 }
 
 int SLAPI PPObjLocPrinter::Browse(void * extraPtr)

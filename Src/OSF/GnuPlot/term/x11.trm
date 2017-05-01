@@ -293,7 +293,7 @@ static int parse_driver(const char * cmd)
 			dir = X11_DRIVER_DIR;
 		if(dir[0] != '/' && dir[0] != '.') {
 			/* Can't call int_error because longjump has not been set up yet */
-			int_warn(NO_CARET, "Illegal X11 driver directory name! Using default");
+			IntWarn(NO_CARET, "Illegal X11 driver directory name! Using default");
 			dir = "";
 		}
 		X11_full_command_path = gp_realloc(X11_full_command_path,

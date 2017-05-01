@@ -4238,7 +4238,7 @@ int PPALDD_GoodsOpAnlz::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_GoodsOpAnlz::Destroy()
+void PPALDD_GoodsOpAnlz::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(GoodsOpAnalyze);
 }
@@ -4335,7 +4335,7 @@ int PPALDD_GoodsOpAnlzCmp::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_GoodsOpAnlzCmp::Destroy()
+void PPALDD_GoodsOpAnlzCmp::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(GoodsOpAnalyze);
 }

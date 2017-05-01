@@ -557,7 +557,7 @@ int PPALDD_PsnRelList::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_PsnRelList::Destroy()
+void PPALDD_PsnRelList::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(PersonRel);
 }

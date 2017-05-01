@@ -476,7 +476,7 @@ int PPALDD_TransportView::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_TransportView::Destroy()
+void PPALDD_TransportView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(Transport);
 }

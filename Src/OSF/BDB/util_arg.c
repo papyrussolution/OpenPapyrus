@@ -7,12 +7,6 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
 #if DB_VERSION_MAJOR < 4 || DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR < 5
@@ -24,12 +18,9 @@
  */
 char * strsep(char ** stringp, const char * delim);
 #endif
-
 /*
  * __db_util_arg --
  *	Convert a string into an argc/argv pair.
- *
- * PUBLIC: int __db_util_arg __P((char *, char *, int *, char ***));
  */
 int __db_util_arg(char * arg0, char * str, int * argcp, char *** argvp)
 {

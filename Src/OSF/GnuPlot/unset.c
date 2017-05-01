@@ -302,7 +302,7 @@ ITERATE:
 					IntErrorCurToken("you can't change the output in multiplot mode");
 				}
 				else {
-					term_set_output(NULL);
+					TermSetOutput(term, 0);
 					ZFREE(outstr); // means STDOUT
 				}
 			}
@@ -413,7 +413,7 @@ ITERATE:
 		    UnsetAllTics();
 		    break;
 		case S_TICSCALE:
-		    int_warn(rC.CToken, "Deprecated syntax - use 'set tics scale default'");
+		    IntWarn(rC.CToken, "Deprecated syntax - use 'set tics scale default'");
 		    break;
 		case S_TICSLEVEL:
 		case S_XYPLANE:
@@ -1289,7 +1289,7 @@ void GpGadgets::ResetCommand(GpCommand & rC)
 	}
 #endif
 	if(!(rC.EndOfCommand())) {
-		int_warn(rC.CToken, "invalid option, expecting 'bind' or 'errorstate'");
+		IntWarn(rC.CToken, "invalid option, expecting 'bind' or 'errorstate'");
 		while(!(rC.EndOfCommand()))
 			rC.CToken++;
 	}

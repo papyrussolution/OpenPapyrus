@@ -5,18 +5,9 @@
  *
  * $Id$
  */
-
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/log.h"
-// @v9.5.5 #include "dbinc/db_am.h"
 
 #ifdef HAVE_STATISTICS
 static int __lock_dump_locker __P((ENV*, DB_MSGBUF*, DB_LOCKTAB*, DB_LOCKER *));
@@ -28,8 +19,6 @@ static int __lock_stat __P((ENV*, DB_LOCK_STAT**, uint32));
 /*
  * __lock_stat_pp --
  *	ENV->lock_stat pre/post processing.
- *
- * PUBLIC: int __lock_stat_pp __P((DB_ENV *, DB_LOCK_STAT **, uint32));
  */
 int __lock_stat_pp(DB_ENV * dbenv, DB_LOCK_STAT ** statp, uint32 flags)
 {
@@ -83,12 +72,9 @@ static int __lock_stat(ENV * env, DB_LOCK_STAT ** statp, uint32 flags)
 		stats->st_lock_nowait += lt->obj_stat[i].st_lock_nowait;
 		stats->st_nlocktimeouts += lt->obj_stat[i].st_nlocktimeouts;
 		stats->st_ntxntimeouts += lt->obj_stat[i].st_ntxntimeouts;
-		if(stats->st_maxhlocks < lt->obj_stat[i].st_maxnlocks)
-			stats->st_maxhlocks = lt->obj_stat[i].st_maxnlocks;
-		if(stats->st_maxhobjects < lt->obj_stat[i].st_maxnobjects)
-			stats->st_maxhobjects = lt->obj_stat[i].st_maxnobjects;
-		if(stats->st_hash_len < lt->obj_stat[i].st_hash_len)
-			stats->st_hash_len = lt->obj_stat[i].st_hash_len;
+		SETMAX(stats->st_maxhlocks, lt->obj_stat[i].st_maxnlocks);
+		SETMAX(stats->st_maxhobjects, lt->obj_stat[i].st_maxnobjects);
+		SETMAX(stats->st_hash_len, lt->obj_stat[i].st_hash_len);
 		if(LF_ISSET(DB_STAT_CLEAR)) {
 			htmp = lt->obj_stat[i];
 			memzero(&lt->obj_stat[i], sizeof(lt->obj_stat[i]));
@@ -104,13 +90,10 @@ static int __lock_stat(ENV * env, DB_LOCK_STAT ** statp, uint32 flags)
 		stats->st_nobjects += lt->part_array[i].part_stat.st_nobjects;
 		stats->st_maxnobjects += lt->part_array[i].part_stat.st_maxnobjects;
 		stats->st_locksteals += lt->part_array[i].part_stat.st_locksteals;
-		if(stats->st_maxlsteals < lt->part_array[i].part_stat.st_locksteals)
-			stats->st_maxlsteals = lt->part_array[i].part_stat.st_locksteals;
+		SETMAX(stats->st_maxlsteals, lt->part_array[i].part_stat.st_locksteals);
 		stats->st_objectsteals += lt->part_array[i].part_stat.st_objectsteals;
-		if(stats->st_maxosteals < lt->part_array[i].part_stat.st_objectsteals)
-			stats->st_maxosteals = lt->part_array[i].part_stat.st_objectsteals;
-		__mutex_set_wait_info(env,
-			lt->part_array[i].mtx_part, &tmp_wait, &tmp_nowait);
+		SETMAX(stats->st_maxosteals, lt->part_array[i].part_stat.st_objectsteals);
+		__mutex_set_wait_info(env, lt->part_array[i].mtx_part, &tmp_wait, &tmp_nowait);
 		stats->st_part_nowait += tmp_nowait;
 		stats->st_part_wait += tmp_wait;
 		if(tmp_wait > stats->st_part_max_wait) {
@@ -143,11 +126,9 @@ static int __lock_stat(ENV * env, DB_LOCK_STAT ** statp, uint32 flags)
 		region->stat.st_maxlocks = tmp.st_maxlocks;
 		region->stat.st_maxlockers = tmp.st_maxlockers;
 		region->stat.st_maxobjects = tmp.st_maxobjects;
-		region->stat.st_nlocks =
-		        region->stat.st_maxnlocks = tmp.st_nlocks;
+		region->stat.st_nlocks = region->stat.st_maxnlocks = tmp.st_nlocks;
 		region->stat.st_maxnlockers = region->nlockers;
-		region->stat.st_nobjects =
-		        region->stat.st_maxnobjects = tmp.st_nobjects;
+		region->stat.st_nobjects = region->stat.st_maxnobjects = tmp.st_nobjects;
 		region->stat.st_partitions = tmp.st_partitions;
 		region->stat.st_tablesize = tmp.st_tablesize;
 	}
@@ -166,9 +147,8 @@ static int __lock_stat(ENV * env, DB_LOCK_STAT ** statp, uint32 flags)
 int __lock_stat_print_pp(DB_ENV * dbenv, uint32 flags)
 {
 	DB_THREAD_INFO * ip;
-	ENV * env;
 	int ret;
-	env = dbenv->env;
+	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG(env, env->lk_handle, "DB_ENV->lock_stat_print", DB_INIT_LOCK);
  #define DB_STAT_LOCK_FLAGS                                                \
 	(DB_STAT_ALL|DB_STAT_ALLOC|DB_STAT_CLEAR|DB_STAT_LOCK_CONF| \
@@ -180,12 +160,9 @@ int __lock_stat_print_pp(DB_ENV * dbenv, uint32 flags)
 	ENV_LEAVE(env, ip);
 	return ret;
 }
-
 /*
  * __lock_stat_print --
  *	ENV->lock_stat_print method.
- *
- * PUBLIC: int  __lock_stat_print __P((ENV *, uint32));
  */
 int __lock_stat_print(ENV * env, uint32 flags)
 {
@@ -427,9 +404,6 @@ static void __lock_print_header(ENV * env)
 }
 /*
  * __lock_printlock --
- *
- * PUBLIC: void __lock_printlock
- * PUBLIC:     __P((DB_LOCKTAB *, DB_MSGBUF *mbp, struct __db_lock *, int));
  */
 void __lock_printlock(DB_LOCKTAB * lt, DB_MSGBUF * mbp, struct __db_lock * lp, int ispgno)
 {
@@ -466,10 +440,7 @@ void __lock_printlock(DB_LOCKTAB * lt, DB_MSGBUF * mbp, struct __db_lock * lp, i
 	    case DB_LSTAT_WAITING: status = "WAIT"; break;
 	    default: status = "UNKNOWN"; break;
 	}
-	__db_msgadd(env, mbp, "%8lx %-10s %4lu %-7s ",
-		(ulong)((DB_LOCKER *)R_ADDR(&lt->reginfo, lp->holder))->id,
-		mode, (ulong)lp->refcount, status);
-
+	__db_msgadd(env, mbp, "%8lx %-10s %4lu %-7s ", (ulong)((DB_LOCKER *)R_ADDR(&lt->reginfo, lp->holder))->id, mode, (ulong)lp->refcount, status);
 	lockobj = SH_OFF_TO_PTR(lp, lp->obj, DB_LOCKOBJ);
 	ptr = (uint8 *)SH_DBT_PTR(&lockobj->lockobj);
 	if(ispgno && lockobj->lockobj.size == sizeof(struct __db_ilock)) {

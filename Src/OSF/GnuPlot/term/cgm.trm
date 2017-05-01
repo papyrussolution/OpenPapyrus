@@ -379,7 +379,7 @@ static void CGM_options(GpCommand & rC)
 			    if(!rC.EndOfCommand()) {
 				    cgm_linewidth_pt = rC.IntExpression();
 				    if(cgm_linewidth_pt == 0 || cgm_linewidth_pt > 10000) {
-					    int_warn(rC.CToken, "linewidth out of range");
+					    IntWarn(rC.CToken, "linewidth out of range");
 					    cgm_linewidth_pt = 1;
 				    }
 			    }
@@ -389,7 +389,7 @@ static void CGM_options(GpCommand & rC)
 			    if(!rC.EndOfCommand()) {
 				    cgm_plotwidth = rC.IntExpression();
 				    if(cgm_plotwidth < 0 || cgm_plotwidth > 10000) {
-					    int_warn(rC.CToken, "width out of range");
+					    IntWarn(rC.CToken, "width out of range");
 					    cgm_plotwidth = 6 * 72;
 				    }
 			    }
@@ -945,10 +945,10 @@ static void CGM_dashtype(int dashtype)
 	if(dashtype >= CGM_LINE_TYPES)
 		dashtype = dashtype % CGM_LINE_TYPES;
 	if(dashtype < 1) {
-		term->vector = CGM_solid_vector;
+		term->_Vector = CGM_solid_vector;
 		return;
 	}
-	term->vector = CGM_dashed_vector;
+	term->_Vector = CGM_dashed_vector;
 
 	/* set up dash dimensions */
 	j = (dashtype - 1) * 8;

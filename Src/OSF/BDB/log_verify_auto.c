@@ -2,21 +2,8 @@
 
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
-// @v9.5.5 #include "dbinc/txn.h"
-// @v9.5.5 #include "dbinc/heap.h"
-// @v9.5.5 #include "dbinc/qam.h"
-// @v9.5.5 #include "dbinc/fop.h"
-/*
- * PUBLIC: int __crdel_init_verify __P((ENV *, DB_DISTAB *));
- */
+
 int __crdel_init_verify(ENV * env, DB_DISTAB * dtabp)
 {
 	int ret;
@@ -30,9 +17,7 @@ int __crdel_init_verify(ENV * env, DB_DISTAB * dtabp)
 		return ret;
 	return 0;
 }
-/*
- * PUBLIC: int __db_init_verify __P((ENV *, DB_DISTAB *));
- */
+
 int __db_init_verify(ENV * env, DB_DISTAB * dtabp)
 {
 	int ret;
@@ -68,9 +53,7 @@ int __db_init_verify(ENV * env, DB_DISTAB * dtabp)
 		return ret;
 	return 0;
 }
-/*
- * PUBLIC: int __dbreg_init_verify __P((ENV *, DB_DISTAB *));
- */
+
 int __dbreg_init_verify(ENV * env, DB_DISTAB * dtabp)
 {
 	int ret;
@@ -78,9 +61,7 @@ int __dbreg_init_verify(ENV * env, DB_DISTAB * dtabp)
 		return ret;
 	return 0;
 }
-/*
- * PUBLIC: int __bam_init_verify __P((ENV *, DB_DISTAB *));
- */
+
 int __bam_init_verify(ENV * env, DB_DISTAB * dtabp)
 {
 	int ret;
@@ -106,9 +87,7 @@ int __bam_init_verify(ENV * env, DB_DISTAB * dtabp)
 		return ret;
 	return 0;
 }
-/*
- * PUBLIC: int __fop_init_verify __P((ENV *, DB_DISTAB *));
- */
+
 int __fop_init_verify(ENV * env, DB_DISTAB * dtabp)
 {
 	int ret;

@@ -369,7 +369,7 @@ out:
  *
  * PUBLIC: int __hamc_dup __P((DBC *, DBC *));
  */
-int __hamc_dup(DBC * orig_dbc, DBC * new_dbc)
+int FASTCALL __hamc_dup(DBC * orig_dbc, DBC * new_dbc)
 {
 	HASH_CURSOR * orig = (HASH_CURSOR *)orig_dbc->internal;
 	HASH_CURSOR * p_new_cursor = (HASH_CURSOR *)new_dbc->internal;
@@ -626,22 +626,13 @@ back_up:
 					if(indx != 0) {
 						indx -= 2;
 						/* XXX
-						 * It's not clear that this is
-						 * the right way to fix this,
-						 * but here goes.
-						 * If we are backing up onto a
-						 * duplicate, then we need to
-						 * position ourselves at the
-						 * end of the duplicate set.
-						 * We probably need to make
-						 * this work for H_OFFDUP too.
-						 * It might be worth making a
-						 * dummy cursor and calling
-						 * __ham_item_prev.
+						 * It's not clear that this is the right way to fix this, but here goes.
+						 * If we are backing up onto a duplicate, then we need to position ourselves at the
+						 * end of the duplicate set. We probably need to make this work for H_OFFDUP too.
+						 * It might be worth making a dummy cursor and calling __ham_item_prev.
 						 */
 						tmp = H_PAIRDATA(dbp, pg, indx);
-						if(HPAGE_PTYPE(tmp) ==
-						   H_DUPLICATE) {
+						if(HPAGE_PTYPE(tmp) == H_DUPLICATE) {
 							dup_off = dup_tlen = LEN_HDATA(dbp, pg, pagesize, indx+1);
 							memcpy(&dup_len, HKEYDATA_DATA(tmp), sizeof(db_indx_t));
 						}
@@ -944,10 +935,7 @@ static int __hamc_put(DBC*dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t * 
 			goto done;
 		}
 		else if(ret == 0 && flags == DB_NOOVERWRITE && !F_ISSET(hcp, H_DELETED)) {
-			if(*pgnop == PGNO_INVALID)
-				ret = DB_KEYEXIST;
-			else
-				ret = __bam_opd_exists(dbc, *pgnop);
+			ret = (*pgnop == PGNO_INVALID) ? DB_KEYEXIST : __bam_opd_exists(dbc, *pgnop);
 			if(ret != 0)
 				goto done;
 		}

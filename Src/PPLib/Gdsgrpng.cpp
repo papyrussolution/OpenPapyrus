@@ -277,12 +277,12 @@ int SLAPI AdjGdsGrpng::PrevPaymentList(const GCTFilt * pF)
 	return ok;
 }
 
-int SLAPI BeginGoodsGroupingProcess(const GCTFilt * pFilt, AdjGdsGrpng * pAgg)
+int SLAPI AdjGdsGrpng::BeginGoodsGroupingProcess(const GCTFilt * pFilt)
 {
-	return pAgg->PrevPaymentList(pFilt);
+	return PrevPaymentList(pFilt);
 }
 
-int SLAPI EndGoodsGroupingProcess(AdjGdsGrpng * pAgg)
+int SLAPI AdjGdsGrpng::EndGoodsGroupingProcess()
 {
 	return 1;
 }
@@ -630,7 +630,7 @@ int SLAPI GoodsGrpngArray::Calc(GCTFilt * pFilt, TransferTbl::Rec * pTrfrRec, PP
 					const PPID link_op = blk.OpRec.ID;
 					const PPID bill_id = pTrfrRec->BillID;
 					BillCore * p_bc = P_BObj->P_Tbl;
-					for(DateIter di(&pFilt->Period); p_bc->EnumLinks(bill_id, &di, BLNK_PAYMENT, &bill_rec) > 0;) { // @v7.0.0 BLNK_PAYMRETN-->BLNK_PAYMENT
+					for(DateIter di(&pFilt->Period); p_bc->EnumLinks(bill_id, &di, BLNK_PAYMENT, &bill_rec) > 0;) {
 						GetOpData(bill_rec.OpID, &blk.OpRec);
 						if(blk.OpRec.OpTypeID != PPOPT_PAYMENT || !IsLockPaymStatus(bill_rec.StatusID)) {
 							blk.Part = round(BR2(bill_rec.Amount) / amount, 12);
@@ -816,7 +816,7 @@ int SLAPI GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 		dbq = & (*dbq && (daterange(p_bill->Dt, &pFilt->Period) || daterange(p_bill->Dt, &pFilt->ShipmentPeriod)));
 	else
 		dbq = & (*dbq && daterange(p_bill->Dt, &pFilt->Period));
-	BExtQuery q(p_bill, idx, 256); // @v6.4.8 32-->256
+	BExtQuery q(p_bill, idx, 256);
 	q.select(p_bill->ID, p_bill->OpID, p_bill->Dt, p_bill->LocID, p_bill->Amount,
 		p_bill->Object, p_bill->LinkBillID, p_bill->Flags, p_bill->StatusID, 0L).where(*dbq);
 	k_ = k;

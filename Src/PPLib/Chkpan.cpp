@@ -2595,6 +2595,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 	int    do_clear_junk_attrs = 0;
 	SString temp_buf;
 	PPCheckInPersonMngr cip_mgr;
+	TSArray <SCardCore::UpdateRestNotifyEntry> urn_list;
 	const  LDATETIME dtm = getcurdatetime_();
 	assert(pPack);
 	THROW_INVARG(pPack != 0);
@@ -2782,7 +2783,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 								blk.SCardID = CSt.GetID();
 								blk.LinkOi.Set(PPOBJ_CCHECK, pPack->Rec.ID);
 								blk.Amount = charge_amount;
-								THROW(ScObj.P_Tbl->PutOpBlk(blk, 0));
+								THROW(ScObj.P_Tbl->PutOpBlk(blk, &urn_list, 0));
 							}
 						}
 					}
@@ -2856,6 +2857,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 		CC.WriteCCheckLogFile(pPack, 0, (mode == accmRegular) ? CCheckCore::logWrited : CCheckCore::logSuspended, 0);
 		THROW(tra.Commit());
 	}
+	ScObj.FinishSCardUpdNotifyList(urn_list);
 	CATCHZOK
 	if(do_clear_junk_attrs) {
 		pPack->Rec.Flags &= ~(CCHKF_SUSPENDED|CCHKF_JUNK);
@@ -3299,7 +3301,8 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 	// @v9.6.0 {
 	else if(oneof2(CnSpeciality, PPCashNode::spApteka, PPCashNode::spShop)) {
 		showButton(cmSelTable, 0);
-		showButton(cmChkPanPrint, 0);
+		if(!(Flags & fNoEdit)) // @v9.6.4
+			showButton(cmChkPanPrint, 0);
 		showButton(cmToLocPrinters, 0);
 	}
 	// } @v9.6.0
@@ -4788,10 +4791,10 @@ int SelCheckListDialog::SetupItemList()
 							memo_buf.Cat(sub);
 							LocationCore::GetExField(&loc_rec, LOCEXSTR_SHORTADDR, sub);
 							if(sub.NotEmptyS())
-								memo_buf.CatDiv(',', 2, 1).Cat(sub);
+								memo_buf.CatDivIfNotEmpty(',', 2).Cat(sub);
 							LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, sub);
 							if(sub.NotEmptyS())
-								memo_buf.CatDiv(',', 2, 1).Cat(sub);
+								memo_buf.CatDivIfNotEmpty(',', 2).Cat(sub);
 						}
 					}
 					if(memo_buf.NotEmptyS())
@@ -8030,7 +8033,7 @@ int CheckPaneDialog::CDispCommand(int cmd, int iVal, double rv1, double rv2)
 				if(P.CurPos < (int)P.getCount() && P.HasCur()) {
 					P_CDY->ClearDisplay();
 					if(P_CDY->SetGoodsName(P.GetCur().GoodsName)) {
-						delay(50);
+						SDelay(50);
 						ok = P_CDY->SetAmt(P.GetCur().NetPrice(), P.GetCur().Quantity);
 					}
 					else
@@ -8043,7 +8046,7 @@ int CheckPaneDialog::CDispCommand(int cmd, int iVal, double rv1, double rv2)
 				if(P.CurPos < (int)P.getCount() && P.HasCur()) {
 					P_CDY->ClearDisplay();
 					if(P_CDY->SetGoodsName(P.GetCur().GoodsName)) {
-						delay(50);
+						SDelay(50);
 						ok = P_CDY->SetPresent();
 					}
 					else
@@ -8904,7 +8907,7 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 			info_buf = 0;
 			if(sc_rec.Expiry) {
 				PPLoadString("validuntil-fem", temp_buf);
-				info_buf.CatDiv(' ', 0, 1).Cat(temp_buf).CatDiv(':', 2).Cat(sc_rec.Expiry, DATF_DMY);
+				info_buf.CatDivIfNotEmpty(' ', 0).Cat(temp_buf).CatDiv(':', 2).Cat(sc_rec.Expiry, DATF_DMY);
 				if(sc_rec.Expiry < cur_dtm.d)
 					LocalState |= stWarnCardInfo;
 			}
@@ -8928,13 +8931,13 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 					}
 					if(info_pos) {
 						const SCardCore::OpBlock & r_ob = frz_op_list.at(info_pos-1);
-						info_buf.CatDiv(' ', 0, 1).CatChar('<').Cat(r_ob.FreezingPeriod).CatChar('>');
+						info_buf.CatDivIfNotEmpty(' ', 0).CatChar('<').Cat(r_ob.FreezingPeriod).CatChar('>');
 					}
 				}
 			}
 			if(sc_rec.UsageTmStart || sc_rec.UsageTmEnd) {
 				PPLoadString("time", temp_buf);
-				info_buf.CatDiv(' ', 0, 1).Cat(temp_buf).CatDiv(':', 2);
+				info_buf.CatDivIfNotEmpty(' ', 0).Cat(temp_buf).CatDiv(':', 2);
 				if(sc_rec.UsageTmStart) {
 					info_buf.Cat(sc_rec.UsageTmStart, TIMF_HM);
 					if(sc_rec.UsageTmStart > cur_dtm.t)
@@ -8958,7 +8961,7 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 			}
 			if(sc_rec.PDis) {
 				PPLoadString("discount", temp_buf);
-				info_buf.CatDiv(' ', 0, 1).Cat(temp_buf).CatDiv(':', 2).Cat(fdiv100i(sc_rec.PDis), MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar('%');
+				info_buf.CatDivIfNotEmpty(' ', 0).Cat(temp_buf).CatDiv(':', 2).Cat(fdiv100i(sc_rec.PDis), MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar('%');
 			}
 			setStaticText(CTL_SCARDVIEW_SCINFO, info_buf);
 		}
@@ -9190,6 +9193,7 @@ void SCardInfoDialog::CommitMovCrd()
 	int    ok = 1;
 	const  uint c = OwnerList.getCount();
 	if(Mode == modeMovCrd && c) {
+		TSArray <SCardCore::UpdateRestNotifyEntry> urn_list;
 		THROW(ScObj.CheckRights(SCRDRT_ADDOPS));
 		PPTransaction tra(1);
 		THROW(tra);
@@ -9201,10 +9205,11 @@ void SCardInfoDialog::CommitMovCrd()
 				op.DestSCardID = SCardID;
 				op.Amount = r_item.Amount;
 				op.Dtm = getcurdatetime_();
-				THROW(ScObj.P_Tbl->PutOpBlk(op, 0));
+				THROW(ScObj.P_Tbl->PutOpBlk(op, &urn_list, 0));
 			}
 		}
 		THROW(tra.Commit());
+		ScObj.FinishSCardUpdNotifyList(urn_list);
 		SetupMode(modeOpView, 1);
 	}
 	CATCH
@@ -12197,7 +12202,7 @@ int SLAPI PrcssrCCheckGenerator::Run()
 					CPosProcessor::PgsBlock pgsb(round(qtty, (goods_rec.Flags & GF_INTVAL) ? 0 : 3));
 					if(pgsb.Qtty > 0.0 && P.P_Pan->SetupNewRow(goods_id, /*qtty, 0, 0*/pgsb) > 0) {
 						if(P.LineDelay)
-							delay(P.LineDelay);
+							SDelay(P.LineDelay);
 						i++;
 					}
 				}
@@ -12233,7 +12238,7 @@ int SLAPI PrcssrCCheckGenerator::Run()
 			uint t = P_RngDelay->GetUniformInt(P.MaxCheckDelay);
 			(temp_buf = 0).Cat(t);
 			PPWaitMsg(PPSTR_TEXT, PPTXT_CCGENCHECKDELAY, temp_buf);
-			delay(t * 1000);
+			SDelay(t * 1000);
 		}
 		cc_count++;
 		tm_cur = getcurdatetime_();

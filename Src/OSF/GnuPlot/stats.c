@@ -684,7 +684,7 @@ void GpGadgets::StatsRequest(GpCommand & rC)
 		GpDf.DfSetPlotMode(MODE_PLOT); // Used for matrix datafiles 
 		columns = GpDf.DfOpen(rC, file_name, 2, NULL); // up to 2 using specs allowed 
 		if(columns < 0) {
-			int_warn(NO_CARET, "Can't read data file");
+			IntWarn(NO_CARET, "Can't read data file");
 			while(!rC.EndOfCommand())
 				rC.CToken++;
 			goto stats_cleanup;
@@ -770,7 +770,7 @@ void GpGadgets::StatsRequest(GpCommand & rC)
 	reset_numeric_locale();
 	// No data! Try to explain why. 
 	if(n == 0) {
-		int_warn(NO_CARET, (out_of_range > 0) ? "All points out of range" : "No valid data points found in file");
+		IntWarn(NO_CARET, (out_of_range > 0) ? "All points out of range" : "No valid data points found in file");
 		// Skip rest of command line and return error 
 		while(!rC.EndOfCommand()) 
 			rC.CToken++;

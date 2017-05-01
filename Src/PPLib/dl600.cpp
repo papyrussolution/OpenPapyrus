@@ -1,5 +1,5 @@
 // DL600.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -402,7 +402,7 @@ int CtmConstList::Get(const CtmExprConst * pC, void * pBuf, size_t len) const
 //
 //
 //
-int FASTCALL CtmExpr::Init(int kind)
+void FASTCALL CtmExpr::Init(int kind)
 {
 	Kind = kind;
 	Flags = 0;
@@ -411,22 +411,19 @@ int FASTCALL CtmExpr::Init(int kind)
 	TypID = 0;
 	ToTypStdCvt = 0;
 	MEMSZERO(U);
-	return 1;
 }
 
-int FASTCALL CtmExpr::Init(const CtmExprConst & c)
+void FASTCALL CtmExpr::Init(const CtmExprConst & c)
 {
 	Init(kConst);
 	U.C = c;
 	TypID = c.TypeId;
-	return 1;
 }
 
-int FASTCALL CtmExpr::Init(const CtmVar & v)
+void FASTCALL CtmExpr::Init(const CtmVar & v)
 {
 	Init(kVar);
 	U.V = v;
-	return 1;
 }
 
 int CtmExpr::InitUnaryOp(uint op, CtmExpr & a)
@@ -503,11 +500,10 @@ void CtmExpr::Destroy()
 		ZDELETE(U.S);
 }
 
-int FASTCALL CtmExpr::SetType(DLSYMBID typeID)
+void FASTCALL CtmExpr::SetType(DLSYMBID typeID)
 {
 	TypID = typeID;
 	ToTypStdCvt = 0;
-	return 1;
 }
 
 #define CTM_EXPR_PACK_SIGN  0x58454c44UL // "DLEX"
@@ -1934,8 +1930,7 @@ int SLAPI DlContext::RegisterTypeLib(const DlScope * pCls, int unreg)
 		path.CopyToOleStr(&buf);
 		HRESULT res = LoadTypeLibEx(buf, REGKIND_REGISTER, &p_tbl);
 		ok = (res == S_OK) ? 1 : 0;
-		if(p_tbl)
-			p_tbl->Release();
+		CALLPTRMEMB(p_tbl, Release());
 		if(buf)
 			SysFreeString(buf);
 	}
@@ -2507,7 +2502,7 @@ int SLAPI DlContext::Format_TypeEntry(const TypeEntry & rEntry, SString & rBuf)
 	STypEx t = rEntry.T;
 	SString styp_buf, temp_buf;
 	styp_buf.CatChar('{');
-#define FORMAT_FLAG(f) if(t.Flags & STypEx::f) temp_buf.CatDiv('|', 0, 1).Cat(#f)
+#define FORMAT_FLAG(f) if(t.Flags & STypEx::f) temp_buf.CatDivIfNotEmpty('|', 0).Cat(#f)
 	FORMAT_FLAG(fFormula);
 	FORMAT_FLAG(fZeroID);
 	FORMAT_FLAG(fStruct);

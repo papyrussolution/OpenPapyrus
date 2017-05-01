@@ -331,7 +331,7 @@ static void CANVAS_options(GpCommand & rC)
 			    canvas_background & 0xff);
 			    break;
 			default:
-			    int_warn(rC.CToken-1, "unrecognized terminal option");
+			    IntWarn(rC.CToken-1, "unrecognized terminal option");
 			    break;
 		}
 	}

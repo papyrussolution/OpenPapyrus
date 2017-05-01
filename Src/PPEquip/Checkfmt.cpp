@@ -1280,7 +1280,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 		}
 	}
 	{
-		uint   split_pos = 0;
+		size_t split_pos = 0;
 		int    split_chr = ' ';
 		if(rResult.Search("\\t", 0, 0, &split_pos)) {
 			rResult.ReplaceStr("\\t", " ", 1);
@@ -2198,7 +2198,7 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 		{
 			SString msg_buf, temp_buf;
 			PPGetLastErrorMessage(0, msg_buf);
-			(temp_buf = pFileName).CatChar('(').Cat(LineNo).CatChar(')').CatDiv(':').Cat(msg_buf);
+			(temp_buf = pFileName).CatChar('(').Cat(LineNo).CatChar(')').CatDiv(':', 0).Cat(msg_buf);
 			PPSetError(PPERR_SLIPFMT_PARSE, temp_buf);
 		}
 		LastFileName   = 0;

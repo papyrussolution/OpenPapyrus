@@ -402,7 +402,7 @@ int SLAPI SFile::WaitForWriteSharingRelease(const char * pFileName, long timeout
 		long   msec = 0;
 		long   days = 0;
 		do {
-			delay(100);
+			SDelay(100);
 			r = IsOpenedForWrite(pFileName);
 			LDATETIME dtm_cur = getcurdatetime_();
 			msec = diffdatetime(dtm_cur, dtm_start, 4, &(days = 0));
@@ -1657,7 +1657,7 @@ int SFileFormat::IdentifyMime(const char * pMime)
 int SFileFormat::Register()
 {
 	int    ok = 1;
-	Register(Txt,              0, "txt;csv", (const char *)0);
+	Register(Txt,   "text/plain", "txt;csv", (const char *)0);
 	Register(Jpeg,  "image/jpeg", "jpg;jpeg;jp2;jfif", "FFD8FFE0");        // JPG
 	Register(Jpeg,             0, "jpg", "FFD8FFE1");                      // JPG
 	Register(Jpeg,             0, "jpg", "0000000C6A5020200D0A870A");      // JP2
@@ -1671,9 +1671,9 @@ int SFileFormat::Register()
 	Register(Bmp,    "image/bmp", "bmp", "424D");                // BMP
 	Register(Ico, "image/x-icon", "ico", "0001");             // ICO
 	Register(Cur,              0, "cur", "0002");                     // CUR
-	Register(Xml,              0, "xml", "T<?xml");                 // XML  @v8.1.0
+	Register(Xml, "application/xml", "xml", "T<?xml");                 // XML  @v8.1.0
 	Register(Svg,              0, "svg", "T<?xml"); // SVG // @todo Необходимо проверить XML-контент на наличие тега <svg>
-	Register(Html,             0, "html;htm", "T<!DOCTYPE HTML"); // HTML @v8.1.0
+	Register(Html,   "text/html", "html;htm", "T<!DOCTYPE HTML"); // HTML @v8.1.0
 	Register(Ini,              0, "ini", (const char *)0);                 // INI  @v8.1.0
 	Register(Latex,            0, "tex", (const char *)0);                // LATEX @v8.8.3
 	Register(TxtBomUTF8,       0, "txt;csv", "EFBBBF");
@@ -1691,7 +1691,7 @@ int SFileFormat::Register()
 	Register(TxtBomBOCU1,      0, "txt;csv", "FBEE28");
 	Register(TxtBomGB18030,    0, "txt;csv", "84319533");
 
-	Register(Pdf,              "application/pdf", "pdf", "25504446"); // @v8.8.12
+	Register(Pdf, "application/pdf", "pdf", "25504446"); // @v8.8.12
 
 	Register(Rtf,              0, "rtf",     "7B5C72746631");
 	Register(Mdb,              0, "mdb",     "000100005374616E64617264204A6574204442");

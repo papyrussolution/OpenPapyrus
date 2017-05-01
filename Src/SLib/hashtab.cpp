@@ -18,6 +18,10 @@ HashTableBase::HashTableBase(size_t sz)
 	} while(--i);
 	Size = sz;
 	P_Tab = 0;
+	Flags = 0;
+	AddCount  = 0;
+	CollCount = 0;
+	MaxTail   = 0;
 }
 
 HashTableBase::~HashTableBase()
@@ -26,11 +30,14 @@ HashTableBase::~HashTableBase()
 	ZFREE(P_Tab);
 }
 
-int HashTableBase::Clear()
+void HashTableBase::Clear()
 {
 	DestroyTabItems();
 	ZFREE(P_Tab);
-	return 1;
+	AddCount  = 0;
+	CollCount = 0;
+	MaxTail   = 0;
+	Assoc.freeAll();
 }
 
 int FASTCALL HashTableBase::Copy(const HashTableBase & rSrc)
@@ -45,6 +52,11 @@ int FASTCALL HashTableBase::Copy(const HashTableBase & rSrc)
 		for(size_t i = 0; i < Size; i++)
 			THROW(P_Tab[i].Copy(rSrc.P_Tab[i]));
 	}
+	Flags = rSrc.Flags;
+	AddCount = rSrc.AddCount;
+	CollCount = rSrc.CollCount;
+	MaxTail = rSrc.MaxTail;
+	Assoc = rSrc.Assoc;
 	CATCHZOK
 	return ok;
 }
@@ -96,6 +108,16 @@ int HashTableBase::CalcStat(Stat & rResult) const
 		rResult.StdDev  = stat.GetStdDev();
 	}
 	return ok;
+}
+
+int FASTCALL HashTableBase::InitIteration(Iter * pI) const
+{
+	if(pI) {
+		memzero(pI, sizeof(*pI));
+		return 1;
+	}
+	else
+		return 0;
 }
 
 #define ORDER_ASSOC 1
@@ -200,10 +222,6 @@ int HashTableBase::Entry::Serialize(int dir, SBuffer & rBuf, SSerializeContext *
 //
 SymbHashTable::SymbHashTable(size_t sz, int useAssoc) : HashTableBase(sz)
 {
-	AddCount = 0;
-	CollCount = 0;
-	MaxTail = 0;
-	Flags = 0; // @v9.5.6 @fix
 	NamePool.add("$");
 	SETFLAG(Flags, fUseAssoc, useAssoc);
 }
@@ -220,11 +238,6 @@ int FASTCALL SymbHashTable::Copy(const SymbHashTable & rSrc)
 	int    ok = 1;
 	Clear();
 	THROW(HashTableBase::Copy(rSrc));
-	Flags = rSrc.Flags;
-	AddCount = rSrc.AddCount;
-	CollCount = rSrc.CollCount;
-	MaxTail = rSrc.MaxTail;
-	Assoc = rSrc.Assoc;
 	CATCHZOK
 	return ok;
 }
@@ -251,16 +264,11 @@ int SymbHashTable::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	return ok;
 }
 
-int SymbHashTable::Clear()
+void SymbHashTable::Clear()
 {
 	HashTableBase::Clear();
 	NamePool.clear();
-	NamePool.add("$", 0); // @v7.2.6 zero index - is empty string
-	AddCount  = 0;
-	CollCount = 0;
-	MaxTail   = 0;
-	Assoc.freeAll();
-	return 1;
+	NamePool.add("$", 0);
 }
 
 size_t FASTCALL SymbHashTable::Hash(const char * pSymb) const
@@ -277,14 +285,9 @@ size_t FASTCALL SymbHashTable::Hash(const char * pSymb) const
 	*/
 }
 
-int SymbHashTable::InitIteration(Iter * pI) const
+int FASTCALL SymbHashTable::InitIteration(Iter * pI) const
 {
-	if(pI) {
-		memzero(pI, sizeof(*pI));
-		return 1;
-	}
-	else
-		return 0;
+	return HashTableBase::InitIteration(pI);
 }
 
 int SymbHashTable::NextIteration(Iter * pI, uint * pVal, uint * pPos, SString * pStr) const
@@ -502,9 +505,6 @@ int SymbHashTable::Test_Cmp(const SymbHashTable & rPat) const
 //
 GuidHashTable::GuidHashTable(size_t sz, int useAssoc) : HashTableBase(sz)
 {
-	AddCount = 0;
-	CollCount = 0;
-	MaxTail = 0;
 	Pool.setDelta(1024);
 	SETFLAG(Flags, fUseAssoc, useAssoc);
 }
@@ -521,11 +521,7 @@ int FASTCALL GuidHashTable::Copy(const GuidHashTable & rSrc)
 	int    ok = 1;
 	Clear();
 	THROW(HashTableBase::Copy(rSrc));
-	Flags = rSrc.Flags;
-	AddCount = rSrc.AddCount;
-	CollCount = rSrc.CollCount;
-	MaxTail = rSrc.MaxTail;
-	Assoc = rSrc.Assoc;
+	Pool = rSrc.Pool;
 	CATCHZOK
 	return ok;
 }
@@ -551,15 +547,10 @@ int GuidHashTable::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	return ok;
 }
 
-int GuidHashTable::Clear()
+void GuidHashTable::Clear()
 {
 	HashTableBase::Clear();
 	Pool.clear();
-	AddCount  = 0;
-	CollCount = 0;
-	MaxTail   = 0;
-	Assoc.freeAll();
-	return 1;
 }
 
 size_t FASTCALL GuidHashTable::Hash(const S_GUID & rUuid) const
@@ -569,14 +560,9 @@ size_t FASTCALL GuidHashTable::Hash(const S_GUID & rUuid) const
 	return (size_t)(__h % Size);
 }
 
-int GuidHashTable::InitIteration(Iter * pI) const
+int FASTCALL GuidHashTable::InitIteration(Iter * pI) const
 {
-	if(pI) {
-		memzero(pI, sizeof(*pI));
-		return 1;
-	}
-	else
-		return 0;
+	return HashTableBase::InitIteration(pI);
 }
 
 int GuidHashTable::NextIteration(Iter * pI, uint * pVal, S_GUID & rUuid) const
@@ -761,6 +747,196 @@ int GuidHashTable::Test_Cmp(const GuidHashTable & rPat) const
 //
 //
 //
+PtrHashTable::PtrHashTable(size_t sz, int useAssoc) : HashTableBase(sz)
+{
+	SETFLAG(Flags, fUseAssoc, useAssoc);
+}
+
+PtrHashTable & FASTCALL PtrHashTable::operator = (const PtrHashTable & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
+int FASTCALL PtrHashTable::Copy(const PtrHashTable & rSrc)
+{
+	EXCEPTVAR(SLibError);
+	int    ok = 1;
+	Clear();
+	THROW(HashTableBase::Copy(rSrc));
+	Pool = rSrc.Pool;
+	CATCHZOK
+	return ok;
+}
+
+void PtrHashTable::Clear()
+{
+	HashTableBase::Clear();
+	Pool.clear();
+}
+
+int PtrHashTable::Add(void * ptr, uint val, uint * pPos)
+{
+	int    c = 1;
+	uint   pos = 0;
+	THROW(InitTab());
+	pos = Pool.getCount();
+	THROW(Pool.insert(&ptr));
+	size_t h = Hash(ptr);
+	c = P_Tab[h].SetVal(pos, val);
+	if(Flags & fUseAssoc)
+		THROW(Assoc.Add((long)val, (long)pos, 0, ORDER_ASSOC));
+	AddCount++;
+	if(c > 1) {
+		CollCount++;
+		if((c-1) > MaxTail)
+			MaxTail = c-1;
+	}
+	CATCH
+		c = 0;
+	ENDCATCH
+	ASSIGN_PTR(pPos, pos);
+	return c;
+}
+
+int PtrHashTable::Del(void * ptr, uint * pVal)
+{
+	int    ok = 0;
+	uint   val = 0;
+	if(P_Tab) {
+		size_t h = Hash(ptr);
+		uint   pos;
+		Entry & r_entry = P_Tab[h];
+		if(r_entry.Count > 0) {
+			pos = (uint)r_entry.Val.Key;
+			if(pos < Pool.getCount() && Pool.at(pos) == ptr) {
+				val = r_entry.Val.Val;
+				r_entry.Remove(0);
+				ok = 1;
+			}
+			else
+				for(uint i = 1; !ok && i < r_entry.Count; i++) {
+					pos = (uint)r_entry.P_Ext[i-1].Key;
+					if(pos < Pool.getCount() && Pool.at(pos) == ptr) {
+						val = r_entry.P_Ext[i-1].Val;
+						r_entry.Remove(i);
+						ok = 1;
+					}
+				}
+		}
+		if(ok && Flags & fUseAssoc && Assoc.Search((long)val, 0, &(pos = 0), ORDER_ASSOC))
+			Assoc.atFree(pos);
+	}
+	ASSIGN_PTR(pVal, val);
+	return ok;
+}
+
+void * FASTCALL PtrHashTable::Get(uint pos) const
+{
+	return (pos < Pool.getCount()) ? Pool.at(pos) : 0;
+}
+
+void * FASTCALL PtrHashTable::GetByAssoc(uint val) const
+{
+	void * p_result = 0;
+	if(Flags & fUseAssoc) {
+		long   p = 0;
+		if(Assoc.Search((long)val, &p, 0, ORDER_ASSOC))
+			p_result = Get((uint)p);
+		else
+			SLS.SetError(SLERR_NOFOUND);
+	}
+	else
+		SLS.SetError(SLERR_HT_NOASSOC);
+	return p_result;
+}
+
+int PtrHashTable::Search(const void * ptr, uint * pVal, uint * pPos) const
+{
+	int    ok = 0;
+	if(P_Tab) {
+		size_t h  = Hash(ptr);
+		const  Entry & r_entry = P_Tab[h];
+		if(r_entry.Count > 0) {
+			uint   pos = (uint)r_entry.Val.Key;
+			void * p_try = Pool.at(pos);
+			if(p_try == ptr) {
+				ASSIGN_PTR(pVal, r_entry.Val.Val);
+				ASSIGN_PTR(pPos, pos);
+				ok = 1;
+			}
+			else {
+				for(uint i = 1; !ok && i < r_entry.Count; i++) {
+					pos = (uint)r_entry.P_Ext[i-1].Key;
+					p_try = Pool.at(pos);
+					if(p_try == ptr) {
+						ASSIGN_PTR(pVal, r_entry.P_Ext[i-1].Val);
+						ASSIGN_PTR(pPos, pos);
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+int FASTCALL PtrHashTable::InitIteration(Iter * pI) const
+{
+	return HashTableBase::InitIteration(pI);
+}
+
+int PtrHashTable::NextIteration(Iter * pI, uint * pVal, void ** ppPtr) const
+{
+	if(pI && P_Tab) {
+		while(pI->P < Size) {
+			if(pI->E < P_Tab[pI->P].Count) {
+				uint   pos = 0;
+				if(pI->E == 0) {
+					ASSIGN_PTR(pVal, P_Tab[pI->P].Val.Val);
+					if(ppPtr) {
+						pos = P_Tab[pI->P].Val.Key;
+						if(ppPtr)
+							*ppPtr = Pool.at(pos);
+					}
+				}
+				else {
+					ASSIGN_PTR(pVal, P_Tab[pI->P].P_Ext[pI->E-1].Val);
+					if(ppPtr) {
+						pos = P_Tab[pI->P].P_Ext[pI->E-1].Key;
+						if(ppPtr)
+							*ppPtr = Pool.at(pos);
+					}
+				}
+				if(pI->E == P_Tab[pI->P].Count) {
+					pI->P++;
+					pI->E = 0;
+				}
+				else
+					pI->E++;
+				return 1;
+			}
+			else {
+				pI->P++;
+				pI->E = 0;
+			}
+		}
+	}
+	return 0;
+}
+/*
+uint PtrHashTable::GetMaxVal() const
+{
+}
+*/
+size_t FASTCALL PtrHashTable::Hash(const void * ptr) const
+{
+	uint32 __h = DJBHash(&ptr, sizeof(void *));
+	return (size_t)(__h % Size);
+}
+//
+//
+//
 struct UhtBlock {
 	ulong  Start;
 	uint32 Busy;
@@ -930,6 +1106,69 @@ int FASTCALL UintHashTable::Enum(ulong * pVal) const
 	}
 	return 0;
 }
+
+#if SLTEST_RUNNING // {
+
+SLTEST_R(HASHTAB)
+{
+	SString in_buf;
+	SString line_buf;
+	{
+		const uint test_iter_count = 1000000;
+		const size_t ht_size_tab[] = { 10, 100, 1000, 100000 };
+		for(uint hts_idx = 0; hts_idx < SIZEOFARRAY(ht_size_tab); hts_idx++) {
+			size_t ht_size = ht_size_tab[hts_idx];
+			uint   _count = 0;
+			SStrCollection ptr_collection;
+			PtrHashTable ht(ht_size);
+
+			(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("email-list.txt");
+			SFile inf(in_buf, SFile::mRead);
+			THROW(SLTEST_CHECK_NZ(inf.IsValid()));
+			while(inf.ReadLine(line_buf)) {
+				line_buf.Chomp();
+				char * p_str = newStr(line_buf);
+				THROW(SLTEST_CHECK_NZ(ptr_collection.insert(p_str)));
+				//
+				// Нечетные позиции вставляем в кэш, четные - нет
+				//
+				if(_count % 2) {
+					THROW(SLTEST_CHECK_NZ(ht.Add(p_str, _count+1, 0)));
+				}
+				else {
+					//
+				}
+				_count++;
+			}
+			THROW(SLTEST_CHECK_EQ(ptr_collection.getCount(), _count));
+			for(uint i = 0; i < test_iter_count; i++) {
+				uint idx = SLS.GetTLA().Rg.GetUniformInt(_count);
+				THROW(SLTEST_CHECK_LT((long)idx, (long)_count));
+				char * p_str = ptr_collection.at(idx);
+				{
+					uint val = 0;
+					uint pos = 0;
+					if(idx % 2) {
+						SLTEST_CHECK_NZ(ht.Search(p_str, &val, &pos));
+						void * ptr = ht.Get(pos);
+						SLTEST_CHECK_NZ(ptr);
+						SLTEST_CHECK_EQ(ptr, (const void *)p_str);
+						SLTEST_CHECK_EQ(val, idx+1);
+					}
+					else {
+						SLTEST_CHECK_Z(ht.Search(p_str, &val, &pos));
+					}
+				}
+			}
+		}
+	}
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
+	return CurrentStatus;
+}
+
+#endif // } SLTEST_RUNNING
 //
 //
 //

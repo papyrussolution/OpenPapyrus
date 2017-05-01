@@ -109,7 +109,7 @@ typedef long SpiiDbHandler[2];
 struct SpiiCmdBuf { // @persistent
 	SpiiCmdBuf()
 	{
-		memset(this, 0, sizeof(SpiiCmdBuf));
+		memzero(this, sizeof(SpiiCmdBuf));
 	}
 #ifndef __palmos__
 	void ToPalmRec()

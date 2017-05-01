@@ -891,7 +891,7 @@ int PPALDD_MrpLines::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_MrpLines::Destroy()
+void PPALDD_MrpLines::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(MrpLine);
 }

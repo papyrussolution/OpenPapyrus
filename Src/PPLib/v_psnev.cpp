@@ -430,7 +430,7 @@ DBQuery * SLAPI PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * p
 			GetPersonName(Filt.PrmrID, *pSubTitle);
 		if(Filt.PsnOpList.GetCount() > 0) {
 			SString sub2;
-			pSubTitle->CatDiv('-', 1, 1);
+			pSubTitle->CatDivIfNotEmpty('-', 1);
 			GetExtObjectName(Filt.PsnOpList, PPOBJ_PERSONOPKIND, 3, sub2);
 			pSubTitle->Cat(sub2);
 		}
@@ -831,7 +831,7 @@ int PPALDD_PersonEvent::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_PersonEvent::Destroy()
+void PPALDD_PersonEvent::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(PersonEvent);
 }
@@ -895,11 +895,10 @@ int PPALDD_PsnOpKindView::NextIteration(PPIterID iterId, long rsrv)
 	return ok;
 }
 
-int PPALDD_PsnOpKindView::Destroy()
+void PPALDD_PsnOpKindView::Destroy()
 {
 	delete ((ALD_PsnOpKindBlock *)Extra[0].Ptr);
 	Extra[0].Ptr = 0;
 	Extra[1].Ptr = 0;
-	return 1;
 }
 

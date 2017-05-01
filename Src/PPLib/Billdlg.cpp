@@ -1475,9 +1475,8 @@ int BillDialog::sendItem(long pos, long id)
 				data.AddrList.Add(1, addr);
 		}
 		file_info = *P_Pack->LnkFiles.at(pos);
-		P_Pack->LnkFiles.GetFilePath(pos, path); // @v7.6.9
+		P_Pack->LnkFiles.GetFilePath(pos, path);
 		THROW_SL(fileExists(path));
-		// @v7.6.9 path = file_info.Path;
 		data.Subj = file_info.Description;
 		data.FilesList.insert(newStr(path));
 		THROW(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0);
@@ -1486,19 +1485,17 @@ int BillDialog::sendItem(long pos, long id)
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			if(dlg->getDTS(&data) > 0) {
 				if(data.MailAccID) {
-					int    first = 1; // @v7.7.10
+					int    first = 1;
 					for(uint i = 0; i < data.AddrList.getCount(); i++) {
 						addr = data.AddrList.at(i).Txt;
 						if(addr.NotEmptyS()) {
-							// @v7.7.10 {
 							if(!first && data.Delay > 0 && data.Delay <= (24 * 3600 * 1000)) {
-								delay(data.Delay);
+								SDelay(data.Delay);
 							}
-							// } @v7.7.10
 							data.Subj.Transf(CTRANSF_INNER_TO_UTF8);
 							data.Text.Transf(CTRANSF_INNER_TO_UTF8);
 							THROW(SendMailWithAttach(data.Subj, path, data.Text, addr, data.MailAccID));
-							first = 0; // @v7.7.10
+							first = 0;
 							ok = valid_data = 1;
 						}
 					}
@@ -1922,7 +1919,7 @@ void BillDialog::setupDebtText()
 		double limit = CliAgt.GetCreditLimit(debt_dim_id);
 		double curr_debt = getCurrentDebt(debt_dim_id);
 		if(curr_debt > 0.0 || limit > 0.0) {
-			text.CatDiv(':', 2, 1);
+			text.CatDivIfNotEmpty(':', 2);
 			text.CatEq("Debt", curr_debt, SFMT_MONEY);
 			if(limit > 0.0)
 				text.CatDiv(';', 2).CatEq("Limit", limit, SFMT_MONEY);

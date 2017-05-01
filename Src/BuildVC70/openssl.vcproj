@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="openssl"
-	ProjectGUID="{0CFA8FB9-A664-4B3E-B162-26965EA0B9E5}"
+	Name="openssl-ssl"
+	ProjectGUID="{1E4E6BBC-3E70-4F77-9F13-FD9B3242D11E}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -12,8 +12,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -22,17 +22,17 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="0"
-				AdditionalIncludeDirectories="&quot;..\Build-openssl-cmake&quot;;&quot;..\OSF\OpenSSL-CMake\.&quot;;&quot;..\OSF\OpenSSL-CMake\crypto&quot;;&quot;..\Build-openssl-cmake\ssl&quot;;&quot;..\Build-openssl-cmake\crypto&quot;"
+				AdditionalIncludeDirectories="..\OSF\OpenSSL-CMake\__build_src__;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;..\OSF\OpenSSL-CMake\__build_src__\ssl;..\OSF\OpenSSL-CMake\__build_src__\openssl;..\OSF\OpenSSL-CMake\__build_src__\crypto"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR=\&quot;Debug\&quot;"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
-				BasicRuntimeChecks="1"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
 				AssemblerListingLocation="Debug/"
-				ObjectFile="$(IntDir)\"
+				ObjectFile="$(IntDir)/"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 				CompileAs="1"/>
@@ -74,8 +74,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -84,16 +84,17 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="2"
-				AdditionalIncludeDirectories="&quot;..\Build-openssl-cmake&quot;;&quot;..\OSF\OpenSSL-CMake\.&quot;;&quot;..\OSF\OpenSSL-CMake\crypto&quot;;&quot;..\Build-openssl-cmake\ssl&quot;;&quot;..\Build-openssl-cmake\crypto&quot;"
+				AdditionalIncludeDirectories="..\OSF\OpenSSL-CMake\__build_src__;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;..\OSF\OpenSSL-CMake\__build_src__\ssl;..\OSF\OpenSSL-CMake\__build_src__\openssl;..\OSF\OpenSSL-CMake\__build_src__\crypto"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR=\&quot;Release\&quot;"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
 				AssemblerListingLocation="Release/"
-				ObjectFile="$(IntDir)\"
+				ObjectFile="$(IntDir)/"
 				WarningLevel="3"
 				CompileAs="1"/>
 			<Tool

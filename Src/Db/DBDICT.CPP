@@ -212,7 +212,7 @@ SLAPI BDictionary::BDictionary(int btrDict, const char * pPath) :
 		// задержку для ожидания появления созданного файла.
 		//
 		while(!IsFileExists_(b)) { // @v7.9.9 fileExists-->BDictionary::IsFileExists
-			delay(10);
+			SDelay(10);
 		}
 		if(createMode < 0 && IS_CRM_TEMP(createMode)) {
 			//

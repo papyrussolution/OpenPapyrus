@@ -228,7 +228,7 @@ int SLAPI Transfer::LoadItems(PPBillPacket & rPack, const PPIDArray * pGoodsList
 						int    fpok = 1;
 						const  double big = 1.e9;
 						SString fp_err_var;
-#define _FZEROINV(v) if(!IsValidIEEE(v) || fabs(v) > big) { v = 0; fp_err_var.CatDiv(';', 2, 1).Cat(#v); fpok = 0; }
+#define _FZEROINV(v) if(!IsValidIEEE(v) || fabs(v) > big) { v = 0; fp_err_var.CatDivIfNotEmpty(';', 2).Cat(#v); fpok = 0; }
 						_FZEROINV(data.Quantity);
 						_FZEROINV(data.Rest);
 						_FZEROINV(data.Cost);

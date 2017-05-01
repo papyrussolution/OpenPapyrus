@@ -3495,12 +3495,12 @@ DBQuery * SLAPI PPViewGoodsRest::CreateBrowserQuery(uint * pBrwId, SString * pSu
 			pSubTitle->Cat(Filt.PrgnPeriod);
 		else {
 			if(Filt.Date != ZERODATE)
-				pSubTitle->CatDiv('-', 1, 1).Cat(Filt.Date, DATF_DMY|DATF_CENTURY);
-			pSubTitle->CatDiv('-', 1, 1).Cat(GetExtLocationName(Filt.LocList, 2, loc_names));
+				pSubTitle->CatDivIfNotEmpty('-', 1).Cat(Filt.Date, DATF_DMY|DATF_CENTURY);
+			pSubTitle->CatDivIfNotEmpty('-', 1).Cat(GetExtLocationName(Filt.LocList, 2, loc_names));
 			if(Filt.SupplID)
-				GetObjectName(PPOBJ_ARTICLE, Filt.SupplID, pSubTitle->CatDiv('-', 1, 1), 1);
+				GetObjectName(PPOBJ_ARTICLE, Filt.SupplID, pSubTitle->CatDivIfNotEmpty('-', 1), 1);
 			if(Filt.GoodsGrpID)
-				GetObjectName(PPOBJ_GOODSGROUP, Filt.GoodsGrpID, pSubTitle->CatDiv('-', 1, 1), 1);
+				GetObjectName(PPOBJ_GOODSGROUP, Filt.GoodsGrpID, pSubTitle->CatDivIfNotEmpty('-', 1), 1);
 		}
 	}
 	// }
@@ -4334,7 +4334,7 @@ int PPALDD_GoodsRest::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_GoodsRest::Destroy()
+void PPALDD_GoodsRest::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(GoodsRest);
 }
@@ -4407,10 +4407,9 @@ int PPALDD_GoodsRestTotal::NextIteration(PPIterID iterId, long rsrv)
 	return DlRtm::NextIteration(iterId, rsrv);
 }
 
-int PPALDD_GoodsRestTotal::Destroy()
+void PPALDD_GoodsRestTotal::Destroy()
 {
 	Extra[0].Ptr = 0;
 	Extra[1].Ptr = 0;
-	return 1;
 }
 

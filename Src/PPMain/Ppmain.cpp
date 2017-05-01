@@ -269,7 +269,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 			DS.Unregister(); // @v8.2.11
 			// @v9.1.12 {
 			SLS.Stop();
-			// @v9.2.0 delay(100); // Задержка для того, чтобы все служебные потоки успели завершиться (это - грубый подход).
+			// @v9.2.0 SDelay(100); // Задержка для того, чтобы все служебные потоки успели завершиться (это - грубый подход).
 			// } @v9.1.12
 		}
 		else

@@ -287,11 +287,11 @@ SArray * SLAPI PPViewStaffList::CreateBrowserArray(uint * pBrwId, SString * pSub
 		PersonTbl::Rec psn_rec;
 		*pSubTitle = 0;
 		if(SlObj.PsnObj.Fetch(Filt.OrgID, &psn_rec) > 0)
-			pSubTitle->CatDiv('-', 1, 1).Cat(psn_rec.Name);
+			pSubTitle->CatDivIfNotEmpty('-', 1).Cat(psn_rec.Name);
 		if(Filt.DivID) {
 			SString div_name;
 			if(GetLocationName(Filt.DivID, div_name) > 0)
-				pSubTitle->CatDiv('-', 1, 1).Cat(div_name);
+				pSubTitle->CatDivIfNotEmpty('-', 1).Cat(div_name);
 		}
 	}
 	ASSIGN_PTR(pBrwId, brw_id);
@@ -703,7 +703,7 @@ DBQuery * SLAPI PPViewStaffPost::CreateBrowserQuery(uint * pBrwId, SString * pSu
 		if(Filt.OrgID && SlObj.PsnObj.Fetch(Filt.OrgID, &psn_rec) > 0)
 			*pSubTitle = psn_rec.Name;
 		if(Filt.DivID) {
-			pSubTitle->CatDiv('-', 1, 1);
+			pSubTitle->CatDivIfNotEmpty('-', 1);
 			GetObjectName(PPOBJ_LOCATION, Filt.DivID, *pSubTitle, 1);
 		}
 	}
@@ -1538,9 +1538,6 @@ int SLAPI FastViewDivBySumDialog()
 	FastEditDivBySumDlg * p_dlg = new FastEditDivBySumDlg;
 	return ExecViewAndDestroy(p_dlg);
 }
-// } @v6.1.x AHTOXA
-
-// @v6.0.10 VADIM {
 //
 // Implementation of PPALDD_StaffListView
 //
@@ -1586,8 +1583,7 @@ int PPALDD_StaffListView::NextIteration(long iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_StaffListView::Destroy()
+void PPALDD_StaffListView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(StaffList);
 }
-// } @v6.0.10 VADIM

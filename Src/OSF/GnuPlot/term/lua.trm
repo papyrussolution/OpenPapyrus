@@ -263,8 +263,8 @@ static int LUA_GP_int_error(lua_State * L)
 }
 
 /*
-   gp.int_warn(int t_num, char *errmsg)
-   gp.int_warn(char *errmsg)
+   gp.IntWarn(int t_num, char *errmsg)
+   gp.IntWarn(char *errmsg)
 
  */
 static int LUA_GP_int_warn(lua_State * L)
@@ -285,7 +285,7 @@ static int LUA_GP_int_warn(lua_State * L)
 		    return luaL_error(L, "Got %d arguments expected 1 or 2", n);
 		    break;
 	}
-	int_warn(t_num, msg);
+	IntWarn(t_num, msg);
 
 	return(0);
 }
@@ -464,7 +464,7 @@ static const luaL_reg gp_methods[] = {
 #endif
 	{"write", LUA_GP_write},
 	{"int_error", LUA_GP_int_error},
-	{"int_warn", LUA_GP_int_warn},
+	{"IntWarn", LUA_GP_int_warn},
 	{"term_out", LUA_GP_term_out},
 	{"get_boundingbox", LUA_GP_get_boundingbox},
 	{"is_multiplot", LUA_GP_is_multiplot},
@@ -592,7 +592,7 @@ static int LUA_init_luaterm_function(const char * fnc)
 		return(1);
 	}
 	else {
-		int_warn(NO_CARET, "Script lacks function `%s'!", fnc);
+		IntWarn(NO_CARET, "Script lacks function `%s'!", fnc);
 		lua_pop(L, 1); /* clean stack */
 	}
 	return(0);

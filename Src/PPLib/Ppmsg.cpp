@@ -33,7 +33,7 @@ int SLAPI PPInitStrings(const char * pFileName)
 					for(SDirec direc(temp_buf, 0); direc.Next(&de) > 0;) {
 						if(!de.IsFolder()) {
 							temp_buf = de.FileName;
-							uint   hyphen_pos = 0;
+							size_t hyphen_pos = 0;
 							if(temp_buf.StrChr('-', &hyphen_pos)) {
 								temp_buf.Sub(hyphen_pos+1, temp_buf.Len(), lang_symb = 0);
 								int slang = RecognizeLinguaSymb(lang_symb, 0);
@@ -199,11 +199,11 @@ int FASTCALL PPSetLibXmlError(const xmlParserCtxt * pCtx)
 		tla.AddedMsgString = 0;
 		if(pCtx) {
 			if(pCtx->lastError.code)
-				tla.AddedMsgString.CatDiv(' ', 0, 1).Cat(pCtx->lastError.code);
+				tla.AddedMsgString.CatDivIfNotEmpty(' ', 0).Cat(pCtx->lastError.code);
 			if(!isempty(pCtx->lastError.message))
-				tla.AddedMsgString.CatDiv(' ', 0, 1).Cat(pCtx->lastError.message);
+				tla.AddedMsgString.CatDivIfNotEmpty(' ', 0).Cat(pCtx->lastError.message);
 			if(!isempty(pCtx->lastError.file))
-				tla.AddedMsgString.CatDiv(' ', 0, 1).Cat(pCtx->lastError.file);
+				tla.AddedMsgString.CatDivIfNotEmpty(' ', 0).Cat(pCtx->lastError.file);
 		}
 		if(!tla.AddedMsgString.NotEmptyS())
 			tla.AddedMsgString = "unknown";

@@ -279,7 +279,7 @@ int SdbField::PutToString(int style, SString & rBuf) const
 		}
 	}
 	else if(style == 5)
-		size_buf.Cat(fmt_len).CatDiv(',', 2, 0).Cat(fmt_prc);
+		size_buf.Cat(fmt_len).CatDiv(',', 2).Cat(fmt_prc);
 	else if(style == 6) {
 		if(GETSTYPE(T.Typ) == S_ZSTRING && GETSSIZE(T.Typ) > 1) {
 			size_buf.CatChar('[').Cat(GETSSIZE(T.Typ)).CatChar(']');
@@ -290,7 +290,7 @@ int SdbField::PutToString(int style, SString & rBuf) const
 	else if(oneof2(style, 3, 4))
 		temp_buf.Cat(Name).Space().Cat(type_buf).Cat(size_buf);
 	else if(style == 5)
-		temp_buf.Cat(Name).CatDiv(',', 2, 0).Cat(type_buf).CatDiv(',', 2, 0).Cat(size_buf);
+		temp_buf.Cat(Name).CatDiv(',', 2).Cat(type_buf).CatDiv(',', 2).Cat(size_buf);
 	else if(style == 6)
 		temp_buf.Cat(type_buf.Align(6, ADJ_LEFT)).Space().Cat(Name).Cat(size_buf);
 	rBuf = temp_buf;

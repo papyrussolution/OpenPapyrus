@@ -2298,7 +2298,7 @@ int PPALDD_ProcessorView::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_ProcessorView::Destroy()
+void PPALDD_ProcessorView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(Processor);
 }

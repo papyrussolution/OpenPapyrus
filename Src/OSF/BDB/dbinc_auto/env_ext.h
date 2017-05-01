@@ -8,9 +8,9 @@ extern "C" {
 
 void __env_alloc_init(REGINFO *, size_t);
 size_t __env_alloc_overhead();
-size_t __env_alloc_size(size_t);
+size_t FASTCALL __env_alloc_size(size_t);
 int __env_alloc(REGINFO *, size_t, void *);
-void __env_alloc_free(REGINFO *, void *);
+void FASTCALL __env_alloc_free(REGINFO *, void *);
 int __env_alloc_extend(REGINFO *, void *, size_t *);
 int __env_region_extend(ENV *, REGINFO *);
 uintmax_t __env_elem_size(ENV *, void *);

@@ -5,7 +5,6 @@
  *
  * $Id$
  */
-
 /*
  * This file contains verification functions for all types of log records,
  * one for each type. We can't make this automated like the log_type_print/read
@@ -25,26 +24,15 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/fop.h"
-// @v9.5.5 #include "dbinc/heap.h"
-// @v9.5.5 #include "dbinc/qam.h"
-// @v9.5.5 #include "dbinc/txn.h"
-// @v9.6.2 #include "dbinc/log_verify.h"
 
 static int __log_vrfy_proc(DB_LOG_VRFY_INFO*, DB_LSN, DB_LSN, uint32, DB_TXN*, int32, int *);
 static int __lv_ckp_vrfy_handler(DB_LOG_VRFY_INFO*, VRFY_TXN_INFO*, void *);
-static const char * __lv_dbreg_str(uint32);
+static const char * FASTCALL __lv_dbreg_str(uint32);
 static int __lv_dbregid_to_dbtype(DB_LOG_VRFY_INFO*, int32, DBTYPE *);
 static int __lv_dbt_str(const DBT*, char **);
 static const char * __lv_dbtype_str(DBTYPE);
-static int __lv_new_logfile_vrfy(DB_LOG_VRFY_INFO*, const DB_LSN *);
+static int FASTCALL __lv_new_logfile_vrfy(DB_LOG_VRFY_INFO*, const DB_LSN *);
 static int __lv_log_fwdscr_oncmt(DB_LOG_VRFY_INFO*, DB_LSN, uint32, uint32, int32);
 static int __lv_log_fwdscr_onrec(DB_LOG_VRFY_INFO*, uint32, uint32, DB_LSN, DB_LSN);
 static int __lv_log_mismatch(DB_LOG_VRFY_INFO*, DB_LSN, DBTYPE, DBTYPE);
@@ -346,7 +334,7 @@ static int __lv_log_fwdscr_onrec(DB_LOG_VRFY_INFO * lvinfo, uint32 txnid, uint32
 	if(doput && (ret = __dbc_put(csr, &key, &data, putflag)) != 0)
 		goto err;
 err:
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && ret == 0)
 		ret = tret;
 	return ret;
 }
@@ -943,31 +931,17 @@ err:
 	return ret;
 }
 
-static const char * __lv_dbreg_str(uint32 op)
+static const char * FASTCALL __lv_dbreg_str(uint32 op)
 {
 	const char * p;
 	switch(op) {
-	    case DBREG_CHKPNT:
-		p = "DBREG_CHKPNT";
-		break;
-	    case DBREG_RCLOSE:
-		p = "DBREG_RCLOSE";
-		break;
-	    case DBREG_CLOSE:
-		p = "DBREG_CLOSE";
-		break;
-	    case DBREG_OPEN:
-		p = "DBREG_OPEN";
-		break;
-	    case DBREG_PREOPEN:
-		p = "DBREG_PREOPEN";
-		break;
-	    case DBREG_REOPEN:
-		p = "DBREG_REOPEN";
-		break;
-	    default:
-		p = DB_STR_P("Unknown dbreg op code");
-		break;
+	    case DBREG_CHKPNT:  p = "DBREG_CHKPNT"; break;
+	    case DBREG_RCLOSE:  p = "DBREG_RCLOSE"; break;
+	    case DBREG_CLOSE:   p = "DBREG_CLOSE";  break;
+	    case DBREG_OPEN:    p = "DBREG_OPEN";   break;
+	    case DBREG_PREOPEN: p = "DBREG_PREOPEN"; break;
+	    case DBREG_REOPEN:  p = "DBREG_REOPEN";  break;
+	    default: p = DB_STR_P("Unknown dbreg op code"); break;
 	}
 	return p;
 }
@@ -1210,8 +1184,7 @@ int __dbreg_register_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notu
 	}
 	pflife->lifetime = opcode;
 	pflife->lsn = *lsnp;
-	if((!rmv_dblife && (ret = __put_filelife(lvh, pflife)) != 0) ||
-	   ((rmv_dblife || IS_DBREG_CLOSE(opcode)) &&
+	if((!rmv_dblife && (ret = __put_filelife(lvh, pflife)) != 0) || ((rmv_dblife || IS_DBREG_CLOSE(opcode)) &&
 	    ((ret = __del_filelife(lvh, argp->fileid)) != 0)))
 		goto err;
 out:
@@ -1220,10 +1193,8 @@ err:
 	__os_free(env, argp);
 	if(fregp != NULL && (ret2 = __free_filereg_info(fregp)) != 0 && ret == 0)
 		ret = ret2;
-	if(freg.fname != NULL)
-		__os_free(env, freg.fname);
-	if(pflife != NULL)
-		__os_free(env, pflife);
+	__os_free(env, freg.fname);
+	__os_free(env, pflife);
 	return ret;
 }
 
@@ -1236,14 +1207,11 @@ int __bam_split_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2,
 	__bam_split_args * argp;
 	DB_LOG_VRFY_INFO * lvh;
 	int ret;
-
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret =
-	            __bam_split_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __bam_split_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
-
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->left);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->right);
 	/* Parent page lock is always released before __bam_page returns. */
@@ -1265,11 +1233,9 @@ int __bam_split_42_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notuse
 	__bam_split_42_args * argp;
 	DB_LOG_VRFY_INFO * lvh;
 	int ret;
-
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret =
-	            __bam_split_42_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __bam_split_42_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
 		return ret;
 	ON_NOT_SUPPORTED(env, lvh, *lsnp, argp->type);
 	/* LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid); */
@@ -1288,7 +1254,6 @@ int __bam_rsplit_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2
 	__bam_rsplit_args * argp;
 	DB_LOG_VRFY_INFO * lvh;
 	int ret;
-
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
 	if((ret =
@@ -1670,7 +1635,6 @@ int __fop_rename_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2
 	int ret;
 	size_t buflen;
 	VRFY_FILEREG_INFO freg, * fregp;
-
 	memzero(&freg, sizeof(freg));
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
@@ -2908,15 +2872,16 @@ err:
 	return ret;
 }
 
-static uint32 __lv_first_offset(ENV * env)
+static uint32 FASTCALL __lv_first_offset(ENV * env)
 {
 	uint32 sz = CRYPTO_ON(env) ? HDR_CRYPTO_SZ : HDR_NORMAL_SZ;
 	sz += sizeof(LOGP);
 	return sz;
 }
-
-/* Called when we detect that a new log file is used. */
-static int __lv_new_logfile_vrfy(DB_LOG_VRFY_INFO * lvh, const DB_LSN * lsnp)
+//
+// Called when we detect that a new log file is used.
+//
+static int FASTCALL __lv_new_logfile_vrfy(DB_LOG_VRFY_INFO * lvh, const DB_LSN * lsnp)
 {
 	int ret = 0;
 	if(IS_ZERO_LSN(lvh->last_lsn) || lvh->last_lsn.file == lsnp->file) {

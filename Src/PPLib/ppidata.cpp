@@ -436,7 +436,7 @@ static int SLAPI FtpReInit(WinInetFTP * pFtp, PPLogger * pLog)
 			pLog->LogLastError();
 			pLog->LogString(PPTXT_FTPCONNECT, 0);
 		}
-		delay(1000 * 5); // 5 sec
+		SDelay(1000 * 5); // 5 sec
 		if((ok = pFtp->ReInit()) && pLog)
 			pLog->LogString(PPTXT_FTPRECONNECTED, 0);
 	}

@@ -682,7 +682,7 @@ int SLAPI CorrectLotSuppl()
 			if(err) {
 				SString out_buf, bill_code;
 				GetArticleName(pack.Rec.Object, out_buf);
-				out_buf.CatDiv('-', 1, 1).Cat(PPObjBill::MakeCodeString(&pack.Rec, 0, bill_code));
+				out_buf.CatDivIfNotEmpty('-', 1).Cat(PPObjBill::MakeCodeString(&pack.Rec, 0, bill_code));
 				logger.Log(out_buf);
 				THROW(p_bobj->UpdatePacket(&pack, 1));
 			}
@@ -2153,7 +2153,7 @@ int SLAPI RecoverTransfer()
 		{
 			int    fpok = 1;
 			fp_err_var = 0;
-#define _FZEROINV(v) if(!IsValidIEEE(r_data.v) || fabs(r_data.v) > big) { fp_err_var.CatDiv(';', 2, 1).Cat(#v); fpok = 0; }
+#define _FZEROINV(v) if(!IsValidIEEE(r_data.v) || fabs(r_data.v) > big) { fp_err_var.CatDivIfNotEmpty(';', 2).Cat(#v); fpok = 0; }
 			_FZEROINV(Quantity);
 			_FZEROINV(Rest);
 			_FZEROINV(Cost);

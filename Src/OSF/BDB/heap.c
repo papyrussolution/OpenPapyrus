@@ -1964,7 +1964,7 @@ int __heap_pitem(DBC * dbc, PAGE * pagep, uint32 indx, uint32 nbytes, DBT * hdr,
  *
  * PUBLIC: int __heapc_dup __P((DBC *, DBC *));
  */
-int __heapc_dup(DBC * orig_dbc, DBC * new_dbc)
+int FASTCALL __heapc_dup(DBC * orig_dbc, DBC * new_dbc)
 {
 	HEAP_CURSOR * orig = (HEAP_CURSOR *)orig_dbc->internal;
 	HEAP_CURSOR * p_new_cursor = (HEAP_CURSOR *)new_dbc->internal;

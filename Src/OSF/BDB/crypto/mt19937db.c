@@ -3,14 +3,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/hmac.h"
 
 /* A C-program for MT19937: Integer version (1999/10/28)          */
 /*  genrand() generates one pseudorandom unsigned integer (32bit) */
@@ -53,17 +46,14 @@
 #define TEMPERING_SHIFT_T(y)  (y<<15)
 #define TEMPERING_SHIFT_L(y)  (y>>18)
 
-static void __db_sgenrand __P((ulong, ulong *, int *));
+static void __db_sgenrand(ulong, ulong *, int *);
 #ifdef  NOT_USED
-static void __db_lsgenrand __P((ulong *, ulong *, int *));
+	static void __db_lsgenrand(ulong *, ulong *, int *);
 #endif
 static ulong __db_genrand(ENV *);
-
 /*
  * __db_generate_iv --
  *	Generate an initialization vector (IV)
- *
- * PUBLIC: int __db_generate_iv __P((ENV *, uint32 *));
  */
 int __db_generate_iv(ENV*env, uint32 * iv)
 {

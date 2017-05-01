@@ -639,7 +639,7 @@ DBQuery * SLAPI PPViewCSess::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 				else
 					p_q->orderBy(t->CashNodeID, t->Dt, 0L);
 			else
-				p_q->orderBy(t->Dt, t->Tm, 0L); // @v7.7.12 (t->ID, 0L)-->(t->Dt, t->Tm, 0L)
+				p_q->orderBy(t->Dt, t->Tm, 0L);
 		}
 	}
 	if(pSubTitle) {
@@ -648,7 +648,7 @@ DBQuery * SLAPI PPViewCSess::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 			SString temp_buf;
 			for(uint i = 0; i < NodeList.GetCount(); i++) {
 				if(GetObjectName(PPOBJ_CASHNODE, NodeList.Get().get(i), temp_buf) > 0)
-					pSubTitle->CatDiv(';', 2, 1).Cat(temp_buf);
+					pSubTitle->CatDivIfNotEmpty(';', 2).Cat(temp_buf);
 				if(pSubTitle->Len() > 64 && i < NodeList.GetCount()-1) {
 					pSubTitle->CatCharN('.', 2);
 					break;
@@ -2921,7 +2921,7 @@ int PPALDD_CSessionView::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_CSessionView::Destroy()
+void PPALDD_CSessionView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(CSess);
 }
@@ -2997,7 +2997,7 @@ int PPALDD_CSessExc::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_CSessExc::Destroy()
+void PPALDD_CSessExc::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(CSessExc);
 }

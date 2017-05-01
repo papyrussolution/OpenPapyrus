@@ -1832,6 +1832,7 @@ private:
 #define oneof10(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10))
 #define oneof11(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11))
 #define NZOR(v,a)                   ((v)?(v):(a))
+//#define NZOR_F(v,a)                 ((!!(v))?(v):(a))
 // @v8.6.8 #define SETIFZ(v,a)                 if(!v) {(v)=(a);}
 #define SETIFZ(v,a)                 ((v) || !!((v)=(a))) // @v8.6.8
 #define SETMAX(v,b)                 {if((v)<(b)) (v)=(b);}
@@ -3321,7 +3322,8 @@ public:
 	SString & FASTCALL CatBrackStr(const char * pStr);
 	SString & FASTCALL CatChar(int chr);
 	SString & SLAPI    Space();   // @>>CatChar(' ')
-	SString & FASTCALL Tab(uint c = 1); // @>>CatChar('\t')
+	SString & FASTCALL Tab(uint c); // @>>CatChar('\t')
+	SString & SLAPI    Tab();       // @>>CatChar('\t')
 	SString & SLAPI    Dot();     // @>>CatChar('.')
 	SString & SLAPI    Comma();   // @>>CatChar(',')
 	SString & SLAPI    Semicol(); // @>>CatChar(';')
@@ -3329,7 +3331,8 @@ public:
 	SString & SLAPI    CR();      // @>>CatChar('\n')
 	SString & SLAPI    CRB();     // "\xD\xA"
 	SString & FASTCALL CatCharN(int chr, size_t n);
-	SString & FASTCALL CatDiv(int c, int addSpaces = 0, int ifNotEmpty = 0);
+	SString & FASTCALL CatDiv(int c, int addSpaces/* = 0*//*, int ifNotEmpty = 0*/);
+	SString & FASTCALL CatDivIfNotEmpty(int c, int addSpaces/* = 0*/);
 	SString & FASTCALL Cat(long);
 	SString & FASTCALL Cat(ulong);
 #ifndef _WIN32_WCE // {
@@ -3360,10 +3363,19 @@ public:
 	//   Если pMsg == 0, то конкатенируется только процент.
 	//
 	SString & SLAPI CatPercentMsg(long p, long t, const char * pMsg);
-	SString & SLAPI Cat(double, long fmt = MKSFMTD(0, 6, NMBF_NOTRAILZ));
+	SString & SLAPI Cat(double v, long fmt);
+	SString & SLAPI Cat(double v); // MKSFMTD(0, 6, NMBF_NOTRAILZ)
 	SString & SLAPI CatReal(double v);
-	SString & FASTCALL Cat(LDATE, long fmt = DATF_DMY);
-	SString & FASTCALL Cat(LTIME, long fmt = TIMF_HMS);
+	SString & FASTCALL Cat(LDATE, long fmt); // @v9.6.4 defargremoved
+	SString & FASTCALL Cat(LTIME, long fmt); // @v9.6.4 defargremoved
+	//
+	// Descr: == Cat(LDATE, DATF_DMY)
+	//
+	SString & FASTCALL Cat(LDATE); // @v9.6.4
+	//
+	// Descr: == Cat(LTIME, DATF_HMS)
+	//
+	SString & FASTCALL Cat(LTIME); // @v9.6.4
 	SString & FASTCALL Cat(const LDATETIME &, long datFmt = DATF_DMY, long timFmt = TIMF_HMS);
 	SString & FASTCALL Cat(const DateRange &, int ext = 0);
 	SString & FASTCALL Cat(const S_GUID &, int fmt = S_GUID::fmtIDL);
@@ -3384,6 +3396,7 @@ public:
 	SString & SLAPI CatEq(const char * pKey, long val);
 	SString & SLAPI CatEq(const char * pKey, ulong val);
 	SString & SLAPI CatEq(const char * pKey, int64 val);
+	SString & SLAPI CatEq(const char * pKey, uint64 val);
 	SString & SLAPI CatEq(const char * pKey, double val, long fmt = SFMT_QTTY);
 	SString & SLAPI CatEq(const char * pKey, LDATE val, long fmt = DATF_DMY|DATF_CENTURY);
 	SString & SLAPI CatEq(const char * pKey, LTIME val, long fmt = TIMF_HMS);
@@ -6692,13 +6705,26 @@ protected:
 
 	HashTableBase(size_t sz);
 	~HashTableBase();
-	int    Clear();
+	void   Clear();
 	int    FASTCALL Copy(const HashTableBase & rSrc);
 	int    InitTab();
 	void   DestroyTabItems();
+	int    FASTCALL InitIteration(Iter * pI) const;
 
 	uint32 Size;
 	Entry * P_Tab;
+	//
+	// Следующие компоненты являются общими для большинства порожденных
+	// классов. Данным классом они почти не управляются - только в части инициализации.
+	//
+	enum {
+		fUseAssoc = 0x0001
+	};
+	int32  Flags;
+	int32  AddCount;  // Количество вставок
+	int32  CollCount; // Количество коллизий при вставке
+	int32  MaxTail;   // Максимальный хвост
+	LAssocArray Assoc;
 };
 //
 // Descr: строковая хэш-таблица. Реализует хранение ассоциаций строковых символов
@@ -6716,7 +6742,7 @@ public:
 	//
 	// Descr: Удаляет все строки из хэш-таблицы. Размер таблицы не меняется.
 	//
-	int    Clear();
+	void   Clear();
 	//
 	// Descr: Добавляет новый символ pSymb с идентификатором val в таблицу.
 	//
@@ -6732,7 +6758,7 @@ public:
 	//   0  - символ не найден (значение по указатель pVal не меняется)
 	//
 	int    Search(const char * pSymb, uint * pVal, uint * pPos) const;
-	int    InitIteration(Iter * pI) const;
+	int    FASTCALL InitIteration(Iter * pI) const;
 	int    NextIteration(Iter *, uint * pVal, uint * pPos, SString * pStr) const;
 	//
 	// Descr: Возвращает максимальное значение идентификатора Val из всех,
@@ -6755,17 +6781,9 @@ public:
 
 	int    Test_Cmp(const SymbHashTable & rPat) const;
 private:
-	enum {
-		fUseAssoc = 0x0001
-	};
 	size_t FASTCALL Hash(const char * pSymb) const;
 
-	int32  Flags;
-	int32  AddCount;  // Количество вставок
-	int32  CollCount; // Количество коллизий при вставке
-	int32  MaxTail;   // Максимальный хвост
 	StringSet NamePool;
-	LAssocArray Assoc;
 };
 //
 //
@@ -6782,7 +6800,7 @@ public:
 	//
 	// Descr: Удаляет все элементы из хэш-таблицы. Размер таблицы не меняется.
 	//
-	int    Clear();
+	void   Clear();
 	//
 	// Descr: Добавляет новый GUID rUuid с идентификатором val в таблицу.
 	//
@@ -6797,7 +6815,7 @@ public:
 	//   0  - символ не найден (значение по указатель pVal не меняется)
 	//
 	int    Search(const S_GUID & rUuid, uint * pVal, uint * pPos) const;
-	int    InitIteration(Iter * pI) const;
+	int    FASTCALL InitIteration(Iter * pI) const;
 	int    NextIteration(Iter *, uint * pVal, S_GUID & rUuid) const;
 	//
 	// Descr: Возвращает максимальное значение идентификатора Val из всех,
@@ -6806,17 +6824,48 @@ public:
 	uint   GetMaxVal() const;
 	int    Test_Cmp(const GuidHashTable & rPat) const;
 private:
-	enum {
-		fUseAssoc = 0x0001
-	};
 	size_t FASTCALL Hash(const S_GUID & rUuid) const;
-
-	int32  Flags;
-	int32  AddCount;  // Количество вставок
-	int32  CollCount; // Количество коллизий при вставке
-	int32  MaxTail;   // Максимальный хвост
 	UuidArray Pool;
-	LAssocArray Assoc;
+};
+//
+//
+//
+class PtrHashTable : public HashTableBase  {
+public:
+	PtrHashTable(size_t sz, int useAssoc = 0);
+	PtrHashTable & FASTCALL operator = (const PtrHashTable &);
+	//
+	// Descr: Копирует экземпляр rSrc в this.
+	//
+	int    FASTCALL Copy(const PtrHashTable & rSrc);
+	//
+	// Descr: Удаляет все элементы из хэш-таблицы. Размер таблицы не меняется.
+	//
+	void   Clear();
+	//
+	// Descr: Добавляет новый указатель с идентификатором val в таблицу.
+	//
+	int    Add(void * ptr, uint val, uint * pPos);
+	int    Del(void * ptr, uint * pVal);
+	void * FASTCALL Get(uint pos) const;
+	void * FASTCALL GetByAssoc(uint val) const;
+	//
+	// Descr: Ищет символ pSymb в таблице.
+	// Returns:
+	//   >0 - символ найден (по указателю pVal присвоено значение ассоциированного значения).
+	//   0  - символ не найден (значение по указатель pVal не меняется)
+	//
+	int    Search(const void * ptr, uint * pVal, uint * pPos) const;
+	int    FASTCALL InitIteration(Iter * pI) const;
+	int    NextIteration(Iter *, uint * pVal, void ** ppPtr) const;
+	//
+	// Descr: Возвращает максимальное значение идентификатора Val из всех, хранящихся в таблице.
+	//
+	uint   GetMaxVal() const;
+private:
+	size_t FASTCALL Hash(const void * ptr) const;
+
+	TSArray <void *> Pool;
 };
 //
 // Descr: хэш 32-битных значений. Все пространство значений разбито на блоки по 32 единице.
@@ -8844,6 +8893,9 @@ public:
 	virtual void   Set(ulong seed) = 0;
 	virtual ulong  Get() = 0;
 	virtual double GetReal() = 0;
+	//
+	// Descr: Возвращает не отрицательное целое число МЕНЬШЕ ЧЕМ n.
+	//
 	ulong  FASTCALL GetUniformInt(ulong n);
 	double GetUniformPos();
 	ulong  GetMin() const;
@@ -8909,7 +8961,31 @@ ulong  FASTCALL Gcd(ulong a, ulong b);
 // Descr: Вычисляет наименьшее общее кратное (LCM) a и b
 //
 ulong  FASTCALL Lcm(ulong a, ulong b);
+//
+// Descr: Если val - простое число, то возвращает !0, в противном случае - 0.
+//
 int    FASTCALL IsPrime(ulong val);
+//
+// Descr: Специальная функция, сжимающая 64-битное целое число до минимально возможного
+//   размера (кратного байту), убирая ведущие нули.
+// Note: Функция используется для компактного хранения целого числа если одновременно
+//   со значением подсистема хранения держит размер.
+// ARG(value  IN): число, подлежащее сжатию
+// ARG(pBuf  OUT): буфер, в который заносится результат. Размер, выделенный под
+//   этот указатель должен быть не менее 8 байт.
+// Returns:
+//   Размер результата в байтах
+//
+uint   FASTCALL sshrinkuint64(uint64 value, void * pBuf);
+//
+// Descr: Специальная функция, разворачивающая сжатое целое число до нормального 64-битного
+//   варианта. Функция обратна по действию функции sshrinkuint64().
+// ARG(pBuf IN): Указатель на буфер, в котором хранится сжатое представление числа.
+// ARG(size IN): Размер сжатого представления числа.
+// Returns:
+//   Результат распаковки.
+//
+uint64 FASTCALL sexpanduint64(const void * pBuf, uint size);
 double FASTCALL fdiv100r(double);
 double FASTCALL fdiv100i(long);
 double FASTCALL fdiv1000i(long);
@@ -10203,6 +10279,10 @@ private:
 	typedef pthread_mutex_t	MutexHandle;
 	typedef MutexHandle * MutexHandleRef;
 #endif
+//
+// Descr: Задерживает исполнение потока на msec миллисекунд
+//
+void   FASTCALL SDelay(uint msec);
 //
 //
 //
@@ -12029,11 +12109,13 @@ public:
 	int    SetInfo(const char *, int currentStatus = -1);
 	int    _check_nz(int result, const char * pV);
 	int    _check_z(int result, const char * pV);
+	int    _check_eq(const void * a, const void * b, const char * pA, const char * pB);
 	int    _check_eq(uint8 a, uint8 b, const char * pA, const char * pB);
 	int    _check_eq(uint a, uint b, const char * pA, const char * pB);
 	int    _check_eq(long a, long b, const char * pA, const char * pB);
 	int    _check_eq(ulong a, ulong b, const char * pA, const char * pB);
 	int    _check_eq(int64 a, int64 b, const char * pA, const char * pB);
+	int    _check_eq(uint64 a, uint64 b, const char * pA, const char * pB);
 	int    _check_eq(double a, double b, const char * pA, const char * pB);
 	int    _check_eq(float a, float b, const char * pA, const char * pB);
 	int    _check_eq_tolerance(double a, double b, double tol, const char * pA, const char * pB);

@@ -1883,7 +1883,7 @@ int PPALDD_Invent::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_Invent::Destroy()
+void PPALDD_Invent::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(Inventory);
 }

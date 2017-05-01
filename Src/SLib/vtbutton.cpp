@@ -34,7 +34,7 @@ TCalcInputLine::TCalcInputLine(uint inputId, uint buttonId, TRect & bounds, TYPE
 
 TCalcInputLine::~TCalcInputLine()
 {
-	TView::SetWindowProp(GetDlgItem(Parent, Vbwe.ButtonCtrlId), GWL_WNDPROC, Vbwe.PrevWndProc);
+	TView::SetWindowProp(GetDlgItem(Parent, Vbwe.ButtonCtrlId), GWLP_WNDPROC, Vbwe.PrevWndProc);
 	ZDeleteWinGdiObject(&Vbwe.HBmp);
 }
 
@@ -59,10 +59,10 @@ int TCalcInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam
 			Vbwe.P_Dlg = (TDialog *)owner;
 			Vbwe.FieldCtrlId = Id;
 			HWND hwnd = GetDlgItem(Parent, Vbwe.ButtonCtrlId);
-			Vbwe.PrevWndProc = (WNDPROC)TView::GetWindowProp(hwnd, GWL_WNDPROC);
+			Vbwe.PrevWndProc = (WNDPROC)TView::GetWindowProp(hwnd, GWLP_WNDPROC);
 			TView::SetWindowUserData(hwnd, &Vbwe);
 			const uint bmp_id = virtButtonBitmapId[VirtButtonId];
-			TView::SetWindowProp(hwnd, GWL_WNDPROC, virtButtonProc[VirtButtonId]);
+			TView::SetWindowProp(hwnd, GWLP_WNDPROC, virtButtonProc[VirtButtonId]);
 			Vbwe.HBmp = APPL->LoadBitmap(bmp_id);
 			SendDlgItemMessage(Parent, Vbwe.ButtonCtrlId, BM_SETIMAGE, IMAGE_BITMAP, (long)Vbwe.HBmp);
 			{

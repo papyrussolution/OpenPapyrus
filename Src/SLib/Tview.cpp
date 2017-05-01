@@ -411,7 +411,7 @@ void * TView::SetWindowProp(HWND hWnd, int propIndex, void * ptr)
 //static
 void * TView::SetWindowUserData(HWND hWnd, void * ptr)
 {
-	return reinterpret_cast<void *>(::SetWindowLongPtr(hWnd, GWL_USERDATA, reinterpret_cast<LONG_PTR>(ptr)));
+	return reinterpret_cast<void *>(::SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(ptr)));
 }
 
 //static
@@ -429,7 +429,7 @@ void * FASTCALL TView::GetWindowProp(HWND hWnd, int propIndex)
 //static 
 void * FASTCALL TView::GetWindowUserData(HWND hWnd)
 {
-	return reinterpret_cast<void *>(::GetWindowLongPtr(hWnd, GWL_USERDATA));
+	return reinterpret_cast<void *>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
 }
 
 //static
@@ -608,7 +608,7 @@ int TView::OnDestroy(HWND hWnd)
 {
 	int    ok = -1;
 	if(this && PrevWindowProc) {
-		TView::SetWindowProp(hWnd, GWL_WNDPROC, PrevWindowProc);
+		TView::SetWindowProp(hWnd, GWLP_WNDPROC, PrevWindowProc);
 		ok = 1;
 	}
 	return ok;
@@ -620,7 +620,7 @@ int TView::RestoreOnDestruction()
 	if(PrevWindowProc) {
 		HWND   h_wnd = getHandle();
 		if(IsWindow(h_wnd)) {
-			TView::SetWindowProp(h_wnd, GWL_WNDPROC, PrevWindowProc);
+			TView::SetWindowProp(h_wnd, GWLP_WNDPROC, PrevWindowProc);
 			ok = 1;
 		}
 	}

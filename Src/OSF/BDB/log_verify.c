@@ -7,24 +7,12 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/fop.h"
-// @v9.5.5 #include "dbinc/qam.h"
-// @v9.5.5 #include "dbinc/txn.h"
-// @v9.6.2 #include "dbinc/log_verify.h"
 
 #define FIRST_OFFSET(env) (sizeof(LOGP)+(CRYPTO_ON(env) ? HDR_CRYPTO_SZ : HDR_NORMAL_SZ))
 
 static int __env_init_verify __P((ENV*, uint32, DB_DISTAB *));
-/*
- * PUBLIC: int __log_verify_pp __P((DB_ENV *, const DB_LOG_VERIFY_CONFIG *));
- */
+
 int __log_verify_pp(DB_ENV * dbenv, const DB_LOG_VERIFY_CONFIG * lvconfig)
 {
 	int lsnrg, ret, timerg;
@@ -343,10 +331,6 @@ err:
  *      Wrapper function for APIs of other languages, like java/c# and
  *      script languages. It's much easier to implement the swig layer
  *      when we split up the C structure.
- *
- * PUBLIC: int __log_verify_wrap __P((ENV *, const char *, uint32,
- * PUBLIC:     const char *, const char *, __time64_t, __time64_t, uint32,
- * PUBLIC:     uint32, uint32, uint32, int, int));
  */
 int __log_verify_wrap(ENV * env, const char * envhome, uint32 cachesize,
 	const char * dbfile, const char * dbname, __time64_t stime, __time64_t etime, uint32 stfile, uint32 stoffset, uint32 efile, uint32 eoffset, int caf, int verbose)

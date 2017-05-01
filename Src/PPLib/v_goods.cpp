@@ -1545,7 +1545,7 @@ DBQuery * SLAPI PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 			else if(Filt.GrpIDList.GetCount()) {
 				for(uint i = 0; i < Filt.GrpIDList.GetCount(); i++) {
 					if(GetGoodsNameR(Filt.GrpIDList.Get().get(i), temp_buf) > 0)
-						pSubTitle->CatDiv(';', 2, 1).Cat(temp_buf);
+						pSubTitle->CatDivIfNotEmpty(';', 2).Cat(temp_buf);
 					if(pSubTitle->Len() > 64 && i < Filt.GrpIDList.GetCount()-1) {
 						pSubTitle->CatCharN('.', 2);
 						break;
@@ -3935,7 +3935,7 @@ int PPALDD_GoodsBasket::NextIteration(PPIterID iterId, long rsrv)
 	return ok;
 }
 
-int PPALDD_GoodsBasket::Destroy()
+void PPALDD_GoodsBasket::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(GoodsBasket);
 }
@@ -3983,7 +3983,7 @@ int PPALDD_GoodsView::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_GoodsView::Destroy()
+void PPALDD_GoodsView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(Goods);
 }
@@ -4113,12 +4113,11 @@ int PPALDD_GoodsStruc::NextIteration(PPIterID iterId, long rsrv)
 	return DlRtm::NextIteration(iterId, rsrv);
 }
 
-int PPALDD_GoodsStruc::Destroy()
+void PPALDD_GoodsStruc::Destroy()
 {
 	Dl6_GoodsStruc_Support * p_supp = (Dl6_GoodsStruc_Support *)Extra[1].Ptr;
 	delete p_supp;
 	Extra[0].Ptr = Extra[1].Ptr = 0;
-	return 1;
 }
 //
 // Implementation of PPALDD_QUOTKIND
@@ -5347,12 +5346,11 @@ int PPALDD_GoodsClassView::NextIteration(PPIterID iterId, long rsrv)
 	return ok;
 }
 
-int PPALDD_GoodsClassView::Destroy()
+void PPALDD_GoodsClassView::Destroy()
 {
 	StrAssocArray * p_list = (StrAssocArray *)Extra[0].Ptr;
 	delete p_list;
 	Extra[1].Ptr = 0;
-	return 1;
 }
 //
 // Implementation of PPALDD_GoodsGroupView
@@ -5406,10 +5404,9 @@ int PPALDD_GoodsGroupView::NextIteration(PPIterID iterId, long rsrv)
 	return ok;
 }
 
-int PPALDD_GoodsGroupView::Destroy()
+void PPALDD_GoodsGroupView::Destroy()
 {
 	Extra[1].Ptr = 0;
-	return 1;
 }
 //
 // Implementation of PPALDD_GoodsLabel

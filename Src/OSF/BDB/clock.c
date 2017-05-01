@@ -7,18 +7,10 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 /*
  * __clock_set_expires --
  *	Set the expire time given the time to live.
- *
- * PUBLIC: void __clock_set_expires __P((ENV *, db_timespec *, db_timeout_t));
  */
 void __clock_set_expires(ENV * env, db_timespec * timespecp, db_timeout_t timeout)
 {
@@ -36,8 +28,6 @@ void __clock_set_expires(ENV * env, db_timespec * timespecp, db_timeout_t timeou
 }
 /*
  * __clock_expired -- determine if a timeout has expired.
- *
- * PUBLIC: int __clock_expired __P((ENV *, db_timespec *, db_timespec *));
  */
 int __clock_expired(ENV * env, db_timespec * now, db_timespec * timespecp)
 {

@@ -165,7 +165,7 @@ int SLAPI SCardCore::UpdateDiscount(PPID id, double discount, int use_ta)
 	return ok;
 }
 
-int SLAPI SCardCore::UpdateRest(PPID id, double rest, int use_ta)
+int SLAPI SCardCore::UpdateRest_(PPID id, double rest, TSArray <UpdateRestNotifyEntry> * pNotifyList, int use_ta)
 {
 	int    ok = 1;
 	if(id) {
@@ -173,10 +173,22 @@ int SLAPI SCardCore::UpdateRest(PPID id, double rest, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(SearchByID(this, PPOBJ_SCARD, id, &rec) > 0 && rec.Rest != rest) { // @v8.6.4 SearchByID_ForUpdate-->SearchByID
+			const double prev_rest = rec.Rest;
+			const double new_rest = rest;
 			rec.Rest = rest;
 			THROW_DB(rereadForUpdate(0, 0));
 			THROW_DB(updateRecBuf(&rec)); // @sfu
 			DS.LogAction(PPACN_OBJUPD, PPOBJ_SCARD, id, 0, 0);
+			if(pNotifyList) {
+				if((rec.Flags & SCRDF_NOTIFYDRAW && (new_rest < prev_rest)) || (rec.Flags & SCRDF_NOTIFYWITHDRAW && (new_rest > prev_rest))) {
+					UpdateRestNotifyEntry urn_entry;
+					MEMSZERO(urn_entry);
+					urn_entry.SCardID = id;
+					urn_entry.PrevRest = prev_rest;
+					urn_entry.NewRest = new_rest;
+					pNotifyList->insert(&urn_entry);
+				}
+			}
 		}
 		THROW(tra.Commit());
 	}
@@ -881,7 +893,7 @@ int SLAPI SCardCore::PutOpByBill(PPID billID, PPID scardID, LDATE dt, double amo
 		rec.SCardID = scardID;
 		rec.Amount = amount;
 		if(ok > 0 && amount != 0.0 && rec.SCardID != 0) {
-			THROW(PutOpRec(&rec, 0));
+			THROW(PutOpRec(&rec, 0, 0));
 			ok = 2;
 		}
 		THROW(tra.Commit());
@@ -890,7 +902,7 @@ int SLAPI SCardCore::PutOpByBill(PPID billID, PPID scardID, LDATE dt, double amo
 	return ok;
 }
 
-int SLAPI SCardCore::PutOpBlk(const OpBlock & rBlk, int use_ta)
+int SLAPI SCardCore::PutOpBlk(const OpBlock & rBlk, TSArray <UpdateRestNotifyEntry> * pNotifyList, int use_ta)
 {
 	int    ok = 1;
 	const  PPID user_id = LConfig.User;
@@ -926,7 +938,7 @@ int SLAPI SCardCore::PutOpBlk(const OpBlock & rBlk, int use_ta)
 			rec.FreezingStart = rBlk.FreezingPeriod.low;
 			rec.FreezingEnd = rBlk.FreezingPeriod.upp;
 		}
-		THROW(PutOpRec(&rec, 0));
+		THROW(PutOpRec(&rec, pNotifyList, 0));
 		if(rBlk.DestSCardID) {
 			MEMSZERO(rec);
 			rec.SCardID = rBlk.DestSCardID;
@@ -939,7 +951,7 @@ int SLAPI SCardCore::PutOpBlk(const OpBlock & rBlk, int use_ta)
 			rec.Amount = fabs(rBlk.Amount);
 			rec.UserID = user_id;
 			rec.DestSCardID = rBlk.SCardID;
-			THROW(PutOpRec(&rec, 0));
+			THROW(PutOpRec(&rec, pNotifyList, 0));
 			DS.LogAction(PPACN_SCARDOPMOV, PPOBJ_SCARD, rBlk.SCardID, rBlk.DestSCardID, 0); // @v8.0.0
 		}
 	}
@@ -959,14 +971,14 @@ int SLAPI SCardCore::PutOpBlk(const OpBlock & rBlk, int use_ta)
 			rec.FreezingStart = rBlk.FreezingPeriod.low;
 			rec.FreezingEnd = rBlk.FreezingPeriod.upp;
 		}
-		THROW(PutOpRec(&rec, 0));
+		THROW(PutOpRec(&rec, pNotifyList, 0));
 	}
 	THROW(tra.Commit());
 	CATCHZOK
 	return ok;
 }
 
-int SLAPI SCardCore::PutOpRec(const SCardOpTbl::Rec * pRec, int use_ta)
+int SLAPI SCardCore::PutOpRec(const SCardOpTbl::Rec * pRec, TSArray <UpdateRestNotifyEntry> * pNotifyList, int use_ta)
 {
 	int    ok = 1, new_op = -1, r = -1;
 	double rest;
@@ -982,7 +994,6 @@ int SLAPI SCardCore::PutOpRec(const SCardOpTbl::Rec * pRec, int use_ta)
 		rec.Dt = getcurdate_();
 	if(rec.Tm == 0) {
 		rec.Tm = getcurtime_();
-		// @v7.7.12 {
 		if(rec.Tm == 0 && (rec.LinkObjType && rec.LinkObjID)) {
 			//
 			// ќсобый случай: нулевое врем€. ≈сли мы оставим его таким и к операции прив€зан
@@ -991,7 +1002,6 @@ int SLAPI SCardCore::PutOpRec(const SCardOpTbl::Rec * pRec, int use_ta)
 			//
 			rec.Tm = encodetime(0, 0, 0, 1);
 		}
-		// } @v7.7.12
 	}
 	if(rec.Flags & SCARDOPF_FREEZING) {
 		rec.Amount = 0.0;
@@ -1032,7 +1042,7 @@ int SLAPI SCardCore::PutOpRec(const SCardOpTbl::Rec * pRec, int use_ta)
 			else {
 				THROW(RecalcRests(rec.SCardID, &rest, 0));
 			}
-			THROW(UpdateRest(rec.SCardID, rest, 0));
+			THROW(UpdateRest_(rec.SCardID, rest, pNotifyList, 0));
 		}
 		THROW(tra.Commit());
 	}
@@ -1060,7 +1070,7 @@ int SLAPI SCardCore::RemoveOp(PPID cardID, LDATE dt, LTIME tm, int use_ta)
 			}
 			else {
 				THROW(RecalcForwardRests(cardID, dt, tm, &rest, 0));
-				THROW(UpdateRest(cardID, rest, 0));
+				THROW(UpdateRest_(cardID, rest, 0, 0));
 			}
 		}
 		THROW(tra.Commit());
@@ -1115,7 +1125,7 @@ int SLAPI SCardCore::RemoveOpByCheck(PPID checkID, int use_ta)
 		while(SearchOpByCheck(checkID, &scop_rec) > 0) {
 			THROW_DB(ScOp.deleteRec());
 			THROW(RecalcForwardRests(scop_rec.SCardID, scop_rec.Dt, scop_rec.Tm, &rest, 0));
-			THROW(UpdateRest(scop_rec.SCardID, rest, 0));
+			THROW(UpdateRest_(scop_rec.SCardID, rest, 0, 0));
 		}
 		THROW(tra.Commit());
 	}
@@ -1190,7 +1200,7 @@ int SLAPI SCardCore::RecalcRestsBySeries(PPID serID, int use_ta)
 		while(search(2, &k2, spGt) && k2.SeriesID == serID) {
 			double rest = 0.0;
 			THROW(RecalcRests(data.ID, &rest, 0));
-			THROW(UpdateRest(data.ID, rest, 0));
+			THROW(UpdateRest_(data.ID, rest, 0, 0));
 		}
 		THROW(tra.Commit());
 	}

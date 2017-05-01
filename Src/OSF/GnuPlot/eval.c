@@ -396,7 +396,7 @@ double imag(const t_value * val)
 		case CMPLX: return (val->v.cmplx_val.imag);
 		case STRING:
 		    // This is where we end up if the user tries:  x = 2;  plot sprintf(format,x)
-		    int_warn(NO_CARET, "encountered a string when expecting a number");
+		    GpGg.IntWarn(NO_CARET, "encountered a string when expecting a number");
 		    GpGg.IntErrorNoCaret("Did you try to generate a file name using dummy variable x or y?");
 		default:
 		    GpGg.IntErrorNoCaret("unknown type in imag()");
@@ -1078,7 +1078,7 @@ void GpEval::EvaluateAt(AtType * at_ptr, t_value * val_ptr)
 		CheckStack();
 	}
 	if(!undefined && val_ptr->type == ARRAY) {
-		int_warn(NO_CARET, "evaluate_at: unsupported array operation");
+		GpGg.IntWarn(NO_CARET, "evaluate_at: unsupported array operation");
 		val_ptr->type = NOTDEFINED;
 	}
 }

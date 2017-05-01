@@ -94,7 +94,7 @@ alloc:
 		if(nobjs == 0)
 			goto err;
 		for(i = 0; i < nobjs; i++) {
-			memset(sh_thing, 0, sizeof(struct STRUCT_NAME));
+			memzero(sh_thing, sizeof(struct STRUCT_NAME));
 			if(&cur_p->free_locks == (struct __flock *)&cur_p->FREE_LIST_HEAD)
 				((struct __db_lock *)sh_thing)->status = DB_LSTAT_FREE;
 			MUTEX_LOCK(lt->env, cur_p->mtx_part);

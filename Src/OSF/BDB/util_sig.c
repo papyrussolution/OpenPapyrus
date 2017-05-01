@@ -7,18 +7,11 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
 static int interrupt;
 static void set_signal __P((int, int));
 static void signal_handler(int);
-
 /*
  * signal_handler --
  *	Interrupt signal handler.
@@ -51,11 +44,8 @@ static void set_signal(int s, int is_dflt)
 	signal(s, is_dflt ? SIG_DFL : signal_handler);
 #endif
 }
-
 /*
  * __db_util_siginit --
- *
- * PUBLIC: void __db_util_siginit();
  */
 void __db_util_siginit()
 {
@@ -77,22 +67,16 @@ void __db_util_siginit()
 	set_signal(SIGTERM, 0);
 #endif
 }
-
 /*
  * __db_util_interrupted --
  *	Return if interrupted.
- *
- * PUBLIC: int __db_util_interrupted();
  */
 int __db_util_interrupted()
 {
 	return interrupt != 0;
 }
-
 /*
  * __db_util_sigresend --
- *
- * PUBLIC: void __db_util_sigresend();
  */
 void __db_util_sigresend()
 {

@@ -7,21 +7,10 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
 
 static int __log_print_dbregister __P((ENV*, DBT*, DB_LOG *));
 
-/*
- * PUBLIC: int __log_print_record  __P((ENV *,
- * PUBLIC:      DBT *, DB_LSN *, char *, DB_LOG_RECSPEC *, void *));
- */
 int __log_print_record(ENV * env, DBT * recbuf, DB_LSN * lsnp, char * name, DB_LOG_RECSPEC * spec, void * info)
 {
 	DB * dbp;
@@ -84,14 +73,12 @@ int __log_print_record(ENV * env, DBT * recbuf, DB_LSN * lsnp, char * name, DB_L
 			LOGCOPY_32(env, &op, bp);
 			__db_msgadd(env, &msgbuf,  "\t%s: ", sp->name);
 			__db_msgadd(env, &msgbuf,  sp->fmt, OP_MODE_GET(op));
-			__db_msgadd(env, &msgbuf,  " ptype: %s\n",
-				__db_pagetype_to_string(OP_PAGE_GET(op)));
+			__db_msgadd(env, &msgbuf,  " ptype: %s\n", __db_pagetype_to_string(OP_PAGE_GET(op)));
 			bp += sizeof(uinttmp);
 			break;
 		    case LOGREC_DB:
 			LOGCOPY_32(env, &inttmp, bp);
-			__db_msgadd(env, &msgbuf,  "\t%s: %lu\n",
-				sp->name, (ulong)inttmp);
+			__db_msgadd(env, &msgbuf,  "\t%s: %lu\n", sp->name, (ulong)inttmp);
 			bp += sizeof(inttmp);
 			if(dblp != NULL && inttmp < dblp->dbentry_cnt)
 				dbp = dblp->dbentry[inttmp].dbp;
@@ -99,32 +86,17 @@ int __log_print_record(ENV * env, DBT * recbuf, DB_LSN * lsnp, char * name, DB_L
 
 		    case LOGREC_DBOP:
 			/* Special op for dbreg_register records. */
-			if(dblp != NULL && (ret =
-			                            __log_print_dbregister(env, recbuf, dblp)) != 0)
+			if(dblp != NULL && (ret = __log_print_dbregister(env, recbuf, dblp)) != 0)
 				return ret;
 			LOGCOPY_32(env, &uinttmp, bp);
 			switch(FLD_ISSET(uinttmp, DBREG_OP_MASK)) {
-			    case DBREG_CHKPNT:
-				s = "CHKPNT";
-				break;
-			    case DBREG_CLOSE:
-				s = "CLOSE";
-				break;
-			    case DBREG_OPEN:
-				s = "OPEN";
-				break;
-			    case DBREG_PREOPEN:
-				s = "PREOPEN";
-				break;
-			    case DBREG_RCLOSE:
-				s = "RCLOSE";
-				break;
-			    case DBREG_REOPEN:
-				s = "REOPEN";
-				break;
-			    default:
-				s = "UNKNOWN";
-				break;
+			    case DBREG_CHKPNT: s = "CHKPNT"; break;
+			    case DBREG_CLOSE: s = "CLOSE"; break;
+			    case DBREG_OPEN: s = "OPEN"; break;
+			    case DBREG_PREOPEN: s = "PREOPEN"; break;
+			    case DBREG_RCLOSE: s = "RCLOSE"; break;
+			    case DBREG_REOPEN: s = "REOPEN"; break;
+			    default: s = "UNKNOWN"; break;
 			}
 			__db_msgadd(env, &msgbuf,  "\t%s: %s %lx\n", sp->name,
 				s, (ulong)(uinttmp&~DBREG_OP_MASK));
@@ -142,12 +114,9 @@ int __log_print_record(ENV * env, DBT * recbuf, DB_LSN * lsnp, char * name, DB_L
 			LOGCOPY_32(env, &uinttmp, bp);
 			timeval = uinttmp;
 			lt = _localtime64(&timeval);
-			__db_msgadd(env, &msgbuf,
-				"\t%s: %ld (%.24s, 20%02lu%02lu%02lu%02lu%02lu.%02lu)\n",
-				sp->name, (long)timeval,
-				__os_ctime(&timeval, time_buf),
-				(ulong)lt->tm_year-100, (ulong)lt->tm_mon+1,
-				(ulong)lt->tm_mday, (ulong)lt->tm_hour,
+			__db_msgadd(env, &msgbuf, "\t%s: %ld (%.24s, 20%02lu%02lu%02lu%02lu%02lu.%02lu)\n",
+				sp->name, (long)timeval, __os_ctime(&timeval, time_buf),
+				(ulong)lt->tm_year-100, (ulong)lt->tm_mon+1, (ulong)lt->tm_mday, (ulong)lt->tm_hour,
 				(ulong)lt->tm_min, (ulong)lt->tm_sec);
 			bp += sizeof(uinttmp);
 			break;
@@ -257,9 +226,7 @@ pr_data:
 
 		    case LOGREC_POINTER:
 			LOGCOPY_TOLSN(env, &prev_lsn, bp);
-			__db_msgadd(env, &msgbuf,
-				"\t%s: [%lu][%lu]\n", sp->name,
-				(ulong)prev_lsn.file, (ulong)prev_lsn.offset);
+			__db_msgadd(env, &msgbuf, "\t%s: [%lu][%lu]\n", sp->name, (ulong)prev_lsn.file, (ulong)prev_lsn.offset);
 			bp += sizeof(DB_LSN);
 			break;
 		    case LOGREC_Done:
@@ -272,7 +239,6 @@ pr_data:
 		__db_msg(env, "%s", "");
 	return 0;
 }
-
 /*
  * __log_print_dbregister --
  *	So that we can properly swap and print information from databases

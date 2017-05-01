@@ -90,8 +90,7 @@ done:
 	*(DB_HASH_STAT **)spp = sp;
 	return 0;
 err:
-	if(sp != NULL)
-		__os_ufree(env, sp);
+	__os_ufree(env, sp);
 	if(hcp->hdr != NULL)
 		__ham_release_meta(dbc);
 	return ret;

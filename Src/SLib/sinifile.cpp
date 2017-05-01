@@ -636,7 +636,7 @@ int SLAPI SIniFile::SetParam(const char * pSect, const char * pParam, const char
 		temp_buf = out_file.GetName();
 		out_file.Close();
 		THROW(SFile::Remove(FileName));
-		delay(10);
+		SDelay(10);
 		THROW(SFile::Rename(temp_buf, FileName));
 	}
 	CATCHZOK

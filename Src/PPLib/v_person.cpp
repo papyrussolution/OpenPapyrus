@@ -2054,7 +2054,7 @@ DBQuery * SLAPI PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 	if(Filt.Kind)
 		GetObjectName(PPOBJ_PRSNKIND, Filt.Kind, title_buf);
 	if(Filt.AttribType) {
-		title_buf.CatDiv('-', 1, 1);
+		title_buf.CatDivIfNotEmpty('-', 1);
 		PPID   reg_id = Filt.RegTypeID;
 		if(reg_id) {
 			SArray * p_ary = CreateExtRegList(&Filt, &reg_id, 0);
@@ -2405,23 +2405,19 @@ int SLAPI PPViewPerson::SendMail(PPID mailAccId, StrAssocArray * pMailList, PPLo
 		}
 		if(ok > 0) {
 			PPWait(1);
-			int    first = 1; // @v7.7.10
 			for(uint i = 0; i < pMailList->getCount(); i++) {
 				PPSmsSender::FormatMessageBlock fmb;
 				fmb.PersonID = pMailList->at(i).Id;
 				const  char * p_mail_addr = pMailList->at(i).Txt;
 				SString text, subj;
-				// @v7.7.10 {
-				if(!first && data.Delay > 0 && data.Delay <= (24 * 3600 * 1000)) {
-					delay(data.Delay);
+				if(i && data.Delay > 0 && data.Delay <= (24 * 3600 * 1000)) {
+					SDelay(data.Delay);
 				}
-				// } @v7.7.10
 				PPSmsSender::FormatMessage(data.Text, text, &fmb);
 				PPSmsSender::FormatMessage(data.Subj, subj, &fmb);
 				subj.Transf(CTRANSF_INNER_TO_UTF8);
 				text.Transf(CTRANSF_INNER_TO_UTF8);
 				THROW(::SendMail(subj, text, pMailList->at(i).Txt, data.MailAccID, &data.FilesList, pLogger));
-				first = 0; // @v7.7.10
 			}
 			PPWait(0);
 		}
@@ -2462,11 +2458,11 @@ int SLAPI PPViewPerson::ExportUhtt()
 					if(loc_rec.Code[0])
 						loc_text_buf.Cat(loc_rec.Code);
 					if(phone_buf.NotEmpty())
-						loc_text_buf.CatDiv(';', 2, 1).Cat(phone_buf);
+						loc_text_buf.CatDivIfNotEmpty(';', 2).Cat(phone_buf);
 					if(contact_buf.NotEmpty())
-						loc_text_buf.CatDiv(';', 2, 1).Cat(contact_buf);
+						loc_text_buf.CatDivIfNotEmpty(';', 2).Cat(contact_buf);
 					if(addr_buf.NotEmptyS())
-						loc_text_buf.CatDiv(';', 2, 1).Cat(addr_buf);
+						loc_text_buf.CatDivIfNotEmpty(';', 2).Cat(addr_buf);
 
 					//PPTXT_UHTTEXPLOC_FOUND      "На сервере Universe-HTT адрес '@zstr' найден по коду"
 					//PPTXT_UHTTEXPLOC_EXPORTED   "Адрес '@zstr' экспортирован на сервер Universe-HTT"
@@ -3195,7 +3191,7 @@ int PPALDD_PersonList::NextIteration(PPIterID iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_PersonList::Destroy()
+void PPALDD_PersonList::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(Person);
 }

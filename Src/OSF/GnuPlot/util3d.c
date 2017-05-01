@@ -759,7 +759,7 @@ void GpGadgets::Draw3DPoint(GpTermEntry * pT, GpVertex & rV, lp_style_type * pLp
 }
 //
 // HBB NEW 20031218: tools for drawing polylines in 3D with a semantic
-// like term->move() and term->vector() 
+// like term->move() and term->_Vector() 
 //
 // Previous points 3D position 
 //static GpVertex polyline3d_previous_vertex; // @global
@@ -773,7 +773,7 @@ void GpGadgets::PolyLine3DStart(GpTermEntry * pT, GpVertex & rV1)
 		// EAM - This may now be unneeded. But I'm not sure. 
 		//       Perhaps the hidden3d code needs the move.   
 		TermCoord(rV1, x1, y1);
-		pT->move(x1, y1);
+		pT->_Move(x1, y1);
 	}
 }
 

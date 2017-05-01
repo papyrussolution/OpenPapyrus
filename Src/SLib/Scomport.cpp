@@ -257,7 +257,7 @@ int FASTCALL SCommPort::GetChr(int * pChr)
 				ok = 1;
 			}
 			else if(cycle_delay) {
-				delay(cycle_delay);
+				SDelay(cycle_delay);
 				collision++;
 			}
 		}
@@ -299,7 +299,7 @@ int SLAPI SCommPort::GetChr()
 				return buf[0];
 			}
 			else if(cycle_delay) {
-				delay(cycle_delay);
+				SDelay(cycle_delay);
 				collision++;
 			}
 		}

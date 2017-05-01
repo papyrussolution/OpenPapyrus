@@ -151,9 +151,9 @@ int SLAPI PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 				gct_flt.Flags |= (OPG_PROCESSRECKONING | OPG_PROCESSGENOP);
 				{
 					AdjGdsGrpng agg;
-					THROW(BeginGoodsGroupingProcess(&gct_flt, &agg));
+					THROW(agg.BeginGoodsGroupingProcess(&gct_flt));
 					THROW(ary.ProcessGoodsGrouping(&gct_flt, &agg));
-					EndGoodsGroupingProcess(&agg);
+					agg.EndGoodsGroupingProcess();
 				}
 				ary.InitOpNames();
 				for(uint i = 0; ary.enumItems(&i, (void**)&p_entry);) {
@@ -789,14 +789,14 @@ DBQuery * SLAPI PPViewOpGrouping::CreateBrowserQuery(uint * pBrwId, SString * pS
 	if(pSubTitle) {
 		SString temp_buf;
 		if(!Filt.Period.IsZero()) {
-			pSubTitle->CatDiv('-', 1, 1).Cat(Filt.Period, 1);
+			pSubTitle->CatDivIfNotEmpty('-', 1).Cat(Filt.Period, 1);
 		}
-		pSubTitle->CatDiv('-', 1, 1).Cat(GetExtLocationName(Filt.LocList, 2, temp_buf));
+		pSubTitle->CatDivIfNotEmpty('-', 1).Cat(GetExtLocationName(Filt.LocList, 2, temp_buf));
 		if(Filt.GoodsID) {
-			pSubTitle->CatDiv(':', 1, 1).Cat(GetGoodsName(Filt.GoodsID, temp_buf));
+			pSubTitle->CatDivIfNotEmpty(':', 1).Cat(GetGoodsName(Filt.GoodsID, temp_buf));
 		}
 		else if(Filt.GoodsGrpID) {
-			pSubTitle->CatDiv(':', 1, 1).Cat(GetGoodsName(Filt.GoodsGrpID, temp_buf));
+			pSubTitle->CatDivIfNotEmpty(':', 1).Cat(GetGoodsName(Filt.GoodsGrpID, temp_buf));
 		}
 	}
 	CATCH
@@ -1098,8 +1098,7 @@ int SLAPI PPViewOpGrouping::ViewGraph(const void * pHdr, PPViewBrowser * pBrw)
 					break;
 			}
 		}
-
-		uint p = 0;
+		size_t p = 0;
 		{
 			PPGpPlotItem item(plot.GetDataFileName(), line_text.Transf(CTRANSF_INNER_TO_OUTER), PPGpPlotItem::sLines);
 			item.Style.SetLine(GetColorRef(SClrBlue), 3);
@@ -1349,7 +1348,7 @@ int PPALDD_OpGrouping::NextIteration(PPIterID iterId, long rsrv)
 	return -1;
 }
 
-int PPALDD_OpGrouping::Destroy()
+void PPALDD_OpGrouping::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(OpGrouping);
 }

@@ -622,8 +622,7 @@ public:
 	virtual int lock_put(DbLock * lock);
 	virtual int lock_stat(DB_LOCK_STAT ** statp, uint32 flags);
 	virtual int lock_stat_print(uint32 flags);
-	virtual int lock_vec(uint32 locker, uint32 flags,
-	                     DB_LOCKREQ list[], int nlist, DB_LOCKREQ**elistp);
+	virtual int lock_vec(uint32 locker, uint32 flags, DB_LOCKREQ list[], int nlist, DB_LOCKREQ**elistp);
 
 	// Log functions
 	//

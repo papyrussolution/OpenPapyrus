@@ -328,8 +328,7 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 		if(F_ISSET(rep, REP_F_CLIENT) && REP_MSG_REQ(rp->rectype)) {
 			STAT(rep->stat.st_client_svc_req++);
 			STAT(rep->stat.st_client_svc_miss++);
-			__rep_send_message(env,
-				eid, REP_REREQUEST, NULL, NULL, 0, 0);
+			__rep_send_message(env, eid, REP_REREQUEST, NULL, NULL, 0, 0);
 		}
 		goto out;
 	}
@@ -385,13 +384,9 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 			 * had better all be expired.
 			 */
 			if(IS_USING_LEASES(env))
-				DB_ASSERT(env,
-					__rep_lease_check(env, 0) ==
-					DB_REP_LEASE_EXPIRED);
+				DB_ASSERT(env, __rep_lease_check(env, 0) == DB_REP_LEASE_EXPIRED);
 			else if(rp->rectype != REP_DUPMASTER)
-				__rep_send_message(env,
-					DB_EID_BROADCAST, REP_DUPMASTER,
-					NULL, NULL, 0, 0);
+				__rep_send_message(env, DB_EID_BROADCAST, REP_DUPMASTER, NULL, NULL, 0, 0);
 			goto errlock;
 		}
 		/*
@@ -595,8 +590,7 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 			ZERO_LSN(rep->first_lsn);
 			ZERO_LSN(rep->ckp_lsn);
 			REP_SYSTEM_UNLOCK(env);
-			__rep_send_message(env, eid, REP_UPDATE_REQ,
-				NULL, NULL, 0, 0);
+			__rep_send_message(env, eid, REP_UPDATE_REQ, NULL, NULL, 0, 0);
 		}
 		break;
 	    case REP_LEASE_GRANT:
@@ -650,9 +644,7 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 		 * client).  But first, broadcast the new client's record to
 		 * all the clients.
 		 */
-		__rep_send_message(env,
-			DB_EID_BROADCAST, REP_NEWSITE, &rp->lsn, rec, 0, 0);
-
+		__rep_send_message(env, DB_EID_BROADCAST, REP_NEWSITE, &rp->lsn, rec, 0, 0);
 		ret = DB_REP_NEWSITE;
 		if(F_ISSET(rep, REP_F_CLIENT)) {
 			REP_SYSTEM_LOCK(env);
@@ -765,23 +757,17 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 		 * Handle even if we're recovering.
 		 */
 		ANYSITE(rep);
-		if(F_ISSET(rep, REP_F_MASTER) &&
-		   eid != rep->eid) {
+		if(F_ISSET(rep, REP_F_MASTER) && eid != rep->eid) {
 			/* We don't hold the rep mutex, and may miscount. */
 			STAT(rep->stat.st_dupmasters++);
 			ret = DB_REP_DUPMASTER;
 			if(IS_USING_LEASES(env))
-				DB_ASSERT(env,
-					__rep_lease_check(env, 0) ==
-					DB_REP_LEASE_EXPIRED);
+				DB_ASSERT(env, __rep_lease_check(env, 0) == DB_REP_LEASE_EXPIRED);
 			else
-				__rep_send_message(env,
-					DB_EID_BROADCAST, REP_DUPMASTER,
-					NULL, NULL, 0, 0);
+				__rep_send_message(env, DB_EID_BROADCAST, REP_DUPMASTER, NULL, NULL, 0, 0);
 			break;
 		}
-		if((ret =
-		            __rep_new_master(env, rp, eid)) == DB_REP_NEWMASTER)
+		if((ret = __rep_new_master(env, rp, eid)) == DB_REP_NEWMASTER)
 			ret = __rep_fire_newmaster(env, rp->gen, eid);
 		break;
 	    case REP_PAGE:
@@ -843,12 +829,9 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 			 */
 			if(LOG_COMPARE(&rp->lsn, &rep->ckp_lsn) > 0)
 				rep->ckp_lsn = rp->lsn;
-			RPRINT(env, (env, DB_VERB_REP_MSGS,
-				     "Delayed START_SYNC memp_sync due to missing records."));
-			RPRINT(env, (env, DB_VERB_REP_MSGS,
-				     "ready LSN [%lu][%lu], ckp_lsn [%lu][%lu]",
-				     (ulong)lp->ready_lsn.file, (ulong)lp->ready_lsn.offset,
-				     (ulong)rep->ckp_lsn.file, (ulong)rep->ckp_lsn.offset));
+			RPRINT(env, (env, DB_VERB_REP_MSGS, "Delayed START_SYNC memp_sync due to missing records."));
+			RPRINT(env, (env, DB_VERB_REP_MSGS, "ready LSN [%lu][%lu], ckp_lsn [%lu][%lu]",
+				(ulong)lp->ready_lsn.file, (ulong)lp->ready_lsn.offset, (ulong)rep->ckp_lsn.file, (ulong)rep->ckp_lsn.offset));
 			MUTEX_UNLOCK(env, rep->mtx_clientdb);
 		}
 		break;
@@ -1049,25 +1032,20 @@ int __rep_apply(ENV * env, DB_THREAD_INFO * ip, __rep_control_args * rp, DBT * r
 			/*
 			 * We will simply return now.  All special return
 			 * processing should be ignored because the special
-			 * values are just initialized.  Variables like
-			 * max_lsn are still 0.
+			 * values are just initialized.  Variables like max_lsn are still 0.
 			 */
-			RPRINT(env, (env, DB_VERB_REP_MISC,
-				     "rep_apply: In election. Ignoring [%lu][%lu]",
-				     (ulong)rp->lsn.file, (ulong)rp->lsn.offset));
+			RPRINT(env, (env, DB_VERB_REP_MISC, "rep_apply: In election. Ignoring [%lu][%lu]", (ulong)rp->lsn.file, (ulong)rp->lsn.offset));
 			REP_SYSTEM_UNLOCK(env);
 			MUTEX_UNLOCK(env, rep->mtx_clientdb);
 			goto out;
 		}
 		rep->apply_th++;
 		set_apply = 1;
-		VPRINT(env, (env, DB_VERB_REP_MISC,
-			     "rep_apply: Set apply_th %d", rep->apply_th));
+		VPRINT(env, (env, DB_VERB_REP_MISC, "rep_apply: Set apply_th %d", rep->apply_th));
 		REP_SYSTEM_UNLOCK(env);
 		if(rp->rectype == REP_NEWFILE)
 			newfile_seen = 1;
-		if((ret = __rep_process_rec(env, ip,
-			    rp, rec, &max_ts, &max_lsn)) != 0)
+		if((ret = __rep_process_rec(env, ip, rp, rec, &max_ts, &max_lsn)) != 0)
 			goto err;
 		/*
 		 * If we get the record we are expecting, reset
@@ -1146,10 +1124,8 @@ gap_check:
 	else if(cmp > 0) {
 		/*
 		 * The LSN is higher than the one we were waiting for.
-		 * This record isn't in sequence; add it to the temporary
-		 * database, update waiting_lsn if necessary, and perform
-		 * calculations to determine if we should issue requests
-		 * for new records.
+		 * This record isn't in sequence; add it to the temporary database, update waiting_lsn if necessary, and perform
+		 * calculations to determine if we should issue requests for new records.
 		 */
 		REP_SYSTEM_UNLOCK(env);
 		memzero(&key_dbt, sizeof(key_dbt));
@@ -1227,8 +1203,7 @@ done:
 err:    
 	/*
 	 * In case of a race, to make sure only one thread can get
-	 * DB_REP_LOGREADY, zero out rep->last_lsn to show that we've gotten to
-	 * this point.
+	 * DB_REP_LOGREADY, zero out rep->last_lsn to show that we've gotten to this point.
 	 */
 	REP_SYSTEM_LOCK(env);
 	if(ret == 0 && rep->sync_state == SYNC_LOG && !IS_ZERO_LSN(rep->last_lsn) && LOG_COMPARE(&lp->ready_lsn, &rep->last_lsn) >= 0) {
@@ -1247,8 +1222,7 @@ err:
 		VPRINT(env, (env, DB_VERB_REP_MISC, "rep_apply: Decrement apply_th %d [%lu][%lu]", rep->apply_th, (ulong)lp->ready_lsn.file, (ulong)lp->ready_lsn.offset));
 	}
 	if(ret == 0 && rep->sync_state != SYNC_LOG && !IS_ZERO_LSN(max_lsn)) {
-		if(ret_lsnp != NULL)
-			*ret_lsnp = max_lsn;
+		ASSIGN_PTR(ret_lsnp, max_lsn);
 		ret = DB_REP_ISPERM;
 		DB_ASSERT(env, LOG_COMPARE(&max_lsn, &lp->max_perm_lsn) >= 0);
 		lp->max_perm_lsn = max_lsn;
@@ -1280,8 +1254,7 @@ err:
 	 * because we're guaranteed no additional buffers can
 	 * be dirtied.
 	 */
-	if(!IS_ZERO_LSN(rep->ckp_lsn) &&
-	   LOG_COMPARE(&lp->ready_lsn, &rep->ckp_lsn) >= 0) {
+	if(!IS_ZERO_LSN(rep->ckp_lsn) && LOG_COMPARE(&lp->ready_lsn, &rep->ckp_lsn) >= 0) {
 		save_lsn = rep->ckp_lsn;
 		ZERO_LSN(rep->ckp_lsn);
 	}
@@ -1317,40 +1290,27 @@ err:
 			goto out;
 		}
 	}
-	if((ret == 0 || ret == DB_REP_ISPERM) &&
-	   newfile_seen && lp->db_log_autoremove)
+	if((ret == 0 || ret == DB_REP_ISPERM) && newfile_seen && lp->db_log_autoremove)
 		__log_autoremove(env);
-	if(control_dbt.data != NULL)
-		__os_ufree(env, control_dbt.data);
-	if(rec_dbt.data != NULL)
-		__os_ufree(env, rec_dbt.data);
+	__os_ufree(env, control_dbt.data);
+	__os_ufree(env, rec_dbt.data);
 out:
 	switch(ret) {
 	    case 0:
 		break;
 	    case DB_REP_ISPERM:
-		VPRINT(env, (env, DB_VERB_REP_MSGS,
-			     "Returning ISPERM [%lu][%lu], cmp = %d",
-			     (ulong)max_lsn.file, (ulong)max_lsn.offset, cmp));
+		VPRINT(env, (env, DB_VERB_REP_MSGS, "Returning ISPERM [%lu][%lu], cmp = %d", (ulong)max_lsn.file, (ulong)max_lsn.offset, cmp));
 		break;
 	    case DB_REP_LOGREADY:
-		RPRINT(env, (env, DB_VERB_REP_MSGS,
-			     "Returning LOGREADY up to [%lu][%lu], cmp = %d",
-			     (ulong)last_lsnp->file,
-			     (ulong)last_lsnp->offset, cmp));
+		RPRINT(env, (env, DB_VERB_REP_MSGS, "Returning LOGREADY up to [%lu][%lu], cmp = %d", (ulong)last_lsnp->file, (ulong)last_lsnp->offset, cmp));
 		break;
 	    case DB_REP_NOTPERM:
-		if(rep->sync_state != SYNC_LOG &&
-		   !IS_ZERO_LSN(max_lsn) && ret_lsnp != NULL)
+		if(rep->sync_state != SYNC_LOG && !IS_ZERO_LSN(max_lsn) && ret_lsnp != NULL)
 			*ret_lsnp = max_lsn;
-		VPRINT(env, (env, DB_VERB_REP_MSGS,
-			     "Returning NOTPERM [%lu][%lu], cmp = %d",
-			     (ulong)max_lsn.file, (ulong)max_lsn.offset, cmp));
+		VPRINT(env, (env, DB_VERB_REP_MSGS, "Returning NOTPERM [%lu][%lu], cmp = %d", (ulong)max_lsn.file, (ulong)max_lsn.offset, cmp));
 		break;
 	    default:
-		RPRINT(env, (env, DB_VERB_REP_MSGS,
-			     "Returning %d [%lu][%lu], cmp = %d", ret,
-			     (ulong)max_lsn.file, (ulong)max_lsn.offset, cmp));
+		RPRINT(env, (env, DB_VERB_REP_MSGS, "Returning %d [%lu][%lu], cmp = %d", ret, (ulong)max_lsn.file, (ulong)max_lsn.offset, cmp));
 		break;
 	}
 	return ret;
@@ -1554,8 +1514,7 @@ static int __rep_collect_txn(ENV*env, DB_LSN * lsnp, LSN_COLLECTION * lc)
 err:
 	if((t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
-	if(data.data != NULL)
-		__os_ufree(env, data.data);
+	__os_ufree(env, data.data);
 	return ret;
 }
 /*
@@ -1760,26 +1719,19 @@ err:
  */
 static int __rep_process_rec(ENV*env, DB_THREAD_INFO * ip, __rep_control_args * rp, DBT * rec, db_timespec * ret_tsp, DB_LSN * ret_lsnp)
 {
-	DB * dbp;
 	DBT control_dbt, key_dbt, rec_dbt;
-	DB_LOG * dblp;
-	DB_REP * db_rep;
 	DB_LOGC * logc;
-	LOG * lp;
-	REP * rep;
 	DB_LSN lsn;
 	db_timespec msg_time;
 	uint32 rectype, txnid;
-	int ret, t_ret;
-
-	db_rep = env->rep_handle;
-	rep = db_rep->region;
-	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
-	dbp = db_rep->rep_db;
-	ret = 0;
-
-	memzero(&rec_dbt, sizeof(rec_dbt));
+	DB_REP * db_rep = env->rep_handle;
+	REP * rep = db_rep->region;
+	DB_LOG * dblp = env->lg_handle;
+	LOG * lp = (LOG *)dblp->reginfo.primary;
+	DB * dbp = db_rep->rep_db;
+	int ret = 0;
+	int t_ret = 0;
+	// @v9.6.4 (ctr) memzero(&rec_dbt, sizeof(rec_dbt));
 	if(rp->rectype == REP_NEWFILE) {
 		if((ret = __rep_newfile(env, rp, rec)) != 0)
 			return ret;
@@ -1867,8 +1819,7 @@ static int __rep_process_rec(ENV*env, DB_THREAD_INFO * ip, __rep_control_args * 
 				ret = __txn_openfiles(env, ip, NULL, 1);
 				F_SET(db_rep, DBREP_OPENFILES);
 			}
-			if(ret == 0)
-				ret = __rep_process_txn(env, rec);
+			SETIFZ(ret, __rep_process_txn(env, rec));
 		} while(ret == DB_LOCK_DEADLOCK || ret == DB_LOCK_NOTGRANTED);
 		/* Now flush the log unless we're running TXN_NOSYNC. */
 		if(ret == 0 && !F_ISSET(env->dbenv, DB_ENV_TXN_NOSYNC))
@@ -1894,21 +1845,18 @@ static int __rep_process_rec(ENV*env, DB_THREAD_INFO * ip, __rep_control_args * 
 		 * supposed to process, add it to the __db.rep.db, do the
 		 * memp_sync and then go back and process it later, when the
 		 * sync has finished.  If this record is already in the table,
-		 * then some other thread will process it, so simply return
-		 * REP_NOTPERM.
+		 * then some other thread will process it, so simply return REP_NOTPERM.
 		 */
 		memzero(&key_dbt, sizeof(key_dbt));
 		key_dbt.data = rp;
 		key_dbt.size = sizeof(*rp);
-
 		/*
 		 * We want to put this record into the tmp DB only if
 		 * it doesn't exist, so use DB_NOOVERWRITE.
 		 */
 		ret = __db_put(dbp, ip, NULL, &key_dbt, rec, DB_NOOVERWRITE);
 		if(ret == DB_KEYEXIST) {
-			if(ret_lsnp != NULL)
-				*ret_lsnp = rp->lsn;
+			ASSIGN_PTR(ret_lsnp, rp->lsn);
 			ret = DB_REP_NOTPERM;
 		}
 		if(ret != 0)
@@ -1945,17 +1893,14 @@ out:
 		*ret_lsnp = rp->lsn;
 	if(IS_USING_LEASES(env) && F_ISSET(rp, REPCTL_LEASE))
 		*ret_tsp = msg_time;
-	/*
-	 * Set ret_lsnp before flushing the log because if the
-	 * flush fails, we've still written the record to the
-	 * log and the LSN has been entered.
-	 */
+	//
+	// Set ret_lsnp before flushing the log because if the
+	// flush fails, we've still written the record to the log and the LSN has been entered.
+	// 
 	if(ret == 0 && F_ISSET(rp, REPCTL_FLUSH))
 		ret = __log_flush(env, NULL);
-	if(control_dbt.data != NULL)
-		__os_ufree(env, control_dbt.data);
-	if(rec_dbt.data != NULL)
-		__os_ufree(env, rec_dbt.data);
+	__os_ufree(env, control_dbt.data);
+	__os_ufree(env, rec_dbt.data);
 	return ret;
 }
 /*

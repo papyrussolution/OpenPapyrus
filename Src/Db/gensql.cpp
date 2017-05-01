@@ -1,5 +1,5 @@
 // GENSQL.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2017
 //
 #include <db.h>
 #pragma hdrstop
@@ -153,79 +153,54 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 	switch(Sqlst) {
 		case sqlstORA:
 			switch(_t) {
-				case S_CHAR:
-					rBuf.Cat("VARCHAR2").CatParStr(_s); break;
-				case S_LSTRING:
-					rBuf.Cat("VARCHAR2").CatParStr(_s); break;
-				case S_ZSTRING:
-					rBuf.Cat("VARCHAR2").CatParStr(_s); break;
+				case S_CHAR:     rBuf.Cat("VARCHAR2").CatParStr(_s); break;
+				case S_LSTRING:  rBuf.Cat("VARCHAR2").CatParStr(_s); break;
+				case S_ZSTRING:  rBuf.Cat("VARCHAR2").CatParStr(_s); break;
 				case S_INT:
 				case S_UINT:
-				case S_AUTOINC:
-					rBuf.Cat("NUMERIC").CatParStr(12); break;
+				case S_AUTOINC:  rBuf.Cat("NUMERIC").CatParStr(12); break;
 				case S_BFLOAT:
-				case S_FLOAT:
-					rBuf.Cat("NUMERIC").CatChar('(').Cat(38).Comma().Cat(12).CatChar(')'); break;
-				case S_DATE:
-					rBuf.Cat("DATE"); break;
+				case S_FLOAT:    rBuf.Cat("NUMERIC").CatChar('(').Cat(38).Comma().Cat(12).CatChar(')'); break;
+				case S_DATE:     rBuf.Cat("DATE"); break;
 				case S_TIME:
-				case S_DATETIME:
-					rBuf.Cat("TIMESTAMP").CatParStr(2); break;
+				case S_DATETIME: rBuf.Cat("TIMESTAMP").CatParStr(2); break;
 				case S_DEC:
 				case S_MONEY:
 					_s = GETSSIZED(typ);
 					rBuf.Cat("NUMERIC").CatChar('(').Cat(_s * 2 - 2).Comma().Cat(GETSPRECD(typ)).CatChar(')'); break;
 				case S_BOOL:
-				case S_BIT:
-					rBuf.Cat("NUMERIC").CatParStr(1); break;
-				case S_NOTE:
-					rBuf.Cat("VARCHAR2").CatParStr(_s); break;
-				case S_WCHAR:
-					rBuf.Cat("NCHAR").CatParStr(_s/2); break;
-				case S_RAW:
-					rBuf.Cat("RAW").CatParStr(_s); break;
-				case S_BLOB:
-					rBuf.Cat("BLOB"); break;
-				case S_CLOB:
-					rBuf.Cat("CLOB"); break;
-				default:
-					rBuf.Cat("UNSUPPORTED_TYPE"); break;
+				case S_BIT:   rBuf.Cat("NUMERIC").CatParStr(1); break;
+				case S_NOTE:  rBuf.Cat("VARCHAR2").CatParStr(_s); break;
+				case S_WCHAR: rBuf.Cat("NCHAR").CatParStr(_s/2); break;
+				case S_RAW:   rBuf.Cat("RAW").CatParStr(_s); break;
+				case S_BLOB:  rBuf.Cat("BLOB"); break;
+				case S_CLOB:  rBuf.Cat("CLOB"); break;
+				default:      rBuf.Cat("UNSUPPORTED_TYPE"); break;
 			}
 			break;
 		default:
 			switch(_t) {
 				case S_CHAR:
 				case S_LSTRING:
-				case S_ZSTRING:
-					rBuf.Cat("CHAR").CatParStr(_s); break;
+				case S_ZSTRING: rBuf.Cat("CHAR").CatParStr(_s); break;
 				case S_INT:
 				case S_UINT:
-				case S_AUTOINC:
-					rBuf.Cat("NUMERIC").CatParStr(12); break;
-				case S_FLOAT:
-					rBuf.Cat("NUMERIC").CatChar('(').Cat(38).Comma().Cat(12).CatChar(')'); break;
-				case S_DATE:
-					rBuf.Cat("DATE"); break;
+				case S_AUTOINC: rBuf.Cat("NUMERIC").CatParStr(12); break;
+				case S_FLOAT:   rBuf.Cat("NUMERIC").CatChar('(').Cat(38).Comma().Cat(12).CatChar(')'); break;
+				case S_DATE:    rBuf.Cat("DATE"); break;
 				case S_TIME:
-				case S_DATETIME:
-					rBuf.Cat("TIMESTAMP"); break;
+				case S_DATETIME: rBuf.Cat("TIMESTAMP"); break;
 				case S_DEC:
 				case S_MONEY:
 					_s = GETSSIZED(typ);
 					rBuf.Cat("NUMERIC").CatChar('(').Cat(_s * 2 - 2).Comma().Cat(GETSPRECD(typ)).CatChar(')'); break;
 				case S_BOOL:
-				case S_BIT:
-					rBuf.Cat("NUMERIC").CatParStr(1); break;
-				case S_NOTE:
-					rBuf.Cat("VARCHAR").CatParStr(_s); break;
-				case S_WCHAR:
-					rBuf.Cat("NCHAR").CatParStr(_s/2); break;
-				case S_BLOB:
-					rBuf.Cat("BLOB"); break;
-				case S_CLOB:
-					rBuf.Cat("CLOB"); break;
-				default:
-					rBuf.Cat("UNSUPPORTED_TYPE"); break;
+				case S_BIT:   rBuf.Cat("NUMERIC").CatParStr(1); break;
+				case S_NOTE:  rBuf.Cat("VARCHAR").CatParStr(_s); break;
+				case S_WCHAR: rBuf.Cat("NCHAR").CatParStr(_s/2); break;
+				case S_BLOB:  rBuf.Cat("BLOB"); break;
+				case S_CLOB:  rBuf.Cat("CLOB"); break;
+				default:      rBuf.Cat("UNSUPPORTED_TYPE"); break;
 			}
 			break;
 	}

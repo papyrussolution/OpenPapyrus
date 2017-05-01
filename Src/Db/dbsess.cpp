@@ -4,7 +4,7 @@
 #include <db.h>
 #pragma hdrstop
 
-DbThreadLocalArea::DbRegList::DbRegList()
+DbThreadLocalArea::DbRegList::DbRegList() : Ht(512)
 {
 	Init();
 }
@@ -21,16 +21,17 @@ int DbThreadLocalArea::DbRegList::GetMaxEntries() const
 	return Tab.getCount();
 }
 
-int FASTCALL DbThreadLocalArea::DbRegList::AddEntry(void * pTbl)
+int FASTCALL DbThreadLocalArea::DbRegList::AddEntry(void * pTbl, void * pSupplementPtr)
 {
 	int    h = 0;
-	for(uint i = 0; !h && i < Tab.getCount(); i++)
+	for(uint i = 0; !h && i < Tab.getCount(); i++) {
 		if(Tab.at(i) == 0) {
 			Tab.at(i) = pTbl;
 			OpenCount++;
 			SETMAX(OpenPeak, OpenCount);
 			h = (int)(i + 1);
 		}
+	}
 	if(!h) {
 		void * ptr = pTbl;
 		Tab.insert(&ptr);
@@ -38,16 +39,24 @@ int FASTCALL DbThreadLocalArea::DbRegList::AddEntry(void * pTbl)
 		SETMAX(OpenPeak, OpenCount);
 		h = (int)Tab.getCount();
 	}
+	if(h && pSupplementPtr) {
+		Ht.Add(pSupplementPtr, h, 0);
+	}
 	assert(Tab.getCount() == OpenPeak);
 	return h;
 }
 
-int FASTCALL DbThreadLocalArea::DbRegList::FreeEntry(int handle)
+int FASTCALL DbThreadLocalArea::DbRegList::FreeEntry(int handle, void * pSupplementPtr)
 {
 	assert(handle > 0 && handle <= (int)Tab.getCount());
 	if(handle > 0 && handle <= (int)Tab.getCount()) {
 		OpenCount--;
 		Tab.at(handle-1) = 0;
+		if(pSupplementPtr) {
+			uint   ht_val = 0;
+            Ht.Del(pSupplementPtr, &ht_val);
+			assert((int)ht_val == handle);
+		}
 	}
 	assert(Tab.getCount() == OpenPeak);
 	return 1;
@@ -57,6 +66,17 @@ void * FASTCALL DbThreadLocalArea::DbRegList::GetPtr(int handle) const
 {
 	assert(handle > 0 && handle <= (int)Tab.getCount());
 	return (handle > 0 && handle <= (int)Tab.getCount()) ? Tab.at(handle-1) : 0;
+}
+
+void * FASTCALL DbThreadLocalArea::DbRegList::GetBySupplementPtr(const void * pSupplementPtr) const
+{
+	uint   ht_val = 0;
+	if(Ht.Search(pSupplementPtr, &ht_val, 0)) {
+		assert(ht_val > 0 && ht_val <= (int)Tab.getCount());
+		return (ht_val > 0 && ht_val <= (int)Tab.getCount()) ? Tab.at(ht_val-1) : 0;
+	}
+	else
+		return 0;
 }
 
 SLAPI DbThreadLocalArea::DbThreadLocalArea()
@@ -90,12 +110,12 @@ uint DbThreadLocalArea::GetTabEntriesCount() const
 
 int FASTCALL DbThreadLocalArea::AddTableEntry(DBTable * pTbl)
 {
-	return DbTableReg.AddEntry(pTbl);
+	return DbTableReg.AddEntry(pTbl, 0);
 }
 
 int FASTCALL DbThreadLocalArea::FreeTableEntry(int handle)
 {
-	return DbTableReg.FreeEntry(handle);
+	return DbTableReg.FreeEntry(handle, 0);
 }
 
 DBTable * SLAPI DbThreadLocalArea::GetCloneEntry(BTBLID tblID) const

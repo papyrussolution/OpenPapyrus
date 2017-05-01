@@ -127,13 +127,15 @@ int __os_urealloc(ENV * env, size_t size, void * storep)
  */
 void FASTCALL __os_ufree(ENV * env, void * ptr)
 {
-	DB_ENV * dbenv = env ? env->dbenv : NULL;
-	if(dbenv && dbenv->db_free)
-		dbenv->db_free(ptr);
-	else if(DB_GLOBAL(j_free))
-		DB_GLOBAL(j_free) (ptr);
-	else
-		free(ptr);
+	if(ptr) {
+		DB_ENV * dbenv = env ? env->dbenv : NULL;
+		if(dbenv && dbenv->db_free)
+			dbenv->db_free(ptr);
+		else if(DB_GLOBAL(j_free))
+			DB_GLOBAL(j_free)(ptr);
+		else
+			free(ptr);
+	}
 }
 /*
  * __os_strdup --

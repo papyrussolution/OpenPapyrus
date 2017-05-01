@@ -42,19 +42,10 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 /*
  * __bam_cmp --
  *	Compare a key to a given record.
- *
- * PUBLIC: int __bam_cmp __P((DBC *, const DBT *, PAGE *, uint32,
- * PUBLIC:    int (*)(DB *, const DBT *, const DBT *), int *));
  */
 int __bam_cmp(DBC*dbc, const DBT * dbt, PAGE * h, uint32 indx, int (*func)(DB*, const DBT*, const DBT *), int * cmpp)
 {
@@ -133,12 +124,9 @@ int __bam_cmp(DBC*dbc, const DBT * dbt, PAGE * h, uint32 indx, int (*func)(DB*, 
 	 */
 	return __db_moff(dbc, dbt, bo->pgno, bo->tlen, func == __bam_defcmp ? NULL : func, cmpp);
 }
-
 /*
  * __bam_defcmp --
  *	Default comparison routine.
- *
- * PUBLIC: int __bam_defcmp __P((DB *, const DBT *, const DBT *));
  */
 int __bam_defcmp(DB * dbp, const DBT * a, const DBT * b)
 {
@@ -163,12 +151,9 @@ int __bam_defcmp(DB * dbp, const DBT * a, const DBT * b)
 			return (long)*p1-(long)*p2;
 	return (long)a->size-(long)b->size;
 }
-
 /*
  * __bam_defpfx --
  *	Default prefix routine.
- *
- * PUBLIC: size_t __bam_defpfx __P((DB *, const DBT *, const DBT *));
  */
 size_t __bam_defpfx(DB*dbp, const DBT * a, const DBT * b)
 {

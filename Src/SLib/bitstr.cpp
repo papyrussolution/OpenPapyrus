@@ -79,7 +79,7 @@ uint32 getbits(const void * pBuf, size_t len, size_t pos, size_t count)
 	assert(count <= 32);
 	size_t idx = BLKIDX(pos);
 	if(idx < (len>>2)) {
-		uint max_count = (len>>2)-idx;
+		size_t max_count = (len>>2)-idx;
 		max_count = MIN(32, max_count);
 		SETMIN(count, max_count);
 		for(uint i = 0; i < count; ++i)
@@ -138,7 +138,7 @@ int FASTCALL findbit(const void * pBuf, size_t count, int val, size_t * pPos)
 
 void SLAPI insbit(void * pBuf, size_t len, size_t pos)
 {
-	int    i;
+	int    i; // @v9.6.4 int-->size_t
 	size_t firstword = BLKIDX(pos);
 	uint32 blk = PTR32(pBuf)[firstword];
 	uint32 carry = 0;
@@ -152,7 +152,7 @@ void SLAPI insbit(void * pBuf, size_t len, size_t pos)
 			blk &= ~(1U << i);
 		}
 	PTR32(pBuf)[firstword] = blk;
-	int    num_blk = (int)(len>>2);
+	size_t num_blk = (int)(len>>2);
 	for(i = firstword + 1; i < num_blk; i++) {
 		blk = PTR32(pBuf)[i];
 		uint32 carry1 = (blk & HIBIT) ? 1 : 0;
@@ -188,6 +188,9 @@ void SLAPI delbit(void * pBuf, size_t len, size_t pos)
 //
 uint8 bitscanforward(uint32 * pIdx, uint32 mask)
 {
+#if _MSC_VER >= 1600
+	return _BitScanForward(pIdx, mask);
+#else
 	uint16 ret_ = 0;
 	uint32 idx = 0;
 	__asm {
@@ -205,10 +208,14 @@ lab_done:
 	}
 	ASSIGN_PTR(pIdx, idx);
 	return (uint8)ret_;
+#endif
 }
 
 uint8 bitscanreverse(uint32 * pIdx, uint32 mask)
 {
+#if _MSC_VER >= 1600
+	return _BitScanReverse(pIdx, mask);
+#else
 	uint16 ret_ = 0;
 	uint32 idx = 0;
 	__asm {
@@ -226,4 +233,5 @@ lab_done:
 	}
 	ASSIGN_PTR(pIdx, idx);
 	return (uint8)ret_;
+#endif
 }

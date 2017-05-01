@@ -214,7 +214,7 @@ int SLAPI PPTableConversion::Convert()
 				// Если существует файл continuous-состояния (^^^) то дадим ему несколько секунд
 				// на исчезновение...
 				//
-				delay(5000);
+				SDelay(5000);
 				// ... и снова инициализируем tpl
 				THROW_DB(tpl.Init(file_name, 0, 0));
 			}

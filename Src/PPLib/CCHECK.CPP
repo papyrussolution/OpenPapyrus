@@ -2327,7 +2327,7 @@ int SLAPI CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, 
 						scop_rec.LinkObjID   = pPack->Rec.ID;
 						scop_rec.UserID  = pPack->Rec.UserID;
 						scop_rec.Amount  = -r_entry.Amount;
-						THROW(Cards.PutOpRec(&scop_rec, 0));
+						THROW(Cards.PutOpRec(&scop_rec, 0, 0));
 						ufp_factor += 1.0;
 						if(scs_rec.Flags & SCRDSF_UHTTSYNC && fabs(r_entry.Amount) > 0.01) {
 							_UhttEntry u;
@@ -3694,7 +3694,7 @@ int SLAPI CCheckCore::UpdateSCardOpsBySess(PPID sessID, int use_ta)
 			MEMSZERO(k3);
 			k3.SessID = sessID;
 			for(q.initIteration(0, &k3, spGe); q.nextIteration() > 0;) {
-				if(!(data.Flags & (CCHKF_JUNK|CCHKF_SKIP))) { // @v7.0.11
+				if(!(data.Flags & (CCHKF_JUNK|CCHKF_SKIP))) {
 					if(data.SCardID && Cards.Search(data.SCardID, &sc_rec) > 0 && credit_card_series.lsearch(sc_rec.SeriesID)) {
 						SCardOpTbl::Rec scop_rec;
 						MEMSZERO(scop_rec);
@@ -3705,7 +3705,7 @@ int SLAPI CCheckCore::UpdateSCardOpsBySess(PPID sessID, int use_ta)
 						scop_rec.LinkObjID   = data.ID;
 						scop_rec.UserID  = data.UserID;
 						scop_rec.Amount  = -MONEYTOLDBL(data.Amount);
-						THROW(Cards.PutOpRec(&scop_rec, 0));
+						THROW(Cards.PutOpRec(&scop_rec, 0, 0));
 					}
 				}
 			}

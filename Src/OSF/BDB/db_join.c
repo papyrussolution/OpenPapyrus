@@ -628,14 +628,12 @@ int __db_join_close(DBC * dbc)
 			ret = t_ret;
 	}
 	ENV_LEAVE(env, ip);
-
 	__os_free(env, jc->j_exhausted);
 	__os_free(env, jc->j_curslist);
 	__os_free(env, jc->j_workcurs);
 	__os_free(env, jc->j_fdupcurs);
 	__os_free(env, jc->j_key.data);
-	if(jc->j_rdata.data != NULL)
-		__os_ufree(env, jc->j_rdata.data);
+	__os_ufree(env, jc->j_rdata.data);
 	__os_free(env, jc);
 	__os_free(env, dbc);
 	return ret;

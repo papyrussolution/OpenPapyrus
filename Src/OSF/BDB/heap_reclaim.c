@@ -95,8 +95,9 @@ int __heap_truncate(DBC * dbc, uint32 * countp)
 	}
 	if((t_ret = __TLPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;
-	if(countp != NULL && ret == 0)
-		*countp = count;
+	if(ret == 0) {
+		ASSIGN_PTR(countp, count);
+	}
 	if(DBC_LOGGING(dbc)) {
 		if((ret = __heap_trunc_meta_log(dbp, dbc->txn, &LSN(meta), 0,
 			    meta->dbmeta.pgno, meta->dbmeta.last_pgno,
