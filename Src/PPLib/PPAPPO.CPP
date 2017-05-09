@@ -475,7 +475,7 @@ int PPApp::processCommand(uint cmd)
 		case cmGlobalUserAccTag:     ShowTags_(PPOBJ_GLOBALUSERACC);          break;
 		case cmUhttStoreTag:         ShowTags_(PPOBJ_UHTTSTORE);              break;
 		case cmObjTagAllObj:         ShowTags_(0);                            break; // @v8.5.3
-		case cmAccArticle:           PPView::Execute(PPVIEW_ARTICLE,         0, PPView::exefModeless, 0); break; // @v9.6.1 
+		case cmAccArticle:           PPView::Execute(PPVIEW_ARTICLE,         0, PPView::exefModeless, 0); break; // @v9.6.1
 		case cmPerson:               PPView::Execute(PPVIEW_PERSON,          0, PPView::exefModeless, 0); break; // @v9.6.1
 		case cmPersonRel:            PPView::Execute(PPVIEW_PERSONREL,       0, PPView::exefModeless, 0); break;
 		case cmStaff:                PPView::Execute(PPVIEW_STAFFPOST,       0, PPView::exefModeless, 0); break;
@@ -720,10 +720,11 @@ int PPApp::processCommand(uint cmd)
 				tsess_obj.ImportUHTT();
 			}
 			break;
-		case cmImportPosRefs:         
+		case cmImportPosRefs:
 			{
 				PPPosProtocol pp;
 				PPPosProtocol::ProcessInputBlock pib;
+				pib.Flags |= (pib.fProcessRefs|pib.fBackupProcessed|pib.fRemoveProcessed|pib.fProcessQueries);
 				pp.ProcessInput(pib);
 			}
 			break; // @v9.0.8
@@ -1974,8 +1975,7 @@ int RegComSvrDialog::setDTS(const RegComSvrDialog::Param * pData)
 {
 	if(!RVALUEPTR(Data, pData))
 		Data.Init();
-	AddClusterAssoc(CTL_REGCOMSVR_ACTION, -1, aRegister);
-	AddClusterAssoc(CTL_REGCOMSVR_ACTION,  0, aRegister);
+	AddClusterAssocDef(CTL_REGCOMSVR_ACTION,  0, aRegister);
 	AddClusterAssoc(CTL_REGCOMSVR_ACTION,  1, aDeregister);
 	SetClusterData(CTL_REGCOMSVR_ACTION, (long)Data.Action);
 	AddClusterAssoc(CTL_REGCOMSVR_DL200INST, 0, 1L);

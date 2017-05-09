@@ -415,13 +415,11 @@ int ReportFiltDlg::setDTS(const ReportFilt * pData)
 	SetupStrAssocCombo(this, CTLSEL_REPORTFLT_STRUC, &StrucList, _id, 0);
 
 	SetPeriodInput(this, CTL_REPORTFLT_PERIOD, &Data.Period);
-	AddClusterAssoc(CTL_REPORTFLT_TYPE, -1, ReportFilt::rpttAll);
-	AddClusterAssoc(CTL_REPORTFLT_TYPE,  0, ReportFilt::rpttAll);
+	AddClusterAssocDef(CTL_REPORTFLT_TYPE,  0, ReportFilt::rpttAll);
 	AddClusterAssoc(CTL_REPORTFLT_TYPE,  1, ReportFilt::rpttStandart);
 	AddClusterAssoc(CTL_REPORTFLT_TYPE,  2, ReportFilt::rpttLocal);
 	SetClusterData(CTL_REPORTFLT_TYPE, Data.Type);
-	AddClusterAssoc(CTL_REPORTFLT_ORDER, -1, ReportFilt::ordByName);
-	AddClusterAssoc(CTL_REPORTFLT_ORDER,  0, ReportFilt::ordByName);
+	AddClusterAssocDef(CTL_REPORTFLT_ORDER,  0, ReportFilt::ordByName);
 	AddClusterAssoc(CTL_REPORTFLT_ORDER,  1, ReportFilt::ordByType);
 	AddClusterAssoc(CTL_REPORTFLT_ORDER,  2, ReportFilt::ordByStruc);
 	SetClusterData(CTL_REPORTFLT_ORDER, Data.Order);
@@ -518,7 +516,7 @@ int SLAPI PPViewReport::SendMail(long id)
 			SString Struc;
 			LDATETIME Dtm;
 		};
-		ReportMailDialog() : TDialog(DLG_RPTMAIL) 
+		ReportMailDialog() : TDialog(DLG_RPTMAIL)
 		{
 		}
 		int    setDTS(const ReportMailDialog::Rec * pData)
@@ -712,17 +710,17 @@ int SLAPI PPViewReport::CallCR(long id)
 		memzero(crr_name, sizeof(crr_name));
 		// Для CRR 7.0
 		if(RegOpenKeyEx(HKEY_LOCAL_MACHINE,	_T("SOFTWARE\\Seagate Software\\Crystal Reports"), 0, KEY_QUERY_VALUE, &crr_key) == ERROR_SUCCESS &&
-			RegQueryValueEx(crr_key, _T("Path"), NULL, NULL, (LPBYTE)crr_path, &path_size) == ERROR_SUCCESS) 
+			RegQueryValueEx(crr_key, _T("Path"), NULL, NULL, (LPBYTE)crr_path, &path_size) == ERROR_SUCCESS)
 			ok = 1;
 		// Или для  CRR 10
 		else if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Crystal Decisions\\10.0\\Crystal Reports"), 0, KEY_QUERY_VALUE, &crr_key) == ERROR_SUCCESS &&
-			RegQueryValueEx(crr_key, _T("Path"), NULL, NULL, (LPBYTE)crr_path, &(path_size = MAXPATH)) == ERROR_SUCCESS) 
+			RegQueryValueEx(crr_key, _T("Path"), NULL, NULL, (LPBYTE)crr_path, &(path_size = MAXPATH)) == ERROR_SUCCESS)
 			ok = 1;
 		// Если ничего не помогло - общий альтернативный способ
 		else {
 			ok = 0;
 			if(RegOpenKeyEx(HKEY_CLASSES_ROOT,	_T(".rpt"), 0, KEY_QUERY_VALUE, &crr_key) == ERROR_SUCCESS &&
-				RegQueryValueEx(crr_key, NULL, NULL, NULL, (LPBYTE)crr_name, &(crr_name_size = sizeof(crr_name))) == ERROR_SUCCESS) { // имя кристала для *.btr 
+				RegQueryValueEx(crr_key, NULL, NULL, NULL, (LPBYTE)crr_name, &(crr_name_size = sizeof(crr_name))) == ERROR_SUCCESS) { // имя кристала для *.btr
 				strcat(crr_name, "\\shell\\Open\\command");
 				ok = 1;
 			}
@@ -767,7 +765,7 @@ int SLAPI PPViewReport::CreateStdRptList(ReportViewItemArray * pList)
 			p_file->GetIntParam(sect, CodepageParam, &icp);
 			if(icp == 1251)
 				_cp = cp1251;
-			else 
+			else
 				_cp = cp866;
 		}
 		else {
@@ -965,8 +963,7 @@ int ReportDlg::setDTS(const ReportViewItem * pData)
 	SetupStrAssocCombo(this, CTLSEL_REPORT_STRUCNAME, &StrucList,   _id, 0);
 	setCtrlData(CTL_REPORT_PATH,  Data.Path);
 	setCtrlData(CTL_REPORT_DESCR, Data.Descr);
-	AddClusterAssoc(CTL_REPORT_TYPE, -1, ReportFilt::rpttStandart);
-	AddClusterAssoc(CTL_REPORT_TYPE, 0, ReportFilt::rpttStandart);
+	AddClusterAssocDef(CTL_REPORT_TYPE, 0, ReportFilt::rpttStandart);
 	AddClusterAssoc(CTL_REPORT_TYPE, 1, ReportFilt::rpttLocal);
 	SetClusterData(CTL_REPORT_TYPE, Data.Type);
 	disableCtrls(Data.Type == ReportFilt::rpttStandart, CTL_REPORT_MODIFDATE, CTLSEL_REPORT_STDNAME, CTLSEL_REPORT_STRUCNAME, CTL_REPORT_PATH, CTL_REPORT_DESCR, 0L);

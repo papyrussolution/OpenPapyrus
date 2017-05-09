@@ -244,7 +244,7 @@ TYPEID GetSType(const char * pName);
 const  char * GetSTypeName(TYPEID t);
 int    yyparse();
 
-extern const char tv_browser_flags[];
+//extern const char tv_browser_flags[];
 extern const char browser_flags[];
 extern const char base[];
 extern FILE * yyin; // ¬ходной файл
@@ -356,21 +356,21 @@ extern Rc2Data Rc2;
 //
 //
 //
-extern const char * P_DefinePrefix;   // "#define ";   @defined(rc2.cpp)
-extern const char * P_IncludePrefix;  // "#include ";  @defined(rc2.cpp)
-extern const char * P_VCmdPrefix;     // "PPVCMD_";    @defined(rc2.cpp)
-extern const char * P_BrwPrefix;      // "BROWSER_"    @defined(rc2.cpp)
-extern const char * P_TbPrefix;       // "TOOLBAR_"    @defined(rc2.cpp)
-extern const char * P_JobPrefix;      // "PPJOB_";     @defined(rc2.cpp)
-extern const char * P_ObjPrefix;      // "PPOBJ_";     @defined(rc2.cpp)
-extern const char * P_CmPrefix;       // "PPCMD_";     @defined(rc2.cpp)
-extern const char * P_RecPrefix;      // "PPREC_";     @defined(rc2.cpp)
-extern const char * P_FldPrefix;      // "PPFLD_"      @defined(rc2.cpp)
-extern const char * P_ViewPrefix;     // "PPVIEW_"     @defined(rc2.cpp)
-extern const char * P_FiltPrefix;     // "PPFILT_"     @defined(rc2.cpp)
-extern const char * P_ViewItemPrefix; // "PPVIEWITEM_" @defined(rc2.cpp)
-extern const char * P_CtrlMenuPrefix; // "CTRLMENU_"   @defined(rc2.cpp)
-extern const char * P_RFilePrefix;    // "PPRFILE_"    @defined(rc2.cpp)
+//extern const char * P_DefinePrefix;   // "#define ";   @defined(rc2.cpp)
+//extern const char * P_IncludePrefix;  // "#include ";  @defined(rc2.cpp)
+//extern const char * P_VCmdPrefix;     // "PPVCMD_";    @defined(rc2.cpp)
+//extern const char * P_BrwPrefix;      // "BROWSER_"    @defined(rc2.cpp)
+//extern const char * P_TbPrefix;       // "TOOLBAR_"    @defined(rc2.cpp)
+//extern const char * P_JobPrefix;      // "PPJOB_";     @defined(rc2.cpp)
+//extern const char * P_ObjPrefix;      // "PPOBJ_";     @defined(rc2.cpp)
+//extern const char * P_CmPrefix;       // "PPCMD_";     @defined(rc2.cpp)
+//extern const char * P_RecPrefix;      // "PPREC_";     @defined(rc2.cpp)
+//extern const char * P_FldPrefix;      // "PPFLD_"      @defined(rc2.cpp)
+//extern const char * P_ViewPrefix;     // "PPVIEW_"     @defined(rc2.cpp)
+//extern const char * P_FiltPrefix;     // "PPFILT_"     @defined(rc2.cpp)
+//extern const char * P_ViewItemPrefix; // "PPVIEWITEM_" @defined(rc2.cpp)
+//extern const char * P_CtrlMenuPrefix; // "CTRLMENU_"   @defined(rc2.cpp)
+//extern const char * P_RFilePrefix;    // "PPRFILE_"    @defined(rc2.cpp)
 
 /* @Project
 class Rc2App {

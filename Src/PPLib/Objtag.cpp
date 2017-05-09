@@ -758,7 +758,7 @@ static int SLAPI SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTa
 			RVALUEPTR(Filt, pObjTagF);
 			P_ObjTypeList = 0;
 			TagObjTypeList.addzlist(PPOBJ_PERSON, PPOBJ_GOODS, PPOBJ_BILL, PPOBJ_LOT, PPOBJ_WORKBOOK,
-				PPOBJ_LOCATION, PPOBJ_GLOBALUSERACC, PPOBJ_UHTTSTORE, 0);
+				PPOBJ_LOCATION, PPOBJ_GLOBALUSERACC, PPOBJ_UHTTSTORE, PPOBJ_CASHNODE, 0);
 		}
 		int    setDTS(const PPObjectTag * pData)
 		{
@@ -1956,8 +1956,7 @@ public:
 			option = 2;
 		else
 			option = 0;
-		AddClusterAssoc(CTL_SELTAG_OPTION, 0, 0);
-		AddClusterAssoc(CTL_SELTAG_OPTION, -1, 0);
+		AddClusterAssocDef(CTL_SELTAG_OPTION, 0, 0);
 		AddClusterAssoc(CTL_SELTAG_OPTION, 1, 1);
 		AddClusterAssoc(CTL_SELTAG_OPTION, 2, 2);
 		SetClusterData(CTL_SELTAG_OPTION, option);
@@ -2669,8 +2668,7 @@ public:
 				_mode = 2;
 			else
 				_mode = 1;
-			AddClusterAssoc(CTL_TAGVALVIEW_UPD, 0, 1);
-			AddClusterAssoc(CTL_TAGVALVIEW_UPD, -1, 1);
+			AddClusterAssocDef(CTL_TAGVALVIEW_UPD, 0, 1);
 			AddClusterAssoc(CTL_TAGVALVIEW_UPD, 1, 2);
 			AddClusterAssoc(CTL_TAGVALVIEW_UPD, 2, 3);
 			SetClusterData(CTL_TAGVALVIEW_UPD, _mode);

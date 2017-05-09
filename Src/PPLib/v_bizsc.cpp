@@ -354,8 +354,7 @@ public:
 		if(!RVALUEPTR(Data, pData))
 			MEMSZERO(Data);
 		setCtrlData(CTL_BIZSCTI_NAME, Data.Name);
-		AddClusterAssoc(CTL_BIZSCTI_TYPE, -1, PPBizScTemplCol::tDate);
-		AddClusterAssoc(CTL_BIZSCTI_TYPE, 0, PPBizScTemplCol::tDate);
+		AddClusterAssocDef(CTL_BIZSCTI_TYPE, 0, PPBizScTemplCol::tDate);
 		AddClusterAssoc(CTL_BIZSCTI_TYPE, 1, PPBizScTemplCol::tPeriod);
 		AddClusterAssoc(CTL_BIZSCTI_TYPE, 2, PPBizScTemplCol::tPeriodChange);
 		SetClusterData(CTL_BIZSCTI_TYPE, (long)Data.Type);

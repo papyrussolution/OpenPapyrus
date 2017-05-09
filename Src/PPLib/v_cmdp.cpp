@@ -251,8 +251,7 @@ int CommandsDialog::addItem(long * pPos, long * pID)
 
 	THROW(Data.GetCommandList(&cmd_list, 1));
 	THROW(CheckDialogPtr(&p_dlg));
-	p_dlg->AddClusterAssoc(CTL_ADDCMD_WHAT, -1, 1);
-	p_dlg->AddClusterAssoc(CTL_ADDCMD_WHAT,  0, 1);
+	p_dlg->AddClusterAssocDef(CTL_ADDCMD_WHAT,  0, 1);
 	p_dlg->AddClusterAssoc(CTL_ADDCMD_WHAT,  1, 2);
 	p_dlg->AddClusterAssoc(CTL_ADDCMD_WHAT,  2, 3);
 	p_dlg->SetClusterData(CTL_ADDCMD_WHAT, v);
@@ -785,7 +784,7 @@ int EditMenusDlg::LoadCfg(long id)
 		SetClusterData(CTL_MENULIST_FLAGS, flags);
 		{
 			color_rec.SetupStdColorList();
- 			color_rec.C = (color_rec.C == 0) ? (long)GetDefaultDesktopBgColor() : color_rec.C;
+ 			color_rec.C = (color_rec.C == 0) ? (long)PPDesktop::GetDefaultBgColor() : color_rec.C;
 			setGroupData(GRP_BKGND, &color_rec);
 		}
 	}

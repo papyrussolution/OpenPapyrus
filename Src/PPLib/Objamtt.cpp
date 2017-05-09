@@ -140,8 +140,7 @@ int AmtTypeDialog::EditDistribParam()
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_COSTDISTR);
 	if(CheckDialogPtrErr(&dlg)) {
-		dlg->AddClusterAssoc(CTL_COSTDISTR_ALG, 0, ecalgCost);
-		dlg->AddClusterAssoc(CTL_COSTDISTR_ALG, -1, ecalgCost);
+		dlg->AddClusterAssocDef(CTL_COSTDISTR_ALG, 0, ecalgCost);
 		dlg->AddClusterAssoc(CTL_COSTDISTR_ALG, 1, ecalgPrice);
 		dlg->AddClusterAssoc(CTL_COSTDISTR_ALG, 2, ecalgQtty);
 		dlg->AddClusterAssoc(CTL_COSTDISTR_ALG, 3, ecalgPhQtty);

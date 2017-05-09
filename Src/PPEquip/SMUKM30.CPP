@@ -205,7 +205,7 @@ int SLAPI ACS_SMUKM30::ExportData(int updOnly)
 		tag_fname_id = updOnly ? PPFILNAM_CASH_UPD : PPFILNAM_CASH_CNG;
 	THROW(PPGetFilePath(PPPATH_OUT, tag_fname_id, path));
 	{
-		FILE * ff = fopen(path, onecstr('w'));
+		FILE * ff = fopen(path, "w");
 		SFile::ZClose(&ff);
 	}
 	THROW(p_out_tbl_goods = CreateDbfTable(DBFS_SMUKM_GOODS_EXPORT, path_goods, 1));

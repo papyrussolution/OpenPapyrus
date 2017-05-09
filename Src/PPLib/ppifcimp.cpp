@@ -1499,7 +1499,7 @@ SString & DL6ICLS_PPUtil::MakeGUID()
 	return RetStrBuf;
 }
 
-int32 DL6ICLS_PPUtil::SendMail(int32 acctID, SString & rSubject, SString & rMessage, SString & rMail, IStrAssocList*  pAttachments)
+int32 DL6ICLS_PPUtil::SendMail(int32 acctID, SString & rSubject, SString & rMessage, SString & rMail, IStrAssocList * pAttachments)
 {
 	int    ok = 1;
 	StrAssocArray * p_attachments = (StrAssocArray *)SCoClass::GetExtraPtrByInterface(pAttachments);
@@ -1510,6 +1510,13 @@ int32 DL6ICLS_PPUtil::SendMail(int32 acctID, SString & rSubject, SString & rMess
 	rSubject.Transf(CTRANSF_INNER_TO_UTF8);
 	rMessage.Transf(CTRANSF_INNER_TO_UTF8);
 	rMail.Transf(CTRANSF_INNER_TO_UTF8);
+	// @v9.6.5 {
+	if(acctID == 0) {
+		PPAlbatrosConfig a_cfg;
+		if(PPAlbatrosCfgMngr::Get(&a_cfg) > 0 && a_cfg.Hdr.MailAccID)
+			acctID = a_cfg.Hdr.MailAccID;
+	}
+	// } @v9.6.5
 	THROW(::SendMail(rSubject, rMessage, rMail, acctID, (p_attachments) ? &files_list : 0, 0));
 	CATCHZOK
 	return ok;
@@ -4391,7 +4398,7 @@ SString & DL6ICLS_PPObjLocation::GetAddress(int32 locID)
 	AppError = 0;
 	if(p_obj) {
 		/* @v9.5.5
-		if(p_obj->LocObj.P_Tbl) 
+		if(p_obj->LocObj.P_Tbl)
 			p_obj->LocObj.P_Tbl->GetAddress(locID, 0, RetStrBuf);
 		*/
 		p_obj->LocObj.GetAddress(locID, 0, RetStrBuf); // @v9.5.5
@@ -5239,9 +5246,9 @@ static void FillBillPacket(const SPpyO_Bill * pInner, PPBillPacket * pOuter, int
 	#define FLD(f) (pInner->f || !fillNotZero) ? pOuter->f = pInner->f : pOuter->f = pOuter->f;
 	FLD(OutAmtType);
 	FLD(QuotKindID);
-	if(pInner->OprType || !fillNotZero) 
+	if(pInner->OprType || !fillNotZero)
 		pOuter->OpTypeID = pInner->OprType;
-	if(pInner->AccSheet || !fillNotZero) 
+	if(pInner->AccSheet || !fillNotZero)
 		pOuter->AccSheetID = pInner->AccSheet;
 	FLD(Counter);
 	FLD(PaymBillID);
@@ -8419,14 +8426,14 @@ void  DL6ICLS_PPFiltGoodsRest::put_Flags(PpyVGoodsRestFlags value)            { 
 int32 DL6ICLS_PPFiltGoodsRest::get_AmtType()             		              { IMPL_PPIFC_GETPROP(GoodsRestFilt, AmtType); }
 void  DL6ICLS_PPFiltGoodsRest::put_AmtType(int32 value)                       { IMPL_PPIFC_PUTPROP(GoodsRestFilt, AmtType); }
 
-int32 DL6ICLS_PPFiltGoodsRest::get_CalcPrognosis()                            
-{ 
-	// @v9.5.8 IMPL_PPIFC_GETPROP(GoodsRestFilt, CalcPrognosis); 
+int32 DL6ICLS_PPFiltGoodsRest::get_CalcPrognosis()
+{
+	// @v9.5.8 IMPL_PPIFC_GETPROP(GoodsRestFilt, CalcPrognosis);
 	return BIN(((GoodsRestFilt *)ExtraPtr)->Flags2 & GoodsRestFilt::f2CalcPrognosis); // @v9.5.8
 }
-void  DL6ICLS_PPFiltGoodsRest::put_CalcPrognosis(int32 value)                 
-{ 
-	// @v9.5.8 IMPL_PPIFC_PUTPROP(GoodsRestFilt, CalcPrognosis); 
+void  DL6ICLS_PPFiltGoodsRest::put_CalcPrognosis(int32 value)
+{
+	// @v9.5.8 IMPL_PPIFC_PUTPROP(GoodsRestFilt, CalcPrognosis);
 	SETFLAG(((GoodsRestFilt *)ExtraPtr)->Flags2, GoodsRestFilt::f2CalcPrognosis, value); // @v9.5.8
 }
 

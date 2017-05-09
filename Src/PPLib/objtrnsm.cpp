@@ -80,8 +80,7 @@ int SLAPI PPObjectTransmit::EditConfig()
 			AddClusterAssoc(CTL_DBXCHGCFG_CHARRYF, 6, DBDXF_SENDTAGATTCHM); // @v9.2.6
 			SetClusterData(CTL_DBXCHGCFG_CHARRYF, Data.Flags);
 
-			AddClusterAssoc(CTL_DBXCHGCFG_RLZORD, -1, RLZORD_UNDEF);
-			AddClusterAssoc(CTL_DBXCHGCFG_RLZORD,  0, RLZORD_UNDEF);
+			AddClusterAssocDef(CTL_DBXCHGCFG_RLZORD,  0, RLZORD_UNDEF);
 			AddClusterAssoc(CTL_DBXCHGCFG_RLZORD,  1, RLZORD_FIFO);
 			AddClusterAssoc(CTL_DBXCHGCFG_RLZORD,  2, RLZORD_LIFO);
 			SetClusterData(CTL_DBXCHGCFG_RLZORD, Data.RealizeOrder);

@@ -345,8 +345,7 @@ private:
 		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PUGLSPLI))));
 		SetupArCombo(dlg, CTLSEL_PUGLSPLI_SUPPL, item.SupplID, 0, AcsID, sacfDisableIfZeroSheet);
 		dlg->setCtrlReal(CTL_PUGLSPLI_QTTY, item.Qtty);
-		dlg->AddClusterAssoc(CTL_PUGLSPLI_UNIT,  0, item.uAbs);
-		dlg->AddClusterAssoc(CTL_PUGLSPLI_UNIT, -1, item.uAbs);
+		dlg->AddClusterAssocDef(CTL_PUGLSPLI_UNIT, 0, item.uAbs);
 		dlg->AddClusterAssoc(CTL_PUGLSPLI_UNIT,  1, item.uPct);
 		dlg->SetClusterData(CTL_PUGLSPLI_UNIT, item.Unit);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
@@ -808,7 +807,7 @@ int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfc
 								r = 1;
 							}
 						}
-						// } @v9.3.6 
+						// } @v9.3.6
 						/* @v9.3.6
 						PPID   lot_id = 0;
 						{

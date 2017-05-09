@@ -31,9 +31,14 @@
 
 class PPFTP {
 public:
-	PPFTP() {P_ControlConn = 0;}
-	~PPFTP() {Disconnect();}
-
+	PPFTP() 
+	{
+		P_ControlConn = 0;
+	}
+	~PPFTP() 
+	{
+		Disconnect();
+	}
 	int SLAPI Connect(PPInternetAccount * pAccount);
 	int SLAPI Disconnect();
 	int SLAPI Get(const char * pLocalPath, const char * pServerPath, int checkDtTm = 0, PercentFunc pf = 0);
@@ -45,7 +50,7 @@ public:
 	int SLAPI GetFileInfo(const char * pServerPath, LDATETIME * pFileDtTm, ulong * pFileSize);
 private:
 	int    SLAPI SendPort(InetAddr * pAddr, char type);
-	int    SLAPI SendCmd(int cmd, long extra, SString * pReply = 0);
+	int    SLAPI SendCmd(int cmd, const void * pExtra, SString * pReply = 0);
 	int    SLAPI GetReply(SString & aReply);
 	int    SLAPI CheckReply(SString & aReply);
 	int    SLAPI FileTransfer(const char * pLocalPath, const char * pServerPath, int send, int checkDtTm = 0, PercentFunc pf = 0);

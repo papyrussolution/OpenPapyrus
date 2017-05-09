@@ -191,10 +191,10 @@ int SLAPI PPObjTech::Search(PPID id, void * b)
 	return SearchByID(P_Tbl, Obj, id, b);
 }
 
-//virtual 
-const char * SLAPI PPObjTech::GetNamePtr() 
-{ 
-	return P_Tbl->data.Code; 
+//virtual
+const char * SLAPI PPObjTech::GetNamePtr()
+{
+	return P_Tbl->data.Code;
 }
 
 int SLAPI PPObjTech::SearchByCode(const char * pCode, TechTbl::Rec * pRec)
@@ -598,8 +598,7 @@ int SLAPI EditCapacity(CalcCapacity * pData)
 		int    setDTS(const CalcCapacity * pData)
 		{
 			Data = *pData;
-			AddClusterAssoc(CTL_CAPACITY_TIMEUNIT, 0, UNIT_SECOND);
-			AddClusterAssoc(CTL_CAPACITY_TIMEUNIT, -1, UNIT_SECOND);
+			AddClusterAssocDef(CTL_CAPACITY_TIMEUNIT, 0, UNIT_SECOND);
 			AddClusterAssoc(CTL_CAPACITY_TIMEUNIT, 1, UNIT_MINUTE);
 			AddClusterAssoc(CTL_CAPACITY_TIMEUNIT, 2, UNIT_HOUR);
 			AddClusterAssoc(CTL_CAPACITY_TIMEUNIT, 3, UNIT_DAY);
@@ -610,8 +609,7 @@ int SLAPI EditCapacity(CalcCapacity * pData)
 					r = 1;
 				else if(Data.Flags & Data.fAbsolute)
 					r = 2;
-				AddClusterAssoc(CTL_CAPACITY_REVERSE, 0, 0);
-				AddClusterAssoc(CTL_CAPACITY_REVERSE, -1, 0);
+				AddClusterAssocDef(CTL_CAPACITY_REVERSE, 0, 0);
 				AddClusterAssoc(CTL_CAPACITY_REVERSE, 1, 1);
 				AddClusterAssoc(CTL_CAPACITY_REVERSE, 2, 2);
 				SetClusterData(CTL_CAPACITY_REVERSE, r);
@@ -809,8 +807,7 @@ int TechDialog::setDTS(const PPTechPacket * pData)
 	setCtrlLong(CTL_TECH_ORDERN, Data.Rec.OrderN);
 	AddClusterAssoc(CTL_TECH_SIGN,  0, -1);
 	AddClusterAssoc(CTL_TECH_SIGN,  1,  1);
-	AddClusterAssoc(CTL_TECH_SIGN,  2,  0);
-	AddClusterAssoc(CTL_TECH_SIGN, -1,  0);
+	AddClusterAssocDef(CTL_TECH_SIGN, 2,  0);
 	SetClusterData (CTL_TECH_SIGN, Data.Rec.Sign);
 	AddClusterAssoc(CTL_TECH_FLAGS, 0, TECF_RECOMPLMAINGOODS);
 	AddClusterAssoc(CTL_TECH_FLAGS, 1, TECF_CALCTIMEBYROWS);
@@ -1368,9 +1365,9 @@ private:
 		long   GStrucID;    // ->Ref(PPOBJ_GOODSSTRUC)
 		long   Flags;       // TECF_XXX
 		int16  Sign;        // @#{-1,0,+1} -1 - расход, +1 - приход, 0 - остаток не мен€етс€ (использование) //
-		int16  Kind;        // 
-		long   Duration;    // 
-		float  InitQtty;    // 
+		int16  Kind;        //
+		long   Duration;    //
+		float  InitQtty;    //
 		double Cost;        // —уммарна€ стоимость операции на одну торговую единицу GoodsID
 		double Capacity;    // ѕроизводительность процессора ProcID при использовании этой технологии
 		double Rounding;
@@ -1501,13 +1498,11 @@ int TechFiltDialog::setDTS(const TechFilt * pData)
 	SetupPPObjCombo(this, CTLSEL_TECHFILT_PARENT, PPOBJ_TECH, Data.ParentID, OLW_SETUPSINGLE, 0);
 	GoodsCtrlGroup::Rec rec(0, Data.GoodsID);
 	setGroupData(GRP_GOODS, &rec);
-	AddClusterAssoc(CTL_TECHFILT_KIND, 0, 0);
-	AddClusterAssoc(CTL_TECHFILT_KIND, -1, 0);
+	AddClusterAssocDef(CTL_TECHFILT_KIND, 0, 0);
 	AddClusterAssoc(CTL_TECHFILT_KIND, 1, 1);
 	AddClusterAssoc(CTL_TECHFILT_KIND, 2, 2);
 	SetClusterData(CTL_TECHFILT_KIND, Data.Kind);
-	AddClusterAssoc(CTL_TECHFILT_SIGN,  0,  TechFilt::signAll);
-	AddClusterAssoc(CTL_TECHFILT_SIGN, -1,  TechFilt::signAll);
+	AddClusterAssocDef(CTL_TECHFILT_SIGN,  0,  TechFilt::signAll);
 	AddClusterAssoc(CTL_TECHFILT_SIGN,  1,  TechFilt::signMinusOnly);
 	AddClusterAssoc(CTL_TECHFILT_SIGN,  2,  TechFilt::signPlusOnly);
 	AddClusterAssoc(CTL_TECHFILT_SIGN,  3,  TechFilt::signUsageOnly);

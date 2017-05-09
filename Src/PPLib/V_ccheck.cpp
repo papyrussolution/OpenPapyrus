@@ -280,8 +280,7 @@ public:
 			DisableClusterItem(CTL_CROSST_KIND, 1, 1);
 			Data.CtKind = TrfrAnlzFilt::ctNone;
 		}
-		AddClusterAssoc(CTL_CROSST_KIND, 0, TrfrAnlzFilt::ctNone);
-		AddClusterAssoc(CTL_CROSST_KIND, -1, TrfrAnlzFilt::ctNone);
+		AddClusterAssocDef(CTL_CROSST_KIND, 0, TrfrAnlzFilt::ctNone);
 		AddClusterAssoc(CTL_CROSST_KIND,  1, TrfrAnlzFilt::ctDate);
 		SetClusterData(CTL_CROSST_KIND, Data.CtKind);
 		if(!Data.CtValList.IsExists())
@@ -520,8 +519,7 @@ int CCheckFiltDialog::setDTS(const CCheckFilt * pFilt)
 			cob = 1;
 		else if(Data.Flags & CCheckFilt::fBankingOnly)
 			cob = 2;
-		AddClusterAssoc(CTL_CCHECKFLT_CASHORBANK,  0, 0);
-		AddClusterAssoc(CTL_CCHECKFLT_CASHORBANK, -1, 0);
+		AddClusterAssocDef(CTL_CCHECKFLT_CASHORBANK,  0, 0);
 		AddClusterAssoc(CTL_CCHECKFLT_CASHORBANK,  1, 1);
 		AddClusterAssoc(CTL_CCHECKFLT_CASHORBANK,  2, 2);
 		SetClusterData(CTL_CCHECKFLT_CASHORBANK, cob);

@@ -986,7 +986,7 @@ ROD_ELINKKIND PP_RCDATA {
 //
 ROD_QUOTKIND PP_RCDATA {
 	2,
-	1, "Базовая котировка\0", "BASE\0",
+	1, "@{basequote}\0", "BASE\0",
 	2, "Подарочная скидка\0", "GIFT\0"
 }
 //
@@ -994,7 +994,7 @@ ROD_QUOTKIND PP_RCDATA {
 // {ID, Name, Symb, ObjType, DataType}
 //
 ROD_TAG PP_RCDATA {
-	51,
+	53,
 	 4, "@{rtag_posrights}\0",                "POSRIGHTS\0",         "PERSON\0",     "STRING\0"
 	 5, "@{rtag_dob}\0",                      "DOB\0",               "PERSON\0",     "DATE\0"
 	10, "@{rtag_goodsrights}\0",              "GOODSRIGHTS\0",       "GLOBALUSER\0", "STRING\0"
@@ -1047,6 +1047,8 @@ ROD_TAG PP_RCDATA {
 	58, "@{rtag_locuuid}\0",                  "LOCUUID\0",           "LOCATION\0",   "UUID\0"
 	59, "@{rtag_billformalreason}\0",         "FORMALREASON\0",      "BILL\0",       "ENUM\0"
 	60, "@{rtag_edibillrepealreq}\0",         "EDIREPEALREQ\0",      "BILL\0",       "STRING\0"
+	61, "@{rtag_posnodeuuid}\0",              "POSNODEUUID\0",       "POSNODE\0",    "UUID\0"
+	62, "@{rtag_posnodehostuuid}\0",          "POSNODEHOSTUUID\0",   "POSNODE\0",    "UUID\0"
 }
 //
 // Зарезервированные записи объекта PPOBJ_OPCOUNTER

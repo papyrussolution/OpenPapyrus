@@ -302,8 +302,7 @@ int WhatmanObjectBackground::EditTool(TWhatmanToolArray::Item * pItem)
 			disableCtrl(CTL_WTMTOOL_SYMB, Data.Symb.NotEmpty());
 			setCtrlString(CTL_WTMTOOL_FIGPATH, Data.FigPath);
 			setCtrlData(CTL_WTMTOOL_FIGSIZE, &Data.FigSize);
-			AddClusterAssoc(CTL_WTMTOOL_BKGOPTIONS, 0, WhatmanObjectBackground::bkgoFull);
-			AddClusterAssoc(CTL_WTMTOOL_BKGOPTIONS, -1, WhatmanObjectBackground::bkgoFull);
+			AddClusterAssocDef(CTL_WTMTOOL_BKGOPTIONS, 0, WhatmanObjectBackground::bkgoFull);
 			AddClusterAssoc(CTL_WTMTOOL_BKGOPTIONS, 1, WhatmanObjectBackground::bkgoTile);
 			AddClusterAssoc(CTL_WTMTOOL_BKGOPTIONS, 2, WhatmanObjectBackground::bkgoCenter);
 			SetClusterData(CTL_WTMTOOL_BKGOPTIONS, bkg_options);

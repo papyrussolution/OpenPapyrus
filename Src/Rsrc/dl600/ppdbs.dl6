@@ -2005,7 +2005,7 @@ table TempSCard {
 	// @v9.4.0 string Password[8];    //
 	long   SeriesID;       // ->Ref(PPOBJ_SCARDSERIES)
 	long   PersonID;       // ->Person.ID
-	long   LocID;          // ->Location.ID @v9.4.0
+	// @v9.6.5 @fix long   LocID;          // ->Location.ID @v9.4.0
 	long   Flags;          //
 	date   Dt;             // Open date
 	date   Expiry;         //
@@ -2019,7 +2019,8 @@ table TempSCard {
 	time   UsageTmEnd;     //
 	int16  PeriodTerm;     // @v7.7.2 “ип периода длительности срока действи€ //
 	int16  PeriodCount;    // @v7.7.2  оличество периодов длительности срока действи€ //
-	raw    Reserve[20];    // @v7.7.2
+	long   LocID;          // @v9.6.5 @fix ->Location.ID
+	raw    Reserve[16];    // @v7.7.2
 	//
 	// End SCard fields
 	//

@@ -123,8 +123,7 @@ int StaffCalFiltDialog::setDTS(const StaffCalFilt * pData)
 	AddClusterAssoc(CTL_STAFFCALFLT_FLAGS, 0, StaffCalFilt::fInverseProj);
 	SetClusterData(CTL_STAFFCALFLT_FLAGS, Data.Flags);
 	//
-	AddClusterAssoc(CTL_STAFFCALFLT_ORDER,  0, PPViewStaffCal::ordByDate);
-	AddClusterAssoc(CTL_STAFFCALFLT_ORDER, -1, PPViewStaffCal::ordByDate);
+	AddClusterAssocDef(CTL_STAFFCALFLT_ORDER,  0, PPViewStaffCal::ordByDate);
 	AddClusterAssoc(CTL_STAFFCALFLT_ORDER,  1, PPViewStaffCal::ordByObject);
 	SetClusterData(CTL_STAFFCALFLT_ORDER, Data.Order);
 	OnObjectSelection();

@@ -268,7 +268,7 @@ SymbHashTable * SLAPI StringStore2::LoadStringHash(int group) const
                 uint ht_size = (str_id_list.getCount() * 3);
                 while(!IsPrime(ht_size))
 					ht_size++;
-				THROW_MEM(p_tab = new SymbHashTable(ht_size, 0));
+				THROW_MEM(p_tab = new SymbHashTable(ht_size, 1)); // @v9.6.5 useAssoc 0-->1
 				for(uint i = 0; i < str_id_list.getCount(); i++) {
 					const long str_id = str_id_list.get(i);
 					//const long combine_id = MakeLong(str_id, group);

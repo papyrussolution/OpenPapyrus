@@ -377,8 +377,7 @@ int SLAPI PrintGoodsBill(PPBillPacket * pPack, SArray ** ppAry, int printingNoAs
 			ok = -1;
 			TDialog * dlg = new TDialog(DLG_PRNACCTURN);
 			if(CheckDialogPtrErr(&dlg)) {
-				dlg->AddClusterAssoc(CTL_PRNACCTURN_FORM, 0, OPKF_PRT_CASHORD);
-				dlg->AddClusterAssoc(CTL_PRNACCTURN_FORM, -1, OPKF_PRT_CASHORD);
+				dlg->AddClusterAssocDef(CTL_PRNACCTURN_FORM, 0, OPKF_PRT_CASHORD);
 				dlg->AddClusterAssoc(CTL_PRNACCTURN_FORM, 1, OPKF_PRT_PAYPLAN);
 				dlg->AddClusterAssoc(CTL_PRNACCTURN_FORM, 2, OPKF_PRT_INVOICE);
 				dlg->SetClusterData(CTL_PRNACCTURN_FORM, prf);

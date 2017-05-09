@@ -49,14 +49,6 @@
       <Configuration>ServerRelease</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Universe-HTT|Win32">
-      <Configuration>Universe-HTT</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Universe-HTT|x64">
-      <Configuration>Universe-HTT</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectName>openssl-ssl</ProjectName>
@@ -71,25 +63,25 @@
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
-    <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <PlatformToolset>v140_xp</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <PlatformToolset>v140_xp</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <PlatformToolset>v140_xp</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
@@ -107,7 +99,13 @@
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <PlatformToolset>v140_xp</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
@@ -119,25 +117,7 @@
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
-    <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
-    <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
-    <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <PlatformToolset>v140_xp</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
@@ -155,16 +135,16 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="PropertySheets">
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="PropertySheets">
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="PropertySheets">
@@ -173,22 +153,16 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'" Label="PropertySheets">
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="PropertySheets">
@@ -201,98 +175,48 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRules />
-    <CodeAnalysisRuleAssemblies />
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRules />
-    <CodeAnalysisRuleAssemblies />
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRules />
-    <CodeAnalysisRuleAssemblies />
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRules />
-    <CodeAnalysisRuleAssemblies />
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRules />
-    <CodeAnalysisRuleAssemblies />
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRules />
-    <CodeAnalysisRuleAssemblies />
     <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
     <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRules />
-    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRules />
-    <CodeAnalysisRuleAssemblies />
     <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRules />
-    <CodeAnalysisRuleAssemblies />
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRules />
-    <CodeAnalysisRuleAssemblies />
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRules />
-    <CodeAnalysisRuleAssemblies />
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRules />
-    <CodeAnalysisRuleAssemblies />
     <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
     <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRules />
-    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRules />
-    <CodeAnalysisRuleAssemblies />
     <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
@@ -300,8 +224,8 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-CMake\__build_src__;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;..\OSF\OpenSSL-CMake\__build_src__\ssl;..\OSF\OpenSSL-CMake\__build_src__\openssl;..\OSF\OpenSSL-CMake\__build_src__\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling />
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -313,7 +237,10 @@
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -335,12 +262,12 @@
       <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-CMake\__build_src__;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;..\OSF\OpenSSL-CMake\__build_src__\ssl;..\OSF\OpenSSL-CMake\__build_src__\openssl;..\OSF\OpenSSL-CMake\__build_src__\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
       </ExceptionHandling>
@@ -353,7 +280,56 @@
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <DllDataFileName>
+      </DllDataFileName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -380,8 +356,8 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-CMake\__build_src__;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;..\OSF\OpenSSL-CMake\__build_src__\ssl;..\OSF\OpenSSL-CMake\__build_src__\openssl;..\OSF\OpenSSL-CMake\__build_src__\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
       </ExceptionHandling>
@@ -394,7 +370,10 @@
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -402,87 +381,6 @@
     <Midl>
       <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
-      <GenerateStublessProxies>true</GenerateStublessProxies>
-      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
-      <OutputDirectory>$(IntDir)</OutputDirectory>
-      <HeaderFileName>%(Filename).h</HeaderFileName>
-      <DllDataFileName>
-      </DllDataFileName>
-      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
-      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
-    </Midl>
-    <ResourceCompile>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ResourceCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
-    <ClCompile>
-      <Optimization>Disabled</Optimization>
-      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-CMake\__build_src__;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;..\OSF\OpenSSL-CMake\__build_src__\ssl;..\OSF\OpenSSL-CMake\__build_src__\openssl;..\OSF\OpenSSL-CMake\__build_src__\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <StringPooling>true</StringPooling>
-      <ExceptionHandling>
-      </ExceptionHandling>
-      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
-    </ClCompile>
-    <Lib>
-      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
-    </Lib>
-    <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <MkTypLibCompatible>false</MkTypLibCompatible>
-      <GenerateStublessProxies>true</GenerateStublessProxies>
-      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
-      <OutputDirectory>$(IntDir)</OutputDirectory>
-      <HeaderFileName>%(Filename).h</HeaderFileName>
-      <DllDataFileName>
-      </DllDataFileName>
-      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
-      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
-    </Midl>
-    <ResourceCompile>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ResourceCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
-    <ClCompile>
-      <Optimization>Disabled</Optimization>
-      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-CMake\__build_src__;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;..\OSF\OpenSSL-CMake\__build_src__\ssl;..\OSF\OpenSSL-CMake\__build_src__\openssl;..\OSF\OpenSSL-CMake\__build_src__\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <StringPooling>true</StringPooling>
-      <ExceptionHandling>
-      </ExceptionHandling>
-      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
-    </ClCompile>
-    <Lib>
-      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
-    </Lib>
-    <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <MkTypLibCompatible>false</MkTypLibCompatible>
-      <TargetEnvironment>Win32</TargetEnvironment>
       <GenerateStublessProxies>true</GenerateStublessProxies>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
       <OutputDirectory>$(IntDir)</OutputDirectory>
@@ -501,8 +399,8 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-CMake\__build_src__;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;..\OSF\OpenSSL-CMake\__build_src__\ssl;..\OSF\OpenSSL-CMake\__build_src__\openssl;..\OSF\OpenSSL-CMake\__build_src__\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
       </ExceptionHandling>
@@ -515,7 +413,11 @@
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -523,47 +425,6 @@
     <Midl>
       <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
-      <GenerateStublessProxies>true</GenerateStublessProxies>
-      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
-      <OutputDirectory>$(IntDir)</OutputDirectory>
-      <HeaderFileName>%(Filename).h</HeaderFileName>
-      <DllDataFileName>
-      </DllDataFileName>
-      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
-      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
-    </Midl>
-    <ResourceCompile>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ResourceCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
-    <ClCompile>
-      <Optimization>Disabled</Optimization>
-      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-CMake\__build_src__;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;..\OSF\OpenSSL-CMake\__build_src__\ssl;..\OSF\OpenSSL-CMake\__build_src__\openssl;..\OSF\OpenSSL-CMake\__build_src__\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <StringPooling>true</StringPooling>
-      <ExceptionHandling>
-      </ExceptionHandling>
-      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
-    </ClCompile>
-    <Lib>
-      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
-    </Lib>
-    <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <MkTypLibCompatible>false</MkTypLibCompatible>
-      <TargetEnvironment>Win32</TargetEnvironment>
       <GenerateStublessProxies>true</GenerateStublessProxies>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
       <OutputDirectory>$(IntDir)</OutputDirectory>
@@ -582,8 +443,8 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-CMake\__build_src__;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;..\OSF\OpenSSL-CMake\__build_src__\ssl;..\OSF\OpenSSL-CMake\__build_src__\openssl;..\OSF\OpenSSL-CMake\__build_src__\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
       </ExceptionHandling>
@@ -596,7 +457,11 @@
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -622,8 +487,8 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-CMake\__build_src__;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;..\OSF\OpenSSL-CMake\__build_src__\ssl;..\OSF\OpenSSL-CMake\__build_src__\openssl;..\OSF\OpenSSL-CMake\__build_src__\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling />
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -634,7 +499,10 @@
       <AssemblerListingLocation>Release/</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <WarningLevel>Level3</WarningLevel>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -656,51 +524,12 @@
       <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClCompile>
-      <Optimization>MaxSpeed</Optimization>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-CMake\__build_src__;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;..\OSF\OpenSSL-CMake\__build_src__\ssl;..\OSF\OpenSSL-CMake\__build_src__\openssl;..\OSF\OpenSSL-CMake\__build_src__\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <StringPooling>true</StringPooling>
-      <ExceptionHandling>
-      </ExceptionHandling>
-      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <AssemblerListingLocation>Release/</AssemblerListingLocation>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
-      <WarningLevel>Level3</WarningLevel>
-      <CompileAs>CompileAsC</CompileAs>
-    </ClCompile>
-    <Lib>
-      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
-    </Lib>
-    <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <MkTypLibCompatible>false</MkTypLibCompatible>
-      <GenerateStublessProxies>true</GenerateStublessProxies>
-      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
-      <OutputDirectory>$(IntDir)</OutputDirectory>
-      <HeaderFileName>%(Filename).h</HeaderFileName>
-      <DllDataFileName>
-      </DllDataFileName>
-      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
-      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
-    </Midl>
-    <ResourceCompile>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ResourceCompile>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-CMake\__build_src__;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;..\OSF\OpenSSL-CMake\__build_src__\ssl;..\OSF\OpenSSL-CMake\__build_src__\openssl;..\OSF\OpenSSL-CMake\__build_src__\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
       </ExceptionHandling>
@@ -712,7 +541,11 @@
       <AssemblerListingLocation>Release/</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <WarningLevel>Level3</WarningLevel>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -721,45 +554,6 @@
       <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
-      <GenerateStublessProxies>true</GenerateStublessProxies>
-      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
-      <OutputDirectory>$(IntDir)</OutputDirectory>
-      <HeaderFileName>%(Filename).h</HeaderFileName>
-      <DllDataFileName>
-      </DllDataFileName>
-      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
-      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
-    </Midl>
-    <ResourceCompile>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ResourceCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
-    <ClCompile>
-      <Optimization>MaxSpeed</Optimization>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-CMake\__build_src__;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;..\OSF\OpenSSL-CMake\__build_src__\ssl;..\OSF\OpenSSL-CMake\__build_src__\openssl;..\OSF\OpenSSL-CMake\__build_src__\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <StringPooling>true</StringPooling>
-      <ExceptionHandling>
-      </ExceptionHandling>
-      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <AssemblerListingLocation>Release/</AssemblerListingLocation>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
-      <WarningLevel>Level3</WarningLevel>
-      <CompileAs>CompileAsC</CompileAs>
-    </ClCompile>
-    <Lib>
-      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
-    </Lib>
-    <Midl>
-      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <MkTypLibCompatible>false</MkTypLibCompatible>
       <GenerateStublessProxies>true</GenerateStublessProxies>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
       <OutputDirectory>$(IntDir)</OutputDirectory>
@@ -778,8 +572,8 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-CMake\__build_src__;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;..\OSF\OpenSSL-CMake\__build_src__\ssl;..\OSF\OpenSSL-CMake\__build_src__\openssl;..\OSF\OpenSSL-CMake\__build_src__\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
       </ExceptionHandling>
@@ -791,7 +585,11 @@
       <AssemblerListingLocation>Release/</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <WarningLevel>Level3</WarningLevel>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -814,12 +612,12 @@
       <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\OpenSSL-CMake\__build_src__;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;..\OSF\OpenSSL-CMake\__build_src__\ssl;..\OSF\OpenSSL-CMake\__build_src__\openssl;..\OSF\OpenSSL-CMake\__build_src__\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
       </ExceptionHandling>
@@ -831,7 +629,96 @@
       <AssemblerListingLocation>Release/</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <WarningLevel>Level3</WarningLevel>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <DllDataFileName>
+      </DllDataFileName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <DllDataFileName>
+      </DllDataFileName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -855,54 +742,64 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\bio_ssl.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\d1_both.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\d1_clnt.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\d1_enc.c" />
     <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\d1_lib.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\d1_meth.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\d1_pkt.c" />
+    <ClCompile Include="..\Osf\OpenSSL-CMake\ssl\d1_msg.c" />
     <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\d1_srtp.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\d1_srvr.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\kssl.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s23_clnt.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s23_lib.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s23_meth.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s23_pkt.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s23_srvr.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s2_clnt.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s2_enc.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s2_lib.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s2_meth.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s2_pkt.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s2_srvr.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s3_both.c" />
+    <ClCompile Include="..\Osf\OpenSSL-CMake\ssl\methods.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\openssl-ssl-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\Osf\OpenSSL-CMake\ssl\pqueue.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\record\dtls1_bitmap.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\record\rec_layer_d1.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\record\rec_layer_s3.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\record\ssl3_buffer.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\record\ssl3_record.c" />
     <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s3_cbc.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s3_clnt.c" />
     <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s3_enc.c" />
     <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s3_lib.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s3_meth.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s3_pkt.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s3_srvr.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\ssl_algs.c" />
+    <ClCompile Include="..\Osf\OpenSSL-CMake\ssl\s3_msg.c" />
     <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\ssl_asn1.c" />
     <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\ssl_cert.c" />
     <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\ssl_ciph.c" />
+    <ClCompile Include="..\Osf\OpenSSL-CMake\ssl\ssl_conf.c" />
     <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\ssl_err.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\ssl_err2.c" />
+    <ClCompile Include="..\Osf\OpenSSL-CMake\ssl\ssl_init.c" />
     <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\ssl_lib.c" />
+    <ClCompile Include="..\Osf\OpenSSL-CMake\ssl\ssl_mcnf.c" />
     <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\ssl_rsa.c" />
     <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\ssl_sess.c" />
     <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\ssl_stat.c" />
     <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\ssl_txt.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\t1_clnt.c" />
+    <ClCompile Include="..\Osf\OpenSSL-CMake\ssl\ssl_utst.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\statem\statem.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\statem\statem_clnt.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\statem\statem_dtls.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\statem\statem_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\statem\statem_srvr.c" />
     <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\t1_enc.c" />
+    <ClCompile Include="..\Osf\OpenSSL-CMake\ssl\t1_ext.c" />
     <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\t1_lib.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\t1_meth.c" />
     <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\t1_reneg.c" />
-    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\t1_srvr.c" />
+    <ClCompile Include="..\Osf\OpenSSL-CMake\ssl\t1_trce.c" />
     <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\tls_srp.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Osf\OpenSSL-CMake\include\openssl\asn1.h" />
+    <ClInclude Include="..\Osf\OpenSSL-CMake\include\openssl\asn1t.h" />
+    <ClInclude Include="..\Osf\OpenSSL-CMake\include\openssl\asn1_mac.h" />
+    <ClInclude Include="..\Osf\OpenSSL-CMake\include\openssl\pem.h" />
     <ClInclude Include="..\OSF\OpenSSL-CMake\ssl\dtls1.h" />
     <ClInclude Include="..\OSF\OpenSSL-CMake\ssl\kssl.h" />
     <ClInclude Include="..\OSF\OpenSSL-CMake\ssl\srtp.h" />

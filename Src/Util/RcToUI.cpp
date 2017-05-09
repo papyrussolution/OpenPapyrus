@@ -1,5 +1,5 @@
 // RcToUI.CPP
-// Copyright (c) Starodub A. 2007, 2010, 2015, 2016
+// Copyright (c) Starodub A. 2007, 2010, 2015, 2016, 2017
 //
 #include <stdlib.h>
 #include <stdio.h>
@@ -36,7 +36,10 @@ int SLAPI ReplaceSpecSymb(SString & rBuf)
 	SString subst;
 	for(size_t i = 0; i < (sizeof(SpcSymbTab)/sizeof(SpcSymbEntry)); i++) {
 		(subst = 0).CatChar('&').Cat(SpcSymbTab[i].str).Semicol();
-		rBuf.ReplaceStr(onecstr(SpcSymbTab[i].chr), subst, 0);
+		char   pattern[8];
+		pattern[0] = SpcSymbTab[i].chr;
+		pattern[1] = 0;
+		rBuf.ReplaceStr(pattern, subst, 0);
 	}
 	return 1;
 }

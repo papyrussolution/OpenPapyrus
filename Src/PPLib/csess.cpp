@@ -33,6 +33,37 @@ int SLAPI CSessionCore::SearchByNumber(PPID * pID, PPID cashNodeID, long cashN, 
 	return -1;
 }
 
+int SLAPI CSessionCore::SearchLast(PPID cashNodeID, int incompl, PPID * pID, CSessionTbl::Rec * pRec)
+{
+	int    ok = -1;
+	PPObjCashNode cn_obj;
+	PPCashNode cn_rec;
+	if(cn_obj.Search(cashNodeID, &cn_rec) > 0) {
+		const int do_skip_current = BIN(incompl >- 1000);
+		if(incompl > 1000)
+			incompl = incompl % 1000;
+		CSessionTbl::Key1 k1;
+		MEMSZERO(k1);
+		k1.CashNodeID = cashNodeID;
+		k1.Dt = MAXDATE;
+		k1.Tm = MAXTIME;
+		if(search(1, &k1, spLt) && data.CashNodeID == cashNodeID) {
+			do {
+				if(data.Incomplete <= incompl && checkdate(data.Dt, 0) && checktime(data.Tm)) {
+					if(!do_skip_current || !(cn_rec.Flags & CASHF_SYNC) || data.ID != cn_rec.CurSessID) {
+						ASSIGN_PTR(pID, data.ID);
+						ASSIGN_PTR(pRec, data);
+						ok = 1;
+					}
+				}
+			} while(ok < 0 && search(1, &k1, spPrev) && data.CashNodeID == cashNodeID);
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
 int SLAPI CSessionCore::HasChild(PPID sessID)
 {
 	int    ok = -1;

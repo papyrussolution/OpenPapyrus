@@ -907,6 +907,16 @@ int SLAPI ObjTagList::PutItemStr(PPID tagID, const char * pStr)
 	return tag_item.SetStr(tagID, pStr) ? PutItem(tagID, &tag_item) : 0;
 }
 
+int SLAPI ObjTagList::PutItemStrNE(PPID tagID, const char * pStr)
+{
+	int    ok = -1;
+    if(!isempty(pStr)) {
+		ObjTagItem tag_item;
+		ok = tag_item.SetStr(tagID, pStr) ? PutItem(tagID, &tag_item) : 0;
+	}
+	return ok;
+}
+
 int SLAPI ObjTagList::PutItemNZ(const ObjTagItem * pItem, long flags)
 {
 	int    ok = -1;

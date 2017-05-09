@@ -1,5 +1,5 @@
 // BITSTR.CPP
-// Copyright (c) Sobolev A. 1995-2001, 2004, 2005, 2006, 2008, 2010, 2013, 2016
+// Copyright (c) Sobolev A. 1995-2001, 2004, 2005, 2006, 2008, 2010, 2013, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -138,28 +138,31 @@ int FASTCALL findbit(const void * pBuf, size_t count, int val, size_t * pPos)
 
 void SLAPI insbit(void * pBuf, size_t len, size_t pos)
 {
-	int    i; // @v9.6.4 int-->size_t
-	size_t firstword = BLKIDX(pos);
+	const size_t firstword = BLKIDX(pos);
 	uint32 blk = PTR32(pBuf)[firstword];
 	uint32 carry = 0;
 	if(blk & HIBIT) {
 		carry = 1;
 		blk &= ~HIBIT;
 	}
-	for(i = 30; i >= (int)BLKBIT(pos); i--)
-		if(blk & (1U << i)) {
-			blk |= (1U << (i + 1));
-			blk &= ~(1U << i);
-		}
+	{
+		for(int i = 30; i >= (int)BLKBIT(pos); i--)
+			if(blk & (1U << i)) {
+				blk |= (1U << (i + 1));
+				blk &= ~(1U << i);
+			}
+	}
 	PTR32(pBuf)[firstword] = blk;
-	size_t num_blk = (int)(len>>2);
-	for(i = firstword + 1; i < num_blk; i++) {
-		blk = PTR32(pBuf)[i];
-		uint32 carry1 = (blk & HIBIT) ? 1 : 0;
-		blk <<= 1;
-		blk |= carry;
-		carry = carry1;
-		PTR32(pBuf)[i] = blk;
+	{
+		const size_t num_blk = (int)(len>>2);
+		for(size_t i = firstword + 1; i < num_blk; i++) {
+			blk = PTR32(pBuf)[i];
+			uint32 carry1 = (blk & HIBIT) ? 1 : 0;
+			blk <<= 1;
+			blk |= carry;
+			carry = carry1;
+			PTR32(pBuf)[i] = blk;
+		}
 	}
 	resetbit32(pBuf, len, pos);
 }

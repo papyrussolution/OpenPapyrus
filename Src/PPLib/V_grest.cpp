@@ -493,8 +493,7 @@ int GoodsRestFiltDlg::setDTS(const GoodsRestFilt * pFilt)
 	setCtrlData(CTL_GOODSREST_METHOD, &v);
 	*/
 	// @v8.2.3 {
-	AddClusterAssoc(CTL_GOODSREST_METHOD,  0, GoodsRestParam::pcmAvg);
-	AddClusterAssoc(CTL_GOODSREST_METHOD, -1, GoodsRestParam::pcmAvg);
+	AddClusterAssocDef(CTL_GOODSREST_METHOD,  0, GoodsRestParam::pcmAvg);
 	AddClusterAssoc(CTL_GOODSREST_METHOD,  1, GoodsRestParam::pcmFirstLot);
 	AddClusterAssoc(CTL_GOODSREST_METHOD,  2, GoodsRestParam::pcmLastLot);
 	SetClusterData(CTL_GOODSREST_METHOD, Data.CalcMethod);
@@ -524,12 +523,11 @@ int GoodsRestFiltDlg::setDTS(const GoodsRestFilt * pFilt)
 	// @v9.5.8 AddClusterAssoc(CTL_GOODSREST_BYQUOT, 0, GoodsRestFilt::fPriceByQuot);
 	// @v9.5.8 SetClusterData(CTL_GOODSREST_BYQUOT, Data.Flags);
 	// @v9.5.8 {
-	AddClusterAssoc(CTL_GOODSREST_BYQUOT2, 0, 0);
-	AddClusterAssoc(CTL_GOODSREST_BYQUOT2, -1, 0);
+	AddClusterAssocDef(CTL_GOODSREST_BYQUOT2, 0, 0);
 	AddClusterAssoc(CTL_GOODSREST_BYQUOT2, 1, 1);
 	AddClusterAssoc(CTL_GOODSREST_BYQUOT2, 2, 2);
 	SetClusterData(CTL_GOODSREST_BYQUOT2, Data.GetQuotUsage());
-	// } @v9.5.8 
+	// } @v9.5.8
 	AddClusterAssoc(CTL_GOODSREST_SPLIT, 0, GoodsRestParam::_diffCost);       // @v8.1.0 GoodsRestParam::diffByCost-->GoodsRestParam::_diffCost
 	AddClusterAssoc(CTL_GOODSREST_SPLIT, 1, GoodsRestParam::_diffPrice);      // @v8.1.0 GoodsRestParam::diffByPrice-->GoodsRestParam::_diffPrice
 	AddClusterAssoc(CTL_GOODSREST_SPLIT, 2, GoodsRestParam::_diffPack);       // @v8.1.0 GoodsRestParam::diffByPack-->GoodsRestParam::_diffPack
@@ -588,7 +586,7 @@ int GoodsRestFiltDlg::getDTS(GoodsRestFilt * pFilt)
 		const long quot_usage = GetClusterData(CTL_GOODSREST_BYQUOT2);
 		Data.SetQuotUsage(quot_usage);
 	}
-	// } @v9.5.8 
+	// } @v9.5.8
 	if(Data.Flags & GoodsRestFilt::fNullRestsOnly)
 		Data.Flags |= GoodsRestFilt::fNullRest;
 	Data.DiffParam = GetClusterData(CTL_GOODSREST_SPLIT);
@@ -660,7 +658,7 @@ IMPL_HANDLE_EVENT(GoodsRestFiltDlg)
 			Data.QuotKindID = -1L;
 		disableCtrl(CTLSEL_GOODSREST_QUOTK, (quot_usage ? 0 : 1));
 	}
-	// } @v9.5.8 
+	// } @v9.5.8
 	else if(event.isClusterClk(CTL_GOODSREST_FLAGS))
 		SetupCtrls();
 	else if(event.isClusterClk(CTL_GOODSREST_DIFFBYLOC)) {
@@ -1474,7 +1472,7 @@ int SLAPI PPViewGoodsRest::GetLastLot_(PPID goodsID, PPID locID, ReceiptTbl::Rec
 		const QuotIdent qi(NZOR(locID, Filt.LocList.GetSingle()), Filt.QuotKindID);
 		double qv = 0.0;
 		if(GObj.GetQuotExt(goodsID, qi, rRec.Cost, rRec.Price, &qv, 1) > 0) {
-			if(quot_usage == 1) 
+			if(quot_usage == 1)
 				rRec.Price = qv;
 			else if(quot_usage == 2)
 				rRec.Cost = qv;
@@ -3594,8 +3592,7 @@ int SLAPI PPViewGoodsRest::ExportUhtt(int silent)
 				_f |= 0x0001;
 
 			THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_GRESTUHTTEXP))));
-			dlg->AddClusterAssoc(CTL_GRESTUHTTEXP_F, 0, 1);
-			dlg->AddClusterAssoc(CTL_GRESTUHTTEXP_F, -1, 1);
+			dlg->AddClusterAssocDef(CTL_GRESTUHTTEXP_F, 0, 1);
 			dlg->AddClusterAssoc(CTL_GRESTUHTTEXP_F, 1, 2);
 			dlg->AddClusterAssoc(CTL_GRESTUHTTEXP_F, 2, 3);
 			dlg->SetClusterData(CTL_GRESTUHTTEXP_F, _s);

@@ -90,8 +90,7 @@ int SLAPI PPViewScale::EditBaseFilt(PPBaseFilt * pFilt)
 	SetupPPObjCombo(p_dlg,  CTLSEL_SCALEFLT_LOC, PPOBJ_LOCATION, filt.LocID, 0);
 	SetupPPObjCombo(p_dlg,  CTLSEL_SCALEFLT_ALTGRP, PPOBJ_GOODSGROUP, filt.AltGoodsGrpID, 0, (void *)GGRTYP_SEL_ALT);
 	SetupPPObjCombo(p_dlg,  CTLSEL_SCALEFLT_GROUP,  PPOBJ_SCALE, filt.GroupID, 0, PPObjScale::MakeExtraParam(PPSCLT_SCALEGROUP, 0));
-	p_dlg->AddClusterAssoc(CTL_SCALEFLT_PROT, -1, ScaleFilt::protAll);
-	p_dlg->AddClusterAssoc(CTL_SCALEFLT_PROT,  0, ScaleFilt::protAll);
+	p_dlg->AddClusterAssocDef(CTL_SCALEFLT_PROT,  0, ScaleFilt::protAll);
 	p_dlg->AddClusterAssoc(CTL_SCALEFLT_PROT,  1, ScaleFilt::protTcpIp);
 	p_dlg->AddClusterAssoc(CTL_SCALEFLT_PROT,  2, ScaleFilt::protCom);
 	p_dlg->SetClusterData(CTL_SCALEFLT_PROT, filt.Protocol);

@@ -211,7 +211,7 @@ int SLAPI PPObjCountry::Import(int use_ta)
 
 int SLAPI PPObjWorld::ImportCountry(int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	int    setcode = 0;
 	const  uint sect = PPINISECT_IMP_COUNTRY;
 	SString file_name, code, name, code_a2;
@@ -232,61 +232,61 @@ int SLAPI PPObjWorld::ImportCountry(int use_ta)
 			get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_NAME, &fldn_name);
 			get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_CODEA2, &fldn_codea2);
 			THROW_PP(fldn_name, PPERR_IMPORTUNDEFFLD);
-			THROW(PPStartTransaction(&ta, use_ta));
-			if(in_tbl.top()) {
-				do {
-					if(in_tbl.isDeletedRec() <= 0) {
-						int    r;
-						PPID   id = 0;
-						WorldTbl::Rec w_rec;
-						DbfRecord rec(&in_tbl);
-						THROW(in_tbl.getRec(&rec));
-						rec.get(fldn_code, code);
-						rec.get(fldn_name, name);
-						rec.get(fldn_codea2, code_a2);
-						code.Strip();
-						name.Strip();
-						code_a2.Strip();
-						if(name.NotEmpty()) {
-							r = SearchCountry(name, code, code_a2, &w_rec);
-							if(r > 0) {
-								int    upd = 0;
-								if(setcode) {
-									if(code.NotEmpty()) {
-										code.CopyTo(w_rec.Code, sizeof(w_rec.Code));
-										upd = 1;
+			{
+				PPTransaction tra(use_ta);
+				THROW(tra);
+				if(in_tbl.top()) {
+					do {
+						if(in_tbl.isDeletedRec() <= 0) {
+							int    r;
+							PPID   id = 0;
+							WorldTbl::Rec w_rec;
+							DbfRecord rec(&in_tbl);
+							THROW(in_tbl.getRec(&rec));
+							rec.get(fldn_code, code);
+							rec.get(fldn_name, name);
+							rec.get(fldn_codea2, code_a2);
+							code.Strip();
+							name.Strip();
+							code_a2.Strip();
+							if(name.NotEmpty()) {
+								r = SearchCountry(name, code, code_a2, &w_rec);
+								if(r > 0) {
+									int    upd = 0;
+									if(setcode) {
+										if(code.NotEmpty()) {
+											code.CopyTo(w_rec.Code, sizeof(w_rec.Code));
+											upd = 1;
+										}
+										if(code_a2.NotEmpty()) {
+											code_a2.CopyTo(w_rec.Abbr, sizeof(w_rec.Abbr));
+											upd = 1;
+										}
 									}
-									if(code_a2.NotEmpty()) {
-										code_a2.CopyTo(w_rec.Abbr, sizeof(w_rec.Abbr));
-										upd = 1;
+									if(upd) {
+										PPWorldPacket pack;
+										pack.Rec = w_rec;
+										id = w_rec.ID;
+										THROW(PutPacket(&id, &pack, 0));
 									}
 								}
-								if(upd) {
+								else {
 									PPWorldPacket pack;
-									pack.Rec = w_rec;
-									id = w_rec.ID;
+									pack.Rec.Kind = WORLDOBJ_COUNTRY;
+									name.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
+									code.CopyTo(pack.Rec.Code, sizeof(pack.Rec.Code));
+									code_a2.CopyTo(pack.Rec.Abbr, sizeof(pack.Rec.Abbr));
 									THROW(PutPacket(&id, &pack, 0));
 								}
 							}
-							else {
-								PPWorldPacket pack;
-								pack.Rec.Kind = WORLDOBJ_COUNTRY;
-								name.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
-								code.CopyTo(pack.Rec.Code, sizeof(pack.Rec.Code));
-								code_a2.CopyTo(pack.Rec.Abbr, sizeof(pack.Rec.Abbr));
-								THROW(PutPacket(&id, &pack, 0));
-							}
 						}
-					}
-				} while(in_tbl.next());
+					} while(in_tbl.next());
+				}
+				THROW(tra.Commit());
 			}
-			THROW(PPCommitWork(&ta));
 		}
 	}
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 //
@@ -481,7 +481,7 @@ static int SLAPI ConvertCodeToArticle(PPID accSheetID, SArray * pTab, long code,
 
 int SLAPI PPObjGoodsGroup::Import(int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	const  uint sect = PPINISECT_IMP_GOODSGROUP;
 	SString file_name;
 	PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPORT_INI, file_name);
@@ -517,52 +517,52 @@ int SLAPI PPObjGoodsGroup::Import(int use_ta)
 		}
 		THROW_PP(fldn_code && fldn_name, PPERR_IMPORTUNDEFFLD);
 		PPWaitMsg(PPSTR_TEXT, PPTXT_IMPGOODSGRP, 0);
-		THROW(PPStartTransaction(&ta, use_ta));
-		if(in_tbl.top()) {
-			do {
-				if(in_tbl.isDeletedRec() <= 0) {
-					PPID   id = 0, parent_id = 0;
-					int    uniq_cntr = 0;
-					char   code[32], name[512], org_name[512];
-					Goods2Tbl::Rec goods_rec;
-					DbfRecord rec(&in_tbl);
-					THROW(in_tbl.getRec(&rec));
-					for(uint i = 0; i < num_par; i++) {
-						rec.get(fldn_par_code[i], code);
-						rec.get(fldn_par_name[i], name);
+		{
+			PPTransaction tra(use_ta);
+			THROW(tra);
+			if(in_tbl.top()) {
+				do {
+					if(in_tbl.isDeletedRec() <= 0) {
+						PPID   id = 0, parent_id = 0;
+						int    uniq_cntr = 0;
+						char   code[32], name[512], org_name[512];
+						Goods2Tbl::Rec goods_rec;
+						DbfRecord rec(&in_tbl);
+						THROW(in_tbl.getRec(&rec));
+						for(uint i = 0; i < num_par; i++) {
+							rec.get(fldn_par_code[i], code);
+							rec.get(fldn_par_name[i], name);
+							strip(code);
+							strip(name);
+							STRNSCPY(org_name, name);
+							uniq_cntr = 0;
+							while(SearchByName(name, &(id = 0), &goods_rec) > 0 && PPObjGoods::GetRecKind(&goods_rec) != gpkndFolderGroup) {
+								uniq_cntr++;
+								sprintf(name, "%s #%i", org_name, uniq_cntr);
+							}
+							THROW(AddSimple(&id, gpkndFolderGroup, parent_id, name, code, 0, 0));
+							parent_id = id;
+						}
+						rec.get(fldn_code, code);
+						rec.get(fldn_name, name);
 						strip(code);
 						strip(name);
 						STRNSCPY(org_name, name);
 						uniq_cntr = 0;
-						while(SearchByName(name, &(id = 0), &goods_rec) > 0 && PPObjGoods::GetRecKind(&goods_rec) != gpkndFolderGroup) {
+						while(SearchByName(name, &(id = 0), &goods_rec) > 0 && PPObjGoods::GetRecKind(&goods_rec) != gpkndOrdinaryGroup) {
 							uniq_cntr++;
 							sprintf(name, "%s #%i", org_name, uniq_cntr);
 						}
-						THROW(AddSimple(&id, gpkndFolderGroup, parent_id, name, code, 0, 0));
-						parent_id = id;
+						THROW(AddSimple(&(id = 0), gpkndOrdinaryGroup, parent_id, name, code, goods_cfg.DefUnitID, 0));
 					}
-					rec.get(fldn_code, code);
-					rec.get(fldn_name, name);
-					strip(code);
-					strip(name);
-					STRNSCPY(org_name, name);
-					uniq_cntr = 0;
-					while(SearchByName(name, &(id = 0), &goods_rec) > 0 && PPObjGoods::GetRecKind(&goods_rec) != gpkndOrdinaryGroup) {
-						uniq_cntr++;
-						sprintf(name, "%s #%i", org_name, uniq_cntr);
-					}
-					THROW(AddSimple(&(id = 0), gpkndOrdinaryGroup, parent_id, name, code, goods_cfg.DefUnitID, 0));
-				}
-			} while(in_tbl.next());
+				} while(in_tbl.next());
+			}
+			THROW(tra.Commit());
 		}
-		THROW(PPCommitWork(&ta));
 	}
 	else
 		ok = -1;
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -911,7 +911,7 @@ int  SLAPI GoodsImportBillIdent::FinishPackets()
 	return ok;
 }
 
-int SLAPI GoodsImportBillIdent::GetFldSet(PPIniFile * pIniFile, uint sect, DbfTable * pTbl)
+void SLAPI GoodsImportBillIdent::GetFldSet(PPIniFile * pIniFile, uint sect, DbfTable * pTbl)
 {
 	get_fld_number(pIniFile, pTbl, sect, PPINIPARAM_SUPPLID,       &fldn_suppl);
 	get_fld_number(pIniFile, pTbl, sect, PPINIPARAM_PERSONCODE,    &fldn_supplcode);
@@ -921,7 +921,6 @@ int SLAPI GoodsImportBillIdent::GetFldSet(PPIniFile * pIniFile, uint sect, DbfTa
 	SupplCodeRegSymb.Strip();
 	pIniFile->GetInt(sect, PPINIPARAM_CODETOHEX, &CvtCodeToHex);
 	P_CodeToPersonTab = ReadCodeToPersonTab();
-	return 1;
 }
 
 int SLAPI GoodsImportBillIdent::Get(Sdr_Goods2 * pRec, PPID supplID)
@@ -1007,7 +1006,7 @@ int SLAPI GoodsImportBillIdent::Get(DbfRecord * pRec)
 
 int SLAPI PPObjGoods::ImportOld(int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	IterCounter cntr;
 	SString file_name, wait_msg, temp_buf2;
 	SString err_msg_buf, fmt_buf, msg_buf;
@@ -1150,7 +1149,8 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 		PPWaitMsg(wait_msg);
 		GoodsImportBillIdent bill_ident(&psn_obj, igp.SupplID);
 		bill_ident.GetFldSet(&ini_file, sect, &in_tbl);
-		THROW(PPStartTransaction(&ta, use_ta));
+		PPTransaction tra(use_ta);
+		THROW(tra);
 		if(is_hier)
 			THROW(Helper_ImportHier(&ini_file, &in_tbl, igp.DefUnitID, &hier_list));
 		PPLoadText(PPTXT_IMPGOODS, wait_msg);
@@ -1260,7 +1260,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 							}
 							if(!parent_id) {
 								if(igp.DefParentID == 0)
-									THROW(gg_obj.AddSimple(&igp.DefParentID, gpkndOrdinaryGroup, 0, onecstr('0'), 0, igp.DefUnitID, 0));
+									THROW(gg_obj.AddSimple(&igp.DefParentID, gpkndOrdinaryGroup, 0, "0", 0, igp.DefUnitID, 0));
 								parent_id = igp.DefParentID;
 							}
 							THROW(InitPacket(&pack, gpkndGoods, parent_id, 0, barcode));
@@ -1468,20 +1468,16 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 			} while(in_tbl.next());
 			THROW(bill_ident.FinishPackets());
 		}
-		THROW(PPCommitWork(&ta));
-		PPWait(0);
+		THROW(tra.Commit());
 	}
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-		PPWait(0);
-	ENDCATCH
+	CATCHZOK
+	PPWait(0);
 	return ok;
 }
 
 int SLAPI PPObjPerson::Import(int specKind, int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	IterCounter cntr;
 	SString in_file_name, file_name, temp_buf, wait_msg;
 	int    codetohex = 0;
@@ -1516,8 +1512,7 @@ int SLAPI PPObjPerson::Import(int specKind, int use_ta)
 
 	if(temp_buf.NotEmptyS()) {
 		SString kind_name;
-		StringSet ss(onecstr(','));
-		ss.setBuf((const char *)temp_buf, temp_buf.Len()+1);
+		StringSet ss(',', temp_buf);
 		for(uint pos = 0; ss.get(&pos, kind_name);) {
 			PPID   kind_id = 0;
 			if(PPRef->SearchName(PPOBJ_PRSNKIND, &kind_id, kind_name) > 0)
@@ -1594,131 +1589,130 @@ int SLAPI PPObjPerson::Import(int specKind, int use_ta)
 
 	PPWait(1);
 	PPWaitMsg(wait_msg);
-	THROW(PPStartTransaction(&ta, use_ta));
-	cntr.Init(in_tbl.getNumRecs());
-	if(in_tbl.top()) {
-		PPID   reg_type_id = 0;
-		ini_file.Get(sect, PPINIPARAM_PERSONCODEREG, temp_buf);
-		PPObjRegisterType::GetByCode(temp_buf.Strip(), &reg_type_id);
-		if(reg_type_id == 0) {
-			if(specKind == PPPRK_SUPPL) {
-				PPID acc_sheet_id = GetSupplAccSheet();
-				PPAccSheet acs_rec;
-				if(SearchObject(PPOBJ_ACCSHEET, acc_sheet_id, &acs_rec) > 0)
-					reg_type_id = acs_rec.CodeRegTypeID;
-			}
-		}
-		do {
-			if(in_tbl.isDeletedRec() <= 0) {
-				PPID   psn_id = 0, ps_id = 0;
-				int64  code = 0;
-				PPPersonPacket pack;
-				DbfRecord rec(&in_tbl);
-				THROW(in_tbl.getRec(&rec));
-				rec.get(fldn_name, temp_buf);
-				if(temp_buf.NotEmptyS()) {
-					STRNSCPY(pack.Rec.Name, temp_buf);
-					if(rec.get(fldn_extname, temp_buf, 1) && temp_buf.CmpNC(pack.Rec.Name) != 0)
-						pack.SetExtName(temp_buf);
-					if(rec.get(fldn_status, temp_buf, 1) && ps_obj.SearchBySymb(temp_buf, &ps_id, 0) > 0)
-						pack.Rec.Status = ps_id;
-					else
-						pack.Rec.Status = NZOR(status_id, PPPRS_LEGAL);
-					pack.Kinds.copy(kind_list);
-					if(rec.get(fldn_vatfree, temp_buf, 1))
-						if(temp_buf.ToLong() == 1 || temp_buf.CmpNC("Yes") == 0 || temp_buf.CmpNC("Y") == 0)
-							pack.Rec.Flags |= PSNF_NOVATAX;
-					rec.get(fldn_memo, temp_buf);
-					temp_buf.Strip().CopyTo(pack.Rec.Memo, sizeof(pack.Rec.Memo));
-					if(reg_type_id) {
-						rec.get(fldn_code, temp_buf);
-						if(codetohex) {
-							pack.AddRegister(reg_type_id, CodeToHex(temp_buf), 0);
-						}
-						else {
-							code = temp_buf.Strip().ToInt64();
-							if(code) {
-								temp_buf = 0;
-								temp_buf.Cat(code);
-								pack.AddRegister(reg_type_id, temp_buf, 0);
-							}
-							else if(temp_buf.NotEmpty()) {
-								pack.AddRegister(reg_type_id, temp_buf, 0);
-							}
-						}
-					}
-					rec.get(fldn_city, temp_buf);
-					if(temp_buf.NotEmptyS()) {
-						temp_buf.ShiftLeftChr('г').Strip().ShiftLeftChr('.').Strip();
-						THROW(w_obj.AddSimple(&pack.Loc.CityID, WORLDOBJ_CITY, temp_buf, 0, 0));
-					}
-					rec.get(fldn_index, temp_buf);
-					LocationCore::SetExField(&pack.Loc, LOCEXSTR_ZIP, temp_buf);
-					rec.get(fldn_address, temp_buf);
-					LocationCore::SetExField(&pack.Loc, LOCEXSTR_SHORTADDR, temp_buf);
-					rec.get(fldn_inn, temp_buf);
-					THROW(pack.AddRegister(PPREGT_TPID, temp_buf, 0));
-					rec.get(fldn_okonh, temp_buf);
-					THROW(pack.AddRegister(PPREGT_OKONH, temp_buf, 0));
-					rec.get(fldn_okpo, temp_buf);
-					THROW(pack.AddRegister(PPREGT_OKPO, temp_buf, 0));
-					rec.get(fldn_kpp, temp_buf);
-					THROW(pack.AddRegister(PPREGT_KPP, temp_buf, 0));
-					rec.get(fldn_phone, temp_buf);
-					if(temp_buf.NotEmptyS())
-						THROW(pack.ELA.AddItem(PPELK_WORKPHONE, temp_buf));
-					{
-						SString accno;
-						PPBank bnk_rec;
-						MEMSZERO(bnk_rec);
-						rec.get(fldn_bankname, temp_buf);
-						STRNSCPY(bnk_rec.Name, temp_buf.Strip());
-						rec.get(fldn_bic, temp_buf);
-						STRNSCPY(bnk_rec.BIC, temp_buf.Strip());
-						rec.get(fldn_corracc, temp_buf);
-						STRNSCPY(bnk_rec.CorrAcc, temp_buf.Strip());
-						rec.get(fldn_bankacc, accno);
-						if(bnk_rec.Name[0] && accno.NotEmptyS()) {
-							PPID   bnk_id = 0;
-							/* @v9.0.4
-							BankAccountTbl::Rec bnkacc_rec;
-							MEMSZERO(bnkacc_rec);
-							THROW(AddBankSimple(&bnk_id, &bnk_rec, 0));
-							bnkacc_rec.BankID  = bnk_id;
-							bnkacc_rec.AccType = PPBAC_CURRENT;
-							STRNSCPY(bnkacc_rec.Acct, accno);
-							THROW_SL(pack.BAA.insert(&bnkacc_rec));
-							*/
-							// @v9.0.4 {
-							PPBankAccount ba;
-							THROW(AddBankSimple(&bnk_id, &bnk_rec, 0));
-							ba.BankID = bnk_id;
-							ba.AccType = PPBAC_CURRENT;
-							STRNSCPY(ba.Acct, accno);
-							THROW(pack.Regs.SetBankAccount(&ba, (uint)-1));
-							// } @v9.0.4
-						}
-					}
-					if(SearchMaxLike(&pack, &psn_id, 0, key_reg_type_id /*PPREGT_TPID*/) > 0)
-						pack.Rec.ID = psn_id;
-					else
-						THROW(PutPacket(&(psn_id = 0), &pack, 0));
-					if(code && pack.Rec.ID && rel_file) {
-						fwrite(&code, sizeof(code), 1, rel_file);
-						fwrite(&pack.Rec.ID, sizeof(pack.Rec.ID), 1, rel_file);
-					}
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		cntr.Init(in_tbl.getNumRecs());
+		if(in_tbl.top()) {
+			PPID   reg_type_id = 0;
+			ini_file.Get(sect, PPINIPARAM_PERSONCODEREG, temp_buf);
+			PPObjRegisterType::GetByCode(temp_buf.Strip(), &reg_type_id);
+			if(reg_type_id == 0) {
+				if(specKind == PPPRK_SUPPL) {
+					PPID acc_sheet_id = GetSupplAccSheet();
+					PPAccSheet acs_rec;
+					if(SearchObject(PPOBJ_ACCSHEET, acc_sheet_id, &acs_rec) > 0)
+						reg_type_id = acs_rec.CodeRegTypeID;
 				}
 			}
-			PPWaitPercent(cntr.Increment(), wait_msg);
-		} while(in_tbl.next());
+			do {
+				if(in_tbl.isDeletedRec() <= 0) {
+					PPID   psn_id = 0, ps_id = 0;
+					int64  code = 0;
+					PPPersonPacket pack;
+					DbfRecord rec(&in_tbl);
+					THROW(in_tbl.getRec(&rec));
+					rec.get(fldn_name, temp_buf);
+					if(temp_buf.NotEmptyS()) {
+						STRNSCPY(pack.Rec.Name, temp_buf);
+						if(rec.get(fldn_extname, temp_buf, 1) && temp_buf.CmpNC(pack.Rec.Name) != 0)
+							pack.SetExtName(temp_buf);
+						if(rec.get(fldn_status, temp_buf, 1) && ps_obj.SearchBySymb(temp_buf, &ps_id, 0) > 0)
+							pack.Rec.Status = ps_id;
+						else
+							pack.Rec.Status = NZOR(status_id, PPPRS_LEGAL);
+						pack.Kinds.copy(kind_list);
+						if(rec.get(fldn_vatfree, temp_buf, 1))
+							if(temp_buf.ToLong() == 1 || temp_buf.CmpNC("Yes") == 0 || temp_buf.CmpNC("Y") == 0)
+								pack.Rec.Flags |= PSNF_NOVATAX;
+						rec.get(fldn_memo, temp_buf);
+						temp_buf.Strip().CopyTo(pack.Rec.Memo, sizeof(pack.Rec.Memo));
+						if(reg_type_id) {
+							rec.get(fldn_code, temp_buf);
+							if(codetohex) {
+								pack.AddRegister(reg_type_id, CodeToHex(temp_buf), 0);
+							}
+							else {
+								code = temp_buf.Strip().ToInt64();
+								if(code) {
+									temp_buf = 0;
+									temp_buf.Cat(code);
+									pack.AddRegister(reg_type_id, temp_buf, 0);
+								}
+								else if(temp_buf.NotEmpty()) {
+									pack.AddRegister(reg_type_id, temp_buf, 0);
+								}
+							}
+						}
+						rec.get(fldn_city, temp_buf);
+						if(temp_buf.NotEmptyS()) {
+							temp_buf.ShiftLeftChr('г').Strip().ShiftLeftChr('.').Strip();
+							THROW(w_obj.AddSimple(&pack.Loc.CityID, WORLDOBJ_CITY, temp_buf, 0, 0));
+						}
+						rec.get(fldn_index, temp_buf);
+						LocationCore::SetExField(&pack.Loc, LOCEXSTR_ZIP, temp_buf);
+						rec.get(fldn_address, temp_buf);
+						LocationCore::SetExField(&pack.Loc, LOCEXSTR_SHORTADDR, temp_buf);
+						rec.get(fldn_inn, temp_buf);
+						THROW(pack.AddRegister(PPREGT_TPID, temp_buf, 0));
+						rec.get(fldn_okonh, temp_buf);
+						THROW(pack.AddRegister(PPREGT_OKONH, temp_buf, 0));
+						rec.get(fldn_okpo, temp_buf);
+						THROW(pack.AddRegister(PPREGT_OKPO, temp_buf, 0));
+						rec.get(fldn_kpp, temp_buf);
+						THROW(pack.AddRegister(PPREGT_KPP, temp_buf, 0));
+						rec.get(fldn_phone, temp_buf);
+						if(temp_buf.NotEmptyS())
+							THROW(pack.ELA.AddItem(PPELK_WORKPHONE, temp_buf));
+						{
+							SString accno;
+							PPBank bnk_rec;
+							MEMSZERO(bnk_rec);
+							rec.get(fldn_bankname, temp_buf);
+							STRNSCPY(bnk_rec.Name, temp_buf.Strip());
+							rec.get(fldn_bic, temp_buf);
+							STRNSCPY(bnk_rec.BIC, temp_buf.Strip());
+							rec.get(fldn_corracc, temp_buf);
+							STRNSCPY(bnk_rec.CorrAcc, temp_buf.Strip());
+							rec.get(fldn_bankacc, accno);
+							if(bnk_rec.Name[0] && accno.NotEmptyS()) {
+								PPID   bnk_id = 0;
+								/* @v9.0.4
+								BankAccountTbl::Rec bnkacc_rec;
+								MEMSZERO(bnkacc_rec);
+								THROW(AddBankSimple(&bnk_id, &bnk_rec, 0));
+								bnkacc_rec.BankID  = bnk_id;
+								bnkacc_rec.AccType = PPBAC_CURRENT;
+								STRNSCPY(bnkacc_rec.Acct, accno);
+								THROW_SL(pack.BAA.insert(&bnkacc_rec));
+								*/
+								// @v9.0.4 {
+								PPBankAccount ba;
+								THROW(AddBankSimple(&bnk_id, &bnk_rec, 0));
+								ba.BankID = bnk_id;
+								ba.AccType = PPBAC_CURRENT;
+								STRNSCPY(ba.Acct, accno);
+								THROW(pack.Regs.SetBankAccount(&ba, (uint)-1));
+								// } @v9.0.4
+							}
+						}
+						if(SearchMaxLike(&pack, &psn_id, 0, key_reg_type_id /*PPREGT_TPID*/) > 0)
+							pack.Rec.ID = psn_id;
+						else
+							THROW(PutPacket(&(psn_id = 0), &pack, 0));
+						if(code && pack.Rec.ID && rel_file) {
+							fwrite(&code, sizeof(code), 1, rel_file);
+							fwrite(&pack.Rec.ID, sizeof(pack.Rec.ID), 1, rel_file);
+						}
+					}
+				}
+				PPWaitPercent(cntr.Increment(), wait_msg);
+			} while(in_tbl.next());
+		}
+		THROW(tra.Commit());
 	}
-	THROW(PPCommitWork(&ta));
+	CATCHZOK
 	PPWait(0);
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-		PPWait(0);
-	ENDCATCH
 	SFile::ZClose(&rel_file);
 	return ok;
 }
@@ -2162,7 +2156,7 @@ int PrcssrPhoneListImport::Init(const Param * pParam)
 
 int SLAPI PrcssrPhoneListImport::Run()
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	long   numrecs = 0;
 	PPID   def_city_id = 0;
 	SString log_msg, fmt_buf, temp_buf, temp_buf2;
@@ -2186,7 +2180,8 @@ int SLAPI PrcssrPhoneListImport::Run()
 		IterCounter cntr;
 		Sdr_PhoneList rec;
 		PPEAddr::Phone::NormalizeStr(IeParam.DefCityPhonePrefix, city_prefix);
-		THROW(PPStartTransaction(&ta, 1));
+		PPTransaction tra(1);
+		THROW(tra);
 		{
 			cntr.Init(numrecs);
 			MEMSZERO(rec);
@@ -2249,12 +2244,9 @@ int SLAPI PrcssrPhoneListImport::Run()
 			}
 			THROW(r);
 		}
-		THROW(PPCommitWork(&ta));
+		THROW(tra.Commit());
 	}
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	logger.Save(PPFILNAM_IMPEXP_LOG, 0);
 	PPWait(0);
 	return ok;
@@ -2321,7 +2313,7 @@ int SLAPI ImportBanks()
 
 		PPWait(1);
 		if(region_tbl.top()) {
-			StringSet ss(onecstr(','));
+			StringSet ss(",");
 			do {
 				long   id = 0;
 				if(region_tbl.isDeletedRec() <= 0) {
@@ -5158,6 +5150,47 @@ int SLAPI FiasImporter::Run(FiasImporter::Param & rP)
 //
 //
 //
+SLAPI PrcssrOsm::StatBlock::StatBlock()
+{
+	Clear();
+}
+
+void SLAPI PrcssrOsm::StatBlock::Clear()
+{
+	NodeCount = 0;
+	NakedNodeCount = 0;
+	WayCount = 0;
+	RelationCount = 0;
+	TagNodeCount = 0;
+	TagWayCount = 0;
+	TagRelCount = 0;
+	NcList.clear();
+}
+
+uint64 SLAPI PrcssrOsm::StatBlock::GetNcActualCount() const
+{
+	uint64 result = 0;
+	for(uint i = 0; i < NcList.getCount(); i++)
+		result += NcList.at(i).ActualCount;
+	return result;
+}
+
+uint64 SLAPI PrcssrOsm::StatBlock::GetNcClusterCount() const
+{
+	uint64 result = 0;
+	for(uint i = 0; i < NcList.getCount(); i++)
+		result += NcList.at(i).ClusterCount;
+	return result;
+}
+
+uint64 SLAPI PrcssrOsm::StatBlock::GetNcSize() const
+{
+	uint64 result = 0;
+	for(uint i = 0; i < NcList.getCount(); i++)
+		result += NcList.at(i).Size;
+	return result;
+}
+
 IMPLEMENT_PPFILT_FACTORY(PrcssrOsm); SLAPI PrcssrOsmFilt::PrcssrOsmFilt() : PPBaseFilt(PPFILT_PRCSSROSMPARAM, 0, 0)
 {
 	SetFlatChunk(offsetof(PrcssrOsmFilt, ReserveStart),
@@ -5655,6 +5688,7 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 					{
                         // ќбра
 					}
+					assert(Stat.GetNcActualCount() == Stat.NodeCount);
 					if(force)
 						NodeAccum.freeAll();
 					else
@@ -5682,7 +5716,7 @@ int PrcssrOsm::EndElement(const char * pName)
 	}
 	{
 		const uint64 total_count = Stat.NodeCount + Stat.WayCount + Stat.RelationCount;
-		if((total_count % 1000000) == 0) {
+		if(tok == PPHS_OSM || (total_count % 1000000) == 0) {
             SString stat_info_buf;
             stat_info_buf.CatEq("Node", Stat.NodeCount).CatDiv(';', 2).
 				CatEq("Way", Stat.WayCount).CatDiv(';', 2).
@@ -6077,6 +6111,14 @@ int SLAPI PrcssrOsm::Run()
 		saxh_addr_obj.endElement = Scb_EndElement;
 		{
 			{
+				struct __OFE { SFile ** PP_F; const char * P_Sfx; } __OFE_list[] = {
+					{ &P_LatOutF, "lat" }, { &P_LonOutF, "lon" }, { &P_TagOutF, "tag" }, { &P_TagNodeOutF, "tagnode" }, { &P_TagWayOutF, "tagway" }, { &P_TagRelOutF, "tagrel" }
+				};
+				for(uint i = 0; i < SIZEOFARRAY(__OFE_list); i++) {
+					THROW_MEM(*__OFE_list[i].PP_F = new SFile(MakeSuffixedTxtFileName(file_name, __OFE_list[i].P_Sfx, ps, out_file_name), SFile::mWrite));
+					THROW_SL((*__OFE_list[i].PP_F)->IsValid());
+				}
+				/*
 				THROW_MEM(P_LatOutF = new SFile(MakeSuffixedTxtFileName(file_name, "lat", ps, out_file_name), SFile::mWrite));
 				THROW_SL(P_LatOutF->IsValid());
 				//
@@ -6094,6 +6136,7 @@ int SLAPI PrcssrOsm::Run()
 				//
 				THROW_MEM(P_TagRelOutF = new SFile(MakeSuffixedTxtFileName(file_name, "tagrel", ps, out_file_name), SFile::mWrite));
 				THROW_SL(P_TagRelOutF->IsValid());
+				*/
 			}
 			THROW_MEM(SETIFZ(P_Ufp, new PPUserFuncProfiler(PPUPRF_OSMXMLPARSETAG)));
 			PROFILE_START

@@ -145,8 +145,7 @@ int SLAPI PPViewGoodsTrnovr::EditFilt(GoodsTrnovrFilt * pFilt)
 				gf_rec.Flags |= GoodsCtrlGroup::disableEmptyGoods;
 			setGroupData(GRP_GOODSFILT, &gf_rec);
 			setWL((data.Flags & OPG_LABELONLY) ? 1 : 0);
-			AddClusterAssoc(CTL_GTO_ORDER, 0, GCTFilt::ordByDate);
-			AddClusterAssoc(CTL_GTO_ORDER, -1, GCTFilt::ordByDate);
+			AddClusterAssocDef(CTL_GTO_ORDER, 0, GCTFilt::ordByDate);
 			AddClusterAssoc(CTL_GTO_ORDER, 1, GCTFilt::ordByGoods);
 			AddClusterAssoc(CTL_GTO_ORDER, 2, GCTFilt::ordByArticle);
 			SetClusterData(CTL_GTO_ORDER, data.Order);

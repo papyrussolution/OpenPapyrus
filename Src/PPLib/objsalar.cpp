@@ -98,16 +98,13 @@ int SalChargeDialog::SetupEnumExt()
 
 int SalChargeDialog::setDTS(const PPSalChargePacket * pData)
 {
-	if(pData)
-		Data = *pData;
-	else
+	if(!RVALUEPTR(Data, pData))
 		Data.Init();
 	setCtrlData(CTL_SALCHARGE_ID,        &Data.Rec.ID);
 	setCtrlData(CTL_SALCHARGE_NAME,      Data.Rec.Name);
 	setCtrlData(CTL_SALCHARGE_SYMB,      Data.Rec.Symb);
 
-	AddClusterAssoc(CTL_SALCHARGE_ENUM, 0, 0);
-	AddClusterAssoc(CTL_SALCHARGE_ENUM, -1, 0);
+	AddClusterAssocDef(CTL_SALCHARGE_ENUM, 0, 0);
 	AddClusterAssoc(CTL_SALCHARGE_ENUM, 1, PPOBJ_PERSONEVENT);
 	SetClusterData(CTL_SALCHARGE_ENUM, Data.Rec.EnumObjType);
 	SetupEnumExt();
@@ -1422,8 +1419,7 @@ int StaffCalDayDialog::setDTS(const StaffCalendarTbl::Rec * pData)
 	CALDATE cdt;
 	cdt.v = Data.DtVal;
 	PrevKind = cdt.GetKind();
-	AddClusterAssoc(CTL_STAFFCALD_KIND, -1, CALDATE::kDate);
-	AddClusterAssoc(CTL_STAFFCALD_KIND,  0, CALDATE::kDate);
+	AddClusterAssocDef(CTL_STAFFCALD_KIND,  0, CALDATE::kDate);
 	AddClusterAssoc(CTL_STAFFCALD_KIND,  1, CALDATE::kCalDate);
 	AddClusterAssoc(CTL_STAFFCALD_KIND,  2, CALDATE::kDayOfWeek);
 	SetClusterData(CTL_STAFFCALD_KIND,   cdt.GetKind());

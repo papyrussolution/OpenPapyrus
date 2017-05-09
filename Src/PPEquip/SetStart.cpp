@@ -116,7 +116,8 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 {
 	int    ok = 1, next_barcode = 0;
 	uint   i;
-	char   load_symb = '$';
+	//char   load_symb = '$';
+	const  char * p_load_symb = "$";
 	const  char * p_format = "%s\n";
 	PPID   prev_goods_id = 0 /*, stat_id = 0*/;
 	LAssocArray  grp_n_level_ary;
@@ -146,7 +147,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 
 	THROW(GetNodeData(&cn_data) > 0);
 	if(cn_data.DrvVerMajor > 3 || (cn_data.DrvVerMajor == 3 && cn_data.DrvVerMinor >= 4))
-		load_symb = '#';
+		p_load_symb = "#";
 	//
 	// @v8.2.0 {
 	// Извлечем информацию о классе алкогольного товара
@@ -176,12 +177,12 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 	PPWait(1);
 	THROW(PPGetFilePath(PPPATH_OUT, "goods.txt",  path_goods));
 	THROW(PPGetFilePath(PPPATH_OUT, "goods_flag.txt", path_flag));
-	THROW_PP_S(p_file = fopen(path_flag, onecstr('w')), PPERR_CANTOPENFILE, path_flag);
+	THROW_PP_S(p_file = fopen(path_flag, "w"), PPERR_CANTOPENFILE, path_flag);
 	SFile::ZClose(&p_file);
-	THROW_PP_S(p_file = fopen(path_goods, onecstr('w')), PPERR_CANTOPENFILE, path_goods);
+	THROW_PP_S(p_file = fopen(path_goods, "w"), PPERR_CANTOPENFILE, path_goods);
 	f_str = "##@@&&";
 	THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
-	THROW_PP(fprintf(p_file, p_format, onecstr(load_symb)) > 0, PPERR_EXPFILEWRITEFAULT);
+	THROW_PP(fprintf(p_file, p_format, p_load_symb) > 0, PPERR_EXPFILEWRITEFAULT);
 	{
 		qk_obj.GetRetailQuotList(ZERODATETIME, &retail_quot_list, 0);
 		used_retail_quot.insertN(0, retail_quot_list.getCount());
@@ -973,13 +974,13 @@ int SLAPI ACS_SETSTART::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 		}
 		THROW_PP(Acn.ExpPaths.NotEmptyS() || Acn.ImpFiles.NotEmptyS(), PPERR_INVFILESET);
 		ImpPaths.clear();
-		ImpPaths.setDelim(onecstr(';'));
+		ImpPaths.setDelim(";");
 		{
 			SString & r_list = Acn.ImpFiles.NotEmpty() ? Acn.ImpFiles : Acn.ExpPaths;
 			ImpPaths.setBuf(r_list, r_list.Len()+1);
 		}
 		ExpPaths.clear();
-		ExpPaths.setDelim(onecstr(';'));
+		ExpPaths.setDelim(";");
 		{
 			SString & r_list = Acn.ExpPaths.NotEmpty() ? Acn.ExpPaths : Acn.ImpFiles;
 			ExpPaths.setBuf(r_list, r_list.Len()+1);
@@ -1277,7 +1278,7 @@ int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
 									goods_name.CopyTo(gds_pack.Rec.Name, sizeof(gds_pack.Rec.Name));
 									STRNSCPY(gds_pack.Rec.Abbr, gds_pack.Rec.Name);
 									gds_pack.Rec.UnitID   = goods_cfg.DefUnitID;
-									// gds_pack.Codes.Add((buf = onecstr('$')).Cat(goods_id), -1, 1.0);
+									// gds_pack.Codes.Add((buf = "$").Cat(goods_id), -1, 1.0);
 									THROW(new_goods.add(goods_id));
 									THROW(goods_obj.PutPacket(&(goods_id = 0), &gds_pack, 0));
 									THROW(goods_obj.P_Tbl->SetArCode(goods_id, 0, arcode, 0));

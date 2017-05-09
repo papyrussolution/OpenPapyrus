@@ -10,20 +10,20 @@
 //
 //
 //
-static void mkftpcmd(char * pBuf, const char * pCmd, int type, long addInfo)
+static void mkftpcmd(char * pBuf, const char * pCmd, int type, const void * pAddInfo)
 {
 	char * p = pBuf;
 	p = stpcpy(pBuf, pCmd);
 	if(type == 1) {
 		*p++ = ' ';
-		p = stpcpy(p, (const char *)addInfo);
+		p = stpcpy(p, (const char *)pAddInfo);
 	}
 	else if(type == 2) 	{
 		*p++ = ' ';
-		p += strlen(ltoa(addInfo, p, 10));
+		p += strlen(ltoa((long)pAddInfo, p, 10));
 	}
 	else if(type == 3)
-		p = stpcpy(p, (const char *)addInfo);
+		p = stpcpy(p, (const char *)pAddInfo);
 	*p++ = '\xD';
 	*p++ = '\xA';
 	*p = 0;
@@ -45,9 +45,9 @@ int SLAPI PPFTP::Connect(PPInternetAccount * pAccount)
 	THROW(GetReply(reply));
 	THROW(CheckReply(reply));
 	Account.GetExtField(FTPAEXSTR_USER, temp_buf);
-	THROW(SendCmd(FTPCMD_USER, (long)(const char *)temp_buf));
+	THROW(SendCmd(FTPCMD_USER, temp_buf.cptr()));
 	Account.GetPassword(pwd, sizeof(pwd), FTPAEXSTR_PASSWORD);
-	THROW(SendCmd(FTPCMD_PASS, (long)pwd));
+	THROW(SendCmd(FTPCMD_PASS, pwd));
 	THROW(GetOurAddr(&OurAddr));
 	CATCH
 		ok = (Disconnect(), 0);
@@ -57,7 +57,7 @@ int SLAPI PPFTP::Connect(PPInternetAccount * pAccount)
 
 int SLAPI PPFTP::CD(const char * pNewDir)
 {
-	return SendCmd(FTPCMD_CWD, (long)pNewDir);
+	return SendCmd(FTPCMD_CWD, pNewDir);
 }
 
 int SLAPI PPFTP::Delete(const char * pPath)
@@ -70,7 +70,7 @@ int SLAPI PPFTP::Delete(const char * pPath)
 	strcat(setLastSlash(name), ext);
 	if(dir[0] != '\0')
 		THROW(CD(dir));
-	THROW(SendCmd(FTPCMD_DELE, (long)name, &reply) || reply.ToLong() == 550);
+	THROW(SendCmd(FTPCMD_DELE, name, &reply) || reply.ToLong() == 550);
 	ok = (reply.ToLong() == 550) ? -1 : ok;
 	CATCHZOK
 	return ok;
@@ -78,12 +78,12 @@ int SLAPI PPFTP::Delete(const char * pPath)
 
 int SLAPI PPFTP::MkDir(const char * pDir)
 {
-	return SendCmd(FTPCMD_MKD, (long)pDir);
+	return SendCmd(FTPCMD_MKD, pDir);
 }
 
 int SLAPI PPFTP::RemoveDir(const char * pDir)
 {
-	return SendCmd(FTPCMD_RMD, (long)pDir);
+	return SendCmd(FTPCMD_RMD, pDir);
 }
 
 static void GetNextEntry(uint * pPos, StringSet * pSS, SString & rNextEntry)
@@ -102,7 +102,11 @@ int SLAPI PPFTP::GetFileInfo(const char * pServerPath, LDATETIME * pFileDtTm, ul
 	SString reply;
 	InetAddr addr;
 	TcpSocket ftp_conn(Account.Timeout, 1);
-	STRNSCPY(type_i, onecstr(FTPTRFRTYPE_IMAGE));
+	{
+		//STRNSCPY(type_i, onecstr(FTPTRFRTYPE_IMAGE));
+		type_i[0] = FTPTRFRTYPE_IMAGE;
+		type_i[1] = 0;
+	}
 	THROW_INVARG(pServerPath);
 	fnsplit(pServerPath, drv, dir, fname, ext);
 	strcat(fname, ext);
@@ -113,7 +117,7 @@ int SLAPI PPFTP::GetFileInfo(const char * pServerPath, LDATETIME * pFileDtTm, ul
 	THROW_SL(ftp_conn.GetSockName(&addr, 0));
 	addr.Set((ulong)OurAddr, addr.GetPort());
 	THROW(SendPort(&addr, FTPTRFRTYPE_ASCII));
-	THROW(SendCmd(FTPCMD_LIST, (long)(const char*)fname, &reply) || reply.ToLong() == 550);
+	THROW(SendCmd(FTPCMD_LIST, fname, &reply) || reply.ToLong() == 550);
 	ok = (reply.ToLong() == 550) ? -1 : ok;
 	if(ok > 0) {
 		THROW_SL(ftp_conn.Listen());
@@ -166,7 +170,7 @@ int SLAPI PPFTP::GetFileInfo(const char * pServerPath, LDATETIME * pFileDtTm, ul
 		}
 	}
 	CATCHZOK
-	SendCmd(FTPCMD_TYPE, (long)type_i);
+	SendCmd(FTPCMD_TYPE, type_i);
 	return ok;
 }
 
@@ -206,10 +210,10 @@ int SLAPI PPFTP::FileTransfer(const char * pLocalPath, const char * pServerPath,
 	addr.Set((ulong)OurAddr, addr.GetPort());
 	THROW(SendPort(&addr, FTPTRFRTYPE_IMAGE));
 	if(send) {
-		THROW(SendCmd(FTPCMD_STOR, (long)fname));
+		THROW(SendCmd(FTPCMD_STOR, fname));
 	}
 	else {
-		THROW(SendCmd(FTPCMD_RETR, (long)fname, &reply) || reply.ToLong() == 550)
+		THROW(SendCmd(FTPCMD_RETR, fname, &reply) || reply.ToLong() == 550)
 		ok = (reply.ToLong() == 550) ? -1 : ok;
 	}
 	if(ok > 0) {
@@ -282,13 +286,13 @@ int SLAPI PPFTP::SendPort(InetAddr * pAddr, char aType)
 	str_addr.ReplaceChar('.', ',');
 	str_addr.Comma().Cat((long)(pAddr->GetPort() & 0x00ff)).Comma();
 	str_addr.Cat((long)((pAddr->GetPort() >> 8) & 0x00ff));
-	SendCmd(FTPCMD_TYPE, (long)type);
-	SendCmd(FTPCMD_PORT, (long)(const char*)str_addr);
+	SendCmd(FTPCMD_TYPE, type);
+	SendCmd(FTPCMD_PORT, str_addr.cptr());
 	CATCHZOK
 	return ok;
 }
 
-int SLAPI PPFTP::SendCmd(int cmd, long extra, SString * pReply)
+int SLAPI PPFTP::SendCmd(int cmd, const void * pExtra, SString * pReply)
 {
 	int    ok = 1;
 	SString reply_buf;
@@ -297,58 +301,58 @@ int SLAPI PPFTP::SendCmd(int cmd, long extra, SString * pReply)
 		memzero(buf, sizeof(buf));
 		switch(cmd) {
 			case FTPCMD_USER:
-				mkftpcmd(buf, "USER", 1, extra);
+				mkftpcmd(buf, "USER", 1, pExtra);
 				break;
 			case FTPCMD_PASS:
-				mkftpcmd(buf, "PASS", 1, extra);
+				mkftpcmd(buf, "PASS", 1, pExtra);
 				break;
 			case FTPCMD_CWD:
-				mkftpcmd(buf, "CWD", 1, extra);
+				mkftpcmd(buf, "CWD", 1, pExtra);
 				break;
 			case FTPCMD_QUIT:
-				mkftpcmd(buf, "QUIT", 0, extra);
+				mkftpcmd(buf, "QUIT", 0, pExtra);
 				break;
 			case FTPCMD_RETR:
-				mkftpcmd(buf, "RETR", 1, extra);
+				mkftpcmd(buf, "RETR", 1, pExtra);
 				break;
 			case FTPCMD_STOR:
-				mkftpcmd(buf, "STOR", 1, extra);
+				mkftpcmd(buf, "STOR", 1, pExtra);
 				break;
 			case FTPCMD_DELE:
-				mkftpcmd(buf, "DELE", 1, extra);
+				mkftpcmd(buf, "DELE", 1, pExtra);
 				break;
 			case FTPCMD_STAT:
-				if(extra)
-					mkftpcmd(buf, "STAT", 1, extra);
+				if(pExtra)
+					mkftpcmd(buf, "STAT", 1, pExtra);
 				else
-					mkftpcmd(buf, "STAT", 0, extra);
+					mkftpcmd(buf, "STAT", 0, pExtra);
 				break;
 			case FTPCMD_LIST:
-				if(extra)
-					mkftpcmd(buf, "LIST", 1, extra);
+				if(pExtra)
+					mkftpcmd(buf, "LIST", 1, pExtra);
 				else
-					mkftpcmd(buf, "LIST", 0, extra);
+					mkftpcmd(buf, "LIST", 0, pExtra);
 				break;
 			case FTPCMD_PWD:
-				mkftpcmd(buf, "PWD", 0, extra);
+				mkftpcmd(buf, "PWD", 0, pExtra);
 				break;
 			case FTPCMD_TYPE:
-				mkftpcmd(buf, "TYPE", 1, extra);
+				mkftpcmd(buf, "TYPE", 1, pExtra);
 				break;
 			case FTPCMD_PORT:
-				mkftpcmd(buf, "PORT", 1, extra);
+				mkftpcmd(buf, "PORT", 1, pExtra);
 				break;
 			case FTPCMD_SITE:
-				mkftpcmd(buf, "SITE", 1, extra);
+				mkftpcmd(buf, "SITE", 1, pExtra);
 				break;
 			case FTPCMD_MKD:
-				mkftpcmd(buf, "MKD", 1, extra);
+				mkftpcmd(buf, "MKD", 1, pExtra);
 				break;
 			case FTPCMD_RMD:
-				mkftpcmd(buf, "RMD", 1, extra);
+				mkftpcmd(buf, "RMD", 1, pExtra);
 				break;
 			case FTPCMD_SYST:
-				mkftpcmd(buf, "SYST", 0, extra);
+				mkftpcmd(buf, "SYST", 0, pExtra);
 				break;
 			default:
 				ok = -1;
@@ -362,8 +366,7 @@ int SLAPI PPFTP::SendCmd(int cmd, long extra, SString * pReply)
 	else
 		ok = -1;
 	CATCHZOK
-	if(pReply)
-		*pReply = reply_buf;
+	ASSIGN_PTR(pReply, reply_buf);
 	return ok;
 }
 

@@ -363,8 +363,8 @@ int SLAPI SFile::GetTime(int fh, LDATETIME * creation, LDATETIME * lastAccess, L
 //
 //static
 // Returns:
-//		1 - файл открыт для чтения другим процессом
-//		0 - файл доступен для открытия для чтения
+//		1 - файл открыт для записи другим процессом
+//		0 - файл доступен для открытия на чтение
 //	   -1 - ошибка
 //
 int SLAPI SFile::IsOpenedForWrite(const char * pFileName)

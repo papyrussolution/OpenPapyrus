@@ -110,8 +110,7 @@ int SLAPI PPViewRegisterType::EditBaseFilt(PPBaseFilt * pFilt)
 		int    setDTS(const RegisterTypeFilt * pData)
 		{
 			Data = *pData;
-			AddClusterAssoc(CTL_FLTREGT_ST, -1, 0);
-			AddClusterAssoc(CTL_FLTREGT_ST,  0, 0);
+			AddClusterAssocDef(CTL_FLTREGT_ST,  0, 0);
 			AddClusterAssoc(CTL_FLTREGT_ST,  1, REGTF_PRIVATE);
 			AddClusterAssoc(CTL_FLTREGT_ST,  2, REGTF_LEGAL);
 			SetClusterData(CTL_FLTREGT_ST, Data.St);

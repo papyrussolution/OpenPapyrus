@@ -220,7 +220,7 @@ void CtmFuncDclr::Destroy()
 //
 //
 //
-SLAPI DlMacro::DlMacro() : S(onecstr(';'))
+SLAPI DlMacro::DlMacro() : S(";")
 {
 }
 

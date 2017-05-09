@@ -1582,11 +1582,10 @@ public:
 		AddClusterAssoc(CTL_SLLTOFLT_FLAGS, 3, DebtTrnovrFilt::fExtended);
 		AddClusterAssoc(CTL_SLLTOFLT_FLAGS, 4, DebtTrnovrFilt::fInclZeroDebt);
 		AddClusterAssoc(CTL_SLLTOFLT_FLAGS, 5, DebtTrnovrFilt::fDeliveryAddr);
-		AddClusterAssoc(CTL_SLLTOFLT_FLAGS, 6, DebtTrnovrFilt::fSkipPassive); // @v7.0.1
+		AddClusterAssoc(CTL_SLLTOFLT_FLAGS, 6, DebtTrnovrFilt::fSkipPassive);
 		AddClusterAssoc(CTL_SLLTOFLT_FLAGS, 7, DebtTrnovrFilt::fShowExpiryDebt); // @v9.2.3
 		SetClusterData(CTL_SLLTOFLT_FLAGS, Data.Flags);
-		AddClusterAssoc(CTL_SLLTOFLT_ORDER, 0, PPViewDebtTrnovr::OrdByArticleName);
-		AddClusterAssoc(CTL_SLLTOFLT_ORDER, -1, PPViewDebtTrnovr::OrdByArticleName);
+		AddClusterAssocDef(CTL_SLLTOFLT_ORDER, 0, PPViewDebtTrnovr::OrdByArticleName);
 		AddClusterAssoc(CTL_SLLTOFLT_ORDER, 1, PPViewDebtTrnovr::OrdByDebit);
 		AddClusterAssoc(CTL_SLLTOFLT_ORDER, 2, PPViewDebtTrnovr::OrdByDebt);
 		AddClusterAssoc(CTL_SLLTOFLT_ORDER, 3, PPViewDebtTrnovr::OrdByStop);
@@ -1944,8 +1943,7 @@ int DebtTrnovrFiltDialog::editExt()
 		int    setDTS(const DebtTrnovrFilt * pData)
 		{
 			Data = *pData;
-			AddClusterAssoc(CTL_DEBTTEXT_KIND, 0, DebtTrnovrFilt::ekNone);
-			AddClusterAssoc(CTL_DEBTTEXT_KIND, -1, DebtTrnovrFilt::ekNone);
+			AddClusterAssocDef(CTL_DEBTTEXT_KIND, 0, DebtTrnovrFilt::ekNone);
 			AddClusterAssoc(CTL_DEBTTEXT_KIND, 1, DebtTrnovrFilt::ekExpiryPart);
 			AddClusterAssoc(CTL_DEBTTEXT_KIND, 2, DebtTrnovrFilt::ekTurnover);
 			SetClusterData(CTL_DEBTTEXT_KIND, Data.ExtKind);
@@ -2666,8 +2664,7 @@ int SLAPI PPDebtorStatConfig::Edit()
 	dlg->setCtrlData(CTL_DSTATCFG_LIMITFACTOR, &cfg.LimitFactor);
 	dlg->setCtrlData(CTL_DSTATCFG_ADLIMITTERM, &cfg.LimitAddedTerm); // @v8.2.4
 	dlg->setCtrlReal(CTL_DSTATCFG_RPREC, fdiv100i(cfg.LimitRoundPrec));
-	dlg->AddClusterAssoc(CTL_DSTATCFG_RDIR, 0, 0);
-	dlg->AddClusterAssoc(CTL_DSTATCFG_RDIR, -1, 0);
+	dlg->AddClusterAssocDef(CTL_DSTATCFG_RDIR, 0, 0);
 	dlg->AddClusterAssoc(CTL_DSTATCFG_RDIR, 1, +1);
 	dlg->AddClusterAssoc(CTL_DSTATCFG_RDIR, 2, -1);
 	dlg->SetClusterData(CTL_DSTATCFG_RDIR, cfg.LimitRoundDir);

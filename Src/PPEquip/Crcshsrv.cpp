@@ -1546,7 +1546,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 				for(iter.Init(&scs_pack); iter.Next(&info) > 0;) {
 					PPWaitPercent(iter.GetCounter(), msg_buf); // @v8.1.0
 					// @v8.1.0 PPWaitMsg((msg_buf = fmt_buf).CatDiv(':', 2).Cat(info.Rec.Code));
-					const char * p_mode = onecstr(info.IsClosed ? '-' : '+');
+					const char * p_mode = info.IsClosed ? "-" : "+";
 					DbfRecord dbfrC(p_tbl);
 					dbfrC.empty();
 					dbfrC.put(1,  p_mode);                         // Тип действия //
@@ -1920,7 +1920,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 			while(cshr_iter.Next(&cshr_info) > 0) {
 				DbfRecord dbfrC(p_tbl);
 				dbfrC.empty();
-				dbfrC.put(1, onecstr(cshr_info.IsWorked ? '+' : '-'));
+				dbfrC.put(1, cshr_info.IsWorked ? "+" : "-");
 				dbfrC.put(2, cshr_info.TabNum);
 				dbfrC.put(3, cshr_info.Name);
 				dbfrC.put(4, cshr_info.Password);
@@ -2113,7 +2113,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 					THROW(scs_obj.GetPacket(ser_id, &scs_pack) > 0);
 					THROW_SL(scard_quot_ary.Add(ser_rec.ID, ser_rec.QuotKindID_s, 0));
 					for(iter.Init(&scs_pack); iter.Next(&info) > 0;) {
-						const char * p_mode = onecstr(info.IsClosed ? '-' : '+');
+						const char * p_mode = info.IsClosed ? "-" : "+";
 						DbfRecord dbfrC(p_out_tbl_cards);
 						dbfrC.empty();
 						dbfrC.put(1,  p_mode);                         // Тип действия //
@@ -2395,7 +2395,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 			while(cshr_iter.Next(&cshr_info) > 0) {
 				DbfRecord dbfrC(p_out_tbl_cashiers);
 				dbfrC.empty();
-				dbfrC.put(1, onecstr(cshr_info.IsWorked ? '+' : '-'));
+				dbfrC.put(1, cshr_info.IsWorked ? "+" : "-");
 				dbfrC.put(2, cshr_info.TabNum);
 				dbfrC.put(3, cshr_info.Name);
 				dbfrC.put(4, cshr_info.Password);
@@ -3993,7 +3993,7 @@ int SLAPI ACS_CRCSHSRV::ConvertCheckRows(const char * pWaitMsg)
 						gds_pack.destroy();
 						gds_pack.Rec.Kind = PPGDSK_GOODS;
 						if(cs_chkln.Article)
-							(article = onecstr('$')).Cat(cs_chkln.Article);
+							(article = 0).CatChar('$').Cat(cs_chkln.Article);
 						if(goods_name.NotEmpty())
 							goods_name.CopyTo(gds_pack.Rec.Name, sizeof(gds_pack.Rec.Name));
 						else if(barcode.NotEmpty())

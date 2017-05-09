@@ -787,13 +787,13 @@ int SLAPI PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long
 }
 
 int SLAPI PPCashMachine::SyncGetSummator(double * pSum)
-{ 
-	return (GetSyncIntrf() && P_SyncIntrf->GetSummator(pSum)); 
+{
+	return (GetSyncIntrf() && P_SyncIntrf->GetSummator(pSum));
 }
 
 int SLAPI PPCashMachine::SyncAddSummator(double add)
-{ 
-	return (GetSyncIntrf() && P_SyncIntrf->AddSummator(add)); 
+{
+	return (GetSyncIntrf() && P_SyncIntrf->AddSummator(add));
 }
 
 int SLAPI PPCashMachine::SyncSetPrintErrCode(int retCode, int updateNode)
@@ -1271,6 +1271,17 @@ int SLAPI PPCashMachine::AsyncCloseSession(int asTempSess, DateRange * pPrd /*=0
 	return ok;
 }
 
+int SLAPI PPCashMachine::AsyncInteractiveQuery()
+{
+	int    ok = 1;
+	CmLocking cml(NodeRec);
+	THROW(cml);
+	THROW(GetAsyncIntrf());
+	THROW(P_AsyncIntrf->InteractiveQuery());
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI PPCashMachine::AsyncBrowseExcess()
 {
 	CSessExcFilt flt;
@@ -1305,7 +1316,7 @@ CSPanel::CSPanel(uint rezID, PPID aNodeID, char * nodeName, int fZReport) : TDia
 	enableCommand(cmSCSZReportCopy, BIN(fZReport > 0 && (fZReport & fcspZRepCopy)));
 	enableCommand(cmSCSXReport, BIN(fZReport & fcspXReport)); // @v6.6.9
 	setCtrlData(CTL_CSPANEL_NODE, nodeName);
-	disableCtrl(CTL_CSPANEL_NODE, 1);
+	setCtrlReadOnly(CTL_CSPANEL_NODE, 1);
 	SetCtrlBitmap(CTL_CSPANEL_BMP, BM_CASH01);
 }
 
@@ -1330,7 +1341,7 @@ IMPL_HANDLE_EVENT(CSPanel)
 	if(TVCOMMAND) {
 		ushort c = TVCMD;
 		if(oneof6(c, cmCSOpen, cmCSClose, cmACSUpdate, cmCSViewCheckList, cmACSViewExcess, cmACSGetChecks) ||
-			oneof5(c, cmSCSLock, cmSCSUnlock, cmSCSXReport, cmSCSIncasso, cmSCSZReportCopy)) {
+			oneof6(c, cmSCSLock, cmSCSUnlock, cmSCSXReport, cmSCSIncasso, cmSCSZReportCopy, cmPosNodeQuery)) {
 			if(IsInState(sfModal)) {
 				endModal(c);
 				return; // После endModal не следует обращаться к this
@@ -1626,7 +1637,7 @@ int SLAPI ExecCSPanel(const CashNodePaneFilt * pFilt)
 							ok =  p_cm->SyncUnlockCashKeyb();
 							break;
 						case cmSCSXReport:
-							if(cs_obj.CheckRights(CSESSOPRT_XREP, 1)) { // @v7.0.0
+							if(cs_obj.CheckRights(CSESSOPRT_XREP, 1)) {
 								ok = p_cm->SyncPrintXReport();
 								if(p_cm_ext) {
 									if(ok == 0)
@@ -1667,6 +1678,7 @@ int SLAPI ExecCSPanel(const CashNodePaneFilt * pFilt)
 						case cmACSGetChecks:    ok =  p_cm->AsyncCloseSession(1);    break;
 						case cmCSViewCheckList: ok =  p_cm->AsyncBrowseCheckList();  break;
 						case cmACSViewExcess:   ok =  p_cm->AsyncBrowseExcess();     break;
+						case cmPosNodeQuery:    ok =  p_cm->AsyncInteractiveQuery(); break;
 						default:                ok = -1; break;
 					}
 				}

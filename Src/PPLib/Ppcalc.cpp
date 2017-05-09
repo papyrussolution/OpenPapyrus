@@ -453,7 +453,7 @@ int CalcPriceDialog::setDTS(const CalcPriceParam * pData)
 	Goods2Tbl::Rec goods_rec;
 	if(Data.GoodsID && GObj.Search(Data.GoodsID, &goods_rec) > 0) {
 		setCtrlData(CTL_CALCPRICE_GOODS, goods_rec.Name);
-		is_price_wo_taxes = (goods_rec.Flags & GF_PRICEWOTAXES) ? 1 : 0;
+		is_price_wo_taxes = BIN(goods_rec.Flags & GF_PRICEWOTAXES);
 	}
 	setCtrlData(CTL_CALCPRICE_COST, &Data.Cost);
 	setCtrlData(CTL_CALCPRICE_PERCENT, &Data.VaPercent);
@@ -463,8 +463,7 @@ int CalcPriceDialog::setDTS(const CalcPriceParam * pData)
 	SetClusterData(CTL_CALCPRICE_EXCLTAXES, Data.Flags);
 
 	setCtrlData(CTL_CALCPRICE_PREC, &Data.RoundPrec);
-	AddClusterAssoc(CTL_CALCPRICE_ROUND, 0, 0);
-	AddClusterAssoc(CTL_CALCPRICE_ROUND, -1, 0);
+	AddClusterAssocDef(CTL_CALCPRICE_ROUND, 0, 0);
 	AddClusterAssoc(CTL_CALCPRICE_ROUND, 1, -1);
 	AddClusterAssoc(CTL_CALCPRICE_ROUND, 2, +1);
 	SetClusterData(CTL_CALCPRICE_ROUND, Data.RoundDir);
@@ -914,9 +913,9 @@ int PosPaymentBlock::EditDialog2()
 		{
 			Lock__ = 0;
 			EnableBonus = 1;
-			SetCtrlBitmap(CTL_CPPAYM_IMG_CASH, BM_BYCASH);
-			SetCtrlBitmap(CTL_CPPAYM_IMG_BANK, BM_BANKING);
-			SetCtrlBitmap(CTL_CPPAYM_IMG_SCARD, BM_CRDCARD);
+			// @v9.6.5 SetCtrlBitmap(CTL_CPPAYM_IMG_CASH, BM_BYCASH);
+			// @v9.6.5 SetCtrlBitmap(CTL_CPPAYM_IMG_BANK, BM_BANKING);
+			// @v9.6.5 SetCtrlBitmap(CTL_CPPAYM_IMG_SCARD, BM_CRDCARD);
 
 			SString font_face;
 			PPGetSubStr(PPTXT_FONTFACE, PPFONT_IMPACT, font_face);

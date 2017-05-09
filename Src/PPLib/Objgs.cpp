@@ -1035,8 +1035,7 @@ int GSDialog::setDTS(const PPGoodsStruc * pData)
 	SetPeriodInput(this, CTL_GSTRUC_PERIOD, &Data.Rec.Period);
 
 	long   kind = Data.GetKind();
-	AddClusterAssoc(CTL_GSTRUC_KIND, 0, PPGoodsStruc::kUndef);
-	AddClusterAssoc(CTL_GSTRUC_KIND, -1, PPGoodsStruc::kUndef);
+	AddClusterAssocDef(CTL_GSTRUC_KIND, 0, PPGoodsStruc::kUndef);
 	AddClusterAssoc(CTL_GSTRUC_KIND, 1, PPGoodsStruc::kBOM);
 	AddClusterAssoc(CTL_GSTRUC_KIND, 2, PPGoodsStruc::kPart);
 	AddClusterAssoc(CTL_GSTRUC_KIND, 3, PPGoodsStruc::kSubst);

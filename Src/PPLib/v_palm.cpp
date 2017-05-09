@@ -131,8 +131,7 @@ int SLAPI PPViewPalm::EditBaseFilt(PPBaseFilt * pFilt)
 		op_type_list.addzlist(PPOPT_GOODSORDER, PPOPT_GOODSEXPEND, 0L);
 		SetupOprKindCombo(p_dlg, CTLSEL_PALMFLT_ORDOP, filt.OrderOpID, 0, &op_type_list, 0);
 	}
-	p_dlg->AddClusterAssoc(CTL_PALMFLT_TYPE, -1, PalmFilt::devtAll);
-	p_dlg->AddClusterAssoc(CTL_PALMFLT_TYPE,  0, PalmFilt::devtAll);
+	p_dlg->AddClusterAssocDef(CTL_PALMFLT_TYPE,  0, PalmFilt::devtAll);
 	p_dlg->AddClusterAssoc(CTL_PALMFLT_TYPE,  1, PalmFilt::devtOnlyGroups);
 	p_dlg->AddClusterAssoc(CTL_PALMFLT_TYPE,  2, PalmFilt::devtOnlyDevs);
 	p_dlg->SetClusterData(CTL_PALMFLT_TYPE, (long)filt.Type);

@@ -36,8 +36,7 @@ int SLAPI PPObjGoods::SearchUhttInteractive(SString & rName, SString & rBarcode,
 		{
 			int    ok = 1;
 			Data = *pData;
-			AddClusterAssoc(CTL_UHTTSGOODS_SEL, 0, UhttSearchGoodsParam::critBarcode);
-			AddClusterAssoc(CTL_UHTTSGOODS_SEL, -1, UhttSearchGoodsParam::critBarcode);
+			AddClusterAssocDef(CTL_UHTTSGOODS_SEL, 0, UhttSearchGoodsParam::critBarcode);
 			AddClusterAssoc(CTL_UHTTSGOODS_SEL, 1, UhttSearchGoodsParam::critName);
 			SetClusterData(CTL_UHTTSGOODS_SEL, Data.Criterion);
 			if(Data.Criterion == UhttSearchGoodsParam::critName) {
@@ -1658,8 +1657,7 @@ int SLAPI EditGoodsExTitles(SString & rGoodsExTitles)
 		PPGetExtStrData(GDSEXSTR_INFOSYMB, rGoodsExTitles, buf);
 		if(buf == "lastselldate")
 			adinf = adinfLastSellDate;
-		dlg->AddClusterAssoc(CTL_GOODSEXTITLES_AI, 0, adinfNone);
-		dlg->AddClusterAssoc(CTL_GOODSEXTITLES_AI, -1, adinfNone);
+		dlg->AddClusterAssocDef(CTL_GOODSEXTITLES_AI, 0, adinfNone);
 		dlg->AddClusterAssoc(CTL_GOODSEXTITLES_AI, 1, adinfLastSellDate);
 		dlg->SetClusterData(CTL_GOODSEXTITLES_AI, adinf);
 
@@ -2881,17 +2879,18 @@ IMPL_HANDLE_EVENT(GoodsAsscDialog)
 	PPListDialog::handleEvent(event);
 	if(event.isCmd(cmEditPLU)) {
 		if(P_Box && P_Box->def) {
+			Reference * p_ref = PPRef;
 			uint   pos = P_Box->def->_curItem();
 			if(pos < AsscList.getCount()) {
 				LAssoc item = AsscList.at(pos);
 				if(item.Val && item.Key == PPASS_ALTGOODSGRP) {
 					ObjAssocTbl::Rec rec;
-					if(PPRef->Assc.Search(PPASS_ALTGOODSGRP, item.Val, GoodsID, &rec) > 0) {
+					if(p_ref->Assc.Search(PPASS_ALTGOODSGRP, item.Val, GoodsID, &rec) > 0) {
 						int  old_inner_num = rec.InnerNum;
 						EditPLU(item.Val, &rec.InnerNum);
 						// @todo Операцию изменения номера принадлежности товара группе перенести
 						// в PPObjGoods и реализовать в одной транзакции с LogAction
-						if(!PPRef->Assc.Update(rec.ID, &rec, 1))
+						if(!p_ref->Assc.Update(rec.ID, &rec, 1))
 							PPError();
 						else {
 							if(rec.InnerNum != old_inner_num)

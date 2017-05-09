@@ -978,16 +978,15 @@ int SLAPI GetBasketByDialog(SelBasketParam * pParam, const char * pCallerSymb, u
 				v = 0;
 			setCtrlUInt16(CTL_GBDATA_SELPRICE, v);
 			disableCtrl(CTL_GBDATA_SELPRICE, BIN(R_Data.Flags & SelBasketParam::fNotSelPrice));
-			AddClusterAssoc(CTL_GBDATA_REPLACE, 0, 1);
-			AddClusterAssoc(CTL_GBDATA_REPLACE, -1, 1);
+			AddClusterAssocDef(CTL_GBDATA_REPLACE, 0, 1);
 			AddClusterAssoc(CTL_GBDATA_REPLACE, 1, 2);
 			AddClusterAssoc(CTL_GBDATA_REPLACE, 2, 3);
 			SetClusterData(CTL_GBDATA_REPLACE, R_Data.SelReplace);
 			AddClusterAssoc(CTL_GBDATA_SELGOODSREST, 0, SelBasketParam::fUseGoodsRestAsQtty);
-			AddClusterAssoc(CTL_GBDATA_SELGOODSREST, 1, SelBasketParam::fFillUpToMinStock);    // @v6.1.11 AHTOXA
+			AddClusterAssoc(CTL_GBDATA_SELGOODSREST, 1, SelBasketParam::fFillUpToMinStock);
 			SetClusterData(CTL_GBDATA_SELGOODSREST, R_Data.Flags);
-			DisableClusterItem(CTL_GBDATA_SELGOODSREST, 0, (R_Data.Flags & SelBasketParam::fEnableFillUpToMinStock) ? 1 : 0); // @6.1.11 AHTOXA
-			DisableClusterItem(CTL_GBDATA_SELGOODSREST, 1, (R_Data.Flags & SelBasketParam::fEnableFillUpToMinStock) ? 0 : 1); // @6.1.11 AHTOXA
+			DisableClusterItem(CTL_GBDATA_SELGOODSREST, 0, (R_Data.Flags & SelBasketParam::fEnableFillUpToMinStock) ? 1 : 0);
+			DisableClusterItem(CTL_GBDATA_SELGOODSREST, 1, (R_Data.Flags & SelBasketParam::fEnableFillUpToMinStock) ? 0 : 1);
 			return ok;
 		}
 		int getDTS()
@@ -2048,13 +2047,11 @@ static int SLAPI EditBasket2BillParam(Basket2BillParam * pParam)
 			Data = *pData;
 
 			int    ok = 1;
-			AddClusterAssoc(CTL_BSKT2BILL_RULECOST,  0, Basket2BillParam::costFromBasket);
-			AddClusterAssoc(CTL_BSKT2BILL_RULECOST, -1, Basket2BillParam::costFromBasket);
+			AddClusterAssocDef(CTL_BSKT2BILL_RULECOST,  0, Basket2BillParam::costFromBasket);
 			AddClusterAssoc(CTL_BSKT2BILL_RULECOST,  1, Basket2BillParam::costFromLastLot);
 			SetClusterData(CTL_BSKT2BILL_RULECOST, Data.RuleCost);
 			AddClusterAssoc(CTL_BSKT2BILL_RULEPRICE,  0, Basket2BillParam::priceFromBasket);
-			AddClusterAssoc(CTL_BSKT2BILL_RULEPRICE, -1, Basket2BillParam::priceFromLastLot);
-			AddClusterAssoc(CTL_BSKT2BILL_RULEPRICE,  1, Basket2BillParam::priceFromLastLot);
+			AddClusterAssocDef(CTL_BSKT2BILL_RULEPRICE, 1, Basket2BillParam::priceFromLastLot);
 			AddClusterAssoc(CTL_BSKT2BILL_RULEPRICE,  2, Basket2BillParam::priceFromQuot);
 			SetClusterData(CTL_BSKT2BILL_RULEPRICE, Data.RulePrice);
 			SetupPPObjCombo(this, CTLSEL_BSKT2BILL_QK, PPOBJ_QUOTKIND, Data.QuotKindID, OLW_LOADDEFONOPEN, (void *)1);
@@ -2243,7 +2240,7 @@ int SLAPI PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket 
 				GObj.GetSingleBarcode(goods_rec.ID, temp_buf = 0);
 				if(temp_buf.NotEmptyS())
 					msg_buf.Cat(temp_buf).CatDiv('-', 1);
-				// } @v9.3.6 
+				// } @v9.3.6
 				msg_buf.Cat(goods_rec.Name).CatDiv('=', 1).Cat(ilti.Rest, MKSFMTD(0, 6, 0));
 				logger.Log(msg_buf);
 			}

@@ -442,8 +442,7 @@ int EditXlsDbFileParam(ExcelDbFile::Param * pData)
 			AddClusterAssoc(CTL_XLSDBPARAM_FLAGS, 1, ExcelDbFile::fQuotText);
 			AddClusterAssoc(CTL_XLSDBPARAM_FLAGS, 2, ExcelDbFile::fOneRecPerFile);
 			SetClusterData(CTL_XLSDBPARAM_FLAGS, Data.Flags);
-			AddClusterAssoc(CTL_XLSDBPARAM_ORIENT, -1, 0);
-			AddClusterAssoc(CTL_XLSDBPARAM_ORIENT,  0, 0);
+			AddClusterAssocDef(CTL_XLSDBPARAM_ORIENT,  0, 0);
 			AddClusterAssoc(CTL_XLSDBPARAM_ORIENT,  1, ExcelDbFile::fVerticalRec);
 			SetClusterData(CTL_XLSDBPARAM_ORIENT, Data.Flags & ExcelDbFile::fVerticalRec);
 			setCtrlData(CTL_XLSDBPARAM_HDRCOUNT, &Data.HdrLinesCount);
@@ -1425,8 +1424,7 @@ int ImpExpParamDialog::setDTS(const PPImpExpParam * pData)
 {
 	SString name;
 	Data = *pData;
-	AddClusterAssoc(CTL_IMPEXP_FORMAT,  0, PPImpExpParam::dfText);
-	AddClusterAssoc(CTL_IMPEXP_FORMAT, -1, PPImpExpParam::dfText);
+	AddClusterAssocDef(CTL_IMPEXP_FORMAT,  0, PPImpExpParam::dfText);
 	AddClusterAssoc(CTL_IMPEXP_FORMAT,  1, PPImpExpParam::dfDbf);
 	AddClusterAssoc(CTL_IMPEXP_FORMAT,  2, PPImpExpParam::dfXml);
 	AddClusterAssoc(CTL_IMPEXP_FORMAT,  3, PPImpExpParam::dfExcel);
@@ -1435,8 +1433,7 @@ int ImpExpParamDialog::setDTS(const PPImpExpParam * pData)
 		Data.Direction = 0;
 	else if(Flags & fDisableExport && Data.Direction == 0)
 		Data.Direction = 1;
-	AddClusterAssoc(CTL_IMPEXP_DIR, 0, 0);
-	AddClusterAssoc(CTL_IMPEXP_DIR, -1, 0);
+	AddClusterAssocDef(CTL_IMPEXP_DIR, 0, 0);
 	AddClusterAssoc(CTL_IMPEXP_DIR, 1, 1);
 	SetClusterData(CTL_IMPEXP_DIR, Data.Direction);
 	{

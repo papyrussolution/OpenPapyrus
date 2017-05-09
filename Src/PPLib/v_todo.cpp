@@ -304,7 +304,7 @@ int SLAPI VCalendar::GetTodo(VCalendar::Todo * pData)
 					todo_rec.Descr.Cat(val);
 					break;
 				case prpContact: // @v9.5.9
-					todo_rec.Contact.Cat(val); 
+					todo_rec.Contact.Cat(val);
 					break;
 			}
 		}
@@ -1728,8 +1728,7 @@ int SLAPI PPViewPrjTask::ChangeTasks(PPIDArray * pAry)
 	TDialog * p_dlg = 0;
 	THROW(TodoObj.CheckRights(PRJTASKRT_MULTCHANGE));
 	THROW(CheckDialogPtr(&(p_dlg = new TDialog(DLG_CHNGTASKS))));
-	p_dlg->AddClusterAssoc(CTL_CHNGTASKS_FLAGS, -1, CHNGTASKS_DELALL);
-	p_dlg->AddClusterAssoc(CTL_CHNGTASKS_FLAGS,  0, CHNGTASKS_DELALL);
+	p_dlg->AddClusterAssocDef(CTL_CHNGTASKS_FLAGS,  0, CHNGTASKS_DELALL);
 	p_dlg->AddClusterAssoc(CTL_CHNGTASKS_FLAGS,  1, CHNGTASKS_STATUS);
 	p_dlg->SetClusterData(CTL_CHNGTASKS_FLAGS, flags);
 	if(ExecView(p_dlg) == cmOK) {

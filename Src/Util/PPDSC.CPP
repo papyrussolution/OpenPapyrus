@@ -114,10 +114,10 @@ int SLAPI PPDeclStrucProcessor::ParseDefinition(const char * pFileName,
 	}
 	ZDELETE(P_FileName);
 	PPSetAddedMsgString(pFileName);
-	THROW_PP(InStream = fopen(pFileName, onecstr('r')), PPERR_CANTOPENFILE);
+	THROW_PP(InStream = fopen(pFileName, "r"), PPERR_CANTOPENFILE);
 	P_FileName = newStr(pFileName);
 	if(pOutRcFileName) {
-		out_rc_stream = fopen(pOutRcFileName, onecstr('w'));
+		out_rc_stream = fopen(pOutRcFileName, "w");
 		PPSetAddedMsgString(pOutRcFileName);
 		THROW_PP(out_rc_stream, PPERR_CANTOPENFILE);
 		PrintGenHeader(out_rc_stream, pOutRcFileName, pFileName);
@@ -125,7 +125,7 @@ int SLAPI PPDeclStrucProcessor::ParseDefinition(const char * pFileName,
 			fprintf(out_rc_stream, "#include \"%s\"\n\n", pOutChFileName);
 	}
 	if(pOutChFileName) {
-		out_h_stream = fopen(pOutChFileName, onecstr('w'));
+		out_h_stream = fopen(pOutChFileName, "w");
 		PPSetAddedMsgString(pOutChFileName);
 		THROW_PP(out_h_stream, PPERR_CANTOPENFILE);
 		PrintGenHeader(out_h_stream, pOutChFileName, pFileName);

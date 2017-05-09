@@ -284,7 +284,7 @@ int SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmv
 								; // @nobreak : управление передается ветке {case PPERR_SLIB}
 							}
 							else {
-								group   = addcode = msgcode;
+								group   = addcode = PPSTR_DBENGINE; // @v9.6.5 msgcode-->PPSTR_DBENGINE
 								msgcode = _btr_err_code;
 								if(msgcode == BE_ORA_TEXT)
 									pAddInfo = DBS.GetAddedMsgString();
@@ -304,7 +304,7 @@ int SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmv
 								is_win_msg = 1;
 							else if(_sl_err_code == SLERR_SOCK_WINSOCK) {
 								is_win_msg = 2;
-								group   = addcode = msgcode;
+								group = addcode = PPSTR_SLIBERR; // @v9.6.5 msgcode-->PPSTR_SLIBERR
 								msgcode = _sl_err_code;
 							}
 							else if(_sl_err_code == SLERR_CURL) {
@@ -313,7 +313,7 @@ int SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmv
 								msgcode = ce;
 							}
 							else {
-								group   = addcode = msgcode;
+								group   = addcode = PPSTR_SLIBERR; // @v9.6.5 msgcode-->PPSTR_SLIBERR
 								msgcode = _sl_err_code;
 							}
 						}
@@ -325,11 +325,11 @@ int SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmv
 						if(_db_err_code) {
 							group = addcode = msgcode;
 							if(_db_err_code == SDBERR_SLIB) {
-								group = PPERR_SLIB;
+								group = PPSTR_SLIBERR; // @v9.6.5 PPERR_SLIB-->PPSTR_SLIBERR
 								msgcode = SLibError;
 							}
 							else if(_db_err_code == SDBERR_BTRIEVE) {
-								group = PPERR_DBENGINE;
+								group = PPSTR_DBENGINE; // @v9.6.5 PPERR_DBENGINE-->PPSTR_DBENGINE
 								msgcode = BtrError;
 							}
 							else

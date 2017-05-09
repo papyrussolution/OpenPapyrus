@@ -2238,8 +2238,7 @@ public:
 			iv = Data.DvcReadPeriod * 5;
 			setCtrlLong(CTL_FLTADDPSNEV_RDTIME, iv);
 		}
-		AddClusterAssoc(CTL_FLTADDPSNEV_INTAL, 0, 2);
-		AddClusterAssoc(CTL_FLTADDPSNEV_INTAL, -1, 2);
+		AddClusterAssocDef(CTL_FLTADDPSNEV_INTAL, 0, 2);
 		AddClusterAssoc(CTL_FLTADDPSNEV_INTAL, 1, 1);
 		AddClusterAssoc(CTL_FLTADDPSNEV_INTAL, 2, 0);
 		SetClusterData(CTL_FLTADDPSNEV_INTAL, Data.InteractiveLevel);

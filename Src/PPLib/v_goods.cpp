@@ -3531,8 +3531,7 @@ int SLAPI PPViewGoods::ChangeOrder(PPViewBrowser * pW)
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GOODSORD);
 	if(CheckDialogPtrErr(&dlg)) {
-		dlg->AddClusterAssoc(CTL_GOODSORD_ORDER,  0, OrdByName);
-		dlg->AddClusterAssoc(CTL_GOODSORD_ORDER, -1, OrdByName);
+		dlg->AddClusterAssocDef(CTL_GOODSORD_ORDER,  0, OrdByName);
 		dlg->AddClusterAssoc(CTL_GOODSORD_ORDER,  1, OrdByAbbr);
 		dlg->AddClusterAssoc(CTL_GOODSORD_ORDER,  2, OrdByGrp_Name);
 		dlg->AddClusterAssoc(CTL_GOODSORD_ORDER,  3, OrdByGrp_Abbr);

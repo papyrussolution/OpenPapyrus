@@ -331,7 +331,7 @@ int SLAPI ACS_CRUKM::ExportData(int updOnly)
 					ZStrToLStr(rec.Cash_Code, ltoa(log_num, tempbuf, 10), sizeof(rec.Cash_Code));
 					rec.DataType   = 1;
 					rec.KeyLongint = info.ID;
-					ZStrToLStr(rec.F_MODE, onecstr('+'), sizeof(rec.F_MODE));
+					ZStrToLStr(rec.F_MODE, "+", sizeof(rec.F_MODE));
 					ExportSection(&info, &rec, export_section);
 					ZStrToLStr(rec.F_FIRM_NAME, info.Name, sizeof(rec.F_FIRM_NAME));
 					ZStrToLStr(rec.F_ARTIKL,    ltoa(info.ID, tempbuf, 10), sizeof(rec.F_ARTIKL));
@@ -363,7 +363,7 @@ int SLAPI ACS_CRUKM::ExportData(int updOnly)
 						rec.DataType   = 7;
 						rec.KeyLongint = info.ID;
 						ZStrToLStr(rec.KeyString, ltoa(info.ID, tempbuf, 10), sizeof(rec.KeyString));
-						ZStrToLStr(rec.F_MODE, onecstr(rmv_limit ? '-' : '+'), sizeof(rec.F_MODE));
+						ZStrToLStr(rec.F_MODE, rmv_limit ? "-" : "+", sizeof(rec.F_MODE));
 						ExportSection(&info, &rec, export_section);
 						ZStrToLStr(rec.F_ARTIKL, ltoa(info.ID, tempbuf, 10), sizeof(rec.F_ARTIKL));
 						ZStrToLStr(rec.F_CODE, ltoa(info.ID, tempbuf, 10), sizeof(rec.F_CODE));
@@ -379,7 +379,7 @@ int SLAPI ACS_CRUKM::ExportData(int updOnly)
 					ZStrToLStr(rec.KeyString, info.BarCode, sizeof(rec.KeyString));
 					ZStrToLStr(rec.F_ARTIKL,  info.BarCode, sizeof(rec.F_ARTIKL));
 					ZStrToLStr(rec.F_CODE,    ltoa(info.ID, tempbuf, 10), sizeof(rec.F_CODE));
-					ZStrToLStr(rec.F_MODE, onecstr('+'), sizeof(rec.F_MODE));
+					ZStrToLStr(rec.F_MODE, "+", sizeof(rec.F_MODE));
 					ExportSection(&info, &rec, export_section);
 					rec.F_QUANT     = info.UnitPerPack;
 					rec.F_PRESISION = fpow10i(-3);

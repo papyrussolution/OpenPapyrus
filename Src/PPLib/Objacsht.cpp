@@ -115,8 +115,7 @@ int AccSheetDialog::setupAssoc()
 {
 	if(Data.Assoc == PPOBJ_ACCOUNT_PRE9004)
 		Data.Assoc = PPOBJ_ACCOUNT2;
-	AddClusterAssoc(CTL_ACCSHEET_ASSOC,  0, 0);
-	AddClusterAssoc(CTL_ACCSHEET_ASSOC, -1, 0);
+	AddClusterAssocDef(CTL_ACCSHEET_ASSOC,  0, 0);
 	AddClusterAssoc(CTL_ACCSHEET_ASSOC,  1, PPOBJ_PERSON);
 	AddClusterAssoc(CTL_ACCSHEET_ASSOC,  2, PPOBJ_LOCATION);
 	AddClusterAssoc(CTL_ACCSHEET_ASSOC,  3, PPOBJ_ACCOUNT2);

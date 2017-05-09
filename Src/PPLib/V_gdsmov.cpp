@@ -121,8 +121,7 @@ int GoodsMovFiltDialog::setDTS(const GoodsMovFilt * pData)
 		AddClusterAssoc(CTL_GTO_OLDALG, 0, GoodsMovFilt::fUseOldAlg);
 		SetClusterData(CTL_GTO_OLDALG, Data.Flags);
 
-		AddClusterAssoc(CTL_GTO_PRICEKIND, -1, GoodsMovFilt::prkBasePrice);
-		AddClusterAssoc(CTL_GTO_PRICEKIND,  0, GoodsMovFilt::prkBasePrice);
+		AddClusterAssocDef(CTL_GTO_PRICEKIND,  0, GoodsMovFilt::prkBasePrice);
 		AddClusterAssoc(CTL_GTO_PRICEKIND,  1, GoodsMovFilt::prkCost);
 		AddClusterAssoc(CTL_GTO_PRICEKIND,  2, GoodsMovFilt::prkPrice);
 		SetClusterData(CTL_GTO_PRICEKIND, (long)Data.PriceKind);

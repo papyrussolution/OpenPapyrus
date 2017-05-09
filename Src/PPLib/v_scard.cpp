@@ -936,8 +936,7 @@ int SCardFiltDialog::setDTS(const SCardFilt * pData)
 	SetRealRangeInput(this, CTL_SCARDFLT_PDISRANGE,   min_dis, max_dis);
 	SetRealRangeInput(this, CTL_SCARDFLT_TRNOVRRANGE, Data.MinTurnover, Data.MaxTurnover);
 
-	AddClusterAssoc(CTL_SCARDFLT_ORD,  0, PPViewSCard::OrdBySeries_Code);
-	AddClusterAssoc(CTL_SCARDFLT_ORD, -1, PPViewSCard::OrdBySeries_Code);
+	AddClusterAssocDef(CTL_SCARDFLT_ORD,  0, PPViewSCard::OrdBySeries_Code);
 	AddClusterAssoc(CTL_SCARDFLT_ORD,  1, PPViewSCard::OrdByDiscount);
 	AddClusterAssoc(CTL_SCARDFLT_ORD,  2, PPViewSCard::OrdByTrnovr);
 	AddClusterAssoc(CTL_SCARDFLT_ORD,  3, PPViewSCard::OrdByPerson);
@@ -1277,8 +1276,7 @@ static int SLAPI EditChargeCreditParam(int enableUhttSync, SCardChrgCrdParam * p
 		dlg->SetupCalDate(CTLCAL_SCCHRGCRD_DATE, CTL_SCCHRGCRD_DATE);
 		dlg->setCtrlData(CTL_SCCHRGCRD_DATE, &pData->Dt);
 		dlg->setCtrlData(CTL_SCCHRGCRD_AMOUNT, &pData->Amount);
-		dlg->AddClusterAssoc(CTL_SCCHRGCRD_WHAT, 0, SCardChrgCrdParam::actionAdd);
-		dlg->AddClusterAssoc(CTL_SCCHRGCRD_WHAT, -1, SCardChrgCrdParam::actionAdd);
+		dlg->AddClusterAssocDef(CTL_SCCHRGCRD_WHAT, 0, SCardChrgCrdParam::actionAdd);
 		dlg->AddClusterAssoc(CTL_SCCHRGCRD_WHAT, 1, SCardChrgCrdParam::actionExtendTo);
 		dlg->AddClusterAssoc(CTL_SCCHRGCRD_WHAT, 2, SCardChrgCrdParam::actionUhttSync);
 		dlg->DisableClusterItem(CTL_SCCHRGCRD_WHAT, 2, !enableUhttSync);
@@ -2380,8 +2378,7 @@ int SLAPI PPViewSCardOp::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			SetupPPObjCombo(this, CTLSEL_SCOPFLT_SCSER, PPOBJ_SCARDSERIES, Data.SCardSerID, OLW_LOADDEFONOPEN);
 			SetupPPObjCombo(this, CTLSEL_SCOPFLT_SC,    PPOBJ_SCARD,       Data.SCardID, OLW_LOADDEFONOPEN, &sc_filt);
 			SetRealRangeInput(this, CTL_SCOPFLT_AMTR, &Data.AmtR);
-			AddClusterAssoc(CTL_SCOPFLT_ORD, 0, PPViewSCardOp::ordByDate);
-			AddClusterAssoc(CTL_SCOPFLT_ORD, -1, PPViewSCardOp::ordByDate);
+			AddClusterAssocDef(CTL_SCOPFLT_ORD, 0, PPViewSCardOp::ordByDate);
 			AddClusterAssoc(CTL_SCOPFLT_ORD, 1, PPViewSCardOp::ordByCard);
 			AddClusterAssoc(CTL_SCOPFLT_ORD, 2, PPViewSCardOp::ordByOwner);
 			AddClusterAssoc(CTL_SCOPFLT_ORD, 3, PPViewSCardOp::ordByAmount);

@@ -3070,8 +3070,7 @@ public:
 		}
 		DisableClusterItem(CTL_TAC_KIND, 3, 1);
 
-		AddClusterAssoc(CTL_TAC_KIND, 0, TrfrAnlzFilt::ctNone);
-		AddClusterAssoc(CTL_TAC_KIND, -1, TrfrAnlzFilt::ctNone);
+		AddClusterAssocDef(CTL_TAC_KIND, 0, TrfrAnlzFilt::ctNone);
 		AddClusterAssoc(CTL_TAC_KIND, 1, TrfrAnlzFilt::ctDate);
 		AddClusterAssoc(CTL_TAC_KIND, 2, TrfrAnlzFilt::ctCntragent);
 		AddClusterAssoc(CTL_TAC_KIND, 3, TrfrAnlzFilt::ctLocation);
@@ -3973,8 +3972,7 @@ public:
 		SetClusterData(CTL_ALCREPCFG_FLAGS, Data.E.Flags);
 		// } @v9.0.10
 		// @v9.3.10 {
-		AddClusterAssoc(CTL_ALCREPCFG_WOSW,  0, PrcssrAlcReport::Config::woswNone);
-		AddClusterAssoc(CTL_ALCREPCFG_WOSW, -1, PrcssrAlcReport::Config::woswNone);
+		AddClusterAssocDef(CTL_ALCREPCFG_WOSW,  0, PrcssrAlcReport::Config::woswNone);
 		AddClusterAssoc(CTL_ALCREPCFG_WOSW,  1, PrcssrAlcReport::Config::woswBalanceWithLots);
 		AddClusterAssoc(CTL_ALCREPCFG_WOSW,  2, PrcssrAlcReport::Config::woswByCChecks);
 		AddClusterAssoc(CTL_ALCREPCFG_WOSW,  3, PrcssrAlcReport::Config::woswByBills);

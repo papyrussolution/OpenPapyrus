@@ -70,8 +70,7 @@ int SLAPI PPViewAsset::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		dlg->setCtrlData(CTL_ASSETFLT_CLOSED, &v);
 		dlg->AddClusterAssoc(CTL_ASSETFLT_FLAGS, 0, AssetFilt::fShowClosed);
 		dlg->SetClusterData(CTL_ASSETFLT_FLAGS, filt.Flags);
-		dlg->AddClusterAssoc(CTL_ASSETFLT_INEXPL,  0,  0);
-		dlg->AddClusterAssoc(CTL_ASSETFLT_INEXPL, -1,  0);
+		dlg->AddClusterAssocDef(CTL_ASSETFLT_INEXPL,  0,  0);
 		dlg->AddClusterAssoc(CTL_ASSETFLT_INEXPL,  1, +1);
 		dlg->AddClusterAssoc(CTL_ASSETFLT_INEXPL,  2, -1);
 		dlg->SetClusterData(CTL_ASSETFLT_INEXPL,   filt.Ft_InExpl);

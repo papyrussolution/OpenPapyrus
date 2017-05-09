@@ -3307,7 +3307,7 @@ int SLAPI CCheckGoodsArray::AdjustToSess(double sessAmount)
 		CCheckGoodsEntry * p_item;
 		for(i = 0; enumItems(&i, (void **)&p_item);) {
 			const double q = R6(p_item->Qtty);
-			double p = R5(fdivnz(p_item->Sum, q));
+			const double p = R5(fdivnz(p_item->Sum, q));
 			p_item->Qtty = q;
 			p_item->Sum = p * q;
 		}

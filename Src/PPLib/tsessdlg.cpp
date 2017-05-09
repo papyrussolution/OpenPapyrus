@@ -1386,8 +1386,7 @@ int TSessionDialog::setDTS(const TSessionPacket * pData)
 		}
 		else
 			first_status = 1;
-		AddClusterAssoc(CTL_TSESS_STATUS,     -1, TSESST_PENDING);
-		AddClusterAssoc(CTL_TSESS_STATUS,  pos++, TSESST_PENDING);
+		AddClusterAssocDef(CTL_TSESS_STATUS,  pos++, TSESST_PENDING);
 		AddClusterAssoc(CTL_TSESS_STATUS,  pos++, TSESST_INPROCESS);
 		AddClusterAssoc(CTL_TSESS_STATUS,  pos++, TSESST_CLOSED);
 		AddClusterAssoc(CTL_TSESS_STATUS,  pos++, TSESST_CANCELED);
@@ -1742,8 +1741,7 @@ int TSessLineDialog::setDTS(const TSessLineTbl::Rec * pData)
 	}
 	setCtrlLong(CTL_TSESSLN_SESSID, Data.TSessID);
 	setCtrlLong(CTL_TSESSLN_OPRNO,  Data.OprNo);
-	AddClusterAssoc(CTL_TSESSLN_SIGN, 0, -1);
-	AddClusterAssoc(CTL_TSESSLN_SIGN, -1, -1);
+	AddClusterAssocDef(CTL_TSESSLN_SIGN, 0, -1);
 	AddClusterAssoc(CTL_TSESSLN_SIGN, 1, +1);
 	AddClusterAssoc(CTL_TSESSLN_SIGN, 2,  0);
 	SetClusterData(CTL_TSESSLN_SIGN, Data.Sign);

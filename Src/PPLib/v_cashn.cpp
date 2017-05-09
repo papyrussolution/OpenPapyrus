@@ -97,8 +97,7 @@ int SLAPI PPViewCashNode::EditBaseFilt(PPBaseFilt * pFilt)
 	THROW(CheckDialogPtr(&p_dlg));
 	SetupStringCombo(p_dlg, CTLSEL_CASHNFLT_TYPE, PPTXT_CMT, filt.CashTypeID);
 	SetupPPObjCombo(p_dlg,  CTLSEL_CASHNFLT_LOC, PPOBJ_LOCATION, filt.LocID, 0, 0);
-	p_dlg->AddClusterAssoc(CTL_CASHNFLT_SYNCTYPE, -1, CashNodeFilt::sAll);
-	p_dlg->AddClusterAssoc(CTL_CASHNFLT_SYNCTYPE,  0, CashNodeFilt::sAll);
+	p_dlg->AddClusterAssocDef(CTL_CASHNFLT_SYNCTYPE,  0, CashNodeFilt::sAll);
 	p_dlg->AddClusterAssoc(CTL_CASHNFLT_SYNCTYPE,  1, CashNodeFilt::sOnlySync);
 	p_dlg->AddClusterAssoc(CTL_CASHNFLT_SYNCTYPE,  2, CashNodeFilt::sOnlyASync);
 	p_dlg->SetClusterData(CTL_CASHNFLT_SYNCTYPE, filt.SyncType);

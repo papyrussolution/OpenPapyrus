@@ -637,6 +637,7 @@ SArray * SLAPI PPObjQuotKind::MakeListByIDList(const PPIDArray * pList)
 	PPObjQuotKind::ListEntry entry;
 	PPID   id = 0;
 	uint   i;
+	SString temp_buf;
 	SArray * p_ary = 0;
 	THROW_MEM(p_ary = new SArray(sizeof(PPObjQuotKind::ListEntry)));
 	for(i = 0; i < pList->getCount(); i++) {
@@ -646,10 +647,13 @@ SArray * SLAPI PPObjQuotKind::MakeListByIDList(const PPIDArray * pList)
 		if((r = Fetch(qk_id, &qk_rec)) > 0 || qk_id == PPQUOTK_BASE) {
 			MEMSZERO(entry);
 			entry.ID = qk_id;
-			if(r < 0)
-				PPGetWord(PPWORD_BASEQUOT, 0, entry.Name, sizeof(entry.Name));
+			if(r < 0) {
+				// @v9.6.5 PPGetWord(PPWORD_BASEQUOT, 0, entry.Name, sizeof(entry.Name));
+				PPLoadString("basequote", temp_buf); // @v9.6.5
+			}
 			else
-				STRNSCPY(entry.Name, qk_rec.Name);
+				temp_buf = qk_rec.Name;
+			STRNSCPY(entry.Name, temp_buf);
 			THROW_SL(p_ary->insert(&entry));
 		}
 	}
@@ -669,29 +673,35 @@ int SLAPI PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pL
 {
 	int    ok = -1, i;
 	SArray * p_ary = 0;
+	SString temp_buf;
 	PPIDArray id_list;
 	PPQuotKind qk_rec;
 	SArray rec_list(sizeof(PPQuotKind));
 	PPObjQuotKind::Special spc;
 	GetSpecialKinds(&spc, 1);
 	if(pFilt->Flags & QuotKindFilt::fSupplDeal) {
-		if(Search(spc.SupplDealID, &qk_rec) > 0)
-			rec_list.insert(&qk_rec);
-		if(Search(spc.SupplDevUpID, &qk_rec) > 0)
-			rec_list.insert(&qk_rec);
-		if(Search(spc.SupplDevDnID, &qk_rec) > 0)
-			rec_list.insert(&qk_rec);
+		if(Search(spc.SupplDealID, &qk_rec) > 0) {
+			THROW_SL(rec_list.insert(&qk_rec));
+		}
+		if(Search(spc.SupplDevUpID, &qk_rec) > 0) {
+			THROW_SL(rec_list.insert(&qk_rec));
+		}
+		if(Search(spc.SupplDevDnID, &qk_rec) > 0) {
+			THROW_SL(rec_list.insert(&qk_rec));
+		}
 	}
 	else if(pFilt->Flags & (QuotKindFilt::fGoodsMatrix|QuotKindFilt::fGoodsMatrixRestrict)) {
 		const int is_matrix = BIN(pFilt->Flags & QuotKindFilt::fGoodsMatrix);
 		PPGoodsConfig goods_cfg;
 		PPObjGoods::ReadConfig(&goods_cfg);
-		if(Search((is_matrix ? goods_cfg.MtxQkID : goods_cfg.MtxRestrQkID), &qk_rec) > 0)
-			rec_list.insert(&qk_rec);
+		if(Search((is_matrix ? goods_cfg.MtxQkID : goods_cfg.MtxRestrQkID), &qk_rec) > 0) {
+			THROW_SL(rec_list.insert(&qk_rec));
+		}
 	}
 	else if(pFilt->Flags & QuotKindFilt::fPredictCoeff) {
-		if(Search(spc.PredictCoeffID, &qk_rec) > 0)
-			rec_list.insert(&qk_rec);
+		if(Search(spc.PredictCoeffID, &qk_rec) > 0) {
+			THROW_SL(rec_list.insert(&qk_rec));
+		}
 	}
 	else {
 		int    intrexpnd = pFilt->OpID ? IsIntrExpndOp(pFilt->OpID) : 0;
@@ -701,8 +711,10 @@ int SLAPI PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pL
 			if(!rec_list.lsearch(&base_id, 0, CMPF_LONG, offsetof(PPQuotKind, ID))) {
 				MEMSZERO(qk_rec);
 				qk_rec.ID = PPQUOTK_BASE;
-				PPGetWord(PPWORD_BASEQUOT, 0, qk_rec.Name, sizeof(qk_rec.Name));
-				rec_list.insert(&qk_rec);
+				// @v9.6.5 PPGetWord(PPWORD_BASEQUOT, 0, qk_rec.Name, sizeof(qk_rec.Name));
+				PPLoadString("basequote", temp_buf); // @v9.6.5
+				STRNSCPY(qk_rec.Name, temp_buf); // @v9.6.5
+				THROW_SL(rec_list.insert(&qk_rec));
 			}
 		}
 		rec_list.sort((pFilt->Flags & QuotKindFilt::fSortByRankName) ? PTR_CMPFUNC(PPQuotKind_RankName) : PTR_CMPFUNC(PPQuotKind));

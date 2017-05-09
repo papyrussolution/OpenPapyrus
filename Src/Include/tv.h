@@ -85,6 +85,7 @@ enum {
 	evKeyDown   = 0x0010,
 	evCommand   = 0x0100,
 	evBroadcast = 0x0200,
+	evWinCmd    = 0x0400, // @v9.6.5 @construction
 	//
 	// Event masks
 	//
@@ -292,6 +293,7 @@ struct TEvent {
 		union {
 			void  * infoPtr;
 			TView * infoView;
+			LPARAM  LP;
 		};
 		union {
 			long    infoLong;
@@ -299,6 +301,7 @@ struct TEvent {
 			short   infoInt;
 			uchar   infoByte;
 			char    infoChar;
+			WPARAM  WP;
 		};
 	};
 	uint   what;
@@ -2678,6 +2681,11 @@ public:
 	//int    SetPeriodInput(uint ctlID, const DateRange *);
 	//int    GetPeriodInput(uint ctlID, DateRange *);
 	int    FASTCALL AddClusterAssoc(uint ctlID, long pos, long val);
+	//
+	// Descr: То же, что и AddClusterAssoc, но, кроме того, для radio-buttons
+	//   устанавливает это же значение val как значение по умолчанию (pos = -1)
+	//
+	int    FASTCALL AddClusterAssocDef(uint ctlID, long pos, long val);
 	int    FASTCALL SetClusterData(uint ctlID, long);
 	int    FASTCALL GetClusterData(uint ctlID, long *);
 	int    FASTCALL GetClusterData(uint ctlID, int16 *);
@@ -2948,6 +2956,7 @@ private:
 	void * P_Image;
 	SDrawFigure * P_Fig;
 	SString FigSymb; // @v9.5.6 Символ векторной фигуры для отображения //
+	SColor ReplacedColor; // @v9.6.5 Замещаемый цвет в векторном изображении
 };
 
 class TButton : public TView {
@@ -4041,7 +4050,7 @@ public:
 	};
 
     int    InitUiToolBox();
-	const SPaintToolBox & GetUiToolBox() const
+	/*const*/ SPaintToolBox & GetUiToolBox() /*const*/
 	{
 		return UiToolBox;
 	}

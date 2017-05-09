@@ -244,8 +244,7 @@ void QuotFiltDialog::SetupCtrls()
 int QuotFiltDialog::setDTS(const QuotFilt * pData)
 {
 	Data = *pData;
-	AddClusterAssoc(CTL_QUOTFLT_TYPE, -1, PPQuot::clsGeneral);
-	AddClusterAssoc(CTL_QUOTFLT_TYPE,  0, PPQuot::clsGeneral);
+	AddClusterAssocDef(CTL_QUOTFLT_TYPE,  0, PPQuot::clsGeneral);
 	AddClusterAssoc(CTL_QUOTFLT_TYPE,  1, PPQuot::clsSupplDeal);
 	AddClusterAssoc(CTL_QUOTFLT_TYPE,  2, PPQuot::clsMtx);
 	AddClusterAssoc(CTL_QUOTFLT_TYPE,  3, PPQuot::clsMtxRestr);
@@ -270,8 +269,7 @@ int QuotFiltDialog::setDTS(const QuotFilt * pData)
 	}
 	// } @v8.6.6
 	// @v8.1.1 {
-	AddClusterAssoc(CTL_QUOTFLT_ORDER, 0, PPViewQuot::OrdByDefault);
-	AddClusterAssoc(CTL_QUOTFLT_ORDER, -1, PPViewQuot::OrdByDefault);
+	AddClusterAssocDef(CTL_QUOTFLT_ORDER, 0, PPViewQuot::OrdByDefault);
 	AddClusterAssoc(CTL_QUOTFLT_ORDER, 1, PPViewQuot::OrdByGoods);
 	AddClusterAssoc(CTL_QUOTFLT_ORDER, 2, PPViewQuot::OrdByArGoods);
 	SetClusterData(CTL_QUOTFLT_ORDER, Data.InitOrder);

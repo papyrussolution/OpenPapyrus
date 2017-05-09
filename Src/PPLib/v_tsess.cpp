@@ -180,8 +180,7 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		PrcTechCtrlGroup * p_grp = (PrcTechCtrlGroup *)dlg->getGroup(GRP_PRCTECH);
 		CALLPTRMEMB(p_grp, setIdleStatus(dlg, BIN(p_filt->Ft_Idle > 0)));
 	}
-	dlg->AddClusterAssoc(CTL_TSESSFILT_STATUS, 0, (1 << TSESST_PLANNED));
-	dlg->AddClusterAssoc(CTL_TSESSFILT_STATUS, -1, (1 << TSESST_PLANNED));
+	dlg->AddClusterAssocDef(CTL_TSESSFILT_STATUS, 0, (1 << TSESST_PLANNED));
 	dlg->AddClusterAssoc(CTL_TSESSFILT_STATUS, 1, (1 << TSESST_PENDING));
 	dlg->AddClusterAssoc(CTL_TSESSFILT_STATUS, 2, (1 << TSESST_INPROCESS));
 	dlg->AddClusterAssoc(CTL_TSESSFILT_STATUS, 3, (1 << TSESST_CLOSED));
@@ -191,8 +190,7 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	dlg->AddClusterAssoc(CTL_TSESSFILT_FLAGS, 0, TSessionFilt::fSuperSessOnly);
 	dlg->SetClusterData(CTL_TSESSFILT_FLAGS, p_filt->Flags);
 
-	dlg->AddClusterAssoc(CTL_TSESSFILT_IDLE,  0,  0);
-	dlg->AddClusterAssoc(CTL_TSESSFILT_IDLE, -1,  0);
+	dlg->AddClusterAssocDef(CTL_TSESSFILT_IDLE,  0,  0);
 	dlg->AddClusterAssoc(CTL_TSESSFILT_IDLE,  1, -1);
 	dlg->AddClusterAssoc(CTL_TSESSFILT_IDLE,  2,  1);
 	dlg->SetClusterData(CTL_TSESSFILT_IDLE, p_filt->Ft_Idle);

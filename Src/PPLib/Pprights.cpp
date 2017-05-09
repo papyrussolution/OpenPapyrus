@@ -115,7 +115,7 @@ int RightsDialog::setDTS(const PPRights * pRt)
 	// @v9.2.11 {
 	AddClusterAssoc(CTL_RTCOMM_PRDFORCSESS, 0, PPAccessRestriction::cfApplyBillPeriodsToCSess);
 	SetClusterData(CTL_RTCOMM_PRDFORCSESS, accsr.CFlags);
-	// } @v9.2.11 
+	// } @v9.2.11
 	/*
 	AddClusterAssoc(CTL_RTCOMM_RTDESKTOP, 0, PPR_INS);
 	AddClusterAssoc(CTL_RTCOMM_RTDESKTOP, 1, PPR_MOD);
@@ -125,8 +125,7 @@ int RightsDialog::setDTS(const PPRights * pRt)
 	AddClusterAssoc(CTL_RTCOMM_RTDESKTOP, 1, PPAccessRestriction::cfDesktopMod);
 	SetClusterData(CTL_RTCOMM_RTDESKTOP, accsr.CFlags);
 
-	AddClusterAssoc(CTL_RTCOMM_OWNBILLRESTR, 0, 0);
-	AddClusterAssoc(CTL_RTCOMM_OWNBILLRESTR, -1, 0);
+	AddClusterAssocDef(CTL_RTCOMM_OWNBILLRESTR, 0, 0);
 	AddClusterAssoc(CTL_RTCOMM_OWNBILLRESTR, 1, PPAccessRestriction::cfOwnBillRestr);
 	AddClusterAssoc(CTL_RTCOMM_OWNBILLRESTR, 2, PPAccessRestriction::cfOwnBillRestr2);
 	SetClusterData(CTL_RTCOMM_OWNBILLRESTR,
@@ -152,7 +151,7 @@ int RightsDialog::getDTS(PPRights * pRt)
 	getCtrlData(CTL_RTCOMM_ACCESS,   &accsr.AccessLevel);
 	accsr.GetPeriodInputExt(this, CTL_RTCOMM_RBILLPRD, PPAccessRestriction::pparR);
 	accsr.GetPeriodInputExt(this, CTL_RTCOMM_WBILLPRD, PPAccessRestriction::pparW);
-	GetClusterData(CTL_RTCOMM_PRDFORCSESS, &accsr.CFlags); // @v9.2.11 
+	GetClusterData(CTL_RTCOMM_PRDFORCSESS, &accsr.CFlags); // @v9.2.11
 	getCtrlData(CTLSEL_RTCOMM_ONLYGGRP, &accsr.OnlyGoodsGrpID);
 	//GetClusterData(CTL_RTCOMM_RTDESKTOP, &rt_desk);
 	//accsr.RtDesktop = (uint8)rt_desk;

@@ -232,8 +232,7 @@ static int SLAPI EditGoodsGroupRecoverParam(GoodsGroupRecoverParam * pData)
 			AddClusterAssoc(CTL_RCVRGGRP_FLAGS, 0, GoodsGroupRecoverParam::fCorrect);
 			AddClusterAssoc(CTL_RCVRGGRP_FLAGS, 1, GoodsGroupRecoverParam::fDelTempAltGrp);
 			SetClusterData(CTL_RCVRGGRP_FLAGS, Data.Flags);
-			AddClusterAssoc(CTL_RCVRGGRP_EGA, 0, GoodsGroupRecoverParam::egaNone);
-			AddClusterAssoc(CTL_RCVRGGRP_EGA, -1, GoodsGroupRecoverParam::egaNone);
+			AddClusterAssocDef(CTL_RCVRGGRP_EGA, 0, GoodsGroupRecoverParam::egaNone);
 			AddClusterAssoc(CTL_RCVRGGRP_EGA, 1, GoodsGroupRecoverParam::egaReport);
 			AddClusterAssoc(CTL_RCVRGGRP_EGA, 2, GoodsGroupRecoverParam::egaMoveToFolder);
 			AddClusterAssoc(CTL_RCVRGGRP_EGA, 3, GoodsGroupRecoverParam::egaRemove);

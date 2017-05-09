@@ -106,7 +106,7 @@ int SLAPI SendCharryObject(PPID strucID, const PPIDArray & rObjIdList)
 		long   counter = cfg.CharryOutCounter+1;
 		PPGetPath(PPPATH_OUT, path);
 		MakeTempFileName(path, 0, CHARRYEXT, &counter, fname);
-		THROW_PP(stream = fopen(fname, onecstr('w')), PPERR_EXPFOPENFAULT);
+		THROW_PP(stream = fopen(fname, "w"), PPERR_EXPFOPENFAULT);
 		for(uint i = 0; i < rObjIdList.getCount(); i++) {
 			THROW(p_decl = PPDeclStruc::CreateInstance(strucID, 0, 0, 0));
 			if(p_decl->InitData(PPDeclStruc::idoExtract, 0, rObjIdList.get(i)) > 0)

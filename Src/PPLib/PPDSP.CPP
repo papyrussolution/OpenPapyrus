@@ -264,7 +264,7 @@ int SLAPI PPDeclStrucProcessor::InitDataParsing(const char * pFileName)
 	SFile::ZClose(&InStream);
 	ZDELETE(P_FileName);
 	int    ok = 1;
-	InStream = fopen(pFileName, onecstr('r'));
+	InStream = fopen(pFileName, "r");
 	P_FileName = newStr(pFileName);
 	PPSetAddedMsgString(pFileName);
 	THROW_PP(InStream, PPERR_CANTOPENFILE);

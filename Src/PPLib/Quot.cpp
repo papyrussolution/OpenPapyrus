@@ -117,8 +117,7 @@ int QuotUpdDialog::setDTS(const QuotUpdFilt * pFilt)
 		new_qk_id = 0;
 	}
 	SETIFZ(Data.QuotKindID, new_qk_id);
-	AddClusterAssoc(CTL_QUOTUPD_WHAT, 0, PPQuot::clsGeneral);
-	AddClusterAssoc(CTL_QUOTUPD_WHAT, -1, PPQuot::clsGeneral);
+	AddClusterAssocDef(CTL_QUOTUPD_WHAT, 0, PPQuot::clsGeneral);
 	AddClusterAssoc(CTL_QUOTUPD_WHAT, 1, PPQuot::clsSupplDeal);
 	AddClusterAssoc(CTL_QUOTUPD_WHAT, 2, PPQuot::clsMtx);
 	AddClusterAssoc(CTL_QUOTUPD_WHAT, 3, PPQuot::clsPredictCoeff);
@@ -140,8 +139,7 @@ int QuotUpdDialog::setDTS(const QuotUpdFilt * pFilt)
 		p_ar_grp->SetAccSheet(acc_sheet_id);
 		setGroupData(GRP_ARTICLE, &ar_grp_rec);
 	}
-	AddClusterAssoc(CTL_QUOTUPD_HOW, 0, QuotUpdFilt::byLots);
-	AddClusterAssoc(CTL_QUOTUPD_HOW, -1, QuotUpdFilt::byLots);
+	AddClusterAssocDef(CTL_QUOTUPD_HOW, 0, QuotUpdFilt::byLots);
 	AddClusterAssoc(CTL_QUOTUPD_HOW, 1, QuotUpdFilt::byLastReval);
 	AddClusterAssoc(CTL_QUOTUPD_HOW, 2, QuotUpdFilt::byPctVal);
 	AddClusterAssoc(CTL_QUOTUPD_HOW, 3, QuotUpdFilt::byAbsVal);

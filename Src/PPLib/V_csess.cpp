@@ -1,5 +1,5 @@
 // V_CSESS.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -208,8 +208,7 @@ int SLAPI PPViewCSess::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			AddClusterAssoc(CTL_CSESSFILT_FLAGS, 0, CSessFilt::fExtBill);
 			AddClusterAssoc(CTL_CSESSFILT_FLAGS, 1, CSessFilt::fOnlySuperSess);
 			SetClusterData(CTL_CSESSFILT_FLAGS, Filt.Flags);
-			AddClusterAssoc(CTL_CSESSFILT_ORDER, 0, PPViewCSess::ordByDefault);
-			AddClusterAssoc(CTL_CSESSFILT_ORDER, -1, PPViewCSess::ordByDefault);
+			AddClusterAssocDef(CTL_CSESSFILT_ORDER, 0, PPViewCSess::ordByDefault);
 			AddClusterAssoc(CTL_CSESSFILT_ORDER, 1, PPViewCSess::ordByID);
 			AddClusterAssoc(CTL_CSESSFILT_ORDER, 2, PPViewCSess::ordByDtm_CashNode);
 			AddClusterAssoc(CTL_CSESSFILT_ORDER, 3, PPViewCSess::ordByDtm_CashNumber);
@@ -1051,23 +1050,20 @@ int DraftCreateRuleDialog::setDTS(const PPDfCreateRulePacket * pData)
 		SETFLAG(v, 0x01, Data.Rec.Flags & PPDraftCreateRule::fExclGoodsGrp);
 		setCtrlData(CTL_DFRULE_EXCLGGRP, &v);
 
-		AddClusterAssoc(CTL_DFRULE_PRICEALG, -1, PPDraftCreateRule::pByLastLot);
-		AddClusterAssoc(CTL_DFRULE_PRICEALG,  0, PPDraftCreateRule::pByLastLot);
+		AddClusterAssocDef(CTL_DFRULE_PRICEALG,  0, PPDraftCreateRule::pByLastLot);
 		AddClusterAssoc(CTL_DFRULE_PRICEALG,  1, PPDraftCreateRule::pByAvgSum);
 		AddClusterAssoc(CTL_DFRULE_PRICEALG,  2, PPDraftCreateRule::pByAvgSumDis);
 		AddClusterAssoc(CTL_DFRULE_PRICEALG,  3, PPDraftCreateRule::pByCostPctVal);
 		SetClusterData(CTL_DFRULE_PRICEALG, Data.Rec.PriceAlg);
 
-		AddClusterAssoc(CTL_DFRULE_COSTALG, -1, PPDraftCreateRule::cByLastLot);
-		AddClusterAssoc(CTL_DFRULE_COSTALG,  0, PPDraftCreateRule::cByLastLot);
+		AddClusterAssocDef(CTL_DFRULE_COSTALG,  0, PPDraftCreateRule::cByLastLot);
 		AddClusterAssoc(CTL_DFRULE_COSTALG,  1, PPDraftCreateRule::cByPricePctVal);
 		SetClusterData(CTL_DFRULE_COSTALG, Data.Rec.CostAlg);
 
 		setCtrlData(CTL_DFRULE_MAXPOS, &Data.Rec.MaxPos);
 		setCtrlData(CTL_DFRULE_MAXSUM, &Data.Rec.MaxSum);
 
-		AddClusterAssoc(CTL_DFRULE_PAYTYPE, -1, 0);
-		AddClusterAssoc(CTL_DFRULE_PAYTYPE,  0, 0);
+		AddClusterAssocDef(CTL_DFRULE_PAYTYPE,  0, 0);
 		AddClusterAssoc(CTL_DFRULE_PAYTYPE,  1, PPDraftCreateRule::fOnlyBanking);
 		AddClusterAssoc(CTL_DFRULE_PAYTYPE,  2, PPDraftCreateRule::fOnlyNotBanking);
 		long pay_type = (Data.Rec.Flags & (PPDraftCreateRule::fOnlyBanking|PPDraftCreateRule::fOnlyNotBanking));
@@ -1164,7 +1160,7 @@ int SLAPI PPDfCreateRulePacket::CheckCash(PPID cash) const
 int SLAPI PPDfCreateRulePacket::GetCashNN(SString * pBuf, int delim) const
 {
 	PPID * p_id = 0;
-	StringSet ss(onecstr(delim));
+	StringSet ss((char)delim, 0);
 	for(uint i = 0; CashNN.enumItems(&i, (void**)&p_id) > 0;) {
 		char buf[24];
 		ltoa(*p_id, buf, 10);
@@ -1198,10 +1194,9 @@ int SLAPI PPDfCreateRulePacket::SetCashNN(const char * pBuf, int delim)
 	if(pBuf) {
 		SString cash_nn(pBuf);
 		SString buf;
-		StringSet ss(onecstr(delim));
 		PPIDArray ary;
 		if(cash_nn.NotEmptyS()) {
-			ss.setBuf((const char*)cash_nn, cash_nn.Len() + 1);
+			StringSet ss((char)delim, cash_nn);
 			for(uint pos = 0; ss.get(&pos, buf) > 0;)
 				if(buf.Strip().IsDigit())
 					ary.addUnique(buf.ToLong());
@@ -1978,7 +1973,7 @@ int SLAPI PPViewCSess::Transmit(PPID id, int transmitKind)
 		PPIDArray sess_list;
 		sess_list.add(id);
 		PPPosProtocol pp;
-		THROW(pp.ExportPosSession(sess_list));
+		THROW(pp.ExportPosSession(sess_list, 0, 0, 0));
 	}
 	else {
 		ObjTransmitParam param;

@@ -1,5 +1,5 @@
 // BCLPRN.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -99,17 +99,14 @@ int SLAPI PPObjBarcodePrinter::Edit(PPID * pID, void * extraPtr)
 	dlg->setCtrlString(CTL_BCPRT_PORT, rec.PortEx);
 	dlg->setCtrlData(CTL_BCPRT_FORM, rec.LabelName);
 	SetupStringCombo(dlg, CTLSEL_BCPRT_DEVICE, PPTXT_BCPT, rec.PrinterType);
-	dlg->AddClusterAssoc(CTL_BCPRT_BAUD,    0, cbr9600);
-	dlg->AddClusterAssoc(CTL_BCPRT_BAUD,   -1, cbr9600);
+	dlg->AddClusterAssocDef(CTL_BCPRT_BAUD, 0, cbr9600);
 	dlg->AddClusterAssoc(CTL_BCPRT_BAUD,    1, cbr19200);
 	dlg->SetClusterData (CTL_BCPRT_BAUD,    rec.Cpp.Cbr);
-	dlg->AddClusterAssoc(CTL_BCPRT_PARITY,  0, 0);
-	dlg->AddClusterAssoc(CTL_BCPRT_PARITY, -1, 0);
+	dlg->AddClusterAssocDef(CTL_BCPRT_PARITY, 0, 0);
 	dlg->AddClusterAssoc(CTL_BCPRT_PARITY,  1, 1);
 	dlg->AddClusterAssoc(CTL_BCPRT_PARITY,  2, 2);
 	dlg->SetClusterData (CTL_BCPRT_PARITY,  rec.Cpp.Parity);
-	dlg->AddClusterAssoc(CTL_BCPRT_DATA,    0, 8);
-	dlg->AddClusterAssoc(CTL_BCPRT_DATA,   -1, 8);
+	dlg->AddClusterAssocDef(CTL_BCPRT_DATA, 0, 8);
 	dlg->AddClusterAssoc(CTL_BCPRT_DATA,    1, 7);
 	dlg->SetClusterData (CTL_BCPRT_DATA,    rec.Cpp.ByteSize);
 	dlg->setCtrlData(CTL_BCPRT_NARROWPT, &rec.BcNarrowPt); // @v8.0.9

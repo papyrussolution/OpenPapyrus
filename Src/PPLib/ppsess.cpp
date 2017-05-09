@@ -3914,8 +3914,9 @@ void SLAPI PPSession::ProcessIdle()
 	}
 }
 
-PPSession::ObjIdentBlock::ObjIdentBlock() : SymbList(256, 1)
+PPSession::ObjIdentBlock::ObjIdentBlock() /*: SymbList(256, 1)*/
 {
+	P_ShT = 0;
 	PPIDArray obj_type_list;
 	PPGetObjTypeList(&obj_type_list, gotlfExcludeDyn);
 	SString name_buf;
@@ -3932,6 +3933,8 @@ PPSession::ObjIdentBlock::ObjIdentBlock() : SymbList(256, 1)
 			TitleList.Add(PPOBJ_FIRST_CFG_OBJ + j, name_buf);
 	}
 	{
+		P_ShT = PPGetStringHash(PPSTR_HASHTOKEN);
+		/*
 		SymbList.Add("UNIT",           PPOBJ_UNIT);
 		SymbList.Add("QUOTKIND",       PPOBJ_QUOTKIND);
 		SymbList.Add("LOCATION",       PPOBJ_LOCATION);
@@ -3968,10 +3971,11 @@ PPSession::ObjIdentBlock::ObjIdentBlock() : SymbList(256, 1)
 		SymbList.Add("TSESSION",       PPOBJ_TSESSION);     // @v8.7.0
 		SymbList.Add("STYLOPALM",      PPOBJ_STYLOPALM);    // @v8.7.0
 		SymbList.Add("STYLODEVICE",    PPOBJ_STYLOPALM);    // @v8.7.2
+		*/
 	}
 }
 
-int SLAPI PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
+/*int SLAPI PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
 {
 	rBuf = 0;
 	long   ext = 0;
@@ -3994,12 +3998,136 @@ PPID SLAPI PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam
 			ext = HiWord(val);
 		}
 		else {
-			PPSetError(PPERR_OBJTYPEBYSYMBNFOUND);
+			PPSetError(PPERR_OBJTYPEBYSYMBNFOUND, pSymb);
+		}
+	}
+	ASSIGN_PTR(pExtraParam, ext);
+	return obj_type;
+}*/
+
+int SLAPI PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
+{
+	rBuf = 0;
+	int    ok = 0;
+	if(!P_ObjIdentBlk)
+		DO_CRITICAL(SETIFZ(P_ObjIdentBlk, new ObjIdentBlock));
+	if(P_ObjIdentBlk && P_ObjIdentBlk->P_ShT) {
+		uint   val = 0;
+		const long ext = HiWord(objType);
+		switch(LoWord(objType)) {
+			case PPOBJ_UNIT:          val = PPHS_UNIT;      break;
+			case PPOBJ_QUOTKIND:      val = PPHS_QUOTKIND; break;
+			case PPOBJ_LOCATION:      val = PPHS_LOCATION; break;
+			case PPOBJ_GOODS:         val = PPHS_GOODS;    break;
+			case PPOBJ_GOODSGROUP:    val = PPHS_GOODSGROUP; break;
+			case PPOBJ_BRAND:         val = PPHS_BRAND; break;
+			case PPOBJ_GOODSTYPE:     val = PPHS_GOODSTYPE; break;
+			case PPOBJ_GOODSCLASS:    val = PPHS_GOODSCLASS; break;
+			case PPOBJ_GOODSARCODE:   val = PPHS_GOODSARCODE; break;
+			case PPOBJ_PERSON:        val = PPHS_PERSON; break;
+			case PPOBJ_PRSNKIND:      val = PPHS_PERSONKIND; break;
+			case PPOBJ_PRSNSTATUS:    val = PPHS_PERSONSTATUS; break;
+			case PPOBJ_PRSNCATEGORY:  val = PPHS_PERSONCATEGORY; break;
+			case PPOBJ_GLOBALUSERACC: val = PPHS_GLOBALUSER; break;
+			case PPOBJ_DL600DATA:     val = PPHS_DL600; break;
+			case PPOBJ_WORLD:        
+				switch(ext) {
+					case WORLDOBJ_CITY:    val = PPHS_CITY; break;
+					case WORLDOBJ_COUNTRY: val = PPHS_COUNTRY; break;
+					case 0:                val = PPHS_WORLD; break;
+				}
+				break;
+			case PPOBJ_QUOT2:        val = PPHS_QUOT; break;
+			case PPOBJ_CURRENCY:     val = PPHS_CURRENCY; break;
+			case PPOBJ_CURRATETYPE:  val = PPHS_CURRATETYPE; break;
+			case PPOBJ_SPECSERIES:   val = PPHS_SPECSERIES; break;
+			case PPOBJ_SCARD:        val = PPHS_SCARD; break;
+			case PPOBJ_CASHNODE:     val = PPHS_POSNODE; break;
+			case PPOBJ_CURRATEIDENT: val = PPHS_CURRATEIDENT; break;
+			case PPOBJ_UHTTSCARDOP:  val = PPHS_UHTTSCARDOP; break;
+			case PPOBJ_LOT:       val = PPHS_LOT; break;
+			case PPOBJ_BILL:      val = PPHS_BILL; break;
+			case PPOBJ_UHTTSTORE: val = PPHS_UHTTSTORE; break;
+			case PPOBJ_OPRKIND:   val = PPHS_OPRKIND; break;
+			case PPOBJ_WORKBOOK:  val = PPHS_WORKBOOK; break;
+			case PPOBJ_CCHECK:    val = PPHS_CCHECK; break;
+			case PPOBJ_PROCESSOR: val = PPHS_PROCESSOR; break;
+			case PPOBJ_TSESSION:  val = PPHS_TSESSION; break;
+			case PPOBJ_STYLOPALM: val = PPHS_STYLOPALM; break;
+		}
+		if(val)
+			ok = P_ObjIdentBlk->P_ShT->GetByAssoc(val, rBuf);
+	}
+	return ok;
+}
+
+PPID SLAPI PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
+{
+	PPID   obj_type = 0;
+	long   ext = 0;
+	if(!P_ObjIdentBlk)
+		DO_CRITICAL(SETIFZ(P_ObjIdentBlk, new ObjIdentBlock));
+	if(P_ObjIdentBlk && P_ObjIdentBlk->P_ShT) {
+		SString symb = pSymb;
+		uint   val = 0;
+		uint   hs_id = 0;
+		if(P_ObjIdentBlk->P_ShT->Search(symb.ToLower(), &hs_id, 0)) {
+			switch(hs_id) {
+				case PPHS_UNIT:           val = PPOBJ_UNIT; break;
+				case PPHS_QUOTKIND:       val = PPOBJ_QUOTKIND; break;
+				case PPHS_LOCATION:       val = PPOBJ_LOCATION; break;
+				case PPHS_GOODS:          val = PPOBJ_GOODS; break;
+				case PPHS_GOODSGROUP:     val = PPOBJ_GOODSGROUP; break;
+				case PPHS_BRAND:          val = PPOBJ_BRAND; break;
+				case PPHS_GOODSTYPE:      val = PPOBJ_GOODSTYPE; break;
+				case PPHS_GOODSCLASS:     val = PPOBJ_GOODSCLASS; break;
+				case PPHS_GOODSARCODE:    val = PPOBJ_GOODSARCODE; break;
+				case PPHS_PERSON:         val = PPOBJ_PERSON; break;
+				case PPHS_PERSONKIND:     val = PPOBJ_PRSNKIND; break;
+				case PPHS_PERSONSTATUS:   val = PPOBJ_PRSNSTATUS; break;
+				case PPHS_PERSONCATEGORY: val = PPOBJ_PRSNCATEGORY; break;
+				case PPHS_GLOBALUSER:     val = PPOBJ_GLOBALUSERACC; break;
+				case PPHS_DL600:          val = PPOBJ_DL600DATA; break;
+				case PPHS_WORLD:          val = PPOBJ_WORLD; break;
+				case PPHS_CITY:           val = PPOBJ_WORLD | (WORLDOBJ_CITY << 16); break;
+				case PPHS_COUNTRY:        val = PPOBJ_WORLD | (WORLDOBJ_COUNTRY << 16); break;
+				case PPHS_QUOT:           val = PPOBJ_QUOT2; break;
+				case PPHS_CURRENCY:       val = PPOBJ_CURRENCY; break;
+				case PPHS_CURRATETYPE:    val = PPOBJ_CURRATETYPE; break;
+				case PPHS_SPECSERIES:     val = PPOBJ_SPECSERIES; break;
+				case PPHS_SCARD:          val = PPOBJ_SCARD; break;
+				case PPHS_POSNODE:        val = PPOBJ_CASHNODE; break;
+				case PPHS_CURRATEIDENT:   val = PPOBJ_CURRATEIDENT; break;
+				case PPHS_UHTTSCARDOP:    val = PPOBJ_UHTTSCARDOP; break;
+				case PPHS_LOT:            val = PPOBJ_LOT; break;
+				case PPHS_BILL:           val = PPOBJ_BILL; break;
+				case PPHS_UHTTSTORE:      val = PPOBJ_UHTTSTORE; break;
+				case PPHS_OPRKIND:        val = PPOBJ_OPRKIND; break;
+				case PPHS_WORKBOOK:       val = PPOBJ_WORKBOOK; break;
+				case PPHS_CCHECK:         val = PPOBJ_CCHECK; break;
+				case PPHS_PROCESSOR:      val = PPOBJ_PROCESSOR; break;
+				case PPHS_TSESSION:       val = PPOBJ_TSESSION; break;
+				case PPHS_STYLOPALM:      val = PPOBJ_STYLOPALM; break;
+				case PPHS_STYLODEVICE:    val = PPOBJ_STYLOPALM; break;
+				default: PPSetError(PPERR_OBJTYPEBYSYMBNFOUND, pSymb); break;
+			}
+			obj_type = LoWord(val);
+			ext = HiWord(val);
+		}
+		else {
+			PPSetError(PPERR_OBJTYPEBYSYMBNFOUND, pSymb);
 		}
 	}
 	ASSIGN_PTR(pExtraParam, ext);
 	return obj_type;
 }
+
+/*
+int SLAPI PPSession::TestObjectTypeSymbols()
+{
+
+}
+*/
 
 int SLAPI PPSession::GetObjectTitle(PPID objType, SString & rBuf)
 {
@@ -4348,6 +4476,116 @@ int PPAdviseEventQueue::Purge()
 //
 //
 //
+#if SLTEST_RUNNING // {
+
+SLTEST_R(ObjTypeSymb)
+{
+	struct Test_ObjSymbEntry {
+		const  char * P_Symb;
+		long   Id;
+		long   HsId;
+	};
+	static Test_ObjSymbEntry __Test_ObjSymbList[] = {
+		{ "UNIT",           PPOBJ_UNIT,          PPHS_UNIT },
+		{ "QUOTKIND",       PPOBJ_QUOTKIND,      PPHS_QUOTKIND },
+		{ "LOCATION",       PPOBJ_LOCATION,      PPHS_LOCATION },
+		{ "GOODS",          PPOBJ_GOODS,         PPHS_GOODS },
+		{ "GOODSGROUP",     PPOBJ_GOODSGROUP,    PPHS_GOODSGROUP },
+		{ "BRAND",          PPOBJ_BRAND,         PPHS_BRAND },
+		{ "GOODSTYPE",      PPOBJ_GOODSTYPE,     PPHS_GOODSTYPE },
+		{ "GOODSCLASS",     PPOBJ_GOODSCLASS,    PPHS_GOODSCLASS },
+		{ "GOODSARCODE",    PPOBJ_GOODSARCODE,   PPHS_GOODSARCODE },
+		{ "PERSON",         PPOBJ_PERSON,        PPHS_PERSON },
+		{ "PERSONKIND",     PPOBJ_PRSNKIND,      PPHS_PERSONKIND },
+		{ "PERSONSTATUS",   PPOBJ_PRSNSTATUS,    PPHS_PERSONSTATUS },
+		{ "PERSONCATEGORY", PPOBJ_PRSNCATEGORY,  PPHS_PERSONCATEGORY },
+		{ "GLOBALUSER",     PPOBJ_GLOBALUSERACC, PPHS_GLOBALUSER },
+		{ "DL600",          PPOBJ_DL600DATA,     PPHS_DL600 },
+		{ "WORLD",          PPOBJ_WORLD,         PPHS_WORLD },
+		{ "CITY",           PPOBJ_WORLD | (WORLDOBJ_CITY << 16),    PPHS_CITY },
+		{ "COUNTRY",        PPOBJ_WORLD | (WORLDOBJ_COUNTRY << 16), PPHS_COUNTRY },
+		{ "QUOT",           PPOBJ_QUOT2,         PPHS_QUOT },
+		{ "CURRENCY",       PPOBJ_CURRENCY,      PPHS_CURRENCY },
+		{ "CURRATETYPE",    PPOBJ_CURRATETYPE,   PPHS_CURRATETYPE },
+		{ "SPECSERIES",     PPOBJ_SPECSERIES,    PPHS_SPECSERIES },
+		{ "SCARD",          PPOBJ_SCARD,         PPHS_SCARD },
+		{ "POSNODE",        PPOBJ_CASHNODE,      PPHS_POSNODE },
+		{ "CURRATEIDENT",   PPOBJ_CURRATEIDENT,  PPHS_CURRATEIDENT },
+		{ "UHTTSCARDOP",    PPOBJ_UHTTSCARDOP,   PPHS_UHTTSCARDOP },
+		{ "LOT",            PPOBJ_LOT,           PPHS_LOT },
+		{ "BILL",           PPOBJ_BILL,          PPHS_BILL },
+		{ "UHTTSTORE",      PPOBJ_UHTTSTORE,     PPHS_UHTTSTORE },
+		{ "OPRKIND",        PPOBJ_OPRKIND,       PPHS_OPRKIND },
+		{ "WORKBOOK",       PPOBJ_WORKBOOK,      PPHS_WORKBOOK },
+		{ "CCHECK",         PPOBJ_CCHECK,        PPHS_CCHECK },
+		{ "PROCESSOR",      PPOBJ_PROCESSOR,     PPHS_PROCESSOR },
+		{ "TSESSION",       PPOBJ_TSESSION,      PPHS_TSESSION },
+		{ "STYLOPALM",      PPOBJ_STYLOPALM,     PPHS_STYLOPALM },
+		{ "STYLODEVICE",    PPOBJ_STYLOPALM,     PPHS_STYLODEVICE }
+	};
+
+	int    ok = 1;
+	SString temp_buf;
+	SString symb;
+	long   ext_param = 0;
+	PPID   obj_type = 0;
+	for(uint i = 0; i < SIZEOFARRAY(__Test_ObjSymbList); i++) {
+		Test_ObjSymbEntry & r_entry = __Test_ObjSymbList[i];
+		ext_param = 0;
+		obj_type = 0;
+		{
+			temp_buf = r_entry.P_Symb;
+
+			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
+			SLTEST_CHECK_EQ(r_entry.Id, MakeLong(obj_type, ext_param));
+			if(r_entry.HsId != PPHS_STYLODEVICE) { // Дублированный (запасной) символ
+				SLTEST_CHECK_LT(0L, DS.GetObjectTypeSymb(r_entry.Id, symb));
+				SLTEST_CHECK_NZ(sstreqi_ascii(symb, temp_buf));
+			}
+		}
+		{
+			(temp_buf = r_entry.P_Symb).ToLower();
+
+			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
+			SLTEST_CHECK_EQ(r_entry.Id, MakeLong(obj_type, ext_param));
+			if(r_entry.HsId != PPHS_STYLODEVICE) { // Дублированный (запасной) символ
+				SLTEST_CHECK_LT(0L, DS.GetObjectTypeSymb(r_entry.Id, symb));
+				SLTEST_CHECK_NZ(sstreqi_ascii(symb, temp_buf));
+			}
+		}
+	}
+	{
+		ext_param = 0;
+		obj_type = 0;
+		{
+			temp_buf = "CANTRY";
+
+			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
+			SLTEST_CHECK_EQ(0L, MakeLong(obj_type, ext_param));
+
+			symb = "abracadabra";
+			SLTEST_CHECK_EQ(0L, DS.GetObjectTypeSymb(31139, symb));
+			SLTEST_CHECK_NZ(symb.Empty());
+		}
+		{
+			temp_buf = "id";
+
+			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
+			SLTEST_CHECK_EQ(0L, MakeLong(obj_type, ext_param));
+
+			symb = "abracadabra";
+			SLTEST_CHECK_EQ(0L, DS.GetObjectTypeSymb(31139, symb));
+			SLTEST_CHECK_NZ(symb.Empty());
+		}
+	}
+	return CurrentStatus;
+}
+
+#endif // } SLTEST_RUNNING
+//
+//
+//
 #pragma warning(disable:4073)
 #pragma init_seg(user)
 PPSession  DS; // @global
+

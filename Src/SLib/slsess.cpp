@@ -1,5 +1,5 @@
 // SLSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -10,6 +10,7 @@
 #define HH_INITIALIZE            0x001C  // Initializes the help system.
 #define HH_UNINITIALIZE          0x001D  // Uninitializes the help system.
 // } htmlhelp.h
+//#define USE_OPENSSL_STATIC 
 //
 //
 //
@@ -63,7 +64,7 @@ SLAPI SlThreadLocalArea::SlThreadLocalArea()
 	CurrentCp = cpUndef;
 	UiFlags = 0;
 	UiLanguageId = -1; // @v8.9.10
-	memzero(OneCStrBuf, sizeof(OneCStrBuf));
+	// @v9.6.5 memzero(OneCStrBuf, sizeof(OneCStrBuf));
 	SAry_OrgFCMP = 0;
 	SAry_PtrContainer = 0;
 	SAry_SortExtraData = 0;
@@ -97,6 +98,18 @@ TVRez * SLAPI SlThreadLocalArea::GetRez()
 			P_Rez = new TVRez(name, 1);
 	}
 	return P_Rez;
+}
+
+void SLAPI SlThreadLocalArea::SetNextDialogLuPos(int left, int top)
+{
+	NextDialogLuPos.Set(left, top);
+}
+
+TPoint SLAPI SlThreadLocalArea::GetNextDialogLuPos()
+{
+	TPoint result = NextDialogLuPos;
+	NextDialogLuPos.Set(-1, -1);
+	return result;
 }
 
 HDC SLAPI SlThreadLocalArea::GetFontDC()
@@ -310,9 +323,13 @@ int SLAPI SlSession::InitWSA()
 typedef int  (*SSL_LIBRARY_INIT_PROC)();
 typedef void (*SSL_LOAD_ERROR_STRINGS_PROC)();
 
+/* linker
+..\OSF\OPENSSL\lib\libeay32.lib
+..\OSF\OPENSSL\lib\ssleay32.lib
+*/
+
 int SLAPI SlSession::InitSSL()
 {
-//#define USE_OPENSSL_STATIC 
 	int    ok = -1;
 	if(SslInitCounter == 0) {
 		ENTER_CRITICAL_SECTION

@@ -146,6 +146,12 @@ int SLAPI PPAsyncCashSession::SetGoodsRestLoadFlag(int updOnly)
 	return -1;
 }
 
+//virtual 
+int SLAPI PPAsyncCashSession::InteractiveQuery()
+{
+	return -1;
+}
+
 const PPGoodsConfig & SLAPI PPAsyncCashSession::GetGoodsCfg()
 {
 	if(!P_GCfg) {

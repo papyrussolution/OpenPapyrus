@@ -487,13 +487,12 @@ int SLAPI PPViewObjSyncCmp::EditBaseFilt(PPBaseFilt * pFilt)
 		default: v = 0; break;
 	}
 	dlg->setCtrlData(CTL_SYNCCMPFLT_ERR, &v);
-	dlg->AddClusterAssoc(CTL_SYNCCMPFLT_ORDER, 0, ObjSyncCmpFilt::ordByError);
+	dlg->AddClusterAssocDef(CTL_SYNCCMPFLT_ORDER, 0, ObjSyncCmpFilt::ordByError);
 	dlg->AddClusterAssoc(CTL_SYNCCMPFLT_ORDER, 1, ObjSyncCmpFilt::ordByCommID);
 	dlg->AddClusterAssoc(CTL_SYNCCMPFLT_ORDER, 2, ObjSyncCmpFilt::ordBySrcID);
 	dlg->AddClusterAssoc(CTL_SYNCCMPFLT_ORDER, 3, ObjSyncCmpFilt::ordBySrcName);
 	dlg->AddClusterAssoc(CTL_SYNCCMPFLT_ORDER, 4, ObjSyncCmpFilt::ordByDestID);
 	dlg->AddClusterAssoc(CTL_SYNCCMPFLT_ORDER, 5, ObjSyncCmpFilt::ordByDestName);
-	dlg->AddClusterAssoc(CTL_SYNCCMPFLT_ORDER, -1, ObjSyncCmpFilt::ordByError);
 	dlg->SetClusterData(CTL_SYNCCMPFLT_ORDER, p_filt->Order);
 	SetRealRangeInput(dlg, CTL_SYNCCMPFLT_SCORE, &p_filt->Score);
 	if(ExecView(dlg) == cmOK) {

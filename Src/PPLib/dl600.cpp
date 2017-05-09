@@ -1159,7 +1159,7 @@ _skip_switch:
 				AdjRetTypeProcList.Add(impl_id, (long)AdjRetType_excise, 0, 0);
 				#endif
 			}
-			else { (_RET_STR = _ARG_STR(1)).TrimToDiv(_ARG_UINT(2), onecstr(' ')); break; }
+			else { (_RET_STR = _ARG_STR(1)).TrimToDiv(_ARG_UINT(2), " "); break; }
 		case 89:
 			if(!pF) {
 				#ifdef DL600C
@@ -1559,7 +1559,7 @@ DLSYMBID SLAPI DlContext::Helper_CreateSymb(const char * pSymb, DLSYMBID newId, 
 	name.CatChar(prefix).Cat(pSymb);
 	if(flags & crsymfCatCurScope) {
 		SString qualif;
-		Sc.GetQualif(CurScopeID, onecstr('@'), 1, qualif);
+		Sc.GetQualif(CurScopeID, "@", 1, qualif);
 		if(qualif.NotEmpty())
 			name.CatChar('@').Cat(qualif);
 	}

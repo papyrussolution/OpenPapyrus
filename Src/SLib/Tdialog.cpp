@@ -78,8 +78,8 @@ int TDialog::setupPosition()
 		TPoint next_dialog_lu_pos = SLS.GetTLA().GetNextDialogLuPos();
 		if(next_dialog_lu_pos.x >= 0 && next_dialog_lu_pos.y >= 0) {
 			RECT  pr;
-			if(GetWindowRect(PrevInStack, &pr) && GetWindowRect(H(), &r))
-				MoveWindow(H(), next_dialog_lu_pos.x, next_dialog_lu_pos.y, r.right - r.left, r.bottom - r.top, TRUE);
+			if(::GetWindowRect(PrevInStack, &pr) && ::GetWindowRect(H(), &r))
+				::MoveWindow(H(), next_dialog_lu_pos.x, next_dialog_lu_pos.y, r.right - r.left, r.bottom - r.top, TRUE);
 			ok = 2;
 		}
 		else if(DlgFlags & fCentered) {
@@ -787,6 +787,20 @@ int FASTCALL TDialog::AddClusterAssoc(uint ctlID, long pos, long val)
 {
 	TCluster * p_clu = (TCluster *)getCtrlView(ctlID);
 	return p_clu ? p_clu->addAssoc(pos, val) : 0;
+}
+
+int FASTCALL TDialog::AddClusterAssocDef(uint ctlID, long pos, long val)
+{
+	int    ok = 1;
+	TCluster * p_clu = (TCluster *)getCtrlView(ctlID);
+	if(p_clu) {
+		p_clu->addAssoc(pos, val);
+		if(pos >= 0 && p_clu->getKind() == RADIOBUTTONS)
+			p_clu->addAssoc(-1, val);
+	}
+	else
+		ok = 0;
+	return ok;
 }
 
 int TDialog::GetClusterItemByAssoc(uint ctlID, long val, int * pPos)

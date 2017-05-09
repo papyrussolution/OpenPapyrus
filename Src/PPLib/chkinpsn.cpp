@@ -934,8 +934,7 @@ public:
 		}
 		SetupPerson();
 		long   status = Data.GetStatus();
-		AddClusterAssoc(CTL_CHKINP_STATUS, 0, PPCheckInPersonItem::statusRegistered);
-		AddClusterAssoc(CTL_CHKINP_STATUS, -1, PPCheckInPersonItem::statusRegistered);
+		AddClusterAssocDef(CTL_CHKINP_STATUS, 0, PPCheckInPersonItem::statusRegistered);
 		AddClusterAssoc(CTL_CHKINP_STATUS, 1, PPCheckInPersonItem::statusCheckedIn);
 		AddClusterAssoc(CTL_CHKINP_STATUS, 2, PPCheckInPersonItem::statusCanceled);
 		SetClusterData(CTL_CHKINP_STATUS, status);

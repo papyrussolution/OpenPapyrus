@@ -822,7 +822,8 @@ int PPDesktop::DrawIcon(TCanvas & rC, long id, TPoint coord, const SString & rTe
 	return 1;
 }
 
-COLORREF GetDefaultDesktopBgColor()
+//static
+COLORREF PPDesktop::GetDefaultBgColor()
 {
 	return GetColorRef(SClrSteelblue4);
 }
@@ -1252,7 +1253,7 @@ void PPDesktop::WMHCreate(LPCREATESTRUCT)
 		Ptb.SetPen(penSelTextRect, SPaintObj::psSolid, 1, SColor(RGB(0x40, 0x00, 0x80)));
 		{
 			const long c = P_ActiveDesktop ? (P_ActiveDesktop->Icon.ToLong() - 1) : 0;
-			Ptb.SetColor(colorBkg, SColor((COLORREF)(c >= 0 ? c : GetDefaultDesktopBgColor())));
+			Ptb.SetColor(colorBkg, SColor((COLORREF)(c >= 0 ? c : PPDesktop::GetDefaultBgColor())));
 		}
 		Ptb.SetBrush(brushBkg, SPaintObj::bsSolid, Ptb.GetColor(colorBkg), 0);
 	}

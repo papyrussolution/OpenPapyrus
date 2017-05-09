@@ -2381,10 +2381,9 @@ public:
 			FileBrowseCtrlGroup::fbcgfFile);
 		SetupPPObjCombo(p_dlg, CTLSEL_CRTTSESSFLT_GRP, PPOBJ_PROCESSOR, filt.GrpID, OLW_CANINSERT|OLW_CANSELUPLEVEL, (void *)PRCEXDF_GROUP);
 		SetupPPObjCombo(p_dlg, CTLSEL_CRTTSESSFLT_PRC, PPOBJ_PROCESSOR, filt.PrcID, OLW_CANINSERT);
-		p_dlg->AddClusterAssoc(CTL_CRTTSESSFLT_STATUS,   0, TSESST_PLANNED);
-		p_dlg->AddClusterAssoc(CTL_CRTTSESSFLT_STATUS,  -1, TSESST_PENDING);
-		p_dlg->AddClusterAssoc(CTL_CRTTSESSFLT_STATUS,   1, TSESST_PENDING);
-		p_dlg->AddClusterAssoc(CTL_CRTTSESSFLT_STATUS,   2, TSESST_INPROCESS);
+		p_dlg->AddClusterAssoc(CTL_CRTTSESSFLT_STATUS,    0, TSESST_PLANNED);
+		p_dlg->AddClusterAssocDef(CTL_CRTTSESSFLT_STATUS, 1, TSESST_PENDING);
+		p_dlg->AddClusterAssoc(CTL_CRTTSESSFLT_STATUS,    2, TSESST_INPROCESS);
 		p_dlg->SetClusterData(CTL_CRTTSESSFLT_STATUS, filt.Status);
 		if(!filt.WtmFileName.NotEmptyS()) {
 			FileBrowseCtrlGroup * p_fbg = (FileBrowseCtrlGroup*)p_dlg->getGroup(GRP_CRTTSESSFLT_WTM);

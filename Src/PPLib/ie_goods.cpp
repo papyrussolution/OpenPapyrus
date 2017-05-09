@@ -1768,7 +1768,7 @@ int SLAPI PPGoodsImporter::Resolve_Group(const Sdr_Goods2 & rRec, PPID * pGrpID)
 	}
 	if(!parent_id) {
 		if(Param.DefParentID == 0)
-			THROW(GGObj.AddSimple(&Param.DefParentID, gpkndOrdinaryGroup, 0, onecstr('0'), 0, Param.DefUnitID, 0));
+			THROW(GGObj.AddSimple(&Param.DefParentID, gpkndOrdinaryGroup, 0, "0", 0, Param.DefUnitID, 0));
 		parent_id = Param.DefParentID;
 		ok = -1;
 	}

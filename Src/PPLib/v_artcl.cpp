@@ -35,8 +35,8 @@ SLAPI PPViewArticle::~PPViewArticle()
 }
 
 void * SLAPI PPViewArticle::GetEditExtraParam()
-{ 
-	return (void *)ArObj.GetCurrFilt(); 
+{
+	return (void *)ArObj.GetCurrFilt();
 }
 
 PPBaseFilt * PPViewArticle::CreateFilt(void * extraPtr) const
@@ -366,14 +366,12 @@ int SLAPI PPViewArticle::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			setCtrlData(CTL_ARTICLEFLT_ORDER, &Data.Order);
 			SetupPPObjCombo(this, CTLSEL_ARTICLEFLT_ACCSID, PPOBJ_ACCSHEET, Data.AccSheetID, 0, 0);
 			//disableCtrl(CTLSEL_ARTICLEFLT_ACCSID, 1);
-			AddClusterAssoc(CTL_ARTICLEFLT_FTCLOSED, 0, 0);
-			AddClusterAssoc(CTL_ARTICLEFLT_FTCLOSED, -1, 0);
+			AddClusterAssocDef(CTL_ARTICLEFLT_FTCLOSED, 0, 0);
 			AddClusterAssoc(CTL_ARTICLEFLT_FTCLOSED, 1, -1);
 			AddClusterAssoc(CTL_ARTICLEFLT_FTCLOSED, 2, +1);
 			SetClusterData(CTL_ARTICLEFLT_FTCLOSED, Data.Ft_Closed);
 
-			AddClusterAssoc(CTL_ARTICLEFLT_FTSTOP, 0, 0);
-			AddClusterAssoc(CTL_ARTICLEFLT_FTSTOP, -1, 0);
+			AddClusterAssocDef(CTL_ARTICLEFLT_FTSTOP, 0, 0);
 			AddClusterAssoc(CTL_ARTICLEFLT_FTSTOP, 1, -1);
 			AddClusterAssoc(CTL_ARTICLEFLT_FTSTOP, 2, +1);
 			SetClusterData(CTL_ARTICLEFLT_FTSTOP, Data.Ft_Stop);
@@ -744,7 +742,7 @@ DBQuery * SLAPI PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 				p_q->addField(cq);          // #17
 			}
 			if(Filt.Flags & ArticleFilt::fCheckObj)
-				p_q->addField(tt->Msg);     // #18 
+				p_q->addField(tt->Msg);     // #18
 			else
 				p_q->addField(tt->Code);    // #18 @stub @v8.2.4
 			// @v8.2.4 {

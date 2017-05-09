@@ -6284,8 +6284,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 									int8   queue = r_cur_item.Queue;
 									TDialog * dlg = new TDialog(DLG_CHKPANROWOP);
 									if(CheckDialogPtrErr(&dlg)) {
-										dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 0, rowopNone);
-										dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, -1, rowopNone);
+										dlg->AddClusterAssocDef(CTL_CHKPANROWOP_VERB, 0, rowopNone);
 										dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 1, rowopUp);
 										dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 2, rowopDown);
 										dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 3, rowopDoGroup);

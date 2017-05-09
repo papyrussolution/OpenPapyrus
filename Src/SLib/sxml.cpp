@@ -64,47 +64,6 @@ void FASTCALL XMLReplaceSpecSymb(SString & rBuf, const char * pProcessSymb)
 	rBuf = temp_buf;
 }
 
-#if 0 // @v7.8.0 {
-
-int FASTCALL XMLReplaceSpecSymb(char * pBuf, int onlyStandart /*=0*/)
-{
-	SSrchParam p;
-	for(size_t i = 0; i < (sizeof(SpcSymbTab)/sizeof(SpcSymbEntry)); i++) {
-		//                                                &       <       >       '      "&<>'"
-		if(!onlyStandart || oneof4(SpcSymbTab[i].chr, '\x26', '\x3c', '\x3e', '\x27')) {
-			char   replacer[16];
-			char * c = replacer;
-			uint   beg = 0, len = 0, found_beg = -1;
-
-			p.P_Pattern = (char*)onecstr(SpcSymbTab[i].chr);
-			p.P_WordChars = 0;
-			p.Flags = 0;
-			*c++ = '&';
-			c = stpcpy(c, SpcSymbTab[i].str);
-			*c++ = ';';
-			*c = 0;
-			while(searchstr(pBuf, p, &beg, &len) && found_beg != beg) {
-				replacestr(pBuf, replacer, &beg, &len, 0);
-				found_beg = beg;
-				beg += strlen(replacer);
-			}
-		}
-	}
-	return 1;
-}
-
-int FASTCALL XMLReplaceSpecSymb(SString & rBuf, int onlyStandart /*=0*/)
-{
-	char   buf[1024];
-	memzero(buf, sizeof(buf));
-	rBuf.CopyTo(buf, sizeof(buf));
-	XMLReplaceSpecSymb(buf, onlyStandart);
-	rBuf.CopyFrom(buf);
-	return 1;
-}
-
-#endif // } 0 @v7.8.0
-
 int SLAPI XMLWriteSpecSymbEntities(FILE * pStream)
 {
 	int    ok = 1;
@@ -144,6 +103,189 @@ int SLAPI XMLWriteSpecSymbEntities(void * pWriter)
 }
 
 #endif // } _WIN32_WCE
+//
+//
+//
+SXml::WDoc::WDoc(xmlTextWriterPtr pWriter, SCodepage cp)
+{
+	State = 0;
+	Lx = pWriter;
+	if(Lx) {
+		SString temp_buf;
+		if(cp < 0)
+			cp = cpUTF8;
+		SCodepageIdent cpi(cp);
+		SCodepageIdent temp_cp = cp;
+		temp_cp.ToStr(SCodepageIdent::fmtXML, temp_buf = 0);
+		xmlTextWriterStartDocument(Lx, 0, temp_buf, 0);
+		State |= stStarted;
+	}
+}
+
+SXml::WDoc::~WDoc()
+{
+	if(State & stStarted) {
+		if(Lx)
+			xmlTextWriterEndDocument(Lx);
+		Lx = 0;
+		State &= ~stStarted;
+	}
+}
+
+//static
+SString & FASTCALL SXml::WNode::CDATA(SString & rBuf)
+{
+	SString temp_buf;
+	temp_buf.Cat("<![CDATA[").Cat(rBuf).Cat("]]>");
+	rBuf = temp_buf;
+	return rBuf;
+}
+
+SXml::WNode::WNode(xmlTextWriterPtr pWriter, const char * pName)
+{
+	Construct(pWriter, pName);
+}
+
+SXml::WNode::WNode(xmlTextWriterPtr pWriter, const char * pName, const SString & rValue)
+{
+	if(Construct(pWriter, pName))
+		xmlTextWriterWriteString(Lx, rValue.ucptr());
+}
+
+SXml::WNode::WNode(xmlTextWriterPtr pWriter, const char * pName, const char * pValue)
+{
+	if(Construct(pWriter, pName))
+		xmlTextWriterWriteString(Lx, (const xmlChar*)pValue);
+}
+
+SXml::WNode::~WNode()
+{
+	if(State & stStarted && Lx) {
+		xmlTextWriterEndElement(Lx);
+	}
+}
+
+int SXml::WNode::PutAttrib(const char * pName, const char * pValue)
+{
+	int    ok = 1;
+	if(State & stStarted && Lx) {
+		xmlTextWriterStartAttribute(Lx, (const xmlChar*)pName);
+		xmlTextWriterWriteString(Lx, (const xmlChar*)pValue);
+		xmlTextWriterEndAttribute(Lx);
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int SXml::WNode::PutInner(const char * pInnerName, const char * pInnerValue)
+{
+	int    ok = 1;
+	if(State & stStarted && Lx) {
+		WNode inner(Lx, pInnerName, isempty(pInnerValue) ? 0 : pInnerValue);
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int SXml::WNode::PutInnerSkipEmpty(const char * pInnerName, const char * pInnerValue)
+{
+	int    ok = 1;
+	if(State & stStarted && Lx) {
+		SString temp_buf = pInnerValue;
+		if(temp_buf.NotEmptyS()) {
+			WNode inner(Lx, pInnerName, pInnerValue);
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int SXml::WNode::SetValue(const SString & rText)
+{
+	int    ok = 0;
+	if(State & stStarted && Lx) {
+		xmlTextWriterWriteString(Lx, rText.ucptr());
+		ok = 1;
+	}
+	return ok;
+}
+
+int SXml::WNode::Construct(xmlTextWriterPtr pWriter, const char * pName)
+{
+	int   ok = 0;
+	State = 0;
+	Lx = pWriter;
+	Name = pName;
+	if(Lx && Name.NotEmpty()) {
+		xmlTextWriterStartElement(Lx, Name.ucptr());
+		State |= stStarted;
+		ok = 1;
+	}
+	return ok;
+}
+
+//static
+int FASTCALL SXml::IsName(const xmlNode * pNode, const char * pName)
+{
+	return BIN(pNode && sstreqi_ascii((const char *)pNode->name, pName));
+}
+
+//static
+int FASTCALL SXml::IsContent(const xmlNode * pNode, const char * pText)
+{
+	return BIN(pNode && sstreqi_ascii((const char *)pNode->content, pText));
+}
+
+//static
+int FASTCALL SXml::GetContent(const xmlNode * pNode, SString & rResult)
+{
+	int    ok = 0;
+	rResult = 0;
+	if(pNode) {
+		if(pNode->content) {
+			rResult.Set(pNode->content);
+			ok = 1;
+		}
+		else if(pNode->type == XML_ELEMENT_NODE && pNode->children && pNode->children->type == XML_TEXT_NODE) {
+			if(pNode->children->content) {
+				rResult.Set(pNode->children->content);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
+//static
+int SLAPI SXml::GetContentByName(const xmlNode * pNode, const char * pName, SString & rResult)
+{
+	int    ok = 0;
+	if(IsName(pNode, pName)) {
+		GetContent(pNode, rResult);
+		ok = rResult.NotEmpty() ? 1 : -1;
+	}
+	return ok;
+}
+
+//static
+int SLAPI SXml::GetAttrib(const xmlNode * pNode, const char * pAttr, SString & rResult)
+{
+	int    ok = 0;
+	rResult = 0;
+    if(pNode) {
+		for(const xmlAttr * p_attr = pNode->properties; p_attr; p_attr = p_attr->next) {
+			if(sstreqi_ascii((const char *)p_attr->name, pAttr)) {
+				if(p_attr->children && p_attr->children->type == XML_TEXT_NODE)
+					rResult.Set(p_attr->children->content);
+				ok = 1;
+			}
+		}
+    }
+    return ok;
+}
 
 #if 0 // @construction {
 
@@ -586,6 +728,122 @@ int SXml::SearchVal(const char * pVal, uint32 * pID)
 //
 //
 //
+#if 0 // @construction { («ат€нувша€с€ разработка - очень веро€тно, что на всегда)
+// 
+// SOAP
+//
+#define SOAPIF_RESOLVED 0x0001
+#define SOAPIF_STRUC    0x0002
+#define SOAPIF_ARRAY    0x0004
+
+struct SoapPacketItem {
+	SoapPacketItem();
+	SoapPacketItem & Clear();
+
+	SString Name;
+	SString Ref;
+	SString TypeName;
+	TYPEID  Typ;
+	long    Flags;     // SOAPIF_XXX
+	SString Value;
+	union {
+		SoapPacketStruc * P_Struc;
+		SoapPacketArray * P_Array;
+	};
+};
+
+class SoapPacketArray : private TSCollection <SoapPacketStruc> {
+public:
+	SoapPacketArray(SoapPacket & rR);
+	uint   GetCount() const;
+	SoapPacketStruc * FASTCALL Get(uint pos);
+	int    CreateItem(uint * pPos);
+	int    CreateItemRef(const char * pRef, const char * pType, uint * pPos);
+	SoapPacketStruc * SearchItemRef(const char * pRef, const char * pType);
+private:
+	SoapPacket & R_R;
+};
+
+class SoapPacketStruc : private SArray {
+public:
+	friend class SoapPacket;
+	friend class SoapPacketArray;
+
+	SoapPacketStruc(SoapPacket & rR);
+	SoapPacketStruc & Clear();
+	int    Add(const char * pFldName, const char * pType, const char * pValue);
+	SoapPacketArray * AddArray(const char * pFldName, const char * pType);
+	SoapPacketStruc * AddStruc(const char * pFldName, const char * pType);
+	int    AddRef(const char * pFldName, const char * pRef);
+	int    AddResolvedRef(const char * pRef, const char * pType, const char * pValue);
+	SoapPacketStruc * SearchItemRef(const char * pRef, const char * pType);
+	uint   GetCount() const;
+	int    Get(const char * pName, SoapPacketItem & rItem) const;
+	int    Get(uint pos, SoapPacketItem & rItem) const;
+private:
+	struct InnerItem {
+		uint   NameP;
+		uint   TypeP;
+		uint   ValueP; // »ндекс позиции значени€. ≈сли Flags & SOAPIF_STRUC, то это - индекс в
+			// ArrList[0], если Flags & SOAPIF_ARRAY, то - индекс массива в ArrList.
+		uint   RefP;
+		uint   Dim;
+		TYPEID Typ;
+		long   Flags;   // SOAPIF_XXX
+	};
+
+	TSCollection <SoapPacketArray> ArrList; // —писок внутренних массивов. Ёлемент с индексом 0 представл€ет
+		// внутренние одиночные структуры.
+
+	int    Helper_Get(const InnerItem * pItem, SoapPacketItem & rItem) const;
+	int    ResolveRefs(const SoapPacketStruc & rResolveList);
+
+	uint   RefP;
+	uint   TypeP;  // ѕозици€ наименовани€ типа записи SOAP (attr arrayType)
+	SoapPacket & R_R;
+};
+
+class SoapPacket {
+public:
+	enum {
+		stFault = 0x0001
+	};
+	SoapPacket();
+	SoapPacket & Clear();
+	//
+	// Descr: –азбирает результат вызова Soap-запроса.
+	// Returns:
+	//   1 - запрос успешно разобран
+	//   0 - ошибка разбора
+	//
+	int    Parse(const char * pMethodName, void * pXmlDoc, const char * pDebugFileName = 0); // really (xmlDoc *)
+	int    Write(const char * pUrn, const char * pMethodName, void ** ppXmlDoc, const char * pDebugFileName); // really (xmlDoc **)
+	int    HasFault() const
+	{
+		return BIN(State & stFault);
+	}
+	const  SString & GetFaultText() const
+	{
+		return FaultText;
+	}
+	SoapPacketStruc & GetBody()
+	{
+		return B;
+	}
+	int    SetString(const char * pStr, uint * pP);
+	int    GetStringPos(const char * pStr, uint * pP) const;
+	int    GetString(uint pos, SString & rBuf) const;
+private:
+	int    ParseType(SString & rTypeBuf, uint * pArraySize) const;
+
+	long   State;
+	SString FaultCode;
+	SString FaultText;
+	SoapPacketStruc B;
+	SymbHashTable T;
+	uint   SymbCounter;
+};
+
 SoapPacketItem::SoapPacketItem()
 {
 	Typ = 0;
@@ -1286,187 +1544,4 @@ int SoapPacket::Write(const char * pUrn, const char * pMethodName, void ** ppXml
 #endif // } 0
 	return ok;
 }
-//
-//
-//
-SXml::WDoc::WDoc(xmlTextWriterPtr pWriter, SCodepage cp)
-{
-	State = 0;
-	Lx = pWriter;
-	if(Lx) {
-		SString temp_buf;
-		if(cp < 0)
-			cp = cpUTF8;
-		SCodepageIdent cpi(cp);
-		SCodepageIdent temp_cp = cp;
-		temp_cp.ToStr(SCodepageIdent::fmtXML, temp_buf = 0);
-		xmlTextWriterStartDocument(Lx, 0, temp_buf, 0);
-		State |= stStarted;
-	}
-}
-
-SXml::WDoc::~WDoc()
-{
-	if(State & stStarted) {
-		if(Lx)
-			xmlTextWriterEndDocument(Lx);
-		Lx = 0;
-		State &= ~stStarted;
-	}
-}
-
-//static
-SString & FASTCALL SXml::WNode::CDATA(SString & rBuf)
-{
-	SString temp_buf;
-	temp_buf.Cat("<![CDATA[").Cat(rBuf).Cat("]]>");
-	rBuf = temp_buf;
-	return rBuf;
-}
-
-SXml::WNode::WNode(xmlTextWriterPtr pWriter, const char * pName)
-{
-	Construct(pWriter, pName);
-}
-
-SXml::WNode::WNode(xmlTextWriterPtr pWriter, const char * pName, const SString & rValue)
-{
-	if(Construct(pWriter, pName))
-		xmlTextWriterWriteString(Lx, rValue.ucptr());
-}
-
-SXml::WNode::WNode(xmlTextWriterPtr pWriter, const char * pName, const char * pValue)
-{
-	if(Construct(pWriter, pName))
-		xmlTextWriterWriteString(Lx, (const xmlChar*)pValue);
-}
-
-SXml::WNode::~WNode()
-{
-	if(State & stStarted && Lx) {
-		xmlTextWriterEndElement(Lx);
-	}
-}
-
-int SXml::WNode::PutAttrib(const char * pName, const char * pValue)
-{
-	int    ok = 1;
-	if(State & stStarted && Lx) {
-		xmlTextWriterStartAttribute(Lx, (const xmlChar*)pName);
-		xmlTextWriterWriteString(Lx, (const xmlChar*)pValue);
-		xmlTextWriterEndAttribute(Lx);
-	}
-	else
-		ok = 0;
-	return ok;
-}
-
-int SXml::WNode::PutInner(const char * pInnerName, const char * pInnerValue)
-{
-	int    ok = 1;
-	if(State & stStarted && Lx) {
-		WNode inner(Lx, pInnerName, isempty(pInnerValue) ? 0 : pInnerValue);
-	}
-	else
-		ok = 0;
-	return ok;
-}
-
-int SXml::WNode::PutInnerSkipEmpty(const char * pInnerName, const char * pInnerValue)
-{
-	int    ok = 1;
-	if(State & stStarted && Lx) {
-		SString temp_buf = pInnerValue;
-		if(temp_buf.NotEmptyS()) {
-			WNode inner(Lx, pInnerName, pInnerValue);
-		}
-	}
-	else
-		ok = 0;
-	return ok;
-}
-
-int SXml::WNode::SetValue(const SString & rText)
-{
-	int    ok = 0;
-	if(State & stStarted && Lx) {
-		xmlTextWriterWriteString(Lx, rText.ucptr());
-		ok = 1;
-	}
-	return ok;
-}
-
-int SXml::WNode::Construct(xmlTextWriterPtr pWriter, const char * pName)
-{
-	int   ok = 0;
-	State = 0;
-	Lx = pWriter;
-	Name = pName;
-	if(Lx && Name.NotEmpty()) {
-		xmlTextWriterStartElement(Lx, Name.ucptr());
-		State |= stStarted;
-		ok = 1;
-	}
-	return ok;
-}
-
-//static
-int FASTCALL SXml::IsName(const xmlNode * pNode, const char * pName)
-{
-	return BIN(pNode && sstreqi_ascii((const char *)pNode->name, pName));
-}
-
-//static
-int FASTCALL SXml::IsContent(const xmlNode * pNode, const char * pText)
-{
-	return BIN(pNode && sstreqi_ascii((const char *)pNode->content, pText));
-}
-
-//static
-int FASTCALL SXml::GetContent(const xmlNode * pNode, SString & rResult)
-{
-	int    ok = 0;
-	rResult = 0;
-	if(pNode) {
-		if(pNode->content) {
-			rResult.Set(pNode->content);
-			ok = 1;
-		}
-		else if(pNode->type == XML_ELEMENT_NODE && pNode->children && pNode->children->type == XML_TEXT_NODE) {
-			if(pNode->children->content) {
-				rResult.Set(pNode->children->content);
-				ok = 1;
-			}
-		}
-	}
-	return ok;
-}
-
-//static
-int SLAPI SXml::GetContentByName(const xmlNode * pNode, const char * pName, SString & rResult)
-{
-	int    ok = 0;
-	if(IsName(pNode, pName)) {
-		GetContent(pNode, rResult);
-		ok = rResult.NotEmpty() ? 1 : -1;
-	}
-	return ok;
-}
-
-//static
-int SLAPI SXml::GetAttrib(const xmlNode * pNode, const char * pAttr, SString & rResult)
-{
-	int    ok = 0;
-	rResult = 0;
-    if(pNode) {
-		for(const xmlAttr * p_attr = pNode->properties; p_attr; p_attr = p_attr->next) {
-			if(sstreqi_ascii((const char *)p_attr->name, pAttr)) {
-				if(p_attr->children && p_attr->children->type == XML_TEXT_NODE)
-					rResult.Set(p_attr->children->content);
-				ok = 1;
-			}
-		}
-    }
-    return ok;
-}
-
+#endif // } @construction

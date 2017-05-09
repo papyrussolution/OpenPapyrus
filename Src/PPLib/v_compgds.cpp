@@ -61,8 +61,7 @@ int SLAPI PPViewSuprWare::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		int    setDTS(const SuprWareFilt * pData)
 		{
 			RVALUEPTR(Data, pData);
-			AddClusterAssoc(CTL_FLTCOMPGDS_SWTYPE, 0, SUPRWARETYPE_GOODS);
-			AddClusterAssoc(CTL_FLTCOMPGDS_SWTYPE, -1, SUPRWARETYPE_GOODS);
+			AddClusterAssocDef(CTL_FLTCOMPGDS_SWTYPE, 0, SUPRWARETYPE_GOODS);
 			AddClusterAssoc(CTL_FLTCOMPGDS_SWTYPE, 1, SUPRWARETYPE_COMPONENT);
 			SetClusterData(CTL_FLTCOMPGDS_SWTYPE, Data.SuprWareType);
 			SetupStringCombo(this, CTLSEL_FLTCOMPGDS_SWCAT, PPTXT_COMPGDS_TYPES, Data.SuprWareCat);

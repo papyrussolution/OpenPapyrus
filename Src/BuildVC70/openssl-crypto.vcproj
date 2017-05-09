@@ -22,8 +22,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="0"
-				AdditionalIncludeDirectories="..\OSF\OpenSSL-CMake\__build_src__;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;..\OSF\OpenSSL-CMake\__build_src__\ssl;..\OSF\OpenSSL-CMake\__build_src__\openssl;..\OSF\OpenSSL-CMake\__build_src__\crypto"
-				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR=\&quot;Debug\&quot;"
+				AdditionalIncludeDirectories="..\include;&quot;..\OSF\OpenSSL-CMake\crypto\include&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\modes&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bn&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\rsa&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\dh&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bio&quot;;&quot;..\OSF\OpenSSL-CMake&quot;;&quot;..\OSF\OpenSSL-CMake\include&quot;"
+				PreprocessorDefinitions="_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="0"
@@ -31,11 +31,16 @@
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
 				AssemblerListingLocation="Debug/"
 				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
 				WarningLevel="3"
 				DebugInformationFormat="3"
-				CompileAs="1"/>
+				CompileAs="2"
+				ShowIncludes="FALSE"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -84,8 +89,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="2"
-				AdditionalIncludeDirectories="..\OSF\OpenSSL-CMake\__build_src__;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;..\OSF\OpenSSL-CMake\__build_src__\ssl;..\OSF\OpenSSL-CMake\__build_src__\openssl;..\OSF\OpenSSL-CMake\__build_src__\crypto"
-				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR=\&quot;Release\&quot;"
+				AdditionalIncludeDirectories="..\include;&quot;..\OSF\OpenSSL-CMake\crypto\include&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\modes&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bn&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\rsa&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\dh&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bio&quot;;&quot;..\OSF\OpenSSL-CMake&quot;;&quot;..\OSF\OpenSSL-CMake\include&quot;"
+				PreprocessorDefinitions="NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="0"
@@ -93,10 +98,281 @@
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
 				AssemblerListingLocation="Release/"
 				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
 				WarningLevel="3"
-				CompileAs="1"/>
+				CompileAs="2"
+				ShowIncludes="FALSE"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/$(ProjectName).lib"/>
+			<Tool
+				Name="VCMIDLTool"
+				AdditionalIncludeDirectories="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1;D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;"
+				MkTypLibCompatible="FALSE"
+				TargetEnvironment="1"
+				GenerateStublessProxies="TRUE"
+				TypeLibraryName="$(InputName).tlb"
+				OutputDirectory="$(IntDir)"
+				HeaderFileName="$(InputName).h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="$(InputName)_i.c"
+				ProxyFileName="$(InputName)_p.c"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR=\&quot;Release\&quot;"
+				AdditionalIncludeDirectories="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1;D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="MtDllDebug|Win32"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				InlineFunctionExpansion="0"
+				AdditionalIncludeDirectories="..\include;&quot;..\OSF\OpenSSL-CMake\crypto\include&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\modes&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bn&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\rsa&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\dh&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bio&quot;;&quot;..\OSF\OpenSSL-CMake&quot;;&quot;..\OSF\OpenSSL-CMake\include&quot;"
+				PreprocessorDefinitions="_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
+				StringPooling="TRUE"
+				ExceptionHandling="FALSE"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="1"
+				StructMemberAlignment="1"
+				BufferSecurityCheck="FALSE"
+				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
+				AssemblerListingLocation="Debug/"
+				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+				CompileAs="2"
+				ShowIncludes="FALSE"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/$(ProjectName).lib"/>
+			<Tool
+				Name="VCMIDLTool"
+				AdditionalIncludeDirectories="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1;D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;"
+				MkTypLibCompatible="FALSE"
+				TargetEnvironment="1"
+				GenerateStublessProxies="TRUE"
+				TypeLibraryName="$(InputName).tlb"
+				OutputDirectory="$(IntDir)"
+				HeaderFileName="$(InputName).h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="$(InputName)_i.c"
+				ProxyFileName="$(InputName)_p.c"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR=\&quot;Debug\&quot;"
+				AdditionalIncludeDirectories="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1;D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="MtDllRelease|Win32"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="2"
+				AdditionalIncludeDirectories="..\include;&quot;..\OSF\OpenSSL-CMake\crypto\include&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\modes&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bn&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\rsa&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\dh&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bio&quot;;&quot;..\OSF\OpenSSL-CMake&quot;;&quot;..\OSF\OpenSSL-CMake\include&quot;"
+				PreprocessorDefinitions="NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
+				StringPooling="TRUE"
+				ExceptionHandling="FALSE"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="0"
+				StructMemberAlignment="1"
+				BufferSecurityCheck="FALSE"
+				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
+				AssemblerListingLocation="Release/"
+				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
+				WarningLevel="3"
+				CompileAs="2"
+				ShowIncludes="FALSE"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/$(ProjectName).lib"/>
+			<Tool
+				Name="VCMIDLTool"
+				AdditionalIncludeDirectories="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1;D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;"
+				MkTypLibCompatible="FALSE"
+				TargetEnvironment="1"
+				GenerateStublessProxies="TRUE"
+				TypeLibraryName="$(InputName).tlb"
+				OutputDirectory="$(IntDir)"
+				HeaderFileName="$(InputName).h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="$(InputName)_i.c"
+				ProxyFileName="$(InputName)_p.c"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR=\&quot;Release\&quot;"
+				AdditionalIncludeDirectories="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1;D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="ServerDebug|Win32"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				InlineFunctionExpansion="0"
+				AdditionalIncludeDirectories="..\include;&quot;..\OSF\OpenSSL-CMake\crypto\include&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\modes&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bn&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\rsa&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\dh&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bio&quot;;&quot;..\OSF\OpenSSL-CMake&quot;;&quot;..\OSF\OpenSSL-CMake\include&quot;"
+				PreprocessorDefinitions="_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
+				StringPooling="TRUE"
+				ExceptionHandling="FALSE"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="1"
+				StructMemberAlignment="1"
+				BufferSecurityCheck="FALSE"
+				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
+				AssemblerListingLocation="Debug/"
+				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+				CompileAs="2"
+				ShowIncludes="FALSE"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/$(ProjectName).lib"/>
+			<Tool
+				Name="VCMIDLTool"
+				AdditionalIncludeDirectories="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1;D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;"
+				MkTypLibCompatible="FALSE"
+				TargetEnvironment="1"
+				GenerateStublessProxies="TRUE"
+				TypeLibraryName="$(InputName).tlb"
+				OutputDirectory="$(IntDir)"
+				HeaderFileName="$(InputName).h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="$(InputName)_i.c"
+				ProxyFileName="$(InputName)_p.c"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR=\&quot;Debug\&quot;"
+				AdditionalIncludeDirectories="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1;D:\Papyrus\Src\Build-openssl-cmake;D:\Papyrus\Src\OSF\OpenSSL-CMake\.;D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto;D:\Papyrus\Src\Build-openssl-cmake\ssl;D:\Papyrus\Src\Build-openssl-cmake\crypto;"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="ServerRelease|Win32"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="2"
+				AdditionalIncludeDirectories="..\include;&quot;..\OSF\OpenSSL-CMake\crypto\include&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\modes&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bn&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\rsa&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\dh&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bio&quot;;&quot;..\OSF\OpenSSL-CMake&quot;;&quot;..\OSF\OpenSSL-CMake\include&quot;"
+				PreprocessorDefinitions="NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
+				StringPooling="TRUE"
+				ExceptionHandling="FALSE"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="0"
+				StructMemberAlignment="1"
+				BufferSecurityCheck="FALSE"
+				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
+				AssemblerListingLocation="Release/"
+				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
+				WarningLevel="3"
+				CompileAs="2"
+				ShowIncludes="FALSE"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -144,12 +420,6 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\a_bitstr.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\a_bool.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\a_bytes.c">
-			</File>
-			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\a_d2i_fp.c">
 			</File>
 			<File
@@ -157,9 +427,6 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\a_dup.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\a_enum.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\a_gentm.c">
@@ -181,9 +448,6 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\a_print.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\a_set.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\a_sign.c">
@@ -217,9 +481,6 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\aes\aes_core.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\aes\aes_ctr.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\aes\aes_ecb.c">
@@ -258,7 +519,13 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\asn_moid.c">
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\asn1\asn_mstbl.c">
+			</File>
+			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\asn_pack.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\bio\b_addr.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\bio\b_dump.c">
@@ -268,6 +535,9 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\bio\b_sock.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\bio\b_sock2.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\bio\bf_buff.c">
@@ -313,6 +583,9 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\bio_md.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\bio\bio_meth.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\bio_ndef.c">
@@ -438,9 +711,6 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\buffer\buf_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\buffer\buf_str.c">
-			</File>
-			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\buffer\buffer.c">
 			</File>
 			<File
@@ -448,9 +718,6 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\x509\by_file.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\c_all.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\c_allc.c">
@@ -469,9 +736,6 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\cast\c_ofb64.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\comp\c_rle.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\cast\c_skey.c">
@@ -507,6 +771,9 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\des\cfb_enc.c">
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\chacha\chacha_enc.c">
+			</File>
+			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\cmac\cm_ameth.c">
 			</File>
 			<File
@@ -514,6 +781,9 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\cmac\cmac.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\evp\cmeth_lib.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\camellia\cmll_cbc.c">
@@ -532,9 +802,6 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\camellia\cmll_ofb.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\camellia\cmll_utl.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\cms\cms_asn1.c">
@@ -609,6 +876,36 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\cryptlib.c">
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\ct\ct_b64.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\ct\ct_err.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\ct\ct_log.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\ct\ct_oct.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\ct\ct_policy.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\ct\ct_prn.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\ct\ct_sct.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\ct\ct_sct_ctx.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\ct\ct_vfy.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\ct\ct_x509v3.c">
+			</File>
+			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\modes\ctr128.c">
 			</File>
 			<File
@@ -625,12 +922,6 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\des\des_enc.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\des\des_old.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\des\des_old2.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\dh\dh_ameth.c">
@@ -702,9 +993,6 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\dsa\dsa_vrf.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\dso\dso_beos.c">
-			</File>
-			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\dso\dso_dl.c">
 			</File>
 			<File
@@ -717,9 +1005,6 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\dso\dso_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\dso\dso_null.c">
-			</File>
-			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\dso\dso_openssl.c">
 			</File>
 			<File
@@ -729,19 +1014,10 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\dso\dso_win32.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\e_4758cca.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\e_aep.c">
-			</File>
-			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\e_aes.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\e_aes_cbc_hmac_sha1.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\e_atalla.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\e_bf.c">
@@ -763,6 +1039,30 @@
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions="HEADER_OCSP_H"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="HEADER_OCSP_H"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="HEADER_OCSP_H"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="HEADER_OCSP_H"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="HEADER_OCSP_H"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\e_cast.c">
@@ -771,28 +1071,16 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\e_chil.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\e_cswift.c">
-			</File>
-			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\e_des.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\e_des3.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\e_gmp.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\ccgost\e_gost_err.c">
-			</File>
-			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\e_idea.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\e_null.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\e_nuron.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\e_old.c">
@@ -814,12 +1102,6 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\e_seed.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\e_sureware.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\e_ubsec.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\e_xcbc_d.c">
@@ -879,18 +1161,6 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\des\ecb_enc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\ecdh\ech_err.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\ecdh\ech_key.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\ecdh\ech_lib.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\ecdh\ech_ossl.c">
-			</File>
-			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\ec\eck_prn.c">
 			</File>
 			<File
@@ -900,37 +1170,25 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\ec\ecp_nist.c">
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\ec\ecp_nistp224.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\ec\ecp_nistp256.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\ec\ecp_nistp521.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\ec\ecp_nistputil.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\ec\ecp_nistz256.c">
+			</File>
+			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\ec\ecp_oct.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\ec\ecp_smpl.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\ecdsa\ecs_asn1.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\ecdsa\ecs_err.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\ecdsa\ecs_lib.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\ecdsa\ecs_ossl.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\ecdsa\ecs_sign.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\ecdsa\ecs_vrf.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\des\ede_cbcm_enc.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\des\enc_read.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\des\enc_writ.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\encode.c">
@@ -975,9 +1233,6 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\engine\eng_rdrand.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\engine\eng_rsax.c">
-			</File>
-			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\engine\eng_table.c">
 			</File>
 			<File
@@ -988,9 +1243,6 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\err\err_prn.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\evp_acnf.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\evp_asn1.c">
@@ -1020,9 +1272,6 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\ex_data.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\f_enum.c">
-			</File>
-			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\f_int.c">
 			</File>
 			<File
@@ -1036,51 +1285,6 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\modes\gcm128.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\ccgost\gost2001.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\ccgost\gost2001_keyx.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\ccgost\gost89.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\ccgost\gost94_keyx.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\ccgost\gost_ameth.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\ccgost\gost_asn1.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\ccgost\gost_crypt.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\ccgost\gost_ctl.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\ccgost\gost_eng.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\ccgost\gost_keywrap.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\ccgost\gost_md.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\ccgost\gost_params.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\ccgost\gost_pmeth.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\ccgost\gost_sign.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\engines\ccgost\gosthash.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\hmac\hm_ameth.c">
@@ -1113,22 +1317,10 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\idea\i_skey.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\krb5\krb5_asn.c">
-			</File>
-			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\lhash\lh_stats.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\lhash\lhash.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\m_dss.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\m_dss1.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\m_ecdsa.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\m_md2.c">
@@ -1147,9 +1339,6 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\m_ripemd.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\m_sha.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\m_sha1.c">
@@ -1266,6 +1455,45 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\des\ofb_enc.c">
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\openssl-crypto-pch.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\pkcs12\p12_add.c">
 			</File>
 			<File
@@ -1318,6 +1546,9 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\p5_pbev2.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\asn1\p5_scrypt.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\p8_pkey.c">
@@ -1386,9 +1617,6 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\pem\pem_pkey.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\pem\pem_seal.c">
-			</File>
-			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\pem\pem_sign.c">
 			</File>
 			<File
@@ -1431,7 +1659,7 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\evp\pmeth_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\pqueue\pqueue.c">
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\poly1305\poly1305.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\pem\pvkfmt.c">
@@ -1450,12 +1678,6 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\rand\rand_lib.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\rand\rand_nw.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\rand\rand_os2.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\rand\rand_unix.c">
@@ -1488,9 +1710,6 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\rc4\rc4_skey.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\rc4\rc4_utl.c">
-			</File>
-			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\rc5\rc5_ecb.c">
 			</File>
 			<File
@@ -1504,9 +1723,6 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\rc5\rc5ofb64.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\des\read2pwd.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\ripemd\rmd_dgst.c">
@@ -1531,9 +1747,6 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\rsa\rsa_depr.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\rsa\rsa_eay.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\rsa\rsa_err.c">
@@ -1608,12 +1821,6 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\sha\sha512.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\sha\sha_dgst.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\sha\sha_one.c">
-			</File>
-			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\srp\srp_lib.c">
 			</File>
 			<File
@@ -1629,22 +1836,10 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\t_bitst.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\t_crl.c">
-			</File>
-			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\t_pkey.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\t_req.c">
-			</File>
-			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\t_spki.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\t_x509.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\t_x509a.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\tasn_dec.c">
@@ -1660,6 +1855,9 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\tasn_prn.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\asn1\tasn_scn.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\tasn_typ.c">
@@ -1683,12 +1881,6 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\engine\tb_dsa.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\engine\tb_ecdh.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\engine\tb_ecdsa.c">
-			</File>
-			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\engine\tb_pkmeth.c">
 			</File>
 			<File
@@ -1696,9 +1888,6 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\engine\tb_rsa.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\engine\tb_store.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\ts\ts_asn1.c">
@@ -1735,9 +1924,6 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\txt_db\txt_db.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\ui\ui_compat.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\ui\ui_err.c">
@@ -1807,9 +1993,6 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\x509v3\v3_ncons.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\x509v3\v3_ocsp.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\x509v3\v3_pci.c">
@@ -1920,16 +2103,16 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\x509\x_all.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\x_attrib.c">
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\x509\x_attrib.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\x_bignum.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\x_crl.c">
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\x509\x_crl.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\x_exten.c">
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\x509\x_exten.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\x_info.c">
@@ -1938,19 +2121,16 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\x_long.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\x_name.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\x_nx509.c">
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\x509\x_name.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\x_pkey.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\x_pubkey.c">
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\x509\x_pubkey.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\x_req.c">
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\x509\x_req.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\x_sig.c">
@@ -1962,16 +2142,119 @@
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\x_val.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\x_x509.c">
-			</File>
-			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\asn1\x_x509a.c">
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\x509\x_x509.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\des\xcbc_enc.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\crypto\modes\xts128.c">
+			</File>
+		</Filter>
+		<Filter
+			Name="Header Files"
+			Filter="">
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\include\openssl\asn1.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\include\internal\asn1_int.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\include\openssl\asn1t.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\include\internal\async.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\include\openssl\bio.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\include\internal\bio.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\include\openssl\bn.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\include\internal\bn_dh.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\include\internal\bn_int.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\include\internal\bn_srp.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\include\internal\chacha.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\include\internal\conf.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\include\internal\cryptlib.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\include\internal\cryptlib_int.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\include\internal\dso.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\e_os.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\include\internal\engine.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\include\internal\err_int.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\include\internal\evp_int.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\include\openssl\lhash.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\include\internal\md32_common.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\include\internal\objects.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\include\openssl\opensslconf.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\include\openssl\ossl_typ.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\include\internal\poly1305.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\include\internal\rand.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\include\openssl\rc5.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\include\openssl\rsa.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\include\openssl\safestack.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\include\openssl\txt_db.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\include\openssl\x509.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\crypto\include\internal\x509_int.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\include\openssl\x509_vfy.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\include\openssl\x509v3.h">
 			</File>
 		</Filter>
 	</Files>

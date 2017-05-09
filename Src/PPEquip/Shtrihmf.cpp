@@ -186,7 +186,7 @@ int SLAPI ACS_SHTRIHMFRK::SetGoodsRestLoadFlag(int updOnly)
 int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 {
 	int    ok = 1, load_groups = 0;
-	char   load_symb = '#', * p_format = "%s\n";
+	const  char * p_format = "%s\n";
 	PPID   prev_goods_id = 0, stat_id = 0;
 	LAssocArray  grp_n_level_ary;
 	SString   f_str, name;
@@ -210,11 +210,11 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 	PPWait(1);
 	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_SHTRIHMFRK_IMP_TXT,  path_goods));
 	PPSetAddedMsgString(path_goods);
-	THROW_PP(p_file = fopen(path_goods, onecstr('w')), PPERR_CANTOPENFILE);
+	THROW_PP(p_file = fopen(path_goods, "w"), PPERR_CANTOPENFILE);
 	THROW_MEM(p_gds_iter = new AsyncCashGoodsIterator(NodeID, (updOnly ? ACGIF_UPDATEDONLY : 0), SinceDlsID, P_Dls));
 	THROW(PPGetSubStr(PPTXT_SHTRIHMFRK_CMDSTRINGS, PPSHTRIHMFRKCS_INITFILE, f_str));
-	THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
-	THROW_PP(fprintf(p_file, p_format, onecstr(load_symb)) > 0,  PPERR_EXPFILEWRITEFAULT);
+	THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
+	THROW_PP(fprintf(p_file, p_format, "#") > 0,  PPERR_EXPFILEWRITEFAULT);
 	load_groups = (cn_data.Flags & CASHF_EXPGOODSGROUPS) ? 1 : 0;
 	if(load_groups) {
 		THROW_MEM(p_grp_iter = new AsyncCashGoodsGroupIterator(NodeID, 0, P_Dls));
@@ -515,13 +515,13 @@ int SLAPI ACS_SHTRIHMFRK::GetSessionData(int * pSessCount, int * pIsForwardSess,
 		}
 		THROW_PP(acn.ExpPaths.NotEmptyS() || acn.ImpFiles.NotEmptyS(), PPERR_INVFILESET);
 		ImpPaths.clear();
-		ImpPaths.setDelim(onecstr(';'));
+		ImpPaths.setDelim(";");
 		{
 			SString & r_list = (acn.ImpFiles.NotEmpty()) ? acn.ImpFiles : acn.ExpPaths;
 			ImpPaths.setBuf(r_list, r_list.Len() + 1);
 		}
 		ExpPaths.clear();
-		ExpPaths.setDelim(onecstr(';'));
+		ExpPaths.setDelim(";");
 		{
 			SString & r_list = (acn.ExpPaths.NotEmpty()) ? acn.ExpPaths : acn.ImpFiles;
 			ExpPaths.setBuf(r_list, r_list.Len() + 1);

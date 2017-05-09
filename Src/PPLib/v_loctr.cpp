@@ -286,8 +286,7 @@ int LocTransfDialog::setDTS(const LocTransfTbl::Rec * pData)
 		LocationCtrlGroup::Rec loccg_rec(&loc_list, WarehouseID);
 		setGroupData(grpLoc, &loccg_rec);
 	}
-	AddClusterAssoc(CTL_LOCTRANSF_OP,  0, LOCTRFROP_PUT);
-	AddClusterAssoc(CTL_LOCTRANSF_OP, -1, LOCTRFROP_PUT);
+	AddClusterAssocDef(CTL_LOCTRANSF_OP,  0, LOCTRFROP_PUT);
 	AddClusterAssoc(CTL_LOCTRANSF_OP,  1, LOCTRFROP_GET);
 	AddClusterAssoc(CTL_LOCTRANSF_OP,  2, LOCTRFROP_INVENT);
 	SetClusterData(CTL_LOCTRANSF_OP, Data.Op);
@@ -382,8 +381,7 @@ public:
 			if(p_loc_grp)
 				p_loc_grp->SetWarehouseCellMode(this, 0);
 		}
-		AddClusterAssoc(CTL_LOCTRFILT_MODE, 0, LocTransfFilt::modeGeneral);
-		AddClusterAssoc(CTL_LOCTRFILT_MODE, -1, LocTransfFilt::modeGeneral);
+		AddClusterAssocDef(CTL_LOCTRFILT_MODE, 0, LocTransfFilt::modeGeneral);
 		AddClusterAssoc(CTL_LOCTRFILT_MODE, 1, LocTransfFilt::modeCurrent);
 		AddClusterAssoc(CTL_LOCTRFILT_MODE, 2, LocTransfFilt::modeEmpty);
 		AddClusterAssoc(CTL_LOCTRFILT_MODE, 3, LocTransfFilt::modeDisposition);

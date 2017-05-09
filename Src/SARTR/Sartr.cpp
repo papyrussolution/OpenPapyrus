@@ -3877,7 +3877,7 @@ int SrDatabase::FormatProp(const SrCProp & rCp, long flags, SString & rBuf)
 			rBuf.Cat(iv);
 		}
 		else if(typ == SRPROPT_REAL) {
-			double rv = 0;
+			double rv = 0.0;
 			rCp.Get(rv);
 			rBuf.Cat(rv);
 		}

@@ -109,8 +109,7 @@ public:
 		f = CheckXORFlags(Data.Flags, InventoryFilt::fUnwrOff, InventoryFilt::fWrOff);
 		v = (f == InventoryFilt::fUnwrOff) ? 1 : ((f == InventoryFilt::fWrOff) ? 2 : 0);
 		setCtrlUInt16(CTL_INVDIFFLT_WROFF, v);
-		AddClusterAssoc(CTL_INVDIFFLT_ORD, -1, InventoryFilt::ordByDefault);
-		AddClusterAssoc(CTL_INVDIFFLT_ORD,  0, InventoryFilt::ordByDefault);
+		AddClusterAssocDef(CTL_INVDIFFLT_ORD,  0, InventoryFilt::ordByDefault);
 		AddClusterAssoc(CTL_INVDIFFLT_ORD,  1, InventoryFilt::ordByGoods);
 		AddClusterAssoc(CTL_INVDIFFLT_ORD,  2, InventoryFilt::ordByDeficit);
 		AddClusterAssoc(CTL_INVDIFFLT_ORD,  3, InventoryFilt::ordByDiff);
@@ -1422,8 +1421,7 @@ static int SLAPI AutoFillInventryDlg(AutoFillInvFilt * pFilt)
 					ideqvalstr(Data.BillID, info_buf);
 			}
 			SetupPPObjCombo(this, CTLSEL_FLTAFINV_GGRP, PPOBJ_GOODSGROUP, Data.GoodsGrpID, OLW_CANSELUPLEVEL, 0);
-			AddClusterAssoc(CTL_FLTAFINV_METHOD,  0, PPInventoryOpEx::afmPresents);
-			AddClusterAssoc(CTL_FLTAFINV_METHOD, -1, PPInventoryOpEx::afmPresents);
+			AddClusterAssocDef(CTL_FLTAFINV_METHOD,  0, PPInventoryOpEx::afmPresents);
 			AddClusterAssoc(CTL_FLTAFINV_METHOD,  1, PPInventoryOpEx::afmAll);
 			AddClusterAssoc(CTL_FLTAFINV_METHOD,  2, PPInventoryOpEx::afmPrev);
 			AddClusterAssoc(CTL_FLTAFINV_METHOD,  3, PPInventoryOpEx::afmByCurLotRest);

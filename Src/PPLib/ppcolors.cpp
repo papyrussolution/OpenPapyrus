@@ -773,7 +773,7 @@ void ColorCtrlGroup::Rec::SetupStdColorList()
 	AddColorItem(SClrSeagreen, 0);
 	AddColorItem(0x996633,     0);
 	AddColorItem(SClrCoral,    0);
-	AddColorItem(GetDefaultDesktopBgColor(), 0);
+	AddColorItem(PPDesktop::GetDefaultBgColor(), 0);
 }
 
 uint ColorCtrlGroup::Rec::GetColorItemsCount() const

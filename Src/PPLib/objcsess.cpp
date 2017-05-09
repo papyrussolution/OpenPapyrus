@@ -139,8 +139,7 @@ int SLAPI PPObjCSession::Edit(PPID * pID, void * extraPtr)
 	SetupPPObjCombo(dlg, CTLSEL_CSESS_CASHNODE, PPOBJ_CASHNODE, rec.CashNodeID, 0, 0);
 	dlg->AddClusterAssoc(CTL_CSESS_INCOMPL,  0, CSESSINCMPL_COMPLETE);
 	dlg->AddClusterAssoc(CTL_CSESS_INCOMPL,  1, CSESSINCMPL_GLINES);
-	dlg->AddClusterAssoc(CTL_CSESS_INCOMPL,  2, CSESSINCMPL_CHECKS);
-	dlg->AddClusterAssoc(CTL_CSESS_INCOMPL, -1, CSESSINCMPL_CHECKS);
+	dlg->AddClusterAssocDef(CTL_CSESS_INCOMPL,  2, CSESSINCMPL_CHECKS);
 	dlg->SetClusterData(CTL_CSESS_INCOMPL, rec.Incomplete);
 	dlg->setCtrlUInt16(CTL_CSESS_TEMP, BIN(rec.Temporary));
 	dlg->disableCtrl(CTL_CSESS_ID, 1);
@@ -1129,7 +1128,7 @@ CTableOrder::Packet::Packet()
 	Init(0, dtm, 0);
 }
 
-int CTableOrder::Packet::Init(PPID posNodeID, LDATETIME initDtm, long initDuration)
+void CTableOrder::Packet::Init(PPID posNodeID, LDATETIME initDtm, long initDuration)
 {
 	PosNodeID = posNodeID;
 	ChkID = 0;
@@ -1146,7 +1145,6 @@ int CTableOrder::Packet::Init(PPID posNodeID, LDATETIME initDtm, long initDurati
 		dtm.t = encodetime(dtm.t.hour()+1, 0, 0, 0);
 		Chunk.Init(dtm, (initDuration > 0) ? initDuration : (60*60));
 	}
-	return 1;
 }
 //
 //

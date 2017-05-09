@@ -744,8 +744,7 @@ static int SLAPI _EditCcByBillParam(_CcByBillParam & rParam)
 	int    ok = -1;
     TDialog * dlg = new TDialog(DLG_CCBYBILL);
     if(CheckDialogPtrErr(&dlg)) {
-        dlg->AddClusterAssoc(CTL_CCBYBILL_PAYMTYPE,  0, cpmCash);
-        dlg->AddClusterAssoc(CTL_CCBYBILL_PAYMTYPE, -1, cpmCash);
+        dlg->AddClusterAssocDef(CTL_CCBYBILL_PAYMTYPE,  0, cpmCash);
         dlg->AddClusterAssoc(CTL_CCBYBILL_PAYMTYPE,  1, cpmBank);
         dlg->SetClusterData(CTL_CCBYBILL_PAYMTYPE, rParam.PaymType);
         dlg->setCtrlLong(CTL_CCBYBILL_DIVISION, rParam.DivisionN);
@@ -2637,8 +2636,7 @@ static int SLAPI EditTDisCalcMethod(TDisCalcMethodParam * pData)
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_TDISCALC);
 	if(CheckDialogPtrErr(&dlg)) {
-		dlg->AddClusterAssoc(CTL_TDISCALC_METHOD, 0, PPBillConfig::tdcmSimple);
-		dlg->AddClusterAssoc(CTL_TDISCALC_METHOD, -1, PPBillConfig::tdcmSimple);
+		dlg->AddClusterAssocDef(CTL_TDISCALC_METHOD, 0, PPBillConfig::tdcmSimple);
 		dlg->AddClusterAssoc(CTL_TDISCALC_METHOD, 1, PPBillConfig::tdcmRegress);
 		dlg->AddClusterAssoc(CTL_TDISCALC_METHOD, 2, PPBillConfig::tdcmRegress2);
 		dlg->SetClusterData(CTL_TDISCALC_METHOD, pData->Method);
@@ -2704,8 +2702,7 @@ static int SLAPI EditBillCfgValuationParam(PPBillConfig * pData)
 	if(CheckDialogPtrErr(&dlg)) {
 		SetupPPObjCombo(dlg, CTLSEL_SELQUOT2_KIND, PPOBJ_QUOTKIND, param.QuotKindID, 0, 0);
 		dlg->setCtrlData(CTL_SELQUOT2_PREC, &param.RoundPrec);
-		dlg->AddClusterAssoc(CTL_SELQUOT2_ROUND,  0, 0);
-		dlg->AddClusterAssoc(CTL_SELQUOT2_ROUND, -1, 0);
+		dlg->AddClusterAssocDef(CTL_SELQUOT2_ROUND,  0, 0);
 		dlg->AddClusterAssoc(CTL_SELQUOT2_ROUND,  1, -1);
 		dlg->AddClusterAssoc(CTL_SELQUOT2_ROUND,  2, +1);
 		dlg->SetClusterData(CTL_SELQUOT2_ROUND, param.RoundDir);
@@ -2891,8 +2888,7 @@ int SLAPI PPObjBill::EditConfig()
 	dlg->setCtrlData(CTL_BILLCFG_INVSNTEMPLT, invsn_buf);
 	dlg->setCtrlData(CTL_BILLCFG_UNIQSNSFX, cfg.UniqSerialSfx);
 
-	dlg->AddClusterAssoc(CTL_BILLCFG_DEFICITSUBST, 0, PPBillConfig::gsmGeneric);
-	dlg->AddClusterAssoc(CTL_BILLCFG_DEFICITSUBST, -1, PPBillConfig::gsmGeneric);
+	dlg->AddClusterAssocDef(CTL_BILLCFG_DEFICITSUBST, 0, PPBillConfig::gsmGeneric);
 	dlg->AddClusterAssoc(CTL_BILLCFG_DEFICITSUBST, 1, PPBillConfig::gsmSubstStruc);
 	dlg->AddClusterAssoc(CTL_BILLCFG_DEFICITSUBST, 2, PPBillConfig::gsmNone);
 	dlg->SetClusterData(CTL_BILLCFG_DEFICITSUBST, cfg.GoodsSubstMethod);
@@ -3658,8 +3654,7 @@ static int SLAPI AutoCalcSelectQuot(PPObjBill * pBObj, AutoCalcPricesParam * pDa
 			Data = *pData;
 			PreserveData = *(CalcPriceParam *)pData;
 			int    ok = 1;
-			AddClusterAssoc(CTL_SELQUOT2_ACTION, 0, AutoCalcPricesParam::_aPrice);
-			AddClusterAssoc(CTL_SELQUOT2_ACTION, -1, AutoCalcPricesParam::_aPrice);
+			AddClusterAssocDef(CTL_SELQUOT2_ACTION, 0, AutoCalcPricesParam::_aPrice);
 			AddClusterAssoc(CTL_SELQUOT2_ACTION, 1, AutoCalcPricesParam::_aCost);
 			AddClusterAssoc(CTL_SELQUOT2_ACTION, 2, AutoCalcPricesParam::_aCostByContract);
 			if(P_BObj->CheckRights(BILLRT_ACCSCOST)) {
@@ -3680,8 +3675,7 @@ static int SLAPI AutoCalcSelectQuot(PPObjBill * pBObj, AutoCalcPricesParam * pDa
 			else
 				SetupPPObjCombo(this, CTLSEL_SELQUOT2_KIND, PPOBJ_QUOTKIND, Data.QuotKindID, 0);
 			setCtrlData(CTL_SELQUOT2_PREC, &Data.RoundPrec);
-			AddClusterAssoc(CTL_SELQUOT2_ROUND,  0, 0);
-			AddClusterAssoc(CTL_SELQUOT2_ROUND, -1, 0);
+			AddClusterAssocDef(CTL_SELQUOT2_ROUND,  0, 0);
 			AddClusterAssoc(CTL_SELQUOT2_ROUND,  1, -1);
 			AddClusterAssoc(CTL_SELQUOT2_ROUND,  2, +1);
 			SetClusterData(CTL_SELQUOT2_ROUND, Data.RoundDir);

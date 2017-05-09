@@ -196,7 +196,7 @@ int SLAPI PPWorkbookPacket::PutExtStrData(int fldID, const char * pBuf)
 
 int SLAPI PPWorkbookPacket::SetLongSymb(const char * pSymb)
 {
-	return isempty(pSymb) ? -1 : TagL.PutItemStr(PPTAG_WORKBOOK_LONGCODE, pSymb);
+	return TagL.PutItemStrNE(PPTAG_WORKBOOK_LONGCODE, pSymb);
 }
 //
 //
@@ -636,8 +636,7 @@ public:
 		setCtrlLong(CTL_WORKBOOK_RANK, Data.Rec.Rank);
 
 		AddClusterAssoc(CTL_WORKBOOK_TYPE, 0, PPWBTYP_SITE);
-		AddClusterAssoc(CTL_WORKBOOK_TYPE, -1, PPWBTYP_PAGE);
-		AddClusterAssoc(CTL_WORKBOOK_TYPE, 1, PPWBTYP_PAGE);
+		AddClusterAssocDef(CTL_WORKBOOK_TYPE, 1, PPWBTYP_PAGE);
 		AddClusterAssoc(CTL_WORKBOOK_TYPE, 2, PPWBTYP_CSS);
 		AddClusterAssoc(CTL_WORKBOOK_TYPE, 3, PPWBTYP_MEDIA);
 		AddClusterAssoc(CTL_WORKBOOK_TYPE, 4, PPWBTYP_FOLDER);
@@ -769,25 +768,15 @@ public:
 			getCtrlData(CTL_WORKBOOK_KWC, &Data.Rec.KeywordCount);
 			getCtrlData(CTL_WORKBOOK_KWD, &Data.Rec.KeywordDilute);
 			// @v8.1.12 {
-			{
-				getCtrlString(CTL_WORKBOOK_KWSYN, temp_buf = 0);
-				if(temp_buf.NotEmptyS()) {
-					Data.TagL.PutItemStr(PPTAG_WORKBOOK_KWSYN, temp_buf);
-				}
-			}
-			{
-				getCtrlString(CTL_WORKBOOK_KWLOC, temp_buf = 0);
-				if(temp_buf.NotEmptyS()) {
-					Data.TagL.PutItemStr(PPTAG_WORKBOOK_KWLOC, temp_buf);
-				}
-			}
+			getCtrlString(CTL_WORKBOOK_KWSYN, temp_buf = 0);
+			Data.TagL.PutItemStrNE(PPTAG_WORKBOOK_KWSYN, temp_buf.Strip());
+			getCtrlString(CTL_WORKBOOK_KWLOC, temp_buf = 0);
+			Data.TagL.PutItemStrNE(PPTAG_WORKBOOK_KWLOC, temp_buf.Strip());
 			// } @v8.1.12
 		}
 		else {
 			getCtrlString(CTL_WORKBOOK_KEYWORDS, temp_buf = 0);
-			if(temp_buf.NotEmptyS()) {
-				Data.TagL.PutItemStr(PPTAG_WORKBOOK_KEYWORDS, temp_buf);
-			}
+			Data.TagL.PutItemStrNE(PPTAG_WORKBOOK_KEYWORDS, temp_buf.Strip());
 		}
 		{
 			if(getCtrlView(CTL_WORKBOOK_IMAGE) && !DisableImage) {
@@ -831,25 +820,13 @@ private:
 		TDialog::handleEvent(event);
 		if(event.isCmd(cmTags)) {
 			// @v8.1.12 {
-			{
-				getCtrlString(CTL_WORKBOOK_KWSYN, temp_buf = 0);
-				if(temp_buf.NotEmptyS()) {
-					Data.TagL.PutItemStr(PPTAG_WORKBOOK_KWSYN, temp_buf);
-				}
-			}
-			{
-				getCtrlString(CTL_WORKBOOK_KWLOC, temp_buf = 0);
-				if(temp_buf.NotEmptyS()) {
-					Data.TagL.PutItemStr(PPTAG_WORKBOOK_KWLOC, temp_buf);
-				}
-			}
+			getCtrlString(CTL_WORKBOOK_KWSYN, temp_buf = 0);
+			Data.TagL.PutItemStrNE(PPTAG_WORKBOOK_KWSYN, temp_buf.Strip());
+			getCtrlString(CTL_WORKBOOK_KWLOC, temp_buf = 0);
+			Data.TagL.PutItemStrNE(PPTAG_WORKBOOK_KWLOC, temp_buf.Strip());
 			// } @v8.1.12
-			{
-				getCtrlString(CTL_WORKBOOK_KEYWORDS, temp_buf = 0);
-				if(temp_buf.NotEmptyS()) {
-					Data.TagL.PutItemStr(PPTAG_WORKBOOK_KEYWORDS, temp_buf);
-				}
-			}
+			getCtrlString(CTL_WORKBOOK_KEYWORDS, temp_buf = 0);
+			Data.TagL.PutItemStrNE(PPTAG_WORKBOOK_KEYWORDS, temp_buf.Strip());
 			Data.TagL.ObjType = PPOBJ_WORKBOOK;
 			EditObjTagValList(&Data.TagL, 0);
 			// @v8.1.12 {
@@ -1017,8 +994,7 @@ public:
 	{
 		Data = *pData;
 		AddClusterAssoc(CTL_WBPRELUDE_TYPE, 0, PPWBTYP_SITE);
-		AddClusterAssoc(CTL_WBPRELUDE_TYPE, -1, PPWBTYP_PAGE);
-		AddClusterAssoc(CTL_WBPRELUDE_TYPE, 1, PPWBTYP_PAGE);
+		AddClusterAssocDef(CTL_WBPRELUDE_TYPE, 1, PPWBTYP_PAGE);
 		AddClusterAssoc(CTL_WBPRELUDE_TYPE, 2, PPWBTYP_MEDIA);
 		AddClusterAssoc(CTL_WBPRELUDE_TYPE, 3, PPWBTYP_FOLDER);
 		AddClusterAssoc(CTL_WBPRELUDE_TYPE, 4, PPWBTYP_KEYWORD);
@@ -1265,10 +1241,8 @@ int SLAPI PPObjWorkbook::SelectLink(PPObjWorkbook::SelectLinkBlock * pData)
 
 			AddClusterAssoc(CTL_SELWBLINK_TYPE, 0, PPObjWorkbook::SelectLinkBlock::ltImage);
 			AddClusterAssoc(CTL_SELWBLINK_TYPE, 1, PPObjWorkbook::SelectLinkBlock::ltRef);
-			AddClusterAssoc(CTL_SELWBLINK_TYPE, 2, PPObjWorkbook::SelectLinkBlock::ltLink);
+			AddClusterAssocDef(CTL_SELWBLINK_TYPE, 2, PPObjWorkbook::SelectLinkBlock::ltLink);
 			AddClusterAssoc(CTL_SELWBLINK_TYPE, 3, PPObjWorkbook::SelectLinkBlock::ltAnnot);
-			AddClusterAssoc(CTL_SELWBLINK_TYPE, -1, PPObjWorkbook::SelectLinkBlock::ltLink);
-
 			SetClusterData(CTL_SELWBLINK_TYPE, Data.Type);
 
 			PPID   wb_type = 0, addendum_wb_type = 0;
@@ -1699,10 +1673,10 @@ int SLAPI PPObjWorkbook::RemoveAll()
 	return ok;
 }
 
-//virtual 
-const char * SLAPI PPObjWorkbook::GetNamePtr() 
-{ 
-	return P_Tbl->data.Name; 
+//virtual
+const char * SLAPI PPObjWorkbook::GetNamePtr()
+{
+	return P_Tbl->data.Name;
 }
 
 // virtual

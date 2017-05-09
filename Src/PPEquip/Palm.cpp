@@ -453,8 +453,7 @@ int SLAPI PPObjStyloPalm::EditConfig()
 		SetupObjTagCombo(dlg, CTLSEL_SPIICFG_INHBTAG, cfg.InhBillTagID, 0, &ot_filt);
 	}
 	// } @v9.2.11
-	dlg->AddClusterAssoc(CTL_SPIICFG_ORDCFMTTYP,  0, PPStyloPalmConfig::ordercodeIdHash);
-	dlg->AddClusterAssoc(CTL_SPIICFG_ORDCFMTTYP, -1, PPStyloPalmConfig::ordercodeIdHash);
+	dlg->AddClusterAssocDef(CTL_SPIICFG_ORDCFMTTYP,  0, PPStyloPalmConfig::ordercodeIdHash);
 	dlg->AddClusterAssoc(CTL_SPIICFG_ORDCFMTTYP,  1, PPStyloPalmConfig::ordercodeSymbName);
 	dlg->AddClusterAssoc(CTL_SPIICFG_ORDCFMTTYP,  2, PPStyloPalmConfig::ordercodeNameSymb);
 	dlg->SetClusterData(CTL_SPIICFG_ORDCFMTTYP, cfg.OrderCodeFormatType);
@@ -616,8 +615,7 @@ int StyloPalmDialog::setDTS(const PPStyloPalmPacket * pData)
 	{
 		long   dvc_type = (Data.Rec.Flags & PLMF_ANDROID) ? 2 : 1;
 		AddClusterAssoc(CTL_PALM_DVCTYPE, 0,  1);
-		AddClusterAssoc(CTL_PALM_DVCTYPE, -1, 2);
-		AddClusterAssoc(CTL_PALM_DVCTYPE, 1,  2);
+		AddClusterAssocDef(CTL_PALM_DVCTYPE, 1,  2);
 		SetClusterData(CTL_PALM_DVCTYPE, dvc_type);
 	}
 	// } @v8.4.6

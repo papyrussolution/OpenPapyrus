@@ -27,7 +27,7 @@ void DbTableStat::Clear()
 	NumRecs = 0;
 	FldCount = 0;
 	IdxCount = 0;
-	PageSize = 0; // @v6.6.10
+	PageSize = 0;
 	TblName = 0;
 	Location = 0;
 	OwnerName = 0;

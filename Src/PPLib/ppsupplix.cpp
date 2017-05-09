@@ -3041,9 +3041,7 @@ int SLAPI iSalesPepsi::ReceiveReceipts()
 						{
 							pack.Rec.EdiOp = PPEDIOP_DESADV;
 							pack.BTagL.PutItemStr(PPTAG_BILL_EDICHANNEL, "ISALES-PEPSI");
-							if(p_src_pack->iSalesId.NotEmpty()) {
-								pack.BTagL.PutItemStr(PPTAG_BILL_EDIIDENT, p_src_pack->iSalesId);
-							}
+							pack.BTagL.PutItemStrNE(PPTAG_BILL_EDIIDENT, p_src_pack->iSalesId);
 						}
 						pack.InitAmounts();
 						THROW(P_BObj->TurnPacket(&pack, 1));
@@ -3220,9 +3218,7 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 						{
 							pack.Rec.EdiOp = PPEDIOP_SALESORDER;
 							pack.BTagL.PutItemStr(PPTAG_BILL_EDICHANNEL, "ISALES-PEPSI");
-							if(p_src_pack->iSalesId.NotEmpty()) {
-								pack.BTagL.PutItemStr(PPTAG_BILL_EDIIDENT, p_src_pack->iSalesId);
-							}
+							pack.BTagL.PutItemStrNE(PPTAG_BILL_EDIIDENT, p_src_pack->iSalesId);
 						}
 						pack.InitAmounts();
 						THROW(P_BObj->TurnPacket(&pack, 1));
@@ -3971,7 +3967,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 						double ord_part_dis = 0.0;
 						double net_price = ti.NetPrice();
 						double special_net_price = 0.0; // @v9.5.5
-						if(feqeps(net_price, 0.0, 1E-3)) {
+						if(feqeps(net_price, 0.0, 1E-2)) { // @v9.6.5 1E-3-->1E-2
 							ord_part_dis = 1.0;
 							net_price = ti.Price;
 						}
@@ -4747,8 +4743,7 @@ int SLAPI SapEfes::ReceiveOrders()
 									{
 										pack.Rec.EdiOp = PPEDIOP_SALESORDER;
 										pack.BTagL.PutItemStr(PPTAG_BILL_EDICHANNEL, "SAP-EFES");
-										if(p_src_pack->Code.NotEmpty())
-											pack.BTagL.PutItemStr(PPTAG_BILL_EDIIDENT, p_src_pack->Code);
+										pack.BTagL.PutItemStrNE(PPTAG_BILL_EDIIDENT, p_src_pack->Code);
 									}
 									pack.InitAmounts();
 									THROW(P_BObj->TurnPacket(&pack, 1));

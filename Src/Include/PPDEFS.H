@@ -591,6 +591,7 @@
 	#define CNPRP_TOUCHSCREEN    7L  // TouchScreen        - obsolete
 	#define CNPRP_EXTDEVICES     8L  // Дополнительные устройства
 	#define CNPRP_CTBLLIST       9L  // @v7.6.4 Список номеров столов
+	#define CNPRP_APNCORRLIST   10L  // @v9.6.5 Список корреспондирующих кассовых узлов (Async)
 #define PPOBJ_ACTION        18L  // # События, регистрируемые в системном журнале *
 	#define PPACN_LOGIN             1L
 	#define PPACN_LOGOUT            2L
@@ -1210,6 +1211,8 @@
 #define PPTAG_LOC_UUID              58L // @v9.3.10 UUID локации
 #define PPTAG_BILL_FORMALREASON     59L // @v9.4.7 Формальное основание документа (перечисление)
 #define PPTAG_BILL_EDIREPEALREQ     60L // @v9.5.12 Запрос на отмену проведения документа EDI
+#define PPTAG_POSNODE_UUID          61L // @v9.6.5  UUID кассового узла
+#define PPTAG_POSNODE_HOSTUUID      62L // @v9.6.5  UUID управляющего кассового узла (для синхронных кассовый узлов Papyrus)
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -2747,6 +2750,7 @@
 	#define cmExtDevices                 102 // Дополнительные устройства
 	#define cmImpParam                   104 // Параметры импорта
 	#define cmEditCashParam              105 // Параметры кассы
+	#define cmApnCorrList                106 // Список корреспондирующих кассовых узлов
 	#define CTL_CASHN_NAME               (1 + WINDOWS_ID_BIAS)
 	#define CTL_CASHN_PORT               (3 + WINDOWS_ID_BIAS)
 	#define CTL_CASHN_LOC                (4 + WINDOWS_ID_BIAS)
@@ -10136,6 +10140,20 @@
 	#define CTL_VERIFMPHN_ST_INFO     (3 + WINDOWS_ID_BIAS)
 #define DLG_SCNTFOPT              1317
 	#define CTL_SCNTFOPT_FLAGS        (1 + WINDOWS_ID_BIAS)
+#define DLG_APNCORLIST            1318
+	#define CTL_APNCORLIST_LIST       (1 + WINDOWS_ID_BIAS)
+	#define CTL_APNCORLIST_INFO       (2 + WINDOWS_ID_BIAS)
+#define DLG_APNCORITEM            1319
+	#define CTL_APNCORITEM_N          (1 + WINDOWS_ID_BIAS)
+	#define CTL_APNCORITEM_NAME       (2 + WINDOWS_ID_BIAS)
+	#define CTL_APNCORITEM_UUID       (3 + WINDOWS_ID_BIAS)
+#define DLG_POSNQUERY             1320
+	#define CTL_POSNQUERY_N           (1 + WINDOWS_ID_BIAS)
+	#define CTL_POSNQUERY_Q           (2 + WINDOWS_ID_BIAS)
+	#define CTL_POSNQUERY_PERIOD      (3 + WINDOWS_ID_BIAS)
+	#define CTLCAL_POSNQUERY_PERIOD   (4 + WINDOWS_ID_BIAS)
+	#define CTL_POSNQUERY_SESSL       (5 + WINDOWS_ID_BIAS)
+	#define CTL_POSNQUERY_INFO        (6 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //
@@ -10346,6 +10364,8 @@
 // Message groups
 //
 #define PPMSG_ERROR                 1
+#define PPSTR_DBENGINE              6
+#define PPSTR_SLIBERR               7
 #define PPMSG_WARNING             100
 #define PPMSG_FATAL               101
 #define PPMSG_CONFIRMATION        102
@@ -11171,21 +11191,6 @@
 #define PPERR_ARCODEEXISTS          1310 // Заданный артикул существует {%s}
 #define PPERR_BILLHASINVPAYMPOOL    1314 // Документ имеет ошибочные связанные зачетные оплаты (%s), ссылающиеся не на документ
 #define PPERR_UNDEFCHARRYSTRUCID    1315 // Неопределенный идентификатор типа структуры CHARRY
-
-#define PPERR_DL6_DBFLDNOTINDBSCOPE 1316 // DL600 Попытка создать поле '%s' базы данных вне области таблицы базы данных
-#define PPERR_DL6_INVDECDIMUSAGE    1317 // DL600 Недопустимое использование числовой размерности '%s'
-#define PPERR_DL6_DUPDBIDXNAME      1318 // DL600 Дублирование наименования индекса '%s'
-#define PPERR_DL6_IDXSEGINVFLDNAME  1319 // DL600 Поле '%s' сегмента индекса не принадлежит таблице
-#define PPERR_DL6_INVIDXSEGFLAG     1320 // DL600 Неизвестная опция '%s' сегмента индекса
-#define PPERR_DL6_MISSIDXUNIQ       1321 // DL600 Для индекса одновременно определены опции UNIQUE и DUP
-#define PPERR_DL6_INVDBFILEPAGE     1322 // DL600 Недопустимый размер страницы файла данных (%s)
-#define PPERR_DL6_INVDBFILEOPTION   1323 // DL600 Неизвестная опция '%s' таблицы базы данных
-#define PPERR_DL6_INVIDXFLAG        1324 // DL600 Неизвестная опция '%s' индекса базы данных
-#define PPERR_DL6_DECMODONNONDECTYPE 1325 // DL600 Числовая размерность %s применена не к десятичному типу данных
-#define PPERR_DL6_DDFENTRYCRFAULT   1326 // DL600 Ошибка создания элемента словаря базы данных: %s
-#define PPERR_DL6_BTRFILECRFAULT    1327 // DL600 Ошибка создания файла Btrieve: %s
-#define PPERR_DL6_DBDICTOPENFAULT   1328 // DL600 Ошибка открытия словаря данных '%s'
-#define PPERR_DL6_UNDEFDICTPATH     1329 // DL600 Не определен каталог словаря для создания таблиц базы данных
 #define PPERR_OBJNOTSUPPORTED       1330 // Данный тип объекта не поддерживается [ID=%s]
 #define PPERR_INVSCARDCHARGEGOODS   1331 // Товар для начисления по карте должен быть нелимитируемым
 #define PPERR_INVUSAGECHARGEGOODS   1332 // Товар предназначен только для начисления по кредитной карте

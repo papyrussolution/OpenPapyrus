@@ -559,8 +559,7 @@ int SLAPI PPViewProject::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	dlg->AddClusterAssoc(CTL_PRJFLT_FLAGS, 0, ProjectFilt::fShowNonActive);
 	dlg->AddClusterAssoc(CTL_PRJFLT_FLAGS, 1, ProjectFilt::fShowArchived);
 	dlg->SetClusterData(CTL_PRJFLT_FLAGS, filt.Flags);
-	dlg->AddClusterAssoc(CTL_PRJFLT_SORTORD, -1, ProjectFilt::ordByName);
-	dlg->AddClusterAssoc(CTL_PRJFLT_SORTORD, 0,  ProjectFilt::ordByName);
+	dlg->AddClusterAssocDef(CTL_PRJFLT_SORTORD, 0,  ProjectFilt::ordByName);
 	dlg->AddClusterAssoc(CTL_PRJFLT_SORTORD, 1,  ProjectFilt::ordByBegDt);
 	dlg->SetClusterData(CTL_PRJFLT_SORTORD, filt.SortOrd);
 	for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
@@ -1112,16 +1111,16 @@ SString & SLAPI PPObjPrjTask::GetPriorText(int priorId, SString & rBuf)
 class VCalImportParamDlg : public TDialog {
 public:
 	struct Param {
-		Param() 
+		Param()
 		{
 			Init();
 		}
-		void Init() 
+		void Init()
 		{
 			DefCreatorID = 0;
 			DefClientID = 0;
 			DefEmployerID = 0;
-			FilePath = 0; 
+			FilePath = 0;
 		}
 		PPID   DefCreatorID;
 		PPID   DefClientID;
@@ -1239,7 +1238,7 @@ int SLAPI PPObjPrjTask::ImportFromVCal()
 						}
 						SETIFZ(todo_rec.ClientID, param.DefClientID);
 						SETIFZ(todo_rec.CreatorID, param.DefCreatorID);
-						// } @v9.5.9 
+						// } @v9.5.9
 						THROW(todo_obj.PutPacket(&id, &todo_rec, 0));
 					}
 				}
@@ -1274,10 +1273,10 @@ int SLAPI PPObjPrjTask::Search(PPID id, void * b)
 	return P_Tbl->Search(id, b);
 }
 
-//virtual 
-const char * SLAPI PPObjPrjTask::GetNamePtr() 
-{ 
-	return P_Tbl->data.Code; 
+//virtual
+const char * SLAPI PPObjPrjTask::GetNamePtr()
+{
+	return P_Tbl->data.Code;
 }
 
 StrAssocArray * SLAPI PPObjPrjTask::MakeStrAssocList(void * extraPtr)

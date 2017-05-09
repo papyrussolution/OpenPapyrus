@@ -63,15 +63,12 @@
 #include <openssl/conf.h>
 #include <openssl/bn.h>
 #include <openssl/rsa.h>
-
 #ifdef HAVE_OPENSSL_PKCS12_H
-#include <openssl/pkcs12.h>
+	#include <openssl/pkcs12.h>
 #endif
-
 #if (OPENSSL_VERSION_NUMBER >= 0x0090808fL) && !defined(OPENSSL_IS_BORINGSSL)
-#include <openssl/ocsp.h>
+	#include <openssl/ocsp.h>
 #endif
-
 #include "warnless.h"
 #include "non-ascii.h" /* for Curl_convert_from_utf8 prototype */
 
@@ -122,8 +119,7 @@
 #define HAVE_ERR_REMOVE_THREAD_STATE 1
 #endif
 
-#if !defined(HAVE_SSLV2_CLIENT_METHOD) || \
-	OPENSSL_VERSION_NUMBER >= 0x10100000L /* 1.1.0+ has no SSLv2 */
+#if !defined(HAVE_SSLV2_CLIENT_METHOD) || OPENSSL_VERSION_NUMBER >= 0x10100000L /* 1.1.0+ has no SSLv2 */
 #undef OPENSSL_NO_SSL2 /* undef first to avoid compiler warnings */
 #define OPENSSL_NO_SSL2
 #endif
@@ -1434,24 +1430,21 @@ static void ssl_tls_trace(int direction, int ssl_ver, int content_type,
 /* ====================================================== */
 
 #ifdef SSL_CTRL_SET_TLSEXT_HOSTNAME
-#  define use_sni(x)  sni = (x)
+	#define use_sni(x)  sni = (x)
 #else
-#  define use_sni(x)  Curl_nop_stmt
+	#define use_sni(x)  Curl_nop_stmt
 #endif
 
 /* Check for OpenSSL 1.0.2 which has ALPN support. */
 #undef HAS_ALPN
-#if OPENSSL_VERSION_NUMBER >= 0x10002000L \
-	&& !defined(OPENSSL_NO_TLSEXT)
-#  define HAS_ALPN 1
+#if OPENSSL_VERSION_NUMBER >= 0x10002000L && !defined(OPENSSL_NO_TLSEXT)
+	#define HAS_ALPN 1
 #endif
 
 /* Check for OpenSSL 1.0.1 which has NPN support. */
 #undef HAS_NPN
-#if OPENSSL_VERSION_NUMBER >= 0x10001000L \
-	&& !defined(OPENSSL_NO_TLSEXT) \
-	&& !defined(OPENSSL_NO_NEXTPROTONEG)
-#  define HAS_NPN 1
+#if OPENSSL_VERSION_NUMBER >= 0x10001000L && !defined(OPENSSL_NO_TLSEXT) && !defined(OPENSSL_NO_NEXTPROTONEG)
+	#define HAS_NPN 1
 #endif
 
 #ifdef HAS_NPN
@@ -1574,8 +1567,7 @@ static CURLcode ossl_connect_step1(struct connectdata * conn, int sockindex)
 		case CURL_SSLVERSION_TLSv1_1:
 		case CURL_SSLVERSION_TLSv1_2:
 		    /* it will be handled later with the context options */
-#if (OPENSSL_VERSION_NUMBER >= 0x10100000L) && \
-		    !defined(LIBRESSL_VERSION_NUMBER) && !defined(OPENSSL_IS_BORINGSSL)
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L) && !defined(LIBRESSL_VERSION_NUMBER) && !defined(OPENSSL_IS_BORINGSSL)
 		    req_method = TLS_client_method();
 #else
 		    req_method = SSLv23_client_method();
@@ -2207,9 +2199,7 @@ static int X509V3_ext(struct SessionHandle * data,
 	return 0; /* all is fine */
 }
 
-static CURLcode get_cert_chain(struct connectdata * conn,
-    struct ssl_connect_data * connssl)
-
+static CURLcode get_cert_chain(struct connectdata * conn, struct ssl_connect_data * connssl)
 {
 	CURLcode result;
 	STACK_OF(X509) *sk;
@@ -2217,31 +2207,23 @@ static CURLcode get_cert_chain(struct connectdata * conn,
 	struct SessionHandle * data = conn->data;
 	int numcerts;
 	BIO * mem;
-
 	sk = SSL_get_peer_cert_chain(connssl->handle);
 	if(!sk) {
 		return CURLE_OUT_OF_MEMORY;
 	}
-
 	numcerts = sk_X509_num(sk);
-
 	result = Curl_ssl_init_certinfo(data, numcerts);
 	if(result) {
 		return result;
 	}
-
 	mem = BIO_new(BIO_s_mem());
-
 	for(i = 0; i < numcerts; i++) {
 		ASN1_INTEGER * num;
-
 		X509 * x = sk_X509_value(sk, i);
-
 		X509_CINF * cinf;
 		EVP_PKEY * pubkey = NULL;
 		int j;
 		char * ptr;
-
 		X509_NAME_print_ex(mem, X509_get_subject_name(x), 0, XN_FLAG_ONELINE);
 		push_certinfo("Subject", i);
 

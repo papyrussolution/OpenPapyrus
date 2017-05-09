@@ -304,8 +304,7 @@ private:
 			if(CheckDialogPtrErr(&dlg)) {
 				SetupPPObjCombo(dlg, CTLSEL_ACCANLZ_LOC, PPOBJ_LOCATION, Filt.LocID, OLW_CANSELUPLEVEL, 0);
 				SetupArCombo(dlg, CTLSEL_ACCANLZ_AGENT, Filt.AgentID, OLW_LOADDEFONOPEN, GetAgentAccSheet(), sacfDisableIfZeroSheet);
-				dlg->AddClusterAssoc(CTL_ACCANLZ_ORDER,  0, PPViewAccAnlz::OrdByDefault);
-				dlg->AddClusterAssoc(CTL_ACCANLZ_ORDER, -1, PPViewAccAnlz::OrdByDefault);
+				dlg->AddClusterAssocDef(CTL_ACCANLZ_ORDER,  0, PPViewAccAnlz::OrdByDefault);
 				dlg->AddClusterAssoc(CTL_ACCANLZ_ORDER,  1, PPViewAccAnlz::OrdByBillCode_Date);
 				dlg->AddClusterAssoc(CTL_ACCANLZ_ORDER,  2, PPViewAccAnlz::OrdByCorrAcc_Date);
 				dlg->SetClusterData(CTL_ACCANLZ_ORDER, Filt.InitOrder);
@@ -1728,7 +1727,7 @@ DBQuery * SLAPI PPViewAccAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 			THROW(CheckTblPtr(rat = new AccTurnTbl));
 			THROW(CheckTblPtr(rt = new AcctRelTbl));
 			{
-				/* @v9.6.1 
+				/* @v9.6.1
 				dbe_ar.init();
 				dbe_ar.push(rt->ArticleID);
 				dbe_ar.push(rt->AccID);
@@ -1764,7 +1763,7 @@ DBQuery * SLAPI PPViewAccAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 			THROW(CheckTblPtr(att = new TempAccAnlzTbl(P_TmpAATbl->fileName)));
 			THROW(CheckTblPtr(rt = new AcctRelTbl));
 			{
-				/* @v9.6.1 
+				/* @v9.6.1
 				dbe_ar.init();
 				dbe_ar.push(rt->ArticleID);
 				dbe_ar.push(rt->AccID);

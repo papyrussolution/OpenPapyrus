@@ -1131,8 +1131,7 @@ int GoodsOpAnlzFiltDialog::editABCAnlzFilt(ABCAnlzFilt * pFilt)
 		{
 			double fract_sum = 0.0;
 			Data = *pFilt;
-			AddClusterAssoc(CTL_ABCANLZ_GROUPBY, 0, ABCAnlzFilt::GroupByCostSum);
-			AddClusterAssoc(CTL_ABCANLZ_GROUPBY, -1, ABCAnlzFilt::GroupByCostSum);
+			AddClusterAssocDef(CTL_ABCANLZ_GROUPBY, 0, ABCAnlzFilt::GroupByCostSum);
 			AddClusterAssoc(CTL_ABCANLZ_GROUPBY, 1, ABCAnlzFilt::GroupByPriceSum);
 			AddClusterAssoc(CTL_ABCANLZ_GROUPBY, 2, ABCAnlzFilt::GroupByQtty);
 			AddClusterAssoc(CTL_ABCANLZ_GROUPBY, 3, ABCAnlzFilt::GroupByIncome);
@@ -3121,8 +3120,7 @@ int SLAPI PPViewGoodsOpAnalyze::ChangeOrder(BrowserWindow * pW)
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GOPANLZORD);
 	if(CheckDialogPtrErr(&dlg)) {
-		dlg->AddClusterAssoc(CTL_GOPANLZORD_ORDER,  0, OrdByGoodsName);
-		dlg->AddClusterAssoc(CTL_GOPANLZORD_ORDER, -1, OrdByGoodsName);
+		dlg->AddClusterAssocDef(CTL_GOPANLZORD_ORDER,  0, OrdByGoodsName);
 		dlg->AddClusterAssoc(CTL_GOPANLZORD_ORDER,  1, OrdByQtty);
 		dlg->AddClusterAssoc(CTL_GOPANLZORD_ORDER,  2, OrdByCostSum);
 		dlg->AddClusterAssoc(CTL_GOPANLZORD_ORDER,  3, OrdByPriceSum);
@@ -4069,8 +4067,7 @@ int SLAPI PPViewGoodsOpAnalyze::Print(const void *)
 			dlg = new TDialog(DLG_GOPANLZPRN);
 			if(CheckDialogPtrErr(&dlg)) {
 				ushort v = 0;
-				dlg->AddClusterAssoc(CTL_GOPANLZPRN_ORDER, 0, OrdByGoodsName);
-				dlg->AddClusterAssoc(CTL_GOPANLZPRN_ORDER, -1, OrdByGoodsName);
+				dlg->AddClusterAssocDef(CTL_GOPANLZPRN_ORDER, 0, OrdByGoodsName);
 				dlg->AddClusterAssoc(CTL_GOPANLZPRN_ORDER, 1, OrdByQtty);
 				dlg->AddClusterAssoc(CTL_GOPANLZPRN_ORDER, 2, OrdByCostSum);
 				dlg->AddClusterAssoc(CTL_GOPANLZPRN_ORDER, 3, OrdByPriceSum);

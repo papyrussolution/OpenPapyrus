@@ -98,15 +98,13 @@ int PriceAnlzFiltDialog::setDTS(const PriceAnlzFilt * pData)
 	setGroupData(GRP_GOODSFILT, &gf_rec);
 	LocationCtrlGroup::Rec loc_rec(&Data.LocList);
 	setGroupData(GRP_LOC, &loc_rec);
-	AddClusterAssoc(CTL_PANLZFLT_COSTALG, -1, PriceAnlzFilt::caByLastLot);
 	AddClusterAssoc(CTL_PANLZFLT_COSTALG,  0, PriceAnlzFilt::caByFirstLot);
 	AddClusterAssoc(CTL_PANLZFLT_COSTALG,  1, PriceAnlzFilt::caByAverageLot);
-	AddClusterAssoc(CTL_PANLZFLT_COSTALG,  2, PriceAnlzFilt::caByLastLot);
+	AddClusterAssocDef(CTL_PANLZFLT_COSTALG,  2, PriceAnlzFilt::caByLastLot);
 	AddClusterAssoc(CTL_PANLZFLT_COSTALG,  3, PriceAnlzFilt::caByMinLot);
 	AddClusterAssoc(CTL_PANLZFLT_COSTALG,  4, PriceAnlzFilt::caByMinLoc);
 	SetClusterData(CTL_PANLZFLT_COSTALG, Data.CostAlg);
-	AddClusterAssoc(CTL_PANLZFLT_BASE, -1, PriceAnlzFilt::bcByLoc);
-	AddClusterAssoc(CTL_PANLZFLT_BASE,  0, PriceAnlzFilt::bcByLoc);
+	AddClusterAssocDef(CTL_PANLZFLT_BASE,  0, PriceAnlzFilt::bcByLoc);
 	AddClusterAssoc(CTL_PANLZFLT_BASE,  1, PriceAnlzFilt::bcByContract);
 	AddClusterAssoc(CTL_PANLZFLT_BASE,  2, PriceAnlzFilt::bcByAvgLocs);
 	SetClusterData(CTL_PANLZFLT_BASE, Data.BaseCost);
@@ -457,7 +455,7 @@ DBQuery * SLAPI PPViewPriceAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSu
 		SString obj_name, temp_buf;
 		if(Filt.Flags & PriceAnlzFilt::fShowDiffAsPrc) {
 			// @v9.6.3 (*pSubTitle = "Разница цен в %").ToOem();
-			PPLoadString("priceanlzfilt_fshowdiffasprc", *pSubTitle); // @v9.6.3 
+			PPLoadString("priceanlzfilt_fshowdiffasprc", *pSubTitle); // @v9.6.3
 		}
 		if(Filt.SupplID) {
 			PPLoadText(PPTXT_SUPPLTXT, temp_buf);

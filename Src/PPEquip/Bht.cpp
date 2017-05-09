@@ -208,13 +208,12 @@ int BhtDialog::setDTS(const PPBhtTerminalPacket * pData)
 	ushort v = 0;
 	setCtrlData(CTL_BHT_NAME, Data.Rec.Name);
 	setCtrlData(CTL_BHT_ID, &Data.Rec.ID);
-	AddClusterAssoc(CTL_BHT_TYPE, -1, PPObjBHT::btDenso);
 	AddClusterAssoc(CTL_BHT_TYPE,  0, PPObjBHT::btDenso);
 	AddClusterAssoc(CTL_BHT_TYPE,  1, PPObjBHT::btSyntech);
 	AddClusterAssoc(CTL_BHT_TYPE,  2, PPObjBHT::btPalm);
 	AddClusterAssoc(CTL_BHT_TYPE,  3, PPObjBHT::btWinCe);
 	AddClusterAssoc(CTL_BHT_TYPE,  4, PPObjBHT::btCom);
-	AddClusterAssoc(CTL_BHT_TYPE,  5, PPObjBHT::btStyloBhtII);
+	AddClusterAssocDef(CTL_BHT_TYPE, 5, PPObjBHT::btStyloBhtII);
 	SetClusterData(CTL_BHT_TYPE, Data.Rec.BhtTypeID);
 	if(!oneof4(Data.Rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btStyloBhtII, PPObjBHT::btWinCe, PPObjBHT::btCom)) {
 		int    c = 0;
@@ -400,8 +399,7 @@ int StyloBhtIIOpInfoDlg::setDTS(const SBIIOpInfo * pData)
 	if(!RVALUEPTR(Data, pData))
 		MEMSZERO(Data);
 	SetupOprKindCombo(this, CTLSEL_SBIIRESTR_HOSTOP, Data.ToHostOpID, OLW_CANEDIT, 0, 0);
-	AddClusterAssoc(CTL_SBIIRESTR_ACTION, -1, ACTION_CONFIRM);
-	AddClusterAssoc(CTL_SBIIRESTR_ACTION,  0, ACTION_CONFIRM);
+	AddClusterAssocDef(CTL_SBIIRESTR_ACTION,  0, ACTION_CONFIRM);
 	AddClusterAssoc(CTL_SBIIRESTR_ACTION,  1, ACTION_CANCEL);
 	AddClusterAssoc(CTL_SBIIRESTR_ACTION,  2, ACTION_IGNORE);
 	//

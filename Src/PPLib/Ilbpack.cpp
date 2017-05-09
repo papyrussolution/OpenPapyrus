@@ -56,7 +56,6 @@ void FASTCALL ILTI::Init__(const PPTransferItem * ti)
 	BillID      = 0;
 	GoodsID     = ti->GoodsID;
 	//
-	// @v7.6.1
 	// При необходимости поля LotSyncID и LotMirrID должны инициализироваться после вызова ILTI::Init
 	//
 	LotSyncID   = 0;
@@ -673,7 +672,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, IntArray * p
 		double adj_intr_price_val = 0.0;
 		AdjustIntrPrice(pPack, ilti->GoodsID, &adj_intr_price_val);
 		//
-		if(oneof4(pPack->OpTypeID, PPOPT_GOODSORDER, PPOPT_GOODSACK, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT)) { // @v7.5.10 PPOPT_DRAFTTRANSIT
+		if(oneof4(pPack->OpTypeID, PPOPT_GOODSORDER, PPOPT_GOODSACK, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT)) {
 			MEMSZERO(ti);
 			double lot_price = 0.0;
 			THROW(trfr->Rcpt.GetCurrentGoodsPrice(labs(ilti->GoodsID), pPack->Rec.LocID, GPRET_MOSTRECENT, &lot_price, &lotr));
@@ -1174,8 +1173,8 @@ void SLAPI ILBillPacket::destroy()
 	AdvList.Clear();
 	OrderBillList.freeAll();
 	InvList.freeAll();
-	LTagL.Release(); // @v7.3.5
-	BTagL.Destroy(); // @v7.3.5
+	LTagL.Release();
+	BTagL.Destroy();
 }
 
 int SLAPI ILBillPacket::SearchGoodsID(PPID goodsID, uint * pPos) const
@@ -1216,8 +1215,6 @@ int SLAPI ILBillPacket::Load(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 	cvt_to_opid = (cvtToOpID && (cvt_op_typeid != PPOPT_GENERIC) && cvtToOpID != Rec.OpID &&
 		oneof2(cvt_op_typeid, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT)) ? cvtToOpID : 0;
 	if(cvt_to_opid) {
-		// @v7.7.3 THROW(bpack.CreateBlank(cvtToOpID, Rec.LinkBillID, Rec.LocID, 0));
-		// @v7.7.3
 		// @v8.9.6 {
 		PPID   dest_loc_id = Rec.LocID;
 		PPID   dest_ar_id = 0;
@@ -1258,7 +1255,6 @@ int SLAPI ILBillPacket::Load(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 			STRNSCPY(bill_code, Rec.Code);
 			STRNSCPY(bpack.Rec.Code, BillCore::GetCode(bill_code));
 		}
-		// } @v7.7.3
 		bpack.Rec.ID         = Rec.ID;
 		bpack.Rec.Dt         = Rec.Dt;
 		bpack.Rec.BillNo     = Rec.BillNo;
@@ -1351,22 +1347,18 @@ int SLAPI ILBillPacket::Load(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 						ti.Init(&Rec, 0, 1);
 				}
 				ilti.Init__(&ti);
-				// @v7.6.1 {
 				if(CConfig.Flags2 & CCFLG2_SYNCLOT && !cvt_to_opid) {
 					TransferTbl::Rec mirr_rec;
 					ilti.LotSyncID = ti.LotID;
 					ilti.LotMirrID = (p_bobj->trfr->SearchByBill(ti.BillID, 1, ti.RByBill, &mirr_rec) > 0) ? mirr_rec.LotID : 0;
 				}
-				// } @v7.6.1
 				row_idx = Lots.getCount();
 				THROW_SL(Lots.insert(&ilti));
-				// @v7.3.5 {
 				{
 					ObjTagList tag_list;
 					p_bobj->GetTagListByLot(ti.LotID, 1, &tag_list);
 					LTagL.Set(row_idx, tag_list.GetCount() ? &tag_list : 0);
 				}
-				// } @v7.3.5
 				if(p_bobj->GetClbNumberByLot(ti.LotID, 0, clb) > 0) {
 					THROW(ClbL.AddNumber(row_idx, clb));
 				}
@@ -1403,10 +1395,8 @@ int SLAPI ILBillPacket::Load(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 				Amounts.Put(&r_amt_entry, 1, 1);
 		}
 	}
-	// @v7.3.5 {
 	BTagL.Destroy();
 	THROW(p_bobj->GetTagList(billID, &BTagL));
-	// } @v7.3.5
 	CATCHZOK
 	return ok;
 }
@@ -1515,7 +1505,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 	SETFLAG(rPack.Rec.Flags, BILLF_WHITELABEL, Rec.Flags & BILLF_WHITELABEL);
 	STRNSCPY(rPack.Rec.Code, Rec.Code);
 	STRNSCPY(rPack.Rec.Memo, Rec.Memo);
-	rPack.BTagL = BTagL; // @v7.3.5
+	rPack.BTagL = BTagL;
 	rPack.Ext = Ext;
 	op_type_id = GetOpType(rPack.Rec.OpID);
 	rPack.Amounts.Put(&Amounts, 0, 1); // Теперь суммы (ручные) конвертируем для всех типов операций
@@ -1729,7 +1719,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 					for(j = 0; j < rows.getCount(); j++) {
 						int    rj = rows.at(j);
 						PPTransferItem & r_ti = rPack.TI(rj);
-						r_ti.SrcIltiPos = i; // @v7.6.1 Сохраним соответствие номера строки в this со строками в rPack
+						r_ti.SrcIltiPos = i; // Сохраним соответствие номера строки в this со строками в rPack
 						/* @debug
 						{
 							(msg_buf = 0).CatEq("r_ti.SrcIltiPos", (long)r_ti.SrcIltiPos);
@@ -1823,8 +1813,8 @@ int SLAPI ILBillPacket::SerializeLots(int dir, SBuffer & rBuf, SSerializeContext
 			item = Lots.at(i);
 		THROW_SL(pSCtx->Serialize(dir, item.BillID, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, item.GoodsID, rBuf));
-		THROW_SL(pSCtx->Serialize(dir, item.LotSyncID, rBuf)); // @v7.6.1
-		THROW_SL(pSCtx->Serialize(dir, item.LotMirrID, rBuf)); // @v7.6.1
+		THROW_SL(pSCtx->Serialize(dir, item.LotSyncID, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, item.LotMirrID, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, item.UnitPerPack, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, item.Quantity, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, item.Rest, rBuf));
@@ -2128,7 +2118,7 @@ int SLAPI BillTransmDeficit::TurnDeficit(PPID locID, LDATE dt, double pctAdditio
 	int    ok = 1;
 	int    first_rec = 1;
 	const  PPID save_loc = LConfig.Location;
-	const  PPID receipt_op = (pCtx && pCtx->Cfg.DfctRcptOpID) ? pCtx->Cfg.DfctRcptOpID : GetReceiptOp(); // @v7.7.0 pCtx->Cfg.DfctRcptOpID
+	const  PPID receipt_op = (pCtx && pCtx->Cfg.DfctRcptOpID) ? pCtx->Cfg.DfctRcptOpID : GetReceiptOp();
 	PPID   prev_suppl_id = 0;
 	PPBillPacket pack;
 	TempDeficitTbl::Key1 k;
@@ -2411,8 +2401,8 @@ int SLAPI PPObjBill::SerializePacket(int dir, ILBillPacket * pPack, SBuffer & rB
 	THROW_SL(pSCtx->Serialize(dir, &pPack->Amounts, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, &pPack->Pays, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, &pPack->OrderBillList, rBuf));
-	THROW(pPack->LTagL.Serialize(dir, rBuf, pSCtx)); // @v7.3.5
-	THROW(pPack->BTagL.Serialize(dir, rBuf, pSCtx)); // @v7.3.5
+	THROW(pPack->LTagL.Serialize(dir, rBuf, pSCtx));
+	THROW(pPack->BTagL.Serialize(dir, rBuf, pSCtx));
 	THROW(pPack->AdvList.Serialize(dir, rBuf, pSCtx));
 	if(dir > 0) {
 		ff = (GetOpType(pPack->Rec.OpID) == PPOPT_ACCTURN) ? SBuffer::ffAryCount32 : (SBuffer::ffAryCount32|SBuffer::ffAryForceEmpty);
@@ -2743,7 +2733,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 							to_update = 1;
 						}
 						if(p_pack->Rec.StatusID != bp.Rec.StatusID || p_pack->Rec.Object2 != bp.Rec.Object2) {
-							SETFLAG(bp.Rec.Flags, BILLF_WHITELABEL, BIN(p_pack->Rec.Flags & BILLF_WHITELABEL)); // @v7.7.4
+							SETFLAG(bp.Rec.Flags, BILLF_WHITELABEL, BIN(p_pack->Rec.Flags & BILLF_WHITELABEL));
 							to_update_rec = 1;
 						}
 						//
@@ -2753,12 +2743,10 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 							bp.Rec.Flags |= BILLF_SHIPPED;
 							to_update_rec = 1;
 						}
-						// @v7.7.4 {
 						if((bp.Rec.Flags & BILLF_WHITELABEL) != (p_pack->Rec.Flags & BILLF_WHITELABEL)) {
 							SETFLAGBYSAMPLE(bp.Rec.Flags, BILLF_WHITELABEL, p_pack->Rec.Flags); // @v8.1.0 @fix
 							to_update_rec = 1;
 						}
-						// } @v7.7.4
 						for(i = 0; i < p_pack->Amounts.getCount(); i++) {
 							AmtEntry & r_entry = p_pack->Amounts.at(i);
 							if(amtt_obj.Fetch(r_entry.AmtTypeID, &amtt_rec) > 0 && amtt_rec.Flags & PPAmountType::fManual) {
@@ -2802,7 +2790,6 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 		}
 		else {
 			SBuffer buffer;
-			// @v7.6.1 {
 			{
 				ILTI * p_ilti;
 				PPTransaction tra(-1); // @v7.9.11 use_ta 1-->-1 (автоматическое определение необходимости транзакции по состоянию DbSession)
@@ -2819,7 +2806,6 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 				}
 				THROW(tra.Commit());
 			}
-			// } @v7.6.1
 			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
 			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
 		}
@@ -2905,7 +2891,6 @@ int SLAPI PPObjBill::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repla
 			THROW(ProcessObjRefInArray(PPOBJ_GOODS,   &goods_id,    ary, replace));
 			if(replace)
 				ilti->GoodsID = (ilti->GoodsID < 0) ? -goods_id : goods_id;
-			// @v7.6.1 {
 			{
 				//
 				// Идентификаторы лотов не должны замещаться поскольку этим занимается функция PPObjBill::Write
@@ -2915,7 +2900,6 @@ int SLAPI PPObjBill::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repla
 				THROW(ProcessObjRefInArray(PPOBJ_LOT,      &lot_id, ary, replace));
 				THROW(ProcessObjRefInArray(PPOBJ_LOT,      &mirr_lot_id, ary, replace));
 			}
-			// } @v7.6.1
 			THROW(ProcessObjRefInArray(PPOBJ_ARTICLE,  &ilti->Suppl, ary, replace));
 			THROW(ProcessObjRefInArray(PPOBJ_QCERT,    &ilti->QCert, ary, replace));
 			THROW(ProcessObjRefInArray(PPOBJ_GOODSTAX, &ilti->InTaxGrpID, ary, replace));
@@ -2984,8 +2968,8 @@ int SLAPI PPObjBill::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repla
 			PPID & r_ord_bill_id = p_pack->OrderBillList.at(i);
 			ProcessObjRefInArray(PPOBJ_BILL, &r_ord_bill_id, ary, replace);
 		}
-		THROW(p_pack->LTagL.ProcessObjRefs(ary, replace)); // @v7.3.5
-		THROW(p_pack->BTagL.ProcessObjRefs(ary, replace)); // @v7.3.5
+		THROW(p_pack->LTagL.ProcessObjRefs(ary, replace));
+		THROW(p_pack->BTagL.ProcessObjRefs(ary, replace));
 	}
 	else
 		ok = -1;

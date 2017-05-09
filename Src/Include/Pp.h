@@ -3362,6 +3362,15 @@ public:
 
 	int    SLAPI PutItemNZ(const ObjTagItem * pItem, long flags);
 	int    SLAPI PutItemStr(PPID tagID, const char * pStr);
+	//
+	// Descr: Вставляет в список тег со значением равным строке pStr
+	//   но только в том случае, если !isempty(pStr).
+	// Returns:
+	//   >0 - тег успешно вставлен в список
+	//   <0 - строка pStr пустая: ничего не произошло
+	//   0  - ошибка
+	//
+	int    SLAPI PutItemStrNE(PPID tagID, const char * pStr);
 	int    FASTCALL Copy(const ObjTagList & src);
 	//
 	// Descr: Опции функции ObjTagList::Merge().
@@ -5013,6 +5022,7 @@ struct AccTurnParam {
 #define INCM_DEFAULT              0  // По флажкам операций
 #define INCM_BYSHIPMENT           1  // По отгрузке
 #define INCM_BYPAYMENT            2  // По оплате
+#define INCM_BYPAYMENTINPERIOD    3  // @v9.6.5 Специальный вариант, учитывающий оплаты только по документам, попадающим в тот же период
 //
 // Флаги общей конфигурации
 //
@@ -6736,7 +6746,8 @@ private:
 	struct ObjIdentBlock {
 		ObjIdentBlock();
 		StrAssocArray TitleList;
-		SymbHashTable SymbList;
+		//SymbHashTable SymbList;
+		const SymbHashTable * P_ShT;
 	};
 
 	long   TlsIdx;         // Ид локальной области потока    //
@@ -13025,7 +13036,26 @@ public:
 
 	SLAPI  CSessionCore();
 	int    SLAPI Search(PPID id, CSessionTbl::Rec * pRec = 0);
-	int    SLAPI SearchByNumber(PPID *, PPID cashNodeID, long cashN, long sessN, LDATE);
+	int    SLAPI SearchByNumber(PPID * pID, PPID cashNodeID, long cashN, long sessN, LDATE);
+	//
+	// Descr: Находит последнюю сессию по кассовому узлу cashNodeID с уровнем завершенности
+	//   меньшим или равным, чем incompl.
+	// Note: Термин "последняя сессия" интерпретируется как сессия, имеющая максимальную
+	//   валидную пару { Dt, Tm } и не имеющая признака 'Временная'.
+	//   Искомая сессия считается удовлетворяющей условиям поиска не зависимо от того,
+	//   является ли она простой или супер-сессией.
+	// ARG(cashNodeID IN): ИД кассового узла
+	// ARG(incompl    IN): Максимальное значение уровня завершенности искомой сессии.
+	//   Note: специальное смещение 1000 позволяет пропустить сессию, являющуюся текущей
+	//     для кассового узла cashNodeID (если это - синхронный узел).
+	// ARG(pID       OUT):
+	// ARG(pRec      OUT):
+	// Returns:
+	//   >0 - найдена искомая сессия
+	//   <0 - искомая сессия не найдена. Значения по указателям pID и pRec не присваиваются.
+	//   0  - ошибка
+	//
+	int    SLAPI SearchLast(PPID cashNodeID, int incompl, PPID * pID, CSessionTbl::Rec * pRec);
 	int    SLAPI SearchSuperCandidate(PPID nodeID, const LDATETIME & rDtm, PPIDArray * pList);
 	int    SLAPI HasChild(PPID sessID);
 	int    SLAPI GetSubSessList(PPID superSessID, PPIDArray *);
@@ -13074,7 +13104,7 @@ class CTableOrder {
 public:
 	struct Packet {
 		Packet();
-		int    Init(PPID posNodeID, LDATETIME initDtm, long initDuration);
+		void   Init(PPID posNodeID, LDATETIME initDtm, long initDuration);
 		//
 		PPID   PosNodeID;     // Ид кассового узла
 		PPID   ChkID;         // Ид чека заказа
@@ -17256,9 +17286,18 @@ public:
 		double DisRoundPrec; // Точность округления скидки
 		double AmtRoundPrec; // Точность округления результирующей суммы чека
 	};
+	struct PosIdentEntry {
+		SLAPI  PosIdentEntry();
+		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+        long   N;
+        S_GUID Uuid;
+        SString Name;
+	};
 	SLAPI  PPGenCashNode();
 	virtual SLAPI ~PPGenCashNode();
 	PPGenCashNode & FASTCALL operator = (const PPGenCashNode &);
+	int    FASTCALL Copy(const PPGenCashNode & rS);
 	int    SLAPI SetRoundParam(const RoundParam * pParam);
 	int    SLAPI GetRoundParam(RoundParam * pParam) const;
 
@@ -17280,17 +17319,21 @@ public:
 	PPID   GoodsGrpID;       // Товарная группа, которой следует ограничивать загрузку товаров в асинхр модуль либо
 		// отбор товаров в синхронном узле. // Reserve4-->GoodsGrpID
 	SArray * P_DivGrpList;   // (move from PPAsyncCashNode)
+	ObjTagList  TagL;        // @v9.6.5 @dbd_exchange Список тегов
 };
 
 class PPAsyncCashNode : public PPGenCashNode {
 public:
 	SLAPI  PPAsyncCashNode();
+	PPAsyncCashNode & FASTCALL operator = (const PPAsyncCashNode &);
+	int    FASTCALL Copy(const PPAsyncCashNode & rS);
 	int    FASTCALL GetLogNumList(PPIDArray & rList) const;
 
 	SString ExpPaths;
 	SString ImpFiles;
 	SString LogNumList;
-	SString AddedMsgSign;    // @v7.0.0 Описание формы загрузки доп полей товара в кассовый модуль
+	SString AddedMsgSign;    // Описание формы загрузки доп полей товара в кассовый модуль
+	TSCollection <PosIdentEntry> ApnCorrList; // @v9.6.5
 };
 
 class PPSyncCashNode : public PPGenCashNode {
@@ -17310,14 +17353,9 @@ public:
 	// Descr: Параметры фильтрации отложенных чеков в кассовой панели
 	//
 	struct SuspCheckFilt {
-		SuspCheckFilt()
-		{
-			THISZERO();
-		}
-		int    IsEmpty() const
-		{
-			return BIN(DaysPeriod == 0 && DlvrItemsShowTag == 0);
-		}
+		SLAPI  SuspCheckFilt();
+		int    SLAPI IsEmpty() const;
+
 		uint16 DaysPeriod;
 		int16  DlvrItemsShowTag; // 0 - показывать не зависимо от статуса доставки, <0 - только без доставки, >0 - только с доставкой
 		uint8  Reserve[32];
@@ -17344,16 +17382,16 @@ public:
 	uint16 SleepTimeout;     //
 	PPID   LocalTouchScrID;  // Локальный (по отношению к компютеру) идентификатор записи PPObjTouchScreen
 	uint16 Speciality;       //
-	uint16 BonusMaxPart;     // @v7.5.12 Максимальная часть чека, которая может быть оплачена бонусом
+	uint16 BonusMaxPart;     // Максимальная часть чека, которая может быть оплачена бонусом
 		// Ограничение хранится в промилле. Example: 152 = 15.2% от суммы чека
-	PPID   PhnSvcID;         // @v7.3.3 Телефонный сервис (для обслуживания заказов столов и доставки)
-	SuspCheckFilt Scf;       // @v7.3.5 Фильтр отображения списка отложенных чеков
+	PPID   PhnSvcID;         // Телефонный сервис (для обслуживания заказов столов и доставки)
+	SuspCheckFilt Scf;       // Фильтр отображения списка отложенных чеков
 	SString PrinterPort;     // Для печати напрямую на windows printer
 	SString TableSelWhatman; // Имя файла ватмана для выбора стола кафе
 	SString BnkTermPath;	 // Путь к промежуточной dll банковского терминала
-	SString SlipFmtPath;     // @v7.4.1 Путь к файлу описания slip-отчетов
-	SString ExtString;       // @v7.8.1 Строка, содержащая конфигурационные строки, которые могут быть извлечены вызовом GetPropString(int, SString &)
-	LongArray CTblList;      // @v7.6.4 Список номеров столов
+	SString SlipFmtPath;     // Путь к файлу описания slip-отчетов
+	SString ExtString;       // Строка, содержащая конфигурационные строки, которые могут быть извлечены вызовом GetPropString(int, SString &)
+	LongArray CTblList;      // Список номеров столов
 };
 
 class PPObjCashNode : public PPObjReference {
@@ -17576,6 +17614,7 @@ public:
 	int    SLAPI AsyncUpdateSession();
 	int    SLAPI AsyncBrowseCheckList();
 	int    SLAPI AsyncBrowseExcess();
+	int    SLAPI AsyncInteractiveQuery();
 	//
 	// Общие методы
 	//
@@ -18455,6 +18494,16 @@ public:
 	//     0 - как минимум один из каталогов не доступен для записи
 	//
 	int    SLAPI DistributeFile(const char * pFileName, int action, const char * pSubDir = 0, const char * pEmailSubj = 0);
+	//
+	// Descr: Если поддерживаются запросы к кассовому узлу, то эта функция 
+	//   должна отправить серверу узла запрос (возможно в интерактивном режиме).
+	// Note: Не предполагается, что функция должна дождаться ответа на запрос (но и не возбраняется).
+	// Returns:
+	//   >0 - запрос был отправлен
+	//   <0 - функция не поддерживается либо пользователь отказался от функции
+	//   0  - ошибка
+	//
+	virtual int SLAPI InteractiveQuery();
 protected:
 	//
 	// Descr: должна сформировать файлы, необходимые для загрузки кассовых аппаратов.
@@ -27480,7 +27529,7 @@ private:
 struct GoodsImportBillIdent {
 	SLAPI  GoodsImportBillIdent(PPObjPerson * pPsnObj, PPID defSupplID);
 	SLAPI ~GoodsImportBillIdent();
-	int    SLAPI GetFldSet(PPIniFile *, uint sect, DbfTable * pTbl);
+	void   SLAPI GetFldSet(PPIniFile *, uint sect, DbfTable * pTbl);
 	int    SLAPI Get(DbfRecord * pRec);
 	int    SLAPI Get(Sdr_Goods2 * pRec, PPID supplID);
 	PPBillPacket * SLAPI GetPacket(PPID opID, PPID locID);
@@ -42722,6 +42771,8 @@ int SLAPI SendMail(const char * pSubj, const char * pLetter, StrAssocArray * pMa
 //
 class PPPosProtocol {
 public:
+	friend class ACS_PAPYRUS_APN;
+
 	struct RouteBlock {
 		SLAPI  RouteBlock();
 		void   SLAPI Destroy();
@@ -42771,36 +42822,47 @@ public:
 		RouteBlock R;
 		TSArray <QueryBlock> QL;
 	};
-	struct ProcessInputBlock {
+	class ProcessInputBlock {
+	public:
+		friend class PPPosProtocol;
+
 		enum {
-			fProcessRefs     = 0x0001,
-			fProcessSessions = 0x0002,
-			fProcessQueries  = 0x0004,
-			fRenameProcessed = 0x0008
+			fProcessRefs        = 0x0001, // Акцептировать справочники в базу данных
+			fProcessSessions    = 0x0002, // Акцептировать кассовые сессии (P_ACS != 0)
+			fProcessQueries     = 0x0004, // Ответить на запросы
+			fBackupProcessed    = 0x0008, // Сделать резервную копию обработанных файлов
+			fRemoveProcessed    = 0x0010, // Удалить обработанные файлы
+			fStoreReadBlocks    = 0x0020  // Если установлен, то все ReadBlock считанные в пределах одного вызова
+				// ProcessInput сохраняются во внутренней коллекции (P_RbList).
 		};
-		SLAPI  ProcessInputBlock()
-		{
-			Flags = 0;
-			SessionCount = 0;
-			SessionPeriod.SetZero();
-		}
-		long   Flags;                               // IN
-		uint   SessionCount;                        // OUT
-		DateRange SessionPeriod;                    // OUT
+		SLAPI  ProcessInputBlock();
+		SLAPI  ProcessInputBlock(PPAsyncCashSession * pAcs);
+		SLAPI ~ProcessInputBlock();
+		const  void * SLAPI GetStoredReadBlocks() const;
+		long   Flags;            // IN
+		PPID   PosNodeID;        // IN Кассовый узел, запрашивающий вызов обработки входных данных.
+		uint   SessionCount;     // OUT
+		DateRange SessionPeriod; // OUT
 		TSCollection <QueryProcessBlock> QpBlkList; // OUT
+	private:
+		void   SLAPI Helper_Construct();
+		void * P_RbList; // Список ReadBlock считанных в процессе вызова ProcessInput. Так как
+			// структура PPPosProtocol::ReadBlock приватная и определена ниже, используем трюк с opaque-указателем.
+			// Фактически, это TSCollection <PPPosProtocol::ReadBlock>
+		PPAsyncCashSession * P_ACS;
 	};
+
+	static int SLAPI EditPosQuery(TSArray <PPPosProtocol::QueryBlock> & rQList);
 
 	SLAPI  PPPosProtocol();
 	SLAPI ~PPPosProtocol();
-    int    SLAPI SendReferences(PPID nodeID, int updOnly, PPID sinceDlsID, DeviceLoadingStat * pDls, const char * pFileName);
-	int    SLAPI SendQuery(const QueryBlock & rQ);
+    //int    SLAPI SendReferences(PPID nodeID, int updOnly, PPID sinceDlsID, DeviceLoadingStat * pDls, const char * pFileName);
+	int    SLAPI SendQuery(PPID posNodeID, const PPPosProtocol::QueryBlock & rQ);
 	//
 	int    SLAPI ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsID);
-	int    SLAPI ExportPosSession(const PPIDArray & rSessList);
+	int    SLAPI ExportPosSession(const PPIDArray & rSessList, PPID posNodeID, const PPPosProtocol::RouteBlock * pSrc, const PPPosProtocol::RouteBlock * pDestination);
 	int    SLAPI ProcessInput(ProcessInputBlock & rPib);
-
-//private:
-public:
+private:
 	struct WriteBlock {
 		SLAPI  WriteBlock();
 		SLAPI ~WriteBlock();
@@ -42998,20 +43060,33 @@ public:
 		int    SLAPI GetRouteItem(const RouteObjectBlock & rO, RouteBlock & rR) const;
 
 		xmlParserCtxt * P_SaxCtx;
-
+		//
+		// Descr: Флаги состояния процесса чтения
+		//
 		enum {
 			stHeaderOccured = 0x0001,
-			stError         = 0x0002
+			stError         = 0x0002,
+			stRefsOccured   = 0x0004,
+			stQueryOccured  = 0x0008,
+			stCSessOccured  = 0x0010
 		};
-
-		int    State;
+		//
+		// Descr: Значения поля Phase
+		//
+		enum {
+			phUnkn       = 0, // Не определенная фаза
+			phPreprocess = 1, // Предварительная обработка (чтение заголовка, источника, получателя и списка присутствующих объектов)
+			phProcess    = 2  // Полная обработка
+		};
+		int    State; // stXXX Состояние процесса чтения
+		int    Phase; // phXXX Фаза обработки входящего файла
 
 		const SymbHashTable * P_ShT; // Таблица символов, полученная вызовом PPGetStringHash(int)
 		SString TempBuf;
 		SString TagValue;
+		SString SrcFileName;
 		TSStack <int> TokPath;
 		TSStack <uint> RefPosStack; //
-
 		TSArray <RouteObjectBlock> SrcBlkList;
 		TSArray <RouteObjectBlock> DestBlkList;
 		TSArray <GoodsBlock> GoodsBlkList;
@@ -43046,8 +43121,8 @@ public:
 	// Descr: Разбирает входящий документ из файла pFileName и складывает данные в объект RdB.
 	//   После разбора данные в RdB могут быть импортированы.
 	//
-	int    SLAPI SaxParseFile(const char * pFileName);
-	int    SLAPI AcceptData(TSCollection <PPPosProtocol::QueryProcessBlock> * pQpBlkList);
+	int    SLAPI SaxParseFile(const char * pFileName, int preprocess);
+	int    SLAPI AcceptData();
     void   SLAPI DestroyReadBlock();
 	const PPPosProtocol::ReadBlock & SLAPI GetReadBlock() const
 	{
@@ -43056,15 +43131,18 @@ public:
 	int    SLAPI ResolveGoodsBlock(const PPPosProtocol::GoodsBlock & rBlk, uint refPos, int asRefOnly, PPID defParentID, PPID defUnitID, PPID srcArID, PPID * pNativeID);
 
 	const  SString & FASTCALL EncText(const char * pS);
+	uint   SLAPI PeekRefPos() const;
 	void * SLAPI PeekRefItem(uint * pRefPos, int * pType) const;
+	int    SLAPI Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNode * pCnRec, LongArray & rISymbList, TSArray <S_GUID> & rUuidList);
 	void   FASTCALL Helper_AddStringToPool(uint * pPos);
 	int    FASTCALL Helper_PushQuery(int queryType);
 	QueryBlock * Helper_RenewQuery(uint & rRefPos, int queryType);
 	int    SLAPI Accept_Person(PPPosProtocol::PersonBlock & rBlk, PPID kindID);
 	int    SLAPI CreateGoodsGroup(const GoodsGroupBlock & rBlk, int isFolder, PPID * pID);
 	int    SLAPI CreateParentGoodsGroup(const ParentBlock & rBlk, int isFolder, PPID * pID);
+	int    SLAPI InitSrcRootInfo(PPID posNodeID, PPPosProtocol::RouteBlock & rInfo);
 
-	int    SLAPI SelectOutFileName(const char * pPath, const char * pInfix, SString & rResult);
+	int    SLAPI SelectOutFileName(const PPAsyncCashNode * pPosNode, const char * pInfix, StringSet & rResultSs);
 	int    SLAPI StartWriting(const char * pFileName, PPPosProtocol::WriteBlock & rB);
 	int    SLAPI FinishWriting(WriteBlock & rB);
 	int    SLAPI WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, const AsyncCashGoodsInfo & rInfo, const PPQuotArray * pQList);
@@ -43073,10 +43151,9 @@ public:
 	int    SLAPI WritePersonInfo(WriteBlock & rB, const char * pScopeXmlTag, PPID codeRegTypeID, const PPPersonPacket & rPack);
 	int    SLAPI WriteQuotInfo(WriteBlock & rB, const char * pScopeXmlTag, PPID parentObj, const PPQuot & rInfo);
 	int    SLAPI WriteQuotKindInfo(WriteBlock & rB, const char * pScopeXmlTag, const PPQuotKind & rInfo);
-	int    SLAPI WriteRouteInfo(WriteBlock & rB, const char * pScopeXmlTag, RouteBlock & rInfo);
+	int    SLAPI WriteRouteInfo(WriteBlock & rB, const char * pScopeXmlTag, const RouteBlock & rInfo);
 	int    SLAPI WritePosNode(WriteBlock & rB, const char * pScopeXmlTag, PPCashNode & rInfo);
 	int    SLAPI WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, const CSessionTbl::Rec & rInfo);
-	int    SLAPI WriteSourceRoute(WriteBlock & rB);
 
 	SString EncBuf;
 	PPObjPerson PsnObj;
@@ -43087,6 +43164,7 @@ public:
 	PPObjQuotKind QkObj;
 	PPObjCSession CsObj;
 	PPObjSCard  ScObj;
+	PPObjCashNode CnObj;
 };
 //
 //
@@ -43507,6 +43585,7 @@ private:
 	int    SLAPI LogSended(const Packet & rPack);
 	int    SLAPI CheckBillForMainOrgID(const BillTbl::Rec & rRec, const PPOprKind & rOpRec);
 	int    SLAPI ExpandBaseOpList(const PPIDArray & rBaseOpList, PPIDArray & rResultList);
+	int    SLAPI IsAcsLinkedToMainOrg(PPID acsID);
 
 	enum {
 		stError             = 0x0001, // Во время выполнения какой-то функции произошла критическая ошибка
@@ -45382,6 +45461,29 @@ public:
 		Tile   T;
 		SGeoPosLL_Int C;
     };
+    struct Way {
+    	SLAPI  Way();
+		uint64 ID;
+		Tile   T;
+		Int64Array NodeRefList;
+    };
+	struct RelMember {
+		SLAPI  RelMember();
+		uint64 RefID;
+		uint   TypeSymbID;
+		uint   RoleSymbID;
+	};
+    struct Relation {
+    	SLAPI  Relation();
+		uint64 ID;
+		Tile   T;
+		TSArray <RelMember> MembList;
+    };
+    struct Tag {
+    	SLAPI  Tag();
+        uint   KeySymbID; // Идентификатор символа
+        uint64 ValID;     // Идентификатор значения (в варианте теста все значения хранятся в таблице символов)
+    };
 
 	struct NodeClusterStatEntry {
 		uint   LogicalCount;
@@ -45394,7 +45496,7 @@ public:
 		/*
 			// Заголовок определяющий заголовочную точку и параметры всего кластера
 			Indicator : byte
-			ID        : uint32 || uint64
+			ID        : uint32 || uint64 || 0 (Indicator & indfOuterId)
 			Tile      : uint32
 			Lat       : int32
 			Lon       : int32
@@ -45471,29 +45573,31 @@ public:
 		};
 		int    SLAPI Implement_Get(uint64 outerID, TSArray <Node> * pList, Node * pHead, uint * pCountLogic, uint * pCountActual);
 	};
-    struct Way {
-    	SLAPI  Way();
-		uint64 ID;
-		Tile   T;
-		Int64Array NodeRefList;
-    };
-	struct RelMember {
-		SLAPI  RelMember();
-		uint64 RefID;
-		uint   TypeSymbID;
-		uint   RoleSymbID;
+	class WayBuffer : private SBuffer {
+	public:
+		SLAPI  WayBuffer();
+		int    SLAPI Put(const Way * pW, uint64 * pOuterID);
+		int    SLAPI Get(uint64 outerID, Way * pW);
+	private:
+		// (IND) [ID] (TileLevel) [COUNT] ([INFIND] (POINT-ID))+
+        enum {
+        	indfLoop          = 0x01, // Замкнутый контур (последняя точка равна первой и не хранится в буфере)
+            indfIncremental8  = 0x02, // Первая точка хранится как есть, все последующие - байтовый инкремент от предыдущей точки
+            indfIncremental16 = 0x04, // Первая точка хранится как есть, все последующие - 2-байтовый инкремент от предыдущей точки
+				// Если !(indfIncremental8|indfIncremental16), то идентификаторы всех точек хранятся с байтовым префиксом
+				// определяющим способ хранения соответствующего значения.
+            indfRectangle     = 0x08, // Замкнутый контур из 4 точек (предполагает одновременную установку indfLoop)
+            indfCount8        = 0x10, // Количество точек байтовое (иначе - 4 байтовое)
+				// Если !indfRectangle, то количество точек указывается явно (общее, включая замыкающую для контура)
+            indfFirstId32     = 0x20, // Идентификатор первой точки 4-байтовый (в противном случае - 8-байтовый)
+			indfId32          = 0x40, // Идентификатор объекта представлен 32-битным значением
+			indfOuterId       = 0x80  // Идентификатор объекта хранится отдельно (специально для K-V хранилищ: ид держится в ключе)
+        };
+        enum {
+        	infindfSizeMask      = (0x01|0x02|0x04),
+        	infindfIncremental   = 0x08
+        };
 	};
-    struct Relation {
-    	SLAPI  Relation();
-		uint64 ID;
-		Tile   T;
-		TSArray <RelMember> MembList;
-    };
-    struct Tag {
-    	SLAPI  Tag();
-        uint   KeySymbID; // Идентификатор символа
-        uint64 ValID;     // Идентификатор значения (в варианте теста все значения хранятся в таблице символов)
-    };
     /*
 	class WayTbl : public BDbTable {
 	public:
@@ -45625,26 +45729,13 @@ private:
 	PPOsm::Way  LastWay;
 	PPOsm::Relation LastRel;
 	//
-	//int64  NodeCount;
-	//int64  NakedNodeCount; // Количество узлов без тегов
-	//int64  WayCount;
-	//int64  RelationCount;
 	struct StatBlock {
-		SLAPI  StatBlock()
-		{
-			Clear();
-		}
-		void   SLAPI Clear()
-		{
-			NodeCount = 0;
-			NakedNodeCount = 0;
-			WayCount = 0;
-			RelationCount = 0;
-			TagNodeCount = 0;
-			TagWayCount = 0;
-			TagRelCount = 0;
-			NcList.clear();
-		}
+		SLAPI  StatBlock();
+		void   SLAPI Clear();
+		uint64 SLAPI GetNcActualCount() const;
+		uint64 SLAPI GetNcClusterCount() const;
+		uint64 SLAPI GetNcSize() const;
+
 		uint64 NodeCount;
 		uint64 NakedNodeCount; // Количество узлов без тегов
 		uint64 WayCount;
@@ -49295,8 +49386,6 @@ private:
 	StringSet P;
 };
 
-COLORREF GetDefaultDesktopBgColor();
-
 //int	GetDesktpDevList(TSCollection <SUsbDevice> & rList); // @vmiller // ppdesktop.cpp
 
 class PPDesktop : public TWindow {
@@ -49310,6 +49399,7 @@ public:
 	static PPCommandMngr * LoadDeskList(int readOnly, PPCommandGroup * pDesktopList);
 	static int GetDeskName(long deskId, SString & rDeskName);
 	static int HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, void * procExtPtr);
+	static COLORREF GetDefaultBgColor();
 
 	PPDesktop();
 	~PPDesktop();

@@ -1,29 +1,29 @@
 // RC2.CPP
-// Copyright (c) V.Antonov, A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016
+// Copyright (c) V.Antonov, A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2017
 //
 #include <pp.h>
 #include "rc2.h"
 
-const char * P_DefinePrefix  = "#define ";   // @declared(rc2.h)
-const char * P_IncludePrefix = "#include ";  // @declared(rc2.h)
-const char * P_VCmdPrefix = "PPVCMD_";       // @declared(rc2.h)
-const char * P_BrwPrefix  = "BROWSER_";      // @declared(rc2.h)
-const char * P_TbPrefix   = "TOOLBAR_";      // @declared(rc2.h)
-const char * P_JobPrefix  = "PPJOB_";        // @declared(rc2.h)
-const char * P_ObjPrefix  = "PPOBJ_";        // @declared(rc2.h)
-const char * P_CmPrefix   = "PPCMD_";        // @declared(rc2.h)
-const char * P_RecPrefix  = "PPREC_";        // @declared(rc2.h)
-const char * P_FldPrefix  = "PPFLD_";        // @declared(rc2.h)
-const char * P_ViewPrefix = "PPVIEW_";       // @declared(rc2.h)
-const char * P_FiltPrefix = "PPFILT_";       // @declared(rc2.h)
-const char * P_ViewItemPrefix   = "PPVIEWITEM_"; // @declared(rc2.h)
-const char * P_ReportStubPrefix = "REPORT_";     // @declared(rc2.h)
-const char * P_CtrlMenuPrefix = "CTRLMENU_";     // @declared(rc2.h)
-const char * P_RFilePrefix = "PPRFILE_";         // @declared(rc2.h)
+static const char * P_DefinePrefix  = "#define ";   // @declared(rc2.h)
+static const char * P_IncludePrefix = "#include ";  // @declared(rc2.h)
+static const char * P_VCmdPrefix = "PPVCMD_";       // @declared(rc2.h)
+static const char * P_BrwPrefix  = "BROWSER_";      // @declared(rc2.h)
+static const char * P_TbPrefix   = "TOOLBAR_";      // @declared(rc2.h)
+static const char * P_JobPrefix  = "PPJOB_";        // @declared(rc2.h)
+static const char * P_ObjPrefix  = "PPOBJ_";        // @declared(rc2.h)
+static const char * P_CmPrefix   = "PPCMD_";        // @declared(rc2.h)
+static const char * P_RecPrefix  = "PPREC_";        // @declared(rc2.h)
+static const char * P_FldPrefix  = "PPFLD_";        // @declared(rc2.h)
+static const char * P_ViewPrefix = "PPVIEW_";       // @declared(rc2.h)
+static const char * P_FiltPrefix = "PPFILT_";       // @declared(rc2.h)
+static const char * P_ViewItemPrefix   = "PPVIEWITEM_"; // @declared(rc2.h)
+static const char * P_ReportStubPrefix = "REPORT_";     // @declared(rc2.h)
+static const char * P_CtrlMenuPrefix = "CTRLMENU_";     // @declared(rc2.h)
+static const char * P_RFilePrefix = "PPRFILE_";         // @declared(rc2.h)
 
 void yyerror(const char * str);
 
-const char tv_browser_flags[] = "BRO_OWNER;BRO_GRID";
+static const char tv_browser_flags[] = "BRO_OWNER;BRO_GRID";
 const char browser_flags[] = "OWNER;GRID";
 const char base[] = "center;north;south;west;east";
 
@@ -34,8 +34,7 @@ Rc2Data Rc2;
 int SLAPI GetSubStr(const char * pStr, int idx, char * buf, size_t buflen)
 {
 	uint pos = 0;
-	StringSet ss(onecstr(';'));
-	ss.setBuf(pStr, strlen(pStr) + 1);
+	StringSet ss(';', pStr);
 	for(int i = 0; ss.get(&pos, buf, buflen); i++)
 		if(i == idx)
 			return 1;
@@ -48,8 +47,7 @@ int SLAPI SearchSubStr(const char * pStr, int * pIdx, const char * pTestStr, int
 	int  idx = -1;
 	uint pos = 0;
 	char temp_buf[128];
-	StringSet ss(onecstr(';'));
-	ss.setBuf(pStr, strlen(pStr) + 1);
+	StringSet ss(';', pStr);
 	for(int i = 0; idx < 0 && ss.get(&pos, temp_buf, sizeof(temp_buf)); i++)
 		if(!_stricmp(temp_buf, pTestStr))
 			idx = i;

@@ -1475,13 +1475,13 @@ COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
       <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">%(Filename)_p.c</ProxyFileName>
       <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename)_p.c</ProxyFileName>
       <ProxyFileName Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(Filename)_p.c</ProxyFileName>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">1</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">1</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">1</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">1</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">1</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">1</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">1</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">NotSet</StructMemberAlignment>
       <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)</OutputDirectory>
       <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RelativeDir)</OutputDirectory>
       <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RelativeDir)</OutputDirectory>
@@ -1524,13 +1524,13 @@ COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
       <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">%(Filename).tlb</TypeLibraryName>
       <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).tlb</TypeLibraryName>
       <TypeLibraryName Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(Filename).tlb</TypeLibraryName>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">1</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">1</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">1</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">1</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">1</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|x64'">1</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">1</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotSet</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">NotSet</StructMemberAlignment>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">3</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">3</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">3</WarningLevel>
@@ -1545,6 +1545,62 @@ COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
       <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">false</SuppressStartupBanner>
       <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</SuppressStartupBanner>
       <SuppressStartupBanner Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</SuppressStartupBanner>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Unsigned</DefaultCharType>
+      <DefaultCharType Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Unsigned</DefaultCharType>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</GenerateStublessProxies>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='Release|x64'">EnableCustom</EnableErrorChecks>
+      <EnableErrorChecks Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">EnableCustom</EnableErrorChecks>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">dlldata.c</DllDataFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">dlldata.c</DllDataFileName>
     </Midl>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

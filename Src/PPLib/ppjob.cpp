@@ -2126,8 +2126,7 @@ int ExportBillsFiltDialog::setDTS(const ExpBillsFilt * pData)
 		SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, &HdrList, (long)id, 0);
 	}
 	// } @vmiller
-		AddClusterAssoc(CTL_BILLEXPFILT_BILLTYP, -1, bbtGoodsBills);
-		AddClusterAssoc(CTL_BILLEXPFILT_BILLTYP,  0, bbtGoodsBills);
+		AddClusterAssocDef(CTL_BILLEXPFILT_BILLTYP, 0, bbtGoodsBills);
 		AddClusterAssoc(CTL_BILLEXPFILT_BILLTYP,  1, bbtDraftBills);
 		SetClusterData(CTL_BILLEXPFILT_BILLTYP,  (long)Data.Filt.Bbt);
 
@@ -3687,8 +3686,7 @@ int TSessAutoSmsFiltDialog::setDTS(const TSessionFilt * pData)
 		ptcg_rec.IdleStatus = 0;
  		setGroupData(grp_prctech, &ptcg_rec);
 	}
-	AddClusterAssoc(CTL_JTSASMSFILT_STATUS, 0, (1 << TSESST_PLANNED));
-	AddClusterAssoc(CTL_JTSASMSFILT_STATUS, -1, (1 << TSESST_PLANNED));
+	AddClusterAssocDef(CTL_JTSASMSFILT_STATUS, 0, (1 << TSESST_PLANNED));
 	AddClusterAssoc(CTL_JTSASMSFILT_STATUS, 1, (1 << TSESST_PENDING));
 	AddClusterAssoc(CTL_JTSASMSFILT_STATUS, 2, (1 << TSESST_INPROCESS));
 	AddClusterAssoc(CTL_JTSASMSFILT_STATUS, 3, (1 << TSESST_CLOSED));

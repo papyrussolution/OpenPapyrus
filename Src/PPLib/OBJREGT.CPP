@@ -186,8 +186,7 @@ public:
 		SetClusterData(CTL_PREGTYP_FLAGS, Data.Rec.Flags);
 
 		SetupPPObjCombo(this, CTLSEL_PREGTYP_GGRP, PPOBJ_GOODSGROUP, Data.Rec.RestrictGoodsGrpID, OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN, 0); // @v8.3.11 OLW_LOADDEFONOPEN
-		AddClusterAssoc(CTL_PREGTYP_GGRPALLOW, -1, PPRegisterType::ggrpaOnlyGroup);
-		AddClusterAssoc(CTL_PREGTYP_GGRPALLOW,  0, PPRegisterType::ggrpaOnlyGroup);
+		AddClusterAssocDef(CTL_PREGTYP_GGRPALLOW, 0, PPRegisterType::ggrpaOnlyGroup);
 		AddClusterAssoc(CTL_PREGTYP_GGRPALLOW,  1, PPRegisterType::ggrpaDenyGroup);
 		AddClusterAssoc(CTL_PREGTYP_GGRPALLOW,  2, PPRegisterType::ggrpaAllowByReg);
 		SetClusterData(CTL_PREGTYP_GGRPALLOW, (long)Data.Rec.RestrictGoodsKind);

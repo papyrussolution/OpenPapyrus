@@ -759,8 +759,7 @@ int SLAPI PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 					AddClusterAssoc(CTL_CLIAGTRND_FLAGS, 0, AGTF_PRICEROUNDING);
 					SetClusterData(CTL_CLIAGTRND_FLAGS, Data.Flags);
 					setCtrlData(CTL_CLIAGTRND_PREC, &Data.PriceRoundPrec); // ! float
-					AddClusterAssoc(CTL_CLIAGTRND_ROUND,  0, 0);
-					AddClusterAssoc(CTL_CLIAGTRND_ROUND, -1, 0);
+					AddClusterAssocDef(CTL_CLIAGTRND_ROUND,  0, 0);
 					AddClusterAssoc(CTL_CLIAGTRND_ROUND,  1, -1);
 					AddClusterAssoc(CTL_CLIAGTRND_ROUND,  2, +1);
 					SetClusterData(CTL_CLIAGTRND_ROUND, Data.PriceRoundDir);

@@ -462,10 +462,10 @@ int SLAPI PPObjProcessor::Search(PPID id, void * b)
 	return SearchByID(P_Tbl, Obj, id, b);
 }
 
-//virtual 
-const char * SLAPI PPObjProcessor::GetNamePtr() 
-{ 
-	return P_Tbl->data.Name; 
+//virtual
+const char * SLAPI PPObjProcessor::GetNamePtr()
+{
+	return P_Tbl->data.Name;
 }
 
 int SLAPI PPObjProcessor::SearchByName(int kind, const char * pName, PPID * pID, ProcessorTbl::Rec * pRec)
@@ -1261,21 +1261,18 @@ int ProcessorDialog::EditExt()
 			long   check_out_round = (Data.Ext.TimeFlags & Data.Ext.tfCheckOutRoundBackward) ? 2 : 1;
 			setCtrlTime(CTL_PRCEXT_CHKINTIME, Data.Ext.CheckInTime);
 			setCtrlTime(CTL_PRCEXT_CHKOUTTIME, Data.Ext.CheckOutTime);
-			AddClusterAssoc(CTL_PRCEXT_CHKINROUND,  0, 2);
-			AddClusterAssoc(CTL_PRCEXT_CHKINROUND, -1, 2);
+			AddClusterAssocDef(CTL_PRCEXT_CHKINROUND,  0, 2);
 			AddClusterAssoc(CTL_PRCEXT_CHKINROUND,  1, 1);
 			SetClusterData(CTL_PRCEXT_CHKINROUND, check_in_round);
 
-			AddClusterAssoc(CTL_PRCEXT_CHKOUTROUND,  0, 1);
-			AddClusterAssoc(CTL_PRCEXT_CHKOUTROUND, -1, 1);
+			AddClusterAssocDef(CTL_PRCEXT_CHKOUTROUND,  0, 1);
 			AddClusterAssoc(CTL_PRCEXT_CHKOUTROUND,  1, 2);
 			SetClusterData(CTL_PRCEXT_CHKOUTROUND, check_out_round);
 
 			AddClusterAssoc(CTL_PRCEXT_PLUSONE, 0, Data.Ext.tfPlusOneDay);
 			SetClusterData(CTL_PRCEXT_PLUSONE, Data.Ext.TimeFlags);
 			// @v8.2.9 {
-			AddClusterAssoc(CTL_PRCEXT_INITSTATUS, 0, 0);
-			AddClusterAssoc(CTL_PRCEXT_INITSTATUS, -1, 0);
+			AddClusterAssocDef(CTL_PRCEXT_INITSTATUS, 0, 0);
 			AddClusterAssoc(CTL_PRCEXT_INITSTATUS, 1, TSESST_PLANNED);
 			AddClusterAssoc(CTL_PRCEXT_INITSTATUS, 2, TSESST_PENDING);
 			AddClusterAssoc(CTL_PRCEXT_INITSTATUS, 3, TSESST_INPROCESS);
@@ -1500,8 +1497,7 @@ void ProcessorDialog::setupAccSheet(uint opSelCtl, uint objSelCtl, PPID arID)
 int ProcessorDialog::setupAssoc()
 {
 	if(Data.Rec.Kind == PPPRCK_GROUP) {
-		AddClusterAssoc(CTL_PRC_ASSOC,  0, 0);
-		AddClusterAssoc(CTL_PRC_ASSOC, -1, 0);
+		AddClusterAssocDef(CTL_PRC_ASSOC,  0, 0);
 		AddClusterAssoc(CTL_PRC_ASSOC,  1, PPOBJ_PERSON);
 		AddClusterAssoc(CTL_PRC_ASSOC,  2, PPOBJ_TRANSPORT);
 		SetClusterData(CTL_PRC_ASSOC, Data.Rec.LinkObjType);
@@ -1559,8 +1555,7 @@ int ProcessorDialog::setDTS(const PPProcessorPacket * pData)
 	else {
 		long   wr_off_dt_sel = (Data.Rec.Flags & PRCF_WROFFDT_START) ? 0 : 1;
 		AddClusterAssoc(CTL_PRC_WROFFDT,  0, 0);
-		AddClusterAssoc(CTL_PRC_WROFFDT, -1, 1);
-		AddClusterAssoc(CTL_PRC_WROFFDT,  1, 1);
+		AddClusterAssocDef(CTL_PRC_WROFFDT,  1, 1);
 		SetClusterData(CTL_PRC_WROFFDT, wr_off_dt_sel);
 		AddClusterAssoc(CTL_PRC_WROFFDT_BYSUPER, 0, PRCF_WROFFDT_BYSUPER);
 		SetClusterData(CTL_PRC_WROFFDT_BYSUPER, Data.Rec.Flags);

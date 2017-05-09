@@ -665,8 +665,7 @@ int BudgetItemDialog::setDTS(const BudgetItemTbl::Rec * pData)
 	SetupPPObjCombo(this, CTLSEL_BUDGITEM_BUDGET, PPOBJ_BUDGET,   Data.BudgetID, OLW_CANSELUPLEVEL, (void *)SEL_ALL_BUDGETS);
 	SetupPPObjCombo(this, CTLSEL_BUDGITEM_ACCT,   PPOBJ_ACCOUNT2, Data.Acc, OLW_CANSELUPLEVEL|OLW_CANINSERT, (void *)ACY_SEL_BUDGET);
 	setCtrlData(CTL_BUDGITEM_DT, &Data.Dt);
-	AddClusterAssoc(CTL_BUDGITEM_KIND, -1, 0);
-	AddClusterAssoc(CTL_BUDGITEM_KIND, 0, 0);
+	AddClusterAssocDef(CTL_BUDGITEM_KIND, 0, 0);
 	AddClusterAssoc(CTL_BUDGITEM_KIND, 1, 1);
 	SetClusterData(CTL_BUDGITEM_KIND, Data.Kind);
 	setCtrlData(CTL_BUDGITEM_AMOUNT,  &Data.Amount);
@@ -832,8 +831,7 @@ int BudgetItemsDialog::setDTS(const BudgetItemsList * pData)
 	}
 	SetupPPObjCombo(this, CTLSEL_BUDGITEM_BUDGET, PPOBJ_BUDGET,   rec.BudgetID, OLW_CANSELUPLEVEL, (void *)SEL_ALL_BUDGETS);
 	SetupPPObjCombo(this, CTLSEL_BUDGITEM_ACCT,   PPOBJ_ACCOUNT2, rec.Acc, OLW_CANSELUPLEVEL|OLW_CANINSERT, (void *)ACY_SEL_BUDGET);
-	AddClusterAssoc(CTL_BUDGITEM_KIND, -1, 0);
-	AddClusterAssoc(CTL_BUDGITEM_KIND, 0, 0);
+	AddClusterAssocDef(CTL_BUDGITEM_KIND, 0, 0);
 	AddClusterAssoc(CTL_BUDGITEM_KIND, 1, 1);
 	SetClusterData(CTL_BUDGITEM_KIND, rec.Kind);
 	disableCtrl(CTLSEL_BUDGITEM_BUDGET, 1);

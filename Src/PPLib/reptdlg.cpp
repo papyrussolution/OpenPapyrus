@@ -1,5 +1,5 @@
 // REPTDLG.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2016
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -405,14 +405,12 @@ public:
 			Data = *(DateRepeating *)pData;
 			long   kind = (long)Data.RepeatKind;
 			setCtrlLong(CTL_REPEATING_NUMPRD, (long)Data.Dtl.RA.NumPrd);
-			AddClusterAssoc(CTL_REPEATING_KIND, -1, PRD_DAY);
-			AddClusterAssoc(CTL_REPEATING_KIND,  0, PRD_DAY);
+			AddClusterAssocDef(CTL_REPEATING_KIND,  0, PRD_DAY);
 			AddClusterAssoc(CTL_REPEATING_KIND,  1, PRD_WEEK);
 			AddClusterAssoc(CTL_REPEATING_KIND,  2, PRD_MONTH);
 			AddClusterAssoc(CTL_REPEATING_KIND,  3, PRD_ANNUAL);
 			SetClusterData(CTL_REPEATING_KIND, (long)Data.RepeatKind);
-			AddClusterAssoc(CTL_REPEATING_DTLAS, -1, 1);
-			AddClusterAssoc(CTL_REPEATING_DTLAS, 0, 1);
+			AddClusterAssocDef(CTL_REPEATING_DTLAS, 0, 1);
 			AddClusterAssoc(CTL_REPEATING_DTLAS, 1, 0);
 			SetClusterData(CTL_REPEATING_DTLAS, Data.Dtl.RA.AfterStart);
 		}
@@ -565,12 +563,11 @@ int RepeatingDialog::setDTS(const DateRepeating * pData)
 		P_Data->Prd = PRD_WEEK;
 	DisableClusterItem(CTL_REPEATING_PRD, 5, !(Options & fEditRepeatAfterItem));
 	AddClusterAssoc(CTL_REPEATING_PRD, 0, PRD_UNDEF);
-	AddClusterAssoc(CTL_REPEATING_PRD, 1, PRD_DAY);
+	AddClusterAssocDef(CTL_REPEATING_PRD, 1, PRD_DAY);
 	AddClusterAssoc(CTL_REPEATING_PRD, 2, PRD_WEEK);
 	AddClusterAssoc(CTL_REPEATING_PRD, 3, PRD_MONTH);
 	AddClusterAssoc(CTL_REPEATING_PRD, 4, PRD_ANNUAL);
 	AddClusterAssoc(CTL_REPEATING_PRD, 5, PRD_REPEATAFTERPRD); // Повторить задачу через определенный промежуток времени
-	AddClusterAssoc(CTL_REPEATING_PRD, -1, PRD_DAY);
 	SetClusterData(CTL_REPEATING_PRD, P_Data->Prd);
 	embedChild(P_Data->Prd);
 	if(P_ChildDlg)

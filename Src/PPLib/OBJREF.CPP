@@ -1367,8 +1367,7 @@ int SLAPI PPObjELinkKind::Edit(PPID * pID, void * extraPtr)
 	dlg->AddClusterAssoc(CTL_ELNKK_TYPE, 2, ELNKRT_PAGER);
 	dlg->AddClusterAssoc(CTL_ELNKK_TYPE, 3, ELNKRT_EMAIL);
 	dlg->AddClusterAssoc(CTL_ELNKK_TYPE, 4, ELNKRT_WEBADDR);
-	dlg->AddClusterAssoc(CTL_ELNKK_TYPE, 5, ELNKRT_UNKNOWN);
-	dlg->AddClusterAssoc(CTL_ELNKK_TYPE, -1, ELNKRT_UNKNOWN);
+	dlg->AddClusterAssocDef(CTL_ELNKK_TYPE, 5, ELNKRT_UNKNOWN);
 	dlg->SetClusterData(CTL_ELNKK_TYPE, rec.Type);
 	dlg->setCtrlUInt16(CTL_ELNKK_FLAGS, BIN(rec.Flags & ELNKF_PREF));
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
@@ -2823,8 +2822,7 @@ public:
 		setCtrlData(CTL_UHTTSTORE_SYMB, Data.Rec.Symb);
 		SetupPersonCombo(this, CTLSEL_UHTTSTORE_PSN, Data.Rec.PersonID, OLW_CANINSERT, (PPID)PPPRK_SUPPL, 0);
 		PsnObj.SetupDlvrLocCombo(this, CTLSEL_UHTTSTORE_LOC, Data.Rec.PersonID, Data.Rec.LocID);
-		AddClusterAssoc(CTL_UHTTSTORE_KIND,  0, PPUhttStore::kGenericStore);
-		AddClusterAssoc(CTL_UHTTSTORE_KIND, -1, PPUhttStore::kGenericStore);
+		AddClusterAssocDef(CTL_UHTTSTORE_KIND,  0, PPUhttStore::kGenericStore);
 		AddClusterAssoc(CTL_UHTTSTORE_KIND,  1, PPUhttStore::kTSessCip);
 		SetClusterData(CTL_UHTTSTORE_KIND, Data.Rec.Kind);
 		AddClusterAssoc(CTL_UHTTSTORE_FLAGS, 0, PPUhttStore::fUseGoodsPkg);
@@ -2997,8 +2995,7 @@ private:
 			{
 				Data = *pData;
 				int    ok = 1;
-				AddClusterAssoc(CTL_UHTTSTSELITEM_ATTR,  0, PPUhttStoreSelDescr::attrName);
-				AddClusterAssoc(CTL_UHTTSTSELITEM_ATTR, -1, PPUhttStoreSelDescr::attrName);
+				AddClusterAssocDef(CTL_UHTTSTSELITEM_ATTR,  0, PPUhttStoreSelDescr::attrName);
 				AddClusterAssoc(CTL_UHTTSTSELITEM_ATTR,  1, PPUhttStoreSelDescr::attrGroup);
 				AddClusterAssoc(CTL_UHTTSTSELITEM_ATTR,  2, PPUhttStoreSelDescr::attrBrand);
 				AddClusterAssoc(CTL_UHTTSTSELITEM_ATTR,  3, PPUhttStoreSelDescr::attrTag);

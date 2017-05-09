@@ -214,8 +214,7 @@ int SLAPI BillExtraDialog(PPBillExt * pData, ObjTagList * pTagList, int asFilt)
 			// } @v8.3.3
 			// @v9.1.6 {
             {
-                dlg->AddClusterAssoc(CTL_BILLEXTFLT_RECADV, 0, PPEDI_RECADV_STATUS_UNDEF);
-                dlg->AddClusterAssoc(CTL_BILLEXTFLT_RECADV, -1, PPEDI_RECADV_STATUS_UNDEF);
+                dlg->AddClusterAssocDef(CTL_BILLEXTFLT_RECADV, 0, PPEDI_RECADV_STATUS_UNDEF);
                 dlg->AddClusterAssoc(CTL_BILLEXTFLT_RECADV, 1, PPEDI_RECADV_STATUS_ACCEPT);
                 dlg->AddClusterAssoc(CTL_BILLEXTFLT_RECADV, 2, PPEDI_RECADV_STATUS_PARTACCEPT);
                 dlg->AddClusterAssoc(CTL_BILLEXTFLT_RECADV, 3, PPEDI_RECADV_STATUS_REJECT);
@@ -223,8 +222,7 @@ int SLAPI BillExtraDialog(PPBillExt * pData, ObjTagList * pTagList, int asFilt)
                 dlg->SetClusterData(CTL_BILLEXTFLT_RECADV, pData->EdiRecadvStatus);
             }
             {
-                dlg->AddClusterAssoc(CTL_BILLEXTFLT_RECADVCFM, 0, PPEDI_RECADVCONF_STATUS_UNDEF);
-                dlg->AddClusterAssoc(CTL_BILLEXTFLT_RECADVCFM, -1, PPEDI_RECADVCONF_STATUS_UNDEF);
+                dlg->AddClusterAssocDef(CTL_BILLEXTFLT_RECADVCFM, 0, PPEDI_RECADVCONF_STATUS_UNDEF);
                 dlg->AddClusterAssoc(CTL_BILLEXTFLT_RECADVCFM, 1, PPEDI_RECADVCONF_STATUS_ACCEPT);
                 dlg->AddClusterAssoc(CTL_BILLEXTFLT_RECADVCFM, 2, PPEDI_RECADVCONF_STATUS_REJECT);
                 dlg->AddClusterAssoc(CTL_BILLEXTFLT_RECADVCFM, 3, -1);
@@ -2420,8 +2418,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 		const int recadv_status = BillCore::GetRecadvStatus(P_Pack->Rec);
         if(recadv_status) {
 			int    recadv_conf_status = BillCore::GetRecadvConfStatus(P_Pack->Rec);
-			AddClusterAssoc(CTL_BILL_EDIACKRESP, 0, PPEDI_RECADVCONF_STATUS_UNDEF);
-			AddClusterAssoc(CTL_BILL_EDIACKRESP, -1, PPEDI_RECADVCONF_STATUS_UNDEF);
+			AddClusterAssocDef(CTL_BILL_EDIACKRESP, 0, PPEDI_RECADVCONF_STATUS_UNDEF);
 			AddClusterAssoc(CTL_BILL_EDIACKRESP, 1, PPEDI_RECADVCONF_STATUS_ACCEPT);
 			AddClusterAssoc(CTL_BILL_EDIACKRESP, 2, PPEDI_RECADVCONF_STATUS_REJECT);
 			SetClusterData(CTL_BILL_EDIACKRESP, recadv_conf_status);
@@ -2849,8 +2846,7 @@ int SLAPI PPObjBill::ViewBillInfo(PPID billID)
 			dlg->SetClusterData(CTL_BILLINFO_FLAGS2, pack.Rec.Flags2);
 			// } @v8.0.3
 			// @v8.8.6 {
-			dlg->AddClusterAssoc(CTL_BILLINFO_RECADV, 0, 0);
-			dlg->AddClusterAssoc(CTL_BILLINFO_RECADV, -1, 0);
+			dlg->AddClusterAssocDef(CTL_BILLINFO_RECADV, 0, 0);
 			dlg->AddClusterAssoc(CTL_BILLINFO_RECADV, 1, 1);
 			dlg->AddClusterAssoc(CTL_BILLINFO_RECADV, 2, 2);
 			dlg->AddClusterAssoc(CTL_BILLINFO_RECADV, 3, 3);
@@ -2942,8 +2938,7 @@ int SLAPI PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 			Data = *pData;
 			P_Pack = pPack;
 
-			AddClusterAssoc(CTL_FREIGHT_TRTYP, 0, PPTRTYP_CAR);
-			AddClusterAssoc(CTL_FREIGHT_TRTYP, -1, PPTRTYP_CAR);
+			AddClusterAssocDef(CTL_FREIGHT_TRTYP, 0, PPTRTYP_CAR);
 			AddClusterAssoc(CTL_FREIGHT_TRTYP, 1, PPTRTYP_SHIP);
 			SetClusterData(CTL_FREIGHT_TRTYP, Data.TrType);
 			disableCtrl(CTL_FREIGHT_TRTYP, BIN(Data.ShipID));

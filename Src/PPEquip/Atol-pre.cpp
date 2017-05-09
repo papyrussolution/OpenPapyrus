@@ -1,5 +1,5 @@
 // ATOL.CPP
-// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016
+// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу "Атол"
 //
@@ -560,7 +560,8 @@ int SLAPI ACS_ATOL::SetGoodsRestLoadFlag(int updOnly)
 int SLAPI ACS_ATOL::ExportData(int updOnly)
 {
 	int    ok = 1, next_barcode = 0;
-	char   load_symb = '$';
+	//char   load_symb = '$';
+	const  char * p_load_symb = "$";
 	const  char * p_format = "%s\n";
 	PPID   prev_goods_id = 0, stat_id = 0;
 	LAssocArray  grp_n_level_ary;
@@ -578,26 +579,25 @@ int SLAPI ACS_ATOL::ExportData(int updOnly)
 
 	THROW(GetNodeData(&cn_data) > 0);
 	if(cn_data.DrvVerMajor > 3 || (cn_data.DrvVerMajor == 3 && cn_data.DrvVerMinor >= 4))
-		load_symb = '#';
-
+		p_load_symb = "#";
 	if(!P_Dls)
 		THROW_MEM(P_Dls = new DeviceLoadingStat);
 	P_Dls->StartLoading(&stat_id, dvctCashs, NodeID, 1);
 	PPWait(1);
 	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_ATOL_IMP_TXT,  path_goods));
 	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_ATOL_IMP_FLAG, path_flag));
-	THROW_PP_S(p_file = fopen(path_flag, onecstr('w')), PPERR_CANTOPENFILE, path_flag);
+	THROW_PP_S(p_file = fopen(path_flag, "w"), PPERR_CANTOPENFILE, path_flag);
 	fclose(p_file);
-	THROW_PP_S(p_file = fopen(path_goods, onecstr('w')), PPERR_CANTOPENFILE, path_goods);
+	THROW_PP_S(p_file = fopen(path_goods, "w"), PPERR_CANTOPENFILE, path_goods);
 	THROW_MEM(p_gds_iter = new AsyncCashGoodsIterator(NodeID, (updOnly ? ACGIF_UPDATEDONLY : 0), SinceDlsID, P_Dls));
 	THROW(PPGetSubStr(PPTXT_ATOL_CMDSTRINGS, PPATOLCS_INITFILE, f_str));
-	THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
-	THROW_PP(fprintf(p_file, p_format, onecstr(load_symb)) > 0, PPERR_EXPFILEWRITEFAULT);
+	THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
+	THROW_PP(fprintf(p_file, p_format, p_load_symb) > 0, PPERR_EXPFILEWRITEFAULT);
 	THROW(ExportSCard(p_file, updOnly));
 	if(updOnly || (Flags & PPACSF_LOADRESTWOSALES)) {
 		THROW(PPGetSubStr(PPTXT_ATOL_CMDSTRINGS,
 			(Flags & PPACSF_LOADRESTWOSALES) ? PPATOLCS_REPLACEQTTYWOSALE : PPATOLCS_REPLACEQTTY, f_str));
-		THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+		THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 	}
 	else {
 		THROW(PPGetSubStr(PPTXT_ATOL_CMDSTRINGS, PPATOLCS_DELETEALL, f_str));
@@ -783,13 +783,13 @@ int SLAPI ACS_ATOL::GetSessionData(int * pSessCount, int * pIsForwardSess, DateR
 		}
 		THROW_PP(acn.ExpPaths.NotEmptyS() || acn.ImpFiles.NotEmptyS(), PPERR_INVFILESET);
 		ImpPaths.clear();
-		ImpPaths.setDelim(onecstr(';'));
+		ImpPaths.setDelim(";");
 		{
 			SString & r_list = acn.ImpFiles.NotEmpty() ? acn.ImpFiles : acn.ExpPaths;
 			ImpPaths.setBuf(r_list, r_list.Len()+1);
 		}
 		ExpPaths.clear();
-		ExpPaths.setDelim(onecstr(';'));
+		ExpPaths.setDelim(";");
 		{
 			SString & r_list = acn.ExpPaths.NotEmpty() ? acn.ExpPaths : acn.ImpFiles;
 			ExpPaths.setBuf(r_list, r_list.Len()+1);
@@ -952,7 +952,7 @@ int SLAPI ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath
 					buf.CopyTo(gds_pack.Rec.Name, sizeof(gds_pack.Rec.Name));
 					STRNSCPY(gds_pack.Rec.Abbr, gds_pack.Rec.Name);
 					MEMSZERO(bc_rec);
-					(buf = onecstr('$')).Cat(goods_id);
+					(buf = 0).CatChar('$').Cat(goods_id);
 					buf.CopyTo(bc_rec.Code, sizeof(bc_rec.Code));
 					bc_rec.Qtty = 1.0;
 					bc_rec.BarcodeType = -1;

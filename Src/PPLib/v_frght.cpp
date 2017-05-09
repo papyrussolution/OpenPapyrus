@@ -648,8 +648,7 @@ int SLAPI PPViewFreight::UpdateFeatures()
 	dlg->SetupCalDate(CTLCAL_UPDFREIGHT_ARRDT, CTL_UPDFREIGHT_ARRDT);
 	dlg->setCtrlData(CTL_UPDFREIGHT_ISSDT, &issue_date);
 	dlg->setCtrlData(CTL_UPDFREIGHT_ARRDT, &arrival_date);
-	dlg->AddClusterAssoc(CTL_UPDFREIGHT_SHPF,  0, -1);
-	dlg->AddClusterAssoc(CTL_UPDFREIGHT_SHPF, -1, -1);
+	dlg->AddClusterAssocDef(CTL_UPDFREIGHT_SHPF,  0, -1);
 	dlg->AddClusterAssoc(CTL_UPDFREIGHT_SHPF,  1,  1);
 	dlg->AddClusterAssoc(CTL_UPDFREIGHT_SHPF,  2,  0);
 	dlg->SetClusterData(CTL_UPDFREIGHT_SHPF, shipm_flag_mode);

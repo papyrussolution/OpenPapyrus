@@ -289,7 +289,7 @@ int SLAPI PPObjBill::SaveBalance(LDATE endDate, const char * pFileName)
 	FILE * f_out = 0;
 	AcctRelTbl::Key3 k;
 	MEMSZERO(k);
-	f_out = fopen(pFileName, onecstr('w'));
+	f_out = fopen(pFileName, "w");
 	THROW_PP(f_out, PPERR_EXPFOPENFAULT);
 	PPGetSubStr(PPTXT_CUTTINGPROCESS, 0, msg_buf, sizeof(msg_buf));
 	PPGetSubStr(PPTXT_SAVBAL_STRINGS, 0, format, sizeof(format));
@@ -316,7 +316,7 @@ int SLAPI PPObjBill::LoadBalance(LDATE endDate, const char * pFileName, int use_
 	char   buf[256], msg_buf[64], format[64];
 	RECORDNUMBER numrecs = 0, recno = 0;
 	CurRateCore cr_core;
-	FILE * f_in = fopen(pFileName, onecstr('r'));
+	FILE * f_in = fopen(pFileName, "r");
 	THROW_PP(f_in, PPERR_OPENIMPORTFILE);
 	PPGetSubStr(PPTXT_CUTTINGPROCESS, 1, msg_buf, sizeof(msg_buf));
 	PPGetSubStr(PPTXT_SAVBAL_STRINGS, 1, format, sizeof(format));

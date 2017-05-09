@@ -2077,7 +2077,7 @@ const char * SLAPI skipws(const char * pStr, size_t * pPos)
 		return 0;
 }
 
-const char * FASTCALL onecstr(char c)
+/* @v9.6.5 const char * FASTCALL onecstr(char c)
 {
 #ifdef _WIN32_WCE
 	static char buf[2];
@@ -2090,7 +2090,7 @@ const char * FASTCALL onecstr(char c)
 	p_buf[1] = 0;
 	return p_buf;
 #endif
-}
+} */
 
 /* @v9.4.10 (unused) char * SLAPI quotstr(char * pS, int leftQuotChr, int rightQuotChr)
 {
@@ -2268,7 +2268,10 @@ int SLAPI hostrtocstr(const char * pInBuf, char * pOutBuf, size_t outBufSize)
 			}
 			if(digit >= 0 && digit <= 255) {
 				len = prcsd_symbs;
-				replacestr(pOutBuf, onecstr((char)digit), &pos, &len, outBufSize);
+				char   srch_buf[8];
+				srch_buf[0] = (char)digit;
+				srch_buf[1] = 0;
+				replacestr(pOutBuf, srch_buf, &pos, &len, outBufSize);
 			}
 		}
 		pos += len;
@@ -2306,9 +2309,9 @@ int SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 		SIZE   size;
 		memzero(ret_buf, sizeof(ret_buf));
 #ifdef _WIN32_WCE // {
-		GetTextExtentPoint32(hdc, (const ushort*)onecstr('.'), 1, &size);
+		GetTextExtentPoint32(hdc, (const ushort*)".", 1, &size);
 #else
-		GetTextExtentPoint32(hdc, onecstr('.'), 1, &size);
+		GetTextExtentPoint32(hdc, ".", 1, &size);
 #endif // } _WIN32_WCE
 		dots_size = size.cx * 3;
 		for(size_t strs_count = 0; strs_count < maxStrsCount; strs_count++) {
@@ -2323,9 +2326,9 @@ int SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 				if(is_last_str)
 					dots_pos = word_size + dots_size <= maxStrSize ? dest_pos : dots_pos;
 #ifdef _WIN32_WCE // {
-				GetTextExtentPoint32(hdc, (const ushort*)onecstr(aBuf.C(src_pos)), 1, &size);
+				GetTextExtentPoint32(hdc, &aBuf[src_pos], 1, &size);
 #else
-				GetTextExtentPoint32(hdc, onecstr(aBuf.C(src_pos)), 1, &size);
+				GetTextExtentPoint32(hdc, &aBuf[src_pos], 1, &size);
 #endif // } _WIN32_WCE
 				word_size += size.cx;
 				if(word_size <= maxStrSize) {

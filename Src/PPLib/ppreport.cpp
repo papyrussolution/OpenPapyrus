@@ -1583,8 +1583,9 @@ static int SLAPI RemoveCompName(SString & rPrintDevice)
 	if(rPrintDevice.CmpPrefix(sbuf, 1) == 0)
 		rPrintDevice.ShiftLeft(sbuf.Len());
 	else if(rPrintDevice.C(0) == '\\' && rPrintDevice.C(1) == '\\') {
-		long val = atol(onecstr(rPrintDevice.C(2)));
-		if(val > 0) {
+		//long val = atol(onecstr(rPrintDevice.C(2)));
+		if(isdec(rPrintDevice.C(2))) {
+			long val = rPrintDevice.C(2) - '0';
 			InetAddr addr;
 			// @todo Исправить ошибку в GetFirstHostByMACAddr
 			//MACAddr  mac_addr;

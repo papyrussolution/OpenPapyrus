@@ -662,7 +662,8 @@ int TInputLine::Implement_GetText()
 int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch(uMsg) {
-		case WM_INITDIALOG: {
+		case WM_INITDIALOG:
+			{
 				SendDlgItemMessage(Parent, Id, EM_SETLIMITTEXT, maxLen ? (maxLen-1) : 0, 0);
 				if(format & STRF_PASSWORD)
 					SendDlgItemMessage(Parent, Id, EM_SETPASSWORDCHAR, DEFAULT_PASSWORD_SYMB, 0);
@@ -1715,14 +1716,15 @@ int ComboBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 int ComboBox::search(const void * pPattern, CompFunc fcmp, int srchMode)
 {
+	int    ok = 0;
 	if(P_Def && P_Def->search(pPattern, fcmp, srchMode)) {
 		long   scroll_delta, scroll_pos;
 		P_Def->getScrollData(&scroll_delta, &scroll_pos);
 		SendDlgItemMessage(Parent, MAKE_BUTTON_ID(Id, 1), SBM_SETPOS, scroll_pos, 1);
 		Draw_();
-		return 1;
+		ok = 1;
 	}
-	return 0;
+	return ok;
 }
 
 void ComboBox::search(const char * pFirstLetter, int srchMode)
@@ -1940,10 +1942,18 @@ LRESULT CALLBACK TImageView::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 					const  TRect rect_elem_i = rc;
 					const  FRect rect_elem = rc;
 					FRect pic_bounds = rect_elem;
-					SPaintToolBox tb;
-					TCanvas2 canv(tb, ps.hdc);
+					APPL->InitUiToolBox();
+					SPaintToolBox & r_tb = APPL->GetUiToolBox();
+					TCanvas2 canv(r_tb, ps.hdc);
 					LMatrix2D mtx;
 					SViewPort vp;
+					// @v9.6.5 {
+					if(!p_view->ReplacedColor.IsEmpty()) {
+						SColor replacement_color;
+						replacement_color = r_tb.GetColor(TProgram::tbiIconRegColor);
+						canv.SetColorReplacement(p_view->ReplacedColor, replacement_color);
+					}
+					// } @v9.6.5
 					canv.PushTransform();
 					p_view->P_Fig->GetViewPort(&vp);
 					{
@@ -1994,11 +2004,14 @@ TImageView::TImageView(const TRect & rBounds, const char * pFigSymb) : TView(rBo
 	P_Fig = 0;
 	P_Image = 0;
 	FigSymb = pFigSymb; // @v9.5.6
+	ReplacedColor.Set(0); // @v9.6.5
+	ReplacedColor.Alpha = 0; // @v9.6.5
 	if(FigSymb.NotEmpty()) {
 		TWhatmanToolArray::Item tool_item;
 		const SDrawFigure * p_fig = APPL->LoadDrawFigureBySymb(FigSymb, &tool_item);
 		if(p_fig) {
 			P_Fig = p_fig->Dup();
+			ReplacedColor = tool_item.ReplacedColor;
 		}
 	}
 	else {

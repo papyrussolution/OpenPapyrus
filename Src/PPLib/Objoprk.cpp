@@ -1666,8 +1666,7 @@ void OprKindDialog::prnOptDialog()
 			P_Data->GetExtStrData(OPKEXSTR_DEFPRNFORM, prn_form_name);
 			dlg->setCtrlString(CTL_OPKMORE_PRNFORM, prn_form_name);
 
-			dlg->AddClusterAssoc(CTL_OPKMORE_PRTORD,  0, TiIter::ordDefault);
-			dlg->AddClusterAssoc(CTL_OPKMORE_PRTORD, -1, TiIter::ordDefault);
+			dlg->AddClusterAssocDef(CTL_OPKMORE_PRTORD,  0, TiIter::ordDefault);
 			dlg->AddClusterAssoc(CTL_OPKMORE_PRTORD,  1, TiIter::ordByGoods);
 			dlg->AddClusterAssoc(CTL_OPKMORE_PRTORD,  2, TiIter::ordByGrpGoods);
 			dlg->AddClusterAssoc(CTL_OPKMORE_PRTORD,  3, TiIter::ordByBarcode);

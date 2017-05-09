@@ -325,13 +325,12 @@ int SLAPI PPObjLocation::EditConfig()
 	SetupStringCombo(dlg, CTLSEL_LOCCFG_WHZONECOD, PPTXT_WHCODINGITEM, cfg.WhZoneCoding);
 	SetupStringCombo(dlg, CTLSEL_LOCCFG_WHCOLCOD,  PPTXT_WHCODINGITEM, cfg.WhColCoding);
 	SetupStringCombo(dlg, CTLSEL_LOCCFG_WHCELLCOD, PPTXT_WHCODINGITEM, cfg.WhCellCoding);
-	dlg->AddClusterAssoc(CTL_LOCCFG_DIVCOD,  0, 0);
-	dlg->AddClusterAssoc(CTL_LOCCFG_DIVCOD, -1, 0);
+	dlg->AddClusterAssocDef(CTL_LOCCFG_DIVCOD,  0, 0);
 	dlg->AddClusterAssoc(CTL_LOCCFG_DIVCOD,  1, 1);
 	dlg->AddClusterAssoc(CTL_LOCCFG_DIVCOD,  2, 2);
 	dlg->SetClusterData(CTL_LOCCFG_DIVCOD, cfg.WhCodingDiv);
 	SetupPPObjCombo(dlg, CTLSEL_LOCCFG_DEFPALTYPE, PPOBJ_PALLET, cfg.DefPalletID, 0, 0);
-	dlg->setCtrlData(CTL_LOCCFG_ADDRCODETEMPL, cfg.AddrCodeTempl); // @v7.3.8
+	dlg->setCtrlData(CTL_LOCCFG_ADDRCODETEMPL, cfg.AddrCodeTempl);
 	// @v8.9.11 {
 	{
 		ObjTagFilt tag_filt;
@@ -2250,8 +2249,7 @@ int SLAPI PPObjLocation::EditCreateWhLocParam(CreateWhLocParam * pParam)
 		int    setDTS(CreateWhLocParam * pData)
 		{
 			Data = *pData;
-			AddClusterAssoc(CTL_SELWZTYP_WHAT, 0, LOCTYP_WHZONE);
-			AddClusterAssoc(CTL_SELWZTYP_WHAT, -1, LOCTYP_WHZONE);
+			AddClusterAssocDef(CTL_SELWZTYP_WHAT, 0, LOCTYP_WHZONE);
 			AddClusterAssoc(CTL_SELWZTYP_WHAT, 1, LOCTYP_WHCOLUMN);
 			AddClusterAssoc(CTL_SELWZTYP_WHAT, 2, LOCTYP_WHCELL);
 			AddClusterAssoc(CTL_SELWZTYP_WHAT, 3, LOCTYP_WHCELLAUTOGEN);
@@ -2493,16 +2491,16 @@ int SLAPI PPObjLocation::Write(PPObjPack * p, PPID * pID, void * stream, ObjTran
 							psn_obj.GetDlvrLocList(native_psn_rec.ID, &native_dlvr_loc_list);
 							if(native_dlvr_loc_list.lsearch(*pID)) {
 								// Нашли этот адрес среди адресов доставки "своего" владельца - безусловно оставляем существующего владельца
-								p_pack->OwnerID = same_rec.OwnerID; 
+								p_pack->OwnerID = same_rec.OwnerID;
 							}
 						}
 						else {
 							// "Чужой" владелец не найден - безусловно оставляем существующего
-							p_pack->OwnerID = same_rec.OwnerID; 
+							p_pack->OwnerID = same_rec.OwnerID;
 						}
 					}
 				}
-				// } @v9.6.2 
+				// } @v9.6.2
 				r = PutPacket(pID, p_pack, 1);
 			}
 			else {

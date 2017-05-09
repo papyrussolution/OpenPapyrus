@@ -349,24 +349,22 @@ int PersonRelTypeDialog::setDTS(const PPPersonRelTypePacket * pData)
 
 	AddClusterAssoc(CTL_PSNRELTYPE_FLAGS, 0, PPPersonRelType::fInhAddr);
 	AddClusterAssoc(CTL_PSNRELTYPE_FLAGS, 1, PPPersonRelType::fInhRAddr);
-	AddClusterAssoc(CTL_PSNRELTYPE_FLAGS, 2, PPPersonRelType::fGrouping); // @v5.7.1
+	AddClusterAssoc(CTL_PSNRELTYPE_FLAGS, 2, PPPersonRelType::fGrouping);
 	AddClusterAssoc(CTL_PSNRELTYPE_FLAGS, 3, PPPersonRelType::fInhMainOrgAgreement);
 	AddClusterAssoc(CTL_PSNRELTYPE_FLAGS, 4, PPPersonRelType::fInhAgreements); // @v8.2.2
 	SetClusterData(CTL_PSNRELTYPE_FLAGS, Data.Rec.Flags);
 
-	AddClusterAssoc(CTL_PSNRELTYPE_CARDINAL, 0, PPPersonRelType::cOneToOne);
+	AddClusterAssocDef(CTL_PSNRELTYPE_CARDINAL, 0, PPPersonRelType::cOneToOne);
 	AddClusterAssoc(CTL_PSNRELTYPE_CARDINAL, 1, PPPersonRelType::cOneToMany);
 	AddClusterAssoc(CTL_PSNRELTYPE_CARDINAL, 2, PPPersonRelType::cManyToOne);
 	AddClusterAssoc(CTL_PSNRELTYPE_CARDINAL, 3, PPPersonRelType::cManyToMany);
-	AddClusterAssoc(CTL_PSNRELTYPE_CARDINAL, -1, PPPersonRelType::cOneToOne);
 	SetClusterData(CTL_PSNRELTYPE_CARDINAL, Data.Rec.Cardinality);
 
-	AddClusterAssoc(CTL_PSNRELTYPE_STATUSR, 0, PPPersonRelType::ssUndef);
+	AddClusterAssocDef(CTL_PSNRELTYPE_STATUSR, 0, PPPersonRelType::ssUndef);
 	AddClusterAssoc(CTL_PSNRELTYPE_STATUSR, 1, PPPersonRelType::ssPrivateToPrivate);
 	AddClusterAssoc(CTL_PSNRELTYPE_STATUSR, 2, PPPersonRelType::ssPrivateToLegal);
 	AddClusterAssoc(CTL_PSNRELTYPE_STATUSR, 3, PPPersonRelType::ssLegalToPrivate);
 	AddClusterAssoc(CTL_PSNRELTYPE_STATUSR, 4, PPPersonRelType::ssLegalToLegal);
-	AddClusterAssoc(CTL_PSNRELTYPE_STATUSR, -1, PPPersonRelType::ssUndef);
 	SetClusterData(CTL_PSNRELTYPE_STATUSR, Data.Rec.StatusRestriction);
 	updateList(-1);
 	return 1;

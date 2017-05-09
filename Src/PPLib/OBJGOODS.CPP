@@ -2546,8 +2546,7 @@ int SLAPI PPObjGoods::GetManufCountry(PPID goodsID, const Goods2Tbl::Rec * pRec,
 			pRec = &rec;
 		else
 			return -1;
-	SETIFZ(P_PsnObj, new PPObjPerson);
-	return P_PsnObj ? P_PsnObj->GetCountry(pRec->ManufID, pCountryID, pBlk) : PPSetErrorNoMem();
+	return SETIFZ(P_PsnObj, new PPObjPerson) ? P_PsnObj->GetCountry(pRec->ManufID, pCountryID, pBlk) : PPSetErrorNoMem();
 }
 
 int SLAPI PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFlags)
@@ -3594,14 +3593,11 @@ int SLAPI PPObjGoods::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 			RAssoc & r_item = gp->Stock.MinStockList.at(i);
 			ProcessObjRefInArray(PPOBJ_LOCATION, &r_item.Key, ary, replace);
 		}
-		// @v7.0.0 {
 		for(i = 0; i < gp->Stock.PltList.getCount(); i++) {
 			GoodsStockExt::Pallet & r_item = gp->Stock.PltList.at(i);
 			ProcessObjRefInArray(PPOBJ_PALLET, &r_item.PalletTypeID, ary, replace);
 		}
-		// } @v7.0.0
-		gp->TagL.ProcessObjRefs(ary, replace); // @v7.2.0
-		// @v7.7.12 {
+		gp->TagL.ProcessObjRefs(ary, replace);
 		PPIDArray * p_list = gp->GenericList.GetP();
 		if(p_list) {
 			for(i = 0; i < p_list->getCount(); i++) {
@@ -3609,7 +3605,6 @@ int SLAPI PPObjGoods::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 				ProcessObjRefInArray(PPOBJ_GOODS, p_id, ary, replace);
 			}
 		}
-		// } @v7.7.12
 		ProcessObjRefInArray(PPOBJ_PROCESSOR,  &gp->Rec.DefPrcID,    ary, replace); // @v9.0.5
 		return 1;
 	}
@@ -3656,9 +3651,9 @@ int SLAPI PPObjGoods::SerializePacket(int dir, PPGoodsPacket * pPack, SBuffer & 
 			THROW_SL(pSCtx->Serialize(dir, item.Flags, rBuf));
 			THROW_SL(pSCtx->Serialize(dir, item.MinQtty, rBuf));
 			THROW_SL(pSCtx->Serialize(dir, item.Quot, rBuf));
-			THROW_SL(pSCtx->Serialize(dir, item.Dtm, rBuf)); // @v7.2.0
-			THROW_SL(pSCtx->Serialize(dir, item.Period.low,  rBuf)); // @v7.3.5
-			THROW_SL(pSCtx->Serialize(dir, item.Period.upp,  rBuf)); // @v7.3.5
+			THROW_SL(pSCtx->Serialize(dir, item.Dtm, rBuf));
+			THROW_SL(pSCtx->Serialize(dir, item.Period.low,  rBuf));
+			THROW_SL(pSCtx->Serialize(dir, item.Period.upp,  rBuf));
 			if(dir < 0) {
 				item.ID = 0;
 				THROW_SL(quot_list.insert(&item));

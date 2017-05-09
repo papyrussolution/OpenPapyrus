@@ -3770,7 +3770,12 @@ size_t FASTCALL sisascii(const char * pS, size_t len);
 char * FASTCALL strip(char * pStr);
 char * SLAPI chomp(char * pStr);
 const  char * SLAPI skipws(const char * pStr, size_t * pPos);
-const  char * FASTCALL onecstr(char c);
+//
+// Descr: Функция заменяет символ 'c' на строку из одиночного того же символа "c".
+// Note: Функция рудиментарная сделана еще во времена DOS с целью снизить размер кода.
+//   Не использовать.
+//
+// @v9.6.5 const  char * FASTCALL onecstr(char c);
 char * SLAPI padleft(char  * pStr, char pad, size_t n);
 char * SLAPI padright(char * pStr, char pad, size_t n);
 char * SLAPI alignstr(char * pStr, size_t width, int adj);
@@ -8283,120 +8288,6 @@ private:
 	FILE * P_Stream;
 };
 //
-// SOAP
-//
-#define SOAPIF_RESOLVED 0x0001
-#define SOAPIF_STRUC    0x0002
-#define SOAPIF_ARRAY    0x0004
-
-struct SoapPacketItem {
-	SoapPacketItem();
-	SoapPacketItem & Clear();
-
-	SString Name;
-	SString Ref;
-	SString TypeName;
-	TYPEID  Typ;
-	long    Flags;     // SOAPIF_XXX
-	SString Value;
-	union {
-		SoapPacketStruc * P_Struc;
-		SoapPacketArray * P_Array;
-	};
-};
-
-class SoapPacketArray : private TSCollection <SoapPacketStruc> {
-public:
-	SoapPacketArray(SoapPacket & rR);
-	uint   GetCount() const;
-	SoapPacketStruc * FASTCALL Get(uint pos);
-	int    CreateItem(uint * pPos);
-	int    CreateItemRef(const char * pRef, const char * pType, uint * pPos);
-	SoapPacketStruc * SearchItemRef(const char * pRef, const char * pType);
-private:
-	SoapPacket & R_R;
-};
-
-class SoapPacketStruc : private SArray {
-public:
-	friend class SoapPacket;
-	friend class SoapPacketArray;
-
-	SoapPacketStruc(SoapPacket & rR);
-	SoapPacketStruc & Clear();
-	int    Add(const char * pFldName, const char * pType, const char * pValue);
-	SoapPacketArray * AddArray(const char * pFldName, const char * pType);
-	SoapPacketStruc * AddStruc(const char * pFldName, const char * pType);
-	int    AddRef(const char * pFldName, const char * pRef);
-	int    AddResolvedRef(const char * pRef, const char * pType, const char * pValue);
-	SoapPacketStruc * SearchItemRef(const char * pRef, const char * pType);
-	uint   GetCount() const;
-	int    Get(const char * pName, SoapPacketItem & rItem) const;
-	int    Get(uint pos, SoapPacketItem & rItem) const;
-private:
-	struct InnerItem {
-		uint   NameP;
-		uint   TypeP;
-		uint   ValueP; // Индекс позиции значения. Если Flags & SOAPIF_STRUC, то это - индекс в
-			// ArrList[0], если Flags & SOAPIF_ARRAY, то - индекс массива в ArrList.
-		uint   RefP;
-		uint   Dim;
-		TYPEID Typ;
-		long   Flags;   // SOAPIF_XXX
-	};
-
-	TSCollection <SoapPacketArray> ArrList; // Список внутренних массивов. Элемент с индексом 0 представляет
-		// внутренние одиночные структуры.
-
-	int    Helper_Get(const InnerItem * pItem, SoapPacketItem & rItem) const;
-	int    ResolveRefs(const SoapPacketStruc & rResolveList);
-
-	uint   RefP;
-	uint   TypeP;  // Позиция наименования типа записи SOAP (attr arrayType)
-	SoapPacket & R_R;
-};
-
-class SoapPacket {
-public:
-	enum {
-		stFault = 0x0001
-	};
-	SoapPacket();
-	SoapPacket & Clear();
-	//
-	// Descr: Разбирает результат вызова Soap-запроса.
-	// Returns:
-	//   1 - запрос успешно разобран
-	//   0 - ошибка разбора
-	//
-	int    Parse(const char * pMethodName, void * pXmlDoc, const char * pDebugFileName = 0); // really (xmlDoc *)
-	int    Write(const char * pUrn, const char * pMethodName, void ** ppXmlDoc, const char * pDebugFileName); // really (xmlDoc **)
-	int    HasFault() const
-	{
-		return BIN(State & stFault);
-	}
-	const  SString & GetFaultText() const
-	{
-		return FaultText;
-	}
-	SoapPacketStruc & GetBody()
-	{
-		return B;
-	}
-	int    SetString(const char * pStr, uint * pP);
-	int    GetStringPos(const char * pStr, uint * pP) const;
-	int    GetString(uint pos, SString & rBuf) const;
-private:
-	int    ParseType(SString & rTypeBuf, uint * pArraySize) const;
-
-	long   State;
-	SString FaultCode;
-	SString FaultText;
-	SoapPacketStruc B;
-	SymbHashTable T;
-	uint   SymbCounter;
-};
-//
 // Mathematics {
 //
 class SMathConst {
@@ -9943,7 +9834,7 @@ private:
 
 #ifndef _WIN32_WCE // {
 //
-//
+// Descr: Вспомогательный класс для генерации C++ кода
 //
 class Generator_CPP : public SFile {
 public:
@@ -10713,16 +10604,19 @@ public:
 	//
 	HDC    SLAPI GetFontDC();
 	TVRez * SLAPI GetRez();
-	void   SLAPI SetNextDialogLuPos(int left, int top)
-	{
-		NextDialogLuPos.Set(left, top);
-	}
-	TPoint SLAPI GetNextDialogLuPos()
-	{
-		TPoint result = NextDialogLuPos;
-		NextDialogLuPos.Set(-1, -1);
-		return result;
-	}
+	//
+	// Descr: Устанавливает позицию левого верхнего угла диалогового окна, которое
+	//   потенциально может быть открыто. Если left < 0 || top < 0, то при создании
+	//   нового окна диалога программа будет считать, что такая позиция не определена.
+	//
+	void   SLAPI SetNextDialogLuPos(int left, int top);
+	//
+	// Descr: Возвращает рекомендуемую позицию левого верхнего угла вновь открытого
+	//   диалогового окна. 
+	// Note: Эта функция сразу же сбрасывает значение этого угла в неопределенное.
+	//
+	TPoint SLAPI GetNextDialogLuPos();
+
 	long   Id;
 	int    LastErr;
 	int    LastOsErr;       // Код ошибка операционной системы (сохраняет значение в момент
@@ -10736,7 +10630,7 @@ public:
 	int    UiLanguageId;
 	long   UiFlags;            // @v9.1.1 sluifXXX
 	SCodepageIdent CurrentCp;  // @v7.8.5
-	char   OneCStrBuf[4];      // used in onecstr()
+	// @v9.6.5 char   OneCStrBuf[4];      // used in onecstr()
 	CompFunc SAry_OrgFCMP;
 	int    SAry_PtrContainer;
 	void * SAry_SortExtraData;
@@ -10744,7 +10638,7 @@ public:
 	SString LogPath;        // @v8.0.2
 	StringSet TempFileList;
 	SRandGenerator Rg;      // Генератор случайных чисел общего пользования. Инициализируется по моменту создания потока.
-	SGlobalSecureConfig Gsc; // @v7.6.7 Конфигурация SSL, шифрования и др. для секьюритизации глобального обмена данными
+	SGlobalSecureConfig Gsc; // Конфигурация SSL, шифрования и др. для секьюритизации глобального обмена данными
 private:
 	TVRez * P_Rez;
 	HDC    FontDc;          // Искусственный глобальный контекст вывода для манипулирования шрифтами.
@@ -10757,9 +10651,6 @@ class SlSession {
 public:
 	SLAPI  SlSession();
 	SLAPI ~SlSession();
-	//
-	// Descr:
-	//
 	int    SLAPI Construct();
 	//
 	int    SLAPI Init(const char * pAppName, HINSTANCE hInst = NULL);
@@ -10885,11 +10776,6 @@ public:
 	//
 	//
 	//
-	//int    SLAPI SetCallHelpFunc(CallHelpFunc);
-	//int    SLAPI SetGlobalSecureConfigFunc(GetGlobalSecureConfigFunc);
-	//int    SLAPI SetLoadStringFunc(LoadStringFunc);
-	//int    SLAPI SetExpandStringFunc(ExpandStringFunc fProc);
-	//
 	void   SLAPI GetExtraProcBlock(SlExtraProcBlock * pBlk) const;
 	void   SLAPI SetExtraProcBlock(const SlExtraProcBlock * pBlk);
 private:
@@ -10897,7 +10783,7 @@ private:
 	long   TlsIdx;          // @anchor
 	ACount SeqValue;        // @anchor Последнее значение, возвращенное функций GetSequenceValue().
 		// Положение переменной должно быть выровнено по 64-битной границе.
-	ACount LastThread;      // @v7.4.12 long-->ACount
+	ACount LastThread;      // 
 	int    WsaInitCounter;
 	ACount SslInitCounter;  // @v8.3.5
 	int    StopFlag;
@@ -10907,11 +10793,6 @@ private:
 	S_GUID SessUuid;        // @v8.0.2 Уникальный идентификатор сессии
 	int    UiLanguageId;
 	const SSystem SSys;
-
-	//LoadStringFunc F_LoadString;
-	//ExpandStringFunc F_ExpandString;
-	//CallHelpFunc F_CallHelp;
-	//GetGlobalSecureConfigFunc F_GetGlobalSecureConfig;
 
 	SlExtraProcBlock ExtraProcBlk; // @v9.1.2
 
@@ -11686,7 +11567,7 @@ private:
 	long   Lon;
 };
 //
-// Descr: Механизмы расчета, обратного преобразования и иных операций над Z-index'ом
+// Descr: Механизмы расчета, обратного преобразования и иных операций над 2х-мерным Z-index'ом
 //
 class SZIndex2 {
 public:
@@ -11938,18 +11819,20 @@ private:
 
 class MemHeapTracer {
 public:
-	static int Check()
-	{
-		MemHeapTracer mht;
-		MemHeapTracer::Stat mht_stat;
-		return BIN(mht.CalcStat(&mht_stat));
-	}
 	struct Stat {
 		ulong  UsedBlockCount;   // Количество используемых блоков
 		ulong  UnusedBlockCount; // Количество неиспользуемых блоков
 		ulong  UsedSize;         // Общий размер используемых блоков
 		ulong  UnusedSize;       // Общий размер неиспользуемых блоков
 	};
+	//
+	// Descr: Проверяет валидность кучи.
+	// Returns:
+	//   !0 - куча в порядке
+	//   0  - проблемы
+	//
+	static int Check();
+
 	SLAPI  MemHeapTracer();
 	int    SLAPI CalcStat(Stat * pSize);
 	int    SLAPI Dump(const char * pFileName, long flags);

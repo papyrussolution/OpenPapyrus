@@ -423,19 +423,16 @@ int SLAPI PrcssrPrediction::EditPredictCfg()
 	SetupPPObjCombo(dlg, CTLSEL_PREDICTCFG_OPRS, PPOBJ_OPRKIND, cfg.OpID, 0, 0);
 	dlg->SetupCalDate(CTLCAL_PREDICTCFG_DTBEGSELL, CTL_PREDICTCFG_DTBEGSELL);
 	dlg->setCtrlData(CTL_PREDICTCFG_DTBEGSELL, &cfg.StartDate);
-	dlg->AddClusterAssoc(CTL_PREDICTCFG_METHOD,  0, PRMTHD_SIMPLEAVERAGE);
-	dlg->AddClusterAssoc(CTL_PREDICTCFG_METHOD, -1, PRMTHD_SIMPLEAVERAGE);
+	dlg->AddClusterAssocDef(CTL_PREDICTCFG_METHOD,  0, PRMTHD_SIMPLEAVERAGE);
 	dlg->AddClusterAssoc(CTL_PREDICTCFG_METHOD,  1, PRMTHD_LSLIN);
 	dlg->SetClusterData(CTL_PREDICTCFG_METHOD, cfg.Method);
 
-	dlg->AddClusterAssoc(CTL_PREDICTCFG_USEPCKG,  0, PPPredictConfig::pckgDontUse);
-	dlg->AddClusterAssoc(CTL_PREDICTCFG_USEPCKG, -1, PPPredictConfig::pckgDontUse);
+	dlg->AddClusterAssocDef(CTL_PREDICTCFG_USEPCKG,  0, PPPredictConfig::pckgDontUse);
 	dlg->AddClusterAssoc(CTL_PREDICTCFG_USEPCKG,  1, PPPredictConfig::pckgPrefStock);
 	dlg->AddClusterAssoc(CTL_PREDICTCFG_USEPCKG,  2, PPPredictConfig::pckgPrefLot);
 	dlg->SetClusterData(CTL_PREDICTCFG_USEPCKG, cfg.GetPckgUse());
 
-	dlg->AddClusterAssoc(CTL_PREDICTCFG_ROUNDPCKG,  0, PPPredictConfig::pckgRoundUp);
-	dlg->AddClusterAssoc(CTL_PREDICTCFG_ROUNDPCKG, -1, PPPredictConfig::pckgRoundUp);
+	dlg->AddClusterAssocDef(CTL_PREDICTCFG_ROUNDPCKG,  0, PPPredictConfig::pckgRoundUp);
 	dlg->AddClusterAssoc(CTL_PREDICTCFG_ROUNDPCKG,  1, PPPredictConfig::pckgRoundDn);
 	dlg->AddClusterAssoc(CTL_PREDICTCFG_ROUNDPCKG,  2, PPPredictConfig::pckgRoundNear);
 	dlg->SetClusterData(CTL_PREDICTCFG_ROUNDPCKG, cfg.GetPckgRounding());
@@ -460,8 +457,7 @@ int SLAPI PrcssrPrediction::EditPredictCfg()
 	// Фиксирование артикулов по поставщику, для Рассчета заказа по поставщику
 	//
 	{
-		dlg->AddClusterAssoc(CTL_PREDICTCFG_FIXARCODE, -1, 0);
-		dlg->AddClusterAssoc(CTL_PREDICTCFG_FIXARCODE,  0, 0);
+		dlg->AddClusterAssocDef(CTL_PREDICTCFG_FIXARCODE, 0, 0);
 		dlg->AddClusterAssoc(CTL_PREDICTCFG_FIXARCODE,  1, SStatFilt::fExtByArCode);
 		dlg->AddClusterAssoc(CTL_PREDICTCFG_FIXARCODE,  2, SStatFilt::fRestrictByArCode);
 		if(!(CConfig.Flags & CCFLG_USEARGOODSCODE)) {
@@ -578,8 +574,7 @@ public:
 		GoodsCtrlGroup::Rec rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
 		setGroupData(GRP_GOODS, &rec);
 		mode = (Data.Flags & PrcssrPrediction::Param::fTestUpdatedItems) ? 1 : 0;
-		AddClusterAssoc(CTL_PSALTST_GOODSSELKIND, 0, 0);
-		AddClusterAssoc(CTL_PSALTST_GOODSSELKIND, -1, 0);
+		AddClusterAssocDef(CTL_PSALTST_GOODSSELKIND, 0, 0);
 		AddClusterAssoc(CTL_PSALTST_GOODSSELKIND, 1, 1);
 		SetClusterData(CTL_PSALTST_GOODSSELKIND, mode);
 		{
@@ -686,8 +681,6 @@ int PredictionParamDialog::setDTS(const PrcssrPrediction::Param * pData)
 	SETIFZ(period.upp, NZOR(Cfg.EndCalcDate, LConfig.OperDate));
 	setCtrlData(CTL_FILLSALESTBL_RCALBDT, &period.low);
 	setCtrlData(CTL_FILLSALESTBL_ENDDT, &period.upp);
-	// @v7.7.2 SetupPPObjCombo(this, CTLSEL_FILLSALESTBL_GRP, PPOBJ_GOODSGROUP, Data.GoodsGrpID, OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN, 0);
-	// @v7.7.2 {
 	{
 		GoodsCtrlGroup::Rec ggrp_rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
 		setGroupData(GRP_GOODS, &ggrp_rec);
@@ -701,9 +694,7 @@ int PredictionParamDialog::setDTS(const PrcssrPrediction::Param * pData)
 		}
 		DisableClusterItem(CTL_FILLSALESTBL_UPDATE, 1, Data.GoodsID);
 	}
-	// } @v7.7.2
-	AddClusterAssoc(CTL_FILLSALESTBL_UPDATE, 0, PrcssrPrediction::Param::rsUpdateOnly);
-	AddClusterAssoc(CTL_FILLSALESTBL_UPDATE, -1, PrcssrPrediction::Param::rsUpdateOnly);
+	AddClusterAssocDef(CTL_FILLSALESTBL_UPDATE, 0, PrcssrPrediction::Param::rsUpdateOnly);
 	AddClusterAssoc(CTL_FILLSALESTBL_UPDATE, 1, PrcssrPrediction::Param::rsRemoveAndReplaceAll);
 	SetClusterData(CTL_FILLSALESTBL_UPDATE, Data.Replace);
 	AddClusterAssoc(CTL_FILLSALESTBL_CONT, 0, PrcssrPrediction::Param::fRemoveContinueMode);

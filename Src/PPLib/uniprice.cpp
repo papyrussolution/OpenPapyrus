@@ -140,8 +140,7 @@ int SLAPI PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 			AddClusterAssoc(CTL_UNIPRICE_FLAGS, 0, PrcssrUnifyPriceFilt::fConfirm);
 			SetClusterData(CTL_UNIPRICE_FLAGS, Data.Flags);
 
-			AddClusterAssoc(CTL_UNIPRICE_MODE, 0, PrcssrUnifyPriceFilt::mLastLot);
-			AddClusterAssoc(CTL_UNIPRICE_MODE, -1, PrcssrUnifyPriceFilt::mLastLot);
+			AddClusterAssocDef(CTL_UNIPRICE_MODE, 0, PrcssrUnifyPriceFilt::mLastLot);
 			AddClusterAssoc(CTL_UNIPRICE_MODE, 1, PrcssrUnifyPriceFilt::mUnify);
 			AddClusterAssoc(CTL_UNIPRICE_MODE, 2, PrcssrUnifyPriceFilt::mEachLot);
 			SetClusterData(CTL_UNIPRICE_MODE, Data.Mode);

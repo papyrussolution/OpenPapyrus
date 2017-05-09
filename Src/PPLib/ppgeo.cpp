@@ -472,7 +472,7 @@ int FASTCALL PPOsm::SetNodeClusterStat(NodeCluster & rCluster, TSArray <NodeClus
 	uint   count_actual = 0;
 	uint64 surr_outer_id = 1024; // Мы не знаем здесь значения внешнего идентификатора, но он нам фактически не очень и нужен.
 		// Что бы функция rCluster.GetCount отработала правильно в данном конкретном случае достаточно
-		// подложить ей значение внешнего идентификатора кратное максимально возможному значению.q
+		// подложить ей значение внешнего идентификатора кратное максимально возможному значению.
 	THROW(rCluster.GetCount(surr_outer_id, &count_logic, &count_actual));
 	{
 		const  size_t sz = rCluster.GetSize();

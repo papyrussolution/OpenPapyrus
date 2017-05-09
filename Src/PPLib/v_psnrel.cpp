@@ -53,13 +53,11 @@ int PersonRelFiltDialog::setDTS(const PersonRelFilt * pData)
 		Data.Copy(pData, 1);
 	SetupPPObjCombo(this, CTLSEL_PSNRELFLT_RELTYPE, PPOBJ_PERSONRELTYPE, Data.RelTypeID, 0, 0);
 	long   apply_psn_filt_to_scnd = (Data.Flags & PersonRelFilt::fApplyPsnFiltToScnd) ? 1 : 0;
-	AddClusterAssoc(CTL_PSNRELFLT_PSNFLTTO, -1, 0);
-	AddClusterAssoc(CTL_PSNRELFLT_PSNFLTTO,  0, 0);
+	AddClusterAssocDef(CTL_PSNRELFLT_PSNFLTTO,  0, 0);
 	AddClusterAssoc(CTL_PSNRELFLT_PSNFLTTO,  1, 1);
 	SetClusterData(CTL_PSNRELFLT_PSNFLTTO, apply_psn_filt_to_scnd);
 
-	AddClusterAssoc(CTL_PSNRELFLT_SORTORD, -1, PersonRelFilt::ordByPrmrPerson);
-	AddClusterAssoc(CTL_PSNRELFLT_SORTORD,  0, PersonRelFilt::ordByPrmrPerson);
+	AddClusterAssocDef(CTL_PSNRELFLT_SORTORD,  0, PersonRelFilt::ordByPrmrPerson);
 	AddClusterAssoc(CTL_PSNRELFLT_SORTORD,  1, PersonRelFilt::ordByScndPerson);
 	AddClusterAssoc(CTL_PSNRELFLT_SORTORD,  2, PersonRelFilt::ordByRelationType);
 	SetClusterData(CTL_PSNRELFLT_SORTORD, Data.SortOrd);
@@ -69,8 +67,7 @@ int PersonRelFiltDialog::setDTS(const PersonRelFilt * pData)
 		added_sel = 1;
 	else if(Data.Flags & PersonRelFilt::fAddedSelectorByScnd)
 		added_sel = 2;
-	AddClusterAssoc(CTL_PSNRELFLT_ADDEDSEL, -1, 0);
-	AddClusterAssoc(CTL_PSNRELFLT_ADDEDSEL, 0, 0);
+	AddClusterAssocDef(CTL_PSNRELFLT_ADDEDSEL, 0, 0);
 	AddClusterAssoc(CTL_PSNRELFLT_ADDEDSEL, 1, 1);
 	AddClusterAssoc(CTL_PSNRELFLT_ADDEDSEL, 2, 2);
 	SetClusterData(CTL_PSNRELFLT_ADDEDSEL, added_sel);

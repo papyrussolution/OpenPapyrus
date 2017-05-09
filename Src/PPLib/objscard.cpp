@@ -624,8 +624,7 @@ int SCardRuleDlg::EditTrnovrRng(long pos)
 	p_dlg->showCtrl(CTLSEL_TRNVRRNG_SERIES, (RuleType == PPSCardSerRule::rultDisc));
 	if(RuleType == PPSCardSerRule::rultBonus) {
 		long   method = (range.Flags & range.fBonusAbsoluteValue) ? 2 : 1;
-		p_dlg->AddClusterAssoc(CTL_TRNVRRNG_METHOD, 0, 1);
-		p_dlg->AddClusterAssoc(CTL_TRNVRRNG_METHOD, -1, 1);
+		p_dlg->AddClusterAssocDef(CTL_TRNVRRNG_METHOD, 0, 1);
 		p_dlg->AddClusterAssoc(CTL_TRNVRRNG_METHOD, 1, 2);
 		p_dlg->SetClusterData(CTL_TRNVRRNG_METHOD, method);
 	}
@@ -635,8 +634,7 @@ int SCardRuleDlg::EditTrnovrRng(long pos)
 			method = 2;
 		else if(range.Flags & range.fDiscountMultValue)
 			method = 3;
-		p_dlg->AddClusterAssoc(CTL_TRNVRRNG_METHOD, 0, 1);
-		p_dlg->AddClusterAssoc(CTL_TRNVRRNG_METHOD, -1, 1);
+		p_dlg->AddClusterAssocDef(CTL_TRNVRRNG_METHOD, 0, 1);
 		p_dlg->AddClusterAssoc(CTL_TRNVRRNG_METHOD, 1, 2);
 		p_dlg->AddClusterAssoc(CTL_TRNVRRNG_METHOD, 2, 3);
 		p_dlg->SetClusterData(CTL_TRNVRRNG_METHOD, method);
@@ -1049,9 +1047,8 @@ int SLAPI PPObjSCardSeries::SelectRule(SCardChargeRule * pSelRule)
 	THROW_MEM(p_dlg);
 	RVALUEPTR(scs_rule, pSelRule);
 	SetupPPObjCombo(p_dlg, CTLSEL_SSAUTODIS_SSER, PPOBJ_SCARDSERIES, scs_rule.SerID, 0, 0);
-	p_dlg->AddClusterAssoc(CTL_SSAUTODIS_PRD, -1, SCARDSER_AUTODIS_THISPRD);
 	p_dlg->AddClusterAssoc(CTL_SSAUTODIS_PRD,  0, SCARDSER_AUTODIS_PREVPRD);
-	p_dlg->AddClusterAssoc(CTL_SSAUTODIS_PRD,  1, SCARDSER_AUTODIS_THISPRD);
+	p_dlg->AddClusterAssocDef(CTL_SSAUTODIS_PRD,  1, SCARDSER_AUTODIS_THISPRD);
 	p_dlg->SetClusterData(CTL_SSAUTODIS_PRD, scs_rule.Period);
 	if(ExecView(p_dlg) == cmOK) {
 		p_dlg->getCtrlData(CTLSEL_SSAUTODIS_SSER, &scs_rule.SerID);
@@ -1111,8 +1108,7 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 				Data.Init();
 
 			long   _type = Data.Rec.GetType();
-			AddClusterAssoc(CTL_SCARDSER_TYPE, 0, scstDiscount);
-			AddClusterAssoc(CTL_SCARDSER_TYPE, -1, scstDiscount);
+			AddClusterAssocDef(CTL_SCARDSER_TYPE, 0, scstDiscount);
 			AddClusterAssoc(CTL_SCARDSER_TYPE, 1, scstCredit);
 			AddClusterAssoc(CTL_SCARDSER_TYPE, 2, scstBonus);
 			SetClusterData(CTL_SCARDSER_TYPE, _type);

@@ -384,7 +384,7 @@ private:
 			}
 			SetupOprKindCombo(dlg, CTLSEL_SHIPMCTRL_SHLIMOP, Data.Rec.ScpShipmLimitOpID, 0, &op_type_list, OPKLF_OPLIST);
 		}
-		// } @v9.2.2 
+		// } @v9.2.2
 		dlg->setCtrlLong(CTL_SHIPMCTRL_DURATION, Data.Rec.ScpDurationDays);
 		dlg->setCtrlReal(CTL_SHIPMCTRL_UPDEV, Data.Rec.ScpUpDev / 10.0);
 		dlg->setCtrlReal(CTL_SHIPMCTRL_DNDEV, Data.Rec.ScpDnDev / 10.0);
@@ -447,9 +447,8 @@ int GoodsValRestrDialog::EditItem(ObjRestrictItem & rItem)
 		dlg->setGroupData(GRP_ARTICLE, &acg_rec);
 	}
 	dlg->AddClusterAssoc(CTL_GVRBAR_OPTIONS, 0, PPGoodsValRestrPacket::barMainArOnly);
-	dlg->AddClusterAssoc(CTL_GVRBAR_OPTIONS, -1, PPGoodsValRestrPacket::barExtArOnly);
 	dlg->AddClusterAssoc(CTL_GVRBAR_OPTIONS, 1, PPGoodsValRestrPacket::barMainArDisable);
-	dlg->AddClusterAssoc(CTL_GVRBAR_OPTIONS, 2, PPGoodsValRestrPacket::barExtArOnly);
+	dlg->AddClusterAssocDef(CTL_GVRBAR_OPTIONS, 2, PPGoodsValRestrPacket::barExtArOnly);
 	dlg->AddClusterAssoc(CTL_GVRBAR_OPTIONS, 3, PPGoodsValRestrPacket::barExtArDisable);
 	dlg->SetClusterData(CTL_GVRBAR_OPTIONS, rItem.Flags);
 	while(ok < 0 && ExecView(dlg) == cmOK) {

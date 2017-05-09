@@ -1795,6 +1795,12 @@ int SLAPI PPEgaisProcessor::Helper_MakeMarkList(PPID lotID, StringSet & rSsExtCo
 	return ok;
 }
 
+int SLAPI PPEgaisProcessor::IsAcsLinkedToMainOrg(PPID acsID)
+{
+	PPAccSheet acs_rec;
+	return BIN(acsID && AcsObj.Fetch(acsID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == PPPRK_MAIN);
+}
+
 int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * pX)
 {
 	int    ok = -1;
@@ -1922,11 +1928,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
                         	else if(oneof2(p_bp->OpTypeID, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND)) {
 								wb_type = wbtInvcFromMe;
 								PPID   ar2_main_org_id = 0;
-								if(op_rec.AccSheet2ID && p_bp->Rec.Object2) {
-									PPAccSheet acs_rec;
-									if(AcsObj.Fetch(op_rec.AccSheet2ID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == PPPRK_MAIN)
-										ar2_main_org_id = ObjectToPerson(p_bp->Rec.Object2, 0);
-								}
+								if(p_bp->Rec.Object2 && IsAcsLinkedToMainOrg(op_rec.AccSheet2ID))
+									ar2_main_org_id = ObjectToPerson(p_bp->Rec.Object2, 0);
 								if(IsIntrExpndOp(p_bp->Rec.OpID)) {
 									consignee_psn_id = main_org_id;
 									consignee_loc_id = PPObjLocation::ObjToWarehouse(p_bp->Rec.Object);
@@ -4079,13 +4082,10 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 					// } @v9.5.11
 					if(ar_id)
 						p_bp->SetupObject(ar_id, sob);
-					if(op_rec.AccSheet2ID && P_UtmEntry && P_UtmEntry->MainOrgID) {
-						PPAccSheet acs_rec;
-						if(AcsObj.Fetch(op_rec.AccSheet2ID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == PPPRK_MAIN) {
-							PPID   ar2_id = 0;
-							ArObj.P_Tbl->PersonToArticle(P_UtmEntry->MainOrgID, op_rec.AccSheet2ID, &ar2_id);
-							p_bp->SetupObject2(ar2_id);
-						}
+					if(P_UtmEntry && P_UtmEntry->MainOrgID && IsAcsLinkedToMainOrg(op_rec.AccSheet2ID)) {
+						PPID   ar2_id = 0;
+						ArObj.P_Tbl->PersonToArticle(P_UtmEntry->MainOrgID, op_rec.AccSheet2ID, &ar2_id);
+						p_bp->SetupObject2(ar2_id);
 					}
 					is_pack_inited = 1;
 				}
@@ -4124,13 +4124,10 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 						p_bp->SetupObject(ar_id, sob);
 						freight.DlvrAddrID = dlvr_loc_id;
 					}
-					if(op_rec.AccSheet2ID && P_UtmEntry && P_UtmEntry->MainOrgID) {
-						PPAccSheet acs_rec;
-						if(AcsObj.Fetch(op_rec.AccSheet2ID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == PPPRK_MAIN) {
-							PPID   ar2_id = 0;
-							ArObj.P_Tbl->PersonToArticle(P_UtmEntry->MainOrgID, op_rec.AccSheet2ID, &ar2_id);
-							p_bp->SetupObject2(ar2_id);
-						}
+					if(P_UtmEntry && P_UtmEntry->MainOrgID && IsAcsLinkedToMainOrg(op_rec.AccSheet2ID)) {
+						PPID   ar2_id = 0;
+						ArObj.P_Tbl->PersonToArticle(P_UtmEntry->MainOrgID, op_rec.AccSheet2ID, &ar2_id);
+						p_bp->SetupObject2(ar2_id);
 					}
 					is_pack_inited = 1;
 				}
@@ -4285,19 +4282,14 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 		}
 		if(ok < 0) {
 			int    msg_id = 0;
-			if(rr == rrUnresolvedGoods)
-				msg_id = PPTXT_EGAIS_BILLREJECTEDUNR;
-			else if(rr == rrDateOutOfRange) {
-				// (сообщение мешает) msg_id = PPTXT_EGAIS_BILLREJECTOOD;
+			switch(rr) {
+				case rrUnresolvedGoods: msg_id = PPTXT_EGAIS_BILLREJECTEDUNR; break;
+				case rrDateOutOfRange: /* (сообщение мешает) msg_id = PPTXT_EGAIS_BILLREJECTOOD; */ break;
+				case rrIntrBillIdUnrecogn: break;
+				case rrIntrBillNotFound: msg_id = PPTXT_EGAIS_INTRBILLNFOUNT; break;
+				case rrRByBillDup: msg_id = PPTXT_EGAIS_RBYBILLDUP; break;
+				default: msg_id = PPTXT_EGAIS_BILLREJECT; break;
 			}
-			else if(rr == rrIntrBillIdUnrecogn) {
-			}
-			else if(rr == rrIntrBillNotFound)
-                msg_id = PPTXT_EGAIS_INTRBILLNFOUNT;
-			else if(rr == rrRByBillDup)
-				msg_id = PPTXT_EGAIS_RBYBILLDUP;
-			else
-				msg_id = PPTXT_EGAIS_BILLREJECT;
 			if(msg_id)
 				LogTextWithAddendum(msg_id, bill_text);
 		}
@@ -4313,15 +4305,9 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 						const EgaisWayBillRowTags & r_rt = row_tags.at(j);
 						if(r_rt.RByBill == r_ti.RByBill) {
 							ObjTagList tag_list;
-							if(r_rt.GoodsCode[0]) {
-								tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, r_rt.GoodsCode);
-							}
-							if(r_rt.InformA[0]) {
-								tag_list.PutItemStr(PPTAG_LOT_FSRARINFA, r_rt.InformA);
-							}
-							if(r_rt.InformB[0]) {
-								tag_list.PutItemStr(PPTAG_LOT_FSRARINFB, r_rt.InformB);
-							}
+							tag_list.PutItemStrNE(PPTAG_LOT_FSRARLOTGOODSCODE, r_rt.GoodsCode);
+							tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFA, r_rt.InformA);
+							tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFB, r_rt.InformB);
 							if(r_rt.ManufID && manuf_tag_id) {
 								tag_item.SetInt(manuf_tag_id, r_rt.ManufID);
 								tag_list.PutItem(manuf_tag_id, &tag_item);
@@ -4334,9 +4320,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 				p_bp->Rec.EdiOp = pPack->DocType;
 				if(!freight.IsEmpty())
 					p_bp->SetFreight(&freight);
-				if(bill_ident.NotEmptyS()) {
-					p_bp->BTagL.PutItemStr(PPTAG_BILL_OUTERCODE, bill_ident);
-				}
+				p_bp->BTagL.PutItemStrNE(PPTAG_BILL_OUTERCODE, bill_ident);
 				{
 					int    is_valuation_modif = 0;
 					if(CheckOpFlags(p_bp->Rec.OpID, OPKF_NEEDVALUATION))
@@ -4798,9 +4782,26 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 		DateRange period;
 		period.Set(plusdate(_cur_date, -2), plusdate(_cur_date, +1));
 		PPID   last_wh_rest_bill_id = 0;
+		// @v9.6.5 {
+		PPOprKind op_rec_r1;
+		PPOprKind op_rec_r2;
+		int    r1_can_have_main_org_ar = 0;
+		PPID   target_ar2_id = 0; // ƒополнительна€ стать€, котора€, если !0, должна совпадать
+			// у документа остатков по R2 и по R1.
+		GetOpData(op_id, &op_rec_r1);
+		GetOpData(pCurrentRestPack->Rec.OpID, &op_rec_r2);
+		if(IsAcsLinkedToMainOrg(op_rec_r1.AccSheet2ID)) {
+			r1_can_have_main_org_ar = 1;
+		}
+		if(r1_can_have_main_org_ar && pCurrentRestPack->Rec.Object2 && IsAcsLinkedToMainOrg(op_rec_r2.AccSheet2ID)) {
+			target_ar2_id = pCurrentRestPack->Rec.Object2;
+		}
+		// } @v9.6.5
 		for(DateIter di(&period); P_BObj->P_Tbl->EnumByOpr(op_id, &di, &bill_rec) > 0;) {
-			if(bill_rec.EdiOp == PPEDIOP_EGAIS_REPLYRESTS)
-				last_wh_rest_bill_id = bill_rec.ID;
+			if(bill_rec.EdiOp == PPEDIOP_EGAIS_REPLYRESTS) {
+				if(!target_ar2_id || !bill_rec.Object2 || bill_rec.Object2 == target_ar2_id) // @v9.6.5
+					last_wh_rest_bill_id = bill_rec.ID;
+			}
 		}
 		if(last_wh_rest_bill_id) {
 			if(P_BObj->ExtractPacketWithFlags(last_wh_rest_bill_id, &current_wh_rest_bp, BPLD_FORCESERIALS) > 0) {
@@ -4945,16 +4946,10 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 									}
 									{
 										ObjTagList tag_list;
-										if(egais_code.NotEmpty()) {
-											tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
-										}
+										tag_list.PutItemStrNE(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
 										assert(ref_b.NotEmpty()); // @paranoic
-										if(ref_b.NotEmpty()) {
-											tag_list.PutItemStr(PPTAG_LOT_FSRARINFB, ref_b);
-										}
-										if(ref_a.NotEmpty()) {
-											tag_list.PutItemStr(PPTAG_LOT_FSRARINFA, ref_a);
-										}
+										tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFB, ref_b);
+										tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFA, ref_a);
 										THROW(p_shop_rest_bp->LTagL.Set(new_pos, &tag_list));
 									}
 								}
@@ -5071,88 +5066,84 @@ int SLAPI PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const D
 		int    do_skip = 0;
 		PPID   op_id = 0;
 		PPObjOprKind op_obj;
+		PPOprKind op_rec;
+		ObjTagItem tag_item;
 		THROW(op_obj.GetEdiStockOp(&op_id, 1));
+		THROW(GetOpData(op_id, &op_rec) > 0); // @v9.6.5
         {
 			period.SetDate(rest_dtm.d);
         	for(DateIter di(&period); !do_skip && P_BObj->P_Tbl->EnumByOpr(op_id, &di, &bill_rec) > 0;) {
-				ObjTagItem tag_item;
+				LDATETIME ts;
 				if(PPRef->Ot.GetTag(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_CREATEDTM, &tag_item) > 0) {
-					LDATETIME ts;
-                    if(tag_item.GetTimestamp(&ts) > 0 && cmp(ts, rest_dtm) >= 0) {
+                    if(tag_item.GetTimestamp(&ts) > 0 && cmp(ts, rest_dtm) >= 0)
                         do_skip = 1;
-					}
 				}
 			}
         }
         if(!do_skip) {
-			ObjTagItem tag_item;
+			PPTransaction tra(1);
+			THROW(tra);
+			THROW(p_bp->CreateBlank2(op_id, rest_dtm.d, loc_id, 0));
+			p_bp->Rec.EdiOp = pPack->DocType;
+			if(pPack->DocType == PPEDIOP_EGAIS_REPLYRESTSSHOP) {
+				(temp_buf = p_bp->Rec.Code).CatChar('-').Cat("R2"); // SHOP-->R2
+				STRNSCPY(p_bp->Rec.Code, temp_buf);
+			}
+			// @v9.5.0 {
+			else if(pPack->DocType == PPEDIOP_EGAIS_REPLYRESTS) {
+				(temp_buf = p_bp->Rec.Code).CatChar('-').Cat("R1");
+				STRNSCPY(p_bp->Rec.Code, temp_buf);
+			}
+			// } @v9.5.0
+			// @v9.6.5 {
+			if(P_UtmEntry && P_UtmEntry->MainOrgID && IsAcsLinkedToMainOrg(op_rec.AccSheet2ID)) {
+				PPID   ar2_id = 0;
+				ArObj.P_Tbl->PersonToArticle(P_UtmEntry->MainOrgID, op_rec.AccSheet2ID, &ar2_id);
+				p_bp->SetupObject2(ar2_id);
+			}
+			// } @v9.6.5
 			{
-				PPTransaction tra(1);
-				THROW(tra);
-				THROW(p_bp->CreateBlank2(op_id, rest_dtm.d, loc_id, 0));
-				p_bp->Rec.EdiOp = pPack->DocType;
-				if(pPack->DocType == PPEDIOP_EGAIS_REPLYRESTSSHOP) {
-					(temp_buf = p_bp->Rec.Code).CatChar('-').Cat("R2"); // SHOP-->R2
-					STRNSCPY(p_bp->Rec.Code, temp_buf);
-				}
-				// @v9.5.0 {
-				else if(pPack->DocType == PPEDIOP_EGAIS_REPLYRESTS) {
-					(temp_buf = p_bp->Rec.Code).CatChar('-').Cat("R1");
-					STRNSCPY(p_bp->Rec.Code, temp_buf);
-				}
-				// } @v9.5.0
-				{
-					tag_item.SetTimestamp(PPTAG_BILL_CREATEDTM, rest_dtm);
-					p_bp->BTagL.PutItem(PPTAG_BILL_CREATEDTM, &tag_item);
-				}
-				for(uint i = 0; i < items.getCount(); i++) {
-					const EgaisRestItem & r_item = items.at(i);
-					if(r_item.GoodsID) {
-						PPTransferItem ti;
-						uint   new_pos = p_bp->GetTCount();
-						THROW(ti.Init(&p_bp->Rec, 1));
-						THROW(ti.SetupGoods(r_item.GoodsID, 0));
-						// @v9.4.9 ti.Quantity_ = r_item.Rest;
-						// @v9.4.9 {
-						{
-							GoodsItem _agi;
-							PreprocessGoodsItem(ti.GoodsID, 0, 0, 0, _agi);
-							if(_agi.UnpackedVolume > 0.0) {
-								const double mult = _agi.UnpackedVolume / 10.0;
-								ti.Quantity_ = R6(r_item.Rest / mult);
-							}
-							else {
-								ti.Quantity_ = r_item.Rest;
-							}
+				tag_item.SetTimestamp(PPTAG_BILL_CREATEDTM, rest_dtm);
+				p_bp->BTagL.PutItem(PPTAG_BILL_CREATEDTM, &tag_item);
+			}
+			for(uint i = 0; i < items.getCount(); i++) {
+				const EgaisRestItem & r_item = items.at(i);
+				if(r_item.GoodsID) {
+					PPTransferItem ti;
+					uint   new_pos = p_bp->GetTCount();
+					THROW(ti.Init(&p_bp->Rec, 1));
+					THROW(ti.SetupGoods(r_item.GoodsID, 0));
+					{
+						GoodsItem _agi;
+						PreprocessGoodsItem(ti.GoodsID, 0, 0, 0, _agi);
+						if(_agi.UnpackedVolume > 0.0) {
+							const double mult = _agi.UnpackedVolume / 10.0;
+							ti.Quantity_ = R6(r_item.Rest / mult);
 						}
-						// } @v9.4.9
-						THROW(p_bp->LoadTItem(&ti, 0, 0));
-						{
-							ObjTagList tag_list;
-							if(r_item.EgaisCode[0]) {
-								tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, r_item.EgaisCode);
-							}
-							if(r_item.InformAIdent[0]) {
-								tag_list.PutItemStr(PPTAG_LOT_FSRARINFA, r_item.InformAIdent);
-							}
-							if(r_item.InformBIdent[0]) {
-								tag_list.PutItemStr(PPTAG_LOT_FSRARINFB, r_item.InformBIdent);
-							}
-							if(r_item.MnfOrImpPsnID && manuf_tag_id) {
-								tag_item.SetInt(manuf_tag_id, r_item.MnfOrImpPsnID);
-								tag_list.PutItem(manuf_tag_id, &tag_item);
-							}
-							THROW(p_bp->LTagL.Set(new_pos, &tag_list));
+						else {
+							ti.Quantity_ = r_item.Rest;
 						}
 					}
+					THROW(p_bp->LoadTItem(&ti, 0, 0));
+					{
+						ObjTagList tag_list;
+						tag_list.PutItemStrNE(PPTAG_LOT_FSRARLOTGOODSCODE, r_item.EgaisCode);
+						tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFA, r_item.InformAIdent);
+						tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFB, r_item.InformBIdent);
+						if(r_item.MnfOrImpPsnID && manuf_tag_id) {
+							tag_item.SetInt(manuf_tag_id, r_item.MnfOrImpPsnID);
+							tag_list.PutItem(manuf_tag_id, &tag_item);
+						}
+						THROW(p_bp->LTagL.Set(new_pos, &tag_list));
+					}
 				}
-				p_bp->InitAmounts();
-				THROW(P_BObj->TurnPacket(p_bp, 0));
-				pPack->Flags |= Packet::fAcceptedBill;
-				THROW(tra.Commit());
-				PPObjBill::MakeCodeString(&p_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
-				LogTextWithAddendum(PPTXT_EGAIS_RESTSACCEPTED, bill_text);
 			}
+			p_bp->InitAmounts();
+			THROW(P_BObj->TurnPacket(p_bp, 0));
+			pPack->Flags |= Packet::fAcceptedBill;
+			THROW(tra.Commit());
+			PPObjBill::MakeCodeString(&p_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
+			LogTextWithAddendum(PPTXT_EGAIS_RESTSACCEPTED, bill_text);
 			//
 			// @v9.2.11 {
 			/* @v9.4.0
@@ -6259,28 +6250,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 										do_process = 3;
 								}
 								if(do_process == 3) {
-									/* @v9.0.4 Ќичего не делаем по справке Ѕ дл€ собственного документа
-									if(P_BObj->ExtractPacket(bill_id, &bp) > 0) {
-										_bill_found = 1;
-										PPObjBill::MakeCodeString(&bp.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
-										ObjTagItem tag_item;
-										const ObjTagItem * p_ex_tag_item = bp.BTagL.GetItem(PPTAG_BILL_EDIIDENT);
-										if(!p_ex_tag_item) {
-											if(tag_item.SetStr(PPTAG_BILL_EDIIDENT, edi_ident)) {
-												bp.BTagL.PutItem(PPTAG_BILL_EDIIDENT, &tag_item);
-												LogTextWithAddendum(PPTXT_EGAIS_BILLEDIASSGNINFB, bill_text);
-												do_update = 1;
-											}
-										}
-										else {
-											p_ex_tag_item->GetStr(temp_buf);
-											if(temp_buf.CmpNC(edi_ident) != 0) {
-												//LogTextWithAddendum(PPTXT_EGAIS_BILLEDIIDNINFB, bill_text);
-												_bill_found = 0;
-											}
-										}
-									}
-									*/
+									// Ќичего не делаем по справке Ѕ дл€ собственного документа
 								}
 								else if(oneof2(do_process, 1, 2)) {
 									BillCore::GetCode(temp_buf = ex_bill_rec.Code);
@@ -6710,15 +6680,9 @@ int SLAPI PPEgaisProcessor::CreateActChargeOnBill(PPID * pBillID, int ediOp, PPI
 									if(ediOp == PPEDIOP_EGAIS_ACTCHARGEONSHOP) {
 										ObjTagList tag_list;
 										ObjTagItem tag_item;
-										if(egais_code.NotEmpty()) {
-											tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
-										}
-										if(ref_a.NotEmpty()) {
-											tag_list.PutItemStr(PPTAG_LOT_FSRARINFA, ref_a);
-										}
-										if(ref_b.NotEmpty()) {
-											tag_list.PutItemStr(PPTAG_LOT_FSRARINFB, ref_b);
-										}
+										tag_list.PutItemStrNE(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
+										tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFA, ref_a);
+										tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFB, ref_b);
 										THROW(pack.LTagL.Set(tipos, &tag_list));
 									}
 								}
@@ -7074,12 +7038,9 @@ int SLAPI PPEgaisProcessor::CheckBillForMainOrgID(const BillTbl::Rec & rRec, con
 {
 	int    ok = 1;
 	const  PPID utm_main_org_id = P_UtmEntry ? P_UtmEntry->MainOrgID : 0;
-	if(utm_main_org_id && rOpRec.AccSheet2ID) {
-		PPAccSheet acs_rec;
-		if(AcsObj.Fetch(rOpRec.AccSheet2ID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == PPPRK_MAIN) {
-			if(rRec.Object2 && ObjectToPerson(rRec.Object2, 0) != utm_main_org_id)
-				ok = 0;
-		}
+	if(utm_main_org_id && IsAcsLinkedToMainOrg(rOpRec.AccSheet2ID)) {
+		if(rRec.Object2 && ObjectToPerson(rRec.Object2, 0) != utm_main_org_id)
+			ok = 0;
 	}
 	return ok;
 }
@@ -7593,8 +7554,7 @@ int SLAPI PPEgaisProcessor::EditQueryParam(PPEgaisProcessor::QueryParam * pData)
 		{
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
-			AddClusterAssoc(CTL_EGAISQ_WHAT,  0, PPEDIOP_EGAIS_QUERYCLIENTS);
-			AddClusterAssoc(CTL_EGAISQ_WHAT, -1, PPEDIOP_EGAIS_QUERYCLIENTS);
+			AddClusterAssocDef(CTL_EGAISQ_WHAT,  0, PPEDIOP_EGAIS_QUERYCLIENTS);
 			AddClusterAssoc(CTL_EGAISQ_WHAT,  1, PPEDIOP_EGAIS_QUERYCLIENTS+1000);
 			AddClusterAssoc(CTL_EGAISQ_WHAT,  2, PPEDIOP_EGAIS_QUERYAP);
 			AddClusterAssoc(CTL_EGAISQ_WHAT,  3, PPEDIOP_EGAIS_QUERYFORMA);

@@ -104,8 +104,7 @@ public:
 		setDTS((PPStockOpt::Config *)0);
 		DataSrc = 1;
 
-		AddClusterAssoc(CTL_STOCKOPTCFG_MODE, 0, StockOptFilt::modeGoods);
-		AddClusterAssoc(CTL_STOCKOPTCFG_MODE, -1, StockOptFilt::modeGoods);
+		AddClusterAssocDef(CTL_STOCKOPTCFG_MODE, 0, StockOptFilt::modeGoods);
 		AddClusterAssoc(CTL_STOCKOPTCFG_MODE, 1, StockOptFilt::modePreproc);
 		AddClusterAssoc(CTL_STOCKOPTCFG_MODE, 2, StockOptFilt::modeOptimum);
 		SetClusterData(CTL_STOCKOPTCFG_MODE, Data.Mode);

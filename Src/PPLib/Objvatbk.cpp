@@ -958,8 +958,7 @@ int VATBCfgDialog::editItemDialog(VATBCfg::Item * pItem)
 						exp_by_fact = 2;
 					else
 						exp_by_fact = 1;
-				AddClusterAssoc(CTL_VATBL_EXPBYFACT, 0, 0);
-				AddClusterAssoc(CTL_VATBL_EXPBYFACT, -1, 0);
+				AddClusterAssocDef(CTL_VATBL_EXPBYFACT, 0, 0);
 				AddClusterAssoc(CTL_VATBL_EXPBYFACT, 1, 1);
 				AddClusterAssoc(CTL_VATBL_EXPBYFACT, 2, 2);
 				SetClusterData(CTL_VATBL_EXPBYFACT, exp_by_fact);
@@ -1044,6 +1043,9 @@ int VATBCfgDialog::setDTS(const VATBCfg * pData)
 	//AddClusterAssoc(CTL_VATBCFG_INCMPRD, -1, INCM_DEFAULT);
 	AddClusterAssoc(CTL_VATBCFG_INCMPRD,  0, INCM_BYSHIPMENT);
 	AddClusterAssoc(CTL_VATBCFG_INCMPRD,  1, INCM_BYPAYMENT);
+	if(Data.Kind == PPVTB_SIMPLELEDGER) {
+		AddClusterAssoc(CTL_VATBCFG_INCMPRD,  2, INCM_BYPAYMENTINPERIOD); // @v9.6.5
+	}
 	SetClusterData(CTL_VATBCFG_INCMPRD, Data.AcctgBasisAtPeriod);
 	SetupCalCtrl(CTLCAL_VATBCFG_PERIOD, this, CTL_VATBCFG_PERIOD, 1);
 	SetPeriodInput(this, CTL_VATBCFG_PERIOD, &Data.Period);
@@ -1503,8 +1505,7 @@ int VATBFiltDialog::setDTS(const VatBookFilt * pFilt)
 {
 	Data = *pFilt;
 	ushort v = 0;
-	AddClusterAssoc(CTL_VATBFLT_WHAT, 0,  PPVTB_SELL);
-	AddClusterAssoc(CTL_VATBFLT_WHAT, -1, PPVTB_SELL);
+	AddClusterAssocDef(CTL_VATBFLT_WHAT, 0,  PPVTB_SELL);
 	AddClusterAssoc(CTL_VATBFLT_WHAT, 1,  PPVTB_BUY);
 	AddClusterAssoc(CTL_VATBFLT_WHAT, 2,  PPVTB_SIMPLELEDGER);
 	SetClusterData(CTL_VATBFLT_WHAT, Data.Kind);
@@ -2406,13 +2407,19 @@ int SLAPI PPViewVatBook::AutoBuild()
 		THROW(RemoveZeroBillLinks(1));
 		flt.ExtPeriod = r_cfg.Period;
 		//
-		if(!flt.ExtPeriod.IsZero() && r_cfg.AcctgBasisAtPeriod == INCM_BYPAYMENT) {
-			if(by_payments == 0) {
+		if(!flt.ExtPeriod.IsZero()) {
+			if(r_cfg.AcctgBasisAtPeriod == INCM_BYPAYMENTINPERIOD && Filt.Kind == PPVTB_SIMPLELEDGER) {
 				flt.Flags |= abfByPaymAtPrd;
 				by_payments = 1;
 			}
-			else if(by_payments == 1)
-				by_payments = 2;
+			else if(r_cfg.AcctgBasisAtPeriod == INCM_BYPAYMENT) {
+				if(by_payments == 0) {
+					flt.Flags |= abfByPaymAtPrd;
+					by_payments = 1;
+				}
+				else if(by_payments == 1)
+					by_payments = 2;
+			}
 		}
 		if(by_payments != 1)
 			flt.ExtPeriod.SetZero();

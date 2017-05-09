@@ -101,7 +101,7 @@ int SLAPI PPThread::Info::Serialize(int dir, SBuffer & rBuf, SSerializeContext *
 	THROW_SL(pCtx->Serialize(dir, Id, rBuf));
 	THROW_SL(pCtx->Serialize(dir, Kind, rBuf));
 	THROW_SL(pCtx->Serialize(dir, Status, rBuf));
-	THROW_SL(pCtx->Serialize(dir, JobID, rBuf));       // @v7.9.6
+	THROW_SL(pCtx->Serialize(dir, JobID, rBuf));
 	THROW_SL(pCtx->Serialize(dir, StartMoment, rBuf));
 	THROW_SL(pCtx->Serialize(dir, Text, rBuf));
 	THROW_SL(pCtx->Serialize(dir, LastMsg, rBuf));

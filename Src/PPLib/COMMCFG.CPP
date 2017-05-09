@@ -30,8 +30,7 @@ void CommCfgDialog::setDTS(const PPCommConfig * pData)
 	setCtrlData(CTL_COMMCFG_IMPRESTACC, &cfg.ImprestAcct);
 	setCtrlData(CTL_COMMCFG_ASSETACC,   &cfg.AssetAcct);
 
-	AddClusterAssoc(CTL_COMMCFG_INCM,  0, INCM_DEFAULT);
-	AddClusterAssoc(CTL_COMMCFG_INCM, -1, INCM_DEFAULT);
+	AddClusterAssocDef(CTL_COMMCFG_INCM,  0, INCM_DEFAULT);
 	AddClusterAssoc(CTL_COMMCFG_INCM,  1, INCM_BYSHIPMENT);
 	AddClusterAssoc(CTL_COMMCFG_INCM,  2, INCM_BYPAYMENT);
 	SetClusterData(CTL_COMMCFG_INCM, cfg.IncomeCalcMethod);
@@ -100,15 +99,14 @@ int CommCfgDialog::editSysParams()
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS, 12, CCFLG_USEDISTRIBCOST);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS, 13, CCFLG_RSRVSJ);
 			SetClusterData(CTL_CCFGSYS_FLAGS, Data.Flags);
-			AddClusterAssoc(CTL_CCFGSYS_LCRUSAGE, 0, 0);
-			AddClusterAssoc(CTL_CCFGSYS_LCRUSAGE, -1, 0);
+			AddClusterAssocDef(CTL_CCFGSYS_LCRUSAGE, 0, 0);
 			AddClusterAssoc(CTL_CCFGSYS_LCRUSAGE, 1, 1);
 			AddClusterAssoc(CTL_CCFGSYS_LCRUSAGE, 2, 2);
 			SetClusterData(CTL_CCFGSYS_LCRUSAGE, Data.LcrUsage);
 			// @v7.1.11 {
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 0, CCFLG2_QUOT2);
-			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 1, CCFLG2_INDEXEADDR); // @v7.3.2
-			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 2, CCFLG2_SYNCLOT); // @v7.6.1
+			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 1, CCFLG2_INDEXEADDR);
+			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 2, CCFLG2_SYNCLOT);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 3, CCFLG2_USECCHECKEXTPAYM); // @v8.0.0
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 4, CCFLG2_USEOMTPAYMAMT); // @v8.5.8
 			SetClusterData(CTL_CCFGSYS_FLAGS2, Data.Flags2);

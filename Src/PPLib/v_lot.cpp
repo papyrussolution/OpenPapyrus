@@ -497,15 +497,13 @@ IMPL_HANDLE_EVENT(LotFiltDialog)
 			dlg->AddClusterAssoc(CTL_FLTLOT_SHOWPRICEDEV, 0, LotFilt::fShowPriceDev);
 			dlg->SetClusterData(CTL_FLTLOT_SHOWPRICEDEV, temp_data.Flags);
 
-			dlg->AddClusterAssoc(CTL_FLTLOT_CDEVRESTR, 0, LotFilt::drNone);
-			dlg->AddClusterAssoc(CTL_FLTLOT_CDEVRESTR, -1, LotFilt::drNone);
+			dlg->AddClusterAssocDef(CTL_FLTLOT_CDEVRESTR, 0, LotFilt::drNone);
 			dlg->AddClusterAssoc(CTL_FLTLOT_CDEVRESTR, 1, LotFilt::drBelow);
 			dlg->AddClusterAssoc(CTL_FLTLOT_CDEVRESTR, 2, LotFilt::drAbove);
 			dlg->AddClusterAssoc(CTL_FLTLOT_CDEVRESTR, 3, LotFilt::drAny);
 			dlg->SetClusterData(CTL_FLTLOT_CDEVRESTR, temp_data.CostDevRestr);
 
-			dlg->AddClusterAssoc(CTL_FLTLOT_PDEVRESTR, 0, LotFilt::drNone);
-			dlg->AddClusterAssoc(CTL_FLTLOT_PDEVRESTR, -1, LotFilt::drNone);
+			dlg->AddClusterAssocDef(CTL_FLTLOT_PDEVRESTR, 0, LotFilt::drNone);
 			dlg->AddClusterAssoc(CTL_FLTLOT_PDEVRESTR, 1, LotFilt::drBelow);
 			dlg->AddClusterAssoc(CTL_FLTLOT_PDEVRESTR, 2, LotFilt::drAbove);
 			dlg->AddClusterAssoc(CTL_FLTLOT_PDEVRESTR, 3, LotFilt::drAny);
@@ -1443,8 +1441,7 @@ int SLAPI PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 					{
 						TDialog * dlg = new TDialog(DLG_SELEGAISCHRGON);
 						if(CheckDialogPtrErr(&dlg)) {
-							dlg->AddClusterAssoc(CTL_SELEGAISCHRGON_WHAT,  0, PPEDIOP_EGAIS_ACTCHARGEON);
-							dlg->AddClusterAssoc(CTL_SELEGAISCHRGON_WHAT, -1, PPEDIOP_EGAIS_ACTCHARGEON);
+							dlg->AddClusterAssocDef(CTL_SELEGAISCHRGON_WHAT,  0, PPEDIOP_EGAIS_ACTCHARGEON);
 							dlg->AddClusterAssoc(CTL_SELEGAISCHRGON_WHAT,  1, PPEDIOP_EGAIS_ACTCHARGEONSHOP);
 							dlg->AddClusterAssoc(CTL_SELEGAISCHRGON_WHAT,  2, PPEDIOP_EGAIS_ACTCHARGEONSHOP+1000);
 							dlg->SetClusterData(CTL_SELEGAISCHRGON_WHAT, selection);
@@ -1526,9 +1523,7 @@ int SLAPI PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 													ObjTagList tag_list;
 													tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
 													tag_list.PutItemStr(PPTAG_LOT_FSRARINFB, ref_b);
-													if(ref_a.NotEmpty()) {
-														tag_list.PutItemStr(PPTAG_LOT_FSRARINFA, ref_a);
-													}
+													tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFA, ref_a);
 													THROW(new_bp.LTagL.Set(new_pos, &tag_list));
 												}
 											}

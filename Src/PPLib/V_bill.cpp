@@ -3858,14 +3858,12 @@ int SLAPI PPViewBill::AddBillToPool()
 		{
 			Data = *pParam;
 
-			AddClusterAssoc(CTL_BPOOLADD_VERB,  0, 1);
-			AddClusterAssoc(CTL_BPOOLADD_VERB, -1, 1);
+			AddClusterAssocDef(CTL_BPOOLADD_VERB,  0, 1);
 			AddClusterAssoc(CTL_BPOOLADD_VERB,  1, 2);
 			SetClusterData(CTL_BPOOLADD_VERB, Data.Verb);
 			enableCommand(cmBillFilt, Data.Verb == 2);
 
-			AddClusterAssoc(CTL_BPOOLADD_BILLKIND, 0, bbtUndef);
-			AddClusterAssoc(CTL_BPOOLADD_BILLKIND, -1, bbtUndef);
+			AddClusterAssocDef(CTL_BPOOLADD_BILLKIND, 0, bbtUndef);
 			AddClusterAssoc(CTL_BPOOLADD_BILLKIND, 1, bbtAccturnBills);
 			AddClusterAssoc(CTL_BPOOLADD_BILLKIND, 2, bbtGoodsBills);
 			AddClusterAssoc(CTL_BPOOLADD_BILLKIND, 3, bbtOrderBills);

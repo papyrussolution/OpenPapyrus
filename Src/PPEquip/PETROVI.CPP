@@ -305,7 +305,7 @@ int SLAPI ACS_PETROVICH::UpdateSessions()
 			strcpy(buf, "TOVARS.EXP");
 			replacePath(buf, path, 1);
 			SFile::Remove(buf);
-			p_crf = fopen(buf, onecstr('w'));
+			p_crf = fopen(buf, "w");
 			SFile::ZClose(&p_crf);
 		}
 	}

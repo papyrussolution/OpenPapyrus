@@ -2755,7 +2755,7 @@ int SLAPI TCPIPMToledo::SendPLU(const ScalePLU * pPLU)
 			STRNSCPY(goods_name, pPLU->GoodsName);
 			SplitString(goods_name, 2, name_items);
 			if(name_part2[0] == 0)
-				strcpy(name_part2, onecstr(' '));
+				strcpy(name_part2, " ");
 			sprintf(buf, "%ld,%ld,0,%.2lf,0,%ld,0,0,%ld,0,0,0,0,%s,%s\n", pPLU->GoodsNo, pPLU->Barcode,
 				pPLU->Price, is_msg ? pPLU->GoodsNo : 0, numdays, name_part1, name_part2);
 			fprintf(P_PLUStream, buf);
@@ -2861,7 +2861,7 @@ int SLAPI CrystalCashServer::SetConnection()
 	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_CS_SCALE_DBF, ScalePath));
 	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_CS_SCALE_UPD, FlagPath));
 	{
-		FILE * ff = fopen(FlagPath, onecstr('w'));
+		FILE * ff = fopen(FlagPath, "w");
 		SFile::ZClose(&ff);
 	}
 	ZDELETE(P_OutTblScale);
@@ -3067,7 +3067,7 @@ int SLAPI DIGI::SetConnection()
 		THROW_PP(Data.LogNum > 0 && Data.LogNum < 255, PPERR_SCALE_INVLOGNUM);
 		(fname = "dgimp").CatLongZ(Data.LogNum, 3).Dot().Cat("dat");
 		PPGetFilePath(PPPATH_OUT, fname, ScalePath);
-		THROW_PP(P_ScaleData = fopen(ScalePath, onecstr('w')), PPERR_CANTOPENFILE);
+		THROW_PP(P_ScaleData = fopen(ScalePath, "w"), PPERR_CANTOPENFILE);
 		IntGrpCode = Data.ID % 10000L;
 		scale_name = Data.Name;
 		scale_name.Trim(30);
@@ -4799,7 +4799,7 @@ int SLAPI PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 					if(scale.Flags & SCALF_CHKINVPAR) {
 						if(barcode_kind == 0 && !is_wp) {
 							if(barcode[0] == 0)
-								strcpy(barcode, onecstr('0'));
+								strcpy(barcode, "0");
 							PPFormatT(PPTXT_LOG_SCALE_INVBARCODE, &msg_buf2, gr_item.GoodsID, barcode);
 							to_export = 0;
 						}

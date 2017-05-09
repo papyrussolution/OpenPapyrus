@@ -133,8 +133,7 @@ public:
 		setCtrlData(CTL_SSTATFLT_DLVRP, &Data.DlvrTerm);
 		setCtrlData(CTL_SSTATFLT_UPRESTR, &Data.UpRestriction);
 		setCtrlData(CTL_SSTATFLT_DEFINSSTOCK, &Data.DefInsurStock);
-		AddClusterAssoc(CTL_SSTATFLT_SORTORDER, -1, PPViewSStat::OrdByGoodsName);
-		AddClusterAssoc(CTL_SSTATFLT_SORTORDER,  0, PPViewSStat::OrdByGoodsName);
+		AddClusterAssocDef(CTL_SSTATFLT_SORTORDER,  0, PPViewSStat::OrdByGoodsName);
 		AddClusterAssoc(CTL_SSTATFLT_SORTORDER,  1, PPViewSStat::OrdByCount);
 		AddClusterAssoc(CTL_SSTATFLT_SORTORDER,  2, PPViewSStat::OrdByQttyAvg);
 		AddClusterAssoc(CTL_SSTATFLT_SORTORDER,  3, PPViewSStat::OrdByPriceAvg);
@@ -210,19 +209,16 @@ private:
 			int    ok = 1;
 			setCtrlUInt16(CTL_SSTATFLT_OVERRCFG, BIN(Data.Flags & SStatFilt::fOverrideCfgParams));
 
-			AddClusterAssoc(CTL_SSTATFLT_METHOD,  0, PRMTHD_SIMPLEAVERAGE);
-			AddClusterAssoc(CTL_SSTATFLT_METHOD, -1, PRMTHD_SIMPLEAVERAGE);
+			AddClusterAssocDef(CTL_SSTATFLT_METHOD,  0, PRMTHD_SIMPLEAVERAGE);
 			AddClusterAssoc(CTL_SSTATFLT_METHOD,  1, PRMTHD_LSLIN);
 			SetClusterData(CTL_SSTATFLT_METHOD, Data._Method);
 
-			AddClusterAssoc(CTL_SSTATFLT_USEPCKG,  0, PPPredictConfig::pckgDontUse);
-			AddClusterAssoc(CTL_SSTATFLT_USEPCKG, -1, PPPredictConfig::pckgDontUse);
+			AddClusterAssocDef(CTL_SSTATFLT_USEPCKG,  0, PPPredictConfig::pckgDontUse);
 			AddClusterAssoc(CTL_SSTATFLT_USEPCKG,  1, PPPredictConfig::pckgPrefStock);
 			AddClusterAssoc(CTL_SSTATFLT_USEPCKG,  2, PPPredictConfig::pckgPrefLot);
 			SetClusterData(CTL_SSTATFLT_USEPCKG, Data.GetPckgUse());
 
-			AddClusterAssoc(CTL_SSTATFLT_ROUNDPCKG,  0, PPPredictConfig::pckgRoundUp);
-			AddClusterAssoc(CTL_SSTATFLT_ROUNDPCKG, -1, PPPredictConfig::pckgRoundUp);
+			AddClusterAssocDef(CTL_SSTATFLT_ROUNDPCKG,  0, PPPredictConfig::pckgRoundUp);
 			AddClusterAssoc(CTL_SSTATFLT_ROUNDPCKG,  1, PPPredictConfig::pckgRoundDn);
 			AddClusterAssoc(CTL_SSTATFLT_ROUNDPCKG,  2, PPPredictConfig::pckgRoundNear);
 			SetClusterData(CTL_SSTATFLT_ROUNDPCKG, Data.GetPckgRounding());
