@@ -8190,6 +8190,7 @@ reportstub CCheckDetailView	{ dl600data=CCheckDetail,		"Окно чека"}
 reportstub Complete			{ dl600data=Complete,			"Состав изделия"}
 reportstub BillInfo			{ dl600data=BillInfo,			"Специальная информация о документе"}
 reportstub PUGL				{ dl600data=PUGL,				"ДЕФИЦИТ ТОВАРОВ"}
+reportstub BarcodeLabelList { dl600data=BarcodeLabelList,   "Товарные этикетки со штрихкодами" }
 //
 // -------------- Описание меню, привязываемых к управляющим элементам диалогов
 //

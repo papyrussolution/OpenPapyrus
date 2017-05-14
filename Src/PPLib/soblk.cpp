@@ -1629,7 +1629,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 							for(uint gi = 0; gi < goods_list.getCount(); gi++) {
 								const PPID goods_id = goods_list.get(gi);
 								double quot = 0.0;
-								if(GObj.GetQuotExt(goods_id, qi, 0.0, 0.0, &quot, 1) > 0) {
+								if(GObj.GetQuotExt(goods_id, qi, &quot, 1) > 0) {
 									for(uint si = 0; si < place_pos_list.getCount(); si++) {
 										PPObjTSession::PlaceStatus * p_item = status_list.at(place_pos_list.get(si));
 										if(p_item->GoodsID == goods_id)

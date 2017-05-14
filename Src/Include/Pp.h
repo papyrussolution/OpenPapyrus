@@ -18495,7 +18495,7 @@ public:
 	//
 	int    SLAPI DistributeFile(const char * pFileName, int action, const char * pSubDir = 0, const char * pEmailSubj = 0);
 	//
-	// Descr: Если поддерживаются запросы к кассовому узлу, то эта функция 
+	// Descr: Если поддерживаются запросы к кассовому узлу, то эта функция
 	//   должна отправить серверу узла запрос (возможно в интерактивном режиме).
 	// Note: Не предполагается, что функция должна дождаться ответа на запрос (но и не возбраняется).
 	// Returns:
@@ -18669,7 +18669,7 @@ struct PPBarcodePrinter2 { // @persistent @store(Reference2Tbl+)
 	{
 		THISZERO();
 	}
-	int    SLAPI Normalyze();
+	void   SLAPI Normalyze();
 
 	enum {
 		fPortEx = 0x0001 // Запись использует расширенное поле имени порта вывода
@@ -18706,6 +18706,21 @@ public:
 //
 class BarcodeLabelPrinter {
 public:
+	struct BarcodeLabelPrintParam {
+		SLAPI  BarcodeLabelPrintParam();
+		enum {
+			fPrintAll    = 0x0001, // Печать всей выборки
+			fQttyAsPack  = 0x0002, // Количество этикеток по каждой строке документа
+				// рассчитывается как количество упаковок (в противном случае - количество торговых единиц)
+			fInteractive = 0x0004  // @v9.6.6 Выводить дополнительный диалог перед печатью (для Windows-принтеров)
+		};
+		PPID   PrinterID;
+		int16  NumCopies;
+		int16  Pad;       // @alignment
+		PPID   LocID;     // Склад, для которого печатается этикетка (от этого зависит цена и, возможно, ряд других параметров)
+		long   Flags;     // @flags
+		SString Port;     //
+	};
 	// @v9.2.7 static BarcodeLabelPrinter * SLAPI CreateInstance(PPID printerTypeID /* PPBCPT_XXX */);
 	static BarcodeLabelPrinter * SLAPI CreateInstance(/*PPID printerTypeID*/const PPBarcodePrinter & rPrnPack); // @v9.2.7
 	static int SLAPI PrintGoodsLabel(PPID goodsID);
@@ -18722,10 +18737,12 @@ public:
 	//   <0 - пользователь отказался от печати
 	//   0  - ошибка
 	//
-	static int SLAPI PrintGoodsLabel(RetailGoodsInfo * pRgi, PPID prnID = 0, int silent = 0);
+	static int SLAPI PrintGoodsLabel__(RetailGoodsInfo * pRgi, PPID prnID /*= 0*/, int silent /*= 0*/);
+	static int SLAPI PrintGoodsLabel2(RetailGoodsInfo * pRgi, PPID prnID /*= 0*/, int silent /*= 0*/);
 	static int SLAPI PrintLotLabel(PPID lotID);
 		// @>>BarcodeLabelPrinter::PrintGoodsLabel
-	static int SLAPI PrintLabelByBill(PPBillPacket * pPack, uint pos);
+	static int SLAPI PrintLabelByBill__(PPBillPacket * pPack, uint pos);
+	static int SLAPI PrintLabelByBill2(const PPBillPacket * pPack, uint pos);
 	static int SLAPI UpLoad(PPID prnID, const char * pLoadName, int silent);
 	static int SLAPI LoadFonts(PPID prnID, int silent);
 
@@ -18737,12 +18754,14 @@ public:
 	virtual int SLAPI PrintLabel(const char * pPortName, const CommPortParams *);
 	int    SLAPI PrintLabelUsb(PPID devType); // @vmiller
 protected:
-	int    SLAPI PutStr(const char *);
-	int    SLAPI PutChr(char);
+	int    FASTCALL PutStr(const char *);
+	int    FASTCALL PutChr(char);
 	int    SLAPI PutInt(int, int numDigits);
 
 	PPBarcodePrinter PrnPack;
 private:
+	int    SLAPI Helper_PrintRgiCollection(const BarcodeLabelPrintParam & rBclpp, TSCollection <RetailGoodsInfo> & rList);
+
 	SBuffer Buf;
 };
 //
@@ -25110,8 +25129,8 @@ struct RetailGoodsInfo {   // @transient
 	void   Init();
 
 	enum {
-		fDisabledQuot    = 0x0001, // @v7.0.11 Котировка QuotKindUsedForPrice является блокирующей - продажа товара запрещена.
-		fDisabledExtQuot = 0x0002, // @v7.8.1  Котировка
+		fDisabledQuot    = 0x0001, // Котировка QuotKindUsedForPrice является блокирующей - продажа товара запрещена.
+		fDisabledExtQuot = 0x0002, // Котировка
 		//
 		fNoDiscount      = 0x0004  // @v8.6.8  OUT (устанавливается в результате вычислений) - на товар не распространяется скидка
 	};
@@ -26083,7 +26102,8 @@ public:
 	int    SLAPI EditQuotations(PPID goodsID, PPID initLocID, PPID initCurID, PPID initArID, int quotCls, int toCascade = 0, PPID accSheetID = 0);
 	int    SLAPI GetQuot(PPID goodsID, const QuotIdent &, double cost, double price, double *, int useCache = 0);
 		// @>>GoodsCore::GetQuot
-	int    SLAPI GetQuotExt(PPID goodsID, const QuotIdent &, double cost, double price, double *, int useCache = 0);
+	int    SLAPI GetQuotExt(PPID goodsID, const QuotIdent &, double cost, double price, double *, int useCache);
+	int    SLAPI GetQuotExt(PPID goodsID, const QuotIdent &, double *, int useCache);
 	int    SLAPI BelongToMatrix(PPID goodsID, PPID locID);
 		// @>>GoodsCore::BelongToMatrix(PPID goodsID, PPID locID)
 	//
@@ -26602,7 +26622,7 @@ public:
 	SLAPI  GoodsGroupIterator(PPID parentID, long flags = 0);
 	int    SLAPI Init(PPID parentID, long flags);
 	int    SLAPI Next(PPID * pID, SString & rBuf);
-	int    SLAPI Next(PPID * pID, char * pBuf, size_t bufLen);
+	//int    SLAPI Next(PPID * pID, char * pBuf, size_t bufLen);
 	int    SLAPI Get(PPID id, SString & rBuf) const;
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 private:
@@ -36501,7 +36521,7 @@ struct GoodsTaxAnalyzeViewItem {
 	PPID   GoodsGrpID;
 	char   Name[128];      // @v6.6.2 [64]-->[128]
 	char   TaxStr[48];     //
-	char * P_GoodsGrpName; // @OWNED_BY PPViewGoodsTaxAnalyze instance
+	const  char * P_GoodsGrpName; // @OWNED_BY PPViewGoodsTaxAnalyze instance
 
 	double Qtty;
 	double PhQtty;
@@ -36586,7 +36606,8 @@ private:
 	PPIDArray    OpList;
 	int    IterIdx;
 	BVATAccmArray * P_InOutVATList;
-	char   IterGrpName[256];
+	// @v9.6.6 char   IterGrpName[256];
+	SString  IterGrpName; // @v9.6.6
 	PPObjGoods GObj;
 	GoodsSubstList Gsl;
 };
@@ -38151,7 +38172,7 @@ public:
 
 struct GoodsMovViewItem {
 	PPID   GoodsID;
-	char * P_GoodsGrpName; // @OWNED_BY PPViewGoodsMov instance
+	const  char * P_GoodsGrpName; // @OWNED_BY PPViewGoodsMov instance
 	double PhPerU;
 	double UnitsPerPack;
 
@@ -38248,7 +38269,8 @@ private:
 	long    NumIters;
 	int     IterIdx;
 	GoodsGroupIterator * P_GGIter;
-	char    IterGrpName[256];
+	// @v9.6.6 char    IterGrpName[256];
+	SString IterGrpName; // @v9.6.6
 };
 //
 // @ModuleDecl(PPViewGoodsMov2)
@@ -38520,7 +38542,7 @@ class CCheckFilt : public PPBaseFilt { // @persistent
 public:
 	static int FASTCALL HasGoodsGrouping(int grp)
 	{
-		return BIN(oneof6(grp, gGoods, gGoodsDate, gAgentsNGoods, gCashiersNGoods, gGoodsSCSer, gAmountNGoods));
+		return BIN(oneof7(grp, gGoods, gGoodsDate, gAgentsNGoods, gCashiersNGoods, gGoodsSCSer, gAmountNGoods, gAgentGoodsSCSer));
 	}
 
 	SLAPI  CCheckFilt();
@@ -38565,9 +38587,10 @@ public:
 		gCashNode,       // Группировать по кассовым узлам
 		gAgentsNGoods,   // Группировать по агентам и товарам
 		gCashiersNGoods, // Группировать по кассирам и товарам
-		gDlvrAddr,       // @v7.5.3 Группировать по адресу доставки
-		gGoodsSCSer,     // @v7.7.0 Группировка по товару и серии карт
-		gAmountNGoods    // @v8.4.8
+		gDlvrAddr,       // Группировать по адресу доставки
+		gGoodsSCSer,     // Группировка по товару и серии карт
+		gAmountNGoods,   // @v8.4.8
+		gAgentGoodsSCSer // @v9.6.6 Группировать по агентам, товарам и сериям карт
 	};
 	enum {
 		fZeroSess         = 0x00000001, // Чеки по неопределенным кассовым сессиям
@@ -39404,8 +39427,8 @@ struct GoodsOpAnalyzeViewItem {
 	PPID   SubstArID;      // Статья, подставленная вместо GoodsID
 	PPID   SubstPsnID;     // Персоналия, подставленная вместо GoodsID
 	PPID   SubstLocID;     // Склад, подставленный вместо GoodsID
-	char   GoodsName[128]; // @v6.3.9 [64]-->[128]
-	char * P_GoodsGrpName; // @OWNED_BY PPViewGoodsTaxAnalyze instance
+	char   GoodsName[128]; //
+	const  char * P_GoodsGrpName; // @OWNED_BY PPViewGoodsTaxAnalyze instance
 	double UnitPerPack;
 	CmVal  Qtty;
 	double PhQtty;
@@ -39558,7 +39581,8 @@ private:
 	GoodsGroupIterator  * P_GGIter;
 	IterOrder CurrentViewOrder;
 	int    IterIdx;
-	char   IterGrpName[256];
+	// @v9.6.6 char   IterGrpName[256];
+	SString IterGrpName; // @v9.6.6
 };
 //
 // @ModuleDecl(PPViewSCard)
@@ -39572,9 +39596,9 @@ struct SCardFilt : public PPBaseFilt {
 		fWoOwner               = 0x0002,
 		fShowOwnerAddrDetail   = 0x0004,
 		fWithAddressOnly       = 0x0008, // Показывать только карты с адресами (если !fShowOwnerAddrDetail, то не применяется)
-		fNumberFromBeg         = 0x0010, // @v7.6.6 this->Number трактовать как строку, содержащуюся с начала кода
-		fNoTempTable           = 0x0020, // @v7.6.6 @internal
-		fNoEmployer            = 0x0040, // @v7.6.6 @internal Не заполнять поле SCardViewItem::EmployerID (для увеличения производительности)
+		fNumberFromBeg         = 0x0010, // this->Number трактовать как строку, содержащуюся с начала кода
+		fNoTempTable           = 0x0020, // @internal
+		fNoEmployer            = 0x0040, // @internal Не заполнять поле SCardViewItem::EmployerID (для увеличения производительности)
 		fInnerFilter           = 0x0080  // @v8.4.3 Внутренний флаг, используемый для ограничений редактирования внутреннего фильтра
 	};
 	uint8  ReserveStart[12]; // @anchor // @v9.4.5 [16]-->[12]
@@ -39585,10 +39609,12 @@ struct SCardFilt : public PPBaseFilt {
 	PPID   SeriesID;      // Серия карт. Если ScsList.NotEmpty(), то SeriesID игнорируется.
 	PPID   PersonID;      //
 	PPID   EmployerID;    // Работодатель, чьи сотрудники владеют картами
-	double MinPDis;       //
-	double MaxPDis;       //
-	double MinTurnover;   //
-	double MaxTurnover;   //
+	// @v9.6.6 double MinPDis;       //
+	// @v9.6.6 double MaxPDis;       //
+	// @v9.6.6 double MinTurnover;   //
+	// @v9.6.6 double MaxTurnover;   //
+	RealRange PDisR;      // @v9.6.6 (замена пары double'ов на RealRange)
+	RealRange TurnoverR;  // @v9.6.6 (замена пары double'ов на RealRange)
 	int16  Ft_Inherited;  //
 	int16  Ft_Closed;     //
 	long   Order;         // PPViewSCard::IterOrder
@@ -39596,7 +39622,7 @@ struct SCardFilt : public PPBaseFilt {
 	long   Reserve;       // @anchor Заглушка для отмера плоского участка фильтра
 	SString Number;       // Номер дисконтной карты
 	ObjIdListFilt ScsList;     // @v8.4.2 @construction Список серий
-	SysJournalFilt * P_SjF;    // @v7.7.11
+	SysJournalFilt * P_SjF;    //
 	SCardFilt * P_ExludeOwnerF; // @v8.4.2 Фильтр, по которому из выборки исключаются владельцы карт, под него подпадающие
 	PersonFilt * P_OwnerF;      // @v8.4.2 @construction Фильтр по владельцам
 private:
@@ -42819,6 +42845,11 @@ public:
 		void   FASTCALL Init(int q);
 	};
 	struct QueryProcessBlock {
+		SLAPI  QueryProcessBlock()
+		{
+			PosNodeID = 0;
+		}
+		PPID   PosNodeID;
 		RouteBlock R;
 		TSArray <QueryBlock> QL;
 	};
@@ -43104,6 +43135,14 @@ private:
 		TSArray <QueryBlock> QueryList;
 		TSArray <ObjBlockRef> RefList;
 	};
+	struct PosNodeUuidEntry {
+		S_GUID Uuid;
+		PPID   PosNodeID;
+	};
+	struct PosNodeISymbEntry {
+		long   ISymb;
+		PPID   PosNodeID;
+	};
 	static void Scb_StartDocument(void * ptr);
 	static void Scb_EndDocument(void * ptr);
 	static void Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList);
@@ -43133,7 +43172,7 @@ private:
 	const  SString & FASTCALL EncText(const char * pS);
 	uint   SLAPI PeekRefPos() const;
 	void * SLAPI PeekRefItem(uint * pRefPos, int * pType) const;
-	int    SLAPI Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNode * pCnRec, LongArray & rISymbList, TSArray <S_GUID> & rUuidList);
+	int    SLAPI Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNode * pCnRec, TSArray <PosNodeISymbEntry> & rISymbList, TSArray <PosNodeUuidEntry> & rUuidList);
 	void   FASTCALL Helper_AddStringToPool(uint * pPos);
 	int    FASTCALL Helper_PushQuery(int queryType);
 	QueryBlock * Helper_RenewQuery(uint & rRefPos, int queryType);
@@ -45432,6 +45471,15 @@ public:
 		{
 			V = 0;
 		}
+		SLAPI  Tile(const Tile & rS)
+		{
+			V = rS.V;
+		}
+		Tile & FASTCALL operator = (const Tile & rS)
+		{
+			V = rS.V;
+			return *this;
+		}
 		void   SLAPI SetInvisible()
 		{
 			V |= 0xff000000;
@@ -45463,6 +45511,11 @@ public:
     };
     struct Way {
     	SLAPI  Way();
+		void   Clear();
+    	int    FASTCALL IsEqual(const Way & rS) const;
+		int    FASTCALL operator == (const Way & rS) const;
+		int    FASTCALL operator != (const Way & rS) const;
+
 		uint64 ID;
 		Tile   T;
 		Int64Array NodeRefList;
@@ -45489,6 +45542,13 @@ public:
 		uint   LogicalCount;
 		uint64 ClusterCount;
 		uint64 ActualCount;
+		uint64 ProcessedCount; // Количество узлов, которые уже находились в БД при попытке их добавить
+		uint64 Size;
+	};
+	struct WayStatEntry {
+		uint   RefCount;
+		uint64 WayCount;
+		uint64 ProcessedCount; // Количество элементов, которые уже находились в БД при попытке их добавить
 		uint64 Size;
 	};
 	class NodeCluster : private SBuffer {
@@ -45524,6 +45584,7 @@ public:
         static uint SLAPI GetPossiblePackCount(const Node * pN, size_t count, uint * pPossibleCountLogic);
         int    SLAPI Put(const Node * pN, size_t count, uint64 * pOuterID, size_t * pActualCount);
 		int    SLAPI Get(uint64 outerID, TSArray <Node> & rList);
+		int    SLAPI Get(uint64 outerID, TSArray <Node> & rList, Node * pHead, uint * pCountLogic, uint * pCountActual);
 		size_t SLAPI GetSize() const;
 		int    SLAPI GetCount(uint64 outerID, uint * pLogicCount, uint * pActualCount);
 		//
@@ -45578,6 +45639,9 @@ public:
 		SLAPI  WayBuffer();
 		int    SLAPI Put(const Way * pW, uint64 * pOuterID);
 		int    SLAPI Get(uint64 outerID, Way * pW);
+		const  void * FASTCALL GetBuffer(size_t * pSize) const;
+		int    SLAPI SetBuffer(const void * pData, size_t size);
+		size_t SLAPI GetSize() const;
 	private:
 		// (IND) [ID] (TileLevel) [COUNT] ([INFIND] (POINT-ID))+
         enum {
@@ -45630,6 +45694,9 @@ public:
 	int    SLAPI OpenDatabase(const char * pDbPath);
 	SrDatabase * SLAPI GetDb();
 	static int FASTCALL SetNodeClusterStat(NodeCluster & rCluster, TSArray <NodeClusterStatEntry> & rStat);
+	static int FASTCALL SetProcessedNodeStat(uint logicalCount, uint qtty, TSArray <NodeClusterStatEntry> & rStat);
+	static int FASTCALL SetWayStat(WayBuffer & rWayBuf, TSArray <WayStatEntry> & rStat);
+	static int FASTCALL SetProcessedWayStat(uint refCount, uint qtty, TSArray <WayStatEntry> & rStat);
 private:
 	SrDatabase * P_SrDb;
 	//
@@ -45704,6 +45771,7 @@ private:
 	int    LogTag(int osmObjType, const PPOsm::Tag & rTag);
 	int    SLAPI SortFile(const char * pSrcFileName, const char * pSuffix, CompFunc fcmp);
 	int    SLAPI CreateGeoGridTab(const char * pSrcFileName, uint lowDim, uint uppDim, TSCollection <SGeoGridTab> & rGridList);
+	int    OutputStat();
 	//
 	enum {
 		stError = 0x0001
@@ -45733,8 +45801,13 @@ private:
 		SLAPI  StatBlock();
 		void   SLAPI Clear();
 		uint64 SLAPI GetNcActualCount() const;
+		uint64 SLAPI GetNcProcessedCount() const;
 		uint64 SLAPI GetNcClusterCount() const;
 		uint64 SLAPI GetNcSize() const;
+
+		uint64 SLAPI GetWsCount() const;
+		uint64 SLAPI GetWsProcessedCount() const;
+		uint64 SLAPI GetWsSize() const;
 
 		uint64 NodeCount;
 		uint64 NakedNodeCount; // Количество узлов без тегов
@@ -45744,12 +45817,14 @@ private:
 		uint64 TagWayCount;
 		uint64 TagRelCount;
 		TSArray <PPOsm::NodeClusterStatEntry> NcList;
+		TSArray <PPOsm::WayStatEntry> WayList;
 	};
 	StatBlock Stat;
 
 	LongArray LatAccum;
 	LongArray LonAccum;
 	TSArray <PPOsm::Node> NodeAccum;
+	TSCollection <PPOsm::Way> WayAccum;
 	SGeoGridTab::Finder GgtFinder;
 	SString FmtMsg_SortSplit;
 	SString FmtMsg_SortMerge;
@@ -46984,7 +47059,8 @@ private:
 class ImageBrowseCtrlGroup : public CtrlGroup {
 public:
 	enum {
-		fUseExtOpenDlg = 0x00000001L
+		fUseExtOpenDlg = 0x0001,
+		fDisableDetail = 0x0002  // @v9.6.6 Запрет на увеличенное отображение картинки
 	};
 	struct Rec {
 		enum {
@@ -47980,7 +48056,7 @@ ushort  FASTCALL ExecViewAndDestroy(TWindow * pView); // @v9.0.4 TView-->TWindow
 ushort  FASTCALL CheckExecAndDestroyDialog(TDialog * pDlg, int genErrMsg, int toCascade);
 ushort  FASTCALL ExecView(TBaseBrowserWindow * v);
 int     FASTCALL GetModelessStatus(int outerModeless = 1);
-int     SLAPI DisableOKButton(TDialog *);
+void    FASTCALL DisableOKButton(TDialog *);
 int     FASTCALL PPWait(int begin);
 int     FASTCALL PPWaitMsg(const char *);
 int     FASTCALL PPWaitMsg(int msgGrpID, int msgID, const char * = 0);

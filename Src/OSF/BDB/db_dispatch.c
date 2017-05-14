@@ -109,18 +109,13 @@ int __db_dispatch(ENV * env, DB_DISTAB * dtab, DBT * db /* The log record upon w
 		 * These are known to be undone, otherwise the
 		 * log would not have been freeable.
 		 */
-		LOGCOPY_TOLSN(env, &prev_lsn, (uint8 *)db->data+
-			sizeof(rectype)+sizeof(txnid));
-		if(txnid != 0 && prev_lsn.file == 0 && (ret =
-		                                                __db_txnlist_add(env, info, txnid, TXN_OK, NULL)) != 0)
+		LOGCOPY_TOLSN(env, &prev_lsn, (uint8 *)db->data + sizeof(rectype)+sizeof(txnid));
+		if(txnid != 0 && prev_lsn.file == 0 && (ret = __db_txnlist_add(env, info, txnid, TXN_OK, NULL)) != 0)
 			return ret;
 	    /* FALLTHROUGH */
 	    case DB_TXN_POPENFILES:
-		if(rectype == DB___dbreg_register ||
-		   rectype == DB___txn_child ||
-		   rectype == DB___txn_ckp || rectype == DB___txn_recycle)
-			return (dtab->int_dispatch[rectype])(env,
-				db, lsnp, redo, info);
+		if(oneof4(rectype, DB___dbreg_register, DB___txn_child, DB___txn_ckp, DB___txn_recycle))
+			return (dtab->int_dispatch[rectype])(env, db, lsnp, redo, info);
 		break;
 	    case DB_TXN_BACKWARD_ROLL:
 		/*

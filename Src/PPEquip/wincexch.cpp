@@ -588,7 +588,7 @@ int SLAPI StyloBhtIIExchanger::PrintBarcode(const char * pBarcode)
 			rgi.UnitPerPack = lot_rec.UnitPerPack;
 		}
 		rgi.LabelCount = 1;
-		ok = BarcodeLabelPrinter::PrintGoodsLabel(&rgi, BhtPack.P_SBIICfg->BcdPrinterID, 1);
+		ok = BarcodeLabelPrinter::PrintGoodsLabel2(&rgi, BhtPack.P_SBIICfg->BcdPrinterID, 1);
 	}
 	CATCHZOK
 	return ok;

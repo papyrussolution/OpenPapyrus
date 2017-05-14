@@ -2513,7 +2513,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 				ArGoodsCodeTbl::Rec new_ar_code;
 				MEMSZERO(new_ar_code);
 				new_ar_code.ArID = srcArID;
-				new_ar_code.Pack = 1;
+				new_ar_code.Pack = 1000; // =1
 				STRNSCPY(new_ar_code.Code, temp_buf);
 				THROW_SL(goods_pack.ArCodes.insert(&new_ar_code));
 			}
@@ -3229,7 +3229,7 @@ void SLAPI PPPosProtocol::DestroyReadBlock()
     RdB.Destroy();
 }
 
-int SLAPI PPPosProtocol::Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNode * pCnRec, LongArray & rISymbList, TSArray <S_GUID> & rUuidList)
+int SLAPI PPPosProtocol::Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNode * pCnRec, TSArray <PosNodeISymbEntry> & rISymbList, TSArray <PosNodeUuidEntry> & rUuidList)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -3237,7 +3237,10 @@ int SLAPI PPPosProtocol::Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNo
 	if(temp_buf.IsDigit()) {
 		long   isymb = temp_buf.ToLong();
 		if(isymb > 0) {
-			rISymbList.add(isymb);
+			PosNodeISymbEntry new_entry;
+			new_entry.PosNodeID = pCnRec->ID;
+			new_entry.ISymb = isymb;
+			rISymbList.insert(&new_entry);
 			ok = 1;
 		}
 	}
@@ -3246,7 +3249,10 @@ int SLAPI PPPosProtocol::Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNo
 		if(PPRef->Ot.GetTag(PPOBJ_CASHNODE, pCnRec->ID, PPTAG_POSNODE_UUID, &tag_item) > 0) {
 			S_GUID cn_uuid;
 			if(tag_item.GetGuid(&cn_uuid) && !cn_uuid.IsZero()) {
-				THROW_SL(rUuidList.insert(&cn_uuid));
+				PosNodeUuidEntry new_entry;
+				new_entry.PosNodeID = pCnRec->ID;
+				new_entry.Uuid = cn_uuid;
+				THROW_SL(rUuidList.insert(&new_entry));
 				ok = 1;
 			}
 		}
@@ -3271,8 +3277,10 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 		SString in_path;
 		SDirEntry de;
 		SString done_plus_xml_suffix;
-		TSArray <S_GUID> pos_node_uuid_list;
-		LongArray pos_node_isymb_list;
+		//TSArray <S_GUID> pos_node_uuid_list;
+		//LongArray pos_node_isymb_list;
+		TSArray <PosNodeUuidEntry> pos_node_uuid_list;
+		TSArray <PosNodeISymbEntry> pos_node_isymb_list;
 		StringSet ss_paths;
 
 		(done_plus_xml_suffix = p_done_suffix).Dot().Cat("xml");
@@ -3333,7 +3341,8 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 					(in_file_name = fe.Path).SetLastSlash().Cat(fe.Name);
 					if(fileExists(in_file_name) && SFile::WaitForWriteSharingRelease(in_file_name, 60000)) {
 						DestroyReadBlock();
-						int pr = SaxParseFile(in_file_name, 1 /* preprocess */);
+						PPID   cn_id = 0;
+						int    pr = SaxParseFile(in_file_name, 1 /* preprocess */);
 						THROW(pr);
 						if(pr > 0) {
 							int    is_my_file = 0;
@@ -3351,21 +3360,26 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 									}
 									else {
 										for(uint cnuidx = 0; !is_my_file && cnuidx < pos_node_uuid_list.getCount(); cnuidx++) {
-											if(root_blk.Uuid == pos_node_uuid_list.at(cnuidx))
+											if(root_blk.Uuid == pos_node_uuid_list.at(cnuidx).Uuid) {
+												cn_id = pos_node_uuid_list.at(cnuidx).PosNodeID;
 												is_my_file = 2;
+											}
 										}
 									}
 								}
 								else if(!is_my_file) {
 									if(root_blk.Code.IsDigit()) {
-										long isymb = root_blk.Code.ToLong();
-										if(isymb > 0 && pos_node_isymb_list.lsearch(isymb)) {
+										long   isymb = root_blk.Code.ToLong();
+										uint   isymb_pos = 0;
+										if(isymb > 0 && pos_node_isymb_list.lsearch(&isymb, &isymb_pos, CMPF_LONG)) {
+											cn_id = pos_node_isymb_list.at(isymb_pos).PosNodeID;
 											is_my_file = 3;
 										}
 									}
 								}
 							}
 							if(is_my_file) {
+								SETIFZ(cn_id, rPib.PosNodeID);
 								DestroyReadBlock();
 								pr = SaxParseFile(in_file_name, 0 /* !preprocess */);
 								THROW(pr);
@@ -3394,13 +3408,14 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 											RdB.GetRouteItem(r_blk, src_);
 											for(uint j = 0; !qpb_list_idx && j < rPib.QpBlkList.getCount(); j++) {
 												QueryProcessBlock * p_qpb = rPib.QpBlkList.at(j);
-												if(p_qpb->R.IsEqual(src_))
+												if(p_qpb->PosNodeID == cn_id && p_qpb->R.IsEqual(src_))
 													qpb_list_idx = j+1;
 											}
 											if(!qpb_list_idx) {
 												uint _pos = 0;
 												QueryProcessBlock * p_new_qpb = rPib.QpBlkList.CreateNewItem(&_pos);
 												THROW_SL(p_new_qpb);
+												p_new_qpb->PosNodeID = cn_id;
 												p_new_qpb->R = src_;
 												qpb_list_idx = _pos+1;
 											}
@@ -3414,19 +3429,25 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 										}
 									}
 								}
-								if(rPib.Flags & rPib.fProcessRefs) {
-									if(AcceptData(/*&rPib.QpBlkList*/)) {
-										if(rPib.Flags & rPib.fBackupProcessed) {
-											ps.Split(in_file_name);
-											ps.Nam.CatChar('-').Cat("done");
-											ps.Merge(temp_buf);
-											if(fileExists(temp_buf))
-												SFile::Remove(temp_buf);
-											SFile::Rename(in_file_name, temp_buf);
-										}
+								{
+									int    do_backup_file = 0;
+									if(rPib.Flags & rPib.fProcessRefs) {
+										if(AcceptData(/*&rPib.QpBlkList*/))
+											do_backup_file = 1;
+										else
+											PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 									}
-									else
-										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+									if(rPib.Flags & rPib.fProcessQueries) {
+										do_backup_file = 1;
+									}
+									if(rPib.Flags & rPib.fBackupProcessed && do_backup_file) {
+										ps.Split(in_file_name);
+										ps.Nam.CatChar('-').Cat("done");
+										ps.Merge(temp_buf);
+										if(fileExists(temp_buf))
+											SFile::Remove(temp_buf);
+										SFile::Rename(in_file_name, temp_buf);
+									}
 								}
 							}
 						}
@@ -3438,7 +3459,7 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 					const QueryProcessBlock * p_qpb = rPib.QpBlkList.at(bidx);
 					if(p_qpb) {
 						PPIDArray csess_list;
-						const PPID cn_id = rPib.PosNodeID;
+						const PPID cn_id = p_qpb->PosNodeID;
 						PPID  sync_cn_id = 0;
 						PPID  async_cn_id = 0;
 						PPCashNode cn_rec;
@@ -3463,7 +3484,7 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 							else if(r_q.Q == QueryBlock::qCSession) {
 								if(cn_id) {
 									if(r_q.Flags & QueryBlock::fCSessLast) {
-										if(CsObj.P_Tbl->SearchLast(async_cn_id, 1010, 0, &cs_rec) > 0) {
+										if(CsObj.P_Tbl->SearchLast(cn_id, 1010, 0, &cs_rec) > 0) {
 											csess_list.add(cs_rec.ID);
 										}
 									}
@@ -3508,14 +3529,6 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 							ExportPosSession(csess_list, cn_id, &rb_src, &p_qpb->R);
 						}
 					}
-				}
-				if(rPib.Flags & rPib.fBackupProcessed) {
-					ps.Split(in_file_name);
-					ps.Nam.CatChar('-').Cat("done");
-					ps.Merge(temp_buf);
-					if(fileExists(temp_buf))
-						SFile::Remove(temp_buf);
-					SFile::Rename(in_file_name, temp_buf);
 				}
 			}
 		}
@@ -3589,9 +3602,8 @@ int SLAPI PPPosProtocol::ExportPosSession(const PPIDArray & rSessList, PPID posN
 				THROW(WriteRouteInfo(wb, "source", rb_src));
 			}
 			//THROW(WriteSourceRoute(wb));
-			{
-				PPPosProtocol::RouteBlock rb;
-				THROW(WriteRouteInfo(wb, "destination", rb));
+			if(pDestination) {
+				THROW(WriteRouteInfo(wb, "destination", *pDestination));
 			}
 		}
 		{

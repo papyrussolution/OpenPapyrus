@@ -391,7 +391,7 @@ int SLAPI PPViewGoodsMov::InitIterQuery(PPID grpID)
 
 int SLAPI PPViewGoodsMov::InitGroupNamesList()
 {
-	IterGrpName[0] = 0;
+	IterGrpName = 0;
 	P_GGIter = new GoodsGroupIterator((PPObjGoodsGroup::IsAlt(Filt.GoodsGrpID) > 0) ? 0 : Filt.GoodsGrpID);
 	return P_GGIter ? 1 : PPSetErrorNoMem();
 }
@@ -403,7 +403,7 @@ int SLAPI PPViewGoodsMov::InitIteration(IterOrder ord)
 	IterCount = 0;
 	NumIters  = 0;
 	IterIdx   = 0;
-	IterGrpName[0] = 0;
+	IterGrpName = 0;
 	ZDELETE(P_GGIter);
 	ZDELETE(P_IterQuery);
 
@@ -434,7 +434,7 @@ int SLAPI PPViewGoodsMov::InitIteration(IterOrder ord)
 int SLAPI PPViewGoodsMov::NextOuterIteration()
 {
 	PPID   grp_id = 0;
-	if(P_GGIter && P_GGIter->Next(&grp_id, IterGrpName, sizeof(IterGrpName)) > 0) {
+	if(P_GGIter && P_GGIter->Next(&grp_id, IterGrpName) > 0) {
 		InitIterQuery(grp_id);
 		return 1;
 	}
@@ -460,46 +460,47 @@ int SLAPI PPViewGoodsMov::NextIteration(GoodsMovViewItem * pItem)
 		if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 			if(pItem) {
 				memzero(pItem, sizeof(GoodsMovViewItem));
-
-				pItem->GoodsID      = P_TempTbl->data.GoodsID;
+#define CPY_FLD(fd, fs) pItem->fd = P_TempTbl->data.fs
+				CPY_FLD(GoodsID, GoodsID);
 				pItem->UnitsPerPack = GetUnitsPerPack(pItem->GoodsID);
 				pItem->P_GoodsGrpName = IterGrpName;
-				pItem->PhPerU       = P_TempTbl->data.PhUPerU;
-				pItem->InRest_Qtty  = P_TempTbl->data.InRest_Qtty;
-				pItem->InRest_Cost  = P_TempTbl->data.InRest_Cost;
-				pItem->InRest_Price = P_TempTbl->data.InRest_Price;
+				CPY_FLD(PhPerU, PhUPerU);
+				CPY_FLD(InRest_Qtty, InRest_Qtty);
+				CPY_FLD(InRest_Cost, InRest_Cost);
+				CPY_FLD(InRest_Price, InRest_Price);
 
-				pItem->Rcpt_Qtty  = P_TempTbl->data.Rcpt_Qtty;
-				pItem->Rcpt_Cost  = P_TempTbl->data.Rcpt_Cost;
-				pItem->Rcpt_Price = P_TempTbl->data.Rcpt_Price;
+				CPY_FLD(Rcpt_Qtty, Rcpt_Qtty);
+				CPY_FLD(Rcpt_Cost, Rcpt_Cost);
+				CPY_FLD(Rcpt_Price, Rcpt_Price);
 
-				pItem->_Rcpt_Qtty  = P_TempTbl->data.ARcpt_Qtty;
-				pItem->_Rcpt_Cost  = P_TempTbl->data.ARcpt_Cost;
-				pItem->_Rcpt_Price = P_TempTbl->data.ARcpt_Price;
+				CPY_FLD(_Rcpt_Qtty, ARcpt_Qtty);
+				CPY_FLD(_Rcpt_Cost, ARcpt_Cost);
+				CPY_FLD(_Rcpt_Price, ARcpt_Price);
 
-				pItem->Rlz_Qtty  = P_TempTbl->data.Rlz_Qtty;
-				pItem->Rlz_Cost  = P_TempTbl->data.Rlz_Cost;
-				pItem->Rlz_Price = P_TempTbl->data.Rlz_Price;
+				CPY_FLD(Rlz_Qtty, Rlz_Qtty);
+				CPY_FLD(Rlz_Cost, Rlz_Cost);
+				CPY_FLD(Rlz_Price, Rlz_Price);
 
-				pItem->SRlz_Qtty  = P_TempTbl->data.SRlz_Qtty;
-				pItem->SRlz_Cost  = P_TempTbl->data.SRlz_Cost;
-				pItem->SRlz_Price = P_TempTbl->data.SRlz_Price;
+				CPY_FLD(SRlz_Qtty, SRlz_Qtty);
+				CPY_FLD(SRlz_Cost, SRlz_Cost);
+				CPY_FLD(SRlz_Price, SRlz_Price);
 
-				pItem->Expnd_Qtty  = P_TempTbl->data.Expnd_Qtty;
-				pItem->Expnd_Cost  = P_TempTbl->data.Expnd_Cost;
-				pItem->Expnd_Price = P_TempTbl->data.Expnd_Price;
+				CPY_FLD(Expnd_Qtty,  Expnd_Qtty);
+				CPY_FLD(Expnd_Cost,  Expnd_Cost);
+				CPY_FLD(Expnd_Price, Expnd_Price);
 
-				pItem->TRcpt_Qtty  = P_TempTbl->data.TRcpt_Qtty;
-				pItem->TRcpt_Cost  = P_TempTbl->data.TRcpt_Cost;
-				pItem->TRcpt_Price = P_TempTbl->data.TRcpt_Price;
+				CPY_FLD(TRcpt_Qtty, TRcpt_Qtty);
+				CPY_FLD(TRcpt_Cost, TRcpt_Cost);
+				CPY_FLD(TRcpt_Price, TRcpt_Price);
 
-				pItem->TExpnd_Qtty  = P_TempTbl->data.TExpnd_Qtty;
-				pItem->TExpnd_Cost  = P_TempTbl->data.TExpnd_Cost;
-				pItem->TExpnd_Price = P_TempTbl->data.TExpnd_Price;
+				CPY_FLD(TExpnd_Qtty, TExpnd_Qtty);
+				CPY_FLD(TExpnd_Cost, TExpnd_Cost);
+				CPY_FLD(TExpnd_Price, TExpnd_Price);
 
-				pItem->OutRest_Qtty  = P_TempTbl->data.OutRest_Qtty;
-				pItem->OutRest_Cost  = P_TempTbl->data.OutRest_Cost;
-				pItem->OutRest_Price = P_TempTbl->data.OutRest_Price;
+				CPY_FLD(OutRest_Qtty, OutRest_Qtty);
+				CPY_FLD(OutRest_Cost, OutRest_Cost);
+				CPY_FLD(OutRest_Price, OutRest_Price);
+#undef CPY_FLD
 			}
 			IterCount++;
 			return 1;
@@ -706,14 +707,12 @@ int SLAPI PPViewGoodsMov::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 int SLAPI PPViewGoodsMov::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int  ok = 1;
-	SString temp_buf;
 	THROW(PPView::SerializeState(dir, rBuf, pCtx));
 	THROW(Total.Serialize(dir, rBuf, pCtx));
 	THROW_SL(pCtx->Serialize(dir, IterCount,   rBuf));
 	THROW_SL(pCtx->Serialize(dir, NumIters,    rBuf));
 	THROW_SL(pCtx->Serialize(dir, IterIdx,     rBuf));
-	THROW_SL(pCtx->Serialize(dir, (temp_buf = IterGrpName), rBuf));
-	if(dir == -1) temp_buf.CopyTo(IterGrpName, sizeof(IterGrpName));
+	THROW_SL(pCtx->Serialize(dir, IterGrpName, rBuf));
 	THROW(SerializeDbTableByFileName <TempGoodsMovTbl> (dir, &P_TempTbl, rBuf, pCtx));
 	CATCHZOK
 	return ok;

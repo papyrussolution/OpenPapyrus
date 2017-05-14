@@ -1314,10 +1314,10 @@ CSPanel::CSPanel(uint rezID, PPID aNodeID, char * nodeName, int fZReport) : TDia
 	showCtrl(CTL_CSPANEL_INPUT, 0);
 	enableCommand(cmCSClose, BIN(fZReport > 0 && (fZReport & fcspZReport)));
 	enableCommand(cmSCSZReportCopy, BIN(fZReport > 0 && (fZReport & fcspZRepCopy)));
-	enableCommand(cmSCSXReport, BIN(fZReport & fcspXReport)); // @v6.6.9
+	enableCommand(cmSCSXReport, BIN(fZReport & fcspXReport));
 	setCtrlData(CTL_CSPANEL_NODE, nodeName);
 	setCtrlReadOnly(CTL_CSPANEL_NODE, 1);
-	SetCtrlBitmap(CTL_CSPANEL_BMP, BM_CASH01);
+	// @v9.6.6 SetCtrlBitmap(CTL_CSPANEL_BMP, BM_CASH01);
 }
 
 void CSPanel::ResetButtons()

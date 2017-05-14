@@ -78,11 +78,11 @@ int SCardSelPrcssrParam::Write(SBuffer & rBuf, long) const
 	THROW_SL(rBuf.Write(DtEnd));
 	THROW_SL(rBuf.Write(NewSerID));
 	THROW_SL(rBuf.Write(AutoGoodsID));
-	THROW_SL(rBuf.Write(FlagsSet));     // @v7.7.2
-	THROW_SL(rBuf.Write(FlagsReset));   // @v7.7.2
-	THROW_SL(rBuf.Write(PeriodTerm));   // @v7.7.2
-	THROW_SL(rBuf.Write(PeriodCount));  // @v7.7.2
-	THROW_SL(rBuf.Write(Discount));     // @v7.7.2
+	THROW_SL(rBuf.Write(FlagsSet));
+	THROW_SL(rBuf.Write(FlagsReset));
+	THROW_SL(rBuf.Write(PeriodTerm));
+	THROW_SL(rBuf.Write(PeriodCount));
+	THROW_SL(rBuf.Write(Discount));
 	THROW_SL(SelFilt.Write(rBuf, 0));
 	CATCHZOK
 	return ok;
@@ -177,10 +177,12 @@ int SLAPI SCardFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 		PPID   SeriesID;
 		PPID   PersonID;
 		PPID   EmployerID;
-		double MinPDis;
-		double MaxPDis;
-		double MinTurnover;
-		double MaxTurnover;
+		//double MinPDis;
+		//double MaxPDis;
+		//double MinTurnover;
+		//double MaxTurnover;
+		RealRange PDisR;
+		RealRange TurnoverR;
 		int16  Ft_Inherited;
 		int16  Ft_Closed;
 		long   Order;
@@ -205,10 +207,12 @@ int SLAPI SCardFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 		PPID   SeriesID;
 		PPID   PersonID;
 		PPID   EmployerID;
-		double MinPDis;
-		double MaxPDis;
-		double MinTurnover;
-		double MaxTurnover;
+		//double MinPDis;
+		//double MaxPDis;
+		//double MinTurnover;
+		//double MaxTurnover;
+		RealRange PDisR;
+		RealRange TurnoverR;
 		int16  Ft_Inherited;
 		int16  Ft_Closed;
 		long   Order;
@@ -227,10 +231,12 @@ int SLAPI SCardFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 		CPYFLD(SeriesID);
 		CPYFLD(PersonID);
 		CPYFLD(EmployerID);
-		CPYFLD(MinPDis);
-		CPYFLD(MaxPDis);
-		CPYFLD(MinTurnover);
-		CPYFLD(MaxTurnover);
+		//CPYFLD(MinPDis);
+		//CPYFLD(MaxPDis);
+		//CPYFLD(MinTurnover);
+		//CPYFLD(MaxTurnover);
+		CPYFLD(PDisR);
+		CPYFLD(TurnoverR);
 		CPYFLD(Ft_Inherited);
 		CPYFLD(Ft_Closed);
 		CPYFLD(Order);
@@ -248,10 +254,12 @@ int SLAPI SCardFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 		CPYFLD(SeriesID);
 		CPYFLD(PersonID);
 		CPYFLD(EmployerID);
-		CPYFLD(MinPDis);
-		CPYFLD(MaxPDis);
-		CPYFLD(MinTurnover);
-		CPYFLD(MaxTurnover);
+		//CPYFLD(MinPDis);
+		//CPYFLD(MaxPDis);
+		//CPYFLD(MinTurnover);
+		//CPYFLD(MaxTurnover);
+		CPYFLD(PDisR);
+		CPYFLD(TurnoverR);
 		CPYFLD(Ft_Inherited);
 		CPYFLD(Ft_Closed);
 		CPYFLD(Order);
@@ -312,18 +320,17 @@ int SLAPI PPViewSCard::Init_(const PPBaseFilt * pFilt)
 	THROW(Helper_InitBaseFilt(pFilt));
 	ZDELETE(P_TmpTbl);
 	ZDELETE(P_IterQuery);
-	List.Clear(); // @v7.6.6
+	List.Clear();
 	ExcludeOwnerList.Set(0); // @v8.4.2
 	Counter.Init();
-	if(Filt.MinPDis < 0.0)
-		Filt.MinPDis = 0.0;
-	if(Filt.MaxPDis < 0.0)
-		Filt.MaxPDis = 0.0;
+	SETMAX(Filt.PDisR.low, 0.0);
+	SETMAX(Filt.PDisR.upp, 0.0);
 	Filt.IssuePeriod.Actualize(ZERODATE);
 	Filt.ExpiryPeriod.Actualize(ZERODATE);
 	Filt.TrnovrPeriod.Actualize(ZERODATE);
-	Filt.MinTurnover = R2(Filt.MinTurnover);
-	Filt.MaxTurnover = R2(Filt.MaxTurnover);
+	// @v9.6.6 Filt.MinTurnover = R2(Filt.MinTurnover);
+	// @v9.6.6 Filt.MaxTurnover = R2(Filt.MaxTurnover);
+	Filt.TurnoverR.Round(2); // @v9.6.6 
 	if(Filt.EmployerID)
 		SETIFZ(P_StffObj, new PPObjStaffList);
 	if(Filt.P_ExludeOwnerF && !Filt.P_ExludeOwnerF->IsEmpty()) {
@@ -512,9 +519,9 @@ int SLAPI PPViewSCard::CheckForFilt(const SCardTbl::Rec * pRec, PreprocessScRecB
 	THROW(Filt.Ft_Inherited <= 0 || (pRec->Flags & SCRDF_INHERITED));
 	THROW(Filt.Ft_Inherited >= 0 || !(pRec->Flags & SCRDF_INHERITED));
 	THROW(!wo_owner || !pRec->PersonID);
-	if(Filt.MinPDis != Filt.MaxPDis || Filt.MinPDis > 0) {
-		THROW(pRec->PDis >= Filt.MinPDis);
-		THROW(Filt.MaxPDis <= 0 || pRec->PDis <= Filt.MaxPDis)
+	if(Filt.PDisR.low != Filt.PDisR.upp || Filt.PDisR.low > 0.0) {
+		THROW(pRec->PDis >= Filt.PDisR.low);
+		THROW(Filt.PDisR.upp <= 0.0 || pRec->PDis <= Filt.PDisR.upp)
 	}
 	THROW(/*!pRec->Dt ||*/ Filt.IssuePeriod.CheckDate(pRec->Dt)); // @v9.6.2 @fix /**/
 	THROW(/*!pRec->Expiry ||*/ Filt.ExpiryPeriod.CheckDate(pRec->Expiry)); // @v9.6.2 @fix /**/
@@ -552,9 +559,9 @@ int SLAPI PPViewSCard::CheckForFilt(const SCardTbl::Rec * pRec, PreprocessScRecB
 		turnover = pRec->Turnover;
 	}
 	// } @v8.5.3 @fix
-	if(Filt.MinTurnover != Filt.MaxTurnover || Filt.MinTurnover != 0.0) {
-		THROW(Filt.MinTurnover == 0.0 || turnover >= Filt.MinTurnover)
-		THROW(Filt.MaxTurnover == 0.0 || turnover <= Filt.MaxTurnover)
+	if(Filt.TurnoverR.low != Filt.TurnoverR.upp || Filt.TurnoverR.low != 0.0) {
+		THROW(Filt.TurnoverR.low == 0.0 || turnover >= Filt.TurnoverR.low)
+		THROW(Filt.TurnoverR.upp == 0.0 || turnover <= Filt.TurnoverR.upp)
 	}
 	CATCHZOK
 	if(pBlk) {
@@ -822,8 +829,8 @@ int SLAPI PPViewSCard::InitIteration()
 			else
 				dbq = ppcheckfiltid(dbq, p_c->PersonID, Filt.PersonID);
 			dbq = ppcheckfiltid(dbq, p_c->LocID, Filt.LocID); // @v9.4.5
-			dbq = & (*dbq && realrange(p_c->PDis, Filt.MinPDis, Filt.MaxPDis));
-			dbq = & (*dbq && realrange(p_c->Turnover, Filt.MinTurnover, Filt.MaxTurnover));
+			dbq = & (*dbq && realrange(p_c->PDis, Filt.PDisR.low, Filt.PDisR.upp));
+			dbq = & (*dbq && realrange(p_c->Turnover, Filt.TurnoverR.low, Filt.TurnoverR.upp));
 			P_IterQuery->selectAll().where(*dbq);
 			//k2.SeriesID = Filt.SeriesID;
 			Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
@@ -907,8 +914,8 @@ int SCardFiltDialog::setDTS(const SCardFilt * pData)
 {
 	if(!RVALUEPTR(Data, pData))
 		MEMSZERO(Data);
-	double min_dis = R2(fdiv100r(Data.MinPDis));
-	double max_dis = R2(fdiv100r(Data.MaxPDis));
+	const double min_dis = R2(fdiv100r(Data.PDisR.low));
+	const double max_dis = R2(fdiv100r(Data.PDisR.upp));
 	SetupPPObjCombo(this, CTLSEL_SCARDFLT_SERIES, PPOBJ_SCARDSERIES, Data.SeriesID, 0);
 	SetupPPObjCombo(this, CTLSEL_SCARDFLT_EMPLOYER, PPOBJ_PERSON, Data.EmployerID, OLW_CANINSERT, (void *)PPPRK_EMPLOYER);
 	SetupPerson(Data.SeriesID);
@@ -934,7 +941,7 @@ int SCardFiltDialog::setDTS(const SCardFilt * pData)
 		LastFlagsState = _f;
 	}
 	SetRealRangeInput(this, CTL_SCARDFLT_PDISRANGE,   min_dis, max_dis);
-	SetRealRangeInput(this, CTL_SCARDFLT_TRNOVRRANGE, Data.MinTurnover, Data.MaxTurnover);
+	SetRealRangeInput(this, CTL_SCARDFLT_TRNOVRRANGE, &Data.TurnoverR);
 
 	AddClusterAssocDef(CTL_SCARDFLT_ORD,  0, PPViewSCard::OrdBySeries_Code);
 	AddClusterAssoc(CTL_SCARDFLT_ORD,  1, PPViewSCard::OrdByDiscount);
@@ -952,8 +959,8 @@ int SCardFiltDialog::setDTS(const SCardFilt * pData)
 int SCardFiltDialog::getDTS(SCardFilt * pData)
 {
 	int    ok = 1;
-	double min_dis = R2(fdiv100r(Data.MinPDis));
-	double max_dis = R2(fdiv100r(Data.MaxPDis));
+	double min_dis = R2(fdiv100r(Data.PDisR.low));
+	double max_dis = R2(fdiv100r(Data.PDisR.upp));
 	//long   v = 0;
 	getCtrlData(CTLSEL_SCARDFLT_SERIES,   &Data.SeriesID);
 	getCtrlData(CTLSEL_SCARDFLT_EMPLOYER, &Data.EmployerID);
@@ -963,9 +970,8 @@ int SCardFiltDialog::getDTS(SCardFilt * pData)
 	GetPeriodInput(this, CTL_SCARDFLT_TRNOVRPRD, &Data.TrnovrPeriod);
 	GetClusterData(CTL_SCARDFLT_SINCE, &Data.Flags);
 	GetRealRangeInput(this, CTL_SCARDFLT_PDISRANGE, &min_dis, &max_dis);
-	Data.MinPDis = R0(min_dis * 100);
-	Data.MaxPDis = R0(max_dis * 100);
-	GetRealRangeInput(this, CTL_SCARDFLT_TRNOVRRANGE, &Data.MinTurnover, &Data.MaxTurnover);
+	Data.PDisR.Set(R0(min_dis * 100), R0(max_dis * 100));
+	GetRealRangeInput(this, CTL_SCARDFLT_TRNOVRRANGE, &Data.TurnoverR);
 	{
 		long   _f = 0;
 		GetClusterData(CTL_SCARDFLT_FLAGS, &_f);
@@ -1755,8 +1761,8 @@ DBQuery * SLAPI PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 		dbq = ppcheckflag(dbq, p_c->Flags, SCRDF_CLOSED, Filt.Ft_Closed);
 		dbq = & (*dbq && daterange(p_c->Dt, &Filt.IssuePeriod));
 		dbq = & (*dbq && daterange(p_c->Expiry, &Filt.ExpiryPeriod));
-		dbq = & (*dbq && realrange(p_c->PDis, Filt.MinPDis, Filt.MaxPDis));
-		dbq = & (*dbq && realrange(p_c->Turnover, Filt.MinTurnover, Filt.MaxTurnover));
+		dbq = & (*dbq && realrange(p_c->PDis, Filt.PDisR.low, Filt.PDisR.upp));
+		dbq = & (*dbq && realrange(p_c->Turnover, Filt.TurnoverR.low, Filt.TurnoverR.upp));
 		if(p_ot)
 			dbq = & (*dbq && p_ot->ID == p_c->ID);
 		q->where(*dbq);
@@ -3165,10 +3171,10 @@ int PPALDD_SCardList::InitData(PPFilt & rFilt, long rsrv)
 	H.FltFlags      = p_filt->Flags;
 	H.Ft_Inherited  = p_filt->Ft_Inherited;
 	H.Ft_Closed     = p_filt->Ft_Closed;
-	H.FltMinPDis    = R2(p_filt->MinPDis / 100);
-	H.FltMaxPDis    = R2(p_filt->MaxPDis / 100);
-	H.FltMinTurnover = p_filt->MinTurnover;
-	H.FltMaxTurnover = p_filt->MaxTurnover;
+	H.FltMinPDis    = R2(p_filt->PDisR.low / 100.0);
+	H.FltMaxPDis    = R2(p_filt->PDisR.upp / 100.0);
+	H.FltMinTurnover = p_filt->TurnoverR.low;
+	H.FltMaxTurnover = p_filt->TurnoverR.upp;
 	return DlRtm::InitData(rFilt, rsrv);
 }
 

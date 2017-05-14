@@ -427,11 +427,12 @@ int SLAPI PPSetupCtrlMenu(TDialog * pDlg, uint ctl, uint ctlButton, uint ctrlMen
 	return ok;
 }
 
-int SLAPI DisableOKButton(TDialog * dlg)
+void FASTCALL DisableOKButton(TDialog * dlg)
 {
-	dlg->enableCommand(cmOK, 0);
-	dlg->SetDefaultButton(STDCTL_CANCELBUTTON, 1);
-	return 1;
+	if(dlg) {
+		dlg->enableCommand(cmOK, 0);
+		dlg->SetDefaultButton(STDCTL_CANCELBUTTON, 1);
+	}
 }
 
 void ViewAsyncEventQueueStat()
@@ -702,7 +703,7 @@ int SLAPI PasswordDialog(uint dlgID, char * pBuf, size_t pwSize, size_t minLen, 
 	TDialog * dlg = new TDialog(NZOR(dlgID, DLG_PASSWORD));
 	if(CheckDialogPtrErr(&dlg)) {
 		b1[0] = 0;
-		dlg->SetCtrlBitmap(CTL_PASSWORD_IMG, BM_KEYS);
+		// @v9.6.6 dlg->SetCtrlBitmap(CTL_PASSWORD_IMG, BM_KEYS);
 		dlg->setCtrlData(CTL_PASSWORD_FIRST,  b1);
 		dlg->setCtrlData(CTL_PASSWORD_SECOND, b1);
 		while(!valid_data && ExecView(dlg) == cmOK) {
@@ -2283,7 +2284,7 @@ int ImageBrowseCtrlGroup::setData(TDialog * pDlg, void * pData)
 		pDlg->enableCommand(CmChgImage, AllowChangeImage);
 	if(CmDelImage)
 		pDlg->enableCommand(CmDelImage, AllowChangeImage);
-	pDlg->enableCommand(cmPasteImage, AllowChangeImage); // @v7.7.0
+	pDlg->enableCommand(cmPasteImage, AllowChangeImage);
 	return 1;
 }
 
@@ -2296,7 +2297,14 @@ int ImageBrowseCtrlGroup::getData(TDialog * pDlg, void * pData)
 
 void ImageBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
-	if(event.isCmd(CmChgImage)) {
+	if(event.isCmd(cmImageDblClk)) {
+		if(!(Flags & fDisableDetail)) {
+			if(Data.Path.NotEmpty() && fileExists(Data.Path)) {
+				ViewImageInfo(Data.Path, 0, 0);
+			}
+		}
+	}
+	else if(event.isCmd(CmChgImage)) {
 		int    r = 0;
 		SString path;
 		if(Flags & fUseExtOpenDlg) {
@@ -2333,6 +2341,18 @@ void ImageBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 			Data.Flags |= Rec::fUpdated;
 			pDlg->setCtrlString(CtlImage, Data.Path = temp_path);
 			pDlg->clearEvent(event);
+		}
+	}
+	else if(event.isKeyDown(kbF7)) {
+		if(Data.Path.NotEmpty() && fileExists(Data.Path) && CONFIRM(PPCFM_PRINTIMAGE)) {
+			SPrinting prn(APPL->H_MainWnd);
+			int    prn_ok = 1;
+			if(!prn.Init(0))
+				prn_ok = PPSetErrorSLib();
+			else if(!prn.PrintImage(Data.Path))
+				prn_ok = 0;
+			if(!prn_ok)
+				PPError();
 		}
 	}
 }
@@ -5220,18 +5240,35 @@ int SLAPI ResolveGoodsDlg(ResolveGoodsItemList * pData, int flags)
 
 int SLAPI ViewImageInfo(const char * pImagePath, const char * pInfo, const char * pWarn)
 {
+	class ImageInfoDialog : public TDialog {
+	public:
+		ImageInfoDialog(int simple) : TDialog(simple ? DLG_IMAGEINFO2 : DLG_IMAGEINFO)
+		{
+			IsSimple = simple;
+			if(IsSimple) {
+				SetCtrlResizeParam(CTL_IMAGEINFO_IMAGE, 0, 0, 0, 0, crfResizeable);
+				showCtrl(STDCTL_OKBUTTON, 0);
+				showCtrl(STDCTL_CANCELBUTTON, 0);
+				ResizeDlgToFullScreen();
+			}
+		}
+		int    IsSimple;
+	};
 	int    ok = -1;
-	TDialog * p_dlg = new TDialog(DLG_IMAGEINFO);
+	const  int simple_resizeble = BIN(!pInfo && !pWarn);
+	ImageInfoDialog * p_dlg = new ImageInfoDialog(simple_resizeble);
 	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setCtrlData(CTL_IMAGEINFO_IMAGE, (void*)pImagePath);
-	p_dlg->setStaticText(CTL_IMAGEINFO_INFO, pInfo);
-	p_dlg->setStaticText(CTL_IMAGEINFO_WARN, pWarn);
-	if(pWarn && pWarn[0]) {
-		p_dlg->SetCtrlBitmap(CTL_IMAGEINFO_PIC_WARN, BM_RED);
-		//p_dlg->enableCommand(cmOK, 0);
+	if(!simple_resizeble) {
+		p_dlg->setStaticText(CTL_IMAGEINFO_INFO, pInfo);
+		p_dlg->setStaticText(CTL_IMAGEINFO_WARN, pWarn);
+		if(!isempty(pWarn)) {
+			p_dlg->SetCtrlBitmap(CTL_IMAGEINFO_PIC_WARN, BM_RED);
+			//p_dlg->enableCommand(cmOK, 0);
+		}
+		else
+			p_dlg->showCtrl(CTL_IMAGEINFO_PIC_WARN, 0);
 	}
-	else
-		p_dlg->showCtrl(CTL_IMAGEINFO_PIC_WARN, 0);
 	if(ExecView(p_dlg) == cmOK)
 		ok = 1;
 	CATCHZOKPPERR

@@ -1957,6 +1957,7 @@ SrDatabase::SrDatabase()
 	P_NgT = 0;
 	P_CNgT = 0;
 	P_GnT = 0;
+	P_GwT = 0;
 	ZeroWordID = 0;
 }
 
@@ -1977,8 +1978,9 @@ int SrDatabase::Open(const char * pDbPath)
 	cfg.LogBufSize  = 256 * 1024;
 	cfg.LogFileSize = 256 * 1024 * 1024;
 	//cfg.LogSubDir = "LOG";
+	cfg.Flags |= (cfg.fLogNoSync|cfg.fLogAutoRemove); // @v9.6.6
 	Close();
-	THROW_S(P_Db = new BDbDatabase(pDbPath, &cfg, BDbDatabase::oPrivate), SLERR_NOMEM);
+	THROW_S(P_Db = new BDbDatabase(pDbPath, &cfg, BDbDatabase::oPrivate/*|BDbDatabase::oRecover*/), SLERR_NOMEM);
 	THROW(!!*P_Db);
 	THROW_S(P_WdT = new SrWordTbl(P_Db), SLERR_NOMEM);
 	THROW_S(P_GrT = new SrGrammarTbl(P_Db), SLERR_NOMEM);
@@ -1988,6 +1990,7 @@ int SrDatabase::Open(const char * pDbPath)
 	THROW_S(P_NgT = new SrNGramTbl(P_Db), SLERR_NOMEM);
 	THROW_S(P_CNgT = new SrConceptNgTbl(P_Db), SLERR_NOMEM);
 	THROW_S(P_GnT = new SrGeoNodeTbl(P_Db), SLERR_NOMEM);
+	THROW_S(P_GwT = new SrGeoWayTbl(P_Db), SLERR_NOMEM);
 	{
 		CONCEPTID prop_instance = GetReservedConcept(rcInstance);
 		CONCEPTID prop_subclass = GetReservedConcept(rcSubclass);
@@ -2140,6 +2143,7 @@ int SrDatabase::Close()
 	ZDELETE(P_NgT);
 	ZDELETE(P_CNgT);
 	ZDELETE(P_GnT);
+	ZDELETE(P_GwT);
 
 	ZDELETE(P_Db);
 	return 1;
@@ -3012,33 +3016,86 @@ SrGeoNodeTbl::~SrGeoNodeTbl()
 {
 }
 
+int SLAPI SrGeoNodeTbl::Search(uint64 id, PPOsm::Node * pNode, uint64 * pFaultLogicalID)
+{
+/*
+LogicalCount=  1; ClusterCount=64512077; ActualCount=64512077; Size=838657001;
+LogicalCount=128; ClusterCount=  285217; ActualCount=29844065; Size=169060869;
+LogicalCount=  2; ClusterCount=10242038; ActualCount=20484076; Size=191137226;
+LogicalCount= 64; ClusterCount=  369007; ActualCount=19787392; Size=112540879;
+LogicalCount= 32; ClusterCount=  694227; ActualCount=19543439; Size=112406576;
+LogicalCount=  4; ClusterCount= 5003717; ActualCount=18204549; Size=139336132;
+LogicalCount= 16; ClusterCount= 1262121; ActualCount=17685283; Size=106760761;
+LogicalCount=  8; ClusterCount= 2389896; ActualCount=17049582; Size=112131954;
+*/
+	const uchar logical_count_priority[]      = {    1,  128,    2,   64,   32,    4,   16,    8 };
+	const uchar logical_count_priority_bits[] = { 0x00, 0x7f, 0x01, 0x3f, 0x1f, 0x03, 0x0f, 0x07 };
+	int    ok = -1;
+	uint64 fault_logical_id = 0;
+	PPOsm::NodeCluster nc;
+	TSArray <PPOsm::Node> nc_list;
+	DataBuf.Alloc(1024);
+	for(uint i = 0; ok < 0 && i < SIZEOFARRAY(logical_count_priority); /* see end of loop */) {
+		const uint64 logical_id = (id & ~logical_count_priority_bits[i]);
+		{
+			uint8  _key[16];
+			size_t _key_sz = sshrinkuint64(logical_id, _key);
+			KeyBuf.Set(_key, _key_sz);
+		}
+		uint   next_i = UINT_MAX;
+		if(BDbTable::Search(0, KeyBuf, DataBuf)) {
+			{
+				size_t dbsz = 0;
+				const void * p_dbptr = DataBuf.GetPtr(&dbsz);
+				nc.SetBuffer(p_dbptr, dbsz);
+			}
+			PPOsm::Node ex_head;
+			uint   ex_count_logic = 0;
+			uint   ex_count_actual = 0;
+			THROW(nc.Get(logical_id, nc_list, &ex_head, &ex_count_logic, &ex_count_actual));
+			assert(logical_id == ex_head.ID); // @paranoic
+			assert(id >= logical_id); // @paranoic
+			if(id < (logical_id + ex_count_logic)) {
+				for(uint ncidx = 0; ok < 0 && ncidx < nc_list.getCount(); ncidx++) {
+					const PPOsm::Node & r_node = nc_list.at(ncidx);
+					if(r_node.ID == id) {
+						fault_logical_id = 0;
+						ASSIGN_PTR(pNode, r_node);
+						ok = (int)logical_count_priority[i];
+					}
+				}
+				if(ok < 0) {
+					fault_logical_id = logical_id;
+					const uchar tp = logical_count_priority[i];
+					for(uint j = i+1; j < SIZEOFARRAY(logical_count_priority); j++) {
+						if(logical_count_priority[j] > tp) {
+							next_i = j;
+							break;
+						}
+					}
+				}
+			}
+			else {
+				fault_logical_id = 0;
+				next_i = i+1;
+			}
+		}
+		else {
+			fault_logical_id = 0;
+			next_i = i+1;
+		}
+		i = next_i;
+	}
+	CATCHZOK
+	ASSIGN_PTR(pFaultLogicalID, fault_logical_id);
+	return ok;
+}
+
 int SLAPI SrGeoNodeTbl::Add(PPOsm::NodeCluster & rNc, uint64 outerID)
 {
 	int    ok = 1;
-	//BDbTable::Buffer key_buf, data_buf;
 	uint64 hid = 0;
 	int    his = 0;
-	/*
-	if(outerID) {
-		hid = outerID;
-        if(hid <= ULONG_MAX) {
-			his = 4;
-        }
-        else {
-			his = 8;
-        }
-	}
-	else {
-		THROW(his = rNc.GetHeaderID(&hid));
-	}
-	assert(oneof2(his, 4, 8));
-	if(his == 4) {
-		KeyBuf = (uint32)hid;
-	}
-	else if(his == 8) {
-		KeyBuf = hid;
-	}
-	*/
 	{
 		if(outerID) {
 			hid = outerID;
@@ -3057,6 +3114,74 @@ int SLAPI SrGeoNodeTbl::Add(PPOsm::NodeCluster & rNc, uint64 outerID)
 		THROW(DataBuf.Set(p_buf, buf_size));
 	}
 	THROW(InsertRec(KeyBuf, DataBuf));
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
+SLAPI SrGeoWayTbl::SrGeoWayTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("geomap.db->way", BDbTable::idxtypHash, 0, 2048, 8*1024), pDb)
+{
+}
+
+SLAPI SrGeoWayTbl::~SrGeoWayTbl()
+{
+}
+
+int SLAPI SrGeoWayTbl::Add(PPOsm::Way & rW, PPOsm::WayBuffer * pBuffer)
+{
+	int    ok = 1;
+	{
+		uint8  _key[16];
+		size_t _key_sz = sshrinkuint64(rW.ID, _key);
+		KeyBuf.Set(_key, _key_sz);
+	}
+	{
+		PPOsm::WayBuffer wbuf__;
+		SETIFZ(pBuffer, &wbuf__);
+		uint64 outer_id = rW.ID;
+		THROW(pBuffer->Put(&rW, &outer_id));
+		{
+			//
+			// Test
+			//
+            PPOsm::Way test_w;
+            assert(pBuffer->Get(rW.ID, &test_w));
+            assert(test_w == rW);
+		}
+		size_t buf_size = 0;
+		const void * p_buf = pBuffer->GetBuffer(&buf_size);
+		THROW(p_buf);
+		THROW(DataBuf.Set(p_buf, buf_size));
+	}
+	THROW(InsertRec(KeyBuf, DataBuf));
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI SrGeoWayTbl::Search(uint64 id, PPOsm::Way * pW)
+{
+	int    ok = -1;
+	DataBuf.Alloc(12*1024);
+	{
+		{
+			uint8  _key[16];
+			size_t _key_sz = sshrinkuint64(id, _key);
+			KeyBuf.Set(_key, _key_sz);
+		}
+		if(BDbTable::Search(0, KeyBuf, DataBuf)) {
+			PPOsm::WayBuffer wbuf;
+			{
+				size_t dbsz = 0;
+				const void * p_dbptr = DataBuf.GetPtr(&dbsz);
+				wbuf.SetBuffer(p_dbptr, dbsz);
+			}
+			if(pW) {
+				THROW(wbuf.Get(id, pW));
+			}
+			ok = 1;
+		}
+	}
 	CATCHZOK
 	return ok;
 }
@@ -3899,23 +4024,35 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, TSArray <P
 	if(_count) {
 		TSCollection <PPOsm::NodeCluster> cluster_list;
 		TSArray <uint64> outer_id_list;
-		//PPOsm::NodeCluster cluster;
 		TSArray <PPOsm::Node> test_list;
 		size_t offs = 0;
 		{
 			while(offs < _count) {
 				size_t actual_count = 0;
-				{
+				const PPOsm::Node * p_node = &rList.at(offs);
+                uint64 fault_logical_id = 0;
+                PPOsm::Node found_node;
+				int   sr = P_GnT->Search(p_node->ID, &found_node, &fault_logical_id);
+				THROW(sr);
+				if(sr > 0) {
+					assert(found_node == *p_node);
+					actual_count = 1;
+					if(pStat) {
+						PPOsm::SetProcessedNodeStat((uint)sr, 1, *pStat);
+					}
+				}
+				else {
+					assert(fault_logical_id == 0);
 					uint64 outer_id = 0;
 					PPOsm::NodeCluster * p_cluster = cluster_list.CreateNewItem();
 					THROW(p_cluster);
 					if(use_outer_id) {
-						THROW(p_cluster->Put(&rList.at(offs), _count - offs, &outer_id, &actual_count));
+						THROW(p_cluster->Put(p_node, _count - offs, &outer_id, &actual_count));
 						THROW(outer_id_list.insert(&outer_id));
 						assert(outer_id_list.getCount() == cluster_list.getCount());
 					}
 					else {
-						THROW(p_cluster->Put(&rList.at(offs), _count - offs, 0, &actual_count));
+						THROW(p_cluster->Put(p_node, _count - offs, 0, &actual_count));
 					}
 					if(pStat) {
 						PPOsm::SetNodeClusterStat(*p_cluster, *pStat);
@@ -3930,7 +4067,7 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, TSArray <P
 							p_cluster->Get(0, test_list);
 						}
 						for(uint i = 0; i < test_list.getCount(); i++) {
-							assert(test_list.at(i) == rList.at(offs+i));
+							assert(test_list.at(i) == p_node[i]);
 						}
 					}
 					// } @debug
@@ -3977,6 +4114,49 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, TSArray <P
 				PROFILE_END
 				PROFILE(cluster_list.freeAll());
 			}
+		}
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;
+}
+
+int SrDatabase::StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSArray <PPOsm::WayStatEntry> * pStat)
+{
+	const  uint max_entries_per_tx = 20*1024;
+	const  int  use_transaction = 1;
+	int    ok = 1;
+	const  uint _count = rList.getCount();
+	if(_count) {
+		PPOsm::WayBuffer way_buf;
+        for(uint _current_pos = 0; _current_pos < _count;) {
+			PROFILE_START
+			BDbTransaction tra(P_Db, use_transaction);
+			THROW(tra);
+			const uint _local_finish = MIN(_count, (_current_pos + max_entries_per_tx));
+			for(uint i = _current_pos; i < _local_finish; i++) {
+				PPOsm::Way * p_way = rList.at(i);
+				assert(p_way);
+				if(p_way) {
+					PPOsm::Way found_way;
+					if(P_GwT->Search(p_way->ID, &found_way) > 0) {
+						assert(found_way == *p_way);
+						if(pStat) {
+							PPOsm::SetProcessedWayStat(found_way.NodeRefList.getCount(), 1, *pStat);
+						}
+					}
+					else {
+						THROW(P_GwT->Add(*p_way, &way_buf));
+						if(pStat) {
+							PPOsm::SetWayStat(way_buf, *pStat);
+						}
+					}
+				}
+			}
+			_current_pos = _local_finish;
+			THROW(tra.Commit());
+			PROFILE_END
 		}
 	}
 	else

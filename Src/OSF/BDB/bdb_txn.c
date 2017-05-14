@@ -1322,8 +1322,7 @@ static int __txn_end(DB_TXN*txn, int is_commit)
 			F_CLR(env->rep_handle, DBREP_OPENFILES);
 		F_CLR(env->lg_handle, DBLOG_OPENFILES);
 		mgr->n_discards = 0;
-		__txn_checkpoint(env, 0, 0,
-			DB_CKP_INTERNAL|DB_FORCE);
+		__txn_checkpoint(env, 0, 0, DB_CKP_INTERNAL|DB_FORCE);
 	}
 	return 0;
 }
@@ -1457,20 +1456,17 @@ int __txn_force_abort(ENV*env, uint8 * buffer)
 	 * and recalculate the checksum.
 	 */
 	hdrsize = CRYPTO_ON(env) ? HDR_CRYPTO_SZ : HDR_NORMAL_SZ;
-
 	hdrp = (HDR *)buffer;
 	memcpy(&hdr.prev, buffer+SSZ(HDR, prev), sizeof(hdr.prev));
 	memcpy(&hdr.len, buffer+SSZ(HDR, len), sizeof(hdr.len));
 	if(LOG_SWAPPED(env))
 		__log_hdrswap(&hdr, CRYPTO_ON(env));
 	rec_len = hdr.len-hdrsize;
-
 	offset = sizeof(uint32)+sizeof(uint32)+sizeof(DB_LSN);
 	if(CRYPTO_ON(env)) {
 		key = db_cipher->mac_key;
 		sum_len = DB_MAC_KEY;
-		if((ret = db_cipher->decrypt(env, db_cipher->data,
-			    &hdrp->iv[0], buffer+hdrsize, rec_len)) != 0)
+		if((ret = db_cipher->decrypt(env, db_cipher->data, &hdrp->iv[0], buffer+hdrsize, rec_len)) != 0)
 			return __env_panic(env, ret);
 	}
 	else {
@@ -1488,7 +1484,6 @@ int __txn_force_abort(ENV*env, uint8 * buffer)
 		__log_hdrswap(&hdr, CRYPTO_ON(env));
 	memcpy(buffer+SSZA(HDR, chksum), hdr.chksum, sum_len);
 #endif
-
 	return 0;
 }
 /*
@@ -1502,19 +1497,15 @@ int __txn_preclose(ENV*env)
 	DB_TXNMGR * mgr = env->tx_handle;
 	DB_TXNREGION * region = (DB_TXNREGION *)mgr->reginfo.primary;
 	do_closefiles = 0;
-
 	TXN_SYSTEM_LOCK(env);
-	if(region != NULL &&
-	   region->stat.st_nrestores <= mgr->n_discards &&
-	   mgr->n_discards != 0)
+	if(region != NULL && region->stat.st_nrestores <= mgr->n_discards && mgr->n_discards != 0)
 		do_closefiles = 1;
 	TXN_SYSTEM_UNLOCK(env);
 	if(do_closefiles) {
-		/*
-		 * Set the DBLOG_RECOVER flag while closing these files so they
-		 * do not create additional log records that will confuse future
-		 * recoveries.
-		 */
+		//
+		// Set the DBLOG_RECOVER flag while closing these files so they
+		// do not create additional log records that will confuse future recoveries.
+		//
 		F_SET(env->lg_handle, DBLOG_RECOVER);
 		ret = __dbreg_close_files(env, 0);
 		F_CLR(env->lg_handle, DBLOG_RECOVER);
@@ -1636,11 +1627,8 @@ int __txn_checkpoint_pp(DB_ENV*dbenv, uint32 kbytes, uint32 minutes, uint32 flag
 	ENV_LEAVE(env, ip);
 	return ret;
 }
-/*
- * __txn_checkpoint --
- *	ENV->txn_checkpoint.
- */
-int __txn_checkpoint(ENV*env, uint32 kbytes, uint32 minutes, uint32 flags)
+
+int __txn_checkpoint(ENV * env, uint32 kbytes, uint32 minutes, uint32 flags)
 {
 	DB_LOG * dblp;
 	DB_LSN ckp_lsn, last_ckp;
@@ -1660,165 +1648,163 @@ int __txn_checkpoint(ENV*env, uint32 kbytes, uint32 minutes, uint32 flags)
 	 * truncation due to syncup.
 	 */
 	if(IS_REP_CLIENT(env)) {
-		if(MPOOL_ON(env) && (ret = __memp_sync(env, DB_SYNC_CHECKPOINT, NULL)) != 0) {
+		if(MPOOL_ON(env) && (ret = __memp_sync(env, DB_SYNC_CHECKPOINT, NULL)) != 0)
 			__db_err(env, ret, DB_STR("4518", "txn_checkpoint: failed to flush the buffer cache"));
-			return ret;
-		}
-		return 0;
+		else
+			ret = 0;
 	}
-	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
-	mgr = env->tx_handle;
-	region = (DB_TXNREGION *)mgr->reginfo.primary;
-	infop = env->reginfo;
-	renv = (REGENV *)infop->primary;
-	/*
-	 * No mutex is needed as envid is read-only once it is set.
-	 */
-	id = renv->envid;
-	MUTEX_LOCK(env, region->mtx_ckp);
-	/*
-	 * The checkpoint LSN is an LSN such that all transactions begun before
-	 * it are complete.  Our first guess (corrected below based on the list
-	 * of active transactions) is the last-written LSN.
-	 */
-	if((ret = __log_current_lsn_int(env, &ckp_lsn, &mbytes, &bytes)) != 0)
-		goto err;
-	if(!LF_ISSET(DB_FORCE)) {
-		/* Don't checkpoint a quiescent database. */
-		if(bytes == 0 && mbytes == 0)
-			goto err;
+	else {
+		dblp = env->lg_handle;
+		lp = (LOG *)dblp->reginfo.primary;
+		mgr = env->tx_handle;
+		region = (DB_TXNREGION *)mgr->reginfo.primary;
+		infop = env->reginfo;
+		renv = (REGENV *)infop->primary;
+		//
+		// No mutex is needed as envid is read-only once it is set.
+		//
+		id = renv->envid;
+		MUTEX_LOCK(env, region->mtx_ckp);
 		/*
-		 * If either kbytes or minutes is non-zero, then only take the
-		 * checkpoint if more than "minutes" minutes have passed or if
-		 * more than "kbytes" of log data have been written since the
-		 * last checkpoint.
+		 * The checkpoint LSN is an LSN such that all transactions begun before
+		 * it are complete.  Our first guess (corrected below based on the list
+		 * of active transactions) is the last-written LSN.
 		 */
-		if(kbytes != 0 && mbytes*1024+bytes/1024 >= (uint32)kbytes)
-			goto do_ckp;
-		if(minutes != 0) {
-			_time64(&now);
-			TXN_SYSTEM_LOCK(env);
-			last_ckp_time = region->time_ckp;
-			TXN_SYSTEM_UNLOCK(env);
-			if(now-last_ckp_time >= (__time64_t)(minutes*60))
+		if((ret = __log_current_lsn_int(env, &ckp_lsn, &mbytes, &bytes)) != 0)
+			goto err;
+		if(!LF_ISSET(DB_FORCE)) {
+			/* Don't checkpoint a quiescent database. */
+			if(bytes == 0 && mbytes == 0)
+				goto err;
+			/*
+			 * If either kbytes or minutes is non-zero, then only take the
+			 * checkpoint if more than "minutes" minutes have passed or if
+			 * more than "kbytes" of log data have been written since the
+			 * last checkpoint.
+			 */
+			if(kbytes != 0 && mbytes*1024+bytes/1024 >= (uint32)kbytes)
 				goto do_ckp;
+			if(minutes != 0) {
+				_time64(&now);
+				TXN_SYSTEM_LOCK(env);
+				last_ckp_time = region->time_ckp;
+				TXN_SYSTEM_UNLOCK(env);
+				if(now-last_ckp_time >= (__time64_t)(minutes*60))
+					goto do_ckp;
+			}
+			//
+			// If we checked time and data and didn't go to checkpoint, we're done.
+			//
+			if(minutes != 0 || kbytes != 0)
+				goto err;
 		}
 		/*
-		 * If we checked time and data and didn't go to checkpoint,
-		 * we're done.
+		 * We must single thread checkpoints otherwise the chk_lsn may get out
+		 * of order.  We need to capture the start of the earliest currently
+		 * active transaction (chk_lsn) and then flush all buffers.  While
+		 * doing this we we could then be overtaken by another checkpoint that
+		 * sees a later chk_lsn but competes first.  An archive process could
+		 * then remove a log this checkpoint depends on.
 		 */
-		if(minutes != 0 || kbytes != 0)
+	do_ckp:
+		if((ret = __txn_getactive(env, &ckp_lsn)) != 0)
 			goto err;
-	}
-	/*
-	 * We must single thread checkpoints otherwise the chk_lsn may get out
-	 * of order.  We need to capture the start of the earliest currently
-	 * active transaction (chk_lsn) and then flush all buffers.  While
-	 * doing this we we could then be overtaken by another checkpoint that
-	 * sees a later chk_lsn but competes first.  An archive process could
-	 * then remove a log this checkpoint depends on.
-	 */
-do_ckp:
-	if((ret = __txn_getactive(env, &ckp_lsn)) != 0)
-		goto err;
-	/*
-	 * Checkpoints in replication groups can cause performance problems.
-	 *
-	 * As on the master, checkpoint on the replica requires the cache be
-	 * flushed.  The problem occurs when a client has dirty cache pages
-	 * to write when the checkpoint record arrives, and the client's PERM
-	 * response is necessary in order to meet the system's durability
-	 * guarantees.  In this case, the master will have to wait until the
-	 * client completes its cache flush and writes the checkpoint record
-	 * before subsequent transactions can be committed.  The delay may
-	 * cause transactions to timeout waiting on client response, which
-	 * can cause nasty ripple effects in the system's overall throughput.
-	 * [#15338]
-	 *
-	 * First, we send a start-sync record when the checkpoint starts so
-	 * clients can start flushing their cache in preparation for the
-	 * arrival of the checkpoint record.
-	 */
-	if(LOGGING_ON(env) && IS_REP_MASTER(env)) {
-#ifdef HAVE_REPLICATION_THREADS
 		/*
-		 * If repmgr is configured in the shared environment, but no
-		 * send() function configured for this process, assume we have a
-		 * replication-unaware process that wants to automatically
-		 * participate in replication (i.e., sending replication
-		 * messages to clients).
+		 * Checkpoints in replication groups can cause performance problems.
+		 *
+		 * As on the master, checkpoint on the replica requires the cache be
+		 * flushed.  The problem occurs when a client has dirty cache pages
+		 * to write when the checkpoint record arrives, and the client's PERM
+		 * response is necessary in order to meet the system's durability
+		 * guarantees.  In this case, the master will have to wait until the
+		 * client completes its cache flush and writes the checkpoint record
+		 * before subsequent transactions can be committed.  The delay may
+		 * cause transactions to timeout waiting on client response, which
+		 * can cause nasty ripple effects in the system's overall throughput.
+		 * [#15338]
+		 *
+		 * First, we send a start-sync record when the checkpoint starts so
+		 * clients can start flushing their cache in preparation for the
+		 * arrival of the checkpoint record.
 		 */
-		if(env->rep_handle->send == NULL && F_ISSET(env, ENV_THREAD) && APP_IS_REPMGR(env) && (ret = __repmgr_autostart(env)) != 0)
-			goto err;
-#endif
-		if(env->rep_handle->send != NULL)
-			__rep_send_message(env, DB_EID_BROADCAST, REP_START_SYNC, &ckp_lsn, NULL, 0, 0);
-	}
-	/* Flush the cache. */
-	if(MPOOL_ON(env) && (ret = __memp_sync_int(env, NULL, 0, DB_SYNC_CHECKPOINT, NULL, NULL)) != 0) {
-		__db_err(env, ret, DB_STR("4519", "txn_checkpoint: failed to flush the buffer cache"));
-		goto err;
-	}
-	/*
-	 * The client won't have more dirty pages to flush from its cache than
-	 * the master did, but there may be differences between the hardware,
-	 * I/O configuration and workload on the master and the client that
-	 * can result in the client being unable to finish its cache flush as
-	 * fast as the master.  A way to avoid the problem is to pause after
-	 * the master completes its checkpoint and before the actual checkpoint
-	 * record is logged, giving the replicas additional time to finish.
-	 *
-	 * !!!
-	 * Currently turned off when testing, because it makes the test suite
-	 * take a long time to run.
-	 */
-#ifndef CONFIG_TEST
-	if(LOGGING_ON(env) && IS_REP_MASTER(env) && env->rep_handle->send != NULL && !LF_ISSET(DB_CKP_INTERNAL) &&
-	   env->rep_handle->region->chkpt_delay != 0)
-		__os_yield(env, 0, env->rep_handle->region->chkpt_delay);
-#endif
-	/*
-	 * Because we can't be a replication client here, and because
-	 * recovery (somewhat unusually) calls txn_checkpoint and expects
-	 * it to write a log message, LOGGING_ON is the correct macro here.
-	 */
-	if(LOGGING_ON(env)) {
-		TXN_SYSTEM_LOCK(env);
-		last_ckp = region->last_ckp;
-		TXN_SYSTEM_UNLOCK(env);
-		/*
-		 * Put out records for the open files before we log
-		 * the checkpoint.  The records are certain to be at
-		 * or after ckp_lsn, but before the checkpoint record
-		 * itself, so they're sure to be included if we start
-		 * recovery from the ckp_lsn contained in this
-		 * checkpoint.
-		 */
-		logflags = DB_LOG_CHKPNT;
-		/*
-		 * If this is a normal checkpoint, log files as checkpoints.
-		 * If we are recovering, only log as DBREG_RCLOSE if
-		 * there are no prepared txns.  Otherwise, it should
-		 * stay as DBREG_CHKPNT.
-		 */
-		op = DBREG_CHKPNT;
-		if(!IS_RECOVERING(env))
-			logflags |= DB_FLUSH;
-		else if(region->stat.st_nrestores == 0)
-			op = DBREG_RCLOSE;
-		if((ret = __dbreg_log_files(env, op)) != 0 ||
-		   (ret = __txn_ckp_log(env, NULL, &ckp_lsn, logflags, &ckp_lsn, &last_ckp, (int32)time(NULL), id, 0)) != 0) {
-			__db_err(env, ret, DB_STR_A("4520", "txn_checkpoint: log failed at LSN [%ld %ld]", "%ld %ld"), (long)ckp_lsn.file, (long)ckp_lsn.offset);
+		if(LOGGING_ON(env) && IS_REP_MASTER(env)) {
+	#ifdef HAVE_REPLICATION_THREADS
+			/*
+			 * If repmgr is configured in the shared environment, but no
+			 * send() function configured for this process, assume we have a
+			 * replication-unaware process that wants to automatically
+			 * participate in replication (i.e., sending replication
+			 * messages to clients).
+			 */
+			if(env->rep_handle->send == NULL && F_ISSET(env, ENV_THREAD) && APP_IS_REPMGR(env) && (ret = __repmgr_autostart(env)) != 0)
+				goto err;
+	#endif
+			if(env->rep_handle->send != NULL)
+				__rep_send_message(env, DB_EID_BROADCAST, REP_START_SYNC, &ckp_lsn, NULL, 0, 0);
+		}
+		/* Flush the cache. */
+		if(MPOOL_ON(env) && (ret = __memp_sync_int(env, NULL, 0, DB_SYNC_CHECKPOINT, NULL, NULL)) != 0) {
+			__db_err(env, ret, DB_STR("4519", "txn_checkpoint: failed to flush the buffer cache"));
 			goto err;
 		}
-		if((ret = __txn_updateckp(env, &ckp_lsn)) != 0)
-			goto err;
-	}
+		/*
+		 * The client won't have more dirty pages to flush from its cache than
+		 * the master did, but there may be differences between the hardware,
+		 * I/O configuration and workload on the master and the client that
+		 * can result in the client being unable to finish its cache flush as
+		 * fast as the master.  A way to avoid the problem is to pause after
+		 * the master completes its checkpoint and before the actual checkpoint
+		 * record is logged, giving the replicas additional time to finish.
+		 *
+		 * !!!
+		 * Currently turned off when testing, because it makes the test suite
+		 * take a long time to run.
+		 */
+	#ifndef CONFIG_TEST
+		if(LOGGING_ON(env) && IS_REP_MASTER(env) && env->rep_handle->send != NULL && !LF_ISSET(DB_CKP_INTERNAL) &&
+		   env->rep_handle->region->chkpt_delay != 0)
+			__os_yield(env, 0, env->rep_handle->region->chkpt_delay);
+	#endif
+		/*
+		 * Because we can't be a replication client here, and because
+		 * recovery (somewhat unusually) calls txn_checkpoint and expects
+		 * it to write a log message, LOGGING_ON is the correct macro here.
+		 */
+		if(LOGGING_ON(env)) {
+			TXN_SYSTEM_LOCK(env);
+			last_ckp = region->last_ckp;
+			TXN_SYSTEM_UNLOCK(env);
+			/*
+			 * Put out records for the open files before we log
+			 * the checkpoint.  The records are certain to be at
+			 * or after ckp_lsn, but before the checkpoint record
+			 * itself, so they're sure to be included if we start
+			 * recovery from the ckp_lsn contained in this checkpoint.
+			 */
+			logflags = DB_LOG_CHKPNT;
+			/*
+			 * If this is a normal checkpoint, log files as checkpoints.
+			 * If we are recovering, only log as DBREG_RCLOSE if
+			 * there are no prepared txns.  Otherwise, it should stay as DBREG_CHKPNT.
+			 */
+			op = DBREG_CHKPNT;
+			if(!IS_RECOVERING(env))
+				logflags |= DB_FLUSH;
+			else if(region->stat.st_nrestores == 0)
+				op = DBREG_RCLOSE;
+			if((ret = __dbreg_log_files(env, op)) != 0 ||
+			   (ret = __txn_ckp_log(env, NULL, &ckp_lsn, logflags, &ckp_lsn, &last_ckp, (int32)time(NULL), id, 0)) != 0) {
+				__db_err(env, ret, DB_STR_A("4520", "txn_checkpoint: log failed at LSN [%ld %ld]", "%ld %ld"), (long)ckp_lsn.file, (long)ckp_lsn.offset);
+				goto err;
+			}
+			if((ret = __txn_updateckp(env, &ckp_lsn)) != 0)
+				goto err;
+		}
 err:
-	MUTEX_UNLOCK(env, region->mtx_ckp);
-	if(ret == 0 && lp->db_log_autoremove)
-		__log_autoremove(env);
+		MUTEX_UNLOCK(env, region->mtx_ckp);
+		if(ret == 0 && lp->db_log_autoremove)
+			__log_autoremove(env);
+	}
 	return ret;
 }
 /*
@@ -2719,13 +2705,13 @@ int __txn_findlastckp(ENV*env, DB_LSN * lsnp, DB_LSN * max_lsn)
 	DB_LSN lsn;
 	int ret, t_ret;
 	uint32 rectype;
-
+	uint64 _log_get_count = 0;
 	ZERO_LSN(*lsnp);
 	if((ret = __log_cursor(env, &logc)) != 0)
 		return ret;
-	/* Get the last LSN. */
+	// Get the last LSN
 	memzero(&dbt, sizeof(dbt));
-	if(max_lsn != NULL) {
+	if(max_lsn) {
 		lsn = *max_lsn;
 		if((ret = __logc_get(logc, &lsn, &dbt, DB_SET)) != 0)
 			goto err;
@@ -2733,29 +2719,29 @@ int __txn_findlastckp(ENV*env, DB_LSN * lsnp, DB_LSN * max_lsn)
 	else {
 		if((ret = __logc_get(logc, &lsn, &dbt, DB_LAST)) != 0)
 			goto err;
-		/*
-		 * Twiddle the last LSN so it points to the beginning of the
-		 * last file; we know there's no checkpoint after that, since
-		 * the log system already looked there.
-		 */
+		// 
+		// Twiddle the last LSN so it points to the beginning of the
+		// last file; we know there's no checkpoint after that, since
+		// the log system already looked there.
+		//
 		lsn.offset = 0;
 	}
-	/* Read backwards, looking for checkpoints. */
+	// Read backwards, looking for checkpoints
 	while((ret = __logc_get(logc, &lsn, &dbt, DB_PREV)) == 0) {
-		if(dbt.size < sizeof(uint32))
-			continue;
-		LOGCOPY_32(env, &rectype, dbt.data);
-		if(rectype == DB___txn_ckp) {
-			*lsnp = lsn;
-			break;
+		_log_get_count++;
+		if(dbt.size >= sizeof(uint32)) {
+			LOGCOPY_32(env, &rectype, dbt.data);
+			if(rectype == DB___txn_ckp) {
+				*lsnp = lsn;
+				break;
+			}
 		}
 	}
-err:    if((t_ret = __logc_close(logc)) != 0 && ret == 0)
+err:    
+	if((t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
-	/*
-	 * Not finding a checkpoint is not an error;  there may not exist one in the log.
-	 */
-	return (ret == 0 || ret == DB_NOTFOUND) ? 0 : ret;
+	// Not finding a checkpoint is not an error;  there may not exist one in the log.
+	return oneof2(ret, 0, DB_NOTFOUND) ? 0 : ret;
 }
 /*
  * __txn_env_refresh --
@@ -3293,13 +3279,11 @@ struct __txn_event {
 };
 
 #define TXN_TOP_PARENT(txn) do { while(txn->parent != NULL) txn = txn->parent; } while(0)
-/*
- * __txn_closeevent --
- *
- * Creates a close event that can be added to the [so-called] commit list, so
- * that we can redo a failed DB handle close once we've aborted the transaction.
- */
-int __txn_closeevent(ENV*env, DB_TXN * txn, DB * dbp)
+//
+// Creates a close event that can be added to the [so-called] commit list, so
+// that we can redo a failed DB handle close once we've aborted the transaction.
+//
+int __txn_closeevent(ENV * env, DB_TXN * txn, DB * dbp)
 {
 	int ret;
 	TXN_EVENT * e = NULL;
@@ -3311,11 +3295,9 @@ int __txn_closeevent(ENV*env, DB_TXN * txn, DB * dbp)
 	TAILQ_INSERT_TAIL(&txn->events, e, links);
 	return 0;
 }
-/*
- * __txn_remevent --
- *
- * Creates a remove event that can be added to the commit list.
- */
+//
+// Creates a remove event that can be added to the commit list.
+//
 int __txn_remevent(ENV*env, DB_TXN * txn, const char * name, uint8 * fileid, int inmem)
 {
 	int ret;
@@ -3339,25 +3321,22 @@ err:
 	__os_free(env, e);
 	return ret;
 }
-/*
- * __txn_remrem --
- *	Remove a remove event because the remove has been superceeded,
- * by a create of the same name, for example.
- */
+//
+// Remove a remove event because the remove has been superceeded,
+// by a create of the same name, for example.
+//
 void __txn_remrem(ENV*env, DB_TXN * txn, const char * name)
 {
-	TXN_EVENT * e, * next_e;
-	for(e = TAILQ_FIRST(&txn->events); e != NULL; e = next_e) {
+	TXN_EVENT * next_e;
+	for(TXN_EVENT * e = TAILQ_FIRST(&txn->events); e != NULL; e = next_e) {
 		next_e = TAILQ_NEXT(e, links);
 		if(e->op != TXN_REMOVE || strcmp(name, e->u.r.name) != 0)
 			continue;
 		TAILQ_REMOVE(&txn->events, e, links);
 		__os_free(env, e->u.r.name);
-		if(e->u.r.fileid != NULL)
-			__os_free(env, e->u.r.fileid);
+		__os_free(env, e->u.r.fileid);
 		__os_free(env, e);
 	}
-	return;
 }
 /*
  * __txn_lockevent --
@@ -3456,10 +3435,9 @@ int __txn_doevents(ENV*env, DB_TXN * txn, int opcode, int preprocess)
 		}
 		return ret;
 	}
-	/*
-	 * Prepare should only cause a preprocess, since the transaction
-	 * isn't over.
-	 */
+	//
+	// Prepare should only cause a preprocess, since the transaction isn't over.
+	//
 	DB_ASSERT(env, opcode != TXN_PREPARE);
 	while((e = TAILQ_FIRST(&txn->events)) != NULL) {
 		TAILQ_REMOVE(&txn->events, e, links);
@@ -3504,23 +3482,22 @@ int __txn_doevents(ENV*env, DB_TXN * txn, int opcode, int preprocess)
 			DB_ASSERT(env, 0);
 		}
 dofree:
-		/* Free resources here. */
+		// Free resources here
 		switch(e->op) {
 		    case TXN_REMOVE:
-			if(txn->parent != NULL)
-				continue;
-			if(e->u.r.fileid != NULL)
+				if(txn->parent != NULL)
+					continue;
 				__os_free(env, e->u.r.fileid);
-			__os_free(env, e->u.r.name);
-			break;
+				__os_free(env, e->u.r.name);
+				break;
 		    case TXN_TRADE:
-			if(opcode == TXN_ABORT)
-				e->u.t.dbp->cur_txn = NULL;
-			break;
+				if(opcode == TXN_ABORT)
+					e->u.t.dbp->cur_txn = NULL;
+				break;
 		    case TXN_CLOSE:
 		    case TXN_TRADED:
 		    default:
-			break;
+				break;
 		}
 		__os_free(env, e);
 	}
@@ -3764,10 +3741,7 @@ int __txn_get_tx_max(DB_ENV*dbenv, uint32 * tx_maxp)
 		*tx_maxp = dbenv->tx_max;
 	return 0;
 }
-/*
- * __txn_set_tx_max --
- *	DB_ENV->set_tx_max.
- */
+
 int __txn_set_tx_max(DB_ENV*dbenv, uint32 tx_max)
 {
 	ENV * env = dbenv->env;
@@ -3781,10 +3755,9 @@ int __txn_get_tx_timestamp(DB_ENV*dbenv, __time64_t * timestamp)
 	*timestamp = dbenv->tx_timestamp;
 	return 0;
 }
-/*
- * __txn_set_tx_timestamp --
- *	Set the transaction recovery timestamp.
- */
+//
+// Set the transaction recovery timestamp.
+//
 int __txn_set_tx_timestamp(DB_ENV*dbenv, __time64_t * timestamp)
 {
 	ENV * env = dbenv->env;

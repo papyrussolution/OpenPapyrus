@@ -182,55 +182,42 @@ int __log_get_lg_dir(DB_ENV * dbenv, const char ** dirp)
 	*dirp = dbenv->db_log_dir;
 	return 0;
 }
-/*
- * __log_set_lg_dir --
- *	DB_ENV->set_lg_dir.
- */
+
 int __log_set_lg_dir(DB_ENV * dbenv, const char * dir)
 {
 	ENV * env = dbenv->env;
 	__os_free(env, dbenv->db_log_dir);
 	return __os_strdup(env, dir, &dbenv->db_log_dir);
 }
-/*
- * __log_get_flags --
- *	DB_ENV->get_flags.
- */
+
 void __log_get_flags(DB_ENV * dbenv, uint32 * flagsp)
 {
-	DB_LOG * dblp;
-	LOG * lp;
-	uint32 flags;
 	ENV * env = dbenv->env;
-	if((dblp = env->lg_handle) == NULL)
-		return;
-	lp = (LOG *)dblp->reginfo.primary;
-	flags = *flagsp;
-	if(lp->db_log_autoremove)
-		LF_SET(DB_LOG_AUTO_REMOVE);
-	else
-		LF_CLR(DB_LOG_AUTO_REMOVE);
-	if(lp->db_log_inmemory)
-		LF_SET(DB_LOG_IN_MEMORY);
-	else
-		LF_CLR(DB_LOG_IN_MEMORY);
-	*flagsp = flags;
+	DB_LOG * dblp = env->lg_handle;
+	if(dblp) {
+		LOG * lp = (LOG *)dblp->reginfo.primary;
+		uint32 flags = *flagsp;
+		SETFLAG(flags, DB_LOG_AUTO_REMOVE, lp->db_log_autoremove);
+		SETFLAG(flags, DB_LOG_IN_MEMORY, lp->db_log_inmemory);
+		SETFLAG(flags, DB_LOG_NOSYNC, lp->nosync); // @bdb_v6223
+		*flagsp = flags;
+	}
 }
-/*
- * __log_set_flags --
- *	DB_ENV->set_flags.
- */
+
 void __log_set_flags(ENV * env, uint32 flags, int on)
 {
-	DB_LOG * dblp;
-	LOG * lp;
-	if((dblp = env->lg_handle) == NULL)
-		return;
-	lp = (LOG *)dblp->reginfo.primary;
-	if(LF_ISSET(DB_LOG_AUTO_REMOVE))
-		lp->db_log_autoremove = on ? 1 : 0;
-	if(LF_ISSET(DB_LOG_IN_MEMORY))
-		lp->db_log_inmemory = on ? 1 : 0;
+	DB_LOG * dblp = env->lg_handle;
+	if(dblp) {
+		LOG * lp = (LOG *)dblp->reginfo.primary;
+		if(LF_ISSET(DB_LOG_AUTO_REMOVE))
+			lp->db_log_autoremove = BIN(on);
+		if(LF_ISSET(DB_LOG_IN_MEMORY))
+			lp->db_log_inmemory = BIN(on);
+		// @bdb_v6223 {
+		if(LF_ISSET(DB_LOG_NOSYNC))
+			lp->nosync = BIN(on);
+		// } @bdb_v6223 
+	}
 }
 
 /*

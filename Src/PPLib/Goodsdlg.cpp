@@ -976,7 +976,7 @@ void ClsdGoodsDialog::printLabel()
 			Data.Codes.GetSingle(temp_buf);
 			temp_buf.CopyTo(rgi.BarCode, sizeof(rgi.BarCode));
 			STRNSCPY(rgi.Name, Data.Rec.Name);
-			BarcodeLabelPrinter::PrintGoodsLabel(&rgi);
+			BarcodeLabelPrinter::PrintGoodsLabel2(&rgi, 0, 0);
 		}
 	}
 }
@@ -1585,7 +1585,7 @@ void GoodsDialog::printLabel()
 					STRNSCPY(rgi.BarCode, Data.Codes.at(0).Code);
 			}
 			getCtrlData(CTL_GOODS_NAME, rgi.Name);
-			BarcodeLabelPrinter::PrintGoodsLabel(&rgi);
+			BarcodeLabelPrinter::PrintGoodsLabel2(&rgi, 0, 0);
 		}
 	}
 }

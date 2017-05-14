@@ -2624,7 +2624,7 @@ int SLAPI PPObjTSession::GetLabelInfo(PPID tsesID, long oprNo, PPID * pPrnID, Re
 			STRNSCPY(rgi.PrcName, prc_rec.Name);
 			rgi.LabelCount = label_count;
 		}
-		rgi.RevalPrice = rgi.Price; // @v6.9.0
+		rgi.RevalPrice = rgi.Price;
 	}
 	else
 		ok = -1;
@@ -2641,7 +2641,7 @@ int SLAPI PPObjTSession::PrintBarLabel(PPID tsesID, long oprNo, int numCopies, i
 	if(GetLabelInfo(tsesID, oprNo, &prn_id, &rgi) > 0) {
 		if(numCopies > 0)
 			rgi.LabelCount = numCopies;
-		ok = BarcodeLabelPrinter::PrintGoodsLabel(&rgi, prn_id, silent);
+		ok = BarcodeLabelPrinter::PrintGoodsLabel2(&rgi, prn_id, silent);
 	}
 	else
 		ok = -1;
@@ -3588,8 +3588,8 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 							if(ilti.GoodsID == tec_goods_id && order_price > 0)
 								price = order_price;
 							else {
-								QuotIdent qi(bill_pack.Rec.LocID, PPQUOTK_BASE);
-								GObj.GetQuotExt(ilti.GoodsID, qi, 0, 0, &price, 1);
+								const QuotIdent qi(bill_pack.Rec.LocID, PPQUOTK_BASE);
+								GObj.GetQuotExt(ilti.GoodsID, qi, &price, 1);
 							}
 							price_list.Add(ilti.GoodsID, price, 0);
 						}
@@ -4577,7 +4577,7 @@ int SLAPI PPObjTSession::GetPlaceStatus(PPID tsessID, const char * pPlaceCode, P
                 PPObjGoods goods_obj;
                 QuotIdent qi(getcurdate_(), NZOR(quotLocID, prc_pack.Rec.LocID), quotKindID, 0, 0);
                 double quot = 0.0;
-                if(goods_obj.GetQuotExt(pd.GoodsID, qi, 0.0, 0.0, &quot, 1) > 0)
+                if(goods_obj.GetQuotExt(pd.GoodsID, qi, &quot, 1) > 0)
 					rStatus.Price = quot;
 			}
 			ok = 1;

@@ -2654,7 +2654,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 						if(!EventBarrier()) {
 							int16  c = getCurItemPos();
 							if(c >= 0)
-								BarcodeLabelPrinter::PrintLabelByBill(P_Pack, (uint)c);
+								BarcodeLabelPrinter::PrintLabelByBill2(P_Pack, (uint)c);
 							EventBarrier(1);
 						}
 					}

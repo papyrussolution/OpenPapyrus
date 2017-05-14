@@ -1601,6 +1601,20 @@ COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
       <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">dlldata.c</DllDataFileName>
       <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">dlldata.c</DllDataFileName>
       <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">dlldata.c</DllDataFileName>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</SuppressCompilerWarnings>
+      <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</SuppressCompilerWarnings>
     </Midl>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

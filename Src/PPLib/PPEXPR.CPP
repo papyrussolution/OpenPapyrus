@@ -1214,14 +1214,13 @@ int SLAPI GoodsContext::ResolveFunc(int funcId, FC & rFc)
 			}
 		}
 		if(qk_id) {
-			if(!loc_id && !loc_arg_defined)
-				loc_id = P_BillPack ? P_BillPack->Rec.LocID : P.LocID;
-			if(!cur_id)
-				cur_id = P_BillPack ? P_BillPack->Rec.CurID : P.CurID;
-			if(!ar_id)
-				ar_id  = P_BillPack ? P_BillPack->Rec.Object : P.ArID;
-			QuotIdent qi(QIDATE(getcurdate_()), loc_id, qk_id, cur_id, ar_id);
-			GObj.GetQuotExt(P.GoodsID, qi, cost, price, &result);
+			if(!loc_arg_defined) {
+				SETIFZ(loc_id, P_BillPack ? P_BillPack->Rec.LocID : P.LocID);
+			}
+			SETIFZ(cur_id, P_BillPack ? P_BillPack->Rec.CurID : P.CurID);
+			SETIFZ(ar_id, P_BillPack ? P_BillPack->Rec.Object : P.ArID);
+			const QuotIdent qi(QIDATE(getcurdate_()), loc_id, qk_id, cur_id, ar_id);
+			GObj.GetQuotExt(P.GoodsID, qi, cost, price, &result, 0);
 		}
 	}
 	rFc.RetType = T_DOUBLE;
@@ -1317,17 +1316,13 @@ int SLAPI GoodsContext::ResolveGoodsAttr(const SString & rSymb, PPID goodsID, do
 		else if(P_Pack)
 			v = P_Pack->Rec.PhUPerU;
 	}
-	// @v7.2.11 {
 	else if(rSymb.CmpNC("TYPE") == 0) {
 		PPID   goods_type = (GObj.Fetch(goodsID, &goods_rec) > 0) ? goods_rec.GoodsTypeID : 0;
 		PPObjID oid;
 		v = (double)oid.Set(PPOBJ_GOODSTYPE, goods_type);
 	}
-	// } @v7.2.11
-	// @v7.5.1 {
 	else if(rSymb.CmpNC("ID") == 0)
 		v = goodsID;
-	// } @v7.5.1
 	else
 		ok = 0;
 	if(ref_dim) {
@@ -1468,14 +1463,14 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 				PPID   qk_id = 0;
 				THROW(qk_obj.SearchSymb(&qk_id, ref) > 0);
 				{
-					double cost  = P_Ti ? P_Ti->Cost  : 0.0;
-					double price = P_Ti ? P_Ti->Price : 0.0;
-					PPID   loc_id = P_BillPack ? P_BillPack->Rec.LocID : P.LocID;
-					PPID   cur_id = P_BillPack ? P_BillPack->Rec.CurID : P.CurID;
-					PPID   ar_id  = P_BillPack ? P_BillPack->Rec.Object : P.ArID;
-					LDATE  _dt = P_BillPack ? P_BillPack->Rec.Dt : getcurdate_();
-					QuotIdent qi(QIDATE(_dt), loc_id, qk_id, cur_id, ar_id);
-					GObj.GetQuotExt(P.GoodsID, qi, cost, price, &v);
+					const double cost  = P_Ti ? P_Ti->Cost  : 0.0;
+					const double price = P_Ti ? P_Ti->Price : 0.0;
+					const PPID   loc_id = P_BillPack ? P_BillPack->Rec.LocID : P.LocID;
+					const PPID   cur_id = P_BillPack ? P_BillPack->Rec.CurID : P.CurID;
+					const PPID   ar_id  = P_BillPack ? P_BillPack->Rec.Object : P.ArID;
+					const LDATE  _dt = P_BillPack ? P_BillPack->Rec.Dt : getcurdate_();
+					const QuotIdent qi(QIDATE(_dt), loc_id, qk_id, cur_id, ar_id);
+					GObj.GetQuotExt(P.GoodsID, qi, cost, price, &v, 0);
 				}
 			}
 			else if(spcref == spcrefLotTag) {
@@ -1499,7 +1494,6 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 						p_tag_item->GetReal(&v);
 				}
 			}
-			// @v7.5.1 {
 			else if(spcref == spcrefGoodsTag) {
 				PPObjTag tag_obj;
 				PPID   tag_id = 0;
@@ -1510,7 +1504,6 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 						tag_item.GetReal(&v);
 				}
 			}
-			// } @v7.5.1
 			else if(ref.CmpNC("QTTY") == 0 || ref.CmpNC("QTY") == 0) {
 				THROW(ResolveRefQtty(ref_goods_id, ref_gscb_item, 0, &v));
 			}

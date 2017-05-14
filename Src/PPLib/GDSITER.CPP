@@ -1025,13 +1025,13 @@ int SLAPI GoodsGroupIterator::Next(PPID * pID, SString & rBuf)
 		return -1;
 }
 
-int SLAPI GoodsGroupIterator::Next(PPID * pID, char * pBuf, size_t bufLen)
+/*int SLAPI GoodsGroupIterator::Next(PPID * pID, char * pBuf, size_t bufLen)
 {
 	SString buf;
 	int    ok = Next(pID, buf);
 	buf.CopyTo(pBuf, bufLen);
 	return ok;
-}
+}*/
 
 int SLAPI GoodsGroupIterator::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {

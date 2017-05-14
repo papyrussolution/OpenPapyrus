@@ -196,56 +196,62 @@ int SLAPI PPOsm::NodeCluster::Put(const Node * pN, size_t count, uint64 * pOuter
 			uint64 prev_id = r_head.ID;
 			int32  prev_lat = head_lat;
 			int32  prev_lon = head_lon;
-			for(uint i = 1, idx = 1; i < possible_count_logic && idx < possible_count; i++) {
-				assert(pN[idx].ID > prev_id);
-				assert(pN[idx].T.GetZValue() == r_head.T.GetZValue());
+			for(uint i = 1, idx = 1; i < possible_count_logic /*&& idx < possible_count*/; i++) {
 				uint8 inf_indicator = 0;
-				if(pN[idx].ID == (prev_id+1)) {
-					const uint8 _tile_level = pN[idx].T.GetLevel();
-					const int32 _lat = pN[idx].C.GetIntLat();
-					const int32 _lon = pN[idx].C.GetIntLon();
-					const int32 _lat_diff = (_lat - prev_lat);
-					const int32 _lon_diff = (_lon - prev_lon);
-					if(_lat_diff >= SCHAR_MIN && _lat_diff <= SCHAR_MAX)
-						inf_indicator |= infindfPrevLatIncr8;
-					else if(_lat_diff >= SHRT_MIN && _lat_diff <= SHRT_MAX)
-						inf_indicator |= infindfPrevLatIncr16;
-					if(_lon_diff >= SCHAR_MIN && _lon_diff <= SCHAR_MAX)
-						inf_indicator |= infindfPrevLonIncr8;
-					else if(_lon_diff >= SHRT_MIN && _lon_diff <= SHRT_MAX)
-						inf_indicator |= infindfPrevLonIncr16;
-					if(_tile_level != head_level)
-						inf_indicator |= infindfDiffTileLevel;
-					THROW_SL(Write(inf_indicator));
-                    if(inf_indicator & infindfPrevLatIncr8) {
-						const int8 _diff = (int8)_lat_diff;
-						THROW_SL(Write(_diff));
-                    }
-                    else if(inf_indicator & infindfPrevLatIncr16) {
-						const int16 _diff = (int16)_lat_diff;
-						THROW_SL(Write(_diff));
-                    }
-                    else {
-						THROW_SL(Write(_lat));
-                    }
-                    if(inf_indicator & infindfPrevLonIncr8) {
-						const int8 _diff = (int8)_lon_diff;
-						THROW_SL(Write(_diff));
-                    }
-                    else if(inf_indicator & infindfPrevLonIncr16) {
-						const int16 _diff = (int16)_lon_diff;
-						THROW_SL(Write(_diff));
-                    }
-                    else {
-						THROW_SL(Write(_lon));
-                    }
-					if(inf_indicator & infindfDiffTileLevel)
-						THROW_SL(Write(_tile_level));
+				if(idx < possible_count) {
+					assert(pN[idx].ID > prev_id);
+					assert(pN[idx].T.GetZValue() == r_head.T.GetZValue());
+					if(pN[idx].ID == (prev_id+1)) {
+						const uint8 _tile_level = pN[idx].T.GetLevel();
+						const int32 _lat = pN[idx].C.GetIntLat();
+						const int32 _lon = pN[idx].C.GetIntLon();
+						const int32 _lat_diff = (_lat - prev_lat);
+						const int32 _lon_diff = (_lon - prev_lon);
+						if(_lat_diff >= SCHAR_MIN && _lat_diff <= SCHAR_MAX)
+							inf_indicator |= infindfPrevLatIncr8;
+						else if(_lat_diff >= SHRT_MIN && _lat_diff <= SHRT_MAX)
+							inf_indicator |= infindfPrevLatIncr16;
+						if(_lon_diff >= SCHAR_MIN && _lon_diff <= SCHAR_MAX)
+							inf_indicator |= infindfPrevLonIncr8;
+						else if(_lon_diff >= SHRT_MIN && _lon_diff <= SHRT_MAX)
+							inf_indicator |= infindfPrevLonIncr16;
+						if(_tile_level != head_level)
+							inf_indicator |= infindfDiffTileLevel;
+						THROW_SL(Write(inf_indicator));
+						if(inf_indicator & infindfPrevLatIncr8) {
+							const int8 _diff = (int8)_lat_diff;
+							THROW_SL(Write(_diff));
+						}
+						else if(inf_indicator & infindfPrevLatIncr16) {
+							const int16 _diff = (int16)_lat_diff;
+							THROW_SL(Write(_diff));
+						}
+						else {
+							THROW_SL(Write(_lat));
+						}
+						if(inf_indicator & infindfPrevLonIncr8) {
+							const int8 _diff = (int8)_lon_diff;
+							THROW_SL(Write(_diff));
+						}
+						else if(inf_indicator & infindfPrevLonIncr16) {
+							const int16 _diff = (int16)_lon_diff;
+							THROW_SL(Write(_diff));
+						}
+						else {
+							THROW_SL(Write(_lon));
+						}
+						if(inf_indicator & infindfDiffTileLevel)
+							THROW_SL(Write(_tile_level));
 
-					prev_lat = _lat;
-					prev_lon = _lon;
-					idx++;
-					actual_count++;
+						prev_lat = _lat;
+						prev_lon = _lon;
+						idx++;
+						actual_count++;
+					}
+					else {
+						inf_indicator |= infindfEmpty;
+						THROW_SL(Write(inf_indicator));
+					}
 				}
 				else {
 					inf_indicator |= infindfEmpty;
@@ -368,7 +374,9 @@ int SLAPI PPOsm::NodeCluster::Implement_Get(uint64 outerID, TSArray <Node> * pLi
 	ASSIGN_PTR(pHead, head);
 	ASSIGN_PTR(pCountLogic, count_logic);
 	ASSIGN_PTR(pCountActual, count_actual);
-	CATCHZOK
+	CATCH
+		ok = 0;
+	ENDCATCH
 	SetRdOffs(preserve_pos);
 	return ok;
 }
@@ -376,6 +384,11 @@ int SLAPI PPOsm::NodeCluster::Implement_Get(uint64 outerID, TSArray <Node> * pLi
 int SLAPI PPOsm::NodeCluster::Get(uint64 outerID, TSArray <Node> & rList)
 {
 	return Implement_Get(outerID, &rList, 0, 0, 0);
+}
+
+int SLAPI PPOsm::NodeCluster::Get(uint64 outerID, TSArray <Node> & rList, Node * pHead, uint * pCountLogic, uint * pCountActual)
+{
+	return Implement_Get(outerID, &rList, pHead, pCountLogic, pCountActual);
 }
 
 int SLAPI PPOsm::NodeCluster::GetCount(uint64 outerID, uint * pLogicCount, uint * pActualCount)
@@ -421,6 +434,282 @@ int SLAPI PPOsm::NodeCluster::SetBuffer(const void * pData, size_t size)
 //
 //
 //
+SLAPI PPOsm::WayBuffer::WayBuffer() : SBuffer()
+{
+}
+
+int SLAPI PPOsm::WayBuffer::Put(const Way * pW, uint64 * pOuterID)
+{
+	int    ok = 1;
+	Clear();
+    {
+		uint8 indicator = 0;
+		const uint rc = pW->NodeRefList.getCount();
+        if(pOuterID) {
+            indicator |= indfOuterId;
+        }
+        else if(pW->ID <= ULONG_MAX) {
+			indicator |= indfId32;
+        }
+		if(rc < 256)
+			indicator |= indfCount8;
+		if(rc) {
+			uint8  sib[16];
+			const int64 first_ref_id = pW->NodeRefList.at(0);
+			const uint  frs = sshrinkuint64(first_ref_id, sib);
+			if(frs <= 4)
+				indicator |= indfFirstId32;
+			if(rc > 1) {
+				if(first_ref_id == pW->NodeRefList.at(rc-1)) {
+                    indicator |= indfLoop;
+                    if(rc == 5)
+						indicator |= indfRectangle;
+				}
+                int64 max_id_diff = 0;
+				for(uint i = 1; i < rc; i++) {
+					if(indicator & indfLoop && i == (rc-1))
+						break;
+                    int64 id_diff = _abs64(pW->NodeRefList.at(i) - pW->NodeRefList.at(i-1));
+                    SETMAX(max_id_diff, id_diff);
+				}
+				if(max_id_diff < (1<<7))
+					indicator |= indfIncremental8;
+				else if(max_id_diff < (1<<15))
+					indicator |= indfIncremental16;
+			}
+		}
+		//
+		THROW_SL(Write(indicator));
+		if(!(indicator & indfOuterId)) {
+			if(indicator & indfId32) {
+				const uint32 id32 = (uint32)pW->ID;
+				THROW_SL(Write(id32));
+			}
+			else {
+				THROW_SL(Write(pW->ID));
+			}
+		}
+		{
+			uint8 tile_level = pW->T.GetLevel();
+			THROW_SL(Write(tile_level));
+		}
+		if(!(indicator & indfRectangle)) {
+			if(indicator & indfCount8) {
+                uint8 cb = (uint8)rc;
+                THROW_SL(Write(cb));
+			}
+			else {
+				uint32 cdw = rc;
+				THROW_SL(Write(cdw));
+			}
+		}
+		if(rc) {
+			const int64 first_ref_id = pW->NodeRefList.at(0);
+			if(indicator & indfFirstId32) {
+				uint32 f32 = (uint32)first_ref_id;
+				THROW_SL(Write(f32));
+			}
+			else {
+				uint64 f64 = (uint64)first_ref_id;
+				THROW_SL(Write(f64));
+			}
+			int64 prev_id = first_ref_id;
+			for(uint i = 1; i < rc; i++) {
+				if(indicator & indfLoop && i == (rc-1))
+					break;
+				else {
+					const int64 cur_id = pW->NodeRefList.at(i);
+					int64 id_diff = (cur_id - prev_id);
+					if(indicator & indfIncremental8) {
+						assert(id_diff > -(1<<7) && id_diff < (1<<7));
+						int8 d8 = (int8)id_diff;
+						THROW_SL(Write(d8));
+					}
+					else if(indicator & indfIncremental16) {
+						assert(id_diff > -(1<<15) && id_diff < (1<<15));
+						int16 d16 = (int16)id_diff;
+						THROW_SL(Write(d16));
+					}
+					else {
+						uint8 infind = 0;
+						if(id_diff > -(1<<7) && id_diff < (1<<7)) {
+                            infind = 1 | infindfIncremental;
+							int8 d8 = (int8)id_diff;
+							THROW_SL(Write(infind));
+							THROW_SL(Write(d8));
+						}
+						else if(id_diff > -(1<<15) && id_diff < (1<<15)) {
+                            infind = 2 | infindfIncremental;
+							int16 d16 = (int16)id_diff;
+							THROW_SL(Write(infind));
+							THROW_SL(Write(d16));
+						}
+						else if(id_diff > -(1<<31) && id_diff < (1<<31)) {
+                            infind = 4 | infindfIncremental;
+							int32 d32 = (int32)id_diff;
+							THROW_SL(Write(infind));
+							THROW_SL(Write(d32));
+						}
+						else {
+							uint8  sib[16];
+							const uint frs = sshrinkuint64(cur_id, sib);
+							assert(frs >= 1 && frs <= 8);
+							infind = (uint8)frs;
+							THROW_SL(Write(infind));
+							THROW_SL(Write(sib, frs));
+						}
+					}
+					prev_id = cur_id;
+				}
+			}
+		}
+		ASSIGN_PTR(pOuterID, pW->ID);
+    }
+    CATCHZOK
+	return ok;
+}
+
+int SLAPI PPOsm::WayBuffer::Get(uint64 outerID, Way * pW)
+{
+	// (IND) [ID] (TileLevel) [COUNT] ([INFIND] (POINT-ID))+
+
+	pW->ID = 0;
+	pW->T.V = 0;
+	pW->NodeRefList.clear();
+
+	int    ok = 1;
+	uint8  indicator = 0;
+	const size_t preserve_pos = GetRdOffs();
+	THROW_SL(Read(indicator));
+	if(!(indicator & indfOuterId)) {
+		if(indicator & indfId32) {
+			uint32 id32;
+			THROW_SL(Read(id32));
+			pW->ID = id32;
+		}
+		else {
+			THROW_SL(Read(pW->ID));
+		}
+	}
+	else
+		pW->ID = outerID;
+	{
+		uint8 tile_level;
+		THROW_SL(Read(tile_level));
+		pW->T.SetLevel(tile_level);
+	}
+	{
+		uint32 rc = 0;
+		if(!(indicator & indfRectangle)) {
+			if(indicator & indfCount8) {
+				uint8 cb;
+				THROW_SL(Read(cb));
+				rc = cb;
+			}
+			else {
+				uint32 cdw;
+				THROW_SL(Read(cdw));
+				rc = cdw;
+			}
+		}
+		else
+			rc = 5;
+		if(rc) {
+			int64 first_ref_id = 0;
+			if(indicator & indfFirstId32) {
+				uint32 f32;
+				THROW_SL(Read(f32));
+				first_ref_id = (int64)f32;
+			}
+			else {
+				uint64 f64;
+				THROW_SL(Read(f64));
+				first_ref_id = (int64)f64;
+			}
+			pW->NodeRefList.add(first_ref_id);
+			int64 prev_id = first_ref_id;
+			for(uint i = 1; i < rc; i++) {
+				if(indicator & indfLoop && i == (rc-1)) {
+					pW->NodeRefList.add(first_ref_id); // Вставляем замыкающую точку контура равную первой
+					break;
+				}
+				else {
+					int64 cur_id = 0;
+					if(indicator & indfIncremental8) {
+						int8 d8;
+						THROW_SL(Read(d8));
+                        cur_id = prev_id + d8;
+					}
+					else if(indicator & indfIncremental16) {
+						int16 d16;
+						THROW_SL(Read(d16));
+						cur_id = prev_id + d16;
+					}
+					else {
+						uint8 infind = 0;
+						THROW_SL(Read(infind));
+						if(infind & infindfIncremental) {
+							infind &= ~infindfIncremental;
+							assert(oneof3(infind, 1, 2, 4));
+							if(infind == 1) {
+								int8 d8;
+								THROW_SL(Read(d8));
+								cur_id = prev_id + d8;
+							}
+							else if(infind == 2) {
+								int16 d16;
+								THROW_SL(Read(d16));
+								cur_id = prev_id + d16;
+							}
+							else if(infind == 4) {
+								int32 d32;
+								THROW_SL(Read(d32));
+								cur_id = prev_id + d32;
+							}
+						}
+						else {
+							uint8  sib[16];
+							uint   frs = (uint)infind;
+							assert(frs >= 1 && frs <= 8);
+							THROW_SL(Read(sib, frs));
+							cur_id = sexpanduint64(sib, frs);
+						}
+					}
+					assert(cur_id > 0);
+					pW->NodeRefList.add(cur_id);
+					prev_id = cur_id;
+				}
+			}
+		}
+	}
+	CATCHZOK
+	SetRdOffs(preserve_pos);
+	return ok;
+}
+
+const void * FASTCALL PPOsm::WayBuffer::GetBuffer(size_t * pSize) const
+{
+    const void * ptr = SBuffer::GetBuf(0);
+    ASSIGN_PTR(pSize, SBuffer::GetAvailableSize());
+    return ptr;
+}
+
+int SLAPI PPOsm::WayBuffer::SetBuffer(const void * pData, size_t size)
+{
+	int    ok = 1;
+	SBuffer::Clear();
+	THROW_SL(SBuffer::Write(pData, size));
+	CATCHZOK
+	return ok;
+}
+
+size_t SLAPI PPOsm::WayBuffer::GetSize() const
+{
+	return SBuffer::GetAvailableSize();
+}
+//
+//
+//
 SLAPI PPOsm::Node::Node()
 {
 	ID = 0;
@@ -446,6 +735,33 @@ SLAPI PPOsm::Way::Way()
 	ID = 0;
 }
 
+void PPOsm::Way::Clear()
+{
+	ID = 0;
+	T.V = 0;
+	NodeRefList.clear();
+}
+
+int FASTCALL PPOsm::Way::IsEqual(const Way & rS) const
+{
+    int    ok = 1;
+    THROW(ID == rS.ID);
+    THROW(T.V == rS.T.V);
+    THROW(NodeRefList == rS.NodeRefList);
+    CATCHZOK
+    return ok;
+}
+
+int FASTCALL PPOsm::Way::operator == (const Way & rS) const
+{
+	return IsEqual(rS);
+}
+
+int FASTCALL PPOsm::Way::operator != (const Way & rS) const
+{
+	return BIN(!IsEqual(rS));
+}
+
 SLAPI PPOsm::RelMember::RelMember()
 {
 	RefID = 0;
@@ -462,6 +778,83 @@ SLAPI PPOsm::Tag::Tag()
 {
 	KeySymbID = 0;
 	ValID = 0;
+}
+
+//static
+int FASTCALL PPOsm::SetProcessedNodeStat(uint logicalCount, uint qtty, TSArray <NodeClusterStatEntry> & rStat)
+{
+	int    ok = 1;
+	int    found = 0;
+	for(uint i = 0; !found && i < rStat.getCount(); i++) {
+		NodeClusterStatEntry & r_entry = rStat.at(i);
+		if(r_entry.LogicalCount == logicalCount) {
+			r_entry.ProcessedCount += qtty;
+			found = 1;
+		}
+	}
+	if(!found) {
+		NodeClusterStatEntry new_entry;
+		MEMSZERO(new_entry);
+		new_entry.LogicalCount = logicalCount;
+		new_entry.ProcessedCount = qtty;
+		THROW(rStat.insert(&new_entry));
+	}
+	CATCHZOK
+	return ok;
+}
+
+//static
+int FASTCALL PPOsm::SetProcessedWayStat(uint refCount, uint qtty, TSArray <WayStatEntry> & rStat)
+{
+	int    ok = 1;
+	int    found = 0;
+	for(uint i = 0; !found && i < rStat.getCount(); i++) {
+		WayStatEntry & r_entry = rStat.at(i);
+		if(r_entry.RefCount == refCount) {
+			r_entry.ProcessedCount += qtty;
+			found = 1;
+		}
+	}
+	if(!found) {
+		WayStatEntry new_entry;
+		MEMSZERO(new_entry);
+		new_entry.RefCount = refCount;
+		new_entry.ProcessedCount = qtty;
+		THROW(rStat.insert(&new_entry));
+	}
+	CATCHZOK
+	return ok;
+}
+
+//static
+int FASTCALL PPOsm::SetWayStat(WayBuffer & rWayBuf, TSArray <WayStatEntry> & rStat)
+{
+    int    ok = 1;
+    Way    way;
+    uint64 surr_outer_id = 1024; // Суррогатный outer id
+    THROW(rWayBuf.Get(surr_outer_id, &way));
+    {
+    	const uint _wrc = way.NodeRefList.getCount();
+    	int   _found = 0;
+		for(uint i = 0; !_found && i < rStat.getCount(); i++) {
+            if(rStat.at(i).RefCount == _wrc) {
+				WayStatEntry & r_entry = rStat.at(i);
+				r_entry.Size += rWayBuf.GetSize();
+				r_entry.WayCount++;
+				_found = 1;
+            }
+		}
+		if(!_found) {
+			WayStatEntry new_entry;
+			MEMSZERO(new_entry);
+			new_entry.RefCount = _wrc;
+			new_entry.WayCount = 1;
+			new_entry.Size = rWayBuf.GetSize();
+			THROW_SL(rStat.insert(&new_entry));
+		}
+	}
+    CATCHZOK
+    return ok;
 }
 
 //static

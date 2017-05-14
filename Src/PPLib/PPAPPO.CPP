@@ -54,7 +54,8 @@ PPApp::PPApp(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle) : T
 
 int PPApp::InitStatusBar()
 {
-	if(TProgram::InitStatusBar()) {
+	int    ok = TProgram::InitStatusBar();
+	if(ok) {
 		SString copyright_buf;
 		PPVersionInfo vi = DS.GetVersionInfo();
 		vi.GetCopyrightText(copyright_buf);
@@ -530,6 +531,8 @@ int PPApp::processCommand(uint cmd)
 		case cmCashNode:             PPView::Execute(PPVIEW_CASHNODE,        0, PPView::exefModeless, 0); break;
 		case cmScale:                PPView::Execute(PPVIEW_SCALE,           0, PPView::exefModeless, 0); break;
 		case cmDBDiv:                PPView::Execute(PPVIEW_DBDIV,           0, PPView::exefModeless, 0); break;
+		case cmGoodsRest:            PPView::Execute(PPVIEW_GOODSREST,       0, PPView::exefModeless, 0); break;
+		case cmGetPrognosis:         PPView::Execute(PPVIEW_GOODSREST,       0, PPView::exefModeless, (void *)1); break;
 		case cmCTblOrdTimeGraph:
 			{
 				CTableOrder::Param param;
@@ -584,13 +587,11 @@ int PPApp::processCommand(uint cmd)
 		case cmViewOrdLots:          ViewLots(0, 1, 1);                 break;
 		case cmTrfrAnalyze:          ViewTrfrAnlz(0);                   break;
 		case cmGoodsTurnover:        ViewGoodsTurnover(0);              break;
-		case cmGoodsRest:            ViewGoodsRest(0, 0);               break;
 		case cmGoodsRestTest:        GoodsRestTest();                   break;
 		case cmPredictSales:         ViewPredictSales(0);               break;
 		case cmFillPredictSalesTbl:  FillPredictSales();                break;
 		case cmTestPredictSalesTbl:  TestPredictSales();                break;
 		case cmTestReconnect:        TestReconnect();                   break; // @v8.0.6
-		case cmGetPrognosis:         ViewGoodsRest(0, 1);               break;
 		case cmGoodsMov:             ViewGoodsMov(1);                   break;
 		case cmGoodsOprGrouping:     ViewOpGrouping(0);                 break;
 		case cmGoodsOper:            ViewGoodsOpAnalyze(0);             break;
@@ -825,7 +826,7 @@ int PPApp::processCommand(uint cmd)
 			break;
 		case cmFiltPool: ViewFiltPool(); break; // @paul pentaho
 		case cmIndexPhones: PPObject::IndexPhones(); break;
-		case cmIndexTextObjects: // @v7.8.0 @construction
+		case cmIndexTextObjects:
 			{
 				MemLeakTracer mlt;
 				PPTextAnalyzer taz;
@@ -875,11 +876,7 @@ int PPApp::processCommand(uint cmd)
 		case cmConvert4707:          Convert4707();                   break;
 		case cmConvert4805:          Convert4805();                   break;
 		case cmConvertQuot720:       ConvertQuot720();                break;
-		case cmConvertBillUUID7601:
-			if(p_bobj) {
-				p_bobj->ConvertUuid7601();
-			}
-			break;
+		case cmConvertBillUUID7601:  CALLPTRMEMB(p_bobj, ConvertUuid7601()); break;
 		case cmConvertWorkbook813:   ConvertWorkbook813();            break;
 		case cmConvert1:
 #ifdef __CONVERT__
@@ -1444,15 +1441,23 @@ int PPBackupSystemFiles()
 				}
 				for(uint j = 0; j < temp_dir_list.getCount(); j++) {
 					(buf = backup_dir).SetLastSlash().Cat(temp_dir_list.at(j).Txt);
-					::rename(buf, path);
+					SFile::Rename(buf, path);
 					path = buf;
 				}
 				dest_dir = MakeTempFileName(backup_dir, 0, 0, &(start = 5), dest_dir);
 			}
-			PPGetFileName(PPFILNAM_PPCMD_BIN, fname);
-			(path = bin_dir).SetLastSlash().Cat(fname);
+
 			dest_dir.TrimRightChr('.');
 			createDir(dest_dir);
+
+			fname = "PP.INI";
+			(path = bin_dir).SetLastSlash().Cat(fname);
+			(dest_path = dest_dir).SetLastSlash().Cat(fname);
+			SCopyFile(path, dest_path, 0, FILE_SHARE_READ, 0);
+
+			/* @v9.6.6
+			PPGetFileName(PPFILNAM_PPCMD_BIN, fname);
+			(path = bin_dir).SetLastSlash().Cat(fname);
 			(dest_path = dest_dir).SetLastSlash().Cat(fname);
 			SCopyFile(path, dest_path, 0, FILE_SHARE_READ, 0);
 
@@ -1466,11 +1471,6 @@ int PPBackupSystemFiles()
 			(dest_path = dest_dir).SetLastSlash().Cat(fname);
 			SCopyFile(path, dest_path, 0, FILE_SHARE_READ, 0);
 
-			fname = "PP.INI";
-			(path = bin_dir).SetLastSlash().Cat(fname);
-			(dest_path = dest_dir).SetLastSlash().Cat(fname);
-			SCopyFile(path, dest_path, 0, FILE_SHARE_READ, 0);
-
 			PPGetFileName(PPFILNAM_REPORT_INI, fname);
 			(path = bin_dir).SetLastSlash().Cat(fname);
 			(dest_path = dest_dir).SetLastSlash().Cat(fname);
@@ -1480,6 +1480,18 @@ int PPBackupSystemFiles()
 			(path = bin_dir).SetLastSlash().Cat(fname);
 			(dest_path = dest_dir).SetLastSlash().Cat(fname);
 			SCopyFile(path, dest_path, 0, FILE_SHARE_READ, 0);
+			*/
+			// @v9.6.6 {
+			{
+				static const uint _bin_file_id_list[] = {PPFILNAM_PPCMD_BIN, PPFILNAM_PPDESK_BIN, PPFILNAM_JOBPOOL, PPFILNAM_REPORT_INI, PPFILNAM_IMPEXP_INI };
+				for(uint i = 0; i < SIZEOFARRAY(_bin_file_id_list); i++) {
+					PPGetFileName(_bin_file_id_list[i], fname);
+					(path = bin_dir).SetLastSlash().Cat(fname);
+					(dest_path = dest_dir).SetLastSlash().Cat(fname);
+					SCopyFile(path, dest_path, 0, FILE_SHARE_READ, 0);
+				}
+			}
+			// } @v9.6.6 
 
 			PPGetFileName(PPFILNAM_LOCAL_DL6, fname);
 			PPGetPath(PPPATH_DD, path);

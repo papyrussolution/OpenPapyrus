@@ -623,7 +623,7 @@ int SLAPI PPObjBill::InitGta(PPGta & rGta)
 		if(goods_id && GObj.Fetch(goods_id, &goods_rec) > 0) {
 			QuotIdent qi(0, PPQUOTK_BASE, 0, gua_assoc.ArID);
 			double quot = 0.0;
-			GObj.GetQuotExt(goods_id, qi, 0.0, 0.0, &quot, 1);
+			GObj.GetQuotExt(goods_id, qi, &quot, 1);
 			rGta.Quot = quot;
 			if(quot != 0.0 && P_ScObj && P_ScObj->P_Tbl) {
 				SCardTbl::Rec sc_rec;
@@ -649,7 +649,7 @@ int SLAPI PPObjBill::CheckInGta(const PPGta & rGta, int use_ta)
 		if(goods_id && GObj.Fetch(goods_id, &goods_rec) > 0) {
 			QuotIdent qi(0, PPQUOTK_BASE, 0, gua_assoc.ArID);
 			double quot = 0.0;
-			if(GObj.GetQuotExt(goods_id, qi, 0.0, 0.0, &quot, 1) > 0 && quot != 0.0) {
+			if(GObj.GetQuotExt(goods_id, qi, &quot, 1) > 0 && quot != 0.0) {
 				SCardCore::OpBlock op_blk;
 				op_blk.SCardID = gua_assoc.SCardID;
 				op_blk.Dtm = rGta.Dtm;

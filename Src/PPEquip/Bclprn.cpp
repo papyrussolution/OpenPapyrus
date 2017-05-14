@@ -1,4 +1,4 @@
-// BCLPRN.CPP
+E// BCLPRN.CPP
 // Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
@@ -8,11 +8,10 @@
 //
 // @ModuleDef(PPObjBarcodePrinter)
 //
-int SLAPI PPBarcodePrinter::Normalyze()
+void SLAPI PPBarcodePrinter::Normalyze()
 {
 	PortEx.CopyTo(Port, sizeof(Port));
 	SETFLAG(Flags, fPortEx, (PortEx.Len() >= sizeof(Port)));
-	return 1;
 }
 
 SLAPI PPObjBarcodePrinter::PPObjBarcodePrinter(void * extraPtr) : PPObjReference(PPOBJ_BCODEPRINTER, extraPtr)
@@ -317,8 +316,8 @@ class BarcodeLabel : private SArray {
 public:
 	SLAPI  BarcodeLabel();
 	SLAPI ~BarcodeLabel();
-	const  BarcodeLabelParam * SLAPI GetParam();
-	uint   SLAPI GetEntryCount();
+	const  BarcodeLabelParam * SLAPI GetParam() const;
+	uint   SLAPI GetEntryCount() const;
 	const  BarcodeLabelEntry * SLAPI GetEntry(uint);
 	int    SLAPI AddEntry(BarcodeLabelEntry *);
 	int    SLAPI ParseFormat(const RetailGoodsInfo *, const char * pFileName, const char * pFormatName);
@@ -350,7 +349,10 @@ private:
 
 class DatamaxLabelPrinter : public BarcodeLabelPrinter {
 public:
-	SLAPI  DatamaxLabelPrinter(const PPBarcodePrinter & rPrnPack);
+	SLAPI  DatamaxLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack)
+	{
+		NumCopies = 1;
+	}
 	virtual int SLAPI StartLabel(const BarcodeLabelParam *, int numCopies);
 	virtual int SLAPI EndLabel();
 	virtual int SLAPI PutDataEntry(const BarcodeLabelEntry *);
@@ -360,7 +362,10 @@ private:
 
 class ZebraLabelPrinter : public BarcodeLabelPrinter {
 public:
-	SLAPI  ZebraLabelPrinter(const PPBarcodePrinter & rPrnPack);
+	SLAPI  ZebraLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack)
+	{
+		NumCopies = 1;
+	}
 	virtual int SLAPI StartLabel(const BarcodeLabelParam *, int numCopies);
 	virtual int SLAPI EndLabel();
 	virtual int SLAPI PutDataEntry(const BarcodeLabelEntry *);
@@ -372,7 +377,12 @@ private:
 
 class EltronLabelPrinter : public BarcodeLabelPrinter {
 public:
-	SLAPI  EltronLabelPrinter(const PPBarcodePrinter & rPrnPack);
+	SLAPI  EltronLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack)
+	{
+		NumCopies = 1;
+		BcNarrowPt = 0;
+		BcWidePt = 0;
+	}
 	virtual int SLAPI StartLabel(const BarcodeLabelParam *, int numCopies);
 	virtual int SLAPI EndLabel();
 	virtual int SLAPI PutDataEntry(const BarcodeLabelEntry *);
@@ -381,6 +391,26 @@ private:
 	int    NumCopies;
 	int    BcNarrowPt;
 	int    BcWidePt;
+};
+
+class WindowsLabelPrinter : public BarcodeLabelPrinter {
+public:
+	SLAPI  WindowsLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack)
+	{
+	}
+	virtual int SLAPI StartLabel(const BarcodeLabelParam *, int numCopies)
+	{
+		return -1;
+	}
+	virtual int SLAPI EndLabel()
+	{
+		return -1;
+	}
+	virtual int SLAPI PutDataEntry(const BarcodeLabelEntry *)
+	{
+		return -1;
+	}
+private:
 };
 //
 // BarcodeLabel
@@ -463,12 +493,12 @@ SLAPI BarcodeLabel::~BarcodeLabel()
 	delete P_GcPack;
 }
 
-const BarcodeLabelParam * SLAPI BarcodeLabel::GetParam()
+const BarcodeLabelParam * SLAPI BarcodeLabel::GetParam() const
 {
 	return &BLP;
 }
 
-uint SLAPI BarcodeLabel::GetEntryCount()
+uint SLAPI BarcodeLabel::GetEntryCount() const
 {
 	return getCount();
 }
@@ -660,28 +690,22 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 				case bcvsPrice:
 					d = stpcpy(d, realfmt(RGI.Price, MKSFMTD(0, 2, NMBF_NOZERO), temp));
 					break;
-				// @v6.9.0 {
 				case bcvsRevalPrice:
 					d = stpcpy(d, realfmt(RGI.RevalPrice, MKSFMTD(0, 2, NMBF_NOZERO), temp));
 					break;
-				// } @v6.9.0
-				// @v7.2.12 {
 				case bcvsLineCost:
 					d = stpcpy(d, realfmt(NZOR(RGI.LineCost, RGI.Cost), MKSFMTD(0, 2, NMBF_NOZERO), temp));
 					break;
 				case bcvsLinePrice:
 					d = stpcpy(d, realfmt(NZOR(RGI.LinePrice, RGI.Price), MKSFMTD(0, 2, NMBF_NOZERO), temp));
 					break;
-				// } @v7.2.12
 				case bcvsExpiry:
 					d = stpcpy(d, datefmt(&RGI.Expiry, DATF_DMY, temp));
 					break;
-				// @v7.5.1 {
 				case bcvsManufDate:
 					(temp_str = 0).Cat(RGI.ManufDtm, DATF_DMY|DATF_NOZERO, TIMF_HM|TIMF_NOZERO);
 					d = stpcpy(d, temp_str);
 					break;
-				// } @v7.5.1
 				case bcvsManuf:
 					d = stpcpy(d, RGI.Manuf);
 					break;
@@ -816,7 +840,6 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 					}
 					d = stpcpy(d, temp_str);
 					break;
-				// @v7.6.10 {
 				case bcvsQuot:
 					{
 						const char * p_symb = s + var_len;
@@ -839,7 +862,6 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 						}
 					}
 					break;
-				// } @v7.6.10
 				// @v8.1.3 {
 				case bcvsGoodsCode:
 					(temp_str = RGI.BarCode).Strip();
@@ -860,34 +882,27 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 int SLAPI BarcodeLabel::WrapText(const char * pText, uint maxLen, SString & rHead, SString & rTail)
 {
 	int    ok = 1;
-	if(pText) {
-		size_t len = strlen(pText);
-		size_t p = maxLen;
-		if(p > 0 && p < len) {
-			size_t temp_pos = p;
-			size_t next_pos = p;
-			while(pText[temp_pos] != ' ')
-				if(temp_pos)
-					temp_pos--;
-				else
-					break;
-			if(temp_pos) {
-				p = temp_pos;
-				next_pos = temp_pos+1;
-			}
-			rHead.CopyFromN(pText, p);
-			rTail.CopyFrom(pText+next_pos);
+	const  size_t len = sstrlen(pText);
+	size_t p = maxLen;
+	if(p > 0 && p < len) {
+		size_t temp_pos = p;
+		size_t next_pos = p;
+		while(pText[temp_pos] != ' ')
+			if(temp_pos)
+				temp_pos--;
+			else
+				break;
+		if(temp_pos) {
+			p = temp_pos;
+			next_pos = temp_pos+1;
 		}
-		else {
-			rHead = pText;
-			rTail = 0;
-			ok = -1;
-		}
+		rHead.CopyFromN(pText, p);
+		rTail.CopyFrom(pText+next_pos);
 	}
 	else {
-		rHead = 0;
+		rHead = pText;
 		rTail = 0;
-		ok = 0;
+		ok = -1;
 	}
 	return ok;
 }
@@ -905,7 +920,7 @@ int SLAPI BarcodeLabel::GetText(int wrap, char ** ppLine)
 	// Извлекаем опциональную максимальную длину строки {
 	//
 	char * s = *ppLine;
-	while(*s == ' ' || *s == '\t')
+	while(oneof2(*s, ' ', '\t'))
 		s++;
 	if(*s == ':') {
 		*ppLine = s+1;
@@ -1150,36 +1165,24 @@ BarcodeLabelPrinter * SLAPI BarcodeLabelPrinter::CreateInstance(/*PPID printerTy
 		return new DatamaxLabelPrinter(rPrnPack);
 	else if(rPrnPack.PrinterType == PPBCPT_ELTRON)
 		return new EltronLabelPrinter(rPrnPack);
+	else if(rPrnPack.PrinterType == PPBCPT_WINDOWS)
+		return new WindowsLabelPrinter(rPrnPack);
 	else
 		return (PPSetError(PPERR_INVBCPTYPE), (BarcodeLabelPrinter*)0);
 }
 
-#define BLPF_PRINTALL   0x0001L // Печать всей выборки
+//#define BLPF_PRINTALL   0x0001L // Печать всей выборки
 
-struct BarcodeLabelPrintParam {
-	BarcodeLabelPrintParam()
-	{
-		PrinterID = 0;
-		NumCopies = 0;
-		Pad = 0;
-		LocID = 0;
-		Flags = 0;
-	}
-	enum {
-		fPrintAll   = 0x0001, // Печать всей выборки
-		fQttyAsPack = 0x0002  // Количество этикеток по каждой строке документа
-			// рассчитывается как количество упаковок (в противном случае - количество торговых единиц)
-	};
-	PPID   PrinterID;
-	// @v7.8.2 char   Port[64];
-	int16  NumCopies;
-	int16  Pad;       // @alignment
-	PPID   LocID;     // Склад, для которого печатается этикетка (от этого зависит цена и, возможно, ряд других параметров)
-	long   Flags;
-	SString Port;     // @v7.8.2
-};
+SLAPI BarcodeLabelPrinter::BarcodeLabelPrintParam::BarcodeLabelPrintParam()
+{
+	PrinterID = 0;
+	NumCopies = 0;
+	Pad = 0;
+	LocID = 0;
+	Flags = 0;
+}
 
-static int SLAPI EditBarcodeLabelPrintParam(BarcodeLabelPrintParam * pParam, int isExtDlg)
+static int SLAPI EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPrintParam * pParam, int isExtDlg)
 {
 	class PrintBarcodeLabelDialog : public TDialog {
 	public:
@@ -1217,16 +1220,17 @@ static int SLAPI EditBarcodeLabelPrintParam(BarcodeLabelPrintParam * pParam, int
 		dlg->setCtrlString(CTL_BCPLABEL_PORT, pParam->Port);
 		dlg->setCtrlData(CTL_BCPLABEL_COUNT, &pParam->NumCopies);
 		SetupPPObjCombo(dlg, CTLSEL_BCPLABEL_LOC, PPOBJ_LOCATION, pParam->LocID, 0);
-		dlg->setCtrlUInt16(CTL_BCPLABEL_HOW, BIN(pParam->Flags & BarcodeLabelPrintParam::fPrintAll));
-		dlg->AddClusterAssoc(CTL_BCPLABEL_FLAGS, 0, BarcodeLabelPrintParam::fQttyAsPack);
+		dlg->setCtrlUInt16(CTL_BCPLABEL_HOW, BIN(pParam->Flags & BarcodeLabelPrinter::BarcodeLabelPrintParam::fPrintAll));
+		dlg->AddClusterAssoc(CTL_BCPLABEL_FLAGS, 0, BarcodeLabelPrinter::BarcodeLabelPrintParam::fQttyAsPack);
+		dlg->AddClusterAssoc(CTL_BCPLABEL_FLAGS, 1, BarcodeLabelPrinter::BarcodeLabelPrintParam::fInteractive); // @9.6.6
 		dlg->SetClusterData(CTL_BCPLABEL_FLAGS, pParam->Flags);
-		dlg->selectCtrl(pParam->PrinterID ? CTL_BCPLABEL_COUNT : CTL_BCPLABEL_PRINTER); // @v7.9.0
+		dlg->selectCtrl(pParam->PrinterID ? CTL_BCPLABEL_COUNT : CTL_BCPLABEL_PRINTER);
 		while(!valid_data && ExecView(dlg) == cmOK) {
 			dlg->getCtrlData(CTLSEL_BCPLABEL_PRINTER, &pParam->PrinterID);
 			dlg->getCtrlData(CTLSEL_BCPLABEL_LOC,     &pParam->LocID);
 			dlg->getCtrlString(CTL_BCPLABEL_PORT, pParam->Port);
 			dlg->getCtrlData(CTL_BCPLABEL_COUNT, &pParam->NumCopies);
-			SETFLAG(pParam->Flags, BarcodeLabelPrintParam::fPrintAll, dlg->getCtrlUInt16(CTL_BCPLABEL_HOW));
+			SETFLAG(pParam->Flags, BarcodeLabelPrinter::BarcodeLabelPrintParam::fPrintAll, dlg->getCtrlUInt16(CTL_BCPLABEL_HOW));
 			dlg->GetClusterData(CTL_BCPLABEL_FLAGS, &pParam->Flags);
 			if(pParam->PrinterID == 0)
 				PPErrorByDialog(dlg, CTLSEL_BCPLABEL_PRINTER, PPERR_LABELPRNIDNEEDED);
@@ -1238,70 +1242,6 @@ static int SLAPI EditBarcodeLabelPrintParam(BarcodeLabelPrintParam * pParam, int
 	else
 		ok = 0;
 	delete dlg;
-	return ok;
-}
-
-// static
-int SLAPI BarcodeLabelPrinter::PrintGoodsLabel(RetailGoodsInfo * pRgi, PPID prnID, int silent)
-{
-	int    ok = 1;
-	PPBarcodePrinter rec;
-	BarcodeLabelPrinter * p_prn = 0;
-	PPObjBarcodePrinter bcpobj;
-	BarcodeLabelPrintParam bclpp;
-	GetComDvcSymb(comdvcsCom, 1, 0, bclpp.Port);
-	bclpp.PrinterID = prnID ? prnID : bcpobj.GetSingle();
-	bclpp.LocID = pRgi->LocID;
-	if(bclpp.PrinterID)
-		if(bcpobj.GetPacket(bclpp.PrinterID, &rec) > 0)
-			bclpp.Port = rec.PortEx;
-		else
-			bclpp.PrinterID = 0;
-	bclpp.NumCopies = 1;
-	if(pRgi->LabelCount > 0 && pRgi->LabelCount < 1000)
-		bclpp.NumCopies = pRgi->LabelCount;
-	if(silent || EditBarcodeLabelPrintParam(&bclpp, 0) > 0) {
-		uint   i;
-		SString file_name, file_path;
-		PPIniFile ini_file;
-		BarcodeLabel label;
-		THROW(bcpobj.GetPacket(bclpp.PrinterID, &rec) > 0);
-		if(pRgi->LocID != bclpp.LocID) {
-			RetailGoodsInfo temp_rgi;
-			PPObjGoods gobj;
-			if(gobj.GetRetailGoodsInfo(pRgi->ID, bclpp.LocID, &temp_rgi) > 0) {
-				pRgi->Price = temp_rgi.Price;
-				pRgi->Expiry = temp_rgi.Expiry;
-			}
-		}
-		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_LABELFILE, file_name);
-		if(file_name.Empty())
-			PPGetFileName(PPFILNAM_BARLABEL_LBL, file_name);
-		PPGetFilePath(PPPATH_BIN, file_name, file_path);
-		THROW_PP_S(fileExists(file_path), PPERR_BARLABELFILENEXISTS, file_path);
-		THROW_PP(label.ParseFormat(pRgi, file_path, rec.LabelName), PPERR_LABELSYNTX);
-		THROW(p_prn = BarcodeLabelPrinter::CreateInstance(rec/*.PrinterType*/));
-		label.SetBarcodeWidth(rec.BcNarrowPt, rec.BcWidePt); // @v8.0.9
-		THROW(p_prn->StartLabel(label.GetParam(), bclpp.NumCopies));
-		for(i = 0; i < label.GetEntryCount(); i++)
-			THROW(p_prn->PutDataEntry(label.GetEntry(i)));
-		THROW(p_prn->EndLabel());
-		// @vmiller {
-		SString str = bclpp.Port;
-		if(!str.CmpPrefix("usb", 1))
-			THROW(p_prn->PrintLabelUsb(rec.PrinterType))
-		else
-		// } @vmiller
-			THROW(p_prn->PrintLabel(bclpp.Port, &rec.Cpp));
-	}
-	else
-		ok = -1;
-	CATCH
-		if(!silent)
-			PPError();
-		ok = 0;
-	ENDCATCH
-	delete p_prn;
 	return ok;
 }
 
@@ -1385,7 +1325,7 @@ int SLAPI BarcodeLabelPrinter::PrintGoodsLabel(PPID goodsID)
 	RetailGoodsInfo rgi;
 	PPObjGoods gobj;
 	if(gobj.GetRetailGoodsInfo(goodsID, 0, &rgi))
-		ok = BarcodeLabelPrinter::PrintGoodsLabel(&rgi);
+		ok = BarcodeLabelPrinter::PrintGoodsLabel2(&rgi, 0, 0);
 	return ok;
 }
 
@@ -1395,12 +1335,328 @@ int SLAPI BarcodeLabelPrinter::PrintLotLabel(PPID lotID)
 	int    ok = -1;
 	RetailGoodsInfo rgi;
 	if(BillObj->GetLabelLotInfo(lotID, &rgi) > 0)
-		ok = BarcodeLabelPrinter::PrintGoodsLabel(&rgi);
+		ok = BarcodeLabelPrinter::PrintGoodsLabel2(&rgi, 0, 0);
 	return ok;
 }
 
 // static
-int SLAPI BarcodeLabelPrinter::PrintLabelByBill(PPBillPacket * pPack, uint pos)
+int SLAPI BarcodeLabelPrinter::PrintGoodsLabel__(RetailGoodsInfo * pRgi, PPID prnID, int silent)
+{
+	int    ok = 1;
+	PPBarcodePrinter rec;
+	BarcodeLabelPrinter * p_prn = 0;
+	PPObjBarcodePrinter bcpobj;
+	BarcodeLabelPrintParam bclpp;
+	GetComDvcSymb(comdvcsCom, 1, 0, bclpp.Port);
+	bclpp.PrinterID = NZOR(prnID, bcpobj.GetSingle());
+	bclpp.LocID = pRgi->LocID;
+	if(bclpp.PrinterID)
+		if(bcpobj.GetPacket(bclpp.PrinterID, &rec) > 0)
+			bclpp.Port = rec.PortEx;
+		else
+			bclpp.PrinterID = 0;
+	bclpp.NumCopies = 1;
+	if(pRgi->LabelCount > 0 && pRgi->LabelCount < 1000)
+		bclpp.NumCopies = pRgi->LabelCount;
+	if(silent || EditBarcodeLabelPrintParam(&bclpp, 0) > 0) {
+		uint   i;
+		SString file_name, file_path;
+		PPIniFile ini_file;
+		BarcodeLabel label;
+		THROW(bcpobj.GetPacket(bclpp.PrinterID, &rec) > 0);
+		if(pRgi->LocID != bclpp.LocID) {
+			RetailGoodsInfo temp_rgi;
+			PPObjGoods gobj;
+			if(gobj.GetRetailGoodsInfo(pRgi->ID, bclpp.LocID, &temp_rgi) > 0) {
+				pRgi->Price = temp_rgi.Price;
+				pRgi->Expiry = temp_rgi.Expiry;
+			}
+		}
+		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_LABELFILE, file_name);
+		if(file_name.Empty())
+			PPGetFileName(PPFILNAM_BARLABEL_LBL, file_name);
+		PPGetFilePath(PPPATH_BIN, file_name, file_path);
+		THROW_PP_S(fileExists(file_path), PPERR_BARLABELFILENEXISTS, file_path);
+		THROW_PP(label.ParseFormat(pRgi, file_path, rec.LabelName), PPERR_LABELSYNTX);
+		THROW(p_prn = BarcodeLabelPrinter::CreateInstance(rec/*.PrinterType*/));
+		label.SetBarcodeWidth(rec.BcNarrowPt, rec.BcWidePt); // @v8.0.9
+		THROW(p_prn->StartLabel(label.GetParam(), bclpp.NumCopies));
+		for(i = 0; i < label.GetEntryCount(); i++)
+			THROW(p_prn->PutDataEntry(label.GetEntry(i)));
+		THROW(p_prn->EndLabel());
+		// @vmiller {
+		SString str = bclpp.Port;
+		if(!str.CmpPrefix("usb", 1))
+			THROW(p_prn->PrintLabelUsb(rec.PrinterType))
+		else
+		// } @vmiller
+			THROW(p_prn->PrintLabel(bclpp.Port, &rec.Cpp));
+	}
+	else
+		ok = -1;
+	CATCH
+		if(!silent)
+			PPError();
+		ok = 0;
+	ENDCATCH
+	delete p_prn;
+	return ok;
+}
+
+// static
+int SLAPI BarcodeLabelPrinter::PrintGoodsLabel2(RetailGoodsInfo * pRgi, PPID prnID, int silent)
+{
+	int    ok = 1;
+	PPBarcodePrinter rec;
+	BarcodeLabelPrinter * p_prn = 0;
+	PPObjBarcodePrinter bcpobj;
+	BarcodeLabelPrintParam bclpp;
+	GetComDvcSymb(comdvcsCom, 1, 0, bclpp.Port);
+	bclpp.PrinterID = NZOR(prnID, bcpobj.GetSingle());
+	bclpp.LocID = pRgi->LocID;
+	if(bclpp.PrinterID)
+		if(bcpobj.GetPacket(bclpp.PrinterID, &rec) > 0)
+			bclpp.Port = rec.PortEx;
+		else
+			bclpp.PrinterID = 0;
+	bclpp.NumCopies = 1;
+	if(pRgi->LabelCount > 0 && pRgi->LabelCount < 1000)
+		bclpp.NumCopies = pRgi->LabelCount;
+	if(silent || EditBarcodeLabelPrintParam(&bclpp, 0) > 0) {
+		//uint   i;
+		//SString file_name, file_path;
+		//PPIniFile ini_file;
+		//BarcodeLabel label;
+		THROW(bcpobj.GetPacket(bclpp.PrinterID, &rec) > 0);
+		if(pRgi->LocID != bclpp.LocID) {
+			RetailGoodsInfo temp_rgi;
+			PPObjGoods gobj;
+			if(gobj.GetRetailGoodsInfo(pRgi->ID, bclpp.LocID, &temp_rgi) > 0) {
+				pRgi->Price = temp_rgi.Price;
+				pRgi->Expiry = temp_rgi.Expiry;
+			}
+		}
+
+		{
+			TSCollection <RetailGoodsInfo> rgi_list;
+			RetailGoodsInfo * p_rgi = rgi_list.CreateNewItem();
+			THROW_SL(p_rgi);
+			*p_rgi = *pRgi;
+			p_rgi->LabelCount = bclpp.NumCopies;
+			{
+				THROW(p_prn = BarcodeLabelPrinter::CreateInstance(rec/*.PrinterType*/));
+				THROW(p_prn->Helper_PrintRgiCollection(bclpp, rgi_list));
+			}
+		}
+		//ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_LABELFILE, file_name);
+		//if(file_name.Empty())
+		//	PPGetFileName(PPFILNAM_BARLABEL_LBL, file_name);
+		//PPGetFilePath(PPPATH_BIN, file_name, file_path);
+		//THROW_PP_S(fileExists(file_path), PPERR_BARLABELFILENEXISTS, file_path);
+		//THROW_PP(label.ParseFormat(pRgi, file_path, rec.LabelName), PPERR_LABELSYNTX);
+		//THROW(p_prn = BarcodeLabelPrinter::CreateInstance(rec/*.PrinterType*/));
+		//label.SetBarcodeWidth(rec.BcNarrowPt, rec.BcWidePt); // @v8.0.9
+		//THROW(p_prn->StartLabel(label.GetParam(), bclpp.NumCopies));
+		//for(i = 0; i < label.GetEntryCount(); i++)
+		//	THROW(p_prn->PutDataEntry(label.GetEntry(i)));
+		//THROW(p_prn->EndLabel());
+		// @vmiller {
+		//SString str = bclpp.Port;
+		//if(!str.CmpPrefix("usb", 1))
+		//	THROW(p_prn->PrintLabelUsb(rec.PrinterType))
+		//else
+		// } @vmiller
+		//	THROW(p_prn->PrintLabel(bclpp.Port, &rec.Cpp));
+	}
+	else
+		ok = -1;
+	CATCH
+		if(!silent)
+			PPError();
+		ok = 0;
+	ENDCATCH
+	delete p_prn;
+	return ok;
+}
+
+int SLAPI BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrintParam & rBclpp, TSCollection <RetailGoodsInfo> & rList)
+{
+	int    ok = 1;
+	PPObjGoods gobj;
+	SString temp_buf;
+	{
+		if(PrnPack.PrinterType == PPBCPT_WINDOWS) {
+			uint   rpt_id = REPORT_BARCODELABELLIST;
+			SString loc_prn_port = PrnPack.PortEx.NotEmptyS() ? PrnPack.PortEx.cptr() : 0;
+			loc_prn_port.Strip();
+			PView  pv(&rList);
+			PPReportEnv env;
+			if(!(rBclpp.Flags & rBclpp.fInteractive))
+				env.PrnFlags = SReport::PrintingNoAsk;
+			if(loc_prn_port.NotEmpty()) {
+				DS.GetTLA().PrintDevice = loc_prn_port;
+			}
+			PPAlddPrint(rpt_id, &pv, &env);
+		}
+		else {
+			SString file_name, file_path;
+			uint   part_count = 0;
+			int    row_delay = 0;
+			PPIniFile ini_file;
+			ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_LABELFILE, file_name);
+			ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_BARLABELPRINT_DELAY, &row_delay);
+			if(row_delay <= 0 || row_delay > 10000)
+				row_delay = 250;
+			if(file_name.Empty())
+				PPGetFileName(PPFILNAM_BARLABEL_LBL, file_name);
+			PPGetFilePath(PPPATH_BIN, file_name, file_path);
+			THROW_PP(fileExists(file_path), PPERR_BARLABELFILENEXISTS);
+			for(uint i = 0; i < rList.getCount(); i++) {
+				const RetailGoodsInfo * p_rgi = rList.at(i);
+				if(p_rgi) {
+					int16  num_copies = p_rgi->LabelCount;
+					if(num_copies > 0) {
+						BarcodeLabel label__;
+						THROW_PP(label__.ParseFormat(p_rgi, file_path, PrnPack.LabelName), PPERR_LABELSYNTX);
+						//THROW(p_prn = BarcodeLabelPrinter::CreateInstance(rec/*.PrinterType*/));
+						label__.SetBarcodeWidth(PrnPack.BcNarrowPt, PrnPack.BcWidePt);
+						{
+							THROW(StartLabel(label__.GetParam(), num_copies));
+							for(uint i = 0; i < label__.GetEntryCount(); i++) {
+								THROW(PutDataEntry(label__.GetEntry(i)));
+							}
+							THROW(EndLabel());
+							// @vmiller {
+							temp_buf = rBclpp.Port;
+							if(!temp_buf.CmpPrefix("usb", 1))
+								THROW(PrintLabelUsb(PrnPack.PrinterType))
+							else
+							// } @vmiller
+								THROW(PrintLabel(rBclpp.Port, &PrnPack.Cpp));
+						}
+						//
+						// При печати большого количества этикеток принтер не успевает обрабатывать запросы
+						// Из-за этого делаем задержку между отдельными строками (между каждыми 10-ю строками
+						// задержка больше)
+						//
+						if(++part_count >= 10) {
+							SDelay(2000);
+							part_count = 0;
+						}
+						else
+							SDelay(row_delay);
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+// static
+int SLAPI BarcodeLabelPrinter::PrintLabelByBill2(const PPBillPacket * pPack, uint pos)
+{
+	int    ok = 1;
+	PPObjBill * p_bobj = BillObj;
+
+	TSCollection <RetailGoodsInfo> rgi_list;
+
+	PPID   cor_loc_id = 0;
+	PPBarcodePrinter rec;
+	BarcodeLabelPrinter * p_prn = 0;
+	PPObjBarcodePrinter bcpobj;
+	BarcodeLabelPrintParam bclpp;
+	GetComDvcSymb(comdvcsCom, 1, 0, bclpp.Port);
+	bclpp.PrinterID = bcpobj.GetSingle();
+	if(IsIntrExpndOp(pPack->Rec.OpID))
+		bclpp.LocID = cor_loc_id = PPObjLocation::ObjToWarehouse(pPack->Rec.Object);
+	SETIFZ(bclpp.LocID, pPack->Rec.LocID);
+	if(bclpp.PrinterID && bcpobj.GetPacket(bclpp.PrinterID, &rec) > 0)
+		bclpp.Port = rec.PortEx;
+	bclpp.NumCopies = 1;
+	if(EditBarcodeLabelPrintParam(&bclpp, 1) > 0 && bcpobj.GetPacket(bclpp.PrinterID, &rec) > 0) {
+		uint   cur_pos, end_pos;
+		uint   part_count = 0;
+		SString serial;
+		PPObjGoods gobj;
+		if(bclpp.Flags & BarcodeLabelPrintParam::fPrintAll) {
+			cur_pos = 0;
+			end_pos = pPack->GetTCount() - 1;
+		}
+		else
+			cur_pos = end_pos = pos;
+		for(; cur_pos <= end_pos; cur_pos++) {
+			int16  num_copies = 1;
+			RetailGoodsInfo * p_rgi = rgi_list.CreateNewItem();
+			THROW_SL(p_rgi);
+			const PPTransferItem * p_ti = &pPack->ConstTI(cur_pos);
+			int    r = 0;
+			if(p_ti->LotID) {
+				PPID   lot_id = p_ti->LotID;
+				if(cor_loc_id && p_ti->BillID && p_ti->RByBill) {
+					TransferTbl::Rec trfr_rec;
+					if(p_bobj->trfr->SearchByBill(p_ti->BillID, 1, p_ti->RByBill, &trfr_rec) > 0)
+						lot_id = trfr_rec.LotID;
+				}
+				THROW(p_bobj->GetLabelLotInfo(lot_id, p_rgi) > 0);
+				if(pPack->OpTypeID == PPOPT_GOODSREVAL)
+					p_rgi->RevalPrice = p_ti->Discount;
+				r = 1;
+			}
+			else {
+				r = gobj.GetRetailGoodsInfo(p_ti->GoodsID, p_ti->LocID, p_rgi);
+				SETIFZ(p_rgi->Cost, p_ti->Cost);
+				SETIFZ(p_rgi->Price, p_ti->Price);
+				p_rgi->RevalPrice = p_rgi->Price;
+				if(p_rgi->Serial[0] == 0) {
+					pPack->SnL.GetNumber(cur_pos, &serial);
+					serial.CopyTo(p_rgi->Serial, sizeof(p_rgi->Serial));
+				}
+			}
+			//
+			// Цены поступления и реализации из строки документа
+			//
+			p_rgi->LineCost = p_ti->Cost;
+			p_rgi->LinePrice = p_ti->Price;
+			if(r > 0) {
+				const double qtty = fabs(p_ti->SQtty(pPack->Rec.OpID));
+				if(bclpp.Flags & BarcodeLabelPrintParam::fPrintAll) {
+					GoodsStockExt gse;
+					num_copies = (int16)R0i(qtty + 0.49);
+					if(bclpp.Flags & BarcodeLabelPrintParam::fQttyAsPack) {
+						if(p_ti->UnitPerPack > 0)
+							num_copies = (int16)R0i(qtty / p_ti->UnitPerPack);
+						else if(gobj.GetStockExt(p_ti->GoodsID, &gse) > 0 && gse.Package > 0)
+							num_copies = (int16)R0i(qtty / gse.Package);
+					}
+					if(num_copies <= 0)
+						num_copies = 1;
+				}
+				else
+					num_copies = bclpp.NumCopies;
+				p_rgi->LabelCount = num_copies;
+				if(p_rgi->LocID != bclpp.LocID) {
+					RetailGoodsInfo temp_rgi;
+					if(gobj.GetRetailGoodsInfo(p_rgi->ID, bclpp.LocID, &temp_rgi) > 0) {
+						p_rgi->Price  = temp_rgi.Price;
+						p_rgi->Expiry = temp_rgi.Expiry;
+					}
+				}
+			}
+		}
+		{
+			THROW(p_prn = BarcodeLabelPrinter::CreateInstance(rec/*.PrinterType*/));
+			THROW(p_prn->Helper_PrintRgiCollection(bclpp, rgi_list));
+		}
+	}
+	CATCHZOKPPERR
+	delete p_prn;
+	return ok;
+}
+
+// static
+int SLAPI BarcodeLabelPrinter::PrintLabelByBill__(PPBillPacket * pPack, uint pos)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -1465,12 +1721,11 @@ int SLAPI BarcodeLabelPrinter::PrintLabelByBill(PPBillPacket * pPack, uint pos)
 					serial.CopyTo(rgi.Serial, sizeof(rgi.Serial));
 				}
 			}
-			// @v7.2.11 {
+			//
 			// Цены поступления и реализации из строки документа
 			//
 			rgi.LineCost = p_ti->Cost;
 			rgi.LinePrice = p_ti->Price;
-			// } @v7.2.11
 			if(r > 0) {
 				const double qtty = fabs(p_ti->SQtty(pPack->Rec.OpID));
 				if(bclpp.Flags & BarcodeLabelPrintParam::fPrintAll) {
@@ -1540,12 +1795,12 @@ SLAPI BarcodeLabelPrinter::~BarcodeLabelPrinter()
 {
 }
 
-int SLAPI BarcodeLabelPrinter::PutStr(const char * pStr)
+int FASTCALL BarcodeLabelPrinter::PutStr(const char * pStr)
 {
 	return Buf.Write(pStr, strlen(pStr)) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI BarcodeLabelPrinter::PutChr(char c)
+int FASTCALL BarcodeLabelPrinter::PutChr(char c)
 {
 	return Buf.Write(&c, 1) ? 1 : PPSetErrorSLib();
 }
@@ -1663,11 +1918,6 @@ int SLAPI BarcodeLabelPrinter::PrintLabelUsb(PPID devType)
 //
 // DatamaxLabelPrinter
 //
-SLAPI DatamaxLabelPrinter::DatamaxLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack)
-{
-	NumCopies = 1;
-}
-
 struct BarCStdToDatamaxEntry {
 	int8   Std;
 	int8   Chr;
@@ -1837,11 +2087,6 @@ int SLAPI DatamaxLabelPrinter::EndLabel()
 #define ZPL_B  0x0042U
 #define ZPL_PQ 0x5150U
 
-SLAPI ZebraLabelPrinter::ZebraLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack)
-{
-	NumCopies = 1;
-}
-
 int SLAPI ZebraLabelPrinter::PutCtrl(uint16 code)
 {
 	int    i = 0;
@@ -1989,13 +2234,6 @@ int SLAPI ZebraLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 #define ZPL_FD 0x4446U
 #define ZPL_B  0x0042U
 #define ZPL_PQ 0x5150U
-
-SLAPI EltronLabelPrinter::EltronLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack)
-{
-	NumCopies = 1;
-	BcNarrowPt = 0;
-	BcWidePt = 0;
-}
 
 int SLAPI EltronLabelPrinter::StartLabel(const BarcodeLabelParam * param, int numCopies)
 {
@@ -2175,4 +2413,96 @@ int SLAPI EltronLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 	PutChr('\n');
 	free(p_temp_str);
 	return 1;
+}
+//
+//
+//
+//
+// Implementation of PPALDD_BarcodeLabelList
+//
+struct DlBarcodeLabelListBlock {
+	DlBarcodeLabelListBlock(void * ptr)
+	{
+		P_RgiList = (TSCollection <RetailGoodsInfo> *)ptr;
+		N = 0;
+		ExemplarN = 0;
+	}
+	uint   N; // Текущий номер позиции
+	uint   ExemplarN; // Номер экземпляра для N [0..P_RgiList[N].LabelCount-1]
+	TSCollection <RetailGoodsInfo> * P_RgiList;
+};
+
+PPALDD_CONSTRUCTOR(BarcodeLabelList)
+{
+	InitFixData(rscDefHdr, &H, sizeof(H));
+	InitFixData(rscDefIter, &I, sizeof(I));
+}
+
+PPALDD_DESTRUCTOR(BarcodeLabelList)
+{
+	DlBarcodeLabelListBlock * p_blk = (DlBarcodeLabelListBlock *)Extra[0].Ptr;
+	delete p_blk;
+	Destroy();
+}
+
+int PPALDD_BarcodeLabelList::InitData(PPFilt & rFilt, long rsrv)
+{
+	//SString temp_buf;
+
+	DlBarcodeLabelListBlock * p_blk = new DlBarcodeLabelListBlock(rFilt.Ptr);
+	Extra[0].Ptr = p_blk;
+
+	//TSCollection <RetailGoodsInfo> * p_rgi_list = (TSCollection <RetailGoodsInfo> *)rFilt.Ptr;
+	//Extra[1].Ptr = p_rgi_list;
+	H.nn = 0;
+	return DlRtm::InitData(rFilt, rsrv);
+}
+
+int PPALDD_BarcodeLabelList::InitIteration(long iterId, int sortId, long rsrv)
+{
+	DlBarcodeLabelListBlock * p_blk = (DlBarcodeLabelListBlock *)Extra[0].Ptr;
+	//TSCollection <RetailGoodsInfo> * p_rgi_list = (TSCollection <RetailGoodsInfo> *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	IterProlog(iterId, 1);
+	if(p_blk && p_blk->P_RgiList) {
+		if(sortId >= 0)
+			SortIdx = sortId;
+		H.nn = 0;
+		p_blk->N = 0;
+		p_blk->ExemplarN = 0;
+		return 1;
+	}
+	else
+		return 0;
+}
+
+int PPALDD_BarcodeLabelList::NextIteration(long iterId, long rsrv)
+{
+	int    ok = -1;
+	IterProlog(iterId, 0);
+	//TSCollection <RetailGoodsInfo> * p_rgi_list = (TSCollection <RetailGoodsInfo> *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	DlBarcodeLabelListBlock * p_blk = (DlBarcodeLabelListBlock *)Extra[0].Ptr;
+	if(p_blk && p_blk->P_RgiList && p_blk->N < (int)p_blk->P_RgiList->getCount()) {
+		const RetailGoodsInfo * p_rgi = p_blk->P_RgiList->at(p_blk->N);
+        const uint num_copies = (p_rgi->LabelCount > 1 && p_rgi->LabelCount < 1000) ? p_rgi->LabelCount : 1;
+		I.GoodsID = p_rgi->ID;
+		I.BillDate = p_rgi->BillDate;
+		STRNSCPY(I.BillNo, p_rgi->BillCode);
+		I.Expiry = p_rgi->Expiry;
+		I.Qtty = p_rgi->Qtty;
+		I.PhQtty = p_rgi->PhQtty;
+		I.Brutto = p_rgi->Brutto;
+		I.Price = p_rgi->Price;
+		I.RevalPrice = p_rgi->RevalPrice;
+		I.UnitPerPack = p_rgi->UnitPerPack;
+		STRNSCPY(I.Barcode, p_rgi->BarCode);
+		STRNSCPY(I.Serial, p_rgi->Serial);
+		p_blk->ExemplarN++;
+		if(p_blk->ExemplarN >= num_copies) {
+			p_blk->N++;
+			p_blk->ExemplarN = 0;
+			H.nn++;
+		}
+		ok = DlRtm::NextIteration(iterId, rsrv);
+	}
+	return ok;
 }

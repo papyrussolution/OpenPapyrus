@@ -1906,7 +1906,7 @@ int QuotationDialog::SetupMatrixLocEntry(const StrAssocArray::Item & rItem, Smar
 			r = 1;
 		}
 		else if(Data.GoodsID && GObj.Fetch(Data.GoodsID, &goods_rec) > 0 && goods_rec.ParentID) {
-			if(GObj.GetQuotExt(goods_rec.ParentID, qi, 0.0, 0.0, &result, 1) > 0)
+			if(GObj.GetQuotExt(goods_rec.ParentID, qi, &result, 1) > 0)
 				r = 1;
 		}
 		if(r > 0 && result != 0.0) {
@@ -2477,7 +2477,7 @@ int SLAPI PPObjGoods::GetSupplDeal(PPID goodsID, const QuotIdent & rQi, PPSupplD
 	memzero(pResult, sizeof(*pResult));
 	if(qk_id) {
 		qi.QuotKindID = qk_id;
-		THROW(r = GetQuotExt(goodsID, qi, 0, 0, &val, useCache));
+		THROW(r = GetQuotExt(goodsID, qi, &val, useCache));
 		if(r == 1) {
 			pResult->Cost = val;
 		}
@@ -2490,13 +2490,13 @@ int SLAPI PPObjGoods::GetSupplDeal(PPID goodsID, const QuotIdent & rQi, PPSupplD
 		qk_id = r_tla.SupplDevUpQuotKindID;
 		if(qk_id) {
 			qi.QuotKindID = qk_id;
-			THROW(GetQuotExt(goodsID, qi, 0, 0, &(val = 0), useCache));
+			THROW(GetQuotExt(goodsID, qi, &(val = 0), useCache));
 			pResult->UpDev = val;
 		}
 		qk_id = r_tla.SupplDevDnQuotKindID;
 		if(qk_id) {
 			qi.QuotKindID = qk_id;
-			THROW(GetQuotExt(goodsID, qi, 0, 0, &(val = 0), useCache));
+			THROW(GetQuotExt(goodsID, qi, &(val = 0), useCache));
 			pResult->DnDev = val;
 		}
 	}
@@ -2561,6 +2561,11 @@ int SLAPI PPObjGoods::GetQuotExt(PPID goodsID, const QuotIdent & rQi, double cos
 	else
 		ok = Helper_GetQuotExt(goodsID, rQi, cost, price, pResult, useCache);
 	return ok;
+}
+
+int SLAPI PPObjGoods::GetQuotExt(PPID goodsID, const QuotIdent & rQi, double * pResult, int useCache)
+{
+	return Helper_GetQuotExt(goodsID, rQi, 0.0, 0.0, pResult, (useCache == 1000 && pResult) ? 1 : useCache);
 }
 
 int SLAPI PPObjGoods::Helper_GetQuotExt(PPID goodsID, const QuotIdent & rQi, double cost, double price, double * pResult, int useCache)
@@ -2875,7 +2880,7 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 	if(P_GObj->CheckFlag(goodsID, GF_UNLIM)) {
 		QuotIdent qi(LocID, PPQUOTK_BASE, 0, ArID);
 		qi.Qtty_ = qtty;
-		THROW(r = P_GObj->GetQuotExt(goodsID, qi, 0, 0, &price, use_quot_cache));
+		THROW(r = P_GObj->GetQuotExt(goodsID, qi, &price, use_quot_cache));
 		if(r > 0) {
 			pItem->QuotKindUsedForPrice = PPQUOTK_BASE;
 			used_quot_list.addUnique(PPQUOTK_BASE);

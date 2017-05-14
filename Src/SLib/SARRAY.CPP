@@ -610,7 +610,7 @@ int SLAPI SArray::imp_bsearch(const void * key, uint * pIdx, CompFunc fcmp, size
 		uint   up  = count - 1;
 		const  uint8 * p_org = data/* + ofs*/;
 		//
-		// »з-за попул€рности функции CMPF_LONG в простых массивах (без aryPtrContainer) выдел€ем в 
+		// »з-за попул€рности функции CMPF_LONG в простых массивах (без aryPtrContainer) выдел€ем в
 		// отдельную ветку такой случай - это даст значительное ускорение.
 		//
 		if(fcmp == CMPF_LONG && !(flags & aryPtrContainer)) {
@@ -2801,6 +2801,30 @@ Int64Array & FASTCALL Int64Array::operator = (const Int64Array & rS)
 {
 	copy(rS);
 	return *this;
+}
+
+int FASTCALL Int64Array::operator == (const Int64Array & rS) const
+{
+	return IsEqual(&rS);
+}
+
+int FASTCALL Int64Array::operator != (const Int64Array & rS) const
+{
+	return BIN(!IsEqual(&rS));
+}
+
+int FASTCALL Int64Array::IsEqual(const Int64Array * pS) const
+{
+	if(pS) {
+		const uint c = getCount();
+		if(pS->getCount() == c) {
+			for(uint i = 0; i < c; i++)
+				if(pS->at(i) != at(i))
+					return 0;
+			return 1;
+		}
+	}
+	return 0;
 }
 
 int64 FASTCALL Int64Array::get(uint pos) const

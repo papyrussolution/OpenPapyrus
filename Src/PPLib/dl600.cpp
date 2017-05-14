@@ -36,6 +36,11 @@ int DlFunc::IsEqual(const DlFunc & rPat) const
 	return ok;
 }
 
+uint DlFunc::GetArgCount() const
+{
+	return ArgList.getCount();
+}
+
 int DlFunc::GetArg(uint argN, Arg * pArg) const
 {
 	if(argN < ArgList.getCount()) {

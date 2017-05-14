@@ -2706,6 +2706,7 @@ typedef struct entry {
 #define DB_LOG_IN_MEMORY                        0x00000008
 #define DB_LOG_NOCOPY                           0x00000008
 #define DB_LOG_NOT_DURABLE                      0x00000010
+#define	DB_LOG_NOSYNC				            0x00000020 // @bdb_v6223
 #define DB_LOG_NO_DATA                          0x00000004
 #define DB_LOG_VERIFY_CAF                       0x00000001
 #define DB_LOG_VERIFY_DBFILE                    0x00000002

@@ -2388,11 +2388,9 @@ int __txn_ckp_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, v
 	__db_msg(env, DB_STR_A("2549", "[%lu][%lu] Checkpoint record, ckp_lsn: [%lu][%lu], timestamp: %s. Total checkpoint: %u",
 		"%lu %lu %lu %lu %s %u"), (ulong)lsnp->file, (ulong)lsnp->offset, (ulong)argp->ckp_lsn.file,
 		(ulong)argp->ckp_lsn.offset, __os_ctime(&ckp_time, timebuf), lvh->nckp);
-	if((ret = __lv_on_timestamp(lvh, lsnp,
-		    argp->timestamp, DB___txn_ckp)) != 0)
+	if((ret = __lv_on_timestamp(lvh, lsnp, argp->timestamp, DB___txn_ckp)) != 0)
 		goto err;
-	if(((ret = __get_last_ckp_info(lvh, &lastckp)) != 0) &&
-	   ret != DB_NOTFOUND)
+	if(((ret = __get_last_ckp_info(lvh, &lastckp)) != 0) && ret != DB_NOTFOUND)
 		return ret;
 	if(ret == DB_NOTFOUND)
 		goto cont;

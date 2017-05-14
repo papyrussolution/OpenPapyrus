@@ -2631,6 +2631,10 @@ struct RealRange {         // @persistent @size=16
 	RealRange & SLAPI SetDelta(double lo, double delta);
 	RealRange & SLAPI Scale(double sc);
 	//
+	// Descr: вызывает round(low, prec) и round(upp, prec)
+	//
+	RealRange & FASTCALL Round(int prec);
+	//
 	// Descr: Устанавливает диапазон [middle-delta..middle+delta]
 	//
 	RealRange & SLAPI SetMiddle(double middle, double delta);
@@ -5947,7 +5951,9 @@ public:
 	SLAPI  Int64Array();
 	SLAPI  Int64Array(const Int64Array & s);
 	Int64Array & FASTCALL operator = (const Int64Array & s);
-
+	int    FASTCALL operator == (const Int64Array & rS) const;
+	int    FASTCALL operator != (const Int64Array & rS) const;
+	int    FASTCALL IsEqual(const Int64Array * pS) const;
 	int64  FASTCALL get(uint pos) const;
 	int    lsearch(int64 key, uint * pPos) const;
 	int    lsearch(int64 key) const;
@@ -10612,7 +10618,7 @@ public:
 	void   SLAPI SetNextDialogLuPos(int left, int top);
 	//
 	// Descr: Возвращает рекомендуемую позицию левого верхнего угла вновь открытого
-	//   диалогового окна. 
+	//   диалогового окна.
 	// Note: Эта функция сразу же сбрасывает значение этого угла в неопределенное.
 	//
 	TPoint SLAPI GetNextDialogLuPos();
@@ -10783,7 +10789,7 @@ private:
 	long   TlsIdx;          // @anchor
 	ACount SeqValue;        // @anchor Последнее значение, возвращенное функций GetSequenceValue().
 		// Положение переменной должно быть выровнено по 64-битной границе.
-	ACount LastThread;      // 
+	ACount LastThread;      //
 	int    WsaInitCounter;
 	ACount SslInitCounter;  // @v8.3.5
 	int    StopFlag;

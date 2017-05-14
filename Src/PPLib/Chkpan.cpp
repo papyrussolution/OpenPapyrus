@@ -10304,7 +10304,7 @@ int CPosProcessor::ProcessGift()
 									else {
 										double gift_quot = 0.0;
 										QuotIdent qi(QIDATE(getcurdate_()), CnLocID, PPQUOTK_GIFT);
-										if(GObj.GetQuotExt(gift_id, qi, 0.0, 0.0, &gift_quot, 1) > 0)
+										if(GObj.GetQuotExt(gift_id, qi, &gift_quot, 1) > 0)
 											gift_discount = -gift_quot;
 										PgsBlock pgsb(gift.Qtty);
 										pgsb.PriceBySerial = gift_discount;
@@ -10423,7 +10423,7 @@ int CPosProcessor::AcceptRow(PPID giftID)
 				P.Eccd.InitDtm = getcurdatetime_();
 			if(!oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF))
 				SetupDiscount();
-			CalcRestByCrdCard_(0); // @v7.4.9 Предыдущий вызов (@01) не учел скидку при расчете суммы доплаты
+			CalcRestByCrdCard_(0); // Предыдущий вызов (@01) не учел скидку при расчете суммы доплаты
 			AutosaveCheck(); // @v8.7.7
 			OnUpdateList(1);
 			SelLines = sl_ary;
@@ -12002,7 +12002,7 @@ int InfoKioskDialog::PrintLabel()
 	RetailGoodsInfo rgi;
 	rgi.Qtty = St.Qtty;
 	if(GObj.GetRetailGoodsInfo(St.GoodsID, 0, 0, 0, 0.0, &rgi, PPObjGoods::rgifConcatQttyToCode) > 0)
-		BarcodeLabelPrinter::PrintGoodsLabel(&rgi, Rec.LabelPrinterID, 1);
+		BarcodeLabelPrinter::PrintGoodsLabel2(&rgi, Rec.LabelPrinterID, 1);
 	return 1;
 }
 

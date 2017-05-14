@@ -605,13 +605,27 @@ public:
 	SLAPI  SrGeoNodeTbl(BDbDatabase * pDb);
 	SLAPI ~SrGeoNodeTbl();
 	int    SLAPI Add(PPOsm::NodeCluster & rNc, uint64 outerID);
-	int    SLAPI Get(PPOsm::Tile tl, TSArray <PPOsm::Node> & rList);
-	int    SLAPI Get(PPOsm::Tile tlLow, PPOsm::Tile tlUpp, TSArray <PPOsm::Node> & rList);
+	int    SLAPI Search(uint64 id, PPOsm::Node * pNode, uint64 * pFaultLogicalID);
 private:
 	//
 	// Буферы для временного использования. Определены как члены класса
 	// дабы избежать частых распределений памяти.
-	// 
+	//
+	BDbTable::Buffer KeyBuf;
+	BDbTable::Buffer DataBuf;
+};
+
+class SrGeoWayTbl : public BDbTable {
+public:
+	SLAPI  SrGeoWayTbl(BDbDatabase * pDb);
+	SLAPI ~SrGeoWayTbl();
+	int    SLAPI Add(PPOsm::Way & rW, PPOsm::WayBuffer * pBuffer);
+	int    SLAPI Search(uint64 id, PPOsm::Way * pW);
+private:
+	//
+	// Буферы для временного использования. Определены как члены класса
+	// дабы избежать частых распределений памяти.
+	//
 	BDbTable::Buffer KeyBuf;
 	BDbTable::Buffer DataBuf;
 };
@@ -716,6 +730,7 @@ public:
 
 	int    ImportFlexiaModel(const SrImportParam & rParam);
 	int    StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, TSArray <PPOsm::NodeClusterStatEntry> * pStat);
+	int    StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSArray <PPOsm::WayStatEntry> * pStat);
 //private:
 public:
 	BDbDatabase      * P_Db;
@@ -727,6 +742,7 @@ public:
 	SrNGramTbl       * P_NgT;
 	SrConceptNgTbl   * P_CNgT;
 	SrGeoNodeTbl     * P_GnT;
+	SrGeoWayTbl      * P_GwT;
 	LEXID  ZeroWordID;
 private:
 	int    Helper_GetConceptHier(CONCEPTID cID, Int64Array & rConceptHier);

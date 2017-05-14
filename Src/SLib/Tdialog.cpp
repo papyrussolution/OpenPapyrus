@@ -699,7 +699,7 @@ IMPL_HANDLE_EVENT(TDialog)
 							clearEvent(event);
 						}
 						break;*/
-	#ifndef NDEBUG // {
+	// @v9.6.6 #ifndef NDEBUG // {
 					case cmResize:
 						if(event.message.infoPtr) {
 							if(!(DlgFlags & fMouseResizing))
@@ -720,8 +720,20 @@ IMPL_HANDLE_EVENT(TDialog)
 							DlgFlags &= ~fMouseResizing;
 							clearEvent(event);
 						}
+						// @v9.6.6 {
+						/*
+						else {
+							GetWindowRect(H(), &ToResizeRect);
+							ResizeDlgToRect(&ToResizeRect);
+							MEMSZERO(ResizedRect);
+							MEMSZERO(ToResizeRect);
+							DlgFlags &= ~fMouseResizing;
+							clearEvent(event);
+						}
+						*/
+						// } @v9.6.6 
 						break;
-	#endif // } !NDEBUG
+	// @v9.6.6 #endif // } !NDEBUG
 				}
 				break;
 		}

@@ -2755,7 +2755,7 @@ protected:
 	// Descr: Устанавливает параметры поведения контрола при изменении размера диалога
 	// ARG(ctrlID IN):                 ID описываемого контрола
 	// ARG(xCtrl (x = l, t, r, b) IN): контролы, к которым привязан контрол (0 - к границе диалога, -1 - не привязан);
-	//   если (ctrlResizeFlags | crfLinkXXX), то контролы связаны соответствующей стороной,
+	//   если (ctrlResizeFlags & crfLinkXXX), то контролы связаны соответствующей стороной,
 	//   иначе будут пересчитываться совместно (функция Helper_ToRecalcCtrlSet)
 	//   для xCtrl == 0 соответствующий crfLinkXXX подразумевается по умолчанию;
 	// ARG(ctrlResizeFlags IN):        CtrlResizeFlags, если (ctrlResizeFlags | crfResizeable),

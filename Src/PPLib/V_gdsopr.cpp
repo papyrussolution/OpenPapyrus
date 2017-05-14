@@ -1326,7 +1326,7 @@ int SLAPI PPViewGoodsOpAnalyze::InitIteration(IterOrder ord)
 {
 	int    ok = 1;
 	IterIdx   = 0;
-	IterGrpName[0] = 0;
+	IterGrpName = 0;
 	ZDELETE(P_GGIter);
 	ZDELETE(P_TempOrd);
 	ZDELETE(P_IterQuery);
@@ -1356,7 +1356,7 @@ int SLAPI PPViewGoodsOpAnalyze::InitIteration(IterOrder ord)
 				NextOuterIteration();
 			}
 			else {
-				STRNSCPY(IterGrpName, grp_rec.Name);
+				IterGrpName = grp_rec.Name;
 				InitIterQuery(0L);
 			}
 		}
@@ -1368,7 +1368,7 @@ int SLAPI PPViewGoodsOpAnalyze::InitIteration(IterOrder ord)
 int SLAPI PPViewGoodsOpAnalyze::NextOuterIteration()
 {
 	PPID   grp_id = 0;
-	if(P_GGIter && P_GGIter->Next(&grp_id, IterGrpName, sizeof(IterGrpName)) > 0) {
+	if(P_GGIter && P_GGIter->Next(&grp_id, IterGrpName) > 0) {
 		InitIterQuery(NZOR(grp_id, -1));
 		return 1;
 	}
@@ -1398,7 +1398,7 @@ int SLAPI PPViewGoodsOpAnalyze::NextIteration(GoodsOpAnalyzeViewItem * pItem)
 					k1.InOutTag = -rec.InOutTag;
 					if(P_TempTbl->search(1, &k1, spGe) && k1.InOutTag == (short)-rec.InOutTag) {
 						pItem->GoodsGrpID   = P_TempTbl->data.GoodsGrp;
-						STRNSCPY(IterGrpName, P_TempTbl->data.Text);
+						IterGrpName = P_TempTbl->data.Text;
 						pItem->OldPrice     = P_TempTbl->data.OldPrice; // position percent in group GoodsGrpID
 						pItem->PctVal       = P_TempTbl->data.PctVal;
 					}

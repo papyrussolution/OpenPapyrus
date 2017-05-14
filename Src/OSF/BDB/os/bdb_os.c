@@ -283,10 +283,9 @@ int __os_realloc(ENV * env, size_t size, void * storep)
  */
 void FASTCALL __os_free(ENV * env, void * ptr)
 {
-	/*
-	 * ANSI C requires free(NULL) work.  Don't depend on the underlying
-	 * library.
-	 */
+	//
+	// ANSI C requires free(NULL) work.  Don't depend on the underlying library.
+	//
 	if(ptr) {
 #ifdef DIAGNOSTIC
 		size_t size;

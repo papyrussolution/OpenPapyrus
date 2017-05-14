@@ -770,13 +770,10 @@ int __log_flush(ENV * env, const DB_LSN * lsn)
 	LOG_SYSTEM_UNLOCK(env);
 	return ret;
 }
-/*
- * __log_flush_int --
- *	Write all records less than or equal to the specified LSN; internal
- *	version.
- *
- * PUBLIC: int __log_flush_int __P((DB_LOG *, const DB_LSN *, int));
- */
+//
+// __log_flush_int --
+// Write all records less than or equal to the specified LSN; internal version.
+//
 int __log_flush_int(DB_LOG * dblp, const DB_LSN * lsnp, int release)
 {
 	struct __db_commit * commit;
@@ -813,10 +810,10 @@ int __log_flush_int(DB_LOG * dblp, const DB_LSN * lsnp, int release)
 			return 0;
 		flush_lsn = *lsnp;
 	}
-	/*
-	 * If a flush is in progress and we're allowed to do so, drop
-	 * the region lock and block waiting for the next flush.
-	 */
+	//
+	// If a flush is in progress and we're allowed to do so, drop
+	// the region lock and block waiting for the next flush.
+	//
 	if(release && lp->in_flush != 0) {
 		if((commit = SH_TAILQ_FIRST(&lp->free_commits, __db_commit)) == NULL) {
 			if((ret = __env_alloc(&dblp->reginfo, sizeof(struct __db_commit), &commit)) != 0)
@@ -831,10 +828,9 @@ int __log_flush_int(DB_LOG * dblp, const DB_LSN * lsnp, int release)
 		else
 			SH_TAILQ_REMOVE(&lp->free_commits, commit, links, __db_commit);
 		lp->ncommit++;
-		/*
-		 * Flushes may be requested out of LSN order;  be
-		 * sure we only move lp->t_lsn forward.
-		 */
+		//
+		// Flushes may be requested out of LSN order;  be sure we only move lp->t_lsn forward.
+		//
 		if(LOG_COMPARE(&lp->t_lsn, &flush_lsn) < 0)
 			lp->t_lsn = flush_lsn;
 		commit->lsn = flush_lsn;
@@ -896,33 +892,36 @@ flush:
 			MUTEX_UNLOCK(env, lp->mtx_flush);
 			goto done;
 		}
-	/*
-	 * We are going to flush, release the region.
-	 * First get the current state of the buffer since
-	 * another write may come in, but we may not flush it.
-	 */
+	// 
+	// We are going to flush, release the region.
+	// First get the current state of the buffer since
+	// another write may come in, but we may not flush it.
+	// 
 	b_off = lp->b_off;
 	w_off = lp->w_off;
 	f_lsn = lp->f_lsn;
 	lp->in_flush++;
 	if(release)
 		LOG_SYSTEM_UNLOCK(env);
-	/* Sync all writes to disk. */
-	if((ret = __os_fsync(env, dblp->lfhp)) != 0) {
-		MUTEX_UNLOCK(env, lp->mtx_flush);
-		if(release)
-			LOG_SYSTEM_LOCK(env);
-		lp->in_flush--;
-		goto done;
+	//
+	// Sync all writes to disk
+	//
+	if(!lp->nosync) {
+		if((ret = __os_fsync(env, dblp->lfhp)) != 0) {
+			MUTEX_UNLOCK(env, lp->mtx_flush);
+			if(release)
+				LOG_SYSTEM_LOCK(env);
+			lp->in_flush--;
+			goto done;
+		}
+		STAT(++lp->stat.st_scount); 
 	}
-	/*
-	 * Set the last-synced LSN.
-	 * This value must be set to the LSN past the last complete
-	 * record that has been flushed.  This is at least the first
-	 * lsn, f_lsn.  If the buffer is empty, b_off == 0, then
-	 * we can move up to write point since the first lsn is not
-	 * set for the new buffer.
-	 */
+	//
+	// Set the last-synced LSN.
+	// This value must be set to the LSN past the last complete record that has been flushed.  
+	// This is at least the first lsn, f_lsn.  If the buffer is empty, b_off == 0, then
+	// we can move up to write point since the first lsn is not set for the new buffer.
+	// 
 	lp->s_lsn = f_lsn;
 	if(b_off == 0)
 		lp->s_lsn.offset = w_off;
@@ -930,12 +929,10 @@ flush:
 	if(release)
 		LOG_SYSTEM_LOCK(env);
 	lp->in_flush--;
-	STAT(++lp->stat.st_scount);
-
-	/*
-	 * How many flush calls (usually commits) did this call actually sync?
-	 * At least one, if it got here.
-	 */
+	// 
+	// How many flush calls (usually commits) did this call actually sync?
+	// At least one, if it got here.
+	// 
 	ncommit = 1;
 done:
 	if(lp->ncommit != 0) {

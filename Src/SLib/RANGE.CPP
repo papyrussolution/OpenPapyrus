@@ -263,6 +263,13 @@ RealRange & SLAPI RealRange::Scale(double sc)
 	return *this;
 }
 
+RealRange & FASTCALL RealRange::Round(int prec)
+{
+	round(low, prec);
+	round(upp, prec);
+	return *this;
+}
+
 RealRange & SLAPI RealRange::SetMiddle(double middle, double delta)
 {
 	low = middle-delta;
@@ -531,7 +538,6 @@ void SLAPI TimeRange::SetZero()
 
 int FASTCALL TimeRange::Check(LTIME tm) const
 {
-	// @v7.0.6 {
 	if(low == ZEROTIME && upp == ZEROTIME)
 		return 1;
 	else if(low <= upp)
@@ -545,6 +551,4 @@ int FASTCALL TimeRange::Check(LTIME tm) const
 		else
 			return 0;
 	}
-	// } @v7.0.6
-	// @v7.0.6 return (low == ZEROTIME && upp == ZEROTIME) ? 1 : BIN(tm >= low && tm <= upp);
 }

@@ -377,7 +377,6 @@ void TInputLine::InputStat::CheckIn()
 	}
 }
 
-
 //static
 LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -1930,6 +1929,10 @@ LRESULT CALLBACK TImageView::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 		case WM_COMMAND:
 			if(HIWORD(wParam) == 1)
 				SendMessage(APPL->H_TopOfStack, uMsg, wParam, lParam);
+			break;
+		case WM_LBUTTONDBLCLK:
+			if(p_view)
+				TView::messageCommand(p_view->owner, cmImageDblClk, p_view);
 			break;
 		case WM_PAINT:
 			if(p_view && p_view->IsSubSign(TV_SUBSIGN_IMAGEVIEW)) {

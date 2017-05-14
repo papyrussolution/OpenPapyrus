@@ -90,10 +90,7 @@ static int __logc_close_pp(DB_LOGC * logc, uint32 flags)
 	}
 	return ret;
 }
-/*
- * __logc_close --
- *	DB_LOGC->close.
- */
+
 int __logc_close(DB_LOGC * logc)
 {
 	ENV * env = logc->env;
@@ -106,10 +103,7 @@ int __logc_close(DB_LOGC * logc)
 	__os_free(env, logc);
 	return 0;
 }
-/*
- * __logc_version_pp --
- *	DB_LOGC->version.
- */
+
 static int __logc_version_pp(DB_LOGC * logc, uint32 * versionp, uint32 flags)
 {
 	DB_THREAD_INFO * ip;

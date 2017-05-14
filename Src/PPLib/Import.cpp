@@ -5165,6 +5165,7 @@ void SLAPI PrcssrOsm::StatBlock::Clear()
 	TagWayCount = 0;
 	TagRelCount = 0;
 	NcList.clear();
+	WayList.clear();
 }
 
 uint64 SLAPI PrcssrOsm::StatBlock::GetNcActualCount() const
@@ -5172,6 +5173,14 @@ uint64 SLAPI PrcssrOsm::StatBlock::GetNcActualCount() const
 	uint64 result = 0;
 	for(uint i = 0; i < NcList.getCount(); i++)
 		result += NcList.at(i).ActualCount;
+	return result;
+}
+
+uint64 SLAPI PrcssrOsm::StatBlock::GetNcProcessedCount() const
+{
+	uint64 result = 0;
+	for(uint i = 0; i < NcList.getCount(); i++)
+		result += NcList.at(i).ProcessedCount;
 	return result;
 }
 
@@ -5188,6 +5197,30 @@ uint64 SLAPI PrcssrOsm::StatBlock::GetNcSize() const
 	uint64 result = 0;
 	for(uint i = 0; i < NcList.getCount(); i++)
 		result += NcList.at(i).Size;
+	return result;
+}
+
+uint64 SLAPI PrcssrOsm::StatBlock::GetWsCount() const
+{
+	uint64 result = 0;
+	for(uint i = 0; i < WayList.getCount(); i++)
+		result += WayList.at(i).WayCount;
+	return result;
+}
+
+uint64 SLAPI PrcssrOsm::StatBlock::GetWsProcessedCount() const
+{
+	uint64 result = 0;
+	for(uint i = 0; i < WayList.getCount(); i++)
+		result += WayList.at(i).ProcessedCount;
+	return result;
+}
+
+uint64 SLAPI PrcssrOsm::StatBlock::GetWsSize() const
+{
+	uint64 result = 0;
+	for(uint i = 0; i < WayList.getCount(); i++)
+		result += WayList.at(i).Size;
 	return result;
 }
 
@@ -5476,7 +5509,9 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 			break;
 		case PPHS_WAY: // osm/way
 			{
-				THROW(FlashNodeAccum(1));
+				if(Stat.WayCount == 0) {
+					THROW(FlashNodeAccum(1));
+				}
 				Stat.WayCount++;
 				PPOsm::Way new_way;
 				ReadCommonAttrSet(ppAttrList, TempCaSet);
@@ -5502,7 +5537,9 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 			break;
 		case PPHS_RELATION: // osm/relation
 			{
-				THROW(FlashNodeAccum(1));
+				if(Stat.RelationCount == 0) {
+					THROW(FlashNodeAccum(1));
+				}
 				Stat.RelationCount++;
 				PPOsm::Relation new_rel;
 				ReadCommonAttrSet(ppAttrList, TempCaSet);
@@ -5643,6 +5680,7 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 	}
 	else if(Phase == phaseImport) {
 		static const uint node_accum_limit = 1024*1024;
+		static const uint way_accum_limit = 256 * 1024;
 		{
 			const uint _count = NodeAccum.getCount();
 			if(_count && (force || _count >= node_accum_limit)) {
@@ -5653,7 +5691,7 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 					size_t offs = 0;
 					SrDatabase * p_db = O.GetDb();
 					if(p_db) {
-						THROW_DB(p_db->StoreGeoNodeList(NodeAccum, &Stat.NcList));
+						THROW(p_db->StoreGeoNodeList(NodeAccum, &Stat.NcList));
 					}
 					else {
 						while(offs < _count) {
@@ -5685,10 +5723,8 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 						}
 						assert(offs == _count);
 					}
-					{
-                        // Обра
-					}
-					assert(Stat.GetNcActualCount() == Stat.NodeCount);
+					OutputStat();
+					assert((Stat.GetNcActualCount() + Stat.GetNcProcessedCount()) == Stat.NodeCount);
 					if(force)
 						NodeAccum.freeAll();
 					else
@@ -5696,9 +5732,89 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 				}
 			}
 		}
+		{
+			const uint _count = WayAccum.getCount();
+			if(_count && (force || _count >= way_accum_limit)) {
+				size_t offs = 0;
+				SrDatabase * p_db = O.GetDb();
+				if(p_db) {
+					THROW(p_db->StoreGeoWayList(WayAccum, &Stat.WayList));
+				}
+				else {
+					PPOsm::WayBuffer wbuf;
+					PPOsm::Way test_way;
+					for(uint i = 0; i < _count; i++) {
+						const int do_use_outer_id = 1;
+						const PPOsm::Way * p_way = WayAccum.at(i);
+						assert(p_way);
+						if(do_use_outer_id) {
+							uint64 outer_id = p_way->ID;
+							THROW(wbuf.Put(p_way, &outer_id));
+						}
+						else {
+							THROW(wbuf.Put(p_way, 0));
+						}
+						PPOsm::SetWayStat(wbuf, Stat.WayList);
+						// @debug {
+						{
+							if(do_use_outer_id) {
+								uint64 outer_id = p_way->ID;
+								assert(wbuf.Get(outer_id, &test_way));
+							}
+							else {
+								assert(wbuf.Get(0, &test_way));
+							}
+							assert(test_way == *p_way);
+						}
+						// } @debug
+					}
+				}
+				OutputStat();
+				assert((Stat.GetNcActualCount() + Stat.GetNcProcessedCount()) == Stat.NodeCount);
+				assert(Stat.GetWsCount() + Stat.GetWsProcessedCount() == Stat.WayCount);
+				if(force)
+					NodeAccum.freeAll();
+				else
+					NodeAccum.clear();
+				WayAccum.freeAll();
+			}
+		}
 	}
 	CATCHZOK
 	return ok;
+}
+
+int PrcssrOsm::OutputStat()
+{
+	SString stat_info_buf;
+	stat_info_buf.CatEq("Node", Stat.NodeCount).CatDiv(';', 2).
+		CatEq("Way", Stat.WayCount).CatDiv(';', 2).
+		CatEq("Relation", Stat.RelationCount).CatDiv(';', 2);
+	PPLogMessage(PPFILNAM_INFO_LOG, stat_info_buf, LOGMSGF_TIME);
+	if(Stat.NcList.getCount()) {
+		for(uint i = 0; i < Stat.NcList.getCount(); i++) {
+			const PPOsm::NodeClusterStatEntry & r_entry = Stat.NcList.at(i);
+			stat_info_buf = 0;
+			stat_info_buf.CatEq("NodeLogicalCount", r_entry.LogicalCount).CatDiv(';', 2).
+				CatEq("NodeClusterCount", r_entry.ClusterCount).CatDiv(';', 2).
+				CatEq("NodeProcessesCount", r_entry.ProcessedCount).CatDiv(';', 2).
+				CatEq("NodeActualCount", r_entry.ActualCount).CatDiv(';', 2).
+				CatEq("NodeSize", r_entry.Size).CatDiv(';', 2);
+			PPLogMessage(PPFILNAM_INFO_LOG, stat_info_buf, 0);
+		}
+	}
+	if(Stat.WayList.getCount()) {
+		for(uint i = 0; i < Stat.WayList.getCount(); i++) {
+			const PPOsm::WayStatEntry & r_entry = Stat.WayList.at(i);
+			stat_info_buf = 0;
+			stat_info_buf.CatEq("WayRefCount", r_entry.RefCount).CatDiv(';', 2).
+				CatEq("WayProcessesCount", r_entry.ProcessedCount).CatDiv(';', 2).
+				CatEq("WayCount", r_entry.WayCount).CatDiv(';', 2).
+				CatEq("WaySize", r_entry.Size).CatDiv(';', 2);
+			PPLogMessage(PPFILNAM_INFO_LOG, stat_info_buf, 0);
+		}
+	}
+	return 1;
 }
 
 int PrcssrOsm::EndElement(const char * pName)
@@ -5709,6 +5825,12 @@ int PrcssrOsm::EndElement(const char * pName)
 		if(CurrentTagList.getCount() == 0)
 			Stat.NakedNodeCount++;
 	}
+	else if(tok == PPHS_WAY) {
+        PPOsm::Way * p_new_way = WayAccum.CreateNewItem();
+		THROW_SL(p_new_way);
+		*p_new_way = LastWay;
+		LastWay.Clear();
+	}
 	THROW(FlashNodeAccum(BIN(tok == PPHS_OSM)));
 	if(oneof3(tok, PPHS_NODE, PPHS_WAY, PPHS_RELATION)) {
 		//PPUPRF_OSMXMLPARSETAG
@@ -5716,26 +5838,15 @@ int PrcssrOsm::EndElement(const char * pName)
 	}
 	{
 		const uint64 total_count = Stat.NodeCount + Stat.WayCount + Stat.RelationCount;
-		if(tok == PPHS_OSM || (total_count % 1000000) == 0) {
-            SString stat_info_buf;
-            stat_info_buf.CatEq("Node", Stat.NodeCount).CatDiv(';', 2).
-				CatEq("Way", Stat.WayCount).CatDiv(';', 2).
-				CatEq("Relation", Stat.RelationCount).CatDiv(';', 2);
-			PPLogMessage(PPFILNAM_INFO_LOG, stat_info_buf, LOGMSGF_TIME);
-			if(Stat.NcList.getCount()) {
-				for(uint i = 0; i < Stat.NcList.getCount(); i++) {
-                    const PPOsm::NodeClusterStatEntry & r_entry = Stat.NcList.at(i);
-                    stat_info_buf = 0;
-                    stat_info_buf.CatEq("LogicalCount", r_entry.LogicalCount).CatDiv(';', 2).
-						CatEq("ClusterCount", r_entry.ClusterCount).CatDiv(';', 2).
-						CatEq("ActualCount", r_entry.ActualCount).CatDiv(';', 2).
-						CatEq("Size", r_entry.Size).CatDiv(';', 2);
-					PPLogMessage(PPFILNAM_INFO_LOG, stat_info_buf, 0);
-				}
-			}
+		if(tok == PPHS_OSM/* || (total_count % 1000000) == 0*/) {
+			OutputStat();
 		}
 	}
-	CATCHZOK
+	CATCH
+		SaxStop();
+		State |= stError;
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 
@@ -6240,6 +6351,7 @@ int SLAPI PrcssrOsm::Run()
 				THROW_MEM(SETIFZ(P_Ufp, new PPUserFuncProfiler(PPUPRF_OSMXMLPARSETAG)));
 				PROFILE_START
 				THROW(SaxParseFile(&saxh_addr_obj, file_name) == 0);
+				THROW(!(State & stError));
 				PROFILE_END
 			}
 		}

@@ -2199,6 +2199,44 @@ data GoodsLabel {
   		PhPerUnit  = GoodsID.PhPerUnit;
 	}
 }
+
+data BarcodeLabelList {
+  	link   Global Glb;
+	link   Warehouse LocID;
+	int    NumCopies;
+	int    nn;
+  	OrgName    = Glb.MainOrgName;
+  	OrgAddress = Glb.Address;
+  	CurDate    = Glb.CurDate;
+	iteration {
+  		link   Goods  GoodsID;
+  		date   BillDate;       // Дата документа прихода лота
+  		string BillNo[32];     // Номер документа прихода лота
+  		date   Expiry;
+  		double Qtty;           // Оприходованное количество в лоте
+  		double PhQtty;         // Оприходованное количество в лоте в физических единицах
+  		double Brutto;         // Масса брутто оприходованного количества
+  		double Price;
+  		double RevalPrice;     // Цена до переоценки
+		double UnitPerPack;
+		string Barcode[32];    // Штрихкод товара
+		string Serial[32];     // Серийный номер
+		MainOrgName = Glb.MainOrgName;
+		PackPrice  = Price*UnitPerPack;
+  		GoodsName  = GoodsID.Name;
+		GoodsGroup = GoodsID.GroupID.Name;
+		LabelName  = (length(GoodsID.LabelName) != 0) ? GoodsID.LabelName : GoodsName;
+  		Ingred     = GoodsID.Ingred;
+  		Energy     = GoodsID.Energy;
+  		Storage    = GoodsID.Storage;
+  		Usage      = GoodsID.Usage;
+		Standard   = GoodsID.Standard;
+  		ManufName  = GoodsID.ManufID.Name;
+  		ManufCountry = GoodsID.ManufID.LocID.CityID.CountryID.Name;
+  		PhPerUnit  = GoodsID.PhPerUnit;
+  		PCode      = PrintableBarcode(Barcode, 0);
+	}
+}
 //
 // Базовая структура для описания товарного документа
 // @todo (v4.4.5) Использовать все возможности для наследования параметров
@@ -4649,6 +4687,11 @@ data CCheckView {
 		else if(FltGrp == 18) ("по агентам и часам")
 		else if(FltGrp == 19) ("по кассовым узлам")
 		else if(FltGrp == 20) ("по агентам и товарам")
+		else if(FltGrp == 21) ("по кассирам и товарам")
+		else if(FltGrp == 22) ("по адресам доставки")
+		else if(FltGrp == 23) ("по товару и серии карт")
+		else if(FltGrp == 24) ("по сумме и товару")
+		else if(FltGrp == 25) ("по агенту-товару-серии карт")
 	);
 	GrpngHdrText = (
 		if(FltGrp == 1)       ("Время")
@@ -4671,6 +4714,11 @@ data CCheckView {
 		else if(FltGrp == 18) ("Агент/час")
 		else if(FltGrp == 19) ("Кассовый узел")
 		else if(FltGrp == 20) ("Агент/товар")
+		else if(FltGrp == 21) ("Кассир/товар")
+		else if(FltGrp == 22) ("Адрес доставки")
+		else if(FltGrp == 23) ("Товару/серия карт")
+		else if(FltGrp == 24) ("Сумма/товар")
+		else if(FltGrp == 25) ("Агент/товар/серия")
 	);
 	double VATRate1;
 	double VATRate2;

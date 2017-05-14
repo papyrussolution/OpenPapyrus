@@ -4030,7 +4030,7 @@ int SLAPI PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
 			case PPOBJ_PRSNCATEGORY:  val = PPHS_PERSONCATEGORY; break;
 			case PPOBJ_GLOBALUSERACC: val = PPHS_GLOBALUSER; break;
 			case PPOBJ_DL600DATA:     val = PPHS_DL600; break;
-			case PPOBJ_WORLD:        
+			case PPOBJ_WORLD:
 				switch(ext) {
 					case WORLDOBJ_CITY:    val = PPHS_CITY; break;
 					case WORLDOBJ_COUNTRY: val = PPHS_COUNTRY; break;
@@ -4042,6 +4042,7 @@ int SLAPI PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
 			case PPOBJ_CURRATETYPE:  val = PPHS_CURRATETYPE; break;
 			case PPOBJ_SPECSERIES:   val = PPHS_SPECSERIES; break;
 			case PPOBJ_SCARD:        val = PPHS_SCARD; break;
+			case PPOBJ_SCARDSERIES:  val = PPHS_SCARDSERIES; break;
 			case PPOBJ_CASHNODE:     val = PPHS_POSNODE; break;
 			case PPOBJ_CURRATEIDENT: val = PPHS_CURRATEIDENT; break;
 			case PPOBJ_UHTTSCARDOP:  val = PPHS_UHTTSCARDOP; break;
@@ -4096,6 +4097,7 @@ PPID SLAPI PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam
 				case PPHS_CURRATETYPE:    val = PPOBJ_CURRATETYPE; break;
 				case PPHS_SPECSERIES:     val = PPOBJ_SPECSERIES; break;
 				case PPHS_SCARD:          val = PPOBJ_SCARD; break;
+				case PPHS_SCARDSERIES:    val = PPOBJ_SCARDSERIES; break;
 				case PPHS_POSNODE:        val = PPOBJ_CASHNODE; break;
 				case PPHS_CURRATEIDENT:   val = PPOBJ_CURRATEIDENT; break;
 				case PPHS_UHTTSCARDOP:    val = PPOBJ_UHTTSCARDOP; break;
@@ -4509,6 +4511,7 @@ SLTEST_R(ObjTypeSymb)
 		{ "CURRATETYPE",    PPOBJ_CURRATETYPE,   PPHS_CURRATETYPE },
 		{ "SPECSERIES",     PPOBJ_SPECSERIES,    PPHS_SPECSERIES },
 		{ "SCARD",          PPOBJ_SCARD,         PPHS_SCARD },
+		{ "SCARDSERIES",    PPOBJ_SCARDSERIES,   PPHS_SCARDSERIES },
 		{ "POSNODE",        PPOBJ_CASHNODE,      PPHS_POSNODE },
 		{ "CURRATEIDENT",   PPOBJ_CURRATEIDENT,  PPHS_CURRATEIDENT },
 		{ "UHTTSCARDOP",    PPOBJ_UHTTSCARDOP,   PPHS_UHTTSCARDOP },

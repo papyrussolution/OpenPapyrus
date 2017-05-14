@@ -9,8 +9,8 @@
 #include "db_int.h"
 #pragma hdrstop
 
-static int __log_init __P((ENV*, DB_LOG *));
-static int __log_recover __P((DB_LOG *));
+static int __log_init(ENV*, DB_LOG *);
+static int __log_recover(DB_LOG *);
 /*
  * __log_open --
  *	Internal version of log_open: only called from ENV->open.
@@ -128,17 +128,15 @@ err:
 	__os_free(env, dblp);
 	return ret;
 }
-/*
- * __log_init --
- *	Initialize a log region in shared memory.
- */
+//
+// Initialize a log region in shared memory.
+//
 static int __log_init(ENV*env, DB_LOG * dblp)
 {
-	DB_ENV * dbenv;
 	LOG * lp;
 	int ret;
 	void * p;
-	dbenv = env->dbenv;
+	DB_ENV * dbenv = env->dbenv;
 	/*
 	 * This is the first point where we can validate the buffer size,
 	 * because we know all three settings have been configured (file size,
@@ -151,34 +149,28 @@ static int __log_init(ENV*env, DB_LOG * dblp)
 	((REGENV *)env->reginfo->primary)->lg_primary = R_OFFSET(&dblp->reginfo, dblp->reginfo.primary);
 	lp = (LOG *)dblp->reginfo.primary;
 	memzero(lp, sizeof(*lp));
-
 	/* We share the region so we need the same mutex. */
 	lp->mtx_region = ((REGENV *)env->reginfo->primary)->mtx_regenv;
-
 	lp->fid_max = 0;
 	SH_TAILQ_INIT(&lp->fq);
 	lp->free_fid_stack = INVALID_ROFF;
 	lp->free_fids = lp->free_fids_alloced = 0;
-
 	/* Initialize LOG LSNs. */
 	INIT_LSN(lp->lsn);
 	INIT_LSN(lp->t_lsn);
-
 	/*
 	 * It's possible to be waiting for an LSN of [1][0], if a replication
 	 * client gets the first log record out of order.  An LSN of [0][0]
 	 * signifies that we're not waiting.
 	 */
 	ZERO_LSN(lp->waiting_lsn);
-
 	/*
 	 * Log makes note of the fact that it ran into a checkpoint on
 	 * startup if it did so, as a recovery optimization.  A zero
 	 * LSN signifies that it hasn't found one [yet].
 	 */
 	ZERO_LSN(lp->cached_ckp_lsn);
-	if((ret =
-	            __mutex_alloc(env, MTX_LOG_FILENAME, 0, &lp->mtx_filelist)) != 0)
+	if((ret = __mutex_alloc(env, MTX_LOG_FILENAME, 0, &lp->mtx_filelist)) != 0)
 		return ret;
 	if((ret = __mutex_alloc(env, MTX_LOG_FLUSH, 0, &lp->mtx_flush)) != 0)
 		return ret;
@@ -194,60 +186,48 @@ mem_err:
 	lp->filemode = dbenv->lg_filemode;
 	lp->log_size = lp->log_nsize = dbenv->lg_size;
 	lp->stat.st_fileid_init = dbenv->lg_fileid_init;
-
 	/* Initialize the commit Queue. */
 	SH_TAILQ_INIT(&lp->free_commits);
 	SH_TAILQ_INIT(&lp->commits);
 	lp->ncommit = 0;
-
 	/* Initialize the logfiles list for in-memory logs. */
 	SH_TAILQ_INIT(&lp->logfiles);
 	SH_TAILQ_INIT(&lp->free_logfiles);
-
 	/*
 	 * Fill in the log's persistent header.  Don't fill in the log file
 	 * sizes, as they may change at any time and so have to be filled in
 	 * as each log file is created.
 	 */
 	lp->persist.magic = DB_LOGMAGIC;
-	/*
-	 * Don't use __log_set_version because env->dblp isn't set up yet.
-	 */
+	//
+	// Don't use __log_set_version because env->dblp isn't set up yet.
+	//
 	lp->persist.version = DB_LOGVERSION;
 	lp->persist.notused = 0;
 	env->lg_handle = dblp;
-	/* Migrate persistent flags from the ENV into the region. */
-	if(dbenv->lg_flags != 0 &&
-	   (ret = __log_set_config_int(dbenv, dbenv->lg_flags, 1, 1)) != 0)
+	// Migrate persistent flags from the ENV into the region
+	if(dbenv->lg_flags != 0 && (ret = __log_set_config_int(dbenv, dbenv->lg_flags, 1, 1)) != 0)
 		return ret;
 	_time64(&lp->timestamp);
 	return 0;
 }
-
-/*
- * __log_recover --
- *	Recover a log.
- */
-static int __log_recover(DB_LOG*dblp)
+//
+// Recover a log.
+//
+static int __log_recover(DB_LOG * dblp)
 {
 	DBT dbt;
-	DB_ENV * dbenv;
-	DB_LOGC * logc;
 	DB_LSN lsn;
-	ENV * env;
-	LOG * lp;
 	uint32 cnt, rectype;
 	int ret;
 	logfile_validity status;
-
-	env = dblp->env;
-	dbenv = env->dbenv;
-	logc = NULL;
-	lp = (LOG *)dblp->reginfo.primary;
-	/*
-	 * Find a log file.  If none exist, we simply return, leaving
-	 * everything initialized to a new log.
-	 */
+	ENV * env = dblp->env;
+	DB_ENV * dbenv = env->dbenv;
+	DB_LOGC * logc = NULL;
+	LOG * lp = (LOG *)dblp->reginfo.primary;
+	//
+	// Find a log file.  If none exist, we simply return, leaving everything initialized to a new log.
+	//
 	if((ret = __log_find(dblp, 0, &cnt, &status)) != 0)
 		return ret;
 	if(cnt == 0) {
@@ -267,56 +247,51 @@ static int __log_recover(DB_LOG*dblp)
 		goto skipsearch;
 	}
 	DB_ASSERT(env, oneof2(status, DB_LV_NORMAL, DB_LV_OLD_READABLE));
-	/*
-	 * We have the last useful log file and we've loaded any persistent
-	 * information.  Set the end point of the log past the end of the last
-	 * file. Read the last file, looking for the last checkpoint and
-	 * the log's end.
-	 */
+	// 
+	// We have the last useful log file and we've loaded any persistent
+	// information.  Set the end point of the log past the end of the last
+	// file. Read the last file, looking for the last checkpoint and the log's end.
+	// 
 	lp->lsn.file = cnt+1;
 	lp->lsn.offset = 0;
 	lsn.file = cnt;
 	lsn.offset = 0;
-	/*
-	 * Allocate a cursor and set it to the first record.  This shouldn't
-	 * fail, leave error messages on.
-	 */
+	// 
+	// Allocate a cursor and set it to the first record.  This shouldn't
+	// fail, leave error messages on.
+	// 
 	if((ret = __log_cursor(env, &logc)) != 0)
 		return ret;
 	F_SET(logc, DB_LOG_LOCKED);
 	memzero(&dbt, sizeof(dbt));
 	if((ret = __logc_get(logc, &lsn, &dbt, DB_SET)) != 0)
 		goto err;
-	/*
-	 * Read to the end of the file.  This may fail at some point, so
-	 * turn off error messages.
-	 */
+	//
+	// Read to the end of the file.  This may fail at some point, so turn off error messages.
+	//
 	F_SET(logc, DB_LOG_SILENT_ERR);
 	while(__logc_get(logc, &lsn, &dbt, DB_NEXT) == 0) {
-		if(dbt.size < sizeof(uint32))
-			continue;
-		LOGCOPY_32(env, &rectype, dbt.data);
-		if(rectype == DB___txn_ckp)
-			/*
-			 * If we happen to run into a checkpoint, cache its
-			 * LSN so that the transaction system doesn't have
-			 * to walk this log file again looking for it.
-			 */
-			lp->cached_ckp_lsn = lsn;
+		if(dbt.size >= sizeof(uint32)) {
+			LOGCOPY_32(env, &rectype, dbt.data);
+			if(rectype == DB___txn_ckp) {
+				//
+				// If we happen to run into a checkpoint, cache its LSN so that 
+				// the transaction system doesn't have to walk this log file again looking for it.
+				// 
+				lp->cached_ckp_lsn = lsn;
+			}
+		}
 	}
 	F_CLR(logc, DB_LOG_SILENT_ERR);
-
-	/*
-	 * We now know where the end of the log is.  Set the first LSN that
-	 * we want to return to an application and the LSN of the last known
-	 * record on disk.
-	 */
+	// 
+	// We now know where the end of the log is.  Set the first LSN that
+	// we want to return to an application and the LSN of the last known record on disk.
+	// 
 	lp->lsn = lsn;
 	lp->s_lsn = lsn;
 	lp->lsn.offset += logc->len;
 	lp->s_lsn.offset += logc->len;
-
-	/* Set up the current buffer information, too. */
+	// Set up the current buffer information, too.
 	lp->len = logc->len;
 	lp->a_off = 0;
 	lp->b_off = 0;
@@ -751,10 +726,8 @@ int __log_env_refresh(ENV * env)
  */
 int __log_get_cached_ckp_lsn(ENV * env, DB_LSN * ckp_lsnp)
 {
-	DB_LOG * dblp;
-	LOG * lp;
-	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	DB_LOG * dblp = env->lg_handle;
+	LOG * lp = (LOG *)dblp->reginfo.primary;
 	LOG_SYSTEM_LOCK(env);
 	*ckp_lsnp = lp->cached_ckp_lsn;
 	LOG_SYSTEM_UNLOCK(env);
@@ -846,7 +819,7 @@ int __log_vtruncate(ENV * env, DB_LSN * lsn, DB_LSN * ckplsn, DB_LSN * trunclsn)
 	uint32 bytes, len;
 	size_t offset;
 	int ret, t_ret;
-	/* Need to find out the length of this soon-to-be-last record. */
+	// Need to find out the length of this soon-to-be-last record
 	if((ret = __log_cursor(env, &logc)) != 0)
 		return ret;
 	memzero(&log_dbt, sizeof(log_dbt));
@@ -856,14 +829,13 @@ int __log_vtruncate(ENV * env, DB_LSN * lsn, DB_LSN * ckplsn, DB_LSN * trunclsn)
 		ret = t_ret;
 	if(ret != 0)
 		return ret;
-	/* Now do the truncate. */
+	// Now do the truncate
 	dblp = env->lg_handle;
 	lp = (LOG *)dblp->reginfo.primary;
 	LOG_SYSTEM_LOCK(env);
-	/*
-	 * Flush the log so we can simply initialize the in-memory buffer
-	 * after the truncate.
-	 */
+	//
+	// Flush the log so we can simply initialize the in-memory buffer after the truncate.
+	//
 	if((ret = __log_flush_int(dblp, NULL, 0)) != 0)
 		goto err;
 	lp->lsn = *lsn;
@@ -892,22 +864,18 @@ int __log_vtruncate(ENV * env, DB_LSN * lsn, DB_LSN * ckplsn, DB_LSN * trunclsn)
 		bytes = lp->lsn.offset-ckplsn->offset;
 	lp->stat.st_wc_mbytes += bytes/MEGABYTE;
 	lp->stat.st_wc_bytes += bytes%MEGABYTE;
-
-	/*
-	 * If the synced lsn is greater than our new end of log, reset it
-	 * to our current end of log.
-	 */
+	//
+	// If the synced lsn is greater than our new end of log, reset it to our current end of log.
+	//
 	MUTEX_LOCK(env, lp->mtx_flush);
 	if(LOG_COMPARE(&lp->s_lsn, lsn) > 0)
 		lp->s_lsn = lp->lsn;
 	MUTEX_UNLOCK(env, lp->mtx_flush);
-
-	/* Initialize the in-region buffer to a pristine state. */
+	// Initialize the in-region buffer to a pristine state
 	ZERO_LSN(lp->f_lsn);
 	lp->w_off = lp->lsn.offset;
-	if(trunclsn != NULL)
-		*trunclsn = lp->lsn;
-	/* Truncate the log to the new point. */
+	ASSIGN_PTR(trunclsn, lp->lsn);
+	// Truncate the log to the new point
 	if((ret = __log_zero(env, &lp->lsn)) != 0)
 		goto err;
 err:
@@ -920,13 +888,12 @@ err:
  */
 int __log_is_outdated(ENV * env, uint32 fnum, int * outdatedp)
 {
-	DB_LOG * dblp;
 	LOG * lp;
 	char * name;
 	int ret;
 	uint32 cfile;
 	struct __db_filestart * filestart;
-	dblp = env->lg_handle;
+	DB_LOG * dblp = env->lg_handle;
 	/*
 	 * The log represented by env is compared to the file number passed
 	 * in fnum.  If the log file fnum does not exist and is lower-numbered
@@ -1047,9 +1014,8 @@ err:
  */
 int __log_inmem_lsnoff(DB_LOG * dblp, DB_LSN * lsnp, size_t * offsetp)
 {
-	LOG * lp;
 	struct __db_filestart * filestart;
-	lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = (LOG *)dblp->reginfo.primary;
 	SH_TAILQ_FOREACH(filestart, &lp->logfiles, links, __db_filestart)
 	if(filestart->file == lsnp->file) {
 		*offsetp = (uint32)(filestart->b_off+lsnp->offset)%lp->buffer_size;

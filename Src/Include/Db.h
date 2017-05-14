@@ -4129,17 +4129,23 @@ public:
 		stLoggedIn = 0x0002
 	};
 	enum {
-		oRecover = 0x0001,
-		oPrivate = 0x0002  // @v9.6.4 окружение (ENVIRONMENT) BerkeleyDB не может быть использовано разными процессами
+		oRecover       = 0x00000001,
+		oPrivate       = 0x00000002 // @v9.6.4 окружение (ENVIRONMENT) BerkeleyDB не может быть использовано разными процессами
 	};
 	struct Config {
 		Config();
+
+		enum {
+			fLogNoSync     = 0x00000004, // @v9.6.6 DB_LOG_NOSYNC
+			fLogAutoRemove = 0x00000008, // @v9.6.6 DB_LOG_AUTO_REMOVE 
+			fLogInMemory   = 0x00000010, // @v9.6.6 DB_LOG_IN_MEMORY
+		};
 
 		long   Flags;
 		uint64 CacheSize;   // Максимальный размер кэш-буферов (bytes).
 		uint   CacheCount;  // Максимальное количество кэш-буферов.
 		uint   PageSize;    // @v9.6.4 Размер страницы данных
-		
+
 		uint   MaxLockers;  // Максимальное количество локеров.
 		uint   MaxLocks;    // @v9.6.4 A thread uses this structure to lock a page (or record for the QUEUE access method) and hold it to the end of a transactions
 		uint   MaxLockObjs; // @v9.6.4 For each page (or record) which is locked in the system, a lock object will be allocated.

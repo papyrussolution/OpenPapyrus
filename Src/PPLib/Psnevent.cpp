@@ -886,12 +886,12 @@ int SLAPI PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKi
 											double quot = 0.0;
 											if(scs_obj.Fetch(sc_rec.SeriesID, &scs_rec) > 0 && scs_rec.QuotKindID_s) {
 												QuotIdent qi(getcurdate_(), pPack->Rec.LocationID, scs_rec.QuotKindID_s);
-												if(goods_obj.GetQuotExt(goods_id, qi, 0.0, 0.0, &quot, 1) > 0)
+												if(goods_obj.GetQuotExt(goods_id, qi, &quot, 1) > 0)
 													is_quot = 1;
 											}
 											if(!is_quot) {
 												QuotIdent qi(getcurdate_(), pPack->Rec.LocationID, PPQUOTK_BASE);
-												if(goods_obj.GetQuotExt(goods_id, qi, 0.0, 0.0, &quot, 1) > 0)
+												if(goods_obj.GetQuotExt(goods_id, qi, &quot, 1) > 0)
 													is_quot = 1;
 											}
 											if(is_quot || pClause->CmdText.NotEmpty()) {

@@ -3829,8 +3829,8 @@ int32 DL6ICLS_PPObjGoods::GetQuot(int32 goodsID, int32 quotKind, double * pQuot)
 	int    ok = -1;
 	PPObjGoods * p_obj = (PPObjGoods*)ExtraPtr;
 	if(p_obj) {
-		QuotIdent qi(0, quotKind);
-		ok = p_obj->GetQuotExt(goodsID, qi, 0, 0, pQuot, 1);
+		const QuotIdent qi(0, quotKind);
+		ok = p_obj->GetQuotExt(goodsID, qi, pQuot, 1);
 	}
 	return ok;
 }

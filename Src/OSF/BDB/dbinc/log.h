@@ -36,24 +36,17 @@ typedef	struct __db_entry {
  */
 struct __fname {
 	SH_TAILQ_ENTRY q;		/* File name queue. */
-
 	pid_t	  pid;			/* Process that owns this. */
 	int32   id;			/* Logging file id. */
 	int32   old_id;		/* Saved logging file id. */
 	DBTYPE	  s_type;		/* Saved DB type. */
-
 	roff_t	  fname_off;		/* File name offset. */
 	roff_t	  dname_off;		/* Database name offset. */
 	db_pgno_t meta_pgno;		/* Page number of the meta page. */
 	uint8  ufid[DB_FILE_ID_LEN];	/* Unique file id. */
-
-	uint32 create_txnid;		/*
-					 * Txn ID of the DB create, stored so
-					 * we can log it at register time.
-					 */
+	uint32 create_txnid; // Txn ID of the DB create, stored so we can log it at register time
 	db_mutex_t mutex;		/* mutex from db handle. */
-			/* number of txn referencing + 1 for the db handle. */
-	uint32 txn_ref;
+	uint32 txn_ref; /* number of txn referencing + 1 for the db handle. */
 
 #define	DB_FNAME_CLOSED		0x01	/* DBP was closed. */
 #define	DB_FNAME_DURABLE	0x02	/* File is durable. */
@@ -66,18 +59,22 @@ struct __fname {
 };
 
 /* File open/close register log record opcodes. */
-#define	DBREG_CHKPNT	1		/* Checkpoint: file name/id dump. */
-#define	DBREG_CLOSE	2		/* File close. */
-#define	DBREG_OPEN	3		/* File open. */
-#define	DBREG_PREOPEN	4		/* Open in mpool only. */
-#define	DBREG_RCLOSE	5		/* File close after recovery. */
-#define	DBREG_REOPEN	6		/* Open for in-memory database. */
+#define	DBREG_CHKPNT    1 // Checkpoint: file name/id dump. 
+#define	DBREG_CLOSE     2 // File close. 
+#define	DBREG_OPEN      3 // File open. 
+#define	DBREG_PREOPEN   4 // Open in mpool only. 
+#define	DBREG_RCLOSE    5 // File close after recovery. 
+#define	DBREG_REOPEN    6 // Open for in-memory database.
+#define	DBREG_XCHKPNT   7 // @bdb_v6223 Checkpoint of exclusive file.
+#define	DBREG_XOPEN     8 // @bdb_v6223 File exclusive open.
+#define	DBREG_XREOPEN	9 // @bdb_v6223 File exclusive open in-memory.
 
 /* These bits are logged so db_printlog can handle page data. */
-#define	DBREG_OP_MASK	0xf		/* Opcode mask */
-#define	DBREG_BIGEND	0x1000		/* Db Big endian. */
-#define	DBREG_CHKSUM	0x2000		/* Db is checksummed. */
-#define	DBREG_ENCRYPT	0x4000		/* Db is encrypted. */
+#define	DBREG_OP_MASK   0xf    // Opcode mask 
+#define	DBREG_BIGEND    0x1000 // Db Big endian. 
+#define	DBREG_CHKSUM    0x2000 // Db is checksummed. 
+#define	DBREG_ENCRYPT   0x4000 // Db is encrypted. 
+#define	DBREG_EXCL      0x8000 // @bdb_v6223 Db is exclusive. 
 
 /*******************************************************
  * LOG:
@@ -132,16 +129,16 @@ struct __db_log {
 	ENV	 *env;			/* Environment */
 	REGINFO	  reginfo;		/* Region information. */
 
-#define	DBLOG_AUTOREMOVE	0x01	/* Autoremove log files. */
-#define	DBLOG_DIRECT		0x02	/* Do direct I/O on the log. */
-#define	DBLOG_DSYNC		0x04	/* Set OS_DSYNC on the log. */
-#define	DBLOG_FORCE_OPEN	0x08	/* Force the DB open even if it appears
-					 * to be deleted. */
-#define	DBLOG_INMEMORY		0x10	/* Logging is in memory. */
-#define	DBLOG_OPENFILES		0x20	/* Prepared files need to be open. */
-#define	DBLOG_RECOVER		0x40	/* We are in recovery. */
-#define	DBLOG_ZERO		0x80	/* Zero fill the log. */
-#define	DBLOG_VERIFYING		0x100	/* The log is being verified. */
+#define	DBLOG_AUTOREMOVE 0x0001 // Autoremove log files.
+#define	DBLOG_DIRECT     0x0002 // Do direct I/O on the log.
+#define	DBLOG_DSYNC      0x0004 // Set OS_DSYNC on the log. 
+#define	DBLOG_FORCE_OPEN 0x0008 // Force the DB open even if it appears to be deleted. 
+#define	DBLOG_INMEMORY   0x0010 // Logging is in memory. 
+#define	DBLOG_OPENFILES  0x0020 // Prepared files need to be open. 
+#define	DBLOG_RECOVER    0x0040 // We are in recovery. 
+#define	DBLOG_ZERO       0x0080 // Zero fill the log. 
+#define	DBLOG_VERIFYING  0x0100 // The log is being verified.
+#define	DBLOG_NOSYNC_    0x0800 // @bdb_v6223 Don't sync log files during flush. // В 6223 значения флагов изменились. DBLOG_NOSYNC равен 0x0040 (потому в конце символа - '_')
 	uint32 flags;
 };
 
@@ -194,13 +191,8 @@ struct __log_persist {
 };
 
 /* Macros to lock/unlock the log region as a whole. */
-#define	LOG_SYSTEM_LOCK(env)						\
-	MUTEX_LOCK(env, ((LOG *)					\
-	    (env)->lg_handle->reginfo.primary)->mtx_region)
-#define	LOG_SYSTEM_UNLOCK(env)						\
-	MUTEX_UNLOCK(env, ((LOG *)					\
-	    (env)->lg_handle->reginfo.primary)->mtx_region)
-
+#define	LOG_SYSTEM_LOCK(env)   MUTEX_LOCK(env, ((LOG *)(env)->lg_handle->reginfo.primary)->mtx_region)
+#define	LOG_SYSTEM_UNLOCK(env) MUTEX_UNLOCK(env, ((LOG *)(env)->lg_handle->reginfo.primary)->mtx_region)
 /*
  * LOG --
  *	Shared log region.  One of these is allocated in shared memory,
@@ -236,10 +228,11 @@ struct __log { /* SHARED */
 	 * written, but synced.  This field is protected by the flush mutex
 	 * rather than by the region mutex.
 	 */
-	db_mutex_t mtx_flush;		/* Mutex guarding flushing. */
-	int32	   in_flush;	/* Log flush in progress. */
-	DB_LSN	   s_lsn;		/* LSN of the last sync. */
-	DB_LOG_STAT stat;		/* Log statistics. */
+	db_mutex_t mtx_flush;   // Mutex guarding flushing.
+	int32	   in_flush;    // Log flush in progress. 
+	int32      nosync;      // @bdb_v6223 log_set_config(DB_LOG_NOSYNC) 
+	DB_LSN	   s_lsn;       // LSN of the last sync.
+	DB_LOG_STAT stat;       // Log statistics. 
 	/*
 	 * This timestamp is updated anytime someone unlinks log
 	 * files.  This can happen when calling __log_vtruncate

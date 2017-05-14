@@ -2810,12 +2810,14 @@ int SLAPI PPObjBill::ViewBillInfo(PPID billID)
 			if(event.isCmd(cmPrint)) {
 				PView pf(P_Pack);
 				PPAlddPrint(REPORT_BILLINFO, &pf);
-				clearEvent(event);
 			}
 			else if(event.isCmd(cmObjSyncTab)) {
 				PPObjID oid;
 				ViewObjSyncTab(oid.Set(PPOBJ_BILL, P_Pack->Rec.ID));
 			}
+			else
+				return;
+			clearEvent(event);
 		}
 		PPBillPacket * P_Pack;
 	};

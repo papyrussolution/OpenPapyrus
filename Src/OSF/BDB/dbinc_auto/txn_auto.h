@@ -85,25 +85,18 @@ typedef struct ___txn_ckp_args {
 } __txn_ckp_args;
 
 extern __DB_IMPORT DB_LOG_RECSPEC __txn_ckp_desc[];
-static inline int
-__txn_ckp_log(ENV *env, DB_TXN *txnp, DB_LSN *ret_lsnp, uint32 flags,
-    DB_LSN * ckp_lsn, DB_LSN * last_ckp, int32 timestamp, uint32 envid, uint32 spare)
+
+static inline int __txn_ckp_log(ENV *env, DB_TXN *txnp, DB_LSN *ret_lsnp, uint32 flags, DB_LSN * ckp_lsn, DB_LSN * last_ckp, int32 timestamp, uint32 envid, uint32 spare)
 {
-	return (__log_put_record(env, NULL, txnp, ret_lsnp,
-	    flags, DB___txn_ckp, 0,
-	    sizeof(uint32) + sizeof(uint32) + sizeof(DB_LSN) +
-	    sizeof(*ckp_lsn) + sizeof(*last_ckp) + sizeof(uint32) +
-	    sizeof(uint32) + sizeof(uint32),
-	    __txn_ckp_desc,
-	    ckp_lsn, last_ckp, timestamp, envid, spare));
+	return (__log_put_record(env, NULL, txnp, ret_lsnp, flags, DB___txn_ckp, 0,
+	    sizeof(uint32) + sizeof(uint32) + sizeof(DB_LSN) + sizeof(*ckp_lsn) + sizeof(*last_ckp) + sizeof(uint32) + sizeof(uint32) + sizeof(uint32),
+	    __txn_ckp_desc, ckp_lsn, last_ckp, timestamp, envid, spare));
 }
 
-static inline int __txn_ckp_read(ENV *env, 
-    void *data, __txn_ckp_args **arg)
+static inline int __txn_ckp_read(ENV *env, void *data, __txn_ckp_args **arg)
 {
 	*arg = NULL;
-	return (__log_read_record(env, 
-	    NULL, NULL, data, __txn_ckp_desc, sizeof(__txn_ckp_args), (void**)arg));
+	return (__log_read_record(env, NULL, NULL, data, __txn_ckp_desc, sizeof(__txn_ckp_args), (void**)arg));
 }
 #define	DB___txn_child	12
 typedef struct ___txn_child_args {

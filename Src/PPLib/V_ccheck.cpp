@@ -357,7 +357,7 @@ public:
 	{
 		addGroup(GRP_POSNODE, new PosNodeCtrlGroup(CTLSEL_CCHECKFLT_NODE, cmPosNodeList));
 		addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(CTLSEL_CCHECKFLT_GOODS, CTLSEL_GOODSREST_GGRP, cmGoodsFilt)); // @fix CTLSEL_GOODSREST_GGRP-->CTLSEL_CCHECKFLT_GGRP
-		addGroup(GRP_SCARD,  new SCardCtrlGroup(CTLSEL_CCHECKFLT_SCSER, CTL_CCHECKFLT_SCARD, cmSCardSerList)); // @v7.9.11
+		addGroup(GRP_SCARD,  new SCardCtrlGroup(CTLSEL_CCHECKFLT_SCSER, CTL_CCHECKFLT_SCARD, cmSCardSerList));
 	}
 	int    setDTS(const CCheckFilt *);
 	int    getDTS(CCheckFilt *);
@@ -365,14 +365,7 @@ private:
 	DECL_HANDLE_EVENT
 	{
 		TDialog::handleEvent(event);
-		/* @v7.9.11
-		if(event.isCbSelected(CTLSEL_CCHECKFLT_SCSER)) {
-			PPID   ser_id  = getCtrlLong(CTLSEL_CCHECKFLT_SCSER);
-			PPID   card_id = getCtrlLong(CTL_CCHECKFLT_SCARD);
-			SetupWordSelector(CTL_CCHECKFLT_SCARD, new SCardSelExtra(ser_id), card_id, SCARD_MIN_SYMBS, 0); // Выбор карты без комбобокса
-			clearEvent(event);
-		}
-		else */ if(event.isCbSelected(CTLSEL_CCHECKFLT_GRP)) {
+		if(event.isCbSelected(CTLSEL_CCHECKFLT_GRP)) {
 			SetupCtrls();
 			clearEvent(event);
 		}
@@ -456,14 +449,12 @@ int CCheckFiltDialog::setDTS(const CCheckFilt * pFilt)
 		SetupCalPeriod(CTLCAL_CCHECKFLT_PERIOD, CTL_CCHECKFLT_PERIOD);
 		disableCtrls(Data.SessIDList.getCount(), CTL_CCHECKFLT_PERIOD, /*CTL_CCHECKFLT_FLAGS,*/ 0);
 		SetPeriodInput(this, CTL_CCHECKFLT_PERIOD, &Data.Period);
-		// @v7.3.0 {
 		if(HasExt)
 			setCtrlUInt16(CTL_CCHECKFLT_STARTSRVCP, BIN(Data.Flags & CCheckFilt::fStartOrderPeriod));
 		else {
 			Data.Flags &= ~CCheckFilt::fStartOrderPeriod;
 			disableCtrl(CTL_CCHECKFLT_STARTSRVCP, 1);
 		}
-		// } @v7.3.0
 		{
 			if(Data.NodeList.GetCount() == 0) {
 				PPEquipConfig eq_cfg;
@@ -483,8 +474,8 @@ int CCheckFiltDialog::setDTS(const CCheckFilt * pFilt)
 		AddClusterAssoc(CTL_CCHECKFLT_FLAGS,  5, CCheckFilt::fNotPrintedOnly);
 		AddClusterAssoc(CTL_CCHECKFLT_FLAGS,  6, CCheckFilt::fGiftOnly);
 		AddClusterAssoc(CTL_CCHECKFLT_FLAGS,  7, CCheckFilt::fOrderOnly);
-		AddClusterAssoc(CTL_CCHECKFLT_FLAGS,  8, CCheckFilt::fDlvrOnly); // @v7.0.8
-		AddClusterAssoc(CTL_CCHECKFLT_FLAGS,  9, CCheckFilt::fDlvrOutstandOnly); // @v7.1.0
+		AddClusterAssoc(CTL_CCHECKFLT_FLAGS,  8, CCheckFilt::fDlvrOnly); 
+		AddClusterAssoc(CTL_CCHECKFLT_FLAGS,  9, CCheckFilt::fDlvrOutstandOnly);
 		AddClusterAssoc(CTL_CCHECKFLT_FLAGS, 10, CCheckFilt::fCalcSkuStat);
 		AddClusterAssoc(CTL_CCHECKFLT_FLAGS, 11, CCheckFilt::fWithoutSkipTag);
 		AddClusterAssoc(CTL_CCHECKFLT_FLAGS, 12, CCheckFilt::fPrintDetail); // @v8.3.7
@@ -492,17 +483,11 @@ int CCheckFiltDialog::setDTS(const CCheckFilt * pFilt)
 		grp_rec.Flags |= GoodsCtrlGroup::enableSelUpLevel;
 		setGroupData(GRP_GOODSFILT, &grp_rec);
 		{
-			/* @v7.9.11
-			SetupPPObjCombo(this, CTLSEL_CCHECKFLT_SCSER, PPOBJ_SCARDSERIES, Data.SCardSerID, OLW_LOADDEFONOPEN, 0);
-			SetupWordSelector(CTL_CCHECKFLT_SCARD, new SCardSelExtra(Data.SCardSerID), Data.SCardID, SCARD_MIN_SYMBS, 0); // Выбор карты без комбобокса
-			*/
-			// @v7.9.11 {
 			SCardCtrlGroup::Rec screc;
 			const PPIDArray * p_temp_list = &Data.ScsList.Get();
 			RVALUEPTR(screc.SCardSerList, p_temp_list);
 			screc.SCardID = Data.SCardID;
 			setGroupData(GRP_SCARD, &screc);
-			// } @v7.9.11
 		}
 		SetupArCombo(this, CTLSEL_CCHECKFLT_AGENT, Data.AgentID, OLW_LOADDEFONOPEN, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 		setCtrlData(CTL_CCHECKFLT_TABLECODE, &Data.TableCode);
@@ -526,7 +511,7 @@ int CCheckFiltDialog::setDTS(const CCheckFilt * pFilt)
 
 		SetupSubstGoodsCombo(this, CTLSEL_CCHECKFLT_SUBST, Data.Sgg);
 		SetupCtrls();
-		selectCtrl(CTL_CCHECKFLT_PERIOD); // @v7.6.6
+		selectCtrl(CTL_CCHECKFLT_PERIOD);
 		ok = 1;
 	}
 	return ok;
@@ -537,13 +522,11 @@ int CCheckFiltDialog::getDTS(CCheckFilt * pFilt)
 	int    ok = 1;
 	GoodsFiltCtrlGroup::Rec grp_rec;
 	GetPeriodInput(this, CTL_CCHECKFLT_PERIOD, &Data.Period);
-	// @v7.3.0 {
 	if(HasExt) {
 		SETFLAG(Data.Flags, CCheckFilt::fStartOrderPeriod, getCtrlUInt16(CTL_CCHECKFLT_STARTSRVCP));
 	}
 	else
 		Data.Flags &= ~CCheckFilt::fStartOrderPeriod;
-	// } @v7.3.0
 	{
 		PosNodeCtrlGroup::Rec cn_rec;
 		getGroupData(GRP_POSNODE, &cn_rec);
@@ -556,16 +539,10 @@ int CCheckFiltDialog::getDTS(CCheckFilt * pFilt)
 	Data.GoodsGrpID = grp_rec.GoodsGrpID;
 	Data.GoodsID = grp_rec.GoodsID;
 	{
-		/* @v7.9.11
-		getCtrlData(CTLSEL_CCHECKFLT_SCSER, &Data.SCardSerID);
-		getCtrlData(CTL_CCHECKFLT_SCARD, &Data.SCardID);
-		*/
-		// @v7.9.11 {
 		SCardCtrlGroup::Rec screc;
 		getGroupData(GRP_SCARD, &screc);
 		Data.ScsList.Set(&screc.SCardSerList);
 		Data.SCardID = screc.SCardID;
-		// } @v7.9.11
 	}
 	getCtrlData(CTLSEL_CCHECKFLT_AGENT, &Data.AgentID);
 	getCtrlData(CTL_CCHECKFLT_TABLECODE, &Data.TableCode);
@@ -625,7 +602,7 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 	else {
 		const long ff_ = Filt.Flags;
 		const long f = pRec->Flags;
-		if(!(ff_ & CCheckFilt::fStartOrderPeriod) && !Filt.Period.CheckDate(pRec->Dt)) // @v7.3.0 fStartOrderPeriod
+		if(!(ff_ & CCheckFilt::fStartOrderPeriod) && !Filt.Period.CheckDate(pRec->Dt))
 			return 0;
 		else if(!Filt.CodeR.CheckVal(pRec->Code))
 			return 0;
@@ -765,7 +742,7 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 						SessCnList.clear();
 					//
 					CSessionTbl::Rec cs_rec;
-					if(CsObj.Fetch(pRec->SessID, &cs_rec) > 0) { // @v7.6.3 Search-->Fetch
+					if(CsObj.Fetch(pRec->SessID, &cs_rec) > 0) {
 						SessCnList.Add(cs_rec.ID, cs_rec.CashNodeID, 0);
 						if(!NodeIdList.CheckID(cs_rec.CashNodeID))
 							return 0;
@@ -1345,8 +1322,9 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 					case CCheckFilt::gGoodsDate:
 					case CCheckFilt::gAgentsNGoods:
 					case CCheckFilt::gCashiersNGoods:
-					case CCheckFilt::gGoodsSCSer: // @v7.7.0
+					case CCheckFilt::gGoodsSCSer:
 					case CCheckFilt::gAmountNGoods: // @v8.4.8
+					case CCheckFilt::gAgentGoodsSCSer: // @v9.6.6
 						if(!(Filt.Flags & CCheckFilt::fGoodsCorr))
 							THROW(GdsObj.SubstGoods(item.G_GoodsID, &ccgitem.GoodsID, Filt.Sgg, &sgg_blk, &Gsl));
 						if(last_chk_id != item.ID) {
@@ -1359,9 +1337,18 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							ccgitem.Dt = item.Dt;
 						else if(Filt.Grp == CCheckFilt::gAgentsNGoods)
 							ccgitem.CashID = item.AgentID;
+						// @v9.6.6 {
+						else if(Filt.Grp == CCheckFilt::gAgentGoodsSCSer) {
+							ccgitem.CashID = item.AgentID;
+							SCardTbl::Rec sc_rec;
+							if(item.SCardID && ScObj.Fetch(item.SCardID, &sc_rec) > 0)
+								ccgitem.SCardID = sc_rec.SeriesID;
+							else
+								ccgitem.SCardID = 0;
+						}
+						// } @v9.6.6 
 						else if(Filt.Grp == CCheckFilt::gCashiersNGoods)
 							ccgitem.CashID = item.UserID;
-						// @v7.7.0 {
 						else if(Filt.Grp == CCheckFilt::gGoodsSCSer) {
 							SCardTbl::Rec sc_rec;
 							if(item.SCardID && ScObj.Fetch(item.SCardID, &sc_rec) > 0)
@@ -1369,7 +1356,6 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							else
 								ccgitem.CashID = 0;
 						}
-						// } @v7.7.0
 						// @v8.4.8 {
 						else if(Filt.Grp == CCheckFilt::gAmountNGoods) {
 							if(Filt.AmountQuant > 0.0)
@@ -1386,11 +1372,9 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 					case CCheckFilt::gDiv:
 						ccgitem.CashID = item.Div;
 						break;
-					// @v7.5.3 {
 					case CCheckFilt::gDlvrAddr:
 						ccgitem.CashID = item.AddrID;
 						break;
-					// } @v7.5.3
 					case CCheckFilt::gCashiers:
 						ccgitem.CashID = item.UserID;
 						break;
@@ -1444,7 +1428,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 						case CCheckFilt::gCard:
 							{
 								SCardTbl::Rec crd_rec;
-								if(ScObj.Fetch(rec.SCardID, &crd_rec) > 0) { // @v7.2.8 Search-->Fetch
+								if(ScObj.Fetch(rec.SCardID, &crd_rec) > 0) {
 									PPSCardSeries ser_rec;
 									if(!p_serobj)
 										THROW_MEM(p_serobj = new PPObjSCardSeries);
@@ -1543,6 +1527,23 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							}
 							temp_buf.CatDiv('-', 1).Cat(goods_name);
 							break;
+						case CCheckFilt::gAgentGoodsSCSer: // @v9.6.6
+							if(rec.CashID)
+								GetArticleName(rec.CashID, temp_buf);
+							else
+								PPGetWord(PPWORD_AGENTNOTDEF, 0, temp_buf);
+							if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
+								THROW(GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name));
+							}
+							else
+								GdsObj.FetchNameR(rec.GoodsID, goods_name); 
+							temp_buf.CatDiv('-', 1).Cat(goods_name);
+							if(rec.SCardID) {
+								PPSCardSeries sc_rec;
+								if(sc_obj.Fetch(rec.SCardID, &sc_rec) > 0)
+									temp_buf.CatDivIfNotEmpty('-', 1).Cat(sc_rec.Name);
+							}
+							break;
 						case CCheckFilt::gCashiersNGoods:
 							if(rec.CashID)
 								GetPersonName(rec.CashID, temp_buf);
@@ -1557,7 +1558,6 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							}
 							temp_buf.CatDivIfNotEmpty('-', 1).Cat(goods_name);
 							break;
-						// @v7.7.0 {
 						case CCheckFilt::gGoodsSCSer:
 							if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
 								THROW(GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name));
@@ -1573,7 +1573,6 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 									temp_buf.CatDivIfNotEmpty('-', 1).Cat(sc_rec.Name);
 							}
 							break;
-						// } @v7.7.0
 						// @v8.4.8 {
 						case CCheckFilt::gAmountNGoods:
 							{
@@ -1630,10 +1629,8 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 		else // } @v8.9.2
 			P_CC->GetListByExtFilt(Filt, CcIdList);
 		if(!(Filt.Flags & CCheckFilt::fCheckLines)){
-			// @v7.3.0 {
 			if(P_TmpTbl && (!IsTempTblNeeded() || !(Filt.Flags & CCheckFilt::fInner)))
 				ZDELETE(P_TmpTbl);
-			// } @v7.3.0
 			if(!P_TmpTbl && IsTempTblNeeded()) { // @todo Из-за того что при вызове ChangeFilt не удаляется таблица P_TmpTbl, возможны артефакты
 				THROW(P_TmpTbl = CreateTempFile());
 				{
@@ -1940,6 +1937,11 @@ int SLAPI PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 				else if(Filt.Grp == CCheckFilt::gAgentsNHour)
 					pItem->AgentID = rec.CashID;
 				// } @v9.3.0
+				// @v9.6.6 {
+				else if(Filt.Grp == CCheckFilt::gAgentGoodsSCSer) {
+					pItem->AgentID = rec.CashID;
+				}
+				// } @v9.6.6
 				ok = 1;
 			}
 			else if(P_TmpTbl) {
@@ -1958,18 +1960,16 @@ int SLAPI PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 						pItem->GuestCount = ext_rec.GuestCount;
 						pItem->AgentID   = ext_rec.SalerID;
 						pItem->LinkCheckID = ext_rec.LinkCheckID;
-						pItem->CreationDtm = ext_rec.CreationDtm; // @v7.6.1
+						pItem->CreationDtm = ext_rec.CreationDtm;
 						if(pItem->Flags & CCHKF_ORDER)
 							pItem->OrderTime.Init(ext_rec.StartOrdDtm, ext_rec.EndOrdDtm);
 					}
 				}
-				// @v7.6.9 {
 				if(!pItem->CashNodeID && Filt.Flags & CCheckFilt::fFillCashNodeID) {
 					CSessionTbl::Rec cs_rec;
 					if(CsObj.Fetch(pItem->SessID, &cs_rec) > 0)
 						pItem->CashNodeID = cs_rec.CashNodeID;
 				}
-				// } @v7.6.9
 				ok = 1;
 			}
 			else {
@@ -2052,14 +2052,14 @@ int SLAPI PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 							pItem->GuestCount = _ext_rec.GuestCount;
 							pItem->AgentID    = _ext_rec.SalerID;
 							pItem->LinkCheckID = _ext_rec.LinkCheckID;
-							pItem->AddrID      = _ext_rec.AddrID;      // @v7.5.3
-							pItem->CreationDtm = _ext_rec.CreationDtm; // @v7.6.1
+							pItem->AddrID      = _ext_rec.AddrID;
+							pItem->CreationDtm = _ext_rec.CreationDtm;
 							if(pItem->Flags & CCHKF_ORDER)
 								pItem->OrderTime.Init(_ext_rec.StartOrdDtm, _ext_rec.EndOrdDtm);
 						}
 						if(Filt.Flags & CCheckFilt::fFillCashNodeID) {
 							CSessionTbl::Rec cs_rec;
-							if(CsObj.Fetch(pItem->SessID, &cs_rec) > 0) // @v7.6.3 Search-->Fetch
+							if(CsObj.Fetch(pItem->SessID, &cs_rec) > 0)
 								pItem->CashNodeID = cs_rec.CashNodeID;
 						}
 						// @v8.3.0 {
@@ -2181,15 +2181,16 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 			case CCheckFilt::gAmountNGoods: brw_id = BROWSER_CCHECKGRP_GOODS;  break;
 			case CCheckFilt::gCashiers:  brw_id = BROWSER_CCHECKGRP_CASHIERS;  break;
 			case CCheckFilt::gAgents:    brw_id = BROWSER_CCHECKGRP_AGENTS;    break;
-			case CCheckFilt::gDlvrAddr:  brw_id = BROWSER_CCHECKGRP_ADDR;      break; // v7.5.3
+			case CCheckFilt::gDlvrAddr:  brw_id = BROWSER_CCHECKGRP_ADDR;      break;
 			case CCheckFilt::gLinesCount: brw_id = BROWSER_CCHECKGRP_LNCOUNT;  break;
 			case CCheckFilt::gGuestCount: brw_id = BROWSER_CCHECKGRP_GUESTCOUNT;  break;
 			case CCheckFilt::gTableNo:   brw_id = BROWSER_CCHECKGRP_TABLENO;      break;
 			case CCheckFilt::gDiv:       brw_id = BROWSER_CCHECKGRP_DIV;       break;
 			case CCheckFilt::gAgentsNHour:    brw_id = BROWSER_CCHECKGRP_AGENTSNHOUR; break;
 			case CCheckFilt::gAgentsNGoods:   brw_id = BROWSER_CCHECKGRP_AGENTSNHOUR; break;
-			case CCheckFilt::gCashiersNGoods: brw_id = BROWSER_CCHECKGRP_AGENTSNHOUR; break; // @v7.1.12
-			case CCheckFilt::gGoodsSCSer:     brw_id = BROWSER_CCHECKGRP_AGENTSNHOUR; break; // @v7.7.0
+			case CCheckFilt::gCashiersNGoods: brw_id = BROWSER_CCHECKGRP_AGENTSNHOUR; break;
+			case CCheckFilt::gGoodsSCSer:     brw_id = BROWSER_CCHECKGRP_AGENTSNHOUR; break;
+			case CCheckFilt::gAgentGoodsSCSer: brw_id = BROWSER_CCHECKGRP_AGENTSNHOUR; break; // @v9.6.6
 			default: brw_id = (Filt.Flags & CCheckFilt::fGoodsCorr) ? BROWSER_CCHECK_GOODSCORR : BROWSER_CCHECK;
 		}
 		if(P_TmpGdsCorrTbl) {
@@ -2267,17 +2268,17 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 				cq->Qtty,         // #9
 				cq->LinesCount,   // #10
 				cq->SkuCount,     // #11
-				dbe_scowner_name, // #12 // @v7.2.8
+				dbe_scowner_name, // #12
 				0L);
 			if(State & stHasExt) {
 				SETIFZ(p_ext, new CCheckExtTbl);
 				PPDbqFuncPool::InitObjNameFunc(dbe_saler, PPDbqFuncPool::IdObjNameAr, p_ext->SalerID);
 				p_add_paym = &(p_ext->AddPaym_unused / 100.0);
-				p_q->addField(dbe_saler);           // #13 // @v7.2.8 #+1
-				p_q->addField(p_ext->TableNo);      // #14 // @v7.2.8 #+1
+				p_q->addField(dbe_saler);           // #13 
+				p_q->addField(p_ext->TableNo);      // #14 
 				p_q->addField(p_ext->GuestCount);   // #15 // @v8.1.11
-				p_q->addField(*p_add_paym);         // #16 // @v7.2.8 #+1 // @v8.1.11 #+1
-				p_q->addField(p_ext->Memo);    // #17 // @v7.2.8 #+1 // @v8.1.11 #+1
+				p_q->addField(*p_add_paym);         // #16 // @v8.1.11 #+1
+				p_q->addField(p_ext->Memo);    // #17 // @v8.1.11 #+1
 				if(Filt.Flags & CCheckFilt::fDlvrOnly) {
 					{
 						dbe_addr_city.init();
@@ -2302,14 +2303,14 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 						*/
 						PPDbqFuncPool::InitFunc2Arg(dbe_addr, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_SHORTADDR)); // @v9.6.1
 					}
-					p_q->addField(p_ext->StartOrdDtm); // #18 // @v7.2.8 #+1 // @v8.1.11 #+1
-					p_q->addField(dbe_addr_phone);     // #19 // @v7.2.8 #+1 // @v8.1.11 #+1
-					p_q->addField(dbe_addr_city);      // #20 // @v7.2.8 #+1 // @v8.1.11 #+1
-					p_q->addField(dbe_addr);           // #21 // @v7.2.8 #+1 // @v8.1.11 #+1
+					p_q->addField(p_ext->StartOrdDtm); // #18 // @v8.1.11 #+1
+					p_q->addField(dbe_addr_phone);     // #19 // @v8.1.11 #+1
+					p_q->addField(dbe_addr_city);      // #20 // @v8.1.11 #+1
+					p_q->addField(dbe_addr);           // #21 // @v8.1.11 #+1
 				}
 				else if(Filt.Flags & CCheckFilt::fOrderOnly) {
-					p_q->addField(p_ext->StartOrdDtm); // #18 // @v7.2.8 #+1 // @v8.1.11 #+1
-					p_q->addField(p_ext->EndOrdDtm);   // #19 // @v7.2.8 #+1 // @v8.1.11 #+1
+					p_q->addField(p_ext->StartOrdDtm); // #18 // @v8.1.11 #+1
+					p_q->addField(p_ext->EndOrdDtm);   // #19 // @v8.1.11 #+1
 				}
 				dbq = & (*dbq && (p_ext->CheckID += cq->ID));
 				p_q->from(cq, p_ext, 0L);
@@ -2335,17 +2336,17 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 				dbe_sc_code,        // #7
 				t->Discount,        // #8
 				dbe_psn,            // #9
-				dbe_scowner_name,   // #10 // @v7.2.8
+				dbe_scowner_name,   // #10
 				0L);
 			if(State & stHasExt) {
 				SETIFZ(p_ext, new CCheckExtTbl);
 				PPDbqFuncPool::InitObjNameFunc(dbe_saler, PPDbqFuncPool::IdObjNameAr, p_ext->SalerID);
 				p_add_paym = &(p_ext->AddPaym_unused / 100.0);
-				p_q->addField(dbe_saler);         // #11          // @v7.2.8 #+1
-				p_q->addField(p_ext->TableNo);    // #12          // @v7.2.8 #+1
-				p_q->addField(p_ext->GuestCount); // #13          // @v8.1.11
-				p_q->addField(*p_add_paym);       // #14          // @v7.2.8 #+1 // @v8.1.11 #+1
-				p_q->addField(p_ext->Memo);       // #15 @v7.0.6  // @v7.2.8 #+1 // @v8.1.11 #+1
+				p_q->addField(dbe_saler);         // #11
+				p_q->addField(p_ext->TableNo);    // #12
+				p_q->addField(p_ext->GuestCount); // #13 // @v8.1.11
+				p_q->addField(*p_add_paym);       // #14 // @v8.1.11 #+1
+				p_q->addField(p_ext->Memo);       // #15 // @v8.1.11 #+1
 				if(Filt.Flags & CCheckFilt::fDlvrOnly || Filt.DlvrAddrID) {
 					{
 						dbe_addr_city.init();
@@ -2370,14 +2371,14 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 						*/
 						PPDbqFuncPool::InitFunc2Arg(dbe_addr, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_SHORTADDR)); // @v9.6.1
 					}
-					p_q->addField(p_ext->StartOrdDtm); // #16 @v7.0.8 // @v7.2.8 #+1 // @v8.1.11 #+1
-					p_q->addField(dbe_addr_phone);     // #17 @v7.0.8 // @v7.2.8 #+1 // @v8.1.11 #+1
-					p_q->addField(dbe_addr_city);      // #18 @v7.0.8 // @v7.2.8 #+1 // @v8.1.11 #+1
-					p_q->addField(dbe_addr);           // #19 @v7.0.8 // @v7.2.8 #+1 // @v8.1.11 #+1
+					p_q->addField(p_ext->StartOrdDtm); // #16 // @v8.1.11 #+1
+					p_q->addField(dbe_addr_phone);     // #17 // @v8.1.11 #+1
+					p_q->addField(dbe_addr_city);      // #18 // @v8.1.11 #+1
+					p_q->addField(dbe_addr);           // #19 // @v8.1.11 #+1
 				}
 				else if(Filt.Flags & CCheckFilt::fOrderOnly) {
-					p_q->addField(p_ext->StartOrdDtm); // #16 @v7.0.8 // @v7.2.8 #+1 // @v8.1.11 #+1
-					p_q->addField(p_ext->EndOrdDtm);   // #17 @v7.0.8 // @v7.2.8 #+1 // @v8.1.11 #+1
+					p_q->addField(p_ext->StartOrdDtm); // #16 // @v8.1.11 #+1
+					p_q->addField(p_ext->EndOrdDtm);   // #17 // @v8.1.11 #+1
 				}
 			}
 			if(Filt.Flags & (CCheckFilt::fCashOnly | CCheckFilt::fBankingOnly))
@@ -2396,8 +2397,8 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 			dbq = ppcheckflag(dbq, t->Flags, CCHKF_PRINTED,  (Filt.Flags & CCheckFilt::fNotPrintedOnly) ? -1 : 0);
 			dbq = ppcheckflag(dbq, t->Flags, CCHKF_HASGIFT,  (Filt.Flags & CCheckFilt::fGiftOnly)  ? 1 : 0);
 			dbq = ppcheckflag(dbq, t->Flags, CCHKF_ORDER,    (Filt.Flags & CCheckFilt::fOrderOnly) ? 1 : 0);
-			dbq = ppcheckflag(dbq, t->Flags, CCHKF_DELIVERY, (Filt.Flags & (CCheckFilt::fDlvrOnly|CCheckFilt::fDlvrOutstandOnly)) ? 1 : 0); // @v7.1.0
-			dbq = ppcheckflag(dbq, t->Flags, CCHKF_CLOSEDORDER, (Filt.Flags & CCheckFilt::fDlvrOutstandOnly) ? -1 : 0); // @v7.1.0
+			dbq = ppcheckflag(dbq, t->Flags, CCHKF_DELIVERY, (Filt.Flags & (CCheckFilt::fDlvrOnly|CCheckFilt::fDlvrOutstandOnly)) ? 1 : 0);
+			dbq = ppcheckflag(dbq, t->Flags, CCHKF_CLOSEDORDER, (Filt.Flags & CCheckFilt::fDlvrOutstandOnly) ? -1 : 0);
 			dbq = ppcheckflag(dbq, t->Flags, CCHKF_SKIP,     (Filt.Flags & CCheckFilt::fWithoutSkipTag) ? -1 : 0);
 			dbq = &(*dbq && intrange(t->Code, Filt.CodeR));
 			if(!Filt.PcntR.IsZero()) {
@@ -2407,11 +2408,10 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 			if(!Filt.AmtR.IsZero()) {
 				dbq = &(*dbq && realrange(t->Amount, Filt.AmtR.low, Filt.AmtR.upp));
 			}
-			if(SessIdList.GetCount() == 1) { // @v6.1.3 Здесь нельзя использовать GetSingle ибо единственный элементы может быть 0
+			if(SessIdList.GetCount() == 1) { // Здесь нельзя использовать GetSingle ибо единственный элементы может быть 0
 				dbq = &(*dbq && t->SessID == SessIdList.GetSingle());
 			}
 			else if(!Filt.CashNumber && NodeIdList.GetCount()) {
-				// @v7.6.3 {
 				{
 					dbe_checkposnode.init();
 					dbe_checkposnode.push(t->SessID);
@@ -2430,15 +2430,6 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 						dbq = & (*dbq && dbe_checkposnode == (long)1);
 					}
 				}
-				// } @v7.6.3
-				/* @v7.6.3
-				cs = new CSessionTbl;
-				dbq = & (*dbq && cs->ID == t->SessID);
-				if(NodeIdList.GetSingle())
-					dbq = ppcheckfiltid(dbq, cs->CashNodeID, NodeIdList.GetSingle());
-				else
-					dbq = ppcheckfiltidlist(dbq, cs->CashNodeID, &NodeIdList.Get());
-				*/
 			}
 			if(State & stHasExt) {
 				if(Filt.AgentID || Filt.TableCode || Filt.GuestCount > 0 || Filt.DlvrAddrID || (Filt.Flags & CCheckFilt::fZeroDlvrAddr)) {
@@ -2588,12 +2579,12 @@ int SLAPI PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
 			if(Filt.Grp == CCheckFilt::gGoodsDate)
 				pBrw->InsColumn(1, "@date", 1, 0, DATF_DMY, 0);
 			if(!P_TmpGrpTbl && (State & stHasExt)) {
-				int    pos = P_TmpTbl ? 13 : 11; // @v7.2.8 #+1
+				int    pos = P_TmpTbl ? 13 : 11;
 				pBrw->InsColumn    (-1, "@seller",          pos++, 0, MKSFMT(24, 0), 0);
 				pBrw->InsColumnWord(-1, PPWORD_DINNERTABLE, pos++, 0, MKSFMT(5, NMBF_NOZERO), 0);
 				pBrw->InsColumn    (-1, "@guestcount",      pos++, 0, MKSFMT(5, NMBF_NOZERO), 0); // @v8.1.11
 				pBrw->InsColumnWord(-1, PPWORD_ADDPAYMENT,  pos++, 0, MKSFMTD(12, 2, NMBF_NOZERO), 0);
-				pBrw->InsColumn    (-1, "@memo",            pos++, 0, MKSFMT(40, 0), 0); // @v7.0.6
+				pBrw->InsColumn    (-1, "@memo",            pos++, 0, MKSFMT(40, 0), 0);
 				if(Filt.Flags & CCheckFilt::fDlvrOnly) {
 					pBrw->InsColumn(-1, "@duetime",  pos++, 0, MKSFMT(10, 0), 0);
 					pBrw->InsColumn(-1, "@phone",    pos++, 0, MKSFMT(10, 0), 0);
@@ -3446,7 +3437,7 @@ public:
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS, 11, CCHKF_EXT);
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS, 12, CCHKF_LINEEXT);
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS, 13, CCHKF_HASGIFT);
-		AddClusterAssoc(CTL_CCHECKINFO_FLAGS, 14, CCHKF_BONUSCARD); // @v7.4.3
+		AddClusterAssoc(CTL_CCHECKINFO_FLAGS, 14, CCHKF_BONUSCARD);
 		SetClusterData(CTL_CCHECKINFO_FLAGS, Data.Rec.Flags);
 
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 0, CCHKF_ORDER);
@@ -3725,7 +3716,7 @@ int SLAPI PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 				Gsl.GetGoodsBySubstID(p_gc_rec->Goods1ID, &list1);
 				Gsl.GetGoodsBySubstID(p_gc_rec->Goods2ID, &list2);
 				for(uint i = 0; i < list2.getCount(); i++)
-					if(list1.lsearch(list2.at(i)) <= 0)
+					if(!list1.lsearch(list2.at(i)))
 						list1.add(list2.at(i));
 				temp_flt.CorrGoodsList.Set(&list1);
 			}
@@ -3743,7 +3734,8 @@ int SLAPI PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 			if(temp_id && P_TmpGrpTbl && oneof4(grp, CCheckFilt::gTime, CCheckFilt::gDate, CCheckFilt::gDayOfWeek, CCheckFilt::gDowNTime) ||
 				oneof7(grp, CCheckFilt::gCash, CCheckFilt::gCashNode, CCheckFilt::gCard, CCheckFilt::gDscntPct, CCheckFilt::gDiv, CCheckFilt::gGuestCount, CCheckFilt::gTableNo) ||
 				oneof6(grp, CCheckFilt::gGoods, CCheckFilt::gAmount, CCheckFilt::gQtty, CCheckFilt::gCashiers, CCheckFilt::gAgents, CCheckFilt::gLinesCount) ||
-				oneof6(grp, CCheckFilt::gAgentsNHour, CCheckFilt::gGoodsDate, CCheckFilt::gAgentsNGoods, CCheckFilt::gCashiersNGoods, CCheckFilt::gDlvrAddr, CCheckFilt::gGoodsSCSer)) {
+				oneof7(grp, CCheckFilt::gAgentsNHour, CCheckFilt::gGoodsDate, CCheckFilt::gAgentsNGoods, CCheckFilt::gCashiersNGoods, 
+					CCheckFilt::gDlvrAddr, CCheckFilt::gGoodsSCSer, CCheckFilt::gAgentGoodsSCSer)) {
 				PPID   k = temp_id;
 				if(P_TmpGrpTbl->search(0, &k, spEq)) {
 					int  to_view = 1;
@@ -3797,10 +3789,14 @@ int SLAPI PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 							tmp_filt.AgentID = cur_rec.CashID;
 						else if(Filt.Grp == CCheckFilt::gCashiersNGoods)
 							tmp_filt.CashierID = cur_rec.CashID;
-						// @v7.7.0 {
 						else if(Filt.Grp == CCheckFilt::gGoodsSCSer)
 							tmp_filt.SCardSerID = cur_rec.CashID;
-						// } @v7.7.0
+						// @v9.6.6 {
+						else if(Filt.Grp == CCheckFilt::gAgentGoodsSCSer) {
+							tmp_filt.SCardSerID = cur_rec.SCardID;
+							tmp_filt.AgentID = cur_rec.CashID;
+						}
+						// } @v9.6.6 
 					}
 					else if(Filt.Grp == CCheckFilt::gGuestCount)
 						tmp_filt.GuestCount = (int16)cur_rec.CashID;
@@ -4028,14 +4024,14 @@ int PPALDD_CCheck::InitData(PPFilt & rFilt, long rsrv)
 			H.UserID   = pack.Rec.UserID;
 			H.SessID   = pack.Rec.SessID;
 			H.Flags    = pack.Rec.Flags;
-			H.fPrinted     = BIN(pack.Rec.Flags & CCHKF_PRINTED);      // @v7.0.9
-			H.fBanking     = BIN(pack.Rec.Flags & CCHKF_BANKING);      // @v7.0.9
-			H.fIncorpCard  = BIN(pack.Rec.Flags & CCHKF_INCORPCRD);    // @v7.0.9
-			H.fSuspended   = BIN(pack.Rec.Flags & CCHKF_SUSPENDED);    // @v7.0.9
-			H.fOrder       = BIN(pack.Rec.Flags & CCHKF_ORDER);        // @v7.0.9
-			H.fDelivery    = BIN(pack.Rec.Flags & CCHKF_DELIVERY);     // @v7.0.9
-			H.fClosedOrder = BIN(pack.Rec.Flags & CCHKF_CLOSEDORDER);  // @v7.0.9
-			H.fReturn      = BIN(pack.Rec.Flags & CCHKF_RETURN);       // @v7.0.9
+			H.fPrinted     = BIN(pack.Rec.Flags & CCHKF_PRINTED);
+			H.fBanking     = BIN(pack.Rec.Flags & CCHKF_BANKING);
+			H.fIncorpCard  = BIN(pack.Rec.Flags & CCHKF_INCORPCRD);
+			H.fSuspended   = BIN(pack.Rec.Flags & CCHKF_SUSPENDED);
+			H.fOrder       = BIN(pack.Rec.Flags & CCHKF_ORDER);
+			H.fDelivery    = BIN(pack.Rec.Flags & CCHKF_DELIVERY);
+			H.fClosedOrder = BIN(pack.Rec.Flags & CCHKF_CLOSEDORDER);
+			H.fReturn      = BIN(pack.Rec.Flags & CCHKF_RETURN);
 			H.Dt       = pack.Rec.Dt;
 			H.Tm       = pack.Rec.Tm;
 			H.Amount   = MONEYTOLDBL(pack.Rec.Amount);
@@ -4118,19 +4114,18 @@ PPALDD_DESTRUCTOR(CCheckView)
 	Destroy();
 }
 
-int SetVATData(double * pVATRate, double * pPTrnovr, double * pDscnt, const BVATAccmArray * pInOutList, uint i)
+static void SetVATData(double * pVATRate, double * pPTrnovr, double * pDscnt, const BVATAccmArray * pInOutList, uint i)
 {
 	double  vat_rate = 0.0, trnovr = 0.0, dscnt = 0.0;
 	if(pInOutList && i >= 0 && pInOutList->getCount() > i) {
-		BVATAccm item = pInOutList->at(i);
-		vat_rate    = item.PRate;
-		trnovr = item.PTrnovr;
-		dscnt  = item.Discount;
+		const BVATAccm & r_item = pInOutList->at(i);
+		vat_rate = r_item.PRate;
+		trnovr = r_item.PTrnovr;
+		dscnt  = r_item.Discount;
 	}
 	ASSIGN_PTR(pVATRate, vat_rate);
 	ASSIGN_PTR(pPTrnovr, trnovr);
 	ASSIGN_PTR(pDscnt,   dscnt);
-	return 1;
 }
 
 int PPALDD_CCheckView::InitData(PPFilt & rFilt, long rsrv)
@@ -4147,11 +4142,11 @@ int PPALDD_CCheckView::InitData(PPFilt & rFilt, long rsrv)
 	H.AmountQuant    = p_filt->AmountQuant;
 	H.FltBeg  = p_filt->Period.low;
 	H.FltEnd  = p_filt->Period.upp;
-	H.FltFlags = p_filt->Flags;  // @v7.0.9
-	H.fSuspendedOnly = BIN(p_filt->Flags & CCheckFilt::fSuspendedOnly); // @v7.0.9
-	H.fGiftOnly      = BIN(p_filt->Flags & CCheckFilt::fGiftOnly);      // @v7.0.9
-	H.fOrderOnly     = BIN(p_filt->Flags & CCheckFilt::fOrderOnly);     // @v7.0.9
-	H.fDeliveryOnly  = BIN(p_filt->Flags & CCheckFilt::fDlvrOnly);      // @v7.0.9
+	H.FltFlags = p_filt->Flags;
+	H.fSuspendedOnly = BIN(p_filt->Flags & CCheckFilt::fSuspendedOnly);
+	H.fGiftOnly      = BIN(p_filt->Flags & CCheckFilt::fGiftOnly);
+	H.fOrderOnly     = BIN(p_filt->Flags & CCheckFilt::fOrderOnly);
+	H.fDeliveryOnly  = BIN(p_filt->Flags & CCheckFilt::fDlvrOnly);
 	const BVATAccmArray * p_inout_vat_list = p_v->GetInOutVATList();
 	SetVATData(&H.VATRate1, &H.PTrnovr1, &H.Discount1, p_inout_vat_list, 0);
 	SetVATData(&H.VATRate2, &H.PTrnovr2, &H.Discount2, p_inout_vat_list, 1);
@@ -4185,7 +4180,10 @@ int PPALDD_CCheckView::NextIteration(PPIterID iterId, long rsrv)
 	I.GQtty     = item.G_Qtty;
 	I.GSCardID  = 0;
 	I.CcAgentID = item.AgentID; // @v9.3.0
-	if(((CCheckFilt *)p_v->GetBaseFilt())->Grp == CCheckFilt::gCard)
+	const int _grp = ((CCheckFilt *)p_v->GetBaseFilt())->Grp;
+	if(_grp == CCheckFilt::gCard)
+		I.GSCardID = item.SCardID;
+	else if(_grp == CCheckFilt::gAgentGoodsSCSer) // @v9.6.6
 		I.GSCardID = item.SCardID;
 	STRNSCPY(I.GrpngItemText, item.G_Text);
 	PPWaitPercent(p_v->GetCounter());
@@ -4288,7 +4286,7 @@ int PPALDD_CCheckDetail::InitData(PPFilt & rFilt, long rsrv)
 	H.CashNodeID    = pack.Rec.CashID;
 	H.CheckID       = pack.Rec.ID;
 	H.LinkCheckID   = pack.Ext.LinkCheckID;
-	H.DlvrLocID     = pack.Ext.AddrID; // @v7.0.9
+	H.DlvrLocID     = pack.Ext.AddrID;
 	H.CheckNumber   = pack.Rec.Code;
 	H.CheckDt       = pack.Rec.Dt;
 	H.CheckTm       = pack.Rec.Tm;
@@ -4306,14 +4304,14 @@ int PPALDD_CCheckDetail::InitData(PPFilt & rFilt, long rsrv)
 	H.AgentID       = pack.Ext.SalerID;
 	H.TableNo       = pack.Ext.TableNo;
 	H.GuestCount    = pack.Ext.GuestCount;
-	H.fPrinted      = BIN(pack.Rec.Flags & CCHKF_PRINTED);      // @v7.0.9
-	H.fBanking      = BIN(pack.Rec.Flags & CCHKF_BANKING);      // @v7.0.9
-	H.fIncorpCard   = BIN(pack.Rec.Flags & CCHKF_INCORPCRD);    // @v7.0.9
-	H.fSuspended    = BIN(pack.Rec.Flags & CCHKF_SUSPENDED);    // @v7.0.9
-	H.fOrder        = BIN(pack.Rec.Flags & CCHKF_ORDER);        // @v7.0.9
-	H.fDelivery     = BIN(pack.Rec.Flags & CCHKF_DELIVERY);     // @v7.0.9
-	H.fClosedOrder  = BIN(pack.Rec.Flags & CCHKF_CLOSEDORDER);  // @v7.0.9
-	H.fReturn       = BIN(pack.Rec.Flags & CCHKF_RETURN);       // @v7.0.9
+	H.fPrinted      = BIN(pack.Rec.Flags & CCHKF_PRINTED);
+	H.fBanking      = BIN(pack.Rec.Flags & CCHKF_BANKING);
+	H.fIncorpCard   = BIN(pack.Rec.Flags & CCHKF_INCORPCRD);
+	H.fSuspended    = BIN(pack.Rec.Flags & CCHKF_SUSPENDED);
+	H.fOrder        = BIN(pack.Rec.Flags & CCHKF_ORDER);
+	H.fDelivery     = BIN(pack.Rec.Flags & CCHKF_DELIVERY);
+	H.fClosedOrder  = BIN(pack.Rec.Flags & CCHKF_CLOSEDORDER);
+	H.fReturn       = BIN(pack.Rec.Flags & CCHKF_RETURN);
 
 	H.CreationDt = pack.Ext.CreationDtm.d; // @v8.1.10
 	H.CreationTm = pack.Ext.CreationDtm.t; // @v8.1.10
@@ -4323,7 +4321,6 @@ int PPALDD_CCheckDetail::InitData(PPFilt & rFilt, long rsrv)
 	H.OrderEndDt    = pack.Ext.EndOrdDtm.d;
 	H.OrderEndTm    = pack.Ext.EndOrdDtm.t;
 
-	// @v7.0.9 {
 	temp_buf = 0;
 	if(H.OrderStartDt)
 		temp_buf.Cat(H.OrderStartDt, DATF_DMY);
@@ -4362,7 +4359,6 @@ int PPALDD_CCheckDetail::InitData(PPFilt & rFilt, long rsrv)
 			temp_buf.CopyTo(H.DlvrContact, sizeof(H.DlvrContact));        // @v8.1.10
 		}
 	}
-	// } @v7.0.9
 	// @v8.5.2 if(pack.Rec.Flags & CCHKF_ORDER) {
 		pack.MakeBarcodeIdent(temp_buf).CopyTo(H.OrderCode, sizeof(H.OrderCode));
 	// @v8.5.2 }
@@ -4387,13 +4383,13 @@ int PPALDD_CCheckDetail::NextIteration(PPIterID iterId, long rsrv)
 	CCheckItem item;
 	if(p_cpp->NextIteration(&item) > 0) {
 		I.LineGrpN = item.LineGrpN;
-		I.LineQueue = item.Queue; // @v7.1.5
+		I.LineQueue = item.Queue;
 		I.fPrinted       = BIN(item.Flags & cifIsPrinted);
 		I.fGift          = BIN(item.Flags & cifGift);
 		I.fUsedByGift    = BIN(item.Flags & cifUsedByGift);
 		I.fQuotedByGift  = BIN(item.Flags & cifQuotedByGift);
 		I.fPartOfComplex = BIN(item.Flags & cifPartOfComplex);
-		I.fModifier      = BIN(item.Flags & cifModifier); // @v7.2.0
+		I.fModifier      = BIN(item.Flags & cifModifier);
 		I.GoodsID  = item.GoodsID;
 		I.Price    = item.Price;
 		I.Discount = item.Discount;

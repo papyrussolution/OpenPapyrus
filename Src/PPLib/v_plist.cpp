@@ -589,8 +589,8 @@ int SLAPI PPViewPriceList::UpdatePriceList(LDATE date, int rmvOld, int use_ta)
 				int    is_present = 0, r;
 				Goods2Tbl::Rec goods_grp_rec;
 				if(GObj.CheckFlag(gr.ID, GF_UNLIM)) {
-					QuotIdent qi(plist_rec.LocID, PPQUOTK_BASE);
-					THROW(r = GObj.GetQuotExt(gr.ID, qi, 0, 0, &price, 1));
+					const QuotIdent qi(plist_rec.LocID, PPQUOTK_BASE);
+					THROW(r = GObj.GetQuotExt(gr.ID, qi, &price, 1));
 					MEMSZERO(lot_rec);
 					r = GPRET_PRESENT;
 				}

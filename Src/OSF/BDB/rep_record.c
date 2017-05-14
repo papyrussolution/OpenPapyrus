@@ -1180,7 +1180,7 @@ gap_check:
 			*ret_lsnp = lp->ready_lsn;
 		}
 		LOGCOPY_32(env, &rectype, rec->data);
-		if(rectype == DB___txn_regop || rectype == DB___txn_ckp)
+		if(oneof2(rectype, DB___txn_regop, DB___txn_ckp))
 			max_lsn = lp->max_perm_lsn;
 		/*
 		 * We check REPCTL_LEASE here, because this client may

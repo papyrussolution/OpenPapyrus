@@ -128,10 +128,7 @@ struct DlFunc {
 	static int GetOpName(uint opID, SString & rName); // Compile-time
 	DlFunc();
 	int    GetName(uint options, SString & rName) const; // Compile-time
-	uint   GetArgCount() const
-	{
-		return ArgList.getCount();
-	}
+	uint   GetArgCount() const;
 	int    GetArg(uint argN, Arg *) const;
 	DLSYMBID GetArgType(uint argN) const;
 	int    GetArgName(uint argN, SString & rArgName) const;

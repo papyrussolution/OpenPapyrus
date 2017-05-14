@@ -502,8 +502,7 @@ int __dbreg_close_id(DB*dbp, DB_TXN * txn, uint32 op)
 	if(fnp->txn_ref > 1) {
 		MUTEX_LOCK(env, dbp->mutex);
 		if(fnp->txn_ref > 1) {
-			if((t_ret = __dbreg_rem_dbentry(
-				    env->lg_handle, fnp->id)) != 0 && ret == 0)
+			if((t_ret = __dbreg_rem_dbentry(env->lg_handle, fnp->id)) != 0 && ret == 0)
 				ret = t_ret;
 			/*
 			 * The DB handle has been closed in the logging system.

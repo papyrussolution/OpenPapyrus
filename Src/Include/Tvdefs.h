@@ -341,6 +341,7 @@
 	// TEvent::message::infoWord содержит команду, по которой осуществляется завершение режима.
 #define cmExecute            91 // @v9.0.4 evCommand Команда, замещающая вызов виртуальной функции PPView::execute
 	// TEvent::message::infoLong возвращает код команды, которой завершился модульный цикл
+#define cmImageDblClk        92 // @v9.6.6 На StaticText пользователь дважды щелкнул левой кнопкой мыши
 //
 // StdDlg commands & messages
 //

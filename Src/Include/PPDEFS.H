@@ -1266,6 +1266,7 @@
 #define PPBCPT_ZEBRA         1L // Zebra
 #define PPBCPT_DATAMAX       2L // Datamax Corporation
 #define PPBCPT_ELTRON        3L // Zebra-Eltron (EPL2)
+#define PPBCPT_WINDOWS       4L // @v9.6.6 Стандартный Windows-принтер с отчетов из CrystalReports
 //
 // Типы электронных весов (@v3.0.0)
 // Наименования типов хранятся в ресурсах строк в группе PPTXT_SCLT.
@@ -10154,6 +10155,7 @@
 	#define CTLCAL_POSNQUERY_PERIOD   (4 + WINDOWS_ID_BIAS)
 	#define CTL_POSNQUERY_SESSL       (5 + WINDOWS_ID_BIAS)
 	#define CTL_POSNQUERY_INFO        (6 + WINDOWS_ID_BIAS)
+#define DLG_IMAGEINFO2            1321
 //
 // Win32 Dialog Identifiers
 //

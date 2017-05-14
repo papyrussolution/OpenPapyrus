@@ -1,5 +1,5 @@
 // V_GTANLZ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 // Налоговый анализ товарооборота
@@ -703,7 +703,7 @@ int SLAPI PPViewGoodsTaxAnalyze::InitIteration(IterOrder ord)
 {
 	int    ok = 1;
 	IterIdx = 0;
-	IterGrpName[0] = 0;
+	IterGrpName = 0;
 	ZDELETE(P_GGIter);
 	ZDELETE(P_IterQuery);
 	THROW_PP(P_TempTbl, PPERR_PPVIEWNOTINITED);
@@ -733,7 +733,7 @@ int SLAPI PPViewGoodsTaxAnalyze::InitIteration(IterOrder ord)
 int SLAPI PPViewGoodsTaxAnalyze::NextOuterIteration()
 {
 	PPID   grp_id = 0;
-	if(P_GGIter && P_GGIter->Next(&grp_id, IterGrpName, sizeof(IterGrpName)) > 0) {
+	if(P_GGIter && P_GGIter->Next(&grp_id, IterGrpName) > 0) {
 		InitIterQuery(grp_id);
 		return 1;
 	}

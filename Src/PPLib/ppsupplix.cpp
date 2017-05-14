@@ -3976,13 +3976,13 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 								if(special_qk_id) {
 									double quot = 0.0;
 									const QuotIdent qi(ti.LocID, special_qk_id, 0, pack.Rec.Object); // @v9.4.12 0-->pack.Rec.Object
-									if(GObj.GetQuotExt(ti.GoodsID, qi, 0.0, 0.0, &quot, 0) > 0 && quot > 0.0)
+									if(GObj.GetQuotExt(ti.GoodsID, qi, &quot, 0) > 0 && quot > 0.0)
 										special_net_price = quot;
 								}
 								if(Ep.PriceQuotID && special_net_price == 0.0) {
 									double quot = 0.0;
 									const QuotIdent qi(ti.LocID, Ep.PriceQuotID, 0, pack.Rec.Object); // @v9.4.12 0-->pack.Rec.Object
-									if(GObj.GetQuotExt(ti.GoodsID, qi, 0.0, 0.0, &quot, 0) > 0 && quot > 0.0)
+									if(GObj.GetQuotExt(ti.GoodsID, qi, &quot, 0) > 0 && quot > 0.0)
 										net_price = quot;
 								}
 							}

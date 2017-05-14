@@ -136,6 +136,15 @@ int BDbDatabase::GetCurrentConfig(Config & rCfg)
 			THROW(ProcessError(E->get_lg_dir(E, &p_log_dir)));
 			rCfg.LogSubDir = p_log_dir;
 		}
+		{
+			int    on = 0;
+			E->log_get_config(E, DB_LOG_NOSYNC, &on);
+			SETFLAG(rCfg.Flags, rCfg.fLogNoSync, on); 
+			E->log_get_config(E, DB_LOG_AUTO_REMOVE, &on);
+			SETFLAG(rCfg.Flags, rCfg.fLogAutoRemove, on); 
+			E->log_get_config(E, DB_LOG_IN_MEMORY, &on);
+			SETFLAG(rCfg.Flags, rCfg.fLogInMemory, on); 
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -172,7 +181,7 @@ int BDbDatabase::Helper_SetConfig(const char * pHomeDir, Config & rCfg)
 		if(rCfg.MaxLockObjs) {
 			THROW(ProcessError(E->set_memory_init(E, DB_MEM_LOCKOBJECT, rCfg.MaxLockObjs)));
 		}
-		// } @v9.6.4 
+		// } @v9.6.4
 		if(rCfg.MutexCountInit) {
 			THROW(ProcessError(E->mutex_set_init(E, rCfg.MutexCountInit)));
 		}
@@ -193,6 +202,11 @@ int BDbDatabase::Helper_SetConfig(const char * pHomeDir, Config & rCfg)
 			(temp_buf = pHomeDir).SetLastSlash().Cat(rCfg.LogSubDir);
 			THROW(::createDir(temp_buf));
 			THROW(ProcessError(E->set_lg_dir(E, temp_buf)));
+		}
+		if(rCfg.Flags & (rCfg.fLogNoSync | rCfg.fLogAutoRemove | rCfg.fLogInMemory)) {
+			E->log_set_config(E, DB_LOG_NOSYNC,      BIN(rCfg.Flags & rCfg.fLogNoSync)); 
+			E->log_set_config(E, DB_LOG_AUTO_REMOVE, BIN(rCfg.Flags & rCfg.fLogAutoRemove)); 
+			E->log_set_config(E, DB_LOG_IN_MEMORY,   BIN(rCfg.Flags & rCfg.fLogInMemory)); 
 		}
 	}
 	CATCHZOK
@@ -225,7 +239,7 @@ BDbDatabase::BDbDatabase(const char * pHomeDir, Config * pCfg, long options)
 		// @v9.6.4 {
 		if(options & oPrivate)
 			opf |= DB_PRIVATE;
-		// } @v9.6.4 
+		// } @v9.6.4
 		// @todo Организовать восстановление транзакций (DB_RECOVER) при запуске приложения.
 #ifdef _MT
 		opf |= DB_THREAD;
@@ -981,7 +995,7 @@ int BDbTable::CmpCallback(DB * pDb, const DBT * pDbt1, const DBT * pDbt2)
 			}
 		}
 		// }
-#endif 
+#endif
 		if(p_taget_tbl) {
 			BDbTable::Buffer key1(pDbt1);
 			BDbTable::Buffer key2(pDbt2);
@@ -1211,24 +1225,17 @@ int BDbTable::Helper_EndTransaction()
 static uint32 FASTCALL _GetBDBSearchFlags(int sp)
 {
 	uint32 flags = 0;
-	if(sp == spEq)
-		flags = DB_SET;
-	else if(sp == spNext)
-		flags = DB_NEXT;
-	else if(sp == spPrev)
-		flags = DB_PREV;
-	else if(sp == spFirst)
-		flags = DB_FIRST;
-	else if(sp == spLast)
-		flags = DB_LAST;
-	else if(sp == spNextDup)
-		flags = DB_NEXT_DUP;
-	else if(sp == spPrevDup)
-		flags = DB_PREV_DUP;
-	else if(sp == spGe)
-		flags = DB_SET_RANGE;
-	else
-		DBS.SetError(BE_BDB_INVALSP);
+	switch(sp) {
+		case spEq:      flags = DB_SET; break;
+		case spNext:    flags = DB_NEXT; break;
+		case spPrev:    flags = DB_PREV; break;
+		case spFirst:   flags = DB_FIRST; break;
+		case spLast:    flags = DB_LAST; break;
+		case spNextDup: flags = DB_NEXT_DUP; break;
+		case spPrevDup: flags = DB_PREV_DUP; break;
+		case spGe:      flags = DB_SET_RANGE; break;
+		default:        DBS.SetError(BE_BDB_INVALSP); break;
+	}
 	return flags;
 }
 
