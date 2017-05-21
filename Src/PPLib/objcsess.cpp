@@ -1981,8 +1981,8 @@ public:
 	};
 	SLAPI  CSessCache();
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
 SLAPI CSessCache::CSessCache() : ObjCacheHash(PPOBJ_CSESSION, sizeof(Data), (1024*1024), 8)
@@ -2011,7 +2011,7 @@ int SLAPI CSessCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData
 	return ok;
 }
 
-int SLAPI CSessCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI CSessCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	CSessionTbl::Rec * p_data_rec = (CSessionTbl::Rec *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -2027,7 +2027,6 @@ int SLAPI CSessCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 	FLD(Incomplete);
 	FLD(Temporary);
 	#undef FLD
-	return 1;
 }
 
 int SLAPI PPObjCSession::Fetch(PPID id, CSessionTbl::Rec * pRec)

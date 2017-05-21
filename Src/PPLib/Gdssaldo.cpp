@@ -74,7 +74,7 @@ int SLAPI GoodsSaldoCore::GetLastCalcDate(PPID goodsGrpID, PPID goodsID, PPID ar
 		}
 		else if(goodsGrpID) {
 			THROW(GoodsIterator::GetListByGroup(goodsGrpID, &temp_goods_list));
-			THROW(temp_goods_list.sort());
+			temp_goods_list.sort();
 			goods_list.Set(&temp_goods_list);
 		}
 		if(arID && !goodsID) {
@@ -437,7 +437,7 @@ int SLAPI PrcssrGoodsSaldo::Run()
 	PPWait(1);
 	if(!Par.GoodsID) {
 		THROW(GoodsIterator::GetListByGroup(Par.GoodsGrpID, &goods_list));
-		THROW(goods_list.sort());
+		goods_list.sort();
 	}
 	else
 		goods_list.add(Par.GoodsID);

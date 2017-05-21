@@ -155,13 +155,11 @@ int __fop_write(ENV * env, DB_TXN * txn, const char * name, const char * dirname
 	DBT data, namedbt, dirdbt;
 	DB_LSN lsn;
 	size_t nbytes;
-	int local_open, ret, t_ret;
-	char * real_name;
-
+	int local_open = 0;
+	int ret = 0;
+	int t_ret;
+	char * real_name = 0;
 	DB_ASSERT(env, istmp != 0);
-
-	ret = local_open = 0;
-	real_name = NULL;
 	if(DBENV_LOGGING(env)
 #if !defined(DEBUG_WOP)
 	   && txn != NULL
@@ -179,14 +177,14 @@ int __fop_write(ENV * env, DB_TXN * txn, const char * name, const char * dirname
 			goto err;
 	}
 	if(fhp == NULL) {
-		/* File isn't open; we need to reopen it. */
+		// File isn't open; we need to reopen it
 		if((ret = __db_appname(env, appname, name, &dirname, &real_name)) != 0)
 			return ret;
 		if((ret = __os_open(env, real_name, 0, 0, 0, &fhp)) != 0)
 			goto err;
 		local_open = 1;
 	}
-	/* Seek to offset. */
+	// Seek to offset
 	if((ret = __os_seek(env, fhp, pageno, pgsize, off)) != 0)
 		goto err;
 	/* Now do the write. */

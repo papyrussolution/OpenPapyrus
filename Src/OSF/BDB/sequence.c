@@ -33,8 +33,7 @@
  #define SEQ_SWAP_IN(env, seq) \
         do {                                                            \
 		if(!F_ISSET((env), ENV_LITTLEENDIAN)) {                \
-			memcpy(&seq->seq_record, seq->seq_data.data,    \
-				sizeof(seq->seq_record));                  \
+			memcpy(&seq->seq_record, seq->seq_data.data, sizeof(seq->seq_record)); \
 			SEQ_SWAP(&seq->seq_record);                     \
 		}                                                       \
 	} while(0)
@@ -42,8 +41,7 @@
  #define SEQ_SWAP_OUT(env, seq) \
         do {                                                            \
 		if(!F_ISSET((env), ENV_LITTLEENDIAN)) {                \
-			memcpy(seq->seq_data.data,                      \
-				&seq->seq_record, sizeof(seq->seq_record)); \
+			memcpy(seq->seq_data.data, &seq->seq_record, sizeof(seq->seq_record)); \
 			SEQ_SWAP((DB_SEQ_RECORD *)seq->seq_data.data);   \
 		}                                                       \
 	} while(0)
@@ -77,7 +75,7 @@ int db_sequence_create(DB_SEQUENCE ** seqp, DB * dbp, uint32 flags)
 	int ret;
 	ENV * env = dbp->env;
 	DB_ILLEGAL_BEFORE_OPEN(dbp, "db_sequence_create");
-	/* Check for invalid function flags. */
+	// Check for invalid function flags
 	switch(flags) {
 	    case 0: break;
 	    default: return __db_ferr(env, "db_sequence_create", 0);
@@ -86,7 +84,7 @@ int db_sequence_create(DB_SEQUENCE ** seqp, DB * dbp, uint32 flags)
 		__db_errx(env, DB_STR("4016", "Heap databases may not be used with sequences."));
 		return EINVAL;
 	}
-	/* Allocate the sequence. */
+	// Allocate the sequence
 	if((ret = __os_calloc(env, 1, sizeof(*seq), &seq)) != 0)
 		return ret;
 	seq->seq_dbp = dbp;
@@ -339,12 +337,10 @@ static int __seq_set_cachesize(DB_SEQUENCE * seq, int32 cachesize)
 	return 0;
 }
 
- #define SEQ_SET_FLAGS   (DB_SEQ_WRAP|DB_SEQ_INC|DB_SEQ_DEC)
-/*
- * __seq_get_flags --
- *	Accessor for flags passed into DB_SEQUENCE->open call
- *
- */
+#define SEQ_SET_FLAGS   (DB_SEQ_WRAP|DB_SEQ_INC|DB_SEQ_DEC)
+//
+// Accessor for flags passed into DB_SEQUENCE->open call
+//
 static int __seq_get_flags(DB_SEQUENCE * seq, uint32 * flagsp)
 {
 	SEQ_ILLEGAL_BEFORE_OPEN(seq, "DB_SEQUENCE->get_flags");
@@ -444,15 +440,14 @@ static int __seq_update(DB_SEQUENCE * seq, DB_THREAD_INFO * ip, DB_TXN * txn, in
 	}
 	else
 		txn_local = 0;
-	/* Check for consistent transaction usage. */
+	// Check for consistent transaction usage
 	if((ret = __db_check_txn(dbp, txn, DB_LOCK_INVALIDID, 0)) != 0)
 		goto err;
-	/*
-	 * If we are in a global transaction avoid deadlocking on the mutex.
-	 * The write lock on the data will prevent two updaters getting in
-	 * at once.  Fetch the data then see if things are what we thought
-	 * they were.
-	 */
+	//
+	// If we are in a global transaction avoid deadlocking on the mutex.
+	// The write lock on the data will prevent two updaters getting in
+	// at once.  Fetch the data then see if things are what we thought they were.
+	//
 	if(txn_local == 0 && txn != NULL) {
 		MUTEX_UNLOCK(env, seq->mtx_seq);
 		need_mutex = 1;
@@ -570,15 +565,12 @@ err:
 
 static int __seq_get(DB_SEQUENCE * seq, DB_TXN * txn, int32 delta, db_seq_t * retp, uint32 flags)
 {
-	DB * dbp;
-	DB_SEQ_RECORD * rp;
 	DB_THREAD_INFO * ip;
-	ENV * env;
-	int handle_check, ret, t_ret;
-	dbp = seq->seq_dbp;
-	env = dbp->env;
-	rp = seq->seq_rp;
-	ret = 0;
+	int handle_check, t_ret;
+	DB * dbp = seq->seq_dbp;
+	ENV * env = dbp->env;
+	DB_SEQ_RECORD * rp = seq->seq_rp;
+	int ret = 0;
 	STRIP_AUTO_COMMIT(flags);
 	SEQ_ILLEGAL_BEFORE_OPEN(seq, "DB_SEQUENCE->get");
 	if(delta < 0 || (delta == 0 && !LF_ISSET(DB_CURRENT))) {
@@ -635,7 +627,6 @@ err:
 /*
  * __seq_get_db --
  *	Accessor for dbp passed into db_sequence_create call
- *
  */
 static int __seq_get_db(DB_SEQUENCE * seq, DB ** dbpp)
 {
@@ -645,7 +636,6 @@ static int __seq_get_db(DB_SEQUENCE * seq, DB ** dbpp)
 /*
  * __seq_get_key --
  *	Accessor for key passed into DB_SEQUENCE->open call
- *
  */
 static int __seq_get_key(DB_SEQUENCE * seq, DBT * key)
 {
@@ -660,7 +650,6 @@ static int __seq_get_key(DB_SEQUENCE * seq, DBT * key)
 /*
  * __seq_close_pp --
  *	Close a sequence pre/post processing
- *
  */
 static int __seq_close_pp(DB_SEQUENCE * seq, uint32 flags)
 {
@@ -671,12 +660,10 @@ static int __seq_close_pp(DB_SEQUENCE * seq, uint32 flags)
 	ENV_LEAVE(seq->seq_dbp->env, ip);
 	return ret;
 }
-/*
- * __seq_close --
- *	Close a sequence
- *
- */
-static int __seq_close(DB_SEQUENCE * seq, uint32 flags)
+//
+// Close a sequence
+//
+ static int __seq_close(DB_SEQUENCE * seq, uint32 flags)
 {
 	int    t_ret;
 	int    ret = 0;
@@ -693,10 +680,9 @@ static int __seq_close(DB_SEQUENCE * seq, uint32 flags)
 	__os_free(env, seq);
 	return ret;
 }
-/*
- * __seq_remove --
- *	Remove a sequence from the database.
- */
+//
+// Remove a sequence from the database.
+//
 static int __seq_remove(DB_SEQUENCE * seq, DB_TXN * txn, uint32 flags)
 {
 	DB_THREAD_INFO * ip;
@@ -705,15 +691,14 @@ static int __seq_remove(DB_SEQUENCE * seq, DB_TXN * txn, uint32 flags)
 	ENV  * env = dbp->env;
 	int    txn_local = 0;
 	SEQ_ILLEGAL_BEFORE_OPEN(seq, "DB_SEQUENCE->remove");
-	/*
-	 * Flags can only be 0, unless the database has DB_AUTO_COMMIT enabled.
-	 * Then DB_TXN_NOSYNC is allowed.
-	 */
+	// 
+	// Flags can only be 0, unless the database has DB_AUTO_COMMIT enabled.
+	// Then DB_TXN_NOSYNC is allowed.
+	// 
 	if(flags != 0 && (flags != DB_TXN_NOSYNC || !IS_DB_AUTO_COMMIT(dbp, txn)))
 		return __db_ferr(env, "DB_SEQUENCE->remove illegal flag", 0);
 	ENV_ENTER(env, ip);
-
-	/* Check for replication block. */
+	// Check for replication block.
 	handle_check = IS_ENV_REPLICATED(env);
 	if(handle_check && (ret = __db_rep_enter(dbp, 1, 0, IS_REAL_TXN(txn))) != 0) {
 		handle_check = 0;
@@ -729,13 +714,13 @@ static int __seq_remove(DB_SEQUENCE * seq, DB_TXN * txn, uint32 flags)
 			return ret;
 		txn_local = 1;
 	}
-	/* Check for consistent transaction usage. */
+	// Check for consistent transaction usage.
 	if((ret = __db_check_txn(dbp, txn, DB_LOCK_INVALIDID, 0)) != 0)
 		goto err;
 	ret = __db_del(dbp, ip, txn, &seq->seq_key, 0);
 	if((t_ret = __seq_close(seq, 0)) != 0 && ret == 0)
 		ret = t_ret;
-	/* Release replication block. */
+	// Release replication block
 	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && ret == 0)
 		ret = t_ret;
 err:
@@ -744,7 +729,6 @@ err:
 	ENV_LEAVE(env, ip);
 	return ret;
 }
-
 /*
  * __seq_chk_cachesize --
  *	Validate the cache size vs. the range.
@@ -762,7 +746,8 @@ static int __seq_chk_cachesize(ENV * env, int32 cachesize, db_seq_t max, db_seq_
 		__db_errx(env, DB_STR("4014", "Number of items to be cached is larger than the sequence range"));
 		return EINVAL;
 	}
-	return 0;
+	else
+		return 0;
 }
 
 #else /* !HAVE_64BIT_TYPES */

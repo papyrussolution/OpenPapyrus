@@ -229,14 +229,13 @@ int SLAPI StringSet::setBuf(const void * b, size_t len)
 	return ok;
 }
 
-int SLAPI StringSet::clear(int dontFreeBuf)
+void FASTCALL StringSet::clear(int dontFreeBuf)
 {
 	if(!dontFreeBuf) {
 		ZFREE(P_Buf);
 		Size = 0;
 	}
 	DataLen = 0;
-	return 1;
 }
 
 int SLAPI StringSet::sort()
@@ -301,12 +300,11 @@ int SLAPI StringSet::reverse()
 	return ok;
 }
 
-int SLAPI StringSet::setDelim(const char * pDelim)
+void FASTCALL StringSet::setDelim(const char * pDelim)
 {
 	Delim[0] = 0;
 	if(pDelim)
 		STRNSCPY(Delim, pDelim);
-	return 1;
 }
 
 uint SLAPI StringSet::getDelimLen() const

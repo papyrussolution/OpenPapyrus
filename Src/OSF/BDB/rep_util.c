@@ -937,7 +937,7 @@ static int __rep_show_progress(ENV*env, const char * which, int mins)
 		RPRINT(env, (env, DB_VERB_REP_SYNC, PAGE_MSG, PAGE_ARGS));
 		break;
 	    case SYNC_LOG:
-#define LSN_ARG(lsn) (ulong)(lsn).file, (ulong)(lsn).offset
+#define LSN_ARG(lsn) (ulong)(lsn).file, (ulong)(lsn).Offset_
 #define LOG_LSN_ARGS LSN_ARG(ready_lsn), LSN_ARG(rep->first_lsn), LSN_ARG(rep->last_lsn)
 #ifdef  HAVE_STATISTICS
  #define LOG_MSG DB_STR_A("3507", "SYNC_LOG: thru [%lu][%lu] from [%lu][%lu]/[%lu][%lu] (%lu queued)", "%lu %lu %lu %lu %lu %lu %lu")
@@ -2014,19 +2014,15 @@ void __rep_print_message(ENV*env, int eid, __rep_control_args * rp, char * str, 
 	 */
 	if((home = env->db_home) == NULL)
 		home = "NULL";
-	VPRINT(env, (env, verbflag,
-		     "%s %s: msgv = %lu logv %lu gen = %lu eid %d, type %s, LSN [%lu][%lu] %s",
-		     home, str,
-		     (ulong)rp->rep_version, (ulong)rp->log_version, (ulong)rp->gen,
-		     eid, type, (ulong)rp->lsn.file, (ulong)rp->lsn.offset, ftype));
-	/*
-	 * Make sure the version is close, and not swapped
-	 * here.  Check for current version,  +/- a little bit.
-	 */
+	VPRINT(env, (env, verbflag, "%s %s: msgv = %lu logv %lu gen = %lu eid %d, type %s, LSN [%lu][%lu] %s",
+		home, str, (ulong)rp->rep_version, (ulong)rp->log_version, (ulong)rp->gen, eid, type, (ulong)rp->lsn.file, (ulong)rp->lsn.Offset_, ftype));
+	//
+	// Make sure the version is close, and not swapped
+	// here.  Check for current version,  +/- a little bit.
+	//
 	DB_ASSERT(env, rp->rep_version <= DB_REPVERSION+10);
 	DB_ASSERT(env, rp->log_version <= DB_LOGVERSION+10);
 }
-
 /*
  * PUBLIC: void __rep_fire_event __P((ENV *, uint32, void *));
  */

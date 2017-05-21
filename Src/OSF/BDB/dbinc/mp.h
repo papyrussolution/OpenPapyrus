@@ -559,18 +559,12 @@ struct __bh_frozen_a {
  * never going to see this buffer anyway.
  */
 #define	BH_VISIBLE(env, bhp, read_lsnp, vlsn)				\
-    (bhp->td_off == INVALID_ROFF ||					\
-    ((vlsn).file = VISIBLE_LSN(env, bhp)->file,			\
-    (vlsn).offset = VISIBLE_LSN(env, bhp)->offset,			\
-    LOG_COMPARE((read_lsnp), &(vlsn)) >= 0))
+    (bhp->td_off == INVALID_ROFF || ((vlsn).file = VISIBLE_LSN(env, bhp)->file, \
+    (vlsn).Offset_ = VISIBLE_LSN(env, bhp)->Offset_, LOG_COMPARE((read_lsnp), &(vlsn)) >= 0))
 
-#define	BH_OBSOLETE(bhp, old_lsn, vlsn)	(SH_CHAIN_HASNEXT(bhp, vc) ?	\
-    BH_VISIBLE(env, SH_CHAIN_NEXTP(bhp, vc, __bh), &(old_lsn), vlsn) :\
-    BH_VISIBLE(env, bhp, &(old_lsn), vlsn))
+#define	BH_OBSOLETE(bhp, old_lsn, vlsn)	(SH_CHAIN_HASNEXT(bhp, vc) ? BH_VISIBLE(env, SH_CHAIN_NEXTP(bhp, vc, __bh), &(old_lsn), vlsn) : BH_VISIBLE(env, bhp, &(old_lsn), vlsn))
 
-#define	MVCC_SKIP_CURADJ(dbc, pgno) (dbc->txn != NULL &&		\
-    F_ISSET(dbc->txn, TXN_SNAPSHOT) && MULTIVERSION(dbc->dbp) &&	\
-    dbc->txn->td != NULL && __memp_skip_curadj(dbc, pgno))
+#define	MVCC_SKIP_CURADJ(dbc, pgno) (dbc->txn && F_ISSET(dbc->txn, TXN_SNAPSHOT) && MULTIVERSION(dbc->dbp) && dbc->txn->td && __memp_skip_curadj(dbc, pgno))
 
 #if defined(DIAG_MVCC) && defined(HAVE_MPROTECT)
 #define	VM_PAGESIZE 4096

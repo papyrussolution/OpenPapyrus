@@ -275,12 +275,9 @@ int __os_realloc(ENV * env, size_t size, void * storep)
 	*(void **)storep = p;
 	return 0;
 }
-/*
- * __os_free --
- *	The free(3) function for DB.
- *
- * PUBLIC: void __os_free __P((ENV *, void *));
- */
+//
+// The free(3) function for DB.
+//
 void FASTCALL __os_free(ENV * env, void * ptr)
 {
 	//

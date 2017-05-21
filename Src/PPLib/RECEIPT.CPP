@@ -340,7 +340,7 @@ int SLAPI ReceiptCore::EnumLastLots(PPID goodsID, PPID locID, LDATE * pDt, long 
 	k.GoodsID = goodsID;
 	k.Dt      = *pDt;
 	k.OprNo   = *pOprNo;
-	for(prev_k = k; search(2, &k, spLt) && data.GoodsID == goodsID; prev_k = k)
+	for(prev_k = k; search(2, &k, spLt) && data.GoodsID == goodsID; prev_k = k) {
 		if(memcmp(&k, &prev_k, sizeof(k)) == 0) {
 			PPSetError(PPERR_PROBDBINDEXFAULT, GetFileName());
 			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR | LOGMSGF_TIME | LOGMSGF_USER);
@@ -352,6 +352,7 @@ int SLAPI ReceiptCore::EnumLastLots(PPID goodsID, PPID locID, LDATE * pDt, long 
 			copyBufTo(pRec);
 			return 1;
 		}
+	}
 	return PPDbSearchError();
 }
 
@@ -656,8 +657,7 @@ int SLAPI ReceiptCore::GetListOfOpenedLots(int dir, PPID goodsID, PPID locID, LD
 			for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
 				ufp_factor_i++;
 				if((goodsID >= 0) || !(data.Flags & LOTF_CLOSEDORDER)) {
-					if(pList)
-						pList->insert(&data);
+					CALLPTRMEMB(pList, insert(&data));
 					ok = 1;
 				}
 			}
@@ -667,8 +667,7 @@ int SLAPI ReceiptCore::GetListOfOpenedLots(int dir, PPID goodsID, PPID locID, LD
 			if(search(3, &k, spGe) && !data.Closed && data.GoodsID == goodsID && data.LocID == locID && (!beforeDt || data.Dt <= beforeDt)) do {
 				ufp_factor_i++;
 				if((goodsID >= 0) || !(data.Flags & LOTF_CLOSEDORDER)) {
-					if(pList)
-						pList->insert(&data);
+					CALLPTRMEMB(pList, insert(&data));
 					ok = 1;
 				}
 			} while(search(3, &k, spNext) && !data.Closed && data.GoodsID == goodsID && data.LocID == locID && (!beforeDt || data.Dt <= beforeDt));

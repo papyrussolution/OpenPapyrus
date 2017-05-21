@@ -448,7 +448,7 @@ int __db_byteswap(DB * dbp, db_pgno_t pg, PAGE * h, size_t pagesize, int pgin)
 		return 0;
 	if(pgin) {
 		M_32_SWAP(h->lsn.file);
-		M_32_SWAP(h->lsn.offset);
+		M_32_SWAP(h->lsn.Offset_);
 		M_32_SWAP(h->pgno);
 		M_32_SWAP(h->prev_pgno);
 		M_32_SWAP(h->next_pgno);
@@ -612,7 +612,7 @@ int __db_byteswap(DB * dbp, db_pgno_t pg, PAGE * h, size_t pagesize, int pgin)
 out:    if(!pgin) {
 		/* Swap the header information. */
 		M_32_SWAP(h->lsn.file);
-		M_32_SWAP(h->lsn.offset);
+		M_32_SWAP(h->lsn.Offset_);
 		M_32_SWAP(h->pgno);
 		M_32_SWAP(h->prev_pgno);
 		M_32_SWAP(h->next_pgno);

@@ -17,7 +17,7 @@
 // @v9.5.5 #include "dbinc/db_am.h"
 // @v9.5.5 #include "dbinc/txn.h"
 
-static int __rep_internal_init __P((ENV*, uint32));
+static int __rep_internal_init(ENV *, uint32);
 /*
  * __rep_verify --
  *	Handle a REP_VERIFY message.
@@ -351,14 +351,11 @@ int __rep_verify_req(ENV*env, __rep_control_args * rp, int eid)
 {
 	DBT * d, data_dbt;
 	DB_LOGC * logc;
-	DB_REP * db_rep;
-	REP * rep;
-	uint32 type;
-	int old, ret;
-	ret = 0;
-	db_rep = env->rep_handle;
-	rep = db_rep->region;
-	type = REP_VERIFY;
+	int old;
+	int ret = 0;
+	DB_REP * db_rep = env->rep_handle;
+	REP * rep = db_rep->region;
+	uint32 type = REP_VERIFY;
 	if((ret = __log_cursor(env, &logc)) != 0)
 		return ret;
 	d = &data_dbt;
@@ -479,8 +476,7 @@ int __rep_dorecovery(ENV * env, DB_LSN * lsnp, DB_LSN * trunclsnp)
 		goto err;
 	/*
 	 * If we successfully run recovery, we've opened all the necessary
-	 * files.  We are guaranteed to be single-threaded here, so no mutex
-	 * is necessary.
+	 * files.  We are guaranteed to be single-threaded here, so no mutex is necessary.
 	 */
 	if(skip_rec) {
 		if((ret = __log_get_stable_lsn(env, &last_ckp, 0)) != 0) {
@@ -488,10 +484,8 @@ int __rep_dorecovery(ENV * env, DB_LSN * lsnp, DB_LSN * trunclsnp)
 				goto err;
 			ZERO_LSN(last_ckp);
 		}
-		RPRINT(env, (env, DB_VERB_REP_SYNC,
-			     "Skip sync-up rec.  Truncate log to [%lu][%lu], ckp [%lu][%lu]",
-			     (ulong)lsnp->file, (ulong)lsnp->offset,
-			     (ulong)last_ckp.file, (ulong)last_ckp.offset));
+		RPRINT(env, (env, DB_VERB_REP_SYNC, "Skip sync-up rec.  Truncate log to [%lu][%lu], ckp [%lu][%lu]",
+			(ulong)lsnp->file, (ulong)lsnp->Offset_, (ulong)last_ckp.file, (ulong)last_ckp.Offset_));
 		ret = __log_vtruncate(env, lsnp, &last_ckp, trunclsnp);
 	}
 	else {
@@ -507,8 +501,7 @@ int __rep_dorecovery(ENV * env, DB_LSN * lsnp, DB_LSN * trunclsnp)
 	/*
 	 * If we've just updated the env handle timestamp, then we would get
 	 * HANDLE_DEAD next time we tried to use our LSN history database.  So,
-	 * close it here now, to save ourselves the trouble of worrying about it
-	 * later.
+	 * close it here now, to save ourselves the trouble of worrying about it later.
 	 */
 	if(update && db_rep->lsn_db != NULL) {
 		ret = __db_close(db_rep->lsn_db, NULL, DB_NOSYNC);

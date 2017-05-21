@@ -254,8 +254,9 @@ int __bam_dpages(DBC*dbc, int use_top, int flags)
 		ret = t_ret;
 	if(ret != 0)
 		goto err_inc;
-	/* Then, discard any pages that we don't care about. */
-discard: for(epg = cp->sp; epg < stack_epg; ++epg) {
+	// Then, discard any pages that we don't care about.
+discard: 
+	for(epg = cp->sp; epg < stack_epg; ++epg) {
 		if((t_ret = __memp_fput(mpf, dbc->thread_info, epg->page, dbc->priority)) != 0 && ret == 0)
 			ret = t_ret;
 		epg->page = NULL;

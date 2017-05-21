@@ -4072,6 +4072,7 @@ public:
 	int    SearchPair(Buffer & rKey, Buffer & rData);
 	int    Search(int idx, Buffer & rKey, Buffer & rData);
 	int    InsertRec(Buffer & rKey, Buffer & rData);
+	int    UpdateRec(Buffer & rKey, Buffer & rData);
 	int    DeleteRec(Buffer & rKey);
 protected:
 	static int VerifyStatic();
@@ -4087,6 +4088,7 @@ protected:
 	int    Helper_EndTransaction();
 	SSerializeContext * GetSCtx() const;
 	int    Helper_Search(Buffer & rKey, Buffer & rData, uint32 flags);
+	int    Helper_Put(Buffer & rKey, Buffer & rData, uint32 flags);
 	int    Helper_GetConfig(BDbTable * pH, Config & rCfg);
 
 	uint32 Sign;   // Подпись экземпляра класса. Используется для идентификации инвалидных экземпляров.
@@ -4137,7 +4139,7 @@ public:
 
 		enum {
 			fLogNoSync     = 0x00000004, // @v9.6.6 DB_LOG_NOSYNC
-			fLogAutoRemove = 0x00000008, // @v9.6.6 DB_LOG_AUTO_REMOVE 
+			fLogAutoRemove = 0x00000008, // @v9.6.6 DB_LOG_AUTO_REMOVE
 			fLogInMemory   = 0x00000010, // @v9.6.6 DB_LOG_IN_MEMORY
 		};
 

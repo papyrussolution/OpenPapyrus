@@ -7,17 +7,10 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/log.h"
 
-static int __rep_chk_newfile __P((ENV*, DB_LOGC*, REP*, __rep_control_args*, int));
-static int __rep_log_split __P((ENV*, DB_THREAD_INFO*, __rep_control_args*, DBT*, DB_LSN*, DB_LSN *));
+static int __rep_chk_newfile(ENV*, DB_LOGC*, REP*, __rep_control_args*, int);
+static int __rep_log_split(ENV*, DB_THREAD_INFO*, __rep_control_args*, DBT*, DB_LSN*, DB_LSN *);
 /*
  * __rep_allreq --
  *      Handle a REP_ALL_REQ message.
@@ -175,7 +168,7 @@ int __rep_allreq(ENV*env, __rep_control_args * rp, int eid)
 		 * last LSN in the previous file.  Save it here.
 		 */
 		oldfilelsn = repth.lsn;
-		oldfilelsn.offset += logc->len;
+		oldfilelsn.Offset_ += logc->len;
 	}
 	if(ret == DB_NOTFOUND || ret == DB_REP_UNAVAIL)
 		ret = 0;
@@ -395,13 +388,9 @@ static int __rep_log_split(ENV * env, DB_THREAD_INFO * ip, __rep_control_args * 
 			logrec.data = b_args.bulkdata.data;
 			logrec.size = b_args.len;
 		}
-		VPRINT(env, (env, DB_VERB_REP_MISC,
-			     "log_rep_split: Processing LSN [%lu][%lu]",
-			     (ulong)tmprp.lsn.file, (ulong)tmprp.lsn.offset));
-		VPRINT(env, (env, DB_VERB_REP_MISC,
-			     "log_rep_split: p %#lx ep %#lx logrec data %#lx, size %lu (%#lx)",
-			     P_TO_ULONG(p), P_TO_ULONG(ep), P_TO_ULONG(logrec.data),
-			     (ulong)logrec.size, (ulong)logrec.size));
+		VPRINT(env, (env, DB_VERB_REP_MISC, "log_rep_split: Processing LSN [%lu][%lu]", (ulong)tmprp.lsn.file, (ulong)tmprp.lsn.Offset_));
+		VPRINT(env, (env, DB_VERB_REP_MISC, "log_rep_split: p %#lx ep %#lx logrec data %#lx, size %lu (%#lx)",
+			     P_TO_ULONG(p), P_TO_ULONG(ep), P_TO_ULONG(logrec.data), (ulong)logrec.size, (ulong)logrec.size));
 		if(p >= ep && save_flags)
 			F_SET(&tmprp, save_flags);
 		/*
@@ -410,17 +399,13 @@ static int __rep_log_split(ENV * env, DB_THREAD_INFO * ip, __rep_control_args * 
 		 * Skip log records until we catch up with next_new_lsn.
 		 */
 		if(is_dup && LOG_COMPARE(&tmprp.lsn, &next_new_lsn) < 0) {
-			VPRINT(env, (env, DB_VERB_REP_MISC,
-				     "log_split: Skip dup LSN [%lu][%lu]",
-				     (ulong)tmprp.lsn.file, (ulong)tmprp.lsn.offset));
+			VPRINT(env, (env, DB_VERB_REP_MISC, "log_split: Skip dup LSN [%lu][%lu]", (ulong)tmprp.lsn.file, (ulong)tmprp.lsn.Offset_));
 			continue;
 		}
 		is_dup = 0;
 		ret = __rep_apply(env, ip,
 			&tmprp, &logrec, &tmp_lsn, &is_dup, last_lsnp);
-		VPRINT(env, (env, DB_VERB_REP_MISC,
-			     "log_split: rep_apply ret %d, dup %d, tmp_lsn [%lu][%lu]",
-			     ret, is_dup, (ulong)tmp_lsn.file, (ulong)tmp_lsn.offset));
+		VPRINT(env, (env, DB_VERB_REP_MISC, "log_split: rep_apply ret %d, dup %d, tmp_lsn [%lu][%lu]", ret, is_dup, (ulong)tmp_lsn.file, (ulong)tmp_lsn.Offset_));
 		if(is_dup)
 			next_new_lsn = tmp_lsn;
 		switch(ret) {
@@ -498,7 +483,7 @@ int __rep_logreq(ENV * env, __rep_control_args * rp, DBT * rec, int eid)
 		else if((ret = __rep_logreq_unmarshal(env, &lr_args, (uint8 *)rec->data, rec->size, NULL)) != 0)
 			return ret;
 		RPRINT(env, (env, DB_VERB_REP_MISC, "[%lu][%lu]: LOG_REQ max lsn: [%lu][%lu]",
-			(ulong)rp->lsn.file, (ulong)rp->lsn.offset, (ulong)lr_args.endlsn.file, (ulong)lr_args.endlsn.offset));
+			(ulong)rp->lsn.file, (ulong)rp->lsn.Offset_, (ulong)lr_args.endlsn.file, (ulong)lr_args.endlsn.Offset_));
 	}
 	/*
 	 * There are several different cases here.
@@ -528,7 +513,7 @@ int __rep_logreq(ENV * env, __rep_control_args * rp, DBT * rec, int eid)
 	if((ret = __logc_get(logc, &lsn, &data_dbt, DB_SET)) == 0) {
 		/* Case 1 */
 		__rep_send_message(env, eid, REP_LOG, &lsn, &data_dbt, REPCTL_RESEND, 0);
-		oldfilelsn.offset += logc->len;
+		oldfilelsn.Offset_ += logc->len;
 	}
 	else if(ret == DB_NOTFOUND) {
 		/*
@@ -566,7 +551,7 @@ int __rep_logreq(ENV * env, __rep_control_args * rp, DBT * rec, int eid)
 			 * we are the client.
 			 */
 			if(F_ISSET(rep, REP_F_MASTER)) {
-				__db_errx(env, DB_STR_A("3501", "Request for LSN [%lu][%lu] not found", "%lu %lu"), (ulong)rp->lsn.file, (ulong)rp->lsn.offset);
+				__db_errx(env, DB_STR_A("3501", "Request for LSN [%lu][%lu] not found", "%lu %lu"), (ulong)rp->lsn.file, (ulong)rp->lsn.Offset_);
 				ret = 0;
 				goto err;
 			}
@@ -644,7 +629,7 @@ int __rep_logreq(ENV * env, __rep_control_args * rp, DBT * rec, int eid)
 		 * last LSN in the previous file.  Save it here.
 		 */
 		oldfilelsn = repth.lsn;
-		oldfilelsn.offset += logc->len;
+		oldfilelsn.Offset_ += logc->len;
 	}
 	/*
 	 * We're done, force out whatever remains in the bulk buffer and
@@ -856,10 +841,9 @@ static int __rep_chk_newfile(ENV * env, DB_LOGC * logc, REP * rep, __rep_control
 		 * then backup.
 		 */
 		endlsn.file = rp->lsn.file+1;
-		endlsn.offset = 0;
+		endlsn.Offset_ = 0;
 		if((ret = __logc_get(logc, &endlsn, &data_dbt, DB_SET)) != 0 || (ret = __logc_get(logc, &endlsn, &data_dbt, DB_PREV)) != 0) {
-			RPRINT(env, (env, DB_VERB_REP_MISC, "Unable to get prev of [%lu][%lu]",
-				(ulong)rp->lsn.file, (ulong)rp->lsn.offset));
+			RPRINT(env, (env, DB_VERB_REP_MISC, "Unable to get prev of [%lu][%lu]", (ulong)rp->lsn.file, (ulong)rp->lsn.Offset_));
 			/*
 			 * We want to push the error back
 			 * to the client so that the client
@@ -885,7 +869,7 @@ static int __rep_chk_newfile(ENV * env, DB_LOGC * logc, REP * rep, __rep_control
 				ret = DB_NOTFOUND;
 		}
 		else {
-			endlsn.offset += logc->len;
+			endlsn.Offset_ += logc->len;
 			if((ret = __logc_version(logc, &nf_args.version)) == 0) {
 				memzero(&newfiledbt, sizeof(newfiledbt));
 				if(rep->version < DB_REPVERSION_47)

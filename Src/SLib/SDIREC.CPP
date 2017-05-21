@@ -298,10 +298,10 @@ IMPL_CMPCFUNC(SFileEntryPool_Entry, p1, p2)
     return (si && _desc) ? -si : si;
 }
 
-int SLAPI SFileEntryPool::Sort(int criteria)
+void SLAPI SFileEntryPool::Sort(int criteria)
 {
 	SFileEntryPool_SortExtraBlock blk;
 	blk.Order = criteria;
 	blk.P_Pool = this;
-	return L.sort(PTR_CMPCFUNC(SFileEntryPool_Entry), &blk);
+	L.sort(PTR_CMPCFUNC(SFileEntryPool_Entry), &blk);
 }

@@ -30,7 +30,7 @@ int __bam_db_create(DB * dbp)
 {
 	BTREE * t;
 	int ret;
-	/* Allocate and initialize the private btree structure. */
+	// Allocate and initialize the private btree structure
 	if((ret = __os_calloc(dbp->env, 1, sizeof(BTREE), &t)) != 0)
 		return ret;
 	dbp->bt_internal = t;
@@ -42,10 +42,9 @@ int __bam_db_create(DB * dbp)
 	t->bt_compress = NULL;
 	t->bt_decompress = NULL;
 	t->compress_dup_compare = NULL;
-	/*
-	 * DB_AM_COMPRESS may have been set in __bam_metachk before the
-	 * bt_internal structure existed.
-	 */
+	//
+	// DB_AM_COMPRESS may have been set in __bam_metachk before the bt_internal structure existed.
+	//
 	if(F_ISSET(dbp, DB_AM_COMPRESS) && (ret = __bam_set_bt_compress(dbp, NULL, NULL)) != 0)
 		return ret;
 #endif
@@ -59,7 +58,7 @@ int __bam_db_create(DB * dbp)
 	dbp->get_bt_compress = __bam_get_bt_compress;
 	dbp->set_bt_compress = __bam_set_bt_compress;
 
-	t->re_pad = ' ';                        /* Recno */
+	t->re_pad = ' '; // Recno
 	t->re_delim = '\n';
 	t->re_eof = 1;
 

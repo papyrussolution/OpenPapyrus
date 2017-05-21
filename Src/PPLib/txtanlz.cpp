@@ -5137,11 +5137,14 @@ const SCodepageMapPool::MapEntry * SCodepageMapPool::CpMap::Test_ToCapital(const
 
 int SLAPI SCodepageMapPool::CpMap::MakeUIndex(LongArray & rIdx) const
 {
+	int    ok = 1;
     rIdx.clear();
 	for(uint i = 0; i < MapCount; i++) {
-		rIdx.add((long)i);
+		THROW_SL(rIdx.add((long)i));
 	}
-	return rIdx.SArray::sort(PTR_CMPCFUNC(CPMCPENTRYUREF), (void *)P_Map); // @badcast
+	rIdx.SArray::sort(PTR_CMPCFUNC(CPMCPENTRYUREF), (void *)P_Map); // @badcast
+	CATCHZOK
+	return ok;
 }
 
 const SCodepageMapPool::MapEntry * FASTCALL SCodepageMapPool::CpMap::SearchU(wchar_t u, const LongArray * pIdx) const

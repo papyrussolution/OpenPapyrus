@@ -959,9 +959,7 @@ public:
 		if(St & stUseSerial)
 			Serial.CopyTo(Data.Serial, sizeof(Data.Serial));
 		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = PPErrorZ();
-		ENDCATCH
+		CATCHZOKPPERR
 		return ok;
 	}
 private:

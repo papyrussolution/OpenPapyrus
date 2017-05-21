@@ -98,9 +98,9 @@ IMPL_CMPFUNC(RegisterTbl_Rec_TDE, i1, i2)
 	return si;
 }
 
-int SLAPI RegisterArray::Sort()
+void SLAPI RegisterArray::Sort()
 {
-	return sort(PTR_CMPFUNC(RegisterTbl_Rec_TDE));
+	sort(PTR_CMPFUNC(RegisterTbl_Rec_TDE));
 }
 
 int FASTCALL RegisterArray::IsEqual(const RegisterArray & rS) const

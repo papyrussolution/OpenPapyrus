@@ -230,8 +230,8 @@ class BillStatusCache : public ObjCache {
 public:
 	SLAPI BillStatusCache() : ObjCache(PPOBJ_BILLSTATUS, sizeof(Data)) {}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		int16  Rank;
@@ -266,7 +266,7 @@ int SLAPI BillStatusCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI BillStatusCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI BillStatusCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPBillStatus * p_data_rec = (PPBillStatus *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -283,7 +283,6 @@ int SLAPI BillStatusCache::EntryToData(const ObjCacheEntry * pEntry, void * pDat
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
-	return 1;
 }
 
 IMPL_OBJ_FETCH(PPObjBillStatus, PPBillStatus, BillStatusCache);

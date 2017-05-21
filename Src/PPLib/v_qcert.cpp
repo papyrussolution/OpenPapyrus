@@ -223,9 +223,7 @@ int SLAPI PPViewQCert::SetPassiveTag(int set)
 		THROW(tra.Commit());
 		PPWait(0);
 	}
-	CATCH
-		ok = PPErrorZ();
-	ENDCATCH
+	CATCHZOKPPERR
 	return ok;
 }
 

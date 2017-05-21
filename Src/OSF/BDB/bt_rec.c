@@ -7,16 +7,9 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
 #define IS_BTREE_PAGE(pagep) (TYPE(pagep) == P_IBTREE || TYPE(pagep) == P_LBTREE || TYPE(pagep) == P_LDUP)
-
 /*
  * __bam_split_recover --
  *	Recovery function for split.
@@ -87,10 +80,7 @@ redo:
 		 * we have truncated it due to a future deallocation.
 		 */
 		if(pp) {
-			if(rootsplit)
-				plsnp = &LSN(argp->pg.data);
-			else
-				plsnp = &argp->plsn;
+			plsnp = rootsplit ? &LSN(argp->pg.data) : &argp->plsn;
 			cmp = LOG_COMPARE(&LSN(pp), plsnp);
 			CHECK_LSN(env, op, cmp, &LSN(pp), plsnp);
 			if(cmp == 0)
@@ -193,8 +183,7 @@ check_next:
 		 * If it's a root split and the left child ever existed, update
 		 * its LSN.   Otherwise its the split page. If
 		 * right child ever existed, root split or not, update its LSN.
-		 * The undo of the page allocation(s) will restore them to the
-		 * free list.
+		 * The undo of the page allocation(s) will restore them to the free list.
 		 */
 		if(rootsplit && lp && LOG_COMPARE(lsnp, &LSN(lp)) == 0) {
 			REC_DIRTY(mpf, ip, file_dbp->priority, &lp);
@@ -205,8 +194,7 @@ check_next:
 			rp->lsn = argp->rlsn;
 		}
 		/*
-		 * Drop the lower level pages before getting an exclusive
-		 * latch on  the parent.
+		 * Drop the lower level pages before getting an exclusive latch on  the parent.
 		 */
 		if(rp && (ret = __memp_fput(mpf, ip, rp, file_dbp->priority)))
 			goto out;
@@ -1294,16 +1282,16 @@ int __bam_root_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 	CHECK_LSN(env, op, cmp_p, &LSN(meta), &argp->meta_lsn);
 	CHECK_ABORT(env, op, cmp_n, &LSN(meta), lsnp);
 	if(cmp_p == 0 && DB_REDO(op)) {
-		/* Need to redo update described. */
+		// Need to redo update described.
 		REC_DIRTY(mpf, ip, file_dbp->priority, &meta);
 		meta->root = argp->root_pgno;
-		meta->dbmeta.lsn = *lsnp;
+		meta->dbmeta.Lsn = *lsnp;
 		((BTREE *)file_dbp->bt_internal)->bt_root = meta->root;
 	}
 	else if(cmp_n == 0 && DB_UNDO(op)) {
-		/* Nothing to undo except lsn. */
+		// Nothing to undo except lsn
 		REC_DIRTY(mpf, ip, file_dbp->priority, &meta);
-		meta->dbmeta.lsn = argp->meta_lsn;
+		meta->dbmeta.Lsn = argp->meta_lsn;
 	}
 	if((ret = __memp_fput(mpf, ip, meta, file_dbp->priority)) != 0)
 		goto out;

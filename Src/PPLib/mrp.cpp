@@ -667,9 +667,9 @@ int SLAPI CMrpTab::SetFlag(PPID tabID, PPID destID, PPID srcID, long flag, int s
 	return ok;
 }
 
-int SLAPI CMrpTab::Sort()
+void SLAPI CMrpTab::Sort()
 {
-	return sort(PTR_CMPFUNC(CMrpRow));
+	sort(PTR_CMPFUNC(CMrpRow));
 }
 
 int SLAPI CMrpTab::Search(PPID tabID, PPID destID, PPID srcID, uint * pPos, CMrpTab::Row * pRow) const
@@ -884,14 +884,14 @@ IMPL_CMPFUNC(MrpTabLeaf, i1, i2)
 	return si;
 }
 
-int SLAPI MrpTabPacket::Sort()
+void SLAPI MrpTabPacket::Sort()
 {
-	return sort(PTR_CMPFUNC(MrpTabLeaf));
+	sort(PTR_CMPFUNC(MrpTabLeaf));
 }
 
-int SLAPI MrpTabPacket::SortCache()
+void SLAPI MrpTabPacket::SortCache()
 {
-	return Cache.Sort();
+	Cache.Sort();
 }
 
 int SLAPI MrpTabPacket::AddLine__(PPID tabID, PPID destID, PPID srcID, double destReq, double srcReq, double price, /*int term*/long flags)

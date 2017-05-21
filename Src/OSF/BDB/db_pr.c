@@ -520,12 +520,8 @@ int __db_prpage_int(ENV * env, DB_MSGBUF * mbp, DB * dbp, char * lead, PAGE * h,
 	 * LSNs on a metadata page will be different from the original after an
 	 * abort, in some cases.  Don't display them if we're testing recovery.
 	 */
-	if(!LF_ISSET(DB_PR_RECOVERYTEST) ||
-	   (TYPE(h) != P_BTREEMETA && TYPE(h) != P_HASHMETA &&
-	    TYPE(h) != P_QAMMETA && TYPE(h) != P_QAMDATA &&
-	    TYPE(h) != P_HEAPMETA))
-		__db_msgadd(env, mbp, " LSN [%lu][%lu]:",
-			(ulong)LSN(h).file, (ulong)LSN(h).offset);
+	if(!LF_ISSET(DB_PR_RECOVERYTEST) || (TYPE(h) != P_BTREEMETA && TYPE(h) != P_HASHMETA && TYPE(h) != P_QAMMETA && TYPE(h) != P_QAMDATA && TYPE(h) != P_HEAPMETA))
+		__db_msgadd(env, mbp, " LSN [%lu][%lu]:", (ulong)LSN(h).file, (ulong)LSN(h).Offset_);
 	/*
 	 * Page level (only applicable for Btree/Recno, but we always display
 	 * it, for no particular reason, except for Heap.

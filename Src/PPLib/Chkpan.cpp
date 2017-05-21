@@ -7,6 +7,8 @@
 #pragma hdrstop
 #include <ppsoapclient.h>
 #include <gdiplus.h>
+
+int SLAPI RunInputProcessThread(PPID posNodeID); // @prototype(PPPosProtocol.cpp)
 //
 // Команда для вызова звонка на принтере с кухонным звонком
 //
@@ -3213,6 +3215,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 					}
 				}
 				// } @v8.3.2
+				RunInputProcessThread(CashNodeID); // @v9.6.7
 			}
 			CDispCommand(cdispcmdText, cdisptxtOpened, 0.0, 0.0);
 			if(Flags & fTouchScreen && TouchScreenID) {
@@ -6765,13 +6768,13 @@ void CheckPaneDialog::DrawListItem(TDrawItemData * pDrawItem)
 				}
 			}
 			if(h_fnt_def)
-				SelectObject(h_dc, h_fnt_def);
+				::SelectObject(h_dc, h_fnt_def);
 			if(h_br_def)
-				SelectObject(h_dc, h_br_def);
+				::SelectObject(h_dc, h_br_def);
 			if(h_pen_def)
-				SelectObject(h_dc, h_pen_def);
+				::SelectObject(h_dc, h_pen_def);
 			if(clr_prev)
-				SetBkColor(h_dc, clr_prev);
+				::SetBkColor(h_dc, clr_prev);
 		}
 		else
 			pDrawItem->ItemAction = 0; // Список не активен - строку не рисуем

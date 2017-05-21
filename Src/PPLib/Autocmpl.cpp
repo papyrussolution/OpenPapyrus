@@ -123,35 +123,42 @@ int SLAPI PUGL::SearchGoods(PPID goodsID, uint * pPos, PUGI * pItem) const
 	return 0;
 }
 
-int SLAPI PUGL::Add(const PUGL * pList)
+int SLAPI PUGL::Add__(const PUGL * pList)
 {
-	PUGI * p_item;
-	for(uint i = 0; enumItems(&i, (void **)&p_item);)
-		if(!Add(p_item, pList->Dt))
-			return 0;
+	if(pList) {
+		PUGI * p_item;
+		for(uint i = 0; pList->enumItems(&i, (void **)&p_item);) // @v9.6.7 @fix enumItems-->pList->enumItems
+			if(!Add(p_item, pList->Dt))
+				return 0;
+	}
 	return 1;
 }
 
 int SLAPI PUGL::Add(const PUGI * pItem, LDATE dt)
 {
+	int    ok = -1;
 	PUGI   item, * p_item;
-	for(uint i = 0; enumItems(&i, (void**)&p_item);)
+	for(uint i = 0; ok < 0 && enumItems(&i, (void**)&p_item);) {
 		if(p_item->GoodsID == pItem->GoodsID && p_item->LocID == pItem->LocID) {
 			p_item->NeededQty  += fabs(pItem->NeededQty);
 			p_item->DeficitQty += fabs(pItem->DeficitQty);
-			return 1;
+			ok = 1;
 		}
-	item.Pos        = pItem->Pos;
-	item.GoodsID    = pItem->GoodsID;
-	item.LocID      = pItem->LocID;
-	item.Flags      = pItem->Flags;
-	item.NeededQty  = fabs(pItem->NeededQty);
-	item.DeficitQty = fabs(pItem->DeficitQty);
-	item.Cost       = pItem->Cost;
-	item.Price      = pItem->Price;
-	if(dt && (Dt == 0 || Dt > dt))
-		Dt = dt;
-	return insert(&item) ? 1 : PPSetErrorSLib();
+	}
+	if(ok < 0) {
+		item.Pos        = pItem->Pos;
+		item.GoodsID    = pItem->GoodsID;
+		item.LocID      = pItem->LocID;
+		item.Flags      = pItem->Flags;
+		item.NeededQty  = fabs(pItem->NeededQty);
+		item.DeficitQty = fabs(pItem->DeficitQty);
+		item.Cost       = pItem->Cost;
+		item.Price      = pItem->Price;
+		if(dt && (Dt == 0 || Dt > dt))
+			Dt = dt;
+	}
+	ok = insert(&item) ? 1 : PPSetErrorSLib();
+	return ok;
 }
 
 int SLAPI PUGL::Add(const ILTI * pItem, PPID locID, uint itemPos, LDATE dt /* = ZERODATE */)

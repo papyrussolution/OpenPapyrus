@@ -1,5 +1,5 @@
 // SLUTIL.CPP
-// Copyright (c) A.Sobolev 2013, 2014, 2016
+// Copyright (c) A.Sobolev 2013, 2014, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -30,6 +30,13 @@ IMPL_CMPFUNC(_2long, i1, i2)
 	struct _2long { long   v1, v2; };
 	int    r = COMPARE(((_2long *)i1)->v1, ((_2long *)i2)->v1);
 	return r ? r : COMPARE(((_2long *)i1)->v2, ((_2long *)i2)->v2);
+}
+
+IMPL_CMPFUNC(_2int64, i1, i2)
+{
+	struct _2longlong { int64   v1, v2; };
+	int    r = COMPARE(((_2longlong *)i1)->v1, ((_2longlong *)i2)->v1);
+	return r ? r : COMPARE(((_2longlong *)i1)->v2, ((_2longlong *)i2)->v2);
 }
 //
 // Check Range

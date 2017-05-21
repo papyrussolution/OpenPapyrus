@@ -685,14 +685,12 @@ int __db_txnlist_lsnadd(ENV * env, DB_TXNHEAD * hp, DB_LSN * lsnp)
 	}
 	if(elp->u.l.stack_indx == elp->u.l.stack_size) {
 		elp->u.l.stack_size <<= 1;
-		if((ret = __os_realloc(env, sizeof(DB_LSN)*
-			    elp->u.l.stack_size, &elp->u.l.lsn_stack)) != 0) {
+		if((ret = __os_realloc(env, sizeof(DB_LSN)*elp->u.l.stack_size, &elp->u.l.lsn_stack)) != 0) {
 			__db_txnlist_end(env, hp);
 			return ret;
 		}
 	}
 	elp->u.l.lsn_stack[elp->u.l.stack_indx++] = *lsnp;
-
 	return 0;
 }
 /*

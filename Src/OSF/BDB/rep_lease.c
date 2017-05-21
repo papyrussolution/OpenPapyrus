@@ -7,17 +7,9 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/log.h"
 
-static void __rep_find_entry __P((ENV*, REP*, int, REP_LEASE_ENTRY**));
-
+static void __rep_find_entry(ENV*, REP*, int, REP_LEASE_ENTRY**);
 /*
  * __rep_update_grant -
  *      Update a client's lease grant for this perm record
@@ -207,7 +199,7 @@ int __rep_lease_grant(ENV * env, __rep_control_args * rp, DBT * rec, int eid)
 	if(LOG_COMPARE(&rp->lsn, &le->lease_lsn) > 0) {
 		le->lease_lsn = rp->lsn;
 		VPRINT(env, (env, DB_VERB_REP_LEASE, "lease_grant: eid %d, lease_lsn [%lu][%lu]",
-			le->eid, (ulong)le->lease_lsn.file, (ulong)le->lease_lsn.offset));
+			le->eid, (ulong)le->lease_lsn.file, (ulong)le->lease_lsn.Offset_));
 	}
 	REP_SYSTEM_UNLOCK(env);
 	return 0;
@@ -276,7 +268,7 @@ retry:
 	__os_gettime(env, &curtime, 1);
 	VPRINT(env, (env, DB_VERB_REP_LEASE, "%s %d of %d refresh %d min_leases %lu curtime %lu %lu, maxLSN [%lu][%lu]",
 		"lease_check: try ", tries, max_tries, refresh, (ulong)min_leases, (ulong)curtime.tv_sec,
-		(ulong)curtime.tv_nsec, (ulong)lease_lsn.file, (ulong)lease_lsn.offset));
+		(ulong)curtime.tv_nsec, (ulong)lease_lsn.file, (ulong)lease_lsn.Offset_));
 	table = (REP_LEASE_ENTRY *)R_ADDR(infop, rep->lease_off);
 	for(i = 0, valid_leases = 0; i < rep->config_nsites && valid_leases < min_leases; i++) {
 		le = &table[i];
@@ -288,17 +280,16 @@ retry:
 		 */
 		if(le->eid != DB_EID_INVALID) {
 			VPRINT(env, (env, DB_VERB_REP_LEASE, "lease_check: valid %lu eid %d, lease_lsn [%lu][%lu]",
-				(ulong)valid_leases, le->eid, (ulong)le->lease_lsn.file, (ulong)le->lease_lsn.offset));
+				(ulong)valid_leases, le->eid, (ulong)le->lease_lsn.file, (ulong)le->lease_lsn.Offset_));
 			VPRINT(env, (env, DB_VERB_REP_LEASE, "lease_check: endtime %lu %lu", (ulong)le->end_time.tv_sec, (ulong)le->end_time.tv_nsec));
 		}
 		if(le->eid != DB_EID_INVALID && timespeccmp(&le->end_time, &curtime, >=) && LOG_COMPARE(&le->lease_lsn, &lease_lsn) >= 0)
 			valid_leases++;
 	}
 	REP_SYSTEM_UNLOCK(env);
-
-	/*
-	 * Now see if we have enough.
-	 */
+	//
+	// Now see if we have enough.
+	//
 	VPRINT(env, (env, DB_VERB_REP_LEASE, "valid %lu, min %lu", (ulong)valid_leases, (ulong)min_leases));
 	if(valid_leases < min_leases) {
 #ifdef HAVE_STATISTICS

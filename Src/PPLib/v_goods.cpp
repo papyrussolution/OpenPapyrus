@@ -11,7 +11,7 @@
 int SLAPI GoodsFilt::InitInstance()
 {
 	P_SjF = 0;
-	P_TagF = 0; // @v7.2.0
+	P_TagF = 0;
 	SetFlatChunk(offsetof(GoodsFilt, ReserveStart), offsetof(GoodsFilt, Ep) + offsetof(ClsdGoodsFilt, KindList) - offsetof(GoodsFilt, ReserveStart));
 	SetBranchObjIdListFilt(offsetof(GoodsFilt, Ep) + offsetof(ClsdGoodsFilt, KindList));
 	SetBranchObjIdListFilt(offsetof(GoodsFilt, Ep) + offsetof(ClsdGoodsFilt, GradeList));
@@ -23,9 +23,9 @@ int SLAPI GoodsFilt::InitInstance()
 	SetBranchObjIdListFilt(offsetof(GoodsFilt, ManufList));
 	SetBranchObjIdListFilt(offsetof(GoodsFilt, LocList));
 	SetBranchObjIdListFilt(offsetof(GoodsFilt, BrandList));
-	SetBranchObjIdListFilt(offsetof(GoodsFilt, BrandOwnerList)); // @v7.7.9
+	SetBranchObjIdListFilt(offsetof(GoodsFilt, BrandOwnerList));
 	SetBranchBaseFiltPtr(PPFILT_SYSJOURNAL, offsetof(GoodsFilt, P_SjF));
-	SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(GoodsFilt, P_TagF)); // @v7.2.0
+	SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(GoodsFilt, P_TagF));
 	return Init(1, 0);
 }
 
@@ -2500,9 +2500,7 @@ int SLAPI PPViewGoods::AddGoodsFromBasket()
 			}
 		}
 	}
-	CATCH
-		ok = PPErrorZ();
-	ENDCATCH
+	CATCHZOKPPERR
 	PPWait(0);
 	return ok;
 }
@@ -2856,9 +2854,7 @@ int SLAPI PPViewGoods::AddBarcodeCheckDigit()
 		THROW(tra.Commit());
 		PPWait(0);
 	}
-	CATCH
-		ok = PPErrorZ();
-	ENDCATCH
+	CATCHZOKPPERR
 	return ok;
 }
 
@@ -3042,9 +3038,7 @@ int SLAPI PPViewGoods::UpdateFlags()
 			PPWait(0);
 		}
 	}
-	CATCH
-		ok = PPErrorZ();
-	ENDCATCH
+	CATCHZOKPPERR
 	delete dlg;
 	return ok;
 }
@@ -3560,6 +3554,7 @@ int SLAPI PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
+		const  PPConfig & r_cfg = LConfig;
 		PPID   id = pHdr ? *(PPID *)pHdr : 0;
 		PPID   temp_id;
 		switch(ppvCmd) {
@@ -3571,8 +3566,7 @@ int SLAPI PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 						Goods2Tbl::Rec goods_rec;
 						double qtty = 0.0;
 						if((r = GObj.SelectGoodsByBarcode(c, NZOR(Filt.CodeArID, Filt.SupplID), &goods_rec, &qtty, 0)) > 0) {
-							if(pBrw)
-								pBrw->search2(&goods_rec.ID, CMPF_LONG, srchFirst, 0);
+							CALLPTRMEMB(pBrw, search2(&goods_rec.ID, CMPF_LONG, srchFirst, 0));
 						}
 						else if(r != -1 && pBrw)
 							pBrw->bottom();
@@ -3627,10 +3621,7 @@ int SLAPI PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 					UpdateTempTable(0, pBrw);
 				break;
 			case PPVCMD_TAGS:
-				if(id)
-					ok = EditObjTagValList(PPOBJ_GOODS, id, 0);
-				else
-					ok = -1;
+				ok = id ? EditObjTagValList(PPOBJ_GOODS, id, 0) : -1;
 				break;
 			case PPVCMD_TAGSALL:
 				ok = -1;
@@ -3723,13 +3714,13 @@ int SLAPI PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 				break;
 			case PPVCMD_VIEWQUOT:
 				ok = -1;
-				GObj.EditQuotations(id, LConfig.Location, -1L /* @curID */, 0, PPQuot::clsGeneral);
+				GObj.EditQuotations(id, r_cfg.Location, -1L /* @curID */, 0, PPQuot::clsGeneral);
 				break;
 			case PPVCMD_VIEWSUPPLQUOT:
-				GObj.EditQuotations(id, LConfig.Location, -1L /* @curID */, 0, PPQuot::clsSupplDeal);
+				GObj.EditQuotations(id, r_cfg.Location, -1L /* @curID */, 0, PPQuot::clsSupplDeal);
 				break;
 			case PPVCMD_VIEWGOODSMATRIX:
-				GObj.EditQuotations(id, LConfig.Location, -1L /* @curID */, 0, PPQuot::clsMtx);
+				GObj.EditQuotations(id, r_cfg.Location, -1L /* @curID */, 0, PPQuot::clsMtx);
 				break;
 			case PPVCMD_VIEWGOODSAGGR:
 				ok = (GObj.ShowGoodsAsscInfo(id) > 0) ? 1 : -1;
@@ -4059,7 +4050,6 @@ int PPALDD_GoodsStruc::InitData(PPFilt & rFilt, long rsrv)
 
 int PPALDD_GoodsStruc::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 {
-	//PPGoodsStruc * p_v = (PPGoodsStruc*)(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);
 	int    ok = -1;
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
@@ -4147,7 +4137,7 @@ int PPALDD_QuotKind::InitData(PPFilt & rFilt, long rsrv)
 			H.Discount = rec.Discount;
 			H.fAbsDiscount = BIN(rec.Flags & QUOTKF_ABSDIS);
 			STRNSCPY(H.Name, rec.Name);
-			STRNSCPY(H.Symb, rec.Symb); // @v6.2.7
+			STRNSCPY(H.Symb, rec.Symb);
 			ok = DlRtm::InitData(rFilt, rsrv);
 		}
 	}

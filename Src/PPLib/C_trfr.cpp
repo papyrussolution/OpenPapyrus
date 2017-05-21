@@ -551,7 +551,7 @@ int SLAPI CorrectCurRest()
 
 int SLAPI CorrectLotsCloseTags()
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
 	int    err;
 	PPID   id = 0;
@@ -560,51 +560,51 @@ int SLAPI CorrectLotsCloseTags()
 	ReceiptTbl::Rec * rec = & p_bobj->trfr->Rcpt.data;
 	PPWait(1);
 	cntr.Init(&p_bobj->trfr->Rcpt);
-	THROW(PPStartTransaction(&ta, 1));
-	while(p_bobj->trfr->Rcpt.search(0, &id, spGt)) {
-		err = 0;
-		rec->Rest = R6(rec->Rest);
-		if(rec->Closed) {
-			if(rec->Rest != 0.0) {
-				if(!(rec->Flags & LOTF_CLOSEDORDER)) {
-					rec->Closed = 0;
-					rec->CloseDate = MAXDATE;
+	{
+		PPTransaction tra(1);
+		THROW(tra);
+		while(p_bobj->trfr->Rcpt.search(0, &id, spGt)) {
+			err = 0;
+			rec->Rest = R6(rec->Rest);
+			if(rec->Closed) {
+				if(rec->Rest != 0.0) {
+					if(!(rec->Flags & LOTF_CLOSEDORDER)) {
+						rec->Closed = 0;
+						rec->CloseDate = MAXDATE;
+						err = 1;
+					}
+				}
+				else {
+					MEMSZERO(k);
+					k.LotID = id + 1;
+					if(p_bobj->trfr->search(2, &k, spLt) && k.LotID == id)
+						if(k.Dt != rec->CloseDate) {
+							rec->CloseDate = k.Dt;
+							err = 1;
+						}
+				}
+			}
+			else if(rec->Rest == 0.0) {
+				rec->Closed = 1;
+				MEMSZERO(k);
+				k.LotID = id + 1;
+				if(p_bobj->trfr->search(2, &k, spLt) && k.LotID == id) {
+					rec->CloseDate = k.Dt;
 					err = 1;
 				}
 			}
-			else {
-				MEMSZERO(k);
-				k.LotID = id + 1;
-				if(p_bobj->trfr->search(2, &k, spLt) && k.LotID == id)
-					if(k.Dt != rec->CloseDate) {
-						rec->CloseDate = k.Dt;
-						err = 1;
-					}
+			else if(rec->CloseDate != MAXLONG) {
+				rec->CloseDate = MAXDATE;
+   				err = 1;
 			}
+			if(err)
+				THROW_DB(p_bobj->trfr->Rcpt.updateRec());
+			PPWaitPercent(cntr.Increment());
 		}
-		else if(rec->Rest == 0.0) {
-			rec->Closed = 1;
-			MEMSZERO(k);
-			k.LotID = id + 1;
-			if(p_bobj->trfr->search(2, &k, spLt) && k.LotID == id) {
-				rec->CloseDate = k.Dt;
-				err = 1;
-			}
-		}
-		else if(rec->CloseDate != MAXLONG) {
-			rec->CloseDate = MAXDATE;
-   	        err = 1;
-		}
-		if(err)
-			THROW_DB(p_bobj->trfr->Rcpt.updateRec());
-		PPWaitPercent(cntr.Increment());
+		THROW(tra.Commit());
 	}
-	THROW(PPCommitWork(&ta));
 	PPWait(0);
-	CATCH
-		PPRollbackWork(&ta);
-		ok = PPErrorZ();
-	ENDCATCH
+	CATCHZOKPPERR
 	return ok;
 }
 
@@ -696,7 +696,7 @@ int SLAPI CorrectLotSuppl()
 
 int SLAPI CorrectZeroQCertRefs()
 {
-	int    ok = 1, ta = 0, r;
+	int    ok = 1, r;
 	char   msg[64];
 	PPObjQCert qcobj;
 	ReceiptCore & rcpt = BillObj->trfr->Rcpt;
@@ -705,24 +705,24 @@ int SLAPI CorrectZeroQCertRefs()
 	IterCounter cntr;
 	THROW(cntr.Init(&rcpt));
 	PPWait(1);
-	THROW(PPStartTransaction(&ta, 1));
-	while(rcpt.search(0, &lot_id, spGt)) {
-		r = 1;
-		if(rcpt.data.QCertID && (r = qcobj.Search(rcpt.data.QCertID)) < 0) {
-			errcount++;
-			rcpt.data.QCertID = 0;
-			THROW_DB(rcpt.updateRec());
+	{
+		PPTransaction tra(1);
+		THROW(tra);
+		while(rcpt.search(0, &lot_id, spGt)) {
+			r = 1;
+			if(rcpt.data.QCertID && (r = qcobj.Search(rcpt.data.QCertID)) < 0) {
+				errcount++;
+				rcpt.data.QCertID = 0;
+				THROW_DB(rcpt.updateRec());
+			}
+			THROW(r);
+			PPWaitPercent(cntr.Increment(), ultoa(errcount, msg, 10));
 		}
-		THROW(r);
-		PPWaitPercent(cntr.Increment(), ultoa(errcount, msg, 10));
+		THROW_DB(BTROKORNFOUND);
+		THROW(tra.Commit());
 	}
-	THROW_DB(BTROKORNFOUND);
-	THROW(PPCommitWork(&ta));
 	PPWait(0);
-	CATCH
-		PPRollbackWork(&ta);
-		ok = PPErrorZ();
-	ENDCATCH
+	CATCHZOKPPERR
 	return ok;
 }
 //

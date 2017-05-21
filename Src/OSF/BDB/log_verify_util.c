@@ -100,7 +100,7 @@ int __create_log_vrfy_info(const DB_LOG_VERIFY_CONFIG * cfg, DB_LOG_VRFY_INFO **
 	lvinfop->ip = ip;
 	__lv_setup_logtype_names(lvinfop);
 	/* Avoid the VERIFY_PARTIAL bit being cleared if no ckp_lsn exists. */
-	lvinfop->valid_lsn.file = lvinfop->valid_lsn.offset = (uint32)-1;
+	lvinfop->valid_lsn.file = lvinfop->valid_lsn.Offset_ = (uint32)-1;
 	/*
 	 * The envhome parameter determines if we will use an in-memory
 	 * environment and databases.
@@ -267,8 +267,7 @@ static int __lv_open_db(DB_ENV * dbenv, DB ** dbpp, DB_THREAD_INFO * ip, const c
 err:
 	if(dbenv != NULL && ret != 0)
 		__db_err(dbenv->env, ret, "__lv_open_db");
-	if(dbp != NULL)
-		__db_close(dbp, NULL, 0);
+	__db_close(dbp, NULL, 0);
 	return ret;
 }
 
@@ -653,7 +652,7 @@ static int __lv_add_recycle_handler(DB_LOG_VRFY_INFO * lvinfo, VRFY_TXN_INFO * t
 	 */
 	if(txninfop->status == TXN_STAT_PREPARE) {
 		__db_errx(lvinfo->dbenv->env, "[ERROR] Transaction with ID %u is prepared and not committed, but its ID is recycled by log record [%u, %u].", 
-			txninfop->txnid, param->recycle_lsn.file, param->recycle_lsn.offset);
+			txninfop->txnid, param->recycle_lsn.file, param->recycle_lsn.Offset_);
 	}
 	/* Note down to store later. */
 	param->ti2u[(param->ti2ui)++] = txninfop;
@@ -1251,7 +1250,7 @@ int __find_lsnrg_by_timerg(DB_LOG_VRFY_INFO * lvinfo, __time64_t begin, __time64
 	if((ret = __dbc_get(csr, &key, &data, DB_PREV)) != 0 && ret != DB_NOTFOUND)
 		goto err;
 	if(ret == DB_NOTFOUND) /* begin is smaller than the smallest key. */
-		startlsn->file = startlsn->offset = 0;  /* beginning. */
+		startlsn->file = startlsn->Offset_ = 0; // beginning
 	else {
 		t1 = (struct __lv_timestamp_info *)data.data;
 		*startlsn = t1->lsn;
@@ -1265,7 +1264,7 @@ int __find_lsnrg_by_timerg(DB_LOG_VRFY_INFO * lvinfo, __time64_t begin, __time64
 	if((ret = __dbc_get(csr, &key, &data, DB_SET_RANGE)) != 0 && ret != DB_NOTFOUND)
 		goto err;
 	if(ret == DB_NOTFOUND) {
-		endlsn->file = endlsn->offset = (uint32)-1; /* Biggest lsn. */
+		endlsn->file = endlsn->Offset_ = (uint32)-1; /* Biggest lsn. */
 		ret = 0;
 		goto err; /* We are done. */
 	}

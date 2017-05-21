@@ -22,8 +22,12 @@ int SLAPI strtorrng(const char * pBuf, double * pLow, double * pUpp)
 				i--;
 				if(p_tmp[i] == '\'' || p_tmp[i] == ' ')
 					strcpy(p_tmp+i, p_tmp+i+1);
+				else if(p_tmp[i] == ',') // @v9.6.7 
+					p_tmp[i] = '.';
+				/* @v9.6.7 
 				else if(p_tmp[i] == ',' && (!i || p_tmp[i-1] != ','))
 					strcpy(p_tmp+i, p_tmp+i+1);
+				*/
 			} while(i);
 	}
 	char * n;

@@ -34,8 +34,8 @@ public:
 	int    SLAPI GetAddrObjListByText(const char * pText, PPIDArray & rList);
 	void   FASTCALL SetTable(PPFiasReference * pT);
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
 	struct TextEntry {
 		TextEntry(PPID textRefID, const PPIDArray & rList)
@@ -139,7 +139,7 @@ int SLAPI FiasAddrCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraD
 	return ok;
 }
 
-int SLAPI FiasAddrCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI FiasAddrCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	FiasAddrObjTbl::Rec * p_data_rec = (FiasAddrObjTbl::Rec *)pDataRec;
 	if(p_data_rec) {
@@ -166,7 +166,6 @@ int SLAPI FiasAddrCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 		CPY(EndDt);
 		#undef CPY
 	}
-	return 1;
 }
 //
 //
@@ -2826,8 +2825,8 @@ private:
 		PPID   LocID;
 		PPIDArray List;
 	};
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 	int    SLAPI LoadWarehouseTab();
 	int    SLAPI AddWarehouseEntry(const LocationTbl::Rec * pRec);
 	//
@@ -3212,7 +3211,7 @@ int SLAPI LocationCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI LocationCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI LocationCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	LocationTbl::Rec * p_data_rec = (LocationTbl::Rec *)pDataRec;
 	const LocationData * p_cache_rec = (const LocationData *)pEntry;
@@ -3231,8 +3230,7 @@ int SLAPI LocationCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Code, sizeof(p_data_rec->Code));
-	b.Get(p_data_rec->Tail, sizeof(p_data_rec->Tail)); // @v7.0.8
-	return 1;
+	b.Get(p_data_rec->Tail, sizeof(p_data_rec->Tail));
 }
 
 IMPL_OBJ_FETCH(PPObjLocation, LocationTbl::Rec, LocationCache);

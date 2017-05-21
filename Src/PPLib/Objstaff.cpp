@@ -167,9 +167,9 @@ static IMPL_CMPFUNC(PersonPost_Closed_Finish_Dt, i1, i2)
 		return CMPSIGN(p2->Finish, p1->Finish);
 }
 
-int SLAPI PersonPostArray::Sort()
+void SLAPI PersonPostArray::Sort()
 {
-	return SArray::sort(PTR_CMPFUNC(PersonPost_Closed_Finish_Dt), 0);
+	SArray::sort(PTR_CMPFUNC(PersonPost_Closed_Finish_Dt), 0);
 }
 
 uint SLAPI PersonPostArray::GetBusyCount() const
@@ -1302,8 +1302,8 @@ public:
 	{
 	}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
 int SLAPI StaffListCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
@@ -1328,13 +1328,13 @@ int SLAPI StaffListCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI StaffListCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI StaffListCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPStaffEntry * p_data_rec = (PPStaffEntry *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	#define FLD(f) p_data_rec->f = p_cache_rec->f
-	FLD(ID); // @v5.5.12
+	FLD(ID);
 	FLD(OrgID);
 	FLD(DivisionID);
 	FLD(Flags);
@@ -1343,7 +1343,6 @@ int SLAPI StaffListCache::EntryToData(const ObjCacheEntry * pEntry, void * pData
 	FLD(ChargeGrpID);
 	#undef FLD
 	GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
-	return 1;
 }
 
 int SLAPI PPObjStaffList::Fetch(PPID id, PPStaffEntry * pRec)
@@ -1375,8 +1374,8 @@ public:
 	{
 	}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
 int SLAPI PersonPostCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
@@ -1400,7 +1399,7 @@ int SLAPI PersonPostCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI PersonPostCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI PersonPostCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PersonPostTbl::Rec * p_data_rec = (PersonPostTbl::Rec *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -1413,7 +1412,6 @@ int SLAPI PersonPostCache::EntryToData(const ObjCacheEntry * pEntry, void * pDat
 	FLD(Flags);
 	FLD(Closed);
 	#undef FLD
-	return 1;
 }
 
 int SLAPI PPObjStaffList::FetchPost(PPID id, PersonPostTbl::Rec * pRec)

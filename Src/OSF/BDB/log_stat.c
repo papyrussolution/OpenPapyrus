@@ -62,9 +62,9 @@ static int __log_stat(ENV * env, DB_LOG_STAT ** statp, uint32 flags)
 		__mutex_clear(env, lp->mtx_region);
 	stats->st_regsize = dblp->reginfo.rp->size;
 	stats->st_cur_file = lp->lsn.file;
-	stats->st_cur_offset = lp->lsn.offset;
+	stats->st_cur_offset = lp->lsn.Offset_;
 	stats->st_disk_file = lp->s_lsn.file;
-	stats->st_disk_offset = lp->s_lsn.offset;
+	stats->st_disk_offset = lp->s_lsn.Offset_;
 	LOG_SYSTEM_UNLOCK(env);
 	*statp = stats;
 	return 0;

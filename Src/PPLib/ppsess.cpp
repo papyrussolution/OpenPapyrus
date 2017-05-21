@@ -1126,7 +1126,7 @@ uint PPSession::ThreadCollection::GetCount()
 	return c;
 }
 
-int FASTCALL PPSession::ThreadCollection::GetInfoList(TSCollection <PPThread::Info> & rList)
+int FASTCALL PPSession::ThreadCollection::GetInfoList(int type, TSCollection <PPThread::Info> & rList)
 {
 	int    ok = 1;
 	RwL.ReadLock();
@@ -1134,9 +1134,11 @@ int FASTCALL PPSession::ThreadCollection::GetInfoList(TSCollection <PPThread::In
 	for(uint i = 0; i < c; i++) {
 		const PPThread * p = at(i);
 		if(p && p->IsConsistent()) {
-			PPThread::Info * p_info = rList.CreateNewItem(0);
-			if(p_info)
-				p->GetInfo(*p_info);
+			if(!type || p->GetKind() == type) {
+				PPThread::Info * p_info = rList.CreateNewItem();
+				if(p_info)
+					p->GetInfo(*p_info);
+			}
 		}
 	}
 	RwL.Unlock();
@@ -1895,9 +1897,9 @@ int PPSession::SetThreadNotification(int type, const void * pData)
 	return ok;
 }
 
-int PPSession::GetThreadInfoList(TSCollection <PPThread::Info> & rList)
+int PPSession::GetThreadInfoList(int type, TSCollection <PPThread::Info> & rList)
 {
-	return ThreadList.GetInfoList(rList);
+	return ThreadList.GetInfoList(type, rList);
 }
 
 int PPSession::GetThreadInfo(ThreadID tId, PPThread::Info & rInfo)
@@ -2339,6 +2341,17 @@ int SLAPI PPSession::CheckSystemAccount(DbLoginBlock * pDlb, PPSecur * pSecur)
 	return ok;
 }
 
+int SLAPI PPSession::SetExtFlagByIniIntParam(PPIniFile & rIniFile, uint sect, uint param, long extFlags, int reqValue)
+{
+	int    ok = 0;
+	int    iv = 0;
+	if(rIniFile.GetInt(sect, param, &iv) > 0 && (iv == reqValue || (reqValue == 999 && iv != 0))) {
+		SetExtFlag(extFlags, 1);
+		ok = 1;
+	}
+	return ok;
+}
+
 int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const char * pPassword)
 {
 	enum {
@@ -2688,41 +2701,24 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 					if(!CheckExtFlag(ECF_INITONLOGIN)) {
 						// @v8.0.3 ExtFlags = (ExtFlags & (ECF_SYSSERVICE | ECF_DBDICTDL600));
 						SetExtFlag(~(ECF_SYSSERVICE|ECF_DBDICTDL600|ECF_DETECTCRDBTEXISTBYOPEN|ECF_OPENSOURCE), 0); // @v8.0.3 // @v8.2.4 ECF_DETECTCRDBTEXISTBYOPEN // @v9.4.9 ECF_OPENSOURCE
-						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_GRPACK, &(iv = 0)) > 0 && iv == 1)
-							SetExtFlag(ECF_GOODSRESTPACK, 1);
-						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_TIDPACK, &(iv = 0)) > 0 && iv == 1)
-							SetExtFlag(ECF_TRFRITEMPACK, 1);
-						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_GBFSDEBT, &(iv = 0)) > 0 && iv == 1)
-							SetExtFlag(ECF_GOODSBILLFILTSHOWDEBT, 1);
-						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ECOGOODSSEL, &(iv = 0)) > 0 && iv == 1)
-							SetExtFlag(ECF_ECOGOODSSEL, 1);
-						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_433_OLDGENBARCODEMETHOD, &(iv = 0)) > 0 && iv == 1)
-							SetExtFlag(ECF_433OLDGENBARCODEMETHOD, 1);
-						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_AVERAGE, &(iv = 0)) > 0 && iv == 1)
-							SetExtFlag(ECF_AVERAGE, 1);
+						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_GRPACK,                  ECF_GOODSRESTPACK,          1);
+						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_TIDPACK,                 ECF_TRFRITEMPACK,           1);
+						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_GBFSDEBT,                ECF_GOODSBILLFILTSHOWDEBT,  1);
+						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_ECOGOODSSEL,             ECF_ECOGOODSSEL,            1);
+						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_433_OLDGENBARCODEMETHOD, ECF_433OLDGENBARCODEMETHOD, 1);
+						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_AVERAGE,                 ECF_AVERAGE,                1);
 						{
 							SetExtFlag(ECF_PREPROCBRWONCHGFILT, 1);
 							if(ini_file.GetInt(PPINISECT_SYSTEM, PPINIPARAM_PREPROCESSBRWFROMCHNGFLT, &(iv = 0)) > 0 && iv == 0)
 								SetExtFlag(ECF_PREPROCBRWONCHGFILT, 0);
 						}
-						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIH_USEGOODSLOCASSOC, &(iv = 0)) > 0 && iv != 0)
-							SetExtFlag(ECF_CHKPAN_USEGDSLOCASSOC, 1);
-						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DEBUG_MTX_DIRTY, &(iv = 0)) > 0 && iv != 0)
-							SetExtFlag(ECF_DEBUGDIRTYMTX, 1);
-						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_USE_CDB, &(iv = 0)) > 0 && iv != 0)
-							SetExtFlag(ECF_USECDB, 1);
-						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_RCPTDLVRLOCASWAREHOUSE, &(iv = 0)) > 0 && iv != 0)
-							SetExtFlag(ECF_RCPTDLVRLOCASWAREHOUSE, 1);
-						// @v8.2.5 {
-						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_USESJLOGINEVENT, &(iv = 0)) > 0 && iv != 0)
-							SetExtFlag(ECF_USESJLOGINEVENT, 1);
-						// } @v8.2.5
-						// @v8.4.11 {
-						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CODEPREFIXEDLIST, &(iv = 0)) > 0 && iv != 0)
-							SetExtFlag(ECF_CODEPREFIXEDLIST, 1);
-						else
+						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_SHTRIH_USEGOODSLOCASSOC, ECF_CHKPAN_USEGDSLOCASSOC,  999);
+						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_DEBUG_MTX_DIRTY,         ECF_DEBUGDIRTYMTX,          999);
+						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_USE_CDB,                 ECF_USECDB,                 999);
+						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_RCPTDLVRLOCASWAREHOUSE,  ECF_RCPTDLVRLOCASWAREHOUSE, 999);
+						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_USESJLOGINEVENT,         ECF_USESJLOGINEVENT,        999); // @v8.2.5
+						if(!SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_CODEPREFIXEDLIST,        ECF_CODEPREFIXEDLIST,       999)) // @v8.4.11
 							SetExtFlag(ECF_CODEPREFIXEDLIST, 0);
-						// } @v8.4.11
 						// @v8.5.12 {
 						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DISABLEASYNCADVQUEUE, &(iv = 0)) > 0 && iv != 0)
 							SetExtFlag(ECF_DISABLEASYNCADVQUEUE, 1);
@@ -3823,6 +3819,37 @@ DlContext * SLAPI PPSession::GetInterfaceContext(int ctxType)
 	else if(ctxType == ctxDatabase)
 		p_ctx = Helper_GetInterfaceContext(&P_DbCtx, PPFILNAM_DL600DBS, 1);
 	return p_ctx;
+}
+
+SLAPI PPNotifyEvent::PPNotifyEvent()
+{
+	Clear();
+}
+
+void SLAPI PPNotifyEvent::Clear()
+{
+	Action = 0;
+	ObjType = 0;
+	ObjID = 0;
+	ExtInt_ = 0;
+	ExtDtm.SetZero();
+	ExtStr = 0;
+}
+
+PPNotifyEvent & SLAPI PPNotifyEvent::SetFinishTag()
+{
+	Action = -1;
+	return *this;
+}
+
+int SLAPI PPNotifyEvent::IsFinish() const
+{
+	return (Action == -1);
+}
+
+SLAPI PPAdviseBlock::PPAdviseBlock()
+{
+	THISZERO();
 }
 
 SLAPI PPAdviseList::PPAdviseList() : SArray(sizeof(PPAdviseBlock), 16, O_ARRAY)

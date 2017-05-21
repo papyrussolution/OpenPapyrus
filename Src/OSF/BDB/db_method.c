@@ -58,50 +58,45 @@ static void __db_set_msgfile(DB*, FILE *);
 static int __db_get_assoc_flags(DB*, uint32 *);
 static void __dbh_err(DB*, int, const char *, ...);
 static void __dbh_errx(DB*, const char *, ...);
-
-/*
- * db_create --
- *	DB constructor.
- *
- * EXTERN: int db_create __P((DB **, DB_ENV *, uint32));
- */
+//
+// DB constructor.
+//
 int db_create(DB ** dbpp, DB_ENV * dbenv, uint32 flags)
 {
-	DB_THREAD_INFO * ip;
-	ENV * env;
 	int ret;
-	ip = NULL;
-	env = dbenv == NULL ? NULL : dbenv->env;
-	/* Check for invalid function flags. */
+	DB_THREAD_INFO * ip = NULL;
+	ENV * env = (dbenv == NULL) ? NULL : dbenv->env;
+	// Check for invalid function flags
 	switch(flags) {
 	    case 0:
-		break;
+			break;
 	    case DB_XA_CREATE:
-		if(dbenv != NULL) {
-			__db_errx(env, DB_STR("0504", "XA applications may not specify an environment to db_create"));
-			return EINVAL;
-		}
-		/*
-		 * If it's an XA database, open it within the XA environment,
-		 * taken from the global list of environments.  (When the XA
-		 * transaction manager called our xa_start() routine the
-		 * "current" environment was moved to the start of the list.
-		 */
-		env = TAILQ_FIRST(&DB_GLOBAL(envq));
-		if(env == NULL) {
-			__db_errx(env, DB_STR("0505", "Cannot open XA database before XA is enabled"));
-			return EINVAL;
-		}
-		break;
+			if(dbenv != NULL) {
+				__db_errx(env, DB_STR("0504", "XA applications may not specify an environment to db_create"));
+				return EINVAL;
+			}
+			else {
+				//
+				// If it's an XA database, open it within the XA environment,
+				// taken from the global list of environments.  (When the XA
+				// transaction manager called our xa_start() routine the
+				// "current" environment was moved to the start of the list.
+				// 
+				env = TAILQ_FIRST(&DB_GLOBAL(envq));
+				if(env == NULL) {
+					__db_errx(env, DB_STR("0505", "Cannot open XA database before XA is enabled"));
+					return EINVAL;
+				}
+			}
+			break;
 	    default:
-		return __db_ferr(env, "db_create", 0);
+			return __db_ferr(env, "db_create", 0);
 	}
 	if(env != NULL)
 		ENV_ENTER(env, ip);
-	/*
-	 * If we are opening an XA database, make sure we don't have a global XA
-	 * transaction running.
-	 */
+	// 
+	// If we are opening an XA database, make sure we don't have a global XA transaction running.
+	// 
 	if(LF_ISSET(DB_XA_CREATE)) {
 		XA_NO_TXN(ip, ret);
 		if(ret != 0)
@@ -113,12 +108,9 @@ err:
 		ENV_LEAVE(env, ip);
 	return ret;
 }
-/*
- * __db_create_internal --
- *	DB constructor internal routine.
- *
- * PUBLIC: int __db_create_internal  __P((DB **, ENV *, uint32));
- */
+//
+// DB constructor internal routine.
+//
 int __db_create_internal(DB ** dbpp, ENV * env, uint32 flags)
 {
 	DB * dbp;
@@ -126,7 +118,7 @@ int __db_create_internal(DB ** dbpp, ENV * env, uint32 flags)
 	DB_REP * db_rep;
 	int ret;
 	*dbpp = NULL;
-	/* If we don't have an environment yet, allocate a local one. */
+	// If we don't have an environment yet, allocate a local one
 	if(env == NULL) {
 		if((ret = db_env_create(&dbenv, 0)) != 0)
 			return ret;
@@ -135,7 +127,7 @@ int __db_create_internal(DB ** dbpp, ENV * env, uint32 flags)
 	}
 	else
 		dbenv = env->dbenv;
-	/* Allocate and initialize the DB handle. */
+	// Allocate and initialize the DB handle
 	if((ret = __os_calloc(env, 1, sizeof(*dbp), &dbp)) != 0)
 		goto err;
 	dbp->dbenv = env->dbenv;
@@ -145,29 +137,28 @@ int __db_create_internal(DB ** dbpp, ENV * env, uint32 flags)
 	MUTEX_LOCK(env, env->mtx_dblist);
 	++env->db_ref;
 	MUTEX_UNLOCK(env, env->mtx_dblist);
-
-	/*
-	 * Set the replication timestamp; it's 0 if we're not in a replicated
-	 * environment.  Don't acquire a lock to read the value, even though
-	 * it's opaque: all we check later is value equality, nothing else.
-	 */
+	// 
+	// Set the replication timestamp; it's 0 if we're not in a replicated
+	// environment.  Don't acquire a lock to read the value, even though
+	// it's opaque: all we check later is value equality, nothing else.
+	// 
 	dbp->timestamp = REP_ON(env) ? ((REGENV *)env->reginfo->primary)->rep_timestamp : 0;
-	/*
-	 * Set the replication generation number for fid management; valid
-	 * replication generations start at 1.  Don't acquire a lock to
-	 * read the value.  All we check later is value equality.
-	 */
+	// 
+	// Set the replication generation number for fid management; valid
+	// replication generations start at 1.  Don't acquire a lock to
+	// read the value.  All we check later is value equality.
+	//
 	db_rep = env->rep_handle;
 	dbp->fid_gen = REP_ON(env) ? ((REP *)db_rep->region)->gen : 0;
-	/* Open a backing DB_MPOOLFILE handle in the memory pool. */
+	// Open a backing DB_MPOOLFILE handle in the memory pool. 
 	if((ret = __memp_fcreate(env, &dbp->mpf)) != 0)
 		goto err;
 	dbp->type = DB_UNKNOWN;
 	*dbpp = dbp;
 	return 0;
 err:
-	if(dbp != NULL) {
-		if(dbp->mpf != NULL)
+	if(dbp) {
+		if(dbp->mpf)
 			__memp_fclose(dbp->mpf, 0);
 		__os_free(env, dbp);
 	}
@@ -175,25 +166,21 @@ err:
 		__env_close(dbp->dbenv, 0);
 	return ret;
 }
-/*
- * __db_init --
- *	Initialize a DB structure.
- */
+//
+// Initialize a DB structure.
+//
 static int __db_init(DB * dbp, uint32 flags)
 {
 	int ret;
 	dbp->locker = NULL;
 	dbp->alt_close = NULL;
 	LOCK_INIT(dbp->handle_lock);
-
 	TAILQ_INIT(&dbp->free_queue);
 	TAILQ_INIT(&dbp->active_queue);
 	TAILQ_INIT(&dbp->join_queue);
 	LIST_INIT(&dbp->s_secondaries);
-
 	FLD_SET(dbp->am_ok, DB_OK_BTREE|DB_OK_HASH|DB_OK_HEAP|DB_OK_QUEUE|DB_OK_RECNO);
-
-	/* DB PUBLIC HANDLE LIST BEGIN */
+	// DB PUBLIC HANDLE LIST BEGIN 
 	dbp->associate = __db_associate_pp;
 	dbp->associate_foreign = __db_associate_foreign_pp;
 	dbp->close = __db_close_pp;
@@ -267,8 +254,8 @@ static int __db_init(DB * dbp, uint32 flags)
 	dbp->truncate = __db_truncate_pp;
 	dbp->upgrade = __db_upgrade_pp;
 	dbp->verify = __db_verify_pp;
-	/* DB PUBLIC HANDLE LIST END */
-	/* Access method specific. */
+	// DB PUBLIC HANDLE LIST END 
+	// Access method specific.
 	if((ret = __bam_db_create(dbp)) != 0)
 		return ret;
 	if((ret = __ham_db_create(dbp)) != 0)
@@ -280,19 +267,16 @@ static int __db_init(DB * dbp, uint32 flags)
 	COMPQUIET(flags, 0);
 	return 0;
 }
-/*
- * __dbh_am_chk --
- *	Error if an unreasonable method is called.
- *
- * PUBLIC: int __dbh_am_chk __P((DB *, uint32));
- */
+//
+// Error if an unreasonable method is called.
+//
 int __dbh_am_chk(DB * dbp, uint32 flags)
 {
-	/*
-	 * We start out allowing any access methods to be called, and as the
-	 * application calls the methods the options become restricted.  The
-	 * idea is to quit as soon as an illegal method combination is called.
-	 */
+	// 
+	// We start out allowing any access methods to be called, and as the
+	// application calls the methods the options become restricted.  The
+	// idea is to quit as soon as an illegal method combination is called.
+	//
 	if((LF_ISSET(DB_OK_BTREE) && FLD_ISSET(dbp->am_ok, DB_OK_BTREE)) ||
 	   (LF_ISSET(DB_OK_HASH) && FLD_ISSET(dbp->am_ok, DB_OK_HASH)) ||
 	   (LF_ISSET(DB_OK_HEAP) && FLD_ISSET(dbp->am_ok, DB_OK_HEAP)) ||
@@ -301,8 +285,10 @@ int __dbh_am_chk(DB * dbp, uint32 flags)
 		FLD_CLR(dbp->am_ok, ~flags);
 		return 0;
 	}
-	__db_errx(dbp->env, DB_STR("0506", "call implies an access method which is inconsistent with previous calls"));
-	return EINVAL;
+	else {
+		__db_errx(dbp->env, DB_STR("0506", "call implies an access method which is inconsistent with previous calls"));
+		return EINVAL;
+	}
 }
 /*
  * __dbh_err --

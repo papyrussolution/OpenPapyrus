@@ -1769,8 +1769,8 @@ class PsnOpKindCache : public ObjCache {
 public:
 	SLAPI  PsnOpKindCache() : ObjCache(PPOBJ_PERSONOPKIND, sizeof(Data)) {}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		PPID   RegTypeID;
@@ -1809,7 +1809,7 @@ int SLAPI PsnOpKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI PsnOpKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI PsnOpKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPPsnOpKind * p_data_rec = (PPPsnOpKind *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -1832,7 +1832,6 @@ int SLAPI PsnOpKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pData
 	uint   p = 0;
 	ss.get(&p, p_data_rec->Name, sizeof(p_data_rec->Name));
 	ss.get(&p, p_data_rec->Symb, sizeof(p_data_rec->Symb));
-	return 1;
 }
 
 IMPL_OBJ_FETCH(PPObjPsnOpKind, PPPsnOpKind, PsnOpKindCache);

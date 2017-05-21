@@ -496,19 +496,26 @@ struct __db_lockreq {
  #define DB_LOGCHKSUM    12             /* Check sum headers. */
  #define DB_LOGOLDVER    8              /* Oldest log version supported. */
  #define DB_LOGMAGIC     0x040988
-
 /*
  * A DB_LSN has two parts, a fileid which identifies a specific file, and an
  * offset within that file.  The fileid is an unsigned 4-byte quantity that
  * uniquely identifies a file within the log directory -- currently a simple
  * counter inside the log.  The offset is also an unsigned 4-byte value.  The
  * log manager guarantees the offset is never more than 4 bytes by switching
- * to a new log file before the maximum length imposed by an unsigned 4-byte
- * offset is reached.
+ * to a new log file before the maximum length imposed by an unsigned 4-byte offset is reached.
  */
-struct __db_lsn { /* SHARED */
-	uint32 file;                 /* File ID. */
-	uint32 offset;               /* File offset. */
+struct __db_lsn { // SHARED 
+	void   Clear()
+	{
+		file = 0;
+		Offset_ = 0;
+	}
+	int    IsZero() const
+	{
+		return (file == 0 && Offset_ == 0);
+	}
+	uint32 file;   // File ID
+	uint32 Offset_; // File offset
 };
 
 /*

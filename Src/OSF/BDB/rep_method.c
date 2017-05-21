@@ -1037,13 +1037,14 @@ static int __rep_bt_cmp(DB * dbp, const DBT * dbt1, const DBT * dbt2)
 	__ua_memcpy(&lsn2, &rp2->lsn, sizeof(DB_LSN));
 	if(lsn1.file > lsn2.file)
 		return 1;
-	if(lsn1.file < lsn2.file)
+	else if(lsn1.file < lsn2.file)
 		return -1;
-	if(lsn1.offset > lsn2.offset)
+	else if(lsn1.Offset_ > lsn2.Offset_)
 		return 1;
-	if(lsn1.offset < lsn2.offset)
+	else if(lsn1.Offset_ < lsn2.Offset_)
 		return -1;
-	return 0;
+	else
+		return 0;
 }
 /*
  * __rep_abort_prepared --
@@ -1152,7 +1153,7 @@ static int __rep_restore_prepared(ENV * env)
 	 */
 	if((ret = __txn_getckp(env, &lsn)) == 0) {
 		if((ret = __logc_get(logc, &lsn, &rec, DB_SET)) != 0) {
-			__db_errx(env, DB_STR_A("3560", "Checkpoint record at LSN [%lu][%lu] not found", "%lu %lu"), (ulong)lsn.file, (ulong)lsn.offset);
+			__db_errx(env, DB_STR_A("3560", "Checkpoint record at LSN [%lu][%lu] not found", "%lu %lu"), (ulong)lsn.file, (ulong)lsn.Offset_);
 			goto err;
 		}
 		if((ret = __txn_ckp_read(env, rec.data, &ckp_args)) == 0) {
@@ -1160,18 +1161,17 @@ static int __rep_restore_prepared(ENV * env)
 			__os_free(env, ckp_args);
 		}
 		if(ret != 0) {
-			__db_errx(env, DB_STR_A("3561", "Invalid checkpoint record at [%lu][%lu]", "%lu %lu"), (ulong)lsn.file, (ulong)lsn.offset);
+			__db_errx(env, DB_STR_A("3561", "Invalid checkpoint record at [%lu][%lu]", "%lu %lu"), (ulong)lsn.file, (ulong)lsn.Offset_);
 			goto err;
 		}
 		if((ret = __logc_get(logc, &ckp_lsn, &rec, DB_SET)) != 0) {
-			__db_errx(env, DB_STR_A("3562", "Checkpoint LSN record [%lu][%lu] not found", "%lu %lu"),
-				(ulong)ckp_lsn.file, (ulong)ckp_lsn.offset);
+			__db_errx(env, DB_STR_A("3562", "Checkpoint LSN record [%lu][%lu] not found", "%lu %lu"), (ulong)ckp_lsn.file, (ulong)ckp_lsn.Offset_);
 			goto err;
 		}
 	}
 	else if((ret = __logc_get(logc, &lsn, &rec, DB_FIRST)) != 0) {
 		if(ret == DB_NOTFOUND) {
-			/* An empty log means no PBNYC txns. */
+			// An empty log means no PBNYC txns
 			ret = 0;
 			goto done;
 		}
@@ -1308,8 +1308,7 @@ done:
 err:
 	t_ret = __logc_close(logc);
 	F_CLR(env->lg_handle, DBLOG_RECOVER);
-	if(txninfo != NULL)
-		__db_txnlist_end(env, txninfo);
+	__db_txnlist_end(env, txninfo);
 	return ret == 0 ? t_ret : ret;
 }
 /*
@@ -1330,18 +1329,14 @@ int __rep_get_limit(DB_ENV * dbenv, uint32 * gbytesp, uint32 * bytesp)
 		rep = db_rep->region;
 		ENV_ENTER(env, ip);
 		REP_SYSTEM_LOCK(env);
-		if(gbytesp != NULL)
-			*gbytesp = rep->gbytes;
-		if(bytesp != NULL)
-			*bytesp = rep->bytes;
+		ASSIGN_PTR(gbytesp, rep->gbytes);
+		ASSIGN_PTR(bytesp, rep->bytes);
 		REP_SYSTEM_UNLOCK(env);
 		ENV_LEAVE(env, ip);
 	}
 	else {
-		if(gbytesp != NULL)
-			*gbytesp = db_rep->gbytes;
-		if(bytesp != NULL)
-			*bytesp = db_rep->bytes;
+		ASSIGN_PTR(gbytesp, db_rep->gbytes);
+		ASSIGN_PTR(bytesp, db_rep->bytes);
 	}
 	return 0;
 }
@@ -1482,16 +1477,12 @@ int __rep_get_priority(DB_ENV * dbenv, uint32 * priority)
  */
 int __rep_set_timeout(DB_ENV * dbenv, int which, db_timeout_t timeout)
 {
-	DB_REP * db_rep;
 	DB_THREAD_INFO * ip;
-	ENV * env;
-	REP * rep;
-	int repmgr_timeout, ret;
-	env = dbenv->env;
-	db_rep = env->rep_handle;
-	rep = db_rep->region;
-	ret = 0;
-	repmgr_timeout = 0;
+	ENV * env = dbenv->env;
+	DB_REP * db_rep = env->rep_handle;
+	REP * rep = db_rep->region;
+	int ret = 0;
+	int repmgr_timeout = 0;
 	if(timeout == 0 && (which == DB_REP_CONNECTION_RETRY || which == DB_REP_ELECTION_TIMEOUT || which == DB_REP_LEASE_TIMEOUT || which == DB_REP_ELECTION_RETRY)) {
 		__db_errx(env, DB_STR("3566", "timeout value must be > 0"));
 		return EINVAL;
@@ -1795,14 +1786,11 @@ int __rep_get_clockskew(DB_ENV * dbenv, uint32 * fast_clockp, uint32 * slow_cloc
  */
 int __rep_set_clockskew(DB_ENV * dbenv, uint32 fast_clock, uint32 slow_clock)
 {
-	DB_REP * db_rep;
 	DB_THREAD_INFO * ip;
-	ENV * env;
 	REP * rep;
-	int ret;
-	env = dbenv->env;
-	db_rep = env->rep_handle;
-	ret = 0;
+	int ret = 0;
+	ENV * env = dbenv->env;
+	DB_REP * db_rep = env->rep_handle;
 	ENV_NOT_CONFIGURED(env, db_rep->region, "DB_ENV->rep_set_clockskew", DB_INIT_REP);
 	/*
 	 * Check for valid values.  The fast clock should be a larger
@@ -1860,12 +1848,10 @@ int __rep_flush(DB_ENV * dbenv)
 	DBT rec;
 	DB_LOGC * logc;
 	DB_LSN lsn;
-	DB_REP * db_rep;
 	DB_THREAD_INFO * ip;
-	ENV * env;
 	int ret, t_ret;
-	env = dbenv->env;
-	db_rep = env->rep_handle;
+	ENV * env = dbenv->env;
+	DB_REP * db_rep = env->rep_handle;
 	ENV_REQUIRES_CONFIG_XX(env, rep_handle, "DB_ENV->rep_flush", DB_INIT_REP);
 	if(IS_REP_CLIENT(env))
 		return 0;
@@ -1899,15 +1885,13 @@ int __rep_sync(DB_ENV * dbenv, uint32 flags)
 {
 	DB_LOG * dblp;
 	DB_LSN lsn;
-	DB_REP * db_rep;
 	DB_THREAD_INFO * ip;
-	ENV * env;
 	LOG * lp;
 	REP * rep;
 	int master, ret;
 	uint32 repflags, type;
-	env = dbenv->env;
-	db_rep = env->rep_handle;
+	ENV * env = dbenv->env;
+	DB_REP * db_rep = env->rep_handle;
 	COMPQUIET(flags, 0);
 	ENV_REQUIRES_CONFIG_XX(env, rep_handle, "DB_ENV->rep_sync", DB_INIT_REP);
 	/* We need a transport function because we send messages. */
@@ -1961,8 +1945,7 @@ int __rep_sync(DB_ENV * dbenv, uint32 flags)
 	/*
 	 * When we set REP_F_DELAY, we set verify_lsn to the real verify lsn if
 	 * we need to verify, or we zeroed it out if this is a client that needs
-	 * internal init.  So, send the type of message now that
-	 * __rep_new_master delayed sending.
+	 * internal init.  So, send the type of message now that __rep_new_master delayed sending.
 	 */
 	if(IS_ZERO_LSN(lsn)) {
 		DB_ASSERT(env, rep->sync_state == SYNC_UPDATE);
@@ -1996,8 +1979,7 @@ int __rep_txn_applied(ENV * env, DB_THREAD_INFO * ip, DB_COMMIT_INFO * commit_in
 	}
 	rep = env->rep_handle->region;
 	VPRINT(env, (env, DB_VERB_REP_MISC, "checking txn_applied: gen %lu, envid %lu, LSN [%lu][%lu]",
-		     (ulong)commit_info->gen, (ulong)commit_info->envid,
-		     (ulong)commit_info->lsn.file, (ulong)commit_info->lsn.offset));
+		(ulong)commit_info->gen, (ulong)commit_info->envid, (ulong)commit_info->lsn.file, (ulong)commit_info->lsn.Offset_));
 	locked = 0;
 	__os_gettime(env, &limit, 1);
 	TIMESPEC_ADD_DB_TIMEOUT(&limit, timeout);
@@ -2038,8 +2020,7 @@ retry:
 			/*
 			 * Wait for whatever __rep_check_applied told us we
 			 * needed to wait for.  But first, check the condition
-			 * again under mutex protection, in case there was a
-			 * close race.
+			 * again under mutex protection, in case there was a close race.
 			 */
 			if(reason.why == AWAIT_LSN || reason.why == AWAIT_HISTORY) {
 				MUTEX_LOCK(env, rep->mtx_clientdb);
@@ -2054,8 +2035,7 @@ retry:
 			if(ret == DB_TIMEOUT) {
 				/*
 				 * The usual case: we haven't reached our goal
-				 * yet, even after checking again while holding
-				 * mutex.
+				 * yet, even after checking again while holding mutex.
 				 */
 				ret = __rep_await_condition(env, &reason, duration);
 				/*
@@ -2076,13 +2056,12 @@ retry:
 			 * user.  In some cases there may be a few state changes
 			 * necessary before we are able to determine the final
 			 * result.  Thus whenever we complete a successful wait
-			 * we need to cycle back and check the full txn_applied
-			 * question again.
+			 * we need to cycle back and check the full txn_applied question again.
 			 */
 			goto retry;
 		}
 	}
-	if(t_ret != 0 && (ret == 0 || ret == DB_TIMEOUT || ret == DB_NOTFOUND))
+	if(t_ret != 0 && oneof3(ret, 0, DB_TIMEOUT, DB_NOTFOUND))
 		ret = t_ret;
 out:
 	return ret;
@@ -2094,14 +2073,11 @@ out:
  */
 static int __rep_await_condition(ENV * env, struct rep_waitgoal * reasonp, db_timeout_t duration)
 {
-	REGENV * renv;
-	REGINFO * infop;
-	REP * rep;
 	struct __rep_waiter * waiter;
 	int ret;
-	rep = env->rep_handle->region;
-	infop = env->reginfo;
-	renv = (REGENV *)infop->primary;
+	REP * rep = env->rep_handle->region;
+	REGINFO * infop = env->reginfo;
+	REGENV * renv = (REGENV *)infop->primary;
 	/*
 	 * Acquire the first lock on the self-blocking mutex when we first
 	 * allocate it.  Thereafter when it's on the free list we know that
@@ -2142,23 +2118,16 @@ static int __rep_await_condition(ENV * env, struct rep_waitgoal * reasonp, db_ti
  */
 static int __rep_check_applied(ENV * env, DB_THREAD_INFO * ip, DB_COMMIT_INFO * commit_info, struct rep_waitgoal * reasonp)
 {
-	DB_LOG * dblp;
-	DB_REP * db_rep;
-	LOG * lp;
-	REP * rep;
-	DB_TXN * txn;
-	DBC * dbc;
+	DB_TXN * txn = 0;
+	DBC * dbc = 0;
 	__rep_lsn_hist_data_args hist, hist2;
 	DB_LSN lsn;
-	uint32 gen;
 	int ret, t_ret;
-	db_rep = env->rep_handle;
-	rep = db_rep->region;
-	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
-	gen = rep->gen;
-	txn = NULL;
-	dbc = NULL;
+	DB_REP * db_rep = env->rep_handle;
+	REP * rep = db_rep->region;
+	DB_LOG * dblp = env->lg_handle;
+	LOG * lp = (LOG *)dblp->reginfo.primary;
+	uint32 gen = rep->gen;
 	if(F_ISSET(rep, REP_F_MASTER)) {
 		LOG_SYSTEM_LOCK(env);
 		lsn = lp->lsn;
@@ -2187,8 +2156,7 @@ static int __rep_check_applied(ENV * env, DB_THREAD_INFO * ip, DB_COMMIT_INFO * 
 			 * Note that this also helps by eliminating the weird
 			 * period between receiving a new gen (from a NEWMASTER)
 			 * and the subsequent syncing with that new gen.  We
-			 * really only want to return success at the current gen
-			 * once we've synced.
+			 * really only want to return success at the current gen once we've synced.
 			 */
 			ret = DB_TIMEOUT;
 			reasonp->why = AWAIT_HISTORY;
@@ -2199,8 +2167,7 @@ static int __rep_check_applied(ENV * env, DB_THREAD_INFO * ip, DB_COMMIT_INFO * 
 		if(commit_info->envid != hist.envid) {
 			/*
 			 * Gens match, but envids don't: means there were two
-			 * masters at the same gen, and the txn of interest was
-			 * rolled back.
+			 * masters at the same gen, and the txn of interest was rolled back.
 			 */
 			ret = DB_NOTFOUND;
 			goto out;
@@ -2342,20 +2309,18 @@ out:
  */
 static int __rep_read_lsn_history(ENV * env, DB_THREAD_INFO * ip, DB_TXN ** txn, DBC ** dbc, uint32 gen, __rep_lsn_hist_data_args * gen_infop, struct rep_waitgoal * reasonp, uint32 flags)
 {
-	DB_REP * db_rep;
-	REP * rep;
 	DB * dbp;
 	__rep_lsn_hist_key_args key;
 	uint8 key_buf[__REP_LSN_HIST_KEY_SIZE];
 	uint8 data_buf[__REP_LSN_HIST_DATA_SIZE];
 	DBT key_dbt, data_dbt;
 	uint32 desired_gen;
-	int ret, tries;
-	db_rep = env->rep_handle;
-	rep = db_rep->region;
-	ret = 0;
-	DB_ASSERT(env, flags == DB_SET || flags == DB_NEXT);
-	/* Simply return cached info, if we already have it. */
+	int tries;
+	DB_REP * db_rep = env->rep_handle;
+	REP * rep = db_rep->region;
+	int ret = 0;
+	DB_ASSERT(env, oneof2(flags, DB_SET, DB_NEXT));
+	// Simply return cached info, if we already have it
 	desired_gen = flags == DB_SET ? gen : gen+1;
 	REP_SYSTEM_LOCK(env);
 	if(rep->gen == desired_gen && !IS_ZERO_LSN(rep->gen_base_lsn)) {
@@ -2403,7 +2368,7 @@ retry:
 	data_dbt.ulen = __REP_LSN_HIST_DATA_SIZE;
 	F_SET(&data_dbt, DB_DBT_USERMEM);
 	if((ret = __dbc_get(*dbc, &key_dbt, &data_dbt, flags)) != 0) {
-		if((ret == DB_LOCK_DEADLOCK || ret == DB_LOCK_NOTGRANTED) && ++tries < 5) {  /* Limit of 5 is an arbitrary choice. */
+		if(oneof2(ret, DB_LOCK_DEADLOCK, DB_LOCK_NOTGRANTED) && ++tries < 5) {  /* Limit of 5 is an arbitrary choice. */
 			ret = __dbc_close(*dbc);
 			*dbc = NULL;
 			if(ret != 0)
@@ -2449,7 +2414,7 @@ static uint32 __rep_conv_vers(ENV * env, uint32 log_ver)
 	//
 	if(log_ver == DB_LOGVERSION)
 		return DB_REPVERSION;
-	/* 5.0 and 5.1 had identical log and rep versions. */
+	// 5.0 and 5.1 had identical log and rep versions
 	if(log_ver == DB_LOGVERSION_51)
 		return DB_REPVERSION_51;
 	else if(log_ver == DB_LOGVERSION_48p2)

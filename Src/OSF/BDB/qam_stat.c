@@ -122,21 +122,16 @@ begin:
 		first = last;
 		goto begin;
 	}
-	/* Get the meta-data page. */
-	if((ret = __db_lget(dbc,
-		    0, t->q_meta, F_ISSET(dbp, DB_AM_RDONLY) ?
-		    DB_LOCK_READ : DB_LOCK_WRITE, 0, &lock)) != 0)
+	// Get the meta-data page
+	if((ret = __db_lget(dbc, 0, t->q_meta, F_ISSET(dbp, DB_AM_RDONLY) ? DB_LOCK_READ : DB_LOCK_WRITE, 0, &lock)) != 0)
 		goto err;
-	if((ret = __memp_fget(mpf, &t->q_meta, dbc->thread_info, dbc->txn,
-		    F_ISSET(dbp, DB_AM_RDONLY) ? 0 : DB_MPOOL_DIRTY, &meta)) != 0)
+	if((ret = __memp_fget(mpf, &t->q_meta, dbc->thread_info, dbc->txn, F_ISSET(dbp, DB_AM_RDONLY) ? 0 : DB_MPOOL_DIRTY, &meta)) != 0)
 		goto err;
 	if(!F_ISSET(dbp, DB_AM_RDONLY))
-		meta->dbmeta.key_count =
-		        meta->dbmeta.record_count = sp->qs_ndata;
+		meta->dbmeta.key_count = meta->dbmeta.record_count = sp->qs_ndata;
 	sp->qs_nkeys = sp->qs_ndata;
-
 meta_only:
-	/* Get the metadata fields. */
+	// Get the metadata fields
 	sp->qs_magic = meta->dbmeta.magic;
 	sp->qs_version = meta->dbmeta.version;
 	sp->qs_metaflags = meta->dbmeta.flags;
@@ -146,8 +141,7 @@ meta_only:
 	sp->qs_re_pad = meta->re_pad;
 	sp->qs_first_recno = meta->first_recno;
 	sp->qs_cur_recno = meta->cur_recno;
-
-	/* Discard the meta-data page. */
+	// Discard the meta-data page
 	ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority);
 	if((t_ret = __LPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;

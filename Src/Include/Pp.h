@@ -3601,7 +3601,7 @@ public:
 	//   >0 - в массив pList загружено 1 или более элементов
 	//
 	int    SLAPI LoadItems(PPID objType, SArray * pList);
-	int    SLAPI SearchName(PPID obj, PPID * pID, const char * pName, void * = 0);
+	int    SLAPI SearchName(PPID obj, PPID * pID, const char * pName, void * pRec = 0);
 	int    SLAPI SearchSymb(PPID, PPID *, const char * pSymb, size_t offs);
 	int    SLAPI CheckUniqueSymb(PPID objType, PPID objID, const char * pSymb, size_t offs);
 	//
@@ -3919,7 +3919,7 @@ public:
 	//
 	int    SLAPI GetResult(const QuotIdent & rIdent, double cost, double price, double * pResult) const;
 		// @>>PPQuotArray::SearchNearest
-	int    SLAPI Sort();
+	void   SLAPI Sort();
 	//
 	// Descr: проверяет является-ли котировка извлекаемая с помощью pIdent заблокированной
 	//   по следующему правилу:
@@ -3994,7 +3994,7 @@ public:
 		rfLt = 0x0002  // Заменять значение, если время установки нового значения меньше существующего
 	};
 	int    SLAPI Set(const PPQuot & rQ, long flags);
-	int    Sort();
+	void   SLAPI Sort();
 };
 
 class QuotationCore : public QuotationTbl {
@@ -5953,28 +5953,11 @@ public:
 //
 //
 struct PPNotifyEvent {
-	PPNotifyEvent()
-	{
-		Clear();
-	}
-	void   Clear()
-	{
-		Action = 0;
-		ObjType = 0;
-		ObjID = 0;
-		ExtInt_ = 0;
-		ExtDtm.SetZero();
-		ExtStr = 0;
-	}
-	PPNotifyEvent & SetFinishTag()
-	{
-		Action = -1;
-		return *this;
-	}
-	int    IsFinish() const
-	{
-		return (Action == -1);
-	}
+	SLAPI  PPNotifyEvent();
+	void   SLAPI Clear();
+	PPNotifyEvent & SLAPI SetFinishTag();
+	int    SLAPI IsFinish() const;
+
 	long   Action;
 	PPID   ObjType;
 	PPID   ObjID;
@@ -5990,10 +5973,8 @@ typedef int (*PPAdviseProc)(int kind, const PPNotifyEvent * pEv, void * procExtP
 // Descr: Блок установки требования на оповещение о событии
 //
 struct PPAdviseBlock {
-	PPAdviseBlock()
-	{
-		THISZERO();
-	}
+	SLAPI  PPAdviseBlock();
+
 	enum {
 		evDirtyCacheBySysJ = 1, // Оповещать о событии в системном журнале в функции сбора событий
 			                    // для установки "грязных" элементов кэша.
@@ -6138,7 +6119,7 @@ protected:
 	//   0  - ошибка
 	//
 	virtual int  SLAPI FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData = 0) = 0;
-	virtual int  SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const = 0;
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const = 0;
 	//
 	// Descr: Эта функция должна найти элемент с идентификатором id и вернуть его позицию
 	//   в хранилище. Если элемент не найден, то функция должна присвоить по указателю
@@ -6419,7 +6400,8 @@ public:
 		kDbDispatcher,   // Диспетчерский поток (один на каждую базу данных)
 		kEventCollector, // Сборщик событий
 		kLogger,         // @v8.9.12 Поток для вывода сообщений в журналы
-		kDllSession      // @v9.2.6 Поток созданный в DLL-модуле
+		kDllSession,     // @v9.2.6 Поток созданный в DLL-модуле
+		kPpppProcessor   // @v9.6.7 Поток, обеспечивающий обработку входящих данных на стороне автономного кассового узла
 	};
 
 	static int GetKindText(int kind, SString & rBuf);
@@ -6532,7 +6514,7 @@ public:
 		stntMessage
 	};
 	int    SetThreadNotification(int type, const void * pData);
-	int    GetThreadInfoList(TSCollection <PPThread::Info> & rList);
+	int    GetThreadInfoList(int type, TSCollection <PPThread::Info> & rList);
 	int    GetThreadInfo(ThreadID tId, PPThread::Info & rInfo);
 	//
 	// Descr: Останавливает поток с идентификатором tId.
@@ -6742,6 +6724,7 @@ private:
 	int    SLAPI GetLocalPath(SString & rBuf);
 	int    SLAPI CreateDbDispatchThread(long dbPathID, const char * pDbSymb);
 	DlContext * SLAPI Helper_GetInterfaceContext(DlContext ** ppCtx, uint fileId, int crit);
+	int    SLAPI SetExtFlagByIniIntParam(PPIniFile & rIniFile, uint sect, uint param, long extFlags, int reqValue);
 
 	struct ObjIdentBlock {
 		ObjIdentBlock();
@@ -6787,7 +6770,7 @@ private:
 		//
 		int    FASTCALL SetMessage(ThreadID id, int kind, const char * pMsg);
 		uint   GetCount();
-		int    FASTCALL GetInfoList(TSCollection <PPThread::Info> & rList);
+		int    FASTCALL GetInfoList(int type, TSCollection <PPThread::Info> & rList);
 		int    FASTCALL GetInfo(ThreadID tId, PPThread::Info & rInfo);
 		int    FASTCALL StopThread(ThreadID tId);
 
@@ -8062,7 +8045,7 @@ public:
 	//
 	// Descr: Сортирует массив {RegTypeID, Dt, Expiry}
 	//
-	int    SLAPI Sort();
+	void   SLAPI Sort();
 	int    SLAPI ProcessObjRefs(PPObjIDArray * ary, int replace);
 };
 //
@@ -9555,7 +9538,7 @@ public:
 	int    SearchDate(LDATE dt, uint * pPos, PayPlanTbl::Rec * pRec) const;
 	void   SetBillID(PPID);
 	int    Update(const PayPlanTbl::Rec * pItem, uint * pPos);
-	int    Sort();
+	void   Sort();
 	int    AutoBuild(const PPBillPacket * pPack);
 };
 
@@ -9899,7 +9882,7 @@ public:
 	int    FASTCALL SetHeader(const BillTbl::Rec *);
 	int    SLAPI Add(const ILTI * pItem, PPID locID, uint itemPos, LDATE = ZERODATE);
 	int    SLAPI Add(const PUGI *, LDATE = ZERODATE);
-	int    SLAPI Add(const PUGL *);
+	int    SLAPI Add__(const PUGL *);
 	int    SLAPI Log(PPLogger * pLogger) const;
 	int    SLAPI GetItemsLocList(PPIDArray *) const;
 	int    SLAPI GetSupplSubstList(uint pos /*[1..]*/, TSArray <PUGL::SupplSubstItem> & rList) const;
@@ -10972,6 +10955,8 @@ private:
 #define LOTF_ORDRESERVE    0x0020L // Резервирующий заказ
 #define LOTF_COMPLETE      0x0040L // Скоплектованный лот
 #define LOTF_CLOSED        0x0080L // @transient Закрытый лот (применяется в кэше для замены признака ReceiptTbl::Rec::Closed)
+#define LOTF_SURROGATE     0x0100L // @v9.6.7 @constraction Суррогатный лот, созданный без привязки к документу для отображения
+	// текущих остатков и прочих атрибутов товаров. В частности, для автономного кассового узла.
 //
 // Специальные флаги временной таблицы TempLotTbl::SFlags
 //
@@ -20752,7 +20737,7 @@ public:
 	PPGoodsTaxPacket & FASTCALL operator = (const PPGoodsTaxPacket &);
 	int    SLAPI GetEntry(LDATE, PPID opID, PPGoodsTaxEntry *);
 	int    SLAPI PutEntry(int pos, const PPGoodsTaxEntry *);
-	int    SLAPI Sort();
+	void   SLAPI Sort();
 
 	PPGoodsTax Rec;
 };
@@ -23033,7 +23018,7 @@ public:
 class PersonPostArray : public TSArray <PersonPostTbl::Rec> {
 public:
 	SLAPI  PersonPostArray();
-	int    SLAPI Sort();
+	void   SLAPI Sort();
 	uint   SLAPI GetBusyCount() const;
 };
 
@@ -30286,8 +30271,13 @@ public:
 	int    SLAPI Fetch(const char * pSymb, PPID * pID, SString & rBuf); // @sync_rw
 	int    SLAPI DirtySymb(const char * pSymb); // @sync_rw
 private:
-	virtual int  SLAPI FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData = 0) { return 0; }
-	virtual int  SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const { return 0; }
+	virtual int  SLAPI FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData = 0) 
+	{ 
+		return 0; 
+	}
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const 
+	{
+	}
 	int    SLAPI Search(const char * pSymb, PPID * pID, SString & rBuf) const;
 	int    SLAPI Add(int F, PPID id, const char * symb, const char * buf);
 
@@ -40569,7 +40559,7 @@ public:
 	};
 	SLAPI  CMrpTab();
 	Row  & FASTCALL at(uint i) const;
-	int    SLAPI Sort();
+	void   SLAPI Sort();
 	int    SLAPI Search(PPID tabID, PPID destID, PPID srcID, uint * pPos, CMrpTab::Row * pRow) const;
 	int    SLAPI Add__(PPID tabID, PPID destID, PPID srcID, double destReqQtty, double srcReqQtty, double price, /*int term*/long flags);
 	int    SLAPI SetRest(PPID tabID, PPID destID, double rest);
@@ -40601,11 +40591,11 @@ public:
 	//
 	// Descr: Сортирует листья пакета в следующем порядке: {TabID, Dt, LocID}
 	//
-	int    SLAPI Sort(); // @>>SArray::sort
+	void   SLAPI Sort(); // @>>SArray::sort
 	//
 	// Descr: Для внутреннего использования. Сортирует элементы Cache для ускорения поиска.
 	//
-	int    SLAPI SortCache();
+	void   SLAPI SortCache();
 	//
 	// Descr: Определяет общие характеристики дерева таблиц:
 	//   список складов, начальную и конечную даты.
@@ -42863,8 +42853,9 @@ public:
 			fProcessQueries     = 0x0004, // Ответить на запросы
 			fBackupProcessed    = 0x0008, // Сделать резервную копию обработанных файлов
 			fRemoveProcessed    = 0x0010, // Удалить обработанные файлы
-			fStoreReadBlocks    = 0x0020  // Если установлен, то все ReadBlock считанные в пределах одного вызова
+			fStoreReadBlocks    = 0x0020, // Если установлен, то все ReadBlock считанные в пределах одного вызова
 				// ProcessInput сохраняются во внутренней коллекции (P_RbList).
+			fSilent             = 0x0040  // Не выдавать на экран уведомления и сообщения (при исполнении фоновыв потоком или на сервере)
 		};
 		SLAPI  ProcessInputBlock();
 		SLAPI  ProcessInputBlock(PPAsyncCashSession * pAcs);
@@ -42899,6 +42890,7 @@ private:
 		SLAPI ~WriteBlock();
 		void   Destroy();
 
+		PPID   LocID;
 		xmlTextWriter * P_Xw;
 		SXml::WDoc * P_Xd;
 		SXml::WNode * P_Root;
@@ -42921,7 +42913,8 @@ private:
 		obCCheck,
 		obCcLine,
 		obPosNode,
-		obQuery
+		obQuery,
+		obLot
 	};
 
 	struct ObjectBlock {
@@ -42984,11 +42977,23 @@ private:
 		PPID   ParentBlkP;
 		long   InnerId;
 		double Price;
+		double Rest;
 	};
 	struct GoodsGroupBlock : public ObjectBlock {
 		SLAPI  GoodsGroupBlock();
 		uint   CodeP;
 		PPID   ParentBlkP;
+	};
+	struct LotBlock : public ObjectBlock {
+		SLAPI  LotBlock();
+
+		uint   GoodsBlkP;
+		LDATE  Dt;
+		LDATE  Expiry;
+		double Cost;
+		double Price;
+		double Rest;
+		uint   SerailP;
 	};
 	struct PersonBlock : public ObjectBlock {
 		SLAPI  PersonBlock();
@@ -43122,6 +43127,7 @@ private:
 		TSArray <RouteObjectBlock> DestBlkList;
 		TSArray <GoodsBlock> GoodsBlkList;
 		TSArray <GoodsGroupBlock> GoodsGroupBlkList;
+		TSArray <LotBlock> LotBlkList;
 		TSArray <GoodsCode> GoodsCodeList;
 		TSArray <QuotKindBlock> QkBlkList;
 		TSArray <QuotBlock> QuotBlkList;
@@ -43161,13 +43167,14 @@ private:
 	//   После разбора данные в RdB могут быть импортированы.
 	//
 	int    SLAPI SaxParseFile(const char * pFileName, int preprocess);
-	int    SLAPI AcceptData();
+	int    SLAPI AcceptData(PPID posNodeID, int silent);
+	int    SLAPI BackupInputFile(const char * pFileName);
     void   SLAPI DestroyReadBlock();
 	const PPPosProtocol::ReadBlock & SLAPI GetReadBlock() const
 	{
 		return RdB;
 	}
-	int    SLAPI ResolveGoodsBlock(const PPPosProtocol::GoodsBlock & rBlk, uint refPos, int asRefOnly, PPID defParentID, PPID defUnitID, PPID srcArID, PPID * pNativeID);
+	int    SLAPI ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int asRefOnly, PPID defParentID, PPID defUnitID, PPID srcArID, PPID locID, PPID * pNativeID);
 
 	const  SString & FASTCALL EncText(const char * pS);
 	uint   SLAPI PeekRefPos() const;
@@ -43198,6 +43205,7 @@ private:
 	PPObjPerson PsnObj;
 	PPPosProtocol::ReadBlock RdB;
 
+	PPObjBill * P_BObj;
 	PPObjGoods GObj;
 	PPObjGoodsGroup GgObj;
 	PPObjQuotKind QkObj;
@@ -45467,38 +45475,19 @@ public:
 		otRelation
 	};
 	struct Tile { // @persistent
-		SLAPI  Tile()
-		{
-			V = 0;
-		}
-		SLAPI  Tile(const Tile & rS)
-		{
-			V = rS.V;
-		}
-		Tile & FASTCALL operator = (const Tile & rS)
-		{
-			V = rS.V;
-			return *this;
-		}
-		void   SLAPI SetInvisible()
-		{
-			V |= 0xff000000;
-		}
-		void   FASTCALL SetLevel(uint8 level)
-		{
-			V = ((V & 0x00ffffff) | (((uint32)level) << 24));
-		}
-		uint8  SLAPI GetLevel() const
-		{
-			return (uint8)((V & 0xff000000) >> 24);
-		}
-		uint32 SLAPI GetZValue() const
-		{
-            return (V & 0x00ffffff);
-		}
+		SLAPI  Tile();
+		SLAPI  Tile(const Tile & rS);
+		Tile & FASTCALL operator = (const Tile & rS);
+		void   SLAPI SetInvisible();
+		void   FASTCALL SetLevel(uint8 level);
+		uint8  SLAPI GetLevel() const;
+		uint32 SLAPI GetZValue() const;
 
 		uint32 V;
 	};
+	//
+	// Descr: Представление точки карты
+	//
     struct Node {
     	SLAPI  Node();
 		int    FASTCALL IsEqual(const Node & rS) const;
@@ -45509,6 +45498,18 @@ public:
 		Tile   T;
 		SGeoPosLL_Int C;
     };
+    class NodeRefs {
+	public:
+		SLAPI  NodeRefs();
+		int    FASTCALL IsEqual(const NodeRefs & rS) const;
+		int    SLAPI AddWayRef(uint64 nodeID, uint64 wayID);
+		int    SLAPI AddRelRef(uint64 nodeID, uint64 relID);
+		void   SLAPI Clear();
+		void   SLAPI Sort();
+
+		LLAssocArray WayRefs;
+		LLAssocArray RelRefs;
+    };
     struct Way {
     	SLAPI  Way();
 		void   Clear();
@@ -45518,7 +45519,7 @@ public:
 
 		uint64 ID;
 		Tile   T;
-		Int64Array NodeRefList;
+		Int64Array NodeRefs;
     };
 	struct RelMember {
 		SLAPI  RelMember();
@@ -45551,40 +45552,19 @@ public:
 		uint64 ProcessedCount; // Количество элементов, которые уже находились в БД при попытке их добавить
 		uint64 Size;
 	};
+	//
+	// Descr: Специализированная структура для упакованного хранения группы точек, принадлежащих
+	//   одному тайлу. Формат хранения проще всего определяется функциями
+	//   NodeCluster::Put и NodeCluster::Implement_Get
+	//
 	class NodeCluster : private SBuffer {
 	public:
-		/*
-			// Заголовок определяющий заголовочную точку и параметры всего кластера
-			Indicator : byte
-			ID        : uint32 || uint64 || 0 (Indicator & indfOuterId)
-			Tile      : uint32
-			Lat       : int32
-			Lon       : int32
-			// Последующие точки
-			[
-				{
-					InferiorIndicator : byte
-					Lat               : int8 || int16 || int32
-					Lon               : int8 || int16 || int32
-					TileLevel         : byte || 0
-				}
-			]
-			// Связанные с точками объекты
-			[
-
-				{
-					LinkIndicator : byte
-					NodePos       : byte
-                    ID            : int32 || int64
-				}
-			]
-		*/
 		SLAPI  NodeCluster();
 		SLAPI ~NodeCluster();
         static uint SLAPI GetPossiblePackCount(const Node * pN, size_t count, uint * pPossibleCountLogic);
-        int    SLAPI Put(const Node * pN, size_t count, uint64 * pOuterID, size_t * pActualCount);
-		int    SLAPI Get(uint64 outerID, TSArray <Node> & rList);
-		int    SLAPI Get(uint64 outerID, TSArray <Node> & rList, Node * pHead, uint * pCountLogic, uint * pCountActual);
+        int    SLAPI Put__(const Node * pN, const NodeRefs * pNrList, size_t count, uint64 * pOuterID, size_t * pActualCount, uint forceLogicalCount);
+		int    SLAPI Get(uint64 outerID, TSArray <Node> & rList, NodeRefs * pNrList);
+		int    SLAPI Get(uint64 outerID, TSArray <Node> & rList, NodeRefs * pNrList, Node * pHead, uint * pCountLogic, uint * pCountActual);
 		size_t SLAPI GetSize() const;
 		int    SLAPI GetCount(uint64 outerID, uint * pLogicCount, uint * pActualCount);
 		//
@@ -45616,7 +45596,9 @@ public:
 			indfCountMask   = (0x01 | 0x02 | 0x04), // Маска битов, представляющих количество точек в пакете.
 				// 0: 1, 1: 2, 2: 4, 3: 8, 4: 16, 5: 32, 6: 64, 7: 128
 			indfId32        = 0x08, // Идентификатор точки представлен 32-битным значением
-			indfOuterId     = 0x10  // Идентификатор точки хранится отдельно (специально для K-V хранилищ: ид держится в ключе)
+			indfOuterId     = 0x10, // Идентификатор точки хранится отдельно (специально для K-V хранилищ: ид держится в ключе)
+			indfHasRefs     = 0x20, // В конце кластера могут быть ссылки Way->Node и(или) Relation->Node. Если флаг установлен, то
+				// в любом случае последним байтом буфера будет терминатор refindfTerminal
 		};
 		enum {
 			infindfEmpty         = 0x01, // Точка отсутствует (пропуск идентификатора). Все остальные флаги в этом случае незначимы.
@@ -45625,14 +45607,16 @@ public:
 			infindfPrevLonIncr8  = 0x08, // Долгота представлена int8-инкрементом относительно предыдущей точки
 			infindfPrevLonIncr16 = 0x10, // Долгота представлена int16-инкрементом относительно предыдущей точки
 			infindfHasTags       = 0x20, // Точка имеет теги
-			infindfHasLinks      = 0x40, // Точка имеет связанные с ней иные объекты (Way or Relation)
 			infindfDiffTileLevel = 0x80  // Точка имеет отличный от заголовочной уровень тайла
 		};
 		enum {
-			linkindfLinkKindMask = (0x01 | 0x02 | 0x04),
-			linkindfId32         = 0x10
+			refindfIdSizeMask     = (0x01 | 0x02 | 0x04), // Маска размера идентификатора (в байтах)
+			refindfTerminal       = 0x08, // Терминальный индикатор (определяет конец серии ссылок - все остальные биты нулевые)
+			refindfWay            = 0x10,
+			refindfRelation       = 0x20
 		};
-		int    SLAPI Implement_Get(uint64 outerID, TSArray <Node> * pList, Node * pHead, uint * pCountLogic, uint * pCountActual);
+		// Формат серии ссылок: [(indicator:byte) (position: byte) (id)] (terminal_indicator:byte)
+		int    SLAPI Implement_Get(uint64 outerID, TSArray <Node> * pList, NodeRefs * pNrList, Node * pHead, uint * pCountLogic, uint * pCountActual);
 	};
 	class WayBuffer : private SBuffer {
 	public:
@@ -45771,7 +45755,7 @@ private:
 	int    LogTag(int osmObjType, const PPOsm::Tag & rTag);
 	int    SLAPI SortFile(const char * pSrcFileName, const char * pSuffix, CompFunc fcmp);
 	int    SLAPI CreateGeoGridTab(const char * pSrcFileName, uint lowDim, uint uppDim, TSCollection <SGeoGridTab> & rGridList);
-	int    OutputStat();
+	int    SLAPI OutputStat(int detail);
 	//
 	enum {
 		stError = 0x0001
@@ -45825,6 +45809,7 @@ private:
 	LongArray LonAccum;
 	TSArray <PPOsm::Node> NodeAccum;
 	TSCollection <PPOsm::Way> WayAccum;
+	LLAssocArray NodeWayAssocAccum;
 	SGeoGridTab::Finder GgtFinder;
 	SString FmtMsg_SortSplit;
 	SString FmtMsg_SortMerge;
@@ -48135,7 +48120,7 @@ int     SLAPI BillFilterDialog(uint rezID, BillFilt *, TDialog ** d, const char 
 int     SLAPI ViewStatus();
 int     SLAPI ViewPredictSales(PredictSalesFilt *);
 // @v9.5.9 int     SLAPI ViewPrognosis();
-int     FASTCALL SetPeriodInput(TDialog *, uint fldID, const DateRange *);
+void    FASTCALL SetPeriodInput(TDialog *, uint fldID, const DateRange *);
 int     FASTCALL GetPeriodInput(TDialog *, uint fldID, DateRange *);
 int     SLAPI GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod, long strtoperiodFlags);
 int     SLAPI SetTimeRangeInput(TDialog *, uint ctl, long fmt, const TimeRange * pTimePeriod);
@@ -48531,7 +48516,7 @@ int     SLAPI ImportCurrencyList();
 //
 //
 int     FASTCALL PPOpenBrowser(BrowserWindow *, int modeless);
-int     FASTCALL PPCloseBrowser(TBaseBrowserWindow *);
+void    FASTCALL PPCloseBrowser(TBaseBrowserWindow *);
 BrowserWindow * SLAPI PPFindLastBrowser();
 STimeChunkBrowser * SLAPI PPFindLastTimeChunkBrowser();
 PPPaintCloth * SLAPI PPFindLastPaintCloth();

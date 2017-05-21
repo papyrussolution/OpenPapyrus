@@ -499,13 +499,13 @@ int SLAPI Reference::LoadItems(PPID objType, SArray * pList)
 	return ok;
 }
 
-int SLAPI Reference::SearchName(PPID obj, PPID * pID, const char * pName, void * b)
+int SLAPI Reference::SearchName(PPID obj, PPID * pID, const char * pName, void * pRec)
 {
 	ReferenceTbl::Key1 k1;
 	MEMSZERO(k1);
 	k1.ObjType = obj;
 	STRNSCPY(k1.ObjName, pName);
-	int    ok = SearchByKey(this, 1, &k1, b);
+	int    ok = SearchByKey(this, 1, &k1, pRec);
 	if(ok > 0) {
 		ASSIGN_PTR(pID, data.ObjID);
 	}
@@ -1742,9 +1742,10 @@ int SLAPI PPRights::ExtentOpRights()
 	if(IsOpRights()) {
 		ObjRestrictArray temp_list;
 		ObjRestrictItem * p_item;
+		PPIDArray gen_op_list;
 		for(uint i = 0; P_OpList->enumItems(&i, (void**)&p_item);) {
 			if(IsGenericOp(p_item->ObjID) > 0) {
-				PPIDArray gen_op_list;
+				gen_op_list.clear();
 				GetGenericOpList(p_item->ObjID, &gen_op_list);
 				for(uint j = 0; j < gen_op_list.getCount(); j++)
 					temp_list.UpdateItemByID(gen_op_list.at(j), p_item->Flags);
@@ -2161,9 +2162,8 @@ private:
 	{
 		return -1;
 	}
-	virtual int  SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	{
-		return 1;
 	}
 	ReadWriteLock TcRwl;
 	SymbHashTable TextCache;

@@ -2004,8 +2004,8 @@ private:
 		PPID   ObjID;
 		long   Flags;
 	};
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
 	PPIDArray VatFreeSupplList;
 	int    IsVatFreeListInited;
@@ -2076,7 +2076,7 @@ int SLAPI ArticleCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI ArticleCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI ArticleCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	ArticleTbl::Rec * p_data_rec = (ArticleTbl::Rec *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -2088,7 +2088,6 @@ int SLAPI ArticleCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRe
 	p_data_rec->Closed   = BIN(p_cache_rec->Flags & ARTRF_CLOSED);
 	p_data_rec->Flags    = p_cache_rec->Flags;
 	GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
-	return 1;
 }
 
 IMPL_OBJ_FETCH(PPObjArticle, ArticleTbl::Rec, ArticleCache);
@@ -2484,8 +2483,8 @@ public:
 	virtual int SLAPI Dirty(PPID id);
 	int    FetchAgentList(LAssocArray * pAgentList);
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct DebtDimData : public ObjCacheEntry {
 		PPID   Reserve; // @reserve
@@ -2515,7 +2514,7 @@ int SLAPI DebtDimCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI DebtDimCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI DebtDimCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPDebtDim * p_data_rec = (PPDebtDim *)pDataRec;
 	const DebtDimData * p_cache_rec = (const DebtDimData *)pEntry;
@@ -2526,7 +2525,6 @@ int SLAPI DebtDimCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRe
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
-	return 1;
 }
 
 int SLAPI DebtDimCache::Dirty(PPID id)

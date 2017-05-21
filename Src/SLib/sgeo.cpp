@@ -344,9 +344,9 @@ uint FASTCALL SGeoGridTab::Finder::GetIdxLat(long c)
 	}
 	else {
 		//
-		// @todo ÃÓÊÌÓ Â˘Â ·ÓÎ¸¯Â ÓÔÚËÏËÁËÓ‚‡Ú¸ ÔÓËÒÍ - Ï˚ ÁÌ‡ÂÏ ÌÂÍÛ˛ „‡ÌË˜ÌÛ˛ ÚÓ˜ÍÛ LastPosLat
-		// Ë ÂÁÛÎ¸Ú‡Ú ÂÂ Ò‡‚ÌÂÌËˇ Ò Á‡‰‡ÌÌÓÈ ÍÓÓ‰ËÌ‡ÚÓÈ c. —ÎÂ‰Ó‚‡ÚÂÎ¸ÌÓ ÏÓÊÌÓ ËÒÍ‡Ú¸ ÚÓÎ¸ÍÓ
-		// ÒÎÂ‚‡ ËÎË ÒÔ‡‚‡ ÓÚ LastPosLat.
+		// @todo –ú–æ–∂–Ω–æ –µ—â–µ –±–æ–ª—å—à–µ –æ–ø—Ç–∏–º–∏–∑–∏—Ä–æ–≤–∞—Ç—å –ø–æ–∏—Å–∫ - –º—ã –∑–Ω–∞–µ–º –Ω–µ–∫—É—é –≥—Ä–∞–Ω–∏—á–Ω—É—é —Ç–æ—á–∫—É LastPosLat
+		// –∏ —Ä–µ–∑—É–ª—å—Ç–∞—Ç –µ–µ —Å—Ä–∞–≤–Ω–µ–Ω–∏—è —Å –∑–∞–¥–∞–Ω–Ω–æ–π –∫–æ–æ—Ä–¥–∏–Ω–∞—Ç–æ–π c. –°–ª–µ–¥–æ–≤–∞—Ç–µ–ª—å–Ω–æ –º–æ–∂–Ω–æ –∏—Å–∫–∞—Ç—å —Ç–æ–ª—å–∫–æ
+		// —Å–ª–µ–≤–∞ –∏–ª–∏ —Å–ø—Ä–∞–≤–∞ –æ—Ç LastPosLat.
 		//
 		if(!R_Tab.LatIdx.bsearch(c, &idx)) {
 			const long b = R_Tab.LatIdx.get(idx);
@@ -355,7 +355,7 @@ uint FASTCALL SGeoGridTab::Finder::GetIdxLat(long c)
 		}
 		LastPosLat = idx;
 	}
-	return idx; 
+	return idx;
 }
 
 uint FASTCALL SGeoGridTab::Finder::GetIdxLon(long c)
@@ -367,9 +367,9 @@ uint FASTCALL SGeoGridTab::Finder::GetIdxLon(long c)
 	}
 	else {
 		//
-		// @todo ÃÓÊÌÓ Â˘Â ·ÓÎ¸¯Â ÓÔÚËÏËÁËÓ‚‡Ú¸ ÔÓËÒÍ - Ï˚ ÁÌ‡ÂÏ ÌÂÍÛ˛ „‡ÌË˜ÌÛ˛ ÚÓ˜ÍÛ LastPosLon
-		// Ë ÂÁÛÎ¸Ú‡Ú ÂÂ Ò‡‚ÌÂÌËˇ Ò Á‡‰‡ÌÌÓÈ ÍÓÓ‰ËÌ‡ÚÓÈ c. —ÎÂ‰Ó‚‡ÚÂÎ¸ÌÓ ÏÓÊÌÓ ËÒÍ‡Ú¸ ÚÓÎ¸ÍÓ
-		// ÒÎÂ‚‡ ËÎË ÒÔ‡‚‡ ÓÚ LastPosLon.
+		// @todo –ú–æ–∂–Ω–æ –µ—â–µ –±–æ–ª—å—à–µ –æ–ø—Ç–∏–º–∏–∑–∏—Ä–æ–≤–∞—Ç—å –ø–æ–∏—Å–∫ - –º—ã –∑–Ω–∞–µ–º –Ω–µ–∫—É—é –≥—Ä–∞–Ω–∏—á–Ω—É—é —Ç–æ—á–∫—É LastPosLon
+		// –∏ —Ä–µ–∑—É–ª—å—Ç–∞—Ç –µ–µ —Å—Ä–∞–≤–Ω–µ–Ω–∏—è —Å –∑–∞–¥–∞–Ω–Ω–æ–π –∫–æ–æ—Ä–¥–∏–Ω–∞—Ç–æ–π c. –°–ª–µ–¥–æ–≤–∞—Ç–µ–ª—å–Ω–æ –º–æ–∂–Ω–æ –∏—Å–∫–∞—Ç—å —Ç–æ–ª—å–∫–æ
+		// —Å–ª–µ–≤–∞ –∏–ª–∏ —Å–ø—Ä–∞–≤–∞ –æ—Ç LastPosLon.
 		//
 		if(!R_Tab.LonIdx.bsearch(c, &idx)) {
 			const long b = R_Tab.LonIdx.get(idx);
@@ -378,7 +378,7 @@ uint FASTCALL SGeoGridTab::Finder::GetIdxLon(long c)
 		}
 		LastPosLon = idx;
 	}
-	return idx; 
+	return idx;
 }
 
 int SLAPI SGeoGridTab::Finder::GetIdx(const SGeoPosLL_Int & rC, uint & rIdxLat, uint & rIdxLon)
@@ -415,9 +415,9 @@ SLAPI SGeoGridTab::SGeoGridTab(uint dim)
 int FASTCALL SGeoGridTab::IsEqual(const SGeoGridTab & rS) const
 {
 	//
-	// œË Ò‡‚ÌÂÌËË SrcCountLat Ë SrcCountLon ÌÂ Û˜ËÚ˚‚‡ÂÏ ÔÓÒÍÓÎ¸ÍÛ
-	// ˝ÚË ÔÓÎˇ ÌÂ ‚ÎËˇ˛Ú Ì‡ ÂÁÛÎ¸Ú‡Ú ËÒÔÓÎ¸ÁÓ‚‡ÌËˇ Ú‡·ÎËˆ˚ (‚‡ÊÌ˚ ÚÓÎ¸ÍÓ ÔË ÔÓÒÚÓÂÌËË
-	// Ë ‰Îˇ ÒÔ‡‚Ó˜Ì˚ı ˆÂÎÂÈ.
+	// –ü—Ä–∏ —Å—Ä–∞–≤–Ω–µ–Ω–∏–∏ SrcCountLat –∏ SrcCountLon –Ω–µ —É—á–∏—Ç—ã–≤–∞–µ–º –ø–æ—Å–∫–æ–ª—å–∫—É
+	// —ç—Ç–∏ –ø–æ–ª—è –Ω–µ –≤–ª–∏—è—é—Ç –Ω–∞ —Ä–µ–∑—É–ª—å—Ç–∞—Ç –∏—Å–ø–æ–ª—å–∑–æ–≤–∞–Ω–∏—è —Ç–∞–±–ª–∏—Ü—ã (–≤–∞–∂–Ω—ã —Ç–æ–ª—å–∫–æ –ø—Ä–∏ –ø–æ—Å—Ç—Ä–æ–µ–Ω–∏–∏
+	// –∏ –¥–ª—è —Å–ø—Ä–∞–≤–æ—á–Ω—ã—Ö —Ü–µ–ª–µ–π.
 	//
 	int    yes = 1;
     if(Dim != rS.Dim)
@@ -540,7 +540,7 @@ int SLAPI SGeoGridTab::Load(const char * pFileName)
         if(line_buf.NotEmptyS()) {
             if(line_buf.C(0) == '[') {
 				size_t rb_pos = 0;
-                THROW(line_buf.StrChr(']', &rb_pos)); // Œ¯Ë·Í‡ ‚ ÙÓÏ‡ÚÂ Ù‡ÈÎ‡ geogridtag
+                THROW(line_buf.StrChr(']', &rb_pos)); // –û—à–∏–±–∫–∞ –≤ —Ñ–æ—Ä–º–∞—Ç–µ —Ñ–∞–π–ª–∞ geogridtag
 				assert(rb_pos > 0);
 				line_buf.Sub(1, rb_pos-1, temp_buf);
 				if(temp_buf.CmpNC("pgcg-header") == 0) {
@@ -556,11 +556,11 @@ int SLAPI SGeoGridTab::Load(const char * pFileName)
 					zone = 3;
 				}
 				else {
-					CALLEXCEPT(); // ÕÂ ËÁ‚ÂÒÚÌ‡ˇ ÁÓÌ‡ ‚ Ù‡ÈÎÂ geogridtab
+					CALLEXCEPT(); // –ù–µ –∏–∑–≤–µ—Å—Ç–Ω–∞—è –∑–æ–Ω–∞ –≤ —Ñ–∞–π–ª–µ geogridtab
 				}
             }
             else {
-				THROW(oneof3(zone, 1, 2, 3)); // ÕÂ ‚ÂÌ˚È ÙÓÏ‡Ú Ù‡ÈÎ‡ geogridtab
+				THROW(oneof3(zone, 1, 2, 3)); // –ù–µ –≤–µ—Ä–Ω—ã–π —Ñ–æ—Ä–º–∞—Ç —Ñ–∞–π–ª–∞ geogridtab
                 if(zone == 1) {
 					if(line_buf.Divide('=', left_buf, right_buf) > 0) {
                         left_buf.Strip();
@@ -601,6 +601,1564 @@ int SLAPI SGeoGridTab::Load(const char * pFileName)
 	}
 	CATCHZOK
 	return ok;
+}
+//
+//
+//
+//static
+const double SGeo::A_WGS84 = 6378137.0; // –†–∞–¥–∏—É—Å –ó–µ–º–ª–∏ –≤ –º–µ—Ç—Ä–∞—Ö (—Å–æ–≥–ª–∞—Å–Ω–æ WGS84)
+//static
+const double SGeo::Flattening_WGS84 = 1.0 / 298.257223563; // –§–∞–∫—Ç–æ—Ä –ø—Ä–∏–ø–ª—é—Å–Ω–æ—Ç–æ—Å—Ç–∏ –ó–µ–º–ª–∏: ∆í = (a ‚àí b)/a (—Å–æ–≥–ª–∞—Å–Ω–æ WGS84).
+
+#define GEOGRAPHICLIB_GEODESIC_ORDER 6
+#define nA1   GEOGRAPHICLIB_GEODESIC_ORDER
+#define nC1   GEOGRAPHICLIB_GEODESIC_ORDER
+#define nC1p  GEOGRAPHICLIB_GEODESIC_ORDER
+#define nA2   GEOGRAPHICLIB_GEODESIC_ORDER
+#define nC2   GEOGRAPHICLIB_GEODESIC_ORDER
+#define nA3   GEOGRAPHICLIB_GEODESIC_ORDER
+#define nA3x  nA3
+#define nC3   GEOGRAPHICLIB_GEODESIC_ORDER
+#define nC3x  ((nC3 * (nC3 - 1)) / 2)
+#define nC4   GEOGRAPHICLIB_GEODESIC_ORDER
+#define nC4x  ((nC4 * (nC4 + 1)) / 2)
+#define nC    (GEOGRAPHICLIB_GEODESIC_ORDER + 1)
+
+static double AngNormalize(double x)
+{
+	x = fmod(x, 360.0);
+	return (x < -180.0) ? (x + 360.0) : ((x < 180.0) ? x : (x - 360.0));
+}
+
+static double log1px(double x)
+{
+	volatile double y = 1 + x;
+	volatile double z = y - 1;
+	// Here's the explanation for this magic: y = 1 + z, exactly, and z
+	// approx x, thus log(y)/z (which is nearly constant near z = 0) returns
+	// a good approximation to the true log(1 + x)/x.  The multiplication x * (log(y)/z) introduces little additional error. */
+	return (z == 0.0) ? x : x * log(y) / z;
+}
+
+static double atanhx(double x)
+{
+	double y = fabs(x); // Enforce odd parity
+	y = log1px(2 * y/(1 - y))/2;
+	return (x < 0.0) ? -y : y;
+}
+
+static double atan2dx(double y, double x)
+{
+	// In order to minimize round-off errors, this function rearranges the
+	// arguments so that result of atan2 is in the range [-pi/4, pi/4] before
+	// converting it to degrees and mapping the result to the correct quadrant.
+	int q = 0;
+	double ang;
+	if(fabs(y) > fabs(x)) {
+		Exchange(&x, &y);
+		q = 2;
+	}
+	if(x < 0) {
+		x = -x;
+		++q;
+	}
+	// here x >= 0 and x >= abs(y), so angle is in [-pi/4, pi/4]
+	ang = atan2(y, x) / SMathConst::PiDiv180;
+	switch(q) {
+		// Note that atan2d(-0.0, 1.0) will return -0.  However, we expect that
+		// atan2d will not be called with y = -0.  If need be, include
+		//
+		// case 0: ang = 0 + ang; break;
+		//
+		case 1: ang = (y > 0 ? 180 : -180) - ang; break;
+		case 2: ang =  90 - ang; break;
+		case 3: ang = -90 + ang; break;
+	}
+	return ang;
+}
+
+static double copysignx(double x, double y)
+{
+	return fabs(x) * (y < 0 || (y == 0 && 1/y < 0) ? -1 : 1);
+}
+
+/*static double hypotx(double x, double y)
+{
+	return sqrt(x * x + y * y);
+}*/
+
+static void sincosdx(double x, double * sinx, double * cosx)
+{
+	// In order to minimize round-off errors, this function exactly reduces
+	// the argument to the range [-45, 45] before converting it to radians.
+	double r = fmod(x, 360.0);
+	int    q = (int)(floor(r / 90 + 0.5));
+	r -= 90 * q;
+	// now abs(r) <= 45
+	r *= SMathConst::PiDiv180;
+	// Possibly could call the gnu extension sincos
+	double s = sin(r);
+	double c = cos(r);
+	switch((unsigned)q & 3U) {
+		case 0U: *sinx =     s; *cosx =     c; break;
+		case 1U: *sinx =     c; *cosx = 0 - s; break;
+		case 2U: *sinx = 0 - s; *cosx = 0 - c; break;
+		default: *sinx = 0 - c; *cosx =     s; break; // case 3U
+	}
+}
+
+static double SinCosSeries(int sinp, double sinx, double cosx, const double c[], int n)
+{
+	// Evaluate
+	// y = sinp ? sum(c[i] * sin( 2*i    * x), i, 1, n) : sum(c[i] * cos((2*i+1) * x), i, 0, n-1)
+	// using Clenshaw summation.  N.B. c[0] is unused for sin series
+	// Approx operation count = (n + 5) mult and (2 * n + 2) add
+	double ar, y0, y1;
+	c += (n + sinp);              /* Point to one beyond last element */
+	ar = 2 * (cosx - sinx) * (cosx + sinx); /* 2 * cos(2 * x) */
+	y0 = n & 1 ? *--c : 0; y1 = 0;          /* accumulators for sum */
+	// Now n is even
+	n /= 2;
+	while(n--) {
+		// Unroll loop x 2, so accumulators return to their original role
+		y1 = ar * y0 - y1 + *--c;
+		y0 = ar * y1 - y0 + *--c;
+	}
+	return sinp ? 2 * sinx * cosx * y0 /* sin(2 * x) * y0 */ : cosx * (y0 - y1); /* cos(x) * (y0 - y1) */
+}
+
+static double AngRound(double x)
+{
+	if(x == 0.0)
+		return 0.0;
+	else {
+		const double z = 1.0/16.0;
+		volatile double y = fabs(x);
+		// The compiler mustn't "simplify" z - (z - y) to y
+		y = (y < z) ? (z - (z - y)) : y;
+		return (x < 0) ? -y : y;
+	}
+}
+
+static double sumx(double u, double v, double * t)
+{
+	volatile double s = u + v;
+	volatile double up = s - v;
+	volatile double vpp = s - up;
+	up -= u;
+	vpp -= v;
+	if(t)
+		*t = -(up + vpp);
+	// error-free sum:
+	// u + v =       s      + t
+	//   = round(u + v) + t
+	return s;
+}
+
+static double AngDiff(double x, double y, double * e)
+{
+	double t;
+	double d = -AngNormalize(sumx(AngNormalize(x), AngNormalize(-y), &t));
+	// Here y - x = d - t (mod 360), exactly, where d is in (-180,180] and
+	// abs(t) <= eps (eps = 2^-45 for doubles).  The only case where the
+	// addition of t takes the result outside the range (-180,180] is d = 180
+	// and t < 0.  The case, d = -180 + eps, t = eps, can't happen, since
+	// sum would have returned the exact result in such a case (i.e., given t = 0).
+	return sumx(d == 180 && t < 0 ? -180 : d, -t, e);
+}
+
+static double LatFix(double x)
+{
+	return (fabs(x) > 90.0) ? fgetnan() : x;
+}
+
+static void norm2(double * sinx, double * cosx)
+{
+	double r = hypot(*sinx, *cosx);
+	*sinx /= r;
+	*cosx /= r;
+}
+
+static double cbrtx(double x)
+{
+	double y = pow(fabs(x), 1.0/3.0); // Return the real cube root
+	return (x < 0.0) ? -y : y;
+}
+
+static double polyval(int N, const double p[], double x)
+{
+	double y = (N < 0) ? 0 : *p++;
+	while(--N >= 0)
+		y = y * x + *p++;
+	return y;
+}
+//
+// The scale factor A1-1 = mean value of (d/dsigma)I1 - 1
+//
+double A1m1f(double eps)
+{
+	static const double coeff[] = {
+		// (1-eps)*A1-1, polynomial in eps2 of order 3
+		1, 4, 64, 0, 256,
+	};
+	int m = nA1/2;
+	double t = polyval(m, coeff, SQ(eps)) / coeff[m + 1];
+	return (t + eps) / (1 - eps);
+}
+//
+// The coefficients C1p[l] in the Fourier expansion of B1p
+//
+void C1pf(double eps, double c[])
+{
+	static const double coeff[] = {
+		/* C1p[1]/eps^1, polynomial in eps2 of order 2 */
+		205, -432, 768, 1536,
+		/* C1p[2]/eps^2, polynomial in eps2 of order 2 */
+		4005, -4736, 3840, 12288,
+		/* C1p[3]/eps^3, polynomial in eps2 of order 1 */
+		-225, 116, 384,
+		/* C1p[4]/eps^4, polynomial in eps2 of order 1 */
+		-7173, 2695, 7680,
+		/* C1p[5]/eps^5, polynomial in eps2 of order 0 */
+		3467, 7680,
+		/* C1p[6]/eps^6, polynomial in eps2 of order 0 */
+		38081, 61440,
+	};
+	double eps2 = SQ(eps);
+	double d = eps;
+	int o = 0, l;
+	for(l = 1; l <= nC1p; ++l) { /* l is index of C1p[l] */
+		int m = (nC1p - l) / 2;     /* order of polynomial in eps^2 */
+		c[l] = d * polyval(m, coeff + o, eps2) / coeff[o + m + 1];
+		o += m + 2;
+		d *= eps;
+	}
+}
+//
+// The coefficients C2[l] in the Fourier expansion of B2
+//
+void C2f(double eps, double c[])
+{
+	static const double coeff[] = {
+		/* C2[1]/eps^1, polynomial in eps2 of order 2 */
+		1, 2, 16, 32,
+		/* C2[2]/eps^2, polynomial in eps2 of order 2 */
+		35, 64, 384, 2048,
+		/* C2[3]/eps^3, polynomial in eps2 of order 1 */
+		15, 80, 768,
+		/* C2[4]/eps^4, polynomial in eps2 of order 1 */
+		7, 35, 512,
+		/* C2[5]/eps^5, polynomial in eps2 of order 0 */
+		63, 1280,
+		/* C2[6]/eps^6, polynomial in eps2 of order 0 */
+		77, 2048,
+	};
+	double eps2 = SQ(eps);
+	double d = eps;
+	int o = 0, l;
+	for(l = 1; l <= nC2; ++l) { /* l is index of C2[l] */
+		int m = (nC2 - l) / 2;     /* order of polynomial in eps^2 */
+		c[l] = d * polyval(m, coeff + o, eps2) / coeff[o + m + 1];
+		o += m + 2;
+		d *= eps;
+	}
+}
+//
+// The scale factor A2-1 = mean value of (d/dsigma)I2 - 1
+//
+double A2m1f(double eps)
+{
+	static const double coeff[] = {
+		// (eps+1)*A2-1, polynomial in eps2 of order 3
+		-11, -28, -192, 0, 256,
+	};
+	int m = nA2/2;
+	double t = polyval(m, coeff, SQ(eps)) / coeff[m + 1];
+	return (t - eps) / (1 + eps);
+}
+
+//double A3f(const SGeo::Geodesic * g, double eps)
+double SGeo::Geodesic::A3f_(double eps) const
+{
+	// Evaluate A3
+	return polyval(nA3 - 1, A3x, eps);
+}
+
+//void C3f(const SGeo::Geodesic * g, double eps, double c[])
+void SGeo::Geodesic::C3f_(double eps, double c[]) const
+{
+	// Evaluate C3 coeffs
+	// Elements c[1] thru c[nC3 - 1] are set
+	double mult = 1;
+	int o = 0, l;
+	for(l = 1; l < nC3; ++l) {   /* l is index of C3[l] */
+		int m = nC3 - l - 1;        /* order of polynomial in eps */
+		mult *= eps;
+		c[l] = mult * polyval(m, C3x + o, eps);
+		o += m + 1;
+	}
+}
+
+//void C4f(const SGeo::Geodesic * g, double eps, double c[])
+void SGeo::Geodesic::C4f_(double eps, double c[]) const
+{
+	// Evaluate C4 coeffs
+	// Elements c[0] thru c[nC4 - 1] are set
+	double mult = 1;
+	int o = 0/*, l*/;
+	for(uint i = 0; i < nC4; ++i) { // i is index of C4[l] 
+		const int m = nC4 - (int)i - 1; // order of polynomial in eps 
+		c[i] = mult * polyval(m, C4x + o, eps);
+		o += (m + 1);
+		mult *= eps;
+	}
+}
+//
+// The coefficients C1[l] in the Fourier expansion of B1
+//
+void C1f(double eps, double c[])
+{
+	static const double coeff[] = {
+		/* C1[1]/eps^1, polynomial in eps2 of order 2 */
+		-1, 6, -16, 32,
+		/* C1[2]/eps^2, polynomial in eps2 of order 2 */
+		-9, 64, -128, 2048,
+		/* C1[3]/eps^3, polynomial in eps2 of order 1 */
+		9, -16, 768,
+		/* C1[4]/eps^4, polynomial in eps2 of order 1 */
+		3, -5, 512,
+		/* C1[5]/eps^5, polynomial in eps2 of order 0 */
+		-7, 1280,
+		/* C1[6]/eps^6, polynomial in eps2 of order 0 */
+		-7, 2048,
+	};
+	double eps2 = SQ(eps);
+	double d = eps;
+	int o = 0, l;
+	for(l = 1; l <= nC1; ++l) { // l is index of C1p[l]
+		int m = (nC1 - l) / 2; // order of polynomial in eps^2
+		c[l] = d * polyval(m, coeff + o, eps2) / coeff[o + m + 1];
+		o += m + 2;
+		d *= eps;
+	}
+}
+//
+// The scale factor A3 = mean value of (d/dsigma)I3
+//
+//void A3coeff(SGeo::Geodesic * g)
+void SGeo::Geodesic::A3coeff_()
+{
+	static const double coeff[] = {
+		/* A3, coeff of eps^5, polynomial in n of order 0 */
+		-3, 128,
+		/* A3, coeff of eps^4, polynomial in n of order 1 */
+		-2, -3, 64,
+		/* A3, coeff of eps^3, polynomial in n of order 2 */
+		-1, -3, -1, 16,
+		/* A3, coeff of eps^2, polynomial in n of order 2 */
+		3, -1, -2, 8,
+		/* A3, coeff of eps^1, polynomial in n of order 1 */
+		1, -1, 2,
+		/* A3, coeff of eps^0, polynomial in n of order 0 */
+		1, 1,
+	};
+	int o = 0, k = 0, j;
+	for(j = nA3 - 1; j >= 0; --j) { // coeff of eps^j
+		int m = ((nA3 - j - 1) < j) ? (nA3 - j - 1) : j; // order of polynomial in n
+		A3x[k++] = polyval(m, coeff + o, N) / coeff[o + m + 1];
+		o += m + 2;
+	}
+}
+//
+// The coefficients C3[l] in the Fourier expansion of B3
+//
+//void C3coeff(SGeo::Geodesic * g)
+void SGeo::Geodesic::C3coeff_()
+{
+	static const double coeff[] = {
+		/* C3[1], coeff of eps^5, polynomial in n of order 0 */
+		3, 128,
+		/* C3[1], coeff of eps^4, polynomial in n of order 1 */
+		2, 5, 128,
+		/* C3[1], coeff of eps^3, polynomial in n of order 2 */
+		-1, 3, 3, 64,
+		/* C3[1], coeff of eps^2, polynomial in n of order 2 */
+		-1, 0, 1, 8,
+		/* C3[1], coeff of eps^1, polynomial in n of order 1 */
+		-1, 1, 4,
+		/* C3[2], coeff of eps^5, polynomial in n of order 0 */
+		5, 256,
+		/* C3[2], coeff of eps^4, polynomial in n of order 1 */
+		1, 3, 128,
+		/* C3[2], coeff of eps^3, polynomial in n of order 2 */
+		-3, -2, 3, 64,
+		/* C3[2], coeff of eps^2, polynomial in n of order 2 */
+		1, -3, 2, 32,
+		/* C3[3], coeff of eps^5, polynomial in n of order 0 */
+		7, 512,
+		/* C3[3], coeff of eps^4, polynomial in n of order 1 */
+		-10, 9, 384,
+		/* C3[3], coeff of eps^3, polynomial in n of order 2 */
+		5, -9, 5, 192,
+		/* C3[4], coeff of eps^5, polynomial in n of order 0 */
+		7, 512,
+		/* C3[4], coeff of eps^4, polynomial in n of order 1 */
+		-14, 7, 512,
+		/* C3[5], coeff of eps^5, polynomial in n of order 0 */
+		21, 2560,
+	};
+	int o = 0, k = 0, l, j;
+	for(l = 1; l < nC3; ++l) { // l is index of C3[l]
+		for(j = nC3 - 1; j >= l; --j) { // coeff of eps^j
+			int m = ((nC3 - j - 1) < j) ? (nC3 - j - 1) : j; // order of polynomial in n
+			C3x[k++] = polyval(m, coeff + o, N) / coeff[o + m + 1];
+			o += m + 2;
+		}
+	}
+}
+//
+// The coefficients C4[l] in the Fourier expansion of I4
+//
+void SGeo::Geodesic::C4coeff_(/*SGeo::Geodesic * g*/)
+//void C4coeff(SGeo::Geodesic * g)
+{
+	static const double coeff[] = {
+		/* C4[0], coeff of eps^5, polynomial in n of order 0 */
+		97, 15015,
+		/* C4[0], coeff of eps^4, polynomial in n of order 1 */
+		1088, 156, 45045,
+		/* C4[0], coeff of eps^3, polynomial in n of order 2 */
+		-224, -4784, 1573, 45045,
+		/* C4[0], coeff of eps^2, polynomial in n of order 3 */
+		-10656, 14144, -4576, -858, 45045,
+		/* C4[0], coeff of eps^1, polynomial in n of order 4 */
+		64, 624, -4576, 6864, -3003, 15015,
+		/* C4[0], coeff of eps^0, polynomial in n of order 5 */
+		100, 208, 572, 3432, -12012, 30030, 45045,
+		/* C4[1], coeff of eps^5, polynomial in n of order 0 */
+		1, 9009,
+		/* C4[1], coeff of eps^4, polynomial in n of order 1 */
+		-2944, 468, 135135,
+		/* C4[1], coeff of eps^3, polynomial in n of order 2 */
+		5792, 1040, -1287, 135135,
+		/* C4[1], coeff of eps^2, polynomial in n of order 3 */
+		5952, -11648, 9152, -2574, 135135,
+		/* C4[1], coeff of eps^1, polynomial in n of order 4 */
+		-64, -624, 4576, -6864, 3003, 135135,
+		/* C4[2], coeff of eps^5, polynomial in n of order 0 */
+		8, 10725,
+		/* C4[2], coeff of eps^4, polynomial in n of order 1 */
+		1856, -936, 225225,
+		/* C4[2], coeff of eps^3, polynomial in n of order 2 */
+		-8448, 4992, -1144, 225225,
+		/* C4[2], coeff of eps^2, polynomial in n of order 3 */
+		-1440, 4160, -4576, 1716, 225225,
+		/* C4[3], coeff of eps^5, polynomial in n of order 0 */
+		-136, 63063,
+		/* C4[3], coeff of eps^4, polynomial in n of order 1 */
+		1024, -208, 105105,
+		/* C4[3], coeff of eps^3, polynomial in n of order 2 */
+		3584, -3328, 1144, 315315,
+		/* C4[4], coeff of eps^5, polynomial in n of order 0 */
+		-128, 135135,
+		/* C4[4], coeff of eps^4, polynomial in n of order 1 */
+		-2560, 832, 405405,
+		/* C4[5], coeff of eps^5, polynomial in n of order 0 */
+		128, 99099,
+	};
+	int o = 0, k = 0, l, j;
+	for(l = 0; l < nC4; ++l) {        /* l is index of C4[l] */
+		for(j = nC4 - 1; j >= l; --j) { /* coeff of eps^j */
+			int m = nC4 - j - 1;           /* order of polynomial in n */
+			C4x[k++] = polyval(m, coeff + o, N) / coeff[o + m + 1];
+			o += m + 2;
+		}
+	}
+}
+
+void SGeo::Geodesic::Init(double _a, double _f)
+{
+	const double _tol2 = sqrt(SMathConst::Epsilon);
+
+	A = _a;
+	F = _f;
+	F1 = 1 - F;
+	E2 = F * (2 - F);
+	Ep2 = E2 / SQ(F1); //  e2 / (1 - e2)
+	N = F / (2.0 - F);
+	B = A * F1;
+	C2 = (SQ(A) + SQ(B) * ((E2 == 0) ? 1.0 : ((E2 > 0.0) ? atanhx(sqrt(E2)) : atan(sqrt(-E2))) / sqrt(fabs(E2)))) / 2.0; // authalic radius squared
+	//
+	// The sig12 threshold for "really short".  Using the auxiliary sphere
+	// solution with dnm computed at (bet1 + bet2) / 2, the relative error in the
+	// azimuth consistency check is sig12^2 * abs(f) * min(1, 1-f/2) / 2.  (Error
+	// measured for 1/100 < b/a < 100 and abs(f) >= 1/1000.  For a given f and
+	// sig12, the max error occurs for lines near the pole.  If the old rule for
+	// computing dnm = (dn1 + dn2)/2 is used, then the error increases by a
+	// factor of 2.)  Setting this equal to epsilon gives sig12 = etol2.  Here
+	// 0.1 is a safety factor (error decreased by 100) and max(0.001, abs(f))
+	// stops etol2 getting too large in the nearly spherical case.
+	//
+	Etol2 = 0.1 * _tol2 / sqrt(smax(0.001, fabs(F)) * smin(1.0, 1 - F/2) / 2 );
+	A3coeff_();
+	C3coeff_();
+	C4coeff_();
+}
+
+SGeo::Geodesic::Geodesic(double _a, double _f)
+{
+	Init(_a, _f);
+}
+
+SGeo::Geodesic::Geodesic()
+{
+	Init(SGeo::A_WGS84, SGeo::Flattening_WGS84);
+}
+
+SGeo::SGeo() :
+	_RealMin(MINDOUBLE),
+	_Tiny(sqrt(_RealMin)),
+	_Tol0(SMathConst::Epsilon),
+	_Tol1(200.0 * _Tol0),
+	_Tol2(sqrt(_Tol0)),
+	_Tolb(_Tol0 * _Tol2), // Check on bisection interval
+	_MaxIt1(20),
+	_MaxIt2(_MaxIt1 + DBL_MANT_DIG + 10),
+	G()
+{
+}
+
+void SGeo::LineInit_Int(SGeo::GeodesicLine * pLine, const SGeoPosLL & rP1, double azi1, double salp1, double calp1, uint caps)
+{
+	double cbet1;
+	double sbet1;
+	double eps;
+	pLine->a = G.A;
+	pLine->f = G.F;
+	pLine->b = G.B;
+	pLine->c2 = G.C2;
+	pLine->f1 = G.F1;
+	// If caps is 0 assume the standard direct calculation
+	pLine->caps = (caps ? caps : GEOD_DISTANCE_IN | GEOD_LONGITUDE) | /* always allow latitude and azimuth and unrolling of longitude */ GEOD_LATITUDE | GEOD_AZIMUTH | GEOD_LONG_UNROLL;
+
+	pLine->P1.Lat = LatFix(rP1.Lat);
+	pLine->P1.Lon = rP1.Lon;
+	pLine->azi1 = azi1;
+	pLine->salp1 = salp1;
+	pLine->calp1 = calp1;
+
+	sincosdx(AngRound(pLine->P1.Lat), &sbet1, &cbet1); sbet1 *= pLine->f1;
+	// Ensure cbet1 = +epsilon at poles
+	norm2(&sbet1, &cbet1); 
+	cbet1 = smax(_Tiny, cbet1);
+	pLine->dn1 = sqrt(1 + G.Ep2 * SQ(sbet1));
+	// Evaluate alp0 from sin(alp1) * cos(bet1) = sin(alp0),
+	pLine->salp0 = pLine->salp1 * cbet1; /* alp0 in [0, pi/2 - |bet1|] */
+	// Alt: calp0 = hypot(sbet1, calp1 * cbet1).  The following
+	// is slightly better (consider the case salp1 = 0).
+	pLine->calp0 = hypot(pLine->calp1, pLine->salp1 * sbet1);
+	// Evaluate sig with tan(bet1) = tan(sig1) * cos(alp1).
+	// sig = 0 is nearest northward crossing of equator.
+	// With bet1 = 0, alp1 = pi/2, we have sig1 = 0 (equatorial line).
+	// With bet1 =  pi/2, alp1 = -pi, sig1 =  pi/2
+	// With bet1 = -pi/2, alp1 =  0 , sig1 = -pi/2
+	// Evaluate omg1 with tan(omg1) = sin(alp0) * tan(sig1).
+	// With alp0 in (0, pi/2], quadrants for sig and omg coincide.
+	// No atan2(0,0) ambiguity at poles since cbet1 = +epsilon.
+	// With alp0 = 0, omg1 = 0 for alp1 = 0, omg1 = pi for alp1 = pi.
+	pLine->ssig1 = sbet1; pLine->somg1 = pLine->salp0 * sbet1;
+	pLine->csig1 = pLine->comg1 = sbet1 != 0 || pLine->calp1 != 0 ? cbet1 * pLine->calp1 : 1;
+	norm2(&pLine->ssig1, &pLine->csig1); /* sig1 in (-pi, pi] */
+	// norm2(somg1, comg1); -- don't need to normalize!
+	pLine->k2 = SQ(pLine->calp0) * G.Ep2;
+	eps = pLine->k2 / (2 * (1 + sqrt(1 + pLine->k2)) + pLine->k2);
+	if(pLine->caps & CAP_C1) {
+		double s, c;
+		pLine->A1m1 = A1m1f(eps);
+		C1f(eps, pLine->C1a);
+		pLine->B11 = SinCosSeries(TRUE, pLine->ssig1, pLine->csig1, pLine->C1a, nC1);
+		s = sin(pLine->B11); c = cos(pLine->B11);
+		// tau1 = sig1 + B11
+		pLine->stau1 = pLine->ssig1 * c + pLine->csig1 * s;
+		pLine->ctau1 = pLine->csig1 * c - pLine->ssig1 * s;
+		// Not necessary because C1pa reverts C1a B11 = -SinCosSeries(TRUE, stau1, ctau1, C1pa, nC1p);
+	}
+	if(pLine->caps & CAP_C1p)
+		C1pf(eps, pLine->C1pa);
+	if(pLine->caps & CAP_C2) {
+		pLine->A2m1 = A2m1f(eps);
+		C2f(eps, pLine->C2a);
+		pLine->B21 = SinCosSeries(TRUE, pLine->ssig1, pLine->csig1, pLine->C2a, nC2);
+	}
+	if(pLine->caps & CAP_C3) {
+		G.C3f_(eps, pLine->C3a);
+		pLine->A3c = -pLine->f * pLine->salp0 * G.A3f_(eps);
+		pLine->B31 = SinCosSeries(TRUE, pLine->ssig1, pLine->csig1, pLine->C3a, nC3-1);
+	}
+	if(pLine->caps & CAP_C4) {
+		G.C4f_(eps, pLine->C4a);
+		// Multiplier = a^2 * e^2 * cos(alpha0) * sin(alpha0)
+		pLine->A4 = SQ(pLine->a) * pLine->calp0 * pLine->salp0 * G.E2;
+		pLine->B41 = SinCosSeries(FALSE, pLine->ssig1, pLine->csig1, pLine->C4a, nC4);
+	}
+	pLine->a13 = pLine->s13 = fgetnan();
+}
+
+void SGeo::LineInit(GeodesicLine * pLine, /*const SGeo::Geodesic & rG,*/const SGeoPosLL & rP1, double azi1, uint caps)
+{
+	azi1 = AngNormalize(azi1);
+	double salp1, calp1;
+	// Guard against underflow in salp0
+	sincosdx(AngRound(azi1), &salp1, &calp1);
+	LineInit_Int(pLine, /*rG,*/rP1, azi1, salp1, calp1, caps);
+}
+
+double SGeo::GenPosition(const SGeo::GeodesicLine * pLine, uint flags, double s12_a12,
+	SGeoPosLL * pP2, double * pazi2, double * ps12, double * pm12, double * pM12, double * pM21, double * pS12)
+{
+	double lat2 = 0, lon2 = 0, azi2 = 0, s12 = 0;
+	double m12 = 0, M12 = 0, M21 = 0, S12 = 0;
+	// Avoid warning about uninitialized B12
+	double sig12;
+	double ssig12;
+	double csig12;
+	double B12 = 0.0;
+	double AB1 = 0.0;
+	double omg12;
+	double lam12;
+	double lon12;
+	double ssig2;
+	double csig2;
+	double sbet2;
+	double cbet2;
+	double somg2;
+	double comg2;
+	double salp2;
+	double calp2;
+	double dn2;
+	uint   outmask =
+		//(plat2 ? GEOD_LATITUDE : 0U) | (plon2 ? GEOD_LONGITUDE : 0U) |
+		(pP2 ? (GEOD_LATITUDE|GEOD_LONGITUDE) : 0U) |
+		(pazi2 ? GEOD_AZIMUTH : 0U) | (ps12 ? GEOD_DISTANCE : 0U) | (pm12 ? GEOD_REDUCEDLENGTH : 0U) | (pM12 || pM21 ? GEOD_GEODESICSCALE : 0U) |
+		(pS12 ? GEOD_AREA : 0U);
+	outmask &= pLine->caps & OUT_ALL;
+	if(!(TRUE /*Init()*/ && (flags & GEOD_ARCMODE || (pLine->caps & (GEOD_DISTANCE_IN & OUT_ALL)))))
+		return fgetnan(); // Uninitialized or impossible distance calculation requested
+	if(flags & GEOD_ARCMODE) {
+		// Interpret s12_a12 as spherical arc length
+		sig12 = s12_a12 * SMathConst::PiDiv180;
+		sincosdx(s12_a12, &ssig12, &csig12);
+	}
+	else {
+		// Interpret s12_a12 as distance
+		double tau12 = s12_a12 / (pLine->b * (1 + pLine->A1m1));
+		double s = sin(tau12);
+		double c = cos(tau12);
+		// tau2 = tau1 + tau12
+		B12 = - SinCosSeries(TRUE, pLine->stau1 * c + pLine->ctau1 * s, pLine->ctau1 * c - pLine->stau1 * s, pLine->C1pa, nC1p);
+		sig12 = tau12 - (B12 - pLine->B11);
+		ssig12 = sin(sig12); csig12 = cos(sig12);
+		if(fabs(pLine->f) > 0.01) {
+			/* Reverted distance series is inaccurate for |f| > 1/100, so correct
+			* sig12 with 1 Newton iteration.  The following table shows the
+			* approximate maximum error for a = WGS_a() and various f relative to
+			* GeodesicExact.
+			*     erri = the error in the inverse solution (nm)
+			*     errd = the error in the direct solution (series only) (nm)
+			*     errda = the error in the direct solution (series + 1 Newton) (nm)
+			*
+			*       f     erri  errd errda
+			*     -1/5    12e6 1.2e9  69e6
+			*     -1/10  123e3  12e6 765e3
+			*     -1/20   1110 108e3  7155
+			*     -1/50  18.63 200.9 27.12
+			*     -1/100 18.63 23.78 23.37
+			*     -1/150 18.63 21.05 20.26
+			*      1/150 22.35 24.73 25.83
+			*      1/100 22.35 25.03 25.31
+			*      1/50  29.80 231.9 30.44
+			*      1/20   5376 146e3  10e3
+			*      1/10  829e3  22e6 1.5e6
+			*      1/5   157e6 3.8e9 280e6 */
+			double serr;
+			ssig2 = pLine->ssig1 * csig12 + pLine->csig1 * ssig12;
+			csig2 = pLine->csig1 * csig12 - pLine->ssig1 * ssig12;
+			B12 = SinCosSeries(TRUE, ssig2, csig2, pLine->C1a, nC1);
+			serr = (1 + pLine->A1m1) * (sig12 + (B12 - pLine->B11)) - s12_a12 / pLine->b;
+			sig12 = sig12 - serr / sqrt(1 + pLine->k2 * SQ(ssig2));
+			ssig12 = sin(sig12); csig12 = cos(sig12);
+			// Update B12 below
+		}
+	}
+	// sig2 = sig1 + sig12
+	ssig2 = pLine->ssig1 * csig12 + pLine->csig1 * ssig12;
+	csig2 = pLine->csig1 * csig12 - pLine->ssig1 * ssig12;
+	dn2 = sqrt(1 + pLine->k2 * SQ(ssig2));
+	if(outmask & (GEOD_DISTANCE | GEOD_REDUCEDLENGTH | GEOD_GEODESICSCALE)) {
+		if(flags & GEOD_ARCMODE || fabs(pLine->f) > 0.01)
+			B12 = SinCosSeries(TRUE, ssig2, csig2, pLine->C1a, nC1);
+		AB1 = (1 + pLine->A1m1) * (B12 - pLine->B11);
+	}
+	// sin(bet2) = cos(alp0) * sin(sig2)
+	sbet2 = pLine->calp0 * ssig2;
+	// Alt: cbet2 = hypot(csig2, salp0 * ssig2);
+	cbet2 = hypot(pLine->salp0, pLine->calp0 * csig2);
+	if(cbet2 == 0)
+	    // I.e., salp0 = 0, csig2 = 0.  Break the degeneracy in this case
+		cbet2 = csig2 = _Tiny;
+	// tan(alp0) = cos(sig2)*tan(alp2)
+	salp2 = pLine->salp0; 
+	calp2 = pLine->calp0 * csig2; /* No need to normalize */
+	if(outmask & GEOD_DISTANCE)
+		s12 = flags & GEOD_ARCMODE ? pLine->b * ((1 + pLine->A1m1) * sig12 + AB1) : s12_a12;
+	if(outmask & GEOD_LONGITUDE) {
+		double E = copysignx(1, pLine->salp0); // east or west going?
+		// tan(omg2) = sin(alp0) * tan(sig2)
+		somg2 = pLine->salp0 * ssig2; 
+		comg2 = csig2;  /* No need to normalize */
+		// omg12 = omg2 - omg1
+		omg12 = flags & GEOD_LONG_UNROLL ? E * (sig12 - (atan2(ssig2, csig2) - atan2(pLine->ssig1, pLine->csig1)) +
+			(atan2(E * somg2, comg2) - atan2(E * pLine->somg1, pLine->comg1))) : atan2(somg2 * pLine->comg1 - comg2 * pLine->somg1, comg2 * pLine->comg1 + somg2 * pLine->somg1);
+		lam12 = omg12 + pLine->A3c * (sig12 + (SinCosSeries(TRUE, ssig2, csig2, pLine->C3a, nC3-1) - pLine->B31));
+		lon12 = lam12 / SMathConst::PiDiv180;
+		lon2 = flags & GEOD_LONG_UNROLL ? pLine->P1.Lon + lon12 : AngNormalize(AngNormalize(pLine->P1.Lon) + AngNormalize(lon12));
+	}
+	if(outmask & GEOD_LATITUDE)
+		lat2 = atan2dx(sbet2, pLine->f1 * cbet2);
+	if(outmask & GEOD_AZIMUTH)
+		azi2 = atan2dx(salp2, calp2);
+	if(outmask & (GEOD_REDUCEDLENGTH | GEOD_GEODESICSCALE)) {
+		double B22 = SinCosSeries(TRUE, ssig2, csig2, pLine->C2a, nC2);
+		double AB2 = (1 + pLine->A2m1) * (B22 - pLine->B21);
+		double J12 = (pLine->A1m1 - pLine->A2m1) * sig12 + (AB1 - AB2);
+		if(outmask & GEOD_REDUCEDLENGTH) {
+			// Add parens around (csig1 * ssig2) and (ssig1 * csig2) to ensure
+			// accurate cancellation in the case of coincident points.
+			m12 = pLine->b * ((dn2 * (pLine->csig1 * ssig2) - pLine->dn1 * (pLine->ssig1 * csig2)) - pLine->csig1 * csig2 * J12);
+		}
+		if(outmask & GEOD_GEODESICSCALE) {
+			const double t = pLine->k2 * (ssig2 - pLine->ssig1) * (ssig2 + pLine->ssig1) / (pLine->dn1 + dn2);
+			M12 = csig12 + (t *  ssig2 -  csig2 * J12) * pLine->ssig1 / pLine->dn1;
+			M21 = csig12 - (t * pLine->ssig1 - pLine->csig1 * J12) *  ssig2 /  dn2;
+		}
+	}
+	if(outmask & GEOD_AREA) {
+		double B42 = SinCosSeries(FALSE, ssig2, csig2, pLine->C4a, nC4);
+		double salp12;
+		double calp12;
+		if(pLine->calp0 == 0 || pLine->salp0 == 0) {
+			// alp12 = alp2 - alp1, used in atan2 so no need to normalize
+			salp12 = salp2 * pLine->calp1 - calp2 * pLine->salp1;
+			calp12 = calp2 * pLine->calp1 + salp2 * pLine->salp1;
+		}
+		else {
+			/* tan(alp) = tan(alp0) * sec(sig)
+			* tan(alp2-alp1) = (tan(alp2) -tan(alp1)) / (tan(alp2)*tan(alp1)+1)
+			* = calp0 * salp0 * (csig1-csig2) / (salp0^2 + calp0^2 * csig1*csig2)
+			* If csig12 > 0, write
+			*   csig1 - csig2 = ssig12 * (csig1 * ssig12 / (1 + csig12) + ssig1)
+			* else
+			*   csig1 - csig2 = csig1 * (1 - csig12) + ssig12 * ssig1
+			* No need to normalize */
+			salp12 = pLine->calp0 * pLine->salp0 * (csig12 <= 0 ? pLine->csig1 * (1 - csig12) + ssig12 * pLine->ssig1 : ssig12 * (pLine->csig1 * ssig12 / (1 + csig12) + pLine->ssig1));
+			calp12 = SQ(pLine->salp0) + SQ(pLine->calp0) * pLine->csig1 * csig2;
+		}
+		S12 = pLine->c2 * atan2(salp12, calp12) + pLine->A4 * (B42 - pLine->B41);
+	}
+	/*
+	if(outmask & GEOD_LATITUDE)
+		*plat2 = lat2;
+	if(outmask & GEOD_LONGITUDE)
+		*plon2 = lon2;
+	*/
+	if(pP2) {
+		pP2->Lat = lat2;
+		pP2->Lon = lon2;
+	}
+	if(outmask & GEOD_AZIMUTH)
+		*pazi2 = azi2;
+	if(outmask & GEOD_DISTANCE)
+		*ps12 = s12;
+	if(outmask & GEOD_REDUCEDLENGTH)
+		*pm12 = m12;
+	if(outmask & GEOD_GEODESICSCALE) {
+		if(pM12) *pM12 = M12;
+		if(pM21) *pM21 = M21;
+	}
+	if(outmask & GEOD_AREA)
+		*pS12 = S12;
+	return flags & GEOD_ARCMODE ? s12_a12 : sig12 / SMathConst::PiDiv180;
+}
+
+#if 0 // {
+static void Init()
+{
+	if(!init) {
+#if defined(__DBL_MANT_DIG__)
+		digits = __DBL_MANT_DIG__;
+#else
+		digits = 53;
+#endif
+#if defined(__DBL_EPSILON__)
+		epsilon = __DBL_EPSILON__;
+#else
+		epsilon = pow(0.5, digits - 1);
+#endif
+#if defined(__DBL_MIN__)
+		realmin = __DBL_MIN__;
+#else
+		realmin = pow(0.5, 1022);
+#endif
+#if defined(M_PI)
+		pi = M_PI;
+#else
+		pi = atan2(0.0, -1.0);
+#endif
+		maxit1 = 20;
+		maxit2 = maxit1 + digits + 10;
+		tiny = sqrt(realmin);
+		tol0 = epsilon;
+		// Increase multiplier in defn of tol1 from 100 to 200 to fix inverse case
+		// 52.784459512564 0 -52.784459512563990912 179.634407464943777557
+		// which otherwise failed for Visual Studio 10 (Release and Debug)
+		tol1 = 200 * tol0;
+		tol2 = sqrt(tol0);
+		// Check on bisection interval
+		tolb = tol0 * tol2;
+		xthresh = 1000 * tol2;
+		degree = pi/180;
+		NaN = sqrt(-1.0);
+		init = 1;
+	}
+}
+#endif // } 0
+
+double SGeo::Direct(/*const Geodesic & rG,*/const SGeoPosLL & rP1, double azi1, uint flags, double s12_a12,
+	SGeoPosLL * pP2, double * pazi2, double * ps12, double * pm12, double * pM12, double * pM21, double * pS12)
+{
+	GeodesicLine l;
+	uint outmask = // (plat2 ? GEOD_LATITUDE : 0U) | (plon2 ? GEOD_LONGITUDE : 0U) |
+		(pP2 ? (GEOD_LATITUDE|GEOD_LONGITUDE) : 0) |
+		(pazi2 ? GEOD_AZIMUTH : 0U) | (ps12 ? GEOD_DISTANCE : 0U) |
+		(pm12 ? GEOD_REDUCEDLENGTH : 0U) | (pM12 || pM21 ? GEOD_GEODESICSCALE : 0U) | (pS12 ? GEOD_AREA : 0U);
+	// Automatically supply GEOD_DISTANCE_IN if necessary
+	LineInit(&l, /*rG,*/rP1, azi1, outmask | (flags & GEOD_ARCMODE ? GEOD_NONE : GEOD_DISTANCE_IN));
+	return GenPosition(&l, flags, s12_a12, pP2, pazi2, ps12, pm12, pM12, pM21, pS12);
+}
+
+void SGeo::Lengths(/*const Geodesic & rG,*/double eps, double sig12, double ssig1, double csig1, double dn1,
+	double ssig2, double csig2, double dn2, double cbet1, double cbet2, double* ps12b, double* pm12b, double* pm0, double* pM12, double* pM21,
+	/* Scratch area of the right size */ double Ca[])
+{
+	double m0 = 0, J12 = 0, A1 = 0, A2 = 0;
+	double Cb[nC];
+	// Return m12b = (reduced length)/b; also calculate s12b = distance/b,
+	// and m0 = coefficient of secular term in expression for reduced length.
+	int redlp = pm12b || pm0 || pM12 || pM21; // bool
+	if(ps12b || redlp) {
+		A1 = A1m1f(eps);
+		C1f(eps, Ca);
+		if(redlp) {
+			A2 = A2m1f(eps);
+			C2f(eps, Cb);
+			m0 = A1 - A2;
+			A2 = 1 + A2;
+		}
+		A1 = 1 + A1;
+	}
+	if(ps12b) {
+		double B1 = SinCosSeries(TRUE, ssig2, csig2, Ca, nC1) - SinCosSeries(TRUE, ssig1, csig1, Ca, nC1);
+		// Missing a factor of b
+		*ps12b = A1 * (sig12 + B1);
+		if(redlp) {
+			double B2 = SinCosSeries(TRUE, ssig2, csig2, Cb, nC2) - SinCosSeries(TRUE, ssig1, csig1, Cb, nC2);
+			J12 = m0 * sig12 + (A1 * B1 - A2 * B2);
+		}
+	}
+	else if(redlp) {
+		// Assume here that nC1 >= nC2
+		for(int l = 1; l <= nC2; ++l)
+			Cb[l] = A1 * Ca[l] - A2 * Cb[l];
+		J12 = m0 * sig12 + (SinCosSeries(TRUE, ssig2, csig2, Cb, nC2) - SinCosSeries(TRUE, ssig1, csig1, Cb, nC2));
+	}
+	ASSIGN_PTR(pm0, m0);
+	if(pm12b) {
+		// Missing a factor of b.
+		// Add parens around (csig1 * ssig2) and (ssig1 * csig2) to ensure
+		// accurate cancellation in the case of coincident points.
+		*pm12b = dn2 * (csig1 * ssig2) - dn1 * (ssig1 * csig2) - csig1 * csig2 * J12;
+	}
+	if(pM12 || pM21) {
+		double csig12 = csig1 * csig2 + ssig1 * ssig2;
+		double t = G.Ep2 * (cbet1 - cbet2) * (cbet1 + cbet2) / (dn1 + dn2);
+		if(pM12)
+			*pM12 = csig12 + (t * ssig2 - csig2 * J12) * ssig1 / dn1;
+		if(pM21)
+			*pM21 = csig12 - (t * ssig1 - csig1 * J12) * ssig2 / dn2;
+	}
+}
+
+double Astroid(double x, double y)
+{
+	// Solve k^4+2*k^3-(x^2+y^2-1)*k^2-2*y^2*k-y^2 = 0 for positive root k.
+	// This solution is adapted from Geocentric::Reverse.
+	double k;
+	double p = SQ(x);
+	double q = SQ(y);
+	double r = (p + q - 1) / 6;
+	if(!(q == 0 && r <= 0)) {
+		// Avoid possible division by zero when r = 0 by multiplying equations for s and t by r^3 and r, resp.
+		double S = p * q / 4; // S = r^3 * s
+		double r2 = SQ(r);
+		double r3 = r * r2;
+		// The discriminant of the quadratic equation for T3.  This is zero on
+		// the evolute curve p^(1/3)+q^(1/3) = 1
+		double disc = S * (S + 2 * r3);
+		double u = r;
+		double v, uv, w;
+		if(disc >= 0) {
+			double T3 = S + r3;
+			double T;
+			//
+			// Pick the sign on the sqrt to maximize abs(T3).  This minimizes loss
+			// of precision due to cancellation.  The result is unchanged because
+			// of the way the T is used in definition of u.
+			//
+			T3 += (T3 < 0) ? -sqrt(disc) : sqrt(disc); // T3 = (r * t)^3
+			// N.B. cbrtx always returns the double root.  cbrtx(-8) = -2.
+			T = cbrtx(T3); // T = r * t
+			// T can be zero; but then r2 / T -> 0.
+			u += T + ((T != 0) ? (r2 / T) : 0);
+		}
+		else {
+			// T is complex, but the way u is defined the result is double.
+			double ang = atan2(sqrt(-disc), -(S + r3));
+			// There are three possible cube roots.  We choose the root which
+			// avoids cancellation.  Note that disc < 0 implies that r < 0.
+			u += 2 * r * cos(ang / 3);
+		}
+		v = sqrt(SQ(u) + q); // guaranteed positive
+		// Avoid loss of accuracy when u < 0.
+		uv = u < 0 ? q / (v - u) : u + v; /* u+v, guaranteed positive */
+		w = (uv - q) / (2 * v);           /* positive? */
+		// Rearrange expression for k to avoid loss of accuracy due to
+		// subtraction.  Division by 0 not possible because uv > 0, w >= 0.
+		k = uv / (sqrt(uv + SQ(w)) + w); // guaranteed positive
+	}
+	else { // q == 0 && r <= 0
+		// y = 0 with |x| <= 1.  Handle this case directly.
+		// for y small, positive root is k = abs(y)/sqrt(1-x^2)
+		k = 0;
+	}
+	return k;
+}
+
+double SGeo::InverseStart(/*const Geodesic & rG,*/double sbet1, double cbet1, double dn1,
+	double sbet2, double cbet2, double dn2, double lam12, double slam12, double clam12,
+	double* psalp1, double* pcalp1, /* Only updated if return val >= 0 */ double* psalp2, double* pcalp2,
+	/* Only updated for short lines */ double* pdnm, /* Scratch area of the right size */ double Ca[])
+{
+	double salp1 = 0;
+	double calp1 = 0;
+	double salp2 = 0;
+	double calp2 = 0;
+	double dnm = 0;
+	// Return a starting point for Newton's method in salp1 and calp1 (function
+	// value is -1).  If Newton's method doesn't need to be used, return also
+	// salp2 and calp2 and function value is sig12.
+	double sig12 = -1; // Return value
+	// bet12 = bet2 - bet1 in [0, pi); bet12a = bet2 + bet1 in (-pi, 0]
+	const double sbet12 = sbet2 * cbet1 - cbet2 * sbet1;
+	const double cbet12 = cbet2 * cbet1 + sbet2 * sbet1;
+	const int    shortline = BIN(cbet12 >= 0 && (sbet12 < 0.5) && ((cbet2 * lam12) < 0.5)); // bool
+	double somg12, comg12, ssig12, csig12;
+#if defined(__GNUC__) && __GNUC__ == 4 && (__GNUC_MINOR__ < 6 || defined(__MINGW32__))
+	// Volatile declaration needed to fix inverse cases
+	// 88.202499451857 0 -88.202499451857 179.981022032992859592
+	// 89.262080389218 0 -89.262080389218 179.992207982775375662
+	// 89.333123580033 0 -89.333123580032997687 179.99295812360148422
+	// which otherwise fail with g++ 4.4.4 x86 -O3 (Linux)
+	// and g++ 4.4.0 (mingw) and g++ 4.6.1 (tdm mingw).
+	double sbet12a;
+	{
+		volatile double xx1 = sbet2 * cbet1;
+		volatile double xx2 = cbet2 * sbet1;
+		sbet12a = xx1 + xx2;
+	}
+#else
+	const double sbet12a = sbet2 * cbet1 + cbet2 * sbet1;
+#endif
+	if(shortline) {
+		double sbetm2 = SQ(sbet1 + sbet2), omg12;
+		// sin((bet1+bet2)/2)^2 =  (sbet1 + sbet2)^2 / ((sbet1 + sbet2)^2 + (cbet1 + cbet2)^2)
+		sbetm2 /= sbetm2 + SQ(cbet1 + cbet2);
+		dnm = sqrt(1 + G.Ep2 * sbetm2);
+		omg12 = lam12 / (G.F1 * dnm);
+		somg12 = sin(omg12); 
+		comg12 = cos(omg12);
+	}
+	else {
+		somg12 = slam12; 
+		comg12 = clam12;
+	}
+	salp1 = cbet2 * somg12;
+	calp1 = comg12 >= 0 ? sbet12 + cbet2 * sbet1 * SQ(somg12) / (1 + comg12) : sbet12a - cbet2 * sbet1 * SQ(somg12) / (1 - comg12);
+	ssig12 = hypot(salp1, calp1);
+	csig12 = sbet1 * sbet2 + cbet1 * cbet2 * comg12;
+	if(shortline && ssig12 < G.Etol2) {
+		// really short lines
+		salp2 = cbet1 * somg12;
+		calp2 = sbet12 - cbet1 * sbet2 * (comg12 >= 0 ? SQ(somg12) / (1 + comg12) : 1 - comg12);
+		norm2(&salp2, &calp2);
+		// Set return value
+		sig12 = atan2(ssig12, csig12);
+	}
+	else if((fabs(G.N) > 0.1) || /* No astroid calc if too eccentric */ csig12 >= 0 || ssig12 >= (6 * fabs(G.N) * SMathConst::Pi * SQ(cbet1))) {
+		// Nothing to do, zeroth order spherical approximation is OK
+	}
+	else {
+		// Scale lam12 and bet2 to x, y coordinate system where antipodal point
+		// is at origin and singular point is at y = 0, x = -1.
+		double y, lamscale, betscale;
+		// Volatile declaration needed to fix inverse case
+		// 56.320923501171 0 -56.320923501171 179.664747671772880215
+		// which otherwise fails with g++ 4.4.4 x86 -O3
+		volatile double x;
+		const double lam12x = atan2(-slam12, -clam12); // lam12 - pi
+		if(G.F >= 0.0) { // In fact f == 0 does not get here
+			// x = dlong, y = dlat
+			{
+				double k2 = SQ(sbet1) * G.Ep2;
+				double eps = k2 / (2 * (1 + sqrt(1 + k2)) + k2);
+				lamscale = G.F * cbet1 * G.A3f_(eps) * SMathConst::Pi;
+			}
+			betscale = lamscale * cbet1;
+			x = lam12x / lamscale;
+			y = sbet12a / betscale;
+		}
+		else { // f < 0
+			// x = dlat, y = dlong
+			double cbet12a = cbet2 * cbet1 - sbet2 * sbet1;
+			double bet12a = atan2(sbet12a, cbet12a);
+			double m12b, m0;
+			// In the case of lon12 = 180, this repeats a calculation made in Inverse
+			Lengths(/*rG,*/G.N, SMathConst::Pi + bet12a, sbet1, -cbet1, dn1, sbet2, cbet2, dn2, cbet1, cbet2, 0, &m12b, &m0, 0, 0, Ca);
+			x = -1 + m12b / (cbet1 * cbet2 * m0 * SMathConst::Pi);
+			betscale = (x < -0.01) ? (sbet12a / x) : (-G.F * SQ(cbet1) * SMathConst::Pi);
+			lamscale = betscale / cbet1;
+			y = lam12x / lamscale;
+		}
+		if(y > -_Tol1 && x > -1 - (1000.0 * _Tol2/*xthresh*/)) {
+			// strip near cut
+			if(G.F >= 0.0) {
+				salp1 = smin(1.0, -x); 
+				calp1 = -sqrt(1 - SQ(salp1));
+			}
+			else {
+				calp1 = smax(((x > -_Tol1) ? 0.0 : -1.0), x);
+				salp1 = sqrt(1.0 - SQ(calp1));
+			}
+		}
+		else {
+			// Estimate alp1, by solving the astroid problem.
+			// 
+			// Could estimate alpha1 = theta + pi/2, directly, i.e.,
+			//   calp1 = y/k; salp1 = -x/(1+k);  for f >= 0
+			//   calp1 = x/(1+k); salp1 = -y/k;  for f < 0 (need to check)
+			// 
+			// However, it's better to estimate omg12 from astroid and use
+			// spherical formula to compute alp1.  This reduces the mean number of
+			// Newton iterations for astroid cases from 2.24 (min 0, max 6) to 2.12
+			// (min 0 max 5).  The changes in the number of iterations are as follows:
+			// 
+			// change percent
+			//    1       5
+			//    0      78
+			//   -1      16
+			//   -2       0.6
+			//   -3       0.04
+			//   -4       0.002
+			// 
+			// The histogram of iterations is (m = number of iterations estimating
+			// alp1 directly, n = number of iterations estimating via omg12, total
+			// number of trials = 148605):
+			// 
+			// iter    m      n
+			//    0   148    186
+			//    1 13046  13845
+			//    2 93315 102225
+			//    3 36189  32341
+			//    4  5396      7
+			//    5   455      1
+			//    6    56      0
+			// 
+			// Because omg12 is near pi, estimate work with omg12a = pi - omg12 
+			// 
+			const double k = Astroid(x, y);
+			const double omg12a = lamscale * ((G.F >= 0.0) ? -x * k/(1 + k) : -y * (1 + k)/k);
+			somg12 = sin(omg12a); comg12 = -cos(omg12a);
+			// Update spherical estimate of alp1 using omg12 instead of lam12
+			salp1 = cbet2 * somg12;
+			calp1 = sbet12a - cbet2 * sbet1 * SQ(somg12) / (1 - comg12);
+		}
+	}
+	// Sanity check on starting guess.  Backwards check allows NaN through.
+	if(!(salp1 <= 0))
+		norm2(&salp1, &calp1);
+	else {
+		salp1 = 1; calp1 = 0;
+	}
+	*psalp1 = salp1;
+	*pcalp1 = calp1;
+	if(shortline)
+		*pdnm = dnm;
+	if(sig12 >= 0) {
+		*psalp2 = salp2;
+		*pcalp2 = calp2;
+	}
+	return sig12;
+}
+
+double SGeo::Lambda12(/*const SGeo::Geodesic & rG,*/double sbet1, double cbet1, double dn1, double sbet2, double cbet2, double dn2,
+	double salp1, double calp1, double slam120, double clam120, double* psalp2, double* pcalp2, double* psig12,
+	double* pssig1, double* pcsig1, double* pssig2, double* pcsig2, double* peps, double* psomg12, double* pcomg12,
+	int/*bool*/ diffp, double* pdlam12, /* Scratch area of the right size */ double Ca[])
+{
+	double salp2 = 0;
+	double calp2 = 0;
+	double sig12 = 0;
+	double ssig1 = 0;
+	double csig1 = 0;
+	double ssig2 = 0;
+	double csig2 = 0;
+	double eps = 0;
+	double somg12 = 0;
+	double comg12 = 0;
+	double dlam12 = 0;
+	double salp0, calp0;
+	double somg1, comg1, somg2, comg2, lam12;
+	double B312, eta, k2;
+	if(sbet1 == 0 && calp1 == 0)
+		// Break degeneracy of equatorial line.  This case has already been handled.
+		calp1 = -_Tiny;
+	// sin(alp1) * cos(bet1) = sin(alp0)
+	salp0 = salp1 * cbet1;
+	calp0 = hypot(calp1, salp1 * sbet1); /* calp0 > 0 */
+
+	// tan(bet1) = tan(sig1) * cos(alp1)
+	// tan(omg1) = sin(alp0) * tan(sig1) = tan(omg1)=tan(alp1)*sin(bet1)
+	ssig1 = sbet1; somg1 = salp0 * sbet1;
+	csig1 = comg1 = calp1 * cbet1;
+	norm2(&ssig1, &csig1);
+	// norm2(&somg1, &comg1); -- don't need to normalize!
+
+	// Enforce symmetries in the case abs(bet2) = -bet1.  Need to be careful
+	// about this case, since this can yield singularities in the Newton iteration.
+	// sin(alp2) * cos(bet2) = sin(alp0)
+	salp2 = cbet2 != cbet1 ? salp0 / cbet2 : salp1;
+	// calp2 = sqrt(1 - sq(salp2)) = sqrt(sq(calp0) - sq(sbet2)) / cbet2
+	// and subst for calp0 and rearrange to give (choose positive sqrt
+	// to give alp2 in [0, pi/2]).
+	calp2 = cbet2 != cbet1 || fabs(sbet2) != -sbet1 ? sqrt(SQ(calp1 * cbet1) + (cbet1 < -sbet1 ? (cbet2 - cbet1) * (cbet1 + cbet2) : (sbet1 - sbet2) * (sbet1 + sbet2))) / cbet2 : fabs(calp1);
+	// tan(bet2) = tan(sig2) * cos(alp2)
+	// tan(omg2) = sin(alp0) * tan(sig2)
+	ssig2 = sbet2; somg2 = salp0 * sbet2;
+	csig2 = comg2 = calp2 * cbet2;
+	norm2(&ssig2, &csig2);
+	// norm2(&somg2, &comg2); -- don't need to normalize!
+
+	// sig12 = sig2 - sig1, limit to [0, pi]
+	sig12 = atan2(smax(0.0, csig1 * ssig2 - ssig1 * csig2),
+	csig1 * csig2 + ssig1 * ssig2);
+
+	// omg12 = omg2 - omg1, limit to [0, pi]
+	somg12 = smax(0.0, comg1 * somg2 - somg1 * comg2);
+	comg12 = comg1 * comg2 + somg1 * somg2;
+	// eta = omg12 - lam120
+	eta = atan2(somg12 * clam120 - comg12 * slam120,
+	comg12 * clam120 + somg12 * slam120);
+	k2 = SQ(calp0) * G.Ep2;
+	eps = k2 / (2 * (1 + sqrt(1 + k2)) + k2);
+	G.C3f_(eps, Ca);
+	B312 = (SinCosSeries(TRUE, ssig2, csig2, Ca, nC3-1) - SinCosSeries(TRUE, ssig1, csig1, Ca, nC3-1));
+	lam12 = eta - G.F * G.A3f_(eps) * salp0 * (sig12 + B312);
+	if(diffp) {
+		if(calp2 == 0)
+			dlam12 = - 2 * G.F1 * dn1 / sbet1;
+		else {
+			Lengths(/*rG,*/eps, sig12, ssig1, csig1, dn1, ssig2, csig2, dn2, cbet1, cbet2, 0, &dlam12, 0, 0, 0, Ca);
+			dlam12 *= G.F1 / (calp2 * cbet2);
+		}
+	}
+	*psalp2 = salp2;
+	*pcalp2 = calp2;
+	*psig12 = sig12;
+	*pssig1 = ssig1;
+	*pcsig1 = csig1;
+	*pssig2 = ssig2;
+	*pcsig2 = csig2;
+	*peps = eps;
+	*psomg12 = somg12;
+	*pcomg12 = comg12;
+	if(diffp)
+		*pdlam12 = dlam12;
+	return lam12;
+}
+
+double SGeo::Inverse_Int(/*const Geodesic & rG,*/SGeoPosLL & rP1, SGeoPosLL & rP2,
+	double * ps12, double * psalp1, double * pcalp1, double * psalp2, double* pcalp2, double* pm12, double* pM12, double* pM21, double* pS12)
+{
+	double s12 = 0;
+	double m12 = 0;
+	double M12 = 0;
+	double M21 = 0;
+	double S12 = 0;
+	double lon12s;
+	int    latsign;
+	int    swapp;
+	double sbet1;
+	double cbet1;
+	double sbet2;
+	double cbet2;
+	double s12x = 0;
+	double m12x = 0;
+	double dn1;
+	double dn2;
+	double lam12;
+	double slam12;
+	double clam12;
+	double a12 = 0;
+	double sig12;
+	double calp1 = 0;
+	double salp1 = 0;
+	double calp2 = 0;
+	double salp2 = 0;
+	double Ca[nC];
+	int meridian; // bool
+	// somg12 > 1 marks that it needs to be calculated
+	double omg12 = 0, somg12 = 2, comg12 = 0;
+	unsigned outmask = (ps12 ? GEOD_DISTANCE : 0U) | (pm12 ? GEOD_REDUCEDLENGTH : 0U) | (pM12 || pM21 ? GEOD_GEODESICSCALE : 0U) | (pS12 ? GEOD_AREA : 0U);
+	outmask &= OUT_ALL;
+	// Compute longitude difference (AngDiff does this carefully).  Result is
+	// in [-180, 180] but -180 is only for west-going geodesics.  180 is for
+	// east-going and meridional geodesics.
+	double lon12 = AngDiff(rP1.Lon, rP2.Lon, &lon12s);
+	// Make longitude difference positive.
+	int    lonsign = (lon12 >= 0) ? 1 : -1;
+	// If very close to being on the same half-meridian, then make it so.
+	lon12 = lonsign * AngRound(lon12);
+	lon12s = AngRound((180 - lon12) - lonsign * lon12s);
+	lam12 = lon12 * SMathConst::PiDiv180;
+	if(lon12 > 90) {
+		sincosdx(lon12s, &slam12, &clam12);
+		clam12 = -clam12;
+	}
+	else
+		sincosdx(lon12, &slam12, &clam12);
+	// If really close to the equator, treat as on equator.
+	rP1.Lat = AngRound(LatFix(rP1.Lat));
+	rP2.Lat = AngRound(LatFix(rP2.Lat));
+	// Swap points so that point with higher (abs) latitude is point 1
+	// If one latitude is a nan, then it becomes lat1.
+	swapp = fabs(rP1.Lat) < fabs(rP2.Lat) ? -1 : 1;
+	if(swapp < 0) {
+		lonsign *= -1;
+		Exchange(&rP1.Lat, &rP2.Lat);
+	}
+	// Make lat1 <= 0
+	latsign = (rP1.Lat < 0) ? 1 : -1;
+	rP1.Lat *= latsign;
+	rP2.Lat *= latsign;
+	// Now we have
+	//      0 <= lon12 <= 180
+	//      -90 <= lat1 <= 0
+	//      lat1 <= lat2 <= -lat1
+	//
+	// longsign, swapp, latsign register the transformation to bring the
+	// coordinates to this canonical form.  In all cases, 1 means no change was
+	// made.  We make these transformations so that there are few cases to
+	// check, e.g., on verifying quadrants in atan2.  In addition, this
+	// enforces some symmetries in the results returned.
+	sincosdx(rP1.Lat, &sbet1, &cbet1);
+	sbet1 *= G.F1;
+	// Ensure cbet1 = +epsilon at poles
+	norm2(&sbet1, &cbet1);
+	cbet1 = smax(_Tiny, cbet1);
+	sincosdx(rP2.Lat, &sbet2, &cbet2);
+	sbet2 *= G.F1;
+	// Ensure cbet2 = +epsilon at poles
+	norm2(&sbet2, &cbet2);
+	cbet2 = smax(_Tiny, cbet2);
+	//
+	// If cbet1 < -sbet1, then cbet2 - cbet1 is a sensitive measure of the
+	// |bet1| - |bet2|.  Alternatively (cbet1 >= -sbet1), abs(sbet2) + sbet1 is
+	// a better measure.  This logic is used in assigning calp2 in Lambda12.
+	// Sometimes these quantities vanish and in that case we force bet2 = +/-
+	// bet1 exactly.  An example where is is necessary is the inverse problem
+	// 48.522876735459 0 -48.52287673545898293 179.599720456223079643
+	// which failed with Visual Studio 10 (Release and Debug)
+	//
+	if(cbet1 < -sbet1) {
+		if(cbet2 == cbet1)
+			sbet2 = (sbet2 < 0) ? sbet1 : -sbet1;
+	}
+	else {
+		if(fabs(sbet2) == -sbet1)
+			cbet2 = cbet1;
+	}
+	dn1 = sqrt(1 + G.Ep2 * SQ(sbet1));
+	dn2 = sqrt(1 + G.Ep2 * SQ(sbet2));
+	meridian = (rP1.Lat == -90 || slam12 == 0);
+	if(meridian) {
+		// Endpoints are on a single full meridian, so the geodesic might lie on a meridian.
+		double ssig1;
+		double csig1;
+		double ssig2;
+		double csig2;
+		calp1 = clam12; 
+		salp1 = slam12; // Head to the target longitude 
+		calp2 = 1; 
+		salp2 = 0; // At the target we're heading north
+		// tan(bet) = tan(sig) * cos(alp)
+		ssig1 = sbet1; 
+		csig1 = calp1 * cbet1;
+		ssig2 = sbet2; 
+		csig2 = calp2 * cbet2;
+		// sig12 = sig2 - sig1
+		sig12 = atan2(smax(0.0, csig1 * ssig2 - ssig1 * csig2), csig1 * csig2 + ssig1 * ssig2);
+		Lengths(/*rG,*/G.N, sig12, ssig1, csig1, dn1, ssig2, csig2, dn2, cbet1, cbet2, &s12x, &m12x, 0, outmask & GEOD_GEODESICSCALE ? &M12 : 0, outmask & GEOD_GEODESICSCALE ? &M21 : 0, Ca);
+		// Add the check for sig12 since zero length geodesics might yield m12 < 0.  Test case was
+		//
+		//    echo 20.001 0 20.001 0 | GeodSolve -i
+		//
+		// In fact, we will have sig12 > pi/2 for meridional geodesic which is not a shortest path.
+		//
+		if(sig12 < 1 || m12x >= 0) {
+			// Need at least 2, to handle 90 0 90 180
+			if(sig12 < (3 * _Tiny))
+				sig12 = m12x = s12x = 0;
+			m12x *= G.B;
+			s12x *= G.B;
+			a12 = sig12 / SMathConst::PiDiv180;
+		}
+		else // m12 < 0, i.e., prolate and too close to anti-podal
+			meridian = FALSE;
+	}
+	if(!meridian && sbet1 == 0 && /* and sbet2 == 0 */ /* Mimic the way Lambda12 works with calp1 = 0 */ (G.F <= 0.0 || lon12s >= (G.F * 180.0))) {
+		// Geodesic runs along equator
+		calp1 = calp2 = 0; 
+		salp1 = salp2 = 1;
+		s12x = G.A * lam12;
+		sig12 = omg12 = lam12 / G.F1;
+		m12x = G.B * sin(sig12);
+		if(outmask & GEOD_GEODESICSCALE)
+			M12 = M21 = cos(sig12);
+		a12 = lon12 / G.F1;
+	}
+	else if(!meridian) {
+		//
+		// Now point1 and point2 belong within a hemisphere bounded by a
+		// meridian and geodesic is neither meridional or equatorial.
+		//
+		// Figure a starting point for Newton's method
+		//
+		double dnm = 0.0;
+		sig12 = InverseStart(/*rG,*/sbet1, cbet1, dn1, sbet2, cbet2, dn2, lam12, slam12, clam12, &salp1, &calp1, &salp2, &calp2, &dnm, Ca);
+		if(sig12 >= 0) {
+			// Short lines (InverseStart sets salp2, calp2, dnm)
+			s12x = sig12 * G.B * dnm;
+			m12x = SQ(dnm) * G.B * sin(sig12 / dnm);
+			if(outmask & GEOD_GEODESICSCALE)
+				M12 = M21 = cos(sig12 / dnm);
+			a12 = sig12 / SMathConst::PiDiv180;
+			omg12 = lam12 / (G.F1 * dnm);
+		}
+		else {
+			//
+			// Newton's method.  This is a straightforward solution of f(alp1) = lambda12(alp1) - lam12 = 0 with one wrinkle.
+			// f(alp) has exactly one root in the interval (0, pi) and its derivative is positive at the
+			// root.  Thus f(alp) is positive for alp > alp1 and negative for alp < alp1.
+			// During the course of the iteration, a range (alp1a, alp1b) is
+			// maintained which brackets the root and with each evaluation of f(alp) the range is shrunk,
+			// if possible.  Newton's method is restarted whenever the derivative of f is negative (because the new
+			// value of alp1 is then further from the solution) or if the new
+			// estimate of alp1 lies outside (0,pi); in this case, the new starting guess is taken to be (alp1a + alp1b) / 2.
+			//
+			double ssig1 = 0;
+			double csig1 = 0;
+			double ssig2 = 0;
+			double csig2 = 0;
+			double eps = 0;
+			uint   numit = 0;
+			// Bracketing range
+			double salp1a = _Tiny;
+			double calp1a = 1;
+			double salp1b = _Tiny;
+			double calp1b = -1;
+			int    tripn, tripb; // bool
+			for(tripn = FALSE, tripb = FALSE; numit < _MaxIt2; ++numit) {
+				// the WGS84 test set: mean = 1.47, sd = 1.25, max = 16
+				// WGS84 and random input: mean = 2.85, sd = 0.60
+				double dv = 0,
+				v = Lambda12(/*rG,*/sbet1, cbet1, dn1, sbet2, cbet2, dn2, salp1, calp1, slam12, clam12,
+					&salp2, &calp2, &sig12, &ssig1, &csig1, &ssig2, &csig2, &eps, &somg12, &comg12, numit < _MaxIt1, &dv, Ca);
+				// 2 * tol0 is approximately 1 ulp for a number in [0, pi].
+				// Reversed test to allow escape with NaNs
+				if(tripb || !(fabs(v) >= (tripn ? 8 : 1) * _Tol0))
+					break;
+				// Update bracketing values
+				if(v > 0 && (numit > _MaxIt1 || calp1/salp1 > calp1b/salp1b)) {
+					salp1b = salp1;
+					calp1b = calp1;
+				}
+				else if(v < 0 && (numit > _MaxIt1 || calp1/salp1 < calp1a/salp1a)) {
+					salp1a = salp1;
+					calp1a = calp1;
+				}
+				if(numit < _MaxIt1 && dv > 0) {
+					const double dalp1 = -v/dv;
+					const double sdalp1 = sin(dalp1);
+					const double cdalp1 = cos(dalp1);
+					const double nsalp1 = salp1 * cdalp1 + calp1 * sdalp1;
+					if(nsalp1 > 0 && fabs(dalp1) < SMathConst::Pi/*pi*/) {
+						calp1 = calp1 * cdalp1 - salp1 * sdalp1;
+						salp1 = nsalp1;
+						norm2(&salp1, &calp1);
+						// In some regimes we don't get quadratic convergence because
+						// slope -> 0.  So use convergence conditions based on epsilon
+						// instead of sqrt(epsilon).
+						tripn = fabs(v) <= 16 * _Tol0;
+						continue;
+					}
+				}
+				//
+				// Either dv was not postive or updated value was outside legal
+				// range.  Use the midpoint of the bracket as the next estimate.
+				// This mechanism is not needed for the WGS84 ellipsoid, but it does
+				// catch problems with more eccentric ellipsoids.  Its efficacy is
+				// such for the WGS84 test set with the starting guess set to alp1 = 90deg:
+				// the WGS84 test set: mean = 5.21, sd = 3.93, max = 24 WGS84 and random input: mean = 4.74, sd = 0.99
+				//
+				salp1 = (salp1a + salp1b)/2;
+				calp1 = (calp1a + calp1b)/2;
+				norm2(&salp1, &calp1);
+				tripn = FALSE;
+				tripb = (fabs(salp1a - salp1) + (calp1a - calp1) < _Tolb || fabs(salp1 - salp1b) + (calp1 - calp1b) < _Tolb);
+			}
+			Lengths(/*rG,*/eps, sig12, ssig1, csig1, dn1, ssig2, csig2, dn2, cbet1, cbet2, &s12x, &m12x, 0,
+				outmask & GEOD_GEODESICSCALE ? &M12 : 0, outmask & GEOD_GEODESICSCALE ? &M21 : 0, Ca);
+			m12x *= G.B;
+			s12x *= G.B;
+			a12 = sig12 / SMathConst::PiDiv180;
+		}
+	}
+	if(outmask & GEOD_DISTANCE)
+		s12 = 0 + s12x; // Convert -0 to 0
+	if(outmask & GEOD_REDUCEDLENGTH)
+		m12 = 0 + m12x; // Convert -0 to 0
+	if(outmask & GEOD_AREA) {
+		// From Lambda12: sin(alp1) * cos(bet1) = sin(alp0)
+		double salp0 = salp1 * cbet1;
+		double calp0 = hypot(calp1, salp1 * sbet1); // calp0 > 0
+		double alp12;
+		if(calp0 != 0 && salp0 != 0) {
+			// From Lambda12: tan(bet) = tan(sig) * cos(alp)
+			double ssig1 = sbet1;
+			double csig1 = calp1 * cbet1;
+			double ssig2 = sbet2;
+			double csig2 = calp2 * cbet2;
+			double k2 = SQ(calp0) * G.Ep2;
+			double eps = k2 / (2 * (1 + sqrt(1 + k2)) + k2);
+			// Multiplier = a^2 * e^2 * cos(alpha0) * sin(alpha0).
+			double A4 = SQ(G.A) * calp0 * salp0 * G.E2;
+			double B41, B42;
+			norm2(&ssig1, &csig1);
+			norm2(&ssig2, &csig2);
+			G.C4f_(eps, Ca);
+			B41 = SinCosSeries(FALSE, ssig1, csig1, Ca, nC4);
+			B42 = SinCosSeries(FALSE, ssig2, csig2, Ca, nC4);
+			S12 = A4 * (B42 - B41);
+		}
+		else // Avoid problems with indeterminate sig1, sig2 on equator
+			S12 = 0;
+		if(!meridian) {
+			if(somg12 > 1) {
+				somg12 = sin(omg12);
+				comg12 = cos(omg12);
+			}
+			else
+				norm2(&somg12, &comg12);
+		}
+		if(!meridian && /* omg12 < 3/4 * pi */ (comg12 > -0.7071) && /* Long difference not too big */ (sbet2 - sbet1) < 1.75) { // Lat difference not too big
+			// Use tan(Gamma/2) = tan(omg12/2) * (tan(bet1/2)+tan(bet2/2))/(1+tan(bet1/2)*tan(bet2/2))
+			// with tan(x/2) = sin(x)/(1+cos(x))
+			double domg12 = 1 + comg12;
+			double dbet1 = 1 + cbet1;
+			double dbet2 = 1 + cbet2;
+			alp12 = 2 * atan2(somg12 * (sbet1 * dbet2 + sbet2 * dbet1), domg12 * (sbet1 * sbet2 + dbet1 * dbet2));
+		}
+		else {
+			// alp12 = alp2 - alp1, used in atan2 so no need to normalize
+			double salp12 = salp2 * calp1 - calp2 * salp1;
+			double calp12 = calp2 * calp1 + salp2 * salp1;
+			// The right thing appears to happen if alp1 = +/-180 and alp2 = 0, viz
+			// salp12 = -0 and alp12 = -180.  However this depends on the sign
+			// being attached to 0 correctly.  The following ensures the correct behavior.
+			if(salp12 == 0 && calp12 < 0) {
+				salp12 = _Tiny * calp1;
+				calp12 = -1;
+			}
+			alp12 = atan2(salp12, calp12);
+		}
+		S12 += G.C2 * alp12;
+		S12 *= swapp * lonsign * latsign;
+		// Convert -0 to 0
+		S12 += 0;
+	}
+	// Convert calp, salp to azimuth accounting for lonsign, swapp, latsign.
+	if(swapp < 0) {
+		Exchange(&salp1, &salp2);
+		Exchange(&calp1, &calp2);
+		if(outmask & GEOD_GEODESICSCALE)
+			Exchange(&M12, &M21);
+	}
+	salp1 *= swapp * lonsign;
+	calp1 *= swapp * latsign;
+	salp2 *= swapp * lonsign;
+	calp2 *= swapp * latsign;
+	ASSIGN_PTR(psalp1, salp1);
+	ASSIGN_PTR(pcalp1, calp1);
+	ASSIGN_PTR(psalp2, salp2);
+	ASSIGN_PTR(pcalp2, calp2);
+	if(outmask & GEOD_DISTANCE)
+		*ps12 = s12;
+	if(outmask & GEOD_REDUCEDLENGTH)
+		*pm12 = m12;
+	if(outmask & GEOD_GEODESICSCALE) {
+		ASSIGN_PTR(pM12, M12);
+		ASSIGN_PTR(pM21, M21);
+	}
+	if(outmask & GEOD_AREA)
+		*pS12 = S12;
+	// Returned value in [0, 180]
+	return a12;
+}
+
+
+double SGeo::Inverse(/*const Geodesic & rG,*/const SGeoPosLL & rP1, /*real lat2, real lon2*/const SGeoPosLL & rP2,
+	double * ps12, double * pazi1, double * pazi2, double * pm12, double * pM12, double * pM21, double * pS12)
+{
+	/*real geod_geninverse(const struct geod_geodesic* g, real lat1, real lon1, real lat2, real lon2,
+		real* ps12, real* pazi1, real* pazi2, real* pm12, real* pM12, real* pM21, real* pS12) {*/
+	double salp1, calp1, salp2, calp2;
+	SGeoPosLL p1 = rP1;
+	SGeoPosLL p2 = rP2;
+	double a12 = Inverse_Int(/*rG,*//*lat1, lon1, lat2, lon2*/p1, p2, ps12, &salp1, &calp1, &salp2, &calp2, pm12, pM12, pM21, pS12);
+	if(pazi1)
+		*pazi1 = atan2dx(salp1, calp1);
+	if(pazi2)
+		*pazi2 = atan2dx(salp2, calp2);
+	return a12;
 }
 //
 //
@@ -1140,7 +2698,7 @@ public:
 		return ang;
 	}
 	//
-	// ARG(x IN): ”„ÓÎ ‚ „‡‰ÛÒ‡ı
+	// ARG(x IN): –£–≥–æ–ª –≤ –≥—Ä–∞–¥—É—Å–∞—Ö
 	//
     static void SinCosD(double x, double & rSinx, double & rCosx)
 	{

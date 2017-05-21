@@ -7,15 +7,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
-// @v9.5.5 #include "dbinc/txn.h"
 /*
  * We need to check sites == nsites, not more than half
  * like we do in __rep_elect and the VOTE2 code.  The
@@ -658,10 +650,9 @@ int __rep_vote1(ENV * env, __rep_control_args * rp, DBT * rec, int eid)
 		RPRINT(env, (env, DB_VERB_REP_ELECT, "In phase 2, ignoring vote1"));
 		goto err;
 	}
-	/*
-	 * Record this vote.  If we're ignoring it, there's nothing more we need
-	 * to do.
-	 */
+	//
+	// Record this vote.  If we're ignoring it, there's nothing more we need to do.
+	//
 	if((ret = __rep_tally(env, rep, eid, &rep->sites, vi->egen, 1)) != 0) {
 		RPRINT(env, (env, DB_VERB_REP_ELECT, "Tally returned %d, sites %d", ret, rep->sites));
 		if(ret == DB_REP_IGNORE)
@@ -671,16 +662,15 @@ int __rep_vote1(ENV * env, __rep_control_args * rp, DBT * rec, int eid)
 	RPRINT(env, (env, DB_VERB_REP_ELECT,
 		     "Incoming vote: (eid)%d (pri)%lu %s (gen)%lu (egen)%lu (datagen)%lu [%lu,%lu]",
 		     eid, (ulong)vi->priority, F_ISSET(rp, REPCTL_ELECTABLE) ? "ELECTABLE" : "",
-		     (ulong)rp->gen, (ulong)vi->egen, (ulong)vi->data_gen, (ulong)rp->lsn.file, (ulong)rp->lsn.offset));
+		     (ulong)rp->gen, (ulong)vi->egen, (ulong)vi->data_gen, (ulong)rp->lsn.file, (ulong)rp->lsn.Offset_));
 	if(rep->sites > 1)
 		RPRINT(env, (env, DB_VERB_REP_ELECT,
 			     "Existing vote: (eid)%d (pri)%lu (gen)%lu (datagen)%lu (sites)%d [%lu,%lu]",
 			     rep->winner, (ulong)rep->w_priority,
 			     (ulong)rep->w_gen, (ulong)rep->w_datagen, rep->sites,
 			     (ulong)rep->w_lsn.file,
-			     (ulong)rep->w_lsn.offset));
-	__rep_cmp_vote(env, rep, eid, &rp->lsn, vi->priority,
-		rp->gen, vi->data_gen, vi->tiebreaker, rp->flags);
+			     (ulong)rep->w_lsn.Offset_));
+	__rep_cmp_vote(env, rep, eid, &rp->lsn, vi->priority, rp->gen, vi->data_gen, vi->tiebreaker, rp->flags);
 	/*
 	 * If you get a vote and you're not yet "in an election" at the proper
 	 * egen, we've already recorded this vote.  But that is all we need to

@@ -1115,11 +1115,9 @@ int __ham_del_pair(DBC * dbc, int flags, PAGE * ppg)
 	return ret;
 err:
 	/* Clean up any pages. */
-	if(n_pagep != NULL)
-		__memp_fput(mpf, dbc->thread_info, n_pagep, dbc->priority);
-	if(nn_pagep != NULL)
-		__memp_fput(mpf, dbc->thread_info, nn_pagep, dbc->priority);
-	if(ppg == NULL && p_pagep != NULL)
+	__memp_fput(mpf, dbc->thread_info, n_pagep, dbc->priority);
+	__memp_fput(mpf, dbc->thread_info, nn_pagep, dbc->priority);
+	if(!ppg)
 		__memp_fput(mpf, dbc->thread_info, p_pagep, dbc->priority);
 	return ret;
 }
@@ -1781,14 +1779,10 @@ err:
 		__memp_fput(mpf, dbc->thread_info, last_pagep, dbc->priority);
 	if(first_pagep != NULL && first_pagep != from_pagep)
 		__memp_fput(mpf, dbc->thread_info, first_pagep, dbc->priority);
-	if(next_pagep != NULL)
-		__memp_fput(mpf, dbc->thread_info, next_pagep, dbc->priority);
-	if(from_pagep != NULL)
-		__memp_fput(mpf, dbc->thread_info, from_pagep, dbc->priority);
-	if(to_pagep != NULL)
-		__memp_fput(mpf, dbc->thread_info, to_pagep, dbc->priority);
-	if(prev_pagep != NULL)
-		__memp_fput(mpf, dbc->thread_info, prev_pagep, dbc->priority);
+	__memp_fput(mpf, dbc->thread_info, next_pagep, dbc->priority);
+	__memp_fput(mpf, dbc->thread_info, from_pagep, dbc->priority);
+	__memp_fput(mpf, dbc->thread_info, to_pagep, dbc->priority);
+	__memp_fput(mpf, dbc->thread_info, prev_pagep, dbc->priority);
 	hcp->page = NULL;
 	__TLPUT(dbc, tlock);
 	__TLPUT(dbc, firstlock);
@@ -2019,8 +2013,7 @@ int __ham_split_page(DBC * dbc, uint32 obucket, uint32 nbucket)
 		ret = t_ret;
 	if(0) {
 err:
-		if(old_pagep != NULL)
-			__memp_fput(mpf, dbc->thread_info, old_pagep, dbc->priority);
+		__memp_fput(mpf, dbc->thread_info, old_pagep, dbc->priority);
 		if(new_pagep != NULL) {
 			P_INIT(new_pagep, dbp->pgsize, npgno, PGNO_INVALID, PGNO_INVALID, 0, P_HASH);
 			__memp_fput(mpf, dbc->thread_info, new_pagep, dbc->priority);

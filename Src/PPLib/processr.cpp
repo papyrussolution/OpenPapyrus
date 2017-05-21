@@ -973,12 +973,12 @@ int SLAPI PPObjProcessor::GetPacket(PPID id, PPProcessorPacket * pPack)
 //
 class ProcessorCache : public ObjCache {
 public:
-	SLAPI ProcessorCache() : ObjCache(PPOBJ_PROCESSOR, sizeof(Data))
+	SLAPI  ProcessorCache() : ObjCache(PPOBJ_PROCESSOR, sizeof(Data))
 	{
 	}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		long   ParentID;
@@ -1033,7 +1033,7 @@ int SLAPI ProcessorCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI ProcessorCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI ProcessorCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	ProcessorTbl::Rec * p_data_rec = (ProcessorTbl::Rec *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -1059,7 +1059,6 @@ int SLAPI ProcessorCache::EntryToData(const ObjCacheEntry * pEntry, void * pData
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Code, sizeof(p_data_rec->Code));
-	return 1;
 }
 
 int SLAPI PPObjProcessor::Fetch(PPID id, ProcessorTbl::Rec * pRec)

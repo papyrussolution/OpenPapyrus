@@ -243,7 +243,7 @@ static int __log_recover(DB_LOG * dblp)
 	 */
 	if(status == DB_LV_OLD_UNREADABLE) {
 		lp->lsn.file = lp->s_lsn.file = cnt+1;
-		lp->lsn.offset = lp->s_lsn.offset = 0;
+		lp->lsn.Offset_ = lp->s_lsn.Offset_ = 0;
 		goto skipsearch;
 	}
 	DB_ASSERT(env, oneof2(status, DB_LV_NORMAL, DB_LV_OLD_READABLE));
@@ -253,9 +253,9 @@ static int __log_recover(DB_LOG * dblp)
 	// file. Read the last file, looking for the last checkpoint and the log's end.
 	// 
 	lp->lsn.file = cnt+1;
-	lp->lsn.offset = 0;
+	lp->lsn.Offset_ = 0;
 	lsn.file = cnt;
-	lsn.offset = 0;
+	lsn.Offset_ = 0;
 	// 
 	// Allocate a cursor and set it to the first record.  This shouldn't
 	// fail, leave error messages on.
@@ -289,16 +289,16 @@ static int __log_recover(DB_LOG * dblp)
 	// 
 	lp->lsn = lsn;
 	lp->s_lsn = lsn;
-	lp->lsn.offset += logc->len;
-	lp->s_lsn.offset += logc->len;
+	lp->lsn.Offset_ += logc->len;
+	lp->s_lsn.Offset_ += logc->len;
 	// Set up the current buffer information, too.
 	lp->len = logc->len;
 	lp->a_off = 0;
 	lp->b_off = 0;
-	lp->w_off = lp->lsn.offset;
+	lp->w_off = lp->lsn.Offset_;
 skipsearch:
 	if(FLD_ISSET(dbenv->verbose, DB_VERB_RECOVERY))
-		__db_msg(env, DB_STR_A("2526", "Finding last valid log LSN: file: %lu offset %lu", "%lu %lu"), (ulong)lp->lsn.file, (ulong)lp->lsn.offset);
+		__db_msg(env, DB_STR_A("2526", "Finding last valid log LSN: file: %lu offset %lu", "%lu %lu"), (ulong)lp->lsn.file, (ulong)lp->lsn.Offset_);
 err:
 	if(logc != NULL)
 		__logc_close(logc);
@@ -840,8 +840,7 @@ int __log_vtruncate(ENV * env, DB_LSN * lsn, DB_LSN * ckplsn, DB_LSN * trunclsn)
 		goto err;
 	lp->lsn = *lsn;
 	lp->len = len;
-	lp->lsn.offset += lp->len;
-
+	lp->lsn.Offset_ += lp->len;
 	offset = lp->b_off;
 	if(lp->db_log_inmemory && (ret = __log_inmem_lsnoff(dblp, &lp->lsn, &offset)) != 0) {
 		lp->b_off = (db_size_t)offset;
@@ -855,13 +854,13 @@ int __log_vtruncate(ENV * env, DB_LSN * lsn, DB_LSN * ckplsn, DB_LSN * trunclsn)
 	DB_ASSERT(env, lp->lsn.file >= ckplsn->file);
 	bytes = 0;
 	if(ckplsn->file != lp->lsn.file) {
-		bytes = lp->log_size-ckplsn->offset;
+		bytes = lp->log_size-ckplsn->Offset_;
 		if(lp->lsn.file > ckplsn->file+1)
 			bytes += lp->log_size*((lp->lsn.file-ckplsn->file)-1);
-		bytes += lp->lsn.offset;
+		bytes += lp->lsn.Offset_;
 	}
 	else
-		bytes = lp->lsn.offset-ckplsn->offset;
+		bytes = lp->lsn.Offset_-ckplsn->Offset_;
 	lp->stat.st_wc_mbytes += bytes/MEGABYTE;
 	lp->stat.st_wc_bytes += bytes%MEGABYTE;
 	//
@@ -873,7 +872,7 @@ int __log_vtruncate(ENV * env, DB_LSN * lsn, DB_LSN * ckplsn, DB_LSN * trunclsn)
 	MUTEX_UNLOCK(env, lp->mtx_flush);
 	// Initialize the in-region buffer to a pristine state
 	ZERO_LSN(lp->f_lsn);
-	lp->w_off = lp->lsn.offset;
+	lp->w_off = lp->lsn.Offset_;
 	ASSIGN_PTR(trunclsn, lp->lsn);
 	// Truncate the log to the new point
 	if((ret = __log_zero(env, &lp->lsn)) != 0)
@@ -991,11 +990,11 @@ int __log_zero(ENV * env, DB_LSN * from_lsn)
 		    NULL, dblp->lfhp, &mbytes, &bytes, NULL)) != 0)
 		goto err;
 	DB_ASSERT(env, (mbytes*MEGABYTE+bytes) >= from_lsn->offset);
-	len = (mbytes*MEGABYTE+bytes)-from_lsn->offset;
+	len = (mbytes*MEGABYTE+bytes)-from_lsn->Offset_;
 
 	memzero(buf, sizeof(buf));
 	/* Initialize the write position. */
-	if((ret = __os_seek(env, dblp->lfhp, 0, 0, from_lsn->offset)) != 0)
+	if((ret = __os_seek(env, dblp->lfhp, 0, 0, from_lsn->Offset_)) != 0)
 		goto err;
 	while(len > 0) {
 		nbytes = len > sizeof(buf) ? sizeof(buf) : len;
@@ -1018,7 +1017,7 @@ int __log_inmem_lsnoff(DB_LOG * dblp, DB_LSN * lsnp, size_t * offsetp)
 	LOG * lp = (LOG *)dblp->reginfo.primary;
 	SH_TAILQ_FOREACH(filestart, &lp->logfiles, links, __db_filestart)
 	if(filestart->file == lsnp->file) {
-		*offsetp = (uint32)(filestart->b_off+lsnp->offset)%lp->buffer_size;
+		*offsetp = (uint32)(filestart->b_off+lsnp->Offset_)%lp->buffer_size;
 		return 0;
 	}
 	return DB_NOTFOUND;
@@ -1114,7 +1113,7 @@ int __log_inmem_chkspace(DB_LOG * dblp, size_t len)
 		LOG_SYSTEM_LOCK(env);
 		if(ret != 0)
 			return ret;
-		active_lsn.offset = 0;
+		active_lsn.Offset_ = 0;
 		/* If we didn't make any progress, give up. */
 		if(LOG_COMPARE(&active_lsn, &old_active_lsn) == 0) {
 			__db_errx(env, DB_STR("2535", "In-memory log buffer is full (an active transaction spans the buffer)"));

@@ -5528,7 +5528,7 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 				if(upper_tok == PPHS_WAY) {
 					ReadCommonAttrSet(ppAttrList, TempCaSet);
 					if(TempCaSet.RefID)
-						LastWay.NodeRefList.add(TempCaSet.RefID);
+						LastWay.NodeRefs.add(TempCaSet.RefID);
 				}
 				else {
 					; // @error
@@ -5681,6 +5681,7 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 	else if(Phase == phaseImport) {
 		static const uint node_accum_limit = 1024*1024;
 		static const uint way_accum_limit = 256 * 1024;
+		static const uint nodewayref_accum_limit = 1024*1024;
 		{
 			const uint _count = NodeAccum.getCount();
 			if(_count && (force || _count >= node_accum_limit)) {
@@ -5699,20 +5700,20 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 							uint64 head_id = 0;
 							size_t actual_count = 0;
 							if(do_use_outer_id) {
-								THROW(cluster.Put(&NodeAccum.at(offs), _count - offs, &head_id, &actual_count));
+								THROW(cluster.Put__(&NodeAccum.at(offs), 0 /*NodeRefs*/, _count - offs, &head_id, &actual_count, 0));
 							}
 							else {
-								THROW(cluster.Put(&NodeAccum.at(offs), _count - offs, 0, &actual_count));
+								THROW(cluster.Put__(&NodeAccum.at(offs), 0 /*NodeRefs*/, _count - offs, 0, &actual_count, 0));
 							}
 							PPOsm::SetNodeClusterStat(cluster, Stat.NcList);
 							// @debug {
 							{
 								test_list.clear();
 								if(do_use_outer_id) {
-									cluster.Get(head_id, test_list);
+									cluster.Get(head_id, test_list, 0);
 								}
 								else {
-									cluster.Get(0, test_list);
+									cluster.Get(0, test_list, 0);
 								}
 								for(uint i = 0; i < test_list.getCount(); i++) {
 									assert(test_list.at(i) == NodeAccum.at(offs+i));
@@ -5723,7 +5724,7 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 						}
 						assert(offs == _count);
 					}
-					OutputStat();
+					OutputStat(0);
 					assert((Stat.GetNcActualCount() + Stat.GetNcProcessedCount()) == Stat.NodeCount);
 					if(force)
 						NodeAccum.freeAll();
@@ -5769,14 +5770,24 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 						// } @debug
 					}
 				}
-				OutputStat();
+				OutputStat(0);
 				assert((Stat.GetNcActualCount() + Stat.GetNcProcessedCount()) == Stat.NodeCount);
 				assert(Stat.GetWsCount() + Stat.GetWsProcessedCount() == Stat.WayCount);
-				if(force)
-					NodeAccum.freeAll();
-				else
-					NodeAccum.clear();
 				WayAccum.freeAll();
+			}
+		}
+		{
+			const uint _count = NodeWayAssocAccum.getCount();
+			if(_count && (force || _count >= nodewayref_accum_limit)) {
+				NodeWayAssocAccum.Sort();
+				SrDatabase * p_db = O.GetDb();
+				if(p_db) {
+					THROW(p_db->StoreGeoNodeWayRefList(NodeWayAssocAccum));
+				}
+				if(force)
+					NodeWayAssocAccum.freeAll();
+				else
+					NodeWayAssocAccum.clear();
 			}
 		}
 	}
@@ -5784,34 +5795,36 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 	return ok;
 }
 
-int PrcssrOsm::OutputStat()
+int SLAPI PrcssrOsm::OutputStat(int detail)
 {
 	SString stat_info_buf;
 	stat_info_buf.CatEq("Node", Stat.NodeCount).CatDiv(';', 2).
 		CatEq("Way", Stat.WayCount).CatDiv(';', 2).
 		CatEq("Relation", Stat.RelationCount).CatDiv(';', 2);
 	PPLogMessage(PPFILNAM_INFO_LOG, stat_info_buf, LOGMSGF_TIME);
-	if(Stat.NcList.getCount()) {
-		for(uint i = 0; i < Stat.NcList.getCount(); i++) {
-			const PPOsm::NodeClusterStatEntry & r_entry = Stat.NcList.at(i);
-			stat_info_buf = 0;
-			stat_info_buf.CatEq("NodeLogicalCount", r_entry.LogicalCount).CatDiv(';', 2).
-				CatEq("NodeClusterCount", r_entry.ClusterCount).CatDiv(';', 2).
-				CatEq("NodeProcessesCount", r_entry.ProcessedCount).CatDiv(';', 2).
-				CatEq("NodeActualCount", r_entry.ActualCount).CatDiv(';', 2).
-				CatEq("NodeSize", r_entry.Size).CatDiv(';', 2);
-			PPLogMessage(PPFILNAM_INFO_LOG, stat_info_buf, 0);
+	if(detail) {
+		if(Stat.NcList.getCount()) {
+			for(uint i = 0; i < Stat.NcList.getCount(); i++) {
+				const PPOsm::NodeClusterStatEntry & r_entry = Stat.NcList.at(i);
+				stat_info_buf = 0;
+				stat_info_buf.CatEq("NodeLogicalCount", r_entry.LogicalCount).CatDiv(';', 2).
+					CatEq("NodeClusterCount", r_entry.ClusterCount).CatDiv(';', 2).
+					CatEq("NodeProcessesCount", r_entry.ProcessedCount).CatDiv(';', 2).
+					CatEq("NodeActualCount", r_entry.ActualCount).CatDiv(';', 2).
+					CatEq("NodeSize", r_entry.Size).CatDiv(';', 2);
+				PPLogMessage(PPFILNAM_INFO_LOG, stat_info_buf, 0);
+			}
 		}
-	}
-	if(Stat.WayList.getCount()) {
-		for(uint i = 0; i < Stat.WayList.getCount(); i++) {
-			const PPOsm::WayStatEntry & r_entry = Stat.WayList.at(i);
-			stat_info_buf = 0;
-			stat_info_buf.CatEq("WayRefCount", r_entry.RefCount).CatDiv(';', 2).
-				CatEq("WayProcessesCount", r_entry.ProcessedCount).CatDiv(';', 2).
-				CatEq("WayCount", r_entry.WayCount).CatDiv(';', 2).
-				CatEq("WaySize", r_entry.Size).CatDiv(';', 2);
-			PPLogMessage(PPFILNAM_INFO_LOG, stat_info_buf, 0);
+		if(Stat.WayList.getCount()) {
+			for(uint i = 0; i < Stat.WayList.getCount(); i++) {
+				const PPOsm::WayStatEntry & r_entry = Stat.WayList.at(i);
+				stat_info_buf = 0;
+				stat_info_buf.CatEq("WayRefCount", r_entry.RefCount).CatDiv(';', 2).
+					CatEq("WayProcessesCount", r_entry.ProcessedCount).CatDiv(';', 2).
+					CatEq("WayCount", r_entry.WayCount).CatDiv(';', 2).
+					CatEq("WaySize", r_entry.Size).CatDiv(';', 2);
+				PPLogMessage(PPFILNAM_INFO_LOG, stat_info_buf, 0);
+			}
 		}
 	}
 	return 1;
@@ -5829,6 +5842,9 @@ int PrcssrOsm::EndElement(const char * pName)
         PPOsm::Way * p_new_way = WayAccum.CreateNewItem();
 		THROW_SL(p_new_way);
 		*p_new_way = LastWay;
+		for(uint i = 0; i < p_new_way->NodeRefs.getCount(); i++) {
+			THROW_SL(NodeWayAssocAccum.Add(p_new_way->NodeRefs.get(i), p_new_way->ID, 0));
+		}
 		LastWay.Clear();
 	}
 	THROW(FlashNodeAccum(BIN(tok == PPHS_OSM)));
@@ -5839,7 +5855,7 @@ int PrcssrOsm::EndElement(const char * pName)
 	{
 		const uint64 total_count = Stat.NodeCount + Stat.WayCount + Stat.RelationCount;
 		if(tok == PPHS_OSM/* || (total_count % 1000000) == 0*/) {
-			OutputStat();
+			OutputStat(1);
 		}
 	}
 	CATCH
@@ -6205,6 +6221,16 @@ int SLAPI PrcssrOsm::Run()
 	SString out_file_name;
 	SString temp_buf;
 	SPathStruc ps;
+	const  char * p_db_path = "/PAPYRUS/PPY/BIN/SARTRDB";
+	/*
+	{
+		//
+		// DEBUG
+		//
+		PPOsm _debug_o(0);
+		THROW(_debug_o.OpenDatabase(p_db_path));
+	}
+	*/
 	PPWait(1);
 	{
 		ps.Split(file_name);
@@ -6338,7 +6364,6 @@ int SLAPI PrcssrOsm::Run()
 	if(P.Flags & PrcssrOsmFilt::fImport) {
 		Phase = phaseImport;
 		if(O.CheckStatus(O.stGridLoaded)) {
-			const  char * p_db_path = "/PAPYRUS/PPY/BIN/SARTRDB";
 			THROW(O.OpenDatabase(p_db_path));
 			{
 				xmlSAXHandler saxh_addr_obj;

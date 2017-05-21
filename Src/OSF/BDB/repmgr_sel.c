@@ -1623,7 +1623,7 @@ static int record_permlsn(ENV*env, REPMGR_CONNECTION * conn)
 		return 0;
 	}
 	VPRINT(env, (env, DB_VERB_REPMGR_MISC, "got ack [%lu][%lu](%lu) from %s", (ulong)ackp->lsn.file,
-		(ulong)ackp->lsn.offset, (ulong)ackp->generation, __repmgr_format_site_loc(site, location)));
+		(ulong)ackp->lsn.Offset_, (ulong)ackp->generation, __repmgr_format_site_loc(site, location)));
 	if(ackp->generation == gen && LOG_COMPARE(&ackp->lsn, &site->max_ack) == 1) {
 		memcpy(&site->max_ack, &ackp->lsn, sizeof(DB_LSN));
 		if((ret = __repmgr_wake_waiters(env, &db_rep->ack_waiters)) != 0)

@@ -100,7 +100,7 @@ int __log_verify(DB_ENV * dbenv, const DB_LOG_VERIFY_CONFIG * lvconfig, DB_THREA
 	if(fwdscroll) {
 		if(IS_ZERO_LSN(stop)) {
 			logcflag = DB_LAST;
-			key.file = key.offset = 0;
+			key.file = key.Offset_ = 0;
 		}
 		else {
 			key = stop;
@@ -130,7 +130,7 @@ vrfyscroll:
 	}
 	if(IS_ZERO_LSN(start)) {
 		logcflag = DB_FIRST;
-		key.file = key.offset = 0;
+		key.file = key.Offset_ = 0;
 	}
 	else {
 		key = start;
@@ -206,7 +206,7 @@ startscroll:
 				if(!IS_LOG_VRFY_SUPPORTED(version)) {
 					__db_msg(dbenv->env, DB_STR_A("2502", "[%lu][%lu] Unsupported version of log file, "
 						"log file number: %u, log file version: %u, supported log version: %u.",
-						"%lu %lu %u %u %u"), (ulong)key.file, (ulong)key.offset, key.file, version, DB_LOGVERSION);
+						"%lu %lu %u %u %u"), (ulong)key.file, (ulong)key.Offset_, key.file, version, DB_LOGVERSION);
 					if(logcflag == DB_NEXT) {
 						key.file += 1;
 						if(key.file > max_fileno)
@@ -222,7 +222,7 @@ startscroll:
 						if(key.file == 0)
 							break;
 					}
-					key.offset = FIRST_OFFSET(env);
+					key.Offset_ = FIRST_OFFSET(env);
 					logcflag = DB_SET;
 					continue;
 				}
@@ -236,7 +236,7 @@ startscroll:
 		ret = __db_dispatch(dbenv->env, &dtab, &data, &key, DB_TXN_LOG_VERIFY, logvrfy_hdl);
 		if(!fwdscroll && ret != 0) {
 			if(!F_ISSET(logvrfy_hdl, DB_LOG_VERIFY_CAF)) {
-				__db_err(dbenv->env, ret, "[%lu][%lu] __db_dispatch", (ulong)key.file, (ulong)key.offset);
+				__db_err(dbenv->env, ret, "[%lu][%lu] __db_dispatch", (ulong)key.file, (ulong)key.Offset_);
 				goto err;
 			}
 			else
@@ -344,9 +344,9 @@ int __log_verify_wrap(ENV * env, const char * envhome, uint32 cachesize,
 	cfg.start_time = stime;
 	cfg.end_time = etime;
 	cfg.start_lsn.file = stfile;
-	cfg.start_lsn.offset = stoffset;
+	cfg.start_lsn.Offset_ = stoffset;
 	cfg.end_lsn.file = efile;
-	cfg.end_lsn.offset = eoffset;
+	cfg.end_lsn.Offset_ = eoffset;
 	cfg.continue_after_fail = caf;
 	cfg.verbose = verbose;
 	return __log_verify_pp(env->dbenv, &cfg);

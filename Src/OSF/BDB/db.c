@@ -598,37 +598,40 @@ int __env_mpool(DB * dbp, const char * fname, uint32 flags)
  */
 int __db_close(DB * dbp, DB_TXN * txn, uint32 flags)
 {
-	int db_ref, ret, t_ret;
-	ENV  * env = dbp->env;
-	int    deferred_close = 0;
-	PERFMON4(env, db, close, dbp->fname, dbp->dname, flags, &dbp->fileid[0]);
-	/* Refresh the structure and close any underlying resources. */
-	ret = __db_refresh(dbp, txn, flags, &deferred_close, 0);
-	/*
-	 * If we've deferred the close because the logging of the close failed,
-	 * return our failure right away without destroying the handle.
-	 */
-	if(deferred_close)
-		return ret;
-	/* !!!
-	 * This code has an apparent race between the moment we read and
-	 * decrement env->db_ref and the moment we check whether it's 0.
-	 * However, if the environment is DBLOCAL, the user shouldn't have a
-	 * reference to the env handle anyway;  the only way we can get
-	 * multiple dbps sharing a local env is if we open them internally
-	 * during something like a subdatabase open.  If any such thing is
-	 * going on while the user is closing the original dbp with a local
-	 * env, someone's already badly screwed up, so there's no reason
-	 * to bother engineering around this possibility.
-	 */
-	MUTEX_LOCK(env, env->mtx_dblist);
-	db_ref = --env->db_ref;
-	MUTEX_UNLOCK(env, env->mtx_dblist);
-	if(F_ISSET(env, ENV_DBLOCAL) && db_ref == 0 && (t_ret = __env_close(env->dbenv, 0)) != 0 && ret == 0)
-		ret = t_ret;
-	/* Free the database handle. */
-	memset(dbp, CLEAR_BYTE, sizeof(*dbp));
-	__os_free(env, dbp);
+	int    ret = 0;
+	if(dbp) {
+		int    db_ref, t_ret;
+		ENV  * env = dbp->env;
+		int    deferred_close = 0;
+		PERFMON4(env, db, close, dbp->fname, dbp->dname, flags, &dbp->fileid[0]);
+		/* Refresh the structure and close any underlying resources. */
+		ret = __db_refresh(dbp, txn, flags, &deferred_close, 0);
+		/*
+		 * If we've deferred the close because the logging of the close failed,
+		 * return our failure right away without destroying the handle.
+		 */
+		if(!deferred_close) {
+			/* !!!
+			 * This code has an apparent race between the moment we read and
+			 * decrement env->db_ref and the moment we check whether it's 0.
+			 * However, if the environment is DBLOCAL, the user shouldn't have a
+			 * reference to the env handle anyway;  the only way we can get
+			 * multiple dbps sharing a local env is if we open them internally
+			 * during something like a subdatabase open.  If any such thing is
+			 * going on while the user is closing the original dbp with a local
+			 * env, someone's already badly screwed up, so there's no reason
+			 * to bother engineering around this possibility.
+			 */
+			MUTEX_LOCK(env, env->mtx_dblist);
+			db_ref = --env->db_ref;
+			MUTEX_UNLOCK(env, env->mtx_dblist);
+			if(F_ISSET(env, ENV_DBLOCAL) && db_ref == 0 && (t_ret = __env_close(env->dbenv, 0)) != 0 && ret == 0)
+				ret = t_ret;
+			/* Free the database handle. */
+			memset(dbp, CLEAR_BYTE, sizeof(*dbp));
+			__os_free(env, dbp);
+		}
+	}
 	return ret;
 }
 /*

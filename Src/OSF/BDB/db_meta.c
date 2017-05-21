@@ -42,23 +42,13 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/log.h"
-// @v9.5.5 #include "dbinc/txn.h"
-// @v9.5.5 #include "dbinc/db_am.h"
 
-static void __db_init_meta __P((DB*, void *, db_pgno_t, uint32));
+static void __db_init_meta(DB*, void *, db_pgno_t, uint32);
 #ifdef HAVE_FTRUNCATE
-static int __db_pglistcmp __P((const void *, const void *));
-static int __db_truncate_freelist __P((DBC*, DBMETA*, PAGE*, db_pgno_t*, uint32, uint32));
+static int __db_pglistcmp(const void *, const void *);
+static int __db_truncate_freelist(DBC*, DBMETA*, PAGE*, db_pgno_t*, uint32, uint32);
 #endif
-
 /*
  * __db_init_meta --
  *	Helper function for __db_new that initializes the important fields in
@@ -68,9 +58,9 @@ static int __db_truncate_freelist __P((DBC*, DBMETA*, PAGE*, db_pgno_t*, uint32,
 static void __db_init_meta(DB * dbp, void * p, db_pgno_t pgno, uint32 pgtype)
 {
 	DBMETA * meta = (DBMETA *)p;
-	DB_LSN save_lsn = meta->lsn;
+	DB_LSN save_lsn = meta->Lsn;
 	memzero(meta, sizeof(DBMETA));
-	meta->lsn = save_lsn;
+	meta->Lsn = save_lsn;
 	meta->pagesize = dbp->pgsize;
 	if(F_ISSET(dbp, DB_AM_CHKSUM))
 		FLD_SET(meta->metaflags, DBMETA_CHKSUM);
@@ -878,12 +868,8 @@ again:
 			pg = last_free;
 		else if((ret = __memp_fget(mpf, &spp[-1].pgno, dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &pg)) != 0)
 			goto err;
-		if((ret = __db_pg_trunc_log(dbp, dbc->txn,
-			    &LSN(meta), last == 1 ? DB_FLUSH : 0,
-			    PGNO(meta), &LSN(meta),
-			    pg != NULL ? PGNO(pg) : PGNO_INVALID,
-			    pg != NULL ? &LSN(pg) : &null_lsn,
-			    free_pgno, lpgno, &ddbt)) != 0)
+		if((ret = __db_pg_trunc_log(dbp, dbc->txn, &LSN(meta), last == 1 ? DB_FLUSH : 0, PGNO(meta), &LSN(meta),
+			    pg != NULL ? PGNO(pg) : PGNO_INVALID, pg != NULL ? &LSN(pg) : &null_lsn, free_pgno, lpgno, &ddbt)) != 0)
 			goto err;
 		if(pg != NULL) {
 			LSN(pg) = LSN(meta);
@@ -910,16 +896,16 @@ again:
 			goto err;
 		last_free = NULL;
 	}
-	/* Shrink the number of elements in the list. */
+	// Shrink the number of elements in the list
 	ret = __memp_extend_freelist(mpf, start, &list);
 err:
 	__os_free(dbp->env, plist);
-	/* We need to put the page on error. */
-	if(h != NULL)
+	// We need to put the page on error
+	if(h)
 		__memp_fput(mpf, dbc->thread_info, h, dbc->priority);
-	if(pg != NULL && pg != last_free)
+	if(pg && pg != last_free)
 		__memp_fput(mpf, dbc->thread_info, pg, dbc->priority);
-	if(last_free != NULL)
+	if(last_free)
 		__memp_fput(mpf, dbc->thread_info, last_free, dbc->priority);
 	return ret;
 }

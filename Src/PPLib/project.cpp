@@ -1247,9 +1247,7 @@ int SLAPI PPObjPrjTask::ImportFromVCal()
 		}
 		PPWait(0);
 	}
-	CATCH
-		ok = PPErrorZ();
-	ENDCATCH
+	CATCHZOKPPERR
 	delete p_dlg;
 	return ok;
 }
@@ -2411,9 +2409,7 @@ int SLAPI PPObjPrjTask::RecoverAbsencePerson()
 			}
 		}
 	}
-	CATCH
-		ok = PPErrorZ();
-	ENDCATCH
+	CATCHZOKPPERR
 	delete p_dlg;
 	ZDELETE(p_q);
 	PPWait(0);

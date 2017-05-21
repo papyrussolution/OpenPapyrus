@@ -2406,8 +2406,10 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							SXml::WNode n_h(_doc, "ainp:Header");
 							n_h.PutInner("ainp:Number", EncText(temp_buf = p_bp->Rec.Code));
 							n_h.PutInner("ainp:ActDate", EncText((temp_buf = 0).Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
-							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0)
-								(temp_buf = "Продукция, полученная до 01.01.2016").Transf(CTRANSF_OUTER_TO_INNER);
+							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0) {
+								// @v9.6.7 (temp_buf = "Продукция, полученная до 01.01.2016").Transf(CTRANSF_OUTER_TO_INNER);
+								PPLoadText(PPTXT_EGAIS_PRODRCVDBEFORE2016, temp_buf); // @v9.6.7
+							}
 							n_h.PutInner("ainp:TypeChargeOn", EncText(temp_buf));
 						}
 						{
@@ -5659,6 +5661,46 @@ int SLAPI PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, 
 			}
 			LogTextWithAddendum(msg_id, rBillText);
 			ok = 1;
+		}
+		{
+			//
+			// @v9.6.7
+			//
+			const char * p_utm_rej_pfx = "UTM Rej";
+			const char * p_egais_rej_pfx = "EGAIS Rej";
+			SString memo_msg;
+			if(conclusion == 0) {
+				if(pT->R.Type == 1 && pT->R.Comment.NotEmpty()) {
+					memo_msg.Space().Cat(p_utm_rej_pfx).CatDiv(':', 2).Cat(pT->R.Comment);
+				}
+				if(pT->OpR.Type == 2 && pT->OpR.Comment.NotEmpty()) {
+					memo_msg.Space().Cat(p_egais_rej_pfx).CatDiv(':', 2).Cat(pT->OpR.Comment);
+				}
+			}
+			{
+				int   do_update_memos = 0;
+				SString memos;
+				StringSet ss_memo(MemosDelim);
+				StringSet ss_memo_new(MemosDelim);
+				p_ref->GetPropVlrString(PPOBJ_BILL, bill_id, PPPRP_BILLMEMO, memos);
+				ss_memo.setBuf(memos);
+				for(uint ssp = 0; ss_memo.get(&ssp, temp_buf);) {
+					if(temp_buf.CmpPrefix(p_utm_rej_pfx, 1) == 0 || temp_buf.CmpPrefix(p_egais_rej_pfx, 1) == 0) {
+						do_update_memos = 1;
+					}
+					else {
+						ss_memo_new.add(temp_buf);
+					}
+				}
+				if(memo_msg.NotEmpty()) {
+					ss_memo_new.add(memo_msg);
+					do_update_memos = 1;
+				}
+				if(do_update_memos) {
+					memos = ss_memo_new.getBuf();
+					PutObjMemos(PPOBJ_BILL, PPPRP_BILLMEMO, bill_id, memos, 0);
+				}
+			}
 		}
 		THROW(tra.Commit());
 	}

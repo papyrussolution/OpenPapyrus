@@ -730,8 +730,8 @@ class AcctRelCache : public ObjCache {
 public:
 	SLAPI  AcctRelCache() : ObjCache(PPOBJ_ACCTREL, sizeof(Data)) {}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		PPID   AccID;
@@ -770,7 +770,7 @@ int SLAPI AcctRelCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI AcctRelCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI AcctRelCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	AcctRelTbl::Rec * p_data_pack = (AcctRelTbl::Rec *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -786,7 +786,6 @@ int SLAPI AcctRelCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRe
 	CPY_FLD(Closed);
 	CPY_FLD(Flags);
 #undef CPY_FLD
-	return 1;
 }
 
 int SLAPI AcctRel::Fetch(PPID id, AcctRelTbl::Rec * pRec)

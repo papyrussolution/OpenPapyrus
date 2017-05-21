@@ -51,10 +51,10 @@ int __db_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, c
 	int ret;
 	ENV * env = dbp->env;
 	uint32 id = TXN_INVALID;
-	/*
-	 * We must flush any existing pages before truncating the file
-	 * since they could age out of mpool and overwrite new pages.
-	 */
+	// 
+	// We must flush any existing pages before truncating the file
+	// since they could age out of mpool and overwrite new pages.
+	// 
 	if(LF_ISSET(DB_TRUNCATE)) {
 		if((ret = __db_create_internal(&tdbp, dbp->env, 0)) != 0)
 			goto err;
@@ -66,26 +66,26 @@ int __db_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, c
 		ret = 0;
 	}
 	DB_TEST_RECOVERY(dbp, DB_TEST_PREOPEN, ret, fname);
-	/*
-	 * If the environment was configured with threads, the DB handle
-	 * must also be free-threaded, so we force the DB_THREAD flag on.
-	 * (See SR #2033 for why this is a requirement--recovery needs
-	 * to be able to grab a dbp using __db_fileid_to_dbp, and it has
-	 * no way of knowing which dbp goes with which thread, so whichever
-	 * one it finds has to be usable in any of them.)
-	 */
+	// 
+	// If the environment was configured with threads, the DB handle
+	// must also be free-threaded, so we force the DB_THREAD flag on.
+	// (See SR #2033 for why this is a requirement--recovery needs
+	// to be able to grab a dbp using __db_fileid_to_dbp, and it has
+	// no way of knowing which dbp goes with which thread, so whichever
+	// one it finds has to be usable in any of them.)
+	// 
 	if(F_ISSET(env, ENV_THREAD))
 		LF_SET(DB_THREAD);
-	/* Convert any DB->open flags. */
+	// Convert any DB->open flags
 	if(LF_ISSET(DB_RDONLY))
 		F_SET(dbp, DB_AM_RDONLY);
 	if(LF_ISSET(DB_READ_UNCOMMITTED))
 		F_SET(dbp, DB_AM_READ_UNCOMMITTED);
 	if(IS_REAL_TXN(txn))
 		F_SET(dbp, DB_AM_TXN);
-	/* Fill in the type. */
+	// Fill in the type
 	dbp->type = type;
-	/* Save the file and database names. */
+	// Save the file and database names
 	if((fname && (ret = __os_strdup(env, fname, &dbp->fname)) != 0))
 		goto err;
 	if((dname && (ret = __os_strdup(env, dname, &dbp->dname)) != 0))
@@ -198,11 +198,10 @@ int __db_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, c
 		goto err;
 #endif
 	DB_TEST_RECOVERY(dbp, DB_TEST_POSTOPEN, ret, fname);
-	/*
-	 * Temporary files don't need handle locks, so we only have to check
-	 * for a handle lock downgrade or lockevent in the case of named
-	 * files.
-	 */
+	//
+	// Temporary files don't need handle locks, so we only have to check
+	// for a handle lock downgrade or lockevent in the case of named files.
+	//
 	if(!F_ISSET(dbp, DB_AM_RECOVER) && (fname || dname) && LOCK_ISSET(dbp->handle_lock)) {
 		if(IS_REAL_TXN(txn))
 			ret = __txn_lockevent(env, txn, dbp, &dbp->handle_lock, dbp->locker);
@@ -358,20 +357,18 @@ chk_retry:
 #ifdef HAVE_CRYPTO
 	ret = __crypto_decrypt_meta(env, dbp, (uint8 *)meta, LF_ISSET(DB_CHK_META));
 #endif
-	/* Now that we're decrypted, we can check LSN. */
+	// Now that we're decrypted, we can check LSN
 	if(LOGGING_ON(env) && !LF_ISSET(DB_CHK_NOLSN)) {
-		/*
-		 * This gets called both before and after swapping, so we
-		 * need to check ourselves.  If we already swapped it above,
-		 * we'll know that here.
-		 */
-
-		swap_lsn = meta->lsn;
+		// 
+		// This gets called both before and after swapping, so we
+		// need to check ourselves.  If we already swapped it above, we'll know that here.
+		// 
+		swap_lsn = meta->Lsn;
 		magic = meta->magic;
 lsn_retry:
 		if(swapped) {
 			M_32_SWAP(swap_lsn.file);
-			M_32_SWAP(swap_lsn.offset);
+			M_32_SWAP(swap_lsn.Offset_);
 			M_32_SWAP(magic);
 		}
 		switch(magic) {
@@ -380,16 +377,15 @@ lsn_retry:
 		    case DB_HEAPMAGIC:
 		    case DB_QAMMAGIC:
 		    case DB_RENAMEMAGIC:
-			break;
+				break;
 		    default:
-			if(swapped)
-				return EINVAL;
-			swapped = 1;
-			goto lsn_retry;
+				if(swapped)
+					return EINVAL;
+				swapped = 1;
+				goto lsn_retry;
 		}
 		if(!IS_REP_CLIENT(env) && !IS_NOT_LOGGED_LSN(swap_lsn) && !IS_ZERO_LSN(swap_lsn))
-			/* Need to do check. */
-			ret = __log_check_page_lsn(env, dbp, &swap_lsn);
+			ret = __log_check_page_lsn(env, dbp, &swap_lsn); // Need to do check. 
 	}
 	return ret;
 }

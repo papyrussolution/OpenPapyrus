@@ -1074,7 +1074,6 @@ static int __ham_expand_table(DBC * dbc)
 	h = NULL;
 	newalloc = 0;
 	got_meta = 0;
-
 	/*
 	 * If the split point is about to increase, make sure that we
 	 * have enough extra pages.  The calculation here is weird.
@@ -1092,20 +1091,19 @@ static int __ham_expand_table(DBC * dbc)
 	 * then we simply need to get it to get its LSN.  If it hasn't yet
 	 * been allocated, then we know it's LSN (0,0).
 	 */
-
 	new_bucket = hcp->hdr->max_bucket+1;
 	old_bucket = new_bucket&hcp->hdr->low_mask;
 	new_double = hcp->hdr->max_bucket == hcp->hdr->high_mask;
 	logn = __db_log2(new_bucket);
 	if(!new_double || hcp->hdr->spares[logn+1] != PGNO_INVALID) {
-		/* Page exists; get it so we can get its LSN */
+		// Page exists; get it so we can get its LSN 
 		pgno = BUCKET_TO_PAGE(hcp, new_bucket);
 		if((ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, DB_MPOOL_CREATE|DB_MPOOL_DIRTY, &h)) != 0)
 			goto err;
 		lsn = h->lsn;
 	}
 	else {
-		/* Get the master meta-data page to do allocation. */
+		// Get the master meta-data page to do allocation
 		if(F_ISSET(dbp, DB_AM_SUBDB)) {
 			mpgno = PGNO_BASE_MD;
 			if((ret = __db_lget(dbc, 0, mpgno, DB_LOCK_WRITE, 0, &metalock)) != 0)
@@ -1127,15 +1125,13 @@ static int __ham_expand_table(DBC * dbc)
 		 * do the actual allocation here) or the LSN on the last
 		 * page of the unit (if we did do the allocation here).
 		 */
-		if((ret = __ham_metagroup_log(dbp, dbc->txn,
-			    &lsn, 0, hcp->hdr->max_bucket, mpgno, &mmeta->lsn,
-			    hcp->hdr->dbmeta.pgno, &hcp->hdr->dbmeta.lsn,
-			    pgno, &lsn, newalloc, mmeta->last_pgno)) != 0)
+		if((ret = __ham_metagroup_log(dbp, dbc->txn, &lsn, 0, hcp->hdr->max_bucket, mpgno, &mmeta->Lsn,
+			hcp->hdr->dbmeta.pgno, &hcp->hdr->dbmeta.Lsn, pgno, &lsn, newalloc, mmeta->last_pgno)) != 0)
 			goto err;
 	}
 	else
 		LSN_NOT_LOGGED(lsn);
-	hcp->hdr->dbmeta.lsn = lsn;
+	hcp->hdr->dbmeta.Lsn = lsn;
 	if(new_double && hcp->hdr->spares[logn+1] == PGNO_INVALID) {
 		/*
 		 * We need to begin a new doubling and we have not allocated
@@ -1146,23 +1142,22 @@ static int __ham_expand_table(DBC * dbc)
 		 * simplifies bucket to page transaction).  After we've set
 		 * that, we calculate the last pgno.
 		 */
-
 		pgno += hcp->hdr->max_bucket;
 		if((ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, DB_MPOOL_CREATE|DB_MPOOL_DIRTY, &h)) != 0)
 			goto err;
 		hcp->hdr->spares[logn+1] = (pgno-new_bucket)-hcp->hdr->max_bucket;
 		mmeta->last_pgno = pgno;
-		mmeta->lsn = lsn;
+		mmeta->Lsn = lsn;
 		P_INIT(h, dbp->pgsize, pgno, PGNO_INVALID, PGNO_INVALID, 0, P_HASH);
 	}
-	/* Write out whatever page we ended up modifying. */
+	// Write out whatever page we ended up modifying.
 	h->lsn = lsn;
 	if((ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0)
 		goto err;
 	h = NULL;
-	/*
-	 * Update the meta-data page of this hash database.
-	 */
+	//
+	// Update the meta-data page of this hash database.
+	//
 	hcp->hdr->max_bucket = new_bucket;
 	if(new_double) {
 		hcp->hdr->low_mask = hcp->hdr->high_mask;

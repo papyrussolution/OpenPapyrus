@@ -619,9 +619,8 @@ int PPDrvSberTrmnl::Refund(double amount)
 
 int PPDrvSberTrmnl::GetSessReport(SString & rCheck)
 {
-	int ok = 1, result = SBRBNK_ERR_OK;
+	int    ok = 1, result = SBRBNK_ERR_OK;
 	AuthAnswerSt auth_answr;
-	
 	MEMSZERO(auth_answr);
 	auth_answr.TType = SBRBNK_FUNC_CLOSEDAY;
 	// ≈сли в прошлый раз выходного буфера было недостаточно (это провер€етс€ где-то выше),

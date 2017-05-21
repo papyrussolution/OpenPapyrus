@@ -167,9 +167,9 @@ int SLAPI PPQuotItemArray::Set(const PPQuot & rQ, long flags)
 	return ok;
 }
 
-int PPQuotItemArray::Sort()
+void SLAPI PPQuotItemArray::Sort()
 {
-	return SArray::sort(PTR_CMPFUNC(PPQuotItem_));
+	SArray::sort(PTR_CMPFUNC(PPQuotItem_));
 }
 //
 // PPQuot
@@ -682,9 +682,9 @@ int SLAPI PPQuotArray::GetResult(const QuotIdent & rIdent, double cost, double p
 	return ok;
 }
 
-int SLAPI PPQuotArray::Sort()
+void SLAPI PPQuotArray::Sort()
 {
-	return SArray::sort(PTR_CMPFUNC(PPQuot));
+	SArray::sort(PTR_CMPFUNC(PPQuot));
 }
 
 int SLAPI PPQuotArray::IsDisabled(const QuotIdent & rIdent, const PPIDArray * pQKList, PPQuotArray * pParentQuots)
@@ -1757,9 +1757,8 @@ private:
 	{
 		return 0;
 	}
-	virtual int  SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	{
-		return 0;
 	}
 	int    FASTCALL Search(PPID goodsID, uint * pPos) const
 	{
@@ -3298,7 +3297,7 @@ private:
 			ok = -1;
 		return ok;
 	}
-	virtual int SLAPI Quot2RelCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+	virtual void SLAPI Quot2RelCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	{
 		PPQuot * p_data_rec = (PPQuot *)pDataRec;
 		const Data * p_cache_rec = (const Data *)pEntry;
@@ -3308,7 +3307,6 @@ private:
 		p_data_rec->CurID = p_cache_rec->CurID;
 		p_data_rec->MinQtty = p_cache_rec->MinQtty;
 		Quotation2Core::PeriodIdxToPeriod(p_cache_rec->PeriodIdx, &p_data_rec->Period); // @v7.3.5
-		return 1;
 	}
 
 	Quotation2Core * P_Qc; // @notowned
@@ -3409,9 +3407,8 @@ private:
 	{
 		return 0;
 	}
-	virtual int  SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	{
-		return 0;
 	}
 	int    FASTCALL Search(PPID goodsID, uint * pPos) const
 	{

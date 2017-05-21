@@ -52,9 +52,8 @@ static void __bam_init_meta(DB*, BTMETA*, db_pgno_t, DB_LSN *);
  */
 int __bam_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, db_pgno_t base_pgno, uint32 flags)
 {
-	BTREE * t;
 	COMPQUIET(name, NULL);
-	t = (BTREE *)dbp->bt_internal;
+	BTREE * t = (BTREE *)dbp->bt_internal;
 	/*
 	 * We don't permit the user to specify a prefix routine if they didn't
 	 * also specify a comparison routine, they can't know enough about our
@@ -68,12 +67,12 @@ int __bam_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, d
 	 * Verify that the bt_minkey value specified won't cause the
 	 * calculation of ovflsize to underflow [#2406] for this pagesize.
 	 */
-	if(B_MINKEY_TO_OVFLSIZE(dbp, t->bt_minkey, dbp->pgsize) > B_MINKEY_TO_OVFLSIZE(dbp, DEFMINKEYPAGE, dbp->pgsize)) {
+	else if(B_MINKEY_TO_OVFLSIZE(dbp, t->bt_minkey, dbp->pgsize) > B_MINKEY_TO_OVFLSIZE(dbp, DEFMINKEYPAGE, dbp->pgsize)) {
 		__db_errx(dbp->env, DB_STR_A("1007", "bt_minkey value of %lu too high for page size of %lu", "%lu %lu"), (ulong)t->bt_minkey, (ulong)dbp->pgsize);
 		return EINVAL;
 	}
-	/* Start up the tree. */
-	return __bam_read_root(dbp, ip, txn, base_pgno, flags);
+	else // Start up the tree
+		return __bam_read_root(dbp, ip, txn, base_pgno, flags);
 }
 /*
  * __bam_metachk --
@@ -294,7 +293,7 @@ static void __bam_init_meta(DB * dbp, BTMETA * meta, db_pgno_t pgno, DB_LSN * ls
 	ENV * env = dbp->env;
 	BTREE * t = (BTREE *)dbp->bt_internal;
 	memzero(meta, sizeof(BTMETA));
-	meta->dbmeta.lsn = *lsnp;
+	meta->dbmeta.Lsn = *lsnp;
 	meta->dbmeta.pgno = pgno;
 	meta->dbmeta.magic = DB_BTREEMAGIC;
 	meta->dbmeta.version = DB_BTREEVERSION;
@@ -415,8 +414,7 @@ int __bam_new_file(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, con
 			    dbp->pgsize, 0, 0, buf, dbp->pgsize, 1, F_ISSET(dbp, DB_AM_NOT_DURABLE) ? DB_LOG_NOT_DURABLE : 0)) != 0)
 			goto err;
 		meta = NULL;
-
-		/* Build the root page. */
+		// Build the root page
 #ifdef DIAGNOSTIC
 		memset(buf, CLEAR_BYTE, dbp->pgsize);
 #endif
@@ -465,9 +463,9 @@ int __bam_new_subdb(DB * mdbp, DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn)
 	if((ret = __memp_fget(mpf, &dbp->meta_pgno, ip, txn, DB_MPOOL_CREATE|DB_MPOOL_DIRTY, &meta)) != 0)
 		goto err;
 	/* Build meta-data page. */
-	lsn = meta->dbmeta.lsn;
+	lsn = meta->dbmeta.Lsn;
 	__bam_init_meta(dbp, meta, dbp->meta_pgno, &lsn);
-	if((ret = __db_log_page(mdbp, txn, &meta->dbmeta.lsn, dbp->meta_pgno, (PAGE *)meta)) != 0)
+	if((ret = __db_log_page(mdbp, txn, &meta->dbmeta.Lsn, dbp->meta_pgno, (PAGE *)meta)) != 0)
 		goto err;
 	/* Create and initialize a root page. */
 	if((ret = __db_new(dbc, dbp->type == DB_RECNO ? P_LRECNO : P_LBTREE, NULL, &root)) != 0)
@@ -477,7 +475,7 @@ int __bam_new_subdb(DB * mdbp, DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn)
 #if !defined(DEBUG_WOP)
 	   txn != NULL &&
 #endif
-	   (ret = __bam_root_log(mdbp, txn, &meta->dbmeta.lsn, 0, meta->dbmeta.pgno, root->pgno, &meta->dbmeta.lsn)) != 0)
+	   (ret = __bam_root_log(mdbp, txn, &meta->dbmeta.Lsn, 0, meta->dbmeta.pgno, root->pgno, &meta->dbmeta.Lsn)) != 0)
 		goto err;
 	meta->root = root->pgno;
 	if((ret = __db_log_page(mdbp, txn, &root->lsn, root->pgno, root)) != 0)

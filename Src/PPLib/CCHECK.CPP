@@ -5348,9 +5348,8 @@ private:
 	{
 		return -1;
 	}
-	virtual int  SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	{
-		return 1;
 	}
 	int    RefreshCTableStatusList(int force);
 	LDATETIME CTableStatusTime; // Время последнего извлечения чеков для определения статусов столов

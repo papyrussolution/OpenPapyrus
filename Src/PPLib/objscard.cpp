@@ -3986,14 +3986,14 @@ int SLAPI PPObjSCard::IndexPhones(int use_ta)
 //
 class SCardSeriesCache : public ObjCache {
 public:
-	SLAPI SCardSeriesCache() : ObjCache(PPOBJ_SCARDSERIES, sizeof(Data))
+	SLAPI  SCardSeriesCache() : ObjCache(PPOBJ_SCARDSERIES, sizeof(Data))
 	{
 		MEMSZERO(Cfg);
 	}
 	int    SLAPI GetConfig(PPSCardConfig * pCfg, int enforce); // @sync_w
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		LDATE  Issue;
@@ -4030,9 +4030,9 @@ int SLAPI SCardSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		CPY_FLD(QuotKindID_s);
 		CPY_FLD(PersonKindID);
 		CPY_FLD(CrdGoodsGrpID);
-		CPY_FLD(BonusGrpID); // @v7.3.8
-		CPY_FLD(BonusChrgGrpID); // @v7.3.10
-		CPY_FLD(ChargeGoodsID);  // @v7.6.7
+		CPY_FLD(BonusGrpID);
+		CPY_FLD(BonusChrgGrpID);
+		CPY_FLD(ChargeGoodsID);
 		CPY_FLD(BonusChrgExtRule); // @v8.2.10
 #undef CPY_FLD
 		StringSet ss("/&");
@@ -4044,7 +4044,7 @@ int SLAPI SCardSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI SCardSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI SCardSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPSCardSeries * p_data_rec = (PPSCardSeries*)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -4060,9 +4060,9 @@ int SLAPI SCardSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 	CPY_FLD(QuotKindID_s);
 	CPY_FLD(PersonKindID);
 	CPY_FLD(CrdGoodsGrpID);
-	CPY_FLD(BonusGrpID); // @v7.3.8
-	CPY_FLD(BonusChrgGrpID); // @v7.3.10
-	CPY_FLD(ChargeGoodsID);  // @v7.6.7
+	CPY_FLD(BonusGrpID);
+	CPY_FLD(BonusChrgGrpID);
+	CPY_FLD(ChargeGoodsID);
 	CPY_FLD(BonusChrgExtRule); // @v8.2.10
 #undef CPY_FLD
 	char   temp_buf[1024];
@@ -4073,7 +4073,6 @@ int SLAPI SCardSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 	ss.get(&p, p_data_rec->Name, sizeof(p_data_rec->Name));
 	ss.get(&p, p_data_rec->Symb, sizeof(p_data_rec->Symb));
 	ss.get(&p, p_data_rec->CodeTempl, sizeof(p_data_rec->CodeTempl));
-	return 1;
 }
 
 int SLAPI SCardSeriesCache::GetConfig(PPSCardConfig * pCfg, int enforce)
@@ -4147,8 +4146,8 @@ public:
 	}
 	int    FetchUhttEntry(const char * pCode, PPObjSCard::UhttEntry * pEntry);
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
 	class FclArray : public StrAssocArray {
 	public:
@@ -4220,7 +4219,7 @@ int SLAPI SCardCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData
 	return ok;
 }
 
-int SLAPI SCardCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI SCardCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	SCardTbl::Rec * p_data_rec = (SCardTbl::Rec *)pDataRec;
 	if(p_data_rec) {
@@ -4250,7 +4249,6 @@ int SLAPI SCardCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 		b.Get(p_data_rec->Code, sizeof(p_data_rec->Code));
 		//b.Get(p_data_rec->Password, sizeof(p_data_rec->Password));
 	}
-	return 1;
 }
 
 const StrAssocArray * SLAPI SCardCache::GetFullList()

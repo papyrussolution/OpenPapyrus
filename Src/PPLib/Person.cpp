@@ -260,10 +260,10 @@ int SLAPI PPObjPersonRelType::SearchSymb(PPID * pID, const char * pSymb)
 
 class PersonRelTypeCache : public ObjCache {
 public:
-	SLAPI PersonRelTypeCache() : ObjCache(PPOBJ_PERSONRELTYPE, sizeof(PersonRelTypeCache::Entry)) {}
+	SLAPI  PersonRelTypeCache() : ObjCache(PPOBJ_PERSONRELTYPE, sizeof(PersonRelTypeCache::Entry)) {}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Entry : public ObjCacheEntry {
 		int16  StatusRestriction; // Ограничение по статусу отношений (PPPersonRelType::ssXXX)
@@ -296,7 +296,7 @@ int SLAPI PersonRelTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI PersonRelTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI PersonRelTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPPersonRelTypePacket * p_pack = (PPPersonRelTypePacket *)pDataRec;
 	const Entry * p_cache_rec = (const Entry *)pEntry;
@@ -312,7 +312,6 @@ int SLAPI PersonRelTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * p
 #ifdef PERSONRELTYPE_CACHE_SYMB
 	GetName(p_cache_rec, p_pack->Rec.Symb, sizeof(p_pack->Rec.Symb));
 #endif
-	return 1;
 }
 
 int SLAPI PPObjPersonRelType::Fetch(PPID id, PPPersonRelTypePacket * pPack)

@@ -777,9 +777,7 @@ int SLAPI PrcssrDbDump::EditParam(Param * pData)
 			getCtrlString(CTL_DBDUMP_FILE, Data.FileName);
 			Data.FileName.Strip();
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorZ();
-			ENDCATCH
+			CATCHZOKPPERR
 			return ok;
 		}
 	private:

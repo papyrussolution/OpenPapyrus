@@ -430,8 +430,8 @@ public:
 	{
 	}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
 };
 
@@ -454,7 +454,7 @@ int SLAPI AccSheetCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI AccSheetCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI AccSheetCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPAccSheet * p_data_rec = (PPAccSheet *)pDataRec;
 	const AccSheetData * p_cache_rec = (const AccSheetData *)pEntry;
@@ -467,7 +467,6 @@ int SLAPI AccSheetCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 	p_data_rec->Assoc = p_cache_rec->Assoc;
 	p_data_rec->ObjGroup = p_cache_rec->ObjGroup;
 	GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
-	return 1;
 }
 // }
 

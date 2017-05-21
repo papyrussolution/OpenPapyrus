@@ -56,7 +56,7 @@ public:
 		}
 		return ok;
 	}
-	int    SLAPI Sort();
+	void   SLAPI Sort();
 private:
 	CompFunc TextCmpProc;
 	TSArray <uint> SPosList;
@@ -397,9 +397,9 @@ int SLAPI SfSortStringPool::Helper_CmpFunc_ByText(const uint * p1, const uint * 
 	return pArray->TextCmpProc ? pArray->TextCmpProc(p_str1, p_str2, 0) : stricmp866(p_str1, p_str2);
 }
 
-int SLAPI SfSortStringPool::Sort()
+void SLAPI SfSortStringPool::Sort()
 {
-	return SPosList.sort(PTR_CMPFUNC(SfSortStringPool), this);
+	SPosList.sort(PTR_CMPFUNC(SfSortStringPool), this);
 }
 
 // static

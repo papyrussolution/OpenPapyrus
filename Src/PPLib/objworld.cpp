@@ -1475,12 +1475,12 @@ int SLAPI PPObjWorld::Recover(PPLogger * pLogger)
 //
 class WorldCache : public ObjCache {
 public:
-	SLAPI WorldCache() : ObjCache(PPOBJ_WORLD, sizeof(WorldData))
+	SLAPI  WorldCache() : ObjCache(PPOBJ_WORLD, sizeof(WorldData))
 	{
 	}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct WorldData : public ObjCacheEntry {
 		long   Kind;
@@ -1524,7 +1524,7 @@ int SLAPI WorldCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI WorldCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI WorldCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	WorldTbl::Rec * p_data_rec = (WorldTbl::Rec *)pDataRec;
 	const WorldData * p_cache_rec = (const WorldData *)pEntry;
@@ -1546,7 +1546,6 @@ int SLAPI WorldCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 	b.Get(p_data_rec->Phone, sizeof(p_data_rec->Phone));
 	b.Get(p_data_rec->Code,  sizeof(p_data_rec->Code));
 	b.Get(p_data_rec->ZIP,   sizeof(p_data_rec->ZIP));
-	return 1;
 }
 
 int SLAPI PPObjWorld::Fetch(PPID id, WorldTbl::Rec * pRec)

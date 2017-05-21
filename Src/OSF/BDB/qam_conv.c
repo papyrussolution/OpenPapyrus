@@ -59,7 +59,7 @@ int __qam_pgin_out(ENV*env, db_pgno_t pg, void * pp, DBT * cookie)
 	if(h->type == P_QAMMETA)
 		return __qam_mswap(env, (PAGE *)pp);
 	M_32_SWAP(h->lsn.file);
-	M_32_SWAP(h->lsn.offset);
+	M_32_SWAP(h->lsn.Offset_);
 	M_32_SWAP(h->pgno);
 	return 0;
 }

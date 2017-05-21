@@ -96,9 +96,9 @@ int PayPlanArray::Update(const PayPlanTbl::Rec * pItem, uint * pPos)
 	return ok;
 }
 
-int PayPlanArray::Sort()
+void PayPlanArray::Sort()
 {
-	return sort(PTR_CMPFUNC(PayPlanTblRec));
+	sort(PTR_CMPFUNC(PayPlanTblRec));
 }
 
 static int GetDefaultPaymPeriod(const PPBillPacket * pPack, int * pDays)

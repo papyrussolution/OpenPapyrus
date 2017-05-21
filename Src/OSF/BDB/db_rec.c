@@ -711,9 +711,9 @@ done:
 	*lsnp = argp->prev_lsn;
 	ret = 0;
 out:
-	if(pagep != NULL)
+	if(pagep)
 		__memp_fput(mpf, ip, pagep, file_dbp->priority);
-	if(meta != NULL)
+	if(meta)
 		__memp_fput(mpf, ip, meta, file_dbp->priority);
 	REC_CLOSE;
 }
@@ -722,19 +722,18 @@ out:
  */
 static int __db_pg_free_recover_int(ENV * env, DB_THREAD_INFO * ip, __db_pg_freedata_args * argp, DB * file_dbp, DB_LSN * lsnp, DB_MPOOLFILE * mpf, db_recops op, int data)
 {
-	DBMETA * meta;
+	DBMETA * meta = 0;
 	DB_LSN copy_lsn;
-	PAGE * pagep, * prevp;
-	int cmp_n, cmp_p, is_meta, ret;
-	meta = NULL;
-	pagep = prevp = NULL;
+	PAGE * pagep = 0;
+	PAGE * prevp = 0;
+	int cmp_n, cmp_p, ret;
 	/*
 	 * Get the "metapage".  This will either be the metapage
 	 * or the previous page in the free list if we are doing
 	 * sorted allocations.  If its a previous page then
 	 * we will not be truncating.
 	 */
-	is_meta = argp->meta_pgno == PGNO_BASE_MD;
+	int is_meta = (argp->meta_pgno == PGNO_BASE_MD);
 	REC_FGET(mpf, ip, argp->meta_pgno, &meta, check_meta);
 	if(argp->meta_pgno != PGNO_BASE_MD)
 		prevp = (PAGE *)meta;
@@ -749,8 +748,7 @@ static int __db_pg_free_recover_int(ENV * env, DB_THREAD_INFO * ip, __db_pg_free
 	if(cmp_p == 0 && DB_REDO(op)) {
 		REC_DIRTY(mpf, ip, file_dbp->priority, &meta);
 		/*
-		 * If we are at the end of the file truncate, otherwise
-		 * put on the free list.
+		 * If we are at the end of the file truncate, otherwise put on the free list.
 		 */
 		if(argp->pgno == argp->last_pgno)
 			meta->last_pgno = argp->pgno-1;
@@ -764,8 +762,7 @@ static int __db_pg_free_recover_int(ENV * env, DB_THREAD_INFO * ip, __db_pg_free
 		/* Need to undo the deallocation. */
 		REC_DIRTY(mpf, ip, file_dbp->priority, &meta);
 		if(is_meta) {
-			if(meta->last_pgno < argp->pgno)
-				meta->last_pgno = argp->pgno;
+			SETMAX(meta->last_pgno, argp->pgno);
 			meta->free = argp->next;
 		}
 		else
@@ -812,7 +809,7 @@ check_meta:
 	 * which was copied before it was truncated in addition to
 	 * the usual of having the previous LSN.
 	 */
-	if(DB_REDO(op) && (cmp_p == 0 || cmp_n == 0 || (IS_ZERO_LSN(copy_lsn) && LOG_COMPARE(&LSN(pagep), &argp->meta_lsn) <= 0))) {
+	if(DB_REDO(op) && (!cmp_p || !cmp_n || (IS_ZERO_LSN(copy_lsn) && LOG_COMPARE(&LSN(pagep), &argp->meta_lsn) <= 0))) {
 		/* Need to redo the deallocation. */
 		/*
 		 * The page can be truncated if it was truncated at runtime
@@ -2267,7 +2264,7 @@ void __db_pglist_swap(uint32 size, void * list)
 	while(nelem-- > 0) {
 		P_32_SWAP(&lp->pgno);
 		P_32_SWAP(&lp->lsn.file);
-		P_32_SWAP(&lp->lsn.offset);
+		P_32_SWAP(&lp->lsn.Offset_);
 		lp++;
 	}
 }
@@ -2281,7 +2278,7 @@ void __db_pglist_print(ENV * env, DB_MSGBUF * mbp, DBT * list)
 	db_pglist_t * lp = (db_pglist_t *)list->data;
 	__db_msgadd(env, mbp, "\t");
 	while(nelem-- > 0) {
-		__db_msgadd(env, mbp, "%lu [%lu][%lu]", (ulong)lp->pgno, (ulong)lp->lsn.file, (ulong)lp->lsn.offset);
+		__db_msgadd(env, mbp, "%lu [%lu][%lu]", (ulong)lp->pgno, (ulong)lp->lsn.file, (ulong)lp->lsn.Offset_);
 		if(nelem%4 == 0)
 			__db_msgadd(env, mbp, "\n\t");
 		else

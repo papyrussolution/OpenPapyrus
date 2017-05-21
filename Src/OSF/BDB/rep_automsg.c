@@ -2,15 +2,7 @@
 
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
-// @v9.5.5 #include "dbinc/txn.h"
 /*
  * PUBLIC: int __rep_bulk_marshal __P((ENV *, __rep_bulk_args *,
  * PUBLIC:	 uint8 *, size_t, size_t *));
@@ -23,7 +15,7 @@ int __rep_bulk_marshal(ENV * env, __rep_bulk_args * argp, uint8 * bp, size_t max
 	start = bp;
 	DB_HTONL_COPYOUT(env, bp, argp->len);
 	DB_HTONL_COPYOUT(env, bp, argp->lsn.file);
-	DB_HTONL_COPYOUT(env, bp, argp->lsn.offset);
+	DB_HTONL_COPYOUT(env, bp, argp->lsn.Offset_);
 	DB_HTONL_COPYOUT(env, bp, argp->bulkdata.size);
 	if(argp->bulkdata.size > 0) {
 		memcpy(bp, argp->bulkdata.data, argp->bulkdata.size);
@@ -43,7 +35,7 @@ int __rep_bulk_unmarshal(ENV * env, __rep_bulk_args * argp, uint8 * bp, size_t m
 		goto too_few;
 	DB_NTOHL_COPYIN(env, argp->len, bp);
 	DB_NTOHL_COPYIN(env, argp->lsn.file, bp);
-	DB_NTOHL_COPYIN(env, argp->lsn.offset, bp);
+	DB_NTOHL_COPYIN(env, argp->lsn.Offset_, bp);
 	DB_NTOHL_COPYIN(env, argp->bulkdata.size, bp);
 	argp->bulkdata.data = bp;
 	needed += (size_t)argp->bulkdata.size;
@@ -71,7 +63,7 @@ int __rep_control_marshal(ENV * env, __rep_control_args * argp, uint8 * bp, size
 	DB_HTONL_COPYOUT(env, bp, argp->rep_version);
 	DB_HTONL_COPYOUT(env, bp, argp->log_version);
 	DB_HTONL_COPYOUT(env, bp, argp->lsn.file);
-	DB_HTONL_COPYOUT(env, bp, argp->lsn.offset);
+	DB_HTONL_COPYOUT(env, bp, argp->lsn.Offset_);
 	DB_HTONL_COPYOUT(env, bp, argp->rectype);
 	DB_HTONL_COPYOUT(env, bp, argp->gen);
 	DB_HTONL_COPYOUT(env, bp, argp->msg_sec);
@@ -91,7 +83,7 @@ int __rep_control_unmarshal(ENV * env, __rep_control_args * argp, uint8 * bp, si
 	DB_NTOHL_COPYIN(env, argp->rep_version, bp);
 	DB_NTOHL_COPYIN(env, argp->log_version, bp);
 	DB_NTOHL_COPYIN(env, argp->lsn.file, bp);
-	DB_NTOHL_COPYIN(env, argp->lsn.offset, bp);
+	DB_NTOHL_COPYIN(env, argp->lsn.Offset_, bp);
 	DB_NTOHL_COPYIN(env, argp->rectype, bp);
 	DB_NTOHL_COPYIN(env, argp->gen, bp);
 	DB_NTOHL_COPYIN(env, argp->msg_sec, bp);
@@ -345,7 +337,7 @@ int __rep_logreq_marshal(ENV * env, __rep_logreq_args * argp, uint8 * bp, size_t
 		return ENOMEM;
 	start = bp;
 	DB_HTONL_COPYOUT(env, bp, argp->endlsn.file);
-	DB_HTONL_COPYOUT(env, bp, argp->endlsn.offset);
+	DB_HTONL_COPYOUT(env, bp, argp->endlsn.Offset_);
 	*lenp = (size_t)(bp-start);
 	return 0;
 }
@@ -358,7 +350,7 @@ int __rep_logreq_unmarshal(ENV * env, __rep_logreq_args * argp, uint8 * bp, size
 	if(max < __REP_LOGREQ_SIZE)
 		goto too_few;
 	DB_NTOHL_COPYIN(env, argp->endlsn.file, bp);
-	DB_NTOHL_COPYIN(env, argp->endlsn.offset, bp);
+	DB_NTOHL_COPYIN(env, argp->endlsn.Offset_, bp);
 	if(nextp != NULL)
 		*nextp = bp;
 	return 0;
@@ -413,12 +405,12 @@ int __rep_update_marshal(ENV * env, uint32 version, __rep_update_args * argp, ui
 	if(copy_only) {
 		memcpy(bp, &argp->first_lsn.file, sizeof(uint32));
 		bp += sizeof(uint32);
-		memcpy(bp, &argp->first_lsn.offset, sizeof(uint32));
+		memcpy(bp, &argp->first_lsn.Offset_, sizeof(uint32));
 		bp += sizeof(uint32);
 	}
 	else {
 		DB_HTONL_COPYOUT(env, bp, argp->first_lsn.file);
-		DB_HTONL_COPYOUT(env, bp, argp->first_lsn.offset);
+		DB_HTONL_COPYOUT(env, bp, argp->first_lsn.Offset_);
 	}
 	if(copy_only) {
 		memcpy(bp, &argp->first_vers, sizeof(uint32));
@@ -454,12 +446,12 @@ int __rep_update_unmarshal(ENV * env, uint32 version, __rep_update_args ** argpp
 	if(copy_only) {
 		memcpy(&argp->first_lsn.file, bp, sizeof(uint32));
 		bp += sizeof(uint32);
-		memcpy(&argp->first_lsn.offset, bp, sizeof(uint32));
+		memcpy(&argp->first_lsn.Offset_, bp, sizeof(uint32));
 		bp += sizeof(uint32);
 	}
 	else {
 		DB_NTOHL_COPYIN(env, argp->first_lsn.file, bp);
-		DB_NTOHL_COPYIN(env, argp->first_lsn.offset, bp);
+		DB_NTOHL_COPYIN(env, argp->first_lsn.Offset_, bp);
 	}
 	if(copy_only) {
 		memcpy(&argp->first_vers, bp, sizeof(uint32));
@@ -595,7 +587,7 @@ void __rep_lsn_hist_data_marshal(ENV * env, __rep_lsn_hist_data_args * argp, uin
 {
 	DB_HTONL_COPYOUT(env, bp, argp->envid);
 	DB_HTONL_COPYOUT(env, bp, argp->lsn.file);
-	DB_HTONL_COPYOUT(env, bp, argp->lsn.offset);
+	DB_HTONL_COPYOUT(env, bp, argp->lsn.Offset_);
 	DB_HTONL_COPYOUT(env, bp, argp->hist_sec);
 	DB_HTONL_COPYOUT(env, bp, argp->hist_nsec);
 }
@@ -609,11 +601,10 @@ int __rep_lsn_hist_data_unmarshal(ENV * env, __rep_lsn_hist_data_args * argp, ui
 		goto too_few;
 	DB_NTOHL_COPYIN(env, argp->envid, bp);
 	DB_NTOHL_COPYIN(env, argp->lsn.file, bp);
-	DB_NTOHL_COPYIN(env, argp->lsn.offset, bp);
+	DB_NTOHL_COPYIN(env, argp->lsn.Offset_, bp);
 	DB_NTOHL_COPYIN(env, argp->hist_sec, bp);
 	DB_NTOHL_COPYIN(env, argp->hist_nsec, bp);
-	if(nextp != NULL)
-		*nextp = bp;
+	ASSIGN_PTR(nextp, bp);
 	return 0;
 too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __rep_lsn_hist_data message"));

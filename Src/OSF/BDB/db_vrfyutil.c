@@ -61,10 +61,9 @@ int __db_vrfy_dbinfo_create(ENV * env, DB_THREAD_INFO * ip, uint32 pgsize, VRFY_
 	*vdpp = vdp;
 	return 0;
 
-err:    if(cdbp != NULL)
-		__db_close(cdbp, NULL, 0);
-	if(pgdbp != NULL)
-		__db_close(pgdbp, NULL, 0);
+err:    
+	__db_close(cdbp, NULL, 0);
+	__db_close(pgdbp, NULL, 0);
 	if(vdp->txn != NULL)
 		vdp->txn->commit(vdp->txn, 0);
 	__os_free(env, vdp);
@@ -498,7 +497,7 @@ err:
  */
 int __db_salvage_destroy(VRFY_DBINFO * vdp)
 {
-	return vdp->salvage_pages == NULL ? 0 : __db_close(vdp->salvage_pages, NULL, 0);
+	return __db_close(vdp->salvage_pages, NULL, 0);
 }
 /*
  * __db_salvage_getnext --

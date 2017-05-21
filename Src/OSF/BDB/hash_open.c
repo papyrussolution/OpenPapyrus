@@ -210,10 +210,10 @@ static db_pgno_t __ham_init_meta(DB * dbp, HMETA * meta, db_pgno_t pgno, DB_LSN 
 	}
 	else
 		l2 = 1;
-	/* Now make number of buckets a power of two. */
+	// Now make number of buckets a power of two
 	nbuckets = (db_pgno_t)(1<<l2);
 	memzero(meta, sizeof(HMETA));
-	meta->dbmeta.lsn = *lsnp;
+	meta->dbmeta.Lsn = *lsnp;
 	meta->dbmeta.pgno = pgno;
 	meta->dbmeta.magic = DB_HASHMAGIC;
 	meta->dbmeta.version = DB_HASHVERSION;
@@ -307,7 +307,7 @@ int __ham_new_file(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, con
 		meta = NULL;
 		if(ret != 0)
 			goto err;
-		/* Allocate the final hash bucket. */
+		// Allocate the final hash bucket
 		if((ret = __memp_fget(mpf, &lpgno, ip, txn, DB_MPOOL_CREATE|DB_MPOOL_DIRTY, &page)) != 0)
 			goto err;
 		P_INIT(page,
@@ -355,12 +355,12 @@ int __ham_new_file(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, con
 		page = NULL;
 	}
 err:
-	if(buf != NULL)
+	if(buf)
 		__os_free(env, buf);
 	else {
-		if(meta != NULL)
+		if(meta)
 			__memp_fput(mpf, ip, meta, dbp->priority);
-		if(page != NULL)
+		if(page)
 			__memp_fput(mpf, ip, page, dbp->priority);
 	}
 	return ret;
@@ -388,13 +388,13 @@ int __ham_new_subdb(DB * mdbp, DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn)
 	LOCK_INIT(mmlock);
 	if((ret = __db_cursor(mdbp, ip, txn, &dbc, CDB_LOCKING(env) ?  DB_WRITECURSOR : 0)) != 0)
 		return ret;
-	/* Get and lock the new meta data page. */
+	// Get and lock the new meta data page.
 	if((ret = __db_lget(dbc, 0, dbp->meta_pgno, DB_LOCK_WRITE, 0, &metalock)) != 0)
 		goto err;
 	if((ret = __memp_fget(mpf, &dbp->meta_pgno, ip, dbc->txn, DB_MPOOL_CREATE|DB_MPOOL_DIRTY, &meta)) != 0)
 		goto err;
-	/* Initialize the new meta-data page. */
-	lsn = meta->dbmeta.lsn;
+	// Initialize the new meta-data page
+	lsn = meta->dbmeta.Lsn;
 	lpgno = __ham_init_meta(dbp, meta, dbp->meta_pgno, &lsn);
 
 	/*
@@ -415,10 +415,10 @@ int __ham_new_subdb(DB * mdbp, DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn)
 	meta->spares[0] = mmeta->last_pgno+1;
 	for(i = 0; i < NCACHED && meta->spares[i] != PGNO_INVALID; i++)
 		meta->spares[i] = meta->spares[0];
-	/* The new meta data page is now complete; log it. */
-	if((ret = __db_log_page(mdbp, txn, &meta->dbmeta.lsn, dbp->meta_pgno, (PAGE *)meta)) != 0)
+	// The new meta data page is now complete; log it
+	if((ret = __db_log_page(mdbp, txn, &meta->dbmeta.Lsn, dbp->meta_pgno, (PAGE *)meta)) != 0)
 		goto err;
-	/* Reflect the group allocation. */
+	// Reflect the group allocation
 	if(DBENV_LOGGING(env)
 #if !defined(DEBUG_WOP)
 	   && txn != NULL

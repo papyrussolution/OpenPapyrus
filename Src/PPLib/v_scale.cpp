@@ -107,9 +107,7 @@ int SLAPI PPViewScale::EditBaseFilt(PPBaseFilt * pFilt)
 			pFilt->Copy(&filt, 0);
 		ok = 1;
 	}
-	CATCH
-		ok = PPErrorZ();
-	ENDCATCH
+	CATCHZOKPPERR
 	delete p_dlg;
 	return ok;
 }

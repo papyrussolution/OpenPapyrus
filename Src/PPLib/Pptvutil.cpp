@@ -142,10 +142,9 @@ int FASTCALL PPOpenBrowser(BrowserWindow * pW, int modeless)
 	return ok;
 }
 
-int FASTCALL PPCloseBrowser(TBaseBrowserWindow * pW)
+void FASTCALL PPCloseBrowser(TBaseBrowserWindow * pW)
 {
 	CALLPTRMEMB(pW, endModal(cmCancel));
-	return 1;
 }
 
 uint SLAPI GetComboBoxLinkID(TDialog * dlg, uint comboBoxCtlID)
@@ -188,7 +187,7 @@ SString & SLAPI PPFormatPeriod(const DateRange * pPeriod, SString & rBuf)
 			rBuf.Cat("по").Space().Cat(end, DATF_DMY);
 		}
 	}
-	return rBuf.ToOem();
+	return rBuf.Transf(CTRANSF_OUTER_TO_INNER);
 }
 
 SString & SLAPI PPFormatPeriod(const LDATETIME & rBeg, LDATETIME & rEnd, SString & rBuf)
@@ -208,7 +207,7 @@ SString & SLAPI PPFormatPeriod(const LDATETIME & rBeg, LDATETIME & rEnd, SString
 		if(rEnd.t)
 			rBuf.Space().Cat(rEnd.t, TIMF_HMS);
 	}
-	return rBuf.ToOem();
+	return rBuf.Transf(CTRANSF_OUTER_TO_INNER);
 }
 
 /*
@@ -223,7 +222,7 @@ int FASTCALL SetPeriodInput(TDialog * dlg, uint fldID, char * buf, const DateRan
 }
 */
 
-int FASTCALL SetPeriodInput(TDialog * dlg, uint fldID, const DateRange * rng)
+void FASTCALL SetPeriodInput(TDialog * dlg, uint fldID, const DateRange * rng)
 {
 	if(dlg) {
 		char   b[64];
@@ -231,7 +230,6 @@ int FASTCALL SetPeriodInput(TDialog * dlg, uint fldID, const DateRange * rng)
 		periodfmt(rng, b);
 		dlg->setCtrlData(fldID, b);
 	}
-	return 1;
 }
 
 static int SLAPI Helper_GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod, long strtoperiodFlags)
@@ -292,8 +290,7 @@ int SLAPI SetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, const LTIME * pL
 		if(upp != ZEROTIME)
 			buf.Cat(upp, fmt);
 	}
-	if(pDlg)
-		pDlg->setCtrlString(ctl, buf);
+	CALLPTRMEMB(pDlg, setCtrlString(ctl, buf));
 	return 1;
 }
 
@@ -518,25 +515,25 @@ int SLAPI ViewStatus()
 		datapath = 0;
 	}
 	dlg->setCtrlString(CTL_STATUS_DBSYMBOL, sbuf);
-	dlg->setCtrlString(CTL_STATUS_DATAPATH, datapath.ToOem());
+	dlg->setCtrlString(CTL_STATUS_DATAPATH, datapath.Transf(CTRANSF_OUTER_TO_INNER));
 
 	PPLoadText(PPTXT_PATHACCESS, accbuf);
 	PPLoadText(PPTXT_PATHACCESSNO, accbufno);
 
 	PPGetPath(PPPATH_BIN, datapath);
-	dlg->setCtrlString(CTL_STATUS_BINPATH, (sbuf = datapath).ToOem());
+	dlg->setCtrlString(CTL_STATUS_BINPATH, (sbuf = datapath).Transf(CTRANSF_OUTER_TO_INNER));
 	dlg->setCtrlString(CTL_STATUS_ACCESSBIN, fileExists(datapath) ? accbuf : accbufno);
 
 	PPGetPath(PPPATH_IN, datapath);
-    dlg->setCtrlString(CTL_STATUS_INPATH, (sbuf = datapath).ToOem());
+    dlg->setCtrlString(CTL_STATUS_INPATH, (sbuf = datapath).Transf(CTRANSF_OUTER_TO_INNER));
 	dlg->setCtrlString(CTL_STATUS_ACCESSIN, fileExists(datapath) ? accbuf : accbufno);
 
 	PPGetPath(PPPATH_OUT, datapath);
-	dlg->setCtrlString(CTL_STATUS_OUTPATH, (sbuf = datapath).ToOem());
+	dlg->setCtrlString(CTL_STATUS_OUTPATH, (sbuf = datapath).Transf(CTRANSF_OUTER_TO_INNER));
 	dlg->setCtrlString(CTL_STATUS_ACCESSOUT, fileExists(datapath) ? accbuf : accbufno);
 
 	PPGetPath(PPPATH_TEMP, datapath);
-	dlg->setCtrlString(CTL_STATUS_TEMPPATH, (sbuf = datapath).ToOem());
+	dlg->setCtrlString(CTL_STATUS_TEMPPATH, (sbuf = datapath).Transf(CTRANSF_OUTER_TO_INNER));
 	dlg->setCtrlString(CTL_STATUS_ACCESSTEMP, fileExists(datapath) ? accbuf : accbufno);
 	if(LConfig.Flags & CFGFLG_USEGOODSMATRIX) {
 		PPLoadText(PPTXT_GOODSMATRIX_IS_USED, sbuf);

@@ -385,9 +385,8 @@ cont:
 		dblp->dbentry[id].deleted = deleted;
 err:
 	MUTEX_UNLOCK(env, lp->mtx_filelist);
-	/* There's nothing useful that our caller can do if this close fails. */
-	if(close_dbp != NULL)
-		__db_close(close_dbp, NULL, DB_NOSYNC);
+	// There's nothing useful that our caller can do if this close fails
+	__db_close(close_dbp, NULL, DB_NOSYNC);
 	return ret;
 }
 

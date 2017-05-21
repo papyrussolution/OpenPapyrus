@@ -207,7 +207,7 @@ int __db_apprec(ENV * env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * trunc
 		if((ret = __txn_getckp(env, &ckp_lsn)) == 0 && (ret = __logc_get(logc, &ckp_lsn, &data, DB_SET)) == 0) {
 			/* We have a recent checkpoint.  This is LSN (1). */
 			if((ret = __txn_ckp_read(env, data.data, &ckp_args)) != 0) {
-				__db_errx(env, DB_STR_A("1511", "Invalid checkpoint record at [%ld][%ld]", "%ld %ld"), (ulong)ckp_lsn.file, (ulong)ckp_lsn.offset);
+				__db_errx(env, DB_STR_A("1511", "Invalid checkpoint record at [%ld][%ld]", "%ld %ld"), (ulong)ckp_lsn.file, (ulong)ckp_lsn.Offset_);
 				goto err;
 			}
 			first_lsn = ckp_args->ckp_lsn;
@@ -266,17 +266,17 @@ int __db_apprec(ENV * env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * trunc
 	else if(ret != 0)
 		goto err;
 	hi_txn = txnid;
-	/* Get the record at first_lsn. */
+	// Get the record at first_lsn
 	if((ret = __logc_get(logc, &first_lsn, &data, DB_SET)) != 0) {
-		__db_errx(env, DB_STR_A("1513", "Checkpoint LSN record [%ld][%ld] not found", "%ld %ld"), (ulong)first_lsn.file, (ulong)first_lsn.offset);
+		__db_errx(env, DB_STR_A("1513", "Checkpoint LSN record [%ld][%ld] not found", "%ld %ld"), (ulong)first_lsn.file, (ulong)first_lsn.Offset_);
 		goto err;
 	}
 	if(dbenv->db_feedback != NULL) {
 		if(last_lsn.file == first_lsn.file)
-			nfiles = (double)(last_lsn.offset-first_lsn.offset)/log_size;
+			nfiles = (double)(last_lsn.Offset_-first_lsn.Offset_)/log_size;
 		else
-			nfiles = (double)(last_lsn.file-first_lsn.file)+(double)((log_size-first_lsn.offset)+last_lsn.offset)/log_size;
-		/* We are going to divide by nfiles; make sure it isn't 0. */
+			nfiles = (double)(last_lsn.file-first_lsn.file)+(double)((log_size-first_lsn.Offset_)+last_lsn.Offset_)/log_size;
+		// We are going to divide by nfiles; make sure it isn't 0
 		if(nfiles < 0.001)
 			nfiles = 0.001;
 	}
@@ -322,7 +322,7 @@ int __db_apprec(ENV * env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * trunc
 	 * use it here.
 	 */
 	if(FLD_ISSET(dbenv->verbose, DB_VERB_RECOVERY))
-		__db_msg(env, DB_STR_A("1514", "Recovery starting from [%lu][%lu]", "%lu %lu"), (ulong)first_lsn.file, (ulong)first_lsn.offset);
+		__db_msg(env, DB_STR_A("1514", "Recovery starting from [%lu][%lu]", "%lu %lu"), (ulong)first_lsn.file, (ulong)first_lsn.Offset_);
 	pass = DB_STR_P("backward");
 	for(ret = __logc_get(logc, &lsn, &data, DB_LAST); ret == 0 && LOG_COMPARE(&lsn, &first_lsn) >= 0; ret = __logc_get(logc, &lsn, &data, DB_PREV)) {
 		if(dbenv->db_feedback != NULL) {
@@ -484,7 +484,7 @@ done:
 		if((ret = __txn_getckp(env, &first_lsn)) == 0 && (ret = __logc_get(logc, &first_lsn, &data, DB_SET)) == 0) {
 			/* We have a recent checkpoint.  This is LSN (1). */
 			if((ret = __txn_ckp_read(env, data.data, &ckp_args)) != 0) {
-				__db_errx(env, DB_STR_A("1517", "Invalid checkpoint record at [%ld][%ld]", "%ld %ld"), (ulong)first_lsn.file, (ulong)first_lsn.offset);
+				__db_errx(env, DB_STR_A("1517", "Invalid checkpoint record at [%ld][%ld]", "%ld %ld"), (ulong)first_lsn.file, (ulong)first_lsn.Offset_);
 				goto err;
 			}
 			first_lsn = ckp_args->ckp_lsn;
@@ -514,17 +514,16 @@ done:
 		__db_msg(env, DB_STR_A("1518", "Recovery complete at %.24s", "%.24s"), __os_ctime(&now, time_buf));
 		__db_msg(env, DB_STR_A("1519", "Maximum transaction ID %lx recovery checkpoint [%lu][%lu]",
 				"%lx %lu %lu"), (ulong)(!txninfo ? TXN_MINIMUM : ((DB_TXNHEAD *)txninfo)->maxid),
-			(ulong)region->last_ckp.file, (ulong)region->last_ckp.offset);
+			(ulong)region->last_ckp.file, (ulong)region->last_ckp.Offset_);
 	}
 	if(0) {
 msgerr:
-		__db_errx(env, DB_STR_A("1520", "Recovery function for LSN %lu %lu failed on %s pass", "%lu %lu %s"), (ulong)lsn.file, (ulong)lsn.offset, pass);
+		__db_errx(env, DB_STR_A("1520", "Recovery function for LSN %lu %lu failed on %s pass", "%lu %lu %s"), (ulong)lsn.file, (ulong)lsn.Offset_, pass);
 	}
 err:
 	if(logc != NULL && (t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
-	if(txninfo != NULL)
-		__db_txnlist_end(env, txninfo);
+	__db_txnlist_end(env, txninfo);
 	dbenv->tx_timestamp = 0;
 	F_CLR(env->lg_handle, DBLOG_RECOVER);
 	F_CLR(region, TXN_IN_RECOVERY);
@@ -548,19 +547,19 @@ static double __lsn_diff(DB_LSN * low, DB_LSN * high, DB_LSN * current, uint32 m
 	 */
 	if(is_forward) {
 		if(current->file == low->file)
-			nf = (double)(current->offset-low->offset)/max;
-		else if(current->offset < low->offset)
-			nf = (double)((current->file-low->file)-1)+(double)((max-low->offset)+current->offset)/max;
+			nf = (double)(current->Offset_-low->Offset_)/max;
+		else if(current->Offset_ < low->Offset_)
+			nf = (double)((current->file-low->file)-1)+(double)((max-low->Offset_)+current->Offset_)/max;
 		else
-			nf = (double)(current->file-low->file)+(double)(current->offset-low->offset)/max;
+			nf = (double)(current->file-low->file)+(double)(current->Offset_-low->Offset_)/max;
 	}
 	else {
 		if(current->file == high->file)
-			nf = (double)(high->offset-current->offset)/max;
-		else if(current->offset > high->offset)
-			nf = (double)((high->file-current->file)-1)+(double)((max-current->offset)+high->offset)/max;
+			nf = (double)(high->Offset_-current->Offset_)/max;
+		else if(current->Offset_ > high->Offset_)
+			nf = (double)((high->file-current->file)-1)+(double)((max-current->Offset_)+high->Offset_)/max;
 		else
-			nf = (double)(high->file-current->file)+(double)(high->offset-current->offset)/max;
+			nf = (double)(high->file-current->file)+(double)(high->Offset_-current->Offset_)/max;
 	}
 	return nf;
 }
@@ -579,27 +578,25 @@ static int __log_backup(ENV * env, DB_LOGC * logc, DB_LSN * max_lsn, DB_LSN * st
 	DB_LSN lsn;
 	__txn_ckp_args * ckp_args;
 	int ret;
-	memzero(&data, sizeof(data));
+	// @ctr memzero(&data, sizeof(data));
 	ckp_args = NULL;
 	if((ret = __txn_getckp(env, &lsn)) != 0)
 		goto err;
 	while((ret = __logc_get(logc, &lsn, &data, DB_SET)) == 0) {
 		if((ret = __txn_ckp_read(env, data.data, &ckp_args)) != 0)
 			return ret;
-		/*
-		 * Follow checkpoints through the log until
-		 * we find one with a ckp_lsn less than
-		 * or equal max_lsn.
-		 */
+		//
+		// Follow checkpoints through the log until
+		// we find one with a ckp_lsn less than or equal max_lsn.
+		//
 		if(LOG_COMPARE(&ckp_args->ckp_lsn, max_lsn) <= 0) {
 			*start_lsn = ckp_args->ckp_lsn;
 			break;
 		}
 		lsn = ckp_args->last_ckp;
-		/*
-		 * If there are no more checkpoints behind us, we're
-		 * done.  Break with DB_NOTFOUND.
-		 */
+		//
+		// If there are no more checkpoints behind us, we're done.  Break with DB_NOTFOUND.
+		//
 		if(IS_ZERO_LSN(lsn)) {
 			ret = DB_NOTFOUND;
 			break;
@@ -608,12 +605,12 @@ static int __log_backup(ENV * env, DB_LOGC * logc, DB_LSN * max_lsn, DB_LSN * st
 		ckp_args = NULL;
 	}
 	__os_free(env, ckp_args);
-	/*
-	 * If we walked back through all the checkpoints,
-	 * set the cursor on the first log record.
-	 */
+	//
+	// If we walked back through all the checkpoints,
+	// set the cursor on the first log record.
+	// 
 err:
-	if(IS_ZERO_LSN(*start_lsn) && (ret == 0 || ret == DB_NOTFOUND))
+	if(IS_ZERO_LSN(*start_lsn) && oneof2(ret, 0, DB_NOTFOUND))
 		ret = __logc_get(logc, start_lsn, &data, DB_FIRST);
 	return ret;
 }
@@ -631,13 +628,12 @@ static int __log_earliest(ENV * env, DB_LOGC * logc, int32 * lowtime, DB_LSN * l
 	DBT data;
 	uint32 rectype;
 	int cmp, ret;
-	memzero(&data, sizeof(data));
+	// @ctr memzero(&data, sizeof(data));
 	/*
 	 * Read forward through the log looking for the first checkpoint
 	 * record whose ckp_lsn is greater than first_lsn.
 	 */
-	for(ret = __logc_get(logc, &first_lsn, &data, DB_FIRST);
-	    ret == 0; ret = __logc_get(logc, &lsn, &data, DB_NEXT)) {
+	for(ret = __logc_get(logc, &first_lsn, &data, DB_FIRST); ret == 0; ret = __logc_get(logc, &lsn, &data, DB_NEXT)) {
 		LOGCOPY_32(env, &rectype, data.data);
 		if(rectype != DB___txn_ckp)
 			continue;
@@ -688,11 +684,9 @@ int __env_openfiles(ENV * env, DB_LOGC * logc, void * txninfo, DBT * data, DB_LS
 			dbenv->db_feedback(dbenv, DB_RECOVER, progress);
 		}
 		tlsn = lsn;
-		ret = __db_dispatch(env, &env->recover_dtab, data, &tlsn,
-			in_recovery ? DB_TXN_OPENFILES : DB_TXN_POPENFILES,
-			txninfo);
+		ret = __db_dispatch(env, &env->recover_dtab, data, &tlsn, in_recovery ? DB_TXN_OPENFILES : DB_TXN_POPENFILES, txninfo);
 		if(ret != 0 && ret != DB_TXN_CKP) {
-			__db_errx(env, DB_STR_A("1521", "Recovery function for LSN %lu %lu failed", "%lu %lu"), (ulong)lsn.file, (ulong)lsn.offset);
+			__db_errx(env, DB_STR_A("1521", "Recovery function for LSN %lu %lu failed", "%lu %lu"), (ulong)lsn.file, (ulong)lsn.Offset_);
 			break;
 		}
 		if((ret = __logc_get(logc, &lsn, data, DB_NEXT)) != 0) {
@@ -710,7 +704,7 @@ int __env_openfiles(ENV * env, DB_LOGC * logc, void * txninfo, DBT * data, DB_LS
 
 static int __db_log_corrupt(ENV * env, DB_LSN * lsnp)
 {
-	__db_errx(env, DB_STR_A("1522", "Log file corrupt at LSN: [%lu][%lu]", "%lu %lu"), (ulong)lsnp->file, (ulong)lsnp->offset);
+	__db_errx(env, DB_STR_A("1522", "Log file corrupt at LSN: [%lu][%lu]", "%lu %lu"), (ulong)lsnp->file, (ulong)lsnp->Offset_);
 	return EINVAL;
 }
 /*

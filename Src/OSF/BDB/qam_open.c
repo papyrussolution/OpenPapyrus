@@ -173,7 +173,7 @@ static int __qam_init_meta(DB*dbp, QMETA * meta)
 	ENV * env = dbp->env;
 	QUEUE * t = (QUEUE *)dbp->q_internal;
 	memzero(meta, sizeof(QMETA));
-	LSN_NOT_LOGGED(meta->dbmeta.lsn);
+	LSN_NOT_LOGGED(meta->dbmeta.Lsn);
 	meta->dbmeta.pgno = PGNO_BASE_MD;
 	meta->dbmeta.last_pgno = 0;
 	meta->dbmeta.magic = DB_QAMMAGIC;
@@ -236,7 +236,7 @@ int __qam_new_file(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, con
 			return ret;
 		if((ret = __qam_init_meta(dbp, meta)) != 0)
 			goto err1;
-		if((ret = __db_log_page(dbp, txn, &meta->dbmeta.lsn, pgno, (PAGE *)meta)) != 0)
+		if((ret = __db_log_page(dbp, txn, &meta->dbmeta.Lsn, pgno, (PAGE *)meta)) != 0)
 			goto err1;
 err1:
 		if((t_ret = __memp_fput(mpf, ip, meta, dbp->priority)) != 0 && ret == 0)

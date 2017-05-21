@@ -2599,10 +2599,7 @@ int __bam_opd_exists(DBC * dbc, db_pgno_t pgno)
 	 * the number of entries on the root.  If there is a non-empty
 	 * tree then there will be duplicates.
 	 */
-	if(NUM_ENT(h) == 0)
-		ret = 0;
-	else
-		ret = DB_KEYEXIST;
+	ret = (NUM_ENT(h) == 0) ? 0 : DB_KEYEXIST;
 	__memp_fput(dbc->dbp->mpf, dbc->thread_info, h, dbc->priority);
 	return ret;
 }

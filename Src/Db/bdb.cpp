@@ -139,11 +139,11 @@ int BDbDatabase::GetCurrentConfig(Config & rCfg)
 		{
 			int    on = 0;
 			E->log_get_config(E, DB_LOG_NOSYNC, &on);
-			SETFLAG(rCfg.Flags, rCfg.fLogNoSync, on); 
+			SETFLAG(rCfg.Flags, rCfg.fLogNoSync, on);
 			E->log_get_config(E, DB_LOG_AUTO_REMOVE, &on);
-			SETFLAG(rCfg.Flags, rCfg.fLogAutoRemove, on); 
+			SETFLAG(rCfg.Flags, rCfg.fLogAutoRemove, on);
 			E->log_get_config(E, DB_LOG_IN_MEMORY, &on);
-			SETFLAG(rCfg.Flags, rCfg.fLogInMemory, on); 
+			SETFLAG(rCfg.Flags, rCfg.fLogInMemory, on);
 		}
 	}
 	CATCHZOK
@@ -204,9 +204,9 @@ int BDbDatabase::Helper_SetConfig(const char * pHomeDir, Config & rCfg)
 			THROW(ProcessError(E->set_lg_dir(E, temp_buf)));
 		}
 		if(rCfg.Flags & (rCfg.fLogNoSync | rCfg.fLogAutoRemove | rCfg.fLogInMemory)) {
-			E->log_set_config(E, DB_LOG_NOSYNC,      BIN(rCfg.Flags & rCfg.fLogNoSync)); 
-			E->log_set_config(E, DB_LOG_AUTO_REMOVE, BIN(rCfg.Flags & rCfg.fLogAutoRemove)); 
-			E->log_set_config(E, DB_LOG_IN_MEMORY,   BIN(rCfg.Flags & rCfg.fLogInMemory)); 
+			E->log_set_config(E, DB_LOG_NOSYNC,      BIN(rCfg.Flags & rCfg.fLogNoSync));
+			E->log_set_config(E, DB_LOG_AUTO_REMOVE, BIN(rCfg.Flags & rCfg.fLogAutoRemove));
+			E->log_set_config(E, DB_LOG_IN_MEMORY,   BIN(rCfg.Flags & rCfg.fLogInMemory));
 		}
 	}
 	CATCHZOK
@@ -267,6 +267,7 @@ BDbDatabase::~BDbDatabase()
 	} while(c);
 	ZDELETE(P_SeqT);
 	if(E) {
+		E->log_flush(E, 0); // @v9.6.7
 		E->close(E, 0);
 		E = 0;
 	}
@@ -1295,13 +1296,20 @@ int BDbTable::Search(int idx, Buffer & rKey, Buffer & rData)
 	return ok;
 }
 
+int BDbTable::Helper_Put(Buffer & rKey, Buffer & rData, uint32 flags)
+{
+	DB_TXN * p_txn = P_Db ? (DB_TXN *)*P_Db : (DB_TXN *)0;
+	return BDbDatabase::ProcessError(H->put(H, p_txn, rKey, rData, flags));
+}
+
 int BDbTable::InsertRec(Buffer & rKey, Buffer & rData)
 {
-	int    ok = 1;
-	DB_TXN * p_txn = P_Db ? (DB_TXN *)*P_Db : (DB_TXN *)0;
-	THROW(BDbDatabase::ProcessError(H->put(H, p_txn, rKey, rData, 0 /*flags*/)));
-	CATCHZOK
-	return ok;
+	return Helper_Put(rKey, rData, DB_NOOVERWRITE);
+}
+
+int BDbTable::UpdateRec(Buffer & rKey, Buffer & rData)
+{
+	return Helper_Put(rKey, rData, 0);
 }
 
 int BDbTable::DeleteRec(Buffer & rKey)

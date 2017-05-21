@@ -985,9 +985,7 @@ int SLAPI PPViewPriceList::RemoveLine(PriceLineIdent * pIdent)
 		PPWait(0);
 		ok = 1;
 	}
- 	CATCH
-		ok = PPErrorZ();
-	ENDCATCH
+	CATCHZOKPPERR
 	return ok;
 }
 

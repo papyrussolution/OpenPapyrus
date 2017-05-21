@@ -80,8 +80,8 @@ __P((DB*, char *, uint32, DB_FH*, PAGE*, int *)) = {
 	NULL,                   /* P_IHEAP */
 };
 
-static int __db_page_pass __P((DB*, char *, uint32, int (*const [])(DB*, char *, uint32, DB_FH*, PAGE*, int *), DB_FH *));
-static int __db_set_lastpgno __P((DB*, char *, DB_FH *));
+static int __db_page_pass(DB*, char *, uint32, int (*const [])(DB*, char *, uint32, DB_FH*, PAGE*, int *), DB_FH *);
+static int __db_set_lastpgno(DB*, char *, DB_FH *);
 /*
  * __db_upgrade --
  *	Upgrade an existing database.
@@ -89,25 +89,22 @@ static int __db_set_lastpgno __P((DB*, char *, DB_FH *));
 int __db_upgrade(DB * dbp, const char * fname, uint32 flags)
 {
 	DBMETA * meta;
-	DB_FH * fhp;
-	ENV * env;
 	size_t n;
-	int ret, t_ret, use_mp_open;
+	int ret, t_ret;
 	uint8 mbuf[256], tmpflags;
 	char * real_name;
-
-	use_mp_open = 0;
-	env = dbp->env;
-	fhp = NULL;
-	/* Get the real backing file name. */
+	int use_mp_open = 0;
+	ENV * env = dbp->env;
+	DB_FH * fhp = NULL;
+	// Get the real backing file name
 	if((ret = __db_appname(env, DB_APP_DATA, fname, NULL, &real_name)) != 0)
 		return ret;
-	/* Open the file. */
+	// Open the file
 	if((ret = __os_open(env, real_name, 0, 0, 0, &fhp)) != 0) {
 		__db_err(env, ret, "%s", real_name);
 		return ret;
 	}
-	/* Initialize the feedback. */
+	// Initialize the feedback
 	if(dbp->db_feedback != NULL)
 		dbp->db_feedback(dbp, DB_UPGRADE, 0);
 	/*
@@ -120,10 +117,9 @@ int __db_upgrade(DB * dbp, const char * fname, uint32 flags)
 	    case DB_BTREEMAGIC:
 		switch(((DBMETA *)mbuf)->version) {
 		    case 6:
-			/*
-			 * Before V7 not all pages had page types, so we do the
-			 * single meta-data page by hand.
-			 */
+			//
+			// Before V7 not all pages had page types, so we do the single meta-data page by hand.
+			//
 			if((ret = __bam_30_btreemeta(dbp, real_name, mbuf)) != 0)
 				goto err;
 			if((ret = __os_seek(env, fhp, 0, 0, 0)) != 0)
@@ -132,10 +128,9 @@ int __db_upgrade(DB * dbp, const char * fname, uint32 flags)
 				goto err;
 		    /* FALLTHROUGH */
 		    case 7:
-			/*
-			 * We need the page size to do more.  Rip it out of
-			 * the meta-data page.
-			 */
+			//
+			// We need the page size to do more.  Rip it out of the meta-data page.
+			//
 			memcpy(&dbp->pgsize, mbuf+20, sizeof(uint32));
 			if((ret = __db_page_pass(dbp, real_name, flags, func_31_list, fhp)) != 0)
 				goto err;

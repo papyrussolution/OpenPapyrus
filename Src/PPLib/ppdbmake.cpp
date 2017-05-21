@@ -67,6 +67,7 @@ static void RemovePath(const char * pPath)
 int SLAPI CreateByExample(const char * pPath)
 {
 	int    ok = 1;
+	PPObjBill * p_bobj = BillObj;
 	SString file_name, src_path, dst_path, pp, tbl_name;
 	SPathStruc ps;
 	DBTable * p_dst_tbl = 0;
@@ -148,7 +149,7 @@ int SLAPI CreateByExample(const char * pPath)
 								THROW(PPCheckUserBreak());
 							} while(p_src_tbl->step(spNext));
 						}
-						THROW(tra.Commit()); // @v7.9.6
+						THROW(tra.Commit());
 						PPWaitPercent(rn, rn, tbl_name);
 					}
 				}
@@ -173,12 +174,12 @@ int SLAPI CreateByExample(const char * pPath)
 		dst_tbl.setDataBuf(&rcpt_rec, sizeof(ReceiptTbl::Rec));
 		src_tbl.getNumRecs(&rn);
 
-		PPTransaction tra(1); // @v7.9.6
-		THROW(tra); // @v7.9.6
+		PPTransaction tra(1);
+		THROW(tra);
 
 		if(src_tbl.step(spFirst)) {
-			ReceiptCore * p_rc = &BillObj->trfr->Rcpt;
-			ObjTagCore dest_ot((path = pPath).SetLastSlash().Cat("objtag.btr")); // @v7.5.10
+			ReceiptCore * p_rc = &p_bobj->trfr->Rcpt;
+			ObjTagCore dest_ot((path = pPath).SetLastSlash().Cat("objtag.btr"));
 			MEMSZERO(rcpt_rec);
 			do {
 				if(p_rc->GetLastLot(goods_rec.ID, 0, MAXDATE, &rcpt_rec) > 0) {
@@ -190,14 +191,12 @@ int SLAPI CreateByExample(const char * pPath)
 					THROW_DB(dst_tbl.insertRec());
 					{
 						//
-						// @v7.5.10 {
 						// ѕеренос тегов лота с исходной базы в создаваемую.
 						//
 						ObjTagList lot_tag_list;
-						if(BillObj->GetTagListByLot(rcpt_rec.ID, 0, &lot_tag_list) > 0) {
+						if(p_bobj->GetTagListByLot(rcpt_rec.ID, 0, &lot_tag_list) > 0) {
 							THROW(dest_ot.PutList(PPOBJ_LOT, rcpt_rec.ID, &lot_tag_list, 0));
 						}
-						// } @v7.5.10
 					}
 				}
 				PPWaitPercent(i++, rn, p_rc->tableName);
@@ -213,17 +212,19 @@ int SLAPI CreateByExample(const char * pPath)
 		MEMSZERO(k0);
 		k0.ObjType = PPOBJ_UNASSIGNED;
 		k0.ObjID = 1L;
-		PPTransaction tra(1); // @v7.9.6
-		THROW(tra);              // @v7.9.6
-		if(dest_tbl_ref.searchForUpdate(0, &k0, spEq)) {
-			val2 = dest_tbl_ref.data.Val2;
-			THROW_DB(dest_tbl_ref.deleteRec()); // @sfu
+		{
+			PPTransaction tra(1);
+			THROW(tra);
+			if(dest_tbl_ref.searchForUpdate(0, &k0, spEq)) {
+				val2 = dest_tbl_ref.data.Val2;
+				THROW_DB(dest_tbl_ref.deleteRec()); // @sfu
+			}
+			if(val2) {
+				ArticleTbl dest_tbl_ar((dst_path = pPath).SetLastSlash().Cat("article.btr"));
+				THROW(RemoveByID(&dest_tbl_ar, val2, 0));
+			}
+			THROW(tra.Commit());
 		}
-		if(val2) {
-			ArticleTbl dest_tbl_ar((dst_path = pPath).SetLastSlash().Cat("article.btr"));
-			THROW(RemoveByID(&dest_tbl_ar, val2, 0));
-		}
-		THROW(tra.Commit()); // @v7.9.6
 	}
 	PPWait(0);
 	CATCH

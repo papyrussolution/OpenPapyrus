@@ -1,5 +1,5 @@
 // SPRINTER.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2006, 2009, 2010, 2011, 2012, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2006, 2009, 2010, 2011, 2012, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -53,8 +53,7 @@ SPrinting::~SPrinting()
 int SPrinting::Init(const char * pPort)
 {
 	int    ok = 1;
-	SString port;
-	port = pPort;
+	SString port = pPort;
 	if(!port.NotEmpty()) {
 		TSArray <SPrinting::PrnInfo> prn_list;
 		SPrinting::GetListOfPrinters(&prn_list);

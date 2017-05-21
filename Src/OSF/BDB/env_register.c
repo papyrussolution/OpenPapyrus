@@ -430,10 +430,8 @@ int __envreg_unregister(ENV * env, int recovery_failed)
 	 * lock, and threads of control reviewing the register file ignore any
 	 * slots which they can't lock.
 	 */
-	if((ret = __os_seek(env,
-		    dbenv->registry, 0, 0, dbenv->registry_off)) != 0 ||
-	   (ret = __os_write(
-		    env, dbenv->registry, PID_EMPTY, PID_LEN, &nw)) != 0)
+	if((ret = __os_seek(env, dbenv->registry, 0, 0, dbenv->registry_off)) != 0 ||
+	   (ret = __os_write(env, dbenv->registry, PID_EMPTY, PID_LEN, &nw)) != 0)
 		goto err;
 	/*
 	 * !!!

@@ -5383,10 +5383,10 @@ int SLAPI GetDefScaleData(TIDlgInitData * pData)
 //
 class ScaleCache : public ObjCache {
 public:
-	SLAPI ScaleCache() : ObjCache(PPOBJ_SCALE, sizeof(ScaleData)) {}
+	SLAPI  ScaleCache() : ObjCache(PPOBJ_SCALE, sizeof(ScaleData)) {}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct ScaleData : public ObjCacheEntry {
 		uint16 Get_NumTries;   //
@@ -5437,7 +5437,7 @@ int SLAPI ScaleCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI ScaleCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI ScaleCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPScale * p_data_rec = (PPScale *)pDataRec;
 	const ScaleData * p_cache_rec = (const ScaleData *)pEntry;
@@ -5461,7 +5461,6 @@ int SLAPI ScaleCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 #undef CPY_FLD
 	memcpy(p_data_rec->Port, p_cache_rec->Port, sizeof(p_data_rec->Port));
 	GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
-	return 1;
 }
 
 IMPL_OBJ_FETCH(PPObjScale, PPScale, ScaleCache);

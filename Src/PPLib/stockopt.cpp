@@ -723,9 +723,7 @@ public:
 		Data.Pckg = getCtrlReal(CTL_SOI_PCKG);
 		Data.ExpiryPeriod = (int16)getCtrlLong(CTL_SOI_EXPIRYPERIOD);
 		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = PPErrorZ();
-		ENDCATCH
+		CATCHZOKPPERR
 		return ok;
 	}
 private:

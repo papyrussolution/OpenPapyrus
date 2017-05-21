@@ -2267,8 +2267,8 @@ public:
 	int    ResetFullList(); // @sync_w
 	int    SearchGoodsAnalogs(PPID goodsID, PPIDArray & rList, SString * pTransitComponentBuf); // @sync_w
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
 	struct GroupTermList {
 		PPID   GrpID;
@@ -2890,7 +2890,7 @@ int SLAPI GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData
 	return ok;
 }
 
-int SLAPI GoodsCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI GoodsCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	Goods2Tbl::Rec * p_data_rec = (Goods2Tbl::Rec *)pDataRec;
 	if(p_data_rec) {
@@ -2911,7 +2911,6 @@ int SLAPI GoodsCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 		p_data_rec->Flags    = p_cache_rec->Flags;
 		GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
 	}
-	return 1;
 }
 //
 //
@@ -3509,7 +3508,7 @@ int SLAPI GoodsCore::GetMatrix(const ObjIdListFilt & rLocList, int orRule, PPIDA
 					pResult->sortAndUndup();
 				}
 				else {
-					THROW_SL(pResult->intersect(&temp_list, 1));
+					pResult->intersect(&temp_list, 1);
 					pResult->sortAndUndup();
 				}
 			}

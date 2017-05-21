@@ -30,7 +30,7 @@ static const char * __rep_syncstate_to_string(repsync_t);
  #define PRINT_LOGQUEUED(sp) do { __db_dl(env, "Number of log records currently queued", (ulong)(sp)->st_log_queued); } while(0)
 
  #define PRINT_MAXPERMLSN(sp) do {                                       \
-		__db_msg(env, "%lu/%lu\t%s", (ulong)(sp)->st_max_perm_lsn.file, (ulong)(sp)->st_max_perm_lsn.offset, \
+		__db_msg(env, "%lu/%lu\t%s", (ulong)(sp)->st_max_perm_lsn.file, (ulong)(sp)->st_max_perm_lsn.Offset_, \
 			(sp)->st_max_perm_lsn.file == 0 ? "No maximum permanent LSN" : "Maximum permanent LSN"); \
 } while(0)
 
@@ -236,8 +236,8 @@ static int __rep_print_stats(ENV*env, uint32 flags)
 		__db_msg(env, "Default replication region information:");
 	PRINT_STATUS(sp, is_client);
 
-	__db_msg(env, "%lu/%lu\t%s", (ulong)sp->st_next_lsn.file, (ulong)sp->st_next_lsn.offset, is_client ? "Next LSN expected" : "Next LSN to be used");
-	__db_msg(env, "%lu/%lu\t%s", (ulong)sp->st_waiting_lsn.file, (ulong)sp->st_waiting_lsn.offset,
+	__db_msg(env, "%lu/%lu\t%s", (ulong)sp->st_next_lsn.file, (ulong)sp->st_next_lsn.Offset_, is_client ? "Next LSN expected" : "Next LSN to be used");
+	__db_msg(env, "%lu/%lu\t%s", (ulong)sp->st_waiting_lsn.file, (ulong)sp->st_waiting_lsn.Offset_,
 		sp->st_waiting_lsn.file == 0 ? "Not waiting for any missed log records" : "LSN of first log record we have after missed log records");
 	PRINT_MAXPERMLSN(sp);
 
@@ -294,7 +294,7 @@ static int __rep_print_stats(ENV*env, uint32 flags)
 		__db_dl(env, "Environment ID of the winner of the current or last election", (ulong)sp->st_election_cur_winner);
 		__db_dl(env, "Master generation number of the winner of the current or last election", (ulong)sp->st_election_gen);
 		__db_dl(env, "Master data generation number of the winner of the current or last election", (ulong)sp->st_election_datagen);
-		__db_msg(env, "%lu/%lu\tMaximum LSN of the winner of the current or last election", (ulong)sp->st_election_lsn.file, (ulong)sp->st_election_lsn.offset);
+		__db_msg(env, "%lu/%lu\tMaximum LSN of the winner of the current or last election", (ulong)sp->st_election_lsn.file, (ulong)sp->st_election_lsn.Offset_);
 		__db_dl(env, "Number of sites responding to this site during the current election", (ulong)sp->st_election_nsites);
 		__db_dl(env, "Number of votes required in the current or last election", (ulong)sp->st_election_nvotes);
 		__db_dl(env, "Priority of the winner of the current or last election", (ulong)sp->st_election_priority);

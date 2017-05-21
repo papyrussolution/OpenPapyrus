@@ -127,12 +127,12 @@ int TCanvas2::GetCapability(Capability * pCaps) const
 	MEMSZERO(c);
 	HDC h_dc = (HDC)*this;
 	if(h_dc) {
-		float  mm_h = (float)GetDeviceCaps(h_dc, HORZSIZE);
-		float  mm_v = (float)GetDeviceCaps(h_dc, VERTSIZE);
-		int    pt_h = GetDeviceCaps(h_dc, HORZRES);
-		int    pt_v = GetDeviceCaps(h_dc, VERTRES);
-		float  pt_per_inch_h = (float)GetDeviceCaps(h_dc, LOGPIXELSX);
-		float  pt_per_inch_v = (float)GetDeviceCaps(h_dc, LOGPIXELSY);
+		const float  mm_h = (float)GetDeviceCaps(h_dc, HORZSIZE);
+		const float  mm_v = (float)GetDeviceCaps(h_dc, VERTSIZE);
+		const int    pt_h = GetDeviceCaps(h_dc, HORZRES);
+		const int    pt_v = GetDeviceCaps(h_dc, VERTRES);
+		const float  pt_per_inch_h = (float)GetDeviceCaps(h_dc, LOGPIXELSX);
+		const float  pt_per_inch_v = (float)GetDeviceCaps(h_dc, LOGPIXELSY);
 		c.SizePt.Set(pt_h, pt_v);
 		c.SizeMm.Set(mm_h, mm_v);
 		c.PtPerInch.Set(pt_per_inch_h, pt_per_inch_v);

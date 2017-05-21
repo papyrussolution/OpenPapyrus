@@ -765,7 +765,7 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 {
 	int   ok = -1;
 	PPCashMachine * p_cm = 0;
-	PPID  node_id = NZOR(LConfig.DefBillCashID, Cfg.CashNodeID);
+	const PPID  node_id = NZOR(LConfig.DefBillCashID, Cfg.CashNodeID);
 	if(node_id && billID) {
 		PPBillPacket pack;
 		THROW(ExtractPacket(billID, &pack) > 0);
@@ -4203,8 +4203,8 @@ public:
 	int    ReleaseFullSerialList(const StrAssocArray * pList);
 	int    ResetFullSerialList(); // @sync_w
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
 	class BillCache_ExtText_Block : public ObjCache::ExtTextBlock {
 	private:
@@ -4248,7 +4248,7 @@ private:
 			}
 			return ok;
 		}
-		virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+		virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 		{
 			PPBillExt * p_data_rec = (PPBillExt *)pDataRec;
 			const Data * p_cache_rec = (const Data *)pEntry;
@@ -4259,7 +4259,6 @@ private:
 				FLD(AgentID);
 				#undef FLD
 			}
-			return 1;
 		}
 	};
 	class BillFreightCache : public ObjCacheHash {
@@ -4325,7 +4324,7 @@ private:
 			}
 			return ok;
 		}
-		virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+		virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 		{
 			PPFreight * p_data_rec = (PPFreight *)pDataRec;
 			const Data * p_cache_rec = (const Data *)pEntry;
@@ -4345,7 +4344,6 @@ private:
 				FLD(StorageLocID);
 				#undef FLD
 			}
-			return 1;
 		}
 	};
 	struct CrBillEntry : public PPBillPacket {
@@ -4423,7 +4421,7 @@ int SLAPI BillCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 	return ok;
 }
 
-int SLAPI BillCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI BillCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	BillTbl::Rec * p_data_rec = (BillTbl::Rec *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -4445,7 +4443,6 @@ int SLAPI BillCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) 
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Code, sizeof(p_data_rec->Code));
 	b.Get(p_data_rec->Memo, sizeof(p_data_rec->Memo));
-	return 1;
 }
 
 int SLAPI BillCache::GetCrBillEntry(long & rTempID, PPBillPacket * pPack)
@@ -4697,8 +4694,8 @@ public:
 	SLAPI  LotCache();
 	virtual int SLAPI Dirty(PPID id); // @sync_w
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
 SLAPI LotCache::LotCache() : ObjCacheHash(PPOBJ_LOT, sizeof(Data),
@@ -4743,7 +4740,7 @@ int SLAPI LotCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 	return ok;
 }
 
-int SLAPI LotCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI LotCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	BillTbl::Rec * p_data_rec = (BillTbl::Rec *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -4772,7 +4769,6 @@ int SLAPI LotCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) c
 	#undef FLD
 	p_data_rec->Closed = BIN(p_cache_rec->Flags & LOTF_CLOSED);
 	p_data_rec->Flags &= ~LOTF_CLOSED;
-	return 1;
 }
 
 #endif // } 0 @projection

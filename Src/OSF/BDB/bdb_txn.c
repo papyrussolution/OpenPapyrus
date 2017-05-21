@@ -366,8 +366,7 @@ err:
 		SH_TAILQ_REMOVE(&region->active_txn, td, links, __txn_detail);
 		region->curtxns--;
 		if(F_ISSET(txn, TXN_BULK))
-			((DB_TXNREGION *)
-			 env->tx_handle->reginfo.primary)->n_bulk_txn--;
+			((DB_TXNREGION *)env->tx_handle->reginfo.primary)->n_bulk_txn--;
 	}
 	if(td != NULL)
 		__env_alloc_free(&mgr->reginfo, td);
@@ -584,8 +583,7 @@ int __txn_commit(DB_TXN*txn, uint32 flags)
 			if(ret == 0 && !IS_ZERO_LSN(td->last_lsn)) {
 				ret = __txn_flush_fe_files(txn);
 				if(ret == 0)
-					ret = __txn_regop_log(env, txn, &td->visible_lsn, LOG_FLAGS(txn),
-						TXN_COMMIT, (int32)time(NULL), id, request.obj);
+					ret = __txn_regop_log(env, txn, &td->visible_lsn, LOG_FLAGS(txn), TXN_COMMIT, (int32)time(NULL), id, request.obj);
 				if(ret == 0)
 					token_lsn = td->last_lsn = td->visible_lsn;
 #ifdef DIAGNOSTIC
@@ -655,8 +653,8 @@ err:
 	 * returned DB_RUNRECOVERY and we need to propagate that up.
 	 */
 	if(td->status == TXN_PREPARED)
-		return __env_panic(env, ret);
-	if((t_ret = __txn_abort(txn)) != 0)
+		ret = __env_panic(env, ret);
+	else if((t_ret = __txn_abort(txn)) != 0)
 		ret = t_ret;
 	return ret;
 }
@@ -738,14 +736,14 @@ static void __txn_build_token(DB_TXN*txn, DB_LSN * lsnp)
 	uint8 * bp = txn->token_buffer->buf;
 	ENV * env = txn->mgrp->env;
 	REGENV * renv = (REGENV *)env->reginfo->primary;
-	/* Marshal the information into external form. */
+	// Marshal the information into external form
 	uint32 version = REP_COMMIT_TOKEN_FMT_VERSION;
 	uint32 gen = REP_ON(env) ? env->rep_handle->region->gen : 0;
 	DB_HTONL_COPYOUT(env, bp, version);
 	DB_HTONL_COPYOUT(env, bp, gen);
 	DB_HTONL_COPYOUT(env, bp, renv->envid);
 	DB_HTONL_COPYOUT(env, bp, lsnp->file);
-	DB_HTONL_COPYOUT(env, bp, lsnp->offset);
+	DB_HTONL_COPYOUT(env, bp, lsnp->Offset_);
 }
 /*
  * __txn_abort_pp --
@@ -764,111 +762,112 @@ static int __txn_abort_pp(DB_TXN*txn)
 	ENV_LEAVE(env, ip);
 	return ret;
 }
-/*
- * __txn_abort --
- *	Abort a transaction.
- */
-int __txn_abort(DB_TXN*txn)
+//
+// Abort a transaction.
+//
+int __txn_abort(DB_TXN * txn)
 {
-	DB_LOCKREQ request;
-	DB_TXN * kid;
-	REGENV * renv;
-	REGINFO * infop;
-	uint32 id;
-	int ret;
-	ENV * env = txn->mgrp->env;
-	TXN_DETAIL * td = (TXN_DETAIL *)txn->td;
-	/*
-	 * Do not abort an XA transaction if another process is still using
-	 * it, however make sure that it is aborted when the last process
-	 * tries to abort it.
-	 */
-	if(txn->xa_thr_status != TXN_XA_THREAD_NOTA &&  td->xa_ref > 1) {
-		td->status = TXN_NEED_ABORT;
-		return 0;
-	}
-	PERFMON1(env, txn, abort, txn->txnid);
-	/*
-	 * Close registered cursors before the abort. Even if the call fails,
-	 * all cursors are closed.
-	 */
-	if((ret = __txn_close_cursors(txn)) != 0)
-		return __env_panic(env, ret);
-	/* Ensure that abort always fails fatally. */
-	if((ret = __txn_isvalid(txn, TXN_OP_ABORT)) != 0)
-		return __env_panic(env, ret);
-	/*
-	 * Clear the watermarks now.  Can't do this in __txn_end because
-	 * __db_refresh, called from undo, will free the DB_MPOOLFILEs.
-	 */
-	__txn_reset_fe_watermarks(txn);
-
-	/*
-	 * Try to abort any unresolved children.
-	 *
-	 * Abort either succeeds or panics the region.  As soon as we
-	 * see any failure, we just get out of here and return the panic
-	 * up.
-	 */
-	while((kid = TAILQ_FIRST(&txn->kids)) != NULL)
-		if((ret = __txn_abort(kid)) != 0)
-			return ret;
-	infop = env->reginfo;
-	renv = (REGENV *)infop->primary;
-	/*
-	 * No mutex is needed as envid is read-only once it is set.
-	 */
-	id = renv->envid;
-	/*
-	 * Fast path -- no need to do anything fancy if there were no
-	 * modifications (e.g., log records) for this transaction.
-	 * We still call txn_undo to cleanup the txn_list from our
-	 * children.
-	 */
-	if(IS_ZERO_LSN(td->last_lsn) && STAILQ_FIRST(&txn->logs) == NULL) {
-		if(txn->txn_list == NULL)
-			goto done;
-		else
-			goto undo;
-	}
-	if(LOCKING_ON(env)) {
-		/* Allocate a locker for this restored txn if necessary. */
-		if(txn->locker == NULL && (ret = __lock_getlocker(env->lk_handle, txn->txnid, 1, &txn->locker)) != 0)
+	int ret = 0;
+	if(txn) {
+		DB_LOCKREQ request;
+		DB_TXN * kid;
+		REGENV * renv;
+		REGINFO * infop;
+		uint32 id;
+		ENV * env = txn->mgrp->env;
+		TXN_DETAIL * td = (TXN_DETAIL *)txn->td;
+		// 
+		// Do not abort an XA transaction if another process is still using
+		// it, however make sure that it is aborted when the last process tries to abort it.
+		// 
+		if(txn->xa_thr_status != TXN_XA_THREAD_NOTA &&  td->xa_ref > 1) {
+			td->status = TXN_NEED_ABORT;
+			return 0;
+		}
+		PERFMON1(env, txn, abort, txn->txnid);
+		/*
+		 * Close registered cursors before the abort. Even if the call fails,
+		 * all cursors are closed.
+		 */
+		if((ret = __txn_close_cursors(txn)) != 0)
+			return __env_panic(env, ret);
+		/* Ensure that abort always fails fatally. */
+		if((ret = __txn_isvalid(txn, TXN_OP_ABORT)) != 0)
 			return __env_panic(env, ret);
 		/*
-		 * We are about to free all the read locks for this transaction
-		 * below.  Some of those locks might be handle locks which
-		 * should not be freed, because they will be freed when the
-		 * handle is closed.  Check the events and preprocess any
-		 * trades now so that we don't release the locks below.
+		 * Clear the watermarks now.  Can't do this in __txn_end because
+		 * __db_refresh, called from undo, will free the DB_MPOOLFILEs.
 		 */
-		if((ret = __txn_doevents(env, txn, TXN_ABORT, 1)) != 0)
+		__txn_reset_fe_watermarks(txn);
+		/*
+		 * Try to abort any unresolved children.
+		 *
+		 * Abort either succeeds or panics the region.  As soon as we
+		 * see any failure, we just get out of here and return the panic
+		 * up.
+		 */
+		while((kid = TAILQ_FIRST(&txn->kids)) != NULL)
+			if((ret = __txn_abort(kid)) != 0)
+				return ret;
+		infop = env->reginfo;
+		renv = (REGENV *)infop->primary;
+		/*
+		 * No mutex is needed as envid is read-only once it is set.
+		 */
+		id = renv->envid;
+		/*
+		 * Fast path -- no need to do anything fancy if there were no
+		 * modifications (e.g., log records) for this transaction.
+		 * We still call txn_undo to cleanup the txn_list from our
+		 * children.
+		 */
+		if(IS_ZERO_LSN(td->last_lsn) && STAILQ_FIRST(&txn->logs) == NULL) {
+			if(txn->txn_list == NULL)
+				goto done;
+			else
+				goto undo;
+		}
+		if(LOCKING_ON(env)) {
+			/* Allocate a locker for this restored txn if necessary. */
+			if(txn->locker == NULL && (ret = __lock_getlocker(env->lk_handle, txn->txnid, 1, &txn->locker)) != 0)
+				return __env_panic(env, ret);
+			/*
+			 * We are about to free all the read locks for this transaction
+			 * below.  Some of those locks might be handle locks which
+			 * should not be freed, because they will be freed when the
+			 * handle is closed.  Check the events and preprocess any
+			 * trades now so that we don't release the locks below.
+			 */
+			if((ret = __txn_doevents(env, txn, TXN_ABORT, 1)) != 0)
+				return __env_panic(env, ret);
+			/* Turn off timeouts. */
+			if((ret = __lock_set_timeout(env, txn->locker, 0, DB_SET_TXN_TIMEOUT)) != 0)
+				return __env_panic(env, ret);
+			if((ret = __lock_set_timeout(env, txn->locker, 0, DB_SET_LOCK_TIMEOUT)) != 0)
+				return __env_panic(env, ret);
+			request.op = DB_LOCK_UPGRADE_WRITE;
+			request.obj = NULL;
+			if((ret = __lock_vec(env, txn->locker, 0, &request, 1, NULL)) != 0)
+				return __env_panic(env, ret);
+		}
+	undo:
+		if((ret = __txn_undo(txn)) != 0)
 			return __env_panic(env, ret);
-		/* Turn off timeouts. */
-		if((ret = __lock_set_timeout(env, txn->locker, 0, DB_SET_TXN_TIMEOUT)) != 0)
-			return __env_panic(env, ret);
-		if((ret = __lock_set_timeout(env, txn->locker, 0, DB_SET_LOCK_TIMEOUT)) != 0)
-			return __env_panic(env, ret);
-		request.op = DB_LOCK_UPGRADE_WRITE;
-		request.obj = NULL;
-		if((ret = __lock_vec(env, txn->locker, 0, &request, 1, NULL)) != 0)
-			return __env_panic(env, ret);
+		/*
+		 * Normally, we do not need to log aborts.  However, if we
+		 * are a distributed transaction (i.e., we have a prepare),
+		 * then we log the abort so we know that this transaction was actually completed.
+		 */
+	done:
+		if(DBENV_LOGGING(env) && td->status == TXN_PREPARED && (ret = __txn_regop_log(env, txn, &td->last_lsn,
+			LOG_FLAGS(txn), TXN_ABORT, (int32)time(NULL), id, NULL)) != 0)
+			ret = __env_panic(env, ret);
+		else {
+			// __txn_end always panics if it errors, so pass the return along
+			ret = __txn_end(txn, 0);
+		}
 	}
-undo:
-	if((ret = __txn_undo(txn)) != 0)
-		return __env_panic(env, ret);
-	/*
-	 * Normally, we do not need to log aborts.  However, if we
-	 * are a distributed transaction (i.e., we have a prepare),
-	 * then we log the abort so we know that this transaction
-	 * was actually completed.
-	 */
-done:
-	if(DBENV_LOGGING(env) && td->status == TXN_PREPARED && (ret = __txn_regop_log(env, txn, &td->last_lsn,
-		LOG_FLAGS(txn), TXN_ABORT, (int32)time(NULL), id, NULL)) != 0)
-		return __env_panic(env, ret);
-	/* __txn_end always panics if it errors, so pass the return along. */
-	return __txn_end(txn, 0);
+	return ret;
 }
 /*
  * __txn_discard --
@@ -1166,7 +1165,8 @@ static int __txn_isvalid(const DB_TXN*txn, txnop_t op)
 	}
 	return 0;
 
-err:    /*
+err:    
+	/*
 	 * If there's a serious problem with the transaction, panic.  TXN
 	 * handles are dead by definition when we return, and if you use
 	 * a cursor you forgot to close, we have no idea what will happen.
@@ -1259,8 +1259,7 @@ static int __txn_end(DB_TXN*txn, int is_commit)
 #ifdef HAVE_STATISTICS
 			STAT_INC(env, txn, nsnapshot, region->stat.st_nsnapshot, txn->txnid);
 			if(region->stat.st_nsnapshot > region->stat.st_maxnsnapshot)
-				STAT_SET(env, txn, maxnsnapshot, region->stat.st_maxnsnapshot,
-					region->stat.st_nsnapshot, txn->txnid);
+				STAT_SET(env, txn, maxnsnapshot, region->stat.st_maxnsnapshot, region->stat.st_nsnapshot, txn->txnid);
 #endif
 			td = NULL;
 		}
@@ -1406,15 +1405,14 @@ static int __txn_undo(DB_TXN*txn)
 			ret = __txn_dispatch_undo(env, txn, &rdbt, &key_lsn, txnlist);
 		}
 		if(ret != 0) {
-			__db_err(env, ret, DB_STR_A("4537", "DB_TXN->abort: log undo failed for LSN: %lu %lu",
-					"%lu %lu"), (ulong)key_lsn.file, (ulong)key_lsn.offset);
+			__db_err(env, ret, DB_STR_A("4537", "DB_TXN->abort: log undo failed for LSN: %lu %lu", "%lu %lu"), (ulong)key_lsn.file, (ulong)key_lsn.Offset_);
 			goto err;
 		}
 	}
 err:
 	if(logc != NULL && (t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
-	if(ptxn == NULL && txnlist != NULL)
+	if(ptxn == NULL)
 		__db_txnlist_end(env, txnlist);
 	return ret;
 }
@@ -1558,7 +1556,7 @@ int __txn_applied_pp(DB_ENV * dbenv, DB_TXN_TOKEN * token, db_timeout_t timeout,
 	DB_NTOHL_COPYIN(env, commit_info.gen, bp);
 	DB_NTOHL_COPYIN(env, commit_info.envid, bp);
 	DB_NTOHL_COPYIN(env, commit_info.lsn.file, bp);
-	DB_NTOHL_COPYIN(env, commit_info.lsn.offset, bp);
+	DB_NTOHL_COPYIN(env, commit_info.lsn.Offset_, bp);
 	/*
 	 * Check for a token representing a transaction that committed without
 	 * any log records having been written.  Ideally an application should
@@ -1794,7 +1792,7 @@ int __txn_checkpoint(ENV * env, uint32 kbytes, uint32 minutes, uint32 flags)
 				op = DBREG_RCLOSE;
 			if((ret = __dbreg_log_files(env, op)) != 0 ||
 			   (ret = __txn_ckp_log(env, NULL, &ckp_lsn, logflags, &ckp_lsn, &last_ckp, (int32)time(NULL), id, 0)) != 0) {
-				__db_err(env, ret, DB_STR_A("4520", "txn_checkpoint: log failed at LSN [%ld %ld]", "%ld %ld"), (long)ckp_lsn.file, (long)ckp_lsn.offset);
+				__db_err(env, ret, DB_STR_A("4520", "txn_checkpoint: log failed at LSN [%ld %ld]", "%ld %ld"), (long)ckp_lsn.file, (long)ckp_lsn.Offset_);
 				goto err;
 			}
 			if((ret = __txn_updateckp(env, &ckp_lsn)) != 0)
@@ -1826,7 +1824,7 @@ int __txn_getactive(ENV*env, DB_LSN * lsnp)
 	DB_TXNREGION * region = (DB_TXNREGION *)mgr->reginfo.primary;
 	TXN_SYSTEM_LOCK(env);
 	SH_TAILQ_FOREACH(td, &region->active_txn, links, __txn_detail)
-	if(td->begin_lsn.file != 0 && td->begin_lsn.offset != 0 && LOG_COMPARE(&td->begin_lsn, lsnp) < 0)
+	if(td->begin_lsn.file && td->begin_lsn.Offset_ && LOG_COMPARE(&td->begin_lsn, lsnp) < 0)
 		*lsnp = td->begin_lsn;
 	TXN_SYSTEM_UNLOCK(env);
 	return 0;
@@ -2543,19 +2541,17 @@ int __txn_openfiles(ENV*env, DB_THREAD_INFO * ip, DB_LSN * min, int force)
 	__txn_ckp_args * ckp_args;
 	int ret, t_ret;
 	/*
-	 * Figure out the last checkpoint before the smallest
-	 * start_lsn in the region.
+	 * Figure out the last checkpoint before the smallest start_lsn in the region.
 	 */
 	DB_LOGC * logc = NULL;
 	if((ret = __log_cursor(env, &logc)) != 0)
 		goto err;
 	memzero(&data, sizeof(data));
 	if((ret = __txn_getckp(env, &open_lsn)) == 0)
-		while(!IS_ZERO_LSN(open_lsn) && (ret = __logc_get(logc, &open_lsn, &data, DB_SET)) == 0 &&
-		      (force || (min != NULL && LOG_COMPARE(min, &open_lsn) < 0))) {
+		while(!IS_ZERO_LSN(open_lsn) && (ret = __logc_get(logc, &open_lsn, &data, DB_SET)) == 0 && (force || (min && LOG_COMPARE(min, &open_lsn) < 0))) {
 			/* Format the log record. */
 			if((ret = __txn_ckp_read(env, data.data, &ckp_args)) != 0) {
-				__db_errx(env, DB_STR_A("4506", "Invalid checkpoint record at [%lu][%lu]", "%lu %lu"), (ulong)open_lsn.file, (ulong)open_lsn.offset);
+				__db_errx(env, DB_STR_A("4506", "Invalid checkpoint record at [%lu][%lu]", "%lu %lu"), (ulong)open_lsn.file, (ulong)open_lsn.Offset_);
 				goto err;
 			}
 			/*
@@ -2586,10 +2582,8 @@ int __txn_openfiles(ENV*env, DB_THREAD_INFO * ip, DB_LSN * min, int force)
 	}
 	if((ret = __db_txnlist_init(env, ip, 0, 0, NULL, &txninfo)) != 0)
 		goto err;
-	ret = __env_openfiles(
-		env, logc, txninfo, &data, &open_lsn, NULL, (double)0, 0);
-	if(txninfo != NULL)
-		__db_txnlist_end(env, txninfo);
+	ret = __env_openfiles(env, logc, txninfo, &data, &open_lsn, NULL, (double)0, 0);
+	__db_txnlist_end(env, txninfo);
 err:
 	if(logc != NULL && (t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
@@ -2698,7 +2692,7 @@ static int __txn_init(ENV * env, DB_TXNMGR * mgr)
  *	max_lsn given or the beginning of the last log file.  (The
  *	log system looked through the last log file when it started up.)
  */
-int __txn_findlastckp(ENV*env, DB_LSN * lsnp, DB_LSN * max_lsn)
+int __txn_findlastckp(ENV * pEnv, DB_LSN * pLsnp, DB_LSN * pMaxLsn)
 {
 	DBT dbt;
 	DB_LOGC * logc;
@@ -2706,13 +2700,13 @@ int __txn_findlastckp(ENV*env, DB_LSN * lsnp, DB_LSN * max_lsn)
 	int ret, t_ret;
 	uint32 rectype;
 	uint64 _log_get_count = 0;
-	ZERO_LSN(*lsnp);
-	if((ret = __log_cursor(env, &logc)) != 0)
+	ZERO_LSN(*pLsnp);
+	if((ret = __log_cursor(pEnv, &logc)) != 0)
 		return ret;
 	// Get the last LSN
 	memzero(&dbt, sizeof(dbt));
-	if(max_lsn) {
-		lsn = *max_lsn;
+	if(pMaxLsn) {
+		lsn = *pMaxLsn;
 		if((ret = __logc_get(logc, &lsn, &dbt, DB_SET)) != 0)
 			goto err;
 	}
@@ -2724,15 +2718,15 @@ int __txn_findlastckp(ENV*env, DB_LSN * lsnp, DB_LSN * max_lsn)
 		// last file; we know there's no checkpoint after that, since
 		// the log system already looked there.
 		//
-		lsn.offset = 0;
+		lsn.Offset_ = 0;
 	}
 	// Read backwards, looking for checkpoints
 	while((ret = __logc_get(logc, &lsn, &dbt, DB_PREV)) == 0) {
 		_log_get_count++;
 		if(dbt.size >= sizeof(uint32)) {
-			LOGCOPY_32(env, &rectype, dbt.data);
+			LOGCOPY_32(pEnv, &rectype, dbt.data);
 			if(rectype == DB___txn_ckp) {
-				*lsnp = lsn;
+				*pLsnp = lsn;
 				break;
 			}
 		}
@@ -3100,7 +3094,7 @@ static int __txn_print_stats(ENV*env, uint32 flags)
 		return ret;
 	if(LF_ISSET(DB_STAT_ALL))
 		__db_msg(env, "Default transaction region information:");
-	__db_msg(env, "%lu/%lu\t%s", (ulong)sp->st_last_ckp.file, (ulong)sp->st_last_ckp.offset,
+	__db_msg(env, "%lu/%lu\t%s", (ulong)sp->st_last_ckp.file, (ulong)sp->st_last_ckp.Offset_,
 		sp->st_last_ckp.file == 0 ? "No checkpoint LSN" : "File/offset for last checkpoint LSN");
 	if(sp->st_time_ckp == 0)
 		__db_msg(env, "0\tNo checkpoint timestamp");
@@ -3125,11 +3119,11 @@ static int __txn_print_stats(ENV*env, uint32 flags)
 	for(i = 0; i < sp->st_nactive; ++i) {
 		txn = &sp->st_txnarray[i];
 		__db_msgadd(env, &mb, "\t%lx: %s; xa_status %s; pid/thread %s; begin LSN: file/offset %lu/%lu",
-			(ulong)txn->txnid, __txn_status(txn), __txn_xa_status(txn), dbenv->thread_id_string(dbenv, txn->pid, txn->tid, buf), (ulong)txn->lsn.file, (ulong)txn->lsn.offset);
+			(ulong)txn->txnid, __txn_status(txn), __txn_xa_status(txn), dbenv->thread_id_string(dbenv, txn->pid, txn->tid, buf), (ulong)txn->lsn.file, (ulong)txn->lsn.Offset_);
 		if(txn->parentid != 0)
 			__db_msgadd(env, &mb, "; parent: %lx", (ulong)txn->parentid);
 		if(!IS_MAX_LSN(txn->read_lsn))
-			__db_msgadd(env, &mb, "; read LSN: %lu/%lu", (ulong)txn->read_lsn.file, (ulong)txn->read_lsn.offset);
+			__db_msgadd(env, &mb, "; read LSN: %lu/%lu", (ulong)txn->read_lsn.file, (ulong)txn->read_lsn.Offset_);
 		if(txn->mvcc_ref != 0)
 			__db_msgadd(env, &mb, "; mvcc refcount: %lu", (ulong)txn->mvcc_ref);
 		if(LOCKING_ON(env))

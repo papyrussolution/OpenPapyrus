@@ -1491,7 +1491,7 @@ int PPBackupSystemFiles()
 					SCopyFile(path, dest_path, 0, FILE_SHARE_READ, 0);
 				}
 			}
-			// } @v9.6.6 
+			// } @v9.6.6
 
 			PPGetFileName(PPFILNAM_LOCAL_DL6, fname);
 			PPGetPath(PPPATH_DD, path);
@@ -1998,7 +1998,7 @@ int RegComSvrDialog::setDTS(const RegComSvrDialog::Param * pData)
 
 int RegComSvrDialog::getDTS(RegComSvrDialog::Param * pData)
 {
-	long v = 0;
+	long   v = 0;
 	GetClusterData(CTL_REGCOMSVR_ACTION, &v);
 	Data.Action = (int16)v;
 	GetClusterData(CTL_REGCOMSVR_DL200INST, &(v = 0));

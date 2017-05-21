@@ -1780,9 +1780,7 @@ public:
 				ok = 1;
 			}
 		}
-		CATCH
-			ok = PPErrorZ();
-		ENDCATCH
+		CATCHZOKPPERR
 		return ok;
 	}
 };
@@ -2574,8 +2572,7 @@ public:
 		else
 			pParam->SetRdOffs(sav_offs);
 		CATCH
-			if(pParam)
-				pParam->SetRdOffs(sav_offs);
+			CALLPTRMEMB(pParam, SetRdOffs(sav_offs));
 			ok = 0;
 		ENDCATCH
 		return ok;
@@ -2592,9 +2589,7 @@ public:
 				ok = 1;
 			}
 		}
-		CATCH
-			ok = PPErrorZ();
-		ENDCATCH
+		CATCHZOKPPERR
 		return ok;
 	}
 };

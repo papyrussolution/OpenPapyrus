@@ -341,7 +341,7 @@ typedef struct __db_msgbuf {
 #define	STAT_HEX(msg, v)     __db_msg(env, "%#lx\t%s", (ulong)(v), msg)
 #define	STAT_ISSET(msg, p)   __db_msg(env, "%sSet\t%s", (p) == NULL ? "!" : " ", msg)
 #define	STAT_LONG(msg, v)    __db_msg(env, "%ld\t%s", (long)(v), msg)
-#define	STAT_LSN(msg, lsnp)  __db_msg(env, "%lu/%lu\t%s", (ulong)(lsnp)->file, (ulong)(lsnp)->offset, msg)
+#define	STAT_LSN(msg, lsnp)  __db_msg(env, "%lu/%lu\t%s", (ulong)(lsnp)->file, (ulong)(lsnp)->Offset_, msg)
 #define	STAT_POINTER(msg, v) __db_msg(env, "%#lx\t%s", P_TO_ULONG(v), msg)
 #define	STAT_STRING(msg, p) do {					\
 	const char *__p = p;	/* p may be a function call. */		\
@@ -840,21 +840,23 @@ typedef struct __dbpginfo {
 //
 // Initialize an LSN to 'zero'
 //
-#define	ZERO_LSN(LSN)           do { (LSN).file = 0; (LSN).offset = 0; } while (0)
-#define	IS_ZERO_LSN(LSN)        ((LSN).file == 0 && (LSN).offset == 0)
-#define	IS_INIT_LSN(LSN)        ((LSN).file == 1 && (LSN).offset == 0)
-#define	INIT_LSN(LSN)           do { (LSN).file = 1; (LSN).offset = 0; } while (0)
-#define	MAX_LSN(LSN)            do { (LSN).file = UINT32_MAX; (LSN).offset = UINT32_MAX; } while (0)
-#define	IS_MAX_LSN(LSN)         ((LSN).file == UINT32_MAX && (LSN).offset == UINT32_MAX)
+//#define ZERO_LSN(LSN)           do { (LSN).file = 0; (LSN).Offset_ = 0; } while (0)
+//#define IS_ZERO_LSN(LSN)        ((LSN).file == 0 && (LSN).Offset_ == 0)
+#define ZERO_LSN(LSN)           (LSN).Clear()
+#define IS_ZERO_LSN(LSN)        (LSN).IsZero()
+#define	IS_INIT_LSN(LSN)        ((LSN).file == 1 && (LSN).Offset_ == 0)
+#define	INIT_LSN(LSN)           do { (LSN).file = 1; (LSN).Offset_ = 0; } while (0)
+#define	MAX_LSN(LSN)            do { (LSN).file = UINT32_MAX; (LSN).Offset_ = UINT32_MAX; } while (0)
+#define	IS_MAX_LSN(LSN)         ((LSN).file == UINT32_MAX && (LSN).Offset_ == UINT32_MAX)
 //
 // If logging is turned off, smash the lsn
 //
-#define	LSN_NOT_LOGGED(LSN)     do { (LSN).file = 0; (LSN).offset = 1; } while (0)
-#define	IS_NOT_LOGGED_LSN(LSN)  ((LSN).file == 0 && (LSN).offset == 1)
+#define	LSN_NOT_LOGGED(LSN)     do { (LSN).file = 0; (LSN).Offset_ = 1; } while (0)
+#define	IS_NOT_LOGGED_LSN(LSN)  ((LSN).file == 0 && (LSN).Offset_ == 1)
 //
 // LOG_COMPARE -- compare two LSNs.
 //
-#define	LOG_COMPARE(lsn0, lsn1) ((lsn0)->file != (lsn1)->file ? ((lsn0)->file < (lsn1)->file ? -1 : 1) : ((lsn0)->offset != (lsn1)->offset ? ((lsn0)->offset < (lsn1)->offset ? -1 : 1) : 0))
+#define	LOG_COMPARE(lsn0, lsn1) ((lsn0)->file != (lsn1)->file ? ((lsn0)->file < (lsn1)->file ? -1 : 1) : ((lsn0)->Offset_ != (lsn1)->Offset_ ? ((lsn0)->Offset_ < (lsn1)->Offset_ ? -1 : 1) : 0))
 //
 // Txn.
 //

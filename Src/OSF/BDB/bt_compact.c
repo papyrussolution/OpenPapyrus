@@ -316,10 +316,7 @@ retry:
 	/* Case 1 -- page is empty. */
 	if(nentry == 0) {
 		CTRACE(dbc, "Empty", "", start, 0);
-		if(next_p == 1)
-			sflag = CS_NEXT_WRITE;
-		else
-			sflag = CS_DEL;
+		sflag = (next_p == 1) ? CS_NEXT_WRITE : CS_DEL;
 		if((ret = __bam_csearch(dbc, start, sflag, LEAFLEVEL)) != 0) {
 			isdone = 1;
 			if(ret == DB_NOTFOUND)
@@ -391,7 +388,6 @@ retry:
 			if(LEVEL(epg->page) == LEAFLEVEL)
 				break;
 		DB_ASSERT(env, epg != cp->sp);
-
 		/*
 		 * Copy the root. We will have two instances of the
 		 * same page, be careful not to free both.
@@ -400,7 +396,6 @@ retry:
 		if(ret != 0)
 			goto err;
 		clear_root = 1;
-
 		/* Copy the stack containing the next page. */
 		for(epg++; epg <= cp->csp; epg++) {
 			BT_STK_PUSH(env, ncp, epg->page, epg->indx, epg->lock, epg->lock_mode, ret);
@@ -426,10 +421,8 @@ retry:
 		pg = cp->csp->page;
 		/*
 		 * The page may have emptied while we waited for the
-		 * lock or the record we are looking for may have
-		 * moved.
-		 * Reset npgno so we re-get this page when we go back
-		 * to the top.
+		 * lock or the record we are looking for may have moved.
+		 * Reset npgno so we re-get this page when we go back to the top.
 		 */
 		if(NUM_ENT(pg) == 0 || (dbc->dbtype == DB_RECNO && NEXT_PGNO(cp->csp->page) != PGNO(ncp->csp->page))) {
 			npgno = PGNO(pg);
@@ -800,7 +793,8 @@ done:
 err1:
 		pg = NULL;
 	}
-err:    /*
+err:    
+	/*
 	 * Don't release locks (STK_PGONLY)if we had an error, we could reveal
 	 * a bad tree to a dirty reader.  Wait till the abort to free the locks.
 	 */
@@ -847,7 +841,6 @@ static int __bam_merge(DBC * dbc, DBC * ndbc, uint32 factor, DBT * stop, DB_COMP
 	PAGE * pg, * npg;
 	db_indx_t nent;
 	int ret;
-
 	DB_ASSERT(NULL, dbc != NULL);
 	DB_ASSERT(NULL, ndbc != NULL);
 	dbp = dbc->dbp;

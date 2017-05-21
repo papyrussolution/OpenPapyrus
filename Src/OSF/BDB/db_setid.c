@@ -85,7 +85,7 @@ int __env_fileid_reset(ENV * env, DB_THREAD_INFO * ip, const char * name, int en
 	meta = (DBMETA *)mbuf;
 	if(FLD_ISSET(meta->metaflags, DBMETA_PART_RANGE|DBMETA_PART_CALLBACK) && (ret = __part_fileid_reset(env, ip, name, meta->nparts, encrypted)) != 0)
 		goto err;
-	subdb = meta->type == P_BTREEMETA && F_ISSET(meta, BTM_SUBDB);
+	subdb = (meta->type == P_BTREEMETA && F_ISSET(meta, BTM_SUBDB));
 	memcpy(meta->uid, fileid, DB_FILE_ID_LEN);
 	cookie.db_pagesize = sizeof(mbuf);
 	cookie.flags = dbp->flags;

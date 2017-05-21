@@ -71,7 +71,7 @@ extern "C" {
  * of the metadata page as the application may not have upgraded the database.
  ************************************************************************/
 typedef struct _dbmeta33 {
-	DB_LSN	  lsn;		/* 00-07: LSN. */
+	DB_LSN	  Lsn;		/* 00-07: LSN. */
 	db_pgno_t pgno;		/* 08-11: Current page number. */
 	uint32 magic;	/* 12-15: Magic number. */
 	uint32 version;	/* 16-19: Version. */
@@ -290,21 +290,13 @@ typedef struct _db_page {
  * DB_AM_ENCRYPT always implies DB_AM_CHKSUM so that must come first.
  */
 #define	P_INP(dbp, pg)							\
-	((db_indx_t *)((uint8 *)(pg) + SIZEOF_PAGE +			\
-	(F_ISSET((dbp), DB_AM_ENCRYPT) ? sizeof(PG_CRYPTO) :		\
-	(F_ISSET((dbp), DB_AM_CHKSUM) ? sizeof(PG_CHKSUM) : 0))))
+	((db_indx_t *)((uint8 *)(pg) + SIZEOF_PAGE + (F_ISSET((dbp), DB_AM_ENCRYPT) ? sizeof(PG_CRYPTO) : (F_ISSET((dbp), DB_AM_CHKSUM) ? sizeof(PG_CHKSUM) : 0))))
 
-#define	P_IV(dbp, pg)							\
-	(F_ISSET((dbp), DB_AM_ENCRYPT) ? ((uint8 *)(pg) +		\
-	SIZEOF_PAGE + SSZA(PG_CRYPTO, iv))				\
-	: NULL)
+#define	P_IV(dbp, pg) (F_ISSET((dbp), DB_AM_ENCRYPT) ? ((uint8 *)(pg) + SIZEOF_PAGE + SSZA(PG_CRYPTO, iv)) : NULL)
 
 #define	P_CHKSUM(dbp, pg)						\
-	(F_ISSET((dbp), DB_AM_ENCRYPT) ? ((uint8 *)(pg) +		\
-	SIZEOF_PAGE + SSZA(PG_CRYPTO, chksum)) :			\
-	(F_ISSET((dbp), DB_AM_CHKSUM) ? ((uint8 *)(pg) +		\
-	SIZEOF_PAGE + SSZA(PG_CHKSUM, chksum))				\
-	: NULL))
+	(F_ISSET((dbp), DB_AM_ENCRYPT) ? ((uint8 *)(pg) + SIZEOF_PAGE + SSZA(PG_CRYPTO, chksum)) : \
+	(F_ISSET((dbp), DB_AM_CHKSUM) ? ((uint8 *)(pg) + SIZEOF_PAGE + SSZA(PG_CHKSUM, chksum)) : NULL))
 
 /* PAGE element macros. */
 #define	LSN(p)		(((PAGE *)p)->lsn)

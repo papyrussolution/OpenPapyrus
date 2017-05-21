@@ -1372,8 +1372,8 @@ private:
 		double Capacity;    // ѕроизводительность процессора ProcID при использовании этой технологии
 		double Rounding;
 	};
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
 int SLAPI TechCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
@@ -1405,7 +1405,7 @@ int SLAPI TechCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI TechCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI TechCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	TechTbl::Rec * p_data_rec = (TechTbl::Rec *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -1427,7 +1427,6 @@ int SLAPI TechCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) 
 	FLD(Rounding);
 	#undef FLD
 	GetName(pEntry, p_data_rec->Code, sizeof(p_data_rec->Code));
-	return 1;
 }
 
 int SLAPI PPObjTech::Fetch(PPID id, TechTbl::Rec * pRec)

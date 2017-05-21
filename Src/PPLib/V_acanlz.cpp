@@ -274,9 +274,7 @@ public:
 		if(Filt.Flags & AccAnlzFilt::fAllCurrencies)
 			Filt.CurID = -1;
 		ASSIGN_PTR(pFilt, Filt);
-		CATCH
-			ok = PPErrorZ();
-		ENDCATCH
+		CATCHZOKPPERR
 		return ok;
 	}
 private:

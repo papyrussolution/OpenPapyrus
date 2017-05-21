@@ -306,7 +306,7 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 {
 	int    ok = 1, r;
 	Reference * p_ref = PPRef;
-	size_t sz = 2048; // @v6.1.12 1024-->2048
+	size_t sz = 2048;
 	uint   s;
 	//
 	// Каталоги TEMP, LOG, PACK могут быть устанавлены до считывания из базы данных.
@@ -367,10 +367,8 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 		SetPath(PPPATH_TEMP, temp_path, 0, 1);
 	if(log_path.NotEmptyS())
 		SetPath(PPPATH_LOG, log_path, 0, 1);
-	// @v7.8.2 {
 	if(pack_path.NotEmptyS())
 		SetPath(PPPATH_PACK, pack_path, 0, 1);
-	// } @v7.8.2
 	CATCHZOK
 	return ok;
 }

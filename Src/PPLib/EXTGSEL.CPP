@@ -84,7 +84,7 @@ IMPL_CMPFUNC(PickLotBrowser_Entry_GoodsName, i1, i2)
 //static
 int SLAPI PickLotBrowser::SortArray(SArray * pAry, int f)
 {
-	return pAry ? pAry->sort(PTR_CMPFUNC(PickLotBrowser_Entry_GoodsName)) : 0;
+	return pAry ? (pAry->sort(PTR_CMPFUNC(PickLotBrowser_Entry_GoodsName)), 1) : 0;
 }
 
 SLAPI PickLotBrowser::PickLotBrowser(SArray * pList) : BrowserWindow(BROWSER_PICKLOT, pList)

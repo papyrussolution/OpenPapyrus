@@ -608,8 +608,8 @@ public:
 		return yes;
 	}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 	int    SLAPI InitTaxBlock();
 	TaxAmountIDs TaxBlock;
 	int    IsThereDistribCostAmounts;
@@ -731,7 +731,7 @@ int SLAPI AmountTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI AmountTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI AmountTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPAmountType * p_data_rec = (PPAmountType*)pDataRec;
 	const AmountTypeData * p_cache_rec = (const AmountTypeData *)pEntry;
@@ -752,7 +752,6 @@ int SLAPI AmountTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDat
 	uint   p = 0;
 	ss.get(&p, p_data_rec->Name, sizeof(p_data_rec->Name));
 	ss.get(&p, p_data_rec->Symb, sizeof(p_data_rec->Symb));
-	return 1;
 }
 
 int SLAPI AmountTypeCache::FetchByTax(PPID * pID, PPID tax, double taxRate)

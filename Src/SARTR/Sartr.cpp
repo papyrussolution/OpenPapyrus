@@ -1975,13 +1975,14 @@ int SrDatabase::Open(const char * pDbPath)
 	cfg.MaxLockers  = 256*1024; // @v9.6.2 20000-->256*1024
 	cfg.MaxLocks    = 128*1024; // @v9.6.4
 	cfg.MaxLockObjs = 128*1024; // @v9.6.4
-	cfg.LogBufSize  = 256 * 1024;
-	cfg.LogFileSize = 256 * 1024 * 1024;
+	cfg.LogBufSize  = 8*1024*1024;
+	// @v9.6.7 cfg.LogFileSize = 256 * 1024 * 1024;
 	//cfg.LogSubDir = "LOG";
-	cfg.Flags |= (cfg.fLogNoSync|cfg.fLogAutoRemove); // @v9.6.6
+	cfg.Flags |= (cfg.fLogNoSync|cfg.fLogAutoRemove/*|cfg.fLogInMemory*/); // @v9.6.6
 	Close();
 	THROW_S(P_Db = new BDbDatabase(pDbPath, &cfg, BDbDatabase::oPrivate/*|BDbDatabase::oRecover*/), SLERR_NOMEM);
 	THROW(!!*P_Db);
+
 	THROW_S(P_WdT = new SrWordTbl(P_Db), SLERR_NOMEM);
 	THROW_S(P_GrT = new SrGrammarTbl(P_Db), SLERR_NOMEM);
 	THROW_S(P_WaT = new SrWordAssocTbl(P_Db), SLERR_NOMEM);
@@ -3016,7 +3017,17 @@ SrGeoNodeTbl::~SrGeoNodeTbl()
 {
 }
 
-int SLAPI SrGeoNodeTbl::Search(uint64 id, PPOsm::Node * pNode, uint64 * pFaultLogicalID)
+int SLAPI SrGeoNodeTbl::Search(uint64 id, PPOsm::Node * pNode, PPOsm::NodeRefs * pNrList, uint64 * pLogicalID)
+{
+	return Helper_Search(id, 0, pNode, pNrList, pLogicalID);
+}
+
+int SLAPI SrGeoNodeTbl::Search(uint64 id, PPOsm::NodeCluster * pCluster, uint64 * pLogicalID)
+{
+	return Helper_Search(id, pCluster, 0, 0, pLogicalID);
+}
+
+int SLAPI SrGeoNodeTbl::Helper_Search(uint64 id, PPOsm::NodeCluster * pCluster, PPOsm::Node * pNode, PPOsm::NodeRefs * pNrList, uint64 * pLogicalID)
 {
 /*
 LogicalCount=  1; ClusterCount=64512077; ActualCount=64512077; Size=838657001;
@@ -3031,9 +3042,10 @@ LogicalCount=  8; ClusterCount= 2389896; ActualCount=17049582; Size=112131954;
 	const uchar logical_count_priority[]      = {    1,  128,    2,   64,   32,    4,   16,    8 };
 	const uchar logical_count_priority_bits[] = { 0x00, 0x7f, 0x01, 0x3f, 0x1f, 0x03, 0x0f, 0x07 };
 	int    ok = -1;
-	uint64 fault_logical_id = 0;
+	uint64 ret_logical_id = 0;
 	PPOsm::NodeCluster nc;
 	TSArray <PPOsm::Node> nc_list;
+	PPOsm::NodeRefs nr_list;
 	DataBuf.Alloc(1024);
 	for(uint i = 0; ok < 0 && i < SIZEOFARRAY(logical_count_priority); /* see end of loop */) {
 		const uint64 logical_id = (id & ~logical_count_priority_bits[i]);
@@ -3052,20 +3064,21 @@ LogicalCount=  8; ClusterCount= 2389896; ActualCount=17049582; Size=112131954;
 			PPOsm::Node ex_head;
 			uint   ex_count_logic = 0;
 			uint   ex_count_actual = 0;
-			THROW(nc.Get(logical_id, nc_list, &ex_head, &ex_count_logic, &ex_count_actual));
+			THROW(nc.Get(logical_id, nc_list, &nr_list, &ex_head, &ex_count_logic, &ex_count_actual));
 			assert(logical_id == ex_head.ID); // @paranoic
 			assert(id >= logical_id); // @paranoic
 			if(id < (logical_id + ex_count_logic)) {
 				for(uint ncidx = 0; ok < 0 && ncidx < nc_list.getCount(); ncidx++) {
 					const PPOsm::Node & r_node = nc_list.at(ncidx);
 					if(r_node.ID == id) {
-						fault_logical_id = 0;
+						ret_logical_id = logical_id;
 						ASSIGN_PTR(pNode, r_node);
+						ASSIGN_PTR(pCluster, nc);
 						ok = (int)logical_count_priority[i];
 					}
 				}
 				if(ok < 0) {
-					fault_logical_id = logical_id;
+					ret_logical_id = logical_id;
 					const uchar tp = logical_count_priority[i];
 					for(uint j = i+1; j < SIZEOFARRAY(logical_count_priority); j++) {
 						if(logical_count_priority[j] > tp) {
@@ -3076,22 +3089,22 @@ LogicalCount=  8; ClusterCount= 2389896; ActualCount=17049582; Size=112131954;
 				}
 			}
 			else {
-				fault_logical_id = 0;
+				ret_logical_id = 0;
 				next_i = i+1;
 			}
 		}
 		else {
-			fault_logical_id = 0;
+			ret_logical_id = 0;
 			next_i = i+1;
 		}
 		i = next_i;
 	}
 	CATCHZOK
-	ASSIGN_PTR(pFaultLogicalID, fault_logical_id);
+	ASSIGN_PTR(pLogicalID, ret_logical_id);
 	return ok;
 }
 
-int SLAPI SrGeoNodeTbl::Add(PPOsm::NodeCluster & rNc, uint64 outerID)
+int SLAPI SrGeoNodeTbl::Helper_Set(PPOsm::NodeCluster & rNc, uint64 outerID, int update)
 {
 	int    ok = 1;
 	uint64 hid = 0;
@@ -3113,9 +3126,24 @@ int SLAPI SrGeoNodeTbl::Add(PPOsm::NodeCluster & rNc, uint64 outerID)
 		THROW(p_buf);
 		THROW(DataBuf.Set(p_buf, buf_size));
 	}
-	THROW(InsertRec(KeyBuf, DataBuf));
+	if(update) {
+		THROW(UpdateRec(KeyBuf, DataBuf));
+	}
+	else {
+		THROW(InsertRec(KeyBuf, DataBuf));
+	}
 	CATCHZOK
 	return ok;
+}
+
+int SLAPI SrGeoNodeTbl::Add(PPOsm::NodeCluster & rNc, uint64 outerID)
+{
+	return Helper_Set(rNc, outerID, 0);
+}
+
+int SLAPI SrGeoNodeTbl::Update(PPOsm::NodeCluster & rNc, uint64 outerID)
+{
+	return Helper_Set(rNc, outerID, 1);
 }
 //
 //
@@ -4016,7 +4044,7 @@ int SrDatabase::FormatProp(const SrCProp & rCp, long flags, SString & rBuf)
 
 int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, TSArray <PPOsm::NodeClusterStatEntry> * pStat)
 {
-	const  uint max_cluster_per_tx = 40*1024;
+	const  uint max_cluster_per_tx = 1*1024; // 40-->1
 	const  int  use_transaction = 1;
 	const  int  use_outer_id = 1;
 	int    ok = 1;
@@ -4025,6 +4053,8 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, TSArray <P
 		TSCollection <PPOsm::NodeCluster> cluster_list;
 		TSArray <uint64> outer_id_list;
 		TSArray <PPOsm::Node> test_list;
+		PPOsm::NodeCluster ex_cluster;
+		TSArray <PPOsm::Node> ex_list;
 		size_t offs = 0;
 		{
 			while(offs < _count) {
@@ -4032,27 +4062,52 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, TSArray <P
 				const PPOsm::Node * p_node = &rList.at(offs);
                 uint64 fault_logical_id = 0;
                 PPOsm::Node found_node;
-				int   sr = P_GnT->Search(p_node->ID, &found_node, &fault_logical_id);
+				//int   sr = P_GnT->Search(p_node->ID, &found_node, 0, &fault_logical_id);
+				int   sr = P_GnT->Search(p_node->ID, &ex_cluster, &fault_logical_id);
 				THROW(sr);
 				if(sr > 0) {
+					/*
 					assert(found_node == *p_node);
 					actual_count = 1;
 					if(pStat) {
 						PPOsm::SetProcessedNodeStat((uint)sr, 1, *pStat);
 					}
+					*/
+					{
+						uint   ex_count_logic = 0;
+						uint   ex_count_actual = 0;
+						assert(ex_cluster.Get(fault_logical_id, ex_list, 0, 0, &ex_count_logic, &ex_count_actual));
+						for(uint   forward_idx = offs; forward_idx < _count; forward_idx++) {
+							uint64 forward_id = rList.at(forward_idx).ID;
+							uint   fpos = 0;
+							if(ex_list.lsearch(&forward_id, &fpos, CMPF_INT64)) {
+								assert(rList.at(forward_idx) == ex_list.at(fpos));
+								if(pStat) {
+									PPOsm::SetProcessedNodeStat((uint)ex_count_logic, 1, *pStat);
+								}
+								actual_count++;
+							}
+							else {
+								assert(actual_count);
+								if(!actual_count)
+									sr = -1;
+								break;
+							}
+						}
+					}
 				}
-				else {
+				if(sr < 0) {
 					assert(fault_logical_id == 0);
 					uint64 outer_id = 0;
 					PPOsm::NodeCluster * p_cluster = cluster_list.CreateNewItem();
 					THROW(p_cluster);
 					if(use_outer_id) {
-						THROW(p_cluster->Put(p_node, _count - offs, &outer_id, &actual_count));
+						THROW(p_cluster->Put__(p_node, 0 /*NodeRefs*/, _count - offs, &outer_id, &actual_count, 0));
 						THROW(outer_id_list.insert(&outer_id));
 						assert(outer_id_list.getCount() == cluster_list.getCount());
 					}
 					else {
-						THROW(p_cluster->Put(p_node, _count - offs, 0, &actual_count));
+						THROW(p_cluster->Put__(p_node, 0 /*NodeRefs*/, _count - offs, 0, &actual_count, 0));
 					}
 					if(pStat) {
 						PPOsm::SetNodeClusterStat(*p_cluster, *pStat);
@@ -4061,10 +4116,10 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, TSArray <P
 					{
 						test_list.clear();
 						if(use_outer_id) {
-							p_cluster->Get(outer_id, test_list);
+							p_cluster->Get(outer_id, test_list, 0 /*NodeRefs*/);
 						}
 						else {
-							p_cluster->Get(0, test_list);
+							p_cluster->Get(0, test_list, 0 /*NodeRefs*/);
 						}
 						for(uint i = 0; i < test_list.getCount(); i++) {
 							assert(test_list.at(i) == p_node[i]);
@@ -4122,9 +4177,87 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, TSArray <P
 	return ok;
 }
 
+int SrDatabase::StoreGeoNodeWayRefList(const LLAssocArray & rList)
+{
+	const  uint max_entries_per_tx = 1*1024; // 20-->1
+	const  int  use_transaction = 1;
+	int    ok = 1;
+	const  uint _count = rList.getCount();
+	if(_count) {
+		int64 prev_node_id = 0;
+		PPOsm::NodeCluster nc;
+		TSArray <PPOsm::Node> node_list;
+		TSArray <PPOsm::Node> node_list_test;
+		PPOsm::NodeRefs ref_list;
+		PPOsm::NodeRefs ref_list_test;
+		for(uint _current_pos = 0; _current_pos < _count;) {
+			PROFILE_START
+			BDbTransaction tra(P_Db, use_transaction);
+			THROW(tra);
+			const uint _local_finish = MIN(_count, (_current_pos + max_entries_per_tx));
+			for(uint i = _current_pos; i < _local_finish;) {
+				const LLAssoc & r_assoc = rList.at(i);
+				assert(!i || r_assoc.Key >= prev_node_id); // Тест на упорядоченность входящего массива
+				uint64 _logical_id = 0;
+				ref_list.Clear();
+				node_list.clear();
+				const  int sr = P_GnT->Search(r_assoc.Key, &nc, &_logical_id);
+				THROW(sr);
+				i++;
+				if(sr > 0) {
+					uint   _force_logical_count = 0;
+					uint   _count_actual = 0;
+					THROW(nc.Get(_logical_id, node_list, &ref_list, 0, &_force_logical_count, &_count_actual));
+					THROW(ref_list.AddWayRef(r_assoc.Key, r_assoc.Val));
+					while(i < _count) {
+						const LLAssoc & r_assoc_next = rList.at(i);
+						uint   nl_pos = 0;
+						if(node_list.lsearch(&r_assoc_next.Key, &nl_pos, CMPF_INT64)) {
+							THROW(ref_list.AddWayRef(r_assoc_next.Key, r_assoc_next.Val));
+							i++;
+						}
+						else
+							break;
+					}
+					{
+						uint64 _outer_id = _logical_id;
+						size_t _actual_count = 0;
+						ref_list.Sort();
+						THROW(nc.Put__(&node_list.at(0), &ref_list, node_list.getCount(), &_outer_id, &_actual_count, _force_logical_count));
+						assert(_outer_id == _logical_id);
+						assert(_actual_count == node_list.getCount());
+					}
+					{
+						//
+						// Test
+						//
+						ref_list_test.Clear();
+						node_list_test.clear();
+						THROW(nc.Get(_logical_id, node_list_test, &ref_list_test));
+						assert(node_list_test.IsEqual(node_list));
+						assert(ref_list_test.IsEqual(ref_list));
+
+					}
+					THROW(P_GnT->Update(nc, _logical_id));
+				}
+				else {
+					// @todo log message (точка не найдена)
+				}
+			}
+			_current_pos = _local_finish;
+			THROW(tra.Commit());
+			PROFILE_END
+		}
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;
+}
+
 int SrDatabase::StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSArray <PPOsm::WayStatEntry> * pStat)
 {
-	const  uint max_entries_per_tx = 20*1024;
+	const  uint max_entries_per_tx = 1*1024; // 20-->1
 	const  int  use_transaction = 1;
 	int    ok = 1;
 	const  uint _count = rList.getCount();
@@ -4143,7 +4276,7 @@ int SrDatabase::StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSArray
 					if(P_GwT->Search(p_way->ID, &found_way) > 0) {
 						assert(found_way == *p_way);
 						if(pStat) {
-							PPOsm::SetProcessedWayStat(found_way.NodeRefList.getCount(), 1, *pStat);
+							PPOsm::SetProcessedWayStat(found_way.NodeRefs.getCount(), 1, *pStat);
 						}
 					}
 					else {

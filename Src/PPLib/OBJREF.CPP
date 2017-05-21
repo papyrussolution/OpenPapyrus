@@ -958,8 +958,8 @@ class UnitCache : public ObjCache {
 public:
 	SLAPI UnitCache() : ObjCache(PPOBJ_UNIT, sizeof(UnitData)) {}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct UnitData : public ObjCacheEntry {
 		PPID   BaseUnitID;
@@ -991,7 +991,7 @@ int SLAPI UnitCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI UnitCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI UnitCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPUnit * p_data_rec = (PPUnit *)pDataRec;
 	const UnitData * p_cache_rec = (const UnitData *)pEntry;
@@ -1006,7 +1006,6 @@ int SLAPI UnitCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) 
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Abbr, sizeof(p_data_rec->Abbr));
 	b.Get(p_data_rec->Code, sizeof(p_data_rec->Code));
-	return 1;
 }
 // }
 
@@ -1199,8 +1198,8 @@ public:
 	{
 	}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		long   Flags;
@@ -1225,7 +1224,7 @@ int SLAPI PersonStatusCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI PersonStatusCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI PersonStatusCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPPersonStatus * p_data_rec = (PPPersonStatus *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -1236,7 +1235,6 @@ int SLAPI PersonStatusCache::EntryToData(const ObjCacheEntry * pEntry, void * pD
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
-	return 1;
 }
 
 IMPL_OBJ_FETCH(PPObjPersonStatus, PPPersonStatus, PersonStatusCache);
@@ -1301,8 +1299,8 @@ public:
 	{
 	}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
 int SLAPI PersonCatCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
@@ -1322,7 +1320,7 @@ int SLAPI PersonCatCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI PersonCatCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI PersonCatCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPPersonCat * p_data_rec = (PPPersonCat *)pDataRec;
 	const ObjCacheEntry * p_cache_rec = pEntry;
@@ -1332,7 +1330,6 @@ int SLAPI PersonCatCache::EntryToData(const ObjCacheEntry * pEntry, void * pData
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
-	return 1;
 }
 
 IMPL_OBJ_FETCH(PPObjPersonCat, PPPersonCat, PersonCatCache);
@@ -1459,8 +1456,8 @@ class ELinkKindCache : public ObjCache {
 public:
 	SLAPI ELinkKindCache() : ObjCache(PPOBJ_ELINKKIND, sizeof(Data)) {}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		long   Type;
@@ -1487,7 +1484,7 @@ int SLAPI ELinkKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI ELinkKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI ELinkKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPELinkKind * p_data_rec = (PPELinkKind *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -1499,7 +1496,6 @@ int SLAPI ELinkKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pData
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
-	return 1;
 }
 
 IMPL_OBJ_FETCH(PPObjELinkKind, PPELinkKind, ELinkKindCache);
@@ -1797,8 +1793,8 @@ class CurrencyCache : public ObjCache {
 public:
 	SLAPI CurrencyCache() : ObjCache(PPOBJ_CURRENCY, sizeof(Data)) {}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		long   Code;
@@ -1825,7 +1821,7 @@ int SLAPI CurrencyCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI CurrencyCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI CurrencyCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPCurrency * p_data_rec = (PPCurrency *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -1837,7 +1833,6 @@ int SLAPI CurrencyCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
-	return 1;
 }
 
 IMPL_OBJ_FETCH(PPObjCurrency, PPCurrency, CurrencyCache);
@@ -2488,8 +2483,8 @@ public:
 	}
 	int    SLAPI GetConfig(PPGlobalUserAccConfig * pCfg, int enforce);
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
 	PPGlobalUserAccConfig Cfg;
 #ifdef _MT
@@ -2548,7 +2543,7 @@ int SLAPI GlobalUserAccCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI GlobalUserAccCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI GlobalUserAccCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPGlobalUserAcc * p_data_rec = (PPGlobalUserAcc *)pDataRec;
 	const GlobalUserAccData * p_cache_rec = (const GlobalUserAccData *)pEntry;
@@ -2563,7 +2558,6 @@ int SLAPI GlobalUserAccCache::EntryToData(const ObjCacheEntry * pEntry, void * p
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
-	return 1;
 }
 // }
 
@@ -2721,7 +2715,6 @@ StrAssocArray * SLAPI PPObjGtaAction::MakeStrAssocList(void * extraPtr)
 	ENDCATCH
 	return p_list;
 }
-// @v7.6.1 @Muxa {
 //
 // @ModuleDecl(PPObjUhttStore)
 //
@@ -3248,7 +3241,6 @@ int SLAPI PPObjUhttStore::GetPacket(PPID id, PPUhttStorePacket * pPack)
 	CATCHZOK
 	return ok;
 }
-// } @v7.6.1 @Muxa
 
 int SLAPI PPObjUhttStore::SerializePacket(int dir, PPUhttStorePacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
@@ -3614,9 +3606,9 @@ SLAPI PPEdiProvider::PPEdiProvider()
 int FASTCALL PPEdiProvider::IsEqual(const PPEdiProvider & rS) const
 {
 	int    eq = 1;
-	if(strcmp(Name, rS.Name) != 0)
+	if(!sstreq(Name, rS.Name))
 		eq = 0;
-	else if(strcmp(Symb, rS.Symb) != 0)
+	else if(!sstreq(Symb, rS.Symb))
 		eq = 0;
 	else if(Flags != rS.Flags)
 		eq = 0;

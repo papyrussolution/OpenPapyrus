@@ -723,8 +723,8 @@ class BizScoreCache : public ObjCache {
 public:
 	SLAPI  BizScoreCache() : ObjCache(PPOBJ_BIZSCORE, sizeof(Data)) {}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		long   Flags;
@@ -757,7 +757,7 @@ int SLAPI BizScoreCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI BizScoreCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI BizScoreCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPBizScorePacket * p_data_pack = (PPBizScorePacket *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -777,7 +777,6 @@ int SLAPI BizScoreCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 	ss.get(&p, p_data_pack->Rec.Symb, sizeof(p_data_pack->Rec.Symb));
 	ss.get(&p, p_data_pack->Descr);
 	ss.get(&p, p_data_pack->Formula);
-	return 1;
 }
 
 int SLAPI PPObjBizScore::Fetch(PPID id, PPBizScorePacket * pRec)

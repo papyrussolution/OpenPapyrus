@@ -5,15 +5,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/heap.h"
-// @v9.5.5 #include "dbinc/log.h"
 /*
  * __heap_addrem_recover --
  *	Recovery function for addrem.
@@ -73,8 +65,7 @@ done:
 	*lsnp = argp->prev_lsn;
 	ret = 0;
 out:
-	if(pagep != NULL)
-		__memp_fput(mpf, ip, pagep, dbc->priority);
+	__memp_fput(mpf, ip, pagep, dbc->priority);
 	REC_CLOSE;
 }
 
@@ -206,10 +197,8 @@ do_meta:
 done:
 	*lsnp = argp->prev_lsn;
 out:
-	if(pagep != NULL)
-		__memp_fput(mpf, ip, pagep, file_dbp->priority);
-	if(meta != NULL)
-		__memp_fput(mpf, ip, meta, file_dbp->priority);
+	__memp_fput(mpf, ip, pagep, file_dbp->priority);
+	__memp_fput(mpf, ip, meta, file_dbp->priority);
 	REC_CLOSE;
 }
 /*
@@ -260,8 +249,7 @@ done:
 	*lsnp = argp->prev_lsn;
 	ret = 0;
 out:
-	if(pagep != NULL)
-		__memp_fput(mpf, ip, pagep, dbc->priority);
+	__memp_fput(mpf, ip, pagep, dbc->priority);
 	REC_CLOSE;
 }
 
@@ -308,7 +296,6 @@ done:
 	*lsnp = argp->prev_lsn;
 	ret = 0;
 out:
-	if(pagep != NULL)
-		__memp_fput(mpf, ip, pagep, dbc->priority);
+	__memp_fput(mpf, ip, pagep, dbc->priority);
 	REC_CLOSE;
 }

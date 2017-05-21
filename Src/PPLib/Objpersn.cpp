@@ -5730,8 +5730,8 @@ public:
 	}
 	int    SLAPI GetConfig(PPPersonConfig * pCfg, int enforce);
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 	PPPersonConfig Cfg;
 	ReadWriteLock CfgLock;
 };
@@ -5755,7 +5755,7 @@ int SLAPI PersonCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI PersonCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI PersonCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PersonTbl::Rec * p_data_rec = (PersonTbl::Rec *)pDataRec;
 	const PersonData * p_cache_rec = (const PersonData *)pEntry;
@@ -5767,7 +5767,6 @@ int SLAPI PersonCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec
 	p_data_rec->Status   = p_cache_rec->Status;
 	p_data_rec->Flags    = p_cache_rec->Flags;
 	GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
-	return 1;
 }
 
 int SLAPI PersonCache::GetConfig(PPPersonConfig * pCfg, int enforce)
@@ -5989,8 +5988,8 @@ public:
 	{
 	}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		PPID   CodeRegTypeID;
@@ -6022,7 +6021,7 @@ int SLAPI PersonKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI PersonKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI PersonKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPPersonKind * p_data_rec = (PPPersonKind *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -6037,7 +6036,6 @@ int SLAPI PersonKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDat
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
-	return 1;
 }
 // }
 
@@ -6389,7 +6387,7 @@ PPALDD_CONSTRUCTOR(Person)
 PPALDD_DESTRUCTOR(Person)
 {
 	Destroy();
-	delete (PPObjPerson*) Extra[0].Ptr;
+	delete (PPObjPerson*)Extra[0].Ptr;
 }
 
 int PPALDD_Person::InitData(PPFilt & rFilt, long rsrv)

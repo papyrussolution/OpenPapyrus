@@ -106,8 +106,8 @@ class GoodsTypeCache : public ObjCache {
 public:
 	SLAPI GoodsTypeCache() : ObjCache(PPOBJ_GOODSTYPE, sizeof(GoodsTypeData)) {}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct GoodsTypeData : public ObjCacheEntry {
 		PPID   PriceRestrID;
@@ -143,7 +143,7 @@ int SLAPI GoodsTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI GoodsTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI GoodsTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPGoodsType * p_data_rec = (PPGoodsType *)pDataRec;
 	const GoodsTypeData * p_cache_rec = (const GoodsTypeData *)pEntry;
@@ -160,7 +160,6 @@ int SLAPI GoodsTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pData
 	FLD(Flags);
 	#undef FLD
 	GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
-	return 1;
 }
 
 IMPL_OBJ_FETCH(PPObjGoodsType, PPGoodsType, GoodsTypeCache);
@@ -662,9 +661,9 @@ public:
 	int    SLAPI FetchBarList(PPObjGoodsValRestr::GvrArray & rList);
 	int    SLAPI DirtyBarList();
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
-	virtual int SLAPI Dirty(PPID id);
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI Dirty(PPID id);
 public:
 	struct GoodsValRestrData : public ObjCacheEntry {
 		PPID   ScpShipmOpID;
@@ -761,7 +760,7 @@ int SLAPI GoodsValRestrCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI GoodsValRestrCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI GoodsValRestrCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPGoodsValRestrPacket * p_data_pack = (PPGoodsValRestrPacket *)pDataRec;
 	const GoodsValRestrData * p_cache_rec = (const GoodsValRestrData *)pEntry;
@@ -784,7 +783,6 @@ int SLAPI GoodsValRestrCache::EntryToData(const ObjCacheEntry * pEntry, void * p
 	b.Get(p_data_pack->Rec.Symb, sizeof(p_data_pack->Rec.Symb));
 	b.Get(p_data_pack->LowBoundFormula);
 	b.Get(p_data_pack->UppBoundFormula);
-	return 1;
 }
 
 int SLAPI PPObjGoodsValRestr::Fetch(PPID id, PPGoodsValRestrPacket * pPack)

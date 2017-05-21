@@ -303,7 +303,7 @@ static void __heap_init_meta(DB * dbp, HEAPMETA * meta, db_pgno_t pgno, DB_LSN *
 	ENV * env = dbp->env;
 	HEAP * h = (HEAP *)dbp->heap_internal;
 	memzero(meta, sizeof(HEAPMETA));
-	meta->dbmeta.lsn = *lsnp;
+	meta->dbmeta.Lsn = *lsnp;
 	meta->dbmeta.pgno = pgno;
 	meta->dbmeta.magic = DB_HEAPMAGIC;
 	meta->dbmeta.version = DB_HEAPVERSION;

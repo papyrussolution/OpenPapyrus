@@ -109,9 +109,9 @@ IMPL_CMPFUNC(PPGoodsTaxEntry, i1, i2)
 	return NZOR(r, cmp_long(p_i1->OpID, p_i2->OpID));
 }
 
-int SLAPI PPGoodsTaxPacket::Sort()
+void SLAPI PPGoodsTaxPacket::Sort()
 {
-	return sort(PTR_CMPFUNC(PPGoodsTaxEntry));
+	sort(PTR_CMPFUNC(PPGoodsTaxEntry));
 }
 //
 //
@@ -890,8 +890,13 @@ public:
 	int    SLAPI GetByID(PPID, PPGoodsTaxEntry *);
 	virtual int  SLAPI Dirty(PPID); // @sync_w
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long) { return 0; }
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const { return 0; }
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long) 
+	{ 
+		return 0; 
+	}
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const 
+	{
+	}
 	int    SLAPI SearchEntry(PPID id, LDATE dt, PPID opID, PPGoodsTaxEntry * pEntry) const;
 	int    SLAPI GetFromBase(PPID);
 };

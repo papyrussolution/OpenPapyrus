@@ -391,9 +391,7 @@ int SLAPI PPViewAmountType::Transmit(int isCharry)
 		}
 	}
 	PPWait(0);
-	CATCH
-		ok = PPErrorZ();
-	ENDCATCH
+	CATCHZOKPPERR
 	return ok;
 }
 

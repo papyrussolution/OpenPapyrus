@@ -134,9 +134,8 @@ void __repmgr_permlsn_marshal(ENV * env, __repmgr_permlsn_args * argp, uint8 * b
 {
 	DB_HTONL_COPYOUT(env, bp, argp->generation);
 	DB_HTONL_COPYOUT(env, bp, argp->lsn.file);
-	DB_HTONL_COPYOUT(env, bp, argp->lsn.offset);
+	DB_HTONL_COPYOUT(env, bp, argp->lsn.Offset_);
 }
-
 /*
  * PUBLIC: int __repmgr_permlsn_unmarshal __P((ENV *,
  * PUBLIC:	 __repmgr_permlsn_args *, uint8 *, size_t, uint8 **));
@@ -147,9 +146,8 @@ int __repmgr_permlsn_unmarshal(ENV * env, __repmgr_permlsn_args * argp, uint8 * 
 		goto too_few;
 	DB_NTOHL_COPYIN(env, argp->generation, bp);
 	DB_NTOHL_COPYIN(env, argp->lsn.file, bp);
-	DB_NTOHL_COPYIN(env, argp->lsn.offset, bp);
-	if(nextp != NULL)
-		*nextp = bp;
+	DB_NTOHL_COPYIN(env, argp->lsn.Offset_, bp);
+	ASSIGN_PTR(nextp, bp);
 	return 0;
 too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __repmgr_permlsn message"));

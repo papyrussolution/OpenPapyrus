@@ -3028,9 +3028,9 @@ public:
 	}
 	int    SLAPI GetSaGiftList(SaGiftArray * pList, int clear);
 private:
-	virtual int SLAPI Dirty(PPID id);
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI Dirty(PPID id);
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct D : public ObjCacheEntry {
 		PPID   VariedPropObjType;
@@ -3088,7 +3088,7 @@ int SLAPI GoodsStrucCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		CPY_FLD(VariedPropObjType);
 		CPY_FLD(Period);
 		CPY_FLD(CommDenom);
-		CPY_FLD(GiftLimit); // @v7.0.0
+		CPY_FLD(GiftLimit);
 		CPY_FLD(Flags);
 		CPY_FLD(ParentID);
 #undef CPY_FLD
@@ -3099,7 +3099,7 @@ int SLAPI GoodsStrucCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI GoodsStrucCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI GoodsStrucCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPGoodsStrucHeader * p_data_rec = (PPGoodsStrucHeader *)pDataRec;
 	const D * p_cache_rec = (const D *)pEntry;
@@ -3110,12 +3110,11 @@ int SLAPI GoodsStrucCache::EntryToData(const ObjCacheEntry * pEntry, void * pDat
 	CPY_FLD(VariedPropObjType);
 	CPY_FLD(Period);
 	CPY_FLD(CommDenom);
-	CPY_FLD(GiftLimit); // @v7.0.0
+	CPY_FLD(GiftLimit);
 	CPY_FLD(Flags);
 	CPY_FLD(ParentID);
 #undef CPY_FLD
 	GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
-	return 1;
 }
 
 int SLAPI GoodsStrucCache::Dirty(PPID id)

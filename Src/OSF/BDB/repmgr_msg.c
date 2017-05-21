@@ -407,7 +407,6 @@ static int send_permlsn(ENV*env, uint32 generation, DB_LSN * lsn)
 	ret = 0;
 	master = rep->master_id;
 	LOCK_MUTEX(db_rep->mutex);
-
 	/*
 	 * If the file number has changed, send it to everyone, regardless of
 	 * anything else.  Otherwise, send it to the master if we know a master,
@@ -417,9 +416,7 @@ static int send_permlsn(ENV*env, uint32 generation, DB_LSN * lsn)
 	if(LOG_COMPARE(lsn, &db_rep->perm_lsn) > 0) {
 		if(lsn->file > db_rep->perm_lsn.file) {
 			bcast = TRUE;
-			VPRINT(env, (env, DB_VERB_REPMGR_MISC,
-				     "send_permlsn: broadcast [%lu][%lu]",
-				     (ulong)lsn->file, (ulong)lsn->offset));
+			VPRINT(env, (env, DB_VERB_REPMGR_MISC, "send_permlsn: broadcast [%lu][%lu]", (ulong)lsn->file, (ulong)lsn->Offset_));
 		}
 		db_rep->perm_lsn = *lsn;
 	}
@@ -429,10 +426,8 @@ static int send_permlsn(ENV*env, uint32 generation, DB_LSN * lsn)
 		 * Use master's ack policy if we know it; use our own if the
 		 * master is too old (down-rev) to have told us its policy.
 		 */
-		policy = site->ack_policy > 0 ?
-		         site->ack_policy : rep->perm_policy;
-		if(policy == DB_REPMGR_ACKS_NONE ||
-		   (IS_PEER_POLICY(policy) && rep->priority == 0))
+		policy = site->ack_policy > 0 ? site->ack_policy : rep->perm_policy;
+		if(policy == DB_REPMGR_ACKS_NONE || (IS_PEER_POLICY(policy) && rep->priority == 0))
 			ack = FALSE;
 		else
 			ack = TRUE;
@@ -1185,10 +1180,8 @@ int __repmgr_setup_gmdb_op(ENV*env, DB_THREAD_INFO * ip, DB_TXN ** txnp, uint32 
 	return 0;
 err:
 	DB_ASSERT(env, ret != 0);
-	if(dbp != NULL)
-		__db_close(dbp, txn, DB_NOSYNC);
-	if(txn != NULL)
-		__txn_abort(txn);
+	__db_close(dbp, txn, DB_NOSYNC);
+	__txn_abort(txn);
 	return ret;
 }
 /*

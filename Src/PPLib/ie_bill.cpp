@@ -2229,7 +2229,7 @@ int SLAPI PPBillImporter::ReadData()
 					THROW(ReadRows(&ie_row, 1, &fn_fld_list));
 					ie_row.CloseFile();
 				}
-				THROW_SL(Bills.sort(PTR_CMPFUNC(Pchar)));
+				Bills.sort(PTR_CMPFUNC(Pchar));
 				// @v8.4.7 {
 				if(BillParam.BaseFlags & PPImpExpParam::bfDeleteSrcFiles) {
 					ToRemoveFiles.add(filename);

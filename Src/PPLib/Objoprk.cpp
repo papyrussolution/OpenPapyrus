@@ -2867,8 +2867,8 @@ public:
 	SLAPI InvOpExCache() : ObjCache(PPOBJ_OPRKIND, sizeof(Data))
 	{
 	}
-	virtual int SLAPI FetchEntry(PPID id, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID id, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
 int SLAPI InvOpExCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
@@ -2890,7 +2890,7 @@ int SLAPI InvOpExCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI InvOpExCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI InvOpExCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPInventoryOpEx * p_data_rec = (PPInventoryOpEx *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -2905,7 +2905,6 @@ int SLAPI InvOpExCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRe
 	p_data_rec->AmountCalcMethod = p_cache_rec->AmountCalcMethod;
 	p_data_rec->AutoFillMethod = p_cache_rec->AutoFillMethod;
 	p_data_rec->Flags   = p_cache_rec->Flags;
-	return 1;
 }
 //
 //
@@ -2942,8 +2941,8 @@ public:
 	int    SLAPI GetInventoryOpEx(PPID, PPInventoryOpEx *); // @>>IoeC.Get()
 	PPID   FASTCALL GetBySymb(const char * pSymb);
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * entry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * entry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * entry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * entry, void * pDataRec) const;
 	int    SLAPI FetchReckonOpList();
 
 	int    IsReckonListInited;
@@ -3097,7 +3096,7 @@ int SLAPI OpCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI OpCache::EntryToData(const ObjCacheEntry * pEntry, void * dataRec) const
+void SLAPI OpCache::EntryToData(const ObjCacheEntry * pEntry, void * dataRec) const
 {
 	PPOprKind * p_data_rec = (PPOprKind*)dataRec;
 	const OpData * p_cache_rec  = (const OpData *)pEntry;
@@ -3124,7 +3123,6 @@ int SLAPI OpCache::EntryToData(const ObjCacheEntry * pEntry, void * dataRec) con
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
-	return 1;
 }
 
 int SLAPI FetchInvOpEx(PPID opID, PPInventoryOpEx * pInvOpEx)

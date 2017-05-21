@@ -1086,8 +1086,8 @@ public:
 	{
 	}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
 int SLAPI RegisterCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
@@ -1117,7 +1117,7 @@ int SLAPI RegisterCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI RegisterCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI RegisterCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	RegisterTbl::Rec * p_data_rec = (RegisterTbl::Rec *)pDataRec;
 	const RegisterData * p_cache_rec = (const RegisterData *)pEntry;
@@ -1138,7 +1138,6 @@ int SLAPI RegisterCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 		b.Get(p_data_rec->Serial, sizeof(p_data_rec->Serial));
 		b.Get(p_data_rec->Num, sizeof(p_data_rec->Num));
 	}
-	return 1;
 }
 
 int SLAPI PPObjRegister::Fetch(PPID id, RegisterTbl::Rec * pRec)

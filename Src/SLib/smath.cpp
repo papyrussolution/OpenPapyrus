@@ -108,23 +108,19 @@ int SMathResult::SetUnderflow()
 //
 // }
 //
-static double _fdiv(double x, double y)
-	{ return x / y; }
-double fgetnan()
-	{ return _fdiv(0.0, 0.0); }
-double fgetposinf()
-	{ return _fdiv(+1.0, 0.0); }
-double fgetneginf()
-	{ return _fdiv(-1.0, 0.0); }
+static double _fdiv(double x, double y) { return x / y; }
+double fgetnan()    { return _fdiv(0.0, 0.0); }
+double fgetposinf() { return _fdiv(+1.0, 0.0); }
+double fgetneginf() { return _fdiv(-1.0, 0.0); }
 
-double FASTCALL fdiv100r(double v)
-	{ return v / 100.0; }
-double FASTCALL fdiv100i(long v)
-	{ return ((double)v) / 100.0; }
-double FASTCALL fdiv1000i(long v)
-	{ return ((double)v) / 1000.0; }
-double FASTCALL fdivnz(double dd, double dr)
-	{ return (dr != 0.0) ? (dd / dr) : 0.0; }
+double SLAPI smax(double a, double b) { return MAX(a, b); }
+double SLAPI smin(double a, double b) { return MIN(a, b); }
+float  SLAPI smax(float a, float b)   { return MAX(a, b); }
+float  SLAPI smin(float a, float b)   { return MIN(a, b); }
+double FASTCALL fdiv100r(double v)    { return v / 100.0; }
+double FASTCALL fdiv100i(long v)      { return ((double)v) / 100.0; }
+double FASTCALL fdiv1000i(long v)     { return ((double)v) / 1000.0; }
+double FASTCALL fdivnz(double dd, double dr) { return (dr != 0.0) ? (dd / dr) : 0.0; }
 
 int SLAPI feqeps(double v1, double v2, double epsilon)
 {

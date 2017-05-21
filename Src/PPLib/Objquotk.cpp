@@ -1216,9 +1216,9 @@ public:
 	}
 	int    SLAPI FetchSpecialKinds(PPObjQuotKind::Special * pSk);
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
-	virtual int SLAPI Dirty(PPID id); // @sync_w
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI Dirty(PPID id); // @sync_w
 
 	int    RtlListInited;
 	PPIDArray RtlQkList;   // Список видов котировок с признаком QUOTKF_RETAILED
@@ -1309,7 +1309,7 @@ int SLAPI QuotKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI QuotKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI QuotKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPQuotKind * p_data_rec = (PPQuotKind *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -1329,7 +1329,6 @@ int SLAPI QuotKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 	CPY_FLD(AmtRestr);
 #undef CPY_FLD
 	GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
-	return 1;
 }
 
 int SLAPI QuotKindCache::FetchSpecialKinds(PPObjQuotKind::Special * pSk)

@@ -3091,9 +3091,7 @@ int SLAPI EditLotImpExpParam(const char * pIniSection)
    				PPError();
 		}
    	}
-   	CATCH
-   		ok = PPErrorZ();
-   	ENDCATCH
+	CATCHZOKPPERR
    	delete dlg;
    	return ok;
 }

@@ -107,11 +107,7 @@ extern "C" {
 	((uint8 *)b)[3] = ((uint8 *)a)[0];			\
 } while (0)
 #undef	P_32_SWAP
-#define	P_32_SWAP(a) do {						\
-	uint32 _tmp;							\
-	P_32_COPY(a, &_tmp);						\
-	P_32_COPYSWAP(&_tmp, a);					\
-} while (0)
+#define	P_32_SWAP(a) do { uint32 _tmp; P_32_COPY(a, &_tmp); P_32_COPYSWAP(&_tmp, a); } while (0)
 #undef	M_32_SWAP
 #define	M_32_SWAP(a) P_32_SWAP(&a)
 
@@ -237,15 +233,8 @@ extern "C" {
 		memcpy((x), (p), sizeof(uint16));			\
 } while (0)
 
-#define	LOGCOPY_TOLSN(env, lsnp, p) do {				\
-	LOGCOPY_32((env), &(lsnp)->file, (p));				\
-	LOGCOPY_32((env), &(lsnp)->offset, (uint8 *)(p) + sizeof(uint32));			\
-} while (0)
-
-#define	LOGCOPY_FROMLSN(env, p, lsnp) do {				\
-	LOGCOPY_32((env), (p), &(lsnp)->file);				\
-	LOGCOPY_32((env), (uint8 *)(p) + sizeof(uint32), &(lsnp)->offset);	\
-} while (0)
+#define	LOGCOPY_TOLSN(env, lsnp, p)   do { LOGCOPY_32((env), &(lsnp)->file, (p)); LOGCOPY_32((env), &(lsnp)->Offset_, (uint8 *)(p) + sizeof(uint32)); } while (0)
+#define	LOGCOPY_FROMLSN(env, p, lsnp) do { LOGCOPY_32((env), (p), &(lsnp)->file); LOGCOPY_32((env), (uint8 *)(p) + sizeof(uint32), &(lsnp)->Offset_); } while (0)
 
 #if defined(__cplusplus)
 }

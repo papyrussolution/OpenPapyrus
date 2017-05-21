@@ -478,6 +478,7 @@ void BillFiltDialog::extraFilt()
 			GetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, &Data.DuePeriod);
 		}
 		// } @v8.3.2
+		const PPID cur_user_id = LConfig.User;
 		PPBillExt ext;
 		ext.PayerID = Data.PayerID;
 		ext.AgentID = Data.AgentID;
@@ -490,15 +491,15 @@ void BillFiltDialog::extraFilt()
 		PPAccessRestriction accsr;
 		const int own_bill_restr = ObjRts.GetAccessRestriction(accsr).GetOwnBillRestrict();
 		if(v & 0x02 || own_bill_restr == 1) {
-			SETIFZ(Data.CreatorID, LConfig.User);
+			SETIFZ(Data.CreatorID, cur_user_id);
 		}
 		else if(own_bill_restr == 2) {
 			PPObjSecur sec_obj(PPOBJ_USR, 0);
 			PPSecur sec_rec;
-			if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)
+			if(sec_obj.Fetch(cur_user_id, &sec_rec) > 0)
 				SETIFZ(Data.CreatorID, (sec_rec.ParentID | PPObjSecur::maskUserGroup));
 		}
-		else if(Data.CreatorID == LConfig.User)
+		else if(Data.CreatorID == cur_user_id)
 			Data.CreatorID = 0;
 		ext.CreatorID = Data.CreatorID;
 		if(BillExtraDialog(&ext, 0, 2) > 0) {
@@ -518,7 +519,7 @@ void BillFiltDialog::extraFilt()
 			int    disable_own_bill_only_tag = 0;
 			v = getCtrlUInt16(CTL_BILLFLT_FLAGS);
 			if(Data.CreatorID)
-				if(Data.CreatorID != LConfig.User) {
+				if(Data.CreatorID != cur_user_id) {
 					setCtrlUInt16(CTL_BILLFLT_FLAGS, v & ~0x02);
 					disable_own_bill_only_tag = 1;
 				}
@@ -553,6 +554,7 @@ void BillFiltDialog::SetupLocationCombo()
 int BillFiltDialog::setDTS(const BillFilt * pFilt)
 {
 	if(!Data.IsEqual(pFilt, 0)) {
+		const  PPID cur_user_id = LConfig.User;
 		ushort v;
 		PPID   acc_sheet_id = 0, acc_sheet2_id = 0;
 		int    is_op_kind_list = 0;
@@ -603,7 +605,7 @@ int BillFiltDialog::setDTS(const BillFilt * pFilt)
 			if(Data.Flags & BillFilt::fUnshippedOnly)
 				Data.Flags &= ~BillFilt::fShippedOnly;
 			SETFLAG(v, 0x04, Data.Flags & BillFilt::fUnshippedOnly);
-			SETFLAG(v, 0x08, Data.Flags & BillFilt::fShippedOnly); // @v6.9.3
+			SETFLAG(v, 0x08, Data.Flags & BillFilt::fShippedOnly);
 			DisableClusterItem(CTL_BILLFLT_PAYM, 2, Data.Flags & BillFilt::fShippedOnly);
 			DisableClusterItem(CTL_BILLFLT_PAYM, 3, Data.Flags & BillFilt::fUnshippedOnly);
 		}
@@ -616,24 +618,24 @@ int BillFiltDialog::setDTS(const BillFilt * pFilt)
 			PPAccessRestriction accsr;
 			const int own_bill_restr = ObjRts.GetAccessRestriction(accsr).GetOwnBillRestrict();
 			if(own_bill_restr == 1) {
-				Data.CreatorID = LConfig.User;
+				Data.CreatorID = cur_user_id;
 				DisableClusterItem(CTL_BILLFLT_FLAGS, 1, 1);
 			}
 			else if(own_bill_restr == 2) {
 				PPObjSecur sec_obj(PPOBJ_USR, 0);
 				PPSecur sec_rec;
-				if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0) {
+				if(sec_obj.Fetch(cur_user_id, &sec_rec) > 0) {
 					Data.CreatorID = (sec_rec.ParentID | PPObjSecur::maskUserGroup);
 					DisableClusterItem(CTL_BILLFLT_FLAGS, 1, 1);
 				}
 			}
-			else if(Data.CreatorID && Data.CreatorID != LConfig.User)
+			else if(Data.CreatorID && Data.CreatorID != cur_user_id)
 				DisableClusterItem(CTL_BILLFLT_FLAGS, 1, 1);
 		}
 		v = 0;
 		DisableClusterItem(CTL_BILLFLT_FLAGS, 4, Data.Bbt != bbtGoodsBills);
 		SETFLAG(v, 0x01, Data.Flags & BillFilt::fSetupNewBill);
-		SETFLAG(v, 0x02, Data.CreatorID == LConfig.User);
+		SETFLAG(v, 0x02, Data.CreatorID == cur_user_id);
 		SETFLAG(v, 0x04, Data.Flags & BillFilt::fShowWoAgent);
 		SETFLAG(v, 0x08, Data.Flags & BillFilt::fDiscountOnly);
 		setCtrlData(CTL_BILLFLT_FLAGS, &v);
@@ -649,6 +651,7 @@ int BillFiltDialog::setDTS(const BillFilt * pFilt)
 int BillFiltDialog::getDTS(BillFilt * pFilt)
 {
 	int    ok = 1;
+	const  PPConfig & r_cfg = LConfig;
 	uint   sel = 0;
 	ushort v;
 	DateRange temp_period = Data.Period;
@@ -683,9 +686,9 @@ int BillFiltDialog::getDTS(BillFilt * pFilt)
 	getCtrlData(CTL_BILLFLT_FLAGS, &(v = 0));
 	SETFLAG(Data.Flags, BillFilt::fSetupNewBill, v & 0x01);
 	if(v & 0x02) {
-		SETIFZ(Data.CreatorID, LConfig.User);
+		SETIFZ(Data.CreatorID, r_cfg.User);
 	}
-	else if(Data.CreatorID == LConfig.User)
+	else if(Data.CreatorID == r_cfg.User)
 		Data.CreatorID = 0;
 	SETFLAG(Data.Flags, BillFilt::fShowWoAgent, v & 0x04);
 	SETFLAG(Data.Flags, BillFilt::fLabelOnly, getWL());
@@ -931,10 +934,11 @@ PPBaseFilt * SLAPI PPViewBill::CreateFilt(void * extraPtr) const
 {
 	BillFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_BILL, (PPBaseFilt**)&p_filt)) {
+		const PPConfig & r_cfg = LConfig;
 		BillFilt::FiltExtraParam * p = extraPtr ? (BillFilt::FiltExtraParam *)extraPtr : 0;
 		if(p && p->SetupValues) {
-			p_filt->Period.SetDate(LConfig.OperDate);
-			p_filt->LocList.Add(LConfig.Location, 1);
+			p_filt->Period.SetDate(r_cfg.OperDate);
+			p_filt->LocList.Add(r_cfg.Location, 1);
 			p_filt->Bbt   = p->Bbt;
 			if(p_filt->Bbt == bbtGoodsBills) {
 				if(DS.CheckExtFlag(ECF_GOODSBILLFILTSHOWDEBT))
@@ -946,11 +950,11 @@ PPBaseFilt * SLAPI PPViewBill::CreateFilt(void * extraPtr) const
 		PPAccessRestriction accsr;
 		const int own_bill_restr = ObjRts.GetAccessRestriction(accsr).GetOwnBillRestrict();
 		if(own_bill_restr == 1)
-			p_filt->CreatorID = LConfig.User;
+			p_filt->CreatorID = r_cfg.User;
 		else if(own_bill_restr == 2) {
 			PPObjSecur sec_obj(PPOBJ_USR, 0);
 			PPSecur sec_rec;
-			if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)
+			if(sec_obj.Fetch(r_cfg.User, &sec_rec) > 0)
 				p_filt->CreatorID = (sec_rec.ParentID | PPObjSecur::maskUserGroup);
 		}
 	}
@@ -1385,6 +1389,7 @@ int SLAPI PPViewBill::Helper_EnumProc(PPID billID, const BillTbl::Rec * pRec,
 int SLAPI PPViewBill::Enumerator(BillViewEnumProc proc, long param)
 {
 	int    ok = 1, r = 1;
+	const PPConfig & r_cfg = LConfig;
 	PPIDArray temp_list;
 	const PPIDArray * p_list = 0;
 	int    check_list_item_for_filt = 1;
@@ -1419,8 +1424,8 @@ int SLAPI PPViewBill::Enumerator(BillViewEnumProc proc, long param)
 		MEMSZERO(k);
 		if(Filt.Flags & BillFilt::fCashOnly) {
 			idx = 1;
-			k.bk1.Dt = LConfig.OperDate;
-			dbq = & (t->Dt == LConfig.OperDate && t->UserID == LConfig.Cash);
+			k.bk1.Dt = r_cfg.OperDate;
+			dbq = & (t->Dt == r_cfg.OperDate && t->UserID == r_cfg.Cash);
 		}
 		else if(Filt.ObjectID) {
 			idx = 3;
@@ -2473,8 +2478,9 @@ int SLAPI PPViewBill::PreprocessBrowser(PPViewBrowser * pBrw)
 			show_debt = BIN(Filt.Flags & (BillFilt::fShowDebt | BillFilt::fDebtOnly));
 		pBrw->options |= (ofCenterX | ofCenterY);
 		if(Filt.Flags & BillFilt::fCashOnly) {
-			GetObjectName(PPOBJ_CASHNODE, LConfig.Cash, sub_title, 1);
-			sub_title.CatDivIfNotEmpty('-', 1).Cat(LConfig.OperDate);
+			const PPConfig & r_cfg = LConfig;
+			GetObjectName(PPOBJ_CASHNODE, r_cfg.Cash, sub_title, 1);
+			sub_title.CatDivIfNotEmpty('-', 1).Cat(r_cfg.OperDate);
 		}
 		else {
 			if(!Filt.Period.IsZero())
@@ -2660,12 +2666,13 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 	}
 	THROW(CheckTblPtr(bll = new BillTbl));
 	if(Filt.Flags & BillFilt::fCashOnly) {
+		const PPConfig & r_cfg = LConfig;
 		q = &select(
 			bll->ID,     // #0
 			bll->Dt,     // #1
 			bll->Code,   // #2
 			bll->Amount, // #3
-			0L).from(bll, 0L).where(bll->Dt == LConfig.OperDate && bll->UserID == LConfig.Cash &&
+			0L).from(bll, 0L).where(bll->Dt == r_cfg.OperDate && bll->UserID == r_cfg.Cash &&
 			(bll->Flags & BILLF_CASH) == BILLF_CASH).orderBy(bll->Dt, bll->BillNo, 0L);
 		brw_id = BROWSER_CASHNODEBILL;
 	}
@@ -2938,10 +2945,11 @@ int SLAPI PPViewBill::AddItem(PPID * pID, PPID opID)
 	if(Filt.Flags & BillFilt::fEditPoolByType)
 		return AddBillToPool();
 	else {
+		const PPConfig & r_cfg = LConfig;
 		int    r = -1;
 		PPID   op_id = opID;
-		PPID   loc_id = LConfig.Location;
-	 	PPID   save_loc_id = LConfig.Location;
+		PPID   loc_id = r_cfg.Location;
+	 	const  PPID save_loc_id = loc_id;
 		if(!(Filt.DenyFlags & BillFilt::fDenyAdd)) {
 			PPOprKind op_rec;
 			if(Filt.Flags & BillFilt::fSetupNewBill) {
@@ -2951,7 +2959,7 @@ int SLAPI PPViewBill::AddItem(PPID * pID, PPID opID)
 					op_id = Filt.OpID;
 			}
 			if(op_id == 0) {
-				if(LConfig.Cash) {
+				if(r_cfg.Cash) {
 					if(op_id == 0 || op_id != GetCashRetOp())
 						op_id = GetCashOp();
 				}
@@ -3907,10 +3915,11 @@ int SLAPI PPViewBill::AddBillToPool()
 		PPViewBill::PoolInsertionParam Data;
 	};
 	int    ok = 1, r;
+	const PPConfig & r_cfg = LConfig;
 	int    count = 0;
 	PPID   loc_id = LocList_.getSingle();
-	SETIFZ(loc_id, LConfig.Location);
- 	PPID   save_loc_id = LConfig.Location;
+	SETIFZ(loc_id, r_cfg.Location);
+ 	const  PPID  save_loc_id = r_cfg.Location;
 	PPID   ar_id = 0;
 	BillTbl::Rec bill_rec;
 	if(Filt.PoolBillID && Filt.AssocID) {
@@ -4103,7 +4112,7 @@ int SLAPI PPViewBill::ShowPoolDetail(PPBillPacket * pBillPack)
 		if(GetOpType(pBillPack->Rec.OpID) == PPOPT_POOL) {
 			BillFilt   flt;
 			PPViewBill bv;
-			flt.Bbt = bbtUndef; // @v6.4.2
+			flt.Bbt = bbtUndef;
 			flt.PoolBillID = pBillPack->Rec.ID;
 			flt.AssocID    = PPASS_OPBILLPOOL;
 			flt.Flags |= BillFilt::fEditPoolByType;
@@ -5119,12 +5128,13 @@ int SLAPI PPViewBill::AddBySCard(PPID * pID)
 int SLAPI PPViewBill::Browse(int modeless)
 {
 	int    ok = 1;
+	const  PPConfig & r_cfg = LConfig;
 	const  long save_state = P_BObj->State;
-	PPID   save_loc   = LConfig.Location;
+	const  PPID save_loc   = r_cfg.Location;
 	PPID   single_loc_id = LocList_.getSingle();
 	Filt.Period.Actualize(ZERODATE); // @v8.7.7
 	THROW((Filt.Flags & BillFilt::fDebtOnly) || AdjustPeriodToRights(Filt.Period, 0));
-	if(single_loc_id && single_loc_id != LConfig.Location)
+	if(single_loc_id && single_loc_id != r_cfg.Location)
 		DS.SetLocation(single_loc_id);
 	ok = PPView::Browse(modeless);
 	CATCHZOK
@@ -5443,6 +5453,7 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 	int    update = 0;
 	PPID   id = 0;
 	if(ok == -2) {
+		const PPConfig & r_cfg = LConfig;
 		BillTbl::Rec bill_rec;
 		BrwHdr hdr;
 		if(pHdr && ppvCmd != PPVCMD_INPUTCHAR && ppvCmd != PPVCMD_RECEIVEDFOCUS)
@@ -5638,7 +5649,7 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				break;
 			case PPVCMD_GOODSRET:
 				ok = -1;
-				if(LConfig.Cash) {
+				if(r_cfg.Cash) {
 					if(Filt.Flags & BillFilt::fCashOnly && GetCashRetOp() > 0) {
 						PPObjBill::AddBlock ab;
 						ab.OpID = GetCashRetOp();
@@ -5699,7 +5710,7 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				break;
 			case PPVCMD_PRINTZEROCHECK:
 				ok = -1;
-				if(LConfig.Cash) {
+				if(r_cfg.Cash) {
 					P_BObj->PrintCheck(0, 0);
 					ok = 1;
 				}
@@ -5718,8 +5729,8 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				ok = ViewVATaxList();
 				break; */
 			case PPVCMD_CHECKSTAT:
-				if(LConfig.Cash) {
-					PPCashMachine * cm = PPCashMachine::CreateInstance(LConfig.Cash);
+				if(r_cfg.Cash) {
+					PPCashMachine * cm = PPCashMachine::CreateInstance(r_cfg.Cash);
 					if(cm) {
 						ok = cm->SyncViewSessionStat(0);
 						delete cm;
@@ -6571,6 +6582,7 @@ int PPALDD_GoodsBillDispose::NextIteration(long iterId, long rsrv)
 	DlGoodsBillDisposeBlock * p_blk = (DlGoodsBillDisposeBlock *)Extra[0].Ptr;
 	PPBillPacket * p_pack = p_blk->P_Pack;
 	//
+	const PPConfig & r_cfg = LConfig;
 	PPTransferItem * p_ti, temp_ti;
 	PPBillPacket::TiItemExt tiie;
 	GTaxVect vect;
@@ -6655,12 +6667,8 @@ int PPALDD_GoodsBillDispose::NextIteration(long iterId, long rsrv)
 	I.DispQtty     = tiie.LctRec.Qtty;
 	I.DispRestByGoods = tiie.LctRec.RestByGoods;
 	I.DispRestByLot   = tiie.LctRec.RestByLot;
-	// @v7.2.5 {
-	QttyToStr(fabs(p_ti->Qtty()), upp, ((LConfig.Flags & CFGFLG_USEPACKAGE) ?
-		MKSFMT(0, QTTYF_COMPLPACK | QTTYF_FRACTION) : QTTYF_FRACTION), I.CQtty);
-	QttyToStr(fabs(tiie.LctRec.Qtty), upp, ((LConfig.Flags & CFGFLG_USEPACKAGE) ?
-		MKSFMT(0, QTTYF_COMPLPACK | QTTYF_FRACTION) : QTTYF_FRACTION), I.CDispQtty);
-	// } @v7.2.5
+	QttyToStr(fabs(p_ti->Qtty()),     upp, ((r_cfg.Flags & CFGFLG_USEPACKAGE) ? MKSFMT(0, QTTYF_COMPLPACK | QTTYF_FRACTION) : QTTYF_FRACTION), I.CQtty);
+	QttyToStr(fabs(tiie.LctRec.Qtty), upp, ((r_cfg.Flags & CFGFLG_USEPACKAGE) ? MKSFMT(0, QTTYF_COMPLPACK | QTTYF_FRACTION) : QTTYF_FRACTION), I.CDispQtty);
 	//
 	return DlRtm::NextIteration(iterId, rsrv);
 }

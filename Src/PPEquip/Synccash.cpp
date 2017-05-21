@@ -8,7 +8,7 @@
 
 #define DEF_BAUD_RATE		   10	// Скорость обмена по умолчанию 128000 бод
 #define MAX_BAUD_RATE		   10	// Max скорость обмена 128000 бод
-#define DEF_STRLEN                 36	// Длина строки
+#define DEF_STRLEN             36   // Длина строки
 #define DEF_DRAWER_NUMBER		0	// Номер денежного ящика
 #define DEF_FONTSIZE			3	// Средний размер шрифта
 
@@ -778,8 +778,7 @@ void SLAPI SCS_SYNCCASH::SetErrorMessage()
 		SString err_msg, err_buf;
 		for(uint i = 0; Arr_Out.Get(i, err_buf) > 0; i++)
 			err_msg.Cat(err_buf);
-		err_msg.ToOem();
-		PPSetError(PPERR_SYNCCASH, err_msg);
+		PPSetError(PPERR_SYNCCASH, err_msg.Transf(CTRANSF_OUTER_TO_INNER));
 		ResCode = RESCODE_NO_ERROR;
 	}
 }
@@ -845,23 +844,19 @@ int	 SLAPI SCS_SYNCCASH::GetDevParam(/*const PPCashNode * pIn,*/ StrAssocArray &
 {
 	int    ok = 1;
 	int    val = 0;
-	// @v7.4.4 PPObjCashNode cn_obj;
-	// @v7.4.4 PPSyncCashNode  scn;
 	PPIniFile ini_file;
 	SString str, str1, str2;
 	PPIDArray list;
 	PPSecur sec_rec;
-
 	// Установить автоматическое обнуление наличности
 	THROW(ArrAdd(rOut, DVCPARAM_AUTOCASHNULL, 1));
-	// @v7.4.4 cn_obj.GetSync(/*pIn->*/SCn.ID, &scn);
 	// Опредеяем ID ККМ
 	THROW(ArrAdd(rOut, DVCPARAM_ID, /*pIn->*/SCn.ID));
 	// Определяем имя порта и переводим его в число
 	GetPort(/*pIn->*/SCn.Port, &val);
 	THROW(ArrAdd(rOut, DVCPARAM_PORT, val));
 	// Логический номер ККМ
-	THROW(ArrAdd(rOut, DVCPARAM_LOGNUM, /*pIn->LogNum*/1)); // @v7.4.4 (pIn->LogNum)-->(1)
+	THROW(ArrAdd(rOut, DVCPARAM_LOGNUM, /*pIn->LogNum*/1)); 
     // Флаги
 	THROW(ArrAdd(rOut, DVCPARAM_FLAGS, /*pIn->*/SCn.Flags));
 	// Логотип (пока что путь жестко определен здесь)
@@ -1554,7 +1549,7 @@ int SCS_SYNCCASH::SetLogotype()
 
 int SLAPI SCS_SYNCCASH::PrintBnkTermReport(const char * pZCheck)
 {
-	int ok = 1;
+	int    ok = 1;
 	SlipDocCommonParam sdc_param;
 	SString text, str;
 	StringSet str_set('\n', pZCheck);

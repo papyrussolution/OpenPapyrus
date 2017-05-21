@@ -1229,10 +1229,9 @@ err:    __os_closehandle(env, fhp);
 	return ret;
 #endif
 }
-/*
- * __os_closehandle --
- *	Close a file.
- */
+//
+// Close a file.
+//
 int FASTCALL __os_closehandle(ENV * env, DB_FH * fhp)
 {
 	DB_ENV * dbenv;
@@ -1243,16 +1242,15 @@ int FASTCALL __os_closehandle(ENV * env, DB_FH * fhp)
 		if(fhp->name != NULL && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS|DB_VERB_FILEOPS_ALL))
 			__db_msg(env, DB_STR_A("0031", "fileops: %s: close", "%s"), fhp->name);
 		if(F_ISSET(fhp, DB_FH_ENVLINK)) {
-			/*
-			 * Lock the ENV handle and remove this file
-			 * handle from the list.
-			 */
+			//
+			// Lock the ENV handle and remove this file handle from the list.
+			//
 			MUTEX_LOCK(env, env->mtx_env);
 			TAILQ_REMOVE(&env->fdlist, fhp, q);
 			MUTEX_UNLOCK(env, env->mtx_env);
 		}
 	}
-	/* Discard any underlying system file reference. */
+	// Discard any underlying system file reference
 	if(F_ISSET(fhp, DB_FH_OPENED)) {
 		if(fhp->handle != INVALID_HANDLE_VALUE)
 			RETRY_CHK((!CloseHandle(fhp->handle)), ret);
@@ -1272,7 +1270,7 @@ int FASTCALL __os_closehandle(ENV * env, DB_FH * fhp)
 			ret = __os_posix_err(ret);
 		}
 	}
-	/* Unlink the file if we haven't already done so. */
+	// Unlink the file if we haven't already done so
 	if(F_ISSET(fhp, DB_FH_UNLINK))
 		__os_unlink(env, fhp->name, 0);
 	__os_free(env, fhp->name);
@@ -1663,12 +1661,8 @@ slow:
 	if((ret = __os_seek(env, fhp, pgno, pgsize, relative)) != 0)
 		goto err;
 	switch(op) {
-	    case DB_IO_READ:
-		ret = __os_read(env, fhp, buf, io_len, niop);
-		break;
-	    case DB_IO_WRITE:
-		ret = __os_write(env, fhp, buf, io_len, niop);
-		break;
+	    case DB_IO_READ: ret = __os_read(env, fhp, buf, io_len, niop); break;
+	    case DB_IO_WRITE: ret = __os_write(env, fhp, buf, io_len, niop); break;
 	}
 err:
 	MUTEX_UNLOCK(env, fhp->mtx_fh);
@@ -1710,7 +1704,7 @@ int __os_write(ENV * env, DB_FH * fhp, void * addr, size_t len, size_t * nwp)
 {
 	int ret;
 #ifdef HAVE_FILESYSTEM_NOTZERO
-	/* Zero-fill as necessary. */
+	// Zero-fill as necessary
 	if(__os_fs_notzero() && (ret = __db_zero_fill(env, fhp)) != 0)
 		return ret;
 #endif

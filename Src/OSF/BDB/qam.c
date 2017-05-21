@@ -250,8 +250,8 @@ recheck:
 		goto done;
 	if(writelock++ == 0)
 		goto recheck;
-	if(DBC_LOGGING(dbc) && (ret = __qam_mvptr_log(dbp, dbc->txn, &meta->dbmeta.lsn, 0, opcode, meta->first_recno,
-		new_first, meta->cur_recno, new_cur, &meta->dbmeta.lsn, PGNO_BASE_MD)) != 0)
+	if(DBC_LOGGING(dbc) && (ret = __qam_mvptr_log(dbp, dbc->txn, &meta->dbmeta.Lsn, 0, opcode, meta->first_recno,
+		new_first, meta->cur_recno, new_cur, &meta->dbmeta.Lsn, PGNO_BASE_MD)) != 0)
 		opcode = 0;
 	if(opcode&QAM_SETCUR)
 		meta->cur_recno = new_cur;
@@ -778,11 +778,11 @@ release_retry:  /* Release locks and retry, if possible. */
 #ifdef QDEBUG
 				__log_printf(dbp->env, dbc->txn, "Queue I: %x %d %d %d", dbc->locker ? dbc->locker->id : 0, cp->recno, first, meta->cur_recno);
 #endif
-				if((ret = __qam_incfirst_log(dbp, dbc->txn, &meta->dbmeta.lsn, 0, cp->recno, PGNO_BASE_MD)) != 0)
+				if((ret = __qam_incfirst_log(dbp, dbc->txn, &meta->dbmeta.Lsn, 0, cp->recno, PGNO_BASE_MD)) != 0)
 					goto err;
 			}
 			else
-				LSN_NOT_LOGGED(meta->dbmeta.lsn);
+				LSN_NOT_LOGGED(meta->dbmeta.Lsn);
 			meta->first_recno = cp->recno;
 			QAM_INC_RECNO(meta->first_recno);
 		}
@@ -1053,11 +1053,11 @@ done:
 #ifdef QDEBUG
 			__log_printf(dbp->env, dbc->txn, "Queue M: %x %d %d %d", dbc->locker ? dbc->locker->id : 0, cp->recno, first, meta->first_recno);
 #endif
-			if((ret = __qam_incfirst_log(dbp, dbc->txn, &meta->dbmeta.lsn, 0, first, PGNO_BASE_MD)) != 0)
+			if((ret = __qam_incfirst_log(dbp, dbc->txn, &meta->dbmeta.Lsn, 0, first, PGNO_BASE_MD)) != 0)
 				goto err;
 		}
 		else
-			LSN_NOT_LOGGED(meta->dbmeta.lsn);
+			LSN_NOT_LOGGED(meta->dbmeta.Lsn);
 		meta->first_recno = first;
 	}
 err:
@@ -1335,11 +1335,11 @@ int __qam_truncate(DBC * dbc, uint32 * countp)
 			goto err;
 	}
 	if(DBC_LOGGING(dbc)) {
-		ret = __qam_mvptr_log(dbp, dbc->txn, &meta->dbmeta.lsn, 0, QAM_SETCUR|QAM_SETFIRST|QAM_TRUNCATE, meta->first_recno,
-			1, meta->cur_recno, 1, &meta->dbmeta.lsn, PGNO_BASE_MD);
+		ret = __qam_mvptr_log(dbp, dbc->txn, &meta->dbmeta.Lsn, 0, QAM_SETCUR|QAM_SETFIRST|QAM_TRUNCATE, meta->first_recno,
+			1, meta->cur_recno, 1, &meta->dbmeta.Lsn, PGNO_BASE_MD);
 	}
 	else
-		LSN_NOT_LOGGED(meta->dbmeta.lsn);
+		LSN_NOT_LOGGED(meta->dbmeta.Lsn);
 	if(ret == 0)
 		meta->first_recno = meta->cur_recno = 1;
 err:

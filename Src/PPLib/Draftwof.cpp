@@ -599,7 +599,7 @@ int SLAPI PrcssrWrOffDraft::WriteOffMrp(const PPDraftWrOffPacket * pPack, PUGL *
 			//
 			// Перед просмотром дефицита останавливаем транзакцию с сохранением изменений
 			// (нам надо сохранить созданную MRP-таблицу)
-			//	
+			//
 			PPWait(0);
 			//
 			// Интерактивная функция просмотра дефицита
@@ -674,7 +674,7 @@ int SLAPI PrcssrWrOffDraft::WriteOffMrp(const PPDraftWrOffPacket * pPack, PUGL *
 											THROW(r = P_BObj->WriteOffDraft(bill_id, &wroff_bill_list, &local_pugl, 0));
 											if(pPugl) {
 												local_pugl.Dt = bill_rec.Dt;
-												pPugl->Add(&local_pugl);
+												pPugl->Add__(&local_pugl);
 											}
 											PPObjBill::MakeCodeString(&bill_rec, 1, bill_name);
 											if(r == -2) {
@@ -706,7 +706,7 @@ int SLAPI PrcssrWrOffDraft::WriteOffMrp(const PPDraftWrOffPacket * pPack, PUGL *
 								THROW(r = P_BObj->WriteOffDraft(bill_id, &wroff_bill_list, &local_pugl, 0));
 								if(pPugl) {
 									local_pugl.Dt = bill_rec.Dt;
-									pPugl->Add(&local_pugl);
+									pPugl->Add__(&local_pugl);
 								}
 								PPObjBill::MakeCodeString(&bill_rec, 1, bill_name);
 								if(r == -2) {
@@ -793,6 +793,7 @@ int SLAPI PrcssrWrOffDraft::Run()
 	int    ok = -1, r;
 	PPID   err_bill_id = 0;
 	PPID   mrp_tab_id = 0;
+	SString msg_buf;
 	PPIDArray wroff_bill_list;
 	PPDraftWrOffPacket dwo_pack;
 	if(P.DwoID && DwoObj.GetPacket(P.DwoID, &dwo_pack) > 0 && dwo_pack.P_List) {
@@ -804,6 +805,12 @@ int SLAPI PrcssrWrOffDraft::Run()
 		else if(dwo_pack.Rec.Flags & DWOF_USEMRPTAB) {
 			PUGL   pugl;
 			THROW(WriteOffMrp(&dwo_pack, &pugl));
+			// @v9.6.7 {
+			if(pugl.getCount()) {
+				Logger.LogString(PPTXT_TOTALDRAFTWROFFDEFICIT, 0);
+				pugl.Log(&Logger); 
+			}
+			// } @v9.6.7 
 			ok = 1;
 		}
 		else {
@@ -846,7 +853,6 @@ int SLAPI PrcssrWrOffDraft::Run()
 		if(err_bill_id) {
 			BillTbl::Rec bill_rec;
 			if(P_BObj->Search(err_bill_id, &bill_rec) > 0) {
-				SString msg_buf;
 				PPOutputMessage(PPObjBill::MakeCodeString(&bill_rec, 1, msg_buf), mfInfo | mfOK);
 			}
 		}

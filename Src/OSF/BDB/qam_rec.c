@@ -212,10 +212,9 @@ int __qam_mvptr_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 			meta->cur_recno = argp->old_cur;
 			LSN(meta) = argp->metalsn;
 		}
-		/* If the page lsn is beyond the truncate point, move it back */
+		// If the page lsn is beyond the truncate point, move it back
 		trunc_lsn = ((DB_TXNHEAD *)info)->trunc_lsn;
-		if(!IS_ZERO_LSN(trunc_lsn) &&
-		   LOG_COMPARE(&trunc_lsn, &LSN(meta)) < 0) {
+		if(!IS_ZERO_LSN(trunc_lsn) && LOG_COMPARE(&trunc_lsn, &LSN(meta)) < 0) {
 			REC_DIRTY(mpf, ip, dbc->priority, &meta);
 			LSN(meta) = argp->metalsn;
 		}
@@ -243,11 +242,11 @@ int __qam_mvptr_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 					goto err;
 				if(!exact)
 					meta->cur_recno = argp->new_cur;
-				if(cp->page != NULL && (ret = __qam_fput(dbc, cp->pgno, cp->page, dbc->priority)) != 0)
+				if(cp->page && (ret = __qam_fput(dbc, cp->pgno, cp->page, dbc->priority)) != 0)
 					goto err;
 			}
 		}
-		meta->dbmeta.lsn = *lsnp;
+		meta->dbmeta.Lsn = *lsnp;
 	}
 	if((ret = __memp_fput(mpf, ip, meta, dbc->priority)) != 0)
 		goto out;

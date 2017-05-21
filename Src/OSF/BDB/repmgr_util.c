@@ -968,7 +968,7 @@ int __repmgr_stable_lsn(ENV * env, DB_LSN * stable_lsn)
 	UNLOCK_MUTEX(db_rep->mutex);
 	if(!IS_ZERO_LSN(min_lsn) && LOG_COMPARE(&min_lsn, stable_lsn) < 0)
 		*stable_lsn = min_lsn;
-	RPRINT(env, (env, DB_VERB_REPMGR_MISC, "Repmgr_stable_lsn: Returning stable_lsn[%lu][%lu]", (ulong)stable_lsn->file, (ulong)stable_lsn->offset));
+	RPRINT(env, (env, DB_VERB_REPMGR_MISC, "Repmgr_stable_lsn: Returning stable_lsn[%lu][%lu]", (ulong)stable_lsn->file, (ulong)stable_lsn->Offset_));
 	return 0;
 }
 /*

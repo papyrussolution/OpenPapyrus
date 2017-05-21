@@ -1,5 +1,5 @@
 // PPARRAY.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017
 // @Kernel
 //
 #include <pp.h>
@@ -242,7 +242,7 @@ int SLAPI PPCycleArray::formatCycle(LDATE dt, char * pBuf, size_t bufLen) const
 
 int SLAPI PPCycleArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
-	int ok = 1;
+	int    ok = 1;
 	THROW_SL(pCtx->Serialize(dir, (SArray*)this, rBuf));
 	THROW_SL(pCtx->Serialize(dir, Period.low, rBuf));
 	THROW_SL(pCtx->Serialize(dir, Period.upp, rBuf));
@@ -516,7 +516,7 @@ int SLAPI ObjIdListFilt::FreeAll()
 
 int SLAPI ObjIdListFilt::Sort()
 {
-	return P_List ? P_List->sort() : -1;
+	return P_List ? (P_List->sort(), 1) : -1;
 }
 
 uint SLAPI ObjIdListFilt::GetCount() const

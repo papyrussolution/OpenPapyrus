@@ -904,8 +904,8 @@ class GoodsClassCache : public ObjCache {
 public:
 	SLAPI GoodsClassCache() : ObjCache(PPOBJ_GOODSCLASS, sizeof(GoodsClassData)) {}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct GoodsClassData : public ObjCacheEntry {
 		PPID   DefUnitID;
@@ -978,7 +978,7 @@ int SLAPI GoodsClassCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI GoodsClassCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI GoodsClassCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPGdsClsPacket * p_data_pack = (PPGdsClsPacket *)pDataRec;
 	const GoodsClassData * p_cache_rec = (const GoodsClassData *)pEntry;
@@ -1019,7 +1019,6 @@ int SLAPI GoodsClassCache::EntryToData(const ObjCacheEntry * pEntry, void * pDat
 	ss.get(&p, p_data_pack->PhUPerU_Formula);
 	ss.get(&p, p_data_pack->TaxMult_Formula);
 	ss.get(&p, p_data_pack->LotDimQtty_Formula); // @v8.9.12
-	return 1;
 }
 
 int SLAPI PPObjGoodsClass::Fetch(PPID id, PPGdsClsPacket * pRec)

@@ -2875,7 +2875,7 @@ private:
 	Entry * FASTCALL SearchByPos(uint pos, int incr);
 	int    Helper_Get(PPID objID, PPID tagID, ObjTagItem * pDataRec);
 	int    Helper_GetByPos(uint pos, ObjTagItem * pDataRec);
-	int    EntryToData(const ObjTagCache::Entry * pEntry, ObjTagItem * pDataRec) const;
+	void   EntryToData(const ObjTagCache::Entry * pEntry, ObjTagItem * pDataRec) const;
 	int    AddItem(const ObjTagCache::Entry * pEntry, uint * pPos);
 
 	uint   MaxItems;
@@ -2997,7 +2997,7 @@ ObjTagCache::Entry * FASTCALL ObjTagCache::SearchByPos(uint pos, int incr)
 	return p_entry;
 }
 
-int ObjTagCache::EntryToData(const ObjTagCache::Entry * pEntry, ObjTagItem * pTag) const
+void ObjTagCache::EntryToData(const ObjTagCache::Entry * pEntry, ObjTagItem * pTag) const
 {
 	assert(pEntry->TagIdx > 0 && pEntry->TagIdx <= TagTypeList.getCount());
 	const TagTypeEntry & r_te = TagTypeList.at(pEntry->TagIdx-1);
@@ -3031,7 +3031,6 @@ int ObjTagCache::EntryToData(const ObjTagCache::Entry * pEntry, ObjTagItem * pTa
 			}
 		}
 	}
-	return 1;
 }
 
 int ObjTagCache::Helper_GetByPos(uint pos, ObjTagItem * pDataRec)
@@ -3277,9 +3276,9 @@ public:
 		return SymbList.FetchBySymb(pSymb, pID);
 	}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
-	virtual int SLAPI Dirty(PPID id); // @sync_w
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI Dirty(PPID id); // @sync_w
 
 	struct TagCacheEntry : public ObjCacheEntry {
 		int16  Flags;
@@ -3393,7 +3392,7 @@ int SLAPI TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI TagCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI TagCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPObjectTag   * p_tag = (PPObjectTag*)pDataRec;
 	const TagCacheEntry * p_cr  = (const TagCacheEntry *)pEntry;
@@ -3414,7 +3413,6 @@ int SLAPI TagCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) c
 	uint   p = 0;
 	ss.get(&p, p_tag->Name, sizeof(p_tag->Name));
 	ss.get(&p, p_tag->Symb, sizeof(p_tag->Symb));
-	return 1;
 }
 
 int SLAPI PPObjTag::Fetch(PPID id, PPObjectTag * pRec)

@@ -2691,7 +2691,7 @@ int FASTCALL __db_s_next(DB ** sdbpp, DB_TXN * txn)
 	MUTEX_UNLOCK(env, pdbp->mutex);
 	*sdbpp = sdbp;
 	// closeme->close() is a wrapper;  call __db_close explicitly.
-	return closeme ? __db_close(closeme, txn, 0) : 0;
+	return __db_close(closeme, txn, 0);
 }
 /*
  * __db_s_done --
@@ -2702,7 +2702,6 @@ int FASTCALL __db_s_next(DB ** sdbpp, DB_TXN * txn)
  */
 int __db_s_done(DB * sdbp, DB_TXN * txn)
 {
-	int ret;
 	DB * pdbp = sdbp->s_primary;
 	ENV * env = pdbp->env;
 	int doclose = 0;
@@ -2713,11 +2712,7 @@ int __db_s_done(DB * sdbp, DB_TXN * txn)
 		doclose = 1;
 	}
 	MUTEX_UNLOCK(env, pdbp->mutex);
-	if(doclose == 0)
-		ret = 0;
-	else
-		ret = __db_close(sdbp, txn, 0);
-	return ret;
+	return (doclose == 0) ? 0 : __db_close(sdbp, txn, 0);
 }
 /*
  * __db_s_count --

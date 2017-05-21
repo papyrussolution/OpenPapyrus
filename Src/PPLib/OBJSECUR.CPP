@@ -551,10 +551,10 @@ int SLAPI EditMainConfig()
 //
 class UserCache : public ObjCache {
 public:
-	SLAPI UserCache() : ObjCache(PPOBJ_USR, sizeof(Data)) {}
+	SLAPI  UserCache() : ObjCache(PPOBJ_USR, sizeof(Data)) {}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		PPID   PersonID;
@@ -584,7 +584,7 @@ int SLAPI UserCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI UserCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI UserCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPSecur * p_data_rec = (PPSecur *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -597,7 +597,6 @@ int SLAPI UserCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) 
 	p_data_rec->Flags = p_cache_rec->Flags;
 	p_data_rec->UerFlags = p_cache_rec->UerFlags; // @v8.6.1
 	GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
-	return 1;
 }
 // }
 

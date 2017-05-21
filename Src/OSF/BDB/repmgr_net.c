@@ -460,7 +460,7 @@ out:
 			    case gmdb_secondary:
 				/* Merely refrain from firing event. */
 				RPRINT(env, (env, DB_VERB_REPMGR_MISC, "GMDB perm failure %d at [%lu][%lu]",
-					(int)db_rep->active_gmdb_update, (ulong)lsnp->file, (ulong)lsnp->offset));
+					(int)db_rep->active_gmdb_update, (ulong)lsnp->file, (ulong)lsnp->Offset_));
 				break;
 			}
 		}
@@ -472,12 +472,11 @@ out:
 			 * of all txns that occur before it (in LSN order), we
 			 * now know that the previous failure can be resolved.
 			 * We can't do it here in this thread, so put a request
-			 * on the message processing queue to have it handled
-			 * later.
+			 * on the message processing queue to have it handled later.
 			 */
 			db_rep->durable_lsn = *lsnp;
 			RPRINT(env, (env, DB_VERB_REPMGR_MISC, "perm success [%lu][%lu] with limbo resolution needed",
-				(ulong)lsnp->file, (ulong)lsnp->offset));
+				(ulong)lsnp->file, (ulong)lsnp->Offset_));
 			db_rep->limbo_resolution_needed = FALSE;
 			/* Don't trump ret, even if it's zero. */
 			LOCK_MUTEX(db_rep->mutex);

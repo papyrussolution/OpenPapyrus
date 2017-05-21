@@ -432,8 +432,8 @@ public:
 	{
 	}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		PPID   EnumObjType;
@@ -471,7 +471,7 @@ int SLAPI SalChargeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI SalChargeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI SalChargeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPSalChargePacket * p_data_rec = (PPSalChargePacket *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -490,7 +490,6 @@ int SLAPI SalChargeCache::EntryToData(const ObjCacheEntry * pEntry, void * pData
 	b.Get(p_data_rec->Rec.Name, sizeof(p_data_rec->Rec.Name));
 	b.Get(p_data_rec->Rec.Symb, sizeof(p_data_rec->Rec.Symb));
 	b.Get(p_data_rec->Formula);
-	return 1;
 }
 
 int SLAPI PPObjSalCharge::Fetch(PPID id, PPSalChargePacket * pRec)
@@ -2321,8 +2320,8 @@ public:
 	{
 	}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		PPID   LinkObjType;
@@ -2359,7 +2358,7 @@ int SLAPI StaffCalCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI StaffCalCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI StaffCalCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPStaffCal * p_data_rec = (PPStaffCal *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -2381,7 +2380,6 @@ int SLAPI StaffCalCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 	uint   p = 0;
 	ss.get(&p, p_data_rec->Name, sizeof(p_data_rec->Name));
 	ss.get(&p, p_data_rec->Symb, sizeof(p_data_rec->Symb));
-	return 1;
 }
 
 IMPL_OBJ_FETCH(PPObjStaffCal, PPStaffCal, StaffCalCache);

@@ -1181,16 +1181,10 @@ int SLAPI PPAccessRestriction::GetPeriodInputExt(TDialog * pDlg, uint ctrlID, in
 		period.SetZero();
 		ok = GetPeriodInput(pDlg, ctrlID, &period);
 		if(ok > 0) {
-			if(setROrW == PPAccessRestriction::pparR) {
-				//LowRBillDate = period.low;
-				//UppRBillDate = period.upp;
+			if(setROrW == PPAccessRestriction::pparR)
 				RBillPeriod = period;
-			}
-			else {
-				//LowWBillDate = period.low;
-				//UppWBillDate = period.upp;
+			else 
 				WBillPeriod = period;
-			}
 		}
 	}
 	return ok;
@@ -1201,16 +1195,9 @@ int SLAPI PPAccessRestriction::SetPeriodInputExt(TDialog * pDlg, uint ctrlID, in
 	int    ok = -1;
 	assert(oneof2(getROrW, PPAccessRestriction::pparR, PPAccessRestriction::pparW));
 	if(oneof2(getROrW, PPAccessRestriction::pparR, PPAccessRestriction::pparW)) {
-		DateRange period;
-		if(getROrW == PPAccessRestriction::pparR) {
-			//period.Set(LowRBillDate, UppRBillDate);
-			period = RBillPeriod;
-		}
-		else {
-			//period.Set(LowWBillDate, UppWBillDate);
-			period = WBillPeriod;
-		}
-		ok = SetPeriodInput(pDlg, ctrlID, &period);
+		const DateRange period = (getROrW == PPAccessRestriction::pparR) ? RBillPeriod : WBillPeriod;
+		SetPeriodInput(pDlg, ctrlID, &period);
+		ok = 1;
 	}
 	return ok;
 }

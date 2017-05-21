@@ -7,18 +7,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
-// @v9.5.5 #include "dbinc/fop.h"
-// @v9.5.5 #include "dbinc/qam.h"
-// @v9.5.5 #include "dbinc/txn.h"
-
 /*
  * Context information needed for buffer management during the building of a
  * list of database files present in the environment.  When fully built, the
@@ -603,7 +592,7 @@ static int __rep_page_sendpages(ENV * env, DB_THREAD_INFO * ip, int eid, __rep_c
 		 * to know the byte order of each page independently.
 		 */
 		SETFLAG(msgfp->finfo_flags, REPINFO_PG_LITTLEENDIAN, F_ISSET(env, ENV_LITTLEENDIAN));
-		RPRINT(env, (env, DB_VERB_REP_SYNC, "sendpages: %lu, page lsn [%lu][%lu]", (ulong)p, (ulong)pagep->lsn.file, (ulong)pagep->lsn.offset));
+		RPRINT(env, (env, DB_VERB_REP_SYNC, "sendpages: %lu, page lsn [%lu][%lu]", (ulong)p, (ulong)pagep->lsn.file, (ulong)pagep->lsn.Offset_));
 		ret = __rep_fileinfo_marshal(env, rp->rep_version, msgfp, buf, msgsz, &len);
 		if(msgfp->type != (uint32)DB_QUEUE || p == 0)
 			t_ret = __memp_fput(mpf, ip, pagep, DB_PRIORITY_UNCHANGED);
@@ -636,9 +625,7 @@ static int __rep_page_sendpages(ENV * env, DB_THREAD_INFO * ip, int eid, __rep_c
 				&repth.lsn, &msgdbt, 0);
 		if(!use_bulk || ret == DB_REP_BULKOVF)
 			ret = __rep_send_throttle(env, eid, &repth, 0, 0);
-		VPRINT(env, (env, DB_VERB_REP_SYNC,
-			     "sendpages: %lu, lsn [%lu][%lu]", (ulong)p,
-			     (ulong)repth.lsn.file, (ulong)repth.lsn.offset));
+		VPRINT(env, (env, DB_VERB_REP_SYNC, "sendpages: %lu, lsn [%lu][%lu]", (ulong)p, (ulong)repth.lsn.file, (ulong)repth.lsn.Offset_));
 		/*
 		 * If we have REP_PAGE_MORE we need to break this loop.
 		 * Otherwise, with REP_PAGE, we keep going.
@@ -825,14 +812,9 @@ int __rep_update_setup(ENV * env, int eid, __rep_control_args * rp, DBT * rec, _
 	rep->last_lsn = rp->lsn;
 	rep->nfiles = rup->num_files;
 
-	RPRINT(env, (env, DB_VERB_REP_SYNC,
-		     "Update setup for %d files.", rep->nfiles));
-	RPRINT(env, (env, DB_VERB_REP_SYNC,
-		     "Update setup:  First LSN [%lu][%lu].",
-		     (ulong)rep->first_lsn.file, (ulong)rep->first_lsn.offset));
-	RPRINT(env, (env, DB_VERB_REP_SYNC,
-		     "Update setup:  Last LSN [%lu][%lu]",
-		     (ulong)rep->last_lsn.file, (ulong)rep->last_lsn.offset));
+	RPRINT(env, (env, DB_VERB_REP_SYNC, "Update setup for %d files.", rep->nfiles));
+	RPRINT(env, (env, DB_VERB_REP_SYNC, "Update setup:  First LSN [%lu][%lu].", (ulong)rep->first_lsn.file, (ulong)rep->first_lsn.Offset_));
+	RPRINT(env, (env, DB_VERB_REP_SYNC, "Update setup:  Last LSN [%lu][%lu]", (ulong)rep->last_lsn.file, (ulong)rep->last_lsn.Offset_));
 	if(rep->nfiles > 0) {
 		rep->infoversion = rp->rep_version;
 		rep->originfolen = rep->infolen =
@@ -1044,18 +1026,12 @@ static int __rep_remove_all(ENV * env, uint32 msg_version, DBT * rec)
 		zero = 0;
 		fvers = REP_INITVERSION;
 		mvers = DB_REPVERSION;
-		if((ret = __os_open(env, fname, 0,
-			    DB_OSO_CREATE|DB_OSO_TRUNC, DB_MODE_600, &fhp)) != 0 ||
-		   (ret =
-		            __os_write(env, fhp, &zero, sizeof(zero), &cnt)) != 0 ||
-		   (ret =
-		            __os_write(env, fhp, &fvers, sizeof(fvers), &cnt)) != 0 ||
-		   (ret =
-		            __os_write(env, fhp, &mvers, sizeof(mvers), &cnt)) != 0 ||
-		   (ret =
-		            __os_write(env, fhp, &bufsz, sizeof(bufsz), &cnt)) != 0 ||
-		   (ret =
-		            __os_write(env, fhp, context.buf, bufsz, &cnt)) != 0 ||
+		if((ret = __os_open(env, fname, 0, DB_OSO_CREATE|DB_OSO_TRUNC, DB_MODE_600, &fhp)) != 0 ||
+		   (ret = __os_write(env, fhp, &zero, sizeof(zero), &cnt)) != 0 ||
+		   (ret = __os_write(env, fhp, &fvers, sizeof(fvers), &cnt)) != 0 ||
+		   (ret = __os_write(env, fhp, &mvers, sizeof(mvers), &cnt)) != 0 ||
+		   (ret = __os_write(env, fhp, &bufsz, sizeof(bufsz), &cnt)) != 0 ||
+		   (ret = __os_write(env, fhp, context.buf, bufsz, &cnt)) != 0 ||
 		   (ret = __os_fsync(env, fhp)) != 0) {
 			__db_err(env, ret, "%s", fname);
 			goto out;
@@ -1074,9 +1050,8 @@ static int __rep_remove_all(ENV * env, uint32 msg_version, DBT * rec)
 	if((ret = __rep_closefiles(env)) != 0)
 		goto out;
 	F_CLR(rep, REP_F_NIMDBS_LOADED);
-	if((ret = __rep_walk_filelist(env, context.version,
-		    FIRST_FILE_PTR(context.buf), context.size,
-		    context.count, __rep_remove_file, NULL)) != 0)
+	if((ret = __rep_walk_filelist(env, context.version, FIRST_FILE_PTR(context.buf), context.size,
+	    context.count, __rep_remove_file, NULL)) != 0)
 		goto out;
 	/*
 	 * 4. Safe-store the (new) list of database files we intend to copy from
@@ -1088,12 +1063,9 @@ static int __rep_remove_all(ENV * env, uint32 msg_version, DBT * rec)
 	 */
 	if(!FLD_ISSET(rep->config, REP_C_INMEM)) {
 		mvers = msg_version;
-		if((ret =
-		            __os_write(env, fhp, &mvers, sizeof(mvers), &cnt)) != 0 ||
-		   (ret = __os_write(env, fhp,
-			    &rec->size, sizeof(rec->size), &cnt)) != 0 ||
-		   (ret =
-		            __os_write(env, fhp, rec->data, rec->size, &cnt)) != 0 ||
+		if((ret = __os_write(env, fhp, &mvers, sizeof(mvers), &cnt)) != 0 ||
+		   (ret = __os_write(env, fhp, &rec->size, sizeof(rec->size), &cnt)) != 0 ||
+		   (ret = __os_write(env, fhp, rec->data, rec->size, &cnt)) != 0 ||
 		   (ret = __os_fsync(env, fhp)) != 0) {
 			__db_err(env, ret, "%s", fname);
 			goto out;
@@ -1102,11 +1074,7 @@ static int __rep_remove_all(ENV * env, uint32 msg_version, DBT * rec)
 		/* Invite repmgr to save any info it needs. */
 		if((ret = __repmgr_init_save(env, &dbt)) != 0)
 			goto out;
-		if(dbt.size > 0 &&
-		   ((ret = __os_write(env, fhp,
-			     &dbt.size, sizeof(dbt.size), &cnt)) != 0 ||
-		    (ret = __os_write(env, fhp,
-			      dbt.data, dbt.size, &cnt)) != 0))
+		if(dbt.size > 0 && ((ret = __os_write(env, fhp, &dbt.size, sizeof(dbt.size), &cnt)) != 0 || (ret = __os_write(env, fhp, dbt.data, dbt.size, &cnt)) != 0))
 			goto out;
 #endif
 	}
@@ -1265,7 +1233,7 @@ int __rep_bulk_page(ENV * env, DB_THREAD_INFO * ip, int eid, __rep_control_args 
 		 */
 		if((ret = __rep_bulk_unmarshal(env, &b_args, p, rec->size, &p)) != 0)
 			return ret;
-		VPRINT(env, (env, DB_VERB_REP_SYNC, "rep_bulk_page: Processing LSN [%lu][%lu]", (ulong)tmprp.lsn.file, (ulong)tmprp.lsn.offset));
+		VPRINT(env, (env, DB_VERB_REP_SYNC, "rep_bulk_page: Processing LSN [%lu][%lu]", (ulong)tmprp.lsn.file, (ulong)tmprp.lsn.Offset_));
 		VPRINT(env, (env, DB_VERB_REP_SYNC, "rep_bulk_page: p %#lx ep %#lx pgrec data %#lx, size %lu (%#lx)", P_TO_ULONG(p), P_TO_ULONG(ep),
 			P_TO_ULONG(b_args.bulkdata.data), (ulong)b_args.bulkdata.size, (ulong)b_args.bulkdata.size));
 		/*
@@ -1322,7 +1290,7 @@ int __rep_page(ENV*env, DB_THREAD_INFO * ip, int eid, __rep_control_args * rp, D
 	 */
 	if(LOG_COMPARE(&rp->lsn, &rep->first_lsn) < 0) {
 		RPRINT(env, (env, DB_VERB_REP_SYNC, "%s: Old page: msg LSN [%lu][%lu] first_lsn [%lu][%lu]",
-			msg, (ulong)rp->lsn.file, (ulong)rp->lsn.offset, (ulong)rep->first_lsn.file, (ulong)rep->first_lsn.offset));
+			msg, (ulong)rp->lsn.file, (ulong)rp->lsn.Offset_, (ulong)rep->first_lsn.file, (ulong)rep->first_lsn.Offset_));
 		return DB_REP_PAGEDONE;
 	}
 	if((ret = __rep_fileinfo_unmarshal(env, rp->rep_version, &msgfp, (uint8 *)rec->data, rec->size, NULL)) != 0)
@@ -2018,7 +1986,7 @@ static int __rep_nextfile(ENV*env, int eid, REP * rep)
 	if(!F_ISSET(rep, REP_F_ABBREVIATED) && (ret = __rep_log_setup(env, rep, rep->first_lsn.file, rep->first_vers, &lp->ready_lsn)) != 0)
 		return ret;
 	RPRINT(env, (env, DB_VERB_REP_SYNC, "NEXTFILE: LOG_REQ from LSN [%lu][%lu] to [%lu][%lu]",
-		(ulong)rep->first_lsn.file, (ulong)rep->first_lsn.offset, (ulong)rep->last_lsn.file, (ulong)rep->last_lsn.offset));
+		(ulong)rep->first_lsn.file, (ulong)rep->first_lsn.Offset_, (ulong)rep->last_lsn.file, (ulong)rep->last_lsn.Offset_));
 	REP_SYSTEM_UNLOCK(env);
 	__os_gettime(env, &lp->rcvd_ts, 1);
 	lp->wait_ts = rep->request_gap;

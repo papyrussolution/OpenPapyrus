@@ -1930,24 +1930,21 @@ int SLAPI PPViewCSess::RecalcSession(PPID sessID)
 
 int SLAPI PPViewCSess::DetachSessFromSuperSess(PPID sessID)
 {
-	int    ok = -1, ta = 0;
+	int    ok = -1;
 	CSessionTbl::Rec sess_rec;
 	THROW(CsObj.CheckRights(CSESSRT_CORRECT));
 	if(sessID && Filt.SuperSessID) {
-		THROW(PPStartTransaction(&ta, 1));
-		if(CsObj.Search(sessID, &sess_rec) > 0 &&
-			sess_rec.SuperSessID == Filt.SuperSessID && sess_rec.WrOffAmount > 0.0) {
+		PPTransaction tra(1);
+		THROW(tra);
+		if(CsObj.Search(sessID, &sess_rec) > 0 && sess_rec.SuperSessID == Filt.SuperSessID && sess_rec.WrOffAmount > 0.0) {
 			CsObj.P_Tbl->data.SuperSessID = 0;
 			THROW_DB(CsObj.P_Tbl->updateRec());
 			THROW(CsObj.Recalc(Filt.SuperSessID, 0));
 			ok = 1;
 		}
-		THROW(PPCommitWork(&ta));
+		THROW(tra.Commit());
 	}
-	CATCH
-		PPRollbackWork(&ta);
-		ok = PPErrorZ();
-	ENDCATCH
+	CATCHZOKPPERR
 	return ok;
 }
 
@@ -2658,7 +2655,7 @@ int CSessExcAltGoodsDialog::getDTS(PPID * pAltGoodsID)
 
 int SLAPI PPViewCSessExc::SetAltGoods(int sign, PPID goodsID)
 {
-	int    ok = -1, ta = 0, r;
+	int    ok = -1, r;
 	uint   i;
 	PPID   alt_goods_id = 0;
 	PPID   save_loc_id = LConfig.Location;
@@ -2686,35 +2683,20 @@ int SLAPI PPViewCSessExc::SetAltGoods(int sign, PPID goodsID)
 				param.LocID = GetCommonLoc();
 				param.Price = rec.Price;
 				if(param.LocID)
-					DS.SetLocation(param.LocID); // @v6.1.7
+					DS.SetLocation(param.LocID);
 				THROW(CheckDialogPtr(&(dlg = new CSessExcAltGoodsDialog(CsObj.GetEqCfg()))));
 				dlg->setDTS(&param);
 				for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 					if(dlg->getDTS(&alt_goods_id) > 0) {
-						THROW(PPStartTransaction(&ta, 1));
+						PPTransaction tra(1);
+						THROW(tra);
 						for(i = 0; cgl_list.enumItems(&i, (void**)&p_item);) {
-							/* @v6.5.2
-							CGoodsLineTbl::Key0 k;
-							MEMSZERO(k);
-							k.SessID  = p_item->SessID;
-							k.Dt      = p_item->Dt;
-							k.GoodsID = p_item->GoodsID;
-							k.Sign    = sign;
-							if(Tbl.search(0, &k, spEq)) {
-								Tbl.data.AltGoodsID = alt_goods_id;
-								THROW_DB(Tbl.updateRec());
-							}
-							else
-								THROW_DB(BTROKORNFOUND);
-							*/
-							// @v6.5.2 {
 							THROW_DB(updateFor(&Tbl, 0, (Tbl.SessID == p_item->SessID && Tbl.Dt == p_item->Dt &&
 								Tbl.GoodsID == p_item->GoodsID && Tbl.Sign == (long)sign),
 								set(Tbl.AltGoodsID, dbconst(alt_goods_id))));
-							// } @v6.5.2
    						}
 						THROW(_MakeTempTable(1));
-						THROW(PPCommitWork(&ta));
+						THROW(tra.Commit());
 						ok = valid_data = 1;
 					}
 					else
@@ -2723,10 +2705,7 @@ int SLAPI PPViewCSessExc::SetAltGoods(int sign, PPID goodsID)
 			}
 		}
 	}
-	CATCH
-		PPRollbackWork(&ta);
-		ok = PPErrorZ();
-	ENDCATCH
+	CATCHZOKPPERR
 	delete dlg;
 	DS.SetLocation(save_loc_id);
 	return ok;

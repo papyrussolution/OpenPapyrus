@@ -703,7 +703,7 @@ err:
 int __db_check_lsn(ENV * env, DB_LSN * lsn, DB_LSN * prev)
 {
 	__db_errx(env, DB_STR_A("0110", "Log sequence error: page LSN %lu %lu; previous LSN %lu %lu",
-		"%lu %lu %lu %lu"), (ulong)(lsn)->file, (ulong)(lsn)->offset, (ulong)(prev)->file, (ulong)(prev)->offset);
+		"%lu %lu %lu %lu"), (ulong)(lsn)->file, (ulong)(lsn)->Offset_, (ulong)(prev)->file, (ulong)(prev)->Offset_);
 	return EINVAL;
 }
 

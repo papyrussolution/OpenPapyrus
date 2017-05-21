@@ -5366,7 +5366,7 @@ CONVERT_PROC(Convert6708, PPCvtCCheckExt6708);
 //
 int SLAPI ConvertQuot720()
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	IterCounter cntr;
 	PPObjQuotKind qk_obj;
 	PPQuotKind qk_rec;
@@ -5375,7 +5375,8 @@ int SLAPI ConvertQuot720()
 	QuotationTbl::Key0 k0;
 	MEMSZERO(k0);
 	{
-		THROW(PPStartTransaction(&ta, 1));
+		PPTransaction tra(1);
+		THROW(tra);
 		cntr.Init(&qc);
 		PPWait(1);
 		if(qc.search(0, &k0, spFirst)) {
@@ -5386,8 +5387,8 @@ int SLAPI ConvertQuot720()
 						q.GetFromRec(qc.data);
 						THROW(qc2.Set(q, 0, 0, 0));
 						if((cntr % 10000) == 0) {
-							THROW(PPCommitWork(&ta));
-							THROW(PPStartTransaction(&ta, 1));
+							THROW(tra.Commit());
+							THROW(tra.Start(1));
 						}
 					}
 					else {
@@ -5398,13 +5399,10 @@ int SLAPI ConvertQuot720()
 			} while(qc.search(0, &k0, spNext));
 		}
 		THROW_DB(BTROKORNFOUND);
-		THROW(PPCommitWork(&ta));
+		THROW(tra.Commit());
 		PPWait(0);
 	}
-	CATCH
-		PPRollbackWork(&ta);
-		ok = PPErrorZ();
-	ENDCATCH
+	CATCHZOKPPERR
 	return ok;
 }
 //

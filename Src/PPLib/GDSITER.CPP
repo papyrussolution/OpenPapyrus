@@ -230,7 +230,7 @@ int SLAPI GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID
 						if(is_excl_alt_fold) {
 							if(GObj.CheckFlag(int_grp_id, GF_DYNAMICALTGRP) > 0) {
 								THROW(Helper_MakeListByGroup(0, int_grp_id, &temp_alt_list, 0)); // @recursion
-								THROW(id_list.add(&temp_alt_list)); // @v7.9.0 addUnique-->add
+								THROW(id_list.add(&temp_alt_list));
 							}
 							else {
 								THROW(p_ref->Assc.GetListByPrmr(PPASS_ALTGOODSGRP, int_grp_id, &temp_alt_list));
@@ -244,7 +244,7 @@ int SLAPI GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID
 						}
 						else if(GObj.CheckFlag(int_grp_id, GF_ALTGROUP) > 0) {
 							THROW(Helper_MakeListByGroup(0, int_grp_id, &temp_alt_list, 0)); // @recursion
-							THROW(id_list.add(&temp_alt_list)); // @v7.9.0 addUnique-->add
+							THROW(id_list.add(&temp_alt_list));
 						}
 						else {
 							union {
@@ -275,7 +275,7 @@ int SLAPI GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID
 								const PPID id = p_t->data.ID;
 								if(!(Filt.Flags & GoodsFilt::fOutOfMatrix) || !P_MtxList || !P_MtxList->bsearch(id)) {
 									if(GObj.CheckForFilt(&Filt, 0, GOCFIF_GROUP|GOCFIF_BCLEN|GOCFIF_ARCODE|GOCFIF_SYSJ|GOCFIF_TAG)) {
-										THROW(id_list.add(id)); // @v7.9.0 addUnique-->add
+										THROW(id_list.add(id));
 										if(CS_SERVER) {
 											long _mc = (pList ? pList->getCount() : 0) + id_list.getCount();
 											if((_mc % 100) == 0) {
@@ -288,7 +288,7 @@ int SLAPI GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID
 							}
 						}
 					}
-					goods_list.add(&id_list); // @v7.9.0 addUnique-->add
+					goods_list.add(&id_list);
 				}
 			}
 		} while(i);
@@ -320,7 +320,7 @@ static int IntersectByTempList(PPIDArray * pMainList, PPIDArray * pTempList, int
 	int    ok = 1;
 	pTempList->sort();
 	if(*pDoIntersect) {
-		THROW(pMainList->intersect(pTempList, 1));
+		pMainList->intersect(pTempList, 1);
 	}
 	else
 		THROW(pMainList->copy(*pTempList));
@@ -559,12 +559,10 @@ int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 		// } @v8.2.12
 		THROW(r = Helper_MakeListByGroup(&Filt.GrpIDList.Get(), Filt.GrpID, P_List, do_intersect));
 		if(r > 0) {
-			// @v7.7.7 {
 			if(p_excl_list) {
 				for(uint i = 0; i < p_excl_list->getCount(); i++)
 					P_List->freeByKey(p_excl_list->get(i), 0);
 			}
-			// } @v7.7.7
 			Counter.Init(P_List->getCount());
 		}
 		else {
@@ -616,7 +614,6 @@ int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 			Counter.Init(P_List->getCount());
 		}
 	}
-	// @v7.9.6 {
 	if(P_List) {
 		if(oneof2(Order, ordByName, ordByAbbr)) {
 			P_List->SArray::sort(PTR_CMPFUNC(GoodsIdListByName), &GObj);
@@ -648,7 +645,6 @@ int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 		}
 		ExtList.sort(CMPF_LONG);
 	}
-	// } @v7.9.6
 	CATCHZOK
 	delete p_excl_list;
 	return ok;

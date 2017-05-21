@@ -264,7 +264,7 @@ int __log_get_stable_lsn(ENV * env, DB_LSN * stable_lsn, int group_wide)
 	 * then copy the ckp_lsn to the stable_lsn;
 	 */
 	while((ret = __logc_get(logc, stable_lsn, &rec, DB_SET)) == 0 && (ret = __txn_ckp_read(env, rec.data, &ckp_args)) == 0) {
-		if(stable_lsn->file < lp->s_lsn.file || (stable_lsn->file == lp->s_lsn.file && stable_lsn->offset < lp->s_lsn.offset)) {
+		if(stable_lsn->file < lp->s_lsn.file || (stable_lsn->file == lp->s_lsn.file && stable_lsn->Offset_ < lp->s_lsn.Offset_)) {
 			*stable_lsn = ckp_args->ckp_lsn;
 			__os_free(env, ckp_args);
 			break;
@@ -275,9 +275,9 @@ int __log_get_stable_lsn(ENV * env, DB_LSN * stable_lsn, int group_wide)
 	if((t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
 #ifdef  HAVE_REPLICATION_THREADS
-	/*
-	 * If we have RepMgr, get the minimum group-aware LSN.
-	 */
+	//
+	// If we have RepMgr, get the minimum group-aware LSN.
+	//
 	if(group_wide && ret == 0 && REP_ON(env) && APP_IS_REPMGR(env) && (t_ret = __repmgr_stable_lsn(env, stable_lsn)) != 0)
 		ret = t_ret;
 #else
@@ -286,28 +286,25 @@ int __log_get_stable_lsn(ENV * env, DB_LSN * stable_lsn, int group_wide)
 err:
 	return ret;
 }
-/*
- * __log_autoremove --
- *	Delete any non-essential log files.
- *
- * PUBLIC: void __log_autoremove(ENV *);
- */
-void __log_autoremove(ENV * env)
+//
+// Delete any non-essential log files.
+//
+ void __log_autoremove(ENV * env)
 {
 	int ret;
 	char ** begin, ** list;
-	/*
-	 * Complain if there's an error, but don't return the error to our
-	 * caller.  Auto-remove is done when writing a log record, and we
-	 * don't want to fail a write, which could fail the corresponding
-	 * committing transaction, for a permissions error.
-	 */
+	// 
+	// Complain if there's an error, but don't return the error to our
+	// caller.  Auto-remove is done when writing a log record, and we
+	// don't want to fail a write, which could fail the corresponding
+	// committing transaction, for a permissions error.
+	// 
 	if((ret = __log_archive(env, &list, DB_ARCH_ABS)) != 0) {
 		if(ret != DB_NOTFOUND)
 			__db_err(env, ret, DB_STR("2571", "log file auto-remove"));
 		return;
 	}
-	/* Remove the files. */
+	// Remove the files
 	if(list != NULL) {
 		for(begin = list; *list != NULL; ++list)
 			__os_unlink(env, *list, 0);
@@ -324,12 +321,12 @@ static int __build_data(ENV * env, char * pref, char *** listp)
 	DB_LOGC * logc;
 	DB_LSN lsn;
 	__dbreg_register_args * argp;
-	uint array_size, last, n, nxt;
+	uint last, n, nxt;
 	uint32 rectype;
 	int ret, t_ret;
 	char ** array, ** arrayp, ** list, ** lp, * p, * real_name;
-	/* Get some initial space. */
-	array_size = 64;
+	// Get some initial space
+	uint array_size = 64;
 	if((ret = __os_malloc(env, sizeof(char *)*array_size, &array)) != 0)
 		return ret;
 	array[0] = NULL;
@@ -385,24 +382,22 @@ free_continue:
 		ret = t_ret;
 	if(ret != 0)
 		goto err1;
-	/* If there's nothing to return, we're done. */
+	// If there's nothing to return, we're done
 	if(n == 0) {
 		ret = 0;
 		*listp = NULL;
 		goto err1;
 	}
-	/* Sort the list. */
+	// Sort the list
 	qsort(array, (size_t)n, sizeof(char *), __cmpfunc);
-	/*
-	 * Build the real pathnames, discarding nonexistent files and
-	 * duplicates.
-	 */
+	//
+	// Build the real pathnames, discarding nonexistent files and duplicates.
+	//
 	for(last = nxt = 0; nxt < n; ) {
-		/*
-		 * Discard duplicates.  Last is the next slot we're going
-		 * to return to the user, nxt is the next slot that we're
-		 * going to consider.
-		 */
+		//
+		// Discard duplicates.  Last is the next slot we're going
+		// to return to the user, nxt is the next slot that we're going to consider.
+		//
 		if(last != nxt) {
 			array[last] = array[nxt];
 			array[nxt] = NULL;

@@ -2468,8 +2468,8 @@ public:
 	{
 	}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		PPID   CashType;
@@ -2506,7 +2506,7 @@ int SLAPI CashNodeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI CashNodeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI CashNodeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPCashNode * p_data_rec = (PPCashNode *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -2524,7 +2524,6 @@ int SLAPI CashNodeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
-	return 1;
 }
 
 IMPL_OBJ_FETCH(PPObjCashNode, PPCashNode, CashNodeCache);

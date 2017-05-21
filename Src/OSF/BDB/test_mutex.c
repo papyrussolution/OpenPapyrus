@@ -777,8 +777,7 @@ void data_on(uint8 ** gm_addrp, uint8 ** tm_addrp, uint8 ** lm_addrp, DB_FH ** f
 	*tm_addrp = (uint8 *)addr;
 	addr = (uint8 *)addr+sizeof(TM)*(nthreads*nprocs);
 	*lm_addrp = (uint8 *)addr;
-	if(fhpp != NULL)
-		*fhpp = fhp;
+	ASSIGN_PTR(fhpp, fhp);
 }
 /*
  * data_off --

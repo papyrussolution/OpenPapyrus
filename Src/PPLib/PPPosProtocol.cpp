@@ -1,4 +1,4 @@
-// PPPOSPROTOCOL.CPP
+expiry// PPPOSPROTOCOL.CPP
 // Copyright (c) A.Sobolev 2016, 2017
 //
 #include <pp.h>
@@ -160,7 +160,7 @@ public:
 																	goods_id = p_gb->NativeID;
 																}
 																else {
-																	THROW(Pp.ResolveGoodsBlock(*p_gb, p_clb->GoodsBlkP, 1, 0, 0, src_ar_id, &goods_id));
+																	THROW(Pp.ResolveGoodsBlock(*p_gb, p_clb->GoodsBlkP, 1, 0, 0, src_ar_id, 0, &goods_id));
 																}
 															}
 															SetupTempCcLineRec(0, cc_id, p_cb->Code, cc_dtm.d, div_n, goods_id);
@@ -199,9 +199,7 @@ public:
 				}
 			}
 		}
-		CATCH
-			ok = PPErrorZ();
-		ENDCATCH
+		CATCHZOKPPERR
 		return ok;
 	}
 private:
@@ -385,6 +383,7 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 
 	PPAsyncCashNode cn_data;
 	THROW(CnObj.GetAsync(nodeID, &cn_data) > 0);
+	wb.LocID = cn_data.LocID; // @v9.6.7
 	PPWait(1);
 	PPMakeTempFileName("pppp", "xml", 0, out_file_name);
 	{
@@ -566,6 +565,7 @@ SLAPI PPPosProtocol::WriteBlock::WriteBlock()
 	P_Xw = 0;
 	P_Xd = 0;
 	P_Root = 0;
+	LocID = 0;
 }
 
 SLAPI PPPosProtocol::WriteBlock::~WriteBlock()
@@ -653,12 +653,24 @@ SLAPI PPPosProtocol::GoodsBlock::GoodsBlock() : ObjectBlock()
 	ParentBlkP = 0;
 	InnerId = 0;
 	Price = 0.0;
+	Rest = 0.0;
 }
 
 SLAPI PPPosProtocol::GoodsGroupBlock::GoodsGroupBlock() : ObjectBlock()
 {
 	CodeP = 0;
 	ParentBlkP = 0;
+}
+
+SLAPI PPPosProtocol::LotBlock::LotBlock() : ObjectBlock()
+{
+	GoodsBlkP = 0;
+	Dt = ZERODATE;
+	Expiry = ZERODATE;
+	Cost = 0.0;
+	Price = 0.0;
+	Rest = 0.0;
+	SerailP = 0;
 }
 
 SLAPI PPPosProtocol::PersonBlock::PersonBlock() : ObjectBlock()
@@ -807,6 +819,7 @@ int  SLAPI PPPosProtocol::ReadBlock::CreateItem(int type, uint * pRefPos)
 		case obGoodsGroup:  THROW(Helper_CreateItem(GoodsGroupBlkList, type, pRefPos)); break;
 		case obPerson:      THROW(Helper_CreateItem(PersonBlkList, type, pRefPos)); break;
 		case obGoodsCode:   THROW(Helper_CreateItem(GoodsCodeList, type, pRefPos)); break;
+		case obLot:         THROW(Helper_CreateItem(LotBlkList, type, pRefPos)); break;
 		case obSCard:       THROW(Helper_CreateItem(SCardBlkList, type, pRefPos)); break;
 		case obParent:      THROW(Helper_CreateItem(ParentBlkList, type, pRefPos)); break;
 		case obQuotKind:    THROW(Helper_CreateItem(QkBlkList, type, pRefPos)); break;
@@ -838,6 +851,7 @@ PPPosProtocol::ReadBlock & FASTCALL PPPosProtocol::ReadBlock::Copy(const PPPosPr
 	CPY_FLD(GoodsBlkList);
 	CPY_FLD(GoodsGroupBlkList);
 	CPY_FLD(GoodsCodeList);
+	CPY_FLD(LotBlkList);
 	CPY_FLD(QkBlkList);
 	CPY_FLD(QuotBlkList);
 	CPY_FLD(PersonBlkList);
@@ -887,6 +901,7 @@ void * SLAPI PPPosProtocol::ReadBlock::GetItem(uint refPos, int * pType) const
 			case obCcLine:      p_ret = &CclBlkList.at(r_ref.P); break;
 			case obPosNode:     p_ret = &PosBlkList.at(r_ref.P); break;
 			case obQuery:       p_ret = &QueryList.at(r_ref.P); break;
+			case obLot:         p_ret = &LotBlkList.at(r_ref.P); break;
 			default:
 				assert(0);
 				CALLEXCEPT();
@@ -1023,6 +1038,7 @@ const void * SLAPI PPPosProtocol::ProcessInputBlock::GetStoredReadBlocks() const
 
 SLAPI PPPosProtocol::PPPosProtocol()
 {
+	P_BObj = BillObj;
 }
 
 SLAPI PPPosProtocol::~PPPosProtocol()
@@ -1245,6 +1261,31 @@ int SLAPI PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlT
 			w_s.PutInner("price", (temp_buf = 0).Cat(rInfo.Price, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
 		if(rInfo.Rest > 0.0)
 			w_s.PutInner("rest", (temp_buf = 0).Cat(rInfo.Rest, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
+        {
+        	//
+        	// Лоты
+        	//
+			LotArray lot_list;
+			if(P_BObj->trfr->Rcpt.GetListOfOpenedLots(+1, rInfo.ID, rB.LocID, MAXDATE, &lot_list) > 0) {
+                for(uint i = 0; i < lot_list.getCount(); i++) {
+					const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
+					SXml::WNode w_l(rB.P_Xw, "lot");
+					if(checkdate(r_lot_rec.Dt, 0))
+						w_l.PutInner("date", (temp_buf = 0).Cat(r_lot_rec.Dt, DATF_ISO8601|DATF_CENTURY));
+					if(checkdate(r_lot_rec.Expiry, 0))
+						w_l.PutInner("expiry", (temp_buf = 0).Cat(r_lot_rec.Expiry, DATF_ISO8601|DATF_CENTURY));
+					if(r_lot_rec.Cost > 0.0)
+						w_l.PutInner("cost", (temp_buf = 0).Cat(r_lot_rec.Cost, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
+					if(r_lot_rec.Price > 0.0)
+						w_l.PutInner("price", (temp_buf = 0).Cat(r_lot_rec.Price, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
+					if(r_lot_rec.Rest > 0.0)
+						w_l.PutInner("rest", (temp_buf = 0).Cat(r_lot_rec.Rest, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
+					if(P_BObj->GetSerialNumberByLot(r_lot_rec.ID, temp_buf, 1) > 0) {
+						w_l.PutInnerSkipEmpty("serial", temp_buf);
+					}
+                }
+			}
+        }
 		if(pQList && pQList->getCount()) {
 			for(uint i = 0; i < pQList->getCount(); i++) {
 				WriteQuotInfo(rB, "quote", PPOBJ_GOODS, pQList->at(i));
@@ -1504,18 +1545,10 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 					THROW(RdB.CreateItem(obDestination, &ref_pos));
 					RdB.RefPosStack.push(ref_pos);
 					break;
-				case PPHS_QUERYCSESS:
-					RdB.State |= RdB.stQueryOccured;
-					break;
-				case PPHS_QUERYREFS:
-					RdB.State |= RdB.stQueryOccured;
-					break;
-				case PPHS_REFS:
-					RdB.State |= RdB.stRefsOccured;
-					break;
-				case PPHS_CSESSION:
-					RdB.State |= RdB.stCSessOccured;
-					break;
+				case PPHS_QUERYCSESS: RdB.State |= RdB.stQueryOccured; break;
+				case PPHS_QUERYREFS:  RdB.State |= RdB.stQueryOccured; break;
+				case PPHS_REFS:       RdB.State |= RdB.stRefsOccured;  break;
+				case PPHS_CSESSION:   RdB.State |= RdB.stCSessOccured; break;
 			}
 		}
 		else if(RdB.Phase == RdB.phProcess) {
@@ -1560,6 +1593,23 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 				case PPHS_GOODSGROUP:
 					THROW(RdB.CreateItem(obGoodsGroup, &ref_pos));
 					RdB.RefPosStack.push(ref_pos);
+					break;
+				case PPHS_LOT:
+					{
+						uint   link_ref_pos = PeekRefPos();
+						int    link_type = 0;
+						void * p_link_item = RdB.GetItem(link_ref_pos, &link_type);
+						THROW(RdB.CreateItem(obLot, &ref_pos));
+						RdB.RefPosStack.push(ref_pos);
+						{
+							int    test_type = 0;
+							LotBlock * p_item = (LotBlock *)RdB.GetItem(ref_pos, &test_type);
+							assert(test_type == obLot);
+							if(link_type == obGoods) {
+								p_item->GoodsBlkP = link_ref_pos; // Лот ссылается на позицию товара, которому принадлежит
+							}
+						}
+					}
 					break;
 				case PPHS_CARD:
 					{
@@ -1699,7 +1749,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 				case PPHS_LOW:
 				case PPHS_UPP:
 				case PPHS_VALUE:
-				case PPHS_EXPIRY:
+				case PPHS_EXPIRY: // lot
 				case PPHS_FLAGS:
 				case PPHS_AMOUNT:
 				case PPHS_QTTY:
@@ -1708,6 +1758,9 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 				case PPHS_OBJ:
 				case PPHS_LAST:
 				case PPHS_CURRENT:
+				case PPHS_DATE: // log
+				case PPHS_COST: // lot
+				case PPHS_SERIAL: // lot
 					break;
 			}
 		}
@@ -2077,6 +2130,11 @@ int PPPosProtocol::EndElement(const char * pName)
 					case obQuotKind: Helper_AddStringToPool(&((QuotKindBlock *)p_item)->NameP); break;
 				}
 				break;
+			case PPHS_SERIAL:
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obLot)
+					Helper_AddStringToPool(&((LotBlock *)p_item)->SerailP);
+				break;
 			case PPHS_CODE:
 				p_item = PeekRefItem(&ref_pos, &type);
 				switch(type) {
@@ -2123,12 +2181,33 @@ int PPPosProtocol::EndElement(const char * pName)
 						break;
 				}
 				break;
+			case PPHS_REST:
+				{
+					const double _value = RdB.TagValue.ToReal();
+					p_item = PeekRefItem(&ref_pos, &type);
+					if(type == obLot) {
+						if(_value >= 0.0)
+							((LotBlock *)p_item)->Rest = _value;
+					}
+					else if(type == obGoods) {
+						if(_value >= 0.0)
+							((GoodsBlock *)p_item)->Rest = _value;
+					}
+				}
+				break;
+			case PPHS_COST:
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obLot)
+					((LotBlock *)p_item)->Cost = RdB.TagValue.ToReal();
+				break;
 			case PPHS_PRICE:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obGoods)
 					((GoodsBlock *)p_item)->Price = RdB.TagValue.ToReal();
 				else if(type == obCcLine)
 					((CcLineBlock *)p_item)->Price = RdB.TagValue.ToReal();
+				else if(type == obLot)
+					((LotBlock *)p_item)->Price = RdB.TagValue.ToReal();
 				break;
 			case PPHS_DISCOUNT:
 				p_item = PeekRefItem(&ref_pos, &type);
@@ -2183,6 +2262,24 @@ int PPPosProtocol::EndElement(const char * pName)
 					}
 				}
 				break;
+			case PPHS_DATE:
+				{
+					LDATE dt = strtodate_(RdB.TagValue, DATF_ISO8601);
+					p_item = PeekRefItem(&ref_pos, &type);
+					if(type == obLot) {
+						((LotBlock *)p_item)->Dt = dt;
+					}
+				}
+				break;
+			case PPHS_EXPIRY:
+				{
+					LDATE dt = strtodate_(RdB.TagValue, DATF_ISO8601);
+					p_item = PeekRefItem(&ref_pos, &type);
+					if(type == obLot) {
+						((LotBlock *)p_item)->Expiry = dt;
+					}
+				}
+				break;
 			case PPHS_TIME:
 				{
 					LDATETIME dtm;
@@ -2229,6 +2326,7 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_SOURCE:
 			case PPHS_DESTINATION:
 			case PPHS_GOODSGROUP:
+			case PPHS_LOT:
 			case PPHS_QUOTEKIND:
 			case PPHS_CSESSION:
 			case PPHS_CC:
@@ -2313,6 +2411,7 @@ void SLAPI PPPosProtocol::ReadBlock::Destroy()
 	GoodsBlkList.freeAll();
 	GoodsGroupBlkList.freeAll();
 	GoodsCodeList.freeAll();
+	LotBlkList.freeAll();
 	QkBlkList.freeAll();
 	QuotBlkList.freeAll();
 	PersonBlkList.freeAll();
@@ -2433,9 +2532,10 @@ int SLAPI PPPosProtocol::CreateParentGoodsGroup(const ParentBlock & rBlk, int is
 	return ok;
 }
 
-int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int asRefOnly, PPID defParentID, PPID defUnitID, PPID srcArID, PPID * pNativeID)
+int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int asRefOnly, PPID defParentID, PPID defUnitID, PPID srcArID, PPID locID, PPID * pNativeID)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	PPID   native_id = rBlk.NativeID;
 	SString temp_buf;
 	Goods2Tbl::Rec ex_goods_rec;
@@ -2672,31 +2772,131 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 			}
 		}
 		if(native_id) {
-			quot_list.GoodsID = native_id;
-			for(uint k = 0; k < RdB.QuotBlkList.getCount(); k++) {
-				const QuotBlock & r_qb = RdB.QuotBlkList.at(k);
-				if(r_qb.GoodsBlkP == refPos) {
-					assert(!(r_qb.BlkFlags & r_qb.fGroup));
-					int    type_qk = 0;
-					const QuotKindBlock * p_qk_item = (const QuotKindBlock *)RdB.GetItem(r_qb.QuotKindBlkP, &type_qk);
-					if(p_qk_item) {
-						assert(type_qk == obQuotKind);
-						if(p_qk_item->NativeID) {
-							QuotIdent qi(0 /*locID*/, p_qk_item->NativeID, 0 /*curID*/, 0);
-							quot_list.SetQuot(qi, r_qb.Value, r_qb.Flags, r_qb.MinQtty, r_qb.Period.IsZero() ? 0 : &r_qb.Period);
+			{
+				//
+				// Акцепт котировок
+				//
+				quot_list.GoodsID = native_id;
+				for(uint k = 0; k < RdB.QuotBlkList.getCount(); k++) {
+					const QuotBlock & r_qb = RdB.QuotBlkList.at(k);
+					if(r_qb.GoodsBlkP == refPos) {
+						assert(!(r_qb.BlkFlags & r_qb.fGroup));
+						int    type_qk = 0;
+						const QuotKindBlock * p_qk_item = (const QuotKindBlock *)RdB.GetItem(r_qb.QuotKindBlkP, &type_qk);
+						if(p_qk_item) {
+							assert(type_qk == obQuotKind);
+							if(p_qk_item->NativeID) {
+								QuotIdent qi(0 /*locID*/, p_qk_item->NativeID, 0 /*curID*/, 0);
+								quot_list.SetQuot(qi, r_qb.Value, r_qb.Flags, r_qb.MinQtty, r_qb.Period.IsZero() ? 0 : &r_qb.Period);
+							}
 						}
 					}
 				}
+				//
+				// Базовую цену загружаем в список quot_list последней на случай, если в переданном списке котировок
+				// была указана и базовая (дабы перебить неоднозначность в пользу Price).
+				//
+				if(rBlk.Price > 0.0) {
+					QuotIdent qi(0 /*locID*/, PPQUOTK_BASE, 0 /*curID*/, 0);
+					quot_list.SetQuot(qi, rBlk.Price, 0 /*flags*/, 0, 0 /* period */);
+				}
+				THROW(GObj.PutQuotList(native_id, &quot_list, 1));
 			}
-			//
-			// Базовую цену загружаем в список quot_list последней на случай, если в переданном списке котировок
-			// была указана и базовая (дабы перебить неоднозначность в пользу Price).
-			//
-			if(rBlk.Price > 0.0) {
-				QuotIdent qi(0 /*locID*/, PPQUOTK_BASE, 0 /*curID*/, 0);
-				quot_list.SetQuot(qi, rBlk.Price, 0 /*flags*/, 0, 0 /* period */);
+			if(locID) {
+				//
+				// Акцепт лотов
+				//
+				ReceiptCore & r_rcpt = P_BObj->trfr->Rcpt;
+				LotArray lot_list;
+				StrAssocArray serial_list;
+				for(uint k = 0; k < RdB.LotBlkList.getCount(); k++) {
+					const LotBlock & r_blk = RdB.LotBlkList.at(k);
+					if(r_blk.GoodsBlkP == refPos) {
+						ReceiptTbl::Rec lot_rec;
+						MEMSZERO(lot_rec);
+						lot_rec.GoodsID = native_id;
+						lot_rec.Dt = r_blk.Dt;
+						lot_rec.Expiry = r_blk.Expiry;
+						lot_rec.Cost = r_blk.Cost;
+						lot_rec.Price = r_blk.Price;
+						lot_rec.Quantity = r_blk.Rest;
+						lot_rec.Rest = r_blk.Rest;
+						if(lot_rec.Rest <= 0.0) {
+							lot_rec.Closed = 1;
+							lot_rec.Flags |= LOTF_CLOSED;
+						}
+						lot_rec.Flags |= LOTF_SURROGATE;
+						lot_rec.LocID = locID;
+						THROW_SL(lot_list.insert(&lot_rec));
+                        if(RdB.GetS(r_blk.SerailP, temp_buf) && temp_buf.NotEmptyS()) {
+                            serial_list.Add((long)lot_list.getCount(), temp_buf);
+                        }
+					}
+				}
+				if(lot_list.getCount() == 0 && rBlk.Rest > 0.0) {
+					ReceiptTbl::Rec lot_rec;
+					MEMSZERO(lot_rec);
+					lot_rec.GoodsID = native_id;
+					lot_rec.Dt = getcurdate_();
+					lot_rec.Quantity = rBlk.Rest;
+					lot_rec.Rest = rBlk.Rest;
+					if(lot_rec.Rest <= 0.0) {
+						lot_rec.Closed = 1;
+						lot_rec.Flags |= LOTF_CLOSED;
+					}
+					lot_rec.Flags |= LOTF_SURROGATE;
+					lot_rec.LocID = locID;
+					THROW_SL(lot_list.insert(&lot_rec));
+				}
+				{
+					PPTransaction tra(1);
+					THROW(tra);
+					//
+					// Удаляем все существующие SURROGATE-лоты
+					//
+					{
+						PPIDArray lot_id_list_to_remove;
+						ReceiptTbl::Key2 rk2;
+						MEMSZERO(rk2);
+						rk2.GoodsID = native_id;
+						if(r_rcpt.search(2, &rk2, spGe) && r_rcpt.data.GoodsID == native_id) do {
+							if(r_rcpt.data.Flags & LOTF_SURROGATE && r_rcpt.data.BillID == 0) {
+								THROW_SL(lot_id_list_to_remove.add(r_rcpt.data.ID));
+                                THROW_DB(r_rcpt.deleteRec());
+							}
+						} while(r_rcpt.search(2, &rk2, spNext) && r_rcpt.data.GoodsID == native_id);
+						for(uint _lidx = 0; _lidx < lot_id_list_to_remove.getCount(); _lidx++) {
+							THROW(p_ref->Ot.RemoveTag(PPOBJ_LOT, lot_id_list_to_remove.get(_lidx), 0, 0));
+						}
+					}
+					//
+					// Вставляем новые SURROGATE-лоты
+					//
+					{
+                        for(uint _lidx = 0; _lidx < lot_list.getCount(); _lidx++) {
+							ReceiptTbl::Rec lot_rec = lot_list.at(_lidx);
+							long   oprno = 1;
+							ReceiptTbl::Key1 rk1;
+							MEMSZERO(rk1);
+							rk1.Dt = lot_rec.Dt;
+							rk1.OprNo = oprno;
+							while(r_rcpt.search(1, &rk1, spEq)) {
+								rk1.OprNo = ++oprno;
+							}
+							lot_rec.OprNo = oprno;
+							{
+                        		ReceiptTbl::Key0 rk0;
+								MEMSZERO(rk0);
+								THROW_DB(r_rcpt.insertRecBuf(&lot_rec, 0, &rk0));
+								if(serial_list.Get(_lidx+1, temp_buf)) {
+									THROW(P_BObj->SetSerialNumberByLot(rk0.ID, temp_buf, 0));
+								}
+							}
+                        }
+					}
+					THROW(tra.Commit());
+				}
 			}
-			THROW(GObj.PutQuotList(native_id, &quot_list, 1));
 		}
 	}
 	CATCHZOK
@@ -2704,9 +2904,10 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 	return ok;
 }
 
-int SLAPI PPPosProtocol::AcceptData(/*TSCollection <QueryProcessBlock> * pQpBlkList*/)
+int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 {
 	int    ok = 1;
+	PPID   loc_id = 0;
 	uint   qpb_list_idx = 0;
 	SString fmt_buf, msg_buf;
 	PPID   src_ar_id = 0; // Статья аналитического учета, соответствующая источнику данных
@@ -2719,7 +2920,14 @@ int SLAPI PPPosProtocol::AcceptData(/*TSCollection <QueryProcessBlock> * pQpBlkL
 	PPObjUnit u_obj;
 	PPObjSCardSeries scs_obj;
 	PPObjPersonKind pk_obj;
-	PPWait(1);
+	if(!silent)
+		PPWait(1);
+	if(posNodeID) {
+		PPCashNode cn_rec;
+		if(CnObj.Search(posNodeID, &cn_rec) > 0) {
+			loc_id = cn_rec.LocID;
+		}
+	}
 	{
 		//
 		// Прежде всего разберем данные об источнике и получателях данных
@@ -2931,7 +3139,7 @@ int SLAPI PPPosProtocol::AcceptData(/*TSCollection <QueryProcessBlock> * pQpBlkL
 				uint   ref_pos = 0;
 				if(RdB.SearchRef(obGoods, i, &ref_pos)) {
 					PPID   native_id = 0;
-					THROW(ResolveGoodsBlock(r_blk, ref_pos, 0, def_parent_id, def_unit_id, src_ar_id, &native_id));
+					THROW(ResolveGoodsBlock(r_blk, ref_pos, 0, def_parent_id, def_unit_id, src_ar_id, loc_id, &native_id));
 					r_blk.NativeID = native_id;
 				}
 				else {
@@ -3179,7 +3387,8 @@ int SLAPI PPPosProtocol::AcceptData(/*TSCollection <QueryProcessBlock> * pQpBlkL
 	}
 	CATCHZOK
 	RdB.Destroy();
-	PPWait(0);
+	if(!silent)
+		PPWait(0);
     return ok;
 }
 
@@ -3217,9 +3426,7 @@ int SLAPI PPPosProtocol::SaxParseFile(const char * pFileName, int preprocess)
 	THROW_LXML(RdB.P_SaxCtx->wellFormed, RdB.P_SaxCtx);
 	THROW(RdB.P_SaxCtx->errNo == 0);
 	THROW(!(RdB.State & RdB.stError));
-	// THROW(AcceptData());
 	CATCHZOK
-	//RdB.Destroy();
 	PPWait(0);
     return ok;
 }
@@ -3261,24 +3468,70 @@ int SLAPI PPPosProtocol::Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNo
 	return ok;
 }
 
+int SLAPI PPPosProtocol::BackupInputFile(const char * pFileName)
+{
+	int    ok = 1;
+	long   n = 0;
+	SString arc_file_name;
+	SString src_file_name;
+	SString src_file_ext;
+	SPathStruc ps;
+	ps.Split(pFileName);
+	src_file_name = ps.Nam;
+	src_file_ext = ps.Ext;
+    ps.Nam = "pppp-backup";
+    ps.Ext = "zip";
+    ps.Merge(arc_file_name);
+    {
+		SArchive arc;
+		SString temp_buf;
+		SString to_arc_name;
+		THROW_SL(arc.Open(SArchive::tZip, arc_file_name, SFile::mReadWrite));
+		{
+			const int64 zec = arc.GetEntriesCount();
+			int   _found = 0;
+			do {
+				_found = 0;
+				to_arc_name = src_file_name;
+				if(n)
+					to_arc_name.CatChar('-').CatLongZ(n, 4);
+				if(src_file_ext.NotEmpty()) {
+					if(src_file_ext.C(0) != '.')
+						to_arc_name.Dot();
+					to_arc_name.Cat(src_file_ext);
+				}
+				for(int64 i = 0; !_found && i < zec; i++) {
+					arc.GetEntryName(i, temp_buf);
+					if(temp_buf.CmpNC(to_arc_name) == 0) {
+						n++;
+						_found = 1;
+					}
+				}
+			} while(_found);
+		}
+		THROW_SL(arc.AddEntry(pFileName, to_arc_name, 0));
+    }
+    CATCHZOK
+	return ok;
+}
+
 int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
-#ifndef NDEBUG // {
 	const char * p_base_name = "pppp";
 	const char * p_done_suffix = "-done";
 	SString in_file_name;
 	SString temp_buf;
+	StringSet to_remove_file_list;
 	SPathStruc ps;
-	PPWait(1);
+	if(!(rPib.Flags & rPib.fSilent))
+		PPWait(1);
 	{
 		SFileEntryPool fep;
 		SString in_path;
 		SDirEntry de;
 		SString done_plus_xml_suffix;
-		//TSArray <S_GUID> pos_node_uuid_list;
-		//LongArray pos_node_isymb_list;
 		TSArray <PosNodeUuidEntry> pos_node_uuid_list;
 		TSArray <PosNodeISymbEntry> pos_node_isymb_list;
 		StringSet ss_paths;
@@ -3432,7 +3685,7 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 								{
 									int    do_backup_file = 0;
 									if(rPib.Flags & rPib.fProcessRefs) {
-										if(AcceptData(/*&rPib.QpBlkList*/))
+										if(AcceptData(cn_id, BIN(rPib.Flags & rPib.fSilent)))
 											do_backup_file = 1;
 										else
 											PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
@@ -3440,13 +3693,13 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 									if(rPib.Flags & rPib.fProcessQueries) {
 										do_backup_file = 1;
 									}
-									if(rPib.Flags & rPib.fBackupProcessed && do_backup_file) {
-										ps.Split(in_file_name);
-										ps.Nam.CatChar('-').Cat("done");
-										ps.Merge(temp_buf);
-										if(fileExists(temp_buf))
-											SFile::Remove(temp_buf);
-										SFile::Rename(in_file_name, temp_buf);
+									if(do_backup_file) {
+										int    backup_ok = 1;
+										if(rPib.Flags & rPib.fBackupProcessed) {
+											backup_ok = BackupInputFile(in_file_name);
+										}
+										if(rPib.Flags & rPib.fRemoveProcessed && backup_ok)
+											to_remove_file_list.add(in_file_name);
 									}
 								}
 							}
@@ -3533,11 +3786,21 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 			}
 		}
 	}
-	PPWait(0);
+	if(!(rPib.Flags & rPib.fSilent))
+		PPWait(0);
 	CATCH
-		ok = PPErrorZ();
+		if(rPib.Flags & rPib.fSilent) {
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_TIME);
+		}
+		else
+			PPErrorZ();
+		ok = 0;
 	ENDCATCH
-#endif // } !NDEBUG
+	{
+		for(uint ssp = 0; to_remove_file_list.get(&ssp, temp_buf);) {
+			SFile::Remove(temp_buf);
+		}
+	}
 	return ok;
 }
 
@@ -3788,4 +4051,145 @@ int SLAPI PPPosProtocol::EditPosQuery(TSArray <PPPosProtocol::QueryBlock> & rQLi
 		TSArray <PPPosProtocol::QueryBlock> Data;
 	};
 	DIALOG_PROC_BODY(PosQueryDialog, &rQList);
+}
+
+int SLAPI RunInputProcessThread(PPID posNodeID)
+{
+	class PosInputProcessThread : public PPThread {
+	public:
+		struct InitBlock {
+			InitBlock(PPID posNodeID)
+			{
+				PosNodeID = posNodeID;
+				ForcePeriodMs = 0;
+			}
+			SString DbSymb;
+			SString UserName;
+			SString Password;
+			PPID   PosNodeID;
+			uint   ForcePeriodMs; // Период форсированной проверки входящего каталога (ms)
+		};
+		SLAPI PosInputProcessThread(const InitBlock & rB) : PPThread(PPThread::kPpppProcessor, 0, 0), IB(rB)
+		{
+			InitStartupSignal();
+		}
+	private:
+		void SLAPI Startup()
+		{
+			PPThread::Startup();
+			SignalStartup();
+		}
+		void   FASTCALL DoProcess(PPPosProtocol & rPppp)
+		{
+			PPPosProtocol::ProcessInputBlock pib;
+			pib.PosNodeID = IB.PosNodeID;
+			pib.Flags = (pib.fProcessRefs|pib.fProcessQueries|pib.fBackupProcessed|pib.fRemoveProcessed|pib.fSilent);
+			rPppp.ProcessInput(pib);
+		}
+		virtual void Run()
+		{
+			DirChangeNotification * p_dcn = 0;
+			SString msg_buf, temp_buf;
+			STimer timer;
+			Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
+			THROW(DS.Login(IB.DbSymb, IB.UserName, IB.Password));
+			IB.Password.Obfuscate();
+			{
+        		//
+        		// Login has been done
+        		//
+        		SString in_path;
+        		PPObjCashNode cn_obj;
+				PPSyncCashNode cn_pack;
+				THROW(cn_obj.GetSync(IB.PosNodeID, &cn_pack) > 0);
+				PPGetPath(PPPATH_IN, in_path);
+				in_path.RmvLastSlash();
+				if(!isDir(in_path)) {
+
+				}
+				else {
+					PPPosProtocol pppp;
+					{
+						//
+						// Первоначальная обработка входящих данных
+						//
+						DoProcess(pppp);
+					}
+					DirChangeNotification * p_dcn = new DirChangeNotification(in_path, 0, FILE_NOTIFY_CHANGE_LAST_WRITE|FILE_NOTIFY_CHANGE_FILE_NAME);
+					THROW(p_dcn);
+					for(int stop = 0; !stop;) {
+						uint   h_count = 0;
+						HANDLE h_list[32];
+						h_list[h_count++] = stop_event;
+						h_list[h_count++] = *p_dcn;
+						if(IB.ForcePeriodMs) {
+							LDATETIME dtm = getcurdatetime_();
+							dtm.addsec(IB.ForcePeriodMs / 1000);
+							timer.Set(dtm, 0);
+							h_list[h_count++] = timer;
+						}
+						uint   r = WaitForMultipleObjects(h_count, h_list, 0, INFINITE);
+						if(r == WAIT_OBJECT_0 + 0) { // stop event
+							stop = 1; // quit loop
+						}
+						else if(r == WAIT_OBJECT_0 + 1) { // file created
+							DoProcess(pppp);
+							p_dcn->Next();
+						}
+						else if(r == WAIT_OBJECT_0 + 2) { // timer
+							DoProcess(pppp);
+						}
+						else if(r == WAIT_FAILED) {
+							// error
+						}
+					}
+				}
+			}
+			CATCH
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO|LOGMSGF_LASTERR);
+			ENDCATCH
+			delete p_dcn;
+			DS.Logout();
+		}
+		InitBlock IB;
+	};
+	int    ok = -1;
+
+	TSCollection <PPThread::Info> thread_info_list;
+	DS.GetThreadInfoList(PPThread::kPpppProcessor, thread_info_list);
+	if(!thread_info_list.getCount()) {
+		Reference * p_ref = PPRef;
+		PPID   user_id = 0;
+		PPSecur usr_rec;
+		char    pw[128];
+		SString db_symb;
+		PPObjCashNode cn_obj;
+		PPCashNode cn_rec;
+		THROW(cn_obj.Search(posNodeID, &cn_rec) > 0);
+		{
+			DbProvider * p_dict = CurDict;
+			CALLPTRMEMB(p_dict, GetDbSymb(db_symb));
+		}
+		{
+			ObjTagItem tag_item;
+			S_GUID host_uuid;
+			if(p_ref->Ot.GetTag(PPOBJ_CASHNODE, posNodeID, PPTAG_POSNODE_HOSTUUID, &tag_item) > 0 && tag_item.GetGuid(&host_uuid) > 0) {
+				const PPThreadLocalArea & r_tla = DS.GetConstTLA();
+				PosInputProcessThread::InitBlock ib(posNodeID);
+				ib.DbSymb = db_symb;
+				ib.UserName = r_tla.UserName;
+				THROW(p_ref->SearchName(PPOBJ_USR, &user_id, ib.UserName, &usr_rec) > 0);
+				Reference::GetPassword(&usr_rec, pw, sizeof(pw));
+				ib.Password = pw;
+				memzero(pw, sizeof(pw));
+				{
+					PosInputProcessThread * p_sess = new PosInputProcessThread(ib);
+					p_sess->Start(1);
+					ok = 1;
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
 }

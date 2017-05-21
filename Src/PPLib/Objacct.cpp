@@ -1253,8 +1253,8 @@ public:
 	}
 	int    SLAPI FetchNum(int ac, int sb, PPID curID, PPAccount * pRec);
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		int16  Ac;
@@ -1333,7 +1333,7 @@ int SLAPI AccountCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI AccountCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI AccountCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPAccount * p_data_rec = (PPAccount *)pDataRec;
 	const Data * p_cache_rec = (const Data *)pEntry;
@@ -1357,7 +1357,6 @@ int SLAPI AccountCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRe
 	uint   p = 0;
 	ss.get(&p, p_data_rec->Code, sizeof(p_data_rec->Code));
 	ss.get(&p, p_data_rec->Name, sizeof(p_data_rec->Name));
-	return 1;
 }
 
 IMPL_OBJ_FETCH(PPObjAccount, PPAccount, AccountCache);

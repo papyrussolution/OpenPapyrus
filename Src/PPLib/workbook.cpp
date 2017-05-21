@@ -2651,12 +2651,12 @@ int SLAPI PPObjWorkbook::ImportFiles(PPID rootID, PPObjWorkbook::ImpExpParam * p
 
 class WorkbookCache : public ObjCache {
 public:
-	SLAPI WorkbookCache() : ObjCache(PPOBJ_WORKBOOK, sizeof(Workbook2Data))
+	SLAPI  WorkbookCache() : ObjCache(PPOBJ_WORKBOOK, sizeof(Workbook2Data))
 	{
 	}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Workbook2Data : public ObjCacheEntry {
 		long   Rank;
@@ -2691,7 +2691,7 @@ int SLAPI WorkbookCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI WorkbookCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI WorkbookCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	WorkbookTbl::Rec * p_data_rec = (WorkbookTbl::Rec *)pDataRec;
 	const Workbook2Data * p_cache_rec = (const Workbook2Data *)pEntry;
@@ -2706,7 +2706,6 @@ int SLAPI WorkbookCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
-	return 1;
 }
 // }
 

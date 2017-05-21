@@ -333,10 +333,10 @@ int SLAPI PPObjRegisterType::SearchSymb(PPID * pID, const char * pSymb)
 //
 class RegisterTypeCache : public ObjCache {
 public:
-	SLAPI RegisterTypeCache() : ObjCache(PPOBJ_REGISTERTYPE, sizeof(RegisterTypeData)) {}
+	SLAPI  RegisterTypeCache() : ObjCache(PPOBJ_REGISTERTYPE, sizeof(RegisterTypeData)) {}
 private:
-	virtual int SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual int SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct RegisterTypeData : public ObjCacheEntry {
 		PPID   PersonKindID;
@@ -372,7 +372,7 @@ int SLAPI RegisterTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-int SLAPI RegisterTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SLAPI RegisterTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPRegisterType2 * p_data_rec = (PPRegisterType *)pDataRec;
 	const RegisterTypeData * p_cache_rec = (const RegisterTypeData *)pEntry;
@@ -391,7 +391,6 @@ int SLAPI RegisterTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pD
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
-	return 1;
 }
 
 int SLAPI PPObjRegisterType::Fetch(PPID id, PPRegisterType * pRec)

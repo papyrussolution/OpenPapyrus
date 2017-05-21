@@ -922,7 +922,7 @@ int SLAPI PPViewSalary::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 					ok = 1;
 				else
 					ok = PPErrorZ();
-			if(ok > 0 && P_Ct) // @v5.6.14 AHTOXA
+			if(ok > 0 && P_Ct)
 				ChangeFilt(1, pBrw);
 		}
 	}

@@ -61,11 +61,8 @@ int __log_print_record(ENV * env, DBT * recbuf, DB_LSN * lsnp, char * name, DB_L
 	bp += sizeof(DB_LSN);
 	__db_msgadd(env, &msgbuf,
 		"[%lu][%lu]%s%s: rec: %lu txnp %lx prevlsn [%lu][%lu]\n",
-		(ulong)lsnp->file, (ulong)lsnp->offset,
-		name, (type&DB_debug_FLAG) ? "_debug" : "",
-		(ulong)type,
-		(ulong)txnid,
-		(ulong)prev_lsn.file, (ulong)prev_lsn.offset);
+		(ulong)lsnp->file, (ulong)lsnp->Offset_, name, (type&DB_debug_FLAG) ? "_debug" : "",
+		(ulong)type, (ulong)txnid, (ulong)prev_lsn.file, (ulong)prev_lsn.Offset_);
 
 	for(sp = spec; sp->type != LOGREC_Done; sp++) {
 		switch(sp->type) {
@@ -226,7 +223,7 @@ pr_data:
 
 		    case LOGREC_POINTER:
 			LOGCOPY_TOLSN(env, &prev_lsn, bp);
-			__db_msgadd(env, &msgbuf, "\t%s: [%lu][%lu]\n", sp->name, (ulong)prev_lsn.file, (ulong)prev_lsn.offset);
+			__db_msgadd(env, &msgbuf, "\t%s: [%lu][%lu]\n", sp->name, (ulong)prev_lsn.file, (ulong)prev_lsn.Offset_);
 			bp += sizeof(DB_LSN);
 			break;
 		    case LOGREC_Done:

@@ -146,15 +146,19 @@ uint SLAPI PPOsm::NodeCluster::GetPossiblePackCount(const Node * pN, size_t coun
 	]
 */
 
-int SLAPI PPOsm::NodeCluster::Put(const Node * pN, size_t count, uint64 * pOuterID, size_t * pActualCount)
+int SLAPI PPOsm::NodeCluster::Put__(const Node * pN, const NodeRefs * pNrList, size_t count, uint64 * pOuterID, size_t * pActualCount, uint forceLogicalCount)
 {
+	assert(oneof9(forceLogicalCount, 0, 1, 2, 4, 8, 16, 32, 64, 128));
 	int    ok = 1;
 	uint   actual_count = 0;
 	uint   possible_count_logic = 0;
-	const  uint possible_count = GetPossiblePackCount(pN, count, &possible_count_logic);
+	const  uint possible_count = forceLogicalCount ? count : GetPossiblePackCount(pN, count, &possible_count_logic);
+	if(forceLogicalCount)
+		possible_count_logic = forceLogicalCount;
 	THROW(possible_count);
 	Clear();
     {
+		Int64Array node_id_list;
 		const Node & r_head = pN[0];
 		const int32 head_lat = r_head.C.GetIntLat();
 		const int32 head_lon = r_head.C.GetIntLon();
@@ -177,6 +181,9 @@ int SLAPI PPOsm::NodeCluster::Put(const Node * pN, size_t count, uint64 * pOuter
         else if(r_head.ID <= ULONG_MAX) {
 			indicator |= indfId32;
         }
+		if(pNrList && (pNrList->WayRefs.getCount() || pNrList->RelRefs.getCount())) {
+			indicator |= indfHasRefs;
+		}
 		THROW_SL(Write(indicator));
 		if(!(indicator & indfOuterId)) {
 			if(indicator & indfId32) {
@@ -187,9 +194,15 @@ int SLAPI PPOsm::NodeCluster::Put(const Node * pN, size_t count, uint64 * pOuter
 				THROW_SL(Write(r_head.ID));
 			}
 		}
-		THROW_SL(Write(r_head.T.V));
+		{
+			//uint8 level = r_head.T.GetLevel();
+			THROW_SL(Write(r_head.T.V));
+		}
 		THROW_SL(Write(head_lat));
 		THROW_SL(Write(head_lon));
+		if(indicator & indfHasRefs) {
+			node_id_list.add((int64)r_head.ID);
+		}
 		actual_count++;
 		if(possible_count_logic > 1) {
 			const uint8 head_level = r_head.T.GetLevel();
@@ -202,6 +215,9 @@ int SLAPI PPOsm::NodeCluster::Put(const Node * pN, size_t count, uint64 * pOuter
 					assert(pN[idx].ID > prev_id);
 					assert(pN[idx].T.GetZValue() == r_head.T.GetZValue());
 					if(pN[idx].ID == (prev_id+1)) {
+						if(indicator & indfHasRefs) {
+							node_id_list.add((int64)pN[idx].ID);
+						}
 						const uint8 _tile_level = pN[idx].T.GetLevel();
 						const int32 _lat = pN[idx].C.GetIntLat();
 						const int32 _lon = pN[idx].C.GetIntLon();
@@ -260,6 +276,54 @@ int SLAPI PPOsm::NodeCluster::Put(const Node * pN, size_t count, uint64 * pOuter
 				prev_id++;
 			}
 		}
+		if(indicator & indfHasRefs) {
+			assert(pNrList); // @paranoic
+			uint8  _sid[16];
+			uint   i;
+			for(i = 0; i < pNrList->WayRefs.getCount(); i++) {
+				const  LLAssoc & r_assoc = pNrList->WayRefs.at(i);
+				uint   node_pos = 0;
+				if(node_id_list.lsearch(r_assoc.Key, &node_pos)) {
+					assert(node_pos >= 0 && node_pos < 256);
+					const uint  rs = sshrinkuint64((uint64)r_assoc.Val, _sid);
+					uint8 ref_indicator = 0;
+					assert(rs >= 1 && rs <= 8);
+					ref_indicator = (uint8)(rs - 1);
+					ref_indicator |= refindfWay;
+					THROW_SL(Write(ref_indicator));
+					{
+						uint8  node_pos8 = (uint8)node_pos;
+						THROW_SL(Write(node_pos8));
+					}
+					THROW_SL(Write(_sid, rs));
+				}
+			}
+			for(i = 0; i < pNrList->RelRefs.getCount(); i++) {
+				const  LLAssoc & r_assoc = pNrList->RelRefs.at(i);
+				uint   node_pos = 0;
+				if(node_id_list.lsearch(r_assoc.Key, &node_pos)) {
+					assert(node_pos >= 0 && node_pos < 256);
+					const uint  rs = sshrinkuint64((uint64)r_assoc.Val, _sid);
+					uint8 ref_indicator = 0;
+					assert(rs >= 1 && rs <= 8);
+					ref_indicator = (uint8)(rs - 1);
+					ref_indicator |= refindfRelation;
+					THROW_SL(Write(ref_indicator));
+					{
+						uint8  node_pos8 = (uint8)node_pos;
+						THROW_SL(Write(node_pos8));
+					}
+					THROW_SL(Write(_sid, rs));
+				}
+			}
+			{
+				//
+				// Терминальный индикатор
+				//
+				uint8 ref_indicator = refindfTerminal;
+				THROW_SL(Write(ref_indicator));
+			}
+		}
 		ASSIGN_PTR(pOuterID, r_head.ID);
     }
     CATCHZOK
@@ -267,7 +331,7 @@ int SLAPI PPOsm::NodeCluster::Put(const Node * pN, size_t count, uint64 * pOuter
 	return ok;
 }
 
-int SLAPI PPOsm::NodeCluster::Implement_Get(uint64 outerID, TSArray <Node> * pList, Node * pHead, uint * pCountLogic, uint * pCountActual)
+int SLAPI PPOsm::NodeCluster::Implement_Get(uint64 outerID, TSArray <Node> * pList, NodeRefs * pNrList, Node * pHead, uint * pCountLogic, uint * pCountActual)
 {
 	int    ok = 1;
 	uint   count_logic = 0;
@@ -276,6 +340,7 @@ int SLAPI PPOsm::NodeCluster::Implement_Get(uint64 outerID, TSArray <Node> * pLi
 	Node   head;
 	int32  head_lat = 0;
 	int32  head_lon = 0;
+	Int64Array node_id_list;
 	const size_t preserve_pos = GetRdOffs();
 	THROW_SL(Read(indicator));
 	switch(indicator & indfCountMask) {
@@ -301,10 +366,17 @@ int SLAPI PPOsm::NodeCluster::Implement_Get(uint64 outerID, TSArray <Node> * pLi
 		THROW_SL(Read(head.ID));
 	}
 	THROW(head.ID && (head.ID % count_logic) == 0); // @todo errcode
-	THROW_SL(Read(head.T.V));
+	{
+		//uint8 level = 0;
+		THROW_SL(Read(head.T.V));
+		//head.T.SetLevel(level);
+	}
 	THROW_SL(Read(head_lat));
 	THROW_SL(Read(head_lon));
 	head.C.SetInt(head_lat, head_lon);
+	if(indicator & indfHasRefs && pNrList) {
+		THROW_SL(node_id_list.add((int64)head.ID));
+	}
 	if(pList || pCountActual) {
 		{
 			if(pList)
@@ -363,6 +435,9 @@ int SLAPI PPOsm::NodeCluster::Implement_Get(uint64 outerID, TSArray <Node> * pLi
 					node.T.SetLevel(_tile_level);
 					if(pList)
 						THROW_SL(pList->insert(&node));
+					if(indicator & indfHasRefs && pNrList) {
+						THROW_SL(node_id_list.add((int64)node.ID));
+					}
 					count_actual++;
 					prev_lat = _lat;
 					prev_lon = _lon;
@@ -370,6 +445,35 @@ int SLAPI PPOsm::NodeCluster::Implement_Get(uint64 outerID, TSArray <Node> * pLi
 				prev_id++;
 			}
 		}
+	}
+	if(indicator & indfHasRefs && pNrList) {
+		uint8 ref_indicator = 0;
+		uint8  _sid[16];
+		do {
+			THROW_SL(Read(ref_indicator));
+			if(!(ref_indicator & refindfTerminal)) {
+				assert((ref_indicator&refindfWay)^(ref_indicator&refindfRelation));
+				uint   node_pos = 0;
+				uint8  node_pos8 = 0;
+				THROW_SL(Read(node_pos8));
+				node_pos = node_pos8;
+				assert(node_pos >= 0 && node_pos < node_id_list.getCount());
+				{
+					const uint  rs = (ref_indicator & refindfIdSizeMask) + 1;
+					assert(rs >= 1 && rs <= 8);
+					memzero(_sid, sizeof(_sid));
+					THROW_SL(Read(_sid, rs));
+					const uint64 ref_id = sexpanduint64(_sid, rs);
+					const uint64 node_id = node_id_list.get(node_pos);
+					if(ref_indicator & refindfWay) {
+						THROW_SL(pNrList->AddWayRef(node_id, ref_id));
+					}
+					else if(ref_indicator & refindfRelation) {
+						THROW_SL(pNrList->AddRelRef(node_id, ref_id));
+					}
+				}
+			}
+		} while(!(ref_indicator & refindfTerminal));
 	}
 	ASSIGN_PTR(pHead, head);
 	ASSIGN_PTR(pCountLogic, count_logic);
@@ -381,25 +485,25 @@ int SLAPI PPOsm::NodeCluster::Implement_Get(uint64 outerID, TSArray <Node> * pLi
 	return ok;
 }
 
-int SLAPI PPOsm::NodeCluster::Get(uint64 outerID, TSArray <Node> & rList)
+int SLAPI PPOsm::NodeCluster::Get(uint64 outerID, TSArray <Node> & rList, NodeRefs * pNrList)
 {
-	return Implement_Get(outerID, &rList, 0, 0, 0);
+	return Implement_Get(outerID, &rList, pNrList, 0, 0, 0);
 }
 
-int SLAPI PPOsm::NodeCluster::Get(uint64 outerID, TSArray <Node> & rList, Node * pHead, uint * pCountLogic, uint * pCountActual)
+int SLAPI PPOsm::NodeCluster::Get(uint64 outerID, TSArray <Node> & rList, NodeRefs * pNrList, Node * pHead, uint * pCountLogic, uint * pCountActual)
 {
-	return Implement_Get(outerID, &rList, pHead, pCountLogic, pCountActual);
+	return Implement_Get(outerID, &rList, pNrList, pHead, pCountLogic, pCountActual);
 }
 
 int SLAPI PPOsm::NodeCluster::GetCount(uint64 outerID, uint * pLogicCount, uint * pActualCount)
 {
-	return Implement_Get(outerID, 0, 0, pLogicCount, pActualCount);
+	return Implement_Get(outerID, 0, 0, 0, pLogicCount, pActualCount);
 }
 
 int FASTCALL PPOsm::NodeCluster::GetHeaderID(uint64 * pID)
 {
 	Node   head;
-	int    ok = Implement_Get(0, 0, &head, 0, 0);
+	int    ok = Implement_Get(0, 0, 0, &head, 0, 0);
 	if(ok) {
 		ASSIGN_PTR(pID, head.ID);
 	}
@@ -409,7 +513,7 @@ int FASTCALL PPOsm::NodeCluster::GetHeaderID(uint64 * pID)
 int FASTCALL PPOsm::NodeCluster::GetTile(uint64 outerID, Tile * pT)
 {
 	Node   head;
-	int    ok = Implement_Get(outerID, 0, &head, 0, 0);
+	int    ok = Implement_Get(outerID, 0, 0, &head, 0, 0);
 	if(ok) {
 		ASSIGN_PTR(pT, head.T);
 	}
@@ -444,7 +548,7 @@ int SLAPI PPOsm::WayBuffer::Put(const Way * pW, uint64 * pOuterID)
 	Clear();
     {
 		uint8 indicator = 0;
-		const uint rc = pW->NodeRefList.getCount();
+		const uint rc = pW->NodeRefs.getCount();
         if(pOuterID) {
             indicator |= indfOuterId;
         }
@@ -455,12 +559,12 @@ int SLAPI PPOsm::WayBuffer::Put(const Way * pW, uint64 * pOuterID)
 			indicator |= indfCount8;
 		if(rc) {
 			uint8  sib[16];
-			const int64 first_ref_id = pW->NodeRefList.at(0);
+			const int64 first_ref_id = pW->NodeRefs.at(0);
 			const uint  frs = sshrinkuint64(first_ref_id, sib);
 			if(frs <= 4)
 				indicator |= indfFirstId32;
 			if(rc > 1) {
-				if(first_ref_id == pW->NodeRefList.at(rc-1)) {
+				if(first_ref_id == pW->NodeRefs.at(rc-1)) {
                     indicator |= indfLoop;
                     if(rc == 5)
 						indicator |= indfRectangle;
@@ -469,7 +573,7 @@ int SLAPI PPOsm::WayBuffer::Put(const Way * pW, uint64 * pOuterID)
 				for(uint i = 1; i < rc; i++) {
 					if(indicator & indfLoop && i == (rc-1))
 						break;
-                    int64 id_diff = _abs64(pW->NodeRefList.at(i) - pW->NodeRefList.at(i-1));
+                    int64 id_diff = _abs64(pW->NodeRefs.at(i) - pW->NodeRefs.at(i-1));
                     SETMAX(max_id_diff, id_diff);
 				}
 				if(max_id_diff < (1<<7))
@@ -504,7 +608,7 @@ int SLAPI PPOsm::WayBuffer::Put(const Way * pW, uint64 * pOuterID)
 			}
 		}
 		if(rc) {
-			const int64 first_ref_id = pW->NodeRefList.at(0);
+			const int64 first_ref_id = pW->NodeRefs.at(0);
 			if(indicator & indfFirstId32) {
 				uint32 f32 = (uint32)first_ref_id;
 				THROW_SL(Write(f32));
@@ -518,7 +622,7 @@ int SLAPI PPOsm::WayBuffer::Put(const Way * pW, uint64 * pOuterID)
 				if(indicator & indfLoop && i == (rc-1))
 					break;
 				else {
-					const int64 cur_id = pW->NodeRefList.at(i);
+					const int64 cur_id = pW->NodeRefs.at(i);
 					int64 id_diff = (cur_id - prev_id);
 					if(indicator & indfIncremental8) {
 						assert(id_diff > -(1<<7) && id_diff < (1<<7));
@@ -575,7 +679,7 @@ int SLAPI PPOsm::WayBuffer::Get(uint64 outerID, Way * pW)
 
 	pW->ID = 0;
 	pW->T.V = 0;
-	pW->NodeRefList.clear();
+	pW->NodeRefs.clear();
 
 	int    ok = 1;
 	uint8  indicator = 0;
@@ -626,11 +730,11 @@ int SLAPI PPOsm::WayBuffer::Get(uint64 outerID, Way * pW)
 				THROW_SL(Read(f64));
 				first_ref_id = (int64)f64;
 			}
-			pW->NodeRefList.add(first_ref_id);
+			pW->NodeRefs.add(first_ref_id);
 			int64 prev_id = first_ref_id;
 			for(uint i = 1; i < rc; i++) {
 				if(indicator & indfLoop && i == (rc-1)) {
-					pW->NodeRefList.add(first_ref_id); // Вставляем замыкающую точку контура равную первой
+					pW->NodeRefs.add(first_ref_id); // Вставляем замыкающую точку контура равную первой
 					break;
 				}
 				else {
@@ -676,7 +780,7 @@ int SLAPI PPOsm::WayBuffer::Get(uint64 outerID, Way * pW)
 						}
 					}
 					assert(cur_id > 0);
-					pW->NodeRefList.add(cur_id);
+					pW->NodeRefs.add(cur_id);
 					prev_id = cur_id;
 				}
 			}
@@ -710,6 +814,44 @@ size_t SLAPI PPOsm::WayBuffer::GetSize() const
 //
 //
 //
+SLAPI PPOsm::Tile::Tile()
+{
+	V = 0;
+}
+
+SLAPI PPOsm::Tile::Tile(const Tile & rS)
+{
+	V = rS.V;
+}
+
+PPOsm::Tile & FASTCALL PPOsm::Tile::operator = (const Tile & rS)
+{
+	V = rS.V;
+	return *this;
+}
+
+void SLAPI PPOsm::Tile::SetInvisible()
+{
+	V |= 0xff000000;
+}
+
+void FASTCALL PPOsm::Tile::SetLevel(uint8 level)
+{
+	V = ((V & 0x00ffffff) | (((uint32)level) << 24));
+}
+
+uint8 SLAPI PPOsm::Tile::GetLevel() const
+{
+	return (uint8)((V & 0xff000000) >> 24);
+}
+
+uint32 SLAPI PPOsm::Tile::GetZValue() const
+{
+	return (V & 0x00ffffff);
+}
+//
+//
+//
 SLAPI PPOsm::Node::Node()
 {
 	ID = 0;
@@ -730,6 +872,43 @@ int FASTCALL PPOsm::Node::operator != (const Node & rS) const
 	return BIN(!IsEqual(rS));
 }
 
+SLAPI PPOsm::NodeRefs::NodeRefs()
+{
+}
+
+int FASTCALL PPOsm::NodeRefs::IsEqual(const NodeRefs & rS) const
+{
+	return BIN(WayRefs == rS.WayRefs && RelRefs == rS.RelRefs);
+}
+
+int SLAPI PPOsm::NodeRefs::AddWayRef(uint64 nodeID, uint64 wayID)
+{
+	if(!WayRefs.SearchPair(nodeID, wayID, 0)) 
+		return WayRefs.Add(nodeID, wayID, 0) ? 1 : PPSetErrorSLib();
+	else
+		return -1;
+}
+
+int SLAPI PPOsm::NodeRefs::AddRelRef(uint64 nodeID, uint64 relID)
+{
+	if(!RelRefs.SearchPair(nodeID, relID, 0))
+		return RelRefs.Add(nodeID, relID, 0) ? 1 : PPSetErrorSLib();
+	else
+		return -1;
+}
+
+void SLAPI PPOsm::NodeRefs::Clear()
+{
+	WayRefs.clear();
+	RelRefs.clear();
+}
+
+void SLAPI PPOsm::NodeRefs::Sort()
+{
+	WayRefs.Sort();
+	RelRefs.Sort();
+}
+
 SLAPI PPOsm::Way::Way()
 {
 	ID = 0;
@@ -739,7 +918,7 @@ void PPOsm::Way::Clear()
 {
 	ID = 0;
 	T.V = 0;
-	NodeRefList.clear();
+	NodeRefs.clear();
 }
 
 int FASTCALL PPOsm::Way::IsEqual(const Way & rS) const
@@ -747,7 +926,7 @@ int FASTCALL PPOsm::Way::IsEqual(const Way & rS) const
     int    ok = 1;
     THROW(ID == rS.ID);
     THROW(T.V == rS.T.V);
-    THROW(NodeRefList == rS.NodeRefList);
+    THROW(NodeRefs == rS.NodeRefs);
     CATCHZOK
     return ok;
 }
@@ -834,7 +1013,7 @@ int FASTCALL PPOsm::SetWayStat(WayBuffer & rWayBuf, TSArray <WayStatEntry> & rSt
     uint64 surr_outer_id = 1024; // Суррогатный outer id
     THROW(rWayBuf.Get(surr_outer_id, &way));
     {
-    	const uint _wrc = way.NodeRefList.getCount();
+    	const uint _wrc = way.NodeRefs.getCount();
     	int   _found = 0;
 		for(uint i = 0; !_found && i < rStat.getCount(); i++) {
             if(rStat.at(i).RefCount == _wrc) {

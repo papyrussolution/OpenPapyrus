@@ -136,7 +136,7 @@ int __log_put(ENV * env, DB_LSN * lsnp, const DBT * udbt, uint32 flags)
 	 * relies on reading the fields atomically.
 	 */
 	lsnp->file = lsn.file;
-	lsnp->offset = lsn.offset;
+	lsnp->Offset_ = lsn.Offset_;
 
 #ifdef HAVE_REPLICATION
 	if(IS_REP_MASTER(env)) {
@@ -318,8 +318,8 @@ int __log_current_lsn_int(ENV * env, DB_LSN * lsnp, uint32 * mbytesp, uint32 * b
 	 * the first log record that will be written in this new file.
 	 */
 	*lsnp = lp->lsn;
-	if(lp->lsn.offset > lp->len)
-		lsnp->offset -= lp->len;
+	if(lp->lsn.Offset_ > lp->len)
+		lsnp->Offset_ -= lp->len;
 	/*
 	 * Since we're holding the log region lock, return the bytes put into
 	 * the log since the last checkpoint, transaction checkpoint needs it.
@@ -384,8 +384,7 @@ static int __log_put_next(ENV * env, DB_LSN * lsn, const DBT * dbt, HDR * hdr, D
 	 * replication client environment and have been told to do so,
 	 * swap files.
 	 */
-	if(adv_file || lp->lsn.offset == 0 ||
-	   lp->lsn.offset+hdr->size+dbt->size > lp->log_size) {
+	if(adv_file || lp->lsn.Offset_ == 0 || (lp->lsn.Offset_+hdr->size+dbt->size) > lp->log_size) {
 		if(hdr->size+sizeof(LOGP)+dbt->size > lp->log_size) {
 			__db_errx(env, DB_STR_A("2513", "DB_ENV->log_put: record larger than maximum file size (%lu > %lu)", "%lu %lu"),
 				(ulong)hdr->size+sizeof(LOGP)+dbt->size, (ulong)lp->log_size);
@@ -406,7 +405,7 @@ static int __log_put_next(ENV * env, DB_LSN * lsn, const DBT * dbt, HDR * hdr, D
 	if(newfile)
 		*old_lsnp = old_lsn;
 	/* Actually put the record. */
-	return __log_putr(dblp, lsn, dbt, lp->lsn.offset-lp->len, hdr);
+	return __log_putr(dblp, lsn, dbt, lp->lsn.Offset_-lp->len, hdr);
 }
 /*
  * __log_flush_commit --
@@ -442,7 +441,7 @@ static int __log_flush_commit(ENV * env, const DB_LSN * lsnp, uint32 flags)
 	 */
 	if(ret == 0 || !LF_ISSET(DB_LOG_COMMIT))
 		return ret;
-	if(LF_ISSET(DB_FLUSH) ? flush_lsn.file != lp->s_lsn.file || flush_lsn.offset < lp->s_lsn.offset : flush_lsn.file != lp->lsn.file || flush_lsn.offset < lp->w_off)
+	if(LF_ISSET(DB_FLUSH) ? flush_lsn.file != lp->s_lsn.file || flush_lsn.Offset_ < lp->s_lsn.Offset_ : flush_lsn.file != lp->lsn.file || flush_lsn.Offset_ < lp->w_off)
 		return 0;
 	if(IS_REP_MASTER(env)) {
 		__db_err(env, ret, DB_STR("2514", "Write failed on MASTER commit."));
@@ -458,9 +457,8 @@ static int __log_flush_commit(ENV * env, const DB_LSN * lsnp, uint32 flags)
 	 * interesting part of the buffer may have actually made it out to
 	 * disk before there was a failure, we can't know for sure.
 	 */
-	if(flush_lsn.offset > lp->w_off) {
-		if((t_ret = __txn_force_abort(env,
-			    dblp->bufp+flush_lsn.offset-lp->w_off)) != 0)
+	if(flush_lsn.Offset_ > lp->w_off) {
+		if((t_ret = __txn_force_abort(env, dblp->bufp+flush_lsn.Offset_-lp->w_off)) != 0)
 			return __env_panic(env, t_ret);
 	}
 	else {
@@ -471,18 +469,14 @@ static int __log_flush_commit(ENV * env, const DB_LSN * lsnp, uint32 flags)
 		 * here and we will be left with a commit record but
 		 * a panic return.
 		 */
-		if(
-		        (t_ret = __os_seek(env,
-				 dblp->lfhp, 0, 0, flush_lsn.offset)) != 0 ||
-		        (t_ret = __os_read(env, dblp->lfhp, &hdr,
-				 HDR_NORMAL_SZ, &nr)) != 0 || nr != HDR_NORMAL_SZ)
+		if((t_ret = __os_seek(env, dblp->lfhp, 0, 0, flush_lsn.Offset_)) != 0 || (t_ret = __os_read(env, dblp->lfhp, &hdr, HDR_NORMAL_SZ, &nr)) != 0 || nr != HDR_NORMAL_SZ)
 			return __env_panic(env, t_ret == 0 ? EIO : t_ret);
 		if(LOG_SWAPPED(env))
 			__log_hdrswap(&hdr, CRYPTO_ON(env));
 		if((t_ret = __os_malloc(env, hdr.len, &buffer)) != 0 || (t_ret = __os_seek(env,
-			    dblp->lfhp, 0, 0, flush_lsn.offset)) != 0 || (t_ret = __os_read(env, dblp->lfhp, buffer,
+			    dblp->lfhp, 0, 0, flush_lsn.Offset_)) != 0 || (t_ret = __os_read(env, dblp->lfhp, buffer,
 			    hdr.len, &nr)) != 0 || nr != hdr.len || (t_ret = __txn_force_abort(env, buffer)) != 0 || (t_ret = __os_seek(env,
-			    dblp->lfhp, 0, 0, flush_lsn.offset)) != 0 || (t_ret = __os_write(env, dblp->lfhp, buffer, nr, &nw)) != 0 || nw != nr)
+			    dblp->lfhp, 0, 0, flush_lsn.Offset_)) != 0 || (t_ret = __os_write(env, dblp->lfhp, buffer, nr, &nw)) != 0 || nw != nr)
 			return __env_panic(env, t_ret == 0 ? EIO : t_ret);
 		__os_free(env, buffer);
 	}
@@ -517,7 +511,7 @@ int __log_newfile(DB_LOG * dblp, DB_LSN * lsnp, uint32 logfile, uint32 version)
 	 * If we're not specifying a specific log file number and we're
 	 * not at the beginning of a file already, start a new one.
 	 */
-	if(logfile == 0 && lp->lsn.offset != 0) {
+	if(logfile == 0 && lp->lsn.Offset_) {
 		/*
 		 * Flush the log so this file is out and can be closed.  We
 		 * cannot release the region lock here because we need to
@@ -537,12 +531,10 @@ int __log_newfile(DB_LOG * dblp, DB_LSN * lsnp, uint32 logfile, uint32 version)
 		 * Save the last known offset from the previous file, we'll
 		 * need it to initialize the persistent header information.
 		 */
-		lastoff = lp->lsn.offset;
-
+		lastoff = lp->lsn.Offset_;
 		/* Point the current LSN to the new file. */
 		++lp->lsn.file;
-		lp->lsn.offset = 0;
-
+		lp->lsn.Offset_ = 0;
 		/* Reset the file write offset. */
 		lp->w_off = 0;
 	}
@@ -555,7 +547,7 @@ int __log_newfile(DB_LOG * dblp, DB_LSN * lsnp, uint32 logfile, uint32 version)
 	 */
 	if(logfile != 0) {
 		lp->lsn.file = logfile;
-		lp->lsn.offset = 0;
+		lp->lsn.Offset_ = 0;
 		lp->w_off = 0;
 		if(lp->db_log_inmemory) {
 			lsn = lp->lsn;
@@ -689,7 +681,6 @@ static int __log_putr(DB_LOG * dblp, DB_LSN * lsn, const DBT * dbt, uint32 prev,
 	 * we're about to put this record, and is the LSN the caller wants.
 	 */
 	*lsn = lp->lsn;
-
 	nr = hdr->size;
 	if(LOG_SWAPPED(env))
 		__log_hdrswap(hdr, CRYPTO_ON(env));
@@ -702,7 +693,7 @@ static int __log_putr(DB_LOG * dblp, DB_LSN * lsn, const DBT * dbt, uint32 prev,
 	if((ret = __log_fill(dblp, lsn, dbt->data, dbt->size)) != 0)
 		goto err;
 	lp->len = (uint32)(hdr->size+dbt->size);
-	lp->lsn.offset += lp->len;
+	lp->lsn.Offset_ += lp->len;
 	return 0;
 err:
 	/*
@@ -725,12 +716,9 @@ err:
 	lp->f_lsn = f_lsn;
 	return ret;
 }
-/*
- * __log_flush_pp --
- *	ENV->log_flush pre/post processing.
- *
- * PUBLIC: int __log_flush_pp __P((DB_ENV *, const DB_LSN *));
- */
+//
+// ENV->log_flush pre/post processing.
+//
 int __log_flush_pp(DB_ENV * dbenv, const DB_LSN * lsn)
 {
 	DB_THREAD_INFO * ip;
@@ -751,7 +739,7 @@ int __log_flush_pp(DB_ENV * dbenv, const DB_LSN * lsn)
  * This all assumes we can read an 32-bit quantity in one state or
  * the other, not in transition.
  */
-#define ALREADY_FLUSHED(lp, lsnp) (((lp)->s_lsn.file > (lsnp)->file) || ((lp)->s_lsn.file == (lsnp)->file && (lp)->s_lsn.offset > (lsnp)->offset))
+#define ALREADY_FLUSHED(lp, lsnp) (((lp)->s_lsn.file > (lsnp)->file) || ((lp)->s_lsn.file == (lsnp)->file && (lp)->s_lsn.Offset_ > (lsnp)->Offset_))
 /*
  * __log_flush --
  *	ENV->log_flush
@@ -797,11 +785,11 @@ int __log_flush_int(DB_LOG * dblp, const DB_LSN * lsnp, int release)
 	 */
 	if(lsnp == NULL) {
 		flush_lsn.file = lp->lsn.file;
-		flush_lsn.offset = lp->lsn.offset-lp->len;
+		flush_lsn.Offset_ = lp->lsn.Offset_-lp->len;
 	}
-	else if(lsnp->file > lp->lsn.file || (lsnp->file == lp->lsn.file && lsnp->offset > lp->lsn.offset-lp->len)) {
+	else if(lsnp->file > lp->lsn.file || (lsnp->file == lp->lsn.file && lsnp->Offset_ > (lp->lsn.Offset_-lp->len))) {
 		__db_errx(env, DB_STR_A("2516", "DB_ENV->log_flush: LSN of %lu/%lu past current end-of-log of %lu/%lu", "%lu %lu %lu %lu"), (ulong)lsnp->file,
-			(ulong)lsnp->offset, (ulong)lp->lsn.file, (ulong)lp->lsn.offset);
+			(ulong)lsnp->Offset_, (ulong)lp->lsn.file, (ulong)lp->lsn.Offset_);
 		__db_errx(env, DB_STR("2517", "Database environment corrupt; the wrong log files may have been removed or incompatible database files imported from another environment"));
 		return __env_panic(env, DB_RUNRECOVERY);
 	}
@@ -867,7 +855,7 @@ flush:
 	 * after the byte we absolutely know was written to disk, so the test
 	 * is <, not <=.
 	 */
-	if(flush_lsn.file < lp->s_lsn.file || (flush_lsn.file == lp->s_lsn.file && flush_lsn.offset < lp->s_lsn.offset)) {
+	if(flush_lsn.file < lp->s_lsn.file || (flush_lsn.file == lp->s_lsn.file && flush_lsn.Offset_ < lp->s_lsn.Offset_)) {
 		MUTEX_UNLOCK(env, lp->mtx_flush);
 		goto done;
 	}
@@ -924,7 +912,7 @@ flush:
 	// 
 	lp->s_lsn = f_lsn;
 	if(b_off == 0)
-		lp->s_lsn.offset = w_off;
+		lp->s_lsn.Offset_ = w_off;
 	MUTEX_UNLOCK(env, lp->mtx_flush);
 	if(release)
 		LOG_SYSTEM_LOCK(env);
@@ -1276,7 +1264,7 @@ int __log_rep_put(ENV * env, DB_LSN * lsnp, const DBT * rec, uint32 flags)
 	__db_chksum(&hdr, (uint8 *)t.data, t.size, (CRYPTO_ON(env)) ? db_cipher->mac_key : NULL, hdr.chksum);
 #endif
 	DB_ASSERT(env, LOG_COMPARE(lsnp, &lp->lsn) == 0);
-	ret = __log_putr(dblp, lsnp, dbt, lp->lsn.offset-lp->len, &hdr);
+	ret = __log_putr(dblp, lsnp, dbt, lp->lsn.Offset_-lp->len, &hdr);
 err:
 	/*
 	 * !!! Assume caller holds REP->mtx_clientdb to modify ready_lsn.
@@ -1396,7 +1384,7 @@ static int __log_put_record_int(ENV * env, DB * dbp, DB_TXN * txnp, DB_LSN * ret
 	if(txnp == NULL) {
 		txn_num = 0;
 		lsnp = &null_lsn;
-		null_lsn.file = null_lsn.offset = 0;
+		null_lsn.file = null_lsn.Offset_ = 0;
 	}
 	else {
 		if(TAILQ_FIRST(&txnp->kids) != NULL && (ret = __txn_activekids(env, rectype, txnp)) != 0)
